@@ -1,0 +1,60 @@
+/**
+ * Local analytics primitives. No paid API or hosted analytics service required.
+ * These deterministic functions are intentionally small and auditable so AI
+ * can explain their output instead of inventing numerical results.
+ */
+export type NumericSeries = number[];
+
+export function cleanNumbers(values: unknown[]): number[] {
+  return values.map((v) => Number(String(v ?? '').replace(/[,\s]/g, ''))).filter(Number.isFinite);
+}
+
+export function sum(v: NumericSeries): number { return v.reduce((a, b) => a + b, 0); }
+export function mean(v: NumericSeries): number { return v.length ? sum(v) / v.length : 0; }
+export function median(v: NumericSeries): number {
+  if (!v.length) return 0;
+  const s = [...v].sort((a,b)=>a-b); const m = Math.floor(s.length/2);
+  return s.length % 2 ? s[m] : (s[m-1] + s[m]) / 2;
+}
+export function variance(v: NumericSeries): number {
+  if (v.length < 2) return 0; const m = mean(v);
+  return sum(v.map(x => (x-m)**2)) / (v.length-1);
+}
+export function stddev(v: NumericSeries): number { return Math.sqrt(variance(v)); }
+export function percentile(v: NumericSeries, p: number): number {
+  if (!v.length) return 0; const s=[...v].sort((a,b)=>a-b); const i=(s.length-1)*Math.min(1,Math.max(0,p));
+  const lo=Math.floor(i), hi=Math.ceil(i); return lo===hi?s[lo]:s[lo]+(s[hi]-s[lo])*(i-lo);
+}
+export function coefficientOfVariation(v: NumericSeries): number { const m=mean(v); return m===0?0:stddev(v)/Math.abs(m); }
+export function correlation(a: NumericSeries,b: NumericSeries): number {
+  const n=Math.min(a.length,b.length); if(n<2)return 0; const x=a.slice(0,n),y=b.slice(0,n),mx=mean(x),my=mean(y);
+  const den=Math.sqrt(sum(x.map(z=>(z-mx)**2))*sum(y.map(z=>(z-my)**2))); return den===0?0:sum(x.map((z,i)=>(z-mx)*(y[i]-my)))/den;
+}
+export function zScore(value:number, baseline:NumericSeries):number { const sd=stddev(baseline); return sd===0?0:(value-mean(baseline))/sd; }
+export function linearTrend(values: NumericSeries): { slope:number; intercept:number; r2:number } {
+  const n=values.length; if(n<2)return {slope:0,intercept:values[0]??0,r2:0};
+  const x=values.map((_,i)=>i), mx=mean(x), my=mean(values);
+  const den=sum(x.map(i=>(i-mx)**2)); const slope=den?sum(x.map((i,k)=>(i-mx)*(values[k]-my)))/den:0; const intercept=my-slope*mx;
+  const ssTot=sum(values.map(v=>(v-my)**2)); const ssRes=sum(values.map((v,i)=>(v-(intercept+slope*i))**2));
+  return {slope,intercept,r2:ssTot===0?1:1-ssRes/ssTot};
+}
+export function exponentialMovingAverage(values:NumericSeries, alpha=0.3):number[]{ if(!values.length)return[]; const a=Math.min(1,Math.max(0,alpha)); const out=[values[0]]; for(let i=1;i<values.length;i++)out.push(a*values[i]+(1-a)*out[i-1]); return out; }
+
+export interface ABCRow { id:string; value:number; share:number; cumulativeShare:number; class:'A'|'B'|'C'; }
+export function abcAnalysis(rows:{id:string;value:number}[], a=0.8,b=0.95):ABCRow[]{
+  const total=sum(rows.map(r=>Math.max(0,r.value))); let cumulative=0;
+  return [...rows].sort((x,y)=>y.value-x.value).map(r=>{const share=total?r.value/total:0; cumulative+=share; return { ...r, value:r.value, share, cumulativeShare:cumulative, class:cumulative<=a?'A':cumulative<=b?'B':'C' };});
+}
+
+export interface Anomaly { index:number; value:number; z:number; severity:'high'|'medium'|'low'; }
+export function detectZScoreAnomalies(values:NumericSeries, threshold=3):Anomaly[]{
+  const m=mean(values),sd=stddev(values); if(!sd)return[]; return values.map((value,index)=>{const z=(value-m)/sd; return {index,value,z,severity:Math.abs(z)>=threshold?'high':Math.abs(z)>=threshold*0.75?'medium':'low'};}).filter(x=>Math.abs(x.z)>=threshold);
+}
+
+export interface RFMScore { id:string; recency:number; frequency:number; monetary:number; r:number; f:number; m:number; score:string; }
+export function rfmScores(rows:{id:string;recency:number;frequency:number;monetary:number}[]):RFMScore[]{
+  const q=(field:keyof RFMScore)=>rows.map(r=>Number(r[field])).sort((a,b)=>a-b);
+  const percentileRank=(value:number,arr:number[])=>arr.length?Math.max(1,Math.min(5,Math.ceil(arr.filter(x=>x<=value).length/arr.length*5))):1;
+  const rs=q('recency'),fs=q('frequency'),ms=q('monetary');
+  return rows.map(r=>{const R=6-percentileRank(r.recency,rs),F=percentileRank(r.frequency,fs),M=percentileRank(r.monetary,ms);return {...r,r:R,f:F,m:M,score:`${R}${F}${M}`};});
+}
