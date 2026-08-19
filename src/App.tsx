@@ -1,25 +1,32 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Sidebar } from '@/components/Sidebar';
 import { Header } from '@/components/Header';
 import { DashboardPage } from '@/pages/DashboardPage';
-import { ImportPage } from '@/pages/ImportPage';
-import {
-  ReportsCenterPage, SalesReportPage, PurchasesReportPage,
-  InventoryReportPage, ReceivablesReportPage, ProfitabilityReportPage,
-} from '@/pages/ReportsPage';
-import {
-  AnalyticsCenterPage, RFMAnalysisPage, ABCAnalysisPage, AgingAnalysisPage,
-} from '@/pages/AnalyticsPage';
-import {
-  IntelligenceCenterPage, RecommendationsPage, ForecastsPage, ScenariosPage,
-} from '@/pages/IntelligencePage';
-import {
-  CustomersPage, ProductsPage, InventoryPage, DataQualityPage, SettingsPage,
-} from '@/pages/EntityPages';
 import { fetchAlerts, markAlertRead } from '@/lib/queries';
 import type { Alert } from '@/lib/types';
-import { Menu, X } from 'lucide-react';
+import { X } from 'lucide-react';
+
+const ImportPage = lazy(() => import('@/pages/ImportPage').then(m => ({ default: m.ImportPage })));
+const ReportsCenterPage = lazy(() => import('@/pages/ReportsPage').then(m => ({ default: m.ReportsCenterPage })));
+const SalesReportPage = lazy(() => import('@/pages/ReportsPage').then(m => ({ default: m.SalesReportPage })));
+const PurchasesReportPage = lazy(() => import('@/pages/ReportsPage').then(m => ({ default: m.PurchasesReportPage })));
+const InventoryReportPage = lazy(() => import('@/pages/ReportsPage').then(m => ({ default: m.InventoryReportPage })));
+const ReceivablesReportPage = lazy(() => import('@/pages/ReportsPage').then(m => ({ default: m.ReceivablesReportPage })));
+const ProfitabilityReportPage = lazy(() => import('@/pages/ReportsPage').then(m => ({ default: m.ProfitabilityReportPage })));
+const AnalyticsCenterPage = lazy(() => import('@/pages/AnalyticsPage').then(m => ({ default: m.AnalyticsCenterPage })));
+const RFMAnalysisPage = lazy(() => import('@/pages/AnalyticsPage').then(m => ({ default: m.RFMAnalysisPage })));
+const ABCAnalysisPage = lazy(() => import('@/pages/AnalyticsPage').then(m => ({ default: m.ABCAnalysisPage })));
+const AgingAnalysisPage = lazy(() => import('@/pages/AnalyticsPage').then(m => ({ default: m.AgingAnalysisPage })));
+const IntelligenceCenterPage = lazy(() => import('@/pages/IntelligencePage').then(m => ({ default: m.IntelligenceCenterPage })));
+const RecommendationsPage = lazy(() => import('@/pages/IntelligencePage').then(m => ({ default: m.RecommendationsPage })));
+const ForecastsPage = lazy(() => import('@/pages/IntelligencePage').then(m => ({ default: m.ForecastsPage })));
+const ScenariosPage = lazy(() => import('@/pages/IntelligencePage').then(m => ({ default: m.ScenariosPage })));
+const CustomersPage = lazy(() => import('@/pages/EntityPages').then(m => ({ default: m.CustomersPage })));
+const ProductsPage = lazy(() => import('@/pages/EntityPages').then(m => ({ default: m.ProductsPage })));
+const InventoryPage = lazy(() => import('@/pages/EntityPages').then(m => ({ default: m.InventoryPage })));
+const DataQualityPage = lazy(() => import('@/pages/EntityPages').then(m => ({ default: m.DataQualityPage })));
+const SettingsPage = lazy(() => import('@/pages/EntityPages').then(m => ({ default: m.SettingsPage })));
 
 function AppShell() {
   const [alerts, setAlerts] = useState<Alert[]>([]);
@@ -61,6 +68,7 @@ function AppShell() {
       <div className="flex-1 flex flex-col min-w-0">
         <Header alerts={alerts} onMarkAlertRead={handleMarkAlert} onMenuClick={() => setSidebarOpen(true)} />
         <main className="flex-1 p-4 lg:p-6 max-w-[1600px] w-full mx-auto">
+          <Suspense fallback={<div className="flex items-center justify-center py-20"><div className="animate-spin rounded-full h-8 w-8 border-2 border-primary-500 border-t-transparent" /></div>}>
           <Routes>
             <Route path="/" element={<DashboardPage />} />
             <Route path="/import" element={<ImportPage />} />
@@ -84,6 +92,7 @@ function AppShell() {
             <Route path="/inventory" element={<InventoryPage />} />
             <Route path="/settings" element={<SettingsPage />} />
           </Routes>
+          </Suspense>
         </main>
       </div>
     </div>
