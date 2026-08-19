@@ -1,0 +1,58 @@
+import { FormEvent, useState } from 'react';
+import { supabase, setCompanyId } from '@/lib/supabase';
+import { BarChart3, Building2, LockKeyhole, Mail, Sparkles } from 'lucide-react';
+
+export function LoginPage({ onAuthenticated }: { onAuthenticated: () => void }) {
+  const [mode, setMode] = useState<'login'|'signup'>('login');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [companyName, setCompanyName] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
+
+  async function submit(e: FormEvent) {
+    e.preventDefault(); setBusy(true); setError('');
+    try {
+      let userId: string;
+      if (mode === 'login') {
+        const { data, error: authError } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
+        if (authError || !data.user) throw authError || new Error('تعذر تسجيل الدخول');
+        userId = data.user.id;
+      } else {
+        if (!companyName.trim()) throw new Error('أدخل اسم الشركة');
+        const { data, error: authError } = await supabase.auth.signUp({ email: email.trim(), password });
+        if (authError || !data.user) throw authError || new Error('تعذر إنشاء الحساب');
+        userId = data.user.id;
+        const { data: companyId, error: tenantError } = await supabase.rpc('create_tenant', { p_name: companyName.trim(), p_industry: 'business' });
+        if (tenantError || !companyId) throw tenantError || new Error('تعذر إنشاء مساحة الشركة');
+        setCompanyId(companyId);
+      }
+      if (mode === 'login') {
+        const { data: memberships, error: membershipError } = await supabase.from('tenant_memberships').select('company_id').eq('user_id', userId).eq('status', 'active').limit(1);
+        if (membershipError || !memberships?.[0]?.company_id) throw new Error('هذا الحساب غير مرتبط بمساحة عمل. تواصل مع مدير النظام.');
+        setCompanyId(memberships[0].company_id);
+      }
+      onAuthenticated();
+    } catch (err) { setError(err instanceof Error ? err.message : 'حدث خطأ غير متوقع'); }
+    finally { setBusy(false); }
+  }
+
+  return <div dir="rtl" className="min-h-screen bg-ink-50 flex items-center justify-center p-6">
+    <div className="w-full max-w-5xl grid lg:grid-cols-2 bg-white rounded-3xl shadow-xl border border-ink-100 overflow-hidden">
+      <div className="hidden lg:flex p-10 bg-gradient-to-br from-primary-700 to-primary-500 text-white flex-col justify-between">
+        <div><div className="w-12 h-12 rounded-2xl bg-white/15 flex items-center justify-center mb-5"><BarChart3/></div><h1 className="text-3xl font-bold">Report-Advisor</h1><p className="mt-3 text-white/80 leading-7">ذكاء أعمال وتقارير وقرارات مبنية على بيانات شركتك فقط.</p></div>
+        <div className="space-y-3 text-sm text-white/85"><div className="flex gap-2"><Sparkles size={18}/> تحليلات وتنبؤات وChat2BI</div><div className="flex gap-2"><Building2 size={18}/> مساحة عمل معزولة لكل شركة</div><div className="flex gap-2"><LockKeyhole size={18}/> عزل أمني على مستوى قاعدة البيانات</div></div>
+      </div>
+      <div className="p-7 sm:p-10"><div className="mb-7"><h2 className="text-2xl font-bold text-ink-900">{mode==='login'?'تسجيل الدخول':'ابدأ تجربتك المجانية'}</h2><p className="text-sm text-ink-500 mt-2">بيئة عمل خاصة بشركتك.</p></div>
+        <form onSubmit={submit} className="space-y-4">
+          {mode==='signup'&&<label className="block"><span className="label">اسم الشركة</span><input className="input" value={companyName} onChange={e=>setCompanyName(e.target.value)} placeholder="شركة ..." required/></label>}
+          <label className="block"><span className="label">البريد الإلكتروني</span><div className="relative"><Mail className="absolute right-3 top-3 text-ink-400" size={18}/><input dir="ltr" type="email" className="input pr-10" value={email} onChange={e=>setEmail(e.target.value)} required/></div></label>
+          <label className="block"><span className="label">كلمة المرور</span><input dir="ltr" type="password" minLength={6} className="input" value={password} onChange={e=>setPassword(e.target.value)} required/></label>
+          {error&&<div className="p-3 rounded-xl bg-red-50 text-red-700 text-sm border border-red-100">{error}</div>}
+          <button disabled={busy} className="btn-primary w-full py-3 disabled:opacity-50">{busy?'جارٍ المعالجة…':mode==='login'?'دخول آمن':'إنشاء الحساب وبدء التجربة'}</button>
+        </form>
+        <button className="w-full mt-5 text-sm text-primary-700" onClick={()=>{setMode(mode==='login'?'signup':'login');setError('')}}>{mode==='login'?'ليس لديك حساب؟ ابدأ التجربة المجانية':'لديك حساب؟ تسجيل الدخول'}</button>
+      </div>
+    </div>
+  </div>;
+}
