@@ -8,6 +8,7 @@ import type { Alert } from '@/lib/types';
 import { X } from 'lucide-react';
 
 const BusinessCockpitPage = lazy(() => import('@/pages/BusinessCockpitPage').then(m => ({ default: m.BusinessCockpitPage })));
+const InventoryIntelligencePage = lazy(() => import('@/pages/InventoryIntelligencePage').then(m => ({ default: m.InventoryIntelligencePage })));
 const ImportPage = lazy(() => import('@/pages/ImportPage').then(m => ({ default: m.ImportPage })));
 const ReportsCenterPage = lazy(() => import('@/pages/ReportsPage').then(m => ({ default: m.ReportsCenterPage })));
 const SalesReportPage = lazy(() => import('@/pages/ReportsPage').then(m => ({ default: m.SalesReportPage })));
@@ -50,6 +51,7 @@ function AppShell() {
             <Routes>
               <Route path="/" element={<DashboardPage />} />
               <Route path="/cockpit" element={<BusinessCockpitPage />} />
+              <Route path="/inventory/intelligence" element={<InventoryIntelligencePage />} />
               <Route path="/import" element={<ImportPage />} />
               <Route path="/data-quality" element={<DataQualityPage />} />
               <Route path="/reports" element={<ReportsCenterPage />} />
@@ -77,7 +79,4 @@ function AppShell() {
     </div>
   );
 }
-
-export default function App() {
-  return <BrowserRouter><AppShell /></BrowserRouter>;
-}
+export default function App() { return <BrowserRouter><AppShell /></BrowserRouter>; }
