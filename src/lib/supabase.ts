@@ -8,8 +8,8 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true },
 });
 
-// Compatibility value for existing query modules. It is selected only after authentication.
-// Database RLS remains the authoritative tenant boundary; changing this value cannot grant access.
-export const COMPANY_ID = localStorage.getItem('report-advisor.company_id') || '00000000-0000-0000-0000-000000000000';
-export function setCompanyId(companyId: string) { localStorage.setItem('report-advisor.company_id', companyId); }
-export function clearCompanyId() { localStorage.removeItem('report-advisor.company_id'); }
+// Live module binding: existing query modules automatically switch tenant after login.
+// This is only a client-side filter; Supabase RLS is the authoritative security boundary.
+export let COMPANY_ID = localStorage.getItem('report-advisor.company_id') || '00000000-0000-0000-0000-000000000000';
+export function setCompanyId(companyId: string) { COMPANY_ID = companyId; localStorage.setItem('report-advisor.company_id', companyId); }
+export function clearCompanyId() { COMPANY_ID = '00000000-0000-0000-0000-000000000000'; localStorage.removeItem('report-advisor.company_id'); }
