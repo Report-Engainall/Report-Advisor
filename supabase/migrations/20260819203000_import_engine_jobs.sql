@@ -13,8 +13,8 @@ LANGUAGE plpgsql
 AS $$
 DECLARE v_id uuid;
 BEGIN
-  INSERT INTO import_jobs(company_id, file_record_id, profile_id, job_type, status, entity_type, total_rows, processed_rows, progress, created_at)
-  VALUES (p_company_id, p_file_record_id, p_profile_id, 'import', 'queued', p_entity_type, greatest(p_total_rows, 0), 0, 0, now())
+  INSERT INTO import_jobs(company_id, file_record_id, profile_id, job_type, status, processing_mode, total_rows, processed_rows, progress, result_summary, created_at)
+  VALUES (p_company_id, p_file_record_id, p_profile_id, coalesce(p_entity_type, 'import'), 'queued', 'import', greatest(p_total_rows, 0), 0, 0, jsonb_build_object('entity_type', p_entity_type), now())
   RETURNING id INTO v_id;
   RETURN v_id;
 END;
@@ -69,6 +69,3 @@ BEGIN
   IF NOT FOUND THEN RAISE EXCEPTION 'Import job not found: %', p_job_id; END IF;
 END;
 $$;
-
-CREATE INDEX IF NOT EXISTS idx_products_company_sku_norm
-ON products(company_id, lower(regexp_replace(trim(sku), '\s+', '', 'g')));
