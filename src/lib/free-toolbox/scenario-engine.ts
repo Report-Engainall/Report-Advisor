@@ -1,0 +1,4 @@
+export type ScenarioMode='optimistic'|'base'|'pessimistic';
+export interface ScenarioVariable{key:string;base:number;upside:number;downside:number;}
+export interface ScenarioOutput{mode:ScenarioMode;variables:Record<string,number>;score:number;warnings:string[];}
+export function runScenarios(vars:ScenarioVariable[]):ScenarioOutput[]{const modes:ScenarioMode[]=['optimistic','base','pessimistic'];return modes.map(mode=>{const variables:Record<string,number>={};for(const v of vars)variables[v.key]=mode==='optimistic'?v.upside:mode==='pessimistic'?v.downside:v.base;const values=Object.values(variables);const score=values.length?values.reduce((a,b)=>a+b,0)/values.length:0;const warnings:string[]=[];if(mode==='pessimistic')warnings.push('هذا سيناريو ضغط وليس توقعًا مؤكدًا');return{mode,variables,score,warnings};});}
