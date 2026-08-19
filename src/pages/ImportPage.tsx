@@ -1,7 +1,8 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import {
   Upload, FileSpreadsheet, CheckCircle2, AlertCircle, XCircle,
-  Database, FileCheck, Loader2, Download, ArrowRight,
+  Database, FileCheck, Loader2, FileText, FileImage, FileType,
+  ShieldCheck, AlertTriangle,
 } from 'lucide-react';
 import { Card, CardHeader, CardBody } from '@/components/ui/Card';
 import { Badge, StatusBadge } from '@/components/ui/Badge';
@@ -10,9 +11,12 @@ import { DataTable } from '@/components/ui/DataTable';
 import { fetchImportRecords, createImportRecord, updateImportRecord } from '@/lib/queries';
 import { supabase, COMPANY_ID } from '@/lib/supabase';
 import { formatDateTime, formatNumber } from '@/lib/format';
-import * as XLSX from 'xlsx';
+import { detectFormat } from '@/lib/file-engine/detector';
+import { securityScan, computeSHA256, checkDuplicate } from '@/lib/file-engine/security';
+import { parseFile } from '@/lib/file-engine/adapters';
+import { FORMAT_LABELS, MAX_FILE_SIZE, type FileFormat, type Dataset } from '@/lib/file-engine/types';
 
-type ImportStep = 'upload' | 'preview' | 'committing' | 'done';
+type ImportStep = 'upload' | 'scanning' | 'preview' | 'committing' | 'done';
 
 interface ParsedRow {
   rowNumber: number;
@@ -27,10 +31,18 @@ const ENTITY_TYPES = [
   { value: 'customers', label: 'العملاء', required: ['name'] },
 ];
 
+function formatIcon(format: FileFormat) {
+  if (['xlsx', 'xls', 'xlsm', 'csv', 'tsv', 'ods'].includes(format)) return <FileSpreadsheet size={16} className="text-success-500" />;
+  if (['pdf', 'docx', 'doc', 'rtf'].includes(format)) return <FileText size={16} className="text-danger-500" />;
+  if (['jpg', 'jpeg', 'png', 'webp', 'tiff', 'bmp'].includes(format)) return <FileImage size={16} className="text-primary-500" />;
+  return <FileType size={16} className="text-ink-400" />;
+}
+
 export function ImportPage() {
   const [step, setStep] = useState<ImportStep>('upload');
   const [fileName, setFileName] = useState('');
   const [fileSize, setFileSize] = useState(0);
+  const [fileFormat, setFileFormat] = useState<FileFormat>('unknown');
   const [entityType, setEntityType] = useState('sales_invoices');
   const [rows, setRows] = useState<ParsedRow[]>([]);
   const [headers, setHeaders] = useState<string[]>([]);
@@ -39,6 +51,11 @@ export function ImportPage() {
   const [history, setHistory] = useState<any[]>([]);
   const [loadingHistory, setLoadingHistory] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [warnings, setWarnings] = useState<string[]>([]);
+  const [securityPassed, setSecurityPassed] = useState(true);
+  const [isDuplicate, setIsDuplicate] = useState(false);
+  const [qualityScore, setQualityScore] = useState(0);
+  const [columnMappings, setColumnMappings] = useState<{ name: string; mappedField: string | null; confidence: number }[]>([]);
   const [dragOver, setDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -49,30 +66,71 @@ export function ImportPage() {
     setLoadingHistory(false);
   }, []);
 
-  useState(() => { loadHistory(); });
+  useEffect(() => { loadHistory(); }, [loadHistory]);
 
   const handleFile = useCallback(async (file: File) => {
     setError(null);
+    setWarnings([]);
     setFileName(file.name);
     setFileSize(file.size);
+    setStep('scanning');
 
     try {
-      const buf = await file.arrayBuffer();
-      const wb = XLSX.read(buf, { type: 'array' });
-      const sheet = wb.Sheets[wb.SheetNames[0]];
-      const jsonData = XLSX.utils.sheet_to_json<Record<string, any>>(sheet, { defval: '' });
+      const buffer = await file.arrayBuffer();
 
-      if (jsonData.length === 0) {
-        setError('الملف فارغ أو لا يحتوي على بيانات');
+      // Security scan
+      const scan = securityScan(file, buffer);
+      setSecurityPassed(scan.passed);
+      if (!scan.passed) {
+        setError(scan.issues.join(' — '));
+        setStep('upload');
         return;
       }
 
-      const hdrs = Object.keys(jsonData[0]);
+      // Format detection
+      const detection = detectFormat(file, buffer);
+      setFileFormat(detection.format);
+
+      if (detection.format === 'unknown') {
+        setError('تعذر تحديد صيغة الملف');
+        setStep('upload');
+        return;
+      }
+
+      if (detection.warnings.length > 0) {
+        setWarnings(detection.warnings);
+      }
+
+      // Duplicate check
+      const hash = await computeSHA256(buffer);
+      const dupCheck = await checkDuplicate(hash, COMPANY_ID, supabase);
+      setIsDuplicate(dupCheck.isDuplicate);
+      if (dupCheck.isDuplicate) {
+        setWarnings(prev => [...prev, 'تم استيراد هذا الملف من قبل']);
+      }
+
+      // Parse with file-engine
+      const datasets: Dataset[] = await parseFile(buffer, file.name, detection.format);
+
+      if (datasets.length === 0 || datasets[0].rowCount === 0) {
+        setError('الملف فارغ أو لا يحتوي على بيانات قابلة للقراءة');
+        setStep('upload');
+        return;
+      }
+
+      const dataset = datasets[0];
+      setQualityScore(dataset.qualityScore);
+      setColumnMappings(dataset.columns.map(c => ({ name: c.name, mappedField: c.mappedField, confidence: c.mappingConfidence })));
+
+      const hdrs = dataset.columns.map(c => c.name);
       setHeaders(hdrs);
 
       const entityConfig = ENTITY_TYPES.find(e => e.value === entityType)!;
-      const parsed: ParsedRow[] = jsonData.map((row, i) => {
-        const missing = entityConfig.required.filter(f => !row[f] && row[f] !== 0);
+      const parsed: ParsedRow[] = dataset.rows.map((row, i) => {
+        const missing = entityConfig.required.filter(f => {
+          const val = row[f] ?? row[hdrs.find(h => h.toLowerCase().includes(f.toLowerCase())) || ''];
+          return !val && val !== 0;
+        });
         return {
           rowNumber: i + 1,
           data: row,
@@ -85,6 +143,7 @@ export function ImportPage() {
       setStep('preview');
     } catch (e: any) {
       setError(`فشل قراءة الملف: ${e.message}`);
+      setStep('upload');
     }
   }, [entityType]);
 
@@ -99,7 +158,7 @@ export function ImportPage() {
       const importRec = await createImportRecord({
         file_name: fileName,
         file_size: fileSize,
-        source_type: fileName.endsWith('.csv') ? 'csv' : 'excel',
+        source_type: fileFormat,
         status: 'processing',
         total_rows: rows.length,
         valid_rows: validRows.length,
@@ -185,7 +244,7 @@ export function ImportPage() {
       setError(`فشل الاستيراد: ${e.message}`);
       setStep('preview');
     }
-  }, [rows, fileName, fileSize, entityType, loadHistory]);
+  }, [rows, fileName, fileSize, fileFormat, entityType, loadHistory]);
 
   const reset = () => {
     setStep('upload');
@@ -195,6 +254,11 @@ export function ImportPage() {
     setProgress(0);
     setImportResult(null);
     setError(null);
+    setWarnings([]);
+    setSecurityPassed(true);
+    setIsDuplicate(false);
+    setQualityScore(0);
+    setColumnMappings([]);
   };
 
   const validCount = rows.filter(r => r.valid).length;
@@ -204,7 +268,7 @@ export function ImportPage() {
     <div className="space-y-6 animate-fade-in">
       <PageHeader
         title="مركز الاستيراد"
-        subtitle="استيراد البيانات من ملفات Excel و CSV مع التحقق والمعاينة"
+        subtitle="استيراد البيانات من Excel و CSV و JSON و PDF و الصور مع التحقق والمعاينة"
       />
 
       {/* Upload Zone */}
@@ -249,7 +313,7 @@ export function ImportPage() {
               <input
                 ref={fileInputRef}
                 type="file"
-                accept=".xlsx,.xls,.csv"
+                accept=".xlsx,.xls,.xlsm,.csv,.tsv,.ods,.json,.jsonl,.xml,.txt,.md,.pdf,.docx,.jpg,.jpeg,.png,.webp,.tiff,.bmp"
                 className="hidden"
                 onChange={(e) => {
                   const file = e.target.files?.[0];
@@ -260,12 +324,16 @@ export function ImportPage() {
                 <Upload className="text-primary-500" size={24} />
               </div>
               <h3 className="text-base font-semibold text-ink-800 mb-1">اسحب وأفلت الملف هنا</h3>
-              <p className="text-sm text-ink-500">أو اضغط للاختيار — يدعم Excel و CSV</p>
-              <div className="flex items-center justify-center gap-4 mt-4 text-xs text-ink-400">
-                <span className="flex items-center gap-1"><FileSpreadsheet size={14} /> .xlsx</span>
-                <span className="flex items-center gap-1"><FileSpreadsheet size={14} /> .xls</span>
-                <span className="flex items-center gap-1"><FileSpreadsheet size={14} /> .csv</span>
+              <p className="text-sm text-ink-500">أو اضغط للاختيار</p>
+              <div className="flex flex-wrap items-center justify-center gap-2 mt-4 text-xs text-ink-400">
+                {(['xlsx', 'csv', 'json', 'pdf', 'docx', 'png'] as FileFormat[]).map(f => (
+                  <span key={f} className="flex items-center gap-1 px-2 py-1 rounded bg-ink-50">
+                    {formatIcon(f)} {FORMAT_LABELS[f]}
+                  </span>
+                ))}
+                <span className="px-2 py-1 rounded bg-ink-50 text-ink-400">والمزيد...</span>
               </div>
+              <div className="text-[11px] text-ink-300 mt-3">الحد الأقصى للحجم: {MAX_FILE_SIZE / 1024 / 1024} ميجابايت</div>
             </div>
 
             {error && (
@@ -278,30 +346,92 @@ export function ImportPage() {
         </Card>
       )}
 
+      {/* Scanning */}
+      {step === 'scanning' && (
+        <Card>
+          <CardBody>
+            <div className="flex flex-col items-center py-10 gap-4">
+              <Loader2 className="animate-spin text-primary-500" size={32} />
+              <div className="text-center">
+                <h3 className="font-semibold text-ink-800">جارٍ فحص وتحليل الملف...</h3>
+                <p className="text-sm text-ink-500 mt-1">{fileName}</p>
+              </div>
+            </div>
+          </CardBody>
+        </Card>
+      )}
+
       {/* Preview */}
       {step === 'preview' && (
         <div className="space-y-4">
+          {/* File info */}
           <Card>
             <CardBody>
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-lg bg-primary-50 flex items-center justify-center">
-                    <FileCheck className="text-primary-600" size={20} />
+                    {formatIcon(fileFormat)}
                   </div>
                   <div>
                     <div className="font-medium text-ink-800 text-sm">{fileName}</div>
-                    <div className="text-xs text-ink-400">{formatNumber(fileSize)} بايت</div>
+                    <div className="text-xs text-ink-400">
+                      {FORMAT_LABELS[fileFormat]} — {formatNumber(fileSize)} بايت
+                    </div>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   <Badge variant="success"><CheckCircle2 size={12} /> {validCount} صالح</Badge>
                   {invalidCount > 0 && <Badge variant="danger"><XCircle size={12} /> {invalidCount} غير صالح</Badge>}
                   <Badge variant="neutral">{rows.length} إجمالي</Badge>
+                  {qualityScore > 0 && (
+                    <Badge variant={qualityScore >= 80 ? 'success' : qualityScore >= 60 ? 'warning' : 'danger'}>
+                      جودة: {qualityScore}%
+                    </Badge>
+                  )}
                 </div>
               </div>
             </CardBody>
           </Card>
 
+          {/* Security & warnings */}
+          {(warnings.length > 0 || isDuplicate) && (
+            <div className="space-y-2">
+              {warnings.map((w, i) => (
+                <div key={i} className="p-3 rounded-lg bg-warning-50 text-warning-700 text-sm flex items-center gap-2">
+                  <AlertTriangle size={16} />
+                  {w}
+                </div>
+              ))}
+            </div>
+          )}
+
+          {securityPassed && warnings.length === 0 && (
+            <div className="p-3 rounded-lg bg-success-50 text-success-700 text-sm flex items-center gap-2">
+              <ShieldCheck size={16} />
+              اجتاز الملف الفحص الأمني — لا توجد مشاكل
+            </div>
+          )}
+
+          {/* Column mappings */}
+          {columnMappings.length > 0 && (
+            <Card>
+              <CardHeader title="تعيين الأعمدة" subtitle="ربط تلقائي بين أعمدة الملف وحقول النظام" />
+              <DataTable
+                columns={[
+                  { key: 'name', label: 'عمود الملف', render: (r: any) => <span className="font-mono text-xs text-ink-600">{r.name}</span> },
+                  { key: 'mappedField', label: 'الحقل المقابل', render: (r: any) => r.mappedField ? <span className="font-medium text-primary-600">{r.mappedField}</span> : <span className="text-ink-300">غير معين</span> },
+                  { key: 'confidence', label: 'الثقة', align: 'center', render: (r: any) => {
+                    if (!r.mappedField) return <Badge variant="neutral">—</Badge>;
+                    return <Badge variant={r.confidence >= 80 ? 'success' : r.confidence >= 50 ? 'warning' : 'danger'}>{r.confidence}%</Badge>;
+                  }},
+                ]}
+                data={columnMappings}
+                emptyMessage="لا توجد أعمدة"
+              />
+            </Card>
+          )}
+
+          {/* Data preview */}
           <Card>
             <CardHeader title="معاينة البيانات" subtitle="أول 10 صفوف" action={
               <div className="flex gap-2">
