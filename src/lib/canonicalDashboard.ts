@@ -1,11 +1,13 @@
 import { supabase, COMPANY_ID } from './supabase';
 import { evaluateMetric, type MetricEvaluation } from './metricEngine';
+import { buildCanonicalIntelligence, type CanonicalIntelligence } from './canonicalIntelligence';
 
 export interface CanonicalDashboard {
   metrics: MetricEvaluation[];
   trend: Array<{ month: string; label: string; sales: number; cost: number; profit: number; invoices: number }>;
   alerts: Array<{ id: string; title: string; severity: string; reason: string; created_at: string }>;
   recommendations: Array<{ id: string; title: string; action: string; confidence: number; status: string }>;
+  intelligence: CanonicalIntelligence;
   generatedAt: string;
 }
 
@@ -14,14 +16,17 @@ function monthKey(date: string) {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
 }
 
+function dayKey(date: string) {
+  const d = new Date(date);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
 export async function fetchCanonicalDashboard(months = 6): Promise<CanonicalDashboard> {
-  if (!COMPANY_ID || COMPANY_ID === '00000000-0000-0000-0000-000000000000') {
-    throw new Error('لا توجد شركة نشطة لهذا المستخدم.');
-  }
+  if (!COMPANY_ID || COMPANY_ID === '00000000-0000-0000-0000-000000000000') throw new Error('لا توجد شركة نشطة لهذا المستخدم.');
 
   const [salesResult, inventoryResult, purchaseResult, customerResult, productResult, alertResult, recommendationResult] = await Promise.all([
     supabase.from('sales_invoices').select('id,total,subtotal,paid_amount,invoice_date,due_date').eq('company_id', COMPANY_ID),
-    supabase.from('inventory_balances').select('quantity,unit_cost').eq('company_id', COMPANY_ID),
+    supabase.from('inventory_balances').select('quantity,unit_cost,product_id').eq('company_id', COMPANY_ID),
     supabase.from('purchase_invoices').select('total,paid_amount').eq('company_id', COMPANY_ID),
     supabase.from('customers').select('id', { count: 'exact', head: true }).eq('company_id', COMPANY_ID),
     supabase.from('products').select('id', { count: 'exact', head: true }).eq('company_id', COMPANY_ID),
@@ -47,7 +52,7 @@ export async function fetchCanonicalDashboard(months = 6): Promise<CanonicalDash
   const payables = (purchaseResult.data ?? []).reduce((sum, invoice) => sum + Math.max(0, Number(invoice.total ?? 0) - Number(invoice.paid_amount ?? 0)), 0);
   const grossProfit = totalSales - totalCost;
   const rowCount = invoices.length + (itemsResult.data?.length ?? 0);
-  const confidence = rowCount > 0 ? 1 : 0;
+  const confidence = rowCount > 0 ? 0.98 : 0;
 
   const metrics = [
     evaluateMetric({ key: 'net_sales', value: totalSales, confidence, sourceRows: invoices.length }),
@@ -58,10 +63,9 @@ export async function fetchCanonicalDashboard(months = 6): Promise<CanonicalDash
   ];
 
   const monthly = new Map<string, { sales: number; cost: number; invoices: number }>();
+  const daily = new Map<string, number>();
   const costByInvoice = new Map<string, number>();
-  for (const item of itemsResult.data ?? []) {
-    costByInvoice.set(item.invoice_id, (costByInvoice.get(item.invoice_id) ?? 0) + Number(item.cost_price ?? 0) * Number(item.quantity ?? 0));
-  }
+  for (const item of itemsResult.data ?? []) costByInvoice.set(item.invoice_id, (costByInvoice.get(item.invoice_id) ?? 0) + Number(item.cost_price ?? 0) * Number(item.quantity ?? 0));
   for (const invoice of invoices) {
     const key = monthKey(invoice.invoice_date);
     const current = monthly.get(key) ?? { sales: 0, cost: 0, invoices: 0 };
@@ -69,6 +73,8 @@ export async function fetchCanonicalDashboard(months = 6): Promise<CanonicalDash
     current.cost += costByInvoice.get(invoice.id) ?? 0;
     current.invoices += 1;
     monthly.set(key, current);
+    const date = invoice.invoice_date ? dayKey(invoice.invoice_date) : null;
+    if (date) daily.set(date, (daily.get(date) ?? 0) + Number(invoice.total ?? 0));
   }
 
   const labels = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
@@ -80,11 +86,21 @@ export async function fetchCanonicalDashboard(months = 6): Promise<CanonicalDash
     return { month: key, label: labels[date.getMonth()], ...current, profit: current.sales - current.cost };
   });
 
+  const history = [...daily.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([, value]) => value);
+  const intelligence = buildCanonicalIntelligence({
+    sales: invoices.map(invoice => ({ id: invoice.id, total: Number(invoice.total ?? 0), paidAmount: Number(invoice.paid_amount ?? 0), date: invoice.invoice_date })),
+    purchases: (purchaseResult.data ?? []).map(invoice => ({ total: Number(invoice.total ?? 0), paidAmount: Number(invoice.paid_amount ?? 0) })),
+    inventory: (inventoryResult.data ?? []).map(row => ({ sku: String(row.product_id ?? ''), stock: Number(row.quantity ?? 0), unitCost: Number(row.unit_cost ?? 0) })),
+    salesHistory: history,
+    costOfSales: totalCost,
+  });
+
   return {
     metrics,
     trend,
     alerts: (alertResult.data ?? []).map(row => ({ ...row, severity: String(row.severity ?? ''), reason: String(row.reason ?? '') })),
     recommendations: (recommendationResult.data ?? []).map(row => ({ ...row, action: String(row.action ?? ''), confidence: Number(row.confidence ?? 0), status: String(row.status ?? '') })),
+    intelligence,
     generatedAt: new Date().toISOString(),
   };
 }
