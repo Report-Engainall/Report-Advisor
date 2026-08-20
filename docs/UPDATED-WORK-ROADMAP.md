@@ -41,10 +41,18 @@
 
 ## Integrated Intelligence Pipeline
 - Combine velocity, stock coverage, stockout risk, lost sales, alternative-group coverage and decision arbitration in one deterministic pipeline.
-- Require a tenant and SKU context before producing inventory intelligence.
+- Require tenant and SKU context before producing inventory intelligence.
 - Generate prioritized decisions for critical/high stockout risk, accelerating/seasonal demand and under-covered alternative groups.
 - Attach source/evidence lineage from historical demand through metrics, risk insights and decisions.
 - Keep decision ranking deterministic and evidence-aware.
+- Generate substitution-aware replenishment: `reorder_sku`, `reorder_group`, or `do_not_reorder`.
+- Suppress a single-SKU reorder when the alternative group has adequate normalized coverage.
+
+## Quality Gates — Completed
+- Deterministic inventory intelligence boundary checks added.
+- Inventory intelligence check command added to package scripts.
+- Inventory intelligence checks added to GitHub Actions quality workflow.
+- Coverage checks include historical demand, lost sales, group-level days-of-cover, zero-demand boundaries and core engine presence.
 
 ## Existing Platform Foundations
 - Multi-tenant data isolation.
@@ -67,17 +75,18 @@
 - `src/lib/free-toolbox/alternative-group-report.ts`
 - `src/lib/free-toolbox/alternative-group-governance.ts`
 - `src/lib/free-toolbox/inventory-intelligence-pipeline.ts`
+- `src/lib/free-toolbox/substitution-recommendation.ts`
+- `scripts/check-inventory-intelligence.mjs`
 
 ## Next execution sequence
-1. Add deterministic tests for velocity, stockout, liquidity, alternative-group conversion and pipeline boundary cases.
-2. Add cross-tenant isolation tests for all engines, lineage, caches and derived reports.
-3. Build Alternative Groups management UI: create/edit/archive, member assignment, conversion factors and validation.
-4. Add Detail vs Grouped report toggle with SKU drill-down.
-5. Add dashboard cards: Demand Pulse, Semi-Slow Watchlist, Stockout Risk, Lost Sales, Customer Continuity, Alternative Group Coverage and Liquidity Leaders.
-6. Add historical peak-vs-current demand views at SKU and group levels.
-7. Add substitution-aware recommendations that defer single-SKU replenishment when group coverage is healthy.
-8. Add forecasting signals using historical velocity and seasonality without paid APIs.
-9. Require source period, member SKUs, conversion assumptions and confidence in recommendation evidence.
-10. Add CI correctness/performance gates for large grouped datasets.
-11. Run production-candidate integration/load/security tests.
-12. Complete final release hardening only after all gates pass.
+1. Build Alternative Groups management UI: create/edit/archive, member assignment, conversion factors and validation.
+2. Add Detail vs Grouped report toggle with SKU drill-down.
+3. Add dashboard cards: Demand Pulse, Semi-Slow Watchlist, Stockout Risk, Lost Sales, Customer Continuity, Alternative Group Coverage and Liquidity Leaders.
+4. Add historical peak-vs-current demand views at SKU and group levels.
+5. Expand substitution-aware recommendations with customer continuity and liquidity impact.
+6. Add forecasting signals using historical velocity and seasonality without paid APIs.
+7. Require source period, member SKUs, conversion assumptions and confidence in recommendation evidence.
+8. Add cross-tenant isolation tests for all engines, lineage, caches and derived reports.
+9. Add CI correctness/performance gates for large grouped datasets.
+10. Run production-candidate integration/load/security tests.
+11. Complete final release hardening only after all gates pass.
