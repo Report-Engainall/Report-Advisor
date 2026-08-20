@@ -14,6 +14,7 @@
 - Group days-of-cover from normalized group stock / normalized group demand.
 - Detail/grouped report modes with drill-down capability.
 - Alternative-aware stockout and replenishment decisions.
+- Persistent Supabase schema with indexes, uniqueness constraints and RLS.
 
 ## Integrated Intelligence & Decisioning
 - Velocity → forecast → coverage → stockout → alternatives → lost sales → evidence → replenishment.
@@ -22,19 +23,23 @@
 - Forecast-aware reorder quantity and customer fill-rate impact.
 - Evidence confidence based on source, period, sample size, freshness, assumptions and SKU coverage.
 
-## UI & Reporting Layer — In Progress
-- Alternative Groups form model with validation and normalized members.
-- Detail vs Grouped report projection implemented.
-- Tenant-aware security validation added for alternative-group members.
-- Security fixture and package gate added for alternative-group isolation checks.
-- Next: connect these models to real application routes/components and persistence layer.
-- Next: dashboard cards for Demand Pulse, Semi-Slow, Stockout Risk, Lost Sales, Customer Continuity, Alternative Coverage and Liquidity Leaders.
+## UI & Reporting Layer — Active Implementation
+- Alternative Groups form model with validation and normalized members — completed.
+- Persistent Alternative Groups schema — completed.
+- Actual Alternative Groups management page with create/list/member add/remove — completed.
+- Route `/alternative-groups` — completed.
+- Sidebar navigation entry — completed.
+- Tenant-aware security validation — completed.
+- Security fixture and schema contract gates — completed.
+- Next: connect grouped-report projection to actual report screens and add detail/grouped toggle.
+- Next: dashboard decision cards for Demand Pulse, Semi-Slow, Stockout Risk, Lost Sales, Customer Continuity, Alternative Coverage and Liquidity Leaders.
 - Next: historical peak-vs-current views and group drill-down.
 
 ## Quality & Production Gates
 - Inventory intelligence deterministic boundary checks.
-- Alternative-group tenant isolation/security fixture added.
-- Package commands and CI integration for inventory intelligence/security checks.
+- Alternative-group tenant isolation/security fixture.
+- Alternative-group schema contract check.
+- Package commands for inventory intelligence, security and schema checks.
 - Architecture contract and performance budget checks remain mandatory.
 - Next: execute cross-tenant isolation tests against engines, lineage, caches and reports.
 - Next: large grouped dataset correctness/performance tests.
@@ -56,17 +61,19 @@
 - `src/lib/free-toolbox/alternative-group-ui-model.ts`
 - `src/lib/free-toolbox/grouped-report.ts`
 - `src/lib/free-toolbox/alternative-group-security.ts`
+- `src/pages/AlternativeGroupsPage.tsx`
+- `supabase/migrations/20260819230000_alternative_item_groups.sql`
 - `scripts/check-inventory-intelligence.mjs`
 - `scripts/check-alternative-group-security.mjs`
+- `scripts/check-alternative-group-schema.mjs`
 
 ## Next execution sequence
-1. Connect Alternative Groups UI model to actual app routes/components and persistence.
-2. Connect grouped-report projection to report screens and add detail/grouped toggle.
-3. Add dashboard decision cards with evidence and confidence.
-4. Integrate customer continuity and liquidity into replenishment priority.
+1. Connect grouped-report projection to actual inventory/report screens with Detail/Grouped mode and drill-down.
+2. Add dashboard decision cards with evidence/confidence and actionable priorities.
+3. Integrate customer continuity and liquidity into replenishment ranking.
+4. Add group-level forecast and normalized reorder quantities.
 5. Add historical peak-vs-current and seasonal demand views.
-6. Add group-level forecast and normalized reorder quantities.
-7. Add cross-tenant isolation and authorization tests across all intelligence surfaces.
-8. Add large-dataset performance, memory and pagination budgets.
-9. Execute integration/load/security checks and production hardening.
-10. Release only after all quality gates pass.
+6. Add cross-tenant authorization tests across all intelligence surfaces.
+7. Add large-dataset performance, memory and pagination budgets.
+8. Execute integration/load/security checks and production hardening.
+9. Release only after all quality gates pass.
