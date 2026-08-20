@@ -22,6 +22,8 @@ jobs:
       - run: npm run build
       - run: npm run perf:budget
       - run: npm run test:contracts
+      - run: npm run test:selective-foundation
+      - run: npm run test:consolidated-intelligence
       - run: npm run test:inventory-intelligence
       - run: npm run test:alternative-security
       - run: npm run test:alternative-schema
