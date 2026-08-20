@@ -1,5 +1,6 @@
 import { analyzeTrend, backtestForecast, forecastSeries, unifiedConfidence } from './advancedIntelligence';
 import { cashConversionCycle, decideReplenishment, projectLiquidity, type CashConversionCycle, type InventoryDecision, type LiquidityProjection } from './businessIntelligenceEngines';
+import { prioritizeReceivables, prioritizeSupplierPayments, protectCashReserve, type PaymentPriority, type ReceivablePriority, type ReserveProtection } from './financialDecisionEngines';
 import { calculateInventoryDecision, type InventoryDecision as StochasticInventoryDecision } from './intelligence/inventoryEngine';
 import { aggregateAlternativeGroups, type AlternativeGroupDecision, type AlternativeGroupInput } from './intelligence/groupDemand';
 import { evaluateMetric, type MetricEvaluation } from './metricEngine';
@@ -14,6 +15,8 @@ export interface CanonicalIntelligenceInput {
   salesHistory: number[];
   costOfSales?: number;
   alternativeGroups?: AlternativeGroupInput[];
+  receivablePriorities?: Parameters<typeof prioritizeReceivables>[0];
+  supplierPaymentPriorities?: Parameters<typeof prioritizeSupplierPayments>[0];
   openingLiquidity?: number;
   dailyInflow?: number;
   dailyOutflow?: number;
@@ -27,6 +30,9 @@ export interface CanonicalIntelligence {
   backtest: ReturnType<typeof backtestForecast>;
   cashConversionCycle: CashConversionCycle;
   liquidity: LiquidityProjection[];
+  reserveProtection: ReserveProtection;
+  collections: ReceivablePriority[];
+  supplierPayments: PaymentPriority[];
   replenishment: InventoryDecision[];
   stochasticInventory: StochasticInventoryDecision[];
   alternativeGroups: AlternativeGroupDecision[];
@@ -51,6 +57,9 @@ export function buildCanonicalIntelligence(input: CanonicalIntelligenceInput): C
   const backtest = backtestForecast(input.salesHistory, 7);
   const ccc = cashConversionCycle({ receivables, revenue: salesTotal, inventory: inventoryValue, costOfSales: Math.max(0, input.costOfSales ?? 0), payables, purchases: purchaseTotal, periodDays: input.periodDays ?? 365 });
   const liquidity = projectLiquidity({ openingLiquidity: Math.max(0, input.openingLiquidity ?? 0), horizons: [0, 7, 15, 30, 60, 90], dailyInflow: Math.max(0, input.dailyInflow ?? 0), dailyOutflow: Math.max(0, input.dailyOutflow ?? 0), committedOutflow: Math.max(0, input.committedOutflow ?? 0) });
+  const reserveProtection = protectCashReserve({ openingCash: Math.max(0, input.openingLiquidity ?? 0), committedOutflow: Math.max(0, input.committedOutflow ?? 0), collectibleInflow: Math.max(0, input.dailyInflow ?? 0) * 30 });
+  const collections = prioritizeReceivables(input.receivablePriorities ?? sales.map(row => ({ id: row.id, amount: Math.max(0, row.total - finite(row.paidAmount)), overdueDays: 0 })));
+  const supplierPayments = prioritizeSupplierPayments(input.supplierPaymentPriorities ?? purchases.map((row, index) => ({ id: `purchase-${index}`, amount: Math.max(0, row.total - finite(row.paidAmount)), overdueDays: 0 })), reserveProtection);
 
   const replenishment = inventory.map(row => decideReplenishment({ onHand: Math.max(0, row.stock), avgDailyDemand: average((row.dailySales ?? []).filter(Number.isFinite).map(value => Math.max(0, value))), leadTimeDays: Math.max(0, row.leadTimeDays ?? 7), safetyDays: 7, reserved: 0, onOrder: 0 }));
   const stochasticInventory = inventory.map(row => calculateInventoryDecision({ sku: row.sku, stock: Math.max(0, row.stock), dailySales: row.dailySales ?? [], leadTimeDays: Math.max(0, row.leadTimeDays ?? 7), safetyDays: 2, reviewPeriodDays: 7, unitCost: Math.max(0, row.unitCost) }));
@@ -74,5 +83,5 @@ export function buildCanonicalIntelligence(input: CanonicalIntelligenceInput): C
   if (!backtest.ready) warnings.push('التنبؤ لم يجتز حد البيانات الكافي للاختبار الخلفي.');
   if (input.costOfSales == null || input.costOfSales <= 0) warnings.push('CCC غير مكتمل: تكلفة المبيعات الفعلية غير متاحة، ولن يتم استبدالها بقيمة المشتريات.');
   if (ccc.status === 'INSUFFICIENT_DATA') warnings.push('CCC غير متاح بسبب نقص أساس التكلفة أو المشتريات.');
-  return { metrics, trend, forecast, backtest, cashConversionCycle: ccc, liquidity, replenishment, stochasticInventory, alternativeGroups, confidence, warnings };
+  return { metrics, trend, forecast, backtest, cashConversionCycle: ccc, liquidity, reserveProtection, collections, supplierPayments, replenishment, stochasticInventory, alternativeGroups, confidence, warnings };
 }
