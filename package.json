@@ -37,7 +37,8 @@
     "test:document-intelligence": "node scripts/check-document-intelligence-gateway.mjs",
     "test:financial-decision-engines": "node scripts/check-financial-decision-engines.mjs",
     "test:product-experience": "node scripts/check-product-experience.mjs",
-    "test:master-product-reference": "node scripts/check-master-product-reference.mjs"
+    "test:master-product-reference": "node scripts/check-master-product-reference.mjs",
+    "test:master-execution-status": "node scripts/check-master-execution-status.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.57.4",
