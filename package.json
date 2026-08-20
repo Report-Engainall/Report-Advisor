@@ -18,7 +18,8 @@
     "test:query-planner-hardening": "node scripts/check-query-planner-hardening.mjs",
     "test:query-executor": "node scripts/check-query-executor.mjs",
     "test:demand-series-utils": "node scripts/check-demand-series-utils.mjs",
-    "test:unified-import-contract": "node scripts/check-unified-import-contract.mjs"
+    "test:unified-import-contract": "node scripts/check-unified-import-contract.mjs",
+    "test:import-file-binding": "node scripts/check-import-file-binding.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.57.4",
