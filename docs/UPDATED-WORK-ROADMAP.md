@@ -27,6 +27,19 @@
 - Combine margin, sales velocity, collection time, purchase cost and replenishment lead time.
 - Surface products that consume capital without adequate cash return.
 
+### 4. Alternative & Related Item Groups
+- Treat equivalent/alternative SKUs as a configurable group for inventory, demand and sales analysis.
+- Allow managers/warehouse users to define named groups and assign multiple SKUs to each group.
+- Support a base-unit conversion factor per member so different pack sizes are not blindly added as if physically identical.
+- Enforce tenant isolation for groups and members.
+- Prevent the same SKU from being assigned to multiple alternative groups unless the model is explicitly extended to support weighted/multi-group relationships.
+- Support report mode switching: `detail` (SKU-level) or `grouped` (group-level).
+- Grouped reporting aggregates customer requests, stock, net sales, demand velocity and estimated lost units/revenue.
+- Recalculate group days-of-cover from total normalized stock divided by total normalized average daily demand.
+- Preserve member SKU drill-down through the group membership list.
+- Support empty groups in management/reporting views when explicitly requested.
+- Use grouped analysis to prevent false stockout/reorder decisions when a valid alternative is available.
+
 ## Existing Platform Foundations
 - Multi-tenant data isolation.
 - Tenant-scoped cache and scheduled jobs.
@@ -39,13 +52,25 @@
 - Onyx Pro ingestion/synchronization architecture.
 - Local/free-first OCR and data-processing strategy.
 
+## Completed implementation units in current release
+- `src/lib/free-toolbox/inventory-dynamics.ts`
+- `src/lib/free-toolbox/stockout-loss.ts`
+- `src/lib/free-toolbox/customer-item-demand.ts`
+- `src/lib/free-toolbox/liquidity-drivers.ts`
+- `src/lib/free-toolbox/alternative-groups.ts`
+- `src/lib/free-toolbox/alternative-group-report.ts`
+- `src/lib/free-toolbox/alternative-group-governance.ts`
+
 ## Next execution sequence
-1. Integrate velocity, customer demand, stockout and liquidity engines into the analytics domain.
-2. Add deterministic tests for formulas and boundary cases.
+1. Integrate velocity, customer demand, stockout, liquidity and alternative-group engines into the analytics domain.
+2. Add deterministic tests for formulas and boundary cases, including conversion factors and empty groups.
 3. Add cross-tenant isolation tests for all new engines and derived caches/reports.
-4. Add dashboard cards: Demand Pulse, Semi-Slow Watchlist, Stockout Risk, Lost Sales, Customer Continuity and Liquidity Leaders.
-5. Add historical comparison and peak-vs-current demand views.
-6. Add forecasting signals using historical velocity and seasonality without requiring paid APIs.
-7. Add data-quality/evidence requirements so recommendations expose their source period and confidence.
-8. Add CI performance and correctness gates for large datasets.
-9. Run production-candidate integration and load testing before final release hardening.
+4. Build the Alternative Groups management UI with create/edit/archive, member assignment, conversion factors and validation.
+5. Add report toggle: Detail vs Grouped, with SKU drill-down from grouped rows.
+6. Add dashboard cards: Demand Pulse, Semi-Slow Watchlist, Stockout Risk, Lost Sales, Customer Continuity, Alternative Group Coverage and Liquidity Leaders.
+7. Add historical comparison and peak-vs-current demand views at both SKU and alternative-group levels.
+8. Add forecasting signals using historical velocity and seasonality without requiring paid APIs.
+9. Add substitution-aware recommendations: reorder the group, not a single SKU, when group coverage is healthy.
+10. Add data-quality/evidence requirements so recommendations expose source period, member SKUs, conversion assumptions and confidence.
+11. Add CI performance and correctness gates for large grouped datasets.
+12. Run production-candidate integration and load testing before final release hardening.
