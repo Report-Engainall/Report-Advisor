@@ -9,6 +9,7 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit -p tsconfig.app.json",
+    "test:truth-policy": "node scripts/check-truth-policy.mjs",
     "test:group-demand": "node scripts/check-group-demand.mjs",
     "test:group-demand-forecast": "node scripts/check-group-demand-forecast.mjs",
     "test:group-demand-runtime": "node scripts/check-group-demand-runtime.mjs",
