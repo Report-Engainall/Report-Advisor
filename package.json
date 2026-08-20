@@ -19,7 +19,8 @@
     "test:query-executor": "node scripts/check-query-executor.mjs",
     "test:demand-series-utils": "node scripts/check-demand-series-utils.mjs",
     "test:unified-import-contract": "node scripts/check-unified-import-contract.mjs",
-    "test:import-file-binding": "node scripts/check-import-file-binding.mjs"
+    "test:import-file-binding": "node scripts/check-import-file-binding.mjs",
+    "test:intelligence-data-quality": "node scripts/check-intelligence-data-quality.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.57.4",
@@ -39,9 +40,11 @@
     "@eslint/js": "^9.9.1",
     "@types/react": "^18.3.5",
     "@types/react-dom": "^18.3.0",
+    "@types/react": "^18.3.5",
+    "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.3.1",
-    "autoprefixer": "^10.4.18",
-    "eslint": "^9.9.1",
+    "@eslint/js": "^9.9.1",
+    "eslint": "^9.9.0",
     "eslint-plugin-react-hooks": "^5.1.0-rc.0",
     "eslint-plugin-react-refresh": "^0.4.11",
     "globals": "^15.9.0",
