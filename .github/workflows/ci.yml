@@ -35,6 +35,8 @@ jobs:
         run: npm run test:inventory-aggregation
       - name: Validate canonical metric and decision evidence gate
         run: npm run test:metric-decision-contract
+      - name: Validate report readiness quality and evidence gate
+        run: npm run test:report-readiness-contract
       - name: Validate group demand normalization
         run: npm run test:group-demand
       - name: Validate group demand forecast
