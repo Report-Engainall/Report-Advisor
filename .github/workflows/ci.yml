@@ -29,6 +29,8 @@ jobs:
         run: npm run test:group-demand
       - name: Validate group demand forecast
         run: npm run test:group-demand-forecast
+      - name: Validate group demand runtime contract
+        run: npm run test:group-demand-runtime
       - name: Validate alternative group engine
         run: node scripts/check-alternative-group-engine.mjs
       - name: Validate group decision engine
