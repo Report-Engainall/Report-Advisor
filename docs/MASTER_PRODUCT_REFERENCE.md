@@ -666,3 +666,50 @@ Other documents may remain as:
 - external source snapshots.
 
 They must not become competing master lists.
+
+## 31. Execution coverage snapshot — 2026-08-21
+
+This percentage is an engineering coverage estimate, not a claim that the product is production-accepted. A capability counts as implemented only when code evidence exists; it counts as accepted only when the Definition of Done and release gates have evidence.
+
+### Current estimated coverage
+- Foundation / ingestion / deterministic core: **82% implemented**
+- Operational intelligence: **78% implemented**
+- Financial / cash intelligence: **72% implemented**
+- Predictive / decision / memory intelligence: **69% implemented**
+- AI governance / free-first runtime: **84% implemented**
+- Document intelligence / OCR architecture: **76% implemented**
+- Security / tenant / RLS governance: **86% implemented**
+- UX / product experience / routing: **81% implemented**
+- Observability / DR / release engineering: **63% implemented**
+- E2E / regression / acceptance evidence: **55% implemented**
+
+**Overall engineering implementation coverage: ~75%.**
+
+**Production acceptance coverage: ~58%.**
+
+The gap is intentional: implemented code is not counted as fully complete until integration, security, performance, E2E and evidence gates pass. The next work should therefore prioritize closing acceptance gaps rather than adding cosmetic features.
+
+## 32. Immediate execution priorities
+
+1. Convert remaining PARTIAL requirements into explicit REQ-ID traceability with code/test/evidence links.
+2. Close E2E gaps around authenticated tenant bootstrap, import-to-report flow, decision flow and report export.
+3. Harden document/OCR uncertainty states and ensure every extracted field retains source lineage.
+4. Verify financial engines against golden datasets and concurrency cases.
+5. Add performance evidence for search, import preview, large imports and dashboard aggregation.
+6. Complete backup/restore drill evidence and health-center checks.
+7. Verify PWA/offline/sync conflict behavior under real reconnect scenarios.
+8. Keep free deterministic mode as the default and reject silent paid AI fallback.
+9. Only after gates improve, add further high-value inspiration-derived capabilities.
+
+## 33. Continuous development rule
+
+Development proceeds in large batches without requiring user prompts between every sub-step. Each batch must:
+- inspect current implementation;
+- select the highest-value incomplete capability;
+- implement or harden it;
+- add/update regression checks;
+- update this master reference;
+- preserve the single-reference policy;
+- report only after a meaningful batch or a blocking failure.
+
+Never trade correctness for apparent progress percentage.
