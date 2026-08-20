@@ -1,0 +1,4 @@
+export type DecisionStatus='proposed'|'approved'|'rejected'|'executed'|'cancelled';
+export interface DecisionLogEntry{id:string;createdAt:string;title:string;reason:string;status:DecisionStatus;priority:number;expectedImpact?:number;actualImpact?:number;actor?:string;evidenceIds:string[];action?:string;notes?:string}
+export function createDecision(input:Omit<DecisionLogEntry,'id'|'createdAt'>):DecisionLogEntry{return{id:`decision-${Date.now()}-${Math.random().toString(36).slice(2,8)}`,createdAt:new Date().toISOString(),...input};}
+export function decisionAccuracy(entry:DecisionLogEntry):number|null{if(entry.expectedImpact===undefined||entry.actualImpact===undefined)return null;const base=Math.abs(entry.expectedImpact);if(base===0)return entry.actualImpact===0?100:0;return Math.max(0,100-(Math.abs(entry.actualImpact-entry.expectedImpact)/base*100));}
