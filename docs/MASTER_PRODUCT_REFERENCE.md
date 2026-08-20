@@ -1,6 +1,6 @@
 # Report Advisor — Master Product, Requirements & Open-Source Reference
 
-> **AUTHORITATIVE SINGLE REFERENCE.** This is the permanent registry for the comprehensive product requirements, architecture guardrails, product inspiration, open-source projects, licenses, integration decisions, acceptance rules, and implementation mapping used while evolving Report Advisor.
+> **AUTHORITATIVE SINGLE REFERENCE.** This is the permanent registry for the comprehensive product requirements, architecture guardrails, product inspiration, open-source projects, licenses, integration decisions, acceptance rules, implementation mapping, reliability rules, and release gates used while evolving Report Advisor.
 >
 > **Last reviewed:** 2026-08-21
 >
@@ -70,6 +70,17 @@ The target is a unified, accurate, fast, flexible, predictive, advisory and fina
 - Automatic business health report using verified data only.
 - Optional isolated Onyx Pro dataset/sync.
 
+### Electronics/domain extensions
+- Product catalog, brands, categories, subcategories, variants, attributes.
+- SKU, barcode, serial number, IMEI.
+- Bundles and accessories.
+- Warranty, RMA, repair tickets and service SLA.
+- Customers, customer tiers, suppliers, warehouses, transfers, reservations.
+- Purchases, orders, invoices, payments, receivables and returns.
+- Base, wholesale-wholesale, wholesale, retail and customer-specific pricing.
+- Campaigns, quantity tiers, pricing formulas, price recovery and price audit.
+- Import: Excel, CSV, PDF, OCR, DQS, synonyms, profiles, hashes, resumable upload, deduplication, conflict resolution, snapshots and rollback.
+
 ## 3. Comprehensive acceptance and safety rules
 1. No mock KPI values in production paths.
 2. No LLM-generated numeric facts.
@@ -87,11 +98,54 @@ The target is a unified, accurate, fast, flexible, predictive, advisory and fina
 14. External engines must not weaken RLS, tenant isolation, lineage or auditability.
 15. Heavy AI/document/ML engines must be optional services or adapters, never mandatory customer installs.
 16. Proprietary code, assets, branding and copied UI must never be introduced from inspiration products.
+17. Money must use numeric/decimal-safe storage and arithmetic; never binary float for accounting values.
+18. Sensitive data is never sent to external AI without explicit policy; sensitive/private workloads prefer isolated/local processing.
+19. Logs must not contain secrets.
+20. Never display 'sent/synced' before authoritative server acknowledgement.
 
-## 4. Definition of Done
+## 4. AI Governance
+
+AI does not calculate authoritative business numbers.
+
+### Deterministic calculations
+- Revenue
+- Cost
+- Profit
+- Margin
+- Stock
+- Turnover
+- Aging
+- ABC/XYZ/FSN
+- Financial ratios
+- Forecast metrics and backtests
+
+### AI responsibilities
+- Explanation
+- Trend interpretation
+- Qualitative forecast narrative
+- Recommendation wording
+- Research/report synthesis over verified evidence
+
+### AI pipeline
+`Raw → Untrusted → Sanitized → Injection Detection → Structured → Deterministic Context → LLM`
+
+Every Action Card should expose:
+- Why
+- Source Metrics
+- Calculation
+- Snapshot ID
+- Confidence
+- Expected Impact
+- Action
+
+If history is insufficient: `Forecast Unavailable: Insufficient Historical Data`.
+
+AI ledger should support request/model/token/cost/time/timestamp tracking and quotas. At quota exhaustion: rule-based fallback.
+
+## 5. Definition of Done
 A requirement is only FULLY IMPLEMENTED when its applicable UI, backend, database, security, audit, event/queue behavior, error/loading/offline state, tests, E2E/regression coverage, performance evidence and documentation are present.
 
-## 5. Permanent product-inspiration registry
+## 6. Permanent product-inspiration registry
 
 ### BI / Analytics
 | Source | Patterns to learn from | Adopt | Boundary |
@@ -145,7 +199,7 @@ A requirement is only FULLY IMPLEMENTED when its applicable UI, backend, databas
 | Flowise | visual AI/RAG workflow composition |
 | Langflow | visual tool/LLM workflow composition |
 
-## 6. Open-source source repository registry
+## 7. Open-source source repository registry
 
 These are source references, not automatic dependencies. Every candidate is evaluated by capability, license, bundle/runtime cost, security, maintenance, browser/server fit and measurable benefit.
 
@@ -187,7 +241,7 @@ These are source references, not automatic dependencies. Every candidate is eval
 - Langflow — https://github.com/langflow-ai/langflow — MIT
 - PostHog — https://github.com/PostHog/posthog — core/EE licensing must be checked per component
 
-## 7. Product capability synthesis map
+## 8. Product capability synthesis map
 - Executive cockpit with clear KPI hierarchy and drill-down.
 - Governed semantic metric definitions.
 - Associative exploration and cross-filtering.
@@ -209,23 +263,327 @@ These are source references, not automatic dependencies. Every candidate is eval
 - Observability, diagnostics and auditability.
 - Progressive disclosure instead of dashboard overload.
 
-## 8. Selection rule
-For every new idea, evaluate:
-`value = accuracy_gain + capability_gain + UX_gain + performance_gain`
-against:
-`cost = complexity + runtime_weight + maintenance + licensing_risk + security_risk + vendor_lock_in`
-Only integrate when expected net value is positive and no project invariant is violated.
+## 9. Reporting / Export
 
-## 9. Hard rejection rules
-Never integrate an external idea if it decreases numerical accuracy, introduces hallucinated business facts, creates mandatory paid AI usage, makes Ollama mandatory for customers, requires large local model downloads, forces a heavy runtime when a lighter native implementation is sufficient, weakens tenant/RLS isolation, bypasses evidence/lineage, performs financial calculations in an LLM, silently overwrites imported data with blanks, replaces business keys with internal IDs, invents PDF/OCR rows, copies proprietary code/assets/branding, introduces an unapproved restrictive license, or duplicates a stronger existing Report Advisor implementation without measurable benefit.
+Supported report domains should include Sales, Purchases, Inventory, Customers, Suppliers, Receivables, Payables, Profitability, Warranty/Repairs/RMA where applicable, Pricing, Import, Sync, Audit, Security and AI.
 
-## 10. Integration tiers
-- **Tier A — Native:** TypeScript/Supabase/browser APIs for small deterministic capabilities.
-- **Tier B — Adapter:** external open-source engine behind a replaceable adapter; core remains functional if unavailable.
-- **Tier C — Optional service:** heavy OCR/PDF/ML/distributed engines; no mandatory local installation.
-- **Tier D — Reference only:** use interaction/architecture ideas without shipping external code.
+Exports: PDF, Excel, CSV and print where applicable.
 
-## 11. Permanent architecture principles
+Every material report must carry:
+- Snapshot ID
+- As Of timestamp
+- Source/lineage
+- Version
+- Filters
+- Owner
+- Data freshness
+- Confidence/quality where applicable
+
+## 10. Audit / Observability / Health
+
+Every sensitive operation records:
+- Actor
+- Action
+- Before
+- After
+- Reason
+- Timestamp
+- Request ID
+- Correlation ID
+
+Logs contain no secrets.
+
+Core metrics:
+- API P95
+- DB latency
+- Queue lag
+- Import throughput
+- Search latency
+- Cache hit ratio
+- Notification success
+- AI usage
+- Error rate
+
+Tracing should cover UI → API → DB/Queue where applicable.
+
+Health Center checks:
+- Database
+- Realtime
+- Storage
+- Notifications
+- Queues
+- Outbox
+- Onyx
+- AI backends
+- Search
+- Backups
+- RLS
+- Critical relations
+
+Health states: Healthy / Warning / Critical / Unknown.
+
+## 11. Backup / Disaster Recovery
+
+Define RPO and RTO.
+
+Backups must be automated, encrypted and verified.
+
+Restore drills must verify:
+1. Database restoration.
+2. Migrations.
+3. Integrity.
+4. Counts.
+5. Business-critical records.
+6. Smoke tests.
+7. Restore timing.
+
+A backup existing is not evidence of disaster-recovery readiness.
+
+## 12. API / Database governance
+
+Every endpoint must have, as applicable:
+- Authentication
+- Authorization
+- Validation
+- Rate limiting
+- Idempotency
+- Versioning
+- Structured errors
+- Correlation ID
+
+Errors expose code/message/details/correlation_id, never stack traces.
+
+Database governance:
+- migrations and rollback strategy
+- foreign keys
+- unique/check constraints
+- NOT NULL where required
+- numeric-safe money
+- timezone policy
+- indexes
+- query-plan review
+- row/version concurrency controls
+
+## 13. Contract change control
+
+Changes to API, DB, Import Profile, KPI, Onyx Mapping, Permission, Order Workflow, AI Schema, Report or Pricing Formula require:
+- Change ID
+- Old Contract
+- New Contract
+- Reason
+- Impact Analysis
+- Affected Requirements
+- Affected Tests
+- Migration
+- Approval
+- Version
+- Rollback plan
+
+## 14. Data freshness
+
+Freshness states:
+- Fresh
+- Warning
+- Stale
+- Critical
+- Unknown
+
+Stale data must not silently drive alerts, forecasts or executive decisions.
+Every important dashboard/report shows As Of + Freshness.
+
+## 15. Concurrency and atomicity
+
+Explicitly test:
+- Concurrent orders
+- Concurrent imports
+- Concurrent price edits
+- Concurrent manual inventory edits
+- Concurrent Onyx sync
+
+Prevent:
+- Lost updates
+- Double reservations
+- Duplicate imports
+- Double invoices
+- Double event effects
+
+## 16. Performance engineering
+
+Targets:
+- Interactive API P95 <300ms
+- Search <150ms target
+- Normal import preview <2s
+- Heavy jobs asynchronous
+- UI non-blocking
+
+Techniques:
+- code splitting
+- lazy routes
+- prefetching where beneficial
+- query caching
+- virtualized lists
+- debounced search
+- Web Workers
+- image optimization
+- compression
+- HTTP caching
+- database indexes
+- query-plan review
+- connection pooling where applicable
+
+Performance budgets should cover initial JS, images, API payloads, queries and memory.
+
+Do not use cosmetic UI optimizations to hide a slow query.
+
+## 17. Job UX
+
+Long-running jobs expose:
+- percentage
+- current phase
+- processed
+- remaining
+- speed
+- ETA
+
+Suggested phases:
+Reading → Detection → Mapping → Validation → Quality → Merge → Analytics → Recommendations
+
+Actions:
+- Cancel
+- Pause
+- Retry failed chunks
+
+## 18. Feature flags / safe rollout
+
+Support flags by:
+- Global
+- Organization
+- Role
+- Percentage
+
+Lifecycle:
+Internal → Canary → Limited → Full
+
+Each flag records owner, created_at, expires_at and reason.
+
+## 19. Developer / Architecture Center
+
+The platform should be able to expose/generated views for:
+- Route Tree
+- Component Tree
+- Permission Matrix
+- DB Map
+- RPC Map
+- Event Map
+- Queue Map
+- Integration Map
+- Feature Flag Map
+- Import Profile Map
+
+It should detect:
+- duplicate engines
+- orphan routes
+- unused components
+- missing permissions
+- missing RLS
+- unindexed queries
+- TODOs/placeholders
+- mock production paths
+
+## 20. Golden datasets / regression
+
+Maintain stable datasets for:
+- products
+- prices
+- inventory
+- orders
+- customers
+- suppliers
+- imports
+- PDFs
+- OCR
+- AI prompts
+
+Every important bug becomes a permanent regression test, including tests for non-existent entities and hallucination traps.
+
+Performance/load suites should cover at least:
+- 1k products
+- 10k products
+- 100k+ import rows
+- large Excel
+- large PDF
+- thousands of orders
+- large notification history
+
+Measure route load, API/DB latency, import throughput, memory peak, AI first token when applicable, and UI frame stability.
+
+## 21. Acceptance / Traceability Matrix
+
+Every REQ-ID should track:
+- Domain
+- Requirement
+- Business Rule
+- Source of Truth
+- Inputs
+- Outputs
+- Preconditions
+- Postconditions
+- Permissions
+- Failure Modes
+- Side Effects
+- Dependencies
+- Performance SLA
+- Security Requirements
+- Acceptance Criteria
+- Test ID
+- Evidence
+- Owner
+- Version
+- Status
+
+Status lifecycle:
+Specified → Implemented → Unit Tested → Integration Tested → E2E Tested → Security Tested → Performance Tested → Accepted
+
+Master traceability:
+`Requirement → Code → API → Database → Permission → Event → Test → E2E → Security → Performance → Evidence → Acceptance`
+
+No requirement may be marked accepted without a Test ID and evidence.
+
+## 22. Release gates
+
+Do not declare FINAL when any applicable gate fails:
+- Security
+- Data integrity
+- Pricing isolation
+- SSOT
+- Import correctness
+- Onyx reconciliation/isolation
+- Backup/Restore
+- E2E
+- Regression
+- Performance
+
+No fake production data.
+
+## 23. Phased execution
+
+Phase 0 — Inventory + architecture audit + baseline.
+Phase 1 — Stabilize + bugs/root causes.
+Phase 2 — SSOT + contracts + governance.
+Phase 3 — Import + DQS + PDF/OCR + profiles.
+Phase 4 — Catalog + inventory + purchasing + Onyx.
+Phase 5 — Pricing + orders + atomicity + invoice.
+Phase 6 — Outbox + queue + search + cache + notifications.
+Phase 7 — Analytics + finance + forecast.
+Phase 8 — AI governance + action cards.
+Phase 9 — Security + session + tenant isolation.
+Phase 10 — PWA + offline + sync.
+Phase 11 — Performance + DR + observability.
+Phase 12 — Full E2E + regression + acceptance.
+
+Gate rule: PASS → next phase. FAIL → fix → re-test.
+
+## 24. Permanent architecture principles
 1. Semantic layer first.
 2. Evidence-first AI.
 3. Deterministic calculations.
@@ -249,47 +607,44 @@ Never integrate an external idea if it decreases numerical accuracy, introduces 
 21. Minimum-data gates for statistical/predictive claims.
 22. Graceful degradation when optional AI/document backends are unavailable.
 23. Customer-facing core remains useful without AI.
+24. Server acknowledgement before user-facing success state.
+25. No architectural duplication without measurable benefit.
 
-## 12. Performance and reliability guardrails
-- Parse once; do not repeatedly parse the same source.
-- Chunk large imports and long-running computations.
-- Use queues/timeouts for heavy operations.
-- Cache deterministic intermediate results where safe.
-- Keep UI responsive during streaming and computation.
-- Prefer lightweight browser execution for small workloads.
-- Escalate to worker/server engines only when justified by data size or complexity.
-- Avoid shipping large models to normal customers.
-- Preserve offline resilience and low-bandwidth behavior.
-- Every heavy operation exposes progress, failure and retry state.
+## 25. Selection rule
+For every new idea, evaluate:
+`value = accuracy_gain + capability_gain + UX_gain + performance_gain`
+against:
+`cost = complexity + runtime_weight + maintenance + licensing_risk + security_risk + vendor_lock_in`
+Only integrate when expected net value is positive and no project invariant is violated.
 
-## 13. Security, privacy and governance guardrails
-- Tenant/company scope is mandatory on tenant-scoped operations.
-- RLS remains authoritative.
-- AI output is untrusted until validated.
-- Prompt injection must never bypass data permissions or business rules.
-- Secrets never enter client bundles or prompts.
-- External engines are isolated behind explicit adapters.
-- Financial actions require explicit approved commands and evidence.
-- Audit trail records important imports, decisions, overrides and actions.
-- Onyx Pro remains isolated as an optional dataset/sync boundary.
+## 26. Hard rejection rules
+Never integrate an external idea if it decreases numerical accuracy, introduces hallucinated business facts, creates mandatory paid AI usage, makes Ollama mandatory for customers, requires large local model downloads, forces a heavy runtime when a lighter native implementation is sufficient, weakens tenant/RLS isolation, bypasses evidence/lineage, performs financial calculations in an LLM, silently overwrites imported data with blanks, replaces business keys with internal IDs, invents PDF/OCR rows, copies proprietary code/assets/branding, introduces an unapproved restrictive license, or duplicates a stronger existing Report Advisor implementation without measurable benefit.
 
-## 14. UX/product guardrails
-- Arabic RTL first, with correct handling of English identifiers and numbers.
-- Mobile-first and low-bandwidth friendly.
-- Fast navigation with Command Palette.
-- Executive view for high-level decisions; detailed analytical views remain one step away.
-- Clear status language: VERIFIED / PARTIAL / INSUFFICIENT_DATA / ERROR / STALE.
-- Confidence and freshness visible where they materially affect decisions.
-- No alert spam: prioritize decisions and opportunities.
-- Progressive disclosure: simple default, deep analytical detail on demand.
-- Tables remain first-class for business users.
-- Charts explain a decision; they do not exist merely for decoration.
+## 27. Integration tiers
+- **Tier A — Native:** TypeScript/Supabase/browser APIs for small deterministic capabilities.
+- **Tier B — Adapter:** external open-source engine behind a replaceable adapter; core remains functional if unavailable.
+- **Tier C — Optional service:** heavy OCR/PDF/ML/distributed engines; no mandatory local installation.
+- **Tier D — Reference only:** use interaction/architecture ideas without shipping external code.
 
-## 15. Current Report Advisor implementation mapping
+## 28. Update protocol — mandatory
+
+Whenever a new website, product, open-source repository, framework, technique, UX pattern, algorithm, document engine or requirement is discovered:
+1. Add it to this file.
+2. Record the useful capability/pattern.
+3. Record source repository and license when available.
+4. Record licensing/security/performance uncertainty.
+5. Decide Native / Adapter / Optional Service / Reference Only / Reject.
+6. If integrated, add an acceptance/regression test.
+7. Update implementation mapping/status.
+8. Do not create another competing master reference.
+9. Treat older files as historical evidence, not competing authorities.
+
+## 29. Current implementation mapping
+
 - Unified import → existing unified import engine.
-- Semantic metrics → existing semantic metric layer.
-- Data quality → existing quality gates.
-- Evidence/lineage → existing evidence and lineage contracts.
+- Semantic metrics → semantic metric layer.
+- Data quality → quality gates.
+- Evidence/lineage → evidence and lineage contracts.
 - Inventory → canonical intelligence + stochastic inventory.
 - Forecasting → forecast + backtest + confidence.
 - Finance → DSO/DIO/DPO/CCC + liquidity + collection/payment decisions.
@@ -297,25 +652,17 @@ Never integrate an external idea if it decreases numerical accuracy, introduces 
 - ChatBI → deterministic query/execution path + evidence.
 - Product UX → Command Palette + Executive Cockpit + decision queue.
 - Free/open-source stack → adapter registry and licensing isolation.
-- Comprehensive requirements → this document is the canonical consolidated reference.
+- Master requirements → this document.
 
-## 16. Reference consolidation protocol
+## 30. Single-reference policy
 
-Previous detailed requirement/inspiration documents may remain as historical/audit artifacts, but they are **not parallel masters**.
+`docs/MASTER_PRODUCT_REFERENCE.md` is the only operational master reference for Report Advisor requirements, inspiration, open-source technology selection, architecture guardrails, acceptance rules, release gates and implementation traceability.
 
-When maintaining the project:
-1. Read this file first.
-2. Add new requirements and sources here.
-3. Fold useful ideas from the comprehensive specification here.
-4. Record open-source repositories and licensing here.
-5. Record integration decisions here.
-6. Add acceptance tests when capabilities enter production.
-7. Update implementation mapping here.
-8. Only create separate technical documents for implementation detail, not another competing requirements list.
-9. Periodically reconcile historical documents into this file so the master remains complete.
+Other documents may remain as:
+- historical source material;
+- detailed technical evidence;
+- test output;
+- implementation notes;
+- external source snapshots.
 
-## 17. Master status
-
-This document is now the **single operational reference** for Report Advisor product direction, comprehensive requirements, product inspiration, open-source technology selection, safety/performance constraints and implementation mapping.
-
-No future development decision should depend on a scattered conversation list when the decision can be recorded here.
+They must not become competing master lists.
