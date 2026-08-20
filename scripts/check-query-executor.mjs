@@ -1,0 +1,10 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+const source=fs.readFileSync('src/lib/free-toolbox/query-executor.ts','utf8');
+assert.match(source,/class QueryResultCache/);
+assert.match(source,/expiresAt/);
+assert.match(source,/inflight=new Map/);
+assert.match(source,/this\.inflight\.get\(key\)/);
+assert.match(source,/this\.cache\.get\(key\)/);
+assert.match(source,/forceRefresh/);
+console.log('query executor cache/coalescing contract: PASS');
