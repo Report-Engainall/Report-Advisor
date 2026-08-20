@@ -25,6 +25,8 @@ jobs:
         run: npm run build
       - name: Lint
         run: npm run lint
+      - name: Validate permanent product/open-source reference registry
+        run: npm run test:master-product-reference
       - name: Validate unified import contract
         run: npm run test:unified-import-contract
       - name: Validate import file/job lineage
