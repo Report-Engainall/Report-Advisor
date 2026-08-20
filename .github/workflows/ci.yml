@@ -37,3 +37,5 @@ jobs:
         run: npm run test:inventory-semantic-contract
       - name: Validate production invariants
         run: npm run test:production-invariants
+      - name: Validate tenant-safe query planner
+        run: npm run test:query-planner
