@@ -48,6 +48,11 @@
 - Generate substitution-aware replenishment: `reorder_sku`, `reorder_group`, or `do_not_reorder`.
 - Suppress a single-SKU reorder when the alternative group has adequate normalized coverage.
 
+## Evidence & Forecasting — Started
+- Add deterministic evidence confidence scoring using source, period, SKU coverage, sample size, freshness and assumptions.
+- Add a free/local forecast signal using baseline demand, trend and seasonality without paid APIs.
+- Require evidence and confidence before surfacing high-impact recommendations.
+
 ## Quality Gates — Completed
 - Deterministic inventory intelligence boundary checks added.
 - Inventory intelligence check command added to package scripts.
@@ -76,6 +81,8 @@
 - `src/lib/free-toolbox/alternative-group-governance.ts`
 - `src/lib/free-toolbox/inventory-intelligence-pipeline.ts`
 - `src/lib/free-toolbox/substitution-recommendation.ts`
+- `src/lib/free-toolbox/decision-evidence.ts`
+- `src/lib/free-toolbox/forecast-signal.ts`
 - `scripts/check-inventory-intelligence.mjs`
 
 ## Next execution sequence
@@ -84,7 +91,7 @@
 3. Add dashboard cards: Demand Pulse, Semi-Slow Watchlist, Stockout Risk, Lost Sales, Customer Continuity, Alternative Group Coverage and Liquidity Leaders.
 4. Add historical peak-vs-current demand views at SKU and group levels.
 5. Expand substitution-aware recommendations with customer continuity and liquidity impact.
-6. Add forecasting signals using historical velocity and seasonality without paid APIs.
+6. Integrate forecast signals into replenishment and group coverage decisions.
 7. Require source period, member SKUs, conversion assumptions and confidence in recommendation evidence.
 8. Add cross-tenant isolation tests for all engines, lineage, caches and derived reports.
 9. Add CI correctness/performance gates for large grouped datasets.
