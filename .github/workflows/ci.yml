@@ -29,6 +29,8 @@ jobs:
         run: npm run test:unified-import-contract
       - name: Validate import file/job lineage
         run: npm run test:import-file-binding
+      - name: Validate intelligence data quality gate
+        run: npm run test:intelligence-data-quality
       - name: Validate group demand normalization
         run: npm run test:group-demand
       - name: Validate group demand forecast
