@@ -51,6 +51,8 @@ jobs:
         run: npm run test:business-intelligence-engines
       - name: Validate advanced predictive intelligence
         run: npm run test:advanced-intelligence
+      - name: Validate canonical intelligence integration
+        run: npm run test:canonical-intelligence
       - name: Validate group demand normalization
         run: npm run test:group-demand
       - name: Validate group demand forecast
