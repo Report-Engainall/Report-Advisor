@@ -47,6 +47,8 @@ jobs:
         run: npm run test:zero-install-ai-contract
       - name: Validate zero-cost AI policy
         run: npm run test:zero-cost-ai-contract
+      - name: Validate operational and financial intelligence engines
+        run: npm run test:business-intelligence-engines
       - name: Validate group demand normalization
         run: npm run test:group-demand
       - name: Validate group demand forecast
