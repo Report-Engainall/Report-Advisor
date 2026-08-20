@@ -10,7 +10,8 @@
     "preview": "vite preview",
     "typecheck": "tsc --noEmit -p tsconfig.app.json",
     "test:group-demand": "node scripts/check-group-demand.mjs",
-    "test:group-demand-forecast": "node scripts/check-group-demand-forecast.mjs"
+    "test:group-demand-forecast": "node scripts/check-group-demand-forecast.mjs",
+    "test:inventory-semantic-contract": "node scripts/check-inventory-semantic-contract.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.57.4",
