@@ -1,0 +1,7 @@
+fastapi>=0.115,<1
+uvicorn[standard]>=0.34,<1
+python-multipart>=0.0.20,<1
+docling>=2.70,<3
+# Optional high-accuracy OCR backend; install in OCR-enabled images:
+# paddleocr>=3,<4
+# paddlepaddle>=3,<4
