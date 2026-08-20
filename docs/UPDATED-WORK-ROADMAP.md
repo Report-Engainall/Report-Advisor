@@ -11,7 +11,7 @@
 - Multiple equivalent SKUs per group with base-unit conversion factors.
 - Validation for tenant, duplicate SKU and invalid conversion.
 - Grouped stock/request/net-sales/demand aggregation.
-- Group days-of-cover from normalized group stock / normalized demand.
+- Group days-of-cover from normalized group stock / normalized group demand.
 - Detail/grouped report modes with drill-down capability.
 - Alternative-aware stockout and replenishment decisions.
 
@@ -25,15 +25,18 @@
 ## UI & Reporting Layer — In Progress
 - Alternative Groups form model with validation and normalized members.
 - Detail vs Grouped report projection implemented.
-- Next: connect these models to the real application routes/components and persistence layer.
+- Tenant-aware security validation added for alternative-group members.
+- Security fixture and package gate added for alternative-group isolation checks.
+- Next: connect these models to real application routes/components and persistence layer.
 - Next: dashboard cards for Demand Pulse, Semi-Slow, Stockout Risk, Lost Sales, Customer Continuity, Alternative Coverage and Liquidity Leaders.
 - Next: historical peak-vs-current views and group drill-down.
 
 ## Quality & Production Gates
 - Inventory intelligence deterministic boundary checks.
-- Package command and CI integration for inventory intelligence checks.
+- Alternative-group tenant isolation/security fixture added.
+- Package commands and CI integration for inventory intelligence/security checks.
 - Architecture contract and performance budget checks remain mandatory.
-- Next: cross-tenant isolation tests for engines, lineage, caches and reports.
+- Next: execute cross-tenant isolation tests against engines, lineage, caches and reports.
 - Next: large grouped dataset correctness/performance tests.
 - Next: integration, load, security and production-candidate hardening.
 
@@ -52,7 +55,9 @@
 - `src/lib/free-toolbox/forecast-signal.ts`
 - `src/lib/free-toolbox/alternative-group-ui-model.ts`
 - `src/lib/free-toolbox/grouped-report.ts`
+- `src/lib/free-toolbox/alternative-group-security.ts`
 - `scripts/check-inventory-intelligence.mjs`
+- `scripts/check-alternative-group-security.mjs`
 
 ## Next execution sequence
 1. Connect Alternative Groups UI model to actual app routes/components and persistence.
@@ -61,7 +66,7 @@
 4. Integrate customer continuity and liquidity into replenishment priority.
 5. Add historical peak-vs-current and seasonal demand views.
 6. Add group-level forecast and normalized reorder quantities.
-7. Add cross-tenant isolation and authorization tests.
-8. Add large-dataset performance and memory budgets.
-9. Run integration/load/security checks and production hardening.
+7. Add cross-tenant isolation and authorization tests across all intelligence surfaces.
+8. Add large-dataset performance, memory and pagination budgets.
+9. Execute integration/load/security checks and production hardening.
 10. Release only after all quality gates pass.
