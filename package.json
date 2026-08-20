@@ -29,7 +29,8 @@
     "test:dashboard-source-contract": "node scripts/check-dashboard-source-contract.mjs",
     "test:chatbi-execution-contract": "node scripts/check-chatbi-execution-contract.mjs",
     "test:open-source-stack-contract": "node scripts/check-open-source-stack-contract.mjs",
-    "test:zero-install-ai-contract": "node scripts/check-zero-install-ai-contract.mjs"
+    "test:zero-install-ai-contract": "node scripts/check-zero-install-ai-contract.mjs",
+    "test:zero-cost-ai-contract": "node scripts/check-zero-cost-policy.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.57.4",
