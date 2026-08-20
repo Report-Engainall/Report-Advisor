@@ -31,6 +31,8 @@ jobs:
         run: npm run test:master-execution-status
       - name: Validate freshness and stale-data safety
         run: npm run test:freshness-contract
+      - name: Validate report evidence + freshness gate
+        run: npm run test:report-evidence-freshness-gate
       - name: Validate unified import contract
         run: npm run test:unified-import-contract
       - name: Validate import file/job lineage
