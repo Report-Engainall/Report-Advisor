@@ -41,3 +41,5 @@ jobs:
         run: npm run test:query-planner
       - name: Validate query planner hardening
         run: npm run test:query-planner-hardening
+      - name: Validate query executor cache and coalescing
+        run: npm run test:query-executor
