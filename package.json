@@ -24,7 +24,8 @@
     "test:inventory-aggregation": "node scripts/check-inventory-aggregation-contract.mjs",
     "test:metric-decision-contract": "node scripts/check-metric-decision-contract.mjs",
     "test:report-readiness-contract": "node scripts/check-report-readiness-contract.mjs",
-    "test:decision-quality-gate": "node scripts/check-decision-quality-gate.mjs"
+    "test:decision-quality-gate": "node scripts/check-decision-quality-gate.mjs",
+    "test:report-threshold-contract": "node scripts/check-report-threshold-contract.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.57.4",
