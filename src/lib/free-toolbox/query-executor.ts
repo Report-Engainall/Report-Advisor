@@ -5,12 +5,13 @@ export interface QueryCacheEntry<T>{rows:T[];fetchedAt:number;expiresAt:number}
 export interface QueryExecutorAdapter<T>{execute(plan:QueryPlan):Promise<T[]>}
 
 export class QueryResultCache<T>{
-  private entries=new Map<string,QueryCacheEntry<T>>();
   constructor(private readonly ttlMs=30_000,private readonly maxEntries=100){if(ttlMs<1)throw new Error('cache ttl must be positive');if(maxEntries<1)throw new Error('cache max entries must be positive')}
+  private entries=new Map<string,QueryCacheEntry<T>>();
   get(key:string,now=Date.now()):T[]|undefined{const e=this.entries.get(key);if(!e)return undefined;if(e.expiresAt<=now){this.entries.delete(key);return undefined}return e.rows}
   set(key:string,rows:T[],now=Date.now()):void{if(this.entries.size>=this.maxEntries&&!this.entries.has(key)){const oldest=this.entries.keys().next().value;if(oldest)this.entries.delete(oldest)}this.entries.set(key,{rows:[...rows],fetchedAt:now,expiresAt:now+this.ttlMs})}
   invalidate(key?:string):void{if(key)this.entries.delete(key);else this.entries.clear()}
   size():number{return this.entries.size}
+  get ttl():number{return this.ttlMs}
 }
 
 export class QueryExecutor<T>{
@@ -25,5 +26,5 @@ export class QueryExecutor<T>{
   }
   invalidate(fingerprint?:string):void{this.cache.invalidate(fingerprint)}
   clearInflight():void{this.inflight.clear()}
-  private result(rows:T[],fingerprint:string,fromCache:boolean):QueryResult<T>{const fetchedAt=Date.now();return{rows,fromCache,fingerprint,fetchedAt:new Date(fetchedAt).toISOString(),expiresAt:new Date(fetchedAt+30_000).toISOString()}}
+  private result(rows:T[],fingerprint:string,fromCache:boolean):QueryResult<T>{const fetchedAt=Date.now();return{rows,fromCache,fingerprint,fetchedAt:new Date(fetchedAt).toISOString(),expiresAt:new Date(fetchedAt+this.cache.ttl).toISOString()}}
 }
