@@ -31,3 +31,4 @@ jobs:
       - run: npm run test:batch-decision
       - run: npm run test:safe-metrics
       - run: npm run test:production-scale
+      - run: npm run test:analysis-cache-policy
