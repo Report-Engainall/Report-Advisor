@@ -28,7 +28,8 @@
     "test:report-threshold-contract": "node scripts/check-report-threshold-contract.mjs",
     "test:dashboard-source-contract": "node scripts/check-dashboard-source-contract.mjs",
     "test:chatbi-execution-contract": "node scripts/check-chatbi-execution-contract.mjs",
-    "test:open-source-stack-contract": "node scripts/check-open-source-stack-contract.mjs"
+    "test:open-source-stack-contract": "node scripts/check-open-source-stack-contract.mjs",
+    "test:zero-install-ai-contract": "node scripts/check-zero-install-ai-contract.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.57.4",
@@ -47,7 +48,7 @@
   "devDependencies": {
     "@eslint/js": "^9.9.0",
     "@types/react": "^18.3.5",
-    "@types/react-dom": "^18.3.0",
+    "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react": "^4.3.1",
     "autoprefixer": "^10.4.18",
     "postcss": "^8.4.35",
