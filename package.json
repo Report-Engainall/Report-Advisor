@@ -24,6 +24,7 @@
     "test:inventory-aggregation": "node scripts/check-inventory-aggregation-contract.mjs",
     "test:metric-decision-contract": "node scripts/check-metric-decision-contract.mjs",
     "test:report-readiness-contract": "node scripts/check-report-readiness-contract.mjs",
+    "test:report-evidence-freshness-gate": "node scripts/check-report-evidence-freshness-gate.mjs",
     "test:decision-quality-gate": "node scripts/check-decision-quality-gate.mjs",
     "test:report-threshold-contract": "node scripts/check-report-threshold-contract.mjs",
     "test:dashboard-source-contract": "node scripts/check-dashboard-source-contract.mjs",
@@ -53,7 +54,8 @@
     "react-router-dom": "^7.18.2",
     "recharts": "^3.10.0",
     "tesseract.js": "^7.0.0",
-    "xlsx": "^0.18.5"
+    "xlsx": "^0.18.5",
+    "recharts": "^3.10.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.0",
