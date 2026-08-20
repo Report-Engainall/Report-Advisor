@@ -20,7 +20,8 @@
     "test:demand-series-utils": "node scripts/check-demand-series-utils.mjs",
     "test:unified-import-contract": "node scripts/check-unified-import-contract.mjs",
     "test:import-file-binding": "node scripts/check-import-file-binding.mjs",
-    "test:intelligence-data-quality": "node scripts/check-intelligence-data-quality.mjs"
+    "test:intelligence-data-quality": "node scripts/check-intelligence-data-quality.mjs",
+    "test:inventory-aggregation": "node scripts/check-inventory-aggregation-contract.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.57.4",
