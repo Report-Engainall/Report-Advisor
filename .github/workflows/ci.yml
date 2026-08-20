@@ -25,6 +25,10 @@ jobs:
         run: npm run build
       - name: Lint
         run: npm run lint
+      - name: Validate unified import contract
+        run: npm run test:unified-import-contract
+      - name: Validate import file/job lineage
+        run: npm run test:import-file-binding
       - name: Validate group demand normalization
         run: npm run test:group-demand
       - name: Validate group demand forecast
