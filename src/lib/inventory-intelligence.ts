@@ -24,10 +24,17 @@ export interface InventoryInsight {
 }
 
 const DAY_MS = 86_400_000;
+const ANALYSIS_DAYS = 90;
 
 function round(value: number, digits = 2) {
+  if (!Number.isFinite(value)) return 0;
   const factor = 10 ** digits;
   return Math.round(value * factor) / factor;
+}
+
+function nonNegative(value: unknown) {
+  const n = Number(value);
+  return Number.isFinite(n) ? Math.max(0, n) : 0;
 }
 
 export function buildInventoryInsights(
@@ -36,45 +43,57 @@ export function buildInventoryInsights(
   items: SaleItem[],
   asOf = new Date(),
 ): InventoryInsight[] {
-  const cutoff = asOf.getTime() - 90 * DAY_MS;
-  const invoiceDates = new Map<string, number>();
+  const asOfTime = asOf.getTime();
+  const cutoff = asOfTime - ANALYSIS_DAYS * DAY_MS;
+  const validInvoiceIds = new Set<string>();
+
   for (const invoice of invoices) {
-    const time = new Date(invoice.invoice_date).getTime();
-    if (time >= cutoff && time <= asOf.getTime()) invoiceDates.set(invoice.id, time);
+    const time = Date.parse(invoice.invoice_date);
+    if (Number.isFinite(time) && time >= cutoff && time <= asOfTime) validInvoiceIds.add(invoice.id);
   }
 
   const soldByProduct = new Map<string, number>();
   for (const item of items) {
-    if (!item.product_id || !invoiceDates.has(item.invoice_id)) continue;
-    soldByProduct.set(item.product_id, (soldByProduct.get(item.product_id) || 0) + Number(item.quantity || 0));
+    if (!item.product_id || !validInvoiceIds.has(item.invoice_id)) continue;
+    const quantity = nonNegative(item.quantity);
+    soldByProduct.set(item.product_id, (soldByProduct.get(item.product_id) || 0) + quantity);
   }
 
-  const stockByProduct = new Map<string, InventoryBalance>();
+  // Inventory is additive across warehouses. Never select the largest warehouse balance as the company balance.
+  const aggregateByProduct = new Map<string, { balance: InventoryBalance; stock: number; value: number }>();
   for (const balance of balances) {
-    const current = stockByProduct.get(balance.product_id);
-    if (!current || Number(balance.quantity) > Number(current.quantity)) stockByProduct.set(balance.product_id, balance);
+    const stock = nonNegative(balance.quantity);
+    const unitCost = nonNegative(balance.unit_cost);
+    const current = aggregateByProduct.get(balance.product_id);
+    if (!current) {
+      aggregateByProduct.set(balance.product_id, { balance, stock, value: stock * unitCost });
+    } else {
+      current.stock += stock;
+      current.value += stock * unitCost;
+      // Prefer the first non-empty product payload while keeping the aggregate balance.
+      if (!current.balance.product && balance.product) current.balance = balance;
+    }
   }
 
-  return Array.from(stockByProduct.values()).map((balance) => {
+  return Array.from(aggregateByProduct.values()).map(({ balance, stock, value }) => {
     const product = balance.product as Product | undefined;
-    const stock = Number(balance.quantity || 0);
     const soldQty90d = soldByProduct.get(balance.product_id) || 0;
-    const dailyVelocity = soldQty90d / 90;
+    const dailyVelocity = soldQty90d / ANALYSIS_DAYS;
     const weeklyVelocity = dailyVelocity * 7;
     const monthlyVelocity = dailyVelocity * 30;
     const daysOfStock = dailyVelocity > 0 ? stock / dailyVelocity : null;
     const stockoutDate = daysOfStock !== null
-      ? new Date(asOf.getTime() + daysOfStock * DAY_MS).toISOString().slice(0, 10)
+      ? new Date(asOfTime + daysOfStock * DAY_MS).toISOString().slice(0, 10)
       : null;
-    const minStock = Number(product?.min_stock || 0);
-    const reorderPoint = Number(product?.reorder_point || minStock || 0);
+    const minStock = nonNegative(product?.min_stock);
+    const reorderPoint = nonNegative(product?.reorder_point) || minStock;
     const targetStock = Math.max(reorderPoint * 2, monthlyVelocity + minStock);
     const suggestedOrder = Math.max(0, Math.ceil(targetStock - stock));
 
     let liquidity: LiquidityClass = 'متوسط';
     if (stock <= 0) liquidity = 'نفد';
     else if (dailyVelocity <= 0) liquidity = 'راكد';
-    else if (daysOfStock !== null && daysOfStock <= 60) liquidity = 'متحرك';
+    else if (daysOfStock <= 60) liquidity = 'متحرك';
 
     let priority: InventoryInsight['priority'] = 'طبيعي';
     if (stock <= 0) priority = 'حرج';
@@ -93,15 +112,15 @@ export function buildInventoryInsights(
       name: product?.name || 'صنف غير معروف',
       unit: product?.unit || '—',
       stock: round(stock),
-      inventoryValue: round(stock * Number(balance.unit_cost || product?.cost_price || 0)),
+      inventoryValue: round(value),
       soldQty90d: round(soldQty90d),
       dailyVelocity: round(dailyVelocity),
       weeklyVelocity: round(weeklyVelocity),
       monthlyVelocity: round(monthlyVelocity),
       daysOfStock: daysOfStock === null ? null : round(daysOfStock),
       stockoutDate,
-      minStock,
-      reorderPoint,
+      minStock: round(minStock),
+      reorderPoint: round(reorderPoint),
       suggestedOrder,
       liquidity,
       priority,
