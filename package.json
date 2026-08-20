@@ -33,6 +33,7 @@
     "test:predictive-intelligence-contract": "node scripts/check-predictive-intelligence-contract.mjs",
     "test:scenario-engine-contract": "node scripts/check-scenario-engine-contract.mjs",
     "test:decision-intelligence-contract": "node scripts/check-decision-intelligence-contract.mjs",
+    "test:ai-executive-contracts": "node scripts/check-ai-executive-contracts.mjs",
     "test:decision-quality-gate": "node scripts/check-decision-quality-gate.mjs",
     "test:report-threshold-contract": "node scripts/check-report-threshold-contract.mjs",
     "test:dashboard-source-contract": "node scripts/check-dashboard-source-contract.mjs",
