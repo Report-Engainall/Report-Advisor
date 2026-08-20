@@ -1,0 +1,10 @@
+import fs from 'node:fs';
+const registry=fs.readFileSync('src/lib/aiCapabilityRegistry.ts','utf8');
+const policy=fs.readFileSync('src/lib/aiRuntimePolicy.ts','utf8');
+const data=fs.readFileSync('src/lib/aiDataPolicy.ts','utf8');
+const docs=fs.readFileSync('docs/OPEN_SOURCE_AI_DOCUMENT_STACK.md','utf8');
+for(const token of ['cloudflare-workers-ai','huggingface-inference','openrouter','ollama']) if(!registry.includes(token)) throw new Error(`Provider missing: ${token}`);
+for(const token of ["mode: 'auto'",'allowHosted: true','allowLocalOllama: false']) if(!policy.includes(token)) throw new Error(`Zero-install runtime policy missing: ${token}`);
+for(const token of ['Raw business rows are not allowed','trustedProvider','tenantId']) if(!data.includes(token)) throw new Error(`AI data policy missing: ${token}`);
+for(const token of ['zero-local-install','Hosted inference — default','API keys are server-side secrets']) if(!docs.includes(token)) throw new Error(`Zero-install documentation missing: ${token}`);
+console.log('Zero-install AI contract: PASS');
