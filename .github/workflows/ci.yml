@@ -45,6 +45,8 @@ jobs:
         run: npm run test:open-source-stack-contract
       - name: Validate zero-install AI runtime policy
         run: npm run test:zero-install-ai-contract
+      - name: Validate zero-cost AI policy
+        run: npm run test:zero-cost-ai-contract
       - name: Validate group demand normalization
         run: npm run test:group-demand
       - name: Validate group demand forecast
