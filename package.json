@@ -10,7 +10,8 @@
     "preview": "vite preview",
     "typecheck": "tsc --noEmit -p tsconfig.app.json",
     "perf:budget": "node scripts/check-performance-budget.mjs",
-    "test:contracts": "node scripts/check-architecture-contract.mjs"
+    "test:contracts": "node scripts/check-architecture-contract.mjs",
+    "test:inventory-intelligence": "node scripts/check-inventory-intelligence.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.57.4",
