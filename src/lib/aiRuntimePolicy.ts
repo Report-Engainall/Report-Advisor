@@ -1,24 +1,26 @@
-export type AIRuntimeMode = 'hosted' | 'browser' | 'local' | 'auto';
+export type AIRuntimeMode = 'free' | 'browser' | 'local' | 'hosted' | 'auto';
 
 export interface AIRuntimePolicy {
   mode: AIRuntimeMode;
   allowHosted: boolean;
   allowBrowserModels: boolean;
   allowLocalOllama: boolean;
+  allowPaidInference: boolean;
   requireConsentForExternalData: boolean;
   neverSendBusinessDataToUntrustedProvider: boolean;
 }
 
 /**
- * Default product policy: hosted inference is the primary path, browser/local
- * inference is optional, and business facts remain deterministic regardless of
- * which language model is selected.
+ * Product policy: no paid inference and no local model installation are required.
+ * Hosted inference may only be enabled explicitly when a project-owned free quota
+ * is configured; the normal path is deterministic + browser-capable AI.
  */
 export const DEFAULT_AI_RUNTIME_POLICY: AIRuntimePolicy = {
-  mode: 'auto',
-  allowHosted: true,
+  mode: 'free',
+  allowHosted: false,
   allowBrowserModels: true,
   allowLocalOllama: false,
+  allowPaidInference: false,
   requireConsentForExternalData: true,
   neverSendBusinessDataToUntrustedProvider: true,
 };
@@ -28,5 +30,10 @@ export function shouldUseLocalAI(policy: AIRuntimePolicy): boolean {
 }
 
 export function shouldUseHostedAI(policy: AIRuntimePolicy): boolean {
-  return policy.allowHosted && (policy.mode === 'hosted' || policy.mode === 'auto');
+  return policy.allowHosted && policy.allowPaidInference === false && (policy.mode === 'hosted' || policy.mode === 'auto');
+}
+
+export function canUseInferenceProvider(policy: AIRuntimePolicy, provider: 'free-hosted' | 'paid-hosted'): boolean {
+  if (provider === 'paid-hosted') return false;
+  return policy.allowHosted;
 }
