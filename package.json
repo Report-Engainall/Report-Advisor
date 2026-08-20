@@ -16,7 +16,8 @@
     "test:alternative-schema": "node scripts/check-alternative-group-schema.mjs",
     "test:decision-dashboard": "node scripts/check-decision-dashboard.mjs",
     "test:inventory-intelligence-ui": "node scripts/check-inventory-intelligence-ui.mjs",
-    "test:demand-velocity": "node scripts/check-demand-velocity.mjs"
+    "test:demand-velocity": "node scripts/check-demand-velocity.mjs",
+    "test:batch-decision": "node scripts/check-batch-decision-engine.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.57.4",
