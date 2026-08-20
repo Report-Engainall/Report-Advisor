@@ -24,3 +24,9 @@ jobs:
         run: npm run build
       - name: Lint
         run: npm run lint
+      - name: Validate group demand normalization
+        run: npm run test:group-demand
+      - name: Validate group demand forecast
+        run: npm run test:group-demand-forecast
+      - name: Validate alternative group engine
+        run: npm run test:alternative-group-engine
