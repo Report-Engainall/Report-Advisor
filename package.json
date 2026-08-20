@@ -15,7 +15,8 @@
     "test:production-invariants": "node scripts/check-production-invariants.mjs",
     "test:query-planner": "node scripts/check-query-planner.mjs",
     "test:query-planner-hardening": "node scripts/check-query-planner-hardening.mjs",
-    "test:query-executor": "node scripts/check-query-executor.mjs"
+    "test:query-executor": "node scripts/check-query-executor.mjs",
+    "test:demand-series-utils": "node scripts/check-demand-series-utils.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.57.4",
@@ -25,7 +26,7 @@
     "mammoth": "^1.12.1",
     "pdfjs-dist": "^6.2.108",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1",
+    "react-dom": "^18.3.0",
     "react-router-dom": "^7.18.2",
     "recharts": "^3.10.1",
     "tesseract.js": "^7.0.0",
