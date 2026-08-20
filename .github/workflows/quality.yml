@@ -35,3 +35,4 @@ jobs:
       - run: npm run test:analysis-cache-coordinator
       - run: npm run test:analysis-invalidation
       - run: npm run test:concurrent-analysis
+      - run: npm run test:bounded-concurrency
