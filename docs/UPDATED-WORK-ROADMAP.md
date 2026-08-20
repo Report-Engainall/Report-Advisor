@@ -33,7 +33,13 @@
 - Security fixture and schema contract gates — completed.
 - Unified decision dashboard card model — completed.
 - Decision dashboard quality gate — completed.
-- Next: connect grouped-report projection to actual report screens and add detail/grouped toggle.
+- Live inventory intelligence screen using Supabase inventory/products/group membership — completed.
+- Detail/Grouped toggle wired to `grouped-report` — completed.
+- Inventory intelligence route `/reports/inventory-intelligence` — completed.
+- Inventory intelligence sidebar navigation — completed.
+- Inventory intelligence UI contract gate — completed.
+- Important boundary: demand/request history is not fabricated; zero-demand rows explicitly report insufficient historical demand.
+- Next: connect time-series sales/request data so grouped demand and days-of-cover become fully historical.
 - Next: dashboard decision cards with evidence/confidence and actionable priorities.
 - Next: historical peak-vs-current views and group drill-down.
 
@@ -42,7 +48,8 @@
 - Alternative-group tenant isolation/security fixture.
 - Alternative-group schema contract check.
 - Decision dashboard contract check.
-- Package commands for inventory intelligence, security, schema and dashboard checks.
+- Inventory intelligence UI contract check.
+- Package commands for inventory intelligence, security, schema, dashboard and UI checks.
 - Architecture contract and performance budget checks remain mandatory.
 - Next: execute cross-tenant isolation tests against engines, lineage, caches and reports.
 - Next: large grouped dataset correctness/performance tests.
@@ -66,14 +73,16 @@
 - `src/lib/free-toolbox/alternative-group-security.ts`
 - `src/lib/free-toolbox/decision-dashboard.ts`
 - `src/pages/AlternativeGroupsPage.tsx`
+- `src/pages/InventoryIntelligencePage.tsx`
 - `supabase/migrations/20260819230000_alternative_item_groups.sql`
 - `scripts/check-inventory-intelligence.mjs`
 - `scripts/check-alternative-group-security.mjs`
 - `scripts/check-alternative-group-schema.mjs`
 - `scripts/check-decision-dashboard.mjs`
+- `scripts/check-inventory-intelligence-ui.mjs`
 
 ## Next execution sequence
-1. Connect grouped-report projection to actual inventory/report screens with Detail/Grouped mode and drill-down.
+1. Connect time-series sales/request data to live grouped demand and days-of-cover.
 2. Connect decision-dashboard model to an actual dashboard surface.
 3. Integrate customer continuity and liquidity into replenishment ranking.
 4. Add group-level forecast and normalized reorder quantities.
