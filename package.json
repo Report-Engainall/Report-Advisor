@@ -14,7 +14,8 @@
     "test:inventory-semantic-contract": "node scripts/check-inventory-semantic-contract.mjs",
     "test:production-invariants": "node scripts/check-production-invariants.mjs",
     "test:query-planner": "node scripts/check-query-planner.mjs",
-    "test:query-planner-hardening": "node scripts/check-query-planner-hardening.mjs"
+    "test:query-planner-hardening": "node scripts/check-query-planner-hardening.mjs",
+    "test:query-executor": "node scripts/check-query-executor.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.57.4",
