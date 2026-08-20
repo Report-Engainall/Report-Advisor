@@ -20,7 +20,8 @@
     "test:batch-decision": "node scripts/check-batch-decision-engine.mjs",
     "test:safe-metrics": "node scripts/check-safe-metrics.mjs",
     "test:production-scale": "node scripts/check-production-scale.mjs",
-    "test:analysis-cache-policy": "node scripts/check-analysis-cache-policy.mjs"
+    "test:analysis-cache-policy": "node scripts/check-analysis-cache-policy.mjs",
+    "test:analysis-cache-coordinator": "node scripts/check-analysis-cache-coordinator.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.57.4",
