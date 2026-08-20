@@ -30,3 +30,4 @@ jobs:
       - run: npm run test:demand-velocity
       - run: npm run test:batch-decision
       - run: npm run test:safe-metrics
+      - run: npm run test:production-scale
