@@ -18,7 +18,8 @@
     "test:inventory-intelligence-ui": "node scripts/check-inventory-intelligence-ui.mjs",
     "test:demand-velocity": "node scripts/check-demand-velocity.mjs",
     "test:batch-decision": "node scripts/check-batch-decision-engine.mjs",
-    "test:safe-metrics": "node scripts/check-safe-metrics.mjs"
+    "test:safe-metrics": "node scripts/check-safe-metrics.mjs",
+    "test:production-scale": "node scripts/check-production-scale.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.57.4",
