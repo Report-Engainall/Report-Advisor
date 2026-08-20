@@ -55,6 +55,8 @@ jobs:
         run: npm run test:canonical-intelligence
       - name: Validate document intelligence gateway
         run: npm run test:document-intelligence
+      - name: Validate financial decision intelligence
+        run: npm run test:financial-decision-engines
       - name: Validate group demand normalization
         run: npm run test:group-demand
       - name: Validate group demand forecast
