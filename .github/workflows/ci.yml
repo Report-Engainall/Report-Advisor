@@ -43,6 +43,8 @@ jobs:
         run: npm run test:decision-quality-gate
       - name: Validate open-source AI/document stack boundary
         run: npm run test:open-source-stack-contract
+      - name: Validate zero-install AI runtime policy
+        run: npm run test:zero-install-ai-contract
       - name: Validate group demand normalization
         run: npm run test:group-demand
       - name: Validate group demand forecast
