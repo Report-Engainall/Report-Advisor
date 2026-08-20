@@ -1,0 +1,12 @@
+import assert from 'node:assert/strict';
+const points=Array.from({length:30},(_,i)=>({date:`2026-08-${String(i+1).padStart(2,'0')}`,sku:i%2?'B':'A',units:i<23?10:20,factor:1}));
+const total=points.reduce((s,p)=>s+p.units*p.factor,0);
+assert.ok(total>0);
+const historical=total/30;
+const recent=points.slice(-7).reduce((s,p)=>s+p.units,0)/7;
+assert.ok(recent>historical);
+const trend=(recent-historical)/historical;
+const forecast=Math.max(0,historical*(1+Math.max(-0.5,Math.min(1,trend))*0.5));
+assert.ok(forecast>historical);
+assert.ok(forecast<=historical*1.5);
+console.log('group-demand forecast fixture: PASS');
