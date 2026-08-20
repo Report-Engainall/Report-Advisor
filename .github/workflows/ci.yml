@@ -37,6 +37,10 @@ jobs:
         run: npm run test:metric-decision-contract
       - name: Validate report readiness quality and evidence gate
         run: npm run test:report-readiness-contract
+      - name: Validate canonical report thresholds
+        run: npm run test:report-threshold-contract
+      - name: Validate decision quality gate
+        run: npm run test:decision-quality-gate
       - name: Validate group demand normalization
         run: npm run test:group-demand
       - name: Validate group demand forecast
