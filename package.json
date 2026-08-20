@@ -26,7 +26,8 @@
     "test:report-readiness-contract": "node scripts/check-report-readiness-contract.mjs",
     "test:decision-quality-gate": "node scripts/check-decision-quality-gate.mjs",
     "test:report-threshold-contract": "node scripts/check-report-threshold-contract.mjs",
-    "test:dashboard-source-contract": "node scripts/check-dashboard-source-contract.mjs"
+    "test:dashboard-source-contract": "node scripts/check-dashboard-source-contract.mjs",
+    "test:chatbi-execution-contract": "node scripts/check-chatbi-execution-contract.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.57.4",
