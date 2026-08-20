@@ -33,6 +33,8 @@ jobs:
         run: npm run test:freshness-contract
       - name: Validate report evidence + freshness gate
         run: npm run test:report-evidence-freshness-gate
+      - name: Validate operational readiness contract
+        run: npm run test:operational-readiness-contract
       - name: Validate unified import contract
         run: npm run test:unified-import-contract
       - name: Validate import file/job lineage
