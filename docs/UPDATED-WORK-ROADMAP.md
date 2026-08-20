@@ -38,8 +38,13 @@
 - Inventory intelligence route `/reports/inventory-intelligence` — completed.
 - Inventory intelligence sidebar navigation — completed.
 - Inventory intelligence UI contract gate — completed.
-- Important boundary: demand/request history is not fabricated; zero-demand rows explicitly report insufficient historical demand.
-- Next: connect time-series sales/request data so grouped demand and days-of-cover become fully historical.
+- Real sales time-series demand query for 30/90/180/365-day windows — completed.
+- Demand velocity page with acceleration/decline/peak metrics — completed.
+- Demand velocity route `/reports/demand-velocity` — completed.
+- Demand velocity sidebar navigation — completed.
+- Demand velocity contract gate — completed.
+- Important boundary: demand/request history is never fabricated; missing history returns an explicit empty state.
+- Next: connect time-series output to grouped demand and days-of-cover.
 - Next: dashboard decision cards with evidence/confidence and actionable priorities.
 - Next: historical peak-vs-current views and group drill-down.
 
@@ -49,7 +54,8 @@
 - Alternative-group schema contract check.
 - Decision dashboard contract check.
 - Inventory intelligence UI contract check.
-- Package commands for inventory intelligence, security, schema, dashboard and UI checks.
+- Demand velocity contract check.
+- Package commands for inventory intelligence, security, schema, dashboard, UI and demand checks.
 - Architecture contract and performance budget checks remain mandatory.
 - Next: execute cross-tenant isolation tests against engines, lineage, caches and reports.
 - Next: large grouped dataset correctness/performance tests.
@@ -72,14 +78,17 @@
 - `src/lib/free-toolbox/grouped-report.ts`
 - `src/lib/free-toolbox/alternative-group-security.ts`
 - `src/lib/free-toolbox/decision-dashboard.ts`
+- `src/lib/free-toolbox/sales-demand-series.ts`
 - `src/pages/AlternativeGroupsPage.tsx`
 - `src/pages/InventoryIntelligencePage.tsx`
+- `src/pages/DemandVelocityPage.tsx`
 - `supabase/migrations/20260819230000_alternative_item_groups.sql`
 - `scripts/check-inventory-intelligence.mjs`
 - `scripts/check-alternative-group-security.mjs`
 - `scripts/check-alternative-group-schema.mjs`
 - `scripts/check-decision-dashboard.mjs`
 - `scripts/check-inventory-intelligence-ui.mjs`
+- `scripts/check-demand-velocity.mjs`
 
 ## Next execution sequence
 1. Connect time-series sales/request data to live grouped demand and days-of-cover.
