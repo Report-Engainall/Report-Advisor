@@ -33,6 +33,8 @@ jobs:
         run: npm run test:intelligence-data-quality
       - name: Validate inventory aggregation
         run: npm run test:inventory-aggregation
+      - name: Validate canonical metric and decision evidence gate
+        run: npm run test:metric-decision-contract
       - name: Validate group demand normalization
         run: npm run test:group-demand
       - name: Validate group demand forecast
