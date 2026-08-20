@@ -1,0 +1,10 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+const source=fs.readFileSync('src/lib/free-toolbox/queryPlanner.ts','utf8');
+assert.match(source,/SAFE_FILTERS/);
+assert.match(source,/Object\.fromEntries\(Object\.entries\(filters\)/);
+assert.match(source,/safeFilters\.company_id=input\.companyId/);
+assert.match(source,/fingerprint=JSON\.stringify/);
+assert.match(source,/Math\.min\(Math\.max\(Math\.trunc\(input\.limit\?\?500\),1\),5000\)/);
+assert.match(source,/query window start must not exceed end/);
+console.log('query planner hardening: PASS');
