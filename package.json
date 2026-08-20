@@ -33,7 +33,8 @@
     "test:zero-cost-ai-contract": "node scripts/check-zero-cost-policy.mjs",
     "test:business-intelligence-engines": "node scripts/check-business-intelligence-engines.mjs",
     "test:advanced-intelligence": "node scripts/check-advanced-intelligence.mjs",
-    "test:canonical-intelligence": "node scripts/check-canonical-intelligence-contract.mjs"
+    "test:canonical-intelligence": "node scripts/check-canonical-intelligence-contract.mjs",
+    "test:document-intelligence": "node scripts/check-document-intelligence-gateway.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.57.4",
