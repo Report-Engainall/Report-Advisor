@@ -1,0 +1,4 @@
+import assert from 'node:assert/strict';
+const {chunk,forEachChunk}=await import('../src/lib/free-toolbox/chunking.ts');
+const rows=Array.from({length:100000},(_,i)=>i);const parts=chunk(rows,500);assert.equal(parts.length,200);assert.equal(parts[0].items.length,500);assert.equal(parts.at(-1).items.length,500);let seen=0;forEachChunk(rows,750,(items)=>{seen+=items.length});assert.equal(seen,100000);
+const {TenantAnalysisCache}=await import('../src/lib/free-toolbox/tenant-analysis-cache.ts');const cache=new TenantAnalysisCache(2,1000);const t1={tenantId:'t1',userId:'u1',roles:[]};const t2={tenantId:'t2',userId:'u2',roles:[]};cache.set(t1,'forecast','g1',{value:1},0);assert.deepEqual(cache.get(t1,'forecast','g1',500),{value:1});assert.equal(cache.get(t2,'forecast','g1',500),undefined);assert.equal(cache.get(t1,'forecast','g1',1001),undefined);console.log('production scale fixtures: PASS (100K rows, tenant cache isolation, TTL)');
