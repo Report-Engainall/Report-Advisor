@@ -1,0 +1,10 @@
+import fs from 'node:fs';
+const registry=fs.readFileSync('src/lib/aiCapabilityRegistry.ts','utf8');
+const ollama=fs.readFileSync('src/lib/localAIProvider.ts','utf8');
+const docs=fs.readFileSync('docs/OPEN_SOURCE_AI_DOCUMENT_STACK.md','utf8');
+const service=fs.readFileSync('services/document-intelligence/app/main.py','utf8');
+for(const token of ['ollama','docling','paddleocr','tesseract','deterministic','embedding']) if(!registry.includes(token)) throw new Error(`AI capability missing: ${token}`);
+for(const token of ['createOllamaProvider','/api/chat','/api/embed']) if(!ollama.includes(token)) throw new Error(`Ollama adapter missing: ${token}`);
+for(const token of ['Docling','PaddleOCR','Ollama','Tesseract','Numeric business facts originate']) if(!docs.includes(token)) throw new Error(`Architecture rule missing: ${token}`);
+for(const token of ['parse_with_docling','MAX_BYTES','ALLOWED_MIME','/v1/parse']) if(!service.includes(token)) throw new Error(`Document service contract missing: ${token}`);
+console.log('Open-source AI/document stack contract: PASS');
