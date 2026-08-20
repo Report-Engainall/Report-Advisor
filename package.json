@@ -30,7 +30,8 @@
     "test:chatbi-execution-contract": "node scripts/check-chatbi-execution-contract.mjs",
     "test:open-source-stack-contract": "node scripts/check-open-source-stack-contract.mjs",
     "test:zero-install-ai-contract": "node scripts/check-zero-install-ai-contract.mjs",
-    "test:zero-cost-ai-contract": "node scripts/check-zero-cost-policy.mjs"
+    "test:zero-cost-ai-contract": "node scripts/check-zero-cost-policy.mjs",
+    "test:business-intelligence-engines": "node scripts/check-business-intelligence-engines.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.57.4",
@@ -44,7 +45,7 @@
     "react-router-dom": "^7.18.2",
     "recharts": "^3.10.1",
     "tesseract.js": "^7.0.0",
-    "xlsx": "^0.18.5"
+    "xlsx": "^0.18.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.0",
