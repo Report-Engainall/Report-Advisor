@@ -53,6 +53,8 @@ jobs:
         run: npm run test:advanced-intelligence
       - name: Validate canonical intelligence integration
         run: npm run test:canonical-intelligence
+      - name: Validate document intelligence gateway
+        run: npm run test:document-intelligence
       - name: Validate group demand normalization
         run: npm run test:group-demand
       - name: Validate group demand forecast
