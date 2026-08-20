@@ -21,6 +21,7 @@
     "test:unified-import-contract": "node scripts/check-unified-import-contract.mjs",
     "test:import-file-binding": "node scripts/check-import-file-binding.mjs",
     "test:universal-foundation-contracts": "node scripts/check-universal-foundation-contracts.mjs",
+    "test:data-quality-trust-contract": "node scripts/check-data-quality-trust-contract.mjs",
     "test:intelligence-data-quality": "node scripts/check-intelligence-data-quality.mjs",
     "test:inventory-aggregation": "node scripts/check-inventory-aggregation-contract.mjs",
     "test:metric-decision-contract": "node scripts/check-metric-decision-contract.mjs",
