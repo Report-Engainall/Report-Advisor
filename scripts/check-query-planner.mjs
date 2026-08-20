@@ -1,0 +1,10 @@
+import assert from 'node:assert/strict';
+const source=await import('../src/lib/free-toolbox/queryPlanner.ts').catch(()=>null);
+assert.ok(source,'query planner module must be loadable by the project toolchain');
+const p=source.planQuery({table:'orders',columns:['id','net_total','secret'],companyId:'tenant-1',limit:99999});
+assert.deepEqual(p.columns,['id','net_total','company_id']);
+assert.equal(p.filters.company_id,'tenant-1');
+assert.equal(p.limit,5000);
+assert.throws(()=>source.planQuery({table:'users',columns:['id'],companyId:'tenant-1'}));
+assert.throws(()=>source.planDateWindow('2026-08-20','2026-08-19'));
+console.log('query planner contract: PASS');
