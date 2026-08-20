@@ -1,0 +1,10 @@
+import fs from 'node:fs';
+const policy=fs.readFileSync('src/lib/aiRuntimePolicy.ts','utf8');
+const registry=fs.readFileSync('src/lib/aiCapabilityRegistry.ts','utf8');
+const free=fs.readFileSync('src/lib/freeAI.ts','utf8');
+if (!policy.includes("mode: 'free'")) throw new Error('Default AI mode is not free');
+if (!policy.includes('allowPaidInference: false')) throw new Error('Paid inference is not disabled by default');
+if (!registry.includes("mayCostMoney: false")) throw new Error('Registry lacks zero-cost markers');
+if (registry.includes("'openrouter'") || registry.includes("'huggingface-inference'")) throw new Error('Pay-as-you-go provider leaked into free registry');
+for (const token of ['deterministic','browser','insufficient_data']) if (!free.includes(token)) throw new Error(`Free AI fallback missing: ${token}`);
+console.log('Zero-cost AI policy: PASS');
