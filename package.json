@@ -12,7 +12,8 @@
     "perf:budget": "node scripts/check-performance-budget.mjs",
     "test:contracts": "node scripts/check-architecture-contract.mjs",
     "test:inventory-intelligence": "node scripts/check-inventory-intelligence.mjs",
-    "test:alternative-security": "node scripts/check-alternative-group-security.mjs"
+    "test:alternative-security": "node scripts/check-alternative-group-security.mjs",
+    "test:alternative-schema": "node scripts/check-alternative-group-schema.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.57.4",
