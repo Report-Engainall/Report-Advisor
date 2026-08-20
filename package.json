@@ -36,7 +36,8 @@
     "test:canonical-intelligence": "node scripts/check-canonical-intelligence-contract.mjs",
     "test:document-intelligence": "node scripts/check-document-intelligence-gateway.mjs",
     "test:financial-decision-engines": "node scripts/check-financial-decision-engines.mjs",
-    "test:product-experience": "node scripts/check-product-experience.mjs"
+    "test:product-experience": "node scripts/check-product-experience.mjs",
+    "test:master-product-reference": "node scripts/check-master-product-reference.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.57.4",
