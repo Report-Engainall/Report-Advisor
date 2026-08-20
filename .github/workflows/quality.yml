@@ -36,3 +36,4 @@ jobs:
       - run: npm run test:analysis-invalidation
       - run: npm run test:concurrent-analysis
       - run: npm run test:bounded-concurrency
+      - run: npm run test:analysis-batch-runner
