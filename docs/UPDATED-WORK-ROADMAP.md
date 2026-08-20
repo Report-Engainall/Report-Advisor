@@ -31,15 +31,18 @@
 - Sidebar navigation entry — completed.
 - Tenant-aware security validation — completed.
 - Security fixture and schema contract gates — completed.
+- Unified decision dashboard card model — completed.
+- Decision dashboard quality gate — completed.
 - Next: connect grouped-report projection to actual report screens and add detail/grouped toggle.
-- Next: dashboard decision cards for Demand Pulse, Semi-Slow, Stockout Risk, Lost Sales, Customer Continuity, Alternative Coverage and Liquidity Leaders.
+- Next: dashboard decision cards with evidence/confidence and actionable priorities.
 - Next: historical peak-vs-current views and group drill-down.
 
 ## Quality & Production Gates
 - Inventory intelligence deterministic boundary checks.
 - Alternative-group tenant isolation/security fixture.
 - Alternative-group schema contract check.
-- Package commands for inventory intelligence, security and schema checks.
+- Decision dashboard contract check.
+- Package commands for inventory intelligence, security, schema and dashboard checks.
 - Architecture contract and performance budget checks remain mandatory.
 - Next: execute cross-tenant isolation tests against engines, lineage, caches and reports.
 - Next: large grouped dataset correctness/performance tests.
@@ -61,15 +64,17 @@
 - `src/lib/free-toolbox/alternative-group-ui-model.ts`
 - `src/lib/free-toolbox/grouped-report.ts`
 - `src/lib/free-toolbox/alternative-group-security.ts`
+- `src/lib/free-toolbox/decision-dashboard.ts`
 - `src/pages/AlternativeGroupsPage.tsx`
 - `supabase/migrations/20260819230000_alternative_item_groups.sql`
 - `scripts/check-inventory-intelligence.mjs`
 - `scripts/check-alternative-group-security.mjs`
 - `scripts/check-alternative-group-schema.mjs`
+- `scripts/check-decision-dashboard.mjs`
 
 ## Next execution sequence
 1. Connect grouped-report projection to actual inventory/report screens with Detail/Grouped mode and drill-down.
-2. Add dashboard decision cards with evidence/confidence and actionable priorities.
+2. Connect decision-dashboard model to an actual dashboard surface.
 3. Integrate customer continuity and liquidity into replenishment ranking.
 4. Add group-level forecast and normalized reorder quantities.
 5. Add historical peak-vs-current and seasonal demand views.
