@@ -1,49 +1,58 @@
 # Open-source AI + Document Intelligence Stack
 
-This project uses a capability-first, local-first architecture. External libraries are adapters, not business logic.
+Report Advisor is **zero-local-install by default**. Customers do not need Ollama, Python, model weights, CUDA, or a local AI server.
 
-## Selected stack
+External AI/document libraries are capability adapters, never business logic.
 
-| Capability | Primary | Fallback | Rule |
+## Runtime strategy
+
+1. **Hosted inference — default:** server-side gateway routes requests to open-model providers such as Cloudflare Workers AI, Hugging Face Inference Providers, or OpenRouter.
+2. **Browser fallback — optional:** lightweight WASM/browser OCR or small models when appropriate.
+3. **Local AI — optional power-user mode:** Ollama can be enabled by an administrator, but it is never required for normal customers.
+4. **Deterministic mode — always available:** imports, calculations, KPIs, forecasting gates and business facts continue without any LLM.
+
+Cloudflare Workers AI provides serverless access to 50+ open-source models without customers maintaining GPUs. Hugging Face Inference Providers provides a unified API to hundreds of models through serverless providers. OpenRouter provides a unified API across many providers/models and supports provider fallbacks. These are infrastructure choices behind our adapter, not application dependencies.
+
+## Selected capability stack
+
+| Capability | Default | Optional fallback | Rule |
 |---|---|---|---|
-| Office/structured files | XLSX/CSV/ODS existing engine | Python adapters | Never send raw files to an LLM for tabular ingestion |
-| PDF/document parsing | Docling | PDF.js / existing parser | Prefer structured layout + tables before OCR |
-| OCR | PaddleOCR | Tesseract.js | Select by language/layout/device; Arabic is first-class |
-| Local LLM | Ollama | deterministic rules / local-only parser | LLM never invents numeric facts |
-| Embeddings | Ollama embedding models | lexical search | Hybrid retrieval is mandatory for critical answers |
-| Vector store | pgvector/Supabase | local vector index | Keep tenant scope with every vector record |
-| Analytical SQL | existing Supabase + query planner | DuckDB adapter | Push large aggregations to an analytical engine |
-| Dataframes | existing TypeScript engine | Python/Polars adapter | Parse once, transform deterministically |
-| Forecasting | existing deterministic forecast engine | Python stats adapters | Forecasts require data-quality gates |
-| Anomaly detection | deterministic metrics | PyOD/sklearn adapter | Never turn anomalies into facts without evidence |
-| RAG | evidence ledger + semantic retrieval | lexical retrieval | Every answer must retain source lineage |
-| Agent protocol | controlled tool registry | direct function calls | Tools are allow-listed and tenant-scoped |
+| Office/structured files | Existing XLSX/CSV/ODS engine | Python/Polars/DuckDB adapters | Never send raw tables to an LLM |
+| PDF/document parsing | Hosted/local Document Intelligence service | PDF.js / existing parser | Structured layout before OCR |
+| OCR | Hosted PaddleOCR-compatible service | Tesseract.js | Arabic is first-class |
+| Chat/reasoning | Hosted open-model provider | Browser/local model | LLM never creates numeric facts |
+| Embeddings | Hosted embedding provider | lexical / browser / Ollama | Hybrid retrieval for critical answers |
+| Vector store | pgvector/Supabase | local vector index | Tenant scope on every vector |
+| Analytical SQL | Supabase + query planner | DuckDB adapter | Large aggregations use analytical engine |
+| Dataframes | Existing deterministic TypeScript engine | Polars adapter | Parse once, transform deterministically |
+| Forecasting | Existing deterministic engine | Python stats adapters | Data-quality gates mandatory |
+| Anomaly detection | Deterministic metrics | PyOD/sklearn adapter | Evidence required |
+| RAG | Evidence ledger + hybrid retrieval | lexical retrieval | Every answer retains lineage |
+| Agents | Controlled tool registry | Direct functions | Allow-listed, tenant-scoped tools only |
 
-## Why Docling
+## Document intelligence
 
-Docling is MIT-licensed and supports PDF, DOCX, PPTX, XLSX, HTML, images and other document types, advanced PDF layout and table understanding, OCR, local/air-gapped execution and service/MCP modes. It is therefore an excellent **optional document-intelligence accelerator**, not a replacement for the deterministic import engine.
+Docling is an excellent optional backend for structured document parsing, PDF layout and tables. PaddleOCR is an optional high-accuracy multilingual OCR/document backend. Both are isolated behind the normalized document envelope so the web application does not import provider-specific code.
 
-## Why PaddleOCR
+## Local AI policy
 
-PaddleOCR provides structured OCR/document parsing, multilingual support and document/table/formula/chart capabilities. It is an optional higher-accuracy OCR backend for scanned and difficult documents. Tesseract remains the lightweight browser/local fallback.
+Ollama remains supported for administrators and offline/power-user deployments, but it is explicitly **not a prerequisite**. The product must never show a setup error merely because Ollama is absent.
 
-## Why Ollama
+## Security rules
 
-Ollama exposes a local HTTP API (default `http://localhost:11434/api`) and official JavaScript/Python libraries. The application should treat it as a provider behind a local AI adapter so models can change without changing business logic.
+1. Numeric business facts originate from deterministic data engines, never LLM text.
+2. External AI receives only the minimum approved context; raw company data is not sent by default.
+3. Every AI request is tenant-scoped and provider-policy checked.
+4. API keys are server-side secrets, never embedded in the browser bundle.
+5. OCR output is untrusted and must pass normalization/validation.
+6. LLM output cannot directly write business tables.
+7. Optional services fail closed to deterministic parsers/analytics.
+8. File processing is bounded and parse-once.
+9. Provider selection is capability-based so vendors can be changed without rewriting business logic.
 
-## Non-negotiable safety rules
+## Deployment profiles
 
-1. Numeric business facts originate from deterministic data engines, never from LLM text.
-2. Every AI answer carries tenant scope, source references and confidence.
-3. LLM output cannot directly write business tables.
-4. OCR output is untrusted input and must pass normalization/validation.
-5. Optional Python services must fail closed to existing local parsers when unavailable.
-6. File processing is parse-once and memory bounded.
-7. No dependency is introduced solely because it is popular; each adapter must justify its operational cost.
-
-## Runtime modes
-
-- **Browser-only:** current lightweight parsers + Tesseract.js + local Ollama.
-- **Local workstation:** add Docling/PaddleOCR/DuckDB/Polars adapters.
-- **Server:** expose the same adapters through a controlled document-intelligence service.
-- **Offline:** disable network providers; keep deterministic analytics, local LLM and local evidence store.
+- **Customer:** hosted AI, no installation.
+- **Enterprise:** hosted AI through organization's approved gateway/private endpoint.
+- **Private server:** self-hosted document intelligence and model gateway.
+- **Offline:** deterministic analytics + browser/local optional engines; no network dependency.
