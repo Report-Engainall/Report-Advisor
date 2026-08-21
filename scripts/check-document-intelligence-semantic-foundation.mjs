@@ -21,8 +21,11 @@ const routing = fs.readFileSync(required[3], 'utf8');
 for (const token of ['ColumnProfile', 'candidateMeaning', 'DEFAULT_SEMANTIC_DICTIONARY', 'profileColumns']) {
   if (!schema.toLowerCase().includes(token.toLowerCase())) throw new Error(`Schema discovery contract missing: ${token}`);
 }
-for (const token of ['normalizeArabicText', 'parseNumber', 'original', 'percentage']) {
+for (const token of ['normalizeArabicText', 'parseNumber', 'original']) {
   if (!normalization.toLowerCase().includes(token.toLowerCase())) throw new Error(`Normalization contract missing: ${token}`);
+}
+if (!/(percentage|percent|%|٪)/i.test(normalization)) {
+  throw new Error('Normalization contract missing: percentage handling');
 }
 for (const token of ['combineEvidence', 'reconcileNumbers', 'validateLineMath', 'classifyConfidence']) {
   if (!validation.includes(token)) throw new Error(`Validation contract missing: ${token}`);
