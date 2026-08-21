@@ -14,6 +14,49 @@
 11. Tenant bootstrap before tenant-scoped queries.
 12. Report Studio UI and Decision Automation UI.
 13. Trial status UX.
+14. Selective integration of the reviewed intelligence/production-hardening branches.
+15. Cross-repository audit of all repositories currently visible in the linked account; no additional source code was available in the two empty repositories.
+
+## Phase A0 — Document & Data Intelligence Engine foundation
+
+The canonical requirements are recorded in `docs/DOCUMENT_INTELLIGENCE_ENGINE_REQUIREMENTS.md` and are based on the supplied engineering specification. The implementation must be incremental, test-gated, provider-neutral, and must not replace working production UI/query/import surfaces blindly.
+
+### A0.1 — Engine contracts and safety gates
+- Define provider-neutral interfaces for document parsing, OCR, table extraction, entity resolution, validation, and routing.
+- Enforce the raw-data boundary: reports/analytics/forecasting/recommendations may consume only validated/approved canonical data.
+- Add explicit processing states: raw, extracted, staging, validated, reconciled, approved, review, quarantined, production.
+- Preserve source provenance and processing versions.
+- Keep heavy/local AI and OCR engines optional.
+
+### A0.2 — Structured intermediate document model
+- Represent metadata, pages, blocks, tables, rows, cells, images, text, and provenance in one provider-neutral envelope.
+- Preserve cell/source locations and confidence.
+- Support unknown fields without dropping source data.
+
+### A0.3 — Schema discovery and semantic mapping
+- Dynamic column/table/page discovery without fixed templates.
+- Column profiles, statistical fingerprints, pattern recognition, relationship graphs, and multi-evidence semantic mapping.
+- Arabic/English synonyms, OCR variants, numeric/date/currency/unit normalization.
+
+### A0.4 — Validation, reconciliation, confidence and quarantine
+- Entity resolution and deduplication.
+- Mathematical/business reconciliation with configurable tolerances.
+- Field-level confidence and criticality.
+- Focused human review and quarantine for uncertain or invalid records.
+
+### A0.5 — Canonical routing and transactional import
+- Map extracted fields to canonical entities and application destinations.
+- Integrate with the existing governed import/upsert path.
+- Ensure transactional commit/rollback and idempotency.
+
+### A0.6 — Onyx adapter and extensibility
+- Route Onyx Pro reports through the same canonical pipeline.
+- Keep future ERP/POS/CSV/Excel adapters behind the same boundary.
+
+### A0.7 — Golden datasets and quality gates
+- Add representative Arabic/English, scanned, random-schema, no-header, complex-table, invoice, Onyx, and 30+ column fixtures.
+- Add unit/integration/pipeline/OCR/mapping/business/security/load regression gates.
+- Measure extraction, mapping, entity-resolution, and reconciliation accuracy.
 
 ## Next implementation order
 ### Phase A — Report execution
@@ -59,4 +102,6 @@
 - Worker that can process a report without explicit tenant context.
 - AI retrieval without tenant namespace.
 - Trial expiry that destroys customer data.
+- Raw-file access from report/analytics/forecast/recommendation services.
+- Dropped or silently ignored source fields.
 - Failed typecheck/build/lint.
