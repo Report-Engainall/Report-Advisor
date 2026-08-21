@@ -1,5 +1,6 @@
 name: quality
 # Full CI gate: typecheck, lint, build, performance, architecture, and document-intelligence contracts.
+# CI trigger hardening: this workflow must execute on every main push and PR.
 on:
   push:
     branches: [main]
