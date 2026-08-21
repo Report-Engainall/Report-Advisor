@@ -1,5 +1,6 @@
 name: quality
 # Authoritative CI gate: install -> typecheck -> lint -> build -> performance -> architecture -> intelligence.
+# Triggered after compatibility hardening pass to validate the complete main branch.
 on:
   push:
     branches: [main]
