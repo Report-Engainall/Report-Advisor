@@ -1,11 +1,11 @@
-import type { DecisionRecommendation, DecisionSignal } from './intelligence/decisionEngine';
+import type { Decision } from './intelligence/decisionEngine';
 import { evaluateMetric, metricCanDriveDecision, type MetricEvaluation } from './metricEngine';
 import { explainDecision, type Evidence, type DecisionEvidence } from './free-toolbox/evidence-ledger';
-export interface EvidenceBackedDecision extends DecisionRecommendation { evidence: DecisionEvidence; blocked: boolean; blockedReason?: string; }
-export function buildEvidenceBackedDecision(decision: DecisionRecommendation, signals: DecisionSignal[], evidence: Evidence[]): EvidenceBackedDecision {
-  const signal = signals.find(item => decision.signals.some(decisionSignal => decisionSignal.key === item.key));
-  const metric: MetricEvaluation | null = signal ? evaluateMetric({ key: signal.key, value: signal.value, confidence: decision.confidence }) : null;
-  const decisionEvidence = explainDecision(decision.id, decision.reason, evidence);
+export interface EvidenceBackedDecision extends Decision { evidence: DecisionEvidence; blocked: boolean; blockedReason?: string; }
+export function buildEvidenceBackedDecision(decision: Decision, evidence: Evidence[]): EvidenceBackedDecision {
+  const primary = decision.evidence[0];
+  const metric: MetricEvaluation | null = primary ? evaluateMetric({ key: primary.metric, value: primary.value, confidence: decision.confidence }) : null;
+  const decisionEvidence = explainDecision(decision.id, decision.action, evidence);
   const metricAllowed = metric ? metricCanDriveDecision(metric) : false;
   const evidenceAllowed = decisionEvidence.status === 'verified' || decisionEvidence.status === 'partial';
   const blocked = !metricAllowed || !evidenceAllowed;
