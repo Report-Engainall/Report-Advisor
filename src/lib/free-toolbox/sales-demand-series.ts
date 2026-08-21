@@ -10,7 +10,19 @@ export async function fetchProductDemandSeries(days=180):Promise<ProductDemandSe
  const {data:items,error:se}=await supabase.from('sale_items').select('invoice_id,product_id,quantity,line_total,product:products(sku,name)').in('invoice_id',ids);
  if(se||!items?.length)return [];
  const map=new Map<string,ProductDemandSeries>();
- for(const row of items as any[]){if(!row.product_id)continue;const date=dateByInvoice.get(row.invoice_id);if(!date)continue;const e=map.get(row.product_id)??{productId:row.product_id,sku:row.product?.sku??'',name:row.product?.name??'غير معروف',points:[],totalQuantity:0,averageDaily:0,peakDaily:0,trend:0};const p=e.points.find(x=>x.date===date);if(p){p.quantity+=Number(row.quantity)||0;p.sales+=Number(row.line_total)||0}else e.points.push({date,quantity:Number(row.quantity)||0,sales:Number(row.line_total)||0});e.totalQuantity+=Number(row.quantity)||0;map.set(row.product_id,e)}
- for(const e of map.values()){e.points.sort((a,b)=>a.date.localeCompare(b.date));e.averageDaily=e.totalQuantity/Math.max(1,days);e.peakDaily=Math.max(...e.points.map(p=>p.quantity),0);const h=Math.max(1,Math.floor(e.points.length/2));const a=e.points.slice(0,h).reduce((s,p)=>s+p.quantity,0)/h;const b=e.points.slice(-h).reduce((s,p)=>s+p.quantity,0)/h;e.trend=a>0?(b-a)/a:b>0?1:0}
+ for(const row of items as any[]){
+  if(!row.product_id)continue;
+  const date=dateByInvoice.get(row.invoice_id);if(!date)continue;
+  let e=map.get(row.product_id);
+  if(!e){e={productId:row.product_id,sku:row.product?.sku??'',name:row.product?.name??'غير معروف',points:[],totalQuantity:0,averageDaily:0,peakDaily:0,trend:0};map.set(row.product_id,e)}
+  const p=e.points.find(x=>x.date===date);
+  if(p){p.quantity+=Number(row.quantity)||0;p.sales+=Number(row.line_total)||0}
+  else{const point:DemandPoint={date,quantity:Number(row.quantity)||0,sales:Number(row.line_total)||0};e.points.push(point)}
+  e.totalQuantity+=Number(row.quantity)||0;
+ }
+ for(const e of map.values()){
+  e.points.sort((a,b)=>a.date.localeCompare(b.date));e.averageDaily=e.totalQuantity/Math.max(1,days);e.peakDaily=Math.max(...e.points.map(p=>p.quantity),0);
+  const h=Math.max(1,Math.floor(e.points.length/2));const a=e.points.slice(0,h).reduce((s,p)=>s+p.quantity,0)/h;const b=e.points.slice(-h).reduce((s,p)=>s+p.quantity,0)/h;e.trend=a>0?(b-a)/a:b>0?1:0
+ }
  return [...map.values()].sort((a,b)=>b.totalQuantity-a.totalQuantity)
 }
