@@ -18,10 +18,14 @@
 15. Cross-repository audit of all repositories currently visible in the linked account; no additional source code was available in the two empty repositories.
 16. A0.1 provider-neutral document intelligence contracts and raw-data safety gates.
 17. A0.2 structured intermediate document envelope with source/cell provenance, lifecycle states, and parser integration.
+18. A0.3 schema discovery foundation: dynamic column profiling, statistical fingerprints, pattern recognition, Arabic/English semantic dictionary, and multi-evidence candidate scoring.
+19. A0.3 normalization foundation: Arabic/English digits, Arabic text normalization, locale-aware numeric parsing, percentages, dates/booleans, and lossless original-value retention.
+20. A0.4 validation foundation: weighted evidence confidence, line/invoice mathematical reconciliation, configurable tolerances, criticality-aware review/quarantine decisions.
+21. A0.5 routing foundation: canonical-field-to-entity/destination routing without depending on external column names.
 
 ## Phase A0 — Document & Data Intelligence Engine foundation
 
-The canonical requirements are recorded in `docs/DOCUMENT_INTELLIGENCE_ENGINE_REQUIREMENTS.md` and are based on the supplied engineering specification. The implementation must be incremental, test-gated, provider-neutral, and must not replace working production UI/query/import surfaces blindly.
+The canonical requirements are recorded in `docs/DOCUMENT_INTELLIGENCE_ENGINE_REQUIREMENTS.md` and are based on the supplied engineering specification. The implementation is incremental, test-gated, provider-neutral, and must not replace working production UI/query/import surfaces blindly.
 
 ### A0.1 — Engine contracts and safety gates — COMPLETED
 - Define provider-neutral interfaces for document parsing, OCR, table extraction, entity resolution, validation, and routing.
@@ -37,21 +41,25 @@ The canonical requirements are recorded in `docs/DOCUMENT_INTELLIGENCE_ENGINE_RE
 - Route the existing optional Docling adapter through the canonical envelope without making Docling mandatory.
 - Add lifecycle transition invariants and regression tests.
 
-### A0.3 — Schema discovery and semantic mapping — NEXT
-- Dynamic column/table/page discovery without fixed templates.
-- Column profiles, statistical fingerprints, pattern recognition, relationship graphs, and multi-evidence semantic mapping.
-- Arabic/English synonyms, OCR variants, numeric/date/currency/unit normalization.
+### A0.3 — Schema discovery and semantic mapping — FOUNDATION COMPLETED
+- Dynamic column profiling without fixed templates.
+- Statistical fingerprints: null/non-empty ratio, uniqueness, numeric/date ratios, length, min/max and identifier-like patterns.
+- Multi-evidence semantic candidates using header, content type, patterns and canonical Arabic/English synonyms.
+- Preserve unknown columns; do not discard source data merely because mapping is unresolved.
+- **Remaining hardening:** relationship graph across columns, page/table classification, headerless reverse-schema inference, richer OCR-error dictionary, and existing-company-data evidence.
 
-### A0.4 — Validation, reconciliation, confidence and quarantine
-- Entity resolution and deduplication.
-- Mathematical/business reconciliation with configurable tolerances.
-- Field-level confidence and criticality.
-- Focused human review and quarantine for uncertain or invalid records.
+### A0.4 — Validation, reconciliation, confidence and quarantine — FOUNDATION COMPLETED
+- Weighted evidence confidence and criticality-aware approval thresholds.
+- Line-level quantity × unit-price reconciliation.
+- Invoice subtotal/tax/discount/shipping/total reconciliation with absolute and relative tolerance.
+- Explicit PASS/WARN/FAIL/UNKNOWN issues.
+- Review/quarantine decisions for uncertain mappings.
+- **Remaining hardening:** entity resolution, deduplication/idempotency, accounting/inventory reconciliations, field-level lineage persistence, and human-review workflow integration.
 
-### A0.5 — Canonical routing and transactional import
-- Map extracted fields to canonical entities and application destinations.
-- Integrate with the existing governed import/upsert path.
-- Ensure transactional commit/rollback and idempotency.
+### A0.5 — Canonical routing and transactional import — ROUTING FOUNDATION COMPLETED
+- Map canonical semantic fields to entities and destinations rather than matching external column names.
+- Unknown/unmapped fields are routed to quarantine instead of silently ignored.
+- **Remaining hardening:** integrate routing with the existing governed import/upsert path, transactional commit/rollback, idempotency keys, and production destination adapters.
 
 ### A0.6 — Onyx adapter and extensibility
 - Route Onyx Pro reports through the same canonical pipeline.
@@ -61,6 +69,13 @@ The canonical requirements are recorded in `docs/DOCUMENT_INTELLIGENCE_ENGINE_RE
 - Add representative Arabic/English, scanned, random-schema, no-header, complex-table, invoice, Onyx, and 30+ column fixtures.
 - Add unit/integration/pipeline/OCR/mapping/business/security/load regression gates.
 - Measure extraction, mapping, entity-resolution, and reconciliation accuracy.
+
+## Required next hardening sequence
+1. Complete A0.3 relationship graphs, headerless reverse-schema discovery, page/table classification, and evidence fusion.
+2. Complete A0.4 entity resolution, deduplication/idempotency, accounting/inventory reconciliation, and review/quarantine persistence.
+3. Complete A0.5 governed transactional routing into the existing import engine with rollback and idempotency.
+4. Then implement A0.6 Onyx adapter and A0.7 golden datasets/quality gates.
+5. Only after these gates pass, proceed with downstream report execution/automation work.
 
 ## Next implementation order
 ### Phase A — Report execution
@@ -109,3 +124,5 @@ The canonical requirements are recorded in `docs/DOCUMENT_INTELLIGENCE_ENGINE_RE
 - Raw-file access from report/analytics/forecast/recommendation services.
 - Dropped or silently ignored source fields.
 - Failed typecheck/build/lint.
+- A critical field auto-approved without sufficient evidence.
+- Reconciliation mismatch silently committed to production.
