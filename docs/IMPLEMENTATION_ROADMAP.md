@@ -22,6 +22,7 @@
 19. A0.3 normalization foundation: Arabic/English digits, Arabic text normalization, locale-aware numeric parsing, percentages, dates/booleans, and lossless original-value retention.
 20. A0.4 validation foundation: weighted evidence confidence, line/invoice mathematical reconciliation, configurable tolerances, criticality-aware review/quarantine decisions.
 21. A0.5 routing foundation: canonical-field-to-entity/destination routing without depending on external column names.
+22. A0.3 hardening: relationship/cardinality graph inference, headerless reverse-schema inference, table classification, and conservative evidence fusion with review/quarantine decisions.
 
 ## Phase A0 — Document & Data Intelligence Engine foundation
 
@@ -41,12 +42,16 @@ The canonical requirements are recorded in `docs/DOCUMENT_INTELLIGENCE_ENGINE_RE
 - Route the existing optional Docling adapter through the canonical envelope without making Docling mandatory.
 - Add lifecycle transition invariants and regression tests.
 
-### A0.3 — Schema discovery and semantic mapping — FOUNDATION COMPLETED
+### A0.3 — Schema discovery and semantic mapping — HARDENED
 - Dynamic column profiling without fixed templates.
 - Statistical fingerprints: null/non-empty ratio, uniqueness, numeric/date ratios, length, min/max and identifier-like patterns.
 - Multi-evidence semantic candidates using header, content type, patterns and canonical Arabic/English synonyms.
 - Preserve unknown columns; do not discard source data merely because mapping is unresolved.
-- **Remaining hardening:** relationship graph across columns, page/table classification, headerless reverse-schema inference, richer OCR-error dictionary, and existing-company-data evidence.
+- Relationship/cardinality graph inference across identifier-like fields.
+- Headerless reverse-schema inference using structural evidence rather than fabricated headers.
+- Page/table classification into transaction, master, summary, lookup, or unknown.
+- Evidence fusion with explicit accept/review/quarantine decisions; weak matches are never auto-approved.
+- **Remaining hardening:** richer OCR-error dictionary and existing-company-data evidence.
 
 ### A0.4 — Validation, reconciliation, confidence and quarantine — FOUNDATION COMPLETED
 - Weighted evidence confidence and criticality-aware approval thresholds.
@@ -71,7 +76,7 @@ The canonical requirements are recorded in `docs/DOCUMENT_INTELLIGENCE_ENGINE_RE
 - Measure extraction, mapping, entity-resolution, and reconciliation accuracy.
 
 ## Required next hardening sequence
-1. Complete A0.3 relationship graphs, headerless reverse-schema discovery, page/table classification, and evidence fusion.
+1. Complete A0.3 OCR-error dictionary and existing-company-data evidence.
 2. Complete A0.4 entity resolution, deduplication/idempotency, accounting/inventory reconciliation, and review/quarantine persistence.
 3. Complete A0.5 governed transactional routing into the existing import engine with rollback and idempotency.
 4. Then implement A0.6 Onyx adapter and A0.7 golden datasets/quality gates.
