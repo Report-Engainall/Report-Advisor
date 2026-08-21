@@ -1,6 +1,5 @@
 name: quality
-# Full CI gate: typecheck, lint, build, performance, architecture, and document-intelligence contracts.
-# CI trigger hardening: this workflow must execute on every main push and PR.
+# Authoritative CI gate: install -> typecheck -> lint -> build -> performance -> architecture -> intelligence.
 on:
   push:
     branches: [main]
@@ -12,35 +11,68 @@ permissions:
 jobs:
   verify:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
-      - run: npm install --no-audit --no-fund
-      - run: npm run typecheck
-      - run: npm run lint
-      - run: npm run build
-      - run: npm run perf:budget
-      - run: npm run test:contracts
-      - run: npm run test:selective-foundation
-      - run: npm run test:consolidated-intelligence
-      - run: npm run test:inventory-intelligence
-      - run: npm run test:alternative-security
-      - run: npm run test:alternative-schema
-      - run: npm run test:decision-dashboard
-      - run: npm run test:inventory-intelligence-ui
-      - run: npm run test:demand-velocity
-      - run: npm run test:batch-decision
-      - run: npm run test:safe-metrics
-      - run: npm run test:production-scale
-      - run: npm run test:analysis-cache-policy
-      - run: npm run test:analysis-cache-coordinator
-      - run: npm run test:analysis-invalidation
-      - run: npm run test:concurrent-analysis
-      - run: npm run test:bounded-concurrency
-      - run: npm run test:analysis-batch-runner
-      - run: npm run test:document-intelligence-contract
-      - run: npm run test:document-intelligence-semantic-foundation
+      - name: Environment diagnostics
+        run: |
+          node --version
+          npm --version
+          test -f package-lock.json
+          test -f tsconfig.app.json
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Lint
+        run: npm run lint
+      - name: Build
+        run: npm run build
+      - name: Performance budget
+        run: npm run perf:budget
+      - name: Architecture contracts
+        run: npm run test:contracts
+      - name: Selective foundation
+        run: npm run test:selective-foundation
+      - name: Consolidated intelligence
+        run: npm run test:consolidated-intelligence
+      - name: Inventory intelligence
+        run: npm run test:inventory-intelligence
+      - name: Alternative security
+        run: npm run test:alternative-security
+      - name: Alternative schema
+        run: npm run test:alternative-schema
+      - name: Decision dashboard
+        run: npm run test:decision-dashboard
+      - name: Inventory intelligence UI
+        run: npm run test:inventory-intelligence-ui
+      - name: Demand velocity
+        run: npm run test:demand-velocity
+      - name: Batch decision
+        run: npm run test:batch-decision
+      - name: Safe metrics
+        run: npm run test:safe-metrics
+      - name: Production scale
+        run: npm run test:production-scale
+      - name: Analysis cache policy
+        run: npm run test:analysis-cache-policy
+      - name: Analysis cache coordinator
+        run: npm run test:analysis-cache-coordinator
+      - name: Analysis invalidation
+        run: npm run test:analysis-invalidation
+      - name: Concurrent analysis
+        run: npm run test:concurrent-analysis
+      - name: Bounded concurrency
+        run: npm run test:bounded-concurrency
+      - name: Analysis batch runner
+        run: npm run test:analysis-batch-runner
+      - name: Document intelligence contract
+        run: npm run test:document-intelligence-contract
+      - name: Document intelligence semantic foundation
+        run: npm run test:document-intelligence-semantic-foundation
