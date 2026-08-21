@@ -39,3 +39,6 @@ jobs:
       - run: npm run test:concurrent-analysis
       - run: npm run test:bounded-concurrency
       - run: npm run test:analysis-batch-runner
+      - run: npm run test:document-intelligence-contract
+      - run: npm run test:document-intelligence-semantic-foundation
+      - run: npm run test:document-intelligence-hardening

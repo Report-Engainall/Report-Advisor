@@ -22,6 +22,10 @@
 19. A0.3 normalization foundation: Arabic/English digits, Arabic text normalization, locale-aware numeric parsing, percentages, dates/booleans, and lossless original-value retention.
 20. A0.4 validation foundation: weighted evidence confidence, line/invoice mathematical reconciliation, configurable tolerances, criticality-aware review/quarantine decisions.
 21. A0.5 routing foundation: canonical-field-to-entity/destination routing without depending on external column names.
+22. A0.3 hardening: column relationship graph, structural table classification, headerless reverse-schema inference, and deterministic evidence fusion primitives.
+23. A0.4 hardening foundation: normalized entity resolution, deterministic idempotency envelope generation, and criticality-aware review decisions.
+24. Deterministic document preflight pipeline combining profiling, schema inference, routing, reconciliation, and quarantine decisions before production routing.
+25. Dedicated hardening contract gate registered in package scripts.
 
 ## Phase A0 — Document & Data Intelligence Engine foundation
 
@@ -41,25 +45,33 @@ The canonical requirements are recorded in `docs/DOCUMENT_INTELLIGENCE_ENGINE_RE
 - Route the existing optional Docling adapter through the canonical envelope without making Docling mandatory.
 - Add lifecycle transition invariants and regression tests.
 
-### A0.3 — Schema discovery and semantic mapping — FOUNDATION COMPLETED
+### A0.3 — Schema discovery and semantic mapping — HARDENING FOUNDATION COMPLETED
 - Dynamic column profiling without fixed templates.
 - Statistical fingerprints: null/non-empty ratio, uniqueness, numeric/date ratios, length, min/max and identifier-like patterns.
 - Multi-evidence semantic candidates using header, content type, patterns and canonical Arabic/English synonyms.
 - Preserve unknown columns; do not discard source data merely because mapping is unresolved.
-- **Remaining hardening:** relationship graph across columns, page/table classification, headerless reverse-schema inference, richer OCR-error dictionary, and existing-company-data evidence.
+- Relationship graph across columns.
+- Structural page/table classification primitive.
+- Headerless reverse-schema inference using content and relationship evidence.
+- Deterministic evidence fusion exposed to the preflight pipeline.
+- Remaining: richer OCR-error dictionary and evidence from existing company master data.
 
-### A0.4 — Validation, reconciliation, confidence and quarantine — FOUNDATION COMPLETED
+### A0.4 — Validation, reconciliation, confidence and quarantine — HARDENING FOUNDATION COMPLETED
 - Weighted evidence confidence and criticality-aware approval thresholds.
 - Line-level quantity × unit-price reconciliation.
 - Invoice subtotal/tax/discount/shipping/total reconciliation with absolute and relative tolerance.
 - Explicit PASS/WARN/FAIL/UNKNOWN issues.
 - Review/quarantine decisions for uncertain mappings.
-- **Remaining hardening:** entity resolution, deduplication/idempotency, accounting/inventory reconciliations, field-level lineage persistence, and human-review workflow integration.
+- Normalized entity-resolution primitive with exact and conservative similarity matching.
+- Deterministic idempotency envelope generation from tenant/entity/natural-key/source-hash.
+- Preflight safety assertion that prevents quarantined entity resolutions from being routed onward.
+- Remaining: accounting/inventory cross-record reconciliation, persistent field-level lineage, durable review queue, and human-review workflow integration.
 
-### A0.5 — Canonical routing and transactional import — ROUTING FOUNDATION COMPLETED
+### A0.5 — Canonical routing and transactional import — ROUTING FOUNDATION + PREFLIGHT COMPLETED
 - Map canonical semantic fields to entities and destinations rather than matching external column names.
 - Unknown/unmapped fields are routed to quarantine instead of silently ignored.
-- **Remaining hardening:** integrate routing with the existing governed import/upsert path, transactional commit/rollback, idempotency keys, and production destination adapters.
+- Deterministic preflight now combines schema inference, route confidence, mathematical reconciliation, and review/quarantine status.
+- Remaining hardening: connect preflight output to the existing governed import/upsert path, transactional commit/rollback, persistent idempotency keys, and production destination adapters.
 
 ### A0.6 — Onyx adapter and extensibility
 - Route Onyx Pro reports through the same canonical pipeline.
@@ -71,9 +83,9 @@ The canonical requirements are recorded in `docs/DOCUMENT_INTELLIGENCE_ENGINE_RE
 - Measure extraction, mapping, entity-resolution, and reconciliation accuracy.
 
 ## Required next hardening sequence
-1. Complete A0.3 relationship graphs, headerless reverse-schema discovery, page/table classification, and evidence fusion.
-2. Complete A0.4 entity resolution, deduplication/idempotency, accounting/inventory reconciliation, and review/quarantine persistence.
-3. Complete A0.5 governed transactional routing into the existing import engine with rollback and idempotency.
+1. Complete A0.3 richer OCR-error dictionary and existing-company-data evidence fusion.
+2. Complete A0.4 accounting/inventory cross-record reconciliation, durable field-level lineage, persistent review/quarantine workflow, and deduplication across historical imports.
+3. Complete A0.5 governed transactional routing into the existing import engine with rollback, persistent idempotency, and destination adapters.
 4. Then implement A0.6 Onyx adapter and A0.7 golden datasets/quality gates.
 5. Only after these gates pass, proceed with downstream report execution/automation work.
 
