@@ -16,24 +16,28 @@
 13. Trial status UX.
 14. Selective integration of the reviewed intelligence/production-hardening branches.
 15. Cross-repository audit of all repositories currently visible in the linked account; no additional source code was available in the two empty repositories.
+16. A0.1 provider-neutral document intelligence contracts and raw-data safety gates.
+17. A0.2 structured intermediate document envelope with source/cell provenance, lifecycle states, and parser integration.
 
 ## Phase A0 — Document & Data Intelligence Engine foundation
 
 The canonical requirements are recorded in `docs/DOCUMENT_INTELLIGENCE_ENGINE_REQUIREMENTS.md` and are based on the supplied engineering specification. The implementation must be incremental, test-gated, provider-neutral, and must not replace working production UI/query/import surfaces blindly.
 
-### A0.1 — Engine contracts and safety gates
+### A0.1 — Engine contracts and safety gates — COMPLETED
 - Define provider-neutral interfaces for document parsing, OCR, table extraction, entity resolution, validation, and routing.
 - Enforce the raw-data boundary: reports/analytics/forecasting/recommendations may consume only validated/approved canonical data.
 - Add explicit processing states: raw, extracted, staging, validated, reconciled, approved, review, quarantined, production.
 - Preserve source provenance and processing versions.
 - Keep heavy/local AI and OCR engines optional.
 
-### A0.2 — Structured intermediate document model
+### A0.2 — Structured intermediate document model — COMPLETED (foundation)
 - Represent metadata, pages, blocks, tables, rows, cells, images, text, and provenance in one provider-neutral envelope.
-- Preserve cell/source locations and confidence.
+- Preserve source identity, cell/source locations, source hashes, parser identity, and confidence fields.
 - Support unknown fields without dropping source data.
+- Route the existing optional Docling adapter through the canonical envelope without making Docling mandatory.
+- Add lifecycle transition invariants and regression tests.
 
-### A0.3 — Schema discovery and semantic mapping
+### A0.3 — Schema discovery and semantic mapping — NEXT
 - Dynamic column/table/page discovery without fixed templates.
 - Column profiles, statistical fingerprints, pattern recognition, relationship graphs, and multi-evidence semantic mapping.
 - Arabic/English synonyms, OCR variants, numeric/date/currency/unit normalization.
