@@ -1,4 +1,5 @@
 name: quality
+# Full CI gate: typecheck, lint, build, performance, architecture, and document-intelligence contracts.
 on:
   push:
     branches: [main]
