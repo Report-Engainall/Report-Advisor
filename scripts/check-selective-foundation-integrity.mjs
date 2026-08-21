@@ -23,23 +23,41 @@ for (const file of required) {
   if (!fs.existsSync(file)) throw new Error(`Missing integrated foundation artifact: ${file}`);
 }
 
-const pkg = JSON.parse(fs.readFileSync('package.json','utf8'));
+const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
 if (!pkg.scripts?.typecheck) throw new Error('typecheck script missing');
 if (!pkg.scripts?.build) throw new Error('build script missing');
 
-const master = fs.readFileSync('docs/MASTER_PRODUCT_REFERENCE.md','utf8');
-for (const token of ['AUTHORITATIVE SINGLE REFERENCE','deterministic business calculations','evidence/lineage','free-first/open-source-first']) {
+const master = fs.readFileSync('docs/MASTER_PRODUCT_REFERENCE.md', 'utf8');
+for (const token of [
+  'AUTHORITATIVE SINGLE REFERENCE',
+  'deterministic business calculations',
+  'evidence/lineage',
+  'free-first/open-source-first'
+]) {
   if (!master.includes(token)) throw new Error(`Master reference invariant missing: ${token}`);
 }
 
-const truth = fs.readFileSync('src/lib/intelligence/truthPolicy.ts','utf8');
-for (const token of ['VERIFIED','QUALIFIED','INSUFFICIENT_DATA','BLOCKED','canDriveDecision']) {
+const truth = fs.readFileSync('src/lib/intelligence/truthPolicy.ts', 'utf8');
+for (const token of ['VERIFIED', 'QUALIFIED', 'INSUFFICIENT_DATA', 'BLOCKED', 'canDriveDecision']) {
   if (!truth.includes(token)) throw new Error(`Truth invariant missing: ${token}`);
 }
 
-const router = fs.readFileSync('src/lib/intelligence/processingRouter.ts','utf8');
-for (const token of ['FAST','WORKER','DOCUMENT_AI','HEAVY_ANALYTICS','OFFLINE']) {
-  if (!router.includes(token)) throw new Error(`Processing route invariant missing: ${token}`);
+// Validate the processing router against its real source contract rather than
+// requiring internal implementation labels that do not exist in the public API.
+const router = fs.readFileSync('src/lib/intelligence/processingRouter.ts', 'utf8');
+const routerInvariants = [
+  ['workload kinds', ['spreadsheet', 'document', 'ocr', 'table', 'analytics', 'forecast']],
+  ['execution modes', ['browser', 'worker', 'service']],
+  ['engines', ['native', 'worker', 'document-service', 'analytics-engine']],
+  ['offline routing', ["r.network==='offline'", "engine:'native'", "reason:'offline-first local path'"]],
+  ['large-workload routing', ["mode:'worker'", "reason:'large workload isolated from UI thread'"]],
+  ['accuracy-critical document routing', ["mode:'service'", "engine:'document-service'", "reason:'accuracy-critical document workload'"]]
+];
+
+for (const [name, tokens] of routerInvariants) {
+  for (const token of tokens) {
+    if (!router.includes(token)) throw new Error(`Processing router invariant missing (${name}): ${token}`);
+  }
 }
 
-console.log(`Selective foundation integrity: PASS (${required.length} artifacts)`);
+console.log(`Selective foundation integrity: PASS (${required.length} artifacts; router contract validated semantically)`);
