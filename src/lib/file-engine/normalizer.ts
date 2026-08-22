@@ -15,6 +15,7 @@ export function normalizeArabicText(text: string): string {
   return text
     .replace(/[\u0640]/g, '')
     .replace(/[\u200B-\u200F\u202A-\u202E\uFEFF]/g, '')
+    .replace(/[\u064B-\u065F\u0670]/g, '')
     .replace(/\u0622/g, '\u0627')
     .replace(/\u0623/g, '\u0627')
     .replace(/\u0625/g, '\u0627')
@@ -31,9 +32,7 @@ export function normalizeWhitespace(text: string): string {
 
 /** Canonical header normalization used by schema discovery and column mapping. */
 export function normalizeHeader(name: string): string {
-  return normalizeArabicText(normalizeWhitespace(normalizeArabicDigits(name)))
-    .toLowerCase()
-    .replace(/[\u064B-\u065F]/g, '');
+  return normalizeArabicText(normalizeWhitespace(normalizeArabicDigits(name))).toLowerCase();
 }
 
 export function normalizeValue(value: any): any {
@@ -95,14 +94,12 @@ export function parseNumber(value: any): number | null {
     .replace(/[\u00A0\u202F\s]/g, '')
     .replace(/[−–—]/g, '-');
 
-  // Remove currency/text symbols while preserving digits, sign, separators and decimal point.
   v = v.replace(/[^\d,.-]/g, '');
   if (v === '' || v === '-') return null;
 
   const comma = v.lastIndexOf(',');
   const dot = v.lastIndexOf('.');
   if (comma >= 0 && dot >= 0) {
-    // The rightmost separator is treated as the decimal separator; the other is grouping.
     if (comma > dot) v = v.replace(/\./g, '').replace(',', '.');
     else v = v.replace(/,/g, '');
   } else if (comma >= 0) {
@@ -125,7 +122,7 @@ export function parseCurrency(value: any): number | null {
 export function parseDate(value: any): string | null {
   if (!value) return null;
   if (value instanceof Date) return value.toISOString().split('T')[0];
-  let v = normalizeArabicDigits(String(value)).trim();
+  const v = normalizeArabicDigits(String(value)).trim();
 
   const isoMatch = v.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
   if (isoMatch) return `${isoMatch[1]}-${isoMatch[2].padStart(2, '0')}-${isoMatch[3].padStart(2, '0')}`;
