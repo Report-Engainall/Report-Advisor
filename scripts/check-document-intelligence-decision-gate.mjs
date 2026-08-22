@@ -8,6 +8,7 @@ const required = [
   "reconciliationPassed",
   "VALIDATION_FAILED",
   "VALIDATION_REQUIRED",
+  "RECONCILIATION_REQUIRED",
   "RECONCILIATION_FAILED",
   "NON_FINITE_CONFIDENCE",
   "QUARANTINE",
@@ -21,8 +22,14 @@ for (const token of required) {
 if (!/input\.validationStatus\s*!==\s*'PASS'/.test(gate)) {
   throw new Error('Decision gate must block non-PASS validation before approval.');
 }
+if (!/input\.reconciliationPassed\s*!==\s*true/.test(gate)) {
+  throw new Error('Decision gate must require explicit successful reconciliation before approval.');
+}
 if (!/input\.reconciliationPassed\s*===\s*false/.test(gate)) {
   throw new Error('Decision gate must quarantine explicit reconciliation failures.');
+}
+if (!/RECONCILIATION_REQUIRED/.test(gate)) {
+  throw new Error('Decision gate must distinguish missing reconciliation evidence from failed reconciliation.');
 }
 if (!/Number\.isFinite\(input\.confidence\)/.test(gate)) {
   throw new Error('Decision gate must fail closed on non-finite confidence.');
