@@ -18,11 +18,13 @@ class Pool {
 
   start(task) {
     this.active++;
-    return task().finally(() => {
-      this.active--;
-      const next = this.queue.shift();
-      if (next) next();
-    });
+    return Promise.resolve()
+      .then(task)
+      .finally(() => {
+        this.active--;
+        const next = this.queue.shift();
+        if (next) next();
+      });
   }
 }
 
@@ -39,9 +41,8 @@ const work = async () => {
   completed++;
 };
 
-// The pool has bounded admission: 4 active + 20 queued.
-// A producer must respect that boundary instead of submitting an
-// unbounded batch and creating an unhandled queue-limit rejection.
+// Respect admission capacity: never submit more than active + queue capacity.
+// This makes the fixture deterministic and models the required producer backpressure.
 for (let offset = 0; offset < 100; offset += 24) {
   const batchSize = Math.min(24, 100 - offset);
   await Promise.all(Array.from({ length: batchSize }, () => pool.run(work)));
@@ -52,7 +53,7 @@ assert.equal(maxActive, 4);
 assert.equal(pool.active, 0);
 assert.equal(pool.queue.length, 0);
 
-// Explicitly verify backpressure: a full queue rejects instead of growing.
+// A full queue must reject explicitly instead of growing without bound.
 const saturated = new Pool(1, 1);
 const blocker = saturated.run(async () => {
   await new Promise((resolve) => setTimeout(resolve, 5));
@@ -63,4 +64,10 @@ await Promise.all([blocker, queued]);
 assert.equal(saturated.active, 0);
 assert.equal(saturated.queue.length, 0);
 
-console.log('bounded concurrency fixture: PASS (limit, bounded queue, backpressure)');
+// Task failures must propagate while the pool still drains cleanly.
+const failing = new Pool(1, 2);
+await assert.rejects(() => failing.run(async () => { throw new Error('task failure'); }), /task failure/);
+assert.equal(failing.active, 0);
+assert.equal(failing.queue.length, 0);
+
+console.log('bounded concurrency fixture: PASS (limit, bounded queue, backpressure, failure cleanup)');
