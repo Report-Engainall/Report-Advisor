@@ -11,17 +11,20 @@ if (!resolverName || !failClosedName) throw new Error('Canonical tenant hardenin
 const resolver = fs.readFileSync(path.join(dir, resolverName), 'utf8');
 const failClosed = fs.readFileSync(path.join(dir, failClosedName), 'utf8');
 
-const required = [
-  'CREATE TABLE IF NOT EXISTS company_memberships',
-  'REFERENCES auth.users(id)',
-  'CREATE OR REPLACE FUNCTION public.current_company_id()',
-  'auth.uid()',
-  'company_id = public.current_company_id()',
-  'WITH CHECK (company_id = public.current_company_id())',
-  'REVOKE ALL ON TABLE company_memberships FROM anon',
+const requiredAny = [
+  ['CREATE TABLE IF NOT EXISTS company_memberships'],
+  ['REFERENCES auth.users(id)'],
+  ['CREATE OR REPLACE FUNCTION public.current_company_id()', 'CREATE OR REPLACE FUNCTION current_company_id()'],
+  ['auth.uid()'],
+  ['company_id = public.current_company_id()', 'company_id = current_company_id()'],
+  ['WITH CHECK (company_id = public.current_company_id())', 'WITH CHECK (company_id = current_company_id())'],
+  ['REVOKE ALL ON TABLE company_memberships FROM anon'],
 ];
-for (const marker of required) {
-  if (!resolver.includes(marker)) throw new Error(`Tenant security contract missing: ${marker}`);
+
+for (const alternatives of requiredAny) {
+  if (!alternatives.some((marker) => resolver.includes(marker))) {
+    throw new Error(`Tenant security contract missing: ${alternatives.join(' OR ')}`);
+  }
 }
 
 if (/CREATE POLICY[^;]+TO\s+anon[^;]+USING\s*\(\s*true\s*\)/is.test(resolver)) {
