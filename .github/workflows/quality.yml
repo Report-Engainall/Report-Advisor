@@ -91,3 +91,5 @@ jobs:
         run: npm run test:import-runtime-governance
       - name: Tenant security contract
         run: npm run test:tenant-security-contract
+      - name: Import RPC tenant context
+        run: npm run test:import-rpc-tenant-context
