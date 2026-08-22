@@ -38,11 +38,25 @@ export function normalizeHeader(value: unknown): string {
   return s.replace(/[\s_\-./]+/g, ' ').trim();
 }
 
+function normalizeNumericText(value: unknown): string {
+  let s = String(value ?? '').trim();
+  for (let i = 0; i < 10; i++) {
+    s = s.replace(new RegExp(ARABIC_DIGITS[i], 'g'), LATIN_DIGITS[i]);
+    s = s.replace(new RegExp(PERSIAN_DIGITS[i], 'g'), LATIN_DIGITS[i]);
+  }
+  return s
+    .replace(/[٪%]/g, '%')
+    .replace(/٬/g, '')
+    .replace(/٫/g, '.')
+    .replace(/\s+/g, '')
+    .replace(/,/g, '');
+}
+
 function numberValue(v: unknown): number | undefined {
   if (typeof v === 'number' && Number.isFinite(v)) return v;
-  let s = normalizeHeader(v).replace(/,/g, '').replace(/٬/g, '').replace(/٫/g, '.').replace(/٪/g, '%');
+  const s = normalizeNumericText(v);
   if (!s || !/^-?\d+(\.\d+)?%?$/.test(s)) return undefined;
-  const n = Number(s.replace('%', ''));
+  const n = Number(s.endsWith('%') ? s.slice(0, -1) : s);
   return Number.isFinite(n) ? n : undefined;
 }
 
