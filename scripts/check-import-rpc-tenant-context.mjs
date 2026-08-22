@@ -24,7 +24,11 @@ for (const fn of ['import_create_job', 'import_update_job_progress', 'import_fin
   if (start < 0) throw new Error(`Canonical import RPC missing: ${fn}`);
   const next = text.indexOf('CREATE OR REPLACE FUNCTION public.', start + 1);
   const body = text.slice(start, next < 0 ? text.length : next);
-  if (!body.includes('v_company_id := public.current_company_id()')) {
+
+  // Accept both `v_company_id := ...` and typed declarations such as
+  // `v_company_id uuid := ...`; the type annotation is valid PL/pgSQL and
+  // must not make the security contract fail falsely.
+  if (!/v_company_id(?:\s+[a-zA-Z_][a-zA-Z0-9_]*(?:\s*\[\])?)?\s*:=\s*public\.current_company_id\(\)/.test(body)) {
     throw new Error(`Canonical import RPC does not resolve tenant context: ${fn}`);
   }
   if (!body.includes('TENANT_CONTEXT_REQUIRED')) {
@@ -32,7 +36,8 @@ for (const fn of ['import_create_job', 'import_update_job_progress', 'import_fin
   }
 }
 
-const createBody = text.slice(text.indexOf('CREATE OR REPLACE FUNCTION public.import_create_job'));
+const createStart = text.indexOf('CREATE OR REPLACE FUNCTION public.import_create_job');
+const createBody = text.slice(createStart);
 if (!createBody.includes('p_company_id IS DISTINCT FROM v_company_id')) {
   throw new Error('import_create_job must reject mismatched tenant context');
 }
