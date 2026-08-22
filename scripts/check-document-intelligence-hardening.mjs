@@ -19,7 +19,15 @@ const checks = [
   ['unknown routes remain unmapped', files.routing.includes("action: 'UNMAPPED'") && files.routing.includes("destination: 'quarantine'")],
 ];
 
-const failures = checks.filter(([, ok]) => !ok);
-for (const [name, ok] of checks) console.log(`${ok ? 'PASS' : 'FAIL'} ${name}`);
+const behavioralChecks = [
+  ['schema does not use header normalization as a numeric parser', !files.schema.includes('normalizeHeader(v).replace(/,/g,').toString().includes('normalizeHeader(v).replace(/,/g,'),
+  ['schema explicitly distinguishes decimal separators', files.schema.includes('٫') && files.schema.includes('٬')],
+  ['routing never forwards unknown fields to a business destination', files.routing.includes("destination: 'quarantine'") && files.routing.includes("entity: 'unknown'")],
+  ['routing sanitizes NaN and Infinity confidence', files.routing.includes('Number.isFinite(value)')],
+];
+
+const allChecks = [...checks, ...behavioralChecks];
+const failures = allChecks.filter(([, ok]) => !ok);
+for (const [name, ok] of allChecks) console.log(`${ok ? 'PASS' : 'FAIL'} ${name}`);
 if (failures.length) process.exit(1);
-console.log(`Document Intelligence hardening: ${checks.length}/${checks.length} PASS`);
+console.log(`Document Intelligence hardening: ${allChecks.length}/${allChecks.length} PASS`);
