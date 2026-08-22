@@ -23,7 +23,13 @@ const checks = [
 ];
 
 const behavioralChecks = [
-  ['schema normalizes headers independently from numeric parsing', files.schema.includes('normalizeHeader(header ??') && files.schema.includes('values.map(numberValue)')],
+  // Structural contract: header normalization and numeric parsing must remain
+  // separate; numeric parsing must operate over the complete values collection.
+  ['schema normalizes headers independently from numeric parsing',
+    files.schema.includes('normalizeHeader(header ??') &&
+    files.schema.includes('function normalizeNumericText') &&
+    files.schema.includes('function numberValue') &&
+    files.schema.includes('values.map(numberValue)')],
   ['schema explicitly translates Arabic decimal separator', files.schema.includes("replace(/٫/g, '.')")],
   ['schema explicitly strips Arabic thousands separator', files.schema.includes("replace(/٬/g, '')")],
   ['schema rejects malformed numeric values', files.schema.includes("/^-?\\d+(\\.\\d+)?%?$/")],
