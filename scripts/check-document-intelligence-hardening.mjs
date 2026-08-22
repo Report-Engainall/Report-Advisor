@@ -17,6 +17,9 @@ const checks = [
   ['validation fails closed for non-finite confidence', files.validation.includes('if (!Number.isFinite(score))')],
   ['routing clamps confidence', files.routing.includes('Math.max(0, Math.min(1, value))')],
   ['unknown routes remain unmapped', files.routing.includes("action: 'UNMAPPED'") && files.routing.includes("destination: 'quarantine'")],
+  ['duplicate canonical routes are grouped', files.routing.includes('new Map<string, RoutingDecision[]>')],
+  ['duplicate canonical routes quarantine every candidate', files.routing.includes("decision.action = 'QUARANTINE'")],
+  ['duplicate canonical routes cap confidence', files.routing.includes('Math.min(decision.confidence, 0.69)')],
 ];
 
 const behavioralChecks = [
@@ -26,6 +29,7 @@ const behavioralChecks = [
   ['schema rejects malformed numeric values', files.schema.includes("/^-?\\d+(\\.\\d+)?%?$/")],
   ['routing sends unknown fields to quarantine', files.routing.includes("entity: 'unknown'") && files.routing.includes("destination: 'quarantine'")],
   ['routing sanitizes NaN and Infinity confidence', files.routing.includes('Number.isFinite(value)')],
+  ['routing downgrades duplicate mappings instead of auto approving', files.routing.includes("decision.action = 'QUARANTINE'")],
 ];
 
 const allChecks = [...checks, ...behavioralChecks];
