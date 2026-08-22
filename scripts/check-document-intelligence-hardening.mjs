@@ -20,9 +20,11 @@ const checks = [
 ];
 
 const behavioralChecks = [
-  ['schema does not use header normalization as a numeric parser', !files.schema.includes('normalizeHeader(v).replace(/,/g,').toString().includes('normalizeHeader(v).replace(/,/g,'),
-  ['schema explicitly distinguishes decimal separators', files.schema.includes('٫') && files.schema.includes('٬')],
-  ['routing never forwards unknown fields to a business destination', files.routing.includes("destination: 'quarantine'") && files.routing.includes("entity: 'unknown'")],
+  ['schema normalizes headers independently from numeric parsing', files.schema.includes('normalizeHeader(header ??') && files.schema.includes('numberValue(v)')],
+  ['schema explicitly translates Arabic decimal separator', files.schema.includes("replace(/٫/g, '.')")],
+  ['schema explicitly strips Arabic thousands separator', files.schema.includes("replace(/٬/g, '')")],
+  ['schema rejects malformed numeric values', files.schema.includes("/^-?\\d+(\\.\\d+)?%?$/")],
+  ['routing sends unknown fields to quarantine', files.routing.includes("entity: 'unknown'") && files.routing.includes("destination: 'quarantine'")],
   ['routing sanitizes NaN and Infinity confidence', files.routing.includes('Number.isFinite(value)')],
 ];
 
