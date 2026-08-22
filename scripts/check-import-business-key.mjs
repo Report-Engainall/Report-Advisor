@@ -31,14 +31,24 @@ if (/^\s*--.*uq_products_company_normalized_sku/m.test(sql) && !/CREATE UNIQUE I
   throw new Error('Business-key invariant appears comment-only.');
 }
 
-// Concurrency protection must be implemented in the canonical import RPC migration.
+// Concurrency protection may be implemented either with an explicit ON CONFLICT
+// clause or by catching the unique-violation raised by the canonical unique index.
+// Both approaches serialize the same business-key race; the RPC must also resolve
+// the tenant from trusted context rather than trusting a caller-supplied tenant.
 for (const marker of [
   'import_upsert_product',
   'normalize_import_key',
-  'ON CONFLICT',
   'current_company_id',
 ]) {
   if (!rpcSql.includes(marker)) throw new Error(`Concurrency-safe import RPC missing from ${rpcMigration}: ${marker}`);
+}
+
+if (!rpcSql.includes('ON CONFLICT') && !rpcSql.includes('unique_violation')) {
+  throw new Error(`Concurrency-safe import RPC missing race handling from ${rpcMigration}: ON CONFLICT or unique_violation`);
+}
+
+if (!rpcSql.includes('FOR UPDATE')) {
+  throw new Error(`Concurrency-safe import RPC missing row locking from ${rpcMigration}: FOR UPDATE`);
 }
 
 console.log(`Import business-key invariant: PASS (${canonical}, ${rpcMigration}, ${files.length} migrations scanned)`);
