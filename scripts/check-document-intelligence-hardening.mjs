@@ -23,7 +23,7 @@ const checks = [
 ];
 
 const behavioralChecks = [
-  ['schema normalizes headers independently from numeric parsing', files.schema.includes('normalizeHeader(header ??') && files.schema.includes('numberValue(v)')],
+  ['schema normalizes headers independently from numeric parsing', files.schema.includes('normalizeHeader(header ??') && files.schema.includes('values.map(numberValue)')],
   ['schema explicitly translates Arabic decimal separator', files.schema.includes("replace(/٫/g, '.')")],
   ['schema explicitly strips Arabic thousands separator', files.schema.includes("replace(/٬/g, '')")],
   ['schema rejects malformed numeric values', files.schema.includes("/^-?\\d+(\\.\\d+)?%?$/")],
