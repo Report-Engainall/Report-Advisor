@@ -81,3 +81,5 @@ jobs:
         run: npm run test:document-intelligence-contract
       - name: Document intelligence semantic foundation
         run: npm run test:document-intelligence-semantic-foundation
+      - name: Document intelligence hardening
+        run: npm run test:document-intelligence-hardening
