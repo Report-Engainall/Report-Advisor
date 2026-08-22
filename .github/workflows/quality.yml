@@ -93,3 +93,5 @@ jobs:
         run: npm run test:tenant-security-contract
       - name: Import RPC tenant context
         run: npm run test:import-rpc-tenant-context
+      - name: Import business key
+        run: npm run test:import-business-key
