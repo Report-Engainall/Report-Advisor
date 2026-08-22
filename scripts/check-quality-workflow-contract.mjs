@@ -39,14 +39,17 @@ if (missingStages.length) {
   throw new Error(`Quality workflow is missing mandatory stages: ${missingStages.join(', ')}`);
 }
 
-if (!/concurrency:\s*\n\s*group:\s*quality-\$\{\{ github\.ref \}\}/m.test(workflow)) {
-  throw new Error('Quality workflow must define a stable per-ref concurrency group.');
+// Quality runs must be isolated. A later manual run must never cancel the run whose
+// result is being used as release evidence. Include run_id (or another unique key)
+// in the concurrency group and disable cancellation.
+if (!/concurrency:\s*\n\s*group:\s*quality-\$\{\{ github\.ref \}\}-\$\{\{ github\.event_name \}\}-\$\{\{ github\.run_id \}\}/m.test(workflow)) {
+  throw new Error('Quality workflow must define a unique per-run concurrency group.');
 }
-if (!/cancel-in-progress:\s*true/.test(workflow)) {
-  throw new Error('Quality workflow must cancel superseded runs to avoid stale verification.');
+if (!/cancel-in-progress:\s*false/.test(workflow)) {
+  throw new Error('Quality workflow must not cancel an in-flight verification run.');
 }
-if (!/timeout-minutes:\s*25/.test(workflow)) {
-  throw new Error('Quality workflow must retain an explicit execution timeout.');
+if (!/timeout-minutes:\s*40/.test(workflow)) {
+  throw new Error('Quality workflow must retain an explicit 40-minute execution timeout.');
 }
 
 console.log(`Quality workflow contract: PASS (${uniqueCommands.length} npm commands, ${requiredStages.length} mandatory stages)`);
