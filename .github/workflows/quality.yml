@@ -45,6 +45,8 @@ jobs:
         run: npm run test:quality-workflow-contract
       - name: Typecheck
         run: npm run typecheck
+      - name: File-engine behavioral regressions
+        run: npm run test:file-engine-regressions
       - name: Lint
         run: npm run lint
       - name: Build
