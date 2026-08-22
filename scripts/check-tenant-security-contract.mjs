@@ -4,7 +4,12 @@ import path from 'node:path';
 const root = process.cwd();
 const dir = path.join(root, 'supabase', 'migrations');
 const files = fs.readdirSync(dir).filter((f) => f.endsWith('.sql'));
-const text = files.map((f) => fs.readFileSync(path.join(dir, f), 'utf8')).join('\n');
+const resolverName = files.find((f) => f.includes('canonical_tenant_membership'));
+const failClosedName = files.find((f) => f.includes('import_rpc_fail_closed'));
+if (!resolverName || !failClosedName) throw new Error('Canonical tenant hardening migrations are missing');
+
+const resolver = fs.readFileSync(path.join(dir, resolverName), 'utf8');
+const failClosed = fs.readFileSync(path.join(dir, failClosedName), 'utf8');
 
 const required = [
   'CREATE TABLE IF NOT EXISTS company_memberships',
@@ -16,17 +21,17 @@ const required = [
   'REVOKE ALL ON TABLE company_memberships FROM anon',
 ];
 for (const marker of required) {
-  if (!text.includes(marker)) throw new Error(`Tenant security contract missing: ${marker}`);
+  if (!resolver.includes(marker)) throw new Error(`Tenant security contract missing: ${marker}`);
 }
 
-if (/CREATE POLICY[^;]+TO\s+anon[^;]+USING\s*\(\s*true\s*\)/is.test(text)) {
-  throw new Error('Permissive anonymous tenant policy detected');
+if (/CREATE POLICY[^;]+TO\s+anon[^;]+USING\s*\(\s*true\s*\)/is.test(resolver)) {
+  throw new Error('Permissive anonymous tenant policy detected in canonical resolver');
 }
-if (/CREATE POLICY[^;]+TO\s+authenticated[^;]+USING\s*\(\s*true\s*\)/is.test(text)) {
-  throw new Error('Permissive authenticated tenant policy detected');
+if (/CREATE POLICY[^;]+TO\s+authenticated[^;]+USING\s*\(\s*true\s*\)/is.test(resolver)) {
+  throw new Error('Permissive authenticated tenant policy detected in canonical resolver');
 }
-
-const failClosed = text.includes('IMPORT_RPC_TENANT_AUTH_NOT_CONFIGURED');
-if (!failClosed) throw new Error('Import RPC fail-closed contract missing');
+if (!failClosed.includes('IMPORT_RPC_TENANT_AUTH_NOT_CONFIGURED')) {
+  throw new Error('Import RPC fail-closed contract missing');
+}
 
 console.log('Tenant security contract: PASS');
