@@ -13,7 +13,7 @@ export type DecisionGateResult = {
   field: string;
   confidence: number;
   action: 'AUTO_APPROVE' | 'REVIEW' | 'QUARANTINE';
-  reason: 'VALIDATED' | 'VALIDATION_REQUIRED' | 'VALIDATION_FAILED' | 'RECONCILIATION_FAILED' | 'NON_FINITE_CONFIDENCE';
+  reason: 'VALIDATED' | 'VALIDATION_REQUIRED' | 'VALIDATION_FAILED' | 'RECONCILIATION_REQUIRED' | 'RECONCILIATION_FAILED' | 'NON_FINITE_CONFIDENCE';
 };
 
 function safe(value: number): number {
@@ -23,7 +23,7 @@ function safe(value: number): number {
 /**
  * Final fail-closed gate between intelligence decisions and canonical routing.
  * Confidence alone can never authorize production data: validation must PASS,
- * and an explicitly supplied reconciliation result must also pass.
+ * and reconciliation must be explicitly supplied and PASS as well.
  */
 export function gateCanonicalDecision(input: DecisionGateInput): DecisionGateResult {
   const confidence = safe(input.confidence);
@@ -40,8 +40,13 @@ export function gateCanonicalDecision(input: DecisionGateInput): DecisionGateRes
     };
   }
 
-  if (input.reconciliationPassed === false) {
-    return { field: input.field, confidence, action: 'QUARANTINE', reason: 'RECONCILIATION_FAILED' };
+  if (input.reconciliationPassed !== true) {
+    return {
+      field: input.field,
+      confidence,
+      action: input.reconciliationPassed === false ? 'QUARANTINE' : 'REVIEW',
+      reason: input.reconciliationPassed === false ? 'RECONCILIATION_FAILED' : 'RECONCILIATION_REQUIRED'
+    };
   }
 
   return {
