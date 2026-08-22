@@ -39,4 +39,9 @@ if (!/REVOKE ALL ON TABLE [a-z_]+ FROM anon/i.test(text)) {
   throw new Error(`Canonical tenant hardening must revoke anonymous table access: ${canonical.file}`);
 }
 
+// Fail closed if the canonical migration exists but is unexpectedly empty/truncated.
+if (text.trim().length < 1000) {
+  throw new Error(`Canonical tenant hardening appears truncated: ${canonical.file}`);
+}
+
 console.log(`Global tenant RLS contract: PASS (canonical=${canonical.file}, migrations=${migrations.length})`);
