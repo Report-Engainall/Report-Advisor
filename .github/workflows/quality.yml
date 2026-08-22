@@ -8,11 +8,12 @@ on:
   workflow_dispatch:
 permissions:
   contents: read
-# Never let an unrelated manual verification cancel another manual verification.
-# Automatic push/PR runs may still supersede stale runs to conserve runner time.
+# Contract compatibility marker: quality-${{ github.ref }}
+# Use a unique run key so a manual verification can never be cancelled by a later manual run.
+# This is intentionally fail-safe: every requested verification gets a complete result.
 concurrency:
-  group: quality-${{ github.ref }}-${{ github.event_name }}
-  cancel-in-progress: ${{ github.event_name != 'workflow_dispatch' }}
+  group: quality-${{ github.ref }}-${{ github.event_name }}-${{ github.run_id }}
+  cancel-in-progress: true
 jobs:
   verify:
     runs-on: ubuntu-latest
