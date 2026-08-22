@@ -1,7 +1,5 @@
 name: quality
-# Authoritative CI gate: install -> typecheck -> lint -> build -> performance -> architecture -> intelligence.
-# The gate runs on every main change and on demand; no verification is considered complete until every stage passes.
-# Semantic-foundation checks validate behavior contracts (including % and Arabic ٪ handling), not private symbol names.
+# Authoritative CI gate: install -> typecheck -> lint -> build -> performance -> architecture -> intelligence -> security/import governance.
 on:
   push:
     branches: [main]
@@ -85,3 +83,9 @@ jobs:
         run: npm run test:document-intelligence-hardening
       - name: Document intelligence decision gate
         run: npm run test:document-intelligence-decision-gate
+      - name: File intelligence security
+        run: npm run test:file-intelligence-security
+      - name: Import transaction contract
+        run: npm run test:import-transaction-contract
+      - name: Import runtime governance
+        run: npm run test:import-runtime-governance
