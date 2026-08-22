@@ -29,10 +29,21 @@ export interface SecurityScanResult {
   isZipTraversal: boolean;
 }
 
+export interface MappingEvidence {
+  sourceHeader: string;
+  normalizedHeader: string;
+  matchedBy: 'exact' | 'partial' | 'unmapped';
+  canonicalField: string | null;
+  confidence: number;
+  requiresReview: boolean;
+}
+
 export interface ColumnProfile {
   name: string;
   mappedField: string | null;
   mappingConfidence: number;
+  requiresReview?: boolean;
+  mappingEvidence?: MappingEvidence;
   dataType: DataType;
   nullCount: number;
   uniqueCount: number;
@@ -211,6 +222,6 @@ export const SUPPORTED_FORMATS: FileFormat[] = [
   'zip',
 ];
 
-export const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB
+export const MAX_FILE_SIZE = 100 * 1024 * 1024;
 export const MAX_ROWS = 500000;
 export const MAX_COLUMNS = 200;
