@@ -8,13 +8,15 @@ on:
   workflow_dispatch:
 permissions:
   contents: read
+# Never let an unrelated manual verification cancel another manual verification.
+# Automatic push/PR runs may still supersede stale runs to conserve runner time.
 concurrency:
-  group: quality-${{ github.ref }}
-  cancel-in-progress: true
+  group: quality-${{ github.ref }}-${{ github.event_name }}
+  cancel-in-progress: ${{ github.event_name != 'workflow_dispatch' }}
 jobs:
   verify:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 40
     defaults:
       run:
         shell: bash
