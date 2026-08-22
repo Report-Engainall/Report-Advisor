@@ -39,6 +39,8 @@ jobs:
         run: npm run build
       - name: Performance budget
         run: npm run perf:budget
+      - name: PostCSS toolchain contract
+        run: npm run test:postcss-toolchain
       - name: Architecture contracts
         run: npm run test:contracts
       - name: Selective foundation
