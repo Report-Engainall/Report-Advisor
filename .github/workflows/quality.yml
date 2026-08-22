@@ -95,6 +95,8 @@ jobs:
         run: npm run test:import-runtime-governance
       - name: Tenant security contract
         run: npm run test:tenant-security-contract
+      - name: Global tenant RLS
+        run: npm run test:global-tenant-rls
       - name: Import RPC tenant context
         run: npm run test:import-rpc-tenant-context
       - name: Import business key
