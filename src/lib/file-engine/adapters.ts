@@ -1,6 +1,6 @@
 import * as XLSX from 'xlsx';
 import type { FileFormat, Dataset, ColumnProfile } from './types';
-import { normalizeRows, normalizeArabicDigits, parseNumber } from './normalizer';
+import { normalizeRows, normalizeColumnName, parseNumber } from './normalizer';
 import { detectColumnDataType, cleanValue } from './data-types';
 import { mapColumns } from './synonyms';
 
@@ -21,6 +21,8 @@ function buildColumnProfiles(rows: Record<string, any>[], columns: string[], map
     const uniqueValues = new Set(values.map(v => String(v)));
     const uniqueCount = uniqueValues.size;
     const uniqueRatio = values.length > 0 ? uniqueCount / values.length : 0;
+    const mappingConfidence = mapping?.confidence || 0;
+    const requiresReview = mapping?.requiresReview ?? true;
 
     const stats: Record<string, any> = { count: values.length };
     if (dataType === 'integer' || dataType === 'decimal' || dataType === 'currency' || dataType === 'percentage') {
@@ -40,14 +42,23 @@ function buildColumnProfiles(rows: Record<string, any>[], columns: string[], map
     return {
       name: col,
       mappedField: mapping?.mappedField || null,
-      mappingConfidence: mapping?.confidence || 0,
+      mappingConfidence,
+      requiresReview,
+      mappingEvidence: {
+        sourceHeader: col,
+        normalizedHeader: normalizeColumnName(col),
+        matchedBy: mapping?.mappedField ? (mappingConfidence >= 80 ? 'exact' : 'partial') : 'unmapped',
+        canonicalField: mapping?.mappedField || null,
+        confidence: mappingConfidence,
+        requiresReview,
+      },
       dataType,
       nullCount,
       uniqueCount,
       uniqueRatio,
       sampleValues: values.slice(0, 5),
       statistics: stats,
-      qualityIssues: [] as string[],
+      qualityIssues: [],
     };
   });
 }
@@ -190,7 +201,7 @@ export async function parseJSON(buffer: ArrayBuffer, fileName: string): Promise<
 }
 
 export async function parseJSONL(buffer: ArrayBuffer, fileName: string): Promise<Dataset[]> {
-  const text = decodeBuffer(buffer,);
+  const text = decodeBuffer(buffer);
   const lines = text.split(/\r?\n/).filter(l => l.trim());
   const rows = lines.map(l => JSON.parse(l));
   if (rows.length === 0) return [];
