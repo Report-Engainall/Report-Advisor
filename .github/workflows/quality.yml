@@ -15,9 +15,15 @@ jobs:
   verify:
     runs-on: ubuntu-latest
     timeout-minutes: 25
+    defaults:
+      run:
+        shell: bash
     steps:
       - name: Checkout
         uses: actions/checkout@v5
+        with:
+          fetch-depth: 1
+          persist-credentials: false
       - name: Setup Node 22
         uses: actions/setup-node@v5
         with:
@@ -25,10 +31,13 @@ jobs:
           cache: npm
       - name: Environment diagnostics
         run: |
+          set -euo pipefail
           node --version
           npm --version
           test -f package-lock.json
           test -f tsconfig.app.json
+          test -n "${GITHUB_SHA}"
+          test "$(git rev-parse HEAD)" = "${GITHUB_SHA}"
       - name: Install locked dependencies
         run: npm ci --no-audit --no-fund
       - name: Quality workflow contract
