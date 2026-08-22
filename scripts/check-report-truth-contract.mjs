@@ -32,13 +32,35 @@ for (const marker of ['normalize_import_key', 'current_company_id']) {
 if (/SELECT\s+\*\s+FROM\s+auth\.users/i.test(source)) {
   throw new Error('Report truth contract forbids direct auth.users reporting reads');
 }
-if (/CREATE POLICY[^;]+USING\s*\(\s*true\s*\)/is.test(migrations)) {
-  throw new Error('Report truth contract detected permissive RLS policy');
+
+// Historical migrations may contain the prototype's permissive RLS policies.
+// They are intentionally superseded by the canonical global tenant-hardening
+// migration and must not be treated as the active security state. Validate the
+// canonical hardening migration plus any migrations created after it instead.
+const canonicalTenantRls = migrationFiles.find((f) => f.includes('tenant_rls_global_hardening'));
+if (!canonicalTenantRls) {
+  throw new Error('Report truth contract requires the canonical global tenant RLS hardening migration');
 }
-if (!/company_id\s*=\s*public\.current_company_id\(\)/i.test(migrations)) {
+
+const securityMigrationFiles = migrationFiles.filter((f) => f >= canonicalTenantRls);
+const securityMigrations = securityMigrationFiles
+  .map((f) => fs.readFileSync(path.join(migrationsDir, f), 'utf8'))
+  .join('\n');
+
+// A permissive policy is forbidden on tenant/application tables. The canonical
+// migration intentionally has one global read-only reference policy for the
+// curated synonym dictionary; that is not a tenant data boundary.
+const policyStatements = securityMigrations.match(/CREATE\s+POLICY\b[\s\S]*?;/gi) ?? [];
+for (const statement of policyStatements) {
+  if (/USING\s*\(\s*true\s*\)/i.test(statement) && !/synonym_dictionary/i.test(statement)) {
+    throw new Error('Report truth contract detected permissive RLS policy');
+  }
+}
+
+if (!/company_id\s*=\s*public\.current_company_id\(\)/i.test(securityMigrations)) {
   throw new Error('Report truth contract requires tenant-scoped RLS predicates');
 }
-if (!/WITH CHECK\s*\(\s*company_id\s*=\s*public\.current_company_id\(\)\s*\)/i.test(migrations)) {
+if (!/WITH CHECK\s*\(\s*company_id\s*=\s*public\.current_company_id\(\)\s*\)/i.test(securityMigrations)) {
   throw new Error('Report truth contract requires tenant-scoped write checks');
 }
 
