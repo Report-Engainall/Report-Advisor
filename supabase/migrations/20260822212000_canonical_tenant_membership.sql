@@ -22,15 +22,10 @@ CREATE INDEX IF NOT EXISTS idx_company_memberships_company_active
   ON company_memberships(company_id, is_active);
 
 ALTER TABLE company_memberships ENABLE ROW LEVEL SECURITY;
-
 DROP POLICY IF EXISTS company_memberships_select_self ON company_memberships;
 CREATE POLICY company_memberships_select_self
   ON company_memberships FOR SELECT TO authenticated
   USING (user_id = auth.uid());
-
-DROP POLICY IF EXISTS company_memberships_no_client_write ON company_memberships;
--- Membership administration is service-role/admin controlled; ordinary users cannot
--- self-assign a tenant or elevate their role.
 
 CREATE OR REPLACE FUNCTION current_company_id()
 RETURNS uuid
@@ -53,29 +48,7 @@ GRANT EXECUTE ON FUNCTION current_company_id() TO authenticated;
 COMMENT ON FUNCTION current_company_id() IS
   'Canonical tenant context derived from authenticated identity; never accepts a client-supplied company_id.';
 
--- Replace the legacy permissive policies on company-owned core tables.
-DO $$
-DECLARE
-  t text;
-BEGIN
-  FOREACH t IN ARRAY ARRAY[
-    'companies','branches','warehouses','categories','customers','suppliers',
-    'products','sales_invoices','purchase_invoices','payments',
-    'inventory_movements','inventory_balances','imports','recommendations',
-    'alerts','forecasts','audit_logs','file_records','import_profiles',
-    'import_snapshots','import_jobs','data_quality_reports','import_field_lineage'
-  ]
-  LOOP
-    IF to_regclass(format('public.%I', t)) IS NULL THEN CONTINUE; END IF;
-    EXECUTE format('ALTER TABLE public.%I ENABLE ROW LEVEL SECURITY', t);
-    EXECUTE format($sql$
-      DO NOT EXECUTE
-    $sql$, t);
-  END LOOP;
-END $$;
-
--- PostgreSQL does not permit nested DO blocks generated as SQL text. The following
--- block performs the actual policy replacement deterministically.
+-- Replace every legacy permissive policy on company-owned tables.
 DO $$
 DECLARE
   t text;
@@ -90,12 +63,11 @@ BEGIN
   ]
   LOOP
     IF to_regclass(format('public.%I', t)) IS NULL THEN CONTINUE; END IF;
-
+    EXECUTE format('ALTER TABLE public.%I ENABLE ROW LEVEL SECURITY', t);
     FOR p IN SELECT policyname FROM pg_policies WHERE schemaname='public' AND tablename=t
     LOOP
       EXECUTE format('DROP POLICY IF EXISTS %I ON public.%I', p.policyname, t);
     END LOOP;
-
     IF EXISTS (
       SELECT 1 FROM information_schema.columns
       WHERE table_schema='public' AND table_name=t AND column_name='company_id'
@@ -108,10 +80,11 @@ BEGIN
   END LOOP;
 END $$;
 
--- Child invoice rows have no company_id of their own; authorization follows the parent.
+-- Child invoice rows have no company_id; authorization follows their parent invoice.
 DO $$
 BEGIN
   IF to_regclass('public.sale_items') IS NOT NULL THEN
+    ALTER TABLE sale_items ENABLE ROW LEVEL SECURITY;
     DROP POLICY IF EXISTS tenant_select ON sale_items;
     DROP POLICY IF EXISTS tenant_insert ON sale_items;
     DROP POLICY IF EXISTS tenant_update ON sale_items;
@@ -127,6 +100,7 @@ BEGIN
       USING (EXISTS (SELECT 1 FROM sales_invoices i WHERE i.id = invoice_id AND i.company_id = public.current_company_id()));
   END IF;
   IF to_regclass('public.purchase_items') IS NOT NULL THEN
+    ALTER TABLE purchase_items ENABLE ROW LEVEL SECURITY;
     DROP POLICY IF EXISTS tenant_select ON purchase_items;
     DROP POLICY IF EXISTS tenant_insert ON purchase_items;
     DROP POLICY IF EXISTS tenant_update ON purchase_items;
