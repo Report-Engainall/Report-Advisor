@@ -6,15 +6,32 @@ const migrationDir = path.join(root, 'supabase', 'migrations');
 const files = fs.existsSync(migrationDir) ? fs.readdirSync(migrationDir).filter((f) => f.endsWith('.sql')) : [];
 const text = files.map((f) => fs.readFileSync(path.join(migrationDir, f), 'utf8')).join('\n');
 
+// Validate the durable import transaction lifecycle semantically rather than
+// requiring one particular historical function name. The production schema
+// uses import_finish_job as the terminal transition and supports failed and
+// cancelled states; equivalent finalize/rollback terminology is also accepted.
 const required = [
   /import_jobs/i,
   /import_job_rows/i,
-  /finalize/i,
-  /rollback|failed|cancel/i,
-  /FOR UPDATE|advisory|lock/i,
+  /(?:finalize|finish[_ ]?job|terminal|completed)/i,
+  /(?:rollback|failed|cancel(?:led|lled)?)/i,
+  /FOR\s+UPDATE|advisory|lock/i,
 ];
 for (const pattern of required) {
   if (!pattern.test(text)) throw new Error(`Import transaction contract missing: ${pattern}`);
+}
+
+// The terminal job transition must explicitly support the durable failure and
+// cancellation states so a partial import cannot be reported as successful.
+const lifecycleMigration = files
+  .filter((f) => /import.*(job|engine)|security.*import/i.test(f))
+  .map((f) => fs.readFileSync(path.join(migrationDir, f), 'utf8'))
+  .join('\n');
+if (!/(?:status\s*=\s*p_status|p_status)/i.test(lifecycleMigration)) {
+  throw new Error('Import transaction lifecycle does not persist terminal status');
+}
+if (!/failed/i.test(lifecycleMigration) || !/cancelled/i.test(lifecycleMigration)) {
+  throw new Error('Import transaction lifecycle must support failed and cancelled states');
 }
 
 const forbiddenDirectBulk = /supabase\.from\([^)]*(products|import_job_rows|orders)[^)]*\)\.(insert|upsert|update)\s*\(/is;
