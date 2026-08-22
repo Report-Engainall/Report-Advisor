@@ -29,8 +29,15 @@ export function parseNumber(input: unknown): NormalizedValue {
   let negative = false;
   if (/^\(.*\)$/.test(s)) { negative = true; s = s.slice(1, -1); warnings.push('parentheses-negative'); }
   s = s.replace(/\s/g, '');
-  // Strip currency markers only. Decimal punctuation must survive until locale parsing.
-  s = s.replace(/[$€£¥﷼ر\.س\.ي]/g, '');
+
+  // Normalize Arabic/Indic decimal and thousands separators before locale parsing.
+  if (s.includes('٬') || s.includes('٫')) {
+    s = s.replace(/٬/g, ',').replace(/٫/g, '.');
+    warnings.push('arabic-separator-normalized');
+  }
+
+  // Remove known currency markers/tokens without deleting ordinary numeric punctuation.
+  s = s.replace(/(?:USD|EUR|GBP|JPY|SAR|YER|ر\.س|ريال|﷼|\$|€|£|¥)/gi, '');
   const percent = /%|٪/.test(s);
   s = s.replace(/[%٪]/g, '');
   const commas = (s.match(/,/g) ?? []).length;
