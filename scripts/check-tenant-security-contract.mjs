@@ -14,7 +14,7 @@ const failClosed = fs.readFileSync(path.join(dir, failClosedName), 'utf8');
 const required = [
   'CREATE TABLE IF NOT EXISTS company_memberships',
   'REFERENCES auth.users(id)',
-  'CREATE OR REPLACE FUNCTION current_company_id()',
+  'CREATE OR REPLACE FUNCTION public.current_company_id()',
   'auth.uid()',
   'company_id = public.current_company_id()',
   'WITH CHECK (company_id = public.current_company_id())',
