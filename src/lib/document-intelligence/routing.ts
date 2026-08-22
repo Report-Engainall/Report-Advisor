@@ -42,9 +42,24 @@ export function routeCanonicalField(field: string, confidence: number): RoutingD
     confidence: safe,
     action: 'UNMAPPED'
   };
-  return { ...route, confidence: safe, action: classifyConfidence(confidence, route.criticality) };
+  return { ...route, confidence: safe, action: classifyConfidence(safe, route.criticality) };
 }
 
 export function routeMany(fields: Array<{ field: string; confidence: number }>): RoutingDecision[] {
-  return fields.map(f => routeCanonicalField(f.field, f.confidence));
+  const decisions = fields.map(f => routeCanonicalField(f.field, f.confidence));
+  const groups = new Map<string, RoutingDecision[]>();
+  for (const decision of decisions) {
+    if (decision.action === 'UNMAPPED') continue;
+    const group = groups.get(decision.canonicalField) ?? [];
+    group.push(decision);
+    groups.set(decision.canonicalField, group);
+  }
+  for (const group of groups.values()) {
+    if (group.length < 2) continue;
+    for (const decision of group) {
+      decision.action = 'QUARANTINE';
+      decision.confidence = Math.min(decision.confidence, 0.69);
+    }
+  }
+  return decisions;
 }
