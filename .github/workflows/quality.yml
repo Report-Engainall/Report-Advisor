@@ -1,6 +1,7 @@
 name: quality
 # Authoritative CI gate: install -> typecheck -> lint -> build -> performance -> architecture -> intelligence.
 # The gate runs on every main change and on demand; no verification is considered complete until every stage passes.
+# Semantic-foundation checks validate behavior contracts (including % and Arabic ٪ handling), not private symbol names.
 on:
   push:
     branches: [main]
