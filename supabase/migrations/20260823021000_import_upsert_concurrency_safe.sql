@@ -70,9 +70,9 @@ BEGIN
     SET name = CASE WHEN p_null_policy = 'preserve' AND p_name IS NULL THEN name ELSE coalesce(p_name, name) END,
         unit = CASE WHEN p_null_policy = 'preserve' AND p_unit IS NULL THEN unit ELSE coalesce(p_unit, unit) END,
         cost_price = CASE WHEN p_null_policy = 'preserve' AND p_cost_price IS NULL THEN cost_price ELSE coalesce(p_cost_price, cost_price) END,
-        selling_price = CASE WHEN p_null_policy = 'preserve' AND p_selling_price IS NULL THEN selling_price ELSE coalesce(p_selling_price, p_selling_price) END,
+        selling_price = CASE WHEN p_null_policy = 'preserve' AND p_selling_price IS NULL THEN selling_price ELSE coalesce(p_selling_price, selling_price) END,
         min_stock = CASE WHEN p_null_policy = 'preserve' AND p_min_stock IS NULL THEN min_stock ELSE coalesce(p_min_stock, min_stock) END,
-        reorder_point = CASE WHEN p_null_policy = 'preserve' AND p_reorder_point IS NULL THEN reorder_point ELSE coalesce(p_reorder_point, p_reorder_point) END
+        reorder_point = CASE WHEN p_null_policy = 'preserve' AND p_reorder_point IS NULL THEN reorder_point ELSE coalesce(p_reorder_point, reorder_point) END
     WHERE id = v_id AND company_id = v_company_id;
   END IF;
 
