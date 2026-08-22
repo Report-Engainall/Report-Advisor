@@ -27,17 +27,22 @@ const ROUTES: Record<string, CanonicalRoute> = {
   total_amount: { canonicalField: 'total_amount', entity: 'invoice', destination: 'invoices', criticality: 'CRITICAL' }
 };
 
+function safeConfidence(value: number): number {
+  return Number.isFinite(value) ? Math.max(0, Math.min(1, value)) : 0;
+}
+
 export function routeCanonicalField(field: string, confidence: number): RoutingDecision {
   const route = ROUTES[field];
+  const safe = safeConfidence(confidence);
   if (!route) return {
     canonicalField: field,
     entity: 'unknown',
     destination: 'quarantine',
     criticality: 'OPTIONAL',
-    confidence,
+    confidence: safe,
     action: 'UNMAPPED'
   };
-  return { ...route, confidence, action: classifyConfidence(confidence, route.criticality) };
+  return { ...route, confidence: safe, action: classifyConfidence(confidence, route.criticality) };
 }
 
 export function routeMany(fields: Array<{ field: string; confidence: number }>): RoutingDecision[] {
