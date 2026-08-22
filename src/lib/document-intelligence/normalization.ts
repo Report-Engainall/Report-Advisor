@@ -29,7 +29,8 @@ export function parseNumber(input: unknown): NormalizedValue {
   let negative = false;
   if (/^\(.*\)$/.test(s)) { negative = true; s = s.slice(1, -1); warnings.push('parentheses-negative'); }
   s = s.replace(/\s/g, '');
-  s = s.replace(/[$€£¥﷼ر\.س\.ي\.ر\.س\$€£]/g, '');
+  // Strip currency markers only. Decimal punctuation must survive until locale parsing.
+  s = s.replace(/[$€£¥﷼ر\.س\.ي]/g, '');
   const percent = /%|٪/.test(s);
   s = s.replace(/[%٪]/g, '');
   const commas = (s.match(/,/g) ?? []).length;
