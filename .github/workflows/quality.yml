@@ -83,3 +83,5 @@ jobs:
         run: npm run test:document-intelligence-semantic-foundation
       - name: Document intelligence hardening
         run: npm run test:document-intelligence-hardening
+      - name: Document intelligence decision gate
+        run: npm run test:document-intelligence-decision-gate
