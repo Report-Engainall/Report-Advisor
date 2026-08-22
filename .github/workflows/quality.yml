@@ -31,6 +31,8 @@ jobs:
           test -f tsconfig.app.json
       - name: Install locked dependencies
         run: npm ci --no-audit --no-fund
+      - name: Quality workflow contract
+        run: npm run test:quality-workflow-contract
       - name: Typecheck
         run: npm run typecheck
       - name: Lint
