@@ -8,12 +8,10 @@ on:
   workflow_dispatch:
 permissions:
   contents: read
-# Contract compatibility marker: quality-${{ github.ref }}
-# Use a unique run key so a manual verification can never be cancelled by a later manual run.
-# This is intentionally fail-safe: every requested verification gets a complete result.
+# Each verification gets a unique evidence key and is never cancelled by a later run.
 concurrency:
   group: quality-${{ github.ref }}-${{ github.event_name }}-${{ github.run_id }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 jobs:
   verify:
     runs-on: ubuntu-latest
