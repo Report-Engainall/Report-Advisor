@@ -106,6 +106,8 @@ jobs:
         run: npm run test:document-intelligence-decision-gate
       - name: File intelligence security
         run: npm run test:file-intelligence-security
+      - name: Operational file pipeline
+        run: npm run test:operational-file-pipeline
       - name: Import transaction contract
         run: npm run test:import-transaction-contract
       - name: Import runtime governance
