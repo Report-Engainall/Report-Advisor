@@ -14,11 +14,8 @@ const tooltipStyle = {
   direction: 'rtl' as const,
 };
 
-type ChartValue = string | number | null | undefined;
-type ChartRow = Record<string, ChartValue>;
-
 interface ChartProps {
-  data: ChartRow[];
+  data: object[];
   height?: number;
 }
 
