@@ -16,6 +16,7 @@
     "test:file-engine-contract": "node scripts/check-file-engine-contract.mjs",
     "test:file-engine-capability-contract": "node scripts/check-file-engine-capability-contract.mjs",
     "test:schema-intelligence": "node scripts/check-schema-intelligence.mjs",
+    "test:operational-file-pipeline": "node --experimental-strip-types scripts/check-operational-file-pipeline.mjs",
     "test:contracts": "node scripts/check-architecture-contract.mjs",
     "test:selective-foundation": "node scripts/check-selective-foundation-integrity.mjs",
     "test:consolidated-intelligence": "node scripts/check-consolidated-intelligence.mjs",
