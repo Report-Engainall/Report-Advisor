@@ -1,0 +1,49 @@
+name: production-closure
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: production-closure-${{ github.ref }}-${{ github.event_name }}
+  cancel-in-progress: false
+jobs:
+  closure:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Setup Node 22
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Production gate runtime
+        run: npm run test:production-gate-runtime
+      - name: Failure classification
+        run: node scripts/check-production-failure-classification.test.mjs
+      - name: Readiness manifest
+        run: node scripts/production-readiness-manifest.test.mjs
+      - name: Readiness closure
+        run: node scripts/production-readiness-closure.test.mjs
+      - name: Evidence-backed readiness
+        run: node scripts/production-readiness-evidence.test.mjs
+      - name: Scenario matrix
+        run: node scripts/production-scenario-matrix.test.mjs
+      - name: Scenario execution contract
+        run: node scripts/production-scenario-execution-contract.test.mjs
+      - name: Regression baseline
+        run: node scripts/production-regression-baseline.test.mjs
+      - name: Release decision
+        run: node scripts/production-release-decision.test.mjs
+      - name: Final production closure
+        run: node scripts/final-production-closure.test.mjs
