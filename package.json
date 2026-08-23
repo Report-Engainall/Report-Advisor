@@ -52,7 +52,8 @@
     "test:production-readiness": "node scripts/check-production-readiness.mjs",
     "test:navigation-route-contract": "node scripts/check-navigation-route-contract.mjs",
     "test:import-direct-write-guard": "node scripts/check-import-direct-write-guard.mjs",
-    "test:scenario-engine": "node scripts/check-scenario-engine.mjs"
+    "test:scenario-engine": "node scripts/check-scenario-engine.mjs",
+    "test:import-folder-foundation": "node scripts/check-import-folder-foundation.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.57.4",
