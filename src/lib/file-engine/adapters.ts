@@ -3,6 +3,7 @@ import type { FileFormat, Dataset, ColumnProfile, ColumnStatistics } from './typ
 import { normalizeRows, normalizeColumnName, parseNumber } from './normalizer';
 import { detectColumnDataType, cleanValue } from './data-types';
 import { mapColumns } from './synonyms';
+import { detectHeaderRow, rowsFromDetectedHeader } from './header-detection';
 
 function generateId(): string { return Math.random().toString(36).substring(2, 9); }
 
@@ -56,7 +57,10 @@ export async function parseSpreadsheet(buffer: ArrayBuffer, fileName: string, _f
   const wb = XLSX.read(buffer, { type: 'array', cellDates: true });
   const datasets: Dataset[] = [];
   for (const sheetName of wb.SheetNames) {
-    const rows = XLSX.utils.sheet_to_json<Record<string, any>>(wb.Sheets[sheetName], { defval: '', raw: true });
+    const matrix = XLSX.utils.sheet_to_json<unknown[]>(wb.Sheets[sheetName], { header: 1, defval: '', raw: true });
+    const candidate = detectHeaderRow(matrix);
+    if (!candidate) continue;
+    const rows = rowsFromDetectedHeader(matrix, candidate) as Record<string, any>[];
     if (rows.length) datasets.push(await buildDataset(rows, `${fileName} — ${sheetName}`, fileName, sheetName));
   }
   return datasets;
@@ -77,11 +81,10 @@ function parseCSVText(text: string, delimiter?: string): Record<string, any>[] {
   const lines = text.split(/\r?\n/).filter(l => l.trim());
   if (!lines.length) return [];
   const delim = delimiter || detectDelimiter(lines[0]);
-  const headers = parseCSVLine(lines[0], delim);
-  return lines.slice(1).map(line => {
-    const values = parseCSVLine(line, delim);
-    return Object.fromEntries(headers.map((h, i) => [h, values[i] ?? '']));
-  });
+  const matrix = lines.map(line => parseCSVLine(line, delim));
+  const candidate = detectHeaderRow(matrix);
+  if (!candidate) return [];
+  return rowsFromDetectedHeader(matrix, candidate) as Record<string, any>[];
 }
 
 function detectDelimiter(line: string): string {
