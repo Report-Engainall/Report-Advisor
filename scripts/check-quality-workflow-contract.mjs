@@ -33,15 +33,13 @@ const requiredStages = [
   'Import RPC tenant context',
   'Import business key',
   'Report truth contract',
+  'Production readiness',
 ];
 const missingStages = requiredStages.filter((stage) => !workflow.includes(`- name: ${stage}`));
 if (missingStages.length) {
   throw new Error(`Quality workflow is missing mandatory stages: ${missingStages.join(', ')}`);
 }
 
-// Quality runs must be isolated. A later manual run must never cancel the run whose
-// result is being used as release evidence. Include run_id (or another unique key)
-// in the concurrency group and disable cancellation.
 if (!/concurrency:\s*\n\s*group:\s*quality-\$\{\{ github\.ref \}\}-\$\{\{ github\.event_name \}\}-\$\{\{ github\.run_id \}\}/m.test(workflow)) {
   throw new Error('Quality workflow must define a unique per-run concurrency group.');
 }
