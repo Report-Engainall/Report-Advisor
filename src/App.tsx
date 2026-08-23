@@ -2,6 +2,7 @@ import { Component, type ErrorInfo, type ReactNode, useEffect, useState, useCall
 import { BrowserRouter, Routes, Route, Link, useLocation } from 'react-router-dom';
 import { Sidebar } from '@/components/Sidebar';
 import { Header } from '@/components/Header';
+import { CommandPalette } from '@/components/CommandPalette';
 import { DashboardPage } from '@/pages/DashboardPage';
 import { fetchAlerts, markAlertRead } from '@/lib/queries';
 import type { Alert } from '@/lib/types';
@@ -57,9 +58,7 @@ class AppErrorBoundary extends Component<{ children: ReactNode }, { hasError: bo
             <AlertTriangle size={24} />
           </div>
           <h1 className="text-xl font-bold text-ink-900">حدث خطأ غير متوقع</h1>
-          <p className="mt-2 text-sm leading-6 text-ink-500">
-            تعذر عرض هذه الشاشة. يمكنك المحاولة مرة أخرى أو العودة إلى لوحة القيادة.
-          </p>
+          <p className="mt-2 text-sm leading-6 text-ink-500">تعذر عرض هذه الشاشة. يمكنك المحاولة مرة أخرى أو العودة إلى لوحة القيادة.</p>
           <div className="mt-6 flex flex-col sm:flex-row gap-3 justify-center">
             <button type="button" onClick={this.handleRetry} className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-primary-700">
               <RefreshCw size={16} /> المحاولة مرة أخرى
@@ -81,9 +80,7 @@ function NotFoundPage() {
         <div className="text-5xl font-black text-primary-600">404</div>
         <h1 className="mt-3 text-xl font-bold text-ink-900">الصفحة غير موجودة</h1>
         <p className="mt-2 text-sm leading-6 text-ink-500">الرابط الذي طلبته غير موجود أو تم نقله.</p>
-        <Link to="/" className="mt-6 inline-flex items-center justify-center gap-2 rounded-xl bg-primary-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-primary-700">
-          <Home size={16} /> العودة للرئيسية
-        </Link>
+        <Link to="/" className="mt-6 inline-flex items-center justify-center gap-2 rounded-xl bg-primary-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-primary-700">العودة للرئيسية</Link>
       </div>
     </div>
   );
@@ -92,6 +89,8 @@ function NotFoundPage() {
 function AppShell() {
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [commandOpen, setCommandOpen] = useState(false);
+  const location = useLocation();
 
   const loadAlerts = useCallback(async () => {
     try {
@@ -102,9 +101,22 @@ function AppShell() {
     }
   }, []);
 
+  useEffect(() => { loadAlerts(); }, [loadAlerts]);
+
   useEffect(() => {
-    loadAlerts();
-  }, [loadAlerts]);
+    setSidebarOpen(false);
+  }, [location.pathname]);
+
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
+        event.preventDefault();
+        setCommandOpen(value => !value);
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, []);
 
   const handleMarkAlert = useCallback(async (id: string) => {
     try {
@@ -117,28 +129,14 @@ function AppShell() {
 
   return (
     <div className="flex min-h-screen bg-ink-50">
-      <div className="hidden lg:block">
-        <Sidebar alertCount={alerts.filter(a => !a.is_read).length} />
-      </div>
+      <div className="hidden lg:block"><Sidebar alertCount={alerts.filter(a => !a.is_read).length} /></div>
 
       {sidebarOpen && (
         <div className="lg:hidden fixed inset-0 z-50 flex">
-          <div
-            className="fixed inset-0 bg-ink-900/50 backdrop-blur-sm"
-            onClick={() => setSidebarOpen(false)}
-          />
+          <div className="fixed inset-0 bg-ink-900/50 backdrop-blur-sm" onClick={() => setSidebarOpen(false)} />
           <div className="relative animate-slide-in">
-            <Sidebar
-              alertCount={alerts.filter(a => !a.is_read).length}
-              onNavigate={() => setSidebarOpen(false)}
-            />
-            <button
-              onClick={() => setSidebarOpen(false)}
-              className="absolute top-4 left-4 text-ink-400 hover:text-ink-600"
-              aria-label="إغلاق القائمة"
-            >
-              <X size={20} />
-            </button>
+            <Sidebar alertCount={alerts.filter(a => !a.is_read).length} onNavigate={() => setSidebarOpen(false)} />
+            <button onClick={() => setSidebarOpen(false)} className="absolute top-4 left-4 text-ink-400 hover:text-ink-600" aria-label="إغلاق القائمة"><X size={20} /></button>
           </div>
         </div>
       )}
@@ -148,16 +146,10 @@ function AppShell() {
           alerts={alerts}
           onMarkAlertRead={handleMarkAlert}
           onMenuClick={() => setSidebarOpen(true)}
+          onOpenCommandPalette={() => setCommandOpen(true)}
         />
         <main className="flex-1 p-4 lg:p-6 max-w-[1600px] w-full mx-auto">
-          <Suspense
-            fallback={
-              <div className="flex items-center justify-center py-20" role="status" aria-live="polite">
-                <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary-500 border-t-transparent" />
-                <span className="sr-only">جارٍ تحميل الصفحة</span>
-              </div>
-            }
-          >
+          <Suspense fallback={<div className="flex items-center justify-center py-20" role="status" aria-live="polite"><div className="animate-spin rounded-full h-8 w-8 border-2 border-primary-500 border-t-transparent" /><span className="sr-only">جارٍ تحميل الصفحة</span></div>}>
             <Routes>
               <Route path="/" element={<DashboardPage />} />
               <Route path="/command-center" element={<ExecutiveCommandCenterPage />} />
@@ -189,16 +181,11 @@ function AppShell() {
           </Suspense>
         </main>
       </div>
+      <CommandPalette open={commandOpen} onClose={() => setCommandOpen(false)} />
     </div>
   );
 }
 
 export default function App() {
-  return (
-    <BrowserRouter>
-      <AppErrorBoundary>
-        <AppShell />
-      </AppErrorBoundary>
-    </BrowserRouter>
-  );
+  return <BrowserRouter><AppErrorBoundary><AppShell /></AppErrorBoundary></BrowserRouter>;
 }
