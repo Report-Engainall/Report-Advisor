@@ -25,8 +25,12 @@ assert.equal(preview.updateCount, 1);
 assert.equal(preview.unchangedCount, 1);
 assert.equal(preview.newCount, 1);
 assert.equal(preview.invalidCount, 1);
+assert.equal(preview.conflictCount, 1);
 assert.equal(preview.rows[0].businessKey, '00123');
-assert.deepEqual(preview.rows[0].changedFields, ['name', 'price']);
+assert.deepEqual(preview.rows[0].changedFields, ['price']);
+assert.equal(preview.rows[0].decision, 'update');
+assert.equal(preview.rows[4].decision, 'conflict');
+assert.deepEqual(preview.rows[4].changedFields, ['name', 'price']);
 assert.equal(preview.writesAllowed, false);
 assert.deepEqual(preview.rows[0].ignoredNullFields, []);
 
@@ -39,5 +43,15 @@ const nullSafe = classifyImport({
 });
 assert.equal(nullSafe.rows[0].decision, 'unchanged');
 assert.deepEqual(nullSafe.rows[0].ignoredNullFields.sort(), ['name', 'price']);
+
+const rejectNull = classifyImport({
+  incomingRows: [{ sku: '00123', name: 'Sugar', price: null }],
+  existingRows: existing,
+  matchingKeys: ['sku'],
+  requiredFields: ['sku'],
+  nullPolicy: 'reject',
+});
+assert.equal(rejectNull.rows[0].decision, 'invalid');
+assert.equal(rejectNull.rows[0].errors.includes('Null value rejected: price'), true);
 
 console.log('Import classifier regressions: PASS');
