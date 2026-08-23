@@ -44,6 +44,10 @@ jobs:
         run: npm run test:quality-workflow-contract
       - name: File-engine architecture contract
         run: npm run test:file-engine-contract
+      - name: File-engine capability contract
+        run: npm run test:file-engine-capability-contract
+      - name: Schema intelligence contract
+        run: npm run test:schema-intelligence
       - name: Typecheck
         run: npm run typecheck
       - name: File-engine behavioral regressions
