@@ -20,8 +20,10 @@ AS $$
 DECLARE
   v_id uuid;
   v_code text := normalize_import_key(p_code);
+  v_current_company uuid := public.current_company_id();
 BEGIN
   IF p_company_id IS NULL THEN RAISE EXCEPTION 'company_id is required'; END IF;
+  IF v_current_company IS NULL OR p_company_id <> v_current_company THEN RAISE EXCEPTION 'TENANT_CONTEXT_MISMATCH'; END IF;
   IF p_name IS NULL OR btrim(p_name) = '' THEN RAISE EXCEPTION 'customer name is required'; END IF;
 
   SELECT id INTO v_id
@@ -73,8 +75,10 @@ AS $$
 DECLARE
   v_id uuid;
   v_number text := normalize_import_key(p_invoice_number);
+  v_current_company uuid := public.current_company_id();
 BEGIN
   IF p_company_id IS NULL THEN RAISE EXCEPTION 'company_id is required'; END IF;
+  IF v_current_company IS NULL OR p_company_id <> v_current_company THEN RAISE EXCEPTION 'TENANT_CONTEXT_MISMATCH'; END IF;
   IF v_number IS NULL THEN RAISE EXCEPTION 'invoice number is required'; END IF;
   IF p_customer_id IS NULL THEN RAISE EXCEPTION 'customer_id is required'; END IF;
 
@@ -99,7 +103,7 @@ BEGIN
   END IF;
 
   UPDATE sales_invoices
-  SET customer_id = CASE WHEN p_customer_id IS NULL THEN customer_id ELSE p_customer_id END,
+  SET customer_id = p_customer_id,
       invoice_date = CASE WHEN p_null_policy = 'preserve' AND p_invoice_date IS NULL THEN invoice_date ELSE coalesce(p_invoice_date, invoice_date) END,
       status = CASE WHEN p_null_policy = 'preserve' AND p_status IS NULL THEN status ELSE coalesce(p_status, status) END,
       subtotal = CASE WHEN p_null_policy = 'preserve' AND p_subtotal IS NULL THEN subtotal ELSE coalesce(p_subtotal, subtotal) END,
@@ -114,5 +118,5 @@ $$;
 
 REVOKE EXECUTE ON FUNCTION import_upsert_customer(uuid,text,text,text,text,text,numeric,integer,text) FROM anon;
 REVOKE EXECUTE ON FUNCTION import_upsert_sales_invoice(uuid,text,date,uuid,numeric,numeric,numeric,numeric,text,text) FROM anon;
-GRANT EXECUTE ON FUNCTION import_upsert_customer(uuid,text,text,text,text,text,numeric,integer,text) TO authenticated;
+GRANT EXECUTE ON FUNCTION import_upsert_customer(uuid,text,text,text,text,text,numeric,integer,numeric,text) TO authenticated;
 GRANT EXECUTE ON FUNCTION import_upsert_sales_invoice(uuid,text,date,uuid,numeric,numeric,numeric,numeric,text,text) TO authenticated;
