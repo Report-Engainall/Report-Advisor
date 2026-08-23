@@ -22,7 +22,12 @@ if (!/export type FileFormat/.test(types) || !/export interface FileDetectionRes
   throw new Error('File-engine canonical types are incomplete.');
 }
 
-const supported = [...types.matchAll(/SUPPORTED_FORMATS[\\s\\S]*?= \[([\\s\\S]*?)\];/m)].at(0)?.[1] ?? '';
+const supportedMatch = types.match(/SUPPORTED_FORMATS[\s\S]*?= \[([\s\S]*?)\];/m);
+const supported = supportedMatch?.[1] ?? '';
+if (!supportedMatch) {
+  throw new Error('SUPPORTED_FORMATS declaration is missing or malformed.');
+}
+
 for (const format of ['xlsx', 'csv', 'tsv', 'json', 'jsonl']) {
   if (!new RegExp(`['"]${format}['"]`).test(supported)) {
     throw new Error(`Required production format is missing from SUPPORTED_FORMATS: ${format}`);
