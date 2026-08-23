@@ -6,7 +6,227 @@ Report-Advisor is a continuous commercial intelligence and decision platform for
 ## Universal SKU Rule
 Every intelligence capability is a **general rule for every eligible SKU and normalized item group**. Named products in examples are illustrative only and must never receive hard-coded analytical treatment. No SKU is excluded because it is new, slow-moving, seasonal, out of stock or historically inactive.
 
-For every SKU/group maintain continuously updated historical memory, demand, customer relationships, stock, price/cost, supplier, liquidity, risk, forecast, evidence and action state.
+## New — Commercial Equivalence Groups (CEG)
+The system now treats merchant-defined equivalence/coverage groups as a first-class business concept, separate from ERP product identity and separate from ordinary categories.
+
+### Purpose
+Multiple distinct SKUs can be sold under different brand/company names, packaging or source identities while serving the same commercial demand. The merchant can explicitly declare that selected SKUs **collectively cover one demand need** and should be analyzed together for stock coverage, demand, shortage risk, replenishment and market capacity.
+
+Example only: several different 20-liter oil SKUs may be members of one merchant-defined demand group, while another 20-liter SKU remains deliberately independent even though it shares the same broad category/size.
+
+The same mechanism applies universally to all product families, sizes, pack formats, brands, qualities and commercial substitutes (e.g. 1.5L, 750ml, 400g and any other merchant-defined family). Examples are not hard-coded.
+
+### Critical Separation of Identities
+Maintain three distinct layers:
+1. **Product/SKU identity** — the exact ERP item remains independent for stock, cost, price, supplier, margin and traceability.
+2. **Category/family identity** — broad classification such as size, type or product family; never automatically treated as a substitute group.
+3. **Commercial Equivalence Group** — an explicit merchant-approved set of SKUs that can jointly satisfy the same demand for specified purposes.
+
+Never merge SKU master records physically just because they belong to a CEG. Aggregation is a derived analytical view with full drill-down to each original SKU.
+
+### Merchant Control Table
+Provide a dedicated management table/page where the merchant can:
+- create a group with a meaningful business name
+- choose a canonical/base unit
+- add/remove member SKUs
+- set each member as `primary`, `alternative`, `supporting` or `excluded`
+- set an effective-from/effective-to period
+- define whether the group applies to inventory coverage, demand aggregation, replenishment, customer substitution, reporting, or only selected scopes
+- set priority/ranking among members
+- define whether substitution is full, conditional or prohibited
+- define conversion factors into the group's base unit
+- define minimum/maximum acceptable pack/unit constraints
+- record a reason/note for the grouping
+- approve/review the group
+- deactivate without deleting historical evidence.
+
+### Grouping Is Not Automatic by Name
+The engine may suggest candidate groups using normalized name, unit, size, brand/type attributes and observed customer substitution behavior, but **the merchant remains the authority for final grouping** unless an explicit trusted rule authorizes automation.
+
+Never combine products solely because they share a word such as "20 لتر". Different brands/qualities may be commercially non-equivalent. Ambiguous suggestions must enter review.
+
+### Substitution Modes
+Each group/member relationship supports:
+- `full_substitute` — one unit can normally satisfy one unit of the group's demand.
+- `conditional_substitute` — usable only under defined merchant conditions.
+- `partial_substitute` — conversion/coverage is less than one-to-one.
+- `not_substitute` — member remains in family/category but cannot cover another member's demand.
+
+Do not assume substitutability from category membership.
+
+### Group Demand Aggregation
+For each CEG calculate, where the configured relationship permits:
+- total units sold across members normalized to base unit
+- revenue and cost
+- weighted/aggregated margin
+- unique customers
+- customer demand cadence
+- fulfilled demand
+- unfulfilled demand
+- estimated lost demand
+- stockout periods by member and group
+- group velocity
+- group high/low/typical movement
+- group seasonality
+- group acceleration/deceleration
+- group demand forecast.
+
+Always retain member-level metrics beside group metrics.
+
+### Group Inventory Pool / Coverage
+For each CEG, calculate **effective group inventory** as the sum of eligible member inventory converted to the group's base unit, subject to member availability, unit conversion, status and substitution rules.
+
+Example only:
+- SKU A: 80 units
+- SKU B: 60 units
+- SKU C: 25 units
+- SKU D: 0
+- all are approved full substitutes
+- group effective inventory = 165 base units.
+
+If one member is independent/excluded, its stock must **not** enter the group pool. If a member has conditional substitution, only the permitted coverage amount enters the relevant scenario.
+
+### Coverage Is Not Just a Sum
+The group engine must also calculate:
+- group days of cover
+- member-specific days of cover
+- expected demand during supplier lead time
+- safety stock
+- group reorder point
+- shortage date
+- service-level risk
+- concentration risk (too much stock in one member)
+- unusable/conditional stock
+- stock trapped in slow members while another member is selling quickly.
+
+This prevents the false conclusion that "the group has enough stock" when the available stock is not actually substitutable or operationally usable.
+
+### Cross-SKU Demand Transfer
+When one group member is unavailable and another member's sales rise, detect possible substitution only when evidence supports it.
+
+Track:
+- preferred SKU
+- replacement SKU
+- customer acceptance
+- units transferred
+- revenue/margin impact
+- substitution frequency
+- stockout trigger
+- confidence.
+
+Do not automatically attribute all increased sales of SKU B to shortage of SKU A without evidence.
+
+### Customer × Group Intelligence
+For every CEG maintain:
+- customers who buy any member
+- customers who buy multiple members
+- preferred member per customer
+- customers accepting substitutes
+- customers rejecting substitutes where evidence exists
+- customer-level demand in group base units
+- expected reorder window
+- unmet group demand
+- customers at risk from group shortage.
+
+This enables the advisor to say that the group may be adequately stocked overall while a specific customer's preferred SKU is unavailable.
+
+### Group-Level Lost Sales
+Estimate lost demand at two levels:
+- exact SKU lost demand
+- group-level demand that could have been satisfied by an approved alternative.
+
+Never double-count lost sales: demand satisfied by another group member must not also be counted as lost demand.
+
+### Group Replenishment
+Replenishment decisions must operate at both levels:
+- SKU reorder
+- group reorder allocation.
+
+If group demand is high but one member is overstocked and another is understocked, recommend allocation/consumption of existing approved stock before unnecessary purchase.
+
+Suggested purchase quantity must account for:
+- group forecast
+- current eligible group stock
+- member stock
+- safety stock
+- supplier lead time
+- MOQ/pack constraints
+- cost and cash budget
+- preferred member ranking
+- substitution constraints
+- customer preference
+- supplier reliability.
+
+### Group Pricing & Margin
+Never merge prices/costs simply because SKUs are grouped. Preserve member economics and calculate group-level weighted metrics separately.
+
+The system should identify:
+- cheapest available coverage
+- highest-margin member
+- fastest-moving member
+- cash-efficient member
+- strategic preferred member.
+
+Recommendations must never violate merchant pricing rules or customer-specific pricing permissions.
+
+### Group Lifecycle & Audit
+Groups are versioned and effective-dated. Changes must record:
+- who changed the group
+- when
+- old/new membership
+- old/new conversion
+- reason
+- affected reports/metrics
+- recalculation status.
+
+Historical reports must remain reproducible under the grouping configuration that was effective at the time, while current views may use the current configuration.
+
+### Group Conflict Detection
+Detect and prevent dangerous configurations:
+- same SKU assigned to incompatible active groups in the same scope
+- circular/recursive groups
+- invalid conversion factors
+- incompatible units
+- duplicate membership rules
+- contradictory substitution rules
+- group spanning unrelated tenant data
+- effective-date overlaps with conflicting definitions.
+
+Allow intentional multi-group membership only when scopes/relationships make the business meaning unambiguous and the system can prevent double counting.
+
+### Group Suggestions & Learning
+The system may propose:
+> "These 7 SKUs appear to serve the same demand pattern. Review as a possible commercial group."
+
+Evidence can include:
+- normalized attributes
+- shared customer demand
+- substitution after stockouts
+- similar unit/pack
+- correlated movement
+- merchant history.
+
+The proposal is not active until approved when merchant approval is required. Approved mappings may become tenant-scoped reusable knowledge.
+
+### Group Intelligence Must Feed All Major Engines
+Commercial Equivalence Groups must integrate with:
+- demand velocity
+- forecast
+- stockout/lost-sales
+- inventory intelligence
+- customer continuity
+- supplier intelligence
+- liquidity analysis
+- stagnation detection
+- surge detection
+- replenishment
+- decision dashboard
+- daily advisor
+- what-if scenarios
+- alerts
+- reporting/export.
+
+No parallel calculation path should create inconsistent group totals.
 
 ## New — Continuous Governed Folder Report Ingestion
 - Preserve manual single-file import unchanged.
@@ -61,76 +281,9 @@ For every SKU/group maintain continuously updated historical memory, demand, cus
 
 ## New — Market Demand & Commercial Intelligence
 Detailed specification: `docs/MARKET_DEMAND_INTELLIGENCE_SPEC.md`.
-
-### Universal SKU Intelligence Record
-Every eligible SKU/group receives the same intelligence framework:
-- identity/aliases, unit conversions and category/alternative relationships
-- current/historical stock
-- sales, purchases, returns and adjustments where available
-- fulfilled/unfulfilled demand
-- customer/supplier relationships
-- price/cost/margin history
-- demand baselines/forecasts
-- seasonality, velocity and acceleration
-- stockout exposure
-- liquidity role
-- stagnation/slow-moving state
-- anomaly state
-- evidence quality/freshness
-- current recommendation/action state.
-
-### Observed Market Capacity
-For every SKU/group maintain observed merchant-market capacity, never claiming external total market size unless external data exists:
-- units/value sold by day/week/month/year
-- unique/active buyers and retention
-- average/median/min/max order quantities
-- frequency/reorder interval
-- sales/revenue/margin/liquidity share
-- customer/branch/channel concentration
-- peaks, seasonality and acceleration/deceleration
-- availability/stockouts
-- fulfilled vs unfulfilled demand.
-
-### Historical Demand Memory
-Historical movement remains available even when stock is zero or current sales are low. The previously discussed "أبو 20" case is only an example: the same historical-memory rule applies to **every SKU**.
-
-For each SKU, compare historical peaks/current period, current requests, expected demand, affected customers, stockout duration, lost-sales opportunity and replenishment guidance. Preserve historical peaks unless invalidated by data-quality rules.
-
-### Demand vs Actual Sales
-Explicitly separate fulfilled demand, unfulfilled requests, estimated lost demand, stockout-suppressed demand, seasonal expectation and one-off demand. Never interpret low sales during stockout as low demand.
-
-### Stockout Intelligence
-For every SKU/group calculate where evidence allows stockout duration/recurrence, partial availability, affected customers, unavailable requests, estimated lost units/value, opportunity cost and next likely shortage date.
-
-### High / Low / Typical Movement
-For every SKU/group maintain maximum, minimum non-zero, average, median, rolling/weighted averages, P50/P75/P90/P95/P99 where sample size supports them, peak-to-current ratio and volatility. Never use one exceptional maximum as the sole reorder rule.
-
-### Early Demand Surge
-For every SKU detect acceleration using units, order frequency, unique buyers, basket quantity, reorder interval, requests and cross-category signals. Classify normal/emerging/accelerating/surge/anomalous with evidence-scaled thresholds.
-
-### Stagnant / Slow-Moving Inventory
-For every SKU classify using days since sale, rolling movement, inventory age/value, margin, historical demand, customers, trend and seasonality. Suggest monitor/promotion/bundle/transfer/reduce purchase/liquidate/investigate. Seasonal troughs must not be mislabeled as permanent stagnation.
-
-### Customer × SKU Intelligence
-For every SKU maintain buyers, last purchase, frequency, average/peak quantity, expected reorder window, recent change, inactivity, stockout impact and requests. For every customer maintain the reciprocal SKU relationship. Answer who buys, who stopped, who is due, who was unserved and who depends on critical items.
-
-### Customer Continuity
-For every customer signal stable/at-risk/inactive/returning/expanding from cadence, spend, SKU coverage and inactivity deviations; present as signals, not certainties.
-
-### Merchant Dependence Map
-For every SKU/group/category calculate contribution by units, revenue, gross margin, cash generation and customer reach, plus concentration risk and critical supplier dependence.
-
-### Liquidity Intelligence
-For every SKU/group classify cash generator, fast cash converter, high-margin/slow-cash, cash trap, dead capital or strategic traffic driver where evidence supports it. Calculate inventory value, cash tied up, turnover, DIO, GMROI, sell-through and cash contribution where possible.
-
-### Purchase Timing / Replenishment
-For every SKU continuously evaluate current/available stock, forecast, safety stock, reorder point, lead-time demand, supplier reliability, order cycle, seasonal peak, MOQ/unit conversion and pending customer demand. Recommend reorder now/prepare/monitor/maintain/reduce/do-not-reorder/investigate with evidence and confidence.
-
-### Seasonality & Historical Comparison
-Every SKU supports today-vs-yesterday, week-vs-week, month-vs-month, same-period-last-year when available, rolling 7/30/90/180/365-day windows, peak-vs-current and stock-vs-historical-demand views. Missing history is explicit.
-
-### Supplier / Price / Margin / Opportunity / Anomaly Intelligence
-Link supplier reliability, costs, prices, margins, returns, substitutes, cross-sell, under-served demand and anomaly detection to the same SKU intelligence record rather than isolated reports.
+- Every SKU and every Commercial Equivalence Group receives the same universal intelligence framework.
+- Historical demand memory, fulfilled/unfulfilled demand, stockout-aware demand, high/low/typical movement, early surge, stagnation, customer × SKU, customer continuity, merchant dependence, liquidity, replenishment, supplier, price/margin, opportunity, anomaly and seasonality intelligence operate at both SKU and approved group level.
+- Group metrics are normalized to configured base units and never erase member-level evidence.
 
 ## New — Decision Intelligence
 - Velocity → forecast → coverage → stockout → alternatives → lost sales → evidence → replenishment.
@@ -152,6 +305,8 @@ Dashboard must answer in under one minute:
 9. What should be bought?
 10. What should not be bought?
 11. What are today's highest-impact decisions?
+12. Which commercial groups have enough total coverage but a dangerous member-level shortage?
+13. Which group has fragmented stock across several small balances that should be evaluated as one demand pool?
 
 Use an action queue with opened → acknowledged → actioned → resolved → reopened lifecycle and suppress repeated alerts until state changes or escalation thresholds are crossed.
 
@@ -166,13 +321,18 @@ Support deterministic what-if scenarios for demand changes, supplier delay, pric
 - No purchase execution without authorization.
 - Every transformation replayable and auditable.
 - Low evidence produces cautious output.
+- Group membership is merchant-controlled unless an explicitly trusted automated rule is configured.
+- Group calculations must be explainable down to member SKU and source row.
 
 ## New — Premium Product UX
 - Mobile-first Arabic RTL with desktop command center.
 - Executive cockpit, decision queue and daily digest.
+- Dedicated Commercial Equivalence Groups management screen with search, filters, membership editing, effective dates, substitution mode, base unit, conversion, status and evidence.
+- Group detail view: total coverage + member stock + demand + customers + risk + liquidity + substitutions.
+- Side-by-side member vs group analytics.
 - Command palette and keyboard shortcuts.
 - Saved views, filters and grouping.
-- Drill-down drawers from KPI → evidence → source rows → report → file.
+- Drill-down drawers from KPI → group → member SKU → evidence → source rows → report → file.
 - Progressive loading and responsive background processing.
 - Restrained gradients, accessible contrast, semantic status colors and consistent design tokens.
 - Visual polish must never obscure confidence or evidence.
@@ -180,7 +340,7 @@ Support deterministic what-if scenarios for demand changes, supplier delay, pric
 ## Performance Architecture
 - Parse once and cache normalized artifacts.
 - Incremental row reconciliation.
-- Precomputed daily aggregates.
+- Precomputed daily aggregates for SKU and group.
 - Background workers/agent queues.
 - Bounded concurrency/backpressure.
 - Partition history by tenant/time/report family.
@@ -197,7 +357,12 @@ Support deterministic what-if scenarios for demand changes, supplier delay, pric
 - Schema registry and vendor-profile regression fixtures.
 - Mapping-confidence/no-hallucination.
 - Universal SKU coverage tests: every analytical engine must work across all eligible SKUs/groups, not just fixtures/examples.
-- Demand calculations and stockout-aware demand tests.
+- Commercial Equivalence Group schema/security/tenant-isolation contract.
+- Group membership conflict/cycle/effective-date validation.
+- Unit conversion correctness and normalized base-unit arithmetic.
+- Group aggregation and member drill-down consistency.
+- No double-counting across overlapping scopes.
+- Substitution attribution and lost-sales correctness.
 - SKU/customer relationship correctness.
 - Historical peak/current and rolling-window correctness.
 - Surge/stagnation classification tests.
@@ -237,18 +402,19 @@ Existing completed units remain authoritative; new specifications must reuse exi
 
 ## Next Execution Sequence
 1. Connect real time-series demand to grouped demand and days-of-cover for every eligible SKU/group.
-2. Implement stockout-aware demand and lost-sales history for every SKU.
-3. Implement SKU × customer demand memory and continuity signals.
-4. Implement high/low/typical movement, rolling baselines and percentile bands.
-5. Implement early demand surge and stagnation detection across all SKUs.
-6. Implement liquidity classification and merchant dependence map across all SKUs/groups.
-7. Implement forecast-aware replenishment and purchase timing across all SKUs.
-8. Build Report Schema Registry and Onyx Pro regression fixtures.
-9. Add Local Sync Agent continuous watcher.
-10. Add incremental reconciliation ledger and immutable snapshots.
-11. Add lineage graph, Data Quality Score and Schema Drift.
-12. Build Daily Trader Advisor + Decision Queue + Change Digest UI.
-13. Integrate What-if/Scenario Engine with commercial decisions.
-14. Add universal-SKU golden datasets, cross-tenant, load and deterministic replay tests.
-15. Polish mobile RTL/desktop UX with the unified design system.
-16. Run full CI and production hardening; fix every failure before release.
+2. Implement Commercial Equivalence Group persistent model, governance, UI and normalized aggregation.
+3. Implement group stock coverage, shortage and substitution-aware lost-sales calculations.
+4. Implement SKU × customer and Group × customer demand memory.
+5. Implement high/low/typical movement, rolling baselines and percentile bands at SKU and group levels.
+6. Implement early demand surge and stagnation detection across all SKUs/groups.
+7. Implement liquidity classification and merchant dependence map across all SKUs/groups.
+8. Implement forecast-aware replenishment and purchase timing across all SKUs/groups.
+9. Build Report Schema Registry and Onyx Pro regression fixtures.
+10. Add Local Sync Agent continuous watcher.
+11. Add incremental reconciliation ledger and immutable snapshots.
+12. Add lineage graph, Data Quality Score and Schema Drift.
+13. Build Daily Trader Advisor + Decision Queue + Change Digest UI with group-aware alerts.
+14. Integrate What-if/Scenario Engine with commercial decisions.
+15. Add universal-SKU/group golden datasets, cross-tenant, load and deterministic replay tests.
+16. Polish mobile RTL/desktop UX with the unified design system.
+17. Run full CI and production hardening; fix every failure before release.
