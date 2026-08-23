@@ -36,6 +36,28 @@
 - Failed files/rows are quarantined with actionable evidence and do not block other reports.
 - The system may take longer to process a large first import when that improves validation and accuracy; correctness is prioritized over superficial speed.
 
+## New — Data Change Intelligence & Lineage
+- Introduce a first-class **Change Set** abstraction: file change → row change → semantic change → affected metric → affected decision.
+- Classify changes as `new`, `modified`, `deleted_or_missing`, `reversed`, `duplicate`, `unchanged`, `schema_changed` and `unresolved`.
+- Never treat a changed file as changed business data until row-level reconciliation proves it.
+- Provide deterministic row identity hierarchy: source primary key → document+line identity → stable business key → normalized row fingerprint.
+- Maintain immutable source snapshots and a compact derived delta ledger so historical reconstruction remains possible without repeatedly reparsing every file.
+- Track source-to-canonical-to-metric-to-decision lineage for every important number shown to the trader.
+- Make every intelligence result explainable with source evidence, period, row count, freshness, transformation/version and confidence.
+- Add **Data Quality Score** per file/report/dataset with explicit reasons: missing fields, invalid types, duplicates, conflicts, suspicious values, stale periods and unmapped columns.
+- Add **Schema Drift Detection**: when headers, types, sheet structure or semantic patterns change, quarantine the affected profile rather than silently applying stale mappings.
+- Add **Source Conflict Resolution** when two files overlap: classify as append/replace/duplicate/conflict and require evidence before replacing authoritative data.
+- Add deterministic replay: the same source snapshot + same parser/profile version must produce the same canonical result.
+
+## New — Daily Trader Advisor / Change Digest
+- Add a daily executive summary generated from actual processed changes, not generic narrative.
+- Show: what changed, what matters, what became risky, what improved, what needs action and what evidence supports each point.
+- Prioritize by business impact, urgency, confidence, liquidity impact, customer impact and data freshness.
+- Suppress repeated alerts until state changes or a defined escalation threshold is reached.
+- Track alert lifecycle: opened → acknowledged → actioned → resolved → reopened.
+- Allow drill-down from a recommendation to the exact report, file, rows and calculations behind it.
+- Maintain yesterday-vs-today and period-vs-period comparisons.
+
 ## New — Universal ERP / Accounting Report Recognition
 - Build a versioned **Report Schema Registry** covering Arabic/English accounting exports, beginning with Onyx Pro and extending to Al-Mutakamil, Raqish and other systems as evidence/export samples become available.
 - Use `docs/REPORT_FORMATS_YEMEN_ARAB_ERP.md` as the canonical field/synonym dictionary and governance baseline.
@@ -107,6 +129,7 @@
 - Continuous watcher — planned for Local Sync Agent execution.
 - Continuous incremental reconciliation — planned.
 - Universal ERP schema registry — planned; field dictionary/governance baseline added.
+- Data change intelligence, lineage and daily digest — planned.
 - Important boundary: demand/request history is never fabricated; missing history returns an explicit empty state.
 - Next: connect time-series output to grouped demand and days-of-cover.
 - Next: dashboard decision cards with evidence/confidence and actionable priorities.
@@ -123,6 +146,9 @@
 - Watcher stability/idempotency/security gates.
 - Incremental reconciliation correctness and fallback-to-full-reprocess gate.
 - Lineage/change-digest contract gate.
+- Data-quality scoring gate.
+- Schema-drift/conflict-resolution gate.
+- Deterministic replay gate.
 - Schema registry contract and vendor-profile regression fixtures.
 - Mapping-confidence/no-hallucination gate.
 - Package commands for inventory intelligence, security, schema, dashboard, UI, demand and folder import checks.
@@ -174,8 +200,10 @@
 6. Build the Report Schema Registry and Onyx Pro profile regression fixtures.
 7. Add Local Sync Agent watcher with stability detection, queueing, retry and idempotency ledger.
 8. Add incremental reconciliation ledger, row fingerprints/cursors and safe fallback to full reprocessing.
-9. Add daily change digest and historical report snapshots.
-10. Add cross-tenant authorization tests across all intelligence and ingestion surfaces.
-11. Add large-dataset performance, memory and pagination budgets.
-12. Execute integration/load/security checks and production hardening.
-13. Release only after all quality gates pass.
+9. Add immutable source snapshots, lineage graph and daily change digest.
+10. Add data quality score, schema drift and source conflict resolution.
+11. Add deterministic replay and audit verification.
+12. Add cross-tenant authorization tests across all intelligence and ingestion surfaces.
+13. Add large-dataset performance, memory and pagination budgets.
+14. Execute integration/load/security checks and production hardening.
+15. Release only after all quality gates pass.
