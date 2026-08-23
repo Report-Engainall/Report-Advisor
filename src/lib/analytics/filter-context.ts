@@ -1,7 +1,8 @@
+export type DashboardFilterPeriod = 3 | 6 | 12;
 export type DashboardFilterKey = 'period' | 'customer' | 'category' | 'product';
 
 export interface DashboardFilterContext {
-  period: number;
+  period: DashboardFilterPeriod;
   customerId: string | null;
   categoryId: string | null;
   productId: string | null;
@@ -21,7 +22,7 @@ export function resetDashboardFilterContext(): DashboardFilterContext {
 export function setDashboardFilter(
   context: DashboardFilterContext,
   key: 'period',
-  value: number,
+  value: DashboardFilterPeriod,
 ): DashboardFilterContext;
 export function setDashboardFilter(
   context: DashboardFilterContext,
@@ -31,11 +32,11 @@ export function setDashboardFilter(
 export function setDashboardFilter(
   context: DashboardFilterContext,
   key: DashboardFilterKey,
-  value: number | string | null,
+  value: DashboardFilterPeriod | string | null,
 ): DashboardFilterContext {
   switch (key) {
     case 'period':
-      return { ...context, period: value as number };
+      return { ...context, period: value as DashboardFilterPeriod };
     case 'customer':
       return { ...context, customerId: value as string | null };
     case 'category':
@@ -70,7 +71,7 @@ export function parseDashboardFilterContext(value: string): DashboardFilterConte
     if (typeof period !== 'number' || !Number.isFinite(period) || ![3, 6, 12].includes(period)) return null;
     const optionalString = (candidate: unknown): string | null => candidate === null || typeof candidate === 'string' ? candidate : null;
     return {
-      period,
+      period: period as DashboardFilterPeriod,
       customerId: optionalString(record.customerId),
       categoryId: optionalString(record.categoryId),
       productId: optionalString(record.productId),
