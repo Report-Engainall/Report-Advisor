@@ -53,11 +53,12 @@
     "test:navigation-route-contract": "node scripts/check-navigation-route-contract.mjs",
     "test:import-direct-write-guard": "node scripts/check-import-direct-write-guard.mjs",
     "test:scenario-engine": "node scripts/check-scenario-engine.mjs",
-    "test:import-folder-foundation": "node scripts/check-import-folder-foundation.mjs"
+    "test:import-folder-foundation": "node scripts/check-import-folder-foundation.mjs",
+    "test:production-gate-integrity": "node scripts/check-production-gate-integrity.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.57.4",
-    "clsx": "^2.1.1",
+    "clsx": "^2.1.0",
     "date-fns": "^4.4.0",
     "lucide-react": "^0.446.0",
     "mammoth": "^1.12.0",
