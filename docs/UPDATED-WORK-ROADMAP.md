@@ -1,163 +1,263 @@
 # مساعد التاجر — Updated Work Roadmap
 
+## Product North Star
+Report-Advisor is a continuous commercial intelligence and decision platform for merchants. It must transform trusted operational/accounting data into an evidence-backed understanding of demand, customers, inventory, liquidity, risk and next actions — not merely display reports.
+
 ## New — Continuous Governed Folder Report Ingestion
-- Preserve the existing manual single-file import path unchanged.
-- Preserve the existing user-selected folder batch path.
-- Add **continuous watched-folder ingestion**: after the user explicitly grants a folder, the Local Sync Agent watches for new/changed report files and automatically queues them without requiring a manual button click for every file.
-- Support configurable polling/watch mode, debounce, retry policy, file-stability detection and a safe processed-file ledger.
-- Never ingest a file while it is still being written; wait until size/mtime/hash are stable.
-- Reuse security scan, format detection, SHA-256 duplicate check, canonical parser and canonical commit/RPC path.
-- Per-file isolation: one corrupt/unsupported file must never stop other files.
-- Persist per-file lifecycle: discovered → waiting/stable → scanning → detected → mapped → preview/approved (when required) → committed/quarantined/failed.
-- Expose pause/resume, retry, quarantine and audit history.
-- Keep tenant isolation and least-privilege filesystem access mandatory.
-- Browser-only deployments use explicit File System Access API selection; arbitrary `C:\` or UNC text paths are never treated as filesystem permissions.
-- Network/UNC and true continuous watching require the planned Local Sync Agent running on the user's Windows machine/server.
-- Add explicit recursive-folder option with bounded depth, exclusions and performance limits.
-- Add backpressure/concurrency controls so large folders do not freeze the application or overload parsing/DB.
-- Quality gates: `test:folder-batch-import` plus watcher/idempotency/stability/security gates.
+- Preserve manual single-file import unchanged.
+- Preserve user-selected folder batch import.
+- Add continuous watched-folder ingestion through the Local Sync Agent after explicit folder authorization.
+- Detect new/changed files automatically; debounce and wait for file stability before reading.
+- Support recursive folders with bounded depth, exclusions, retry, pause/resume, quarantine and audit history.
+- Use SHA-256, source fingerprints and idempotency ledger.
+- Process files independently; one failure never blocks the batch.
+- Use bounded concurrency/backpressure and resumable background queues.
+- Persist lifecycle: discovered → stable → scanning → classified → mapped → validated → committed/quarantined/failed.
+- Browser-only deployments use explicit File System Access API; arbitrary typed paths never grant filesystem access.
+- UNC/network folders require Local Sync Agent with least-privilege access.
+- Quality gates: folder import, watcher stability, idempotency and security.
 
 ## New — Continuous Incremental Report Intelligence
-- Treat the folder as a **living source**, not a one-time upload.
-- On day one, discover every supported report file, classify it, map it to a canonical report family, process it through the full intelligence pipeline and build the initial evidence/history state.
-- On later runs, detect whether a file is unchanged, appended, revised, replaced or newly created.
-- For unchanged files: skip content processing safely while retaining lineage and last-known state.
-- For appended/changed tabular reports: identify the previously committed boundary and process only genuinely new/changed rows where the source semantics allow reliable incremental reconciliation.
-- Use stable row identity where available (document number + line number/ID + date + SKU + source fingerprint); otherwise use deterministic row fingerprints and conservative reconciliation.
-- If the source can reorder/delete rows or revise historical records, automatically switch from append-only optimization to a bounded reconciliation window or full reprocessing as required for correctness.
-- Never assume "new rows only" is safe merely because the file timestamp changed.
-- Maintain source-file version, hash, row count, row fingerprint ledger, first-seen/last-seen timestamps and processing cursor/boundary.
-- Maintain report lineage: source file → report profile → mapped columns → normalized rows → derived metrics → decisions → evidence.
-- Recalculate all dependent intelligence after valid changes: KPIs, trends, demand velocity, seasonality, forecasts, stock coverage, stockout risk, lost-sales estimates, liquidity signals, customer continuity, alerts and decision priorities.
-- Keep historical snapshots so the trader can compare today vs yesterday and understand what changed.
-- Produce a daily **change digest**: new transactions, revised transactions, removed/reversed transactions when detectable, changed KPIs, new risks, resolved risks and recommended actions.
-- Run processing asynchronously in background workers/agent queues; UI remains responsive and exposes progress rather than blocking.
-- Permit slower deep processing for large reports while maintaining deterministic results and resumability.
-- Failed files/rows are quarantined with actionable evidence and do not block other reports.
-- The system may take longer to process a large first import when that improves validation and accuracy; correctness is prioritized over superficial speed.
+- Treat the folder as a living source, not a one-time upload.
+- First ingestion builds the historical baseline and evidence state.
+- Later ingestion classifies files as unchanged, appended, revised, replaced or new.
+- Process only genuinely new/changed rows when source semantics support safe incremental processing.
+- Use source primary key → document/line identity → stable business key → deterministic row fingerprint hierarchy.
+- If historical rows can be reordered/deleted/revised, automatically switch to bounded reconciliation or full reprocessing.
+- Never equate changed timestamp with changed business records.
+- Maintain source versions, hashes, row counts, cursors, row fingerprints and snapshots.
+- Maintain source → report profile → mapping → canonical row → metric → decision lineage.
+- Recalculate all affected intelligence after valid changes.
+- Produce daily change digest: new/revised/reversed records, KPI changes, new/resolved risks and recommended actions.
+- Background processing is resumable and deterministic; correctness outranks superficial speed.
 
 ## New — Data Change Intelligence & Lineage
-- Introduce a first-class **Change Set** abstraction: file change → row change → semantic change → affected metric → affected decision.
-- Classify changes as `new`, `modified`, `deleted_or_missing`, `reversed`, `duplicate`, `unchanged`, `schema_changed` and `unresolved`.
-- Never treat a changed file as changed business data until row-level reconciliation proves it.
-- Provide deterministic row identity hierarchy: source primary key → document+line identity → stable business key → normalized row fingerprint.
-- Maintain immutable source snapshots and a compact derived delta ledger so historical reconstruction remains possible without repeatedly reparsing every file.
-- Track source-to-canonical-to-metric-to-decision lineage for every important number shown to the trader.
-- Make every intelligence result explainable with source evidence, period, row count, freshness, transformation/version and confidence.
-- Add **Data Quality Score** per file/report/dataset with explicit reasons: missing fields, invalid types, duplicates, conflicts, suspicious values, stale periods and unmapped columns.
-- Add **Schema Drift Detection**: when headers, types, sheet structure or semantic patterns change, quarantine the affected profile rather than silently applying stale mappings.
-- Add **Source Conflict Resolution** when two files overlap: classify as append/replace/duplicate/conflict and require evidence before replacing authoritative data.
-- Add deterministic replay: the same source snapshot + same parser/profile version must produce the same canonical result.
-
-## New — Daily Trader Advisor / Change Digest
-- Add a daily executive summary generated from actual processed changes, not generic narrative.
-- Show: what changed, what matters, what became risky, what improved, what needs action and what evidence supports each point.
-- Prioritize by business impact, urgency, confidence, liquidity impact, customer impact and data freshness.
-- Suppress repeated alerts until state changes or a defined escalation threshold is reached.
-- Track alert lifecycle: opened → acknowledged → actioned → resolved → reopened.
-- Allow drill-down from a recommendation to the exact report, file, rows and calculations behind it.
-- Maintain yesterday-vs-today and period-vs-period comparisons.
+- First-class Change Set: file change → row change → semantic change → affected metric → affected decision.
+- Classify new, modified, deleted/missing, reversed, duplicate, unchanged, schema_changed and unresolved.
+- Immutable source snapshots plus compact delta ledger.
+- Deterministic replay using snapshot + parser/profile version.
+- Data Quality Score for file/report/dataset with explicit reasons.
+- Schema drift detection and safe quarantine.
+- Source conflict resolution: append/replace/duplicate/conflict based on evidence.
+- Full drill-through for important numbers and recommendations.
 
 ## New — Universal ERP / Accounting Report Recognition
-- Build a versioned **Report Schema Registry** covering Arabic/English accounting exports, beginning with Onyx Pro and extending to Al-Mutakamil, Raqish and other systems as evidence/export samples become available.
-- Use `docs/REPORT_FORMATS_YEMEN_ARAB_ERP.md` as the canonical field/synonym dictionary and governance baseline.
-- Recognize reports from multiple signals: report title, workbook sheet names, headers, column order, data types, sample values, formulas, merged cells and known profile fingerprints.
-- Normalize Arabic/English headers, Arabic/Latin digits, punctuation, whitespace, common abbreviations, diacritics and date/currency representations.
-- Maintain canonical fields for documents, parties, products, inventory, financial/ledger data, dates/periods and report metadata.
-- Maintain report-family signatures for sales, purchases, inventory, item movement, customer/supplier statements, general ledger, journals, cash/bank, profit/loss and balance-sheet style exports.
-- Do not claim a vendor-specific header exists unless it is backed by a real export, official template/documentation, or an approved tenant mapping.
-- Store original headers and canonical mapping evidence; never destroy source semantics.
-- Confidence scoring and ambiguity quarantine are mandatory. No silent guessing.
-- Learn approved tenant-specific aliases and reuse them only for matching profile fingerprints.
-- Version all schema profiles and mapping changes with audit history.
-- Manual mapping remains the fallback for every unknown format; approved mappings can be promoted into reusable profiles.
-- Detect changed report layouts and route them to review instead of silently applying stale mappings.
-- Quality gates: schema-registry contract, profile regression fixtures, mapping-confidence gate and no-hallucination mapping gate.
+- Versioned Report Schema Registry for Arabic/English accounting exports.
+- Onyx Pro is first-class target; extend to Al-Mutakamil, Raqish and other systems using evidence-backed profiles.
+- Recognize from report title, sheet names, headers, column order, types, values, formulas, merged cells and profile fingerprints.
+- Normalize Arabic/English headers, Arabic/Latin digits, punctuation, whitespace, abbreviations, diacritics, dates, currencies and units.
+- Canonical coverage: documents, customers, suppliers, products, inventory, financial/ledger, taxes, dates/periods and report metadata.
+- Report families: sales, purchases, returns, inventory, item movement, customer/supplier statements, receivables/payables, cash, bank, journals, general ledger, trial balance, P&L, balance sheet, tax and operational reports.
+- Preserve original/unmapped fields.
+- Confidence scoring and ambiguity quarantine; no silent guessing.
+- Tenant-approved aliases are versioned and scoped to matching profile fingerprints.
+- Manual mapping remains the fallback; approved mappings become reusable profiles.
+- Exact vendor headers are never invented; real exports/templates are authoritative.
 
-## ERP Priority Coverage
-- Onyx Pro is the first-class target because of its expected prevalence in the target market.
-- The registry must support report families rather than a single Onyx report: sales, purchases, sales returns, purchase returns, inventory balances, item movement/stock cards, customers, suppliers, customer statements, supplier statements, receivables, payables, cash, bank, journal entries, general ledger, trial balance, profit/loss, balance sheet, taxes and other operational/accounting reports exposed by a customer's export.
-- Al-Mutakamil and Raqish receive the same canonical coverage, with vendor-specific aliases added only from evidence.
-- For every supported family, define canonical fields as required/optional and preserve all unmapped source columns instead of dropping them.
-- "All fields" means comprehensive canonical coverage plus versioned vendor-specific profiles; it does **not** mean inventing undocumented vendor headers. Actual customer exports/templates are the authority for exact vendor spellings.
+## New — Market Demand & Commercial Intelligence
+Detailed specification: `docs/MARKET_DEMAND_INTELLIGENCE_SPEC.md`.
 
-## Market Dynamics & Inventory Intelligence
-- Demand velocity, historical baselines, trend, seasonality and acceleration/decline classification.
-- Days of stock, reorder point, stockout risk and lost-sales estimation.
-- Customer × SKU demand, fill rate and continuity analysis.
-- Liquidity drivers, inventory turnover and cash conversion analysis.
+### Observed Market Capacity
+For every SKU and normalized group maintain observed merchant-market capacity, never claiming external total market size unless external data exists:
+- units/value sold by day/week/month/year
+- unique buyers, active buyers and retention
+- average/median/min/max order quantities
+- order frequency and reorder interval
+- sales/revenue/margin/liquidity share
+- customer/branch/channel concentration
+- peak periods, seasonality, acceleration/deceleration
+- availability and stockout periods
+- fulfilled vs unfulfilled demand.
 
-## Alternative & Related Item Groups
-- Configurable named groups with tenant ownership.
-- Multiple equivalent SKUs per group with base-unit conversion factors.
-- Validation for tenant, duplicate SKU and invalid conversion.
-- Grouped stock/request/net-sales/demand aggregation.
-- Group days-of-cover from normalized group stock / normalized group demand.
-- Detail/grouped report modes with drill-down capability.
-- Alternative-aware stockout and replenishment decisions.
-- Persistent Supabase schema with indexes, uniqueness constraints and RLS.
+### Demand Memory
+- Historical movement remains available even when current stock is zero.
+- Example: if 1,700 units sold in July and only 350 are requested in August while stock is zero, surface historical movement, current request, forecast, affected customers, lost-sales opportunity and replenishment guidance.
+- Historical peaks are preserved as evidence unless invalidated by quality rules.
 
-## Integrated Intelligence & Decisioning
+### Demand vs Actual Sales
+Explicitly separate:
+- fulfilled demand
+- unfulfilled/requested demand
+- estimated lost demand
+- suppressed demand caused by stockouts
+- expected seasonal demand
+- exceptional one-off demand.
+
+Never treat low sales during stockout as proof of low demand.
+
+### Stockout Intelligence
+For every SKU/group calculate where evidence allows:
+- stockout duration and recurrence
+- partial availability
+- affected customers
+- unavailable requests
+- estimated lost units/value
+- opportunity cost
+- next likely shortage date.
+
+### Early Surge Detection
+Detect rising demand before a shortage using:
+- acceleration in units and order frequency
+- increasing unique buyers
+- larger baskets
+- shorter reorder intervals
+- requests/waitlists where available
+- cross-SKU/category leading indicators
+- supplier lead time vs expected demand.
+Classify normal/emerging/accelerating/surge/anomalous with graduated alerts.
+
+### Slow-Moving / Stagnant Inventory
+Classify using days since sale, rolling movement, inventory age/value, margin, historical demand, customer count, trend and seasonality. Suggest monitor, promotion, bundle, transfer, reduce purchasing or liquidation — never label seasonal products stagnant without context.
+
+### Customer × SKU Intelligence
+Maintain per customer/SKU:
+- last purchase
+- frequency
+- average/peak quantity
+- expected reorder window
+- recent change
+- inactivity
+- stockout impact
+- request history where available.
+Answer who buys, who stopped, who is due, who was not served and who depends on a critical SKU.
+
+### Customer Continuity
+Signal stable/at-risk/inactive/returning/expanding from deviations in buying cadence, spend and SKU coverage. These are signals, not certainties.
+
+### Merchant Dependence Map
+Rank concentration by:
+- units
+- revenue
+- gross margin
+- cash generation
+- customer reach
+- category contribution
+- critical suppliers.
+Show concentration risk instead of hiding it inside totals.
+
+### Liquidity Intelligence
+Classify products as cash generators, fast cash converters, high-margin/slow-cash, cash traps, dead capital or strategic traffic drivers. Calculate where data permits:
+- inventory value
+- cash tied up
+- turnover
+- days inventory outstanding
+- GMROI
+- sell-through
+- cash conversion contribution.
+
+### Replenishment & Purchase Timing
+Recommend reorder now/monitor/do not reorder with:
+- target stock
+- safety stock
+- reorder point
+- lead-time demand
+- uncertainty buffer
+- suggested quantity/range
+- alternatives
+- cash required
+- sales protected
+- projected days of cover.
+Account for MOQ, unit conversions, supplier reliability, lead time, cash limits and seasonal peaks where data exists.
+
+### High / Low / Typical Sales
+Maintain max, min non-zero, mean, median, rolling averages, percentiles, peak-to-current ratio and volatility. Do not use one maximum transaction as the reorder rule.
+
+### Seasonality & Local Trading Calendar
+Support month/week/weekday patterns and configurable local seasons such as Ramadan/Eid. Seasonal adjustments require evidence and must not be fabricated.
+
+### Supplier Intelligence
+Track lead time, fill rate, price history, delays, short shipments, quality issues and concentration for suppliers where data exists.
+
+### Price & Margin Intelligence
+Track purchase cost, selling price, margin compression, customer pricing and price behavior. External competitor pricing is only used when a reliable external source is explicitly connected.
+
+### Opportunity Detection
+Find rising-demand/understocked products, frequently requested unavailable products, substitute behavior, cross-sell opportunities, under-served segments and products whose demand grows faster than inventory.
+
+### Anomaly & Shock Detection
+Separate business anomalies from data anomalies: sales spikes/drops, return spikes, negative stock, unusual adjustments, price shocks, customer concentration shifts and impossible quantities.
+
+## New — Decision Intelligence
 - Velocity → forecast → coverage → stockout → alternatives → lost sales → evidence → replenishment.
-- Deterministic decision arbitration using urgency, impact, confidence, liquidity and evidence.
-- Replenishment actions: `do_not_reorder`, `reorder_sku`, `reorder_group`.
-- Forecast-aware reorder quantity and customer fill-rate impact.
-- Evidence confidence based on source, period, sample size, freshness, assumptions and SKU coverage.
+- Decision arbitration uses impact, urgency, confidence, liquidity, customer impact and freshness.
+- Actions: do_not_reorder, monitor, reorder_sku, reorder_group, investigate, follow_up_customer, review_supplier, review_price.
+- Every decision includes evidence period, transactions, sources, data quality, assumptions, algorithm/profile version and confidence.
+- No automated purchase execution without explicit authorization.
 
-## UI & Reporting Layer — Active Implementation
-- Alternative Groups form model with validation and normalized members — completed.
-- Persistent Alternative Groups schema — completed.
-- Actual Alternative Groups management page with create/list/member add/remove — completed.
-- Route `/alternative-groups` — completed.
-- Sidebar navigation entry — completed.
-- Tenant-aware security validation — completed.
-- Security fixture and schema contract gates — completed.
-- Unified decision dashboard card model — completed.
-- Decision dashboard quality gate — completed.
-- Live inventory intelligence screen using Supabase inventory/products/group membership — completed.
-- Detail/Grouped toggle wired to `grouped-report` — completed.
-- Inventory intelligence route `/reports/inventory-intelligence` — completed.
-- Inventory intelligence sidebar navigation — completed.
-- Inventory intelligence UI contract gate — completed.
-- Real sales time-series demand query for 30/90/180/365-day windows — completed.
-- Demand velocity page with acceleration/decline/peak metrics — completed.
-- Demand velocity route `/reports/demand-velocity` — completed.
-- Demand velocity sidebar navigation — completed.
-- Demand velocity contract gate — completed.
-- Folder batch import panel alongside manual import — completed at architecture/UI level.
-- Folder batch import engine with per-file isolation and canonical commit path — completed.
-- Continuous watcher — planned for Local Sync Agent execution.
-- Continuous incremental reconciliation — planned.
-- Universal ERP schema registry — planned; field dictionary/governance baseline added.
-- Data change intelligence, lineage and daily digest — planned.
-- Important boundary: demand/request history is never fabricated; missing history returns an explicit empty state.
-- Next: connect time-series output to grouped demand and days-of-cover.
-- Next: dashboard decision cards with evidence/confidence and actionable priorities.
-- Next: historical peak-vs-current views and group drill-down.
+## New — Daily Trader Advisor
+Dashboard must answer in under one minute:
+1. What changed?
+2. What is accelerating?
+3. What is slowing/stagnating?
+4. What may run out?
+5. What cash is trapped?
+6. Which customers need attention?
+7. What sales may have been lost?
+8. What should be bought?
+9. What should not be bought?
+10. What are today's highest-impact decisions?
+
+Use an action queue with opened → acknowledged → actioned → resolved → reopened lifecycle and suppress repeated alerts until state changes or escalation thresholds are crossed.
+
+## New — Multi-Scenario Planning
+Support deterministic what-if scenarios:
+- demand +10/+20/+30%
+- supplier delay
+- price changes
+- cash budget limits
+- key SKU stockout
+- substitute availability.
+Show expected stock, cash, sales protection and risk changes.
+
+## New — Evidence, Governance & Trust
+- No fabricated market size, customer demand, competitor pricing or historical facts.
+- No silent ERP mapping.
+- No source deletion.
+- No cross-tenant learning leakage.
+- No purchase execution without authorization.
+- Every transformation replayable and auditable.
+- Low evidence produces cautious output.
+
+## New — Premium Product UX
+- Mobile-first Arabic RTL with desktop command center.
+- Executive cockpit, decision queue and daily digest.
+- Command palette and keyboard shortcuts.
+- Saved views, filters and grouping.
+- Drill-down drawers from KPI → evidence → source rows → report → file.
+- Progressive loading and responsive background processing.
+- Restrained gradients, accessible contrast, semantic status colors and consistent design tokens.
+- Visual polish must never obscure confidence or evidence.
+
+## Performance Architecture
+- Parse once and cache normalized artifacts.
+- Incremental row reconciliation.
+- Precomputed daily aggregates.
+- Background workers/agent queues.
+- Bounded concurrency/backpressure.
+- Partition history by tenant/time/report family.
+- Progressive UI updates.
+- Detailed evidence available without loading whole datasets.
 
 ## Quality & Production Gates
-- Inventory intelligence deterministic boundary checks.
-- Alternative-group tenant isolation/security fixture.
-- Alternative-group schema contract check.
-- Decision dashboard contract check.
-- Inventory intelligence UI contract check.
-- Demand velocity contract check.
-- Folder batch import contract check.
-- Watcher stability/idempotency/security gates.
-- Incremental reconciliation correctness and fallback-to-full-reprocess gate.
-- Lineage/change-digest contract gate.
-- Data-quality scoring gate.
-- Schema-drift/conflict-resolution gate.
-- Deterministic replay gate.
-- Schema registry contract and vendor-profile regression fixtures.
-- Mapping-confidence/no-hallucination gate.
-- Package commands for inventory intelligence, security, schema, dashboard, UI, demand and folder import checks.
-- Architecture contract and performance budget checks remain mandatory.
-- Next: execute cross-tenant isolation tests against engines, lineage, caches and reports.
-- Next: large grouped dataset correctness/performance tests.
-- Next: integration, load, security and production-candidate hardening.
+- Folder import, watcher stability, idempotency and security.
+- Incremental reconciliation and fallback-to-full-reprocess.
+- Lineage/change-digest contract.
+- Data-quality score.
+- Schema drift/conflict resolution.
+- Deterministic replay.
+- Schema registry and vendor-profile regression fixtures.
+- Mapping-confidence/no-hallucination.
+- Demand calculations and stockout-aware demand tests.
+- SKU/customer relationship correctness.
+- Seasonal and rolling-window correctness.
+- Replenishment and liquidity decision determinism.
+- Cross-tenant authorization.
+- Large dataset performance/memory/pagination.
+- Integration/load/security production hardening.
+- Release only after all mandatory gates pass.
 
-## Completed implementation units
+## Active / Completed Implementation Units
+Existing completed units remain authoritative; new specifications must reuse existing canonical engines rather than create parallel calculation paths.
 - `src/lib/free-toolbox/inventory-dynamics.ts`
 - `src/lib/free-toolbox/stockout-loss.ts`
 - `src/lib/free-toolbox/customer-item-demand.ts`
@@ -181,29 +281,23 @@
 - `src/pages/AlternativeGroupsPage.tsx`
 - `src/pages/InventoryIntelligencePage.tsx`
 - `src/pages/DemandVelocityPage.tsx`
-- `supabase/migrations/20260819230000_alternative_item_groups.sql`
-- `scripts/check-inventory-intelligence.mjs`
-- `scripts/check-alternative-group-security.mjs`
-- `scripts/check-alternative-group-schema.mjs`
-- `scripts/check-decision-dashboard.mjs`
-- `scripts/check-inventory-intelligence-ui.mjs`
-- `scripts/check-demand-velocity.mjs`
-- `scripts/check-folder-batch-import.mjs`
 - `docs/REPORT_FORMATS_YEMEN_ARAB_ERP.md`
+- `docs/MARKET_DEMAND_INTELLIGENCE_SPEC.md`
 
-## Next execution sequence
-1. Connect time-series sales/request data to live grouped demand and days-of-cover.
-2. Connect decision-dashboard model to an actual dashboard surface.
-3. Integrate customer continuity and liquidity into replenishment ranking.
-4. Add group-level forecast and normalized reorder quantities.
-5. Add historical peak-vs-current and seasonal demand views.
-6. Build the Report Schema Registry and Onyx Pro profile regression fixtures.
-7. Add Local Sync Agent watcher with stability detection, queueing, retry and idempotency ledger.
-8. Add incremental reconciliation ledger, row fingerprints/cursors and safe fallback to full reprocessing.
-9. Add immutable source snapshots, lineage graph and daily change digest.
-10. Add data quality score, schema drift and source conflict resolution.
-11. Add deterministic replay and audit verification.
-12. Add cross-tenant authorization tests across all intelligence and ingestion surfaces.
-13. Add large-dataset performance, memory and pagination budgets.
-14. Execute integration/load/security checks and production hardening.
-15. Release only after all quality gates pass.
+## Next Execution Sequence
+1. Connect real time-series demand to grouped demand and days-of-cover.
+2. Implement stockout-aware demand and lost-sales history.
+3. Implement SKU × customer demand memory and continuity signals.
+4. Implement high/low/typical movement and rolling/percentile baselines.
+5. Implement early demand surge and stagnation detection.
+6. Implement liquidity classification and merchant dependence map.
+7. Implement forecast-aware replenishment and purchase timing.
+8. Build Report Schema Registry and Onyx Pro regression fixtures.
+9. Add Local Sync Agent continuous watcher.
+10. Add incremental reconciliation ledger and immutable snapshots.
+11. Add lineage graph, Data Quality Score and Schema Drift.
+12. Build Daily Trader Advisor + Decision Queue + Change Digest UI.
+13. Integrate What-if/Scenario Engine with commercial decisions.
+14. Add cross-tenant, golden-data, load and deterministic replay tests.
+15. Polish mobile RTL/desktop UX with the unified design system.
+16. Run full CI and production hardening; fix every failure before release.
