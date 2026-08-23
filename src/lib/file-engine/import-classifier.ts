@@ -66,11 +66,14 @@ export function classifyImport<T extends Record<string, unknown>>(options: Impor
     const businessKey = keyFor(row, matchingKeys);
     const errors: string[] = [];
     const ignoredNullFields: string[] = [];
+    const duplicateIncoming = businessKey.replace(/\|/g, '') !== '' && seenIncoming.has(businessKey);
     const requiredFields = options.requiredFields ?? [];
-    for (const field of requiredFields) if (isBlank(row[field])) errors.push(`Missing required field: ${field}`);
+
+    for (const field of requiredFields) {
+      if (isBlank(row[field])) errors.push(`Missing required field: ${field}`);
+    }
 
     if (!businessKey.replace(/\|/g, '')) errors.push('Missing business key');
-    if (seenIncoming.has(businessKey) && businessKey.replace(/\|/g, '')) errors.push('Duplicate business key in import');
     seenIncoming.add(businessKey);
 
     const matches = index.get(businessKey) ?? [];
@@ -79,8 +82,9 @@ export function classifyImport<T extends Record<string, unknown>>(options: Impor
 
     for (const [field, value] of Object.entries(row)) {
       if (!isBlank(value)) continue;
-      if (options.nullPolicy === 'reject' && !requiredFields.includes(field)) errors.push(`Null value rejected: ${field}`);
-      if (options.nullPolicy === 'default' && options.defaultValues?.[field] !== undefined) {
+      if (options.nullPolicy === 'reject' && !requiredFields.includes(field)) {
+        errors.push(`Null value rejected: ${field}`);
+      } else if (options.nullPolicy === 'default' && options.defaultValues?.[field] !== undefined) {
         (row as Record<string, unknown>)[field] = options.defaultValues[field];
       } else if (existingRow && options.nullPolicy !== 'reject') {
         ignoredNullFields.push(field);
@@ -88,12 +92,16 @@ export function classifyImport<T extends Record<string, unknown>>(options: Impor
     }
 
     let decision: ImportDecision;
-    if (errors.length) decision = 'invalid';
-    else if (!existingRow) decision = 'new';
-    else {
+    if (errors.length) {
+      decision = 'invalid';
+    } else if (duplicateIncoming || matches.length > 1) {
+      decision = 'conflict';
+    } else if (!existingRow) {
+      decision = 'new';
+    } else {
       const changes = changedFields(row, existingRow, matchingKeys);
       decision = changes.length ? 'update' : 'unchanged';
-      if (matches.length > 1 || (decision === 'update' && options.conflictResolution === 'skip')) decision = 'conflict';
+      if (decision === 'update' && options.conflictResolution === 'skip') decision = 'conflict';
     }
 
     return {
