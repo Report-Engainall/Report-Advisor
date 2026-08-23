@@ -48,6 +48,10 @@ jobs:
         run: npm run typecheck
       - name: File-engine behavioral regressions
         run: npm run test:file-engine-regressions
+      - name: Business-key regressions
+        run: npm run test:business-key-regressions
+      - name: Import-classifier regressions
+        run: npm run test:import-classifier-regressions
       - name: Lint
         run: npm run lint
       - name: Build
