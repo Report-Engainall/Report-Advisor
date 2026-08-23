@@ -3,6 +3,11 @@
 ## Product North Star
 Report-Advisor is a continuous commercial intelligence and decision platform for merchants. It must transform trusted operational/accounting data into an evidence-backed understanding of demand, customers, inventory, liquidity, risk and next actions — not merely display reports.
 
+## Universal SKU Rule
+Every intelligence capability is a **general rule for every eligible SKU and normalized item group**. Named products in examples are illustrative only and must never receive hard-coded analytical treatment. No SKU is excluded because it is new, slow-moving, seasonal, out of stock or historically inactive.
+
+For every SKU/group maintain continuously updated historical memory, demand, customer relationships, stock, price/cost, supplier, liquidity, risk, forecast, evidence and action state.
+
 ## New — Continuous Governed Folder Report Ingestion
 - Preserve manual single-file import unchanged.
 - Preserve user-selected folder batch import.
@@ -19,7 +24,7 @@ Report-Advisor is a continuous commercial intelligence and decision platform for
 
 ## New — Continuous Incremental Report Intelligence
 - Treat the folder as a living source, not a one-time upload.
-- First ingestion builds the historical baseline and evidence state.
+- First ingestion builds historical baseline and evidence state for every eligible SKU/group.
 - Later ingestion classifies files as unchanged, appended, revised, replaced or new.
 - Process only genuinely new/changed rows when source semantics support safe incremental processing.
 - Use source primary key → document/line identity → stable business key → deterministic row fingerprint hierarchy.
@@ -57,125 +62,75 @@ Report-Advisor is a continuous commercial intelligence and decision platform for
 ## New — Market Demand & Commercial Intelligence
 Detailed specification: `docs/MARKET_DEMAND_INTELLIGENCE_SPEC.md`.
 
+### Universal SKU Intelligence Record
+Every eligible SKU/group receives the same intelligence framework:
+- identity/aliases, unit conversions and category/alternative relationships
+- current/historical stock
+- sales, purchases, returns and adjustments where available
+- fulfilled/unfulfilled demand
+- customer/supplier relationships
+- price/cost/margin history
+- demand baselines/forecasts
+- seasonality, velocity and acceleration
+- stockout exposure
+- liquidity role
+- stagnation/slow-moving state
+- anomaly state
+- evidence quality/freshness
+- current recommendation/action state.
+
 ### Observed Market Capacity
-For every SKU and normalized group maintain observed merchant-market capacity, never claiming external total market size unless external data exists:
+For every SKU/group maintain observed merchant-market capacity, never claiming external total market size unless external data exists:
 - units/value sold by day/week/month/year
-- unique buyers, active buyers and retention
+- unique/active buyers and retention
 - average/median/min/max order quantities
-- order frequency and reorder interval
+- frequency/reorder interval
 - sales/revenue/margin/liquidity share
 - customer/branch/channel concentration
-- peak periods, seasonality, acceleration/deceleration
-- availability and stockout periods
+- peaks, seasonality and acceleration/deceleration
+- availability/stockouts
 - fulfilled vs unfulfilled demand.
 
-### Demand Memory
-- Historical movement remains available even when current stock is zero.
-- Example: if 1,700 units sold in July and only 350 are requested in August while stock is zero, surface historical movement, current request, forecast, affected customers, lost-sales opportunity and replenishment guidance.
-- Historical peaks are preserved as evidence unless invalidated by quality rules.
+### Historical Demand Memory
+Historical movement remains available even when stock is zero or current sales are low. The previously discussed "أبو 20" case is only an example: the same historical-memory rule applies to **every SKU**.
+
+For each SKU, compare historical peaks/current period, current requests, expected demand, affected customers, stockout duration, lost-sales opportunity and replenishment guidance. Preserve historical peaks unless invalidated by data-quality rules.
 
 ### Demand vs Actual Sales
-Explicitly separate:
-- fulfilled demand
-- unfulfilled/requested demand
-- estimated lost demand
-- suppressed demand caused by stockouts
-- expected seasonal demand
-- exceptional one-off demand.
-
-Never treat low sales during stockout as proof of low demand.
+Explicitly separate fulfilled demand, unfulfilled requests, estimated lost demand, stockout-suppressed demand, seasonal expectation and one-off demand. Never interpret low sales during stockout as low demand.
 
 ### Stockout Intelligence
-For every SKU/group calculate where evidence allows:
-- stockout duration and recurrence
-- partial availability
-- affected customers
-- unavailable requests
-- estimated lost units/value
-- opportunity cost
-- next likely shortage date.
+For every SKU/group calculate where evidence allows stockout duration/recurrence, partial availability, affected customers, unavailable requests, estimated lost units/value, opportunity cost and next likely shortage date.
 
-### Early Surge Detection
-Detect rising demand before a shortage using:
-- acceleration in units and order frequency
-- increasing unique buyers
-- larger baskets
-- shorter reorder intervals
-- requests/waitlists where available
-- cross-SKU/category leading indicators
-- supplier lead time vs expected demand.
-Classify normal/emerging/accelerating/surge/anomalous with graduated alerts.
+### High / Low / Typical Movement
+For every SKU/group maintain maximum, minimum non-zero, average, median, rolling/weighted averages, P50/P75/P90/P95/P99 where sample size supports them, peak-to-current ratio and volatility. Never use one exceptional maximum as the sole reorder rule.
 
-### Slow-Moving / Stagnant Inventory
-Classify using days since sale, rolling movement, inventory age/value, margin, historical demand, customer count, trend and seasonality. Suggest monitor, promotion, bundle, transfer, reduce purchasing or liquidation — never label seasonal products stagnant without context.
+### Early Demand Surge
+For every SKU detect acceleration using units, order frequency, unique buyers, basket quantity, reorder interval, requests and cross-category signals. Classify normal/emerging/accelerating/surge/anomalous with evidence-scaled thresholds.
+
+### Stagnant / Slow-Moving Inventory
+For every SKU classify using days since sale, rolling movement, inventory age/value, margin, historical demand, customers, trend and seasonality. Suggest monitor/promotion/bundle/transfer/reduce purchase/liquidate/investigate. Seasonal troughs must not be mislabeled as permanent stagnation.
 
 ### Customer × SKU Intelligence
-Maintain per customer/SKU:
-- last purchase
-- frequency
-- average/peak quantity
-- expected reorder window
-- recent change
-- inactivity
-- stockout impact
-- request history where available.
-Answer who buys, who stopped, who is due, who was not served and who depends on a critical SKU.
+For every SKU maintain buyers, last purchase, frequency, average/peak quantity, expected reorder window, recent change, inactivity, stockout impact and requests. For every customer maintain the reciprocal SKU relationship. Answer who buys, who stopped, who is due, who was unserved and who depends on critical items.
 
 ### Customer Continuity
-Signal stable/at-risk/inactive/returning/expanding from deviations in buying cadence, spend and SKU coverage. These are signals, not certainties.
+For every customer signal stable/at-risk/inactive/returning/expanding from cadence, spend, SKU coverage and inactivity deviations; present as signals, not certainties.
 
 ### Merchant Dependence Map
-Rank concentration by:
-- units
-- revenue
-- gross margin
-- cash generation
-- customer reach
-- category contribution
-- critical suppliers.
-Show concentration risk instead of hiding it inside totals.
+For every SKU/group/category calculate contribution by units, revenue, gross margin, cash generation and customer reach, plus concentration risk and critical supplier dependence.
 
 ### Liquidity Intelligence
-Classify products as cash generators, fast cash converters, high-margin/slow-cash, cash traps, dead capital or strategic traffic drivers. Calculate where data permits:
-- inventory value
-- cash tied up
-- turnover
-- days inventory outstanding
-- GMROI
-- sell-through
-- cash conversion contribution.
+For every SKU/group classify cash generator, fast cash converter, high-margin/slow-cash, cash trap, dead capital or strategic traffic driver where evidence supports it. Calculate inventory value, cash tied up, turnover, DIO, GMROI, sell-through and cash contribution where possible.
 
-### Replenishment & Purchase Timing
-Recommend reorder now/monitor/do not reorder with:
-- target stock
-- safety stock
-- reorder point
-- lead-time demand
-- uncertainty buffer
-- suggested quantity/range
-- alternatives
-- cash required
-- sales protected
-- projected days of cover.
-Account for MOQ, unit conversions, supplier reliability, lead time, cash limits and seasonal peaks where data exists.
+### Purchase Timing / Replenishment
+For every SKU continuously evaluate current/available stock, forecast, safety stock, reorder point, lead-time demand, supplier reliability, order cycle, seasonal peak, MOQ/unit conversion and pending customer demand. Recommend reorder now/prepare/monitor/maintain/reduce/do-not-reorder/investigate with evidence and confidence.
 
-### High / Low / Typical Sales
-Maintain max, min non-zero, mean, median, rolling averages, percentiles, peak-to-current ratio and volatility. Do not use one maximum transaction as the reorder rule.
+### Seasonality & Historical Comparison
+Every SKU supports today-vs-yesterday, week-vs-week, month-vs-month, same-period-last-year when available, rolling 7/30/90/180/365-day windows, peak-vs-current and stock-vs-historical-demand views. Missing history is explicit.
 
-### Seasonality & Local Trading Calendar
-Support month/week/weekday patterns and configurable local seasons such as Ramadan/Eid. Seasonal adjustments require evidence and must not be fabricated.
-
-### Supplier Intelligence
-Track lead time, fill rate, price history, delays, short shipments, quality issues and concentration for suppliers where data exists.
-
-### Price & Margin Intelligence
-Track purchase cost, selling price, margin compression, customer pricing and price behavior. External competitor pricing is only used when a reliable external source is explicitly connected.
-
-### Opportunity Detection
-Find rising-demand/understocked products, frequently requested unavailable products, substitute behavior, cross-sell opportunities, under-served segments and products whose demand grows faster than inventory.
-
-### Anomaly & Shock Detection
-Separate business anomalies from data anomalies: sales spikes/drops, return spikes, negative stock, unusual adjustments, price shocks, customer concentration shifts and impossible quantities.
+### Supplier / Price / Margin / Opportunity / Anomaly Intelligence
+Link supplier reliability, costs, prices, margins, returns, substitutes, cross-sell, under-served demand and anomaly detection to the same SKU intelligence record rather than isolated reports.
 
 ## New — Decision Intelligence
 - Velocity → forecast → coverage → stockout → alternatives → lost sales → evidence → replenishment.
@@ -190,24 +145,18 @@ Dashboard must answer in under one minute:
 2. What is accelerating?
 3. What is slowing/stagnating?
 4. What may run out?
-5. What cash is trapped?
-6. Which customers need attention?
-7. What sales may have been lost?
-8. What should be bought?
-9. What should not be bought?
-10. What are today's highest-impact decisions?
+5. Which historically strong items are understocked?
+6. What cash is trapped?
+7. Which customers need attention?
+8. What sales may have been lost?
+9. What should be bought?
+10. What should not be bought?
+11. What are today's highest-impact decisions?
 
 Use an action queue with opened → acknowledged → actioned → resolved → reopened lifecycle and suppress repeated alerts until state changes or escalation thresholds are crossed.
 
 ## New — Multi-Scenario Planning
-Support deterministic what-if scenarios:
-- demand +10/+20/+30%
-- supplier delay
-- price changes
-- cash budget limits
-- key SKU stockout
-- substitute availability.
-Show expected stock, cash, sales protection and risk changes.
+Support deterministic what-if scenarios for demand changes, supplier delay, price changes, cash budget limits, key SKU stockouts and substitute availability. Show expected stock, cash, sales protection and risk changes.
 
 ## New — Evidence, Governance & Trust
 - No fabricated market size, customer demand, competitor pricing or historical facts.
@@ -247,10 +196,12 @@ Show expected stock, cash, sales protection and risk changes.
 - Deterministic replay.
 - Schema registry and vendor-profile regression fixtures.
 - Mapping-confidence/no-hallucination.
+- Universal SKU coverage tests: every analytical engine must work across all eligible SKUs/groups, not just fixtures/examples.
 - Demand calculations and stockout-aware demand tests.
 - SKU/customer relationship correctness.
-- Seasonal and rolling-window correctness.
-- Replenishment and liquidity decision determinism.
+- Historical peak/current and rolling-window correctness.
+- Surge/stagnation classification tests.
+- Replenishment/liquidity decision determinism.
 - Cross-tenant authorization.
 - Large dataset performance/memory/pagination.
 - Integration/load/security production hardening.
@@ -285,19 +236,19 @@ Existing completed units remain authoritative; new specifications must reuse exi
 - `docs/MARKET_DEMAND_INTELLIGENCE_SPEC.md`
 
 ## Next Execution Sequence
-1. Connect real time-series demand to grouped demand and days-of-cover.
-2. Implement stockout-aware demand and lost-sales history.
+1. Connect real time-series demand to grouped demand and days-of-cover for every eligible SKU/group.
+2. Implement stockout-aware demand and lost-sales history for every SKU.
 3. Implement SKU × customer demand memory and continuity signals.
-4. Implement high/low/typical movement and rolling/percentile baselines.
-5. Implement early demand surge and stagnation detection.
-6. Implement liquidity classification and merchant dependence map.
-7. Implement forecast-aware replenishment and purchase timing.
+4. Implement high/low/typical movement, rolling baselines and percentile bands.
+5. Implement early demand surge and stagnation detection across all SKUs.
+6. Implement liquidity classification and merchant dependence map across all SKUs/groups.
+7. Implement forecast-aware replenishment and purchase timing across all SKUs.
 8. Build Report Schema Registry and Onyx Pro regression fixtures.
 9. Add Local Sync Agent continuous watcher.
 10. Add incremental reconciliation ledger and immutable snapshots.
 11. Add lineage graph, Data Quality Score and Schema Drift.
 12. Build Daily Trader Advisor + Decision Queue + Change Digest UI.
 13. Integrate What-if/Scenario Engine with commercial decisions.
-14. Add cross-tenant, golden-data, load and deterministic replay tests.
+14. Add universal-SKU golden datasets, cross-tenant, load and deterministic replay tests.
 15. Polish mobile RTL/desktop UX with the unified design system.
 16. Run full CI and production hardening; fix every failure before release.
