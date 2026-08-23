@@ -132,3 +132,5 @@ jobs:
         run: npm run test:report-truth
       - name: Production readiness
         run: npm run test:production-readiness
+      - name: Integrated document resilience regression gate
+        run: npm run test:document-resilience
