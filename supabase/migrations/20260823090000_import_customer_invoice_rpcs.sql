@@ -26,12 +26,8 @@ BEGIN
   IF v_current_company IS NULL OR p_company_id <> v_current_company THEN RAISE EXCEPTION 'TENANT_CONTEXT_MISMATCH'; END IF;
   IF p_name IS NULL OR btrim(p_name) = '' THEN RAISE EXCEPTION 'customer name is required'; END IF;
 
-  SELECT id INTO v_id
-  FROM customers
-  WHERE company_id = p_company_id
-    AND v_code IS NOT NULL
-    AND normalize_import_key(code) = v_code
-  LIMIT 1;
+  SELECT id INTO v_id FROM customers
+  WHERE company_id = p_company_id AND v_code IS NOT NULL AND normalize_import_key(code) = v_code LIMIT 1;
 
   IF v_id IS NULL THEN
     INSERT INTO customers(company_id, name, code, phone, email, segment, credit_limit, payment_terms_days)
@@ -81,16 +77,12 @@ BEGIN
   IF v_current_company IS NULL OR p_company_id <> v_current_company THEN RAISE EXCEPTION 'TENANT_CONTEXT_MISMATCH'; END IF;
   IF v_number IS NULL THEN RAISE EXCEPTION 'invoice number is required'; END IF;
   IF p_customer_id IS NULL THEN RAISE EXCEPTION 'customer_id is required'; END IF;
-
   IF NOT EXISTS (SELECT 1 FROM customers WHERE id = p_customer_id AND company_id = p_company_id) THEN
     RAISE EXCEPTION 'customer does not belong to company';
   END IF;
 
-  SELECT id INTO v_id
-  FROM sales_invoices
-  WHERE company_id = p_company_id
-    AND normalize_import_key(invoice_number) = v_number
-  LIMIT 1;
+  SELECT id INTO v_id FROM sales_invoices
+  WHERE company_id = p_company_id AND normalize_import_key(invoice_number) = v_number LIMIT 1;
 
   IF v_id IS NULL THEN
     INSERT INTO sales_invoices(company_id, customer_id, invoice_number, invoice_date, status, subtotal, tax_amount, total, paid_amount)
@@ -118,5 +110,5 @@ $$;
 
 REVOKE EXECUTE ON FUNCTION import_upsert_customer(uuid,text,text,text,text,text,numeric,integer,text) FROM anon;
 REVOKE EXECUTE ON FUNCTION import_upsert_sales_invoice(uuid,text,date,uuid,numeric,numeric,numeric,numeric,text,text) FROM anon;
-GRANT EXECUTE ON FUNCTION import_upsert_customer(uuid,text,text,text,text,text,numeric,integer,numeric,text) TO authenticated;
+GRANT EXECUTE ON FUNCTION import_upsert_customer(uuid,text,text,text,text,text,numeric,integer,text) TO authenticated;
 GRANT EXECUTE ON FUNCTION import_upsert_sales_invoice(uuid,text,date,uuid,numeric,numeric,numeric,numeric,text,text) TO authenticated;
