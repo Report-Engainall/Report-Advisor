@@ -12,7 +12,7 @@
     "perf:budget": "node scripts/check-performance-budget.mjs",
     "test:file-engine-regressions": "node --experimental-strip-types scripts/check-file-engine-regressions.ts",
     "test:business-key-regressions": "node --experimental-strip-types scripts/check-business-key-regressions.mjs",
-    "test:import-classifier-regressions": "node --experimental-strip-types scripts/check-import-classifier-regressions.mjs",
+    "test:import-classifier-regressions": "node scripts/check-import-classifier-regressions.mjs",
     "test:file-engine-contract": "node scripts/check-file-engine-contract.mjs",
     "test:file-engine-capability-contract": "node scripts/check-file-engine-capability-contract.mjs",
     "test:schema-intelligence": "node scripts/check-schema-intelligence.mjs",
@@ -51,7 +51,8 @@
     "test:quality-workflow-contract": "node scripts/check-quality-workflow-contract.mjs",
     "test:production-readiness": "node scripts/check-production-readiness.mjs",
     "test:navigation-route-contract": "node scripts/check-navigation-route-contract.mjs",
-    "test:import-direct-write-guard": "node scripts/check-import-direct-write-guard.mjs"
+    "test:import-direct-write-guard": "node scripts/check-import-direct-write-guard.mjs",
+    "test:scenario-engine": "node scripts/check-scenario-engine.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.57.4",
