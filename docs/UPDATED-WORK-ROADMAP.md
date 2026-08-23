@@ -1,19 +1,37 @@
 # مساعد التاجر — Updated Work Roadmap
 
-## New — Governed Folder Batch Report Ingestion
+## New — Continuous Governed Folder Report Ingestion
 - Preserve the existing manual single-file import path unchanged.
-- Add a local folder picker beside manual import using the browser File System Access API where supported.
-- Treat typed folder paths as a human-readable hint only; never pretend a web page can read arbitrary `C:\` or UNC paths from text.
-- Scan supported report formats in the selected folder and process them sequentially so one bad file cannot stop the batch.
-- Reuse the existing security scan, format detection, SHA-256 duplicate check, canonical parser and canonical commit/RPC path.
-- Validate required fields before writes and quarantine/reject invalid rows without blocking valid files.
-- Persist per-file import records and progress through the existing import history model.
-- Show live progress, current file, successful/skipped/failed counts and actionable failure messages.
-- Skip previously imported files by content hash to make repeated folder runs safe and idempotent.
-- Keep heavy work incremental to avoid freezing the UI and prepare the same engine for a Web Worker/background execution path.
-- Do not silently recurse into subfolders; add recursive traversal only with an explicit user option and bounded-depth/performance controls.
-- Network/UNC watched folders require the planned Local Sync Agent rather than unsafe browser filesystem assumptions.
-- Quality gate: `test:folder-batch-import`.
+- Preserve the existing user-selected folder batch path.
+- Add **continuous watched-folder ingestion**: after the user explicitly grants a folder, the Local Sync Agent watches for new/changed report files and automatically queues them without requiring a manual button click for every file.
+- Support configurable polling/watch mode, debounce, retry policy, file-stability detection and a safe processed-file ledger.
+- Never ingest a file while it is still being written; wait until size/mtime/hash are stable.
+- Reuse security scan, format detection, SHA-256 duplicate check, canonical parser and canonical commit/RPC path.
+- Per-file isolation: one corrupt/unsupported file must never stop other files.
+- Persist per-file lifecycle: discovered → waiting/stable → scanning → detected → mapped → preview/approved (when required) → committed/quarantined/failed.
+- Expose pause/resume, retry, quarantine and audit history.
+- Keep tenant isolation and least-privilege filesystem access mandatory.
+- Browser-only deployments use explicit File System Access API selection; arbitrary `C:\` or UNC text paths are never treated as filesystem permissions.
+- Network/UNC and true continuous watching require the planned Local Sync Agent running on the user's Windows machine/server.
+- Add explicit recursive-folder option with bounded depth, exclusions and performance limits.
+- Add backpressure/concurrency controls so large folders do not freeze the application or overload parsing/DB.
+- Quality gates: `test:folder-batch-import` plus watcher/idempotency/stability/security gates.
+
+## New — Universal ERP / Accounting Report Recognition
+- Build a versioned **Report Schema Registry** covering Arabic/English accounting exports, beginning with Onyx Pro and extending to Al-Mutakamil, Raqish and other systems as evidence/export samples become available.
+- Use `docs/REPORT_FORMATS_YEMEN_ARAB_ERP.md` as the canonical field/synonym dictionary and governance baseline.
+- Recognize reports from multiple signals: report title, workbook sheet names, headers, column order, data types, sample values, formulas, merged cells and known profile fingerprints.
+- Normalize Arabic/English headers, Arabic/Latin digits, punctuation, whitespace, common abbreviations, diacritics and date/currency representations.
+- Maintain canonical fields for documents, parties, products, inventory, financial/ledger data, dates/periods and report metadata.
+- Maintain report-family signatures for sales, purchases, inventory, item movement, customer/supplier statements, general ledger, journals, cash/bank, profit/loss and balance-sheet style exports.
+- Do not claim a vendor-specific header exists unless it is backed by a real export, official template/documentation, or an approved tenant mapping.
+- Store original headers and canonical mapping evidence; never destroy source semantics.
+- Confidence scoring and ambiguity quarantine are mandatory. No silent guessing.
+- Learn approved tenant-specific aliases and reuse them only for matching profile fingerprints.
+- Version all schema profiles and mapping changes with audit history.
+- Manual mapping remains the fallback for every unknown format; approved mappings can be promoted into reusable profiles.
+- Detect changed report layouts and route them to review instead of silently applying stale mappings.
+- Quality gates: schema-registry contract, profile regression fixtures, mapping-confidence gate and no-hallucination mapping gate.
 
 ## Market Dynamics & Inventory Intelligence
 - Demand velocity, historical baselines, trend, seasonality and acceleration/decline classification.
@@ -60,6 +78,8 @@
 - Demand velocity contract gate — completed.
 - Folder batch import panel alongside manual import — completed at architecture/UI level.
 - Folder batch import engine with per-file isolation and canonical commit path — completed.
+- Continuous watcher — planned for Local Sync Agent execution.
+- Universal ERP schema registry — planned; field dictionary/governance baseline added.
 - Important boundary: demand/request history is never fabricated; missing history returns an explicit empty state.
 - Next: connect time-series output to grouped demand and days-of-cover.
 - Next: dashboard decision cards with evidence/confidence and actionable priorities.
@@ -73,6 +93,9 @@
 - Inventory intelligence UI contract check.
 - Demand velocity contract check.
 - Folder batch import contract check.
+- Watcher stability/idempotency/security gates.
+- Schema registry contract and vendor-profile regression fixtures.
+- Mapping-confidence/no-hallucination gate.
 - Package commands for inventory intelligence, security, schema, dashboard, UI, demand and folder import checks.
 - Architecture contract and performance budget checks remain mandatory.
 - Next: execute cross-tenant isolation tests against engines, lineage, caches and reports.
@@ -111,6 +134,7 @@
 - `scripts/check-inventory-intelligence-ui.mjs`
 - `scripts/check-demand-velocity.mjs`
 - `scripts/check-folder-batch-import.mjs`
+- `docs/REPORT_FORMATS_YEMEN_ARAB_ERP.md`
 
 ## Next execution sequence
 1. Connect time-series sales/request data to live grouped demand and days-of-cover.
@@ -118,8 +142,9 @@
 3. Integrate customer continuity and liquidity into replenishment ranking.
 4. Add group-level forecast and normalized reorder quantities.
 5. Add historical peak-vs-current and seasonal demand views.
-6. Add cross-tenant authorization tests across all intelligence surfaces.
-7. Add large-dataset performance, memory and pagination budgets.
-8. Add Local Sync Agent protocol for scheduled/continuous network and UNC folder ingestion.
-9. Execute integration/load/security checks and production hardening.
-10. Release only after all quality gates pass.
+6. Build the Report Schema Registry and Onyx Pro profile regression fixtures.
+7. Add Local Sync Agent watcher with stability detection, queueing, retry and idempotency ledger.
+8. Add cross-tenant authorization tests across all intelligence and ingestion surfaces.
+9. Add large-dataset performance, memory and pagination budgets.
+10. Execute integration/load/security checks and production hardening.
+11. Release only after all quality gates pass.
