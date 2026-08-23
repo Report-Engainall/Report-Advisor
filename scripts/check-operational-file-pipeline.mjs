@@ -1,4 +1,5 @@
 import { buildOperationalPreview, buildPreviewFingerprint } from '../src/lib/file-engine/operational-pipeline.ts';
+import { normalizeBusinessKey } from '../src/lib/file-engine/business-key.ts';
 
 const headers = ['رقم الصنف', 'اسم الصنف', 'السعر', 'الكمية'];
 const incoming = [
@@ -18,10 +19,28 @@ if (preview.rows[0].businessKey !== '001') throw new Error('Arabic digits were n
 if (preview.requiresApproval) throw new Error('Clean preview should not require approval.');
 if (buildPreviewFingerprint(incoming, headers) !== buildPreviewFingerprint([...incoming].reverse(), headers)) throw new Error('Fingerprint must be order independent.');
 
-const duplicate = buildOperationalPreview(headers, [...incoming, incoming[0]], existing);
-if (duplicate.counts.conflict !== 2 || !duplicate.requiresApproval) throw new Error('Duplicate business keys must require approval.');
+const duplicate = buildOperationalPreview(headers, [...incoming, { ...incoming[0], 'رقم الصنف': ' ٠٠١\u00A0' }], existing);
+if (duplicate.counts.conflict !== 2 || !duplicate.requiresApproval) throw new Error('Canonical duplicate business keys must require approval.');
 
 const missingKey = buildOperationalPreview(headers, [{ 'اسم الصنف': 'بدون كود', 'السعر': 10, 'الكمية': 1 }], existing);
 if (missingKey.counts.error !== 1 || !missingKey.requiresApproval) throw new Error('Missing business key must block approval.');
+
+// Business-key normalization must remove presentation noise without destroying meaningful leading zeroes.
+const normalizationCases = [
+  ['٠٠١', '001'],
+  [' 00 1 ', '001'],
+  ['\uFEFF٠٠١\u200B', '001'],
+  ['Ａ-٠٠٢', 'A-002'],
+  ['abc\u00A0123', 'ABC123'],
+];
+for (const [raw, expected] of normalizationCases) {
+  const actual = normalizeBusinessKey(raw);
+  if (actual !== expected) throw new Error(`Business-key normalization failed: ${JSON.stringify({ raw, actual, expected })}`);
+}
+
+// Fingerprinting must distinguish content changes, not only the first character of a row.
+const fingerprintA = buildPreviewFingerprint([{ SKU: '001', Name: 'Sugar', Price: 10 }], ['SKU', 'Name', 'Price']);
+const fingerprintB = buildPreviewFingerprint([{ SKU: '001', Name: 'Sugar', Price: 11 }], ['SKU', 'Name', 'Price']);
+if (fingerprintA === fingerprintB) throw new Error('Fingerprint must change when row content changes.');
 
 console.log('Operational file pipeline: PASS');
