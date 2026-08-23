@@ -1,5 +1,5 @@
 name: quality
-# Authoritative CI gate: install -> typecheck -> lint -> build -> performance -> architecture -> intelligence -> security/import/tenant/report-truth governance.
+# Authoritative CI gate: install -> typecheck -> lint -> build -> performance -> architecture -> intelligence -> security/import/tenant/report-truth/production-readiness governance.
 on:
   push:
     branches: [main]
@@ -120,3 +120,5 @@ jobs:
         run: npm run test:import-business-key
       - name: Report truth contract
         run: npm run test:report-truth
+      - name: Production readiness
+        run: npm run test:production-readiness
