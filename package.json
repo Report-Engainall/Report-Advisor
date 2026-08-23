@@ -11,6 +11,7 @@
     "typecheck": "tsc --noEmit -p tsconfig.app.json",
     "perf:budget": "node scripts/check-performance-budget.mjs",
     "test:file-engine-regressions": "node --experimental-strip-types scripts/check-file-engine-regressions.ts",
+    "test:file-engine-contract": "node scripts/check-file-engine-contract.mjs",
     "test:contracts": "node scripts/check-architecture-contract.mjs",
     "test:selective-foundation": "node scripts/check-selective-foundation-integrity.mjs",
     "test:consolidated-intelligence": "node scripts/check-consolidated-intelligence.mjs",
