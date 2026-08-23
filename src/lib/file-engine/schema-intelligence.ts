@@ -1,4 +1,4 @@
-import { normalizeColumnName, parseNumber } from './normalizer';
+import { normalizeColumnName, parseNumber } from './normalizer.ts';
 
 export type SchemaField = 'sku' | 'barcode' | 'product_name' | 'customer_id' | 'customer_name' | 'invoice_number' | 'price' | 'quantity' | 'date' | 'unit' | 'warehouse' | 'unknown';
 
