@@ -55,7 +55,8 @@
     "test:scenario-engine": "node scripts/check-scenario-engine.mjs",
     "test:import-folder-foundation": "node scripts/check-import-folder-foundation.mjs",
     "test:production-gate-integrity": "node scripts/check-production-gate-integrity.mjs",
-    "test:production-gate-runtime": "node scripts/check-production-gate-runtime.mjs"
+    "test:production-gate-runtime": "node scripts/check-production-gate-runtime.mjs",
+    "test:document-resilience": "node scripts/adversarial-document-corpus.test.mjs && node scripts/layout-table-fidelity.test.mjs && node scripts/extraction-quality-score.test.mjs && node scripts/resilient-document-decision.test.mjs && node scripts/evidence-source-trace.test.mjs && node scripts/golden-e2e-corpus.test.mjs && node scripts/production-gate-integrity.test.mjs && node scripts/integration-pipeline-simulation.test.mjs && node scripts/regression-gate-manifest.test.mjs && node scripts/performance-scale-gates.test.mjs && node scripts/text-first-extraction-gate.test.mjs && node scripts/end-to-end-document-pipeline-contract.test.mjs && node scripts/canonical-text-provenance.test.mjs && node scripts/extraction-fallback-policy.test.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.57.4",
