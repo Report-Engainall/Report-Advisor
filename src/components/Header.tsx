@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, Bell, Upload, Brain, Menu, X, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Search, Bell, Upload, Brain, Menu, X, CheckCircle2, Command } from 'lucide-react';
 import type { Alert } from '@/lib/types';
 import { SeverityBadge } from './ui/Badge';
 import { relativeTime } from '@/lib/format';
@@ -9,36 +9,36 @@ interface HeaderProps {
   alerts: Alert[];
   onMarkAlertRead: (id: string) => void;
   onMenuClick: () => void;
+  onOpenCommandPalette: () => void;
 }
 
-export function Header({ alerts, onMarkAlertRead, onMenuClick }: HeaderProps) {
+export function Header({ alerts, onMarkAlertRead, onMenuClick, onOpenCommandPalette }: HeaderProps) {
   const [showAlerts, setShowAlerts] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
   const unreadAlerts = alerts.filter(a => !a.is_read);
 
   return (
     <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-md border-b border-ink-100">
       <div className="flex items-center gap-3 px-4 lg:px-6 h-16">
-        <button onClick={onMenuClick} className="lg:hidden text-ink-500 hover:text-ink-700">
+        <button onClick={onMenuClick} className="lg:hidden text-ink-500 hover:text-ink-700" aria-label="فتح القائمة">
           <Menu size={22} />
         </button>
 
-        <div className="flex-1 max-w-md relative">
-          <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-400" size={18} />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="بحث شامل: عملاء، منتجات، فواتير، تقارير..."
-            className="input pr-10 bg-ink-50/50 border-transparent focus:bg-white"
-          />
-        </div>
+        <button
+          type="button"
+          onClick={onOpenCommandPalette}
+          className="flex-1 max-w-md relative flex h-10 items-center gap-3 rounded-xl border border-transparent bg-ink-50/70 px-3 text-right text-sm text-ink-400 transition hover:border-ink-200 hover:bg-white"
+          aria-label="فتح البحث ولوحة الأوامر"
+        >
+          <Search size={18} />
+          <span className="flex-1 truncate">بحث شامل: عملاء، منتجات، فواتير، تقارير...</span>
+          <kbd className="hidden items-center gap-1 rounded-md border border-ink-200 bg-white px-1.5 py-0.5 text-[10px] text-ink-400 sm:inline-flex"><Command size={10} /> K</kbd>
+        </button>
 
         <div className="flex items-center gap-1.5">
-          <Link to="/import" className="btn-ghost p-2.5" title="استيراد سريع">
+          <Link to="/import" className="btn-ghost p-2.5" title="استيراد سريع" aria-label="استيراد سريع">
             <Upload size={18} />
           </Link>
-          <Link to="/intelligence" className="btn-ghost p-2.5" title="المساعد الذكي">
+          <Link to="/intelligence" className="btn-ghost p-2.5" title="المساعد الذكي" aria-label="المساعد الذكي">
             <Brain size={18} />
           </Link>
 
@@ -46,6 +46,8 @@ export function Header({ alerts, onMarkAlertRead, onMenuClick }: HeaderProps) {
             <button
               onClick={() => setShowAlerts(!showAlerts)}
               className="btn-ghost p-2.5 relative"
+              aria-label={`التنبيهات، ${unreadAlerts.length} غير مقروء`}
+              aria-expanded={showAlerts}
             >
               <Bell size={18} />
               {unreadAlerts.length > 0 && (
