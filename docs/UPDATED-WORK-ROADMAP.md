@@ -1,5 +1,20 @@
 # مساعد التاجر — Updated Work Roadmap
 
+## New — Governed Folder Batch Report Ingestion
+- Preserve the existing manual single-file import path unchanged.
+- Add a local folder picker beside manual import using the browser File System Access API where supported.
+- Treat typed folder paths as a human-readable hint only; never pretend a web page can read arbitrary `C:\` or UNC paths from text.
+- Scan supported report formats in the selected folder and process them sequentially so one bad file cannot stop the batch.
+- Reuse the existing security scan, format detection, SHA-256 duplicate check, canonical parser and canonical commit/RPC path.
+- Validate required fields before writes and quarantine/reject invalid rows without blocking valid files.
+- Persist per-file import records and progress through the existing import history model.
+- Show live progress, current file, successful/skipped/failed counts and actionable failure messages.
+- Skip previously imported files by content hash to make repeated folder runs safe and idempotent.
+- Keep heavy work incremental to avoid freezing the UI and prepare the same engine for a Web Worker/background execution path.
+- Do not silently recurse into subfolders; add recursive traversal only with an explicit user option and bounded-depth/performance controls.
+- Network/UNC watched folders require the planned Local Sync Agent rather than unsafe browser filesystem assumptions.
+- Quality gate: `test:folder-batch-import`.
+
 ## Market Dynamics & Inventory Intelligence
 - Demand velocity, historical baselines, trend, seasonality and acceleration/decline classification.
 - Days of stock, reorder point, stockout risk and lost-sales estimation.
@@ -43,6 +58,8 @@
 - Demand velocity route `/reports/demand-velocity` — completed.
 - Demand velocity sidebar navigation — completed.
 - Demand velocity contract gate — completed.
+- Folder batch import panel alongside manual import — completed at architecture/UI level.
+- Folder batch import engine with per-file isolation and canonical commit path — completed.
 - Important boundary: demand/request history is never fabricated; missing history returns an explicit empty state.
 - Next: connect time-series output to grouped demand and days-of-cover.
 - Next: dashboard decision cards with evidence/confidence and actionable priorities.
@@ -55,7 +72,8 @@
 - Decision dashboard contract check.
 - Inventory intelligence UI contract check.
 - Demand velocity contract check.
-- Package commands for inventory intelligence, security, schema, dashboard, UI and demand checks.
+- Folder batch import contract check.
+- Package commands for inventory intelligence, security, schema, dashboard, UI, demand and folder import checks.
 - Architecture contract and performance budget checks remain mandatory.
 - Next: execute cross-tenant isolation tests against engines, lineage, caches and reports.
 - Next: large grouped dataset correctness/performance tests.
@@ -79,6 +97,9 @@
 - `src/lib/free-toolbox/alternative-group-security.ts`
 - `src/lib/free-toolbox/decision-dashboard.ts`
 - `src/lib/free-toolbox/sales-demand-series.ts`
+- `src/lib/import/batch-folder.ts`
+- `src/components/FolderBatchImportPanel.tsx`
+- `src/pages/ImportPage.tsx`
 - `src/pages/AlternativeGroupsPage.tsx`
 - `src/pages/InventoryIntelligencePage.tsx`
 - `src/pages/DemandVelocityPage.tsx`
@@ -89,6 +110,7 @@
 - `scripts/check-decision-dashboard.mjs`
 - `scripts/check-inventory-intelligence-ui.mjs`
 - `scripts/check-demand-velocity.mjs`
+- `scripts/check-folder-batch-import.mjs`
 
 ## Next execution sequence
 1. Connect time-series sales/request data to live grouped demand and days-of-cover.
@@ -98,5 +120,6 @@
 5. Add historical peak-vs-current and seasonal demand views.
 6. Add cross-tenant authorization tests across all intelligence surfaces.
 7. Add large-dataset performance, memory and pagination budgets.
-8. Execute integration/load/security checks and production hardening.
-9. Release only after all quality gates pass.
+8. Add Local Sync Agent protocol for scheduled/continuous network and UNC folder ingestion.
+9. Execute integration/load/security checks and production hardening.
+10. Release only after all quality gates pass.
