@@ -3,10 +3,13 @@ import { normalizeArabicDigits, normalizeArabicText, normalizeWhitespace } from 
 /**
  * Canonicalizes external business identifiers before matching/importing.
  * Deliberately preserves meaningful leading zeroes while removing presentation noise.
+ * Unicode compatibility normalization also folds full-width Latin letters/digits
+ * into their canonical ASCII forms without changing semantic identifiers.
  */
 export function normalizeBusinessKey(value: unknown): string {
   if (value === null || value === undefined) return '';
-  let key = normalizeArabicDigits(String(value));
+  let key = String(value).normalize('NFKC');
+  key = normalizeArabicDigits(key);
   key = normalizeArabicText(normalizeWhitespace(key));
   key = key
     .replace(/[\u200B-\u200F\u202A-\u202E\uFEFF]/g, '')
