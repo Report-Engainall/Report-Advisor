@@ -54,7 +54,8 @@
     "test:import-direct-write-guard": "node scripts/check-import-direct-write-guard.mjs",
     "test:scenario-engine": "node scripts/check-scenario-engine.mjs",
     "test:import-folder-foundation": "node scripts/check-import-folder-foundation.mjs",
-    "test:production-gate-integrity": "node scripts/check-production-gate-integrity.mjs"
+    "test:production-gate-integrity": "node scripts/check-production-gate-integrity.mjs",
+    "test:production-gate-runtime": "node scripts/check-production-gate-runtime.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.57.4",
