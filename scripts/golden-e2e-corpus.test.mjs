@@ -1,0 +1,2 @@
+import{strict as assert}from'node:assert';import{getCorpus}from'./golden-e2e-corpus.mjs';
+const c=getCorpus();assert.equal(c.length,7);for(const x of c){assert.ok(x.requiredGates.includes('extraction'));assert.ok(x.requiredGates.includes('evidence'));assert.ok(['PASS','REVIEW','QUARANTINE'].includes(x.expect));}assert.equal(c.find(x=>x.id==='exchange-arabic').expect,'PASS');assert.equal(c.find(x=>x.id==='arithmetic-mismatch').expect,'QUARANTINE');console.log('Golden E2E corpus tests PASS.');
