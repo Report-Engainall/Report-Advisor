@@ -8,7 +8,6 @@ on:
   workflow_dispatch:
 permissions:
   contents: read
-# Each verification gets a unique evidence key and is never cancelled by a later run.
 concurrency:
   group: quality-${{ github.ref }}-${{ github.event_name }}-${{ github.run_id }}
   cancel-in-progress: false
@@ -43,6 +42,8 @@ jobs:
         run: npm ci --no-audit --no-fund
       - name: Quality workflow contract
         run: npm run test:quality-workflow-contract
+      - name: File-engine architecture contract
+        run: npm run test:file-engine-contract
       - name: Typecheck
         run: npm run typecheck
       - name: File-engine behavioral regressions
