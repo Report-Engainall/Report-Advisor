@@ -17,6 +17,25 @@
 - Add backpressure/concurrency controls so large folders do not freeze the application or overload parsing/DB.
 - Quality gates: `test:folder-batch-import` plus watcher/idempotency/stability/security gates.
 
+## New — Continuous Incremental Report Intelligence
+- Treat the folder as a **living source**, not a one-time upload.
+- On day one, discover every supported report file, classify it, map it to a canonical report family, process it through the full intelligence pipeline and build the initial evidence/history state.
+- On later runs, detect whether a file is unchanged, appended, revised, replaced or newly created.
+- For unchanged files: skip content processing safely while retaining lineage and last-known state.
+- For appended/changed tabular reports: identify the previously committed boundary and process only genuinely new/changed rows where the source semantics allow reliable incremental reconciliation.
+- Use stable row identity where available (document number + line number/ID + date + SKU + source fingerprint); otherwise use deterministic row fingerprints and conservative reconciliation.
+- If the source can reorder/delete rows or revise historical records, automatically switch from append-only optimization to a bounded reconciliation window or full reprocessing as required for correctness.
+- Never assume "new rows only" is safe merely because the file timestamp changed.
+- Maintain source-file version, hash, row count, row fingerprint ledger, first-seen/last-seen timestamps and processing cursor/boundary.
+- Maintain report lineage: source file → report profile → mapped columns → normalized rows → derived metrics → decisions → evidence.
+- Recalculate all dependent intelligence after valid changes: KPIs, trends, demand velocity, seasonality, forecasts, stock coverage, stockout risk, lost-sales estimates, liquidity signals, customer continuity, alerts and decision priorities.
+- Keep historical snapshots so the trader can compare today vs yesterday and understand what changed.
+- Produce a daily **change digest**: new transactions, revised transactions, removed/reversed transactions when detectable, changed KPIs, new risks, resolved risks and recommended actions.
+- Run processing asynchronously in background workers/agent queues; UI remains responsive and exposes progress rather than blocking.
+- Permit slower deep processing for large reports while maintaining deterministic results and resumability.
+- Failed files/rows are quarantined with actionable evidence and do not block other reports.
+- The system may take longer to process a large first import when that improves validation and accuracy; correctness is prioritized over superficial speed.
+
 ## New — Universal ERP / Accounting Report Recognition
 - Build a versioned **Report Schema Registry** covering Arabic/English accounting exports, beginning with Onyx Pro and extending to Al-Mutakamil, Raqish and other systems as evidence/export samples become available.
 - Use `docs/REPORT_FORMATS_YEMEN_ARAB_ERP.md` as the canonical field/synonym dictionary and governance baseline.
@@ -32,6 +51,13 @@
 - Manual mapping remains the fallback for every unknown format; approved mappings can be promoted into reusable profiles.
 - Detect changed report layouts and route them to review instead of silently applying stale mappings.
 - Quality gates: schema-registry contract, profile regression fixtures, mapping-confidence gate and no-hallucination mapping gate.
+
+## ERP Priority Coverage
+- Onyx Pro is the first-class target because of its expected prevalence in the target market.
+- The registry must support report families rather than a single Onyx report: sales, purchases, sales returns, purchase returns, inventory balances, item movement/stock cards, customers, suppliers, customer statements, supplier statements, receivables, payables, cash, bank, journal entries, general ledger, trial balance, profit/loss, balance sheet, taxes and other operational/accounting reports exposed by a customer's export.
+- Al-Mutakamil and Raqish receive the same canonical coverage, with vendor-specific aliases added only from evidence.
+- For every supported family, define canonical fields as required/optional and preserve all unmapped source columns instead of dropping them.
+- "All fields" means comprehensive canonical coverage plus versioned vendor-specific profiles; it does **not** mean inventing undocumented vendor headers. Actual customer exports/templates are the authority for exact vendor spellings.
 
 ## Market Dynamics & Inventory Intelligence
 - Demand velocity, historical baselines, trend, seasonality and acceleration/decline classification.
@@ -79,6 +105,7 @@
 - Folder batch import panel alongside manual import — completed at architecture/UI level.
 - Folder batch import engine with per-file isolation and canonical commit path — completed.
 - Continuous watcher — planned for Local Sync Agent execution.
+- Continuous incremental reconciliation — planned.
 - Universal ERP schema registry — planned; field dictionary/governance baseline added.
 - Important boundary: demand/request history is never fabricated; missing history returns an explicit empty state.
 - Next: connect time-series output to grouped demand and days-of-cover.
@@ -94,6 +121,8 @@
 - Demand velocity contract check.
 - Folder batch import contract check.
 - Watcher stability/idempotency/security gates.
+- Incremental reconciliation correctness and fallback-to-full-reprocess gate.
+- Lineage/change-digest contract gate.
 - Schema registry contract and vendor-profile regression fixtures.
 - Mapping-confidence/no-hallucination gate.
 - Package commands for inventory intelligence, security, schema, dashboard, UI, demand and folder import checks.
@@ -144,7 +173,9 @@
 5. Add historical peak-vs-current and seasonal demand views.
 6. Build the Report Schema Registry and Onyx Pro profile regression fixtures.
 7. Add Local Sync Agent watcher with stability detection, queueing, retry and idempotency ledger.
-8. Add cross-tenant authorization tests across all intelligence and ingestion surfaces.
-9. Add large-dataset performance, memory and pagination budgets.
-10. Execute integration/load/security checks and production hardening.
-11. Release only after all quality gates pass.
+8. Add incremental reconciliation ledger, row fingerprints/cursors and safe fallback to full reprocessing.
+9. Add daily change digest and historical report snapshots.
+10. Add cross-tenant authorization tests across all intelligence and ingestion surfaces.
+11. Add large-dataset performance, memory and pagination budgets.
+12. Execute integration/load/security checks and production hardening.
+13. Release only after all quality gates pass.
