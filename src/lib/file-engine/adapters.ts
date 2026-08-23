@@ -85,7 +85,12 @@ function parseCSVText(text: string, delimiter?: string): Record<string, any>[] {
 }
 
 function detectDelimiter(line: string): string {
-  return [',', ';', '\t', '|'].sort((a, b) => (line.split(b).length - 1) - (line.split(a).length - 1))[0];
+  const candidates = [',', ';', '\t', '|'];
+  const scored = candidates.map(delimiter => {
+    const fields = parseCSVLine(line, delimiter).length;
+    return { delimiter, fields };
+  }).sort((a, b) => b.fields - a.fields);
+  return scored[0]?.fields && scored[0].fields > 1 ? scored[0].delimiter : ',';
 }
 
 function parseCSVLine(line: string, delimiter: string): string[] {
@@ -119,7 +124,7 @@ async function parseJSONData(data: any, fileName: string, path = ''): Promise<Da
 export async function parseFile(buffer: ArrayBuffer, fileName: string, format: FileFormat): Promise<Dataset[]> {
   switch (format) {
     case 'xlsx': case 'xls': case 'xlsm': case 'ods': return parseSpreadsheet(buffer, fileName, format);
-    case 'csv': return parseCSV(buffer, fileName, ',');
+    case 'csv': return parseCSV(buffer, fileName);
     case 'tsv': return parseCSV(buffer, fileName, '\t');
     case 'json': return parseJSON(buffer, fileName);
     case 'jsonl': return parseJSONL(buffer, fileName);
