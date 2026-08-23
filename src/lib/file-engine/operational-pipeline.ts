@@ -106,7 +106,15 @@ export function buildOperationalPreview(
       rows.push({ rowIndex, status: 'new', businessKey: key, changedFields: [], reason: 'Business key not found in target.' });
       return;
     }
-    const changedFields = headers.filter(header => stableValue(row[header]) !== stableValue(match.row?.[header]));
+
+    // The business key is an identity field, not a mutable data field. Compare it
+    // canonically for matching, but never report representation-only differences
+    // (e.g. Arabic vs English digits or surrounding whitespace) as an update.
+    const changedFields = headers.filter(header => {
+      if (header === keyHeader) return normalizeBusinessKey(row[header]) !== normalizeBusinessKey(match.row?.[header]);
+      return stableValue(row[header]) !== stableValue(match.row?.[header]);
+    }).filter(header => header !== keyHeader);
+
     if (changedFields.length === 0) {
       counts.unchanged += 1;
       rows.push({ rowIndex, status: 'unchanged', businessKey: key, changedFields: [], reason: 'No material field changes.' });
