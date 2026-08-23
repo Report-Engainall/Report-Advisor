@@ -1,5 +1,5 @@
-import { buildBusinessKeyIndex, matchBusinessKey, normalizeBusinessKey } from './business-key';
-import { inferSchema, type SchemaEvidence, type SchemaField } from './schema-intelligence';
+import { buildBusinessKeyIndex, matchBusinessKey, normalizeBusinessKey } from './business-key.ts';
+import { inferSchema, type SchemaEvidence, type SchemaField } from './schema-intelligence.ts';
 
 export type OperationalInputRow = Record<string, unknown>;
 
@@ -37,20 +37,22 @@ export function buildPreviewFingerprint(rows: OperationalInputRow[], headers: st
   const canonicalRows = rows.map(row => stableRow(row, headers)).sort();
   let hash = 2166136261;
   for (const value of canonicalRows.join('\n')) {
-    hash ^= value.charCodeAt(0);
-    hash = Math.imul(hash, 16777619);
+    for (let index = 0; index < value.length; index += 1) {
+      hash ^= value.charCodeAt(index);
+      hash = Math.imul(hash, 16777619);
+    }
   }
   return (hash >>> 0).toString(16).padStart(8, '0');
 }
 
-function selectBusinessKey(schema: SchemaEvidence[]): { header: string; field: SchemaField } | null {
+function selectBusinessKey(schema: SchemaEvidence[]): { headerIndex: number; field: SchemaField } | null {
   const candidates = schema
     .map((item, index) => ({ item, index }))
     .filter(({ item }) => item.field === 'sku' || item.field === 'barcode' || item.field === 'customer_id' || item.field === 'invoice_number')
     .filter(({ item }) => !item.ambiguous && item.confidence >= 90)
     .sort((a, b) => b.item.confidence - a.item.confidence);
   const selected = candidates[0];
-  return selected ? { header: String(selected.index), field: selected.item.field } : null;
+  return selected ? { headerIndex: selected.index, field: selected.item.field } : null;
 }
 
 export function buildOperationalPreview(
@@ -60,7 +62,7 @@ export function buildOperationalPreview(
 ): OperationalPreview {
   const schema = inferSchema(headers, incomingRows);
   const keySchema = selectBusinessKey(schema);
-  const keyHeader = keySchema ? headers[Number(keySchema.header)] : null;
+  const keyHeader = keySchema ? headers[keySchema.headerIndex] : null;
   const counts: Record<ReconciliationStatus, number> = { new: 0, updated: 0, unchanged: 0, conflict: 0, error: 0 };
   const rows: OperationalRowResult[] = [];
 
@@ -80,13 +82,10 @@ export function buildOperationalPreview(
   }
 
   const index = buildBusinessKeyIndex(existingRows, row => row[keyHeader]);
-  const duplicateKeys = new Set<string>();
+  const incomingKeyCounts = new Map<string, number>();
   for (const row of incomingRows) {
     const key = normalizeBusinessKey(row[keyHeader]);
-    if (key) {
-      if (duplicateKeys.has(key)) continue;
-      duplicateKeys.add(key);
-    }
+    if (key) incomingKeyCounts.set(key, (incomingKeyCounts.get(key) ?? 0) + 1);
   }
 
   incomingRows.forEach((row, rowIndex) => {
@@ -94,6 +93,11 @@ export function buildOperationalPreview(
     if (!key) {
       counts.error += 1;
       rows.push({ rowIndex, status: 'error', businessKey: '', changedFields: [], reason: 'Missing business key.' });
+      return;
+    }
+    if ((incomingKeyCounts.get(key) ?? 0) > 1) {
+      counts.conflict += 1;
+      rows.push({ rowIndex, status: 'conflict', businessKey: key, changedFields: [], reason: 'Duplicate business key in incoming data.' });
       return;
     }
     const match = matchBusinessKey(index, key);
@@ -113,11 +117,11 @@ export function buildOperationalPreview(
   });
 
   const hasAmbiguity = schema.some(item => item.ambiguous);
-  const duplicateIncoming = incomingRows.length !== duplicateKeys.size;
+  const duplicateIncoming = [...incomingKeyCounts.values()].some(count => count > 1);
   return {
     schema,
     selectedBusinessKey: keyHeader,
-    requiresApproval: hasAmbiguity || duplicateIncoming || counts.error > 0,
+    requiresApproval: hasAmbiguity || duplicateIncoming || counts.error > 0 || counts.conflict > 0,
     rows,
     counts,
     fingerprint: buildPreviewFingerprint(incomingRows, headers),
