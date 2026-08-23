@@ -18,12 +18,31 @@ export function resetDashboardFilterContext(): DashboardFilterContext {
   return { ...DEFAULT_DASHBOARD_FILTER_CONTEXT };
 }
 
-export function setDashboardFilter<K extends DashboardFilterKey>(
+export function setDashboardFilter(
   context: DashboardFilterContext,
-  key: K,
-  value: DashboardFilterContext[K],
+  key: 'period',
+  value: number,
+): DashboardFilterContext;
+export function setDashboardFilter(
+  context: DashboardFilterContext,
+  key: 'customer' | 'category' | 'product',
+  value: string | null,
+): DashboardFilterContext;
+export function setDashboardFilter(
+  context: DashboardFilterContext,
+  key: DashboardFilterKey,
+  value: number | string | null,
 ): DashboardFilterContext {
-  return { ...context, [key]: value };
+  switch (key) {
+    case 'period':
+      return { ...context, period: value as number };
+    case 'customer':
+      return { ...context, customerId: value as string | null };
+    case 'category':
+      return { ...context, categoryId: value as string | null };
+    case 'product':
+      return { ...context, productId: value as string | null };
+  }
 }
 
 export function hasActiveDashboardFilters(context: DashboardFilterContext): boolean {
