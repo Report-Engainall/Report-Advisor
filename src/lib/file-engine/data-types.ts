@@ -18,7 +18,10 @@ export function detectDataType(values: any[]): DataType {
     if (parseDate(str)) dateCount++;
     if (typeof v === 'boolean' || /^(true|false|نعم|لا|صح|خطأ|yes|no)$/i.test(str)) boolCount++;
     const num = parseNumber(str);
-    if (num !== null) Number.isInteger(num) ? intCount++ : decimalCount++;
+    if (num !== null) {
+      if (Number.isInteger(num)) intCount++;
+      else decimalCount++;
+    }
     if (/ر\.?س|ريال|sar|sr|\$|€|£|د\.?إ|درهم/i.test(str)) currencyCount++;
   }
   const threshold = sample.length * 0.8;
@@ -55,11 +58,16 @@ export function detectColumnDataType(values: any[], columnName: string): DataTyp
 export function cleanValue(value: any, dataType: DataType): any {
   if (value === null || value === undefined || value === '') return null;
   switch (dataType) {
-    case 'integer': { const n = parseNumber(value); return n !== null ? Math.round(n) : null; }
+    case 'integer': {
+      const n = parseNumber(value);
+      return n !== null ? Math.round(n) : null;
+    }
     case 'decimal':
     case 'currency':
-    case 'percentage': return parseCurrency(value) ?? parseNumber(value);
-    case 'date': return parseDate(value);
+    case 'percentage':
+      return parseCurrency(value) ?? parseNumber(value);
+    case 'date':
+      return parseDate(value);
     case 'boolean': {
       if (typeof value === 'boolean') return value;
       const v = normalizeArabicDigits(String(value)).trim().toLowerCase();
@@ -67,9 +75,13 @@ export function cleanValue(value: any, dataType: DataType): any {
       if (['false', 'لا', 'خطأ', '0', 'no'].includes(v)) return false;
       return null;
     }
-    case 'sku': return normalizeArabicDigits(String(value)).trim();
-    case 'phone': return normalizeArabicDigits(String(value)).replace(/[\s\-+()]/g, '');
-    case 'email': return String(value).trim().toLowerCase();
-    default: return typeof value === 'string' ? value.trim() : value;
+    case 'sku':
+      return normalizeArabicDigits(String(value)).trim();
+    case 'phone':
+      return normalizeArabicDigits(String(value)).replace(/[\s\-+()]/g, '');
+    case 'email':
+      return String(value).trim().toLowerCase();
+    default:
+      return typeof value === 'string' ? value.trim() : value;
   }
 }
