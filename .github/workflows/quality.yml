@@ -48,6 +48,8 @@ jobs:
         run: npm run test:file-engine-capability-contract
       - name: Schema intelligence contract
         run: npm run test:schema-intelligence
+      - name: Canonical import mapping regression
+        run: npm run test:canonical-import-mapping
       - name: Typecheck
         run: npm run typecheck
       - name: File-engine behavioral regressions
