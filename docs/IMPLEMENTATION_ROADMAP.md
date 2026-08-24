@@ -15,41 +15,19 @@
 ## Phase A0 — Document & Data Intelligence Engine — COMPLETED
 A0.1 engine contracts and raw-data safety, A0.2 structured intermediate model, A0.3 schema intelligence, A0.4 validation/entity/reconciliation/review-quarantine, A0.5 governed transactional routing, A0.6 Onyx extensibility, and A0.7 golden datasets/quality gates are now represented by deterministic contracts and regression gates. No raw field is silently discarded and no weak/ambiguous mapping is silently promoted.
 
-## Phase A — Trusted Report Execution
-1. Complete server-side worker adapter around the existing report execution contract.
-2. Queue scheduled report runs with tenant context and idempotency.
-3. Claim jobs with leases; reject stale/duplicate claims.
-4. Render saved semantic definitions to PDF/Excel/web artifacts.
-5. Verify artifact integrity before delivery.
-6. Persist immutable execution evidence and delivery receipts.
-7. Add retry/backoff/dead-letter policy and operational visibility.
+## Phase A — Trusted Report Execution — FOUNDATION COMPLETE
+The durable SQL queue, tenant-scoped idempotency, worker leases/heartbeat/retry/dead-letter behavior, renderers, immutable evidence/delivery persistence, trusted worker adapter and artifact SHA-256 integrity verification are now implemented and gated. Remaining work is deployment-specific worker wiring and live storage/delivery integration, not a missing execution contract.
 
-## Phase B — Usage & Entitlements
-1. Aggregate usage by tenant and billing period.
-2. Enforce capabilities and quotas server-side before expensive report/AI work.
-3. Make entitlement decisions auditable and idempotent.
-4. Add provider-neutral billing adapter boundary.
-5. Add invoice/subscription lifecycle state machine.
-6. Verify billing webhooks cryptographically and idempotently.
-7. Add operator plan/capability controls.
+## Phase B — Usage & Entitlements — FOUNDATION COMPLETE
+Tenant-scoped usage ledger, server-side entitlement policy, persistent plans/capabilities/subscriptions, provider-neutral subscription lifecycle, cryptographic webhook boundary with replay protection, and idempotent usage RPCs are implemented and added to the authoritative quality/release gates. Remaining work is provider-specific adapter wiring and operator UI, not the core safety model.
 
-## Phase C — Decision Automation
-1. Convert scored decisions into explainable automation actions.
-2. Require explicit approval for external side effects by default.
-3. Carry tenant, decision fingerprint, evidence snapshot and idempotency key into every action.
-4. Execute through the trusted automation executor only.
-5. Add retry/backoff/dead-letter handling and immutable execution receipts.
-6. Block execution when production readiness, calibration, confidence, liquidity or evidence gates fail.
+## Phase C — Decision Automation — FOUNDATION COMPLETE
+Explainable evidence-bound automation identity, explicit external-side-effect approval, trusted executor boundary, retry/dead-letter semantics and production/certification gating are implemented. Remaining work is live provider/action connectors and immutable runtime receipts.
 
-## Phase D — Advanced Intelligence
-1. Forecast backtesting against deterministic baselines.
-2. Confidence/coverage/bias diagnostics.
-3. Scenario and sensitivity simulation.
-4. Outcome calibration linked to decision fingerprints.
-5. Semantic caching with deterministic invalidation.
-6. Local/offline analytical acceleration where it improves performance without weakening truth/security boundaries.
+## Phase D — Advanced Intelligence — FOUNDATION COMPLETE
+Deterministic forecast backtesting, baseline comparison, confidence/coverage/bias diagnostics, forecast calibration and scenario/sensitivity primitives are implemented. Remaining work is outcome feedback loops, deterministic invalidation integration and offline acceleration benchmarking.
 
-## Phase E — Production SaaS Certification
+## Phase E — Production SaaS Certification — IN PROGRESS
 1. Cross-tenant negative tests for reads, writes, search, export, storage and retrieval.
 2. Storage/RLS policy audit.
 3. Realtime authorization audit.
@@ -76,3 +54,4 @@ A0.1 engine contracts and raw-data safety, A0.2 structured intermediate model, A
 - Automation executor bypassing the unified decision chain.
 - Replenishment exceeding protected liquidity.
 - Production readiness blocker at release time.
+- Rendered artifact integrity/hash verification failure.
