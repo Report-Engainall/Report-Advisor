@@ -1,0 +1,40 @@
+name: master-production-verification
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+concurrency:
+  group: master-production-verification
+  cancel-in-progress: true
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm run typecheck
+      - run: npm run build
+      - run: node scripts/check-master-production-verification.mjs
+      - run: node scripts/check-j-runtime-chain.mjs
+      - run: node scripts/check-k-l-execution-evidence-chain.mjs
+      - run: node scripts/check-resumability-deadletter-contract.mjs
+      - run: node scripts/check-continuous-trust-runtime-chain.mjs
+      - run: node scripts/check-governance-runtime-chain.mjs
+      - run: node scripts/check-evidence-provenance-chain.mjs
+      - run: node scripts/check-production-certification-chain.mjs
+      - run: node scripts/check-autonomy-safety-chain.mjs
+      - run: node scripts/check-final-safety-invariants.mjs
+      - run: npm run test:production-scale
+      - run: npm run test:phase-k-runtime
+      - run: npm run test:phase-l-runtime
+      - run: npm run test:phase-l-resumable-execution
