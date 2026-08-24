@@ -54,7 +54,8 @@
     "test:unified-decision-chain": "node scripts/check-unified-decision-chain.mjs",
     "test:report-execution-contract": "node scripts/check-report-execution-contract.mjs",
     "test:entitlement-boundary-contract": "node scripts/check-entitlement-boundary-contract.mjs",
-    "test:worker-automation-contracts": "node scripts/check-worker-automation-contracts.mjs"
+    "test:worker-automation-contracts": "node scripts/check-worker-automation-contracts.mjs",
+    "test:report-worker-pipeline": "node scripts/check-report-worker-pipeline.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.57.4",
