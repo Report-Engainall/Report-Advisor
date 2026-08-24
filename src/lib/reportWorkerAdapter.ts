@@ -1,7 +1,4 @@
-import type {
-  ReportExecutionEvidence,
-  ReportExecutionRequest,
-} from './reportExecutionContract';
+import type { ReportExecutionEvidence, ReportExecutionRequest } from './reportExecutionContract';
 
 export type ReportWorkerLease = {
   leaseId: string;
@@ -44,27 +41,18 @@ export function buildWorkerLease(runId: string, companyId: string, leaseSeconds 
   if (leaseSeconds < 30 || leaseSeconds > 3600) throw new Error('REPORT_WORKER_LEASE_INVALID');
   if (!runId || !companyId) throw new Error('REPORT_WORKER_SCOPE_REQUIRED');
   const claimedAt = now.toISOString();
-  return {
-    leaseId: `${companyId}:${runId}:${now.getTime()}`,
-    runId,
-    companyId,
-    claimedAt,
-    leaseExpiresAt: new Date(now.getTime() + leaseSeconds * 1000).toISOString(),
-  };
+  return { leaseId: `${companyId}:${runId}:${now.getTime()}`, runId, companyId, claimedAt, leaseExpiresAt: new Date(now.getTime() + leaseSeconds * 1000).toISOString() };
 }
 
 export function assertArtifactIntegrity(artifact: ReportArtifact, request: ReportExecutionRequest): void {
-  assertTrustedWorkerContext(
-    {
-      leaseId: 'artifact-check',
-      runId: artifact.runId,
-      companyId: request.companyId,
-      claimedAt: artifact.createdAt,
-      leaseExpiresAt: new Date(Date.now() + 1).toISOString(),
-    },
-    request.companyId,
-    request.runId,
-  );
+  assertTrustedWorkerContext({ leaseId: 'artifact-check', runId: artifact.runId, companyId: request.companyId, claimedAt: artifact.createdAt, leaseExpiresAt: new Date(Date.now() + 1).toISOString() }, request.companyId, request.runId);
   if (!artifact.artifactRef || !artifact.checksum) throw new Error('REPORT_ARTIFACT_INTEGRITY_REQUIRED');
   if (artifact.format !== request.output) throw new Error('REPORT_ARTIFACT_FORMAT_MISMATCH');
+}
+
+export function assertTrustedWorkerExecution(context: { companyId: string; runId: string; workerId: string; leaseExpiresAt: string }): void {
+  if (!context.companyId) throw new Error('REPORT_WORKER_COMPANY_REQUIRED');
+  if (!context.runId) throw new Error('REPORT_WORKER_RUN_REQUIRED');
+  if (!context.workerId) throw new Error('REPORT_WORKER_ID_REQUIRED');
+  if (!context.leaseExpiresAt || Number.isNaN(Date.parse(context.leaseExpiresAt))) throw new Error('REPORT_WORKER_LEASE_REQUIRED');
 }
