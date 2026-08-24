@@ -30,6 +30,8 @@ jobs:
         run: npm run test:continuous-trust
       - name: Autonomous governance certification
         run: node scripts/check-autonomous-governance-contract.mjs && node scripts/check-governance-intelligence-hardening.mjs
+      - name: Watched reports and text-first pipeline
+        run: npm run test:import-folder-foundation && npm run test:watched-report-pipeline
       - name: Production release blockers
         run: npm run test:production-release-blockers
       - name: A0 intelligence hardening
