@@ -1,0 +1,33 @@
+name: phase-f-live-resilience
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: phase-f-live-resilience
+  cancel-in-progress: false
+jobs:
+  certify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: Static resilience contracts
+        run: npm run test:operational-resilience && npm run test:release-resilience-manifest && npm run test:continuous-trust
+      - name: Live resilience probes
+        env:
+          RESILIENCE_TARGET_ENV: ${{ secrets.RESILIENCE_TARGET_ENV }}
+          RESILIENCE_HEALTH_URL: ${{ secrets.RESILIENCE_HEALTH_URL }}
+          RESILIENCE_CANARY_URL: ${{ secrets.RESILIENCE_CANARY_URL }}
+          RESILIENCE_BACKUP_VERIFY_URL: ${{ secrets.RESILIENCE_BACKUP_VERIFY_URL }}
+          RESILIENCE_ROLLBACK_DRILL_URL: ${{ secrets.RESILIENCE_ROLLBACK_DRILL_URL }}
+          RESILIENCE_ALLOW_PRODUCTION: ${{ secrets.RESILIENCE_ALLOW_PRODUCTION }}
+        run: node scripts/phase-f-live-resilience-probes.mjs
