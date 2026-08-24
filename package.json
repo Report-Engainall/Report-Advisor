@@ -64,7 +64,7 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.57.4",
-    "clsx": "^2.4.0",
+    "clsx": "^2.1.0",
     "date-fns": "^4.4.0",
     "lucide-react": "^0.446.0",
     "mammoth": "^1.12.0",
