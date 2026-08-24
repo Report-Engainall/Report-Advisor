@@ -64,38 +64,45 @@ Implemented and gated:
 
 Remaining I work: runtime anomaly correlation, graph population from real decision pipelines, outcome-driven override learning, dynamic quality scoring, bounded scenario computation, executive trust cockpit and automated governance re-certification.
 
-## Phase J — Autonomous Business Control Plane — DEEP FOUNDATION STARTED
+## Phase J — Autonomous Business Control Plane — DEEP FOUNDATION IN PROGRESS
 Implemented now:
 1. Watched-folder report ingestion foundation using the browser File System Access API.
 2. Recursive folder scanning with configurable extensions, polling and bounded concurrency policy.
 3. SHA-256 content fingerprinting per report.
 4. Persistent IndexedDB file fingerprint store so monitoring survives page refreshes.
-5. Tenant-scoped server persistence for watched folders and file lineage.
-6. Incremental file detection: new / changed / unchanged.
-7. Incremental row reconciliation now detects changed, unchanged AND deleted rows.
-8. Canonical-text-first extraction orchestration with SHA-256 text provenance.
-9. Extraction failure no longer becomes a global pipeline stop: structured-source fallback is explicitly allowed and evidenced.
-10. Folder/file/canonical-text RLS and provenance persistence.
+5. Persistent local folder-handle storage for permission recovery across sessions.
+6. Tenant-scoped server persistence for watched folders and file lineage.
+7. Incremental file detection: new / changed / unchanged.
+8. Incremental row reconciliation now detects changed, unchanged AND deleted rows.
+9. Canonical-text-first extraction orchestration with SHA-256 text provenance.
+10. Extraction failure no longer becomes a global pipeline stop: structured-source fallback is explicitly allowed and evidenced.
+11. Recursive batch-folder processing is connected to the existing central import commit path.
+12. Automatic watched-folder UI mode is connected to scan/process cycles.
+13. Unified business-state snapshot schema across sales, demand, inventory, liquidity and operations.
+14. Constraint-aware optimization run schema with protected liquidity/service-level fields and fail-closed execution predicate.
+15. Recommendation outcome feedback schema.
+16. Executive KPI causal/evidence lineage schema.
+17. Control-plane drift event schema and critical-drift execution blocker.
+18. Business control-plane Quality gate is release-blocking.
 
 Remaining J work:
-1. Connect watched-folder discoveries to the existing unified import job coordinator and resumable checkpoints.
+1. Connect watched-folder discoveries to the existing durable import job coordinator and resumable checkpoints.
 2. Persist per-file extraction checkpoints and canonical text artifacts into the existing evidence/delivery ledger.
-3. Add browser folder permission recovery and cross-session handle persistence UX.
-4. Add stable path/rename detection and tombstone handling.
-5. Add parse-once cache and report-version lineage so an appended/revised report processes only new/changed content.
-6. Add canonical ordering/layout normalization for tables, headings, totals and repeated headers before schema inference.
-7. Add extraction quality scoring and automatic fallback selection (PDF text layer → table extraction → OCR → structured parser) without stopping downstream analytics.
-8. Add multi-report chronological consolidation with deduplication and source precedence.
-9. Add unified business-state snapshot across sales, demand, inventory, liquidity and operations.
-10. Add constraint-aware optimization with protected liquidity and service-level bounds.
-11. Add closed-loop recommendation evaluation against observed outcomes.
-12. Add portfolio-level decision prioritization under risk budgets.
-13. Add materiality-based escalation and human-in-the-loop routing.
-14. Add causal/evidence lineage for every executive KPI.
-15. Add bounded what-if planning with rollback-safe recommendations.
-16. Add business control-plane health/trust score.
-17. Add automatic drift detection across data, policies, forecasts and outcomes.
-18. Enable production autonomy only for domains whose evidence, trust and risk budgets remain valid.
+3. Add stable path/rename detection and tombstone handling.
+4. Add parse-once cache and report-version lineage so an appended/revised report processes only new/changed content at row level across devices.
+5. Add canonical ordering/layout normalization for tables, headings, totals and repeated headers before schema inference.
+6. Add extraction quality scoring and automatic fallback selection (PDF text layer → table extraction → OCR → structured parser) without stopping downstream analytics.
+7. Add multi-report chronological consolidation with deduplication and source precedence.
+8. Populate business-state snapshots from real domain engines.
+9. Add constraint-aware optimizer computation and bounded what-if simulation.
+10. Add closed-loop recommendation evaluation against observed outcomes.
+11. Add portfolio-level decision prioritization under risk budgets.
+12. Add materiality-based escalation and human-in-the-loop routing.
+13. Add causal/evidence lineage population for every executive KPI.
+14. Add bounded what-if planning with rollback-safe recommendations.
+15. Add business control-plane health/trust score computation.
+16. Add automatic drift detection across data, policies, forecasts and outcomes.
+17. Enable production autonomy only for domains whose evidence, trust and risk budgets remain valid.
 
 ## Cross-cutting requirements restored to the master plan
 - Automatic watched-folder synchronization: a user selects a local folder in the app; new reports are discovered automatically without repeated manual upload.
