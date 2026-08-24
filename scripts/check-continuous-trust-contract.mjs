@@ -13,5 +13,12 @@ const required = [
 const missing = required.filter(x => !sql.includes(x));
 if (missing.length) throw new Error(`Continuous trust blockers:\n${missing.join('\n')}`);
 const roadmap = fs.readFileSync(path.join(root,'docs/IMPLEMENTATION_ROADMAP.md'),'utf8');
-for (const item of ['Automated tenant isolation canaries','Dynamic intelligence safety thresholds','Automated billing webhook replay/liveness','Continuous signed artifact verification','Incident-to-regression automatic linkage']) if (!roadmap.includes(item)) throw new Error(`Roadmap item missing: ${item}`);
+const roadmapChecks = [
+  'Runtime canary runner against isolated tenants',
+  'Dynamic intelligence threshold controller using measured outcome drift',
+  'Billing webhook liveness/replay canary runner',
+  'Signed artifact verification at deployment boundary',
+  'Automatic incident-to-regression proposal generation'
+];
+for (const item of roadmapChecks) if (!roadmap.includes(item)) throw new Error(`Roadmap item missing: ${item}`);
 console.log('Continuous trust contract: PASS');
