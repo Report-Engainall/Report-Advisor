@@ -32,6 +32,7 @@ jobs:
           node scripts/check-final-safety-invariants.mjs
           node scripts/check-next-wave-closure.mjs
           node --experimental-strip-types scripts/report-execution-checkpoint-hardening.test.ts
+          node scripts/k-to-s-runtime.test.mjs
           node scripts/check-k-to-s-closure.mjs
           node scripts/check-phase-k-production-intelligence.mjs
           node scripts/check-phase-l-runtime-contract.mjs
