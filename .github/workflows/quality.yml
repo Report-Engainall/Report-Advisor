@@ -29,7 +29,7 @@ jobs:
       - name: Continuous trust certification
         run: npm run test:continuous-trust
       - name: Autonomous governance certification
-        run: node scripts/check-autonomous-governance-contract.mjs
+        run: node scripts/check-autonomous-governance-contract.mjs && node scripts/check-governance-intelligence-hardening.mjs
       - name: Production release blockers
         run: npm run test:production-release-blockers
       - name: A0 intelligence hardening
