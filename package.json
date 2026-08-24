@@ -24,6 +24,7 @@
     "test:automation-executor-contract": "node scripts/check-automation-executor-contract.mjs",
     "test:forecast-calibration-contract": "node scripts/check-forecast-calibration-contract.mjs",
     "test:entitlements-billing-contract": "node scripts/check-entitlements-billing-contract.mjs",
+    "test:decision-intelligence-closure": "node scripts/check-decision-intelligence-closure.mjs",
     "test:canonical-import-mapping": "node scripts/check-canonical-import-mapping.mjs",
     "test:onyx-adapter-contract": "node scripts/check-onyx-adapter-contract.mjs",
     "test:report-execution-foundation": "node scripts/check-report-execution-foundation.mjs",
