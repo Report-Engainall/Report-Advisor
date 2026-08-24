@@ -13,45 +13,50 @@
 30-37. Configurable demand horizon, explicit pack/weight normalization, unified decision policy, customer/SKU demand attribution, weighted group substitution, liquidity-aware replenishment, production readiness and unified production decision chain.
 
 ## Phase A0 — Document & Data Intelligence Engine — COMPLETED
-A0.1 engine contracts and raw-data safety, A0.2 structured intermediate model, A0.3 schema intelligence, A0.4 validation/entity/reconciliation/review-quarantine, A0.5 governed transactional routing, A0.6 Onyx extensibility, and A0.7 golden datasets/quality gates are now represented by deterministic contracts and regression gates. No raw field is silently discarded and no weak/ambiguous mapping is silently promoted.
+A0.1-A0.7 are represented by deterministic contracts and regression gates. No raw field is silently discarded and no weak/ambiguous mapping is silently promoted.
 
 ## Phase A — Trusted Report Execution — FOUNDATION COMPLETE
-The durable SQL queue, tenant-scoped idempotency, worker leases/heartbeat/retry/dead-letter behavior, renderers, immutable evidence/delivery persistence, trusted worker adapter and artifact SHA-256 integrity verification are implemented and gated.
+Durable SQL queue, tenant-scoped idempotency, worker lease/heartbeat/retry/dead-letter, renderers, immutable evidence/delivery persistence, trusted worker adapter and artifact SHA-256 integrity verification are implemented and gated.
 
-## Phase B — Usage & Entitlements — FOUNDATION COMPLETE
-Tenant-scoped usage ledger, server-side entitlement policy, persistent plans/capabilities/subscriptions, provider-neutral lifecycle, cryptographic webhook boundary with replay protection, and idempotent usage RPCs are implemented and gated.
+## Phase B — Usage & Entitlements — DEEP FOUNDATION COMPLETE
+Tenant-scoped usage ledger, server-side entitlement policy, persistent plans/capabilities/subscriptions, provider-neutral lifecycle, cryptographic webhook boundary/replay protection and idempotent usage RPCs are implemented. Active plan/capability catalog reads are explicitly allowed while tenant billing data remains tenant-scoped and webhook events remain service-role-only.
 
 ## Phase C — Decision Automation — DEEP FOUNDATION COMPLETE
-1. Explainable action identity and evidence-bound automation.
-2. Explicit approval for external side effects by default.
-3. Tenant, decision fingerprint, evidence snapshot and idempotency carried through action execution.
-4. Trusted executor boundary.
-5. Retry/dead-letter semantics.
-6. Immutable execution receipt contract.
-7. Automation readiness tied to intelligence quality gates.
-
-Remaining C work: live action/provider connectors and persistence-backed runtime receipts.
+Evidence-bound action identity, approval-by-default for external side effects, tenant/decision/evidence/idempotency propagation, trusted executor boundary, retry/dead-letter semantics and immutable execution receipts are implemented. Execution receipts are now persisted tenant-scoped in the database.
 
 ## Phase D — Advanced Intelligence — DEEP FOUNDATION COMPLETE
-1. Deterministic forecast backtesting against baselines.
-2. MAE/RMSE/Bias/Coverage diagnostics.
-3. Forecast improvement gate.
-4. Tenant-scoped decision outcome feedback.
-5. Outcome accuracy/coverage/impact summary.
-6. Unified intelligence gate combining forecast quality and observed decision outcomes.
-7. Quality gate registered in authoritative CI.
+Deterministic forecast backtesting, baseline comparison, MAE/RMSE/Bias/Coverage diagnostics, forecast improvement gate, tenant-scoped outcome feedback, outcome quality summary and unified intelligence gate are implemented. Observed decision outcomes are now persisted and idempotent.
 
-Remaining D work: production feedback persistence, deterministic cache invalidation wiring, richer scenario sensitivity and offline acceleration benchmarks.
+## Phase E — Production SaaS Certification — DEEP FOUNDATION IN PROGRESS
+Implemented and gated:
+1. Canonical tenant resolver with fail-closed ambiguous membership behavior.
+2. Tenant RLS + WITH CHECK coverage for core execution/import/billing/outcome data.
+3. Anonymous access lockdown for sensitive production tables.
+4. Production SaaS certification gate scanning required security, AI, execution, billing and intelligence contracts.
+5. Authoritative Quality workflow now requires the SaaS certification gate before release-readiness progression.
+6. Production readiness verifies that the certification gate and all required workflow scripts are actually present.
 
-## Phase E — Production SaaS Certification — IN PROGRESS
-1. Cross-tenant negative tests for reads, writes, search, export, storage and retrieval.
-2. Storage/RLS policy audit.
-3. Realtime authorization audit.
-4. AI retrieval namespace audit.
-5. Backup/restore drill with recovery-point and recovery-time evidence.
-6. Observability, SLOs, error budgets and alert routing.
-7. Security and dependency review.
-8. Production release certification and rollback drill.
+Remaining live certification work:
+1. Cross-tenant adversarial runtime tests against a real Supabase environment.
+2. Storage object-policy verification and signed URL expiry tests.
+3. Realtime authorization tests.
+4. AI retrieval namespace isolation tests.
+5. Backup/restore drill with measured RPO/RTO evidence.
+6. Observability/SLO/error-budget runtime evidence.
+7. Dependency/security scan and secret-leak audit.
+8. Release/rollback drill.
+
+## Phase F — Operational Resilience & Continuous Trust — NEXT
+1. Automated tenant-isolation canary suite on every release candidate.
+2. Automated migration dry-run and schema drift detection.
+3. Backup freshness/restore verification with evidence snapshots.
+4. Queue health, stuck-worker and dead-letter alerting.
+5. Artifact delivery integrity monitoring.
+6. Forecast drift/outcome degradation monitoring and automatic intelligence-gate tightening.
+7. Billing webhook lag/replay/failure monitoring.
+8. SLO dashboards, error budgets and incident evidence ledger.
+9. Safe rollback and forward-fix playbooks.
+10. Periodic trust certification that expires unless all critical evidence remains fresh.
 
 ## Release blockers
 - Any cross-tenant read/write/search/export/retrieval.
@@ -71,5 +76,7 @@ Remaining D work: production feedback persistence, deterministic cache invalidat
 - Replenishment exceeding protected liquidity.
 - Forecast below deterministic baseline.
 - Observed outcome accuracy below configured safety threshold when enough feedback exists.
-- Production readiness blocker at release time.
+- Production SaaS certification blocker.
 - Rendered artifact integrity/hash verification failure.
+- Stale/failed backup verification.
+- Unresolved critical security finding.
