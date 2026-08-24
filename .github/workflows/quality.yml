@@ -51,7 +51,7 @@ jobs:
       - name: Lint and build
         run: npm run lint && npm run build
       - name: Intelligence and production contracts
-        run: npm run test:contracts && npm run test:selective-foundation && npm run test:consolidated-intelligence && npm run test:inventory-intelligence && npm run test:alternative-security && npm run test:alternative-schema && npm run test:decision-dashboard && npm run test:inventory-intelligence-ui && npm run test:demand-velocity && npm run test:batch-decision-engine && npm run test:safe-metrics && npm run test:production-scale
+        run: npm run test:contracts && npm run test:selective-foundation && npm run test:consolidated-intelligence && npm run test:inventory-intelligence && npm run test:alternative-security && npm run test:alternative-schema && npm run test:decision-dashboard && npm run test:inventory-intelligence-ui && npm run test:demand-velocity && npm run test:batch-decision && npm run test:safe-metrics && npm run test:production-scale
       - name: Analysis runtime contracts
         run: npm run test:analysis-cache-policy && npm run test:analysis-cache-coordinator && npm run test:analysis-invalidation && npm run test:concurrent-analysis && npm run test:bounded-concurrency && npm run test:analysis-batch-runner
       - name: Document intelligence contracts
