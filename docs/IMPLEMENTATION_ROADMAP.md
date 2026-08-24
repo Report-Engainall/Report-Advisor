@@ -33,6 +33,7 @@ Remaining live certification: real Supabase adversarial tenant tests, storage/si
 
 ## Phase F — Operational Resilience & Continuous Trust — DEEP FOUNDATION IN PROGRESS
 Implemented and gated: operational health evidence, backup/RPO/RTO evidence, SLO/error-budget evidence, incident ledger, expiring trust certification, migration-order checks and resilience manifest.
+Required operational controls: Automated tenant-isolation canary suite; Automated migration dry-run and schema drift detection; Backup freshness/restore verification; Queue health, stuck-worker and dead-letter alerting; Artifact delivery integrity monitoring; SLO dashboards, error budgets and incident evidence ledger; Periodic trust certification.
 Remaining live resilience: tenant canary execution, storage/realtime/AI canaries, backup automation, stuck-worker/dead-letter remediation, intelligence degradation monitoring, billing liveness monitoring, SLO alerting and rollback/forward-fix drills.
 
 ## Phase G — Release Engineering & Continuous Verification — DEEP FOUNDATION IN PROGRESS
