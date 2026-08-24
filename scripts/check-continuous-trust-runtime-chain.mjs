@@ -1,0 +1,13 @@
+import fs from 'node:fs';
+import path from 'node:path';
+const root=process.cwd();
+const files=['supabase/migrations/20260825090000_continuous_trust_autonomous_ops.sql','src/lib/production-intelligence.ts','src/lib/phase-kl-supabase-runtime.ts','scripts/check-continuous-trust-contract.mjs'];
+for(const f of files) if(!fs.existsSync(path.join(root,f))) throw new Error(`Missing trust runtime component: ${f}`);
+const sql=fs.readFileSync(path.join(root,files[0]),'utf8');
+const intelligence=fs.readFileSync(path.join(root,files[1]),'utf8');
+const runtime=fs.readFileSync(path.join(root,files[2]),'utf8');
+for(const t of ['is_continuous_trust_healthy','tenant_isolation_canaries','billing_liveness_checks','artifact_verifications','incident_regressions','intelligence_safety_adjustments']) if(!sql.includes(t)) throw new Error(`Trust persistence missing: ${t}`);
+for(const t of ['trustHealthy','criticalDrift','rollbackVerified','isolationVerified']) if(!intelligence.includes(t)) throw new Error(`Decision trust invariant missing: ${t}`);
+for(const t of ['is_continuous_trust_healthy','autonomy_runtime_gate']) if(!runtime.includes(t)) throw new Error(`Runtime trust link missing: ${t}`);
+if(/GRANT\s+ALL\s+TO\s+anon/i.test(sql)) throw new Error('Unsafe anonymous privilege detected');
+console.log('Continuous trust runtime chain: PASS');
