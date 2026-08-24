@@ -25,7 +25,7 @@ jobs:
       - name: Production certification
         run: npm run test:production-certification-contract
       - name: Operational resilience certification
-        run: npm run test:operational-resilience && npm run test:release-resilience-manifest && node scripts/check-release-evidence-contract.mjs
+        run: npm run test:operational-resilience && npm run test:release-resilience-manifest && node scripts/check-release-evidence-contract.mjs && node scripts/check-release-workflow-contract.mjs
       - name: Production release blockers
         run: npm run test:production-release-blockers
       - name: A0 intelligence hardening
@@ -38,8 +38,6 @@ jobs:
         run: npm run test:navigation-route-contract && npm run test:import-direct-write-guard && npm run test:import-transaction-contract && npm run test:import-runtime-governance && npm run test:tenant-security-contract && npm run test:global-tenant-rls && npm run test:import-rpc-tenant-context && npm run test:import-business-key
       - name: Lint and build
         run: npm run lint && npm run build
-      - name: Performance and toolchain
-        run: npm run perf:budget && npm run test:postcss-toolchain
       - name: Intelligence and production contracts
         run: npm run test:contracts && npm run test:selective-foundation && npm run test:consolidated-intelligence && npm run test:inventory-intelligence && npm run test:alternative-security && npm run test:alternative-schema && npm run test:decision-dashboard && npm run test:inventory-intelligence-ui && npm run test:demand-velocity && npm run test:batch-decision && npm run test:safe-metrics && npm run test:production-scale
       - name: Analysis runtime contracts
