@@ -23,19 +23,23 @@ export class SupabaseReportExecutionStore {
     return this.require(jobId);
   }
 
-  async saveCheckpoint(jobId: string, checkpoint: ReportExecutionCheckpoint): Promise<void> {
-    const { error } = await this.client.from('report_execution_jobs').update({ checkpoint, updated_at: new Date().toISOString() }).eq('id', jobId);
+  async saveCheckpoint(jobId: string, checkpoint: ReportExecutionCheckpoint, workerId?: string): Promise<void> {
+    if (!workerId) throw new Error('Checkpoint persistence requires the active worker lease owner');
+    const { data, error } = await this.client.rpc('advance_report_execution_checkpoint', { p_job_id: jobId, p_worker_id: workerId, p_checkpoint: checkpoint });
     if (error) throw error;
+    if (data !== true) throw new Error('Checkpoint rejected: lease is missing, expired, or no longer owns the job');
   }
 
-  async complete(jobId: string, evidence: Record<string, unknown> = {}): Promise<void> {
-    const { error } = await this.client.from('report_execution_jobs').update({ status: 'completed', evidence, completed_at: new Date().toISOString(), updated_at: new Date().toISOString(), lease_owner: null, lease_expires_at: null }).eq('id', jobId);
+  async complete(jobId: string, workerId: string, evidence: Record<string, unknown> = {}): Promise<void> {
+    const { data, error } = await this.client.rpc('complete_report_execution_job', { p_job_id: jobId, p_worker_id: workerId, p_evidence: evidence });
     if (error) throw error;
+    if (data !== true) throw new Error('Completion rejected: active worker lease is missing or expired');
   }
 
-  async fail(jobId: string, errorPayload: Record<string, unknown>): Promise<void> {
-    const { error } = await this.client.from('report_execution_jobs').update({ status: 'failed', last_error: errorPayload, updated_at: new Date().toISOString(), lease_owner: null, lease_expires_at: null }).eq('id', jobId);
+  async fail(jobId: string, workerId: string, errorPayload: Record<string, unknown>): Promise<void> {
+    const { data, error } = await this.client.rpc('fail_report_execution_job', { p_job_id: jobId, p_worker_id: workerId, p_error: errorPayload });
     if (error) throw error;
+    if (data !== true) throw new Error('Failure update rejected: active worker lease is missing');
   }
 
   async require(jobId: string): Promise<DurableExecutionJob> {
