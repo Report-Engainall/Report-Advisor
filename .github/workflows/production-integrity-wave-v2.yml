@@ -1,0 +1,41 @@
+name: production-integrity-wave-v2
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: production-integrity-wave-v2
+  cancel-in-progress: false
+jobs:
+  integrity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install
+        run: npm ci --no-audit --no-fund
+      - name: Verified regression guard
+        run: node scripts/check-known-ci-regressions.mjs
+      - name: Typecheck and build
+        run: npm run typecheck && npm run build
+      - name: Data and import truth
+        run: npm run test:file-engine-regressions && npm run test:business-key-regressions && npm run test:import-classifier-regressions && npm run test:import-transaction-contract && npm run test:import-runtime-governance && npm run test:import-business-key
+      - name: Runtime execution
+        run: node scripts/check-j-runtime-chain.mjs && node scripts/check-k-l-execution-evidence-chain.mjs && node scripts/check-resumability-deadletter-contract.mjs
+      - name: Trust and governance
+        run: node scripts/check-continuous-trust-runtime-chain.mjs && node scripts/check-governance-runtime-chain.mjs && node scripts/check-evidence-provenance-chain.mjs
+      - name: Release and autonomy
+        run: node scripts/check-release-evidence-completeness.mjs && node scripts/check-production-certification-chain.mjs && node scripts/check-autonomy-safety-chain.mjs
+      - name: Final security
+        run: node scripts/check-final-safety-invariants.mjs && node scripts/check-master-production-verification.mjs
+      - name: Scale and runtime suites
+        run: npm run test:production-scale && npm run test:phase-k-runtime && npm run test:phase-l-runtime && npm run test:phase-l-resumable-execution
