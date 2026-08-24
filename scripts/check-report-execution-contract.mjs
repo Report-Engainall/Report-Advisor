@@ -1,9 +1,16 @@
 import { readFileSync } from 'node:fs';
 
-for (const file of [
-  'src/lib/intelligence/unified-decision-chain.ts',
-  'src/lib/dataLineage.ts',
-]) readFileSync(file, 'utf8');
+const contract = readFileSync('src/lib/reportExecutionContract.ts', 'utf8');
+for (const token of [
+  'companyId',
+  'snapshotId',
+  'semanticDefinitionVersion',
+  'assertReportExecutionScope',
+  "status: 'queued'",
+  'correlationId',
+]) {
+  if (!contract.includes(token)) throw new Error(`Missing report execution contract invariant: ${token}`);
+}
 
 const roadmap = readFileSync('docs/IMPLEMENTATION_ROADMAP.md', 'utf8');
 for (const token of [
