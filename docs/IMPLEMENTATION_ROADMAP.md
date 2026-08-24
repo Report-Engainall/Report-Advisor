@@ -45,9 +45,9 @@ Remaining live release work: real staging DB dry-run/schema drift, canary rollba
 ## Phase H — Continuous Trust & Autonomous Operations — DEEP FOUNDATION IN PROGRESS
 Implemented and gated: tenant-isolation canary evidence, approval-bound remediation records, outcome-driven safety adjustment evidence, billing liveness/replay-safe probes, artifact SHA verification, incident-to-regression linkage, fail-closed continuous trust and Quality integration.
 
-Important hardening completed: the Continuous Trust contract now validates against the actual authoritative roadmap wording rather than stale labels, preventing false CI failures. fileciteturn1256file0
+Important hardening completed: the Continuous Trust contract is tied to explicit runtime obligations rather than stale phase labels.
 
-Remaining connected H work: runtime canary runner, safe remediation executor, dynamic threshold controller, billing replay canary, deployment-bound artifact verification, incident regression proposal generation, SLO rollback recommendation and evidence-only executive trust dashboard.
+Remaining connected H work: runtime canary runner against isolated tenants, safe remediation executor, dynamic intelligence threshold controller using measured outcome drift, billing webhook liveness/replay canary runner, signed artifact verification at deployment boundary, automatic incident-to-regression proposal generation, SLO rollback recommendation and evidence-only executive trust dashboard.
 
 ## Phase I — Autonomous Governance & Business Intelligence — DEEP FOUNDATION IN PROGRESS
 Implemented and gated:
@@ -64,17 +64,55 @@ Implemented and gated:
 
 Remaining I work: runtime anomaly correlation, graph population from real decision pipelines, outcome-driven override learning, dynamic quality scoring, bounded scenario computation, executive trust cockpit and automated governance re-certification.
 
-## Phase J — Autonomous Business Control Plane — NEXT LARGE STAGE
-1. Unified business-state snapshot across sales, demand, inventory, liquidity and operations.
-2. Constraint-aware optimization with protected liquidity and service-level bounds.
-3. Closed-loop recommendation evaluation against observed outcomes.
-4. Portfolio-level decision prioritization under risk budgets.
-5. Automated escalation and human-in-the-loop routing by materiality.
-6. Causal/evidence lineage for every executive KPI.
-7. What-if planning with bounded assumptions and rollback-safe recommendations.
-8. Business control-plane health and trust score.
-9. Automatic drift detection across data, policies, forecasts and outcomes.
-10. Production autonomy only for domains whose evidence, trust and risk budgets remain valid.
+## Phase J — Autonomous Business Control Plane — DEEP FOUNDATION STARTED
+Implemented now:
+1. Watched-folder report ingestion foundation using the browser File System Access API.
+2. Recursive folder scanning with configurable extensions, polling and bounded concurrency policy.
+3. SHA-256 content fingerprinting per report.
+4. Persistent IndexedDB file fingerprint store so monitoring survives page refreshes.
+5. Tenant-scoped server persistence for watched folders and file lineage.
+6. Incremental file detection: new / changed / unchanged.
+7. Incremental row reconciliation now detects changed, unchanged AND deleted rows.
+8. Canonical-text-first extraction orchestration with SHA-256 text provenance.
+9. Extraction failure no longer becomes a global pipeline stop: structured-source fallback is explicitly allowed and evidenced.
+10. Folder/file/canonical-text RLS and provenance persistence.
+
+Remaining J work:
+1. Connect watched-folder discoveries to the existing unified import job coordinator and resumable checkpoints.
+2. Persist per-file extraction checkpoints and canonical text artifacts into the existing evidence/delivery ledger.
+3. Add browser folder permission recovery and cross-session handle persistence UX.
+4. Add stable path/rename detection and tombstone handling.
+5. Add parse-once cache and report-version lineage so an appended/revised report processes only new/changed content.
+6. Add canonical ordering/layout normalization for tables, headings, totals and repeated headers before schema inference.
+7. Add extraction quality scoring and automatic fallback selection (PDF text layer → table extraction → OCR → structured parser) without stopping downstream analytics.
+8. Add multi-report chronological consolidation with deduplication and source precedence.
+9. Add unified business-state snapshot across sales, demand, inventory, liquidity and operations.
+10. Add constraint-aware optimization with protected liquidity and service-level bounds.
+11. Add closed-loop recommendation evaluation against observed outcomes.
+12. Add portfolio-level decision prioritization under risk budgets.
+13. Add materiality-based escalation and human-in-the-loop routing.
+14. Add causal/evidence lineage for every executive KPI.
+15. Add bounded what-if planning with rollback-safe recommendations.
+16. Add business control-plane health/trust score.
+17. Add automatic drift detection across data, policies, forecasts and outcomes.
+18. Enable production autonomy only for domains whose evidence, trust and risk budgets remain valid.
+
+## Cross-cutting requirements restored to the master plan
+- Automatic watched-folder synchronization: a user selects a local folder in the app; new reports are discovered automatically without repeated manual upload.
+- Revised reports are fingerprinted and only changed files/rows are processed; unchanged rows are skipped and deleted rows are explicitly reconciled.
+- First-stage text-first extraction/reconstruction is mandatory when technically possible because canonical text improves deterministic mapping, semantic analysis and evidence traceability.
+- Extraction is a quality layer, not a single point of failure: if extraction fails, the system records the failure and continues through the best safe structured-source path.
+- Canonical report reconstruction must preserve row/column meaning, repeated headers, page/table boundaries, totals, dates and source order before analytics.
+- Every source version must have source hash, extraction hash, processing version and evidence lineage.
+- No silent source loss; unsupported/failed fields become explicit warnings or quarantine evidence.
+- Offline-first/local processing remains the preferred path for large files and sensitive source data.
+- AI is advisory and evidence-bound; deterministic data engines remain authoritative for numeric truth.
+- Arabic/English digits, headers, units, currencies, dates and whitespace/presentation noise must normalize deterministically.
+- Product families and pack/weight variants must be inferred from normalized names/units where business-key evidence permits.
+- Demand horizon remains configurable; sample values such as 30 days are examples, never hard-coded business rules.
+- Alternative-item groups must be weighted by real substitution behavior, availability, price/margin and pack equivalence.
+- Inventory recommendations must protect liquidity and service-level constraints.
+- Reports, recommendations and decisions must preserve tenant isolation, provenance and idempotency.
 
 ## Release blockers
 - Any cross-tenant read/write/search/export/retrieval.
@@ -104,3 +142,6 @@ Remaining I work: runtime anomaly correlation, graph population from real decisi
 - Failed tenant-isolation, billing-liveness or artifact-verification canary.
 - Exhausted or invalid business-risk budget.
 - Missing decision lineage or insufficient evidence quality.
+- Watched-folder source version collision without explicit reconciliation.
+- Canonical-text provenance missing for successful extraction.
+- Extraction failure incorrectly suppressing all downstream analysis.
