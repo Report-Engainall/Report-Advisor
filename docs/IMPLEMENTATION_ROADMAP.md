@@ -60,3 +60,51 @@
 - AI retrieval without tenant namespace.
 - Trial expiry that destroys customer data.
 - Failed typecheck/build/lint.
+
+## Continuous product intelligence addendum
+These requirements are now part of the implementation sequence and must be traced to deterministic engines, UI, security, tests and evidence before being marked complete.
+
+### Phase D1 — Market dynamics and inventory velocity
+- Historical consumption by product/category/alternative group.
+- Stable, accelerating, seasonal, intermittent and semi-stagnant movement classification.
+- Velocity, acceleration and deviation from historical baselines.
+- Minimum-data gates for forecasting and high-impact purchase decisions.
+
+### Phase D2 — Stock continuity and lost-sales intelligence
+- Customer-to-product demand linkage where evidence exists.
+- Peak/trough detection.
+- Stockout recurrence, recovery and continuity metrics.
+- Evidence-based lost-sales exposure; uncertain cases remain explicitly uncertain.
+- Sellable-stock semantics separating physical, reserved, damaged and blocked inventory.
+
+### Phase D3 — Alternative-group decision layer
+- Explicit named alternative groups with auditable membership.
+- Validated unit/conversion factors where normalization is required.
+- DETAIL, GROUPED and HYBRID reporting modes.
+- Group-level requests, sellable stock, net sales, historical consumption, demand velocity, coverage, stockout exposure and reorder requirements.
+- Member-level drill-down retained as evidence for every group recommendation.
+
+### Phase D4 — Liquidity drivers
+- Identify products/groups with rapid recurring cash conversion.
+- Separate revenue, collections, receivables and cash.
+- Protect operating cash reserves.
+- Never substitute purchase totals for cost of sales or cash receipts.
+
+### Phase D5 — Unified operational decision chain
+`Historical Consumption → Demand Velocity → Customer Requests → Sellable Stock → Alternative Coverage → Stockout/Lost Sales → Forecast → Reorder Decision → Liquidity Impact`
+
+Every material recommendation requires Why, Source Metrics, Calculation, Snapshot/As-Of, Freshness, Confidence/Quality, Expected Impact and Action.
+
+### Phase D6 — Performance and freshness
+- Canonical query fingerprints.
+- Deterministic semantic caching.
+- Affected-cache invalidation after authoritative changes.
+- Freshness states: Fresh / Warning / Stale / Critical / Unknown.
+- Stale or unknown data cannot silently drive proactive decisions.
+- Heavy document/AI/forecasting work remains asynchronous and optional.
+
+## Additional authoritative references
+- `docs/MASTER_PRODUCT_REFERENCE.md` — authoritative product, requirements, architecture and inspiration registry.
+- `docs/MASTER_REQUIREMENTS_TRACEABILITY.md` — requirement-to-evidence traceability.
+- `docs/INTELLIGENCE_FORMULAS.md` — deterministic metric and formula contract.
+- `docs/external-projects-knowledge-base-addendum.md` — newly consolidated market-dynamics, stock-continuity, liquidity and alternative-group requirements.
