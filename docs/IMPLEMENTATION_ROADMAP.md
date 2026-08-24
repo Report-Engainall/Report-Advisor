@@ -18,8 +18,10 @@
 15. Demand-series utility layer for reusable deterministic velocity/peak/trend calculations.
 16. Alternative-group demand runtime contract and grouped inventory/demand decision calculations.
 17. Unified operational decision-chain engine connecting demand, requests, sellable stock, alternatives, stockout/lost-sales exposure, forecast confidence, freshness and protected operating liquidity.
-18. Report-execution contract gate: trusted worker, queue/claim, immutable evidence and delivery-result requirements are now regression-checked before execution work proceeds.
+18. Report-execution contract gate: trusted worker, queue/claim, immutable evidence and delivery-result requirements are regression-checked before execution work proceeds.
 19. Entitlement-boundary contract gate: expensive report/AI work must be protected by server-side usage/capability enforcement before billing integration is introduced.
+20. Trusted report-worker adapter contract: scoped leases, artifact integrity and delivery results are now explicit execution boundaries.
+21. Decision-automation execution contract: approval, tenant scope, idempotency keys and execution receipts are now explicit side-effect boundaries.
 
 ## Next implementation order
 ### Phase A — Report execution
@@ -28,7 +30,7 @@
 - Queue scheduled reports through `queue_report_run`.
 - Claim jobs with `claim_report_run` using a trusted server credential.
 - Persist immutable run evidence and delivery results.
-- Regression gate: `npm run test:report-execution-contract`.
+- Regression gates: `npm run test:report-execution-contract`, `npm run test:worker-automation-contracts`.
 
 ### Phase B — Usage/entitlements
 - Aggregate usage by billing period.
@@ -43,6 +45,8 @@
 - Require approval for external side effects by default.
 - Add idempotency keys and execution receipts.
 - Add retry/backoff/dead-letter handling.
+- Keep every action linked to the originating decision, tenant and evidence snapshot.
+- Regression gate: `npm run test:worker-automation-contracts`.
 
 ### Phase D — Advanced intelligence
 - Backtest forecasting models.
@@ -97,24 +101,3 @@ These requirements are now part of the implementation sequence and must be trace
 - Separate revenue, collections, receivables and cash.
 - Protect operating cash reserves.
 - Never substitute purchase totals for cost of sales or cash receipts.
-
-### Phase D5 — Unified operational decision chain
-`Historical Consumption → Demand Velocity → Customer Requests → Sellable Stock → Alternative Coverage → Stockout/Lost Sales → Forecast → Reorder Decision → Liquidity Impact`
-
-Every material recommendation requires Why, Source Metrics, Calculation, Snapshot/As-Of, Freshness, Confidence/Quality, Expected Impact and Action.
-
-The deterministic runtime contract now exists at `src/lib/intelligence/unified-decision-chain.ts`; its regression gate is `npm run test:unified-decision-chain`.
-
-### Phase D6 — Performance and freshness
-- Canonical query fingerprints.
-- Deterministic semantic caching.
-- Affected-cache invalidation after authoritative changes.
-- Freshness states: Fresh / Warning / Stale / Critical / Unknown.
-- Stale or unknown data cannot silently drive proactive decisions.
-- Heavy document/AI/forecasting work remains asynchronous and optional.
-
-## Additional authoritative references
-- `docs/MASTER_PRODUCT_REFERENCE.md` — authoritative product, requirements, architecture and inspiration registry.
-- `docs/MASTER_REQUIREMENTS_TRACEABILITY.md` — requirement-to-evidence traceability.
-- `docs/INTELLIGENCE_FORMULAS.md` — deterministic metric and formula contract.
-- `docs/external-projects-knowledge-base-addendum.md` — consolidated market-dynamics, stock-continuity, liquidity and alternative-group requirements.
