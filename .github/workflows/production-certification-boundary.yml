@@ -1,0 +1,37 @@
+name: production-certification-boundary
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+concurrency:
+  group: production-certification-boundary
+  cancel-in-progress: true
+jobs:
+  certify-boundary:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install
+        run: npm ci --no-audit --no-fund
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Certification boundary
+        run: node scripts/check-production-certification-boundary.mjs
+      - name: Evidence fail-closed
+        run: node scripts/check-production-evidence-failclosed.mjs
+      - name: Release blockers
+        run: npm run test:production-release-blockers
+      - name: Certification contract
+        run: npm run test:production-certification-contract
