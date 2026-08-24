@@ -29,6 +29,7 @@
 26. Forecast confidence gate: minimum observations, coverage, baseline comparison and bias checks now explicitly block weak forecasts from high-impact decisions.
 27. Unified operational decision score: demand pressure, velocity, stockout exposure, alternative availability, forecast confidence, liquidity safety, scenario safety and evidence freshness now combine into one auditable score and automation gate.
 28. Decision explainability/evidence layer: every scored decision can now carry structured evidence, freshness, confidence, blockers, rationale and a stable decision fingerprint before automation.
+29. Decision outcome calibration engine: actual-vs-predicted outcomes now produce accuracy, precision, recall and false-positive diagnostics with threshold recommendations; insufficient evidence is explicitly blocked from calibration changes.
 
 ## Next implementation order
 ### Phase A — Report execution
@@ -55,7 +56,7 @@
 - Add scenario/confidence gate before high-impact automation.
 - Use the unified decision score as a final pre-automation gate.
 - Require explainability evidence and a stable decision fingerprint before high-impact execution.
-- Regression gates: `npm run test:worker-automation-contracts`, `npm run test:automation-executor`, `npm run test:scenario-confidence-contracts`, `npm run test:decision-score-contract`, `npm run test:decision-explainability-contract`.
+- Regression gates: `npm run test:worker-automation-contracts`, `npm run test:automation-executor`, `npm run test:scenario-confidence-contracts`, `npm run test:decision-score-contract`, `npm run test:decision-explainability-contract`, `npm run test:decision-calibration-contract`.
 
 ### Phase D — Advanced intelligence
 - Backtest forecasting models.
@@ -66,7 +67,8 @@
 - Add semantic caching and local analytical acceleration where justified.
 - Add decision outcome learning and calibration from actual-vs-expected results.
 - Preserve decision fingerprints to connect outcomes back to the evidence and model state that produced them.
-- Regression gates: `npm run test:forecast-backtest`, `npm run test:scenario-confidence-contracts`, `npm run test:decision-score-contract`, `npm run test:decision-explainability-contract`.
+- Do not change production thresholds from calibration without sufficient outcome evidence and explicit policy review.
+- Regression gates: `npm run test:forecast-backtest`, `npm run test:scenario-confidence-contracts`, `npm run test:decision-score-contract`, `npm run test:decision-explainability-contract`, `npm run test:decision-calibration-contract`.
 
 ### Phase E — Production SaaS
 - Cross-tenant negative test suite.
@@ -88,33 +90,4 @@
 - Scenario showing protected-liquidity breach used for automatic purchase execution.
 - Unified decision score below the automation threshold used for automatic execution.
 - High-impact decision without structured evidence, confidence and stable fingerprint.
-- Failed typecheck/build/lint.
-
-## Continuous product intelligence addendum
-These requirements are now part of the implementation sequence and must be traced to deterministic engines, UI, security, tests and evidence before being marked complete.
-
-### Phase D1 — Market dynamics and inventory velocity
-- Historical consumption by product/category/alternative group.
-- Stable, accelerating, seasonal, intermittent and semi-stagnant movement classification.
-- Velocity, acceleration and deviation from historical baselines.
-- Minimum-data gates for forecasting and high-impact purchase decisions.
-
-### Phase D2 — Stock continuity and lost-sales intelligence
-- Customer-to-product demand linkage where evidence exists.
-- Peak/trough detection.
-- Stockout recurrence, recovery and continuity metrics.
-- Evidence-based lost-sales exposure; uncertain cases remain explicitly uncertain.
-- Sellable-stock semantics separating physical, reserved, damaged and blocked inventory.
-
-### Phase D3 — Alternative-group decision layer
-- Explicit named alternative groups with auditable membership.
-- Validated unit/conversion factors where normalization is required.
-- DETAIL, GROUPED and HYBRID reporting modes.
-- Group-level requests, sellable stock, net sales, historical consumption, demand velocity, coverage, stockout exposure and reorder requirements.
-- Member-level drill-down retained as evidence for every group recommendation.
-
-### Phase D4 — Liquidity drivers
-- Identify products/groups with rapid recurring cash conversion.
-- Separate revenue, collections, receivables and cash.
-- Protect operating cash reserves.
-- Never substitute purchase totals for cost of sales or cash receipts.
+- Automatic threshold changes without sufficient outcome evidence and explicit policy approval.
