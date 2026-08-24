@@ -58,7 +58,8 @@
     "test:report-worker-pipeline": "node scripts/check-report-worker-pipeline.mjs",
     "test:automation-executor": "node scripts/check-automation-executor.mjs",
     "test:forecast-backtest": "node scripts/check-forecast-backtest.mjs",
-    "test:scenario-confidence-contracts": "node scripts/check-scenario-confidence-contracts.mjs"
+    "test:scenario-confidence-contracts": "node scripts/check-scenario-confidence-contracts.mjs",
+    "test:decision-score-contract": "node scripts/check-decision-score-contract.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.57.4",
