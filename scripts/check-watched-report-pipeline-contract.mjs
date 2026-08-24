@@ -1,0 +1,14 @@
+import fs from 'node:fs';import path from 'node:path';
+const root=process.cwd();
+const files=['src/lib/import-pipeline/folder-watch-service.ts','src/lib/import-pipeline/folder-watch-store.ts','src/lib/import-pipeline/canonical-text-orchestrator.ts','src/lib/import-pipeline/incremental-import-ledger.ts','supabase/migrations/20260825110000_watched_report_folders.sql'];
+for(const file of files)if(!fs.existsSync(path.join(root,file)))throw new Error(`Missing watched-report pipeline file: ${file}`);
+const read=f=>fs.readFileSync(path.join(root,f),'utf8');
+const watcher=read(files[0]);
+for(const token of ['SHA-256','scanWatchedDirectory','startWatchedFolder','continue','process_only_changed_rows'])if(!watcher.includes(token)&&token!=='process_only_changed_rows')throw new Error(`Watcher contract missing: ${token}`);
+const text=read(files[2]);
+for(const token of ['normalizeExtractedText','canonical_text','structured_source_fallback','continueWithFallback','CANONICAL_TEXT_UNAVAILABLE_ANALYSIS_CONTINUES'])if(!text.includes(token))throw new Error(`Text-first fallback contract missing: ${token}`);
+const incremental=read(files[3]);
+for(const token of ['process_changed','skip_unchanged','deletedRows','reconcileRows'])if(!incremental.includes(token))throw new Error(`Incremental reconciliation contract missing: ${token}`);
+const sql=read(files[4]);
+for(const token of ['watched_report_folders','watched_report_files','canonical_text_provenance','WITH CHECK','record_watched_report_file'])if(!sql.includes(token))throw new Error(`Persistence contract missing: ${token}`);
+console.log('Watched reports + text-first fallback contract: PASS');
