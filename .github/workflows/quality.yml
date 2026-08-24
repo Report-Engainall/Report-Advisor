@@ -21,7 +21,9 @@ jobs:
       - name: Install
         run: npm ci --no-audit --no-fund
       - name: Core contracts
-        run: npm run test:quality-workflow-contract && npm run test:file-engine-contract && npm run test:file-engine-capability-contract && npm run test:schema-intelligence && npm run test:canonical-import-mapping && npm run test:onyx-adapter-contract
+        run: npm run test:quality-workflow-contract && npm run test:file-engine-contract && npm run test:file-engine-capability-contract && npm run test:schema-intelligence && npm run test:canonical-import-mapping && npm run test:onyx-adapter-contract && npm run test:report-execution-foundation
+      - name: Production release blockers
+        run: npm run test:production-release-blockers
       - name: A0 intelligence hardening
         run: node scripts/check-intelligence-hardening.mjs && node scripts/check-golden-intelligence-gates.mjs
       - name: Typecheck
