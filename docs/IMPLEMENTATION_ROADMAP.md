@@ -54,7 +54,7 @@ Implemented and gated:
 4. Incident evidence ledger with severity, lifecycle and root-cause fields.
 5. Expiring trust certification primitive that fails closed when expired, blocked or backed by blockers.
 6. Deterministic migration-order and resilience-manifest gate.
-7. Quality workflow now executes operational resilience and migration-drift contract gates.
+7. Quality workflow executes operational resilience and migration-drift gates.
 
 Remaining live resilience work:
 1. Real Supabase tenant-isolation canary execution.
@@ -68,17 +68,36 @@ Remaining live resilience work:
 9. Production SLO dashboards and incident alert routing.
 10. Automated rollback/forward-fix drill.
 
-## Phase G — Release Engineering & Continuous Verification — NEXT
-1. Reproducible release manifests with source SHA, migration SHA set and dependency lock fingerprint.
-2. Pre-release database dry-run and schema-drift detection.
-3. Canary deployment with automatic rollback on critical health regression.
-4. Signed artifact manifest and verification at delivery boundary.
-5. Environment parity checks for development/staging/production.
-6. Secret/configuration contract validation without exposing secret values.
-7. Release evidence bundle containing test gates, security evidence, backup evidence, SLO evidence and trust certificate.
-8. Continuous verification after deployment with defined stabilization window.
-9. Automatic release blocking when trust evidence becomes stale.
-10. Final production certification package and rollback evidence.
+## Phase G — Release Engineering & Continuous Verification — DEEP FOUNDATION IN PROGRESS
+Implemented and gated:
+1. Persisted reproducible release evidence manifest with source, migration, dependency and artifact fingerprints.
+2. Deployment verification evidence linked to a release manifest and tenant-scoped through the parent release record.
+3. Fail-closed release verification function requiring verified status, fresh trust evidence and no failed/blocked preflight/canary/stabilization verification.
+4. Hardening migration that extends the already-deployed release manifest without rewriting prior migrations.
+5. Release evidence contract validates both base and hardening migrations.
+6. Dedicated release-certification workflow for staging/production with locked dependencies, full preflight gates and immutable evidence artifact.
+7. Quality workflow validates release workflow integrity in addition to the application gates.
+
+Remaining live release work:
+1. Real staging database dry-run and schema drift evidence.
+2. Real canary deployment with automatic rollback.
+3. Environment parity verification.
+4. Secret/configuration validation in CI/CD without exposing values.
+5. Signed artifact verification at delivery boundary.
+6. Post-deployment stabilization telemetry and automatic blocking.
+7. Final production certification bundle and rollback evidence.
+
+## Phase H — Continuous Trust & Autonomous Operations — NEXT
+1. Automated tenant isolation canaries against isolated test tenants.
+2. Scheduled backup restore drills with evidence retention.
+3. Continuous queue/worker/dead-letter remediation with approval boundaries.
+4. Dynamic intelligence safety thresholds driven by measured outcome drift.
+5. Automated billing webhook replay/liveness probes.
+6. Continuous signed artifact verification.
+7. Trust certificate renewal only when fresh evidence satisfies all release blockers.
+8. Incident-to-regression automatic linkage.
+9. Release rollback recommendation based on SLO/error-budget and intelligence health.
+10. Executive trust dashboard backed only by evidence ledger data.
 
 ## Release blockers
 - Any cross-tenant read/write/search/export/retrieval.
@@ -104,3 +123,4 @@ Remaining live resilience work:
 - Unresolved critical security finding.
 - Expired or blocked trust certificate.
 - Migration drift or non-reproducible release manifest.
+- Failed release preflight/canary/stabilization verification.
