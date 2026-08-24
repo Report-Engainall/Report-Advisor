@@ -37,12 +37,7 @@ function buildColumnProfiles(rows: Record<string, any>[], columns: string[], map
   });
 }
 
-/**
- * Preserve every source column while also materializing high-confidence canonical
- * fields for governed import consumers. This is intentionally additive: an empty
- * source cell never overwrites an existing canonical value, and unmapped fields
- * remain available for quarantine/provenance instead of being silently dropped.
- */
+/** Preserve source columns while materializing high-confidence canonical fields for imports. */
 function materializeCanonicalFields(rows: Record<string, any>[], columns: ColumnProfile[]): Record<string, any>[] {
   const canonicalOwners = new Map<string, ColumnProfile>();
   for (const column of columns) {
@@ -51,7 +46,6 @@ function materializeCanonicalFields(rows: Record<string, any>[], columns: Column
     const previous = canonicalOwners.get(field);
     if (!previous || column.mappingConfidence > previous.mappingConfidence) canonicalOwners.set(field, column);
   }
-
   return rows.map(row => {
     const next: Record<string, any> = { ...row };
     for (const [field, column] of canonicalOwners) {
@@ -63,7 +57,7 @@ function materializeCanonicalFields(rows: Record<string, any>[], columns: Column
   });
 }
 
-async function buildDataset(rows: Record<string, any>[], name: string, source: string, sheet?: string): Promise<Dataset[]>[number] {
+async function buildDataset(rows: Record<string, any>[], name: string, source: string, sheet?: string): Promise<Dataset> {
   const normalized = normalizeRows(rows);
   if (!normalized.length) return { id: generateId(), name, source, sheet, rowCount: 0, columnCount: 0, columns: [], rows: [], preview: [], qualityScore: 0 };
   const columns = Object.keys(normalized[0]);
