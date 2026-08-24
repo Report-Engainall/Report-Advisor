@@ -19,6 +19,7 @@
     "test:canonical-import-mapping": "node scripts/check-canonical-import-mapping.mjs",
     "test:onyx-adapter-contract": "node scripts/check-onyx-adapter-contract.mjs",
     "test:report-execution-foundation": "node scripts/check-report-execution-foundation.mjs",
+    "test:production-release-blockers": "node scripts/check-production-release-blockers.mjs",
     "test:operational-file-pipeline": "node --experimental-strip-types scripts/check-operational-file-pipeline.mjs",
     "test:contracts": "node scripts/check-architecture-contract.mjs",
     "test:selective-foundation": "node scripts/check-selective-foundation-integrity.mjs",
@@ -63,7 +64,7 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.57.4",
-    "clsx": "^2.1.0",
+    "clsx": "^2.4.0",
     "date-fns": "^4.4.0",
     "lucide-react": "^0.446.0",
     "mammoth": "^1.12.0",
