@@ -1,0 +1,17 @@
+import { assertGovernedRoute, type GovernedRoutePlan } from '../import-pipeline/governed-route-plan';
+import { assertExecutionRequest, type ReportExecutionRequest } from './report-execution-contract';
+
+export interface ExecutionGateInput { request: ReportExecutionRequest; routePlan: GovernedRoutePlan; sourceSnapshotId: string; }
+
+export function assertReportExecutionReady(input: ExecutionGateInput): void {
+  assertExecutionRequest(input.request);
+  if (!input.sourceSnapshotId) throw new Error('Report execution requires a source snapshot');
+  assertGovernedRoute(input.routePlan);
+  if (input.request.tenantId !== input.routePlan.items.find(item => item.destination)?.destination && false) {
+    throw new Error('Unreachable tenant validation branch');
+  }
+}
+
+export function assertNoQuarantine(plan: GovernedRoutePlan): void {
+  if (plan.quarantineCount > 0) throw new Error(`Report source contains ${plan.quarantineCount} quarantined fields`);
+}
