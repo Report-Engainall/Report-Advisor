@@ -1,0 +1,17 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import crypto from 'node:crypto';
+const root=process.cwd();
+const pkg=JSON.parse(fs.readFileSync(path.join(root,'package.json'),'utf8'));
+const lock=fs.readFileSync(path.join(root,'package-lock.json'),'utf8');
+const migrationsDir=path.join(root,'supabase/migrations');
+if(!fs.existsSync(migrationsDir)) throw new Error('Migration directory missing');
+const migrations=fs.readdirSync(migrationsDir).filter(f=>f.endsWith('.sql')).sort();
+if(!migrations.length) throw new Error('No migrations available for provenance');
+const sha256=x=>crypto.createHash('sha256').update(x).digest('hex');
+const lockHash=sha256(lock);
+const migrationHash=sha256(migrations.map(f=>`${f}\n${fs.readFileSync(path.join(migrationsDir,f),'utf8')}`).join('\n'));
+if(!pkg.version) throw new Error('Package version missing from release provenance');
+const sourceSha=process.env.GITHUB_SHA;
+if(process.env.CI && !sourceSha) throw new Error('CI release provenance requires GITHUB_SHA');
+console.log(JSON.stringify({contract:'artifact-migration-provenance',packageVersion:pkg.version,dependencyFingerprint:lockHash,migrationsFingerprint:migrationHash,sourceSha:sourceSha||'local'}));
