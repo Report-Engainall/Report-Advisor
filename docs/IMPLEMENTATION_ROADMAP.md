@@ -29,135 +29,96 @@ Forecast backtesting, baseline comparison, MAE/RMSE/Bias/Coverage diagnostics, f
 
 ## Phase E — Production SaaS Certification — DEEP FOUNDATION IN PROGRESS
 Implemented and gated: canonical tenant resolution, fail-closed ambiguous membership, RLS/WITH CHECK coverage, anonymous lockdown, production certification, production readiness and release blockers.
-
 Remaining live certification: real Supabase adversarial tenant tests, storage/signed URL verification, realtime authorization, AI retrieval isolation, backup/restore drill, observability evidence, security/secret audit and rollback drill.
 
 ## Phase F — Operational Resilience & Continuous Trust — DEEP FOUNDATION IN PROGRESS
 Implemented and gated: operational health evidence, backup/RPO/RTO evidence, SLO/error-budget evidence, incident ledger, expiring trust certification, migration-order checks and resilience manifest.
-
 Remaining live resilience: tenant canary execution, storage/realtime/AI canaries, backup automation, stuck-worker/dead-letter remediation, intelligence degradation monitoring, billing liveness monitoring, SLO alerting and rollback/forward-fix drills.
 
 ## Phase G — Release Engineering & Continuous Verification — DEEP FOUNDATION IN PROGRESS
 Implemented and gated: reproducible release manifests, deployment verification evidence, fail-closed release verification, migration hardening, release evidence contract, release-certification workflow and Quality integration.
-
 Remaining live release work: real staging DB dry-run/schema drift, canary rollback, environment parity, secret/config validation, signed artifact verification, stabilization telemetry and final production certification bundle.
 
 ## Phase H — Continuous Trust & Autonomous Operations — DEEP FOUNDATION IN PROGRESS
 Implemented and gated: tenant-isolation canary evidence, approval-bound remediation records, outcome-driven safety adjustment evidence, billing liveness/replay-safe probes, artifact SHA verification, incident-to-regression linkage, fail-closed continuous trust and Quality integration.
-
-Important hardening completed: the Continuous Trust contract is tied to explicit runtime obligations rather than stale phase labels.
-
 Remaining connected H work: runtime canary runner against isolated tenants, safe remediation executor, dynamic intelligence threshold controller using measured outcome drift, billing webhook liveness/replay canary runner, signed artifact verification at deployment boundary, automatic incident-to-regression proposal generation, SLO rollback recommendation and evidence-only executive trust dashboard.
 
 ## Phase I — Autonomous Governance & Business Intelligence — DEEP FOUNDATION IN PROGRESS
-Implemented and gated:
-1. Versioned evidence-backed governance policies.
-2. Tenant-scoped BI decisions, KPI evidence and governance alerts.
-3. Fail-closed decision execution requiring continuous trust and minimum confidence.
-4. Business-risk budgets limiting automated decision consumption.
-5. Explainable decision graph nodes and edges.
-6. Multi-signal anomaly correlation evidence.
-7. Human override feedback evidence for audit-safe learning.
-8. Continuous data/model/evidence quality scores.
-9. Governed bounded scenario simulation records.
-10. Quality CI gate for the deep governance intelligence layer.
-
+Implemented and gated: versioned governance policies, tenant-scoped BI decisions/KPI evidence/governance alerts, fail-closed decision execution, business-risk budgets, explainable decision graph, anomaly correlation evidence, human override feedback, continuous quality scores, bounded scenario records and CI gate.
 Remaining I work: runtime anomaly correlation, graph population from real decision pipelines, outcome-driven override learning, dynamic quality scoring, bounded scenario computation, executive trust cockpit and automated governance re-certification.
 
 ## Phase J — Autonomous Business Control Plane — DEEP FOUNDATION IN PROGRESS
-Implemented now:
-1. Watched-folder report ingestion foundation using the browser File System Access API.
-2. Recursive folder scanning with configurable extensions, polling and bounded concurrency policy.
-3. SHA-256 content fingerprinting per report.
-4. Persistent IndexedDB file fingerprint store so monitoring survives page refreshes.
-5. Persistent local folder-handle storage for permission recovery across sessions.
-6. Tenant-scoped server persistence for watched folders and file lineage.
-7. Incremental file detection: new / changed / unchanged.
-8. Incremental row reconciliation now detects changed, unchanged AND deleted rows.
-9. Canonical-text-first extraction orchestration with SHA-256 text provenance.
-10. Extraction failure no longer becomes a global pipeline stop: structured-source fallback is explicitly allowed and evidenced.
-11. Recursive batch-folder processing is connected to the existing central import commit path.
-12. Automatic watched-folder UI mode is connected to scan/process cycles.
-13. Unified business-state snapshot schema across sales, demand, inventory, liquidity and operations.
-14. Constraint-aware optimization run schema with protected liquidity/service-level fields and fail-closed execution predicate.
-15. Recommendation outcome feedback schema.
-16. Executive KPI causal/evidence lineage schema.
-17. Control-plane drift event schema and critical-drift execution blocker.
-18. Business control-plane Quality gate is release-blocking.
-
-Remaining J work:
-1. Connect watched-folder discoveries to the existing durable import job coordinator and resumable checkpoints.
-2. Persist per-file extraction checkpoints and canonical text artifacts into the existing evidence/delivery ledger.
-3. Add stable path/rename detection and tombstone handling.
-4. Add parse-once cache and report-version lineage so an appended/revised report processes only new/changed content at row level across devices.
-5. Add canonical ordering/layout normalization for tables, headings, totals and repeated headers before schema inference.
-6. Add extraction quality scoring and automatic fallback selection (PDF text layer → table extraction → OCR → structured parser) without stopping downstream analytics.
-7. Add multi-report chronological consolidation with deduplication and source precedence.
-8. Populate business-state snapshots from real domain engines.
-9. Add constraint-aware optimizer computation and bounded what-if simulation.
-10. Add closed-loop recommendation evaluation against observed outcomes.
-11. Add portfolio-level decision prioritization under risk budgets.
-12. Add materiality-based escalation and human-in-the-loop routing.
-13. Add causal/evidence lineage population for every executive KPI.
-14. Add bounded what-if planning with rollback-safe recommendations.
-15. Add business control-plane health/trust score computation.
-16. Add automatic drift detection across data, policies, forecasts and outcomes.
-17. Enable production autonomy only for domains whose evidence, trust and risk budgets remain valid.
+Implemented: watched-folder ingestion foundation, recursive scan, bounded concurrency policy, SHA-256 fingerprinting, persistent IndexedDB fingerprints and folder handles, tenant-scoped folder/file lineage, incremental file and row reconciliation, canonical-text-first orchestration, isolated extraction fallback, central governed import routing, automatic watched-folder mode, unified business-state snapshots, constraint-aware optimization schema, outcome feedback schema, executive KPI lineage schema, drift schema and release-blocking control-plane gate.
 
 ## Phase J.1 — Watched Reports & Text-First Ingestion — MASTER REQUIREMENT LOCK
-This is now a permanent acceptance contract, not an optional feature:
-- User selects any supported local folder from the application.
-- The application continuously discovers new/changed reports placed into that folder and its configured subfolders.
-- Every source version is fingerprinted by content hash; unchanged files are skipped safely.
-- When a report is revised/appended, only changed/new rows and affected reconciliation state are processed whenever deterministic row keys permit; deleted rows are explicitly reconciled rather than ignored.
-- Before schema inference/semantic analysis, the system attempts canonical extraction and reconstruction: text is normalized into a stable order preserving headers, rows, columns, table/page boundaries, totals, dates and source provenance.
-- Canonical text artifacts receive source/text hashes and processing-version provenance.
-- Extraction quality is scored and the best deterministic route is selected: PDF text layer → table extraction → OCR → structured parser/fallback as supported by the source.
-- Extraction failure is isolated per source/file/stage. It MUST NOT stop the rest of the report's safe downstream operations. The failure, warnings and fallback route are recorded as evidence.
-- A failed extraction must never silently fabricate text; structured-source processing may continue only through a declared safe fallback.
-- Report versions, renames, tombstones, source precedence and chronological consolidation must remain traceable.
-- Watched-folder processing must converge into the same governed import/decision/evidence pipeline as manual uploads; no second business-truth path is allowed.
-- Large folders use bounded concurrency, resumable checkpoints, backpressure and dead-letter handling.
-- Offline-first/local processing remains preferred for large/sensitive reports; server persistence stores lineage/evidence, not an uncontrolled raw-file mirror.
+Permanent acceptance contract: local folder selection, continuous new/changed discovery, content fingerprinting, row-level incremental reconciliation, canonical text reconstruction, deterministic extraction route selection, isolated fallback, provenance, rename/tombstone traceability, unified governed pipeline, bounded concurrency, resumability, dead-letter handling, offline-first/local preference, and deterministic numeric truth.
 
-## Phase K — Production Intelligence & Autonomous Optimization — NEXT
-1. Connect the watched-folder coordinator to durable report execution jobs and resumable checkpoints.
-2. Build source-version/row-level lineage and parse-once cache.
-3. Build chronological multi-report consolidation with deterministic source precedence.
-4. Populate business snapshots from sales, inventory, demand, liquidity and operations engines.
-5. Execute bounded optimizer/scenario runs using protected risk budgets.
-6. Close the loop from recommendations to observed outcomes and automatically calibrate confidence/safety.
-7. Build portfolio prioritization and materiality escalation.
-8. Build executive causal/evidence cockpit.
-9. Add production autonomous governance certification.
-10. Finalize production autonomy and rollback drills.
+## Phase K — Production Intelligence & Autonomous Optimization — FOUNDATION IMPLEMENTED / RELEASE GATED
+Implemented in the repository:
+1. Durable watched-report execution jobs with lease/checkpoint/retry/dead-letter state.
+2. Source-version and row-level lineage primitives.
+3. Canonical text artifact persistence with extraction provenance and quality score.
+4. Deterministic chronological consolidation and source precedence.
+5. Bounded scenario selection with risk/liquidity/service-level constraints.
+6. Decision portfolio ranking and materiality escalation.
+7. Outcome-based confidence calibration.
+8. Domain autonomy controls, certification records and rollback drill records.
+9. Release-blocking Phase K contract and deterministic runtime regression tests.
 
-## Cross-cutting requirements restored to the master plan
-- Automatic watched-folder synchronization: a user selects a local folder in the app; new reports are discovered automatically without repeated manual upload.
-- Revised reports are fingerprinted and only changed files/rows are processed; unchanged rows are skipped and deleted rows are explicitly reconciled.
-- First-stage text-first extraction/reconstruction is mandatory when technically possible because canonical text improves deterministic mapping, semantic analysis and evidence traceability.
-- Extraction is a quality layer, not a single point of failure: if extraction fails, the system records the failure and continues through the best safe structured-source path.
-- Canonical report reconstruction must preserve row/column meaning, repeated headers, page/table boundaries, totals, dates and source order before analytics.
-- Every source version must have source hash, extraction hash, processing version and evidence lineage.
-- No silent source loss; unsupported/failed fields become explicit warnings or quarantine evidence.
-- Offline-first/local processing remains the preferred path for large files and sensitive source data.
-- AI is advisory and evidence-bound; deterministic data engines remain authoritative for numeric truth.
-- Arabic/English digits, headers, units, currencies, dates and whitespace/presentation noise must normalize deterministically.
-- Product families and pack/weight variants must be inferred from normalized names/units where business-key evidence permits.
-- Demand horizon remains configurable; sample values such as 30 days are examples, never hard-coded business rules.
-- Alternative-item groups must be weighted by real substitution behavior, availability, price/margin and pack equivalence.
-- Inventory recommendations must protect liquidity and service-level constraints.
-- Reports, recommendations and decisions must preserve tenant isolation, provenance and idempotency.
+## Phase L — Runtime Intelligence Cockpit — FOUNDATION IMPLEMENTED / RELEASE GATED
+Implemented:
+1. Control-plane health snapshots.
+2. Executive evidence graph persistence.
+3. Autonomy certification evidence by gate.
+4. Deterministic control-plane health computation.
+5. Phase-L autonomy predicate requiring Phase-K certification, health >= 0.90 and no high/critical open drift.
+6. Release-blocking Quality integration.
+
+Remaining connected K/L work:
+1. Bind durable jobs to the browser watched-folder coordinator in the live runtime.
+2. Persist extraction checkpoints/artifacts at every real execution boundary.
+3. Connect real domain-engine outputs into business-state snapshots continuously.
+4. Populate executive evidence graph automatically from live decisions/KPIs.
+5. Execute real bounded optimizer scenarios against production-like snapshots.
+6. Close recommendation → observed outcome feedback in the live executor.
+7. Connect portfolio/materiality routing to the executive UI and approval workflow.
+8. Connect drift/health scoring to live telemetry and canary evidence.
+9. Execute real rollback drills and promote only certified autonomy domains.
+
+## Phase M — Production Certification & Rollback Assurance — NOT YET LIVE CERTIFIED
+Required before production autonomy:
+1. Adversarial tenant isolation certification.
+2. Storage/signed URL/realtime/AI retrieval canaries.
+3. Backup/restore and RPO/RTO drills.
+4. Staging migration dry-run, schema drift and environment parity verification.
+5. Signed artifact/release evidence verification at deployment boundary.
+6. Stuck-worker/dead-letter recovery drills.
+7. Incident/SLO rollback and forward-fix drills.
+8. Security/secret audit and stabilization telemetry.
+9. Final production certification bundle.
+
+## Cross-cutting master requirements
+- Automatic watched-folder synchronization and incremental processing.
+- Canonical text first, safe deterministic fallback, no fabricated extraction.
+- Source/version/row lineage and provenance.
+- Offline-first/local processing preference for large/sensitive files.
+- AI advisory and evidence-bound; deterministic engines authoritative for numeric truth.
+- Arabic/English digits, headers, units, currencies, dates and whitespace normalize deterministically.
+- Product families and pack/weight variants inferred from normalized business evidence.
+- Demand horizon configurable; never hard-code illustrative horizons as business rules.
+- Alternative-item groups weighted by substitution behavior, availability, price/margin and pack equivalence.
+- Inventory decisions protect liquidity and service-level constraints.
+- Tenant isolation, provenance, idempotency and approval-by-default remain mandatory.
 
 ## Release blockers
 - Any cross-tenant read/write/search/export/retrieval.
 - Client-side-only paid-feature enforcement.
-- Unverified or non-idempotent billing webhooks.
-- Worker without explicit tenant context and lease.
+- Unverified/non-idempotent billing webhooks.
+- Worker without tenant context and lease.
 - AI retrieval without tenant namespace.
-- Trial expiry that destroys customer data.
+- Trial expiry destroying customer data.
 - Raw-file access from analytics/forecast/recommendation layers.
-- Dropped or silently ignored source fields.
+- Dropped/silently ignored source fields.
 - Failed typecheck/lint/build or required contract gate.
 - Critical field auto-approved without sufficient evidence.
 - Reconciliation mismatch silently committed.
@@ -171,12 +132,12 @@ This is now a permanent acceptance contract, not an optional feature:
 - Artifact integrity/hash verification failure.
 - Stale/failed backup verification.
 - Unresolved critical security finding.
-- Expired or blocked trust certificate.
+- Expired/blocked trust certificate.
 - Migration drift or non-reproducible release manifest.
 - Failed release preflight/canary/stabilization verification.
 - Failed tenant-isolation, billing-liveness or artifact-verification canary.
-- Exhausted or invalid business-risk budget.
+- Exhausted/invalid business-risk budget.
 - Missing decision lineage or insufficient evidence quality.
-- Watched-folder source version collision without explicit reconciliation.
+- Watched-folder source collision without explicit reconciliation.
 - Canonical-text provenance missing for successful extraction.
 - Extraction failure incorrectly suppressing all downstream analysis.
