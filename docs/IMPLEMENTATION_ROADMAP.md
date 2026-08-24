@@ -22,19 +22,19 @@ Durable SQL queue, tenant-scoped idempotency, worker lease/heartbeat/retry/dead-
 Tenant-scoped usage ledger, server-side entitlement policy, persistent plans/capabilities/subscriptions, provider-neutral lifecycle, cryptographic webhook boundary/replay protection and idempotent usage RPCs are implemented. Active plan/capability catalog reads are explicitly allowed while tenant billing data remains tenant-scoped and webhook events remain service-role-only.
 
 ## Phase C — Decision Automation — DEEP FOUNDATION COMPLETE
-Evidence-bound action identity, approval-by-default for external side effects, tenant/decision/evidence/idempotency propagation, trusted executor boundary, retry/dead-letter semantics and immutable execution receipts are implemented. Execution receipts are now persisted tenant-scoped in the database.
+Evidence-bound action identity, approval-by-default for external side effects, tenant/decision/evidence/idempotency propagation, trusted executor boundary, retry/dead-letter semantics and immutable execution receipts are implemented. Execution receipts are persisted tenant-scoped in the database.
 
 ## Phase D — Advanced Intelligence — DEEP FOUNDATION COMPLETE
-Deterministic forecast backtesting, baseline comparison, MAE/RMSE/Bias/Coverage diagnostics, forecast improvement gate, tenant-scoped outcome feedback, outcome quality summary and unified intelligence gate are implemented. Observed decision outcomes are now persisted and idempotent.
+Deterministic forecast backtesting, baseline comparison, MAE/RMSE/Bias/Coverage diagnostics, forecast improvement gate, tenant-scoped outcome feedback, outcome quality summary and unified intelligence gate are implemented. Observed decision outcomes are persisted and idempotent.
 
 ## Phase E — Production SaaS Certification — DEEP FOUNDATION IN PROGRESS
 Implemented and gated:
 1. Canonical tenant resolver with fail-closed ambiguous membership behavior.
 2. Tenant RLS + WITH CHECK coverage for core execution/import/billing/outcome data.
 3. Anonymous access lockdown for sensitive production tables.
-4. Production SaaS certification gate scanning required security, AI, execution, billing and intelligence contracts.
-5. Authoritative Quality workflow now requires the SaaS certification gate before release-readiness progression.
-6. Production readiness verifies that the certification gate and all required workflow scripts are actually present.
+4. Production SaaS certification gate scanning security, AI, execution, billing and intelligence contracts.
+5. Authoritative Quality workflow requires the SaaS certification gate before release-readiness progression.
+6. Production readiness verifies certification dependencies and workflow scripts.
 
 Remaining live certification work:
 1. Cross-tenant adversarial runtime tests against a real Supabase environment.
@@ -46,17 +46,39 @@ Remaining live certification work:
 7. Dependency/security scan and secret-leak audit.
 8. Release/rollback drill.
 
-## Phase F — Operational Resilience & Continuous Trust — NEXT
-1. Automated tenant-isolation canary suite on every release candidate.
-2. Automated migration dry-run and schema drift detection.
-3. Backup freshness/restore verification with evidence snapshots.
-4. Queue health, stuck-worker and dead-letter alerting.
-5. Artifact delivery integrity monitoring.
-6. Forecast drift/outcome degradation monitoring and automatic intelligence-gate tightening.
-7. Billing webhook lag/replay/failure monitoring.
-8. SLO dashboards, error budgets and incident evidence ledger.
-9. Safe rollback and forward-fix playbooks.
-10. Periodic trust certification that expires unless all critical evidence remains fresh.
+## Phase F — Operational Resilience & Continuous Trust — DEEP FOUNDATION IN PROGRESS
+Implemented and gated:
+1. Tenant-scoped operational health evidence.
+2. Tenant-scoped backup/restore verification evidence with RPO/RTO fields.
+3. Tenant-scoped SLO/error-budget evidence.
+4. Incident evidence ledger with severity, lifecycle and root-cause fields.
+5. Expiring trust certification primitive that fails closed when expired, blocked or backed by blockers.
+6. Deterministic migration-order and resilience-manifest gate.
+7. Quality workflow now executes operational resilience and migration-drift contract gates.
+
+Remaining live resilience work:
+1. Real Supabase tenant-isolation canary execution.
+2. Real storage/signed-URL expiry verification.
+3. Realtime authorization canary.
+4. AI retrieval namespace canary.
+5. Automated backup freshness and restore drill.
+6. Queue stuck-worker/dead-letter alert delivery.
+7. Forecast/outcome degradation monitoring with dynamic safety tightening.
+8. Billing webhook lag/replay monitoring.
+9. Production SLO dashboards and incident alert routing.
+10. Automated rollback/forward-fix drill.
+
+## Phase G — Release Engineering & Continuous Verification — NEXT
+1. Reproducible release manifests with source SHA, migration SHA set and dependency lock fingerprint.
+2. Pre-release database dry-run and schema-drift detection.
+3. Canary deployment with automatic rollback on critical health regression.
+4. Signed artifact manifest and verification at delivery boundary.
+5. Environment parity checks for development/staging/production.
+6. Secret/configuration contract validation without exposing secret values.
+7. Release evidence bundle containing test gates, security evidence, backup evidence, SLO evidence and trust certificate.
+8. Continuous verification after deployment with defined stabilization window.
+9. Automatic release blocking when trust evidence becomes stale.
+10. Final production certification package and rollback evidence.
 
 ## Release blockers
 - Any cross-tenant read/write/search/export/retrieval.
@@ -80,3 +102,5 @@ Remaining live certification work:
 - Rendered artifact integrity/hash verification failure.
 - Stale/failed backup verification.
 - Unresolved critical security finding.
+- Expired or blocked trust certificate.
+- Migration drift or non-reproducible release manifest.
