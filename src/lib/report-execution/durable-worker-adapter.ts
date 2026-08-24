@@ -13,59 +13,39 @@ export interface DurableExecutionJob {
   leaseExpiresAt: string | null;
 }
 
-/**
- * Persistent counterpart of InMemoryReportQueue. All writes are tenant-scoped and
- * the database remains authoritative after browser/worker restarts.
- */
 export class SupabaseReportExecutionStore {
   constructor(private readonly client: SupabaseClient) {}
 
   async claim(jobId: string, workerId: string, leaseSeconds = 300): Promise<DurableExecutionJob> {
-    const { data, error } = await this.client.rpc('claim_report_execution_job', {
-      p_job_id: jobId,
-      p_lease_owner: workerId,
-      p_lease_seconds: leaseSeconds,
-    });
+    const { data, error } = await this.client.rpc('claim_report_execution_job', { p_job_id: jobId, p_lease_owner: workerId, p_lease_seconds: leaseSeconds });
     if (error) throw error;
     if (data !== true) throw new Error('Report execution job could not be claimed');
     return this.require(jobId);
   }
 
   async saveCheckpoint(jobId: string, checkpoint: ReportExecutionCheckpoint): Promise<void> {
-    const { error } = await this.client
-      .from('report_execution_jobs')
-      .update({ checkpoint, updated_at: new Date().toISOString() })
-      .eq('id', jobId);
+    const { error } = await this.client.from('report_execution_jobs').update({ checkpoint, updated_at: new Date().toISOString() }).eq('id', jobId);
     if (error) throw error;
   }
 
   async complete(jobId: string, evidence: Record<string, unknown> = {}): Promise<void> {
-    const { error } = await this.client.from('report_execution_jobs').update({
-      status: 'completed', evidence, completed_at: new Date().toISOString(), updated_at: new Date().toISOString(),
-      lease_owner: null, lease_expires_at: null,
-    }).eq('id', jobId);
+    const { error } = await this.client.from('report_execution_jobs').update({ status: 'completed', evidence, completed_at: new Date().toISOString(), updated_at: new Date().toISOString(), lease_owner: null, lease_expires_at: null }).eq('id', jobId);
     if (error) throw error;
   }
 
   async fail(jobId: string, errorPayload: Record<string, unknown>): Promise<void> {
-    const { error } = await this.client.from('report_execution_jobs').update({
-      status: 'failed', last_error: errorPayload, updated_at: new Date().toISOString(),
-      lease_owner: null, lease_expires_at: null,
-    }).eq('id', jobId);
+    const { error } = await this.client.from('report_execution_jobs').update({ status: 'failed', last_error: errorPayload, updated_at: new Date().toISOString(), lease_owner: null, lease_expires_at: null }).eq('id', jobId);
     if (error) throw error;
   }
 
   async require(jobId: string): Promise<DurableExecutionJob> {
     const { data, error } = await this.client.from('report_execution_jobs').select('id,company_id,status,checkpoint,attempt,max_attempts,lease_owner,lease_expires_at').eq('id', jobId).single();
     if (error) throw error;
-    return {
-      id: data.id, tenantId: data.company_id, status: data.status, checkpoint: data.checkpoint,
-      attempt: data.attempt, maxAttempts: data.max_attempts, leaseOwner: data.lease_owner, leaseExpiresAt: data.lease_expires_at,
-    };
+    return { id: data.id, tenantId: data.company_id, status: data.status, checkpoint: data.checkpoint, attempt: data.attempt, maxAttempts: data.max_attempts, leaseOwner: data.lease_owner, leaseExpiresAt: data.lease_expires_at };
   }
 
   static requestIdentity(request: ReportExecutionRequest): string {
-    if (!request.tenantId || !request.idempotencyKey || !request.sourceSnapshotId) throw new Error('Durable execution requires tenant, idempotency and source snapshot');
-    return `${request.tenantId}:${request.idempotencyKey}:${request.sourceSnapshotId}`;
+    if (!request.tenantId || !request.idempotencyKey) throw new Error('Durable execution requires tenant and idempotency context');
+    return `${request.tenantId}:${request.idempotencyKey}:${request.sourceSnapshotId ?? 'latest'}`;
   }
 }
