@@ -1,0 +1,31 @@
+name: production-evidence-boundary
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+concurrency:
+  group: production-evidence-boundary
+  cancel-in-progress: true
+jobs:
+  boundary:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm run typecheck
+      - run: npm run build
+      - run: node scripts/check-live-production-evidence-boundary.mjs
+      - run: node scripts/check-production-evidence-failclosed.mjs
+      - run: node scripts/check-master-duplication-budget.mjs
+      - run: node scripts/check-production-release-blockers.mjs
+      - run: node scripts/check-production-certification-contract.mjs
