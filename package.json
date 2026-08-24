@@ -51,7 +51,9 @@
     "test:master-product-reference": "node scripts/check-master-product-reference.mjs",
     "test:master-execution-status": "node scripts/check-master-execution-status.mjs",
     "test:freshness-contract": "node scripts/check-freshness-contract.mjs",
-    "test:unified-decision-chain": "node scripts/check-unified-decision-chain.mjs"
+    "test:unified-decision-chain": "node scripts/check-unified-decision-chain.mjs",
+    "test:report-execution-contract": "node scripts/check-report-execution-contract.mjs",
+    "test:entitlement-boundary-contract": "node scripts/check-entitlement-boundary-contract.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.57.4",
