@@ -4,11 +4,13 @@ const files=['src/lib/import-pipeline/folder-watch-service.ts','src/lib/import-p
 for(const file of files)if(!fs.existsSync(path.join(root,file)))throw new Error(`Missing watched-report pipeline file: ${file}`);
 const read=f=>fs.readFileSync(path.join(root,f),'utf8');
 const watcher=read(files[0]);
-for(const token of ['SHA-256','scanWatchedDirectory','startWatchedFolder','continue','process_only_changed_rows'])if(!watcher.includes(token)&&token!=='process_only_changed_rows')throw new Error(`Watcher contract missing: ${token}`);
+for(const token of ['SHA-256','scanWatchedDirectory','startWatchedFolder','failedFiles'])if(!watcher.includes(token))throw new Error(`Watcher contract missing: ${token}`);
 const text=read(files[2]);
 for(const token of ['normalizeExtractedText','canonical_text','structured_source_fallback','continueWithFallback','CANONICAL_TEXT_UNAVAILABLE_ANALYSIS_CONTINUES'])if(!text.includes(token))throw new Error(`Text-first fallback contract missing: ${token}`);
 const incremental=read(files[3]);
 for(const token of ['process_changed','skip_unchanged','deletedRows','reconcileRows'])if(!incremental.includes(token))throw new Error(`Incremental reconciliation contract missing: ${token}`);
 const sql=read(files[4]);
 for(const token of ['watched_report_folders','watched_report_files','canonical_text_provenance','WITH CHECK','record_watched_report_file'])if(!sql.includes(token))throw new Error(`Persistence contract missing: ${token}`);
-console.log('Watched reports + text-first fallback contract: PASS');
+const roadmap=read(path.join(root,'docs/IMPLEMENTATION_ROADMAP.md'));
+for(const token of ['Automatic watched-folder synchronization','Revised reports are fingerprinted','First-stage text-first extraction/reconstruction','Extraction is a quality layer, not a single point of failure','Canonical report reconstruction must preserve','parse-once cache and report-version lineage'])if(!roadmap.includes(token))throw new Error(`Master requirement missing: ${token}`);
+console.log('Watched reports + text-first fallback + master-plan contract: PASS');
