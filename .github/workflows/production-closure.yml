@@ -1,18 +1,14 @@
 name: production-closure
 on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
   workflow_dispatch:
 permissions:
   contents: read
 concurrency:
-  group: production-closure-${{ github.ref }}-${{ github.event_name }}
+  group: production-closure-${{ github.ref }}
   cancel-in-progress: false
 jobs:
   closure:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     timeout-minutes: 20
     steps:
       - name: Checkout
