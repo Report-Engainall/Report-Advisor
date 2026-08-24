@@ -1,13 +1,9 @@
 name: quality
-# Authoritative CI gate: install -> typecheck -> lint -> build -> performance -> architecture -> intelligence -> security/import/tenant/report-truth/production-readiness governance.
 on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
+  push: {branches: [main]}
+  pull_request: {branches: [main]}
   workflow_dispatch:
-permissions:
-  contents: read
+permissions: {contents: read}
 concurrency:
   group: quality-${{ github.ref }}-${{ github.event_name }}-${{ github.run_id }}
   cancel-in-progress: false
@@ -15,126 +11,36 @@ jobs:
   verify:
     runs-on: ubuntu-latest
     timeout-minutes: 40
-    defaults:
-      run:
-        shell: bash
     steps:
-      - name: Checkout
-        uses: actions/checkout@v5
-        with:
-          fetch-depth: 1
-          persist-credentials: false
-      - name: Setup Node 22
-        uses: actions/setup-node@v5
-        with:
-          node-version: 22
-          cache: npm
-      - name: Environment diagnostics
-        run: |
-          set -euo pipefail
-          node --version
-          npm --version
-          test -f package-lock.json
-          test -f tsconfig.app.json
-          test -n "${GITHUB_SHA}"
-          test "$(git rev-parse HEAD)" = "${GITHUB_SHA}"
-      - name: Install locked dependencies
+      - uses: actions/checkout@v5
+        with: {fetch-depth: 1, persist-credentials: false}
+      - uses: actions/setup-node@v5
+        with: {node-version: 22, cache: npm}
+      - name: Diagnostics
+        run: node --version && npm --version && test -f package-lock.json && test "$(git rev-parse HEAD)" = "${GITHUB_SHA}"
+      - name: Install
         run: npm ci --no-audit --no-fund
-      - name: Quality workflow contract
-        run: npm run test:quality-workflow-contract
-      - name: File-engine architecture contract
-        run: npm run test:file-engine-contract
-      - name: File-engine capability contract
-        run: npm run test:file-engine-capability-contract
-      - name: Schema intelligence contract
-        run: npm run test:schema-intelligence
-      - name: Canonical import mapping regression
-        run: npm run test:canonical-import-mapping
-      - name: Onyx Pro adapter contract
-        run: npm run test:onyx-adapter-contract
+      - name: Core contracts
+        run: npm run test:quality-workflow-contract && npm run test:file-engine-contract && npm run test:file-engine-capability-contract && npm run test:schema-intelligence && npm run test:canonical-import-mapping && npm run test:onyx-adapter-contract
+      - name: A0 intelligence hardening
+        run: node scripts/check-intelligence-hardening.mjs && node scripts/check-golden-intelligence-gates.mjs
       - name: Typecheck
         run: npm run typecheck
-      - name: File-engine behavioral regressions
-        run: npm run test:file-engine-regressions
-      - name: Business-key regressions
-        run: npm run test:business-key-regressions
-      - name: Import-classifier regressions
-        run: npm run test:import-classifier-regressions
-      - name: Navigation route contract
-        run: npm run test:navigation-route-contract
-      - name: Import direct-write guard
-        run: npm run test:import-direct-write-guard
-      - name: Lint
-        run: npm run lint
-      - name: Build
-        run: npm run build
-      - name: Performance budget
-        run: npm run perf:budget
-      - name: PostCSS toolchain contract
-        run: npm run test:postcss-toolchain
-      - name: Architecture contracts
-        run: npm run test:contracts
-      - name: Selective foundation
-        run: npm run test:selective-foundation
-      - name: Consolidated intelligence
-        run: npm run test:consolidated-intelligence
-      - name: Inventory intelligence
-        run: npm run test:inventory-intelligence
-      - name: Alternative security
-        run: npm run test:alternative-security
-      - name: Alternative schema
-        run: npm run test:alternative-schema
-      - name: Decision dashboard
-        run: npm run test:decision-dashboard
-      - name: Inventory intelligence UI
-        run: npm run test:inventory-intelligence-ui
-      - name: Demand velocity
-        run: npm run test:demand-velocity
-      - name: Batch decision
-        run: npm run test:batch-decision
-      - name: Safe metrics
-        run: npm run test:safe-metrics
-      - name: Production scale
-        run: npm run test:production-scale
-      - name: Analysis cache policy
-        run: npm run test:analysis-cache-policy
-      - name: Analysis cache coordinator
-        run: npm run test:analysis-cache-coordinator
-      - name: Analysis invalidation
-        run: npm run test:analysis-invalidation
-      - name: Concurrent analysis
-        run: npm run test:concurrent-analysis
-      - name: Bounded concurrency
-        run: npm run test:bounded-concurrency
-      - name: Analysis batch runner
-        run: npm run test:analysis-batch-runner
-      - name: Document intelligence contract
-        run: npm run test:document-intelligence-contract
-      - name: Document intelligence semantic foundation
-        run: npm run test:document-intelligence-semantic-foundation
-      - name: Document intelligence hardening
-        run: npm run test:document-intelligence-hardening
-      - name: Document intelligence decision gate
-        run: npm run test:document-intelligence-decision-gate
-      - name: File intelligence security
-        run: npm run test:file-intelligence-security
-      - name: Operational file pipeline
-        run: npm run test:operational-file-pipeline
-      - name: Import transaction contract
-        run: npm run test:import-transaction-contract
-      - name: Import runtime governance
-        run: npm run test:import-runtime-governance
-      - name: Tenant security contract
-        run: npm run test:tenant-security-contract
-      - name: Global tenant RLS
-        run: npm run test:global-tenant-rls
-      - name: Import RPC tenant context
-        run: npm run test:import-rpc-tenant-context
-      - name: Import business key
-        run: npm run test:import-business-key
-      - name: Report truth contract
-        run: npm run test:report-truth
-      - name: Production readiness
-        run: npm run test:production-readiness
-      - name: Integrated document resilience regression gate
+      - name: Behavioral regressions
+        run: npm run test:file-engine-regressions && npm run test:business-key-regressions && npm run test:import-classifier-regressions
+      - name: Routing and security contracts
+        run: npm run test:navigation-route-contract && npm run test:import-direct-write-guard && npm run test:import-transaction-contract && npm run test:import-runtime-governance && npm run test:tenant-security-contract && npm run test:global-tenant-rls && npm run test:import-rpc-tenant-context && npm run test:import-business-key
+      - name: Lint and build
+        run: npm run lint && npm run build
+      - name: Performance and toolchain
+        run: npm run perf:budget && npm run test:postcss-toolchain
+      - name: Intelligence and production contracts
+        run: npm run test:contracts && npm run test:selective-foundation && npm run test:consolidated-intelligence && npm run test:inventory-intelligence && npm run test:alternative-security && npm run test:alternative-schema && npm run test:decision-dashboard && npm run test:inventory-intelligence-ui && npm run test:demand-velocity && npm run test:batch-decision && npm run test:safe-metrics && npm run test:production-scale
+      - name: Analysis runtime contracts
+        run: npm run test:analysis-cache-policy && npm run test:analysis-cache-coordinator && npm run test:analysis-invalidation && npm run test:concurrent-analysis && npm run test:bounded-concurrency && npm run test:analysis-batch-runner
+      - name: Document intelligence contracts
+        run: npm run test:document-intelligence-contract && npm run test:document-intelligence-semantic-foundation && npm run test:document-intelligence-hardening && npm run test:document-intelligence-decision-gate && npm run test:file-intelligence-security && npm run test:operational-file-pipeline
+      - name: Report truth and readiness
+        run: npm run test:report-truth && npm run test:production-readiness
+      - name: Full resilience gate
         run: npm run test:document-resilience
