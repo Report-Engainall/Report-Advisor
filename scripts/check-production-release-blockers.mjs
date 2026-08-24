@@ -4,6 +4,7 @@ const required = {
   'src/lib/report-execution/queue.ts': ['claim(', 'heartbeat(', 'maxAttempts', 'leaseExpiresAt'],
   'src/lib/report-execution/worker-adapter.ts': ['TrustedReportWorkerAdapter', 'sourceSnapshotId'],
   'src/lib/report-execution/renderers.ts': ['renderWeb', 'renderXlsx', 'renderPdf'],
+  'src/lib/report-execution/artifact-integrity.ts': ['verifyArtifactIntegrity', 'SHA-256', 'contentHash'],
   'src/lib/decision-automation/action-runtime.ts': ['requiresApproval', 'evidenceRefs', 'idempotencyKey'],
   'src/lib/analytics/forecast-backtest.ts': ['baselineMae', 'improvementVsBaselinePct'],
   'src/lib/entitlements/entitlementPolicy.ts': ['MISSING_TENANT', 'EXPIRED', 'QUOTA_EXCEEDED', 'CAPABILITY_DISABLED'],
