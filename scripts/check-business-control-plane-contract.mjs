@@ -1,0 +1,5 @@
+import fs from 'node:fs';import path from 'node:path';
+const root=process.cwd();const sql=fs.readFileSync(path.join(root,'supabase/migrations/20260825120000_business_control_plane.sql'),'utf8');
+const required=['business_state_snapshots','control_plane_optimization_runs','recommendation_outcomes','executive_kpi_lineage','control_plane_drift_events','can_execute_control_plane_run','is_continuous_trust_healthy','REVOKE ALL ON TABLE','WITH CHECK','liquidity_reserved','service_level_target'];const missing=required.filter(x=>!sql.includes(x));if(missing.length)throw new Error(`Business control plane blockers:\n${missing.join('\n')}`);
+const roadmap=fs.readFileSync(path.join(root,'docs/IMPLEMENTATION_ROADMAP.md'),'utf8');for(const item of ['Unified business-state snapshot','Constraint-aware optimization','Closed-loop recommendation evaluation','Causal/evidence lineage','Automatic drift detection'])if(!roadmap.includes(item))throw new Error(`Control-plane roadmap item missing: ${item}`);
+console.log('Business control plane contract: PASS');
