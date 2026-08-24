@@ -33,6 +33,9 @@
 30. Configurable demand horizon: request quantities are now normalized by an explicit source horizon and can be projected to any target horizon; the 30-day example is not a hard-coded business rule.
 31. Explicit pack/weight normalization: package configurations and net kilograms are now first-class analytical units, preventing unit-count comparisons from treating 20 kg and 40 kg packs as equivalent.
 32. Unified decision policy: score, explainability, calibration and high-impact approval requirements are now evaluated together before an automation outcome is allowed.
+33. Customer/SKU demand attribution: requested, fulfilled and unfulfilled demand is now attributable to customer+SKU with explicit quantities, kilograms and event recency.
+34. Group substitution aggregation: group-level demand, stock and effective substitute supply are now aggregated using explicit substitutability weights instead of blindly summing unlike SKUs.
+35. Liquidity-aware replenishment optimizer: net demand, reorder point, effective alternative supply, lead time, safety stock, purchase cost and protected liquidity now produce an explicit purchase plan with a hard liquidity block.
 
 ## Next implementation order
 ### Phase A — Report execution
@@ -61,7 +64,10 @@
 - Require explainability evidence and a stable decision fingerprint before high-impact execution.
 - Apply explicit pack/weight normalization before aggregating inventory, requests or lost-sales quantities.
 - Apply the unified decision policy after score/explainability/calibration and before executor dispatch.
-- Regression gates: `npm run test:worker-automation-contracts`, `npm run test:automation-executor`, `npm run test:scenario-confidence-contracts`, `npm run test:decision-score-contract`, `npm run test:decision-explainability-contract`, `npm run test:decision-calibration-contract`, `npm run test:demand-horizon-contract`, `npm run test:decision-policy-contract`.
+- Apply customer/SKU attribution before group-level aggregation so lost-sales is not detached from demand ownership.
+- Apply substitutability weights and normalized kilograms before group-level stock coverage calculations.
+- Route replenishment through the liquidity-aware optimizer before creating an approved purchase action.
+- Regression gates: `npm run test:worker-automation-contracts`, `npm run test:automation-executor`, `npm run test:scenario-confidence-contracts`, `npm run test:decision-score-contract`, `npm run test:decision-explainability-contract`, `npm run test:decision-calibration-contract`, `npm run test:demand-horizon-contract`, `npm run test:decision-policy-contract`, `npm run test:pack-normalization-contract`, `npm run test:demand-attribution-substitution-replenishment`.
 
 ### Phase D — Advanced intelligence
 - Backtest forecasting models.
@@ -75,8 +81,11 @@
 - Treat request horizon as runtime input; never assume 30 days unless explicitly selected by the user/report configuration.
 - Keep daily-rate normalization separate from business horizon selection so 7/14/30/60/90-day and custom horizons are comparable.
 - Normalize pack sizes into net weight before cross-SKU group comparisons.
+- Attribute demand to customer/SKU before deriving aggregate market demand and lost-sales exposure.
+- Use weighted substitution rather than treating every alternative as a 100% equivalent.
+- Feed liquidity-safe replenishment outputs into decision scoring and automation policy.
 - Do not change production thresholds from calibration without sufficient outcome evidence and explicit policy review.
-- Regression gates: `npm run test:forecast-backtest`, `npm run test:scenario-confidence-contracts`, `npm run test:decision-score-contract`, `npm run test:decision-explainability-contract`, `npm run test:decision-calibration-contract`, `npm run test:demand-horizon-contract`, `npm run test:decision-policy-contract`.
+- Regression gates: `npm run test:forecast-backtest`, `npm run test:scenario-confidence-contracts`, `npm run test:decision-score-contract`, `npm run test:decision-explainability-contract`, `npm run test:decision-calibration-contract`, `npm run test:demand-horizon-contract`, `npm run test:decision-policy-contract`, `npm run test:pack-normalization-contract`, `npm run test:demand-attribution-substitution-replenishment`.
 
 ### Phase E — Production SaaS
 - Cross-tenant negative test suite.
@@ -99,6 +108,6 @@
 - Unified decision score below the automation threshold used for automatic execution.
 - High-impact decision without structured evidence, confidence and stable fingerprint.
 - Automatic threshold changes without sufficient outcome evidence and explicit policy approval.
-- Missing or ambiguous demand horizon.
-- Cross-SKU aggregation that ignores package/net-weight differences.
-- High-impact automation dispatched without unified decision-policy approval.
+- Customer/SKU demand attribution missing for high-impact lost-sales decisions.
+- Group aggregation without explicit substitutability and normalized unit basis.
+- Replenishment plan exceeding protected liquidity.
