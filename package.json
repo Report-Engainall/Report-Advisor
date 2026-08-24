@@ -56,7 +56,8 @@
     "test:entitlement-boundary-contract": "node scripts/check-entitlement-boundary-contract.mjs",
     "test:worker-automation-contracts": "node scripts/check-worker-automation-contracts.mjs",
     "test:report-worker-pipeline": "node scripts/check-report-worker-pipeline.mjs",
-    "test:automation-executor": "node scripts/check-automation-executor.mjs"
+    "test:automation-executor": "node scripts/check-automation-executor.mjs",
+    "test:forecast-backtest": "node scripts/check-forecast-backtest.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.57.4",
