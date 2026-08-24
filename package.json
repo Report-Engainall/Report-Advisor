@@ -53,7 +53,8 @@
     "test:freshness-contract": "node scripts/check-freshness-contract.mjs",
     "test:unified-decision-chain": "node scripts/check-unified-decision-chain.mjs",
     "test:report-execution-contract": "node scripts/check-report-execution-contract.mjs",
-    "test:entitlement-boundary-contract": "node scripts/check-entitlement-boundary-contract.mjs"
+    "test:entitlement-boundary-contract": "node scripts/check-entitlement-boundary-contract.mjs",
+    "test:worker-automation-contracts": "node scripts/check-worker-automation-contracts.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.57.4",
@@ -72,7 +73,7 @@
   "devDependencies": {
     "@eslint/js": "^9.9.0",
     "@types/react": "^18.3.5",
-    "@types/react-dom": "^18.3.1",
+    "@types/react-dom": "^18.3.5",
     "@vitejs/plugin-react": "^4.3.1",
     "autoprefixer": "^10.4.18",
     "postcss": "^8.4.35",
