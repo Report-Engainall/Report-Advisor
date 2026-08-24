@@ -25,7 +25,7 @@ jobs:
       - name: Production certification
         run: npm run test:production-certification-contract
       - name: Operational resilience certification
-        run: node scripts/check-operational-resilience-contract.mjs
+        run: node scripts/check-operational-resilience-contract.mjs && node scripts/check-release-resilience-manifest.mjs
       - name: Production release blockers
         run: npm run test:production-release-blockers
       - name: A0 intelligence hardening
