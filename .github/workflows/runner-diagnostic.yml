@@ -10,15 +10,17 @@ concurrency:
   cancel-in-progress: false
 jobs:
   probe:
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
     steps:
       - name: Runner started
         run: |
+          set -euxo pipefail
           echo "runner=${RUNNER_NAME}"
           echo "os=${RUNNER_OS}"
-          node --version || true
-          npm --version || true
+          echo "arch=${RUNNER_ARCH}"
+          node --version
+          npm --version
       - name: Repository checkout
         uses: actions/checkout@v5
         with:
@@ -26,6 +28,8 @@ jobs:
           persist-credentials: false
       - name: Repository probe
         run: |
+          set -euxo pipefail
           test -f package.json
           test -f package-lock.json
+          node -e "const p=require('./package.json'); console.log('package='+p.name); console.log('scripts='+Object.keys(p.scripts||{}).length)"
           echo "runner diagnostic: PASS"
