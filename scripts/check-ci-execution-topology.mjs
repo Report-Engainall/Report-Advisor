@@ -1,0 +1,17 @@
+import fs from 'node:fs';
+import path from 'node:path';
+const root=process.cwd();
+const read=f=>fs.readFileSync(path.join(root,f),'utf8');
+const quality=read('.github/workflows/quality.yml');
+const jkl=read('.github/workflows/j-k-l-runtime-wave.yml');
+const autonomy=read('.github/workflows/autonomy-safety-wave.yml');
+const phaseF=read('.github/workflows/phase-f-live-resilience.yml');
+const requiredQualityGates=['test:phase-k-runtime','test:phase-l-runtime','test:phase-l-resumable-execution','test:phase-m-certification','test:k-to-s-closure','test:k-to-s-deep-closure','test:production-release-blockers','test:production-certification-contract'];
+for(const gate of requiredQualityGates) if(!quality.includes(gate)) throw new Error(`Canonical quality path missing: ${gate}`);
+if(!quality.includes('push: {branches: [main]}')) throw new Error('Quality must remain the canonical main push gate');
+for(const [name,text] of [['j-k-l-runtime-wave',jkl],['autonomy-safety-wave',autonomy],['phase-f-live-resilience',phaseF]]) if(text.includes('\n  push:')||text.includes('\npush:')) throw new Error(`${name} must not duplicate the canonical push gate`);
+const workflowDir=path.join(root,'.github/workflows');
+const names=fs.readdirSync(workflowDir).filter(f=>f.endsWith('.yml')||f.endsWith('.yaml'));
+const pushWorkflows=names.filter(f=>{const t=read(`.github/workflows/${f}`);return t.includes('\n  push:')||t.includes('\npush:');});
+if(pushWorkflows.length!==1||pushWorkflows[0]!=='quality.yml') throw new Error(`Expected exactly one canonical push workflow, found: ${pushWorkflows.join(', ')}`);
+console.log(JSON.stringify({contract:'ci-execution-topology',canonicalPushGate:'quality.yml',pushWorkflows,manualWaves:['j-k-l-runtime-wave.yml','autonomy-safety-wave.yml','phase-f-live-resilience.yml']}));
