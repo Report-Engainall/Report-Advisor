@@ -35,7 +35,7 @@ jobs:
       - name: Watched reports and text-first pipeline
         run: npm run test:import-folder-foundation && npm run test:watched-report-pipeline
       - name: Autonomous business control plane
-        run: npm run test:business-control-plane && npm run test:phase-k-production-intelligence && npm run test:phase-k-runtime && npm run test:phase-l-runtime && npm run test:phase-m-certification
+        run: npm run test:business-control-plane && npm run test:phase-k-production-intelligence && npm run test:phase-k-runtime && npm run test:phase-l-runtime && npm run test:phase-l-resumable-execution && npm run test:phase-m-certification
       - name: Production release blockers
         run: npm run test:production-release-blockers
       - name: A0 intelligence hardening
