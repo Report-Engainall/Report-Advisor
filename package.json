@@ -16,6 +16,7 @@
     "test:file-engine-contract": "node scripts/check-file-engine-contract.mjs",
     "test:file-engine-capability-contract": "node scripts/check-file-engine-capability-contract.mjs",
     "test:schema-intelligence": "node scripts/check-schema-intelligence.mjs",
+    "test:schema-entity-reconciliation": "node --experimental-strip-types scripts/check-schema-entity-reconciliation.ts",
     "test:canonical-import-mapping": "node scripts/check-canonical-import-mapping.mjs",
     "test:onyx-adapter-contract": "node scripts/check-onyx-adapter-contract.mjs",
     "test:report-execution-foundation": "node scripts/check-report-execution-foundation.mjs",
