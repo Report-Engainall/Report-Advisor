@@ -1,4 +1,3 @@
-import math
 import sys
 from pathlib import Path
 
@@ -30,7 +29,8 @@ def test_confidence_gate_is_fail_closed() -> None:
     assert confidence_gate(0.80) == "REVIEW"
     assert confidence_gate(0.80, critical=True) == "QUARANTINE"
     assert confidence_gate(float("nan")) == "QUARANTINE"
-    assert confidence_gate(float("inf")) == "APPROVE"  # finite validation is enforced by callers before persistence
+    assert confidence_gate(float("inf")) == "QUARANTINE"
+    assert confidence_gate(float("-inf")) == "QUARANTINE"
 
 
 def test_lifecycle_rejects_illegal_transition() -> None:
