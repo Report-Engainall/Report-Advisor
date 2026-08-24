@@ -25,13 +25,14 @@
 22. Trusted report-worker pipeline: claim/lease, render artifact, integrity verification, delivery evidence and immutable completion evidence are now composed as one deterministic pipeline.
 23. Automation executor: approved side effects now produce tenant-bound receipts with idempotent identity, retryable-error classification, exponential backoff and dead-letter threshold policy.
 24. Deterministic forecast backtesting: MAE, RMSE, bias and coverage metrics can now be compared against a baseline before a forecast is allowed to become a high-impact decision input.
+25. Scenario and sensitivity decision engine: demand, supply, cost, coverage, purchase cost, margin and protected liquidity can now be stress-tested before automation.
+26. Forecast confidence gate: minimum observations, coverage, baseline comparison and bias checks now explicitly block weak forecasts from high-impact decisions.
 
 ## Next implementation order
 ### Phase A — Report execution
-- Build trusted worker adapter.
-- Render saved semantic definitions to PDF/Excel/web outputs.
 - Queue scheduled reports through `queue_report_run`.
 - Claim jobs with `claim_report_run` using a trusted server credential.
+- Render saved semantic definitions to PDF/Excel/web outputs.
 - Persist immutable run evidence and delivery results.
 - Regression gates: `npm run test:report-execution-contract`, `npm run test:worker-automation-contracts`, `npm run test:report-worker-pipeline`.
 
@@ -49,15 +50,17 @@
 - Add idempotency keys and execution receipts.
 - Add retry/backoff/dead-letter handling.
 - Keep every action linked to the originating decision, tenant and evidence snapshot.
-- Regression gates: `npm run test:worker-automation-contracts`, `npm run test:automation-executor`.
+- Add scenario/confidence gate before high-impact automation.
+- Regression gates: `npm run test:worker-automation-contracts`, `npm run test:automation-executor`, `npm run test:scenario-confidence-contracts`.
 
 ### Phase D — Advanced intelligence
 - Backtest forecasting models.
 - Compare against deterministic baselines.
 - Add confidence/coverage/accuracy diagnostics.
 - Add scenario simulation and sensitivity analysis.
+- Connect group demand, stockout/lost-sales, liquidity and forecast confidence into one decision score.
 - Add semantic caching and local analytical acceleration where justified.
-- Regression gate: `npm run test:forecast-backtest`.
+- Regression gates: `npm run test:forecast-backtest`, `npm run test:scenario-confidence-contracts`.
 
 ### Phase E — Production SaaS
 - Cross-tenant negative test suite.
@@ -75,6 +78,8 @@
 - Worker that can process a report without explicit tenant context.
 - AI retrieval without tenant namespace.
 - Trial expiry that destroys customer data.
+- Forecast below confidence gate used for high-impact automation.
+- Scenario showing protected-liquidity breach used for automatic purchase execution.
 - Failed typecheck/build/lint.
 
 ## Continuous product intelligence addendum
