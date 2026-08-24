@@ -22,6 +22,9 @@
 19. Entitlement-boundary contract gate: expensive report/AI work must be protected by server-side usage/capability enforcement before billing integration is introduced.
 20. Trusted report-worker adapter contract: scoped leases, artifact integrity and delivery results are now explicit execution boundaries.
 21. Decision-automation execution contract: approval, tenant scope, idempotency keys and execution receipts are now explicit side-effect boundaries.
+22. Trusted report-worker pipeline: claim/lease, render artifact, integrity verification, delivery evidence and immutable completion evidence are now composed as one deterministic pipeline.
+23. Automation executor: approved side effects now produce tenant-bound receipts with idempotent identity, retryable-error classification, exponential backoff and dead-letter threshold policy.
+24. Deterministic forecast backtesting: MAE, RMSE, bias and coverage metrics can now be compared against a baseline before a forecast is allowed to become a high-impact decision input.
 
 ## Next implementation order
 ### Phase A — Report execution
@@ -30,7 +33,7 @@
 - Queue scheduled reports through `queue_report_run`.
 - Claim jobs with `claim_report_run` using a trusted server credential.
 - Persist immutable run evidence and delivery results.
-- Regression gates: `npm run test:report-execution-contract`, `npm run test:worker-automation-contracts`.
+- Regression gates: `npm run test:report-execution-contract`, `npm run test:worker-automation-contracts`, `npm run test:report-worker-pipeline`.
 
 ### Phase B — Usage/entitlements
 - Aggregate usage by billing period.
@@ -46,7 +49,7 @@
 - Add idempotency keys and execution receipts.
 - Add retry/backoff/dead-letter handling.
 - Keep every action linked to the originating decision, tenant and evidence snapshot.
-- Regression gate: `npm run test:worker-automation-contracts`.
+- Regression gates: `npm run test:worker-automation-contracts`, `npm run test:automation-executor`.
 
 ### Phase D — Advanced intelligence
 - Backtest forecasting models.
@@ -54,6 +57,7 @@
 - Add confidence/coverage/accuracy diagnostics.
 - Add scenario simulation and sensitivity analysis.
 - Add semantic caching and local analytical acceleration where justified.
+- Regression gate: `npm run test:forecast-backtest`.
 
 ### Phase E — Production SaaS
 - Cross-tenant negative test suite.
