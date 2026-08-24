@@ -10,6 +10,8 @@
     "preview": "vite preview",
     "typecheck": "tsc --noEmit -p tsconfig.app.json",
     "perf:budget": "node scripts/check-performance-budget.mjs",
+    "test:operational-resilience": "node scripts/check-operational-resilience-contract.mjs",
+    "test:release-resilience-manifest": "node scripts/check-release-resilience-manifest.mjs",
     "test:file-engine-regressions": "node --experimental-strip-types scripts/check-file-engine-regressions.ts",
     "test:business-key-regressions": "node scripts/check-business-key-regressions.mjs",
     "test:import-classifier-regressions": "node scripts/check-import-classifier-regressions.mjs",
