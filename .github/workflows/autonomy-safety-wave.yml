@@ -1,0 +1,33 @@
+name: autonomy-safety-wave
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+concurrency:
+  group: autonomy-safety-wave
+  cancel-in-progress: true
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm run typecheck
+      - name: Trust, governance, evidence and certification closure
+        run: |
+          node scripts/check-continuous-trust-runtime-chain.mjs
+          node scripts/check-governance-runtime-chain.mjs
+          node scripts/check-evidence-provenance-chain.mjs
+          node scripts/check-production-certification-chain.mjs
+          node scripts/check-autonomy-safety-chain.mjs
+          node scripts/check-final-safety-invariants.mjs
