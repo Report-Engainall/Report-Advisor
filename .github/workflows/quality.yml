@@ -50,6 +50,8 @@ jobs:
         run: npm run test:schema-intelligence
       - name: Canonical import mapping regression
         run: npm run test:canonical-import-mapping
+      - name: Onyx Pro adapter contract
+        run: npm run test:onyx-adapter-contract
       - name: Typecheck
         run: npm run typecheck
       - name: File-engine behavioral regressions
