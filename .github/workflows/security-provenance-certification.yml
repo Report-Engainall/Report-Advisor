@@ -1,0 +1,22 @@
+name: security-provenance-certification
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm run typecheck
+      - run: node scripts/check-security-provenance-certification.mjs
+      - run: node scripts/check-production-certification-boundary.mjs
+      - run: node scripts/check-production-evidence-failclosed.mjs
