@@ -37,7 +37,33 @@ function buildColumnProfiles(rows: Record<string, any>[], columns: string[], map
   });
 }
 
-async function buildDataset(rows: Record<string, any>[], name: string, source: string, sheet?: string): Promise<Dataset> {
+/**
+ * Preserve every source column while also materializing high-confidence canonical
+ * fields for governed import consumers. This is intentionally additive: an empty
+ * source cell never overwrites an existing canonical value, and unmapped fields
+ * remain available for quarantine/provenance instead of being silently dropped.
+ */
+function materializeCanonicalFields(rows: Record<string, any>[], columns: ColumnProfile[]): Record<string, any>[] {
+  const canonicalOwners = new Map<string, ColumnProfile>();
+  for (const column of columns) {
+    const field = column.mappedField;
+    if (!field || column.mappingConfidence < 80) continue;
+    const previous = canonicalOwners.get(field);
+    if (!previous || column.mappingConfidence > previous.mappingConfidence) canonicalOwners.set(field, column);
+  }
+
+  return rows.map(row => {
+    const next: Record<string, any> = { ...row };
+    for (const [field, column] of canonicalOwners) {
+      if (Object.prototype.hasOwnProperty.call(next, field) && next[field] !== '' && next[field] != null) continue;
+      const value = row[column.name];
+      if (value !== '' && value !== null && value !== undefined) next[field] = value;
+    }
+    return next;
+  });
+}
+
+async function buildDataset(rows: Record<string, any>[], name: string, source: string, sheet?: string): Promise<Dataset[]>[number] {
   const normalized = normalizeRows(rows);
   if (!normalized.length) return { id: generateId(), name, source, sheet, rowCount: 0, columnCount: 0, columns: [], rows: [], preview: [], qualityScore: 0 };
   const columns = Object.keys(normalized[0]);
@@ -49,8 +75,9 @@ async function buildDataset(rows: Record<string, any>[], name: string, source: s
     if (!col.mappedField) col.qualityIssues.push('لم يتم تعريف العمود');
   }
   const cleanedRows = normalized.map(row => Object.fromEntries(columnProfiles.map(col => [col.name, cleanValue(row[col.name], col.dataType)])));
+  const canonicalRows = materializeCanonicalFields(cleanedRows, columnProfiles);
   const qualityScore = columnProfiles.length ? Math.round(columnProfiles.reduce((s, c) => s + c.mappingConfidence, 0) / columnProfiles.length) : 0;
-  return { id: generateId(), name, source, sheet, rowCount: cleanedRows.length, columnCount: columns.length, columns: columnProfiles, rows: cleanedRows, preview: cleanedRows.slice(0, 50), qualityScore };
+  return { id: generateId(), name, source, sheet, rowCount: canonicalRows.length, columnCount: columns.length, columns: columnProfiles, rows: canonicalRows, preview: canonicalRows.slice(0, 50), qualityScore };
 }
 
 export async function parseSpreadsheet(buffer: ArrayBuffer, fileName: string, _format: FileFormat): Promise<Dataset[]> {
