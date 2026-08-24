@@ -1,0 +1,33 @@
+name: j-k-l-runtime-wave
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+concurrency:
+  group: j-k-l-runtime-wave
+  cancel-in-progress: true
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm run typecheck
+      - run: node scripts/check-j-runtime-chain.mjs
+      - run: node scripts/check-k-l-execution-evidence-chain.mjs
+      - run: node scripts/check-resumability-deadletter-contract.mjs
+      - run: node scripts/check-runtime-closure-integrity.mjs
+      - run: node scripts/check-autonomy-safety-chain.mjs
+      - run: npm run test:phase-k-runtime
+      - run: npm run test:phase-l-runtime
+      - run: npm run test:phase-l-resumable-execution
