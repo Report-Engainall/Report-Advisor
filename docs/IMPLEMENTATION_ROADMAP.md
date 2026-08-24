@@ -18,7 +18,7 @@
 15. Demand-series utility layer for reusable deterministic velocity/peak/trend calculations.
 16. Alternative-group demand runtime contract and grouped inventory/demand decision calculations.
 17. Unified operational decision-chain engine connecting demand, requests, sellable stock, alternatives, stockout/lost-sales exposure, forecast confidence, freshness and protected operating liquidity.
-18. Report-execution contract gate: trusted worker, queue/claim, immutable evidence and delivery-result requirements are regression-checked before execution work proceeds.
+18. Report-execution contract gate: trusted worker, queue/claim, immutable evidence and delivery-result requirements are now regression-checked before execution work proceeds.
 19. Entitlement-boundary contract gate: expensive report/AI work must be protected by server-side usage/capability enforcement before billing integration is introduced.
 20. Trusted report-worker adapter contract: scoped leases, artifact integrity and delivery results are now explicit execution boundaries.
 21. Decision-automation execution contract: approval, tenant scope, idempotency keys and execution receipts are now explicit side-effect boundaries.
@@ -28,6 +28,7 @@
 25. Scenario and sensitivity decision engine: demand, supply, cost, coverage, purchase cost, margin and protected liquidity can now be stress-tested before automation.
 26. Forecast confidence gate: minimum observations, coverage, baseline comparison and bias checks now explicitly block weak forecasts from high-impact decisions.
 27. Unified operational decision score: demand pressure, velocity, stockout exposure, alternative availability, forecast confidence, liquidity safety, scenario safety and evidence freshness now combine into one auditable score and automation gate.
+28. Decision explainability/evidence layer: every scored decision can now carry structured evidence, freshness, confidence, blockers, rationale and a stable decision fingerprint before automation.
 
 ## Next implementation order
 ### Phase A — Report execution
@@ -53,7 +54,8 @@
 - Keep every action linked to the originating decision, tenant and evidence snapshot.
 - Add scenario/confidence gate before high-impact automation.
 - Use the unified decision score as a final pre-automation gate.
-- Regression gates: `npm run test:worker-automation-contracts`, `npm run test:automation-executor`, `npm run test:scenario-confidence-contracts`, `npm run test:decision-score-contract`.
+- Require explainability evidence and a stable decision fingerprint before high-impact execution.
+- Regression gates: `npm run test:worker-automation-contracts`, `npm run test:automation-executor`, `npm run test:scenario-confidence-contracts`, `npm run test:decision-score-contract`, `npm run test:decision-explainability-contract`.
 
 ### Phase D — Advanced intelligence
 - Backtest forecasting models.
@@ -63,7 +65,8 @@
 - Connect group demand, stockout/lost-sales, liquidity and forecast confidence into one decision score.
 - Add semantic caching and local analytical acceleration where justified.
 - Add decision outcome learning and calibration from actual-vs-expected results.
-- Regression gates: `npm run test:forecast-backtest`, `npm run test:scenario-confidence-contracts`, `npm run test:decision-score-contract`.
+- Preserve decision fingerprints to connect outcomes back to the evidence and model state that produced them.
+- Regression gates: `npm run test:forecast-backtest`, `npm run test:scenario-confidence-contracts`, `npm run test:decision-score-contract`, `npm run test:decision-explainability-contract`.
 
 ### Phase E — Production SaaS
 - Cross-tenant negative test suite.
@@ -84,6 +87,7 @@
 - Forecast below confidence gate used for high-impact automation.
 - Scenario showing protected-liquidity breach used for automatic purchase execution.
 - Unified decision score below the automation threshold used for automatic execution.
+- High-impact decision without structured evidence, confidence and stable fingerprint.
 - Failed typecheck/build/lint.
 
 ## Continuous product intelligence addendum
