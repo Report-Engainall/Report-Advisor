@@ -1,0 +1,46 @@
+name: phase-e-live-certification
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: phase-e-live-certification
+  cancel-in-progress: false
+jobs:
+  certify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: Static SaaS certification contract
+        run: npm run test:production-saas-certification
+      - name: Live tenant/storage/AI probes
+        env:
+          CERT_TARGET_ENV: ${{ secrets.CERT_TARGET_ENV }}
+          CERT_SUPABASE_URL: ${{ secrets.CERT_SUPABASE_URL }}
+          CERT_SUPABASE_ANON_KEY: ${{ secrets.CERT_SUPABASE_ANON_KEY }}
+          CERT_TENANT_A_ID: ${{ secrets.CERT_TENANT_A_ID }}
+          CERT_TENANT_B_ID: ${{ secrets.CERT_TENANT_B_ID }}
+          CERT_USER_A_JWT: ${{ secrets.CERT_USER_A_JWT }}
+          CERT_USER_B_JWT: ${{ secrets.CERT_USER_B_JWT }}
+          CERT_STORAGE_BUCKET: ${{ secrets.CERT_STORAGE_BUCKET }}
+          CERT_STORAGE_OBJECT_A: ${{ secrets.CERT_STORAGE_OBJECT_A }}
+          CERT_STORAGE_OBJECT_B: ${{ secrets.CERT_STORAGE_OBJECT_B }}
+          CERT_AI_RETRIEVAL_ENDPOINT: ${{ secrets.CERT_AI_RETRIEVAL_ENDPOINT }}
+          CERT_ALLOW_PRODUCTION: ${{ secrets.CERT_ALLOW_PRODUCTION }}
+        run: node scripts/live-production-saas-certification.mjs
+      - name: Extended live probes
+        env:
+          CERT_REALTIME_HEALTH_URL: ${{ secrets.CERT_REALTIME_HEALTH_URL }}
+          CERT_BACKUP_DRILL_URL: ${{ secrets.CERT_BACKUP_DRILL_URL }}
+          CERT_OBSERVABILITY_HEALTH_URL: ${{ secrets.CERT_OBSERVABILITY_HEALTH_URL }}
+          CERT_ROLLBACK_DRILL_URL: ${{ secrets.CERT_ROLLBACK_DRILL_URL }}
+        run: node scripts/phase-e-extended-live-probes.mjs
