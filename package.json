@@ -50,7 +50,8 @@
     "test:product-experience": "node scripts/check-product-experience.mjs",
     "test:master-product-reference": "node scripts/check-master-product-reference.mjs",
     "test:master-execution-status": "node scripts/check-master-execution-status.mjs",
-    "test:freshness-contract": "node scripts/check-freshness-contract.mjs"
+    "test:freshness-contract": "node scripts/check-freshness-contract.mjs",
+    "test:unified-decision-chain": "node scripts/check-unified-decision-chain.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.57.4",
