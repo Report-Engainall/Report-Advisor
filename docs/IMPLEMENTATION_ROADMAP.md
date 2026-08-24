@@ -31,6 +31,8 @@
 28. Decision explainability/evidence layer: every scored decision can now carry structured evidence, freshness, confidence, blockers, rationale and a stable decision fingerprint before automation.
 29. Decision outcome calibration engine: actual-vs-predicted outcomes now produce accuracy, precision, recall and false-positive diagnostics with threshold recommendations; insufficient evidence is explicitly blocked from calibration changes.
 30. Configurable demand horizon: request quantities are now normalized by an explicit source horizon and can be projected to any target horizon; the 30-day example is not a hard-coded business rule.
+31. Explicit pack/weight normalization: package configurations and net kilograms are now first-class analytical units, preventing unit-count comparisons from treating 20 kg and 40 kg packs as equivalent.
+32. Unified decision policy: score, explainability, calibration and high-impact approval requirements are now evaluated together before an automation outcome is allowed.
 
 ## Next implementation order
 ### Phase A — Report execution
@@ -57,7 +59,9 @@
 - Add scenario/confidence gate before high-impact automation.
 - Use the unified decision score as a final pre-automation gate.
 - Require explainability evidence and a stable decision fingerprint before high-impact execution.
-- Regression gates: `npm run test:worker-automation-contracts`, `npm run test:automation-executor`, `npm run test:scenario-confidence-contracts`, `npm run test:decision-score-contract`, `npm run test:decision-explainability-contract`, `npm run test:decision-calibration-contract`, `npm run test:demand-horizon-contract`.
+- Apply explicit pack/weight normalization before aggregating inventory, requests or lost-sales quantities.
+- Apply the unified decision policy after score/explainability/calibration and before executor dispatch.
+- Regression gates: `npm run test:worker-automation-contracts`, `npm run test:automation-executor`, `npm run test:scenario-confidence-contracts`, `npm run test:decision-score-contract`, `npm run test:decision-explainability-contract`, `npm run test:decision-calibration-contract`, `npm run test:demand-horizon-contract`, `npm run test:decision-policy-contract`.
 
 ### Phase D — Advanced intelligence
 - Backtest forecasting models.
@@ -70,8 +74,9 @@
 - Preserve decision fingerprints to connect outcomes back to the evidence and model state that produced them.
 - Treat request horizon as runtime input; never assume 30 days unless explicitly selected by the user/report configuration.
 - Keep daily-rate normalization separate from business horizon selection so 7/14/30/60/90-day and custom horizons are comparable.
+- Normalize pack sizes into net weight before cross-SKU group comparisons.
 - Do not change production thresholds from calibration without sufficient outcome evidence and explicit policy review.
-- Regression gates: `npm run test:forecast-backtest`, `npm run test:scenario-confidence-contracts`, `npm run test:decision-score-contract`, `npm run test:decision-explainability-contract`, `npm run test:decision-calibration-contract`, `npm run test:demand-horizon-contract`.
+- Regression gates: `npm run test:forecast-backtest`, `npm run test:scenario-confidence-contracts`, `npm run test:decision-score-contract`, `npm run test:decision-explainability-contract`, `npm run test:decision-calibration-contract`, `npm run test:demand-horizon-contract`, `npm run test:decision-policy-contract`.
 
 ### Phase E — Production SaaS
 - Cross-tenant negative test suite.
@@ -94,5 +99,6 @@
 - Unified decision score below the automation threshold used for automatic execution.
 - High-impact decision without structured evidence, confidence and stable fingerprint.
 - Automatic threshold changes without sufficient outcome evidence and explicit policy approval.
-- Treating a sample 30-day demand table as a universal 30-day business rule.
-- Comparing raw request quantities from different horizons without normalization to a common rate or explicitly configured target horizon.
+- Missing or ambiguous demand horizon.
+- Cross-SKU aggregation that ignores package/net-weight differences.
+- High-impact automation dispatched without unified decision-policy approval.
