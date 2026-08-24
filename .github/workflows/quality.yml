@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
 permissions: {contents: read}
 concurrency:
-  group: quality-${{ github.ref }}-${{ github.event_name}}-${{ github.run_id }}
+  group: quality-${{ github.ref }}-${{ github.event_name }}-${{ github.run_id }}
   cancel-in-progress: false
 jobs:
   verify:
@@ -35,7 +35,7 @@ jobs:
       - name: Watched reports and text-first pipeline
         run: npm run test:import-folder-foundation && npm run test:watched-report-pipeline
       - name: Autonomous business control plane
-        run: npm run test:business-control-plane && npm run test:phase-k-production-intelligence
+        run: npm run test:business-control-plane && npm run test:phase-k-production-intelligence && npm run test:phase-k-runtime
       - name: Production release blockers
         run: npm run test:production-release-blockers
       - name: A0 intelligence hardening
