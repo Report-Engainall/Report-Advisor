@@ -16,16 +16,32 @@
 A0.1 engine contracts and raw-data safety, A0.2 structured intermediate model, A0.3 schema intelligence, A0.4 validation/entity/reconciliation/review-quarantine, A0.5 governed transactional routing, A0.6 Onyx extensibility, and A0.7 golden datasets/quality gates are now represented by deterministic contracts and regression gates. No raw field is silently discarded and no weak/ambiguous mapping is silently promoted.
 
 ## Phase A — Trusted Report Execution — FOUNDATION COMPLETE
-The durable SQL queue, tenant-scoped idempotency, worker leases/heartbeat/retry/dead-letter behavior, renderers, immutable evidence/delivery persistence, trusted worker adapter and artifact SHA-256 integrity verification are now implemented and gated. Remaining work is deployment-specific worker wiring and live storage/delivery integration, not a missing execution contract.
+The durable SQL queue, tenant-scoped idempotency, worker leases/heartbeat/retry/dead-letter behavior, renderers, immutable evidence/delivery persistence, trusted worker adapter and artifact SHA-256 integrity verification are implemented and gated.
 
 ## Phase B — Usage & Entitlements — FOUNDATION COMPLETE
-Tenant-scoped usage ledger, server-side entitlement policy, persistent plans/capabilities/subscriptions, provider-neutral subscription lifecycle, cryptographic webhook boundary with replay protection, and idempotent usage RPCs are implemented and added to the authoritative quality/release gates. Remaining work is provider-specific adapter wiring and operator UI, not the core safety model.
+Tenant-scoped usage ledger, server-side entitlement policy, persistent plans/capabilities/subscriptions, provider-neutral lifecycle, cryptographic webhook boundary with replay protection, and idempotent usage RPCs are implemented and gated.
 
-## Phase C — Decision Automation — FOUNDATION COMPLETE
-Explainable evidence-bound automation identity, explicit external-side-effect approval, trusted executor boundary, retry/dead-letter semantics and production/certification gating are implemented. Remaining work is live provider/action connectors and immutable runtime receipts.
+## Phase C — Decision Automation — DEEP FOUNDATION COMPLETE
+1. Explainable action identity and evidence-bound automation.
+2. Explicit approval for external side effects by default.
+3. Tenant, decision fingerprint, evidence snapshot and idempotency carried through action execution.
+4. Trusted executor boundary.
+5. Retry/dead-letter semantics.
+6. Immutable execution receipt contract.
+7. Automation readiness tied to intelligence quality gates.
 
-## Phase D — Advanced Intelligence — FOUNDATION COMPLETE
-Deterministic forecast backtesting, baseline comparison, confidence/coverage/bias diagnostics, forecast calibration and scenario/sensitivity primitives are implemented. Remaining work is outcome feedback loops, deterministic invalidation integration and offline acceleration benchmarking.
+Remaining C work: live action/provider connectors and persistence-backed runtime receipts.
+
+## Phase D — Advanced Intelligence — DEEP FOUNDATION COMPLETE
+1. Deterministic forecast backtesting against baselines.
+2. MAE/RMSE/Bias/Coverage diagnostics.
+3. Forecast improvement gate.
+4. Tenant-scoped decision outcome feedback.
+5. Outcome accuracy/coverage/impact summary.
+6. Unified intelligence gate combining forecast quality and observed decision outcomes.
+7. Quality gate registered in authoritative CI.
+
+Remaining D work: production feedback persistence, deterministic cache invalidation wiring, richer scenario sensitivity and offline acceleration benchmarks.
 
 ## Phase E — Production SaaS Certification — IN PROGRESS
 1. Cross-tenant negative tests for reads, writes, search, export, storage and retrieval.
@@ -53,5 +69,7 @@ Deterministic forecast backtesting, baseline comparison, confidence/coverage/bia
 - Transaction commit without explicit approval and READY status.
 - Automation executor bypassing the unified decision chain.
 - Replenishment exceeding protected liquidity.
+- Forecast below deterministic baseline.
+- Observed outcome accuracy below configured safety threshold when enough feedback exists.
 - Production readiness blocker at release time.
 - Rendered artifact integrity/hash verification failure.
