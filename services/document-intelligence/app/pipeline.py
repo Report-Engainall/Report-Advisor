@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import math
 from dataclasses import asdict, dataclass
 from typing import Any, Callable
 
@@ -82,7 +83,7 @@ def advance(document: DocumentEnvelope, target: ProcessingState) -> DocumentEnve
 
 
 def confidence_gate(score: float, *, critical: bool = False) -> str:
-    if not isinstance(score, (int, float)) or not float(score) == float(score):
+    if not isinstance(score, (int, float)) or not math.isfinite(float(score)):
         return "QUARANTINE"
     score = max(0.0, min(1.0, float(score)))
     if score >= 0.90:
