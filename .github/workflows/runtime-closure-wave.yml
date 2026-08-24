@@ -1,0 +1,38 @@
+name: runtime-closure-wave
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+concurrency:
+  group: runtime-closure-wave
+  cancel-in-progress: true
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Runtime and safety closure
+        run: |
+          node scripts/check-runtime-closure-integrity.mjs
+          node scripts/check-live-gate-manifest-integrity.mjs
+          node scripts/check-autonomy-safety-chain.mjs
+          node scripts/check-final-safety-invariants.mjs
+          node scripts/check-next-wave-closure.mjs
+          node --experimental-strip-types scripts/report-execution-checkpoint-hardening.test.ts
+          node scripts/check-k-to-s-closure.mjs
+          node scripts/check-phase-k-production-intelligence.mjs
+          node scripts/check-phase-l-runtime-contract.mjs
+          node scripts/check-phase-m-certification-contract.mjs
