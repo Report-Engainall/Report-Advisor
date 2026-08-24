@@ -18,6 +18,8 @@
 15. Demand-series utility layer for reusable deterministic velocity/peak/trend calculations.
 16. Alternative-group demand runtime contract and grouped inventory/demand decision calculations.
 17. Unified operational decision-chain engine connecting demand, requests, sellable stock, alternatives, stockout/lost-sales exposure, forecast confidence, freshness and protected operating liquidity.
+18. Report-execution contract gate: trusted worker, queue/claim, immutable evidence and delivery-result requirements are now regression-checked before execution work proceeds.
+19. Entitlement-boundary contract gate: expensive report/AI work must be protected by server-side usage/capability enforcement before billing integration is introduced.
 
 ## Next implementation order
 ### Phase A — Report execution
@@ -26,6 +28,7 @@
 - Queue scheduled reports through `queue_report_run`.
 - Claim jobs with `claim_report_run` using a trusted server credential.
 - Persist immutable run evidence and delivery results.
+- Regression gate: `npm run test:report-execution-contract`.
 
 ### Phase B — Usage/entitlements
 - Aggregate usage by billing period.
@@ -33,6 +36,7 @@
 - Add billing provider adapter.
 - Add invoices, subscription lifecycle and webhook verification.
 - Add plan/capability management UI for the platform operator.
+- Regression gate: `npm run test:entitlement-boundary-contract`.
 
 ### Phase C — Decision automation
 - Convert inventory/finance recommendations to explainable `automation_actions`.
