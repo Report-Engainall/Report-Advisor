@@ -1,0 +1,4 @@
+const DB='report-advisor-folder-handles';const STORE='handles';
+export async function saveFolderHandle(id:string,handle:FileSystemDirectoryHandle):Promise<void>{const db=await openDb();await new Promise<void>((resolve,reject)=>{const r=db.transaction(STORE,'readwrite').objectStore(STORE).put(handle,id);r.onsuccess=()=>resolve();r.onerror=()=>reject(r.error);});}
+export async function loadFolderHandle(id:string):Promise<FileSystemDirectoryHandle|undefined>{const db=await openDb();return new Promise((resolve,reject)=>{const r=db.transaction(STORE,'readonly').objectStore(STORE).get(id);r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error);});}
+async function openDb():Promise<IDBDatabase>{return new Promise((resolve,reject)=>{const r=indexedDB.open(DB,1);r.onupgradeneeded=()=>r.result.createObjectStore(STORE);r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error);});}
