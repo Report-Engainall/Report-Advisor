@@ -30,6 +30,7 @@
 27. Unified operational decision score: demand pressure, velocity, stockout exposure, alternative availability, forecast confidence, liquidity safety, scenario safety and evidence freshness now combine into one auditable score and automation gate.
 28. Decision explainability/evidence layer: every scored decision can now carry structured evidence, freshness, confidence, blockers, rationale and a stable decision fingerprint before automation.
 29. Decision outcome calibration engine: actual-vs-predicted outcomes now produce accuracy, precision, recall and false-positive diagnostics with threshold recommendations; insufficient evidence is explicitly blocked from calibration changes.
+30. Configurable demand horizon: request quantities are now normalized by an explicit source horizon and can be projected to any target horizon; the 30-day example is not a hard-coded business rule.
 
 ## Next implementation order
 ### Phase A — Report execution
@@ -56,7 +57,7 @@
 - Add scenario/confidence gate before high-impact automation.
 - Use the unified decision score as a final pre-automation gate.
 - Require explainability evidence and a stable decision fingerprint before high-impact execution.
-- Regression gates: `npm run test:worker-automation-contracts`, `npm run test:automation-executor`, `npm run test:scenario-confidence-contracts`, `npm run test:decision-score-contract`, `npm run test:decision-explainability-contract`, `npm run test:decision-calibration-contract`.
+- Regression gates: `npm run test:worker-automation-contracts`, `npm run test:automation-executor`, `npm run test:scenario-confidence-contracts`, `npm run test:decision-score-contract`, `npm run test:decision-explainability-contract`, `npm run test:decision-calibration-contract`, `npm run test:demand-horizon-contract`.
 
 ### Phase D — Advanced intelligence
 - Backtest forecasting models.
@@ -67,8 +68,10 @@
 - Add semantic caching and local analytical acceleration where justified.
 - Add decision outcome learning and calibration from actual-vs-expected results.
 - Preserve decision fingerprints to connect outcomes back to the evidence and model state that produced them.
+- Treat request horizon as runtime input; never assume 30 days unless explicitly selected by the user/report configuration.
+- Keep daily-rate normalization separate from business horizon selection so 7/14/30/60/90-day and custom horizons are comparable.
 - Do not change production thresholds from calibration without sufficient outcome evidence and explicit policy review.
-- Regression gates: `npm run test:forecast-backtest`, `npm run test:scenario-confidence-contracts`, `npm run test:decision-score-contract`, `npm run test:decision-explainability-contract`, `npm run test:decision-calibration-contract`.
+- Regression gates: `npm run test:forecast-backtest`, `npm run test:scenario-confidence-contracts`, `npm run test:decision-score-contract`, `npm run test:decision-explainability-contract`, `npm run test:decision-calibration-contract`, `npm run test:demand-horizon-contract`.
 
 ### Phase E — Production SaaS
 - Cross-tenant negative test suite.
@@ -91,3 +94,5 @@
 - Unified decision score below the automation threshold used for automatic execution.
 - High-impact decision without structured evidence, confidence and stable fingerprint.
 - Automatic threshold changes without sufficient outcome evidence and explicit policy approval.
+- Treating a sample 30-day demand table as a universal 30-day business rule.
+- Comparing raw request quantities from different horizons without normalization to a common rate or explicitly configured target horizon.
