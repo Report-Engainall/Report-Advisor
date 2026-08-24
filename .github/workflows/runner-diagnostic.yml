@@ -1,0 +1,31 @@
+name: runner-diagnostic
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: runner-diagnostic
+  cancel-in-progress: false
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Runner started
+        run: |
+          echo "runner=${RUNNER_NAME}"
+          echo "os=${RUNNER_OS}"
+          node --version || true
+          npm --version || true
+      - name: Repository checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Repository probe
+        run: |
+          test -f package.json
+          test -f package-lock.json
+          echo "runner diagnostic: PASS"
