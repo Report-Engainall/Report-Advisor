@@ -22,6 +22,8 @@ jobs:
       - run: npm ci --no-audit --no-fund
       - name: Static SaaS certification contract
         run: npm run test:production-saas-certification
+      - name: Source secret audit
+        run: node scripts/phase-e-security-secret-audit.mjs
       - name: Live tenant/storage/AI probes
         env:
           CERT_TARGET_ENV: ${{ secrets.CERT_TARGET_ENV }}
