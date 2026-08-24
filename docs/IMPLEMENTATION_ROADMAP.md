@@ -27,6 +27,7 @@
 24. Deterministic forecast backtesting: MAE, RMSE, bias and coverage metrics can now be compared against a baseline before a forecast is allowed to become a high-impact decision input.
 25. Scenario and sensitivity decision engine: demand, supply, cost, coverage, purchase cost, margin and protected liquidity can now be stress-tested before automation.
 26. Forecast confidence gate: minimum observations, coverage, baseline comparison and bias checks now explicitly block weak forecasts from high-impact decisions.
+27. Unified operational decision score: demand pressure, velocity, stockout exposure, alternative availability, forecast confidence, liquidity safety, scenario safety and evidence freshness now combine into one auditable score and automation gate.
 
 ## Next implementation order
 ### Phase A — Report execution
@@ -51,7 +52,8 @@
 - Add retry/backoff/dead-letter handling.
 - Keep every action linked to the originating decision, tenant and evidence snapshot.
 - Add scenario/confidence gate before high-impact automation.
-- Regression gates: `npm run test:worker-automation-contracts`, `npm run test:automation-executor`, `npm run test:scenario-confidence-contracts`.
+- Use the unified decision score as a final pre-automation gate.
+- Regression gates: `npm run test:worker-automation-contracts`, `npm run test:automation-executor`, `npm run test:scenario-confidence-contracts`, `npm run test:decision-score-contract`.
 
 ### Phase D — Advanced intelligence
 - Backtest forecasting models.
@@ -60,7 +62,8 @@
 - Add scenario simulation and sensitivity analysis.
 - Connect group demand, stockout/lost-sales, liquidity and forecast confidence into one decision score.
 - Add semantic caching and local analytical acceleration where justified.
-- Regression gates: `npm run test:forecast-backtest`, `npm run test:scenario-confidence-contracts`.
+- Add decision outcome learning and calibration from actual-vs-expected results.
+- Regression gates: `npm run test:forecast-backtest`, `npm run test:scenario-confidence-contracts`, `npm run test:decision-score-contract`.
 
 ### Phase E — Production SaaS
 - Cross-tenant negative test suite.
@@ -80,6 +83,7 @@
 - Trial expiry that destroys customer data.
 - Forecast below confidence gate used for high-impact automation.
 - Scenario showing protected-liquidity breach used for automatic purchase execution.
+- Unified decision score below the automation threshold used for automatic execution.
 - Failed typecheck/build/lint.
 
 ## Continuous product intelligence addendum
