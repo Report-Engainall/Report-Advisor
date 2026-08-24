@@ -1,8 +1,6 @@
 name: runtime-closure-wave
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
 permissions:
   contents: read
 concurrency:
@@ -10,7 +8,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   verify:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v5
