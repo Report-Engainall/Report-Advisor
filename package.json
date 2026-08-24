@@ -17,6 +17,7 @@
     "test:file-engine-capability-contract": "node scripts/check-file-engine-capability-contract.mjs",
     "test:schema-intelligence": "node scripts/check-schema-intelligence.mjs",
     "test:canonical-import-mapping": "node scripts/check-canonical-import-mapping.mjs",
+    "test:onyx-adapter-contract": "node scripts/check-onyx-adapter-contract.mjs",
     "test:operational-file-pipeline": "node --experimental-strip-types scripts/check-operational-file-pipeline.mjs",
     "test:contracts": "node scripts/check-architecture-contract.mjs",
     "test:selective-foundation": "node scripts/check-selective-foundation-integrity.mjs",
