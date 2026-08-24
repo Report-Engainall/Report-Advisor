@@ -1,128 +1,78 @@
 # Report-Advisor implementation sequence
 
-## Completed in current foundation branch
-1. Tenant isolation primitives and RLS.
-2. Membership privilege hardening.
-3. Trial/entitlement model with direct client mutation locked.
-4. Inventory liquidity/velocity engine.
-5. Demand/reorder/stockout calculations.
-6. Cash-flow/liquidity decision engine.
-7. Decision/action ledger.
-8. Report Studio persistence model.
-9. Tenant-safe report execution ledger.
-10. Usage metering ledger.
-11. Tenant bootstrap before tenant-scoped queries.
-12. Report Studio UI and Decision Automation UI.
-13. Trial status UX.
-14. Selective integration of the reviewed intelligence/production-hardening branches.
-15. Cross-repository audit of all repositories currently visible in the linked account; no additional source code was available in the two empty repositories.
-16. A0.1 provider-neutral document intelligence contracts and raw-data safety gates.
-17. A0.2 structured intermediate document envelope with source/cell provenance, lifecycle states, and parser integration.
-18. A0.3 schema discovery foundation: dynamic column profiling, statistical fingerprints, pattern recognition, Arabic/English semantic dictionary, and multi-evidence candidate scoring.
-19. A0.3 normalization foundation: Arabic/English digits, Arabic text normalization, locale-aware numeric parsing, percentages, dates/booleans, and lossless original-value retention.
-20. A0.4 validation foundation: weighted evidence confidence, line/invoice mathematical reconciliation, configurable tolerances, criticality-aware review/quarantine decisions.
-21. A0.5 routing foundation: canonical-field-to-entity/destination routing without depending on external column names.
+## Completed
+1-21. Foundation, tenant/RLS security, import governance, report/decision ledgers, document intelligence A0.1-A0.5 foundations.
+22. Operational file preview and reconciliation pipeline: canonical business-key detection, Arabic/Latin key normalization, new/updated/unchanged/conflict/error classification and order-independent preview fingerprint.
+23. A0.3 hardening: evidence-fused schema intelligence, preamble-aware header discovery, OCR header correction, deterministic mapping ambiguity protection, relationship graphs, headerless reverse-schema inference and dataset classification.
+24. A0.4 hardening: deterministic entity resolution, duplicate target-key conflict detection, reconciliation results and stable import fingerprints for idempotency primitives.
+25. A0.4 review/quarantine contract: tenant/source-scoped review records with deterministic identity, explicit OPEN/APPROVED/REJECTED lifecycle and promotion guard.
+26. A0.5 governed transactional routing contract: canonical routing decisions, tenant/source scope, idempotency key, quarantine/review state and commit/rollback guard.
+27. A0.6 Onyx Pro canonical adapter: existing Onyx header catalog and adapter route recognized fields through canonical headers while preserving unknown headers and preventing empty-cell overwrite.
+28. A0.7 golden dataset manifest: Arabic/English, scanned, random-schema, no-header, complex-table, invoice, Onyx and 30+ column cases with explicit accuracy readiness threshold.
+29. Unified quality gates: schema/entity reconciliation, A0 hardening and golden dataset gates are registered in the authoritative Quality workflow.
+30-37. Configurable demand horizon, explicit pack/weight normalization, unified decision policy, customer/SKU demand attribution, weighted group substitution, liquidity-aware replenishment, production readiness and unified production decision chain.
 
-## Phase A0 — Document & Data Intelligence Engine foundation
+## Phase A0 — Document & Data Intelligence Engine — COMPLETED
+A0.1 engine contracts and raw-data safety, A0.2 structured intermediate model, A0.3 schema intelligence, A0.4 validation/entity/reconciliation/review-quarantine, A0.5 governed transactional routing, A0.6 Onyx extensibility, and A0.7 golden datasets/quality gates are now represented by deterministic contracts and regression gates. No raw field is silently discarded and no weak/ambiguous mapping is silently promoted.
 
-The canonical requirements are recorded in `docs/DOCUMENT_INTELLIGENCE_ENGINE_REQUIREMENTS.md` and are based on the supplied engineering specification. The implementation is incremental, test-gated, provider-neutral, and must not replace working production UI/query/import surfaces blindly.
+## Phase A — Trusted Report Execution
+1. Complete server-side worker adapter around the existing report execution contract.
+2. Queue scheduled report runs with tenant context and idempotency.
+3. Claim jobs with leases; reject stale/duplicate claims.
+4. Render saved semantic definitions to PDF/Excel/web artifacts.
+5. Verify artifact integrity before delivery.
+6. Persist immutable execution evidence and delivery receipts.
+7. Add retry/backoff/dead-letter policy and operational visibility.
 
-### A0.1 — Engine contracts and safety gates — COMPLETED
-- Define provider-neutral interfaces for document parsing, OCR, table extraction, entity resolution, validation, and routing.
-- Enforce the raw-data boundary: reports/analytics/forecasting/recommendations may consume only validated/approved canonical data.
-- Add explicit processing states: raw, extracted, staging, validated, reconciled, approved, review, quarantined, production.
-- Preserve source provenance and processing versions.
-- Keep heavy/local AI and OCR engines optional.
+## Phase B — Usage & Entitlements
+1. Aggregate usage by tenant and billing period.
+2. Enforce capabilities and quotas server-side before expensive report/AI work.
+3. Make entitlement decisions auditable and idempotent.
+4. Add provider-neutral billing adapter boundary.
+5. Add invoice/subscription lifecycle state machine.
+6. Verify billing webhooks cryptographically and idempotently.
+7. Add operator plan/capability controls.
 
-### A0.2 — Structured intermediate document model — COMPLETED (foundation)
-- Represent metadata, pages, blocks, tables, rows, cells, images, text, and provenance in one provider-neutral envelope.
-- Preserve source identity, cell/source locations, source hashes, parser identity, and confidence fields.
-- Support unknown fields without dropping source data.
-- Route the existing optional Docling adapter through the canonical envelope without making Docling mandatory.
-- Add lifecycle transition invariants and regression tests.
+## Phase C — Decision Automation
+1. Convert scored decisions into explainable automation actions.
+2. Require explicit approval for external side effects by default.
+3. Carry tenant, decision fingerprint, evidence snapshot and idempotency key into every action.
+4. Execute through the trusted automation executor only.
+5. Add retry/backoff/dead-letter handling and immutable execution receipts.
+6. Block execution when production readiness, calibration, confidence, liquidity or evidence gates fail.
 
-### A0.3 — Schema discovery and semantic mapping — FOUNDATION COMPLETED
-- Dynamic column profiling without fixed templates.
-- Statistical fingerprints: null/non-empty ratio, uniqueness, numeric/date ratios, length, min/max and identifier-like patterns.
-- Multi-evidence semantic candidates using header, content type, patterns and canonical Arabic/English synonyms.
-- Preserve unknown columns; do not discard source data merely because mapping is unresolved.
-- **Remaining hardening:** relationship graph across columns, page/table classification, headerless reverse-schema inference, richer OCR-error dictionary, and existing-company-data evidence.
+## Phase D — Advanced Intelligence
+1. Forecast backtesting against deterministic baselines.
+2. Confidence/coverage/bias diagnostics.
+3. Scenario and sensitivity simulation.
+4. Outcome calibration linked to decision fingerprints.
+5. Semantic caching with deterministic invalidation.
+6. Local/offline analytical acceleration where it improves performance without weakening truth/security boundaries.
 
-### A0.4 — Validation, reconciliation, confidence and quarantine — FOUNDATION COMPLETED
-- Weighted evidence confidence and criticality-aware approval thresholds.
-- Line-level quantity × unit-price reconciliation.
-- Invoice subtotal/tax/discount/shipping/total reconciliation with absolute and relative tolerance.
-- Explicit PASS/WARN/FAIL/UNKNOWN issues.
-- Review/quarantine decisions for uncertain mappings.
-- **Remaining hardening:** entity resolution, deduplication/idempotency, accounting/inventory reconciliations, field-level lineage persistence, and human-review workflow integration.
-
-### A0.5 — Canonical routing and transactional import — ROUTING FOUNDATION COMPLETED
-- Map canonical semantic fields to entities and destinations rather than matching external column names.
-- Unknown/unmapped fields are routed to quarantine instead of silently ignored.
-- **Remaining hardening:** integrate routing with the existing governed import/upsert path, transactional commit/rollback, idempotency keys, and production destination adapters.
-
-### A0.6 — Onyx adapter and extensibility
-- Route Onyx Pro reports through the same canonical pipeline.
-- Keep future ERP/POS/CSV/Excel adapters behind the same boundary.
-
-### A0.7 — Golden datasets and quality gates
-- Add representative Arabic/English, scanned, random-schema, no-header, complex-table, invoice, Onyx, and 30+ column fixtures.
-- Add unit/integration/pipeline/OCR/mapping/business/security/load regression gates.
-- Measure extraction, mapping, entity-resolution, and reconciliation accuracy.
-
-## Required next hardening sequence
-1. Complete A0.3 relationship graphs, headerless reverse-schema discovery, page/table classification, and evidence fusion.
-2. Complete A0.4 entity resolution, deduplication/idempotency, accounting/inventory reconciliation, and review/quarantine persistence.
-3. Complete A0.5 governed transactional routing into the existing import engine with rollback and idempotency.
-4. Then implement A0.6 Onyx adapter and A0.7 golden datasets/quality gates.
-5. Only after these gates pass, proceed with downstream report execution/automation work.
-
-## Next implementation order
-### Phase A — Report execution
-- Build trusted worker adapter.
-- Render saved semantic definitions to PDF/Excel/web outputs.
-- Queue scheduled reports through `queue_report_run`.
-- Claim jobs with `claim_report_run` using a trusted server credential.
-- Persist immutable run evidence and delivery results.
-
-### Phase B — Usage/entitlements
-- Aggregate usage by billing period.
-- Enforce limits at the server boundary before expensive jobs.
-- Add billing provider adapter.
-- Add invoices, subscription lifecycle and webhook verification.
-- Add plan/capability management UI for the platform operator.
-
-### Phase C — Decision automation
-- Convert inventory/finance recommendations to explainable `automation_actions`.
-- Require approval for external side effects by default.
-- Add idempotency keys and execution receipts.
-- Add retry/backoff/dead-letter handling.
-
-### Phase D — Advanced intelligence
-- Backtest forecasting models.
-- Compare against deterministic baselines.
-- Add confidence/coverage/accuracy diagnostics.
-- Add scenario simulation and sensitivity analysis.
-- Add semantic caching and local analytical acceleration where justified.
-
-### Phase E — Production SaaS
-- Cross-tenant negative test suite.
-- Storage policy audit.
-- Realtime authorization audit.
-- AI retrieval namespace audit.
-- Backup/restore drill.
-- Observability and SLOs.
-- Security review and production release checklist.
+## Phase E — Production SaaS Certification
+1. Cross-tenant negative tests for reads, writes, search, export, storage and retrieval.
+2. Storage/RLS policy audit.
+3. Realtime authorization audit.
+4. AI retrieval namespace audit.
+5. Backup/restore drill with recovery-point and recovery-time evidence.
+6. Observability, SLOs, error budgets and alert routing.
+7. Security and dependency review.
+8. Production release certification and rollback drill.
 
 ## Release blockers
 - Any cross-tenant read/write/search/export/retrieval.
-- Client-side-only paid feature enforcement.
-- Unverified billing webhooks.
-- Worker that can process a report without explicit tenant context.
+- Client-side-only paid-feature enforcement.
+- Unverified or non-idempotent billing webhooks.
+- Worker without explicit tenant context and lease.
 - AI retrieval without tenant namespace.
 - Trial expiry that destroys customer data.
-- Raw-file access from report/analytics/forecast/recommendation services.
+- Raw-file access from analytics/forecast/recommendation layers.
 - Dropped or silently ignored source fields.
-- Failed typecheck/build/lint.
-- A critical field auto-approved without sufficient evidence.
-- Reconciliation mismatch silently committed to production.
+- Failed typecheck/lint/build or required contract gate.
+- Critical field auto-approved without sufficient evidence.
+- Reconciliation mismatch silently committed.
+- Review/quarantine bypass.
+- Transaction commit without explicit approval and READY status.
+- Automation executor bypassing the unified decision chain.
+- Replenishment exceeding protected liquidity.
+- Production readiness blocker at release time.
