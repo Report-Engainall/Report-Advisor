@@ -14,6 +14,10 @@
 11. Tenant bootstrap before tenant-scoped queries.
 12. Report Studio UI and Decision Automation UI.
 13. Trial status UX.
+14. Query planner hardening with canonical query fingerprints and tenant-scope invariants.
+15. Demand-series utility layer for reusable deterministic velocity/peak/trend calculations.
+16. Alternative-group demand runtime contract and grouped inventory/demand decision calculations.
+17. Unified operational decision-chain engine connecting demand, requests, sellable stock, alternatives, stockout/lost-sales exposure, forecast confidence, freshness and protected operating liquidity.
 
 ## Next implementation order
 ### Phase A — Report execution
@@ -52,15 +56,6 @@
 - Observability and SLOs.
 - Security review and production release checklist.
 
-## Release blockers
-- Any cross-tenant read/write/search/export/retrieval.
-- Client-side-only paid feature enforcement.
-- Unverified billing webhooks.
-- Worker that can process a report without explicit tenant context.
-- AI retrieval without tenant namespace.
-- Trial expiry that destroys customer data.
-- Failed typecheck/build/lint.
-
 ## Continuous product intelligence addendum
 These requirements are now part of the implementation sequence and must be traced to deterministic engines, UI, security, tests and evidence before being marked complete.
 
@@ -95,6 +90,8 @@ These requirements are now part of the implementation sequence and must be trace
 
 Every material recommendation requires Why, Source Metrics, Calculation, Snapshot/As-Of, Freshness, Confidence/Quality, Expected Impact and Action.
 
+The deterministic runtime contract now exists at `src/lib/intelligence/unified-decision-chain.ts`; its regression gate is `npm run test:unified-decision-chain`.
+
 ### Phase D6 — Performance and freshness
 - Canonical query fingerprints.
 - Deterministic semantic caching.
@@ -107,4 +104,4 @@ Every material recommendation requires Why, Source Metrics, Calculation, Snapsho
 - `docs/MASTER_PRODUCT_REFERENCE.md` — authoritative product, requirements, architecture and inspiration registry.
 - `docs/MASTER_REQUIREMENTS_TRACEABILITY.md` — requirement-to-evidence traceability.
 - `docs/INTELLIGENCE_FORMULAS.md` — deterministic metric and formula contract.
-- `docs/external-projects-knowledge-base-addendum.md` — newly consolidated market-dynamics, stock-continuity, liquidity and alternative-group requirements.
+- `docs/external-projects-knowledge-base-addendum.md` — consolidated market-dynamics, stock-continuity, liquidity and alternative-group requirements.
