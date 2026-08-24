@@ -56,6 +56,15 @@
 - Observability and SLOs.
 - Security review and production release checklist.
 
+## Release blockers
+- Any cross-tenant read/write/search/export/retrieval.
+- Client-side-only paid feature enforcement.
+- Unverified billing webhooks.
+- Worker that can process a report without explicit tenant context.
+- AI retrieval without tenant namespace.
+- Trial expiry that destroys customer data.
+- Failed typecheck/build/lint.
+
 ## Continuous product intelligence addendum
 These requirements are now part of the implementation sequence and must be traced to deterministic engines, UI, security, tests and evidence before being marked complete.
 
