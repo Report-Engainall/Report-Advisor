@@ -104,6 +104,34 @@ Remaining J work:
 16. Add automatic drift detection across data, policies, forecasts and outcomes.
 17. Enable production autonomy only for domains whose evidence, trust and risk budgets remain valid.
 
+## Phase J.1 — Watched Reports & Text-First Ingestion — MASTER REQUIREMENT LOCK
+This is now a permanent acceptance contract, not an optional feature:
+- User selects any supported local folder from the application.
+- The application continuously discovers new/changed reports placed into that folder and its configured subfolders.
+- Every source version is fingerprinted by content hash; unchanged files are skipped safely.
+- When a report is revised/appended, only changed/new rows and affected reconciliation state are processed whenever deterministic row keys permit; deleted rows are explicitly reconciled rather than ignored.
+- Before schema inference/semantic analysis, the system attempts canonical extraction and reconstruction: text is normalized into a stable order preserving headers, rows, columns, table/page boundaries, totals, dates and source provenance.
+- Canonical text artifacts receive source/text hashes and processing-version provenance.
+- Extraction quality is scored and the best deterministic route is selected: PDF text layer → table extraction → OCR → structured parser/fallback as supported by the source.
+- Extraction failure is isolated per source/file/stage. It MUST NOT stop the rest of the report's safe downstream operations. The failure, warnings and fallback route are recorded as evidence.
+- A failed extraction must never silently fabricate text; structured-source processing may continue only through a declared safe fallback.
+- Report versions, renames, tombstones, source precedence and chronological consolidation must remain traceable.
+- Watched-folder processing must converge into the same governed import/decision/evidence pipeline as manual uploads; no second business-truth path is allowed.
+- Large folders use bounded concurrency, resumable checkpoints, backpressure and dead-letter handling.
+- Offline-first/local processing remains preferred for large/sensitive reports; server persistence stores lineage/evidence, not an uncontrolled raw-file mirror.
+
+## Phase K — Production Intelligence & Autonomous Optimization — NEXT
+1. Connect the watched-folder coordinator to durable report execution jobs and resumable checkpoints.
+2. Build source-version/row-level lineage and parse-once cache.
+3. Build chronological multi-report consolidation with deterministic source precedence.
+4. Populate business snapshots from sales, inventory, demand, liquidity and operations engines.
+5. Execute bounded optimizer/scenario runs using protected risk budgets.
+6. Close the loop from recommendations to observed outcomes and automatically calibrate confidence/safety.
+7. Build portfolio prioritization and materiality escalation.
+8. Build executive causal/evidence cockpit.
+9. Add production autonomous governance certification.
+10. Finalize production autonomy and rollback drills.
+
 ## Cross-cutting requirements restored to the master plan
 - Automatic watched-folder synchronization: a user selects a local folder in the app; new reports are discovered automatically without repeated manual upload.
 - Revised reports are fingerprinted and only changed files/rows are processed; unchanged rows are skipped and deleted rows are explicitly reconciled.
