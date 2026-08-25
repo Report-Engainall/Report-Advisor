@@ -10,6 +10,7 @@
     "preview": "vite preview",
     "typecheck": "tsc --noEmit -p tsconfig.app.json",
     "inventory:system": "node scripts/build-system-inventory.mjs",
+    "test:master-p0-inventory": "node scripts/check-master-p0-inventory.mjs",
     "test:auth-tenant-convergence": "node scripts/check-auth-tenant-convergence.mjs",
     "test:migration-schema-audit": "node scripts/check-migration-schema-audit.mjs",
     "test:migration-dependencies": "node scripts/analyze-migration-dependencies.mjs",
