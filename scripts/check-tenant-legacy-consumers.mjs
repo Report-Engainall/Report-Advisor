@@ -20,6 +20,12 @@ function walk(dir, out = []) {
   return out;
 }
 
+function stripComments(text) {
+  return text
+    .replace(/\/\*[\s\S]*?\*\//g, '')
+    .replace(/(^|\s)\/\/.*$/gm, '$1');
+}
+
 function isLegacyTenantConsumer(rel, text) {
   if (ALLOWED_SELF.has(rel)) return false;
   if (rel === 'src/lib/file-engine/synonyms.ts') return false;
@@ -27,23 +33,24 @@ function isLegacyTenantConsumer(rel, text) {
   // intentionally inspected and must not be classified as runtime consumers.
   if (/^scripts\/check-[^/]+\.mjs$/.test(rel)) return false;
 
+  const code = stripComments(text);
+
   // Removed mutable tenant compatibility state.
-  if (/\bCOMPANY_ID\b/.test(text)) return true;
-  if (/\b(?:setCompanyId|clearCompanyId|getCompanyId)\b/.test(text)) return true;
-  if (/\btenant_memberships\b/i.test(text)) return true;
+  if (/\bCOMPANY_ID\b/.test(code)) return true;
+  if (/\b(?:setCompanyId|clearCompanyId|getCompanyId)\b/.test(code)) return true;
+  if (/\btenant_memberships\b/i.test(code)) return true;
 
   // Static tenant identity, including environment/config defaults.
-  if (/\b(?:companyId|company_id|tenantId|tenant_id)\s*[:=]\s*['"][0-9a-f-]{16,}['"]/i.test(text)) return true;
-  if (/\b(?:VITE_|NEXT_PUBLIC_|PUBLIC_)?(?:COMPANY_ID|TENANT_ID)\s*[:=]/i.test(text)) return true;
-  if (/\b(?:companyId|company_id|tenantId|tenant_id)\s*=\s*(?:process\.env\.|import\.meta\.env\.)/i.test(text)) return true;
+  if (/\b(?:companyId|company_id|tenantId|tenant_id)\s*[:=]\s*['"][0-9a-f-]{16,}['"]/i.test(code)) return true;
+  if (/\b(?:VITE_|NEXT_PUBLIC_|PUBLIC_)?(?:COMPANY_ID|TENANT_ID)\s*[:=]/i.test(code)) return true;
+  if (/\b(?:companyId|company_id|tenantId|tenant_id)\s*=\s*(?:process\.env\.|import\.meta\.env\.)/i.test(code)) return true;
 
   // Client-selected tenant filtering is not an authoritative security boundary.
-  if (/\.(?:eq|neq|in|filter)\s*\(\s*['"](?:company_id|tenant_id)['"]\s*,\s*(?:selectedCompanyId|selectedTenantId|profile\.company_id|user\.company_id)\s*\)/i.test(text)) return true;
-  if (/\.(?:eq|neq|in|filter)\s*\(\s*['"](?:company_id|tenant_id)['"]\s*,\s*(?:companyId|tenantId)\s*\)/i.test(text)) return true;
-  if (/\b(?:selectedCompanyId|selectedTenantId|selectedTenant|selectedCompany)\b/.test(text) && /\b(?:company_id|tenant_id)\b/.test(text)) return true;
+  if (/\.(?:eq|neq|in|filter)\s*\(\s*['"](?:company_id|tenant_id)['"]\s*,\s*(?:selectedCompanyId|selectedTenantId|profile\.company_id|user\.company_id)\s*\)/i.test(code)) return true;
+  if (/\.(?:eq|neq|in|filter)\s*\(\s*['"](?:company_id|tenant_id)['"]\s*,\s*(?:companyId|tenantId)\s*\)/i.test(code)) return true;
 
   // Static equality against a UUID-like tenant is always unsafe.
-  if (/\.(?:eq|neq|in|filter)\s*\(\s*['"](?:company_id|tenant_id)['"]\s*,\s*['"][0-9a-f-]{16,}['"]\s*\)/i.test(text)) return true;
+  if (/\.(?:eq|neq|in|filter)\s*\(\s*['"](?:company_id|tenant_id)['"]\s*,\s*['"][0-9a-f-]{16,}['"]\s*\)/i.test(code)) return true;
 
   return false;
 }
