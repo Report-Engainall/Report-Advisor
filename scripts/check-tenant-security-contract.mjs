@@ -16,8 +16,18 @@ const failClosedCandidates = migrations.filter(({ file }) => file.includes('impo
 if (!resolver) throw new Error('Canonical tenant resolver migration is missing');
 if (failClosedCandidates.length === 0) throw new Error('Import RPC fail-closed migration is missing');
 
+// The canonical resolver migration intentionally evolves an existing membership
+// table. Schema creation belongs to the earlier membership migration; requiring a
+// CREATE TABLE marker in the latest resolver creates false failures when the schema
+// is correctly normalized across migrations.
+const schemaEvidence = migrations.some(({ text }) =>
+  /CREATE\s+TABLE\s+IF\s+NOT\s+EXISTS\s+company_memberships/i.test(text),
+) && resolver.text.includes('ALTER TABLE company_memberships');
+if (!schemaEvidence) {
+  throw new Error(`Tenant membership schema is not traceable to the canonical resolver ${resolver.file}`);
+}
+
 const requiredMarkers = [
-  'CREATE TABLE IF NOT EXISTS company_memberships',
   'REFERENCES auth.users(id)',
   'auth.uid()',
   'company_memberships',
