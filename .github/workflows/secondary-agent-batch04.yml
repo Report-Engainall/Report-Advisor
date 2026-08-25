@@ -41,6 +41,8 @@ jobs:
         run: npm run test:secondary-batch05-runtime-audit
       - name: Batch 06 quality audit
         run: node scripts/secondary-batch06-quality-audit.mjs
+      - name: Batch 07 runtime gap inventory
+        run: npm run test:secondary-batch07-runtime-inventory
 
   project-quality:
     strategy:
