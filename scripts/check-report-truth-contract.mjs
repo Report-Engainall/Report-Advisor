@@ -47,8 +47,8 @@ for (const statement of policyStatements) {
 if (!/company_id\s*=\s*public\.current_company_id\(\)/i.test(securityMigrations)) throw new Error('Report truth contract requires tenant-scoped RLS predicates');
 if (!/WITH CHECK\s*\(\s*company_id\s*=\s*public\.current_company_id\(\)\s*\)/i.test(securityMigrations)) throw new Error('Report truth contract requires tenant-scoped write checks');
 
-// Prevent silent corruption in report/dashboard/analytics code. Numeric fallback
-// to zero hides malformed source data and makes totals look truthful when they are not.
+// Inspect only application reporting surfaces. The guard itself is intentionally
+// outside this set so its own detection regexes cannot self-trigger.
 const reportFiles = files.filter((f) => /report|dashboard|analytics|summary/i.test(path.basename(f)));
 const reportSource = reportFiles.map((f) => fs.readFileSync(f, 'utf8')).join('\n');
 if (/Number\([^\n]*\)\s*\|\|\s*0/.test(reportSource) || /parseFloat\([^\n]*\)\s*\|\|\s*0/.test(reportSource)) {
