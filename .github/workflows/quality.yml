@@ -72,6 +72,8 @@ jobs:
         run: npm run typecheck
       - name: Behavioral regressions
         run: npm run test:file-engine-regressions && npm run test:business-key-regressions && npm run test:import-classifier-regressions
+      - name: Business intelligence regressions
+        run: node --experimental-strip-types scripts/business-intelligence-regressions.test.ts
       - name: Routing and security contracts (parallel discovery)
         shell: bash
         run: |
