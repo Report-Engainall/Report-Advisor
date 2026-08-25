@@ -8,35 +8,27 @@ Primary integration target: `phase-8-9-completion`
 
 Primary authority: main execution agent. Do not merge independently.
 
-## Batch 07 execution status — 2026-08-25
+## Batch 08 execution status — 2026-08-25
 
-Batch 07 intentionally adds no new UI surface and no new Core engine. It adds a structural Runtime Gap Inventory and CI execution hook so the existing secondary adapters can be evaluated against authoritative runtime boundaries.
+Batch 08 adds no new product UI and no Core engine. It adds a runtime-readiness audit, tenant certification matrix, and one executable CI contract over the existing authoritative document, Data Quality, reconciliation, K/L runtime and migration boundaries.
 
 | Task | Status | Notes |
 |---|---|---|
-| Runtime Gap Inventory | GATED | `scripts/secondary-batch07-runtime-inventory.mjs` maps capability → contract → implementation → persistence → security → test → workflow → runtime evidence. It does not claim live runtime evidence. |
-| Evidence Graph readiness | GATED / LIVE REQUIRED | Existing Evidence Ledger and Phase K/L executive evidence graph are present; downstream page/table/row/column/cell/entity/canonical/metric/report/decision/action/outcome proof remains primary-runtime dependent. |
-| Document Intelligence readiness | GATED / LIVE REQUIRED | Existing provider-neutral gateway and envelope are reused; page/table/cell lineage and persisted extraction evidence remain live-runtime gaps. |
-| Golden Corpus | GATED | Existing 13/13 corpus retained; no expansion because no new regression case was justified. |
-| Free-first audit | GATED | Secondary runtime inventory rejects known paid/remote provider markers and legacy `/api/chat` paths. |
-| CI classification | GATED | Batch 07 inventory is added to the existing secondary workflow; TypeScript/lint/build remain independent and are not weakened. |
-| Mainline baseline repair | MAINLINE DEPENDENCY | `globals`, `fetchCategoryBreakdown`, and other project-wide query/type/build failures are not duplicated. |
+| Evidence Graph Runtime Readiness | GATED / LIVE REQUIRED | Existing Phase K/L evidence persistence is reused. Downstream page/table/row/column/cell/entity/canonical/metric/report/action/outcome runtime identifiers remain unproven. |
+| Document Intelligence Lineage Audit | GAP / MAINLINE DEPENDENCY | Current `DocumentExtractionEnvelope` carries plan/backend/stage/warnings/facts/source/page/confidence; complete IR and cell lineage are not represented. No parser or envelope replacement created. |
+| Reconciliation Runtime Readiness | GATED / LIVE REQUIRED | Existing `ReconciliationResult` is authoritative. Persistence and row-level evidence remain runtime-owned. |
+| Data Quality Evidence | GATED / LIVE REQUIRED | `fetchDataQualityDatasets()` uses bounded projections and delegates tenant scope to canonical Supabase RLS. Live score/source parity is not proven. |
+| Tenant/RLS Verification Preparation | BLOCKED / LIVE REQUIRED | Matrix and expected outcomes are prepared; real isolated Supabase execution is required. No RLS change made. |
+| CI/Quality Dependency Audit | MAINLINE DEPENDENCY | Existing TypeScript/ESLint/Build blockers overlapping PR #20 are not duplicated. |
+| Runtime Certification Checklist | GATED | Single executable readiness matrix added; certification state remains evidence-driven. |
+| Golden Corpus | GATED | Existing corpus retained; no new fixtures were justified. |
+| Free-first audit | GATED | No paid provider or mandatory cloud dependency introduced. |
 
-## Batch 07 runtime findings
+## Batch 08 executable audit
 
-The existing repository already contains a runtime closure matrix and Phase K/L persistence boundary. `src/lib/phase-kl-supabase-runtime.ts` exposes the authoritative `record_control_plane_health` and `record_executive_evidence_edge` RPC boundaries; `supabase/migrations/20260825140000_phase_l_runtime_cockpit.sql` contains the executive evidence graph persistence. These are treated as canonical, not replaced.
+`npm run test:secondary-batch08-runtime-readiness`
 
-The existing `Evidence` contract currently preserves `sourceId`, optional `page`, `field`, raw/normalized values and confidence. It does not itself prove persisted table/row/column/cell/entity/canonical/metric/report/action/outcome runtime linkage. Those remain `LIVE REQUIRED` rather than being synthesized by the secondary branch.
-
-The existing `DocumentExtractionEnvelope` contains provider-neutral plan/choice/stage/warnings/facts with source/page/confidence. It does not yet constitute complete cell-level lineage or persisted extraction evidence. No new parser or envelope engine was created in Batch 07.
-
-The existing `RUNTIME_CLOSURE_MATRIX.md` confirms the canonical chain `source → canonical text → lineage → consolidation → scenario → decision → evidence → health → trust → rollback → certification → autonomy`. Batch 07 consumes that architecture as a reference and does not create another graph.
-
-## Batch 07 test policy
-
-The new inventory is a structural guard, not runtime certification. A future GitHub Actions run must be used to record PASS/FAIL for the script. Live database/tenant/browser/document/reconciliation evidence remains `LIVE REQUIRED` until executed by the primary runtime stream.
-
-No Golden Corpus fixtures were added. No business/customer data was added. No paid dependency or provider was added.
+The audit performs static contract/readiness checks and explicitly emits `BLOCKED` for live-only evidence. It exits non-zero only for an actual static contract failure; blocked live prerequisites are not converted into PASS or hidden.
 
 ## Existing approved task matrix
 
