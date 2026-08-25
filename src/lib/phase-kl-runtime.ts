@@ -9,14 +9,30 @@ export interface RuntimeState<T = unknown> {
   evidence: RuntimeEvidence[];
 }
 
+function assertEvidence(evidence: RuntimeEvidence[]): void {
+  if (!evidence.length) throw new Error('Runtime advancement requires evidence');
+  const keys = new Set<string>();
+  for (const item of evidence) {
+    if (!item.key.trim()) throw new Error('Runtime evidence requires a non-empty key');
+    if (keys.has(item.key)) throw new Error(`Duplicate runtime evidence key: ${item.key}`);
+    keys.add(item.key);
+    if (!Number.isFinite(item.quality) || item.quality < 0 || item.quality > 1) {
+      throw new Error(`Runtime evidence quality must be between 0 and 1: ${item.key}`);
+    }
+    if (item.source !== undefined && !item.source.trim()) throw new Error(`Runtime evidence source cannot be empty: ${item.key}`);
+  }
+}
+
 export function advanceRuntime<T>(state: RuntimeState<T>, stage: ReportCheckpointStage, evidence: RuntimeEvidence[], metadata: Omit<ReportExecutionCheckpoint, 'stage'|'updatedAt'|'sourceHash'|'evidenceKeys'> = {}): RuntimeState<T> {
+  assertEvidence(evidence);
+  if (!state.sourceHash.trim()) throw new Error('Runtime advancement requires sourceHash');
   const next = advanceCheckpoint(state.checkpoint, {
     stage,
     sourceHash: state.sourceHash,
     evidenceKeys: evidence.map((item) => item.key),
     ...metadata,
   });
-  return { ...state, checkpoint: next, evidence: [...state.evidence, ...evidence.filter((item) => item.quality >= 0)] };
+  return { ...state, checkpoint: next, evidence: [...state.evidence, ...evidence] };
 }
 
 export function buildLineage<T>(previous: RowVersion<T>[], current: RowVersion<T>) {
@@ -36,8 +52,8 @@ export function prioritizeDecisions(candidates: PortfolioCandidate[], maxRisk: n
 }
 
 export function evidenceQuality(evidence: RuntimeEvidence[]) {
-  if (!evidence.length) return 0;
-  return evidence.reduce((sum, item) => sum + Math.max(0, Math.min(1, item.quality)), 0) / evidence.length;
+  if (!evidence.length || evidence.some((item) => !Number.isFinite(item.quality) || item.quality < 0 || item.quality > 1)) return 0;
+  return evidence.reduce((sum, item) => sum + item.quality, 0) / evidence.length;
 }
 
 export function canAutonomouslyExecute(input: Parameters<typeof evaluateAutonomyGate>[0]) {
