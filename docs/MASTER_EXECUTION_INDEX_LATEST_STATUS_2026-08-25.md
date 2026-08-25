@@ -1,12 +1,12 @@
 # Master Execution Index — Latest Status — 2026-08-25
 
-This is the latest compact execution snapshot. It complements `docs/MASTER_EXECUTION_INDEX.md`, `docs/MASTER_SYSTEM_INVENTORY_2026-08-25.md`, the append-only current deltas, and the execution ledgers. It is the first place to consult before starting new work.
+This is the latest compact execution snapshot. Consult it before starting new work. It complements `docs/MASTER_EXECUTION_INDEX.md`, `docs/MASTER_SYSTEM_INVENTORY_2026-08-25.md`, the migration map, and append-only execution ledgers.
 
 ## Continuity rule
 Never infer completion from conversation history. Repository source, executable CI/runtime evidence, and certification artifacts are authoritative. Status vocabulary: `UNKNOWN → INVENTORIED → IMPLEMENTED → GATED → INTEGRATED → RUNTIME-EVIDENCED → PRODUCTION-CERTIFIED`; use `BLOCKED` for external prerequisites.
 
 ## Current repository head
-`main` = `54205b75aa0ea5150c31243a2aaeeb47722dd494` — `fix: preserve entity UI while completing tenant-native data quality refactor`.
+`main` = `eed8b25e7a0c13969fbdacb593dea828d46f047b` — `docs: record bounded data quality projections batch 21`.
 
 ## Capability matrix
 | Capability | Implementation | Gate | Integration | Runtime Evidence | Production |
@@ -31,6 +31,7 @@ Never infer completion from conversation history. Repository source, executable 
 | Header health truthfulness | YES | YES | YES | NOT PROVEN | NO |
 | Legacy tenant compatibility consumers | CLOSED IN UI; COMPATIBILITY OWNER REMAINS | YES | YES | NOT PROVEN | NO |
 | Data Quality tenant-native boundary | YES | YES | INTEGRATED | NOT PROVEN | NO |
+| Data Quality bounded projections | YES | YES | INTEGRATED | NOT PROVEN | NO |
 | Migration schema audit | YES | YES via Quality | INTEGRATED | NOT EXECUTED WITH OBSERVABLE STEPS | NO |
 | Migration dependency analysis | YES | YES via Quality | INTEGRATED | NOT YET EXECUTED WITH OBSERVABLE STEPS | NO |
 | Company configuration truth guard | YES | YES via Quality | INTEGRATED | NOT PROVEN | NO |
@@ -53,8 +54,9 @@ Never infer completion from conversation history. Repository source, executable 
 - Migration schema audit exists and is registered in `package.json` and canonical `quality.yml`.
 - Migration dependency analyzer exists, is registered as `test:migration-dependencies`, and is integrated into canonical Quality.
 - Company configuration truth guard exists to reject prohibited hard-coded company identity/configuration, including `admin@alamri.com`.
-- Tenant legacy consumer boundary guard now permits compatibility tokens only in `src/lib/supabase.ts`; the UI exception has been closed.
+- Tenant legacy consumer boundary guard permits compatibility tokens only in `src/lib/supabase.ts`; the UI exception is closed.
 - Data Quality reads are routed through `src/lib/data-quality-queries.ts` and no longer supply a company identifier from the UI.
+- Data Quality projections are now bounded to fields consumed by the current metrics.
 - These guards are implementation/regression evidence, not runtime certification.
 
 ### Permanent project reference
@@ -67,7 +69,7 @@ Never infer completion from conversation history. Repository source, executable 
 - Same-timestamp migrations are treated as distinct files and are not deduplicated by timestamp alone.
 - Tenant/import hardening is treated as a layered dependency chain rather than replaced wholesale.
 - Import evolution is treated as existing infrastructure requiring dependency/runtime evidence, not a rebuild.
-- Static dependency analysis is now machine-checkable; it deliberately remains conservative and does not claim to be a full PostgreSQL parser or live schema proof.
+- Static dependency analysis is machine-checkable; it deliberately remains conservative and does not claim to be a full PostgreSQL parser or live schema proof.
 
 ## Known remaining compatibility area
 `src/lib/supabase.ts` retains a documented nullable compatibility surface for `activeCompanyId`/`COMPANY_ID`. This is not a demo-company fallback. Do not remove it until repository-wide consumers and runtime evidence confirm it can be retired safely.
@@ -87,6 +89,7 @@ Historical Quality runs have completed with failure before any executable step i
 5. Execute existing J/K/L/M runtime workflows and record real artifacts/evidence instead of rebuilding their framework.
 6. Execute existing E/F/H/I security/resilience workflows and capture live evidence.
 7. Diagnose CI runner/bootstrap using the existing runner diagnostic workflow; do not modify application code to compensate for an infrastructure failure without evidence.
+8. Prove Data Quality metric parity after bounded projections before introducing aggregate/RPC computation.
 
 ## Existing certification infrastructure discovered
 The repository already contains runtime/certification workflows for runner diagnostics, J/K/L runtime, Phase E live certification, Phase F resilience, production verification, production-chain guards, runtime closure, recovery readiness, release certification, and security/provenance certification. These are existing capabilities to execute and verify, not systems to rebuild.
@@ -94,13 +97,15 @@ The repository already contains runtime/certification workflows for runner diagn
 ## Batch history
 - Batch 5 through Batch 17: stored in their corresponding execution ledgers/deltas.
 - Batch 18: tenant-native Data Quality integration and UI legacy-boundary closure.
-- Batch 19: source-preserving repair after detecting an over-aggressive file rewrite; current `EntityPages.tsx` preserves the entity pages while routing Data Quality through the new query boundary.
+- Batch 19: source-preserving repair after detecting an over-aggressive file rewrite.
+- Batch 20: Data Quality scalability planning and explicit decision not to claim performance improvement without evidence.
+- Batch 21: bounded Data Quality projections implemented in `src/lib/data-quality-queries.ts`.
 
-## Batch 18/19 verified repository evidence
+## Verified repository evidence
 - `905066a2de85e604f4f97515733c0c07302aa12c`: tenant-native Data Quality query boundary.
-- `cc8a81064e71fb922a8fd7153a5ba7c0f59a0453`: initial Data Quality integration; subsequently audited because it over-compressed/reduced `EntityPages.tsx`.
 - `54205b75aa0ea5150c31243a2aaeeb47722dd494`: source-preserving repair with tenant-native Data Quality reads.
-- `scripts/check-tenant-legacy-consumers.mjs` now allows the compatibility token only in `src/lib/supabase.ts`.
+- `262c746ac1a55dd990777f8a076aded0380e17b4`: bounded Data Quality projections.
+- `scripts/check-tenant-legacy-consumers.mjs` allows the compatibility token only in `src/lib/supabase.ts`.
 - Repository search currently returns no additional `COMPANY_ID` matches outside the guarded compatibility boundary.
 
 ## Non-negotiable evidence rule
