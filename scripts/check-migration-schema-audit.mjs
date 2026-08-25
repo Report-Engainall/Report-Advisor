@@ -15,11 +15,23 @@ const seenObjects = new Map();
 const duplicateObjects = [];
 const findings = [];
 
-function record(kind, name, file) {
+function record(kind, name, file, safeReplacement) {
   const key = `${kind}:${name}`;
   const previous = seenObjects.get(key);
-  if (previous && previous !== file) duplicateObjects.push({ kind, name, previous, file });
-  seenObjects.set(key, file);
+  if (previous && previous.file !== file && !(previous.safeReplacement && safeReplacement)) {
+    duplicateObjects.push({ kind, name, previous: previous.file, file });
+  }
+  seenObjects.set(key, { file, safeReplacement });
+}
+
+function policyIsReplacement(text, name) {
+  const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return new RegExp(`DROP\\s+POLICY\\s+IF\\s+EXISTS\\s+[\\\"]?${escaped}[\\\"]?`, 'i').test(text);
+}
+
+function triggerIsReplacement(text, name) {
+  const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return new RegExp(`DROP\\s+TRIGGER\\s+IF\\s+EXISTS\\s+[\\\"]?${escaped}[\\\"]?`, 'i').test(text);
 }
 
 for (const file of files) {
@@ -35,17 +47,27 @@ for (const file of files) {
     }
   }
 
-  for (const m of text.matchAll(/CREATE\s+(?:OR\s+REPLACE\s+)?TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?([\w.\"]+)/gi)) record('table', m[1], file);
-  for (const m of text.matchAll(/CREATE\s+(?:UNIQUE\s+)?INDEX(?:\s+IF\s+NOT\s+EXISTS)?\s+([\w.\"]+)/gi)) record('index', m[1], file);
-  for (const m of text.matchAll(/CREATE\s+POLICY\s+([\w.\"]+)/gi)) record('policy', m[1], file);
-  for (const m of text.matchAll(/CREATE\s+TRIGGER\s+([\w.\"]+)/gi)) record('trigger', m[1], file);
+  for (const m of text.matchAll(/CREATE\s+(?:OR\s+REPLACE\s+)?TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?([\w.\"]+)/gi)) {
+    const statement = m[0];
+    record('table', m[1], file, /IF\s+NOT\s+EXISTS/i.test(statement) || /CREATE\s+OR\s+REPLACE\s+TABLE/i.test(statement));
+  }
+  for (const m of text.matchAll(/CREATE\s+(?:UNIQUE\s+)?INDEX(?:\s+IF\s+NOT\s+EXISTS)?\s+([\w.\"]+)/gi)) {
+    const statement = m[0];
+    record('index', m[1], file, /IF\s+NOT\s+EXISTS/i.test(statement));
+  }
+  for (const m of text.matchAll(/CREATE\s+POLICY\s+([\w.\"]+)/gi)) {
+    record('policy', m[1], file, policyIsReplacement(text, m[1]));
+  }
+  for (const m of text.matchAll(/CREATE\s+TRIGGER\s+([\w.\"]+)/gi)) {
+    record('trigger', m[1], file, triggerIsReplacement(text, m[1]));
+  }
 
   // Functions are commonly intentionally replaced as migrations evolve and may be overloaded.
   // Keep them inventoried, but do not treat repeated function names as duplicates by themselves.
 }
 
 if (duplicateObjects.length) {
-  for (const d of duplicateObjects) findings.push(`duplicate ${d.kind} ${d.name}: ${d.previous} -> ${d.file}`);
+  for (const d of duplicateObjects) findings.push(`unsafe duplicate ${d.kind} ${d.name}: ${d.previous} -> ${d.file}`);
 }
 
 for (const file of files) {
