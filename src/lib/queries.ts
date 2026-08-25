@@ -1,5 +1,5 @@
 import { supabase } from './supabase';
-import type { Recommendation, Alert } from './types';
+import type { Recommendation, Alert, SalesInvoice, PurchaseInvoice } from './types';
 
 interface InvoiceRow { id: string; total: number | null; paid_amount: number | null; subtotal: number | null; tax_amount: number | null; status: string | null; invoice_date: string; due_date: string | null; }
 interface SaleItemRow { invoice_id: string; line_total: number | null; cost_price: number | null; quantity: number | null; product_id?: string | null; product?: { name: string | null; category_id: string | null } | null; }
@@ -169,4 +169,41 @@ export async function fetchAgingBuckets(): Promise<AgingBucket[]> {
     buckets[index].amount += outstanding; buckets[index].count += 1;
   }
   return buckets;
+}
+
+export async function fetchSalesInvoices(page = 0, pageSize = 20): Promise<{ data: SalesInvoice[]; count: number | null }> {
+  if (!Number.isInteger(page) || page < 0) throw new Error('REPORT_QUERY_INVALID_PAGE');
+  if (!Number.isInteger(pageSize) || pageSize < 1 || pageSize > 500) throw new Error('REPORT_QUERY_INVALID_PAGE_SIZE');
+  const from = page * pageSize;
+  const to = from + pageSize - 1;
+  const { data, count, error } = await supabase
+    .from('sales_invoices')
+    .select('*, customer:customers(id, name)', { count: 'exact' })
+    .order('invoice_date', { ascending: false })
+    .range(from, to);
+  if (error) throw error;
+  return { data: (data ?? []) as SalesInvoice[], count };
+}
+
+export async function fetchPurchaseInvoices(page = 0, pageSize = 20): Promise<{ data: PurchaseInvoice[]; count: number | null }> {
+  if (!Number.isInteger(page) || page < 0) throw new Error('REPORT_QUERY_INVALID_PAGE');
+  if (!Number.isInteger(pageSize) || pageSize < 1 || pageSize > 500) throw new Error('REPORT_QUERY_INVALID_PAGE_SIZE');
+  const from = page * pageSize;
+  const to = from + pageSize - 1;
+  const { data, count, error } = await supabase
+    .from('purchase_invoices')
+    .select('*, supplier:suppliers(id, name)', { count: 'exact' })
+    .order('invoice_date', { ascending: false })
+    .range(from, to);
+  if (error) throw error;
+  return { data: (data ?? []) as PurchaseInvoice[], count };
+}
+
+export async function fetchInventoryBalances(): Promise<unknown[]> {
+  const { data, error } = await supabase
+    .from('inventory_balances')
+    .select('*, product:products(id, name, reorder_point), warehouse:warehouses(id, name)')
+    .order('updated_at', { ascending: false });
+  if (error) throw error;
+  return data ?? [];
 }
