@@ -1,3 +1,22 @@
 import assert from 'node:assert/strict';
+import { evaluateDecisionBatch } from '../src/lib/free-toolbox/batch-decision-engine.ts';
+
 const rows=Array.from({length:50000},(_,i)=>({groupId:`g${i%500}`,stock:i%900,forecastDaily:20+(i%80),targetDays:14,lostUnits:i%100,liquidityScore:i%101,continuityRisk:(i*3)%101,seasonalityScore:(i*7)%101,confidence:70}));
-const started=performance.now();let total=0,reorder=0;for(const r of rows){const coverage=r.stock/r.forecastDaily;const risk=Math.max(0,Math.min(100,100-(coverage/r.targetDays)*100));const p=Math.round(Math.max(0,Math.min(100,risk*.3+Math.min(100,r.lostUnits/(r.forecastDaily*7)*100)*.2+r.liquidityScore*.15+r.continuityRisk*.2+r.seasonalityScore*.15)));total+=p;if(p>=75)reorder++}const elapsed=performance.now()-started;assert.equal(rows.length,50000);assert.ok(total>0);assert.ok(reorder>0);console.log(`batch decision fixture: PASS (${elapsed.toFixed(1)}ms, ${rows.length} rows)`);
+const started=performance.now();
+const summary=evaluateDecisionBatch(rows);
+const elapsed=performance.now()-started;
+assert.equal(summary.rows,50000);
+assert.ok(summary.averagePriority>0);
+assert.ok(summary.reorder>0);
+assert.ok(summary.critical>=0);
+
+assert.throws(
+  () => evaluateDecisionBatch([{...rows[0],forecastDaily:Number.NaN,groupId:'invalid-demand'}]),
+  /INSUFFICIENT_DECISION_DATA:invalid-demand:forecastDaily/,
+);
+assert.throws(
+  () => evaluateDecisionBatch([{...rows[0],liquidityScore:101,groupId:'invalid-score'}]),
+  /INSUFFICIENT_DECISION_DATA:invalid-score:liquidityScore/,
+);
+
+console.log(`batch decision fixture: PASS (${elapsed.toFixed(1)}ms, ${rows.length} rows, invalid-input fail-closed)`);
