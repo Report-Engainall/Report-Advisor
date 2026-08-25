@@ -21,8 +21,6 @@ for (const pattern of required) {
   if (!pattern.test(text)) throw new Error(`Import transaction contract missing: ${pattern}`);
 }
 
-// The terminal job transition must explicitly support the durable failure and
-// cancellation states so a partial import cannot be reported as successful.
 const lifecycleMigration = files
   .filter((f) => /import.*(job|engine)|security.*import/i.test(f))
   .map((f) => fs.readFileSync(path.join(migrationDir, f), 'utf8'))
@@ -34,6 +32,8 @@ if (!/failed/i.test(lifecycleMigration) || !/cancelled/i.test(lifecycleMigration
   throw new Error('Import transaction lifecycle must support failed and cancelled states');
 }
 
+// Bulk persistence remains exclusively RPC/governed. Direct browser writes to
+// canonical import entities are prohibited outside the existing governed path.
 const forbiddenDirectBulk = /supabase\.from\([^)]*(products|import_job_rows|orders)[^)]*\)\.(insert|upsert|update)\s*\(/is;
 const sourceDirs = ['src/lib', 'src/services'];
 for (const dir of sourceDirs) {
@@ -52,6 +52,21 @@ for (const dir of sourceDirs) {
         }
       }
     }
+  }
+}
+
+// A canonical import may receive a customer_id from an external file. That id
+// is never authoritative by itself: the commit path must prove it belongs to
+// the current tenant before writing an invoice. Name-based resolution must
+// also remain company-scoped.
+const canonicalCommitPath = path.join(root, 'src', 'lib', 'import', 'canonical-commit.ts');
+if (fs.existsSync(canonicalCommitPath)) {
+  const canonical = fs.readFileSync(canonicalCommitPath, 'utf8');
+  if (!/customer_id[\s\S]{0,500}company_id[\s\S]{0,500}companyId/.test(canonical)) {
+    throw new Error('Canonical import contract requires direct customer_id tenant verification');
+  }
+  if (!/\.eq\(['"]company_id['"],\s*companyId\)/.test(canonical)) {
+    throw new Error('Canonical import contract requires company-scoped customer resolution');
   }
 }
 
