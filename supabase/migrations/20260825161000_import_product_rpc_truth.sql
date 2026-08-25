@@ -46,10 +46,10 @@ BEGIN
   IF v_id IS NULL THEN
     IF NULLIF(trim(p_name), '') IS NULL THEN RAISE EXCEPTION 'NAME_REQUIRED'; END IF;
     IF NULLIF(trim(p_unit), '') IS NULL THEN RAISE EXCEPTION 'UNIT_REQUIRED'; END IF;
-    IF p_cost_price IS NULL OR NOT isfinite(p_cost_price) THEN RAISE EXCEPTION 'COST_PRICE_REQUIRED'; END IF;
-    IF p_selling_price IS NULL OR NOT isfinite(p_selling_price) THEN RAISE EXCEPTION 'SELLING_PRICE_REQUIRED'; END IF;
-    IF p_min_stock IS NULL OR NOT isfinite(p_min_stock) THEN RAISE EXCEPTION 'MIN_STOCK_REQUIRED'; END IF;
-    IF p_reorder_point IS NULL OR NOT isfinite(p_reorder_point) THEN RAISE EXCEPTION 'REORDER_POINT_REQUIRED'; END IF;
+    IF p_cost_price IS NULL OR p_cost_price::text IN ('NaN', 'Infinity', '-Infinity') THEN RAISE EXCEPTION 'COST_PRICE_REQUIRED'; END IF;
+    IF p_selling_price IS NULL OR p_selling_price::text IN ('NaN', 'Infinity', '-Infinity') THEN RAISE EXCEPTION 'SELLING_PRICE_REQUIRED'; END IF;
+    IF p_min_stock IS NULL OR p_min_stock::text IN ('NaN', 'Infinity', '-Infinity') THEN RAISE EXCEPTION 'MIN_STOCK_REQUIRED'; END IF;
+    IF p_reorder_point IS NULL OR p_reorder_point::text IN ('NaN', 'Infinity', '-Infinity') THEN RAISE EXCEPTION 'REORDER_POINT_REQUIRED'; END IF;
     IF p_is_active IS NULL THEN RAISE EXCEPTION 'IS_ACTIVE_REQUIRED'; END IF;
 
     BEGIN
