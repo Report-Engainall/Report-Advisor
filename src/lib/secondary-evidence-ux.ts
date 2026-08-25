@@ -7,28 +7,17 @@ export interface EvidenceNode {
   label: string;
   value?: string | number | null;
   sourceRef?: string;
+  source_id?: string;
+  evidence_id?: string;
+  snapshot_id?: string;
+  lineage_id?: string;
+  metric_id?: string;
+  decision_id?: string;
   status?: EvidenceStatus;
 }
 
-export interface EvidenceTrail {
-  nodes: EvidenceNode[];
-  status: WorkspaceState;
-  message?: string;
-}
-
-export interface TrustDimensions {
-  data?: number;
-  extraction?: number;
-  mapping?: number;
-  entityResolution?: number;
-  validation?: number;
-  calculation?: number;
-  forecast?: number;
-  decision?: number;
-  overall?: number;
-  explanation?: string;
-}
-
+export interface EvidenceTrail { nodes: EvidenceNode[]; status: WorkspaceState; message?: string; }
+export interface TrustDimensions { data?: number; extraction?: number; mapping?: number; entityResolution?: number; validation?: number; calculation?: number; forecast?: number; decision?: number; overall?: number; explanation?: string; }
 export interface DecisionReplayModel {
   decisionId: string;
   snapshot?: string;
@@ -44,7 +33,6 @@ export interface DecisionReplayModel {
   actualOutcome?: string;
   state: WorkspaceState;
 }
-
 export interface ReportSnapshotModel {
   reportId: string;
   snapshotId: string;
@@ -58,31 +46,12 @@ export interface ReportSnapshotModel {
   generatedAt?: string;
   state: WorkspaceState;
 }
-
-export interface SnapshotDiffItem {
-  key: string;
-  label: string;
-  before: string | number | boolean | null | undefined;
-  after: string | number | boolean | null | undefined;
-  status: 'changed' | 'unchanged' | 'unknown';
-}
-
+export interface SnapshotDiffItem { key: string; label: string; before: string | number | boolean | null | undefined; after: string | number | boolean | null | undefined; status: 'changed' | 'unchanged' | 'unknown'; }
 export function diffScalar<T extends string | number | boolean | null | undefined>(key: string, label: string, before: T, after: T): SnapshotDiffItem {
   if (before === undefined || after === undefined) return { key, label, before, after, status: 'unknown' };
   return { key, label, before, after, status: Object.is(before, after) ? 'unchanged' : 'changed' };
 }
-
 export function diffSnapshotMetadata(before: ReportSnapshotModel, after: ReportSnapshotModel): SnapshotDiffItem[] {
-  return [
-    diffScalar('dataAsOf', 'Data As Of', before.dataAsOf, after.dataAsOf),
-    diffScalar('metricVersion', 'Metric Version', before.metricVersion, after.metricVersion),
-    diffScalar('rulesVersion', 'Rules Version', before.rulesVersion, after.rulesVersion),
-    diffScalar('mappingVersion', 'Mapping Version', before.mappingVersion, after.mappingVersion),
-    diffScalar('generatedAt', 'Generated Time', before.generatedAt, after.generatedAt),
-  ];
+  return [diffScalar('dataAsOf', 'Data As Of', before.dataAsOf, after.dataAsOf), diffScalar('metricVersion', 'Metric Version', before.metricVersion, after.metricVersion), diffScalar('rulesVersion', 'Rules Version', before.rulesVersion, after.rulesVersion), diffScalar('mappingVersion', 'Mapping Version', before.mappingVersion, after.mappingVersion), diffScalar('generatedAt', 'Generated Time', before.generatedAt, after.generatedAt)];
 }
-
-export function formatTrust(value: number | undefined): string {
-  if (value === undefined || !Number.isFinite(value)) return 'UNKNOWN';
-  return `${Math.round(Math.max(0, Math.min(100, value)))}%`;
-}
+export function formatTrust(value: number | undefined): string { if (value === undefined || !Number.isFinite(value)) return 'UNKNOWN'; return `${Math.round(Math.max(0, Math.min(100, value)))}%`; }
