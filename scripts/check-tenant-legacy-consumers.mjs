@@ -17,14 +17,21 @@ function walk(dir, out = []) {
   return out;
 }
 
-function isActualLegacyTenantConsumer(rel, text) {
+function isLegacyTenantConsumer(rel, text) {
   if (ALLOWED_LEGACY.has(rel)) return false;
   if (rel.startsWith('scripts/')) return false;
   if (rel === 'src/lib/file-engine/synonyms.ts') return false;
 
-  // Read-only compatibility consumers remain safe under canonical RLS and are
-  // being migrated separately. The hard boundary here is write-path leakage:
-  // a legacy COMPANY_ID must never be passed into a write RPC or mutation.
+  // The compatibility owner is the only place where the legacy symbol may
+  // exist. All application consumers must resolve tenant context through the
+  // canonical resolver/RLS boundary, including reads as well as writes.
+  if (/\bCOMPANY_ID\b/.test(text)) return true;
+
+  // Reject static tenant identity and client-supplied tenant filtering in
+  // application code. Server/RLS enforcement remains authoritative.
+  if (/\b(?:companyId|company_id)\s*[:=]\s*['"][0-9a-f-]{16,}['"]/i.test(text)) return true;
+  if (/\.(?:eq|neq|in|filter)\s*\(\s*['"]company_id['"]\s*,\s*[^,)]+\)/i.test(text)) return true;
+
   const writePatterns = [
     /p_company_id\s*:\s*COMPANY_ID\b/,
     /\.(?:insert|update|upsert|delete)\s*\([^\n]*COMPANY_ID\b/,
@@ -38,15 +45,15 @@ for (const root of TARGETS) {
   for (const file of walk(path.join(ROOT, root))) {
     const rel = path.relative(ROOT, file).replaceAll(path.sep, '/');
     const text = fs.readFileSync(file, 'utf8');
-    if (!isActualLegacyTenantConsumer(rel, text)) continue;
+    if (!isLegacyTenantConsumer(rel, text)) continue;
     findings.push({ file: rel });
   }
 }
 
 if (findings.length) {
-  console.error('Unsafe legacy tenant write consumers detected:');
+  console.error('Unsafe legacy/static tenant consumers detected:');
   for (const item of findings) console.error(`  ${item.file}`);
   process.exit(1);
 }
 
-console.log('PASS: no unsafe legacy COMPANY_ID tenant write consumers exist outside the compatibility boundary.');
+console.log('PASS: no legacy/static tenant consumers exist outside the canonical compatibility boundary.');
