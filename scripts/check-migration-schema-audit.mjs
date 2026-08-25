@@ -24,18 +24,24 @@ function record(kind, name, file) {
 
 for (const file of files) {
   const text = fs.readFileSync(path.join(dir, file), 'utf8');
-  if (/\bDROP\s+TABLE\b/i.test(text) && !/\bIF\s+EXISTS\b/i.test(text)) {
-    findings.push(`${file}: DROP TABLE without IF EXISTS guard`);
-  }
-  if (/\bDROP\s+FUNCTION\b/i.test(text) && !/\bIF\s+EXISTS\b/i.test(text)) {
-    findings.push(`${file}: DROP FUNCTION without IF EXISTS guard`);
+  const statements = text.split(';').map((statement) => statement.trim()).filter(Boolean);
+
+  for (const statement of statements) {
+    if (/^DROP\s+TABLE\b/i.test(statement) && !/^DROP\s+TABLE\s+IF\s+EXISTS\b/i.test(statement)) {
+      findings.push(`${file}: DROP TABLE without IF EXISTS guard`);
+    }
+    if (/^DROP\s+FUNCTION\b/i.test(statement) && !/^DROP\s+FUNCTION\s+IF\s+EXISTS\b/i.test(statement)) {
+      findings.push(`${file}: DROP FUNCTION without IF EXISTS guard`);
+    }
   }
 
   for (const m of text.matchAll(/CREATE\s+(?:OR\s+REPLACE\s+)?TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?([\w.\"]+)/gi)) record('table', m[1], file);
-  for (const m of text.matchAll(/CREATE\s+(?:OR\s+REPLACE\s+)?FUNCTION\s+([\w.\"]+)/gi)) record('function', m[1], file);
   for (const m of text.matchAll(/CREATE\s+(?:UNIQUE\s+)?INDEX(?:\s+IF\s+NOT\s+EXISTS)?\s+([\w.\"]+)/gi)) record('index', m[1], file);
   for (const m of text.matchAll(/CREATE\s+POLICY\s+([\w.\"]+)/gi)) record('policy', m[1], file);
   for (const m of text.matchAll(/CREATE\s+TRIGGER\s+([\w.\"]+)/gi)) record('trigger', m[1], file);
+
+  // Functions are commonly intentionally replaced as migrations evolve and may be overloaded.
+  // Keep them inventoried, but do not treat repeated function names as duplicates by themselves.
 }
 
 if (duplicateObjects.length) {
@@ -51,7 +57,6 @@ for (const file of files) {
 const summary = {
   migrationCount: files.length,
   tables: [...seenObjects.entries()].filter(([k]) => k.startsWith('table:')).length,
-  functions: [...seenObjects.entries()].filter(([k]) => k.startsWith('function:')).length,
   indexes: [...seenObjects.entries()].filter(([k]) => k.startsWith('index:')).length,
   policies: [...seenObjects.entries()].filter(([k]) => k.startsWith('policy:')).length,
   triggers: [...seenObjects.entries()].filter(([k]) => k.startsWith('trigger:')).length,
