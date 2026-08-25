@@ -33,6 +33,7 @@ const ProductsPage = lazy(() => import('@/pages/EntityPages').then(m => ({ defau
 const InventoryPage = lazy(() => import('@/pages/EntityPages').then(m => ({ default: m.InventoryPage })));
 const DataQualityPage = lazy(() => import('@/pages/EntityPages').then(m => ({ default: m.DataQualityPage })));
 const SettingsPage = lazy(() => import('@/pages/EntityPages').then(m => ({ default: m.SettingsPage })));
+const ProfileSettingsPage = lazy(() => import('@/pages/ProfileSettingsPage').then(m => ({ default: m.ProfileSettingsPage })));
 const ExecutiveCommandCenterPage = lazy(() => import('@/pages/ExecutiveCommandCenterPage').then(m => ({ default: m.ExecutiveCommandCenterPage })));
 const AlternativeGroupsPage = lazy(() => import('@/pages/AlternativeGroupsPage').then(m => ({ default: m.AlternativeGroupsPage })));
 
@@ -113,7 +114,7 @@ function AppShell() {
               <Route path="/reports" element={<ReportsCenterPage />} /><Route path="/reports/sales" element={<SalesReportPage />} /><Route path="/reports/purchases" element={<PurchasesReportPage />} /><Route path="/reports/inventory" element={<InventoryReportPage />} /><Route path="/reports/inventory-intelligence" element={<InventoryIntelligencePage />} /><Route path="/reports/demand-velocity" element={<DemandVelocityPage />} /><Route path="/reports/receivables" element={<ReceivablesReportPage />} /><Route path="/reports/profitability" element={<ProfitabilityReportPage />} />
               <Route path="/analytics" element={<AnalyticsCenterPage />} /><Route path="/analytics/rfm" element={<RFMAnalysisPage />} /><Route path="/analytics/abc" element={<ABCAnalysisPage />} /><Route path="/analytics/aging" element={<AgingAnalysisPage />} />
               <Route path="/intelligence" element={<IntelligenceCenterPage />} /><Route path="/intelligence/recommendations" element={<RecommendationsPage />} /><Route path="/intelligence/forecasts" element={<ForecastsPage />} /><Route path="/intelligence/scenarios" element={<ScenariosPage />} />
-              <Route path="/customers" element={<CustomersPage />} /><Route path="/products" element={<ProductsPage />} /><Route path="/inventory" element={<InventoryPage />} /><Route path="/alternative-groups" element={<AlternativeGroupsPage />} /><Route path="/settings" element={<SettingsPage />} />
+              <Route path="/customers" element={<CustomersPage />} /><Route path="/products" element={<ProductsPage />} /><Route path="/inventory" element={<InventoryPage />} /><Route path="/alternative-groups" element={<AlternativeGroupsPage />} /><Route path="/settings" element={<SettingsPage />} /><Route path="/settings/profile" element={<ProfileSettingsPage />} />
               <Route path="*" element={<NotFoundPage />} />
             </Routes>
           </Suspense>
