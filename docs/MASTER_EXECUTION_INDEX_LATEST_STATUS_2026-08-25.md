@@ -1,15 +1,15 @@
 # Master Execution Index — Latest Status — 2026-08-25
 
-This is the latest compact execution snapshot. Consult it before starting new work. It complements `docs/MASTER_EXECUTION_INDEX.md`, `docs/MASTER_SYSTEM_INVENTORY_2026-08-25.md`, the migration map, and append-only execution ledgers.
-
-## Continuity rule
-Never infer completion from conversation history. Repository source, executable CI/runtime evidence, and certification artifacts are authoritative. Status vocabulary: `UNKNOWN → INVENTORIED → IMPLEMENTED → GATED → INTEGRATED → RUNTIME-EVIDENCED → PRODUCTION-CERTIFIED`; use `BLOCKED` for external prerequisites.
+This is the authoritative compact execution snapshot. Consult it before starting new work. Repository source, executable CI/runtime evidence, and certification artifacts are authoritative; conversation history is not evidence.
 
 ## Current repository head
-`main` = `3d1e1dd9d6d703c139096b7de6dbdc9479077958` — `docs: record Data Quality projection regression gate batch 22`.
+`main` = `3ad1fea5d28cce05f439b5d87d6ec9190edad4a9` — tenant resolver lineage hardening Batch 24.
 
-## Capability matrix
-| Capability | Implementation | Gate | Integration | Runtime Evidence | Production |
+## Evidence vocabulary
+`UNKNOWN → INVENTORIED → IMPLEMENTED → GATED → INTEGRATED → RUNTIME-EVIDENCED → PRODUCTION-CERTIFIED`; use `BLOCKED` only for an external prerequisite.
+
+## Current capability matrix
+| Capability | Implementation | Gate | Integration | Runtime | Production |
 |---|---|---|---|---|---|
 | File/schema intelligence | YES | YES | PARTIAL/REVIEW | NOT PROVEN | NO |
 | Entity/reconciliation | YES | YES | PARTIAL/REVIEW | NOT PROVEN | NO |
@@ -27,92 +27,83 @@ Never infer completion from conversation history. Repository source, executable 
 | Arabic login | YES | YES | YES | NOT PROVEN | NO |
 | Dynamic authenticated identity | YES | YES | YES | NOT PROVEN | NO |
 | Dashboard tenant convergence | YES | YES | YES via canonical RLS | NOT PROVEN | NO |
-| Owner-editable profile/display name | YES | YES | YES | NOT PROVEN | NO |
-| Header health truthfulness | YES | YES | YES | NOT PROVEN | NO |
-| Legacy tenant compatibility consumers | CLOSED IN UI; COMPATIBILITY OWNER REMAINS | YES | YES | NOT PROVEN | NO |
 | Data Quality tenant-native boundary | YES | YES | INTEGRATED | NOT PROVEN | NO |
 | Data Quality bounded projections | YES | YES | INTEGRATED | NOT PROVEN | NO |
 | Data Quality projection regression contract | YES | YES | INTEGRATED | NOT PROVEN | NO |
-| Migration schema audit | YES | YES via Quality | INTEGRATED | NOT EXECUTED WITH OBSERVABLE STEPS | NO |
-| Migration dependency analysis | YES | YES via Quality | INTEGRATED | NOT YET EXECUTED WITH OBSERVABLE STEPS | NO |
+| Migration schema audit | YES | YES via Quality | INTEGRATED | NOT OBSERVED | NO |
+| Migration dependency analysis | YES | YES via Quality | INTEGRATED | NOT OBSERVED | NO |
 | Company configuration truth guard | YES | YES via Quality | INTEGRATED | NOT PROVEN | NO |
-| Legacy tenant consumer boundary guard | YES | YES via Quality | INTEGRATED | NOT PROVEN | NO |
-| CI runner execution | UNKNOWN/BLOCKED | N/A | N/A | CURRENT HEAD NOT PROVEN; HISTORICAL PRE-STEP FAILURE OBSERVED | NO |
+| Legacy tenant consumer boundary | CLOSED IN UI; compatibility owner remains | YES | YES | NOT PROVEN | NO |
+| CI runner execution | UNKNOWN/BLOCKED | N/A | N/A | CURRENT RUNS FAIL BEFORE EXPOSED STEPS | NO |
 
-## Confirmed completed work
-### Auth/Tenant
-- Auth session persistence and canonical auth helpers exist.
-- Authenticated application boundary exists.
-- Arabic login flow exists.
-- Sidebar identity is derived from authenticated profile data; no fixed admin email is used.
-- Sign-out exists.
-- Canonical `current_company_id()` hydration is required before protected UI renders.
-- Missing/ambiguous tenant membership fails closed.
-- Dashboard query layer removed its legacy static tenant filter dependency.
-- Header health is database-backed and treats NULL/error tenant resolution as degraded rather than healthy.
+## Tenant model — corrected canonical semantics
+- The repository contains multiple historical `current_company_id()` definitions.
+- The effective source definition in migration order is `20260822212000_canonical_tenant_membership.sql`.
+- The effective resolver derives tenant context from `auth.uid()` + active + default membership and returns at most one company.
+- The unique active-default index prevents multiple active defaults for one user.
+- This is a multi-membership/default-tenant model; the old wording "multiple membership is always ambiguous/fail-closed" is no longer treated as the effective runtime contract.
+- No client-supplied `company_id` is accepted as the source of tenant truth.
+- Live database behavior is still NOT PROVEN.
 
-### Quality/guards
-- Migration schema audit exists and is registered in `package.json` and canonical `quality.yml`.
-- Migration dependency analyzer exists, is registered as `test:migration-dependencies`, and is integrated into canonical Quality.
-- Company configuration truth guard exists to reject prohibited hard-coded company identity/configuration, including `admin@alamri.com`.
-- Tenant legacy consumer boundary guard permits compatibility tokens only in `src/lib/supabase.ts`; the UI exception is closed.
-- Data Quality reads are routed through `src/lib/data-quality-queries.ts` and no longer supply a company identifier from the UI.
-- Data Quality projections are bounded to fields consumed by the current metrics.
-- Data Quality projection regression contract is registered in package scripts and canonical Quality.
-- These guards are implementation/regression evidence, not runtime certification.
+## Tenant/Data Quality completed source work
+- Data Quality no longer consumes `COMPANY_ID` from the UI.
+- Data Quality uses `fetchDataQualityDatasets()`.
+- Data Quality projections are bounded to fields actually consumed by the current metrics rather than `select(*)`.
+- A regression contract protects the projection boundary and is integrated into canonical Quality.
+- The tenant security contract was corrected to inspect the latest `current_company_id()` definition rather than the first historical resolver.
+- A dedicated tenant-resolver lineage guard was added.
 
-### Permanent project reference
-- `docs/PROJECT_DESCRIPTION.md` is the official Arabic/English project description and explicitly distinguishes implementation from runtime evidence and production certification.
-- `docs/MIGRATION_EXECUTION_MAP_2026-08-25.md` permanently inventories the currently discovered migration chain and explicitly separates repository evidence from live DB evidence.
-- Batch deltas and execution ledgers are stored in-repository to prevent context loss and repeated work.
+## Compatibility boundary
+`src/lib/supabase.ts` retains a nullable compatibility surface for `activeCompanyId`/`COMPANY_ID`. It is not a demo-company fallback. The UI is closed to legacy consumers. Do not delete the compatibility owner until repository-wide consumers and runtime evidence prove safe retirement.
 
-## Migration inventory and dependency work
-- 44 migration files are currently inventoried in the permanent migration map.
-- Same-timestamp migrations are treated as distinct files and are not deduplicated by timestamp alone.
-- Tenant/import hardening is treated as a layered dependency chain rather than replaced wholesale.
-- Import evolution is treated as existing infrastructure requiring dependency/runtime evidence, not a rebuild.
-- Static dependency analysis is machine-checkable; it deliberately remains conservative and does not claim to be a full PostgreSQL parser or live schema proof.
+## Migration inventory
+- 44 migration files are inventoried in the permanent migration map.
+- Same-timestamp migrations remain distinct files.
+- Migration order is treated as semantically significant for `CREATE OR REPLACE` definitions.
+- Static dependency analysis is intentionally conservative and is not a substitute for live PostgreSQL evidence.
 
-## Known remaining compatibility area
-`src/lib/supabase.ts` retains a documented nullable compatibility surface for `activeCompanyId`/`COMPANY_ID`. This is not a demo-company fallback. Do not remove it until repository-wide consumers and runtime evidence confirm it can be retired safely.
+## Current CI evidence — NEW
+Two current `main` push workflows for HEAD `3ad1fea5d28cce05f439b5d87d6ec9190edad4a9` completed with failure before any executable step was exposed:
+- `production-certification-boundary` run `32800542257`, job `97660352968`: failure, `steps=[]`.
+- `master-production-verification` run `32800542369`, job `97660353233`: failure, `steps=[]`.
+
+This is stronger current evidence than the earlier historical observation, but it still does NOT identify the infrastructure root cause because no usable job log/step data was exposed. Application gates must not be labeled failed until an observable step runs.
 
 ## P0 blockers
-### 1. Authenticated tenant isolation proof
-Prove two-company isolation and ambiguous-membership fail-closed behavior end-to-end with executable evidence.
-
-### 2. CI executable evidence
-Historical Quality runs have completed with failure before any executable step is exposed. The observed historical job state has `steps: []`/no usable logs, so it is classified as runner/bootstrap/pre-step for those runs. The current HEAD must not be classified without a current run and observable steps.
+1. **Live tenant isolation:** prove two-company read/write isolation, no-membership fail-closed, inactive membership, default-company selection, and cross-tenant Import RPC rejection against a real database.
+2. **CI execution:** obtain a current run with observable runner steps/logs; diagnose bootstrap/runner failure using the existing diagnostic workflow rather than altering application code blindly.
 
 ## P1 parallel fronts
-1. Execute tenant legacy audit, Data Quality projection contract, typecheck, lint, and build against the current refactor.
-2. Review the migration dependency analyzer output and distinguish intentional object evolution from true conflicts.
-3. Verify migration drift against live DB when live credentials/environment are available.
-4. Trace critical frontend flow: upload/import → review → persistence → reports → decisions → inventory/demand → evidence → certification.
-5. Execute existing J/K/L/M runtime workflows and record real artifacts/evidence instead of rebuilding their framework.
-6. Execute existing E/F/H/I security/resilience workflows and capture live evidence.
-7. Diagnose CI runner/bootstrap using the existing runner diagnostic workflow; do not modify application code to compensate for an infrastructure failure without evidence.
-8. Prove Data Quality metric parity after bounded projections before introducing aggregate/RPC computation.
+1. Execute tenant security, Data Quality projection, migration schema/dependency, typecheck, lint and build against the current HEAD.
+2. Obtain live migration-drift evidence.
+3. Execute existing J/K/L/M runtime workflows and preserve artifacts.
+4. Execute existing E/F/H/I security/resilience workflows and preserve artifacts.
+5. Prove Data Quality metric parity after bounded projections before introducing aggregates/RPC computation.
+6. Trace upload/import → review → persistence → reports → decisions → inventory/demand → evidence → certification.
 
-## Existing certification infrastructure discovered
-The repository already contains runtime/certification workflows for runner diagnostics, J/K/L runtime, Phase E live certification, Phase F resilience, production verification, production-chain guards, runtime closure, recovery readiness, release certification, and security/provenance certification. These are existing capabilities to execute and verify, not systems to rebuild.
+## Permanent reference files
+- `docs/MASTER_EXECUTION_INDEX.md`
+- `docs/MASTER_SYSTEM_INVENTORY_2026-08-25.md`
+- `docs/MIGRATION_EXECUTION_MAP_2026-08-25.md`
+- `docs/PROJECT_DESCRIPTION.md`
+- Append-only execution ledgers and batch deltas.
 
 ## Batch history
-- Batch 5 through Batch 17: stored in their corresponding execution ledgers/deltas.
 - Batch 18: tenant-native Data Quality integration and UI legacy-boundary closure.
-- Batch 19: source-preserving repair after detecting an over-aggressive file rewrite.
-- Batch 20: Data Quality scalability planning and explicit decision not to claim performance improvement without evidence.
-- Batch 21: bounded Data Quality projections implemented in `src/lib/data-quality-queries.ts`.
-- Batch 22: Data Quality projection regression contract added to package scripts and canonical Quality.
+- Batch 19: source-preserving repair after detecting an over-aggressive rewrite.
+- Batch 20: Data Quality scalability plan.
+- Batch 21: bounded Data Quality projections.
+- Batch 22: projection regression contract and Quality integration.
+- Batch 24: tenant resolver lineage correction and security-gate hardening.
 
-## Verified repository evidence
-- `905066a2de85e604f4f97515733c0c07302aa12c`: tenant-native Data Quality query boundary.
-- `54205b75aa0ea5150c31243a2aaeeb47722dd494`: source-preserving repair with tenant-native Data Quality reads.
-- `262c746ac1a55dd990777f8a076aded0380e17b4`: bounded Data Quality projections.
-- `bbee7b8741d3d068e7ed3feb0087b370c7d6f4bb`: Data Quality projection regression contract.
-- `2778640cef713974aabc0fed0cd4a4aedff7fabf`: package script registration.
-- `ded719a2a1974e5ec65e45497b046c7eef232158`: canonical Quality integration.
-- `scripts/check-tenant-legacy-consumers.mjs` allows the compatibility token only in `src/lib/supabase.ts`.
-- Repository search currently returns no additional `COMPANY_ID` matches outside the guarded compatibility boundary.
+## Verified commits of interest
+- `905066a2de85e604f4f97515733c0c07302aa12c` — tenant-native Data Quality boundary.
+- `54205b75aa0ea5150c31243a2aaeeb47722dd494` — source-preserving Data Quality repair.
+- `262c746ac1a55dd990777f8a076aded0380e17b4` — bounded Data Quality projections.
+- `bbee7b8741d3d068e7ed3feb0087b370c7d6f4bb` — projection regression contract.
+- `5de9d7efec919fe71d4d5475cd7db6accd51dd28` — latest-resolver security-gate correction.
+- `55e0c2785d69662c8db330a40b02325cf7a30b24` — SQL matching correction.
+- `3ad1fea5d28cce05f439b5d87d6ec9190edad4a9` — Batch 24 ledger.
 
-## Non-negotiable evidence rule
-A gate existing is implementation evidence only. `Implemented`, `Gated`, and `Integrated` must never be reported as `Runtime-Evidenced` or `Production-Certified` without current executable evidence. Production certification is blocked until all P0 evidence gaps are closed.
+## Non-negotiable rule
+A gate existing is implementation evidence only. `Implemented`, `Gated`, and `Integrated` must never be reported as `Runtime-Evidenced` or `Production-Certified` without current executable evidence. Production certification remains blocked until the P0 evidence gaps are closed.
