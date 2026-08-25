@@ -32,14 +32,21 @@ for (const forbidden of ['TO anon', 'raw_file', 'cross_company']) {
 }
 
 const roadmap = fs.readFileSync(path.join(root, 'docs', 'IMPLEMENTATION_ROADMAP.md'), 'utf8');
+// Keep this gate synchronized with the canonical roadmap language. These are
+// exact current acceptance statements, not historical paraphrases; changing
+// implementation truth requires changing the roadmap deliberately as well.
 for (const requirement of [
-  'Connect the watched-folder coordinator',
-  'source-version/row-level lineage',
-  'chronological multi-report consolidation',
-  'bounded optimizer/scenario',
-  'portfolio prioritization',
-  'executive causal/evidence cockpit',
-  'production autonomy',
+  'Durable watched-report execution jobs with lease/checkpoint/retry/dead-letter state.',
+  'Source-version and row-level lineage primitives.',
+  'Canonical text artifact persistence with extraction provenance and quality score.',
+  'Deterministic chronological consolidation and source precedence.',
+  'Bounded scenario selection with risk/liquidity/service-level constraints.',
+  'Decision portfolio ranking and materiality escalation.',
+  'Outcome-based confidence calibration.',
+  'Domain autonomy controls, certification records and rollback drill records.',
+  'Bind durable jobs to the browser watched-folder coordinator in the live runtime.',
+  'Populate executive evidence graph automatically from live decisions/KPIs.',
+  'Close recommendation → observed outcome feedback in the live executor.',
 ]) {
   if (!roadmap.includes(requirement)) throw new Error(`Roadmap requirement missing: ${requirement}`);
 }
