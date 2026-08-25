@@ -1,6 +1,7 @@
 import { inferSchemaField, type SchemaEvidence, type SchemaField } from './schema-intelligence.ts';
 import { normalizeBusinessKey } from './business-key.ts';
 
+// Node strip-types CI executes this module as native ESM; keep explicit .ts specifiers.
 export type ColumnInference = SchemaEvidence & { sourceColumn: string; sampleSize: number };
 export type TableInference = { headerRow: number; confidence: number; columns: ColumnInference[]; ignoredRows: number[]; reason: string[] };
 export type MappingDecision = { sourceColumn: string; field: SchemaField; confidence: number; evidence: string[]; ambiguous: boolean };
