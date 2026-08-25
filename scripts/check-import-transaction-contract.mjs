@@ -48,7 +48,10 @@ if (fs.existsSync(batchFolderPath)) {
   if (!/status:'failed'|status\s*:\s*'failed'/.test(batch) || !/updateImportRecord\(importRecordId,\{status:'failed'/.test(batch)) {
     throw new Error('Failed folder imports must persist a terminal failed state');
   }
-  if (!/committed, error:message/.test(batch)) throw new Error('Failed folder imports must preserve committed progress');
+  // Formatting is intentionally flexible; the contract is semantic: the failure result must retain committed progress and error text.
+  if (!/committed\s*,\s*error:message/.test(batch) || !/committed\s*,\s*error\??:message/.test(batch)) {
+    throw new Error('Failed folder imports must preserve committed progress and error detail');
+  }
 }
 
 const forbiddenDirectBulk = /supabase\.from\([^)]*(products|import_job_rows|orders)[^)]*\)\.(insert|upsert|update)\s*\(/is;
