@@ -2,9 +2,9 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const ROOT = process.cwd();
-// SQL tenant enforcement is validated independently by the canonical RLS/RPC
-// gates. This guard covers application and executable runtime scripts where
-// legacy/static values can leak into UI, data, or automation paths.
+// SQL tenant enforcement is validated independently by canonical RLS/RPC
+// gates. This guard covers executable application/runtime consumers where
+// legacy, static, or client-selected tenant values can leak into data paths.
 const TARGETS = ['src', 'scripts'];
 const ALLOWED_SELF = new Set(['scripts/check-tenant-legacy-consumers.mjs']);
 const IGNORE_DIRS = new Set(['node_modules', '.git', 'dist', 'coverage']);
@@ -23,15 +23,27 @@ function walk(dir, out = []) {
 function isLegacyTenantConsumer(rel, text) {
   if (ALLOWED_SELF.has(rel)) return false;
   if (rel === 'src/lib/file-engine/synonyms.ts') return false;
-  // check-* files are static-analysis contracts. Their literal markers are
+  // check-* files are static-analysis contracts; their literal markers are
   // intentionally inspected and must not be classified as runtime consumers.
   if (/^scripts\/check-[^/]+\.mjs$/.test(rel)) return false;
 
+  // Removed mutable tenant compatibility state.
   if (/\bCOMPANY_ID\b/.test(text)) return true;
+  if (/\b(?:setCompanyId|clearCompanyId|getCompanyId)\b/.test(text)) return true;
   if (/\btenant_memberships\b/i.test(text)) return true;
-  if (/\b(?:companyId|company_id|tenantId)\s*[:=]\s*['"][0-9a-f-]{16,}['"]/i.test(text)) return true;
-  if (/\.(?:eq|neq|in|filter)\s*\(\s*['"]company_id['"]\s*,\s*['"][0-9a-f-]{16,}['"]\s*\)/i.test(text)) return true;
-  if (/\.(?:eq|neq|in|filter)\s*\(\s*['"]company_id['"]\s*,\s*(?:selectedCompanyId|selectedTenantId|profile\.company_id|user\.company_id)\s*\)/i.test(text)) return true;
+
+  // Static tenant identity, including environment/config defaults.
+  if (/\b(?:companyId|company_id|tenantId|tenant_id)\s*[:=]\s*['"][0-9a-f-]{16,}['"]/i.test(text)) return true;
+  if (/\b(?:VITE_|NEXT_PUBLIC_|PUBLIC_)?(?:COMPANY_ID|TENANT_ID)\s*[:=]/i.test(text)) return true;
+  if (/\b(?:companyId|company_id|tenantId|tenant_id)\s*=\s*(?:process\.env\.|import\.meta\.env\.)/i.test(text)) return true;
+
+  // Client-selected tenant filtering is not an authoritative security boundary.
+  if (/\.(?:eq|neq|in|filter)\s*\(\s*['"](?:company_id|tenant_id)['"]\s*,\s*(?:selectedCompanyId|selectedTenantId|profile\.company_id|user\.company_id)\s*\)/i.test(text)) return true;
+  if (/\.(?:eq|neq|in|filter)\s*\(\s*['"](?:company_id|tenant_id)['"]\s*,\s*(?:companyId|tenantId)\s*\)/i.test(text)) return true;
+  if (/\b(?:selectedCompanyId|selectedTenantId|selectedTenant|selectedCompany)\b/.test(text) && /\b(?:company_id|tenant_id)\b/.test(text)) return true;
+
+  // Static equality against a UUID-like tenant is always unsafe.
+  if (/\.(?:eq|neq|in|filter)\s*\(\s*['"](?:company_id|tenant_id)['"]\s*,\s*['"][0-9a-f-]{16,}['"]\s*\)/i.test(text)) return true;
 
   return false;
 }
@@ -47,9 +59,9 @@ for (const root of TARGETS) {
 }
 
 if (findings.length) {
-  console.error('Unsafe legacy/static application or runtime tenant consumers detected:');
+  console.error('Unsafe legacy/static/client-selected tenant consumers detected:');
   for (const item of findings) console.error(`  ${item.file}`);
   process.exit(1);
 }
 
-console.log('PASS: no legacy/static application or runtime-script tenant consumers exist; tenant state is database-authoritative.');
+console.log('PASS: no legacy/static/client-selected application or runtime tenant consumers exist; tenant state is database-authoritative.');
