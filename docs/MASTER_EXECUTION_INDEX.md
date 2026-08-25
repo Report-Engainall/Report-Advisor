@@ -16,22 +16,24 @@ Source of truth: `main`
 - PASS لا يعني production-certified؛ LIVE evidence منفصل.
 
 ## Current truth
-The quality workflow is operating as a batch-discovery loop rather than a serial first-failure loop. Routing/Security runs five independent checks together; downstream gates continue collecting independent failures. The last completed application gate wave reached all 43 functional/contract gates; the remaining workflow failure was in post-job Python cache handling, not an application gate. That cache path was removed because the Document Intelligence runtime contract does not require pip caching.
+The quality workflow is a batch-discovery loop rather than a serial first-failure loop. Routing/Security runs five independent checks together; downstream gates continue collecting independent failures. The latest inspected run `32893065950` reached 43 application/contract gates with only the **Quality workflow contract** failing; the remaining gates after that point were skipped by normal fail-fast ordering. The root cause was not application behavior: the workflow had drifted away from its own contract by using a non-unique concurrency group with `cancel-in-progress: true`, while the contract requires a per-run unique group and `cancel-in-progress: false`. This is now corrected in commit `d0de8ae84d3982f3cf9243e171b6e28d1cf82497`.
 
 ## Latest batch fixes
 1. `src/lib/free-toolbox/batch-decision-engine.ts`: bounded risk percentages are clamped to `[0,100]` before `finitePercent`. Commit: `f21277a7311c463b75bf0089f5d5729e639588ef`.
 2. `services/document-intelligence/tests/test_intermediate_model_contract.py`: aligned the test import with `PYTHONPATH=services/document-intelligence`. Commit: `5db499535667b0b25b8a4a7aa8caf9a8edf2556f`.
 3. `scripts/check-report-truth-contract.mjs`: replaced greedy same-line numeric fallback detection with expression-safe matching and explicit offending-expression reporting. Commit: `96aadeeb22f7d78bf45256b7837f69de294c4b35`.
-4. `.github/workflows/quality.yml`: uses current action majors (`checkout@v7`, `setup-node@v7`, `setup-python@v7`) while retaining Node 22 as the project runtime under test. Commit: `44290959303f9196084539db30ae573ab7998399`.
-5. `.github/workflows/quality.yml`: removed unnecessary `setup-python` pip caching after a post-job cache-path failure; also enabled stale-run cancellation so superseded workflow runs do not waste CI capacity. Commit: `aec24437fc4e5652c0993ce94f1afbe4c76b1f5e`.
+4. `.github/workflows/quality.yml`: current action majors (`checkout@v7`, `setup-node@v7`, `setup-python@v7`) while retaining Node 22 as the project runtime under test. Commit: `44290959303f9196084539db30ae573ab7998399`.
+5. `.github/workflows/quality.yml`: removed unnecessary `setup-python` pip caching after a post-job cache-path failure. The earlier attempt to cancel superseded runs was later reverted because the repository's workflow contract explicitly requires non-cancelling verification. Final corrected concurrency contract is in `d0de8ae84d3982f3cf9243e171b6e28d1cf82497`.
 6. `src/components/data-table/DataTable.tsx`: removed `any` casts in table row rendering and unused pagination destructuring. Commit: `8cee387eb6bbe121efdb192be7ffd9b47381f718`.
 7. `src/lib/file-engine/data-types.ts`: replaced `any` inputs with `unknown` and explicit type narrowing in data-type detection/cleaning. Commit: `cf470ddfe778e935b453a3a435b0f403ca458f6b`.
-8. `src/lib/tenantContext.ts`: removed the unused client-only `isTenantSelected` helper after repo-wide caller search found no production/test callers. This reduces the legacy tenant-selection surface without changing the authoritative `current_company_id()` path. Commit: `956c53a37b12bf52cc4f1e3206a03a884ab4f38a`.
-9. Repo-wide direct Supabase/tenant scans were repeated. Current evidence shows canonical `resolveCurrentCompanyId()` remains the authoritative browser resolver, while `queries.ts` uses direct reads protected by database RLS; these are not automatically classified as legacy violations. No speculative rewrite was made. `supabase.ts` documents and enforces database authority. 
+8. `src/lib/tenantContext.ts`: removed the unused client-only `isTenantSelected` helper after repo-wide caller search found no production/test callers. Commit: `956c53a37b12bf52cc4f1e3206a03a884ab4f38a`.
+9. Repo-wide direct Supabase/tenant scans were repeated. Current evidence shows canonical `resolveCurrentCompanyId()` remains the authoritative browser resolver, while `queries.ts` uses direct reads protected by database RLS; these are not automatically classified as legacy violations. No speculative rewrite was made.
+10. `.github/workflows/quality.yml`: restored the workflow's required **unique per-run concurrency group** and `cancel-in-progress: false`, fixing the root cause of Run #1506 failing at `Quality workflow contract`. Commit: `d0de8ae84d3982f3cf9243e171b6e28d1cf82497`.
 
 ## Current CI
-- The last inspected completed wave had **43/43 application/contract gates successful**; its only red result was a post-job `setup-python` cache failure. This is now addressed in `aec24437fc4e5652c0993ce94f1afbe4c76b1f5e`.
-- The current `quality.yml` has stale-run cancellation enabled (`cancel-in-progress: true`) so superseded runs do not consume capacity while preserving complete verification for the latest commit.
+- Run `32893065950` / #1506 is a verified failure at the workflow contract gate, not a tenant/application gate. Tenant convergence, legacy consumer, adversarial tenant, data quality, migrations, master requirements, RLS, import RPC/business-key, lint, build, performance, intelligence, analysis, document intelligence, report truth, production readiness and resilience all reached success before/after the gate as available in the run ordering.
+- Corrective commit `d0de8ae84d3982f3cf9243e171b6e28d1cf82497` has been pushed. **Its CI result is not yet claimed.**
+- Workflow contract requirements now match the implementation: unique group includes `github.run_id`; `cancel-in-progress: false`; timeout remains 40 minutes.
 - Do not treat a commit as PASS until its complete workflow job concludes.
 
 ## Phase truth
@@ -57,8 +59,8 @@ The quality workflow is operating as a batch-discovery loop rather than a serial
 ## Tenant / Data / KPI truth
 - Tenant legacy/static/client-selected consumer scan: **PASS** for the guarded boundary; a remaining `COMPANY_ID` search hit is not itself a violation and is classified by authoritative flow.
 - Adversarial tenant source boundary: **PASS**.
-- Global tenant RLS, import RPC tenant context and business-key contracts: **PASS** in the last completed wave.
-- Import transaction/runtime governance: **PASS** in the last completed wave.
+- Global tenant RLS, import RPC tenant context and business-key contracts: **PASS** in the latest completed run.
+- Import transaction/runtime governance: **PASS** in the latest completed run.
 - Migration schema audit: **PASS**, 52 migrations inspected with no findings.
 - KPI presentation truth: **PASS**; missing authoritative values remain fail-closed rather than fabricated.
 - Remaining live proof: real Supabase adversarial isolation, Storage/signed URLs, Realtime authorization, AI retrieval namespace isolation, restore/RPO-RTO, live Onyx/reconciliation, secrets and production rollback evidence.
