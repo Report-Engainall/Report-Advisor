@@ -26,7 +26,7 @@ const sourceFiles = walk(srcRoot)
   .map((file) => ({ file, name: path.relative(root, file), text: fs.readFileSync(file, 'utf8') }));
 
 function latestSignature(functionName) {
-  const re = new RegExp(`CREATE\\s+(?:OR\\s+REPLACE\\s+)?FUNCTION\\s+public\\.${functionName}\\s*\\(([^)]*)\\)`, 'gi');
+  const re = new RegExp(`CREATE\\s+(?:OR\\s+REPLACE\\s+)?FUNCTION\\s+(?:public\\.)?${functionName}\\s*\\(([^)]*)\\)`, 'gi');
   let latest = null;
   for (const migration of migrations) {
     let match;
@@ -46,15 +46,37 @@ function parseArgNames(args) {
 
 const findings = [];
 const rpcCalls = new Map();
-const rpcPattern = /supabase\.rpc\(\s*['"]([a-z0-9_]+)['"]\s*,\s*\{([\s\S]*?)\}\s*\)/gi;
 
+// Capture every literal RPC call first. This establishes coverage even when
+// the second argument is a variable/helper rather than an inline object.
+const rpcNamePattern = /supabase\.rpc\(\s*['"]([a-z0-9_]+)['"]\s*,/gi;
 for (const file of sourceFiles) {
   let match;
-  while ((match = rpcPattern.exec(file.text))) {
+  while ((match = rpcNamePattern.exec(file.text))) {
+    const fn = match[1].toLowerCase();
+    if (!rpcCalls.has(fn)) rpcCalls.set(fn, []);
+    rpcCalls.get(fn).push({ file: file.name, args: null, static_args: false });
+  }
+}
+
+// Upgrade calls whose second argument is an inline object with statically
+// visible p_* keys. Calls using a variable/helper remain explicitly BLOCKED
+// rather than silently disappearing from the audit.
+const rpcInlinePattern = /supabase\.rpc\(\s*['"]([a-z0-9_]+)['"]\s*,\s*\{([\s\S]*?)\}\s*\)/gi;
+for (const file of sourceFiles) {
+  let match;
+  while ((match = rpcInlinePattern.exec(file.text))) {
     const fn = match[1].toLowerCase();
     const args = [...match[2].matchAll(/\b(p_[a-z0-9_]+)\s*:/gi)].map((m) => m[1].toLowerCase());
-    if (!rpcCalls.has(fn)) rpcCalls.set(fn, []);
-    rpcCalls.get(fn).push({ file: file.name, args: [...new Set(args)] });
+    const calls = rpcCalls.get(fn) ?? [];
+    const candidate = calls.find((call) => call.file === file.name && !call.static_args);
+    if (candidate) {
+      candidate.args = [...new Set(args)];
+      candidate.static_args = true;
+    } else {
+      calls.push({ file: file.name, args: [...new Set(args)], static_args: true });
+      rpcCalls.set(fn, calls);
+    }
   }
 }
 
@@ -67,7 +89,18 @@ for (const [fn, calls] of rpcCalls) {
   const defined = parseArgNames(signature.args);
   const definedNames = new Set(defined.map((x) => x.name));
   for (const call of calls) {
-    const called = new Set(call.args);
+    if (!call.static_args) {
+      findings.push({
+        type: 'RPC_CALLER_COVERAGE',
+        fn,
+        file: call.file,
+        migration: signature.migration,
+        status: 'BLOCKED',
+        reason: 'RPC parameter object is dynamic/helper-derived and cannot be proven statically; runtime/typed evidence required',
+      });
+      continue;
+    }
+    const called = new Set(call.args ?? []);
     const unknown = [...called].filter((x) => !definedNames.has(x));
     const missingRequired = defined.filter((x) => x.required && !called.has(x.name)).map((x) => x.name);
     findings.push({
