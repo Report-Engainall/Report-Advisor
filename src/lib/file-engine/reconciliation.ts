@@ -1,4 +1,4 @@
-import { normalizeBusinessKey } from './business-key';
+import { normalizeBusinessKey } from './business-key.ts';
 export type ReconciliationStatus = 'new' | 'updated' | 'unchanged' | 'conflict' | 'error';
 export type ReconciliationRow<T> = { key: string; status: ReconciliationStatus; source: T; target: T | null; changedFields: string[]; reason: string };
 export type ReconciliationSummary = { total: number; new: number; updated: number; unchanged: number; conflict: number; error: number };
