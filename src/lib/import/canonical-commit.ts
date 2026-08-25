@@ -16,10 +16,12 @@ function numberValue(value: unknown, fallback = 0): number {
 
 async function commitProduct(row: CanonicalImportRow) {
   const d = row.data;
+  // Keep this call exactly aligned with the authoritative RPC signature.
+  // is_active is intentionally not sent: the current canonical RPC does not accept it.
   const { data, error } = await supabase.rpc('import_upsert_product', {
     p_company_id: COMPANY_ID, p_sku: text(d.sku) ?? `SKU-${row.rowNumber}`, p_name: text(d.name) ?? '',
     p_unit: text(d.unit) ?? 'قطعة', p_cost_price: numberValue(d.cost_price), p_selling_price: numberValue(d.selling_price),
-    p_min_stock: numberValue(d.min_stock), p_reorder_point: numberValue(d.reorder_point), p_is_active: d.is_active == null ? true : Boolean(d.is_active),
+    p_min_stock: numberValue(d.min_stock), p_reorder_point: numberValue(d.reorder_point), p_null_policy: 'preserve',
   });
   if (error) throw error;
   return String(data);
