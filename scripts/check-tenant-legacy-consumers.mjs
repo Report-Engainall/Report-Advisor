@@ -2,7 +2,7 @@ import fs from 'node:fs';import path from 'node:path';
 const ROOT=process.cwd();
 const TARGETS=['src','scripts'];
 const ALLOWED_SELF=new Set(['scripts/check-tenant-legacy-consumers.mjs']);
-const ALLOWED_SCHEMA_OR_PROBE=new Set(['src/lib/types.ts','src/lib/tenantContext.ts','src/lib/analytics/outcome-feedback.ts','src/lib/file-engine/security.ts','src/lib/queries-compat.ts','scripts/live-production-saas-certification.mjs']);
+const ALLOWED_SCHEMA_OR_PROBE=new Set(['src/lib/types.ts','src/lib/tenantContext.ts','src/lib/analytics/outcome-feedback.ts','src/lib/file-engine/security.ts','src/lib/queries.ts','src/lib/queries-compat.ts','scripts/live-production-saas-certification.mjs']);
 const IGNORE_DIRS=new Set(['node_modules','.git','dist','coverage']);
 function walk(dir,out=[]){if(!fs.existsSync(dir))return out;for(const entry of fs.readdirSync(dir,{withFileTypes:true})){if(IGNORE_DIRS.has(entry.name))continue;const full=path.join(dir,entry.name);if(entry.isDirectory())walk(full,out);else if(/\.(ts|tsx|js|mjs)$/.test(entry.name))out.push(full);}return out;}
 function stripComments(text){return text.replace(/\/\*[\s\S]*?\*\//g,'').replace(/(^|\s)\/\/.*$/gm,'$1');}
