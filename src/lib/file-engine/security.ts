@@ -12,17 +12,12 @@ interface FileRecord {
 }
 
 export async function computeSHA256(buffer: ArrayBuffer): Promise<string> {
-  if (crypto?.subtle) {
-    const hash = await crypto.subtle.digest('SHA-256', buffer);
-    return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
-  }
-  let h = 0x811c9dc5;
-  const bytes = new Uint8Array(buffer);
-  for (let i = 0; i < bytes.length; i++) {
-    h ^= bytes[i];
-    h = Math.imul(h, 0x01000193);
-  }
-  return (h >>> 0).toString(16).padStart(8, '0');
+  // Never downgrade a security identity function to a different hash algorithm.
+  // The previous fallback returned a 32-bit FNV value while naming it SHA-256,
+  // which could create collisions and invalid duplicate/replay identities.
+  if (!globalThis.crypto?.subtle) throw new Error('SHA256_UNAVAILABLE');
+  const hash = await globalThis.crypto.subtle.digest('SHA-256', buffer);
+  return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
 export function securityScan(file: File, buffer: ArrayBuffer): SecurityScanResult {
