@@ -8,6 +8,7 @@ export interface OnyxAdaptedDataset {
   canonicalHeaders: string[];
   rows: Row[];
   unknownHeaders: string[];
+  conflictingHeaders: string[];
   confidence: number;
 }
 
@@ -18,6 +19,12 @@ function normalize(value: string): string {
 function matchHeader(header: string) {
   const normalized = normalize(header);
   return ONYX_PRO_HEADER_CATALOG.find(def => def.aliases.some(alias => normalize(alias) === normalized));
+}
+
+function stableComparable(value: unknown): string {
+  if (value === null || value === undefined) return '';
+  if (typeof value === 'number') return Number.isFinite(value) ? String(value) : '';
+  return String(value).trim();
 }
 
 function detectKind(matches: Array<{ kind: OnyxReportKind[] }>): OnyxReportKind {
@@ -34,15 +41,29 @@ export function adaptOnyxRows(headers: string[], rows: Row[]): OnyxAdaptedDatase
   const confidence = headers.length ? Math.round((knownHeaderCount / headers.length) * 100) : 0;
   const unknownHeaders = headers.filter((header, index) => !definitions[index]);
   const canonicalHeaders = [...new Set(known.map(def => def.canonical))];
+  const conflictingHeaders = new Set<string>();
 
   const rowsOut = rows.map(row => {
     const canonical: Row = {};
+    const sourceHeadersByCanonical = new Map<string, string>();
     for (const header of headers) {
       const definition = matchHeader(header);
       if (!definition) continue;
       const value = row[header];
       if (value === '' || value === null || value === undefined) continue;
-      if (canonical[definition.canonical] === undefined) canonical[definition.canonical] = value;
+      const canonicalName = definition.canonical;
+      if (canonical[canonicalName] === undefined) {
+        canonical[canonicalName] = value;
+        sourceHeadersByCanonical.set(canonicalName, header);
+        continue;
+      }
+
+      // Multiple source columns may be aliases of the same canonical field. Never
+      // silently choose between materially different values: flag the ambiguity
+      // for the caller to quarantine/review instead of corrupting canonical data.
+      if (stableComparable(canonical[canonicalName]) !== stableComparable(value)) {
+        conflictingHeaders.add(`${sourceHeadersByCanonical.get(canonicalName) ?? canonicalName} ↔ ${header}`);
+      }
     }
     return canonical;
   });
@@ -53,6 +74,7 @@ export function adaptOnyxRows(headers: string[], rows: Row[]): OnyxAdaptedDatase
     canonicalHeaders,
     rows: rowsOut,
     unknownHeaders,
+    conflictingHeaders: [...conflictingHeaders],
     confidence,
   };
 }
