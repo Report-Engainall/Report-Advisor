@@ -1,0 +1,3 @@
+TABLE: synthetic merged-cell representation
+ROW 1: [Category=Accessories] [SKU=SYN-601] [Quantity=2]
+ROW 2: [Category=Accessories (merged from row 1)] [SKU=SYN-602] [Quantity=5]
