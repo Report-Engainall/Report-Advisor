@@ -15,7 +15,7 @@ Source of truth: `main`
 - PASS لا يعني production-certified؛ LIVE evidence منفصل.
 
 ## Current truth
-The latest verifier wave reached Typecheck and behavioral regressions after passing tenant, adversarial tenant, data quality, migration, core, production-contract, resilience, governance, watched-folder, K/L/M, deep K→S, KPI-truth and A0 gates. Run #1464 reached Typecheck; #1466 reached Routing/Security after Typecheck and behavioral regressions passed. Run #1464 failed only because the quality workflow referenced the existing `scripts/check-import-direct-write-guard.mjs` through a nonexistent npm script alias. The workflow wiring is now corrected in `d0b999f32ccff6c6c86cef5993b9cc78106e6301` and must be re-certified by CI.
+The latest verified wave (#1464) passed install, tenant, adversarial tenant, data quality, migration, core, production-contract, resilience, governance, watched-folder, K/L/M, deep K→S, KPI-truth, A0 intelligence, Typecheck and behavioral regressions. It then failed at Routing/Security because `quality.yml` invoked the existing `scripts/check-import-direct-write-guard.mjs` through a missing npm script alias. This was an integration wiring defect, not a missing guard. The canonical guard exists and remains unchanged. The missing npm alias was restored in commit `ccd9f5b87d042d952aeea4cc2e8852f753040310`; a fresh CI verification is required before declaring the workflow green.
 
 ## Phase truth
 | المسار | الحالة | المتبقي الحاسم |
@@ -63,7 +63,7 @@ Foundation/gates cover multi-format mapping, Arabic/English normalization, busin
 
 Compatibility import reads/writes route through existing RPCs; no second import engine exists. Canonical report checkpoint stage, product-family `memberSkus`, entity-resolution discriminant, demand `avgDaily`, nested Supabase shapes and typed inventory balances were hardened.
 
-Current CI direct-write governance is now correctly wired to the existing `scripts/check-import-direct-write-guard.mjs`; no duplicate guard was created.
+Current CI direct-write governance is now correctly wired to the existing `scripts/check-import-direct-write-guard.mjs`; the npm alias was restored in `ccd9f5b87d042d952aeea4cc2e8852f753040310`. No duplicate guard was created.
 
 Remaining runtime proof: arbitrary/no-header/random/poor files, extraction completeness, cell lineage, golden corpus, live Onyx, live rollback/retry/reconciliation.
 
@@ -78,84 +78,12 @@ Type-safe KPI presentation boundary: `src/lib/dashboard-kpi-guards.ts`; Executiv
 
 Remaining: cross-dashboard/report/export equivalence, authoritative date-window contract, cache freshness, provenance continuity and live KPI evidence.
 
-## Evidence → Decision → Outcome
-Evidence-bound decision contracts and fail-closed policy exist. Canonical `DecisionScore` is reused. `decisionExplainability.ts` imports only `DecisionScore` and no longer depends on stale `DecisionScoreInput`.
+## Current CI / next execution
+- Last inspected failure: #1464 / `32885447874`, Routing/Security at missing npm alias.
+- Root fix committed: `ccd9f5b87d042d952aeea4cc2e8852f753040310`.
+- Next mandatory loop: fresh CI → Routing/Security → Global Tenant RLS → Import RPC tenant context → Import business key → Lint → Build → Performance → Intelligence runtime → Document intelligence → Report truth → Production readiness → Full resilience.
+- Parallel P0 work remains LIVE REQUIRED where real Supabase/production evidence is indispensable: adversarial tenant isolation, Storage/signed URLs, Realtime authorization, AI tenant isolation, restore/RPO-RTO, artifact verification, failure/dead-letter drills, secrets/security audit, SLO/rollback and production certification.
+- Parallel P1 work remains: Windows persistent watcher, Android watcher, iOS capability integration, live folder coordinator, live document corpus, evidence graph, outcome feedback and executive action loop.
 
-Remaining: live evidence graph, real outcomes, recommendation→outcome feedback, executive action loop, production-like optimizer scenarios.
-
-## Lease / recovery
-Durable jobs + lease + heartbeat + checkpoint + retry + terminal state + dead-letter exist. Runtime regression covers checkpoint monotonicity, source-snapshot-specific idempotency identity and fail-closed tenant/idempotency context.
-
-LIVE REQUIRED: stuck-worker injection, lease expiry, dead-letter replay, backup restore/RPO-RTO, rollback/forward-fix, SLO timing.
-
-## K→S closure truth
-Shallow/deep K→S gates consume the historical roadmap plus `docs/IMPLEMENTATION_ROADMAP_PHASES-N-S.md`, actual canonical runtime API and P0 certification matrix. The nonexistent Phase M migration reference was corrected to `supabase/migrations/20260825150000_phase_m_certification_bundle.sql`; deep K→S gate passes.
-
-## Latest CI truth
-Primary verifier: `.github/workflows/quality.yml`.
-- #1430 `32883083895`: through deep K→S passed; KPI presentation guard exposed fabricated labels and was fixed.
-- #1444 `32884503475`: `npm ci` failed from package manifest/lock drift; fixed in `b4837539e6e4fa8b91ad9a550c7d8f131dcca920`.
-- #1464 `32885447874`: npm install and all gates through A0 hardening passed; Typecheck and behavioral regressions passed; Routing/Security failed because the workflow invoked nonexistent npm script `test:import-direct-write-guard` even though the canonical guard script exists.
-- Workflow root fix: `d0b999f32ccff6c6c86cef5993b9cc78106e6301` now invokes `node scripts/check-import-direct-write-guard.mjs` directly. No PASS is claimed until a new CI run verifies it.
-
-## P0 LIVE blockers
-- [ ] adversarial tenant certification
-- [ ] storage/signed URL verification
-- [ ] Realtime authorization
-- [ ] AI retrieval tenant isolation
-- [ ] backup restore/RPO-RTO
-- [ ] staging migration/schema drift
-- [ ] environment parity
-- [ ] signed artifact verification
-- [ ] stuck-worker/dead-letter drill
-- [ ] incident/SLO rollback/forward-fix
-- [ ] security/secret audit
-- [ ] stabilization telemetry
-- [ ] final production certification
-
-## P1 connected runtime
-- [ ] Windows persistent native watcher
-- [ ] Android native folder watcher
-- [ ] iOS capability-aware integration
-- [ ] live watched-folder coordinator
-- [ ] real extraction checkpoints
-- [ ] business-state snapshots from real outputs
-- [ ] live executive evidence graph
-- [ ] production-like bounded scenarios
-- [ ] recommendation outcome feedback
-- [ ] executive approval/action loop
-- [ ] live drift/health canaries
-- [ ] real rollback drills
-
-## P1 Document Intelligence
-- [ ] provider-neutral intermediate representation
-- [ ] page/table classification
-- [ ] headerless/reverse schema discovery
-- [ ] extraction/provenance completeness
-- [ ] cell lineage
-- [ ] entity precision/recall evidence
-- [ ] mathematical reconciliation
-- [ ] confidence/quarantine/reprocessing UX
-- [ ] golden Arabic/English/scanned/random/no-header/merged/multi-table/poor-quality corpus
-
-## P2 UX / predictive
-- [ ] Command Palette
-- [ ] saved views/filter/group persistence
-- [ ] executive cockpit drill-down→evidence→action E2E
-- [ ] deterministic what-if/scenario engine
-- [ ] cross-filter/drill-down production proof
-- [ ] connected evidence workspace
-- [ ] low-bandwidth/mobile proof
-- [ ] forecast backtesting/minimum-data UX
-- [ ] closed-loop forecast quality
-- [ ] provider failure/fallback E2E
-- [ ] live AI retrieval canary
-- [ ] evidence-grounded Ask→Inspect→Act E2E
-
-## Truth-weighted progress
-**~82% engineering completion remains the conservative verified figure.** Implementation coverage is ~90%+, contract/gate maturity is high, integrated runtime is advanced but partial, and live certification remains incomplete. Recent commits are hardening/integration work; they do not automatically increase the percentage.
-
-Production certified: **NO** until P0 live evidence closes.
-
-## Execution loop
-At the start/end of every batch: read this index → scan the repository → run CI in parallel → fix every independent root-cause gap that is safe to close → add/strengthen guard → commit → let CI re-run → continue to the next deeper gap without waiting.
+## Completion truth
+**Engineering completion: ~82% (conservative).** This is not production readiness. No percentage increase is claimed for commits/guards alone. Production certification remains **NO** until LIVE runtime evidence closes the P0 matrix.
