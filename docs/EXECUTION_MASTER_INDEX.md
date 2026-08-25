@@ -1,8 +1,8 @@
 # Report Advisor — Execution Master Index
 
-> **Authoritative execution index.** This file incorporates the requirements in `وثيقة 01 — تقرير التنفيذ والتصحيح والتطوير المطلوب في Report-Advisor` and is the operational checklist for closing the product. It supplements `docs/MASTER_PRODUCT_REFERENCE.md`; it does not replace it.
+> **Authoritative execution index.** This file incorporates `وثيقة 01 — تقرير التنفيذ والتصحيح والتطوير المطلوب في Report-Advisor` and the subsequent product directive: **preserve all existing capabilities, improve rather than remove them, and keep the complete product free to operate with no mandatory paid provider, subscription, API, or external service.** It supplements `docs/MASTER_PRODUCT_REFERENCE.md`; it does not replace it.
 >
-> **Rule:** a file, contract, gate, migration, or UI is not evidence of completion. A workstream becomes `COMPLETE` only after an executable path, fixture/live evidence, security checks, regression coverage, and documented result exist.
+> **Rule:** a file, contract, gate, migration, UI, or provider is not evidence of completion. A workstream becomes `COMPLETE` only after an executable path, fixture/live evidence, security checks, regression coverage, and documented result exist.
 
 ## Status vocabulary
 
@@ -14,16 +14,53 @@
 
 ## Non-negotiable engineering rules
 
-1. Preserve working React/Vite/Supabase architecture unless an evidence-backed engineering reason requires change.
-2. Inspect existing implementation before adding a new gate, workflow, contract, provider, framework, or service.
-3. Deterministic engines own authoritative numbers; LLMs never calculate or write business truth.
-4. Raw business rows are never sent to hosted AI; only approved minimum context is allowed.
-5. No silent paid-AI fallback.
-6. Missing information is `UNKNOWN` / `INSUFFICIENT_EVIDENCE`, never silently zero-filled.
-7. Every tenant-scoped operation is authorized at the actual execution boundary.
-8. Every important result must be traceable to source evidence and a versioned snapshot.
-9. Empty imported fields do not clear existing values unless an explicit clear/overwrite policy was selected.
-10. No production certification from TypeScript/build success alone.
+1. **Preserve before replacing:** do not delete or downgrade an existing feature that works. Improve, repair, optimize, and integrate it unless removal is required by a proven security/correctness issue and an equal-or-better replacement is implemented and regression-tested.
+2. Preserve the working React/Vite/Supabase architecture unless an evidence-backed engineering reason requires change.
+3. Inspect existing implementation before adding a new gate, workflow, contract, provider, framework, or service.
+4. Deterministic engines own authoritative numbers; LLMs never calculate or write business truth.
+5. Raw business rows are never sent to hosted AI; only approved minimum context is allowed.
+6. No silent paid-AI fallback.
+7. **Free-first / zero-mandatory-cost policy:** all core application capabilities must be runnable without paying any third party. No feature may require a paid AI API, paid SaaS, paid database tier, paid OCR/parser, paid storage, paid analytics, paid messaging provider, or paid automation service as a prerequisite for normal operation.
+8. Prefer local, open-source, self-hosted, browser-native, or existing free-tier-compatible components for optional integrations. Paid providers may exist only as explicit optional adapters and must never be required, silently invoked, or used as the only path for a core feature.
+9. The application must clearly expose provider mode/state and must fail safely to a free/local path or `UNAVAILABLE/INSUFFICIENT_EVIDENCE`; it must never trigger a charge or paid fallback silently.
+10. No feature removal is an optimization strategy. Performance work must preserve existing behavior and user-facing capabilities, with regression tests proving parity or improvement.
+11. Missing information is `UNKNOWN` / `INSUFFICIENT_EVIDENCE`, never silently zero-filled.
+12. Every tenant-scoped operation is authorized at the actual execution boundary.
+13. Every important result must be traceable to source evidence and a versioned snapshot.
+14. Empty imported fields do not clear existing values unless an explicit clear/overwrite policy was selected.
+15. No production certification from TypeScript/build success alone.
+16. Performance optimization must be measured with before/after benchmarks; never claim a speed improvement without evidence.
+17. Every newly proposed dependency must pass an **anti-cost and anti-bloat review**: necessity, license, offline/local alternative, operational cost, failure mode, and feature-preservation impact.
+
+## Zero-cost product acceptance contract
+
+The following are **core acceptance requirements**, not suggestions:
+
+- Core import/export works without a paid provider.
+- PDF/OCR/document intelligence has a free/local/browser-capable path.
+- Analysis, metrics, reports, recommendations, and ChatBI have a free/local deterministic path.
+- AI is optional for core correctness; if AI is unavailable, deterministic functionality remains usable.
+- Local Ollama/open-source models may be used where appropriate; no hosted paid AI is mandatory.
+- No API key is required for the core product unless the user explicitly chooses an optional external integration.
+- No credit card is required to unlock core functionality.
+- No paid fallback may be hidden in application code, CI, runtime configuration, or provider routing.
+- Optional paid adapters must be visibly labeled **OPTIONAL / PAID**, disabled by default, and isolated behind a provider interface.
+- The free/local path must be covered by the same regression and security tests as any optional provider.
+- Documentation must state exactly which capabilities work offline/local and which optional external integrations need their own accounts.
+
+## Feature preservation ledger
+
+Before changing architecture or removing any existing capability, record:
+- feature name;
+- current implementation;
+- reason for change;
+- defect/performance/security evidence;
+- replacement/improvement;
+- migration path;
+- regression test;
+- user-visible parity checklist.
+
+**Default decision = KEEP + IMPROVE.**
 
 ## Master execution matrix
 
@@ -64,6 +101,9 @@
 | 33 | Golden Corpus + Test Matrix | GATED | unit/integration/E2E/security/OCR/RLS/recovery corpus results |
 | 34 | Production Certification | LIVE REQUIRED | security/storage/realtime/AI/migration/DR/SLO/evidence/action certification |
 | 35 | Anti-bloat governance | GATED | architecture review proves no unnecessary framework/provider/microservice growth |
+| 36 | Free/Local Core Certification | GATED | clean environment proves core product runs without paid third-party dependency |
+| 37 | Feature Preservation / No-Regression | GATED | inventory of existing capabilities + parity/regression evidence after changes |
+| 38 | Performance Engineering | FOUNDATION | before/after P50/P95/P99, CPU/memory/I/O/network and large-file benchmarks |
 
 ## Required canonical runtime chain
 
@@ -129,9 +169,44 @@ Empty cells never clear an existing canonical value unless an explicit clear/ove
 
 AI is an explanation/synthesis layer. It cannot author authoritative numeric facts or write business tables directly. OCR/document text and external content are untrusted input and must pass sanitization/injection controls.
 
+## Free/local AI contract
+
+Core AI-assisted capabilities must remain functional with a local/free provider path. Provider selection must be explicit and auditable:
+
+`LOCAL/FREE → optional external adapter`
+
+Never:
+`LOCAL unavailable → silently call paid API`
+
+If no provider is available, the system must preserve deterministic analysis and clearly report AI unavailable rather than charging the user or fabricating an answer.
+
+## Performance contract
+
+Every meaningful performance change must report before/after evidence for applicable:
+- P50/P95/P99 latency;
+- CPU;
+- memory/peak heap;
+- database query count/time;
+- disk I/O;
+- network bytes;
+- cache hit/miss;
+- concurrency throughput;
+- large-file processing time.
+
+Performance improvements must not remove existing functionality or weaken evidence/security guarantees.
+
 ## Certification rule
 
-No final `PRODUCTION CERTIFIED` status is valid until workstreams 01–35 that are applicable to the deployed architecture have either reached COMPLETE or have a documented LIVE REQUIRED evidence plan executed before release. Remaining FOUNDATION/GATED/GAP items must be explicitly listed; none may be silently treated as complete.
+No final `PRODUCTION CERTIFIED` status is valid until workstreams 01–38 that are applicable to the deployed architecture have either reached COMPLETE or have a documented LIVE REQUIRED evidence plan executed before release. Remaining FOUNDATION/GATED/GAP items must be explicitly listed; none may be silently treated as complete.
+
+In addition, production certification requires:
+- **no mandatory paid dependency for core operation**;
+- **no silent paid fallback**;
+- **no removed existing feature without approved replacement and regression evidence**;
+- **free/local path verified in a clean environment**;
+- performance benchmark evidence;
+- security and tenant-isolation evidence;
+- backup/restore and operational evidence where applicable.
 
 ## Execution protocol
 
