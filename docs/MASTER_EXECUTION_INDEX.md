@@ -26,7 +26,8 @@ The quality workflow is operating as a batch-discovery loop rather than a serial
 5. `.github/workflows/quality.yml`: removed unnecessary `setup-python` pip caching after a post-job cache-path failure; also enabled stale-run cancellation so superseded workflow runs do not waste CI capacity. Commit: `aec24437fc4e5652c0993ce94f1afbe4c76b1f5e`.
 6. `src/components/data-table/DataTable.tsx`: removed `any` casts in table row rendering and unused pagination destructuring. Commit: `8cee387eb6bbe121efdb192be7ffd9b47381f718`.
 7. `src/lib/file-engine/data-types.ts`: replaced `any` inputs with `unknown` and explicit type narrowing in data-type detection/cleaning. Commit: `cf470ddfe778e935b453a3a435b0f403ca458f6b`.
-8. Earlier batch work hardened migration-aware tenant-security detection, canonical query boundaries, direct-write/import transaction semantics and CI parallel discovery. No duplicate engines/guards were introduced.
+8. `src/lib/tenantContext.ts`: removed the unused client-only `isTenantSelected` helper after repo-wide caller search found no production/test callers. This reduces the legacy tenant-selection surface without changing the authoritative `current_company_id()` path. Commit: `956c53a37b12bf52cc4f1e3206a03a884ab4f38a`.
+9. Repo-wide direct Supabase/tenant scans were repeated. Current evidence shows canonical `resolveCurrentCompanyId()` remains the authoritative browser resolver, while `queries.ts` uses direct reads protected by database RLS; these are not automatically classified as legacy violations. No speculative rewrite was made. `supabase.ts` documents and enforces database authority. 
 
 ## Current CI
 - The last inspected completed wave had **43/43 application/contract gates successful**; its only red result was a post-job `setup-python` cache failure. This is now addressed in `aec24437fc4e5652c0993ce94f1afbe4c76b1f5e`.
@@ -54,7 +55,7 @@ The quality workflow is operating as a batch-discovery loop rather than a serial
 | S | NOT LIVE CERTIFIED | final production certification |
 
 ## Tenant / Data / KPI truth
-- Tenant legacy/static/client-selected consumer scan: **PASS**.
+- Tenant legacy/static/client-selected consumer scan: **PASS** for the guarded boundary; a remaining `COMPANY_ID` search hit is not itself a violation and is classified by authoritative flow.
 - Adversarial tenant source boundary: **PASS**.
 - Global tenant RLS, import RPC tenant context and business-key contracts: **PASS** in the last completed wave.
 - Import transaction/runtime governance: **PASS** in the last completed wave.
