@@ -30,9 +30,14 @@ Append-only supplement to `docs/MASTER_EXECUTION_INDEX.md`.
 - Earlier notes used “full inventory” too early. Those audits were deep but subsystem-oriented, not a literal repository-wide semantic review. This is now explicitly corrected; the project must not treat those earlier claims as proof that every source surface was already known.
 - Added `docs/MASTER_SYSTEM_INVENTORY_2026-08-25.md` as the structural inventory baseline. It records verified repository surfaces, current technology truth, CI truth, existing application capabilities, integration-review surfaces, audit rules and the next exhaustive semantic audit order.
 - Added `scripts/build-system-inventory.mjs` as a reproducible repository scanner and registered `npm run inventory:system`. It generates machine-readable and Markdown structural inventory artifacts from the checked-out repository. This is now the mechanism for preventing future “we did not know this existed” gaps.
-- **New verified toolchain fact:** the checked-in `main` `package.json` currently declares React `18.3.1`, React DOM `18.3.1`, Vite `5.4.2`, TypeScript `5.5.3`, Tailwind `3.4.1`, Supabase JS `2.57.4`, pdfjs-dist `6.2.108`, Tesseract.js `7.0.0` and xlsx `0.18.5`. Earlier assumptions about React 19/Vite 7 are not current repository truth and must not drive implementation until lockfile/source verification proves otherwise. This is now a dedicated compatibility audit item.
-- The root service surface is confirmed as `services/document-intelligence/{README.md,app/,requirements.txt,tests/}`; this is a first-class Python service and must be mapped independently from the TypeScript file engine.
-- The current migration surface includes verified core, file intelligence, import RPC/jobs, executive metrics, inventory/demand/liquidity, alternative item groups, import security hardening, anonymous File Intelligence lockdown, canonical tenant membership and import lineage/idempotency migrations. The full migration inventory is still being enumerated and mapped; no migration is assumed deployed merely because it exists in Git.
+- **New verified toolchain fact:** the checked-in `main` `package.json` currently declares React `18.3.1`, React DOM `18.3.1`, Vite `5.4.2`, TypeScript `5.5.3`, Tailwind `3.4.1`, Supabase JS `2.57.4`, pdfjs-dist `6.2.108`, Tesseract.js `7.0.0` and xlsx `0.18.5`. Earlier assumptions about React 19/Vite 7 are not current repository truth and must not drive implementation until lockfile/source verification proves otherwise.
+- `package-lock.json` is present with lockfileVersion 3 and agrees with the major React/Vite/TypeScript versions declared by `package.json`; minor/patch dependency ranges are resolved in the lockfile and should be treated as the reproducible install source.
+- `tsconfig.app.json` is strict, uses ES2022/bundler resolution, path alias `@/* → src/*`, and includes only `src`. `vite.config.ts` defines the React plugin, the same `@` alias, dependency optimization exclusion for `lucide-react`, and explicit vendor chunks for React/charts/xlsx.
+- `eslint.config.js` uses ESLint 9 + typescript-eslint recommended rules and keeps several legacy hygiene findings as warnings. This is a deliberate migration posture, not an absent lint layer.
+- **Critical new frontend/auth finding:** `src/App.tsx` mounts all application routes directly under `BrowserRouter` and does not show an authentication boundary. A code search for `supabase.auth.` returned no matches. `src/lib/supabase.ts` creates the client with `persistSession: false` and still exposes a static demo `COMPANY_ID`. This is now a P0 security/runtime integration audit item: before production certification, authenticated tenant resolution and route/session protection must be proven end-to-end. No destructive change has been made yet because the inventory-first phase is still running.
+- `src/App.tsx` exposes the critical product surface through routes for dashboard, command center, import, data quality, reports, inventory intelligence, demand velocity, receivables, profitability, analytics/RFM/ABC/aging, intelligence/recommendations/forecasts/scenarios, customers/products/inventory, alternative groups and settings. These routes now form the authoritative frontend critical-flow inventory for AUDIT-4.
+- The root repository also contains `fixtures/`, `index.html`, `eslint.config.js`, `postcss.config.js`, `package-lock.json`, `package.json`, `scripts/`, `services/`, `src/`, `.github/`, `.bolt/`, `docs/`, and the execution/README files. These surfaces must be included in future inventory passes.
+- The root `package.json` is named `vite-react-typescript-starter`; this is a metadata/branding audit item, not evidence that the application architecture is a starter. Do not rename blindly until deployment/build references are mapped.
 
 ## Repairs
 - `production-integrity-wave-v2.yml`: manual-only + Ubuntu 22.04. Commit `f170c13974c86ad1432af16bd75a87455bcf5749`.
@@ -55,13 +60,13 @@ Append-only supplement to `docs/MASTER_EXECUTION_INDEX.md`.
 - Therefore no TypeScript/Python/SQL/package command has been observed executing in these attempts. Do not alter application logic to compensate for this evidence.
 
 ## Current truth
-Document Intelligence, schema/entity/reconciliation, watched reports, business control plane and K are IMPLEMENTED/GATED. Resumability/dead-letter and production certification frameworks are also IMPLEMENTED/GATED. Live production certification remains incomplete because executable runtime evidence has not yet been obtained.
+Document Intelligence, schema/entity/reconciliation, watched reports, business control plane and K are IMPLEMENTED/GATED. Resumability/dead-letter and production certification frameworks are also IMPLEMENTED/GATED. Live production certification remains incomplete because executable runtime evidence has not yet been obtained. Frontend authentication/tenant session convergence is now an explicit P0 review item and is not marked complete.
 
 ## Current priority order
-1. Establish the machine-generated repository inventory baseline and keep it current before each major execution wave.
-2. Audit toolchain/lockfile truth and compatibility before any framework/runtime upgrade.
-3. Complete `package.json script → script file → workflow → runtime evidence` mapping for all P0/P1 capabilities.
-4. Audit the verified `src/lib/supabase.ts` static company context and all critical UI/query paths for convergence on canonical authenticated tenant resolution.
+1. Complete the machine-generated repository inventory baseline and keep it current before each major execution wave.
+2. Complete the toolchain/lockfile/config compatibility audit.
+3. Treat authentication/session/tenant route protection as P0 and trace it end-to-end before production certification.
+4. Complete `package.json script → script file → workflow → runtime evidence` mapping for all P0/P1 capabilities.
 5. Complete migration dependency/order/RLS/index mapping from the actual migration history; do not infer deployment state from filenames.
 6. Trace critical UI flows from `App.tsx → pages → components → lib/services → database` and fix dead ends only where proven.
 7. Use existing manual specialist workflows for Document Intelligence and J/K/L as soon as workflow dispatch is available, and record real executable evidence.
@@ -76,10 +81,11 @@ Document Intelligence, schema/entity/reconciliation, watched reports, business c
 - The next high-value static audit target is the relationship among `package.json` scripts, `quality.yml` steps, `scripts/check-*`, service tests, migrations and UI/runtime entry points. Any item present in one layer but absent in the others is a candidate integration gap.
 - A first cross-surface traceability guard now exists for Document Intelligence, watched reports, Business Control Plane, K/L runtime, production certification, tenant security and release resilience. This is deliberately narrow and auditable; it is not a replacement for runtime evidence.
 - Dashboard query truth and tenant scope are now hardened at the query boundary without assuming `sale_items.company_id`; the next integration target is the static company context and its relationship to authenticated tenant membership.
+- Authentication/session protection is now explicitly classified as a P0 gap until the frontend has a real authenticated boundary and the Supabase session/tenant context is reconciled with the canonical membership resolver.
 
-## Next execution — revised after authoritative inventory reset
+## Next execution — authoritative inventory program
 ### AUDIT-1 — Toolchain truth
-Inspect lockfiles, TypeScript/Vite/React compatibility, tsconfig/vite/eslint/postcss/tailwind configuration and workflow Node version. Resolve only proven contradictions; do not upgrade versions merely to match historical assumptions.
+**Partially completed:** `package.json`, `package-lock.json`, `tsconfig.app.json`, `vite.config.ts` and `eslint.config.js` were inspected. Major versions are internally consistent (React 18/Vite 5/TS 5). Remaining: inspect all environment/deployment/build configuration and verify Node version assumptions against workflows before upgrades.
 
 ### AUDIT-2 — Complete execution mapping
 For every P0/P1 package script, verify the referenced file exists, the command is reachable, and the relevant workflow/manual gate invokes it. Then classify: implemented/static, executable, runtime-evidenced, production-certified.
@@ -88,7 +94,7 @@ For every P0/P1 package script, verify the referenced file exists, the command i
 Enumerate every migration and map tables, functions, indexes, policies, triggers and dependencies to requirements and consumers. Detect duplicate/ordering/drift hazards only when proven.
 
 ### AUDIT-4 — Frontend critical-flow closure
-Trace upload/import, document review, report execution, decision intelligence, inventory/demand, evidence and certification from route/UI through lib/services to database. Identify dead ends and unsafe fallbacks.
+Trace upload/import, document review, report execution, decision intelligence, inventory/demand, evidence and certification from route/UI through lib/services to database. **First P0 subtask: authentication/session/tenant boundary.**
 
 ### AUDIT-5 — Service boundary closure
 Map every Document Intelligence provider, parser/OCR/table path, intermediate model, provenance path, quarantine/reprocess path and frontend integration. Add only missing evidence/cases.
@@ -109,4 +115,4 @@ Only after live evidence closes all P0 blockers and the authoritative release/ce
 No future statement may say “the whole project is known” based only on workflow/package/filename inspection. The project is considered understood only after the system inventory, capability mapping, implementation review and evidence matrix agree. Any newly discovered existing capability must be reclassified in the index before new implementation is started.
 
 ## Next
-The next execution wave begins with AUDIT-1 and AUDIT-2, then AUDIT-3/AUDIT-4 in parallel. This is an explicit inventory-first reset: **know the system, record the system, then complete the gaps.**
+The next execution wave continues inventory-first: finish AUDIT-1 environment/deployment truth, then AUDIT-2 execution mapping and AUDIT-4 authentication/tenant boundary, while AUDIT-3 migration mapping proceeds in parallel. **Know the system, record the system, then complete the proven gaps.**
