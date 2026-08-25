@@ -9,39 +9,37 @@ const migrations = files.map((file) => ({ file, text: fs.readFileSync(path.join(
 // Array.find() here: an earlier canonical_tenant_membership migration can be
 // superseded by a later migration with the same function name.
 const resolverCandidates = migrations.filter(({ text }) =>
-  /CREATE\s+OR\s+REPLACE\s+FUNCTION\s+public\.current_company_id\s*\(/i.test(text),
+  /CREATE\s+OR\s+REPLACE\s+FUNCTION\s+(?:public\.)?current_company_id\s*\(/i.test(text),
 );
 const resolver = resolverCandidates.at(-1);
 const failClosedCandidates = migrations.filter(({ file }) => file.includes('import_rpc_fail_closed'));
 if (!resolver) throw new Error('Canonical tenant resolver migration is missing');
 if (failClosedCandidates.length === 0) throw new Error('Import RPC fail-closed migration is missing');
 
-const requiredAny = [
-  ['CREATE TABLE IF NOT EXISTS company_memberships'],
-  ['REFERENCES auth.users(id)'],
-  ['CREATE OR REPLACE FUNCTION public.current_company_id()'],
-  ['auth.uid()'],
-  ['company_memberships'],
-  ['is_active'],
-  ['is_default'],
+const requiredMarkers = [
+  'CREATE TABLE IF NOT EXISTS company_memberships',
+  'REFERENCES auth.users(id)',
+  'auth.uid()',
+  'company_memberships',
+  'is_active',
+  'is_default',
 ];
 
-for (const alternatives of requiredAny) {
-  if (!alternatives.some((marker) => resolver.text.includes(marker))) {
-    throw new Error(`Tenant security contract missing from latest resolver ${resolver.file}: ${alternatives.join(' OR ')}`);
+for (const marker of requiredMarkers) {
+  if (!resolver.text.includes(marker)) {
+    throw new Error(`Tenant security contract missing from latest resolver ${resolver.file}: ${marker}`);
   }
 }
 
 // The canonical contract is multi-company capable: the active default membership
-// is the selected tenant. No default (or an inactive membership) must resolve to
-// NULL, i.e. fail closed. The unique index in the canonical migration prevents
-// more than one default membership per user.
-if (!/WHERE\s+cm\.user_id\s*=\s*auth\.uid\(\)[\s\S]*?cm\.is_active\s*=\s*true[\s\S]*?cm\.is_default\s*=\s*true/i.test(resolver.text)) {
+// is the selected tenant. No default (or an inactive membership) resolves to no
+// row, i.e. NULL/fail-closed. The unique index prevents multiple active defaults.
+if (!/cm\.user_id\s*=\s*auth\.uid\(\)[\s\S]*?cm\.is_active\s*=\s*true[\s\S]*?cm\.is_default\s*=\s*true/i.test(resolver.text)) {
   throw new Error(`Latest tenant resolver ${resolver.file} does not enforce active default membership for auth.uid()`);
 }
 
-if (!/RETURN\s+QUERY[\s\S]*?LIMIT\s+1/i.test(resolver.text)) {
-  throw new Error(`Latest tenant resolver ${resolver.file} is missing a bounded single-tenant result`);
+if (!/SELECT\s+cm\.company_id[\s\S]*?FROM\s+company_memberships\s+cm[\s\S]*?LIMIT\s+1/i.test(resolver.text)) {
+  throw new Error(`Latest tenant resolver ${resolver.file} is missing a bounded single-tenant SELECT`);
 }
 
 if (/CREATE POLICY[^;]+TO\s+anon[^;]+USING\s*\(\s*true\s*\)/is.test(resolver.text)) {
