@@ -14,6 +14,9 @@ Source of truth: `main`
 - AI ليس مصدر الحقيقة المالية/الرقمية.
 - PASS لا يعني production-certified؛ LIVE evidence منفصل.
 
+## Current truth
+The latest verifier wave reaches Typecheck after passing the tenant, adversarial tenant, data quality, migration, core, production-contract, resilience, governance, watched-folder, K/L/M, deep K→S, KPI-truth and A0 gates. The current objective is to make the source tree type-safe without weakening truth boundaries.
+
 ## Phase truth
 | المسار | الحالة | المتبقي الحاسم |
 |---|---|---|
@@ -63,18 +66,16 @@ Compatibility import reads/writes route through existing RPCs; no second import 
 Remaining runtime proof: arbitrary/no-header/random/poor files, extraction completeness, cell lineage, golden corpus, live Onyx, live rollback/retry/reconciliation.
 
 ## KPI / BI truth
-Required numeric/date fields fail closed; `INSUFFICIENT_DATA` is explicit; `activeCustomers=null` remains truthful because no authoritative active flag exists; aging does not substitute invoice date for missing due date.
+Required numeric/date fields fail closed; `INSUFFICIENT_DATA` is explicit; `activeCustomers=null` remains truthful because no authoritative active flag exists; missing aging due dates are now skipped rather than silently substituting invoice dates.
 
 Real mismatch fixed: `net_sales` definition/query drift (`total` vs canonical `subtotal`) in `3ac71a99a05e347d5708ac04cad1aa635c4d25c2`.
 
 Missing customer/product/category labels no longer become fabricated business labels. `check-kpi-presentation-truth.mjs`: PASS.
 
-New type-safe KPI presentation boundary added: `src/lib/dashboard-kpi-guards.ts`; Executive Command Center now refuses to render financial cards/actions when required values are missing instead of inventing defaults.
-
-Remaining: cross-surface KPI equivalence, authoritative global date windows, cache freshness/invalidation, provenance in UI/export, drill-down E2E, live KPI evidence.
+Type-safe KPI presentation boundary: `src/lib/dashboard-kpi-guards.ts`; Executive Command Center now snapshots complete KPI truth before arithmetic/rendering, and refuses to render financial cards/actions when required values are missing.
 
 ## Evidence → Decision → Outcome
-Evidence-bound decision contracts and fail-closed policy exist. Canonical `DecisionScore` is reused. `decisionExplainability.ts` was aligned to the canonical score contract.
+Evidence-bound decision contracts and fail-closed policy exist. Canonical `DecisionScore` is reused. `decisionExplainability.ts` imports only `DecisionScore` and no longer depends on stale `DecisionScoreInput`. fileciteturn448file0L2-L2
 
 Remaining: live evidence graph, real outcomes, recommendation→outcome feedback, executive action loop, production-like optimizer scenarios.
 
@@ -90,22 +91,14 @@ Shallow/deep K→S gates consume the historical roadmap plus `docs/IMPLEMENTATIO
 Primary verifier: `.github/workflows/quality.yml`.
 - #1430 `32883083895`: through deep K→S passed; KPI presentation guard exposed fabricated labels and was fixed.
 - #1444 `32884503475`: `npm ci` failed from package manifest/lock drift; fixed in `b4837539e6e4fa8b91ad9a550c7d8f131dcca920`.
-- #1464 `32885447874`: npm install and all gates through A0 hardening passed; Typecheck exposed 20+ real source integration errors.
-- #1466 `32885963464`: npm install, tenant/security, import, K/L/M, K→S, KPI and A0 gates all passed again; Typecheck still failed on the known source integration wave. No PASS claimed.
+- #1464 `32885447874`: npm install and all gates through A0 hardening passed; Typecheck exposed the source integration wave.
+- #1466 `32885963464`: install, tenant/security, import, K/L/M, K→S, KPI and A0 gates passed; Typecheck failed on stale DecisionScoreInput, nullable aging date and nullable Executive KPI arithmetic.
 
-Latest Typecheck findings from #1466:
-- `multifactor-demand-forecast.ts`: optional numeric input was not narrowed.
-- `decisionExplainability.ts`: stale `DecisionScoreInput` import.
-- `AnalyticsPage.tsx`: nullable date passed to `Date`.
-- `ExecutiveCommandCenterPage.tsx`: nullable KPI values used as guaranteed numbers.
+Current fixes committed after #1466:
+- `4c3449f075b9ee67251fd54587ca26eed8134300` — restored `AnalyticsPage.tsx` after the accidental incomplete write and made Aging analysis fail closed on missing due/invoice dates.
+- `cad74ce3452b164ff7a6e91646a068e79a0fa064` — narrowed a complete immutable KPI snapshot in Executive Command Center so nullable values cannot enter arithmetic/rendering.
 
-Fixes now committed after #1466:
-- `6a4e9931436ae8c0018183c07740355b1b848251` — preserve optional demand semantics.
-- `7a78aaeb8fcda6dd0ba888b45989a91810817728` — align decision explainability to canonical score.
-- `bdda7e2ae53294c55ac4f4bb2084ff128da28a34` — add explicit complete-KPI narrowing guard.
-- `043ef7a35993de18ba9f18ecd2a526cb8554b130` — gate Executive Command Center on complete KPI truth; no fabricated defaults.
-
-A new Quality run was automatically queued from `6a4e993...`; it was observed running through Typecheck before the additional commits landed. Therefore its result is not used as proof for the later fixes; a newer run must certify them.
+The canonical `decisionExplainability.ts` on `main` is already aligned to `DecisionScore`. The next Quality run must certify all three source fixes together; no PASS is claimed before that run completes.
 
 ## P0 LIVE blockers
 - [ ] adversarial tenant certification
@@ -162,7 +155,7 @@ A new Quality run was automatically queued from `6a4e993...`; it was observed ru
 - [ ] evidence-grounded Ask→Inspect→Act E2E
 
 ## Truth-weighted progress
-**~82% engineering completion remains the conservative verified figure.** Implementation coverage is ~90%+, contract/gate maturity is high, integrated runtime is advanced but partial, and live certification remains incomplete. Recent commits are hardening and integration work; they do not automatically increase the percentage.
+**~82% engineering completion remains the conservative verified figure.** Implementation coverage is ~90%+, contract/gate maturity is high, integrated runtime is advanced but partial, and live certification remains incomplete. Recent commits are hardening/integration work; they do not automatically increase the percentage.
 
 Production certified: **NO** until P0 live evidence closes.
 
