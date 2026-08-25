@@ -17,7 +17,7 @@ Source of truth: `main`
 ## Phase truth
 | المسار | الحالة | المتبقي الحاسم |
 |---|---|---|
-| 1–21 | COMPLETE FOUNDATION | dependency recheck |
+| 1–21 | COMPLETE FOUNDATION | dependency/toolchain recheck |
 | 22–29 | IMPLEMENTED/GATED | runtime/E2E/golden evidence |
 | 30–37 | IMPLEMENTED/GATED | runtime + decision E2E |
 | A0 | FOUNDATION/GATED | document engine depth |
@@ -39,17 +39,17 @@ Existing folder watcher remains canonical and reused: directory selection/monito
 
 A single canonical cross-platform capability contract was added to `src/lib/import-pipeline/folder-watch-contract.ts` with explicit truth for Web/PWA/Windows/Android/iOS. It does not create a second ingestion engine; every adapter emits the same `WatchEvent` into the same queue/pipeline.
 - Web/PWA: File System Access where available; active-session monitoring only; no false background promise after app close.
-- Windows: persistent background watch is a capability requiring a native host adapter; contract is now explicit and CI-gated.
-- Android: native directory permission/watcher is required; contract is now explicit and CI-gated.
+- Windows: persistent background watch is a capability requiring a native host adapter; contract is explicit and CI-gated.
+- Android: native directory permission/watcher is required; contract is explicit and CI-gated.
 - iOS: capability-aware integration; arbitrary persistent background folder watching is explicitly not claimed.
-- CI guard: `scripts/check-folder-watch-platform-contract.mjs`.
+- Browser runtime now has canonical `selectWatchedFolder()` and `ensureFolderPermission()` boundaries in `folder-watch-service.ts`.
 
 Hardening completed: weak-fingerprint fail-closed behavior; duplicate stable-row rejection; disappeared-file reconciliation; watched-folder configuration validation.
 
 ## Tenant / security truth
 Repository-wide proactive searches covered `COMPANY_ID`, static tenant IDs, tenant fallbacks, `company_id`, `tenant_memberships`, client-selected tenant filtering, direct Supabase reads/writes and RPC callers.
 
-Current static truth: tenant legacy consumer guard PASS; adversarial tenant source-boundary guard PASS; no remaining verified browser-storage/query-string/static/client-selected tenant source in executable application paths; tenant is database/RLS/current-company authoritative; bulk writes remain governed by transaction/RPC.
+Current static truth: tenant legacy consumer guard PASS; adversarial tenant source-boundary guard PASS; `src/lib/supabase.ts` resolves tenant only through authenticated `current_company_id()` RPC; legacy `COMPANY_ID` import in `file-engine/synonyms.ts` was removed in commit `95f4c06631c0ed1d15f86be57768d69d95a5fcd6`. Remaining `company_id` occurrences in types/schema/authorized result shapes are not themselves tenant selectors.
 
 Canonical import atomic wrapper verifies `p_company_id` against `current_company_id()` inside the database before invoking entity RPCs.
 
@@ -60,7 +60,9 @@ LIVE REQUIRED: adversarial Supabase tenant isolation, storage/signed URLs, Realt
 
 Foundation is implemented and gated: multi-format contracts, Arabic/English mapping, normalization, business-key matching, preview/approval, quarantine, provenance/lineage, governed RPC writes, Onyx adapter, watched-folder queue, chunk atomicity, tenant mismatch rejection, duplicate protection and deletion reconciliation.
 
-Additional hardening closed: duplicate stable-row fail-closed behavior, source-snapshot-specific idempotency, checkpoint monotonicity, vanished-file reconciliation, watched-folder configuration validation, and canonical Phase M certification migration binding in deep K→S.
+Additional hardening closed: duplicate stable-row fail-closed behavior, source-snapshot-specific idempotency, checkpoint monotonicity, vanished-file reconciliation, watched-folder configuration validation, canonical Phase M certification migration binding in deep K→S, and duplicate header synonym removal.
+
+A real package-toolchain drift was also found: `package.json` had lost its dependency declarations while `package-lock.json` retained them. The manifest was restored from the lock's root dependency graph. A temporary attempt to add Vitest was rejected by `npm ci` because it was not present in the lock and was removed; no dependency is accepted unless manifest and lock agree.
 
 Remaining runtime proof: arbitrary/no-header/random/poor files, page/table classification, extraction completeness, cell lineage, golden corpus, live Onyx, live rollback/retry/reconciliation.
 
@@ -85,20 +87,19 @@ Durable jobs + lease + heartbeat + checkpoint + retry + terminal state + dead-le
 LIVE REQUIRED: stuck-worker injection, lease expiry, dead-letter replay, backup restore/RPO-RTO, rollback/forward-fix, SLO timing.
 
 ## K→S closure truth
-The shallow and deep K→S gates consume the historical roadmap plus `docs/IMPLEMENTATION_ROADMAP_PHASES_N-S.md`. Deep closure is aligned to the actual canonical `PhaseKLSupabaseRuntime` API (`recordHealth`, `recordEvidenceEdge`, `autonomyGate`) and the canonical `P0_RUNTIME_CERTIFICATION_MATRIX.md`.
+The shallow and deep K→S gates consume the historical roadmap plus `docs/IMPLEMENTATION_ROADMAP_PHASES-N-S.md`. Deep closure is aligned to the actual canonical `PhaseKLSupabaseRuntime` API (`recordHealth`, `recordEvidenceEdge`, `autonomyGate`) and the canonical `P0_RUNTIME_CERTIFICATION_MATRIX.md`.
 
-Deep K→S previously referenced a nonexistent Phase M migration. This was corrected to the actual `supabase/migrations/20260825150000_phase_m_certification_bundle.sql`; the corrected deep gate passed in Quality #1430.
+Deep K→S previously referenced a nonexistent Phase M migration. This was corrected to the actual `supabase/migrations/20260825150000_phase_m_certification_bundle.sql`; the corrected deep gate passed in Quality.
 
 ## CI truth / latest execution
 Primary verifier: `.github/workflows/quality.yml`.
-- #1427 `32882832259`: stale Phase M migration path → fixed in `230943f8815f3e27ecf95055f546ab5ee826e251`.
-- #1430 `32883083895`: all gates through deep K→S passed; KPI presentation guard then exposed three old fabricated labels → fixed in `db25d19998afbb0af25eff51562929dcfe0dffe7`.
-- #1433 `32883300321`: all gates through A0 intelligence hardening passed; TypeScript 7 typecheck exposed obsolete `baseUrl`/path resolution options in `tsconfig.app.json`.
-- #1435 `32884019503`: TypeScript compatibility fix was queued; no final PASS was claimed.
-- #1438 `32884119666`: cross-platform watcher contract + guard run started.
-- #1439 `32884139783`: latest Quality run is **IN PROGRESS** on `b975fffb94b400fd376ccd73e1b48f28fc2e1ccb` after the CI wiring update. No PASS claimed yet.
+- #1430 `32883083895`: all gates through deep K→S passed; KPI presentation guard exposed three old fabricated labels → fixed in `db25d19998afbb0af25eff51562929dcfe0dffe7`.
+- #1433 `32883300321`: all gates through A0 intelligence hardening passed; TypeScript compatibility exposed obsolete `baseUrl`/path resolution options → fixed in `fbcec9127d717ca32ef9dd556b64576d3edbe389`.
+- #1438 `32884119666`: cross-platform watcher contract/guard work was queued.
+- #1439 `32884139783`: subsequent Quality execution exposed deeper repository/toolchain issues while the cross-platform work was being integrated; no PASS claimed.
+- #1444 `32884503475`: failed immediately at `npm ci` because the package manifest and lockfile were out of sync. Root cause was twofold: the manifest had previously lost its dependency declarations, and a temporary Vitest declaration was not represented in the lock. The Vitest declaration was removed and the manifest was restored to the lock's dependency graph in `b4837539e6e4fa8b91ad9a550c7d8f131dcca920`.
 
-The latest completed failure was a TypeScript 7 configuration compatibility root cause. The canonical `tsconfig.app.json` was corrected by removing obsolete `baseUrl` and using `paths: {"@/*":["./src/*"]}`; CI was not weakened and no older compiler was pinned.
+No PASS is claimed for the post-fix commit until a new CI run consumes it.
 
 ## P0 LIVE blockers
 - [ ] adversarial tenant certification
@@ -155,18 +156,15 @@ The latest completed failure was a TypeScript 7 configuration compatibility root
 - [ ] evidence-grounded Ask→Inspect→Act E2E
 
 ## Truth-weighted progress
-**~82% engineering completion remains the conservative verified figure.** Broad implementation coverage is ~90%+, contract/gate maturity is high, while integrated runtime/live certification remains partial. The current batch added a canonical cross-platform watcher capability boundary and CI guard, plus TypeScript 7 compatibility hardening, but did not add live production evidence, so the percentage is intentionally not inflated.
+**~82% engineering completion remains the conservative verified figure.** Broad implementation coverage is ~90%+, contract/gate maturity is high, while integrated runtime/live certification remains partial. The recent batch closed tenant consumer drift, browser folder selection/permission wiring, duplicate header mapping, and package manifest drift, but these are engineering hardening—not live production evidence—so the percentage is intentionally not inflated.
 
 Production certified: **NO** until P0 live evidence closes.
 
 ## Current batch commits
-- `230943f8815f3e27ecf95055f546ab5ee826e251` — deep K→S canonical Phase M migration binding.
-- `5e9ee23bad46300c7d4f83e2c029f559251a3b8` — KPI presentation truth guard.
-- `85973d4e8aeaa5dd34c15bf230bd51a47b21cf3c` — Quality KPI truth wiring.
-- `db25d19998afbb0af25eff51562929dcfe0dffe7` — KPI missing-label root fix using canonical identifiers.
-- `3ac71a99a05e347d5708ac04cad1aa635c4d25c2` — net-sales semantic definition aligned to canonical dashboard source.
-- `fbcec9127d717ca32ef9dd556b64576d3edbe389` — TypeScript 7-compatible `tsconfig.app.json`.
-- `68bc2f162809026397f7e7167b228b06e335523b` — canonical cross-platform folder watcher capability contract.
-- `b975fffb94b400fd376ccd73e1b48f28fc2e1ccb` — Quality CI wiring for cross-platform watcher guard.
+- `95f4c06631c0ed1d15f86be57768d69d95a5fcd6` — remove legacy `COMPANY_ID` from synonym writes.
+- `94bc0e58e8dbb470eee992f201fe993a5146ff2` — remove duplicate header synonym key.
+- `c070108efd242edb89563b2858c9ad163733c535` — restore browser folder selection and permission boundary.
+- `c9574b9399e952f7cc5b69c6b1e13f1742c4b2aa` — restore package manifest dependency declarations (superseded by lock-alignment correction).
+- `b4837539e6e4fa8b91ad9a550c7d8f131dcca920` — align package manifest with the locked dependency graph.
 
 **No production PASS is claimed. LIVE REQUIRED remains explicit.**
