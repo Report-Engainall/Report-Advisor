@@ -59,6 +59,9 @@ export async function fetchDashboardKPIs(): Promise<DashboardKPIs> {
   const balanceRows = (balances ?? []) as BalanceRow[];
   const { count: customerCount, error: customerError } = await supabase.from('customers').select('id', { count: 'exact', head: true });
   if (customerError) throw customerError;
+  const { data: activeCustomerRows, error: activeCustomerError } = await supabase.from('customers').select('id, status');
+  if (activeCustomerError) throw activeCustomerError;
+  const activeCustomers = (activeCustomerRows ?? []).filter((row) => row.status === 'active').length;
   const { count: productCount, error: productError } = await supabase.from('products').select('id', { count: 'exact', head: true });
   if (productError) throw productError;
   const { data: purchases, error: purchasesError } = await supabase.from('purchase_invoices').select('total, paid_amount');
@@ -67,7 +70,7 @@ export async function fetchDashboardKPIs(): Promise<DashboardKPIs> {
   const totalCustomers = customerCount ?? 0;
   const totalProducts = productCount ?? 0;
   const hasTransactionalData = invArr.length > 0 || purchaseRows.length > 0 || balanceRows.length > 0;
-  if (!hasTransactionalData) return { totalSales: null, totalCost: null, grossProfit: null, grossMargin: null, totalReceivables: null, overdueReceivables: null, totalPayables: null, inventoryValue: null, totalCustomers, activeCustomers: totalCustomers, totalProducts, invoiceCount: 0, avgInvoiceValue: null, collectionRate: null, status: 'INSUFFICIENT_DATA' };
+  if (!hasTransactionalData) return { totalSales: null, totalCost: null, grossProfit: null, grossMargin: null, totalReceivables: null, overdueReceivables: null, totalPayables: null, inventoryValue: null, totalCustomers, activeCustomers, totalProducts, invoiceCount: 0, avgInvoiceValue: null, collectionRate: null, status: 'INSUFFICIENT_DATA' };
 
   const totalSales = invArr.reduce((s, inv) => s + requiredNumber(inv.subtotal, 'sales_invoices.subtotal'), 0);
   const totalCost = itemRows.reduce((s, item) => s + requiredNumber(item.cost_price, 'sale_items.cost_price') * requiredNumber(item.quantity, 'sale_items.quantity'), 0);
@@ -83,13 +86,14 @@ export async function fetchDashboardKPIs(): Promise<DashboardKPIs> {
   const totalPaid = invArr.reduce((s, inv) => s + requiredNumber(inv.paid_amount, 'sales_invoices.paid_amount'), 0);
   const totalInvAmount = invArr.reduce((s, inv) => s + requiredNumber(inv.total, 'sales_invoices.total'), 0);
   const collectionRate = totalInvAmount !== 0 ? (totalPaid / totalInvAmount) * 100 : null;
-  return { totalSales, totalCost, grossProfit, grossMargin, totalReceivables, overdueReceivables, totalPayables, inventoryValue, totalCustomers, activeCustomers: totalCustomers, totalProducts, invoiceCount, avgInvoiceValue, collectionRate, status: 'CALCULATED' };
+  return { totalSales, totalCost, grossProfit, grossMargin, totalReceivables, overdueReceivables, totalPayables, inventoryValue, totalCustomers, activeCustomers, totalProducts, invoiceCount, avgInvoiceValue, collectionRate, status: 'CALCULATED' };
 }
 
 export async function fetchMonthlyTrend(months = 6): Promise<MonthlyTrend[]> {
   const { data: invoices, error: invoicesError } = await supabase.from('sales_invoices').select('id, subtotal, invoice_date').order('invoice_date', { ascending: true });
   if (invoicesError) throw invoicesError;
   const invoiceRows = (invoices ?? []) as Array<Pick<InvoiceRow, 'id' | 'subtotal' | 'invoice_date'>>;
+  if (!invoiceRows.length) return [];
   const invoiceIds = invoiceRows.map(inv => inv.id);
   const { data: items, error: itemsError } = invoiceIds.length ? await supabase.from('sale_items').select('invoice_id, line_total, cost_price, quantity').in('invoice_id', invoiceIds) : { data: [], error: null };
   if (itemsError) throw itemsError;
@@ -116,7 +120,7 @@ export async function fetchTopCustomers(limit = 5): Promise<TopEntity[]> {
   const { data, error } = await supabase.from('sales_invoices').select('customer_id, subtotal, customer:customers(name)');
   if (error) throw error;
   const byCustomer = new Map<string, { name: string; value: number }>();
-  for (const row of (data ?? []) as CustomerAggregateRow[]) { const name = row.customer?.name ?? 'غير معروف'; const entry = byCustomer.get(row.customer_id) ?? { name, value: 0 }; entry.value += requiredNumber(row.subtotal, 'sales_invoices.subtotal'); byCustomer.set(row.customer_id, entry); }
+  for (const row of (data ?? []) as CustomerAggregateRow[]) { const name = row.customer?.name ?? 'بيانات العميل ناقصة'; const entry = byCustomer.get(row.customer_id) ?? { name, value: 0 }; entry.value += requiredNumber(row.subtotal, 'sales_invoices.subtotal'); byCustomer.set(row.customer_id, entry); }
   return Array.from(byCustomer.entries()).map(([id, v]) => ({ id, name: v.name, value: v.value })).sort((a, b) => b.value - a.value).slice(0, limit);
 }
 
@@ -128,7 +132,7 @@ export async function fetchTopProducts(limit = 5): Promise<TopEntity[]> {
   const { data, error } = await supabase.from('sale_items').select('product_id, quantity, line_total, product:products(name)').in('invoice_id', invoiceIds).not('product_id', 'is', null);
   if (error) throw error;
   const byProduct = new Map<string, { name: string; value: number; qty: number }>();
-  for (const row of (data ?? []) as ProductAggregateRow[]) { if (!row.product_id) continue; const name = row.product?.name ?? 'غير معروف'; const entry = byProduct.get(row.product_id) ?? { name, value: 0, qty: 0 }; entry.value += requiredNumber(row.line_total, 'sale_items.line_total'); entry.qty += requiredNumber(row.quantity, 'sale_items.quantity'); byProduct.set(row.product_id, entry); }
+  for (const row of (data ?? []) as ProductAggregateRow[]) { if (!row.product_id) continue; const name = row.product?.name ?? 'بيانات المنتج ناقصة'; const entry = byProduct.get(row.product_id) ?? { name, value: 0, qty: 0 }; entry.value += requiredNumber(row.line_total, 'sale_items.line_total'); entry.qty += requiredNumber(row.quantity, 'sale_items.quantity'); byProduct.set(row.product_id, entry); }
   return Array.from(byProduct.entries()).map(([id, v]) => ({ id, name: v.name, value: v.value, secondary: v.qty })).sort((a, b) => b.value - a.value).slice(0, limit);
 }
 
@@ -144,7 +148,7 @@ export async function fetchCategoryBreakdown(): Promise<CategoryBreakdown[]> {
   const categoryNames = new Map<string, string>();
   if (categoryIds.length) { const { data: categories, error: categoryError } = await supabase.from('categories').select('id, name').in('id', categoryIds); if (categoryError) throw categoryError; for (const category of (categories ?? []) as CategoryRow[]) categoryNames.set(category.id, category.name); }
   const byCategory = new Map<string, CategoryBreakdown>();
-  for (const item of itemRows) { const categoryId = item.product?.category_id ?? null; const key = categoryId ?? '__uncategorized__'; const current = byCategory.get(key) ?? { name: categoryId ? (categoryNames.get(categoryId) ?? 'غير معروف') : 'غير مصنف', sales: 0, profit: 0, quantity: 0 }; const sales = requiredNumber(item.line_total, 'sale_items.line_total'); const cost = requiredNumber(item.cost_price, 'sale_items.cost_price') * requiredNumber(item.quantity, 'sale_items.quantity'); current.sales += sales; current.profit += sales - cost; current.quantity += requiredNumber(item.quantity, 'sale_items.quantity'); byCategory.set(key, current); }
+  for (const item of itemRows) { const categoryId = item.product?.category_id ?? null; const key = categoryId ?? '__uncategorized__'; const current = byCategory.get(key) ?? { name: categoryId ? (categoryNames.get(categoryId) ?? 'بيانات الفئة ناقصة') : 'غير مصنف', sales: 0, profit: 0, quantity: 0 }; const sales = requiredNumber(item.line_total, 'sale_items.line_total'); const cost = requiredNumber(item.cost_price, 'sale_items.cost_price') * requiredNumber(item.quantity, 'sale_items.quantity'); current.sales += sales; current.profit += sales - cost; current.quantity += requiredNumber(item.quantity, 'sale_items.quantity'); byCategory.set(key, current); }
   return Array.from(byCategory.values()).sort((a, b) => b.sales - a.sales);
 }
 
@@ -159,7 +163,7 @@ export async function fetchAgingBuckets(): Promise<AgingBucket[]> {
   for (const inv of (invoices ?? []) as Array<Pick<InvoiceRow, 'total' | 'paid_amount' | 'due_date' | 'invoice_date'>>) {
     const outstanding = requiredNumber(inv.total, 'sales_invoices.total') - requiredNumber(inv.paid_amount, 'sales_invoices.paid_amount');
     if (outstanding <= 0) continue;
-    const due = inv.due_date ? validDate(inv.due_date, 'sales_invoices.due_date') : validDate(inv.invoice_date, 'sales_invoices.invoice_date');
+    const due = validDate(inv.due_date, 'sales_invoices.due_date');
     const days = Math.max(0, Math.floor((today.getTime() - due.getTime()) / 86400000));
     const index = days <= 30 ? 0 : days <= 60 ? 1 : days <= 90 ? 2 : 3;
     buckets[index].amount += outstanding; buckets[index].count += 1;
