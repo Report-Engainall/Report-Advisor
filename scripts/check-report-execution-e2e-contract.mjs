@@ -6,7 +6,7 @@ const files = [
   'src/lib/report-execution/execution-gate.ts',
   'src/lib/report-execution/queue.ts',
   'src/lib/report-execution/renderers.ts',
-  'src/lib/report-execution/artifact-ledger.ts',
+  'src/lib/report-execution/execution-ledger.ts',
 ];
 
 for (const file of files) if (!existsSync(file)) throw new Error(`Missing report execution component: ${file}`);
@@ -34,8 +34,8 @@ for (const token of ['claim', 'lease', 'retry', 'heartbeat']) {
 for (const token of ['pdf', 'xlsx', 'web']) {
   if (!renderers.toLowerCase().includes(token)) throw new Error(`Renderer missing ${token}`);
 }
-for (const token of ['artifact', 'evidence', 'tenant']) {
-  if (!ledger.toLowerCase().includes(token)) throw new Error(`Artifact ledger missing ${token}`);
+for (const token of ['artifactRefs', 'evidence', 'tenantId', 'immutable']) {
+  if (!ledger.includes(token)) throw new Error(`Execution ledger missing ${token}`);
 }
 
 console.log('Report execution E2E contract: PASS');
