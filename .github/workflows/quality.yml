@@ -32,6 +32,8 @@ jobs:
         run: npm run test:auth-tenant-convergence
       - name: Tenant legacy consumer boundary
         run: node scripts/check-tenant-legacy-consumers.mjs
+      - name: Tenant legacy consumer regression
+        run: node scripts/check-tenant-legacy-consumers-regression.mjs
       - name: Adversarial tenant source boundary
         run: node scripts/check-tenant-adversarial-contract.mjs
       - name: Data Quality projection contract
