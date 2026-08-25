@@ -1,4 +1,4 @@
-import { normalizeColumnName } from './normalizer';
+import { normalizeColumnName } from './normalizer.ts';
 
 export type HeaderCandidate = {
   rowIndex: number;

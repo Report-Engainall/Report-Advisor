@@ -20,6 +20,8 @@ jobs:
         run: node --version && npm --version && python3 --version && test -f package-lock.json && test "$(git rev-parse HEAD)" = "${GITHUB_SHA}"
       - name: Install
         run: npm ci --no-audit --no-fund
+      - name: Execution registry integrity
+        run: node scripts/check-execution-registry-integrity.mjs
       - name: CI topology and canonical release wiring
         run: node scripts/check-ci-execution-topology.mjs && node scripts/check-production-recovery-gate.mjs
       - name: Cross-surface capability traceability
@@ -40,6 +42,14 @@ jobs:
         run: npm run test:master-requirements
       - name: Core contracts
         run: npm run test:quality-workflow-contract && npm run test:file-engine-contract && npm run test:file-engine-capability-contract && npm run test:schema-intelligence && npm run test:schema-entity-reconciliation && npm run test:a0-hardening-contract && npm run test:golden-dataset-contract && npm run test:canonical-import-mapping && npm run test:onyx-adapter-contract && npm run test:report-execution-foundation && npm run test:report-execution-e2e-contract && npm run test:report-execution-coordinator-contract && npm run test:automation-executor-contract && npm run test:forecast-calibration-contract && npm run test:entitlements-billing-contract && npm run test:decision-intelligence-closure && npm run test:production-saas-certification
+      - name: Phase 8 import and report execution closure
+        run: node scripts/check-phase-8-import-report-closure.mjs
+      - name: Phase 9 intelligence closure
+        run: node scripts/check-phase-9-intelligence-closure.mjs
+      - name: Metric single source of truth
+        run: npm run test:metric-single-source-of-truth
+      - name: Trust, freshness and evidence runtime
+        run: npm run test:trust-evidence-runtime
       - name: Production certification
         run: npm run test:production-certification-contract
       - name: Operational resilience certification
