@@ -3,7 +3,7 @@
 This is the authoritative compact execution snapshot. Consult it before starting new work. Repository source, executable CI/runtime evidence, and certification artifacts are authoritative; conversation history is not evidence.
 
 ## Indexed source head
-`main` source state indexed here: `33fa4662afc28813b992e66532265facc9766195`. This is the Batch 27 execution head; use it as the starting-state reference for the next execution batch.
+`main` source state indexed here: `50f272ccbb072f3fa6a5a72659bd37d7a7d54395`. This is the current Batch 27 execution head before this index synchronization commit; use it as the implementation reference for the next execution batch.
 
 ## Evidence vocabulary
 `UNKNOWN → INVENTORIED → IMPLEMENTED → GATED → INTEGRATED → RUNTIME-EVIDENCED → PRODUCTION-CERTIFIED`; use `BLOCKED` only for an external prerequisite.
@@ -17,8 +17,8 @@ This is the authoritative compact execution snapshot. Consult it before starting
 | Watched reports | YES | YES | YES/REVIEW | NOT PROVEN | NO |
 | Business Control Plane | YES | YES | YES/REVIEW | NOT PROVEN | NO |
 | K production intelligence | YES | YES | YES/REVIEW | NOT PROVEN | NO |
-| L resumable execution | YES | YES | YES/REVIEW | INTEGRATION HARDENED / LIVE NOT PROVEN | NO |
-| Dead-letter/retry/checkpoint | YES | YES | YES/REVIEW | RETRY RECOVERY PATH IMPLEMENTED / LIVE NOT PROVEN | NO |
+| L resumable execution | YES | YES | YES/REVIEW | RETRY RECOVERY IMPLEMENTED / LIVE NOT PROVEN | NO |
+| Dead-letter/retry/checkpoint | YES | YES | YES/REVIEW | FAILURE→RETRY→DEAD-LETTER PATH IMPLEMENTED / LIVE NOT PROVEN | NO |
 | Production certification framework | YES | YES | YES/REVIEW | NOT PROVEN | NO |
 | DB tenant membership/RLS | YES | YES | YES at DB boundary | LIVE PROOF REQUIRED | NO |
 | Frontend auth/session | YES | YES | YES | NOT PROVEN | NO |
@@ -55,16 +55,17 @@ This is the authoritative compact execution snapshot. Consult it before starting
 
 ## Import / runtime closure work
 - Canonical Import no longer uses `COMPANY_ID` directly; duplicate detection now receives the authoritative tenant returned by `resolveCurrentCompanyId()` and fails closed when tenant context is unavailable.
-- Durable report execution already enforces tenant + lease ownership for claim, heartbeat, checkpoint, completion and failure.
-- Batch 27 added the missing durable retry/recovery RPC `retry_report_execution_job`, tenant-scoped and bounded by `max_attempts`, plus the corresponding store adapter method.
-- Dead-letter remains terminal when retry budget is exhausted.
+- Durable report execution enforces tenant + lease ownership for claim, heartbeat, checkpoint, completion and failure.
+- Durable failure recovery is now executable in the existing runner: failure is persisted, then a failed job is re-queued while `attempt < max_attempts`; exhausted jobs remain `dead_letter`.
+- `retry_report_execution_job` is tenant-scoped and cannot revive jobs that exhausted their retry budget.
+- The durable runner contract guard now requires the retry recovery path.
 - Live Supabase execution of these paths remains NOT PROVEN.
 
 ## Compatibility boundary
 `src/lib/supabase.ts` retains a nullable compatibility surface for `activeCompanyId`/`COMPANY_ID`. It is not a demo-company fallback. The application boundary is guarded against legacy/static consumers; SQL/RLS enforcement remains covered by the dedicated global tenant/RPC gates.
 
 ## Migration inventory
-- 44 migration files were inventoried in the permanent migration map before Batch 27; Batch 27 adds one migration, so the current repository now contains 45 migration files.
+- 44 migration files were inventoried before Batch 27; Batch 27 adds one migration, so the current repository contains 45 migration files.
 - Same-timestamp migrations remain distinct files.
 - Migration order is semantically significant for `CREATE OR REPLACE` definitions.
 - Static dependency analysis is conservative and is not a substitute for live PostgreSQL evidence.
@@ -72,8 +73,8 @@ This is the authoritative compact execution snapshot. Consult it before starting
 ## Current CI evidence
 - Quality run `32868919633` on head `228df63db82687e7584d57b929ac56f3b1ac2d3e` failed at `Tenant legacy consumer boundary`; its log identified `src/pages/CanonicalImportPage.tsx` as the genuine remaining legacy consumer.
 - That consumer was fixed in commit `43a9557bb32c2a17cb590fc9b02eb901f9d97a3c`.
-- Batch 27 then added durable retry recovery and the adapter method, ending at `33fa4662afc28813b992e66532265facc9766195`.
-- No PASS is claimed for the new head until a Quality run executes and completes against it.
+- Batch 27 then implemented durable retry/recovery in commits `3d14c3cf6b39f532bed2777ef2bb0f9dc89bcc1e`, `33fa4662afc28813b992e66532265facc9766195`, `cdc168536ff910d6162da9d02b6ca021b33dfbab`, and `50f272ccbb072f3fa6a5a72659bd37d7a7d54395`.
+- The available GitHub Actions wrapper has not exposed a new main-push run ID yet; therefore no PASS is claimed for the new head.
 
 ## P0 blockers
 1. **Live tenant isolation:** prove two-company read/write isolation, no-membership fail-closed, inactive membership, default-company selection, and cross-tenant Import RPC rejection against a real database.
@@ -87,7 +88,7 @@ This is the authoritative compact execution snapshot. Consult it before starting
 5. Prove Data Quality metric parity after bounded projections before introducing aggregates/RPC computation.
 6. Trace upload/import → review → persistence → reports → decisions → inventory/demand → evidence → certification.
 7. Close KPI truth across Definition → Source → Formula → Query → Service → Dashboard → Report → Export; missing data must remain unknown/blocked rather than become business zero.
-8. Complete Forecast backtesting/calibration and Outcome feedback using the existing intelligence engines.
+8. Execute existing Forecast backtesting/calibration and Outcome feedback using the existing intelligence engines.
 9. Prove worker Claim → Lease → Heartbeat → Checkpoint → Complete/Fail → Retry → Recovery → Dead-letter with concurrency/failure injection.
 10. Run adversarial tenant/RLS/RPC, Storage/Realtime/AI isolation, upload security, resource exhaustion and backup/restore checks where the environment permits.
 
@@ -107,7 +108,7 @@ This is the authoritative compact execution snapshot. Consult it before starting
 - Batch 24: tenant resolver lineage correction and security-gate hardening.
 - Batch 25: current-head CI bootstrap evidence and permanent index synchronization.
 - Batch 26: repository-wide application tenant consumer guard hardened; false-positive canonical resolver filters removed from the guard.
-- Batch 27: Canonical Import legacy tenant consumer removed; durable report retry/recovery path added and tenant-scoped in the existing runtime store.
+- Batch 27: Canonical Import legacy tenant consumer removed; durable report retry/recovery path added, wired into the runner, and protected by the existing runner contract guard.
 
 ## Verified commits of interest
 - `905066a2de85e604f4f97515733c0c07302aa12c` — tenant-native Data Quality boundary.
@@ -121,6 +122,8 @@ This is the authoritative compact execution snapshot. Consult it before starting
 - `43a9557bb32c2a17cb590fc9b02eb901f9d97a3c` — Canonical Import legacy tenant consumer removal.
 - `3d14c3cf6b39f532bed2777ef2bb0f9dc89bcc1e` — durable retry/recovery RPC migration.
 - `33fa4662afc28813b992e66532265facc9766195` — durable store retry adapter.
+- `cdc168536ff910d6162da9d02b6ca021b33dfbab` — durable runner automatic retry wiring.
+- `50f272ccbb072f3fa6a5a72659bd37d7a7d54395` — durable runner recovery contract guard.
 
 ## Non-negotiable rule
 A gate existing is implementation evidence only. `Implemented`, `Gated`, and `Integrated` must never be reported as `Runtime-Evidenced` or `Production-Certified` without current executable evidence. Production certification remains blocked until the P0 evidence gaps are closed.
