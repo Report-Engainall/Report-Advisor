@@ -15,7 +15,7 @@ Source of truth: `main`
 - PASS لا يعني production-certified؛ LIVE evidence منفصل.
 
 ## Current truth
-The latest verifier wave reaches Typecheck after passing the tenant, adversarial tenant, data quality, migration, core, production-contract, resilience, governance, watched-folder, K/L/M, deep K→S, KPI-truth and A0 gates. The current objective is to make the source tree type-safe without weakening truth boundaries.
+The latest verifier wave reached Typecheck and behavioral regressions after passing tenant, adversarial tenant, data quality, migration, core, production-contract, resilience, governance, watched-folder, K/L/M, deep K→S, KPI-truth and A0 gates. Run #1464 reached Typecheck; #1466 reached Routing/Security after Typecheck and behavioral regressions passed. Run #1464 failed only because the quality workflow referenced the existing `scripts/check-import-direct-write-guard.mjs` through a nonexistent npm script alias. The workflow wiring is now corrected in `d0b999f32ccff6c6c86cef5993b9cc78106e6301` and must be re-certified by CI.
 
 ## Phase truth
 | المسار | الحالة | المتبقي الحاسم |
@@ -63,6 +63,8 @@ Foundation/gates cover multi-format mapping, Arabic/English normalization, busin
 
 Compatibility import reads/writes route through existing RPCs; no second import engine exists. Canonical report checkpoint stage, product-family `memberSkus`, entity-resolution discriminant, demand `avgDaily`, nested Supabase shapes and typed inventory balances were hardened.
 
+Current CI direct-write governance is now correctly wired to the existing `scripts/check-import-direct-write-guard.mjs`; no duplicate guard was created.
+
 Remaining runtime proof: arbitrary/no-header/random/poor files, extraction completeness, cell lineage, golden corpus, live Onyx, live rollback/retry/reconciliation.
 
 ## KPI / BI truth
@@ -74,8 +76,10 @@ Missing customer/product/category labels no longer become fabricated business la
 
 Type-safe KPI presentation boundary: `src/lib/dashboard-kpi-guards.ts`; Executive Command Center now snapshots complete KPI truth before arithmetic/rendering, and refuses to render financial cards/actions when required values are missing.
 
+Remaining: cross-dashboard/report/export equivalence, authoritative date-window contract, cache freshness, provenance continuity and live KPI evidence.
+
 ## Evidence → Decision → Outcome
-Evidence-bound decision contracts and fail-closed policy exist. Canonical `DecisionScore` is reused. `decisionExplainability.ts` imports only `DecisionScore` and no longer depends on stale `DecisionScoreInput`. fileciteturn448file0L2-L2
+Evidence-bound decision contracts and fail-closed policy exist. Canonical `DecisionScore` is reused. `decisionExplainability.ts` imports only `DecisionScore` and no longer depends on stale `DecisionScoreInput`.
 
 Remaining: live evidence graph, real outcomes, recommendation→outcome feedback, executive action loop, production-like optimizer scenarios.
 
@@ -91,14 +95,8 @@ Shallow/deep K→S gates consume the historical roadmap plus `docs/IMPLEMENTATIO
 Primary verifier: `.github/workflows/quality.yml`.
 - #1430 `32883083895`: through deep K→S passed; KPI presentation guard exposed fabricated labels and was fixed.
 - #1444 `32884503475`: `npm ci` failed from package manifest/lock drift; fixed in `b4837539e6e4fa8b91ad9a550c7d8f131dcca920`.
-- #1464 `32885447874`: npm install and all gates through A0 hardening passed; Typecheck exposed the source integration wave.
-- #1466 `32885963464`: install, tenant/security, import, K/L/M, K→S, KPI and A0 gates passed; Typecheck failed on stale DecisionScoreInput, nullable aging date and nullable Executive KPI arithmetic.
-
-Current fixes committed after #1466:
-- `4c3449f075b9ee67251fd54587ca26eed8134300` — restored `AnalyticsPage.tsx` after the accidental incomplete write and made Aging analysis fail closed on missing due/invoice dates.
-- `cad74ce3452b164ff7a6e91646a068e79a0fa064` — narrowed a complete immutable KPI snapshot in Executive Command Center so nullable values cannot enter arithmetic/rendering.
-
-The canonical `decisionExplainability.ts` on `main` is already aligned to `DecisionScore`. The next Quality run must certify all three source fixes together; no PASS is claimed before that run completes.
+- #1464 `32885447874`: npm install and all gates through A0 hardening passed; Typecheck and behavioral regressions passed; Routing/Security failed because the workflow invoked nonexistent npm script `test:import-direct-write-guard` even though the canonical guard script exists.
+- Workflow root fix: `d0b999f32ccff6c6c86cef5993b9cc78106e6301` now invokes `node scripts/check-import-direct-write-guard.mjs` directly. No PASS is claimed until a new CI run verifies it.
 
 ## P0 LIVE blockers
 - [ ] adversarial tenant certification
