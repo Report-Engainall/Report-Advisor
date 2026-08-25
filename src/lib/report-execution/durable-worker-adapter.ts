@@ -48,6 +48,12 @@ export class SupabaseReportExecutionStore {
     if (data !== true) throw new Error('Failure update rejected: active worker lease is missing');
   }
 
+  async retry(jobId: string): Promise<void> {
+    const { data, error } = await this.client.rpc('retry_report_execution_job', { p_job_id: jobId });
+    if (error) throw error;
+    if (data !== true) throw new Error('Retry rejected: job is not failed, belongs to another tenant, or has exhausted its retry budget');
+  }
+
   async require(jobId: string): Promise<DurableExecutionJob> {
     const { data, error } = await this.client.from('report_execution_jobs').select('id,company_id,status,checkpoint,attempt,max_attempts,lease_owner,lease_expires_at').eq('id', jobId).single();
     if (error) throw error;
