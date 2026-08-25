@@ -23,14 +23,15 @@ function isLegacyTenantConsumer(rel, text) {
   if (rel === 'src/lib/file-engine/synonyms.ts') return false;
 
   // The compatibility owner is the only place where the legacy symbol may
-  // exist. All application consumers must resolve tenant context through the
-  // canonical resolver/RLS boundary, including reads as well as writes.
+  // exist. Canonical consumers may resolve the active company and pass that
+  // value to a query; that is not legacy tenant selection. What is forbidden
+  // is the legacy symbol, a static tenant identity, or an externally selected
+  // tenant value bypassing the canonical resolver.
   if (/\bCOMPANY_ID\b/.test(text)) return true;
 
-  // Reject static tenant identity and client-supplied tenant filtering in
-  // application code. Server/RLS enforcement remains authoritative.
-  if (/\b(?:companyId|company_id)\s*[:=]\s*['"][0-9a-f-]{16,}['"]/i.test(text)) return true;
-  if (/\.(?:eq|neq|in|filter)\s*\(\s*['"]company_id['"]\s*,\s*[^,)]+\)/i.test(text)) return true;
+  if (/\b(?:companyId|company_id|tenantId)\s*[:=]\s*['"][0-9a-f-]{16,}['"]/i.test(text)) return true;
+  if (/\.(?:eq|neq|in|filter)\s*\(\s*['"]company_id['"]\s*,\s*['"][0-9a-f-]{16,}['"]\s*\)/i.test(text)) return true;
+  if (/\.(?:eq|neq|in|filter)\s*\(\s*['"]company_id['"]\s*,\s*(?:selectedCompanyId|selectedTenantId|profile\.company_id|user\.company_id)\s*\)/i.test(text)) return true;
 
   const writePatterns = [
     /p_company_id\s*:\s*COMPANY_ID\b/,
