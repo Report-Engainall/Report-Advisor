@@ -60,7 +60,9 @@ export interface ScenarioOption {
 }
 
 export function selectBoundedScenario(options: readonly ScenarioOption[], budget: RiskBudget): ScenarioOption | null {
+  if (![budget.maxRisk, budget.protectedLiquidity, budget.minimumServiceLevel].every(Number.isFinite)) return null;
   return [...options]
+    .filter((option) => [option.expectedImpact, option.risk, option.liquidityRequired, option.serviceLevel].every(Number.isFinite))
     .filter((option) => option.risk <= budget.maxRisk && option.liquidityRequired <= budget.protectedLiquidity && option.serviceLevel >= budget.minimumServiceLevel)
     .sort((a, b) => (b.expectedImpact - a.expectedImpact) || (a.risk - b.risk) || a.key.localeCompare(b.key))[0] ?? null;
 }
@@ -74,7 +76,9 @@ export interface PortfolioCandidate {
 }
 
 export function rankPortfolio(candidates: readonly PortfolioCandidate[], maxRisk: number) {
+  if (!Number.isFinite(maxRisk)) return [];
   return [...candidates]
+    .filter((item) => [item.materiality, item.confidence, item.urgency, item.risk].every(Number.isFinite))
     .map((item) => ({
       ...item,
       priority: Math.max(0, item.materiality) * Math.max(0, item.confidence) * (0.5 + Math.max(0, Math.min(1, item.urgency))) / (1 + Math.max(0, item.risk)),
@@ -90,14 +94,15 @@ export interface OutcomeObservation {
 }
 
 export function calibrateConfidence(prior: number, observations: readonly OutcomeObservation[]): number {
-  if (!observations.length) return Math.max(0, Math.min(1, prior));
-  const usable = observations.filter((o) => Number.isFinite(o.expected) && Number.isFinite(o.actual) && o.quality >= 0);
-  if (!usable.length) return Math.max(0, Math.min(1, prior));
+  const safePrior = Number.isFinite(prior) ? prior : 0;
+  if (!observations.length) return Math.max(0, Math.min(1, safePrior));
+  const usable = observations.filter((o) => Number.isFinite(o.expected) && Number.isFinite(o.actual) && Number.isFinite(o.quality) && o.quality >= 0);
+  if (!usable.length) return Math.max(0, Math.min(1, safePrior));
   const accuracy = usable.reduce((sum, o) => {
     const scale = Math.max(1, Math.abs(o.expected));
     return sum + Math.max(0, 1 - Math.abs(o.actual - o.expected) / scale) * Math.min(1, o.quality);
   }, 0) / usable.length;
-  return Math.max(0, Math.min(1, prior * 0.35 + accuracy * 0.65));
+  return Math.max(0, Math.min(1, safePrior * 0.35 + accuracy * 0.65));
 }
 
 export interface AutonomyGateInput {
@@ -113,8 +118,8 @@ export interface AutonomyGateInput {
 export function evaluateAutonomyGate(input: AutonomyGateInput, thresholds = { evidence: 0.9, confidence: 0.9 }) {
   const failures: string[] = [];
   if (!input.trustHealthy) failures.push('continuous_trust');
-  if (input.evidenceQuality < thresholds.evidence) failures.push('evidence_quality');
-  if (input.confidence < thresholds.confidence) failures.push('confidence');
+  if (!Number.isFinite(input.evidenceQuality) || input.evidenceQuality < 0 || input.evidenceQuality > 1 || input.evidenceQuality < thresholds.evidence) failures.push('evidence_quality');
+  if (!Number.isFinite(input.confidence) || input.confidence < 0 || input.confidence > 1 || input.confidence < thresholds.confidence) failures.push('confidence');
   if (!input.riskBudgetValid) failures.push('risk_budget');
   if (input.criticalDrift) failures.push('critical_drift');
   if (!input.rollbackVerified) failures.push('rollback');
