@@ -1,11 +1,5 @@
 import type { ReportExecutionCheckpoint, ReportExecutionStage } from './checkpoint';
-import {
-  consolidateRuntime,
-  chooseScenario,
-  prioritizeDecisions,
-  canAutonomouslyExecute,
-  type RuntimeEvidence,
-} from '../phase-kl-runtime';
+import { consolidateRuntime, chooseScenario, prioritizeDecisions, canAutonomouslyExecute, type RuntimeEvidence } from '../phase-kl-runtime';
 import { diffRows, type AutonomyGateInput, type PortfolioCandidate, type RiskBudget, type RowVersion, type ScenarioOption, type SourceCandidate } from '../production-intelligence';
 
 export interface ProductionLifecycleInput<T = unknown> {
@@ -45,6 +39,8 @@ function validateEvidence(evidence: RuntimeEvidence[]): void {
     if (!item.key.trim()) throw new Error('Runtime evidence requires a non-empty key');
     if (keys.has(item.key)) throw new Error(`Duplicate runtime evidence key: ${item.key}`);
     keys.add(item.key);
+    if (!item.source.trim()) throw new Error(`Runtime evidence requires a source identity: ${item.key}`);
+    if (!Number.isFinite(Date.parse(item.observedAt))) throw new Error(`Runtime evidence requires a valid observation time: ${item.key}`);
     if (!Number.isFinite(item.quality) || item.quality < 0 || item.quality > 1) throw new Error(`Runtime evidence quality must be between 0 and 1: ${item.key}`);
   }
 }
