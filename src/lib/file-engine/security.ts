@@ -72,7 +72,16 @@ export function securityScan(file: File, buffer: ArrayBuffer): SecurityScanResul
   };
 }
 
-export async function checkDuplicate(hash: string): Promise<{ isDuplicate: boolean; existing: FileRecord | null }> {
+/**
+ * Duplicate detection is tenant-authoritative. The optional legacy arguments
+ * remain accepted only to avoid breaking older callers during convergence;
+ * they are deliberately ignored and can never select the tenant.
+ */
+export async function checkDuplicate(
+  hash: string,
+  _legacyCompanyId?: string,
+  _legacySupabase?: typeof supabase,
+): Promise<{ isDuplicate: boolean; existing: FileRecord | null }> {
   const companyId = await resolveCurrentCompanyId();
   if (!companyId) throw new Error('TENANT_CONTEXT_REQUIRED');
 
