@@ -12,14 +12,16 @@ on:
 permissions:
   contents: read
 
+# Preserve each verification run long enough to produce reproducible evidence.
+# New commits must not cancel an in-flight certification run midway through install/tests.
 concurrency:
   group: secondary-agent-batch04-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   contracts:
     runs-on: ubuntu-22.04
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -77,7 +79,7 @@ jobs:
           - lint
           - build
     runs-on: ubuntu-22.04
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
       - name: Checkout
         uses: actions/checkout@v5
