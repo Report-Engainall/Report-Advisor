@@ -6,7 +6,7 @@ This is the latest compact execution snapshot. It complements `docs/MASTER_EXECU
 Never infer completion from conversation history. Repository source, executable CI/runtime evidence, and certification artifacts are authoritative. Status vocabulary: `UNKNOWN → INVENTORIED → IMPLEMENTED → GATED → INTEGRATED → RUNTIME-EVIDENCED → PRODUCTION-CERTIFIED`; use `BLOCKED` for external prerequisites.
 
 ## Current repository head
-`main` = `533ec67800dc1340b2411a86403f77175df91126` — `docs: record batch 15 execution ledger`.
+`main` = `54205b75aa0ea5150c31243a2aaeeb47722dd494` — `fix: preserve entity UI while completing tenant-native data quality refactor`.
 
 ## Capability matrix
 | Capability | Implementation | Gate | Integration | Runtime Evidence | Production |
@@ -29,12 +29,13 @@ Never infer completion from conversation history. Repository source, executable 
 | Dashboard tenant convergence | YES | YES | YES via canonical RLS | NOT PROVEN | NO |
 | Owner-editable profile/display name | YES | YES | YES | NOT PROVEN | NO |
 | Header health truthfulness | YES | YES | YES | NOT PROVEN | NO |
-| Legacy tenant compatibility consumers | CANONICALLY HYDRATED | YES | YES | NOT PROVEN | NO |
+| Legacy tenant compatibility consumers | CLOSED IN UI; COMPATIBILITY OWNER REMAINS | YES | YES | NOT PROVEN | NO |
+| Data Quality tenant-native boundary | YES | YES | INTEGRATED | NOT PROVEN | NO |
 | Migration schema audit | YES | YES via Quality | INTEGRATED | NOT EXECUTED WITH OBSERVABLE STEPS | NO |
 | Migration dependency analysis | YES | YES via Quality | INTEGRATED | NOT YET EXECUTED WITH OBSERVABLE STEPS | NO |
 | Company configuration truth guard | YES | YES via Quality | INTEGRATED | NOT PROVEN | NO |
 | Legacy tenant consumer boundary guard | YES | YES via Quality | INTEGRATED | NOT PROVEN | NO |
-| CI runner execution | UNKNOWN/BLOCKED | N/A | N/A | PRE-STEP FAILURE CONFIRMED | NO |
+| CI runner execution | UNKNOWN/BLOCKED | N/A | N/A | CURRENT HEAD NOT PROVEN; HISTORICAL PRE-STEP FAILURE OBSERVED | NO |
 
 ## Confirmed completed work
 ### Auth/Tenant
@@ -52,7 +53,8 @@ Never infer completion from conversation history. Repository source, executable 
 - Migration schema audit exists and is registered in `package.json` and canonical `quality.yml`.
 - Migration dependency analyzer exists, is registered as `test:migration-dependencies`, and is integrated into canonical Quality.
 - Company configuration truth guard exists to reject prohibited hard-coded company identity/configuration, including `admin@alamri.com`.
-- Tenant legacy consumer boundary guard exists and prevents new `COMPANY_ID`/`activeCompanyId` usage outside documented compatibility boundaries.
+- Tenant legacy consumer boundary guard now permits compatibility tokens only in `src/lib/supabase.ts`; the UI exception has been closed.
+- Data Quality reads are routed through `src/lib/data-quality-queries.ts` and no longer supply a company identifier from the UI.
 - These guards are implementation/regression evidence, not runtime certification.
 
 ### Permanent project reference
@@ -67,20 +69,18 @@ Never infer completion from conversation history. Repository source, executable 
 - Import evolution is treated as existing infrastructure requiring dependency/runtime evidence, not a rebuild.
 - Static dependency analysis is now machine-checkable; it deliberately remains conservative and does not claim to be a full PostgreSQL parser or live schema proof.
 
-## Known legacy area — do not misclassify
-`src/pages/EntityPages.tsx` / Data Quality still contains legacy `COMPANY_ID` filters for customers, products, invoices, and inventory. The compatibility boundary is canonically hydrated by AuthGate, but this is NOT the same as a fully RLS-native frontend refactor. Keep status `PARTIAL/REVIEW` until complete source-context-safe refactor and evidence exist.
-
-`src/lib/supabase.ts` retains a documented nullable compatibility surface for `activeCompanyId`; this is not a demo-company fallback. Do not remove it blindly until all consumers are migrated.
+## Known remaining compatibility area
+`src/lib/supabase.ts` retains a documented nullable compatibility surface for `activeCompanyId`/`COMPANY_ID`. This is not a demo-company fallback. Do not remove it until repository-wide consumers and runtime evidence confirm it can be retired safely.
 
 ## P0 blockers
 ### 1. Authenticated tenant isolation proof
 Prove two-company isolation and ambiguous-membership fail-closed behavior end-to-end with executable evidence.
 
 ### 2. CI executable evidence
-Recent Quality runs have completed with failure before any executable step is exposed. The observed job state has `steps: []`/no usable logs, so it is classified as runner/bootstrap/pre-step until a run exposes executable steps. Do not classify this as an application assertion failure without evidence.
+Historical Quality runs have completed with failure before any executable step is exposed. The observed historical job state has `steps: []`/no usable logs, so it is classified as runner/bootstrap/pre-step for those runs. The current HEAD must not be classified without a current run and observable steps.
 
 ## P1 parallel fronts
-1. Obtain complete Data Quality source context, then replace only the four legacy filters with RLS-native reads; never wholesale-replace a partially retrieved file.
+1. Execute tenant legacy audit, typecheck, lint, and build against the current refactor.
 2. Review the migration dependency analyzer output and distinguish intentional object evolution from true conflicts.
 3. Verify migration drift against live DB when live credentials/environment are available.
 4. Trace critical frontend flow: upload/import → review → persistence → reports → decisions → inventory/demand → evidence → certification.
@@ -92,25 +92,16 @@ Recent Quality runs have completed with failure before any executable step is ex
 The repository already contains runtime/certification workflows for runner diagnostics, J/K/L runtime, Phase E live certification, Phase F resilience, production verification, production-chain guards, runtime closure, recovery readiness, release certification, and security/provenance certification. These are existing capabilities to execute and verify, not systems to rebuild.
 
 ## Batch history
-- Batch 5: `docs/EXECUTION_LEDGER_2026-08-25_BATCH-5.md`
-- Batch 6: `docs/EXECUTION_LEDGER_2026-08-25_BATCH-6.md`
-- Batch 7: `docs/EXECUTION_LEDGER_2026-08-25_BATCH-7.md`
-- Batch 8: `docs/EXECUTION_LEDGER_2026-08-25_BATCH-8.md`
-- Batch 9: `docs/EXECUTION_LEDGER_2026-08-25_BATCH-9.md`
-- Batch 10: `docs/EXECUTION_LEDGER_2026-08-25_BATCH-10.md`
-- Batch 11: `docs/EXECUTION_LEDGER_2026-08-25_BATCH-11.md`
-- Batch 12: `docs/EXECUTION_LEDGER_2026-08-25_BATCH-12.md`
-- Batch 13: `docs/EXECUTION_LEDGER_2026-08-25_BATCH-13.md`
-- Batch 14: `docs/EXECUTION_LEDGER_2026-08-25_BATCH-14.md`
-- Batch 15: `docs/EXECUTION_LEDGER_2026-08-25_BATCH-15.md`
-- Batch 15 delta: `docs/MASTER_EXECUTION_INDEX_CURRENT_DELTA_2026-08-25_BATCH-15.md`
+- Batch 5 through Batch 17: stored in their corresponding execution ledgers/deltas.
+- Batch 18: tenant-native Data Quality integration and UI legacy-boundary closure.
+- Batch 19: source-preserving repair after detecting an over-aggressive file rewrite; current `EntityPages.tsx` preserves the entity pages while routing Data Quality through the new query boundary.
 
-## Batch 15 verified repository evidence
-- Migration dependency analyzer committed at `fed046c6d76a98621183ad4aef52301f659adc65`.
-- Package registration committed at `a83a172dbb6492a1d276634ef272911ddc070fcd`.
-- Canonical Quality integration committed at `a41c5de75b2f4664e64bb7ca698f3f19995c5dfa`.
-- Batch 15 delta and ledger are committed in-repository.
-- The analyzer has not yet been claimed as passed in CI; its first executable run must be inspected.
+## Batch 18/19 verified repository evidence
+- `905066a2de85e604f4f97515733c0c07302aa12c`: tenant-native Data Quality query boundary.
+- `cc8a81064e71fb922a8fd7153a5ba7c0f59a0453`: initial Data Quality integration; subsequently audited because it over-compressed/reduced `EntityPages.tsx`.
+- `54205b75aa0ea5150c31243a2aaeeb47722dd494`: source-preserving repair with tenant-native Data Quality reads.
+- `scripts/check-tenant-legacy-consumers.mjs` now allows the compatibility token only in `src/lib/supabase.ts`.
+- Repository search currently returns no additional `COMPANY_ID` matches outside the guarded compatibility boundary.
 
 ## Non-negotiable evidence rule
 A gate existing is implementation evidence only. `Implemented`, `Gated`, and `Integrated` must never be reported as `Runtime-Evidenced` or `Production-Certified` without current executable evidence. Production certification is blocked until all P0 evidence gaps are closed.
