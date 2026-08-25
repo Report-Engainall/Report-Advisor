@@ -65,6 +65,8 @@ jobs:
         run: node scripts/secondary-batch16-policy.test.mjs
       - name: Free-first policy regression
         run: node scripts/secondary-free-first-policy.test.mjs
+      - name: Batch 17 CI topology safety audit
+        run: node scripts/secondary-batch17-ci-topology-audit.mjs
 
   project-quality:
     strategy:
