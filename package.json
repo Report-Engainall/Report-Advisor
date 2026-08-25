@@ -37,6 +37,7 @@
     "test:file-engine-regressions": "node --experimental-strip-types scripts/check-file-engine-regressions.ts",
     "test:business-key-regressions": "node scripts/check-business-key-regressions.mjs",
     "test:import-classifier-regressions": "node scripts/check-import-classifier-regressions.mjs",
+    "test:incremental-import-ledger": "node --experimental-strip-types scripts/incremental-import-ledger.test.ts",
     "test:file-engine-contract": "node scripts/check-file-engine-contract.mjs",
     "test:file-engine-capability-contract": "node scripts/check-file-engine-capability-contract.mjs",
     "test:schema-intelligence": "node scripts/check-schema-intelligence.mjs",
