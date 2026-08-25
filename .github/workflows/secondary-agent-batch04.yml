@@ -69,6 +69,8 @@ jobs:
         run: node scripts/secondary-free-first-policy.test.mjs
       - name: Batch 17 CI topology safety audit
         run: node scripts/secondary-batch17-ci-topology-audit.mjs
+      - name: Phase A/B import RPC signature drift gate
+        run: npm run test:phase-ab-import-rpc-signature-audit
 
   project-quality:
     strategy:
@@ -91,7 +93,5 @@ jobs:
         with:
           node-version: 22
           cache: npm
-      - name: Install
-        run: npm ci --ignore-scripts --no-audit --no-fund
       - name: Run ${{ matrix.check }}
         run: npm run ${{ matrix.check }}
