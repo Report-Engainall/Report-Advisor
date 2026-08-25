@@ -39,16 +39,17 @@ function evaluateCase(item) {
   if (expected.format === 'csv') {
     const rows = csvRows(text);
     const header = rows[0] ?? [];
-    const dataRows = rows.slice(1);
+    const isHeaderless = expected.header === false;
+    const dataRows = isHeaderless ? rows : rows.slice(1);
     if (expected.header === true && header.length < 2) return fail(file, 'Expected a header row');
-    if (expected.header === false && header.some(cell => /^(sku|product_name|quantity|unit_price)$/i.test(cell.trim()))) return fail(file, 'Expected headerless input');
+    if (isHeaderless && header.some(cell => /^(sku|product_name|quantity|unit_price)$/i.test(cell.trim()))) return fail(file, 'Expected headerless input');
     if (expected.minRows && dataRows.length < expected.minRows) return fail(file, `Expected at least ${expected.minRows} data rows`);
     for (const token of expected.requiredTokens ?? []) if (!text.includes(token)) return fail(file, `Missing required token: ${token}`);
 
     if (expected.duplicateKey) {
       const index = header.indexOf(expected.duplicateKey);
       if (index < 0) return fail(file, `Duplicate key column not found: ${expected.duplicateKey}`);
-      const counts = new Map(dataRows.map(row => [row[index], (0)]));
+      const counts = new Map(dataRows.map(row => [row[index], 0]));
       for (const row of dataRows) counts.set(row[index], (counts.get(row[index]) ?? 0) + 1);
       const duplicates = [...counts.values()].filter(count => count > 1).reduce((sum, count) => sum + count - 1, 0);
       if (duplicates !== expected.expectedDuplicateCount) return fail(file, `Expected duplicate count ${expected.expectedDuplicateCount}, got ${duplicates}`);
@@ -61,7 +62,7 @@ function evaluateCase(item) {
 
     if (expected.schemaQuality === 'BAD_HEADERS' && !header.every(cell => /^field_[a-z]$/i.test(cell.trim()))) return fail(file, 'Bad-header contract not satisfied');
 
-    const numericColumns = expected.header === false ? [2, 3] : header.reduce((indexes, name, index) => /quantity|price|amount/i.test(name) ? [...indexes, index] : indexes, []);
+    const numericColumns = isHeaderless ? [2, 3] : header.reduce((indexes, name, index) => /quantity|price|amount/i.test(name) ? [...indexes, index] : indexes, []);
     if (numericColumns.length && dataRows.some(row => numericColumns.some(index => row[index] !== undefined && row[index] !== '' && !numeric(row[index])))) return fail(file, 'Normalization contract: expected numeric columns contain non-numeric values');
 
     if (expected.language === 'ar' && !hasArabic(text)) return fail(file, 'Expected Arabic content');
