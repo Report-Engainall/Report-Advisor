@@ -27,6 +27,8 @@ Append-only supplement to `docs/MASTER_EXECUTION_INDEX.md`.
 - `report-execution-gate.yml`: manual-only + Ubuntu 22.04. Commit `500d0a877da5d9aa89f5658ad96d752d8eca7688`.
 - `runtime-closure-wave.yml`: manual-only + Ubuntu 22.04. Commit `44ed31658f05296055a89d8ca0af028e69d60f7d`.
 - `quality.yml`: canonical automatic path pinned to Ubuntu 22.04. Commit `653a7825393c8a8069430ceb52c71083bb60a6b4`.
+- `scripts/check-cross-surface-traceability.mjs`: new critical capability traceability checker. Commit `10b82f17ed787bc0958ea3e9f643fcab62b09b9e`.
+- `quality.yml`: wired cross-surface traceability immediately after CI/release topology checks. Commit `8c8a761a56eceface91695a023fad025f05b7c4f`.
 - Batch audit ledger: `docs/EXECUTION_LEDGER_2026-08-25_BATCH-3.md`, commit `d56da91e6a7026b207b0b75d14a64b0b8afd0320`.
 
 ## Current runtime evidence
@@ -52,6 +54,7 @@ Document Intelligence, schema/entity/reconciliation, watched reports, business c
 - Resumability/dead-letter is no longer a build backlog item. It is an integration/evidence item.
 - Production certification is no longer a framework build item. It is a live evidence/consolidation item.
 - The next high-value static audit target is the relationship among `package.json` scripts, `quality.yml` steps, `scripts/check-*`, service tests, migrations and UI/runtime entry points. Any item present in one layer but absent in the others is a candidate integration gap.
+- A first cross-surface traceability guard now exists for Document Intelligence, watched reports, Business Control Plane, K/L runtime, production certification, tenant security and release resilience. This is deliberately narrow and auditable; it is not a replacement for runtime evidence.
 
 ## Next execution — revised after full inventory
 ### NOW-A — Cross-surface traceability
