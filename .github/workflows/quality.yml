@@ -51,7 +51,7 @@ jobs:
       - name: Autonomous governance certification
         run: node scripts/check-autonomous-governance-contract.mjs && node scripts/check-governance-intelligence-hardening.mjs
       - name: Watched reports and text-first pipeline
-        run: npm run test:import-folder-foundation && npm run test:watched-report-pipeline
+        run: node scripts/check-import-folder-foundation.mjs && npm run test:watched-report-pipeline
       - name: Autonomous business control plane
         run: npm run test:business-control-plane && npm run test:phase-k-production-intelligence && npm run test:phase-k-runtime && npm run test:phase-l-runtime && npm run test:phase-l-resumable-execution && npm run test:phase-m-certification && npm run test:k-to-s-closure && npm run test:k-to-s-deep-closure
       - name: Production release blockers
@@ -63,7 +63,7 @@ jobs:
       - name: Behavioral regressions
         run: npm run test:file-engine-regressions && npm run test:business-key-regressions && npm run test:import-classifier-regressions
       - name: Routing and security contracts
-        run: npm run test:navigation-route-contract && npm run test:import-direct-write-guard && npm run test:import-transaction-contract && npm run test:import-runtime-governance && npm run test:tenant-security-contract
+        run: node scripts/check-navigation-route-contract.mjs && npm run test:import-direct-write-guard && npm run test:import-transaction-contract && npm run test:import-runtime-governance && npm run test:tenant-security-contract
       - name: Global tenant RLS
         run: npm run test:global-tenant-rls
       - name: Import RPC tenant context
@@ -87,6 +87,6 @@ jobs:
       - name: Report truth contract
         run: npm run test:report-truth
       - name: Production readiness
-        run: npm run test:production-readiness
+        run: node scripts/check-production-readiness.mjs
       - name: Full resilience gate
-        run: npm run test:document-resilience
+        run: node scripts/check-document-resilience.mjs
