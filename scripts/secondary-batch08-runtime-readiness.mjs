@@ -31,7 +31,7 @@ requireText('src/lib/data-quality-queries.ts', [
   "from('products').select('sku,name,cost_price,selling_price,reorder_point')",
   "from('sales_invoices').select('total,paid_amount,customer_id,invoice_date,invoice_number')",
   "from('inventory_balances').select('quantity,unit_cost,product_id,warehouse_id')",
-  'current_company_id'
+  'Supabase RLS/current_company_id'
 ], 'Data Quality bounded tenant-native projection');
 
 const dq = read('src/lib/data-quality-queries.ts');
@@ -46,7 +46,8 @@ requireText('src/lib/phase-kl-supabase-runtime.ts', [
   'record_control_plane_health', 'record_executive_evidence_edge'
 ], 'Phase K/L runtime persistence boundary');
 
-const migrations = fs.readdirSync(path.join(root, 'supabase/migrations')).join('\n');
+const migrationDir = path.join(root, 'supabase/migrations');
+const migrations = fs.readdirSync(migrationDir).join('\n');
 for (const marker of [
   '20260822212000_canonical_tenant_membership.sql',
   '20260822210000_import_rpc_fail_closed.sql',
@@ -71,14 +72,14 @@ if (paidHits.length) fail('Free-first secondary surface guard', `paid/provider m
 else pass('Free-first secondary surface guard', 'no known paid-provider marker in secondary surfaces');
 
 const tenantMatrix = [
-  ['two-company read isolation', 'LIVE REQUIRED'],
-  ['two-company write isolation', 'LIVE REQUIRED'],
-  ['no membership fail-closed', 'LIVE REQUIRED'],
-  ['inactive membership', 'LIVE REQUIRED'],
-  ['default company resolution', 'LIVE REQUIRED'],
-  ['cross-tenant Import RPC rejection', 'LIVE REQUIRED']
+  'two-company read isolation',
+  'two-company write isolation',
+  'no membership fail-closed',
+  'inactive membership',
+  'default company resolution',
+  'cross-tenant Import RPC rejection'
 ];
-for (const [name, status] of tenantMatrix) blocked(`Tenant certification: ${name}`, `${status}; real Supabase environment is required and is not available to this branch audit`);
+for (const name of tenantMatrix) blocked(`Tenant certification: ${name}`, 'LIVE REQUIRED; a real isolated Supabase environment is required and is not available to this branch audit');
 
 const evidenceNodes = ['Source File', 'Page', 'Table', 'Row', 'Column', 'Cell', 'Extracted Value', 'Normalized Value', 'Entity', 'Canonical Record', 'Metric', 'Report', 'Decision', 'Action', 'Outcome'];
 for (const node of evidenceNodes) {
@@ -86,10 +87,13 @@ for (const node of evidenceNodes) {
   else blocked(`Evidence node readiness: ${node}`, 'authoritative persisted identifier/runtime evidence is not proven by static inspection');
 }
 
-const summary = Object.groupBy(checks, ({ status }) => status);
+const counts = checks.reduce((acc, item) => {
+  acc[item.status] = (acc[item.status] ?? 0) + 1;
+  return acc;
+}, {});
 console.log(JSON.stringify({
   status: checks.some((c) => c.status === 'FAIL') ? 'FAIL' : 'GATED',
-  counts: Object.fromEntries(Object.entries(summary).map(([key, value]) => [key, value.length])),
+  counts,
   checks
 }, null, 2));
 
