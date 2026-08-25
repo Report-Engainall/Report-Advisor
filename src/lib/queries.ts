@@ -153,7 +153,6 @@ export async function fetchTopCustomers(limit = 5): Promise<TopEntity[]> {
 }
 
 export async function fetchTopProducts(limit = 5): Promise<TopEntity[]> {
-  // sale_items is scoped indirectly through its parent invoices; it has no company_id column.
   const { data: invoices, error: invoicesError } = await supabase.from('sales_invoices').select('id');
   if (invoicesError) throw invoicesError;
   const invoiceIds = (invoices || []).map(inv => inv.id);
@@ -171,6 +170,68 @@ export async function fetchTopProducts(limit = 5): Promise<TopEntity[]> {
     entry.value += Number(row.line_total || 0); entry.qty += Number(row.quantity || 0); byProduct.set(row.product_id, entry);
   }
   return Array.from(byProduct.entries()).map(([id, v]) => ({ id, name: v.name, value: v.value, secondary: v.qty })).sort((a, b) => b.value - a.value).slice(0, limit);
+}
+
+export async function fetchCategoryBreakdown(): Promise<CategoryBreakdown[]> {
+  const { data: invoices, error: invoiceError } = await supabase.from('sales_invoices').select('id');
+  if (invoiceError) throw invoiceError;
+  const invoiceIds = (invoices || []).map(invoice => invoice.id);
+  if (!invoiceIds.length) return [];
+
+  const { data: items, error: itemError } = await supabase
+    .from('sale_items')
+    .select('product_id, quantity, line_total, cost_price, product:products(category_id)')
+    .in('invoice_id', invoiceIds)
+    .not('product_id', 'is', null);
+  if (itemError) throw itemError;
+
+  const categoryIds = Array.from(new Set((items || [])
+    .map(item => (item as any).product?.category_id as string | null)
+    .filter((id): id is string => Boolean(id))));
+  const categoryNames = new Map<string, string>();
+  if (categoryIds.length) {
+    const { data: categories, error: categoryError } = await supabase
+      .from('categories').select('id, name').in('id', categoryIds);
+    if (categoryError) throw categoryError;
+    for (const category of categories || []) categoryNames.set(category.id, category.name);
+  }
+
+  const byCategory = new Map<string, CategoryBreakdown>();
+  for (const item of items || []) {
+    const categoryId = (item as any).product?.category_id as string | null;
+    const key = categoryId || '__uncategorized__';
+    const current = byCategory.get(key) || {
+      name: categoryId ? (categoryNames.get(categoryId) || 'غير معروف') : 'غير مصنف',
+      sales: 0,
+      profit: 0,
+      quantity: 0,
+    };
+    const sales = Number((item as any).line_total || 0);
+    const cost = Number((item as any).cost_price || 0) * Number((item as any).quantity || 0);
+    current.sales += sales;
+    current.profit += sales - cost;
+    current.quantity += Number((item as any).quantity || 0);
+    byCategory.set(key, current);
+  }
+  return Array.from(byCategory.values()).sort((a, b) => b.sales - a.sales);
+}
+
+export async function fetchRecommendations(): Promise<Recommendation[]> {
+  const { data, error } = await supabase
+    .from('recommendations')
+    .select('id, company_id, category, priority, title, description, expected_impact, confidence, status, owner, deadline, impact_result, created_at')
+    .order('created_at', { ascending: false });
+  if (error) throw error;
+  return (data || []) as Recommendation[];
+}
+
+export async function fetchAlerts(): Promise<Alert[]> {
+  const { data, error } = await supabase
+    .from('alerts')
+    .select('id, company_id, severity, category, title, description, metric_value, threshold, is_read, created_at')
+    .order('created_at', { ascending: false });
+  if (error) throw error;
+  return (data || []) as Alert[];
 }
 
 export async function fetchAgingBuckets(): Promise<AgingBucket[]> {
