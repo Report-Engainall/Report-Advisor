@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "cases": [
+    {"file":"arabic-excel.csv","expect":{"format":"csv","language":"ar","header":true,"minRows":2,"requiredTokens":["رمز الصنف","اسم الصنف","الكمية","سعر الوحدة"]}},
+    {"file":"english-excel.csv","expect":{"format":"csv","language":"en","header":true,"minRows":2,"requiredTokens":["sku","product_name","quantity","unit_price"]}},
+    {"file":"arabic-ocr.txt","expect":{"format":"text","language":"ar","ocr":true,"requiredTokens":["رقم الفاتورة","التاريخ","الإجمالي"]}},
+    {"file":"english-ocr.txt","expect":{"format":"text","language":"en","ocr":true,"requiredTokens":["Invoice number","Date","Total"]}},
+    {"file":"headerless-table.csv","expect":{"format":"csv","header":false,"minRows":3,"requiredTokens":["SYN-201","SYN-202","SYN-203"]}},
+    {"file":"bad-headers.csv","expect":{"format":"csv","header":true,"schemaQuality":"BAD_HEADERS","requiredTokens":["field_a","field_b","field_c","field_d"]}},
+    {"file":"duplicate-records.csv","expect":{"format":"csv","duplicateKey":"sku","expectedDuplicateCount":1,"requiredTokens":["SYN-401"]}},
+    {"file":"missing-fields.csv","expect":{"format":"csv","missingFields":true,"expectedMissingFieldRows":1,"requiredTokens":["Missing Price"]}},
+    {"file":"merged-cells.txt","expect":{"format":"text","mergedCells":true,"requiredTokens":["merged from row 1"]}},
+    {"file":"multi-table-document.txt","expect":{"format":"text","tableCount":2,"requiredTokens":["TABLE A","TABLE B"]}},
+    {"file":"tables-spanning-pages.txt","expect":{"format":"text","pageCount":2,"multiPage":true,"requiredTokens":["PAGE 1","PAGE 2"]}},
+    {"file":"reconciliation-mismatch.json","expect":{"format":"json","status":"FAILED","sourceRows":3,"canonicalRows":2,"delta":30,"missingEntities":1,"unmatchedRows":1,"suspiciousDifferences":1}},
+    {"file":"unknown-evidence.json","expect":{"format":"json","status":"UNKNOWN","expected":"INSUFFICIENT_EVIDENCE","requiresEvidence":true}}
+  ]
+}
