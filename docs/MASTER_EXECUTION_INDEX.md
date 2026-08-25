@@ -51,7 +51,7 @@ Latest hardening:
 ## Tenant / security
 Repository-wide proactive searches covered `COMPANY_ID`, static tenant IDs, tenant fallbacks, `company_id`, `tenant_memberships`, client-selected tenant filtering, direct Supabase reads/writes and RPC callers.
 
-Current static truth: tenant legacy consumer guard PASS; no remaining verified client `tenantId/tenant_id` filter outside guard/analysis paths; tenant is database/RLS/current-company authoritative; bulk writes remain governed by transaction/RPC.
+Current static truth: tenant legacy consumer guard PASS; adversarial tenant source-boundary guard PASS; no remaining verified browser-storage/query-string/static/client-selected tenant source in executable application paths; tenant is database/RLS/current-company authoritative; bulk writes remain governed by transaction/RPC. The new adversarial gate is now part of Quality. fileciteturn167file0L2-L2
 
 The canonical import wrapper additionally verifies `p_company_id` against `current_company_id()` inside the database before invoking entity RPCs, so a client-selected tenant cannot override the database tenant context. fileciteturn172file0L2-L2
 
@@ -85,9 +85,12 @@ Remaining: live evidence graph, real outcomes, recommendation→outcome feedback
 ## Lease / recovery
 Durable jobs + lease + heartbeat + checkpoint + retry + terminal state + dead-letter exist. Failure evidence preservation is hardened.
 
-The resumable runtime regression now also asserts checkpoint monotonicity, source-snapshot-specific idempotency identity, and fail-closed rejection of empty tenant/idempotency context. The test passes in the next CI cycle when run against the current source.
+The resumable runtime regression now asserts checkpoint monotonicity, source-snapshot-specific idempotency identity, and fail-closed rejection of empty tenant/idempotency context; the current Quality run passed this runtime test. fileciteturn185file0L2-L2
 
 LIVE REQUIRED: stuck-worker injection, lease expiry, dead-letter replay, backup restore/RPO-RTO, rollback/forward-fix, SLO timing.
+
+## K→S closure truth
+The K→S shallow closure gate now validates the historical roadmap plus the explicit N–S execution addendum. The deep closure gate was then proactively aligned to the same addendum and to the **actual canonical** `PhaseKLSupabaseRuntime` API (`recordHealth`, `recordEvidenceEdge`, `autonomyGate`) rather than inventing aliases. fileciteturn209file0L2-L2
 
 ## CI truth / latest execution
 Primary verifier: `.github/workflows/quality.yml`.
@@ -95,12 +98,13 @@ Primary verifier: `.github/workflows/quality.yml`.
 - `32880785206`: stale npm aliases → fixed by invoking canonical scripts.
 - `32881771230` (#1400): concurrency syntax contract failure → exact canonical syntax restored.
 - `32881939671` (#1406): reached Autonomous Business Control Plane after all earlier gates passed; failure investigated as a real runtime-test issue.
-- `32882008369` (#1408): reached the same control-plane stage; `phase-l-resumable-execution` exposed a real Node 22 strip-only compatibility defect in the durable worker adapter.
-- `32882131338` (#1413): durable worker runtime now PASS; the next real failure was `k-to-s-closure` because the historical roadmap did not contain explicit Phase N–S entries.
-- Root cause of #1413: `check-k-to-s-closure.mjs` required Phase K–S but `docs/IMPLEMENTATION_ROADMAP.md` ended before N–S.
-- Fix: added authoritative `docs/IMPLEMENTATION_ROADMAP_PHASES_N-S.md` and changed the K→S gate to validate the historical roadmap plus the N–S execution addendum.
+- `32882008369` (#1408): `phase-l-resumable-execution` exposed the real Node 22 strip-only durable worker defect → fixed.
+- `32882131338` (#1413): worker runtime passed; K→S shallow closure exposed missing N–S roadmap entries → fixed with addendum.
+- `32882629799` (#1419): new adversarial tenant gate passed; K→S shallow closure passed; worker recovery test passed; deep K→S closure then exposed a guard/API naming drift.
+- Root cause of #1419: the deep gate expected nonexistent `recordControlPlaneHealth` / `recordEvidenceGraph`; canonical runtime actually exposes `recordHealth` / `recordEvidenceEdge` / `autonomyGate`.
+- Fix: deep gate now validates the canonical API. New Quality run `32882733990` (#1424) is queued on the resulting batch.
 
-Notable #1413 gate evidence: tenant convergence PASS, tenant legacy boundary PASS, data-quality PASS, company config PASS, migration schema/dependency checks PASS, Quality workflow PASS, core contracts PASS, production certification contract PASS, resilience/release evidence PASS, continuous trust PASS, governance PASS, watched-folder foundation PASS, incremental ledger PASS, business control plane PASS, Phase K runtime PASS, Phase L runtime PASS, resumable execution PASS, Phase M certification PASS. The failure was documentation/closure contract drift at K→S, not worker runtime.
+Notable #1419 evidence: tenant convergence PASS, legacy tenant PASS, adversarial tenant PASS, Data Quality PASS, migration schema/dependency PASS, core contracts PASS, production certification contract PASS, operational resilience PASS, watched-folder foundation PASS, incremental ledger PASS, Phase K runtime PASS, Phase L runtime PASS, resumable execution PASS, Phase M certification PASS, K→S shallow PASS. The failure was only deep closure API drift.
 
 ## P0 LIVE blockers
 - [ ] adversarial tenant certification
@@ -157,7 +161,7 @@ Notable #1413 gate evidence: tenant convergence PASS, tenant legacy boundary PAS
 - [ ] evidence-grounded Ask→Inspect→Act E2E
 
 ## Truth-weighted progress
-**~82% engineering completion remains the conservative verified figure.** This is not production certification. Broad implementation coverage is ~90%+, contract/gate maturity is high, while integrated runtime/live certification remains partial. The latest CI batch closed additional runtime/roadmap drift but did not produce live evidence, so the percentage is not inflated.
+**~82% engineering completion remains the conservative verified figure.** This is not production certification. Broad implementation coverage is ~90%+, contract/gate maturity is high, while integrated runtime/live certification remains partial. The latest CI batch closed additional runtime/roadmap/tenant-security drift but did not produce live evidence, so the percentage is not inflated.
 
 Production certified: **NO** until P0 live evidence closes.
 
@@ -185,5 +189,9 @@ Production certified: **NO** until P0 live evidence closes.
 - `2ebd3ff530b1646d930ad041c9d4879ba4b11a8c` — explicit N–S roadmap execution addendum.
 - `176e0047d9e5731bd3ee853da06e0c2cbf9b19ad` — K→S gate reads historical roadmap + N–S addendum.
 - `69b8cf318263ccb581bfe8766affd2b7bddc9d9d` — resumable execution recovery/idempotency regression hardening.
+- `46669a4cd5b8fc7f981ded084c7465144e7b9739` — adversarial tenant source-boundary gate.
+- `bdf6c74ee5296c72ce6df86cebdf3035c18d8a24` — Quality wiring for adversarial tenant gate.
+- `02701c7947eae646ee8bba7557d4a1b2ca8aca02` — deep K–S roadmap alignment.
+- `1c669f16c2c40bd6c04101413ad8cd01de45e65b` — deep K–S canonical Supabase API alignment.
 
 **No production PASS is claimed. LIVE REQUIRED remains explicit.**
