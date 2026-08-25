@@ -1,5 +1,5 @@
 import { strict as assert } from 'node:assert';
-import { advanceCheckpoint, assertValidTransition, canAdvanceCheckpoint, createInitialCheckpoint, resumeFromCheckpoint } from '../src/lib/report-execution/checkpoint';
+import { advanceCheckpoint, assertValidTransition, canAdvanceCheckpoint, createInitialCheckpoint, resumeFromCheckpoint } from '../src/lib/report-execution/checkpoint.ts';
 
 const initial = createInitialCheckpoint('sha-a', ['z', 'a', 'a']);
 assert.equal(initial.stage, 'queued');
