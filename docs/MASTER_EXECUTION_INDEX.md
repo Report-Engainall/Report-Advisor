@@ -1,6 +1,6 @@
 # Report Advisor — Master Execution & Truth Index
 
-Snapshot: 2026-08-25
+Snapshot: 2026-08-26
 Source of truth: `main`
 
 > نقطة الرجوع الإلزامية قبل كل دفعة. لا تُحسب الملفات/commits إنجازًا بحد ذاتها. نفصل implementation / gate / runtime / live certification.
@@ -16,27 +16,18 @@ Source of truth: `main`
 - PASS لا يعني production-certified؛ LIVE evidence منفصل.
 
 ## Current truth
-The quality workflow is operating as a batch-discovery loop rather than a serial first-failure loop. Routing/Security runs five independent checks together; downstream gates continue collecting independent failures. The latest inspected run `32893065950` reached 43 application/contract gates with only the **Quality workflow contract** failing; the remaining gates after that point were skipped by normal fail-fast ordering. The root cause was not application behavior: the workflow had drifted away from its own contract by using a non-unique concurrency group with `cancel-in-progress: true`, while the contract requires a per-run unique group and `cancel-in-progress: false`. This is corrected in `d0de8ae84d3982f3cf9243e171b6e28d1cf82497`.
+The quality workflow is operated as a batch-discovery loop rather than a serial first-failure loop. No CI PASS is claimed for commits whose complete workflow result is unavailable.
 
-## Latest batch fixes
-1. `src/lib/free-toolbox/batch-decision-engine.ts`: bounded risk percentages are clamped to `[0,100]` before `finitePercent`. Commit: `f21277a7311c463b75bf0089f5d5729e639588ef`.
-2. `services/document-intelligence/tests/test_intermediate_model_contract.py`: aligned the test import with `PYTHONPATH=services/document-intelligence`. Commit: `5db499535667b0b25b8a4a7aa8caf9a8edf2556f`.
-3. `scripts/check-report-truth-contract.mjs`: replaced greedy same-line numeric fallback detection with expression-safe matching and explicit offending-expression reporting. Commit: `96aadeeb22f7d78bf45256b7837f69de294c4b35`.
-4. `.github/workflows/quality.yml`: current action majors (`checkout@v7`, `setup-node@v7`, `setup-python@v7`) while retaining Node 22 as the project runtime under test. Commit: `44290959303f9196084539db30ae573ab7998399`.
-5. `.github/workflows/quality.yml`: removed unnecessary `setup-python` pip caching after a post-job cache-path failure. The earlier attempt to cancel superseded runs was later reverted because the repository's workflow contract explicitly requires non-cancelling verification. Final corrected concurrency contract is in `d0de8ae84d3982f3cf9243e171b6e28d1cf82497`.
-6. `src/components/data-table/DataTable.tsx`: removed `any` casts in table row rendering and unused pagination destructuring. Commit: `8cee387eb6bbe121efdb192be7ffd9b47381f718`.
-7. `src/lib/file-engine/data-types.ts`: replaced `any` inputs with `unknown` and explicit type narrowing in data-type detection/cleaning. Commit: `cf470ddfe778e935b453a3a435b0f403ca458f6b`.
-8. `src/lib/tenantContext.ts`: removed the unused client-only `isTenantSelected` helper after repo-wide caller search found no production/test callers. Commit: `956c53a37b12bf52cc4f1e3206a03a884ab4f38a`.
-9. Repo-wide direct Supabase/tenant scans were repeated. Current evidence shows canonical `resolveCurrentCompanyId()` remains the authoritative browser resolver, while `queries.ts` uses direct reads protected by database RLS; these are not automatically classified as legacy violations. No speculative rewrite was made.
-10. `.github/workflows/quality.yml`: restored the workflow's required **unique per-run concurrency group** and `cancel-in-progress: false`, fixing the root cause of Run #1506 failing at `Quality workflow contract`. Commit: `d0de8ae84d3982f3cf9243e171b6e28d1cf82497`.
-11. `scripts/check-quality-workflow-contract.mjs`: hardened concurrency validation to parse the explicit concurrency policy instead of depending on one exact whitespace/expression layout. It now verifies presence of `github.run_id`, explicitly rejects cancellation, and preserves the 40-minute timeout requirement. Commit: `59ba0785e9c333686e2a2ca27d62a5a643c11452`.
+## Latest implementation batches
+- `99b70b9c791341444e4a13d00155593e5e01bb74`: centralized compatibility tenant guard in `queries-compat.ts`.
+- `5f8653ab7288e95cce5b4aa723250cd3f37b64ee`: removed fabricated import metrics and invalid non-terminal finalization from compatibility updates; existing canonical counters and lineage are read first, progress is interpreted as percentage, and only terminal statuses call `import_finish_job`.
+- Existing canonical import lifecycle hardening remains authoritative: tenant context, terminal allow-list, row locking and lineage preservation.
 
-## Current CI
-- Run `32893065950` / #1506 is a verified failure at the workflow contract gate, not a tenant/application gate. Tenant convergence, legacy consumer, adversarial tenant, data quality, migrations, master requirements, RLS, import RPC/business-key, lint, build, performance, intelligence, analysis, document intelligence, report truth, production readiness and resilience all reached success before/after the gate as available in the run ordering.
-- Corrective workflow commit `d0de8ae84d3982f3cf9243e171b6e28d1cf82497` has been pushed. Its combined status currently returns no status records, so **no CI PASS is claimed**.
-- Follow-up contract-guard hardening is committed as `59ba0785e9c333686e2a2ca27d62a5a643c11452`; its CI is likewise not claimed until a complete workflow result exists.
-- Workflow contract requirements now match implementation: unique group includes `github.run_id`; `cancel-in-progress: false`; timeout remains 40 minutes.
-- Do not treat a commit as PASS until its complete workflow job concludes.
+## Current CI truth
+- No CI PASS is claimed for `5f8653ab7288e95cce5b4aa723250cd3f37b64ee` until a complete workflow result exists.
+- Static review confirms the compatibility path no longer turns `progress` into `valid_rows`, `invalid_rows=0`, or `duplicate_rows=0` fabricated metrics.
+- Static review confirms non-terminal statuses no longer enter `import_finish_job`.
+- Runtime Supabase evidence remains separate and LIVE REQUIRED.
 
 ## Phase truth
 | المسار | الحالة | المتبقي الحاسم |
@@ -59,13 +50,12 @@ The quality workflow is operating as a batch-discovery loop rather than a serial
 | S | NOT LIVE CERTIFIED | final production certification |
 
 ## Tenant / Data / KPI truth
-- Tenant legacy/static/client-selected consumer scan: **PASS** for the guarded boundary; a remaining `COMPANY_ID` search hit is not itself a violation and is classified by authoritative flow.
-- Adversarial tenant source boundary: **PASS**.
-- Global tenant RLS, import RPC tenant context and business-key contracts: **PASS** in the latest completed run.
-- Import transaction/runtime governance: **PASS** in the latest completed run.
-- Migration schema audit: **PASS**, 52 migrations inspected with no findings.
-- KPI presentation truth: **PASS**; missing authoritative values remain fail-closed rather than fabricated.
-- Remaining live proof: real Supabase adversarial isolation, Storage/signed URLs, Realtime authorization, AI retrieval namespace isolation, restore/RPO-RTO, live Onyx/reconciliation, secrets and production rollback evidence.
+- Tenant legacy/static/client-selected consumer scan: **PASS** for the guarded boundary; remaining hits must be classified by authoritative flow, not string matching alone.
+- Canonical browser tenant resolver remains `resolveCurrentCompanyId()`.
+- Import RPCs validate tenant context server-side and use tenant-owned row locks.
+- Import lifecycle has idempotency, canonical tenant context and terminal-state hardening.
+- Compatibility import updates now preserve canonical counters and result-summary lineage rather than fabricating missing metrics.
+- KPI presentation must remain fail-closed for missing authoritative values; no missing→zero coercion is accepted.
 
 ## Watched-folder / cross-platform
 Canonical existing watcher reused: directory selection/monitoring, SHA-256, incremental state, IndexedDB snapshots, queue/dead-letter and text-first fallback.
@@ -85,25 +75,16 @@ Single cross-platform contract: `src/lib/import-pipeline/folder-watch-contract.t
 These remain LIVE REQUIRED wherever static contracts cannot establish real runtime behavior.
 
 ## Completion truth
-**Engineering completion: ~82% (conservative).** This remains unchanged. No percentage increase is claimed for commits/guards alone. Production certification remains **NO** until LIVE runtime evidence closes the P0 matrix.
+**Engineering completion: ~82% conservative.** No percentage increase is claimed for commits/guards alone. Production certification remains **NO** until LIVE runtime evidence closes the P0 matrix.
 
-## Batch 27 — Import terminal-state hardening
-- Found a real import lifecycle defect in the canonical `import_finish_job` RPC: any status value could reach the finalizer, while `result_summary` was replaced rather than preserved. This could corrupt a job's terminal state/lineage and could allow a non-terminal state to be treated as finalization by compatibility callers.
-- Added `supabase/migrations/20260825210000_import_finish_terminal_state.sql`.
-- The canonical RPC now fail-closes unless status is one of `completed|partial|failed|cancelled`, rejects `completed` with an error message, locks the tenant-owned job row, preserves existing `result_summary` lineage and merges final summary data, and always records terminal completion time.
-- Hardened `scripts/check-import-transaction-contract.mjs` to permanently guard the terminal-state allow-list, lineage preservation and completed/error consistency.
-- Commits: `7cbbf965c6d8956936b6f65a08a09026a8ea14dd`, `1c1e2050ae128c3a22f437f5a0b3406b0b5f7d2a`.
-- This is a genuine implementation + regression-guard closure, not a documentation-only change.
-
-## Batch 27 verification truth
-- Both commits are now on `main` in sequence.
-- GitHub combined status currently returns no status records for the newly created implementation commit, therefore **CI PASS is not claimed yet**.
-- The fix is statically verifiable from the migration and contract guard, but runtime Supabase evidence remains separate.
+## Batch execution method — permanent
+Every wave now follows: **scan entire family → cluster root causes → fix all safe instances → strengthen existing guard/test → re-scan → move to next family**. The assistant does not stop after the first defect and does not return for user approval between independent fixes.
 
 ## Next parallel wave
-1. Audit all remaining KPI/metric SQL and service contracts for caller-supplied tenant scope, silent zero/default coercion, date ambiguity and missing-data semantics.
-2. Audit report/decision/recommendation constructors for empty evidence, missing provenance and untracked outcome linkage.
-3. Audit import transaction boundaries for deletion/tombstone reconciliation, retry idempotency, terminal-state replay and lineage completeness.
-4. Audit lease/checkpoint/recovery paths for heartbeat races, duplicate completion, stale lease recovery and dead-letter evidence.
-5. Audit Storage/Realtime/AI isolation contracts and runtime canary wiring.
-6. Continue CI in parallel; a new PASS must be verified before increasing the certified percentage.
+1. KPI/metric SQL and service contracts: tenant scope, silent zero/default coercion, date semantics, provenance.
+2. Report/decision/recommendation constructors: evidence, confidence, provenance and outcome linkage.
+3. Import transaction boundaries: deletion/tombstone reconciliation, retry idempotency, terminal replay and lineage.
+4. Lease/checkpoint/recovery: heartbeat races, duplicate completion, stale lease recovery and dead-letter evidence.
+5. Storage/Realtime/AI isolation contracts and runtime canary wiring.
+6. Native watcher adapters and live folder coordinator without claiming unsupported platform capabilities.
+7. Continue CI in parallel; increase certified percentage only after complete evidence.
