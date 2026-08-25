@@ -72,6 +72,26 @@ Batch 04 is **not COMPLETE**.
 
 ---
 
+# Batch 05 execution status — 2026-08-25
+
+Batch 05 deliberately avoids new UI and focuses on baseline-gap ownership, runtime contract safety, and CI evidence preparation.
+
+| Task | Status | Notes |
+|---|---|---|
+| CI baseline gap audit | GAP / MAINLINE DEPENDENCY | `globals` and `fetchCategoryBreakdown` were rechecked. Existing Draft PR #20 already addresses these exact baseline blockers, so no duplicate fix was added to this branch. |
+| Runtime contract audit | GATED | Existing Evidence, Decision Evidence, Report Snapshot, Document Intelligence, Reconciliation, Data Quality, and Control Plane implementations were re-verified as authoritative sources. |
+| Evidence ID safety | GATED | Removed the secondary `sourceRef` fallback that could reuse a local reference when an authoritative source ID was absent. Missing source evidence now stays UNKNOWN. |
+| Golden Corpus preservation | GATED | The 13-case corpus remains unchanged and executable; Batch 05 adds runtime audit coverage without expanding the corpus. |
+| UNKNOWN / evidence safety regression | GATED | Batch 05 audit explicitly checks no fabricated source reference, no duplicate reconciliation/import engine, UNKNOWN preservation, and no paid provider markers. |
+| Runtime Evidence closure | LIVE REQUIRED | Real tenant/document/reconciliation/persisted Evidence Graph evidence remains owned by the primary runtime stream. |
+| Accessibility | GATED | Browser execution remains required for certification. |
+| Performance | GATED | Static anti-pattern guards are present; runtime measurement remains required. |
+| Batch 05 CI | LIVE REQUIRED | New CI step added; status must be taken from the actual GitHub Actions run. |
+
+Batch 05 is **not COMPLETE**.
+
+---
+
 # Existing approved task matrix
 
 ## A. NOW / PARALLEL — execute these
@@ -152,7 +172,7 @@ The UI consumes supplied values; it does not invent confidence.
 
 ## A6. Data Quality Center UI
 
-**Batch 02: FOUNDATION. Batch 03–04: FOUNDATION / LIVE REQUIRED for authoritative quality scores.**
+**Batch 02: FOUNDATION. Batch 03–05: FOUNDATION / LIVE REQUIRED for authoritative quality scores.**
 
 Implement views for:
 - completeness;
@@ -169,7 +189,7 @@ Implement views for:
 
 ## A7. Business Control Plane UI
 
-**Batch 02: FOUNDATION. Batch 03–04: FOUNDATION.**
+**Batch 02: FOUNDATION. Batch 03–05: FOUNDATION.**
 
 Implement operational overview for:
 - imports;
@@ -188,7 +208,7 @@ Always distinguish LIVE/UNKNOWN/NOT CONFIGURED/FAILED.
 
 ## A8. Document Intelligence Workspace UI
 
-**Batch 02: FOUNDATION. Batch 03–04: FOUNDATION / LIVE REQUIRED.**
+**Batch 02: FOUNDATION. Batch 03–05: FOUNDATION / LIVE REQUIRED.**
 
 Implement document inspection experience:
 - preview;
@@ -209,7 +229,7 @@ Use existing import/document contracts.
 
 ## A9. Golden Corpus
 
-**Batch 02: FOUNDATION. Batch 03: FOUNDATION. Batch 04: FOUNDATION with executable expectations.**
+**Batch 02: FOUNDATION. Batch 03–05: FOUNDATION with executable expectations.**
 
 Create safe deterministic fixtures for:
 - Arabic tabular input;
@@ -229,7 +249,7 @@ No real customer/business secrets.
 
 ## A10. Smart Reconciliation presentation
 
-**Batch 02: FOUNDATION. Batch 03–04: FOUNDATION / LIVE REQUIRED for authoritative result wiring.**
+**Batch 02: FOUNDATION. Batch 03–05: FOUNDATION / LIVE REQUIRED for authoritative result wiring.**
 
 Prepare UI/read models for:
 - source row count vs canonical row count;
