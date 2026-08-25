@@ -39,6 +39,13 @@ The PR base recorded by PR #18 is still the older base SHA `a9dbd6c0ba35bee2d52d
 - Existing mainline work: Draft PR #20 explicitly implements the existing `fetchCategoryBreakdown` contract using canonical `sale_items → products → categories` relations without mock data.
 - Why not duplicate: fixing the same baseline in two parallel branches would create conflicting truth/merge work.
 
+### `fetchRecommendations` / `fetchAlerts`
+- File: `src/pages/DashboardPage.tsx` imported both, while `src/lib/queries.ts` did not expose them.
+- Mainline PR search found no open PR already addressing these two exact read-query exports.
+- Safe fix: added bounded, read-only queries against the existing `recommendations` and `alerts` tables, with explicit projections and `limit(20)`.
+- No recommendation/alert calculation engine was created or changed.
+- This is a **BASELINE READ-CONTRACT FIX**, not a new feature.
+
 ## 3. Runtime contract findings
 
 Existing authoritative implementations inspected:
@@ -157,6 +164,7 @@ Added:
 - `scripts/secondary-batch05-runtime-audit.mjs`
 - `npm run test:secondary-batch05-runtime-audit`
 - Batch 05 runtime audit step in `.github/workflows/secondary-agent-batch04.yml`
+- bounded `fetchRecommendations()` and `fetchAlerts()` read queries in `src/lib/queries.ts`
 
 The audit checks authoritative contract reuse, no duplicate reconciliation/import engine, no `select(*)`, no fabricated source reference fallback, optional deep-link IDs, UNKNOWN safety, 13-case Golden Corpus preservation, and Free/Local-first policy.
 
@@ -166,30 +174,43 @@ Four checks are explicitly SKIPPED because they require live runtime/browser evi
 - end-to-end document persistence;
 - end-to-end reconciliation evidence.
 
-## 10. Accessibility / performance
+## 10. Actual Batch 05 GitHub Actions evidence
+
+Run: `32808064738` on commit `f14abcef3c8757d70a353232ee77a3b0d3db6418`.
+
+Actual results:
+- **Contracts: PASS** — Golden Corpus 13/13; Batch 04 regression 21 PASS / 0 FAIL / 4 SKIPPED; Batch 05 runtime audit PASS 21 / FAIL 0 / SKIPPED 4.
+- **ESLint: FAIL** — `eslint.config.js` imports `globals`, which is not installed by this branch's current dependency manifest. This remains covered by mainline Draft PR #20; no duplicate fix was made here.
+- **Build: FAIL** — `fetchCategoryBreakdown` remains unexported from `src/lib/queries.ts`. Mainline Draft PR #20 explicitly addresses this exact contract, so no duplicate implementation was added here.
+- **TypeScript: FAIL** — repository-wide baseline failures remain, including missing legacy query exports, missing `vitest` types, folder-watch/import pipeline errors, intelligence/report-execution errors, and other pre-existing type errors. No Batch 05 runtime adapter error was identified in the CI output.
+
+Important: the Batch 05 contract job itself passed. The overall workflow remains failing because project-quality baseline jobs remain unresolved.
+
+## 11. Accessibility / performance
 
 No new UI surface was added.
 
 Batch 05 only adds static regression guards around the existing surfaces. Browser accessibility certification remains **GATED** until a real browser runner executes keyboard/focus/ARIA/RTL/error/empty/unknown checks.
 
-No new cache, polling, bulk evidence fetch, or unbounded query was added.
+No new cache, polling, bulk evidence fetch, or unbounded query was added. The restored recommendation/alert reads are explicitly projected and bounded to 20 rows.
 
-## 11. Free-first / cost
+## 12. Free-first / cost
 
 No dependency, provider, SaaS, paid API, paid AI, paid OCR, paid storage, or paid fallback was added.
 
 Cost impact: **none introduced by Batch 05**.
 
-## 12. Security / tenant
+## 13. Security / tenant
 
 - No RLS changes.
 - No tenant identifier added to UI.
+- Recommendation/alert reads remain subject to the existing Supabase RLS boundary.
 - No approval/action execution changes.
 - No evidence IDs fabricated.
 - No customer data or secrets added.
 - Golden fixtures remain synthetic.
 
-## 13. Status matrix
+## 14. Status matrix
 
 | Component | Status |
 |---|---|
@@ -206,23 +227,24 @@ Cost impact: **none introduced by Batch 05**.
 | Contract Regression | GATED |
 | Accessibility | GATED |
 | Performance guards | GATED |
-| TypeScript | GAP — MAINLINE BASELINE; PR #20 already addresses related baseline closure |
+| Recommendation/Alert dashboard read contracts | GATED |
+| TypeScript | GAP — MAINLINE BASELINE |
 | ESLint | GAP — MAINLINE BASELINE; PR #20 already addresses related baseline closure |
-| Build | GAP — MAINLINE BASELINE; PR #20 already addresses related baseline closure |
+| Build | GAP — MAINLINE BASELINE; PR #20 already addresses `fetchCategoryBreakdown` |
 | End-to-end Runtime Evidence | LIVE REQUIRED |
-| Batch 05 | FOUNDATION / GATED / LIVE REQUIRED |
+| Batch 05 | GATED / LIVE REQUIRED |
 
-## 14. Merge prerequisites
+## 15. Merge prerequisites
 
 1. Primary stream decides how PR #20 baseline fixes are integrated.
 2. Do not rebase/merge PR #18 from this branch.
-3. Run Batch 05 CI on this branch and record actual PASS/FAIL/SKIPPED.
-4. Primary runtime supplies authoritative Data Quality scores, document persistence, reconciliation persistence, and downstream Evidence Graph IDs.
-5. Browser/E2E/security/tenant runtime evidence is executed by the primary stream.
+3. Primary runtime supplies authoritative Data Quality scores, document persistence, reconciliation persistence, and downstream Evidence Graph IDs.
+4. Browser/E2E/security/tenant runtime evidence is executed by the primary stream.
+5. Resolve or formally accept the remaining project-wide TypeScript baseline before production certification.
 6. Only then promote individual components to COMPLETE.
 
-## 15. Core intervention
+## 16. Core intervention
 
 None.
 
-No changes to Metric Truth, Financial Truth, Canonical Import Engine, RLS/Tenant Isolation, AI Security, Forecast, Recommendation, Action Execution, Approval Enforcement, Backup/Restore, Multi-currency, Multi-branch authorization, or Production Certification.
+No changes to Metric Truth, Financial Truth, Canonical Import Engine, RLS/Tenant Isolation, AI Security, Forecast, Recommendation Engine, Action Execution, Approval Enforcement, Backup/Restore, Multi-currency, Multi-branch authorization, or Production Certification.
