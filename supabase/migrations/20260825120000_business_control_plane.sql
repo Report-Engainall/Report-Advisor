@@ -62,8 +62,12 @@ RETURNS boolean LANGUAGE sql SECURITY DEFINER SET search_path=public AS $$
   SELECT EXISTS(
     SELECT 1 FROM control_plane_optimization_runs r
     WHERE r.company_id=public.current_company_id() AND r.run_key=p_run_key AND r.status='approved'
-      AND COALESCE(r.liquidity_reserved,0) >= 0
-      AND COALESCE(r.service_level_target,0) >= 0
+      AND r.risk_budget IS NOT NULL AND r.risk_budget >= 0
+      AND r.liquidity_reserved IS NOT NULL AND r.liquidity_reserved >= 0
+      AND r.service_level_target IS NOT NULL AND r.service_level_target >= 0
+      AND jsonb_typeof(r.evidence)='object'
+      AND jsonb_typeof(r.evidence->'source_refs')='array'
+      AND jsonb_array_length(r.evidence->'source_refs') > 0
   )
   AND public.is_continuous_trust_healthy('production')
   AND NOT EXISTS(SELECT 1 FROM control_plane_drift_events d WHERE d.company_id=public.current_company_id() AND d.status IN ('open','blocked') AND d.severity='critical');
