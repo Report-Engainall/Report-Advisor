@@ -4,9 +4,13 @@ CREATE OR REPLACE FUNCTION public.fail_report_execution_job(
 ) RETURNS boolean LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$
 DECLARE affected integer;
 BEGIN
+  IF p_error IS NULL OR jsonb_typeof(p_error) <> 'object' THEN
+    RAISE EXCEPTION 'Failure transition requires a structured error payload';
+  END IF;
+
   UPDATE report_execution_jobs
   SET status=CASE WHEN attempt >= max_attempts THEN 'dead_letter' ELSE 'failed' END,
-      last_error=COALESCE(p_error,'{}'::jsonb), updated_at=now(), lease_owner=null, lease_expires_at=null
+      last_error=p_error, updated_at=now(), lease_owner=null, lease_expires_at=null
   WHERE id=p_job_id
     AND company_id=public.current_company_id()
     AND lease_owner=p_worker_id
