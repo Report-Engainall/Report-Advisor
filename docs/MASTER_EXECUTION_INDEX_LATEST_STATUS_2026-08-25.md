@@ -2,8 +2,8 @@
 
 This is the authoritative compact execution snapshot. Consult it before starting new work. Repository source, executable CI/runtime evidence, and certification artifacts are authoritative; conversation history is not evidence.
 
-## Current repository head
-`main` = `2038f1ee62c10a5a1222495787d8e4f2ab58367d` — master execution index synchronized after Batch 25.
+## Indexed source head
+`main` source state indexed here: `bfe3de31a64792f757982f7b5eee974a8011ed70`. The index commit itself necessarily advances the branch after this snapshot; therefore use this file as the starting-state reference for the next execution batch.
 
 ## Evidence vocabulary
 `UNKNOWN → INVENTORIED → IMPLEMENTED → GATED → INTEGRATED → RUNTIME-EVIDENCED → PRODUCTION-CERTIFIED`; use `BLOCKED` only for an external prerequisite.
@@ -74,7 +74,7 @@ This is bootstrap/runner evidence, not an application test failure. No usable jo
 2. **CI execution:** obtain a current run with observable runner steps/logs; diagnose bootstrap/runner failure using the existing diagnostic workflow rather than altering application code blindly.
 
 ## P1 parallel fronts
-1. Execute tenant security, Data Quality projection, migration schema/dependency, typecheck, lint and build against the current HEAD.
+1. Execute tenant security, Data Quality projection, migration schema/dependency, typecheck, lint and build against the current source head.
 2. Obtain live migration-drift evidence.
 3. Execute existing J/K/L/M runtime workflows and preserve artifacts.
 4. Execute existing E/F/H/I security/resilience workflows and preserve artifacts.
@@ -98,14 +98,15 @@ This is bootstrap/runner evidence, not an application test failure. No usable jo
 - Batch 25: current-head CI bootstrap evidence and permanent index synchronization.
 
 ## Verified commits of interest
-- `905066a2de85e604cfe97515733c0c07302aa12c` — tenant-native Data Quality boundary.
+- `905066a2de85e604f4f97515733c0c07302aa12c` — tenant-native Data Quality boundary.
 - `54205b75aa0ea5150c31243a2aaeeb47722dd494` — source-preserving Data Quality repair.
 - `262c746ac1a55dd990777f8a076aded0380e17b4` — bounded Data Quality projections.
 - `bbee7b8741d3d068e7ed3feb0087b370c7d6f4bb` — projection regression contract.
 - `5de9d7efec919fe71d4d5475cd7db6accd51dd28` — latest-resolver security-gate correction.
 - `55e0c2785d69662c8db330a40b02325cf7a30b24` — SQL matching correction.
 - `3f1ceddcc38124ef07ff932bdec9e22c40ee47a9` — Batch 25 ledger.
-- `2038f1ee62c10a5a1222495787d8e4f2ab58367d` — current main head/index synchronization.
+- `2038f1ee62c10a5a1222495787d8e4f2ab58367d` — previous index synchronization.
+- `bfe3de31a64792f757982f7b5eee974a8011ed70` — previous source-head snapshot.
 
 ## Non-negotiable rule
 A gate existing is implementation evidence only. `Implemented`, `Gated`, and `Integrated` must never be reported as `Runtime-Evidenced` or `Production-Certified` without current executable evidence. Production certification remains blocked until the P0 evidence gaps are closed.
