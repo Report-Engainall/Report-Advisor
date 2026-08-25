@@ -1,9 +1,12 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, Bell, Upload, Brain, Menu, X, CheckCircle2, Command } from 'lucide-react';
+import { Search, Bell, Upload, Brain, Menu, CheckCircle2, Command, AlertTriangle, WifiOff } from 'lucide-react';
 import type { Alert } from '@/lib/types';
 import { SeverityBadge } from './ui/Badge';
 import { relativeTime } from '@/lib/format';
+import { supabase } from '@/lib/supabase';
+
+type HealthState = 'checking' | 'healthy' | 'degraded' | 'offline';
 
 interface HeaderProps {
   alerts: Alert[];
@@ -14,7 +17,47 @@ interface HeaderProps {
 
 export function Header({ alerts, onMarkAlertRead, onMenuClick, onOpenCommandPalette }: HeaderProps) {
   const [showAlerts, setShowAlerts] = useState(false);
+  const [health, setHealth] = useState<HealthState>('checking');
   const unreadAlerts = alerts.filter(a => !a.is_read);
+
+  useEffect(() => {
+    let mounted = true;
+    const checkHealth = async () => {
+      try {
+        const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+        if (!mounted) return;
+        if (sessionError || !sessionData.session) {
+          setHealth('offline');
+          return;
+        }
+
+        // A real authenticated DB round-trip. RLS/current_company_id remains the
+        // authoritative tenant boundary; this is only an availability signal.
+        const { error: tenantError } = await supabase.rpc('current_company_id');
+        if (!mounted) return;
+        setHealth(tenantError ? 'degraded' : 'healthy');
+      } catch {
+        if (mounted) setHealth('offline');
+      }
+    };
+
+    void checkHealth();
+    const timer = window.setInterval(checkHealth, 60_000);
+    return () => {
+      mounted = false;
+      window.clearInterval(timer);
+    };
+  }, []);
+
+  const healthLabel = {
+    checking: 'جارٍ التحقق',
+    healthy: 'النظام يعمل',
+    degraded: 'الخدمة متأثرة',
+    offline: 'غير متصل',
+  }[health];
+
+  const HealthIcon = health === 'healthy' ? CheckCircle2 : health === 'offline' ? WifiOff : AlertTriangle;
+  const healthClass = health === 'healthy' ? 'text-success-500' : health === 'checking' ? 'text-ink-400' : 'text-warning-500';
 
   return (
     <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-md border-b border-ink-100">
@@ -90,9 +133,9 @@ export function Header({ alerts, onMarkAlertRead, onMenuClick, onOpenCommandPale
             )}
           </div>
 
-          <div className="hidden sm:flex items-center gap-2 mr-2 pl-3 border-r border-ink-100 pr-3">
-            <CheckCircle2 size={16} className="text-success-500" />
-            <span className="text-xs text-ink-500">النظام يعمل</span>
+          <div className="hidden sm:flex items-center gap-2 mr-2 pl-3 border-r border-ink-100 pr-3" role="status" aria-live="polite" title={healthLabel}>
+            <HealthIcon size={16} className={healthClass} />
+            <span className="text-xs text-ink-500">{healthLabel}</span>
           </div>
         </div>
       </div>
