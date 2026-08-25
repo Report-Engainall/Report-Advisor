@@ -16,13 +16,19 @@ Source of truth: `main`
 - PASS لا يعني production-certified؛ LIVE evidence منفصل.
 
 ## Current truth
-Latest CI waves are now being used as a batch-discovery loop rather than a serial first-failure loop. Routing/Security runs the independent navigation, direct-write, import-transaction, import-governance and tenant-security checks together; downstream gates are configured to continue collecting independent failures. The latest push-triggered runs are #1493 (`f21277a7311c463b75bf0089f5d5729e639588ef`) and #1494 (`5db499535667b0b25b8a4a7aa8caf9a8edf2556f`), both in progress at this snapshot.
+The quality workflow is now operating as a batch-discovery loop rather than a serial first-failure loop. Routing/Security runs five independent checks together; downstream gates continue collecting independent failures. The last confirmed failure was a **Report Truth guard false-positive** caused by a greedy same-line regex spanning unrelated expressions. The guard was corrected to match a single numeric-coercion expression only.
 
 ## Latest batch fixes
-1. `src/lib/free-toolbox/batch-decision-engine.ts`: bounded risk percentages are now clamped to `[0,100]` before `finitePercent`; valid high-coverage rows no longer fail because a mathematically negative risk was passed to a non-negative validator. Commit: `f21277a7311c463b75bf0089f5d5729e639588ef`.
-2. `services/document-intelligence/tests/test_intermediate_model_contract.py`: aligned the contract test import with the CI's `PYTHONPATH=services/document-intelligence` module boundary (`from app...`), eliminating the `services.document_intelligence` namespace mismatch. Commit: `5db499535667b0b25b8a4a7aa8caf9a8edf2556f`.
-3. Earlier batch work already hardened migration-aware tenant-security detection, canonical query boundaries, direct-write/import transaction semantics and CI parallel discovery. These are retained; no duplicate engines/guards were introduced.
-4. Report/analytics truth remains under active scan. Any `Number(... || 0)` / `parseFloat(... || 0)` in report/dashboard/analytics surfaces is treated as a candidate for semantic replacement, not silenced in the guard.
+1. `src/lib/free-toolbox/batch-decision-engine.ts`: bounded risk percentages are clamped to `[0,100]` before `finitePercent`. Commit: `f21277a7311c463b75bf0089f5d5729e639588ef`.
+2. `services/document-intelligence/tests/test_intermediate_model_contract.py`: aligned the test import with `PYTHONPATH=services/document-intelligence`. Commit: `5db499535667b0b25b8a4a7aa8caf9a8edf2556f`.
+3. `scripts/check-report-truth-contract.mjs`: replaced greedy same-line numeric fallback detection with expression-safe matching and explicit offending-expression reporting. Commit: `96aadeeb22f7d78bf45256b7837f69de294c4b35`.
+4. `.github/workflows/quality.yml`: upgraded checkout/setup-node/setup-python to current Node24-compatible major releases (`v7`) while retaining Node 22 as the project runtime under test. Commit: `44290959303f9196084539db30ae573ab7998399`. GitHub's current action documentation shows setup-node v7 and setup-python v7 use the current Node24 action runtime. citeturn0search1turn0search6
+5. Earlier batch work hardened migration-aware tenant-security detection, canonical query boundaries, direct-write/import transaction semantics and CI parallel discovery. No duplicate engines/guards were introduced.
+
+## Current CI
+- Run #1497 / `32890934033` is currently **IN PROGRESS** on `96aadeeb22f7d78bf45256b7837f69de294c4b35`; all gates through Typecheck have passed and Behavioral regressions is running.
+- Run #1498 / `32890967686` is **IN PROGRESS** on `44290959303f9196084539db30ae573ab7998399`, validating the upgraded action runtime plus the accumulated fixes.
+- Do not treat either run as PASS until the complete job concludes.
 
 ## Phase truth
 | المسار | الحالة | المتبقي الحاسم |
@@ -44,13 +50,14 @@ Latest CI waves are now being used as a batch-discovery loop rather than a seria
 | R | INTEGRATION TARGET | decision→action→outcome loop |
 | S | NOT LIVE CERTIFIED | final production certification |
 
-## Batch execution strategy
-The execution unit is now a **failure family**, not a single Run failure:
-- Tenant family: `COMPANY_ID`, static IDs, fallbacks, client tenant selection, direct Supabase, RPC callers.
-- Import family: parse/map/validate/tenant/canonical/RPC/persistence/idempotency/race/retry/reconciliation/lineage/evidence.
-- Truth family: KPI numeric/date coercion, missing→zero, source authority, date windows, cache freshness, provenance.
-- Runtime family: evidence/quality/confidence/decision/recommendation/outcome and lease/heartbeat/checkpoint/retry/dead-letter/recovery.
-- CI family: stale script aliases, false-negative guards, environment/module-path drift, direct-write wiring, parallel gate coverage.
+## Tenant / Data / KPI truth
+- Tenant legacy/static/client-selected consumer scan: **PASS**.
+- Adversarial tenant source boundary: **PASS**.
+- Global tenant RLS, import RPC tenant context and business-key contracts: **PASS** in the last completed wave.
+- Import transaction/runtime governance: **PASS** in the last completed wave.
+- Migration schema audit: **PASS**, 52 migrations inspected with no findings.
+- KPI presentation truth: **PASS**; missing authoritative values remain fail-closed rather than fabricated.
+- Remaining live proof: real Supabase adversarial isolation, Storage/signed URLs, Realtime authorization, AI retrieval namespace isolation, restore/RPO-RTO, live Onyx/reconciliation, secrets and production rollback evidence.
 
 ## Watched-folder / cross-platform
 Canonical existing watcher reused: directory selection/monitoring, SHA-256, incremental state, IndexedDB snapshots, queue/dead-letter and text-first fallback.
@@ -62,43 +69,12 @@ Single cross-platform contract: `src/lib/import-pipeline/folder-watch-contract.t
 - iOS: capability-aware; arbitrary persistent background folder watching is not claimed.
 - All adapters emit the same `WatchEvent` into the same queue/import pipeline.
 
-Hardening: weak-fingerprint fail-closed behavior; duplicate stable-row rejection; disappeared-file reconciliation; watched-folder configuration validation; browser directory capability typing.
+## P0 / P1 truth
+**P0:** Supabase adversarial runtime, Storage/signed URLs, Realtime authorization, AI tenant isolation, Backup Restore/RPO-RTO, migration parity, artifact verification, worker failure/dead-letter drills, security/secrets, SLO/rollback, production certification.
 
-## Tenant / security truth
-Proactive searches covered `COMPANY_ID`, static tenant IDs, tenant fallbacks, `company_id`, `tenant_memberships`, client-selected tenant filtering, direct Supabase reads/writes and RPC callers.
+**P1:** Windows persistent watcher, Android native watcher, iOS capability integration, live folder coordinator, live Document Intelligence corpus, evidence graph, outcome feedback, executive action loop.
 
-Current guard: **PASS**. The `file-engine/synonyms.ts` legacy `COMPANY_ID` consumer was removed. The compatibility query boundary is allowed only because it resolves through `resolveCurrentCompanyId()` and the canonical fail-closed RPC/RLS boundary. Adversarial tenant source-boundary guard: **PASS**.
-
-LIVE REQUIRED: real Supabase adversarial isolation, storage/signed URLs, Realtime authorization, AI retrieval namespace isolation, secrets audit.
-
-## Data / Import truth chain
-`File → Parse → Map → Validate → Tenant → Canonical → RPC → Persistence → Reconciliation → Audit → Evidence`
-
-Foundation/gates cover multi-format mapping, Arabic/English normalization, business-key matching, preview/approval, quarantine, provenance/lineage, governed RPC writes, Onyx adapter, watched-folder queue, chunk atomicity, tenant mismatch rejection, duplicate protection and deletion reconciliation.
-
-Compatibility import reads/writes route through existing RPCs; no second import engine exists. Canonical report checkpoint stage, product-family `memberSkus`, entity-resolution discriminant, demand `avgDaily`, nested Supabase shapes and typed inventory balances were hardened.
-
-Current CI direct-write governance is correctly wired to the existing `scripts/check-import-direct-write-guard.mjs`; no duplicate guard was created.
-
-Remaining runtime proof: arbitrary/no-header/random/poor files, extraction completeness, cell lineage, golden corpus, live Onyx, live rollback/retry/reconciliation.
-
-## KPI / BI truth
-Required numeric/date fields fail closed; `INSUFFICIENT_DATA` is explicit; `activeCustomers=null` remains truthful because no authoritative active flag exists; missing aging due dates are now skipped rather than silently substituting invoice dates.
-
-Real mismatch fixed: `net_sales` definition/query drift (`total` vs canonical `subtotal`) in `3ac71a99a05e347d5708ac04cad1aa635c4d25c2`.
-
-Missing customer/product/category labels no longer become fabricated business labels. `check-kpi-presentation-truth.mjs`: PASS.
-
-Type-safe KPI presentation boundary: `src/lib/dashboard-kpi-guards.ts`; Executive Command Center snapshots complete KPI truth before arithmetic/rendering and refuses to render financial cards/actions when required values are missing.
-
-Remaining: cross-dashboard/report/export equivalence, authoritative date-window contract, cache freshness, provenance continuity and live KPI evidence.
-
-## Current CI / next execution
-- Latest active verification: #1494 / `32889999353` (head `5db499535667b0b25b8a4a7aa8caf9a8edf2556f`), with #1493 / `32889986318` immediately preceding it; both were triggered by the batch fixes.
-- Batch fixes intentionally target semantic root causes rather than weakening gates.
-- Next mandatory loop: collect all Routing/Security + RLS + RPC + Business Key + Lint + Build + Performance + Intelligence + Document Runtime + Report Truth failures from the same wave, cluster them, and fix independent families together.
-- Parallel P0 work remains LIVE REQUIRED where real Supabase/production evidence is indispensable: adversarial tenant isolation, Storage/signed URLs, Realtime authorization, AI tenant isolation, restore/RPO-RTO, artifact verification, failure/dead-letter drills, secrets/security audit, SLO/rollback and production certification.
-- Parallel P1 work remains: Windows persistent watcher, Android watcher, iOS capability integration, live folder coordinator, live document corpus, evidence graph, outcome feedback and executive action loop.
+These remain LIVE REQUIRED wherever static contracts cannot establish real runtime behavior.
 
 ## Completion truth
-**Engineering completion: ~82% (conservative).** This is not production readiness. No percentage increase is claimed for commits/guards alone. Production certification remains **NO** until LIVE runtime evidence closes the P0 matrix.
+**Engineering completion: ~82% (conservative).** This remains unchanged. No percentage increase is claimed for commits/guards alone. Production certification remains **NO** until LIVE runtime evidence closes the P0 matrix.
