@@ -22,16 +22,18 @@ export async function runDurableProductionLifecycle<T>(input: DurableProductionR
   const leaseSeconds = input.leaseSeconds ?? 300;
   const heartbeatIntervalMs = input.heartbeatIntervalMs ?? Math.max(30_000, Math.floor((leaseSeconds * 1000) / 3));
   const job = await store.claim(input.jobId, input.workerId, leaseSeconds);
-  if (job.tenantId !== input.request.tenantId) throw new Error('Tenant mismatch for durable production execution');
-  if (job.checkpoint.sourceHash && job.checkpoint.sourceHash !== input.sourceHash) throw new Error('Source hash changed during resumable execution');
-  assertProductionCheckpoint(job.checkpoint);
-
-  let heartbeatFailure: unknown = null;
-  const heartbeatTimer = setInterval(() => {
-    void store.heartbeat(input.jobId, input.workerId, leaseSeconds).catch((error) => { heartbeatFailure ??= error; });
-  }, heartbeatIntervalMs);
+  let heartbeatTimer: ReturnType<typeof setInterval> | undefined;
 
   try {
+    if (job.tenantId !== input.request.tenantId) throw new Error('Tenant mismatch for durable production execution');
+    if (job.checkpoint.sourceHash && job.checkpoint.sourceHash !== input.sourceHash) throw new Error('Source hash changed during resumable execution');
+    assertProductionCheckpoint(job.checkpoint);
+
+    let heartbeatFailure: unknown = null;
+    heartbeatTimer = setInterval(() => {
+      void store.heartbeat(input.jobId, input.workerId, leaseSeconds).catch((error) => { heartbeatFailure ??= error; });
+    }, heartbeatIntervalMs);
+
     const checkpoint = (stage: ReportExecutionStage): ReportExecutionCheckpoint => ({ ...job.checkpoint, sourceHash: input.sourceHash, stage, updatedAt: Date.now() });
     let stage = job.checkpoint.stage;
     while (stage !== 'rendered') {
@@ -60,9 +62,13 @@ export async function runDurableProductionLifecycle<T>(input: DurableProductionR
     });
     return lifecycle;
   } catch (error) {
-    await store.fail(input.jobId, input.workerId, { message: error instanceof Error ? error.message : String(error) });
+    try {
+      await store.fail(input.jobId, input.workerId, { message: error instanceof Error ? error.message : String(error) });
+    } catch (failureError) {
+      throw new AggregateError([error, failureError], 'Durable execution failed and failure state could not be persisted');
+    }
     throw error;
   } finally {
-    clearInterval(heartbeatTimer);
+    if (heartbeatTimer) clearInterval(heartbeatTimer);
   }
 }
