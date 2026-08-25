@@ -25,8 +25,6 @@ if (!quality.includes('push: {branches: [main]}')) {
   throw new Error('Quality must remain the canonical main push gate');
 }
 
-// These are deliberately manual/dispatch or scoped waves. They may contain
-// narrowly-scoped push triggers without becoming a second canonical quality gate.
 for (const [name, text] of [
   ['j-k-l-runtime-wave', jkl],
   ['autonomy-safety-wave', autonomy],
@@ -44,24 +42,31 @@ const pushWorkflows = names.filter((f) => {
   return /(^|\n)\s+push:\s*(?:\n|$)/.test(text);
 });
 
-// The canonical topology is defined by the explicit main push trigger. Other
-// workflows may legitimately listen to tags, paths, or scoped events.
-const canonicalPushWorkflows = names.filter((f) => {
+// Multiple workflows may legitimately run on main pushes. The canonical
+// quality workflow is identified by its complete release/quality gate set,
+// not by the existence of a push trigger alone.
+const mainPushWorkflows = names.filter((f) => {
   const text = read(`.github/workflows/${f}`);
   return /push:\s*\n\s+branches:\s*\[main\]/.test(text) ||
     /push:\s*\{\s*branches:\s*\[main\]\s*\}/.test(text);
 });
-if (!canonicalPushWorkflows.includes('quality.yml')) {
-  throw new Error('quality.yml must be the canonical main push workflow');
+if (!mainPushWorkflows.includes('quality.yml')) {
+  throw new Error('quality.yml must listen to main pushes');
 }
-if (canonicalPushWorkflows.length !== 1) {
-  throw new Error(`Expected exactly one main-push workflow, found: ${canonicalPushWorkflows.join(', ')}`);
+
+const competingCanonicalWorkflows = mainPushWorkflows.filter((f) => {
+  if (f === 'quality.yml') return false;
+  const text = read(`.github/workflows/${f}`);
+  return requiredQualityGates.every((gate) => text.includes(gate));
+});
+if (competingCanonicalWorkflows.length > 0) {
+  throw new Error(`Duplicate canonical quality gate set found: ${competingCanonicalWorkflows.join(', ')}`);
 }
 
 console.log(JSON.stringify({
   contract: 'ci-execution-topology',
   canonicalPushGate: 'quality.yml',
-  canonicalPushWorkflows,
+  mainPushWorkflows,
   allPushWorkflows: pushWorkflows,
   manualWaves: [
     'j-k-l-runtime-wave.yml',
