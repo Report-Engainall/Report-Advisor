@@ -69,6 +69,8 @@ jobs:
         run: node scripts/secondary-free-first-policy.test.mjs
       - name: Batch 17 CI topology safety audit
         run: node scripts/secondary-batch17-ci-topology-audit.mjs
+      - name: Onyx duplicate-canonical conflict regression
+        run: node scripts/check-onyx-adapter-conflicts.mjs
       - name: Phase A/B import RPC signature drift gate
         run: npm run test:phase-ab-import-rpc-signature-audit
       - name: Phase A/B comprehensive integration audit
