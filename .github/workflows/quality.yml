@@ -67,7 +67,7 @@ jobs:
       - name: Behavioral regressions
         run: npm run test:file-engine-regressions && npm run test:business-key-regressions && npm run test:import-classifier-regressions
       - name: Routing and security contracts
-        run: node scripts/check-navigation-route-contract.mjs && npm run test:import-direct-write-guard && npm run test:import-transaction-contract && npm run test:import-runtime-governance && npm run test:tenant-security-contract
+        run: node scripts/check-navigation-route-contract.mjs && node scripts/check-import-direct-write-guard.mjs && npm run test:import-transaction-contract && npm run test:import-runtime-governance && npm run test:tenant-security-contract
       - name: Global tenant RLS
         run: npm run test:global-tenant-rls
       - name: Import RPC tenant context
