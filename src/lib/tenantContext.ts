@@ -1,4 +1,4 @@
-import { supabase, clearCompanyId, resolveCurrentCompanyId } from './supabase';
+import { supabase, resolveCurrentCompanyId } from './supabase';
 
 export interface TenantMembership {
   company_id: string;
@@ -16,7 +16,6 @@ export interface TenantMembership {
 export async function resolveTenantContext(preferredCompanyId?: string | null) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
-    clearCompanyId();
     return { user: null, memberships: [] as TenantMembership[], active: null as TenantMembership | null };
   }
 
@@ -49,13 +48,11 @@ export async function resolveTenantContext(preferredCompanyId?: string | null) {
   // A preferred/client-selected tenant is only accepted when it is exactly the
   // authoritative server-resolved tenant. Never fall back to the first row.
   if (preferredCompanyId && preferredCompanyId !== authoritativeCompanyId) {
-    clearCompanyId();
     return { user, memberships, active: null as TenantMembership | null };
   }
 
   const active = memberships.find((m) => m.company_id === authoritativeCompanyId) ?? null;
   if (!active) {
-    clearCompanyId();
     return { user, memberships, active: null as TenantMembership | null };
   }
 
