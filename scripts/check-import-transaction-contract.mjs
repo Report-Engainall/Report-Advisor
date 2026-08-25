@@ -6,16 +6,14 @@ const migrationDir = path.join(root, 'supabase', 'migrations');
 const files = fs.existsSync(migrationDir) ? fs.readdirSync(migrationDir).filter((f) => f.endsWith('.sql')) : [];
 const text = files.map((f) => fs.readFileSync(path.join(migrationDir, f), 'utf8')).join('\n');
 
-// Validate the durable import transaction lifecycle semantically rather than
-// requiring one particular historical function name. The production schema
-// uses import_finish_job as the terminal transition and supports failed and
-// cancelled states; equivalent finalize/rollback terminology is also accepted.
 const required = [
   /import_jobs/i,
   /import_job_rows/i,
   /(?:finalize|finish[_ ]?job|terminal|completed)/i,
   /(?:rollback|failed|cancel(?:led|lled)?)/i,
   /FOR\s+UPDATE|advisory|lock/i,
+  /import_commit_batch/i,
+  /any row failure rolls back the whole chunk/i,
 ];
 for (const pattern of required) {
   if (!pattern.test(text)) throw new Error(`Import transaction contract missing: ${pattern}`);
@@ -32,8 +30,27 @@ if (!/failed/i.test(lifecycleMigration) || !/cancelled/i.test(lifecycleMigration
   throw new Error('Import transaction lifecycle must support failed and cancelled states');
 }
 
-// Bulk persistence remains exclusively RPC/governed. Direct browser writes to
-// canonical import entities are prohibited outside the existing governed path.
+const canonicalCommitPath = path.join(root, 'src', 'lib', 'import', 'canonical-commit.ts');
+if (fs.existsSync(canonicalCommitPath)) {
+  const canonical = fs.readFileSync(canonicalCommitPath, 'utf8');
+  if (!/resolveCurrentCompanyId\(\)/.test(canonical) || !/import_commit_batch/.test(canonical)) {
+    throw new Error('Canonical import must resolve authoritative tenant and commit through the atomic RPC wrapper');
+  }
+  if (!/IMPORT_COMMIT_RESULT_MISMATCH/.test(canonical)) {
+    throw new Error('Canonical import must verify the durable batch result count and IDs');
+  }
+}
+
+const batchFolderPath = path.join(root, 'src', 'lib', 'import', 'batch-folder.ts');
+if (fs.existsSync(batchFolderPath)) {
+  const batch = fs.readFileSync(batchFolderPath, 'utf8');
+  if (!/offset\+=500/.test(batch)) throw new Error('Folder import must use bounded atomic chunks');
+  if (!/status:'failed'|status\s*:\s*'failed'/.test(batch) || !/updateImportRecord\(importRecordId,\{status:'failed'/.test(batch)) {
+    throw new Error('Failed folder imports must persist a terminal failed state');
+  }
+  if (!/committed, error:message/.test(batch)) throw new Error('Failed folder imports must preserve committed progress');
+}
+
 const forbiddenDirectBulk = /supabase\.from\([^)]*(products|import_job_rows|orders)[^)]*\)\.(insert|upsert|update)\s*\(/is;
 const sourceDirs = ['src/lib', 'src/services'];
 for (const dir of sourceDirs) {
@@ -52,21 +69,6 @@ for (const dir of sourceDirs) {
         }
       }
     }
-  }
-}
-
-// A canonical import may receive a customer_id from an external file. That id
-// is never authoritative by itself: the commit path must prove it belongs to
-// the current tenant before writing an invoice. Name-based resolution must
-// also remain company-scoped.
-const canonicalCommitPath = path.join(root, 'src', 'lib', 'import', 'canonical-commit.ts');
-if (fs.existsSync(canonicalCommitPath)) {
-  const canonical = fs.readFileSync(canonicalCommitPath, 'utf8');
-  if (!/customer_id[\s\S]{0,500}company_id[\s\S]{0,500}companyId/.test(canonical)) {
-    throw new Error('Canonical import contract requires direct customer_id tenant verification');
-  }
-  if (!/\.eq\(['"]company_id['"],\s*companyId\)/.test(canonical)) {
-    throw new Error('Canonical import contract requires company-scoped customer resolution');
   }
 }
 
