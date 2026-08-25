@@ -34,6 +34,31 @@ export interface ProductionLifecycleResult<T = unknown> {
   autonomy: ReturnType<typeof canAutonomouslyExecute>;
 }
 
+function assertFinite(name: string, value: number): void {
+  if (!Number.isFinite(value)) throw new Error(`Production lifecycle requires finite ${name}`);
+}
+
+function validateEvidence(evidence: RuntimeEvidence[]): void {
+  if (!evidence.length) throw new Error('Production lifecycle requires runtime evidence');
+  const keys = new Set<string>();
+  for (const item of evidence) {
+    if (!item.key.trim()) throw new Error('Runtime evidence requires a non-empty key');
+    if (keys.has(item.key)) throw new Error(`Duplicate runtime evidence key: ${item.key}`);
+    keys.add(item.key);
+    if (!Number.isFinite(item.quality) || item.quality < 0 || item.quality > 1) {
+      throw new Error(`Runtime evidence quality must be between 0 and 1: ${item.key}`);
+    }
+  }
+}
+
+function validateSources<T>(sources: SourceCandidate<T>[]): void {
+  for (const source of sources) {
+    if (!source.businessKey.trim() || !source.sourceId.trim()) throw new Error('Source candidates require businessKey and sourceId');
+    assertFinite('source precedence', source.precedence);
+    if (!source.observedAt || Number.isNaN(Date.parse(source.observedAt))) throw new Error(`Invalid source observation time: ${source.sourceId}`);
+  }
+}
+
 /**
  * Pure integration bridge. Durable persistence/leases remain owned by the
  * worker store. Domain engines supply evidence, scenarios and candidates;
@@ -42,7 +67,12 @@ export interface ProductionLifecycleResult<T = unknown> {
 export function runProductionLifecycle<T>(input: ProductionLifecycleInput<T>): ProductionLifecycleResult<T> {
   if (!input.companyId || !input.jobId || !input.sourceHash) throw new Error('Production lifecycle requires tenant, job and source identity');
   if (!input.currentRows.length) throw new Error('Production lifecycle requires authoritative current rows');
-  if (!input.evidence.length) throw new Error('Production lifecycle requires runtime evidence');
+  validateEvidence(input.evidence);
+  validateSources(input.sourceCandidates);
+  assertFinite('risk budget maxRisk', input.riskBudget.maxRisk);
+  assertFinite('risk budget protectedLiquidity', input.riskBudget.protectedLiquidity);
+  assertFinite('risk budget minimumServiceLevel', input.riskBudget.minimumServiceLevel);
+  if (!Number.isFinite(input.autonomy.evidenceQuality) || !Number.isFinite(input.autonomy.confidence)) throw new Error('Autonomy gate requires finite evidence quality and confidence');
 
   const lineage = diffRows(input.previousRows, input.currentRows);
   const consolidation = consolidateRuntime(input.sourceCandidates);
