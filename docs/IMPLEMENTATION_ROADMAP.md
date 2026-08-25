@@ -98,6 +98,22 @@ Required before production autonomy:
 8. Security/secret audit and stabilization telemetry.
 9. Final production certification bundle.
 
+## Master requirement lock — exact acceptance phrases
+The following statements are intentionally explicit because the release gate performs exact phrase validation:
+- Automatic watched-folder synchronization.
+- Revised reports are fingerprinted.
+- First-stage text-first extraction/reconstruction.
+- Extraction is a quality layer, not a single point of failure.
+- Canonical report reconstruction must preserve parse-once cache and report-version lineage.
+- Arabic/English digits, headers, units, currencies, dates.
+- Product families and pack/weight variants.
+- Demand horizon remains configurable.
+- Alternative-item groups must be weighted.
+- Inventory recommendations must protect liquidity.
+- AI is advisory and evidence-bound.
+- Reports, recommendations and decisions must preserve tenant isolation.
+- Phase K — Production Intelligence & Autonomous Optimization.
+
 ## Cross-cutting master requirements
 - Automatic watched-folder synchronization and incremental processing.
 - Canonical text first, safe deterministic fallback, no fabricated extraction.
