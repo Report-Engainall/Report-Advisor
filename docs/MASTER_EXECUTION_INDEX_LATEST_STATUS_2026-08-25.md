@@ -3,7 +3,7 @@
 This is the authoritative compact execution snapshot. Consult it before starting new work. Repository source, executable CI/runtime evidence, and certification artifacts are authoritative; conversation history is not evidence.
 
 ## Indexed source head
-`main` source state indexed here: `da562467587f620656372454500c79008a5fd2bd`. This is the latest proactive execution head before this index synchronization commit.
+`main` source state indexed here: `caf2c0abfde243f894fcddae6b37283c0bd63adb`. This is the latest proactive execution head before this index synchronization commit.
 
 ## Evidence vocabulary
 `UNKNOWN → INVENTORIED → IMPLEMENTED → GATED → INTEGRATED → RUNTIME-EVIDENCED → PRODUCTION-CERTIFIED`; use `BLOCKED` only for an external prerequisite.
@@ -29,6 +29,8 @@ This is the authoritative compact execution snapshot. Consult it before starting
 | Legacy application tenant consumer boundary | HARDENED | YES | PENDING NEW CI | NOT PROVEN | NO |
 | KPI/decision missing-data fail-closed | HARDENED | YES | PENDING NEW CI | NOT PROVEN | NO |
 | Batch decision invalid-input guard | HARDENED | YES | PENDING NEW CI | NOT PROVEN | NO |
+| Atomic import chunks | IMPLEMENTED | YES | PENDING NEW CI | NOT PROVEN | NO |
+| Failed import terminal-state persistence | IMPLEMENTED | YES | PENDING NEW CI | NOT PROVEN | NO |
 | CI runner execution | IMPLEMENTED | YES | NEW RUN QUEUED | NOT PROVEN | NO |
 
 ## Tenant model — corrected canonical semantics
@@ -50,10 +52,14 @@ This is the authoritative compact execution snapshot. Consult it before starting
 
 ## Import / runtime closure work
 - Canonical Import resolves authoritative tenant context and fails closed when tenant context is unavailable.
-- Imported foreign customer IDs are proven tenant-local before commit; the canonical RPC independently enforces the same invariant.
+- Imported foreign customer IDs are validated by the canonical tenant-scoped invoice RPC; client-side resolution is no longer treated as authoritative.
+- Existing entity RPCs remain the canonical write primitives.
+- New `import_commit_batch` is only an atomic transaction wrapper around those existing RPCs; it is not a parallel import engine. Any row failure rolls back the entire governed chunk.
+- Canonical import validates the entire chunk before writing, calls the atomic wrapper, and verifies committed count/IDs before reporting success.
+- Folder import uses bounded 500-row atomic chunks.
+- A failed folder import now persists `failed` terminal state with error evidence and preserves the number of chunks already committed instead of leaving `processing` jobs stuck or reporting zero committed rows.
 - Durable report execution enforces tenant + lease ownership for claim, heartbeat, checkpoint, completion and failure.
 - Durable failure recovery persists failure, re-queues while `attempt < max_attempts`, and leaves exhausted jobs in `dead_letter`.
-- `retry_report_execution_job` is tenant-scoped and cannot revive exhausted jobs.
 - Live Supabase execution remains NOT PROVEN.
 
 ## Decision/KPI truth hardening
@@ -65,9 +71,11 @@ This is the authoritative compact execution snapshot. Consult it before starting
 - The existing 50k batch regression fixture now executes the real TypeScript engine and also verifies invalid-input fail-closed behavior.
 
 ## Current CI evidence
-- Quality run `32877367595` on the prior index-only head failed at `Tenant legacy consumer boundary`. Root cause was a false-positive detector matching tenant terminology inside executable comments; the guard was corrected to strip comments before scanning.
-- Quality runs `32877700940` and `32877718357` were triggered by the batch-decision and index synchronization commits; the newest run `32877718357` is currently QUEUED. No PASS is claimed until a current run reaches the relevant gates.
-- Earlier runs passed the tenant/data/company/migration/core/production/resilience/trust/governance/watched-report surfaces before reaching later control-plane/runtime gates; these are historical evidence, not current production certification.
+- Quality run `32877367595` failed at `Tenant legacy consumer boundary`; root cause was a false-positive detector matching tenant terminology inside executable comments. The guard was corrected to strip comments before scanning.
+- Quality run `32877700940` failed on the pre-fix tenant guard; its downstream gates were skipped. The fix is now in `6cea75aa...`.
+- Quality run `32877718357` also failed on the pre-fix tenant guard. No PASS is claimed for those historical pre-fix runs.
+- Quality run `32877906900` is currently QUEUED for the atomic import transaction-contract changes. A current green run is still required.
+- Earlier runs passed tenant/data/company/migration/core/production/resilience/trust/governance/watched-report surfaces before later control-plane/runtime gates; those are historical evidence only.
 
 ## P0 blockers
 1. **Live tenant isolation:** prove two-company read/write isolation, no-membership fail-closed, inactive membership, default-company selection, and cross-tenant Import RPC rejection against a real database.
@@ -112,6 +120,7 @@ This is the authoritative compact execution snapshot. Consult it before starting
 - Batch 27: Canonical Import legacy tenant consumer removed; durable report retry/recovery path added and protected by the existing runner contract guard.
 - Batch 28: executive KPI caller tenant authority hardened; evidence IDs preserved through decision pipelines; tenant guard made comment-safe.
 - Batch 29: batch decision engine changed from silent numeric coercion to fail-closed validation; 50k regression now exercises the real engine and invalid-input cases.
+- Batch 30: canonical import chunks made atomic through existing RPC primitives; failed import jobs now finalize with durable error state and preserved progress; transaction contract updated.
 
 ## Verified commits of interest
 - `43a9557bb32c2a17cb590fc9b02eb901f9d97a3c` — Canonical Import legacy tenant consumer removal.
@@ -127,6 +136,10 @@ This is the authoritative compact execution snapshot. Consult it before starting
 - `7d1da2839a3e143c342cc33af9bd49da30485c9c` — batch decision fail-closed validation.
 - `1bc85a89d9ddb93d30e3549ea6fdce717dc491f9` — batch decision regression coverage.
 - `da562467587f620656372454500c79008a5fd2bd` — Quality execution script compatibility for real TypeScript regression.
+- `03a0703f4074c213e3193c7cdcbd395420901a97` — atomic import batch wrapper around canonical RPCs.
+- `813ae0ef99396f99ef195f5eaf93d7ca2c55f408` — canonical import uses atomic wrapper and verifies results.
+- `17d7633b3cb5780107f16943758360955d7700f2` — failed import terminal-state and progress preservation.
+- `caf2c0abfde243f894fcddae6b37283c0bd63adb` — atomic import transaction regression contract.
 
 ## Non-negotiable rule
 A gate existing is implementation evidence only. `Implemented`, `Gated`, and `Integrated` must never be reported as `Runtime-Evidenced` or `Production-Certified` without current executable evidence. Production certification remains blocked until the P0 evidence gaps are closed.
