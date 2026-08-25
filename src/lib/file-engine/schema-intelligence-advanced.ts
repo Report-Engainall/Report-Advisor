@@ -1,5 +1,5 @@
-import { inferSchemaField, type SchemaEvidence, type SchemaField } from './schema-intelligence';
-import { normalizeBusinessKey } from './business-key';
+import { inferSchemaField, type SchemaEvidence, type SchemaField } from './schema-intelligence.ts';
+import { normalizeBusinessKey } from './business-key.ts';
 
 export type ColumnInference = SchemaEvidence & { sourceColumn: string; sampleSize: number };
 export type TableInference = { headerRow: number; confidence: number; columns: ColumnInference[]; ignoredRows: number[]; reason: string[] };
