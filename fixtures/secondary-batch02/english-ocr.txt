@@ -1,0 +1,5 @@
+Synthetic invoice
+Invoice number: SYN-EN-001
+Date: 2026-01-16
+Total: 275
+Synthetic fixture only; no customer data.
