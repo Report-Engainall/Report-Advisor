@@ -4,7 +4,7 @@ import { Card, CardHeader, CardBody } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { scanDirectory, processFolderFiles, type BatchEntityType, type BatchProgress } from '@/lib/import/batch-folder';
 import { IndexedDbFolderSnapshotStore } from '@/lib/import-pipeline/folder-watch-store';
-import { scanWatchedDirectory, startWatchedFolder, selectWatchedFolder, ensureFolderPermission } from '@/lib/import-pipeline/folder-watch-service';
+import { scanWatchedDirectory, startWatchedFolder, selectWatchedFolder, ensureFolderPermission, type BrowserDirectoryHandle } from '@/lib/import-pipeline/folder-watch-service';
 import { saveFolderHandle, loadFolderHandle } from '@/lib/import-pipeline/folder-handle-store';
 import { DEFAULT_FOLDER_POLICY } from '@/lib/import-pipeline/folder-monitor-contract';
 
@@ -13,7 +13,7 @@ export function FolderBatchImportPanel() {
   const [folderName,setFolderName]=useState(''); const [pathHint,setPathHint]=useState('');
   const [running,setRunning]=useState(false); const [watching,setWatching]=useState(false);
   const [progress,setProgress]=useState<BatchProgress|null>(null); const [error,setError]=useState<string|null>(null);
-  const stopRef=useRef<(()=>void)|null>(null); const handleRef=useRef<FileSystemDirectoryHandle|null>(null);
+  const stopRef=useRef<(()=>void)|null>(null); const handleRef=useRef<BrowserDirectoryHandle|null>(null);
   const storeRef=useRef(new IndexedDbFolderSnapshotStore());
 
   const processScan=async()=>{
@@ -25,9 +25,9 @@ export function FolderBatchImportPanel() {
     if(selected.length)await processFolderFiles(selected,entityType,setProgress);
   };
 
-  const chooseAndRun=async()=>{setError(null);setProgress(null);try{setRunning(true);const handle=await selectWatchedFolder();handleRef.current=handle;await saveFolderHandle('default',handle);setFolderName(handle.name||pathHint||'المجلد المحدد');const files=await scanDirectory(handle);if(!files.length)throw new Error('لم يتم العثور على ملفات تقارير مدعومة داخل المجلد.');const result=await processFolderFiles(files,entityType,setProgress);setProgress(result);}catch(e:any){if(e?.name!=='AbortError')setError(e?.message||'فشل الوصول إلى المجلد');}finally{setRunning(false);}};
+  const chooseAndRun=async()=>{setError(null);setProgress(null);try{setRunning(true);const handle=await selectWatchedFolder();handleRef.current=handle;await saveFolderHandle('default',handle);setFolderName(handle.name||pathHint||'المجلد المحدد');const files=await scanDirectory(handle);if(!files.length)throw new Error('لم يتم العثور على ملفات تقارير مدعومة داخل المجلد.');const result=await processFolderFiles(files,entityType,setProgress);setProgress(result);}catch(e:unknown){if(e instanceof DOMException&&e.name==='AbortError')return;setError(e instanceof Error?e.message:'فشل الوصول إلى المجلد');}finally{setRunning(false);}};
 
-  const startWatch=async()=>{setError(null);try{let handle=handleRef.current;if(!handle)handle=await loadFolderHandle('default');if(!handle)throw new Error('اختر المجلد أولاً ثم فعّل المزامنة.');if(!(await ensureFolderPermission(handle)))throw new Error('يجب السماح للتطبيق بقراءة المجلد لاستمرار المزامنة.');handleRef.current=handle;setFolderName(handle.name||'المجلد المحدد');stopRef.current=startWatchedFolder(handle,async()=>{const scan=await scanWatchedDirectory(handle.name,handle,DEFAULT_FOLDER_POLICY,storeRef.current);const changed=scan.files.filter(f=>f.state==='new'||f.state==='changed');if(changed.length){const all=await scanDirectory(handle);const selected=all.filter(f=>changed.some(c=>c.path===f.relativePath));if(selected.length)await processFolderFiles(selected,entityType,setProgress);}return scan;},DEFAULT_FOLDER_POLICY,()=>{});setWatching(true);}catch(e:any){setError(e?.message||'تعذر تشغيل المزامنة التلقائية.');}};
+  const startWatch=async()=>{setError(null);try{let handle:BrowserDirectoryHandle|undefined=handleRef.current??await loadFolderHandle('default');if(!handle)throw new Error('اختر المجلد أولاً ثم فعّل المزامنة.');if(!(await ensureFolderPermission(handle)))throw new Error('يجب السماح للتطبيق بقراءة المجلد لاستمرار المزامنة.');handleRef.current=handle;setFolderName(handle.name||'المجلد المحدد');stopRef.current=startWatchedFolder(handle,async()=>{const scan=await scanWatchedDirectory(handle.name,handle,DEFAULT_FOLDER_POLICY,storeRef.current);const changed=scan.files.filter(f=>f.state==='new'||f.state==='changed');if(changed.length){const all=await scanDirectory(handle);const selected=all.filter(f=>changed.some(c=>c.path===f.relativePath));if(selected.length)await processFolderFiles(selected,entityType,setProgress);}return scan;},DEFAULT_FOLDER_POLICY,()=>{});setWatching(true);}catch(e:unknown){setError(e instanceof Error?e.message:'تعذر تشغيل المزامنة التلقائية.');}};
   const stopWatch=()=>{stopRef.current?.();stopRef.current=null;setWatching(false);};
   useEffect(()=>()=>stopWatch(),[]);
 
