@@ -1,6 +1,6 @@
 import unittest
 
-from services.document_intelligence.app.intermediate_model import (
+from app.intermediate_model import (
     Block,
     Cell,
     DocumentEnvelope,
