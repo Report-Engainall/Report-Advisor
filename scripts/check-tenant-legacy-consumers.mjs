@@ -6,7 +6,6 @@ const ROOT = process.cwd();
 // gates. This guard covers application and executable runtime scripts where
 // legacy/static values can leak into UI, data, or automation paths.
 const TARGETS = ['src', 'scripts'];
-const ALLOWED_LEGACY = new Set(['src/lib/supabase.ts']);
 const ALLOWED_SELF = new Set(['scripts/check-tenant-legacy-consumers.mjs']);
 const IGNORE_DIRS = new Set(['node_modules', '.git', 'dist', 'coverage']);
 
@@ -22,7 +21,7 @@ function walk(dir, out = []) {
 }
 
 function isLegacyTenantConsumer(rel, text) {
-  if (ALLOWED_LEGACY.has(rel) || ALLOWED_SELF.has(rel)) return false;
+  if (ALLOWED_SELF.has(rel)) return false;
   if (rel === 'src/lib/file-engine/synonyms.ts') return false;
   // check-* files are static-analysis contracts. Their literal markers are
   // intentionally inspected and must not be classified as runtime consumers.
@@ -53,4 +52,4 @@ if (findings.length) {
   process.exit(1);
 }
 
-console.log('PASS: no legacy/static application or runtime-script tenant consumers exist outside the canonical compatibility boundary.');
+console.log('PASS: no legacy/static application or runtime-script tenant consumers exist; tenant state is database-authoritative.');
