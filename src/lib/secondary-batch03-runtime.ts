@@ -9,7 +9,9 @@ import type { ReconciliationResult } from '@/lib/report-intelligence/reconciliat
 import type { EvidenceNode, EvidenceTrail, DecisionReplayModel, ReportSnapshotModel } from '@/lib/secondary-evidence-ux';
 import type { ControlPlaneReadModel, ControlPlaneSignal, DataQualityReadModel, DocumentWorkspaceReadModel, EvidenceRef, ReconciliationReadModel } from '@/lib/secondary-batch02';
 
-const ref = (id: string, label: string, source_id?: string): EvidenceRef => ({ id, label, sourceRef: source_id ?? id, source_id, status: 'READY' });
+const ref = (id: string, label: string, source_id?: string): EvidenceRef => source_id
+  ? { id, label, sourceRef: source_id, source_id, status: 'READY' }
+  : { id, label, status: 'UNKNOWN' };
 
 export async function fetchSecondaryDataQualityReadModel(): Promise<DataQualityReadModel> {
   try {
