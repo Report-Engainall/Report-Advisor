@@ -10,6 +10,7 @@
     "preview": "vite preview",
     "typecheck": "tsc --noEmit -p tsconfig.app.json",
     "test:secondary-batch02": "node scripts/secondary-batch02.test.mjs",
+    "test:secondary-batch03-golden": "node scripts/secondary-batch03-golden-harness.mjs",
     "inventory:system": "node scripts/build-system-inventory.mjs",
     "test:auth-tenant-convergence": "node scripts/check-auth-tenant-convergence.mjs",
     "test:migration-schema-audit": "node scripts/check-migration-schema-audit.mjs",
