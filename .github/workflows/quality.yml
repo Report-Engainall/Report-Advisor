@@ -56,6 +56,8 @@ jobs:
         run: node scripts/check-import-folder-foundation.mjs && npm run test:watched-report-pipeline && npm run test:incremental-import-ledger
       - name: Autonomous business control plane
         run: npm run test:business-control-plane && npm run test:phase-k-production-intelligence && npm run test:phase-k-runtime && npm run test:phase-l-runtime && npm run test:phase-l-resumable-execution && npm run test:phase-m-certification && npm run test:k-to-s-closure && npm run test:k-to-s-deep-closure
+      - name: KPI presentation truth
+        run: node scripts/check-kpi-presentation-truth.mjs
       - name: Production release blockers
         run: npm run test:production-release-blockers
       - name: A0 intelligence hardening
