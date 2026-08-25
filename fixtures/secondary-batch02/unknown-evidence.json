@@ -1,0 +1,5 @@
+{
+  "status": "UNKNOWN",
+  "reason": "Synthetic fixture intentionally omits authoritative source evidence",
+  "expected": "INSUFFICIENT_EVIDENCE"
+}
