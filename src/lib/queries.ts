@@ -10,12 +10,9 @@ interface ProductAggregateRow { product_id: string | null; quantity: number | nu
 interface CategoryRow { id: string; name: string; }
 
 function requiredNumber(value: number | null | undefined, field: string): number {
-  if (value === null || value === undefined || !Number.isFinite(value)) {
-    throw new Error(`REPORT_DATA_UNAVAILABLE: required numeric field '${field}' is missing or invalid`);
-  }
+  if (value === null || value === undefined || !Number.isFinite(value)) throw new Error(`REPORT_DATA_UNAVAILABLE: required numeric field '${field}' is missing or invalid`);
   return value;
 }
-
 function validDate(value: string | null | undefined, field: string): Date {
   if (!value) throw new Error(`REPORT_DATA_UNAVAILABLE: required date field '${field}' is missing`);
   const date = new Date(value);
@@ -24,23 +21,12 @@ function validDate(value: string | null | undefined, field: string): Date {
 }
 
 export interface DashboardKPIs {
-  totalSales: number | null;
-  totalCost: number | null;
-  grossProfit: number | null;
-  grossMargin: number | null;
-  totalReceivables: number | null;
-  overdueReceivables: number | null;
-  totalPayables: number | null;
-  inventoryValue: number | null;
-  totalCustomers: number;
-  activeCustomers: number;
-  totalProducts: number;
-  invoiceCount: number;
-  avgInvoiceValue: number | null;
-  collectionRate: number | null;
+  totalSales: number | null; totalCost: number | null; grossProfit: number | null; grossMargin: number | null;
+  totalReceivables: number | null; overdueReceivables: number | null; totalPayables: number | null; inventoryValue: number | null;
+  totalCustomers: number; activeCustomers: number | null; totalProducts: number; invoiceCount: number;
+  avgInvoiceValue: number | null; collectionRate: number | null;
   status: 'CONFIRMED' | 'CALCULATED' | 'INSUFFICIENT_DATA';
 }
-
 export interface MonthlyTrend { month: string; label: string; sales: number; cost: number; profit: number; invoices: number; }
 export interface TopEntity { id: string; name: string; value: number; secondary?: number; }
 export interface AgingBucket { bucket: string; amount: number; count: number; }
@@ -59,9 +45,6 @@ export async function fetchDashboardKPIs(): Promise<DashboardKPIs> {
   const balanceRows = (balances ?? []) as BalanceRow[];
   const { count: customerCount, error: customerError } = await supabase.from('customers').select('id', { count: 'exact', head: true });
   if (customerError) throw customerError;
-  const { data: activeCustomerRows, error: activeCustomerError } = await supabase.from('customers').select('id, status');
-  if (activeCustomerError) throw activeCustomerError;
-  const activeCustomers = (activeCustomerRows ?? []).filter((row) => row.status === 'active').length;
   const { count: productCount, error: productError } = await supabase.from('products').select('id', { count: 'exact', head: true });
   if (productError) throw productError;
   const { data: purchases, error: purchasesError } = await supabase.from('purchase_invoices').select('total, paid_amount');
@@ -69,9 +52,9 @@ export async function fetchDashboardKPIs(): Promise<DashboardKPIs> {
   const purchaseRows = (purchases ?? []) as PurchaseRow[];
   const totalCustomers = customerCount ?? 0;
   const totalProducts = productCount ?? 0;
+  const activeCustomers: number | null = null; // The canonical customer schema has no authoritative active/inactive field.
   const hasTransactionalData = invArr.length > 0 || purchaseRows.length > 0 || balanceRows.length > 0;
   if (!hasTransactionalData) return { totalSales: null, totalCost: null, grossProfit: null, grossMargin: null, totalReceivables: null, overdueReceivables: null, totalPayables: null, inventoryValue: null, totalCustomers, activeCustomers, totalProducts, invoiceCount: 0, avgInvoiceValue: null, collectionRate: null, status: 'INSUFFICIENT_DATA' };
-
   const totalSales = invArr.reduce((s, inv) => s + requiredNumber(inv.subtotal, 'sales_invoices.subtotal'), 0);
   const totalCost = itemRows.reduce((s, item) => s + requiredNumber(item.cost_price, 'sale_items.cost_price') * requiredNumber(item.quantity, 'sale_items.quantity'), 0);
   const grossProfit = totalSales - totalCost;
@@ -98,20 +81,10 @@ export async function fetchMonthlyTrend(months = 6): Promise<MonthlyTrend[]> {
   const { data: items, error: itemsError } = invoiceIds.length ? await supabase.from('sale_items').select('invoice_id, line_total, cost_price, quantity').in('invoice_id', invoiceIds) : { data: [], error: null };
   if (itemsError) throw itemsError;
   const costByInvoice = new Map<string, number>();
-  for (const item of (items ?? []) as SaleItemRow[]) {
-    const cost = requiredNumber(item.cost_price, 'sale_items.cost_price') * requiredNumber(item.quantity, 'sale_items.quantity');
-    costByInvoice.set(item.invoice_id, (costByInvoice.get(item.invoice_id) ?? 0) + cost);
-  }
+  for (const item of (items ?? []) as SaleItemRow[]) { const cost = requiredNumber(item.cost_price, 'sale_items.cost_price') * requiredNumber(item.quantity, 'sale_items.quantity'); costByInvoice.set(item.invoice_id, (costByInvoice.get(item.invoice_id) ?? 0) + cost); }
   const byMonth = new Map<string, { sales: number; cost: number; invoices: number }>();
-  for (const inv of invoiceRows) {
-    const d = validDate(inv.invoice_date, 'sales_invoices.invoice_date');
-    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-    const entry = byMonth.get(key) ?? { sales: 0, cost: 0, invoices: 0 };
-    entry.sales += requiredNumber(inv.subtotal, 'sales_invoices.subtotal'); entry.cost += costByInvoice.get(inv.id) ?? 0; entry.invoices += 1; byMonth.set(key, entry);
-  }
-  const result: MonthlyTrend[] = [];
-  const now = new Date();
-  const labels = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+  for (const inv of invoiceRows) { const d = validDate(inv.invoice_date, 'sales_invoices.invoice_date'); const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`; const entry = byMonth.get(key) ?? { sales: 0, cost: 0, invoices: 0 }; entry.sales += requiredNumber(inv.subtotal, 'sales_invoices.subtotal'); entry.cost += costByInvoice.get(inv.id) ?? 0; entry.invoices += 1; byMonth.set(key, entry); }
+  const result: MonthlyTrend[] = []; const now = new Date(); const labels = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
   for (let i = months - 1; i >= 0; i--) { const d = new Date(now.getFullYear(), now.getMonth() - i, 1); const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`; const entry = byMonth.get(key) ?? { sales: 0, cost: 0, invoices: 0 }; result.push({ month: key, label: labels[d.getMonth()], sales: entry.sales, cost: entry.cost, profit: entry.sales - entry.cost, invoices: entry.invoices }); }
   return result;
 }
@@ -160,27 +133,15 @@ export async function fetchAgingBuckets(): Promise<AgingBucket[]> {
   if (error) throw error;
   const buckets: AgingBucket[] = [{ bucket: '0-30', amount: 0, count: 0 }, { bucket: '31-60', amount: 0, count: 0 }, { bucket: '61-90', amount: 0, count: 0 }, { bucket: '90+', amount: 0, count: 0 }];
   const today = new Date();
-  for (const inv of (invoices ?? []) as Array<Pick<InvoiceRow, 'total' | 'paid_amount' | 'due_date' | 'invoice_date'>>) {
-    const outstanding = requiredNumber(inv.total, 'sales_invoices.total') - requiredNumber(inv.paid_amount, 'sales_invoices.paid_amount');
-    if (outstanding <= 0) continue;
-    const due = validDate(inv.due_date, 'sales_invoices.due_date');
-    const days = Math.max(0, Math.floor((today.getTime() - due.getTime()) / 86400000));
-    const index = days <= 30 ? 0 : days <= 60 ? 1 : days <= 90 ? 2 : 3;
-    buckets[index].amount += outstanding; buckets[index].count += 1;
-  }
+  for (const inv of (invoices ?? []) as Array<Pick<InvoiceRow, 'total' | 'paid_amount' | 'due_date' | 'invoice_date'>>) { const outstanding = requiredNumber(inv.total, 'sales_invoices.total') - requiredNumber(inv.paid_amount, 'sales_invoices.paid_amount'); if (outstanding <= 0) continue; const due = validDate(inv.due_date, 'sales_invoices.due_date'); const days = Math.max(0, Math.floor((today.getTime() - due.getTime()) / 86400000)); const index = days <= 30 ? 0 : days <= 60 ? 1 : days <= 90 ? 2 : 3; buckets[index].amount += outstanding; buckets[index].count += 1; }
   return buckets;
 }
 
 export async function fetchSalesInvoices(page = 0, pageSize = 20): Promise<{ data: SalesInvoice[]; count: number | null }> {
   if (!Number.isInteger(page) || page < 0) throw new Error('REPORT_QUERY_INVALID_PAGE');
   if (!Number.isInteger(pageSize) || pageSize < 1 || pageSize > 500) throw new Error('REPORT_QUERY_INVALID_PAGE_SIZE');
-  const from = page * pageSize;
-  const to = from + pageSize - 1;
-  const { data, count, error } = await supabase
-    .from('sales_invoices')
-    .select('*, customer:customers(id, name)', { count: 'exact' })
-    .order('invoice_date', { ascending: false })
-    .range(from, to);
+  const from = page * pageSize; const to = from + pageSize - 1;
+  const { data, count, error } = await supabase.from('sales_invoices').select('*, customer:customers(id, name)', { count: 'exact' }).order('invoice_date', { ascending: false }).range(from, to);
   if (error) throw error;
   return { data: (data ?? []) as SalesInvoice[], count };
 }
@@ -188,22 +149,14 @@ export async function fetchSalesInvoices(page = 0, pageSize = 20): Promise<{ dat
 export async function fetchPurchaseInvoices(page = 0, pageSize = 20): Promise<{ data: PurchaseInvoice[]; count: number | null }> {
   if (!Number.isInteger(page) || page < 0) throw new Error('REPORT_QUERY_INVALID_PAGE');
   if (!Number.isInteger(pageSize) || pageSize < 1 || pageSize > 500) throw new Error('REPORT_QUERY_INVALID_PAGE_SIZE');
-  const from = page * pageSize;
-  const to = from + pageSize - 1;
-  const { data, count, error } = await supabase
-    .from('purchase_invoices')
-    .select('*, supplier:suppliers(id, name)', { count: 'exact' })
-    .order('invoice_date', { ascending: false })
-    .range(from, to);
+  const from = page * pageSize; const to = from + pageSize - 1;
+  const { data, count, error } = await supabase.from('purchase_invoices').select('*, supplier:suppliers(id, name)', { count: 'exact' }).order('invoice_date', { ascending: false }).range(from, to);
   if (error) throw error;
   return { data: (data ?? []) as PurchaseInvoice[], count };
 }
 
 export async function fetchInventoryBalances(): Promise<unknown[]> {
-  const { data, error } = await supabase
-    .from('inventory_balances')
-    .select('*, product:products(id, name, reorder_point), warehouse:warehouses(id, name)')
-    .order('updated_at', { ascending: false });
+  const { data, error } = await supabase.from('inventory_balances').select('*, product:products(id, name, reorder_point), warehouse:warehouses(id, name)').order('updated_at', { ascending: false });
   if (error) throw error;
   return data ?? [];
 }
