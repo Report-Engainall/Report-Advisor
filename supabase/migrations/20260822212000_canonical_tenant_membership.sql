@@ -1,17 +1,10 @@
 -- Canonical tenant resolver for the production SaaS boundary.
--- The legacy schema was explicitly no-auth; production isolation requires an
--- authenticated identity -> company membership mapping.
+-- This migration evolves the earlier tenant membership primitive rather than
+-- recreating it with a divergent schema. The existing table remains the
+-- canonical storage object; is_default is added idempotently when absent.
 
-CREATE TABLE IF NOT EXISTS company_memberships (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  company_id uuid NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
-  user_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-  role text NOT NULL DEFAULT 'member',
-  is_active boolean NOT NULL DEFAULT true,
-  is_default boolean NOT NULL DEFAULT false,
-  created_at timestamptz NOT NULL DEFAULT now(),
-  UNIQUE(company_id, user_id)
-);
+ALTER TABLE company_memberships
+  ADD COLUMN IF NOT EXISTS is_default boolean NOT NULL DEFAULT false;
 
 CREATE UNIQUE INDEX IF NOT EXISTS idx_company_memberships_one_default
   ON company_memberships(user_id)
