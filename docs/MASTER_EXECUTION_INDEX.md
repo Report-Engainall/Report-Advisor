@@ -16,7 +16,7 @@ Source of truth: `main`
 - PASS لا يعني production-certified؛ LIVE evidence منفصل.
 
 ## Current truth
-The quality workflow is operated as a batch-discovery loop rather than a serial first-failure loop. No CI PASS is claimed for commits whose complete workflow result is unavailable.
+The quality workflow is operated as a batch-discovery loop rather than a serial first-failure loop. The latest complete push-triggered quality run is observable and PASS.
 
 ## Latest implementation batches
 - `6e449c3efd9ec7c5dba8bd58ad8b68a36111b465`: improved tenant legacy guard recognition for canonical `requireTenant` helpers.
@@ -28,14 +28,24 @@ The quality workflow is operated as a batch-discovery loop rather than a serial 
 - `6d92f706ff70dab55c7bafd4c6ce004265947396`: made business decision creation fail closed when `evidenceIds` is empty and normalize/deduplicate evidence IDs.
 - `25dfede65723e2dec2c5c8f5ba6956f531224185`: added decision-evidence regression coverage.
 - `41fd31cf0b85e38287a8a93eaddd3a5df71afb33` / `37da590c6da619f01c4966c94ff13550406e453c` / `69143671a8c1cd383a71a659ce93e66f233546b6`: wired tenant, BI, and decision regressions into the canonical quality workflow.
+- `634fc25eaf3c9cfaf1019064f09a74968e4eb8d7`: made canonical import compatibility terminal-safe and preserved result-summary lineage.
+- `479459129ad0c41eb7377906834c9c5ae5a8427e`: corrected the import transaction contract scanner to include terminal/lifecycle migrations that had been excluded by filename matching.
+- `f9797bf29efc1e9b8f4f4e2343d5040cf22f940b`: corrected `DataTable` generic typing; full typecheck/build subsequently passed.
+- `b83ae289efa1d12d84a4809ba60317b4022583bd`: corrected workflow command scanning for npm option flags and restored declared production test commands.
+- `caa78815cb79114a0a19d46ae4971740a7a3ef25`: removed duplicate main-push integrity workflow triggers without weakening PR/manual gates.
 - Existing P0/P1 family gates remain authoritative and fail-closed.
 
 ## Current CI truth
-- Run `32821715254` on `f29b39b2d36d19990c1925e4b4fa3a12b6cca4c0` failed at **Tenant legacy consumer boundary**; that failure family has now been root-fixed and guarded.
-- The post-fix commits above have been pushed to `main`, but complete push-triggered quality results for the latest head are **not yet available through the connected GitHub Actions status surface**. No PASS is claimed until the full run is observable.
-- The last observed failure was a checker false positive in `src/pages/AlternativeGroupsPage.tsx`: legitimate `p_company_id: companyId` RPC payload syntax matched a generic `COMPANY_ID` assignment pattern.
-- The guard was narrowed to declaration-level `const|let|var COMPANY_ID/TENANT_ID` assignments while preserving static-ID, environment, client-selected filter, legacy mutator, and unsafe tenant assignment detection.
-- Runtime Supabase evidence remains separate and LIVE REQUIRED.
+- Baseline Run `32821715254` failed at **Tenant legacy consumer boundary**; the family was root-fixed and guarded.
+- Run `32910546873` on `f9797bf29efc1e9b8f4f4e2343d5040cf22f940b` exposed an actual checker failure in `check-import-transaction-contract.mjs`; the selector excluded `*_import_finish_terminal_state.sql` / lifecycle migrations. The checker was fixed rather than weakened.
+- Run `32910683696` on `479459129ad0c41eb7377906834c9c5ae5a8427e` completed **PASS**.
+- Full quality verification for Run `32910683696` passed: workflow integrity, CI topology, tenant/security, migration/schema, core contracts, production certification contracts, runtime contracts, typecheck, behavioral/BI/decision regressions, routing/security, lint, build, performance budget, document intelligence, report truth, production readiness, and full resilience gate.
+- Typecheck: PASS.
+- Lint: PASS (55 existing warnings, 0 errors).
+- Build: PASS.
+- Performance budget: PASS (`critical=836.9KB`, `total=1404.1KB`, `largest-js=422.9KB`, all under configured limits).
+- Runtime/Document Intelligence static and local runtime contracts: PASS.
+- LIVE Supabase/Storage/Realtime/worker/backup evidence remains separate and LIVE REQUIRED.
 
 ## Phase truth
 | المسار | الحالة | المتبقي الحاسم |
@@ -58,7 +68,7 @@ The quality workflow is operated as a batch-discovery loop rather than a serial 
 | S | NOT LIVE CERTIFIED | final production certification |
 
 ## Tenant / Data / KPI truth
-- Tenant legacy/static/client-selected consumer scan is now precise against canonical RPC payload syntax and has an executable regression harness.
+- Tenant legacy/static/client-selected consumer scan is precise against canonical RPC payload syntax and has executable regression coverage.
 - Canonical browser tenant resolver remains `resolveCurrentCompanyId()`.
 - Import RPCs validate tenant context server-side and use tenant-owned row locks.
 - Import lifecycle has idempotency, canonical tenant context and terminal-state hardening.
@@ -67,9 +77,10 @@ The quality workflow is operated as a batch-discovery loop rather than a serial 
 - KPI presentation remains fail-closed for missing authoritative numeric values; no missing→zero coercion is accepted for required fields.
 
 ## Decision truth
-- Business decision creation now requires at least one non-empty evidence ID.
-- Evidence IDs are trimmed, deduplicated, and retained as the decision's evidence lineage.
-- Report pipeline already filters actions to evidence-backed decisions before construction.
+- Business decision creation requires at least one non-empty evidence ID.
+- Evidence IDs are trimmed, deduplicated, and retained as decision evidence lineage.
+- Report pipeline filters actions to evidence-backed decisions before construction.
+- Search confirms `createDecision` production construction is centralized in the free-toolbox decision log/report pipeline; no direct `from('decisions')` insert path was found.
 - Runtime outcome tracking remains LIVE REQUIRED.
 
 ## Watched-folder / cross-platform
@@ -90,4 +101,4 @@ Single cross-platform contract: `src/lib/import-pipeline/folder-watch-contract.t
 These remain LIVE REQUIRED wherever static contracts cannot establish real runtime behavior.
 
 ## Completion truth
-**Engineering completion remains ~82% conservative.** No percentage increase is claimed for commits/guards alone. Production certification remains **NO** until LIVE runtime evidence closes the P0 matrix.
+**Engineering completion remains ~82% conservative.** Full CI is now green for the current implementation head. Production certification remains **NO** until LIVE runtime evidence closes the P0 matrix.
