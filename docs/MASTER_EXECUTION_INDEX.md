@@ -25,11 +25,13 @@ The quality workflow is operated as a batch-discovery loop rather than a serial 
 - `f72b85f6c0f6d3e3ae1d86a6bc20e3e1a8690f59`: exposed the P0 family gate as `npm run test:p0-batch`.
 - `01aff839a7c3ebf6841d00a18a53c012aff6ed48`: routed workflow command integrity through the repository's extended checker, which handles generic package-manager aliases without weakening actual script validation.
 - `650e33b9a292039e7c2dd162f98167887db57b77` + `3bc433f0b690c74c494baa3c930b11dc557caeae`: added the parallel P1 family gate (`npm run test:p1-batch`) covering folder watch, watched pipeline, document intelligence, file-intelligence security, decision intelligence and production coordinator integration.
+- `f49d8a19ddba35f15bc0966e2182f9c6a34b0a85`: removed an over-broad `tenant_memberships` string-match from the legacy-consumer guard; membership-table presence alone is not evidence of a legacy tenant consumer. The guard retains explicit static-ID, environment, client-selected filtering, legacy mutator and unsafe tenant assignment patterns.
 - Existing canonical import lifecycle hardening remains authoritative: tenant context, terminal allow-list, row locking and lineage preservation.
 
 ## Current CI truth
-- Run `32902444266` on `ad223d4272060d74f3207e2fc57710c341718606` failed at **Workflow command integrity** before downstream gates could execute; the failure was isolated as the first workflow-command-family blocker, while later checks in that same job were skipped. This is recorded as a real CI failure, not converted to PASS.
-- The root fix is `01aff839a7c3ebf6841d00a18a53c012aff6ed48`; a new CI run is required to verify it.
+- Run `32821715254` on `f29b39b2d36d19990c1925e4b4fa3a12b6cca4c0` failed at **Tenant legacy consumer boundary**; this is the concrete failure family being repaired now. fileciteturn850file0
+- The root fix is `f49d8a19ddba35f15bc0966e2182f9c6a34b0a85`; its push-triggered CI runs `32903148153` (batch-integrity-guards) and `32903148081` (integrity-batch) are currently queued. fileciteturn858file0
+- The fix deliberately does not weaken tenant security checks; it removes only a false-positive rule that treated any `tenant_memberships` reference as unsafe.
 - The P0/P1 family gates are fail-closed: any family failure makes the aggregate gate fail while still reporting all independently failing families.
 - Runtime Supabase evidence remains separate and LIVE REQUIRED.
 
@@ -54,7 +56,7 @@ The quality workflow is operated as a batch-discovery loop rather than a serial 
 | S | NOT LIVE CERTIFIED | final production certification |
 
 ## Tenant / Data / KPI truth
-- Tenant legacy/static/client-selected consumer scan: **PASS** for the guarded boundary; remaining hits must be classified by authoritative flow, not string matching alone.
+- Tenant legacy/static/client-selected consumer scan: the guard is being made precise; broad membership-table presence is no longer treated as a legacy consumer by itself.
 - Canonical browser tenant resolver remains `resolveCurrentCompanyId()`.
 - Import RPCs validate tenant context server-side and use tenant-owned row locks.
 - Import lifecycle has idempotency, canonical tenant context and terminal-state hardening.
