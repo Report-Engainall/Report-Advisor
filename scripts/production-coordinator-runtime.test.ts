@@ -5,8 +5,15 @@ const result = runProductionLifecycle({
   jobId: 'job-1',
   companyId: 'tenant-1',
   sourceHash: 'sha-current',
-  previousRows: [{ key: 'sku-1', hash: 'old', value: { qty: 1 } }],
-  currentRows: [{ key: 'sku-1', hash: 'new', value: { qty: 2 } }],
+  previousRows: [
+    { key: 'sku-1', hash: 'old', value: { qty: 1 } },
+    { key: 'sku-2', hash: 'same', value: { qty: 5 } },
+  ],
+  currentRows: [
+    { key: 'sku-1', hash: 'new', value: { qty: 2 } },
+    { key: 'sku-2', hash: 'same', value: { qty: 5 } },
+    { key: 'sku-3', hash: 'added', value: { qty: 4 } },
+  ],
   sourceCandidates: [{ businessKey: 'sku-1', sourceId: 'primary', precedence: 1, observedAt: '2026-08-25', value: 2 }],
   scenarioOptions: [
     { key: 'unsafe', expectedImpact: 100, risk: 5, liquidityRequired: 1, serviceLevel: 1 },
@@ -26,12 +33,14 @@ const result = runProductionLifecycle({
   evidence: [{ key: 'source:sha-current', quality: 1 }],
 });
 
-assert.equal(result.lineage?.state, 'changed');
+assert.deepEqual(result.lineage.map((row) => [row.key, row.state]), [
+  ['sku-1', 'changed'],
+  ['sku-2', 'unchanged'],
+  ['sku-3', 'new'],
+]);
 assert.equal(result.consolidation[0]?.value, 2);
 assert.equal(result.scenario?.key, 'safe');
 assert.equal(result.autonomy.eligible, false);
 assert.deepEqual(result.autonomy.failures, ['continuous_trust']);
-assert.throws(() => runProductionLifecycle({
-  ...({} as never),
-}));
+assert.throws(() => runProductionLifecycle({ ...({} as never) }));
 console.log('Production coordinator integration: PASS');
