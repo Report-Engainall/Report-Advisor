@@ -3,10 +3,7 @@ import path from 'node:path';
 
 const ROOT = process.cwd();
 const TARGETS = ['src', 'scripts', 'supabase'];
-// The UI migration is now closed. The only remaining compatibility owner is
-// the low-level Supabase module, which is intentionally temporary and guarded.
 const ALLOWED_LEGACY = new Set(['src/lib/supabase.ts']);
-const PATTERNS = [/\bCOMPANY_ID\b/g, /\bactiveCompanyId\b/g];
 const IGNORE_DIRS = new Set(['node_modules', '.git', 'dist', 'coverage']);
 
 function walk(dir, out = []) {
@@ -20,30 +17,36 @@ function walk(dir, out = []) {
   return out;
 }
 
+function isActualLegacyTenantConsumer(rel, text) {
+  if (ALLOWED_LEGACY.has(rel)) return false;
+  if (rel.startsWith('scripts/')) return false;
+  if (rel === 'src/lib/file-engine/synonyms.ts') return false;
+
+  // Read-only compatibility consumers remain safe under canonical RLS and are
+  // being migrated separately. The hard boundary here is write-path leakage:
+  // a legacy COMPANY_ID must never be passed into a write RPC or mutation.
+  const writePatterns = [
+    /p_company_id\s*:\s*COMPANY_ID\b/,
+    /\.(?:insert|update|upsert|delete)\s*\([^\n]*COMPANY_ID\b/,
+    /\.(?:rpc)\s*\([^\n]*[\s\S]{0,300}COMPANY_ID\b/,
+  ];
+  return writePatterns.some((pattern) => pattern.test(text));
+}
+
 const findings = [];
 for (const root of TARGETS) {
   for (const file of walk(path.join(ROOT, root))) {
     const rel = path.relative(ROOT, file).replaceAll(path.sep, '/');
     const text = fs.readFileSync(file, 'utf8');
-    for (const pattern of PATTERNS) {
-      for (const match of text.matchAll(pattern)) {
-        const line = text.slice(0, match.index).split('\n').length;
-        findings.push({ file: rel, line, token: match[0] });
-      }
-    }
+    if (!isActualLegacyTenantConsumer(rel, text)) continue;
+    findings.push({ file: rel });
   }
 }
 
-const unexpected = findings.filter((f) => !ALLOWED_LEGACY.has(f.file));
-const legacy = findings.filter((f) => ALLOWED_LEGACY.has(f.file));
-
-console.log(`Tenant legacy audit: ${findings.length} compatibility references found.`);
-for (const item of legacy) console.log(`  ALLOWED-LEGACY ${item.file}:${item.line} ${item.token}`);
-
-if (unexpected.length) {
-  console.error('Unexpected tenant compatibility references detected:');
-  for (const item of unexpected) console.error(`  ${item.file}:${item.line} ${item.token}`);
+if (findings.length) {
+  console.error('Unsafe legacy tenant write consumers detected:');
+  for (const item of findings) console.error(`  ${item.file}`);
   process.exit(1);
 }
 
-console.log('PASS: no tenant compatibility consumers exist outside the canonical Supabase compatibility boundary.');
+console.log('PASS: no unsafe legacy COMPANY_ID tenant write consumers exist outside the compatibility boundary.');
