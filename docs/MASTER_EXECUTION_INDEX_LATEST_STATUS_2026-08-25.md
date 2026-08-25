@@ -38,7 +38,8 @@ This is the latest compact status snapshot. It complements, and does not replace
 | Owner-editable profile/display name | YES | YES | YES | NOT PROVEN | NO |
 | Header health truthfulness | YES | YES | YES | NOT PROVEN | NO |
 | Legacy tenant compatibility consumers | CANONICALLY HYDRATED | YES | YES | NOT PROVEN | NO |
-| CI runner execution | UNKNOWN/BLOCKED | N/A | N/A | PRE-STEP FAILURES ONLY | NO |
+| Database migration schema audit | YES | YES via Quality | INTEGRATED | NOT EXECUTED IN THIS ENVIRONMENT | NO |
+| CI runner execution | UNKNOWN/BLOCKED | N/A | N/A | PRE-STEP FAILURES / RERUN QUEUED | NO |
 
 ## Completed in Batch 7
 1. Removed legacy `COMPANY_ID` dependency from canonical dashboard query functions; tenant filtering is delegated to authenticated RLS/current_company_id.
@@ -48,6 +49,12 @@ This is the latest compact status snapshot. It complements, and does not replace
 5. Extended the Auth/Tenant regression guard to cover profile settings, truthful health, and dashboard tenant convergence.
 6. Added canonical tenant hydration before protected UI is rendered. Legacy compatibility consumers now receive only the authenticated `current_company_id()` result; there is no demo/static tenant fallback.
 7. Added a fail-closed tenant-missing state that prevents protected data from rendering when membership is absent or ambiguous.
+
+## Completed/advanced in Batch 8
+1. Added `scripts/check-migration-schema-audit.mjs` for migration naming, duplicate object declarations, and unsafe DROP-operation static checks.
+2. Registered `npm run test:migration-schema-audit` in `package.json`.
+3. Added the migration audit to the canonical `quality.yml` gate.
+4. Requested rerun of failed Quality jobs for run `32791765387`; latest observed job `97645847479` is queued with no executable steps reported yet.
 
 ## P0/P1 backlog
 ### P0 — Authentication/Tenant convergence
@@ -65,9 +72,9 @@ This is the latest compact status snapshot. It complements, and does not replace
 3. Record job logs/artifacts in the ledger.
 
 ### P1 — Database closure
-1. Enumerate migrations.
-2. Map tables/functions/indexes/policies/triggers.
-3. Verify dependency/order/drift.
+1. ~~Add static migration schema guard.~~ DONE — Batch 8
+2. Enumerate migrations completely and build object/dependency map.
+3. Verify dependency/order/drift against the actual database.
 4. Compare schema consumers against actual source.
 
 ### P1 — Critical frontend flows
@@ -97,20 +104,22 @@ Tenant, storage, realtime, AI isolation, backup/restore, recovery, rollback, gov
 - Owner-editable profile/display name added.
 - Protected UI now requires canonical tenant resolution before rendering.
 - Legacy tenant compatibility consumers are hydrated from the canonical database resolver only.
+- Migration schema audit is now a canonical Quality gate.
 
 ## Current blockers
-1. GitHub Actions attempts previously failed before executable steps (`steps:null` / `steps:[]`, unavailable logs). This is not currently attributed to application code.
+1. GitHub Actions attempts previously failed before executable steps (`steps:null` / `steps:[]`, unavailable logs). A rerun is currently queued and must produce executable steps before application failures can be diagnosed.
 2. Runtime authentication/tenant isolation evidence is not yet available.
 3. Live production evidence is not yet available for the release certification chain.
+4. Migration dependency/drift has static coverage but not yet live database evidence.
 
-## Next execution order
+## Next execution order — parallelized
 **NOW-1:** prove authenticated tenant isolation end-to-end with two-company/ambiguous-membership scenarios.
 
 **NOW-2:** execute health/profile/auth regression coverage and obtain CI evidence.
 
 **NOW-3:** complete package-script → script → workflow mapping.
 
-**NOW-4:** complete migration/schema/RLS/index dependency mapping.
+**NOW-4:** complete migration/object/dependency/RLS/index mapping; use the new static audit as the baseline, then seek live evidence.
 
 **NOW-5:** trace critical UI flows end-to-end.
 
@@ -127,11 +136,18 @@ Tenant, storage, realtime, AI isolation, backup/restore, recovery, rollback, gov
 - Batch 6: `docs/EXECUTION_LEDGER_2026-08-25_BATCH-6.md`
 - Batch 7: `docs/EXECUTION_LEDGER_2026-08-25_BATCH-7.md`
 - Batch 7 delta supplement: `docs/MASTER_EXECUTION_INDEX_CURRENT_DELTA_2026-08-25_BATCH-7.md`
+- Batch 8: `docs/EXECUTION_LEDGER_2026-08-25_BATCH-8.md`
 
 ## Batch 7 continuation commits
 - `a460808a8079a3b68586a12ef7e687833f5c499b` — canonical tenant hydration compatibility layer
 - `a5e469216ff009de5313c8f9dd5e2c29c78d8a2b` — fail-closed AuthGate tenant resolution
 - `786b0705f8ff43a85840fc81956ef19d0393f519` — regression guard for canonical tenant gate
+
+## Batch 8 commits
+- `35799881fbb59f55ebb35a4116f4d3ced38d6283` / `c3d95d870b266a1b8906ae84154d3074c2123e2e` — migration schema audit guard
+- `30ba166628ae96ccc7a90edff6a0a1883d987742` — package script registration
+- `6a2f12c9f5523a6ff0b3ebbd6ab13ddcf551e8c8` — canonical Quality integration
+- `2dfb8f0febf3745fa852e5bc0131231c0f5aee9f` — Batch 8 execution ledger
 
 ## Non-negotiable rule
 No capability is marked production-complete merely because code or static contracts exist. Runtime evidence and the existing certification chain remain mandatory.
