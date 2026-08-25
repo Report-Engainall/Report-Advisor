@@ -29,6 +29,18 @@ if (!/(?:status\s*=\s*p_status|p_status)/i.test(lifecycleMigration)) {
 if (!/failed/i.test(lifecycleMigration) || !/cancelled/i.test(lifecycleMigration)) {
   throw new Error('Import transaction lifecycle must support failed and cancelled states');
 }
+if (!/IMPORT_TERMINAL_STATUS_REQUIRED/i.test(lifecycleMigration)) {
+  throw new Error('Import finalization must reject non-terminal statuses');
+}
+if (!/p_status\s+NOT\s+IN\s+\(\s*['\"]completed['\"]\s*,\s*['\"]partial['\"]\s*,\s*['\"]failed['\"]\s*,\s*['\"]cancelled['\"]\s*\)/i.test(lifecycleMigration)) {
+  throw new Error('Import finalization must enumerate the allowed terminal states');
+}
+if (!/v_existing_summary/i.test(lifecycleMigration) || !/result_summary\s*=\s*coalesce\(v_existing_summary/i.test(lifecycleMigration)) {
+  throw new Error('Import finalization must preserve existing result-summary lineage');
+}
+if (!/IMPORT_COMPLETED_WITH_ERROR/i.test(lifecycleMigration)) {
+  throw new Error('Completed imports must not carry an error state');
+}
 
 const canonicalCommitPath = path.join(root, 'src', 'lib', 'import', 'canonical-commit.ts');
 if (fs.existsSync(canonicalCommitPath)) {
