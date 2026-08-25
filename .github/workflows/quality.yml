@@ -26,6 +26,8 @@ jobs:
         run: node scripts/check-cross-surface-traceability.mjs
       - name: Authentication and tenant convergence
         run: npm run test:auth-tenant-convergence
+      - name: Database migration schema audit
+        run: npm run test:migration-schema-audit
       - name: Master requirements lock
         run: npm run test:master-requirements
       - name: Core contracts
