@@ -33,7 +33,7 @@ export async function processFolderFiles(files:FolderScanFile[],entityType:Batch
       const detection=detectFormat(item.file,buffer);
       if(detection.format==='unknown')throw new Error('صيغة غير مدعومة أو غير معروفة');
       const hash=await computeSHA256(buffer);
-      const duplicate=await checkDuplicate(hash,companyId,supabase);
+      const duplicate=await checkDuplicate(hash);
       if(duplicate.isDuplicate){results.push({name:item.file.name,path:item.relativePath,status:'skipped',format:detection.format,rows:0,committed:0,duplicate:true,error:'تم استيراد الإصدار نفسه سابقاً.'});continue;}
       const datasets=await parseFile(buffer,item.file.name,detection.format);
       const dataset=datasets[0];
