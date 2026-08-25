@@ -1,0 +1,12 @@
+{
+  "status": "FAILED",
+  "sourceRows": 3,
+  "canonicalRows": 2,
+  "totals": [{"label":"synthetic_total","source":90,"canonical":60,"delta":30}],
+  "duplicates": 0,
+  "missingEntities": 1,
+  "unmatchedRows": 1,
+  "suspiciousDifferences": 1,
+  "failureReason": "Synthetic reconciliation mismatch fixture",
+  "remediation": "Inspect unmatched source row and verify canonical mapping"
+}
