@@ -1,6 +1,6 @@
 export type DecisionAction = 'BUY_NOW' | 'BUY_SOON' | 'MONITOR' | 'DO_NOT_BUY' | 'OVERSTOCK' | 'COLLECT_NOW' | 'COLLECT_SOON' | 'HOLD_PAYMENT' | 'PAY_NOW' | 'PAY_SOON';
 
-export interface AgingBucket { label: string; minDays: number; maxDays: number | null; amount: number; count: number; }
+export interface AgingBucket { label: string; minDays: number | null; maxDays: number | null; amount: number; count: number; }
 export interface AgingItem { amount: number; dueDate?: string | null; asOf?: string; }
 export interface TrendPoint { date: string; value: number; }
 export interface TrendAnalysis { direction: 'UP' | 'DOWN' | 'FLAT' | 'INSUFFICIENT_DATA'; velocity: number | null; acceleration: number | null; volatility: number | null; seasonalityHint: 'LOW' | 'MEDIUM' | 'HIGH' | 'UNKNOWN'; }
@@ -16,14 +16,18 @@ const safeDiv = (a: number, b: number) => b === 0 ? null : a / b;
 const mean = (xs: number[]) => xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : null;
 
 export function buildAgingBuckets(items: AgingItem[], asOf = new Date()): AgingBucket[] {
-  const ranges = [
-    ['0-30', 0, 30], ['31-60', 31, 60], ['61-90', 61, 90], ['91-180', 91, 180], ['180+', 181, null],
-  ] as const;
+  const ranges: Array<readonly [string, number | null, number | null]> = [
+    ['0-30', 0, 30], ['31-60', 31, 60], ['61-90', 61, 90], ['91-180', 91, 180], ['180+', 181, null], ['UNDATED', null, null],
+  ];
   const buckets = ranges.map(([label, minDays, maxDays]) => ({ label, minDays, maxDays, amount: 0, count: 0 }));
+  const unnumbered = buckets[buckets.length - 1];
   for (const item of items) {
     if (!Number.isFinite(item.amount)) continue;
-    const days = item.dueDate ? Math.max(0, Math.floor((asOf.getTime() - new Date(item.dueDate).getTime()) / 86400000)) : null;
-    const bucket = days == null ? buckets[0] : buckets.find(b => days >= b.minDays && (b.maxDays == null || days <= b.maxDays));
+    if (!item.dueDate) { unnumbered.amount += item.amount; unnumbered.count += 1; continue; }
+    const dueTime = new Date(item.dueDate).getTime();
+    if (!Number.isFinite(dueTime)) { unnumbered.amount += item.amount; unnumbered.count += 1; continue; }
+    const days = Math.max(0, Math.floor((asOf.getTime() - dueTime) / 86400000));
+    const bucket = buckets.find(b => b.minDays != null && days >= b.minDays && (b.maxDays == null || days <= b.maxDays));
     if (bucket) { bucket.amount += item.amount; bucket.count += 1; }
   }
   return buckets;
