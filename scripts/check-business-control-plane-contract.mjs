@@ -20,7 +20,17 @@ const runtimeMissing = runtimeRequired.filter(x => !runtimeGate.includes(x));
 if (missing.length || runtimeMissing.length) throw new Error(`Business control plane blockers:\n${[...missing, ...runtimeMissing].join('\n')}`);
 
 const roadmap = fs.readFileSync(path.join(root, 'docs/IMPLEMENTATION_ROADMAP.md'), 'utf8');
-for (const item of ['Unified business-state snapshot', 'Constraint-aware optimization', 'Closed-loop recommendation evaluation', 'Causal/evidence lineage', 'Automatic drift detection']) {
-  if (!roadmap.includes(item)) throw new Error(`Control-plane roadmap item missing: ${item}`);
+const roadmapRequirements = [
+  ['Unified business-state snapshot', 'Unified business-state snapshots'],
+  ['Constraint-aware optimization'],
+  ['Closed-loop recommendation evaluation'],
+  ['Causal/evidence lineage'],
+  ['Automatic drift detection'],
+];
+for (const variants of roadmapRequirements) {
+  const accepted = Array.isArray(variants) ? variants : [variants];
+  if (!accepted.some(item => roadmap.includes(item))) {
+    throw new Error(`Control-plane roadmap item missing: ${accepted.join(' | ')}`);
+  }
 }
 console.log('Business control plane contract: PASS');
