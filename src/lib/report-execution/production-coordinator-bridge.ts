@@ -1,57 +1,64 @@
 import type { ReportExecutionCheckpoint, ReportExecutionStage } from './checkpoint';
-import { PhaseKLRuntime } from '../phase-kl-runtime';
+import {
+  buildLineage,
+  consolidateRuntime,
+  chooseScenario,
+  prioritizeDecisions,
+  canAutonomouslyExecute,
+  type RuntimeEvidence,
+} from '../phase-kl-runtime';
+import type {
+  AutonomyGateInput,
+  PortfolioCandidate,
+  RiskBudget,
+  RowVersion,
+  ScenarioOption,
+  SourceCandidate,
+} from '../production-intelligence';
 
-export interface ProductionLifecycleInput {
+export interface ProductionLifecycleInput<T = unknown> {
   jobId: string;
   companyId: string;
   sourceSnapshotId?: string;
   sourceHash: string;
-  rows: Array<Record<string, unknown>>;
-  now?: string;
+  previousRows: RowVersion<T>[];
+  currentRows: RowVersion<T>[];
+  sourceCandidates: SourceCandidate<T>[];
+  scenarioOptions: ScenarioOption[];
+  riskBudget: RiskBudget;
+  portfolioCandidates: PortfolioCandidate[];
+  autonomy: AutonomyGateInput;
+  evidence: RuntimeEvidence[];
 }
 
-export interface ProductionLifecycleResult {
+export interface ProductionLifecycleResult<T = unknown> {
   jobId: string;
+  companyId: string;
   sourceHash: string;
-  lineage: ReturnType<PhaseKLRuntime['buildRowLineage']>;
-  consolidation: ReturnType<PhaseKLRuntime['consolidateChronologically']>;
-  scenario: ReturnType<PhaseKLRuntime['selectBoundedScenario']>;
-  portfolio: ReturnType<PhaseKLRuntime['rankDecisionPortfolio']>;
-  autonomy: ReturnType<PhaseKLRuntime['evaluateAutonomy']>;
+  lineage: ReturnType<typeof buildLineage<T>>;
+  consolidation: ReturnType<typeof consolidateRuntime<T>>;
+  scenario: ReturnType<typeof chooseScenario>;
+  portfolio: ReturnType<typeof prioritizeDecisions>;
+  autonomy: ReturnType<typeof canAutonomouslyExecute>;
 }
 
 /**
- * Pure orchestration bridge. Persistence/leases remain owned by the durable
- * worker store; this layer only composes governed K/L decisions and evidence.
+ * Pure integration bridge. Durable persistence/leases remain owned by the
+ * worker store. Domain engines supply the evidence, scenarios and candidates;
+ * this bridge never invents business values or silently enables autonomy.
  */
-export function runProductionLifecycle(input: ProductionLifecycleInput): ProductionLifecycleResult {
-  const runtime = new PhaseKLRuntime();
-  const lineage = runtime.buildRowLineage(input.rows, input.sourceHash);
-  const consolidation = runtime.consolidateChronologically([{ sourceHash: input.sourceHash, rows: input.rows }]);
-  const scenario = runtime.selectBoundedScenario({
-    baseValue: Math.max(0, input.rows.length),
-    alternatives: [
-      { key: 'base', multiplier: 1, risk: 0.2 },
-      { key: 'conservative', multiplier: 0.9, risk: 0.1 },
-      { key: 'stress', multiplier: 0.75, risk: 0.35 },
-    ],
-    riskBudget: 0.35,
-    protectedLiquidity: 0,
-    minimumServiceLevel: 0.75,
-  });
-  const portfolio = runtime.rankDecisionPortfolio([
-    { key: input.jobId, materiality: 1, urgency: 1, confidence: 0.8, risk: scenario.risk },
-  ]);
-  const autonomy = runtime.evaluateAutonomy({
-    domain: 'report-execution',
-    confidence: portfolio[0]?.confidence ?? 0,
-    evidenceQuality: lineage.filter((x) => x.status !== 'quarantined').length / Math.max(1, lineage.length),
-    risk: scenario.risk,
-    rollbackAvailable: true,
-    continuousTrustHealthy: true,
-    criticalDrift: false,
-  });
-  return { jobId: input.jobId, sourceHash: input.sourceHash, lineage, consolidation, scenario, portfolio, autonomy };
+export function runProductionLifecycle<T>(input: ProductionLifecycleInput<T>): ProductionLifecycleResult<T> {
+  if (!input.companyId || !input.jobId || !input.sourceHash) throw new Error('Production lifecycle requires tenant, job and source identity');
+  if (!input.currentRows.length) throw new Error('Production lifecycle requires authoritative current rows');
+  if (!input.evidence.length) throw new Error('Production lifecycle requires runtime evidence');
+
+  const lineage = buildLineage(input.previousRows, input.currentRows[0]);
+  const consolidation = consolidateRuntime(input.sourceCandidates);
+  const scenario = chooseScenario(input.scenarioOptions, input.riskBudget);
+  const portfolio = prioritizeDecisions(input.portfolioCandidates, input.riskBudget.maxRisk);
+  const autonomy = canAutonomouslyExecute(input.autonomy);
+
+  return { jobId: input.jobId, companyId: input.companyId, sourceHash: input.sourceHash, lineage, consolidation, scenario, portfolio, autonomy };
 }
 
 export function assertProductionCheckpoint(checkpoint: ReportExecutionCheckpoint): void {
