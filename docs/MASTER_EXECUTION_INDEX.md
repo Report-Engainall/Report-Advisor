@@ -91,9 +91,10 @@ Deep K→S previously referenced a nonexistent Phase M migration. This was corre
 Primary verifier: `.github/workflows/quality.yml`.
 - #1427 `32882832259`: stale Phase M migration path → fixed in `230943f8815f3e27ecf95055f546ab5ee826e251`.
 - #1430 `32883083895`: all gates through deep K→S passed; KPI presentation guard then exposed three old fabricated labels → fixed in `db25d19998afbb0af25eff51562929dcfe0dffe7`.
-- #1431 `32883162686`: running against the KPI presentation fix; final result was not claimed prematurely.
-- #1432 `32883214495`: index update commit triggered Quality; its failure was superseded by the KPI semantic-definition fix.
-- #1433 `32883300321`: queued/running against the latest KPI semantic-definition alignment commit `3ac71a99a05e347d5708ac04cad1aa635c4d25c2`; no PASS claimed yet.
+- #1433 `32883300321`: all gates through A0 intelligence hardening passed; TypeScript 7 typecheck exposed obsolete `baseUrl`/path resolution options in `tsconfig.app.json`.
+- #1435 `32884019503`: **currently running** against `fbcec9127d717ca32ef9dd556b64576d3edbe389`, which removes obsolete `baseUrl` and changes `@/*` to `./src/*`. No PASS claimed yet.
+
+The latest completed failure was a tooling/configuration compatibility root cause, not a business-data failure: TypeScript reported `TS5102 baseUrl has been removed` and `TS5090 non-relative paths are not allowed`. This was fixed directly in the canonical `tsconfig.app.json` rather than weakening CI or pinning an older compiler.
 
 ## P0 LIVE blockers
 - [ ] adversarial tenant certification
@@ -150,7 +151,7 @@ Primary verifier: `.github/workflows/quality.yml`.
 - [ ] evidence-grounded Ask→Inspect→Act E2E
 
 ## Truth-weighted progress
-**~82% engineering completion remains the conservative verified figure.** Broad implementation coverage is ~90%+, contract/gate maturity is high, while integrated runtime/live certification remains partial. The current batch closed real integration drift and KPI truth mismatches but did not add live production evidence, so the percentage is intentionally not inflated.
+**~82% engineering completion remains the conservative verified figure.** Broad implementation coverage is ~90%+, contract/gate maturity is high, while integrated runtime/live certification remains partial. The current batch closed real integration drift and tooling compatibility but did not add live production evidence, so the percentage is intentionally not inflated.
 
 Production certified: **NO** until P0 live evidence closes.
 
@@ -160,5 +161,6 @@ Production certified: **NO** until P0 live evidence closes.
 - `85973d4e8aeaa5dd34c15bf230bd51a47b21cf3c` — Quality KPI truth wiring.
 - `db25d19998afbb0af25eff51562929dcfe0dffe7` — KPI missing-label root fix using canonical identifiers.
 - `3ac71a99a05e347d5708ac04cad1aa635c4d25c2` — net-sales semantic definition aligned to canonical dashboard source.
+- `fbcec9127d717ca32ef9dd556b64576d3edbe389` — TypeScript 7-compatible `tsconfig.app.json`.
 
 **No production PASS is claimed. LIVE REQUIRED remains explicit.**
