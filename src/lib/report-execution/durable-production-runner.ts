@@ -64,8 +64,9 @@ export async function runDurableProductionLifecycle<T>(input: DurableProductionR
   } catch (error) {
     try {
       await store.fail(input.jobId, input.workerId, { message: error instanceof Error ? error.message : String(error) });
+      if (job.attempt < job.maxAttempts) await store.retry(input.jobId);
     } catch (failureError) {
-      throw new AggregateError([error, failureError], 'Durable execution failed and failure state could not be persisted');
+      throw new AggregateError([error, failureError], 'Durable execution failed and failure/recovery state could not be persisted');
     }
     throw error;
   } finally {
