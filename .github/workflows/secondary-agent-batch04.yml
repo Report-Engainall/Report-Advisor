@@ -39,6 +39,8 @@ jobs:
         run: npm run test:secondary-batch04-regression
       - name: Batch 05 runtime closure audit
         run: npm run test:secondary-batch05-runtime-audit
+      - name: Batch 06 quality audit
+        run: node scripts/secondary-batch06-quality-audit.mjs
 
   project-quality:
     strategy:
