@@ -1,5 +1,15 @@
+import { resolveCurrentCompanyId, supabase } from '@/lib/supabase';
 import type { SecurityScanResult } from './types';
 import { MAX_FILE_SIZE } from './types';
+
+interface FileRecord {
+  id: string;
+  company_id: string;
+  file_name: string;
+  file_hash: string;
+  created_at: string;
+  status: string;
+}
 
 export async function computeSHA256(buffer: ArrayBuffer): Promise<string> {
   if (crypto?.subtle) {
@@ -62,18 +72,21 @@ export function securityScan(file: File, buffer: ArrayBuffer): SecurityScanResul
   };
 }
 
-export async function checkDuplicate(hash: string, companyId: string, supabase: any): Promise<{ isDuplicate: boolean; existing: any | null }> {
-  const { data } = await supabase
+export async function checkDuplicate(hash: string): Promise<{ isDuplicate: boolean; existing: FileRecord | null }> {
+  const companyId = await resolveCurrentCompanyId();
+  if (!companyId) throw new Error('TENANT_CONTEXT_REQUIRED');
+
+  const { data, error } = await supabase
     .from('file_records')
-    .select('*')
+    .select('id,company_id,file_name,file_hash,created_at,status')
     .eq('company_id', companyId)
     .eq('file_hash', hash)
     .order('created_at', { ascending: false })
     .limit(1)
     .maybeSingle();
 
-  if (data) {
-    return { isDuplicate: true, existing: data };
-  }
-  return { isDuplicate: false, existing: null };
+  if (error) throw error;
+  if (!data) return { isDuplicate: false, existing: null };
+
+  return { isDuplicate: true, existing: data as FileRecord };
 }
