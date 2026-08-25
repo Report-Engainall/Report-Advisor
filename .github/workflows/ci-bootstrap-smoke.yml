@@ -1,0 +1,40 @@
+name: ci-bootstrap-smoke
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-bootstrap-smoke-${{ github.ref }}-${{ github.event_name }}-${{ github.run_id }}
+  cancel-in-progress: false
+
+jobs:
+  bootstrap:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Runtime diagnostics
+        run: |
+          set -euo pipefail
+          echo "github_sha=$GITHUB_SHA"
+          git rev-parse HEAD
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          node --version
+          npm --version
+          python3 --version
+          test -f package.json
+          test -f package-lock.json
+          node -e "const p=require('./package.json'); if(!p.name) process.exit(2); console.log('package='+p.name)"
+      - name: Lockfile integrity
+        run: npm ci --ignore-scripts --no-audit --no-fund --dry-run
