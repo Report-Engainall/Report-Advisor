@@ -65,14 +65,18 @@ RETURNS jsonb
 LANGUAGE sql
 STABLE
 AS $$
-WITH sales AS (
+WITH context AS (
+  SELECT public.current_company_id() AS company_id
+),
+sales AS (
   SELECT count(*)::integer AS rows_count,
     sum(si.line_total)::numeric AS revenue,
     sum(si.quantity * si.cost_price)::numeric AS cost,
     max(s.created_at) AS source_updated_at
   FROM sale_items si
   JOIN sales_invoices s ON s.id = si.invoice_id
-  WHERE s.company_id = p_company_id AND s.status NOT IN ('cancelled','void')
+  CROSS JOIN context c
+  WHERE s.company_id = c.company_id AND s.company_id = p_company_id AND s.status NOT IN ('cancelled','void')
     AND (p_from IS NULL OR s.invoice_date >= p_from) AND (p_to IS NULL OR s.invoice_date <= p_to)
 ),
 receivables AS (
@@ -80,7 +84,8 @@ receivables AS (
     sum(greatest(s.total - s.paid_amount,0))::numeric AS value,
     max(s.created_at) AS source_updated_at
   FROM sales_invoices s
-  WHERE s.company_id = p_company_id AND s.status NOT IN ('cancelled','void')
+  CROSS JOIN context c
+  WHERE s.company_id = c.company_id AND s.company_id = p_company_id AND s.status NOT IN ('cancelled','void')
     AND (p_to IS NULL OR s.invoice_date <= p_to)
 ),
 payables AS (
@@ -88,14 +93,17 @@ payables AS (
     sum(greatest(p.total - p.paid_amount,0))::numeric AS value,
     max(p.created_at) AS source_updated_at
   FROM purchase_invoices p
-  WHERE p.company_id = p_company_id AND p.status NOT IN ('cancelled','void')
+  CROSS JOIN context c
+  WHERE p.company_id = c.company_id AND p.company_id = p_company_id AND p.status NOT IN ('cancelled','void')
     AND (p_to IS NULL OR p.invoice_date <= p_to)
 ),
 stock AS (
   SELECT count(*)::integer AS rows_count,
     sum(ib.quantity * ib.unit_cost)::numeric AS value,
     max(ib.updated_at) AS source_updated_at
-  FROM inventory_balances ib WHERE ib.company_id = p_company_id
+  FROM inventory_balances ib
+  CROSS JOIN context c
+  WHERE ib.company_id = c.company_id AND ib.company_id = p_company_id
 ),
 payments AS (
   SELECT count(*)::integer AS rows_count,
@@ -103,7 +111,8 @@ payments AS (
     sum(CASE WHEN direction = 'out' THEN amount ELSE 0 END)::numeric AS outflow,
     max(created_at) AS source_updated_at
   FROM payments p
-  WHERE p.company_id = p_company_id
+  CROSS JOIN context c
+  WHERE p.company_id = c.company_id AND p.company_id = p_company_id
     AND (p_from IS NULL OR p.payment_date >= p_from) AND (p_to IS NULL OR p.payment_date <= p_to)
 ),
 base AS (
@@ -125,8 +134,10 @@ metrics AS (
     jsonb_build_object('metric_id','cash_position','value',CASE WHEN payment_rows > 0 THEN inflow-outflow ELSE NULL END,'status',CASE WHEN payment_rows > 0 THEN 'CONFIRMED' ELSE 'UNKNOWN' END,'source_rows',payment_rows,'source_updated_at',payment_updated_at,'version',1)
   ) AS items FROM base
 )
-SELECT jsonb_build_object('company_id',p_company_id,'data_as_of',coalesce(p_to,current_date),'snapshot_type','canonical_metrics','metrics',items) FROM metrics;
+SELECT jsonb_build_object('company_id',p_company_id,'data_as_of',coalesce(p_to,current_date),'snapshot_type','canonical_metrics','tenant_bound',true,'metrics',items) FROM metrics;
 $$;
 
-GRANT SELECT ON metric_definitions TO authenticated, anon;
-GRANT EXECUTE ON FUNCTION get_canonical_metric_snapshot(uuid,date,date) TO authenticated, anon;
+REVOKE EXECUTE ON FUNCTION get_canonical_metric_snapshot(uuid,date,date) FROM anon;
+GRANT EXECUTE ON FUNCTION get_canonical_metric_snapshot(uuid,date,date) TO authenticated;
+COMMENT ON FUNCTION get_canonical_metric_snapshot(uuid,date,date) IS
+  'Canonical metric snapshot explicitly bound to current_company_id(); client-supplied company IDs cannot cross the authenticated tenant boundary.';
