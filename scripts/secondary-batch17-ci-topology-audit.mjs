@@ -5,12 +5,23 @@ const root = process.cwd();
 const workflowDir = path.join(root, '.github/workflows');
 const read = (name) => fs.readFileSync(path.join(workflowDir, name), 'utf8');
 const files = fs.readdirSync(workflowDir).filter((f) => /\.(yml|yaml)$/.test(f));
+const hasEvent = (text, event) => new RegExp(`(^|\\n)\\s+${event}:`, 'm').test(text) || new RegExp(`${event}:\\s*\\{`).test(text);
+const branchListContains = (text, event, branch) => {
+  const inline = new RegExp(`${event}:\\s*\\{[^}]*branches:\\s*\\[[^\\]]*\\b${branch}\\b[^\\]]*\\]`, 's');
+  if (inline.test(text)) return true;
+  const eventStart = text.indexOf(`\\n  ${event}:`);
+  if (eventStart < 0) return false;
+  const tail = text.slice(eventStart, eventStart + 600);
+  return new RegExp(`\\bbranches:\\s*\\n(?:\\s+-\\s+[^\\n]+\\n?)*`, 'm').test(tail)
+    && new RegExp(`(^|\\n)\\s+-\\s+${branch}\\s*$`, 'm').test(tail);
+};
+
 const workflows = files.map((file) => ({
   file,
   text: read(file),
-  hasPush: /(^|\n)\s+push:\s*(?:\n|$)/.test(read(file)) || /push:\s*\{/.test(read(file)),
-  hasMainPush: /push:\s*\n\s+branches:\s*\[main\]/.test(read(file)) || /push:\s*\{\s*branches:\s*\[main\]\s*\}/.test(read(file)),
-  hasMainPr: /pull_request:\s*\n\s+branches:\s*\[main\]/.test(read(file)) || /pull_request:\s*\{\s*branches:\s*\[main\]\s*\}/.test(read(file)),
+  hasPush: hasEvent(read(file), 'push'),
+  hasMainPush: branchListContains(read(file), 'push', 'main'),
+  hasMainPr: branchListContains(read(file), 'pull_request', 'main'),
   hasDispatch: /workflow_dispatch:/.test(read(file)),
 }));
 
