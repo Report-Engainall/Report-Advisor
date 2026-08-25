@@ -16,13 +16,16 @@ const queries = fs.readFileSync(path.join(root, 'src/lib/queries.ts'), 'utf8');
 const failures = [];
 
 if (!supabase.includes('persistSession: true')) failures.push('Supabase session persistence is not enabled.');
-if (/COMPANY_ID\s*=/.test(supabase)) failures.push('A static COMPANY_ID constant is present in the Supabase client.');
+if (/const\s+COMPANY_ID\s*=/.test(supabase)) failures.push('A static COMPANY_ID constant is present in the Supabase client.');
+if (!supabase.includes('resolveCurrentCompanyId') || !supabase.includes("rpc('current_company_id')")) failures.push('Canonical current_company_id tenant hydration is missing.');
 if (!authSession.includes('getAuthenticatedUser')) failures.push('Canonical auth-session helper is missing.');
 if (!authSession.includes('requireAuthenticatedUser')) failures.push('Authenticated-user guard is missing.');
 if (/admin@alamri\.com/.test(sidebar)) failures.push('Sidebar contains hard-coded demo email identity.');
 if (/المدير العام/.test(sidebar)) failures.push('Sidebar contains hard-coded display name; identity must be resolved through the profile layer.');
 if (!profileDisplay.includes('getDisplayName') || !profileDisplay.includes('getDisplayEmail')) failures.push('Central profile display resolver is missing.');
 if (!authGate.includes('getAuthenticatedUser') || !authGate.includes('onAuthStateChange')) failures.push('Authenticated application boundary is incomplete.');
+if (!authGate.includes('resolveCurrentCompanyId')) failures.push('Protected UI is not gated on canonical tenant resolution.');
+if (!authGate.includes("tenant-missing")) failures.push('Missing/ambiguous tenant does not fail closed.');
 if (!authGate.includes('<LoginPage />')) failures.push('Unauthenticated state does not render the login screen.');
 if (!loginPage.includes('signInWithPassword')) failures.push('Login screen is not connected to Supabase password authentication.');
 if (!app.includes('<AuthGate>')) failures.push('App is not wrapped in the authenticated application boundary.');
@@ -44,7 +47,8 @@ if (failures.length) {
 
 console.log('AUTH/TENANT CONVERGENCE PASS');
 console.log('- persistent Supabase session enabled');
-console.log('- no static COMPANY_ID constant');
+console.log('- canonical tenant hydration through current_company_id');
+console.log('- fail-closed tenant gate');
 console.log('- canonical auth-session helpers present');
 console.log('- authenticated app boundary present');
 console.log('- Arabic Supabase login screen present');
