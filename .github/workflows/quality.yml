@@ -12,11 +12,11 @@ jobs:
     runs-on: ubuntu-22.04
     timeout-minutes: 40
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
         with: {fetch-depth: 1, persist-credentials: false}
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@v7
         with: {node-version: 22, cache: npm}
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with: {python-version: '3.11', cache: pip}
       - name: Diagnostics
         run: node --version && npm --version && python3 --version && test -f package-lock.json && test "$(git rev-parse HEAD)" = "${GITHUB_SHA}"
