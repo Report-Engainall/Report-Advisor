@@ -40,14 +40,20 @@ if (missingStages.length) {
   throw new Error(`Quality workflow is missing mandatory stages: ${missingStages.join(', ')}`);
 }
 
-if (!/concurrency:\s*\n\s*group:\s*quality-\$\{\{ github\.ref \}\}-\$\{\{ github\.event_name \}\}-\$\{\{ github\.run_id \}\}/m.test(workflow)) {
+const concurrencyMatch = workflow.match(/concurrency:\s*\n\s*group:\s*(.+)\n\s*cancel-in-progress:\s*(true|false)/m);
+if (!concurrencyMatch) {
+  throw new Error('Quality workflow must define an explicit concurrency policy.');
+}
+const concurrencyGroup = concurrencyMatch[1].trim();
+const cancelInProgress = concurrencyMatch[2] === 'true';
+if (!/\$\{\{\s*github\.run_id\s*\}\}/.test(concurrencyGroup)) {
   throw new Error('Quality workflow must define a unique per-run concurrency group.');
 }
-if (!/cancel-in-progress:\s*false/.test(workflow)) {
+if (cancelInProgress) {
   throw new Error('Quality workflow must not cancel an in-flight verification run.');
 }
 if (!/timeout-minutes:\s*40/.test(workflow)) {
   throw new Error('Quality workflow must retain an explicit 40-minute execution timeout.');
 }
 
-console.log(`Quality workflow contract: PASS (${uniqueCommands.length} npm commands, ${requiredStages.length} mandatory stages)`);
+console.log(`Quality workflow contract: PASS (${uniqueCommands.length} npm commands, ${requiredStages.length} mandatory stages, per-run concurrency)`);
