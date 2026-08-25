@@ -52,6 +52,26 @@ Batch 03 is **not COMPLETE**. Runtime execution, full CI, and primary-agent cert
 
 ---
 
+# Batch 04 execution status — 2026-08-25
+
+Batch 04 intentionally prioritizes closure and regression protection over new UI.
+
+| Task | Status | Notes |
+|---|---|---|
+| Runtime Closure Audit | FOUNDATION | Every Batch 01–03 component now has a concrete runtime requirement and classification in `SECONDARY_AGENT_BATCH_04_HANDOFF.md`. |
+| Existing Runtime Integration | FOUNDATION / LIVE REQUIRED | Existing Data Quality, Document Intelligence, Evidence Ledger, Decision Evidence, Report Snapshot, and Reconciliation contracts are now explicit adapter sources. No duplicate engine was introduced. |
+| UNKNOWN / Evidence Safety | FOUNDATION | Regression harness guards UNKNOWN/NOT CONFIGURED semantics and prevents secondary-layer fake success. |
+| Evidence Deep-Link Safety | FOUNDATION / LIVE REQUIRED | Real source/evidence IDs are propagated only when supplied. No secondary route/identifier is generated. |
+| Golden Corpus Contract Expectations | FOUNDATION | All 13 fixtures now have executable expectations covering schema/header, normalization, duplicates, missing fields, OCR, merged/multi-table/multi-page, reconciliation mismatch, and UNKNOWN. |
+| Contract Regression | FOUNDATION | Static regression harness verifies authoritative contract reuse and no select(*) in secondary runtime/query surfaces. |
+| Accessibility Regression | GATED | Browser-level regression remains gated on an actual browser runner. |
+| Performance Regression | FOUNDATION | Static guards cover select(*), bounded control-plane reads, and absence of new polling/bulk evidence fetches. |
+| CI Workflow | LIVE REQUIRED | Dedicated Batch 04 workflow added; actual run evidence must be observed before any COMPLETE classification. |
+
+Batch 04 is **not COMPLETE**.
+
+---
+
 # Existing approved task matrix
 
 ## A. NOW / PARALLEL — execute these
@@ -132,7 +152,7 @@ The UI consumes supplied values; it does not invent confidence.
 
 ## A6. Data Quality Center UI
 
-**Batch 02: FOUNDATION. Batch 03: FOUNDATION / LIVE REQUIRED for authoritative quality scores.**
+**Batch 02: FOUNDATION. Batch 03–04: FOUNDATION / LIVE REQUIRED for authoritative quality scores.**
 
 Implement views for:
 - completeness;
@@ -149,7 +169,7 @@ Implement views for:
 
 ## A7. Business Control Plane UI
 
-**Batch 02: FOUNDATION. Batch 03: FOUNDATION.**
+**Batch 02: FOUNDATION. Batch 03–04: FOUNDATION.**
 
 Implement operational overview for:
 - imports;
@@ -168,7 +188,7 @@ Always distinguish LIVE/UNKNOWN/NOT CONFIGURED/FAILED.
 
 ## A8. Document Intelligence Workspace UI
 
-**Batch 02: FOUNDATION. Batch 03: FOUNDATION / LIVE REQUIRED.**
+**Batch 02: FOUNDATION. Batch 03–04: FOUNDATION / LIVE REQUIRED.**
 
 Implement document inspection experience:
 - preview;
@@ -189,7 +209,7 @@ Use existing import/document contracts.
 
 ## A9. Golden Corpus
 
-**Batch 02: FOUNDATION. Batch 03: FOUNDATION.**
+**Batch 02: FOUNDATION. Batch 03: FOUNDATION. Batch 04: FOUNDATION with executable expectations.**
 
 Create safe deterministic fixtures for:
 - Arabic tabular input;
@@ -209,7 +229,7 @@ No real customer/business secrets.
 
 ## A10. Smart Reconciliation presentation
 
-**Batch 02: FOUNDATION. Batch 03: LIVE REQUIRED for authoritative result wiring.**
+**Batch 02: FOUNDATION. Batch 03–04: FOUNDATION / LIVE REQUIRED for authoritative result wiring.**
 
 Prepare UI/read models for:
 - source row count vs canonical row count;
