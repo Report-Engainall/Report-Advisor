@@ -1,4 +1,3 @@
-import { supabase, COMPANY_ID } from '@/lib/supabase';
 import { detectFormat } from '@/lib/file-engine/detector';
 import { securityScan, computeSHA256, checkDuplicate } from '@/lib/file-engine/security';
 import { parseFile } from '@/lib/file-engine/adapters';
@@ -13,8 +12,80 @@ export interface BatchFileResult { name:string; path:string; status:'completed'|
 export interface BatchProgress { processed:number; total:number; current:string; results:BatchFileResult[]; }
 const EXTENSIONS=new Set(['xlsx','xls','xlsm','csv','tsv','ods','json','jsonl','xml','txt','md','markdown','pdf','docx','doc','rtf','jpg','jpeg','png','webp','tiff','bmp']);
 
-export async function scanDirectory(handle:any,prefix=''):Promise<FolderScanFile[]>{if(!handle||typeof handle.values!=='function')throw new Error('لم يتم اختيار مجلد صالح.');const files:FolderScanFile[]=[];for await(const entry of handle.values()){const relativePath=prefix?`${prefix}/${entry.name}`:entry.name;if(entry.kind==='directory'){for(const item of await scanDirectory(entry,relativePath))files.push(item);continue;}const file=await entry.getFile();const ext=file.name.split('.').pop()?.toLowerCase()||'';if(EXTENSIONS.has(ext))files.push({file,format:'unknown',relativePath});}return files.sort((a,b)=>a.relativePath.localeCompare(b.relativePath,undefined,{numeric:true}));}
-function requiredFields(entityType:BatchEntityType):string[]{return entityType==='products'?['sku','name','cost_price','selling_price']:entityType==='customers'?['name']:['invoice_number','invoice_date','customer_name','total'];}
-function canonicalTextFromRows(rows:Record<string,unknown>[]):string{return rows.map((row,i)=>`ROW ${i+1}\n`+Object.entries(row).map(([k,v])=>`${k}: ${String(v??'')}`).join('\n')).join('\n\n');}
+export async function scanDirectory(handle: FileSystemDirectoryHandle, prefix = ''): Promise<FolderScanFile[]> {
+  const files: FolderScanFile[] = [];
+  for await (const entry of handle.values()) {
+    const relativePath = prefix ? `${prefix}/${entry.name}` : entry.name;
+    if (entry.kind === 'directory') {
+      for (const item of await scanDirectory(entry as FileSystemDirectoryHandle, relativePath)) files.push(item);
+      continue;
+    }
+    const file = await (entry as FileSystemFileHandle).getFile();
+    const ext = file.name.split('.').pop()?.toLowerCase() || '';
+    if (EXTENSIONS.has(ext)) files.push({ file, format: 'unknown', relativePath });
+  }
+  return files.sort((a,b)=>a.relativePath.localeCompare(b.relativePath,undefined,{numeric:true}));
+}
 
-export async function processFolderFiles(files:FolderScanFile[],entityType:BatchEntityType,onProgress?:(progress:BatchProgress)=>void):Promise<BatchProgress>{const results:BatchFileResult[]=[];for(let index=0;index<files.length;index++){const item=files[index];onProgress?.({processed:index,total:files.length,current:item.relativePath,results:[...results]});try{const buffer=await item.file.arrayBuffer();const security=securityScan(item.file,buffer);if(!security.passed)throw new Error(security.issues.join(' — '));const detection=detectFormat(item.file,buffer);if(detection.format==='unknown')throw new Error('صيغة غير مدعومة أو غير معروفة');const hash=await computeSHA256(buffer);const duplicate=await checkDuplicate(hash,COMPANY_ID,supabase);if(duplicate.isDuplicate){results.push({name:item.file.name,path:item.relativePath,status:'skipped',format:detection.format,rows:0,committed:0,duplicate:true,error:'تم استيراد الإصدار نفسه سابقاً.'});continue;}const datasets=await parseFile(buffer,item.file.name,detection.format);const dataset=datasets[0];if(!dataset||dataset.rowCount===0)throw new Error('الملف فارغ أو لا يحتوي على بيانات قابلة للقراءة');const extraction=await finalizeExtraction(hash,detection.format,canonicalTextFromRows(dataset.rows));const required=requiredFields(entityType);const validRows:CanonicalImportRow[]=[];for(let rowIndex=0;rowIndex<dataset.rows.length;rowIndex++){const data=dataset.rows[rowIndex];const missing=required.filter(field=>{const key=Object.keys(data).find(k=>k===field)??Object.keys(data).find(k=>k.toLowerCase().includes(field.toLowerCase()));const value=key?data[key]:undefined;return value==null||String(value).trim()==='';});if(!missing.length)validRows.push({rowNumber:rowIndex+1,data});}if(!validRows.length)throw new Error('لم توجد صفوف صالحة بعد التحقق من الحقول المطلوبة');const rec=await createImportRecord({file_name:item.file.name,file_size:item.file.size,source_type:detection.format,status:'processing',total_rows:dataset.rowCount,valid_rows:validRows.length,invalid_rows:dataset.rowCount-validRows.length,quarantined_rows:dataset.rowCount-validRows.length,entity_type:entityType,progress:0});let committed=0;for(let offset=0;offset<validRows.length;offset+=50){const batch=validRows.slice(offset,offset+50);await commitImportBatch(entityType,batch);committed+=batch.length;await updateImportRecord(rec.id,{progress:Math.round(committed/validRows.length*100)});}await updateImportRecord(rec.id,{status:'completed',progress:100,completed_at:new Date().toISOString()});results.push({name:item.file.name,path:item.relativePath,status:'completed',format:detection.format,rows:dataset.rowCount,committed,warning:extraction.status==='failed'?extraction.warnings.join(' — '):extraction.status==='partial'?'تمت المتابعة بعد استخراج جزئي.':undefined});}catch(error:any){results.push({name:item.file.name,path:item.relativePath,status:'failed',format:item.format,rows:0,committed:0,error:error?.message||'خطأ غير معروف'});}}const final={processed:files.length,total:files.length,current:'',results};onProgress?.(final);return final;}
+function requiredFields(entityType: BatchEntityType): string[] {
+  return entityType === 'products'
+    ? ['sku','name','unit','cost_price','selling_price','min_stock','reorder_point','is_active']
+    : entityType === 'customers'
+      ? ['name','segment','credit_limit','payment_terms_days']
+      : ['invoice_number','invoice_date','customer_name','subtotal','tax_amount','total','paid_amount','status'];
+}
+
+function canonicalTextFromRows(rows: Record<string,unknown>[]): string {
+  return rows.map((row,i)=>`ROW ${i+1}\n`+Object.entries(row).map(([k,v])=>`${k}: ${String(v??'')}`).join('\n')).join('\n\n');
+}
+
+export async function processFolderFiles(files: FolderScanFile[], entityType: BatchEntityType, onProgress?: (progress: BatchProgress) => void): Promise<BatchProgress> {
+  const results: BatchFileResult[] = [];
+  for (let index=0; index<files.length; index++) {
+    const item=files[index];
+    onProgress?.({processed:index,total:files.length,current:item.relativePath,results:[...results]});
+    let importRecord: { id: string } | null = null;
+    let committed = 0;
+    try {
+      const buffer=await item.file.arrayBuffer();
+      const security=securityScan(item.file,buffer);
+      if(!security.passed) throw new Error(security.issues.join(' — '));
+      const detection=detectFormat(item.file,buffer);
+      if(detection.format==='unknown') throw new Error('صيغة غير مدعومة أو غير معروفة');
+      const hash=await computeSHA256(buffer);
+      const duplicate=await checkDuplicate(hash);
+      if(duplicate.isDuplicate){
+        results.push({name:item.file.name,path:item.relativePath,status:'skipped',format:detection.format,rows:0,committed:0,duplicate:true,error:'تم استيراد الإصدار نفسه سابقاً.'});
+        continue;
+      }
+      const datasets=await parseFile(buffer,item.file.name,detection.format);
+      const dataset=datasets[0];
+      if(!dataset||dataset.rowCount===0) throw new Error('الملف فارغ أو لا يحتوي على بيانات قابلة للقراءة');
+      const extraction=await finalizeExtraction(hash,detection.format,canonicalTextFromRows(dataset.rows));
+      const required=requiredFields(entityType);
+      const validRows:CanonicalImportRow[]=[];
+      for(let rowIndex=0;rowIndex<dataset.rows.length;rowIndex++){
+        const data=dataset.rows[rowIndex];
+        const missing=required.filter(field=>{const key=Object.keys(data).find(k=>k===field)??Object.keys(data).find(k=>k.toLowerCase().includes(field.toLowerCase()));const value=key?data[key]:undefined;return value==null||String(value).trim()==='';});
+        if(!missing.length) validRows.push({rowNumber:rowIndex+1,data});
+      }
+      if(!validRows.length) throw new Error('لم توجد صفوف صالحة بعد التحقق من الحقول المطلوبة');
+      importRecord=await createImportRecord({file_name:item.file.name,file_size:item.file.size,source_type:detection.format,status:'processing',total_rows:dataset.rowCount,valid_rows:validRows.length,invalid_rows:dataset.rowCount-validRows.length,quarantined_rows:dataset.rowCount-validRows.length,entity_type:entityType,progress:0});
+      for(let offset=0;offset<validRows.length;offset+=50){
+        const batch=validRows.slice(offset,offset+50);
+        const result=await commitImportBatch(entityType,batch);
+        committed+=result.committed;
+        await updateImportRecord(importRecord.id,{progress:Math.round(committed/validRows.length*100)});
+      }
+      await updateImportRecord(importRecord.id,{status:'completed',progress:100,completed_at:new Date().toISOString()});
+      results.push({name:item.file.name,path:item.relativePath,status:'completed',format:detection.format,rows:dataset.rowCount,committed,warning:extraction.status==='failed'?extraction.warnings.join(' — '):extraction.status==='partial'?'تمت المتابعة بعد استخراج جزئي.':undefined});
+    } catch(error) {
+      const message=error instanceof Error?error.message:'خطأ غير معروف';
+      if(importRecord){try{await updateImportRecord(importRecord.id,{status:'failed',progress:committed, error_message:message});}catch{ /* preserve original failure */ }}
+      results.push({name:item.file.name,path:item.relativePath,status:'failed',format:item.format,rows:0,committed,error:message});
+    }
+  }
+  const final={processed:files.length,total:files.length,current:'',results};
+  onProgress?.(final);
+  return final;
+}
