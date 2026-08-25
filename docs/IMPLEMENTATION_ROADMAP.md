@@ -50,6 +50,7 @@ Remaining I work: runtime anomaly correlation, graph population from real decisi
 
 ## Phase J — Autonomous Business Control Plane — DEEP FOUNDATION IN PROGRESS
 Implemented: watched-folder ingestion foundation, recursive scan, bounded concurrency policy, SHA-256 fingerprinting, persistent IndexedDB fingerprints and folder handles, tenant-scoped folder/file lineage, incremental file and row reconciliation, canonical-text-first orchestration, isolated extraction fallback, central governed import routing, automatic watched-folder mode, unified business-state snapshots, constraint-aware optimization schema, outcome feedback schema, executive KPI lineage schema, drift schema and release-blocking control-plane gate.
+The control-plane foundation also defines the closed-loop recommendation evaluation path through durable recommendation outcomes, expected-vs-actual impact, outcome quality/status and evidence, with live executor wiring still treated as a connected runtime requirement rather than falsely certified as complete.
 
 ## Phase J.1 — Watched Reports & Text-First Ingestion — MASTER REQUIREMENT LOCK
 Permanent acceptance contract: local folder selection, continuous new/changed discovery, content fingerprinting, row-level incremental reconciliation, canonical text reconstruction, deterministic extraction route selection, isolated fallback, provenance, rename/tombstone traceability, unified governed pipeline, bounded concurrency, resumability, dead-letter handling, offline-first/local preference, and deterministic numeric truth.
