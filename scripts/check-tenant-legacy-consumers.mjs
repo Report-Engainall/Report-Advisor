@@ -26,30 +26,32 @@ function stripComments(text) {
     .replace(/(^|\s)\/\/.*$/gm, '$1');
 }
 
+function hasAuthoritativeCompanyResolution(code) {
+  return /(?:const|let|var)\s+companyId\s*=\s*await\s+resolveCurrentCompanyId\s*\(\s*\)/.test(code)
+    || /(?:const|let|var)\s+companyId\s*:\s*string\s*=\s*await\s+resolveCurrentCompanyId\s*\(\s*\)/.test(code);
+}
+
 function isLegacyTenantConsumer(rel, text) {
   if (ALLOWED_SELF.has(rel)) return false;
   if (rel === 'src/lib/file-engine/synonyms.ts') return false;
-  // check-* files are static-analysis contracts; their literal markers are
-  // intentionally inspected and must not be classified as runtime consumers.
   if (/^scripts\/check-[^/]+\.mjs$/.test(rel)) return false;
 
   const code = stripComments(text);
+  const authoritativeCompanyId = hasAuthoritativeCompanyResolution(code);
 
-  // Removed mutable tenant compatibility state.
   if (/\bCOMPANY_ID\b/.test(code)) return true;
   if (/\b(?:setCompanyId|clearCompanyId|getCompanyId)\b/.test(code)) return true;
   if (/\btenant_memberships\b/i.test(code)) return true;
 
-  // Static tenant identity, including environment/config defaults.
   if (/\b(?:companyId|company_id|tenantId|tenant_id)\s*[:=]\s*['"][0-9a-f-]{16,}['"]/i.test(code)) return true;
   if (/\b(?:VITE_|NEXT_PUBLIC_|PUBLIC_)?(?:COMPANY_ID|TENANT_ID)\s*[:=]/i.test(code)) return true;
   if (/\b(?:companyId|company_id|tenantId|tenant_id)\s*=\s*(?:process\.env\.|import\.meta\.env\.)/i.test(code)) return true;
 
-  // Client-selected tenant filtering is not an authoritative security boundary.
+  // A database-resolved companyId may be used as defense-in-depth filtering;
+  // the database/RLS remains authoritative. Client-selected IDs are forbidden.
   if (/\.(?:eq|neq|in|filter)\s*\(\s*['"](?:company_id|tenant_id)['"]\s*,\s*(?:selectedCompanyId|selectedTenantId|profile\.company_id|user\.company_id)\s*\)/i.test(code)) return true;
-  if (/\.(?:eq|neq|in|filter)\s*\(\s*['"](?:company_id|tenant_id)['"]\s*,\s*(?:companyId|tenantId)\s*\)/i.test(code)) return true;
+  if (/\.(?:eq|neq|in|filter)\s*\(\s*['"](?:company_id|tenant_id)['"]\s*,\s*(?:companyId|tenantId)\s*\)/i.test(code) && !authoritativeCompanyId) return true;
 
-  // Static equality against a UUID-like tenant is always unsafe.
   if (/\.(?:eq|neq|in|filter)\s*\(\s*['"](?:company_id|tenant_id)['"]\s*,\s*['"][0-9a-f-]{16,}['"]\s*\)/i.test(code)) return true;
 
   return false;
