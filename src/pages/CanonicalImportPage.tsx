@@ -68,7 +68,7 @@ export function CanonicalImportPage() {
       const hash = await computeSHA256(buffer);
       const dup = await checkDuplicate(hash, COMPANY_ID, supabase);
       setDuplicate(dup.isDuplicate);
-      if (dup.isDuplicate) setWarnings(prev => [...prev, 'تم استيراد هذا الملف من قبل']);
+      if (dup.isDuplicate) setWarnings(prev => [...prev, 'تم استيراد هذا الملف من قبل — لن يتم السماح بإعادة الاستيراد بنفس البصمة']);
       const datasets: Dataset[] = await parseFile(buffer, selected.name, detection.format);
       const dataset = datasets[0];
       if (!dataset || dataset.rowCount === 0) throw new Error('الملف فارغ أو لا يحتوي على بيانات قابلة للقراءة');
@@ -93,10 +93,11 @@ export function CanonicalImportPage() {
 
   const commit = useCallback(async () => {
     const valid = rows.filter(r => r.valid);
-    if (!valid.length || !file) return;
+    if (!valid.length || !file || duplicate) return;
     setStep('committing'); setProgress(0); setError(null);
+    let rec: { id: string } | null = null;
     try {
-      const rec = await createImportRecord({ file_name: file.name, file_size: file.size, source_type: file.format, status: 'processing', total_rows: rows.length, valid_rows: valid.length, invalid_rows: rows.length - valid.length, quarantined_rows: rows.length - valid.length, entity_type: entityType, progress: 0 });
+      rec = await createImportRecord({ file_name: file.name, file_size: file.size, source_type: file.format, status: 'processing', total_rows: rows.length, valid_rows: valid.length, invalid_rows: rows.length - valid.length, quarantined_rows: rows.length - valid.length, entity_type: entityType, progress: 0 });
       const batchSize = 50; let committed = 0;
       for (let i = 0; i < valid.length; i += batchSize) {
         const batch: CanonicalImportRow[] = valid.slice(i, i + batchSize).map(r => ({ rowNumber: r.rowNumber, data: r.data }));
@@ -108,9 +109,16 @@ export function CanonicalImportPage() {
       setResult({ total: rows.length, valid: valid.length, invalid: rows.length - valid.length, importId: rec.id });
       setStep('done'); await loadHistory();
     } catch (e: any) {
+      if (rec?.id) {
+        try {
+          await updateImportRecord(rec.id, { status: 'failed', progress, error_message: e?.message || 'خطأ غير معروف' });
+        } catch {
+          // Preserve the original import error; the durable ledger may be unavailable during a failure.
+        }
+      }
       setError(`فشل الاستيراد: ${e?.message || 'خطأ غير معروف'}`); setStep('preview');
     }
-  }, [rows, file, entityType, loadHistory]);
+  }, [rows, file, entityType, duplicate, loadHistory, progress]);
 
   const reset = () => { setStep('upload'); setFile(null); setRows([]); setHeaders([]); setQuality(0); setMappings([]); setWarnings([]); setError(null); setDuplicate(false); setResult(null); setProgress(0); };
   const valid = rows.filter(r => r.valid).length;
@@ -129,7 +137,7 @@ export function CanonicalImportPage() {
       {(warnings.length>0||duplicate)&&<div className="space-y-2">{warnings.map((w,i)=><div key={i} className="p-3 rounded-lg bg-warning-50 text-warning-700 text-sm flex gap-2"><AlertTriangle size={16}/>{w}</div>)}</div>}
       {securityPassed&&warnings.length===0&&<div className="p-3 rounded-lg bg-success-50 text-success-700 text-sm flex gap-2"><ShieldCheck size={16}/> اجتاز الملف الفحص الأمني</div>}
       {mappings.length>0&&<Card><CardHeader title="تعيين الأعمدة" subtitle="الربط المكتشف من محرك الملفات"/><DataTable columns={[{key:'name',label:'عمود الملف'},{key:'mappedField',label:'الحقل المقابل',render:(r:any)=>r.mappedField||'غير معين'},{key:'confidence',label:'الثقة',align:'center',render:(r:any)=><Badge variant={r.confidence>=80?'success':r.confidence>=50?'warning':'danger'}>{r.mappedField?r.confidence+'%':'—'}</Badge>}]} data={mappings} emptyMessage="لا توجد أعمدة"/></Card>}
-      <Card><CardHeader title="معاينة البيانات" subtitle="أول 10 صفوف" action={<div className="flex gap-2"><button onClick={reset} className="btn-secondary text-xs">إلغاء</button><button onClick={() => void commit()} className="btn-primary text-xs" disabled={!valid}>تأكيد الاستيراد ({valid})</button></div>}/><DataTable columns={[{key:'rowNumber',label:'#',align:'center' as const}, ...headers.slice(0,6).map(h=>({key:h,label:h,render:(r:Row)=>String(r.data[h]??'')})), {key:'status',label:'الحالة',align:'center' as const,render:(r:Row)=>r.valid?<Badge variant="success">صالح</Badge>:<Badge variant="danger">خطأ</Badge>}]} data={rows.slice(0,10)} emptyMessage="لا توجد بيانات"/></Card>
+      <Card><CardHeader title="معاينة البيانات" subtitle="أول 10 صفوف" action={<div className="flex gap-2"><button onClick={reset} className="btn-secondary text-xs">إلغاء</button><button onClick={() => void commit()} className="btn-primary text-xs" disabled={!valid || duplicate}>تأكيد الاستيراد ({valid})</button></div>}/><DataTable columns={[{key:'rowNumber',label:'#',align:'center' as const}, ...headers.slice(0,6).map(h=>({key:h,label:h,render:(r:Row)=>String(r.data[h]??'')})), {key:'status',label:'الحالة',align:'center' as const,render:(r:Row)=>r.valid?<Badge variant="success">صالح</Badge>:<Badge variant="danger">خطأ</Badge>}]} data={rows.slice(0,10)} emptyMessage="لا توجد بيانات"/></Card>
       {error&&<div className="p-3 rounded-lg bg-danger-50 text-danger-700 text-sm">{error}</div>}
     </div>}
     {step === 'committing' && <Card><CardBody><div className="flex flex-col items-center py-10 gap-4"><Loader2 className="animate-spin text-primary-500" size={32}/><b>جارٍ تنفيذ الاستيراد المركزي...</b><span>{progress}%</span><div className="w-full max-w-md h-2 bg-ink-100 rounded-full"><div className="h-full bg-primary-500 rounded-full" style={{width:`${progress}%`}}/></div></div></CardBody></Card>}
