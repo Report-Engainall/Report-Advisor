@@ -58,8 +58,11 @@ export function sanitizeSavedView(view: SavedViewDefinition): SavedViewDefinitio
 }
 
 export function explainable(model: ExplainabilityModel): boolean {
-  if (model.state === 'BLOCKED' || model.state === 'UNKNOWN' || model.state === 'ERROR') return Boolean(model.blockedReason || model.details);
-  return Boolean(model.summary && model.evidenceIds.length >= 0);
+  if (model.state === 'BLOCKED' || model.state === 'UNKNOWN' || model.state === 'ERROR') {
+    return Boolean(model.blockedReason || model.details);
+  }
+  if (model.state === 'LIVE') return Boolean(model.summary && model.evidenceIds.length > 0);
+  return Boolean(model.summary);
 }
 
 export function isActionable(alternative: AlternativeRecommendation): boolean {
