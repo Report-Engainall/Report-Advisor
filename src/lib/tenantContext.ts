@@ -58,7 +58,3 @@ export async function resolveTenantContext(preferredCompanyId?: string | null) {
 
   return { user, memberships, active };
 }
-
-export function isTenantSelected(companyId: string | null | undefined, memberships: TenantMembership[]) {
-  return !!companyId && memberships.some((m) => m.company_id === companyId && m.status === 'active');
-}
