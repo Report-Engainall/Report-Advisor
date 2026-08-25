@@ -15,7 +15,7 @@ Source of truth: `main`
 - PASS لا يعني production-certified؛ LIVE evidence منفصل.
 
 ## Current truth
-The latest verified wave (#1464) passed install, tenant, adversarial tenant, data quality, migration, core, production-contract, resilience, governance, watched-folder, K/L/M, deep K→S, KPI-truth, A0 intelligence, Typecheck and behavioral regressions. It then failed at Routing/Security because `quality.yml` invoked the existing `scripts/check-import-direct-write-guard.mjs` through a missing npm script alias. This was an integration wiring defect, not a missing guard. The canonical guard exists and remains unchanged. The missing npm alias was restored in commit `ccd9f5b87d042d952aeea4cc2e8852f753040310`; a fresh CI verification is required before declaring the workflow green.
+The latest inspected wave (#1464) passed install, tenant, adversarial tenant, data quality, migration, core, production-contract, resilience, governance, watched-folder, K/L/M, deep K→S, KPI-truth, A0 intelligence, Typecheck and behavioral regressions. It then failed at Routing/Security because `quality.yml` invoked the existing `scripts/check-import-direct-write-guard.mjs` through a missing npm script alias. This was an integration wiring defect, not a missing guard. The alias was restored in `ccd9f5b87d042d952aeea4cc2e8852f753040310`. A fresh CI verification is required before declaring the workflow green.
 
 ## Phase truth
 | المسار | الحالة | المتبقي الحاسم |
@@ -63,7 +63,7 @@ Foundation/gates cover multi-format mapping, Arabic/English normalization, busin
 
 Compatibility import reads/writes route through existing RPCs; no second import engine exists. Canonical report checkpoint stage, product-family `memberSkus`, entity-resolution discriminant, demand `avgDaily`, nested Supabase shapes and typed inventory balances were hardened.
 
-Current CI direct-write governance is now correctly wired to the existing `scripts/check-import-direct-write-guard.mjs`; the npm alias was restored in `ccd9f5b87d042d952aeea4cc2e8852f753040310`. No duplicate guard was created.
+Current CI direct-write governance is correctly wired to the existing `scripts/check-import-direct-write-guard.mjs`; the npm alias was restored in `ccd9f5b87d042d952aeea4cc2e8852f753040310`. No duplicate guard was created.
 
 Remaining runtime proof: arbitrary/no-header/random/poor files, extraction completeness, cell lineage, golden corpus, live Onyx, live rollback/retry/reconciliation.
 
@@ -81,6 +81,7 @@ Remaining: cross-dashboard/report/export equivalence, authoritative date-window 
 ## Current CI / next execution
 - Last inspected failure: #1464 / `32885447874`, Routing/Security at missing npm alias.
 - Root fix committed: `ccd9f5b87d042d952aeea4cc2e8852f753040310`.
+- CI workflow now explicitly invokes the canonical direct-write guard and continues to the downstream RLS/RPC/business-key/lint/build/runtime gates once that boundary passes.
 - Next mandatory loop: fresh CI → Routing/Security → Global Tenant RLS → Import RPC tenant context → Import business key → Lint → Build → Performance → Intelligence runtime → Document intelligence → Report truth → Production readiness → Full resilience.
 - Parallel P0 work remains LIVE REQUIRED where real Supabase/production evidence is indispensable: adversarial tenant isolation, Storage/signed URLs, Realtime authorization, AI tenant isolation, restore/RPO-RTO, artifact verification, failure/dead-letter drills, secrets/security audit, SLO/rollback and production certification.
 - Parallel P1 work remains: Windows persistent watcher, Android watcher, iOS capability integration, live folder coordinator, live document corpus, evidence graph, outcome feedback and executive action loop.
