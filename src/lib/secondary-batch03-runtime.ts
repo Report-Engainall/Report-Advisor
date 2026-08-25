@@ -1,12 +1,15 @@
 import { supabase } from '@/lib/supabase';
 import { fetchDataQualityDatasets } from '@/lib/data-quality-queries';
-import { planDocumentIntelligence } from '@/lib/documentIntelligenceGateway';
+import { planDocumentIntelligence, type DocumentExtractionEnvelope } from '@/lib/documentIntelligenceGateway';
 import type { DocumentProfile } from '@/lib/free-toolbox/document-route';
 import type { EvidenceLedger } from '@/lib/free-toolbox/evidence-ledger';
-import type { EvidenceNode, EvidenceTrail } from '@/lib/secondary-evidence-ux';
+import type { DecisionEvidenceRecord } from '@/lib/product-intelligence/decision-evidence-ledger';
+import type { ReportSnapshot } from '@/lib/import-pipeline/report-snapshot-history';
+import type { ReconciliationResult } from '@/lib/report-intelligence/reconciliation-engine';
+import type { EvidenceNode, EvidenceTrail, DecisionReplayModel, ReportSnapshotModel } from '@/lib/secondary-evidence-ux';
 import type { ControlPlaneReadModel, ControlPlaneSignal, DataQualityReadModel, DocumentWorkspaceReadModel, EvidenceRef, ReconciliationReadModel } from '@/lib/secondary-batch02';
 
-const ref = (id: string, label: string): EvidenceRef => ({ id, label, sourceRef: id, status: 'READY' });
+const ref = (id: string, label: string, source_id?: string): EvidenceRef => ({ id, label, sourceRef: source_id ?? id, source_id, status: 'READY' });
 
 export async function fetchSecondaryDataQualityReadModel(): Promise<DataQualityReadModel> {
   try {
@@ -17,7 +20,7 @@ export async function fetchSecondaryDataQualityReadModel(): Promise<DataQualityR
         dimension: dimension as DataQualityReadModel['metrics'][number]['dimension'],
         status: 'UNKNOWN',
         source: ref('data-quality-queries', 'Tenant-native Data Quality query boundary'),
-        reason: 'Authoritative datasets are available, but this query boundary does not expose an authoritative quality score. No client-side score is substituted.'
+        reason: 'Authoritative datasets are reachable, but this query boundary does not expose an authoritative quality score. No client-side score is substituted.'
       })),
       issues: [],
       generatedAt: new Date().toISOString(),
@@ -65,11 +68,30 @@ export async function fetchSecondaryControlPlaneReadModel(): Promise<ControlPlan
 }
 
 export function documentWorkspaceFromProfile(profile: DocumentProfile): DocumentWorkspaceReadModel {
-  const envelope = planDocumentIntelligence(profile);
+  return documentWorkspaceFromEnvelope(planDocumentIntelligence(profile));
+}
+
+export function documentWorkspaceFromEnvelope(envelope: DocumentExtractionEnvelope, fileName?: string): DocumentWorkspaceReadModel {
+  const blocked = envelope.stage === 'INSUFFICIENT_BACKEND';
   return {
-    status: envelope.stage === 'INSUFFICIENT_BACKEND' ? 'BLOCKED' : 'READY',
-    fields: envelope.facts.map(fact => ({ name: fact.field, value: fact.value ?? undefined, confidence: fact.confidence, status: 'READY', sourceRef: fact.source })),
-    lineage: envelope.facts.map((fact, index) => ({ id: `fact-${index}`, label: `${fact.field} <- ${fact.source}`, sourceRef: fact.source, status: 'verified' }))
+    status: blocked ? 'BLOCKED' : envelope.facts.length ? 'READY' : 'UNKNOWN',
+    fileName,
+    fields: envelope.facts.map(fact => ({ name: fact.field, value: fact.value ?? undefined, confidence: fact.confidence, status: fact.source ? 'READY' : 'UNKNOWN', sourceRef: fact.source })),
+    lineage: envelope.facts.map((fact, index) => ({ id: `fact-${index}`, label: `${fact.field} <- ${fact.source}`, sourceRef: fact.source, status: fact.source ? 'READY' : 'UNKNOWN' })),
+  };
+}
+
+function evidenceNode(item: EvidenceLedger['items'][number], kind: EvidenceNode['kind'], id: string, label: string, value?: string | number | null): EvidenceNode {
+  const verified = Boolean(item.sourceId) && (item.confidence === undefined || item.confidence >= 0.8);
+  return {
+    kind,
+    id,
+    label,
+    value,
+    sourceRef: item.sourceId || undefined,
+    source_id: item.sourceId || undefined,
+    evidence_id: item.id,
+    status: !item.sourceId ? 'unknown' : verified ? 'verified' : 'partial'
   };
 }
 
@@ -77,13 +99,63 @@ export function evidenceTrailFromLedger(ledger: EvidenceLedger): EvidenceTrail {
   if (!ledger.items.length) return { nodes: [], status: 'EMPTY', message: 'No evidence entries were supplied by the authoritative ledger.' };
   const nodes: EvidenceNode[] = [];
   ledger.items.forEach((item, index) => {
+    if (!item.sourceId) {
+      nodes.push({ kind: 'file', id: `unknown-source:${index}`, label: 'SOURCE UNAVAILABLE', status: 'unknown' });
+      return;
+    }
     const id = item.id ?? `${item.sourceId}:${index}`;
-    nodes.push({ kind: 'file', id: item.sourceId, label: item.sourceId, sourceRef: item.sourceId, status: 'verified' });
-    if (item.page !== undefined) nodes.push({ kind: 'page', id: `${id}:page:${item.page}`, label: `Page ${item.page}`, sourceRef: item.sourceId, status: 'verified' });
-    if (item.raw !== undefined) nodes.push({ kind: 'extracted', id: `${id}:extracted`, label: item.field ?? 'Extracted value', value: item.raw, sourceRef: item.sourceId, status: item.confidence === undefined ? 'unknown' : item.confidence >= 0.8 ? 'verified' : 'partial' });
-    if (item.normalized !== undefined) nodes.push({ kind: 'normalized', id: `${id}:normalized`, label: item.field ?? 'Normalized value', value: typeof item.normalized === 'string' || typeof item.normalized === 'number' ? item.normalized : JSON.stringify(item.normalized), sourceRef: item.sourceId, status: 'verified' });
+    nodes.push(evidenceNode(item, 'file', item.sourceId, item.sourceId));
+    if (item.page !== undefined) nodes.push(evidenceNode(item, 'page', `${id}:page:${item.page}`, `Page ${item.page}`));
+    if (item.raw !== undefined) nodes.push(evidenceNode(item, 'extracted', `${id}:extracted`, item.field ?? 'Extracted value', item.raw));
+    if (item.normalized !== undefined) nodes.push(evidenceNode(item, 'normalized', `${id}:normalized`, item.field ?? 'Normalized value', typeof item.normalized === 'string' || typeof item.normalized === 'number' ? item.normalized : JSON.stringify(item.normalized)));
   });
   return { nodes, status: 'READY' };
+}
+
+export function decisionReplayFromAuthoritativeRecord(record: DecisionEvidenceRecord): DecisionReplayModel {
+  const evidence = record.evidence.map((item, index): EvidenceNode => ({
+    kind: 'extracted',
+    id: `${record.decisionId}:evidence:${index}`,
+    label: item.metric,
+    value: item.value,
+    sourceRef: item.source,
+    source_id: item.source,
+    decision_id: record.decisionId,
+    status: item.source ? (record.confidence >= 0.8 ? 'verified' : 'partial') : 'unknown'
+  }));
+  return {
+    decisionId: record.decisionId,
+    metrics: record.evidence.map(item => ({ id: item.metric, label: item.metric, value: item.value })),
+    evidence,
+    trust: { decision: record.confidence * 100, overall: record.confidence * 100, explanation: record.warnings.length ? record.warnings.join('; ') : undefined },
+    action: record.action,
+    state: evidence.length && evidence.every(item => item.status === 'verified' || item.status === 'partial') ? 'READY' : 'UNKNOWN'
+  };
+}
+
+export function reportSnapshotFromAuthoritativeSnapshot(snapshot: ReportSnapshot): ReportSnapshotModel {
+  return {
+    reportId: snapshot.sourceKey,
+    snapshotId: snapshot.snapshotId,
+    dataAsOf: snapshot.observedAt,
+    generatedAt: snapshot.observedAt,
+    state: 'READY'
+  };
+}
+
+export function reconciliationFromAuthoritativeResult(result: ReconciliationResult, sourceRows?: number, canonicalRows?: number, source?: EvidenceRef): ReconciliationReadModel {
+  const mismatchCount = result.duplicateCount + result.conflictCount + result.reversedCount;
+  return {
+    status: 'READY',
+    sourceRows,
+    canonicalRows,
+    duplicates: result.duplicateCount,
+    unmatchedRows: result.newCount,
+    suspiciousDifferences: mismatchCount,
+    failureReason: mismatchCount ? 'Authoritative reconciliation result contains non-unchanged row changes.' : undefined,
+    remediation: mismatchCount ? 'Inspect authoritative row-level reconciliation reasons.' : undefined,
+    source
+  };
 }
 
 export function reconciliationUnknown(reason = 'No authoritative reconciliation result was supplied.'): ReconciliationReadModel {
