@@ -1,7 +1,7 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import type { User } from '@supabase/supabase-js';
 import { getAuthenticatedUser, onAuthStateChange } from '@/lib/auth-session';
-import { resolveCurrentCompanyId, clearCompanyId, supabase } from '@/lib/supabase';
+import { resolveCurrentCompanyId, supabase } from '@/lib/supabase';
 import { LoginPage } from '@/pages/LoginPage';
 
 interface AuthGateProps {
@@ -19,7 +19,6 @@ export function AuthGate({ children }: AuthGateProps) {
 
     const sync = async (authenticatedUser: User | null) => {
       if (!authenticatedUser) {
-        clearCompanyId();
         if (mounted) {
           setUser(null);
           setState('unauthenticated');
@@ -49,7 +48,6 @@ export function AuthGate({ children }: AuthGateProps) {
     return () => {
       mounted = false;
       unsubscribe();
-      clearCompanyId();
     };
   }, []);
 
