@@ -24,6 +24,8 @@ jobs:
         run: node scripts/check-ci-execution-topology.mjs && node scripts/check-production-recovery-gate.mjs
       - name: Cross-surface capability traceability
         run: node scripts/check-cross-surface-traceability.mjs
+      - name: Authentication and tenant convergence
+        run: npm run test:auth-tenant-convergence
       - name: Master requirements lock
         run: npm run test:master-requirements
       - name: Core contracts
