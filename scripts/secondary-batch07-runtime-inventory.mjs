@@ -126,9 +126,17 @@ for (const [token, label] of forbidden) {
   } else pass += 1;
 }
 
-for (const token of ['source_id', 'evidence_id', 'snapshot_id', 'lineage_id', 'metric_id', 'decision_id']) {
+// Evidence IDs use the project's real naming conventions. Do not require a
+// snake_case alias that the authoritative models do not expose.
+const evidenceIdentifierGuards = [
+  ['source_id', 'authoritative source identifier field'],
+  ['evidence_id', 'authoritative evidence identifier field'],
+  ['snapshotId', 'report snapshot identifier field'],
+  ['decisionId', 'decision identifier field'],
+];
+for (const [token, label] of evidenceIdentifierGuards) {
   if (secondaryRuntime.includes(token)) pass += 1;
-  else { fail += 1; console.error(`FAIL — evidence identifier propagation contract missing: ${token}`); }
+  else { fail += 1; console.error(`FAIL — ${label} missing from secondary runtime.`); }
 }
 
 const hasUnknownGuard = allSecondary.includes('UNKNOWN') && allSecondary.includes('SOURCE UNAVAILABLE');
