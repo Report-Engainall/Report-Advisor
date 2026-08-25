@@ -78,6 +78,8 @@ jobs:
         run: node --experimental-strip-types scripts/golden-dataset-deep-regressions.test.ts
       - name: Outcome feedback regressions
         run: node --experimental-strip-types scripts/outcome-feedback-regressions.test.ts
+      - name: File security regressions
+        run: node --experimental-strip-types scripts/file-security-regressions.test.ts
       - name: Decision evidence regressions
         run: node --experimental-strip-types scripts/decision-evidence-regression.test.ts
       - name: Routing and security contracts (parallel discovery)
