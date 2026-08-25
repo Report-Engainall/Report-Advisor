@@ -13,6 +13,7 @@
     "test:auth-tenant-convergence": "node scripts/check-auth-tenant-convergence.mjs",
     "test:migration-schema-audit": "node scripts/check-migration-schema-audit.mjs",
     "test:migration-dependencies": "node scripts/analyze-migration-dependencies.mjs",
+    "test:data-quality-projections": "node scripts/check-data-quality-projections.mjs",
     "perf:budget": "node scripts/check-performance-budget.mjs",
     "test:operational-resilience": "node scripts/check-operational-resilience-contract.mjs",
     "test:release-resilience-manifest": "node scripts/check-release-resilience-manifest.mjs",
