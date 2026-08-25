@@ -173,6 +173,37 @@ export async function fetchTopProducts(limit = 5): Promise<TopEntity[]> {
   return Array.from(byProduct.entries()).map(([id, v]) => ({ id, name: v.name, value: v.value, secondary: v.qty })).sort((a, b) => b.value - a.value).slice(0, limit);
 }
 
+/** Category sales are derived from canonical sale lines and the existing product/category relations. */
+export async function fetchCategoryBreakdown(): Promise<CategoryBreakdown[]> {
+  const { data: invoices, error: invoicesError } = await supabase.from('sales_invoices').select('id');
+  if (invoicesError) throw invoicesError;
+  const invoiceIds = (invoices || []).map(inv => inv.id);
+  if (!invoiceIds.length) return [];
+
+  const { data, error } = await supabase.from('sale_items')
+    .select('product_id, quantity, line_total, cost_price, product:products(name, category_id, category:categories(name))')
+    .in('invoice_id', invoiceIds).not('product_id', 'is', null);
+  if (error) throw error;
+
+  const byCategory = new Map<string, CategoryBreakdown>();
+  for (const row of data || []) {
+    if (!row.product_id) continue;
+    const product = (row as any).product;
+    const categoryId = product?.category_id || 'uncategorized';
+    const name = product?.category?.name || 'غير مصنف';
+    const quantity = Number((row as any).quantity || 0);
+    const sales = Number((row as any).line_total || 0);
+    const cost = Number((row as any).cost_price || 0) * quantity;
+    const entry = byCategory.get(categoryId) || { name, sales: 0, profit: 0, quantity: 0 };
+    entry.sales += sales;
+    entry.profit += sales - cost;
+    entry.quantity += quantity;
+    byCategory.set(categoryId, entry);
+  }
+
+  return Array.from(byCategory.values()).sort((a, b) => b.sales - a.sales);
+}
+
 export async function fetchAgingBuckets(): Promise<AgingBucket[]> {
   const { data: invoices, error } = await supabase.from('sales_invoices').select('total, paid_amount, due_date, invoice_date');
   if (error) throw error;
