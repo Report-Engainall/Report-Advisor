@@ -19,8 +19,11 @@ for (const pattern of required) {
   if (!pattern.test(text)) throw new Error(`Import transaction contract missing: ${pattern}`);
 }
 
+// Include every migration that can define or harden the import lifecycle.
+// The previous selector missed terminal-state/lifecycle filenames such as
+// 20260825210000_import_finish_terminal_state.sql and allowed a false negative.
 const lifecycleMigration = files
-  .filter((f) => /import.*(job|engine)|security.*import/i.test(f))
+  .filter((f) => /import.*(?:job|engine|finish|lifecycle)|security.*import/i.test(f))
   .map((f) => fs.readFileSync(path.join(migrationDir, f), 'utf8'))
   .join('\n');
 if (!/(?:status\s*=\s*p_status|p_status)/i.test(lifecycleMigration)) {
@@ -60,7 +63,6 @@ if (fs.existsSync(batchFolderPath)) {
   if (!/status:'failed'|status\s*:\s*'failed'/.test(batch) || !/updateImportRecord\(importRecordId,\{status:'failed'/.test(batch)) {
     throw new Error('Failed folder imports must persist a terminal failed state');
   }
-  // Formatting is intentionally flexible; the contract is semantic: the failure result must retain committed progress and error text.
   if (!/committed\s*,\s*error:message/.test(batch) || !/committed\s*,\s*error\??:message/.test(batch)) {
     throw new Error('Failed folder imports must preserve committed progress and error detail');
   }
