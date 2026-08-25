@@ -3,9 +3,10 @@ import { normalizeArabicDigits, normalizeHeader, isSKU, isPhone, isEmail, parseN
 
 const NAME_HINTS = /^(name|اسم|اسم الصنف|اسم المنتج|item name|product name)$/i;
 const DESCRIPTION_HINTS = /description|وصف/i;
+type DataValue = string | number | boolean | null | undefined;
 
-export function detectDataType(values: any[]): DataType {
-  const nonNull = values.filter(v => v !== null && v !== undefined && v !== '');
+export function detectDataType(values: unknown[]): DataType {
+  const nonNull = values.filter((v) => v !== null && v !== undefined && v !== '');
   if (nonNull.length === 0) return 'unknown';
   const sample = nonNull.slice(0, Math.min(200, nonNull.length));
   let skuCount = 0, phoneCount = 0, emailCount = 0, intCount = 0;
@@ -34,12 +35,12 @@ export function detectDataType(values: any[]): DataType {
   if (intCount >= threshold) return 'integer';
   if (decimalCount >= threshold) return 'decimal';
   if (intCount + decimalCount >= threshold) return 'decimal';
-  const uniqueCount = new Set(sample.map(v => String(v))).size;
+  const uniqueCount = new Set(sample.map((v) => String(v))).size;
   if (uniqueCount <= Math.min(20, Math.max(2, sample.length * 0.3))) return 'category';
   return 'text';
 }
 
-export function detectColumnDataType(values: any[], columnName: string): DataType {
+export function detectColumnDataType(values: unknown[], columnName: string): DataType {
   const normalized = normalizeHeader(normalizeArabicDigits(columnName));
   if (NAME_HINTS.test(normalized) || DESCRIPTION_HINTS.test(normalized)) return 'text';
   if (/sku|كود|رمز|رقم الصنف|barcode|باركود|item code|product code|product id/i.test(normalized)) return 'sku';
@@ -55,7 +56,7 @@ export function detectColumnDataType(values: any[], columnName: string): DataTyp
   return detectDataType(values);
 }
 
-export function cleanValue(value: any, dataType: DataType): any {
+export function cleanValue(value: unknown, dataType: DataType): DataValue {
   if (value === null || value === undefined || value === '') return null;
   switch (dataType) {
     case 'integer': {
@@ -82,6 +83,6 @@ export function cleanValue(value: any, dataType: DataType): any {
     case 'email':
       return String(value).trim().toLowerCase();
     default:
-      return typeof value === 'string' ? value.trim() : value;
+      return typeof value === 'string' ? value.trim() : typeof value === 'number' || typeof value === 'boolean' ? value : String(value);
   }
 }
