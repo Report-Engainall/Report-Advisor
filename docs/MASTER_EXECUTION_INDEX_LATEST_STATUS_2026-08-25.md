@@ -9,6 +9,7 @@ This is the latest compact status snapshot. It complements, and does not replace
 | `artifacts/project-system-inventory.json` / Markdown snapshot | generated structure | REGENERATE WHEN STRUCTURE CHANGES |
 | `docs/MASTER_EXECUTION_INDEX.md` | authoritative requirements/completion interpretation | ACTIVE |
 | `docs/MASTER_EXECUTION_INDEX_CURRENT_DELTA_2026-08-25.md` | historical/current discoveries | ACTIVE |
+| `docs/MASTER_EXECUTION_INDEX_CURRENT_DELTA_2026-08-25_BATCH-7.md` | Batch 7 delta supplement | ACTIVE |
 | `docs/EXECUTION_LEDGER_*.md` | immutable batch history | ACTIVE |
 | `docs/REFERENCE_PROTOCOL.md` | mandatory continuity protocol | ACTIVE |
 
@@ -30,12 +31,13 @@ This is the latest compact status snapshot. It complements, and does not replace
 | DB tenant membership/RLS | YES | YES | YES at DB boundary | LIVE DB proof required | NO |
 | Frontend auth session persistence | YES | YES | YES | NOT PROVEN | NO |
 | Frontend authenticated route boundary | YES | YES | YES | NOT PROVEN | NO |
+| Canonical tenant hydration | YES | YES | YES | NOT PROVEN | NO |
 | Arabic login flow | YES | YES | YES | NOT PROVEN | NO |
 | Frontend authenticated identity | YES | YES | YES | NOT PROVEN | NO |
 | Dashboard tenant convergence | YES | YES | YES via canonical RLS | NOT PROVEN | NO |
 | Owner-editable profile/display name | YES | YES | YES | NOT PROVEN | NO |
 | Header health truthfulness | YES | YES | YES | NOT PROVEN | NO |
-| Legacy static tenant consumers | PARTIAL | YES | MIGRATION IN PROGRESS | NO | NO |
+| Legacy tenant compatibility consumers | CANONICALLY HYDRATED | YES | YES | NOT PROVEN | NO |
 | CI runner execution | UNKNOWN/BLOCKED | N/A | N/A | PRE-STEP FAILURES ONLY | NO |
 
 ## Completed in Batch 7
@@ -44,6 +46,8 @@ This is the latest compact status snapshot. It complements, and does not replace
 3. Added owner-editable `/settings/profile` page using authenticated `user_metadata.full_name`.
 4. Added profile settings navigation.
 5. Extended the Auth/Tenant regression guard to cover profile settings, truthful health, and dashboard tenant convergence.
+6. Added canonical tenant hydration before protected UI is rendered. Legacy compatibility consumers now receive only the authenticated `current_company_id()` result; there is no demo/static tenant fallback.
+7. Added a fail-closed tenant-missing state that prevents protected data from rendering when membership is absent or ambiguous.
 
 ## P0/P1 backlog
 ### P0 — Authentication/Tenant convergence
@@ -52,7 +56,7 @@ This is the latest compact status snapshot. It complements, and does not replace
 3. ~~Replace hard-coded Sidebar identity.~~ DONE
 4. ~~Add explicit unauthenticated state.~~ DONE
 5. ~~Remove static tenant dependency from canonical dashboard queries.~~ DONE
-6. Audit remaining legacy `COMPANY_ID` consumers, including Data Quality and any non-canonical pages/services.
+6. ~~Hydrate legacy tenant compatibility consumers from canonical `current_company_id()`.~~ DONE — Batch 7 continuation
 7. Prove authenticated tenant isolation end-to-end.
 
 ### P0 — CI runtime evidence
@@ -91,17 +95,18 @@ Tenant, storage, realtime, AI isolation, backup/restore, recovery, rollback, gov
 - Dashboard query layer removed its legacy static tenant filter dependency.
 - Header health indicator now uses a real authenticated database probe.
 - Owner-editable profile/display name added.
+- Protected UI now requires canonical tenant resolution before rendering.
+- Legacy tenant compatibility consumers are hydrated from the canonical database resolver only.
 
 ## Current blockers
 1. GitHub Actions attempts previously failed before executable steps (`steps:null` / `steps:[]`, unavailable logs). This is not currently attributed to application code.
 2. Runtime authentication/tenant isolation evidence is not yet available.
 3. Live production evidence is not yet available for the release certification chain.
-4. Legacy tenant consumers remain outside the canonical query closure and require source-wide remediation.
 
 ## Next execution order
-**NOW-1:** complete source-wide tenant consumer convergence and authenticated tenant proof, starting with Data Quality.
+**NOW-1:** prove authenticated tenant isolation end-to-end with two-company/ambiguous-membership scenarios.
 
-**NOW-2:** add automated health-state regression execution and verify the new profile route in CI.
+**NOW-2:** execute health/profile/auth regression coverage and obtain CI evidence.
 
 **NOW-3:** complete package-script → script → workflow mapping.
 
@@ -121,15 +126,12 @@ Tenant, storage, realtime, AI isolation, backup/restore, recovery, rollback, gov
 - Batch 5: `docs/EXECUTION_LEDGER_2026-08-25_BATCH-5.md`
 - Batch 6: `docs/EXECUTION_LEDGER_2026-08-25_BATCH-6.md`
 - Batch 7: `docs/EXECUTION_LEDGER_2026-08-25_BATCH-7.md`
+- Batch 7 delta supplement: `docs/MASTER_EXECUTION_INDEX_CURRENT_DELTA_2026-08-25_BATCH-7.md`
 
-## Batch 7 commits
-- `cc8550b273da48dc1914aa5380c488882676f0cb` — dashboard tenant convergence
-- `5393c87616b57d9697d9b16c290e37faee15a201` — truthful health state
-- `a418b38bd364992a5e17784f2353e68b10d8861d` — profile settings
-- `5fe6312dcda49e609e7d7895126966fe113a3397` — profile route
-- `89cecdaccf8e75911c4db41ce8edd34b1e5712fc` — profile navigation
-- `2253cd2fba29e79d1790b6764d0eec6384474d10` — regression guard
-- `44cd9ab05db8e5bd62d605741338d55fa753e3f8` — batch ledger
+## Batch 7 continuation commits
+- `a460808a8079a3b68586a12ef7e687833f5c499b` — canonical tenant hydration compatibility layer
+- `a5e469216ff009de5313c8f9dd5e2c29c78d8a2b` — fail-closed AuthGate tenant resolution
+- `786b0705f8ff43a85840fc81956ef19d0393f519` — regression guard for canonical tenant gate
 
 ## Non-negotiable rule
 No capability is marked production-complete merely because code or static contracts exist. Runtime evidence and the existing certification chain remain mandatory.
