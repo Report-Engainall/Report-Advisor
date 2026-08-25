@@ -35,12 +35,14 @@ Source of truth: `main`
 | S | NOT LIVE CERTIFIED | final production certification |
 
 ## Watched-folder / cross-platform
-Existing folder watcher is canonical and reused: directory selection/monitoring, SHA-256, incremental state, IndexedDB snapshots, queue/dead-letter and text-first fallback.
-- Web/PWA: progressive File System Access; active-session monitoring only; no false background promise after app close.
-- Windows: native persistent watcher adapter required.
-- Android: native directory permission/watcher adapter required.
-- iOS: capability-aware adapter; no false arbitrary-background promise.
-- All adapters feed the same ingestion engine.
+Existing folder watcher remains canonical and reused: directory selection/monitoring, SHA-256, incremental state, IndexedDB snapshots, queue/dead-letter and text-first fallback.
+
+A single canonical cross-platform capability contract was added to `src/lib/import-pipeline/folder-watch-contract.ts` with explicit truth for Web/PWA/Windows/Android/iOS. It does not create a second ingestion engine; every adapter emits the same `WatchEvent` into the same queue/pipeline.
+- Web/PWA: File System Access where available; active-session monitoring only; no false background promise after app close.
+- Windows: persistent background watch is a capability requiring a native host adapter; contract is now explicit and CI-gated.
+- Android: native directory permission/watcher is required; contract is now explicit and CI-gated.
+- iOS: capability-aware integration; arbitrary persistent background folder watching is explicitly not claimed.
+- CI guard: `scripts/check-folder-watch-platform-contract.mjs`.
 
 Hardening completed: weak-fingerprint fail-closed behavior; duplicate stable-row rejection; disappeared-file reconciliation; watched-folder configuration validation.
 
@@ -92,9 +94,11 @@ Primary verifier: `.github/workflows/quality.yml`.
 - #1427 `32882832259`: stale Phase M migration path → fixed in `230943f8815f3e27ecf95055f546ab5ee826e251`.
 - #1430 `32883083895`: all gates through deep K→S passed; KPI presentation guard then exposed three old fabricated labels → fixed in `db25d19998afbb0af25eff51562929dcfe0dffe7`.
 - #1433 `32883300321`: all gates through A0 intelligence hardening passed; TypeScript 7 typecheck exposed obsolete `baseUrl`/path resolution options in `tsconfig.app.json`.
-- #1435 `32884019503`: **currently running** against `fbcec9127d717ca32ef9dd556b64576d3edbe389`, which removes obsolete `baseUrl` and changes `@/*` to `./src/*`. No PASS claimed yet.
+- #1435 `32884019503`: TypeScript compatibility fix was queued; no final PASS was claimed.
+- #1438 `32884119666`: cross-platform watcher contract + guard run started.
+- #1439 `32884139783`: latest Quality run is **IN PROGRESS** on `b975fffb94b400fd376ccd73e1b48f28fc2e1ccb` after the CI wiring update. No PASS claimed yet.
 
-The latest completed failure was a tooling/configuration compatibility root cause, not a business-data failure: TypeScript reported `TS5102 baseUrl has been removed` and `TS5090 non-relative paths are not allowed`. This was fixed directly in the canonical `tsconfig.app.json` rather than weakening CI or pinning an older compiler.
+The latest completed failure was a TypeScript 7 configuration compatibility root cause. The canonical `tsconfig.app.json` was corrected by removing obsolete `baseUrl` and using `paths: {"@/*":["./src/*"]}`; CI was not weakened and no older compiler was pinned.
 
 ## P0 LIVE blockers
 - [ ] adversarial tenant certification
@@ -151,7 +155,7 @@ The latest completed failure was a tooling/configuration compatibility root caus
 - [ ] evidence-grounded Ask→Inspect→Act E2E
 
 ## Truth-weighted progress
-**~82% engineering completion remains the conservative verified figure.** Broad implementation coverage is ~90%+, contract/gate maturity is high, while integrated runtime/live certification remains partial. The current batch closed real integration drift and tooling compatibility but did not add live production evidence, so the percentage is intentionally not inflated.
+**~82% engineering completion remains the conservative verified figure.** Broad implementation coverage is ~90%+, contract/gate maturity is high, while integrated runtime/live certification remains partial. The current batch added a canonical cross-platform watcher capability boundary and CI guard, plus TypeScript 7 compatibility hardening, but did not add live production evidence, so the percentage is intentionally not inflated.
 
 Production certified: **NO** until P0 live evidence closes.
 
@@ -162,5 +166,7 @@ Production certified: **NO** until P0 live evidence closes.
 - `db25d19998afbb0af25eff51562929dcfe0dffe7` — KPI missing-label root fix using canonical identifiers.
 - `3ac71a99a05e347d5708ac04cad1aa635c4d25c2` — net-sales semantic definition aligned to canonical dashboard source.
 - `fbcec9127d717ca32ef9dd556b64576d3edbe389` — TypeScript 7-compatible `tsconfig.app.json`.
+- `68bc2f162809026397f7e7167b228b06e335523b` — canonical cross-platform folder watcher capability contract.
+- `b975fffb94b400fd376ccd73e1b48f28fc2e1ccb` — Quality CI wiring for cross-platform watcher guard.
 
 **No production PASS is claimed. LIVE REQUIRED remains explicit.**
