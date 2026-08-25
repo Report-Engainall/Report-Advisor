@@ -33,9 +33,13 @@ export function Header({ alerts, onMarkAlertRead, onMenuClick, onOpenCommandPale
 
         // A real authenticated DB round-trip. RLS/current_company_id remains the
         // authoritative tenant boundary; this is only an availability signal.
-        const { error: tenantError } = await supabase.rpc('current_company_id');
+        const { data: companyId, error: tenantError } = await supabase.rpc('current_company_id');
         if (!mounted) return;
-        setHealth(tenantError ? 'degraded' : 'healthy');
+
+        // A successful RPC with a NULL tenant is not a healthy production state:
+        // it means the authenticated user has no unambiguous active membership.
+        // Keep the UI truthful without exposing tenant internals.
+        setHealth(tenantError || !companyId ? 'degraded' : 'healthy');
       } catch {
         if (mounted) setHealth('offline');
       }
