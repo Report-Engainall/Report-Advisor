@@ -33,7 +33,7 @@ for (const [name, text] of [
   ['autonomy-safety-wave', autonomy],
   ['phase-f-live-resilience', phaseF],
 ]) {
-  if (/^\s{2}push:\s*(?:\{|$)/m.test(text)) {
+  if (/^ {2}push:\s*(?:\{|$)/m.test(text)) {
     throw new Error(`${name} must not define a push trigger; it is a manual/scheduled wave`);
   }
 }
@@ -42,10 +42,12 @@ const names = fs.readdirSync(workflowDir)
   .filter((file) => file.endsWith('.yml') || file.endsWith('.yaml'));
 
 function pushTrigger(text) {
-  const inline = text.match(/^\s{2}push:\s*\{([^}]*)\}/m);
+  // YAML indentation is structural. \s also matches newlines and can make a
+  // regex accidentally discover a push key on a later line.
+  const inline = text.match(/^ {2}push:\s*\{([^}]*)\}/m);
   if (inline) return { present: true, config: inline[1] };
 
-  const match = text.match(/^\s{2}push:\s*$/m);
+  const match = text.match(/^ {2}push:\s*$/m);
   if (!match) return { present: false, config: '' };
 
   const start = match.index + match[0].length;
@@ -78,8 +80,6 @@ if (canonicalMainPushWorkflows.length !== 1 || canonicalMainPushWorkflows[0] !==
   throw new Error(`Expected quality.yml to be the only canonical main push workflow, found: ${canonicalMainPushWorkflows.join(', ') || 'none'}`);
 }
 
-// Path-scoped checks are legitimate: they execute on main changes that affect
-// their surface but do not compete with the canonical quality release gate.
 const nonCanonicalBroad = broadPushWorkflows.filter((file) => file !== 'quality.yml');
 if (nonCanonicalBroad.length) {
   throw new Error(`Non-canonical broad push workflows are not allowed: ${nonCanonicalBroad.join(', ')}`);
