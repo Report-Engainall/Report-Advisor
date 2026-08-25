@@ -16,8 +16,8 @@ Source of truth: `main`
 
 ## Current truth
 - Baseline CI closure at `25eef5212dbc63d2255ad7998e76c3d02a5191cf` was verified by quality Run `32910806786` = PASS. fileciteturn23file0L2-L5
-- Deep-product wave has now reached `d964973cd1f438ef2ed4ace0127c13bf82c2c18d`.
-- This wave contains real BI numeric hardening, semantic document corpus/evidence validation, decision-outcome truth hardening, regression coverage, and CI gates. The newest post-change CI result is **PENDING VERIFICATION** until the run completes.
+- Deep-product wave has now reached `f522420759ba8bf5735504888a7dc37f860091d4`.
+- This wave contains real BI numeric hardening, semantic document corpus/evidence validation, decision-outcome truth hardening, SHA-256 identity hardening, regression coverage, and CI gates. The newest post-change CI result is **PENDING VERIFICATION** until the run completes.
 
 ## Remaining Work Inventory — 2026-08-26
 | Class | Capability | Current state | Can execute now? | Dependency | LIVE required? | Risk |
@@ -25,6 +25,7 @@ Source of truth: `main`
 | A | BI numeric/data-truth hardening | IMPLEMENTED, regression gated | YES | none | No for code/tests | Medium |
 | A | Golden document corpus semantics | IMPLEMENTED, regression gated | YES | none | No for corpus/harness | Medium |
 | A | Outcome feedback truth | IMPLEMENTED, regression gated | YES | outcome schema | Runtime proof later | High |
+| A | File identity / duplicate security | IMPLEMENTED, regression gated | YES | Web Crypto SHA-256 | Runtime/browser matrix later | Critical |
 | A | Import lifecycle adversarial harness | IMPLEMENTED/GATED foundation | YES | existing import contracts | Runtime crash drill later | High |
 | A | Decision/evidence lineage deep scan | GATED foundation | YES | canonical decision path | Outcome loop needs LIVE | High |
 | A | Architecture duplicate/legacy scan | PARTIAL | YES | none | No | Medium |
@@ -69,11 +70,15 @@ Source of truth: `main`
 - `02bc5ae36f927be2d64bceaac65ab1c4f6f28ac8`: hardened outcome identity/validation, aligned in-memory dedupe with persistence identity, made tenant filter explicit on reads, and stopped missing impact/accuracy from becoming zero.
 - `e3a1a19ba392fa9d3ac40f512e26bb11d506f9c3`: added outcome-feedback regressions.
 - `d964973cd1f438ef2ed4ace0127c13bf82c2c18d`: wired outcome-feedback regressions into quality CI.
+- `d8d55f6c603a551ee70caa313a7a9f5eec3ab170`: removed a false SHA-256 fallback that was actually FNV-1a and made file identity fail closed if Web Crypto SHA-256 is unavailable.
+- `7dd65b6559c75c1a24dd6d1ff43fe21ed730c623`: added a known-vector SHA-256 regression.
+- `f522420759ba8bf5735504888a7dc37f860091d4`: wired the SHA-256 identity regression into quality CI.
 
 ## Current CI truth
 - Verified baseline: Run `32910806786`, head `25eef5212dbc63d2255ad7998e76c3d02a5191cf`, quality `success`. fileciteturn23file0L2-L5
-- Quality Run `32912319688` on `1773cbd149a6a796f18fa30cc2796c9c57647d5b` reached and passed the new deep golden regression, BI regression, tenant/security, import, typecheck, and lint stages before build; the run was still in progress at the last observed poll. 
-- The latest head `d964973cd1f438ef2ed4ace0127c13bf82c2c18d` has a newer push-triggered quality run; its final conclusion is not yet claimed.
+- Quality Run `32912319688` on `1773cbd149a6a796f18fa30cc2796c9c57647d5b` completed **SUCCESS** across all 48 job steps, including BI, deep golden corpus, tenant/security, import, typecheck, lint, build, performance, intelligence, document service, report truth, production readiness, and resilience. 
+- The outcome-enabled run for `d964973cd1f438ef2ed4ace0127c13bf82c2c18d` was observed in progress; the subsequent index/security commits have newer runs and are not yet claimed PASS.
+- Latest head `f522420759ba8bf5735504888a7dc37f860091d4` therefore remains **CI PENDING** until its own run completes.
 - Prior verified quality: typecheck PASS, lint PASS (55 warnings/0 errors), build PASS, performance budget PASS, static/local runtime contracts PASS. fileciteturn1file0L2-L4
 
 ## Deep Data Truth — current verified changes
@@ -111,6 +116,7 @@ Source of truth: `main`
 
 ## Watched-folder / cross-platform
 Canonical watcher contract is reused across platforms with a single `WatchEvent`/queue boundary. Web/PWA are session-bound; Windows/Android persistent watching requires native adapters; iOS does not claim arbitrary persistent background folder watching. fileciteturn16file0L2-L2
+- Folder processing computes a file digest before duplicate detection; the digest is now guaranteed to be actual SHA-256 or the operation fails closed.
 
 ## Backup / Restore
 - Recovery and release contracts exist and are CI-gated.
@@ -133,7 +139,7 @@ Canonical watcher contract is reused across platforms with a single `WatchEvent`
 - Remaining requirement is proving an end-to-end trace chain with tenant context in real runtime telemetry without cross-tenant leakage.
 
 ## Architecture
-- Canonical paths are preferred for tenant resolution, import lifecycle, decision construction, watched-folder events, and outcome persistence identity.
+- Canonical paths are preferred for tenant resolution, import lifecycle, decision construction, watched-folder events, outcome persistence identity, and file hashing.
 - No destructive consolidation is performed while live dependencies are unproven.
 - Compatibility/legacy paths remain targets for static bypass scans and will only be removed after consumer verification and rollback safety.
 
@@ -146,6 +152,7 @@ Canonical watcher contract is reused across platforms with a single `WatchEvent`
 6. Real document corpus execution including OCR/PDF/XLSX/CSV and representative corrupt/ambiguous files.
 7. Production telemetry trace from user action through job/database/evidence/report/decision/outcome.
 8. Production load/canary and rollback evidence.
+9. Browser/native Web Crypto availability matrix for all supported deployment targets.
 
 ## Capability status fields
 For every capability, the authoritative state must distinguish: IMPLEMENTED, GATED, INTEGRATED, RUNTIME EVIDENCE, PRODUCTION EVIDENCE, REMAINING, BLOCKED BY, LIVE REQUIRED, PARALLEL WORK AVAILABLE, RISKS, LAST VERIFIED COMMIT, LAST VERIFIED CI, LAST TEST, LAST UPDATE. A commit alone never upgrades any evidence field.
