@@ -11,39 +11,60 @@ export interface FamilyLiquidityInput {
 export interface FamilyLiquiditySignal {
   familyId: string;
   revenue: number;
-  grossProfit: number;
-  stockValue: number;
-  revenueShare: number;
-  profitShare: number;
-  capitalIntensity: number;
+  grossProfit: number | null;
+  stockValue: number | null;
+  revenueShare: number | null;
+  profitShare: number | null;
+  capitalIntensity: number | null;
   liquidityRole: 'cash_generator' | 'capital_tied' | 'balanced' | 'insufficient_data';
   evidence: string[];
 }
 
-const n = (v: number | undefined) => Number.isFinite(v) ? Math.max(0, v as number) : 0;
+function finiteOptional(value: number | undefined): number | null {
+  return value !== undefined && Number.isFinite(value) ? value : null;
+}
 
 export function analyzeFamilyLiquidity(rows: FamilyLiquidityInput[]): FamilyLiquiditySignal[] {
-  const grouped = new Map<string, { revenue: number; profit: number; stock: number }>();
+  const grouped = new Map<string, { revenue: number; profit: number | null; stock: number | null }>();
   for (const row of rows) {
-    const current = grouped.get(row.familyId) ?? { revenue: 0, profit: 0, stock: 0 };
-    current.revenue += n(row.salesRevenue);
-    current.profit += n(row.grossProfit);
-    current.stock += n(row.stockValue);
+    if (!row.familyId.trim() || !Number.isFinite(row.salesRevenue)) continue;
+    const current = grouped.get(row.familyId) ?? { revenue: 0, profit: null, stock: null };
+    current.revenue += row.salesRevenue;
+    const profit = finiteOptional(row.grossProfit);
+    const stock = finiteOptional(row.stockValue);
+    if (profit !== null) current.profit = (current.profit ?? 0) + profit;
+    if (stock !== null) current.stock = (current.stock ?? 0) + stock;
     grouped.set(row.familyId, current);
   }
-  const totalRevenue = [...grouped.values()].reduce((a, x) => a + x.revenue, 0);
-  const totalProfit = [...grouped.values()].reduce((a, x) => a + x.profit, 0);
+
+  const totalRevenue = [...grouped.values()].reduce((sum, value) => sum + value.revenue, 0);
+  const totalProfit = [...grouped.values()].reduce((sum, value) => sum + (value.profit ?? 0), 0);
+  const hasProfit = [...grouped.values()].some((value) => value.profit !== null);
+
   return [...grouped.entries()].map(([familyId, value]) => {
-    const capitalIntensity = value.revenue > 0 ? value.stock / value.revenue : 0;
+    const capitalIntensity = value.stock !== null && value.revenue > 0 ? value.stock / value.revenue : null;
     let liquidityRole: FamilyLiquiditySignal['liquidityRole'] = 'insufficient_data';
-    if (value.revenue > 0 || value.profit > 0 || value.stock > 0) {
-      if (value.revenue > 0 && capitalIntensity <= 0.25) liquidityRole = 'cash_generator';
-      else if (value.stock > 0 && capitalIntensity >= 0.75) liquidityRole = 'capital_tied';
+    if (capitalIntensity !== null && value.revenue > 0) {
+      if (capitalIntensity <= 0.25) liquidityRole = 'cash_generator';
+      else if (capitalIntensity >= 0.75) liquidityRole = 'capital_tied';
       else liquidityRole = 'balanced';
     }
-    const evidence = [`revenue=${value.revenue}`, `stock_value=${value.stock}`];
-    if (value.profit > 0) evidence.push(`gross_profit=${value.profit}`);
-    evidence.push(`stock_value/revenue=${capitalIntensity.toFixed(3)}`);
-    return { familyId, revenue: value.revenue, grossProfit: value.profit, stockValue: value.stock, revenueShare: totalRevenue > 0 ? value.revenue / totalRevenue : 0, profitShare: totalProfit > 0 ? value.profit / totalProfit : 0, capitalIntensity, liquidityRole, evidence };
+
+    const evidence = [`revenue=${value.revenue}`];
+    if (value.stock !== null) evidence.push(`stock_value=${value.stock}`);
+    if (value.profit !== null) evidence.push(`gross_profit=${value.profit}`);
+    if (capitalIntensity !== null) evidence.push(`stock_value/revenue=${capitalIntensity.toFixed(3)}`);
+
+    return {
+      familyId,
+      revenue: value.revenue,
+      grossProfit: value.profit,
+      stockValue: value.stock,
+      revenueShare: totalRevenue > 0 ? value.revenue / totalRevenue : null,
+      profitShare: hasProfit && totalProfit > 0 && value.profit !== null ? value.profit / totalProfit : null,
+      capitalIntensity,
+      liquidityRole,
+      evidence,
+    };
   });
 }
