@@ -21,6 +21,10 @@ Append-only supplement to `docs/MASTER_EXECUTION_INDEX.md`.
 - `scripts/` already contains adversarial document corpus tests, canonical-text provenance tests, release-manifest tooling and a large family of `check-*` contracts. This is evidence that several previously listed P1 items may be partially implemented and require capability/evidence mapping rather than greenfield construction.
 - The current `quality.yml` explicitly executes Python service tests with `python3 -m unittest discover -s services/document-intelligence/tests -p 'test_*.py'`, so Document Intelligence service tests are part of the canonical quality definition even though current GitHub runtime evidence has not reached executable steps.
 - `supabase/migrations/` exists as the database schema source. Migration safety/drift must therefore be evaluated from actual migration history and release gates, not treated as a missing database layer.
+- The canonical tenant migration is already strong: authenticated membership resolution is fail-closed, anonymous access is revoked for File Intelligence surfaces, tenant-scoped RLS policies are installed, and normalized SKU uniqueness is enforced per company. Do not replace this with a second tenant model.
+- The core schema confirms `sale_items` is scoped through `sales_invoices`, not by its own `company_id`; any query-level tenant hardening must respect the actual relational schema.
+- `src/lib/supabase.ts` still exposes a legacy static `COMPANY_ID` plus mutable `activeCompanyId`. This is now a verified integration-review item: tenant-aware UI/query flows must converge on the canonical authenticated resolver rather than assuming the static demo company.
+- `src/lib/queries.ts` had several truth/integrity weaknesses: dashboard queries ignored Supabase errors, empty invoice sets could issue unnecessary child queries, dashboard status could claim `CALCULATED` despite no usable data, monthly trend fetched all sale items instead of only the selected company's invoices, and top-product aggregation had no explicit parent-invoice tenant scope. These were corrected without inventing a new data model.
 
 ## Repairs
 - `production-integrity-wave-v2.yml`: manual-only + Ubuntu 22.04. Commit `f170c13974c86ad1432af16bd75a87455bcf5749`.
@@ -29,6 +33,7 @@ Append-only supplement to `docs/MASTER_EXECUTION_INDEX.md`.
 - `quality.yml`: canonical automatic path pinned to Ubuntu 22.04. Commit `653a7825393c8a8069430ceb52c71083bb60a6b4`.
 - `scripts/check-cross-surface-traceability.mjs`: new critical capability traceability checker. Commit `10b82f17ed787bc0958ea3e9f643fcab62b09b9e`.
 - `quality.yml`: wired cross-surface traceability immediately after CI/release topology checks. Commit `8c8a761a56eceface91695a023fad025f05b7c4f`.
+- `src/lib/queries.ts`: dashboard fail-closed error handling, empty-child-query guard, truth-preserving status, tenant-scoped monthly child reads, and parent-invoice-scoped top-product aggregation. Commits `7a5270a18d6fb0943b10bc132ba8040f8fb45f91` and corrective `e1bfbc1dbf46985b6287771ce9448c13285c7341`.
 - Batch audit ledger: `docs/EXECUTION_LEDGER_2026-08-25_BATCH-3.md`, commit `d56da91e6a7026b207b0b75d14a64b0b8afd0320`.
 
 ## Current runtime evidence
@@ -43,11 +48,12 @@ Document Intelligence, schema/entity/reconciliation, watched reports, business c
 
 ## Current priority order
 1. Preserve application correctness while isolating runner/bootstrap infrastructure failure.
-2. Use existing manual specialist workflows for Document Intelligence and J/K/L as soon as workflow dispatch is available, and record real executable evidence.
-3. Audit existing resumability/dead-letter and certification integration/evidence rather than rebuilding them.
-4. Continue static closure work only where it closes a verified implementation gap; do not create duplicate gates.
-5. Advance E/F/H/I live security/resilience/governance evidence in parallel.
-6. Do not mark M or Production Certification complete until executable runtime evidence exists.
+2. Audit the verified `src/lib/supabase.ts` static company context and all critical UI/query paths for convergence on canonical authenticated tenant resolution.
+3. Use existing manual specialist workflows for Document Intelligence and J/K/L as soon as workflow dispatch is available, and record real executable evidence.
+4. Audit existing resumability/dead-letter and certification integration/evidence rather than rebuilding them.
+5. Continue static closure work only where it closes a verified implementation gap; do not create duplicate gates.
+6. Advance E/F/H/I live security/resilience/governance evidence in parallel.
+7. Do not mark M or Production Certification complete until executable runtime evidence exists.
 
 ## Reclassified work after deep inventory
 - Document Intelligence internal architecture is no longer treated as a broad greenfield gap. Existing service, pipeline/contracts, intermediate model, adversarial corpus, layout/table fidelity, extraction-quality, provenance, fallback, golden E2E and resilience suites are present. Remaining work is now specifically: capability-to-requirement traceability, missing edge-case coverage, live execution evidence, and any proven implementation gaps discovered by those tests.
@@ -55,6 +61,7 @@ Document Intelligence, schema/entity/reconciliation, watched reports, business c
 - Production certification is no longer a framework build item. It is a live evidence/consolidation item.
 - The next high-value static audit target is the relationship among `package.json` scripts, `quality.yml` steps, `scripts/check-*`, service tests, migrations and UI/runtime entry points. Any item present in one layer but absent in the others is a candidate integration gap.
 - A first cross-surface traceability guard now exists for Document Intelligence, watched reports, Business Control Plane, K/L runtime, production certification, tenant security and release resilience. This is deliberately narrow and auditable; it is not a replacement for runtime evidence.
+- Dashboard query truth and tenant scope are now hardened at the query boundary without assuming `sale_items.company_id`; the next integration target is the static company context and its relationship to authenticated tenant membership.
 
 ## Next execution — revised after full inventory
 ### NOW-A — Cross-surface traceability
@@ -65,6 +72,9 @@ Inspect actual `supabase/migrations/` history against tenant/RLS/import/recovery
 
 ### NOW-C — Frontend/runtime closure
 Trace `App.tsx → pages → components → lib/services → backend/database` for critical flows (upload/import, document review, report execution, decision intelligence, evidence, certification). Identify UI-to-runtime dead ends rather than adding pages blindly.
+
+### NOW-C1 — Tenant context convergence
+Audit all critical query/service imports of `COMPANY_ID`, `setCompanyId`, and `getCompanyId`; replace demo/static context only where the canonical authenticated tenant resolver is available and preserve an explicit local/offline fallback policy. Add a guard so production authenticated paths cannot silently fall back to the demo company.
 
 ### NOW-D — Document edge-case closure
 Use existing adversarial/golden suites as the baseline. Add only missing cases for Arabic/English, scanned/poor quality, no-header/reverse schema, merged/multi-table, provenance, reconciliation and quarantine/reprocessing.
@@ -82,4 +92,4 @@ Continue isolating the pre-step GitHub failure. Do not attribute it to applicati
 Only after live evidence closes all P0 blockers and the authoritative release/certification chain produces current evidence.
 
 ## Next
-The next cycle starts with NOW-A cross-surface traceability, then immediately fixes the highest-impact broken edges while NOW-G runner evidence and NOW-F live evidence proceed in parallel. No duplicate architecture or gate is to be created unless the inventory proves a genuine absence.
+The next cycle continues NOW-B/NOW-C1 in parallel with NOW-G/NOW-F. No duplicate architecture or gate is to be created unless the inventory proves a genuine absence.
