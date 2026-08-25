@@ -66,9 +66,27 @@ async function commitCustomer(companyId: string, row: CanonicalImportRow) {
 
 async function resolveCustomerId(companyId: string, row: CanonicalImportRow): Promise<string> {
   const direct = text(row.data.customer_id);
-  if (direct) return direct;
+  if (direct) {
+    const { data, error } = await supabase
+      .from('customers')
+      .select('id')
+      .eq('id', direct)
+      .eq('company_id', companyId)
+      .limit(1)
+      .maybeSingle();
+    if (error) throw error;
+    if (!data?.id) throw new Error(`customer_id is not valid for the current tenant at invoice row ${row.rowNumber}`);
+    return String(data.id);
+  }
+
   const name = requiredText(row.data.customer_name, 'customer_name', row.rowNumber);
-  const { data, error } = await supabase.from('customers').select('id').eq('company_id', companyId).eq('name', name).limit(1).maybeSingle();
+  const { data, error } = await supabase
+    .from('customers')
+    .select('id')
+    .eq('company_id', companyId)
+    .eq('name', name)
+    .limit(1)
+    .maybeSingle();
   if (error) throw error;
   if (!data?.id) throw new Error(`customer not found for invoice row ${row.rowNumber}: ${name}`);
   return String(data.id);
