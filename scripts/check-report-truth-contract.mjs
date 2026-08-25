@@ -33,36 +33,19 @@ if (/SELECT\s+\*\s+FROM\s+auth\.users/i.test(source)) {
   throw new Error('Report truth contract forbids direct auth.users reporting reads');
 }
 
-// Historical migrations may contain the prototype's permissive RLS policies.
-// They are intentionally superseded by the canonical global tenant-hardening
-// migration and must not be treated as the active security state. Validate the
-// canonical hardening migration plus any migrations created after it instead.
 const canonicalTenantRls = migrationFiles.find((f) => f.includes('tenant_rls_global_hardening'));
-if (!canonicalTenantRls) {
-  throw new Error('Report truth contract requires the canonical global tenant RLS hardening migration');
-}
+if (!canonicalTenantRls) throw new Error('Report truth contract requires the canonical global tenant RLS hardening migration');
 
 const securityMigrationFiles = migrationFiles.filter((f) => f >= canonicalTenantRls);
-const securityMigrations = securityMigrationFiles
-  .map((f) => fs.readFileSync(path.join(migrationsDir, f), 'utf8'))
-  .join('\n');
-
-// A permissive policy is forbidden on tenant/application tables. The canonical
-// migration intentionally has one global read-only reference policy for the
-// curated synonym dictionary; that is not a tenant data boundary.
+const securityMigrations = securityMigrationFiles.map((f) => fs.readFileSync(path.join(migrationsDir, f), 'utf8')).join('\n');
 const policyStatements = securityMigrations.match(/CREATE\s+POLICY\b[\s\S]*?;/gi) ?? [];
 for (const statement of policyStatements) {
   if (/USING\s*\(\s*true\s*\)/i.test(statement) && !/synonym_dictionary/i.test(statement)) {
     throw new Error('Report truth contract detected permissive RLS policy');
   }
 }
-
-if (!/company_id\s*=\s*public\.current_company_id\(\)/i.test(securityMigrations)) {
-  throw new Error('Report truth contract requires tenant-scoped RLS predicates');
-}
-if (!/WITH CHECK\s*\(\s*company_id\s*=\s*public\.current_company_id\(\)\s*\)/i.test(securityMigrations)) {
-  throw new Error('Report truth contract requires tenant-scoped write checks');
-}
+if (!/company_id\s*=\s*public\.current_company_id\(\)/i.test(securityMigrations)) throw new Error('Report truth contract requires tenant-scoped RLS predicates');
+if (!/WITH CHECK\s*\(\s*company_id\s*=\s*public\.current_company_id\(\)\s*\)/i.test(securityMigrations)) throw new Error('Report truth contract requires tenant-scoped write checks');
 
 // Prevent silent corruption in report/dashboard/analytics code. Numeric fallback
 // to zero hides malformed source data and makes totals look truthful when they are not.
@@ -70,6 +53,9 @@ const reportFiles = files.filter((f) => /report|dashboard|analytics|summary/i.te
 const reportSource = reportFiles.map((f) => fs.readFileSync(f, 'utf8')).join('\n');
 if (/Number\([^\n]*\)\s*\|\|\s*0/.test(reportSource) || /parseFloat\([^\n]*\)\s*\|\|\s*0/.test(reportSource)) {
   throw new Error('Report truth contract forbids silent invalid-number coercion to zero');
+}
+if (/(?:kpis|metrics|summary|totals|result|value)\??\.[A-Za-z_$][\w$]*\s*\|\|\s*0/.test(reportSource)) {
+  throw new Error('Report truth contract forbids missing KPI/metric values from being rendered as zero');
 }
 if (/(Number|parseFloat|parseInt)\([^\n]*\).*NaN|NaN.*(Number|parseFloat|parseInt)\(/s.test(reportSource) && !/Number\.isFinite/.test(reportSource)) {
   throw new Error('Report truth contract requires finite-number guarding');
