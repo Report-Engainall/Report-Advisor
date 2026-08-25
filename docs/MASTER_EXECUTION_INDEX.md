@@ -9,13 +9,20 @@ Source of truth: `main`
 - افحص الفهرس والمستودع والعمل السابق قبل كل دفعة.
 - Reuse/fix/consolidate قبل create؛ لا engines موازية.
 - CI يعمل بالتوازي مع التدقيق والتنفيذ.
-- Failure → root cause → fix → regression → rerun.
+- لا نتبع ~2500 commit/failure واحدًا واحدًا؛ نستخدم **failure-family batching**: scan/search → cluster by root cause → fix all independent instances → regression guard → CI.
+- Failure → root cause → batch fix → regression → rerun.
 - لا mock business data ولا fake runtime evidence ولا defaults تخفي missing data/tenant/security constraints.
 - AI ليس مصدر الحقيقة المالية/الرقمية.
 - PASS لا يعني production-certified؛ LIVE evidence منفصل.
 
 ## Current truth
-The latest inspected wave (#1464) passed install, tenant, adversarial tenant, data quality, migration, core, production-contract, resilience, governance, watched-folder, K/L/M, deep K→S, KPI-truth, A0 intelligence, Typecheck and behavioral regressions. It then failed at Routing/Security because `quality.yml` invoked the existing `scripts/check-import-direct-write-guard.mjs` through a missing npm script alias. This was an integration wiring defect, not a missing guard. The alias was restored in `ccd9f5b87d042d952aeea4cc2e8852f753040310`. A fresh CI verification is required before declaring the workflow green.
+Latest CI waves are now being used as a batch-discovery loop rather than a serial first-failure loop. Routing/Security runs the independent navigation, direct-write, import-transaction, import-governance and tenant-security checks together; downstream gates are configured to continue collecting independent failures. The latest push-triggered runs are #1493 (`f21277a7311c463b75bf0089f5d5729e639588ef`) and #1494 (`5db499535667b0b25b8a4a7aa8caf9a8edf2556f`), both in progress at this snapshot.
+
+## Latest batch fixes
+1. `src/lib/free-toolbox/batch-decision-engine.ts`: bounded risk percentages are now clamped to `[0,100]` before `finitePercent`; valid high-coverage rows no longer fail because a mathematically negative risk was passed to a non-negative validator. Commit: `f21277a7311c463b75bf0089f5d5729e639588ef`.
+2. `services/document-intelligence/tests/test_intermediate_model_contract.py`: aligned the contract test import with the CI's `PYTHONPATH=services/document-intelligence` module boundary (`from app...`), eliminating the `services.document_intelligence` namespace mismatch. Commit: `5db499535667b0b25b8a4a7aa8caf9a8edf2556f`.
+3. Earlier batch work already hardened migration-aware tenant-security detection, canonical query boundaries, direct-write/import transaction semantics and CI parallel discovery. These are retained; no duplicate engines/guards were introduced.
+4. Report/analytics truth remains under active scan. Any `Number(... || 0)` / `parseFloat(... || 0)` in report/dashboard/analytics surfaces is treated as a candidate for semantic replacement, not silenced in the guard.
 
 ## Phase truth
 | المسار | الحالة | المتبقي الحاسم |
@@ -36,6 +43,14 @@ The latest inspected wave (#1464) passed install, tenant, adversarial tenant, da
 | Q | INTEGRATION TARGET | KPI/BI truth + cross-surface equivalence |
 | R | INTEGRATION TARGET | decision→action→outcome loop |
 | S | NOT LIVE CERTIFIED | final production certification |
+
+## Batch execution strategy
+The execution unit is now a **failure family**, not a single Run failure:
+- Tenant family: `COMPANY_ID`, static IDs, fallbacks, client tenant selection, direct Supabase, RPC callers.
+- Import family: parse/map/validate/tenant/canonical/RPC/persistence/idempotency/race/retry/reconciliation/lineage/evidence.
+- Truth family: KPI numeric/date coercion, missing→zero, source authority, date windows, cache freshness, provenance.
+- Runtime family: evidence/quality/confidence/decision/recommendation/outcome and lease/heartbeat/checkpoint/retry/dead-letter/recovery.
+- CI family: stale script aliases, false-negative guards, environment/module-path drift, direct-write wiring, parallel gate coverage.
 
 ## Watched-folder / cross-platform
 Canonical existing watcher reused: directory selection/monitoring, SHA-256, incremental state, IndexedDB snapshots, queue/dead-letter and text-first fallback.
@@ -63,7 +78,7 @@ Foundation/gates cover multi-format mapping, Arabic/English normalization, busin
 
 Compatibility import reads/writes route through existing RPCs; no second import engine exists. Canonical report checkpoint stage, product-family `memberSkus`, entity-resolution discriminant, demand `avgDaily`, nested Supabase shapes and typed inventory balances were hardened.
 
-Current CI direct-write governance is correctly wired to the existing `scripts/check-import-direct-write-guard.mjs`; the npm alias was restored in `ccd9f5b87d042d952aeea4cc2e8852f753040310`. No duplicate guard was created.
+Current CI direct-write governance is correctly wired to the existing `scripts/check-import-direct-write-guard.mjs`; no duplicate guard was created.
 
 Remaining runtime proof: arbitrary/no-header/random/poor files, extraction completeness, cell lineage, golden corpus, live Onyx, live rollback/retry/reconciliation.
 
@@ -74,15 +89,14 @@ Real mismatch fixed: `net_sales` definition/query drift (`total` vs canonical `s
 
 Missing customer/product/category labels no longer become fabricated business labels. `check-kpi-presentation-truth.mjs`: PASS.
 
-Type-safe KPI presentation boundary: `src/lib/dashboard-kpi-guards.ts`; Executive Command Center now snapshots complete KPI truth before arithmetic/rendering, and refuses to render financial cards/actions when required values are missing.
+Type-safe KPI presentation boundary: `src/lib/dashboard-kpi-guards.ts`; Executive Command Center snapshots complete KPI truth before arithmetic/rendering and refuses to render financial cards/actions when required values are missing.
 
 Remaining: cross-dashboard/report/export equivalence, authoritative date-window contract, cache freshness, provenance continuity and live KPI evidence.
 
 ## Current CI / next execution
-- Last inspected failure: #1464 / `32885447874`, Routing/Security at missing npm alias.
-- Root fix committed: `ccd9f5b87d042d952aeea4cc2e8852f753040310`.
-- CI workflow now explicitly invokes the canonical direct-write guard and continues to the downstream RLS/RPC/business-key/lint/build/runtime gates once that boundary passes.
-- Next mandatory loop: fresh CI → Routing/Security → Global Tenant RLS → Import RPC tenant context → Import business key → Lint → Build → Performance → Intelligence runtime → Document intelligence → Report truth → Production readiness → Full resilience.
+- Latest active verification: #1494 / `32889999353` (head `5db499535667b0b25b8a4a7aa8caf9a8edf2556f`), with #1493 / `32889986318` immediately preceding it; both were triggered by the batch fixes.
+- Batch fixes intentionally target semantic root causes rather than weakening gates.
+- Next mandatory loop: collect all Routing/Security + RLS + RPC + Business Key + Lint + Build + Performance + Intelligence + Document Runtime + Report Truth failures from the same wave, cluster them, and fix independent families together.
 - Parallel P0 work remains LIVE REQUIRED where real Supabase/production evidence is indispensable: adversarial tenant isolation, Storage/signed URLs, Realtime authorization, AI tenant isolation, restore/RPO-RTO, artifact verification, failure/dead-letter drills, secrets/security audit, SLO/rollback and production certification.
 - Parallel P1 work remains: Windows persistent watcher, Android watcher, iOS capability integration, live folder coordinator, live document corpus, evidence graph, outcome feedback and executive action loop.
 
