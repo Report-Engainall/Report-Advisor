@@ -1,310 +1,262 @@
 # Report Advisor — Master Execution & Truth Index
 
-> المرجع التنفيذي المركزي. اقرأه قبل أي عمل جديد، ثم افحص المستودع الحالي. عند التعارض يكون الكود الحالي هو الحقيقة، وبعد كل دفعة مؤثرة يجب تحديث هذا الملف.
+> المرجع التنفيذي المركزي. يُقرأ قبل كل دفعة، ثم يُفحص المستودع الحالي. الكود الحالي هو الحقيقة. لا يُحسب أي GAP مغلقًا بالملفات أو الـcommits وحدها.
 
 Snapshot: 2026-08-25
 Source of truth: `main` / `Report-Engainall/Report-Advisor`
 
-## 1. قواعد العمل
+## 1. قواعد التنفيذ
 
-1. لا تبدأ من الذاكرة؛ ابدأ من هذا الملف ثم المستودع.
-2. قبل إنشاء Gate/Workflow/Contract ابحث عن الموجود: reuse / fix / consolidate / create.
-3. افصل بين implemented وgated وruntime-verified وproduction-certified.
-4. وجود test أو workflow لا يعني نجاح runtime.
-5. Quality هو مسار CI الأساسي؛ المتخصص المتكرر يكون manual-only أو يدمج.
-6. لا تستبدل UI/query/import wholesale قبل إثبات التفوق والتكامل.
-7. AI لا يكون مصدر الحقيقة الرقمية أو المالية.
-8. لا تحول failure إلى warning للحصول على أخضر.
-9. بعد كل دفعة: سجل commit، الملفات، الاكتشاف، السبب، الإصلاح، التحقق، المتبقي والخطوة التالية.
+1. افحص هذا الفهرس ثم المستودع ثم العمل السابق قبل أي تغيير.
+2. Reuse / fix / consolidate قبل create؛ لا تُنشأ محركات موازية.
+3. افصل دائمًا: IMPLEMENTED / GATED / RUNTIME-VERIFIED / LIVE REQUIRED / PRODUCTION-CERTIFIED.
+4. Quality verifier وليس scheduler: أثناء CI يستمر التدقيق المستقل والتنفيذ القابل للإغلاق.
+5. لا تحول failure إلى warning، ولا تستخدم mock business data أو fake runtime evidence.
+6. AI ليس مصدر الحقيقة الرقمية/المالية.
+7. لا تستخدم defaults لإخفاء missing data أو tenant/risk/liquidity/service constraints.
+8. كل إصلاح مغلق يجب أن يملك root cause + test/guard مناسب.
+9. بعد كل دفعة: commit + اكتشاف + سبب + إصلاح + اختبار + CI + المتبقي + الخطوة التالية.
 
-## 2. المراجع الأساسية
-
-- `docs/MASTER_PRODUCT_REFERENCE.md` — المتطلبات والـguardrails والـopen-source/inspiration.
-- `docs/IMPLEMENTATION_ROADMAP.md` — التسلسل المرحلي وحالة التنفيذ المعلنة.
-- `docs/INSPIRATION_IMPLEMENTATION_AUDIT.md` — فجوات UX/capability.
-- `docs/INTEGRATION_SOURCES_REGISTRY.md` — الفروع والمصادر المراجعة/المدمجة/المؤجلة.
-- `docs/INTEGRATION_AUDIT_2026-08-21.md` — تدقيق المستودعات المرتبطة.
-- `docs/DOCUMENT_INTELLIGENCE_ENGINE_REQUIREMENTS.md` — مواصفات محرك الوثائق والبيانات.
-- `docs/CI_EXECUTION_MODE.md` — سياسة CI والـrunner/bootstrap.
-- `docs/CI_FAILURE_HUNTING_LEDGER.md` — سجل failures التاريخية.
-- `PROJECT_EXECUTION_INDEX.md` — فهرس تنفيذي سابق، يبقى مرجعًا تاريخيًا.
-- هذا الملف — **الحالة التنفيذية الشاملة الحالية**.
-
-## 3. تعريف الحالة
+## 2. تعريف الحالة
 
 - COMPLETE: implementation + applicable evidence يحقق DoD.
-- FOUNDATION: architecture/contracts موجودة لكن proof غير مكتمل.
-- GATED: gates موجودة لكن runtime proof غير مكتمل.
+- FOUNDATION: architecture/contracts موجودة، proof غير مكتمل.
+- GATED: guards/tests موجودة، runtime proof غير مكتمل.
 - LIVE REQUIRED: يتطلب بيئة حقيقية.
-- GAP: متطلب معروف ولم يكتمل.
-- NOT STARTED: لا يوجد تنفيذ موثوق معروف.
-- GUARDRAIL: متعمد عدم التنفيذ بسبب الأمن/التكرار/الترخيص/السياسة.
+- GAP: متطلب معروف غير مكتمل.
+- GUARDRAIL: متعمد عدم التنفيذ لأسباب أمن/تكرار/سياسة.
 
-## 4. مصفوفة المراحل
+## 3. الحالة المرحلية الحالية
 
-| المرحلة | الحالة الحالية | ما هو مكتمل | ما هو ناقص |
+| المرحلة | الحالة | الحقيقة الحالية | المتبقي الرئيسي |
 |---|---|---|---|
-| 1–21 | COMPLETE FOUNDATION | Foundation, tenant/RLS, import governance, ledgers, A0 foundations | إعادة تحقق عند تغير dependencies |
-| 22 | IMPLEMENTED | file preview/reconciliation | runtime/E2E evidence |
-| 23 A0.3 | IMPLEMENTED/GATED | schema intelligence/mapping hardening | golden/E2E depth |
+| 1–21 | COMPLETE FOUNDATION | tenant/RLS/import governance/ledgers/A0 foundations | إعادة تحقق عند dependency drift |
+| 22 | IMPLEMENTED | preview/reconciliation | runtime/E2E |
+| 23 A0.3 | IMPLEMENTED/GATED | schema intelligence/mapping | golden/E2E depth |
 | 24 A0.4 | IMPLEMENTED/GATED | entity resolution/idempotency | runtime reconciliation proof |
-| 25 | IMPLEMENTED/GATED | review/quarantine/promotion guard | full user E2E |
-| 26 | IMPLEMENTED/GATED | transactional routing/rollback | live transactional proof |
-| 27 | IMPLEMENTED/GATED | Onyx canonical adapter | live adapter verification |
-| 28 | IMPLEMENTED | golden dataset manifest | expand/execute corpus |
-| 29 | IMPLEMENTED/GATED | unified quality gates | current CI runtime proof |
+| 25 | IMPLEMENTED/GATED | review/quarantine/promotion | full user E2E |
+| 26 | IMPLEMENTED/GATED | transactional routing/rollback | live transaction proof |
+| 27 | IMPLEMENTED/GATED | canonical Onyx adapter | live adapter proof |
+| 28 | IMPLEMENTED | golden manifest | execute/expand corpus |
+| 29 | IMPLEMENTED/GATED | unified quality gates | current CI completion |
 | 30–37 | IMPLEMENTED/GATED | demand/pack/decision/liquidity/production chain | runtime + golden decision E2E |
 | A0 | FOUNDATION/GATED | deterministic document/data contracts | complete internal engine |
 | A | FOUNDATION COMPLETE | queue/idempotency/lease/render/evidence/artifact integrity | live worker proof |
-| B | DEEP FOUNDATION COMPLETE | entitlements/usage/provider-neutral lifecycle/webhook protection | live production evidence |
-| C | DEEP FOUNDATION COMPLETE | governed evidence-bound actions/executor/receipts | full live action path |
+| B | DEEP FOUNDATION COMPLETE | entitlements/usage/provider-neutral lifecycle | live production evidence |
+| C | DEEP FOUNDATION COMPLETE | evidence-bound actions/executor/receipts | live action path |
 | D | DEEP FOUNDATION COMPLETE | forecasting/backtesting/diagnostics/outcome feedback | production feedback proof |
-| E | GATED/LIVE REQUIRED | tenant/RLS/readiness/certification foundations | adversarial tenant, storage, realtime, AI retrieval, backup, rollback, security |
-| F | GATED/LIVE REQUIRED | resilience/trust/backup/RPO-RTO/SLO evidence foundations | live canaries, restore, worker recovery, rollback, stabilization |
-| G | GATED/LIVE REQUIRED | manifests/evidence/fail-closed release verification | staging DB dry-run, parity, signed artifact, canary, stabilization |
-| H | FOUNDATION/GATED | continuous trust/autonomous safety contracts | connected runtime canaries/remediation |
-| I | FOUNDATION/GATED | governance/BI decisions/evidence/risk budgets | live graph/anomaly/outcome learning/cockpit |
-| J | FOUNDATION/GATED | watched-folder, lineage, reconciliation, control-plane schema | live coordinator/business-state integration |
-| J.1 | REQUIREMENT LOCK + FOUNDATION | text-first watched reports requirements/contracts | complete live continuous ingestion acceptance |
-| K | FOUNDATION/GATED | durable jobs, lineage, canonical text, scenarios, ranking, calibration | real jobs/engines/outcomes/rollback |
-| L | FOUNDATION/GATED | health/evidence graph/certification predicates | live telemetry/graph/UI action loop |
-| M | NOT LIVE CERTIFIED | certification gates | all live certification bundle requirements |
+| E | GATED/LIVE REQUIRED | tenant/RLS/readiness/certification foundations | adversarial/live security canaries |
+| F | GATED/LIVE REQUIRED | resilience/backup/RPO-RTO/SLO foundations | restore/worker/rollback canaries |
+| G | GATED/LIVE REQUIRED | release manifests/evidence/fail-closed chain | staging/parity/signed artifact/canary |
+| H | FOUNDATION/GATED | continuous trust/autonomous safety | live canaries/remediation |
+| I | FOUNDATION/GATED | governance/BI/evidence/risk budgets | live graph/anomaly/outcome/cockpit |
+| J | FOUNDATION/GATED | watched-folder/lineage/reconciliation/control plane | live coordinator/business state |
+| J.1 | FOUNDATION/GATED | text-first watched reports | live continuous ingestion acceptance |
+| K | FOUNDATION/GATED | durable jobs/lineage/canonical text/scenarios/calibration | real jobs/outcomes/rollback |
+| L | FOUNDATION/GATED | health/evidence graph/certification predicates | live telemetry/graph/action loop |
+| M | NOT LIVE CERTIFIED | certification gates | complete live certification bundle |
 
-## 5. Major product areas
+## 4. Cross-platform watched-folder objective
 
-### Ingestion / data truth
-Foundation is broad: multi-format import, canonical mapping, deterministic normalization, business-key matching, preview/approval, reconciliation, quarantine, provenance, governed bulk writes and Onyx adapter protections.
+The repository already had the watched-folder engine; it is reused rather than rebuilt. Existing flow includes folder selection/monitoring, SHA-256 fingerprinting, incremental processing, IndexedDB snapshot state, queue/dead-letter contracts and canonical text fallback.
 
-Remaining proof: arbitrary/no-header/random schemas, page/table classification, extraction completeness, cell lineage, reconciliation accuracy, uncertain extraction UX, large/poor files and golden corpus execution.
+New cross-platform capability boundary:
+- Web/PWA: progressive File System Access capability; active-session monitoring where supported; never claim arbitrary background monitoring after app close.
+- Windows: native persistent watcher adapter required for background monitoring.
+- Android: native directory permission/watcher adapter required, subject to OS policy.
+- iOS: capability-aware native adapter; no false promise of arbitrary local-folder background monitoring.
+- All adapters emit the existing canonical watch/import events into the same ingestion engine.
 
-### Document Intelligence Engine
-Canonical pipeline:
-`RAW → Security → Inspection → Classification → Router → Parser/OCR/Layout/Table → Intermediate Model → Extract Everything → Schema Discovery → Semantic Mapping → Normalization → Entity Resolution → Mathematical Validation → Reconciliation → Confidence → Review/Quarantine → Canonical DB → Routing`
+## 5. Tenant / security status
 
-The repository has provider-neutral scaffolding and contracts, but roadmap/audit explicitly keep this as a remaining major workstream. Do not mark complete because upload/PDF/OCR parsing works.
+Static repository-wide searches were performed for `COMPANY_ID`, tenant IDs, tenant fallbacks, `company_id`, `tenant_memberships`, direct Supabase usage and client-selected tenant filtering.
 
-Remaining: intermediate representation, page/table classification, headerless/reverse schema discovery, extraction/provenance completeness, cell lineage, mapping confidence, entity precision/recall, reconciliation, quarantine/reprocessing UX, golden corpus and load/security evidence.
+Current truth:
+- tenant legacy guard exists and scans executable application/runtime consumers.
+- no remaining search evidence of a client `tenantId`/`tenant_id` filter pattern was found outside the guard.
+- canonical tenant resolution is server/database authoritative; client selection cannot override it.
+- direct Supabase reads remain allowed only where database RLS/current-tenant enforcement is authoritative; they are not treated as tenant selectors.
+- direct writes are governed by import transaction/RPC guards; bulk import bypasses remain prohibited.
+- `company_id` fields in result types do not constitute tenant selection by themselves.
 
-### Analytics / BI
-Foundations exist for semantic metrics, consolidated intelligence, inventory/demand, decision dashboards, safe metrics, cache/concurrency and report truth.
+LIVE REQUIRED: adversarial Supabase tenant isolation, storage/signed URLs, Realtime authorization, AI retrieval namespace isolation and secret audit.
 
-Remaining: truth-state rendering across material UI, large-table proof, cross-filter/drill-down E2E, saved views, Command Palette, executive cockpit action loop, deterministic what-if/scenario engine.
+## 6. File → Parse → Map → Validate → Tenant → Canonical → RPC → Persistence → Reconciliation → Audit → Evidence
 
-### Forecasting
-Foundation exists for backtesting and diagnostics. Remaining: production-like data, minimum-data behavior, baseline comparison evidence, closed-loop outcomes and safe UI exposure.
+### Existing foundation verified
+- multi-format report contract and header synonyms.
+- canonical mapping/normalization/business-key matching.
+- governed bulk import and RPC transaction path.
+- incremental source fingerprinting and row reconciliation.
+- Onyx canonical adapter and isolation guard.
+- provenance/lineage and text-first fallback.
+- quarantine/review/promotion contracts.
+- watched-folder queue/dead-letter contracts.
 
-### AI / ChatBI
-AI remains advisory/evidence-bound. Ollama is optional. Remaining: Ask→Inspect→Act E2E, provider failure/fallback, tenant retrieval isolation and live AI canary.
+### New hardening in current batch
+1. Weak source fingerprints no longer become `skip_unchanged` merely because size + modified timestamp match; when content hash is absent/changed for the same source, processing fails closed into `process_changed`.
+2. Duplicate stable row keys are now rejected before reconciliation instead of being silently collapsed by a `Map`.
+3. Added executable regression tests for identical hash, weak fingerprint, duplicate row keys, changed rows and deleted rows.
+4. Registered that regression suite in `package.json` and Quality.
 
-### Import / Onyx
-Governed import and canonical Onyx adapter exist. Empty cells must never erase existing values. Remaining: arbitrary-file acceptance, business-key regressions, live Onyx sync evidence.
+### Remaining data/runtime proof
+- arbitrary/no-header/random schemas and poor files.
+- page/table classification and extraction completeness.
+- cell-level lineage where available.
+- large/golden corpus execution.
+- live Onyx synchronization evidence.
+- live transactional rollback/retry/reconciliation proof.
 
-### Security / Tenant / RLS
-Strong static foundation exists. Remaining live proof: adversarial Supabase tenant tests, storage/signed URLs, realtime auth, AI retrieval namespace isolation and secret audit.
+## 7. KPI / BI truth status
 
-### Recovery / resilience
-Static contracts/evidence exist. Remaining live proof: actual restore drill, timing/count/integrity checks, tenant/storage/realtime/AI canaries, stuck-worker/dead-letter recovery, SLO alerts, rollback/forward-fix.
+Current dashboard/query layer already fails closed for required numeric/date fields and explicitly represents `INSUFFICIENT_DATA`. `activeCustomers` is null because the canonical customer schema has no authoritative active/inactive field; missing due dates are not silently replaced by invoice date.
 
-### Release / certification
-Manifest, dependency/migration/artifact provenance, evidence freshness, drift, security provenance, rollback contract, recovery readiness and production gate chain exist. They prove wiring/readiness, not production certification. Live evidence is still required.
+Current dashboard trend selector controls the trend horizon; other executive KPIs are currently all-source aggregates and must not be described as filtered by the trend selector. This is a semantic UI/query boundary to preserve until a true global date-filter contract is introduced.
 
-## 6. CI topology inventory
+Audit targets:
+`KPI Definition → Source → Formula → Query → Service → Dashboard → Report → Export`
 
-Primary path:
-- `.github/workflows/quality.yml`
+Remaining proof: cross-surface KPI equivalence, authoritative date-window semantics where applicable, cache freshness/invalidation, provenance in material UI/export, large-table and drill-down E2E.
 
-Specialized/diagnostic workflows observed in current recursive tree:
-- autonomy-safety-wave.yml
-- file-engine-header-contract.yml
-- file-intelligence-security.yml
-- j-k-l-runtime-wave.yml
-- master-production-verification.yml
-- phase-e-live-certification.yml
-- phase-f-live-resilience.yml
-- production-certification-boundary.yml
-- production-chain-guard.yml
-- production-closure.yml
-- production-evidence-boundary.yml
-- production-integrity-wave-v2.yml
-- production-release-gate-chain.yml
-- recovery-readiness.yml
-- release-certification.yml
-- release-decision-provenance.yml
-- release-drift-guard.yml
-- release-manifest-integrity.yml
-- report-execution-gate.yml
-- runner-diagnostic.yml
-- runtime-closure-wave.yml
-- security-provenance-certification.yml
+## 8. Evidence → Quality → Confidence → Decision → Recommendation → Outcome
 
-Observed count: 23 workflow files.
+Existing evidence-bound decision/recommendation contracts are retained. Autonomous control-plane constraints are fail-closed: missing risk/liquidity/service-level constraints cannot become zero; evidence source references are mandatory.
 
-Topology rule: do not add another push-triggered production workflow until Quality coverage is disproved. Specialized duplicates remain manual or are consolidated.
+Remaining: live evidence graph population, real decision outcomes, recommendation→observed-outcome feedback, executive approval/action loop and production-like scenario execution.
 
-## 7. package.json execution registry
+## 9. Lease / execution / recovery
 
-`package.json` is a major executable index covering build/lint/typecheck/performance; resilience/release/trust; F/G/K/L/M; K→S; master requirements; file/schema/entity contracts; production certification/readiness/blockers; report execution/automation/forecast/billing/SaaS; Onyx/import; document intelligence; tenant/RLS; report truth/navigation/import guards; scenario/inventory/demand/batch/safe metrics/scale; analysis cache/concurrency; and document resilience/golden/evidence/provenance/regression/performance.
+Existing durable job, lease, heartbeat, checkpoint, retry, complete/fail and dead-letter contracts remain canonical.
 
-Do not invent script names. Confirmed correction: the actual batch command is `test:batch-decision`, not `test:batch-decision-engine`.
+Hardening completed: terminal failure transitions preserve structured failure evidence rather than replacing missing error payloads with an empty object.
 
-## 8. Existing work that MUST NOT be duplicated
+Remaining LIVE REQUIRED: stuck-worker injection, lease expiry recovery, dead-letter replay, backup restore, rollback/forward-fix and SLO timing evidence.
 
-Before coding, inspect existing Phase A0–M contracts, production readiness/release blockers, unified production decision chain, release evidence/manifest, resilience probes, tenant/RLS/security, document intelligence, import governance, Onyx, report execution, analysis cache/concurrency, inventory/demand/decision intelligence and executive UI.
+## 10. CI topology
 
-Integration registry explicitly says existing production implementations win and alternate UI/query/import implementations were not merged wholesale. `main` is the source of truth. The cross-repository audit found the other reviewed repositories empty, so no blind merge source exists.
+Primary verifier: `.github/workflows/quality.yml`.
 
-## 9. Historical truth ledger
+Observed specialized workflows remain manual/specialized unless coverage proves they should be consolidated. No additional push-triggered production workflow should be added without a demonstrated coverage gap.
 
-- Run `32648883941`: TypeScript failure in `src/lib/analytics/filter-context.ts`; later run `32654180460` passed Typecheck and subsequent quality gates; regression guard exists.
-- Historical `steps: null`/no-log failures are treated as CI bootstrap/runner evidence until a diagnostic reaches its first step; do not blame app code without runtime evidence.
-- Previous owner E2E `AUTH=signed_out` is a runtime evidence gap.
-- Historical import preview incorrectly classified existing SKUs as new; keep matching/mapping regression coverage.
-- Ollama is optional; do not resurrect removed `/api/chat` or paid/Lovable gateway paths.
+Recent CI truth:
+- Run `32880785206` failed at the Quality workflow contract because stale npm aliases were referenced; root cause fixed by calling the canonical scripts directly.
+- Run `32881175093` failed in the newly added document-resilience gate; the failure was treated as a real wiring/contract signal, not suppressed.
+- Run `32881197772` (`#1395`) started after the workflow correction and was still in progress during the audit.
+- Subsequent import hardening triggered Run `32881752782` (`#1399`, in progress) and Run `32881771230` (`#1400`, queued) on the latest commits. These are not counted as PASS until completed.
 
-## 10. Consolidated P0 backlog — must close before production certification
+## 11. Current P0 — must be LIVE CLOSED before production certification
 
-- [ ] Real Supabase adversarial tenant certification
-- [ ] Storage/signed URL verification
+- [ ] adversarial Supabase tenant certification
+- [ ] storage/signed URL verification
 - [ ] Realtime authorization verification
 - [ ] AI retrieval tenant isolation verification
-- [ ] Backup restore drill + RPO/RTO evidence
-- [ ] Staging migration dry-run + schema drift
-- [ ] Environment parity
-- [ ] Signed artifact verification at deployment boundary
-- [ ] Stuck-worker/dead-letter recovery drill
-- [ ] Incident/SLO rollback + forward-fix drill
-- [ ] Security/secret audit
-- [ ] Stabilization telemetry
-- [ ] Final production certification bundle
+- [ ] backup restore + RPO/RTO evidence
+- [ ] staging migration dry-run + schema drift
+- [ ] environment parity
+- [ ] signed deployment artifact verification
+- [ ] stuck-worker/dead-letter recovery drill
+- [ ] incident/SLO rollback + forward-fix drill
+- [ ] security/secret audit
+- [ ] stabilization telemetry
+- [ ] final production certification bundle
 
-## 11. Consolidated P1 backlog — connected runtime
+## 12. Current P1 — connected runtime
 
-- [ ] Bind durable watched-folder jobs to live browser coordinator
-- [ ] Persist extraction checkpoints at real boundaries
-- [ ] Feed real domain outputs into business-state snapshots
-- [ ] Populate executive evidence graph from live decisions/KPIs
-- [ ] Execute bounded optimizer scenarios on production-like snapshots
-- [ ] Close recommendation→observed-outcome feedback
-- [ ] Connect portfolio/materiality routing to executive UI/approval
-- [ ] Connect drift/health scoring to live telemetry/canaries
-- [ ] Execute real rollback drills and certify only proven autonomy domains
+- [ ] Windows native persistent watcher
+- [ ] Android native folder permission/watcher
+- [ ] iOS capability-aware native integration
+- [ ] bind durable watched-folder jobs to live coordinator
+- [ ] persist extraction checkpoints at real boundaries
+- [ ] feed real outputs into business-state snapshots
+- [ ] populate executive evidence graph from live decisions/KPIs
+- [ ] bounded optimizer scenarios on production-like snapshots
+- [ ] recommendation→outcome feedback
+- [ ] portfolio/materiality routing to executive approval
+- [ ] drift/health scoring to live telemetry/canaries
+- [ ] real rollback drills
 
-## 12. Consolidated P1 document-engine backlog
+## 13. Document Intelligence P1
 
-- [ ] Provider-neutral intermediate representation completeness
-- [ ] Page/table classification
-- [ ] Headerless/reverse schema discovery
-- [ ] Extraction/provenance completeness
-- [ ] Cell-level lineage where available
-- [ ] Entity-resolution precision/recall evidence
-- [ ] Mathematical reconciliation coverage
-- [ ] Confidence/quarantine/reprocessing UX
-- [ ] Golden corpus across Arabic/English, scanned, random/no-header, merged/multi-table and poor-quality files
+- [ ] provider-neutral intermediate representation completeness
+- [ ] page/table classification
+- [ ] headerless/reverse schema discovery
+- [ ] extraction/provenance completeness
+- [ ] cell-level lineage
+- [ ] entity-resolution precision/recall evidence
+- [ ] mathematical reconciliation coverage
+- [ ] confidence/quarantine/reprocessing UX
+- [ ] golden Arabic/English/scanned/random/no-header/merged/multi-table/poor-quality corpus
 
-## 13. Consolidated P2 UX / predictive backlog
+## 14. BI / UX / predictive P2
 
-- [ ] Command Palette / keyboard-first workflows
-- [ ] Saved views / filters / grouping / reset persistence
-- [ ] Executive cockpit → drill-down → evidence → action E2E
-- [ ] Deterministic what-if/scenario engine with evidence/inaction impact
-- [ ] Cross-filter/drill-down production UI proof
-- [ ] Connected knowledge/evidence workspace
-- [ ] Low-bandwidth/mobile/throttled-network proof
-- [ ] Forecasting production backtesting/minimum-data UX
-- [ ] Closed-loop forecast quality
-- [ ] Provider failure/fallback E2E
-- [ ] Live AI retrieval isolation canary
-- [ ] Evidence-grounded Ask→Inspect→Act E2E
+- [ ] Command Palette / keyboard workflows
+- [ ] saved views/filter/group persistence
+- [ ] executive cockpit → drill-down → evidence → action E2E
+- [ ] deterministic what-if/scenario evidence engine
+- [ ] cross-filter/drill-down production UI proof
+- [ ] connected evidence/knowledge workspace
+- [ ] low-bandwidth/mobile/throttled-network proof
+- [ ] forecasting production backtesting/minimum-data UX
+- [ ] closed-loop forecast quality
+- [ ] provider failure/fallback E2E
+- [ ] live AI retrieval isolation canary
+- [ ] evidence-grounded Ask→Inspect→Act E2E
 
-## 14. Exact next execution sequence
+## 15. Real progress calculation
 
-### NOW-1 Inventory closure
-Enumerate all workflows, triggers, package scripts, `scripts/check-*`, and Phase E–M dependencies; classify canonical/specialized/duplicate/obsolete.
+This percentage is a **truth-weighted engineering estimate**, not a commit/file count and not a production-certification percentage.
 
-### NOW-2 Deep runtime audit
-For each critical contract: Contract → implementation → test → workflow → evidence → live dependency. Fix only real gaps.
+Current assessment: **~82% engineering completion**.
 
-### NOW-3 Document engine closure
-Complete missing internal document/data intelligence pieces on the existing provider-neutral architecture.
+Interpretation:
+- Broad foundation/implementation: ~90%+ across the originally defined feature surface.
+- Contract/gate coverage: high and continuously exercised by Quality.
+- Integrated runtime/E2E: materially lower because several connected surfaces still require live proof.
+- Production certification: **not complete** because P0 live evidence remains open.
 
-### NOW-4 J/K/L connected runtime
-Connect watched reports, checkpoints, business snapshots, evidence graph, optimizer, outcome feedback and UI action loop.
+Therefore **82% does not mean 82% production certified**. The remaining ~18% is disproportionately concentrated in live integration, adversarial security, document-engine depth, connected autonomous runtime, cross-platform native watchers and final certification evidence.
 
-### NOW-5 E/F/H/I live certification
-Execute tenant, storage, realtime, AI, backup, worker, SLO, rollback and governance canaries.
+## 16. Mandatory execution loop
 
-### NOW-6 Master production decision
-Consolidate release evidence/manifest/recovery/certification into one authoritative chain without duplicate push CI.
+### NOW-1
+Search tenant consumers, direct reads/writes, RPC callers, static IDs, fallbacks and authoritative-source violations repository-wide.
 
-### NOW-7 Real CI/runtime execution
-Run Quality and required manual/live workflows. Diagnose actual failures only when steps/logs exist. Fix root causes and rerun.
+### NOW-2
+Run File → Parse → Map → Validate → Tenant → Canonical → RPC → Persistence → Reconciliation → Audit → Evidence audit; repair root causes and add regression coverage.
 
-### NOW-8 Final certification
-Only after all P0 blockers are zero and current live evidence exists.
+### NOW-3
+Run KPI Definition → Source → Formula → Query → Service → Dashboard → Report → Export equivalence audit; repair only proven mismatches.
 
-## 15. Mandatory progress record
+### NOW-4
+Run Evidence → Quality → Confidence → Decision → Recommendation → Outcome and Lease → Heartbeat → Checkpoint → Complete/Fail → Retry → Recovery → Dead-letter drift audits.
 
-```text
-Date: 2026-08-25
-Phase: Tenant / Import / KPI / Report execution / Control-plane / Lease integration hardening
-Goal: Proactively close legacy tenant consumers and harden File→Parse→Map→Validate→Tenant→Canonical→RPC→Persistence→Reconciliation→Audit→Evidence plus KPI/report/recovery chains without waiting for CI failures.
-Status before: FOUNDATION/GATED
-Static findings closed in this batch:
-1) tenantContext legacy tenant_memberships consumer and client-order tenant fallback;
-2) direct imported customer_id accepted without explicit tenant ownership proof;
-3) tenant legacy consumer guard was not scanning executable scripts;
-4) report transaction contract lacked direct customer tenant verification;
-5) report KPI layer fabricated activeCustomers despite no authoritative customer active field;
-6) aging used invoice_date as a silent due-date fallback;
-7) report renderer existed but user-facing download path was not connected;
-8) control-plane execution gate coerced missing risk/liquidity/service-level constraints to zero;
-9) runtime failure transition could erase missing failure evidence into an empty JSON object.
-Fixes:
-- tenantContext now uses canonical company_memberships + resolveCurrentCompanyId and fails closed on client-selected mismatch;
-- canonical invoice import verifies customer_id + company_id before persistence;
-- tenant legacy guard scans src/runtime scripts and ignores only static-analysis check files;
-- import transaction guard now verifies customer tenant linkage and lifecycle locking/terminal-state requirements;
-- KPI engine returns activeCustomers=null because the schema has no authoritative active/inactive customer field; missing due dates now fail closed for aging;
-- report download helper is wired into the existing renderer and the E2E contract now checks renderer→download→durable-worker continuity;
-- control-plane gate requires non-null risk/liquidity/service-level constraints and evidence source references instead of zero coercion;
-- dead-letter failure transition requires structured error evidence and preserves it.
-Key commits:
-- 6731406e2b885d7c1a23396ca119728f742c1cbf
-- 31f662a55ae69c9d356e0d02c21c118a8c69a956
-- 33367c4e54023a036a5b3cb94a08f628a27a105a
-- 85644c8cfeb33cee8bcf974764ce798e16cd0dae
-- 93ba48b4f7022067df78136676cad548182564f3
-CI evidence:
-- Run 32874659379: failure at old business-control-plane roadmap check; root cause was missing roadmap phrase and was corrected.
-- Run 32876152674: failure at tenant legacy guard due static-analysis literals inside check scripts; guard corrected to exclude check-* analyzers only.
-- Run 32876217435: tenant guard passed; all gates through watched reports passed; business-control-plane then failed on a stale test phrase `causal/evidence lineage`; test was aligned to existing roadmap truth rather than changing product semantics.
-- Run 32876236673: newer Quality run triggered by report execution contract work; continue using the newest run as the verifier.
-Runtime evidence: LIVE REQUIRED for adversarial Supabase tenant/storage/realtime/AI canaries, real restore, worker/dead-letter recovery, production rollback and final certification.
-No production PASS is claimed.
-Next: continue proactive KPI/report truth, import reconciliation, evidence→decision→outcome, lease/recovery and isolation drift while the newest Quality run executes.
-```
+### NOW-5
+Run Tenant/RLS → Storage → Realtime → AI retrieval → concurrency → failure injection → recovery static/runtime audits in parallel with Quality.
 
-## 16. Definition of Done
+### NOW-6
+Implement the next native folder watcher adapter without duplicating the existing ingestion engine.
 
-A capability is FULLY IMPLEMENTED only when applicable UI, backend/service, database/migrations, security/RLS/tenant scope, audit/event/queue behavior, error/loading/offline behavior, deterministic truth/evidence, unit/contract/integration/regression tests, E2E/runtime evidence, performance/load evidence and documentation are present and compatible.
+### NOW-7
+CI: PASS → immediately next deepest GAP; FAIL → root cause → fix → regression → rerun. Never wait for CI before independent work.
 
-## 17. Golden rule
+### NOW-8
+After every meaningful batch, update this index before starting the next batch.
 
-> افحص المرجع → افحص المستودع → افحص ما تم سابقًا → حدد الفجوة → أصلح الموجود → اختبر → سجل الدليل → حدّث هذا الملف → انتقل للخطوة التالية.
+## 17. Definition of Done
 
-## 18. 2026-08-25 Proactive closure ledger
+A capability is fully implemented only when applicable UI, service/backend, database/migrations, security/RLS/tenant scope, audit/queue behavior, error/loading/offline behavior, deterministic truth/evidence, tests, E2E/runtime evidence, performance/load evidence and documentation are compatible and proven.
 
-- **Tenant integration drift — CLOSED STATIC GAP:** legacy `tenant_memberships` consumer removed from tenant context; authoritative company membership/current-company resolver now controls UI context.
-- **Client tenant fallback — FAIL CLOSED:** no silent first-membership selection when client preference conflicts with server-resolved tenant.
-- **Imported foreign customer id — CLOSED STATIC GAP:** direct invoice customer ids are proven tenant-local before commit; the canonical RPC independently enforces the same invariant. fileciteturn122file0
-- **Import idempotency/lineage — EXISTING FOUNDATION VERIFIED:** durable company-scoped idempotency key/source fingerprint and field-level lineage already exist; no parallel engine was created. fileciteturn123file0
-- **KPI truth — HARDENED:** active-customer KPI is no longer fabricated because the canonical customers table has no authoritative active/inactive field; aging no longer substitutes invoice date for missing due date. The schema confirms customer fields without an active status. fileciteturn131file0
-- **Report execution — CONNECTED:** existing renderers are now connected to a browser download path and the existing E2E contract verifies the renderer/download/durable-worker chain.
-- **Control-plane truth — FAIL CLOSED:** missing risk/liquidity/service-level constraints can no longer become zero during autonomous execution; evidence source references remain mandatory.
-- **Lease/recovery truth — HARDENED:** dead-letter transitions preserve structured failure evidence instead of replacing missing error payloads with `{}`.
-- **CI topology — current evidence:** Run 32876217435 passed Tenant legacy boundary, Data Quality, company config, migration schema/dependencies, core contracts, production certification, resilience, continuous trust, governance and watched reports before stopping at the control-plane gate. fileciteturn114file0
-- **LIVE REQUIRED remains explicit:** adversarial tenant isolation, storage/realtime/AI retrieval isolation, backup restore, production worker recovery, rollback/canary and final certification.
+## 18. Golden rule
 
-## 19. Mandatory parallel execution rule
+> افحص الفهرس → افحص المستودع → افحص العمل السابق → اكتشف الفجوة → أصلح الموجود → اختبر → شغّل CI → سجّل الدليل → حدّث الفهرس → انتقل مباشرة للفجوة التالية.
 
-CI is a verifier, not a scheduler. While Quality is running, continue proactive repository-wide audits of Tenant → Import → KPI/BI → Evidence/Decision → Lease/Recovery → Isolation/Resilience. Do not wait for one CI failure before inspecting independent surfaces. Every fix must have a root cause, bounded scope, reuse of existing architecture, and a corresponding guard/test before it is considered closed.
+## 19. Current batch ledger — 2026-08-25
+
+Commits produced in this execution wave include:
+- `af9edb196dc3c2b276a8110fb1a21d2c7de47dc2` — Quality executes incremental ledger regression.
+- `68e4b1efe03721ba8cb31de29bb56db06e115c0d` — duplicate/weak fingerprint regression test.
+- `22eca8b1ffa488874c1d9c9482ab7d8dbab0bd43` — weak fingerprint and duplicate-row fail-closed hardening.
+- `6e9c66deb0c34ecb0759696deaea4423ce572f45` — package registry for the new regression suite.
+- earlier same-wave commits established cross-platform folder capability/native adapter boundary and corrected stale Quality workflow aliases.
+
+No claim of production PASS is made. LIVE REQUIRED remains explicit.
