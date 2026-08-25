@@ -1,7 +1,7 @@
 import { strict as assert } from 'node:assert';
-import { advanceCheckpoint, canAdvanceCheckpoint, type ReportExecutionCheckpoint } from '../src/lib/report-execution/checkpoint';
-import { SupabaseReportExecutionStore } from '../src/lib/report-execution/durable-worker-adapter';
-import type { ReportExecutionRequest } from '../src/lib/report-execution/report-execution-contract';
+import { advanceCheckpoint, canAdvanceCheckpoint, type ReportExecutionCheckpoint } from '../src/lib/report-execution/checkpoint.ts';
+import { SupabaseReportExecutionStore } from '../src/lib/report-execution/durable-worker-adapter.ts';
+import type { ReportExecutionRequest } from '../src/lib/report-execution/report-execution-contract.ts';
 
 assert.equal(canAdvanceCheckpoint('queued','fingerprinted'), true);
 assert.equal(canAdvanceCheckpoint('queued','analyzed'), false);
