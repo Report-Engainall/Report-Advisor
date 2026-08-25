@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
-const finiteNonNegative=(value,fallback=0)=>{const n=typeof value==='number'?value:Number(value);return Number.isFinite(n)&&n>=0?n:fallback};
-const finitePercent=(value,fallback=0)=>Math.max(0,Math.min(100,finiteNonNegative(value,fallback)));
-const safeRatio=(n,d,f=0)=>{const a=finiteNonNegative(n),b=finiteNonNegative(d);return b>0?a/b:f};
-assert.equal(finiteNonNegative(-5),0);assert.equal(finiteNonNegative(Number.NaN),0);assert.equal(finitePercent(130),100);assert.equal(finitePercent(-10),0);assert.equal(safeRatio(10,0),0);assert.equal(safeRatio(10,2),5);console.log('safe metrics fixture: PASS');
+const finiteNonNegative=(value,fallback)=>{const n=typeof value==='number'?value:Number(value);if(Number.isFinite(n)&&n>=0)return n;if(fallback!==undefined&&Number.isFinite(fallback)&&fallback>=0)return fallback;throw new Error('INSUFFICIENT_METRIC_DATA')};
+const finitePercent=(value,fallback)=>{const n=finiteNonNegative(value,fallback);if(n>100)throw new Error('INVALID_METRIC_RANGE');return n};
+const safeRatio=(n,d,fallback)=>{const a=finiteNonNegative(n),b=finiteNonNegative(d);if(b===0){if(fallback!==undefined)return finiteNonNegative(fallback);throw new Error('INSUFFICIENT_METRIC_DATA:denominator')}return a/b};
+const safeDays=(stock,demand)=>{const s=finiteNonNegative(stock),d=finiteNonNegative(demand);if(d===0)throw new Error('INSUFFICIENT_METRIC_DATA:dailyDemand');return s/d};
+assert.throws(()=>finiteNonNegative(-5),/INSUFFICIENT_METRIC_DATA/);assert.throws(()=>finiteNonNegative(Number.NaN),/INSUFFICIENT_METRIC_DATA/);assert.equal(finiteNonNegative(Number.NaN,7),7);assert.throws(()=>finitePercent(130),/INVALID_METRIC_RANGE/);assert.equal(finitePercent(100),100);assert.throws(()=>safeRatio(10,0),/INSUFFICIENT_METRIC_DATA:denominator/);assert.equal(safeRatio(10,0,0),0);assert.equal(safeRatio(10,2),5);assert.throws(()=>safeDays(100,0),/INSUFFICIENT_METRIC_DATA:dailyDemand/);assert.equal(safeDays(100,5),20);console.log('safe metrics fixture: PASS');
