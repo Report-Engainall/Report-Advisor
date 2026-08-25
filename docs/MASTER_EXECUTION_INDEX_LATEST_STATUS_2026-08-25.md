@@ -6,7 +6,7 @@ This is the latest compact execution snapshot. Consult it before starting new wo
 Never infer completion from conversation history. Repository source, executable CI/runtime evidence, and certification artifacts are authoritative. Status vocabulary: `UNKNOWN → INVENTORIED → IMPLEMENTED → GATED → INTEGRATED → RUNTIME-EVIDENCED → PRODUCTION-CERTIFIED`; use `BLOCKED` for external prerequisites.
 
 ## Current repository head
-`main` = `eed8b25e7a0c13969fbdacb593dea828d46f047b` — `docs: record bounded data quality projections batch 21`.
+`main` = `3d1e1dd9d6d703c139096b7de6dbdc9479077958` — `docs: record Data Quality projection regression gate batch 22`.
 
 ## Capability matrix
 | Capability | Implementation | Gate | Integration | Runtime Evidence | Production |
@@ -32,6 +32,7 @@ Never infer completion from conversation history. Repository source, executable 
 | Legacy tenant compatibility consumers | CLOSED IN UI; COMPATIBILITY OWNER REMAINS | YES | YES | NOT PROVEN | NO |
 | Data Quality tenant-native boundary | YES | YES | INTEGRATED | NOT PROVEN | NO |
 | Data Quality bounded projections | YES | YES | INTEGRATED | NOT PROVEN | NO |
+| Data Quality projection regression contract | YES | YES | INTEGRATED | NOT PROVEN | NO |
 | Migration schema audit | YES | YES via Quality | INTEGRATED | NOT EXECUTED WITH OBSERVABLE STEPS | NO |
 | Migration dependency analysis | YES | YES via Quality | INTEGRATED | NOT YET EXECUTED WITH OBSERVABLE STEPS | NO |
 | Company configuration truth guard | YES | YES via Quality | INTEGRATED | NOT PROVEN | NO |
@@ -56,7 +57,8 @@ Never infer completion from conversation history. Repository source, executable 
 - Company configuration truth guard exists to reject prohibited hard-coded company identity/configuration, including `admin@alamri.com`.
 - Tenant legacy consumer boundary guard permits compatibility tokens only in `src/lib/supabase.ts`; the UI exception is closed.
 - Data Quality reads are routed through `src/lib/data-quality-queries.ts` and no longer supply a company identifier from the UI.
-- Data Quality projections are now bounded to fields consumed by the current metrics.
+- Data Quality projections are bounded to fields consumed by the current metrics.
+- Data Quality projection regression contract is registered in package scripts and canonical Quality.
 - These guards are implementation/regression evidence, not runtime certification.
 
 ### Permanent project reference
@@ -82,7 +84,7 @@ Prove two-company isolation and ambiguous-membership fail-closed behavior end-to
 Historical Quality runs have completed with failure before any executable step is exposed. The observed historical job state has `steps: []`/no usable logs, so it is classified as runner/bootstrap/pre-step for those runs. The current HEAD must not be classified without a current run and observable steps.
 
 ## P1 parallel fronts
-1. Execute tenant legacy audit, typecheck, lint, and build against the current refactor.
+1. Execute tenant legacy audit, Data Quality projection contract, typecheck, lint, and build against the current refactor.
 2. Review the migration dependency analyzer output and distinguish intentional object evolution from true conflicts.
 3. Verify migration drift against live DB when live credentials/environment are available.
 4. Trace critical frontend flow: upload/import → review → persistence → reports → decisions → inventory/demand → evidence → certification.
@@ -100,11 +102,15 @@ The repository already contains runtime/certification workflows for runner diagn
 - Batch 19: source-preserving repair after detecting an over-aggressive file rewrite.
 - Batch 20: Data Quality scalability planning and explicit decision not to claim performance improvement without evidence.
 - Batch 21: bounded Data Quality projections implemented in `src/lib/data-quality-queries.ts`.
+- Batch 22: Data Quality projection regression contract added to package scripts and canonical Quality.
 
 ## Verified repository evidence
 - `905066a2de85e604f4f97515733c0c07302aa12c`: tenant-native Data Quality query boundary.
 - `54205b75aa0ea5150c31243a2aaeeb47722dd494`: source-preserving repair with tenant-native Data Quality reads.
 - `262c746ac1a55dd990777f8a076aded0380e17b4`: bounded Data Quality projections.
+- `bbee7b8741d3d068e7ed3feb0087b370c7d6f4bb`: Data Quality projection regression contract.
+- `2778640cef713974aabc0fed0cd4a4aedff7fabf`: package script registration.
+- `ded719a2a1974e5ec65e45497b046c7eef232158`: canonical Quality integration.
 - `scripts/check-tenant-legacy-consumers.mjs` allows the compatibility token only in `src/lib/supabase.ts`.
 - Repository search currently returns no additional `COMPANY_ID` matches outside the guarded compatibility boundary.
 
