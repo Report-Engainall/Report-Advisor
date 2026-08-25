@@ -28,7 +28,7 @@ for (const token of ['IdempotencyRegistry', 'fingerprintRequest', 'different req
 for (const token of ['assertExecutionRequest', 'assertGovernedRoute', 'sourceSnapshotId']) {
   if (!gate.includes(token)) throw new Error(`Execution gate missing ${token}`);
 }
-for (const token of ['claim', 'lease', 'retry', 'heartbeat']) {
+for (const token of ['claim', 'lease', 'maxAttempts', 'attempts', 'fail', 'heartbeat', 'listDeadLetters']) {
   if (!queue.includes(token)) throw new Error(`Queue runtime missing ${token}`);
 }
 for (const token of ['pdf', 'xlsx', 'web']) {
