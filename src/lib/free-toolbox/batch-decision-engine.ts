@@ -10,6 +10,10 @@ function requireDecisionNumber(value: unknown, field: string, groupId: string, o
   return n
 }
 
+function clampPercent(value: number): number {
+  return Math.min(100, Math.max(0, value))
+}
+
 export function evaluateDecisionBatch(rows:BatchDecisionRow[]):BatchDecisionSummary{
   const started=typeof performance!=='undefined'?performance.now():Date.now()
   let reorder=0,critical=0,total=0
@@ -24,9 +28,9 @@ export function evaluateDecisionBatch(rows:BatchDecisionRow[]):BatchDecisionSumm
     requireDecisionNumber(r.confidence,'confidence',r.groupId,{min:0,max:100})
 
     const coverage=safeDays(stock,demand)
-    const coverageRisk=Number.isFinite(coverage)?finitePercent(100-(coverage/targetDays)*100):0
-    const lostRisk=finitePercent(lostUnits/Math.max(1,demand*7)*100)
-    const priority=Math.round(finitePercent(coverageRisk*.3+lostRisk*.2+liquidityScore*.15+continuityRisk*.2+seasonalityScore*.15))
+    const coverageRisk=finitePercent(clampPercent(100-(coverage/targetDays)*100))
+    const lostRisk=finitePercent(clampPercent(lostUnits/Math.max(1,demand*7)*100))
+    const priority=Math.round(finitePercent(clampPercent(coverageRisk*.3+lostRisk*.2+liquidityScore*.15+continuityRisk*.2+seasonalityScore*.15)))
     total+=priority
     if(priority>=75)reorder++
     if(priority>=85)critical++
