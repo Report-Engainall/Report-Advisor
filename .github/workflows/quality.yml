@@ -32,6 +32,8 @@ jobs:
         run: node scripts/check-company-config-truth.mjs
       - name: Database migration schema audit
         run: npm run test:migration-schema-audit
+      - name: Database migration dependency analysis
+        run: npm run test:migration-dependencies
       - name: Master requirements lock
         run: npm run test:master-requirements
       - name: Core contracts
