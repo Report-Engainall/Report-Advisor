@@ -39,21 +39,31 @@ if (!createBody.includes('p_company_id IS DISTINCT FROM v_company_id')) {
   throw new Error('import_create_job must reject mismatched tenant context');
 }
 
-// Verify the effective (latest) product upsert definition, not only the original
-// canonical migration. This prevents later migrations from silently reintroducing
-// fabricated business defaults or caller/DB contract drift.
-const productDefinitions = migrations
-  .filter(({ text: migrationText }) => migrationText.includes('CREATE OR REPLACE FUNCTION public.import_upsert_product'));
-const latestProduct = productDefinitions.at(-1);
-if (!latestProduct) throw new Error('Effective import_upsert_product definition is missing');
-if (!latestProduct.text.includes('p_is_active boolean')) throw new Error('Effective import_upsert_product must expose p_is_active');
-if (!latestProduct.text.includes('NAME_REQUIRED')) throw new Error('Effective product insert must fail closed when name is missing');
-if (!latestProduct.text.includes('UNIT_REQUIRED')) throw new Error('Effective product insert must fail closed when unit is missing');
-if (!latestProduct.text.includes('COST_PRICE_REQUIRED')) throw new Error('Effective product insert must fail closed when cost price is missing');
-if (!latestProduct.text.includes('SELLING_PRICE_REQUIRED')) throw new Error('Effective product insert must fail closed when selling price is missing');
-if (!latestProduct.text.includes('IS_ACTIVE_REQUIRED')) throw new Error('Effective product insert must fail closed when active state is missing');
-if (latestProduct.text.includes("coalesce(p_unit, 'قطعة')") || latestProduct.text.includes('coalesce(p_cost_price, 0)') || latestProduct.text.includes('coalesce(p_selling_price, 0)')) {
-  throw new Error('Effective product upsert must not fabricate unit or price defaults on insert');
+function latestDefinition(name) {
+  const matches = migrations.filter(({ text: migrationText }) => migrationText.includes(`CREATE OR REPLACE FUNCTION public.${name}`));
+  return matches.at(-1);
 }
 
-console.log(`Import RPC tenant context: PASS (canonical=${canonical.file}, effective_product=${latestProduct.file})`);
+const latestProduct = latestDefinition('import_upsert_product');
+if (!latestProduct) throw new Error('Effective import_upsert_product definition is missing');
+if (!latestProduct.text.includes('p_is_active boolean')) throw new Error('Effective import_upsert_product must expose p_is_active');
+for (const marker of ['NAME_REQUIRED', 'UNIT_REQUIRED', 'COST_PRICE_REQUIRED', 'SELLING_PRICE_REQUIRED', 'MIN_STOCK_REQUIRED', 'REORDER_POINT_REQUIRED', 'IS_ACTIVE_REQUIRED']) {
+  if (!latestProduct.text.includes(marker)) throw new Error(`Effective product insert must fail closed when ${marker.replace('_REQUIRED', '').toLowerCase()} is missing`);
+}
+for (const fabricated of ["coalesce(p_unit, 'قطعة')", 'coalesce(p_cost_price, 0)', 'coalesce(p_selling_price, 0)', 'coalesce(p_min_stock, 0)', 'coalesce(p_reorder_point, 0)']) {
+  if (latestProduct.text.includes(fabricated)) throw new Error(`Effective product upsert still fabricates a business default: ${fabricated}`);
+}
+
+const latestCustomer = latestDefinition('import_upsert_customer');
+if (!latestCustomer) throw new Error('Effective import_upsert_customer definition is missing');
+for (const marker of ['CUSTOMER_SEGMENT_REQUIRED', 'CUSTOMER_CREDIT_LIMIT_REQUIRED', 'CUSTOMER_PAYMENT_TERMS_REQUIRED']) {
+  if (!latestCustomer.text.includes(marker)) throw new Error(`Effective customer insert must fail closed: ${marker}`);
+}
+
+const latestInvoice = latestDefinition('import_upsert_sales_invoice');
+if (!latestInvoice) throw new Error('Effective import_upsert_sales_invoice definition is missing');
+for (const marker of ['SUBTOTAL_REQUIRED', 'TAX_AMOUNT_REQUIRED', 'TOTAL_REQUIRED', 'PAID_AMOUNT_REQUIRED', 'STATUS_REQUIRED']) {
+  if (!latestInvoice.text.includes(marker)) throw new Error(`Effective invoice insert must fail closed: ${marker}`);
+}
+
+console.log(`Import RPC tenant context: PASS (canonical=${canonical.file}, product=${latestProduct.file}, customer=${latestCustomer.file}, invoice=${latestInvoice.file})`);
