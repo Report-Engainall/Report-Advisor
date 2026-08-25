@@ -17,6 +17,7 @@
     "test:secondary-batch07-runtime-inventory": "node scripts/secondary-batch07-runtime-inventory.mjs",
     "test:secondary-batch07-safe-surfaces": "node scripts/secondary-batch07-safe-surfaces.test.mjs",
     "test:secondary-batch08-runtime-readiness": "node scripts/secondary-batch08-runtime-readiness.mjs",
+    "test:phase-ab-import-rpc-signature-audit": "node scripts/phase-ab-import-rpc-signature-audit.mjs",
     "test:secondary-batch04": "npm run test:secondary-batch04-golden && npm run test:secondary-batch04-regression",
     "inventory:system": "node scripts/build-system-inventory.mjs",
     "test:auth-tenant-convergence": "node scripts/check-auth-tenant-convergence.mjs",
