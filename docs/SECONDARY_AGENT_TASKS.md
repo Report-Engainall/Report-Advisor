@@ -34,6 +34,24 @@ No paid dependency was introduced. No Core Engine was duplicated. No main merge 
 
 ---
 
+# Batch 03 execution status — 2026-08-25
+
+Batch 03 focuses on runtime read-model closure and integrity rather than adding a new feature surface.
+
+| Task | Status | Notes |
+|---|---|---|
+| Runtime Read-Model Wiring | FOUNDATION / LIVE REQUIRED | Existing Data Quality, Business Control Plane, Document Intelligence, and Evidence boundaries are consumed through adapters; Smart Reconciliation remains LIVE REQUIRED until its authoritative result is exposed. |
+| UNKNOWN / BLOCKED Integrity | FOUNDATION | Missing/stale/unavailable/insufficient evidence is preserved as UNKNOWN/NOT CONFIGURED/BLOCKED/ERROR. |
+| Evidence Deep-Link Preparation | FOUNDATION | Optional source_id/evidence_id/snapshot_id/lineage_id/metric_id/decision_id fields added; absent IDs are not invented. |
+| Golden Corpus Harness | FOUNDATION | CI-ready harness added with PASS/FAIL/SKIPPED classification. |
+| Contract Regression Guarding | FOUNDATION | Existing Data Quality and Business Control read boundaries are reused; no Core contract is replaced. |
+| Accessibility / UX Hardening | FOUNDATION | Keyboard focus, status semantics, live-region notices, table captions/scoped headers, and RTL preservation improved. |
+| Performance Guarding | FOUNDATION | New control-plane reads use explicit projections and limit(1); no unbounded secondary bulk read introduced. |
+
+Batch 03 is **not COMPLETE**. Runtime execution, full CI, and primary-agent certification remain required.
+
+---
+
 # Existing approved task matrix
 
 ## A. NOW / PARALLEL — execute these
@@ -114,7 +132,7 @@ The UI consumes supplied values; it does not invent confidence.
 
 ## A6. Data Quality Center UI
 
-**Batch 02: FOUNDATION.**
+**Batch 02: FOUNDATION. Batch 03: FOUNDATION / LIVE REQUIRED for authoritative quality scores.**
 
 Implement views for:
 - completeness;
@@ -131,7 +149,7 @@ Implement views for:
 
 ## A7. Business Control Plane UI
 
-**Batch 02: FOUNDATION.**
+**Batch 02: FOUNDATION. Batch 03: FOUNDATION.**
 
 Implement operational overview for:
 - imports;
@@ -150,7 +168,7 @@ Always distinguish LIVE/UNKNOWN/NOT CONFIGURED/FAILED.
 
 ## A8. Document Intelligence Workspace UI
 
-**Batch 02: FOUNDATION.**
+**Batch 02: FOUNDATION. Batch 03: FOUNDATION / LIVE REQUIRED.**
 
 Implement document inspection experience:
 - preview;
@@ -171,7 +189,7 @@ Use existing import/document contracts.
 
 ## A9. Golden Corpus
 
-**Batch 02: FOUNDATION.**
+**Batch 02: FOUNDATION. Batch 03: FOUNDATION.**
 
 Create safe deterministic fixtures for:
 - Arabic tabular input;
@@ -191,7 +209,7 @@ No real customer/business secrets.
 
 ## A10. Smart Reconciliation presentation
 
-**Batch 02: FOUNDATION.**
+**Batch 02: FOUNDATION. Batch 03: LIVE REQUIRED for authoritative result wiring.**
 
 Prepare UI/read models for:
 - source row count vs canonical row count;
