@@ -3,7 +3,7 @@
 This is the authoritative compact execution snapshot. Consult it before starting new work. Repository source, executable CI/runtime evidence, and certification artifacts are authoritative; conversation history is not evidence.
 
 ## Indexed source head
-`main` source state indexed here: `e037ce395bb3f6ae210cbd2cf4d0746af1563eda`. This is the Batch 26 source head; use it as the starting-state reference for the next execution batch.
+`main` source state indexed here: `228df63db82687e7584d57b929ac56f3b1ac2d3e`. This is the current Batch 26 execution head; use it as the starting-state reference for the next execution batch.
 
 ## Evidence vocabulary
 `UNKNOWN → INVENTORIED → IMPLEMENTED → GATED → INTEGRATED → RUNTIME-EVIDENCED → PRODUCTION-CERTIFIED`; use `BLOCKED` only for an external prerequisite.
@@ -33,8 +33,8 @@ This is the authoritative compact execution snapshot. Consult it before starting
 | Migration schema audit | YES | YES via Quality | INTEGRATED | NOT OBSERVED | NO |
 | Migration dependency analysis | YES | YES via Quality | INTEGRATED | NOT OBSERVED | NO |
 | Company configuration truth guard | YES | YES via Quality | INTEGRATED | NOT PROVEN | NO |
-| Legacy tenant consumer boundary | HARDENED: read + write/static consumers outside compatibility boundary now fail the guard | YES | PENDING CURRENT CI | NOT PROVEN | NO |
-| CI runner execution | IMPLEMENTED | YES | CURRENT RUN QUEUED | NOT PROVEN | NO |
+| Legacy application tenant consumer boundary | HARDENED: legacy/static application consumers are rejected outside the compatibility owner; canonical resolver-based reads are allowed | YES | PENDING CURRENT CI | NOT PROVEN | NO |
+| CI runner execution | IMPLEMENTED | YES | CURRENT RUN IN PROGRESS/QUEUED | NOT PROVEN | NO |
 
 ## Tenant model — corrected canonical semantics
 - Multiple historical `current_company_id()` definitions exist.
@@ -54,7 +54,7 @@ This is the authoritative compact execution snapshot. Consult it before starting
 - A dedicated tenant-resolver lineage guard was added.
 
 ## Compatibility boundary
-`src/lib/supabase.ts` retains a nullable compatibility surface for `activeCompanyId`/`COMPANY_ID`. It is not a demo-company fallback. The UI/application boundary is now guarded against legacy reads, writes, static tenant IDs and client-side tenant filtering; do not delete the compatibility owner until repository-wide CI and runtime evidence prove safe retirement.
+`src/lib/supabase.ts` retains a nullable compatibility surface for `activeCompanyId`/`COMPANY_ID`. It is not a demo-company fallback. The application boundary is guarded against legacy/static consumers; SQL/RLS enforcement remains covered by the dedicated global tenant/RPC gates.
 
 ## Migration inventory
 - 44 migration files are inventoried in the permanent migration map.
@@ -63,13 +63,13 @@ This is the authoritative compact execution snapshot. Consult it before starting
 - Static dependency analysis is conservative and is not a substitute for live PostgreSQL evidence.
 
 ## Current CI evidence
-- Quality run `32868435748` on source head `5ebaca51e544792216f962fc80f8fc951f4c9e16` completed with **failure**; this was a CI/application contract failure, not a production-runtime certification result.
-- Batch 26 pushed `e037ce395bb3f6ae210cbd2cf4d0746af1563eda` with the strengthened tenant-consumer guard. Quality run `32868663071` is currently **queued** for that exact head.
-- No current Batch 26 PASS is claimed until run `32868663071` executes and completes.
+- Quality run `32868766433` on head `b96bb2311ee9dd1c8d0a2c3c8d51d8d90a364966` reached executable runner steps and failed at the strengthened tenant consumer boundary; this exposed an over-broad application filter pattern, which was corrected.
+- Batch 26 current head is `228df63db82687e7584d57b929ac56f3b1ac2d3e`; Quality run `32868919633` is now queued/in progress against that exact head.
+- No current PASS is claimed until run `32868919633` completes.
 
 ## P0 blockers
 1. **Live tenant isolation:** prove two-company read/write isolation, no-membership fail-closed, inactive membership, default-company selection, and cross-tenant Import RPC rejection against a real database.
-2. **Current CI closure:** complete run `32868663071` after the repository-wide legacy consumer guard was strengthened; any discovered consumer is a real integration gap and must be fixed rather than exempted.
+2. **Current CI closure:** complete run `32868919633`; any genuine application consumer found by the corrected boundary must be fixed, not exempted.
 
 ## P1 parallel fronts
 1. Execute tenant security, Data Quality projection, migration schema/dependency, typecheck, lint and build against the current source head.
@@ -98,7 +98,7 @@ This is the authoritative compact execution snapshot. Consult it before starting
 - Batch 22: projection regression contract and Quality integration.
 - Batch 24: tenant resolver lineage correction and security-gate hardening.
 - Batch 25: current-head CI bootstrap evidence and permanent index synchronization.
-- Batch 26: strengthened repository-wide tenant consumer guard to reject legacy/static tenant reads and client-side tenant filters, not only unsafe writes; current Quality run `32868663071` is queued against this head.
+- Batch 26: repository-wide application tenant consumer guard hardened; false-positive canonical resolver filters removed from the guard; current Quality run `32868919633` is the authoritative next CI checkpoint.
 
 ## Verified commits of interest
 - `905066a2de85e604f4f97515733c0c07302aa12c` — tenant-native Data Quality boundary.
@@ -108,7 +108,7 @@ This is the authoritative compact execution snapshot. Consult it before starting
 - `5de9d7efec919fe71d4d5475cd7db6accd51dd28` — latest-resolver security-gate correction.
 - `55e0c2785d69662c8db330a40b02325cf7a30b24` — SQL matching correction.
 - `3f1ceddcc38124ef07ff932bdec9e22c40ee47a9` — Batch 25 ledger.
-- `e037ce395bb3f6ae210cbd2cf4d0746af1563eda` — Batch 26 tenant consumer boundary hardening.
+- `228df63db82687e7584d57b929ac56f3b1ac2d3e` — Batch 26 tenant application boundary scope correction.
 
 ## Non-negotiable rule
 A gate existing is implementation evidence only. `Implemented`, `Gated`, and `Integrated` must never be reported as `Runtime-Evidenced` or `Production-Certified` without current executable evidence. Production certification remains blocked until the P0 evidence gaps are closed.
