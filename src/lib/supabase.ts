@@ -22,20 +22,38 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
 });
 
 /**
- * Legacy compatibility surface. It is intentionally nullable: there is no
- * longer a silent fallback to the demo company. New production code must use
- * authenticated session context and database RLS for tenant authorization.
+ * Transitional compatibility value for legacy UI consumers.
+ * It is NEVER a default/demo tenant: AuthGate resolves it from the canonical
+ * database current_company_id() function before protected UI is rendered.
+ * New code should rely on RLS and avoid reading this value directly.
  */
-let activeCompanyId: string | null = null;
+export let COMPANY_ID = '';
+
+export async function resolveCurrentCompanyId(): Promise<string | null> {
+  const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+  if (sessionError || !sessionData.session) {
+    COMPANY_ID = '';
+    return null;
+  }
+
+  const { data, error } = await supabase.rpc('current_company_id');
+  if (error || !data) {
+    COMPANY_ID = '';
+    return null;
+  }
+
+  COMPANY_ID = String(data);
+  return COMPANY_ID;
+}
 
 export function setCompanyId(companyId: string) {
-  activeCompanyId = companyId;
+  COMPANY_ID = companyId;
 }
 
 export function clearCompanyId() {
-  activeCompanyId = null;
+  COMPANY_ID = '';
 }
 
 export function getCompanyId(): string | null {
-  return activeCompanyId;
+  return COMPANY_ID || null;
 }
