@@ -173,6 +173,26 @@ export async function fetchTopProducts(limit = 5): Promise<TopEntity[]> {
   return Array.from(byProduct.entries()).map(([id, v]) => ({ id, name: v.name, value: v.value, secondary: v.qty })).sort((a, b) => b.value - a.value).slice(0, limit);
 }
 
+export async function fetchRecommendations(limit = 20): Promise<Recommendation[]> {
+  const { data, error } = await supabase
+    .from('recommendations')
+    .select('id, company_id, category, priority, title, description, expected_impact, confidence, status, owner, deadline, impact_result, created_at')
+    .order('created_at', { ascending: false })
+    .limit(limit);
+  if (error) throw error;
+  return (data || []) as Recommendation[];
+}
+
+export async function fetchAlerts(limit = 20): Promise<Alert[]> {
+  const { data, error } = await supabase
+    .from('alerts')
+    .select('id, company_id, severity, category, title, description, metric_value, threshold, is_read, created_at')
+    .order('created_at', { ascending: false })
+    .limit(limit);
+  if (error) throw error;
+  return (data || []) as Alert[];
+}
+
 export async function fetchAgingBuckets(): Promise<AgingBucket[]> {
   const { data: invoices, error } = await supabase.from('sales_invoices').select('total, paid_amount, due_date, invoice_date');
   if (error) throw error;
