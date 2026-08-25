@@ -22,6 +22,7 @@
     "test:phase-f-runtime-closure": "node scripts/check-phase-f-runtime-closure.mjs",
     "test:phase-g-release-closure": "node scripts/check-phase-g-release-closure.mjs",
     "test:watched-report-pipeline": "node scripts/check-watched-report-pipeline-contract.mjs",
+    "test:cross-platform-folder-capability": "node scripts/check-cross-platform-folder-capability.mjs",
     "test:business-control-plane": "node scripts/check-business-control-plane-contract.mjs",
     "test:phase-k-production-intelligence": "node scripts/check-phase-k-production-intelligence.mjs",
     "test:phase-k-runtime": "node --experimental-strip-types scripts/production-intelligence-runtime.test.mjs",
