@@ -66,10 +66,11 @@ for (const file of names) {
   pushWorkflows.push(file);
   const config = trigger.config.replace(/\s+/g, ' ');
   const targetsMain = /branches\s*:\s*\[?\s*main\s*\]?/.test(config);
-  if (targetsMain) canonicalMainPushWorkflows.push(file);
-
   const hasBranchRestriction = /branches\s*:|branches-ignore\s*:/.test(config);
   const hasPathRestriction = /paths\s*:|paths-ignore\s*:/.test(config);
+  const isCanonicalMain = targetsMain && !hasPathRestriction;
+  if (isCanonicalMain) canonicalMainPushWorkflows.push(file);
+
   if (!hasBranchRestriction && !hasPathRestriction) broadPushWorkflows.push(file);
 }
 
@@ -77,9 +78,8 @@ if (canonicalMainPushWorkflows.length !== 1 || canonicalMainPushWorkflows[0] !==
   throw new Error(`Expected quality.yml to be the only canonical main push workflow, found: ${canonicalMainPushWorkflows.join(', ') || 'none'}`);
 }
 
-// Other workflows may legitimately have narrowly-scoped push triggers (for example,
-// path-specific checks). They are not duplicates of the main release gate. Broad
-// push triggers are still rejected because they duplicate the canonical main path.
+// Path-scoped checks are legitimate: they execute on main changes that affect
+// their surface but do not compete with the canonical quality release gate.
 const nonCanonicalBroad = broadPushWorkflows.filter((file) => file !== 'quality.yml');
 if (nonCanonicalBroad.length) {
   throw new Error(`Non-canonical broad push workflows are not allowed: ${nonCanonicalBroad.join(', ')}`);
