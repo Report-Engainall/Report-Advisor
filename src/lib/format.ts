@@ -1,17 +1,23 @@
 const arabicDigits = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
 
-export function formatCurrency(value: number | null | undefined, currency = 'ر.س'): string {
-  if (value === null || value === undefined || isNaN(value)) return '—';
+/**
+ * Currency formatting is presentation-only. The application must not silently
+ * claim a business currency when company configuration is unavailable.
+ * Production supplies VITE_DEFAULT_CURRENCY; otherwise the amount is shown
+ * without a fabricated currency label.
+ */
+export function formatCurrency(value: number | null | undefined, currency = import.meta.env.VITE_DEFAULT_CURRENCY || ''): string {
+  if (value === null || value === undefined || !Number.isFinite(value)) return '—';
   const formatted = new Intl.NumberFormat('en-US', {
     minimumFractionDigits: 0,
     maximumFractionDigits: 2,
   }).format(Math.abs(value));
   const sign = value < 0 ? '-' : '';
-  return `${sign}${formatted} ${currency}`;
+  return currency ? `${sign}${formatted} ${currency}` : `${sign}${formatted}`;
 }
 
 export function formatNumber(value: number | null | undefined, decimals = 0): string {
-  if (value === null || value === undefined || isNaN(value)) return '—';
+  if (value === null || value === undefined || !Number.isFinite(value)) return '—';
   return new Intl.NumberFormat('en-US', {
     minimumFractionDigits: decimals,
     maximumFractionDigits: decimals,
@@ -19,13 +25,13 @@ export function formatNumber(value: number | null | undefined, decimals = 0): st
 }
 
 export function formatPercent(value: number | null | undefined, decimals = 1): string {
-  if (value === null || value === undefined || isNaN(value)) return '—';
+  if (value === null || value === undefined || !Number.isFinite(value)) return '—';
   const sign = value > 0 ? '+' : '';
   return `${sign}${value.toFixed(decimals)}%`;
 }
 
 export function formatCompact(value: number | null | undefined): string {
-  if (value === null || value === undefined || isNaN(value)) return '—';
+  if (value === null || value === undefined || !Number.isFinite(value)) return '—';
   if (Math.abs(value) >= 1_000_000) return `${(value / 1_000_000).toFixed(1)}M`;
   if (Math.abs(value) >= 1_000) return `${(value / 1_000).toFixed(1)}K`;
   return value.toFixed(0);
