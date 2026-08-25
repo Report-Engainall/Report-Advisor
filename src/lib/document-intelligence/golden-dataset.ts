@@ -24,7 +24,7 @@ const row = (...entries: Array<[string, unknown]>): Record<string, unknown> => O
 export const GOLDEN_CASES: GoldenCase[] = [
   {
     id: 'ar-en-basic', class: 'ARABIC_ENGLISH', expectedHeader: 1,
-    input: { format: 'xlsx', rows: [row(['رقم الصنف', 'A-100']), ['Product Name', 'سكر'], ['Qty', '١٢'], ['Unit Price', '45.50']] },
+    input: { format: 'xlsx', rows: [row(['رقم الصنف', 'A-100'], ['Product Name', 'سكر'], ['Qty', '١٢'], ['Unit Price', '45.50'])] },
     expectedFields: ['sku', 'product_name', 'quantity', 'unit_price'],
     expectedNormalized: [row(['sku', 'A-100'], ['product_name', 'سكر'], ['quantity', 12], ['unit_price', 45.5])],
     expectedEvidence: [{ source: 'xlsx:sheet1', row: 2, field: 'sku', note: 'رقم الصنف → sku' }],
