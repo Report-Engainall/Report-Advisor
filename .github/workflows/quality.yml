@@ -48,6 +48,8 @@ jobs:
         run: node scripts/check-phase-9-intelligence-closure.mjs
       - name: Metric single source of truth
         run: npm run test:metric-single-source-of-truth
+      - name: Trust, freshness and evidence runtime
+        run: npm run test:trust-evidence-runtime
       - name: Production certification
         run: npm run test:production-certification-contract
       - name: Operational resilience certification
