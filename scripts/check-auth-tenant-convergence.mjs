@@ -9,6 +9,9 @@ const authGate = fs.readFileSync(path.join(root, 'src/components/AuthGate.tsx'),
 const loginPage = fs.readFileSync(path.join(root, 'src/pages/LoginPage.tsx'), 'utf8');
 const sidebar = fs.readFileSync(path.join(root, 'src/components/Sidebar.tsx'), 'utf8');
 const profileDisplay = fs.readFileSync(path.join(root, 'src/lib/profile-display.ts'), 'utf8');
+const profileSettings = fs.readFileSync(path.join(root, 'src/pages/ProfileSettingsPage.tsx'), 'utf8');
+const header = fs.readFileSync(path.join(root, 'src/components/Header.tsx'), 'utf8');
+const queries = fs.readFileSync(path.join(root, 'src/lib/queries.ts'), 'utf8');
 
 const failures = [];
 
@@ -23,8 +26,15 @@ if (!authGate.includes('getAuthenticatedUser') || !authGate.includes('onAuthStat
 if (!authGate.includes('<LoginPage />')) failures.push('Unauthenticated state does not render the login screen.');
 if (!loginPage.includes('signInWithPassword')) failures.push('Login screen is not connected to Supabase password authentication.');
 if (!app.includes('<AuthGate>')) failures.push('App is not wrapped in the authenticated application boundary.');
+if (!app.includes('/settings/profile')) failures.push('Owner-editable profile route is missing.');
 if (!sidebar.includes('getDisplayName(user')) failures.push('Sidebar is not consuming the central authenticated identity resolver.');
 if (!sidebar.includes('supabase.auth.signOut')) failures.push('Sidebar sign-out action is missing.');
+if (!profileSettings.includes('supabase.auth.updateUser')) failures.push('Profile settings cannot update authenticated user metadata.');
+if (!profileSettings.includes('full_name')) failures.push('Profile settings do not persist the display name.');
+if (!header.includes("current_company_id")) failures.push('Header health indicator is not backed by a real database probe.');
+if (!header.includes("'checking'") || !header.includes("'healthy'") || !header.includes("'degraded'") || !header.includes("'offline'")) failures.push('Header health state model is incomplete.');
+if (queries.includes("import { supabase, COMPANY_ID }")) failures.push('Canonical dashboard queries still depend on static COMPANY_ID.');
+if (queries.includes(".eq('company_id', COMPANY_ID)")) failures.push('Canonical dashboard queries still apply legacy frontend tenant filtering.');
 
 if (failures.length) {
   console.error('AUTH/TENANT CONVERGENCE FAILED');
@@ -40,3 +50,6 @@ console.log('- authenticated app boundary present');
 console.log('- Arabic Supabase login screen present');
 console.log('- identity resolved outside Sidebar');
 console.log('- sign-out action present');
+console.log('- owner-editable profile settings route present');
+console.log('- truthful database-backed header health state present');
+console.log('- canonical dashboard queries use RLS tenant scope');
