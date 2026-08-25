@@ -33,14 +33,17 @@ This is the latest compact status snapshot. It complements, and does not replace
 | Arabic login flow | YES | YES | YES | NOT PROVEN | NO |
 | Frontend authenticated identity | YES | YES | YES | NOT PROVEN | NO |
 | Dashboard tenant convergence | YES | YES | YES via canonical RLS | NOT PROVEN | NO |
+| Owner-editable profile/display name | YES | YES | YES | NOT PROVEN | NO |
 | Header health truthfulness | YES | YES | YES | NOT PROVEN | NO |
 | Legacy static tenant consumers | PARTIAL | YES | MIGRATION IN PROGRESS | NO | NO |
 | CI runner execution | UNKNOWN/BLOCKED | N/A | N/A | PRE-STEP FAILURES ONLY | NO |
 
-## Completed in current execution wave
-1. Removed legacy `COMPANY_ID` dependency from canonical dashboard query functions; tenant filtering is now delegated to authenticated RLS/current_company_id instead of a frontend static context.
-2. Made the Header health indicator perform a real authenticated Supabase round-trip through `current_company_id()` and report checking/healthy/degraded/offline states.
-3. Kept the authentication boundary, dynamic identity, login, and sign-out from Batch 6 intact.
+## Completed in Batch 7
+1. Removed legacy `COMPANY_ID` dependency from canonical dashboard query functions; tenant filtering is delegated to authenticated RLS/current_company_id.
+2. Made Header health status database-backed with checking/healthy/degraded/offline states and 60-second refresh.
+3. Added owner-editable `/settings/profile` page using authenticated `user_metadata.full_name`.
+4. Added profile settings navigation.
+5. Extended the Auth/Tenant regression guard to cover profile settings, truthful health, and dashboard tenant convergence.
 
 ## P0/P1 backlog
 ### P0 — Authentication/Tenant convergence
@@ -48,10 +51,9 @@ This is the latest compact status snapshot. It complements, and does not replace
 2. ~~Identify/login/session entry point.~~ DONE
 3. ~~Replace hard-coded Sidebar identity.~~ DONE
 4. ~~Add explicit unauthenticated state.~~ DONE
-5. ~~Remove static tenant dependency from canonical dashboard queries.~~ DONE — current wave
+5. ~~Remove static tenant dependency from canonical dashboard queries.~~ DONE
 6. Audit remaining legacy `COMPANY_ID` consumers, including Data Quality and any non-canonical pages/services.
 7. Prove authenticated tenant isolation end-to-end.
-8. Add owner-editable profile/display-name settings.
 
 ### P0 — CI runtime evidence
 1. Obtain a Quality job with at least one executable step.
@@ -88,6 +90,7 @@ Tenant, storage, realtime, AI isolation, backup/restore, recovery, rollback, gov
 - Sign-out added.
 - Dashboard query layer removed its legacy static tenant filter dependency.
 - Header health indicator now uses a real authenticated database probe.
+- Owner-editable profile/display name added.
 
 ## Current blockers
 1. GitHub Actions attempts previously failed before executable steps (`steps:null` / `steps:[]`, unavailable logs). This is not currently attributed to application code.
@@ -96,34 +99,37 @@ Tenant, storage, realtime, AI isolation, backup/restore, recovery, rollback, gov
 4. Legacy tenant consumers remain outside the canonical query closure and require source-wide remediation.
 
 ## Next execution order
-**NOW-1:** complete source-wide tenant consumer convergence and authenticated tenant proof.
+**NOW-1:** complete source-wide tenant consumer convergence and authenticated tenant proof, starting with Data Quality.
 
-**NOW-2:** complete owner-editable profile/display-name settings.
+**NOW-2:** add automated health-state regression execution and verify the new profile route in CI.
 
-**NOW-3:** harden health semantics with explicit tenant/session states and tests.
+**NOW-3:** complete package-script → script → workflow mapping.
 
-**NOW-4:** complete package-script → script → workflow mapping.
+**NOW-4:** complete migration/schema/RLS/index dependency mapping.
 
-**NOW-5:** complete migration/schema/RLS/index dependency mapping.
+**NOW-5:** trace critical UI flows end-to-end.
 
-**NOW-6:** trace critical UI flows end-to-end.
+**NOW-6:** connected J/K/L/M runtime evidence.
 
-**NOW-7:** connected J/K/L/M runtime evidence.
+**NOW-7:** E/F/H/I live security/resilience evidence.
 
-**NOW-8:** E/F/H/I live security/resilience evidence.
+**NOW-8:** CI runner recovery and executable evidence.
 
-**NOW-9:** CI runner recovery and executable evidence.
-
-**NOW-10:** production certification only after current evidence closes all P0 blockers.
-
-## Current wave commits
-- `cc8550b273da48dc1914aa5380c488882676f0cb` — canonical dashboard queries use RLS tenant scope
-- `5393c87616b57d9697d9b16c290e37faee15a201` — truthful Header health state
+**NOW-9:** production certification only after current evidence closes all P0 blockers.
 
 ## Batch evidence
 - Batch 5: `docs/EXECUTION_LEDGER_2026-08-25_BATCH-5.md`
 - Batch 6: `docs/EXECUTION_LEDGER_2026-08-25_BATCH-6.md`
-- Current wave: pending ledger commit
+- Batch 7: `docs/EXECUTION_LEDGER_2026-08-25_BATCH-7.md`
+
+## Batch 7 commits
+- `cc8550b273da48dc1914aa5380c488882676f0cb` — dashboard tenant convergence
+- `5393c87616b57d9697d9b16c290e37faee15a201` — truthful health state
+- `a418b38bd364992a5e17784f2353e68b10d8861d` — profile settings
+- `5fe6312dcda49e609e7d7895126966fe113a3397` — profile route
+- `89cecdaccf8e75911c4db41ce8edd34b1e5712fc` — profile navigation
+- `2253cd2fba29e79d1790b6764d0eec6384474d10` — regression guard
+- `44cd9ab05db8e5bd62d605741338d55fa753e3f8` — batch ledger
 
 ## Non-negotiable rule
 No capability is marked production-complete merely because code or static contracts exist. Runtime evidence and the existing certification chain remain mandatory.
