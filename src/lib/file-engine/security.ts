@@ -1,3 +1,4 @@
+import type { SupabaseClient } from '@supabase/supabase-js';
 import type { SecurityScanResult } from './types';
 import { MAX_FILE_SIZE } from './types';
 
@@ -48,9 +49,7 @@ export function securityScan(file: File, buffer: ArrayBuffer): SecurityScanResul
     }
   }
 
-  if (file.size === 0) {
-    issues.push('الملف فارغ');
-  }
+  if (file.size === 0) issues.push('الملف فارغ');
 
   return {
     passed: issues.length === 0,
@@ -62,18 +61,23 @@ export function securityScan(file: File, buffer: ArrayBuffer): SecurityScanResul
   };
 }
 
-export async function checkDuplicate(hash: string, companyId: string, supabase: any): Promise<{ isDuplicate: boolean; existing: any | null }> {
-  const { data } = await supabase
+/**
+ * Duplicate detection deliberately has no client-supplied tenant identifier.
+ * The query is filtered by Supabase RLS/current tenant context, making the
+ * database the authority for tenant scope rather than browser state.
+ */
+export async function checkDuplicate(
+  hash: string,
+  supabase: SupabaseClient,
+): Promise<{ isDuplicate: boolean; existing: Record<string, unknown> | null }> {
+  const { data, error } = await supabase
     .from('file_records')
-    .select('*')
-    .eq('company_id', companyId)
+    .select('id, file_name, file_hash, created_at')
     .eq('file_hash', hash)
     .order('created_at', { ascending: false })
     .limit(1)
     .maybeSingle();
 
-  if (data) {
-    return { isDuplicate: true, existing: data };
-  }
-  return { isDuplicate: false, existing: null };
+  if (error) throw error;
+  return { isDuplicate: Boolean(data), existing: data as Record<string, unknown> | null };
 }
