@@ -2,19 +2,11 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const ROOT = process.cwd();
-const TARGETS = [
-  'src',
-  'scripts',
-  'supabase',
-];
-const ALLOWED_LEGACY = new Set([
-  'src/pages/EntityPages.tsx',
-  'src/lib/supabase.ts',
-]);
-const PATTERNS = [
-  /\bCOMPANY_ID\b/g,
-  /\bactiveCompanyId\b/g,
-];
+const TARGETS = ['src', 'scripts', 'supabase'];
+// The UI migration is now closed. The only remaining compatibility owner is
+// the low-level Supabase module, which is intentionally temporary and guarded.
+const ALLOWED_LEGACY = new Set(['src/lib/supabase.ts']);
+const PATTERNS = [/\bCOMPANY_ID\b/g, /\bactiveCompanyId\b/g];
 const IGNORE_DIRS = new Set(['node_modules', '.git', 'dist', 'coverage']);
 
 function walk(dir, out = []) {
@@ -35,8 +27,7 @@ for (const root of TARGETS) {
     const text = fs.readFileSync(file, 'utf8');
     for (const pattern of PATTERNS) {
       for (const match of text.matchAll(pattern)) {
-        const before = text.slice(0, match.index);
-        const line = before.split('\n').length;
+        const line = text.slice(0, match.index).split('\n').length;
         findings.push({ file: rel, line, token: match[0] });
       }
     }
@@ -46,7 +37,7 @@ for (const root of TARGETS) {
 const unexpected = findings.filter((f) => !ALLOWED_LEGACY.has(f.file));
 const legacy = findings.filter((f) => ALLOWED_LEGACY.has(f.file));
 
-console.log(`Tenant legacy audit: ${findings.length} legacy/context references found.`);
+console.log(`Tenant legacy audit: ${findings.length} compatibility references found.`);
 for (const item of legacy) console.log(`  ALLOWED-LEGACY ${item.file}:${item.line} ${item.token}`);
 
 if (unexpected.length) {
@@ -55,4 +46,4 @@ if (unexpected.length) {
   process.exit(1);
 }
 
-console.log('PASS: no new tenant compatibility consumers were introduced outside the documented migration boundary.');
+console.log('PASS: no tenant compatibility consumers exist outside the canonical Supabase compatibility boundary.');
