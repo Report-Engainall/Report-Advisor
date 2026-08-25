@@ -19,20 +19,22 @@ Source of truth: `main`
 The quality workflow is operated as a batch-discovery loop rather than a serial first-failure loop. No CI PASS is claimed for commits whose complete workflow result is unavailable.
 
 ## Latest implementation batches
-- `99b70b9c791341444e4a13d00155593e5e01bb74`: centralized compatibility tenant guard in `queries-compat.ts`.
-- `5f8653ab7288e95cce5b4aa723250cd3f37b64ee`: removed fabricated import metrics and invalid non-terminal finalization from compatibility updates; canonical counters/lineage are preserved and only terminal statuses finalize.
-- `1ebe366613d9f58d7d9bb7f60bc195f00bdc6ad6`: added a parallel P0 family gate that executes existing tenant, import, KPI/report-truth, workflow, and production-blocker contracts concurrently and aggregates failures.
-- `f72b85f6c0f6d3e3ae1d86a6bc20e3e1a8690f59`: exposed the P0 family gate as `npm run test:p0-batch`.
-- `01aff839a7c3ebf6841d00a18a53c012aff6ed48`: routed workflow command integrity through the repository's extended checker, which handles generic package-manager aliases without weakening actual script validation.
-- `650e33b9a292039e7c2dd162f98167887db57b77` + `3bc433f0b690c74c494baa3c930b11dc557caeae`: added the parallel P1 family gate (`npm run test:p1-batch`) covering folder watch, watched pipeline, document intelligence, file-intelligence security, decision intelligence and production coordinator integration.
-- `f49d8a19ddba35f15bc0966e2182f9c6a34b0a85`: removed an over-broad `tenant_memberships` string-match from the legacy-consumer guard; membership-table presence alone is not evidence of a legacy tenant consumer. The guard retains explicit static-ID, environment, client-selected filtering, legacy mutator and unsafe tenant assignment patterns.
-- Existing canonical import lifecycle hardening remains authoritative: tenant context, terminal allow-list, row locking and lineage preservation.
+- `6e449c3efd9ec7c5dba8bd58ad8b68a36111b465`: improved tenant legacy guard recognition for canonical `requireTenant` helpers.
+- `da0db827edf4a93791cf4310090c9dcda9c396ea`: removed a false-positive tenant rule that treated legitimate RPC payload keys such as `p_company_id:` as static tenant authority.
+- `e48861bf5cef8fc44140b061fe9ed7615747e06a`: added a regression harness proving canonical tenant-authoritative RPC payloads pass while client-selected tenant filters fail.
+- `ef9acfef1b6dc215ae27a220ca4ea5c2d97573b2`: fixed `buildAgingBuckets` so missing/invalid due dates land in explicit `UNDATED` evidence instead of `0-30`.
+- `6ab241f308ea3b15f32bd7144797fa5d4df4daac`: added BI regressions for `UNDATED` aging and incomplete cash-conversion-cycle inputs.
+- `634fc25eaf3c9cfaf1019064f09a74968e4eb8d7`: hardened canonical query import lifecycle terminal transitions and canonical aging projection; non-terminal status no longer reaches terminal RPC.
+- `6d92f706ff70dab55c7bafd4c6ce004265947396`: made business decision creation fail closed when `evidenceIds` is empty and normalize/deduplicate evidence IDs.
+- `25dfede65723e2dec2c5c8f5ba6956f531224185`: added decision-evidence regression coverage.
+- `41fd31cf0b85e38287a8a93eaddd3a5df71afb33` / `37da590c6da619f01c4966c94ff13550406e453c` / `69143671a8c1cd383a71a659ce93e66f233546b6`: wired tenant, BI, and decision regressions into the canonical quality workflow.
+- Existing P0/P1 family gates remain authoritative and fail-closed.
 
 ## Current CI truth
-- Run `32821715254` on `f29b39b2d36d19990c1925e4b4fa3a12b6cca4c0` failed at **Tenant legacy consumer boundary**; this is the concrete failure family being repaired now. fileciteturn850file0
-- The root fix is `f49d8a19ddba35f15bc0966e2182f9c6a34b0a85`; its push-triggered CI runs `32903148153` (batch-integrity-guards) and `32903148081` (integrity-batch) are currently queued. fileciteturn858file0
-- The fix deliberately does not weaken tenant security checks; it removes only a false-positive rule that treated any `tenant_memberships` reference as unsafe.
-- The P0/P1 family gates are fail-closed: any family failure makes the aggregate gate fail while still reporting all independently failing families.
+- Run `32821715254` on `f29b39b2d36d19990c1925e4b4fa3a12b6cca4c0` failed at **Tenant legacy consumer boundary**; that failure family has now been root-fixed and guarded.
+- The post-fix commits above have been pushed to `main`, but complete push-triggered quality results for the latest head are **not yet available through the connected GitHub Actions status surface**. No PASS is claimed until the full run is observable.
+- The last observed failure was a checker false positive in `src/pages/AlternativeGroupsPage.tsx`: legitimate `p_company_id: companyId` RPC payload syntax matched a generic `COMPANY_ID` assignment pattern.
+- The guard was narrowed to declaration-level `const|let|var COMPANY_ID/TENANT_ID` assignments while preserving static-ID, environment, client-selected filter, legacy mutator, and unsafe tenant assignment detection.
 - Runtime Supabase evidence remains separate and LIVE REQUIRED.
 
 ## Phase truth
@@ -56,12 +58,19 @@ The quality workflow is operated as a batch-discovery loop rather than a serial 
 | S | NOT LIVE CERTIFIED | final production certification |
 
 ## Tenant / Data / KPI truth
-- Tenant legacy/static/client-selected consumer scan: the guard is being made precise; broad membership-table presence is no longer treated as a legacy consumer by itself.
+- Tenant legacy/static/client-selected consumer scan is now precise against canonical RPC payload syntax and has an executable regression harness.
 - Canonical browser tenant resolver remains `resolveCurrentCompanyId()`.
 - Import RPCs validate tenant context server-side and use tenant-owned row locks.
 - Import lifecycle has idempotency, canonical tenant context and terminal-state hardening.
-- Compatibility import updates preserve canonical counters and result-summary lineage rather than fabricating missing metrics.
-- KPI presentation must remain fail-closed for missing authoritative values; no missing→zero coercion is accepted.
+- Canonical query lifecycle no longer sends `processing` into terminal `import_finish_job`.
+- Missing/invalid due dates are represented as `UNDATED`, not `0-30`.
+- KPI presentation remains fail-closed for missing authoritative numeric values; no missing→zero coercion is accepted for required fields.
+
+## Decision truth
+- Business decision creation now requires at least one non-empty evidence ID.
+- Evidence IDs are trimmed, deduplicated, and retained as the decision's evidence lineage.
+- Report pipeline already filters actions to evidence-backed decisions before construction.
+- Runtime outcome tracking remains LIVE REQUIRED.
 
 ## Watched-folder / cross-platform
 Canonical existing watcher reused: directory selection/monitoring, SHA-256, incremental state, IndexedDB snapshots, queue/dead-letter and text-first fallback.
@@ -81,4 +90,4 @@ Single cross-platform contract: `src/lib/import-pipeline/folder-watch-contract.t
 These remain LIVE REQUIRED wherever static contracts cannot establish real runtime behavior.
 
 ## Completion truth
-**Engineering completion: ~82% conservative.** No percentage increase is claimed for commits/guards alone. Production certification remains **NO** until LIVE runtime evidence closes the P0 matrix.
+**Engineering completion remains ~82% conservative.** No percentage increase is claimed for commits/guards alone. Production certification remains **NO** until LIVE runtime evidence closes the P0 matrix.
