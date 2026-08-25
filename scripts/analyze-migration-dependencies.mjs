@@ -6,9 +6,9 @@
  * claiming that the live database has applied the same objects.
  *
  * It intentionally reports candidates rather than pretending SQL parsing is a
- * full PostgreSQL parser. CREATE OR REPLACE is treated as an intentional
- * evolution signal; same-name CREATE TABLE/INDEX/POLICY/TRIGGER conflicts are
- * surfaced for review.
+ * full PostgreSQL parser. CREATE OR REPLACE and CREATE IF NOT EXISTS are treated
+ * as intentional idempotent evolution signals; same-name non-idempotent CREATE
+ * TABLE definitions remain hard conflicts.
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -37,7 +37,14 @@ for (const file of files) {
   const sql = fs.readFileSync(path.join(root, file), 'utf8');
   for (const [kind, re] of patterns) {
     for (const match of sql.matchAll(re)) {
-      objects.push({ file, kind, name: match[1], replace: /CREATE\s+OR\s+REPLACE\s+/i.test(match[0]) });
+      const statement = match[0];
+      objects.push({
+        file,
+        kind,
+        name: match[1],
+        replace: /CREATE\s+OR\s+REPLACE\s+/i.test(statement),
+        ifNotExists: /CREATE\s+(?:UNIQUE\s+)?(?:TABLE|INDEX)\s+IF\s+NOT\s+EXISTS/i.test(statement),
+      });
     }
   }
 }
@@ -71,14 +78,15 @@ console.log(`Migration files: ${files.length}`);
 console.log(`Object references: ${objects.length}`);
 console.log(`Repeated object definitions: ${repeated.length}`);
 for (const item of repeated) {
-  console.log(`REVIEW ${item.key}: ${item.objects.map((x) => `${x.file}${x.replace ? ' [OR REPLACE]' : ''}`).join(', ')}`);
+  console.log(`REVIEW ${item.key}: ${item.objects.map((x) => `${x.file}${x.replace ? ' [OR REPLACE]' : ''}${x.ifNotExists ? ' [IF NOT EXISTS]' : ''}`).join(', ')}`);
 }
 
-// Do not fail merely because an object evolves across migrations. Fail only
-// on repeated non-replace CREATE TABLE definitions, which are high-confidence
-// conflicts worth blocking until reviewed.
+// CREATE IF NOT EXISTS is safe for the object-definition layer because the
+// existing object remains authoritative; schema evolution must still be done
+// explicitly with ALTER TABLE/INDEX statements. Only repeated non-idempotent
+// CREATE TABLE definitions are high-confidence migration conflicts.
 const hardConflicts = repeated.filter(({ key, objects: list }) =>
-  key.startsWith('table:') && list.some((x) => !x.replace)
+  key.startsWith('table:') && list.some((x) => !x.replace && !x.ifNotExists)
 );
 if (hardConflicts.length) {
   console.error(`Hard migration conflicts detected: ${hardConflicts.length}`);
