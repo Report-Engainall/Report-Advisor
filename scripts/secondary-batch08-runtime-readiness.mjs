@@ -58,18 +58,21 @@ for (const marker of [
   else fail(`Migration inventory: ${marker}`, 'expected migration missing');
 }
 
+// Scan only implementation/runtime surfaces here. Guard scripts are tested by
+// their own contracts and may legitimately contain forbidden provider labels
+// as data used to detect those labels in other files.
 const secondaryFiles = [
-  'scripts/secondary-batch05-runtime-audit.mjs',
-  'scripts/secondary-batch06-quality-audit.mjs',
-  'scripts/secondary-batch07-runtime-inventory.mjs',
-  'scripts/secondary-batch07-safe-surfaces.test.mjs',
-  'src/lib/secondary-batch07-safe-surfaces.ts',
-  '.github/workflows/secondary-agent-batch04.yml'
+  'src/lib/secondary-batch03-runtime.ts',
+  'src/lib/secondary-evidence-ux.ts',
+  'src/lib/phase-kl-supabase-runtime.ts',
+  'src/lib/data-quality-queries.ts',
+  'src/lib/documentIntelligenceGateway.ts',
+  'src/lib/report-intelligence/reconciliation-engine.ts'
 ].filter((file) => fs.existsSync(path.join(root, file)));
 const paidMarkers = /api\.openai\.com|api\.anthropic\.com|generativelanguage\.googleapis\.com|lovable/i;
 const paidHits = secondaryFiles.filter((file) => paidMarkers.test(read(file)));
 if (paidHits.length) fail('Free-first secondary surface guard', `paid/provider marker found in ${paidHits.join(', ')}`);
-else pass('Free-first secondary surface guard', 'no known paid-provider marker in secondary surfaces');
+else pass('Free-first secondary surface guard', 'no known paid-provider marker in authoritative secondary runtime surfaces');
 
 const tenantMatrix = [
   'two-company read isolation',
