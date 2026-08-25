@@ -19,7 +19,7 @@ concurrency:
 jobs:
   contracts:
     runs-on: ubuntu-22.04
-    timeout-minutes: 10
+    timeout-minutes: 15
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -47,6 +47,24 @@ jobs:
         run: npm run test:secondary-batch07-safe-surfaces
       - name: Batch 08 runtime readiness audit
         run: npm run test:secondary-batch08-runtime-readiness
+      - name: Batch 08 contract guard
+        run: node scripts/secondary-batch08-contract.test.mjs
+      - name: Batch 09 boundary contract
+        run: node scripts/secondary-batch09-boundary.test.mjs
+      - name: Batch 10 contract
+        run: node scripts/secondary-batch10-contract.mjs
+      - name: Batch 11 safety contract
+        run: node scripts/secondary-batch11-safety-contract.mjs
+      - name: Batch 12 action-surface safety
+        run: node scripts/secondary-batch12-action-surfaces.test.mjs
+      - name: Batch 13 governance contract
+        run: node scripts/secondary-batch13-governance.test.mjs
+      - name: Batch 14 explainability contract
+        run: node scripts/secondary-batch14-explainability.test.mjs
+      - name: Batch 16 policy contract
+        run: node scripts/secondary-batch16-policy.test.mjs
+      - name: Free-first policy regression
+        run: node scripts/secondary-free-first-policy.test.mjs
 
   project-quality:
     strategy:
