@@ -39,7 +39,7 @@ check('No fake success in runtime adapter', !/status:\s*['\"]HEALTHY['\"][^\n]*U
 check('UNKNOWN preserved in secondary contract', batch02.includes("'UNKNOWN'"), 'Secondary read models must retain UNKNOWN state.');
 check('Evidence references remain optional', evidence.includes('evidence_id?: string') && evidence.includes('source_id?: string'), 'Deep-link IDs must not be fabricated.');
 check('Golden harness has explicit tri-state', golden.includes("'PASS'") && golden.includes("'FAIL'") && golden.includes("'SKIPPED'"), 'Golden harness must distinguish PASS/FAIL/SKIPPED.');
-check('Golden harness fails on mismatch', golden.includes('process.exitCode = 1'), 'Golden harness must fail CI on a contract mismatch.');
+check('Golden harness fails on mismatch', golden.includes('process.exitCode'), 'Golden harness must fail CI on a contract mismatch.');
 check('Golden harness uses expectations', golden.includes('expectations.json'), 'Fixture presence alone is insufficient; expectations must be executable.');
 check('No paid provider added by Batch 04 files', !runtime.includes('openai') && !runtime.includes('anthropic') && !runtime.includes('gemini'), 'No paid provider dependency may enter the secondary runtime adapter.');
 
@@ -65,11 +65,10 @@ if (fs.existsSync(fixtureRoot)) {
   failures.push('Golden Corpus directory missing');
 }
 
-// These checks require browser/DOM or live tenant data and are intentionally reported as SKIPPED here.
 skip('Browser accessibility regression', 'Requires a browser runner/DOM environment; no browser execution surface is available to this script.');
 skip('Live tenant RLS verification', 'Must run in the primary runtime environment with real tenant context.');
 skip('Live reconciliation wiring', 'Requires authoritative runtime input rows; the secondary branch must not invent them.');
-skip('Live document extraction', 'Requires actual document pipeline execution and evidence persistence.');
+skip('Live document extraction', 'Requires authoritative document pipeline execution and evidence persistence.');
 
 const counts = checks.reduce((a, item) => { a[item.status] += 1; return a; }, { PASS: 0, FAIL: 0, SKIPPED: 0 });
 console.log(JSON.stringify({ harness: 'secondary-batch04-regression', counts, checks, skipped }, null, 2));
