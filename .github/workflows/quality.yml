@@ -26,6 +26,10 @@ jobs:
         run: node scripts/check-cross-surface-traceability.mjs
       - name: Authentication and tenant convergence
         run: npm run test:auth-tenant-convergence
+      - name: Tenant legacy consumer boundary
+        run: node scripts/check-tenant-legacy-consumers.mjs
+      - name: Company configuration truth
+        run: node scripts/check-company-config-truth.mjs
       - name: Database migration schema audit
         run: npm run test:migration-schema-audit
       - name: Master requirements lock
