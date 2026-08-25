@@ -69,3 +69,9 @@ No existing feature was deleted or replaced. No existing route was changed in th
 - Report Snapshot Diff: FOUNDATION
 - Multi-Dimensional Trust UI: FOUNDATION
 - Live integration: LIVE REQUIRED
+
+## Batch 02 continuation note
+
+Batch 02 extends this foundation with evidence-aware read-model contracts and presentation surfaces for Data Quality, Business Control Plane, Document Intelligence, Smart Reconciliation, Schema Discovery, plus a safe synthetic Golden Corpus. Batch 01 remains FOUNDATION and is not promoted to COMPLETE merely because Batch 02 exists.
+
+Batch 02 deliberately does not replace any Batch 01 component or create a second Core Engine.
