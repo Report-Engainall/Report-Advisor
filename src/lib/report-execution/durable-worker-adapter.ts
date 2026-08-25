@@ -1,6 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
-import type { ReportExecutionRequest } from './report-execution-contract';
-import type { ReportExecutionCheckpoint } from './checkpoint';
+import type { ReportExecutionRequest } from './report-execution-contract.ts';
+import type { ReportExecutionCheckpoint } from './checkpoint.ts';
 
 export interface DurableExecutionJob {
   id: string;
@@ -14,7 +14,11 @@ export interface DurableExecutionJob {
 }
 
 export class SupabaseReportExecutionStore {
-  constructor(private readonly client: SupabaseClient) {}
+  private readonly client: SupabaseClient;
+
+  constructor(client: SupabaseClient) {
+    this.client = client;
+  }
 
   async claim(jobId: string, workerId: string, leaseSeconds = 300): Promise<DurableExecutionJob> {
     const { data, error } = await this.client.rpc('claim_report_execution_job', { p_job_id: jobId, p_lease_owner: workerId, p_lease_seconds: leaseSeconds });
