@@ -22,6 +22,15 @@ function requiredText(value: unknown, field: string, rowNumber: number): string 
   return v;
 }
 
+function requiredBoolean(value: unknown, field: string, rowNumber: number): boolean {
+  if (value == null || value === '') throw new Error(`${field} is required for import row ${rowNumber}`);
+  if (typeof value === 'boolean') return value;
+  const normalized = String(value).trim().toLowerCase();
+  if (['true', '1', 'yes', 'y', 'نعم', 'نشط'].includes(normalized)) return true;
+  if (['false', '0', 'no', 'n', 'لا', 'غير نشط'].includes(normalized)) return false;
+  throw new Error(`${field} must be a boolean for import row ${rowNumber}`);
+}
+
 async function commitProduct(companyId: string, row: CanonicalImportRow) {
   const d = row.data;
   const { data, error } = await supabase.rpc('import_upsert_product', {
@@ -33,7 +42,7 @@ async function commitProduct(companyId: string, row: CanonicalImportRow) {
     p_selling_price: requiredNumber(d.selling_price, 'selling_price', row.rowNumber),
     p_min_stock: requiredNumber(d.min_stock, 'min_stock', row.rowNumber),
     p_reorder_point: requiredNumber(d.reorder_point, 'reorder_point', row.rowNumber),
-    p_is_active: d.is_active == null ? true : Boolean(d.is_active),
+    p_is_active: requiredBoolean(d.is_active, 'is_active', row.rowNumber),
   });
   if (error) throw error;
   return String(data);
