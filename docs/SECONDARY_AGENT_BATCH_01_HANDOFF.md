@@ -75,3 +75,7 @@ No existing feature was deleted or replaced. No existing route was changed in th
 Batch 02 extends this foundation with evidence-aware read-model contracts and presentation surfaces for Data Quality, Business Control Plane, Document Intelligence, Smart Reconciliation, Schema Discovery, plus a safe synthetic Golden Corpus. Batch 01 remains FOUNDATION and is not promoted to COMPLETE merely because Batch 02 exists.
 
 Batch 02 deliberately does not replace any Batch 01 component or create a second Core Engine.
+
+## Batch 03 continuation note
+
+Batch 03 adds runtime read-model adapters around existing authoritative boundaries, explicit UNKNOWN reconciliation handling, deep-link reference fields, a CI-ready Golden Corpus harness, and accessibility hardening. It does not promote Batch 01 to COMPLETE. Live runtime integration and executable CI evidence remain required.
