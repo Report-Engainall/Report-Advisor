@@ -23,6 +23,12 @@ export class SupabaseReportExecutionStore {
     return this.require(jobId);
   }
 
+  async heartbeat(jobId: string, workerId: string, leaseSeconds = 300): Promise<void> {
+    const { data, error } = await this.client.rpc('heartbeat_report_execution_job', { p_job_id: jobId, p_worker_id: workerId, p_lease_seconds: leaseSeconds });
+    if (error) throw error;
+    if (data !== true) throw new Error('Heartbeat rejected: active worker lease is missing, expired, or no longer owns the job');
+  }
+
   async saveCheckpoint(jobId: string, checkpoint: ReportExecutionCheckpoint, workerId?: string): Promise<void> {
     if (!workerId) throw new Error('Checkpoint persistence requires the active worker lease owner');
     const { data, error } = await this.client.rpc('advance_report_execution_checkpoint', { p_job_id: jobId, p_worker_id: workerId, p_checkpoint: checkpoint });
