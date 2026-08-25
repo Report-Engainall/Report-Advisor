@@ -16,6 +16,8 @@ jobs:
         with: {fetch-depth: 1, persist-credentials: false}
       - uses: actions/setup-node@v5
         with: {node-version: 22, cache: npm}
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11', cache: pip}
       - name: Diagnostics
         run: node --version && npm --version && python3 --version && test -f package-lock.json && test "$(git rev-parse HEAD)" = "${GITHUB_SHA}"
       - name: Install
@@ -128,7 +130,9 @@ jobs:
         run: npm run test:document-intelligence-contract && npm run test:document-intelligence-semantic-foundation && npm run test:document-intelligence-hardening && npm run test:document-intelligence-decision-gate && npm run test:file-intelligence-security && npm run test:operational-file-pipeline
       - name: Document intelligence service runtime contracts
         if: ${{ always() }}
-        run: python3 -m unittest discover -s services/document-intelligence/tests -p 'test_*.py'
+        env:
+          PYTHONPATH: services/document-intelligence
+        run: python -m unittest discover -s services/document-intelligence/tests -p 'test_*.py'
       - name: Report truth contract
         if: ${{ always() }}
         run: npm run test:report-truth
