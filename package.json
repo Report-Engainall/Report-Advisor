@@ -12,6 +12,7 @@
     "inventory:system": "node scripts/build-system-inventory.mjs",
     "test:auth-tenant-convergence": "node scripts/check-auth-tenant-convergence.mjs",
     "test:migration-schema-audit": "node scripts/check-migration-schema-audit.mjs",
+    "test:migration-dependencies": "node scripts/analyze-migration-dependencies.mjs",
     "perf:budget": "node scripts/check-performance-budget.mjs",
     "test:operational-resilience": "node scripts/check-operational-resilience-contract.mjs",
     "test:release-resilience-manifest": "node scripts/check-release-resilience-manifest.mjs",
