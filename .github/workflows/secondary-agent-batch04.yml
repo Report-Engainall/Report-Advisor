@@ -43,6 +43,8 @@ jobs:
         run: node scripts/secondary-batch06-quality-audit.mjs
       - name: Batch 07 runtime gap inventory
         run: npm run test:secondary-batch07-runtime-inventory
+      - name: Batch 07 safe surfaces regression
+        run: npm run test:secondary-batch07-safe-surfaces
 
   project-quality:
     strategy:
