@@ -45,9 +45,7 @@ function validateEvidence(evidence: RuntimeEvidence[]): void {
     if (!item.key.trim()) throw new Error('Runtime evidence requires a non-empty key');
     if (keys.has(item.key)) throw new Error(`Duplicate runtime evidence key: ${item.key}`);
     keys.add(item.key);
-    if (!Number.isFinite(item.quality) || item.quality < 0 || item.quality > 1) {
-      throw new Error(`Runtime evidence quality must be between 0 and 1: ${item.key}`);
-    }
+    if (!Number.isFinite(item.quality) || item.quality < 0 || item.quality > 1) throw new Error(`Runtime evidence quality must be between 0 and 1: ${item.key}`);
   }
 }
 
@@ -59,11 +57,7 @@ function validateSources<T>(sources: SourceCandidate<T>[]): void {
   }
 }
 
-/**
- * Pure integration bridge. Durable persistence/leases remain owned by the
- * worker store. Domain engines supply evidence, scenarios and candidates;
- * this bridge never invents business values or silently enables autonomy.
- */
+/** Pure integration bridge. Persistence/leases remain owned by the worker store. */
 export function runProductionLifecycle<T>(input: ProductionLifecycleInput<T>): ProductionLifecycleResult<T> {
   if (!input.companyId || !input.jobId || !input.sourceHash) throw new Error('Production lifecycle requires tenant, job and source identity');
   if (!input.currentRows.length) throw new Error('Production lifecycle requires authoritative current rows');
@@ -79,12 +73,13 @@ export function runProductionLifecycle<T>(input: ProductionLifecycleInput<T>): P
   const scenario = chooseScenario(input.scenarioOptions, input.riskBudget);
   const portfolio = prioritizeDecisions(input.portfolioCandidates, input.riskBudget.maxRisk);
   const autonomy = canAutonomouslyExecute(input.autonomy);
-
   return { jobId: input.jobId, companyId: input.companyId, sourceHash: input.sourceHash, lineage, consolidation, scenario, portfolio, autonomy };
 }
 
 export function assertProductionCheckpoint(checkpoint: ReportExecutionCheckpoint): void {
-  const stages: ReportExecutionStage[] = ['queued','fingerprinted','extracted','canonicalized','validated','analyzed','decisioned','committed','rendered'];
+  const stages: ReportExecutionStage[] = ['queued', 'fingerprinted', 'extracted', 'canonicalized', 'validated', 'analyzed', 'decisioned', 'committed', 'rendered'];
   if (!stages.includes(checkpoint.stage)) throw new Error(`Invalid production stage: ${checkpoint.stage}`);
-  if (!checkpoint.jobId || !checkpoint.sourceHash) throw new Error('Checkpoint requires jobId and sourceHash');
+  if (!checkpoint.sourceHash?.trim()) throw new Error('Checkpoint requires sourceHash');
+  if (!Number.isFinite(checkpoint.updatedAt)) throw new Error('Checkpoint requires a valid updatedAt timestamp');
+  if (!Array.isArray(checkpoint.evidenceKeys)) throw new Error('Checkpoint requires evidenceKeys');
 }
