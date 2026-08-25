@@ -17,6 +17,8 @@ const roadmap=`${read('docs/IMPLEMENTATION_ROADMAP.md')}\n${read('docs/IMPLEMENT
 for(const phase of ['Phase K','Phase L','Phase M','Phase N','Phase O','Phase P','Phase Q','Phase R','Phase S']) if(!roadmap.includes(phase)) throw new Error(`roadmap phase missing: ${phase}`);
 const quality=read('.github/workflows/quality.yml');
 for(const t of ['test:k-to-s-closure','test:phase-k-runtime','test:phase-l-resumable-execution','test:phase-m-certification'])if(!quality.includes(t))throw new Error(`quality gate missing: ${t}`);
-const certification=read('supabase/migrations/20260825140000_phase_m_production_certification.sql');
+const certificationMigration='supabase/migrations/20260825150000_phase_m_certification_bundle.sql';
+if(!exists(certificationMigration)) throw new Error(`M certification migration missing: ${certificationMigration}`);
+const certification=read(certificationMigration);
 if(!certification.includes('can_release_production_certification')) throw new Error('M certification release predicate missing');
-console.log('Deep K→S closure matrix: PASS (canonical runtime + roadmap/addendum + P0 certification matrix; live production certification remains fail-closed).');
+console.log('Deep K→S closure matrix: PASS (canonical runtime + roadmap/addendum + P0 certification matrix + canonical Phase M migration; live production certification remains fail-closed).');
