@@ -19,7 +19,9 @@ assert.equal(selectBoundedScenario([
 ], { maxRisk: 3, protectedLiquidity: 5, minimumServiceLevel: 0.9 })?.key, 'safe');
 
 assert.equal(rankPortfolio([{ key: 'high', materiality: 1, confidence: 0.95, urgency: 1, risk: 0.2 }], 1)[0].escalationRequired, true);
-assert.ok(calibrateConfidence(0.8, [{ expected: 100, actual: 100, quality: 1 }]) > 0.8);
+assert.equal(calibrateConfidence(0.8, []), 0);
+assert.equal(calibrateConfidence(0.8, [{ expected: 100, actual: 100, quality: 1 }]) > 0.8, true);
+assert.equal(calibrateConfidence(0.8, [{ expected: 100, actual: 100, quality: 2 }]), 0);
 assert.deepEqual(evaluateAutonomyGate({ trustHealthy: true, evidenceQuality: 0.95, confidence: 0.95, riskBudgetValid: true, criticalDrift: false, rollbackVerified: true, isolationVerified: true }), { eligible: true, failures: [] });
 assert.equal(evaluateAutonomyGate({ trustHealthy: true, evidenceQuality: 0.95, confidence: 0.95, riskBudgetValid: true, criticalDrift: true, rollbackVerified: true, isolationVerified: true }).eligible, false);
 console.log('Production intelligence runtime: PASS');
