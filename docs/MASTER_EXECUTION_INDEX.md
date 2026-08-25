@@ -86,3 +86,24 @@ These remain LIVE REQUIRED wherever static contracts cannot establish real runti
 
 ## Completion truth
 **Engineering completion: ~82% (conservative).** This remains unchanged. No percentage increase is claimed for commits/guards alone. Production certification remains **NO** until LIVE runtime evidence closes the P0 matrix.
+
+## Batch 27 — Import terminal-state hardening
+- Found a real import lifecycle defect in the canonical `import_finish_job` RPC: any status value could reach the finalizer, while `result_summary` was replaced rather than preserved. This could corrupt a job's terminal state/lineage and could allow a non-terminal state to be treated as finalization by compatibility callers.
+- Added `supabase/migrations/20260825210000_import_finish_terminal_state.sql`.
+- The canonical RPC now fail-closes unless status is one of `completed|partial|failed|cancelled`, rejects `completed` with an error message, locks the tenant-owned job row, preserves existing `result_summary` lineage and merges final summary data, and always records terminal completion time.
+- Hardened `scripts/check-import-transaction-contract.mjs` to permanently guard the terminal-state allow-list, lineage preservation and completed/error consistency.
+- Commits: `7cbbf965c6d8956936b6f65a08a09026a8ea14dd`, `1c1e2050ae128c3a22f437f5a0b3406b0b5f7d2a`.
+- This is a genuine implementation + regression-guard closure, not a documentation-only change.
+
+## Batch 27 verification truth
+- Both commits are now on `main` in sequence.
+- GitHub combined status currently returns no status records for the newly created implementation commit, therefore **CI PASS is not claimed yet**.
+- The fix is statically verifiable from the migration and contract guard, but runtime Supabase evidence remains separate.
+
+## Next parallel wave
+1. Audit all remaining KPI/metric SQL and service contracts for caller-supplied tenant scope, silent zero/default coercion, date ambiguity and missing-data semantics.
+2. Audit report/decision/recommendation constructors for empty evidence, missing provenance and untracked outcome linkage.
+3. Audit import transaction boundaries for deletion/tombstone reconciliation, retry idempotency, terminal-state replay and lineage completeness.
+4. Audit lease/checkpoint/recovery paths for heartbeat races, duplicate completion, stale lease recovery and dead-letter evidence.
+5. Audit Storage/Realtime/AI isolation contracts and runtime canary wiring.
+6. Continue CI in parallel; a new PASS must be verified before increasing the certified percentage.
