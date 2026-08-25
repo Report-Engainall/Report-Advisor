@@ -3,7 +3,7 @@ const ARABIC_INDIC_DIGITS = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸
 
 export function normalizeArabicDigits(text: string): string {
   let result = text;
-  for (let i = 0; i < 10; i++) {
+  for (let i = 0; i < 10; i += 1) {
     result = result.replace(new RegExp(ARABIC_DIGITS[i], 'g'), String(i));
     result = result.replace(new RegExp(ARABIC_INDIC_DIGITS[i], 'g'), String(i));
   }
@@ -11,7 +11,6 @@ export function normalizeArabicDigits(text: string): string {
 }
 
 export function normalizeArabicText(text: string): string {
-  if (typeof text !== 'string') return text;
   return text
     .replace(/[\u0640]/g, '')
     .replace(/[\u200B-\u200F\u202A-\u202E\uFEFF]/g, '')
@@ -26,7 +25,6 @@ export function normalizeArabicText(text: string): string {
 }
 
 export function normalizeWhitespace(text: string): string {
-  if (typeof text !== 'string') return text;
   return text.replace(/\s+/g, ' ').trim();
 }
 
@@ -35,26 +33,21 @@ export function normalizeHeader(name: string): string {
   return normalizeArabicText(normalizeWhitespace(normalizeArabicDigits(name))).toLowerCase();
 }
 
-export function normalizeValue(value: any): any {
+export function normalizeValue(value: unknown): unknown {
   if (value === null || value === undefined) return value;
-  if (typeof value === 'string') {
-    let v = normalizeArabicDigits(value);
-    v = normalizeWhitespace(v);
-    return v;
-  }
+  if (typeof value === 'string') return normalizeWhitespace(normalizeArabicDigits(value));
   return value;
 }
 
-export function normalizeRow(row: Record<string, any>): Record<string, any> {
-  const result: Record<string, any> = {};
+export function normalizeRow(row: Record<string, unknown>): Record<string, unknown> {
+  const result: Record<string, unknown> = {};
   for (const [key, value] of Object.entries(row)) {
-    const normalizedKey = normalizeWhitespace(key);
-    result[normalizedKey] = normalizeValue(value);
+    result[normalizeWhitespace(key)] = normalizeValue(value);
   }
   return result;
 }
 
-export function normalizeRows(rows: Record<string, any>[]): Record<string, any>[] {
+export function normalizeRows(rows: Record<string, unknown>[]): Record<string, unknown>[] {
   return rows.map(normalizeRow);
 }
 
@@ -62,9 +55,9 @@ export function normalizeColumnName(name: string): string {
   return normalizeHeader(name);
 }
 
-export function isSKU(value: any): boolean {
+export function isSKU(value: unknown): boolean {
   if (typeof value !== 'string') return false;
-  const v = String(value).trim();
+  const v = value.trim();
   if (v.length === 0 || v.length > 50) return false;
   if (/^0\d+/.test(v)) return true;
   if (/^[A-Z]{2,5}[-]?\d{2,8}$/i.test(v)) return true;
@@ -72,66 +65,62 @@ export function isSKU(value: any): boolean {
   return false;
 }
 
-export function isPhone(value: any): boolean {
+export function isPhone(value: unknown): boolean {
   if (typeof value !== 'string' && typeof value !== 'number') return false;
   const v = normalizeArabicDigits(String(value)).replace(/[\s\-+()]/g, '');
   return /^0?\d{9,15}$/.test(v);
 }
 
-export function isEmail(value: any): boolean {
-  if (typeof value !== 'string') return false;
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+export function isEmail(value: unknown): boolean {
+  return typeof value === 'string' && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 }
 
 /** Parse integers/decimals from Arabic or Western input without losing locale decimals. */
-export function parseNumber(value: any): number | null {
+export function parseNumber(value: unknown): number | null {
   if (value === null || value === undefined || value === '') return null;
   if (typeof value === 'number') return Number.isFinite(value) ? value : null;
 
-  let v = normalizeArabicDigits(String(value))
+  let normalized = normalizeArabicDigits(String(value))
     .replace(/[٬]/g, ',')
     .replace(/[٫]/g, '.')
     .replace(/[\u00A0\u202F\s]/g, '')
     .replace(/[−–—]/g, '-');
 
-  v = v.replace(/[^\d,.-]/g, '');
-  if (v === '' || v === '-') return null;
+  normalized = normalized.replace(/[^\d,.-]/g, '');
+  if (normalized === '' || normalized === '-') return null;
 
-  const comma = v.lastIndexOf(',');
-  const dot = v.lastIndexOf('.');
+  const comma = normalized.lastIndexOf(',');
+  const dot = normalized.lastIndexOf('.');
   if (comma >= 0 && dot >= 0) {
-    if (comma > dot) v = v.replace(/\./g, '').replace(',', '.');
-    else v = v.replace(/,/g, '');
+    normalized = comma > dot ? normalized.replace(/\./g, '').replace(',', '.') : normalized.replace(/,/g, '');
   } else if (comma >= 0) {
-    const fractionalDigits = v.length - comma - 1;
-    if (fractionalDigits > 0 && fractionalDigits <= 2) v = v.replace(',', '.');
-    else v = v.replace(/,/g, '');
-  } else if ((v.match(/\./g) || []).length > 1) {
-    v = v.replace(/\./g, '');
+    const fractionalDigits = normalized.length - comma - 1;
+    normalized = fractionalDigits > 0 && fractionalDigits <= 2 ? normalized.replace(',', '.') : normalized.replace(/,/g, '');
+  } else if ((normalized.match(/\./g) || []).length > 1) {
+    normalized = normalized.replace(/\./g, '');
   }
 
-  const n = Number(v);
-  return Number.isFinite(n) ? n : null;
+  const number = Number(normalized);
+  return Number.isFinite(number) ? number : null;
 }
 
-export function parseCurrency(value: any): number | null {
+export function parseCurrency(value: unknown): number | null {
+  return value === null || value === undefined || value === '' ? null : parseNumber(value);
+}
+
+export function parseDate(value: unknown): string | null {
   if (value === null || value === undefined || value === '') return null;
-  return parseNumber(value);
-}
-
-export function parseDate(value: any): string | null {
-  if (!value) return null;
   if (value instanceof Date) return value.toISOString().split('T')[0];
-  const v = normalizeArabicDigits(String(value)).trim();
+  const normalized = normalizeArabicDigits(String(value)).trim();
 
-  const isoMatch = v.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+  const isoMatch = normalized.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
   if (isoMatch) return `${isoMatch[1]}-${isoMatch[2].padStart(2, '0')}-${isoMatch[3].padStart(2, '0')}`;
 
-  const slashMatch = v.match(/^(\d{1,2})[\/.](\d{1,2})[\/.](\d{2,4})$/);
+  const slashMatch = normalized.match(/^(\d{1,2})[\/.](\d{1,2})[\/.](\d{2,4})$/);
   if (slashMatch) {
-    let [_, d, m, y] = slashMatch;
-    if (y.length === 2) y = '20' + y;
-    return `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
+    let [, day, month, year] = slashMatch;
+    if (year.length === 2) year = `20${year}`;
+    return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
   }
 
   return null;
