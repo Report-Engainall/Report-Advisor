@@ -3,7 +3,7 @@
 This is the authoritative compact execution snapshot. Consult it before starting new work. Repository source, executable CI/runtime evidence, and certification artifacts are authoritative; conversation history is not evidence.
 
 ## Current repository head
-`main` = `3ad1fea5d28cce05f439b5d87d6ec9190edad4a9` — tenant resolver lineage hardening Batch 24.
+`main` = `3f1ceddcc38124ef07ff932bdec9e22c40ee47a9` — current-head CI bootstrap evidence Batch 25.
 
 ## Evidence vocabulary
 `UNKNOWN → INVENTORIED → IMPLEMENTED → GATED → INTEGRATED → RUNTIME-EVIDENCED → PRODUCTION-CERTIFIED`; use `BLOCKED` only for an external prerequisite.
@@ -62,12 +62,12 @@ This is the authoritative compact execution snapshot. Consult it before starting
 - Migration order is treated as semantically significant for `CREATE OR REPLACE` definitions.
 - Static dependency analysis is intentionally conservative and is not a substitute for live PostgreSQL evidence.
 
-## Current CI evidence — NEW
-Two current `main` push workflows for HEAD `3ad1fea5d28cce05f439b5d87d6ec9190edad4a9` completed with failure before any executable step was exposed:
+## Current CI evidence
+Two `main` push workflows for the preceding HEAD `3ad1fea5d28cce05f439b5d87d6ec9190edad4a9` completed with failure before any executable step was exposed:
 - `production-certification-boundary` run `32800542257`, job `97660352968`: failure, `steps=[]`.
 - `master-production-verification` run `32800542369`, job `97660353233`: failure, `steps=[]`.
 
-This is stronger current evidence than the earlier historical observation, but it still does NOT identify the infrastructure root cause because no usable job log/step data was exposed. Application gates must not be labeled failed until an observable step runs.
+This is current bootstrap/runner evidence, not an application test failure. No usable job log/step data was exposed, so the root cause remains UNKNOWN. Application gates must not be labeled failed until an observable step runs.
 
 ## P0 blockers
 1. **Live tenant isolation:** prove two-company read/write isolation, no-membership fail-closed, inactive membership, default-company selection, and cross-tenant Import RPC rejection against a real database.
@@ -95,6 +95,7 @@ This is stronger current evidence than the earlier historical observation, but i
 - Batch 21: bounded Data Quality projections.
 - Batch 22: projection regression contract and Quality integration.
 - Batch 24: tenant resolver lineage correction and security-gate hardening.
+- Batch 25: current-head CI bootstrap evidence and index synchronization.
 
 ## Verified commits of interest
 - `905066a2de85e604f4f97515733c0c07302aa12c` — tenant-native Data Quality boundary.
@@ -103,7 +104,8 @@ This is stronger current evidence than the earlier historical observation, but i
 - `bbee7b8741d3d068e7ed3feb0087b370c7d6f4bb` — projection regression contract.
 - `5de9d7efec919fe71d4d5475cd7db6accd51dd28` — latest-resolver security-gate correction.
 - `55e0c2785d69662c8db330a40b02325cf7a30b24` — SQL matching correction.
-- `3ad1fea5d28cce05f439b5d87d6ec9190edad4a9` — Batch 24 ledger.
+- `509da203a3ce26b65ff9edca2ebdb4fa598e8e55` — index synchronization.
+- `3f1ceddcc38124ef07ff932bdec9e22c40ee47a9` — Batch 25 ledger/current main head.
 
 ## Non-negotiable rule
 A gate existing is implementation evidence only. `Implemented`, `Gated`, and `Integrated` must never be reported as `Runtime-Evidenced` or `Production-Certified` without current executable evidence. Production certification remains blocked until the P0 evidence gaps are closed.
