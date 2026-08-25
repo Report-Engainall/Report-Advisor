@@ -7,7 +7,7 @@ Execute independent high-value fronts in parallel while preserving the master ex
 - Authentication/Tenant P0 is implemented and gated, but live two-company isolation evidence is still open.
 - Canonical tenant resolution is database-authoritative.
 - Header health is database-backed, but runtime evidence is still open.
-- Quality had previously failed before executable steps; a failed-job rerun has now been requested.
+- Quality had previously failed before executable steps.
 - Database migration closure remained a P1 backlog item.
 
 ## Changes
@@ -28,9 +28,9 @@ Added:
 ### 3. Canonical Quality integration
 Added a `Database migration schema audit` step to `.github/workflows/quality.yml` immediately after Authentication/Tenant convergence.
 
-### 4. CI evidence recovery attempt
+### 4. CI evidence recovery attempt and result
 Requested rerun of failed jobs for Quality run `32791765387`.
-Latest observed job: `97645847479`, status `queued`, with no executable steps reported yet. No application failure is inferred from this state.
+The rerun produced job `97645847479`, which completed with `failure`, but still reported `steps: null` and no logs URL. Therefore the failure remains classified as pre-step/runner-bootstrap evidence, not an application test failure.
 
 ## Verification boundary
 The migration guard has been committed, but its pass/fail result has NOT been claimed because this environment has not executed the repository checkout locally. CI execution remains the authoritative runtime check.
