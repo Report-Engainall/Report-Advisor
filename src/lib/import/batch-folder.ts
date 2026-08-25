@@ -6,6 +6,7 @@ import { commitImportBatch, type CanonicalImportRow } from '@/lib/import/canonic
 import { createImportRecord, updateImportRecord } from '@/lib/queries';
 import { finalizeExtraction } from '@/lib/import-pipeline/canonical-text-orchestrator';
 import type { FileFormat } from '@/lib/file-engine/types';
+import type { BrowserDirectoryHandle } from '@/lib/import-pipeline/folder-watch-service';
 
 export type BatchEntityType = 'sales_invoices' | 'products' | 'customers';
 export interface FolderScanFile { file: File; format: FileFormat | 'unknown'; relativePath: string; }
@@ -13,7 +14,7 @@ export interface BatchFileResult { name:string; path:string; status:'completed'|
 export interface BatchProgress { processed:number; total:number; current:string; results:BatchFileResult[]; }
 const EXTENSIONS=new Set(['xlsx','xls','xlsm','csv','tsv','ods','json','jsonl','xml','txt','md','markdown','pdf','docx','doc','rtf','jpg','jpeg','png','webp','tiff','bmp']);
 
-export async function scanDirectory(handle:FileSystemDirectoryHandle,prefix=''):Promise<FolderScanFile[]>{if(!handle||typeof handle.values!=='function')throw new Error('لم يتم اختيار مجلد صالح.');const files:FolderScanFile[]=[];for await(const entry of handle.values()){const relativePath=prefix?`${prefix}/${entry.name}`:entry.name;if(entry.kind==='directory'){for(const item of await scanDirectory(entry,relativePath))files.push(item);continue;}const file=await entry.getFile();const ext=file.name.split('.').pop()?.toLowerCase()||'';if(EXTENSIONS.has(ext))files.push({file,format:'unknown',relativePath});}return files.sort((a,b)=>a.relativePath.localeCompare(b.relativePath,undefined,{numeric:true}));}
+export async function scanDirectory(handle:BrowserDirectoryHandle,prefix=''):Promise<FolderScanFile[]>{if(!handle||typeof handle.entries!=='function')throw new Error('لم يتم اختيار مجلد صالح.');const files:FolderScanFile[]=[];for await(const [name,entry] of handle.entries()){const relativePath=prefix?`${prefix}/${name}`:name;if(entry.kind==='directory'){for(const item of await scanDirectory(entry as BrowserDirectoryHandle,relativePath))files.push(item);continue;}const file=await (entry as FileSystemFileHandle).getFile();const ext=file.name.split('.').pop()?.toLowerCase()||'';if(EXTENSIONS.has(ext))files.push({file,format:'unknown',relativePath});}return files.sort((a,b)=>a.relativePath.localeCompare(b.relativePath,undefined,{numeric:true}));}
 function requiredFields(entityType:BatchEntityType):string[]{return entityType==='products'?['sku','name','cost_price','selling_price','unit','min_stock','reorder_point','is_active']:entityType==='customers'?['name','segment','credit_limit','payment_terms_days']:['invoice_number','invoice_date','total','subtotal','tax_amount','paid_amount','status'];}
 function canonicalTextFromRows(rows:Record<string,unknown>[]):string{return rows.map((row,i)=>`ROW ${i+1}\n`+Object.entries(row).map(([k,v])=>`${k}: ${String(v??'')}`).join('\n')).join('\n\n');}
 
