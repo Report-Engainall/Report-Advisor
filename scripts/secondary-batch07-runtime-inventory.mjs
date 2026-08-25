@@ -4,10 +4,6 @@ import path from 'node:path';
 const root = process.cwd();
 const read = (file) => fs.existsSync(path.join(root, file)) ? fs.readFileSync(path.join(root, file), 'utf8') : null;
 const exists = (file) => fs.existsSync(path.join(root, file));
-const has = (file, tokens) => {
-  const text = read(file);
-  return Boolean(text) && tokens.every((token) => text.includes(token));
-};
 
 const rows = [
   {
@@ -135,12 +131,15 @@ for (const token of ['source_id', 'evidence_id', 'snapshot_id', 'lineage_id', 'm
   else { fail += 1; console.error(`FAIL — evidence identifier propagation contract missing: ${token}`); }
 }
 
-for (const token of ['UNKNOWN', 'SOURCE UNAVAILABLE', 'select(*)']) {
-  const expected = token === 'select(*)' ? false : true;
-  const found = allSecondary.includes(token);
-  if ((expected && found) || (!expected && !found)) pass += 1;
-  else { fail += 1; console.error(`FAIL — evidence/performance guard missing or unsafe: ${token}`); }
-}
+const hasUnknownGuard = allSecondary.includes('UNKNOWN') && allSecondary.includes('SOURCE UNAVAILABLE');
+if (hasUnknownGuard) pass += 1;
+else { fail += 1; console.error('FAIL — UNKNOWN/SOURCE UNAVAILABLE safety guard missing.'); }
+
+// Do not search for the literal text "select(*)" across the harness itself: regression
+// tests intentionally mention that phrase. Inspect executable secondary runtime code only.
+const hasUnboundedSelect = /\.select\(\s*[\'\"`]\*\s*[\'\"`]\s*\)/.test(secondaryRuntime);
+if (!hasUnboundedSelect) pass += 1;
+else { fail += 1; console.error('FAIL — secondary runtime contains an unbounded select(*) projection.'); }
 
 if (!packageJson.includes('test:secondary-batch07-runtime-inventory')) {
   console.log('NOTE — package script is added by this batch commit after the inventory script.');
