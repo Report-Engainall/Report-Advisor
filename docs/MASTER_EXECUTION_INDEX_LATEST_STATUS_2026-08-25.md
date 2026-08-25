@@ -39,7 +39,7 @@ This is the latest compact status snapshot. It complements, and does not replace
 | Header health truthfulness | YES | YES | YES | NOT PROVEN | NO |
 | Legacy tenant compatibility consumers | CANONICALLY HYDRATED | YES | YES | NOT PROVEN | NO |
 | Database migration schema audit | YES | YES via Quality | INTEGRATED | NOT EXECUTED IN THIS ENVIRONMENT | NO |
-| CI runner execution | UNKNOWN/BLOCKED | N/A | N/A | PRE-STEP FAILURES / RERUN QUEUED | NO |
+| CI runner execution | UNKNOWN/BLOCKED | N/A | N/A | PRE-STEP FAILURES CONFIRMED ON RERUN | NO |
 
 ## Completed in Batch 7
 1. Removed legacy `COMPANY_ID` dependency from canonical dashboard query functions; tenant filtering is delegated to authenticated RLS/current_company_id.
@@ -54,7 +54,7 @@ This is the latest compact status snapshot. It complements, and does not replace
 1. Added `scripts/check-migration-schema-audit.mjs` for migration naming, duplicate object declarations, and unsafe DROP-operation static checks.
 2. Registered `npm run test:migration-schema-audit` in `package.json`.
 3. Added the migration audit to the canonical `quality.yml` gate.
-4. Requested rerun of failed Quality jobs for run `32791765387`; latest observed job `97645847479` is queued with no executable steps reported yet.
+4. Reran failed Quality jobs for run `32791765387`; job `97645847479` completed with `failure`, still reporting `steps: null` and no logs URL. This remains classified as pre-step/runner-bootstrap evidence, not an application failure.
 
 ## P0/P1 backlog
 ### P0 — Authentication/Tenant convergence
@@ -107,7 +107,7 @@ Tenant, storage, realtime, AI isolation, backup/restore, recovery, rollback, gov
 - Migration schema audit is now a canonical Quality gate.
 
 ## Current blockers
-1. GitHub Actions attempts previously failed before executable steps (`steps:null` / `steps:[]`, unavailable logs). A rerun is currently queued and must produce executable steps before application failures can be diagnosed.
+1. GitHub Actions still fails before executable steps (`steps:null` / `steps:[]`) even after rerun; this is not currently attributed to application code.
 2. Runtime authentication/tenant isolation evidence is not yet available.
 3. Live production evidence is not yet available for the release certification chain.
 4. Migration dependency/drift has static coverage but not yet live database evidence.
@@ -115,7 +115,7 @@ Tenant, storage, realtime, AI isolation, backup/restore, recovery, rollback, gov
 ## Next execution order — parallelized
 **NOW-1:** prove authenticated tenant isolation end-to-end with two-company/ambiguous-membership scenarios.
 
-**NOW-2:** execute health/profile/auth regression coverage and obtain CI evidence.
+**NOW-2:** execute health/profile/auth regression coverage and obtain executable CI evidence.
 
 **NOW-3:** complete package-script → script → workflow mapping.
 
@@ -137,6 +137,7 @@ Tenant, storage, realtime, AI isolation, backup/restore, recovery, rollback, gov
 - Batch 7: `docs/EXECUTION_LEDGER_2026-08-25_BATCH-7.md`
 - Batch 7 delta supplement: `docs/MASTER_EXECUTION_INDEX_CURRENT_DELTA_2026-08-25_BATCH-7.md`
 - Batch 8: `docs/EXECUTION_LEDGER_2026-08-25_BATCH-8.md`
+- Batch 8 delta supplement: `docs/MASTER_EXECUTION_INDEX_CURRENT_DELTA_2026-08-25_BATCH-8.md`
 
 ## Batch 7 continuation commits
 - `a460808a8079a3b68586a12ef7e687833f5c499b` — canonical tenant hydration compatibility layer
@@ -147,7 +148,8 @@ Tenant, storage, realtime, AI isolation, backup/restore, recovery, rollback, gov
 - `35799881fbb59f55ebb35a4116f4d3ced38d6283` / `c3d95d870b266a1b8906ae84154d3074c2123e2e` — migration schema audit guard
 - `30ba166628ae96ccc7a90edff6a0a1883d987742` — package script registration
 - `6a2f12c9f5523a6ff0b3ebbd6ab13ddcf551e8c8` — canonical Quality integration
-- `2dfb8f0febf3745fa852e5bc0131231c0f5aee9f` — Batch 8 execution ledger
+- `2dfb8f0febf3745fa852e5bc0131231c0f5aee9f` / `f169bcb66afbb8297101f8934c7f527b62ea8b88` — Batch 8 ledger and CI rerun evidence
+- `fc6850065fcfda88ee55abd76b35c20092e0f39c` — Batch 8 delta supplement
 
 ## Non-negotiable rule
 No capability is marked production-complete merely because code or static contracts exist. Runtime evidence and the existing certification chain remain mandatory.
