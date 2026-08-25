@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
 permissions: {contents: read}
 concurrency:
-  group: quality-${{ github.ref }}-${{ github.event_name}}-${{ github.run_id}}
+  group: quality-${{ github.ref }}-${{ github.event_name }}-${{ github.run_id }}
   cancel-in-progress: false
 jobs:
   verify:
