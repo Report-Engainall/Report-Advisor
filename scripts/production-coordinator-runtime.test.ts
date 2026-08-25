@@ -30,7 +30,7 @@ const result = runProductionLifecycle({
     rollbackVerified: true,
     isolationVerified: true,
   },
-  evidence: [{ key: 'source:sha-current', quality: 1 }],
+  evidence: [{ key: 'source:sha-current', source: 'test-fixture', observedAt: '2026-08-25T12:00:00.000Z', quality: 1 }],
 });
 
 assert.deepEqual(result.lineage.map((row) => [row.key, row.state]), [
@@ -43,4 +43,18 @@ assert.equal(result.scenario?.key, 'safe');
 assert.equal(result.autonomy.eligible, false);
 assert.deepEqual(result.autonomy.failures, ['continuous_trust']);
 assert.throws(() => runProductionLifecycle({ ...({} as never) }));
+assert.throws(() => runProductionLifecycle({
+  ...({} as never),
+  jobId: 'job-2',
+  companyId: 'tenant-1',
+  sourceHash: 'sha',
+  currentRows: [{ key: 'sku', hash: 'h' }],
+  previousRows: [],
+  sourceCandidates: [],
+  scenarioOptions: [],
+  riskBudget: { maxRisk: 1, protectedLiquidity: 1, minimumServiceLevel: 1 },
+  portfolioCandidates: [],
+  autonomy: { trustHealthy: true, evidenceQuality: 1, confidence: 1, riskBudgetValid: true, criticalDrift: false, rollbackVerified: true, isolationVerified: true },
+  evidence: [{ key: 'missing-provenance', source: '', observedAt: '2026-08-25T12:00:00.000Z', quality: 1 }],
+}));
 console.log('Production coordinator integration: PASS');
