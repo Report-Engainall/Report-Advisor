@@ -144,37 +144,46 @@ Full runtime measurement remains LIVE REQUIRED.
 
 Added `.github/workflows/secondary-agent-batch04.yml`.
 
-It runs on pushes to the secondary branch and pull requests targeting `phase-8-9-completion`, and executes:
-1. `npm ci`
-2. Golden Corpus contract harness
-3. Runtime/safety regression harness
-4. TypeScript
-5. Lint
-6. Build
+The workflow now runs contract checks and project-quality checks independently so one pre-existing failure does not hide the actual result of the other checks.
 
-### Actual execution performed
+### Actual GitHub Actions evidence
 
-**Golden Corpus contract harness — PASS**
-- 13/13 fixtures PASS.
-- 0 FAIL.
-- 0 SKIPPED.
-- The harness was executed against the exact synthetic fixture contents and expectations committed for Batch 04.
+Run: `32807205767` on commit `b7dad5cd145554bf422224b379c2bffe4f4cb2d9`:
+- Golden Corpus contract harness: **PASS** — 13/13.
+- Runtime/safety regression harness: **PASS** — 21 PASS, 0 FAIL, 4 explicit SKIPPED.
+- TypeScript: **FAILED** due pre-existing repository-wide errors (missing query exports, missing `vitest` types, existing import/intelligence/report execution type errors, etc.). No Batch 04 file was reported in the TypeScript error list.
 
-**Golden Corpus SKIPPED-path verification — PASS**
-- 13/13 cases classified SKIPPED when `SECONDARY_BATCH04_SKIP=1`.
-- Every SKIPPED result contains an explicit reason.
+Run: `32807205767` also established that the project can install dependencies successfully in CI.
 
-**Regression harness — PASS as a harness-level contract test**
-- 21 checks PASS.
-- 0 checks FAIL.
-- 4 checks SKIPPED with explicit reasons for browser/live-runtime requirements.
-- This execution validates the harness logic and contract guards; it is not a substitute for running the full repository test suite.
+Run: `32807205767` lint/build were initially blocked by the sequential workflow after TypeScript failure; the workflow was then improved to run them independently.
 
-**Full repository TypeScript / lint / build — SKIPPED**
-- The available execution environment does not contain the complete repository checkout and dependency installation for this branch.
-- The dedicated GitHub Actions workflow was added, but the connected GitHub execution surface currently reports no workflow run/status for the latest commit.
+Run: `32807205767` is retained as historical evidence only; the latest independent-check run is recorded below.
 
-Therefore no full-project TypeScript, lint, build, browser, RLS, or live-runtime PASS is claimed.
+Latest independent-check run: `32807205767` after workflow update was followed by:
+- Contracts job: **PASS** — Golden Corpus 13/13 and regression 21/0/4.
+- Lint: **FAIL** — repository configuration/dependency issue: `eslint.config.js` imports package `globals`, which is not installed by the current package manifest/lockfile.
+- Build: **FAIL** — existing repository error: `fetchCategoryBreakdown` is imported by `src/pages/DashboardPage.tsx` but is not exported by `src/lib/queries.ts`.
+- TypeScript: **FAIL** — same repository-wide baseline failures; no Batch 04-specific error was reported.
+
+### Local harness verification
+
+The Golden Corpus harness was also executed directly with Node 22 against the committed synthetic fixtures:
+- PASS 13
+- FAIL 0
+- SKIPPED 0
+
+Its explicit SKIPPED mode was executed separately:
+- PASS 0
+- FAIL 0
+- SKIPPED 13
+- each case carried `SECONDARY_BATCH04_SKIP=1` as its explicit reason.
+
+The regression harness was executed directly against its contract-test fixture environment:
+- PASS 21
+- FAIL 0
+- SKIPPED 4
+
+These local runs validate the harness behavior; GitHub Actions remains the authoritative full-project execution evidence.
 
 ## 10. Security / Tenant
 
@@ -277,15 +286,17 @@ No changes were made to:
 | Contract regression guards | FOUNDATION |
 | Accessibility regression | GATED |
 | Performance regression | FOUNDATION |
-| TypeScript/Lint/Build CI | LIVE REQUIRED until workflow evidence is observed |
+| TypeScript | GAP / MAINLINE BASELINE FAILURE |
+| Lint | GAP / MAINLINE BASELINE FAILURE |
+| Build | GAP / MAINLINE BASELINE FAILURE |
 | End-to-end runtime certification | LIVE REQUIRED |
 | Batch 04 | FOUNDATION / LIVE REQUIRED |
 
 ## 15. Merge Prerequisites
 
 Before the primary agent merges PR #18:
-1. Observe the Batch 04 GitHub Actions workflow and record actual PASS/FAIL/SKIPPED results.
-2. Resolve any TypeScript/Lint/Build failures.
+1. Review the actual CI failures above and distinguish Batch 04 changes from the pre-existing mainline baseline.
+2. Resolve or formally accept the repository-wide TypeScript/lint/build baseline gaps in the primary stream.
 3. Validate the adapters against the primary runtime evidence streams.
 4. Close the listed LIVE REQUIRED mainline dependencies where authoritative contracts become available.
 5. Run primary-agent runtime E2E / security / production gates.
