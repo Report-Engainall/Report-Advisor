@@ -28,8 +28,18 @@ const workflows = fs.existsSync(workflowDir) ? fs.readdirSync(workflowDir).filte
 if (!workflows.includes('quality.yml')) throw new Error('Canonical quality workflow is missing');
 
 const quality = fs.readFileSync(`${workflowDir}/quality.yml`, 'utf8');
-const referencedScripts = [...quality.matchAll(/(?:npm run|node(?: --experimental-strip-types)?)\s+([\w:-]+|scripts\/[^\s&]+)/g)].map(m => m[1]);
+const referencedScripts = [];
+for (const line of quality.split(/\r?\n/)) {
+  const npmMatch = line.match(/npm\s+run\s+([\w:-]+)/);
+  if (npmMatch) referencedScripts.push(npmMatch[1]);
+
+  const nodeMatch = line.match(/\bnode(?:\s+--[^\s]+)*\s+(scripts\/[^\s&;]+)/);
+  if (nodeMatch) referencedScripts.push(nodeMatch[1]);
+}
+
 const unknownPackageScripts = referencedScripts.filter(name => !name.startsWith('scripts/') && !scripts[name]);
-if (unknownPackageScripts.length) throw new Error(`Workflow references unknown package scripts: ${[...new Set(unknownPackageScripts)].join(', ')}`);
+if (unknownPackageScripts.length) {
+  throw new Error(`Workflow references unknown package scripts: ${[...new Set(unknownPackageScripts)].join(', ')}`);
+}
 
 console.log(`Execution registry integrity: PASS (${Object.keys(scripts).length} package scripts, ${workflows.length} workflows)`);
