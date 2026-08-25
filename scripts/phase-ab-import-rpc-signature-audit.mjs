@@ -7,7 +7,7 @@ const migrationDir = path.join(root, 'supabase', 'migrations');
 
 const caller = fs.readFileSync(callerPath, 'utf8');
 const migrations = fs.readdirSync(migrationDir)
-  .filter((name) => /\\.sql$/i.test(name))
+  .filter((name) => /\.sql$/i.test(name))
   .sort()
   .map((name) => ({ name, text: fs.readFileSync(path.join(migrationDir, name), 'utf8') }));
 
@@ -26,14 +26,16 @@ function latestFunctionSignature(functionName) {
   return latest;
 }
 
-function argNames(signatureArgs) {
+function parseArgs(signatureArgs) {
   return signatureArgs
     .split(',')
     .map((part) => part.trim())
     .filter(Boolean)
-    .map((part) => part.match(/^(p_[a-z0-9_]+)/i)?.[1])
-    .filter(Boolean)
-    .map((name) => name.toLowerCase());
+    .map((part) => {
+      const name = part.match(/^(p_[a-z0-9_]+)/i)?.[1]?.toLowerCase();
+      return name ? { name, required: !/\bDEFAULT\b/i.test(part) } : null;
+    })
+    .filter(Boolean);
 }
 
 function callerRpcArgs(functionName) {
@@ -64,28 +66,31 @@ for (const fn of targets) {
     continue;
   }
 
-  const defined = new Set(argNames(signature.args));
+  const defined = parseArgs(signature.args);
+  const definedNames = new Set(defined.map((arg) => arg.name));
   const called = new Set(callerArgs);
-  const missing = [...called].filter((name) => !defined.has(name));
-  const omittedRequired = [...defined].filter((name) => !called.has(name));
+  const missing = [...called].filter((name) => !definedNames.has(name));
+  const omittedRequired = defined.filter((arg) => arg.required && !called.has(arg.name)).map((arg) => arg.name);
 
   findings.push({
     fn,
     migration: signature.migration,
-    defined: [...defined],
+    defined: defined.map((arg) => arg.name),
+    required: defined.filter((arg) => arg.required).map((arg) => arg.name),
     called: [...called],
     missingInSignature: missing,
-    omittedFromCaller: omittedRequired,
-    status: missing.length ? 'FAIL' : 'PASS',
+    omittedRequired,
+    status: missing.length || omittedRequired.length ? 'FAIL' : 'PASS',
   });
 }
 
 const productSignature = latestFunctionSignature('import_upsert_product');
-const productSignatureText = productSignature?.args ?? '';
-const tenantGuard = /p_company_id\\s+IS\\s+DISTINCT\\s+FROM\\s+v_company_id/.test(
-  migrations.find((m) => m.name === productSignature?.migration)?.text ?? '',
-);
-const directWrite = /supabase\\.(?:from|rpc)\\(/.test(caller) && /\\.(?:insert|upsert|update|delete)\\s*\\(/.test(caller);
+const productMigrationText = migrations.find((m) => m.name === productSignature?.migration)?.text ?? '';
+const tenantGuard = [
+  /p_company_id\s+IS\s+DISTINCT\s+FROM\s+(?:public\.)?current_company_id\s*\(\)/i,
+  /current_company_id\s*\(\)\s+IS\s+DISTINCT\s+FROM\s+p_company_id/i,
+  /p_company_id\s*<>\s*(?:public\.)?current_company_id\s*\(\)/i,
+].some((pattern) => pattern.test(productMigrationText));
 
 if (!tenantGuard) {
   findings.push({
@@ -95,6 +100,7 @@ if (!tenantGuard) {
   });
 }
 
+const directWrite = /supabase\.(?:from|rpc)\(/.test(caller) && /\.(?:insert|upsert|update|delete)\s*\(/.test(caller);
 if (directWrite) {
   findings.push({
     fn: 'canonical-commit.ts',
@@ -108,7 +114,7 @@ const blocked = findings.filter((item) => item.status === 'BLOCKED');
 const report = {
   contract: 'phase-ab-import-rpc-signature-audit',
   scope: 'Phase A/B static integration closure',
-  rule: 'caller arguments must match the latest authoritative import RPC signature; tenant guard and governed write boundary are required',
+  rule: 'caller arguments must match the latest authoritative import RPC signature; required parameters, tenant guard and governed write boundary are mandatory',
   findings,
   summary: {
     pass: findings.filter((item) => item.status === 'PASS').length,
@@ -120,6 +126,4 @@ const report = {
 
 console.log(JSON.stringify(report, null, 2));
 
-// A BLOCKED result is intentionally non-zero: this is a release-preventing contract,
-// not a warning. It prevents A/B closure from being declared while drift is present.
 if (failures.length || blocked.length) process.exitCode = 2;
