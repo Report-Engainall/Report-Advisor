@@ -60,7 +60,7 @@ Source of truth: `main` / `Report-Engainall/Report-Advisor`
 | C | DEEP FOUNDATION COMPLETE | governed evidence-bound actions/executor/receipts | full live action path |
 | D | DEEP FOUNDATION COMPLETE | forecasting/backtesting/diagnostics/outcome feedback | production feedback proof |
 | E | GATED/LIVE REQUIRED | tenant/RLS/readiness/certification foundations | adversarial tenant, storage, realtime, AI retrieval, backup, rollback, security |
-| F | GATED/LIVE REQUIRED | resilience/trust/backup/RPO-RTO/SLO evidence foundations | live canaries, restore, worker recovery, rollback |
+| F | GATED/LIVE REQUIRED | resilience/trust/backup/RPO-RTO/SLO evidence foundations | live canaries, restore, worker recovery, rollback, stabilization |
 | G | GATED/LIVE REQUIRED | manifests/evidence/fail-closed release verification | staging DB dry-run, parity, signed artifact, canary, stabilization |
 | H | FOUNDATION/GATED | continuous trust/autonomous safety contracts | connected runtime canaries/remediation |
 | I | FOUNDATION/GATED | governance/BI decisions/evidence/risk budgets | live graph/anomaly/outcome learning/cockpit |
@@ -245,21 +245,21 @@ Only after all P0 blockers are zero and current live evidence exists.
 ## 15. Mandatory progress record
 
 ```text
-Date:
-Phase:
-Goal:
-Status before:
-Files inspected:
-Files changed:
-Tests/workflows inspected:
-Commit(s):
-Discovery:
-Root cause:
-Fix:
-Verification:
-Runtime evidence:
-Remaining gap:
-Next exact action:
+Date: 2026-08-25
+Phase: Tenant / Import / Runtime integration hardening
+Goal: Proactively close legacy tenant consumers and harden the File→Import→Tenant→Persistence chain without waiting for CI failures.
+Status before: FOUNDATION/GATED
+Files inspected: src/lib/tenantContext.ts; src/lib/import/canonical-commit.ts; scripts/check-tenant-legacy-consumers.mjs; scripts/check-import-transaction-contract.mjs; canonical tenant membership migration; current quality workflow.
+Files changed: tenantContext.ts; canonical-commit.ts; check-tenant-legacy-consumers.mjs; check-import-transaction-contract.mjs; this index.
+Tests/workflows inspected: quality.yml; tenant legacy consumer guard; import transaction contract.
+Commit(s): 6731406e2b885d7c1a23396ca119728f742c1cbf plus follow-up tenant/import hardening commits on main.
+Discovery: tenantContext contained a legacy tenant_memberships consumer and could select a tenant from client-side membership ordering; canonical invoice import accepted direct customer_id without proving tenant ownership.
+Root cause: integration drift between the canonical company_memberships/current_company_id path and an older tenant context implementation; imported foreign keys were treated as trusted input.
+Fix: tenant context now reads canonical company_memberships and binds UI context to resolveCurrentCompanyId; client-selected tenant mismatch fails closed. Canonical invoice customer_id is verified against company_id before RPC persistence. Legacy consumer guard now scans src and scripts for static/legacy tenant patterns. Import transaction guard now checks lifecycle/locking and direct customer tenant verification.
+Verification: static contract guards added/strengthened; CI is expected to execute them through quality.yml. No runtime claim is made until the resulting CI run provides evidence.
+Runtime evidence: LIVE REQUIRED for real Supabase adversarial tenant/storage/realtime/AI canaries.
+Remaining gap: KPI end-to-end truth parity and live recovery/canary evidence remain to be audited next; no fabricated PASS.
+Next exact action: continue proactive KPI Source→Formula→Query→Service→Dashboard→Report→Export audit, then Evidence→Quality→Confidence→Decision→Recommendation→Outcome and lease/recovery integration drift, while CI runs in parallel.
 ```
 
 ## 16. Definition of Done
@@ -269,3 +269,17 @@ A capability is FULLY IMPLEMENTED only when applicable UI, backend/service, data
 ## 17. Golden rule
 
 > افحص المرجع → افحص المستودع → افحص ما تم سابقًا → حدد الفجوة → أصلح الموجود → اختبر → سجل الدليل → حدّث هذا الملف → انتقل للخطوة التالية.
+
+## 18. 2026-08-25 Proactive closure ledger
+
+- **Tenant integration drift — CLOSED STATIC GAP:** `src/lib/tenantContext.ts` no longer consumes the legacy `tenant_memberships` relation or silently chooses a tenant by client array order. It is bound to canonical `company_memberships` plus `resolveCurrentCompanyId()`.
+- **Client-selected tenant mismatch — FAIL CLOSED:** a preferred company id is accepted only when it equals the authoritative resolver result; otherwise tenant context is cleared rather than silently switching/falling back.
+- **Imported foreign customer id — CLOSED STATIC GAP:** invoice import now verifies `customer_id + company_id` before committing. Name resolution remains company-scoped.
+- **Legacy consumer discovery guard — HARDENED:** scans executable `src` and `scripts` surfaces for `COMPANY_ID`, `tenant_memberships`, static tenant ids, and known client-sourced company filters outside the canonical compatibility boundary.
+- **Import transaction guard — HARDENED:** validates durable job/row lifecycle, terminal status handling, locking, failed/cancelled paths, governed bulk persistence, and direct customer tenant verification.
+- **CI status:** latest observed quality run `32874659379` failed on the prior documentation commit; the follow-up `6731406e...` changed the roadmap contract, and subsequent tenant/import hardening commits intentionally trigger fresh Quality runs. No PASS is claimed until an actual run proves it.
+- **Still LIVE REQUIRED:** adversarial Supabase tenant isolation, storage/signed URLs, realtime auth, AI retrieval isolation, backup restore, worker/dead-letter recovery, production rollback and canary evidence.
+
+## 19. Mandatory parallel execution rule
+
+CI is a verifier, not a scheduler. While Quality is running, continue proactive repository-wide audits of Tenant → Import → KPI/BI → Evidence/Decision → Lease/Recovery → Isolation/Resilience. Do not wait for one CI failure before inspecting independent surfaces. Every fix must have a root cause, bounded scope, reuse of existing architecture, and a corresponding guard/test before it is considered closed.
