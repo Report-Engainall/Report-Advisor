@@ -42,8 +42,6 @@ const names = fs.readdirSync(workflowDir)
   .filter((file) => file.endsWith('.yml') || file.endsWith('.yaml'));
 
 function pushTrigger(text) {
-  // YAML indentation is structural. \s also matches newlines and can make a
-  // regex accidentally discover a push key on a later line.
   const inline = text.match(/^ {2}push:\s*\{([^}]*)\}/m);
   if (inline) return { present: true, config: inline[1] };
 
@@ -70,10 +68,12 @@ for (const file of names) {
   const targetsMain = /branches\s*:\s*\[?\s*main\s*\]?/.test(config);
   const hasBranchRestriction = /branches\s*:|branches-ignore\s*:/.test(config);
   const hasPathRestriction = /paths\s*:|paths-ignore\s*:/.test(config);
-  const isCanonicalMain = targetsMain && !hasPathRestriction;
+  const hasTagRestriction = /tags\s*:|tags-ignore\s*:/.test(config);
+  const isCanonicalMain = targetsMain && !hasPathRestriction && !hasTagRestriction;
   if (isCanonicalMain) canonicalMainPushWorkflows.push(file);
 
-  if (!hasBranchRestriction && !hasPathRestriction) broadPushWorkflows.push(file);
+  // Tag-only release workflows are intentionally scoped even without branch/path filters.
+  if (!hasBranchRestriction && !hasPathRestriction && !hasTagRestriction) broadPushWorkflows.push(file);
 }
 
 if (canonicalMainPushWorkflows.length !== 1 || canonicalMainPushWorkflows[0] !== 'quality.yml') {
