@@ -1,0 +1,52 @@
+name: secondary-agent-batch04
+
+on:
+  push:
+    branches:
+      - parallel/secondary-agent-evidence-ux
+  pull_request:
+    branches:
+      - phase-8-9-completion
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: secondary-agent-batch04-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  batch04:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install
+        run: npm ci --ignore-scripts --no-audit --no-fund
+
+      - name: Golden Corpus contract harness
+        run: npm run test:secondary-batch04-golden
+
+      - name: Runtime and safety regression harness
+        run: npm run test:secondary-batch04-regression
+
+      - name: TypeScript
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build
+        run: npm run build
