@@ -18,7 +18,7 @@ interface DataTableProps<T> {
   pageSize?: number;
 }
 
-export function DataTable<T extends Record<string, unknown>>({ columns, data, loading, emptyMessage = 'لا توجد بيانات', onRowClick }: DataTableProps<T>) {
+export function DataTable<T extends object>({ columns, data, loading, emptyMessage = 'لا توجد بيانات', onRowClick }: DataTableProps<T>) {
   if (loading) {
     return (
       <div className="p-5">
@@ -54,24 +54,27 @@ export function DataTable<T extends Record<string, unknown>>({ columns, data, lo
           </tr>
         </thead>
         <tbody>
-          {data.map((row, i) => (
-            <tr
-              key={typeof row.id === 'string' || typeof row.id === 'number' ? String(row.id) : i}
-              onClick={() => onRowClick?.(row)}
-              className={`border-b border-ink-50 transition-colors ${onRowClick ? 'cursor-pointer hover:bg-ink-50' : ''}`}
-            >
-              {columns.map((col) => (
-                <td
-                  key={col.key}
-                  className={`px-4 py-3 text-sm text-ink-700 whitespace-nowrap ${
-                    col.align === 'center' ? 'text-center' : col.align === 'left' ? 'text-left' : 'text-right'
-                  } ${col.className || ''}`}
-                >
-                  {col.render ? col.render(row) : row[col.key] as ReactNode}
-                </td>
-              ))}
-            </tr>
-          ))}
+          {data.map((row, i) => {
+            const rowRecord = row as Record<string, unknown>;
+            return (
+              <tr
+                key={typeof rowRecord.id === 'string' || typeof rowRecord.id === 'number' ? String(rowRecord.id) : i}
+                onClick={() => onRowClick?.(row)}
+                className={`border-b border-ink-50 transition-colors ${onRowClick ? 'cursor-pointer hover:bg-ink-50' : ''}`}
+              >
+                {columns.map((col) => (
+                  <td
+                    key={col.key}
+                    className={`px-4 py-3 text-sm text-ink-700 whitespace-nowrap ${
+                      col.align === 'center' ? 'text-center' : col.align === 'left' ? 'text-left' : 'text-right'
+                    } ${col.className || ''}`}
+                  >
+                    {col.render ? col.render(row) : rowRecord[col.key] as ReactNode}
+                  </td>
+                ))}
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>
