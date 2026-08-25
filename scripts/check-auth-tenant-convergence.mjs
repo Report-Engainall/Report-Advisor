@@ -5,7 +5,10 @@ const root = process.cwd();
 const supabase = fs.readFileSync(path.join(root, 'src/lib/supabase.ts'), 'utf8');
 const authSession = fs.readFileSync(path.join(root, 'src/lib/auth-session.ts'), 'utf8');
 const app = fs.readFileSync(path.join(root, 'src/App.tsx'), 'utf8');
+const authGate = fs.readFileSync(path.join(root, 'src/components/AuthGate.tsx'), 'utf8');
+const loginPage = fs.readFileSync(path.join(root, 'src/pages/LoginPage.tsx'), 'utf8');
 const sidebar = fs.readFileSync(path.join(root, 'src/components/Sidebar.tsx'), 'utf8');
+const profileDisplay = fs.readFileSync(path.join(root, 'src/lib/profile-display.ts'), 'utf8');
 
 const failures = [];
 
@@ -13,13 +16,15 @@ if (!supabase.includes('persistSession: true')) failures.push('Supabase session 
 if (/COMPANY_ID\s*=/.test(supabase)) failures.push('A static COMPANY_ID constant is present in the Supabase client.');
 if (!authSession.includes('getAuthenticatedUser')) failures.push('Canonical auth-session helper is missing.');
 if (!authSession.includes('requireAuthenticatedUser')) failures.push('Authenticated-user guard is missing.');
-if (/admin@alamri\.com/.test(sidebar)) failures.push('Sidebar contains hard-coded demo identity.');
-if (/المدير العام/.test(sidebar)) failures.push('Sidebar contains hard-coded demo display name.');
-
-// This guard is intentionally advisory for route protection until a real login
-// route is wired. It prevents silent regressions without forcing a breaking UI
-// migration in the same change.
-if (!app.includes('BrowserRouter')) failures.push('Application router boundary is missing.');
+if (/admin@alamri\.com/.test(sidebar)) failures.push('Sidebar contains hard-coded demo email identity.');
+if (/المدير العام/.test(sidebar)) failures.push('Sidebar contains hard-coded display name; identity must be resolved through the profile layer.');
+if (!profileDisplay.includes('getDisplayName') || !profileDisplay.includes('getDisplayEmail')) failures.push('Central profile display resolver is missing.');
+if (!authGate.includes('getAuthenticatedUser') || !authGate.includes('onAuthStateChange')) failures.push('Authenticated application boundary is incomplete.');
+if (!authGate.includes('<LoginPage />')) failures.push('Unauthenticated state does not render the login screen.');
+if (!loginPage.includes('signInWithPassword')) failures.push('Login screen is not connected to Supabase password authentication.');
+if (!app.includes('<AuthGate>')) failures.push('App is not wrapped in the authenticated application boundary.');
+if (!sidebar.includes('getDisplayName(user')) failures.push('Sidebar is not consuming the central authenticated identity resolver.');
+if (!sidebar.includes('supabase.auth.signOut')) failures.push('Sidebar sign-out action is missing.');
 
 if (failures.length) {
   console.error('AUTH/TENANT CONVERGENCE FAILED');
@@ -31,4 +36,7 @@ console.log('AUTH/TENANT CONVERGENCE PASS');
 console.log('- persistent Supabase session enabled');
 console.log('- no static COMPANY_ID constant');
 console.log('- canonical auth-session helpers present');
-console.log('- router boundary detected');
+console.log('- authenticated app boundary present');
+console.log('- Arabic Supabase login screen present');
+console.log('- identity resolved outside Sidebar');
+console.log('- sign-out action present');
