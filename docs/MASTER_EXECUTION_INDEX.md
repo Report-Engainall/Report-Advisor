@@ -21,12 +21,14 @@ The quality workflow is operated as a batch-discovery loop rather than a serial 
 ## Latest implementation batches
 - `99b70b9c791341444e4a13d00155593e5e01bb74`: centralized compatibility tenant guard in `queries-compat.ts`.
 - `5f8653ab7288e95cce5b4aa723250cd3f37b64ee`: removed fabricated import metrics and invalid non-terminal finalization from compatibility updates; existing canonical counters and lineage are read first, progress is interpreted as percentage, and only terminal statuses call `import_finish_job`.
+- `1ebe366613d9f58d7d9bb7f60bc195f00bdc6ad6`: added a parallel P0 family gate that executes the existing tenant, import, KPI/report-truth, workflow, and production-blocker contracts concurrently and aggregates failures instead of serially stopping at the first one.
+- `f72b85f6c0f6d3e3ae1d86a6bc20e3e1a8690f59`: exposed the parallel P0 family gate as `npm run test:p0-batch`.
 - Existing canonical import lifecycle hardening remains authoritative: tenant context, terminal allow-list, row locking and lineage preservation.
 
 ## Current CI truth
-- No CI PASS is claimed for `5f8653ab7288e95cce5b4aa723250cd3f37b64ee` until a complete workflow result exists.
-- Static review confirms the compatibility path no longer turns `progress` into `valid_rows`, `invalid_rows=0`, or `duplicate_rows=0` fabricated metrics.
-- Static review confirms non-terminal statuses no longer enter `import_finish_job`.
+- No CI PASS is claimed for the new P0 batch until a complete workflow result exists.
+- The P0 batch gate is intentionally fail-closed: any family failure makes the aggregate gate fail while still reporting all independently failing families.
+- Static review confirms the compatibility path no longer turns `progress` into fabricated valid/invalid/duplicate metrics and does not finalize non-terminal states.
 - Runtime Supabase evidence remains separate and LIVE REQUIRED.
 
 ## Phase truth
@@ -81,10 +83,11 @@ These remain LIVE REQUIRED wherever static contracts cannot establish real runti
 Every wave now follows: **scan entire family → cluster root causes → fix all safe instances → strengthen existing guard/test → re-scan → move to next family**. The assistant does not stop after the first defect and does not return for user approval between independent fixes.
 
 ## Next parallel wave
-1. KPI/metric SQL and service contracts: tenant scope, silent zero/default coercion, date semantics, provenance.
-2. Report/decision/recommendation constructors: evidence, confidence, provenance and outcome linkage.
-3. Import transaction boundaries: deletion/tombstone reconciliation, retry idempotency, terminal replay and lineage.
-4. Lease/checkpoint/recovery: heartbeat races, duplicate completion, stale lease recovery and dead-letter evidence.
-5. Storage/Realtime/AI isolation contracts and runtime canary wiring.
-6. Native watcher adapters and live folder coordinator without claiming unsupported platform capabilities.
-7. Continue CI in parallel; increase certified percentage only after complete evidence.
+1. Run the new P0 family gate in CI and use its aggregate failure set as the next root-cause cluster.
+2. KPI/metric SQL and service contracts: tenant scope, silent zero/default coercion, date semantics, provenance.
+3. Report/decision/recommendation constructors: evidence, confidence, provenance and outcome linkage.
+4. Import transaction boundaries: deletion/tombstone reconciliation, retry idempotency, terminal replay and lineage.
+5. Lease/checkpoint/recovery: heartbeat races, duplicate completion, stale lease recovery and dead-letter evidence.
+6. Storage/Realtime/AI isolation contracts and runtime canary wiring.
+7. Native watcher adapters and live folder coordinator without claiming unsupported platform capabilities.
+8. Continue CI in parallel; increase certified percentage only after complete evidence.
