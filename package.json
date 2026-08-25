@@ -10,6 +10,7 @@
     "preview": "vite preview",
     "typecheck": "tsc --noEmit -p tsconfig.app.json",
     "inventory:system": "node scripts/build-system-inventory.mjs",
+    "test:auth-tenant-convergence": "node scripts/check-auth-tenant-convergence.mjs",
     "perf:budget": "node scripts/check-performance-budget.mjs",
     "test:operational-resilience": "node scripts/check-operational-resilience-contract.mjs",
     "test:release-resilience-manifest": "node scripts/check-release-resilience-manifest.mjs",
