@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/Badge';
 import { PageHeader, LoadingState, ErrorState } from '@/components/ui/States';
 import { DataTable } from '@/components/ui/DataTable';
 import { SimpleBarChart, HorizontalBarChart } from '@/components/ui/Charts';
-import { supabase, COMPANY_ID } from '@/lib/supabase';
+import { supabase, resolveCurrentCompanyId } from '@/lib/supabase';
 import { formatCurrency, formatNumber } from '@/lib/format';
 
 const analyticsCards = [
@@ -54,6 +54,21 @@ interface RFMRow {
   rfm_segment: string;
 }
 
+type RFMInvoiceRow = {
+  customer_id: string | null;
+  invoice_date: string | null;
+  total: number | string | null;
+  customer: { name?: string | null } | null;
+};
+
+const RFM_VARIANTS: Record<string, 'success' | 'primary' | 'accent' | 'warning' | 'danger' | 'neutral'> = {
+  'أبطال': 'success',
+  'مخلصون': 'primary',
+  'واعدون': 'accent',
+  'معرضون للخطر': 'warning',
+  'خاملون': 'danger',
+};
+
 export function RFMAnalysisPage() {
   const [data, setData] = useState<RFMRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -62,40 +77,47 @@ export function RFMAnalysisPage() {
   const load = useCallback(async () => {
     try {
       setLoading(true);
-      const { data: invoices } = await supabase
+      setError(null);
+      const companyId = await resolveCurrentCompanyId();
+      if (!companyId) throw new Error('تعذر تحديد الشركة الحالية من المصدر المعتمد');
+
+      const { data: invoices, error: queryError } = await supabase
         .from('sales_invoices')
         .select('id, customer_id, invoice_date, total, customer:customers(name)')
-        .eq('company_id', COMPANY_ID)
+        .eq('company_id', companyId)
         .order('invoice_date', { ascending: true });
 
-      if (!invoices || invoices.length === 0) { setData([]); setLoading(false); return; }
+      if (queryError) throw queryError;
+      if (!invoices || invoices.length === 0) { setData([]); return; }
 
       const today = new Date();
       const byCustomer = new Map<string, { name: string; dates: Date[]; total: number; count: number }>();
 
-      for (const inv of (invoices || []) as any[]) {
-        const cid = inv.customer_id;
-        const name = (inv as any).customer?.name || 'غير معروف';
-        const entry = byCustomer.get(cid) || { name, dates: [] as Date[], total: 0, count: 0 };
-        entry.dates.push(new Date(inv.invoice_date));
-        entry.total += Number(inv.total);
+      for (const raw of invoices) {
+        const inv = raw as unknown as RFMInvoiceRow;
+        if (!inv.customer_id || !inv.invoice_date || !inv.customer?.name) continue;
+        const amount = Number(inv.total);
+        const date = new Date(inv.invoice_date);
+        if (!Number.isFinite(amount) || !Number.isFinite(date.getTime())) continue;
+        const entry = byCustomer.get(inv.customer_id) || { name: inv.customer.name, dates: [], total: 0, count: 0 };
+        entry.dates.push(date);
+        entry.total += amount;
         entry.count += 1;
-        byCustomer.set(cid, entry);
+        byCustomer.set(inv.customer_id, entry);
       }
 
       const rows: RFMRow[] = Array.from(byCustomer.entries()).map(([cid, v]) => {
         const lastDate = v.dates[v.dates.length - 1];
         const recency = Math.floor((today.getTime() - lastDate.getTime()) / (1000 * 60 * 60 * 24));
-        const frequency = v.count;
-        const monetary = v.total;
-        return { customer_id: cid, customer_name: v.name, recency, frequency, monetary, r_score: 0, f_score: 0, m_score: 0, rfm_segment: '' };
+        return { customer_id: cid, customer_name: v.name, recency, frequency: v.count, monetary: v.total, r_score: 0, f_score: 0, m_score: 0, rfm_segment: '' };
       });
 
       const sortedR = [...rows].sort((a, b) => a.recency - b.recency);
       const sortedF = [...rows].sort((a, b) => b.frequency - a.frequency);
       const sortedM = [...rows].sort((a, b) => b.monetary - a.monetary);
-
       const n = rows.length;
+      if (n === 0) { setData([]); return; }
+
       sortedR.forEach((r, i) => { r.r_score = Math.min(5, Math.floor((i / n) * 5) + 1); });
       sortedF.forEach((r, i) => { r.f_score = Math.min(5, Math.floor((i / n) * 5) + 1); });
       sortedM.forEach((r, i) => { r.m_score = Math.min(5, Math.floor((i / n) * 5) + 1); });
@@ -110,7 +132,9 @@ export function RFMAnalysisPage() {
       });
 
       setData(rows.sort((a, b) => (b.r_score + b.f_score + b.m_score) - (a.r_score + a.f_score + a.m_score)));
-    } catch (e: any) { setError(e.message); } finally { setLoading(false); }
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : 'فشل تحميل تحليل RFM');
+    } finally { setLoading(false); }
   }, []);
 
   useEffect(() => { load(); }, [load]);
@@ -133,10 +157,7 @@ export function RFMAnalysisPage() {
             { key: 'recency', label: 'الحداثة (يوم)', align: 'center', render: (r: RFMRow) => formatNumber(r.recency) },
             { key: 'frequency', label: 'التكرار', align: 'center', render: (r: RFMRow) => formatNumber(r.frequency) },
             { key: 'monetary', label: 'القيمة', align: 'right', render: (r: RFMRow) => formatCurrency(r.monetary) },
-            { key: 'rfm_segment', label: 'الشريحة', align: 'center', render: (r: RFMRow) => {
-              const map: any = { 'أبطال': 'success', 'مخلصون': 'primary', 'واعدون': 'accent', 'معرضون للخطر': 'warning', 'خاملون': 'danger' };
-              return <Badge variant={map[r.rfm_segment] || 'neutral'}>{r.rfm_segment}</Badge>;
-            }},
+            { key: 'rfm_segment', label: 'الشريحة', align: 'center', render: (r: RFMRow) => <Badge variant={RFM_VARIANTS[r.rfm_segment] ?? 'neutral'}>{r.rfm_segment}</Badge> },
           ]}
           data={data.slice(0, 20)}
         /></Card>
@@ -154,24 +175,37 @@ interface ABCRow {
   class: string;
 }
 
+type ABCItemRow = {
+  product_id: string | null;
+  line_total: number | string | null;
+  product: { name?: string | null } | null;
+};
+
 export function ABCAnalysisPage() {
   const [data, setData] = useState<ABCRow[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     (async () => {
-      const { data: items } = await supabase
+      const companyId = await resolveCurrentCompanyId();
+      if (!companyId) { setData([]); setLoading(false); return; }
+
+      const { data: items, error } = await supabase
         .from('sale_items')
         .select('product_id, line_total, product:products(name)')
+        .eq('company_id', companyId)
         .not('product_id', 'is', null);
+      if (error || !items) { setData([]); setLoading(false); return; }
 
       const byProduct = new Map<string, { name: string; revenue: number }>();
-      for (const item of items || []) {
-        const pid = item.product_id!;
-        const name = (item as any).product?.name || 'غير معروف';
-        const entry = byProduct.get(pid) || { name, revenue: 0 };
-        entry.revenue += Number(item.line_total);
-        byProduct.set(pid, entry);
+      for (const raw of items) {
+        const item = raw as unknown as ABCItemRow;
+        if (!item.product_id || !item.product?.name) continue;
+        const revenue = Number(item.line_total);
+        if (!Number.isFinite(revenue)) continue;
+        const entry = byProduct.get(item.product_id) || { name: item.product.name, revenue: 0 };
+        entry.revenue += revenue;
+        byProduct.set(item.product_id, entry);
       }
 
       const sorted = Array.from(byProduct.entries())
@@ -179,6 +213,8 @@ export function ABCAnalysisPage() {
         .sort((a, b) => b.revenue - a.revenue);
 
       const total = sorted.reduce((s, r) => s + r.revenue, 0);
+      if (sorted.length === 0 || !Number.isFinite(total) || total <= 0) { setData([]); setLoading(false); return; }
+
       let cum = 0;
       sorted.forEach(r => {
         cum += r.revenue;
@@ -204,7 +240,7 @@ export function ABCAnalysisPage() {
         {['A', 'B', 'C'].map(c => (
           <Card key={c}><CardBody>
             <div className="text-xs text-ink-500 mb-1">الفئة {c}</div>
-            <div className="text-xl font-bold text-ink-900">{classCounts.get(c) || 0} منتج</div>
+            <div className="text-xl font-bold text-ink-900">{classCounts.get(c) ?? '—'} منتج</div>
             <div className="text-xs text-ink-400 mt-1">
               {c === 'A' ? '80% من الإيرادات' : c === 'B' ? '15% من الإيرادات' : '5% من الإيرادات'}
             </div>
@@ -216,10 +252,7 @@ export function ABCAnalysisPage() {
           { key: 'product_name', label: 'المنتج' },
           { key: 'revenue', label: 'الإيرادات', align: 'right', render: (r: ABCRow) => formatCurrency(r.revenue) },
           { key: 'cumulative_pct', label: 'النسبة التراكمية', align: 'right', render: (r: ABCRow) => `${r.cumulative_pct.toFixed(1)}%` },
-          { key: 'class', label: 'الفئة', align: 'center', render: (r: ABCRow) => {
-            const map: any = { A: 'success', B: 'primary', C: 'neutral' };
-            return <Badge variant={map[r.class]}>{r.class}</Badge>;
-          }},
+          { key: 'class', label: 'الفئة', align: 'center', render: (r: ABCRow) => <Badge variant={r.class === 'A' ? 'success' : r.class === 'B' ? 'primary' : 'neutral'}>{r.class}</Badge> },
         ]}
         data={data.slice(0, 30)}
       /></Card>
@@ -227,29 +260,47 @@ export function ABCAnalysisPage() {
   );
 }
 
+type AgingRow = {
+  total: number | string | null;
+  paid_amount: number | string | null;
+  due_date: string | null;
+  invoice_date: string | null;
+};
+
+type AgingBucket = { name: string; amount: number; count: number };
+
 export function AgingAnalysisPage() {
-  const [buckets, setBuckets] = useState<any[]>([]);
+  const [buckets, setBuckets] = useState<AgingBucket[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     (async () => {
-      const { data: invoices } = await supabase
+      const companyId = await resolveCurrentCompanyId();
+      if (!companyId) { setBuckets([]); setLoading(false); return; }
+
+      const { data: invoices, error } = await supabase
         .from('sales_invoices')
         .select('total, paid_amount, due_date, invoice_date')
-        .eq('company_id', COMPANY_ID);
+        .eq('company_id', companyId);
+      if (error || !invoices) { setBuckets([]); setLoading(false); return; }
 
       const today = new Date();
-      const b = [
+      const b: AgingBucket[] = [
         { name: '0-30', amount: 0, count: 0 },
         { name: '31-60', amount: 0, count: 0 },
         { name: '61-90', amount: 0, count: 0 },
         { name: '90+', amount: 0, count: 0 },
       ];
 
-      for (const inv of invoices || []) {
-        const outstanding = Number(inv.total) - Number(inv.paid_amount);
+      for (const raw of invoices) {
+        const inv = raw as unknown as AgingRow;
+        const total = Number(inv.total);
+        const paid = Number(inv.paid_amount);
+        const dueSource = inv.due_date || inv.invoice_date;
+        const due = new Date(dueSource);
+        if (!Number.isFinite(total) || !Number.isFinite(paid) || !Number.isFinite(due.getTime())) continue;
+        const outstanding = total - paid;
         if (outstanding <= 0) continue;
-        const due = new Date(inv.due_date || inv.invoice_date);
         const days = Math.floor((today.getTime() - due.getTime()) / (1000 * 60 * 60 * 24));
         if (days <= 30) { b[0].amount += outstanding; b[0].count++; }
         else if (days <= 60) { b[1].amount += outstanding; b[1].count++; }
@@ -270,8 +321,8 @@ export function AgingAnalysisPage() {
       <Card><CardHeader title="التفاصيل" /><DataTable
         columns={[
           { key: 'name', label: 'الفئة (يوم)' },
-          { key: 'amount', label: 'المبلغ', align: 'right', render: (r: any) => formatCurrency(r.amount) },
-          { key: 'count', label: 'عدد الفواتير', align: 'center', render: (r: any) => formatNumber(r.count) },
+          { key: 'amount', label: 'المبلغ', align: 'right', render: (r: AgingBucket) => formatCurrency(r.amount) },
+          { key: 'count', label: 'عدد الفواتير', align: 'center', render: (r: AgingBucket) => formatNumber(r.count) },
         ]}
         data={buckets}
       /></Card>
