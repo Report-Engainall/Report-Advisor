@@ -71,6 +71,8 @@ jobs:
         run: node scripts/secondary-batch17-ci-topology-audit.mjs
       - name: Phase A/B import RPC signature drift gate
         run: npm run test:phase-ab-import-rpc-signature-audit
+      - name: Phase A/B comprehensive integration audit
+        run: npm run test:phase-ab-comprehensive-integration-audit
 
   project-quality:
     strategy:
