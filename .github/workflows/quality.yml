@@ -38,8 +38,10 @@ jobs:
         run: npm run test:migration-dependencies
       - name: Master requirements lock
         run: npm run test:master-requirements
+      - name: Quality workflow contract
+        run: npm run test:quality-workflow-contract
       - name: Core contracts
-        run: npm run test:quality-workflow-contract && npm run test:file-engine-contract && npm run test:file-engine-capability-contract && npm run test:schema-intelligence && npm run test:schema-entity-reconciliation && npm run test:a0-hardening-contract && npm run test:golden-dataset-contract && npm run test:canonical-import-mapping && npm run test:onyx-adapter-contract && npm run test:report-execution-foundation && npm run test:report-execution-e2e-contract && npm run test:report-execution-coordinator-contract && npm run test:automation-executor-contract && npm run test:forecast-calibration-contract && npm run test:entitlements-billing-contract && npm run test:decision-intelligence-closure && npm run test:production-saas-certification
+        run: npm run test:file-engine-contract && npm run test:file-engine-capability-contract && npm run test:schema-intelligence && npm run test:schema-entity-reconciliation && npm run test:a0-hardening-contract && npm run test:golden-dataset-contract && npm run test:canonical-import-mapping && npm run test:onyx-adapter-contract && npm run test:report-execution-foundation && npm run test:report-execution-e2e-contract && npm run test:report-execution-coordinator-contract && npm run test:automation-executor-contract && npm run test:forecast-calibration-contract && npm run test:entitlements-billing-contract && npm run test:decision-intelligence-closure && npm run test:production-saas-certification
       - name: Production certification
         run: npm run test:production-certification-contract
       - name: Operational resilience certification
@@ -61,9 +63,19 @@ jobs:
       - name: Behavioral regressions
         run: npm run test:file-engine-regressions && npm run test:business-key-regressions && npm run test:import-classifier-regressions
       - name: Routing and security contracts
-        run: npm run test:navigation-route-contract && npm run test:import-direct-write-guard && npm run test:import-transaction-contract && npm run test:import-runtime-governance && npm run test:tenant-security-contract && npm run test:global-tenant-rls && npm run test:import-rpc-tenant-context && npm run test:import-business-key
-      - name: Lint and build
-        run: npm run lint && npm run build
+        run: npm run test:navigation-route-contract && npm run test:import-direct-write-guard && npm run test:import-transaction-contract && npm run test:import-runtime-governance && npm run test:tenant-security-contract
+      - name: Global tenant RLS
+        run: npm run test:global-tenant-rls
+      - name: Import RPC tenant context
+        run: npm run test:import-rpc-tenant-context
+      - name: Import business key
+        run: npm run test:import-business-key
+      - name: Lint
+        run: npm run lint
+      - name: Build
+        run: npm run build
+      - name: Performance budget
+        run: npm run perf:budget
       - name: Intelligence and production contracts
         run: npm run test:contracts && npm run test:selective-foundation && npm run test:consolidated-intelligence && npm run test:inventory-intelligence && npm run test:alternative-security && npm run test:alternative-schema && npm run test:decision-dashboard && npm run test:inventory-intelligence-ui && npm run test:demand-velocity && npm run test:batch-decision && npm run test:safe-metrics && npm run test:production-scale
       - name: Analysis runtime contracts
@@ -72,7 +84,9 @@ jobs:
         run: npm run test:document-intelligence-contract && npm run test:document-intelligence-semantic-foundation && npm run test:document-intelligence-hardening && npm run test:document-intelligence-decision-gate && npm run test:file-intelligence-security && npm run test:operational-file-pipeline
       - name: Document intelligence service runtime contracts
         run: python3 -m unittest discover -s services/document-intelligence/tests -p 'test_*.py'
-      - name: Report truth and readiness
-        run: npm run test:report-truth && npm run test:production-readiness
+      - name: Report truth contract
+        run: npm run test:report-truth
+      - name: Production readiness
+        run: npm run test:production-readiness
       - name: Full resilience gate
         run: npm run test:document-resilience
