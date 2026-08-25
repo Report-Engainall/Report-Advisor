@@ -10,6 +10,18 @@ const next = advanceCheckpoint(initial, { stage:'fingerprinted', sourceHash:'sha
 assert.deepEqual(next.evidenceKeys, ['source:sha-a']);
 assert.throws(() => advanceCheckpoint(next, { stage:'analyzed', sourceHash:'sha-a', evidenceKeys:[] }), /Invalid checkpoint transition/);
 assert.throws(() => advanceCheckpoint(next, { stage:'extracted', sourceHash:'sha-b', evidenceKeys:[] }), /source hash/);
+
 const request: ReportExecutionRequest = { reportId:'r', tenantId:'t', requestedBy:'u', parameters:{}, formats:['web'], idempotencyKey:'k' };
 assert.equal(SupabaseReportExecutionStore.requestIdentity(request), 't:k:latest');
-console.log('Report execution runtime: PASS');
+assert.equal(SupabaseReportExecutionStore.requestIdentity({ ...request, sourceSnapshotId:'snapshot-1' }), 't:k:snapshot-1');
+assert.throws(() => SupabaseReportExecutionStore.requestIdentity({ ...request, tenantId:'' }), /tenant and idempotency context/);
+assert.throws(() => SupabaseReportExecutionStore.requestIdentity({ ...request, idempotencyKey:'' }), /tenant and idempotency context/);
+
+// A recovered job must continue from its durable source snapshot identity; it
+// must not silently create a new idempotency scope when a snapshot exists.
+assert.notEqual(
+  SupabaseReportExecutionStore.requestIdentity({ ...request, sourceSnapshotId:'snapshot-1' }),
+  SupabaseReportExecutionStore.requestIdentity(request),
+);
+
+console.log('Report execution runtime: PASS (checkpoint monotonicity + tenant/idempotency recovery invariants)');
