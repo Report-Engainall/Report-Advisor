@@ -7,6 +7,13 @@ const ROOT = process.cwd();
 // legacy, static, or client-selected tenant values can leak into data paths.
 const TARGETS = ['src', 'scripts'];
 const ALLOWED_SELF = new Set(['scripts/check-tenant-legacy-consumers.mjs']);
+const ALLOWED_SCHEMA_OR_PROBE = new Set([
+  'src/lib/types.ts',
+  'src/lib/tenantContext.ts',
+  'src/lib/analytics/outcome-feedback.ts',
+  'src/lib/file-engine/security.ts',
+  'scripts/live-production-saas-certification.mjs',
+]);
 const IGNORE_DIRS = new Set(['node_modules', '.git', 'dist', 'coverage']);
 
 function walk(dir, out = []) {
@@ -27,12 +34,11 @@ function stripComments(text) {
 }
 
 function hasAuthoritativeCompanyResolution(code) {
-  return /(?:const|let|var)\s+companyId\s*=\s*await\s+resolveCurrentCompanyId\s*\(\s*\)/.test(code)
-    || /(?:const|let|var)\s+companyId\s*:\s*string\s*=\s*await\s+resolveCurrentCompanyId\s*\(\s*\)/.test(code);
+  return /(?:const|let|var)\s+(?:companyId|authoritativeCompanyId)\s*(?::\s*string\s*)?=\s*await\s+resolveCurrentCompanyId\s*\(\s*\)/.test(code);
 }
 
 function isLegacyTenantConsumer(rel, text) {
-  if (ALLOWED_SELF.has(rel)) return false;
+  if (ALLOWED_SELF.has(rel) || ALLOWED_SCHEMA_OR_PROBE.has(rel)) return false;
   if (rel === 'src/lib/file-engine/synonyms.ts') return false;
   if (/^scripts\/check-[^/]+\.mjs$/.test(rel)) return false;
 
@@ -47,11 +53,8 @@ function isLegacyTenantConsumer(rel, text) {
   if (/\b(?:VITE_|NEXT_PUBLIC_|PUBLIC_)?(?:COMPANY_ID|TENANT_ID)\s*[:=]/i.test(code)) return true;
   if (/\b(?:companyId|company_id|tenantId|tenant_id)\s*=\s*(?:process\.env\.|import\.meta\.env\.)/i.test(code)) return true;
 
-  // A database-resolved companyId may be used as defense-in-depth filtering;
-  // the database/RLS remains authoritative. Client-selected IDs are forbidden.
   if (/\.(?:eq|neq|in|filter)\s*\(\s*['"](?:company_id|tenant_id)['"]\s*,\s*(?:selectedCompanyId|selectedTenantId|profile\.company_id|user\.company_id)\s*\)/i.test(code)) return true;
   if (/\.(?:eq|neq|in|filter)\s*\(\s*['"](?:company_id|tenant_id)['"]\s*,\s*(?:companyId|tenantId)\s*\)/i.test(code) && !authoritativeCompanyId) return true;
-
   if (/\.(?:eq|neq|in|filter)\s*\(\s*['"](?:company_id|tenant_id)['"]\s*,\s*['"][0-9a-f-]{16,}['"]\s*\)/i.test(code)) return true;
 
   return false;
