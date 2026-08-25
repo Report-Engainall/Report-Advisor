@@ -246,20 +246,42 @@ Only after all P0 blockers are zero and current live evidence exists.
 
 ```text
 Date: 2026-08-25
-Phase: Tenant / Import / Runtime integration hardening
-Goal: Proactively close legacy tenant consumers and harden the File→Import→Tenant→Persistence chain without waiting for CI failures.
+Phase: Tenant / Import / KPI / Report execution / Control-plane / Lease integration hardening
+Goal: Proactively close legacy tenant consumers and harden File→Parse→Map→Validate→Tenant→Canonical→RPC→Persistence→Reconciliation→Audit→Evidence plus KPI/report/recovery chains without waiting for CI failures.
 Status before: FOUNDATION/GATED
-Files inspected: src/lib/tenantContext.ts; src/lib/import/canonical-commit.ts; scripts/check-tenant-legacy-consumers.mjs; scripts/check-import-transaction-contract.mjs; canonical tenant membership migration; current quality workflow.
-Files changed: tenantContext.ts; canonical-commit.ts; check-tenant-legacy-consumers.mjs; check-import-transaction-contract.mjs; this index.
-Tests/workflows inspected: quality.yml; tenant legacy consumer guard; import transaction contract.
-Commit(s): 6731406e2b885d7c1a23396ca119728f742c1cbf plus follow-up tenant/import hardening commits on main.
-Discovery: tenantContext contained a legacy tenant_memberships consumer and could select a tenant from client-side membership ordering; canonical invoice import accepted direct customer_id without proving tenant ownership.
-Root cause: integration drift between the canonical company_memberships/current_company_id path and an older tenant context implementation; imported foreign keys were treated as trusted input.
-Fix: tenant context now reads canonical company_memberships and binds UI context to resolveCurrentCompanyId; client-selected tenant mismatch fails closed. Canonical invoice customer_id is verified against company_id before RPC persistence. Legacy consumer guard now scans src and scripts for static/legacy tenant patterns. Import transaction guard now checks lifecycle/locking and direct customer tenant verification.
-Verification: static contract guards added/strengthened; CI is expected to execute them through quality.yml. No runtime claim is made until the resulting CI run provides evidence.
-Runtime evidence: LIVE REQUIRED for real Supabase adversarial tenant/storage/realtime/AI canaries.
-Remaining gap: KPI end-to-end truth parity and live recovery/canary evidence remain to be audited next; no fabricated PASS.
-Next exact action: continue proactive KPI Source→Formula→Query→Service→Dashboard→Report→Export audit, then Evidence→Quality→Confidence→Decision→Recommendation→Outcome and lease/recovery integration drift, while CI runs in parallel.
+Static findings closed in this batch:
+1) tenantContext legacy tenant_memberships consumer and client-order tenant fallback;
+2) direct imported customer_id accepted without explicit tenant ownership proof;
+3) tenant legacy consumer guard was not scanning executable scripts;
+4) report transaction contract lacked direct customer tenant verification;
+5) report KPI layer fabricated activeCustomers despite no authoritative customer active field;
+6) aging used invoice_date as a silent due-date fallback;
+7) report renderer existed but user-facing download path was not connected;
+8) control-plane execution gate coerced missing risk/liquidity/service-level constraints to zero;
+9) runtime failure transition could erase missing failure evidence into an empty JSON object.
+Fixes:
+- tenantContext now uses canonical company_memberships + resolveCurrentCompanyId and fails closed on client-selected mismatch;
+- canonical invoice import verifies customer_id + company_id before persistence;
+- tenant legacy guard scans src/runtime scripts and ignores only static-analysis check files;
+- import transaction guard now verifies customer tenant linkage and lifecycle locking/terminal-state requirements;
+- KPI engine returns activeCustomers=null because the schema has no authoritative active/inactive customer field; missing due dates now fail closed for aging;
+- report download helper is wired into the existing renderer and the E2E contract now checks renderer→download→durable-worker continuity;
+- control-plane gate requires non-null risk/liquidity/service-level constraints and evidence source references instead of zero coercion;
+- dead-letter failure transition requires structured error evidence and preserves it.
+Key commits:
+- 6731406e2b885d7c1a23396ca119728f742c1cbf
+- 31f662a55ae69c9d356e0d02c21c118a8c69a956
+- 33367c4e54023a036a5b3cb94a08f628a27a105a
+- 85644c8cfeb33cee8bcf974764ce798e16cd0dae
+- 93ba48b4f7022067df78136676cad548182564f3
+CI evidence:
+- Run 32874659379: failure at old business-control-plane roadmap check; root cause was missing roadmap phrase and was corrected.
+- Run 32876152674: failure at tenant legacy guard due static-analysis literals inside check scripts; guard corrected to exclude check-* analyzers only.
+- Run 32876217435: tenant guard passed; all gates through watched reports passed; business-control-plane then failed on a stale test phrase `causal/evidence lineage`; test was aligned to existing roadmap truth rather than changing product semantics.
+- Run 32876236673: newer Quality run triggered by report execution contract work; continue using the newest run as the verifier.
+Runtime evidence: LIVE REQUIRED for adversarial Supabase tenant/storage/realtime/AI canaries, real restore, worker/dead-letter recovery, production rollback and final certification.
+No production PASS is claimed.
+Next: continue proactive KPI/report truth, import reconciliation, evidence→decision→outcome, lease/recovery and isolation drift while the newest Quality run executes.
 ```
 
 ## 16. Definition of Done
@@ -272,13 +294,16 @@ A capability is FULLY IMPLEMENTED only when applicable UI, backend/service, data
 
 ## 18. 2026-08-25 Proactive closure ledger
 
-- **Tenant integration drift — CLOSED STATIC GAP:** `src/lib/tenantContext.ts` no longer consumes the legacy `tenant_memberships` relation or silently chooses a tenant by client array order. It is bound to canonical `company_memberships` plus `resolveCurrentCompanyId()`.
-- **Client-selected tenant mismatch — FAIL CLOSED:** a preferred company id is accepted only when it equals the authoritative resolver result; otherwise tenant context is cleared rather than silently switching/falling back.
-- **Imported foreign customer id — CLOSED STATIC GAP:** invoice import now verifies `customer_id + company_id` before committing. Name resolution remains company-scoped.
-- **Legacy consumer discovery guard — HARDENED:** scans executable `src` and `scripts` surfaces for `COMPANY_ID`, `tenant_memberships`, static tenant ids, and known client-sourced company filters outside the canonical compatibility boundary.
-- **Import transaction guard — HARDENED:** validates durable job/row lifecycle, terminal status handling, locking, failed/cancelled paths, governed bulk persistence, and direct customer tenant verification.
-- **CI status:** latest observed quality run `32874659379` failed on the prior documentation commit; the follow-up `6731406e...` changed the roadmap contract, and subsequent tenant/import hardening commits intentionally trigger fresh Quality runs. No PASS is claimed until an actual run proves it.
-- **Still LIVE REQUIRED:** adversarial Supabase tenant isolation, storage/signed URLs, realtime auth, AI retrieval isolation, backup restore, worker/dead-letter recovery, production rollback and canary evidence.
+- **Tenant integration drift — CLOSED STATIC GAP:** legacy `tenant_memberships` consumer removed from tenant context; authoritative company membership/current-company resolver now controls UI context.
+- **Client tenant fallback — FAIL CLOSED:** no silent first-membership selection when client preference conflicts with server-resolved tenant.
+- **Imported foreign customer id — CLOSED STATIC GAP:** direct invoice customer ids are proven tenant-local before commit; the canonical RPC independently enforces the same invariant. fileciteturn122file0
+- **Import idempotency/lineage — EXISTING FOUNDATION VERIFIED:** durable company-scoped idempotency key/source fingerprint and field-level lineage already exist; no parallel engine was created. fileciteturn123file0
+- **KPI truth — HARDENED:** active-customer KPI is no longer fabricated because the canonical customers table has no authoritative active/inactive field; aging no longer substitutes invoice date for missing due date. The schema confirms customer fields without an active status. fileciteturn131file0
+- **Report execution — CONNECTED:** existing renderers are now connected to a browser download path and the existing E2E contract verifies the renderer/download/durable-worker chain.
+- **Control-plane truth — FAIL CLOSED:** missing risk/liquidity/service-level constraints can no longer become zero during autonomous execution; evidence source references remain mandatory.
+- **Lease/recovery truth — HARDENED:** dead-letter transitions preserve structured failure evidence instead of replacing missing error payloads with `{}`.
+- **CI topology — current evidence:** Run 32876217435 passed Tenant legacy boundary, Data Quality, company config, migration schema/dependencies, core contracts, production certification, resilience, continuous trust, governance and watched reports before stopping at the control-plane gate. fileciteturn114file0
+- **LIVE REQUIRED remains explicit:** adversarial tenant isolation, storage/realtime/AI retrieval isolation, backup restore, production worker recovery, rollback/canary and final certification.
 
 ## 19. Mandatory parallel execution rule
 
