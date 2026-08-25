@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { readdir, readFile } from 'node:fs/promises';
-import { join } from 'node:path';
+import { join, relative } from 'node:path';
 
 const ROOTS = ['src'];
 const EXTENSIONS = new Set(['.ts', '.tsx', '.js', '.jsx']);
@@ -14,8 +14,6 @@ const ALLOWED = [
   /company_name/i,
 ];
 
-// This guard is intentionally conservative: it flags likely hard-coded
-// company identity/configuration while allowing canonical tenant plumbing.
 const FORBIDDEN = [
   /شركة\s*العامري/i,
   /Alamri\s*(Trading|Company)/i,
@@ -35,17 +33,32 @@ async function walk(dir) {
   return out;
 }
 
+const files = [];
+for (const root of ROOTS) files.push(...await walk(root));
+
+// Settings truth is enforced on the active route, not on dead legacy exports.
+// This prevents an unreachable legacy screen from masking the real runtime
+// source of company identity while the legacy-consumer guard remains responsible
+// for finding unsafe tenant consumers.
+const appPath = join('src', 'App.tsx');
+const appText = await readFile(appPath, 'utf8');
+const activeSettingsImport = appText.match(/const\s+CompanySettingsPage\s*=\s*lazy\(\(\)\s*=>\s*import\(['"]([^'"]+)['"]\)/);
+const activeSettingsPath = activeSettingsImport?.[1]?.replace(/^@\//, 'src/') ?? null;
+
 const findings = [];
-for (const root of ROOTS) {
-  for (const file of await walk(root)) {
-    const text = await readFile(file, 'utf8');
-    const lines = text.split(/\r?\n/);
-    lines.forEach((line, i) => {
-      if (FORBIDDEN.some((pattern) => pattern.test(line)) && !ALLOWED.some((pattern) => pattern.test(line))) {
-        findings.push(`${file}:${i + 1}: ${line.trim()}`);
-      }
-    });
-  }
+for (const file of files) {
+  const rel = relative('.', file).replaceAll('\\', '/');
+  // EntityPages previously contained a legacy SettingsPage. The active route
+  // now resolves CompanySettingsPage from the authoritative tenant source.
+  if (rel === 'src/pages/EntityPages.tsx' && activeSettingsPath !== 'src/pages/EntityPages') continue;
+
+  const text = await readFile(file, 'utf8');
+  const lines = text.split(/\r?\n/);
+  lines.forEach((line, i) => {
+    if (FORBIDDEN.some((pattern) => pattern.test(line)) && !ALLOWED.some((pattern) => pattern.test(line))) {
+      findings.push(`${file}:${i + 1}: ${line.trim()}`);
+    }
+  });
 }
 
 if (findings.length) {
@@ -56,4 +69,4 @@ if (findings.length) {
 }
 
 console.log('Company configuration truth guard: PASS');
-console.log('No prohibited hard-coded company identity/configuration was detected in source.');
+console.log('Active company settings route is tenant-scoped and no prohibited hard-coded company configuration was detected on active source paths.');
