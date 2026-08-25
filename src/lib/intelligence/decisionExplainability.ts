@@ -1,7 +1,7 @@
-import type { DecisionScore, DecisionScoreInput } from './decisionScore';
+import type { DecisionScore } from './decisionScore';
 
 export type DecisionEvidence = {
-  key: keyof DecisionScoreInput | string;
+  key: keyof DecisionScore['factors'] | string;
   value: number | string;
   source: string;
   freshness: number;
