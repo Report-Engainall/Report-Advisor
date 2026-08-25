@@ -51,12 +51,23 @@ if (!/WITH CHECK\s*\(\s*company_id\s*=\s*public\.current_company_id\(\)\s*\)/i.t
 // outside this set so its own detection regexes cannot self-trigger.
 const reportFiles = files.filter((f) => /report|dashboard|analytics|summary/i.test(path.basename(f)));
 const reportSource = reportFiles.map((f) => fs.readFileSync(f, 'utf8')).join('\n');
-if (/Number\([^\n]*\)\s*\|\|\s*0/.test(reportSource) || /parseFloat\([^\n]*\)\s*\|\|\s*0/.test(reportSource)) {
-  throw new Error('Report truth contract forbids silent invalid-number coercion to zero');
+
+// Match only a single numeric-coercion expression. The previous [^\n]* pattern
+// could span unrelated expressions on a long source line and falsely combine
+// Number(...) with a later, legitimate Map/lookup fallback such as get(...) || 0.
+const silentNumberFallback = /(?:Number|parseFloat|parseInt)\(\s*[^()\n]{0,240}\s*\)\s*\|\|\s*0\b/g;
+for (const match of reportSource.matchAll(silentNumberFallback)) {
+  throw new Error(`Report truth contract forbids silent invalid-number coercion to zero: ${match[0]}`);
 }
-if (/(?:kpis|metrics|summary|totals|result|value)\??\.[A-Za-z_$][\w$]*\s*\|\|\s*0/.test(reportSource)) {
-  throw new Error('Report truth contract forbids missing KPI/metric values from being rendered as zero');
+
+// Missing KPI/metric values must not be rendered as zero. Keep this expression
+// local to the property access so unrelated fallbacks elsewhere on the line do
+// not contaminate the match.
+const missingMetricFallback = /\b(?:kpis|metrics|summary|totals|result|value)\??\.[A-Za-z_$][\w$]*\s*\|\|\s*0\b/g;
+for (const match of reportSource.matchAll(missingMetricFallback)) {
+  throw new Error(`Report truth contract forbids missing KPI/metric values from being rendered as zero: ${match[0]}`);
 }
+
 if (/(Number|parseFloat|parseInt)\([^\n]*\).*NaN|NaN.*(Number|parseFloat|parseInt)\(/s.test(reportSource) && !/Number\.isFinite/.test(reportSource)) {
   throw new Error('Report truth contract requires finite-number guarding');
 }
