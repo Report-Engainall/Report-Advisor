@@ -15,6 +15,7 @@ for (const file of files) {
   const text = fs.readFileSync(path.join(workflowDir, file), 'utf8');
   for (const re of patterns) for (const m of text.matchAll(re)) {
     const cmd = m[1];
+    if (cmd.startsWith('-')) continue;
     if (['install','ci','exec','dlx','test','build','lint','typecheck','run'].includes(cmd)) continue;
     if (!scripts.has(cmd)) missing.add(`${file}: ${cmd}`);
   }
