@@ -37,6 +37,8 @@ jobs:
         run: npm run test:secondary-batch04-golden
       - name: Runtime and safety regression harness
         run: npm run test:secondary-batch04-regression
+      - name: Batch 05 runtime closure audit
+        run: npm run test:secondary-batch05-runtime-audit
 
   project-quality:
     strategy:
