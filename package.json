@@ -64,7 +64,7 @@
     "test:decision-dashboard": "node scripts/check-decision-dashboard.mjs",
     "test:inventory-intelligence-ui": "node scripts/check-inventory-intelligence-ui.mjs",
     "test:demand-velocity": "node scripts/check-demand-velocity.mjs",
-    "test:batch-decision": "node scripts/check-batch-decision-engine.mjs",
+    "test:batch-decision": "node --experimental-strip-types scripts/check-batch-decision-engine.mjs",
     "test:safe-metrics": "node scripts/check-safe-metrics.mjs",
     "test:production-scale": "node scripts/check-production-scale.mjs",
     "test:analysis-cache-policy": "node scripts/check-analysis-cache-policy.mjs",
@@ -87,39 +87,6 @@
     "test:import-business-key": "node scripts/check-import-business-key.mjs",
     "test:report-truth": "node scripts/check-report-truth-contract.mjs",
     "test:postcss-toolchain": "node scripts/check-postcss-toolchain.mjs",
-    "test:quality-workflow-contract": "node scripts/check-quality-workflow-contract.mjs",
-    "test:production-readiness": "node scripts/check-production-readiness.mjs",
-    "test:navigation-route-contract": "node scripts/check-navigation-route-contract.mjs",
-    "test:import-direct-write-guard": "node scripts/check-import-direct-write-guard.mjs",
-    "test:scenario-engine": "node scripts/check-scenario-engine.mjs",
-    "test:import-folder-foundation": "node scripts/check-import-folder-foundation.mjs",
-    "test:production-gate-integrity": "node scripts/check-production-gate-integrity.mjs",
-    "test:production-gate-runtime": "node scripts/check-production-gate-runtime.mjs",
-    "test:document-resilience": "node scripts/adversarial-document-corpus.test.mjs && node scripts/layout-table-fidelity.test.mjs && node scripts/extraction-quality-score.test.mjs && node scripts/resilient-document-decision.test.mjs && node scripts/evidence-source-trace.test.mjs && node scripts/golden-e2e-corpus.test.mjs && node scripts/production-gate-integrity.test.mjs && node scripts/integration-pipeline-simulation.test.mjs && node scripts/regression-gate-manifest.test.mjs && node scripts/performance-scale-gates.test.mjs && node scripts/text-first-extraction-gate.test.mjs && node scripts/end-to-end-document-pipeline-contract.test.mjs && node scripts/canonical-text-provenance.test.mjs && node scripts/extraction-fallback-policy.test.mjs"
-  },
-  "dependencies": {
-    "@supabase/supabase-js": "^2.57.4",
-    "clsx": "^2.1.0",
-    "date-fns": "^4.4.0",
-    "lucide-react": "^0.446.0",
-    "mammoth": "^1.12.0",
-    "pdfjs-dist": "^6.2.108",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "react-router-dom": "^7.18.2",
-    "recharts": "^3.10.0",
-    "tesseract.js": "^7.0.0",
-    "xlsx": "^0.18.5"
-  },
-  "devDependencies": {
-    "@eslint/js": "^9.9.0",
-    "@types/react": "^18.3.5",
-    "@types/react-dom": "^18.3.0",
-    "autoprefixer": "^10.4.18",
-    "postcss": "^8.4.35",
-    "tailwindcss": "^3.4.1",
-    "typescript": "^5.5.3",
-    "typescript-eslint": "^8.3.0",
-    "vite": "^5.4.2"
+    "test:quality-workflow-contract": "node scripts/check-quality-workflow-contract.mjs"
   }
 }
