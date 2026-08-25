@@ -46,9 +46,9 @@ Hardening completed: weak-fingerprint fail-closed behavior; duplicate stable-row
 ## Tenant / security
 Repository-wide proactive searches covered `COMPANY_ID`, static tenant IDs, tenant fallbacks, `company_id`, `tenant_memberships`, client-selected tenant filtering, direct Supabase reads/writes and RPC callers.
 
-Current static truth: tenant legacy consumer guard PASS; adversarial tenant source-boundary guard PASS; no remaining verified browser-storage/query-string/static/client-selected tenant source in executable application paths; tenant is database/RLS/current-company authoritative; bulk writes remain governed by transaction/RPC. The adversarial guard is now part of Quality. fileciteturn167file0L2-L2
+Current static truth: tenant legacy consumer guard PASS; adversarial tenant source-boundary guard PASS; no remaining verified browser-storage/query-string/static/client-selected tenant source in executable application paths; tenant is database/RLS/current-company authoritative; bulk writes remain governed by transaction/RPC.
 
-The canonical import atomic wrapper verifies `p_company_id` against `current_company_id()` inside the database before invoking entity RPCs. fileciteturn172file0L2-L2
+The canonical import atomic wrapper verifies `p_company_id` against `current_company_id()` inside the database before invoking entity RPCs.
 
 LIVE REQUIRED: adversarial Supabase tenant isolation, storage/signed URLs, Realtime authorization, AI retrieval namespace isolation, secrets audit.
 
@@ -56,6 +56,8 @@ LIVE REQUIRED: adversarial Supabase tenant isolation, storage/signed URLs, Realt
 `File → Parse → Map → Validate → Tenant → Canonical → RPC → Persistence → Reconciliation → Audit → Evidence`
 
 Foundation is implemented and gated: multi-format contracts, Arabic/English mapping, normalization, business-key matching, preview/approval, quarantine, provenance/lineage, governed RPC writes, Onyx adapter, watched-folder queue, chunk atomicity, tenant mismatch rejection, duplicate protection and deletion reconciliation.
+
+Proactive closure now also covers: duplicate stable-row fail-closed behavior, source-snapshot-specific idempotency, checkpoint monotonicity, vanished-file reconciliation, watched-folder configuration validation, and canonical Phase M certification migration binding in the deep K→S gate.
 
 Remaining runtime proof: arbitrary/no-header/random/poor files, page/table classification, extraction completeness, cell lineage, golden corpus, live Onyx, live rollback/retry/reconciliation.
 
@@ -66,27 +68,26 @@ The 3/6/12-month dashboard selector controls the trend only; other executive KPI
 
 Audit chain: `KPI Definition → Source → Formula → Query → Service → Dashboard → Report → Export`.
 
-Known Q-phase GAP: dashboard query presentation still contains fallbacks for missing customer/product/category names. This is not treated as closed; missing business data must remain visibly missing or be represented by a canonical identifier, never by fabricated business meaning.
+Q-phase GAP closure progress: dashboard query presentation no longer uses fabricated customer/product/category business labels; missing customer/product names fall back only to their canonical identifiers, and missing category names fall back to the canonical category identifier. The new `check-kpi-presentation-truth.mjs` guard is part of Quality. The last completed Quality #1430 correctly exposed this gap before the fix; the current source fix is in `db25d19998afbb0af25eff51562929dcfe0dffe7` and Quality #1431 is running against it.
 
-Remaining: cross-surface equivalence, authoritative date windows, cache freshness/invalidation, provenance in UI/export, large-table/drill-down E2E, and removal/replacement of misleading presentation fallbacks.
+Remaining: cross-surface equivalence, authoritative global date windows, cache freshness/invalidation, provenance in UI/export, large-table/drill-down E2E, and live KPI evidence.
 
 ## Evidence / decision / outcome
 Evidence-bound decision contracts exist and fail closed on missing risk/liquidity/service-level constraints.
 Remaining: live evidence graph, real outcomes, recommendation→outcome feedback, executive action loop, production-like optimizer scenarios.
 
 ## Lease / recovery
-Durable jobs + lease + heartbeat + checkpoint + retry + terminal state + dead-letter exist. Runtime regression now covers checkpoint monotonicity, source-snapshot-specific idempotency identity and fail-closed tenant/idempotency context; it passed in Quality #1419. fileciteturn185file0L2-L2
+Durable jobs + lease + heartbeat + checkpoint + retry + terminal state + dead-letter exist. Runtime regression covers checkpoint monotonicity, source-snapshot-specific idempotency identity and fail-closed tenant/idempotency context; it passed in Quality #1430 before the later KPI gate.
 LIVE REQUIRED: stuck-worker injection, lease expiry, dead-letter replay, backup restore/RPO-RTO, rollback/forward-fix, SLO timing.
 
 ## K→S closure truth
-The shallow and deep K→S gates now consume the historical roadmap plus `docs/IMPLEMENTATION_ROADMAP_PHASES_N-S.md`. The deep gate was aligned to the actual canonical `PhaseKLSupabaseRuntime` API (`recordHealth`, `recordEvidenceEdge`, `autonomyGate`) and then aligned to the canonical `P0_RUNTIME_CERTIFICATION_MATRIX.md` for blockers instead of relying on invented blocker strings. fileciteturn209file0L2-L2 fileciteturn218file0L2-L2
+The shallow and deep K→S gates consume the historical roadmap plus `docs/IMPLEMENTATION_ROADMAP_PHASES_N-S.md`. The deep gate is aligned to the actual canonical `PhaseKLSupabaseRuntime` API (`recordHealth`, `recordEvidenceEdge`, `autonomyGate`) and to the canonical `P0_RUNTIME_CERTIFICATION_MATRIX.md` for blockers. The deep gate also now binds Phase M certification to the actual repository migration `20260825150000_phase_m_certification_bundle.sql`, eliminating the stale missing-migration path that caused Quality #1427.
 
 ## CI truth / latest execution
 Primary verifier: `.github/workflows/quality.yml`.
-- #1413 `32882131338`: K→S roadmap phase drift → fixed with N–S addendum.
-- #1419 `32882629799`: tenant/adversarial gates PASS; worker recovery PASS; deep K→S exposed canonical API naming drift → fixed.
-- #1424 `32882733990`: tenant/adversarial/import/worker/K-L-M/shallow K-S all PASS; deep K-S then exposed that blocker assertions were incorrectly tied to exact roadmap wording (`raw-file`) rather than the canonical P0 matrix. Root cause fixed in `4084fd0427bff40a3cfbe3efa29e354ba8fce1af`.
-- A new Quality run is triggered from the current batch; no PASS is claimed until it completes against the latest source.
+- #1427 `32882832259`: deep K→S exposed stale migration path `20260825140000_phase_m_production_certification.sql` → fixed to canonical `20260825150000_phase_m_certification_bundle.sql` in `230943f8815f3e27ecf95055f546ab5ee826e251`.
+- #1430 `32883083895`: all gates through K→S PASS; new KPI presentation truth guard exposed the three fabricated business-label fallbacks in the source that was checked by that run → fixed in `db25d19998afbb0af25eff51562929dcfe0dffe7`.
+- #1431 `32883162686`: running against the KPI root fix; no PASS is claimed until completion.
 
 ## P0 LIVE blockers
 - [ ] adversarial tenant certification
@@ -143,7 +144,7 @@ Primary verifier: `.github/workflows/quality.yml`.
 - [ ] evidence-grounded Ask→Inspect→Act E2E
 
 ## Truth-weighted progress
-**~82% engineering completion remains the conservative verified figure.** This is not production certification. Broad implementation coverage is ~90%+, contract/gate maturity is high, while integrated runtime/live certification remains partial. The latest batch closes integration drift but adds no live evidence, so the percentage is not inflated.
+**~82% engineering completion remains the conservative verified figure.** This is not production certification. Broad implementation coverage is ~90%+, contract/gate maturity is high, while integrated runtime/live certification remains partial. The latest batch closes additional integration drift and a real KPI presentation truth gap, but adds no live production evidence, so the percentage is intentionally not inflated.
 
 Production certified: **NO** until P0 live evidence closes.
 
@@ -167,5 +168,9 @@ Production certified: **NO** until P0 live evidence closes.
 - `02701c7947eae646ee8bba7557d4a1b2ca8aca02` — deep K–S roadmap alignment.
 - `1c669f16c2c40bd6c04101413ad8cd01de45e65b1` — deep K–S canonical Supabase API alignment.
 - `4084fd0427bff40a3cfbe3efa29e354ba8fce1af` — deep K–S blockers bound to canonical P0 matrix.
+- `230943f8815f3e27ecf95055f546ab5ee826e251` — deep K–S canonical Phase M migration binding.
+- `5e9ee23bad46300c7d4f83e2c029f559251a3b8` — KPI presentation truth guard.
+- `85973d4e8aeaa5dd34c15bf230bd51a47b21cf3c` — Quality KPI truth wiring.
+- `db25d19998afbb0af25eff51562929dcfe0dffe7` — KPI missing-label root fix using canonical identifiers.
 
 **No production PASS is claimed. LIVE REQUIRED remains explicit.**
