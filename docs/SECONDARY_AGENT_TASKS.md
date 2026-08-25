@@ -8,91 +8,37 @@ Primary integration target: `phase-8-9-completion`
 
 Primary authority: main execution agent. Do not merge independently.
 
-## Purpose
+## Batch 07 execution status — 2026-08-25
 
-This file converts Document 02 into an **approved parallel work plan**. It deliberately selects only work that can accelerate the product without destabilizing the current core runtime. Larger changes that touch canonical truth, security, migrations, or production certification remain deferred to the primary execution stream.
-
----
-
-# Batch 02 execution status — 2026-08-25
-
-Batch 02 has been implemented as an isolated presentation/read-model foundation on `parallel/secondary-agent-evidence-ux`.
+Batch 07 intentionally adds no new UI surface and no new Core engine. It adds a structural Runtime Gap Inventory and CI execution hook so the existing secondary adapters can be evaluated against authoritative runtime boundaries.
 
 | Task | Status | Notes |
 |---|---|---|
-| A6 Data Quality Center | FOUNDATION | Read-model UI added; existing Data Quality query boundary preserved; live wiring remains required. |
-| A7 Business Control Plane | FOUNDATION | Existing control-plane contracts preserved; UI consumes supplied signals only. |
-| A8 Document Intelligence Workspace | FOUNDATION | Existing document/import contracts are consumed through typed read models; no new import engine. |
-| A9 Golden Corpus | FOUNDATION | Synthetic deterministic CSV/text/JSON fixtures added; no customer data. |
-| A10 Smart Reconciliation presentation | FOUNDATION | Read-only presentation; no second reconciliation engine. |
-| A11 Schema Discovery presentation | FOUNDATION | Read-only presentation; no second schema engine. |
-| A1 Evidence Workspace improvement | FOUNDATION | Batch 01 remains authoritative UI foundation; Batch 02 adds evidence-aware contract compatibility. |
+| Runtime Gap Inventory | GATED | `scripts/secondary-batch07-runtime-inventory.mjs` maps capability → contract → implementation → persistence → security → test → workflow → runtime evidence. It does not claim live runtime evidence. |
+| Evidence Graph readiness | GATED / LIVE REQUIRED | Existing Evidence Ledger and Phase K/L executive evidence graph are present; downstream page/table/row/column/cell/entity/canonical/metric/report/decision/action/outcome proof remains primary-runtime dependent. |
+| Document Intelligence readiness | GATED / LIVE REQUIRED | Existing provider-neutral gateway and envelope are reused; page/table/cell lineage and persisted extraction evidence remain live-runtime gaps. |
+| Golden Corpus | GATED | Existing 13/13 corpus retained; no expansion because no new regression case was justified. |
+| Free-first audit | GATED | Secondary runtime inventory rejects known paid/remote provider markers and legacy `/api/chat` paths. |
+| CI classification | GATED | Batch 07 inventory is added to the existing secondary workflow; TypeScript/lint/build remain independent and are not weakened. |
+| Mainline baseline repair | MAINLINE DEPENDENCY | `globals`, `fetchCategoryBreakdown`, and other project-wide query/type/build failures are not duplicated. |
 
-Test execution through the connected GitHub tool was **SKIPPED** because the available connector does not expose a local Node/npm/browser runtime and no workflow-dispatch operation is available. No PASS claim is made.
+## Batch 07 runtime findings
 
-No paid dependency was introduced. No Core Engine was duplicated. No main merge was performed.
+The existing repository already contains a runtime closure matrix and Phase K/L persistence boundary. `src/lib/phase-kl-supabase-runtime.ts` exposes the authoritative `record_control_plane_health` and `record_executive_evidence_edge` RPC boundaries; `supabase/migrations/20260825140000_phase_l_runtime_cockpit.sql` contains the executive evidence graph persistence. These are treated as canonical, not replaced.
 
----
+The existing `Evidence` contract currently preserves `sourceId`, optional `page`, `field`, raw/normalized values and confidence. It does not itself prove persisted table/row/column/cell/entity/canonical/metric/report/action/outcome runtime linkage. Those remain `LIVE REQUIRED` rather than being synthesized by the secondary branch.
 
-# Batch 03 execution status — 2026-08-25
+The existing `DocumentExtractionEnvelope` contains provider-neutral plan/choice/stage/warnings/facts with source/page/confidence. It does not yet constitute complete cell-level lineage or persisted extraction evidence. No new parser or envelope engine was created in Batch 07.
 
-Batch 03 focuses on runtime read-model closure and integrity rather than adding a new feature surface.
+The existing `RUNTIME_CLOSURE_MATRIX.md` confirms the canonical chain `source → canonical text → lineage → consolidation → scenario → decision → evidence → health → trust → rollback → certification → autonomy`. Batch 07 consumes that architecture as a reference and does not create another graph.
 
-| Task | Status | Notes |
-|---|---|---|
-| Runtime Read-Model Wiring | FOUNDATION / LIVE REQUIRED | Existing Data Quality, Business Control Plane, Document Intelligence, and Evidence boundaries are consumed through adapters; Smart Reconciliation remains LIVE REQUIRED until its authoritative result is exposed. |
-| UNKNOWN / BLOCKED Integrity | FOUNDATION | Missing/stale/unavailable/insufficient evidence is preserved as UNKNOWN/NOT CONFIGURED/BLOCKED/ERROR. |
-| Evidence Deep-Link Preparation | FOUNDATION | Optional source_id/evidence_id/snapshot_id/lineage_id/metric_id/decision_id fields added; absent IDs are not invented. |
-| Golden Corpus Harness | FOUNDATION | CI-ready harness added with PASS/FAIL/SKIPPED classification. |
-| Contract Regression Guarding | FOUNDATION | Existing Data Quality and Business Control read boundaries are reused; no Core contract is replaced. |
-| Accessibility / UX Hardening | FOUNDATION | Keyboard focus, status semantics, live-region notices, table captions/scoped headers, and RTL preservation improved. |
-| Performance Guarding | FOUNDATION | New control-plane reads use explicit projections and limit(1); no unbounded secondary bulk read introduced. |
+## Batch 07 test policy
 
-Batch 03 is **not COMPLETE**. Runtime execution, full CI, and primary-agent certification remain required.
+The new inventory is a structural guard, not runtime certification. A future GitHub Actions run must be used to record PASS/FAIL for the script. Live database/tenant/browser/document/reconciliation evidence remains `LIVE REQUIRED` until executed by the primary runtime stream.
 
----
+No Golden Corpus fixtures were added. No business/customer data was added. No paid dependency or provider was added.
 
-# Batch 04 execution status — 2026-08-25
-
-Batch 04 intentionally prioritizes closure and regression protection over new UI.
-
-| Task | Status | Notes |
-|---|---|---|
-| Runtime Closure Audit | FOUNDATION | Every Batch 01–03 component now has a concrete runtime requirement and classification in `SECONDARY_AGENT_BATCH_04_HANDOFF.md`. |
-| Existing Runtime Integration | FOUNDATION / LIVE REQUIRED | Existing Data Quality, Document Intelligence, Evidence Ledger, Decision Evidence, Report Snapshot, and Reconciliation contracts are now explicit adapter sources. No duplicate engine was introduced. |
-| UNKNOWN / Evidence Safety | FOUNDATION | Regression harness guards UNKNOWN/NOT CONFIGURED semantics and prevents secondary-layer fake success. |
-| Evidence Deep-Link Safety | FOUNDATION / LIVE REQUIRED | Real source/evidence IDs are propagated only when supplied. No secondary route/identifier is generated. |
-| Golden Corpus Contract Expectations | FOUNDATION | All 13 fixtures now have executable expectations covering schema/header, normalization, duplicates, missing fields, OCR, merged/multi-table/multi-page, reconciliation mismatch, and UNKNOWN. |
-| Contract Regression | FOUNDATION | Static regression harness verifies authoritative contract reuse and no select(*) in secondary runtime/query surfaces. |
-| Accessibility Regression | GATED | Browser-level regression remains gated on an actual browser runner. |
-| Performance Regression | FOUNDATION | Static guards cover select(*), bounded control-plane reads, and absence of new polling/bulk evidence fetches. |
-| CI Workflow | LIVE REQUIRED | Dedicated Batch 04 workflow added; actual run evidence must be observed before any COMPLETE classification. |
-
-Batch 04 is **not COMPLETE**.
-
----
-
-# Batch 05 execution status — 2026-08-25
-
-Batch 05 deliberately avoids new UI and focuses on baseline-gap ownership, runtime contract safety, and CI evidence preparation.
-
-| Task | Status | Notes |
-|---|---|---|
-| CI baseline gap audit | GAP / MAINLINE DEPENDENCY | `globals` and `fetchCategoryBreakdown` were rechecked. Existing Draft PR #20 already addresses these exact baseline blockers, so no duplicate fix was added to this branch. |
-| Runtime contract audit | GATED | Existing Evidence, Decision Evidence, Report Snapshot, Document Intelligence, Reconciliation, Data Quality, and Control Plane implementations were re-verified as authoritative sources. |
-| Evidence ID safety | GATED | Removed the secondary `sourceRef` fallback that could reuse a local reference when an authoritative source ID was absent. Missing source evidence now stays UNKNOWN. |
-| Golden Corpus preservation | GATED | The 13-case corpus remains unchanged and executable; Batch 05 adds runtime audit coverage without expanding the corpus. |
-| UNKNOWN / evidence safety regression | GATED | Batch 05 audit explicitly checks no fabricated source reference, no duplicate reconciliation/import engine, UNKNOWN preservation, and no paid provider markers. |
-| Runtime Evidence closure | LIVE REQUIRED | Real tenant/document/reconciliation/persisted Evidence Graph evidence remains owned by the primary runtime stream. |
-| Accessibility | GATED | Browser execution remains required for certification. |
-| Performance | GATED | Static anti-pattern guards are present; runtime measurement remains required. |
-| Batch 05 CI | LIVE REQUIRED | New CI step added; status must be taken from the actual GitHub Actions run. |
-
-Batch 05 is **not COMPLETE**.
-
----
-
-# Existing approved task matrix
+## Existing approved task matrix
 
 ## A. NOW / PARALLEL — execute these
 
@@ -172,7 +118,7 @@ The UI consumes supplied values; it does not invent confidence.
 
 ## A6. Data Quality Center UI
 
-**Batch 02: FOUNDATION. Batch 03–05: FOUNDATION / LIVE REQUIRED for authoritative quality scores.**
+**Batch 02: FOUNDATION. Batch 03–07: FOUNDATION / LIVE REQUIRED for authoritative quality scores.**
 
 Implement views for:
 - completeness;
@@ -189,7 +135,7 @@ Implement views for:
 
 ## A7. Business Control Plane UI
 
-**Batch 02: FOUNDATION. Batch 03–05: FOUNDATION.**
+**Batch 02: FOUNDATION. Batch 03–07: FOUNDATION / GATED.**
 
 Implement operational overview for:
 - imports;
@@ -208,7 +154,7 @@ Always distinguish LIVE/UNKNOWN/NOT CONFIGURED/FAILED.
 
 ## A8. Document Intelligence Workspace UI
 
-**Batch 02: FOUNDATION. Batch 03–05: FOUNDATION / LIVE REQUIRED.**
+**Batch 02: FOUNDATION. Batch 03–07: FOUNDATION / LIVE REQUIRED.**
 
 Implement document inspection experience:
 - preview;
@@ -229,7 +175,7 @@ Use existing import/document contracts.
 
 ## A9. Golden Corpus
 
-**Batch 02: FOUNDATION. Batch 03–05: FOUNDATION with executable expectations.**
+**Batch 02: FOUNDATION. Batch 03–07: GATED with executable expectations.**
 
 Create safe deterministic fixtures for:
 - Arabic tabular input;
@@ -249,7 +195,7 @@ No real customer/business secrets.
 
 ## A10. Smart Reconciliation presentation
 
-**Batch 02: FOUNDATION. Batch 03–05: FOUNDATION / LIVE REQUIRED for authoritative result wiring.**
+**Batch 02: FOUNDATION. Batch 03–07: FOUNDATION / LIVE REQUIRED for authoritative result wiring.**
 
 Prepare UI/read models for:
 - source row count vs canonical row count;
