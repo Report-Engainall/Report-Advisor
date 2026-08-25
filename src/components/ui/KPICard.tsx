@@ -5,7 +5,7 @@ import type { DataStatus } from '@/lib/types';
 
 interface KPICardProps {
   label: string;
-  value: number;
+  value: number | null;
   format: 'currency' | 'number' | 'percent' | 'compact';
   change?: number;
   changeLabel?: string;
@@ -15,10 +15,12 @@ interface KPICardProps {
 }
 
 export function KPICard({ label, value, format, change, changeLabel, icon, status = 'CALCULATED', hint }: KPICardProps) {
-  const formatted = format === 'currency' ? formatCurrency(value)
-    : format === 'percent' ? `${value.toFixed(1)}%`
-    : format === 'compact' ? formatCompact(value)
-    : formatNumber(value);
+  const formatted = value === null
+    ? '—'
+    : format === 'currency' ? formatCurrency(value)
+      : format === 'percent' ? `${value.toFixed(1)}%`
+      : format === 'compact' ? formatCompact(value)
+      : formatNumber(value);
 
   const isPositive = change !== undefined && change > 0;
   const isNegative = change !== undefined && change < 0;
