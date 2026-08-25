@@ -1,8 +1,7 @@
 import { supabase, resolveCurrentCompanyId } from './supabase';
-import { fetchAlerts, fetchRecommendations } from './queries';
-import type { Alert, Customer, Forecast, ImportRecord, Product } from './types';
+import type { Customer, Forecast, ImportRecord, Product } from './types';
 
-export { fetchAlerts, fetchRecommendations } from './queries';
+export * from './queries';
 
 export async function markAlertRead(id: string): Promise<void> {
   const companyId = await resolveCurrentCompanyId();
@@ -48,37 +47,20 @@ type ImportRecordPatch = Partial<Pick<ImportRecord, 'status' | 'progress' | 'err
 export async function createImportRecord(input: ImportRecordInput): Promise<ImportRecord> {
   const companyId = await resolveCurrentCompanyId();
   if (!companyId) throw new Error('TENANT_REQUIRED');
-  const { data, error } = await supabase.rpc('import_create_job', {
-    p_company_id: companyId,
-    p_entity_type: input.entity_type ?? 'import',
-    p_total_rows: input.total_rows,
-  });
+  const { data, error } = await supabase.rpc('import_create_job', { p_company_id: companyId, p_entity_type: input.entity_type ?? 'import', p_total_rows: input.total_rows });
   if (error) throw error;
   const id = String(data);
   return { id, company_id: companyId, ...input, error_message: null, created_at: new Date().toISOString(), completed_at: null };
 }
 
 export async function updateImportRecord(id: string, patch: ImportRecordPatch): Promise<void> {
-  const companyId = await resolveCurrentCompanyId();
-  if (!companyId) throw new Error('TENANT_REQUIRED');
+  if (!await resolveCurrentCompanyId()) throw new Error('TENANT_REQUIRED');
   if (patch.progress !== undefined) {
-    const { error } = await supabase.rpc('import_update_job_progress', {
-      p_job_id: id,
-      p_processed_rows: Math.max(0, Math.round(patch.progress)),
-      p_valid_rows: Math.max(0, Math.round(patch.progress)),
-      p_invalid_rows: 0,
-      p_duplicate_rows: 0,
-      p_status: patch.status ?? 'processing',
-    });
+    const { error } = await supabase.rpc('import_update_job_progress', { p_job_id: id, p_processed_rows: Math.max(0, Math.round(patch.progress)), p_valid_rows: Math.max(0, Math.round(patch.progress)), p_invalid_rows: 0, p_duplicate_rows: 0, p_status: patch.status ?? 'processing' });
     if (error) throw error;
   }
   if (patch.status || patch.error_message !== undefined) {
-    const { error } = await supabase.rpc('import_finish_job', {
-      p_job_id: id,
-      p_status: patch.status ?? 'failed',
-      p_result_summary: { company_id: companyId },
-      p_error_message: patch.error_message ?? null,
-    });
+    const { error } = await supabase.rpc('import_finish_job', { p_job_id: id, p_status: patch.status ?? 'failed', p_result_summary: {}, p_error_message: patch.error_message ?? null });
     if (error) throw error;
   }
 }
