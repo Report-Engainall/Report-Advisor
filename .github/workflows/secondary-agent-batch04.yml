@@ -71,6 +71,8 @@ jobs:
         run: node scripts/secondary-batch17-ci-topology-audit.mjs
       - name: Onyx duplicate-canonical conflict regression
         run: node scripts/check-onyx-adapter-conflicts.mjs
+      - name: File lifecycle retry regression
+        run: node --experimental-strip-types scripts/file-lifecycle-retry-regression.test.mjs
       - name: Phase A/B import RPC signature drift gate
         run: npm run test:phase-ab-import-rpc-signature-audit
       - name: Phase A/B comprehensive integration audit
