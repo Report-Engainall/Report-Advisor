@@ -3,110 +3,92 @@
 Snapshot: 2026-08-25
 Source of truth: `main`
 
-> هذا الملف هو نقطة الرجوع الإلزامية قبل كل دفعة. لا تُحسب الملفات/commits إنجازًا بحد ذاتها. الحالة تُفصل إلى implementation / gate / runtime / live certification.
+> نقطة الرجوع الإلزامية قبل كل دفعة. لا تُحسب الملفات/commits إنجازًا بحد ذاتها. الحالة تفصل implementation / gate / runtime / live certification.
 
-## 1. قواعد التنفيذ
-
-- افحص الفهرس → المستودع → العمل السابق قبل coding.
-- Reuse/fix/consolidate قبل create؛ ممنوع engines موازية.
-- CI يعمل بالتوازي مع التدقيق؛ لا ننتظر Run لبدء GAP مستقل.
+## Rules
+- افحص الفهرس ثم المستودع والعمل السابق.
+- Reuse/fix/consolidate قبل create؛ لا engines موازية.
+- CI يعمل بالتوازي مع التدقيق.
 - Failure → root cause → fix → regression → rerun.
-- لا mock business data، لا fake runtime evidence، لا defaults تخفي missing data أو tenant/security constraints.
+- لا mock business data ولا fake runtime evidence ولا defaults تخفي missing data/tenant/security constraints.
 - AI ليس مصدر الحقيقة المالية/الرقمية.
-- كل GAP مغلق له guard/test ودليل مناسب.
 
-## 2. الحالة المرحلية
-
+## Phase truth
 | المسار | الحالة | المتبقي الحاسم |
 |---|---|---|
-| 1–21 | COMPLETE FOUNDATION | dependency recheck فقط |
+| 1–21 | COMPLETE FOUNDATION | dependency recheck |
 | 22–29 | IMPLEMENTED/GATED | runtime/E2E/golden evidence |
 | 30–37 | IMPLEMENTED/GATED | runtime + decision E2E |
-| A0 | FOUNDATION/GATED | اكتمال محرك الوثائق الداخلي |
+| A0 | FOUNDATION/GATED | document engine depth |
 | A–D | FOUNDATION/DEEP FOUNDATION COMPLETE | live worker/action/forecast feedback |
-| E–G | GATED/LIVE REQUIRED | tenant/security/restore/rollback/release evidence |
+| E–G | GATED/LIVE REQUIRED | tenant/security/restore/rollback/release |
 | H–I | FOUNDATION/GATED | live canaries/graph/outcomes/cockpit |
-| J–J.1 | FOUNDATION/GATED | live watched-folder coordinator/continuous acceptance |
+| J–J.1 | FOUNDATION/GATED | live watched-folder coordinator |
 | K–L | FOUNDATION/GATED | real jobs/outcomes/telemetry/action loop |
-| M | NOT LIVE CERTIFIED | production certification bundle |
+| M | NOT LIVE CERTIFIED | final production bundle |
 
-## 3. Watched Folder — cross-platform
+## Watched-folder / cross-platform
+Existing folder watcher is canonical and reused: directory selection/monitoring, SHA-256, incremental state, IndexedDB snapshots, queue/dead-letter and text-first fallback.
 
-المحرك الأساسي **موجود مسبقًا وتمت إعادة مراجعته**: folder selection/monitoring، SHA-256، incremental state، IndexedDB snapshots، queue/dead-letter، canonical text fallback. لم يتم بناء محرك ثانٍ.
+- Web/PWA: progressive File System Access; active-session monitoring only; no false background promise after app close.
+- Windows: native persistent watcher adapter required.
+- Android: native directory permission/watcher adapter required.
+- iOS: capability-aware adapter; no false arbitrary-background promise.
+- All adapters feed the same ingestion engine.
 
-Capability boundary:
-- Web/PWA: File System Access progressive capability + active-session monitoring؛ لا ادعاء مراقبة خلفية بعد إغلاق المتصفح.
-- Windows: native persistent watcher adapter مطلوب.
-- Android: native directory permission/watcher adapter مطلوب.
-- iOS: capability-aware adapter؛ لا ادعاء بمراقبة خلفية غير مسموحة.
-- جميع المنصات تدخل نفس ingestion engine.
+Latest hardening:
+- weak fingerprint no longer skips unchanged on size+mtime alone; same source becomes `process_changed` when content hash is absent/different.
+- duplicate stable row keys fail closed before reconciliation.
+- watched-folder scans now reconcile disappeared files using snapshot listing and return `deletedFiles`/`deleted` state.
+- watched-folder configuration has explicit validation for ID/path/interval/concurrency/extensions.
 
-## 4. Tenant / Security — static audit
+## Tenant / security
+Repository-wide proactive searches covered `COMPANY_ID`, static tenant IDs, tenant fallbacks, `company_id`, `tenant_memberships`, client-selected tenant filtering, direct Supabase reads/writes and RPC callers.
 
-تم البحث استباقيًا عن `COMPANY_ID`، static tenant IDs، tenant fallbacks، `company_id` selectors، `tenant_memberships`، client-selected tenant filtering، direct Supabase consumers وRPC callers.
+Current static truth: tenant legacy consumer guard PASS; no remaining verified client `tenantId/tenant_id` filter outside guard/analysis paths; tenant is database/RLS/current-company authoritative; bulk writes remain governed by transaction/RPC.
 
-الحالة الحالية:
-- Tenant legacy consumer guard: PASS.
-- لا توجد نتيجة موثوقة متبقية لفلتر client `tenantId/tenant_id` خارج guard/analysis paths.
-- tenant resolution authoritative من database/RLS/current-company resolver.
-- direct reads لا تُعتبر tenant selection؛ الحماية تعتمد على RLS/authoritative context.
-- bulk writes تمر عبر governed transaction/RPC path.
+LIVE REQUIRED: adversarial Supabase tenant isolation, storage/signed URLs, Realtime authorization, AI retrieval namespace isolation, secrets audit.
 
-LIVE REQUIRED: adversarial Supabase tenant isolation، Storage/signed URLs، Realtime auth، AI retrieval namespace isolation، secret audit.
-
-## 5. Data / Import chain
-
+## Data/import truth chain
 `File → Parse → Map → Validate → Tenant → Canonical → RPC → Persistence → Reconciliation → Audit → Evidence`
 
-Foundation verified: multi-format contracts، header synonyms، canonical mapping، normalization، business-key matching، preview/approval، quarantine، provenance/lineage، governed RPC writes، Onyx adapter، watched-folder queue.
+Existing foundation: multi-format contracts, Arabic/English header mapping, normalization, business-key matching, preview/approval, quarantine, provenance/lineage, governed RPC writes, Onyx adapter, watched-folder queue.
 
-### Hardening المنجز في الدفعة الحالية
-1. **Weak fingerprint fail-closed:** لا يعود الحجم + modified time كافيين لـ`skip_unchanged` عند غياب content hash؛ نفس المصدر ينتقل إلى `process_changed`.
-2. **Duplicate row keys:** reconciliation يرفض duplicate stable keys بدل أن يخفيها `Map` ويُسقط صفوفًا بصمت.
-3. Regression suite أُضيفت لـ identical hash / weak fingerprint / duplicate keys / changed / deleted rows وأُدخلت في package + Quality.
-4. **Watched-folder deletion reconciliation:** scan أصبح يحتفظ بالـsnapshot listing، يقارن `seenPaths` بالمخزون السابق، ويضع الملفات المختفية في حالة `deleted` ويُرجع `deletedFiles` بدل تجاهلها.
+Remaining runtime proof: arbitrary/no-header/random/poor files, page/table classification, extraction completeness, cell lineage, golden corpus, live Onyx, live rollback/retry/reconciliation.
 
-Remaining runtime: arbitrary/no-header/random/poor files، extraction/page/table classification، cell lineage، golden corpus، live Onyx، live transaction rollback/retry/reconciliation.
+## KPI / BI truth
+Required numeric/date fields fail closed and `INSUFFICIENT_DATA` is explicit. `activeCustomers=null` because schema has no authoritative active flag. Aging does not substitute invoice date for missing due date.
 
-## 6. KPI / BI truth
+The 3/6/12-month dashboard selector currently controls the trend only; other executive KPIs are all-source aggregates and must not be described as date-filtered until a global date-window contract exists.
 
-KPI query layer fail-closed للحقول الرقمية/التاريخية المطلوبة، ويميز `INSUFFICIENT_DATA`. `activeCustomers=null` لأن schema لا يملك active/inactive authoritative field. Aging لا يستخدم invoice date كبديل صامت عن due date.
+Audit chain: `KPI Definition → Source → Formula → Query → Service → Dashboard → Report → Export`.
 
-تنبيه semantic مثبت: selector الخاص بـ3/6/12 أشهر يحدد trend فقط؛ بقية executive KPIs حالياً all-source aggregates، ولا يجوز وصفها بأنها filtered بنفس selector قبل إنشاء contract زمني عالمي حقيقي.
+Remaining: cross-surface equivalence, authoritative date windows, cache freshness/invalidation, provenance in UI/export, large-table/drill-down E2E.
 
-Audit chain:
-`KPI Definition → Source → Formula → Query → Service → Dashboard → Report → Export`
+## Evidence / decision / outcome
+Evidence-bound decision contracts exist. Control-plane constraints are fail-closed; missing risk/liquidity/service-level constraints cannot become zero and evidence references remain mandatory.
 
-Remaining: cross-surface equivalence، authoritative date-window semantics، cache freshness/invalidation، provenance في UI/export، large-table/drill-down E2E.
+Remaining: live evidence graph, real outcomes, recommendation→outcome feedback, executive action loop, production-like optimizer scenarios.
 
-## 7. Evidence / Decision / Recommendation / Outcome
+## Lease / recovery
+Durable jobs + lease + heartbeat + checkpoint + retry + terminal state + dead-letter exist. Failure evidence preservation is hardened.
 
-Evidence-bound decision contracts موجودة. Control-plane constraints الآن fail-closed؛ missing risk/liquidity/service-level constraints لا تتحول إلى zero، ومصادر evidence مطلوبة.
+LIVE REQUIRED: stuck-worker injection, lease expiry, dead-letter replay, backup restore/RPO-RTO, rollback/forward-fix, SLO timing.
 
-Remaining: live evidence graph، real outcomes، recommendation→outcome feedback، executive approval/action loop، production-like optimizer scenarios.
-
-## 8. Lease / Recovery
-
-Durable jobs + lease + heartbeat + checkpoint + retry + terminal state + dead-letter موجودة.
-
-Failure evidence preservation تم تشديده؛ terminal failure لا يستبدل error evidence بكائن فارغ.
-
-Remaining LIVE: stuck worker injection، lease expiry، dead-letter replay، restore/RPO-RTO، rollback/forward-fix، SLO timing.
-
-## 9. CI truth
-
+## CI truth / latest execution
 Primary verifier: `.github/workflows/quality.yml`.
 
-Recent failures were treated as root-cause signals:
-- `32880785206`: stale npm aliases in Quality contract → fixed to canonical scripts.
-- `32881175093`: document-resilience gate failure → investigated, not suppressed.
-- `32881771230` (#1400): Quality stopped at workflow contract because the concurrency expression had been altered while adding the regression step → exact canonical syntax restored.
-- Latest fixes trigger a new Quality run; no current PASS is claimed until it completes.
+- `32880785206`: stale npm aliases → fixed by invoking canonical scripts.
+- `32881771230` (#1400): concurrency syntax contract failure → exact canonical syntax restored.
+- `32881939671` (#1406): reached Autonomous Business Control Plane after all earlier gates passed; failure investigated as a real runtime-test issue.
+- `32882008369` (#1408): reached the same control-plane stage; `phase-l-resumable-execution` then exposed a real Node 22 strip-only compatibility defect in the durable worker adapter.
+- Root cause: TypeScript parameter property (`constructor(private readonly client...)`) unsupported by Node strip-only mode, plus extensionless TypeScript imports.
+- Fix now committed in `7d5f266b997eb061acaa584052ee4a90c509b470`: explicit client field/constructor and explicit `.ts` imports.
+- A new Quality run is expected from that fix; it is not counted PASS until complete.
 
-Known good gates from preceding runs include tenant legacy boundary, data-quality projection, company config, migration schema/dependency audits and earlier watched-report/control-plane gates where their run logs explicitly passed. These are not substituted for the newest run.
+Notable current gate evidence from the latest failing run: tenant convergence PASS, tenant legacy boundary PASS, data-quality PASS, company config PASS, migration schema/dependency checks PASS, Quality workflow PASS, core contracts PASS, production certification contract PASS, resilience/release evidence PASS, continuous trust PASS, governance PASS, watched-folder foundation PASS, incremental ledger PASS, business control plane PASS, Phase K runtime PASS, Phase K/L closure PASS. The failure occurred after these gates.
 
-## 10. P0 LIVE blockers
-
+## P0 LIVE blockers
 - [ ] adversarial tenant certification
 - [ ] storage/signed URL verification
 - [ ] Realtime authorization
@@ -121,38 +103,35 @@ Known good gates from preceding runs include tenant legacy boundary, data-qualit
 - [ ] stabilization telemetry
 - [ ] final production certification
 
-## 11. P1 connected runtime
-
+## P1 connected runtime
 - [ ] Windows persistent native watcher
 - [ ] Android native folder watcher
 - [ ] iOS capability-aware integration
 - [ ] live watched-folder coordinator
 - [ ] real extraction checkpoints
 - [ ] business-state snapshots from real outputs
-- [ ] executive evidence graph live population
-- [ ] bounded production-like scenarios
+- [ ] live executive evidence graph
+- [ ] production-like bounded scenarios
 - [ ] recommendation outcome feedback
-- [ ] approval/action loop
+- [ ] executive approval/action loop
 - [ ] live drift/health canaries
 - [ ] real rollback drills
 
-## 12. Document Intelligence P1
-
+## P1 Document Intelligence
 - [ ] provider-neutral intermediate representation
 - [ ] page/table classification
 - [ ] headerless/reverse schema discovery
 - [ ] extraction/provenance completeness
-- [ ] cell-level lineage
+- [ ] cell lineage
 - [ ] entity precision/recall evidence
 - [ ] mathematical reconciliation
 - [ ] confidence/quarantine/reprocessing UX
 - [ ] golden Arabic/English/scanned/random/no-header/merged/multi-table/poor-quality corpus
 
-## 13. UX / predictive P2
-
+## P2 UX/predictive
 - [ ] Command Palette
 - [ ] saved views/filter/group persistence
-- [ ] executive cockpit drill-down → evidence → action E2E
+- [ ] executive cockpit drill-down→evidence→action E2E
 - [ ] deterministic what-if/scenario engine
 - [ ] cross-filter/drill-down production proof
 - [ ] connected evidence workspace
@@ -163,46 +142,31 @@ Known good gates from preceding runs include tenant legacy boundary, data-qualit
 - [ ] live AI retrieval canary
 - [ ] evidence-grounded Ask→Inspect→Act E2E
 
-## 14. Truth-weighted progress
+## Truth-weighted progress
+**~82% engineering completion.** This is not production certification. Broad implementation coverage is ~90%+, contract/gate maturity is high, while integrated runtime/live certification remains partial. The remaining work is concentrated in live security/recovery/release evidence, native background watchers, deeper document-engine proof and connected autonomous runtime.
 
-**Current engineering completion estimate: ~82%.**
+Production certified: **NO** until P0 live evidence closes.
 
-This is not a production-certification percentage. Foundation/implementation coverage is roughly 90%+ across the defined feature surface, contract/gate coverage is high, but integrated runtime and live certification remain materially behind because P0 security/recovery/release evidence, native background watchers, deeper document-engine proof and connected autonomous runtime still require real environments.
-
-So:
-- Engineering implementation: **~82%**
-- Contract/gate maturity: **high**
-- Integrated E2E/runtime: **partial**
-- Production certified: **NO / 0 certified final state until P0 live bundle closes**
-
-## 15. Mandatory loop for every next batch
-
+## Mandatory loop
 1. Read this index.
-2. Search the whole repository for the requested surface and integration drift.
-3. Fix all independent safe root causes in one batch.
+2. Search the requested surface repository-wide.
+3. Fix all independent safe root causes.
 4. Add/update regression guards.
 5. Commit.
 6. CI runs while the next independent audit continues.
-7. PASS → deepest next GAP. FAIL → root cause → fix → rerun.
+7. PASS → deepest next GAP; FAIL → root cause → fix → rerun.
 8. Update this index after every meaningful batch.
 
-## 16. Definition of Done
-
-UI + backend/service + DB/migrations + tenant/RLS/security + queue/audit + error/offline behavior + deterministic truth/evidence + tests + E2E/runtime evidence + performance/load evidence + documentation must be compatible and proven.
-
-## 17. Golden rule
-
-> افحص الفهرس → افحص المستودع → اكتشف الفجوة → أصلح الموجود → اختبر → CI → سجل الدليل → حدّث الفهرس → انتقل مباشرة للفجوة التالية.
-
-## 18. Current batch commits
-
+## Current batch commits
 - `22eca8b1ffa488874c1d9c9482ab7d8dbab0bd43` — weak fingerprint + duplicate row fail-closed.
-- `68e4b1efe03721ba8cb31de29bb56db06e115c0d` — incremental regression tests.
-- `6e9c66deb0c34ecb0759696deaea4423ce572f45` — package registry.
-- `1e7a771ccf604e1f47071e86f2ffedfbe8cbc1fe` — explicit deleted folder-file state.
+- `68e4b1efe03721ba8cb31de29bb56db06e115c0d` — incremental regression suite.
+- `1e7a771ccf604e1f47071e86f2ffedfbe8cbc1fe` — explicit deleted state.
 - `a6f9f6784d8d060938f2a2d1b91d67091278c733` — folder snapshot listing.
-- `b2a6c8a8f58a377aad2c060057c1bf2f43d14e7b` — watched-folder deletion reconciliation.
-- `faf77504b6694f0d25870b8a3086f0a646eaeb48` — deletion reconciliation guard.
-- `c9a19095122f8b564e24b62379421654a73de713` — CI concurrency contract restored.
+- `b2a6c8a8f58a377aad2c060057c1bf2f43d14e7b` — deletion reconciliation.
+- `3bc7d38c7922524c074f3503c3f66e7fd07de712` — watcher configuration guard.
+- `c9a19095122f8b564e24b62379421654a73de713` — CI concurrency syntax restore.
+- `12c239ab976bc0a6c01a3b9bae3f645f579b39cb` — explicit TS extensions in runtime test.
+- `81fdaaad55218db0d0da07d6dcd970499c1a45a5` — explicit TS extension in checkpoint hardening test.
+- `7d5f266b997eb061acaa584052ee4a90c509b470` — strip-only compatible durable worker adapter.
 
 **No production PASS is claimed. LIVE REQUIRED remains explicit.**
