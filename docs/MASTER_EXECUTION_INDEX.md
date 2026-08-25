@@ -16,19 +16,22 @@ Source of truth: `main`
 - PASS لا يعني production-certified؛ LIVE evidence منفصل.
 
 ## Current truth
-The quality workflow is now operating as a batch-discovery loop rather than a serial first-failure loop. Routing/Security runs five independent checks together; downstream gates continue collecting independent failures. The last confirmed failure was a **Report Truth guard false-positive** caused by a greedy same-line regex spanning unrelated expressions. The guard was corrected to match a single numeric-coercion expression only.
+The quality workflow is operating as a batch-discovery loop rather than a serial first-failure loop. Routing/Security runs five independent checks together; downstream gates continue collecting independent failures. The last completed application gate wave reached all 43 functional/contract gates; the remaining workflow failure was in post-job Python cache handling, not an application gate. That cache path was removed because the Document Intelligence runtime contract does not require pip caching.
 
 ## Latest batch fixes
 1. `src/lib/free-toolbox/batch-decision-engine.ts`: bounded risk percentages are clamped to `[0,100]` before `finitePercent`. Commit: `f21277a7311c463b75bf0089f5d5729e639588ef`.
 2. `services/document-intelligence/tests/test_intermediate_model_contract.py`: aligned the test import with `PYTHONPATH=services/document-intelligence`. Commit: `5db499535667b0b25b8a4a7aa8caf9a8edf2556f`.
 3. `scripts/check-report-truth-contract.mjs`: replaced greedy same-line numeric fallback detection with expression-safe matching and explicit offending-expression reporting. Commit: `96aadeeb22f7d78bf45256b7837f69de294c4b35`.
-4. `.github/workflows/quality.yml`: upgraded checkout/setup-node/setup-python to current Node24-compatible major releases (`v7`) while retaining Node 22 as the project runtime under test. Commit: `44290959303f9196084539db30ae573ab7998399`. GitHub's current action documentation shows setup-node v7 and setup-python v7 use the current Node24 action runtime. citeturn0search1turn0search6
-5. Earlier batch work hardened migration-aware tenant-security detection, canonical query boundaries, direct-write/import transaction semantics and CI parallel discovery. No duplicate engines/guards were introduced.
+4. `.github/workflows/quality.yml`: uses current action majors (`checkout@v7`, `setup-node@v7`, `setup-python@v7`) while retaining Node 22 as the project runtime under test. Commit: `44290959303f9196084539db30ae573ab7998399`.
+5. `.github/workflows/quality.yml`: removed unnecessary `setup-python` pip caching after a post-job cache-path failure; also enabled stale-run cancellation so superseded workflow runs do not waste CI capacity. Commit: `aec24437fc4e5652c0993ce94f1afbe4c76b1f5e`.
+6. `src/components/data-table/DataTable.tsx`: removed `any` casts in table row rendering and unused pagination destructuring. Commit: `8cee387eb6bbe121efdb192be7ffd9b47381f718`.
+7. `src/lib/file-engine/data-types.ts`: replaced `any` inputs with `unknown` and explicit type narrowing in data-type detection/cleaning. Commit: `cf470ddfe778e935b453a3a435b0f403ca458f6b`.
+8. Earlier batch work hardened migration-aware tenant-security detection, canonical query boundaries, direct-write/import transaction semantics and CI parallel discovery. No duplicate engines/guards were introduced.
 
 ## Current CI
-- Run #1497 / `32890934033` is currently **IN PROGRESS** on `96aadeeb22f7d78bf45256b7837f69de294c4b35`; all gates through Typecheck have passed and Behavioral regressions is running.
-- Run #1498 / `32890967686` is **IN PROGRESS** on `44290959303f9196084539db30ae573ab7998399`, validating the upgraded action runtime plus the accumulated fixes.
-- Do not treat either run as PASS until the complete job concludes.
+- The last inspected completed wave had **43/43 application/contract gates successful**; its only red result was a post-job `setup-python` cache failure. This is now addressed in `aec24437fc4e5652c0993ce94f1afbe4c76b1f5e`.
+- The current `quality.yml` has stale-run cancellation enabled (`cancel-in-progress: true`) so superseded runs do not consume capacity while preserving complete verification for the latest commit.
+- Do not treat a commit as PASS until its complete workflow job concludes.
 
 ## Phase truth
 | المسار | الحالة | المتبقي الحاسم |
