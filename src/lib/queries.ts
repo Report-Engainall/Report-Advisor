@@ -51,10 +51,7 @@ export interface CategoryBreakdown {
   quantity: number;
 }
 
-/**
- * Dashboard aggregate reads are deliberately fail-closed: a partial set of
- * successful queries must never be presented as a trustworthy calculation.
- */
+/** Dashboard aggregate reads are fail-closed: partial data is never presented as trustworthy. */
 export async function fetchDashboardKPIs(): Promise<DashboardKPIs> {
   const { data: invoices, error: invoicesError } = await supabase
     .from('sales_invoices')
@@ -64,49 +61,36 @@ export async function fetchDashboardKPIs(): Promise<DashboardKPIs> {
 
   const invArr = (invoices || []) as any[];
   const invoiceIds = invArr.map((i: any) => i.id);
-
   const { data: items, error: itemsError } = invoiceIds.length
-    ? await supabase
-      .from('sale_items')
-      .select('invoice_id, line_total, cost_price, quantity')
-      .in('invoice_id', invoiceIds)
+    ? await supabase.from('sale_items').select('invoice_id, line_total, cost_price, quantity').in('invoice_id', invoiceIds)
     : { data: [], error: null };
   if (itemsError) throw itemsError;
 
   const { data: balances, error: balancesError } = await supabase
-    .from('inventory_balances')
-    .select('quantity, unit_cost')
-    .eq('company_id', COMPANY_ID);
+    .from('inventory_balances').select('quantity, unit_cost').eq('company_id', COMPANY_ID);
   if (balancesError) throw balancesError;
 
   const { count: customerCount, error: customerError } = await supabase
-    .from('customers')
-    .select('id', { count: 'exact', head: true })
-    .eq('company_id', COMPANY_ID);
+    .from('customers').select('id', { count: 'exact', head: true }).eq('company_id', COMPANY_ID);
   if (customerError) throw customerError;
 
   const { count: productCount, error: productError } = await supabase
-    .from('products')
-    .select('id', { count: 'exact', head: true })
-    .eq('company_id', COMPANY_ID);
+    .from('products').select('id', { count: 'exact', head: true }).eq('company_id', COMPANY_ID);
   if (productError) throw productError;
 
   const { data: purchases, error: purchasesError } = await supabase
-    .from('purchase_invoices')
-    .select('total, paid_amount')
-    .eq('company_id', COMPANY_ID);
+    .from('purchase_invoices').select('total, paid_amount').eq('company_id', COMPANY_ID);
   if (purchasesError) throw purchasesError;
 
   const totalSales = invArr.reduce((s: number, inv: any) => s + Number(inv.subtotal || 0), 0);
   const totalCost = ((items || []) as any[]).reduce((s: number, item: any) => s + Number(item.cost_price || 0) * Number(item.quantity || 0), 0);
   const grossProfit = totalSales - totalCost;
   const grossMargin = totalSales > 0 ? (grossProfit / totalSales) * 100 : 0;
-  const totalReceivables = invArr.reduce((s: number, inv: any) => s + (Number(inv.total || 0) - Number(inv.paid_amount || 0)), 0);
+  const totalReceivables = invArr.reduce((s: number, inv: any) => s + Number(inv.total || 0) - Number(inv.paid_amount || 0), 0);
   const today = new Date().toISOString().split('T')[0];
-  const overdueReceivables = invArr
-    .filter((inv: any) => inv.due_date && inv.due_date < today && Number(inv.paid_amount || 0) < Number(inv.total || 0))
-    .reduce((s: number, inv: any) => s + (Number(inv.total || 0) - Number(inv.paid_amount || 0)), 0);
-  const totalPayables = ((purchases || []) as any[]).reduce((s: number, pur: any) => s + (Number(pur.total || 0) - Number(pur.paid_amount || 0)), 0);
+  const overdueReceivables = invArr.filter((inv: any) => inv.due_date && inv.due_date < today && Number(inv.paid_amount || 0) < Number(inv.total || 0))
+    .reduce((s: number, inv: any) => s + Number(inv.total || 0) - Number(inv.paid_amount || 0), 0);
+  const totalPayables = ((purchases || []) as any[]).reduce((s: number, pur: any) => s + Number(pur.total || 0) - Number(pur.paid_amount || 0), 0);
   const inventoryValue = ((balances || []) as any[]).reduce((s: number, b: any) => s + Number(b.quantity || 0) * Number(b.unit_cost || 0), 0);
   const invoiceCount = invArr.length;
   const avgInvoiceValue = invoiceCount > 0 ? totalSales / invoiceCount : 0;
@@ -115,102 +99,69 @@ export async function fetchDashboardKPIs(): Promise<DashboardKPIs> {
   const collectionRate = totalInvAmount > 0 ? (totalPaid / totalInvAmount) * 100 : 0;
 
   return {
-    totalSales,
-    totalCost,
-    grossProfit,
-    grossMargin,
-    totalReceivables,
-    overdueReceivables,
-    totalPayables,
-    inventoryValue,
-    totalCustomers: customerCount || 0,
-    activeCustomers: customerCount || 0,
-    totalProducts: productCount || 0,
-    invoiceCount,
-    avgInvoiceValue,
-    collectionRate,
+    totalSales, totalCost, grossProfit, grossMargin, totalReceivables, overdueReceivables,
+    totalPayables, inventoryValue, totalCustomers: customerCount || 0, activeCustomers: customerCount || 0,
+    totalProducts: productCount || 0, invoiceCount, avgInvoiceValue, collectionRate,
     status: invoiceCount > 0 || (customerCount || 0) > 0 || (productCount || 0) > 0 ? 'CALCULATED' : 'INSUFFICIENT_DATA',
   };
 }
 
 export async function fetchMonthlyTrend(months = 6): Promise<MonthlyTrend[]> {
-  const { data: invoices, error: invoicesError } = await supabase
-    .from('sales_invoices')
-    .select('id, subtotal, invoice_date')
-    .eq('company_id', COMPANY_ID)
-    .order('invoice_date', { ascending: true });
+  const { data: invoices, error: invoicesError } = await supabase.from('sales_invoices')
+    .select('id, subtotal, invoice_date').eq('company_id', COMPANY_ID).order('invoice_date', { ascending: true });
   if (invoicesError) throw invoicesError;
-
-  const { data: items, error: itemsError } = await supabase
-    .from('sale_items')
-    .select('invoice_id, line_total, cost_price, quantity');
+  const invoiceIds = (invoices || []).map(inv => inv.id);
+  const { data: items, error: itemsError } = invoiceIds.length
+    ? await supabase.from('sale_items').select('invoice_id, line_total, cost_price, quantity').in('invoice_id', invoiceIds)
+    : { data: [], error: null };
   if (itemsError) throw itemsError;
 
   const costByInvoice = new Map<string, number>();
   for (const item of items || []) {
-    const c = (item as SaleItem).cost_price * (item as SaleItem).quantity;
+    const c = Number((item as SaleItem).cost_price || 0) * Number((item as SaleItem).quantity || 0);
     costByInvoice.set((item as SaleItem).invoice_id, (costByInvoice.get((item as SaleItem).invoice_id) || 0) + c);
   }
-
   const byMonth = new Map<string, { sales: number; cost: number; invoices: number }>();
   for (const inv of invoices || []) {
     const d = new Date(inv.invoice_date);
     const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
     const entry = byMonth.get(key) || { sales: 0, cost: 0, invoices: 0 };
-    entry.sales += Number(inv.subtotal || 0);
-    entry.cost += costByInvoice.get(inv.id) || 0;
-    entry.invoices += 1;
+    entry.sales += Number(inv.subtotal || 0); entry.cost += costByInvoice.get(inv.id) || 0; entry.invoices += 1;
     byMonth.set(key, entry);
   }
-
   const result: MonthlyTrend[] = [];
   const now = new Date();
+  const labels = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
   for (let i = months - 1; i >= 0; i--) {
     const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
     const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
     const entry = byMonth.get(key) || { sales: 0, cost: 0, invoices: 0 };
-    const labels = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-    result.push({
-      month: key,
-      label: labels[d.getMonth()],
-      sales: entry.sales,
-      cost: entry.cost,
-      profit: entry.sales - entry.cost,
-      invoices: entry.invoices,
-    });
+    result.push({ month: key, label: labels[d.getMonth()], sales: entry.sales, cost: entry.cost, profit: entry.sales - entry.cost, invoices: entry.invoices });
   }
   return result;
 }
 
 export async function fetchTopCustomers(limit = 5): Promise<TopEntity[]> {
-  const { data, error } = await supabase
-    .from('sales_invoices')
-    .select('customer_id, subtotal, customer:customers(name)')
-    .eq('company_id', COMPANY_ID);
+  const { data, error } = await supabase.from('sales_invoices').select('customer_id, subtotal, customer:customers(name)').eq('company_id', COMPANY_ID);
   if (error) throw error;
-
   const byCustomer = new Map<string, { name: string; value: number }>();
   for (const row of data || []) {
     const name = (row as any).customer?.name || 'غير معروف';
     const entry = byCustomer.get(row.customer_id) || { name, value: 0 };
-    entry.value += Number(row.subtotal || 0);
-    byCustomer.set(row.customer_id, entry);
+    entry.value += Number(row.subtotal || 0); byCustomer.set(row.customer_id, entry);
   }
-  return Array.from(byCustomer.entries())
-    .map(([id, v]) => ({ id, name: v.name, value: v.value }))
-    .sort((a, b) => b.value - a.value)
-    .slice(0, limit);
+  return Array.from(byCustomer.entries()).map(([id, v]) => ({ id, name: v.name, value: v.value })).sort((a, b) => b.value - a.value).slice(0, limit);
 }
 
 export async function fetchTopProducts(limit = 5): Promise<TopEntity[]> {
-  // Explicit tenant scope is required even though production RLS is expected
-  // to enforce it; query-level scoping prevents accidental cross-tenant reads
-  // if a future policy or execution context becomes broader.
-  const { data, error } = await supabase
-    .from('sale_items')
+  // sale_items is scoped indirectly through its parent invoices; it has no company_id column.
+  const { data: invoices, error: invoicesError } = await supabase.from('sales_invoices').select('id').eq('company_id', COMPANY_ID);
+  if (invoicesError) throw invoicesError;
+  const invoiceIds = (invoices || []).map(inv => inv.id);
+  if (!invoiceIds.length) return [];
+  const { data, error } = await supabase.from('sale_items')
     .select('product_id, quantity, line_total, product:products(name)')
-    .eq('company_id', COMPANY_ID)
-    .not('product_id', 'is', null);
+    .in('invoice_id', invoiceIds).not('product_id', 'is', null);
   if (error) throw error;
 
   const byProduct = new Map<string, { name: string; value: number; qty: number }>();
@@ -218,39 +169,26 @@ export async function fetchTopProducts(limit = 5): Promise<TopEntity[]> {
     if (!row.product_id) continue;
     const name = (row as any).product?.name || 'غير معروف';
     const entry = byProduct.get(row.product_id) || { name, value: 0, qty: 0 };
-    entry.value += Number(row.line_total || 0);
-    entry.qty += Number(row.quantity || 0);
-    byProduct.set(row.product_id, entry);
+    entry.value += Number(row.line_total || 0); entry.qty += Number(row.quantity || 0); byProduct.set(row.product_id, entry);
   }
-  return Array.from(byProduct.entries())
-    .map(([id, v]) => ({ id, name: v.name, value: v.value, secondary: v.qty }))
-    .sort((a, b) => b.value - a.value)
-    .slice(0, limit);
+  return Array.from(byProduct.entries()).map(([id, v]) => ({ id, name: v.name, value: v.value, secondary: v.qty })).sort((a, b) => b.value - a.value).slice(0, limit);
 }
 
 export async function fetchAgingBuckets(): Promise<AgingBucket[]> {
-  const { data: invoices, error } = await supabase
-    .from('sales_invoices')
-    .select('total, paid_amount, due_date, invoice_date')
-    .eq('company_id', COMPANY_ID);
+  const { data: invoices, error } = await supabase.from('sales_invoices').select('total, paid_amount, due_date, invoice_date').eq('company_id', COMPANY_ID);
   if (error) throw error;
-
   const today = new Date();
   const buckets: AgingBucket[] = [
-    { bucket: '0-30', amount: 0, count: 0 },
-    { bucket: '31-60', amount: 0, count: 0 },
-    { bucket: '61-90', amount: 0, count: 0 },
-    { bucket: '90+', amount: 0, count: 0 },
+    { bucket: '0-30', amount: 0, count: 0 }, { bucket: '31-60', amount: 0, count: 0 },
+    { bucket: '61-90', amount: 0, count: 0 }, { bucket: '90+', amount: 0, count: 0 },
   ];
-
   for (const inv of invoices || []) {
     const outstanding = Number(inv.total || 0) - Number(inv.paid_amount || 0);
     if (outstanding <= 0) continue;
     const due = inv.due_date ? new Date(inv.due_date) : new Date(inv.invoice_date);
     const days = Math.max(0, Math.floor((today.getTime() - due.getTime()) / 86400000));
     const index = days <= 30 ? 0 : days <= 60 ? 1 : days <= 90 ? 2 : 3;
-    buckets[index].amount += outstanding;
-    buckets[index].count += 1;
+    buckets[index].amount += outstanding; buckets[index].count += 1;
   }
   return buckets;
 }
