@@ -1,0 +1,7 @@
+PAGE 1 TABLE: products (continued)
+sku | name | quantity
+SYN-801 | Page One Item | 2
+
+PAGE 2 TABLE: products (continued)
+sku | name | quantity
+SYN-802 | Page Two Item | 4

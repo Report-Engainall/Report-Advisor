@@ -1,0 +1,7 @@
+TABLE A: products
+sku | name | quantity
+SYN-701 | Table A Item | 3
+
+TABLE B: totals
+label | amount
+synthetic_total | 90
