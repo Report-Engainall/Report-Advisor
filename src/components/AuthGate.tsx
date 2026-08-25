@@ -1,7 +1,7 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import type { User } from '@supabase/supabase-js';
 import { getAuthenticatedUser, onAuthStateChange } from '@/lib/auth-session';
-import { resolveCurrentCompanyId, clearCompanyId } from '@/lib/supabase';
+import { resolveCurrentCompanyId, clearCompanyId, supabase } from '@/lib/supabase';
 import { LoginPage } from '@/pages/LoginPage';
 
 interface AuthGateProps {
