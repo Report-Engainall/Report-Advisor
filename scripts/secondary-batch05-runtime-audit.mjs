@@ -46,7 +46,7 @@ check('No fabricated sourceRef fallback', runtime.includes("sourceRef: source_id
 check('Deep-link IDs remain optional', evidence.includes('source_id?: string') && evidence.includes('evidence_id?: string') && evidence.includes('snapshot_id?: string') && evidence.includes('lineage_id?: string'), 'Deep-link identifiers must remain optional and evidence-backed.');
 check('Decision replay refuses missing evidence', runtime.includes("state: evidence.length && evidence.every"), 'Decision Replay must not be READY without evidence entries.');
 check('Reconciliation refuses missing result', runtime.includes("status: 'UNKNOWN'") && runtime.includes('No authoritative reconciliation result'), 'No authoritative result must remain UNKNOWN.');
-check('Document gateway preserves blocked state', documentGateway.includes("stage: 'INSUFFICIENT_BACKEND'") && runtime.includes("status: blocked ? 'BLOCKED'"), 'Unavailable document capability must remain blocked.');
+check('Document gateway preserves blocked state', documentGateway.includes("status: 'UNAVAILABLE'") && runtime.includes("status: blocked ? 'BLOCKED'"), 'Unavailable document capability must remain blocked.');
 check('Golden expectations are executable', golden.includes('expectations.json') && expectationsText.includes('"cases"'), 'Golden Corpus must be driven by explicit expectations.');
 check('Golden Corpus has 13 cases', (() => { try { return JSON.parse(expectationsText).cases.length === 13; } catch { return false; } })(), 'Batch 05 must preserve the 13-case corpus without expansion.');
 check('Golden harness has tri-state result', golden.includes("'PASS'") && golden.includes("'FAIL'") && golden.includes("'SKIPPED'"), 'Golden harness must distinguish PASS/FAIL/SKIPPED.');
