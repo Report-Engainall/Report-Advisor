@@ -7,11 +7,12 @@ const ORDER: ReportExecutionStage[] = ['queued', 'fingerprinted', 'extracted', '
 const next = (s: ReportExecutionStage): ReportExecutionStage | null => { const i = ORDER.indexOf(s); return i >= 0 && i < ORDER.length - 1 ? ORDER[i + 1] : null; };
 
 export interface DurableProductionRunInput<T = unknown> {
+  jobId: string;
   request: ReportExecutionRequest;
   workerId: string;
   sourceHash: string;
   rows: Array<Record<string, unknown>>;
-  lifecycle: Omit<ProductionLifecycleInput<T>, 'jobId' | 'companyId' | 'sourceHash' | 'currentRows'> & { previousRows: ProductionLifecycleInput<T>['previousRows']; currentRows: ProductionLifecycleInput<T>['currentRows'] };
+  lifecycle: Omit<ProductionLifecycleInput<T>, 'jobId' | 'companyId' | 'sourceHash' | 'currentRows'> & { currentRows: ProductionLifecycleInput<T>['currentRows'] };
   executeStage?: (stage: ReportExecutionStage, input: { request: ReportExecutionRequest; rows: Array<Record<string, unknown>> }) => Promise<void>;
   leaseSeconds?: number;
   heartbeatIntervalMs?: number;
@@ -20,14 +21,14 @@ export interface DurableProductionRunInput<T = unknown> {
 export async function runDurableProductionLifecycle<T>(input: DurableProductionRunInput<T>, store: SupabaseReportExecutionStore) {
   const leaseSeconds = input.leaseSeconds ?? 300;
   const heartbeatIntervalMs = input.heartbeatIntervalMs ?? Math.max(30_000, Math.floor((leaseSeconds * 1000) / 3));
-  const job = await store.claim(input.request.reportId, input.workerId, leaseSeconds);
+  const job = await store.claim(input.jobId, input.workerId, leaseSeconds);
   if (job.tenantId !== input.request.tenantId) throw new Error('Tenant mismatch for durable production execution');
   if (job.checkpoint.sourceHash && job.checkpoint.sourceHash !== input.sourceHash) throw new Error('Source hash changed during resumable execution');
   assertProductionCheckpoint(job.checkpoint);
 
   let heartbeatFailure: unknown = null;
   const heartbeatTimer = setInterval(() => {
-    void store.heartbeat(input.request.reportId, input.workerId, leaseSeconds).catch((error) => { heartbeatFailure ??= error; });
+    void store.heartbeat(input.jobId, input.workerId, leaseSeconds).catch((error) => { heartbeatFailure ??= error; });
   }, heartbeatIntervalMs);
 
   try {
@@ -39,18 +40,18 @@ export async function runDurableProductionLifecycle<T>(input: DurableProductionR
       if (!following) throw new Error(`Cannot advance production lifecycle from ${stage}`);
       if (input.executeStage) await input.executeStage(following, { request: input.request, rows: input.rows });
       if (heartbeatFailure) throw heartbeatFailure;
-      await store.saveCheckpoint(input.request.reportId, checkpoint(following), input.workerId);
+      await store.saveCheckpoint(input.jobId, checkpoint(following), input.workerId);
       stage = following;
     }
 
     const lifecycle = runProductionLifecycle({
       ...input.lifecycle,
-      jobId: input.request.reportId,
+      jobId: input.jobId,
       companyId: input.request.tenantId,
       sourceHash: input.sourceHash,
       currentRows: input.lifecycle.currentRows,
     });
-    await store.complete(input.request.reportId, input.workerId, {
+    await store.complete(input.jobId, input.workerId, {
       sourceHash: input.sourceHash,
       lineageCount: lifecycle.lineage.length,
       scenario: lifecycle.scenario,
@@ -59,7 +60,7 @@ export async function runDurableProductionLifecycle<T>(input: DurableProductionR
     });
     return lifecycle;
   } catch (error) {
-    await store.fail(input.request.reportId, input.workerId, { message: error instanceof Error ? error.message : String(error) });
+    await store.fail(input.jobId, input.workerId, { message: error instanceof Error ? error.message : String(error) });
     throw error;
   } finally {
     clearInterval(heartbeatTimer);
