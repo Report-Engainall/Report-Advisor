@@ -16,7 +16,7 @@ Source of truth: `main`
 - PASS لا يعني production-certified؛ LIVE evidence منفصل.
 
 ## Current truth
-The quality workflow is a batch-discovery loop rather than a serial first-failure loop. Routing/Security runs five independent checks together; downstream gates continue collecting independent failures. The latest inspected run `32893065950` reached 43 application/contract gates with only the **Quality workflow contract** failing; the remaining gates after that point were skipped by normal fail-fast ordering. The root cause was not application behavior: the workflow had drifted away from its own contract by using a non-unique concurrency group with `cancel-in-progress: true`, while the contract requires a per-run unique group and `cancel-in-progress: false`. This is now corrected in commit `d0de8ae84d3982f3cf9243e171b6e28d1cf82497`.
+The quality workflow is operating as a batch-discovery loop rather than a serial first-failure loop. Routing/Security runs five independent checks together; downstream gates continue collecting independent failures. The latest inspected run `32893065950` reached 43 application/contract gates with only the **Quality workflow contract** failing; the remaining gates after that point were skipped by normal fail-fast ordering. The root cause was not application behavior: the workflow had drifted away from its own contract by using a non-unique concurrency group with `cancel-in-progress: true`, while the contract requires a per-run unique group and `cancel-in-progress: false`. This is corrected in `d0de8ae84d3982f3cf9243e171b6e28d1cf82497`.
 
 ## Latest batch fixes
 1. `src/lib/free-toolbox/batch-decision-engine.ts`: bounded risk percentages are clamped to `[0,100]` before `finitePercent`. Commit: `f21277a7311c463b75bf0089f5d5729e639588ef`.
@@ -29,11 +29,13 @@ The quality workflow is a batch-discovery loop rather than a serial first-failur
 8. `src/lib/tenantContext.ts`: removed the unused client-only `isTenantSelected` helper after repo-wide caller search found no production/test callers. Commit: `956c53a37b12bf52cc4f1e3206a03a884ab4f38a`.
 9. Repo-wide direct Supabase/tenant scans were repeated. Current evidence shows canonical `resolveCurrentCompanyId()` remains the authoritative browser resolver, while `queries.ts` uses direct reads protected by database RLS; these are not automatically classified as legacy violations. No speculative rewrite was made.
 10. `.github/workflows/quality.yml`: restored the workflow's required **unique per-run concurrency group** and `cancel-in-progress: false`, fixing the root cause of Run #1506 failing at `Quality workflow contract`. Commit: `d0de8ae84d3982f3cf9243e171b6e28d1cf82497`.
+11. `scripts/check-quality-workflow-contract.mjs`: hardened concurrency validation to parse the explicit concurrency policy instead of depending on one exact whitespace/expression layout. It now verifies presence of `github.run_id`, explicitly rejects cancellation, and preserves the 40-minute timeout requirement. Commit: `59ba0785e9c333686e2a2ca27d62a5a643c11452`.
 
 ## Current CI
 - Run `32893065950` / #1506 is a verified failure at the workflow contract gate, not a tenant/application gate. Tenant convergence, legacy consumer, adversarial tenant, data quality, migrations, master requirements, RLS, import RPC/business-key, lint, build, performance, intelligence, analysis, document intelligence, report truth, production readiness and resilience all reached success before/after the gate as available in the run ordering.
-- Corrective commit `d0de8ae84d3982f3cf9243e171b6e28d1cf82497` has been pushed. **Its CI result is not yet claimed.**
-- Workflow contract requirements now match the implementation: unique group includes `github.run_id`; `cancel-in-progress: false`; timeout remains 40 minutes.
+- Corrective workflow commit `d0de8ae84d3982f3cf9243e171b6e28d1cf82497` has been pushed. Its combined status currently returns no status records, so **no CI PASS is claimed**.
+- Follow-up contract-guard hardening is committed as `59ba0785e9c333686e2a2ca27d62a5a643c11452`; its CI is likewise not claimed until a complete workflow result exists.
+- Workflow contract requirements now match implementation: unique group includes `github.run_id`; `cancel-in-progress: false`; timeout remains 40 minutes.
 - Do not treat a commit as PASS until its complete workflow job concludes.
 
 ## Phase truth
