@@ -18,7 +18,7 @@ interface DataTableProps<T> {
   pageSize?: number;
 }
 
-export function DataTable<T extends Record<string, any>>({ columns, data, loading, emptyMessage = 'لا توجد بيانات', onRowClick, pageSize }: DataTableProps<T>) {
+export function DataTable<T extends Record<string, unknown>>({ columns, data, loading, emptyMessage = 'لا توجد بيانات', onRowClick }: DataTableProps<T>) {
   if (loading) {
     return (
       <div className="p-5">
@@ -32,9 +32,7 @@ export function DataTable<T extends Record<string, any>>({ columns, data, loadin
   }
 
   if (!data || data.length === 0) {
-    return (
-      <div className="p-10 text-center text-sm text-ink-400">{emptyMessage}</div>
-    );
+    return <div className="p-10 text-center text-sm text-ink-400">{emptyMessage}</div>;
   }
 
   return (
@@ -58,7 +56,7 @@ export function DataTable<T extends Record<string, any>>({ columns, data, loadin
         <tbody>
           {data.map((row, i) => (
             <tr
-              key={row.id || i}
+              key={typeof row.id === 'string' || typeof row.id === 'number' ? String(row.id) : i}
               onClick={() => onRowClick?.(row)}
               className={`border-b border-ink-50 transition-colors ${onRowClick ? 'cursor-pointer hover:bg-ink-50' : ''}`}
             >
@@ -69,7 +67,7 @@ export function DataTable<T extends Record<string, any>>({ columns, data, loadin
                     col.align === 'center' ? 'text-center' : col.align === 'left' ? 'text-left' : 'text-right'
                   } ${col.className || ''}`}
                 >
-                  {col.render ? col.render(row) : (row as any)[col.key]}
+                  {col.render ? col.render(row) : row[col.key] as ReactNode}
                 </td>
               ))}
             </tr>
