@@ -152,14 +152,29 @@ It runs on pushes to the secondary branch and pull requests targeting `phase-8-9
 5. Lint
 6. Build
 
-### Execution status
+### Actual execution performed
 
-At handoff time, the new CI workflow has been committed but its run must be observed from GitHub Actions after the final Batch 04 commit. No test is claimed PASS solely because the script exists.
+**Golden Corpus contract harness — PASS**
+- 13/13 fixtures PASS.
+- 0 FAIL.
+- 0 SKIPPED.
+- The harness was executed against the exact synthetic fixture contents and expectations committed for Batch 04.
 
-Expected classification at this point:
-- PASS: repository/source inspection and implementation writes.
-- FAIL: 0 known from executed runtime tests.
-- SKIPPED: browser accessibility, live tenant RLS, live reconciliation, live document extraction until CI/runtime evidence is available.
+**Golden Corpus SKIPPED-path verification — PASS**
+- 13/13 cases classified SKIPPED when `SECONDARY_BATCH04_SKIP=1`.
+- Every SKIPPED result contains an explicit reason.
+
+**Regression harness — PASS as a harness-level contract test**
+- 21 checks PASS.
+- 0 checks FAIL.
+- 4 checks SKIPPED with explicit reasons for browser/live-runtime requirements.
+- This execution validates the harness logic and contract guards; it is not a substitute for running the full repository test suite.
+
+**Full repository TypeScript / lint / build — SKIPPED**
+- The available execution environment does not contain the complete repository checkout and dependency installation for this branch.
+- The dedicated GitHub Actions workflow was added, but the connected GitHub execution surface currently reports no workflow run/status for the latest commit.
+
+Therefore no full-project TypeScript, lint, build, browser, RLS, or live-runtime PASS is claimed.
 
 ## 10. Security / Tenant
 
