@@ -1,20 +1,12 @@
 import type { ReportExecutionCheckpoint, ReportExecutionStage } from './checkpoint';
 import {
-  buildLineage,
   consolidateRuntime,
   chooseScenario,
   prioritizeDecisions,
   canAutonomouslyExecute,
   type RuntimeEvidence,
 } from '../phase-kl-runtime';
-import type {
-  AutonomyGateInput,
-  PortfolioCandidate,
-  RiskBudget,
-  RowVersion,
-  ScenarioOption,
-  SourceCandidate,
-} from '../production-intelligence';
+import { diffRows, type AutonomyGateInput, type PortfolioCandidate, type RiskBudget, type RowVersion, type ScenarioOption, type SourceCandidate } from '../production-intelligence';
 
 export interface ProductionLifecycleInput<T = unknown> {
   jobId: string;
@@ -35,7 +27,7 @@ export interface ProductionLifecycleResult<T = unknown> {
   jobId: string;
   companyId: string;
   sourceHash: string;
-  lineage: ReturnType<typeof buildLineage<T>>;
+  lineage: ReturnType<typeof diffRows<T>>;
   consolidation: ReturnType<typeof consolidateRuntime<T>>;
   scenario: ReturnType<typeof chooseScenario>;
   portfolio: ReturnType<typeof prioritizeDecisions>;
@@ -44,7 +36,7 @@ export interface ProductionLifecycleResult<T = unknown> {
 
 /**
  * Pure integration bridge. Durable persistence/leases remain owned by the
- * worker store. Domain engines supply the evidence, scenarios and candidates;
+ * worker store. Domain engines supply evidence, scenarios and candidates;
  * this bridge never invents business values or silently enables autonomy.
  */
 export function runProductionLifecycle<T>(input: ProductionLifecycleInput<T>): ProductionLifecycleResult<T> {
@@ -52,7 +44,7 @@ export function runProductionLifecycle<T>(input: ProductionLifecycleInput<T>): P
   if (!input.currentRows.length) throw new Error('Production lifecycle requires authoritative current rows');
   if (!input.evidence.length) throw new Error('Production lifecycle requires runtime evidence');
 
-  const lineage = buildLineage(input.previousRows, input.currentRows[0]);
+  const lineage = diffRows(input.previousRows, input.currentRows);
   const consolidation = consolidateRuntime(input.sourceCandidates);
   const scenario = chooseScenario(input.scenarioOptions, input.riskBudget);
   const portfolio = prioritizeDecisions(input.portfolioCandidates, input.riskBudget.maxRisk);
