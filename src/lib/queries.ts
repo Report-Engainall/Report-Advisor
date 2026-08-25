@@ -1,4 +1,4 @@
-import { supabase, COMPANY_ID } from './supabase';
+import { supabase } from './supabase';
 import type {
   SalesInvoice, SaleItem, PurchaseInvoice, Customer, Product,
   InventoryBalance, Recommendation, Alert, Forecast, Payment,
@@ -55,8 +55,7 @@ export interface CategoryBreakdown {
 export async function fetchDashboardKPIs(): Promise<DashboardKPIs> {
   const { data: invoices, error: invoicesError } = await supabase
     .from('sales_invoices')
-    .select('id, total, paid_amount, subtotal, tax_amount, status, invoice_date, due_date')
-    .eq('company_id', COMPANY_ID);
+    .select('id, total, paid_amount, subtotal, tax_amount, status, invoice_date, due_date');
   if (invoicesError) throw invoicesError;
 
   const invArr = (invoices || []) as any[];
@@ -67,19 +66,19 @@ export async function fetchDashboardKPIs(): Promise<DashboardKPIs> {
   if (itemsError) throw itemsError;
 
   const { data: balances, error: balancesError } = await supabase
-    .from('inventory_balances').select('quantity, unit_cost').eq('company_id', COMPANY_ID);
+    .from('inventory_balances').select('quantity, unit_cost');
   if (balancesError) throw balancesError;
 
   const { count: customerCount, error: customerError } = await supabase
-    .from('customers').select('id', { count: 'exact', head: true }).eq('company_id', COMPANY_ID);
+    .from('customers').select('id', { count: 'exact', head: true });
   if (customerError) throw customerError;
 
   const { count: productCount, error: productError } = await supabase
-    .from('products').select('id', { count: 'exact', head: true }).eq('company_id', COMPANY_ID);
+    .from('products').select('id', { count: 'exact', head: true });
   if (productError) throw productError;
 
   const { data: purchases, error: purchasesError } = await supabase
-    .from('purchase_invoices').select('total, paid_amount').eq('company_id', COMPANY_ID);
+    .from('purchase_invoices').select('total, paid_amount');
   if (purchasesError) throw purchasesError;
 
   const totalSales = invArr.reduce((s: number, inv: any) => s + Number(inv.subtotal || 0), 0);
@@ -108,7 +107,7 @@ export async function fetchDashboardKPIs(): Promise<DashboardKPIs> {
 
 export async function fetchMonthlyTrend(months = 6): Promise<MonthlyTrend[]> {
   const { data: invoices, error: invoicesError } = await supabase.from('sales_invoices')
-    .select('id, subtotal, invoice_date').eq('company_id', COMPANY_ID).order('invoice_date', { ascending: true });
+    .select('id, subtotal, invoice_date').order('invoice_date', { ascending: true });
   if (invoicesError) throw invoicesError;
   const invoiceIds = (invoices || []).map(inv => inv.id);
   const { data: items, error: itemsError } = invoiceIds.length
@@ -142,7 +141,7 @@ export async function fetchMonthlyTrend(months = 6): Promise<MonthlyTrend[]> {
 }
 
 export async function fetchTopCustomers(limit = 5): Promise<TopEntity[]> {
-  const { data, error } = await supabase.from('sales_invoices').select('customer_id, subtotal, customer:customers(name)').eq('company_id', COMPANY_ID);
+  const { data, error } = await supabase.from('sales_invoices').select('customer_id, subtotal, customer:customers(name)');
   if (error) throw error;
   const byCustomer = new Map<string, { name: string; value: number }>();
   for (const row of data || []) {
@@ -155,7 +154,7 @@ export async function fetchTopCustomers(limit = 5): Promise<TopEntity[]> {
 
 export async function fetchTopProducts(limit = 5): Promise<TopEntity[]> {
   // sale_items is scoped indirectly through its parent invoices; it has no company_id column.
-  const { data: invoices, error: invoicesError } = await supabase.from('sales_invoices').select('id').eq('company_id', COMPANY_ID);
+  const { data: invoices, error: invoicesError } = await supabase.from('sales_invoices').select('id');
   if (invoicesError) throw invoicesError;
   const invoiceIds = (invoices || []).map(inv => inv.id);
   if (!invoiceIds.length) return [];
@@ -175,7 +174,7 @@ export async function fetchTopProducts(limit = 5): Promise<TopEntity[]> {
 }
 
 export async function fetchAgingBuckets(): Promise<AgingBucket[]> {
-  const { data: invoices, error } = await supabase.from('sales_invoices').select('total, paid_amount, due_date, invoice_date').eq('company_id', COMPANY_ID);
+  const { data: invoices, error } = await supabase.from('sales_invoices').select('total, paid_amount, due_date, invoice_date');
   if (error) throw error;
   const today = new Date();
   const buckets: AgingBucket[] = [
