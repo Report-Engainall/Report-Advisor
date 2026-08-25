@@ -22,38 +22,16 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
 });
 
 /**
- * Transitional compatibility value for legacy UI consumers.
- * It is NEVER a default/demo tenant: AuthGate resolves it from the canonical
- * database current_company_id() function before protected UI is rendered.
- * New code should rely on RLS and avoid reading this value directly.
+ * Resolve the authenticated user's tenant exclusively through the database
+ * authority. No mutable module-level tenant id, demo id, browser fallback, or
+ * client-selected tenant is retained here.
  */
-export let COMPANY_ID = '';
-
 export async function resolveCurrentCompanyId(): Promise<string | null> {
   const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
-  if (sessionError || !sessionData.session) {
-    COMPANY_ID = '';
-    return null;
-  }
+  if (sessionError || !sessionData.session) return null;
 
   const { data, error } = await supabase.rpc('current_company_id');
-  if (error || !data) {
-    COMPANY_ID = '';
-    return null;
-  }
+  if (error || !data) return null;
 
-  COMPANY_ID = String(data);
-  return COMPANY_ID;
-}
-
-export function setCompanyId(companyId: string) {
-  COMPANY_ID = companyId;
-}
-
-export function clearCompanyId() {
-  COMPANY_ID = '';
-}
-
-export function getCompanyId(): string | null {
-  return COMPANY_ID || null;
+  return String(data);
 }
