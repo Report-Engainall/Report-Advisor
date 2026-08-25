@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { buildAgingBuckets, cashConversionCycle } from '../src/lib/businessIntelligenceEngines.ts';
+import { analyzeTrend, buildAgingBuckets, cashConversionCycle, decideReplenishment, projectLiquidity, scoreCustomer, scoreSupplier, whatIf } from '../src/lib/businessIntelligenceEngines.ts';
 
 const asOf = new Date('2026-08-26T00:00:00Z');
 const buckets = buildAgingBuckets([
@@ -28,4 +28,22 @@ const incomplete = cashConversionCycle({
 assert.equal(incomplete.status, 'INSUFFICIENT_DATA');
 assert.equal(incomplete.ccc, null);
 
-console.log('PASS: business intelligence regressions preserve UNKNOWN/UNDATED semantics and fail closed for incomplete CCC inputs.');
+// Deep data-truth regressions: invalid numeric inputs must never become fake KPI values.
+assert.throws(() => decideReplenishment({ onHand: Number.NaN, avgDailyDemand: 10, leadTimeDays: 5 }), /BI_INVALID_NUMBER:onHand/);
+assert.throws(() => decideReplenishment({ onHand: 10, avgDailyDemand: -1, leadTimeDays: 5 }), /BI_NEGATIVE_VALUE:avgDailyDemand/);
+assert.throws(() => scoreCustomer({ recencyDays: Number.NaN, orders: 1, revenue: 100 }), /BI_INVALID_NUMBER:recencyDays/);
+assert.throws(() => scoreSupplier({ avgDeliveryDelayDays: 1, priceVariationPct: Number.NaN, dependencyPct: 10 }), /BI_INVALID_NUMBER:priceVariationPct/);
+assert.throws(() => projectLiquidity({ openingLiquidity: 1000, horizons: [30], dailyInflow: Number.NaN, dailyOutflow: 10 }), /BI_INVALID_NUMBER:dailyInflow/);
+assert.throws(() => cashConversionCycle({ receivables: 1, revenue: 1, inventory: 1, costOfSales: 1, payables: 1, purchases: 1, periodDays: 0 }), /BI_NON_POSITIVE_PERIOD:periodDays/);
+assert.throws(() => whatIf({ baseline: 100, changes: [{ label: 'sales', pct: Number.NaN }] }), /BI_INVALID_WHAT_IF_CHANGE/);
+
+// Trend calculations must be chronological even when upstream rows arrive out of order.
+const trend = analyzeTrend([
+  { date: '2026-08-03', value: 30 },
+  { date: '2026-08-01', value: 10 },
+  { date: '2026-08-02', value: 20 },
+]);
+assert.equal(trend.direction, 'UP');
+assert.ok((trend.velocity ?? 0) > 0);
+
+console.log('PASS: business intelligence regressions preserve UNKNOWN/UNDATED semantics, reject invalid numeric truth, and normalize trend chronology.');
