@@ -16,38 +16,40 @@ const failClosedCandidates = migrations.filter(({ file }) => file.includes('impo
 if (!resolver) throw new Error('Canonical tenant resolver migration is missing');
 if (failClosedCandidates.length === 0) throw new Error('Import RPC fail-closed migration is missing');
 
-// The canonical resolver migration intentionally evolves an existing membership
-// table. Schema creation belongs to the earlier membership migration; requiring a
-// CREATE TABLE marker in the latest resolver creates false failures when the schema
-// is correctly normalized across migrations.
-const schemaEvidence = migrations.some(({ text }) =>
-  /CREATE\s+TABLE\s+IF\s+NOT\s+EXISTS\s+company_memberships/i.test(text),
-) && resolver.text.includes('ALTER TABLE company_memberships');
-if (!schemaEvidence) {
-  throw new Error(`Tenant membership schema is not traceable to the canonical resolver ${resolver.file}`);
+// Tenant membership is deliberately evolved across migrations. Schema-level
+// evidence belongs to the whole migration chain, while resolver invariants belong
+// to the latest CREATE OR REPLACE definition. This avoids false failures when the
+// latest resolver only alters an earlier schema primitive.
+const schemaMigrations = migrations.filter(({ text }) =>
+  /company_memberships/i.test(text),
+);
+const schemaText = schemaMigrations.map(({ text }) => text).join('\n');
+if (!/CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?company_memberships/i.test(schemaText)) {
+  throw new Error(`Tenant membership base schema is missing from migration history`);
+}
+if (!/ALTER\s+TABLE\s+company_memberships/i.test(resolver.text)) {
+  throw new Error(`Latest tenant resolver ${resolver.file} does not evolve company_memberships schema`);
 }
 
-const requiredMarkers = [
+const schemaMarkers = [
   'REFERENCES auth.users(id)',
-  'auth.uid()',
   'company_memberships',
   'is_active',
   'is_default',
 ];
-
-for (const marker of requiredMarkers) {
-  if (!resolver.text.includes(marker)) {
-    throw new Error(`Tenant security contract missing from latest resolver ${resolver.file}: ${marker}`);
+for (const marker of schemaMarkers) {
+  if (!schemaText.includes(marker)) {
+    throw new Error(`Tenant membership schema contract missing from migration history: ${marker}`);
   }
 }
 
-// The canonical contract is multi-company capable: the active default membership
-// is the selected tenant. No default (or an inactive membership) resolves to no
-// row, i.e. NULL/fail-closed. The unique index prevents multiple active defaults.
+// Resolver-specific invariants must be present in the latest definition.
+if (!resolver.text.includes('auth.uid()')) {
+  throw new Error(`Tenant resolver ${resolver.file} is missing auth.uid()`);
+}
 if (!/cm\.user_id\s*=\s*auth\.uid\(\)[\s\S]*?cm\.is_active\s*=\s*true[\s\S]*?cm\.is_default\s*=\s*true/i.test(resolver.text)) {
   throw new Error(`Latest tenant resolver ${resolver.file} does not enforce active default membership for auth.uid()`);
 }
-
 if (!/SELECT\s+cm\.company_id[\s\S]*?FROM\s+company_memberships\s+cm[\s\S]*?LIMIT\s+1/i.test(resolver.text)) {
   throw new Error(`Latest tenant resolver ${resolver.file} is missing a bounded single-tenant SELECT`);
 }
