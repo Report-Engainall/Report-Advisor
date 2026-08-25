@@ -46,6 +46,8 @@ jobs:
         run: node scripts/check-phase-8-import-report-closure.mjs
       - name: Phase 9 intelligence closure
         run: node scripts/check-phase-9-intelligence-closure.mjs
+      - name: Metric single source of truth
+        run: npm run test:metric-single-source-of-truth
       - name: Production certification
         run: npm run test:production-certification-contract
       - name: Operational resilience certification
