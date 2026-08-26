@@ -126,17 +126,17 @@ export function projectLiquidity(input: { openingLiquidity: number; horizons: nu
   });
 }
 
-export function cashConversionCycle(input: { receivables: number; revenue: number; inventory: number; costOfSales: number; payables: number; purchases: number; periodDays?: number }): CashConversionCycle {
+export function cashConversionCycle(input: { receivables: number; revenue: number; inventory: number; costOfSales: number | null; payables: number; purchases: number; periodDays?: number }): CashConversionCycle {
   const receivables = requireNonNegative(input.receivables, 'receivables');
   const revenue = requireNonNegative(input.revenue, 'revenue');
   const inventory = requireNonNegative(input.inventory, 'inventory');
-  const costOfSales = requireNonNegative(input.costOfSales, 'costOfSales');
+  const costOfSales = input.costOfSales == null ? null : requireNonNegative(input.costOfSales, 'costOfSales');
   const payables = requireNonNegative(input.payables, 'payables');
   const purchases = requireNonNegative(input.purchases, 'purchases');
   const days = requireNonNegative(input.periodDays ?? 365, 'periodDays');
   if (days <= 0) throw new Error('BI_NON_POSITIVE_PERIOD:periodDays');
   const dso = revenue > 0 ? receivables / revenue * days : null;
-  const dio = costOfSales > 0 ? inventory / costOfSales * days : null;
+  const dio = costOfSales != null && costOfSales > 0 ? inventory / costOfSales * days : null;
   const dpo = purchases > 0 ? payables / purchases * days : null;
   if (dso == null || dio == null || dpo == null) return { dso, dio, dpo, ccc: null, status: 'INSUFFICIENT_DATA' };
   return { dso, dio, dpo, ccc: dso + dio - dpo, status: 'READY' };
