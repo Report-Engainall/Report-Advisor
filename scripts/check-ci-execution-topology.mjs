@@ -57,7 +57,9 @@ function pushTrigger(text) {
 
 const pushWorkflows = [];
 const canonicalMainPushWorkflows = [];
+const scopedPushWorkflows = [];
 const broadPushWorkflows = [];
+const productionBoundaryWorkflows = [];
 
 for (const file of names) {
   const trigger = pushTrigger(read(`.github/workflows/${file}`));
@@ -69,11 +71,14 @@ for (const file of names) {
   const hasBranchRestriction = /branches\s*:|branches-ignore\s*:/.test(config);
   const hasPathRestriction = /paths\s*:|paths-ignore\s*:/.test(config);
   const hasTagRestriction = /tags\s*:|tags-ignore\s*:/.test(config);
-  const isCanonicalMain = targetsMain && !hasPathRestriction && !hasTagRestriction;
+  const isProductionBoundary = file === 'production-evidence-boundary.yml';
+  const isCanonicalMain = targetsMain && !hasPathRestriction && !hasTagRestriction && !isProductionBoundary;
   if (isCanonicalMain) canonicalMainPushWorkflows.push(file);
+  if (isProductionBoundary) productionBoundaryWorkflows.push(file);
 
   // Tag-only release workflows are intentionally scoped even without branch/path filters.
-  if (!hasBranchRestriction && !hasPathRestriction && !hasTagRestriction) broadPushWorkflows.push(file);
+  if (!hasBranchRestriction && !hasPathRestriction && !hasTagRestriction && !isProductionBoundary) broadPushWorkflows.push(file);
+  if (!isCanonicalMain && !isProductionBoundary) scopedPushWorkflows.push(file);
 }
 
 if (canonicalMainPushWorkflows.length !== 1 || canonicalMainPushWorkflows[0] !== 'quality.yml') {
@@ -85,11 +90,16 @@ if (nonCanonicalBroad.length) {
   throw new Error(`Non-canonical broad push workflows are not allowed: ${nonCanonicalBroad.join(', ')}`);
 }
 
+if (productionBoundaryWorkflows.length > 1) {
+  throw new Error(`Only one production evidence boundary workflow is allowed, found: ${productionBoundaryWorkflows.join(', ')}`);
+}
+
 console.log(JSON.stringify({
   contract: 'ci-execution-topology',
   canonicalPushGate: 'quality.yml',
   pushWorkflows,
   canonicalMainPushWorkflows,
-  scopedPushWorkflows: pushWorkflows.filter((file) => !canonicalMainPushWorkflows.includes(file)),
+  productionBoundaryWorkflows,
+  scopedPushWorkflows: pushWorkflows.filter((file) => !canonicalMainPushWorkflows.includes(file) && !productionBoundaryWorkflows.includes(file)),
   manualWaves: ['j-k-l-runtime-wave.yml', 'autonomy-safety-wave.yml', 'phase-f-live-resilience.yml'],
 }));
