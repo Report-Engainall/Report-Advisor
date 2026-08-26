@@ -1,13 +1,15 @@
 export type DecisionScoreBand = 'BLOCKED' | 'REVIEW' | 'READY' | 'HIGH_PRIORITY';
 
+export type DecisionScoreInput = Record<string, number>;
+
 export interface DecisionScore {
   score: number;
   band: DecisionScoreBand;
   blockers: string[];
-  factors: Record<string, number>;
+  factors: DecisionScoreInput;
 }
 
-export function calculateDecisionScore(factors: Record<string, number>, blockers: string[] = []): DecisionScore {
+export function calculateDecisionScore(factors: DecisionScoreInput, blockers: string[] = []): DecisionScore {
   const values = Object.values(factors).filter((value): value is number => Number.isFinite(value));
   const score = values.length ? Math.max(0, Math.min(1, values.reduce((sum, value) => sum + value, 0) / values.length)) : 0;
   const normalizedBlockers = [...new Set(blockers.filter(Boolean))];
