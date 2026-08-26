@@ -1,6 +1,8 @@
 export type ReportCheckpointStage = 'queued' | 'fingerprinted' | 'extracted' | 'canonicalized' | 'validated' | 'analyzed' | 'decisioned' | 'committed' | 'rendered';
+export type ReportExecutionStage = ReportCheckpointStage;
 
 export interface ReportExecutionCheckpoint {
+  jobId?: string;
   stage: ReportCheckpointStage;
   sourceHash: string;
   artifactHash?: string;
@@ -19,17 +21,18 @@ export function assertValidTransition(from: ReportCheckpointStage, to: ReportChe
   if (!canAdvanceCheckpoint(from, to)) throw new Error(`Invalid checkpoint transition: ${from} -> ${to}`);
 }
 
-export function createInitialCheckpoint(sourceHash: string, evidenceKeys: string[] = []): ReportExecutionCheckpoint {
+export function createInitialCheckpoint(sourceHash: string, evidenceKeys: string[] = [], jobId?: string): ReportExecutionCheckpoint {
   if (!sourceHash.trim()) throw new Error('Initial checkpoint requires a source hash');
-  return { stage: 'queued', sourceHash, evidenceKeys: [...new Set(evidenceKeys)].sort(), updatedAt: Date.now() };
+  return { jobId, stage: 'queued', sourceHash, evidenceKeys: [...new Set(evidenceKeys)].sort(), updatedAt: Date.now() };
 }
 
 export function advanceCheckpoint(current: ReportExecutionCheckpoint, next: Omit<ReportExecutionCheckpoint, 'updatedAt'>): ReportExecutionCheckpoint {
   assertValidTransition(current.stage, next.stage);
   if (next.sourceHash !== current.sourceHash) throw new Error('Checkpoint source hash cannot change during a run');
+  if (current.jobId && next.jobId && next.jobId !== current.jobId) throw new Error('Checkpoint jobId cannot change during a run');
   if (next.rowCount !== undefined && (!Number.isInteger(next.rowCount) || next.rowCount < 0)) throw new Error('Checkpoint rowCount must be a non-negative integer');
   const evidenceKeys = [...new Set([...current.evidenceKeys, ...next.evidenceKeys])].sort();
-  return { ...next, evidenceKeys, updatedAt: Date.now() };
+  return { ...next, jobId: next.jobId ?? current.jobId, evidenceKeys, updatedAt: Date.now() };
 }
 
 export function resumeFromCheckpoint(checkpoint: ReportExecutionCheckpoint): ReportCheckpointStage {
