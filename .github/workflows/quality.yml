@@ -1,6 +1,6 @@
 name: quality
 on:
-  push: {branches: [main, hardening/safe-prune-and-proof]}
+  push: {branches: [main, hardening/safe-prune-and-proof, hardening/gross-profit-truth-closure-f5]}
   pull_request: {branches: [main]}
   workflow_dispatch:
 permissions: {contents: read}
@@ -92,32 +92,10 @@ jobs:
           set +e
           declare -A pids
           declare -A names
-          commands=(
-            "node scripts/check-navigation-route-contract.mjs"
-            "node scripts/check-import-direct-write-guard.mjs"
-            "npm run test:import-transaction-contract"
-            "npm run test:import-runtime-governance"
-            "npm run test:tenant-security-contract"
-          )
-          for i in "${!commands[@]}"; do
-            echo "[routing-security] START ${commands[$i]}"
-            bash -lc "${commands[$i]}" >"/tmp/routing-security-$i.log" 2>&1 &
-            pids[$i]=$!
-            names[$i]="${commands[$i]}"
-          done
+          commands=("node scripts/check-navigation-route-contract.mjs" "node scripts/check-import-direct-write-guard.mjs" "npm run test:import-transaction-contract" "npm run test:import-runtime-governance" "npm run test:tenant-security-contract")
+          for i in "${!commands[@]}"; do bash -lc "${commands[$i]}" >"/tmp/routing-security-$i.log" 2>&1 & pids[$i]=$!; names[$i]="${commands[$i]}"; done
           failures=0
-          for i in "${!commands[@]}"; do
-            wait "${pids[$i]}"
-            status=$?
-            cat "/tmp/routing-security-$i.log"
-            if [ "$status" -ne 0 ]; then
-              echo "[routing-security] FAIL ${names[$i]} (exit=$status)"
-              failures=$((failures + 1))
-            else
-              echo "[routing-security] PASS ${names[$i]}"
-            fi
-          done
-          echo "[routing-security] independent checks completed; failures=$failures"
+          for i in "${!commands[@]}"; do wait "${pids[$i]}"; status=$?; cat "/tmp/routing-security-$i.log"; if [ "$status" -ne 0 ]; then failures=$((failures + 1)); fi; done
           test "$failures" -eq 0
       - name: Global tenant RLS
         if: ${{ always() }}
@@ -148,12 +126,14 @@ jobs:
         run: npm run test:document-intelligence-contract && npm run test:document-intelligence-semantic-foundation && npm run test:document-intelligence-hardening && npm run test:document-intelligence-decision-gate && npm run test:file-intelligence-security && npm run test:operational-file-pipeline
       - name: Document intelligence service runtime contracts
         if: ${{ always() }}
-        env:
-          PYTHONPATH: services/document-intelligence
+        env: {PYTHONPATH: services/document-intelligence}
         run: python -m unittest discover -s services/document-intelligence/tests -p 'test_*.py'
       - name: Report truth contract
         if: ${{ always() }}
         run: npm run test:report-truth
+      - name: Gross profit truth consumer regression
+        if: ${{ always() }}
+        run: npm run test:gross-profit-truth
       - name: Production readiness
         if: ${{ always() }}
         run: node scripts/check-production-readiness.mjs
