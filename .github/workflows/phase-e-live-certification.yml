@@ -26,6 +26,8 @@ jobs:
         run: npm run test:production-saas-certification
       - name: Source secret audit
         run: node scripts/phase-e-security-secret-audit.mjs
+      - name: Static Gross Profit surface audit
+        run: node scripts/gross-profit-static-surface-audit.mjs
       - name: Gross Profit actual production consumer runtime
         env:
           CERT_SUPABASE_URL: ${{ secrets.CERT_SUPABASE_URL }}
@@ -34,13 +36,20 @@ jobs:
           CERT_TENANT_B_ID: ${{ secrets.CERT_TENANT_B_ID }}
           CERT_USER_A_JWT: ${{ secrets.CERT_USER_A_JWT }}
           CERT_USER_B_JWT: ${{ secrets.CERT_USER_B_JWT }}
-        run: node --experimental-strip-types scripts/gross-profit-runtime-surface-proof.ts
+        run: node --experimental-strip-types scripts/gross-profit-runtime-surface-proof-v2.ts
       - name: Upload Gross Profit runtime artifact
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: gross-profit-runtime-results
           path: gross-profit-runtime-results.json
+          if-no-files-found: warn
+      - name: Upload Gross Profit static artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gross-profit-static-surface-audit
+          path: gross-profit-static-surface-audit.json
           if-no-files-found: warn
       - name: Live tenant/storage/AI probes
         env:
