@@ -5,6 +5,7 @@ import {
   fetchTopProducts as canonicalFetchTopProducts,
   fetchCategoryBreakdown as canonicalFetchCategoryBreakdown,
   fetchAgingBuckets as canonicalFetchAgingBuckets,
+  fetchForecasts as canonicalFetchForecasts,
 } from './queries';
 import type { Customer, Forecast, ImportRecord, Product } from './types';
 import type { MonthlyTrend, TopEntity, AgingBucket, CategoryBreakdown } from './queries';
@@ -24,25 +25,12 @@ async function requireTenant(): Promise<string> {
   return companyId;
 }
 
-export async function fetchMonthlyTrend(months = 6): Promise<MonthlyTrend[]> {
-  return canonicalFetchMonthlyTrend(months);
-}
-
-export async function fetchTopCustomers(limit = 5): Promise<TopEntity[]> {
-  return canonicalFetchTopCustomers(limit);
-}
-
-export async function fetchTopProducts(limit = 5): Promise<TopEntity[]> {
-  return canonicalFetchTopProducts(limit);
-}
-
-export async function fetchCategoryBreakdown(): Promise<CategoryBreakdown[]> {
-  return canonicalFetchCategoryBreakdown();
-}
-
-export async function fetchAgingBuckets(): Promise<AgingBucket[]> {
-  return canonicalFetchAgingBuckets();
-}
+export async function fetchMonthlyTrend(months = 6): Promise<MonthlyTrend[]> { return canonicalFetchMonthlyTrend(months); }
+export async function fetchTopCustomers(limit = 5): Promise<TopEntity[]> { return canonicalFetchTopCustomers(limit); }
+export async function fetchTopProducts(limit = 5): Promise<TopEntity[]> { return canonicalFetchTopProducts(limit); }
+export async function fetchCategoryBreakdown(): Promise<CategoryBreakdown[]> { return canonicalFetchCategoryBreakdown(); }
+export async function fetchAgingBuckets(): Promise<AgingBucket[]> { return canonicalFetchAgingBuckets(); }
+export async function fetchForecasts(): Promise<Forecast[]> { return canonicalFetchForecasts(); }
 
 export async function markAlertRead(id: string): Promise<void> {
   const companyId = await requireTenant();
@@ -54,13 +42,6 @@ export async function updateRecommendationStatus(id: string, status: string): Pr
   const companyId = await requireTenant();
   const { error } = await supabase.from('recommendations').update({ status }).eq('id', id).eq('company_id', companyId);
   if (error) throw error;
-}
-
-export async function fetchForecasts(): Promise<Forecast[]> {
-  const companyId = await requireTenant();
-  const { data, error } = await supabase.from('forecasts').select('*').eq('company_id', companyId).order('period', { ascending: true });
-  if (error) throw error;
-  return (data ?? []) as Forecast[];
 }
 
 export async function fetchCustomers(): Promise<Customer[]> {
@@ -107,11 +88,7 @@ async function readImportJob(id: string, companyId: string): Promise<ImportJobSt
 
 export async function createImportRecord(input: ImportRecordInput): Promise<ImportRecord> {
   const companyId = await requireTenant();
-  const { data, error } = await supabase.rpc('import_create_job', {
-    p_company_id: companyId,
-    p_entity_type: input.entity_type ?? 'import',
-    p_total_rows: input.total_rows,
-  });
+  const { data, error } = await supabase.rpc('import_create_job', { p_company_id: companyId, p_entity_type: input.entity_type ?? 'import', p_total_rows: input.total_rows });
   if (error) throw error;
   return { id: String(data), company_id: companyId, ...input, error_message: null, created_at: new Date().toISOString(), completed_at: null };
 }
@@ -121,36 +98,15 @@ export async function updateImportRecord(id: string, patch: ImportRecordPatch): 
   const current = await readImportJob(id, companyId);
   if (patch.progress !== undefined) {
     const progress = Math.min(100, Math.max(0, Number(patch.progress)));
-    const processedRows = current.total_rows > 0
-      ? Math.min(current.total_rows, Math.max(current.processed_rows, Math.round(current.total_rows * progress / 100)))
-      : current.processed_rows;
-    const { error } = await supabase.rpc('import_update_job_progress', {
-      p_job_id: id,
-      p_processed_rows: processedRows,
-      p_valid_rows: current.valid_rows,
-      p_invalid_rows: current.invalid_rows,
-      p_duplicate_rows: current.duplicate_rows,
-      p_status: TERMINAL_IMPORT_STATUSES.has(patch.status ?? '') ? 'processing' : (patch.status ?? 'processing'),
-    });
+    const processedRows = current.total_rows > 0 ? Math.min(current.total_rows, Math.max(current.processed_rows, Math.round(current.total_rows * progress / 100))) : current.processed_rows;
+    const { error } = await supabase.rpc('import_update_job_progress', { p_job_id: id, p_processed_rows: processedRows, p_valid_rows: current.valid_rows, p_invalid_rows: current.invalid_rows, p_duplicate_rows: current.duplicate_rows, p_status: TERMINAL_IMPORT_STATUSES.has(patch.status ?? '') ? 'processing' : (patch.status ?? 'processing') });
     if (error) throw error;
   }
   if (patch.status && TERMINAL_IMPORT_STATUSES.has(patch.status)) {
-    const { error } = await supabase.rpc('import_finish_job', {
-      p_job_id: id,
-      p_status: patch.status,
-      p_result_summary: current.result_summary ?? {},
-      p_error_message: patch.error_message ?? null,
-    });
+    const { error } = await supabase.rpc('import_finish_job', { p_job_id: id, p_status: patch.status, p_result_summary: current.result_summary ?? {}, p_error_message: patch.error_message ?? null });
     if (error) throw error;
   } else if (patch.error_message !== undefined && patch.status === undefined) {
-    const { error } = await supabase.rpc('import_update_job_progress', {
-      p_job_id: id,
-      p_processed_rows: current.processed_rows,
-      p_valid_rows: current.valid_rows,
-      p_invalid_rows: current.invalid_rows,
-      p_duplicate_rows: current.duplicate_rows,
-      p_status: 'processing',
-    });
+    const { error } = await supabase.rpc('import_update_job_progress', { p_job_id: id, p_processed_rows: current.processed_rows, p_valid_rows: current.valid_rows, p_invalid_rows: current.invalid_rows, p_duplicate_rows: current.duplicate_rows, p_status: 'processing' });
     if (error) throw error;
   }
 }
@@ -159,71 +115,28 @@ export async function fetchImportRecords(): Promise<ImportRecord[]> {
   const companyId = await requireTenant();
   const { data, error } = await supabase.from('import_jobs').select('id, company_id, job_type, status, total_rows, valid_rows, invalid_rows, progress, error_message, created_at, completed_at, result_summary').eq('company_id', companyId).order('created_at', { ascending: false });
   if (error) throw error;
-  return (data ?? []).map(row => ({
-    id: row.id,
-    company_id: row.company_id,
-    file_name: String((row.result_summary as Record<string, unknown> | null)?.file_name ?? row.job_type ?? 'import'),
-    file_size: 0,
-    source_type: 'import',
-    status: row.status,
-    total_rows: row.total_rows ?? 0,
-    valid_rows: row.valid_rows ?? 0,
-    invalid_rows: row.invalid_rows ?? 0,
-    quarantined_rows: 0,
-    entity_type: row.job_type ?? null,
-    progress: row.progress ?? 0,
-    error_message: row.error_message ?? null,
-    created_at: row.created_at,
-    completed_at: row.completed_at ?? null,
-  }));
+  return (data ?? []).map(row => ({ id: row.id, company_id: row.company_id, file_name: String((row.result_summary as Record<string, unknown> | null)?.file_name ?? row.job_type ?? 'import'), file_size: 0, source_type: 'import', status: row.status, total_rows: row.total_rows ?? 0, valid_rows: row.valid_rows ?? 0, invalid_rows: row.invalid_rows ?? 0, quarantined_rows: 0, entity_type: row.job_type ?? null, progress: row.progress ?? 0, error_message: row.error_message ?? null, created_at: row.created_at, completed_at: row.completed_at ?? null }));
 }
 
-export interface PurchaseSummary {
-  total: number | null;
-  count: number;
-  supplier_count: number;
-  average: number | null;
-  as_of: string;
-  data_status: 'NO_DATA' | 'CALCULATED';
-}
-
+export interface PurchaseSummary { total: number | null; count: number; supplier_count: number; average: number | null; as_of: string; data_status: 'NO_DATA' | 'CALCULATED'; }
 export async function fetchPurchaseSummary(from: string | null = null, to: string | null = null): Promise<PurchaseSummary> {
   const companyId = await requireTenant();
   const { data, error } = await supabase.rpc('get_purchase_summary', { p_company_id: companyId, p_from: from, p_to: to });
   if (error) throw error;
   const row = (data ?? {}) as Record<string, unknown>;
-  return {
-    total: row.total == null ? null : Number(row.total),
-    count: Number(row.count ?? 0),
-    supplier_count: Number(row.supplier_count ?? 0),
-    average: row.average == null ? null : Number(row.average),
-    as_of: String(row.as_of ?? ''),
-    data_status: row.data_status === 'NO_DATA' ? 'NO_DATA' : 'CALCULATED',
-  };
+  return { total: row.total == null ? null : Number(row.total), count: Number(row.count ?? 0), supplier_count: Number(row.supplier_count ?? 0), average: row.average == null ? null : Number(row.average), as_of: String(row.as_of ?? ''), data_status: row.data_status === 'NO_DATA' ? 'NO_DATA' : 'CALCULATED' };
 }
 
-export interface InventoryValuation {
-  value: number | null;
-  row_count: number;
-  unknown_row_count: number;
-  data_status: 'NO_DATA' | 'INSUFFICIENT_DATA' | 'CALCULATED';
-}
-
+export interface InventoryValuation { value: number | null; row_count: number; unknown_row_count: number; data_status: 'NO_DATA' | 'INSUFFICIENT_DATA' | 'CALCULATED'; }
 export async function fetchInventoryValuation(): Promise<InventoryValuation> {
   const companyId = await requireTenant();
   const { data, error } = await supabase.rpc('get_inventory_valuation', { p_company_id: companyId });
   if (error) throw error;
   const row = (data ?? {}) as Record<string, unknown>;
-  return {
-    value: row.value == null ? null : Number(row.value),
-    row_count: Number(row.row_count ?? 0),
-    unknown_row_count: Number(row.unknown_row_count ?? 0),
-    data_status: row.data_status === 'INSUFFICIENT_DATA' ? 'INSUFFICIENT_DATA' : row.data_status === 'NO_DATA' ? 'NO_DATA' : 'CALCULATED',
-  };
+  return { value: row.value == null ? null : Number(row.value), row_count: Number(row.row_count ?? 0), unknown_row_count: Number(row.unknown_row_count ?? 0), data_status: row.data_status === 'INSUFFICIENT_DATA' ? 'INSUFFICIENT_DATA' : row.data_status === 'NO_DATA' ? 'NO_DATA' : 'CALCULATED' };
 }
 
 export interface CanonicalExportRow { [key: string]: string | number | null; }
-
 async function canonicalExportRows(functionName: string): Promise<CanonicalExportRow[]> {
   const companyId = await requireTenant();
   const { data, error } = await supabase.rpc(functionName, { p_company_id: companyId, p_max_rows: 10000 });
@@ -232,7 +145,6 @@ async function canonicalExportRows(functionName: string): Promise<CanonicalExpor
   if (!Array.isArray(payload.rows)) throw new Error('REPORT_DATA_UNAVAILABLE: canonical export rows missing');
   return payload.rows as CanonicalExportRow[];
 }
-
 export const fetchSalesExportRows = () => canonicalExportRows('get_sales_export_rows');
 export const fetchPurchaseExportRows = () => canonicalExportRows('get_purchase_export_rows');
 export const fetchInventoryExportRows = () => canonicalExportRows('get_inventory_export_rows');
