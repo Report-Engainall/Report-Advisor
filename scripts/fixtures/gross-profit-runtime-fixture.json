@@ -1,0 +1,30 @@
+{
+  "version": "2026-08-26.1",
+  "truthSource": "independent-domain-fixture",
+  "scenarios": {
+    "tenantAComplete": {
+      "tenant": "A",
+      "expected": { "revenue": 630, "cost": 380, "grossProfit": 250, "quantity": 9, "status": "CALCULABLE" }
+    },
+    "tenantAIncomplete": {
+      "tenant": "A",
+      "expected": { "revenue": 705, "cost": null, "grossProfit": null, "quantity": 10, "status": "INSUFFICIENT_DATA" }
+    },
+    "tenantBComplete": {
+      "tenant": "B",
+      "expected": { "revenue": 900, "cost": 540, "grossProfit": 360, "quantity": 9, "status": "CALCULABLE" }
+    }
+  },
+  "requiredCases": [
+    "normal data",
+    "missing/null cost",
+    "discount-bearing record",
+    "multiple invoices",
+    "multiple customers",
+    "start boundary",
+    "end boundary",
+    "outside range",
+    "tenant isolation",
+    "25 export rows > 20 presentation rows"
+  ]
+}
