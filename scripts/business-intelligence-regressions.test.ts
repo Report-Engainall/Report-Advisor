@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { analyzeTrend, buildAgingBuckets, cashConversionCycle, decideReplenishment, projectLiquidity, scoreCustomer, scoreSupplier, whatIf } from '../src/lib/businessIntelligenceEngines.ts';
 import { buildFinancialIntelligence } from '../src/lib/intelligence/financialIntelligence.ts';
+import { buildCanonicalIntelligence } from '../src/lib/canonicalIntelligence.ts';
 
 const asOf = new Date('2026-08-26T00:00:00Z');
 const buckets = buildAgingBuckets([
@@ -61,6 +62,18 @@ const completeFinancialCost = buildFinancialIntelligence({
 assert.equal(completeFinancialCost.profitability.status, 'READY');
 assert.equal(completeFinancialCost.ccc.status, 'READY');
 assert.ok(completeFinancialCost.ccc.ccc !== null);
+
+// Canonical intelligence is a sibling producer and must preserve the same missing-cost contract.
+const missingCanonicalCost = buildCanonicalIntelligence({
+  sales: [{ id: 's1', total: 1000, paidAmount: 500 }],
+  purchases: [{ total: 400, paidAmount: 200 }],
+  inventory: [{ sku: 'SKU-1', stock: 10, unitCost: 80 }],
+  salesHistory: [100, 110, 120],
+});
+assert.equal(missingCanonicalCost.cashConversionCycle.status, 'INSUFFICIENT_DATA');
+assert.equal(missingCanonicalCost.cashConversionCycle.dio, null);
+assert.equal(missingCanonicalCost.cashConversionCycle.ccc, null);
+assert.ok(missingCanonicalCost.warnings.some(w => w.includes('تكلفة المبيعات الفعلية غير متاحة')));
 
 // Deep data-truth regressions: invalid numeric inputs must never become fake KPI values.
 assert.throws(() => decideReplenishment({ onHand: Number.NaN, avgDailyDemand: 10, leadTimeDays: 5 }), /BI_INVALID_NUMBER:onHand/);
