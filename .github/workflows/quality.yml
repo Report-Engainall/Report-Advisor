@@ -86,6 +86,8 @@ jobs:
         run: npm run test:wave02-runtime-harness
       - name: Execution Wave 03 deep consumer/security closure
         run: npm run test:wave03-deep-closure
+      - name: Execution Wave 03 performance audit
+        run: npm run test:wave03-performance
       - name: Execution Wave 03 distributed runtime
         run: npm run test:wave03-runtime
       - name: Execution Wave 03 import adversarial matrix
