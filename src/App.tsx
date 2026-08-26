@@ -30,7 +30,7 @@ const ForecastsPage = lazy(() => import('@/pages/IntelligencePage').then(m => ({
 const ScenariosPage = lazy(() => import('@/pages/IntelligencePage').then(m => ({ default: m.ScenariosPage })));
 const CustomersPage = lazy(() => import('@/pages/EntityPages').then(m => ({ default: m.CustomersPage })));
 const ProductsPage = lazy(() => import('@/pages/EntityPages').then(m => ({ default: m.ProductsPage })));
-const InventoryPage = lazy(() => import('@/pages/EntityPages').then(m => ({ default: m.InventoryPage })));
+const InventoryPage = lazy(() => import('@/pages/InventoryPageCanonical').then(m => ({ default: m.InventoryPageCanonical })));
 const DataQualityPage = lazy(() => import('@/pages/EntityPages').then(m => ({ default: m.DataQualityPage })));
 const CompanySettingsPage = lazy(() => import('@/pages/CompanySettingsPage').then(m => ({ default: m.CompanySettingsPage })));
 const ProfileSettingsPage = lazy(() => import('@/pages/ProfileSettingsPage').then(m => ({ default: m.ProfileSettingsPage })));
