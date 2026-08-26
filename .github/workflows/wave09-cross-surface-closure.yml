@@ -16,6 +16,7 @@ on:
       - "supabase/migrations/20260826130000_cross_surface_truth_closure.sql"
       - "supabase/migrations/20260826131000_analytics_domain_truth.sql"
       - "scripts/execution-wave-09-cross-surface-closure.mjs"
+      - "docs/MASTER_EXECUTION_INDEX.md"
       - ".github/workflows/wave09-cross-surface-closure.yml"
   pull_request:
     paths:
@@ -31,6 +32,7 @@ on:
       - "supabase/migrations/20260826130000_cross_surface_truth_closure.sql"
       - "supabase/migrations/20260826131000_analytics_domain_truth.sql"
       - "scripts/execution-wave-09-cross-surface-closure.mjs"
+      - "docs/MASTER_EXECUTION_INDEX.md"
       - ".github/workflows/wave09-cross-surface-closure.yml"
 
 permissions:
