@@ -1,113 +1,96 @@
 # Report Advisor — Master Execution & Truth Index
 
 Snapshot: 2026-08-26
-Source of truth: `main` + active execution PRs. Wave 07/08 branch is the active execution truth.
+Source of truth: `main` + active execution PRs.
 
 ## Mandatory truth rules
 - PASS is bound to an exact commit and exact CI run/job evidence; no historical PASS transfer.
-- FOUNDATION, DEEP CLOSURE, CONSUMER VERIFIED, TESTED, GATED, INTEGRATED, RUNTIME VERIFIED, LIVE VERIFIED and PRODUCTION CERTIFIED are separate states.
-- Missing/unknown data never becomes measured zero.
+- FOUNDATION, DEEP CLOSURE, IMPLEMENTED, TESTED, REGRESSION, GATED, INTEGRATED, CONSUMER VERIFIED, RUNTIME VERIFIED, LIVE VERIFIED and PRODUCTION CERTIFIED remain separate states.
+- UNKNOWN / MISSING / INSUFFICIENT_DATA never becomes a fabricated business zero.
 - Domain truth belongs to domain-level canonical implementations, not page-local calculations.
 - Destructive legacy removal requires consumer/dependency/rollback proof.
 
-## Current exact code HEAD / CI truth
-- Previous confirmed starting HEAD: `ef3f4a02bfbbc2996dbf0b8601e3f80c251f2548`.
+## Exact HEAD / CI
+- Requested starting HEAD: `ef3f4a02bfbbc2996dbf0b8601e3f80c251f2548`.
+- Previous active PR head before this closure batch: `b19d93cf6420d5020a3b2ae024b3d2bfde03c48b`.
 - Active PR: `#27 — Wave 07 — Truth Certification + Canonical/RPC Deep Verification`.
-- Active branch: `execution-wave-07-truth-certification`.
-- Latest application/code commit before this index-only update: `bf0afb31905b00e1ff64024dd3aad008c2c923b5`.
-- Exact secondary-closure CI for `bf0afb3...`: **PASS**, run `32916579545`, job `98021440854`.
-- Prior exact secondary-closure run `32916517317` on `8fad4b7...` failed because the regression assertion still expected the pre-fix nullable adapter shape; that false-positive was corrected in `bf0afb3...` and the rerun passed.
-- No historical PASS is transferred to any other SHA.
+- Execution branch: `execution-wave-07-truth-certification`.
+- Closure work was built from the latest active PR head (`b19d93cf...`), which is 11 commits ahead of the requested `ef3f4a02...` baseline and contains the previously verified secondary-consumer closure.
+- Current closure branch HEAD before PR fast-forward: `ce7fba057085a46714a685ad0cf109191dcb95cd`.
+- Exact CI for `ce7fba057...`: **PENDING** until Actions completes. No PASS is claimed here.
 
-## Wave 08 real execution findings → fixes
-1. **Secondary consumer duplication — FIXED at the compatibility boundary:** `fetchMonthlyTrend`, `fetchTopCustomers`, `fetchTopProducts`, `fetchCategoryBreakdown`, and `fetchAgingBuckets` now resolve through canonical secondary domain adapters. Existing consumers importing `@/lib/queries` are covered by the existing `queries-compat.ts` path alias.
-2. **Secondary canonical aggregation — IMPLEMENTED:** added tenant-authoritative server-side aggregates for top customers, top products, category breakdown, and receivables aging.
-3. **Secondary tenant authority — FIXED:** all new RPCs derive authority from `current_company_id()` and reject caller-supplied tenant mismatch; adapters resolve tenant from trusted context.
-4. **Secondary unknown/zero semantics — FIXED:** unknown top/customer/product/category values are never coerced to zero. They raise `REPORT_DATA_UNAVAILABLE` at the strict UI adapter boundary. Aging uses explicit `UNDATED`; empty buckets remain legitimate zeroes.
-5. **Bounded secondary aggregation — FIXED:** top-N server aggregation is bounded to 1–50 and does not fetch raw sales rows into the browser for aggregation.
-6. **RPC execution boundary — HARDENED:** new secondary functions are `SECURITY INVOKER`, set `search_path = public`, revoke PUBLIC/anon execution and grant only `authenticated`.
-7. **Regression false-positive — FIXED:** the Wave 08 gate was updated to validate the actual strict unknown-data contract instead of requiring a nullable adapter implementation that had already been intentionally hardened.
+## This execution batch — REAL CROSS-SURFACE CLOSURE
+
+### Findings → root cause → fixes
+1. **Export truth — FIXED locally**
+   - Root cause: report exports for Sales/Purchases/Inventory/Receivables were sourced from display-page subsets (20/50 rows) or page-local inventory data.
+   - Fix: added bounded tenant-authoritative export loaders in `src/lib/report-export-data.ts`; export is chunked at 500 rows and fails closed above 5,000 instead of silently truncating.
+   - Consumer migration: `src/pages/ReportsPage.tsx` now uses full bounded export datasets while display pagination remains display-only.
+
+2. **Inventory operational KPI drift — FIXED locally**
+   - Root cause: Inventory report recomputed `lowStock` / `outOfStock` from display rows.
+   - Fix: report now consumes canonical `get_inventory_valuation` counts (`low_stock`, `out_of_stock`).
+   - Regression: closure gate rejects page-local `balances.filter(...)` KPI derivation.
+
+3. **Receivables date semantics — FIXED locally**
+   - Root cause: aging truth depended implicitly on `CURRENT_DATE` and duplicated page-local calculations; analytics aging also fell back from missing due date to invoice date.
+   - Fix: added `get_receivables_aging_truth_as_of(p_company_id,p_as_of)` with trusted tenant authority and explicit as-of semantics; canonical analytics and Reports use it. Missing due dates remain `UNDATED`.
+
+4. **RFM/ABC semantic drift — FIXED locally**
+   - Root cause: canonical analytics were aggregating browser-side and did not apply the same `cancelled/void` status contract as the newer sales-domain aggregates.
+   - Fix: added tenant-authoritative server-side `get_sales_rfm_truth` and `get_sales_abc_truth`; canonical analytics now consume those RPCs.
+
+5. **Secondary nullable semantics — HARDENED**
+   - Root cause: secondary adapter types could force nullable business values through strict numeric conversion.
+   - Fix: `CanonicalTopEntity` and category metrics preserve `number | null`; consumers filter only for presentation/chartability and surface `INSUFFICIENT_DATA` instead of manufacturing zero.
+
+### Files / migrations changed
+- `src/pages/ReportsPage.tsx`
+- `src/lib/canonical-analytics.ts`
+- `src/lib/canonical-secondary-data-truth.ts`
+- `src/lib/report-export-data.ts`
+- `supabase/migrations/20260826130000_cross_surface_truth_closure.sql`
+- `supabase/migrations/20260826131000_analytics_domain_truth.sql`
+- `scripts/execution-wave-09-cross-surface-closure.mjs`
+- `.github/workflows/wave09-cross-surface-closure.yml`
+- `docs/MASTER_EXECUTION_INDEX.md`
 
 ## Capability truth matrix
-| CAPABILITY | FOUNDATION | DEEP CLOSURE | CONSUMER VERIFIED | TESTED | GATED | INTEGRATED | RUNTIME VERIFIED | LIVE VERIFIED | PRODUCTION CERTIFIED | LAST CODE COMMIT | LAST INDEX COMMIT | LAST CI | REMAINING | DEPENDENCY | RISK |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| Tenant/security authority | YES | YES | PARTIAL | YES | YES | YES | PARTIAL | NO | NO | bf0afb3 | index update | 32916579545 | Supabase A/B authority proof | live Supabase | CRITICAL |
-| Data truth / consumer closure | YES | YES | IMPROVED / PARTIAL | YES | YES | YES | LOCAL | NO | NO | bf0afb3 | index update | 32916579545 | exports/decision equivalence; remaining non-query business logic sweep | real tenant runtime | HIGH |
-| Cross-surface truth | YES | YES | PARTIAL | PARTIAL | PARTIAL | PARTIAL | LOCAL | NO | NO | bf0afb3 | index update | 32916579545 | Dashboard=Report=Export=Decision runtime equivalence | real tenant runtime | HIGH |
-| Import/reconciliation | YES | YES | YES* | YES | YES | YES | DETERMINISTIC | NO | NO | bf00299 | index update | 32916579545 | deployed worker concurrency/retry/rollback | live worker | CRITICAL |
-| Runtime/workers | YES | YES | YES* | YES | YES | YES | SIMULATED | NO | NO | bf00299 | index update | 32916579545 | deployed crash/restart/DLQ/resume + side effects | deployed worker | CRITICAL |
-| Document intelligence | YES | YES | PARTIAL | YES | YES | YES | LOCAL SEMANTIC | NO | NO | bf00299 | index update | 32916579545 | larger real corpus + OCR accuracy | real corpus | HIGH |
-| Evidence/provenance | YES | YES | PARTIAL | YES | YES | YES | PARTIAL | NO | NO | bf00299 | index update | 32916579545 | real document provenance chain | real corpus | HIGH |
-| Decision/action/outcome/feedback | YES | YES | PARTIAL | YES | YES | YES | PARTIAL | NO | NO | bf00299 | index update | 32916579545 | runtime full-loop consumer proof | runtime outcome | CRITICAL |
-| Observability | YES | YES | PARTIAL | YES | YES | YES | LOCAL | NO | NO | bf00299 | index update | 32916579545 | production telemetry chain | telemetry environment | HIGH |
-| Backup/restore | YES | YES | N/A | YES | YES | YES | LOCAL ARTIFACT | NO | NO | bf00299 | index update | 32916579545 | real restore/RPO/RTO/rollback | live DB/backup | CRITICAL |
-| Watched folder | YES | YES | PARTIAL | YES | YES | YES | LOCAL IDENTITY | NO | NO | bf00299 | index update | 32916579545 | native persistent watcher | native adapters/devices | HIGH |
-| Performance | YES | YES | N/A | PARTIAL | YES | YES | LOCAL | NO | NO | bf00299 | index update | 32916579545 | production-scale benchmark and remaining hotspots | production-scale data | MEDIUM |
-| UI/E2E | YES | YES | PARTIAL | PARTIAL | YES | PARTIAL | STATIC | NO | NO | bf0afb3 | index update | 32916579545 | authenticated browser proof | auth runtime | HIGH |
-| CI topology | YES | YES | N/A | YES | YES | YES | PENDING | NO | NO | bf0afb3 | index update | 32916579545 | full quality workflow exact-head evidence | GitHub Actions | MEDIUM |
-| Production hygiene | YES | YES | PARTIAL | PARTIAL | YES | YES | NO | NO | NO | bf00299 | index update | 32916579545 | remaining concrete production-risk closure | code/runtime | MEDIUM |
+| CAPABILITY | FOUNDATION | DEEP CLOSURE | IMPLEMENTED | TESTED | REGRESSION | GATED | CONSUMER VERIFIED | RUNTIME VERIFIED | LIVE VERIFIED | PRODUCTION CERTIFIED | CURRENT STATE |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| Export truth | YES | YES | YES | PENDING CI | YES (local contract) | PENDING | YES locally | NO | NO | NO | GATED/PENDING CI |
+| Cross-surface business truth | YES | YES | YES for repaired report/analytics paths | PENDING CI | YES (local contract) | PENDING | PARTIAL | NO | NO | NO | PARTIAL: runtime equivalence remains |
+| Inventory operational truth | YES | YES | YES | PENDING CI | YES | PENDING | YES locally | NO | NO | NO | GATED/PENDING CI |
+| RFM/ABC domain truth | YES | YES | YES | PENDING CI | YES | PENDING | YES locally | NO | NO | NO | GATED/PENDING CI |
+| Aging as-of truth | YES | YES | YES | PENDING CI | YES | PENDING | YES locally | NO | NO | NO | GATED/PENDING CI |
+| Secondary consumers | YES | YES | YES | YES | YES | PASS on prior exact secondary head only | YES locally | LOCAL | NO | NO | CLOSED locally / prior CI PASS |
+| Tenant/security authority | YES | YES | YES locally | YES | YES | prior gates | PARTIAL | PARTIAL | NO | NO | LIVE A/B required |
+| Decision/action/outcome truth | YES | YES | PARTIAL | YES | YES | YES | PARTIAL | PARTIAL | NO | NO | PARTIAL: no proven metric bypass found in this batch; runtime loop remains |
+| Document intelligence | YES | YES | existing | YES | YES | YES | PARTIAL | LOCAL | NO | NO | LIVE corpus required |
+| Import/worker/watcher | YES | YES | existing | YES | YES | YES | YES* | SIMULATED | NO | NO | deployed runtime required |
+| Backup/restore | YES | YES | existing | YES | YES | YES | N/A | LOCAL ARTIFACT | NO | NO | real restore required |
+| Observability | YES | YES | existing | YES | YES | YES | PARTIAL | LOCAL | NO | NO | production telemetry required |
 
-\* Import/worker state means deterministic harness/invariant proof is integrated; it does not mean deployed runtime is verified.
+\* Deterministic harness/invariant proof does not mean deployed worker certification.
 
-## Wave 08 implementation
-- `supabase/migrations/20260826120000_secondary_consumer_truth.sql`: canonical secondary aggregates for top customers, top products, category breakdown and aging, with trusted tenant authority and bounded top-N.
-- `src/lib/canonical-secondary-data-truth.ts`: browser adapter for canonical secondary aggregates; unknown numeric values are never coerced to zero.
-- `src/lib/queries-compat.ts`: existing `@/lib/queries` compatibility boundary routes the five secondary consumers to canonical adapters, so existing pages are migrated without duplicating business logic in UI.
-- `scripts/execution-wave-08-secondary-consumer-closure.mjs`: behavioral contract checks.
-- `.github/workflows/wave08-secondary-consumer-closure.yml`: exact-branch CI gate, including the execution index as evidence input.
-- `.github/workflows/quality.yml`: canonical quality workflow now includes the Wave 08 secondary consumer closure regression command.
+## Regression gate
+`node scripts/execution-wave-09-cross-surface-closure.mjs` proves:
+- exports use bounded full-dataset loaders;
+- inventory operational counts are canonical;
+- receivables uses explicit as-of truth;
+- RFM/ABC use canonical RPCs;
+- cancelled/void status semantics are enforced in analytics SQL;
+- tenant authority is server-side;
+- nullable secondary business values remain nullable;
+- no page-local inventory KPI aggregation remains.
 
-## Consumer closure truth
-- **DONE locally:** secondary monthly trend/top customers/top products/category/aging query consumers route through canonical domain adapters.
-- **DONE locally:** secondary aggregation is server-side and tenant-authoritative.
-- **DONE locally:** top-N aggregation is bounded; browser no longer performs secondary business aggregation.
-- **DONE locally:** unknown secondary values are not fabricated as zero.
-- **PARTIAL:** export truth, decision metric equivalence, full date/status semantic equivalence and complete repository-wide direct-Supabase business calculation sweep remain.
-- **NO LIVE CLAIM:** local source/regression proof is not runtime/live tenant equivalence.
+Dedicated workflow: `.github/workflows/wave09-cross-surface-closure.yml`.
 
-## Behavioral regression invariants
-- Secondary top-N is bounded to 1–50.
-- Caller-selected tenant mismatch is rejected by every new secondary RPC.
-- New secondary RPCs are not executable by PUBLIC/anon.
-- Secondary adapters resolve tenant from trusted current-company context.
-- Top customer/product/category unknown values surface as unavailable rather than zero.
-- Aging distinguishes `UNDATED` from numeric aging buckets.
-- Browser adapters do not aggregate raw `sales_invoices` or `sale_items` for these secondary metrics.
-- Monthly trend remains on the canonical sales-truth path and refuses to fabricate missing numeric values.
+## Remaining PARTIAL / LIVE REQUIRED
+- Exact-head Actions proof for the final repository HEAD is still required.
+- Dashboard = Report = Export = Decision runtime equivalence requires authenticated real-tenant execution; local source/regression proof is not LIVE proof.
+- Decision metric/evidence full-loop runtime proof remains required; this batch found no safe static bypass to repair without inventing a contract.
+- Supabase A/B tenant isolation, Storage/Realtime/AI-vector, deployed worker crash/restart/DLQ, real restore/RPO/RTO, native watcher, authenticated browser E2E, real document corpus/OCR, production telemetry, production-scale load/canary/rollback remain LIVE REQUIRED.
 
-## LIVE REQUIRED
-1. Supabase A/B DB/Storage/Realtime/AI-vector isolation.
-2. Deployed worker crash/restart/stale lease/DLQ/resume and duplicate-side-effect drill.
-3. Real backup restore + migration replay + rollback + RPO/RTO.
-4. Windows/Android persistent watcher and iOS capability proof.
-5. Authenticated browser E2E against real tenant data.
-6. Real PDF/OCR/XLSX/CSV/corrupt/ambiguous corpus accuracy.
-7. Production telemetry trace with tenant context and PII redaction.
-8. Production-scale load/canary/rollback.
-
-## Remaining Work
-### NOW
-- Obtain exact-head evidence for the final repository/index commit; the dedicated secondary closure gate is already green on the latest application code commit.
-- Complete full repository consumer sweep for exports, decisions and any remaining direct business calculations.
-- Prove Dashboard=Report=Export=Decision equivalence for shared metrics under identical tenant/filter/date/status/as-of contracts.
-- Continue legacy consumer inventory and remove only after zero-consumer proof.
-
-### PARALLEL
-- Import/worker side-effect closure.
-- Document evidence provenance expansion.
-- Decision/action/outcome consumer verification.
-- Observability critical-flow verification.
-- Backup local deterministic restore preparation.
-- Watched-folder native preparation.
-- Performance hotspot fixes.
-- Authenticated UI flow preparation.
-
-### DEPENDENCY
-- Live Supabase tenant/storage/realtime/AI environment, deployed worker, real DB/backup, native adapters/devices, authenticated browser tenant, real document corpus, production telemetry/load.
-
-### DO NOT TOUCH
-- BI NaN/Infinity, trend chronology, outcome identity, missing-impact truth and SHA-256 fallback unless regression/bypass/new evidence appears.
-- Destructive legacy removal without consumer/dependency/rollback proof.
-
-## Completion truth
-**Secondary consumer closure is implemented and has exact dedicated CI PASS on `bf0afb3...`; overall production certification is NOT claimed. Full cross-surface/export/decision/runtime/live closure remains open.**
+## Production certification
+**NOT CERTIFIED.** This batch contains real implementation and behavioral regression work. No Production Certified or LIVE Verified claim is made without exact evidence.
