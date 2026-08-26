@@ -72,4 +72,23 @@ if (/(Number|parseFloat|parseInt)\([^\n]*\).*NaN|NaN.*(Number|parseFloat|parseIn
   throw new Error('Report truth contract requires finite-number guarding');
 }
 
-console.log(`Report truth contract: PASS (${reportFiles.length} report candidates, ${migrationFiles.length} migrations scanned)`);
+// Export truth: a report export must not silently inherit the current table page.
+// Sales and purchases currently expose a 20-row presentation page, but their
+// export labels are report-level exports. The export path therefore must load
+// the complete tenant-scoped dataset through the bounded paginated loader.
+const reportsPagePath = path.join(srcDir, 'pages', 'ReportsPage.tsx');
+const reportsPage = fs.existsSync(reportsPagePath) ? fs.readFileSync(reportsPagePath, 'utf8') : '';
+if (!reportsPage.includes("fetchAllSalesInvoices")) {
+  throw new Error('Export truth contract: sales report export must use the full-dataset loader');
+}
+if (!reportsPage.includes("fetchAllPurchaseInvoices")) {
+  throw new Error('Export truth contract: purchase report export must use the full-dataset loader');
+}
+if (/downloadReportArtifact\(['"]sales-report['"][\s\S]{0,1200}invoices\.map\(/.test(reportsPage)) {
+  throw new Error('Export truth contract: sales export is coupled to the current paginated invoice view');
+}
+if (/downloadReportArtifact\(['"]purchase-report['"][\s\S]{0,1200}purchases\.map\(/.test(reportsPage)) {
+  throw new Error('Export truth contract: purchase export is coupled to the current paginated purchase view');
+}
+
+console.log(`Report truth contract: PASS (${reportFiles.length} report candidates, ${migrationFiles.length} migrations scanned, export scope guarded)`);
