@@ -39,18 +39,20 @@ async function secondaryRpc(name: string, params: Record<string, unknown>): Prom
 
 export async function fetchCanonicalMonthlyTrend(months = 6) {
   const companyId = await tenantId();
-  const { data, error } = await supabase.rpc('get_sales_monthly_truth', { p_company_id: companyId, p_months: months });
-  if (error) throw error;
-  const rows = Array.isArray(data) ? data as Array<{month:string;sales:number|null;cost:number|null;profit:number|null;invoices:number;status:string}> : [];
-  return rows.map(r => ({
-    month: r.month,
-    label: r.month,
-    sales: finiteOrNull(r.sales),
-    cost: finiteOrNull(r.cost),
-    profit: finiteOrNull(r.profit),
-    invoices: Number(r.invoices ?? 0),
-    status: r.status === 'INSUFFICIENT_DATA' ? 'INSUFFICIENT_DATA' as const : 'CALCULATED' as const,
-  }));
+  const result = await secondaryRpc('get_sales_monthly_truth', { p_company_id: companyId, p_months: months });
+  const rows = result.rows.map((raw) => {
+    const r = raw as { month?: unknown; label?: unknown; sales?: unknown; cost?: unknown; profit?: unknown; invoices?: unknown; status?: unknown };
+    return {
+      month: String(r.month ?? ''),
+      label: String(r.label ?? r.month ?? ''),
+      sales: finiteOrNull(r.sales),
+      cost: finiteOrNull(r.cost),
+      profit: finiteOrNull(r.profit),
+      invoices: Number(r.invoices ?? 0),
+      status: r.status === 'INSUFFICIENT_DATA' ? 'INSUFFICIENT_DATA' as const : 'CALCULATED' as const,
+    };
+  });
+  return rows;
 }
 
 export async function fetchCanonicalTopCustomers(limit = 5): Promise<CanonicalRowsResult<CanonicalTopEntity>> {
