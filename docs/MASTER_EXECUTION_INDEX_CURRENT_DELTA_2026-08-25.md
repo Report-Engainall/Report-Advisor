@@ -35,26 +35,57 @@ Commit: `24c776d0b0a5c6ce7934b9e86079431b9b79fcb9`.
 
 Commit: `5760ca09c0993a3dac7227a462b764bffb3b75e1`.
 
+### Runtime harness investigation — current delta
+
+#### FIND
+The required authenticated surface execution artifact cannot currently be produced by the repository's existing test infrastructure.
+
+#### ROOT CAUSE
+The current repository contains static E2E/runtime contract gates and service/worker runtime infrastructure, but no reusable authenticated browser/session harness that executes the real Dashboard, Reports, Executive Decision and Export surfaces and captures their numeric results. No existing Playwright/Puppeteer/Cypress/browser-storage-state harness was identified in the current branch inspection.
+
+#### Classification
+`RUNTIME BLOCKED — AUTHENTICATED SURFACE HARNESS ABSENT`
+
+This is an evidence/infrastructure blocker. It is not a product PASS and does not close Gross Profit Truth.
+
+#### Existing infrastructure deliberately not misclassified
+
+`scripts/check-report-execution-e2e-contract.mjs` validates report-execution contracts/components (execution gate, queue, renderers, download, durable worker adapter and ledger). It does not establish an authenticated browser session or surface-level KPI execution.
+
+#### Required future artifact
+
+The runtime harness must capture, independently of the fixture reference:
+
+```text
+surface, tenant, date_from, date_to,
+revenue, cost, gross_profit, quantity, status,
+source/query identity, execution timestamp
+```
+
+Export must additionally capture `exported_rows` and `presentation_page_size`, with `25 > 20`.
+
 ### Current classifications
 - Independent reference truth: PROVEN.
-- Dashboard wiring to canonical consumer: PROVEN at source level; numeric cross-surface execution NOT PROVEN.
-- Reports migrated wiring: PROVEN at source level; numeric cross-surface execution NOT PROVEN.
-- Executive Decision canonical wiring: PROVEN at source level; numeric cross-surface execution NOT PROVEN.
-- Analytics Gross Profit consumer: NOT ESTABLISHED; current Analytics surfaces inspected are RFM/ABC/Aging.
-- BI independent Gross Profit consumer: UNKNOWN / NOT PROVEN.
-- Export source path: `fetchAllSalesInvoicesForReportExport` is full-dataset and independent of presentation page pagination at source level; actual 25-row runtime result NOT PROVEN.
-- Tenant A/B isolation: NOT PROVEN at runtime.
+- Dashboard source wiring: PROVEN; runtime NOT PROVEN.
+- Reports source wiring: PROVEN; runtime NOT PROVEN.
+- Executive Decision source wiring: PROVEN; runtime NOT PROVEN.
+- Export source path: PROVEN full-dataset at source level; runtime completeness NOT PROVEN.
+- Analytics GP consumer: NOT ESTABLISHED; no PASS claim.
+- BI GP consumer: NOT ESTABLISHED; no PASS claim.
+- Tenant A/B runtime isolation: NOT PROVEN.
 - Date-boundary runtime equivalence: NOT PROVEN.
-- Missing/NULL-cost cross-surface equivalence: NOT PROVEN.
+- Missing/NULL-cost runtime equivalence: NOT PROVEN.
 - Gross Profit Cross-Surface Truth: OPEN / NOT PROVEN.
 
-### Important evidence rule
-A fixture PASS cannot be upgraded to `TRUTH-PROVEN` unless actual production consumers generate the recorded surface results. Wiring/source inspection and canonical-query tests are not substitutes for surface execution.
+### Planning-only capability work
+A separate research-only `docs/FEATURE_GAP_CAPABILITY_MATRIX_2026-08-26.md` was added. It contains capability/value/integration/dependency/priority classification only and authorizes no implementation. It does not alter the Core Closure priority.
 
-### Current HEAD after proof-hardening commits
-The latest branch HEAD after this delta is the SHA returned by the append-only documentation commit. It is not certified until a fresh exact-head CI run covers that SHA.
+### Current branch HEAD
+The latest branch HEAD after the runtime-blocker and planning-only documentation commits is `36b4eb190699f01dcce33ea2744bf99af7762f0a`.
+
+This SHA has no exact-head CI certification yet.
 
 ### Next execution gate
-`Independent fixture → real authenticated surface execution → numeric comparison → export completeness → tenant isolation → regression → exact-head CI`.
+`Authenticated real surface execution -> independent numeric comparison -> tenant A/B isolation -> NULL/date/export checks -> regression -> exact-head CI`.
 
 No Discounts, Tax, Returns, Currency, Worker, Runtime, or Feature Creep closure is being claimed from this delta.
