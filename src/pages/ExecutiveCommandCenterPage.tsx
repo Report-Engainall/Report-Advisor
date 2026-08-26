@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Activity, Bell, BrainCircuit, ChevronLeft, CircleAlert, Gauge, ShieldAlert, Sparkles, WalletCards } from 'lucide-react';
 import { fetchDashboardKPIs, type DashboardKPIs } from '../lib/queries';
+import { runExecutivePipeline } from '../lib/free-toolbox/executive-pipeline';
+import type { ActionCandidate } from '../lib/free-toolbox/action-priority';
 
 type Status = 'good' | 'watch' | 'critical';
 
@@ -38,6 +40,15 @@ function statusLabel(status: Status) {
   return status === 'good' ? 'مستقر' : status === 'watch' ? 'مراقبة' : 'حرج';
 }
 
+function buildExecutiveActions(kpi: DashboardKPIs): ActionCandidate[] {
+  const overdueRate = kpi.totalReceivables > 0 ? (kpi.overdueReceivables / kpi.totalReceivables) * 100 : 0;
+  return [
+    { id: 'collections', title: overdueRate >= 15 ? 'رفع التحصيل من العملاء المتأخرين' : 'مواصلة متابعة التحصيل', impact: Math.min(100, overdueRate * 2), urgency: Math.min(100, overdueRate * 2), effort: 35, confidence: 95 },
+    { id: 'margin', title: kpi.grossMargin < 15 ? 'مراجعة هوامش الأصناف منخفضة الربحية' : 'مراجعة فرص تحسين الهامش', impact: Math.min(100, Math.max(0, 30 - kpi.grossMargin) * 3), urgency: Math.min(100, Math.max(0, 25 - kpi.grossMargin) * 3), effort: 45, confidence: kpi.totalCost === null ? 55 : 90 },
+    { id: 'cash-cycle', title: kpi.collectionRate < 70 ? 'تحسين دورة التحصيل' : 'الحفاظ على كفاءة التحصيل', impact: Math.min(100, Math.max(0, 100 - kpi.collectionRate)), urgency: Math.min(100, Math.max(0, 90 - kpi.collectionRate)), effort: 30, confidence: 90 },
+  ];
+}
+
 export function ExecutiveCommandCenterPage() {
   const [period, setPeriod] = useState('30');
   const [selected, setSelected] = useState(0);
@@ -63,6 +74,29 @@ export function ExecutiveCommandCenterPage() {
       active = false;
     };
   }, [period]);
+
+  const executive = useMemo(() => {
+    if (!kpis) return null;
+    const actions = buildExecutiveActions(kpis);
+    const quality = kpis.status === 'INSUFFICIENT_DATA'
+      ? { completeness: 40, validity: 40, consistency: 80, uniqueness: 80, timeliness: 80 }
+      : { completeness: 100, validity: 100, consistency: 100, uniqueness: 100, timeliness: 100 };
+    return runExecutivePipeline({
+      series: [{ period: new Date().toISOString().slice(0, 10), value: kpis.totalSales }],
+      signals: [
+        { id: 'overdue-rate', label: 'نسبة الذمم المتأخرة', value: kpis.totalReceivables > 0 ? (kpis.overdueReceivables / kpis.totalReceivables) * 100 : 0, history: [], direction: 'higher-risk', staticThreshold: 15 },
+        { id: 'gross-margin', label: 'الهامش الإجمالي', value: kpis.grossMargin, history: [], direction: 'lower-risk', staticThreshold: 10 },
+        { id: 'collection-rate', label: 'معدل التحصيل', value: kpis.collectionRate, history: [], direction: 'lower-risk', staticThreshold: 70 },
+      ],
+      actions,
+      quality,
+      kpis: [
+        { key: 'revenue', value: kpis.totalSales, target: kpis.totalSales, status: 'measured' },
+        { key: 'gross_profit', value: kpis.grossProfit ?? 0, target: Math.max(0, kpis.totalSales * 0.2), status: kpis.grossProfit === null ? 'unknown' : 'measured' },
+        { key: 'collection_rate', value: kpis.collectionRate, target: 80, status: 'measured' },
+      ],
+    });
+  }, [kpis]);
 
   const cards = useMemo<CommandCard[]>(() => {
     if (!kpis) return [];
@@ -97,6 +131,7 @@ export function ExecutiveCommandCenterPage() {
   }, [kpis]);
 
   const selectedAction = actions[selected] ?? actions[0];
+  const pipelineDecision = executive?.decisions[selected] ?? executive?.decisions[0];
 
   return (
     <div dir="rtl" className="space-y-6">
@@ -138,13 +173,14 @@ export function ExecutiveCommandCenterPage() {
 
           <section className="grid grid-cols-1 xl:grid-cols-3 gap-5">
             <div className="xl:col-span-2 rounded-2xl border border-ink-200 bg-white p-5">
-              <div className="flex items-center justify-between"><div><h2 className="font-bold text-lg">محرك القرار</h2><p className="text-sm text-ink-500 mt-1">الإجراءات مشتقة من المؤشرات الحالية وليست قيمًا تجريبية ثابتة.</p></div><BrainCircuit size={22} /></div>
+              <div className="flex items-center justify-between"><div><h2 className="font-bold text-lg">محرك القرار</h2><p className="text-sm text-ink-500 mt-1">الإجراءات مشتقة من المؤشرات الحالية وتمر عبر خط القرار التنفيذي المعتمد.</p></div><BrainCircuit size={22} /></div>
               <div className="mt-5 space-y-3">{actions.map((action, index) => <button key={action.title} onClick={() => setSelected(index)} className={`w-full text-right rounded-2xl border p-4 transition ${selected === index ? 'border-primary-400 bg-primary-50/50' : 'border-ink-200 hover:bg-ink-50'}`}><div className="flex items-center gap-3"><div className={`h-2.5 w-2.5 rounded-full ${action.status === 'critical' ? 'bg-red-500' : action.status === 'watch' ? 'bg-amber-500' : 'bg-emerald-500'}`} /><div className="flex-1"><p className="font-semibold">{action.title}</p><p className="text-xs text-ink-500 mt-1">{action.impact}</p></div><ChevronLeft size={18} /></div></button>)}</div>
             </div>
             <div className="rounded-2xl border border-ink-200 bg-white p-5">
               <div className="flex items-center gap-2"><CircleAlert size={20} /><h2 className="font-bold">التفسير والأدلة</h2></div>
               <p className="mt-4 text-sm leading-7 text-ink-600">{selectedAction?.title ?? 'لا توجد توصية متاحة حاليًا.'}</p>
               <div className="mt-5 rounded-xl bg-ink-50 p-4"><div className="text-xs text-ink-500">الأثر/المؤشر المرتبط</div><div className="mt-1 font-bold">{selectedAction?.impact ?? 'لا توجد بيانات كافية'}</div></div>
+              {pipelineDecision && <div className="mt-3 rounded-xl border border-primary-100 bg-primary-50 p-4"><div className="text-xs text-primary-700">قرار pipeline الفعلي</div><div className="mt-1 text-sm font-semibold">{pipelineDecision.title}</div><div className="mt-1 text-xs text-ink-600">{pipelineDecision.reason}</div></div>}
               <button className="mt-4 w-full rounded-xl bg-ink-900 text-white py-3 text-sm font-semibold">فتح التحليل التفصيلي <ChevronLeft className="inline mr-1" size={16} /></button>
             </div>
           </section>
