@@ -1,0 +1,48 @@
+name: gp-wire-surfaces-once
+on:
+  push:
+    branches:
+      - runtime/gross-profit-surface-proof
+permissions:
+  contents: write
+jobs:
+  wire:
+    if: ${{ !startsWith(github.event.head_commit.message, 'chore(gp-wire):') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - name: Safe Reports export wiring
+        shell: python
+        run: |
+          from pathlib import Path
+          p = Path('src/pages/ReportsPage.tsx')
+          s = p.read_text()
+          marker = "import type { DashboardKPIs, MonthlyTrend, TopEntity, CategoryBreakdown, AgingBucket } from '@/lib/queries';"
+          if "gross-profit-export" not in s:
+              if marker not in s: raise SystemExit('GP-WIRE: import marker missing; refusing mutation')
+              s = s.replace(marker, marker + "\nimport { exportSalesReportXlsx } from '@/lib/free-toolbox/gross-profit-export';", 1)
+          old = '<button className="btn-secondary text-xs"><Download size={14} /> تصدير</button>'
+          new = '<button type="button" onClick={() => void exportSalesReportXlsx()} className="btn-secondary text-xs"><Download size={14} /> تصدير</button>'
+          if 'exportSalesReportXlsx' not in s or old not in s:
+              raise SystemExit('GP-WIRE: exact SalesReport export placeholder not found; refusing mutation')
+          s = s.replace(old, new, 1)
+          p.write_text(s)
+      - run: npm ci --no-audit --no-fund
+      - run: npm run typecheck
+      - name: Commit exact wiring
+        shell: bash
+        run: |
+          git config user.name 'Report-Engainall GP Closure Bot'
+          git config user.email 'gp-closure-bot@users.noreply.github.com'
+          git add src/pages/ReportsPage.tsx
+          git diff --cached --quiet && exit 0
+          git commit -m 'chore(gp-wire): connect Reports gross profit export'
+          git push
