@@ -1,4 +1,4 @@
-import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 
 const candidates = [
@@ -18,23 +18,14 @@ const self = path.normalize('scripts/prune-proven-legacy-pages.mjs');
 
 function walk(dir, out = []) {
   if (!existsSync(dir)) return out;
-  for (const name of requireFs().readdirSync(dir)) {
+  for (const name of readdirSync(dir)) {
     if (ignored.has(name)) continue;
     const file = path.normalize(path.join(dir, name));
-    const stat = requireFs().statSync(file);
+    const stat = statSync(file);
     if (stat.isDirectory()) walk(file, out);
     else if (sourcePattern.test(name)) out.push(file);
   }
   return out;
-}
-
-let fsModule;
-function requireFs() {
-  if (!fsModule) fsModule = awaitFs();
-  return fsModule;
-}
-function awaitFs() {
-  return { readdirSync: (await import('node:fs')).readdirSync, statSync: (await import('node:fs')).statSync };
 }
 
 function assert(condition, message) {
@@ -86,7 +77,7 @@ for (const candidate of candidates) {
 
   const files = sourceRoots.flatMap(root => walk(path.normalize(root)));
   const refs = collectReferences(files, candidate);
-  assert(refs.length === 0, `active consumers remain for ${candidate.legacySymbol}\\n${refs.join('\\n')}`);
+  assert(refs.length === 0, `active consumers remain for ${candidate.legacySymbol}\n${refs.join('\n')}`);
 
   const app = readFileSync('src/App.tsx', 'utf8');
   assert(app.includes(candidate.canonicalImport), `active route does not import canonical implementation: ${candidate.canonicalImport}`);
