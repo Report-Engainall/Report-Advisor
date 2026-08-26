@@ -1,5 +1,4 @@
 import js from '@eslint/js';
-import globals from 'globals';
 import reactHooks from 'eslint-plugin-react-hooks';
 import reactRefresh from 'eslint-plugin-react-refresh';
 import tseslint from 'typescript-eslint';
@@ -11,7 +10,6 @@ export default tseslint.config(
     files: ['**/*.{ts,tsx}'],
     languageOptions: {
       ecmaVersion: 2022,
-      globals: globals.browser,
     },
     plugins: {
       'react-hooks': reactHooks,
@@ -19,8 +17,9 @@ export default tseslint.config(
     },
     rules: {
       ...reactHooks.configs.recommended.rules,
-      // Keep TypeScript's strict compiler as the blocking type-safety gate.
-      // Existing legacy hygiene findings are warnings during the migration.
+      // Browser/global names are type-checked by TypeScript's DOM lib; keeping
+      // ESLint's no-undef rule off avoids a duplicate environment resolver.
+      'no-undef': 'off',
       '@typescript-eslint/no-explicit-any': 'warn',
       '@typescript-eslint/no-unused-vars': 'warn',
       'prefer-const': 'warn',
