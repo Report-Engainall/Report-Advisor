@@ -1,0 +1,33 @@
+name: gross-profit-static-surface-audit
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - runtime/gross-profit-surface-proof
+permissions:
+  contents: read
+concurrency:
+  group: gross-profit-static-surface-audit
+  cancel-in-progress: false
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: Static Gross Profit surface audit
+        run: node scripts/gross-profit-static-surface-audit.mjs
+      - name: Upload static evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: gross-profit-static-surface-audit
+          path: gross-profit-static-surface-audit.json
+          if-no-files-found: error
