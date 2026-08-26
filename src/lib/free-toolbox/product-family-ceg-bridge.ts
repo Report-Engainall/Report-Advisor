@@ -53,5 +53,5 @@ export function validateFamilyCegSeparation(
 }
 
 export function familySuggestionToLink(suggestion: ProductFamilySuggestion, familyId: string): FamilySkuLink[] {
-  return suggestion.skuIds.map(skuId => ({ familyId, skuId, approved: false, locked: false }));
+  return suggestion.memberSkus.map(skuId => ({ familyId, skuId, approved: false, locked: false }));
 }
