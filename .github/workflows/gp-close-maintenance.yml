@@ -3,68 +3,28 @@ on:
   push:
     branches:
       - runtime/gross-profit-surface-proof
+  workflow_dispatch:
 permissions:
-  contents: write
+  contents: read
 jobs:
-  patch:
-    if: ${{ !startsWith(github.event.head_commit.message, 'chore(gp-bot):') }}
+  verify:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v5
         with:
+          ref: ${{ github.sha }}
           fetch-depth: 1
+          persist-credentials: false
+      - name: Assert exact HEAD
+        shell: bash
+        run: test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
       - uses: actions/setup-node@v5
         with:
           node-version: 22
-      - name: Apply controlled Gross Profit closure patch
-        shell: python
-        run: |
-          from pathlib import Path
-          import re
-
-          # 1) Export: only wire the SalesReportPage's existing presentation button.
-          p = Path('src/pages/ReportsPage.tsx')
-          s = p.read_text()
-          marker = "import type { DashboardKPIs, MonthlyTrend, TopEntity, CategoryBreakdown, AgingBucket } from '@/lib/queries';"
-          if "gross-profit-export" not in s:
-              s = s.replace(marker, marker + "\nimport { exportSalesReportXlsx } from '@/lib/free-toolbox/gross-profit-export';", 1)
-          old = '<button className="btn-secondary text-xs"><Download size={14} /> تصدير</button>'
-          new = '<button type="button" onClick={() => void exportSalesReportXlsx()} className="btn-secondary text-xs"><Download size={14} /> تصدير</button>'
-          if old not in s:
-              raise SystemExit('Sales export placeholder not found; refusing unsafe broad replacement')
-          s = s.replace(old, new, 1)
-          p.write_text(s)
-
-          # 2) Date boundaries: make the actual Dashboard KPI sales query accept an inclusive range.
-          q = Path('src/lib/queries.ts')
-          t = q.read_text()
-          if 'export interface DashboardKPIOptions' not in t:
-              t = t.replace('export interface DashboardKPIs {', 'export interface DashboardKPIOptions { startDate?: string; endDate?: string; }\n\nexport interface DashboardKPIs {', 1)
-          t = t.replace('export async function fetchDashboardKPIs(): Promise<DashboardKPIs> {', 'export async function fetchDashboardKPIs(options: DashboardKPIOptions = {}): Promise<DashboardKPIs> {\n  const { startDate, endDate } = options;', 1)
-          oldq = ".select('id, total, paid_amount, subtotal, tax_amount, status, invoice_date, due_date');"
-          newq = oldq + "\n    .gte('invoice_date', startDate ?? '1900-01-01')\n    .lte('invoice_date', endDate ?? '9999-12-31');"
-          if oldq in t and '.gte(\'invoice_date\', startDate' not in t:
-              t = t.replace(oldq, newq, 1)
-          q.write_text(t)
-
-          # 3) Append-only evidence artifact for the two changes.
-          d = Path('docs/evidence')
-          d.mkdir(parents=True, exist_ok=True)
-          evidence = d / 'GP-CLOSURE-EXECUTION-2026-08-26.md'
-          if not evidence.exists():
-              evidence.write_text('''# Gross Profit Closure Execution — 2026-08-26\n\nStatus: PARTIAL — implementation changes landed; runtime certification remains blocked by external CERT_* configuration.\n\n## Findings and fixes\n\n- Executive Command Center is now an actual consumer of `runExecutivePipeline()` using the live Dashboard KPI result as its input.\n- Sales Report export button is wired to a dedicated XLSX loader/exporter; the exporter loads the complete tenant-visible invoice dataset rather than the 20-row presentation page.\n- Dashboard KPI sales query now accepts inclusive `startDate`/`endDate` boundaries using `.gte` and `.lte`.\n- No runtime PASS is claimed by this artifact.\n\n## Required regression\n\n- Exact-head typecheck/lint/build/quality.\n- Date boundary regression: start included, end included, outside excluded.\n- Export regression: presentation 20, export 25+ when available.\n- Authenticated runtime remains NOT PROVEN until CERT_* secrets are available.\n''')
-
-      - name: Install dependencies
-        run: npm ci --no-audit --no-fund
-      - name: Typecheck before commit
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: Canonical Gross Profit semantic regression
+        run: node --experimental-strip-types scripts/gross-profit-semantic-regression.mjs
+      - name: Typecheck
         run: npm run typecheck
-      - name: Commit controlled patch
-        shell: bash
-        run: |
-          git config user.name 'Report-Engainall GP Closure Bot'
-          git config user.email 'gp-closure-bot@users.noreply.github.com'
-          git add src/pages/ReportsPage.tsx src/lib/queries.ts docs/evidence/GP-CLOSURE-EXECUTION-2026-08-26.md
-          git diff --cached --quiet && exit 0
-          git commit -m 'chore(gp-bot): close GP export and date boundaries'
-          git push
