@@ -102,6 +102,8 @@ jobs:
         run: npm run test:wave03-backup
       - name: Execution Wave 03 watched folder
         run: npm run test:wave03-watcher
+      - name: Wave 04 real consumer and authority proof
+        run: npm run test:wave04-consumer-proof
       - name: Decision evidence regressions
         run: node --experimental-strip-types scripts/decision-evidence-regression.test.ts
       - name: Routing and security contracts (parallel discovery)
