@@ -6,6 +6,7 @@ const workflowDir = path.join(root, '.github/workflows');
 const read = (file) => fs.readFileSync(path.join(root, file), 'utf8');
 
 const quality = read('.github/workflows/quality.yml');
+const productionBoundary = read('.github/workflows/production-evidence-boundary.yml');
 const jkl = read('.github/workflows/j-k-l-runtime-wave.yml');
 const autonomy = read('.github/workflows/autonomy-safety-wave.yml');
 const phaseF = read('.github/workflows/phase-f-live-resilience.yml');
@@ -26,6 +27,12 @@ for (const gate of requiredQualityGates) {
 }
 if (!quality.includes('push: {branches: [main]}')) {
   throw new Error('Quality must remain the canonical main push gate');
+}
+if (!/^  push:\s*\n(?:    .*\n)*?\s{4}branches:\s*\[main\]/m.test(productionBoundary)) {
+  throw new Error('Production evidence boundary must retain an explicit main push trigger');
+}
+if (!productionBoundary.includes('node scripts/check-production-certification-contract.mjs')) {
+  throw new Error('Production evidence boundary must execute the direct certification contract');
 }
 
 for (const [name, text] of [
@@ -90,8 +97,8 @@ if (nonCanonicalBroad.length) {
   throw new Error(`Non-canonical broad push workflows are not allowed: ${nonCanonicalBroad.join(', ')}`);
 }
 
-if (productionBoundaryWorkflows.length > 1) {
-  throw new Error(`Only one production evidence boundary workflow is allowed, found: ${productionBoundaryWorkflows.join(', ')}`);
+if (productionBoundaryWorkflows.length !== 1) {
+  throw new Error(`Expected exactly one production evidence boundary workflow, found: ${productionBoundaryWorkflows.join(', ') || 'none'}`);
 }
 
 console.log(JSON.stringify({
