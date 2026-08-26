@@ -12,7 +12,7 @@ Base: `main @ 4095e0f0d427652eb705ba3955389ae978d7b5bf`
 No historical PASS promotion. No scanner-only closure. No runtime/LIVE/production claims without matching evidence.
 
 ## Exact state
-- Last code/workflow HEAD before this Index commit: `0569d747db6c4de2c458cc4cd2806313e9b08584`.
+- Last code/workflow HEAD before this Index commit: `de517abc0e4b3c2ccae0dba86045a5257eab8e8d`.
 - This Index commit is separate from the code/test fix and therefore needs its own exact-head CI evidence.
 - Exact CI for the current code HEAD is **NOT CLAIMED** until independently observable.
 - Current branch-head PASS is **NOT CLAIMED**.
@@ -57,11 +57,21 @@ Fix:
 - The existing canonical `unknownRows` warning remains the explicit incomplete-data signal.
 
 Regression:
-`scripts/dashboard-canonical-regression.mjs` now proves:
-- `ReportsPage` consumes `snapshot.totalValue`.
-- `ReportsPage` does not consume `fetchInventoryValuation()`.
-- repository-wide source scan finds zero non-compatibility consumers of `fetchInventoryValuation()`.
-- the inventory migration drops both historical overloaded signatures.
+`scripts/dashboard-canonical-regression.mjs` proves the consumer migration and zero non-compatibility consumers of the legacy valuation symbol.
+
+Status: `IMPLEMENTED → REGRESSION → CONSUMER VERIFIED`; exact-head CI still pending/not observable.
+
+### Inventory balance query removal
+Finding: `fetchInventoryBalances()` in `queries.ts` was an unbounded browser read of `inventory_balances`.
+
+Consumer inventory found no remaining non-compatibility consumers after the Inventory Report and Entity inventory pages were migrated to `fetchInventoryReportSnapshot()`.
+
+Root cause: the legacy query remained as compatibility surface after all known business consumers had moved to the authoritative snapshot.
+
+Fix:
+- Removed `fetchInventoryBalances()` from `queries.ts`.
+- Added repository-wide regression proof that no `src` consumer references `fetchInventoryBalances()` outside the compatibility files and that the query itself is absent.
+- The canonical inventory snapshot remains the sole migrated inventory report/entity business source.
 
 Status: `IMPLEMENTED → REGRESSION → CONSUMER VERIFIED`; exact-head CI still pending/not observable.
 
@@ -104,6 +114,7 @@ The regression contract covers:
 - inventory valuation fail-closed behavior;
 - ReportsPage canonical valuation consumer;
 - repository-wide zero non-compatibility consumers for legacy inventory valuation;
+- zero consumers before inventory balance query removal;
 - bounded inventory consumers;
 - RFM/ABC/Aging tenant/status contracts;
 - AnalyticsPage absence of direct transactional reads;
@@ -112,18 +123,19 @@ The regression contract covers:
 A prior CI failure exposed the inventory RPC signature mismatch. Root cause was migration cleanup dropping only the older 2-argument signature while the branch had a 3-argument authoritative contract. This was fixed by explicitly dropping both `(integer,integer,text)` and `(integer,integer)` before replacement.
 
 ## Remaining P0/P1
-1. Inventory all consumers of `fetchInventoryBalances()` before any removal.
-2. Classify/narrow `queries-compat.ts` only after consumer/dependency proof.
-3. Sweep BI, Decision Metrics, Exports, Forecasts, Demand Velocity and Inventory Intelligence for browser business truth.
-4. Cross-surface equivalence: Dashboard = Reports = Analytics = BI = Exports = Decisions.
-5. Product-page margin NULL/zero contract review.
-6. Data-quality aggregation classification.
-7. Tenant runtime isolation across DB/Storage/Realtime/AI/vector/worker/notification.
+1. Classify/narrow `queries-compat.ts` function-by-function only after consumer/dependency proof.
+2. Sweep BI, Decision Metrics, Exports, Forecasts, Demand Velocity and Inventory Intelligence for browser business truth.
+3. Cross-surface equivalence: Dashboard = Reports = Analytics = BI = Exports = Decisions.
+4. Product-page margin NULL/zero contract review.
+5. Data-quality aggregation classification.
+6. Tenant runtime isolation across DB/Storage/Realtime/AI/vector/worker/notification.
+7. Repository-wide direct Supabase/business-calculation sibling sweep outside the migrated inventory/dashboard/analytics families.
 
 ## Performance evidence
 - Dashboard business aggregates server-side.
 - Inventory rows bounded 1–100 and independent of business totals.
 - Inventory valuation is now sourced from the same canonical snapshot as inventory totals/status.
+- The unbounded `fetchInventoryBalances()` compatibility query is removed.
 - RFM/ABC bounded.
 - Analytics no longer transfers full transactional histories.
 - Production-scale query plans, latency, load and capacity remain LIVE REQUIRED.
@@ -133,7 +145,7 @@ A prior CI failure exposed the inventory RPC signature mismatch. Root cause was 
 - IMPLEMENTED: PASS for migrated families.
 - REGRESSION: implemented and workflow-gated.
 - GATED: exact current HEAD must be independently verified.
-- CONSUMER VERIFIED: inventory valuation consumer migration verified by repository-wide regression; broader inventory family remains open.
+- CONSUMER VERIFIED: inventory balance query removal and valuation migration have repository-wide static consumer proof plus behavioral regression; broader canonical inventory equivalence remains open.
 - RUNTIME VERIFIED: NO CLAIM.
 - LIVE VERIFIED: NO.
 - PRODUCTION CERTIFIED: NO.
@@ -153,9 +165,8 @@ A prior CI failure exposed the inventory RPC signature mismatch. Root cause was 
 12. Production query-plan/scale evidence.
 
 ## Next execution
-- First: inventory `fetchInventoryBalances()` consumers repository-wide and migrate each real business consumer before considering removal.
-- Then: classify remaining `queries-compat.ts` exports function-by-function.
-- Then: sweep BI → Decisions → Exports → Forecast/Demand Velocity → Inventory Intelligence.
+- First: classify `queries-compat.ts` remaining exports and identify real business consumers versus compatibility/presentation infrastructure.
+- In parallel: repository-wide BI/Decision/Export/Forecast/Demand Velocity/Inventory Intelligence business aggregation sweep.
 - Add cross-surface behavioral equivalence invariants using identical tenant/date/status/as-of inputs.
 - Continue security/runtime preparation in parallel.
 
