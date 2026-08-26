@@ -1,5 +1,6 @@
 import * as XLSX from 'xlsx';
 import { supabase } from '../supabase';
+import { isGrossProfitDateInRange } from '../grossProfitTruthCore';
 
 export interface GrossProfitExportRow {
   invoice_number: string;
@@ -11,7 +12,7 @@ export interface GrossProfitExportRow {
   cost: number | null;
   gross_profit: number | null;
   gross_margin: number | null;
-  quantity: number;
+  quantity: number | null;
 }
 
 export interface GrossProfitExportArtifact {
@@ -19,7 +20,7 @@ export interface GrossProfitExportArtifact {
   revenue: number | null;
   cost: number | null;
   gross_profit: number | null;
-  quantity: number;
+  quantity: number | null;
   tenant: string[];
   currency: string | null;
   date_range: { startDate: string | null; endDate: string | null };
@@ -33,9 +34,10 @@ const APPROVED = ['confirmed', 'posted', 'paid'];
 export async function loadCompleteGrossProfitExport(range: { startDate?: string; endDate?: string } = {}): Promise<GrossProfitExportRow[]> {
   const invoices: Array<{ id: string; company_id: string; invoice_number: string; invoice_date: string; status: string; total: number | null; currency: string | null }> = [];
   for (let offset = 0; ; offset += PAGE_SIZE) {
-    const { data, error } = await supabase.from('sales_invoices').select('id, company_id, invoice_number, invoice_date, status, total, currency').in('status', APPROVED).gte('invoice_date', range.startDate ?? '1900-01-01').lte('invoice_date', range.endDate ?? '9999-12-31').order('invoice_date', { ascending: true }).range(offset, offset + PAGE_SIZE - 1);
+    const { data, error } = await supabase.from('sales_invoices').select('id, company_id, invoice_number, invoice_date, status, total, currency').in('status', APPROVED).order('invoice_date', { ascending: true }).range(offset, offset + PAGE_SIZE - 1);
     if (error) throw error;
-    invoices.push(...(data ?? []));
+    const filtered = (data ?? []).filter(invoice => isGrossProfitDateInRange(invoice.invoice_date, range));
+    invoices.push(...filtered);
     if (!data || data.length < PAGE_SIZE) break;
   }
   if (!invoices.length) return [];
@@ -48,17 +50,22 @@ export async function loadCompleteGrossProfitExport(range: { startDate?: string;
     items.push(...(data ?? []));
   }
 
-  const byInvoice = new Map<string, { cost: number | null; quantity: number }>();
+  const byInvoice = new Map<string, { cost: number | null; quantity: number | null }>();
   for (const item of items) {
     const previous = byInvoice.get(item.invoice_id) ?? { cost: 0, quantity: 0 };
-    previous.quantity += Number(item.quantity ?? 0);
-    if (item.cost_price === null || item.cost_price === undefined) previous.cost = null;
-    else if (previous.cost !== null) previous.cost += Number(item.cost_price) * Number(item.quantity ?? 0);
+    if (item.quantity === null || item.quantity === undefined) {
+      previous.quantity = null;
+      previous.cost = null;
+    } else if (previous.quantity !== null) {
+      previous.quantity += Number(item.quantity);
+      if (item.cost_price === null || item.cost_price === undefined) previous.cost = null;
+      else if (previous.cost !== null) previous.cost += Number(item.cost_price) * Number(item.quantity);
+    }
     byInvoice.set(item.invoice_id, previous);
   }
 
   return invoices.map(invoice => {
-    const aggregate = byInvoice.get(invoice.id) ?? { cost: null, quantity: 0 };
+    const aggregate = byInvoice.get(invoice.id) ?? { cost: null, quantity: null };
     const revenue = invoice.total;
     const grossProfit = revenue === null || aggregate.cost === null ? null : revenue - aggregate.cost;
     return {
@@ -82,15 +89,17 @@ export function buildGrossProfitExportArtifact(rows: GrossProfitExportRow[], ran
   const missingCurrency = rows.some(row => row.currency === null);
   const mixedCurrency = currencies.length > 1;
   const hasMissingCost = rows.some(row => row.cost === null);
-  const revenue = missingRevenue ? null : rows.reduce((sum, row) => sum + (row.revenue ?? 0), 0);
+  const hasMissingQuantity = rows.some(row => row.quantity === null);
+  const revenue = missingRevenue || missingCurrency || mixedCurrency ? null : rows.reduce((sum, row) => sum + (row.revenue ?? 0), 0);
   const cost = missingCurrency || mixedCurrency || hasMissingCost ? null : rows.reduce((sum, row) => sum + (row.cost ?? 0), 0);
-  const status = missingRevenue || missingCurrency || mixedCurrency || hasMissingCost ? 'INSUFFICIENT_DATA' : 'COMPLETE';
+  const quantity = hasMissingQuantity ? null : rows.reduce((sum, row) => sum + (row.quantity ?? 0), 0);
+  const status = missingRevenue || missingCurrency || mixedCurrency || hasMissingCost || hasMissingQuantity ? 'INSUFFICIENT_DATA' : 'COMPLETE';
   return {
     row_count: rows.length,
     revenue,
     cost,
     gross_profit: status === 'COMPLETE' && revenue !== null && cost !== null ? revenue - cost : null,
-    quantity: rows.reduce((sum, row) => sum + row.quantity, 0),
+    quantity,
     tenant: [...new Set(rows.map(row => row.tenant))],
     currency: currencies.length === 1 && !missingCurrency ? currencies[0] : null,
     date_range: { startDate: range.startDate ?? null, endDate: range.endDate ?? null },
