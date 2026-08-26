@@ -2,6 +2,7 @@ import fs from 'node:fs';
 
 const read = (p) => fs.readFileSync(p, 'utf8');
 const reports = read('src/pages/ReportsPage.tsx');
+const executive = read('src/pages/ExecutiveCommandCenterPage.tsx');
 const analytics = read('src/lib/canonical-analytics.ts');
 const secondary = read('src/lib/canonical-secondary-data-truth.ts');
 const exportsLoader = read('src/lib/report-export-data.ts');
@@ -24,7 +25,9 @@ const assertions = [
   ['aging has explicit as-of', agingSql.includes('p_as_of date') && agingSql.includes('v_as_of date')],
   ['export loader is tenant-authoritative and bounded', exportsLoader.includes('resolveCurrentCompanyId') && exportsLoader.includes('EXPORT_MAX_ROWS = 5000')],
   ['secondary adapter preserves nullable business values', secondary.includes('value: number | null') && secondary.includes('finiteOrNull(row.value)')],
-  ['decision score fails closed on missing factors', decisionScore.includes('score: number | null') && decisionScore.includes('INSUFFICIENT_DATA') && decisionScore.includes("band: 'BLOCKED'")],
+  ['decision score fails closed on missing factors', decisionScore.includes('score: number | null') && decisionScore.includes('INSUFFICIENT_DATA') && decisionScore.includes("band: 'BLOCKED'" )],
+  ['executive command center uses canonical KPI source', executive.includes('fetchCanonicalDashboardKPIs') && !executive.includes('fetchDashboardKPIs') && !executive.includes('dashboard-kpi-guards')],
+  ['executive command center does not expose a misleading unused period selector', !executive.includes("setPeriod") && !executive.includes("['7','30','90']")],
 ];
 
 for (const [name, ok] of assertions) {
