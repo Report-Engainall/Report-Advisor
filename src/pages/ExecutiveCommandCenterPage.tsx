@@ -14,31 +14,34 @@ function getCollectionStatus(rate: number): Status { if (rate >= 80) return 'goo
 function statusLabel(status: Status) { return status === 'good' ? 'مستقر' : status === 'watch' ? 'مراقبة' : 'حرج'; }
 function buildExecutiveActions(kpi: DashboardKPIs): ActionCandidate[] {
   const overdueRate = kpi.totalReceivables > 0 ? (kpi.overdueReceivables / kpi.totalReceivables) * 100 : 0;
-  const marginAvailable = kpi.grossMargin !== null;
+  const margin = kpi.grossMargin;
   return [
     { id: 'collections', title: overdueRate >= 15 ? 'رفع التحصيل من العملاء المتأخرين' : 'مواصلة متابعة التحصيل', impact: Math.min(100, overdueRate * 2), urgency: Math.min(100, overdueRate * 2), effort: 35, confidence: 95 },
-    { id: 'margin', title: !marginAvailable ? 'استكمال بيانات التكلفة قبل تقييم الهامش' : kpi.grossMargin < 15 ? 'مراجعة هوامش الأصناف منخفضة الربحية' : 'مراجعة فرص تحسين الهامش', impact: marginAvailable ? Math.min(100, Math.max(0, 30 - kpi.grossMargin) * 3) : 0, urgency: marginAvailable ? Math.min(100, Math.max(0, 25 - kpi.grossMargin) * 3) : 0, effort: 45, confidence: marginAvailable && kpi.totalCost !== null ? 90 : 55 },
+    { id: 'margin', title: margin === null ? 'استكمال بيانات التكلفة قبل تقييم الهامش' : margin < 15 ? 'مراجعة هوامش الأصناف منخفضة الربحية' : 'مراجعة فرص تحسين الهامش', impact: margin === null ? 0 : Math.min(100, Math.max(0, 30 - margin) * 3), urgency: margin === null ? 0 : Math.min(100, Math.max(0, 25 - margin) * 3), effort: 45, confidence: margin !== null && kpi.totalCost !== null ? 90 : 55 },
     { id: 'cash-cycle', title: kpi.collectionRate < 70 ? 'تحسين دورة التحصيل' : 'الحفاظ على كفاءة التحصيل', impact: Math.min(100, Math.max(0, 100 - kpi.collectionRate)), urgency: Math.min(100, Math.max(0, 90 - kpi.collectionRate)), effort: 30, confidence: 90 },
   ];
 }
 
 export function ExecutiveCommandCenterPage() {
   const [period, setPeriod] = useState('30'); const [selected, setSelected] = useState(0); const [kpis, setKpis] = useState<DashboardKPIs | null>(null); const [loading, setLoading] = useState(true); const [error, setError] = useState<string | null>(null);
-  useEffect(() => { let active = true; setLoading(true); setError(null); fetchDashboardKPIs().then((data) => { if (active) setKpis(data); }).catch(() => { if (active) setError('تعذر تحميل مؤشرات مركز القيادة.'); }).finally(() => { if (active) setLoading(false); }); return () => { active = false; }; }, [period]);
+  useEffect(() => { let active = true; setLoading(true); setError(null); fetchDashboardKPIs({ startDate: new Date(Date.now() - Number(period) * 86400000).toISOString().slice(0, 10), endDate: new Date().toISOString().slice(0, 10) }).then((data) => { if (active) setKpis(data); }).catch(() => { if (active) setError('تعذر تحميل مؤشرات مركز القيادة.'); }).finally(() => { if (active) setLoading(false); }); return () => { active = false; }; }, [period]);
   const executive = useMemo(() => {
-    if (!kpis || kpis.status === 'INSUFFICIENT_DATA' || kpis.grossMargin === null || kpis.grossProfit === null) return null;
+    if (!kpis || kpis.status === 'INSUFFICIENT_DATA' || kpis.grossMargin === null || kpis.grossProfit === null || kpis.totalSales === null || kpis.totalCost === null) return null;
     const actions = buildExecutiveActions(kpis);
     const quality = { completeness: 100, validity: 100, consistency: 100, uniqueness: 100, timeliness: 100 };
+    const revenue = kpis.totalSales;
+    const grossProfit = kpis.grossProfit;
+    const grossMargin = kpis.grossMargin;
     return runExecutivePipeline({
-      series: [{ period: new Date().toISOString().slice(0, 10), value: kpis.totalSales }],
+      series: [{ period: new Date().toISOString().slice(0, 10), value: revenue }],
       signals: [
         { id: 'overdue-rate', label: 'نسبة الذمم المتأخرة', value: kpis.totalReceivables > 0 ? (kpis.overdueReceivables / kpis.totalReceivables) * 100 : 0, history: [], direction: 'higher-risk', staticThreshold: 15 },
-        { id: 'gross-margin', label: 'الهامش الإجمالي', value: kpis.grossMargin, history: [], direction: 'lower-risk', staticThreshold: 10 },
+        { id: 'gross-margin', label: 'الهامش الإجمالي', value: grossMargin, history: [], direction: 'lower-risk', staticThreshold: 10 },
         { id: 'collection-rate', label: 'معدل التحصيل', value: kpis.collectionRate, history: [], direction: 'lower-risk', staticThreshold: 70 },
       ], actions, quality,
       kpis: [
-        { id: 'revenue', label: 'المبيعات', value: kpis.totalSales, target: kpis.totalSales, higherIsBetter: true },
-        { id: 'gross_profit', label: 'مجمل الربح', value: kpis.grossProfit, target: Math.max(0, kpis.totalSales * 0.2), higherIsBetter: true },
+        { id: 'revenue', label: 'المبيعات', value: revenue, target: revenue, higherIsBetter: true },
+        { id: 'gross_profit', label: 'مجمل الربح', value: grossProfit, target: Math.max(0, revenue * 0.2), higherIsBetter: true },
         { id: 'collection_rate', label: 'معدل التحصيل', value: kpis.collectionRate, target: 80, higherIsBetter: true },
       ],
     });
@@ -49,11 +52,11 @@ export function ExecutiveCommandCenterPage() {
     { label: 'قيمة المخزون', value: formatNumber(kpis.inventoryValue), status: kpis.inventoryValue > 0 ? 'good' : 'watch', icon: Activity },
     { label: 'الذمم المتأخرة', value: formatNumber(kpis.overdueReceivables), status: getReceivableStatus(kpis), icon: ShieldAlert },
   ]; }, [kpis]);
-  const actions = useMemo(() => { if (!kpis) return []; const overdueRate = kpis.totalReceivables > 0 ? (kpis.overdueReceivables / kpis.totalReceivables) * 100 : 0; const marginAvailable = kpis.grossMargin !== null; return [
+  const actions = useMemo(() => { if (!kpis) return []; const overdueRate = kpis.totalReceivables > 0 ? (kpis.overdueReceivables / kpis.totalReceivables) * 100 : 0; const margin = kpis.grossMargin; return [
     { title: overdueRate >= 15 ? 'رفع التحصيل من العملاء المتأخرين' : 'مواصلة متابعة التحصيل', impact: `${formatPercent(overdueRate)} من الذمم مستحقة ومتأخرة`, status: overdueRate >= 35 ? 'critical' : overdueRate >= 15 ? 'watch' : 'good' },
-    { title: !marginAvailable ? 'استكمال بيانات التكلفة قبل تقييم الهامش' : kpis.grossMargin < 15 ? 'مراجعة هوامش الأصناف منخفضة الربحية' : 'مراجعة فرص تحسين الهامش', impact: marginAvailable ? `الهامش الإجمالي الحالي ${formatPercent(kpis.grossMargin)}` : 'الهامش غير متاح — التكلفة غير مكتملة', status: !marginAvailable ? 'watch' : kpis.grossMargin < 10 ? 'critical' : kpis.grossMargin < 20 ? 'watch' : 'good' },
+    { title: margin === null ? 'استكمال بيانات التكلفة قبل تقييم الهامش' : margin < 15 ? 'مراجعة هوامش الأصناف منخفضة الربحية' : 'مراجعة فرص تحسين الهامش', impact: margin === null ? 'الهامش غير متاح — التكلفة غير مكتملة' : `الهامش الإجمالي الحالي ${formatPercent(margin)}`, status: margin === null ? 'watch' : margin < 10 ? 'critical' : margin < 20 ? 'watch' : 'good' },
     { title: kpis.collectionRate < 70 ? 'تحسين دورة التحصيل' : 'الحفاظ على كفاءة التحصيل', impact: `معدل التحصيل ${formatPercent(kpis.collectionRate)}`, status: getCollectionStatus(kpis.collectionRate) },
-  ]; }, [kpis]);
+  ] as Array<{title:string;impact:string;status:Status}>; }, [kpis]);
   const selectedAction = actions[selected] ?? actions[0]; const pipelineDecision = executive?.decisions[selected] ?? executive?.decisions[0];
   return <div dir="rtl" className="space-y-6">
     <section className="relative overflow-hidden rounded-3xl bg-ink-950 text-white p-6 lg:p-8"><div className="absolute -left-20 -top-20 h-64 w-64 rounded-full bg-primary-500/20 blur-3xl" /><div className="relative flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5"><div><div className="flex items-center gap-2 text-primary-300 text-sm font-medium"><Sparkles size={16} /> مركز القيادة التنفيذي</div><h1 className="mt-2 text-2xl lg:text-3xl font-bold">صورة العمل الآن</h1><p className="mt-2 text-ink-300 max-w-2xl">مؤشرات حقيقية من بيانات الشركة، مع تفسير للإجراءات ذات الأولوية. الفترة الحالية هي نطاق العرض، بينما المؤشرات المعروضة تعتمد على مصدر البيانات المعتمد.</p></div><div className="flex items-center gap-2 rounded-2xl bg-white/10 p-1">{['7', '30', '90'].map((value) => <button key={value} onClick={() => setPeriod(value)} className={`px-4 py-2 rounded-xl text-sm ${period === value ? 'bg-white text-ink-900' : ''}`}>{value} يوم</button>)}</div></div></section>
