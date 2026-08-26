@@ -21,6 +21,9 @@ export function evaluateIntelligenceGate(input: IntelligenceGateInput): Intellig
   if (input.forecast.improvementVsBaselinePct < minImprovement) blockers.push('FORECAST_BELOW_BASELINE');
   if (Math.abs(input.forecast.bias) > maxBias) blockers.push('FORECAST_BIAS_TOO_HIGH');
   if (input.forecast.coverage !== undefined && input.forecast.coverage < minCoverage) blockers.push('FORECAST_COVERAGE_LOW');
-  if (input.outcomes && input.outcomes.count >= 5 && input.outcomes.accuracy < (input.minimumOutcomeAccuracy ?? 0.6)) blockers.push('OUTCOME_ACCURACY_LOW');
+  if (input.outcomes && input.outcomes.count >= 5) {
+    if (input.outcomes.accuracy === null || !Number.isFinite(input.outcomes.accuracy)) blockers.push('OUTCOME_ACCURACY_INSUFFICIENT_DATA');
+    else if (input.outcomes.accuracy < (input.minimumOutcomeAccuracy ?? 0.6)) blockers.push('OUTCOME_ACCURACY_LOW');
+  }
   return { ready: blockers.length === 0, blockers };
 }
