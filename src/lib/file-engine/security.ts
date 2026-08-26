@@ -1,14 +1,10 @@
 import { resolveCurrentCompanyId, supabase } from '../supabase';
 import type { SecurityScanResult } from './types';
 import { MAX_FILE_SIZE } from './types';
+import { computeSHA256 } from './file-identity-core';
+export { computeSHA256 } from './file-identity-core';
 
 interface FileRecord { id: string; company_id: string; file_name: string; file_hash: string; created_at: string; status: string; }
-
-export async function computeSHA256(buffer: ArrayBuffer): Promise<string> {
-  if (!globalThis.crypto?.subtle) throw new Error('SHA256_UNAVAILABLE');
-  const hash = await globalThis.crypto.subtle.digest('SHA-256', buffer);
-  return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
-}
 
 export function securityScan(file: File, buffer: ArrayBuffer): SecurityScanResult {
   const issues: string[] = []; let isArchiveBomb = false; let isZipTraversal = false;
