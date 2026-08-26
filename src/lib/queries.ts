@@ -1,6 +1,6 @@
 import { supabase, resolveCurrentCompanyId } from './supabase';
 import { fetchDashboardSnapshot, fetchDashboardIntelligence, type DashboardKPIs, type MonthlyTrend, type TopEntity, type AgingBucket, type CategoryBreakdown } from './dashboard-canonical';
-import type { Recommendation, Alert, SalesInvoice, PurchaseInvoice, InventoryBalance, ImportRecord, Customer, Forecast, Product } from './types';
+import type { Recommendation, Alert, SalesInvoice, PurchaseInvoice, ImportRecord, Customer, Forecast, Product } from './types';
 
 export type { DashboardKPIs, MonthlyTrend, TopEntity, AgingBucket, CategoryBreakdown };
 
@@ -20,7 +20,6 @@ export async function fetchAlerts(): Promise<Alert[]> { return (await fetchDashb
 
 export async function fetchSalesInvoices(page=0,pageSize=20):Promise<{data:SalesInvoice[];count:number|null}>{if(!Number.isInteger(page)||page<0)throw new Error('REPORT_QUERY_INVALID_PAGE');if(!Number.isInteger(pageSize)||pageSize<1||pageSize>500)throw new Error('REPORT_QUERY_INVALID_PAGE_SIZE');const from=page*pageSize,to=from+pageSize-1,{data,count,error}=await supabase.from('sales_invoices').select('*, customer:customers(id,name)',{count:'exact'}).order('invoice_date',{ascending:false}).range(from,to);if(error)throw error;return{data:(data??[]) as SalesInvoice[],count};}
 export async function fetchPurchaseInvoices(page=0,pageSize=20):Promise<{data:PurchaseInvoice[];count:number|null}>{if(!Number.isInteger(page)||page<0)throw new Error('REPORT_QUERY_INVALID_PAGE');if(!Number.isInteger(pageSize)||pageSize<1||pageSize>500)throw new Error('REPORT_QUERY_INVALID_PAGE_SIZE');const from=page*pageSize,to=from+pageSize-1,{data,count,error}=await supabase.from('purchase_invoices').select('*, supplier:suppliers(id,name)',{count:'exact'}).order('invoice_date',{ascending:false}).range(from,to);if(error)throw error;return{data:(data??[]) as PurchaseInvoice[],count};}
-export async function fetchInventoryBalances():Promise<InventoryBalance[]>{const {data,error}=await supabase.from('inventory_balances').select('*, product:products(id,name,reorder_point), warehouse:warehouses(id,name)').order('updated_at',{ascending:false});if(error)throw error;return(data??[]) as InventoryBalance[];}
 
 type ImportRecordInput = Omit<ImportRecord, 'id' | 'company_id' | 'created_at' | 'error_message' | 'completed_at'>;
 type ImportRecordPatch = Partial<Pick<ImportRecord, 'status' | 'progress' | 'error_message' | 'completed_at'>>;
