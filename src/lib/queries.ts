@@ -6,9 +6,9 @@ import type {
 
 export interface DashboardKPIs {
   totalSales: number;
-  totalCost: number;
-  grossProfit: number;
-  grossMargin: number;
+  totalCost: number | null;
+  grossProfit: number | null;
+  grossMargin: number | null;
   totalReceivables: number;
   overdueReceivables: number;
   totalPayables: number;
@@ -82,9 +82,12 @@ export async function fetchDashboardKPIs(): Promise<DashboardKPIs> {
   if (purchasesError) throw purchasesError;
 
   const totalSales = invArr.reduce((s: number, inv: any) => s + Number(inv.subtotal || 0), 0);
-  const totalCost = ((items || []) as any[]).reduce((s: number, item: any) => s + Number(item.cost_price || 0) * Number(item.quantity || 0), 0);
-  const grossProfit = totalSales - totalCost;
-  const grossMargin = totalSales > 0 ? (grossProfit / totalSales) * 100 : 0;
+  const itemRows = (items || []) as any[];
+  const totalCost = itemRows.some((item: any) => item.cost_price === null || item.cost_price === undefined || item.cost_price === '')
+    ? null
+    : itemRows.reduce((s: number, item: any) => s + Number(item.cost_price) * Number(item.quantity || 0), 0);
+  const grossProfit = totalCost === null ? null : totalSales - totalCost;
+  const grossMargin = grossProfit === null ? null : totalSales > 0 ? (grossProfit / totalSales) * 100 : 0;
   const totalReceivables = invArr.reduce((s: number, inv: any) => s + Number(inv.total || 0) - Number(inv.paid_amount || 0), 0);
   const today = new Date().toISOString().split('T')[0];
   const overdueReceivables = invArr.filter((inv: any) => inv.due_date && inv.due_date < today && Number(inv.paid_amount || 0) < Number(inv.total || 0))
@@ -92,6 +95,7 @@ export async function fetchDashboardKPIs(): Promise<DashboardKPIs> {
   const totalPayables = ((purchases || []) as any[]).reduce((s: number, pur: any) => s + Number(pur.total || 0) - Number(pur.paid_amount || 0), 0);
   const inventoryValue = ((balances || []) as any[]).reduce((s: number, b: any) => s + Number(b.quantity || 0) * Number(b.unit_cost || 0), 0);
   const invoiceCount = invArr.length;
+  const totalQuantity = itemRows.reduce((s: number, item: any) => s + Number(item.quantity || 0), 0);
   const avgInvoiceValue = invoiceCount > 0 ? totalSales / invoiceCount : 0;
   const totalPaid = invArr.reduce((s: number, inv: any) => s + Number(inv.paid_amount || 0), 0);
   const totalInvAmount = invArr.reduce((s: number, inv: any) => s + Number(inv.total || 0), 0);
@@ -101,7 +105,9 @@ export async function fetchDashboardKPIs(): Promise<DashboardKPIs> {
     totalSales, totalCost, grossProfit, grossMargin, totalReceivables, overdueReceivables,
     totalPayables, inventoryValue, totalCustomers: customerCount || 0, activeCustomers: customerCount || 0,
     totalProducts: productCount || 0, invoiceCount, avgInvoiceValue, collectionRate,
-    status: invoiceCount > 0 || (customerCount || 0) > 0 || (productCount || 0) > 0 ? 'CALCULATED' : 'INSUFFICIENT_DATA',
+    status: invoiceCount > 0 || (customerCount || 0) > 0 || (productCount || 0) > 0
+      ? (totalCost === null ? 'INSUFFICIENT_DATA' : 'CALCULATED')
+      : 'INSUFFICIENT_DATA',
   };
 }
 
@@ -153,7 +159,6 @@ export async function fetchTopCustomers(limit = 5): Promise<TopEntity[]> {
 }
 
 export async function fetchTopProducts(limit = 5): Promise<TopEntity[]> {
-  // sale_items is scoped indirectly through its parent invoices; it has no company_id column.
   const { data: invoices, error: invoicesError } = await supabase.from('sales_invoices').select('id');
   if (invoicesError) throw invoicesError;
   const invoiceIds = (invoices || []).map(inv => inv.id);
