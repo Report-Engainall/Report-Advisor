@@ -18,7 +18,8 @@ const PurchasesReportPage = lazy(() => import('@/pages/ReportsPage').then(m => (
 const InventoryReportPage = lazy(() => import('@/pages/ReportsPage').then(m => ({ default: m.InventoryReportPage })));
 const InventoryIntelligencePage = lazy(() => import('@/pages/InventoryIntelligencePage').then(m => ({ default: m.InventoryIntelligencePage })));
 const DemandVelocityPage = lazy(() => import('@/pages/DemandVelocityPage').then(m => ({ default: m.DemandVelocityPage })));
-const ReceivablesReportPage = lazy(() => import('@/pages/ReportsPage').then(m => ({ default: m.ReceivablesReportPage })));
+const InventoryPage = lazy(() => import('@/pages/InventoryPageCanonical').then(m => ({ default: m.InventoryPageCanonical })));
+const ReceivablesReportPage = lazy(() => import('@/pages/ReceivablesReportPageCanonical').then(m => ({ default: m.ReceivablesReportPageCanonical })));
 const ProfitabilityReportPage = lazy(() => import('@/pages/ReportsPage').then(m => ({ default: m.ProfitabilityReportPage })));
 const AnalyticsCenterPage = lazy(() => import('@/pages/AnalyticsPage').then(m => ({ default: m.AnalyticsCenterPage })));
 const RFMAnalysisPage = lazy(() => import('@/pages/AnalyticsPage').then(m => ({ default: m.RFMAnalysisPage })));
@@ -30,7 +31,6 @@ const ForecastsPage = lazy(() => import('@/pages/IntelligencePage').then(m => ({
 const ScenariosPage = lazy(() => import('@/pages/IntelligencePage').then(m => ({ default: m.ScenariosPage })));
 const CustomersPage = lazy(() => import('@/pages/EntityPages').then(m => ({ default: m.CustomersPage })));
 const ProductsPage = lazy(() => import('@/pages/EntityPages').then(m => ({ default: m.ProductsPage })));
-const InventoryPage = lazy(() => import('@/pages/EntityPages').then(m => ({ default: m.InventoryPage })));
 const DataQualityPage = lazy(() => import('@/pages/EntityPages').then(m => ({ default: m.DataQualityPage })));
 const CompanySettingsPage = lazy(() => import('@/pages/CompanySettingsPage').then(m => ({ default: m.CompanySettingsPage })));
 const ProfileSettingsPage = lazy(() => import('@/pages/ProfileSettingsPage').then(m => ({ default: m.ProfileSettingsPage })));
