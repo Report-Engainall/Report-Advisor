@@ -9,6 +9,7 @@ export interface DashboardKPIs {
   totalCost: number | null;
   grossProfit: number | null;
   grossMargin: number | null;
+  totalQuantity: number;
   totalReceivables: number;
   overdueReceivables: number;
   totalPayables: number;
@@ -83,6 +84,7 @@ export async function fetchDashboardKPIs(): Promise<DashboardKPIs> {
 
   const itemRows = (items || []) as any[];
   const totalSales = itemRows.reduce((s: number, item: any) => s + Number(item.line_total || 0), 0);
+  const totalQuantity = itemRows.reduce((s: number, item: any) => s + Number(item.quantity || 0), 0);
   const totalCost = itemRows.some((item: any) => item.cost_price === null || item.cost_price === undefined || item.cost_price === '')
     ? null
     : itemRows.reduce((s: number, item: any) => s + Number(item.cost_price) * Number(item.quantity || 0), 0);
@@ -101,7 +103,7 @@ export async function fetchDashboardKPIs(): Promise<DashboardKPIs> {
   const collectionRate = totalInvAmount > 0 ? (totalPaid / totalInvAmount) * 100 : 0;
 
   return {
-    totalSales, totalCost, grossProfit, grossMargin, totalReceivables, overdueReceivables,
+    totalSales, totalCost, grossProfit, grossMargin, totalQuantity, totalReceivables, overdueReceivables,
     totalPayables, inventoryValue, totalCustomers: customerCount || 0, activeCustomers: customerCount || 0,
     totalProducts: productCount || 0, invoiceCount, avgInvoiceValue, collectionRate,
     status: invoiceCount > 0 || (customerCount || 0) > 0 || (productCount || 0) > 0
