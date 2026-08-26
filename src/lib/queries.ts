@@ -28,6 +28,27 @@ export async function updateImportRecord(id: string, patch: ImportRecordPatch): 
 export async function fetchImportRecords(): Promise<ImportRecord[]> { const companyId = await resolveCurrentCompanyId(); if (!companyId) throw new Error('TENANT_REQUIRED'); const { data, error } = await supabase.from('import_jobs').select('id, company_id, job_type, status, total_rows, valid_rows, invalid_rows, progress, error_message, created_at, completed_at, result_summary').eq('company_id', companyId).order('created_at', { ascending: false }); if (error) throw error; return (data ?? []).map(row => ({ id: row.id, company_id: row.company_id, file_name: String((row.result_summary as Record<string, unknown> | null)?.file_name ?? row.job_type ?? 'import'), file_size: 0, source_type: 'import', status: row.status, total_rows: row.total_rows ?? 0, valid_rows: row.valid_rows ?? 0, invalid_rows: row.invalid_rows ?? 0, quarantined_rows: 0, entity_type: row.job_type ?? null, progress: row.progress ?? 0, error_message: row.error_message ?? null, created_at: row.created_at, completed_at: row.completed_at ?? null })); }
 export async function markAlertRead(id: string): Promise<void> { const companyId = await resolveCurrentCompanyId(); if (!companyId) throw new Error('TENANT_REQUIRED'); const { error } = await supabase.from('alerts').update({ is_read: true }).eq('id', id).eq('company_id', companyId); if (error) throw error; }
 export async function updateRecommendationStatus(id: string, status: string): Promise<void> { const companyId = await resolveCurrentCompanyId(); if (!companyId) throw new Error('TENANT_REQUIRED'); const { error } = await supabase.from('recommendations').update({ status }).eq('id', id).eq('company_id', companyId); if (error) throw error; }
-export async function fetchForecasts(): Promise<Forecast[]> { const companyId = await resolveCurrentCompanyId(); if (!companyId) throw new Error('TENANT_REQUIRED'); const { data, error } = await supabase.from('forecasts').select('*').eq('company_id', companyId).order('period', { ascending: true }); if (error) throw error; return (data ?? []) as Forecast[]; }
+
+/**
+ * Forecasts are a display collection, not an aggregation source. Keep the
+ * historical API but fail closed rather than silently truncating an unbounded
+ * tenant dataset. Consumers that need larger datasets must introduce explicit
+ * pagination instead of changing this cap.
+ */
+export async function fetchForecasts(): Promise<Forecast[]> {
+  const companyId = await resolveCurrentCompanyId();
+  if (!companyId) throw new Error('TENANT_REQUIRED');
+  const MAX_FORECAST_ROWS = 500;
+  const { data, count, error } = await supabase
+    .from('forecasts')
+    .select('*', { count: 'exact' })
+    .eq('company_id', companyId)
+    .order('period', { ascending: true })
+    .order('id', { ascending: true })
+    .range(0, MAX_FORECAST_ROWS - 1);
+  if (error) throw error;
+  if ((count ?? 0) > MAX_FORECAST_ROWS) throw new Error('REPORT_QUERY_LIMIT_EXCEEDED: forecasts require explicit pagination');
+  return (data ?? []) as Forecast[];
+}
 export async function fetchCustomers(): Promise<Customer[]> { const companyId = await resolveCurrentCompanyId(); if (!companyId) throw new Error('TENANT_REQUIRED'); const { data, error } = await supabase.from('customers').select('*').eq('company_id', companyId).order('name'); if (error) throw error; return (data ?? []) as Customer[]; }
 export async function fetchProducts(): Promise<Product[]> { const companyId = await resolveCurrentCompanyId(); if (!companyId) throw new Error('TENANT_REQUIRED'); const { data, error } = await supabase.from('products').select('*').eq('company_id', companyId).order('name'); if (error) throw error; return (data ?? []) as Product[]; }
