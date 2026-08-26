@@ -1,5 +1,6 @@
 name: production-chain-guard
 on:
+  push: {branches: [hardening/safe-prune-and-proof]}
   pull_request:
     branches: [main]
   workflow_dispatch:
@@ -21,6 +22,8 @@ jobs:
         with:
           node-version: 22
           cache: npm
+      - name: Exact-head diagnostics
+        run: test "$(git rev-parse HEAD)" = "${GITHUB_SHA}"
       - run: npm ci --no-audit --no-fund
       - run: node scripts/check-quality-to-production-chain.mjs
       - run: node scripts/check-workflow-trigger-integrity.mjs

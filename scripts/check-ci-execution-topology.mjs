@@ -24,8 +24,8 @@ const requiredQualityGates = [
 for (const gate of requiredQualityGates) {
   if (!quality.includes(gate)) throw new Error(`Canonical quality path missing: ${gate}`);
 }
-if (!quality.includes('push: {branches: [main]}')) {
-  throw new Error('Quality must remain the canonical main push gate');
+if (!quality.includes('push: {branches: [main, hardening/safe-prune-and-proof]}')) {
+  throw new Error('Quality must remain the canonical main push gate and exact-head hardening vehicle');
 }
 
 for (const [name, text] of [
@@ -65,14 +65,13 @@ for (const file of names) {
 
   pushWorkflows.push(file);
   const config = trigger.config.replace(/\s+/g, ' ');
-  const targetsMain = /branches\s*:\s*\[?\s*main\s*\]?/.test(config);
+  const targetsMain = /branches\s*:\s*\[?\s*main(?:\s*,[^\]]*)?\s*\]?/.test(config);
   const hasBranchRestriction = /branches\s*:|branches-ignore\s*:/.test(config);
   const hasPathRestriction = /paths\s*:|paths-ignore\s*:/.test(config);
   const hasTagRestriction = /tags\s*:|tags-ignore\s*:/.test(config);
   const isCanonicalMain = targetsMain && !hasPathRestriction && !hasTagRestriction;
   if (isCanonicalMain) canonicalMainPushWorkflows.push(file);
 
-  // Tag-only release workflows are intentionally scoped even without branch/path filters.
   if (!hasBranchRestriction && !hasPathRestriction && !hasTagRestriction) broadPushWorkflows.push(file);
 }
 

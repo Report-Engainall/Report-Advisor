@@ -1,6 +1,6 @@
 name: quality
 on:
-  push: {branches: [main]}
+  push: {branches: [main, hardening/safe-prune-and-proof]}
   pull_request: {branches: [main]}
   workflow_dispatch:
 permissions: {contents: read}
