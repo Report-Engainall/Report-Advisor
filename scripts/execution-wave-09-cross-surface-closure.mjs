@@ -7,6 +7,7 @@ const secondary = read('src/lib/canonical-secondary-data-truth.ts');
 const exportsLoader = read('src/lib/report-export-data.ts');
 const analyticsSql = read('supabase/migrations/20260826131000_analytics_domain_truth.sql');
 const agingSql = read('supabase/migrations/20260826130000_cross_surface_truth_closure.sql');
+const decisionScore = read('src/lib/intelligence/decisionScore.ts');
 
 const assertions = [
   ['reports use bounded full export loaders', reports.includes('fetchSalesInvoicesForExport') && reports.includes('fetchPurchaseInvoicesForExport') && reports.includes('fetchInventoryBalancesForExport')],
@@ -20,6 +21,7 @@ const assertions = [
   ['aging has explicit as-of', agingSql.includes('p_as_of date') && agingSql.includes('v_as_of date')],
   ['export loader is tenant-authoritative and bounded', exportsLoader.includes('resolveCurrentCompanyId') && exportsLoader.includes('EXPORT_MAX_ROWS = 5000')],
   ['secondary adapter preserves nullable business values', secondary.includes('value: number | null') && secondary.includes('finiteOrNull(row.value)')],
+  ['decision score fails closed on missing factors', decisionScore.includes('score: number | null') && decisionScore.includes('INSUFFICIENT_DATA') && decisionScore.includes("band: 'BLOCKED'")],
 ];
 
 for (const [name, ok] of assertions) {
