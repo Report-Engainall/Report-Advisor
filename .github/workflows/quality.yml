@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
 permissions: {contents: read}
 concurrency:
-  group: quality-${{ github.ref }}-${{ github.event_name }}-${{ github.run_id }}
+  group: quality-${{ github.ref }}-${{ github.event_name}}-${{ github.run_id }}
   cancel-in-progress: false
 jobs:
   verify:
@@ -104,6 +104,8 @@ jobs:
         run: npm run test:wave03-watcher
       - name: Wave 04 real consumer and authority proof
         run: npm run test:wave04-consumer-proof
+      - name: Wave 04 invariant coverage proof
+        run: npm run test:wave04-invariant-proof
       - name: Decision evidence regressions
         run: node --experimental-strip-types scripts/decision-evidence-regression.test.ts
       - name: Routing and security contracts (parallel discovery)
