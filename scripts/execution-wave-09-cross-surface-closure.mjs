@@ -5,12 +5,15 @@ const reports = read('src/pages/ReportsPage.tsx');
 const analytics = read('src/lib/canonical-analytics.ts');
 const secondary = read('src/lib/canonical-secondary-data-truth.ts');
 const exportsLoader = read('src/lib/report-export-data.ts');
+const exportSql = read('supabase/migrations/20260826140000_inventory_export_truth.sql');
 const analyticsSql = read('supabase/migrations/20260826131000_analytics_domain_truth.sql');
 const agingSql = read('supabase/migrations/20260826130000_cross_surface_truth_closure.sql');
 const decisionScore = read('src/lib/intelligence/decisionScore.ts');
 
 const assertions = [
   ['reports use bounded full export loaders', reports.includes('fetchSalesInvoicesForExport') && reports.includes('fetchPurchaseInvoicesForExport') && reports.includes('fetchInventoryBalancesForExport')],
+  ['inventory export consumes canonical row values', reports.includes("result.rows.map(b=>({'المنتج':b.product_name") && reports.includes("'القيمة':b.value") && !reports.includes("b.quantity==null||b.unit_cost==null?null:b.quantity*b.unit_cost")],
+  ['inventory export has a tenant-authoritative RPC', exportsLoader.includes("get_inventory_export_truth") && exportSql.includes('current_company_id()') && exportSql.includes('TENANT_CONTEXT_MISMATCH')],
   ['inventory operational counts are canonical', !reports.includes('const lowStock=balances.filter') && reports.includes('valuation?.low_stock') && reports.includes('valuation?.out_of_stock')],
   ['receivables use canonical aging truth', reports.includes('fetchCanonicalAgingTruth') && analytics.includes('get_receivables_aging_truth_as_of')],
   ['category profitability preserves unknown values', reports.includes('r.sales==null||r.profit==null')],
