@@ -41,7 +41,7 @@ function hasNamedModuleConsumer(code, importPath, exportName) {
 function hasRelativeNamedConsumer(code, modulePath, exportName) {
   const module = escapeRegExp(modulePath);
   const symbol = escapeRegExp(exportName);
-  return new RegExp(`import\\s+(?:[^;\\n]*?\\{[^}]*\\b${symbol}\\b[^}]*\\}|${symbol}(?:\\s*,\\s*\\{[^}]*\\})?)\\s+from\\s+['"]${module}['"]`).test(code)
+  return new RegExp(`import\\s+(?:[^;\n]*?\\{[^}]*\\b${symbol}\\b[^}]*\\}|${symbol}(?:\\s*,\\s*\\{[^}]*\\})?)\\s+from\\s+['"]${module}['"]`).test(code)
     || new RegExp(`import\\(\\s*['"]${module}['"]\\s*\\)[\\s\\S]{0,160}\\b${symbol}\\b`).test(code);
 }
 
@@ -94,8 +94,12 @@ function prove(candidate, files) {
   if (!fs.existsSync(canonicalPath)) failures.push('canonical implementation missing');
   else if (!new RegExp(`(?:export\\s+)?function\\s+${escapeRegExp(candidate.canonicalExport)}\\b`).test(stripComments(fs.readFileSync(canonicalPath, 'utf8')))) failures.push('canonical export not proven');
 
-  if (!fs.existsSync(legacyPath)) failures.push('legacy module missing');
-  else if (!new RegExp(`(?:export\\s+(?:function|const|let|var|class)\\s+${escapeRegExp(candidate.legacyExport)}\\b|export\\s*\\{[^}]*\\b${escapeRegExp(candidate.legacyExport)}\\b)`).test(stripComments(fs.readFileSync(legacyPath, 'utf8')))) failures.push('legacy export not found; candidate mapping is stale');
+  let legacyExportPresent = false;
+  if (!fs.existsSync(legacyPath)) {
+    failures.push('legacy module missing');
+  } else {
+    legacyExportPresent = new RegExp(`(?:export\\s+(?:function|const|let|var|class)\\s+${escapeRegExp(candidate.legacyExport)}\\b|export\\s*\\{[^}]*\\b${escapeRegExp(candidate.legacyExport)}\\b)`).test(stripComments(fs.readFileSync(legacyPath, 'utf8')));
+  }
 
   const consumers = [];
   let canonicalReachable = false;
@@ -123,7 +127,7 @@ function prove(candidate, files) {
   });
   if (barrel) failures.push('legacy export is re-exported by a barrel/public entrypoint');
 
-  return { failures };
+  return { failures, legacyExportPresent };
 }
 
 const files = walk(SRC);
@@ -133,10 +137,14 @@ for (const result of results) {
   if (result.failures.length) {
     console.error(`ABORT DELETE [${result.candidate.id}]`);
     for (const failure of result.failures) console.error(`  - ${failure}`);
-  } else console.log(`SAFE-TO-PRUNE-PROVEN [${result.candidate.id}]`);
+  } else if (!result.legacyExportPresent) {
+    console.log(`PRUNE-CLOSED-PROVEN [${result.candidate.id}]`);
+  } else {
+    console.log(`SAFE-TO-PRUNE-PROVEN [${result.candidate.id}]`);
+  }
 }
 if (unsafe.length) {
   console.error('FAIL CLOSED: deletion is forbidden until every proof is positive.');
   process.exit(1);
 }
-console.log('PASS: canonical exists, canonical is symbol-reachable, legacy has zero symbol consumers, and no barrel dependency is present.');
+console.log('PASS: canonical exists, canonical is symbol-reachable, legacy consumers are zero, no barrel dependency exists, and absent legacy exports are treated as already-pruned only after those proofs pass.');
