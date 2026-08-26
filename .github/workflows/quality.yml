@@ -106,6 +106,8 @@ jobs:
         run: npm run test:wave04-consumer-proof
       - name: Wave 04 invariant coverage proof
         run: npm run test:wave04-invariant-proof
+      - name: Wave 05 canonical consumer regression
+        run: node scripts/execution-wave-05-consumer-regression.mjs
       - name: Decision evidence regressions
         run: node --experimental-strip-types scripts/decision-evidence-regression.test.ts
       - name: Routing and security contracts (parallel discovery)
