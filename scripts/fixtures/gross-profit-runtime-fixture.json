@@ -1,10 +1,10 @@
 {
-  "version": "2026-08-26.1",
+  "version": "2026-08-26.2",
   "truthSource": "independent-domain-fixture",
   "scenarios": {
     "tenantAComplete": {
       "tenant": "A",
-      "expected": { "revenue": 630, "cost": 380, "grossProfit": 250, "quantity": 9, "status": "CALCULABLE" }
+      "expected": { "revenue": 630, "cost": 380, "grossProfit": 250, "quantity": 9, "status": "CALCULATED" }
     },
     "tenantAIncomplete": {
       "tenant": "A",
@@ -12,7 +12,7 @@
     },
     "tenantBComplete": {
       "tenant": "B",
-      "expected": { "revenue": 900, "cost": 540, "grossProfit": 360, "quantity": 9, "status": "CALCULABLE" }
+      "expected": { "revenue": 900, "cost": 540, "grossProfit": 360, "quantity": 9, "status": "CALCULATED" }
     }
   },
   "requiredCases": [
