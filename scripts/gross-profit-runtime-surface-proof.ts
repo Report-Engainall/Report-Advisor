@@ -1,5 +1,5 @@
 import { createServer, type ViteDevServer } from 'vite';
-import { readFile } from 'node:fs/promises';
+import { readFile, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 
 type Metrics = {
@@ -42,6 +42,10 @@ for (const key of required) {
 
 const baseUrl = process.env.CERT_SUPABASE_URL!.replace(/\/$/, '');
 const anonKey = process.env.CERT_SUPABASE_ANON_KEY!;
+// Vite SSR loads the real production module; these are only the existing live certification values mapped to Vite's browser env names.
+process.env.VITE_SUPABASE_URL = baseUrl;
+process.env.VITE_SUPABASE_ANON_KEY = anonKey;
+
 const fixturePath = resolve(process.cwd(), 'scripts/fixtures/gross-profit-runtime-fixture.json');
 const fixture = JSON.parse(await readFile(fixturePath, 'utf8')) as {
   scenarios: Record<string, { tenant: string; expected: Metrics }>;
@@ -75,6 +79,7 @@ function sameMetrics(actual: Metrics, expected: Metrics): boolean {
 }
 
 async function loadProductionConsumer() {
+  // This imports the exact production consumer used by the real UI surfaces. No query is duplicated here.
   const mod = await server.ssrLoadModule('/src/lib/queries.ts');
   if (typeof mod.fetchDashboardKPIs !== 'function') throw new Error('PRODUCTION_CONSUMER_NOT_FOUND:fetchDashboardKPIs');
   return mod.fetchDashboardKPIs as () => Promise<any>;
@@ -153,7 +158,7 @@ try {
     tenantIsolation: tenantIsolation ? 'SURFACE EXECUTION OBSERVED FOR A AND B; CROSS-TENANT DENIAL REQUIRES SEPARATE PROBE' : 'NOT PROVEN',
     closure: 'NOT PROVEN',
   };
-  await import('node:fs/promises').then(fs => fs.writeFile(resolve(process.cwd(), 'gross-profit-runtime-results.json'), JSON.stringify(artifact, null, 2) + '\n'));
+  await writeFile(resolve(process.cwd(), 'gross-profit-runtime-results.json'), JSON.stringify(artifact, null, 2) + '\n');
 
   const failed = evidence.filter(e => e.comparison !== 'PASS');
   if (failed.length) {
