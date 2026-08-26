@@ -17,6 +17,8 @@ export interface InventoryReportSnapshot {
   totalRows: number;
   totalValue: number | null;
   incompleteRows: number;
+  lowStockRows: number;
+  outOfStockRows: number;
   status: 'CALCULATED' | 'INSUFFICIENT_DATA';
 }
 
@@ -34,17 +36,23 @@ export async function fetchInventoryReportSnapshot(page = 0, pageSize = 25): Pro
     total_rows: number;
     total_value: number | null;
     incomplete_rows: number;
+    low_stock_rows: number;
+    out_of_stock_rows: number;
   }>;
   const first = rows[0];
   const totalRows = Number(first?.total_rows ?? 0);
   const incompleteRows = Number(first?.incomplete_rows ?? 0);
+  const lowStockRows = Number(first?.low_stock_rows ?? 0);
+  const outOfStockRows = Number(first?.out_of_stock_rows ?? 0);
   const totalValue = first?.total_value == null ? null : Number(first.total_value);
 
   return {
-    rows: rows.map(({ total_rows: _totalRows, total_value: _totalValue, incomplete_rows: _incompleteRows, ...row }) => row),
+    rows: rows.map(({ total_rows: _totalRows, total_value: _totalValue, incomplete_rows: _incompleteRows, low_stock_rows: _lowStockRows, out_of_stock_rows: _outOfStockRows, ...row }) => row),
     totalRows,
     totalValue,
     incompleteRows,
+    lowStockRows,
+    outOfStockRows,
     status: totalRows === 0 || incompleteRows > 0 || totalValue == null ? 'INSUFFICIENT_DATA' : 'CALCULATED',
   };
 }
