@@ -1,5 +1,12 @@
 import { supabase, resolveCurrentCompanyId } from './supabase';
 import type { Customer, Forecast, ImportRecord, Product } from './types';
+import {
+  fetchCanonicalMonthlyTrend,
+  fetchCanonicalTopCustomers,
+  fetchCanonicalTopProducts,
+  fetchCanonicalCategoryBreakdown,
+  fetchCanonicalAgingBuckets,
+} from './canonical-secondary-data-truth';
 
 export * from './queries';
 
@@ -40,6 +47,34 @@ export async function fetchProducts(): Promise<Product[]> {
   const { data, error } = await supabase.from('products').select('*').eq('company_id', companyId).order('name');
   if (error) throw error;
   return (data ?? []) as Product[];
+}
+
+// Secondary sales consumers are deliberately overridden below.  All other legacy
+// query exports remain available until their consumers are migrated and proven safe.
+export async function fetchMonthlyTrend(months = 6) {
+  const rows = await fetchCanonicalMonthlyTrend(months);
+  return rows.map((row) => {
+    if (row.sales == null || row.cost == null || row.profit == null) {
+      throw new Error('REPORT_DATA_UNAVAILABLE: monthly trend contains insufficient data');
+    }
+    return { month: row.month, label: row.label, sales: row.sales, cost: row.cost, profit: row.profit, invoices: row.invoices };
+  });
+}
+
+export async function fetchTopCustomers(limit = 5) {
+  return fetchCanonicalTopCustomers(limit);
+}
+
+export async function fetchTopProducts(limit = 5) {
+  return fetchCanonicalTopProducts(limit);
+}
+
+export async function fetchCategoryBreakdown() {
+  return fetchCanonicalCategoryBreakdown();
+}
+
+export async function fetchAgingBuckets() {
+  return fetchCanonicalAgingBuckets();
 }
 
 type ImportRecordInput = Omit<ImportRecord, 'id' | 'company_id' | 'created_at' | 'error_message' | 'completed_at'>;
