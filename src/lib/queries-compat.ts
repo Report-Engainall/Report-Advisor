@@ -1,5 +1,6 @@
 import { supabase, resolveCurrentCompanyId } from './supabase';
 import type { Customer, Forecast, ImportRecord, Product } from './types';
+import type { MonthlyTrend, TopEntity, AgingBucket, CategoryBreakdown } from './queries';
 
 export * from './queries';
 
@@ -151,4 +152,69 @@ export async function fetchImportRecords(): Promise<ImportRecord[]> {
     created_at: row.created_at,
     completed_at: row.completed_at ?? null,
   }));
+}
+
+// Secondary analytics are domain truth, not page-local calculations. The RPC
+// enforces tenant authority, status semantics, date bounds, and server-side
+// aggregation; this adapter only preserves the existing UI contracts.
+function requireMetricArray<T>(value: unknown, field: string): T[] {
+  if (!Array.isArray(value)) throw new Error(`REPORT_DATA_UNAVAILABLE: canonical field '${field}' is missing`);
+  return value as T[];
+}
+
+export async function fetchMonthlyTrend(months = 6): Promise<MonthlyTrend[]> {
+  const companyId = await requireTenant();
+  const { data, error } = await supabase.rpc('get_sales_secondary_metrics', {
+    p_company_id: companyId, p_months: months, p_limit: 5, p_from: null, p_to: null,
+  });
+  if (error) throw error;
+  const payload = (data ?? {}) as Record<string, unknown>;
+  return requireMetricArray<MonthlyTrend>(payload.monthly_trend, 'monthly_trend').map(row => ({
+    month: String(row.month), label: String(row.label), sales: Number(row.sales),
+    cost: Number(row.cost), profit: Number(row.profit), invoices: Number(row.invoices),
+  }));
+}
+
+export async function fetchTopCustomers(limit = 5): Promise<TopEntity[]> {
+  const companyId = await requireTenant();
+  const { data, error } = await supabase.rpc('get_sales_secondary_metrics', {
+    p_company_id: companyId, p_months: 6, p_limit: limit, p_from: null, p_to: null,
+  });
+  if (error) throw error;
+  const rows = requireMetricArray<Record<string, unknown>>((data as Record<string, unknown> | null)?.top_customers, 'top_customers');
+  return rows.map(row => ({ id: String(row.id), name: String(row.name), value: Number(row.value) }));
+}
+
+export async function fetchTopProducts(limit = 5): Promise<TopEntity[]> {
+  const companyId = await requireTenant();
+  const { data, error } = await supabase.rpc('get_sales_secondary_metrics', {
+    p_company_id: companyId, p_months: 6, p_limit: limit, p_from: null, p_to: null,
+  });
+  if (error) throw error;
+  const rows = requireMetricArray<Record<string, unknown>>((data as Record<string, unknown> | null)?.top_products, 'top_products');
+  return rows.map(row => ({ id: String(row.id), name: String(row.name), value: Number(row.value), secondary: Number(row.secondary) }));
+}
+
+export async function fetchCategoryBreakdown(): Promise<CategoryBreakdown[]> {
+  const companyId = await requireTenant();
+  const { data, error } = await supabase.rpc('get_sales_secondary_metrics', {
+    p_company_id: companyId, p_months: 6, p_limit: 5, p_from: null, p_to: null,
+  });
+  if (error) throw error;
+  const rows = requireMetricArray<Record<string, unknown>>((data as Record<string, unknown> | null)?.category_breakdown, 'category_breakdown');
+  return rows.map(row => {
+    if (row.profit === null || row.profit === undefined) throw new Error('REPORT_DATA_UNAVAILABLE: category profit is INSUFFICIENT_DATA');
+    return { name: String(row.name), sales: Number(row.sales), profit: Number(row.profit), quantity: Number(row.quantity) };
+  });
+}
+
+export async function fetchAgingBuckets(): Promise<AgingBucket[]> {
+  const companyId = await requireTenant();
+  const { data, error } = await supabase.rpc('get_sales_secondary_metrics', {
+    p_company_id: companyId, p_months: 6, p_limit: 5, p_from: null, p_to: null,
+  });
+  if (error) throw error;
+  const rows = requireMetricArray<Record<string, unknown>>((data as Record<string, unknown> | null)?.aging_buckets, 'aging_buckets');
+  const byBucket = new Map(rows.map(row => [String(row.bucket), { bucket: String(row.bucket), amount: Number(row.amount), count: Number(row.count) }]));
+  return ['0-30', '31-60', '61-90', '90+', 'UNDATED'].map(bucket => byBucket.get(bucket) ?? { bucket, amount: 0, count: 0 });
 }
