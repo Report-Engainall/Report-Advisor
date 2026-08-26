@@ -1,6 +1,9 @@
 name: phase-e-live-certification
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - runtime/gross-profit-surface-proof
 permissions:
   contents: read
 concurrency:
@@ -46,3 +49,19 @@ jobs:
           CERT_OBSERVABILITY_HEALTH_URL: ${{ secrets.CERT_OBSERVABILITY_HEALTH_URL }}
           CERT_ROLLBACK_DRILL_URL: ${{ secrets.CERT_ROLLBACK_DRILL_URL }}
         run: node scripts/phase-e-extended-live-probes.mjs
+      - name: Gross Profit actual production consumer runtime
+        env:
+          CERT_SUPABASE_URL: ${{ secrets.CERT_SUPABASE_URL }}
+          CERT_SUPABASE_ANON_KEY: ${{ secrets.CERT_SUPABASE_ANON_KEY }}
+          CERT_TENANT_A_ID: ${{ secrets.CERT_TENANT_A_ID }}
+          CERT_TENANT_B_ID: ${{ secrets.CERT_TENANT_B_ID }}
+          CERT_USER_A_JWT: ${{ secrets.CERT_USER_A_JWT }}
+          CERT_USER_B_JWT: ${{ secrets.CERT_USER_B_JWT }}
+        run: node --experimental-strip-types scripts/gross-profit-runtime-surface-proof.ts
+      - name: Upload Gross Profit runtime artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gross-profit-runtime-results
+          path: gross-profit-runtime-results.json
+          if-no-files-found: warn
