@@ -2,7 +2,11 @@
 
 ## Scope
 
-Current proof work is restricted to the Gross Profit Cross-Surface Truth closure. Evidence must be attributed only to the current branch/HEAD that produced it.
+Current proof work is restricted to Gross Profit Cross-Surface Truth closure. Evidence must be attributed only to the current branch/HEAD that produced it. No previous SHA or merge SHA is certification for a later HEAD.
+
+## Current branch HEAD
+
+Documentation updates in this evidence delta now produce a new branch HEAD. The latest commit SHA is `abd53668bf2ba61efb5efbd16daa665f2944270f`; it has no exact-head CI certification yet.
 
 ## Independent business-truth reference
 
@@ -23,71 +27,99 @@ Expected fixture results:
 
 Date semantics are inclusive for the fixture's start and end boundaries; an outside-range record is excluded.
 
-## Production consumer sweep
+## Production consumer classification
 
-| Surface | Production path inspected | Current classification |
+| Surface | Consumer status | Evidence state |
 |---|---|---|
-| Dashboard | `DashboardPage` → `fetchCanonicalDashboardKPIs`, `fetchCanonicalMonthlyTrend`, `fetchCanonicalTopCustomers` | CANONICAL consumer path |
-| Reports | `ReportsPage` → canonical KPI/trend/top-customer consumers; report export uses `fetchAllSalesInvoicesForReportExport` | CANONICAL for migrated paths; numeric proof NOT PROVEN |
-| Executive Decision | `ExecutiveCommandCenterPage` → `fetchCanonicalDashboardKPIs` | CANONICAL consumer path |
-| Analytics | current Analytics center exposes RFM/ABC/Aging; no Gross Profit consumer was identified | NOT APPLICABLE / NO-GP-CONSUMER; equivalence NOT PROVEN |
-| BI | no independently executable Gross Profit consumer was identified in the inspected application surface | UNKNOWN / NOT PROVEN |
-| Export | Sales export invokes `fetchAllSalesInvoicesForReportExport`; profitability export uses category data | CANONICAL source for invoice export; complete numeric GP equivalence NOT PROVEN |
+| Dashboard | GP consumer exists; canonical KPI/trend/top-customer path | RUNTIME REQUIRED / NOT PROVEN |
+| Reports | GP consumers exist; migrated canonical paths | RUNTIME REQUIRED / NOT PROVEN |
+| Executive Decision | GP consumer exists; canonical KPI path | RUNTIME REQUIRED / NOT PROVEN |
+| Export | GP-relevant report export path exists and is full-dataset at source level | RUNTIME REQUIRED / NOT PROVEN |
+| Analytics | No independently executable GP consumer identified in inspected application surface | NO GP CONSUMER FOUND; NOT PASS |
+| BI | No independently executable GP consumer identified in inspected application surface | NO GP CONSUMER FOUND; NOT PASS |
 
-The inspected Dashboard and Executive Decision code calls the canonical financial queries directly. The Reports page imports the canonical KPI/trend/top-customer functions and the full-dataset sales export function. These facts establish wiring, not cross-surface numeric proof. fileciteturn374file0 fileciteturn378file0 fileciteturn371file0
+## Critical fixture rule
 
-## Critical finding: previous fixture was insufficient
+The cross-surface fixture must never use `surface -> canonicalFinancialQueries -> expected`. The expected values are independent fixture truth; actual surface values must come from a real authenticated execution artifact.
 
-The prior fixture projected `truth(completeA)` onto every surface. That was a **reference self-comparison**, not execution of the production consumers. It could pass even if a real surface diverged.
+## Authenticated runtime harness investigation
 
-That implementation has been removed from the proof path. The current `scripts/gross-profit-cross-surface-fixture.mjs` requires `GROSS_PROFIT_SURFACE_RESULTS` captured by a real surface execution harness and fails closed when the artifact is absent. It does not synthesize surface results from the canonical reference.
+An existing reusable browser/authenticated surface harness was investigated on the current branch. No existing Playwright, Puppeteer, Cypress, browser storage-state, or authenticated browser-spec harness was identified. Existing report-execution E2E infrastructure is a static contract gate and does not execute an authenticated browser session.
 
-## Required real-surface artifact
+Existing runtime/worker infrastructure also does not provide the required authenticated execution of Dashboard, Reports, Executive Decision and Export followed by capture of numeric surface results.
 
-The strict fixture requires a JSON artifact containing independent results for both authenticated tenant contexts:
+### Runtime blocker
+
+`RUNTIME BLOCKED — AUTHENTICATED SURFACE HARNESS ABSENT`
+
+This is an evidence/infrastructure blocker. It is not a product PASS and does not close Gross Profit Truth.
+
+## Required runtime artifact
+
+When an existing authenticated harness becomes available, it must produce an immutable artifact for independent comparison:
 
 ```text
-Tenant A:
-  Dashboard, Reports, Analytics, BI, Decision, Export
-Tenant B:
-  Dashboard, Reports, Analytics, BI, Decision, Export
-```
-
-Each surface result must contain:
-
-```text
+surface
+tenant
+date_from
+date_to
 revenue
 cost
-grossProfit
+gross_profit
 quantity
 status
+source/query identity
+execution timestamp
 ```
 
-Export additionally requires:
+Export must additionally contain:
 
 ```text
-rowCount = 25
-rowCount > presentation page size (20)
+exported_rows
+presentation_page_size
 ```
 
-The artifact must originate from actual production surface execution. A result copied from the canonical query is not acceptable evidence.
+The fixture requires `exported_rows = 25` and `presentation_page_size = 20`.
+
+## Required authenticated execution
+
+```text
+Tenant A -> Dashboard -> Reports -> Executive Decision -> Export
+Tenant B -> Dashboard -> Reports -> Executive Decision -> Export
+```
+
+Required checks:
+
+- Tenant A can obtain A data only.
+- Tenant B can obtain B data only.
+- Cross-tenant aggregate is rejected or impossible.
+- Start boundary is included consistently.
+- End boundary is included consistently.
+- Outside-range data is excluded consistently.
+- Missing/NULL cost remains `INSUFFICIENT_DATA`, never zero.
+- Export returns all 25 records rather than the 20-record presentation page.
+- Export financial values reconcile to the full report dataset.
 
 ## Current proof state
 
 - Independent fixture truth: PROVEN.
 - Canonical financial formula: PROVEN at query level.
-- Consumer wiring: PROVEN for Dashboard, Reports migrated paths, and Executive Decision.
+- Consumer wiring: PROVEN at source level for Dashboard, Reports and Executive Decision.
 - NULL/missing-cost reference semantics: REGRESSION-ENFORCED.
-- Actual surface-level numeric execution: **NOT PROVEN**.
-- Tenant A/B runtime isolation: **NOT PROVEN**.
-- Export 25-vs-20 runtime completeness: **NOT PROVEN**.
-- Analytics/BI Gross Profit equivalence: **NOT PROVEN** because independently executable GP consumers were not established.
-- Gross Profit Cross-Surface Truth: **OPEN / NOT PROVEN**.
+- Actual authenticated Dashboard execution: NOT PROVEN.
+- Actual authenticated Reports execution: NOT PROVEN.
+- Actual authenticated Executive Decision execution: NOT PROVEN.
+- Actual authenticated Export execution: NOT PROVEN.
+- Tenant A/B runtime isolation: NOT PROVEN.
+- Date-boundary runtime equivalence: NOT PROVEN.
+- Missing/NULL-cost cross-surface equivalence: NOT PROVEN.
+- Export 25-vs-20 runtime completeness: NOT PROVEN.
+- Gross Profit Cross-Surface Truth: OPEN / NOT PROVEN.
 - Runtime truth: NOT PROVEN.
 - Production certification: NOT PROVEN.
 
-## Guardrail
+## Closure rule
 
-No `PASS`, `CROSS-SURFACE EQUIVALENCE`, or `GROSS PROFIT TRUTH-PROVEN` claim may be made from the independent fixture alone. Closure requires:
+No `PASS`, `CROSS-SURFACE EQUIVALENCE`, or `GROSS PROFIT TRUTH-PROVEN` claim may be made from the independent fixture, source inspection, or CI alone. Closure requires:
 
-`independent reference → real production consumer execution → numeric comparison → tenant/date/missing-data checks → export completeness → regression → exact-head CI → evidence artifact`.
+`independent reference -> real authenticated production consumer execution -> numeric comparison -> tenant/date/missing-data checks -> export completeness -> regression -> exact-head CI -> reviewable runtime artifact`.
