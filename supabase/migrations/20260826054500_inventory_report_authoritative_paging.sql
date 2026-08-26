@@ -7,6 +7,8 @@ CREATE INDEX IF NOT EXISTS idx_inventory_balances_company_product
 CREATE INDEX IF NOT EXISTS idx_products_company_active
   ON public.products(company_id, is_active);
 
+-- Replace both historical signatures so a prior 2-arg function cannot shadow the new 3-arg contract.
+DROP FUNCTION IF EXISTS public.get_inventory_report_snapshot(integer,integer,text);
 DROP FUNCTION IF EXISTS public.get_inventory_report_snapshot(integer,integer);
 
 CREATE OR REPLACE FUNCTION public.get_inventory_report_snapshot(
