@@ -15,7 +15,11 @@ export function resolveDecisionChain(input: DecisionChainInput): DecisionChainRe
   if (input.replenishment.risk === 'BLOCKED') reasons.push('PROTECTED_LIQUIDITY_BREACH');
   if (input.explanation.blockers.length) reasons.push(...input.explanation.blockers);
   if (input.calibration.recommendation === 'INSUFFICIENT_DATA') reasons.push('CALIBRATION_INSUFFICIENT_DATA');
-  if (input.score.score < 0.8) reasons.push('DECISION_SCORE_BELOW_AUTOMATION_THRESHOLD');
-  const outcome = reasons.length ? (reasons.includes('PROTECTED_LIQUIDITY_BREACH') || !readiness.ready ? 'BLOCKED' : 'REVIEW') : input.score.score >= 0.92 ? 'AUTOMATE' : 'APPROVE';
+  if (input.score.score === null) reasons.push('DECISION_SCORE_INSUFFICIENT_DATA');
+  else if (input.score.score < 0.8) reasons.push('DECISION_SCORE_BELOW_AUTOMATION_THRESHOLD');
+  const blocked = reasons.length > 0;
+  const outcome = blocked
+    ? (reasons.includes('PROTECTED_LIQUIDITY_BREACH') || !readiness.ready || input.score.score === null ? 'BLOCKED' : 'REVIEW')
+    : input.score.score !== null && input.score.score >= 0.92 ? 'AUTOMATE' : 'APPROVE';
   return { outcome, reasons: [...new Set(reasons)], readiness, fingerprint: input.explanation.decisionFingerprint };
 }
