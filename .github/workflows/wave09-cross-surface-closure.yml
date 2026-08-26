@@ -38,8 +38,6 @@ on:
 permissions:
   contents: read
 
-auto_cancel: false
-
 jobs:
   cross-surface-truth:
     runs-on: ubuntu-22.04
