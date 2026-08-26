@@ -12,147 +12,122 @@ Base: `main @ 4095e0f0d427652eb705ba3955389ae978d7b5bf`
 No historical PASS promotion. No scanner-only closure. No runtime/LIVE/production claims without matching evidence.
 
 ## Exact state
-- Last code/workflow HEAD before this index commit: `5394d89205ebb5790c9a3c87d086922ea072569b`.
-- This commit is the Index HEAD and therefore needs its own exact-head CI evidence.
-- Exact CI status at last observation: **NOT OBSERVABLE** (`check_runs=0`, `combined_status=0`) for the current code ancestry. No PASS is claimed.
-- PR merge ref is tracked separately and is not treated as code-head evidence.
+- Last code/workflow HEAD before this Index commit: `9a0bc8c4f48884a43c31aff8f60689906e4673b5`.
+- This Index commit is a separate HEAD and therefore needs its own exact-head CI evidence.
+- At last check, exact branch-head check-runs were **NOT OBSERVABLE** (`0`) and combined status was **empty**. No PASS is claimed.
+- PR #41 currently reports `mergeable=false`; this is tracked separately and is not interpreted as a CI result.
+- The quality workflow now explicitly verifies PR `head.sha` independently from the GitHub PR merge ref, preventing merge-ref PASS from being misrepresented as branch-head PASS.
 
-## Failure Family — Dashboard / Reports / Inventory
-### Root causes
-- Dashboard legacy functions in `queries.ts` fetched complete transactional datasets and calculated business truth in the browser.
-- Reports were secondary consumers of those functions.
-- Inventory Report and Inventory entity page loaded complete balances before calculating totals/filter counts.
-- Previous inventory RPC placed `OFFSET/LIMIT` after aggregation, so pagination was not actually applied to rows; this was corrected.
+## Closed/advanced failure families
+### Dashboard / Reports
+- Dashboard browser-wide invoice/item aggregation replaced by `get_dashboard_snapshot()`.
+- Reports sales/profitability/receivables migrated to canonical snapshot.
+- Executive Command Center migrated to `fetchDashboardSnapshot()`.
+- `queries.ts` dashboard legacy functions are compatibility adapters delegating to canonical server aggregation.
 
-### Architecture now
-`UI → canonical adapter → authoritative SECURITY INVOKER RPC → current_company_id() → database`.
+### Inventory
+Root cause included a real SQL pagination defect: `OFFSET/LIMIT` had been attached after an aggregate, so it did not bound the aggregated rows. The RPC was corrected with a `base → paged → jsonb_agg` structure.
 
-Dashboard: `get_dashboard_snapshot(p_months,p_as_of)`.
-Inventory: `get_inventory_report_snapshot(p_page,p_page_size,p_filter)`.
+Canonical contract:
+`get_inventory_report_snapshot(p_page,p_page_size,p_filter)`
 
-### Implemented
-- Dashboard RPC and adapter already established.
-- Reports sales/profitability/receivables migrated.
-- Executive Command Center migrated from `fetchDashboardKPIs()` to `fetchDashboardSnapshot()` and its range control now matches the server contract in months.
-- `queries.ts` dashboard aggregation implementations converted to explicit compatibility adapters; they no longer fetch/reduce invoice/item histories.
-- App alert reads migrated to `fetchDashboardIntelligence()`.
-- Inventory RPC corrected to real bounded row pagination and server-side filters.
-- Inventory RPC now returns `totalRows`, `filteredRows`, `lowStock`, `outOfStock`, `unknownRows`, `totalValue`, and explicit `dataStatus`.
-- Inventory entity page migrated from `fetchInventoryBalances()` + browser reduce/filter to server snapshot pagination/filtering.
+It now server-derives:
+- totalRows
+- filteredRows
+- lowStock
+- outOfStock
+- unknownRows
+- totalValue
+- dataStatus
 
-## Failure Family — Analytics (RFM / ABC / Aging)
-### Findings
-`src/pages/AnalyticsPage.tsx` contained three independent browser aggregation engines:
-- RFM fetched all sales invoices and calculated recency/frequency/monetary plus scores in the browser.
-- ABC fetched all sale items and calculated revenue ranking/cumulative thresholds in the browser.
-- Aging fetched all invoices and calculated aging buckets in the browser.
+Inventory Report and Inventory entity page no longer fetch all inventory balances and reduce/filter them in the browser.
 
-These were unbounded reads, duplicated business truth, and had client-side date/status semantics.
+### Analytics — RFM / ABC / Aging
+Finding: `src/pages/AnalyticsPage.tsx` contained three independent unbounded aggregation engines:
+- RFM: all sales invoices → customer maps → recency/frequency/monetary → scores.
+- ABC: all sale items → product aggregation → cumulative revenue classification.
+- Aging: all invoices → date arithmetic → aging buckets.
 
-### Root cause
-The pages were using Supabase table reads as an aggregation API instead of an authoritative domain contract.
+Root cause: browser table reads were incorrectly used as the business aggregation API.
 
-### Canonical implementation
-Added migration:
+Implemented authoritative RPCs in:
 `supabase/migrations/20260826062000_analytics_authoritative_aggregation.sql`
 
-Authoritative RPCs:
 - `get_rfm_snapshot(p_as_of,p_limit)`
 - `get_abc_snapshot(p_limit)`
 - `get_aging_snapshot(p_as_of)`
 
-All are `SECURITY INVOKER`, derive tenant from `current_company_id()`, exclude `cancelled/void`, bound result sizes, and expose incomplete-data status rather than silently converting missing values to zero.
+Properties:
+- `SECURITY INVOKER`
+- tenant from `current_company_id()`
+- cancelled/void excluded
+- bounded result sets
+- explicit incomplete-data state
+- no silent NULL→zero fabrication
+- deterministic as-of supplied by server adapter
 
-Canonical adapter functions:
+Canonical adapters:
 - `fetchRFMSnapshot()`
 - `fetchABCSnapshot()`
 - `fetchAgingSnapshot()`
 
-Analytics pages now consume only these adapters. Browser calculations are limited to presentation-only distribution counts.
+Analytics pages now consume only those adapters. Presentation-only distribution counts remain client-side and do not define business truth.
 
-## Regression evidence
-Canonical behavioral regression:
-`scripts/dashboard-canonical-regression.mjs`
+## Regression / consumer proof
+`scripts/dashboard-canonical-regression.mjs` is wired into the existing `quality.yml` Behavioral regressions gate.
 
-It now gates:
-- 21 records vs page-size-20 aggregate semantics;
+It verifies:
+- display page size cannot define business aggregate;
 - cancelled/void exclusion;
-- NULL required-cost fail-closed semantics;
-- server-derived tenant authority;
+- NULL required data remains unavailable;
+- tenant authority is server-derived;
 - Dashboard/Reports/Executive Command Center canonical consumption;
-- zero non-compatibility consumers of migrated legacy dashboard function names;
-- legacy query dashboard functions are adapters, not aggregators;
-- inventory server pagination/filtering and independent totals;
-- inventory unknown-cost valuation remains unavailable rather than zero;
-- InventoryPage and InventoryReportPage no longer consume unbounded inventory balances;
-- RFM/ABC/Aging authoritative RPC existence, tenant authority and status contracts;
-- AnalyticsPage has no direct transactional Supabase reads and consumes only canonical adapters;
-- explicit `INSUFFICIENT_DATA` / `UNDATED` behavior.
+- zero non-compatibility consumers for migrated dashboard function names;
+- legacy dashboard query functions are adapters, not aggregators;
+- inventory pagination/filtering is server-side;
+- inventory valuation fails closed on incomplete cost data;
+- InventoryPage/InventoryReportPage no longer consume unbounded inventory balances;
+- RFM/ABC/Aging RPC contracts, tenant authority and status semantics;
+- AnalyticsPage has no direct transactional Supabase reads;
+- `INSUFFICIENT_DATA` / `UNDATED` are preserved.
 
-This is behavioral/contract regression plus consumer proof, not a scanner-only gate.
+## CI integrity
+`.github/workflows/quality.yml` remains the canonical quality workflow.
+Its Diagnostics step now proves both:
+1. workflow checkout HEAD = `GITHUB_SHA` (PR merge-ref integrity), and
+2. PR branch ref SHA = event `pull_request.head.sha` (exact code-head integrity).
 
-## Classification
-### IMPLEMENTED
-- Dashboard canonical aggregation: PASS by code inspection.
-- Reports migration: PASS by consumer inspection.
-- Inventory canonical aggregation: IMPLEMENTED; exact CI pending.
-- Analytics RFM/ABC/Aging canonical aggregation: IMPLEMENTED; exact CI pending.
-- `queries.ts` dashboard legacy functions: intentionally retained as compatibility adapters.
+This distinction is intentional: a green merge ref cannot be promoted to a code-head PASS unless the actual branch-head SHA is verified too.
 
-### TESTED
-Regression is wired into canonical `quality.yml` under the existing behavioral regression gate.
+## Definition of Done
+- FOUNDATION: PASS by prior evidence.
+- IMPLEMENTED: PASS for the migrated families.
+- TESTED: regression code present and workflow-gated.
+- GATED: exact current-head CI pending/not observable.
+- CONSUMER VERIFIED: migrated Dashboard/Reports/Executive/Inventory/Analytics consumers verified by source and regression contracts.
+- RUNTIME VERIFIED: NO CLAIM.
+- LIVE VERIFIED: NO.
+- PRODUCTION CERTIFIED: NO.
 
-### GATED
-Pending exact-head CI for the newest HEAD.
-
-### CONSUMER VERIFIED
-- Dashboard
-- Reports
-- Executive Command Center
-- Inventory Report
-- Inventory entity page
-- Analytics RFM
-- Analytics ABC
-- Analytics Aging
-
-### RUNTIME VERIFIED
-NO CLAIM.
-
-### LIVE VERIFIED
-NO.
-
-### PRODUCTION CERTIFIED
-NO.
-
-## Remaining P0/P1 families
-1. `fetchInventoryBalances()` remains in `queries.ts` as an unbounded compatibility/query path; find all consumers and migrate them before removal.
-2. `queries-compat.ts` broadly re-exports `queries.ts`; classify every remaining consumer and narrow compatibility exports only after zero-consumer proof.
-3. Other client-side business engines outside `queries.ts`: BI, decision metrics, forecasts, demand velocity, inventory intelligence, recommendations/outcomes and exports.
+## Remaining P0/P1
+1. `fetchInventoryBalances()` remains as an unbounded compatibility/query path; inventory all consumers and migrate before removal.
+2. `queries-compat.ts` broadly re-exports `queries.ts`; classify/narrow only after consumer/dependency proof.
+3. Remaining client-side business aggregation in BI, Decision Metrics, Exports, Forecasts, Demand Velocity and Inventory Intelligence.
 4. Cross-surface equivalence: Dashboard = Reports = Analytics = BI = Exports = Decisions.
-5. Product-page margin calculation is presentation of stored product values but still requires contract review for NULL/zero semantics.
-6. Data-quality page performs client-side quality aggregation; determine whether it is diagnostic presentation or authoritative business quality metric and migrate if authoritative.
+5. Product-page margin NULL/zero contract review.
+6. Data-quality page aggregation classification and authoritative migration if required.
+7. Tenant runtime isolation across DB/Storage/Realtime/AI/vector/worker/notification.
 
 ## Performance evidence
-- Dashboard business totals no longer require browser-wide invoice/item transfer.
-- Inventory display rows are bounded to 1–100 and totals are server-derived.
-- RFM/ABC result limits are bounded to 500.
-- Analytics no longer downloads complete invoice/item histories for aggregation.
+- Dashboard business aggregates are server-side.
+- Inventory rows bounded 1–100; totals independent of display pagination.
+- RFM/ABC bounded to 500 rows.
+- Analytics no longer transfers full transactional histories.
 
 Production-scale query-plan timing, load and latency remain **LIVE REQUIRED**.
 
-## Security / tenant
-Canonical RPCs use `current_company_id()` and `SECURITY INVOKER`.
-Runtime A/B tenant tests across DB/Storage/Realtime/AI/vector/worker/notification remain LIVE REQUIRED.
-
-## Exact-head evidence ledger
-- Previous observed exact-head state: `888b4643...` had no observable check-runs.
-- Subsequent code heads were not promoted from historical PASS.
-- Current code before this Index commit: `5394d89205ebb5790c9a3c87d086922ea072569b`.
-- Current Index commit: this document's resulting commit SHA is distinct and will itself require fresh CI evidence.
-- CI status for current code at last check: NOT OBSERVABLE; no PASS claimed.
-
 ## LIVE REQUIRED
-1. Supabase A/B DB tenant isolation.
+1. Supabase A/B tenant isolation.
 2. Storage isolation.
 3. Realtime authorization.
 4. AI/vector isolation.
@@ -160,16 +135,16 @@ Runtime A/B tenant tests across DB/Storage/Realtime/AI/vector/worker/notificatio
 6. Real document/OCR corpus.
 7. Worker crash/recovery/DLQ/duplicate-side-effect drill.
 8. Native watcher.
-9. Real backup restore + integrity + rollback + measured RPO/RTO.
-10. Production telemetry + PII-redaction verification.
+9. Real backup restore + integrity + rollback + RPO/RTO.
+10. Production telemetry + PII redaction.
 11. Production load/canary/rollback.
-12. Production query plans and scale evidence.
+12. Production query-plan/scale evidence.
 
-## Next autonomous execution
-- Exact-head CI verification for the new Index HEAD.
-- Continue `queries.ts` / `queries-compat.ts` function-by-function inventory, beginning with `fetchInventoryBalances` consumers.
-- Sweep remaining client-side aggregation in BI/Decision/Export/Forecast/Demand Velocity/Inventory Intelligence.
-- Build cross-surface behavioral equivalence invariants using identical tenant/date/status/as-of inputs.
-- Continue tenant/security sibling sweep and prepare LIVE evidence without mislabeling static proof as LIVE.
+## Next execution
+- Verify exact-head CI for the new Index HEAD.
+- Continue function-by-function `queries.ts` / `queries-compat.ts`, beginning with `fetchInventoryBalances` consumers.
+- Sweep BI/Decision/Export/Forecast/Demand Velocity/Inventory Intelligence for remaining browser business truth.
+- Add cross-surface behavioral equivalence invariants with identical tenant/date/status/as-of inputs.
+- Continue security/runtime preparation in parallel.
 
-Production certification remains blocked until real LIVE evidence exists.
+PRODUCTION CERTIFIED = NO until real LIVE evidence exists.
