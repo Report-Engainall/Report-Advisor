@@ -1,6 +1,6 @@
 name: quality
 on:
-  push: {branches: [main]}
+  push: {branches: [main, 'wave/**']}
   pull_request: {branches: [main]}
   workflow_dispatch:
 permissions: {contents: read}
@@ -26,6 +26,8 @@ jobs:
         run: npm run test:workflow-command-integrity
       - name: CI topology and canonical release wiring
         run: node scripts/check-ci-execution-topology.mjs && node scripts/check-production-recovery-gate.mjs
+      - name: Canonical query alias closure
+        run: node scripts/check-canonical-query-alias.mjs
       - name: Cross-surface capability traceability
         run: node scripts/check-cross-surface-traceability.mjs
       - name: Authentication and tenant convergence
