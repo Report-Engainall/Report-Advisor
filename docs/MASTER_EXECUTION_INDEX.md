@@ -1,7 +1,7 @@
 # Report Advisor — Master Execution & Truth Index
 
 Snapshot: 2026-08-26
-Source of truth: `main` + active execution PRs. Wave 04 branch is the active verification/pre-live closure branch.
+Source of truth: `main` + active execution PRs. Wave 05 branch is the active real-consumer closure branch.
 
 ## Mandatory truth rules
 - PASS is bound to an exact commit and exact CI run/job evidence.
@@ -12,124 +12,119 @@ Source of truth: `main` + active execution PRs. Wave 04 branch is the active ver
 - Independent fronts run in parallel; destructive consolidation requires consumer/dependency/rollback analysis.
 
 ## Exact HEAD / CI truth
-- Wave 04 started from Wave 03 HEAD: `d6a258419a7c20a05145fe7ae4dc35ee239f6287`.
-- Wave 04 branch: `execution-wave-04-verification`.
-- Latest code/workflow HEAD before this index-only update: `7b222f7e82e6cfad515d3402f1c2516d5fcbe0a0`.
-- This index update is intentionally separate from the code/workflow HEAD; it never self-references a future SHA.
+- Wave 05 started from Wave 04 exact-head/index truth: `bf00299ec1f9ff91db8e6a99a18a5b4b608111cd`.
+- Wave 05 implementation branch: `execution-wave-05-consumer-closure`.
+- Latest code-fix commit before this index update: `bac3acbd1739591eea0df52708303122d5821143`.
+- Latest branch HEAD after this index update: **recorded by GitHub as the resulting commit of this update; CI must be checked against that exact SHA before PASS is recorded.**
+- PR #25: `execution-wave-05-consumer-closure` → `main`.
 - Base `main`: `4095e0f0d427652eb705ba3955389ae978d7b5bf`.
-- Exact-head workflow lookup for `7b222f7e82e6cfad515d3402f1c2516d5fcbe0a0`: **PENDING / no completed run observable at verification time**.
-- Therefore Wave 04 CI = **PENDING**, never PASS.
-- Historical Run `32910806786` on `25eef5212dbc63d2255ad7998e76c3d02a5191cf` remains baseline evidence only.
+- Exact-head workflow/status lookup for the code-fix HEAD `bac3acbd1739591eea0df52708303122d5821143` returned no completed workflow/status records at verification time.
+- Therefore Wave 05 CI = **PENDING**, never PASS.
+- Historical runs remain historical evidence only and are not transferred to Wave 05.
+
+## Wave 05 real findings → fixes
+1. **REAL ARCHITECTURE / DATA-CONSUMER FINDING:** `src/pages/AnalyticsPage.tsx` contained page-local RFM, ABC and Aging business calculations and directly owned tenant resolution/Supabase access.
+   - Root cause: analytics consumer logic was duplicated at the page boundary instead of a canonical service.
+   - Fix: created `src/lib/canonical-analytics.ts` with server-derived tenant context and canonical RFM/ABC/Aging implementations.
+   - Consumer repair: RFM, ABC and Aging pages now call only the canonical analytics service.
+   - Regression: `scripts/execution-wave-05-consumer-regression.mjs` blocks direct Supabase/tenant resolution in `AnalyticsPage.tsx` and requires all three canonical functions.
+   - Status: **FIXED LOCALLY / REGRESSION ADDED / CI PENDING**.
+
+2. **REAL CROSS-SURFACE OBSERVATION:** `get_executive_metrics(...)` exists as a database canonical calculation with tenant authority, while `src/lib/queries.ts` still contains a separate dashboard calculation path.
+   - Status: **FOUND / NOT YET MIGRATED**.
+   - Reason not blindly rewritten: the current dashboard query also preserves nullable/INSUFFICIENT_DATA semantics and several consumers depend on its return contract; migration requires consumer inventory plus regression against date/status/null semantics.
+   - Next action: migrate dashboard/report KPI consumers to the canonical RPC in a dedicated safe change, then prove equivalence.
+
+3. **REAL REPORT TRUTH OBSERVATION:** `PurchasesReportPage` calculates totals from only the first 20 fetched purchase invoices, while the report label presents the result as total purchases.
+   - Status: **FOUND / NOT YET FIXED**.
+   - Reason: safe fix requires a canonical server-side aggregate or an explicit paginated-summary contract; changing it to an unbounded client scan would create a performance regression.
+   - Next action: add/verify canonical aggregate consumer, then regression for full-dataset total vs page data.
+
+4. **REAL REPORT TRUTH OBSERVATION:** `InventoryReportPage` converts missing `quantity`/`unit_cost` to zero in its local total calculation.
+   - Status: **FOUND / NOT YET FIXED**.
+   - Reason: this is a direct violation of unknown≠zero; the safe fix is to consume canonical inventory valuation or surface unknown state, not silently substitute zero.
 
 ## Capability truth matrix
 | CAPABILITY | FOUNDATION | DEEP CLOSURE | CONSUMER VERIFIED | TESTED | GATED | INTEGRATED | RUNTIME VERIFIED | LIVE VERIFIED | PRODUCTION CERTIFIED | LAST CODE COMMIT | LAST CI | LAST TEST | REMAINING | DEPENDENCY | RISK |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| Tenant/security authority | YES | YES | PARTIAL | YES | YES | YES | PARTIAL | NO | NO | 7b222f7 | PENDING | wave04 consumer/authority proof | Supabase A/B indirect runtime proof | live Supabase | CRITICAL |
-| BI/data truth | YES | YES | PARTIAL | YES | YES | YES | LOCAL | NO | NO | 7b222f7 | PENDING | consumer inventory + cross-surface guards | runtime consumer equivalence incl. filters/as-of | none | HIGH |
-| Cross-surface truth | YES | YES | PARTIAL | YES | YES | YES | LOCAL/PARTIAL | NO | NO | 7b222f7 | PENDING | canonical KPI + consumer proof gate | runtime Dashboard=Report=Export=Decision | real tenant runtime | HIGH |
-| Import/reconciliation | YES | YES | YES* | YES | YES | YES | DETERMINISTIC | NO | NO | 7b222f7 | PENDING | Wave 03 adversarial + Wave 04 invariant proof | deployed worker drill/rollback | live worker | CRITICAL |
-| Runtime/workers | YES | YES | YES* | YES | YES | YES | SIMULATED | NO | NO | 7b222f7 | PENDING | distributed runtime + invariant proof | deployed crash/restart/DLQ/resume | deployed worker | CRITICAL |
-| Document intelligence | YES | YES | PARTIAL | YES | YES | YES | LOCAL SEMANTIC | NO | NO | 7b222f7 | PENDING | measured semantic execution | larger real corpus + OCR accuracy | real corpus | HIGH |
-| Evidence/provenance | YES | YES | PARTIAL | YES | YES | YES | PARTIAL | NO | NO | 7b222f7 | PENDING | consumer/provenance scan | real document evidence chain | real corpus | HIGH |
-| Decision/action/outcome/feedback | YES | YES | PARTIAL | YES | YES | YES | PARTIAL | NO | NO | 7b222f7 | PENDING | graph regressions + consumer scan | runtime full-loop action/outcome/feedback | runtime outcome | CRITICAL |
-| Observability | YES | YES | PARTIAL | YES | YES | YES | LOCAL | NO | NO | 7b222f7 | PENDING | trace context regression | production telemetry chain | telemetry environment | HIGH |
-| Backup/restore | YES | YES | N/A | YES | YES | YES | LOCAL ARTIFACT | NO | NO | 7b222f7 | PENDING | readiness harness | real restore/RPO/RTO/rollback | live DB/backup | CRITICAL |
-| Watched folder | YES | YES | PARTIAL | YES | YES | YES | LOCAL IDENTITY | NO | NO | 7b222f7 | PENDING | watcher recovery + invariant proof | native persistent watcher | native adapters/devices | HIGH |
-| Performance | YES | YES | N/A | PARTIAL | YES | YES | LOCAL | NO | NO | 7b222f7 | PENDING | deep static scan | before/fix/after + production benchmark | production-scale data | MEDIUM |
-| UI/E2E | YES | YES | PARTIAL | PARTIAL | YES | PARTIAL | STATIC | NO | NO | 7b222f7 | PENDING | consumer inventory | authenticated browser proof | auth runtime | HIGH |
-| CI topology | YES | YES | N/A | YES | YES | YES | PENDING | NO | NO | 7b222f7 | PENDING | quality workflow + Wave 04 gates | exact-head run evidence | GitHub Actions | MEDIUM |
-| Production hygiene | YES | YES | PARTIAL | PARTIAL | YES | YES | NO | NO | NO | 7b222f7 | PENDING | hygiene/authority scan | classify and fix concrete production risks | code runtime | MEDIUM |
+| Tenant/security authority | YES | YES | PARTIAL | YES | YES | YES | PARTIAL | NO | NO | bac3acb | PENDING | Wave04 authority + Wave05 consumer review | Supabase A/B indirect runtime proof | live Supabase | CRITICAL |
+| BI/data truth | YES | YES | PARTIAL | YES | YES | YES | LOCAL | NO | NO | bac3acb | PENDING | Wave05 consumer findings | migrate dashboard KPI to canonical RPC; runtime equivalence | real tenant runtime | HIGH |
+| Cross-surface truth | YES | YES | PARTIAL | YES | YES | YES | LOCAL/PARTIAL | NO | NO | bac3acb | PENDING | Wave04 + Wave05 consumer review | Dashboard=Report=Export=Decision runtime equivalence | real tenant runtime | HIGH |
+| Import/reconciliation | YES | YES | YES* | YES | YES | YES | DETERMINISTIC | NO | NO | bf00299 | PENDING | Wave03/04 import invariants | deployed worker concurrency/retry/rollback | live worker | CRITICAL |
+| Runtime/workers | YES | YES | YES* | YES | YES | YES | SIMULATED | NO | NO | bf00299 | PENDING | Wave03/04 runtime invariants | deployed crash/restart/DLQ/resume | deployed worker | CRITICAL |
+| Document intelligence | YES | YES | PARTIAL | YES | YES | YES | LOCAL SEMANTIC | NO | NO | bf00299 | PENDING | measured semantic execution | larger real corpus + OCR accuracy | real corpus | HIGH |
+| Evidence/provenance | YES | YES | PARTIAL | YES | YES | YES | PARTIAL | NO | NO | bf00299 | PENDING | provenance proof | real document evidence chain | real corpus | HIGH |
+| Decision/action/outcome/feedback | YES | YES | PARTIAL | YES | YES | YES | PARTIAL | NO | NO | bf00299 | PENDING | graph regressions + consumer scan | runtime full-loop action/outcome/feedback | runtime outcome | CRITICAL |
+| Observability | YES | YES | PARTIAL | YES | YES | YES | LOCAL | NO | NO | bf00299 | PENDING | trace regressions | production telemetry chain | telemetry environment | HIGH |
+| Backup/restore | YES | YES | N/A | YES | YES | YES | LOCAL ARTIFACT | NO | NO | bf00299 | PENDING | readiness harness | real restore/RPO/RTO/rollback | live DB/backup | CRITICAL |
+| Watched folder | YES | YES | PARTIAL | YES | YES | YES | LOCAL IDENTITY | NO | NO | bf00299 | PENDING | watcher invariants | native persistent watcher | native adapters/devices | HIGH |
+| Performance | YES | YES | N/A | PARTIAL | YES | YES | LOCAL | NO | NO | bf00299 | PENDING | deep static scan | before/fix/after + production benchmark | production-scale data | MEDIUM |
+| UI/E2E | YES | YES | PARTIAL | PARTIAL | YES | PARTIAL | STATIC | NO | NO | bac3acb | PENDING | consumer regression | authenticated browser proof | auth runtime | HIGH |
+| CI topology | YES | YES | N/A | YES | YES | YES | PENDING | NO | NO | bac3acb | PENDING | Wave05 workflow wiring | exact-head run evidence | GitHub Actions | MEDIUM |
+| Production hygiene | YES | YES | PARTIAL | PARTIAL | YES | YES | NO | NO | NO | bf00299 | PENDING | hygiene/authority scan | concrete production-risk closure | code/runtime | MEDIUM |
 
-\* Import/worker consumer state means the harnesses and invariants are integrated and exercised by proof gates; it does not mean deployed runtime is verified.
+\* Import/worker consumer state means proof harnesses and invariants are integrated; it does not mean deployed runtime is verified.
 
-## Wave 04 implementation
-1. `scripts/execution-wave-04-consumer-proof.mjs`: repository-wide consumer inventory for UI/pages plus indirect authority and provenance guards; blocking authority patterns fail closed.
-2. `scripts/execution-wave-04-invariant-proof.mjs`: verifies the existing Wave 03 import/worker/watcher/decision/trace implementations contain the required deep invariant coverage without rebuilding those foundations.
-3. `docs/WAVE_04_CONSUMER_DEPENDENCY_MAP.md`: capability→canonical implementation→consumer→legacy/risk→proof map and security authority matrix.
-4. `package.json`: canonical `test:wave04-consumer-proof` and `test:wave04-invariant-proof` commands.
-5. `.github/workflows/quality.yml`: Wave 04 gates integrated into the existing canonical quality workflow; no duplicate quality workflow created.
+## Wave 05 implementation
+1. `src/lib/canonical-analytics.ts` — canonical RFM/ABC/Aging consumer calculations with tenant authority derived from authenticated context.
+2. `src/pages/AnalyticsPage.tsx` — removed page-local Supabase/business calculations and routed the three analytics consumers through the canonical service.
+3. `scripts/execution-wave-05-consumer-regression.mjs` — regression enforcing canonical analytics routing and prohibiting page-local tenant authority.
+4. `.github/workflows/quality.yml` — integrated the Wave 05 regression into the existing canonical quality workflow; no duplicate workflow created.
+5. PR #25 — active execution PR carrying the Wave 05 changes.
 
-## Consumer truth
-- Wave 04 advances from pattern-only scanning to repository consumer inventory.
-- Direct page/component Supabase access is surfaced as a review finding rather than silently treated as canonical.
-- Page-local KPI formulas are surfaced explicitly.
-- A clean static scan remains insufficient for runtime equivalence certification.
-- Full Dashboard=Report=Export=Decision consumer equivalence remains PARTIAL until real runtime execution with identical tenant/period/dataset/filter/as-of context.
+## Real consumer closure truth
+- **FIXED:** Analytics RFM/ABC/Aging were real page-local calculations; they are now service-backed.
+- **PARTIAL:** Dashboard/Reports still have a canonical-RPC migration gap identified but intentionally not changed blindly.
+- **PARTIAL:** Purchase report page summary is currently page-limited despite total wording.
+- **PARTIAL:** Inventory report page currently has an unknown→zero conversion in local total valuation.
+- Static proof is not runtime proof; no live equivalence is claimed.
 
 ## Security authority truth
-- Tenant authority remains server/database-derived; client-selected tenant/object/recipient/report/decision/outcome/worker context is not trusted.
-- Wave 04 adds blocking detection for client-selected tenant/fallback/recipient authority patterns and inventories indirect object/report/decision paths.
-- Storage, signed URL, Realtime, AI/vector, cache and IDOR isolation still require live A/B proof after static/application closure.
+- No new client-selected tenant authority was introduced by Wave 05.
+- Canonical analytics derives tenant through `resolveCurrentCompanyId()` and queries tenant-scoped rows.
+- Existing live-only surfaces remain: Storage/signed URLs, Realtime, AI/vector, cache/IDOR and A/B tenant isolation.
 
-## Import / worker truth
-- Wave 03 foundations are reused, not rebuilt.
-- Wave 04 adds invariant coverage verification for replay, crash, checkpoint, resume, business-key, cancellation, terminal state, tenant isolation, lease, heartbeat, retry, DLQ and duplicate completion semantics.
-- Duplicate side-effect safety still requires deployed worker/database/event/notification drill.
-
-## Document / evidence truth
-- Semantic execution remains local and measured; no fake OCR or extraction accuracy is claimed.
-- Wave 04 explicitly treats evidence provenance and confidence as separate concerns and keeps real-corpus accuracy LIVE/REAL-CORPUS REQUIRED.
-
-## Decision / outcome truth
-- Existing fail-closed graph remains canonical.
-- Wave 04 verifies the graph and scans consumers for direct decision creation/provenance risk.
-- Missing impact/accuracy remains unknown, not zero.
-- Runtime action→outcome→feedback remains outstanding.
-
-## Observability truth
-- Existing trace context is canonical and Wave 04 verifies the required identity chain remains present.
-- PII redaction and tenant propagation remain locally gated; production telemetry remains LIVE REQUIRED.
-
-## Backup / watcher truth
-- Existing backup and watcher harnesses remain canonical.
-- Wave 04 verifies their deep invariant markers rather than rebuilding them.
-- Real restore and native persistent watcher behavior remain LIVE REQUIRED.
-
-## Performance / UI / hygiene truth
-- Performance remains PARTIAL until concrete before/fix/after evidence exists.
-- UI remains PARTIAL until authenticated browser execution; static consumer paths are being verified now.
-- Production-risk findings are surfaced by gates; no production certification is inferred from a scan alone.
-
-## LIVE REQUIRED — only evidence that genuinely needs environment
-1. Supabase A/B isolation across DB/Storage/Realtime/AI-vector/import/report/decision/export/download/worker/notification.
+## LIVE REQUIRED — only environment-dependent evidence
+1. Supabase A/B DB/Storage/Realtime/AI-vector isolation.
 2. Deployed worker crash/restart/stale lease/DLQ/resume and duplicate side-effect drill.
 3. Real backup restore + migration replay + rollback + RPO/RTO.
-4. Windows/Android persistent watcher proof and iOS capability proof.
+4. Windows/Android persistent watcher and iOS capability proof.
 5. Authenticated browser E2E against real tenant data.
 6. Real PDF/OCR/XLSX/CSV/corrupt/ambiguous corpus accuracy.
 7. Production telemetry trace with tenant context and PII redaction.
-8. Production-scale load/canary and rollback.
+8. Production-scale load/canary/rollback.
 
 ## Remaining Work Inventory
 ### NOW
-- Obtain exact-head CI for `7b222f7e82e6cfad515d3402f1c2516d5fcbe0a0`.
-- If CI fails, fix the complete failure family, add regression, and rerun on the new exact HEAD.
-- Review any blocking consumer/authority findings produced by the Wave 04 gate.
-- Complete runtime consumer equivalence for Dashboard/Report/Export/Decision.
+- Obtain CI for the current exact Wave 05 HEAD; if failure occurs, fix the full failure family and rerun.
+- Migrate dashboard KPI calculation to `get_executive_metrics` without losing null/unknown semantics.
+- Replace purchase-report page-limited total with a canonical aggregate.
+- Replace inventory-report unknown→zero valuation with canonical valuation/unknown state.
+- Add consumer-level cross-surface equivalence regression after the above migration.
 
 ### PARALLEL
-- Supabase A/B authority proof preparation.
-- Import/worker side-effect idempotency review.
-- Document corpus and evidence provenance expansion.
+- Security authority proof preparation for live Supabase A/B.
+- Import/worker duplicate-side-effect review.
+- Document provenance expansion.
 - Decision/action/outcome consumer verification.
-- Observability critical-flow runtime propagation.
-- Backup live-drill preparation.
+- Observability critical-flow verification.
+- Backup live drill preparation.
 - Native watcher preparation.
-- Performance before/fix/after work.
+- Performance before/fix/after fixes.
 - Authenticated UI flow inventory.
 
 ### DEPENDENCY
 - Live Supabase environment.
 - Deployed worker.
-- Real database/backup.
+- Real DB/backup.
 - Native adapters/devices.
 - Authenticated browser tenant.
 - Real document corpus.
 - Production telemetry/load environment.
 
 ### DO NOT TOUCH
-- Closed BI NaN/Infinity, trend chronology, outcome identity, missing-impact truth and SHA-256 fallback unless regression, bypass or new evidence appears.
-- Destructive migration/consolidation without consumer/dependency/rollback proof.
+- Closed BI NaN/Infinity, trend chronology, outcome identity, missing-impact truth and SHA-256 fallback unless regression/bypass/new evidence appears.
+- Destructive legacy removal or migration without consumer/dependency/rollback proof.
 
 ## Completion truth
-Wave 04 current state = **VERIFICATION IMPLEMENTED / CONSUMER VERIFIED PARTIAL / CI PENDING / RUNTIME PARTIAL / LIVE UNVERIFIED / NOT PRODUCTION CERTIFIED**.
+**Wave 05 = REAL CONSUMER REPAIR STARTED AND PROVEN LOCALLY; CI PENDING; RUNTIME PARTIAL; LIVE UNVERIFIED; NOT PRODUCTION CERTIFIED.**
