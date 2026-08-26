@@ -4,13 +4,15 @@ import { decideIncrementalImport, type ImportFingerprint } from './incremental-i
 
 export interface FolderEntry { name:string; path:string; size:number; lastModified:number; file:File; }
 export interface FolderSnapshotStore { get(key:string):Promise<FolderFileRecord|undefined>; put(key:string,value:FolderFileRecord):Promise<void>; }
-type DirectoryHandleWithEntries = FileSystemDirectoryHandle & { entries: () => AsyncIterableIterator<[string, FileSystemHandle]> };
+type DirectoryEntryHandle = FileSystemDirectoryHandle & { entries: () => AsyncIterableIterator<[string, FileSystemHandle]> };
+type FileHandle = FileSystemFileHandle & { getFile: () => Promise<File> };
+type DirectoryPickerWindow = Window & { showDirectoryPicker?: (options?: { mode?: 'read' | 'readwrite' }) => Promise<FileSystemDirectoryHandle> };
 
 export async function sha256File(file:File):Promise<string>{const digest=await crypto.subtle.digest('SHA-256',await file.arrayBuffer());return [...new Uint8Array(digest)].map(b=>b.toString(16).padStart(2,'0')).join('');}
 
-async function* walk(handle:FileSystemDirectoryHandle,prefix=''):AsyncGenerator<FolderEntry>{for await(const [name,child] of (handle as DirectoryHandleWithEntries).entries()){const relative=prefix?`${prefix}/${name}`:name;if(child.kind==='directory')yield* walk(child as FileSystemDirectoryHandle,relative);else{const file=await child.getFile();yield{name,path:relative,file,size:file.size,lastModified:file.lastModified};}}}
+async function* walk(handle:FileSystemDirectoryHandle,prefix=''):AsyncGenerator<FolderEntry>{for await(const [name,child] of (handle as DirectoryEntryHandle).entries()){const relative=prefix?`${prefix}/${name}`:name;if(child.kind==='directory')yield* walk(child as FileSystemDirectoryHandle,relative);else{const file=await (child as FileHandle).getFile();yield{name,path:relative,file,size:file.size,lastModified:file.lastModified};}}}
 
-export async function selectWatchedFolder():Promise<FileSystemDirectoryHandle>{if(typeof window==='undefined'||typeof window.showDirectoryPicker!=='function')throw new Error('FOLDER_PICKER_UNAVAILABLE');return window.showDirectoryPicker({mode:'read'});}
+export async function selectWatchedFolder():Promise<FileSystemDirectoryHandle>{const pickerWindow=window as DirectoryPickerWindow;if(typeof window==='undefined'||typeof pickerWindow.showDirectoryPicker!=='function')throw new Error('FOLDER_PICKER_UNAVAILABLE');return pickerWindow.showDirectoryPicker({mode:'read'});}
 
 export async function ensureFolderPermission(handle:FileSystemDirectoryHandle):Promise<boolean>{const permissionApi=handle as FileSystemDirectoryHandle & {queryPermission?: (descriptor?:{mode?:'read'|'readwrite'})=>Promise<PermissionState>;requestPermission?: (descriptor?:{mode?:'read'|'readwrite'})=>Promise<PermissionState>};if(permissionApi.queryPermission){const current=await permissionApi.queryPermission({mode:'read'});if(current==='granted')return true;}if(permissionApi.requestPermission)return (await permissionApi.requestPermission({mode:'read'}))==='granted';return false;}
 
