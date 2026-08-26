@@ -15,6 +15,7 @@ import {
 } from '@/lib/queries';
 import { formatCurrency, formatNumber, formatDate } from '@/lib/format';
 import { downloadReportArtifact } from '@/lib/report-execution/download';
+import { fetchAllPurchaseInvoices, fetchAllSalesInvoices } from '@/lib/report-execution/full-dataset';
 import type { SalesInvoice, PurchaseInvoice } from '@/lib/types';
 import type { DashboardKPIs, MonthlyTrend, TopEntity, CategoryBreakdown } from '@/lib/queries';
 
@@ -79,9 +80,12 @@ export function SalesReportPage() {
   if (loading) return <LoadingState />;
   if (error) return <ErrorState message={error} onRetry={load} />;
 
-  const exportSales = () => downloadReportArtifact('sales-report', 'تقرير المبيعات', ['رقم الفاتورة', 'العميل', 'التاريخ', 'الإجمالي', 'المدفوع', 'الحالة'], invoices.map((invoice) => ({
-    'رقم الفاتورة': invoice.invoice_number, 'العميل': invoice.customer?.name ?? null, 'التاريخ': invoice.invoice_date, 'الإجمالي': invoice.total, 'المدفوع': invoice.paid_amount, 'الحالة': invoice.status,
-  })));
+  const exportSales = async () => {
+    const rows = await fetchAllSalesInvoices();
+    downloadReportArtifact('sales-report', 'تقرير المبيعات', ['رقم الفاتورة', 'العميل', 'التاريخ', 'الإجمالي', 'المدفوع', 'الحالة'], rows.map((invoice) => ({
+      'رقم الفاتورة': invoice.invoice_number, 'العميل': invoice.customer?.name ?? null, 'التاريخ': invoice.invoice_date, 'الإجمالي': invoice.total, 'المدفوع': invoice.paid_amount, 'الحالة': invoice.status,
+    })));
+  };
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -123,9 +127,12 @@ export function PurchasesReportPage() {
   if (loading) return <LoadingState />;
   const totalPurchases = purchases.reduce((s, p) => s + Number(p.total), 0);
   const averagePurchase = purchases.length ? totalPurchases / purchases.length : null;
-  const exportPurchases = () => downloadReportArtifact('purchase-report', 'تقرير المشتريات', ['رقم الفاتورة', 'المورد', 'التاريخ', 'الإجمالي', 'المدفوع'], purchases.map((purchase) => ({
-    'رقم الفاتورة': purchase.invoice_number, 'المورد': purchase.supplier?.name ?? null, 'التاريخ': purchase.invoice_date, 'الإجمالي': purchase.total, 'المدفوع': purchase.paid_amount,
-  })));
+  const exportPurchases = async () => {
+    const rows = await fetchAllPurchaseInvoices();
+    downloadReportArtifact('purchase-report', 'تقرير المشتريات', ['رقم الفاتورة', 'المورد', 'التاريخ', 'الإجمالي', 'المدفوع'], rows.map((purchase) => ({
+      'رقم الفاتورة': purchase.invoice_number, 'المورد': purchase.supplier?.name ?? null, 'التاريخ': purchase.invoice_date, 'الإجمالي': purchase.total, 'المدفوع': purchase.paid_amount,
+    })));
+  };
   return (
     <div className="space-y-6 animate-fade-in">
       <PageHeader title="تقرير المشتريات" subtitle="تحليل المشتريات والموردين" actions={<button onClick={exportPurchases} className="btn-secondary text-xs">تصدير XLSX</button>} />
