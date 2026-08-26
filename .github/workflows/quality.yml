@@ -157,4 +157,4 @@ jobs:
         run: node scripts/check-production-readiness.mjs
       - name: Full resilience gate
         if: ${{ always() }}
-        run: node scripts/check-document-resilience.mjs
+        run: npm run test:document-resilience && node scripts/check-document-resilience.mjs
