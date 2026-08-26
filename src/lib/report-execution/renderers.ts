@@ -28,15 +28,22 @@ export function renderXlsx(input: RenderInput): RenderedArtifact {
 function pdfEscape(value: string): string { return value.replace(/\\/g, '\\\\').replace(/\(/g, '\\(').replace(/\)/g, '\\)').replace(/[\r\n]+/g, ' '); }
 
 export function renderPdf(input: RenderInput): RenderedArtifact {
-  const lines = [input.title, input.generatedAt, ...input.rows.slice(0, 42).map(row => input.columns.map(c => `${c}: ${row[c] ?? ''}`).join(' | '))];
-  const commands = ['BT', '/F1 10 Tf', '50 780 Td', ...lines.map((line, i) => `${i ? '0 -16 Td ' : ''}(${pdfEscape(line.slice(0, 180))}) Tj`), 'ET'].join('\n');
-  const objects = [
-    '<< /Type /Catalog /Pages 2 0 R >>',
-    '<< /Type /Pages /Kids [3 0 R] /Count 1 >>',
-    '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>',
-    '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>',
-    `<< /Length ${commands.length} >>\nstream\n${commands}\nendstream`,
-  ];
+  const rowLines = input.rows.map(row => input.columns.map(c => `${c}: ${row[c] ?? ''}`).join(' | '));
+  const pageLines = 42;
+  const chunks: string[][] = [];
+  for (let i = 0; i < rowLines.length || i === 0; i += pageLines) chunks.push(rowLines.slice(i, i + pageLines));
+  const objects: string[] = ['<< /Type /Catalog /Pages 2 0 R >>', '', '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>'];
+  const pageRefs: number[] = [];
+  for (const chunk of chunks) {
+    const lines = [input.title, input.generatedAt, ...chunk];
+    const commands = ['BT', '/F1 10 Tf', '50 780 Td', ...lines.map((line, i) => `${i ? '0 -16 Td ' : ''}(${pdfEscape(line.slice(0, 180))}) Tj`), 'ET'].join('\n');
+    const pageObjectNumber = objects.length + 1;
+    const contentObjectNumber = pageObjectNumber + 1;
+    pageRefs.push(pageObjectNumber);
+    objects.push(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R >> >> /Contents ${contentObjectNumber} 0 R >>`);
+    objects.push(`<< /Length ${commands.length} >>\nstream\n${commands}\nendstream`);
+  }
+  objects[1] = `<< /Type /Pages /Kids [${pageRefs.map(n => `${n} 0 R`).join(' ')}] /Count ${pageRefs.length} >>`;
   let pdf = '%PDF-1.4\n'; const offsets: number[] = [0];
   for (let i = 0; i < objects.length; i++) { offsets.push(pdf.length); pdf += `${i + 1} 0 obj\n${objects[i]}\nendobj\n`; }
   const xref = pdf.length; pdf += `xref\n0 ${objects.length + 1}\n0000000000 65535 f \n`; for (let i = 1; i <= objects.length; i++) pdf += `${String(offsets[i]).padStart(10, '0')} 00000 n \n`;
