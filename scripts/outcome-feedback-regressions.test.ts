@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { recordOutcome, summarizeOutcomes } from '../src/lib/analytics/outcome-feedback.ts';
+import { recordOutcome, summarizeOutcomes } from '../src/lib/analytics/outcome-feedback-core.ts';
 
 const base = {
   tenantId: 'tenant-a',
