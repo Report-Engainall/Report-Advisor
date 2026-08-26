@@ -11,7 +11,7 @@ const agingSql = read('supabase/migrations/20260826130000_cross_surface_truth_cl
 const assertions = [
   ['reports use bounded full export loaders', reports.includes('fetchSalesInvoicesForExport') && reports.includes('fetchPurchaseInvoicesForExport') && reports.includes('fetchInventoryBalancesForExport')],
   ['inventory operational counts are canonical', !reports.includes('const lowStock=balances.filter') && reports.includes('valuation?.low_stock') && reports.includes('valuation?.out_of_stock')],
-  ['receivables use canonical aging truth', reports.includes('fetchCanonicalAgingTruth') && reports.includes('get_receivables_aging_truth_as_of')],
+  ['receivables use canonical aging truth', reports.includes('fetchCanonicalAgingTruth') && analytics.includes('get_receivables_aging_truth_as_of')],
   ['category profitability preserves unknown values', reports.includes('r.sales==null||r.profit==null')],
   ['RFM uses canonical RPC', analytics.includes("get_sales_rfm_truth")],
   ['ABC uses canonical RPC', analytics.includes("get_sales_abc_truth")],
