@@ -22,6 +22,8 @@ jobs:
         run: node --version && npm --version && python3 --version && test -f package-lock.json && test "$(git rev-parse HEAD)" = "${GITHUB_SHA}"
       - name: Install
         run: npm ci --no-audit --no-fund
+      - name: Safe pruning fail-closed guard
+        run: npm run test:safe-pruning
       - name: Workflow command integrity
         run: npm run test:workflow-command-integrity
       - name: CI topology and canonical release wiring
