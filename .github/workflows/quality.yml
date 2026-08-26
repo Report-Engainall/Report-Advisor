@@ -83,7 +83,7 @@ jobs:
       - name: File security regressions
         run: node --experimental-strip-types scripts/file-security-regressions.test.ts
       - name: Decision evidence regressions
-        run: node --experimental-strip-types scripts/decision-evidence-regression.test.ts
+        run: node --experimental-strip-types scripts/decision-evidence-regression.test.ts && node scripts/check-decision-metrics-unknown-regression.mjs
       - name: Routing and security contracts (parallel discovery)
         shell: bash
         run: |
