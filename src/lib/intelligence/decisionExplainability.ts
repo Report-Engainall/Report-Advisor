@@ -19,12 +19,13 @@ export type ExplainableDecision = {
 export function explainDecision(result: DecisionScore, evidence: DecisionEvidence[]): ExplainableDecision {
   const blockers = [...new Set(result.blockers)];
   const evidenceConfidence = evidence.length === 0 ? 0 : evidence.reduce((sum, item) => sum + clamp(item.freshness), 0) / evidence.length;
-  const confidence = clamp(result.score * 0.7 + evidenceConfidence * 0.3);
+  const confidence = result.score === null ? 0 : clamp(result.score * 0.7 + evidenceConfidence * 0.3);
+  if (result.score === null) blockers.push('DECISION_SCORE_INSUFFICIENT_DATA');
   const summary = blockers.length
-    ? `BLOCKED: ${blockers.join(', ')}`
+    ? `BLOCKED: ${[...new Set(blockers)].join(', ')}`
     : `${result.band}: score=${result.score.toFixed(3)}, confidence=${confidence.toFixed(3)}`;
-  const decisionFingerprint = stableFingerprint({ score: result.score, band: result.band, blockers, evidence: evidence.map(({ key, value, source }) => ({ key, value, source })) });
-  return { summary, evidence, blockers, confidence, decisionFingerprint };
+  const decisionFingerprint = stableFingerprint({ score: result.score, band: result.band, blockers: [...new Set(blockers)], evidence: evidence.map(({ key, value, source }) => ({ key, value, source })) });
+  return { summary, evidence, blockers: [...new Set(blockers)], confidence, decisionFingerprint };
 }
 
 function clamp(value: number): number { return Math.max(0, Math.min(1, Number.isFinite(value) ? value : 0)); }
