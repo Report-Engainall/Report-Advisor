@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { analyzeTrend, buildAgingBuckets, cashConversionCycle, decideReplenishment, projectLiquidity, scoreCustomer, scoreSupplier, whatIf } from '../src/lib/businessIntelligenceEngines.ts';
+import { buildFinancialIntelligence } from '../src/lib/intelligence/financialIntelligence.ts';
 
 const asOf = new Date('2026-08-26T00:00:00Z');
 const buckets = buildAgingBuckets([
@@ -27,6 +28,39 @@ const incomplete = cashConversionCycle({
 });
 assert.equal(incomplete.status, 'INSUFFICIENT_DATA');
 assert.equal(incomplete.ccc, null);
+
+// Financial intelligence must preserve missing cost as insufficient evidence all the way into CCC.
+const missingFinancialCost = buildFinancialIntelligence({
+  revenue: 1000,
+  receivables: 500,
+  inventory: 800,
+  costOfSales: null,
+  payables: 200,
+  purchases: 400,
+  openingCash: 1000,
+  dailyInflow: 100,
+  dailyOutflow: 80,
+});
+assert.equal(missingFinancialCost.profitability.status, 'PROFIT_UNAVAILABLE');
+assert.equal(missingFinancialCost.profitability.grossProfit, null);
+assert.equal(missingFinancialCost.ccc.status, 'INSUFFICIENT_DATA');
+assert.equal(missingFinancialCost.ccc.dio, null);
+assert.equal(missingFinancialCost.ccc.ccc, null);
+
+const completeFinancialCost = buildFinancialIntelligence({
+  revenue: 1000,
+  receivables: 500,
+  inventory: 800,
+  costOfSales: 800,
+  payables: 200,
+  purchases: 400,
+  openingCash: 1000,
+  dailyInflow: 100,
+  dailyOutflow: 80,
+});
+assert.equal(completeFinancialCost.profitability.status, 'READY');
+assert.equal(completeFinancialCost.ccc.status, 'READY');
+assert.ok(completeFinancialCost.ccc.ccc !== null);
 
 // Deep data-truth regressions: invalid numeric inputs must never become fake KPI values.
 assert.throws(() => decideReplenishment({ onHand: Number.NaN, avgDailyDemand: 10, leadTimeDays: 5 }), /BI_INVALID_NUMBER:onHand/);
