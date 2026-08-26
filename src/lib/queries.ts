@@ -25,7 +25,14 @@ export async function fetchImportRecords(): Promise<ImportRecord[]> { const comp
 export async function markAlertRead(id: string): Promise<void> { const companyId = await resolveCurrentCompanyId(); if (!companyId) throw new Error('TENANT_REQUIRED'); const { error } = await supabase.from('alerts').update({ is_read: true }).eq('id', id).eq('company_id', companyId); if (error) throw error; }
 export async function updateRecommendationStatus(id: string, status: string): Promise<void> { const companyId = await resolveCurrentCompanyId(); if (!companyId) throw new Error('TENANT_REQUIRED'); const { error } = await supabase.from('recommendations').update({ status }).eq('id', id).eq('company_id', companyId); if (error) throw error; }
 
-export async function fetchForecasts(): Promise<Forecast[]> { const companyId = await resolveCurrentCompanyId(); if (!companyId) throw new Error('TENANT_REQUIRED'); const MAX_FORECAST_ROWS=500; const {data,count,error}=await supabase.from('forecasts').select('*',{count:'exact'}).eq('company_id',companyId).order('period',{ascending:true}).order('id',{ascending:true}).range(0,MAX_FORECAST_ROWS-1); if(error)throw error; if((count??0)>MAX_FORECAST_ROWS)throw new Error('REPORT_QUERY_LIMIT_EXCEEDED: forecasts require explicit pagination'); return (data??[]) as Forecast[]; }
+export async function fetchForecasts(): Promise<Forecast[]> {
+  const { data, error } = await supabase.rpc('get_forecast_snapshot', { p_limit: 500 });
+  if (error) throw error;
+  if (!data || typeof data !== 'object') throw new Error('REPORT_DATA_UNAVAILABLE: forecast snapshot missing');
+  const payload = data as Record<string, unknown>;
+  if (!Array.isArray(payload.rows)) throw new Error('REPORT_DATA_UNAVAILABLE: forecast rows missing');
+  return payload.rows as Forecast[];
+}
 
 const MAX_ENTITY_ROWS = 500;
 export async function fetchCustomers(): Promise<Customer[]> { const companyId = await resolveCurrentCompanyId(); if (!companyId) throw new Error('TENANT_REQUIRED'); const {data,count,error}=await supabase.from('customers').select('*',{count:'exact'}).eq('company_id',companyId).order('name',{ascending:true}).order('id',{ascending:true}).range(0,MAX_ENTITY_ROWS-1); if(error)throw error; if((count??0)>MAX_ENTITY_ROWS)throw new Error('REPORT_QUERY_LIMIT_EXCEEDED: customers require explicit pagination'); return (data??[]) as Customer[]; }
