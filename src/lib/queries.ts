@@ -1,8 +1,8 @@
 import { supabase } from './supabase';
-import { fetchGrossProfitTruth, type GrossProfitDateRange } from './grossProfitTruth';
+import { fetchGrossProfitTruth, isGrossProfitDateInRange, type GrossProfitDateRange } from './grossProfitTruth';
 import type { SalesInvoice, PurchaseInvoice, Recommendation, Alert } from './types';
 export interface DashboardKPIOptions extends GrossProfitDateRange {}
-export interface DashboardKPIs { totalSales:number|null; totalCost:number|null; grossProfit:number|null; grossMargin:number|null; totalQuantity:number; totalReceivables:number; overdueReceivables:number; totalPayables:number; inventoryValue:number; totalCustomers:number; activeCustomers:number; totalProducts:number; invoiceCount:number; avgInvoiceValue:number|null; collectionRate:number; status:'CONFIRMED'|'CALCULATED'|'INSUFFICIENT_DATA'; }
+export interface DashboardKPIs { totalSales:number|null; totalCost:number|null; grossProfit:number|null; grossMargin:number|null; totalQuantity:number|null; totalReceivables:number; overdueReceivables:number; totalPayables:number; inventoryValue:number; totalCustomers:number; activeCustomers:number; totalProducts:number; invoiceCount:number; avgInvoiceValue:number|null; collectionRate:number; status:'CONFIRMED'|'CALCULATED'|'INSUFFICIENT_DATA'|'UNSUPPORTED'; }
 export interface MonthlyTrend { month:string; label:string; sales:number; cost:number|null; profit:number|null; invoices:number; }
 export interface TopEntity { id:string; name:string; value:number; secondary?:number; }
 export interface AgingBucket { bucket:string; amount:number; count:number; }
@@ -10,8 +10,11 @@ export interface CategoryBreakdown { name:string; sales:number; profit:number; q
 
 export async function fetchDashboardKPIs(options:DashboardKPIOptions={}):Promise<DashboardKPIs>{
  const truth=await fetchGrossProfitTruth(options);
- const {data:invoices,error:invoicesError}=await supabase.from('sales_invoices').select('id, company_id, total, paid_amount, status, invoice_date, due_date').in('status',['confirmed','posted','paid']).gte('invoice_date',options.startDate??'1900-01-01').lte('invoice_date',options.endDate??'9999-12-31');
- if(invoicesError)throw invoicesError; const invArr=(invoices??[]) as any[]; const invoiceCount=invArr.length;
+ let invoiceQuery=supabase.from('sales_invoices').select('id, company_id, total, paid_amount, status, invoice_date, due_date').in('status',['confirmed','posted','paid']);
+ if(options.startDate) invoiceQuery=invoiceQuery.gte('invoice_date',options.startDate);
+ if(options.endDate){ const endQuery=/^\d{4}-\d{2}-\d{2}$/.test(options.endDate)?new Date(Date.parse(`${options.endDate}T00:00:00.000Z`)+86_400_000).toISOString():options.endDate; invoiceQuery=invoiceQuery.lt('invoice_date',endQuery); }
+ const {data:invoices,error:invoicesError}=await invoiceQuery;
+ if(invoicesError)throw invoicesError; const invArr=(invoices??[]).filter(inv=>isGrossProfitDateInRange(inv.invoice_date,options)) as any[]; const invoiceCount=invArr.length;
  const totalReceivables=invArr.some(inv=>inv.total==null)?NaN:invArr.reduce((s,inv)=>s+Number(inv.total)-Number(inv.paid_amount??0),0);
  const today=new Date().toISOString().slice(0,10); const overdueReceivables=invArr.filter(inv=>inv.due_date&&inv.due_date<today&&Number(inv.paid_amount??0)<Number(inv.total??0)).reduce((s,inv)=>s+Number(inv.total??0)-Number(inv.paid_amount??0),0);
  const totalPaid=invArr.reduce((s,inv)=>s+Number(inv.paid_amount??0),0); const totalInvoiceAmount=invArr.some(inv=>inv.total==null)?null:invArr.reduce((s,inv)=>s+Number(inv.total),0); const collectionRate=totalInvoiceAmount&&totalInvoiceAmount>0?(totalPaid/totalInvoiceAmount)*100:0;
