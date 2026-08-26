@@ -21,12 +21,17 @@ function walk(dir) {
 walk('src');
 
 const forbidden = [];
+const legacyInventoryConsumers = [];
 for (const file of sourceFiles) {
   const text = fs.readFileSync(file, 'utf8');
   if (text.includes('queries-compat')) forbidden.push(file);
+  if (text.includes('fetchInventoryBalances(') || text.includes("fetchInventoryBalances }")) legacyInventoryConsumers.push(file);
 }
 if (forbidden.length) {
   throw new Error(`Removed compatibility module is still referenced by source consumers: ${forbidden.join(', ')}`);
+}
+if (legacyInventoryConsumers.length) {
+  throw new Error(`Legacy unbounded inventory query still has source consumers: ${legacyInventoryConsumers.join(', ')}`);
 }
 
 const canonical = fs.readFileSync('src/lib/queries.ts', 'utf8');
@@ -36,4 +41,9 @@ for (const name of ['fetchInventoryBalances', 'fetchImportRecords', 'markAlertRe
   }
 }
 
-console.log('Canonical query alias closure: PASS (alias→queries.ts, compatibility module absent, required exports canonical)');
+const app = fs.readFileSync('src/App.tsx', 'utf8');
+if (!app.includes("@/pages/InventoryPageCanonical")) {
+  throw new Error('Inventory route must consume the canonical paginated inventory surface.');
+}
+
+console.log('Canonical query alias closure: PASS (compatibility removed, inventory legacy consumers absent, canonical exports/routes wired)');
