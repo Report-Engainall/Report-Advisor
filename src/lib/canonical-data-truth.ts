@@ -1,0 +1,121 @@
+import { supabase, resolveCurrentCompanyId } from './supabase';
+import type { DashboardKPIs } from './queries';
+
+interface ExecutiveMetrics {
+  revenue: number | null;
+  cost: number | null;
+  gross_profit: number | null;
+  gross_margin_pct: number | null;
+  invoice_count: number;
+  purchases: number | null;
+  receivables: number | null;
+  payables: number | null;
+  inventory_value: number | null;
+  active_products: number;
+  as_of: string;
+}
+
+interface PurchaseSummary {
+  total: number;
+  count: number;
+  supplier_count: number;
+  as_of: string;
+}
+
+interface InventoryValuation {
+  status: 'CALCULATED' | 'INSUFFICIENT_DATA';
+  value: number | null;
+  rows: number;
+  missing_rows: number;
+}
+
+function finiteOrNull(value: unknown): number | null {
+  if (value === null || value === undefined) return null;
+  const n = Number(value);
+  return Number.isFinite(n) ? n : null;
+}
+
+async function tenantId(): Promise<string> {
+  const id = await resolveCurrentCompanyId();
+  if (!id) throw new Error('TENANT_REQUIRED');
+  return id;
+}
+
+export async function fetchCanonicalDashboardKPIs(): Promise<DashboardKPIs> {
+  const companyId = await tenantId();
+  const { data, error } = await supabase.rpc('get_executive_metrics', {
+    p_company_id: companyId,
+    p_from: null,
+    p_to: null,
+  });
+  if (error) throw error;
+
+  const m = (data ?? {}) as ExecutiveMetrics;
+  const [customerResult, productResult] = await Promise.all([
+    supabase.from('customers').select('id', { count: 'exact', head: true }),
+    supabase.from('products').select('id', { count: 'exact', head: true }).eq('is_active', true),
+  ]);
+  if (customerResult.error) throw customerResult.error;
+  if (productResult.error) throw productResult.error;
+
+  const totalSales = finiteOrNull(m.revenue);
+  const totalCost = finiteOrNull(m.cost);
+  const grossProfit = finiteOrNull(m.gross_profit);
+  const grossMargin = finiteOrNull(m.gross_margin_pct);
+  const totalReceivables = finiteOrNull(m.receivables);
+  const totalPayables = finiteOrNull(m.payables);
+  const inventoryValue = finiteOrNull(m.inventory_value);
+  const invoiceCount = Number(m.invoice_count ?? 0);
+  const hasCoreData = invoiceCount > 0 || m.purchases !== null || m.inventory_value !== null;
+
+  return {
+    totalSales,
+    totalCost,
+    grossProfit,
+    grossMargin,
+    totalReceivables,
+    overdueReceivables: null,
+    totalPayables,
+    inventoryValue,
+    totalCustomers: customerResult.count ?? 0,
+    activeCustomers: null,
+    totalProducts: productResult.count ?? 0,
+    invoiceCount,
+    avgInvoiceValue: totalSales !== null && invoiceCount > 0 ? totalSales / invoiceCount : null,
+    collectionRate: null,
+    status: hasCoreData ? 'CALCULATED' : 'INSUFFICIENT_DATA',
+  };
+}
+
+export async function fetchCanonicalPurchaseSummary(): Promise<PurchaseSummary> {
+  const companyId = await tenantId();
+  const { data, error } = await supabase.rpc('get_purchase_summary', {
+    p_company_id: companyId,
+    p_from: null,
+    p_to: null,
+  });
+  if (error) throw error;
+  const result = (data ?? {}) as Partial<PurchaseSummary>;
+  return {
+    total: finiteOrNull(result.total) ?? 0,
+    count: Number(result.count ?? 0),
+    supplier_count: Number(result.supplier_count ?? 0),
+    as_of: String(result.as_of ?? new Date().toISOString().slice(0, 10)),
+  };
+}
+
+export async function fetchCanonicalInventoryValuation(): Promise<InventoryValuation> {
+  const companyId = await tenantId();
+  const { data, error } = await supabase.rpc('get_inventory_valuation', {
+    p_company_id: companyId,
+  });
+  if (error) throw error;
+  const result = (data ?? {}) as Partial<InventoryValuation>;
+  const status = result.status === 'CALCULATED' ? 'CALCULATED' : 'INSUFFICIENT_DATA';
+  return {
+    status,
+    value: status === 'CALCULATED' ? finiteOrNull(result.value) : null,
+    rows: Number(result.rows ?? 0),
+    missing_rows: Number(result.missing_rows ?? 0),
+  };
+}
