@@ -7,42 +7,51 @@ import type { ActionCandidate } from '../lib/free-toolbox/action-priority';
 type Status = 'good' | 'watch' | 'critical';
 type CommandCard = { label: string; value: string; status: Status; icon: typeof WalletCards };
 const formatNumber = (value: number) => new Intl.NumberFormat('ar-YE', { maximumFractionDigits: 1 }).format(value);
-const formatPercent = (value: number) => `${formatNumber(value)}%`;
+const formatPercent = (value: number | null) => value === null ? 'غير متاح' : `${formatNumber(value)}%`;
 function getReceivableStatus(kpi: DashboardKPIs): Status { if (kpi.totalReceivables <= 0) return 'good'; const overdueRate = (kpi.overdueReceivables / kpi.totalReceivables) * 100; if (overdueRate >= 35) return 'critical'; if (overdueRate >= 15) return 'watch'; return 'good'; }
-function getMarginStatus(margin: number): Status { if (margin >= 20) return 'good'; if (margin >= 10) return 'watch'; return 'critical'; }
+function getMarginStatus(margin: number | null): Status { if (margin === null) return 'watch'; if (margin >= 20) return 'good'; if (margin >= 10) return 'watch'; return 'critical'; }
 function getCollectionStatus(rate: number): Status { if (rate >= 80) return 'good'; if (rate >= 60) return 'watch'; return 'critical'; }
 function statusLabel(status: Status) { return status === 'good' ? 'مستقر' : status === 'watch' ? 'مراقبة' : 'حرج'; }
-function buildExecutiveActions(kpi: DashboardKPIs): ActionCandidate[] { const overdueRate = kpi.totalReceivables > 0 ? (kpi.overdueReceivables / kpi.totalReceivables) * 100 : 0; return [
-  { id: 'collections', title: overdueRate >= 15 ? 'رفع التحصيل من العملاء المتأخرين' : 'مواصلة متابعة التحصيل', impact: Math.min(100, overdueRate * 2), urgency: Math.min(100, overdueRate * 2), effort: 35, confidence: 95 },
-  { id: 'margin', title: kpi.grossMargin < 15 ? 'مراجعة هوامش الأصناف منخفضة الربحية' : 'مراجعة فرص تحسين الهامش', impact: Math.min(100, Math.max(0, 30 - kpi.grossMargin) * 3), urgency: Math.min(100, Math.max(0, 25 - kpi.grossMargin) * 3), effort: 45, confidence: kpi.totalCost === null ? 55 : 90 },
-  { id: 'cash-cycle', title: kpi.collectionRate < 70 ? 'تحسين دورة التحصيل' : 'الحفاظ على كفاءة التحصيل', impact: Math.min(100, Math.max(0, 100 - kpi.collectionRate)), urgency: Math.min(100, Math.max(0, 90 - kpi.collectionRate)), effort: 30, confidence: 90 },
-]; }
+function buildExecutiveActions(kpi: DashboardKPIs): ActionCandidate[] {
+  const overdueRate = kpi.totalReceivables > 0 ? (kpi.overdueReceivables / kpi.totalReceivables) * 100 : 0;
+  const marginAvailable = kpi.grossMargin !== null;
+  return [
+    { id: 'collections', title: overdueRate >= 15 ? 'رفع التحصيل من العملاء المتأخرين' : 'مواصلة متابعة التحصيل', impact: Math.min(100, overdueRate * 2), urgency: Math.min(100, overdueRate * 2), effort: 35, confidence: 95 },
+    { id: 'margin', title: !marginAvailable ? 'استكمال بيانات التكلفة قبل تقييم الهامش' : kpi.grossMargin < 15 ? 'مراجعة هوامش الأصناف منخفضة الربحية' : 'مراجعة فرص تحسين الهامش', impact: marginAvailable ? Math.min(100, Math.max(0, 30 - kpi.grossMargin) * 3) : 0, urgency: marginAvailable ? Math.min(100, Math.max(0, 25 - kpi.grossMargin) * 3) : 0, effort: 45, confidence: marginAvailable && kpi.totalCost !== null ? 90 : 55 },
+    { id: 'cash-cycle', title: kpi.collectionRate < 70 ? 'تحسين دورة التحصيل' : 'الحفاظ على كفاءة التحصيل', impact: Math.min(100, Math.max(0, 100 - kpi.collectionRate)), urgency: Math.min(100, Math.max(0, 90 - kpi.collectionRate)), effort: 30, confidence: 90 },
+  ];
+}
 
 export function ExecutiveCommandCenterPage() {
   const [period, setPeriod] = useState('30'); const [selected, setSelected] = useState(0); const [kpis, setKpis] = useState<DashboardKPIs | null>(null); const [loading, setLoading] = useState(true); const [error, setError] = useState<string | null>(null);
   useEffect(() => { let active = true; setLoading(true); setError(null); fetchDashboardKPIs().then((data) => { if (active) setKpis(data); }).catch(() => { if (active) setError('تعذر تحميل مؤشرات مركز القيادة.'); }).finally(() => { if (active) setLoading(false); }); return () => { active = false; }; }, [period]);
-  const executive = useMemo(() => { if (!kpis) return null; const actions = buildExecutiveActions(kpis); const quality = kpis.status === 'INSUFFICIENT_DATA' ? { completeness: 40, validity: 40, consistency: 80, uniqueness: 80, timeliness: 80 } : { completeness: 100, validity: 100, consistency: 100, uniqueness: 100, timeliness: 100 }; return runExecutivePipeline({
-    series: [{ period: new Date().toISOString().slice(0, 10), value: kpis.totalSales }],
-    signals: [
-      { id: 'overdue-rate', label: 'نسبة الذمم المتأخرة', value: kpis.totalReceivables > 0 ? (kpis.overdueReceivables / kpis.totalReceivables) * 100 : 0, history: [], direction: 'higher-risk', staticThreshold: 15 },
-      { id: 'gross-margin', label: 'الهامش الإجمالي', value: kpis.grossMargin ?? 0, history: [], direction: 'lower-risk', staticThreshold: 10 },
-      { id: 'collection-rate', label: 'معدل التحصيل', value: kpis.collectionRate, history: [], direction: 'lower-risk', staticThreshold: 70 },
-    ], actions, quality,
-    kpis: [
-      { id: 'revenue', label: 'المبيعات', value: kpis.totalSales, target: kpis.totalSales, higherIsBetter: true },
-      { id: 'gross_profit', label: 'مجمل الربح', value: kpis.grossProfit ?? 0, target: Math.max(0, kpis.totalSales * 0.2), higherIsBetter: true },
-      { id: 'collection_rate', label: 'معدل التحصيل', value: kpis.collectionRate, target: 80, higherIsBetter: true },
-    ],
-  }); }, [kpis]);
+  const executive = useMemo(() => {
+    if (!kpis || kpis.status === 'INSUFFICIENT_DATA' || kpis.grossMargin === null || kpis.grossProfit === null) return null;
+    const actions = buildExecutiveActions(kpis);
+    const quality = { completeness: 100, validity: 100, consistency: 100, uniqueness: 100, timeliness: 100 };
+    return runExecutivePipeline({
+      series: [{ period: new Date().toISOString().slice(0, 10), value: kpis.totalSales }],
+      signals: [
+        { id: 'overdue-rate', label: 'نسبة الذمم المتأخرة', value: kpis.totalReceivables > 0 ? (kpis.overdueReceivables / kpis.totalReceivables) * 100 : 0, history: [], direction: 'higher-risk', staticThreshold: 15 },
+        { id: 'gross-margin', label: 'الهامش الإجمالي', value: kpis.grossMargin, history: [], direction: 'lower-risk', staticThreshold: 10 },
+        { id: 'collection-rate', label: 'معدل التحصيل', value: kpis.collectionRate, history: [], direction: 'lower-risk', staticThreshold: 70 },
+      ], actions, quality,
+      kpis: [
+        { id: 'revenue', label: 'المبيعات', value: kpis.totalSales, target: kpis.totalSales, higherIsBetter: true },
+        { id: 'gross_profit', label: 'مجمل الربح', value: kpis.grossProfit, target: Math.max(0, kpis.totalSales * 0.2), higherIsBetter: true },
+        { id: 'collection_rate', label: 'معدل التحصيل', value: kpis.collectionRate, target: 80, higherIsBetter: true },
+      ],
+    });
+  }, [kpis]);
   const cards = useMemo<CommandCard[]>(() => { if (!kpis) return []; return [
     { label: 'الذمم المستحقة', value: formatNumber(kpis.totalReceivables), status: getReceivableStatus(kpis), icon: WalletCards },
     { label: 'هامش الربح الإجمالي', value: formatPercent(kpis.grossMargin), status: getMarginStatus(kpis.grossMargin), icon: Gauge },
     { label: 'قيمة المخزون', value: formatNumber(kpis.inventoryValue), status: kpis.inventoryValue > 0 ? 'good' : 'watch', icon: Activity },
     { label: 'الذمم المتأخرة', value: formatNumber(kpis.overdueReceivables), status: getReceivableStatus(kpis), icon: ShieldAlert },
   ]; }, [kpis]);
-  const actions = useMemo(() => { if (!kpis) return []; const overdueRate = kpis.totalReceivables > 0 ? (kpis.overdueReceivables / kpis.totalReceivables) * 100 : 0; return [
+  const actions = useMemo(() => { if (!kpis) return []; const overdueRate = kpis.totalReceivables > 0 ? (kpis.overdueReceivables / kpis.totalReceivables) * 100 : 0; const marginAvailable = kpis.grossMargin !== null; return [
     { title: overdueRate >= 15 ? 'رفع التحصيل من العملاء المتأخرين' : 'مواصلة متابعة التحصيل', impact: `${formatPercent(overdueRate)} من الذمم مستحقة ومتأخرة`, status: overdueRate >= 35 ? 'critical' : overdueRate >= 15 ? 'watch' : 'good' },
-    { title: kpis.grossMargin < 15 ? 'مراجعة هوامش الأصناف منخفضة الربحية' : 'مراجعة فرص تحسين الهامش', impact: `الهامش الإجمالي الحالي ${formatPercent(kpis.grossMargin)}`, status: kpis.grossMargin < 10 ? 'critical' : kpis.grossMargin < 20 ? 'watch' : 'good' },
+    { title: !marginAvailable ? 'استكمال بيانات التكلفة قبل تقييم الهامش' : kpis.grossMargin < 15 ? 'مراجعة هوامش الأصناف منخفضة الربحية' : 'مراجعة فرص تحسين الهامش', impact: marginAvailable ? `الهامش الإجمالي الحالي ${formatPercent(kpis.grossMargin)}` : 'الهامش غير متاح — التكلفة غير مكتملة', status: !marginAvailable ? 'watch' : kpis.grossMargin < 10 ? 'critical' : kpis.grossMargin < 20 ? 'watch' : 'good' },
     { title: kpis.collectionRate < 70 ? 'تحسين دورة التحصيل' : 'الحفاظ على كفاءة التحصيل', impact: `معدل التحصيل ${formatPercent(kpis.collectionRate)}`, status: getCollectionStatus(kpis.collectionRate) },
   ]; }, [kpis]);
   const selectedAction = actions[selected] ?? actions[0]; const pipelineDecision = executive?.decisions[selected] ?? executive?.decisions[0];
