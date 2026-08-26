@@ -1,0 +1,40 @@
+name: wave09-cross-surface-closure
+
+on:
+  push:
+    branches: ["**"]
+    paths:
+      - "src/pages/ReportsPage.tsx"
+      - "src/lib/canonical-analytics.ts"
+      - "src/lib/canonical-secondary-data-truth.ts"
+      - "src/lib/report-export-data.ts"
+      - "supabase/migrations/20260826130000_cross_surface_truth_closure.sql"
+      - "supabase/migrations/20260826131000_analytics_domain_truth.sql"
+      - "scripts/execution-wave-09-cross-surface-closure.mjs"
+      - ".github/workflows/wave09-cross-surface-closure.yml"
+  pull_request:
+    paths:
+      - "src/pages/ReportsPage.tsx"
+      - "src/lib/canonical-analytics.ts"
+      - "src/lib/canonical-secondary-data-truth.ts"
+      - "src/lib/report-export-data.ts"
+      - "supabase/migrations/20260826130000_cross_surface_truth_closure.sql"
+      - "supabase/migrations/20260826131000_analytics_domain_truth.sql"
+      - "scripts/execution-wave-09-cross-surface-closure.mjs"
+      - ".github/workflows/wave09-cross-surface-closure.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  cross-surface-truth:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Cross-surface behavioral truth regression
+        run: node scripts/execution-wave-09-cross-surface-closure.mjs
+      - name: Typecheck
+        run: npm ci --no-audit --no-fund && npm run typecheck
