@@ -133,7 +133,7 @@ jobs:
         run: npm run test:report-truth
       - name: Gross profit truth consumer regression
         if: ${{ always() }}
-        run: npm run test:gross-profit-truth
+        run: npm run test:gross-profit-truth && node scripts/check-gross-profit-truth-consumers.mjs && node scripts/gross-profit-cross-surface-fixture.mjs
       - name: Production readiness
         if: ${{ always() }}
         run: node scripts/check-production-readiness.mjs
