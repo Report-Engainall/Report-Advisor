@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { recordOutcome, summarizeOutcomes } from '../src/lib/analytics/outcome-feedback.ts';
+import { recordOutcome, summarizeOutcomes } from '../src/lib/analytics/outcome-feedback-core.ts';
 
 const base = {
   tenantId: 'tenant-a',
@@ -13,11 +13,8 @@ const base = {
 
 const first = recordOutcome([], base);
 assert.equal(first.length, 1);
-
-// Persistence uses tenant + recommendation key as the identity; observedAt must not create a duplicate in memory.
 const sameRecommendationLater = recordOutcome(first, { ...base, observedAt: '2026-08-27T00:00:00Z', evidenceSnapshotId: 'snapshot-2' });
 assert.equal(sameRecommendationLater.length, 1);
-
 assert.throws(() => recordOutcome([], { ...base, actualValue: undefined }), /OUTCOME_VALUES_REQUIRED_FOR_KNOWN_LABEL/);
 assert.throws(() => recordOutcome([], { ...base, actualValue: Number.NaN }), /OUTCOME_INVALID_NUMBER:actualValue/);
 assert.throws(() => recordOutcome([], { ...base, observedAt: 'invalid-date' }), /Outcome timestamp is invalid/);
@@ -33,4 +30,4 @@ assert.equal(unknownOnly.accuracy, null);
 assert.equal(unknownOnly.coverage, 0);
 assert.equal(unknownOnly.impact, null);
 
-console.log('PASS: outcome identity matches persistence, known labels require values, tenant scope is explicit, and missing impact/accuracy remain unknown rather than zero.');
+console.log('PASS: outcome identity matches persistence contract, known labels require values, tenant scope is explicit, and missing impact/accuracy remain unknown rather than zero.');
