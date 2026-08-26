@@ -1,5 +1,5 @@
 import { supabase, resolveCurrentCompanyId } from './supabase';
-import type { DashboardKPIs, MonthlyTrend } from './queries';
+import type { DashboardKPIs } from './queries';
 
 interface ExecutiveMetrics {
   revenue: number | null; cost: number | null; gross_profit: number | null; gross_margin_pct: number | null;
@@ -10,6 +10,7 @@ interface ExecutiveMetrics {
 }
 interface PurchaseSummary { total: number; count: number; supplier_count: number; as_of: string; }
 interface InventoryValuation { status: 'CALCULATED' | 'INSUFFICIENT_DATA'; value: number | null; rows: number; missing_rows: number; low_stock: number; out_of_stock: number; }
+export interface CanonicalSalesMonthlyTruth { month: string; sales: number | null; cost: number | null; profit: number | null; invoices: number; status: 'CALCULATED' | 'INSUFFICIENT_DATA'; }
 
 function finiteOrNull(value: unknown): number | null {
   if (value === null || value === undefined) return null;
@@ -65,26 +66,21 @@ export async function fetchCanonicalInventoryValuation(): Promise<InventoryValua
   if (error) throw error;
   const result = (data ?? {}) as Partial<InventoryValuation>;
   const status = result.status === 'CALCULATED' ? 'CALCULATED' : 'INSUFFICIENT_DATA';
-  return {
-    status,
-    value: status === 'CALCULATED' ? finiteOrNull(result.value) : null,
-    rows: Number(result.rows ?? 0), missing_rows: Number(result.missing_rows ?? 0),
-    low_stock: Number(result.low_stock ?? 0), out_of_stock: Number(result.out_of_stock ?? 0),
-  };
+  return { status, value: status === 'CALCULATED' ? finiteOrNull(result.value) : null, rows: Number(result.rows ?? 0), missing_rows: Number(result.missing_rows ?? 0), low_stock: Number(result.low_stock ?? 0), out_of_stock: Number(result.out_of_stock ?? 0) };
 }
 
-/** Canonical domain trend. Consumers must not recompute sales/cost/profit locally. */
-export async function fetchCanonicalSalesMonthlyTrend(months = 6): Promise<MonthlyTrend[]> {
+/** Canonical domain trend. Nullable cost/profit is intentional: unknown never becomes zero. */
+export async function fetchCanonicalSalesMonthlyTruth(months = 6): Promise<CanonicalSalesMonthlyTruth[]> {
   const companyId = await tenantId();
   const { data, error } = await supabase.rpc('get_sales_monthly_truth', { p_company_id: companyId, p_months: months });
   if (error) throw error;
   const rows = Array.isArray(data) ? data as Array<{month:string;sales:number|null;cost:number|null;profit:number|null;invoices:number;status:string}> : [];
   return rows.map((r) => ({
     month: r.month,
-    label: r.month,
-    sales: finiteOrNull(r.sales) ?? 0,
-    cost: finiteOrNull(r.cost) ?? 0,
-    profit: finiteOrNull(r.profit) ?? 0,
+    sales: finiteOrNull(r.sales),
+    cost: finiteOrNull(r.cost),
+    profit: finiteOrNull(r.profit),
     invoices: Number(r.invoices ?? 0),
+    status: r.status === 'INSUFFICIENT_DATA' ? 'INSUFFICIENT_DATA' : 'CALCULATED',
   }));
 }
