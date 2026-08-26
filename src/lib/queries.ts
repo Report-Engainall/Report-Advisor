@@ -26,8 +26,8 @@ export interface MonthlyTrend {
   month: string;
   label: string;
   sales: number;
-  cost: number;
-  profit: number;
+  cost: number | null;
+  profit: number | null;
   invoices: number;
 }
 
@@ -81,8 +81,8 @@ export async function fetchDashboardKPIs(): Promise<DashboardKPIs> {
     .from('purchase_invoices').select('total, paid_amount');
   if (purchasesError) throw purchasesError;
 
-  const totalSales = invArr.reduce((s: number, inv: any) => s + Number(inv.subtotal || 0), 0);
   const itemRows = (items || []) as any[];
+  const totalSales = itemRows.reduce((s: number, item: any) => s + Number(item.line_total || 0), 0);
   const totalCost = itemRows.some((item: any) => item.cost_price === null || item.cost_price === undefined || item.cost_price === '')
     ? null
     : itemRows.reduce((s: number, item: any) => s + Number(item.cost_price) * Number(item.quantity || 0), 0);
@@ -95,7 +95,6 @@ export async function fetchDashboardKPIs(): Promise<DashboardKPIs> {
   const totalPayables = ((purchases || []) as any[]).reduce((s: number, pur: any) => s + Number(pur.total || 0) - Number(pur.paid_amount || 0), 0);
   const inventoryValue = ((balances || []) as any[]).reduce((s: number, b: any) => s + Number(b.quantity || 0) * Number(b.unit_cost || 0), 0);
   const invoiceCount = invArr.length;
-  const totalQuantity = itemRows.reduce((s: number, item: any) => s + Number(item.quantity || 0), 0);
   const avgInvoiceValue = invoiceCount > 0 ? totalSales / invoiceCount : 0;
   const totalPaid = invArr.reduce((s: number, inv: any) => s + Number(inv.paid_amount || 0), 0);
   const totalInvAmount = invArr.reduce((s: number, inv: any) => s + Number(inv.total || 0), 0);
@@ -113,7 +112,7 @@ export async function fetchDashboardKPIs(): Promise<DashboardKPIs> {
 
 export async function fetchMonthlyTrend(months = 6): Promise<MonthlyTrend[]> {
   const { data: invoices, error: invoicesError } = await supabase.from('sales_invoices')
-    .select('id, subtotal, invoice_date').order('invoice_date', { ascending: true });
+    .select('id, invoice_date').order('invoice_date', { ascending: true });
   if (invoicesError) throw invoicesError;
   const invoiceIds = (invoices || []).map(inv => inv.id);
   const { data: items, error: itemsError } = invoiceIds.length
@@ -121,17 +120,28 @@ export async function fetchMonthlyTrend(months = 6): Promise<MonthlyTrend[]> {
     : { data: [], error: null };
   if (itemsError) throw itemsError;
 
-  const costByInvoice = new Map<string, number>();
+  const costByInvoice = new Map<string, number | null>();
+  const salesByInvoice = new Map<string, number>();
   for (const item of items || []) {
-    const c = Number((item as SaleItem).cost_price || 0) * Number((item as SaleItem).quantity || 0);
-    costByInvoice.set((item as SaleItem).invoice_id, (costByInvoice.get((item as SaleItem).invoice_id) || 0) + c);
+    const invoiceId = (item as SaleItem).invoice_id;
+    salesByInvoice.set(invoiceId, (salesByInvoice.get(invoiceId) || 0) + Number((item as SaleItem).line_total || 0));
+    const previousCost = costByInvoice.get(invoiceId);
+    if ((item as SaleItem).cost_price === null || (item as SaleItem).cost_price === undefined) {
+      costByInvoice.set(invoiceId, null);
+    } else if (previousCost !== null) {
+      const c = Number((item as SaleItem).cost_price) * Number((item as SaleItem).quantity || 0);
+      costByInvoice.set(invoiceId, (previousCost || 0) + c);
+    }
   }
-  const byMonth = new Map<string, { sales: number; cost: number; invoices: number }>();
+  const byMonth = new Map<string, { sales: number; cost: number | null; invoices: number }>();
   for (const inv of invoices || []) {
     const d = new Date(inv.invoice_date);
     const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
     const entry = byMonth.get(key) || { sales: 0, cost: 0, invoices: 0 };
-    entry.sales += Number(inv.subtotal || 0); entry.cost += costByInvoice.get(inv.id) || 0; entry.invoices += 1;
+    entry.sales += salesByInvoice.get(inv.id) || 0;
+    const invoiceCost = costByInvoice.has(inv.id) ? costByInvoice.get(inv.id) : 0;
+    entry.cost = entry.cost === null || invoiceCost === null ? null : entry.cost + (invoiceCost || 0);
+    entry.invoices += 1;
     byMonth.set(key, entry);
   }
   const result: MonthlyTrend[] = [];
@@ -141,19 +151,26 @@ export async function fetchMonthlyTrend(months = 6): Promise<MonthlyTrend[]> {
     const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
     const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
     const entry = byMonth.get(key) || { sales: 0, cost: 0, invoices: 0 };
-    result.push({ month: key, label: labels[d.getMonth()], sales: entry.sales, cost: entry.cost, profit: entry.sales - entry.cost, invoices: entry.invoices });
+    result.push({ month: key, label: labels[d.getMonth()], sales: entry.sales, cost: entry.cost, profit: entry.cost === null ? null : entry.sales - entry.cost, invoices: entry.invoices });
   }
   return result;
 }
 
 export async function fetchTopCustomers(limit = 5): Promise<TopEntity[]> {
-  const { data, error } = await supabase.from('sales_invoices').select('customer_id, subtotal, customer:customers(name)');
-  if (error) throw error;
+  const { data: invoices, error: invoiceError } = await supabase.from('sales_invoices').select('id, customer_id, customer:customers(name)');
+  if (invoiceError) throw invoiceError;
+  const invoiceIds = (invoices || []).map(row => row.id);
+  const { data: items, error: itemsError } = invoiceIds.length
+    ? await supabase.from('sale_items').select('invoice_id, line_total').in('invoice_id', invoiceIds)
+    : { data: [], error: null };
+  if (itemsError) throw itemsError;
+  const byInvoice = new Map<string, number>();
+  for (const row of items || []) byInvoice.set(row.invoice_id, (byInvoice.get(row.invoice_id) || 0) + Number(row.line_total || 0));
   const byCustomer = new Map<string, { name: string; value: number }>();
-  for (const row of data || []) {
+  for (const row of invoices || []) {
     const name = (row as any).customer?.name || 'غير معروف';
     const entry = byCustomer.get(row.customer_id) || { name, value: 0 };
-    entry.value += Number(row.subtotal || 0); byCustomer.set(row.customer_id, entry);
+    entry.value += byInvoice.get(row.id) || 0; byCustomer.set(row.customer_id, entry);
   }
   return Array.from(byCustomer.entries()).map(([id, v]) => ({ id, name: v.name, value: v.value })).sort((a, b) => b.value - a.value).slice(0, limit);
 }
