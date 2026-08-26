@@ -38,6 +38,8 @@ on:
 permissions:
   contents: read
 
+auto_cancel: false
+
 jobs:
   cross-surface-truth:
     runs-on: ubuntu-22.04
@@ -49,4 +51,26 @@ jobs:
       - name: Cross-surface behavioral truth regression
         run: node scripts/execution-wave-09-cross-surface-closure.mjs
       - name: Typecheck
-        run: npm ci --no-audit --no-fund && npm run typecheck
+        id: typecheck
+        shell: bash
+        run: |
+          set +e
+          npm ci --no-audit --no-fund >/tmp/typecheck-install.log 2>&1
+          install_status=$?
+          if [ "$install_status" -ne 0 ]; then
+            cat /tmp/typecheck-install.log
+            exit "$install_status"
+          fi
+          npm run typecheck >/tmp/typecheck.log 2>&1
+          status=$?
+          cat /tmp/typecheck.log
+          exit "$status"
+      - name: Upload typecheck diagnostics on failure
+        if: ${{ failure() && steps.typecheck.outcome == 'failure' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: wave09-typecheck-diagnostics
+          path: |
+            /tmp/typecheck.log
+            /tmp/typecheck-install.log
+          if-no-files-found: warn
