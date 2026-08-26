@@ -24,6 +24,8 @@ jobs:
         run: npm ci --no-audit --no-fund
       - name: Safe pruning fail-closed guard
         run: npm run test:safe-pruning
+      - name: Safe pruning negative/ambiguity regression
+        run: npm run test:safe-pruning-negative
       - name: Workflow command integrity
         run: npm run test:workflow-command-integrity
       - name: CI topology and canonical release wiring
