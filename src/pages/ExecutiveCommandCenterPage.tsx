@@ -3,19 +3,23 @@ import { Activity, Bell, BrainCircuit, ChevronLeft, CircleAlert, Gauge, ShieldAl
 import { fetchCanonicalDashboardKPIs } from '../lib/canonical-data-truth';
 
 type KPI = Awaited<ReturnType<typeof fetchCanonicalDashboardKPIs>>;
+type CompleteKPI = KPI & { totalReceivables: number; overdueReceivables: number; grossMargin: number; inventoryValue: number; collectionRate: number };
 type Status = 'good' | 'watch' | 'critical';
 type CommandCard = { label: string; value: string; status: Status; icon: typeof WalletCards };
 const formatNumber=(value:number)=>new Intl.NumberFormat('ar-YE',{maximumFractionDigits:1}).format(value);
 const formatPercent=(value:number)=>`${formatNumber(value)}%`;
-function getReceivableStatus(kpi:KPI):Status{if(kpi.totalReceivables==null||kpi.overdueReceivables==null)return'watch';const overdueRate=kpi.totalReceivables>0?(kpi.overdueReceivables/kpi.totalReceivables)*100:0;if(kpi.totalReceivables<=0)return'good';if(overdueRate>=35)return'critical';if(overdueRate>=15)return'watch';return'good';}
+function getReceivableStatus(kpi:CompleteKPI):Status{const overdueRate=kpi.totalReceivables>0?(kpi.overdueReceivables/kpi.totalReceivables)*100:0;if(kpi.totalReceivables<=0)return'good';if(overdueRate>=35)return'critical';if(overdueRate>=15)return'watch';return'good';}
 function getMarginStatus(m:number):Status{return m>=20?'good':m>=10?'watch':'critical';}
 function getCollectionStatus(r:number):Status{return r>=80?'good':r>=60?'watch':'critical';}
 function statusLabel(s:Status){return s==='good'?'مستقر':s==='watch'?'مراقبة':'حرج';}
+function isCompleteKPI(kpi:KPI|null): kpi is CompleteKPI {
+  return Boolean(kpi && kpi.status!=='INSUFFICIENT_DATA' && [kpi.totalReceivables,kpi.overdueReceivables,kpi.grossMargin,kpi.inventoryValue,kpi.collectionRate].every((v):v is number=>typeof v==='number'&&Number.isFinite(v)));
+}
 
 export function ExecutiveCommandCenterPage(){
  const[selected,setSelected]=useState(0);const[kpis,setKpis]=useState<KPI|null>(null);const[loading,setLoading]=useState(true);const[error,setError]=useState<string|null>(null);
  useEffect(()=>{let active=true;setLoading(true);setError(null);fetchCanonicalDashboardKPIs().then(data=>{if(active)setKpis(data);}).catch(()=>{if(active)setError('تعذر تحميل مؤشرات مركز القيادة.');}).finally(()=>{if(active)setLoading(false);});return()=>{active=false;}},[]);
- const completeKpis=kpis&&kpis.status!=='INSUFFICIENT_DATA'&&[kpis.totalReceivables,kpis.overdueReceivables,kpis.grossMargin,kpis.inventoryValue,kpis.collectionRate].every((v):v is number=>typeof v==='number'&&Number.isFinite(v))?kpis:null;
+ const completeKpis=isCompleteKPI(kpis)?kpis:null;
  const cards=useMemo<CommandCard[]>(()=>{if(!completeKpis)return[];return[{label:'الذمم المستحقة',value:formatNumber(completeKpis.totalReceivables),status:getReceivableStatus(completeKpis),icon:WalletCards},{label:'هامش الربح الإجمالي',value:formatPercent(completeKpis.grossMargin),status:getMarginStatus(completeKpis.grossMargin),icon:Gauge},{label:'قيمة المخزون',value:formatNumber(completeKpis.inventoryValue),status:completeKpis.inventoryValue>0?'good':'watch',icon:Activity},{label:'الذمم المتأخرة',value:formatNumber(completeKpis.overdueReceivables),status:getReceivableStatus(completeKpis),icon:ShieldAlert}];},[completeKpis]);
  const actions=useMemo(()=>{if(!completeKpis)return[];const overdueRate=completeKpis.totalReceivables>0?(completeKpis.overdueReceivables/completeKpis.totalReceivables)*100:0;return[{title:overdueRate>=15?'رفع التحصيل من العملاء المتأخرين':'مواصلة متابعة التحصيل',impact:`${formatPercent(overdueRate)} من الذمم مستحقة ومتأخرة`,status:(overdueRate>=35?'critical':overdueRate>=15?'watch':'good') as Status},{title:completeKpis.grossMargin<15?'مراجعة هوامش الأصناف منخفضة الربحية':'مراجعة فرص تحسين الهامش',impact:`الهامش الإجمالي الحالي ${formatPercent(completeKpis.grossMargin)}`,status:(completeKpis.grossMargin<10?'critical':completeKpis.grossMargin<20?'watch':'good') as Status},{title:completeKpis.collectionRate<70?'تحسين دورة التحصيل':'الحفاظ على كفاءة التحصيل',impact:`معدل التحصيل ${formatPercent(completeKpis.collectionRate)}`,status:getCollectionStatus(completeKpis.collectionRate)}];},[completeKpis]);
  const selectedAction=actions[selected]??actions[0];
