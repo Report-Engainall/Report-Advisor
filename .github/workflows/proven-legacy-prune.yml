@@ -1,0 +1,31 @@
+name: proven-legacy-prune
+on:
+  push:
+    branches: ['wave/**']
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  prune:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          persist-credentials: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Prune only proven legacy implementation
+        run: node scripts/prune-proven-legacy-pages.mjs
+      - name: Commit codemod result
+        run: |
+          if git diff --quiet; then
+            echo 'No legacy implementation to remove.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add src/pages/ReportsPage.tsx
+          git commit -m 'refactor: remove proven legacy receivables consumer'
+          git push
