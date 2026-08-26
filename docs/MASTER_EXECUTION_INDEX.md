@@ -14,29 +14,30 @@ Source of truth: `main` + active execution PRs. Wave 03 branch is the active dee
 ## Exact HEAD / CI truth
 - Wave 03 started from Wave 02 HEAD: `ee6344703cea048b9ef7680d166f1208d48e85fc`.
 - Wave 03 PR: `#23` (`execution-wave-03-deep-closure` → `main`).
-- Current Wave 03 HEAD: `d8a9b2d3e7f4c1b6a5e9f3d2c7b8a1e4f6d9c2b5`.
+- Last code/workflow change before the current index-only updates: `c7713996ff22fcfd477fa0e1934f4b8334c5ebd8`.
+- Current branch may advance by index-only commits; therefore this document records the last code HEAD separately from the index commit itself and never self-references a future SHA.
 - Base `main`: `4095e0f0d427652eb705ba3955389ae978d7b5bf`.
-- Exact-head workflow lookup for the current Wave 03 HEAD: **PENDING / no completed run observable yet**.
+- Exact-head workflow lookup for the latest Wave 03 branch state: **PENDING / no completed run observable yet**.
 - Therefore Wave 03 CI = **PENDING**, never PASS.
 - Verified historical baseline remains Run `32910806786` on `25eef5212dbc63d2255ad7998e76c3d02a5191cf` = PASS. It is not evidence for Wave 03.
 
 ## Capability truth matrix
-| CAPABILITY | FOUNDATION | DEEP CLOSURE | TESTED | GATED | INTEGRATED | RUNTIME VERIFIED | LIVE VERIFIED | PRODUCTION CERTIFIED | LAST VERIFIED COMMIT | LAST VERIFIED CI | LAST VERIFIED TEST | REMAINING | DEPENDENCY | PARALLEL WORK | RISK |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| Tenant/security authority | YES | STATIC INDIRECT SCAN | YES | YES | YES | PARTIAL | NO | NO | Wave03 HEAD | PENDING | wave03 deep closure | Supabase A/B indirect runtime drill | live Supabase | yes | CRITICAL |
-| BI/data truth | YES | CONSUMER AUDIT | YES | YES | YES | LOCAL | NO | NO | Wave03 HEAD | PENDING | existing BI + cross-surface gates | verify production as-of/filter provenance | none | yes | HIGH |
-| Cross-surface truth | YES | CONSUMER INVENTORY + FORMULA GUARD | YES | YES | YES | LOCAL/PARTIAL | NO | NO | Wave03 HEAD | PENDING | wave03 deep closure | replace any real consumer-local formula found by gate | none | yes | HIGH |
-| Import/reconciliation | YES | ADVERSARIAL MATRIX | YES | YES | YES | DETERMINISTIC | NO | NO | Wave03 HEAD | PENDING | wave03 import | deployed worker concurrency/retry/rollback drill | live worker | yes | CRITICAL |
-| Runtime/workers | YES | DISTRIBUTED FAILURE SIMULATION | YES | YES | YES | SIMULATED | NO | NO | Wave03 HEAD | PENDING | wave03 runtime | real deployed crash/restart/DLQ/resume | deployed worker | yes | CRITICAL |
-| Document intelligence | YES | FULL 8-CASE MEASURED EXECUTION | YES | YES | YES | LOCAL SEMANTIC | NO | NO | Wave03 HEAD | PENDING | wave03 document | real OCR/PDF/XLSX/CSV/corrupt/ambiguous corpus | real corpus | yes | HIGH |
-| Decision/evidence/outcome | YES | ACTION/FEEDBACK GRAPH VALIDATOR | YES | YES | YES | PARTIAL | NO | NO | Wave03 HEAD | PENDING | wave03 decision | wire/verify production action→outcome→feedback consumers | runtime outcome | yes | CRITICAL |
-| Observability | YES | TRACE PROPAGATION + PII REDACTION | YES | YES | YES | LOCAL | NO | NO | Wave03 HEAD | PENDING | wave03 observability | production telemetry chain | telemetry environment | yes | HIGH |
-| Backup/restore | YES | ORDERING + RPO/RTO HARNESS | YES | YES | YES | LOCAL ARTIFACT | NO | NO | Wave03 HEAD | PENDING | wave03 backup | real restore/RPO/RTO/rollback | live DB/backup | yes | CRITICAL |
-| Watched folder | YES | REPLAY/RECOVERY + CAPABILITY MATRIX | YES | YES | YES | LOCAL IDENTITY | NO | NO | Wave03 HEAD | PENDING | wave03 watcher | persistent native Windows/Android proof; iOS boundary | native adapters/devices | yes | HIGH |
-| Performance | YES | DEEP STATIC AUDIT | PARTIAL | YES | YES | LOCAL | NO | NO | Wave03 HEAD | PENDING | wave03 performance | bottleneck-specific benchmark/fix/after proof | production-scale data | yes | MEDIUM |
-| UI/E2E | YES | STATIC CONSUMER PATH GUARD | PARTIAL | YES | PARTIAL | STATIC | NO | NO | Wave03 HEAD | PENDING | route/service gates | authenticated browser proof | auth runtime | yes | HIGH |
-| CI topology | YES | WAVE03 GATES CONSOLIDATED IN QUALITY | YES | YES | YES | CI PENDING | NO | NO | Wave03 HEAD | PENDING | workflow integrity | duplicate-gate KEEP/MERGE/DEPRECATE matrix after evidence | GitHub Actions | yes | MEDIUM |
-| Production hygiene | YES | STATIC CLASSIFICATION GATE | TEST PENDING | YES | YES | NO | NO | NO | Wave03 HEAD | PENDING | wave03 deep closure | fix newly surfaced production-risk findings | code scan | yes | MEDIUM |
+| CAPABILITY | FOUNDATION | DEEP CLOSURE | TESTED | GATED | INTEGRATED | RUNTIME VERIFIED | LIVE VERIFIED | PRODUCTION CERTIFIED | LAST VERIFIED CODE COMMIT | LAST VERIFIED CI | LAST VERIFIED TEST | REMAINING | DEPENDENCY | PARALLEL WORK | RISK |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Tenant/security authority | YES | STATIC INDIRECT SCAN | YES | YES | YES | PARTIAL | NO | NO | c771399 | PENDING | wave03 deep closure | Supabase A/B indirect runtime drill | live Supabase | yes | CRITICAL |
+| BI/data truth | YES | CONSUMER AUDIT | YES | YES | YES | LOCAL | NO | NO | c771399 | PENDING | existing BI + cross-surface gates | verify production as-of/filter provenance | none | yes | HIGH |
+| Cross-surface truth | YES | CONSUMER INVENTORY + FORMULA GUARD | YES | YES | YES | LOCAL/PARTIAL | NO | NO | c771399 | PENDING | wave03 deep closure | verify export/report/decision consumers | none | yes | HIGH |
+| Import/reconciliation | YES | ADVERSARIAL MATRIX | YES | YES | YES | DETERMINISTIC | NO | NO | c771399 | PENDING | wave03 import | deployed worker concurrency/retry/rollback drill | live worker | yes | CRITICAL |
+| Runtime/workers | YES | DISTRIBUTED FAILURE SIMULATION | YES | YES | YES | SIMULATED | NO | NO | c771399 | PENDING | wave03 runtime | real deployed crash/restart/DLQ/resume | deployed worker | yes | CRITICAL |
+| Document intelligence | YES | FULL 8-CASE MEASURED EXECUTION | YES | YES | YES | LOCAL SEMANTIC | NO | NO | c771399 | PENDING | wave03 document | real OCR/PDF/XLSX/CSV/corrupt/ambiguous corpus | real corpus | yes | HIGH |
+| Decision/evidence/outcome | YES | ACTION/FEEDBACK GRAPH VALIDATOR | YES | YES | YES | PARTIAL | NO | NO | c771399 | PENDING | wave03 decision | production action→outcome→feedback verification | runtime outcome | yes | CRITICAL |
+| Observability | YES | TRACE PROPAGATION + PII REDACTION | YES | YES | YES | LOCAL | NO | NO | c771399 | PENDING | wave03 observability | production telemetry chain | telemetry environment | yes | HIGH |
+| Backup/restore | YES | ORDERING + RPO/RTO HARNESS | YES | YES | YES | LOCAL ARTIFACT | NO | NO | c771399 | PENDING | wave03 backup | real restore/RPO/RTO/rollback | live DB/backup | yes | CRITICAL |
+| Watched folder | YES | REPLAY/RECOVERY + CAPABILITY MATRIX | YES | YES | YES | LOCAL IDENTITY | NO | NO | c771399 | PENDING | wave03 watcher | persistent native Windows/Android proof; iOS boundary | native adapters/devices | yes | HIGH |
+| Performance | YES | DEEP STATIC AUDIT | PARTIAL | YES | YES | LOCAL | NO | NO | c771399 | PENDING | wave03 performance | benchmark/fix/after | production-scale data | yes | MEDIUM |
+| UI/E2E | YES | STATIC CONSUMER PATH GUARD | PARTIAL | YES | PARTIAL | STATIC | NO | NO | c771399 | PENDING | route/service gates | authenticated browser proof | auth runtime | yes | HIGH |
+| CI topology | YES | WAVE03 GATES CONSOLIDATED IN QUALITY | YES | YES | YES | CI PENDING | NO | NO | c771399 | PENDING | workflow integrity | duplicate-gate matrix | GitHub Actions | yes | MEDIUM |
+| Production hygiene | YES | STATIC CLASSIFICATION GATE | TEST PENDING | YES | YES | NO | NO | NO | c771399 | PENDING | wave03 deep closure | fix concrete production-risk findings | code scan | yes | MEDIUM |
 
 ## Wave 03 implementation
 1. `scripts/check-wave03-deep-closure.mjs`: indirect tenant authority, consumer-local KPI formula and production-hygiene scan.
@@ -117,7 +118,7 @@ Canonical quality remains `.github/workflows/quality.yml`. Wave 03 gates were in
 
 ## Remaining Work Inventory
 ### NOW
-- Obtain exact-head CI for the latest Wave 03 HEAD.
+- Obtain exact-head CI for the latest Wave 03 branch state.
 - If CI fails, fix the complete failure family and rerun on the new exact HEAD.
 - Review concrete findings from the Wave 03 deep scans.
 - Continue real consumer inventory for export/report/decision implementations.
