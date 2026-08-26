@@ -4,12 +4,20 @@ export interface CanonicalTopEntity { id: string; name: string; value: number | 
 export interface CanonicalCategoryBreakdown { name: string; sales: number | null; profit: number | null; quantity: number | null; }
 export interface CanonicalAgingBucket { bucket: string; amount: number; count: number; }
 export type CanonicalSecondaryStatus = 'CALCULATED' | 'INSUFFICIENT_DATA';
-export interface CanonicalRowsResult<T> { status: CanonicalSecondaryStatus; rows: T[]; asOf?: string; }
+export type CanonicalRowsResult<T> = T[] & { status: CanonicalSecondaryStatus; rows: T[]; asOf?: string };
 
 function finiteOrNull(value: unknown): number | null {
   if (value === null || value === undefined) return null;
   const n = Number(value);
   return Number.isFinite(n) ? n : null;
+}
+
+function withMeta<T>(rows: T[], status: CanonicalSecondaryStatus, asOf?: string): CanonicalRowsResult<T> {
+  const result = rows as CanonicalRowsResult<T>;
+  result.status = status;
+  result.rows = result;
+  if (asOf !== undefined) result.asOf = asOf;
+  return result;
 }
 
 async function tenantId(): Promise<string> {
@@ -48,50 +56,29 @@ export async function fetchCanonicalMonthlyTrend(months = 6) {
 export async function fetchCanonicalTopCustomers(limit = 5): Promise<CanonicalRowsResult<CanonicalTopEntity>> {
   const companyId = await tenantId();
   const result = await secondaryRpc('get_sales_top_customers', { p_company_id: companyId, p_limit: limit });
-  return {
-    status: result.status,
-    rows: result.rows.map((r) => {
-      const row = r as { id?: unknown; name?: unknown; value?: unknown; secondary?: unknown };
-      return { id: String(row.id ?? ''), name: String(row.name ?? ''), value: finiteOrNull(row.value), secondary: finiteOrNull(row.secondary) };
-    }),
-  };
+  const rows = result.rows.map((r) => { const row = r as { id?: unknown; name?: unknown; value?: unknown; secondary?: unknown }; return { id: String(row.id ?? ''), name: String(row.name ?? ''), value: finiteOrNull(row.value), secondary: finiteOrNull(row.secondary) }; });
+  return withMeta(rows, result.status, result.asOf);
 }
 
 export async function fetchCanonicalTopProducts(limit = 5): Promise<CanonicalRowsResult<CanonicalTopEntity>> {
   const companyId = await tenantId();
   const result = await secondaryRpc('get_sales_top_products', { p_company_id: companyId, p_limit: limit });
-  return {
-    status: result.status,
-    rows: result.rows.map((r) => {
-      const row = r as { id?: unknown; name?: unknown; value?: unknown; secondary?: unknown };
-      return { id: String(row.id ?? ''), name: String(row.name ?? ''), value: finiteOrNull(row.value), secondary: finiteOrNull(row.secondary) };
-    }),
-  };
+  const rows = result.rows.map((r) => { const row = r as { id?: unknown; name?: unknown; value?: unknown; secondary?: unknown }; return { id: String(row.id ?? ''), name: String(row.name ?? ''), value: finiteOrNull(row.value), secondary: finiteOrNull(row.secondary) }; });
+  return withMeta(rows, result.status, result.asOf);
 }
 
 export async function fetchCanonicalCategoryBreakdown(): Promise<CanonicalRowsResult<CanonicalCategoryBreakdown>> {
   const companyId = await tenantId();
   const result = await secondaryRpc('get_sales_category_breakdown', { p_company_id: companyId });
-  return {
-    status: result.status,
-    rows: result.rows.map((r) => {
-      const row = r as { name?: unknown; sales?: unknown; profit?: unknown; quantity?: unknown };
-      return { name: String(row.name ?? 'غير مصنف'), sales: finiteOrNull(row.sales), profit: finiteOrNull(row.profit), quantity: finiteOrNull(row.quantity) };
-    }),
-  };
+  const rows = result.rows.map((r) => { const row = r as { name?: unknown; sales?: unknown; profit?: unknown; quantity?: unknown }; return { name: String(row.name ?? 'غير مصنف'), sales: finiteOrNull(row.sales), profit: finiteOrNull(row.profit), quantity: finiteOrNull(row.quantity) }; });
+  return withMeta(rows, result.status, result.asOf);
 }
 
 export async function fetchCanonicalAgingTruth(asOf?: string): Promise<CanonicalRowsResult<CanonicalAgingBucket>> {
   const companyId = await tenantId();
   const result = await secondaryRpc('get_receivables_aging_truth_as_of', { p_company_id: companyId, p_as_of: asOf ?? null });
-  return {
-    status: result.status,
-    asOf: result.asOf,
-    rows: result.rows.map((r) => {
-      const row = r as { bucket?: unknown; amount?: unknown; count?: unknown };
-      return { bucket: String(row.bucket ?? 'UNDATED'), amount: finiteOrNull(row.amount) ?? 0, count: finiteOrNull(row.count) ?? 0 };
-    }),
-  };
+  const rows = result.rows.map((r) => { const row = r as { bucket?: unknown; amount?: unknown; count?: unknown }; return { bucket: String(row.bucket ?? 'UNDATED'), amount: finiteOrNull(row.amount) ?? 0, count: finiteOrNull(row.count) ?? 0 }; });
+  return withMeta(rows, result.status, result.asOf);
 }
 
 /** @deprecated Use fetchCanonicalMonthlyTrend. Kept temporarily for compatibility. */
