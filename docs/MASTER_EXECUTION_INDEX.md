@@ -11,77 +11,45 @@ Snapshot: 2026-08-26
 ## Execution identity
 - Requested baseline: `ef3f4a02bfbbc2996dbf0b8601e3f80c251f2548`.
 - Active PR: **#27 — Wave 07 — Truth Certification + Canonical/RPC Deep Verification**.
-- Execution branch: `execution-wave-07-truth-certification`.
-- Application/code head for this closure snapshot: `3fc22d4d087d617d2a91ce713f6941be2d79c0b2`.
-- Metadata/CI-path commit after that code head: `e81cf6d9115d649f6122b4d5f9b4031ab1a7babe`.
-- The metadata-only follow-up is intentionally covered by the same closure workflow; the application/code SHA remains `3fc22d4...`.
+- Original execution branch: `execution-wave-07-truth-certification`.
+- Closure work branch: `execution-wave-closure-export-decision`.
+- Current application/code HEAD: `2c08085c3bd6980caae79973deb500b212750a02`.
+- This HEAD is a descendant of the previously observed Wave 07 code head `9cc619a558191224e87d33e2a81c04b01a6d0b50`.
+- Exact-head CI for `2c08085...` is **PENDING / NOT YET OBSERVED**. No PASS is claimed.
 
-## Exact CI evidence
-- **Wave 09 closure:** Run `32917584237`, job `98024419620`, exact SHA `3fc22d4d087d617d2a91ce713f6941be2d79c0b2` — **PASS**.
-  - Behavioral truth regression: **12/12 PASS**.
-  - Typecheck: **PASS**.
-  - Job conclusion: **success**.
-- Additional Wave 09 exact run on the same SHA: `32917580254`, job `98024408130` — **PASS**.
-- **Wave 08 secondary-consumer gate:** Run `32917545812` — **PASS** after the regression contract was updated to accept nullable canonical status semantics.
-- Earlier Wave 09 failures were not transferred as PASS: `32917247184` and `32917406163` failed during iterative repair; their root causes were fixed and re-run.
+## REAL CLOSURE EXECUTED
 
-## REAL CROSS-SURFACE CLOSURE — implemented
+### Export truth — IMPLEMENTED
+Root cause: Inventory export reconstructed business valuation in the page from `quantity * unit_cost`, creating a second business-truth calculation and risking UNKNOWN→ZERO drift.
 
-### 1. Export truth — IMPLEMENTED + REGRESSION + CI VERIFIED
-- Root cause: report exports could be sourced from display-page subsets or page-local inventory data.
-- Fix: `src/lib/report-export-data.ts` adds tenant-authoritative, chunked export loaders (500-row chunks, 5,000-row hard bound) for Sales/Purchases/Inventory.
-- Receivables export derives from the same bounded sales dataset and preserves missing values.
-- `src/pages/ReportsPage.tsx` now separates display pagination from export dataset acquisition.
-- No unbounded fetch-all is used as a business aggregation workaround.
+Fix:
+- Added `get_inventory_export_truth(uuid)` in `supabase/migrations/20260826140000_inventory_export_truth.sql`.
+- RPC is `SECURITY INVOKER`, `search_path=public`, tenant-authoritative via `current_company_id()`, rejects caller-selected tenant mismatch, and grants execution only to `authenticated`.
+- Canonical export rows carry `quantity`, `unit_cost`, nullable `value`, and explicit `value_status`.
+- `src/lib/report-export-data.ts` now consumes the canonical RPC for inventory export instead of reconstructing valuation.
+- `src/pages/ReportsPage.tsx` now renders the export from canonical `result.rows`; no page-local `quantity * unit_cost` calculation remains in the inventory export path.
+- Sales/Purchase export remains bounded (500-row chunks, 5,000-row hard cap) and tenant-scoped.
 
-### 2. Inventory operational truth — IMPLEMENTED + REGRESSION + CI VERIFIED
-- Root cause: `lowStock` / `outOfStock` were recomputed from display rows.
-- Fix: Inventory report uses canonical `get_inventory_valuation` counts (`low_stock`, `out_of_stock`).
-- Page-local inventory KPI filtering is explicitly gated against regression.
+### Regression — IMPLEMENTED
+`execution-wave-09-cross-surface-closure.mjs` now fails if the inventory export returns to page-local valuation or if the canonical export RPC loses tenant authority. It also preserves the existing secondary/cross-surface assertions.
 
-### 3. Receivables aging/as-of truth — IMPLEMENTED + REGRESSION + CI VERIFIED
-- Root cause: aging could depend implicitly on current date and page-local semantics; missing due dates could be conflated with a numeric aging bucket.
-- Fix: `get_receivables_aging_truth_as_of(p_company_id,p_as_of)` uses trusted tenant context, explicit as-of semantics, and `UNDATED` for missing due dates.
-- `canonical-analytics.ts` and Reports consume the canonical path.
+### CI gate — IMPLEMENTED
+`.github/workflows/quality.yml` now runs the Wave 09 cross-surface/export behavioral regression directly in the canonical quality job. No skip/whitelist/expected-result weakening was introduced.
 
-### 4. RFM/ABC truth — IMPLEMENTED + REGRESSION + CI VERIFIED
-- Root cause: browser-side analytic aggregation did not share the same cancelled/void status contract as sales canonical truth.
-- Fix: `get_sales_rfm_truth` and `get_sales_abc_truth` are tenant-authoritative server-side domain functions; analytics consumes them.
-
-### 5. Secondary nullable truth — IMPLEMENTED + REGRESSION + CI VERIFIED
-- `CanonicalTopEntity.value`, category sales/profit/quantity preserve `number | null`.
-- `CanonicalRowsResult` is array-compatible for existing consumers while exposing `status` and `asOf` metadata.
-- Dashboard filters only null values for chart presentation; it does not turn them into zero.
-- Wave 08 regression was repaired to assert nullable preservation instead of requiring the old strict-number implementation.
-
-### 6. Decision truth — IMPLEMENTED + TYPECHECK/REGRESSION + CI VERIFIED
-- `calculateDecisionScore` now returns `score: number | null` and blocks on missing/non-finite factors with `INSUFFICIENT_DATA`.
-- `resolveDecisionChain` blocks when the score is unknown instead of treating it as a numeric threshold failure.
-- `explainDecision` preserves the unknown score and produces a blocking explanation rather than fabricated confidence.
-- `intelligence-gate` now blocks unknown outcome accuracy when the outcome sample is otherwise eligible.
-
-## Files / migrations materially changed
-- `src/pages/DashboardPage.tsx`
-- `src/pages/ReportsPage.tsx`
-- `src/lib/canonical-secondary-data-truth.ts`
-- `src/lib/canonical-analytics.ts`
-- `src/lib/report-export-data.ts`
-- `src/lib/intelligence/decisionScore.ts`
-- `src/lib/intelligence/decisionChain.ts`
-- `src/lib/intelligence/decisionExplainability.ts`
-- `src/lib/analytics/intelligence-gate.ts`
-- `supabase/migrations/20260826130000_cross_surface_truth_closure.sql`
-- `supabase/migrations/20260826131000_analytics_domain_truth.sql`
-- `scripts/execution-wave-09-cross-surface-closure.mjs`
-- `scripts/execution-wave-08-secondary-consumer-closure.mjs`
-- `.github/workflows/wave09-cross-surface-closure.yml`
-- `docs/MASTER_EXECUTION_INDEX.md`
+## Existing closure retained
+- Dashboard/Purchase/Inventory core KPI paths remain canonical.
+- Secondary analytics (monthly trend/top customers/top products/category/aging) use canonical RPC adapters.
+- RFM/ABC use tenant-authoritative domain RPCs with cancelled/void semantics.
+- Receivables aging uses explicit as-of canonical truth.
+- Decision score/chain fail closed on missing or non-finite decision factors.
+- Canonical adapters preserve nullable business values.
 
 ## Capability matrix
 | Capability | Implemented | Tested | Regression | Gated | Consumer verified | Runtime | LIVE | Production |
 |---|---|---|---|---|---|---|---|---|
-| Export truth | YES | YES | YES | YES | YES (source-level) | NO | NO | NO |
-| Dashboard canonical secondary truth | YES | YES | YES | YES | YES | NO | NO | NO |
+| Inventory export canonical truth | YES | PENDING exact-head | YES | YES (workflow wired) | YES (source proof) | NO | NO | NO |
+| Export truth overall | YES | PENDING exact-head | YES | YES | YES (source proof) | NO | NO | NO |
+| Dashboard/secondary canonical truth | YES | YES | YES | YES | YES | NO | NO | NO |
 | Inventory operational truth | YES | YES | YES | YES | YES | NO | NO | NO |
 | RFM/ABC domain truth | YES | YES | YES | YES | YES | NO | NO | NO |
 | Aging as-of truth | YES | YES | YES | YES | YES | NO | NO | NO |
@@ -90,15 +58,31 @@ Snapshot: 2026-08-26
 | Cross-surface runtime equivalence | PARTIAL | YES (static) | YES (static) | YES | PARTIAL | REQUIRED | REQUIRED | NO |
 
 ## Legacy closure
-- Secondary legacy wrappers remain only where compatibility is still required by existing import contracts.
-- Removal must continue as: SEARCH → MIGRATE → REGRESSION → ZERO CONSUMERS → REMOVE.
-- No destructive legacy deletion was performed merely to make a gate pass.
+- Secondary legacy wrappers remain where compatibility is still required.
+- Removal rule remains: SEARCH → MIGRATE → REGRESSION → ZERO CONSUMERS → REMOVE.
+- No destructive deletion was used to make CI pass.
 
-## Remaining PARTIAL / LIVE REQUIRED
-- Authenticated runtime equivalence across Dashboard → Reports → Exports → Decisions still requires a real tenant/browser execution; CI source proof is not LIVE proof.
-- Decision Metric → Evidence → Recommendation → Decision → Outcome → Feedback runtime provenance remains partially unverified because no live evidence loop is available in CI.
-- Supabase A/B tenant isolation, Storage/Realtime/AI-vector, deployed worker crash/restart/DLQ, real backup restore/RPO/RTO, native watcher, authenticated browser E2E, real OCR/document corpus, production telemetry, load/canary/rollback remain LIVE REQUIRED.
-- Production certification remains blocked until those live requirements and exact production evidence exist.
+## Exact-head CI truth
+- Current HEAD `2c08085c3bd6980caae79973deb500b212750a02`: **PENDING / NOT OBSERVED**.
+- Previous Wave 09 PASS evidence belongs to prior SHA(s) and is not transferred to this HEAD.
+- The next exact-head run must validate: workflow integrity, typecheck, Wave 08 regression, Wave 09 cross-surface/export regression, and all existing quality gates.
 
-## Production certification
-**NOT CERTIFIED.** This snapshot has real implementation, behavioral regression and exact CI evidence, but no LIVE or Production Certified claim is made.
+## LIVE REQUIRED
+1. Authenticated Dashboard → Reports → Exports → Decisions equivalence against real tenant data.
+2. Supabase A/B DB/Storage/Realtime/AI-vector isolation.
+3. Deployed worker crash/restart/stale lease/DLQ/resume and duplicate-side-effect drill.
+4. Real backup restore/migration replay/rollback/RPO/RTO.
+5. Native Windows/Android/iOS watcher proof.
+6. Real PDF/OCR/XLSX/CSV/corrupt/ambiguous corpus accuracy.
+7. Production telemetry trace with tenant context and PII redaction.
+8. Production-scale load/canary/rollback.
+
+## Remaining work — NOW
+- Obtain exact-head CI evidence for `2c08085...`; fix any real failure and rerun on the new SHA.
+- Continue full business-calculation sibling sweep for remaining page/component/export/decision formulas.
+- Continue date/status equivalence verification for metrics not yet covered by canonical contracts.
+- Complete decision metric → evidence → outcome runtime provenance.
+- Remove only legacy paths proven to have zero consumers.
+
+## Completion truth
+**NOT CERTIFIED.** This snapshot contains additional real export-truth implementation and regression wiring, but exact-head CI for the current SHA is still pending, runtime/live evidence is not claimed, and Production Certification remains blocked by the live requirements above.
