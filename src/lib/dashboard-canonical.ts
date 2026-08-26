@@ -39,4 +39,13 @@ export async function fetchRFMSnapshot(limit = 500): Promise<RFMSnapshot> { if (
 export async function fetchABCSnapshot(limit = 500): Promise<ABCSnapshot> { if (!Number.isInteger(limit) || limit < 1 || limit > 500) throw new Error('REPORT_QUERY_INVALID_LIMIT'); const { data, error } = await supabase.rpc('get_abc_snapshot', { p_limit: limit }); if (error) throw error; if (!data || typeof data !== 'object') throw new Error('REPORT_DATA_UNAVAILABLE: ABC snapshot missing'); const row = data as Record<string, unknown>; return { rows: requiredArray<ABCSnapshotRow>(row.rows), totalRevenue: Number(row.totalRevenue ?? 0), unknownRows: Number(row.unknownRows ?? 0), status: row.status === 'CALCULATED' ? 'CALCULATED' : 'INSUFFICIENT_DATA' }; }
 export async function fetchAgingSnapshot(): Promise<AgingSnapshot> { const { data, error } = await supabase.rpc('get_aging_snapshot', { p_as_of: asOfDate() }); if (error) throw error; if (!data || typeof data !== 'object') throw new Error('REPORT_DATA_UNAVAILABLE: aging snapshot missing'); const row = data as Record<string, unknown>; return { rows: requiredArray<AgingSnapshotRow>(row.rows), asOf: String(row.asOf ?? asOfDate()), unknownRows: Number(row.unknownRows ?? 0), status: row.status === 'CALCULATED' ? 'CALCULATED' : row.status === 'NO_DATA' ? 'NO_DATA' : 'INSUFFICIENT_DATA' }; }
 
-export async function fetchDashboardIntelligence(): Promise<{recommendations: Recommendation[]; alerts: Alert[]}> { const [{ data: recommendations, error: recommendationsError }, { data: alerts, error: alertsError }] = await Promise.all([supabase.from('recommendations').select('id,company_id,category,priority,title,description,expected_impact,confidence,status,owner,deadline,impact_result,created_at').order('created_at',{ascending:false}).limit(100),supabase.from('alerts').select('id,company_id,severity,category,title,description,metric_value,threshold,is_read,created_at').order('created_at',{ascending:false}).limit(100)]); if (recommendationsError) throw recommendationsError; if (alertsError) throw alertsError; return { recommendations: (recommendations ?? []) as Recommendation[], alerts: (alerts ?? []) as Alert[] }; }
+export async function fetchDashboardIntelligence(): Promise<{recommendations: Recommendation[]; alerts: Alert[]}> {
+  const { data, error } = await supabase.rpc('get_dashboard_intelligence', { p_limit: 100 });
+  if (error) throw error;
+  if (!data || typeof data !== 'object') throw new Error('REPORT_DATA_UNAVAILABLE: dashboard intelligence missing');
+  const row = data as Record<string, unknown>;
+  return {
+    recommendations: requiredArray<Recommendation>(row.recommendations),
+    alerts: requiredArray<Alert>(row.alerts),
+  };
+}
