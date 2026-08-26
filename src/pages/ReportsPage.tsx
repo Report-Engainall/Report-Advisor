@@ -11,12 +11,12 @@ import { TrendChart, HorizontalBarChart, CategoryPieChart } from '@/components/u
 import {
   fetchDashboardKPIs, fetchMonthlyTrend, fetchTopCustomers, fetchTopProducts,
   fetchCategoryBreakdown, fetchSalesInvoices, fetchPurchaseInvoices,
-  fetchAgingBuckets, fetchInventoryBalances,
+  fetchInventoryBalances,
 } from '@/lib/queries';
 import { formatCurrency, formatNumber, formatDate } from '@/lib/format';
 import { downloadReportArtifact } from '@/lib/report-execution/download';
 import type { SalesInvoice, PurchaseInvoice } from '@/lib/types';
-import type { DashboardKPIs, MonthlyTrend, TopEntity, CategoryBreakdown, AgingBucket } from '@/lib/queries';
+import type { DashboardKPIs, MonthlyTrend, TopEntity, CategoryBreakdown } from '@/lib/queries';
 
 interface InventoryBalanceRow {
   id: string;
@@ -179,36 +179,6 @@ export function InventoryReportPage() {
           return <Badge variant="success">متاح</Badge>;
         }},
       ]} data={balances} pageSize={25} /></Card>
-    </div>
-  );
-}
-
-export function ReceivablesReportPage() {
-  const [aging, setAging] = useState<AgingBucket[]>([]);
-  const [invoices, setInvoices] = useState<SalesInvoice[]>([]);
-  const [loading, setLoading] = useState(true);
-  useEffect(() => { Promise.all([fetchAgingBuckets(), fetchSalesInvoices(0, 50)]).then(([ag, inv]) => { setAging(ag); setInvoices(inv.data.filter((i) => Number(i.total) - Number(i.paid_amount) > 0)); setLoading(false); }).catch(() => setLoading(false)); }, []);
-  if (loading) return <LoadingState />;
-  const totalOutstanding = aging.reduce((s, b) => s + b.amount, 0);
-  const exportReceivables = () => downloadReportArtifact('receivables-report', 'تقرير الذمم والتحصيل', ['رقم الفاتورة', 'العميل', 'تاريخ الفاتورة', 'تاريخ الاستحقاق', 'الإجمالي', 'المدفوع', 'المتبقي'], invoices.map((invoice) => ({
-    'رقم الفاتورة': invoice.invoice_number, 'العميل': invoice.customer?.name ?? null, 'تاريخ الفاتورة': invoice.invoice_date, 'تاريخ الاستحقاق': invoice.due_date, 'الإجمالي': invoice.total, 'المدفوع': invoice.paid_amount, 'المتبقي': invoice.total == null || invoice.paid_amount == null ? null : invoice.total - invoice.paid_amount,
-  })));
-  return (
-    <div className="space-y-6 animate-fade-in">
-      <PageHeader title="تقرير الذمم والتحصيل" subtitle="تحليل الذمم المدينة وأعمار الفواتير" actions={<button onClick={exportReceivables} className="btn-secondary text-xs">تصدير XLSX</button>} />
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card><CardBody><div className="text-xs text-ink-500 mb-1">إجمالي الذمم</div><div className="text-xl font-bold text-ink-900">{formatCurrency(totalOutstanding)}</div></CardBody></Card>
-        {aging.map((b) => <Card key={b.bucket}><CardBody><div className="text-xs text-ink-500 mb-1">{b.bucket} يوم</div><div className="text-lg font-bold text-ink-900">{formatCurrency(b.amount)}</div><div className="text-xs text-ink-400 mt-1">{b.count} فاتورة</div></CardBody></Card>)}
-      </div>
-      <Card><CardHeader title="الفواتير المستحقة" subtitle="الفواتير غير المدفوعة بالكامل" /><DataTable columns={[
-        { key: 'invoice_number', label: 'رقم الفاتورة', render: (r: SalesInvoice) => <span className="font-medium text-primary-600">{r.invoice_number}</span> },
-        { key: 'customer', label: 'العميل', render: (r: SalesInvoice) => r.customer?.name || '—' },
-        { key: 'invoice_date', label: 'تاريخ الفاتورة', render: (r: SalesInvoice) => formatDate(r.invoice_date) },
-        { key: 'due_date', label: 'تاريخ الاستحقاق', render: (r: SalesInvoice) => formatDate(r.due_date) },
-        { key: 'total', label: 'الإجمالي', align: 'right', render: (r: SalesInvoice) => formatCurrency(r.total) },
-        { key: 'paid_amount', label: 'المدفوع', align: 'right', render: (r: SalesInvoice) => formatCurrency(r.paid_amount) },
-        { key: 'balance', label: 'المتبقي', align: 'right', render: (r: SalesInvoice) => <span className="font-semibold text-danger-600">{r.total == null || r.paid_amount == null ? '—' : formatCurrency(r.total - r.paid_amount)}</span> },
-      ]} data={invoices} /></Card>
     </div>
   );
 }
