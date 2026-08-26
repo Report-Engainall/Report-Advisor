@@ -23,7 +23,7 @@ export async function runDurableProductionLifecycle<T>(input: DurableProductionR
   const heartbeatIntervalMs = input.heartbeatIntervalMs ?? Math.max(30_000, Math.floor((leaseSeconds * 1000) / 3));
   const job = await store.claim(input.jobId, input.workerId, leaseSeconds);
   let heartbeatTimer: ReturnType<typeof setInterval> | undefined;
-  let stageStarted = false;
+  let recoveryBoundaryStarted = false;
   let activeStage: ReportExecutionStage | null = null;
 
   try {
@@ -43,30 +43,33 @@ export async function runDurableProductionLifecycle<T>(input: DurableProductionR
       const following = next(stage);
       if (!following) throw new Error(`Cannot advance production lifecycle from ${stage}`);
       activeStage = following;
-      stageStarted = false;
+      recoveryBoundaryStarted = true;
       const idempotencyKey = `${input.jobId}:${following}:${input.sourceHash}`;
-      if (input.executeStage) {
-        stageStarted = true;
-        await input.executeStage(following, { request: input.request, rows: input.rows, idempotencyKey });
-      }
+      if (input.executeStage) await input.executeStage(following, { request: input.request, rows: input.rows, idempotencyKey });
       if (heartbeatFailure) throw heartbeatFailure;
       await store.saveCheckpoint(input.jobId, checkpoint(following), input.workerId);
-      stageStarted = false;
+      recoveryBoundaryStarted = false;
       activeStage = null;
       stage = following;
     }
 
+    // The production lifecycle and completion RPC are also a side-effect boundary.
+    // If either fails after entering this section, automatic replay could duplicate
+    // the commit/evidence side effects. Recovery must therefore reconcile manually.
+    recoveryBoundaryStarted = true;
     const lifecycle = runProductionLifecycle({ ...input.lifecycle, jobId: input.jobId, companyId: input.request.tenantId, sourceHash: input.sourceHash, currentRows: input.lifecycle.currentRows });
     await store.complete(input.jobId, input.workerId, { sourceHash: input.sourceHash, lineageCount: lifecycle.lineage.length, scenario: lifecycle.scenario, portfolio: lifecycle.portfolio, autonomy: lifecycle.autonomy });
+    recoveryBoundaryStarted = false;
+    activeStage = null;
     return lifecycle;
   } catch (error) {
     try {
-      const unsafeReplay = stageStarted && activeStage !== null;
+      const unsafeReplay = recoveryBoundaryStarted;
       await store.fail(input.jobId, input.workerId, {
         message: error instanceof Error ? error.message : String(error),
         recovery: unsafeReplay ? 'MANUAL_RECONCILIATION_REQUIRED' : 'AUTO_RETRY_ELIGIBLE',
         stage: activeStage,
-        idempotencyKey: activeStage ? `${input.jobId}:${activeStage}:${input.sourceHash}` : null,
+        idempotencyKey: activeStage ? `${input.jobId}:${activeStage}:${input.sourceHash}` : `${input.jobId}:production-commit:${input.sourceHash}`,
       });
       if (!unsafeReplay && job.attempt < job.maxAttempts) await store.retry(input.jobId);
     } catch (failureError) {
