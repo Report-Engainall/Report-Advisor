@@ -84,6 +84,22 @@ jobs:
         run: node --experimental-strip-types scripts/file-security-regressions.test.ts
       - name: Execution Wave 02 deterministic runtime/truth harness
         run: npm run test:wave02-runtime-harness
+      - name: Execution Wave 03 deep consumer/security closure
+        run: npm run test:wave03-deep-closure
+      - name: Execution Wave 03 distributed runtime
+        run: npm run test:wave03-runtime
+      - name: Execution Wave 03 import adversarial matrix
+        run: npm run test:wave03-import
+      - name: Execution Wave 03 document measured execution
+        run: npm run test:wave03-document
+      - name: Execution Wave 03 decision feedback graph
+        run: npm run test:wave03-decision
+      - name: Execution Wave 03 observability trace
+        run: npm run test:wave03-observability
+      - name: Execution Wave 03 backup readiness
+        run: npm run test:wave03-backup
+      - name: Execution Wave 03 watched folder
+        run: npm run test:wave03-watcher
       - name: Decision evidence regressions
         run: node --experimental-strip-types scripts/decision-evidence-regression.test.ts
       - name: Routing and security contracts (parallel discovery)
