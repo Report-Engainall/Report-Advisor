@@ -36,22 +36,20 @@ function exactIdentifier(symbol) {
   return new RegExp(`\\b${symbol}\\b`);
 }
 
-function isCanonicalAliasLine(line, candidate) {
-  return line.includes(candidate.canonicalImport) && line.includes(candidate.canonicalSymbol);
+function isCanonicalConsumerLine(line, candidate) {
+  return line.includes(candidate.canonicalImport) || line.includes(candidate.canonicalSymbol);
 }
 
 function collectReferences(files, candidate) {
   const refs = [];
   const legacyRe = exactIdentifier(candidate.legacySymbol);
-  const canonicalRe = exactIdentifier(candidate.canonicalSymbol);
 
   for (const file of files) {
     if (file === path.normalize(candidate.target) || file === self) continue;
     const lines = readFileSync(file, 'utf8').split('\n');
     lines.forEach((line, index) => {
       if (!legacyRe.test(line)) return;
-      if (canonicalRe.test(line)) return;
-      if (isCanonicalAliasLine(line, candidate)) return;
+      if (isCanonicalConsumerLine(line, candidate)) return;
       refs.push(`${file}:${index + 1}:${line.trim()}`);
     });
   }
