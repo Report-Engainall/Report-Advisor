@@ -22,7 +22,9 @@ const expected = [...uniqueInvoices.values()].reduce((acc, invoice) => ({
 }), { revenue: 0, cost: 0, quantity: 0 });
 expected.grossProfit = expected.revenue - expected.cost;
 
-assert.deepEqual(expected, { revenue: 180, cost: 90, quantity: 6, grossProfit: 90 });
+// A-1: 2×30 + 1×20 = 80 cost, with its 100 revenue counted once.
+// A-2: 3×10 = 30 cost and 80 revenue. Total: revenue 180, cost 110, GP 70.
+assert.deepEqual(expected, { revenue: 180, cost: 110, quantity: 6, grossProfit: 70 });
 assert.equal(expected.revenue, 180, 'multi-line invoice header total must be counted once');
 
 function evaluateMissingCost() {
