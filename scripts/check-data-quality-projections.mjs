@@ -18,7 +18,7 @@ const routeSource = fs.readFileSync(routePath, 'utf8');
 if (/fetchDataQualityDatasets|DataQualityPage/.test(pageSource)) {
   throw new Error('EntityPages.tsx still contains a legacy Data Quality consumer');
 }
-if (/supabase\\.from\\(/.test(adapterSource)) {
+if (/supabase\.from\(/.test(adapterSource)) {
   throw new Error('Data Quality adapter must not perform direct table reads');
 }
 if (!adapterSource.includes("supabase.rpc('get_data_quality_snapshot')")) {
