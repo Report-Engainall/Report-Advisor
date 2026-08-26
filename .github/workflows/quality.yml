@@ -76,6 +76,8 @@ jobs:
         run: node --experimental-strip-types scripts/business-intelligence-regressions.test.ts
       - name: Deep golden corpus regressions
         run: node --experimental-strip-types scripts/golden-dataset-deep-regressions.test.ts
+      - name: Document intelligence semantic execution
+        run: node --experimental-strip-types scripts/document-intelligence-semantic-execution.test.ts
       - name: Outcome feedback regressions
         run: node --experimental-strip-types scripts/outcome-feedback-regressions.test.ts
       - name: File security regressions
