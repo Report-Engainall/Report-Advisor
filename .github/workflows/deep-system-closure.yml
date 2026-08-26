@@ -30,7 +30,7 @@ jobs:
       - name: Deep consumer and semantic scan
         run: node scripts/check-deep-system-closure.mjs
       - name: Canonical and tenant regression family
-        run: npm run test:report-truth && npm run test:auth-tenant-convergence && npm run test:tenant-security-contract && npm run test:global-tenant-rls
+        run: npm run test:report-truth && npm run test:auth-tenant-convergence && npm run test:tenant-security-contract && npm run test:tenant-adversarial-contract && npm run test:global-tenant-rls
       - name: Export and architecture regression family
         run: npm run test:production-release-blockers && npm run test:contracts
       - name: Typecheck
