@@ -38,7 +38,10 @@ assert.match(adapter,/fetchRFMSnapshot/);assert.match(adapter,/get_rfm_snapshot/
 assert.match(analyticsPage,/fetchRFMSnapshot\(500\)/);assert.match(analyticsPage,/fetchABCSnapshot\(500\)/);assert.match(analyticsPage,/fetchAgingSnapshot\(\)/);assert.doesNotMatch(analyticsPage,/supabase\.from\('sales_invoices'/);assert.doesNotMatch(analyticsPage,/supabase\.from\('sale_items'/);assert.doesNotMatch(analyticsPage,/resolveCurrentCompanyId/);assert.match(analyticsPage,/unknownRows/);assert.match(analyticsPage,/INSUFFICIENT_DATA/);
 
 // Compatibility exports remain intentional infrastructure; dashboard business functions now delegate to canonical adapters.
-assert.match(compat,/export \* from '\.\/queries'/);assert.match(queries,/Compatibility boundary only/);
+assert.match(compat,/export \* from '\.\/queries'/);assert.match(compat,/canonicalFetchMonthlyTrend/);assert.match(compat,/canonicalFetchAgingBuckets/);assert.doesNotMatch(compat,/loadSecondaryMetrics/);assert.doesNotMatch(compat,/get_sales_secondary_metrics/);assert.match(compat,/canonicalFetchForecasts/);
+
+// Forecast collection: bounded, deterministic, fail-closed instead of silent truncation.
+assert.match(queries,/const MAX_FORECAST_ROWS = 500/);assert.match(queries,/count: 'exact'/);assert.match(queries,/range\(0, MAX_FORECAST_ROWS - 1\)/);assert.match(queries,/REPORT_QUERY_LIMIT_EXCEEDED/);assert.match(queries,/order\('period', \{ ascending: true \}\)/);assert.match(queries,/order\('id', \{ ascending: true \}\)/);assert.match(compat,/return canonicalFetchForecasts\(\)/);
 
 console.log('PASS dashboard canonical semantic regression');
 console.log('PASS display pagination cannot define dashboard aggregate');
@@ -58,3 +61,5 @@ console.log('PASS RFM, ABC and Aging are server-side authoritative and tenant-de
 console.log('PASS analytics pages no longer aggregate transactional histories in the browser');
 console.log('PASS analytics missing-data states remain explicit');
 console.log('PASS queries-compat retained intentionally as compatibility infrastructure');
+console.log('PASS secondary analytics compatibility delegates to canonical dashboard truth');
+console.log('PASS forecast collection is bounded, deterministic and fail-closed on truncation');
