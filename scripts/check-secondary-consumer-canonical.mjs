@@ -4,7 +4,7 @@ const adapter = fs.readFileSync('src/lib/queries-compat.ts', 'utf8');
 const migration = fs.readFileSync('supabase/migrations/20260826003000_sales_secondary_canonical_analytics.sql', 'utf8');
 const requiredConsumers = ['fetchMonthlyTrend','fetchTopCustomers','fetchTopProducts','fetchCategoryBreakdown','fetchAgingBuckets'];
 for (const name of requiredConsumers) if (!adapter.includes(`export async function ${name}`)) throw new Error(`missing consumer: ${name}`);
-const secondaryStart = adapter.indexOf('export async function fetchMonthlyTrend');
+const secondaryStart = adapter.indexOf('async function loadSecondaryMetrics');
 if (secondaryStart < 0) throw new Error('secondary canonical adapter boundary missing');
 const secondary = adapter.slice(secondaryStart);
 if ((secondary.match(/\.rpc\('get_sales_secondary_metrics'/g) ?? []).length !== 1) throw new Error('secondary consumers must share one canonical RPC loader');
