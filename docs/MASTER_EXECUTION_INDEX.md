@@ -3,8 +3,8 @@
 Snapshot: 2026-08-26
 Baseline main: `4095e0f0d427652eb705ba3955389ae978d7b5bf`.
 User starting point: `ef3f4a02bfbbc2996dbf0b8601e3f80c251f2548`.
-Current branch: `wave-final-exact-ci-4`.
-Current exact-head candidate: `1ae3c370372189b03717ff7bf573019ad3ce2e65` plus this index update; fresh exact CI is required.
+Current branch: `wave-final-exact-ci-5`.
+Current exact-head candidate: `f856474c3699d0151ac9da8a4dd8ddd762301d27` plus this index update; fresh exact CI is required.
 
 ## REAL CLOSURE
 - Secondary sales consumers: IMPLEMENTED / REGRESSION / CONSUMER VERIFIED.
@@ -14,6 +14,7 @@ Current exact-head candidate: `1ae3c370372189b03717ff7bf573019ad3ce2e65` plus th
 - Lossless PDF export: IMPLEMENTED / REGRESSION.
 - Decision missing impact/accuracy semantics: IMPLEMENTED / REGRESSION.
 - Pure outcome semantics: isolated in `outcome-feedback-core.ts`; direct regression has no browser runtime dependency.
+- File SHA-256 regression: now imports the local Supabase boundary relatively, so direct Node regression does not depend on Vite alias resolution.
 
 ## Findings / fixes / regressions
 1. Secondary consumer page/business aggregation drift → `get_sales_secondary_metrics` + canonical adapters + Vite alias. Regression: `check-secondary-consumer-canonical.mjs`.
@@ -21,14 +22,14 @@ Current exact-head candidate: `1ae3c370372189b03717ff7bf573019ad3ce2e65` plus th
 3. Inventory missing quantity/cost → `get_inventory_valuation` returns `null` + `INSUFFICIENT_DATA`. Regression: missing-value cases.
 4. Export page/PDF truncation → canonical export RPCs, 10,000-row fail-closed cap, multi-page PDF. Regression: report export closure.
 5. Decision missing impact → nullable impact averages; unknown outcome accuracy blocks gate. Regression: decision unknown semantics.
-6. CI typecheck family → nullable accuracy guard + `Promise.resolve` around Supabase RPC thenable.
+6. CI typecheck family → nullable accuracy guard + `Promise.resolve` around Supabase RPC thenable + explicit `OutcomeLabel` mapping.
 7. Outcome regression runtime coupling → pure outcome core + direct core regression.
-8. Final typecheck family → persistence `label` explicitly typed as `OutcomeLabel` after core extraction.
+8. File-security regression runtime coupling → relative `../supabase` import in `file-engine/security.ts`; SHA-256 behavior unchanged.
 
 ## Exact CI evidence
 - Historical verified baseline: Run `32910806786` on `25eef5212dbc63d2255ad7998e76c3d02a5191cf` = PASS.
-- Run `32918790171` on merge ref `ac461822910f7ef09044e8287316f01ee8eec15f` reached Typecheck; all custom data-truth gates, build, lint, performance, report truth and resilience gates passed. Typecheck failed only because persistence mapped status to a widened `string` instead of `OutcomeLabel`; fixed in `outcome-feedback.ts`.
-- Current exact-head candidate: `1ae3c370372189b03717ff7bf573019ad3ce2e65`.
+- Run `32918895138` reached Typecheck and later failed at File security regression because direct Node execution could not resolve `@/lib/supabase` from `file-engine/security.ts`. All prior data-truth, report-truth, typecheck, build, lint, performance gates had passed. Root cause is fixed.
+- Current exact-head candidate: `f856474c3699d0151ac9da8a4dd8ddd762301d27` plus this index update.
 - Fresh exact-head CI: PENDING.
 
 ## Security / tenant
