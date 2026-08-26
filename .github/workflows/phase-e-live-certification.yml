@@ -61,6 +61,6 @@ jobs:
         env:
           CERT_REALTIME_HEALTH_URL: ${{ secrets.CERT_REALTIME_HEALTH_URL }}
           CERT_BACKUP_DRILL_URL: ${{ secrets.CERT_BACKUP_DRILL_URL }}
-          CERT_OBSERVABILITY_HEALTH_URL: ${{ secrets.OBSERVABILITY_HEALTH_URL }}
+          CERT_OBSERVABILITY_HEALTH_URL: ${{ secrets.CERT_OBSERVABILITY_HEALTH_URL }}
           CERT_ROLLBACK_DRILL_URL: ${{ secrets.CERT_ROLLBACK_DRILL_URL }}
         run: node scripts/phase-e-extended-live-probes.mjs
