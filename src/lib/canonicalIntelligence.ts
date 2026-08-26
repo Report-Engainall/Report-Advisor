@@ -18,7 +18,8 @@ export function buildCanonicalIntelligence(input: CanonicalIntelligenceInput): C
   const inventoryValue = inventory.reduce((sum, row) => sum + Math.max(0, row.stock) * Math.max(0, row.unitCost), 0);
   const trend = analyzeTrend(input.salesHistory.map((value, index) => ({ id: `sales-history-${index}`, date: String(index), value })));
   const forecast = forecastSeries(input.salesHistory, 30, 7); const backtest = backtestForecast(input.salesHistory, 7);
-  const ccc = cashConversionCycle({ receivables, revenue: salesTotal, inventory: inventoryValue, costOfSales: Math.max(0, input.costOfSales ?? 0), payables, purchases: purchaseTotal, periodDays: input.periodDays ?? 365 });
+  const costOfSales = input.costOfSales == null ? null : Math.max(0, input.costOfSales);
+  const ccc = cashConversionCycle({ receivables, revenue: salesTotal, inventory: inventoryValue, costOfSales, payables, purchases: purchaseTotal, periodDays: input.periodDays ?? 365 });
   const liquidity = projectLiquidity({ openingLiquidity: Math.max(0, input.openingLiquidity ?? 0), horizons: [0, 7, 15, 30, 60, 90], dailyInflow: Math.max(0, input.dailyInflow ?? 0), dailyOutflow: Math.max(0, input.dailyOutflow ?? 0), committedOutflow: Math.max(0, input.committedOutflow ?? 0) });
   const reserveProtection = protectCashReserve({ openingCash: Math.max(0, input.openingLiquidity ?? 0), committedOutflow: Math.max(0, input.committedOutflow ?? 0), collectibleInflow: Math.max(0, input.dailyInflow ?? 0) * 30 });
   const collections = prioritizeReceivables(input.receivablePriorities ?? sales.map(row => ({ id: row.id, amount: Math.max(0, row.total - finite(row.paidAmount)), overdueDays: 0 })));
