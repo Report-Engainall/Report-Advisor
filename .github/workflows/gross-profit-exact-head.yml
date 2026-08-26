@@ -2,14 +2,17 @@ name: gross-profit-exact-head
 on:
   push:
     branches:
-      - runtime/gross-profit-surface-proof
+      - runtime/gross-profit-truth-closure
   workflow_dispatch:
 permissions:
   contents: read
+concurrency:
+  group: gross-profit-exact-head
+  cancel-in-progress: false
 jobs:
   verify:
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
+    runs-on: ubuntu-22.04
+    timeout-minutes: 40
     steps:
       - uses: actions/checkout@v5
         with:
@@ -24,6 +27,33 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci --no-audit --no-fund
-      - run: npm run typecheck
-      - run: npm run lint
-      - run: npm run build
+      - name: Independent Gross Profit truth regression
+        run: node scripts/gross-profit-truth-regression.mjs
+      - name: Gross Profit static surface audit
+        run: node scripts/gross-profit-static-surface-audit.mjs
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Lint
+        run: npm run lint
+      - name: Build
+        run: npm run build
+      - name: Production certification contract
+        run: npm run test:production-saas-certification && npm run test:production-certification-contract
+      - name: Gross Profit runtime certification
+        env:
+          CERT_SUPABASE_URL: ${{ secrets.CERT_SUPABASE_URL }}
+          CERT_SUPABASE_ANON_KEY: ${{ secrets.CERT_SUPABASE_ANON_KEY }}
+          CERT_TENANT_A_ID: ${{ secrets.CERT_TENANT_A_ID }}
+          CERT_TENANT_B_ID: ${{ secrets.CERT_TENANT_B_ID }}
+          CERT_USER_A_JWT: ${{ secrets.CERT_USER_A_JWT }}
+          CERT_USER_B_JWT: ${{ secrets.CERT_USER_B_JWT }}
+        run: node --experimental-strip-types scripts/gross-profit-runtime-surface-proof-v2.ts
+      - name: Upload Gross Profit evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gross-profit-exact-head-evidence
+          path: |
+            gross-profit-runtime-results.json
+            gross-profit-static-surface-audit.json
+          if-no-files-found: warn
