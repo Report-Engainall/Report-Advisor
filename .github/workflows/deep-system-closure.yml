@@ -1,0 +1,54 @@
+name: deep-system-closure
+on:
+  push:
+    branches: ['wave/**']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: deep-system-closure-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  closure:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 40
+    steps:
+      - name: Checkout exact event SHA
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+          ref: ${{ github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Exact-head observability guard
+        run: node scripts/check-exact-head-observability.mjs
+      - name: Install
+        run: npm ci --no-audit --no-fund
+      - name: Deep consumer and semantic scan
+        run: node scripts/check-deep-system-closure.mjs
+      - name: Canonical and tenant regression family
+        run: npm run test:report-truth && npm run test:auth-tenant-convergence && npm run test:tenant-security-contract && npm run test:global-tenant-rls
+      - name: Export and architecture regression family
+        run: npm run test:production-release-blockers && npm run test:contracts
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Build
+        run: npm run build
+      - name: Lint
+        run: npm run lint
+      - name: CI gate evidence
+        run: |
+          test "$(git rev-parse HEAD)" = "${GITHUB_SHA}"
+          test -s artifacts/exact-head-observability.json
+          test -s artifacts/deep-system-closure.json
+          node -e "const e=require('./artifacts/exact-head-observability.json'); if(!e.observable) process.exit(1); e.statuses.runPassed=true; e.statuses.gateSatisfied=true; require('fs').writeFileSync('./artifacts/exact-head-observability.json',JSON.stringify(e,null,2))"
+      - name: Upload closure evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: deep-system-closure-${{ github.sha }}
+          path: artifacts/
+          if-no-files-found: error
