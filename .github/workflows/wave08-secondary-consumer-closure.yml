@@ -1,0 +1,30 @@
+name: wave08-secondary-consumer-closure
+
+on:
+  push:
+    branches: ["**"]
+    paths:
+      - "src/lib/canonical-secondary-data-truth.ts"
+      - "supabase/migrations/20260826120000_secondary_consumer_truth.sql"
+      - "scripts/execution-wave-08-secondary-consumer-closure.mjs"
+      - ".github/workflows/wave08-secondary-consumer-closure.yml"
+  pull_request:
+    paths:
+      - "src/lib/canonical-secondary-data-truth.ts"
+      - "supabase/migrations/20260826120000_secondary_consumer_truth.sql"
+      - "scripts/execution-wave-08-secondary-consumer-closure.mjs"
+      - ".github/workflows/wave08-secondary-consumer-closure.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  secondary-consumer-closure:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Verify secondary consumer truth contract
+        run: node scripts/execution-wave-08-secondary-consumer-closure.mjs
