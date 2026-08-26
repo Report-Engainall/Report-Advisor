@@ -12,9 +12,9 @@ Base: `b4897b8d456d10736642745b097de2aea89b27c5`
 No historical PASS promotion. No scanner-only closure. No runtime/LIVE/production claims without matching evidence.
 
 ## Exact state
-- Current code HEAD before this Index update: `ec95b344c1f95d3b04bd4eff2c1229ea2cdf86b2`.
+- Current code HEAD before this Index update: `102903e21510ec80cc29876468d438fbc25ec576`.
 - Starting exact HEAD: `b4897b8d456d10736642745b097de2aea89b27c5`.
-- Current exact-head CI: **NOT OBSERVABLE**; workflow-run lookup returned zero runs for `ec95b344c1f95d3b04bd4eff2c1229ea2cdf86b2`. No PASS is claimed.
+- Current exact-head CI: **NOT OBSERVABLE**; workflow-run lookup returned zero runs for the pre-cleanup HEAD and the branch has not produced an observable run for the current cleanup head. No PASS is claimed.
 - `quality.yml` remains the canonical quality gate. No duplicate quality workflow was introduced.
 
 ## P0 — Data Quality authoritative closure
@@ -23,29 +23,30 @@ Finding: `DataQualityPage` consumed `fetchDataQualityDatasets()` and calculated 
 Root cause: business-quality truth was computed in a client-side reducer over bounded collections rather than by an authoritative server snapshot.
 
 Fix implemented:
-- Added `get_data_quality_snapshot()` as a tenant-derived `SECURITY DEFINER` RPC with fixed `search_path` and no tenant parameter.
-- Explicit tenant authority comes from `current_company_id()`; missing tenant context fails closed with `TENANT_CONTEXT_MISMATCH`.
-- RPC grants are restricted to `authenticated`; PUBLIC and anon execution are revoked.
-- The snapshot computes customer/product/invoice/inventory issue counts server-side.
-- Numeric NULLs remain UNKNOWN: missing numeric values are not converted to zero for quality findings.
-- Added `src/lib/data-quality-snapshot.ts` as the only browser adapter for the snapshot.
+- Added a single final migration `supabase/migrations/20260826043000_data_quality_snapshot_compile_fix.sql` defining `get_data_quality_snapshot()`.
+- Tenant authority comes from `current_company_id()`; the RPC accepts no tenant identifier and missing tenant context fails closed with `TENANT_CONTEXT_MISMATCH`.
+- The RPC is `SECURITY DEFINER` with fixed `search_path`; PUBLIC and anon execution are revoked and authenticated execution is granted.
+- Customer/product/invoice/inventory issue counts are computed server-side.
+- NULL numeric values remain UNKNOWN and are not converted to zero for quality findings.
+- Added `src/lib/data-quality-snapshot.ts` as the browser adapter.
 - Added `DataQualitySnapshotPage` and changed `/data-quality` to consume the canonical snapshot instead of `fetchDataQualityDatasets()`.
-- Existing `DataQualityPage` in `EntityPages.tsx` is now a legacy implementation and has NOT been removed yet; zero-consumer proof/removal remains a required next step.
+- Superseded draft migrations were removed before CI: only the final migration remains.
+- Existing `DataQualityPage` in `EntityPages.tsx` is now legacy and has NOT been removed yet; zero-consumer proof/removal remains open.
 
 Regression / contract evidence:
 - `src/lib/data-quality-snapshot.test.ts` verifies the adapter calls exactly `get_data_quality_snapshot` and fails closed on an invalid payload.
 - `src/lib/data-quality-snapshot.contract.test.ts` verifies tenant-derived RPC shape, restricted grants, absence of browser table reads in the adapter, and route migration.
-- Existing `scripts/check-data-quality-projections.mjs` remains relevant to the legacy bounded bridge until that bridge is removed.
+- Existing `scripts/check-data-quality-projections.mjs` still protects the legacy bounded bridge until that bridge is removed.
 
-Status: `IMPLEMENTED → REGRESSION → CONSUMER MIGRATION COMPLETE AT ROUTE LEVEL`; exact-head CI and runtime are not yet verified.
+Status: `IMPLEMENTED → REGRESSION → ROUTE CONSUMER MIGRATED`; exact-head CI, database execution and runtime remain unverified.
 
 ## Data Truth note
-The server snapshot intentionally preserves the pre-migration quality formulas for non-null numeric values while correcting the architecture boundary. It does not treat NULL/missing numeric fields as zero. Semantic equivalence must still be proven against a real fixture/corpus before this finding is marked fully closed.
+The final server snapshot preserves the existing quality formulas for non-null numeric values while explicitly avoiding NULL→ZERO conversion. Semantic equivalence still requires fixture/corpus execution before this finding can be marked fully closed.
 
 ## Remaining P0/P1
 1. Prove zero consumers of `fetchDataQualityDatasets()` and the legacy `DataQualityPage`; then remove both only after regression.
-2. Run exact-head CI and fix any compile/type/migration failures rather than weakening tests.
-3. Repository-wide consumer/dependency proof for `get_sales_secondary_metrics`; remove only after zero consumers.
+2. Run exact-head CI and fix every compile/type/migration failure at root cause.
+3. Prove whether `get_sales_secondary_metrics` still exists as a DB-only legacy function; remove only after migration/dependency/consumer proof.
 4. Complete `queries-compat.ts` function-by-function classification.
 5. BI / Decision Metrics / Exports / Demand Velocity / Inventory Intelligence business-truth sweep.
 6. Cross-surface equivalence: Dashboard = Reports = Analytics = BI = Exports = Decisions under identical tenant/date/status/as-of/filter contracts.
@@ -56,14 +57,14 @@ The server snapshot intentionally preserves the pre-migration quality formulas f
 ## Regression / CI
 Canonical `quality.yml` remains the quality gate. No duplicate quality workflow was created.
 
-Exact-head CI status is **NOT OBSERVABLE** for `ec95b344c1f95d3b04bd4eff2c1229ea2cdf86b2`.
+Exact-head CI status is **NOT OBSERVABLE** for current cleanup HEAD. No historical PASS is promoted.
 
 ## Status ladder
 - FOUNDATION: PASS by prior evidence.
 - IMPLEMENTED: PASS for the Data Quality route migration at code level.
 - REGRESSION: implemented; exact-head CI not yet observable.
 - GATED: NO CLAIM for current HEAD.
-- CONSUMER VERIFIED: route consumer migrated; zero-consumer proof for legacy path remains open.
+- CONSUMER VERIFIED: route consumer migrated; legacy zero-consumer proof remains open.
 - RUNTIME VERIFIED: NO CLAIM.
 - LIVE VERIFIED: NO.
 - PRODUCTION CERTIFIED: NO.
@@ -83,9 +84,9 @@ Exact-head CI status is **NOT OBSERVABLE** for `ec95b344c1f95d3b04bd4eff2c1229ea
 12. Production query-plan/scale evidence.
 
 ## Next execution
-- First: exact-head CI for the Data Quality migration; treat every failure as evidence and fix root cause.
+- First: exact-head CI observation/fix for the Data Quality migration.
 - Then: zero-consumer proof/removal of the legacy Data Quality dataset path and page implementation.
-- In parallel: `get_sales_secondary_metrics` zero-consumer sweep, BI/Decision/Export/Demand/Inventory Intelligence truth sweep, and tenant/security sibling sweep.
+- In parallel: DB-only `get_sales_secondary_metrics` dependency proof, BI/Decision/Export/Demand/Inventory Intelligence truth sweep, and tenant/security sibling sweep.
 - Continue runtime/LIVE preparation without waiting passively for CI.
 
 PRODUCTION CERTIFIED = NO until real LIVE evidence exists.
