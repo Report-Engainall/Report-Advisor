@@ -33,5 +33,16 @@ assert.notEqual(daysOfStock(1700,170)+daysOfStock(300,30),10);
 // Boundary: no historical demand means no false stockout countdown.
 assert.equal(daysOfStock(500,0),Infinity);
 
+// Tenant authority regression: intelligence RPCs must derive tenant from the authenticated session.
+const tenantMigration=await readFile('supabase/migrations/20260826093000_inventory_intelligence_tenant_authority.sql','utf8');
+for(const signature of [
+  'inventory_liquidity_velocity(uuid,date,integer)',
+  'demand_reorder_snapshot(uuid,date,integer,numeric,numeric)',
+  'cash_liquidity_snapshot(uuid,date,date)',
+]) assert(tenantMigration.includes(`DROP FUNCTION IF EXISTS public.${signature};`),`missing explicit drop for ${signature}`);
+assert.match(tenantMigration,/public\.current_company_id\(\)/,'current_company_id() is required');
+assert.doesNotMatch(tenantMigration,/p_company_id\s+uuid/i,'caller-supplied p_company_id must not be reintroduced');
+assert.doesNotMatch(tenantMigration,/SECURITY\s+DEFINER/i,'inventory intelligence RPCs must remain SECURITY INVOKER');
+
 console.log('Inventory intelligence checks: PASS');
-console.log(`Validated ${files.length} engine modules and deterministic boundary formulas.`);
+console.log(`Validated ${files.length} engine modules, deterministic boundary formulas, and tenant-authority migration contract.`);
