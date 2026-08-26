@@ -29,6 +29,8 @@ jobs:
       - run: npm ci --no-audit --no-fund
       - name: Independent Gross Profit truth regression
         run: node scripts/gross-profit-truth-regression.mjs
+      - name: Gross Profit currency regression
+        run: node scripts/gross-profit-currency-regression.mjs
       - name: Gross Profit static surface audit
         run: node scripts/gross-profit-static-surface-audit.mjs
       - name: Typecheck
