@@ -1,5 +1,5 @@
 import type { ReportExecutionCheckpoint, ReportExecutionStage } from './checkpoint';
-import { PhaseKLRuntime } from '../phase-kl-runtime';
+import { buildLineage, consolidateRuntime, chooseScenario, prioritizeDecisions, canAutonomouslyExecute } from '../phase-kl-runtime';
 
 export interface ProductionLifecycleInput {
   jobId: string;
@@ -13,11 +13,11 @@ export interface ProductionLifecycleInput {
 export interface ProductionLifecycleResult {
   jobId: string;
   sourceHash: string;
-  lineage: ReturnType<PhaseKLRuntime['buildRowLineage']>;
-  consolidation: ReturnType<PhaseKLRuntime['consolidateChronologically']>;
-  scenario: ReturnType<PhaseKLRuntime['selectBoundedScenario']>;
-  portfolio: ReturnType<PhaseKLRuntime['rankDecisionPortfolio']>;
-  autonomy: ReturnType<PhaseKLRuntime['evaluateAutonomy']>;
+  lineage: ReturnType<typeof buildLineage>[];
+  consolidation: ReturnType<typeof consolidateRuntime>;
+  scenario: ReturnType<typeof chooseScenario>;
+  portfolio: ReturnType<typeof prioritizeDecisions>;
+  autonomy: ReturnType<typeof canAutonomouslyExecute>;
 }
 
 /**
@@ -25,31 +25,31 @@ export interface ProductionLifecycleResult {
  * worker store; this layer only composes governed K/L decisions and evidence.
  */
 export function runProductionLifecycle(input: ProductionLifecycleInput): ProductionLifecycleResult {
-  const runtime = new PhaseKLRuntime();
-  const lineage = runtime.buildRowLineage(input.rows, input.sourceHash);
-  const consolidation = runtime.consolidateChronologically([{ sourceHash: input.sourceHash, rows: input.rows }]);
-  const scenario = runtime.selectBoundedScenario({
-    baseValue: Math.max(0, input.rows.length),
-    alternatives: [
-      { key: 'base', multiplier: 1, risk: 0.2 },
-      { key: 'conservative', multiplier: 0.9, risk: 0.1 },
-      { key: 'stress', multiplier: 0.75, risk: 0.35 },
-    ],
-    riskBudget: 0.35,
-    protectedLiquidity: 0,
-    minimumServiceLevel: 0.75,
-  });
-  const portfolio = runtime.rankDecisionPortfolio([
-    { key: input.jobId, materiality: 1, urgency: 1, confidence: 0.8, risk: scenario.risk },
-  ]);
-  const autonomy = runtime.evaluateAutonomy({
-    domain: 'report-execution',
+  const lineage = input.rows.map((row, index) => buildLineage([], [{ key: `${input.jobId}:${index}`, hash: input.sourceHash, value: row }]));
+  const consolidation = consolidateRuntime(input.rows.map((row, index) => ({
+    businessKey: String(row.id ?? row.sku ?? row.invoice_id ?? `${input.jobId}:${index}`),
+    sourceId: input.sourceSnapshotId ?? input.sourceHash,
+    precedence: 0,
+    observedAt: input.now ?? new Date().toISOString(),
+    value: row,
+  })));
+  const scenario = chooseScenario([
+    { key: 'base', expectedImpact: 1, risk: 0.2, liquidityRequired: 0, serviceLevel: 1 },
+    { key: 'conservative', expectedImpact: 0.9, risk: 0.1, liquidityRequired: 0, serviceLevel: 0.9 },
+    { key: 'stress', expectedImpact: 0.75, risk: 0.35, liquidityRequired: 0, serviceLevel: 0.75 },
+  ], { maxRisk: 0.35, protectedLiquidity: 0, minimumServiceLevel: 0.75 });
+  const portfolio = prioritizeDecisions([
+    { key: input.jobId, materiality: 1, urgency: 1, confidence: 0.8, risk: scenario?.risk ?? 1 },
+  ], 0.35);
+  const evidenceQuality = lineage.filter((x) => x?.state !== 'deleted').length / Math.max(1, lineage.length);
+  const autonomy = canAutonomouslyExecute({
+    trustHealthy: true,
+    evidenceQuality,
     confidence: portfolio[0]?.confidence ?? 0,
-    evidenceQuality: lineage.filter((x) => x.status !== 'quarantined').length / Math.max(1, lineage.length),
-    risk: scenario.risk,
-    rollbackAvailable: true,
-    continuousTrustHealthy: true,
+    riskBudgetValid: scenario !== null,
     criticalDrift: false,
+    rollbackVerified: true,
+    isolationVerified: true,
   });
   return { jobId: input.jobId, sourceHash: input.sourceHash, lineage, consolidation, scenario, portfolio, autonomy };
 }
