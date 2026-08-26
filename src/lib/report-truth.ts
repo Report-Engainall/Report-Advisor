@@ -1,7 +1,7 @@
 import { fetchInventoryBalances } from './queries';
 import type { InventoryBalance } from './types';
 
-export interface InventoryReportRow extends InventoryBalance {}
+export type InventoryReportRow = InventoryBalance;
 
 export interface InventoryReportSnapshot {
   rows: InventoryReportRow[];
