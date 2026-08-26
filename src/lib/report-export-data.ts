@@ -12,13 +12,14 @@ async function tenantId(): Promise<string> {
 
 async function paged<T>(table: 'sales_invoices' | 'purchase_invoices', select: string): Promise<T[]> {
   const companyId = await tenantId();
-  const { count, error: countError } = await supabase.from(table).select('id', { count: 'exact', head: true }).eq('company_id', companyId);
+  const base = supabase.from(table).select('id', { count: 'exact', head: true }).eq('company_id', companyId).neq('status', 'cancelled').neq('status', 'void');
+  const { count, error: countError } = await base;
   if (countError) throw countError;
   const total = count ?? 0;
   if (total > EXPORT_MAX_ROWS) throw new Error(`EXPORT_DATASET_TOO_LARGE:${total}>${EXPORT_MAX_ROWS}`);
   const rows: T[] = [];
   for (let offset = 0; offset < total; offset += EXPORT_PAGE_SIZE) {
-    const { data, error } = await supabase.from(table).select(select).eq('company_id', companyId).range(offset, Math.min(offset + EXPORT_PAGE_SIZE - 1, total - 1));
+    const { data, error } = await supabase.from(table).select(select).eq('company_id', companyId).neq('status', 'cancelled').neq('status', 'void').range(offset, Math.min(offset + EXPORT_PAGE_SIZE - 1, total - 1));
     if (error) throw error;
     rows.push(...((data ?? []) as T[]));
   }
