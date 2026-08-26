@@ -13,7 +13,7 @@ export interface DurableProductionRunInput<T = unknown> {
   sourceHash: string;
   rows: Array<Record<string, unknown>>;
   lifecycle: Omit<ProductionLifecycleInput<T>, 'jobId' | 'companyId' | 'sourceHash' | 'currentRows'> & { currentRows: ProductionLifecycleInput<T>['currentRows'] };
-  executeStage?: (stage: ReportExecutionStage, input: { request: ReportExecutionRequest; rows: Array<Record<string, unknown>> }) => Promise<void>;
+  executeStage?: (stage: ReportExecutionStage, input: { request: ReportExecutionRequest; rows: Array<Record<string, unknown>>; idempotencyKey: string }) => Promise<void>;
   leaseSeconds?: number;
   heartbeatIntervalMs?: number;
 }
@@ -23,6 +23,8 @@ export async function runDurableProductionLifecycle<T>(input: DurableProductionR
   const heartbeatIntervalMs = input.heartbeatIntervalMs ?? Math.max(30_000, Math.floor((leaseSeconds * 1000) / 3));
   const job = await store.claim(input.jobId, input.workerId, leaseSeconds);
   let heartbeatTimer: ReturnType<typeof setInterval> | undefined;
+  let stageStarted = false;
+  let activeStage: ReportExecutionStage | null = null;
 
   try {
     if (job.tenantId !== input.request.tenantId) throw new Error('Tenant mismatch for durable production execution');
@@ -40,31 +42,33 @@ export async function runDurableProductionLifecycle<T>(input: DurableProductionR
       if (heartbeatFailure) throw heartbeatFailure;
       const following = next(stage);
       if (!following) throw new Error(`Cannot advance production lifecycle from ${stage}`);
-      if (input.executeStage) await input.executeStage(following, { request: input.request, rows: input.rows });
+      activeStage = following;
+      stageStarted = false;
+      const idempotencyKey = `${input.jobId}:${following}:${input.sourceHash}`;
+      if (input.executeStage) {
+        stageStarted = true;
+        await input.executeStage(following, { request: input.request, rows: input.rows, idempotencyKey });
+      }
       if (heartbeatFailure) throw heartbeatFailure;
       await store.saveCheckpoint(input.jobId, checkpoint(following), input.workerId);
+      stageStarted = false;
+      activeStage = null;
       stage = following;
     }
 
-    const lifecycle = runProductionLifecycle({
-      ...input.lifecycle,
-      jobId: input.jobId,
-      companyId: input.request.tenantId,
-      sourceHash: input.sourceHash,
-      currentRows: input.lifecycle.currentRows,
-    });
-    await store.complete(input.jobId, input.workerId, {
-      sourceHash: input.sourceHash,
-      lineageCount: lifecycle.lineage.length,
-      scenario: lifecycle.scenario,
-      portfolio: lifecycle.portfolio,
-      autonomy: lifecycle.autonomy,
-    });
+    const lifecycle = runProductionLifecycle({ ...input.lifecycle, jobId: input.jobId, companyId: input.request.tenantId, sourceHash: input.sourceHash, currentRows: input.lifecycle.currentRows });
+    await store.complete(input.jobId, input.workerId, { sourceHash: input.sourceHash, lineageCount: lifecycle.lineage.length, scenario: lifecycle.scenario, portfolio: lifecycle.portfolio, autonomy: lifecycle.autonomy });
     return lifecycle;
   } catch (error) {
     try {
-      await store.fail(input.jobId, input.workerId, { message: error instanceof Error ? error.message : String(error) });
-      if (job.attempt < job.maxAttempts) await store.retry(input.jobId);
+      const unsafeReplay = stageStarted && activeStage !== null;
+      await store.fail(input.jobId, input.workerId, {
+        message: error instanceof Error ? error.message : String(error),
+        recovery: unsafeReplay ? 'MANUAL_RECONCILIATION_REQUIRED' : 'AUTO_RETRY_ELIGIBLE',
+        stage: activeStage,
+        idempotencyKey: activeStage ? `${input.jobId}:${activeStage}:${input.sourceHash}` : null,
+      });
+      if (!unsafeReplay && job.attempt < job.maxAttempts) await store.retry(input.jobId);
     } catch (failureError) {
       throw new AggregateError([error, failureError], 'Durable execution failed and failure/recovery state could not be persisted');
     }
