@@ -5,7 +5,7 @@ const quality=fs.readFileSync(path.join(root,'.github/workflows/quality.yml'),'u
 const boundary=fs.readFileSync(path.join(root,'.github/workflows/production-evidence-boundary.yml'),'utf8');
 const requiredQuality=['test:master-requirements','test:production-certification-contract','test:continuous-trust','test:phase-k-runtime','test:phase-l-runtime','test:phase-m-certification','test:production-release-blockers','test:production-scale','check-document-resilience.mjs'];
 for(const x of requiredQuality) if(!quality.includes(x)) throw new Error(`Quality chain missing ${x}`);
-for(const x of ['check-live-production-evidence-boundary.mjs','check-production-evidence-failclosed.mjs','check-master-duplication-budget.mjs','check-production-release-blockers.mjs','check-production-certification-contract.mjs']) if(!boundary.includes(x)) throw new Error(`Production boundary missing ${x}`);
+for(const x of ['check-live-production-evidence-boundary.mjs','check-production-evidence-failclosed.mjs','check-master-duplication-budget.mjs','check-production-release-blockers.mjs','test:production-certification-contract']) if(!boundary.includes(x)) throw new Error(`Production boundary missing ${x}`);
 if(!quality.includes('branches: [main]')) throw new Error('Quality main branch trigger missing');
-if(!boundary.includes('branches: [main]')) throw new Error('Production boundary main trigger missing');
+if(!boundary.includes('workflow_dispatch:')) throw new Error('Production boundary must remain explicitly manual');
 console.log('Quality-to-production chain: PASS');
