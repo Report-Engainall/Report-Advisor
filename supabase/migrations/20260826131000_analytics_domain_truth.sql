@@ -74,8 +74,7 @@ BEGIN
     FROM sale_items si
     JOIN sales_invoices s ON s.id = si.invoice_id AND s.company_id = v_company_id
     LEFT JOIN products p ON p.id = si.product_id AND p.company_id = s.company_id
-    WHERE si.company_id = v_company_id
-      AND si.product_id IS NOT NULL
+    WHERE si.product_id IS NOT NULL
       AND s.status NOT IN ('cancelled','void')
       AND si.line_total IS NOT NULL
     GROUP BY si.product_id, p.name
