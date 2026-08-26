@@ -13,44 +13,46 @@ Snapshot: 2026-08-26
 - Active PR: **#27 — Wave 07 — Truth Certification + Canonical/RPC Deep Verification**.
 - Original execution branch: `execution-wave-07-truth-certification`.
 - Closure work branch: `execution-wave-closure-export-decision`.
-- Current exact application/CI HEAD: `fe4b29681618e3c6300846a454c8cdd85796df2e`.
-- Previous closure HEAD: `2c08085c3bd6980caae79973deb500b212750a02`.
-- Exact-head CI for `fe4b296...`: **PENDING / NOT YET OBSERVED**. No PASS is claimed.
+- Current exact application/CI HEAD: `1ade9084d764caa4342a4ac3dc57b4669b98ccad`.
+- Previous closure HEAD: `fe4b29681618e3c6300846a454c8cdd85796df2e`.
+- Exact-head CI for `1ade908...`: **PENDING / NOT YET OBSERVED**. No PASS is claimed.
 
 ## REAL CLOSURE EXECUTED
 
-### Export truth — IMPLEMENTED
-Root cause: Inventory export reconstructed business valuation in the page from `quantity * unit_cost`, creating a second business-truth calculation and risking UNKNOWN→ZERO drift.
+### 1. Inventory export truth — IMPLEMENTED
+Root cause: inventory export reconstructed valuation in the page from `quantity * unit_cost`, creating duplicate business truth and risking UNKNOWN→ZERO drift.
 
 Fix:
-- Added `get_inventory_export_truth(uuid)` in `supabase/migrations/20260826140000_inventory_export_truth.sql`.
-- RPC is `SECURITY INVOKER`, `search_path=public`, tenant-authoritative via `current_company_id()`, rejects caller-selected tenant mismatch, and grants execution only to `authenticated`.
-- Canonical export rows carry `quantity`, `unit_cost`, nullable `value`, and explicit `value_status`.
-- `src/lib/report-export-data.ts` now consumes the canonical RPC for inventory export.
-- `src/pages/ReportsPage.tsx` now renders inventory export from canonical `result.rows`; the export path no longer performs page-local `quantity * unit_cost`.
-- Sales/Purchase exports remain bounded (500-row chunks, 5,000-row hard cap) and tenant-scoped.
+- `supabase/migrations/20260826140000_inventory_export_truth.sql` adds tenant-authoritative `get_inventory_export_truth(uuid)`.
+- `src/lib/report-export-data.ts` consumes the canonical RPC and preserves nullable value/status.
+- `src/pages/ReportsPage.tsx` renders inventory export from canonical rows; no page-local inventory export valuation remains.
 
-### CI topology / gate integrity — FIXED
-A real CI-topology finding was identified in the Wave 07 branch diff: several established quality gates had been removed from `.github/workflows/quality.yml` (Import RPC tenant context, business key, lint, build, performance budget, intelligence/production contracts, analysis runtime contracts, document service runtime contracts, report truth, production readiness, full resilience). These were not accepted as a simplification.
+### 2. CI gate integrity — IMPLEMENTED
+Root cause: the Wave 07 branch had removed established quality gates from `.github/workflows/quality.yml`.
 
 Fix:
-- Restored the removed gates from the main quality contract.
-- Kept the new Wave 08 and Wave 09 truth regressions in the same canonical quality job.
-- No skip, whitelist, expected-result manipulation, or checker weakening was used.
+- Restored import tenant-context/business-key, lint, build, performance, intelligence/production, analysis runtime, document runtime, report-truth, production-readiness and full-resilience gates.
+- Kept Wave 08 and Wave 09 truth regressions in the canonical quality job.
+- No skip, whitelist, checker weakening or expected-result manipulation.
 
-### Regression — IMPLEMENTED
-`execution-wave-09-cross-surface-closure.mjs` now fails if inventory export returns to page-local valuation or if the canonical export RPC loses tenant authority. Existing secondary/cross-surface assertions remain active.
+### 3. Executive decision consumer migration — IMPLEMENTED
+Root cause: `src/pages/ExecutiveCommandCenterPage.tsx` still called legacy `fetchDashboardKPIs()` and exposed a period selector that did not affect the all-time canonical query, creating a misleading date contract.
 
-### CI gate — IMPLEMENTED
-`.github/workflows/quality.yml` directly executes the Wave 09 cross-surface/export regression and retains the previously established downstream quality gates.
+Fix:
+- Migrated the command center to `fetchCanonicalDashboardKPIs()`.
+- Removed the unused 7/30/90 period selector rather than pretending the canonical all-time metric was period-filtered.
+- Added fail-closed handling: incomplete/null canonical metrics do not produce decision cards or fabricated status values.
 
-## Existing closure retained
-- Dashboard/Purchase/Inventory core KPI paths remain canonical.
-- Secondary analytics (monthly trend/top customers/top products/category/aging) use canonical RPC adapters.
-- RFM/ABC use tenant-authoritative domain RPCs with cancelled/void semantics.
-- Receivables aging uses explicit as-of canonical truth.
-- Decision score/chain fail closed on missing or non-finite decision factors.
-- Canonical adapters preserve nullable business values.
+### 4. Behavioral regression — IMPLEMENTED
+`execution-wave-09-cross-surface-closure.mjs` now asserts:
+- inventory export uses canonical row values;
+- canonical inventory export is tenant-authoritative;
+- executive command center uses canonical KPI source;
+- legacy `fetchDashboardKPIs` and obsolete period selector are absent from that consumer;
+- existing secondary, RFM/ABC, aging, nullable and decision fail-closed invariants remain enforced.
+
+### 5. Quality integration — IMPLEMENTED
+`.github/workflows/quality.yml` directly runs the Wave 09 regression and all restored downstream quality gates.
 
 ## Capability matrix
 | Capability | Implemented | Tested | Regression | Gated | Consumer verified | Runtime | LIVE | Production |
@@ -58,8 +60,8 @@ Fix:
 | Inventory export canonical truth | YES | PENDING exact-head | YES | YES | YES (source proof) | NO | NO | NO |
 | Export truth overall | YES | PENDING exact-head | YES | YES | YES (source proof) | NO | NO | NO |
 | CI gate integrity | YES | PENDING exact-head | YES | YES | YES | NO | NO | NO |
+| Executive decision consumer | YES | PENDING exact-head | YES | YES | YES (source proof) | NO | NO | NO |
 | Dashboard/secondary canonical truth | YES | YES | YES | YES | YES | NO | NO | NO |
-| Inventory operational truth | YES | YES | YES | YES | YES | NO | NO | NO |
 | RFM/ABC domain truth | YES | YES | YES | YES | YES | NO | NO | NO |
 | Aging as-of truth | YES | YES | YES | YES | YES | NO | NO | NO |
 | Decision fail-closed truth | YES | YES | YES | YES | YES (code path) | PARTIAL | NO | NO |
@@ -68,13 +70,14 @@ Fix:
 
 ## Legacy closure
 - Secondary legacy wrappers remain where compatibility is still required.
-- Removal rule remains: SEARCH → MIGRATE → REGRESSION → ZERO CONSUMERS → REMOVE.
-- No destructive deletion was used to make CI pass.
+- Removal rule: SEARCH → MIGRATE → REGRESSION → ZERO CONSUMERS → REMOVE.
+- Executive command center has zero consumer dependency on `fetchDashboardKPIs` after this migration.
+- No destructive deletion was performed without dependency proof.
 
 ## Exact-head CI truth
-- Current HEAD `fe4b29681618e3c6300846a454c8cdd85796df2e`: **PENDING / NOT OBSERVED**.
-- Previous Wave 09 PASS evidence belongs to prior SHA(s) and is not transferred.
-- The next exact-head run must validate workflow integrity, restored gates, typecheck/build/lint/performance, Wave 08 regression, Wave 09 cross-surface/export regression, and all existing quality gates.
+- Current HEAD `1ade9084d764caa4342a4ac3dc57b4669b98ccad`: **PENDING / NOT OBSERVED**.
+- Previous PASS evidence is not transferred.
+- Exact-head CI must validate restored quality gates, typecheck/build/lint/performance, Wave 08 and Wave 09 behavioral truth regressions, and all existing quality contracts.
 
 ## LIVE REQUIRED
 1. Authenticated Dashboard → Reports → Exports → Decisions equivalence against real tenant data.
@@ -87,11 +90,11 @@ Fix:
 8. Production-scale load/canary/rollback.
 
 ## Remaining work — NOW
-- Obtain exact-head CI evidence for `fe4b296...`; fix any real failure and rerun on the new SHA.
-- Continue full business-calculation sibling sweep for remaining page/component/export/decision formulas.
-- Continue date/status equivalence verification for metrics not yet covered by canonical contracts.
-- Complete decision metric → evidence → outcome runtime provenance.
-- Remove only legacy paths proven to have zero consumers.
+- Obtain exact-head CI evidence for `1ade908...`; fix every real failure and rerun on the new SHA.
+- Continue sibling sweep for remaining business calculations, especially direct page/component formulas and exports.
+- Continue date/status equivalence for metrics not yet covered by explicit domain contracts.
+- Complete Decision → Evidence → Recommendation → Decision → Outcome → Feedback runtime provenance.
+- Remove legacy paths only after zero-consumer proof.
 
 ## Completion truth
-**NOT CERTIFIED.** Real export-truth implementation and CI gate restoration are complete in code, but exact-head CI for `fe4b296...` is pending, runtime/live evidence is not claimed, and Production Certification remains blocked by live requirements.
+**NOT CERTIFIED.** Real export and executive-consumer fixes plus quality-gate restoration are implemented and regression-wired. Exact-head CI for the current SHA is still pending; runtime/live evidence and Production Certification are not claimed.
