@@ -14,16 +14,17 @@ const files = ['src', 'scripts', 'supabase'];
 const fs = await import('node:fs');
 const path = await import('node:path');
 const refs = [];
+const self = path.normalize('scripts/prune-proven-legacy-pages.mjs');
 function walk(dir) {
   if (!fs.existsSync(dir)) return;
   for (const name of fs.readdirSync(dir)) {
     if (['node_modules', '.git', 'dist', 'coverage'].includes(name)) continue;
-    const p = path.join(dir, name); const s = fs.statSync(p);
+    const p = path.normalize(path.join(dir, name)); const s = fs.statSync(p);
     if (s.isDirectory()) walk(p);
-    else if (/\.(ts|tsx|js|jsx|mjs|cjs|sql)$/.test(name)) {
+    else if (/\.(ts|tsx|js|jsx|mjs|cjs|sql)$/.test(name) && p !== self) {
       const t = fs.readFileSync(p, 'utf8');
       for (const [i, line] of t.split('\n').entries()) {
-        if (t !== body && line.includes(symbol)) refs.push(`${p}:${i + 1}:${line.trim()}`);
+        if (p !== path.normalize(target) && line.includes(symbol)) refs.push(`${p}:${i + 1}:${line.trim()}`);
       }
     }
   }
