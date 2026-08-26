@@ -1,6 +1,6 @@
 name: production-chain-guard
 on:
-  push: {branches: [hardening/safe-prune-and-proof]}
+  push: {branches: [hardening/safe-prune-and-proof, hardening/gross-profit-truth-closure-f5]}
   pull_request:
     branches: [main]
   workflow_dispatch:
