@@ -15,8 +15,8 @@ const required = [
   'CERT_SUPABASE_ANON_KEY',
   'CERT_TENANT_A_ID',
   'CERT_TENANT_B_ID',
-  'CERT_TEST_USER_A',
-  'CERT_TEST_USER_B',
+  'CERT_USER_A_JWT',
+  'CERT_USER_B_JWT',
 ];
 
 const optional = [
