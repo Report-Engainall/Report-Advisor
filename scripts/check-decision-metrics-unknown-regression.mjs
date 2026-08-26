@@ -1,0 +1,9 @@
+import fs from 'node:fs';
+const source = fs.readFileSync('src/lib/free-toolbox/decision-metrics.ts', 'utf8');
+if (!source.includes('averageExpectedImpact:number|null')) throw new Error('expected impact must preserve unknown');
+if (!source.includes('averageActualImpact:number|null')) throw new Error('actual impact must preserve unknown');
+if (!source.includes('averageExpectedImpact:expected.length?expected.reduce((s,v)=>s+v,0)/expected.length:null')) throw new Error('missing expected impact must not become zero');
+if (!source.includes('averageActualImpact:actual.length?actual.reduce((s,v)=>s+v,0)/actual.length:null')) throw new Error('missing actual impact must not become zero');
+if (source.includes('averageExpectedImpact:expected.length?expected.reduce((s,v)=>s+v,0)/expected.length:0')) throw new Error('legacy expected-impact zero fallback remains');
+if (source.includes('averageActualImpact:actual.length?actual.reduce((s,v)=>s+v,0)/actual.length:0')) throw new Error('legacy actual-impact zero fallback remains');
+console.log('decision metrics unknown regression: PASS');
