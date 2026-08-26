@@ -29,18 +29,17 @@ must(/REVOKE ALL ON FUNCTION public\.get_sales_top_customers/.test(migration), '
 must(/REVOKE ALL ON FUNCTION public\.get_sales_top_products/.test(migration), 'top products: PUBLIC revoke missing');
 must(/REVOKE ALL ON FUNCTION public\.get_sales_category_breakdown/.test(migration), 'category breakdown: PUBLIC revoke missing');
 must(/REVOKE ALL ON FUNCTION public\.get_receivables_aging_truth/.test(migration), 'aging: PUBLIC revoke missing');
-
 must(/LEAST\(GREATEST\(COALESCE\(p_limit, 5\), 1\), 50\)/.test(migration), 'top-N aggregate is not bounded');
 must(!/\.from\(['"]sales_invoices['"]\).*\.select\(/s.test(adapter), 'secondary adapter must not aggregate raw sales rows in browser');
 must(!/\.from\(['"]sale_items['"]\).*\.select\(/s.test(adapter), 'secondary adapter must not aggregate raw sale rows in browser');
 
-// Unknown values must never be turned into a numeric zero. The adapter either preserves
-// null at the canonical boundary or raises REPORT_DATA_UNAVAILABLE for strict UI contracts.
-must(/requiredNumber\(row\.value/.test(adapter), 'top entities must reject unknown values rather than coercing them to zero');
-must(/REPORT_DATA_UNAVAILABLE/.test(adapter), 'adapter must expose an unavailable-data contract');
+// Unknown values must remain unknown; the adapter may preserve null and expose status metadata,
+// while strict legacy consumers can still fail closed without coercing to zero.
+must(/finiteOrNull\(row\.value\)/.test(adapter), 'top entities must preserve unknown numeric values as null');
+must(/number \| null/.test(adapter), 'adapter numeric contract must allow unknown values');
+must(/CanonicalRowsResult/.test(adapter) && /status: CanonicalSecondaryStatus/.test(adapter), 'adapter must expose an unavailable-data status contract');
 must(/'INSUFFICIENT_DATA'/.test(migration), 'canonical secondary aggregates need explicit insufficient-data status');
 must(/'UNDATED'/.test(migration), 'aging must distinguish missing due dates from a numeric bucket');
-
 must(/resolveCurrentCompanyId\(\)/.test(adapter), 'adapter must resolve tenant from trusted context');
 must(/p_company_id: companyId/.test(adapter), 'adapter must pass trusted tenant context to RPC');
 
@@ -51,4 +50,4 @@ if (failures.length) {
 }
 
 console.log('Wave 08 secondary consumer closure checks: PASS');
-console.log('Verified: tenant authority, bounded aggregates, unknown-data semantics, aging provenance, and browser-side aggregation avoidance.');
+console.log('Verified: tenant authority, bounded aggregates, nullable unknown-data semantics, aging provenance, and browser-side aggregation avoidance.');
