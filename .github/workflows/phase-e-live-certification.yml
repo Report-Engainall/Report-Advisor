@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - runtime/gross-profit-surface-proof
+      - runtime/gross-profit-truth-closure
 permissions: {contents: read}
 concurrency:
   group: phase-e-live-certification
