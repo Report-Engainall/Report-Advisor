@@ -3,6 +3,7 @@ const read = (p) => fs.readFileSync(p, 'utf8');
 const reports = read('src/pages/ReportsPage.tsx');
 const dashboard = read('src/pages/DashboardPage.tsx');
 const executive = read('src/pages/ExecutiveCommandCenterPage.tsx');
+const canonical = read('src/lib/canonical-data-truth.ts');
 const analytics = read('src/lib/canonical-analytics.ts');
 const analyticsSql = read('supabase/migrations/20260826131000_analytics_domain_truth.sql');
 const secondary = read('src/lib/canonical-secondary-data-truth.ts');
@@ -13,6 +14,7 @@ const secondaryCompatSql = read('supabase/migrations/20260826150500_secondary_co
 const secondaryPayloadSql = read('supabase/migrations/20260826151000_secondary_rpc_payload_contract.sql');
 const agingSql = read('supabase/migrations/20260826160000_aging_total_canonical.sql');
 const metricSql = read('supabase/migrations/20260826161000_executive_metric_null_semantics.sql');
+const dimensionSql = read('supabase/migrations/20260826163000_executive_dimension_counts_canonical.sql');
 const categorySql = read('supabase/migrations/20260826162000_category_margin_canonical.sql');
 const decisionScore = read('src/lib/intelligence/decisionScore.ts');
 const assertions = [
@@ -31,6 +33,7 @@ const assertions = [
  ['aging total is canonical and fail-closed', agingSql.includes("'total'") && agingSql.includes('THEN NULL') && dashboard.includes("aging.status==='CALCULATED'?aging.total:null") && !dashboard.includes('aging.reduce')],
  ['export loader excludes cancelled and void', exportsLoader.includes("neq('status', 'cancelled')") && exportsLoader.includes("neq('status', 'void')")],
  ['executive metric null semantics are server-side', metricSql.includes('THEN NULL') && metricSql.includes("'status'") && metricSql.includes('TENANT_CONTEXT_MISMATCH')],
+ ['executive dimension counts use canonical tenant RPC', canonical.includes("get_executive_dimension_counts") && !canonical.includes("from('customers')") && !canonical.includes("from('products')" ) && dimensionSql.includes('current_company_id()') && dimensionSql.includes('TENANT_CONTEXT_MISMATCH')],
  ['secondary adapter preserves nullable business values', secondary.includes('value: number | null') && secondary.includes('finiteOrNull(row.value)')],
  ['secondary adapter consumes {status,rows} contract', secondary.includes('secondaryRpc') && secondary.includes('result.rows') && secondary.includes('result.status')],
  ['secondary RPC implementation is tenant-authoritative', secondarySql.includes('current_company_id()') && secondarySql.includes('TENANT_CONTEXT_MISMATCH')],
