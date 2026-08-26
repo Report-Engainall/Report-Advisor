@@ -13,9 +13,9 @@ Snapshot: 2026-08-26
 - Active PR: **#27 — Wave 07 — Truth Certification + Canonical/RPC Deep Verification**.
 - Original execution branch: `execution-wave-07-truth-certification`.
 - Closure work branch: `execution-wave-closure-export-decision`.
-- Current exact application/CI HEAD: `1ade9084d764caa4342a4ac3dc57b4669b98ccad`.
-- Previous closure HEAD: `fe4b29681618e3c6300846a454c8cdd85796df2e`.
-- Exact-head CI for `1ade908...`: **PENDING / NOT YET OBSERVED**. No PASS is claimed.
+- Current exact application/CI HEAD: `9ed5dea134bfd85e61470eed4f09b0eb1c4d71ea`.
+- Previous code/regression HEAD: `1ade9084d764caa4342a4ac3dc57b4669b98ccad`.
+- Exact-head CI for `9ed5dea...`: **PENDING / NOT YET OBSERVED**. No PASS is claimed.
 
 ## REAL CLOSURE EXECUTED
 
@@ -75,7 +75,7 @@ Fix:
 - No destructive deletion was performed without dependency proof.
 
 ## Exact-head CI truth
-- Current HEAD `1ade9084d764caa4342a4ac3dc57b4669b98ccad`: **PENDING / NOT OBSERVED**.
+- Current HEAD `9ed5dea134bfd85e61470eed4f09b0eb1c4d71ea`: **PENDING / NOT OBSERVED**.
 - Previous PASS evidence is not transferred.
 - Exact-head CI must validate restored quality gates, typecheck/build/lint/performance, Wave 08 and Wave 09 behavioral truth regressions, and all existing quality contracts.
 
@@ -90,7 +90,7 @@ Fix:
 8. Production-scale load/canary/rollback.
 
 ## Remaining work — NOW
-- Obtain exact-head CI evidence for `1ade908...`; fix every real failure and rerun on the new SHA.
+- Obtain exact-head CI evidence for `9ed5dea...`; fix every real failure and rerun on the new SHA.
 - Continue sibling sweep for remaining business calculations, especially direct page/component formulas and exports.
 - Continue date/status equivalence for metrics not yet covered by explicit domain contracts.
 - Complete Decision → Evidence → Recommendation → Decision → Outcome → Feedback runtime provenance.
