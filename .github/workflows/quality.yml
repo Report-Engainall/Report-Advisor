@@ -110,6 +110,8 @@ jobs:
         run: node scripts/execution-wave-05-consumer-regression.mjs
       - name: Decision evidence regressions
         run: node --experimental-strip-types scripts/decision-evidence-regression.test.ts
+      - name: Wave 08 secondary consumer canonical closure
+        run: node scripts/execution-wave-08-secondary-consumer-closure.mjs
       - name: Routing and security contracts (parallel discovery)
         shell: bash
         run: |
