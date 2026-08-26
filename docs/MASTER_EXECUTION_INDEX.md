@@ -2,7 +2,6 @@
 
 Snapshot: 2026-08-26  
 Repository: `Report-Engainall/Report-Advisor`  
-PR: #41  
 Branch: `data-quality-authoritative-snapshot`  
 Base: `b4897b8d456d10736642745b097de2aea89b27c5`
 
@@ -12,81 +11,78 @@ Base: `b4897b8d456d10736642745b097de2aea89b27c5`
 No historical PASS promotion. No scanner-only closure. No runtime/LIVE/production claims without matching evidence.
 
 ## Exact state
-- Current code HEAD before this Index update: `102903e21510ec80cc29876468d438fbc25ec576`.
+- Current code HEAD before this Index update: `bf44581767671ccab4d67f836bdb7001bbe4d17f`.
 - Starting exact HEAD: `b4897b8d456d10736642745b097de2aea89b27c5`.
-- Current exact-head CI: **NOT OBSERVABLE**; workflow-run lookup returned zero runs for the pre-cleanup HEAD and the branch has not produced an observable run for the current cleanup head. No PASS is claimed.
+- Exact-head CI: **NOT OBSERVABLE**. No PASS is claimed.
 - `quality.yml` remains the canonical quality gate. No duplicate quality workflow was introduced.
 
-## P0 — Data Quality authoritative closure
-Finding: `DataQualityPage` consumed `fetchDataQualityDatasets()` and calculated four business-quality scores in the browser. The existing bridge was bounded/fail-closed but still transferred source rows and kept the browser as the aggregation owner.
+## P0 — Data Quality
+Root cause: business-quality truth was computed in a browser reducer over bounded source collections.
 
-Root cause: business-quality truth was computed in a client-side reducer over bounded collections rather than by an authoritative server snapshot.
+Fix:
+- `get_data_quality_snapshot()` is authoritative and derives tenant authority from `current_company_id()`.
+- `src/lib/data-quality-snapshot.ts` is the browser adapter.
+- `/data-quality` uses `DataQualitySnapshotPage`.
+- Legacy `src/lib/data-quality-queries.ts` was removed after repository consumer search.
+- Legacy `DataQualityPage` was removed from `EntityPages.tsx` after route migration proof.
+- `scripts/check-data-quality-projections.mjs` now guards canonical snapshot consumption and legacy removal.
 
-Fix implemented:
-- Added a single final migration `supabase/migrations/20260826043000_data_quality_snapshot_compile_fix.sql` defining `get_data_quality_snapshot()`.
-- Tenant authority comes from `current_company_id()`; the RPC accepts no tenant identifier and missing tenant context fails closed with `TENANT_CONTEXT_MISMATCH`.
-- The RPC is `SECURITY DEFINER` with fixed `search_path`; PUBLIC and anon execution are revoked and authenticated execution is granted.
-- Customer/product/invoice/inventory issue counts are computed server-side.
-- NULL numeric values remain UNKNOWN and are not converted to zero for quality findings.
-- Added `src/lib/data-quality-snapshot.ts` as the browser adapter.
-- Added `DataQualitySnapshotPage` and changed `/data-quality` to consume the canonical snapshot instead of `fetchDataQualityDatasets()`.
-- Superseded draft migrations were removed before CI: only the final migration remains.
-- Existing `DataQualityPage` in `EntityPages.tsx` is now legacy and has NOT been removed yet; zero-consumer proof/removal remains open.
+Regression:
+- `src/lib/data-quality-snapshot.test.ts`
+- `src/lib/data-quality-snapshot.contract.test.ts`
+- `scripts/check-data-quality-projections.mjs`
 
-Regression / contract evidence:
-- `src/lib/data-quality-snapshot.test.ts` verifies the adapter calls exactly `get_data_quality_snapshot` and fails closed on an invalid payload.
-- `src/lib/data-quality-snapshot.contract.test.ts` verifies tenant-derived RPC shape, restricted grants, absence of browser table reads in the adapter, and route migration.
-- Existing `scripts/check-data-quality-projections.mjs` still protects the legacy bounded bridge until that bridge is removed.
+Status: `IMPLEMENTED → CONSUMER MIGRATED → ZERO-LEGACY-PATH PROOF IN REPOSITORY → REGRESSION`; exact-head CI/database/runtime remain unverified.
 
-Status: `IMPLEMENTED → REGRESSION → ROUTE CONSUMER MIGRATED`; exact-head CI, database execution and runtime remain unverified.
+## P1 — Dashboard Intelligence tenant boundary
+Finding: `fetchDashboardIntelligence()` directly read `recommendations` and `alerts` from the browser.
 
-## Data Truth note
-The final server snapshot preserves the existing quality formulas for non-null numeric values while explicitly avoiding NULL→ZERO conversion. Semantic equivalence still requires fixture/corpus execution before this finding can be marked fully closed.
+Root cause: intelligence data bypassed the canonical RPC/domain boundary.
+
+Fix:
+- Added `supabase/migrations/20260826070000_dashboard_intelligence_canonical.sql`.
+- Added tenant-authoritative `get_dashboard_intelligence(p_limit)`.
+- Tenant identity comes from `current_company_id()`; no client tenant parameter is accepted.
+- RPC is `SECURITY INVOKER`, fixed `search_path`, bounded to 500, PUBLIC/anon revoked, authenticated granted.
+- `fetchDashboardIntelligence()` now consumes only the canonical RPC.
+
+Regression:
+- `src/lib/dashboard-canonical.intelligence.contract.test.ts` protects RPC-only consumption, tenant authority, grants, search_path and tenant predicates.
+
+Status: `IMPLEMENTED → REGRESSION`; exact-head CI and live cross-tenant runtime evidence remain pending.
+
+## DB-only legacy candidate — get_sales_secondary_metrics
+`supabase/migrations/20260826003000_sales_secondary_canonical_analytics.sql` still defines the function.
+Repository consumer search for the exact function name returned no source consumer.
+This is **not** external-consumer proof; an authenticated database/external consumer cannot be excluded by repository search alone.
+
+Status: `LEGACY CANDIDATE / EXTERNAL-CONSUMER RISK`. Do not destructively drop until that boundary is proven.
 
 ## Remaining P0/P1
-1. Prove zero consumers of `fetchDataQualityDatasets()` and the legacy `DataQualityPage`; then remove both only after regression.
-2. Run exact-head CI and fix every compile/type/migration failure at root cause.
-3. Prove whether `get_sales_secondary_metrics` still exists as a DB-only legacy function; remove only after migration/dependency/consumer proof.
-4. Complete `queries-compat.ts` function-by-function classification.
-5. BI / Decision Metrics / Exports / Demand Velocity / Inventory Intelligence business-truth sweep.
-6. Cross-surface equivalence: Dashboard = Reports = Analytics = BI = Exports = Decisions under identical tenant/date/status/as-of/filter contracts.
-7. Product-page margin NULL/zero contract review.
-8. Tenant runtime isolation across DB/Storage/Realtime/AI/vector/worker/notification.
-9. Repository-wide direct Supabase/business-calculation sibling sweep.
-
-## Regression / CI
-Canonical `quality.yml` remains the quality gate. No duplicate quality workflow was created.
-
-Exact-head CI status is **NOT OBSERVABLE** for current cleanup HEAD. No historical PASS is promoted.
+1. Exact-head CI; fix compiler/test/migration failures at root cause.
+2. `queries-compat.ts` function-by-function consumer graph and migration.
+3. Cross-surface equivalence: Dashboard/Reports/Analytics/BI/Exports/Decisions.
+4. NULL/UNKNOWN/INSUFFICIENT_DATA sweep across all business metrics.
+5. Forecast/Demand Velocity and Inventory Intelligence canonical sweep.
+6. Export truth, limits and truncation proof.
+7. Tenant/security sweep: RPC, Storage, Realtime, AI/vector, workers, notifications and generated files.
+8. Performance: unbounded reads, N+1, duplicate RPCs, query plans and indexes.
+9. Reliability: worker/watchers/retry/idempotency/DLQ/recovery.
+10. Runtime/LIVE evidence preparation.
 
 ## Status ladder
-- FOUNDATION: PASS by prior evidence.
-- IMPLEMENTED: PASS for the Data Quality route migration at code level.
-- REGRESSION: implemented; exact-head CI not yet observable.
-- GATED: NO CLAIM for current HEAD.
-- CONSUMER VERIFIED: route consumer migrated; legacy zero-consumer proof remains open.
+- IMPLEMENTED: current fixes implemented.
+- REGRESSION: implemented for current fixes.
+- GATED: NO CLAIM until exact current SHA has observable quality evidence.
+- CONSUMER VERIFIED: Data Quality legacy repository path removed; Dashboard Intelligence migrated.
 - RUNTIME VERIFIED: NO CLAIM.
 - LIVE VERIFIED: NO.
 - PRODUCTION CERTIFIED: NO.
 
 ## LIVE REQUIRED
-1. Supabase A/B tenant isolation.
-2. Storage isolation.
-3. Realtime authorization.
-4. AI/vector isolation.
-5. Authenticated browser E2E.
-6. Real document/OCR corpus.
-7. Worker crash/recovery/DLQ/duplicate-side-effect drill.
-8. Native watcher.
-9. Real backup restore + integrity + rollback + RPO/RTO.
-10. Production telemetry + PII redaction.
-11. Production load/canary/rollback.
-12. Production query-plan/scale evidence.
+Supabase A/B tenant isolation; Storage; Realtime; AI/vector; authenticated browser E2E; real OCR/document corpus; worker crash/recovery/DLQ; native watcher; backup restore/RPO/RTO; production telemetry; load/canary/rollback; production scale/query-plan evidence.
 
 ## Next execution
-- First: exact-head CI observation/fix for the Data Quality migration.
-- Then: zero-consumer proof/removal of the legacy Data Quality dataset path and page implementation.
-- In parallel: DB-only `get_sales_secondary_metrics` dependency proof, BI/Decision/Export/Demand/Inventory Intelligence truth sweep, and tenant/security sibling sweep.
-- Continue runtime/LIVE preparation without waiting passively for CI.
+Observe/fix exact-head CI when observable, then continue `queries-compat.ts` consumer graph and BI → Decision → Export → Forecast/Demand → Inventory Intelligence, with tenant/security sibling sweep in parallel. Keep `get_sales_secondary_metrics` as legacy candidate until external/database dependency risk is resolved.
 
 PRODUCTION CERTIFIED = NO until real LIVE evidence exists.
