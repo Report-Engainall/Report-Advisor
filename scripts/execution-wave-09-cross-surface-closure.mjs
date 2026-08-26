@@ -31,10 +31,11 @@ const assertions = [
   ['secondary adapter consumes {status,rows} contract', secondary.includes('secondaryRpc') && secondary.includes('result.rows') && secondary.includes('result.status')],
   ['secondary RPC implementation is tenant-authoritative', secondarySql.includes('current_company_id()') && secondarySql.includes('TENANT_CONTEXT_MISMATCH')],
   ['secondary adapter RPC names are implemented', secondaryCompatSql.includes('get_sales_monthly_truth') && secondaryCompatSql.includes('get_sales_top_customers') && secondaryCompatSql.includes('get_sales_top_products') && secondaryCompatSql.includes('get_sales_category_breakdown')],
-  ['secondary RPCs return explicit status and rows', secondaryPayloadSql.includes("'status'") && secondaryPayloadSql.includes("'rows'") && secondaryPayloadSql.includes("INSUFFICIENT_DATA")],
+  ['secondary RPCs return explicit status and rows', secondaryPayloadSql.includes("'status'") && secondaryPayloadSql.includes("'rows'") && secondaryPayloadSql.includes('INSUFFICIENT_DATA')],
   ['secondary RPCs exclude cancelled/void', secondaryPayloadSql.includes("COALESCE(si.status,'') NOT IN ('cancelled','void')")],
   ['decision score fails closed on missing factors', decisionScore.includes('score: number | null') && decisionScore.includes('INSUFFICIENT_DATA') && decisionScore.includes("band: 'BLOCKED'" )],
   ['executive command center uses canonical KPI source', executive.includes('fetchCanonicalDashboardKPIs') && !executive.includes('fetchDashboardKPIs') && !executive.includes('dashboard-kpi-guards')],
+  ['executive command center narrows complete KPI fields before numeric decisions', executive.includes('type CompleteKPI') && executive.includes('isCompleteKPI') && executive.includes('kpi.inventoryValue')],
   ['executive command center does not expose a misleading unused period selector', !executive.includes("setPeriod") && !executive.includes("['7','30','90']")],
 ];
 
