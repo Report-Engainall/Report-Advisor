@@ -12,18 +12,18 @@ PR: `#43`
 No historical PASS promotion. No scanner-only closure. No runtime/LIVE/production claims without matching evidence.
 
 ## Exact state
-- Current code/test HEAD before this Index update: `923323cce876760b32635b9ccaaa189aa7e4404a`.
+- Current code/test HEAD before this Index update: `6b6be57b4542c663025ce14da53fd31a0cc59771`.
 - PR merge ref remains separate from application HEAD.
 - Prior observed quality run `32926144627` on `69f0c6c...` failed at `Data Quality projection contract`; its log endpoint was unavailable, so no fabricated error was recorded.
 - The identified regression-guard defect was corrected in `2d6b9f...` and carried forward.
-- Exact-head CI for the current batch remains **NOT OBSERVABLE**; no PASS claimed.
+- Exact-head CI for the current batch is **NOT OBSERVABLE**: GitHub currently reports `pending` with zero statuses/check runs for the current SHA. No PASS claimed.
 
 ## Batch — invoice page-read tenant/security closure
-Finding: `fetchSalesInvoices()` and `fetchPurchaseInvoices()` were bounded paginated display reads but did not explicitly bind their query predicates to the authoritative client-resolved tenant context, unlike sibling reads.
+Finding: `fetchSalesInvoices()` and `fetchPurchaseInvoices()` were bounded paginated display reads but did not explicitly bind their query predicates to the authoritative tenant context, unlike sibling reads.
 
 Classification: `SECURITY/TENANT ISSUE + PERFORMANCE/DETERMINISM`
 
-Root cause: invoice list reads relied on downstream RLS alone while the compatibility/query boundary lacked an explicit fail-closed tenant context and deterministic tie-break ordering.
+Root cause: invoice list reads relied on downstream RLS alone while the shared query boundary lacked an explicit fail-closed tenant context and deterministic tie-break ordering.
 
 Fix:
 - `src/lib/queries.ts` now requires `resolveCurrentCompanyId()` before either invoice read.
@@ -32,17 +32,18 @@ Fix:
 - Both use deterministic `invoice_date DESC, id ASC` ordering before range pagination.
 
 Regression:
-- Added `src/lib/queries.invoice-tenant.contract.test.ts`.
-- Regression asserts tenant requirement, explicit company predicate, bounded pagination and deterministic ordering for both invoice surfaces.
+- The initial Vitest-only regression was removed because `vitest` is not a project dependency.
+- The live CI regression boundary was instead extended in `scripts/check-tenant-adversarial-contract.mjs`, which is already invoked by the canonical `quality.yml` gate.
+- The guard now asserts both invoice reads require tenant context, apply explicit company predicates, and retain bounded deterministic pagination.
 
-Consumer state: existing `ReportsPage.tsx` consumers remain on the same public query API; no consumer migration was required because the fix strengthens the shared boundary without changing the business contract.
+Consumer state: existing `ReportsPage.tsx` consumers remain on the same public query API; no consumer migration was required because the shared boundary was strengthened without changing the business contract.
 
 Legacy state: no legacy invoice engine introduced or removed in this batch.
 
-Status: `IMPLEMENTED → REGRESSION`; exact-head CI/runtime/live pending.
+Status: `IMPLEMENTED → REGRESSION GUARD`; exact-head CI/runtime/live pending.
 
 ## P0 — Data Quality
-Browser business-quality aggregation was migrated to `get_data_quality_snapshot()` with tenant authority from `current_company_id()`. The legacy bridge and page were removed after repository consumer proof. Regression guard now checks canonical RPC consumption and legacy absence.
+Browser business-quality aggregation was migrated to `get_data_quality_snapshot()` with tenant authority from `current_company_id()`. The legacy bridge and page were removed after repository consumer proof. Regression guard checks canonical RPC consumption and legacy absence.
 
 Status: `IMPLEMENTED → CONSUMER MIGRATED → ZERO-LEGACY-PATH PROOF IN REPOSITORY → REGRESSION`; exact-head CI/database/runtime pending.
 
