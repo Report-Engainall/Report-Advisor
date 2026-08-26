@@ -2,58 +2,92 @@
 
 ## Scope
 
-This evidence is on `hardening/gross-profit-truth-closure-f5` and must not be attributed to an older SHA or to the `main`-derived branch.
+Current proof work is restricted to the Gross Profit Cross-Surface Truth closure. Evidence must be attributed only to the current branch/HEAD that produced it.
 
-## Canonical truth
+## Independent business-truth reference
+
+The reference is calculated directly from the deterministic fixture and does not import, call, or project any production financial consumer.
 
 - Revenue: `SUM(sale_items.line_total)`
 - Cost of Sales: `SUM(sale_items.cost_price * sale_items.quantity)` when every required cost is present.
 - Gross Profit: `Revenue - Cost of Sales` only when cost data is complete.
-- Missing/NULL required cost: `INSUFFICIENT_DATA`, never implicit zero.
+- Missing/NULL required cost: `INSUFFICIENT_DATA`; never implicit zero.
 
-## Deterministic fixture
+Expected fixture results:
 
-The fixture covers:
+| Scope | Revenue | Cost | Gross Profit | Quantity | Status |
+|---|---:|---:|---:|---:|---|
+| Tenant A — complete-cost subset | 630 | 380 | 250 | 9 | CALCULATED |
+| Tenant A — complete dataset with missing cost | 705 | NULL | NULL | 10 | INSUFFICIENT_DATA |
+| Tenant B | 900 | 540 | 360 | 9 | CALCULATED |
 
-- normal sale
-- missing cost
-- NULL cost
-- discount-bearing row (discount semantics intentionally not applied to gross-profit formula)
-- multiple invoices
-- multiple customers
-- inclusive start date boundary
-- inclusive end date boundary
-- tenant A/B isolation
-- 25-row report-level export fixture against a 20-row presentation page
+Date semantics are inclusive for the fixture's start and end boundaries; an outside-range record is excluded.
 
-The fixture has two financial cases:
+## Production consumer sweep
 
-1. Complete Tenant-A subset: Revenue `630`, Cost `380`, Gross Profit `250`, Quantity `9`.
-2. Full Tenant-A set containing missing cost: Revenue `705`, Cost `NULL`, Gross Profit `NULL`, Quantity `10`, status `INSUFFICIENT_DATA`.
-3. Tenant-B set: Revenue `900`, Cost `540`, Gross Profit `360`, Quantity `9`.
-
-## Consumer sweep
-
-| Surface | Current source | Classification |
+| Surface | Production path inspected | Current classification |
 |---|---|---|
-| Dashboard | canonical financial queries | CANONICAL |
-| Executive Decision | canonical financial query after migration | CANONICAL |
-| Reports / Sales | legacy `fetchDashboardKPIs` / `fetchMonthlyTrend` / `fetchTopCustomers` | DIVERGENT-BUG |
-| Reports / Profitability | legacy KPI consumer; category calculation uses line-item formula | DIVERGENT-BUG / CANONICAL respectively |
-| Monthly Trend consumer in Reports | legacy paginated/legacy query path | DIVERGENT-BUG |
-| Top Customers consumer in Reports | legacy subtotal-based path | DIVERGENT-BUG |
+| Dashboard | `DashboardPage` → `fetchCanonicalDashboardKPIs`, `fetchCanonicalMonthlyTrend`, `fetchCanonicalTopCustomers` | CANONICAL consumer path |
+| Reports | `ReportsPage` → canonical KPI/trend/top-customer consumers; report export uses `fetchAllSalesInvoicesForReportExport` | CANONICAL for migrated paths; numeric proof NOT PROVEN |
+| Executive Decision | `ExecutiveCommandCenterPage` → `fetchCanonicalDashboardKPIs` | CANONICAL consumer path |
+| Analytics | current Analytics center exposes RFM/ABC/Aging; no Gross Profit consumer was identified | NOT APPLICABLE / NO-GP-CONSUMER; equivalence NOT PROVEN |
+| BI | no independently executable Gross Profit consumer was identified in the inspected application surface | UNKNOWN / NOT PROVEN |
+| Export | Sales export invokes `fetchAllSalesInvoicesForReportExport`; profitability export uses category data | CANONICAL source for invoice export; complete numeric GP equivalence NOT PROVEN |
 
-## Evidence status
+The inspected Dashboard and Executive Decision code calls the canonical financial queries directly. The Reports page imports the canonical KPI/trend/top-customer functions and the full-dataset sales export function. These facts establish wiring, not cross-surface numeric proof. fileciteturn374file0 fileciteturn378file0 fileciteturn371file0
 
-The deterministic fixture validates the reference calculation, NULL semantics, date boundaries, tenant partitioning, and export-size invariant. It is **not** by itself cross-surface runtime proof because Reports still contains divergent consumers. The consumer gate is intentionally fail-closed until those consumers are migrated.
+## Critical finding: previous fixture was insufficient
 
-## Required closure sequence
+The prior fixture projected `truth(completeA)` onto every surface. That was a **reference self-comparison**, not execution of the production consumers. It could pass even if a real surface diverged.
 
-`DIVERGENT-BUG` consumers → canonical migration → deterministic fixture → actual surface/integration execution → exact-head CI → equivalence evidence.
+That implementation has been removed from the proof path. The current `scripts/gross-profit-cross-surface-fixture.mjs` requires `GROSS_PROFIT_SURFACE_RESULTS` captured by a real surface execution harness and fails closed when the artifact is absent. It does not synthesize surface results from the canonical reference.
 
-## Explicit non-claims
+## Required real-surface artifact
 
-- Cross-surface equivalence: NOT PROVEN.
+The strict fixture requires a JSON artifact containing independent results for both authenticated tenant contexts:
+
+```text
+Tenant A:
+  Dashboard, Reports, Analytics, BI, Decision, Export
+Tenant B:
+  Dashboard, Reports, Analytics, BI, Decision, Export
+```
+
+Each surface result must contain:
+
+```text
+revenue
+cost
+grossProfit
+quantity
+status
+```
+
+Export additionally requires:
+
+```text
+rowCount = 25
+rowCount > presentation page size (20)
+```
+
+The artifact must originate from actual production surface execution. A result copied from the canonical query is not acceptable evidence.
+
+## Current proof state
+
+- Independent fixture truth: PROVEN.
+- Canonical financial formula: PROVEN at query level.
+- Consumer wiring: PROVEN for Dashboard, Reports migrated paths, and Executive Decision.
+- NULL/missing-cost reference semantics: REGRESSION-ENFORCED.
+- Actual surface-level numeric execution: **NOT PROVEN**.
+- Tenant A/B runtime isolation: **NOT PROVEN**.
+- Export 25-vs-20 runtime completeness: **NOT PROVEN**.
+- Analytics/BI Gross Profit equivalence: **NOT PROVEN** because independently executable GP consumers were not established.
+- Gross Profit Cross-Surface Truth: **OPEN / NOT PROVEN**.
 - Runtime truth: NOT PROVEN.
 - Production certification: NOT PROVEN.
-- Discounts/Tax/Returns/Currency semantics: UNKNOWN unless independently established by domain evidence.
+
+## Guardrail
+
+No `PASS`, `CROSS-SURFACE EQUIVALENCE`, or `GROSS PROFIT TRUTH-PROVEN` claim may be made from the independent fixture alone. Closure requires:
+
+`independent reference → real production consumer execution → numeric comparison → tenant/date/missing-data checks → export completeness → regression → exact-head CI → evidence artifact`.
