@@ -4,20 +4,30 @@ on:
   push:
     branches: ["**"]
     paths:
+      - "src/pages/DashboardPage.tsx"
       - "src/pages/ReportsPage.tsx"
       - "src/lib/canonical-analytics.ts"
       - "src/lib/canonical-secondary-data-truth.ts"
       - "src/lib/report-export-data.ts"
+      - "src/lib/intelligence/decisionScore.ts"
+      - "src/lib/intelligence/decisionChain.ts"
+      - "src/lib/intelligence/decisionExplainability.ts"
+      - "src/lib/analytics/intelligence-gate.ts"
       - "supabase/migrations/20260826130000_cross_surface_truth_closure.sql"
       - "supabase/migrations/20260826131000_analytics_domain_truth.sql"
       - "scripts/execution-wave-09-cross-surface-closure.mjs"
       - ".github/workflows/wave09-cross-surface-closure.yml"
   pull_request:
     paths:
+      - "src/pages/DashboardPage.tsx"
       - "src/pages/ReportsPage.tsx"
       - "src/lib/canonical-analytics.ts"
       - "src/lib/canonical-secondary-data-truth.ts"
       - "src/lib/report-export-data.ts"
+      - "src/lib/intelligence/decisionScore.ts"
+      - "src/lib/intelligence/decisionChain.ts"
+      - "src/lib/intelligence/decisionExplainability.ts"
+      - "src/lib/analytics/intelligence-gate.ts"
       - "supabase/migrations/20260826130000_cross_surface_truth_closure.sql"
       - "supabase/migrations/20260826131000_analytics_domain_truth.sql"
       - "scripts/execution-wave-09-cross-surface-closure.mjs"
