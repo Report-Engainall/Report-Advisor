@@ -34,9 +34,8 @@ function hasNamedModuleConsumer(code, importPath, exportName) {
   const staticNamed = new RegExp(`import\\s+(?:[^;\n]*?\\{[^}]*\\b${symbol}\\b[^}]*\\}|${symbol}(?:\\s*,\\s*\\{[^}]*\\})?)\\s+from\\s+['"]${module}['"]`).test(code);
   const namespace = code.match(new RegExp(`import\\s+\\*\\s+as\\s+([A-Za-z_$][\\w$]*)\\s+from\\s+['"]${module}['"]`));
   const namespaceUse = namespace ? new RegExp(`\\b${escapeRegExp(namespace[1])}\\s*\\.\\s*${symbol}\\b`).test(code) : false;
-  const dynamic = new RegExp(`import\\(\\s*['"]${module}['"]\\s*\\)\\s*(?:\\.then\\(.*?\\b${symbol}\\b|;?)`).test(code);
-  const dynamicMember = new RegExp(`import\\(\\s*['"]${module}['"]\\s*\\)[\\s\\S]{0,160}\\b${symbol}\\b`).test(code);
-  return staticNamed || namespaceUse || dynamic || dynamicMember;
+  const dynamic = new RegExp(`import\\(\\s*['"]${module}['"]\\s*\\)[\\s\\S]{0,160}\\b${symbol}\\b`).test(code);
+  return staticNamed || namespaceUse || dynamic;
 }
 
 function hasRelativeNamedConsumer(code, modulePath, exportName) {
@@ -53,6 +52,37 @@ function hasBarrelReference(code, modulePath, exportName) {
   const star = new RegExp(`export\\s*\\*\\s*from\\s*['"][^'"]*${moduleLeafName}[^'"]*['"]`).test(code);
   return named || star;
 }
+
+function runNegativeFixtures() {
+  const cases = [
+    ['A legacy static named import', `import { InventoryPage } from '@/pages/EntityPages';`, true],
+    ['B legacy dynamic import target', `lazy(() => import('@/pages/EntityPages').then(m => ({ default: m.InventoryPage })));`, true],
+    ['C legacy barrel re-export', `export { InventoryPage } from '@/pages/EntityPages';`, true],
+    ['D canonical missing', null, false],
+    ['E canonical unreachable', `import { CustomersPage } from '@/pages/EntityPages';`, false],
+    ['F ambiguous module-only import', `import { CustomersPage, ProductsPage } from '@/pages/EntityPages';`, false],
+    ['G proven canonical symbol import', `import { InventoryPageCanonical } from '@/pages/InventoryPageCanonical';`, true],
+  ];
+  const failures = [];
+  for (const [name, code, expected] of cases) {
+    let actual = false;
+    if (code !== null) {
+      actual = hasNamedModuleConsumer(code, '@/pages/EntityPages', 'InventoryPage')
+        || hasRelativeNamedConsumer(code, 'src/pages/EntityPages.tsx', 'InventoryPage')
+        || hasBarrelReference(code, 'src/pages/EntityPages.tsx', 'InventoryPage');
+      if (name.startsWith('G')) actual = hasNamedModuleConsumer(code, '@/pages/InventoryPageCanonical', 'InventoryPageCanonical');
+    }
+    if (actual !== expected) failures.push(`${name}: expected ${expected}, got ${actual}`);
+  }
+  if (failures.length) {
+    console.error('SAFE-PRUNING NEGATIVE FIXTURES FAILED');
+    for (const failure of failures) console.error(`  - ${failure}`);
+    process.exit(1);
+  }
+  console.log('PASS: safe-pruning negative/positive fixtures reject unsafe or ambiguous consumers and accept proven canonical reachability.');
+}
+
+if (process.argv.includes('--self-test')) runNegativeFixtures();
 
 function prove(candidate, files) {
   const failures = [];
