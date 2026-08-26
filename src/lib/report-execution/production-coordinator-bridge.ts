@@ -20,12 +20,9 @@ export interface ProductionLifecycleResult {
   autonomy: ReturnType<typeof canAutonomouslyExecute>;
 }
 
-/**
- * Pure orchestration bridge. Persistence/leases remain owned by the durable
- * worker store; this layer only composes governed K/L decisions and evidence.
- */
+/** Pure orchestration bridge; persistence and leases remain owned by the durable worker store. */
 export function runProductionLifecycle(input: ProductionLifecycleInput): ProductionLifecycleResult {
-  const lineage = input.rows.map((row, index) => buildLineage([], [{ key: `${input.jobId}:${index}`, hash: input.sourceHash, value: row }]));
+  const lineage = input.rows.map((row, index) => buildLineage([], { key: `${input.jobId}:${index}`, hash: input.sourceHash, value: row }));
   const consolidation = consolidateRuntime(input.rows.map((row, index) => ({
     businessKey: String(row.id ?? row.sku ?? row.invoice_id ?? `${input.jobId}:${index}`),
     sourceId: input.sourceSnapshotId ?? input.sourceHash,
@@ -38,19 +35,9 @@ export function runProductionLifecycle(input: ProductionLifecycleInput): Product
     { key: 'conservative', expectedImpact: 0.9, risk: 0.1, liquidityRequired: 0, serviceLevel: 0.9 },
     { key: 'stress', expectedImpact: 0.75, risk: 0.35, liquidityRequired: 0, serviceLevel: 0.75 },
   ], { maxRisk: 0.35, protectedLiquidity: 0, minimumServiceLevel: 0.75 });
-  const portfolio = prioritizeDecisions([
-    { key: input.jobId, materiality: 1, urgency: 1, confidence: 0.8, risk: scenario?.risk ?? 1 },
-  ], 0.35);
+  const portfolio = prioritizeDecisions([{ key: input.jobId, materiality: 1, urgency: 1, confidence: 0.8, risk: scenario?.risk ?? 1 }], 0.35);
   const evidenceQuality = lineage.filter((x) => x?.state !== 'deleted').length / Math.max(1, lineage.length);
-  const autonomy = canAutonomouslyExecute({
-    trustHealthy: true,
-    evidenceQuality,
-    confidence: portfolio[0]?.confidence ?? 0,
-    riskBudgetValid: scenario !== null,
-    criticalDrift: false,
-    rollbackVerified: true,
-    isolationVerified: true,
-  });
+  const autonomy = canAutonomouslyExecute({ trustHealthy: true, evidenceQuality, confidence: portfolio[0]?.confidence ?? 0, riskBudgetValid: scenario !== null, criticalDrift: false, rollbackVerified: true, isolationVerified: true });
   return { jobId: input.jobId, sourceHash: input.sourceHash, lineage, consolidation, scenario, portfolio, autonomy };
 }
 
