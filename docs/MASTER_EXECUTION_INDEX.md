@@ -12,8 +12,8 @@ Base: `main @ 4095e0f0d427652eb705ba3955389ae978d7b5bf`
 No historical PASS promotion. No scanner-only closure. No runtime/LIVE/production claims without matching evidence.
 
 ## Exact state
-- Current code/test HEAD before this Index update: `103de2860c6eda314bee435c9ab8d04cb93438f1`.
-- Previous Index HEAD: `9e9ddde503574a62593c552072f76342731881ed`.
+- Current code/test HEAD before this Index update: `ca53c865ed12e4c40c8577858809ae27231eb589`.
+- Previous Index HEAD: `bae99204fc05bfe26da6a1609c717ef331f0df04`.
 - This Index update intentionally does not self-reference its future commit SHA.
 - Exact CI for the current code/test HEAD: **NOT OBSERVABLE** at index-update time; no PASS is claimed.
 - `quality.yml` remains the canonical quality gate and distinguishes workflow checkout SHA from `pull_request.head.sha`.
@@ -29,11 +29,7 @@ No historical PASS promotion. No scanner-only closure. No runtime/LIVE/productio
 
 Root cause: compatibility code had accidentally become an aggregation owner, duplicating dashboard truth and creating semantic-drift risk.
 
-Fix:
-- Preserve historical analytics function names.
-- Remove the secondary analytics loader/RPC from compatibility.
-- Delegate monthly trend, top customer/product, category and aging functions to canonical `queries.ts` implementations.
-- Retain unrelated compatibility infrastructure intentionally.
+Fix: preserve historical analytics names while delegating them to canonical `queries.ts` implementations; remove the secondary loader/RPC from compatibility; retain unrelated compatibility infrastructure intentionally.
 
 Regression: `scripts/check-secondary-consumer-canonical.mjs` proves canonical delegation and absence of the duplicate browser-side analytics engine.
 
@@ -42,58 +38,37 @@ Status: `IMPLEMENTED → REGRESSION`; exact-head CI not claimed.
 `get_sales_secondary_metrics` remains intentionally retained until repository-wide consumer/dependency proof determines whether it can be safely removed.
 
 ## P0 — Forecast bounded collection
-Finding: `fetchForecasts()` was an unbounded tenant-scoped collection read.
-
-Fix:
-- maximum 500 rows;
-- exact count;
-- deterministic `period ASC, id ASC` ordering;
-- `REPORT_QUERY_LIMIT_EXCEEDED` when the dataset exceeds the bound;
-- compatibility delegates to the bounded canonical implementation.
-
-This is bounded collection, not business aggregation and not fake pagination.
-
-Regression protects the bound, ordering, fail-closed contract and compatibility delegation.
+`fetchForecasts()` now has a 500-row exact-count bound, deterministic `period ASC, id ASC` ordering and fail-closed `REPORT_QUERY_LIMIT_EXCEEDED` behavior. Compatibility delegates to it. This is bounded collection, not business aggregation or fake pagination.
 
 ## P0 — Customer/Product bounded collections
-Finding: `fetchCustomers()` and `fetchProducts()` were unbounded tenant-scoped `select('*')` reads, and Entity pages downloaded the full collection before browser filtering.
+`fetchCustomers()` and `fetchProducts()` no longer perform unbounded `select('*')` reads. They use a shared 500-row exact-count bound, deterministic `name ASC, id ASC` ordering and fail closed when the collection exceeds the bound. Compatibility delegates to the canonical implementations.
 
-Root cause: display collections had no payload boundary, creating network/browser-growth risk and allowing consumers to assume completeness without proof.
-
-Safe bridge fix:
-- shared `MAX_ENTITY_ROWS = 500`;
-- exact count;
-- deterministic `name ASC, id ASC` ordering;
-- fail-closed `REPORT_QUERY_LIMIT_EXCEEDED` when more than 500 rows exist;
-- compatibility reads now delegate to the bounded implementations.
-
-This is **not claimed as full UI pagination migration**. Tenants exceeding the bound fail closed rather than silently receiving incomplete data. True server-side search/pagination remains a follow-up.
-
-Regression protects the bound, ordering, fail-closed behavior and compatibility delegation.
+This is a safe bridge, not final UI pagination closure. Explicit server-side search/pagination remains required if tenant scale exceeds the bound.
 
 ## P0 — Data Quality bounded boundary
-Finding: `fetchDataQualityDatasets()` performed four broad collection reads for customers, products, sales invoices and inventory balances, then `DataQualityPage` calculated quality metrics in the browser. The query boundary had no explicit row cap.
+Finding: `fetchDataQualityDatasets()` read four broad collections for browser-side quality scoring.
 
-Root cause: data-quality analysis could become a partial-data metric if the reads were later bounded or platform payload limits truncated them; it also had no protection against unbounded tenant dataset growth.
+Root cause: unbounded collection growth could create network/browser risk and, if truncated by a platform limit, could turn a quality score into a partial-data metric.
 
 Fix:
-- explicit projections remain intact;
+- explicit projections;
 - `MAX_QUALITY_ROWS = 500`;
-- exact count for every collection;
-- range bounded to 500 rows;
-- any dataset above the bound throws `REPORT_QUERY_LIMIT_EXCEEDED` rather than producing a partial quality score.
+- exact count for all four collections;
+- `range(0, MAX_QUALITY_ROWS - 1)` for all four;
+- `REPORT_QUERY_LIMIT_EXCEEDED` on oversized datasets;
+- RLS/current tenant context is explicitly documented as the authorization boundary; no client tenant identifier is accepted.
 
-Important: this is a **safe fail-closed bridge**, not final closure of Data Quality business aggregation. The next step is a server-side `get_data_quality_snapshot` contract that computes the same issue counts authoritatively, so the browser no longer scans source rows at all.
+Important: this is a **safe fail-closed bridge**, not final Data Quality closure. The final architecture is an authoritative `get_data_quality_snapshot` server contract that computes the same issue counts without transferring source rows to the browser.
 
-Regression: `scripts/check-data-quality-projections.mjs` now enforces the explicit projections, four exact counts, four bounds and fail-closed contract.
+Regression: `scripts/check-data-quality-projections.mjs` now enforces projections, four exact counts, four bounds and fail-closed behavior.
 
 Status: `IMPLEMENTED → REGRESSION`; exact-head CI not claimed.
 
 ## Remaining P0/P1
 1. Repository-wide consumer/dependency proof for `get_sales_secondary_metrics`; remove only after zero consumers.
 2. Complete `queries-compat.ts` function-by-function classification.
-3. Finalize Customers/Products true server-side search/pagination if 500-row bridge is insufficient for tenant scale.
-4. Build authoritative `get_data_quality_snapshot` and migrate `DataQualityPage` from browser scans to canonical issue-count metrics.
+3. Finalize Customers/Products true server-side search/pagination where required by tenant scale.
+4. Implement authoritative `get_data_quality_snapshot` and migrate `DataQualityPage` from browser scans to server-side issue counts, then add equivalence regression against the existing formulas.
 5. BI / Decision Metrics / Exports / Demand Velocity / Inventory Intelligence business-truth sweep.
 6. Cross-surface equivalence: Dashboard = Reports = Analytics = BI = Exports = Decisions.
 7. Product-page margin NULL/zero contract review.
@@ -103,7 +78,7 @@ Status: `IMPLEMENTED → REGRESSION`; exact-head CI not claimed.
 ## Regression / CI
 Canonical `quality.yml` remains the quality gate. No duplicate quality workflow was created.
 
-Behavioral gates cover canonical dashboard/inventory/analytics semantics, inventory zero-consumer/removal, compatibility canonical delegation, bounded forecast/customer/product collections, and the data-quality bounded fail-closed boundary.
+Behavioral gates cover canonical dashboard/inventory/analytics semantics, inventory zero-consumer/removal, compatibility canonical delegation, bounded forecast/customer/product collections and the Data Quality bounded fail-closed boundary.
 
 Exact-head CI status is **NOT OBSERVABLE** for current code HEAD. No historical PASS is promoted.
 
@@ -142,7 +117,7 @@ Exact-head CI status is **NOT OBSERVABLE** for current code HEAD. No historical 
 12. Production query-plan/scale evidence.
 
 ## Next execution
-- First: implement the authoritative Data Quality snapshot and migrate its only real consumer from row scans to server-side issue counts.
+- First: implement authoritative Data Quality snapshot and migrate its only real consumer from row scans to server-side issue counts with semantic equivalence regression.
 - In parallel: secondary-RPC zero-consumer sweep, BI/Decision/Export/Demand/Inventory Intelligence truth sweep, and tenant/security sibling sweep.
 - Then: true server-side search/pagination for Customers/Products where required.
 - Continue runtime/LIVE preparation without waiting for CI.
