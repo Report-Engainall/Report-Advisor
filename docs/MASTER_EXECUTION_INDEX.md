@@ -1,7 +1,7 @@
 # Report Advisor — Master Execution & Truth Index
 
 Snapshot: 2026-08-26
-Source of truth: `main`
+Source of truth: `wave-next-cross-surface-closure` until merged; baseline `main` was `4095e0f0d427652eb705ba3955389ae978d7b5bf`.
 
 > نقطة الرجوع الإلزامية قبل كل دفعة. لا تُحسب الملفات/commits إنجازًا بحد ذاتها. نفصل implementation / gate / integration / runtime / live certification.
 
@@ -15,14 +15,15 @@ Source of truth: `main`
 - PASS لا يعني production-certified؛ LIVE evidence منفصل.
 
 ## Current truth
-- Baseline CI closure at `25eef5212dbc63d2255ad7998e76c3d02a5191cf` was verified by quality Run `32910806786` = PASS. fileciteturn23file0L2-L5
-- Deep-product wave has now reached `f522420759ba8bf5735504888a7dc37f860091d4`.
-- This wave contains real BI numeric hardening, semantic document corpus/evidence validation, decision-outcome truth hardening, SHA-256 identity hardening, regression coverage, and CI gates. The newest post-change CI result is **PENDING VERIFICATION** until the run completes.
+- Baseline CI closure at `25eef5212dbc63d2255ad7998e76c3d02a5191cf` was verified by quality Run `32910806786` = PASS.
+- Repository main had advanced beyond the user-provided `ef3f4a02bfbbc2996dbf0b8601e3f80c251f2548`; the actual inspected main head was `4095e0f0d427652eb705ba3955389ae978d7b5bf`.
+- This batch adds a real domain/RPC migration for the five secondary sales analytics consumers; its exact-head CI is pending until the PR run completes.
 
 ## Remaining Work Inventory — 2026-08-26
 | Class | Capability | Current state | Can execute now? | Dependency | LIVE required? | Risk |
 |---|---|---|---|---|---|---|
 | A | BI numeric/data-truth hardening | IMPLEMENTED, regression gated | YES | none | No for code/tests | Medium |
+| A | Secondary sales analytics canonical migration | IMPLEMENTED, regression added, CI PENDING | YES | exact-head CI | No for code/tests | High |
 | A | Golden document corpus semantics | IMPLEMENTED, regression gated | YES | none | No for corpus/harness | Medium |
 | A | Outcome feedback truth | IMPLEMENTED, regression gated | YES | outcome schema | Runtime proof later | High |
 | A | File identity / duplicate security | IMPLEMENTED, regression gated | YES | Web Crypto SHA-256 | Runtime/browser matrix later | Critical |
@@ -36,7 +37,7 @@ Source of truth: `main`
 | B | UI E2E path audit | FOUNDATION/GATED | YES | route/service contracts | Authenticated browser LIVE for final proof | High |
 | B | Performance/scalability adversarial cases | GATED | YES | existing perf budget | Production load LIVE | Medium |
 | B | Observability trace-chain audit | FOUNDATION | YES | job/report/decision IDs | Production telemetry LIVE | High |
-| C | Cross-surface business truth equivalence | PARTIAL | After canonical KPI map | No | High |
+| C | Cross-surface business truth equivalence | PARTIAL | YES | canonical consumer migration | High |
 | C | Decision → action → outcome feedback | FOUNDATION/IMPROVED | Outcome storage/telemetry | Outcome environment LIVE | High |
 | D | Supabase/Storage/Realtime adversarial tenant drill | Static gates PASS | LIVE environment | Yes | Critical |
 | D | Backup restore/RPO/RTO drill | Harness possible | Live backup/DB | Yes | Critical |
@@ -48,7 +49,7 @@ Source of truth: `main`
 | Front | State | Dependency | Can run now? | Risk | LIVE required? | Canonical owner/path | Expected output |
 |---|---|---|---|---|---|---|---|
 | Tenant/Security | 🟡 PARALLEL WITH CAUTION | tenant contracts | YES | Critical | Final runtime proof | `src/lib/tenantContext.ts`, RLS migrations, security scripts | No indirect cross-tenant path |
-| Data Truth/BI | 🟢 PARALLEL NOW | none | YES | High | No for unit/integration | `src/lib/businessIntelligenceEngines.ts` | Fail-closed invalid input + explainable formulas |
+| Data Truth/BI | 🟢 PARALLEL NOW | none | YES | High | No for unit/integration | `src/lib/businessIntelligenceEngines.ts`, canonical analytics RPC | Fail-closed business truth |
 | Document Intelligence | 🟢 PARALLEL NOW | none | YES | High | Corpus execution may be LIVE | `src/lib/document-intelligence/*`, service | Extraction→normalization→evidence→confidence |
 | Import/Reconciliation | 🟢 PARALLEL NOW | canonical import RPCs | YES | Critical | Crash/retry drill LIVE | `src/lib/import/*`, `supabase/migrations/*` | Idempotent, atomic, resumable import |
 | Decision/Evidence | 🟢 PARALLEL NOW | canonical decision path | YES | Critical | Outcome proof LIVE | decision/report/outcome pipeline | Evidence→decision→outcome lineage |
@@ -61,7 +62,7 @@ Source of truth: `main`
 | CI Consolidation | 🟡 PARALLEL WITH CAUTION | current quality topology | YES | Medium | No | `.github/workflows/*`, `scripts/check-*` | Remove duplicates without weaker coverage |
 
 ## Latest implementation batches
-- `25eef5212dbc63d2255ad7998e76c3d02a5191cf`: CI closure index update; quality Run `32910806786` PASS. fileciteturn23file0L2-L5
+- `25eef5212dbc63d2255ad7998e76c3d02a5191cf`: CI closure index update; quality Run `32910806786` PASS.
 - `6b2d5365e3aac72c1de628f8a36825c9a3100e44`: hardened BI engines against invalid numeric input, non-finite values, negative financial quantities, unordered trend dates, invalid period assumptions, and what-if overflow.
 - `925c2eaae7271e3e9b036a917b7c8e303fd7d9f0`: expanded BI regression coverage for invalid numeric truth and chronology.
 - `0b38ced5460f666d99eeda1a79b6e01c2103cce4` / `18bb0cb0570fdae266a66abe7f585de7c1b275c1`: deepened golden corpus into representative input, expected normalization, evidence provenance, and confidence thresholds; corrected fixture shape.
@@ -73,75 +74,75 @@ Source of truth: `main`
 - `d8d55f6c603a551ee70caa313a7a9f5eec3ab170`: removed a false SHA-256 fallback that was actually FNV-1a and made file identity fail closed if Web Crypto SHA-256 is unavailable.
 - `7dd65b6559c75c1a24dd6d1ff43fe21ed730c623`: added a known-vector SHA-256 regression.
 - `f522420759ba8bf5735504888a7dc37f860091d4`: wired the SHA-256 identity regression into quality CI.
+- `bc3d519225252d08988ade745a68a0f3880a2694`: introduced the canonical tenant-aware secondary sales analytics RPC.
+- `6e8a45fce43fa89927e69eba1709f5d4ffb6de2e`: migrated secondary consumers to the canonical RPC and shared the in-flight request path.
+- `002999671ce53cc011eeab073d138b98f26b667d`: added behavioral/contract regression coverage for secondary consumer canonicalization and pagination independence.
 
 ## Current CI truth
-- Verified baseline: Run `32910806786`, head `25eef5212dbc63d2255ad7998e76c3d02a5191cf`, quality `success`. fileciteturn23file0L2-L5
-- Quality Run `32912319688` on `1773cbd149a6a796f18fa30cc2796c9c57647d5b` completed **SUCCESS** across all 48 job steps, including BI, deep golden corpus, tenant/security, import, typecheck, lint, build, performance, intelligence, document service, report truth, production readiness, and resilience. 
-- The outcome-enabled run for `d964973cd1f438ef2ed4ace0127c13bf82c2c18d` was observed in progress; the subsequent index/security commits have newer runs and are not yet claimed PASS.
-- Latest head `f522420759ba8bf5735504888a7dc37f860091d4` therefore remains **CI PENDING** until its own run completes.
-- Prior verified quality: typecheck PASS, lint PASS (55 warnings/0 errors), build PASS, performance budget PASS, static/local runtime contracts PASS. fileciteturn1file0L2-L4
+- Verified baseline: Run `32910806786`, head `25eef5212dbc63d2255ad7998e76c3d02a5191cf`, quality `success`.
+- Latest main head before this batch: `4095e0f0d427652eb705ba3955389ae978d7b5bf`.
+- Current branch head: `002999671ce53cc011eeab073d138b98f26b667d`.
+- Exact-head quality CI for `002999671ce53cc011eeab073d138b98f26b667d`: **PENDING**; no PASS claim is made before the PR run completes.
+- The batch regression itself is committed and will be executed by CI; runtime/live evidence remains separate.
 
-## Deep Data Truth — current verified changes
-- Aging missing/invalid due dates remain explicit `UNDATED`; they are not silently coerced into `0-30`. fileciteturn4file0L2-L2
-- BI engine now rejects non-finite/negative numeric inputs in replenishment, customer/supplier scoring, liquidity, CCC, and rejects malformed what-if changes instead of propagating NaN/Infinity.
-- Trend analysis now sorts valid points chronologically before calculating direction/velocity/acceleration; invalid dates/values are excluded rather than becoming fake values.
-- CCC still returns `INSUFFICIENT_DATA` when revenue/COGS/purchases are unavailable, preserving fail-closed semantics. fileciteturn7file0L2-L2
-- Heuristic confidence remains bounded but is not evidence of correctness; cross-surface provenance is still an open audit front.
+## Secondary Consumer Data Truth Closure
+### FOUND
+Five real secondary business consumers were found behind the compatibility import boundary: `fetchMonthlyTrend`, `fetchTopCustomers`, `fetchTopProducts`, `fetchCategoryBreakdown`, `fetchAgingBuckets`. The old implementation queried business tables directly and performed browser aggregation.
 
-## Document Intelligence — current verified changes
-- Existing golden contract previously required only case labels. fileciteturn11file0L2-L2
-- Corpus now stores representative structured inputs, expected canonical fields, expected normalized values, evidence provenance, and minimum confidence per case.
-- Cases cover Arabic/English, scanned OCR, random schema, headerless tables, complex tables, invoices/reconciliation, Onyx-style exports, and wide reports.
-- Deep harness rejects a case when schema matches but normalized output, evidence provenance, or confidence is wrong.
-- Real-file/OCR accuracy remains **not production-certified** until actual corpus execution evidence exists.
+### ROOT CAUSE
+The secondary functions in `src/lib/queries.ts` were page-facing legacy implementations. They had no single domain aggregation boundary, could repeat large client scans, and were not explicitly bound to the canonical tenant/date/status contract.
 
-## Decision / Outcome truth
-- Business decision creation requires non-empty evidence IDs; evidence IDs are normalized/deduplicated; report construction filters to evidence-backed decisions. fileciteturn1file0L2-L4
-- New outcome hardening requires known labels to carry finite expected/actual values and validates timestamps/numbers.
-- Outcome in-memory dedupe now matches the persisted `company_id + recommendation_key` identity instead of using `observedAt`, eliminating an identity mismatch.
-- Outcome reads explicitly scope `company_id` in addition to relying on RLS.
-- Missing impact is now `null`, and accuracy is `null` when there are no known outcomes; these are no longer silently represented as zero.
-- Runtime outcome tracking remains LIVE REQUIRED.
+### IMPLEMENTED
+- Added `public.get_sales_secondary_metrics(...)` as a domain-level server aggregate.
+- Server authority is `public.current_company_id()`; a supplied company id is compatibility-only and must match the trusted context.
+- Status semantics exclude `cancelled` and `void` consistently.
+- Date range is explicit and validated (`p_from <= p_to`).
+- Monthly trend is server-side and bounded to the requested month window.
+- Top customers/products and category breakdown are server-side aggregates with bounded limits.
+- Aging is server-side and uses an explicit as-of date (`p_to` or `current_date`).
+- Category profit is fail-closed when cost is incomplete: it returns `null` rather than inventing zero.
+- RPC execution is restricted to `authenticated` and defaults to `SECURITY INVOKER`, preserving RLS instead of bypassing it.
+- `queries-compat.ts` now exposes canonical adapters; no secondary consumer directly queries sales business tables.
+- Concurrent dashboard calls share one in-flight canonical RPC request for the same tenant/month/limit key, preventing five duplicate network/database calls during the initial dashboard load.
 
-## Tenant / Security truth
-- Canonical browser resolver remains `resolveCurrentCompanyId()`; tenant legacy/static/client-selected boundary is already guarded. fileciteturn1file0L2-L4
-- Canonical import RPC wrapper verifies caller tenant context against the supplied company ID before executing entity RPCs. fileciteturn19file0L2-L2
-- Deep indirect-path scan remains open for Storage, Realtime, AI/vector, exports/downloads, notifications/logs, and worker execution context.
-- Static PASS is not runtime cross-tenant proof.
+### REGRESSION
+`scripts/check-secondary-consumer-canonical.mjs` proves:
+- all five secondary consumers are present behind the canonical adapter;
+- only one shared canonical RPC call site exists in the secondary boundary;
+- secondary consumers contain no direct sales/customer/product business-table access;
+- no display pagination primitive is used for business aggregation;
+- the SQL contract contains tenant authority/mismatch, status, date, limit, monthly aggregation, and grouped aging invariants;
+- a 101-record fixture demonstrates that a 20-row page cannot equal the canonical all-record total.
 
-## Import / Reconciliation truth
-- Canonical import validates the entire chunk before write and uses a tenant-resolved RPC transaction boundary; result counts/IDs are verified against submitted row count. fileciteturn17file0L2-L2
-- Atomic wrapper uses canonical entity RPCs and rolls the chunk back if a row fails. fileciteturn19file0L2-L2
-- Remaining deep work: duplicate-worker race, stale lease, crash after checkpoint, replay/rollback evidence, and live worker drill.
+### SECURITY
+The new RPC is `SECURITY INVOKER`; it does not use a privileged definer boundary. It validates the trusted tenant context and is explicitly granted only to `authenticated`. No client-selected tenant can change the aggregation authority without matching `current_company_id()`.
 
-## Watched-folder / cross-platform
-Canonical watcher contract is reused across platforms with a single `WatchEvent`/queue boundary. Web/PWA are session-bound; Windows/Android persistent watching requires native adapters; iOS does not claim arbitrary persistent background folder watching. fileciteturn16file0L2-L2
-- Folder processing computes a file digest before duplicate detection; the digest is now guaranteed to be actual SHA-256 or the operation fails closed.
+### PERFORMANCE
+The old five consumers each performed direct browser/database reads. The new adapter shares one in-flight RPC for the common dashboard request, removing duplicate concurrent scans. The server performs aggregation instead of returning all rows for browser reduction. No production latency claim is made without runtime measurement.
 
-## Backup / Restore
-- Recovery and release contracts exist and are CI-gated.
-- Actual database restore, artifact verification against a real backup, rollback timing, RPO/RTO measurement, and recovery drill remain LIVE REQUIRED.
+### CONSUMER STATUS
+- Dashboard secondary consumers: **IMPLEMENTED + REGRESSION + CI PENDING**.
+- Legacy implementations in `src/lib/queries.ts`: still present for compatibility and not deleted yet; removal requires exact zero-consumer proof after CI and repository-wide import verification.
+- Cross-surface equivalence: **PARTIAL** because exports and decision consumers require their own source-path migration and runtime equivalence proof.
 
-## Runtime / Workers
-- Runtime contracts and local harnesses are gated by CI.
-- Actual deployed worker crash/restart, duplicate worker, stale lease, dead-letter, and resume evidence remain LIVE REQUIRED.
+## Cross-surface / Export / Decision Closure
+- Cross-surface: **PARTIAL** — this batch closes the dashboard secondary domain path, but does not claim exports/decisions are canonical until their concrete consumers are migrated and regressed.
+- Export truth: **PARTIAL** — requires repository-wide export consumer migration and behavior regression.
+- Decision metric truth: **PARTIAL** — existing evidence/outcome hardening is present, but metric source equivalence with dashboard/report/export still needs concrete consumer closure.
+- Date/status equivalence: **PARTIAL** — the new sales analytics RPC has explicit semantics; other domains still require sibling consumer verification.
+- Tenant authority: **IMPLEMENTED STATICALLY for this new RPC; LIVE A/B verification remains required.**
 
-## UI / E2E
-- Static route/service/security contracts exist.
-- Authenticated browser E2E with real tenant data is not claimed from CI-only evidence; final proof remains runtime/live.
+## Document / Import / Worker / Watcher / Backup / Observability
+- Document Intelligence: existing static contracts/regressions remain gated; real OCR/PDF/XLSX/CSV corpus execution is LIVE REQUIRED.
+- Import/Worker/Watcher: existing canonical contracts remain in force; local hardening can continue, while crash/replay/native watcher proofs remain LIVE REQUIRED.
+- Backup/Restore: manifests/recovery contracts remain; actual restore/RPO/RTO evidence remains LIVE REQUIRED.
+- Observability: existing trace contracts remain; end-to-end production telemetry remains LIVE REQUIRED.
 
-## Performance / Scalability
-- Prior performance budget was PASS (`critical=836.9KB`, `total=1404.1KB`, `largest-js=422.9KB`). fileciteturn1file0L2-L4
-- Remaining deep work is bottleneck-specific query/payload/concurrency testing, not arbitrary optimization.
-
-## Observability / Governance
-- CI and runtime contracts exist for jobs, reports, decisions, and resilience.
-- Remaining requirement is proving an end-to-end trace chain with tenant context in real runtime telemetry without cross-tenant leakage.
-
-## Architecture
-- Canonical paths are preferred for tenant resolution, import lifecycle, decision construction, watched-folder events, outcome persistence identity, and file hashing.
-- No destructive consolidation is performed while live dependencies are unproven.
-- Compatibility/legacy paths remain targets for static bypass scans and will only be removed after consumer verification and rollback safety.
+## Architecture / Legacy
+- Canonical architecture is now domain → RPC/service → consumer for the five secondary sales analytics.
+- No page-specific canonical function was created.
+- Legacy query implementations are deliberately retained until consumer-zero proof and regression-backed removal are completed.
+- No destructive migration was performed.
 
 ## LIVE REQUIRED — exact evidence still outstanding
 1. Supabase adversarial tenant A/B read/write isolation across DB, Storage, Realtime, AI/vector, imports, reports, decisions, exports, downloads, workers and notifications.
@@ -158,4 +159,4 @@ Canonical watcher contract is reused across platforms with a single `WatchEvent`
 For every capability, the authoritative state must distinguish: IMPLEMENTED, GATED, INTEGRATED, RUNTIME EVIDENCE, PRODUCTION EVIDENCE, REMAINING, BLOCKED BY, LIVE REQUIRED, PARALLEL WORK AVAILABLE, RISKS, LAST VERIFIED COMMIT, LAST VERIFIED CI, LAST TEST, LAST UPDATE. A commit alone never upgrades any evidence field.
 
 ## Completion truth
-**Engineering completion remains ~82% conservative until the newest wave is CI-verified and additional runtime evidence is produced.** The project is **NOT production-certified**. CI Green is a gate, not production proof.
+**This batch is implemented and regression-committed, but exact-head CI is pending.** The project is **NOT production-certified**. CI Green is a gate, not production proof.
