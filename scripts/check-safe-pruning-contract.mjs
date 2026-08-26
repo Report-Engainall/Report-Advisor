@@ -28,22 +28,38 @@ function rel(file) { return path.relative(ROOT, file).replaceAll(path.sep, '/');
 function moduleLeaf(modulePath) { return modulePath.split('/').pop().replace(/\.(tsx?|jsx?|mjs)$/, ''); }
 function escapeRegExp(value) { return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
 
-function hasModuleImport(code, importPath) {
-  const escaped = escapeRegExp(importPath);
-  return new RegExp(`(?:import\\s+(?:[\\s\\S]*?\\s+from\\s+|['"])${escaped}(?:['"])|export\\s+(?:[\\s\\S]*?\\s+from\\s+|['"])${escaped}(?:['"])`).test(code)
-    || new RegExp(`(?:import|require)\\(\\s*['"]${escaped}['"]\\s*\\)`).test(code);
+function hasNamedModuleConsumer(code, importPath, exportName) {
+  const module = escapeRegExp(importPath);
+  const symbol = escapeRegExp(exportName);
+  const staticNamed = new RegExp(`import\\s+(?:[^;\n]*?\\{[^}]*\\b${symbol}\\b[^}]*\\}|${symbol}(?:\\s*,\\s*\\{[^}]*\\})?)\\s+from\\s+['"]${module}['"]`).test(code);
+  const namespace = code.match(new RegExp(`import\\s+\\*\\s+as\\s+([A-Za-z_$][\\w$]*)\\s+from\\s+['"]${module}['"]`));
+  const namespaceUse = namespace ? new RegExp(`\\b${escapeRegExp(namespace[1])}\\s*\\.\\s*${symbol}\\b`).test(code) : false;
+  const dynamic = new RegExp(`import\\(\\s*['"]${module}['"]\\s*\\)\\s*(?:\\.then\\(.*?\\b${symbol}\\b|;?)`).test(code);
+  const dynamicMember = new RegExp(`import\\(\\s*['"]${module}['"]\\s*\\)[\\s\\S]{0,160}\\b${symbol}\\b`).test(code);
+  return staticNamed || namespaceUse || dynamic || dynamicMember;
 }
 
-function hasRelativeImport(code, modulePath) {
-  return code.includes(`from '${modulePath}'`) || code.includes(`from "${modulePath}"`) || code.includes(`import('${modulePath}')`) || code.includes(`import(\"${modulePath}\")`);
+function hasRelativeNamedConsumer(code, modulePath, exportName) {
+  const module = escapeRegExp(modulePath);
+  const symbol = escapeRegExp(exportName);
+  return new RegExp(`import\\s+(?:[^;\\n]*?\\{[^}]*\\b${symbol}\\b[^}]*\\}|${symbol}(?:\\s*,\\s*\\{[^}]*\\})?)\\s+from\\s+['"]${module}['"]`).test(code)
+    || new RegExp(`import\\(\\s*['"]${module}['"]\\s*\\)[\\s\\S]{0,160}\\b${symbol}\\b`).test(code);
+}
+
+function hasBarrelReference(code, modulePath, exportName) {
+  const moduleLeafName = escapeRegExp(moduleLeaf(modulePath));
+  const symbol = escapeRegExp(exportName);
+  const named = new RegExp(`export\\s*\\{[^}]*\\b${symbol}\\b[^}]*\\}\\s*from\\s*['"][^'"]*${moduleLeafName}[^'"]*['"]`).test(code);
+  const star = new RegExp(`export\\s*\\*\\s*from\\s*['"][^'"]*${moduleLeafName}[^'"]*['"]`).test(code);
+  return named || star;
 }
 
 function prove(candidate, files) {
   const failures = [];
   const canonicalPath = path.join(ROOT, candidate.canonicalModule);
   const legacyPath = path.join(ROOT, candidate.legacyModule);
-  const legacyImportPath = candidate.legacyModule.replace(/^src\//, '@/').replace(/\.(tsx?|jsx?|mjs)$/, '');
   const canonicalImportPath = candidate.canonicalModule.replace(/^src\//, '@/').replace(/\.(tsx?|jsx?|mjs)$/, '');
+  const legacyImportPath = candidate.legacyModule.replace(/^src\//, '@/').replace(/\.(tsx?|jsx?|mjs)$/, '');
 
   if (!fs.existsSync(canonicalPath)) failures.push('canonical implementation missing');
   else if (!new RegExp(`(?:export\\s+)?function\\s+${escapeRegExp(candidate.canonicalExport)}\\b`).test(stripComments(fs.readFileSync(canonicalPath, 'utf8')))) failures.push('canonical export not proven');
@@ -58,13 +74,13 @@ function prove(candidate, files) {
     if (fileRel === candidate.canonicalModule || fileRel === candidate.legacyModule) continue;
     const code = stripComments(fs.readFileSync(file, 'utf8'));
 
-    const legacyStaticOrDynamic = hasModuleImport(code, legacyImportPath);
-    const legacyRelativeImport = hasRelativeImport(code, candidate.legacyModule);
-    if (legacyStaticOrDynamic || legacyRelativeImport) consumers.push(fileRel);
+    const legacyConsumer = hasNamedModuleConsumer(code, legacyImportPath, candidate.legacyExport)
+      || hasRelativeNamedConsumer(code, candidate.legacyModule, candidate.legacyExport);
+    if (legacyConsumer) consumers.push(fileRel);
 
-    const canonicalStaticOrDynamic = hasModuleImport(code, canonicalImportPath);
-    const canonicalRelativeImport = hasRelativeImport(code, candidate.canonicalModule);
-    if (canonicalStaticOrDynamic || canonicalRelativeImport) canonicalReachable = true;
+    const canonicalConsumer = hasNamedModuleConsumer(code, canonicalImportPath, candidate.canonicalExport)
+      || hasRelativeNamedConsumer(code, candidate.canonicalModule, candidate.canonicalExport);
+    if (canonicalConsumer) canonicalReachable = true;
   }
 
   if (consumers.length) failures.push(`active legacy consumers remain: ${consumers.join(', ')}`);
@@ -73,10 +89,7 @@ function prove(candidate, files) {
   const barrel = files.some(file => {
     const fileRel = rel(file);
     if (fileRel === candidate.legacyModule) return false;
-    const code = stripComments(fs.readFileSync(file, 'utf8'));
-    const named = new RegExp(`export\\s*\\{[^}]*\\b${escapeRegExp(candidate.legacyExport)}\\b[^}]*\\}\\s*from`).test(code);
-    const star = new RegExp(`export\\s*\\*\\s*from\\s*['\"][^'\"]*${escapeRegExp(moduleLeaf(candidate.legacyModule))}[^'\"]*['\"]`).test(code);
-    return named || star;
+    return hasBarrelReference(stripComments(fs.readFileSync(file, 'utf8')), candidate.legacyModule, candidate.legacyExport);
   });
   if (barrel) failures.push('legacy export is re-exported by a barrel/public entrypoint');
 
@@ -96,4 +109,4 @@ if (unsafe.length) {
   console.error('FAIL CLOSED: deletion is forbidden until every proof is positive.');
   process.exit(1);
 }
-console.log('PASS: canonical exists, canonical is reachable, legacy has zero source consumers, and no barrel/dynamic dependency is present.');
+console.log('PASS: canonical exists, canonical is symbol-reachable, legacy has zero symbol consumers, and no barrel dependency is present.');
