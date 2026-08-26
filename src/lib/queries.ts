@@ -4,11 +4,7 @@ import type { Recommendation, Alert, SalesInvoice, PurchaseInvoice, ImportRecord
 
 export type { DashboardKPIs, MonthlyTrend, TopEntity, AgingBucket, CategoryBreakdown };
 
-/**
- * Compatibility boundary only. Business aggregation lives in the authoritative
- * dashboard RPC; these exports intentionally preserve the old API for consumers
- * that have not yet moved to dashboard-canonical.ts.
- */
+/** Compatibility boundary only. Business aggregation lives in the authoritative dashboard RPC. */
 export async function fetchDashboardKPIs(): Promise<DashboardKPIs> { return (await fetchDashboardSnapshot(6)).kpis; }
 export async function fetchMonthlyTrend(months = 6): Promise<MonthlyTrend[]> { return (await fetchDashboardSnapshot(months)).trend; }
 export async function fetchTopCustomers(limit = 5): Promise<TopEntity[]> { return (await fetchDashboardSnapshot(6)).topCustomers.slice(0, limit); }
@@ -29,26 +25,8 @@ export async function fetchImportRecords(): Promise<ImportRecord[]> { const comp
 export async function markAlertRead(id: string): Promise<void> { const companyId = await resolveCurrentCompanyId(); if (!companyId) throw new Error('TENANT_REQUIRED'); const { error } = await supabase.from('alerts').update({ is_read: true }).eq('id', id).eq('company_id', companyId); if (error) throw error; }
 export async function updateRecommendationStatus(id: string, status: string): Promise<void> { const companyId = await resolveCurrentCompanyId(); if (!companyId) throw new Error('TENANT_REQUIRED'); const { error } = await supabase.from('recommendations').update({ status }).eq('id', id).eq('company_id', companyId); if (error) throw error; }
 
-/**
- * Forecasts are a display collection, not an aggregation source. Keep the
- * historical API but fail closed rather than silently truncating an unbounded
- * tenant dataset. Consumers that need larger datasets must introduce explicit
- * pagination instead of changing this cap.
- */
-export async function fetchForecasts(): Promise<Forecast[]> {
-  const companyId = await resolveCurrentCompanyId();
-  if (!companyId) throw new Error('TENANT_REQUIRED');
-  const MAX_FORECAST_ROWS = 500;
-  const { data, count, error } = await supabase
-    .from('forecasts')
-    .select('*', { count: 'exact' })
-    .eq('company_id', companyId)
-    .order('period', { ascending: true })
-    .order('id', { ascending: true })
-    .range(0, MAX_FORECAST_ROWS - 1);
-  if (error) throw error;
-  if ((count ?? 0) > MAX_FORECAST_ROWS) throw new Error('REPORT_QUERY_LIMIT_EXCEEDED: forecasts require explicit pagination');
-  return (data ?? []) as Forecast[];
-}
-export async function fetchCustomers(): Promise<Customer[]> { const companyId = await resolveCurrentCompanyId(); if (!companyId) throw new Error('TENANT_REQUIRED'); const { data, error } = await supabase.from('customers').select('*').eq('company_id', companyId).order('name'); if (error) throw error; return (data ?? []) as Customer[]; }
-export async function fetchProducts(): Promise<Product[]> { const companyId = await resolveCurrentCompanyId(); if (!companyId) throw new Error('TENANT_REQUIRED'); const { data, error } = await supabase.from('products').select('*').eq('company_id', companyId).order('name'); if (error) throw error; return (data ?? []) as Product[]; }
+export async function fetchForecasts(): Promise<Forecast[]> { const companyId = await resolveCurrentCompanyId(); if (!companyId) throw new Error('TENANT_REQUIRED'); const MAX_FORECAST_ROWS=500; const {data,count,error}=await supabase.from('forecasts').select('*',{count:'exact'}).eq('company_id',companyId).order('period',{ascending:true}).order('id',{ascending:true}).range(0,MAX_FORECAST_ROWS-1); if(error)throw error; if((count??0)>MAX_FORECAST_ROWS)throw new Error('REPORT_QUERY_LIMIT_EXCEEDED: forecasts require explicit pagination'); return (data??[]) as Forecast[]; }
+
+const MAX_ENTITY_ROWS = 500;
+export async function fetchCustomers(): Promise<Customer[]> { const companyId = await resolveCurrentCompanyId(); if (!companyId) throw new Error('TENANT_REQUIRED'); const {data,count,error}=await supabase.from('customers').select('*',{count:'exact'}).eq('company_id',companyId).order('name',{ascending:true}).order('id',{ascending:true}).range(0,MAX_ENTITY_ROWS-1); if(error)throw error; if((count??0)>MAX_ENTITY_ROWS)throw new Error('REPORT_QUERY_LIMIT_EXCEEDED: customers require explicit pagination'); return (data??[]) as Customer[]; }
+export async function fetchProducts(): Promise<Product[]> { const companyId = await resolveCurrentCompanyId(); if (!companyId) throw new Error('TENANT_REQUIRED'); const {data,count,error}=await supabase.from('products').select('*',{count:'exact'}).eq('company_id',companyId).order('name',{ascending:true}).order('id',{ascending:true}).range(0,MAX_ENTITY_ROWS-1); if(error)throw error; if((count??0)>MAX_ENTITY_ROWS)throw new Error('REPORT_QUERY_LIMIT_EXCEEDED: products require explicit pagination'); return (data??[]) as Product[]; }
