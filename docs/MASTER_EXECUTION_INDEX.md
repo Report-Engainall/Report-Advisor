@@ -3,7 +3,8 @@
 Snapshot: 2026-08-26  
 Repository: `Report-Engainall/Report-Advisor`  
 Branch: `data-quality-authoritative-snapshot`  
-Base: `b4897b8d456d10736642745b097de2aea89b27c5`
+Base: `b4897b8d456d10736642745b097de2aea89b27c5`  
+PR: `#43`
 
 ## Permanent execution policy
 `DISCOVER → INVENTORY → CONSUMER DISCOVERY → ROOT CAUSE → CORRECT ARCHITECTURE → IMPLEMENT → REGRESSION → EXACT CI → CONSUMER VERIFY → INDEX → NEXT FAILURE FAMILY`
@@ -11,80 +12,64 @@ Base: `b4897b8d456d10736642745b097de2aea89b27c5`
 No historical PASS promotion. No scanner-only closure. No runtime/LIVE/production claims without matching evidence.
 
 ## Exact state
-- Current code HEAD before this Index update: `18aa8ff1c940ddad4dfa7c65a2077ef096ea1d1b`.
-- Starting exact HEAD: `b4897b8d456d10736642745b097de2aea89b27c5`.
-- PR: `#43` — current branch, base `main`, head is not merged.
-- Current exact-head CI for `18aa8ff1c940ddad4dfa7c65a2077ef096ea1d1b`: **NOT OBSERVABLE** at index time. No PASS is claimed.
-- Prior exact-head quality run `32926072255` was observed on `468c713...` and was still `IN_PROGRESS`; it is not evidence for the newer HEAD.
-- `quality.yml` remains the canonical quality gate.
+- Current application/code HEAD before this Index update: `2d6b9f289dfac6674bd6aa950396201e331ddecb`.
+- PR merge ref is separate evidence and is not treated as application HEAD.
+- Latest observed quality run on prior exact application HEAD `69f0c6c32e96cf44e379b03c7ba9fa8a305a320d`: run `32926144627`, job `98049328242`.
+- Failure observed: `Data Quality projection contract` step failed. The job then continued under `if: always()`.
+- Failure log endpoint was not retrievable (BlobNotFound), so no fabricated error text is recorded.
+- Repository reproduction isolated a regression-guard matcher defect: the scanner's direct-read regex was over-escaped and did not represent the intended contract. Corrected to `/supabase\.from\(/` in source.
+- New exact-head CI for `2d6b9f...` was not yet observable at the index update; no PASS is claimed.
+- `quality.yml` remains canonical.
 
 ## P0 — Data Quality
-Root cause: business-quality truth was computed in a browser reducer over bounded source collections.
+Root cause: browser reducer owned business-quality aggregation.
 
 Fix:
-- `get_data_quality_snapshot()` is authoritative and derives tenant authority from `current_company_id()`.
-- `src/lib/data-quality-snapshot.ts` is the browser adapter.
-- `/data-quality` uses `DataQualitySnapshotPage`.
-- Legacy `src/lib/data-quality-queries.ts` removed after repository consumer search.
-- Legacy `DataQualityPage` removed from `EntityPages.tsx` after route migration proof.
-- `scripts/check-data-quality-projections.mjs` now guards canonical snapshot consumption and legacy removal.
+- `get_data_quality_snapshot()` authoritative server-side aggregation with `current_company_id()` tenant authority.
+- `src/lib/data-quality-snapshot.ts` adapter.
+- `/data-quality` → `DataQualitySnapshotPage`.
+- Removed `src/lib/data-quality-queries.ts` after consumer search.
+- Removed legacy `DataQualityPage` from `EntityPages.tsx` after route migration proof.
+- Reworked `scripts/check-data-quality-projections.mjs` into a behavioral/contract regression guard; corrected its direct-read matcher after CI exposed the defect.
 
 Regression:
 - `src/lib/data-quality-snapshot.test.ts`
 - `src/lib/data-quality-snapshot.contract.test.ts`
 - `scripts/check-data-quality-projections.mjs`
 
-Status: `IMPLEMENTED → CONSUMER MIGRATED → ZERO-LEGACY-PATH PROOF IN REPOSITORY → REGRESSION`; exact-head CI/database/runtime remain unverified.
+Status: `IMPLEMENTED → CONSUMER MIGRATED → ZERO-LEGACY-PATH PROOF IN REPOSITORY → REGRESSION`; exact-head CI/database/runtime pending.
 
 ## P1 — Dashboard Intelligence tenant boundary
-Root cause: browser code directly read `recommendations` and `alerts` instead of consuming a canonical tenant-authoritative domain contract.
+Direct browser reads of `recommendations`/`alerts` were replaced with `get_dashboard_intelligence(p_limit)` using `current_company_id()`, `SECURITY INVOKER`, fixed search_path, explicit tenant predicates and bounded output.
 
-Fix:
-- `get_dashboard_intelligence(p_limit)` added in `20260826070000_dashboard_intelligence_canonical.sql`.
-- Tenant identity derives from `current_company_id()`.
-- RPC is `SECURITY INVOKER`, fixed `search_path`, bounded to 500, PUBLIC/anon revoked, authenticated granted.
-- `fetchDashboardIntelligence()` now consumes only the RPC.
+Regression: `src/lib/dashboard-canonical.intelligence.contract.test.ts`.
 
-Regression:
-- `src/lib/dashboard-canonical.intelligence.contract.test.ts`.
-
-Status: `IMPLEMENTED → REGRESSION`; exact-head CI/live cross-tenant runtime pending.
+Status: `IMPLEMENTED → REGRESSION`; exact-head CI/live runtime pending.
 
 ## P1 — Forecast read boundary
-Finding: `fetchForecasts()` used a direct client table read with a 500-row cap. Although tenant-filtered, the application still owned the read contract.
+Direct `forecasts` table read was replaced with `get_forecast_snapshot(p_limit)`, tenant-authoritative, bounded, explicitly projected and deterministically ordered.
 
-Fix:
-- Added `get_forecast_snapshot(p_limit)` in `20260826073000_forecast_canonical_snapshot.sql`.
-- Server derives tenant authority from `current_company_id()`.
-- Explicit field projection, deterministic order, bounded limit, `SECURITY INVOKER`, fixed `search_path`, authenticated-only execution.
-- `fetchForecasts()` now consumes only the canonical RPC.
-
-Regression:
-- `src/lib/queries.forecast.contract.test.ts`.
+Regression: `src/lib/queries.forecast.contract.test.ts`.
 
 Status: `IMPLEMENTED → REGRESSION`; exact-head CI/runtime pending.
 
 ## DB-only legacy candidate — get_sales_secondary_metrics
-`supabase/migrations/20260826003000_sales_secondary_canonical_analytics.sql` still defines the function.
-Repository consumer search for the exact function name returned no source consumer. This is not external/database consumer proof.
-
-Status: `LEGACY CANDIDATE / EXTERNAL-CONSUMER RISK`. Do not destructively drop until the external/database dependency boundary is proven.
+`supabase/migrations/20260826003000_sales_secondary_canonical_analytics.sql` still defines it. Repository consumer search found no source consumer, but external/database consumers cannot be excluded by repository search. Keep as `LEGACY CANDIDATE / EXTERNAL-CONSUMER RISK`; do not destructively drop yet.
 
 ## Remaining P0/P1
-1. Exact-head CI for current HEAD; fix every failure at root cause.
+1. Exact-head CI for `2d6b9f...`; fix every new failure at root cause.
 2. `queries-compat.ts` function-by-function consumer graph and migration.
-3. Cross-surface equivalence: Dashboard/Reports/Analytics/BI/Exports/Decisions.
+3. Cross-surface equivalence Dashboard/Reports/Analytics/BI/Exports/Decisions.
 4. NULL/UNKNOWN/INSUFFICIENT_DATA sweep across all business metrics.
-5. Forecast/Demand Velocity/Inventory Intelligence semantic equivalence beyond the read boundary.
+5. Forecast/Demand Velocity/Inventory Intelligence semantic equivalence.
 6. Export truth, limits and truncation proof.
-7. Tenant/security sibling sweep: RPC, Storage, Realtime, AI/vector, workers, notifications and generated files.
-8. Performance: unbounded reads, N+1, duplicate RPCs, query plans and indexes.
-9. Reliability: worker/watchers/retry/idempotency/DLQ/recovery.
-10. Runtime/LIVE evidence preparation.
+7. Tenant/security sibling sweep: RPC, Storage, Realtime, AI/vector, workers, notifications, generated files.
+8. Performance and reliability sweeps.
+9. Runtime/LIVE evidence.
 
 ## Status ladder
 - IMPLEMENTED: current fixes implemented.
-- REGRESSION: implemented for current fixes.
+- REGRESSION: implemented for current fixes; one CI regression defect was found and corrected.
 - GATED: NO CLAIM for current HEAD.
 - CONSUMER VERIFIED: Data Quality legacy repository path removed; Dashboard Intelligence and Forecast consumers migrated.
 - RUNTIME VERIFIED: NO CLAIM.
@@ -95,6 +80,6 @@ Status: `LEGACY CANDIDATE / EXTERNAL-CONSUMER RISK`. Do not destructively drop u
 Supabase A/B tenant isolation; Storage; Realtime; AI/vector; authenticated browser E2E; real OCR/document corpus; worker crash/recovery/DLQ; native watcher; backup restore/RPO/RTO; production telemetry; load/canary/rollback; production scale/query-plan evidence.
 
 ## Next execution
-Continue `queries-compat.ts` consumer graph and BI → Decision → Export → Demand Velocity → Inventory Intelligence. In parallel continue tenant/security sibling sweep and inspect NULL/UNKNOWN semantics. Observe and fix exact-head CI as evidence becomes available. Keep `get_sales_secondary_metrics` as a legacy candidate until external/database dependency risk is resolved.
+Observe exact-head CI for the corrected guard. Then continue `queries-compat.ts` consumer graph and BI → Decision → Export → Demand Velocity → Inventory Intelligence, while continuing tenant/security sibling discovery in parallel.
 
 PRODUCTION CERTIFIED = NO until real LIVE evidence exists.
