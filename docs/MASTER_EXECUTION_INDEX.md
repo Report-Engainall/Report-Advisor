@@ -56,7 +56,7 @@ Source of truth: `main`
 | Watched Folder | 🟡 PARALLEL WITH CAUTION | canonical watcher | YES | High | Native persistence LIVE | `src/lib/import-pipeline/folder-watch-contract.ts` | SHA/event/queue semantics per platform |
 | Backup/Restore | 🟡 PARALLEL WITH CAUTION | migration/release artifacts | YES | Critical | Restore drill LIVE | release/recovery scripts | Verified restore + RPO/RTO evidence |
 | UI/E2E | 🟢 PARALLEL NOW | route/service contracts | YES | High | Authenticated browser final proof | `src/pages/*`, service/RPC paths | Real UI→service→DB→state flow |
-| Performance | 🟢 PARALLEL NOW | existing budget | YES | Medium | Load proof LIVE | perf scripts | Bottleneck-specific regression |
+| Performance | 🟢 PARALLEL NOW | existing perf budget | YES | Medium | Load proof LIVE | perf scripts | Bottleneck-specific regression |
 | Observability | 🟢 PARALLEL NOW | job/report/decision IDs | YES | High | Telemetry proof LIVE | audit/telemetry modules | Traceable request→outcome chain |
 | CI Consolidation | 🟡 PARALLEL WITH CAUTION | current quality topology | YES | Medium | No | `.github/workflows/*`, `scripts/check-*` | Remove duplicates without weaker coverage |
 
@@ -159,3 +159,56 @@ For every capability, the authoritative state must distinguish: IMPLEMENTED, GAT
 
 ## Completion truth
 **Engineering completion remains ~82% conservative until the newest wave is CI-verified and additional runtime evidence is produced.** The project is **NOT production-certified**. CI Green is a gate, not production proof.
+
+## Execution Closure Delta — PR47 / 2026-08-26
+
+### Exact-head CI chain
+- Target `330f906a474598969d9326d9928bad824635a3ba` was executed by quality Run `32943278914` with job `98098562736`; the job metadata recorded `head_sha=330f906a474598969d9326d9928bad824635a3ba`.
+- That exact-head quality run **FAILED** at `Safe pruning fail-closed guard`; later quality steps were skipped. Lint, build, performance, Global tenant RLS, Import RPC tenant context, Import business key, Report truth, production readiness and resilience checks that ran independently were PASS.
+- Root cause was not treated as a dashboard problem: the pruner still treated a module-level import as proof that the specific legacy export was consumed.
+
+### Root-cause families closed/fixed and awaiting re-verification
+| Family | Root cause | Disposition | Fix / regression | Evidence state |
+|---|---|---|---|---|
+| PRUNE-A | Module-level consumer detection falsely blocked safe pruning when another named export came from the same module | REAL PRUNER BUG | `d15540af71b61aeb1f8d255fc461d533cab4ebd8` | EXACT-HEAD REVERIFY PENDING |
+| PRUNE-B | Unsafe/ambiguous pruning cases lacked explicit negative regression coverage | REGRESSION GAP | `03b9ac5d56405af5e7a3faa8d6976d1371bc5748` + quality wiring `bdf4c7ed6b652aa933b229135efd8a76426f0f90` | EXACT-HEAD REVERIFY PENDING |
+| TRUTH-A | Canonical Inventory report boundary depended on missing `src/lib/report-truth` | REAL BUG | `d046259b...` + lint cleanup `61136efd57e846ef45eb2e3aaf63084b077d911c` | BUILD/LINT VERIFIED ON PRIOR HEAD; NEW HEAD PENDING |
+
+### Safe-pruning invariant
+The pruner now proves symbol-level reachability rather than filename/module-name presence. It rejects direct named imports, dynamic legacy imports, barrel/public re-exports and ambiguous/unproven cases; it accepts only proven canonical symbol reachability with zero legacy symbol consumers. The negative regression covers:
+- direct legacy named import → ABORT
+- dynamic legacy import → ABORT
+- legacy barrel re-export → ABORT
+- canonical missing → ABORT
+- canonical unreachable → ABORT
+- ambiguous module-only import → ABORT
+- proven canonical symbol import → SAFE
+
+No legacy Inventory or Receivables implementation has been deleted yet.
+
+### Business-truth discovery status
+- `paginated → aggregate`: scanner count remains **3 discoveries**, not 3 certified bugs. Repository evidence inspected so far shows examples such as Dashboard aging aggregation and Analytics RFM/ABC calculations that aggregate a full query result and only slice for presentation; these are not automatically business-truth bugs. The three scanner occurrences therefore remain **CLASSIFICATION IN PROGRESS**, with no automatic patches.
+- `paginated → export`: **85 discoveries** remain unclassified; clustering by helper/data source/export semantics is required before any patching.
+- `NULL numeric`: **188 discoveries** remain semantic families, not blanket bugs.
+- `semantic zero`: **77 discoveries** remain semantic families, not blanket bugs.
+- `tenant authority`: **18 discoveries** remain boundary families; static RLS PASS does not equal full application tenant certification.
+- `side-effect retry`: **2 discoveries** remain high-risk worker families requiring checkpoint/idempotency/concurrency/reconciliation proof.
+
+### Latest CI after this delta
+- Latest head at this update: `bdf4c7ed6b652aa933b229135efd8a76426f0f90`.
+- Quality Run `32943591050` is **IN PROGRESS** at index-update time. No PASS claim is made.
+- Other same-head runs: integrity-batch `32943591008` PASS; ci-bootstrap-smoke `32943590973` PASS; file-engine-header-contract `32943591005` PASS; file-intelligence-security `32943590913` PASS; batch-integrity-guards `32943591069` FAIL; production-chain-guard `32943591124` FAIL.
+
+### Evidence ledger rule
+Every family must retain: Finding IDs, affected files/consumers, root cause, disposition, fix commit, regression, exact-head CI, runtime evidence, production evidence and remaining risk. A scanner count never upgrades any evidence level.
+
+### Current production blockers from this execution wave
+1. Exact-head quality CI is not yet PASS on the latest head.
+2. Inventory and Receivables legacy deletion are not proven safe and remain undeleted.
+3. The three paginated→aggregate discoveries are not fully classified.
+4. The 85 paginated→export discoveries are not clustered/classified.
+5. Profitability canonical semantics are not proven.
+6. Cross-surface equivalence fixture is not proven.
+7. Tenant boundary runtime proof is not complete.
+8. Worker crash/retry/reconciliation runtime proof is not complete.
+9. Production/live certification remains NOT PROVEN.
