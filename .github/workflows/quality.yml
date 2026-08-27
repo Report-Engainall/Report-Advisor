@@ -48,7 +48,7 @@ jobs:
       - name: Authentication and tenant convergence
         run: npm run test:auth-tenant-convergence
       - name: Tenant legacy consumer boundary
-        run: node scripts/check-tenant-legacy-consumers.mjs
+        run: node scripts/check-tenant-legacy-consumers.mjs && node scripts/check-queries-compat-consumers.mjs
       - name: Tenant legacy consumer regression
         run: node scripts/check-tenant-legacy-consumers-regression.mjs
       - name: Adversarial tenant source boundary
