@@ -1,24 +1,30 @@
 import fs from 'node:fs';
 
-const migration = fs.readFileSync('supabase/migrations/20260827152000_receivables_financial_completeness_contract.sql', 'utf8');
+const migration = fs.readFileSync('supabase/migrations/20260827163000_receivables_truth_date_boundary.sql', 'utf8');
 const adapter = fs.readFileSync('src/lib/receivables-truth.ts', 'utf8');
 const app = fs.readFileSync('src/App.tsx', 'utf8');
 const page = fs.readFileSync('src/pages/ReceivablesReportPageCanonical.tsx', 'utf8');
 
 for (const invariant of [
   "si.company_id = public.current_company_id()",
+  "si.invoice_date::date <= p_as_of_date",
   "NOT IN ('cancelled', 'canceled', 'void')",
   "WHEN b.due_date IS NULL THEN 'UNDATED'",
+  "WHEN (b.total - b.paid_amount) <= 0 THEN 'SETTLED'",
+  "WHERE bucket IN ('0-30','31-60','61-90','90+','UNDATED','INCOMPLETE')",
   'OFFSET greatest(p_page, 0)',
   'LIMIT greatest(least(p_page_size, 500), 1)',
-  'count(*) FILTER (WHERE bucket <> \'INCOMPLETE\')::bigint AS total_rows',
+  'count(*)::bigint AS total_rows',
+  "CASE WHEN count(*) FILTER (WHERE bucket = 'INCOMPLETE') > 0 THEN NULL::numeric",
   'sum(outstanding)',
-  'count(*) FILTER (WHERE bucket = \'INCOMPLETE\')::bigint AS incomplete_rows',
+  "count(*) FILTER (WHERE bucket = 'INCOMPLETE')::bigint AS incomplete_rows",
   "WHEN b.total IS NULL OR b.paid_amount IS NULL THEN 'INCOMPLETE'",
   'FROM metrics WHERE NOT EXISTS (SELECT 1 FROM page)',
 ]) {
   if (!migration.includes(invariant)) throw new Error(`Receivables canonical migration missing invariant: ${invariant}`);
 }
+const receivablesSection = migration.split('), receivables AS (')[1]?.split('), metrics AS (')[0] ?? '';
+if (receivablesSection.includes("'SETTLED'")) throw new Error('Settled invoices must not enter receivables business truth.');
 if (migration.includes('AND si.total IS NOT NULL') || migration.includes('AND si.paid_amount IS NOT NULL')) {
   throw new Error('Receivables truth must retain incomplete financial rows instead of filtering them out.');
 }
@@ -40,4 +46,4 @@ for (const invariant of [
   if (!page.includes(invariant)) throw new Error(`Receivables UI regression missing invariant: ${invariant}`);
 }
 if (page.includes('setPage((value) => value);')) throw new Error('Receivables retry must not be a no-op state update.');
-console.log('Receivables truth contract: PASS (server truth, tenant authority, pagination independence, incomplete-data semantics, empty-page metrics, real retry path)');
+console.log('Receivables truth contract: PASS (server truth, tenant authority, explicit as-of boundary, settled exclusion, pagination independence, incomplete-data semantics, empty-page metrics, real retry path)');
