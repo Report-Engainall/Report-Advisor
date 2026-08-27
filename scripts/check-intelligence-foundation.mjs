@@ -20,6 +20,17 @@ const alternative = aggregateAlternativeGroup({ id: 'g1', name: 'زيت 20 لت�
 assert.equal(alternative.memberSkus.length, 2);
 assert.equal(alternative.normalizedDemand, 200);
 assert.equal(alternative.normalizedStock, 900);
+assert.equal(alternative.dataState, 'KNOWN');
+
+const insufficient = aggregateAlternativeGroup({ id: 'g2', name: 'بيانات ناقصة', members: [
+  { sku: 'C', dailyDemand: Number.NaN, stock: 100, factor: 1 },
+] });
+assert.equal(insufficient.dataState, 'INSUFFICIENT_DATA');
+assert.equal(insufficient.normalizedDemand, null);
+assert.equal(insufficient.normalizedStock, 100);
+assert.equal(insufficient.coverageDays, null);
+assert.equal(insufficient.recommendedOrder, null);
+assert.equal(insufficient.stockoutRisk, 'insufficient_data');
 
 const inv = calculateInventoryDecision({ sku: 'A', stock: 20, dailySales: [10, 12, 9, 11, 14, 13, 12], leadTimeDays: 7 });
 assert.ok(inv.reorderPoint > 0);
