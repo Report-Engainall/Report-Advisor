@@ -46,8 +46,12 @@ export async function fetchInventoryReportSnapshot(page = 0, pageSize = 25): Pro
   const outOfStockRows = Number(first?.out_of_stock_rows ?? 0);
   const totalValue = first?.total_value == null ? null : Number(first.total_value);
 
+  const pageRows = rows
+    .filter((row) => row.id != null)
+    .map(({ total_rows: _totalRows, total_value: _totalValue, incomplete_rows: _incompleteRows, low_stock_rows: _lowStockRows, out_of_stock_rows: _outOfStockRows, ...row }) => row);
+
   return {
-    rows: rows.map(({ total_rows: _totalRows, total_value: _totalValue, incomplete_rows: _incompleteRows, low_stock_rows: _lowStockRows, out_of_stock_rows: _outOfStockRows, ...row }) => row),
+    rows: pageRows,
     totalRows,
     totalValue,
     incompleteRows,
