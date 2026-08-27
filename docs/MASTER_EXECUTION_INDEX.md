@@ -8,7 +8,7 @@ Base: `4095e0f0d427652eb705ba3955389ae978d7b5bf`.
 
 ## Exact-head integrity
 - Requested inspection SHA: `407e6bb1e506a29ae35f741d5530400a3675b9a9` is historical and is not used as current evidence.
-- PR #45 current branch head is now `d95769f1153993dd2489007f8bf16641327cb249` after the latest export-truth hardening batch.
+- PR #45 current branch head at index update is `c7ff89da218e088e59337a1364035d78bbf33079` after the export-truth gate hardening batch.
 - Base remains `4095e0f0d427652eb705ba3955389ae978d7b5bf`.
 - PR #45 remains `mergeable=false`; this is repository/PR state, not an application defect without a proven cause.
 - Exact-head workflow query for `d95769f1153993dd2489007f8bf16641327cb249` currently returns **no observable workflow run**. Therefore **NO CI PASS IS CLAIMED**.
@@ -51,6 +51,26 @@ The gate checked the manifest's existence but did not enforce a machine-readable
 **IMPLEMENTED / REGRESSION-WIRED; EXACT-HEAD EXECUTION PENDING.**
 ### REMAINING
 Complete repository-wide exporter inventory, classify every real export consumer, and add behavioral pagination→export proof for full/filtered dataset exports.
+
+## F40 — Materialized report downloader lacked explicit export scope
+
+### FIND
+`src/lib/report-execution/download.ts` was a real browser exporter that materialized a supplied row set into a downloadable artifact, but it had no machine-readable `CURRENT_VIEW | FULL_DATASET | FILTERED_FULL_DATASET` classification.
+
+### ROOT CAUSE
+The export gate relied primarily on named exporter-function patterns and manifest presence. `downloadReportArtifact()` is an exported function but its implementation shape did not match the gate's narrower classification requirement.
+
+### FIX
+Added an explicit `REPORT_DOWNLOAD_SCOPE: ExportScope = 'CURRENT_VIEW'` contract to the browser downloader and documented why the materialized-row API is intentionally a current-view exporter. The export gate was strengthened to inspect materializing download implementations and require an explicit scope declaration.
+
+### REGRESSION
+`test:export-truth` now fails closed when a materializing exporter lacks a declared scope, and explicitly verifies the browser report downloader classification.
+
+### CONSUMERS
+`ReportsPage.tsx` is the known consumer family for the report downloader: sales, inventory and profitability current-view exports pass page/materialized rows to the downloader. The downloader is presentation/export-only and is not a business-truth source.
+
+### STATUS
+**IMPLEMENTED / REGRESSION-WIRED / CONSUMER-INVENTORIED; EXACT-HEAD CI PENDING.**
 
 ## F38 — Receivables consumer retry no-op
 ### FIND
@@ -135,6 +155,12 @@ A temporary local `financialTruth.ts` implementation was created during executio
 6. Continue tenant indirect-path sweep across Storage/Realtime/AI/vector/Exports/Workers/Caches.
 7. Complete worker state-machine/recovery sibling sweep and LIVE harness.
 8. Prepare authenticated runtime proof for pagination/as-of/tenant and export invariants.
+
+## Exact-head export batch evidence
+- Code change commit: `edd608a07edd79a248cdc36bd1146db22048d00d`.
+- Gate hardening commit / current exact head: `c7ff89da218e088e59337a1364035d78bbf33079`.
+- Exact-head workflow query for `c7ff89da218e088e59337a1364035d78bbf33079`: **NO OBSERVABLE WORKFLOW RUN** at index update time.
+- Therefore this batch is **NOT CI-CERTIFIED** and is not promoted beyond regression-wired/consumer-inventoried.
 
 ## Completion truth
 **NOT PRODUCTION-CERTIFIED.** The current wave contains real canonicalization and regression hardening, but exact-head CI execution, runtime/live evidence, cross-surface behavioral equivalence, and production evidence remain outstanding.
