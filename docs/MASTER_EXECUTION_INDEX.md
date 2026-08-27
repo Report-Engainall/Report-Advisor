@@ -7,13 +7,21 @@ Base: `4095e0f0d427652eb705ba3955389ae978d7b5bf`.
 > Evidence states are separate: IMPLEMENTED → REGRESSION-ENFORCED → GATED → INTEGRATED → CONSUMER-VERIFIED → RUNTIME-EVIDENCED → LIVE-VERIFIED → PRODUCTION-CERTIFIED. No promotion without evidence on the exact SHA.
 
 ## Current exact-head state
-- Code HEAD being indexed: `af2fa390b4c5f2b215e889ab76f8aabd4cc58452`.
-- This index update is a new commit after that code state; therefore the resulting branch tip must receive its own exact-head CI before any current-tip PASS claim.
-- Exact-head CI Run `33087625052` / Job `98571519282`: **SUCCESS on exactly `f7419f3d...`** only. It does not certify `af2fa390...` or the resulting index tip.
-- Historical failures remain retained: `33086322239` / `1fe8eb2...` and `33086226689` / `c103d249...` failed at the stale effective-financial regression gate.
+- Current code tip before this index commit: `bbef0a9afd86a1eefe26c3e70d2f78f1c7c1fdf5`.
+- **No exact-head CI PASS is claimed for `bbef0a9...`.** The current SHA has no observable workflow/status result yet.
+- Prior Run `33087625052` / Job `98571519282` succeeded only on its prior recorded SHA and is not evidence for `bbef0a9...`.
+- This index update creates a new tip; that resulting tip must receive its own exact-head CI before any current-tip PASS claim.
+
+## F47 — Receivables empty-page sentinel leakage
+**FIXED / REGRESSION-WIRED / CURRENT-TIP CI PENDING.**
+- Finding: the canonical Receivables RPC emits a metadata sentinel row when a requested page is empty, while the adapter previously mapped every returned row into `snapshot.rows`.
+- Root cause: transport metadata and domain business rows were not separated at the adapter boundary.
+- Fix: `src/lib/receivables-truth.ts` filters `row.id != null` before mapping business rows while retaining aggregate metadata from the first RPC row.
+- Regression: `scripts/check-receivables-empty-page-contract.mjs` now requires the sentinel filter and includes an explicit sentinel fixture proving zero business rows are exposed.
+- Remaining: exact-tip CI, real >page-size runtime proof, export equivalence and cross-surface evidence.
 
 ## F46 — Dashboard secondary truth
-**IMPLEMENTED / REAL CONSUMER MIGRATED / REGRESSION-ENFORCED / PRIOR CI-PROVEN / CURRENT TIP PENDING.** `report_dashboard_secondary_truth(integer)` + `src/lib/dashboard-secondary-truth.ts` own secondary business truth with `current_company_id()`. Legacy Dashboard secondary consumers are no longer imported. Fail-closed source semantics are enforced. Remaining: zero-consumer legacy function removal and runtime proof.
+**IMPLEMENTED / REAL CONSUMER MIGRATED / REGRESSION-ENFORCED / PRIOR CI-PROVEN / CURRENT TIP PENDING.** `report_dashboard_secondary_truth(integer)` + `src/lib/dashboard-secondary-truth.ts` own secondary truth with `current_company_id()`. Legacy Dashboard secondary consumers are no longer imported. Remaining: zero-consumer legacy function removal and runtime proof.
 
 ## F45 — Executive metrics compatibility removal
 - Zero-consumer scan found no runtime consumer for `get_executive_metrics(uuid,date,date)`.
@@ -22,26 +30,25 @@ Base: `4095e0f0d427652eb705ba3955389ae978d7b5bf`.
 - Runtime migration execution remains separate evidence.
 
 ## Receivables Truth
-**IMPLEMENTED / REGRESSION-ENFORCED / ROUTE CONSUMER MIGRATED / PRIOR EXACT-HEAD CI-PROVEN / CURRENT TIP PENDING.**
+**IMPLEMENTED / REGRESSION-ENFORCED / ROUTE CONSUMER MIGRATED / CURRENT-TIP CI PENDING.**
 - Canonical `report_receivables_snapshot` owns aggregate truth independently of page boundaries and derives tenant from `current_company_id()`.
 - Incomplete rows are retained as `INCOMPLETE`; missing financial evidence produces `INSUFFICIENT_DATA`, not zero.
 - `UNDATED` is explicit; cancelled/canceled/void are excluded.
-- **Finding:** prior contract did not enforce reporting `as-of` at invoice source and counted incomplete rows inconsistently for pagination metadata.
-- **Fix:** `20260827163000_receivables_truth_date_boundary.sql` applies `si.invoice_date::date <= p_as_of_date`, retains incomplete rows, excludes settled rows, counts all retained rows in `total_rows`, and keeps `total_outstanding` NULL when incomplete evidence exists.
-- **Regression:** `scripts/check-receivables-truth-contract.mjs` enforces the as-of boundary, settled exclusion, retained incomplete evidence and pagination/fail-closed invariants.
-- Remaining: current-tip CI, zero-consumer legacy removal, >page-size runtime proof, export equivalence and cross-surface proof.
+- Source-level finding corrected: reporting `as-of` is enforced at invoice source and incomplete rows are counted consistently.
+- New adapter-level F47 is fixed and regression-wired.
+- Remaining: exact-tip CI, zero-consumer legacy removal, >page-size runtime proof, export equivalence and cross-surface proof.
 
 ## Profitability Truth
 **PARTIAL / FAIL-CLOSED / CURRENT TIP PENDING.** Canonical `report_profitability_truth` derives tenant from `current_company_id()`; missing line revenue/cost/quantity or multi-currency evidence fails closed to NULL totals. Remaining: explicit discounts/returns/currency-conversion/rounding contract and equivalence across Dashboard/BI/Decision/Export.
 
 ## Export Truth
-**PARTIAL.** Scope is explicit: `CURRENT_VIEW | FULL_DATASET | FILTERED_FULL_DATASET`. Browser report export is explicitly current-view. Remaining: repository-wide exporter inventory, canonical full/filtered implementations and pagination→export regression across every exporter.
+**PARTIAL.** Scope is explicit: `CURRENT_VIEW | FULL_DATASET | FILTERED_FULL_DATASET`. Browser report export is explicitly current-view. Existing static export gate detects ambiguous exporter names and pagination/client-aggregation mixing. Remaining: repository-wide consumer inventory, canonical full/filtered implementations and pagination→export regression across every exporter.
 
 ## BI ↔ Decision ↔ Analytics ↔ Export
 **OPEN.** Canonical BI/Analytics sources and Decision/Outcome hardening exist, but no runtime evidence proves equivalent records/totals/counts/date/as-of/tenant/NULL semantics across all surfaces.
 
 ## Tenant Security sibling sweep
-**ACTIVE / HIGH RISK.** Covered DB/browser/import/alternative-group paths use session-derived tenant controls. Remaining: Storage paths/signed URLs, Realtime channels/payloads, AI/vector metadata/retrieval/cache/deletion, exports/downloads, workers/queues/cron/cache/background aggregation. Static proof is not A/B adversarial runtime proof.
+**ACTIVE / HIGH RISK.** Existing browser/source and DB/RLS contracts remain active. New regression gate `test:tenant-sibling-boundaries` scans all SQL migrations for SECURITY DEFINER functions that accept caller-supplied tenant identity without `current_company_id()` or an explicit `TENANT_AUTHORITY: TRUSTED_INTERNAL` boundary. Gate is wired into `quality.yml` but is unexecuted on the current tip, so no PASS is claimed.
 
 ## Worker / Reliability
 **IMPLEMENTED / REGRESSION-WIRED / LIVE REQUIRED.** Durable runner uses deterministic `jobId:stage:sourceHash` idempotency keys and unsafe post-side-effect failures require manual reconciliation. Remaining: real crash/restart/stale lease/duplicate worker/DLQ/resume/receipt drills.
@@ -59,7 +66,7 @@ Base: `4095e0f0d427652eb705ba3955389ae978d7b5bf`.
 **IMPLEMENTED / REGRESSION-WIRED IN COVERED ROUTES; CROSS-SURFACE OPEN.**
 
 ## Database / Migration Safety
-**ACTIVE.** Receivables replacement uses the exact existing function signature and preserves authenticated execute grants. Full dependency/signature/grant/RLS/security-definer audit remains required.
+**ACTIVE.** Receivables replacement uses the exact existing function signature and preserves authenticated execute grants. Full dependency/signature/grant/RLS/security-definer audit remains required; the new sibling gate extends this sweep.
 
 ## Runtime / LIVE evidence
 **NO RUNTIME EVIDENCE.** Authenticated browser, tenant A/B DB+Storage+Realtime+AI/vector, worker crash/recovery, native watcher, backup restore/RPO/RTO, real document corpus, production telemetry/load/canary/rollback and crypto matrix remain required.
@@ -83,13 +90,13 @@ Base: `4095e0f0d427652eb705ba3955389ae978d7b5bf`.
 ## Active execution matrix
 | Front | State | Next proof |
 |---|---|---|
-| Exact-head CI | ACTIVE | CI for resulting current tip; no PASS yet |
+| Exact-head CI | ACTIVE | run CI for resulting current tip; no PASS yet |
+| Receivables | ACTIVE | exact-tip CI + zero-consumer + >page-size runtime |
 | Dashboard secondary | ACTIVE | zero-consumer legacy removal + runtime |
-| Receivables | ACTIVE | current-tip CI + zero-consumer + runtime page-boundary |
 | Profitability | ACTIVE | financial contract + cross-surface equivalence |
 | Export | ACTIVE | full consumer inventory + pagination regression |
 | BI/Decision/Analytics | ACTIVE | invariant regression across surfaces |
-| Tenant siblings | ACTIVE | Storage/Realtime/AI/vector/worker sweep |
+| Tenant siblings | ACTIVE | execute new SQL sibling gate; then Storage/Realtime/AI/vector sweep |
 | Worker reliability | ACTIVE | live failure/recovery drills |
 | NULL semantics | ACTIVE | global implicit conversion sweep |
 | Documents | ACTIVE | real corpus execution |
@@ -98,12 +105,13 @@ Base: `4095e0f0d427652eb705ba3955389ae978d7b5bf`.
 
 ## Next autonomous wave
 1. Obtain exact-head CI for the resulting current tip and record only the exact SHA result.
-2. Sweep Receivables legacy consumers and prove zero-consumer status before removal.
-3. Build invariant-level cross-surface regression for tenant/date/as-of/status/NULL semantics.
-4. Complete exporter consumer classification and pagination truncation regression.
-5. Sweep caller-supplied tenant authority and indirect tenant sources across background/storage/realtime/vector paths.
-6. Complete worker state-machine recovery analysis and LIVE harness.
-7. Convert CI-stable families into concrete runtime drills; do not label LIVE without evidence.
+2. If the tenant sibling gate fails, classify each SECURITY DEFINER boundary, fix at the source, add regression, and rerun on a new exact SHA.
+3. Sweep Receivables legacy consumers and prove zero-consumer status before removal.
+4. Build invariant-level cross-surface regression for tenant/date/as-of/status/NULL semantics.
+5. Complete exporter consumer classification and pagination truncation regression.
+6. Extend tenant sibling evidence into Storage/Realtime/AI/vector and background paths.
+7. Complete worker state-machine recovery analysis and LIVE harness.
+8. Convert CI-stable families into concrete runtime drills; do not label LIVE without evidence.
 
 ## Completion truth
-**NOT PRODUCTION-CERTIFIED.** A real Receivables source-level boundary defect was corrected and regression-enforced. Current branch tip still requires its own exact-head CI evidence, and runtime/live/production evidence remains outstanding.
+**NOT PRODUCTION-CERTIFIED.** F47 exposed and fixed a real adapter/domain-boundary defect; regression is wired. A new tenant SECURITY DEFINER sibling gate is wired but unexecuted. No runtime/live/production evidence is claimed. The resulting index tip requires its own exact-head CI.
