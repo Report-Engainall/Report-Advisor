@@ -19,15 +19,28 @@ Root cause: the Inventory report consumer had not fully migrated from the legacy
 
 Canonical source: `fetchInventoryReportSnapshot()` → `InventoryReportRow.value`.
 
-Regression: `scripts/check-inventory-report-truth.mjs` was added to require the canonical `value` field and fail if `ReportsPage.tsx` contains `r.quantity * r.unit_cost`.
+Regression: `scripts/check-inventory-report-truth.mjs` requires the canonical `value` field and fails if `ReportsPage.tsx` contains `r.quantity * r.unit_cost`.
 
-Consumer state: **MIGRATION REQUIRED**. The regression correctly remains red until the real consumer is migrated; therefore this batch is not CLOSED.
+## Batch #39 — Inventory report consumer migration
+Finding: the real Inventory report consumer still contained the legacy valuation expression identified in Batch #38.
 
-Legacy state: client-side valuation calculation is a legacy duplicate and must be removed only after the consumer migration is committed and regression passes.
+Root cause: the consumer was reading the canonical snapshot but rendering a newly calculated value instead of consuming the authoritative row field.
 
-Exact-head CI: not claimed for the inventory branch at this point.
+Canonical fix: `ReportsPage.tsx` now renders `r.value` for the inventory value column and the export path already consumes the canonical export row `r.value`.
 
-Certification state: `IMPLEMENTED (REGRESSION GATE) → CONSUMER VERIFIED PENDING → EXACT-HEAD CI PENDING`.
+Consumer migration: implemented on the real `InventoryReportPage` consumer.
+
+Legacy duplication: the targeted browser valuation expression `r.quantity * r.unit_cost` was removed from `ReportsPage.tsx`.
+
+Regression: existing `scripts/check-inventory-report-truth.mjs` remains the guard against reintroduction.
+
+Implementation commit: `6751bdd19e1c5cac613a3cafb4125771efa280c2`.
+
+Exact-head CI: queried for exact SHA `6751bdd19e1c5cac613a3cafb4125771efa280c2`; GitHub reports `0 workflow_runs`. Therefore **NO CI PASS is claimed**.
+
+Certification state: `IMPLEMENTED → REGRESSION-GATED PENDING EXECUTION → CONSUMER VERIFIED PENDING EXACT-HEAD EVIDENCE`.
+
+Batch state: `PARTIAL` because exact-head CI and executed regression evidence are not yet available.
 
 ## Prior exact-head evidence
 Forecast canonical fix `728b344f57c304ab5e66744db40624d3d4a2c8a3` has a production-chain guard run `33104660444`, job `98631162091`, with SUCCESS on that exact SHA. This is guard evidence only, not full production certification.
@@ -38,7 +51,7 @@ Forecast canonical fix `728b344f57c304ab5e66744db40624d3d4a2c8a3` has a producti
 - NULL/UNKNOWN/INSUFFICIENT_DATA semantics.
 - date/status/as-of consistency.
 - remaining browser business aggregation.
-- Inventory report consumer migration from local valuation to canonical `row.value`.
+- verify Inventory report consumer against exact-head regression/CI.
 
 ### Front B — Consumer + Legacy Closure
 - zero-consumer proof for compatibility functions.
@@ -82,7 +95,7 @@ Forecast canonical fix `728b344f57c304ab5e66744db40624d3d4a2c8a3` has a producti
 Supabase A/B tenant isolation; Storage; Realtime; AI/vector; authenticated browser E2E; real OCR/document corpus; worker crash/recovery/DLQ; native watcher; backup restore/RPO/RTO; production telemetry; load/canary/rollback; production scale/query-plan evidence.
 
 ## Next execution
-Continue independent fronts without waiting for CI. Highest immediate P1 remains Inventory Truth consumer migration, followed by remaining browser duplicate calculations and cross-surface BI/Decision/Export equivalence. Exact-head CI remains a certification barrier, not a reason to stop independent work.
+Continue independent fronts without waiting for CI. Highest immediate P1 is exact-head verification of the completed Inventory consumer migration, followed by remaining browser duplicate calculations and cross-surface BI/Decision/Export equivalence. Exact-head CI remains a certification barrier, not a reason to stop independent work.
 
 PRODUCTION CERTIFIED = NO until real LIVE evidence exists.
 
