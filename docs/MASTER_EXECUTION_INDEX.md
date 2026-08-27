@@ -7,12 +7,12 @@ Base: `4095e0f0d427652eb705ba3955389ae978d7b5bf`.
 > Evidence states are separate: IMPLEMENTED → REGRESSION-ENFORCED → GATED → INTEGRATED → CONSUMER-VERIFIED → RUNTIME-EVIDENCED → LIVE-VERIFIED → PRODUCTION-CERTIFIED. No promotion without evidence on the exact SHA.
 
 ## Current exact-head state
-- Code HEAD verified by the latest completed quality run: `b86b33b2c65e53d0a71e4ac8dd23178d3e57468b`.
-- Exact-head quality Run `33089165530` / Job `98576985177`: **SUCCESS on exactly `b86b33b2...`**. The run reached and passed the new tenant sibling and durable-runner gates, followed by typecheck, lint, build, performance and regression stages. This proves CI for `b86b33b2...` only.
-- The next index update below is a documentation-only commit and therefore requires its own exact-head CI; no future PASS is implied by this record.
+- Code HEAD: `c2f4a01902eec7b2a11a1e38bd84e4ed0efa2074`.
+- Exact-head quality Run `33089346132` / Job `98577622993`: **SUCCESS on exactly `c2f4a019...`**. The run completed the tenant sibling boundary, profitability, receivables, analytics, export, production-readiness, typecheck, lint, build, performance, behavioral/BI/golden-corpus/outcome/file-security/decision regressions, durable-runner recovery contract and routing/security gates. This proves CI for `c2f4a019...` only.
+- This index update creates a new code tip and therefore requires a fresh exact-head CI before the resulting tip can be called CI-verified.
 
 ## F47 — Receivables empty-page sentinel leakage
-**FIXED / REGRESSION-WIRED / EXACT-HEAD CI VERIFIED at b86b33b2...**
+**FIXED / REGRESSION-WIRED / EXACT-HEAD CI VERIFIED at c2f4a019...**
 - Finding: the canonical Receivables RPC emits a metadata sentinel row when a requested page is empty, while the adapter previously mapped every returned row into `snapshot.rows`.
 - Root cause: transport metadata and domain business rows were not separated at the adapter boundary.
 - Fix: `src/lib/receivables-truth.ts` filters `row.id != null` before mapping business rows while retaining aggregate metadata from the first RPC row.
@@ -20,7 +20,7 @@ Base: `4095e0f0d427652eb705ba3955389ae978d7b5bf`.
 - Remaining: real >page-size runtime proof, export equivalence and cross-surface evidence.
 
 ## F46 — Dashboard secondary truth
-**IMPLEMENTED / REAL CONSUMER MIGRATED / REGRESSION-ENFORCED / EXACT-HEAD CI VERIFIED at b86b33b2...** Remaining: zero-consumer legacy function removal and runtime proof.
+**IMPLEMENTED / REAL CONSUMER MIGRATED / REGRESSION-ENFORCED / EXACT-HEAD CI VERIFIED at c2f4a019...** Remaining: zero-consumer legacy function removal and runtime proof.
 
 ## F45 — Executive metrics compatibility removal
 - Zero-consumer scan found no runtime consumer for `get_executive_metrics(uuid,date,date)`.
@@ -41,10 +41,10 @@ Base: `4095e0f0d427652eb705ba3955389ae978d7b5bf`.
 **OPEN.** Canonical BI/Analytics sources and Decision/Outcome hardening exist, but no runtime evidence proves equivalent records/totals/counts/date/as-of/tenant/NULL semantics across all surfaces.
 
 ## Tenant Security sibling sweep
-**REGRESSION-WIRED / EXACT-HEAD CI VERIFIED.** `test:tenant-sibling-boundaries` scans all SQL migrations for SECURITY DEFINER functions that accept caller-supplied tenant identity without `current_company_id()` or an explicit `TENANT_AUTHORITY: TRUSTED_INTERNAL` boundary. Run `33089165530` executed this gate successfully on exact `b86b33b2...`. This is static/CI evidence, not A/B runtime isolation proof.
+**REGRESSION-WIRED / EXACT-HEAD CI VERIFIED.** `test:tenant-sibling-boundaries` scans all SQL migrations for SECURITY DEFINER functions that accept caller-supplied tenant identity without `current_company_id()` or an explicit `TENANT_AUTHORITY: TRUSTED_INTERNAL` boundary. Run `33089346132` executed this gate successfully on exact `c2f4a019...`. This is static/CI evidence, not A/B runtime isolation proof.
 
 ## Worker / Reliability
-**IMPLEMENTED / REGRESSION-WIRED / EXACT-HEAD CI VERIFIED / LIVE REQUIRED.** Durable runner uses deterministic `jobId:stage:sourceHash` idempotency keys and unsafe post-side-effect failures require manual reconciliation. `check-durable-production-runner.mjs` is now a first-class quality gate and passed on exact `b86b33b2...`. Remaining: real crash/restart/stale lease/duplicate worker/DLQ/resume/receipt drills.
+**IMPLEMENTED / REGRESSION-WIRED / EXACT-HEAD CI VERIFIED / LIVE REQUIRED.** Durable runner uses deterministic `jobId:stage:sourceHash` idempotency keys and unsafe post-side-effect failures require manual reconciliation. `check-durable-production-runner.mjs` is now a first-class quality gate and passed on exact `c2f4a019...`. Remaining: real crash/restart/stale lease/duplicate worker/DLQ/resume/receipt drills.
 
 ## Storage / Realtime / AI / Vector
 **STATIC/CONTRACT WORK ONLY — NO RUNTIME EVIDENCE.** Required: tenant A/B adversarial denial, signed URL isolation, realtime event isolation, vector metadata/retrieval/cache/deletion isolation.
@@ -79,12 +79,13 @@ Base: `4095e0f0d427652eb705ba3955389ae978d7b5bf`.
 - `33086397054` / `8ab145f...`: historical superseded state.
 - `33087319123` / `4ef95a5...`: SUCCESS, exact-head CI for prior code/index state.
 - `33087625052` / `f7419f3...`: SUCCESS, exact-head CI for prior code/index state.
-- `33089165530` / `b86b33b2...`: **SUCCESS, exact-head quality CI for the code state before this index-only update.**
+- `33089165530` / `b86b33b2...`: SUCCESS, exact-head quality CI for the prior code/index state.
+- `33089346132` / `c2f4a019...`: **SUCCESS, exact-head quality CI for the current pre-index-update state.**
 
 ## Active execution matrix
 | Front | State | Next proof |
 |---|---|---|
-| Exact-head CI | ACTIVE | CI for this resulting index tip; no PASS yet |
+| Exact-head CI | ACTIVE | CI for resulting index tip; no PASS yet |
 | Receivables | ACTIVE | zero-consumer + >page-size runtime |
 | Dashboard secondary | ACTIVE | zero-consumer legacy removal + runtime |
 | Profitability | ACTIVE | explicit financial contract + cross-surface equivalence |
@@ -97,15 +98,30 @@ Base: `4095e0f0d427652eb705ba3955389ae978d7b5bf`.
 | Runtime/LIVE | BLOCKED | deployment/authenticated environment |
 | Production certification | BLOCKED | required LIVE/production evidence |
 
+## Completion percentage — evidence-weighted, not commit-count
+**Current engineering completion estimate: ~70%.**
+
+This percentage is deliberately not calculated from commits or CI green steps. It weights the lifecycle evidence maturity across the major requirement families: implementation/regression/gating/integration/consumer migration are substantially advanced; runtime and live evidence are still largely absent; production certification is not granted. Therefore the project is materially beyond foundation, but it is **not** 90–100% complete while runtime/LIVE/production proof remains missing.
+
+Evidence maturity by lifecycle layer:
+- IMPLEMENTED: high coverage across core truth/security/reliability families.
+- REGRESSION-ENFORCED: high coverage; current exact-head CI `c2f4a019...` passed the registered gates.
+- GATED: high coverage through Quality CI.
+- INTEGRATED: substantial, but sibling consumers remain in several families.
+- CONSUMER-VERIFIED: partial; zero-consumer and repository-wide consumer proof remain open for some surfaces.
+- RUNTIME-EVIDENCED: **NO RUNTIME EVIDENCE**.
+- LIVE-VERIFIED: **NOT VERIFIED**.
+- PRODUCTION-CERTIFIED: **NOT CERTIFIED**.
+
 ## Next autonomous wave
-1. Obtain exact-head CI for this resulting index tip and record only that SHA's result.
-2. Sweep Receivables legacy consumers and prove zero-consumer status before removal.
-3. Build invariant-level cross-surface regression for tenant/date/as-of/status/NULL semantics.
-4. Complete exporter consumer classification and pagination truncation regression.
-5. Extend tenant sibling evidence into Storage/Realtime/AI/vector and background paths.
-6. Complete worker state-machine recovery analysis and LIVE harness.
-7. Perform repository-wide NULL/UNKNOWN/MISSING/ZERO semantic sweep.
+1. Fresh exact-head CI for this resulting index tip; record only that SHA.
+2. Receivables zero-consumer inventory and safe legacy removal proof.
+3. Cross-surface invariant regression for tenant/date/as-of/status/NULL semantics.
+4. Repository-wide exporter consumer classification and pagination→export regression.
+5. Tenant sibling hardening for Storage/Realtime/AI/vector and background paths.
+6. Worker state-machine recovery analysis and LIVE harness preparation.
+7. Repository-wide NULL/UNKNOWN/MISSING/ZERO semantic sweep.
 8. Convert CI-stable families into concrete runtime drills; do not label LIVE without evidence.
 
 ## Completion truth
-**NOT PRODUCTION-CERTIFIED.** F47 exposed and fixed a real adapter/domain-boundary defect and passed the exact-head quality run `33089165530` on `b86b33b2...`. Tenant sibling and durable-runner gates also passed on that exact SHA. Runtime/live/production evidence remains absent. This index update itself creates a new tip and therefore requires a fresh exact-head CI before that tip can be called CI-verified.
+**NOT PRODUCTION-CERTIFIED.** Exact-head quality CI `33089346132` successfully verifies `c2f4a019...` only. F47 exposed and fixed a real adapter/domain-boundary defect; tenant sibling and durable-runner gates also passed on that exact SHA. Runtime/live/production evidence remains absent. The ~70% figure is an evidence-weighted engineering estimate, not a certification claim.
