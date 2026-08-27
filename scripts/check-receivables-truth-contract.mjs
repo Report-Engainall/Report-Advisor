@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 
-const migration = fs.readFileSync('supabase/migrations/20260826110000_report_receivables_snapshot.sql', 'utf8');
+const migration = fs.readFileSync('supabase/migrations/20260827152000_receivables_financial_completeness_contract.sql', 'utf8');
 const adapter = fs.readFileSync('src/lib/receivables-truth.ts', 'utf8');
 const app = fs.readFileSync('src/App.tsx', 'utf8');
 const page = fs.readFileSync('src/pages/ReceivablesReportPageCanonical.tsx', 'utf8');
@@ -8,14 +8,14 @@ const page = fs.readFileSync('src/pages/ReceivablesReportPageCanonical.tsx', 'ut
 for (const invariant of [
   "si.company_id = public.current_company_id()",
   "NOT IN ('cancelled', 'canceled', 'void')",
-  "WHEN s.due_date IS NULL THEN 'UNDATED'",
+  "WHEN b.due_date IS NULL THEN 'UNDATED'",
   'OFFSET greatest(p_page, 0)',
   'LIMIT greatest(least(p_page_size, 500), 1)',
-  'count(*)::bigint AS total_rows',
+  'count(*) FILTER (WHERE bucket <> \'INCOMPLETE\')::bigint AS total_rows',
   'sum(outstanding)',
-  'AS incomplete_rows',
-  "WHEN s.total IS NULL OR s.paid_amount IS NULL THEN 'INCOMPLETE'",
-  "count(*) FILTER (WHERE due_date IS NULL AND total IS NOT NULL AND paid_amount IS NOT NULL)",
+  'count(*) FILTER (WHERE bucket = \'INCOMPLETE\')::bigint AS incomplete_rows',
+  "WHEN b.total IS NULL OR b.paid_amount IS NULL THEN 'INCOMPLETE'",
+  'FROM metrics WHERE NOT EXISTS (SELECT 1 FROM page)',
 ]) {
   if (!migration.includes(invariant)) throw new Error(`Receivables canonical migration missing invariant: ${invariant}`);
 }
@@ -40,4 +40,4 @@ for (const invariant of [
   if (!page.includes(invariant)) throw new Error(`Receivables UI regression missing invariant: ${invariant}`);
 }
 if (page.includes('setPage((value) => value);')) throw new Error('Receivables retry must not be a no-op state update.');
-console.log('Receivables truth contract: PASS (server truth, tenant authority, pagination independence, incomplete-data semantics, real retry path)');
+console.log('Receivables truth contract: PASS (server truth, tenant authority, pagination independence, incomplete-data semantics, empty-page metrics, real retry path)');
