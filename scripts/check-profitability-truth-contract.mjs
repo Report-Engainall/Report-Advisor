@@ -2,6 +2,7 @@ import fs from 'node:fs';
 
 const migration = fs.readFileSync('supabase/migrations/20260827140000_profitability_truth.sql','utf8');
 const page = fs.readFileSync('src/pages/ReportsPage.tsx','utf8');
+const service = fs.readFileSync('src/lib/report-profitability-truth.ts','utf8');
 
 for (const s of [
   'public.current_company_id()',
@@ -14,7 +15,9 @@ for (const s of [
 
 if (/fetchDashboardKPIs\(\),fetchCategoryBreakdown\(\)/.test(page))
   throw new Error('Profitability page still derives its financial truth from generic dashboard/browser aggregations.');
-if (!page.includes('report_profitability_truth'))
-  throw new Error('Profitability page is not wired to canonical truth.');
+if (!page.includes("fetchProfitabilityTruth"))
+  throw new Error('Profitability page is not wired to the canonical truth service.');
+if (!service.includes("supabase.rpc('report_profitability_truth'"))
+  throw new Error('Canonical profitability service does not call report_profitability_truth.');
 
 console.log('Profitability truth contract: PASS');
