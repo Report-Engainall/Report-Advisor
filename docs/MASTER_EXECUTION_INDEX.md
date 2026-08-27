@@ -1,99 +1,101 @@
 # Report Advisor — Master Execution & Truth Index
 
-Snapshot: 2026-08-26  
+Snapshot: 2026-08-27  
 Repository: `Report-Engainall/Report-Advisor`  
-Branch: `data-quality-authoritative-snapshot`  
-Base: `b4897b8d456d10736642745b097de2aea89b27c5`  
-PR: `#43`
+Branch: `deep/queries-compat-consumer-closure`  
+Base: `c7b21db4d68e396fa6ceefe3f6fdc15b1a8b8d4c`
 
 ## Permanent execution policy
 `PARALLEL DISCOVERY → FAILURE-FAMILY INVENTORY → ROOT-CAUSE CLUSTERING → BATCH IMPLEMENTATION → CONSUMER/LEGACY CLOSURE → BATCH REGRESSION → EXACT-HEAD CI → VERIFY → INDEX → NEXT PARALLEL FRONTS`
 
 No historical PASS promotion. No scanner-only closure. No runtime/LIVE/production claims without matching evidence.
 
-## Exact state
-- Current code/test HEAD before this Index update: `6b6be57b4542c663025ce14da53fd31a0cc59771`.
-- PR merge ref remains separate from application HEAD.
-- Prior observed quality run `32926144627` on `69f0c6c...` failed at `Data Quality projection contract`; its log endpoint was unavailable, so no fabricated error was recorded.
-- The identified regression-guard defect was corrected in `2d6b9f...` and carried forward.
-- Exact-head CI for the current batch is **NOT OBSERVABLE**: GitHub currently reports `pending` with zero statuses/check runs for the current SHA. No PASS claimed.
+## Current exact state
+- Base application HEAD: `c7b21db4d68e396fa6ceefe3f6fdc15b1a8b8d4c`.
+- Current batch code/test HEAD before this Index commit: `8282ad623130b8bad1804c92508da4ad4fd00c73`.
+- Exact-head CI for this branch is not yet observed; no PASS is claimed.
+- Runtime/LIVE/production certification remains unclaimed.
 
-## Batch — invoice page-read tenant/security closure
-Finding: `fetchSalesInvoices()` and `fetchPurchaseInvoices()` were bounded paginated display reads but did not explicitly bind their query predicates to the authoritative tenant context, unlike sibling reads.
+## Batch #42 — Inventory report duplicate business truth
+Finding: `ReportsPage.tsx` recomputed inventory row value in the browser as `quantity * unit_cost` even though the canonical `InventoryReportRow` contract exposes authoritative `value: number | null`.
 
-Classification: `SECURITY/TENANT ISSUE + PERFORMANCE/DETERMINISM`
+Root cause: the real inventory report consumer had not fully migrated to the canonical snapshot field.
 
-Root cause: invoice list reads relied on downstream RLS alone while the shared query boundary lacked an explicit fail-closed tenant context and deterministic tie-break ordering.
+Canonical fix: inventory report rendering consumes `r.value`.
 
-Fix:
-- `src/lib/queries.ts` now requires `resolveCurrentCompanyId()` before either invoice read.
-- Both queries explicitly constrain `company_id` to the resolved tenant.
-- Both retain hard page-size bounds (1..500).
-- Both use deterministic `invoice_date DESC, id ASC` ordering before range pagination.
+Regression: repository inventory report truth guard remains active.
 
-Regression:
-- The initial Vitest-only regression was removed because `vitest` is not a project dependency.
-- The live CI regression boundary was instead extended in `scripts/check-tenant-adversarial-contract.mjs`, which is already invoked by the canonical `quality.yml` gate.
-- The guard now asserts both invoice reads require tenant context, apply explicit company predicates, and retain bounded deterministic pagination.
+Status: `IMPLEMENTED → REGRESSION → EXACT-HEAD CI PENDING`.
 
-Consumer state: existing `ReportsPage.tsx` consumers remain on the same public query API; no consumer migration was required because the shared boundary was strengthened without changing the business contract.
+## Batch #43 — Receivables browser aggregation closure
+Finding: the receivables report recomputed the headline total from aging buckets with `aging.reduce(...)` instead of consuming the canonical KPI.
 
-Legacy state: no legacy invoice engine introduced or removed in this batch.
+Root cause: presentation detail was incorrectly treated as headline business truth.
 
-Status: `IMPLEMENTED → REGRESSION GUARD`; exact-head CI/runtime/live pending.
+Canonical fix: headline uses `snap.kpis.totalReceivables`; aging remains presentation detail.
 
-## P0 — Data Quality
-Browser business-quality aggregation was migrated to `get_data_quality_snapshot()` with tenant authority from `current_company_id()`. The legacy bridge and page were removed after repository consumer proof. Regression guard checks canonical RPC consumption and legacy absence.
+Regression: cross-surface report truth guard forbids the known browser aggregation.
 
-Status: `IMPLEMENTED → CONSUMER MIGRATED → ZERO-LEGACY-PATH PROOF IN REPOSITORY → REGRESSION`; exact-head CI/database/runtime pending.
+Status: `IMPLEMENTED → REGRESSION → EXACT-HEAD CI PENDING`.
 
-## P1 — Dashboard Intelligence tenant boundary
-Direct browser reads of recommendations/alerts were replaced by `get_dashboard_intelligence(p_limit)`, deriving tenant authority from `current_company_id()`, using fixed search_path, bounded output and authenticated-only execution.
+## Batch #44 — Cross-surface report truth regression hardening
+Added a consolidated regression covering canonical report consumers, export RPC contracts, tenant authority, forbidden browser aggregation and NULL inventory valuation semantics.
 
-Regression: `src/lib/dashboard-canonical.intelligence.contract.test.ts`.
+Status: `REGRESSION-READY → EXACT-HEAD CI PENDING`.
 
-Status: `IMPLEMENTED → REGRESSION`; exact-head CI/live runtime pending.
+## Batch #45 — Queries compatibility consumer closure
+Finding: `queries-compat.ts` remained on the active application dependency graph even after its business functions had become compatibility delegates.
 
-## P1 — Forecast read boundary
-Direct `forecasts` table read was replaced by `get_forecast_snapshot(p_limit)`, tenant-authoritative, explicitly projected, bounded and deterministic.
+Consumer inventory found two internal consumers:
+- `src/App.tsx` imported `markAlertRead` from `queries-compat`.
+- `src/lib/import/batch-folder.ts` imported `createImportRecord` and `updateImportRecord` from `queries-compat`.
 
-Regression: `src/lib/queries.forecast.contract.test.ts`.
+Root cause: the compatibility boundary remained unnecessarily present in the internal runtime graph despite canonical equivalents existing in `src/lib/queries.ts`.
 
-Status: `IMPLEMENTED → REGRESSION`; exact-head CI/runtime pending.
+Canonical migration:
+- `src/App.tsx` now imports `markAlertRead` directly from `src/lib/queries`.
+- `src/lib/import/batch-folder.ts` now imports `createImportRecord` and `updateImportRecord` directly from `src/lib/queries`.
 
-## P1 — Export tenant authority hardening
-Finding: `get_inventory_export_rows(p_company_id, ...)` did not assert the caller-supplied company id matched server tenant authority, unlike sibling export functions. Export RPCs also lacked consistent anonymous revocation/search_path hardening.
+Legacy handling: `queries-compat.ts` is intentionally retained as a compatibility boundary because repository evidence cannot exclude external consumers. It is not physically removed.
 
-Root cause: inconsistent security contract across sibling canonical export functions.
+Regression: `scripts/check-queries-compat-consumers.mjs` recursively scans application TypeScript sources and fails if any internal application consumer imports the compatibility boundary. It separately requires the compatibility file to remain explicitly marked compatibility-only while external-consumer risk is unresolved.
 
-Fix:
-- Added `supabase/migrations/20260826080000_export_tenant_authority_hardening.sql`.
-- Inventory export now fails closed on `TENANT_CONTEXT_MISMATCH` and derives all data from `current_company_id()`.
-- All four export RPCs have fixed `search_path`, anonymous execution revoked, and authenticated execution explicitly granted.
+CI gate: `.github/workflows/quality.yml` now executes the zero-internal-consumer guard alongside tenant legacy-consumer discovery.
 
-Regression: `src/lib/export-tenant-authority.contract.test.ts`.
+Commits:
+- App migration: `96aed413498a19382a8f0965610f917d2ca0092b`.
+- Batch-folder migration: `c778b75186035f1e34a56d31a7c5c2ee68789a12`.
+- Regression: `3db6f50906ec503cbc4186c5581abb4da4ce7901`.
+- CI wiring / current pre-index HEAD: `8282ad623130b8bad1804c92508da4ad4fd00c73`.
 
-Status: `IMPLEMENTED → REGRESSION`; exact-head CI and live A/B export isolation pending.
+Certification state: `IMPLEMENTED → INTERNAL CONSUMER MIGRATED → ZERO-INTERNAL-CONSUMER REGRESSION WIRED → EXACT-HEAD CI PENDING`.
 
-## DB-only legacy candidate — get_sales_secondary_metrics
-`supabase/migrations/20260826003000_sales_secondary_canonical_analytics.sql` still defines it. Repository consumer search found no source consumer, but external/database consumers cannot be excluded. Keep as `LEGACY CANDIDATE / EXTERNAL-CONSUMER RISK`; do not destructively drop yet.
+Batch state: `PARTIAL` until the regression executes and the exact branch HEAD is observed by CI.
+
+## Existing P0/P1 truth and security state
+- Invoice page reads require authoritative tenant context and bounded deterministic pagination.
+- Data Quality uses authoritative tenant-safe snapshot semantics.
+- Dashboard intelligence derives tenant authority from `current_company_id()`.
+- Forecast reads use bounded canonical snapshot semantics.
+- Export RPCs use server tenant authority, fixed search_path and authenticated-only execution; inventory export validates `p_company_id` against `current_company_id()`.
+- DB-only `get_sales_secondary_metrics` remains a legacy candidate because external/database consumers cannot be excluded.
 
 ## Parallel remaining fronts
 ### Front A — Canonical Data Truth
-- `queries-compat.ts` full function/consumer graph.
 - NULL/UNKNOWN/INSUFFICIENT_DATA semantics.
 - date/status/as-of consistency.
 - remaining browser business aggregation.
+- cross-surface equivalence.
 
 ### Front B — Consumer + Legacy Closure
-- zero-consumer proof for compatibility functions.
+- compatibility boundary zero-consumer proof.
 - duplicate business engines.
 - DB-only legacy candidates with external-consumer risk.
 
 ### Front C — BI / Decision / Export
-- cross-surface equivalence.
 - Forecast/Demand Velocity/Inventory Intelligence.
 - export metric/date/status/as-of/filter equivalence.
+- Decision → Outcome provenance.
 
 ### Front D — Security / Tenant
 - RPC grants/search_path/RLS.
@@ -106,7 +108,7 @@ Status: `IMPLEMENTED → REGRESSION`; exact-head CI and live A/B export isolatio
 - N+1 and payload bounds.
 
 ### Front F — Reliability
-- worker/watcher/queue/retry/idempotency/DLQ/recovery.
+- worker/queue/retry/idempotency/DLQ/recovery.
 - backup/restore/RPO/RTO.
 
 ### Front G — Runtime/LIVE
@@ -116,9 +118,9 @@ Status: `IMPLEMENTED → REGRESSION`; exact-head CI and live A/B export isolatio
 
 ## Status ladder
 - IMPLEMENTED: current fixes implemented.
-- TESTED/REGRESSION: repository behavioral/contract evidence exists.
-- GATED: **NO CLAIM** for current HEAD until exact-head CI evidence exists.
-- CONSUMER VERIFIED: only where consumer evidence is explicit.
+- TESTED/REGRESSION: repository regression contracts exist; execution must still be evidenced for each current HEAD.
+- GATED: no claim until exact-head CI evidence exists.
+- CONSUMER VERIFIED: only with explicit real-consumer evidence.
 - RUNTIME VERIFIED: NO CLAIM.
 - LIVE VERIFIED: NO.
 - PRODUCTION CERTIFIED: NO.
@@ -127,6 +129,9 @@ Status: `IMPLEMENTED → REGRESSION`; exact-head CI and live A/B export isolatio
 Supabase A/B tenant isolation; Storage; Realtime; AI/vector; authenticated browser E2E; real OCR/document corpus; worker crash/recovery/DLQ; native watcher; backup restore/RPO/RTO; production telemetry; load/canary/rollback; production scale/query-plan evidence.
 
 ## Next execution
-Continue all independent fronts without waiting for CI: `queries-compat.ts` consumer graph, cross-surface BI/Decision/Export truth, NULL semantics, and tenant/security sibling discovery. Exact-head CI is a certification barrier for the batch, not a reason to pause independent work.
+Open the current batch as a PR so the exact branch HEAD receives the canonical quality workflow. In parallel continue the highest-value independent fronts: remaining compatibility/legacy consumer graph, cross-surface BI/Decision/Export equivalence, NULL semantics, tenant sibling sweep, reliability and runtime evidence preparation.
 
 PRODUCTION CERTIFIED = NO until real LIVE evidence exists.
+
+## Historical evidence preservation
+Previous failure history and prior certification states must not be erased or rewritten as green merely because later fixes exist. Every new SHA requires its own evidence chain.
