@@ -42,7 +42,7 @@ WITH scoped AS (
 ), classified AS (
   SELECT s.*,
     CASE
-      WHEN s.total IS NULL OR s.paid_amount IS NULL THEN 'UNDATED'
+      WHEN s.total IS NULL OR s.paid_amount IS NULL THEN 'INCOMPLETE'
       WHEN s.outstanding <= 0 THEN '0-30'
       WHEN s.due_date IS NULL THEN 'UNDATED'
       WHEN greatest(p_as_of_date - s.due_date, 0) <= 30 THEN '0-30'
@@ -55,7 +55,7 @@ WITH scoped AS (
 ), metrics AS (
   SELECT count(*)::bigint AS total_rows,
          sum(outstanding)::numeric AS total_outstanding,
-         count(*) FILTER (WHERE due_date IS NULL OR total IS NULL OR paid_amount IS NULL)::bigint AS undated_rows,
+         count(*) FILTER (WHERE due_date IS NULL AND total IS NOT NULL AND paid_amount IS NOT NULL)::bigint AS undated_rows,
          count(*) FILTER (WHERE total IS NULL OR paid_amount IS NULL)::bigint AS incomplete_rows,
          coalesce(sum(outstanding) FILTER (WHERE bucket = '0-30'), 0)::numeric AS bucket_0_30,
          coalesce(sum(outstanding) FILTER (WHERE bucket = '31-60'), 0)::numeric AS bucket_31_60,
