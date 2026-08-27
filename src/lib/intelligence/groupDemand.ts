@@ -1,11 +1,23 @@
 export interface AlternativeMember { sku:string; factor?:number; dailyDemand:number; stock:number; netSales?:number; }
 export interface AlternativeGroupInput { id:string; name:string; members:AlternativeMember[]; }
+export interface GroupDemandMember { sku:string; factor?:number; dailyUnits:number; stock:number; }
+export interface GroupDemandResult { groupId:string; normalizedDailyDemand:number; normalizedStock:number; daysOfCover:number|null; memberCount:number; peakDailyDemand:number; concentration:number|null; dataState:GroupDataState; }
 export type GroupDataState='KNOWN'|'INSUFFICIENT_DATA';
 export interface AlternativeGroupDecision { id:string; name:string; memberSkus:string[]; normalizedDemand:number|null; normalizedStock:number|null; coverageDays:number|null; normalizedSales:number|null; stockoutRisk:'critical'|'high'|'medium'|'low'|'insufficient_data'; trendPct:number|null; recommendedOrder:number|null; dataState:GroupDataState; }
 
 const clamp=(n:number,min:number,max:number)=>Math.min(max,min,n);
 const positive=(n:number)=>Number.isFinite(n)&&n>0?n:0;
 const known=(n:number)=>Number.isFinite(n);
+
+export function calculateGroupDemand(groupId:string,members:GroupDemandMember[]):GroupDemandResult{
+ const valid=members.filter(m=>m.sku);
+ const demandComplete=valid.length>0&&valid.every(m=>known(m.dailyUnits));
+ const stockComplete=valid.length>0&&valid.every(m=>known(m.stock));
+ const demand=demandComplete?valid.reduce((s,m)=>s+positive(m.dailyUnits)*positive(m.factor??1),0):0;
+ const stock=stockComplete?valid.reduce((s,m)=>s+positive(m.stock)*positive(m.factor??1),0):0;
+ const peak=demandComplete?valid.reduce((s,m)=>Math.max(s,positive(m.dailyUnits)*positive(m.factor??1)),0):0;
+ return{groupId,normalizedDailyDemand:demand,normalizedStock:stock,daysOfCover:demandComplete&&stockComplete&&demand>0?stock/demand:null,memberCount:valid.length,peakDailyDemand:peak,concentration:demandComplete&&demand>0?peak/demand:null,dataState:demandComplete&&stockComplete?'KNOWN':'INSUFFICIENT_DATA'};
+}
 
 export function aggregateAlternativeGroup(group:AlternativeGroupInput,recentDemandBySku?:Record<string,number>,targetDays=30):AlternativeGroupDecision{
  const seen=new Set<string>();
