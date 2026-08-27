@@ -67,6 +67,8 @@ jobs:
         run: node scripts/check-tenant-legacy-consumers-regression.mjs
       - name: Adversarial tenant source boundary
         run: node scripts/check-tenant-adversarial-contract.mjs
+      - name: Tenant sibling SECURITY DEFINER boundary
+        run: npm run test:tenant-sibling-boundaries
       - name: Global tenant RLS
         run: npm run test:global-tenant-rls
       - name: Import RPC tenant context
