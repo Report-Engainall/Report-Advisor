@@ -7,11 +7,10 @@ Base: `4095e0f0d427652eb705ba3955389ae978d7b5bf`.
 > IMPLEMENTED / REGRESSION-ENFORCED / CONSUMER-VERIFIED / GATED / INTEGRATED / RUNTIME-EVIDENCED / LIVE-VERIFIED / PRODUCTION-CERTIFIED are separate states. No promotion without evidence matching the exact SHA.
 
 ## Exact-head integrity
-- Requested inspection SHA: `407e6bb1e506a29ae35f741d5530400a3675b9a9` — historical exact-head quality failure; never reused as current PASS evidence.
-- Previous active code HEAD: `7a9b4dfd3e455bd91a33185f65a8994e1f07cde7`.
-- New execution HEAD: `5201386c3e0f4372b04e9132edcf4aef05311f62`.
-- The prior exact-head quality run `33075341520` was associated with `7a9b4dfd…`; it is historical and cannot certify the new HEAD.
-- **No PASS is claimed for `5201386c…` until an exact-head CI run is observed for that SHA.**
+- Requested inspection SHA: `407e6bb1e506a29ae35f741d5530400a3675b9a9` — historical index commit; its own recorded code HEAD was `a21869e5dc3c958143dbe188b187b2666d151483`. No PASS from it is reused.
+- PR #45 current head before this batch: `46db5bd4aa3f938e1d2eaf74098966602453b5cf`.
+- Current code HEAD after this batch: `ae2ec6fcb8eded91e99df59ba0693a74ae9d2f29`.
+- Exact-head CI query for `46db5bd4...` and `ae2ec6fc...` currently returns no observable workflow run. Therefore **NO PASS IS CLAIMED** for the current HEAD.
 
 ## F35 — Financial semantic fail-closed sibling family
 ### FIND
@@ -44,11 +43,22 @@ Export capability lacked a dedicated repository-wide regression gate proving tha
 Existing export manifest and export utilities described report output, but there was no dedicated pattern-level gate scanning the complete source tree for ambiguous export naming and pagination/client-aggregation coupling.
 ### FIX
 Added `scripts/check-export-truth-contract.mjs` and wired it into `package.json` as `test:export-truth`.
-The gate scans source files for ambiguous `exportAll`-style names, export-related pagination/client aggregation coupling, and verifies the existing export manifest contract.
 ### REGRESSION
-`test:export-truth` is now an executable gate. It distinguishes the required contract conceptually between current-view, full-dataset, and filtered-full-dataset exports; any ambiguous export API or suspicious pagination/export coupling fails the gate.
+The gate scans for ambiguous export names and suspicious pagination/export coupling and verifies the export manifest contract.
 ### STATUS
 **IMPLEMENTED / REGRESSION-WIRED; exact-head execution pending.**
+
+## F38 — Receivables consumer retry no-op
+### FIND
+The canonical Receivables UI error retry handler performed `setPage(value => value)`, which can leave React state unchanged and therefore does not reliably re-execute the canonical RPC after a transient failure.
+### ROOT CAUSE
+The fetch effect depended only on `page`; retry did not change any dependency.
+### FIX
+Added `retryNonce` state, included it in the fetch effect dependencies, and increment it from the retry handler. The UI also exposes the existing `incompleteRows` evidence instead of treating missing financial fields as zero.
+### REGRESSION
+`check-receivables-truth-contract.mjs` now verifies the retry nonce dependency, retry increment, incomplete-row rendering, and rejects the former no-op retry pattern.
+### STATUS
+**IMPLEMENTED / REGRESSION-ENFORCED; exact-head CI pending.**
 
 ## Receivables
 **IMPLEMENTED + REGRESSION-ENFORCED + ROUTE-CONSUMER-MIGRATED; EXACT-HEAD CI PENDING.**
@@ -58,6 +68,7 @@ The gate scans source files for ambiguous `exportAll`-style names, export-relate
 - `UNDATED` and `INCOMPLETE` retained explicitly.
 - Metrics independent of display pagination.
 - Route consumer is canonical `ReceivablesReportPageCanonical`.
+- Real UI retry now re-fetches the canonical source after transient failure.
 - Remaining: full export equivalence, >page-size runtime proof, cross-surface equivalence.
 
 ## Profitability
@@ -83,7 +94,7 @@ The gate scans source files for ambiguous `exportAll`-style names, export-relate
 **OPEN.** Canonical sources exist for major dashboard/inventory/receivables/profitability surfaces, but no proof yet that `BI = Decision = Analytics = Export` under identical tenant/date/status/NULL/currency/source-record semantics.
 
 ## Export Truth
-**PARTIAL.** A dedicated pattern-level regression gate is now implemented. Full consumer-family migration and real pagination→export equivalence proof remain open.
+**PARTIAL.** Dedicated pattern-level regression gate is implemented. Full consumer-family migration and real pagination→export equivalence proof remain open.
 
 ## Semantic NULL / UNKNOWN sweep
 **ACTIVE.** Confirmed/fixed families include missing cost→zero, missing receivable fields→row loss, incomplete financial evidence→partial numeric projection, and missing outcome evidence→zero. Repository-wide sibling scan remains open.
@@ -101,7 +112,7 @@ The gate scans source files for ambiguous `exportAll`-style names, export-relate
 Only CI whose `head_sha` exactly equals the current Code HEAD can promote a capability to `CI-GATED`. Historical PASSes remain historical.
 
 ## Next active fronts
-1. Trigger/observe exact-head CI for `5201386c…` and record only matching-SHA evidence.
+1. Observe exact-head CI for `ae2ec6fc...` and record only matching-SHA evidence.
 2. If CI fails, extract the first independent root cause and fix it before rerun.
 3. Expand Export Truth from pattern gate to complete consumer-family inventory and pagination regression.
 4. Build BI ↔ Decision ↔ Analytics ↔ Export equivalence contract.
@@ -111,4 +122,4 @@ Only CI whose `head_sha` exactly equals the current Code HEAD can promote a capa
 8. Storage/Realtime/AI/vector isolation contracts and LIVE harnesses.
 
 ## Completion truth
-**NOT PRODUCTION-CERTIFIED.** Current wave contains real code changes and regression wiring. Current HEAD has not yet earned exact-head CI evidence, and runtime/live/production evidence remains outstanding.
+**NOT PRODUCTION-CERTIFIED.** Current wave contains real code changes and regression wiring. Current HEAD has no observable exact-head CI run, and runtime/live/production evidence remains outstanding.
