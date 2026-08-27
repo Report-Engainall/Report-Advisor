@@ -57,7 +57,7 @@ WITH scoped AS (
   FROM scoped s
 ), metrics AS (
   SELECT count(*)::bigint AS total_rows,
-         coalesce(sum(outstanding), 0)::numeric AS total_outstanding,
+         CASE WHEN count(*) = 0 THEN NULL ELSE sum(outstanding)::numeric END AS total_outstanding,
          count(*) FILTER (WHERE bucket = 'UNDATED')::bigint AS undated_rows,
          coalesce(sum(outstanding) FILTER (WHERE bucket = '0-30'), 0)::numeric AS bucket_0_30,
          coalesce(sum(outstanding) FILTER (WHERE bucket = '31-60'), 0)::numeric AS bucket_31_60,
