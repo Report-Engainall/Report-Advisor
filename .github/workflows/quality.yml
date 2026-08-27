@@ -71,6 +71,8 @@ jobs:
         run: npm run test:import-business-key
       - name: Report truth contract
         run: npm run test:report-truth
+      - name: Inventory empty-page truth
+        run: npm run test:inventory-empty-page-contract
       - name: Data Quality projection contract
         run: npm run test:data-quality-projections
       - name: Company configuration truth
