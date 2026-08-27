@@ -19,9 +19,11 @@ for (const marker of [
 if (!queries.includes("supabase.rpc('report_dashboard_truth')")) throw new Error('Dashboard KPI adapter lost canonical RPC');
 if (!dashboard.includes('fetchDashboardKPIs')) throw new Error('Dashboard lost canonical KPI consumer');
 
-// These are the remaining dashboard business-aggregation siblings. They must not be
-// mistaken for the KPI truth migration until each has its own canonical server contract.
+// The secondary dashboard family has now been migrated to its canonical adapter.
+// This gate must reject reintroduction of the legacy browser-side business consumers.
 for (const fn of ['fetchMonthlyTrend', 'fetchTopCustomers', 'fetchTopProducts', 'fetchCategoryBreakdown']) {
-  if (!dashboard.includes(fn)) throw new Error(`Dashboard sibling consumer disappeared unexpectedly: ${fn}`);
+  if (dashboard.includes(fn)) throw new Error(`Dashboard legacy sibling consumer reintroduced: ${fn}`);
 }
-console.log('Effective financial truth contract: PASS (final SQL definitions are fail-closed; dashboard KPI remains canonical)');
+if (!dashboard.includes('fetchDashboardSecondaryTruth')) throw new Error('Dashboard lost canonical secondary-truth consumer');
+
+console.log('Effective financial truth contract: PASS (final SQL definitions are fail-closed; dashboard KPI and secondary truth remain canonical)');
