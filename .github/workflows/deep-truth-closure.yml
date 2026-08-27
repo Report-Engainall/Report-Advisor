@@ -30,7 +30,5 @@ jobs:
         run: npm run test:financial-aggregation-consumers
       - name: Dashboard truth
         run: npm run test:dashboard-truth
-      - name: Semantic truth conversions
-        run: node scripts/check-semantic-truth-conversions.mjs
-      - name: Cross-surface truth contract
-        run: node scripts/check-cross-surface-truth-contract.mjs
+      - name: Cross-surface traceability
+        run: node scripts/check-cross-surface-traceability.mjs
