@@ -5,8 +5,8 @@ on:
   workflow_dispatch:
 permissions: {contents: read}
 concurrency:
-  group: quality-${{ github.ref }}-${{ github.event_name }}-${{ github.run_id }}
-  cancel-in-progress: false
+  group: quality-${{ github.ref }}-${{ github.event_name }}
+  cancel-in-progress: true
 jobs:
   verify:
     runs-on: ubuntu-22.04
@@ -39,6 +39,8 @@ jobs:
           fi
       - name: Install
         run: npm ci --no-audit --no-fund
+      - name: Export completeness contract
+        run: node scripts/check-export-completeness-contract.mjs
       - name: Workflow command integrity
         run: npm run test:workflow-command-integrity
       - name: CI topology and canonical release wiring
