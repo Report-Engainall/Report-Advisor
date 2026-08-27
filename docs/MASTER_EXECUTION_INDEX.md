@@ -297,3 +297,31 @@ Next parallel families:
 - Then perform exact-head regression/CI once the active implementation wave is coherent.
 
 Production certification: **NO**.
+
+
+## Batch 53 — Report execution reliability regression depth
+
+Finding: the in-memory report queue already implemented idempotency, lease ownership, heartbeat, lease-expiry recovery, bounded retries and terminal failed/dead-letter reporting, but the runtime regression only covered checkpoint/idempotency identity and did not exercise the queue state machine itself.
+
+Root cause: reliability behavior existed but its executable regression evidence was incomplete, leaving duplicate-worker, stale-lease recovery and terminal retry behavior insufficiently guarded.
+
+Implementation:
+- Extended `scripts/report-execution-runtime.test.ts` to exercise:
+  - duplicate idempotency enqueue returns the original run;
+  - first worker claims the job;
+  - a different worker cannot complete another worker's lease;
+  - expired lease can be reclaimed by another worker;
+  - reclaimed attempt count increments;
+  - old worker cannot heartbeat after ownership changes;
+  - terminal failure after max attempts is surfaced by `listDeadLetters()`.
+- No production queue redesign was performed because the current state machine already expresses the required invariants.
+
+Regression execution: **NOT EXECUTED** in this environment. The test is wired but no PASS is claimed.
+
+Runtime/LIVE: durable Supabase worker behavior still requires real crash/restart, concurrent worker and stale-lease tests against the deployed database. Local/in-memory PASS would not certify that layer.
+
+Exact-head CI: **PENDING / NOT OBSERVED**.
+
+Certification state: **PARTIAL**.
+
+Next family: continue P0/P1 tenant + reliability audit at the database/RPC level, then cross-surface truth and performance evidence.
