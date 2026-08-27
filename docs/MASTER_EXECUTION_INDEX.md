@@ -8,31 +8,26 @@ Base: `4095e0f0d427652eb705ba3955389ae978d7b5bf`.
 
 ## Exact-head integrity
 - Historical requested inspection SHA: `407e6bb1e506a29ae35f741d5530400a3675b9a9`; it is not current evidence.
-- Current PR #45 exact head: `860cdf263986945bdc2b2e7c90c6d1a6da760ef8`.
+- Current PR #45 exact head: `625b680e8a42d2655aba665a525591c2df18b7cd`.
 - Base remains `4095e0f0d427652eb705ba3955389ae978d7b5bf`.
 - PR #45 remains `mergeable=false`; this remains repository/PR state, not an application defect without a proven cause.
-- Exact-head CI for previous head `1e28db7d7cfa21c2eacabf34f271742a1993d5ad`: Run `33080547773`, Job `98546251790`, exact SHA matched, **FAIL** at `Receivables truth contract` step. This is a real regression failure, not flaky evidence.
-- Current exact head `860cdf263986945bdc2b2e7c90c6d1a6da760ef8` currently has **NO OBSERVABLE WORKFLOW RUN**. Therefore no PASS is claimed for it.
+- Exact-head CI `33080547773` / Job `98546251790` on `1e28db7d7cfa21c2eacabf34f271742a1993d5ad`: **FAIL** at Receivables truth contract; root cause was stale regression target.
+- Exact-head CI `33080687874` / Job `98546753919` on `860cdf263986945bdc2b2e7c90c6d1a6da760ef8`: **FAIL** at Quality workflow contract; root cause was missing mandatory quality stages in the workflow.
+- Exact-head CI `33080828816` / Job `98547259270` on `c656c739cab58a8dcb6c60c9914a234af5276e0f`: **FAIL** at Export truth contract after the workflow gate was restored.
+- Exact-head CI `33081609407` / Job `98550045476` on `296b0469147230c3dbeae6c16141f229e8143d9a`: **FAIL** at Export truth contract; first detector fix still conflated exporter consumers with exporter implementations.
+- Current exact head `625b680e8a42d2655aba665a525591c2df18b7cd`: CI is not yet observable at index update time. Therefore no PASS is claimed.
 
 ## F42 — Receivables snapshot empty-page / incomplete-evidence contract
 ### FIND
 The canonical Receivables snapshot originally returned zero rows for an out-of-range page, causing the adapter to lose server-calculated metadata and default business metrics to zero. The same contract also had to retain incomplete financial rows instead of silently filtering them.
-
 ### ROOT CAUSE
 The SQL result shape was `page CROSS JOIN metrics`; when `page` was empty, no row survived, so the browser could not receive `totalRows`, `status`, or aggregate metadata. The older migration also filtered `total IS NULL` / `paid_amount IS NULL`, turning missing financial evidence into absence of records.
-
 ### FIX
 Added `20260827150000_receivables_snapshot_empty_page_truth.sql` and `20260827152000_receivables_financial_completeness_contract.sql`. The canonical contract now emits a metrics-only row when the requested page is empty, retains incomplete records as `INCOMPLETE`, reports `INSUFFICIENT_DATA` when incomplete evidence exists, and keeps tenant authority on `current_company_id()`.
-
 ### CONSUMERS
 `ReceivablesReportPageCanonical` remains the real route consumer. It consumes server metrics, does not derive Business Truth from page rows, exposes incomplete-data warnings, and has a real retry dependency through `retryNonce`.
-
 ### REGRESSION
 Added `scripts/check-receivables-empty-page-contract.mjs` and updated `check-receivables-truth-contract.mjs` to validate the current financial-completeness migration.
-
-### EXACT-HEAD CI
-Previous exact head `1e28db7...` failed at the old truth gate because it still inspected `20260826110000_report_receivables_snapshot.sql`, while the new contract lived in a later migration. Root cause was **stale regression contract / migration target**, not the new business rule itself. The gate was corrected in commit `860cdf263986945bdc2b2e7c90c6d1a6da760ef8`.
-
 ### STATUS
 **IMPLEMENTED / REGRESSION-WIRED / CONSUMER-VERIFIED STATICALLY; EXACT-HEAD CI PENDING.**
 
@@ -48,15 +43,23 @@ Quality state and numeric projection were independent. Partial aggregates surviv
 ### STATUS
 **IMPLEMENTED / REGRESSION-WIRED / CI PENDING.**
 
-## F37/F40 — Export Truth family
+## F37/F40/F43 — Export Truth family and gate-detector closure
 ### FIND
-The export gate did not require concrete exporter implementations to declare `CURRENT_VIEW | FULL_DATASET | FILTERED_FULL_DATASET` scope.
+The export gate needed explicit scope declarations, but the initial detector treated ordinary consumer calls such as `downloadReportArtifact(...)` as exporter implementations. This caused real CI failures even though the known exporter implementations were already classified.
+### ROOT CAUSE
+The scanner used call-site-shaped regexes for exporter discovery. Consumer invocation, exporter implementation, and materialized browser download were not separated.
 ### FIX
-Exporter scope is now machine-enforced, including the materialized report downloader classification. The known `ReportsPage` downloader consumers are current-view exporters and are not business-truth sources.
+`296b0469147230c3dbeae6c16141f229e8143d9a` narrowed detection once but still matched consumer calls. `625b680e8a42d2655aba665a525591c2df18b7cd` now requires actual exporter function/arrow declarations for scope enforcement and keeps materialized download detection limited to exporter/download files. `party-intelligence.ts` is retained as a false-positive regression guard.
+### CONSUMERS
+Known report consumers call the canonical `downloadReportArtifact` CURRENT_VIEW exporter. They are consumers, not exporter implementations, and therefore do not need to declare exporter scope themselves.
+### REGRESSION
+The export contract now explicitly separates implementation detection from consumer calls and guards a known non-exporter utility pattern.
+### EXACT-HEAD CI
+`33080828816` / `98547259270` on `c656c739...` failed at Export truth. `33081609407` / `98550045476` on `296b0469...` failed at the same gate because consumer calls were still matched. Current head `625b680e...` has a new exact-head CI pending/ not yet observable.
 ### STATUS
 **IMPLEMENTED / REGRESSION-WIRED / CONSUMER-INVENTORIED; EXACT-HEAD CI PENDING.**
 ### REMAINING
-Complete repository-wide exporter inventory and behavioral pagination→export proof for full/filtered dataset exports.
+Behavioral pagination→export proof for full/filtered dataset exports and cross-surface export equivalence remain open.
 
 ## F38 — Receivables consumer retry
 ### FIND
@@ -129,20 +132,14 @@ Deleted `src/lib/intelligence/financialIntelligence.ts` in commit `697633f0f9281
 ## Production Certification
 **NOT PRODUCTION CERTIFIED.**
 
-## Exact-head CI evidence
-- `1e28db7d7cfa21c2eacabf34f271742a1993d5ad` → Run `33080547773` → Job `98546251790` → **FAIL** at `Receivables truth contract`.
-- `860cdf263986945bdc2b2e7c90c6d1a6da760ef8` → **NO OBSERVABLE RUN** at index update time.
-- No previous SHA PASS is reused.
-
 ## Next active fronts
-1. Observe exact-head CI for `860cdf263986945bdc2b2e7c90c6d1a6da760ef8` and repair any next failure at root cause.
-2. Execute/export-gate the newly added Receivables empty-page/incomplete contract on the exact head.
-3. Complete exporter consumer-family inventory and classify current-view/full/filtered-full behavior.
-4. Build invariant-level BI ↔ Decision ↔ Analytics ↔ Export equivalence regression.
-5. Continue NULL/UNKNOWN/MISSING/EMPTY/ZERO sibling sweep.
-6. Continue tenant indirect-path sweep across Storage/Realtime/AI/vector/Exports/Workers/Caches.
-7. Complete worker state-machine/recovery sibling sweep and LIVE harness.
-8. Prepare authenticated runtime proof for pagination/as-of/tenant/export invariants.
+1. Observe exact-head CI for `625b680e8a42d2655aba665a525591c2df18b7cd` and repair the next failure at root cause.
+2. Complete repository-wide export consumer inventory and behavioral full/filtered dataset proof.
+3. Build invariant-level BI ↔ Decision ↔ Analytics ↔ Export equivalence regression.
+4. Continue NULL/UNKNOWN/MISSING/EMPTY/ZERO sibling sweep.
+5. Continue tenant indirect-path sweep across Storage/Realtime/AI/vector/Exports/Workers/Caches.
+6. Complete worker state-machine/recovery sibling sweep and LIVE harness.
+7. Prepare authenticated runtime proof for pagination/as-of/tenant/export invariants.
 
 ## Completion truth
 **NOT PRODUCTION-CERTIFIED.** Current wave has real canonicalization and regression hardening, but exact-head CI, runtime/live evidence, cross-surface behavioral equivalence, and production evidence remain outstanding.
