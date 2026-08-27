@@ -7,8 +7,8 @@ on:
   workflow_dispatch:
 permissions: {contents: read}
 concurrency:
-  group: deep-truth-${{ github.ref }}-${{ github.event_name }}-${{ github.run_id }}
-  cancel-in-progress: false
+  group: deep-truth-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   truth-closure:
     runs-on: ubuntu-22.04
@@ -19,7 +19,20 @@ jobs:
       - uses: actions/setup-node@v7
         with: {node-version: 22, cache: npm}
       - name: Exact SHA
-        run: test "$(git rev-parse HEAD)" = "${GITHUB_SHA}"
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${GITHUB_SHA}"
+          if [ "${GITHUB_EVENT_NAME}" = "pull_request" ]; then
+            expected_head="$(node -e "const fs=require('fs'); const e=JSON.parse(fs.readFileSync(process.env.GITHUB_EVENT_PATH,'utf8')); process.stdout.write(e.pull_request.head.sha)")"
+            actual_head="$(git ls-remote origin "refs/heads/${GITHUB_HEAD_REF}" | awk '{print $1}')"
+            test -n "$actual_head"
+            test "$actual_head" = "$expected_head"
+            echo "PR_HEAD_SHA=$actual_head"
+            echo "MERGE_REF_SHA=$GITHUB_SHA"
+          else
+            echo "CODE_HEAD_SHA=$(git rev-parse HEAD)"
+          fi
       - name: Install
         run: npm ci --no-audit --no-fund
       - name: Profitability truth
