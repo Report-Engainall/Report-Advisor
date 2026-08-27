@@ -22,6 +22,7 @@ const forbiddenNames = /\b(?:exportAll|exportAllData|exportEverything)\b/;
 const pagination = /\b(?:pageSize|pageIndex|currentPage|offset|limit)\b/;
 const clientAggregation = /\.reduce\s*\(|\b(?:sum|total|count)\s*[:=]/;
 const exportOperation = /\b(?:export|download|toCsv|toJSON|toJson|toExcel|toXlsx|reportTo)\b/i;
+const scopeDeclaration = /\b(?:EXPORT_SCOPE|[A-Z0-9_]+_EXPORT_SCOPE)\b\s*[:=]\s*['"](?:CURRENT_VIEW|FULL_DATASET|FILTERED_FULL_DATASET)['"]/;
 
 for (const file of files) {
   const text = fs.readFileSync(file, 'utf8');
@@ -32,15 +33,26 @@ for (const file of files) {
   if (pagination.test(text) && clientAggregation.test(text) && exportOperation.test(text)) {
     findings.push(`${rel}: export code mixes pagination signals with client aggregation; classify as view export or route through canonical truth`);
   }
+
+  const declaresExporter = /\bexport\s+(?:async\s+)?function\s+(?:export|download|toCsv|toJSON|toJson|toExcel|toXlsx|reportTo)/i.test(text);
+  if (declaresExporter && !scopeDeclaration.test(text)) {
+    findings.push(`${rel}: exporter function has no explicit CURRENT_VIEW/FULL_DATASET/FILTERED_FULL_DATASET scope declaration`);
+  }
 }
 
 const manifest = path.join(src, 'lib/free-toolbox/export-manifest.ts');
 if (!fs.existsSync(manifest)) findings.push('missing export manifest');
 else {
   const text = fs.readFileSync(manifest, 'utf8');
-  for (const required of ['ExportManifest', 'createExportManifest', 'evidenceCount', 'warningCount']) {
+  for (const required of ['ExportManifest', 'ExportScope', 'createExportManifest', 'CURRENT_VIEW', 'FULL_DATASET', 'FILTERED_FULL_DATASET', 'evidenceCount', 'warningCount']) {
     if (!text.includes(required)) findings.push(`export manifest missing ${required}`);
   }
+}
+
+const reportExporter = path.join(src, 'lib/free-toolbox/report-export.ts');
+if (fs.existsSync(reportExporter)) {
+  const text = fs.readFileSync(reportExporter, 'utf8');
+  if (!text.includes("REPORT_EXPORT_SCOPE: ExportScope = 'CURRENT_VIEW'")) findings.push('report-export.ts is not explicitly classified as CURRENT_VIEW');
 }
 
 if (findings.length) {
@@ -50,4 +62,4 @@ if (findings.length) {
 }
 
 console.log(`EXPORT_TRUTH_CONTRACT: PASS (${files.length} source files scanned)`);
-console.log('Export classes remain explicit: CURRENT_VIEW | FULL_DATASET | FILTERED_FULL_DATASET.');
+console.log('Export scope is enforced: CURRENT_VIEW | FULL_DATASET | FILTERED_FULL_DATASET.');
