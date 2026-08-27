@@ -180,3 +180,52 @@ Supabase A/B tenant isolation; Storage; Realtime; AI/vector; authenticated brows
 Continue independent fronts without waiting for CI: cross-surface BI/Decision/Export truth, NULL semantics, tenant/security sibling discovery, and reliability/performance contract closure. Exact-head CI is a certification barrier, not a reason to pause independent work.
 
 PRODUCTION CERTIFIED = NO until real LIVE evidence exists.
+
+
+## Batch 50 — Canonical query boundary promotion / compatibility collapse
+
+Finding: the repository had a split query surface: `@/lib/queries` was forcibly aliased to `queries-compat.ts`, while canonical consumers could also import `queries.ts` directly. Two real consumers (`src/App.tsx`, `src/lib/import/batch-folder.ts`) imported the compatibility module explicitly. This created a future drift path where a compatibility layer could regain business logic or silently diverge from the canonical API.
+
+Root cause: the compatibility boundary was still an implementation owner rather than a pure re-export, and both TypeScript and Vite redirected the canonical-looking `@/lib/queries` path to it.
+
+Closure implementation:
+- Promoted the complete tenant-aware import/job operations, alert/recommendation mutations, purchase summary, inventory valuation, and bounded canonical export adapters into `src/lib/queries.ts`.
+- Preserved the stronger import-job progress semantics: progress is translated against the authoritative job total and the current row counters rather than treating percentage as row counts.
+- Migrated the two direct compatibility consumers to `@/lib/queries`.
+- Reduced `src/lib/queries-compat.ts` to a pure `export * from './queries'` compatibility boundary.
+- Removed the `@/lib/queries` compatibility alias from both `tsconfig.app.json` and `vite.config.ts`; the canonical path now resolves naturally to `src/lib/queries.ts`.
+- Added `test:queries-compat-boundary` and rewrote `scripts/check-queries-compat-boundary.mjs` to fail if compatibility regains business functions, tenant DB access, or legacy secondary analytics calls.
+
+Consumer proof:
+- Before migration, explicit repository consumers were `src/App.tsx` and `src/lib/import/batch-folder.ts`.
+- Both were migrated.
+- No intentional compatibility implementation remains; the file is now a re-export-only bridge.
+- Repository search results can be stale/default-branch scoped, therefore this index records the direct consumer proof from the exact branch reads rather than claiming a repository-wide zero-consumer search from stale results.
+
+Legacy state: `queries-compat.ts` remains temporarily for external/old import compatibility, but it no longer contains business logic. Destructive deletion is deferred until external-consumer risk is explicitly ruled out.
+
+Regression:
+- `scripts/check-queries-compat-boundary.mjs` updated as a permanent anti-drift guard.
+- `package.json` exposes `test:queries-compat-boundary`.
+- Execution in this environment: **NOT EXECUTED**. No PASS is claimed.
+
+Exact-head:
+- Code HEAD after this batch: `1bb6845fe10c40aebf81887ad59f038cde162132`.
+- Index update is the next commit and must be treated as the certification reference once committed.
+- Exact-head CI: **PENDING / NOT OBSERVED**. No historical PASS is promoted.
+
+Certification state: `IMPLEMENTED → CONSUMER MIGRATED → REGRESSION WIRED → CI PENDING`; not CLOSED.
+
+## Future-development architecture invariant
+New features must import the canonical query/API surface directly. `queries-compat.ts` is not an extension point. Any new business function added there is a regression by definition. New capabilities must follow:
+`UI → Capability Contract → Canonical Adapter → Authoritative Service/RPC → Tenant Authority → Evidence/Typed Result → Presentation`.
+
+## Next high-value families
+1. Inventory Truth: eliminate remaining browser-derived metrics and prove cross-surface equivalence.
+2. Receivables/Profitability: remove remaining client-side business aggregation where an authoritative snapshot/RPC can own it.
+3. Tenant Security: continue storage/realtime/AI/vector/worker indirect-tenant paths.
+4. Reliability: crash/retry/lease/DLQ/idempotency evidence.
+5. Performance: bounded reads/query plans/N+1/payload measurement.
+6. Runtime/LIVE: execute only in a real environment; no local contract is promoted to LIVE.
+
+Production certification remains **NO**.
