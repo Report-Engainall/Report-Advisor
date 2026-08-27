@@ -47,10 +47,14 @@ jobs:
         run: npm run test:receivables-aging-truth
       - name: Receivables truth contract
         run: node scripts/check-receivables-truth-contract.mjs
+      - name: Receivables empty-page and completeness regression
+        run: node scripts/check-receivables-empty-page-contract.mjs
       - name: Analytics truth contract
         run: npm run test:analytics-truth
       - name: Cross-surface capability traceability
         run: node scripts/check-cross-surface-traceability.mjs
+      - name: Export truth contract
+        run: npm run test:export-truth
       - name: Authentication and tenant convergence
         run: npm run test:auth-tenant-convergence
       - name: Tenant legacy consumer boundary
@@ -59,6 +63,14 @@ jobs:
         run: node scripts/check-tenant-legacy-consumers-regression.mjs
       - name: Adversarial tenant source boundary
         run: node scripts/check-tenant-adversarial-contract.mjs
+      - name: Global tenant RLS
+        run: npm run test:global-tenant-rls
+      - name: Import RPC tenant context
+        run: npm run test:import-rpc-tenant-context
+      - name: Import business key
+        run: npm run test:import-business-key
+      - name: Report truth contract
+        run: npm run test:report-truth
       - name: Data Quality projection contract
         run: npm run test:data-quality-projections
       - name: Company configuration truth
@@ -75,6 +87,8 @@ jobs:
         run: npm run test:file-engine-contract && npm run test:file-engine-capability-contract && npm run test:schema-intelligence && npm run test:schema-entity-reconciliation && npm run test:a0-hardening-contract && npm run test:golden-dataset-contract && npm run test:canonical-import-mapping && npm run test:onyx-adapter-contract && npm run test:report-execution-foundation && npm run test:report-execution-e2e-contract && npm run test:report-execution-coordinator-contract && npm run test:automation-executor-contract && npm run test:forecast-calibration-contract && npm run test:entitlements-billing-contract && npm run test:decision-intelligence-closure && npm run test:production-saas-certification
       - name: Production certification
         run: npm run test:production-certification-contract
+      - name: Production readiness
+        run: npm run test:production-readiness
       - name: Operational resilience certification
         run: npm run test:operational-resilience && npm run test:release-resilience-manifest && node scripts/check-release-evidence-contract.mjs && node scripts/check-release-workflow-contract.mjs
       - name: Continuous trust certification
@@ -89,10 +103,16 @@ jobs:
         run: node scripts/check-kpi-presentation-truth.mjs
       - name: Production release blockers
         run: npm run test:production-release-blockers
+      - name: Performance budget
+        run: npm run perf:budget
       - name: A0 intelligence hardening
         run: node scripts/check-intelligence-hardening.mjs && node scripts/check-golden-intelligence-gates.mjs
       - name: Typecheck
         run: npm run typecheck
+      - name: Lint
+        run: npm run lint
+      - name: Build
+        run: npm run build
       - name: Behavioral regressions
         run: npm run test:file-engine-regressions && npm run test:business-key-regressions && npm run test:import-classifier-regressions
       - name: Business intelligence regressions
@@ -110,7 +130,6 @@ jobs:
         run: |
           set +e
           declare -A pids
-          declare -A names
           commands=(
             "node scripts/check-navigation-route-contract.mjs"
             "node scripts/check-import-direct-write-guard.mjs"
@@ -122,7 +141,6 @@ jobs:
             echo "[routing-security] START ${commands[$i]}"
             bash -lc "${commands[$i]}" >"/tmp/routing-security-$i.log" 2>&1 &
             pids[$i]=$!
-            names[$i]="${commands[$i]}"
           done
           failures=0
           for i in "${!commands[@]}"; do
