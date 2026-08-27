@@ -129,6 +129,7 @@
     "test:p1-batch": "node scripts/check-p1-batch.mjs",
     "test:production-gate-runtime": "node scripts/check-production-gate-runtime.mjs",
     "test:production-readiness": "node scripts/check-production-readiness.mjs",
-    "test:profitability-truth": "node scripts/check-profitability-truth-contract.mjs"
+    "test:profitability-truth": "node scripts/check-profitability-truth-contract.mjs",
+    "test:financial-aggregation-consumers": "node scripts/check-financial-aggregation-consumers.mjs"
   }
 }
