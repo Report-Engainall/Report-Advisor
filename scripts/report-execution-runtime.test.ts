@@ -2,6 +2,7 @@ import { strict as assert } from 'node:assert';
 import { advanceCheckpoint, canAdvanceCheckpoint, type ReportExecutionCheckpoint } from '../src/lib/report-execution/checkpoint.ts';
 import { SupabaseReportExecutionStore } from '../src/lib/report-execution/durable-worker-adapter.ts';
 import type { ReportExecutionRequest } from '../src/lib/report-execution/report-execution-contract.ts';
+import { InMemoryReportQueue } from '../src/lib/report-execution/queue.ts';
 
 assert.equal(canAdvanceCheckpoint('queued','fingerprinted'), true);
 assert.equal(canAdvanceCheckpoint('queued','analyzed'), false);
@@ -25,3 +26,21 @@ assert.notEqual(
 );
 
 console.log('Report execution runtime: PASS (checkpoint monotonicity + tenant/idempotency recovery invariants)');
+
+const queue = new InMemoryReportQueue();
+const qRequest: ReportExecutionRequest = { ...request, idempotencyKey:'queue-k' };
+const first = queue.enqueue(qRequest, 'run-queue-1', 2);
+assert.equal(queue.enqueue(qRequest, 'run-queue-2', 2).runId, 'run-queue-1');
+const claimed = queue.claim('worker-a', 1);
+assert.equal(claimed?.runId, 'run-queue-1');
+assert.throws(() => queue.complete('run-queue-1', 'worker-b'), /lease is not owned/);
+await new Promise(resolve => setTimeout(resolve, 5));
+const recovered = queue.claim('worker-b', 60_000);
+assert.equal(recovered?.runId, 'run-queue-1');
+assert.equal(recovered?.attempts, 2);
+assert.throws(() => queue.heartbeat('run-queue-1', 'worker-a'), /lease is not owned/);
+queue.fail('run-queue-1', 'worker-b', 'boom');
+assert.equal(queue.get('run-queue-1')?.status, 'failed');
+assert.equal(queue.listDeadLetters().length, 1);
+
+console.log('Report execution queue: PASS (idempotency + lease expiry/recovery + worker ownership + dead-letter state)');
