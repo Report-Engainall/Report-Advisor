@@ -57,13 +57,32 @@ Consumer migration: implemented on the real `ReceivablesReportPage` consumer.
 
 Legacy duplication: the targeted browser `aging.reduce(...)` business aggregation was removed.
 
-Regression: existing dashboard/report canonical truth gates remain applicable; a dedicated regression should be added if this family expands to additional receivables consumers.
+Regression: `scripts/check-cross-surface-report-truth.mjs` now verifies canonical report/export consumers, forbids the known browser aggregations, checks tenant-authority export markers, and preserves NULL inventory semantics.
 
 Implementation commit: `7c0137648c50566ffb84bbfb380639addaa6c8c6`.
 
-Exact-head CI: not claimed; this branch currently has no workflow run observed for the implementation SHA.
+Regression commit: `790e6dd50d3569c82130388f9c7414a2f48da12c`.
 
-Certification state: `IMPLEMENTED → REGRESSION PENDING → CONSUMER VERIFIED PENDING EXACT-HEAD CI`.
+Exact-head CI: not claimed; this branch currently has no workflow run observed for the implementation/regression SHA.
+
+Certification state: `IMPLEMENTED → REGRESSION PRESENT → EXACT-HEAD CI PENDING → CONSUMER VERIFIED PENDING CI EVIDENCE`.
+
+Batch state: `PARTIAL`.
+
+## Batch #41 — Cross-surface report truth regression hardening
+Finding: Inventory, Receivables and export surfaces need one regression gate against recurrence of browser-side business truth.
+
+Root cause: individual guards covered isolated expressions but did not assert the wider report/export canonical chain in one test.
+
+Fix: added `scripts/check-cross-surface-report-truth.mjs` covering canonical dashboard/report adapters, export RPC contracts, tenant authority markers, forbidden browser aggregations, pagination fixture semantics, and NULL inventory valuation.
+
+Implementation commit: `790e6dd50d3569c82130388f9c7414a2f48da12c`.
+
+Regression execution: NOT EXECUTED in this environment; the script is committed and CI-ready. No PASS claim is made.
+
+Exact-head CI: PENDING; no current workflow evidence is being promoted.
+
+Certification state: `IMPLEMENTED → REGRESSION-READY → CI PENDING`.
 
 Batch state: `PARTIAL`.
 
@@ -120,7 +139,7 @@ Forecast canonical fix `728b344f57c304ab5e66744db40624d3d4a2c8a3` has a producti
 Supabase A/B tenant isolation; Storage; Realtime; AI/vector; authenticated browser E2E; real OCR/document corpus; worker crash/recovery/DLQ; native watcher; backup restore/RPO/RTO; production telemetry; load/canary/rollback; production scale/query-plan evidence.
 
 ## Next execution
-Continue independent fronts without waiting for CI. Highest immediate P1 is regression/exact-head verification of the report consumer migrations, followed by remaining browser duplicate calculations and cross-surface BI/Decision/Export equivalence. Exact-head CI remains a certification barrier, not a reason to stop independent work.
+Continue independent fronts without waiting for CI. Highest immediate P1 is exact-head regression/CI for the report consumer migrations, then remaining browser duplicate calculations and cross-surface BI/Decision/Export equivalence. Exact-head CI remains a certification barrier, not a reason to stop independent work.
 
 PRODUCTION CERTIFIED = NO until real LIVE evidence exists.
 
