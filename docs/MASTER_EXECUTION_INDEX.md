@@ -130,3 +130,17 @@ Supabase A/B tenant isolation; Storage; Realtime; AI/vector; authenticated brows
 Continue all independent fronts without waiting for CI: `queries-compat.ts` consumer graph, cross-surface BI/Decision/Export truth, NULL semantics, and tenant/security sibling discovery. Exact-head CI is a certification barrier for the batch, not a reason to pause independent work.
 
 PRODUCTION CERTIFIED = NO until real LIVE evidence exists.
+
+
+## Deep Closure — exact-head 407e6bb1 / PR #45 regression
+Finding: exact-head CI run 32928717071 (SHA 407e6bb1e506a29ae35f741d5530400a3675b9a9) failed at Typecheck with TS2307 because real consumers imported `@/lib/queries` while the PR45 ancestry did not provide a compatible canonical `src/lib/queries.ts` surface.
+
+Root cause: unsafe topology/pruning boundary — the compatibility-layer closure was allowed to remove/replace the canonical query module while real application/import consumers still depended on its public API.
+
+Evidence: Typecheck job 98056666469 reported TS2307 in App, batch-folder, CanonicalImportPage, DashboardPage, EntityPages, IntelligencePage and ReportsPage. All pre-typecheck topology/tenant/data-quality gates completed successfully; downstream regressions were skipped because typecheck failed.
+
+Fix: PR #57 restores the current canonical `src/lib/queries.ts` contract on top of the exact PR45 head without weakening the gate. New fix HEAD: `b3a8be73bfd11bdda8abd4d08c4094064543ab4b`.
+
+Consumer family proven affected: App + import pipeline + dashboard + entity pages + intelligence + reports. Status: `IMPLEMENTED → REGRESSION PENDING → EXACT-HEAD CI PENDING`.
+
+Historical failure retained intentionally; no PASS promoted from another SHA.
