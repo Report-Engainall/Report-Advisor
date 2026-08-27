@@ -3,7 +3,7 @@ import { detectFormat } from '@/lib/file-engine/detector';
 import { securityScan, computeSHA256, checkDuplicate } from '@/lib/file-engine/security';
 import { parseFile } from '@/lib/file-engine/adapters';
 import { commitImportBatch, type CanonicalImportRow } from '@/lib/import/canonical-commit';
-import { createImportRecord, updateImportRecord } from '@/lib/queries-compat';
+import { createImportRecord, updateImportRecord } from '@/lib/queries';
 import { finalizeExtraction } from '@/lib/import-pipeline/canonical-text-orchestrator';
 import type { FileFormat } from '@/lib/file-engine/types';
 import type { BrowserDirectoryHandle } from '@/lib/import-pipeline/folder-watch-service';
