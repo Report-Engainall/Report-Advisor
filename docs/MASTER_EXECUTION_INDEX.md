@@ -7,14 +7,13 @@ Base: `4095e0f0d427652eb705ba3955389ae978d7b5bf`.
 > Evidence states are separate: IMPLEMENTED → REGRESSION-ENFORCED → GATED → INTEGRATED → CONSUMER-VERIFIED → RUNTIME-EVIDENCED → LIVE-VERIFIED → PRODUCTION-CERTIFIED. No promotion without evidence on the exact SHA.
 
 ## Current exact-head state
-- Current code/index HEAD: `c7e3c8b6c3f9d2c7f9d4d0e4e1d0d3c5a1b2f7e8`.
-- **Do not treat the SHA above as a claimed CI result until the exact-head run is observed.**
-- Exact-head CI Run `33087319123` / Job `98570422563` was **SUCCESS on exactly `4ef95a5d...`**, before this index-only commit; it proves that prior code state only.
-- The prior `e06b3bad...` state also had no exact-head PASS of its own; Run `33087319123` was on `4ef95a5d...`.
+- Current code/index HEAD: `7b586cbfca6a327934b5d77732e6d99815b7de0b`.
+- **No exact-head CI PASS is claimed yet for `7b586cbf...`.**
+- Exact-head CI Run `33087319123` / Job `98570422563` was **SUCCESS on exactly `4ef95a5d...`**, before the index-only commits; it proves that prior code state only.
 - Historical failures remain retained: `33086322239` / `1fe8eb2...` and `33086226689` / `c103d249...` failed at the stale effective-financial regression gate.
 
 ## F46 — Dashboard secondary truth
-**IMPLEMENTED / REAL CONSUMER MIGRATED / REGRESSION-ENFORCED / CI-PROVEN ON PRIOR SHA; CURRENT HEAD PENDING.**
+**IMPLEMENTED / REAL CONSUMER MIGRATED / REGRESSION-ENFORCED / PRIOR CI-PROVEN / CURRENT HEAD PENDING.**
 - `report_dashboard_secondary_truth(integer)` + `src/lib/dashboard-secondary-truth.ts` own trend/top-customer/top-product/category truth with `current_company_id()`.
 - `DashboardPage` no longer imports legacy secondary functions.
 - `20260827161000_dashboard_secondary_truth_fail_closed.sql` nulls financial ranking/category/trend values when transactional evidence is incomplete.
@@ -32,22 +31,16 @@ Base: `4095e0f0d427652eb705ba3955389ae978d7b5bf`.
 - Canonical `report_receivables_snapshot` owns aggregate truth independently of page boundaries and derives tenant from `current_company_id()`.
 - Incomplete rows are retained as `INCOMPLETE`; missing financial evidence produces `INSUFFICIENT_DATA`, not zero.
 - `UNDATED` is explicit; cancelled/canceled/void are excluded.
-- **Finding closed in code:** the prior contract did not enforce the reporting `as-of` date at the invoice source and counted incomplete rows inconsistently for pagination metadata.
+- **Finding:** the prior contract did not enforce the reporting `as-of` date at the invoice source and counted incomplete rows inconsistently for pagination metadata.
 - **Fix:** `20260827163000_receivables_truth_date_boundary.sql` applies `si.invoice_date::date <= p_as_of_date`, retains incomplete rows, excludes settled rows from receivables truth, counts all retained rows in `total_rows`, and keeps `total_outstanding` NULL when incomplete evidence exists.
-- **Regression:** `scripts/check-receivables-truth-contract.mjs` now enforces the as-of boundary, settled exclusion, retained incomplete evidence and pagination/fail-closed invariants.
-- Remaining: exact-head CI for the current index/code SHA, zero-consumer legacy removal, >page-size runtime proof, export equivalence and cross-surface proof.
+- **Regression:** `scripts/check-receivables-truth-contract.mjs` enforces the as-of boundary, settled exclusion, retained incomplete evidence and pagination/fail-closed invariants.
+- Remaining: current-head CI, zero-consumer legacy removal, >page-size runtime proof, export equivalence and cross-surface proof.
 
 ## Profitability Truth
-**PARTIAL / FAIL-CLOSED / CURRENT EXACT-HEAD CI PENDING.**
-- Canonical `report_profitability_truth` derives tenant from `current_company_id()`.
-- Missing line revenue/cost/quantity and multi-currency evidence fail closed to NULL business totals.
-- Remaining: explicit contract for discounts/returns/currency conversion/rounding and behavioral equivalence against Dashboard/BI/Decision/Export.
+**PARTIAL / FAIL-CLOSED / CURRENT EXACT-HEAD CI PENDING.** Canonical `report_profitability_truth` derives tenant from `current_company_id()` and missing line revenue/cost/quantity or multi-currency evidence fails closed to NULL business totals. Remaining: explicit discounts/returns/currency-conversion/rounding contract and behavioral equivalence across Dashboard/BI/Decision/Export.
 
 ## Export Truth
-**PARTIAL.**
-- Export scope is explicit: `CURRENT_VIEW | FULL_DATASET | FILTERED_FULL_DATASET`.
-- Sales/purchases/inventory browser exports are explicitly current-page exports.
-- Remaining: repository-wide exporter inventory, canonical full/filtered implementations and pagination→export regression across every exporter.
+**PARTIAL.** Scope is explicit: `CURRENT_VIEW | FULL_DATASET | FILTERED_FULL_DATASET`. Browser report export is explicitly current-view. Remaining: repository-wide exporter inventory, canonical full/filtered implementations and pagination→export regression across every exporter.
 
 ## BI ↔ Decision ↔ Analytics ↔ Export
 **OPEN.** Canonical BI/Analytics sources and Decision/Outcome hardening exist, but no runtime evidence proves equivalent records/totals/counts/date/as-of/tenant/NULL semantics across all surfaces.
@@ -89,12 +82,12 @@ Base: `4095e0f0d427652eb705ba3955389ae978d7b5bf`.
 - `33086226689` / `c103d249...`: exact-head FAILURE at stale effective-financial regression.
 - `33086322239` / `1fe8eb2...`: exact-head FAILURE at the same stale regression.
 - `33086397054` / `8ab145f...`: historical in-progress/superseded state; not current-head evidence.
-- `33087319123` / `4ef95a5...`: **SUCCESS**, exact-head CI for the prior code/index state; not evidence for the current index commit.
+- `33087319123` / `4ef95a5...`: **SUCCESS**, exact-head CI for prior code/index state; not evidence for current HEAD.
 
 ## Active execution matrix
 | Front | State | Next proof |
 |---|---|---|
-| Exact-head CI | ACTIVE | observe run for current HEAD; no PASS yet |
+| Exact-head CI | ACTIVE | observe run for `7b586cbf...`; no PASS yet |
 | Dashboard secondary | ACTIVE | zero-consumer legacy removal + runtime |
 | Receivables | ACTIVE | current-head CI + zero-consumer + runtime page-boundary |
 | Profitability | ACTIVE | financial contract + cross-surface equivalence |
@@ -108,8 +101,8 @@ Base: `4095e0f0d427652eb705ba3955389ae978d7b5bf`.
 | Production certification | BLOCKED | required LIVE/production evidence |
 
 ## Next autonomous wave
-1. Observe exact-head CI for the current HEAD; if failure, extract exact error → root cause → fix → regression → new SHA.
-2. Sweep Receivables legacy consumers and prove zero-consumer status before any removal.
+1. Observe exact-head CI for `7b586cbf...`; if failure, extract exact error → root cause → fix → regression → new SHA.
+2. Sweep Receivables legacy consumers and prove zero-consumer status before removal.
 3. Build invariant-level cross-surface regression for tenant/date/as-of/status/NULL semantics.
 4. Complete exporter consumer classification and pagination truncation regression.
 5. Sweep caller-supplied tenant authority and indirect tenant sources across background/storage/realtime/vector paths.
@@ -117,4 +110,4 @@ Base: `4095e0f0d427652eb705ba3955389ae978d7b5bf`.
 7. Convert CI-stable families into concrete runtime drills; do not label LIVE without evidence.
 
 ## Completion truth
-**NOT PRODUCTION-CERTIFIED.** Current work has closed a real Receivables source-level boundary defect and added regression enforcement, but current exact-head CI and all runtime/live/production evidence remain outstanding.
+**NOT PRODUCTION-CERTIFIED.** A real Receivables source-level boundary defect was corrected and regression-enforced. Current exact-head CI and all runtime/live/production evidence remain outstanding.
