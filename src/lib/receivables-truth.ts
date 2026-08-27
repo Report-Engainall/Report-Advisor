@@ -44,8 +44,11 @@ export async function fetchReceivablesReportSnapshot(page = 0, pageSize = 25, as
     incomplete_rows: number;
   }>;
   const first = rows[0];
+  const pageRows = rows.filter((row) => row.id != null);
   return {
-    rows: rows.map(({ total_rows: _a, total_outstanding: _b, undated_rows: _c, bucket_0_30: _d, bucket_31_60: _e, bucket_61_90: _f, bucket_90_plus: _g, status: _h, incomplete_rows: _i, ...row }) => row),
+    // The RPC emits a metadata sentinel when the requested page is empty.
+    // It is transport metadata, not a business row and must never reach consumers.
+    rows: pageRows.map(({ total_rows: _a, total_outstanding: _b, undated_rows: _c, bucket_0_30: _d, bucket_31_60: _e, bucket_61_90: _f, bucket_90_plus: _g, status: _h, incomplete_rows: _i, ...row }) => row),
     totalRows: Number(first?.total_rows ?? 0),
     totalOutstanding: first?.total_outstanding == null ? null : Number(first.total_outstanding),
     undatedRows: Number(first?.undated_rows ?? 0),
