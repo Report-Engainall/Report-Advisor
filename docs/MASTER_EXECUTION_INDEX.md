@@ -7,88 +7,83 @@ Base: `4095e0f0d427652eb705ba3955389ae978d7b5bf`.
 > Evidence states are separate: IMPLEMENTED → REGRESSION-ENFORCED → GATED → INTEGRATED → CONSUMER-VERIFIED → RUNTIME-EVIDENCED → LIVE-VERIFIED → PRODUCTION-CERTIFIED. No promotion without evidence on the exact SHA.
 
 ## Current exact-head state
-- Code HEAD: `52d6d9de7a50baffcbad1aeba3b1737d90acae33`.
-- The immediately preceding quality Run `33089346132` / Job `98577622993` was **SUCCESS on exactly `c2f4a019...`** and is historical evidence only; it does not certify `52d6d9de...`.
-- `52d6d9de...` adds a fail-closed aging analytics presentation regression. A fresh exact-head quality run is required before this tip can be called CI-verified.
+- Code HEAD before this index commit: `3f742b26cc492bf4984e60e4fa0be5b58aeaede7`.
+- This index update changes the branch tip; therefore the resulting commit is **CI PENDING** until a new quality run is observed on its exact SHA.
+- No CI PASS is inherited from an earlier SHA.
 
 ## F48 — Aging analytics fail-closed presentation
-**IMPLEMENTED / REGRESSION-WIRED / EXACT-HEAD CI PENDING.**
-- Finding: analytics could retain financial aging buckets in the presentation path when canonical receivables truth reported incomplete/insufficient data.
-- Root cause: the presentation contract did not explicitly gate bucket visualization on `CALCULATED` status.
-- Fix: analytics now derives `isCalculated` from the canonical snapshot status and gates both bucket data and `SimpleBarChart` rendering on that state.
-- Regression: `scripts/check-analytics-truth-contract.mjs` now asserts the explicit calculated-state guard and fail-closed chart behavior.
-- Remaining: exact-head CI on the resulting tip; runtime proof with incomplete real data; broader cross-surface equivalence.
+**IMPLEMENTED / REGRESSION-WIRED / CI PENDING.**
+- Finding: analytics could retain financial aging buckets in presentation when canonical receivables truth was incomplete/insufficient.
+- Root cause: bucket visualization was not explicitly gated on `CALCULATED` status.
+- Fix: analytics derives `isCalculated` from canonical snapshot status and gates bucket data and chart rendering.
+- Regression: `scripts/check-analytics-truth-contract.mjs` asserts the calculated-state guard and fail-closed chart behavior.
+- Remaining: exact-head CI; incomplete-real-data runtime; cross-surface equivalence.
 
 ## F47 — Receivables empty-page sentinel leakage
-**FIXED / REGRESSION-WIRED / EXACT-HEAD CI VERIFIED at c2f4a019...**
-- Finding: the canonical Receivables RPC emits a metadata sentinel row when a requested page is empty, while the adapter previously mapped every returned row into `snapshot.rows`.
-- Root cause: transport metadata and domain business rows were not separated at the adapter boundary.
-- Fix: `src/lib/receivables-truth.ts` filters `row.id != null` before mapping business rows while retaining aggregate metadata from the first RPC row.
-- Regression: `scripts/check-receivables-empty-page-contract.mjs` requires the sentinel filter and includes an explicit sentinel fixture proving zero business rows are exposed.
-- Remaining: real >page-size runtime proof, export equivalence and cross-surface evidence.
+**FIXED / REGRESSION-WIRED / CI VERIFIED historically at `c2f4a019...`.**
+- Root cause: transport metadata and business rows were not separated at the adapter boundary.
+- Fix: adapter filters `row.id != null` while retaining aggregate metadata.
+- Regression: empty-page contract asserts sentinel filtering.
+- Remaining: real >page-size runtime, export equivalence, cross-surface proof.
 
 ## F46 — Dashboard secondary truth
-**IMPLEMENTED / REAL CONSUMER MIGRATED / REGRESSION-ENFORCED / EXACT-HEAD CI VERIFIED at c2f4a019...** Remaining: zero-consumer legacy function removal and runtime proof.
+**IMPLEMENTED / REAL CONSUMER MIGRATED / REGRESSION-ENFORCED / CI VERIFIED historically at `c2f4a019...`.** Remaining: zero-consumer legacy removal and runtime proof.
 
 ## F45 — Executive metrics compatibility removal
-- Zero-consumer scan found no runtime consumer for `get_executive_metrics(uuid,date,date)`.
-- Exact-signature drop migration added.
-- Run `33085041491` / Job `98562277560` on `89367a9...`: **SUCCESS** for F45 only.
-- Runtime migration execution remains separate evidence.
+Zero-consumer scan found no runtime consumer for `get_executive_metrics(uuid,date,date)`; exact-signature drop migration added. Run `33085041491` / Job `98562277560` on `89367a9...` was SUCCESS for F45 only. Runtime migration execution remains separate evidence.
 
 ## Receivables Truth
-**IMPLEMENTED / REGRESSION-ENFORCED / ROUTE CONSUMER MIGRATED / EXACT-HEAD CI VERIFIED at c2f4a019...** Canonical `report_receivables_snapshot` owns aggregate truth independently of page boundaries and derives tenant from `current_company_id()`. Incomplete rows are retained as `INCOMPLETE`; missing financial evidence produces `INSUFFICIENT_DATA`; `UNDATED` is explicit; cancelled/canceled/void are excluded. Source-level `as-of` and incomplete-row counting fixes are regression-enforced. F47 is fixed. Remaining: zero-consumer legacy removal, >page-size runtime proof, export equivalence and cross-surface proof.
+**IMPLEMENTED / REGRESSION-ENFORCED / ROUTE CONSUMER MIGRATED / historically CI VERIFIED at `c2f4a019...`.** Canonical `report_receivables_snapshot` owns aggregate truth independently of page boundaries and derives tenant from `current_company_id()`. Incomplete rows remain `INCOMPLETE`; missing financial evidence is `INSUFFICIENT_DATA`; `UNDATED` is explicit; cancelled/canceled/void are excluded. Remaining: zero-consumer legacy proof, >page-size runtime, export equivalence and cross-surface proof.
 
 ## Profitability Truth
-**PARTIAL / FAIL-CLOSED / EXACT-HEAD CI VERIFIED at c2f4a019...** Canonical `report_profitability_truth` derives tenant from `current_company_id()`; missing line revenue/cost/quantity or multi-currency evidence fails closed to NULL totals. Remaining: explicit discounts/returns/currency-conversion/rounding contract and equivalence across Dashboard/BI/Decision/Export.
+**PARTIAL / FAIL-CLOSED / historically CI VERIFIED at `c2f4a019...`.** Canonical `report_profitability_truth` derives tenant from `current_company_id()`; missing revenue/cost/quantity and multi-currency evidence fail closed to NULL totals. Remaining: explicit discounts/returns/currency-conversion/rounding contract and Dashboard/BI/Decision/Export equivalence.
 
 ## Export Truth
-**PARTIAL / EXACT-HEAD CI VERIFIED at c2f4a019...** Scope is explicit: `CURRENT_VIEW | FULL_DATASET | FILTERED_FULL_DATASET`. Browser report export is explicitly current-view. Static export gate detects ambiguous exporter names and pagination/client-aggregation mixing. Remaining: repository-wide consumer inventory, canonical full/filtered implementations and pagination→export regression across every exporter.
+**PARTIAL / historically CI VERIFIED at `c2f4a019...`.** Explicit scopes: `CURRENT_VIEW | FULL_DATASET | FILTERED_FULL_DATASET`; browser report export is current-view; static gate detects ambiguous exporter names and pagination/client-aggregation mixing. Remaining: repository-wide consumer inventory, canonical full/filtered implementations, pagination→export regression.
 
 ## BI ↔ Decision ↔ Analytics ↔ Export
-**OPEN.** Canonical BI/Analytics sources and Decision/Outcome hardening exist, but no runtime evidence proves equivalent records/totals/counts/date/as-of/tenant/NULL semantics across all surfaces.
+**OPEN.** No runtime evidence proves equivalent records/totals/counts/date/as-of/tenant/NULL semantics across all surfaces.
 
 ## Tenant Security sibling sweep
-**REGRESSION-WIRED / EXACT-HEAD CI VERIFIED at c2f4a019...** `test:tenant-sibling-boundaries` scans all SQL migrations for SECURITY DEFINER functions that accept caller-supplied tenant identity without `current_company_id()` or an explicit `TENANT_AUTHORITY: TRUSTED_INTERNAL` boundary. This is static/CI evidence, not A/B runtime isolation proof.
+**REGRESSION-WIRED / historically CI VERIFIED at `c2f4a019...`.** Static gate scans SQL migrations for SECURITY DEFINER functions accepting caller-supplied tenant identity without `current_company_id()` or explicit `TENANT_AUTHORITY: TRUSTED_INTERNAL`. This is not A/B runtime isolation proof.
 
 ## Worker / Reliability
-**IMPLEMENTED / REGRESSION-WIRED / EXACT-HEAD CI VERIFIED at c2f4a019... / LIVE REQUIRED.** Durable runner uses deterministic `jobId:stage:sourceHash` idempotency keys and unsafe post-side-effect failures require manual reconciliation. `check-durable-production-runner.mjs` is a first-class quality gate. Remaining: real crash/restart/stale lease/duplicate worker/DLQ/resume/receipt drills.
+**IMPLEMENTED / REGRESSION-WIRED / historically CI VERIFIED at `c2f4a019...` / LIVE REQUIRED.** Durable runner uses deterministic `jobId:stage:sourceHash` idempotency keys; unsafe post-side-effect failures require manual reconciliation. Remaining: real crash/restart/stale lease/duplicate worker/DLQ/resume/receipt drills.
 
 ## Storage / Realtime / AI / Vector
-**STATIC/CONTRACT WORK ONLY — NO RUNTIME EVIDENCE.** Required: tenant A/B adversarial denial, signed URL isolation, realtime event isolation, vector metadata/retrieval/cache/deletion isolation.
+**STATIC/CONTRACT ONLY — NO RUNTIME EVIDENCE.** Required: tenant A/B denial, signed URL isolation, realtime event isolation, vector metadata/retrieval/cache/deletion isolation.
 
 ## Semantic NULL / UNKNOWN / MISSING / ZERO
 **ACTIVE.** Receivables, Profitability, Outcome, Dashboard secondary and Analytics presentation hardenings exist. Repository-wide implicit conversion sweep remains open.
 
 ## Document Intelligence
-**REGRESSION/GATED FOUNDATION; REAL CORPUS NOT VERIFIED.** Real OCR/PDF/XLSX/CSV execution evidence remains LIVE REQUIRED.
+**REGRESSION/GATED FOUNDATION; REAL CORPUS NOT VERIFIED.** Real OCR/PDF/XLSX/CSV execution remains LIVE REQUIRED.
 
 ## Inventory / Data Truth
 **IMPLEMENTED / REGRESSION-WIRED IN COVERED ROUTES; CROSS-SURFACE OPEN.**
 
 ## Database / Migration Safety
-**ACTIVE.** Receivables replacement uses the exact existing function signature and preserves authenticated execute grants. Full dependency/signature/grant/RLS/security-definer audit remains required; sibling boundary gate extends this sweep.
+**ACTIVE.** Receivables replacement uses the exact existing function signature and preserves authenticated execute grants. Full dependency/signature/grant/RLS/security-definer audit remains required.
 
 ## Runtime / LIVE evidence
-**NO RUNTIME EVIDENCE.** Authenticated browser, tenant A/B DB+Storage+Realtime+AI/vector, worker crash/recovery, native watcher, backup restore/RPO/RTO, real document corpus, production telemetry/load/canary/rollback and crypto matrix remain required.
+**NO RUNTIME EVIDENCE.** Authenticated browser, tenant A/B DB+Storage+Realtime+AI/vector, worker recovery, native watcher, backup restore/RPO/RTO, real document corpus, production telemetry/load/canary/rollback and crypto matrix remain required.
 
 ## Production Certification
 **NOT PRODUCTION CERTIFIED.** Static/CI evidence is insufficient.
 
 ## Historical evidence — retained, not promoted
-- `32910806786` / `25eef521...`: historical quality PASS; not current-head evidence.
-- `32912319688` / `1773cbd...`: historical quality SUCCESS; not current-head evidence.
+- `32910806786` / `25eef521...`: historical quality PASS.
+- `32912319688` / `1773cbd...`: historical quality SUCCESS.
 - `33084224087` / `fedf631...`: historical exact-head SUCCESS.
 - `33085041491` / `89367a9...`: exact-head SUCCESS for F45.
 - `33085371844` / `3561bf3...`: exact-head FAILURE at Dashboard secondary regression.
 - `33085904618` / `e3bb2ea...`: exact-head FAILURE at Dashboard secondary regression.
 - `33086226689` / `c103d249...`: exact-head FAILURE at stale effective-financial regression.
 - `33086322239` / `1fe8eb2...`: exact-head FAILURE at the same stale regression.
-- `33086397054` / `8ab145f...`: historical superseded state.
-- `33087319123` / `4ef95a5...`: SUCCESS, exact-head CI for prior code/index state.
-- `33087625052` / `f7419f3...`: SUCCESS, exact-head CI for prior code/index state.
-- `33089165530` / `b86b33b2...`: SUCCESS, exact-head quality CI for the prior code/index state.
-- `33089346132` / `c2f4a019...`: SUCCESS, exact-head quality CI for the pre-F48 code state.
+- `33087319123` / `4ef95a5...`: SUCCESS for prior code/index state.
+- `33087625052` / `f7419f3...`: SUCCESS for prior code/index state.
+- `33089165530` / `b86b33b2...`: SUCCESS for prior code/index state.
+- `33089346132` / `c2f4a019...`: SUCCESS, exact-head quality CI for pre-F48 state.
 
 ## Active execution matrix
 | Front | State | Next proof |
@@ -100,37 +95,27 @@ Base: `4095e0f0d427652eb705ba3955389ae978d7b5bf`.
 | Profitability | ACTIVE | explicit financial contract + cross-surface equivalence |
 | Export | ACTIVE | full consumer inventory + pagination regression |
 | BI/Decision/Analytics | ACTIVE | invariant regression + runtime equivalence |
-| Tenant siblings | CI VERIFIED / LIVE OPEN | Storage/Realtime/AI/vector + A/B adversarial runtime |
-| Worker reliability | CI VERIFIED / LIVE OPEN | crash/restart/stale lease/duplicate/DLQ/resume drills |
+| Tenant siblings | CI VERIFIED / LIVE OPEN | Storage/Realtime/AI/vector A/B drills |
+| Worker reliability | CI VERIFIED / LIVE OPEN | crash/restart/stale lease/duplicate/DLQ/resume |
 | NULL semantics | ACTIVE | global implicit conversion sweep |
 | Documents | ACTIVE | real corpus execution |
 | Runtime/LIVE | BLOCKED | deployment/authenticated environment |
-| Production certification | BLOCKED | required LIVE/production evidence |
+| Production certification | BLOCKED | LIVE + production evidence |
 
-## Completion percentage — evidence-weighted, not commit-count
-**Current engineering completion estimate: ~71%.**
+## Completion percentage — evidence-weighted
+**Current engineering completion estimate: ~71%.** This is not a certification score. Core implementation/regression/gating is advanced; consumer verification is partial; runtime/live/production evidence is largely absent.
 
-This is an evidence-weighted engineering estimate, not a certification score. Core implementation, regression and CI gating are substantially advanced. Consumer verification is partial, while runtime/live/production evidence is still largely absent. The estimate therefore remains deliberately below 80% despite strong static CI coverage.
-
-Evidence maturity by lifecycle layer:
-- IMPLEMENTED: high coverage across core truth/security/reliability families.
-- REGRESSION-ENFORCED: high coverage, including the new Analytics fail-closed presentation regression.
-- GATED: high coverage through Quality CI for the preceding exact SHA.
-- INTEGRATED: substantial, but sibling consumers remain.
-- CONSUMER-VERIFIED: partial.
-- RUNTIME-EVIDENCED: **NO RUNTIME EVIDENCE**.
-- LIVE-VERIFIED: **NOT VERIFIED**.
-- PRODUCTION-CERTIFIED: **NOT CERTIFIED**.
+Lifecycle truth: IMPLEMENTED **high** · REGRESSION-ENFORCED **high** · GATED **historically high, current tip pending** · INTEGRATED **substantial** · CONSUMER-VERIFIED **partial** · RUNTIME-EVIDENCED **NONE** · LIVE-VERIFIED **NOT VERIFIED** · PRODUCTION-CERTIFIED **NOT CERTIFIED**.
 
 ## Next autonomous wave
-1. Fresh exact-head CI for the current resulting tip; record only that SHA.
-2. Receivables zero-consumer inventory and safe legacy removal proof.
+1. Fresh exact-head quality CI for the resulting index tip; record only that SHA.
+2. Receivables zero-consumer inventory and safe legacy proof.
 3. Cross-surface invariant regression for tenant/date/as-of/status/NULL semantics.
 4. Repository-wide exporter consumer classification and pagination→export regression.
-5. Tenant sibling hardening for Storage/Realtime/AI/vector and background paths.
-6. Worker state-machine recovery analysis and LIVE harness preparation.
+5. Tenant Storage/Realtime/AI/vector sibling hardening.
+6. Worker state-machine recovery analysis and LIVE harness.
 7. Repository-wide NULL/UNKNOWN/MISSING/ZERO semantic sweep.
-8. Convert CI-stable families into concrete runtime drills; do not label LIVE without evidence.
+8. Convert CI-stable families into concrete runtime drills; never label LIVE without evidence.
 
 ## Completion truth
-**NOT PRODUCTION-CERTIFIED.** The latest exact-head CI success proves `c2f4a019...`, not the newer `52d6d9de...`. F48 is regression-wired but awaits exact-head CI. Runtime/live/production evidence remains absent. The ~71% figure is an evidence-weighted engineering estimate, not a certification claim.
+**NOT PRODUCTION-CERTIFIED.** Prior CI success proves `c2f4a019...` only. Current resulting tip is pending fresh exact-head CI. Runtime/live/production evidence remains absent.
