@@ -18,7 +18,7 @@
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
-    "@eslint/js": "^9.9.1",
+    "@eslint/js": "^9.9.0",
     "@types/react": "^18.3.5",
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.3.1",
@@ -136,6 +136,7 @@
     "test:receivables-aging-truth": "node scripts/check-receivables-aging-truth.mjs",
     "test:analytics-truth": "node scripts/check-analytics-truth-contract.mjs",
     "test:export-truth": "node scripts/check-export-truth-contract.mjs",
-    "test:executive-metrics-zero-consumer": "node scripts/check-executive-metrics-zero-consumer.mjs"
+    "test:executive-metrics-zero-consumer": "node scripts/check-executive-metrics-zero-consumer.mjs",
+    "test:tenant-sibling-boundaries": "node scripts/check-tenant-sibling-boundaries.mjs"
   }
 }
