@@ -28,6 +28,8 @@ jobs:
         run: node scripts/check-ci-execution-topology.mjs && node scripts/check-production-recovery-gate.mjs
       - name: Canonical query alias closure
         run: node scripts/check-canonical-query-alias.mjs
+      - name: Alternative-group tenant authority
+        run: npm run test:alternative-group-tenant-authority
       - name: Receivables truth contract
         run: node scripts/check-receivables-truth-contract.mjs
       - name: Cross-surface capability traceability
