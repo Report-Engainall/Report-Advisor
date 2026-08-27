@@ -136,6 +136,54 @@ Certification state: `IMPLEMENTED → CONSUMER MIGRATED → REGRESSION-READY →
 
 Batch state: `PARTIAL`.
 
+## Batch #44 — Inventory Intelligence server/RPC canonicalization
+Finding: the Inventory Intelligence adapter still depended on application-side demand reads through `fetchProductDemandSeries()` instead of a tenant-authoritative database boundary.
+
+Root cause: the previous consumer migration removed direct reads from the page but had not yet moved the underlying demand aggregation to an authoritative RPC.
+
+Fix: added `supabase/migrations/20260827200000_inventory_intelligence_authoritative_snapshot.sql` defining `public.inventory_intelligence_snapshot(date, integer)` with tenant resolution through `current_company_id()`, bounded demand period, explicit invoice statuses, `SECURITY DEFINER`, pinned `search_path`, and explicit grants. The canonical adapter now consumes this RPC.
+
+Consumer migration: `InventoryIntelligencePage.tsx` remains presentation-only and calls `fetchInventoryIntelligenceSource()`.
+
+Regression: `scripts/check-inventory-intelligence-truth.mjs` verifies the page/adapter boundary, RPC usage, tenant authority, security boundary, status semantics and unavailable numeric semantics.
+
+Implementation commits: `b98ce4936036ae1d44ee60dc1bc2a5411eee13c2`, `c0bdbeee16a5df42c030dd39a1db7d93eb6a5255`.
+
+Regression/index commits: `97ead740d8d7b2cbfd4d6e69948360ef4d0e1339`, `9530ead71b1db0aade533800d5d99988e6edd97a`.
+
+Exact-head CI: NOT OBSERVED. No PASS claim.
+
+Certification state: `IMPLEMENTED → SERVER/RPC CANONICAL → REGRESSION-WIRED → EXACT-HEAD CI PENDING → CONSUMER VERIFIED PENDING`.
+
+Batch state: `PARTIAL`.
+
+## Batch #45 — Inventory snapshot truth hardening: NULL preservation, cardinality and bounded analysis
+Finding: the first authoritative snapshot could silently exclude active products without an inventory balance because it used an inner stock join, and multi-group membership could multiply product rows. The analysis period also needed explicit null-safe bounds.
+
+Root cause: server canonicalization had been achieved, but row cardinality and missing-data semantics were not yet fully truth-safe.
+
+Fix: added `supabase/migrations/20260827210000_inventory_intelligence_truth_hardening.sql` which preserves the existing function signature while:
+- changing stock to a `LEFT JOIN` so a product with no stock remains visible as `NULL` rather than disappearing;
+- collapsing group membership to one row per SKU and returning `NULL` when membership is ambiguous rather than multiplying rows;
+- clamping the requested analysis period to `1..3650` days;
+- preserving missing demand as `NULL` instead of zero;
+- retaining tenant derivation exclusively through `public.current_company_id()`;
+- retaining `SECURITY DEFINER`, pinned `search_path`, explicit public revoke and authenticated grant.
+
+Regression update: `scripts/check-inventory-intelligence-truth.mjs` now asserts the hardening migration, bounded period, `LEFT JOIN stock`, ambiguous-group cardinality handling, and explicit NULL demand semantics.
+
+Implementation commit: `b387338aa1b873993a50426403484a62312c4e2f`.
+
+Regression commit: `9d640c3585272b7e7f748beb798b0e778f605ed1`.
+
+Regression execution: NOT EXECUTED locally in this environment. No PASS claim.
+
+Exact-head CI: PENDING for the final index SHA. No CI PASS is claimed.
+
+Certification state: `IMPLEMENTED → REGRESSION-WIRED → EXACT-HEAD CI PENDING → CONSUMER VERIFIED PENDING`.
+
+Batch state: `PARTIAL`.
+
 ## Prior exact-head evidence
 Forecast canonical fix `728b344f57c304ab5e66744db40624d3d4a2c8a3` has a production-chain guard run `33104660444`, job `98631162091`, with SUCCESS on that exact SHA. This is guard evidence only, not full production certification.
 
