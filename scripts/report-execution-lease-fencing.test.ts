@@ -16,6 +16,18 @@ assert.throws(
   'stale heartbeat token must be rejected',
 );
 
+const realNow = Date.now;
+try {
+  Date.now = () => (first.leaseExpiresAt ?? realNow()) + 1;
+  assert.throws(
+    () => queue.heartbeat('run-1', 'worker-a', staleToken),
+    /lease has expired/,
+    'expired lease heartbeat must be rejected even with the correct historical token',
+  );
+} finally {
+  Date.now = realNow;
+}
+
 queue.fail('run-1', 'worker-a', staleToken, 'simulated crash');
 const second = queue.claim('worker-b', 60_000);
 assert.ok(second?.leaseToken, 'retry claim must issue a new fencing token');
