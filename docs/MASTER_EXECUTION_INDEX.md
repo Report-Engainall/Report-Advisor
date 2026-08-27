@@ -8,13 +8,30 @@ Base: `4095e0f0d427652eb705ba3955389ae978d7b5bf`.
 
 ## Exact-head integrity
 - Historical requested inspection SHA: `407e6bb1e506a29ae35f741d5530400a3675b9a9`; it is not current evidence.
-- Current PR #45 code head before this index update: `5b36667a7c9ea635e31ea5250fbf8eae51c14921`.
+- Current PR #45 code head after this wave: `bfd610a7d9837883c9d5ab1fbe32ceb224694f1c`.
 - Base remains `4095e0f0d427652eb705ba3955389ae978d7b5bf`.
-- PR #45 remains `mergeable=false`; this remains repository/PR state, not an application defect without a proven cause.
-- Exact-head CI `33082118547` / Job `98551856720` on `ecaaffbc5487316611ef4d131c3753ff0e8d5115`: **FAIL** at Performance budget. Root cause: `perf:budget` reads `dist/index.html` before the workflow's Build step creates `dist/`. This is a CI topology/order defect, not evidence of an actual measured budget violation.
-- The same run proved the preceding truth/security gates through `Production release blockers`; all those completed successfully on exact SHA `ecaaffbc...`. The later Typecheck/Lint/Build/regression stages were skipped because Performance budget failed first.
-- Fix committed in `5b36667a7c9ea635e31ea5250fbf8eae51c14921`: move Typecheck → Lint → Build before Performance budget, so the performance gate measures the artifact produced by the exact-head Build.
-- Exact-head CI for `5b36667a...` was not yet observable at this index update time. Therefore no PASS is claimed for that SHA.
+- PR #45 remains open; mergeability/review state is repository state, not application certification.
+- Exact-head CI `33083899488` / Job `98558180829` on `c7391a750bf6619470f418ae6e77fca19dfef7a2`: **FAIL** at File security regressions. Root cause: the direct Node regression imported `src/lib/file-engine/security.ts`, which imports the browser/Vite `@/lib/supabase` alias; Node does not resolve that alias. This is a test/module-boundary defect, not evidence that SHA-256 itself is wrong.
+- The same exact run proved the preceding canonical truth, tenant, migration, production-readiness, typecheck, lint, build, performance, business-intelligence, golden-corpus, outcome-feedback, and other gates completed successfully before the file-security failure.
+- Batch fix: introduced pure `src/lib/file-engine/sha256.ts` for the cryptographic primitive, routed `security.ts` through it while preserving the existing public export, and changed `scripts/file-security-regressions.test.ts` to test the pure primitive without importing the application alias graph.
+- Fix commits: `5bdf835b57b11b19f6bcbb1b8ac3a64cfd65db66`, `d53fd0de874d015e1f16a2d827dee9f8202a1f54`, `bfd610a7d9837883c9d5ab1fbe32ceb224694f1c`.
+- Exact-head CI for `bfd610a7...` is not yet observable. Therefore no PASS is claimed for the current SHA.
+
+## F44 — File-security pure-boundary regression
+### FIND
+The file-security regression imported the security module directly from Node. That module legitimately imports application Supabase infrastructure through the Vite alias `@/lib/supabase`, making the pure SHA-256 regression dependent on the browser/module-resolution environment.
+### ROOT CAUSE
+A pure cryptographic primitive and application-side tenant/database security operations were coupled in one test import boundary. Node's native ESM resolver does not understand the project's Vite alias.
+### FIX
+Added `src/lib/file-engine/sha256.ts` containing the fail-closed Web Crypto SHA-256 primitive with no application imports. `src/lib/file-engine/security.ts` now delegates to that canonical primitive and re-exports it for compatibility. The regression imports the pure primitive directly.
+### CONSUMERS
+`security.ts` remains the application consumer of the primitive; existing callers retain the same `computeSHA256` export. The regression is now a pure primitive consumer rather than an accidental consumer of the whole Supabase security module.
+### REGRESSION
+`test:file-security-regressions` continues to assert the exact SHA-256 digest and therefore prevents silent downgrade to a weaker hash. The module-boundary failure itself is removed by testing the dependency at its pure boundary.
+### EXACT-HEAD CI
+`33083899488` / `98558180829` on `c7391a750bf6619470f418ae6e77fca19dfef7a2`: FAIL at File security regressions with `ERR_MODULE_NOT_FOUND` for `@/lib`.
+### STATUS
+**IMPLEMENTED / REGRESSION-UPDATED; EXACT-HEAD CI PENDING on `bfd610a7...`.**
 
 ## F42 — Receivables snapshot empty-page / incomplete-evidence contract
 ### FIND
@@ -27,8 +44,10 @@ Added `20260827150000_receivables_snapshot_empty_page_truth.sql` and `2026082715
 `ReceivablesReportPageCanonical` remains the real route consumer. It consumes server metrics, does not derive Business Truth from page rows, exposes incomplete-data warnings, and has a real retry dependency through `retryNonce`.
 ### REGRESSION
 Added `scripts/check-receivables-empty-page-contract.mjs` and updated `check-receivables-truth-contract.mjs` to validate the current financial-completeness migration.
+### EXACT-HEAD CI
+The exact run `33083899488` on `c7391a750...` passed both Receivables truth gates before the later file-security failure.
 ### STATUS
-**IMPLEMENTED / REGRESSION-WIRED / CONSUMER-VERIFIED STATICALLY; EXACT-HEAD CI PENDING.**
+**IMPLEMENTED / REGRESSION-WIRED / CONSUMER-VERIFIED STATICALLY; current exact-head CI pending.**
 
 ## F35 — Financial semantic fail-closed sibling family
 ### FIND
@@ -39,8 +58,10 @@ Quality state and numeric projection were independent. Partial aggregates surviv
 `supabase/migrations/20260827131500_financial_truth_fail_closed.sql` makes profitability/dashboard/inventory financial values `NULL` when evidence is insufficient while retaining quality counters.
 ### REGRESSION
 `check-profitability-truth-contract.mjs` and `check-effective-financial-truth-fail-closed.mjs` encode the fail-closed invariants and canonical service wiring.
+### EXACT-HEAD CI
+Run `33083899488` on `c7391a750...` passed the profitability and effective-financial truth gates.
 ### STATUS
-**IMPLEMENTED / REGRESSION-WIRED / CI PENDING.**
+**IMPLEMENTED / REGRESSION-WIRED / EXACT-HEAD PREVIOUSLY EXECUTED; current SHA revalidation pending.**
 
 ## F37/F40/F43 — Export Truth family and gate-detector closure
 ### FIND
@@ -54,11 +75,9 @@ Known report consumers call the canonical `downloadReportArtifact` CURRENT_VIEW 
 ### REGRESSION
 The export contract now explicitly separates implementation detection from consumer calls and guards a known non-exporter utility pattern.
 ### EXACT-HEAD CI
-`33080828816` / `98547259270` on `c656c739...` failed at Export truth. `33081609407` / `98550045476` on `296b0469...` failed at the same gate because consumer calls were still matched. `33082118547` / `98551856720` on `ecaaffbc...` passed Export truth, confirming the typed-scope detector fix, then failed later at Performance budget for workflow ordering.
+`33080828816` / `98547259270` on `c656c739...` failed at Export truth. `33081609407` / `98550045476` on `296b0469...` failed at the same gate because consumer calls were still matched. `33082118547` / `98551856720` on `ecaaffbc...` passed Export truth, confirming the typed-scope detector fix, then failed later at Performance budget for workflow ordering. `33083899488` on `c7391a750...` again passed Export truth.
 ### STATUS
-**IMPLEMENTED / REGRESSION-WIRED / CONSUMER-INVENTORIED; EXACT-HEAD CI PENDING.**
-### REMAINING
-Behavioral pagination→export proof for full/filtered dataset exports and cross-surface export equivalence remain open.
+**IMPLEMENTED / REGRESSION-WIRED / CONSUMER-INVENTORIED; behavioral pagination→export proof remains open.**
 
 ## F38 — Receivables consumer retry
 ### FIND
@@ -67,16 +86,20 @@ Canonical Receivables retry previously performed a no-op state update.
 Fetch effect depended only on `page`.
 ### FIX
 `retryNonce` is included in the fetch effect dependencies and incremented by retry.
+### EXACT-HEAD CI
+Run `33083899488` on `c7391a750...` passed the Receivables truth and empty-page gates.
 ### STATUS
-**IMPLEMENTED / REGRESSION-WIRED; exact-head CI pending.**
+**IMPLEMENTED / REGRESSION-WIRED; runtime retry evidence remains required.**
 
 ## F39 — Analytics browser-truth sibling family
 ### FIND
 Analytics contained independent browser-side RFM/ABC/Aging business calculations.
 ### FIX
 Added tenant-authoritative RFM/ABC RPCs, canonical analytics adapter/pages, and Aging delegation to Receivables truth; legacy Analytics page was removed after route migration.
+### EXACT-HEAD CI
+Run `33083899488` on `c7391a750...` passed the Analytics truth contract.
 ### STATUS
-**IMPLEMENTED / REGRESSION-WIRED / CONSUMER-MIGRATED / LEGACY-REMOVED; exact-head execution pending.**
+**IMPLEMENTED / REGRESSION-WIRED / CONSUMER-MIGRATED / LEGACY-REMOVED; exact current SHA revalidation pending.**
 
 ## F41 — Zero-consumer legacy financial intelligence calculator
 ### FIND
@@ -86,10 +109,10 @@ Repository search found no runtime/page/service/RPC consumer of `buildFinancialI
 ### FIX
 Deleted `src/lib/intelligence/financialIntelligence.ts` in commit `697633f0f9281c06c324fe3c4ad5e48560d74ac5`.
 ### STATUS
-**REMOVED / ZERO-CONSUMER-PROVEN; exact-head CI pending.**
+**REMOVED / ZERO-CONSUMER-PROVEN; current exact-head CI revalidation pending.**
 
 ## Receivables
-**IMPLEMENTED + REGRESSION-WIRED + ROUTE-CONSUMER-MIGRATED; EXACT-HEAD CI PENDING.**
+**IMPLEMENTED + REGRESSION-WIRED + ROUTE-CONSUMER-MIGRATED; CURRENT EXACT-HEAD CI PENDING.**
 - Server-side snapshot truth.
 - Session-derived tenant authority.
 - Cancelled/canceled/void exclusion.
@@ -100,7 +123,7 @@ Deleted `src/lib/intelligence/financialIntelligence.ts` in commit `697633f0f9281
 - Remaining: runtime >page-size proof, full export equivalence, cross-surface equivalence.
 
 ## Profitability
-**PARTIAL / FAIL-CLOSED IMPLEMENTATION + REGRESSION-WIRED; EXACT-HEAD CI PENDING.**
+**PARTIAL / FAIL-CLOSED IMPLEMENTATION + REGRESSION-WIRED; CURRENT EXACT-HEAD CI PENDING.**
 - Missing cost/incomplete evidence fails closed to `NULL` business totals.
 - Reports route consumes canonical profitability truth.
 - Remaining: complete discounts/returns/currency/rounding/source-record contract, sibling consumer migration, cross-surface equivalence.
@@ -108,6 +131,7 @@ Deleted `src/lib/intelligence/financialIntelligence.ts` in commit `697633f0f9281
 ## Tenant / Security
 - Browser/server authority is covered in several canonical families.
 - **OPEN:** Storage, Realtime, AI/vector, export/download, worker/cache indirect-path sweep and adversarial A/B runtime proof.
+- File identity now has a pure SHA-256 primitive isolated from the application alias graph; tenant-authoritative duplicate lookup remains in `security.ts`.
 
 ## Worker / Reliability
 - Deterministic stage idempotency and recovery boundaries exist in covered runners.
@@ -132,8 +156,8 @@ Deleted `src/lib/intelligence/financialIntelligence.ts` in commit `697633f0f9281
 **NOT PRODUCTION CERTIFIED.**
 
 ## Next active fronts
-1. Verify the new exact-head CI after the performance-gate ordering fix and repair the next failure at root cause.
-2. Complete repository-wide export consumer inventory and behavioral full/filtered dataset proof.
+1. Verify exact-head CI for `bfd610a7...`; repair the next failure at root cause, never by weakening the gate.
+2. Continue repository-wide export consumer inventory and behavioral full/filtered dataset proof.
 3. Build invariant-level BI ↔ Decision ↔ Analytics ↔ Export equivalence regression.
 4. Continue NULL/UNKNOWN/MISSING/EMPTY/ZERO sibling sweep.
 5. Continue tenant indirect-path sweep across Storage/Realtime/AI/vector/Exports/Workers/Caches.
@@ -141,4 +165,4 @@ Deleted `src/lib/intelligence/financialIntelligence.ts` in commit `697633f0f9281
 7. Prepare authenticated runtime proof for pagination/as-of/tenant/export invariants.
 
 ## Completion truth
-**NOT PRODUCTION-CERTIFIED.** Current wave has real canonicalization and regression hardening, but exact-head CI, runtime/live evidence, cross-surface behavioral equivalence, and production evidence remain outstanding.
+**NOT PRODUCTION-CERTIFIED.** Current wave has real canonicalization and regression hardening, but current exact-head CI, runtime/live evidence, cross-surface behavioral equivalence, and production evidence remain outstanding.
