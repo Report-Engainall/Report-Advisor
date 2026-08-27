@@ -8,14 +8,13 @@ Base: `4095e0f0d427652eb705ba3955389ae978d7b5bf`.
 
 ## Exact-head integrity
 - Historical requested inspection SHA: `407e6bb1e506a29ae35f741d5530400a3675b9a9`; it is not current evidence.
-- Current PR #45 exact head: `625b680e8a42d2655aba665a525591c2df18b7cd`.
+- Current PR #45 code head before this index update: `5b36667a7c9ea635e31ea5250fbf8eae51c14921`.
 - Base remains `4095e0f0d427652eb705ba3955389ae978d7b5bf`.
 - PR #45 remains `mergeable=false`; this remains repository/PR state, not an application defect without a proven cause.
-- Exact-head CI `33080547773` / Job `98546251790` on `1e28db7d7cfa21c2eacabf34f271742a1993d5ad`: **FAIL** at Receivables truth contract; root cause was stale regression target.
-- Exact-head CI `33080687874` / Job `98546753919` on `860cdf263986945bdc2b2e7c90c6d1a6da760ef8`: **FAIL** at Quality workflow contract; root cause was missing mandatory quality stages in the workflow.
-- Exact-head CI `33080828816` / Job `98547259270` on `c656c739cab58a8dcb6c60c9914a234af5276e0f`: **FAIL** at Export truth contract after the workflow gate was restored.
-- Exact-head CI `33081609407` / Job `98550045476` on `296b0469147230c3dbeae6c16141f229e8143d9a`: **FAIL** at Export truth contract; first detector fix still conflated exporter consumers with exporter implementations.
-- Current exact head `625b680e8a42d2655aba665a525591c2df18b7cd`: CI is not yet observable at index update time. Therefore no PASS is claimed.
+- Exact-head CI `33082118547` / Job `98551856720` on `ecaaffbc5487316611ef4d131c3753ff0e8d5115`: **FAIL** at Performance budget. Root cause: `perf:budget` reads `dist/index.html` before the workflow's Build step creates `dist/`. This is a CI topology/order defect, not evidence of an actual measured budget violation.
+- The same run proved the preceding truth/security gates through `Production release blockers`; all those completed successfully on exact SHA `ecaaffbc...`. The later Typecheck/Lint/Build/regression stages were skipped because Performance budget failed first.
+- Fix committed in `5b36667a7c9ea635e31ea5250fbf8eae51c14921`: move Typecheck → Lint → Build before Performance budget, so the performance gate measures the artifact produced by the exact-head Build.
+- Exact-head CI for `5b36667a...` was not yet observable at this index update time. Therefore no PASS is claimed for that SHA.
 
 ## F42 — Receivables snapshot empty-page / incomplete-evidence contract
 ### FIND
@@ -49,13 +48,13 @@ The export gate needed explicit scope declarations, but the initial detector tre
 ### ROOT CAUSE
 The scanner used call-site-shaped regexes for exporter discovery. Consumer invocation, exporter implementation, and materialized browser download were not separated.
 ### FIX
-`296b0469147230c3dbeae6c16141f229e8143d9a` narrowed detection once but still matched consumer calls. `625b680e8a42d2655aba665a525591c2df18b7cd` now requires actual exporter function/arrow declarations for scope enforcement and keeps materialized download detection limited to exporter/download files. `party-intelligence.ts` is retained as a false-positive regression guard.
+`296b0469147230c3dbeae6c16141f229e8143d9a` narrowed detection once but still matched consumer calls. `625b680e8a42d2655aba665a525591c2df18b7cd` now requires actual exporter function/arrow declarations for scope enforcement and keeps materialized download detection limited to exporter/download files. `party-intelligence.ts` is retained as a false-positive regression guard. Later `ecaaffbc...` broadened typed scope declarations without changing consumer classification.
 ### CONSUMERS
 Known report consumers call the canonical `downloadReportArtifact` CURRENT_VIEW exporter. They are consumers, not exporter implementations, and therefore do not need to declare exporter scope themselves.
 ### REGRESSION
 The export contract now explicitly separates implementation detection from consumer calls and guards a known non-exporter utility pattern.
 ### EXACT-HEAD CI
-`33080828816` / `98547259270` on `c656c739...` failed at Export truth. `33081609407` / `98550045476` on `296b0469...` failed at the same gate because consumer calls were still matched. Current head `625b680e...` has a new exact-head CI pending/ not yet observable.
+`33080828816` / `98547259270` on `c656c739...` failed at Export truth. `33081609407` / `98550045476` on `296b0469...` failed at the same gate because consumer calls were still matched. `33082118547` / `98551856720` on `ecaaffbc...` passed Export truth, confirming the typed-scope detector fix, then failed later at Performance budget for workflow ordering.
 ### STATUS
 **IMPLEMENTED / REGRESSION-WIRED / CONSUMER-INVENTORIED; EXACT-HEAD CI PENDING.**
 ### REMAINING
@@ -133,7 +132,7 @@ Deleted `src/lib/intelligence/financialIntelligence.ts` in commit `697633f0f9281
 **NOT PRODUCTION CERTIFIED.**
 
 ## Next active fronts
-1. Observe exact-head CI for `625b680e8a42d2655aba665a525591c2df18b7cd` and repair the next failure at root cause.
+1. Verify the new exact-head CI after the performance-gate ordering fix and repair the next failure at root cause.
 2. Complete repository-wide export consumer inventory and behavioral full/filtered dataset proof.
 3. Build invariant-level BI ↔ Decision ↔ Analytics ↔ Export equivalence regression.
 4. Continue NULL/UNKNOWN/MISSING/EMPTY/ZERO sibling sweep.
