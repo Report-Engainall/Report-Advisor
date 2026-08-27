@@ -3,7 +3,7 @@ on:
   pull_request:
     branches: [main]
   push:
-    branches: [main, 'wave/**']
+    branches: ['wave/**']
   workflow_dispatch:
 permissions: {contents: read}
 concurrency:
