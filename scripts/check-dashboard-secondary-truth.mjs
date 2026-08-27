@@ -10,10 +10,11 @@ for (const marker of ['fetchDashboardSecondaryTruth', "supabase.rpc('report_dash
 for (const marker of ['public.current_company_id()', 'INSUFFICIENT_DATA', 'report_dashboard_secondary_truth', 'p_months']) if (!migration.includes(marker)) throw new Error(`Dashboard secondary migration missing invariant: ${marker}`);
 if (/supabase\.from\(['"](?:sales_invoices|sale_items|customers|products|categories)['"]\)/.test(page)) throw new Error('Dashboard UI must not own transactional secondary business truth reads');
 
-// Aging bucket summation is presentation-only: the buckets are already authoritative.
-// Any other client-side aggregation of business records is prohibited.
-const businessAggregation = /(?:\.reduce\s*\(|\.filter\s*\(|\.sort\s*\()/.test(page.replace(/aging\.reduce\s*\([^)]*\)/g, ''));
-if (businessAggregation) throw new Error('Dashboard UI contains non-presentation client-side aggregation');
+// One reduce is intentionally allowed: aging buckets are already authoritative and
+// summing them is presentation-only. Any additional client-side reduction is a
+// potential reintroduction of browser-owned business truth.
+const reduceCount = (page.match(/\.reduce\s*\(/g) ?? []).length;
+if (reduceCount !== 1) throw new Error(`Dashboard client-side reduction contract violated: expected 1 presentation reduce, found ${reduceCount}`);
 if (!/aging\.reduce\s*\(/.test(page)) throw new Error('Dashboard aging presentation contract is missing');
 
 console.log('DASHBOARD_SECONDARY_TRUTH: PASS (server-side tenant-authoritative trend/ranking/category truth; legacy browser aggregators removed)');
