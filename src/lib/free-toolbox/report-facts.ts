@@ -1,4 +1,4 @@
-import type {EvidenceLedger} from './evidence-ledger';
+import type {EvidenceLedger} from './evidence-ledger.ts';
 export interface ReportFact{key:string;value:unknown;unit?:string;confidence:number;source:'input'|'derived'|'forecast';evidence?:string[]}
 export function fact(key:string,value:unknown,confidence=1,source:ReportFact['source']='derived',unit?:string,evidence?:string[]):ReportFact{return{key,value,confidence,source,unit,evidence};}
 export function assertReportFacts(facts:ReportFact[]){return facts.filter(f=>f.confidence<.7);}
