@@ -12,7 +12,7 @@ concurrency:
 jobs:
   truth-closure:
     runs-on: ubuntu-22.04
-    timeout-minutes: 25
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v7
         with: {fetch-depth: 1, persist-credentials: false}
@@ -35,6 +35,12 @@ jobs:
           fi
       - name: Install
         run: npm ci --no-audit --no-fund
+      - name: Canonical query alias closure
+        run: node scripts/check-canonical-query-alias.mjs
+      - name: Alternative-group tenant authority
+        run: npm run test:alternative-group-tenant-authority
+      - name: Inventory intelligence tenant authority
+        run: node scripts/check-inventory-intelligence-tenant-authority.mjs
       - name: Profitability truth
         run: npm run test:profitability-truth
       - name: Receivables truth
@@ -43,5 +49,13 @@ jobs:
         run: npm run test:financial-aggregation-consumers
       - name: Dashboard truth
         run: npm run test:dashboard-truth
-      - name: Cross-surface traceability
+      - name: Cross-surface truth contract
+        run: node scripts/check-cross-surface-truth-contract.mjs
+      - name: Cross-surface capability traceability
         run: node scripts/check-cross-surface-traceability.mjs
+      - name: Semantic missing-to-zero sweep
+        run: node scripts/check-semantic-truth-conversions.mjs
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Build
+        run: npm run build
