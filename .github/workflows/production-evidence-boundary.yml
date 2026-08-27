@@ -1,6 +1,8 @@
 name: production-evidence-boundary
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
 permissions:
   contents: read
 concurrency:
@@ -26,4 +28,4 @@ jobs:
       - run: node scripts/check-production-evidence-failclosed.mjs
       - run: node scripts/check-master-duplication-budget.mjs
       - run: node scripts/check-production-release-blockers.mjs
-      - run: npm run test:production-certification-contract
+      - run: node scripts/check-production-certification-contract.mjs

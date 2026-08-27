@@ -6,6 +6,7 @@ const workflowDir = path.join(root, '.github/workflows');
 const read = (file) => fs.readFileSync(path.join(root, file), 'utf8');
 
 const quality = read('.github/workflows/quality.yml');
+const productionBoundary = read('.github/workflows/production-evidence-boundary.yml');
 const jkl = read('.github/workflows/j-k-l-runtime-wave.yml');
 const autonomy = read('.github/workflows/autonomy-safety-wave.yml');
 const phaseF = read('.github/workflows/phase-f-live-resilience.yml');
@@ -26,6 +27,12 @@ for (const gate of requiredQualityGates) {
 }
 if (!quality.includes('push: {branches: [main]}')) {
   throw new Error('Quality must remain the canonical main push gate');
+}
+if (!/^  push:\s*\n(?:    .*\n)*?\s{4}branches:\s*\[main\]/m.test(productionBoundary)) {
+  throw new Error('Production evidence boundary must retain an explicit main push trigger');
+}
+if (!productionBoundary.includes('node scripts/check-production-certification-contract.mjs')) {
+  throw new Error('Production evidence boundary must execute the direct certification contract');
 }
 
 for (const [name, text] of [
@@ -57,7 +64,9 @@ function pushTrigger(text) {
 
 const pushWorkflows = [];
 const canonicalMainPushWorkflows = [];
+const scopedPushWorkflows = [];
 const broadPushWorkflows = [];
+const productionBoundaryWorkflows = [];
 
 for (const file of names) {
   const trigger = pushTrigger(read(`.github/workflows/${file}`));
@@ -69,11 +78,14 @@ for (const file of names) {
   const hasBranchRestriction = /branches\s*:|branches-ignore\s*:/.test(config);
   const hasPathRestriction = /paths\s*:|paths-ignore\s*:/.test(config);
   const hasTagRestriction = /tags\s*:|tags-ignore\s*:/.test(config);
-  const isCanonicalMain = targetsMain && !hasPathRestriction && !hasTagRestriction;
+  const isProductionBoundary = file === 'production-evidence-boundary.yml';
+  const isCanonicalMain = targetsMain && !hasPathRestriction && !hasTagRestriction && !isProductionBoundary;
   if (isCanonicalMain) canonicalMainPushWorkflows.push(file);
+  if (isProductionBoundary) productionBoundaryWorkflows.push(file);
 
   // Tag-only release workflows are intentionally scoped even without branch/path filters.
-  if (!hasBranchRestriction && !hasPathRestriction && !hasTagRestriction) broadPushWorkflows.push(file);
+  if (!hasBranchRestriction && !hasPathRestriction && !hasTagRestriction && !isProductionBoundary) broadPushWorkflows.push(file);
+  if (!isCanonicalMain && !isProductionBoundary) scopedPushWorkflows.push(file);
 }
 
 if (canonicalMainPushWorkflows.length !== 1 || canonicalMainPushWorkflows[0] !== 'quality.yml') {
@@ -85,11 +97,16 @@ if (nonCanonicalBroad.length) {
   throw new Error(`Non-canonical broad push workflows are not allowed: ${nonCanonicalBroad.join(', ')}`);
 }
 
+if (productionBoundaryWorkflows.length !== 1) {
+  throw new Error(`Expected exactly one production evidence boundary workflow, found: ${productionBoundaryWorkflows.join(', ') || 'none'}`);
+}
+
 console.log(JSON.stringify({
   contract: 'ci-execution-topology',
   canonicalPushGate: 'quality.yml',
   pushWorkflows,
   canonicalMainPushWorkflows,
-  scopedPushWorkflows: pushWorkflows.filter((file) => !canonicalMainPushWorkflows.includes(file)),
+  productionBoundaryWorkflows,
+  scopedPushWorkflows: pushWorkflows.filter((file) => !canonicalMainPushWorkflows.includes(file) && !productionBoundaryWorkflows.includes(file)),
   manualWaves: ['j-k-l-runtime-wave.yml', 'autonomy-safety-wave.yml', 'phase-f-live-resilience.yml'],
 }));

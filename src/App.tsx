@@ -6,7 +6,8 @@ import { Header } from '@/components/Header';
 import { AuthGate } from '@/components/AuthGate';
 import { CommandPalette } from '@/components/CommandPalette';
 import { DashboardPage } from '@/pages/DashboardPage';
-import { fetchAlerts, markAlertRead } from '@/lib/queries-compat';
+import { markAlertRead } from '@/lib/queries-compat';
+import { fetchDashboardIntelligence } from '@/lib/dashboard-canonical';
 import { getAuthenticatedUser } from '@/lib/auth-session';
 import type { Alert } from '@/lib/types';
 import { AlertTriangle, Home, RefreshCw, X } from 'lucide-react';
@@ -31,7 +32,7 @@ const ScenariosPage = lazy(() => import('@/pages/IntelligencePage').then(m => ({
 const CustomersPage = lazy(() => import('@/pages/EntityPages').then(m => ({ default: m.CustomersPage })));
 const ProductsPage = lazy(() => import('@/pages/EntityPages').then(m => ({ default: m.ProductsPage })));
 const InventoryPage = lazy(() => import('@/pages/EntityPages').then(m => ({ default: m.InventoryPage })));
-const DataQualityPage = lazy(() => import('@/pages/EntityPages').then(m => ({ default: m.DataQualityPage })));
+const DataQualityPage = lazy(() => import('@/pages/DataQualitySnapshotPage').then(m => ({ default: m.DataQualitySnapshotPage })));
 const CompanySettingsPage = lazy(() => import('@/pages/CompanySettingsPage').then(m => ({ default: m.CompanySettingsPage })));
 const ProfileSettingsPage = lazy(() => import('@/pages/ProfileSettingsPage').then(m => ({ default: m.ProfileSettingsPage })));
 const ExecutiveCommandCenterPage = lazy(() => import('@/pages/ExecutiveCommandCenterPage').then(m => ({ default: m.ExecutiveCommandCenterPage })));
@@ -52,7 +53,7 @@ function NotFoundPage() { return <div dir="rtl" className="min-h-[60vh] flex ite
 
 function AppShell() {
   const [alerts, setAlerts] = useState<Alert[]>([]); const [sidebarOpen, setSidebarOpen] = useState(false); const [commandOpen, setCommandOpen] = useState(false); const [user, setUser] = useState<User | null>(null); const location = useLocation();
-  const loadAlerts = useCallback(async () => { try { setAlerts(await fetchAlerts()); } catch (error) { console.error('[AppShell] Failed to load alerts', error); setAlerts([]); } }, []);
+  const loadAlerts = useCallback(async () => { try { const intelligence = await fetchDashboardIntelligence(); setAlerts(intelligence.alerts); } catch (error) { console.error('[AppShell] Failed to load alerts', error); setAlerts([]); } }, []);
   useEffect(() => { void getAuthenticatedUser().then(setUser); void loadAlerts(); }, [loadAlerts]);
   useEffect(() => { setSidebarOpen(false); }, [location.pathname]);
   useEffect(() => { const onKeyDown = (event: KeyboardEvent) => { if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') { event.preventDefault(); setCommandOpen(value => !value); } }; window.addEventListener('keydown', onKeyDown); return () => window.removeEventListener('keydown', onKeyDown); }, []);

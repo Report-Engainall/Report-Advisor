@@ -42,6 +42,22 @@ for(const base of roots) for(const file of walk(path.join(root,base))){
   const hits=forbidden(rel,fs.readFileSync(file,'utf8'));
   if(hits.length) findings.push({file:rel,hits});
 }
+
+const queriesPath = path.join(root,'src/lib/queries.ts');
+if (fs.existsSync(queriesPath)) {
+  const queries = fs.readFileSync(queriesPath,'utf8');
+  const requiredInvoiceContract = [
+    /fetchSalesInvoices[\s\S]*?resolveCurrentCompanyId\(\)/,
+    /fetchPurchaseInvoices[\s\S]*?resolveCurrentCompanyId\(\)/,
+    /from\('sales_invoices'\)[\s\S]*?eq\('company_id',companyId\)/,
+    /from\('purchase_invoices'\)[\s\S]*?eq\('company_id',companyId\)/,
+    /order\('invoice_date',\{ascending:false\}\)\.order\('id',\{ascending:true\}\)\.range\(from,to\)/,
+  ];
+  for (const pattern of requiredInvoiceContract) {
+    if (!pattern.test(queries)) findings.push({file:'src/lib/queries.ts',hits:[`invoice tenant contract missing: ${pattern}`]});
+  }
+}
+
 if(findings.length){
   console.error('Adversarial tenant source-boundary violations detected:');
   for(const f of findings) console.error(`  ${f.file}: ${f.hits.join(', ')}`);
