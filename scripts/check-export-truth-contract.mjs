@@ -27,7 +27,7 @@ const clientAggregation = /\.reduce\s*\(|\b(?:sum|total|count)\s*[:=]/;
 const exporterNames = '(?:export(?:Report|Data|Everything)?|download(?:Report|File|Artifact)?|toCsv|toJSON|toJson|toExcel|toXlsx|reportTo)';
 const exporterFunctionDeclaration = new RegExp(`\\b(?:export\\s+)?(?:async\\s+)?function\\s+${exporterNames}\\b`, 'i');
 const exporterArrowDeclaration = new RegExp(`\\b(?:export\\s+)?(?:const|let|var)\\s+${exporterNames}\\s*=\\s*(?:async\\s*)?\\(`, 'i');
-const scopeDeclaration = /\b(?:EXPORT_SCOPE|[A-Z0-9_]+_EXPORT_SCOPE|REPORT_DOWNLOAD_SCOPE)\b\s*[:=]\s*['"](?:CURRENT_VIEW|FULL_DATASET|FILTERED_FULL_DATASET)['"]/;
+const scopeDeclaration = /\b(?:EXPORT_SCOPE|[A-Z0-9_]+_EXPORT_SCOPE|REPORT_DOWNLOAD_SCOPE)\b\s*(?:[:][^=;\n]+)?\s*=\s*['"](?:CURRENT_VIEW|FULL_DATASET|FILTERED_FULL_DATASET)['"]/;
 const materializesDownload = /\b(?:renderArtifact|Blob|createObjectURL)\b/i;
 
 for (const file of files) {
