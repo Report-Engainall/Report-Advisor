@@ -98,6 +98,26 @@ Analytics contract gate covers tenant authority, cancelled/void exclusion, expli
 ### STATUS
 **IMPLEMENTED / REGRESSION-WIRED / CONSUMER-MIGRATED / LEGACY-REMOVED; REGRESSION NOT EXECUTED ON CURRENT EXACT HEAD; CI PENDING.**
 
+## F41 — Zero-consumer legacy financial intelligence calculator
+
+### FIND
+`src/lib/intelligence/financialIntelligence.ts` remained a parallel local financial calculator after canonical report profitability truth was established.
+
+### ROOT CAUSE
+The legacy module predated the canonical server-backed profitability contract and was retained as cautionary compatibility code even after consumer migration.
+
+### ZERO-CONSUMER PROOF
+Repository search for the exported `buildFinancialIntelligence` symbol and module path found only the defining module; no runtime/page/service/RPC consumer was found. This is static zero-consumer evidence, not runtime evidence.
+
+### FIX
+Deleted `src/lib/intelligence/financialIntelligence.ts` from PR #45 after zero-consumer proof. No business consumer was migrated because none remained.
+
+### REGRESSION
+Existing profitability-truth and report-truth gates remain the canonical guard; the deleted module can no longer reintroduce a second financial calculation path through this file.
+
+### STATUS
+**IMPLEMENTED / ZERO-CONSUMER-PROVEN / REMOVED; EXACT-HEAD CI PENDING.**
+
 ## Important correction — duplicate financial-truth attempt
 A temporary local `financialTruth.ts` implementation was created during execution, then immediately removed after tracing the existing canonical DB truth and `fetchProfitabilityTruth()` adapter. The attempted duplicate was therefore **not retained as a second source of truth**. The existing `report_profitability_truth` SQL contract remains authoritative for report profitability. `financialIntelligence.ts` remains an un-migrated legacy-capable local calculator and is explicitly **PARALLEL WITH CAUTION**, pending zero-consumer proof and/or migration to the canonical service; it is not claimed closed.
 
@@ -155,6 +175,12 @@ A temporary local `financialTruth.ts` implementation was created during executio
 6. Continue tenant indirect-path sweep across Storage/Realtime/AI/vector/Exports/Workers/Caches.
 7. Complete worker state-machine/recovery sibling sweep and LIVE harness.
 8. Prepare authenticated runtime proof for pagination/as-of/tenant and export invariants.
+
+## Exact-head export + legacy-removal batch evidence
+- Export gate hardening head: `c7ff89da218e088e59337a1364035d78bbf33079`.
+- Legacy calculator removal commit: `697633f0f9281c06c324fe3c4ad5e48560d74ac5`.
+- Current index update head will be recorded by this commit.
+- Exact-head workflow evidence must match the final index commit SHA; no older PASS is reused.
 
 ## Exact-head export batch evidence
 - Code change commit: `edd608a07edd79a248cdc36bd1146db22048d00d`.
