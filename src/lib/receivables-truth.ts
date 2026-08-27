@@ -18,6 +18,7 @@ export interface ReceivablesReportSnapshot {
   totalRows: number;
   totalOutstanding: number | null;
   undatedRows: number;
+  incompleteRows: number;
   buckets: Record<'0-30' | '31-60' | '61-90' | '90+', number>;
   status: 'CALCULATED' | 'INSUFFICIENT_DATA';
 }
@@ -44,10 +45,11 @@ export async function fetchReceivablesReportSnapshot(page = 0, pageSize = 25, as
   }>;
   const first = rows[0];
   return {
-    rows: rows.map(({ total_rows: _a, total_outstanding: _b, undated_rows: _c, bucket_0_30: _d, bucket_31_60: _e, bucket_61_90: _f, bucket_90_plus: _g, status: _h, ...row }) => row),
+    rows: rows.map(({ total_rows: _a, total_outstanding: _b, undated_rows: _c, bucket_0_30: _d, bucket_31_60: _e, bucket_61_90: _f, bucket_90_plus: _g, status: _h, incomplete_rows: _i, ...row }) => row),
     totalRows: Number(first?.total_rows ?? 0),
     totalOutstanding: first?.total_outstanding == null ? null : Number(first.total_outstanding),
     undatedRows: Number(first?.undated_rows ?? 0),
+    incompleteRows: Number(first?.incomplete_rows ?? 0),
     buckets: {
       '0-30': Number(first?.bucket_0_30 ?? 0),
       '31-60': Number(first?.bucket_31_60 ?? 0),
