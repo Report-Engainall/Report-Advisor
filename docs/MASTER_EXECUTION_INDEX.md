@@ -229,3 +229,35 @@ New features must import the canonical query/API surface directly. `queries-comp
 6. Runtime/LIVE: execute only in a real environment; no local contract is promoted to LIVE.
 
 Production certification remains **NO**.
+
+
+## Batch 51 — Receivables / profitability truth follow-through
+
+Finding: receivables and profitability surfaces were rechecked after the canonical query-boundary promotion. Receivables already has a server-side snapshot with independent business totals and pagination-separated rows. Profitability consumes the canonical dashboard snapshot; its category margin is presentation-only, derived from canonical sales/profit values.
+
+Root cause status:
+- Receivables: previous pagination/business-total risk is already addressed at the authoritative RPC boundary.
+- Profitability: no second authoritative data source was found in the inspected report path; the remaining client calculation is a presentation ratio, not a replacement for the canonical gross-profit truth.
+- Hardening issue: presentation margin did not explicitly guard non-finite numeric inputs.
+
+Implementation:
+- Hardened profitability margin rendering to emit `—` unless both sales and profit are finite and sales is positive.
+- Did not move a presentation ratio into another RPC unnecessarily; the authoritative sales/profit values remain owned by `get_dashboard_snapshot`.
+
+Consumer evidence:
+- `src/pages/ReceivablesReportPageCanonical.tsx` consumes `fetchReceivablesReportSnapshot`.
+- `src/lib/receivables-truth.ts` delegates to `report_receivables_snapshot`.
+- `src/pages/ReportsPage.tsx` profitability consumes `fetchDashboardSnapshot`.
+- `supabase/migrations/20260826052000_dashboard_canonical_aggregation.sql` owns dashboard sales/cost/profit/margin truth.
+- Receivables RPC explicitly computes business totals independently of display pagination.
+
+Regression:
+- Existing report-data-truth regression covers pagination-derived totals and unknown inventory valuation.
+- Profitability non-finite presentation guard was implemented, but dedicated execution is **NOT EXECUTED** in this environment.
+
+Exact-head:
+- Latest code commit from this batch: `9b2379d21f2fc594806cc34b21ef77a69e939836`.
+- Exact-head CI: **PENDING / NOT OBSERVED**.
+- Therefore this batch is **PARTIAL**, not CLOSED.
+
+Next failure family selected: **Tenant Security / indirect tenant paths**, prioritizing storage, realtime, AI/vector metadata, exports, workers and imports over further UI-only metric polishing.
