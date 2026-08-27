@@ -36,6 +36,8 @@ jobs:
         run: npm run test:financial-aggregation-consumers
       - name: Dashboard truth contract
         run: npm run test:dashboard-truth
+      - name: Receivables aging truth
+        run: npm run test:receivables-aging-truth
       - name: Receivables truth contract
         run: node scripts/check-receivables-truth-contract.mjs
       - name: Cross-surface capability traceability
