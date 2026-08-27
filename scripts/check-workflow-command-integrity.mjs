@@ -19,4 +19,4 @@ if (missing.size) {
   for (const item of missing) console.error(`- ${item}`);
   process.exit(1);
 }
-console.log(`Workflow command integrity PASS (${files.length} workflows)`);
+console.log(`Workflow executable integrity PASS (${files.length} workflows; npm scripts + direct node scripts)`);
