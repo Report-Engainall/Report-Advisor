@@ -7,10 +7,11 @@ Base: `4095e0f0d427652eb705ba3955389ae978d7b5bf`.
 > Evidence states are separate: IMPLEMENTED → REGRESSION-ENFORCED → GATED → INTEGRATED → CONSUMER-VERIFIED → RUNTIME-EVIDENCED → LIVE-VERIFIED → PRODUCTION-CERTIFIED. No promotion without evidence on the exact SHA.
 
 ## Current exact-head state
-- Current code HEAD: `c103d249f6547627a6cc54295d0347923ce35391`.
-- Quality Run `33086226689` / Job `98566482933`: **IN_PROGRESS** on exactly `c103d249...`; no PASS claimed.
-- Previous exact-head failure Run `33085904618` / Job `98565327269` on `e3bb2ea...`: **FAIL** at Dashboard secondary truth. The failure was a regression assertion defect, not accepted as flaky.
-- Earlier failure Run `33085371844` / Job `98563464419` on `3561bf3...`: **FAIL** at the same gate; root cause was a formatting-sensitive test assertion. Both failures remain historical evidence.
+- Current code HEAD: `8ab145fcce48aa24e589a72dbbf59bc6b1dd0ee1`.
+- Quality Run `33086397054` / Job `98567084473`: **IN_PROGRESS** on exactly `8ab145f...`; no PASS claimed.
+- Previous Run `33086322239` / Job on `1fe8eb2...`: **FAIL** because `check-effective-financial-truth-fail-closed.mjs` still expected the four legacy Dashboard sibling consumers after their migration. This was a stale regression gate, not a product defect.
+- Previous Run `33086226689` / Job `98566482933` on `c103d249...`: **FAIL** at the same stale gate; all gates before it passed.
+- Earlier Dashboard secondary regression failures `33085904618` / `e3bb2ea...` and `33085371844` / `3561bf3...` remain historical evidence; they exposed test-contract defects and were not accepted as flaky.
 
 ## F46 — Dashboard secondary truth
 ### FIND
@@ -21,9 +22,10 @@ Primary KPI truth was canonicalized while secondary business-truth consumers rem
 `report_dashboard_secondary_truth(integer)` + `src/lib/dashboard-secondary-truth.ts` now own trend/top-customer/top-product/category truth with tenant authority from `current_company_id()`.
 `DashboardPage` consumes the adapter; legacy secondary functions are no longer imported by the page.
 ### SEMANTIC HARDENING
-A follow-up finding showed that the RPC itself could still expose partial numeric rankings/categories while its overall status was `INSUFFICIENT_DATA`. Migration `20260827161000_dashboard_secondary_truth_fail_closed.sql` now nulls financial ranking/category/trend values whenever incomplete transactional evidence exists. This is a source-level fail-closed fix, not merely UI suppression.
+A follow-up finding showed that the RPC itself could still expose partial numeric rankings/categories while its overall status was `INSUFFICIENT_DATA`. Migration `20260827161000_dashboard_secondary_truth_fail_closed.sql` now nulls financial ranking/category/trend values whenever incomplete transactional evidence exists.
 ### REGRESSION
 `scripts/check-dashboard-secondary-truth.mjs` verifies canonical adapter/RPC/tenant markers, legacy consumer absence, direct transactional-read absence, fail-closed refinement, and exactly one presentation-only aging reduction.
+`scripts/check-effective-financial-truth-fail-closed.mjs` was corrected to require absence of the four migrated legacy sibling consumers rather than their presence.
 ### STATUS
 **IMPLEMENTED / REAL CONSUMER MIGRATED / REGRESSION-ENFORCED / CURRENT EXACT-HEAD CI PENDING.** Legacy function zero-consumer/removal and runtime proof remain open.
 
@@ -103,16 +105,17 @@ Required: authenticated browser with real data; tenant A/B DB+Storage+Realtime+A
 ## Historical evidence — retained, not promoted
 - `32910806786` / `25eef521...`: historical quality PASS; not current-head evidence.
 - `32912319688` / `1773cbd...`: historical quality SUCCESS; not current-head evidence.
-- `33084224087` / `fedf631...`: exact-head SUCCESS before the F45/F46 continuation.
-- `33085041491` / `89367a9...`: exact-head SUCCESS for F45 zero-consumer closure.
+- `33084224087` / `fedf631...`: historical exact-head SUCCESS.
+- `33085041491` / `89367a9...`: exact-head SUCCESS for F45.
 - `33085371844` / `3561bf3...`: exact-head FAILURE at Dashboard secondary regression.
 - `33085904618` / `e3bb2ea...`: exact-head FAILURE at Dashboard secondary regression.
-- `33086099257` / `e3bb2ea...`: quality IN_PROGRESS after regression correction; superseded by current head before certification.
+- `33086226689` / `c103d249...`: exact-head FAILURE at stale effective-financial regression.
+- `33086322239` / `1fe8eb2...`: exact-head FAILURE at the same stale regression.
 
 ## Active execution matrix
 | Front | State | Blocker / next proof |
 |---|---|---|
-| Exact-head CI | ACTIVE | Run `33086226689` on `c103d249...` |
+| Exact-head CI | ACTIVE | Run `33086397054` on `8ab145f...` |
 | Dashboard secondary | ACTIVE | exact-head CI → zero-consumer legacy removal |
 | Receivables | ACTIVE | legacy zero-consumer + runtime page-boundary proof |
 | Profitability | ACTIVE | financial contract + cross-surface equivalence |
@@ -126,7 +129,7 @@ Required: authenticated browser with real data; tenant A/B DB+Storage+Realtime+A
 | Production certification | BLOCKED | all required LIVE/production evidence |
 
 ## Next autonomous wave
-1. Consume exact-head CI result for `c103d249...`; if failure, extract exact error → root cause → fix → regression → new exact SHA.
+1. Consume Run `33086397054` exact-head result; if failure, extract exact error → root cause → fix → regression → new exact SHA.
 2. Continue legacy secondary query zero-consumer inventory; remove only after proof.
 3. Build invariant-level cross-surface regression for identical tenant/date/as-of/status/NULL semantics.
 4. Complete exporter consumer classification and pagination truncation regression.
