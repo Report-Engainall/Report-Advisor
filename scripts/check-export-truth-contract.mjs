@@ -22,7 +22,7 @@ const forbiddenNames = /\b(?:exportAll|exportAllData|exportEverything)\b/;
 const pagination = /\b(?:pageSize|pageIndex|currentPage|offset|limit)\b/;
 const clientAggregation = /\.reduce\s*\(|\b(?:sum|total|count)\s*[:=]/;
 const exportOperation = /\b(?:export|download|toCsv|toJSON|toJson|toExcel|toXlsx|reportTo)\b/i;
-const scopeDeclaration = /\b(?:EXPORT_SCOPE|[A-Z0-9_]+_EXPORT_SCOPE)\b\s*[:=]\s*['"](?:CURRENT_VIEW|FULL_DATASET|FILTERED_FULL_DATASET)['"]/;
+const scopeDeclaration = /\b(?:EXPORT_SCOPE|[A-Z0-9_]+_EXPORT_SCOPE|REPORT_DOWNLOAD_SCOPE)\b\s*[:=]\s*['"](?:CURRENT_VIEW|FULL_DATASET|FILTERED_FULL_DATASET)['"]/;
 
 for (const file of files) {
   const text = fs.readFileSync(file, 'utf8');
@@ -35,7 +35,8 @@ for (const file of files) {
   }
 
   const declaresExporter = /\bexport\s+(?:async\s+)?function\s+(?:export|download|toCsv|toJSON|toJson|toExcel|toXlsx|reportTo)/i.test(text);
-  if (declaresExporter && !scopeDeclaration.test(text)) {
+  const materializesDownload = /\b(?:download|renderArtifact|Blob|createObjectURL)\b/i.test(text);
+  if ((declaresExporter || materializesDownload) && !scopeDeclaration.test(text)) {
     findings.push(`${rel}: exporter function has no explicit CURRENT_VIEW/FULL_DATASET/FILTERED_FULL_DATASET scope declaration`);
   }
 }
@@ -53,6 +54,14 @@ const reportExporter = path.join(src, 'lib/free-toolbox/report-export.ts');
 if (fs.existsSync(reportExporter)) {
   const text = fs.readFileSync(reportExporter, 'utf8');
   if (!text.includes("REPORT_EXPORT_SCOPE: ExportScope = 'CURRENT_VIEW'")) findings.push('report-export.ts is not explicitly classified as CURRENT_VIEW');
+}
+
+const browserReportDownloader = path.join(src, 'lib/report-execution/download.ts');
+if (fs.existsSync(browserReportDownloader)) {
+  const text = fs.readFileSync(browserReportDownloader, 'utf8');
+  if (!text.includes("REPORT_DOWNLOAD_SCOPE: ExportScope = 'CURRENT_VIEW'")) {
+    findings.push('report-execution/download.ts must explicitly classify its materialized-row browser export as CURRENT_VIEW');
+  }
 }
 
 if (findings.length) {
