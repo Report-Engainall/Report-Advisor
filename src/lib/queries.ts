@@ -25,13 +25,16 @@ export async function fetchImportRecords(): Promise<ImportRecord[]> { const comp
 export async function markAlertRead(id: string): Promise<void> { const companyId = await resolveCurrentCompanyId(); if (!companyId) throw new Error('TENANT_REQUIRED'); const { error } = await supabase.from('alerts').update({ is_read: true }).eq('id', id).eq('company_id', companyId); if (error) throw error; }
 export async function updateRecommendationStatus(id: string, status: string): Promise<void> { const companyId = await resolveCurrentCompanyId(); if (!companyId) throw new Error('TENANT_REQUIRED'); const { error } = await supabase.from('recommendations').update({ status }).eq('id', id).eq('company_id', companyId); if (error) throw error; }
 
+const MAX_FORECAST_ROWS = 500;
 export async function fetchForecasts(): Promise<Forecast[]> {
-  const { data, error } = await supabase.rpc('get_forecast_snapshot', { p_limit: 500 });
+  const { data, error } = await supabase.rpc('get_forecast_snapshot', { p_limit: MAX_FORECAST_ROWS });
   if (error) throw error;
   if (!data || typeof data !== 'object') throw new Error('REPORT_DATA_UNAVAILABLE: forecast snapshot missing');
   const payload = data as Record<string, unknown>;
   if (!Array.isArray(payload.rows)) throw new Error('REPORT_DATA_UNAVAILABLE: forecast rows missing');
-  return payload.rows as Forecast[];
+  const rows = payload.rows as Forecast[];
+  if (rows.length > MAX_FORECAST_ROWS) throw new Error('REPORT_QUERY_LIMIT_EXCEEDED: forecasts require explicit pagination');
+  return rows;
 }
 
 const MAX_ENTITY_ROWS = 500;
