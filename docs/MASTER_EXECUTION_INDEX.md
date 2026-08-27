@@ -8,9 +8,10 @@ Base: `4095e0f0d427652eb705ba3955389ae978d7b5bf`.
 
 ## Exact-head integrity
 - Requested inspection SHA: `407e6bb1e506a29ae35f741d5530400a3675b9a9` — historical exact-head quality failure; never reused as current PASS evidence.
-- Current active code HEAD: `7a9b4dfd3e455bd91a33185f65a8994e1f07cde7`.
-- Exact-head quality run: **33075341520**, head SHA exactly `7a9b4dfd…`, currently **QUEUED/IN PROGRESS** at time of this index update. No PASS claimed.
-- The previous run `33075149748` tested `dd6bebabc87c55bb45ed559aba17313fe199ee44` and exposed real failures; it is historical evidence only.
+- Previous active code HEAD: `7a9b4dfd3e455bd91a33185f65a8994e1f07cde7`.
+- New execution HEAD: `5201386c3e0f4372b04e9132edcf4aef05311f62`.
+- The prior exact-head quality run `33075341520` was associated with `7a9b4dfd…`; it is historical and cannot certify the new HEAD.
+- **No PASS is claimed for `5201386c…` until an exact-head CI run is observed for that SHA.**
 
 ## F35 — Financial semantic fail-closed sibling family
 ### FIND
@@ -18,28 +19,36 @@ Server-side report contracts could report `INSUFFICIENT_DATA` while still projec
 ### ROOT CAUSE
 Quality state and numeric projection were independent. Partial aggregates survived even when evidence was insufficient.
 ### FIX
-`supabase/migrations/20260827131500_financial_truth_fail_closed.sql` now makes profitability/dashboard/inventory financial values `NULL` when evidence is insufficient, while retaining explicit quality counters.
+`supabase/migrations/20260827131500_financial_truth_fail_closed.sql` makes profitability/dashboard/inventory financial values `NULL` when evidence is insufficient, while retaining explicit quality counters.
 ### REGRESSION
-`check-profitability-truth-contract.mjs` now requires fail-closed projection markers and canonical service wiring.
+`check-profitability-truth-contract.mjs` requires fail-closed projection markers and canonical service wiring.
 ### STATUS
-**IMPLEMENTED / REGRESSION-ENFORCED / CI PENDING.**
+**IMPLEMENTED / REGRESSION-ENFORCED / CI PENDING for current HEAD.**
 
 ## F36 — CI consumer-gate false assumption + ReportsPage syntax regression
 ### FIND
-Exact-head run `33075149748` failed before downstream gates because `check-financial-aggregation-consumers.mjs` incorrectly required `fetchReceivablesReportSnapshot` inside `ReportsPage.tsx`, although the actual route uses the canonical `ReceivablesReportPageCanonical` component. The same run exposed a real syntax error in `ReportsPage.tsx` caused by escaped template-literal delimiters, producing both ESLint parse failure and Vite build failure. Performance budget then failed secondarily because `dist/index.html` did not exist after the build failure.
+Historical exact-head CI exposed a file-local consumer assumption and a real ReportsPage template-literal syntax failure.
 ### ROOT CAUSE
-Two independent topology/consumer regressions were introduced together:
-1. The regression gate encoded a file-level assumption instead of tracing the actual route consumer graph.
-2. The ReportsPage rewrite contained literal escaped backticks (`\\``) rather than valid TypeScript template literals.
-3. The performance gate correctly depended on build output; its ENOENT was downstream, not a performance root cause.
+The regression gate checked the wrong file boundary; the page rewrite contained escaped template-literal delimiters. Performance failure was downstream of the build failure.
 ### FIX
-- Rewrote `ReportsPage.tsx` with valid TypeScript and preserved canonical profitability, inventory and receivables route boundaries.
-- Repaired `check-financial-aggregation-consumers.mjs` to verify the actual `App.tsx` route → `ReceivablesReportPageCanonical` consumer and profitability canonical service, instead of demanding a nonexistent function in the page file.
-- Kept the performance failure classified as a downstream consequence of the build failure, not a false performance finding.
+ReportsPage was corrected and the consumer gate now follows the actual App route → `ReceivablesReportPageCanonical` topology.
 ### REGRESSION
-The consumer gate now validates route topology and canonical truth boundaries rather than one file-local symbol.
+Consumer validation is route/topology based rather than file-local symbol based.
 ### STATUS
-**FIXED IN CODE; EXACT-HEAD CI PENDING.**
+**FIXED IN CODE; exact-head certification pending.**
+
+## F37 — Export Truth regression gate
+### FIND
+Export capability lacked a dedicated repository-wide regression gate proving that ambiguous `exportAll` APIs and pagination-dependent client aggregation do not silently become truth exports.
+### ROOT CAUSE
+Existing export manifest and export utilities described report output, but there was no dedicated pattern-level gate scanning the complete source tree for ambiguous export naming and pagination/client-aggregation coupling.
+### FIX
+Added `scripts/check-export-truth-contract.mjs` and wired it into `package.json` as `test:export-truth`.
+The gate scans source files for ambiguous `exportAll`-style names, export-related pagination/client aggregation coupling, and verifies the existing export manifest contract.
+### REGRESSION
+`test:export-truth` is now an executable gate. It distinguishes the required contract conceptually between current-view, full-dataset, and filtered-full-dataset exports; any ambiguous export API or suspicious pagination/export coupling fails the gate.
+### STATUS
+**IMPLEMENTED / REGRESSION-WIRED; exact-head execution pending.**
 
 ## Receivables
 **IMPLEMENTED + REGRESSION-ENFORCED + ROUTE-CONSUMER-MIGRATED; EXACT-HEAD CI PENDING.**
@@ -74,7 +83,7 @@ The consumer gate now validates route topology and canonical truth boundaries ra
 **OPEN.** Canonical sources exist for major dashboard/inventory/receivables/profitability surfaces, but no proof yet that `BI = Decision = Analytics = Export` under identical tenant/date/status/NULL/currency/source-record semantics.
 
 ## Export Truth
-**PARTIAL.** Current-page exports are explicitly named/scoped. Full and filtered-full exports still require complete consumer-family scan and pagination→export regression proof.
+**PARTIAL.** A dedicated pattern-level regression gate is now implemented. Full consumer-family migration and real pagination→export equivalence proof remain open.
 
 ## Semantic NULL / UNKNOWN sweep
 **ACTIVE.** Confirmed/fixed families include missing cost→zero, missing receivable fields→row loss, incomplete financial evidence→partial numeric projection, and missing outcome evidence→zero. Repository-wide sibling scan remains open.
@@ -92,14 +101,14 @@ The consumer gate now validates route topology and canonical truth boundaries ra
 Only CI whose `head_sha` exactly equals the current Code HEAD can promote a capability to `CI-GATED`. Historical PASSes remain historical.
 
 ## Next active fronts
-1. Observe exact-head run `33075341520` for `7a9b4dfd…`.
-2. If it fails, extract first independent root cause and fix before rerun.
-3. Complete full Export Truth consumer-family scan.
-4. Complete BI ↔ Decision ↔ Analytics ↔ Export equivalence contracts.
+1. Trigger/observe exact-head CI for `5201386c…` and record only matching-SHA evidence.
+2. If CI fails, extract the first independent root cause and fix it before rerun.
+3. Expand Export Truth from pattern gate to complete consumer-family inventory and pagination regression.
+4. Build BI ↔ Decision ↔ Analytics ↔ Export equivalence contract.
 5. Continue repository-wide NULL/UNKNOWN/MISSING/EMPTY/ZERO sibling sweep.
-6. Continue tenant-sensitive RPC sibling sweep and adversarial path contracts.
+6. Continue tenant-sensitive RPC and indirect-path sweep.
 7. Complete worker failure-state/recovery sibling sweep and LIVE harness.
 8. Storage/Realtime/AI/vector isolation contracts and LIVE harnesses.
 
 ## Completion truth
-**NOT PRODUCTION-CERTIFIED.** Current wave contains real root-cause fixes and regressions. Exact-head CI is still pending, and runtime/live/production evidence remains outstanding.
+**NOT PRODUCTION-CERTIFIED.** Current wave contains real code changes and regression wiring. Current HEAD has not yet earned exact-head CI evidence, and runtime/live/production evidence remains outstanding.
