@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { recordOutcome, summarizeOutcomes } from '../src/lib/analytics/outcome-feedback.ts';
+import { recordOutcome, summarizeOutcomes } from '../src/lib/analytics/outcome-feedback-contract.ts';
 
 const base = {
   tenantId: 'tenant-a',
@@ -33,4 +33,12 @@ assert.equal(unknownOnly.accuracy, null);
 assert.equal(unknownOnly.coverage, 0);
 assert.equal(unknownOnly.impact, null);
 
-console.log('PASS: outcome identity matches persistence, known labels require values, tenant scope is explicit, and missing impact/accuracy remain unknown rather than zero.');
+// Cross-tenant records cannot affect another tenant's outcome summary.
+assert.deepEqual(summarizeOutcomes([{ ...base, tenantId: 'tenant-b', impactValue: 500 }], 'tenant-a'), {
+  count: 0,
+  accuracy: null,
+  coverage: null,
+  impact: null,
+});
+
+console.log('PASS: outcome identity is canonical, known labels require evidence values, tenant scope is explicit, and missing impact/accuracy remain unknown rather than zero.');
