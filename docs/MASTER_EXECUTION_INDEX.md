@@ -184,8 +184,34 @@ Certification state: `IMPLEMENTED → REGRESSION-WIRED → EXACT-HEAD CI PENDING
 
 Batch state: `PARTIAL`.
 
-## Prior exact-head evidence
-Forecast canonical fix `728b344f57c304ab5e66744db40624d3d4a2c8a3` has a production-chain guard run `33104660444`, job `98631162091`, with SUCCESS on that exact SHA. This is guard evidence only, not full production certification.
+## Batch #46 — Decision priority financial-exposure truth
+Finding: `scoreDecision()` treated missing `financialExposure` as the literal business value `50`, allowing unavailable financial evidence to affect a decision as if it were known.
+
+Classification: `P1 DECISION TRUTH / FABRICATED DEFAULT`
+
+Root cause: the decision scoring contract modeled `financialExposure` as optional but converted absence to a valid numeric score before calculation.
+
+Canonical fix: `PriorityInput.financialExposure` now explicitly permits `null`. `scoreDecision()` includes financial exposure only when it is finite and known, and normalizes the weighted score over the known components rather than substituting a fabricated value.
+
+Implementation commit: `2becfb55cbe62f05721e2e541b23d2ab394968bc`.
+
+Regression: added `scripts/check-decision-priority-truth.mjs`, asserting explicit nullable exposure, prohibition of `??50`, finite-value validation, and known-component normalization.
+
+Regression commit: `4368f53f3311394e46edf9ad9710aef485d478fc`.
+
+CI wiring: `.github/workflows/quality.yml` now runs the decision-priority truth regression before typecheck/lint/build.
+
+CI wiring commit: `42a22a39ffabfdb2628274212c37a32f6ed20779`.
+
+Consumer inventory: current repository search identifies `inventory-command-center.ts` as the real `scoreDecision()` consumer. No additional call-site has been evidenced by the current search result. Zero-consumer legacy removal is therefore **not** claimed.
+
+Regression execution: NOT EXECUTED locally in this environment. No PASS claim.
+
+Exact-head CI: PENDING for `42a22a39ffabfdb2628274212c37a32f6ed20779`. No PASS claim.
+
+Certification state: `IMPLEMENTED → REGRESSION-WIRED → EXACT-HEAD CI PENDING → CONSUMER VERIFIED PENDING`.
+
+Batch state: `PARTIAL`.
 
 ## Parallel remaining fronts
 ### Front A — Canonical Data Truth
@@ -237,7 +263,7 @@ Forecast canonical fix `728b344f57c304ab5e66744db40624d3d4a2c8a3` has a producti
 Supabase A/B tenant isolation; Storage; Realtime; AI/vector; authenticated browser E2E; real OCR/document corpus; worker crash/recovery/DLQ; native watcher; backup restore/RPO/RTO; production telemetry; load/canary/rollback; production scale/query-plan evidence.
 
 ## Next execution
-Continue independent fronts without waiting for CI. Highest immediate P1 is server/RPC canonicalization for Inventory Intelligence and exact-head regression/CI for the report and analytics consumer migrations, then remaining browser duplicate calculations and cross-surface BI/Decision/Export equivalence. Exact-head CI remains a certification barrier, not a reason to stop independent work.
+Continue independent fronts without waiting for CI. Highest immediate P1 is exact-head regression/CI for the report, analytics, inventory-intelligence and decision-truth migrations, plus remaining browser duplicate calculations and cross-surface BI/Decision/Export equivalence. In parallel, continue tenant/security and reliability inventory. Exact-head CI remains a certification barrier, not a reason to stop independent work.
 
 PRODUCTION CERTIFIED = NO until real LIVE evidence exists.
 
