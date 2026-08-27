@@ -21,23 +21,38 @@ const findings = [];
 const forbiddenNames = /\b(?:exportAll|exportAllData|exportEverything)\b/;
 const pagination = /\b(?:pageSize|pageIndex|currentPage|offset|limit)\b/;
 const clientAggregation = /\.reduce\s*\(|\b(?:sum|total|count)\s*[:=]/;
-const exportOperation = /\b(?:export|download|toCsv|toJSON|toJson|toExcel|toXlsx|reportTo)\b/i;
+
+// Match actual exporter APIs/usages, not the JavaScript/TypeScript `export` keyword.
+// This prevents ordinary exported business functions with a `limit` parameter and
+// a reduce() from being misclassified as exporters.
+const exportOperation = /\b(?:export(?:Report|Data|Everything)?|download(?:Report|File|Artifact)?|toCsv|toJSON|toJson|toExcel|toXlsx|reportTo)\s*(?:\(|=)/i;
+const exporterFunctionDeclaration = /\bexport\s+(?:async\s+)?function\s+(?:export(?:Report|Data|Everything)?|download(?:Report|File|Artifact)?|toCsv|toJSON|toJson|toExcel|toXlsx|reportTo)\b/i;
 const scopeDeclaration = /\b(?:EXPORT_SCOPE|[A-Z0-9_]+_EXPORT_SCOPE|REPORT_DOWNLOAD_SCOPE)\b\s*[:=]\s*['"](?:CURRENT_VIEW|FULL_DATASET|FILTERED_FULL_DATASET)['"]/;
 
 for (const file of files) {
   const text = fs.readFileSync(file, 'utf8');
   const rel = path.relative(root, file).replaceAll(path.sep, '/');
-  if (!exportOperation.test(text + rel)) continue;
+  if (!exportOperation.test(text) && !exporterFunctionDeclaration.test(text)) continue;
 
   if (forbiddenNames.test(text)) findings.push(`${rel}: ambiguous exportAll-style API name`);
   if (pagination.test(text) && clientAggregation.test(text) && exportOperation.test(text)) {
     findings.push(`${rel}: export code mixes pagination signals with client aggregation; classify as view export or route through canonical truth`);
   }
 
-  const declaresExporter = /\bexport\s+(?:async\s+)?function\s+(?:export|download|toCsv|toJSON|toJson|toExcel|toXlsx|reportTo)/i.test(text);
+  const declaresExporter = exporterFunctionDeclaration.test(text);
   const materializesDownload = /\b(?:download|renderArtifact|Blob|createObjectURL)\b/i.test(text);
   if ((declaresExporter || materializesDownload) && !scopeDeclaration.test(text)) {
     findings.push(`${rel}: exporter function has no explicit CURRENT_VIEW/FULL_DATASET/FILTERED_FULL_DATASET scope declaration`);
+  }
+}
+
+// Regression guard: a normal exported business utility must not become an exporter
+// merely because it has pagination-like vocabulary and client-side aggregation.
+const knownNonExporter = path.join(src, 'lib/free-toolbox/party-intelligence.ts');
+if (fs.existsSync(knownNonExporter)) {
+  const text = fs.readFileSync(knownNonExporter, 'utf8');
+  if (exportOperation.test(text) || exporterFunctionDeclaration.test(text)) {
+    findings.push('export detector regression: party-intelligence.ts is being classified as an exporter without an exporter API');
   }
 }
 
