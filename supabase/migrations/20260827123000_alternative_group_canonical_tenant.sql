@@ -71,6 +71,9 @@ BEGIN
 END;
 $$;
 
+REVOKE ALL ON FUNCTION public.create_alternative_item_group(text,text,text) FROM PUBLIC;
+REVOKE ALL ON FUNCTION public.add_alternative_item_group_member(uuid,text,numeric) FROM PUBLIC;
+REVOKE ALL ON FUNCTION public.remove_alternative_item_group_member(uuid) FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION public.create_alternative_item_group(text,text,text) TO authenticated;
 GRANT EXECUTE ON FUNCTION public.add_alternative_item_group_member(uuid,text,numeric) TO authenticated;
 GRANT EXECUTE ON FUNCTION public.remove_alternative_item_group_member(uuid) TO authenticated;
