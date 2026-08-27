@@ -1,10 +1,10 @@
 # Report Advisor — Master Execution & Truth Index
 
-Snapshot: 2026-08-26  
-Repository: `Report-Engainall/Report-Advisor`  
-Branch: `data-quality-authoritative-snapshot`  
-Base: `b4897b8d456d10736642745b097de2aea89b27c5`  
-PR: `#43`
+Snapshot: 2026-08-27
+Repository: `Report-Engainall/Report-Advisor`
+Branch: `wave/reliability-lease-fencing`
+Base: `c7b21db4d68e396fa6ceefe3f6fdc15b1a8b8d4c`
+PR: `#61`
 
 ## Permanent execution policy
 `PARALLEL DISCOVERY → FAILURE-FAMILY INVENTORY → ROOT-CAUSE CLUSTERING → BATCH IMPLEMENTATION → CONSUMER/LEGACY CLOSURE → BATCH REGRESSION → EXACT-HEAD CI → VERIFY → INDEX → NEXT PARALLEL FRONTS`
@@ -12,35 +12,32 @@ PR: `#43`
 No historical PASS promotion. No scanner-only closure. No runtime/LIVE/production claims without matching evidence.
 
 ## Exact state
-- Current code/test HEAD before this Index update: `6b6be57b4542c663025ce14da53fd31a0cc59771`.
-- PR merge ref remains separate from application HEAD.
-- Prior observed quality run `32926144627` on `69f0c6c...` failed at `Data Quality projection contract`; its log endpoint was unavailable, so no fabricated error was recorded.
-- The identified regression-guard defect was corrected in `2d6b9f...` and carried forward.
-- Exact-head CI for the current batch is **NOT OBSERVABLE**: GitHub currently reports `pending` with zero statuses/check runs for the current SHA. No PASS claimed.
+- Current reliability batch HEAD before this Index update: `84aebe3369c4fc2baf72ed427e699c5d0cc617f5`.
+- PR #61 is open/draft and not merged.
+- Exact-head CI is **NOT OBSERVABLE until a workflow run/check for the exact batch HEAD is returned**. No PASS claimed.
 
-## Batch — invoice page-read tenant/security closure
-Finding: `fetchSalesInvoices()` and `fetchPurchaseInvoices()` were bounded paginated display reads but did not explicitly bind their query predicates to the authoritative tenant context, unlike sibling reads.
+## Batch — report execution lease fencing
+Finding: report queue lifecycle transitions were authorized by `workerId` and lease expiry, but the real worker adapter did not carry a unique lease identity. A stale worker retaining the same worker identity could therefore pass ownership checks after a retry/reclaim if the lifecycle boundary were reached through the old contract.
 
-Classification: `SECURITY/TENANT ISSUE + PERFORMANCE/DETERMINISM`
+Classification: `P1 RELIABILITY / CONCURRENCY / STALE-WORKER SAFETY`
 
-Root cause: invoice list reads relied on downstream RLS alone while the shared query boundary lacked an explicit fail-closed tenant context and deterministic tie-break ordering.
+Root cause: lease ownership was represented as mutable owner identity plus expiry, without a per-claim fencing token propagated to every mutating lifecycle operation.
 
 Fix:
-- `src/lib/queries.ts` now requires `resolveCurrentCompanyId()` before either invoice read.
-- Both queries explicitly constrain `company_id` to the resolved tenant.
-- Both retain hard page-size bounds (1..500).
-- Both use deterministic `invoice_date DESC, id ASC` ordering before range pagination.
+- `src/lib/report-execution/queue.ts` now issues a `leaseToken` on every claim/reclaim.
+- `heartbeat`, `complete`, `cancel`, and `fail` require the exact token and worker identity.
+- Expired leases are rejected for heartbeat.
+- Retry/reclaim produces a different token.
+- Terminal/failure transitions clear owner, token and expiry.
+- `src/lib/report-execution/worker-adapter.ts` now exposes and forwards the token across the real adapter boundary.
+
+Consumer state: repository search found the worker adapter and durable runner as the relevant lifecycle surfaces; no additional direct `.claim()`/`.heartbeat()` consumers were returned by the repository search. The adapter contract is therefore migrated, but runtime execution through the durable runner remains to be proven.
 
 Regression:
-- The initial Vitest-only regression was removed because `vitest` is not a project dependency.
-- The live CI regression boundary was instead extended in `scripts/check-tenant-adversarial-contract.mjs`, which is already invoked by the canonical `quality.yml` gate.
-- The guard now asserts both invoice reads require tenant context, apply explicit company predicates, and retain bounded deterministic pagination.
+- `scripts/report-execution-lease-fencing.test.ts` covers claim token issuance, stale heartbeat rejection, retry token rotation, stale-worker completion rejection and terminal token clearing.
+- Package script: `test:report-execution-lease-fencing`.
 
-Consumer state: existing `ReportsPage.tsx` consumers remain on the same public query API; no consumer migration was required because the shared boundary was strengthened without changing the business contract.
-
-Legacy state: no legacy invoice engine introduced or removed in this batch.
-
-Status: `IMPLEMENTED → REGRESSION GUARD`; exact-head CI/runtime/live pending.
+Status: `IMPLEMENTED → REGRESSION ADDED → PARTIAL`; exact-head CI and runtime crash/recovery evidence pending.
 
 ## P0 — Data Quality
 Browser business-quality aggregation was migrated to `get_data_quality_snapshot()` with tenant authority from `current_company_id()`. The legacy bridge and page were removed after repository consumer proof. Regression guard checks canonical RPC consumption and legacy absence.
@@ -108,6 +105,7 @@ Status: `IMPLEMENTED → REGRESSION`; exact-head CI and live A/B export isolatio
 ### Front F — Reliability
 - worker/watcher/queue/retry/idempotency/DLQ/recovery.
 - backup/restore/RPO/RTO.
+- current batch: lease fencing token propagation is implemented and regression-gated, but runtime crash/recovery is pending.
 
 ### Front G — Runtime/LIVE
 - authenticated E2E.
@@ -127,6 +125,6 @@ Status: `IMPLEMENTED → REGRESSION`; exact-head CI and live A/B export isolatio
 Supabase A/B tenant isolation; Storage; Realtime; AI/vector; authenticated browser E2E; real OCR/document corpus; worker crash/recovery/DLQ; native watcher; backup restore/RPO/RTO; production telemetry; load/canary/rollback; production scale/query-plan evidence.
 
 ## Next execution
-Continue all independent fronts without waiting for CI: `queries-compat.ts` consumer graph, cross-surface BI/Decision/Export truth, NULL semantics, and tenant/security sibling discovery. Exact-head CI is a certification barrier for the batch, not a reason to pause independent work.
+Continue all independent fronts without waiting for CI: `queries-compat.ts` consumer graph, cross-surface BI/Decision/Export truth, NULL semantics, tenant/security sibling discovery, and runtime reliability harness preparation. Exact-head CI is a certification barrier for each batch, not a reason to pause independent work.
 
 PRODUCTION CERTIFIED = NO until real LIVE evidence exists.
