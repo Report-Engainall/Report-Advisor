@@ -10,118 +10,61 @@ Branch: `wave/runtime-reliability-closure-20260827`
 No historical PASS promotion. No scanner-only closure. No runtime/LIVE/production claims without matching evidence.
 
 ## Exact state
-- Current batch code/test HEAD: `d7b87a1709bec156c903583a1fb5091cda4f023c`.
+- Current batch code/test HEAD before this index update: `82e530644d4279769263c783416e2201ca4f090c`.
 - Exact-head CI for this batch: `NOT OBSERVABLE` at indexing time; no PASS claimed.
 - Runtime/LIVE/production certification: `NOT VERIFIED`.
 
 ## Batch — Report queue lease fencing / reliability closure
-Finding: queue ownership was previously bound only to `workerId`. After lease expiry, a re-claim could create a new lease for the same worker identity, allowing a stale execution carrying that identity to race with the current lease owner.
-
-Classification: `P1 RELIABILITY / DUPLICATE SIDE-EFFECT RISK`
-
-Root cause: lease identity lacked a per-claim fencing token; ownership checks could distinguish workers but not successive leases held by the same worker identity.
+Finding: queue ownership was previously bound only to `workerId`, allowing stale executions from successive leases for the same worker identity to race.
 
 Fix:
-- `src/lib/report-execution/queue.ts` now issues a unique `leaseToken` for every claim.
-- `heartbeat`, `complete`, `cancel`, and `fail` require both `workerId` and the exact `leaseToken`.
-- Terminal transitions clear the lease token.
-- Existing idempotency, bounded attempts, stale-lease reclamation and DLQ behavior remain intact.
-
-Regression:
-- `scripts/check-report-queue-reliability-contract.mjs` now requires lease-token generation and enforcement in addition to idempotency, stale-lease detection, retry and DLQ contracts.
-- `package.json` exposes `test:report-queue-reliability` for the regression boundary.
-
-Consumer state: queue API callers must now carry the claim token through lifecycle operations; runtime consumer migration/evidence remains open until all callers are verified against the updated contract.
-
-Legacy state: no queue implementation was deleted because runtime caller inventory is still required before destructive removal.
+- `src/lib/report-execution/queue.ts` issues a unique `leaseToken` per claim and requires it for lifecycle mutations.
+- Regression contract covers idempotency, stale leases, retry, DLQ and fencing.
+- Runtime caller migration remains open until all durable worker consumers are verified.
 
 Status: `IMPLEMENTED → REGRESSION`; exact-head CI/runtime/live pending.
 
-## P0 — Data Quality
-Browser business-quality aggregation was migrated to `get_data_quality_snapshot()` with tenant authority from `current_company_id()`. The legacy bridge and page were removed after repository consumer proof. Regression guard checks canonical RPC consumption and legacy absence.
-
-Status: `IMPLEMENTED → CONSUMER MIGRATED → ZERO-LEGACY-PATH PROOF IN REPOSITORY → REGRESSION`; exact-head CI/database/runtime pending.
-
-## P1 — Dashboard Intelligence tenant boundary
-Direct browser reads of recommendations/alerts were replaced by `get_dashboard_intelligence(p_limit)`, deriving tenant authority from `current_company_id()`, using fixed search_path, bounded output and authenticated-only execution.
-
-Regression: `src/lib/dashboard-canonical.intelligence.contract.test.ts`.
-
-Status: `IMPLEMENTED → REGRESSION`; exact-head CI/live runtime pending.
-
-## P1 — Forecast read boundary
-Direct `forecasts` table read was replaced by `get_forecast_snapshot(p_limit)`, tenant-authoritative, explicitly projected, bounded and deterministic.
-
-Regression: `src/lib/queries.forecast.contract.test.ts`.
-
-Status: `IMPLEMENTED → REGRESSION`; exact-head CI/runtime pending.
-
-## P1 — Export tenant authority hardening
-Finding: `get_inventory_export_rows(p_company_id, ...)` did not assert the caller-supplied company id matched server tenant authority, unlike sibling export functions. Export RPCs also lacked consistent anonymous revocation/search_path hardening.
-
-Root cause: inconsistent security contract across sibling canonical export functions.
+## Batch — Compatibility consumer truth boundary
+Finding: `queries-compat.ts` is intentionally a compatibility layer, but its role must remain mechanically enforced so legacy imports cannot regain business aggregation or independent truth.
 
 Fix:
-- Added `supabase/migrations/20260826080000_export_tenant_authority_hardening.sql`.
-- Inventory export now fails closed on `TENANT_CONTEXT_MISMATCH` and derives all data from `current_company_id()`.
-- All four export RPCs have fixed `search_path`, anonymous execution revoked, and authenticated execution explicitly granted.
+- Added `scripts/check-compatibility-consumer-closure.mjs`.
+- The contract requires all canonical query delegates to remain pure delegates, forbids `reduce/sort/filter` business calculations in the compatibility layer, and enforces the bounded canonical export path.
+- Added `test:compatibility-consumer-closure` to `package.json` without removing existing commands.
+- Added `.github/workflows/consumer-closure.yml` with exact-SHA verification, compatibility closure and queue reliability gates.
 
-Regression: `src/lib/export-tenant-authority.contract.test.ts`.
+Consumer state: canonical query consumers remain behind the shared boundary; zero legacy consumers and external DB consumers still require explicit proof before destructive removal.
 
-Status: `IMPLEMENTED → REGRESSION`; exact-head CI and live A/B export isolation pending.
+Status: `IMPLEMENTED → REGRESSION → CI-WIRED`; exact-head CI pending.
 
-## DB-only legacy candidate — get_sales_secondary_metrics
-`supabase/migrations/20260826003000_sales_secondary_canonical_analytics.sql` still defines it. Repository consumer search found no source consumer, but external/database consumers cannot be excluded. Keep as `LEGACY CANDIDATE / EXTERNAL-CONSUMER RISK`; do not destructively drop yet.
+## P0/P1 existing closures
+- Data Quality: canonical `get_data_quality_snapshot()` with tenant authority; repository zero-legacy proof recorded; DB/runtime pending.
+- Dashboard Intelligence: canonical `get_dashboard_intelligence()`; regression exists; live runtime pending.
+- Forecast: canonical `get_forecast_snapshot()`; regression exists; runtime pending.
+- Export tenant authority: four export RPCs hardened with server tenant authority, fixed search path and revoked anonymous execution; A/B runtime pending.
 
 ## Parallel remaining fronts
-### Front A — Canonical Data Truth
-- `queries-compat.ts` full function/consumer graph.
-- NULL/UNKNOWN/INSUFFICIENT_DATA semantics.
-- date/status/as-of consistency.
-- remaining browser business aggregation.
+### P0 Security
+RPC grants/search_path/RLS; Storage; Realtime; AI/vector; workers; notifications; generated files.
 
-### Front B — Consumer + Legacy Closure
-- zero-consumer proof for compatibility functions.
-- duplicate business engines.
-- DB-only legacy candidates with external-consumer risk.
+### P1 Truth / Consumers
+Cross-surface BI/Decision/Export equivalence; NULL semantics; remaining browser aggregation; compatibility consumer graph; legacy zero-consumer proof.
 
-### Front C — BI / Decision / Export
-- cross-surface equivalence.
-- Forecast/Demand Velocity/Inventory Intelligence.
-- export metric/date/status/as-of/filter equivalence.
+### P1 Reliability
+Queue callers; durable worker crash/restart; stale lease recovery; duplicate worker; retry/DLQ; idempotent side effects; watcher recovery.
 
-### Front D — Security / Tenant
-- RPC grants/search_path/RLS.
-- Storage/Realtime/AI-vector.
-- workers, notifications and generated files.
+### P2 Performance
+Unbounded reads, query plans/indexes, N+1, payload bounds and concurrency pressure.
 
-### Front E — Performance
-- unbounded reads.
-- query plans/indexes.
-- N+1 and payload bounds.
+### P2 Documents / Decisions
+Real corpus extraction → evidence → confidence → canonical data → KPI/report; Decision → Action → Outcome → Feedback.
 
-### Front F — Reliability
-- worker/watcher/queue/retry/idempotency/DLQ/recovery.
-- backup/restore/RPO/RTO.
-
-### Front G — Runtime/LIVE
-- authenticated E2E.
-- Supabase A/B isolation.
-- OCR corpus, native watcher, telemetry, load/canary/rollback.
+### P3 LIVE
+Authenticated E2E, Supabase A/B isolation, Storage/Realtime/AI-vector isolation, native watcher, backup/restore/RPO/RTO, production telemetry, load/canary/rollback.
 
 ## Status ladder
-- IMPLEMENTED: current fixes implemented.
-- TESTED/REGRESSION: repository behavioral/contract evidence exists.
-- GATED: **NO CLAIM** for current HEAD until exact-head CI evidence exists.
-- CONSUMER VERIFIED: only where consumer evidence is explicit.
-- RUNTIME VERIFIED: NO CLAIM.
-- LIVE VERIFIED: NO.
-- PRODUCTION CERTIFIED: NO.
+`IMPLEMENTED → REGRESSION → GATED → INTEGRATED → CONSUMER VERIFIED → RUNTIME VERIFIED → LIVE VERIFIED → PRODUCTION CERTIFIED`
 
-## LIVE REQUIRED
-Supabase A/B tenant isolation; Storage; Realtime; AI/vector; authenticated browser E2E; real OCR/document corpus; worker crash/recovery/DLQ; native watcher; backup restore/RPO/RTO; production telemetry; load/canary/rollback; production scale/query-plan evidence.
-
-## Next execution
-Continue all independent fronts without waiting for CI: queue caller inventory and lifecycle migration, cross-surface BI/Decision/Export truth, NULL semantics, and tenant/security sibling discovery. Exact-head CI is a certification barrier for the batch, not a reason to pause independent work.
+No capability advances without its corresponding evidence. Current batch has no exact-head CI PASS claim.
 
 PRODUCTION CERTIFIED = NO until real LIVE evidence exists.
