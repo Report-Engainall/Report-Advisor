@@ -22,18 +22,18 @@ const forbiddenNames = /\b(?:exportAll|exportAllData|exportEverything)\b/;
 const pagination = /\b(?:pageSize|pageIndex|currentPage|offset|limit)\b/;
 const clientAggregation = /\.reduce\s*\(|\b(?:sum|total|count)\s*[:=]/;
 
-// Only exporter IMPLEMENTATIONS require an explicit scope declaration.
-// Calls from consumers (e.g. downloadReportArtifact(...)) are inventoried
-// separately and must not be mistaken for exporter implementations.
-const exporterDeclaration = /\b(?:export\s+(?:async\s+)?function\s+)?(?:export(?:Report|Data|Everything)?|download(?:Report|File|Artifact)?|toCsv|toJSON|toJson|toExcel|toXlsx|reportTo)\s*(?:=\s*(?:async\s*)?\([^)]*\)\s*=>|\([^)]*\)\s*\{|\([^)]*\)\s*\{)/i;
-const exporterFunctionDeclaration = /\bexport\s+(?:async\s+)?function\s+(?:export(?:Report|Data|Everything)?|download(?:Report|File|Artifact)?|toCsv|toJSON|toJson|toExcel|toXlsx|reportTo)\b/i;
+// Match exporter IMPLEMENTATIONS only. Consumer calls such as
+// downloadReportArtifact(...) are intentionally not treated as implementations.
+const exporterNames = '(?:export(?:Report|Data|Everything)?|download(?:Report|File|Artifact)?|toCsv|toJSON|toJson|toExcel|toXlsx|reportTo)';
+const exporterFunctionDeclaration = new RegExp(`\\b(?:export\\s+)?(?:async\\s+)?function\\s+${exporterNames}\\b`, 'i');
+const exporterArrowDeclaration = new RegExp(`\\b(?:export\\s+)?(?:const|let|var)\\s+${exporterNames}\\s*=\\s*(?:async\\s*)?\\(`, 'i');
 const scopeDeclaration = /\b(?:EXPORT_SCOPE|[A-Z0-9_]+_EXPORT_SCOPE|REPORT_DOWNLOAD_SCOPE)\b\s*[:=]\s*['"](?:CURRENT_VIEW|FULL_DATASET|FILTERED_FULL_DATASET)['"]/;
 const materializesDownload = /\b(?:renderArtifact|Blob|createObjectURL)\b/i;
 
 for (const file of files) {
   const text = fs.readFileSync(file, 'utf8');
   const rel = path.relative(root, file).replaceAll(path.sep, '/');
-  const isExporterImplementation = exporterDeclaration.test(text) || exporterFunctionDeclaration.test(text) || (materializesDownload.test(text) && /(?:export|download)/i.test(rel));
+  const isExporterImplementation = exporterFunctionDeclaration.test(text) || exporterArrowDeclaration.test(text) || (materializesDownload.test(text) && /(?:export|download)/i.test(rel));
   if (!isExporterImplementation) continue;
 
   if (forbiddenNames.test(text)) findings.push(`${rel}: ambiguous exportAll-style API name`);
@@ -51,7 +51,7 @@ for (const file of files) {
 const knownNonExporter = path.join(src, 'lib/free-toolbox/party-intelligence.ts');
 if (fs.existsSync(knownNonExporter)) {
   const text = fs.readFileSync(knownNonExporter, 'utf8');
-  if (exporterDeclaration.test(text) || exporterFunctionDeclaration.test(text)) {
+  if (exporterFunctionDeclaration.test(text) || exporterArrowDeclaration.test(text)) {
     findings.push('export detector regression: party-intelligence.ts is being classified as an exporter without an exporter API');
   }
 }
