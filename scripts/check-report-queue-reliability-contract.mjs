@@ -1,23 +1,16 @@
 import fs from 'node:fs';
 
-const file = 'src/lib/report-execution/queue.ts';
-const text = fs.readFileSync(file, 'utf8');
+const text = fs.readFileSync('src/lib/report-execution/queue.ts', 'utf8');
 const required = [
-  'idempotency',
-  'leaseOwner',
-  'leaseExpiresAt',
-  'heartbeat(',
-  'attempts < job.maxAttempts',
-  "status = job.attempts < job.maxAttempts ? 'queued' : 'failed'",
-  'listDeadLetters()',
+  'idempotency', 'leaseOwner', 'leaseToken', 'leaseExpiresAt', 'heartbeat(',
+  'attempts < job.maxAttempts', "status = job.attempts < job.maxAttempts ? 'queued' : 'failed'",
+  'listDeadLetters()', 'assertLease(',
 ];
 const missing = required.filter((x) => !text.includes(x));
-if (missing.length) {
-  console.error('REPORT_QUEUE_RELIABILITY_FAIL');
-  missing.forEach((x) => console.error(`missing=${x}`));
-  process.exit(1);
-}
-if (!/job\.leaseOwner\s*!==\s*workerId/.test(text)) throw new Error('Lease ownership is not enforced');
+if (missing.length) throw new Error(`REPORT_QUEUE_RELIABILITY_FAIL: missing ${missing.join(', ')}`);
+if (!/job\.leaseOwner\s*!==\s*workerId/.test(text)) throw new Error('Lease owner is not enforced');
+if (!/job\.leaseToken\s*!==\s*leaseToken/.test(text)) throw new Error('Unique lease token is not enforced');
 if (!/job\.leaseExpiresAt\s*<=\s*now/.test(text)) throw new Error('Stale lease detection is missing');
 if (!/this\.idempotency\.get\(key\)/.test(text)) throw new Error('Idempotency lookup is missing');
+if (!/job\.leaseToken\s*=\s*undefined/.test(text)) throw new Error('Lease token is not cleared after terminal transition');
 console.log('REPORT_QUEUE_RELIABILITY_CONTRACT_PASS');
