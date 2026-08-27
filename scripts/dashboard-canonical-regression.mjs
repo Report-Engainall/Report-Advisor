@@ -35,7 +35,9 @@ assert.match(analyticsPage,/fetchRFMSnapshot\(500\)/);assert.match(analyticsPage
 assert.match(compat,/export \* from '\.\/queries'/);assert.match(compat,/canonicalFetchMonthlyTrend/);assert.match(compat,/canonicalFetchAgingBuckets/);assert.doesNotMatch(compat,/loadSecondaryMetrics/);assert.doesNotMatch(compat,/get_sales_secondary_metrics/);assert.match(compat,/canonicalFetchForecasts/);assert.match(compat,/canonicalFetchCustomers/);assert.match(compat,/canonicalFetchProducts/);
 
 assert.match(queries,/const MAX_ENTITY_ROWS = 500/);assert.match(queries,/REPORT_QUERY_LIMIT_EXCEEDED: customers/);assert.match(queries,/REPORT_QUERY_LIMIT_EXCEEDED: products/);assert.match(queries,/order\('name',\{ascending:true\}\)/);assert.match(queries,/range\(0,MAX_ENTITY_ROWS-1\)/);assert.match(compat,/return canonicalFetchCustomers\(\)/);assert.match(compat,/return canonicalFetchProducts\(\)/);
-assert.match(queries,/MAX_FORECAST_ROWS=500/);assert.match(queries,/count:'exact'/);assert.match(queries,/range\(0,MAX_FORECAST_ROWS-1\)/);assert.match(queries,/REPORT_QUERY_LIMIT_EXCEEDED: forecasts/);assert.match(queries,/order\('period',\{ascending:true\}\)/);assert.match(queries,/order\('id',\{ascending:true\}\)/);
+
+// Forecast truth is now owned by the authoritative snapshot RPC. The regression must guard that contract rather than require the removed client-side table scan.
+assert.match(queries,/supabase\.rpc\('get_forecast_snapshot'/);assert.match(queries,/p_limit: 500/);assert.match(queries,/REPORT_DATA_UNAVAILABLE: forecast snapshot missing/);assert.match(queries,/REPORT_DATA_UNAVAILABLE: forecast rows missing/);assert.doesNotMatch(queries,/supabase\.from\('forecasts'\)/);assert.match(adapter,/get_forecast_snapshot/);assert.match(compat,/canonicalFetchForecasts/);
 
 console.log('PASS dashboard canonical semantic regression');
 console.log('PASS display pagination cannot define dashboard aggregate');
@@ -55,5 +57,5 @@ console.log('PASS analytics pages no longer aggregate transactional histories in
 console.log('PASS analytics missing-data states remain explicit');
 console.log('PASS queries-compat retained intentionally as compatibility infrastructure');
 console.log('PASS secondary analytics compatibility delegates to canonical dashboard truth');
-console.log('PASS forecast collection is bounded, deterministic and fail-closed on truncation');
+console.log('PASS forecast collection uses the authoritative bounded snapshot RPC and fails closed on unavailable data');
 console.log('PASS customer/product collections are bounded, deterministic and fail-closed on truncation');
