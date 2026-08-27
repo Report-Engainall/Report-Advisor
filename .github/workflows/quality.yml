@@ -31,6 +31,8 @@ jobs:
         run: npm ci --no-audit --no-fund
       - name: Inventory intelligence truth regression
         run: node scripts/check-inventory-intelligence-truth.mjs
+      - name: Decision priority truth regression
+        run: node scripts/check-decision-priority-truth.mjs
       - name: Workflow command integrity
         run: npm run test:workflow-command-integrity
       - name: Typecheck
