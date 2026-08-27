@@ -45,8 +45,6 @@ Batch state: `PARTIAL` because exact-head CI and executed regression evidence ar
 ## Batch #40 — Receivables report duplicate aggregation
 Finding: `ReceivablesReportPage` recomputed total receivables in the browser with `aging.reduce((s,b)=>s+b.amount,0)` despite the authoritative dashboard snapshot already exposing `kpis.totalReceivables`.
 
-Classification: `P1 BUSINESS TRUTH / DUPLICATE CLIENT AGGREGATION`
-
 Root cause: the report presentation layer was treating aging buckets as the source of the headline receivables truth instead of consuming the canonical KPI.
 
 Canonical source: `fetchDashboardSnapshot()` → `kpis.totalReceivables`.
@@ -83,6 +81,33 @@ Regression execution: NOT EXECUTED in this environment; the script is committed 
 Exact-head CI: PENDING; no current workflow evidence is being promoted.
 
 Certification state: `IMPLEMENTED → REGRESSION-READY → CI PENDING`.
+
+Batch state: `PARTIAL`.
+
+## Batch #42 — Analytics canonical consumer regression
+Finding: Analytics is a real secondary consumer surface and must remain presentation-only over canonical RFM/ABC/Aging snapshots rather than acquiring direct transactional reads or duplicate business aggregation.
+
+Root cause: the surface had no dedicated regression asserting that the real consumer remained attached to the canonical dashboard snapshot boundary and preserved explicit `INSUFFICIENT_DATA` / unknown-row semantics.
+
+Canonical source: `fetchRFMSnapshot()` / `fetchABCSnapshot()` / `fetchAgingSnapshot()` from `@/lib/dashboard-canonical`.
+
+Fix: added `scripts/check-analytics-canonical-consumer.mjs` and wired it into `.github/workflows/quality.yml` as an independent Quality gate.
+
+Consumer proof: `src/pages/AnalyticsPage.tsx` is the real RFM/ABC/Aging consumer and imports the three canonical snapshot functions; its only local grouping is presentation-level segment/category counting, not transactional business truth.
+
+Forbidden regression markers: direct Supabase reads and known browser business aggregations such as sales/transactions/aging reductions and inventory valuation.
+
+Data truth regression: the gate requires explicit `INSUFFICIENT_DATA` handling and `unknownRows` propagation so incomplete data cannot silently become valid metrics.
+
+Implementation commit (regression): `54ce0aa60cdf11155ad843e94d05a983c6055afa`.
+
+CI wiring commit: `5fd855b84b005ff261fb1711d26eac8e3894c0d4`.
+
+Regression execution: NOT EXECUTED locally in this environment. No PASS claim.
+
+Exact-head CI: PENDING for `5fd855b84b005ff261fb1711d26eac8e3894c0d4`.
+
+Certification state: `IMPLEMENTED → REGRESSION-WIRED → EXACT-HEAD CI PENDING → CONSUMER VERIFIED PENDING CI EVIDENCE`.
 
 Batch state: `PARTIAL`.
 
@@ -139,7 +164,7 @@ Forecast canonical fix `728b344f57c304ab5e66744db40624d3d4a2c8a3` has a producti
 Supabase A/B tenant isolation; Storage; Realtime; AI/vector; authenticated browser E2E; real OCR/document corpus; worker crash/recovery/DLQ; native watcher; backup restore/RPO/RTO; production telemetry; load/canary/rollback; production scale/query-plan evidence.
 
 ## Next execution
-Continue independent fronts without waiting for CI. Highest immediate P1 is exact-head regression/CI for the report consumer migrations, then remaining browser duplicate calculations and cross-surface BI/Decision/Export equivalence. Exact-head CI remains a certification barrier, not a reason to stop independent work.
+Continue independent fronts without waiting for CI. Highest immediate P1 is exact-head regression/CI for the report and analytics consumer migrations, then remaining browser duplicate calculations and cross-surface BI/Decision/Export equivalence. Exact-head CI remains a certification barrier, not a reason to stop independent work.
 
 PRODUCTION CERTIFIED = NO until real LIVE evidence exists.
 
