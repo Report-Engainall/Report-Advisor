@@ -10,8 +10,8 @@ Branch: `main`
 No historical PASS promotion. No scanner-only closure. No runtime/LIVE/production claims without matching evidence.
 
 ## Exact state
-- Main contains the integrated deep-closure wave through commit `c7b21db4d68e396fa6ceefe3f6fdc15b1a8b8d4c` before this index-only update.
-- Exact-head CI must be evaluated against the new SHA after this index update; no historical run is promoted.
+- Main contains the integrated deep-closure wave through commit `c7b21db4d68e396fa6ceefe3f6fdc15b1a8b8d4c` before subsequent closure commits.
+- Exact-head CI must be evaluated against the current SHA; no historical run is promoted.
 - Runtime, LIVE, and production certification remain unclaimed.
 
 ## Batch — invoice page-read tenant/security closure
@@ -87,6 +87,28 @@ Regression execution: **NOT EXECUTED in this environment**. The repository was u
 Exact-head CI: **PENDING / NOT OBSERVED for the post-index SHA**.
 
 Status: `IMPLEMENTED → REGRESSION ADDED → CI PENDING`; not CLOSED.
+
+## Batch — Inventory Intelligence browser truth closure
+Finding: `InventoryIntelligencePage.tsx` contained tenant-scoped source reads and business aggregation directly in the browser consumer.
+
+Root cause: the page had accumulated source fetching, stock accumulation, group construction and demand projection instead of using a single application boundary.
+
+Fix:
+- Added `src/lib/free-toolbox/inventory-intelligence-canonical.ts` as the canonical application adapter.
+- Moved tenant resolution, source reads, stock accumulation, group mapping and unavailable-value preservation into that adapter.
+- Migrated the real `InventoryIntelligencePage` consumer to `fetchInventoryIntelligenceSource()`.
+- Preserved `NULL/UNKNOWN` semantics with `Number.NaN` for unavailable demand and explicit finite-number checks.
+- Added `scripts/check-inventory-intelligence-truth.mjs` to prevent source reads and aggregation from returning to the page.
+
+Consumer: `src/pages/InventoryIntelligencePage.tsx` is now an actual consumer of the canonical adapter.
+
+Legacy state: page-level source/aggregation path removed. The adapter itself remains an application boundary pending deeper server/RPC consolidation.
+
+Regression: **ADDED, NOT EXECUTED HERE**.
+
+Exact-head CI: **PENDING / NOT OBSERVED for current SHA**.
+
+Status: `IMPLEMENTED → CONSUMER MIGRATED → REGRESSION ADDED`; not CLOSED until regression and exact-head CI execute.
 
 ## Parallel remaining fronts
 ### Front A — Canonical Data Truth
