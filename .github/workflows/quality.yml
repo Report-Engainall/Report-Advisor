@@ -57,6 +57,8 @@ jobs:
         run: npm run test:analytics-truth
       - name: Cross-surface capability traceability
         run: node scripts/check-cross-surface-traceability.mjs
+      - name: Sales cross-surface truth
+        run: node scripts/check-sales-cross-surface-truth.mjs
       - name: Export truth contract
         run: npm run test:export-truth
       - name: Authentication and tenant convergence
