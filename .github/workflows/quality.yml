@@ -30,6 +30,8 @@ jobs:
         run: node scripts/check-canonical-query-alias.mjs
       - name: Alternative-group tenant authority
         run: npm run test:alternative-group-tenant-authority
+      - name: Profitability truth contract
+        run: npm run test:profitability-truth
       - name: Receivables truth contract
         run: node scripts/check-receivables-truth-contract.mjs
       - name: Cross-surface capability traceability
