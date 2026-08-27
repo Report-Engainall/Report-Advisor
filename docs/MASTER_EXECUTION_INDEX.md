@@ -8,10 +8,10 @@ Base: `4095e0f0d427652eb705ba3955389ae978d7b5bf`.
 
 ## Exact-head integrity
 - Requested inspection SHA: `407e6bb1e506a29ae35f741d5530400a3675b9a9` — historical index commit; its own recorded code HEAD was `a21869e5dc3c958143dbe188b187b2666d151483`. No PASS from it is reused.
-- Repository state has advanced beyond that historical SHA. PR #45 is currently open on branch `wave/parallel-compat-closure-20260826` with exact head `01020d2c50c457fde6ba64c5a6b494512fd79df9`.
+- Repository state has advanced beyond that historical SHA. PR #45 is currently open on branch `wave/parallel-compat-closure-20260826` with exact head `e08d8b3d21682036ecb9226c1ec3137c6d8e214d`.
 - Base remains `4095e0f0d427652eb705ba3955389ae978d7b5bf`.
 - PR #45 is currently `mergeable=false`; this is recorded as repository/PR state, not classified as an application defect without a proven cause.
-- Exact-head workflow/status query for `01020d2c50c457fde6ba64c5a6b494512fd79df9` currently returns **no observable workflow run and no status checks**. Therefore **NO CI PASS IS CLAIMED** for the current HEAD.
+- Exact-head workflow/status query for `e08d8b3d21682036ecb9226c1ec3137c6d8e214d` currently returns **no observable workflow run and no status checks**. Therefore **NO CI PASS IS CLAIMED** for the current HEAD.
 - Quality workflow was hardened so PR runs checkout `github.event.pull_request.head.sha` rather than the synthetic PR merge ref, and diagnostics compare against that exact resolved head. This closes the prior assurance gap but remains **CI-PENDING** until an actual run proves it.
 
 ## F35 — Financial semantic fail-closed sibling family
@@ -79,9 +79,9 @@ The new gate proves tenant authority, cancelled/void exclusion, explicit `INSUFF
 ### CONSUMERS
 `/analytics`, `/analytics/rfm`, `/analytics/abc`, `/analytics/aging` now resolve through `AnalyticsCanonicalPages`.
 ### STATUS
-**IMPLEMENTED / REGRESSION-ENFORCED / CONSUMER-MIGRATED / LEGACY-REMOVED; exact-head CI pending.**
+**IMPLEMENTED / REGRESSION-WIRED / CONSUMER-MIGRATED / LEGACY-REMOVED; REGRESSION NOT EXECUTED ON CURRENT EXACT HEAD; CI PENDING.**
 ### REMAINING
-Runtime proof with real datasets, cross-surface equivalence against BI/Decision/Export, and production evidence remain open.
+Execute the regression gate on the exact head, runtime proof with real datasets, cross-surface equivalence against BI/Decision/Export, and production evidence.
 
 ## Receivables
 **IMPLEMENTED + REGRESSION-ENFORCED + ROUTE-CONSUMER-MIGRATED; EXACT-HEAD CI PENDING.**
@@ -136,14 +136,15 @@ Runtime proof with real datasets, cross-surface equivalence against BI/Decision/
 Only CI whose tested checkout/head SHA exactly equals the current Code HEAD can promote a capability to `CI-GATED`. Historical PASSes remain historical.
 
 ## Next active fronts
-1. Observe exact-head CI for `01020d2c50c457fde6ba64c5a6b494512fd79df9`; record only matching-SHA evidence.
+1. Observe exact-head CI for `e08d8b3d21682036ecb9226c1ec3137c6d8e214d`; record only matching-SHA evidence.
 2. If CI fails, extract the first independent root cause and fix it before rerun.
-3. Expand Export Truth from pattern gate to complete consumer-family inventory and pagination regression.
-4. Build BI ↔ Decision ↔ Analytics ↔ Export equivalence contract with invariant-level regression.
-5. Continue repository-wide NULL/UNKNOWN/MISSING/EMPTY/ZERO sibling sweep.
-6. Continue tenant-sensitive RPC and indirect-path sweep across Storage/Realtime/AI/vector/Exports/Workers.
-7. Complete worker failure-state/recovery sibling sweep and LIVE harness.
-8. Prepare authenticated runtime evidence for Analytics pagination/as-of/tenant invariants and Receivables > page-size behavior.
+3. Execute `test:analytics-truth` as the first regression proof once the exact-head CI run is observable.
+4. Expand Export Truth from pattern gate to complete consumer-family inventory and pagination regression.
+5. Build BI ↔ Decision ↔ Analytics ↔ Export equivalence contract with invariant-level regression.
+6. Continue repository-wide NULL/UNKNOWN/MISSING/EMPTY/ZERO sibling sweep.
+7. Continue tenant-sensitive RPC and indirect-path sweep across Storage/Realtime/AI/vector/Exports/Workers.
+8. Complete worker failure-state/recovery sibling sweep and LIVE harness.
+9. Prepare authenticated runtime evidence for Analytics pagination/as-of/tenant invariants and Receivables > page-size behavior.
 
 ## Completion truth
 **NOT PRODUCTION-CERTIFIED.** Current wave contains real analytics canonicalization, legacy removal, CI exact-head topology hardening, and regression wiring. Current HEAD has no observable exact-head CI run/status yet, and runtime/live/production evidence remains outstanding.
