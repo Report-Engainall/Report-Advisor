@@ -325,3 +325,35 @@ Exact-head CI: **PENDING / NOT OBSERVED**.
 Certification state: **PARTIAL**.
 
 Next family: continue P0/P1 tenant + reliability audit at the database/RPC level, then cross-surface truth and performance evidence.
+
+
+## Batch 54 — Tenant convergence regression false-green hardening
+
+Finding: `scripts/check-auth-tenant-convergence.mjs` validated the earlier tenant migration `20260822200000_canonical_tenant_membership.sql`, while a later migration `20260822212000_canonical_tenant_membership.sql` replaces the effective `current_company_id()` implementation. This created a regression false-green risk: the test could pass against an obsolete resolver contract.
+
+Root cause: regression targeted a historical migration filename rather than the effective/latest canonical tenant resolver definition.
+
+Fix:
+- Changed the regression to discover all canonical tenant membership migrations.
+- It now inspects the lexicographically latest canonical migration as the effective definition.
+- It asserts membership-derived `current_company_id()`, `is_default = true`, PUBLIC revoke, and rejects reintroduction of JWT `company_id` trust in the effective resolver.
+- This preserves future extensibility while preventing a new migration from silently replacing the resolver without the regression noticing.
+
+Consumer/security impact:
+- No application consumer migration was necessary.
+- This hardens the security gate itself so it tracks the actual migration chain rather than an obsolete source file.
+
+Regression execution: **NOT EXECUTED** here; no PASS claimed.
+
+Exact-head:
+- Current implementation commit: `95de2ea58bd30b8a510c3c536b22873f6359c535`.
+- Exact-head CI: **PENDING / NOT OBSERVED**.
+
+Status: **PARTIAL**.
+
+Important remaining P0:
+- Real A/B tenant adversarial execution against Supabase remains LIVE REQUIRED.
+- Storage and Realtime have no direct implementation surfaces found in the inspected repository, so they remain environment/integration evidence rather than falsely marked verified.
+- AI policy exists as a guard, but no repository consumer of `evaluateAIDataPolicy` was found; therefore no consumer-verification claim is made.
+
+Next family: cross-surface business truth (Dashboard ↔ Reports ↔ Analytics ↔ Export ↔ Decision) and remaining browser-derived calculations, while keeping runtime reliability independent.
