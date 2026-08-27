@@ -12,112 +12,96 @@ PR: `#61`
 No historical PASS promotion. No scanner-only closure. No runtime/LIVE/production claims without matching evidence.
 
 ## Exact state
-- Latest code HEAD: `d106e10e14d0711afa5cc0cbe42fcfd005168f2a`.
-- Latest index commit after this update: pending this write; the index content records the code HEAD explicitly.
+- Latest code before this index write: `40cbb28bfdac60e1a410474ccf3ffdaa7b2dce31`.
 - PR #61 is open/draft and not merged.
-- Exact-head quality run `33099441103` was triggered from code HEAD `31708d7bb308b1067427c0fe73a5b633ae2ed499` and checked PR head equality before executing the quality gates.
-- Run `33099441103` failed at Behavioral regressions, while Typecheck, Lint, Build, Performance and the preceding contract gates passed. The failure was a regression-contract mismatch, not a type/build failure.
+- Quality run `33099834858` exposed a real CI race: the workflow was triggered for PR head `d106e10e14d0711afa5cc0cbe42fcfd005168f2a`, but a subsequent index commit advanced the branch before Diagnostics executed. The old diagnostic compared the event's immutable PR head to the branch's mutable current remote head and failed before installation.
+- Root cause: exact-head diagnostic used a mutable remote branch lookup instead of validating the immutable PR event head against the checked-out merge ref.
+- Fix in `40cbb28bfdac60e1a410474ccf3ffdaa7b2dce31`: PR diagnostics now read `pull_request.head.sha` from the event and require that SHA to be a parent of the checked-out merge ref; the mutable `git ls-remote` comparison was removed. This preserves exact-head discipline while eliminating false failures caused by legitimate subsequent pushes.
+- Run `33099834858` also showed that when Diagnostics failed, `Install` was skipped, while `always()` later allowed several static gates to run and pass. The failure therefore remains a CI-infrastructure failure, not a product regression.
 
 ## Batch — Forecast bounded compatibility contract
-Finding: the dashboard canonical regression required a named `MAX_FORECAST_ROWS=500` guard and explicit fail-closed behavior for forecast collection, but `queries.ts` used an inline literal `500` and returned the payload without a postcondition.
+Finding: `dashboard-canonical-regression.mjs` required a named `MAX_FORECAST_ROWS=500` invariant and explicit fail-closed truncation, while `queries.ts` used an inline literal and returned rows without the postcondition.
 
 Classification: `P1 DATA TRUTH / BOUNDED READS / COMPATIBILITY CONTRACT`
 
-Root cause: the forecast compatibility boundary had the bounded RPC request but lacked a named invariant and explicit truncation postcondition, leaving the consumer contract weaker than the regression specification.
+Root cause: compatibility boundary was weaker than its regression contract.
 
 Fix:
 - Added `const MAX_FORECAST_ROWS = 500`.
-- `fetchForecasts()` now passes the named bound to `get_forecast_snapshot`.
-- The returned array is checked against the same bound and fails closed with `REPORT_QUERY_LIMIT_EXCEEDED` if exceeded.
+- `fetchForecasts()` passes the named bound to `get_forecast_snapshot`.
+- Returned rows are checked against the same bound and fail closed on overflow.
 
-Consumer state: `fetchForecasts()` remains a compatibility boundary delegating to the canonical forecast RPC; no direct forecast table read was introduced.
+Regression: `scripts/dashboard-canonical-regression.mjs` enforces the named constant, bound, deterministic ordering/count expectations and fail-closed truncation contract.
 
-Regression: `scripts/dashboard-canonical-regression.mjs` already enforces the named constant, exact bound, deterministic ordering/count expectations and fail-closed truncation contract.
-
-Status: `IMPLEMENTED → REGRESSION TARGET FIXED → PARTIAL`; exact-head CI for `d106e10e14d0711afa5cc0cbe42fcfd005168f2a` pending.
+Status: `IMPLEMENTED → REGRESSION TARGET FIXED → PARTIAL`; exact-head certification is pending because the subsequent CI run was blocked by the diagnostic race described above.
 
 ## Batch — report execution lease fencing
-Finding: report queue lifecycle transitions were authorized by `workerId` and lease expiry, but the real worker adapter did not carry a unique lease identity.
+Finding: report queue lifecycle transitions lacked a unique per-claim fencing identity.
 
-Root cause: lease ownership lacked a per-claim fencing token propagated to every mutating lifecycle operation.
+Root cause: ownership was based on mutable worker identity plus expiry without a token propagated through mutations.
 
 Fix:
-- `src/lib/report-execution/queue.ts` issues a `leaseToken` on every claim/reclaim.
-- `heartbeat`, `complete`, `cancel`, and `fail` require the exact token and worker identity.
-- Expired leases are rejected for heartbeat.
-- Retry/reclaim produces a different token.
-- Terminal/failure transitions clear owner, token and expiry.
-- Worker adapter propagates the token.
+- `leaseToken` issued on claim/reclaim.
+- Exact token + worker required for heartbeat/complete/cancel/fail.
+- Expired heartbeat rejected.
+- Retry rotates token.
+- Terminal/failure clears ownership/token/expiry.
+- Worker adapter propagates token.
 
-Regression covers stale heartbeat, retry token rotation, stale completion rejection and terminal clearing.
+Regression covers stale heartbeat, expiry, retry token rotation, stale completion rejection and terminal clearing.
 
-Status: `IMPLEMENTED → REGRESSION HARDENED → PARTIAL`; exact-head CI and runtime crash/recovery evidence pending.
+Status: `IMPLEMENTED → REGRESSION HARDENED → PARTIAL`; exact-head CI and durable runtime crash/recovery evidence pending.
 
 ## P0 — Data Quality
-Browser business-quality aggregation was migrated to `get_data_quality_snapshot()` with tenant authority from `current_company_id()`. Legacy bridge/page removal has repository consumer proof and regression protection.
+Browser business-quality aggregation uses `get_data_quality_snapshot()` with tenant authority from `current_company_id()`. Legacy bridge/page removal has repository consumer proof and regression protection.
 
 Status: `IMPLEMENTED → CONSUMER MIGRATED → ZERO-LEGACY-PATH PROOF → REGRESSION`; exact-head database/runtime evidence pending.
 
 ## P1 — Dashboard Intelligence tenant boundary
-Direct browser reads of recommendations/alerts were replaced by `get_dashboard_intelligence(p_limit)`, deriving tenant authority from `current_company_id()` with bounded output and authenticated execution.
+Recommendations/alerts use `get_dashboard_intelligence(p_limit)` with server-derived tenant authority, bounded output and authenticated execution.
 
 Status: `IMPLEMENTED → REGRESSION`; exact-head/live runtime pending.
 
 ## P1 — Forecast read boundary
-Direct `forecasts` table reads were replaced by `get_forecast_snapshot(p_limit)`, tenant-authoritative, explicitly projected, bounded and deterministic. The compatibility boundary is now additionally guarded by `MAX_FORECAST_ROWS=500` and fail-closed truncation semantics.
+Forecast reads use `get_forecast_snapshot(p_limit)`, tenant-authoritative, explicitly projected, bounded and deterministic. Compatibility layer now has a named 500-row guard and fail-closed truncation.
 
 Status: `IMPLEMENTED → REGRESSION`; exact-head CI/runtime pending.
 
 ## P1 — Export tenant authority hardening
-Inventory export now fails closed on `TENANT_CONTEXT_MISMATCH` and derives data from `current_company_id()`. Sibling export RPCs received fixed search_path, anonymous revocation and authenticated grants.
+Inventory export fails closed on `TENANT_CONTEXT_MISMATCH` and derives data from `current_company_id()`. Sibling export RPCs received fixed search_path, anonymous revocation and authenticated grants.
 
 Status: `IMPLEMENTED → REGRESSION`; exact-head CI and live A/B export isolation pending.
 
 ## DB-only legacy candidate — get_sales_secondary_metrics
-Repository consumer search found no source consumer, but external/database consumers cannot be excluded. Keep as `LEGACY CANDIDATE / EXTERNAL-CONSUMER RISK`; do not destructively drop yet.
+No repository source consumer found, but external/database consumers cannot be excluded. Keep `LEGACY CANDIDATE / EXTERNAL-CONSUMER RISK`; no destructive drop.
 
 ## Parallel remaining fronts
 ### Front A — Canonical Data Truth
-- `queries-compat.ts` complete function/consumer graph.
-- NULL/UNKNOWN/INSUFFICIENT_DATA semantics.
-- date/status/as-of consistency.
-- remaining browser business aggregation.
+`queries-compat.ts` graph; NULL/UNKNOWN/INSUFFICIENT_DATA; date/status/as-of; remaining browser aggregation.
 
 ### Front B — Consumer + Legacy Closure
-- zero-consumer proof for compatibility functions.
-- duplicate business engines.
-- DB-only legacy candidates with external-consumer risk.
+Compatibility zero-consumer proof; duplicate engines; DB-only legacy candidates.
 
 ### Front C — BI / Decision / Export
-- cross-surface equivalence.
-- Forecast/Demand Velocity/Inventory Intelligence.
-- export metric/date/status/as-of/filter equivalence.
+Cross-surface equivalence; Forecast/Demand Velocity/Inventory Intelligence; export metric/date/status/as-of/filter equivalence.
 
 ### Front D — Security / Tenant
-- RPC grants/search_path/RLS.
-- Storage/Realtime/AI-vector.
-- workers, notifications and generated files.
+RPC grants/search_path/RLS; Storage/Realtime/AI-vector; workers/notifications/generated files.
 
 ### Front E — Performance
-- unbounded reads.
-- query plans/indexes.
-- N+1 and payload bounds.
+Unbounded reads; query plans/indexes; N+1/payload bounds.
 
 ### Front F — Reliability
-- worker/watcher/queue/retry/idempotency/DLQ/recovery.
-- backup/restore/RPO/RTO.
-- lease fencing implementation/regression is present; durable runtime crash/recovery remains LIVE evidence.
+Worker/watcher/queue/retry/idempotency/DLQ/recovery; backup/restore/RPO/RTO; lease fencing remains runtime-pending.
 
 ### Front G — Runtime/LIVE
-- authenticated E2E.
-- Supabase A/B isolation.
-- OCR corpus, native watcher, telemetry, load/canary/rollback.
+Authenticated E2E; Supabase A/B isolation; OCR corpus; native watcher; telemetry; load/canary/rollback.
 
 ## Status ladder
 - IMPLEMENTED: current fixes implemented.
 - TESTED/REGRESSION: repository behavioral/contract evidence exists.
-- GATED: **NO CLAIM** for `d106e10e14d0711afa5cc0cbe42fcfd005168f2a` until exact-head CI evidence exists.
-- CONSUMER VERIFIED: only where explicit consumer proof exists.
+- GATED: **NO CLAIM** for current HEAD until a quality run reaches the relevant gates on the same event head.
+- CONSUMER VERIFIED: only with explicit consumer proof.
 - RUNTIME VERIFIED: NO CLAIM.
 - LIVE VERIFIED: NO.
 - PRODUCTION CERTIFIED: NO.
@@ -126,6 +110,6 @@ Repository consumer search found no source consumer, but external/database consu
 Supabase A/B tenant isolation; Storage; Realtime; AI/vector; authenticated browser E2E; real OCR/document corpus; worker crash/recovery/DLQ; native watcher; backup restore/RPO/RTO; production telemetry; load/canary/rollback; production scale/query-plan evidence.
 
 ## Next execution
-Continue independent fronts without waiting for CI: cross-surface BI/Decision/Export truth, NULL semantics, tenant/security sibling discovery, compatibility consumer graph, and reliability runtime harness preparation. Exact-head CI remains a certification barrier, not a work queue.
+Continue independent work immediately. Highest current CI-family item is the exact-head diagnostic race hardening; then resume the quality run and continue with cross-surface BI/Decision/Export truth, NULL semantics, tenant/security sibling discovery and reliability runtime harness preparation.
 
 PRODUCTION CERTIFIED = NO until real LIVE evidence exists.
