@@ -1,6 +1,6 @@
 name: quality
 on:
-  push: {branches: [main, 'wave/**']}
+  push: {branches: [main]}
   pull_request: {branches: [main]}
   workflow_dispatch:
 permissions: {contents: read}
