@@ -27,7 +27,8 @@ if (!migrations.includes('GRANT EXECUTE ON FUNCTION public.inventory_intelligenc
 if (!migrations.includes("inv.status IN ('confirmed', 'posted', 'paid')")) failures.push('snapshot status semantics are not explicit');
 if (!migrations.includes('LEAST(GREATEST(COALESCE(p_days, 180), 1), 3650)')) failures.push('snapshot analysis period is not safely bounded');
 if (!migrations.includes('LEFT JOIN stock')) failures.push('products without stock are incorrectly excluded from the canonical snapshot');
-if (!migrations.includes('COUNT(DISTINCT m.group_id) = 1')) failures.push('ambiguous multi-group membership is not represented safely');
+if (!migrations.includes('COUNT(DISTINCT m.group_id)')) failures.push('group cardinality is not calculated from distinct group memberships');
+if (!migrations.includes('CASE WHEN membership_count = 1 THEN group_id ELSE NULL END')) failures.push('ambiguous group membership is not represented as NULL');
 if (!migrations.includes('WHEN sales.total_quantity IS NULL THEN NULL')) failures.push('missing demand is being converted into a numeric value');
 if (!migrations.includes('daily_demand')) failures.push('snapshot does not expose canonical daily demand');
 
