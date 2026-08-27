@@ -103,17 +103,29 @@ Regression:
 - `package.json` exposes `test:abc-xyz-runtime`.
 - `scripts/check-abc-xyz-truth.mjs` requires both the implementation boundary and executable runtime regression wiring.
 
-Consumer proof: **NOT YET VERIFIED**. Repository search did not establish a complete current-HEAD consumer graph; therefore no `CONSUMER VERIFIED` claim is made.
+Consumer proof: **OPEN**. The current repository search establishes the Reports inventory consumer and its canonical `row.value` path, but full ABC/XYZ consumer graph and cross-surface equivalence remain unverified.
 
-Legacy proof: **NOT CLOSED**. No consumer-free proof exists for deletion of any related compatibility path.
+## Batch 49 — Reports inventory consumer migration
+Finding: `src/pages/ReportsPage.tsx` recalculated inventory row value in the browser as `quantity × unit_cost`, despite the canonical `InventoryReportRow.value` contract.
 
-Current exact code HEAD before this index commit: `8754b36bddefa88ae2811871ad9607367718ba5c`.
+Root cause: the report table retained presentation-era business arithmetic after the authoritative inventory snapshot had been introduced.
 
-Exact-head CI at that SHA: **NOT OBSERVED (`check_runs = 0`)**. No historical PASS is promoted.
+Canonical fix:
+- Migrated the inventory report table to render `row.value` directly.
+- Missing value remains `—`; no browser fallback-to-zero was introduced.
+- Existing canonical `snapshot.totalValue`, `unknownRows`, and `dataStatus` remain the report-level source of truth.
 
-Current batch state: `IMPLEMENTED → REGRESSION WIRED → GATE WIRED → CONSUMER VERIFICATION OPEN → EXACT-HEAD CI PENDING`.
+Consumer proof: **IMPLEMENTED** for this identified Reports inventory consumer.
 
-LIVE required: real authenticated consumer execution, A/B tenant isolation where classification data is tenant-scoped, and real corpus evidence for downstream reports/exports if this classifier feeds production surfaces.
+Regression: **PENDING EXECUTION**. A repository regression proving the report consumer does not reintroduce `quantity × unit_cost` should be added/executed before closure.
+
+Legacy proof: **OPEN** until repository-wide search establishes no remaining duplicate inventory-value calculations in other report/BI/export consumers.
+
+Exact code HEAD after consumer migration: `82b6db7ecf51088678de497ba67506223fad0c9d`.
+
+Exact-head CI: **NOT OBSERVED** for `82b6db7ecf51088678de497ba67506223fad0c9d`; no historical PASS promoted.
+
+Status: `IMPLEMENTED → CONSUMER MIGRATED → REGRESSION PENDING → EXACT-HEAD CI PENDING`; not CLOSED.
 
 ## Parallel remaining fronts
 ### Front A — Canonical Data Truth
