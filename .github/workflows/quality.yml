@@ -33,6 +33,8 @@ jobs:
         run: node scripts/check-inventory-intelligence-truth.mjs
       - name: Decision priority truth regression
         run: node scripts/check-decision-priority-truth.mjs
+      - name: Global tenant RLS truth regression
+        run: node scripts/check-global-tenant-rls.mjs
       - name: Workflow command integrity
         run: npm run test:workflow-command-integrity
       - name: Typecheck
