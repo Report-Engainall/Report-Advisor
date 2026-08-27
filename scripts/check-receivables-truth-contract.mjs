@@ -8,7 +8,7 @@ for (const invariant of [
   "si.company_id = public.current_company_id()",
   "NOT IN ('cancelled', 'canceled', 'void')",
   "WHEN s.due_date IS NULL THEN 'UNDATED'",
-  'OFFSET greatest(p_page, 0)',
+  'OFFSET greatest(p_page, 0) * greatest(p_page_size, 1)',
   'LIMIT greatest(least(p_page_size, 500), 1)',
   'count(*)::bigint AS total_rows',
   'sum(outstanding)',
