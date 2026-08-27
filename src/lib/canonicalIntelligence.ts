@@ -1,9 +1,9 @@
-import { analyzeTrend, backtestForecast, forecastSeries, unifiedConfidence } from './advancedIntelligence';
-import { cashConversionCycle, decideReplenishment, projectLiquidity, type CashConversionCycle, type InventoryDecision, type LiquidityProjection } from './businessIntelligenceEngines';
-import { prioritizeReceivables, prioritizeSupplierPayments, protectCashReserve, type PaymentPriority, type ReceivablePriority, type ReserveProtection } from './financialDecisionEngines';
-import { calculateInventoryDecision, type InventoryDecision as StochasticInventoryDecision } from './intelligence/inventoryEngine';
-import { aggregateAlternativeGroups, type AlternativeGroupDecision, type AlternativeGroupInput } from './intelligence/groupDemand';
-import { evaluateMetric, type MetricEvaluation } from './metricEngine';
+import { analyzeTrend, backtestForecast, forecastSeries, unifiedConfidence } from './advancedIntelligence.ts';
+import { cashConversionCycle, decideReplenishment, projectLiquidity, type CashConversionCycle, type InventoryDecision, type LiquidityProjection } from './businessIntelligenceEngines.ts';
+import { prioritizeReceivables, prioritizeSupplierPayments, protectCashReserve, type PaymentPriority, type ReceivablePriority, type ReserveProtection } from './financialDecisionEngines.ts';
+import { calculateInventoryDecision, type InventoryDecision as StochasticInventoryDecision } from './intelligence/inventoryEngine.ts';
+import { aggregateAlternativeGroups, type AlternativeGroupDecision, type AlternativeGroupInput } from './intelligence/groupDemand.ts';
+import { evaluateMetric, type MetricEvaluation } from './metricEngine.ts';
 export interface IntelligenceInvoice { id: string; total: number; paidAmount: number; date?: string | null; }
 export interface IntelligencePurchase { total: number; paidAmount: number; }
 export interface IntelligenceInventoryRow { sku: string; stock: number; unitCost: number; dailySales?: number[]; leadTimeDays?: number; }
