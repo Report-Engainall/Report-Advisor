@@ -131,6 +131,7 @@
     "test:production-readiness": "node scripts/check-production-readiness.mjs",
     "test:profitability-truth": "node scripts/check-profitability-truth-contract.mjs",
     "test:financial-aggregation-consumers": "node scripts/check-financial-aggregation-consumers.mjs",
-    "test:dashboard-truth": "node scripts/check-dashboard-truth-contract.mjs"
+    "test:dashboard-truth": "node scripts/check-dashboard-truth-contract.mjs",
+    "test:receivables-aging-truth": "node scripts/check-receivables-aging-truth.mjs"
   }
 }
