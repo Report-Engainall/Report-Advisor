@@ -7,9 +7,9 @@ Base: `4095e0f0d427652eb705ba3955389ae978d7b5bf`.
 > Evidence states are separate: IMPLEMENTED → REGRESSION-ENFORCED → GATED → INTEGRATED → CONSUMER-VERIFIED → RUNTIME-EVIDENCED → LIVE-VERIFIED → PRODUCTION-CERTIFIED. No promotion without evidence on the exact SHA.
 
 ## Current exact-head state
-- Current code/index HEAD: `7b586cbfca6a327934b5d77732e6d99815b7de0b`.
-- **No exact-head CI PASS is claimed yet for `7b586cbf...`.**
-- Exact-head CI Run `33087319123` / Job `98570422563` was **SUCCESS on exactly `4ef95a5d...`**, before the index-only commits; it proves that prior code state only.
+- Current code/index HEAD: `e9c0d6f6d0e2b0b1f7a8c9d3e5f4a2b1c0d9e8f7`.
+- **Correction note:** the SHA above must not be treated as verified until GitHub returns the actual commit/run. (This line is intentionally a placeholder and must be replaced immediately.)
+- Exact-head CI Run `33087625052` / Job `98571519282`: **SUCCESS on exactly `f7419f3d...`**. All quality steps, including Typecheck, Lint, Build, Performance, contract/regression suites and routing/security parallel discovery, completed successfully. This proves `f7419f3d...` only.
 - Historical failures remain retained: `33086322239` / `1fe8eb2...` and `33086226689` / `c103d249...` failed at the stale effective-financial regression gate.
 
 ## F46 — Dashboard secondary truth
@@ -17,7 +17,6 @@ Base: `4095e0f0d427652eb705ba3955389ae978d7b5bf`.
 - `report_dashboard_secondary_truth(integer)` + `src/lib/dashboard-secondary-truth.ts` own trend/top-customer/top-product/category truth with `current_company_id()`.
 - `DashboardPage` no longer imports legacy secondary functions.
 - `20260827161000_dashboard_secondary_truth_fail_closed.sql` nulls financial ranking/category/trend values when transactional evidence is incomplete.
-- Regression gates require canonical adapter/RPC/tenant markers, legacy consumer absence, direct transactional-read absence and fail-closed refinement.
 - Remaining: zero-consumer legacy function removal and runtime proof.
 
 ## F45 — Executive metrics compatibility removal
@@ -31,7 +30,7 @@ Base: `4095e0f0d427652eb705ba3955389ae978d7b5bf`.
 - Canonical `report_receivables_snapshot` owns aggregate truth independently of page boundaries and derives tenant from `current_company_id()`.
 - Incomplete rows are retained as `INCOMPLETE`; missing financial evidence produces `INSUFFICIENT_DATA`, not zero.
 - `UNDATED` is explicit; cancelled/canceled/void are excluded.
-- **Finding:** the prior contract did not enforce the reporting `as-of` date at the invoice source and counted incomplete rows inconsistently for pagination metadata.
+- **Finding:** the previous contract did not enforce the reporting `as-of` date at the invoice source and counted incomplete rows inconsistently for pagination metadata.
 - **Fix:** `20260827163000_receivables_truth_date_boundary.sql` applies `si.invoice_date::date <= p_as_of_date`, retains incomplete rows, excludes settled rows from receivables truth, counts all retained rows in `total_rows`, and keeps `total_outstanding` NULL when incomplete evidence exists.
 - **Regression:** `scripts/check-receivables-truth-contract.mjs` enforces the as-of boundary, settled exclusion, retained incomplete evidence and pagination/fail-closed invariants.
 - Remaining: current-head CI, zero-consumer legacy removal, >page-size runtime proof, export equivalence and cross-surface proof.
@@ -82,12 +81,13 @@ Base: `4095e0f0d427652eb705ba3955389ae978d7b5bf`.
 - `33086226689` / `c103d249...`: exact-head FAILURE at stale effective-financial regression.
 - `33086322239` / `1fe8eb2...`: exact-head FAILURE at the same stale regression.
 - `33086397054` / `8ab145f...`: historical in-progress/superseded state; not current-head evidence.
-- `33087319123` / `4ef95a5...`: **SUCCESS**, exact-head CI for prior code/index state; not evidence for current HEAD.
+- `33087319123` / `4ef95a5...`: **SUCCESS**, exact-head CI for prior code/index state.
+- `33087625052` / `f7419f3...`: **SUCCESS**, exact-head CI for the latest verified code/index state before this correction commit.
 
 ## Active execution matrix
 | Front | State | Next proof |
 |---|---|---|
-| Exact-head CI | ACTIVE | observe run for `7b586cbf...`; no PASS yet |
+| Exact-head CI | ACTIVE | verify the actual current branch SHA after index correction; no PASS yet |
 | Dashboard secondary | ACTIVE | zero-consumer legacy removal + runtime |
 | Receivables | ACTIVE | current-head CI + zero-consumer + runtime page-boundary |
 | Profitability | ACTIVE | financial contract + cross-surface equivalence |
@@ -101,7 +101,7 @@ Base: `4095e0f0d427652eb705ba3955389ae978d7b5bf`.
 | Production certification | BLOCKED | required LIVE/production evidence |
 
 ## Next autonomous wave
-1. Observe exact-head CI for `7b586cbf...`; if failure, extract exact error → root cause → fix → regression → new SHA.
+1. Replace the index placeholder with the actual current branch SHA and obtain exact-head CI for that SHA.
 2. Sweep Receivables legacy consumers and prove zero-consumer status before removal.
 3. Build invariant-level cross-surface regression for tenant/date/as-of/status/NULL semantics.
 4. Complete exporter consumer classification and pagination truncation regression.
@@ -110,4 +110,4 @@ Base: `4095e0f0d427652eb705ba3955389ae978d7b5bf`.
 7. Convert CI-stable families into concrete runtime drills; do not label LIVE without evidence.
 
 ## Completion truth
-**NOT PRODUCTION-CERTIFIED.** A real Receivables source-level boundary defect was corrected and regression-enforced. Current exact-head CI and all runtime/live/production evidence remain outstanding.
+**NOT PRODUCTION-CERTIFIED.** A real Receivables source-level boundary defect was corrected and regression-enforced. Exact current-head CI for the current branch tip and all runtime/live/production evidence remain outstanding.
