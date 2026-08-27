@@ -137,6 +137,7 @@
     "test:analytics-truth": "node scripts/check-analytics-truth-contract.mjs",
     "test:export-truth": "node scripts/check-export-truth-contract.mjs",
     "test:executive-metrics-zero-consumer": "node scripts/check-executive-metrics-zero-consumer.mjs",
-    "test:tenant-sibling-boundaries": "node scripts/check-tenant-sibling-boundaries.mjs"
+    "test:tenant-sibling-boundaries": "node scripts/check-tenant-sibling-boundaries.mjs",
+    "test:durable-production-runner": "node scripts/check-durable-production-runner.mjs"
   }
 }
