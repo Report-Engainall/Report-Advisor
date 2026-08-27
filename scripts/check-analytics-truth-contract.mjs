@@ -34,4 +34,13 @@ if (app.includes("@/pages/AnalyticsPage")) throw new Error('Legacy AnalyticsPage
 if (page.includes("supabase.from('sales_invoices')") || page.includes("supabase.from('sale_items')")) throw new Error('Analytics UI must not own raw business truth reads');
 if (/\.reduce\s*\(/.test(page)) throw new Error('Analytics UI must not perform business aggregation');
 
-console.log('ANALYTICS_TRUTH_CONTRACT: PASS (RFM/ABC server truth, aging shared receivables truth, tenant authority, fail-closed semantics, zero legacy App import)');
+// Fail-closed presentation regression: incomplete aging truth must not still feed
+// financial amounts into charts. The UI may explain the insufficiency, but must
+// not visualize a number that the canonical source has marked non-calculable.
+if (!page.includes("const isCalculated = snapshot?.status === 'CALCULATED';")) throw new Error('Aging analytics missing explicit calculated-state guard');
+if (!page.includes("isCalculated && snapshot ? Object.entries(snapshot.buckets)") && !page.includes("isCalculated && snapshot ? Object.entries(snapshot.buckets)")) {
+  throw new Error('Aging analytics buckets are not gated by CALCULATED status');
+}
+if (!page.includes('isCalculated ? <SimpleBarChart')) throw new Error('Aging analytics chart is not fail-closed on insufficient data');
+
+console.log('ANALYTICS_TRUTH_CONTRACT: PASS (RFM/ABC server truth, aging shared receivables truth, tenant authority, fail-closed semantics, zero legacy App import, fail-closed aging presentation)');
