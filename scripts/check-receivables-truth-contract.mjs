@@ -18,9 +18,14 @@ for (const invariant of [
 ]) {
   if (!migration.includes(invariant)) throw new Error(`Receivables canonical migration missing invariant: ${invariant}`);
 }
-if (migration.includes('AND si.total IS NOT NULL') || migration.includes('AND si.paid_amount IS NOT NULL')) {
+
+const scopedMatch = migration.match(/WITH scoped AS \(\s*([\s\S]*?)\n\), classified AS \(/);
+if (!scopedMatch) throw new Error('Receivables truth contract cannot locate scoped CTE.');
+const scopedCte = scopedMatch[1];
+if (/\bAND\s+si\.(?:total|paid_amount)\s+IS\s+NOT\s+NULL\b/i.test(scopedCte)) {
   throw new Error('Receivables truth must retain incomplete financial rows instead of filtering them out.');
 }
+
 for (const invariant of [
   "supabase.rpc('report_receivables_snapshot'",
   'p_page_size: pageSize',
