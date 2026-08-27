@@ -37,9 +37,10 @@ export function analyzeFamilyLiquidity(rows: FamilyLiquidityInput[]): FamilyLiqu
     grouped.set(row.familyId, current);
   }
 
-  const totalRevenue = [...grouped.values()].reduce((sum, value) => sum + value.revenue, 0);
-  const totalProfit = [...grouped.values()].reduce((sum, value) => sum + (value.profit ?? 0), 0);
-  const hasProfit = [...grouped.values()].some((value) => value.profit !== null);
+  const values = [...grouped.values()];
+  const totalRevenue = values.reduce((sum, value) => sum + value.revenue, 0);
+  const allHaveProfit = values.length > 0 && values.every((value) => value.profit !== null);
+  const totalProfit = allHaveProfit ? values.reduce((sum, value) => sum + (value.profit as number), 0) : null;
 
   return [...grouped.entries()].map(([familyId, value]) => {
     const capitalIntensity = value.stock !== null && value.revenue > 0 ? value.stock / value.revenue : null;
@@ -54,6 +55,7 @@ export function analyzeFamilyLiquidity(rows: FamilyLiquidityInput[]): FamilyLiqu
     if (value.stock !== null) evidence.push(`stock_value=${value.stock}`);
     if (value.profit !== null) evidence.push(`gross_profit=${value.profit}`);
     if (capitalIntensity !== null) evidence.push(`stock_value/revenue=${capitalIntensity.toFixed(3)}`);
+    if (!allHaveProfit) evidence.push('profit_share=INSUFFICIENT_DATA');
 
     return {
       familyId,
@@ -61,7 +63,9 @@ export function analyzeFamilyLiquidity(rows: FamilyLiquidityInput[]): FamilyLiqu
       grossProfit: value.profit,
       stockValue: value.stock,
       revenueShare: totalRevenue > 0 ? value.revenue / totalRevenue : null,
-      profitShare: hasProfit && totalProfit > 0 && value.profit !== null ? value.profit / totalProfit : null,
+      profitShare: allHaveProfit && totalProfit !== null && totalProfit !== 0 && value.profit !== null
+        ? value.profit / totalProfit
+        : null,
       capitalIntensity,
       liquidityRole,
       evidence,
