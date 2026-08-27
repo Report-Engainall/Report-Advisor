@@ -184,6 +184,9 @@ Certification state: `IMPLEMENTED → REGRESSION-WIRED → EXACT-HEAD CI PENDING
 
 Batch state: `PARTIAL`.
 
+## Prior exact-head evidence
+Forecast canonical fix `728b344f57c304ab5e66744db40624d3d4a2c8a3` has a production-chain guard run `33104660444`, job `98631162091`, with SUCCESS on that exact SHA. This is guard evidence only, not full production certification.
+
 ## Batch #46 — Decision priority financial-exposure truth
 Finding: `scoreDecision()` treated missing `financialExposure` as the literal business value `50`, allowing unavailable financial evidence to affect a decision as if it were known.
 
