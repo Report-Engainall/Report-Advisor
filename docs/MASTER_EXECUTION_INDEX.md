@@ -111,6 +111,31 @@ Certification state: `IMPLEMENTED → REGRESSION-WIRED → EXACT-HEAD CI PENDING
 
 Batch state: `PARTIAL`.
 
+## Batch #43 — Inventory Intelligence adapter restoration / consumer integrity
+Finding: `InventoryIntelligencePage.tsx` imported `@/lib/free-toolbox/inventory-intelligence-canonical` while that canonical adapter was absent from the actual PR changed-file set. This created a concrete broken import and made the advertised regression guard unable to execute successfully.
+
+Root cause: the consumer migration commit and regression script referenced a canonical adapter that was not included in the branch tree.
+
+Fix: added `src/lib/free-toolbox/inventory-intelligence-canonical.ts` on `fix/inventory-report-truth`.
+
+Canonical responsibilities: tenant resolution through `resolveCurrentCompanyId()`, tenant-bound source reads for `alternative_item_group_members`, `inventory_balances`, and `products`, finite quantity validation, group mapping, and preservation of unavailable demand/sales values as `Number.NaN` rather than zero.
+
+Consumer: `src/pages/InventoryIntelligencePage.tsx` is the real consumer and imports `fetchInventoryIntelligenceSource()`; page-level source reads and stock aggregation remain absent.
+
+Regression: `scripts/check-inventory-intelligence-truth.mjs` is wired in `.github/workflows/quality.yml` and now has its required adapter file present.
+
+Fix commit: `22e495b8cb841de13eb281399704c5214bf1485d`.
+
+Regression execution: NOT EXECUTED locally here. No PASS claim.
+
+Exact-head CI: NOT OBSERVED for fix SHA `22e495b8cb841de13eb281399704c5214bf1485d`; the workflow supports `workflow_dispatch`, but no dispatch execution is being claimed from the available connector.
+
+Important remaining architectural gap: the adapter is still an application boundary and demand data is obtained through `fetchProductDemandSeries()`, which itself performs browser-side Supabase reads. This batch therefore does **not** claim server/RPC canonicalization or full cross-surface truth closure.
+
+Certification state: `IMPLEMENTED → CONSUMER MIGRATED → REGRESSION-READY → EXACT-HEAD CI PENDING → CONSUMER VERIFIED PENDING`.
+
+Batch state: `PARTIAL`.
+
 ## Prior exact-head evidence
 Forecast canonical fix `728b344f57c304ab5e66744db40624d3d4a2c8a3` has a production-chain guard run `33104660444`, job `98631162091`, with SUCCESS on that exact SHA. This is guard evidence only, not full production certification.
 
@@ -164,7 +189,7 @@ Forecast canonical fix `728b344f57c304ab5e66744db40624d3d4a2c8a3` has a producti
 Supabase A/B tenant isolation; Storage; Realtime; AI/vector; authenticated browser E2E; real OCR/document corpus; worker crash/recovery/DLQ; native watcher; backup restore/RPO/RTO; production telemetry; load/canary/rollback; production scale/query-plan evidence.
 
 ## Next execution
-Continue independent fronts without waiting for CI. Highest immediate P1 is exact-head regression/CI for the report and analytics consumer migrations, then remaining browser duplicate calculations and cross-surface BI/Decision/Export equivalence. Exact-head CI remains a certification barrier, not a reason to stop independent work.
+Continue independent fronts without waiting for CI. Highest immediate P1 is server/RPC canonicalization for Inventory Intelligence and exact-head regression/CI for the report and analytics consumer migrations, then remaining browser duplicate calculations and cross-surface BI/Decision/Export equivalence. Exact-head CI remains a certification barrier, not a reason to stop independent work.
 
 PRODUCTION CERTIFIED = NO until real LIVE evidence exists.
 
