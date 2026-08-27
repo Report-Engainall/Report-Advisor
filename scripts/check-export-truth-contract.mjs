@@ -22,27 +22,27 @@ const forbiddenNames = /\b(?:exportAll|exportAllData|exportEverything)\b/;
 const pagination = /\b(?:pageSize|pageIndex|currentPage|offset|limit)\b/;
 const clientAggregation = /\.reduce\s*\(|\b(?:sum|total|count)\s*[:=]/;
 
-// Match actual exporter APIs/usages, not the JavaScript/TypeScript `export` keyword.
-// This prevents ordinary exported business functions with a `limit` parameter and
-// a reduce() from being misclassified as exporters.
-const exportOperation = /\b(?:export(?:Report|Data|Everything)?|download(?:Report|File|Artifact)?|toCsv|toJSON|toJson|toExcel|toXlsx|reportTo)\s*(?:\(|=)/i;
+// Only exporter IMPLEMENTATIONS require an explicit scope declaration.
+// Calls from consumers (e.g. downloadReportArtifact(...)) are inventoried
+// separately and must not be mistaken for exporter implementations.
+const exporterDeclaration = /\b(?:export\s+(?:async\s+)?function\s+)?(?:export(?:Report|Data|Everything)?|download(?:Report|File|Artifact)?|toCsv|toJSON|toJson|toExcel|toXlsx|reportTo)\s*(?:=\s*(?:async\s*)?\([^)]*\)\s*=>|\([^)]*\)\s*\{|\([^)]*\)\s*\{)/i;
 const exporterFunctionDeclaration = /\bexport\s+(?:async\s+)?function\s+(?:export(?:Report|Data|Everything)?|download(?:Report|File|Artifact)?|toCsv|toJSON|toJson|toExcel|toXlsx|reportTo)\b/i;
 const scopeDeclaration = /\b(?:EXPORT_SCOPE|[A-Z0-9_]+_EXPORT_SCOPE|REPORT_DOWNLOAD_SCOPE)\b\s*[:=]\s*['"](?:CURRENT_VIEW|FULL_DATASET|FILTERED_FULL_DATASET)['"]/;
+const materializesDownload = /\b(?:renderArtifact|Blob|createObjectURL)\b/i;
 
 for (const file of files) {
   const text = fs.readFileSync(file, 'utf8');
   const rel = path.relative(root, file).replaceAll(path.sep, '/');
-  if (!exportOperation.test(text) && !exporterFunctionDeclaration.test(text)) continue;
+  const isExporterImplementation = exporterDeclaration.test(text) || exporterFunctionDeclaration.test(text) || (materializesDownload.test(text) && /(?:export|download)/i.test(rel));
+  if (!isExporterImplementation) continue;
 
   if (forbiddenNames.test(text)) findings.push(`${rel}: ambiguous exportAll-style API name`);
-  if (pagination.test(text) && clientAggregation.test(text) && exportOperation.test(text)) {
-    findings.push(`${rel}: export code mixes pagination signals with client aggregation; classify as view export or route through canonical truth`);
+  if (pagination.test(text) && clientAggregation.test(text)) {
+    findings.push(`${rel}: exporter implementation mixes pagination signals with client aggregation; classify as view export or route through canonical truth`);
   }
 
-  const declaresExporter = exporterFunctionDeclaration.test(text);
-  const materializesDownload = /\b(?:download|renderArtifact|Blob|createObjectURL)\b/i.test(text);
-  if ((declaresExporter || materializesDownload) && !scopeDeclaration.test(text)) {
-    findings.push(`${rel}: exporter function has no explicit CURRENT_VIEW/FULL_DATASET/FILTERED_FULL_DATASET scope declaration`);
+  if (!scopeDeclaration.test(text)) {
+    findings.push(`${rel}: exporter implementation has no explicit CURRENT_VIEW/FULL_DATASET/FILTERED_FULL_DATASET scope declaration`);
   }
 }
 
@@ -51,7 +51,7 @@ for (const file of files) {
 const knownNonExporter = path.join(src, 'lib/free-toolbox/party-intelligence.ts');
 if (fs.existsSync(knownNonExporter)) {
   const text = fs.readFileSync(knownNonExporter, 'utf8');
-  if (exportOperation.test(text) || exporterFunctionDeclaration.test(text)) {
+  if (exporterDeclaration.test(text) || exporterFunctionDeclaration.test(text)) {
     findings.push('export detector regression: party-intelligence.ts is being classified as an exporter without an exporter API');
   }
 }
