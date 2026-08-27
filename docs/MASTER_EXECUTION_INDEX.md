@@ -7,9 +7,21 @@ Base: `4095e0f0d427652eb705ba3955389ae978d7b5bf`.
 > Evidence states are separate: IMPLEMENTED → REGRESSION-ENFORCED → GATED → INTEGRATED → CONSUMER-VERIFIED → RUNTIME-EVIDENCED → LIVE-VERIFIED → PRODUCTION-CERTIFIED. No promotion without evidence on the exact SHA.
 
 ## Current evidence snapshot
-- Code HEAD for F49: `157af422168e83fe2260b7b28ee2fb854c374e09`.
-- Exact-head Quality Run: `33091460802`, Job `98585086968`, SHA `157af422168e83fe2260b7b28ee2fb854c374e09`, **SUCCESS**.
-- This commit updates only the evidence index; its resulting SHA requires its own fresh exact-head CI. No PASS from `157af422...` is promoted to this new index SHA.
+- Code HEAD for F50: `95175d5fbe56acb78b83e6f2285aa6412a443687`.
+- Exact-head Quality Run: `33093195928`, Job `98591209955`, SHA `95175d5fbe56acb78b83e6f2285aa6412a443687`, **SUCCESS**.
+- F49 code evidence remains valid only for `157af422...`; it is not promoted to F50.
+- This index update changes the branch tip; its resulting SHA requires its own fresh exact-head CI. No PASS from `95175d5f...` is promoted to this new index SHA.
+
+## F50 — Sales report cross-surface truth boundary
+**IMPLEMENTED / REGRESSION-ENFORCED / INTEGRATED / CONSUMER MIGRATED / EXACT-HEAD CI VERIFIED on `95175d5f...`.**
+- Finding: `SalesReportPage` summary cards consumed `fetchDashboardKPIs()` while the invoice table consumed a paginated sales dataset, creating separate domain truth paths.
+- Root cause: sales-report presentation depended directly on a dashboard aggregate instead of a sales-domain canonical contract.
+- Fix: added tenant-authoritative `report_sales_truth()`; added `fetchSalesReportTruth()` adapter; introduced `SalesReportPageCanonical`; migrated `/reports/sales` in `App.tsx` to the canonical page.
+- Semantic contract: missing invoice total/paid evidence yields `INSUFFICIENT_DATA` and NULL financial totals; cancelled/canceled/void invoices are excluded server-side.
+- Export classification: the sales page remains an explicit current-view export; pagination is not used to calculate summary truth.
+- Regression: `scripts/check-sales-cross-surface-truth.mjs` verifies canonical adapter consumption, absence of dashboard KPI dependency in the sales page, tenant authority, fail-closed semantics, and current-view export labeling.
+- Exact-head gate: Quality Run `33093195928` / Job `98591209955` succeeded on this exact SHA; the dedicated Sales cross-surface truth step passed before Typecheck/Lint/Build and the remaining quality chain.
+- Remaining: Dashboard itself must converge to the same sales-domain source before BI ↔ Decision ↔ Analytics ↔ Export equivalence can be called closed; runtime/live proof remains required.
 
 ## F49 — Family liquidity profit-share fail-closed
 **IMPLEMENTED / REGRESSION-ENFORCED / EXACT-HEAD CI VERIFIED on `157af422...`.**
@@ -17,7 +29,7 @@ Base: `4095e0f0d427652eb705ba3955389ae978d7b5bf`.
 - Root cause: partial evidence was collapsed into a numeric denominator.
 - Fix: `allHaveProfit` is now required; incomplete coverage produces `profitShare = null` and explicit `profit_share=INSUFFICIENT_DATA` evidence.
 - Consumer family: family liquidity / commercial-priority analysis.
-- Regression gate: `scripts/check-financial-aggregation-consumers.mjs` now enforces the fail-closed contract and ran successfully in Quality Run `33091460802`.
+- Regression gate: `scripts/check-financial-aggregation-consumers.mjs` enforces the fail-closed contract and ran successfully in Quality Run `33091460802`.
 - Runtime: not executed; live evidence remains required.
 
 ## F48 — Aging analytics fail-closed presentation
@@ -42,7 +54,7 @@ Zero-consumer scan found no runtime consumer for `get_executive_metrics(uuid,dat
 **PARTIAL.** Explicit scopes: `CURRENT_VIEW | FULL_DATASET | FILTERED_FULL_DATASET`; browser report export is current-view; static gate detects ambiguous exporter names and pagination/client-aggregation mixing. Remaining: repository-wide consumer inventory, canonical full/filtered implementations, pagination→export regression.
 
 ## BI ↔ Decision ↔ Analytics ↔ Export
-**OPEN.** No runtime evidence proves equivalent records/totals/counts/date/as-of/tenant/NULL semantics across all surfaces. `ReportsPage` sales cards still consume `fetchDashboardKPIs()` while the sales table consumes paginated invoices; this is a remaining cross-surface source-of-truth finding, not an implementation closure.
+**OPEN.** No runtime evidence proves equivalent records/totals/counts/date/as-of/tenant/NULL semantics across all surfaces. Sales report summary now has its own canonical sales-domain boundary, but Dashboard still has an independent dashboard truth function; convergence remains required.
 
 ## Tenant Security sibling sweep
 **REGRESSION-WIRED / CI VERIFIED on covered static contracts.** Static gates cover SECURITY DEFINER tenant authority and legacy consumer boundaries. This is not A/B runtime isolation proof.
@@ -54,7 +66,7 @@ Zero-consumer scan found no runtime consumer for `get_executive_metrics(uuid,dat
 **STATIC/CONTRACT ONLY — NO RUNTIME EVIDENCE.** Required: tenant A/B denial, signed URL isolation, realtime event isolation, vector metadata/retrieval/cache/deletion isolation.
 
 ## Semantic NULL / UNKNOWN / MISSING / ZERO
-**ACTIVE.** F49 closes one concrete financial semantic conversion; repository-wide implicit conversion sweep remains open. Search inventory continues to show additional `?? 0` patterns in intelligence/analytics code and each must be classified as business-zero or insufficient-data before promotion.
+**ACTIVE.** F49 and F50 close concrete financial semantic conversions; repository-wide implicit conversion sweep remains open. Search inventory continues to show additional `?? 0` patterns in intelligence/analytics code and each must be classified as business-zero or insufficient-data before promotion.
 
 ## Document Intelligence
 **REGRESSION/GATED FOUNDATION; REAL CORPUS NOT VERIFIED.** Real OCR/PDF/XLSX/CSV execution remains LIVE REQUIRED.
@@ -63,7 +75,7 @@ Zero-consumer scan found no runtime consumer for `get_executive_metrics(uuid,dat
 **IMPLEMENTED / REGRESSION-WIRED IN COVERED ROUTES; CROSS-SURFACE OPEN.**
 
 ## Database / Migration Safety
-**ACTIVE.** Receivables replacement uses the exact existing function signature and preserves authenticated execute grants. Full dependency/signature/grant/RLS/security-definer audit remains required.
+**ACTIVE.** Receivables replacement uses the exact existing function signature and preserves authenticated execute grants. Sales truth adds an exact no-argument `report_sales_truth()` SECURITY DEFINER function with explicit public revoke/authenticated grant and tenant derivation from `current_company_id()`. Full dependency/signature/grant/RLS/security-definer audit remains required.
 
 ## Runtime / LIVE evidence
 **NO RUNTIME EVIDENCE.** Authenticated browser, tenant A/B DB+Storage+Realtime+AI/vector, worker recovery, native watcher, backup restore/RPO/RTO, real document corpus, production telemetry/load/canary/rollback and crypto matrix remain required.
@@ -75,6 +87,7 @@ Zero-consumer scan found no runtime consumer for `get_executive_metrics(uuid,dat
 - `33089346132` / `c2f4a019...`: SUCCESS for pre-F48 exact head.
 - `33091051060` / `4fc80ec...`: SUCCESS for the index-only snapshot before F49.
 - `33091460802` / `157af422...`: **SUCCESS, exact-head Quality for F49**.
+- `33093195928` / `95175d5f...`: **SUCCESS, exact-head Quality for F50**.
 - Prior failures remain retained in earlier index history and are not deleted by this snapshot.
 
 ## Active execution matrix
@@ -82,7 +95,7 @@ Zero-consumer scan found no runtime consumer for `get_executive_metrics(uuid,dat
 |---|---|---|
 | Exact-head CI | ACTIVE | fresh quality CI for this resulting index tip |
 | Receivables | ACTIVE | zero-consumer + >page-size runtime |
-| Sales cross-surface | FINDING | canonical sales truth replacing Dashboard KPI dependency |
+| Sales cross-surface | IMPLEMENTED / CI VERIFIED | Dashboard convergence + runtime equivalence |
 | Analytics presentation | REGRESSION-WIRED | incomplete-data runtime |
 | Profitability | ACTIVE | explicit financial contract + cross-surface equivalence |
 | Export | ACTIVE | full consumer inventory + pagination regression |
@@ -95,19 +108,19 @@ Zero-consumer scan found no runtime consumer for `get_executive_metrics(uuid,dat
 | Production certification | BLOCKED | LIVE + production evidence |
 
 ## Completion percentage — evidence-weighted
-**Current engineering completion estimate: ~72%.** F49 materially improves financial semantic integrity and is CI-gated on its exact code SHA. The percentage remains below 80% because consumer equivalence, runtime/LIVE proof, and production evidence are still materially incomplete.
+**Current engineering completion estimate: ~73%.** F50 closes one real consumer source-of-truth boundary and is exact-head CI-gated; the estimate remains below the production threshold because cross-surface convergence, runtime/live proof, and production evidence are still materially incomplete.
 
-Lifecycle truth: IMPLEMENTED **high** · REGRESSION-ENFORCED **high** · GATED **high on covered exact SHA, new index tip pending** · INTEGRATED **substantial** · CONSUMER-VERIFIED **partial** · RUNTIME-EVIDENCED **NONE** · LIVE-VERIFIED **NOT VERIFIED** · PRODUCTION-CERTIFIED **NOT CERTIFIED**.
+Lifecycle truth: IMPLEMENTED **high** · REGRESSION-ENFORCED **high** · GATED **high on covered exact SHA, current index tip pending** · INTEGRATED **substantial** · CONSUMER-VERIFIED **partial-to-strong on covered routes** · RUNTIME-EVIDENCED **NONE** · LIVE-VERIFIED **NOT VERIFIED** · PRODUCTION-CERTIFIED **NOT CERTIFIED**.
 
 ## Next autonomous wave
-1. Exact-head CI for this index tip; record only its SHA.
-2. Sales cross-surface root-cause closure: canonical sales truth for summary cards and paginated table/export semantics.
-3. Repository-wide financial `?? 0` / `|| 0` classification and root-cause fixes.
+1. Fresh exact-head quality CI for this resulting index tip; record only that SHA.
+2. Dashboard convergence: make dashboard sales metrics consume the sales-domain canonical source or prove an explicit domain transformation.
+3. Repository-wide financial `?? 0` / `|| 0` semantic classification and root-cause fixes.
 4. Export consumer inventory and pagination→export regression.
 5. Tenant Storage/Realtime/AI/vector adversarial runtime harness.
 6. Worker state-machine recovery drills.
 7. Document real-corpus execution harness.
-8. Convert CI-stable families into runtime drills; never label LIVE without evidence.
+8. Convert CI-stable families into concrete runtime drills; never label LIVE without evidence.
 
 ## Completion truth
-**NOT PRODUCTION-CERTIFIED.** F49 is CI-verified on `157af422...`; the new index commit itself is not yet CI-certified. Runtime/live/production evidence remains absent.
+**NOT PRODUCTION-CERTIFIED.** F50 is CI-verified on `95175d5f...`; this new index commit itself is pending fresh exact-head CI. Runtime/live/production evidence remains absent.
