@@ -12,9 +12,11 @@ PR: `#61`
 No historical PASS promotion. No scanner-only closure. No runtime/LIVE/production claims without matching evidence.
 
 ## Exact state
-- Current reliability batch HEAD before this Index update: `84aebe3369c4fc2baf72ed427e699c5d0cc617f5`.
+- Latest code HEAD: `ee13e90245dc007ac8f147bc9c32dd580f465b8d`.
 - PR #61 is open/draft and not merged.
-- Exact-head CI is **NOT OBSERVABLE until a workflow run/check for the exact batch HEAD is returned**. No PASS claimed.
+- Exact-head quality run `33098685009` executed against PR merge ref `39a49f9151dbc84aaf4e45e45de4c63c682dd1c2` and verified `PR_HEAD_SHA=89a1b4a36cc41f2affc5a98018649c9d3c50e00f`.
+- That exact batch run failed only at Typecheck: `InventoryPageCanonical.tsx(45)` referenced `InventoryReportRow.last_movement_date`, which is not part of the canonical `InventoryReportRow` contract. Build, lint, performance and all post-typecheck `always()` gates passed; downstream behavioral regression steps before/after typecheck were skipped where ordered behind the failure.
+- The defect is fixed in `ee13e90245dc007ac8f147bc9c32dd580f465b8d` by removing the unsupported field/export dead code and aligning the consumer with the canonical row contract. New exact-head CI is required; no PASS is claimed yet.
 
 ## Batch — report execution lease fencing
 Finding: report queue lifecycle transitions were authorized by `workerId` and lease expiry, but the real worker adapter did not carry a unique lease identity. A stale worker retaining the same worker identity could therefore pass ownership checks after a retry/reclaim if the lifecycle boundary were reached through the old contract.
@@ -24,20 +26,21 @@ Classification: `P1 RELIABILITY / CONCURRENCY / STALE-WORKER SAFETY`
 Root cause: lease ownership was represented as mutable owner identity plus expiry, without a per-claim fencing token propagated to every mutating lifecycle operation.
 
 Fix:
-- `src/lib/report-execution/queue.ts` now issues a `leaseToken` on every claim/reclaim.
+- `src/lib/report-execution/queue.ts` issues a `leaseToken` on every claim/reclaim.
 - `heartbeat`, `complete`, `cancel`, and `fail` require the exact token and worker identity.
 - Expired leases are rejected for heartbeat.
 - Retry/reclaim produces a different token.
 - Terminal/failure transitions clear owner, token and expiry.
-- `src/lib/report-execution/worker-adapter.ts` now exposes and forwards the token across the real adapter boundary.
+- `src/lib/report-execution/worker-adapter.ts` exposes and forwards the token across the real adapter boundary.
+- `src/pages/InventoryPageCanonical.tsx` now consumes only fields defined by the canonical inventory snapshot contract; no client-side business calculation was reintroduced.
 
-Consumer state: repository search found the worker adapter and durable runner as the relevant lifecycle surfaces; no additional direct `.claim()`/`.heartbeat()` consumers were returned by the repository search. The adapter contract is therefore migrated, but runtime execution through the durable runner remains to be proven.
+Consumer state: repository search identified the worker adapter/durable runner as lifecycle surfaces. Adapter propagation is implemented. Runtime execution through durable runner crash/recovery remains unproven.
 
 Regression:
 - `scripts/report-execution-lease-fencing.test.ts` covers claim token issuance, stale heartbeat rejection, retry token rotation, stale-worker completion rejection and terminal token clearing.
 - Package script: `test:report-execution-lease-fencing`.
 
-Status: `IMPLEMENTED → REGRESSION ADDED → PARTIAL`; exact-head CI and runtime crash/recovery evidence pending.
+Status: `IMPLEMENTED → REGRESSION ADDED → PARTIAL`; exact-head CI after `ee13e90245dc007ac8f147bc9c32dd580f465b8d` and runtime crash/recovery evidence pending.
 
 ## P0 — Data Quality
 Browser business-quality aggregation was migrated to `get_data_quality_snapshot()` with tenant authority from `current_company_id()`. The legacy bridge and page were removed after repository consumer proof. Regression guard checks canonical RPC consumption and legacy absence.
@@ -105,7 +108,7 @@ Status: `IMPLEMENTED → REGRESSION`; exact-head CI and live A/B export isolatio
 ### Front F — Reliability
 - worker/watcher/queue/retry/idempotency/DLQ/recovery.
 - backup/restore/RPO/RTO.
-- current batch: lease fencing token propagation is implemented and regression-gated, but runtime crash/recovery is pending.
+- current batch: lease fencing token propagation is implemented and regression-gated, but exact-head re-run and runtime crash/recovery remain pending.
 
 ### Front G — Runtime/LIVE
 - authenticated E2E.
@@ -115,7 +118,7 @@ Status: `IMPLEMENTED → REGRESSION`; exact-head CI and live A/B export isolatio
 ## Status ladder
 - IMPLEMENTED: current fixes implemented.
 - TESTED/REGRESSION: repository behavioral/contract evidence exists.
-- GATED: **NO CLAIM** for current HEAD until exact-head CI evidence exists.
+- GATED: **NO CLAIM** for `ee13e90245dc007ac8f147bc9c32dd580f465b8d` until exact-head CI evidence exists.
 - CONSUMER VERIFIED: only where consumer evidence is explicit.
 - RUNTIME VERIFIED: NO CLAIM.
 - LIVE VERIFIED: NO.
