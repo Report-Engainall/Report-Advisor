@@ -29,11 +29,11 @@ jobs:
           test "$(git rev-parse HEAD)" = "${GITHUB_SHA}"
           if [ "${GITHUB_EVENT_NAME}" = "pull_request" ]; then
             expected_head="$(node -e "const fs=require('fs'); const e=JSON.parse(fs.readFileSync(process.env.GITHUB_EVENT_PATH,'utf8')); process.stdout.write(e.pull_request.head.sha)")"
-            actual_head="$(git ls-remote origin "refs/heads/${GITHUB_HEAD_REF}" | awk '{print $1}')"
-            test -n "$actual_head"
-            test "$actual_head" = "$expected_head"
-            echo "PR_HEAD_SHA=$actual_head"
+            merge_parents="$(git show -s --format=%P HEAD)"
+            test "$(printf '%s\n' "$merge_parents" | tr ' ' '\n' | grep -Fx "$expected_head")"
+            echo "PR_HEAD_SHA=$expected_head"
             echo "MERGE_REF_SHA=$GITHUB_SHA"
+            echo "PR_HEAD_PRESENT_AS_MERGE_PARENT=true"
           else
             echo "CODE_HEAD_SHA=$(git rev-parse HEAD)"
           fi
