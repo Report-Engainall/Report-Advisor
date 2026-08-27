@@ -11,33 +11,32 @@ PR: `#43`
 No historical PASS promotion. No scanner-only closure. No runtime/LIVE/production claims without matching evidence.
 
 ## Exact state
-- Current code/test HEAD: `e32ee56fac01893777ea1e34b82f738aa53a5553`.
-- Exact-head CI certification: **NOT CLAIMED** until a run/check is observed for this exact SHA.
+- Current code/test HEAD: `7847fd68b9b4992a2f18097400ca78adfbc405a0`.
+- Exact-head check-runs: `0` observed for this SHA; therefore **NO PASS CLAIM**.
 - Runtime/LIVE/production certification: **NOT CLAIMED**.
 
-## Batch — Export completeness / page-vs-dataset closure
-Finding: report pages render bounded UI pages (sales/purchases 20 rows; inventory 25 rows) while export must represent the canonical dataset rather than the currently displayed page.
+## Batch — Demand Velocity canonical truth / bounded read closure
+Finding: `fetchProductDemandSeries()` performed browser-side invoice/item reads followed by business aggregation; real consumers include `DemandVelocityPage.tsx` and `InventoryIntelligencePage.tsx`. The prior scanner asserted the direct reads instead of preventing them.
 
-Root cause: export correctness depends on the canonical export-row RPC path and must be protected against regression to UI-row mapping.
+Root cause: no dedicated authoritative demand snapshot boundary, causing potentially large invoice/item payloads and duplicate business calculations in the browser.
 
 Fix:
-- Added `scripts/check-export-completeness-contract.mjs`.
-- The guard proves the real report consumers call canonical export adapters rather than mapping UI page arrays directly.
-- The guard proves all four canonical export RPCs have hard maximums and fail closed with `EXPORT_TOO_LARGE` instead of silently truncating.
-- Wired the guard into `quality.yml`.
-- Changed quality concurrency grouping to workflow/ref/event so stale runs can actually be cancelled.
+- Added `supabase/migrations/20260827150000_demand_velocity_canonical_snapshot.sql`.
+- Added `get_demand_velocity_snapshot(p_days, p_as_of)` with `current_company_id()` tenant authority, fixed `search_path`, authenticated-only execution, bounded 1..365-day input and database-side product/day aggregation.
+- Migrated `src/lib/free-toolbox/sales-demand-series.ts` to the RPC while preserving the existing consumer API; both known consumers therefore use the canonical adapter.
+- Replaced the weak scanner with `scripts/check-demand-velocity.mjs`, asserting RPC use and forbidding direct `sales_invoices`/`sale_items` reads in the adapter.
 
-Consumer state: `ReportsPage.tsx` sales, purchases, inventory, and receivables export handlers consume canonical export adapters.
+Consumer state: `DemandVelocityPage.tsx` and `InventoryIntelligencePage.tsx` consume `fetchProductDemandSeries()`; repository search found no consumer of `fetchSalesVelocityEvents()`, so `sales-velocity-data.ts` remains a legacy candidate pending compatibility/deletion proof.
 
-Legacy state: no page-export implementation is removed because the current handlers already use canonical adapters; the regression prevents reintroduction of page-based export.
+Legacy state: `get_sales_secondary_metrics` remains DB-defined with possible external/database consumers; no destructive removal claimed.
 
-Regression: `scripts/check-export-completeness-contract.mjs` is now part of the quality chain.
+Regression: canonical-boundary script added/updated.
 
-Exact-head CI: pending/not observed for `e32ee56fac01893777ea1e34b82f738aa53a5553`; no PASS claimed.
+Exact-head CI: **NOT OBSERVABLE / 0 check-runs** for `7847fd68b9b4992a2f18097400ca78adfbc405a0`; no PASS claimed.
 
-Remaining LIVE evidence: authenticated export execution, tenant A/B isolation, large-corpus export, memory/payload behavior, and production download verification.
+Remaining LIVE evidence: authenticated DB execution, tenant A/B isolation, performance on large corpus, runtime UI behavior, and production-scale query-plan evidence.
 
-Certification state: `IMPLEMENTED → REGRESSION → GATED (pending exact-head evidence)`.
+Certification state: `IMPLEMENTED → CONSUMER MIGRATED → REGRESSION`; exact-head CI/runtime/live pending.
 
 ## Existing partial families
 ### Invoice page-read tenant/security closure
@@ -54,6 +53,9 @@ Bounded tenant-authoritative forecast snapshot implemented; exact-head/runtime p
 
 ### Export tenant authority hardening
 All four canonical export RPCs have tenant authority checks, fixed search_path, anonymous execution revoked and authenticated execution granted; live A/B isolation pending.
+
+### Export completeness
+Canonical export adapters and regression guard prevent page-only export and silently truncated oversized exports; exact-head certification remains per current SHA.
 
 ### DB-only legacy candidate — get_sales_secondary_metrics
 Still defined in migration; no repository consumer found, but external/database consumers cannot be excluded. Keep as `LEGACY CANDIDATE / EXTERNAL-CONSUMER RISK`; do not destructively drop yet.
@@ -80,6 +82,6 @@ Still defined in migration; no repository consumer found, but external/database 
 Supabase A/B tenant isolation; Storage; Realtime; AI/vector; authenticated browser E2E; real OCR/document corpus; worker crash/recovery/DLQ; native watcher; backup restore/RPO/RTO; production telemetry; load/canary/rollback; production scale/query-plan evidence.
 
 ## Next execution
-Continue independent fronts without waiting for CI: cross-surface BI/Decision/Export truth, NULL semantics, tenant/security sibling discovery, reliability drills, and performance bottleneck discovery. Exact-head CI is a certification barrier, not a reason to pause independent work.
+Continue independent fronts without waiting for CI: `queries-compat.ts` consumer graph, NULL/UNKNOWN semantics, cross-surface BI/Decision/Export equivalence, tenant/security sibling discovery, reliability drills, and performance bottleneck discovery. Exact-head CI is a certification barrier, not a reason to pause independent work.
 
 PRODUCTION CERTIFIED = NO until real LIVE evidence exists.
