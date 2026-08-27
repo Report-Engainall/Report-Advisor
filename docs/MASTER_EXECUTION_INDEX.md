@@ -261,3 +261,39 @@ Exact-head:
 - Therefore this batch is **PARTIAL**, not CLOSED.
 
 Next failure family selected: **Tenant Security / indirect tenant paths**, prioritizing storage, realtime, AI/vector metadata, exports, workers and imports over further UI-only metric polishing.
+
+
+## Batch 52 — Watched-folder indirect tenant bypass hardening
+
+Finding: `record_watched_report_file` was SECURITY DEFINER and derived the inserted `company_id` from `current_company_id()`, but it accepted a caller-controlled `p_folder_id` without first proving that the folder itself belonged to the authoritative tenant. This left an indirect cross-tenant reference path: a valid tenant session could attempt to reference another tenant's folder UUID.
+
+Root cause: tenant authority was enforced on the row being written, but not on the referenced parent resource before the SECURITY DEFINER operation.
+
+Canonical fix:
+- Added `supabase/migrations/20260828200000_watched_report_tenant_hardening.sql`.
+- The RPC now resolves `v_company_id := public.current_company_id()`.
+- It rejects missing tenant context.
+- It explicitly verifies `watched_report_folders.id = p_folder_id` AND `company_id = v_company_id` before any write.
+- Invalid state values are rejected explicitly.
+- Search path and grants are hardened; anon execution is revoked and authenticated execution is granted.
+
+Regression:
+- Added `scripts/check-watched-report-tenant-hardening.mjs`.
+- Added `test:watched-report-tenant-hardening` to package scripts.
+- Execution: **NOT EXECUTED** in this environment; therefore no regression PASS is claimed.
+
+Consumer/runtime evidence:
+- The client watcher already calls the canonical RPC path; this change hardens the database boundary beneath it.
+- Adversarial A/B tenant execution still requires a real Supabase environment and two authenticated tenants. That is **LIVE REQUIRED**, not locally claimed.
+
+Exact-head discipline:
+- Code/index branch changed after Batch 52; exact current branch SHA must be obtained from the branch tip before certification.
+- Exact-head CI: **PENDING / NOT OBSERVED**.
+- Batch status: **PARTIAL**.
+
+Next parallel families:
+- Continue indirect tenant audit across storage/realtime/vector metadata and background workers.
+- In parallel, inspect reliability lease/retry/DLQ invariants because those are independent of tenant DB hardening.
+- Then perform exact-head regression/CI once the active implementation wave is coherent.
+
+Production certification: **NO**.
