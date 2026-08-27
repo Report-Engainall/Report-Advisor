@@ -13,7 +13,7 @@ import { AlertTriangle, Home, RefreshCw, X } from 'lucide-react';
 
 const ImportPage = lazy(() => import('@/pages/ImportPage').then(m => ({ default: m.ImportPage })));
 const ReportsCenterPage = lazy(() => import('@/pages/ReportsPage').then(m => ({ default: m.ReportsCenterPage })));
-const SalesReportPage = lazy(() => import('@/pages/ReportsPage').then(m => ({ default: m.SalesReportPage })));
+const SalesReportPage = lazy(() => import('@/pages/SalesReportPageCanonical').then(m => ({ default: m.SalesReportPageCanonical })));
 const PurchasesReportPage = lazy(() => import('@/pages/ReportsPage').then(m => ({ default: m.PurchasesReportPage })));
 const InventoryReportPage = lazy(() => import('@/pages/ReportsPage').then(m => ({ default: m.InventoryReportPage })));
 const InventoryIntelligencePage = lazy(() => import('@/pages/InventoryIntelligencePage').then(m => ({ default: m.InventoryIntelligencePage })));
