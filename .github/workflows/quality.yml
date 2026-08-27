@@ -41,6 +41,8 @@ jobs:
         run: npm ci --no-audit --no-fund
       - name: Workflow command integrity
         run: npm run test:workflow-command-integrity
+      - name: Production certification evidence integrity
+        run: npm run test:production-certification-evidence-integrity
       - name: CI topology and canonical release wiring
         run: node scripts/check-ci-execution-topology.mjs && node scripts/check-production-recovery-gate.mjs
       - name: Cross-surface capability traceability
