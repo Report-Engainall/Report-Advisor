@@ -3,6 +3,7 @@ import fs from 'node:fs';
 const migration = fs.readFileSync('supabase/migrations/20260826110000_report_receivables_snapshot.sql', 'utf8');
 const adapter = fs.readFileSync('src/lib/receivables-truth.ts', 'utf8');
 const app = fs.readFileSync('src/App.tsx', 'utf8');
+const page = fs.readFileSync('src/pages/ReceivablesReportPageCanonical.tsx', 'utf8');
 
 for (const invariant of [
   "si.company_id = public.current_company_id()",
@@ -30,4 +31,13 @@ for (const invariant of [
   if (!adapter.includes(invariant)) throw new Error(`Receivables adapter missing invariant: ${invariant}`);
 }
 if (!app.includes("@/pages/ReceivablesReportPageCanonical")) throw new Error('Receivables route is not migrated to canonical truth.');
-console.log('Receivables truth contract: PASS (tenant authority, cancelled/void exclusion, UNDATED semantics, server aggregation, bounded display pagination, no missing→zero coercion)');
+for (const invariant of [
+  'const [retryNonce, setRetryNonce] = useState(0);',
+  '}, [page, retryNonce]);',
+  'setRetryNonce((value) => value + 1)',
+  'snapshot.incompleteRows > 0',
+]) {
+  if (!page.includes(invariant)) throw new Error(`Receivables UI regression missing invariant: ${invariant}`);
+}
+if (page.includes('setPage((value) => value);')) throw new Error('Receivables retry must not be a no-op state update.');
+console.log('Receivables truth contract: PASS (server truth, tenant authority, pagination independence, incomplete-data semantics, real retry path)');
