@@ -39,7 +39,10 @@ WITH scoped AS (
   WHERE ib.company_id = public.current_company_id()
 ), metrics AS (
   SELECT count(*)::bigint AS total_rows,
-         sum(CASE WHEN quantity IS NULL OR unit_cost IS NULL THEN NULL::numeric ELSE quantity * unit_cost END) AS total_value,
+         CASE WHEN count(*) FILTER (WHERE quantity IS NULL OR unit_cost IS NULL) > 0
+              THEN NULL::numeric
+              ELSE sum(quantity * unit_cost)
+         END AS total_value,
          count(*) FILTER (WHERE quantity IS NULL OR unit_cost IS NULL)::bigint AS incomplete_rows,
          count(*) FILTER (WHERE quantity IS NOT NULL AND reorder_point IS NOT NULL AND quantity <= reorder_point)::bigint AS low_stock_rows,
          count(*) FILTER (WHERE quantity IS NOT NULL AND quantity <= 0)::bigint AS out_of_stock_rows
@@ -56,7 +59,8 @@ SELECT page.id, page.company_id, page.warehouse_id, page.product_id,
        CASE WHEN page.w_id IS NULL THEN NULL ELSE jsonb_build_object('id',page.w_id,'name',page.w_name) END,
        metrics.total_rows, metrics.total_value, metrics.incomplete_rows,
        metrics.low_stock_rows, metrics.out_of_stock_rows
-FROM page CROSS JOIN metrics;
+FROM page CROSS JOIN metrics
+ORDER BY page.last_movement_date DESC NULLS LAST, page.id DESC;
 $$;
 
 REVOKE ALL ON FUNCTION public.report_inventory_snapshot(integer,integer) FROM PUBLIC;
