@@ -4,6 +4,7 @@ export interface ReceivablesReportRow {
   id: string;
   company_id: string;
   customer_id: string | null;
+  customer_name: string | null;
   invoice_number: string;
   invoice_date: string | null;
   due_date: string | null;
