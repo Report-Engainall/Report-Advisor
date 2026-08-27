@@ -38,6 +38,7 @@ export function ReceivablesReportPageCanonical() {
       {bucketCards.map(([bucket, amount]) => <Card key={bucket}><CardBody><div className="text-xs text-ink-500 mb-1">{bucket} يوم</div><div className="text-lg font-bold text-ink-900">{formatCurrency(amount)}</div></CardBody></Card>)}
     </div>
     {snapshot.undatedRows > 0 && <div role="alert" className="rounded-xl border border-warning-200 bg-warning-50 px-4 py-3 text-sm text-warning-800">هناك {formatNumber(snapshot.undatedRows)} ذمم بلا تاريخ استحقاق؛ بقيت في فئة UNDATED ولم تُحوّل إلى عمر مصطنع.</div>}
+    {snapshot.incompleteRows > 0 && <div role="alert" className="rounded-xl border border-danger-200 bg-danger-50 px-4 py-3 text-sm text-danger-800">هناك {formatNumber(snapshot.incompleteRows)} سجلات ذمم ناقصة ماليًا؛ لم تُحوّل القيم المفقودة إلى صفر، ولذلك الحالة INSUFFICIENT_DATA.</div>}
     <Card>
       <CardHeader title="الفواتير المستحقة" subtitle={`صفحة ${page + 1} من ${Math.max(1, lastPage + 1)} — ${formatNumber(snapshot.rows.length)} من ${formatNumber(snapshot.totalRows)}`} />
       <DataTable columns={[
@@ -47,7 +48,7 @@ export function ReceivablesReportPageCanonical() {
         { key: 'total', label: 'الإجمالي', align: 'right', render: (r: ReceivablesReportRow) => formatCurrency(r.total) },
         { key: 'paid_amount', label: 'المدفوع', align: 'right', render: (r: ReceivablesReportRow) => formatCurrency(r.paid_amount) },
         { key: 'outstanding', label: 'المتبقي', align: 'right', render: (r: ReceivablesReportRow) => formatCurrency(r.outstanding) },
-        { key: 'bucket', label: 'الفئة', align: 'center', render: (r: ReceivablesReportRow) => <Badge variant={r.bucket === '90+' ? 'danger' : r.bucket === 'UNDATED' ? 'neutral' : 'warning'}>{r.bucket}</Badge> },
+        { key: 'bucket', label: 'الفئة', align: 'center', render: (r: ReceivablesReportRow) => <Badge variant={r.bucket === '90+' ? 'danger' : r.bucket === 'INCOMPLETE' ? 'danger' : r.bucket === 'UNDATED' ? 'neutral' : 'warning'}>{r.bucket}</Badge> },
       ]} data={snapshot.rows} />
       <div className="flex items-center justify-between border-t border-ink-100 px-4 py-3 text-xs text-ink-500"><span>Business Truth مستقل عن pagination.</span><div className="flex gap-2"><button type="button" disabled={page === 0} onClick={() => setPage((value) => Math.max(0, value - 1))} className="btn-secondary text-xs disabled:opacity-50">السابق</button><button type="button" disabled={page >= lastPage} onClick={() => setPage((value) => Math.min(lastPage, value + 1))} className="btn-secondary text-xs disabled:opacity-50">التالي</button></div></div>
     </Card>
