@@ -16,7 +16,7 @@ for (const token of [
   "p_checkpoint->>'sourceHash'",
   'Invalid checkpoint transition',
   'Checkpoint evidence keys cannot be removed during progression',
-  'current_checkpoint->\'sourceHash\'',
+  "current_checkpoint->>'sourceHash'",
   'FOR UPDATE',
   'A non-empty worker lease owner is required',
   'p_lease_seconds < 30 OR p_lease_seconds > 3600',
