@@ -42,6 +42,31 @@ Certification state: `IMPLEMENTED → REGRESSION-GATED PENDING EXECUTION → CON
 
 Batch state: `PARTIAL` because exact-head CI and executed regression evidence are not yet available.
 
+## Batch #40 — Receivables report duplicate aggregation
+Finding: `ReceivablesReportPage` recomputed total receivables in the browser with `aging.reduce((s,b)=>s+b.amount,0)` despite the authoritative dashboard snapshot already exposing `kpis.totalReceivables`.
+
+Classification: `P1 BUSINESS TRUTH / DUPLICATE CLIENT AGGREGATION`
+
+Root cause: the report presentation layer was treating aging buckets as the source of the headline receivables truth instead of consuming the canonical KPI.
+
+Canonical source: `fetchDashboardSnapshot()` → `kpis.totalReceivables`.
+
+Fix: `ReportsPage.tsx` now stores and renders `snap.kpis.totalReceivables` for the headline receivables metric. Aging buckets remain presentation detail.
+
+Consumer migration: implemented on the real `ReceivablesReportPage` consumer.
+
+Legacy duplication: the targeted browser `aging.reduce(...)` business aggregation was removed.
+
+Regression: existing dashboard/report canonical truth gates remain applicable; a dedicated regression should be added if this family expands to additional receivables consumers.
+
+Implementation commit: `7c0137648c50566ffb84bbfb380639addaa6c8c6`.
+
+Exact-head CI: not claimed; this branch currently has no workflow run observed for the implementation SHA.
+
+Certification state: `IMPLEMENTED → REGRESSION PENDING → CONSUMER VERIFIED PENDING EXACT-HEAD CI`.
+
+Batch state: `PARTIAL`.
+
 ## Prior exact-head evidence
 Forecast canonical fix `728b344f57c304ab5e66744db40624d3d4a2c8a3` has a production-chain guard run `33104660444`, job `98631162091`, with SUCCESS on that exact SHA. This is guard evidence only, not full production certification.
 
@@ -51,7 +76,7 @@ Forecast canonical fix `728b344f57c304ab5e66744db40624d3d4a2c8a3` has a producti
 - NULL/UNKNOWN/INSUFFICIENT_DATA semantics.
 - date/status/as-of consistency.
 - remaining browser business aggregation.
-- verify Inventory report consumer against exact-head regression/CI.
+- execute regression and exact-head CI for completed report migrations.
 
 ### Front B — Consumer + Legacy Closure
 - zero-consumer proof for compatibility functions.
@@ -95,7 +120,7 @@ Forecast canonical fix `728b344f57c304ab5e66744db40624d3d4a2c8a3` has a producti
 Supabase A/B tenant isolation; Storage; Realtime; AI/vector; authenticated browser E2E; real OCR/document corpus; worker crash/recovery/DLQ; native watcher; backup restore/RPO/RTO; production telemetry; load/canary/rollback; production scale/query-plan evidence.
 
 ## Next execution
-Continue independent fronts without waiting for CI. Highest immediate P1 is exact-head verification of the completed Inventory consumer migration, followed by remaining browser duplicate calculations and cross-surface BI/Decision/Export equivalence. Exact-head CI remains a certification barrier, not a reason to stop independent work.
+Continue independent fronts without waiting for CI. Highest immediate P1 is regression/exact-head verification of the report consumer migrations, followed by remaining browser duplicate calculations and cross-surface BI/Decision/Export equivalence. Exact-head CI remains a certification barrier, not a reason to stop independent work.
 
 PRODUCTION CERTIFIED = NO until real LIVE evidence exists.
 
