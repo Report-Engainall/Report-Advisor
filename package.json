@@ -18,7 +18,7 @@
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
-    "@eslint/js": "^9.9.1",
+    "@eslint/js": "^9.9.0",
     "@types/react": "^18.3.5",
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.3.1",
@@ -121,6 +121,7 @@
     "test:import-rpc-tenant-context": "node scripts/check-import-rpc-tenant-context.mjs",
     "test:import-business-key": "node scripts/check-import-business-key.mjs",
     "test:report-truth": "node scripts/check-report-truth-contract.mjs",
+    "test:inventory-empty-page-contract": "node scripts/check-inventory-empty-page-contract.mjs",
     "test:postcss-toolchain": "node scripts/check-postcss-toolchain.mjs",
     "test:quality-workflow-contract": "node scripts/check-quality-workflow-contract.mjs",
     "test:workflow-batch-integrity": "node scripts/check-workflow-batch-integrity.mjs",
