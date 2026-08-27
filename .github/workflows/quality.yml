@@ -43,6 +43,8 @@ jobs:
         run: npm run test:financial-aggregation-consumers
       - name: Dashboard truth contract
         run: npm run test:dashboard-truth
+      - name: Dashboard secondary truth
+        run: node scripts/check-dashboard-secondary-truth.mjs
       - name: Effective financial truth fail-closed contract
         run: node scripts/check-effective-financial-truth-fail-closed.mjs
       - name: Receivables aging truth
