@@ -1,4 +1,4 @@
-import { supabase, resolveCurrentCompanyId } from '@/lib/supabase';
+import { supabase, resolveCurrentCompanyId } from '../supabase';
 
 export type OutcomeLabel = 'correct' | 'incorrect' | 'partial' | 'unknown';
 export interface DecisionOutcome { tenantId: string; decisionFingerprint: string; evidenceSnapshotId: string; actionId?: string; observedAt: string; label: OutcomeLabel; actualValue?: number; expectedValue?: number; impactValue?: number; notes?: string; }
@@ -24,8 +24,6 @@ function validateOutcome(outcome: DecisionOutcome): void {
 
 export function recordOutcome(outcomes: DecisionOutcome[], outcome: DecisionOutcome): DecisionOutcome[] {
   validateOutcome(outcome);
-  // Persistence is keyed by tenant + recommendation key, so the in-memory contract
-  // must use the same identity rather than observedAt (which previously diverged).
   const duplicate = outcomes.some(item => item.tenantId === outcome.tenantId && item.decisionFingerprint === outcome.decisionFingerprint);
   return duplicate ? outcomes : [...outcomes, { ...outcome }];
 }
