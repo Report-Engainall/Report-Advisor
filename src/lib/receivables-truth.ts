@@ -10,7 +10,7 @@ export interface ReceivablesReportRow {
   total: number | null;
   paid_amount: number | null;
   outstanding: number | null;
-  bucket: '0-30' | '31-60' | '61-90' | '90+' | 'UNDATED';
+  bucket: '0-30' | '31-60' | '61-90' | '90+' | 'UNDATED' | 'INCOMPLETE';
 }
 
 export interface ReceivablesReportSnapshot {
@@ -40,6 +40,7 @@ export async function fetchReceivablesReportSnapshot(page = 0, pageSize = 25, as
     bucket_61_90: number;
     bucket_90_plus: number;
     status: ReceivablesReportSnapshot['status'];
+    incomplete_rows: number;
   }>;
   const first = rows[0];
   return {
