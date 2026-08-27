@@ -35,7 +35,7 @@ assert.match(analyticsPage,/fetchRFMSnapshot\(500\)/);assert.match(analyticsPage
 assert.match(compat,/export \* from '\.\/queries'/);assert.match(compat,/canonicalFetchMonthlyTrend/);assert.match(compat,/canonicalFetchAgingBuckets/);assert.doesNotMatch(compat,/loadSecondaryMetrics/);assert.doesNotMatch(compat,/get_sales_secondary_metrics/);assert.match(compat,/canonicalFetchForecasts/);assert.match(compat,/canonicalFetchCustomers/);assert.match(compat,/canonicalFetchProducts/);
 
 assert.match(queries,/const MAX_ENTITY_ROWS = 500/);assert.match(queries,/REPORT_QUERY_LIMIT_EXCEEDED: customers/);assert.match(queries,/REPORT_QUERY_LIMIT_EXCEEDED: products/);assert.match(queries,/order\('name',\{ascending:true\}\)/);assert.match(queries,/range\(0,MAX_ENTITY_ROWS-1\)/);assert.match(compat,/return canonicalFetchCustomers\(\)/);assert.match(compat,/return canonicalFetchProducts\(\)/);
-assert.match(queries,/MAX_FORECAST_ROWS=500/);assert.match(queries,/count:'exact'/);assert.match(queries,/range\(0,MAX_FORECAST_ROWS-1\)/);assert.match(queries,/REPORT_QUERY_LIMIT_EXCEEDED: forecasts/);assert.match(queries,/order\('period',\{ascending:true\}\)/);assert.match(queries,/order\('id',\{ascending:true\}\)/);
+assert.match(queries,/MAX_FORECAST_ROWS\s*=\s*500/);assert.match(queries,/count:'exact'/);assert.match(queries,/range\(0,MAX_FORECAST_ROWS-1\)/);assert.match(queries,/REPORT_QUERY_LIMIT_EXCEEDED: forecasts/);assert.match(queries,/order\('period',\{ascending:true\}\)/);assert.match(queries,/order\('id',\{ascending:true\}\)/);
 
 console.log('PASS dashboard canonical semantic regression');
 console.log('PASS display pagination cannot define dashboard aggregate');
