@@ -55,6 +55,20 @@ for (const table of tenantTables) {
   if (!policy.test(text)) throw new Error(`Tenant RLS policy is incomplete for ${table}`);
 }
 
+// Child-table policies are parent-scoped in the canonical migration. Their
+// RLS enablement is now explicit in a follow-up migration so policy existence
+// can never be mistaken for executable row-level isolation.
+const childRlsMigration = migrations.find(({ file }) => file === '20260828000000_tenant_child_rls_enablement.sql');
+if (!childRlsMigration) {
+  throw new Error('Explicit child-table RLS enablement migration is missing');
+}
+for (const table of ['sale_items', 'purchase_items', 'import_rows', 'import_job_rows']) {
+  const enable = new RegExp(`ALTER TABLE\\s+${table}\\s+ENABLE ROW LEVEL SECURITY\\s*;`, 'i');
+  if (!enable.test(childRlsMigration.text)) {
+    throw new Error(`Child-table RLS enablement missing for ${table}`);
+  }
+}
+
 if (/CREATE POLICY\s+anon_[^;]+\s+ON\s+(?:products|imports|sales_invoices|purchase_invoices|customers|suppliers|file_records|import_jobs)\s+FOR\s+(?:SELECT|INSERT|UPDATE|DELETE)[^;]+(?:USING|WITH CHECK)\s*\(\s*true\s*\)/is.test(text)) {
   throw new Error(`Permissive anonymous policy detected in canonical tenant hardening: ${canonical.file}`);
 }
@@ -64,4 +78,4 @@ if (/CREATE POLICY\s+\S+\s+ON\s+\S+\s+FOR\s+[^;]*\s+TO\s+anon\b/i.test(text)) {
 
 if (text.trim().length < 1000) throw new Error(`Canonical tenant hardening appears truncated: ${canonical.file}`);
 
-console.log(`Global tenant RLS contract: PASS (canonical=${canonical.file}, tenantTables=${tenantTables.length}, migrations=${migrations.length})`);
+console.log(`Global tenant RLS contract: PASS (canonical=${canonical.file}, tenantTables=${tenantTables.length}, childRls=4, migrations=${migrations.length})`);
