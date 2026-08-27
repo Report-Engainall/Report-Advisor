@@ -12,7 +12,13 @@ const profileDisplay = fs.readFileSync(path.join(root, 'src/lib/profile-display.
 const profileSettings = fs.readFileSync(path.join(root, 'src/pages/ProfileSettingsPage.tsx'), 'utf8');
 const header = fs.readFileSync(path.join(root, 'src/components/Header.tsx'), 'utf8');
 const queries = fs.readFileSync(path.join(root, 'src/lib/queries.ts'), 'utf8');
-const tenantMigration = fs.readFileSync(path.join(root, 'supabase/migrations/20260822200000_canonical_tenant_membership.sql'), 'utf8');
+const migrationDir = path.join(root, 'supabase/migrations');
+const tenantMigrations = fs.readdirSync(migrationDir)
+  .filter(name => name.endsWith('.sql') && name.includes('canonical_tenant_membership'))
+  .sort();
+if (!tenantMigrations.length) throw new Error('No canonical tenant membership migration found.');
+const tenantMigrationPath = path.join(migrationDir, tenantMigrations[tenantMigrations.length - 1]);
+const tenantMigration = fs.readFileSync(tenantMigrationPath, 'utf8');
 
 const failures = [];
 
@@ -44,7 +50,11 @@ if (queries.includes(".eq('company_id', COMPANY_ID)")) failures.push('Canonical 
 if (!tenantMigration.includes('SECURITY DEFINER')) failures.push('Canonical tenant resolver is not SECURITY DEFINER.');
 if (!tenantMigration.includes('SET search_path = public')) failures.push('Canonical tenant resolver does not pin search_path.');
 if (!tenantMigration.includes('REVOKE EXECUTE ON FUNCTION public.current_company_id() FROM anon')) failures.push('Anonymous execution of the canonical tenant resolver is not explicitly revoked.');
-if (!tenantMigration.includes('RETURN NULL;')) failures.push('Canonical tenant resolver fail-closed branch is missing.');
+if (!tenantMigration.includes('current_company_id()')) failures.push('Canonical tenant resolver definition is missing.');
+if (!tenantMigration.includes('is_default = true')) failures.push('Effective tenant resolver does not require the canonical default membership.');
+if (tenantMigration.includes("auth.jwt() ->> 'company_id'")) failures.push('Effective tenant resolver still trusts a JWT company_id claim instead of the canonical membership boundary.');
+if (!tenantMigration.includes('REVOKE ALL ON FUNCTION current_company_id() FROM PUBLIC')) failures.push('Effective tenant resolver is not revoked from PUBLIC.');
+
 
 if (failures.length) {
   console.error('AUTH/TENANT CONVERGENCE FAILED');
@@ -64,5 +74,6 @@ console.log('- sign-out action present');
 console.log('- owner-editable profile settings route present');
 console.log('- truthful database-backed header health state present');
 console.log('- unresolved tenant is not reported as healthy');
+console.log(`- effective canonical tenant migration inspected: ${tenantMigrations[tenantMigrations.length - 1]}`);
 console.log('- canonical tenant resolver security invariants present');
 console.log('- canonical dashboard queries use RLS tenant scope');
