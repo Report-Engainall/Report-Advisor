@@ -357,3 +357,74 @@ Important remaining P0:
 - AI policy exists as a guard, but no repository consumer of `evaluateAIDataPolicy` was found; therefore no consumer-verification claim is made.
 
 Next family: cross-surface business truth (Dashboard ↔ Reports ↔ Analytics ↔ Export ↔ Decision) and remaining browser-derived calculations, while keeping runtime reliability independent.
+
+## Batch 55 — Receivables canonical consumer closure (implementation wave)
+
+Finding: src/pages/ReportsPage.tsx was still composing the receivables report from fetchDashboardSnapshot(6) plus paginated fetchSalesInvoices(0,50), then performing browser-side filter() and aging.reduce(). This made the report consumer capable of diverging from the authoritative receivables snapshot and made totals dependent on UI data shape.
+
+Root cause: an older report consumer survived beside the canonical fetchReceivablesReportSnapshot -> report_receivables_snapshot path.
+
+Canonical fix:
+- Migrated ReceivablesReportPage to fetchReceivablesReportSnapshot(0,50).
+- Removed browser-side invoice filtering and aging total reduction.
+- Total outstanding now comes directly from the authoritative snapshot.
+- Aging buckets and undated count are consumed from the authoritative snapshot.
+- Outstanding per row is consumed from canonical row.outstanding.
+- Added customer_name to the canonical snapshot contract and tenant-constrained customer join.
+- Added signature-safe DROP FUNCTION ... (integer,integer,date) before the new return contract.
+- Preserved NULL semantics: no valid receivable rows yields total_outstanding = NULL, not a fabricated zero.
+
+Consumer proof:
+- The identified Reports consumer has been migrated.
+- Repository search for the exact legacy composition currently returns only src/pages/ReportsPage.tsx.
+- Export remains on the canonical export RPC path.
+
+Regression:
+- Added scripts/check-receivables-canonical-consumer.mjs.
+- Added test:receivables-canonical-consumer to package.json.
+- Guard rejects reintroduction of browser-side receivables filtering/aggregation and requires tenant-scoped canonical SQL.
+- Regression execution: NOT EXECUTED in this environment; no PASS claimed.
+
+Exact-head:
+- Implementation commits in this wave culminate in 3671dbf70c563b77e1af049acb2ae733c559ad03.
+- Master Index update below creates a newer documentation commit; certification SHA must therefore be the resulting branch tip.
+- Exact-head CI: PENDING / NOT OBSERVED.
+
+Certification: IMPLEMENTED -> CONSUMER MIGRATED -> REGRESSION WIRED -> CI PENDING; PARTIAL, not CLOSED.
+
+LIVE required:
+- Supabase execution of the new snapshot return contract.
+- A/B tenant adversarial verification.
+- Browser authenticated E2E proving the report renders canonical totals and rows against deployed data.
+
+## Batch 56 — Export / cross-surface truth guard
+
+Finding: export consumers are already routed through canonical export RPC adapters, but inventory export independently materializes quantity × unit_cost while the inventory report snapshot also owns the same business valuation formula. This is a server-side duplicate truth path rather than a browser bug.
+
+Disposition:
+- Do not remove the export calculation blindly because its row-level export contract is distinct from the paginated report snapshot.
+- Treat the shared formula as an explicit equivalence invariant until a single reusable database valuation primitive can replace both without breaking the export contract.
+- Sales/purchase/receivables export functions are tenant-derived, bounded to 10,000 rows, and reject caller tenant mismatch.
+- Receivables export excludes non-positive/invalid balances and preserves NULL financial inputs by not manufacturing a balance for incomplete rows.
+- Inventory export preserves NULL when quantity or cost is missing.
+
+Canonical truth alignment:
+- Dashboard/report KPI truth remains server-authoritative.
+- Report exports use the canonical export RPC layer rather than browser-wide transactional reads.
+- The remaining risk is cross-surface equivalence evidence, not an identified client-side aggregation bug.
+
+Regression state:
+- Existing check-queries-compat-boundary.mjs protects canonical export adapter presence.
+- Existing report-data-truth guards cover pagination/unknown inventory semantics.
+- A dedicated cross-surface fixture comparing inventory report valuation to inventory export row valuation is still required before this family can be marked CLOSED.
+
+Exact-head CI: PENDING / NOT OBSERVED.
+
+Certification: PARTIAL.
+
+Next execution family:
+1. Build the cross-surface equivalence regression fixture (same tenant, same source rows, same NULL semantics, same as-of).
+2. Continue Decision/Outcome evidence chain.
+3. Then performance measurement rather than speculative optimization.
+
+Production certification remains NO.
