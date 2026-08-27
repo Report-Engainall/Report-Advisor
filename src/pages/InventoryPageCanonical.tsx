@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/Badge';
 import { PageHeader, LoadingState, ErrorState } from '@/components/ui/States';
 import { DataTable } from '@/components/ui/DataTable';
 import { fetchInventoryReportSnapshot, type InventoryReportSnapshot, type InventoryReportRow } from '@/lib/dashboard-canonical';
-import { formatCurrency, formatNumber, formatDate } from '@/lib/format';
+import { formatCurrency, formatNumber } from '@/lib/format';
 
 const PAGE_SIZE = 25;
 
@@ -35,17 +35,6 @@ export function InventoryPageCanonical() {
   const lastPage = Math.max(0, Math.ceil(snapshot.totalRows / PAGE_SIZE) - 1);
   const canPrev = page > 0;
   const canNext = page < lastPage;
-
-  const exportRows = snapshot.rows.map((row: InventoryReportRow) => ({
-    المنتج: row.product?.name ?? null,
-    المستودع: row.warehouse?.name ?? null,
-    الكمية: row.quantity,
-    التكلفة: row.unit_cost,
-    القيمة: row.value,
-    آخر_حركة: row.last_movement_date ? formatDate(row.last_movement_date) : null,
-  }));
-
-  void exportRows;
 
   return <div className="space-y-6 animate-fade-in">
     <PageHeader title="المخزون" subtitle="القيم التجارية والتعدادات من التجميع الخادمي؛ الجدول صفحة عرض فقط" />
