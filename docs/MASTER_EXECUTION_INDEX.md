@@ -1,8 +1,8 @@
 # Report Advisor — Master Execution & Truth Index
 
-Snapshot: 2026-08-27  
+Snapshot: 2026-08-28  
 Repository: `Report-Engainall/Report-Advisor`  
-Branch: `main`  
+Branch: `parallel/batch-48-data-truth`
 
 ## Permanent execution policy
 `PARALLEL DISCOVERY → FAILURE-FAMILY INVENTORY → ROOT-CAUSE CLUSTERING → BATCH IMPLEMENTATION → CONSUMER/LEGACY CLOSURE → BATCH REGRESSION → EXACT-HEAD CI → VERIFY → INDEX → NEXT PARALLEL FRONTS`
@@ -10,8 +10,9 @@ Branch: `main`
 No historical PASS promotion. No scanner-only closure. No runtime/LIVE/production claims without matching evidence.
 
 ## Exact state
-- Main contains the integrated deep-closure wave through commit `c7b21db4d68e396fa6ceefe3f6fdc15b1a8b8d4c` before this index-only update.
-- Exact-head CI must be evaluated against the new SHA after this index update; no historical run is promoted.
+- Main contains the integrated deep-closure wave through commit `c7b21db4d68e396fa6ceefe3f6fdc15b1a8b8d4c` before this branch's work.
+- Current batch branch contains Batch 48 data-truth hardening through the indexed HEAD recorded below.
+- Exact-head CI must be evaluated against the current SHA; no historical run is promoted.
 - Runtime, LIVE, and production certification remain unclaimed.
 
 ## Batch — invoice page-read tenant/security closure
@@ -88,12 +89,39 @@ Exact-head CI: **PENDING / NOT OBSERVED for the post-index SHA**.
 
 Status: `IMPLEMENTED → REGRESSION ADDED → CI PENDING`; not CLOSED.
 
+## Batch 48 — ABC/XYZ Data Truth
+Finding: the ABC/XYZ classifier accepted non-finite numeric inputs, allowing `NaN`/`Infinity` to contaminate classification and downstream evidence.
+
+Root cause: the classifier had numeric business calculations but no explicit finite-input boundary before sorting, cumulative value calculation, or coefficient-of-variation calculation.
+
+Canonical fix:
+- `src/lib/free-toolbox/abc-xyz.ts` now rejects non-finite `annualValue` and non-finite demand values with `RangeError`.
+- Existing negative annual-value normalization and cumulative classification semantics are retained.
+
+Regression:
+- `scripts/abc-xyz-runtime.test.ts` exercises normal classification and rejection of `NaN`, `Infinity`, `-Infinity`, and non-finite demand.
+- `package.json` exposes `test:abc-xyz-runtime`.
+- `scripts/check-abc-xyz-truth.mjs` requires both the implementation boundary and executable runtime regression wiring.
+
+Consumer proof: **NOT YET VERIFIED**. Repository search did not establish a complete current-HEAD consumer graph; therefore no `CONSUMER VERIFIED` claim is made.
+
+Legacy proof: **NOT CLOSED**. No consumer-free proof exists for deletion of any related compatibility path.
+
+Current exact code HEAD before this index commit: `8754b36bddefa88ae2811871ad9607367718ba5c`.
+
+Exact-head CI at that SHA: **NOT OBSERVED (`check_runs = 0`)**. No historical PASS is promoted.
+
+Current batch state: `IMPLEMENTED → REGRESSION WIRED → GATE WIRED → CONSUMER VERIFICATION OPEN → EXACT-HEAD CI PENDING`.
+
+LIVE required: real authenticated consumer execution, A/B tenant isolation where classification data is tenant-scoped, and real corpus evidence for downstream reports/exports if this classifier feeds production surfaces.
+
 ## Parallel remaining fronts
 ### Front A — Canonical Data Truth
 - Full `queries-compat.ts` function/consumer graph.
 - NULL/UNKNOWN/INSUFFICIENT_DATA semantics.
 - date/status/as-of consistency.
 - remaining browser business aggregation.
+- ABC/XYZ consumer graph and cross-surface metric equivalence.
 
 ### Front B — Consumer + Legacy Closure
 - zero-consumer proof for compatibility functions.
