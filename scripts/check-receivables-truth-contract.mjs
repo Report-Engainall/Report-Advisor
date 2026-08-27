@@ -12,16 +12,20 @@ for (const invariant of [
   'LIMIT greatest(least(p_page_size, 500), 1)',
   'count(*)::bigint AS total_rows',
   'sum(outstanding)',
+  'AS incomplete_rows',
+  "WHEN s.total IS NULL OR s.paid_amount IS NULL THEN 'INCOMPLETE'",
+  "count(*) FILTER (WHERE due_date IS NULL AND total IS NOT NULL AND paid_amount IS NOT NULL)",
 ]) {
   if (!migration.includes(invariant)) throw new Error(`Receivables canonical migration missing invariant: ${invariant}`);
 }
-if (migration.includes('coalesce(si.total, 0)') || migration.includes('coalesce(si.paid_amount, 0)')) {
-  throw new Error('Receivables truth must not convert missing financial inputs to zero.');
+if (migration.includes('AND si.total IS NOT NULL') || migration.includes('AND si.paid_amount IS NOT NULL')) {
+  throw new Error('Receivables truth must retain incomplete financial rows instead of filtering them out.');
 }
 for (const invariant of [
   "supabase.rpc('report_receivables_snapshot'",
   'p_page_size: pageSize',
   'REPORT_QUERY_INVALID_PAGE_SIZE',
+  'incompleteRows: Number(first?.incomplete_rows ?? 0)',
 ]) {
   if (!adapter.includes(invariant)) throw new Error(`Receivables adapter missing invariant: ${invariant}`);
 }
