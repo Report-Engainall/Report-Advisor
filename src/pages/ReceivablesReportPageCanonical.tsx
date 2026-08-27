@@ -10,6 +10,7 @@ const PAGE_SIZE = 25;
 
 export function ReceivablesReportPageCanonical() {
   const [page, setPage] = useState(0);
+  const [retryNonce, setRetryNonce] = useState(0);
   const [snapshot, setSnapshot] = useState<ReceivablesReportSnapshot | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -22,10 +23,10 @@ export function ReceivablesReportPageCanonical() {
       .catch((cause) => { if (!cancelled) setError(cause instanceof Error ? cause.message : 'تعذر تحميل الذمم'); })
       .finally(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
-  }, [page]);
+  }, [page, retryNonce]);
 
   if (loading) return <LoadingState message="جارٍ تحميل الذمم من المصدر القانوني..." />;
-  if (error) return <ErrorState message={error} onRetry={() => { setError(null); setPage((value) => value); }} />;
+  if (error) return <ErrorState message={error} onRetry={() => { setError(null); setRetryNonce((value) => value + 1); }} />;
   if (!snapshot) return <ErrorState message="تعذر إثبات لقطة الذمم" />;
 
   const lastPage = Math.max(0, Math.ceil(snapshot.totalRows / PAGE_SIZE) - 1);
