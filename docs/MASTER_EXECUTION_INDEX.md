@@ -7,21 +7,21 @@ Base: `4095e0f0d427652eb705ba3955389ae978d7b5bf`.
 > Evidence states are separate: IMPLEMENTED → REGRESSION-ENFORCED → GATED → INTEGRATED → CONSUMER-VERIFIED → RUNTIME-EVIDENCED → LIVE-VERIFIED → PRODUCTION-CERTIFIED. No promotion without evidence on the exact SHA.
 
 ## Current exact-head state
-- Current code tip before this index commit: `bbef0a9afd86a1eefe26c3e70d2f78f1c7c1fdf5`.
-- **No exact-head CI PASS is claimed for `bbef0a9...`.** The current SHA has no observable workflow/status result yet.
-- Prior Run `33087625052` / Job `98571519282` succeeded only on its prior recorded SHA and is not evidence for `bbef0a9...`.
-- This index update creates a new tip; that resulting tip must receive its own exact-head CI before any current-tip PASS claim.
+- Current code tip before this index commit: `a1e047c97ffdfa701a10f76b9c592c1c94a2832d`.
+- **No exact-head CI PASS is claimed for `a1e047c...`.** The current SHA has no observable workflow/status result yet.
+- Prior CI successes remain historical evidence only and do not certify this tip.
+- This index update creates a new tip; the resulting tip must receive its own exact-head CI before any current-tip PASS claim.
 
 ## F47 — Receivables empty-page sentinel leakage
 **FIXED / REGRESSION-WIRED / CURRENT-TIP CI PENDING.**
 - Finding: the canonical Receivables RPC emits a metadata sentinel row when a requested page is empty, while the adapter previously mapped every returned row into `snapshot.rows`.
 - Root cause: transport metadata and domain business rows were not separated at the adapter boundary.
 - Fix: `src/lib/receivables-truth.ts` filters `row.id != null` before mapping business rows while retaining aggregate metadata from the first RPC row.
-- Regression: `scripts/check-receivables-empty-page-contract.mjs` now requires the sentinel filter and includes an explicit sentinel fixture proving zero business rows are exposed.
+- Regression: `scripts/check-receivables-empty-page-contract.mjs` requires the sentinel filter and includes an explicit sentinel fixture proving zero business rows are exposed.
 - Remaining: exact-tip CI, real >page-size runtime proof, export equivalence and cross-surface evidence.
 
 ## F46 — Dashboard secondary truth
-**IMPLEMENTED / REAL CONSUMER MIGRATED / REGRESSION-ENFORCED / PRIOR CI-PROVEN / CURRENT TIP PENDING.** `report_dashboard_secondary_truth(integer)` + `src/lib/dashboard-secondary-truth.ts` own secondary truth with `current_company_id()`. Legacy Dashboard secondary consumers are no longer imported. Remaining: zero-consumer legacy function removal and runtime proof.
+**IMPLEMENTED / REAL CONSUMER MIGRATED / REGRESSION-ENFORCED / PRIOR CI-PROVEN / CURRENT TIP PENDING.** `report_dashboard_secondary_truth(integer)` + `src/lib/dashboard-secondary-truth.ts` own secondary truth with `current_company_id()`. Remaining: zero-consumer legacy function removal and runtime proof.
 
 ## F45 — Executive metrics compatibility removal
 - Zero-consumer scan found no runtime consumer for `get_executive_metrics(uuid,date,date)`.
@@ -30,13 +30,7 @@ Base: `4095e0f0d427652eb705ba3955389ae978d7b5bf`.
 - Runtime migration execution remains separate evidence.
 
 ## Receivables Truth
-**IMPLEMENTED / REGRESSION-ENFORCED / ROUTE CONSUMER MIGRATED / CURRENT-TIP CI PENDING.**
-- Canonical `report_receivables_snapshot` owns aggregate truth independently of page boundaries and derives tenant from `current_company_id()`.
-- Incomplete rows are retained as `INCOMPLETE`; missing financial evidence produces `INSUFFICIENT_DATA`, not zero.
-- `UNDATED` is explicit; cancelled/canceled/void are excluded.
-- Source-level finding corrected: reporting `as-of` is enforced at invoice source and incomplete rows are counted consistently.
-- New adapter-level F47 is fixed and regression-wired.
-- Remaining: exact-tip CI, zero-consumer legacy removal, >page-size runtime proof, export equivalence and cross-surface proof.
+**IMPLEMENTED / REGRESSION-ENFORCED / ROUTE CONSUMER MIGRATED / CURRENT-TIP CI PENDING.** Canonical `report_receivables_snapshot` owns aggregate truth independently of page boundaries and derives tenant from `current_company_id()`. Incomplete rows are retained as `INCOMPLETE`; missing financial evidence produces `INSUFFICIENT_DATA`; `UNDATED` is explicit; cancelled/canceled/void are excluded. Source-level `as-of` and incomplete-row counting fixes are regression-enforced. F47 is fixed and regression-wired. Remaining: exact-tip CI, zero-consumer legacy removal, >page-size runtime proof, export equivalence and cross-surface proof.
 
 ## Profitability Truth
 **PARTIAL / FAIL-CLOSED / CURRENT TIP PENDING.** Canonical `report_profitability_truth` derives tenant from `current_company_id()`; missing line revenue/cost/quantity or multi-currency evidence fails closed to NULL totals. Remaining: explicit discounts/returns/currency-conversion/rounding contract and equivalence across Dashboard/BI/Decision/Export.
@@ -48,10 +42,10 @@ Base: `4095e0f0d427652eb705ba3955389ae978d7b5bf`.
 **OPEN.** Canonical BI/Analytics sources and Decision/Outcome hardening exist, but no runtime evidence proves equivalent records/totals/counts/date/as-of/tenant/NULL semantics across all surfaces.
 
 ## Tenant Security sibling sweep
-**ACTIVE / HIGH RISK.** Existing browser/source and DB/RLS contracts remain active. New regression gate `test:tenant-sibling-boundaries` scans all SQL migrations for SECURITY DEFINER functions that accept caller-supplied tenant identity without `current_company_id()` or an explicit `TENANT_AUTHORITY: TRUSTED_INTERNAL` boundary. Gate is wired into `quality.yml` but is unexecuted on the current tip, so no PASS is claimed.
+**ACTIVE / HIGH RISK.** Existing browser/source and DB/RLS contracts remain active. New regression gate `test:tenant-sibling-boundaries` scans all SQL migrations for SECURITY DEFINER functions that accept caller-supplied tenant identity without `current_company_id()` or an explicit `TENANT_AUTHORITY: TRUSTED_INTERNAL` boundary. It is wired into `quality.yml` but has not executed on the current tip, so no PASS is claimed.
 
 ## Worker / Reliability
-**IMPLEMENTED / REGRESSION-WIRED / LIVE REQUIRED.** Durable runner uses deterministic `jobId:stage:sourceHash` idempotency keys and unsafe post-side-effect failures require manual reconciliation. Remaining: real crash/restart/stale lease/duplicate worker/DLQ/resume/receipt drills.
+**IMPLEMENTED / REGRESSION-WIRED / LIVE REQUIRED.** Durable runner uses deterministic `jobId:stage:sourceHash` idempotency keys and unsafe post-side-effect failures require manual reconciliation. `check-durable-production-runner.mjs` is now a first-class quality gate. Remaining: real crash/restart/stale lease/duplicate worker/DLQ/resume/receipt drills.
 
 ## Storage / Realtime / AI / Vector
 **STATIC/CONTRACT WORK ONLY — NO RUNTIME EVIDENCE.** Required: tenant A/B adversarial denial, signed URL isolation, realtime event isolation, vector metadata/retrieval/cache/deletion isolation.
@@ -97,7 +91,7 @@ Base: `4095e0f0d427652eb705ba3955389ae978d7b5bf`.
 | Export | ACTIVE | full consumer inventory + pagination regression |
 | BI/Decision/Analytics | ACTIVE | invariant regression across surfaces |
 | Tenant siblings | ACTIVE | execute new SQL sibling gate; then Storage/Realtime/AI/vector sweep |
-| Worker reliability | ACTIVE | live failure/recovery drills |
+| Worker reliability | ACTIVE | execute newly gated recovery contract; then live drills |
 | NULL semantics | ACTIVE | global implicit conversion sweep |
 | Documents | ACTIVE | real corpus execution |
 | Runtime/LIVE | BLOCKED | deployment/authenticated environment |
@@ -110,8 +104,8 @@ Base: `4095e0f0d427652eb705ba3955389ae978d7b5bf`.
 4. Build invariant-level cross-surface regression for tenant/date/as-of/status/NULL semantics.
 5. Complete exporter consumer classification and pagination truncation regression.
 6. Extend tenant sibling evidence into Storage/Realtime/AI/vector and background paths.
-7. Complete worker state-machine recovery analysis and LIVE harness.
+7. Execute the durable-runner contract gate, then prepare live crash/recovery drills.
 8. Convert CI-stable families into concrete runtime drills; do not label LIVE without evidence.
 
 ## Completion truth
-**NOT PRODUCTION-CERTIFIED.** F47 exposed and fixed a real adapter/domain-boundary defect; regression is wired. A new tenant SECURITY DEFINER sibling gate is wired but unexecuted. No runtime/live/production evidence is claimed. The resulting index tip requires its own exact-head CI.
+**NOT PRODUCTION-CERTIFIED.** F47 exposed and fixed a real adapter/domain-boundary defect; regression is wired. Tenant sibling and durable-runner gates are wired but unexecuted on the current tip. No runtime/live/production evidence is claimed. The resulting index tip requires its own exact-head CI.
