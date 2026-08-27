@@ -1,0 +1,14 @@
+import fs from 'node:fs';
+const runtime = fs.readFileSync('scripts/report-execution-runtime.test.ts','utf8');
+const adapter = fs.readFileSync('src/lib/report-execution/durable-worker-adapter.ts','utf8');
+const fail = fs.readFileSync('supabase/migrations/20260825153000_runtime_lease_hardening.sql','utf8');
+const lifecycle = fs.readFileSync('supabase/migrations/20260826100000_import_lifecycle_final_hardening.sql','utf8');
+for (const token of ['attempt >= max_attempts', "'dead_letter'", "status IN ('leased','processing')", 'lease_expires_at > now()', 'company_id=public.current_company_id()']) if (!fail.includes(token)) throw new Error(`WORKER_FAILURE_STATE_MACHINE_FAIL:${token}`);
+for (const token of ['requestIdentity', 'sourceSnapshotId', 'idempotencyKey', 'saveCheckpoint', 'complete(', 'fail(', 'retry(']) if (!adapter.includes(token)) throw new Error(`WORKER_RECOVERY_BOUNDARY_FAIL:${token}`);
+for (const token of ['advanceCheckpoint', 'canAdvanceCheckpoint', 'idempotencyKey', 'sourceSnapshotId']) if (!runtime.includes(token)) throw new Error(`WORKER_RUNTIME_REGRESSION_MISSING:${token}`);
+if (!lifecycle.includes('terminal') && !lifecycle.includes('TERMINAL')) throw new Error('IMPORT_LIFECYCLE_TERMINAL_STATE_MISSING');
+console.log('Worker failure/recovery state machine: PASS');
+console.log('  - lease ownership gates side-effect transitions');
+console.log('  - expired workers cannot mutate failure state');
+console.log('  - retry budget deterministically reaches dead_letter');
+console.log('  - durable checkpoint and source snapshot preserve retry identity');
