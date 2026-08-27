@@ -12,7 +12,7 @@ No historical PASS promotion. No scanner-only closure. No runtime/LIVE/productio
 
 ## Current exact state
 - Base application HEAD: `c7b21db4d68e396fa6ceefe3f6fdc15b1a8b8d4c`.
-- Current batch code/test HEAD before this Index commit: `8282ad623130b8bad1804c92508da4ad4fd00c73`.
+- Current batch code/test HEAD before this Index commit: `0b7f1593fa48b001289a90eb5499ebdbae391629`.
 - Exact-head CI for this branch is not yet observed; no PASS is claimed.
 - Runtime/LIVE/production certification remains unclaimed.
 
@@ -72,6 +72,28 @@ Certification state: `IMPLEMENTED → INTERNAL CONSUMER MIGRATED → ZERO-INTERN
 
 Batch state: `PARTIAL` until the regression executes and the exact branch HEAD is observed by CI.
 
+## Batch #46 — Tenant-safe canonical compatibility boundary regression
+Finding: the compatibility layer needed a stronger regression contract proving that its remaining delegated functions stay canonical and that tenant-owned direct paths fail closed.
+
+Root cause: the existing zero-consumer regression proves internal migration, but by itself did not protect the compatibility boundary's tenant and delegation semantics from future drift.
+
+Fix:
+- Added `scripts/check-queries-compat-boundary.mjs`.
+- It verifies the required compatibility exports delegate to canonical implementations.
+- It requires authoritative tenant resolution and fail-closed tenant behavior.
+- It guards bounded compatibility export behavior.
+- It rejects reintroduction of sales business aggregation and the legacy secondary analytics RPC into the compatibility layer.
+
+Regression: new boundary regression added on exact branch `deep/queries-compat-consumer-closure`.
+
+Commit: `0b7f1593fa48b001289a90eb5499ebdbae391629`.
+
+CI: Exact-head CI not yet observed for this SHA; no PASS claimed.
+
+Certification state: `IMPLEMENTED → REGRESSION ADDED → EXACT-HEAD CI PENDING`.
+
+Batch state: `PARTIAL` until execution and exact-head CI evidence exist.
+
 ## Existing P0/P1 truth and security state
 - Invoice page reads require authoritative tenant context and bounded deterministic pagination.
 - Data Quality uses authoritative tenant-safe snapshot semantics.
@@ -129,7 +151,7 @@ Batch state: `PARTIAL` until the regression executes and the exact branch HEAD i
 Supabase A/B tenant isolation; Storage; Realtime; AI/vector; authenticated browser E2E; real OCR/document corpus; worker crash/recovery/DLQ; native watcher; backup restore/RPO/RTO; production telemetry; load/canary/rollback; production scale/query-plan evidence.
 
 ## Next execution
-Open the current batch as a PR so the exact branch HEAD receives the canonical quality workflow. In parallel continue the highest-value independent fronts: remaining compatibility/legacy consumer graph, cross-surface BI/Decision/Export equivalence, NULL semantics, tenant sibling sweep, reliability and runtime evidence preparation.
+Continue the current PR's exact-head verification while independently advancing: remaining compatibility/legacy consumer graph, cross-surface BI/Decision/Export equivalence, NULL semantics, tenant sibling sweep, reliability and runtime evidence preparation.
 
 PRODUCTION CERTIFIED = NO until real LIVE evidence exists.
 
