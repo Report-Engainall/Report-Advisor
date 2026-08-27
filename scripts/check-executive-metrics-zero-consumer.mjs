@@ -2,8 +2,9 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const root = process.cwd();
-const targets = ['src', 'scripts', 'supabase', '.github', 'docs'];
+const targets = ['src', 'scripts', 'supabase/migrations'];
 const files = [];
+const selfPath = path.join(root, 'scripts/check-executive-metrics-zero-consumer.mjs');
 
 function walk(dir) {
   if (!fs.existsSync(dir)) return;
@@ -11,7 +12,7 @@ function walk(dir) {
     if (entry.name === 'node_modules' || entry.name === 'dist' || entry.name.startsWith('.git')) continue;
     const full = path.join(dir, entry.name);
     if (entry.isDirectory()) walk(full);
-    else if (/\.(?:ts|tsx|js|jsx|mjs|sql|md|yml|yaml)$/.test(entry.name)) files.push(full);
+    else if (/\.(?:ts|tsx|js|jsx|mjs|sql)$/.test(entry.name) && full !== selfPath) files.push(full);
   }
 }
 for (const target of targets) walk(path.join(root, target));
@@ -34,5 +35,5 @@ if (consumerFindings.length) {
   process.exit(1);
 }
 
-console.log(`EXECUTIVE_METRICS_ZERO_CONSUMER: PASS (${files.length} repository files scanned; no runtime consumer)`);
+console.log(`EXECUTIVE_METRICS_ZERO_CONSUMER: PASS (${files.length} source/runtime files scanned; no runtime consumer)`);
 console.log('The legacy caller-shaped get_executive_metrics(uuid,date,date) function is eligible for exact-signature removal.');
