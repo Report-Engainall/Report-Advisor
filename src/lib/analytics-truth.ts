@@ -15,7 +15,8 @@ export interface AbcTruthRow {
 export interface AbcTruth { rows: AbcTruthRow[]; totalRows: number; incompleteRows: number; status: AnalyticsTruthStatus; }
 
 export async function fetchRfmTruth(asOfDate?: string): Promise<RfmTruth> {
-  const { data, error } = await supabase.rpc('report_rfm_snapshot', { p_as_of_date: asOfDate ?? null });
+  const effectiveAsOfDate = asOfDate ?? new Date().toISOString().slice(0, 10);
+  const { data, error } = await supabase.rpc('report_rfm_snapshot', { p_as_of_date: effectiveAsOfDate });
   if (error) throw error;
   const rows = (data ?? []) as Array<{
     customer_id: string; customer_name: string; recency_days: number | null; frequency: number | null; monetary: number | null;
@@ -59,5 +60,6 @@ export async function fetchAbcTruth(): Promise<AbcTruth> {
 }
 
 export async function fetchAgingTruth(asOfDate?: string): Promise<ReceivablesReportSnapshot> {
-  return fetchReceivablesReportSnapshot(0, 500, asOfDate);
+  const effectiveAsOfDate = asOfDate ?? new Date().toISOString().slice(0, 10);
+  return fetchReceivablesReportSnapshot(0, 500, effectiveAsOfDate);
 }
