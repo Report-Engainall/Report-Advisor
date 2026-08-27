@@ -26,7 +26,7 @@ WITH tenant AS (
 sales AS (
   SELECT si.product_id,
          sum(si.quantity) FILTER (
-           WHERE inv.invoice_date >= p_as_of - greatest(least(p_days, 3650), 1)
+           WHERE inv.invoice_date >= p_as_of - LEAST(GREATEST(COALESCE(p_days, 180), 1), 3650)
          ) AS total_quantity
   FROM sale_items si
   JOIN sales_invoices inv ON inv.id = si.invoice_id
@@ -51,7 +51,9 @@ products_for_tenant AS (
     AND p.is_active
 ),
 group_memberships AS (
-  SELECT m.sku, min(m.group_id) AS group_id, count(*) AS membership_count
+  SELECT m.sku,
+         min(m.group_id) AS group_id,
+         count(DISTINCT m.group_id) AS membership_count
   FROM alternative_item_group_members m
   CROSS JOIN tenant t
   WHERE m.company_id = t.company_id
@@ -69,7 +71,7 @@ SELECT p.id,
        sales.total_quantity,
        CASE
          WHEN sales.total_quantity IS NULL THEN NULL
-         ELSE sales.total_quantity / greatest(least(p_days, 3650), 1)::numeric
+         ELSE sales.total_quantity / LEAST(GREATEST(COALESCE(p_days, 180), 1), 3650)::numeric
        END AS daily_demand,
        g.group_id
 FROM products_for_tenant p
