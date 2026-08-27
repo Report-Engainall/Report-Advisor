@@ -1,0 +1,36 @@
+name: deep-truth-closure
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main, 'wave/**']
+  workflow_dispatch:
+permissions: {contents: read}
+concurrency:
+  group: deep-truth-${{ github.ref }}-${{ github.event_name }}-${{ github.run_id }}
+  cancel-in-progress: false
+jobs:
+  truth-closure:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v7
+        with: {fetch-depth: 1, persist-credentials: false}
+      - uses: actions/setup-node@v7
+        with: {node-version: 22, cache: npm}
+      - name: Exact SHA
+        run: test "$(git rev-parse HEAD)" = "${GITHUB_SHA}"
+      - name: Install
+        run: npm ci --no-audit --no-fund
+      - name: Profitability truth
+        run: npm run test:profitability-truth
+      - name: Receivables truth
+        run: npm run test:receivables-aging-truth && node scripts/check-receivables-truth-contract.mjs
+      - name: Financial aggregation consumers
+        run: npm run test:financial-aggregation-consumers
+      - name: Dashboard truth
+        run: npm run test:dashboard-truth
+      - name: Semantic truth conversions
+        run: node scripts/check-semantic-truth-conversions.mjs
+      - name: Cross-surface truth contract
+        run: node scripts/check-cross-surface-truth-contract.mjs
