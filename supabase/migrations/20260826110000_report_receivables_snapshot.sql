@@ -23,7 +23,8 @@ RETURNS TABLE(
   bucket_31_60 numeric,
   bucket_61_90 numeric,
   bucket_90_plus numeric,
-  status text
+  status text,
+  incomplete_rows bigint
 )
 LANGUAGE sql
 STABLE
@@ -33,16 +34,16 @@ AS $$
 WITH scoped AS (
   SELECT si.id, si.company_id, si.customer_id, si.invoice_number,
          si.invoice_date::date AS invoice_date, si.due_date::date AS due_date,
-         si.total, si.paid_amount, (si.total - si.paid_amount) AS outstanding
+         si.total, si.paid_amount,
+         CASE WHEN si.total IS NOT NULL AND si.paid_amount IS NOT NULL THEN (si.total - si.paid_amount) ELSE NULL END AS outstanding
   FROM public.sales_invoices si
   WHERE si.company_id = public.current_company_id()
     AND lower(coalesce(si.status, '')) NOT IN ('cancelled', 'canceled', 'void')
-    AND si.total IS NOT NULL
-    AND si.paid_amount IS NOT NULL
-    AND (si.total - si.paid_amount) > 0
 ), classified AS (
   SELECT s.*,
     CASE
+      WHEN s.total IS NULL OR s.paid_amount IS NULL THEN 'UNDATED'
+      WHEN s.outstanding <= 0 THEN '0-30'
       WHEN s.due_date IS NULL THEN 'UNDATED'
       WHEN greatest(p_as_of_date - s.due_date, 0) <= 30 THEN '0-30'
       WHEN greatest(p_as_of_date - s.due_date, 0) <= 60 THEN '31-60'
@@ -50,10 +51,12 @@ WITH scoped AS (
       ELSE '90+'
     END AS bucket
   FROM scoped s
+  WHERE s.outstanding IS NULL OR s.outstanding > 0
 ), metrics AS (
   SELECT count(*)::bigint AS total_rows,
-         coalesce(sum(outstanding), 0)::numeric AS total_outstanding,
-         count(*) FILTER (WHERE bucket = 'UNDATED')::bigint AS undated_rows,
+         sum(outstanding)::numeric AS total_outstanding,
+         count(*) FILTER (WHERE due_date IS NULL OR total IS NULL OR paid_amount IS NULL)::bigint AS undated_rows,
+         count(*) FILTER (WHERE total IS NULL OR paid_amount IS NULL)::bigint AS incomplete_rows,
          coalesce(sum(outstanding) FILTER (WHERE bucket = '0-30'), 0)::numeric AS bucket_0_30,
          coalesce(sum(outstanding) FILTER (WHERE bucket = '31-60'), 0)::numeric AS bucket_31_60,
          coalesce(sum(outstanding) FILTER (WHERE bucket = '61-90'), 0)::numeric AS bucket_61_90,
@@ -69,7 +72,8 @@ SELECT page.id, page.company_id, page.customer_id, page.invoice_number,
        page.invoice_date, page.due_date, page.total, page.paid_amount, page.outstanding,
        page.bucket, metrics.total_rows, metrics.total_outstanding, metrics.undated_rows,
        metrics.bucket_0_30, metrics.bucket_31_60, metrics.bucket_61_90, metrics.bucket_90_plus,
-       CASE WHEN metrics.total_rows = 0 THEN 'INSUFFICIENT_DATA' ELSE 'CALCULATED' END
+       CASE WHEN metrics.total_rows = 0 OR metrics.incomplete_rows > 0 THEN 'INSUFFICIENT_DATA' ELSE 'CALCULATED' END,
+       metrics.incomplete_rows
 FROM page CROSS JOIN metrics;
 $$;
 
