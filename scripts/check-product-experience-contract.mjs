@@ -5,16 +5,18 @@ const root = process.cwd();
 const contractPath = path.join(root, 'src/lib/product-experience-contract.ts');
 const appPath = path.join(root, 'src/App.tsx');
 const journeyPath = path.join(root, 'src/components/ProductJourneyNav.tsx');
+const commandPath = path.join(root, 'src/pages/ExecutiveCommandCenterPage.tsx');
 const decisionPath = path.join(root, 'src/pages/DecisionExperiencePage.tsx');
 const reportPath = path.join(root, 'src/pages/ExecutiveReportPage.tsx');
 
-for (const file of [contractPath, appPath, journeyPath, decisionPath, reportPath]) {
+for (const file of [contractPath, appPath, journeyPath, commandPath, decisionPath, reportPath]) {
   if (!fs.existsSync(file)) throw new Error(`Missing product experience surface: ${path.relative(root, file)}`);
 }
 
 const contract = fs.readFileSync(contractPath, 'utf8');
 const app = fs.readFileSync(appPath, 'utf8');
 const journey = fs.readFileSync(journeyPath, 'utf8');
+const command = fs.readFileSync(commandPath, 'utf8');
 const decision = fs.readFileSync(decisionPath, 'utf8');
 const report = fs.readFileSync(reportPath, 'utf8');
 
@@ -37,6 +39,19 @@ for (const token of ['aria-label', 'aria-current', 'focus-visible:ring', 'URLSea
 
 if (!/recommendationId/.test(journey) || !/stage/.test(journey)) {
   throw new Error('Journey navigation must preserve recommendation context and lifecycle stage.');
+}
+
+for (const token of [
+  'Decision Workspace',
+  '/decision-experience?stage=decision',
+  'رحلة القرار',
+  '/decision-experience?stage=evidence',
+  '/decision-experience?stage=approval',
+  '/decision-experience?stage=work',
+  '/decision-experience?stage=outcome',
+  '/reports/executive',
+]) {
+  if (!command.includes(token)) throw new Error(`Command Center missing canonical journey bridge: ${token}`);
 }
 
 for (const token of [
@@ -64,7 +79,7 @@ for (const token of ['Executive Summary', 'Expected impact', 'Actual', 'Learning
   }
 }
 
-if (/fake|synthetic|mock/i.test(decision + report)) {
+if (/fake|synthetic|mock/i.test(command + decision + report)) {
   throw new Error('Product experience contains forbidden fake/synthetic/mock runtime wording.');
 }
 
@@ -73,5 +88,6 @@ console.log(`lifecycle_states=${requiredLifecycle.length}`);
 console.log(`truth_states=${requiredTruth.length}`);
 console.log(`report_story_sections=${requiredStory.length}`);
 console.log(`truth_guards=${requiredTruthGuards.length}`);
+console.log('command_center_journey=connected');
 console.log('journey_context=preserved');
 console.log('synthetic_runtime_data=NONE');
