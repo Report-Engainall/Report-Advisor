@@ -25,7 +25,10 @@ const requiredQualityGates = [
 for (const gate of requiredQualityGates) {
   if (!quality.includes(gate)) throw new Error(`Canonical quality path missing: ${gate}`);
 }
-if (!quality.includes('push: {branches: [main]}')) {
+const qualityMainPush =
+  /push:\s*\{[^}]*\bbranches\s*:\s*\[[^\]]*\bmain\b[^\]]*\]/m.test(quality) ||
+  /push:\s*\n(?:\s{4,}[^\n]*\n)*\s{4,}branches:\s*\[[^\]]*\bmain\b[^\]]*\]/m.test(quality);
+if (!qualityMainPush) {
   throw new Error('Quality must remain the canonical main push gate');
 }
 if (!/^  push:\s*\n(?:    .*\n)*?\s{4}branches:\s*\[main\]/m.test(productionBoundary)) {
@@ -74,7 +77,7 @@ for (const file of names) {
 
   pushWorkflows.push(file);
   const config = trigger.config.replace(/\s+/g, ' ');
-  const targetsMain = /branches\s*:\s*\[?\s*main\s*\]?/.test(config);
+  const targetsMain = /branches\s*:\s*\[[^\]]*\bmain\b[^\]]*\]/.test(config) || /branches\s*:\s*\bmain\b/.test(config);
   const hasBranchRestriction = /branches\s*:|branches-ignore\s*:/.test(config);
   const hasPathRestriction = /paths\s*:|paths-ignore\s*:/.test(config);
   const hasTagRestriction = /tags\s*:|tags-ignore\s*:/.test(config);
