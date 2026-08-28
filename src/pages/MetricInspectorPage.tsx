@@ -35,7 +35,7 @@ export function MetricInspectorPage() {
   const governance = selected?.governance;
   // Governance update time is not data freshness. Until a runtime metric as-of
   // timestamp is supplied, the inspector deliberately reports UNKNOWN.
-  const freshness = semanticMetricIsFresh(governance, null);
+  const freshness = semanticMetricIsFresh(governance ?? null, null);
 
   return <div dir="rtl" className="space-y-6 animate-fade-in">
     <PageHeader title="حوكمة المؤشرات" subtitle="تعريف المؤشر، نسخته، مصدره، الثقة، الأدلة، والجهات المستهلكة من عقد موحد" />
