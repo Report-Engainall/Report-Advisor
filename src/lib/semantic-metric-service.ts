@@ -1,5 +1,6 @@
 import { supabase } from './supabase';
 import { getSemanticMetric, type SemanticMetricRegistryEntry } from './semantic-metric-registry.ts';
+import { semanticMetricIsFresh } from './semantic-metric-freshness.ts';
 
 export interface MetricGovernanceSnapshot {
   metricId: string;
@@ -98,10 +99,4 @@ export async function listSemanticMetricContracts(): Promise<SemanticMetricContr
   });
 }
 
-export function semanticMetricIsFresh(governance: MetricGovernanceSnapshot | null, asOf: string | null | undefined): 'FRESH' | 'STALE' | 'UNKNOWN' {
-  if (!governance || !asOf) return 'UNKNOWN';
-  const minutes = Math.max(0, (Date.now() - Date.parse(asOf)) / 60000);
-  const maxAge = Number(governance.freshness.maxAgeMinutes);
-  if (!Number.isFinite(maxAge) || maxAge < 0) return 'UNKNOWN';
-  return minutes <= maxAge ? 'FRESH' : 'STALE';
-}
+export { semanticMetricIsFresh } from './semantic-metric-freshness.ts';
