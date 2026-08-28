@@ -6,17 +6,17 @@
 ## Exact verification point
 - Branch: `runtime-evidence/p0-2a-readiness`
 - Base: `137facaf513652dd9ec38fc2db03d734dd8c7313`
-- Current HEAD (code state at index generation): `69f97d31c2464a2b76f9e37b0a08466e55fd889c`
+- Current HEAD (code state at index generation): `5a92824f447743163322fd3f9f4950dab17a9571`
 - PR: `#69`
-- Exact-HEAD CI: `QUEUED — run 33132427349 is attached to 69f97d31c2464a2b76f9e37b0a08466e55fd889c; no PASS claimed yet`
-- `c71b95...` and all prior PASS results are historical only; they do not certify the current SHA.
+- Exact-HEAD CI: `NOT VERIFIED — current head is newer than run 33132427349; no PASS is claimed for 5a92824f447743163322fd3f9f4950dab17a9571`
+- `c71b95...`, `c3b424...`, `e90db3...`, and all prior PASS results are historical only; they do not certify the current SHA.
 
 ## P0 status
 | Requirement | Implementation | CI | Runtime | Live | Production | Status |
 |---|---|---|---|---|---|---|
-| P0-2A Runtime Evidence Infrastructure | IMPLEMENTED | QUEUED | NOT RUN | NOT RUN | NO | GATED |
-| P0-2 Tenant A/B isolation | FULL fail-closed executor implemented | QUEUED | NOT RUN | BLOCKED — no safe staging DB | NO | BLOCKED |
-| P0-1 Authenticated browser runtime | Contract/test preparation | QUEUED | NOT RUN | BLOCKED — no authenticated browser runtime | NO | BLOCKED |
+| P0-2A Runtime Evidence Infrastructure | IMPLEMENTED | NOT VERIFIED | NOT RUN | NOT RUN | NO | GATED |
+| P0-2 Tenant A/B isolation | FULL fail-closed executor implemented | NOT VERIFIED | NOT RUN | BLOCKED — no safe staging DB | NO | BLOCKED |
+| P0-1 Authenticated browser runtime | Contract/test preparation | NOT VERIFIED | NOT RUN | BLOCKED — no authenticated browser runtime | NO | BLOCKED |
 | P0-3 | NOT STARTED | NOT RUN | NOT RUN | NOT RUN | NO | NOT STARTED |
 
 ## Findings ledger
@@ -64,13 +64,13 @@ FOUND → child tables were present in the matrix but mutation fixture completen
 FOUND → `0 rows` alone cannot establish why access was denied → FIXED by recording `DENIAL_CLASS` and distinguishing known-sentinel `RLS_FILTERED` from `UNRESOLVED_ZERO_ROWS` and database/authorization errors → regression guard added → runtime proof still required.
 
 ### F15 — CI checkout was not exact PR HEAD
-FOUND → quality workflow used default pull_request checkout semantics, which tests the merge ref rather than the PR head → FIXED by explicitly checking out `github.event.pull_request.head.sha` and asserting checked-out SHA equals PR head → current CI execution is attached to the branch push while PR-trigger evidence remains absent.
+FOUND → quality workflow used default pull_request checkout semantics, which tests the merge ref rather than the PR head → FIXED by explicitly checking out `github.event.pull_request.head.sha` and asserting checked-out SHA equals PR head → push trigger was added to guarantee execution on the protected runtime-evidence branch → current SHA still needs its own CI conclusion.
 
 ### F16 — self-validation regex escaping defect
-FOUND on exact source inspection at `e90db391bc48a96678d47b6eb7975d6014147060`: several regex literals in `test-p0-2a-self-validation.mjs` were over-escaped and could make Node reject the test file before executing its assertions → FIXED in `fbc48544570ade89b98e6ca70fec43d64e0a930c` with valid regex literals → regression remains `npm run test:p0-2a-self-validation` → CI verification required.
+FOUND on exact source inspection at `e90db391bc48a96678d47b6eb7975d6014147060`: several regex literals in `test-p0-2a-self-validation.mjs` were over-escaped and could make Node reject the test file before executing its assertions → FIXED in `fbc48544570ade89b98e6ca70fec43d64e0a930c` with valid regex literals → regression remains `npm run test:p0-2a-self-validation` → current SHA CI verification required.
 
 ### F17 — branch push execution gap
-FOUND → `pull_request` runs were absent for the current PR head, while the only current-head workflow evidence was the lockfile repair push run → FIXED by adding `runtime-evidence/p0-2a-readiness` to the quality workflow `push` branches → exact-head quality run `33132427349` now exists for `69f97d31c2464a2b76f9e37b0a08466e55fd889c` and is currently QUEUED → FIXED / CI pending.
+FOUND → no pull-request-triggered run existed for `e90db391bc48a96678d47b6eb7975d6014147060`; the only current-head workflow evidence was the lockfile repair push run → FIXED by adding `runtime-evidence/p0-2a-readiness` to the quality workflow `push` branches → run `33132427349` was created for `69f97d31c2464a2b76f9e37b0a08466e55fd889c` and reached execution, but it cannot certify the newer `5a92824f447743163322fd3f9f4950dab17a9571` → FIXED / current CI not verified.
 
 ## P0-2 runtime executor
 `p0-2-runtime-executor.mjs` is intentionally fail-closed. It requires:
@@ -146,7 +146,7 @@ P0-1 remains blocked without authenticated browser runtime.
 No P0-3 transition is authorized by this index.
 
 ## Remaining blockers
-1. Exact-HEAD quality run `33132427349` is queued; its conclusion is not yet available.
+1. Current-head CI for `5a92824f447743163322fd3f9f4950dab17a9571` and its exact checked-out SHA proof.
 2. Dedicated safe authenticated Supabase staging/test environment and deterministic mutation fixtures.
 3. Live DB, child-table, RPC and inference evidence.
 4. Storage, Realtime, worker/queue, import/export and document-intelligence runtime evidence.
