@@ -90,8 +90,8 @@ assert.deepEqual(RPC_MATRIX.map((entry) => entry.rpc), discoverRepositoryRpcSurf
 console.log(`PASS matrix:rpc-surface (${RPC_MATRIX.length} functions)`);
 
 const index = read('docs/MASTER_EXECUTION_INDEX_FINAL_DEEP_VERIFICATION_2026-08-28.md');
-assert.match(index, /P0-2A runtime evidence readiness[^\n]*READY/);
-assert.match(index, /P0-2 Tenant A\/B live database isolation[^\n]*BLOCKED/);
+assert.match(index, /P0-2A Runtime Evidence Infrastructure \| READY/);
+assert.match(index, /P0-2 Tenant A\/B database isolation[^\n]*BLOCKED/);
 assert.match(index, /\*\*PRODUCTION-CERTIFIED: NO\.\*\*/);
 assert.doesNotMatch(index, /P0-2\s*=\s*PASS/);
 const workflow = read('.github/workflows/quality.yml');
