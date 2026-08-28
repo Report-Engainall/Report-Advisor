@@ -7,6 +7,7 @@ const requiredFiles = [
   'scripts/runtime-evidence-record.mjs',
   'scripts/runtime-evidence-seed.mjs',
   'scripts/p0-2-live-isolation-harness.mjs',
+  'scripts/p0-2-runtime-executor.mjs',
 ];
 
 for (const file of requiredFiles) {
@@ -18,6 +19,7 @@ const harness = fs.readFileSync('scripts/p0-2-live-isolation-harness.mjs', 'utf8
 const seed = fs.readFileSync('scripts/runtime-evidence-seed.mjs', 'utf8');
 const record = fs.readFileSync('scripts/runtime-evidence-record.mjs', 'utf8');
 const matrix = fs.readFileSync('scripts/runtime-evidence-matrix.mjs', 'utf8');
+const executor = fs.readFileSync('scripts/p0-2-runtime-executor.mjs', 'utf8');
 
 for (const required of [
   "['staging', 'test']",
@@ -32,6 +34,9 @@ if (!seed.includes('SUPABASE_SERVICE_ROLE_KEY')) throw new Error('P0-2A NOT READ
 if (!harness.includes('signInWithPassword')) throw new Error('P0-2A NOT READY: authenticated session harness missing.');
 if (!harness.includes('ZERO UNAUTHORIZED ROWS')) throw new Error('P0-2A NOT READY: read isolation assertion missing.');
 if (!harness.includes('requireAuthenticatedContext')) throw new Error('P0-2A NOT READY: fail-closed authenticated context missing.');
+if (!executor.includes('restoreAndVerify')) throw new Error('P0-2A NOT READY: mutation restore verification missing.');
+if (!executor.includes('F13 child mutation coverage incomplete')) throw new Error('P0-2A NOT READY: child mutation completeness guard missing.');
+if (!executor.includes('DENIAL_CLASS')) throw new Error('P0-2A NOT READY: denial classification missing.');
 for (const field of ['TEST_ID', 'ENVIRONMENT', 'RELEASE', 'COMMIT_SHA', 'ACTOR', 'AUTHORIZED_TENANT', 'TARGET_TENANT', 'ROWS_RETURNED', 'ROWS_AFFECTED', 'RESULT', 'EVIDENCE_REFERENCE']) {
   if (!record.includes(`'${field}'`)) throw new Error(`P0-2A NOT READY: evidence field ${field} missing.`);
 }
