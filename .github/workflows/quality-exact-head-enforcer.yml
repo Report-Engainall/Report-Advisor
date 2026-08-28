@@ -1,0 +1,95 @@
+name: quality-exact-head-enforcer
+
+on:
+  push:
+    branches: [runtime-evidence/p0-2a-readiness]
+
+permissions:
+  actions: write
+  contents: read
+  pull-requests: read
+
+jobs:
+  ensure-exact-head-quality:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 45
+    steps:
+      - name: Ensure the pushed HEAD is the PR HEAD
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          branch="$GITHUB_REF_NAME"
+          expected="$GITHUB_SHA"
+          prs="$(gh api --paginate "/repos/${GITHUB_REPOSITORY}/pulls?state=open&head=${GITHUB_REPOSITORY_OWNER}:${branch}" --jq '.[].head.sha')"
+          test -n "$prs"
+          if ! grep -Fxq "$expected" <<<"$prs"; then
+            echo "PR_HEAD_MISMATCH: pushed=$expected open_pr_heads=$prs" >&2
+            exit 1
+          fi
+
+      - name: Wait for or dispatch Quality for the exact HEAD
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          workflow="quality.yml"
+          branch="$GITHUB_REF_NAME"
+          expected="$GITHUB_SHA"
+          repo="$GITHUB_REPOSITORY"
+
+          find_run() {
+            gh api --paginate "/repos/${repo}/actions/workflows/${workflow}/runs?branch=${branch}&per_page=100" \
+              --jq ".workflow_runs[] | select(.head_sha == \"${expected}\") | [.id,.event,.status,.conclusion] | @tsv" \
+              | head -n 1
+          }
+
+          run=""
+          for attempt in {1..12}; do
+            run="$(find_run || true)"
+            if [ -n "$run" ]; then
+              echo "QUALITY_RUN_FOUND $run"
+              break
+            fi
+            sleep 5
+          done
+
+          if [ -z "$run" ]; then
+            echo "No Quality run observed for exact HEAD; dispatching persistent workflow path."
+            gh api -X POST "/repos/${repo}/actions/workflows/${workflow}/dispatches" \
+              -f ref="$branch"
+            for attempt in {1..24}; do
+              run="$(find_run || true)"
+              if [ -n "$run" ]; then
+                echo "QUALITY_RUN_DISPATCHED $run"
+                break
+              fi
+              sleep 5
+            done
+          fi
+
+          test -n "$run"
+          run_id="$(cut -f1 <<<"$run")"
+          run_event="$(cut -f2 <<<"$run")"
+          run_sha="$(gh api "/repos/${repo}/actions/runs/${run_id}" --jq '.head_sha')"
+          test "$run_sha" = "$expected"
+          echo "QUALITY_RUN_ID=$run_id"
+          echo "QUALITY_RUN_EVENT=$run_event"
+          echo "QUALITY_HEAD_SHA=$run_sha"
+          echo "EXPECTED_HEAD_SHA=$expected"
+
+          for attempt in {1..36}; do
+            status="$(gh api "/repos/${repo}/actions/runs/${run_id}" --jq '.status')"
+            conclusion="$(gh api "/repos/${repo}/actions/runs/${run_id}" --jq '.conclusion // empty')"
+            echo "QUALITY_STATUS attempt=$attempt status=$status conclusion=${conclusion:-pending}"
+            if [ "$status" = "completed" ]; then
+              test "$conclusion" = "success"
+              exit 0
+            fi
+            sleep 10
+          done
+
+          echo "QUALITY_TIMEOUT: exact HEAD $expected did not complete within enforcer window" >&2
+          exit 1
