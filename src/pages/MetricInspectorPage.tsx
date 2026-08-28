@@ -11,7 +11,6 @@ function statusClass(status: CertificationStatus): string {
   if (status === 'DEPRECATED') return 'bg-ink-100 text-ink-600';
   return 'bg-warning-50 text-warning-700';
 }
-
 function freshnessClass(state: 'FRESH' | 'STALE' | 'UNKNOWN'): string {
   if (state === 'FRESH') return 'text-success-600';
   if (state === 'STALE') return 'text-warning-600';
@@ -23,20 +22,20 @@ export function MetricInspectorPage() {
   const [selected, setSelected] = useState<SemanticMetricContract | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
   const load = useCallback(async () => {
     try { setLoading(true); setError(null); const result = await listSemanticMetricContracts(); setItems(result); setSelected(current => current ? result.find(item => item.definition.metricId === current.definition.metricId) ?? result[0] ?? null : result[0] ?? null); }
     catch (e) { setError(e instanceof Error ? e.message : 'تعذر تحميل حوكمة المؤشرات'); }
     finally { setLoading(false); }
   }, []);
-
   useEffect(() => { void load(); }, [load]);
   if (loading) return <LoadingState message="جارٍ تحميل حوكمة المؤشرات..." />;
   if (error) return <ErrorState message={error} onRetry={load} />;
   if (!items.length) return <EmptyState title="لا توجد مؤشرات محفوظة" message="لم يتم العثور على نسخ حوكمة persisted للمؤشرات." />;
 
   const governance = selected?.governance;
-  const freshness = semanticMetricIsFresh(governance, governance?.updatedAt);
+  // Governance update time is not data freshness. Until a runtime metric as-of
+  // timestamp is supplied, the inspector deliberately reports UNKNOWN.
+  const freshness = semanticMetricIsFresh(governance, null);
 
   return <div dir="rtl" className="space-y-6 animate-fade-in">
     <PageHeader title="حوكمة المؤشرات" subtitle="تعريف المؤشر، نسخته، مصدره، الثقة، الأدلة، والجهات المستهلكة من عقد موحد" />
