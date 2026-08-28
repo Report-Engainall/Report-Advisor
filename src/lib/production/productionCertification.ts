@@ -1,3 +1,13 @@
+export type CertificationEvidenceKey = 'tenant' | 'backup' | 'rollback' | 'artifact' | 'security';
+
+export const PRODUCTION_CERTIFICATION_EVIDENCE_KEYS: readonly CertificationEvidenceKey[] = [
+  'tenant',
+  'backup',
+  'rollback',
+  'artifact',
+  'security',
+];
+
 export type CertificationCheck = { key: string; passed: boolean; severity: 'BLOCKER' | 'WARNING' | 'INFO'; evidence?: string };
 export type CertificationResult = { certified: boolean; score: number; blockers: string[]; warnings: string[]; evidence: CertificationCheck[] };
 
