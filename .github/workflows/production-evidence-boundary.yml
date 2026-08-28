@@ -47,6 +47,8 @@ jobs:
       - run: npm ci --no-audit --no-fund
       - run: npm run typecheck
       - run: npm run build
+      - name: Verify release evidence completeness
+        run: node scripts/check-release-evidence-completeness.mjs
       - name: Verify semantic release evidence consumption
         env:
           EXPECTED_SOURCE_SHA: ${{ github.event.workflow_run.head_sha || inputs.source_sha }}
