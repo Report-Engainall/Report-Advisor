@@ -3,9 +3,9 @@ import { requireSafeRuntimeEnvironment, requireAuthenticatedContext } from './ru
 import { DATABASE_TABLES, CHILD_TABLES, INFERENCE_SURFACES } from './runtime-evidence-matrix.mjs';
 import { createEvidenceRecord } from './runtime-evidence-record.mjs';
 
-// P0-2 runtime executor. It is deliberately fail-closed: without a dedicated
-// staging/test environment and deterministic mutation fixtures it emits
-// NOT VERIFIED and exits non-zero. It never runs against production.
+// P0-2 runtime executor. Fail-closed by design: without dedicated staging/test
+// context and deterministic mutation fixtures it emits NOT VERIFIED and exits
+// non-zero. It never runs against production.
 const environment = requireSafeRuntimeEnvironment();
 const required = [
   'SUPABASE_URL', 'SUPABASE_ANON_KEY',
@@ -61,15 +61,23 @@ async function signIn(email, password, expectedUserId) {
   return { client, user: data.user };
 }
 
+function tenantColumn(table) {
+  // companies is the tenant root; all other canonical tenant-owned surfaces
+  // use company_id in the current schema. Any new exception must be explicit.
+  if (table === 'companies') return 'id';
+  return 'company_id';
+}
+
 async function selectProbe(client, actor, authorizedTenant, targetTenant, table, direction) {
-  const { data, error } = await client.from(table).select('id').eq('company_id', targetTenant).limit(10);
+  const column = tenantColumn(table);
+  const { data, error } = await client.from(table).select('id').eq(column, targetTenant).limit(10);
   const rows = data?.length ?? 0;
   const crossTenant = targetTenant !== authorizedTenant;
   if (error) {
-    return evidence({ testId: `P0-2-SELECT-${direction}-${table}`, actor, authorizedTenant, targetTenant, surface: table, operation: 'SELECT', expected: crossTenant ? 'DENIED OR ZERO UNAUTHORIZED ROWS' : 'OWN TENANT READ SUCCEEDS', actual: error.message, errorCode: error.code ?? 'UNKNOWN', result: crossTenant ? 'NOT VERIFIED' : 'FAIL', input: { targetTenant, direction } });
+    return evidence({ testId: `P0-2-SELECT-${direction}-${table}`, actor, authorizedTenant, targetTenant, surface: table, operation: 'SELECT', expected: crossTenant ? 'DENIED OR ZERO UNAUTHORIZED ROWS' : 'OWN TENANT READ SUCCEEDS', actual: error.message, errorCode: error.code ?? 'UNKNOWN', result: 'NOT VERIFIED', input: { targetTenant, direction, tenantColumn: column } });
   }
   const result = crossTenant ? (rows === 0 ? 'PASS' : 'FAIL') : 'PASS';
-  return evidence({ testId: `P0-2-SELECT-${direction}-${table}`, actor, authorizedTenant, targetTenant, surface: table, operation: 'SELECT', expected: crossTenant ? 'ZERO UNAUTHORIZED ROWS' : 'OWN TENANT READ', actual: `${rows} rows`, rowsReturned: rows, result, input: { targetTenant, direction } });
+  return evidence({ testId: `P0-2-SELECT-${direction}-${table}`, actor, authorizedTenant, targetTenant, surface: table, operation: 'SELECT', expected: crossTenant ? 'ZERO UNAUTHORIZED ROWS' : 'OWN TENANT READ', actual: `${rows} rows`, rowsReturned: rows, result, input: { targetTenant, direction, tenantColumn: column } });
 }
 
 function parseMutationFixtures() {
@@ -81,9 +89,21 @@ function parseMutationFixtures() {
   const allowed = new Set(DATABASE_TABLES);
   for (const item of parsed) {
     if (!allowed.has(item.table) || !['INSERT', 'UPDATE', 'DELETE'].includes(item.operation)) throw new Error(`NOT VERIFIED: unsupported mutation fixture for ${item.table}/${item.operation}`);
-    if (!item.own || !item.foreign) throw new Error(`NOT VERIFIED: mutation fixture requires own and foreign cases for ${item.table}/${item.operation}`);
+    if (!item.own || !item.foreign || !item.restore) throw new Error(`NOT VERIFIED: mutation fixture requires own, foreign and restore cases for ${item.table}/${item.operation}`);
   }
   return parsed;
+}
+
+async function cleanupMutation(client, fixture, operation, payload, response) {
+  const id = response.data?.[0]?.id ?? payload.id;
+  if (operation === 'INSERT') {
+    if (!id) return { ok: false, message: 'insert returned no deterministic id for cleanup' };
+    const cleanup = await client.from(fixture.table).delete().eq('id', id);
+    return { ok: !cleanup.error, message: cleanup.error?.message ?? 'insert cleanup complete' };
+  }
+  if (!id) return { ok: false, message: 'mutation has no deterministic id for restore' };
+  const restore = await client.from(fixture.table).upsert(fixture.restore, { onConflict: 'id' });
+  return { ok: !restore.error, message: restore.error?.message ?? 'mutation restore complete' };
 }
 
 async function runMutation(client, actor, authorizedTenant, fixture, targetTenant, attack) {
@@ -94,9 +114,14 @@ async function runMutation(client, actor, authorizedTenant, fixture, targetTenan
   if (operation === 'INSERT') response = await client.from(table).insert(payload).select('id');
   else if (operation === 'UPDATE') response = await client.from(table).update(payload).eq('id', payload.id).select('id');
   else response = await client.from(table).delete().eq('id', payload.id).select('id');
+
   const rows = response.data?.length ?? 0;
   const denied = Boolean(response.error) || rows === 0;
   const result = attack ? (denied ? 'PASS' : 'FAIL') : (response.error ? 'FAIL' : 'PASS');
+  let cleanupResult = { ok: true, message: 'not required' };
+  if (!response.error && rows > 0) cleanupResult = await cleanupMutation(client, fixture, operation, payload, response);
+  if (!cleanupResult.ok) throw new Error(`NOT VERIFIED: mutation cleanup/restore failed for ${table}/${operation}: ${cleanupResult.message}`);
+
   return evidence({
     testId: `P0-2-${operation}-${attack ? 'FOREIGN' : 'OWN'}-${table}`,
     actor, authorizedTenant, targetTenant: attack ? targetTenant : authorizedTenant,
@@ -104,7 +129,7 @@ async function runMutation(client, actor, authorizedTenant, fixture, targetTenan
     expected: attack ? 'CROSS-TENANT MUTATION DENIED' : 'OWN TENANT MUTATION SUCCEEDS',
     actual: response.error?.message ?? `${rows} rows`, rowsReturned: rows, rowsAffected: rows,
     errorCode: response.error?.code ?? 'NONE', result,
-    input: { attack, targetTenant },
+    input: { attack, targetTenant, cleanup: cleanupResult.message },
   });
 }
 
