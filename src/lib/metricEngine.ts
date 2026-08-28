@@ -59,6 +59,7 @@ export function evaluateMetric(input: MetricInput): MetricEvaluation {
     unit: definition.unit,
     confidence,
     source: status === 'FORECAST' ? 'forecast' : status === 'ESTIMATED' ? 'derived' : 'derived',
+    evidence: definition.evidence,
   };
 
   return {
