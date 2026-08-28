@@ -93,6 +93,18 @@ export function canClaimActualOutcome(state: ProductTruthState): boolean {
   return state === 'AVAILABLE';
 }
 
+export function canClaimDelta(actual: ProductTruthState, expected: ProductTruthState): boolean {
+  return canClaimActualOutcome(actual) && expected === 'AVAILABLE';
+}
+
+export function canClaimOutcomeQuality(actual: ProductTruthState, quality: ProductTruthState): boolean {
+  return canClaimActualOutcome(actual) && quality === 'AVAILABLE';
+}
+
+export function canClaimFeedback(feedback: ProductTruthState): boolean {
+  return feedback === 'AVAILABLE';
+}
+
 export function canClaimLearning(actual: ProductTruthState, learning: ProductTruthState): boolean {
   return actual === 'AVAILABLE' && learning === 'AVAILABLE';
 }
