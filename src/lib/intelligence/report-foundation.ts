@@ -1,0 +1,224 @@
+export type TrustDimension =
+  | 'data'
+  | 'extraction'
+  | 'mapping'
+  | 'entity'
+  | 'validation'
+  | 'calculation'
+  | 'forecast'
+  | 'decision';
+
+export type ReportMode = 'executive' | 'operational' | 'analytical' | 'audit';
+export type Priority = 'critical' | 'high' | 'medium' | 'low';
+export type DecisionStatus = 'proposed' | 'blocked' | 'approval_required' | 'approved' | 'rejected' | 'executed' | 'resolved';
+export type ActionStatus = 'pending' | 'assigned' | 'in_progress' | 'completed' | 'cancelled' | 'blocked';
+
+export interface EvidenceRef {
+  id: string;
+  sourceId: string;
+  page?: number;
+  table?: string;
+  row?: number;
+  column?: string;
+  cell?: string;
+  rawValue?: string | number | boolean | null;
+  normalizedValue?: string | number | boolean | null;
+  lineage?: string[];
+}
+
+export interface TrustVector {
+  data: number;
+  extraction: number;
+  mapping: number;
+  entity: number;
+  validation: number;
+  calculation: number;
+  forecast: number;
+  decision: number;
+}
+
+export interface MetricFact {
+  id: string;
+  key: string;
+  label: string;
+  value: number | string | null;
+  unit?: string;
+  asOf?: string;
+  freshness: 'fresh' | 'warning' | 'stale' | 'critical' | 'unknown';
+  evidenceIds: string[];
+  calculationVersion?: string;
+}
+
+export interface Recommendation {
+  id: string;
+  title: string;
+  reason: string;
+  priority: Priority;
+  evidenceIds: string[];
+  trust: TrustVector;
+  expectedImpact?: string;
+  ownerDepartment?: string;
+  dueAt?: string;
+  whyNot?: string;
+  alternatives?: Array<{
+    id: string;
+    title: string;
+    benefit?: string;
+    cost?: string;
+    risk?: string;
+    confidence?: number;
+    evidenceIds: string[];
+  }>;
+}
+
+export interface Decision {
+  id: string;
+  title: string;
+  status: DecisionStatus;
+  reason: string;
+  evidenceIds: string[];
+  recommendationIds: string[];
+  trust: TrustVector;
+  requiredApproval?: boolean;
+  blockerReason?: string;
+}
+
+export interface ActionTask {
+  id: string;
+  title: string;
+  department: string;
+  owner?: string;
+  priority: Priority;
+  dueAt?: string;
+  reason: string;
+  evidenceIds: string[];
+  expectedImpact?: string;
+  status: ActionStatus;
+  decisionId?: string;
+}
+
+export interface Outcome {
+  id: string;
+  actionId: string;
+  status: 'pending' | 'measured' | 'unknown';
+  observedAt?: string;
+  summary?: string;
+  evidenceIds: string[];
+}
+
+export interface ReportSection {
+  id: string;
+  title: string;
+  order: number;
+  kind:
+    | 'brief'
+    | 'health'
+    | 'issues'
+    | 'opportunities'
+    | 'changes'
+    | 'evidence'
+    | 'recommendations'
+    | 'why_not'
+    | 'decisions'
+    | 'actions'
+    | 'impact'
+    | 'outcomes'
+    | 'custom';
+  metricIds?: string[];
+  recommendationIds?: string[];
+  decisionIds?: string[];
+  actionIds?: string[];
+  evidenceIds?: string[];
+}
+
+export interface ReportSnapshot {
+  schemaVersion: 1;
+  id: string;
+  title: string;
+  mode: ReportMode;
+  generatedAt: string;
+  asOf?: string;
+  owner?: string;
+  filters: Record<string, string | number | boolean | null>;
+  metrics: MetricFact[];
+  recommendations: Recommendation[];
+  decisions: Decision[];
+  actions: ActionTask[];
+  outcomes: Outcome[];
+  evidence: EvidenceRef[];
+  trust: TrustVector;
+  sections: ReportSection[];
+}
+
+const TRUST_KEYS: TrustDimension[] = [
+  'data', 'extraction', 'mapping', 'entity', 'validation', 'calculation', 'forecast', 'decision',
+];
+
+function assertScore(name: string, value: number): void {
+  if (!Number.isFinite(value) || value < 0 || value > 1) {
+    throw new Error(`${name} trust score must be between 0 and 1`);
+  }
+}
+
+export function overallTrust(trust: TrustVector): number {
+  TRUST_KEYS.forEach((key) => assertScore(key, trust[key]));
+  return Math.round(
+    (TRUST_KEYS.reduce((sum, key) => sum + trust[key], 0) / TRUST_KEYS.length) * 1000,
+  ) / 1000;
+}
+
+export function validateEvidenceLinkage(
+  snapshot: Pick<ReportSnapshot, 'evidence' | 'metrics' | 'recommendations' | 'decisions' | 'actions' | 'outcomes'>,
+): string[] {
+  const known = new Set(snapshot.evidence.map((item) => item.id));
+  const errors: string[] = [];
+  const check = (owner: string, ids: string[]) => {
+    for (const id of ids) if (!known.has(id)) errors.push(`${owner} references missing evidence ${id}`);
+  };
+
+  snapshot.metrics.forEach((item) => check(`metric:${item.id}`, item.evidenceIds));
+  snapshot.recommendations.forEach((item) => check(`recommendation:${item.id}`, item.evidenceIds));
+  snapshot.decisions.forEach((item) => check(`decision:${item.id}`, item.evidenceIds));
+  snapshot.actions.forEach((item) => check(`action:${item.id}`, item.evidenceIds));
+  snapshot.outcomes.forEach((item) => check(`outcome:${item.id}`, item.evidenceIds));
+  return errors;
+}
+
+export function assertReportSnapshot(snapshot: ReportSnapshot): ReportSnapshot {
+  if (snapshot.schemaVersion !== 1) throw new Error('Unsupported report snapshot schema');
+  if (!snapshot.id || !snapshot.title) throw new Error('Report snapshot requires id and title');
+  if (validateEvidenceLinkage(snapshot).length > 0) {
+    throw new Error(validateEvidenceLinkage(snapshot).join('; '));
+  }
+  overallTrust(snapshot.trust);
+  return snapshot;
+}
+
+export function stableSnapshotFingerprint(snapshot: ReportSnapshot): string {
+  assertReportSnapshot(snapshot);
+  const canonical = JSON.stringify(snapshot, Object.keys(snapshot).sort());
+  let hash = 2166136261;
+  for (let i = 0; i < canonical.length; i += 1) {
+    hash ^= canonical.charCodeAt(i);
+    hash = Math.imul(hash, 16777619);
+  }
+  return `fnv1a-${(hash >>> 0).toString(16).padStart(8, '0')}`;
+}
+
+export function createActionFromRecommendation(
+  recommendation: Recommendation,
+  input: Pick<ActionTask, 'id' | 'department'> & Partial<Pick<ActionTask, 'owner' | 'dueAt'>>,
+): ActionTask {
+  return {
+    id: input.id,
+    title: recommendation.title,
+    department: input.department,
+    owner: input.owner,
+    priority: recommendation.priority,
+    dueAt: input.dueAt ?? recommendation.dueAt,
+    reason: recommendation.reason,
+    evidenceIds: [...recommendation.evidenceIds],
+    expectedImpact: recommendation.expectedImpact,
+    status: 'pending',
+  };
+}
