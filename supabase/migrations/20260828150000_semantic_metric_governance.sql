@@ -16,8 +16,7 @@ CREATE TABLE IF NOT EXISTS public.metric_governance (
   time_semantics jsonb NOT NULL DEFAULT '{}'::jsonb,
   freshness jsonb NOT NULL DEFAULT '{}'::jsonb,
   owner text NOT NULL,
-  certification_status text NOT NULL DEFAULT 'DRAFT'
-    CHECK (certification_status IN ('DRAFT','REVIEWED','CERTIFIED','DEPRECATED')),
+  certification_status text NOT NULL DEFAULT 'DRAFT' CHECK (certification_status IN ('DRAFT','REVIEWED','CERTIFIED','DEPRECATED')),
   dependencies jsonb NOT NULL DEFAULT '[]'::jsonb,
   consumers jsonb NOT NULL DEFAULT '[]'::jsonb,
   tests jsonb NOT NULL DEFAULT '[]'::jsonb,
@@ -56,27 +55,18 @@ CREATE POLICY metric_governance_authenticated_read ON public.metric_governance F
 DROP POLICY IF EXISTS metric_governance_audit_authenticated_read ON public.metric_governance_audit;
 CREATE POLICY metric_governance_audit_authenticated_read ON public.metric_governance_audit FOR SELECT TO authenticated USING (true);
 
-CREATE OR REPLACE FUNCTION public.metric_governance_transition(
-  p_metric_id text,
-  p_version integer,
-  p_to_status text,
-  p_reason text
-)
+CREATE SCHEMA IF NOT EXISTS private;
+CREATE OR REPLACE FUNCTION private.metric_governance_transition(p_metric_id text,p_version integer,p_to_status text,p_reason text)
 RETURNS public.metric_governance
-LANGUAGE plpgsql
-SECURITY DEFINER
-SET search_path = public
+LANGUAGE plpgsql SECURITY DEFINER SET search_path=''
 AS $$
-DECLARE
-  v_row public.metric_governance;
-  v_from_status text;
-  v_previous_version integer;
+DECLARE v_row public.metric_governance; v_from_status text; v_previous_version integer;
 BEGIN
   IF auth.uid() IS NULL THEN RAISE EXCEPTION 'authenticated actor required'; END IF;
   IF p_to_status NOT IN ('DRAFT','REVIEWED','CERTIFIED','DEPRECATED') THEN RAISE EXCEPTION 'invalid certification status'; END IF;
   IF NULLIF(trim(p_reason), '') IS NULL THEN RAISE EXCEPTION 'transition reason required'; END IF;
   SELECT * INTO v_row FROM public.metric_governance WHERE metric_id=p_metric_id AND version=p_version FOR UPDATE;
-  IF NOT FOUND THEN RAISE EXCEPTION 'metric version not found: % v%', p_metric_id, p_version; END IF;
+  IF NOT FOUND THEN RAISE EXCEPTION 'metric version not found: % v%',p_metric_id,p_version; END IF;
   v_from_status := v_row.certification_status;
   IF v_from_status='CERTIFIED' AND p_to_status NOT IN ('CERTIFIED','DEPRECATED') THEN RAISE EXCEPTION 'certified metric may only remain certified or be deprecated'; END IF;
   IF v_from_status='DEPRECATED' AND p_to_status <> 'DEPRECATED' THEN RAISE EXCEPTION 'deprecated metric cannot be reactivated'; END IF;
@@ -84,21 +74,20 @@ BEGIN
   IF v_from_status='REVIEWED' AND p_to_status NOT IN ('REVIEWED','CERTIFIED','DEPRECATED') THEN RAISE EXCEPTION 'reviewed metric has an invalid transition'; END IF;
   SELECT max(version) INTO v_previous_version FROM public.metric_governance WHERE metric_id=p_metric_id AND version<p_version;
   UPDATE public.metric_governance SET certification_status=p_to_status, deprecated_at=CASE WHEN p_to_status='DEPRECATED' THEN now() ELSE deprecated_at END, updated_at=now() WHERE id=v_row.id RETURNING * INTO v_row;
-  INSERT INTO public.metric_governance_audit(metric_governance_id,metric_id,from_status,to_status,actor_id,reason,previous_version)
-  VALUES(v_row.id,v_row.metric_id,v_from_status,p_to_status,auth.uid(),p_reason,v_previous_version);
+  INSERT INTO public.metric_governance_audit(metric_governance_id,metric_id,from_status,to_status,actor_id,reason,previous_version) VALUES(v_row.id,v_row.metric_id,v_from_status,p_to_status,auth.uid(),p_reason,v_previous_version);
   RETURN v_row;
 END;
 $$;
-REVOKE ALL ON FUNCTION public.metric_governance_transition(text,integer,text,text) FROM PUBLIC;
-GRANT EXECUTE ON FUNCTION public.metric_governance_transition(text,integer,text,text) TO authenticated;
+REVOKE ALL ON FUNCTION private.metric_governance_transition(text,integer,text,text) FROM PUBLIC;
+REVOKE ALL ON FUNCTION private.metric_governance_transition(text,integer,text,text) FROM anon;
+GRANT USAGE ON SCHEMA private TO authenticated;
+GRANT EXECUTE ON FUNCTION private.metric_governance_transition(text,integer,text,text) TO authenticated;
 
 CREATE OR REPLACE FUNCTION public.metric_governance_guard_certified_update()
 RETURNS trigger LANGUAGE plpgsql SECURITY INVOKER SET search_path=public AS $$
 BEGIN
   IF OLD.certification_status='CERTIFIED' THEN
-    IF NEW.metric_id<>OLD.metric_id OR NEW.version<>OLD.version OR NEW.name<>OLD.name OR NEW.definition<>OLD.definition OR NEW.formula<>OLD.formula OR NEW.source<>OLD.source OR NEW.dimensions<>OLD.dimensions OR NEW.filters<>OLD.filters OR NEW.time_semantics<>OLD.time_semantics OR NEW.freshness<>OLD.freshness OR NEW.owner<>OLD.owner OR NEW.dependencies<>OLD.dependencies OR NEW.consumers<>OLD.consumers OR NEW.tests<>OLD.tests OR NEW.evidence<>OLD.evidence THEN
-      RAISE EXCEPTION 'certified metric version is immutable; create a new version';
-    END IF;
+    IF NEW.metric_id<>OLD.metric_id OR NEW.version<>OLD.version OR NEW.name<>OLD.name OR NEW.definition<>OLD.definition OR NEW.formula<>OLD.formula OR NEW.source<>OLD.source OR NEW.dimensions<>OLD.dimensions OR NEW.filters<>OLD.filters OR NEW.time_semantics<>OLD.time_semantics OR NEW.freshness<>OLD.freshness OR NEW.owner<>OLD.owner OR NEW.dependencies<>OLD.dependencies OR NEW.consumers<>OLD.consumers OR NEW.tests<>OLD.tests OR NEW.evidence<>OLD.evidence THEN RAISE EXCEPTION 'certified metric version is immutable; create a new version'; END IF;
   END IF;
   RETURN NEW;
 END;
