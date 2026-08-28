@@ -1,4 +1,4 @@
-import { evaluateMetric, metricCanDriveDecision, type MetricEvaluation } from './metricEngine.js';
+import { evaluateMetric, metricCanDriveDecision, type MetricEvaluation } from './metricEngine.ts';
 
 export type VerticalDepartment = 'sales' | 'procurement' | 'warehouse' | 'finance';
 export type SliceStage = 'source' | 'validation' | 'reconciliation' | 'metric' | 'insight' | 'recommendation' | 'decision' | 'approval' | 'task' | 'report' | 'pdf' | 'outcome';
