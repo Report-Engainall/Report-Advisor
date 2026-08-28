@@ -6,17 +6,18 @@
 ## Exact verification point
 - Branch: `runtime-evidence/p0-2a-readiness`
 - Base: `137facaf513652dd9ec38fc2db03d734dd8c7313`
-- Current HEAD (code state at index generation): `c3b4240c3a4bb354d314f4dbfb5a81fcaf02a133`
+- Current HEAD (code state at index generation): `69f97d31c2464a2b76f9e37b0a08466e55fd889c`
 - PR: `#69`
-- Exact-HEAD CI: `PENDING — verification required for the post-forensic code state`
-- `c71b95...` PASS is historical only; it does not certify the current SHA.
+- Exact-HEAD CI: `QUEUED — run 33132427349 is attached to 69f97d31c2464a2b76f9e37b0a08466e55fd889c; no PASS claimed yet`
+- `c71b95...` and all prior PASS results are historical only; they do not certify the current SHA.
 
 ## P0 status
 | Requirement | Implementation | CI | Runtime | Live | Production | Status |
 |---|---|---|---|---|---|---|
-| P0-2A Runtime Evidence Infrastructure | IMPLEMENTED | PENDING | NOT RUN | NOT RUN | NO | GATED |
-| P0-2 Tenant A/B isolation | FULL fail-closed executor implemented | PENDING | NOT RUN | BLOCKED — no safe staging DB | NO | BLOCKED |
-| P0-1 Authenticated browser runtime | Contract/test preparation | PENDING | NOT RUN | BLOCKED — no authenticated browser runtime | NO | BLOCKED |
+| P0-2A Runtime Evidence Infrastructure | IMPLEMENTED | QUEUED | NOT RUN | NOT RUN | NO | GATED |
+| P0-2 Tenant A/B isolation | FULL fail-closed executor implemented | QUEUED | NOT RUN | BLOCKED — no safe staging DB | NO | BLOCKED |
+| P0-1 Authenticated browser runtime | Contract/test preparation | QUEUED | NOT RUN | BLOCKED — no authenticated browser runtime | NO | BLOCKED |
+| P0-3 | NOT STARTED | NOT RUN | NOT RUN | NOT RUN | NO | NOT STARTED |
 
 ## Findings ledger
 
@@ -59,11 +60,17 @@ FOUND → treating `companies` like ordinary `company_id` tenant-owned rows woul
 ### F13 — child-table runtime coverage completeness
 FOUND → child tables were present in the matrix but mutation fixture completeness was not enforced → FIXED by requiring deterministic INSERT/UPDATE/DELETE fixtures for `sale_items`, `purchase_items`, `import_rows`, and `import_job_rows` before runtime execution → regression guard added → runtime remains blocked without staging.
 
-### F15 — CI checkout was not exact PR HEAD
-FOUND → the quality workflow used default pull_request checkout semantics, which tests the merge ref rather than the PR head → FIXED by explicitly checking out github.event.pull_request.head.sha and asserting checked-out SHA equals PR head → current CI execution is still required on the new workflow state.
-
 ### F14 — cross-tenant denial semantics
 FOUND → `0 rows` alone cannot establish why access was denied → FIXED by recording `DENIAL_CLASS` and distinguishing known-sentinel `RLS_FILTERED` from `UNRESOLVED_ZERO_ROWS` and database/authorization errors → regression guard added → runtime proof still required.
+
+### F15 — CI checkout was not exact PR HEAD
+FOUND → quality workflow used default pull_request checkout semantics, which tests the merge ref rather than the PR head → FIXED by explicitly checking out `github.event.pull_request.head.sha` and asserting checked-out SHA equals PR head → current CI execution is attached to the branch push while PR-trigger evidence remains absent.
+
+### F16 — self-validation regex escaping defect
+FOUND on exact source inspection at `e90db391bc48a96678d47b6eb7975d6014147060`: several regex literals in `test-p0-2a-self-validation.mjs` were over-escaped and could make Node reject the test file before executing its assertions → FIXED in `fbc48544570ade89b98e6ca70fec43d64e0a930c` with valid regex literals → regression remains `npm run test:p0-2a-self-validation` → CI verification required.
+
+### F17 — branch push execution gap
+FOUND → `pull_request` runs were absent for the current PR head, while the only current-head workflow evidence was the lockfile repair push run → FIXED by adding `runtime-evidence/p0-2a-readiness` to the quality workflow `push` branches → exact-head quality run `33132427349` now exists for `69f97d31c2464a2b76f9e37b0a08466e55fd889c` and is currently QUEUED → FIXED / CI pending.
 
 ## P0-2 runtime executor
 `p0-2-runtime-executor.mjs` is intentionally fail-closed. It requires:
@@ -81,9 +88,9 @@ It executes own and foreign SELECT probes across the canonical table surface and
 
 ## Runtime evidence contract
 Each runtime record must bind:
-`TEST_ID, ENVIRONMENT, RELEASE, COMMIT_SHA, TIMESTAMP, ACTOR, AUTHORIZED_TENANT, TARGET_TENANT, SURFACE, OPERATION, INPUT, EXPECTED, ACTUAL, ROWS_RETURNED, ROWS_AFFECTED, ERROR_CODE, RESULT, EVIDENCE_REFERENCE`.
+`TEST_ID, ENVIRONMENT, RELEASE, COMMIT_SHA, TIMESTAMP, ACTOR, AUTHORIZED_TENANT, TARGET_TENANT, SURFACE, OPERATION, INPUT, EXPECTED, ACTUAL, ROWS_RETURNED, ROWS_AFFECTED, ERROR_CODE, DENIAL_CLASS, RESULT, EVIDENCE_REFERENCE`.
 
-Runtime result values are only `PASS | FAIL | NOT VERIFIED`. Workflow states such as `NOT RUN | BLOCKED | PLANNED` are not evidence results.
+Runtime result values are only `PASS | FAIL | NOT VERIFIED`. Workflow states such as `NOT RUN | BLOCKED | PLANNED | QUEUED` are not evidence results.
 
 ## Fail-closed rules
 - production / PROD / unknown / empty environment → ABORT
@@ -139,7 +146,7 @@ P0-1 remains blocked without authenticated browser runtime.
 No P0-3 transition is authorized by this index.
 
 ## Remaining blockers
-1. Exact-HEAD CI for `c3b4240c3a4bb354d314f4dbfb5a81fcaf02a133` (workflow checkout was corrected to test PR HEAD rather than merge ref).
+1. Exact-HEAD quality run `33132427349` is queued; its conclusion is not yet available.
 2. Dedicated safe authenticated Supabase staging/test environment and deterministic mutation fixtures.
 3. Live DB, child-table, RPC and inference evidence.
 4. Storage, Realtime, worker/queue, import/export and document-intelligence runtime evidence.
