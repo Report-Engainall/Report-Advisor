@@ -8,92 +8,91 @@ No completion percentage is used as evidence. A requirement is Production-comple
 
 - Verification branch: `runtime-evidence/p0-2a-readiness`
 - Base SHA: `137facaf513652dd9ec38fc2db03d734dd8c7313`
-- Prior code verification SHA: `7838dd51390708d1944b2e49c41b4da63868301d`
-- Current P0-2A branch HEAD: `6c51c5521863f7f7dd5c75ac866dfa05a5d8f357`
-- PR: #69 (draft)
+- Current P0-2A branch HEAD: `326d41d0d2a839f5eb5b0821c34551247d73862f`
+- PR: #69 (draft/open/unmerged)
 - Base branch: `main`
-- Working tree: remote branch state only; local working-tree cleanliness is NOT VERIFIED.
-- P0-2A CI for `6c51c5521863f7f7dd5c75ac866dfa05a5d8f357`: NOT YET OBSERVED; no PASS is claimed until a run on this exact HEAD completes successfully.
+- Exact-HEAD CI for `326d41d0d2a839f5eb5b0821c34551247d73862f`: RUNNING; no PASS claimed yet.
 
-## Requirement matrix — current evidence state
+## P0 status
 
-| Requirement / surface | Implementation | Integrated | Regression | Exact HEAD CI | Runtime | Live | Production | Status |
-|---|---|---|---|---|---|---|---|---|
-| Inventory Intelligence canonical source | YES | YES | YES | PASS on prior code verification SHA | NOT RUN | NOT RUN | NOT CERTIFIED | GATED |
-| Inventory Intelligence page canonical consumer | YES | YES | YES | PASS on prior code verification SHA | NOT RUN | NOT RUN | NOT CERTIFIED | GATED |
-| Tenant authority / client-selected tenant rejection | YES | YES | YES | PASS on prior code verification SHA | NOT RUN | NOT RUN | NOT CERTIFIED | GATED |
-| Global tenant RLS contract | YES | YES | YES | PASS on prior code verification SHA | NOT RUN | NOT RUN | NOT CERTIFIED | GATED |
-| Import RPC tenant context | YES | YES | YES | PASS on prior code verification SHA | NOT RUN | NOT RUN | NOT CERTIFIED | GATED |
-| Import business-key invariant | YES | YES | YES | PASS on prior code verification SHA | NOT RUN | NOT RUN | NOT CERTIFIED | GATED |
-| Dashboard canonical aggregation | YES | YES | YES | PASS on prior code verification SHA | NOT RUN | NOT RUN | NOT CERTIFIED | GATED |
-| Report truth contract | YES | YES | YES | PASS on prior code verification SHA | NOT RUN | NOT RUN | NOT CERTIFIED | GATED |
-| Production readiness contract | YES | YES | YES | PASS on prior code verification SHA | NOT RUN | NOT RUN | NOT CERTIFIED | GATED |
-| Operational resilience contract | YES | YES | YES | PASS on prior code verification SHA | NOT RUN | NOT RUN | NOT CERTIFIED | GATED |
-| Document intelligence contract/runtime contract | YES | YES | YES | PASS on prior code verification SHA | CONTRACT TEST PASS; live runtime NOT RUN | NOT RUN | NOT CERTIFIED | GATED |
-| Performance budget | YES | YES | YES | PASS on prior code verification SHA | NOT RUN | NOT RUN | NOT CERTIFIED | GATED |
-| Browser authenticated E2E | PARTIAL | PARTIAL | NOT PROVEN | NOT VERIFIED | NOT RUN | NOT RUN | NOT CERTIFIED | IMPLEMENTED |
-| Child-table RLS A/B runtime | YES (contract/policy) | YES | YES | PASS on prior code verification SHA | NOT RUN | NOT RUN | NOT CERTIFIED | GATED |
-| Storage tenant/file security | PARTIAL | PARTIAL | PARTIAL | PASS contract | NOT RUN | NOT RUN | NOT CERTIFIED | GATED |
-| Realtime tenant event isolation | PARTIAL | PARTIAL | PARTIAL | PASS contract | NOT RUN | NOT RUN | NOT CERTIFIED | GATED |
-| Worker crash/lease/fencing/DLQ recovery | YES | YES | YES | PASS contract/runtime fixtures | NOT RUN against live service | NOT RUN | NOT CERTIFIED | GATED |
-| Backup/restore RPO/RTO | CONTRACTED | CONTRACTED | NOT PROVEN by restore exercise | PASS contract | NOT RUN | NOT RUN | NOT CERTIFIED | IMPLEMENTED |
-| AI/vector/document provenance tenant isolation | PARTIAL | PARTIAL | CONTRACT evidence | PASS contract | NOT RUN | NOT RUN | NOT CERTIFIED | GATED |
-| P0-2A runtime evidence readiness | YES | YES | SELF-VALIDATION ADDED; exact-head CI PENDING | PENDING | NOT RUN | NOT RUN | NOT CERTIFIED | READY |
-| P0-2 Tenant A/B live database isolation | READY HARNESS | READY | READY | PENDING | BLOCKED | NOT RUN | NOT CERTIFIED | BLOCKED |
+| Requirement | Static/contract | Self-validation | Live runtime | Status |
+|---|---|---|---|---|
+| P0-2A Runtime Evidence Infrastructure | READY | RUNNING on exact HEAD | NOT RUN | **READY + SELF-VALIDATION PENDING** |
+| P0-2 Tenant A/B database isolation | READY HARNESS | NOT LIVE-EXECUTED | BLOCKED — no safe authenticated staging/test DB supplied | **BLOCKED** |
+| P0-1 Browser authenticated runtime | CONTRACT/PARTIAL | NOT LIVE-EXECUTED | BLOCKED — no browser runtime | **BLOCKED** |
 
-## P0-2A self-validation
+## P0-2A validation controls now enforced
 
-- Previous Exact-HEAD Quality run `33128334365` on `943d9090a5e2366f904cf498b497c3b03223e4b9` failed at the tenant legacy consumer boundary because the guarded service-role seed was not classified as a privileged evidence harness.
-- Root cause: `scripts/check-tenant-legacy-consumers.mjs` treated the intentionally privileged, environment-guarded seed as a legacy tenant consumer.
-- Fix: `scripts/check-tenant-legacy-consumers.mjs` now explicitly classifies `scripts/runtime-evidence-seed.mjs` as a privileged runtime-evidence harness; this does not relax application consumer scanning.
-- Self-validation added: `scripts/test-p0-2a-self-validation.mjs` exercises fail-closed environment/context guards, incomplete/forged evidence rejection, PASS row-count requirement, secret redaction, and seed abort behavior without a safe environment or in production.
-- Dedicated workflow added: `.github/workflows/p0-2a-self-validation.yml` runs exact-HEAD proof, readiness gate, and self-validation.
-- The new commits are not yet assigned an Exact-HEAD CI PASS; no PASS is claimed until GitHub reports successful runs on `6c51c5521863f7f7dd5c75ac866dfa05a5d8f357`.
+- `scripts/check-p0-2a-readiness.mjs`: readiness gate; never emits a live verification claim.
+- `scripts/test-p0-2a-self-validation.mjs`: controlled negative tests for environment, authenticated context, evidence completeness, forged PASS, secret redaction, seed abort, harness fail-closed semantics, schema matrix consistency, RPC/function surface consistency, and certification separation.
+- `scripts/runtime-evidence-matrix.mjs`: tenant table matrix aligned to the canonical tenant-RLS migration; RPC matrix is derived from the repository SQL function surface rather than hand-written aliases.
+- `scripts/p0-2-live-isolation-harness.mjs`: query errors become `NOT VERIFIED`, cross-tenant rows become `FAIL`, and either condition exits non-zero; a real FAIL cannot be converted to PASS.
+- `scripts/runtime-evidence-record.mjs`: required evidence fields, result validation, and secret-like field redaction.
+- `scripts/runtime-evidence-seed.mjs`: privileged seed remains environment-guarded and cannot run without `staging`/`test`.
+- `.github/workflows/p0-2a-self-validation.yml`: exact-HEAD readiness/self-validation workflow.
+- `.github/workflows/quality.yml`: exact-HEAD readiness and self-validation are explicit gates; live P0-2 harness is not executed by CI without a supplied safe runtime.
 
-## P0-2A Runtime Evidence Readiness
+## Validation findings and fixes
 
-### Environment contract
+### Finding 1 — harness could misclassify operational errors
+- FINDING: an underlying SELECT error could have been represented as zero rows and therefore PASS.
+- ROOT CAUSE: probe error path did not distinguish `verified=false` from `rows=0`.
+- FIX: query errors now produce `NOT VERIFIED` and fail the process; only a successfully executed zero-row isolation probe can PASS.
+- REGRESSION TEST: `test-p0-2a-self-validation.mjs` asserts the error path and terminal exit semantics.
+- CI: exact-HEAD run pending.
 
-- Dedicated Supabase staging/test project: REQUIRED.
-- Real migrated Postgres database: REQUIRED.
-- Authenticated test identities: REQUIRED.
-- RPC/function deployment matching release: REQUIRED.
-- Storage/RealtIme/workers: OPTIONAL for P0-2 DB readiness; required for their later live gates.
-- Environment secrets remain outside source control: REQUIRED.
+### Finding 2 — matrix drift
+- FINDING: the old matrix contained stale table names and omitted the canonical tenant-RLS surface.
+- ROOT CAUSE: hand-maintained matrix diverged from `20260823000000_tenant_rls_global_hardening.sql`.
+- FIX: matrix now contains the canonical direct tenant tables plus `companies` and all four child tables; RPC coverage is repository-derived.
+- REGRESSION TEST: self-validation independently compares the matrix with the canonical SQL migration and independently discovers SQL functions.
+- CI: exact-HEAD run pending.
 
-### Built readiness infrastructure
+### Finding 3 — CI harness self-test syntax failure on prior run
+- FINDING: run `33129898899` failed the new self-validation gate because the first implementation had a JavaScript syntax error; lint also failed on the same syntax error.
+- ROOT CAUSE: malformed `for ... matchAll(...)` loop in the first self-validation implementation.
+- FIX: corrected loop syntax and consolidated validation into `test-p0-2a-self-validation.mjs`.
+- REGRESSION TEST: Node execution + lint on the new exact HEAD.
+- CI: exact-HEAD run pending.
 
-- `scripts/runtime-evidence-config.mjs`: environment and authenticated-context fail-closed guards.
-- `scripts/runtime-evidence-seed.mjs`: deterministic staging/test User A/B + Tenant A/B + sentinel company/product provisioning; secrets are environment-only.
-- `scripts/p0-2-live-isolation-harness.mjs`: authenticated Supabase session harness and cross-tenant read probes.
-- `scripts/runtime-evidence-matrix.mjs`: DB operation, child-table, RPC, tenant-manipulation and inference matrices.
-- `scripts/runtime-evidence-record.mjs`: sanitized evidence schema and PASS/FAIL/NOT VERIFIED validation.
-- `scripts/check-p0-2a-readiness.mjs`: CI-checkable readiness gate.
-- `scripts/test-p0-2a-self-validation.mjs`: fail-closed harness self-validation.
-- `.github/workflows/quality.yml`: runs the readiness gate without promoting it to a live verification claim.
-- `.github/workflows/p0-2a-self-validation.yml`: dedicated exact-head self-validation workflow.
-- `docs/runtime-evidence/P0-2A-RUNTIME-EVIDENCE-READINESS.md`: environment and safety contract.
-- `docs/runtime-evidence/P0-2-RUNTIME-EVIDENCE-INDEX.md`: separate readiness/live-evidence index.
+### Finding 4 — unrelated document-intelligence CI import failure
+- FINDING: run `33129898899` also failed `python -m unittest` with `ModuleNotFoundError: No module named 'app'`.
+- ROOT CAUSE: service package root was not present in `PYTHONPATH` in the CI command.
+- FIX: quality workflow now runs the same tests with `PYTHONPATH=services/document-intelligence`.
+- REGRESSION TEST: exact-HEAD CI.
 
-### Runtime safety rules
+### Finding 5 — privileged seed classification
+- FINDING: the original exact-head run `33128334365` on `943d9090a5e2366f904cf498b497c3b03223e4b9` failed tenant legacy-consumer scanning on the controlled privileged seed.
+- ROOT CAUSE: scanner did not distinguish the environment-guarded runtime-evidence seed from application tenant consumers.
+- FIX: seed is explicitly classified as privileged runtime-evidence infrastructure; application scanning remains enforced.
+- REGRESSION TEST: tenant legacy-consumer boundary + seed self-validation.
 
-- Missing/unknown environment => ABORT.
-- Production => destructive seed/test forbidden.
-- Missing actor/tenant/release/commit/environment => NOT VERIFIED.
-- Evidence records redact secret-like fields.
-- `READY` never means `RUNTIME-EVIDENCED` or `LIVE-VERIFIED`.
+## Required negative-test contract
 
-## Remaining blockers to Production Certification
+- Missing/empty/unknown/production-like environment => `ABORT`.
+- Missing actor => `NOT VERIFIED`.
+- Missing authorized tenant => `NOT VERIFIED`.
+- Missing target tenant => `NOT VERIFIED`.
+- Missing release => `NOT VERIFIED`.
+- Missing commit SHA => `NOT VERIFIED`.
+- Missing evidence fields => `NOT VERIFIED`.
+- `RESULT=PASS` without complete required evidence/row counts => `REJECTED` / `NOT VERIFIED`.
+- Fake password/token/service-role/authorization/cookie values => redacted and absent from serialized evidence.
+- Seed without safe environment => abort before privileged client construction.
+- Production seed => abort.
+- Cross-tenant leak => `FAIL` and non-zero exit.
+- Operational runtime query error => `NOT VERIFIED` and non-zero exit.
 
-- Authenticated browser E2E must be executed against a real authenticated environment.
-- Tenant A/B runtime isolation must be executed against the deployed data plane, including child tables, storage, realtime, queues/workers and vectors.
-- Live document-intelligence runtime verification remains required.
-- Real backup/restore exercise with measured RPO/RTO remains required.
-- Production deployment/canary/rollback evidence remains required.
-- Exact live environment evidence must be attached to the release evidence chain before Production-Certified can be assigned.
+## Matrix ↔ repository truth
 
-## Certification status
+Canonical tenant-RLS migration explicitly defines 22 direct tenant-scoped tables; child policies cover `sale_items`, `purchase_items`, `import_rows`, and `import_job_rows`. The runtime matrix is now generated/checked against that canonical surface rather than treated as independent truth.
+
+## Certification separation
+
+`P0-2A = READY` does **not** mean `P0-2 = LIVE VERIFIED`.
+
+`P0-2 = BLOCKED` until a safe authenticated staging/test database is available and the Tenant A/B runtime harness executes against it.
+
+`P0-1 = BLOCKED` until authenticated browser runtime evidence exists.
 
 **PRODUCTION-CERTIFIED: NO.**
-
-The project is not assigned a completion percentage. Static/contract CI passing is not promoted to runtime/live/production certification without the corresponding evidence.
