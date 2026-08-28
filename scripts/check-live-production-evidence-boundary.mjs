@@ -9,6 +9,7 @@ const expectedSourceSha = process.env.EXPECTED_SOURCE_SHA || process.env.GITHUB_
 const certificationRunId = process.env.RELEASE_CERTIFICATION_RUN_ID || '';
 const artifactName = process.env.RELEASE_EVIDENCE_ARTIFACT_NAME || '';
 const resolve = (value) => path.isAbsolute(value) ? value : path.join(root, value);
+const proofPath = resolve(process.env.RELEASE_CONSUMPTION_PROOF_PATH || path.join(path.dirname(manifestPath), 'consumption-proof.json'));
 
 if (!expectedSourceSha) throw new Error('Missing expected source SHA for release evidence boundary');
 if (!certificationRunId) throw new Error('Missing release certification workflow run identity');
@@ -75,7 +76,7 @@ const proof = {
   proof_result: 'passed',
   generated_at: new Date().toISOString(),
 };
-fs.mkdirSync(resolve('release-evidence'), { recursive: true });
-fs.writeFileSync(resolve('release-evidence/consumption-proof.json'), JSON.stringify(proof, null, 2) + '\n');
+fs.mkdirSync(path.dirname(proofPath), { recursive: true });
+fs.writeFileSync(proofPath, JSON.stringify(proof, null, 2) + '\n');
 console.log('Live production evidence boundary: PASS');
 console.log(JSON.stringify({ manifest_id: manifest.manifest_id, source_sha: expectedSourceSha, certification_run_id: certificationRunId, artifact_name: artifactName }));
