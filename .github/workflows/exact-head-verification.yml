@@ -1,0 +1,78 @@
+name: exact-head-verification
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: exact-head-${{ github.event.pull_request.head.sha || github.sha }}
+  cancel-in-progress: false
+
+jobs:
+  exact-head-verification:
+    name: Exact Head Verification
+    runs-on: ubuntu-22.04
+    timeout-minutes: 25
+    steps:
+      - name: Checkout immutable PR HEAD
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Verify source identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          exact_head_sha="${{ github.event.pull_request.head.sha || github.sha }}"
+          actual_sha="$(git rev-parse HEAD)"
+          merge_ref_sha="${{ github.sha }}"
+          base_sha="${{ github.event.pull_request.base.sha || github.sha }}"
+          head_branch="${{ github.head_ref || github.ref_name }}"
+          event_name="${{ github.event_name }}"
+
+          echo "EXACT_HEAD_SHA=$exact_head_sha"
+          echo "CHECKOUT_SHA=$actual_sha"
+          echo "MERGE_REF_SHA=$merge_ref_sha"
+          echo "BASE_SHA=$base_sha"
+          echo "HEAD_BRANCH=$head_branch"
+          echo "EVENT_NAME=$event_name"
+
+          test "$actual_sha" = "$exact_head_sha"
+
+      - name: Install
+        run: npm ci --no-audit --no-fund
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build
+        run: npm run build
+
+      - name: Semantic metric contracts
+        run: npm run test:production-evidence-linkage && npm run test:report-intelligence-contract
+
+      - name: Report intelligence contracts
+        run: npm run test:report-execution-foundation && npm run test:report-execution-e2e-contract && npm run test:report-intelligence-architecture
+
+      - name: Product vertical slice regression
+        run: npm run test:product-vertical-slice
+
+      - name: Security static contracts
+        run: npm run test:tenant-security-contract && npm run test:global-tenant-rls && npm run test:import-rpc-tenant-context
+
+      - name: Migration schema and dependency analysis
+        run: npm run test:migration-schema-audit && npm run test:migration-dependencies
