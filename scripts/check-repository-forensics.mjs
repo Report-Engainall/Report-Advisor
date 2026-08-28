@@ -25,6 +25,13 @@ if (lock.name !== packageJson.name || lock.version !== packageJson.version || lo
   failures.push(`PRODUCTION RISK: lockfile identity drift: package.json=${packageJson.name}@${packageJson.version}; package-lock root=${lock.name}@${lock.version}; locked package=${lock.packages?.['']?.name}@${lock.packages?.['']?.version}`);
 }
 
+const packageRoot = lock.packages?.[''] ?? {};
+for (const section of ['dependencies', 'devDependencies', 'optionalDependencies']) {
+  const packageDeps = JSON.stringify(packageJson[section] ?? {});
+  const lockDeps = JSON.stringify(packageRoot[section] ?? {});
+  if (packageDeps !== lockDeps) failures.push(`PRODUCTION RISK: lockfile ${section} graph differs from package.json`);
+}
+
 const index = read('index.html');
 for (const token of ['bolt.new', 'vite.svg', 'og_default.png']) {
   if (index.toLowerCase().includes(token.toLowerCase())) failures.push(`PRODUCTION RISK: index.html references ${token}`);
