@@ -1,0 +1,14 @@
+import assert from 'node:assert/strict';
+const mod = await import('../src/lib/intelligence/report-foundation.ts');
+const evidence = { id: 'ev-1', sourceId: 'sales-2026-08-28', page: 1, table: 'sales', row: 12, column: 'revenue', cell: 'E12', rawValue: 1200, normalizedValue: 1200, lineage: ['source', 'row', 'metric'] };
+const trust = { data: 1, extraction: 0.95, mapping: 0.98, entity: 0.97, validation: 0.99, calculation: 1, forecast: 0.8, decision: 0.9 };
+const recommendation = { id: 'rec-1', title: 'Follow up declining customer', reason: 'Verified sales decline over the configured window.', priority: 'high', evidenceIds: ['ev-1'], trust, expectedImpact: 'Protect repeat revenue' };
+const snapshot = { schemaVersion: 1, id: 'report-1', title: 'Daily Intelligence', mode: 'executive', generatedAt: '2026-08-28T00:00:00Z', filters: {}, metrics: [{ id: 'metric-1', key: 'revenue', label: 'Revenue', value: 1200, freshness: 'fresh', evidenceIds: ['ev-1'], calculationVersion: 'v1' }], recommendations: [recommendation], decisions: [], actions: [], outcomes: [], evidence: [evidence], trust, sections: [{ id: 's1', title: 'Brief', order: 1, kind: 'brief', recommendationIds: ['rec-1'] }] };
+assert.equal(mod.overallTrust(trust), 0.949);
+assert.deepEqual(mod.validateEvidenceLinkage(snapshot), []);
+assert.equal(mod.assertReportSnapshot(snapshot), snapshot);
+assert.match(mod.stableSnapshotFingerprint(snapshot), /^fnv1a-[0-9a-f]{8}$/);
+const action = mod.createActionFromRecommendation(recommendation, { id: 'task-1', department: 'sales', owner: 'sales-manager' });
+assert.equal(action.status, 'pending'); assert.equal(action.department, 'sales'); assert.deepEqual(action.evidenceIds, ['ev-1']);
+assert.throws(() => mod.assertReportSnapshot({ ...snapshot, metrics: [{ ...snapshot.metrics[0], evidenceIds: ['missing'] }] }), /missing evidence/);
+console.log('report foundation: PASS');
