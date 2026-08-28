@@ -18,7 +18,7 @@ const findings = [];
 function record(kind, name, file, safeReplacement) {
   const key = `${kind}:${name}`;
   const previous = seenObjects.get(key);
-  if (previous && previous.file !== file && !(previous.safeReplacement && safeReplacement)) {
+  if (previous && previous.file !== file && !safeReplacement) {
     duplicateObjects.push({ kind, name, previous: previous.file, file });
   }
   seenObjects.set(key, { file, safeReplacement });
