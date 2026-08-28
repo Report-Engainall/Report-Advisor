@@ -17,6 +17,7 @@ if (environment === 'production' || environment === 'prod') throw new Error('ABO
 const supabase = createClient(url, serviceRoleKey, { auth: { autoRefreshToken: false, persistSession: false } });
 const A = RUNTIME_EVIDENCE_CONFIG.tenants.a;
 const B = RUNTIME_EVIDENCE_CONFIG.tenants.b;
+if (!A || !B || A === B) throw new Error('ABORT: runtime evidence tenants must be distinct and non-empty.');
 
 async function findOrCreateUser(email, password) {
   const listed = await supabase.auth.admin.listUsers({ page: 1, perPage: 1000 });
@@ -35,6 +36,17 @@ async function findOrCreateCompany(name) {
   const created = await supabase.from('companies').insert({ name, legal_name: name }).select('id,name').single();
   if (created.error) throw new Error(`Seed company create failed: ${created.error.message}`);
   return created.data;
+}
+
+async function assertTenantExclusivity(userAId, userBId, companyAId, companyBId) {
+  if (!userAId || !userBId || userAId === userBId) throw new Error('ABORT: User A and User B must be distinct authenticated identities.');
+  if (!companyAId || !companyBId || companyAId === companyBId) throw new Error('ABORT: Tenant A and Tenant B must be distinct database identities.');
+  for (const [label, userId, allowedCompanyId] of [['A', userAId, companyAId], ['B', userBId, companyBId]]) {
+    const memberships = await supabase.from('company_memberships').select('company_id,is_active').eq('user_id', userId);
+    if (memberships.error) throw new Error(`ABORT: cannot establish User ${label} membership exclusivity: ${memberships.error.message}`);
+    const unauthorized = (memberships.data ?? []).filter((row) => row.company_id !== allowedCompanyId || row.is_active === false);
+    if (unauthorized.length) throw new Error(`ABORT: User ${label} has ambiguous or unauthorized tenant membership; refusing to seed. ${JSON.stringify(unauthorized)}`);
+  }
 }
 
 async function ensureMembership(companyId, userId) {
@@ -63,6 +75,7 @@ const userAId = await findOrCreateUser(userAEmail, userAPassword);
 const userBId = await findOrCreateUser(userBEmail, userBPassword);
 const companyA = await findOrCreateCompany(A);
 const companyB = await findOrCreateCompany(B);
+await assertTenantExclusivity(userAId, userBId, companyA.id, companyB.id);
 await ensureMembership(companyA.id, userAId);
 await ensureMembership(companyB.id, userBId);
 await findOrCreateProduct(companyA.id, A);
