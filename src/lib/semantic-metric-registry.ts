@@ -1,6 +1,6 @@
 import { BUSINESS_METRICS, type MetricDefinition } from './semanticMetrics';
 
-export type MetricCertificationStatus = 'DRAFT' | 'VALIDATED' | 'CERTIFIED' | 'DEPRECATED';
+export type MetricCertificationStatus = 'DRAFT' | 'REVIEWED' | 'CERTIFIED' | 'DEPRECATED';
 export type MetricTimeSemantic = 'transaction' | 'posting' | 'delivery' | 'snapshot' | 'generated';
 
 export interface SemanticMetricRegistryEntry extends MetricDefinition {
@@ -27,7 +27,7 @@ export const SEMANTIC_METRIC_REGISTRY: SemanticMetricRegistryEntry[] = BUSINESS_
   owner: metric.key.includes('inventory') || metric.key.includes('stock') ? 'inventory' :
     metric.key.includes('cash') || metric.key.includes('receivable') || metric.key.includes('payable') ? 'finance' :
     metric.key.includes('forecast') ? 'forecast' : 'core-data',
-  certificationStatus: metric.status === 'UNAVAILABLE' || metric.status === 'INSUFFICIENT_DATA' ? 'DRAFT' : 'VALIDATED',
+  certificationStatus: metric.status === 'UNAVAILABLE' || metric.status === 'INSUFFICIENT_DATA' ? 'DRAFT' : 'REVIEWED',
   timeSemantic: metric.key.includes('inventory') || metric.key.includes('stock') ? 'snapshot' : 'transaction',
   freshness: 'source-derived',
   consumers: ['dashboard', 'reports', 'chatbi', 'forecast', 'recommendations', 'decision-engine'],
