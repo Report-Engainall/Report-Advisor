@@ -1,5 +1,5 @@
 import { supabase } from './supabase';
-import { getSemanticMetric, type SemanticMetricRegistryEntry } from './semantic-metric-registry';
+import { getSemanticMetric, type SemanticMetricRegistryEntry } from './semantic-metric-registry.ts';
 
 export interface MetricGovernanceSnapshot {
   metricId: string;
