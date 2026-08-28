@@ -23,8 +23,8 @@ const payload = {
     production_certification: 'validated',
     production_release_blockers: 'validated',
     trust: 'validated',
-    canary: 'contract-validated',
-    rollback: 'contract-validated',
+    canary: 'validated',
+    rollback: 'validated',
     fail_closed: 'validated',
   },
 };
