@@ -81,7 +81,7 @@ const independentRpcNames = new Set();
 const migrationDir = path.join(ROOT, 'supabase', 'migrations');
 for (const file of fs.readdirSync(migrationDir).filter((name) => name.endsWith('.sql')).sort()) {
   const text = fs.readFileSync(path.join(migrationDir, file), 'utf8');
-  for (const match of text.matchAll(/CREATE\s+(?:OR\s+REPLACE\s+)?FUNCTION\s+(?:(?:public)\.)?([a-zA-Z_][a-zA-Z0-9_]*)\s*\(/gi) {
+  for (const match of text.matchAll(/CREATE\s+(?:OR\s+REPLACE\s+)?FUNCTION\s+(?:(?:public)\.)?([a-zA-Z_][a-zA-Z0-9_]*)\s*\(/gi)) {
     independentRpcNames.add(match[1]);
   }
 }
