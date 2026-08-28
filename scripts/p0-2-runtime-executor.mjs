@@ -166,24 +166,26 @@ async function runMutation(client, actor, authorizedTenant, fixture, targetTenan
   const denial = attack ? classifyDenied({ error: response.error, rows, targetKnown: true }) : { denialClass: 'NOT_APPLICABLE' };
 
   let mutatedState = null;
+  let observationError = null;
   let restoreError = null;
-  try {
-    if (!attack && !response.error && rows > 0) {
-      mutatedState = await observeMutatedState(client, fixture, snapshot.original, response);
-    } else if (attack && !denied && rows > 0) {
-      mutatedState = await observeMutatedState(client, fixture, snapshot.original, response);
-    }
-  } catch (error) {
-    restoreError = error;
-  }
+  const mutationApplied = !attack && !response.error && rows > 0;
+  const unauthorizedMutationApplied = attack && !denied && rows > 0;
+  const restoreRequired = mutationApplied || unauthorizedMutationApplied;
 
-  if (!restoreError && (!attack || (!denied && rows > 0))) {
+  if (restoreRequired) {
     try {
-      await restoreAndVerify(client, fixture, snapshot.original);
+      mutatedState = await observeMutatedState(client, fixture, snapshot.original, response);
     } catch (error) {
-      restoreError = error;
+      observationError = error;
+    } finally {
+      try {
+        await restoreAndVerify(client, fixture, snapshot.original);
+      } catch (error) {
+        restoreError = error;
+      }
     }
   }
+  if (observationError) throw new Error(observationError.message);
   if (restoreError) throw new Error(restoreError.message);
 
   return evidence({
