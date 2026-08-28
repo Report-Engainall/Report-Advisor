@@ -8,7 +8,8 @@ const analyticsSql = fs.readFileSync('supabase/migrations/20260826062000_analyti
 const queries = fs.readFileSync('src/lib/queries.ts', 'utf8');
 const compat = fs.readFileSync('src/lib/queries-compat.ts', 'utf8');
 const adapter = fs.readFileSync('src/lib/dashboard-canonical.ts', 'utf8');
-const inventoryPage = fs.readFileSync('src/pages/EntityPages.tsx', 'utf8');
+const entityPages = fs.readFileSync('src/pages/EntityPages.tsx', 'utf8');
+const inventoryPage = entityPages.match(/export function InventoryPage\(\) \{[\s\S]*?(?=\ninterface QualityIssue)/)?.[0] ?? '';
 const reportsPage = fs.readFileSync('src/pages/ReportsPage.tsx', 'utf8');
 const analyticsPage = fs.readFileSync('src/pages/AnalyticsPage.tsx', 'utf8');
 const executivePage = fs.readFileSync('src/pages/ExecutiveCommandCenterPage.tsx', 'utf8');
