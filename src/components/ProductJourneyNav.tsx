@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { ArrowLeft, BookOpen, FileSearch, Lightbulb, Route, ShieldCheck, Target } from 'lucide-react';
+import { ArrowLeft, BookOpen, FileSearch, FileInput, Lightbulb, Route, ShieldCheck, Target } from 'lucide-react';
 
 type JourneyStep = {
   path: string;
@@ -11,6 +11,7 @@ type JourneyStep = {
 
 const steps: JourneyStep[] = [
   { path: '/command-center', label: 'المعلومة والأولوية', description: 'Business Health → Critical Insights', icon: Lightbulb },
+  { path: '/import', label: 'المستند والاستخراج', description: 'Document → Extraction → Source', icon: FileInput },
   { path: '/decision-experience', label: 'الدليل والقرار', description: 'Evidence → Recommendation → Decision', icon: FileSearch, stage: 'evidence' },
   { path: '/decision-experience', label: 'الموافقة', description: 'Accountability → Approval', icon: ShieldCheck, stage: 'approval' },
   { path: '/decision-experience', label: 'التنفيذ', description: 'Work → Next Action', icon: Target, stage: 'work' },
