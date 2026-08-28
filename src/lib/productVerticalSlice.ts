@@ -4,23 +4,8 @@ export type VerticalDepartment = 'sales' | 'procurement' | 'warehouse' | 'financ
 export type SliceStage = 'source' | 'validation' | 'reconciliation' | 'metric' | 'insight' | 'recommendation' | 'decision' | 'approval' | 'task' | 'report' | 'pdf' | 'outcome';
 
 export interface SliceSource {
-  datasetId: string;
-  sourceKind: 'canonical-fixture';
-  rows: number;
-  asOf: string;
-  sku: string;
-  quantity: number;
-  unitCost: number;
-  dailyDemand: number;
-  leadTimeDays: number;
-  safetyDays: number;
-  netSales: number;
-  cogs: number;
-  purchaseCommitment: number;
-  actualOutcome?: number | null;
-  evidenceId: string;
+  datasetId: string; sourceKind: 'canonical-fixture'; rows: number; asOf: string; sku: string; quantity: number; unitCost: number; dailyDemand: number; leadTimeDays: number; safetyDays: number; netSales: number; cogs: number; purchaseCommitment: number; actualOutcome?: number | null; evidenceId: string;
 }
-
 export interface SliceEvidence { id: string; source: string; rowCount: number; fingerprint: string; trust: 'HIGH' | 'MEDIUM' | 'LOW' | 'UNKNOWN'; }
 export interface SliceInsight { id: string; type: 'stockout-risk'; severity: 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW'; metricKey: string; metricVersion: number; value: number; evidence: SliceEvidence; }
 export interface SliceRecommendation { id: string; reason: string; evidence: string[]; confidence: number; alternatives: string[]; expectedImpact: { metric: string; value: number; unit: string }; policy: { policyId: string; version: number; approvalThreshold: number }; }
@@ -58,8 +43,9 @@ export function buildProductVerticalSlice(source: SliceSource, now = '2026-08-28
   return { stages: ['source', 'validation', 'reconciliation', 'metric', 'insight', 'recommendation', 'decision', 'approval', 'task', 'report', 'pdf', 'outcome'], source, validation: { passed: errors.length === 0, errors }, reconciliation, metrics, evidence, insight, recommendation, decision, task, report };
 }
 
-export function renderExecutiveReportPdfHtml(input: Pick<SliceReport, 'reportId' | 'dataAsOf' | 'generatedAt' | 'decision' | 'task'> & { summary: string; evidenceId: string }): string {
-  return `<!doctype html><html dir="rtl" lang="ar"><head><meta charset="utf-8"><title>${input.reportId}</title><style>@page{size:A4;margin:18mm}body{font-family:Arial,sans-serif;line-height:1.7;color:#111}h1,h2{break-after:avoid}.meta{display:grid;grid-template-columns:1fr 1fr;gap:8px}.section{break-inside:avoid;margin-top:18px}table{width:100%;border-collapse:collapse}td,th{border:1px solid #999;padding:6px;text-align:right}@media print{a{color:inherit;text-decoration:none}}</style></head><body><h1>Executive Intelligence Report</h1><div class="meta"><div>Report ID: ${input.reportId}</div><div>Data As Of: ${input.dataAsOf}</div><div>Generated At: ${input.generatedAt}</div><div>Evidence: ${input.evidenceId}</div></div><div class="section"><h2>Executive Summary</h2><p>${input.summary}</p></div><div class="section"><h2>Decision / Approval</h2><p>Decision: ${input.decision.id}</p><p>Approval: ${input.decision.approval}</p><p>Confidence: ${input.decision.confidence}</p></div><div class="section"><h2>Action Register</h2><table><tr><th>Task</th><th>Department</th><th>Owner</th><th>Due</th><th>Status</th></tr><tr><td>${input.task.id}</td><td>${input.task.department}</td><td>${input.task.owner}</td><td>${input.task.dueDate}</td><td>${input.task.status}</td></tr></table></div><footer>Page numbers are supplied by the print/PDF renderer.</footer></body></html>`;
+export function renderExecutiveReportPdfHtml(input: Pick<SliceReport, 'reportId' | 'dataAsOf' | 'generatedAt' | 'decision' | 'tasks'> & { summary: string; evidenceId: string }): string {
+  const task = input.tasks[0];
+  return `<!doctype html><html dir="rtl" lang="ar"><head><meta charset="utf-8"><title>${input.reportId}</title><style>@page{size:A4;margin:18mm}body{font-family:Arial,sans-serif;line-height:1.7;color:#111}h1,h2{break-after:avoid}.meta{display:grid;grid-template-columns:1fr 1fr;gap:8px}.section{break-inside:avoid;margin-top:18px}table{width:100%;border-collapse:collapse}td,th{border:1px solid #999;padding:6px;text-align:right}@media print{a{color:inherit;text-decoration:none}}</style></head><body><h1>Executive Intelligence Report</h1><div class="meta"><div>Report ID: ${input.reportId}</div><div>Data As Of: ${input.dataAsOf}</div><div>Generated At: ${input.generatedAt}</div><div>Evidence: ${input.evidenceId}</div></div><div class="section"><h2>Executive Summary</h2><p>${input.summary}</p></div><div class="section"><h2>Decision / Approval</h2><p>Decision: ${input.decision.id}</p><p>Approval: ${input.decision.approval}</p><p>Confidence: ${input.decision.confidence}</p></div><div class="section"><h2>Action Register</h2><table><tr><th>Task</th><th>Department</th><th>Owner</th><th>Due</th><th>Status</th></tr><tr><td>${task?.id ?? 'UNAVAILABLE'}</td><td>${task?.department ?? 'UNAVAILABLE'}</td><td>${task?.owner ?? 'UNAVAILABLE'}</td><td>${task?.dueDate ?? 'UNAVAILABLE'}</td><td>${task?.status ?? 'UNAVAILABLE'}</td></tr></table></div><footer>Page numbers are supplied by the print/PDF renderer.</footer></body></html>`;
 }
 
 export function productVerticalSliceCapabilities(slice: ProductVerticalSlice): Record<string, 'IMPLEMENTED' | 'BLOCKED'> {
