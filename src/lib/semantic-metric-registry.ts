@@ -1,4 +1,4 @@
-import { BUSINESS_METRICS, type MetricDefinition } from './semanticMetrics';
+import { BUSINESS_METRICS, type MetricDefinition } from './semanticMetrics.ts';
 
 export type MetricCertificationStatus = 'DRAFT' | 'REVIEWED' | 'CERTIFIED' | 'DEPRECATED';
 export type MetricTimeSemantic = 'transaction' | 'posting' | 'delivery' | 'snapshot' | 'generated';
