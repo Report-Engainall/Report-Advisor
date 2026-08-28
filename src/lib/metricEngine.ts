@@ -1,5 +1,5 @@
-import { getSemanticMetric, type SemanticMetricRegistryEntry } from './semantic-metric-registry';
-import type { MetricStatus } from './semanticMetrics';
+import { getSemanticMetric, type SemanticMetricRegistryEntry } from './semantic-metric-registry.ts';
+import type { MetricStatus } from './semanticMetrics.ts';
 import type { ReportFact } from './free-toolbox/report-facts';
 
 export interface MetricEvaluation {
