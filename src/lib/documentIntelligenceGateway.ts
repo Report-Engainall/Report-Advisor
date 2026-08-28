@@ -137,7 +137,7 @@ export function attachExtractedFactsToLineage(graph: LineageGraph, facts: Docume
     const lineageEvidence = toLineageEvidence(item);
     return [
       { id: sourceNodeId, type: 'source' as const, label: sourceLabel, evidence: [lineageEvidence] },
-      { id: factNodeId, type: 'metric' as const, label: item.field, evidence: [lineageEvidence] },
+      { id: factNodeId, type: 'metric' as const, label: item.field ?? 'document fact', evidence: [lineageEvidence] },
     ];
   });
 
