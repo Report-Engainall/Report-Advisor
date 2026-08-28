@@ -107,10 +107,18 @@ export function extractedFactsToEvidence(facts: DocumentExtractionFact[]): Evide
 function toLineageEvidence(evidence: Evidence): EvidenceRef {
   return {
     sourceId: evidence.sourceId,
+    sourceDocumentId: evidence.sourceDocumentId,
+    sourceHash: evidence.sourceHash,
     label: evidence.field ?? 'document fact',
     location: evidence.location ?? (evidence.page !== undefined ? `page:${evidence.page}` : undefined),
     value: typeof evidence.normalized === 'string' || typeof evidence.normalized === 'number' ? evidence.normalized : undefined,
   };
+}
+
+function provenanceKey(evidence: Evidence): string {
+  return [evidence.sourceId, evidence.sourceDocumentId, evidence.sourceHash]
+    .filter(value => value !== undefined && value !== '')
+    .join(':');
 }
 
 /**
@@ -122,8 +130,9 @@ export function attachExtractedFactsToLineage(graph: LineageGraph, facts: Docume
   if (!graph.nodes.some(node => node.id === targetId) || evidence.length === 0) return graph;
 
   const additions = evidence.flatMap(item => {
-    const sourceNodeId = `document-source:${item.sourceId}`;
-    const factNodeId = `document-fact:${item.sourceId}:${item.field}`;
+    const sourceKey = provenanceKey(item);
+    const sourceNodeId = `document-source:${sourceKey}`;
+    const factNodeId = `document-fact:${sourceKey}:${item.field}`;
     const sourceLabel = item.sourceDocumentId ? `${item.sourceId} (${item.sourceDocumentId})` : item.sourceId;
     const lineageEvidence = toLineageEvidence(item);
     return [
@@ -139,8 +148,9 @@ export function attachExtractedFactsToLineage(graph: LineageGraph, facts: Docume
 
   const edges = [...graph.edges];
   for (const item of evidence) {
-    const sourceNodeId = `document-source:${item.sourceId}`;
-    const factNodeId = `document-fact:${item.sourceId}:${item.field}`;
+    const sourceKey = provenanceKey(item);
+    const sourceNodeId = `document-source:${sourceKey}`;
+    const factNodeId = `document-fact:${sourceKey}:${item.field}`;
     if (!edges.some(edge => edge.from === sourceNodeId && edge.to === factNodeId)) edges.push({ from: sourceNodeId, to: factNodeId, label: 'extracted-from' });
     if (!edges.some(edge => edge.from === factNodeId && edge.to === targetId)) edges.push({ from: factNodeId, to: targetId, label: 'supports' });
   }
