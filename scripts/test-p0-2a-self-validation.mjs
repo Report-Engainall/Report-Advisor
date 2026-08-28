@@ -70,6 +70,7 @@ assert.match(harness, /if \(failures\.length \|\| unverified\.length\) process\.
 console.log('PASS harness:fail-closed-leak-and-error-semantics');
 
 const executor = read('scripts/p0-2-runtime-executor.mjs');
+const coverageHelper = read('scripts/p0-2-mutation-coverage.mjs');
 assert.match(executor, /function snapshotOriginalState\(/);
 assert.match(executor, /fixture\.restore does not match original database state/);
 assert.match(executor, /const snapshot = await snapshotOriginalState\(client, fixture\)/);
@@ -78,8 +79,13 @@ assert.match(executor, /originalSnapshotVerified: snapshot\.fixtureMatchesOrigin
 assert.match(executor, /function restoreAndVerify\(/);
 assert.match(executor, /restored-state assertion failed/);
 assert.match(executor, /finalState !== null/);
-assert.match(executor, /F13 child mutation coverage incomplete/);
-assert.match(executor, /mutationCoverageKey\(/);
+assert.match(executor, /mutatedStateObserved: Boolean\(mutatedState\)/);
+assert.match(executor, /finally \{[\s\S]*restoreAndVerify\(client, fixture, snapshot\.original\)/);
+assert.match(coverageHelper, /function mutationCoverageKey\(/);
+assert.match(coverageHelper, /requiredChildMutationKeys\(/);
+assert.match(coverageHelper, /duplicate child mutation cases/);
+assert.match(coverageHelper, /invalid child mutation cases/);
+assert.match(coverageHelper, /F13 child mutation coverage incomplete/);
 
 const requiredChildCases = requiredChildMutationKeys();
 assert.equal(requiredChildCases.length, CHILD_TABLES.length * MUTATION_OPERATIONS.length);
@@ -92,7 +98,7 @@ assert.deepEqual(validateChildMutationCoverage(completeChildFixtures).actual.sor
 expectThrow('F13:missing-child-case', () => validateChildMutationCoverage(completeChildFixtures.slice(1)), 'F13 child mutation coverage incomplete');
 expectThrow('F13:duplicate-child-case', () => validateChildMutationCoverage([...completeChildFixtures, completeChildFixtures[0]]), 'duplicate child mutation cases');
 expectThrow('F13:invalid-child-case', () => validateChildMutationCoverage([...completeChildFixtures, { table: 'not_a_child', operation: 'INSERT' }]), 'invalid child mutation cases');
-console.log(`PASS executor:F11-original-snapshot-F13-child-dynamic-coverage-F14-denial-F12-root-semantics (${requiredChildCases.length} required child cases)`);
+console.log(`PASS executor:F11-original-snapshot-mutated-observation-restored-verification-F13-child-dynamic-coverage-F14-denial-F12-root-semantics (${requiredChildCases.length} required child cases)`);
 
 assert.match(executor, /DENIAL_CLASS/);
 assert.match(executor, /RLS_FILTERED/);
@@ -113,9 +119,7 @@ const independentRpcNames = new Set();
 const migrationDir = path.join(ROOT, 'supabase', 'migrations');
 for (const file of fs.readdirSync(migrationDir).filter((name) => name.endsWith('.sql')).sort()) {
   const text = fs.readFileSync(path.join(migrationDir, file), 'utf8');
-  for (const match of text.matchAll(/CREATE\s+(?:OR\s+REPLACE\s+)?FUNCTION\s+(?:(?:public)\.)?([a-zA-Z_][a-zA-Z0-9_]*)\s*\(/gi)) {
-    independentRpcNames.add(match[1]);
-  }
+  for (const match of text.matchAll(/CREATE\s+(?:OR\s+REPLACE\s+)?FUNCTION\s+(?:(?:public)\.)?([a-zA-Z_][a-zA-Z0-9_]*)\s*\(/gi)) independentRpcNames.add(match[1]);
 }
 assert.deepEqual(RPC_MATRIX.map((entry) => entry.rpc), [...independentRpcNames].sort(), 'STALE/MISSING COVERAGE: RPC matrix differs from SQL function surface');
 assert.deepEqual(RPC_MATRIX.map((entry) => entry.rpc), discoverRepositoryRpcSurface(ROOT).map((entry) => entry.rpc));
@@ -133,4 +137,4 @@ assert.doesNotMatch(workflow, /p0-2-live-isolation-harness\.mjs/);
 assert.doesNotMatch(workflow, /P0-2[^\n]*(?:LIVE|VERIFIED|CERTIFIED)\s*=/i);
 console.log('PASS semantics:readiness-vs-live-certification');
 
-console.log('P0-2A SELF-VALIDATION PASS: fail-closed guards, original-state mutation snapshot, dynamic child coverage execution, negative cases, evidence integrity, matrix consistency, RPC classification, and certification separation verified. No live tenant claim emitted.');
+console.log('P0-2A SELF-VALIDATION PASS: fail-closed guards, original-state mutation snapshot, observed mutation state, restored-state verification, dynamic child coverage, negative cases, evidence integrity, matrix consistency, RPC classification, and certification separation verified. No live tenant claim emitted.');
