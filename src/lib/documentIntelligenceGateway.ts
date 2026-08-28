@@ -1,7 +1,7 @@
 import { preferredBackends, type AICapabilityBackend } from './aiCapabilityRegistry';
 import { chooseDocumentRoute, type DocumentPlan, type DocumentProfile } from './free-toolbox/document-route';
 import type { Evidence } from './free-toolbox/evidence-ledger';
-import type { LineageGraph } from './free-toolbox/data-lineage';
+import type { EvidenceRef, LineageGraph } from './free-toolbox/data-lineage';
 
 export type DocumentCapability = 'document-parsing' | 'ocr' | 'table-extraction';
 export type DocumentBackendStatus = 'AVAILABLE' | 'OPTIONAL' | 'UNAVAILABLE';
@@ -104,6 +104,15 @@ export function extractedFactsToEvidence(facts: DocumentExtractionFact[]): Evide
     }));
 }
 
+function toLineageEvidence(evidence: Evidence): EvidenceRef {
+  return {
+    sourceId: evidence.sourceId,
+    label: evidence.field ?? 'document fact',
+    location: evidence.location ?? (evidence.page !== undefined ? `page:${evidence.page}` : undefined),
+    value: typeof evidence.normalized === 'string' || typeof evidence.normalized === 'number' ? evidence.normalized : undefined,
+  };
+}
+
 /**
  * Attach extracted facts to an already-existing lineage target (insight/metric/decision).
  * The target id must already exist; this function never fabricates downstream nodes.
@@ -116,9 +125,10 @@ export function attachExtractedFactsToLineage(graph: LineageGraph, facts: Docume
     const sourceNodeId = `document-source:${item.sourceId}`;
     const factNodeId = `document-fact:${item.sourceId}:${item.field}`;
     const sourceLabel = item.sourceDocumentId ? `${item.sourceId} (${item.sourceDocumentId})` : item.sourceId;
+    const lineageEvidence = toLineageEvidence(item);
     return [
-      { id: sourceNodeId, type: 'source' as const, label: sourceLabel, evidence: [item] },
-      { id: factNodeId, type: 'metric' as const, label: item.field, evidence: [item] },
+      { id: sourceNodeId, type: 'source' as const, label: sourceLabel, evidence: [lineageEvidence] },
+      { id: factNodeId, type: 'metric' as const, label: item.field, evidence: [lineageEvidence] },
     ];
   });
 
