@@ -26,21 +26,24 @@ jobs:
     environment: ${{ inputs.environment || 'staging' }}
     steps:
       - uses: actions/checkout@v5
-        with: {fetch-depth: 1, persist-credentials: false}
+        with: {fetch-depth: 0, persist-credentials: false}
       - uses: actions/setup-node@v5
         with: {node-version: 22, cache: npm}
       - name: Install locked dependencies
         run: npm ci --no-audit --no-fund
+      - name: Canonical migration certification
+        run: node scripts/check-canonical-certification-migrations.mjs --manifest docs/CANONICAL_CERTIFICATION_MIGRATIONS.json
       - name: Preflight contracts
         run: npm run typecheck && npm run lint && npm run build && npm run test:production-release-blockers && npm run test:production-readiness && npm run test:operational-resilience && npm run test:release-resilience-manifest && node scripts/check-release-evidence-contract.mjs
       - name: Create reproducible release evidence
         shell: bash
         run: |
           mkdir -p release-evidence
-          printf '%s\n' "source_sha=$(git rev-parse HEAD)" > release-evidence/manifest.env
+          printf '%s\n' "source_sha=${GITHUB_SHA}" > release-evidence/manifest.env
           printf '%s\n' "ref=${GITHUB_REF}" >> release-evidence/manifest.env
           printf '%s\n' "environment=${{ inputs.environment || 'staging' }}" >> release-evidence/manifest.env
-          printf '%s\n' "migrations_fingerprint=$(find supabase/migrations -type f -name '*.sql' -print0 | sort -z | xargs -0 sha256sum | sha256sum | cut -d' ' -f1)" >> release-evidence/manifest.env
+          printf '%s\n' "migrations_fingerprint=$(node scripts/check-canonical-certification-migrations.mjs --manifest docs/CANONICAL_CERTIFICATION_MIGRATIONS.json | node -e 'let s=\"\";process.stdin.on(\"data\",d=>s+=d).on(\"end\",()=>console.log(JSON.parse(s).fingerprint))')" >> release-evidence/manifest.env
+          printf '%s\n' "canonical_migration_fingerprint=$(node scripts/check-canonical-certification-migrations.mjs --manifest docs/CANONICAL_CERTIFICATION_MIGRATIONS.json | node -e 'let s=\"\";process.stdin.on(\"data\",d=>s+=d).on(\"end\",()=>console.log(JSON.parse(s).fingerprint))')" >> release-evidence/manifest.env
           printf '%s\n' "dependency_lock_fingerprint=$(sha256sum package-lock.json | cut -d' ' -f1)" >> release-evidence/manifest.env
           printf '%s\n' "artifact_fingerprint=$(find dist -type f -print0 | sort -z | xargs -0 sha256sum | sha256sum | cut -d' ' -f1)" >> release-evidence/manifest.env
           printf '%s\n' "generated_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> release-evidence/manifest.env
