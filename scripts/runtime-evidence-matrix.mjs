@@ -47,21 +47,24 @@ export function discoverRepositoryRpcSurface(root = process.cwd()) {
     }
   }
 
-  const appText = readFiles(root, ['src', 'services'], new Set(['.ts', '.tsx', '.js', '.mjs', '.py']))
-    .map((file) => fs.readFileSync(file, 'utf8')).join('\n');
+  const applicationFiles = readFiles(root, ['src', 'services'], new Set(['.ts', '.tsx', '.js', '.mjs', '.py']));
+  const appSources = applicationFiles.map((file) => ({ file, text: fs.readFileSync(file, 'utf8') }));
+  const appText = appSources.map(({ text }) => text).join('\n');
   const sqlText = sqlFiles.map((file) => fs.readFileSync(path.join(migrationDir, file), 'utf8')).join('\n');
 
   return [...definitions.values()].sort((a, b) => a.rpc.localeCompare(b.rpc)).map(({ rpc, signature, migration, source }) => {
-    const applicationRpc = new RegExp(`\\.rpc\\(\\s*['"]${rpc}['"]`).test(appText);
+    const consumerFiles = appSources.filter(({ text }) => new RegExp(`\\.rpc\\(\\s*['"]${rpc}['"]`).test(text)).map(({ file }) => path.relative(root, file).replaceAll(path.sep, '/'));
+    const applicationRpc = consumerFiles.length > 0;
     const triggerFunction = new RegExp(`EXECUTE\\s+FUNCTION\\s+(?:(?:public)\\.)?${rpc}\\s*\\(`, 'i').test(sqlText);
     const calledBySql = new RegExp(`\\b${rpc}\\s*\\(`, 'i').test(sqlText.replace(new RegExp(`CREATE\\s+(?:OR\\s+REPLACE\\s+)?FUNCTION\\s+(?:(?:public)\\.)?${rpc}\\s*\\(`, 'i'), ''));
-    const classification = applicationRpc ? 'APPLICATION RPC' : triggerFunction ? 'TRIGGER FUNCTION' : calledBySql ? 'INTERNAL FUNCTION' : /^(pg_|uuid_|set_|get_|normalize_|calculate_|validate_)/i.test(rpc) ? 'UTILITY FUNCTION' : 'UNKNOWN';
+    const classification = applicationRpc ? 'APPLICATION RPC' : triggerFunction ? 'TRIGGER' : calledBySql ? 'INTERNAL FUNCTION' : /^(pg_|uuid_|set_|get_|normalize_|calculate_|validate_)/i.test(rpc) ? 'UTILITY FUNCTION' : 'UNKNOWN';
     return {
       rpc,
       signature,
       securityMode: /SECURITY\\s+DEFINER/i.test(source) ? 'SECURITY DEFINER' : 'INVOKER/UNSPECIFIED',
       caller: classification,
       classification,
+      consumers: consumerFiles,
       tenantSource: /company_id|tenant_id|current_company|auth\.uid/i.test(source) ? 'tenant-sensitive surface; runtime proof required' : 'not statically established',
       applicationTrustBoundary: applicationRpc,
       acceptsTenantParameter: /(?:company_id|tenant_id|tenant|p_company_id|p_tenant_id)/i.test(signature),
@@ -80,4 +83,4 @@ export function buildClientTenantAttackCases() {
   ];
 }
 
-export const INFERENCE_SURFACES = ['COUNT', 'SUM', 'AVG', 'SEARCH', 'AUTOCOMPLETE', 'AGGREGATE', 'REPORT', 'DASHBOARD', 'EXPORT', 'RECOMMENDATION'];
+export const INFERENCE_SURFACES = ['COUNT', 'SUM', 'AVG', 'SEARCH', 'FILTER', 'SORT', 'AUTOCOMPLETE', 'AGGREGATE', 'REPORT', 'DASHBOARD', 'EXPORT', 'FORECAST', 'RECOMMENDATION', 'DECISION'];
