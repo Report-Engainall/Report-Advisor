@@ -2,7 +2,6 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 // Runtime evidence matrix is derived from the canonical tenant-RLS migration surface.
-// Keep this list aligned with supabase/migrations/20260823000000_tenant_rls_global_hardening.sql.
 export const DATABASE_TABLES = [
   'branches', 'warehouses', 'categories', 'customers', 'suppliers', 'products',
   'sales_invoices', 'purchase_invoices', 'payments', 'inventory_movements',
@@ -21,24 +20,57 @@ export const DATABASE_ISOLATION_MATRIX = DATABASE_TABLES.flatMap((table) =>
   DIRECTIONS.flatMap((direction) => OPERATIONS.map((operation) => ({ table, direction, operation }))),
 );
 
+function readFiles(root, roots, extensions) {
+  const files = [];
+  function walk(dir) {
+    if (!fs.existsSync(dir)) return;
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      if (entry.name === 'node_modules' || entry.name === '.git') continue;
+      const full = path.join(dir, entry.name);
+      if (entry.isDirectory()) walk(full);
+      else if (extensions.has(path.extname(entry.name))) files.push(full);
+    }
+  }
+  for (const relative of roots) walk(path.join(root, relative));
+  return files;
+}
+
 export function discoverRepositoryRpcSurface(root = process.cwd()) {
   const migrationDir = path.join(root, 'supabase', 'migrations');
   if (!fs.existsSync(migrationDir)) return [];
-  const names = new Set();
-  for (const file of fs.readdirSync(migrationDir).filter((name) => name.endsWith('.sql')).sort()) {
+  const definitions = new Map();
+  const sqlFiles = fs.readdirSync(migrationDir).filter((name) => name.endsWith('.sql')).sort();
+  for (const file of sqlFiles) {
     const text = fs.readFileSync(path.join(migrationDir, file), 'utf8');
-    for (const match of text.matchAll(/CREATE\s+(?:OR\s+REPLACE\s+)?FUNCTION\s+(?:(?:public)\.)?([a-zA-Z_][a-zA-Z0-9_]*)\s*\(/gi)) {
-      names.add(match[1]);
+    for (const match of text.matchAll(/CREATE\s+(?:OR\s+REPLACE\s+)?FUNCTION\s+(?:(?:public)\.)?([a-zA-Z_][a-zA-Z0-9_]*)\s*\(([^)]*)\)/gi)) {
+      definitions.set(match[1], { rpc: match[1], signature: match[2].replace(/\s+/g, ' ').trim(), migration: file, source: text });
     }
   }
-  return [...names].sort().map((rpc) => ({
-    rpc,
-    acceptsTenantParameter: 'UNKNOWN',
-    tenantSource: 'signature discovered from repository migrations; tenant behavior requires runtime verification',
-  }));
+
+  const appText = readFiles(root, ['src', 'services'], new Set(['.ts', '.tsx', '.js', '.mjs', '.py']))
+    .map((file) => fs.readFileSync(file, 'utf8')).join('\n');
+  const sqlText = sqlFiles.map((file) => fs.readFileSync(path.join(migrationDir, file), 'utf8')).join('\n');
+
+  return [...definitions.values()].sort((a, b) => a.rpc.localeCompare(b.rpc)).map(({ rpc, signature, migration, source }) => {
+    const applicationRpc = new RegExp(`\\.rpc\\(\\s*['"]${rpc}['"]`).test(appText);
+    const triggerFunction = new RegExp(`EXECUTE\\s+FUNCTION\\s+(?:(?:public)\\.)?${rpc}\\s*\\(`, 'i').test(sqlText);
+    const calledBySql = new RegExp(`\\b${rpc}\\s*\\(`, 'i').test(sqlText.replace(new RegExp(`CREATE\\s+(?:OR\\s+REPLACE\\s+)?FUNCTION\\s+(?:(?:public)\\.)?${rpc}\\s*\\(`, 'i'), ''));
+    const classification = applicationRpc ? 'APPLICATION RPC' : triggerFunction ? 'TRIGGER FUNCTION' : calledBySql ? 'INTERNAL FUNCTION' : /^(pg_|uuid_|set_|get_|normalize_|calculate_|validate_)/i.test(rpc) ? 'UTILITY FUNCTION' : 'UNKNOWN';
+    return {
+      rpc,
+      signature,
+      securityMode: /SECURITY\\s+DEFINER/i.test(source) ? 'SECURITY DEFINER' : 'INVOKER/UNSPECIFIED',
+      caller: classification,
+      classification,
+      tenantSource: /company_id|tenant_id|current_company|auth\.uid/i.test(source) ? 'tenant-sensitive surface; runtime proof required' : 'not statically established',
+      applicationTrustBoundary: applicationRpc,
+      acceptsTenantParameter: /(?:company_id|tenant_id|tenant|p_company_id|p_tenant_id)/i.test(signature),
+      expectedDenial: applicationRpc ? 'cross-tenant input must be denied or produce zero unauthorized data' : 'NOT APPLICABLE UNTIL CLASSIFIED AS APPLICATION RPC',
+      migration,
+    };
+  });
 }
 
-// No hand-written RPC aliases: every entry is derived from the repository's SQL function surface.
 export const RPC_MATRIX = Object.freeze(discoverRepositoryRpcSurface());
 
 export function buildClientTenantAttackCases() {
@@ -48,4 +80,4 @@ export function buildClientTenantAttackCases() {
   ];
 }
 
-export const INFERENCE_SURFACES = ['COUNT', 'SUM', 'SEARCH', 'FILTER', 'AUTOCOMPLETE', 'AGGREGATE', 'REPORT', 'DASHBOARD', 'EXPORT', 'RECOMMENDATION'];
+export const INFERENCE_SURFACES = ['COUNT', 'SUM', 'AVG', 'SEARCH', 'AUTOCOMPLETE', 'AGGREGATE', 'REPORT', 'DASHBOARD', 'EXPORT', 'RECOMMENDATION'];
