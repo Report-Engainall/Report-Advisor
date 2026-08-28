@@ -51,7 +51,7 @@ GRANT SELECT ON public.metric_governance_audit TO authenticated;
 DROP POLICY IF EXISTS metric_governance_authenticated_read ON public.metric_governance;
 CREATE POLICY metric_governance_authenticated_read ON public.metric_governance FOR SELECT TO authenticated USING (true);
 DROP POLICY IF EXISTS metric_governance_audit_authenticated_read ON public.metric_governance_audit;
-CREATE POLICY metric_governance_audit_authenticated_read ON public.metric_governance FOR SELECT TO authenticated USING (true);
+CREATE POLICY metric_governance_audit_authenticated_read ON public.metric_governance_audit FOR SELECT TO authenticated USING (true);
 
 CREATE SCHEMA IF NOT EXISTS private;
 CREATE OR REPLACE FUNCTION private.metric_governance_transition(p_metric_id text,p_version integer,p_to_status text,p_reason text)
