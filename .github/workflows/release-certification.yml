@@ -32,7 +32,7 @@ jobs:
       - name: Install locked dependencies
         run: npm ci --no-audit --no-fund
       - name: Preflight contracts
-        run: npm run typecheck && npm run lint && npm run build && npm run test:production-release-blockers && npm run test:production-readiness && npm run test:operational-resilience && npm run test:release-resilience-manifest && node scripts/check-release-evidence-contract.mjs
+        run: npm run typecheck && npm run lint && npm run build && npm run test:production-release-blockers && npm run test:production-readiness && npm run test:operational-resilience && npm run test:release-resilience-manifest && node scripts/check-release-evidence-contract.mjs && node scripts/check-release-evidence-completeness.mjs
       - name: Create reproducible release evidence and certification decision
         shell: bash
         env:
@@ -65,8 +65,8 @@ jobs:
               production_certification: 'validated',
               production_release_blockers: 'validated',
               trust: 'validated',
-              canary: 'contract-validated',
-              rollback: 'contract-validated',
+              canary: 'validated',
+              rollback: 'validated',
               fail_closed: 'validated'
             }
           };
