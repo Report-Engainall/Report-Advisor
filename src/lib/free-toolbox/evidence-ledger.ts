@@ -1,4 +1,4 @@
-export interface Evidence { id?: string; sourceId: string; page?: number; method: 'native' | 'table' | 'ocr' | 'derived'; field?: string; raw?: string; normalized?: unknown; confidence?: number; note?: string }
+export interface Evidence { id?: string; sourceId: string; sourceDocumentId?: string; sourceHash?: string; page?: number; location?: string; method: 'native' | 'table' | 'ocr' | 'derived'; field?: string; raw?: string; normalized?: unknown; confidence?: number; note?: string }
 export type EvidenceEntry = Evidence;
 export interface EvidenceLedger { items: Evidence[] }
 export interface DecisionEvidence { decisionId: string; claim: string; refs: Evidence[]; confidence: number; status: 'verified' | 'partial' | 'insufficient' }
