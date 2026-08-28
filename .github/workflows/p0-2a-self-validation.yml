@@ -1,0 +1,42 @@
+name: P0-2A Runtime Evidence Self-Validation
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/runtime-evidence-*.mjs'
+      - 'scripts/p0-2-live-isolation-harness.mjs'
+      - 'scripts/check-p0-2a-readiness.mjs'
+      - 'docs/runtime-evidence/**'
+      - '.github/workflows/p0-2a-self-validation.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  self-validation:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+      - name: Exact PR HEAD proof
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${GITHUB_SHA}"
+          expected_head="$(node -e "const fs=require('fs'); const e=JSON.parse(fs.readFileSync(process.env.GITHUB_EVENT_PATH,'utf8')); process.stdout.write(e.pull_request.head.sha)")"
+          actual_head="$(git ls-remote origin "refs/heads/${GITHUB_HEAD_REF}" | awk '{print $1}')"
+          test "$actual_head" = "$expected_head"
+          echo "PR_HEAD_SHA=$actual_head"
+          echo "MERGE_REF_SHA=$GITHUB_SHA"
+      - name: Install
+        run: npm ci --no-audit --no-fund
+      - name: Readiness gate
+        run: node scripts/check-p0-2a-readiness.mjs
+      - name: Harness self-validation
+        run: node scripts/test-p0-2a-self-validation.mjs
