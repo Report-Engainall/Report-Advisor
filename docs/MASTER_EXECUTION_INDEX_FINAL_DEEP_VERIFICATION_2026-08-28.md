@@ -1,164 +1,100 @@
 # Report-Advisor — Final Deep Verification Execution Index
 
 ## Certification rule
-
-No completion percentage is used as evidence. A requirement is Production-complete only when its implementation, integration, regression, exact-HEAD CI, runtime evidence, live verification, and production certification evidence exist as applicable.
+No completion percentage is evidence. The chain is:
+`CODE → TEST → CI → RUNTIME → LIVE → PRODUCTION`.
 
 ## Exact verification point
-
-- Verification branch: `runtime-evidence/p0-2a-readiness`
-- Base SHA: `137facaf513652dd9ec38fc2db03d734dd8c7313`
-- Current P0-2A branch HEAD: `2dc5684308a1990f840f42ec358495c40cc1a47a`
-- PR: #69 (draft/open/unmerged)
-- Base branch: `main`
-- Exact-HEAD CI for `2dc5684308a1990f840f42ec358495c40cc1a47a`: queued/pending; no PASS claimed.
-- Exact-HEAD quality run: `33130680352` (queued).
-- Exact-HEAD P0-2A self-validation run: `33130680365` (queued).
-- Exact-HEAD repository-forensics run: `33130680381` (in progress).
+- Branch: `runtime-evidence/p0-2a-readiness`
+- Base: `137facaf513652dd9ec38fc2db03d734dd8c7313`
+- Current HEAD: `1b38e44a251c82cfb14d20b290ec0057f68a485c`
+- PR: `#69` (draft/open/unmerged)
+- Exact-HEAD CI: `PENDING — no PASS claimed yet`
+- Prior PASSes are historical and do not certify this SHA.
 
 ## P0 status
+| Requirement | Implementation | CI | Runtime | Live | Production | Status |
+|---|---|---|---|---|---|---|
+| P0-2A Runtime Evidence Infrastructure | IMPLEMENTED | PENDING | NOT RUN | NOT RUN | NO | GATED |
+| P0-2 Tenant A/B isolation | HARNESS IMPLEMENTED | PENDING | NOT RUN | BLOCKED — no safe staging DB | NO | BLOCKED |
+| P0-1 Authenticated browser runtime | CONTRACT/PARTIAL | PENDING | NOT RUN | BLOCKED — no browser runtime | NO | BLOCKED |
 
-| Requirement | Static/contract | Self-validation | Live runtime | Status |
-|---|---|---|---|---|
-| P0-2A Runtime Evidence Infrastructure | IMPLEMENTED | CI PENDING | NOT RUN | **CI-VERIFICATION PENDING** |
-| P0-2 Tenant A/B database isolation | HARNESS IMPLEMENTED | NOT LIVE-EXECUTED | BLOCKED — no safe authenticated staging/test DB supplied | **BLOCKED** |
-| P0-1 Browser authenticated runtime | CONTRACT/PARTIAL | NOT LIVE-EXECUTED | BLOCKED — no browser runtime | **BLOCKED** |
+## Closed findings
+### F1 — harness operational-error false-green risk
+FOUND → query errors previously risked being represented as zero rows → FIXED to `NOT VERIFIED` + non-zero exit → regression in P0-2A self-validation → prior CI protection; current SHA pending → FIXED / regression-protected.
 
-## P0-2A validation controls now enforced
+### F2 — tenant matrix drift
+FOUND → hand-maintained matrix diverged from canonical RLS SQL → FIXED by canonical table/child derivation and repository RPC discovery → regression compares matrix with SQL → current SHA pending → FIXED / regression-protected.
 
-- `scripts/check-p0-2a-readiness.mjs`: readiness gate; never emits a live verification claim.
-- `scripts/test-p0-2a-self-validation.mjs`: controlled negative tests for environment, authenticated context, evidence completeness, forged PASS, secret redaction, seed abort, harness fail-closed semantics, schema matrix consistency, RPC/function surface consistency, and certification separation.
-- `scripts/runtime-evidence-matrix.mjs`: tenant table matrix aligned to the canonical tenant-RLS migration; RPC inventory is repository-derived and now classified against the application trust boundary.
-- `scripts/p0-2-live-isolation-harness.mjs`: current executor proves SELECT fail-closed semantics; broader mutation/child/storage/realtime/inference execution remains runtime-gated and is not claimed as executed.
-- `scripts/runtime-evidence-record.mjs`: required evidence fields, result validation, and secret-like field redaction.
-- `scripts/runtime-evidence-seed.mjs`: privileged seed is environment-guarded and now refuses ambiguous User A/B membership before membership/data seeding.
-- `.github/workflows/p0-2a-self-validation.yml`: exact-HEAD readiness/self-validation workflow.
-- `.github/workflows/quality.yml`: exact-HEAD readiness and self-validation are explicit gates; live P0-2 harness is not executed without a supplied safe runtime.
-- `.github/workflows/repository-forensics.yml`: repository identity, starter-artifact, compatibility-boundary, and P0-2A regression guards.
+### F3 — self-validation syntax failure
+FOUND in run `33129898899` → malformed JS loop → FIXED → Node/lint regression → corrected CI passed historically → FIXED.
 
-## Validation findings and fixes
+### F4 — document-intelligence CI import failure
+FOUND in run `33129898899` (`ModuleNotFoundError: app`) → PYTHONPATH boundary → FIXED in quality workflow → regression is CI → FIXED / CI-protected.
 
-### Finding 1 — harness could misclassify operational errors
-- FINDING: an underlying SELECT error could have been represented as zero rows and therefore PASS.
-- ROOT CAUSE: probe error path did not distinguish `verified=false` from `rows=0`.
-- FIX: query errors now produce `NOT VERIFIED` and fail the process; only a successfully executed zero-row isolation probe can PASS.
-- REGRESSION TEST: `test-p0-2a-self-validation.mjs` asserts the error path and terminal exit semantics.
-- CI: prior exact-head regression passed the relevant gates; final current-head CI pending.
-- STATUS: FIXED / REGRESSION-PROTECTED.
+### F5 — privileged seed scanner classification
+FOUND in run `33128334365` → scanner confused guarded runtime seed with application tenant consumers → FIXED classification/guard → regression in tenant-boundary checks → FIXED / CI-protected.
 
-### Finding 2 — matrix drift
-- FINDING: the old matrix contained stale table names and omitted the canonical tenant-RLS surface.
-- ROOT CAUSE: hand-maintained matrix diverged from `20260823000000_tenant_rls_global_hardening.sql`.
-- FIX: matrix now contains the canonical direct tenant tables plus `companies` and all four child tables; RPC coverage is repository-derived.
-- REGRESSION TEST: self-validation independently compares the matrix with canonical SQL and independently discovers SQL functions.
-- CI: current-head pending.
-- STATUS: FIXED / REGRESSION-PROTECTED.
+### F6 — Master Index assertion drift
+FOUND → validator expected stale wording → FIXED to canonical status vocabulary → self-validation regression → FIXED.
 
-### Finding 3 — CI harness self-test syntax failure on prior run
-- FINDING: run `33129898899` failed the new self-validation gate because the first implementation had a JavaScript syntax error; lint also failed on the same syntax error.
-- ROOT CAUSE: malformed `for ... matchAll(...)` loop in the first self-validation implementation.
-- FIX: corrected loop syntax and consolidated validation into `test-p0-2a-self-validation.mjs`.
-- REGRESSION TEST: Node execution + lint.
-- CI: prior corrected run passed self-validation; current-head CI pending.
-- STATUS: FIXED.
+### F7 — tenant membership ambiguity in seed
+FOUND → seed assumed exclusivity → FIXED with `assertTenantExclusivity()` before membership/data creation → staging execution still required for live proof → FIXED / runtime proof pending.
 
-### Finding 4 — unrelated document-intelligence CI import failure
-- FINDING: run `33129898899` failed `python -m unittest` with `ModuleNotFoundError: No module named 'app'`.
-- ROOT CAUSE: service package root was not present in `PYTHONPATH` in the CI command.
-- FIX: quality workflow now runs the same tests with `PYTHONPATH=services/document-intelligence`.
-- REGRESSION TEST: exact-head CI.
-- STATUS: FIXED / CI-PROTECTED.
+### F8 — Bolt/starter identity artifacts
+FOUND → `.bolt` and starter metadata/favicon survived bootstrap → FIXED in current branch; `.bolt` is absent from the current tree → repository-forensics regression → current SHA CI pending → FIXED / verification pending.
 
-### Finding 5 — privileged seed classification
-- FINDING: original run `33128334365` on `943d9090a5e2366f904cf498b497c3b03223e4b9` failed tenant legacy-consumer scanning on the controlled privileged seed.
-- ROOT CAUSE: scanner did not distinguish the environment-guarded runtime-evidence seed from application tenant consumers.
-- FIX: seed explicitly classified as privileged runtime-evidence infrastructure; application scanning remains enforced.
-- REGRESSION TEST: tenant legacy-consumer boundary + seed self-validation.
-- STATUS: FIXED / CI-PROTECTED.
+### F9 — lockfile identity drift
+FOUND → `package.json=report-advisor@1.0.0` while old lock root was `vite-react-typescript-starter@0.0.0` → FIXED by controlled lockfile regeneration, not hand edit → branch lock root now matches package identity and lockfile v3 → Exact-HEAD `npm ci`/typecheck/lint/build still require current-SHA CI evidence → FIXED / CI verification pending.
 
-### Finding 6 — Master Index assertion mismatch
-- FINDING: self-validation expected an outdated P0-2A wording in the Master Index.
-- ROOT CAUSE: the validator and index status vocabulary drifted.
-- FIX: validator was aligned to the canonical index status wording.
-- REGRESSION TEST: P0-2A self-validation.
-- STATUS: FIXED.
+### F10 — P0-2 executor coverage gap
+FOUND → prior live harness covered only SELECT foreign-tenant probes → FIXED at code level by adding `scripts/p0-2-runtime-executor.mjs` with own/foreign SELECT, operation-specific INSERT/UPDATE/DELETE fixture execution, child-table inclusion, actor identity binding, and fail-closed mutation fixture requirements → runtime execution remains blocked without staging fixtures → NOT LIVE-VERIFIED.
 
-### Finding 7 — privileged seed tenant-membership ambiguity
-- FINDING: seed did not explicitly prove User A/B exclusivity before adding memberships/data.
-- ROOT CAUSE: seed assumed the configured identities were tenant-exclusive.
-- FIX: `assertTenantExclusivity()` now aborts when identities are shared or have unauthorized/ambiguous memberships, before membership/product seeding.
-- REGRESSION TEST: seed safety/static guard plus future staging execution.
-- STATUS: FIXED / RUNTIME-REQUIRED FOR FINAL PROOF.
+## P0-2 runtime executor contract
+`p0-2-runtime-executor.mjs` requires safe environment, authenticated A/B identities, distinct tenants, expected actor IDs, release and commit SHA. It executes own/foreign SELECT across the canonical table surface and supports deterministic INSERT/UPDATE/DELETE fixtures. Missing mutation fixtures are `NOT VERIFIED`, never PASS. Child tables are explicitly retained. Cross-tenant mutation success is FAIL. Inference surfaces are deliberately NOT VERIFIED until application-specific measured executors provide actual results.
 
-### Finding 8 — repository identity contained legacy Bolt/starter artifacts
-- FINDING: `.bolt/config.json` and `.bolt/prompt` were present; `index.html` contained starter/Bolt metadata and referenced a broken Vite favicon.
-- ROOT CAUSE: historical project bootstrap artifacts survived into the current production tree.
-- FIX: removed `.bolt/*`; replaced public identity metadata; added first-party `/favicon.svg`; added repository-forensics CI guard.
-- REGRESSION TEST: `repository-forensics` workflow.
-- CI: `33130680381` in progress.
-- STATUS: FIXED / VERIFICATION PENDING.
+Required runtime surfaces remain:
+- DB: SELECT/INSERT/UPDATE/DELETE; A→A, A→B, B→B, B→A; parent + child.
+- Child: `sale_items`, `purchase_items`, `import_rows`, `import_job_rows`.
+- RPC: only repository-classified `APPLICATION RPC` enters runtime execution.
+- Inference: COUNT, SUM, AVG, SEARCH, AUTOCOMPLETE, AGGREGATE, REPORT, DASHBOARD, EXPORT, RECOMMENDATION, FORECAST and decision-intelligence outputs require application-specific evidence.
+- Storage, Realtime, Workers/Queues, Import/Export and Document Intelligence remain runtime-gated until staging exists.
 
-### Finding 9 — package-lock root metadata drift
-- FINDING: current `package.json` is `report-advisor@1.0.0`, while `package-lock.json` root metadata remains from the previous package identity/version.
-- ROOT CAUSE: package identity was corrected without regenerating the lockfile root metadata.
-- IMPACT: repository hygiene/integrity finding; not treated as a tenant-security proof.
-- FIX PLAN: regenerate `package-lock.json` from the canonical `package.json` with the repository's pinned dependency graph; do not hand-edit dependency resolutions.
-- REGRESSION TEST: `npm ci` plus explicit package/lock identity guard.
-- STATUS: OPEN — P1 REPOSITORY HYGIENE.
+## Evidence contract
+Every runtime record must bind:
+`TEST_ID, ENVIRONMENT, RELEASE, COMMIT_SHA, TIMESTAMP, ACTOR, AUTHORIZED_TENANT, TARGET_TENANT, SURFACE, OPERATION, INPUT, EXPECTED, ACTUAL, ROWS_RETURNED, ROWS_AFFECTED, ERROR_CODE, RESULT, EVIDENCE_REFERENCE`.
 
-### Finding 10 — P0-2 harness coverage was narrower than the full runtime matrix
-- FINDING: the current live harness executes SELECT probes over the parent-table surface and does not yet execute the full requested A→A/B→B/A→B/B→A mutation, child-table, inference, storage, realtime, worker, and import/export matrix.
-- ROOT CAUSE: live staging runtime is unavailable and the current executor was intentionally scoped to avoid inventing unsafe generic mutation payloads.
-- FIX STATUS: NOT A BUG; executor expansion is required before P0-2 can become runtime-ready for the full matrix.
-- ACTION: build explicit operation-specific executors and mark unsupported operations `NOT IMPLEMENTED`, never `PASS`.
-- STATUS: OPEN — P0 RUNTIME COVERAGE GAP.
+Results are only `PASS | FAIL | NOT VERIFIED`. Workflow states such as `NOT RUN`, `BLOCKED`, and `PLANNED` are not results.
 
-## Required negative-test contract
+## Fail-closed rules
+- missing/empty/unknown/production environment → ABORT
+- missing actor/tenant/release/commit/evidence → NOT VERIFIED
+- forged PASS or incomplete evidence → rejected
+- operational runtime error → NOT VERIFIED + non-zero exit
+- cross-tenant leak → FAIL + non-zero exit
+- production seed → ABORT
+- ambiguous A/B membership → ABORT
+- fake secrets → redacted and absent from serialized evidence
 
-- Missing/empty/unknown/production-like environment => `ABORT`.
-- Missing actor => `NOT VERIFIED`.
-- Missing authorized tenant => `NOT VERIFIED`.
-- Missing target tenant => `NOT VERIFIED`.
-- Missing release => `NOT VERIFIED`.
-- Missing commit SHA => `NOT VERIFIED`.
-- Missing evidence fields => `NOT VERIFIED`.
-- `RESULT=PASS` without complete required evidence/row counts => `REJECTED` / `NOT VERIFIED`.
-- Fake password/token/service-role/authorization/cookie values => redacted and absent from serialized evidence.
-- Seed without safe environment => abort before privileged client construction.
-- Production seed => abort.
-- Ambiguous tenant membership => abort.
-- Cross-tenant leak => `FAIL` and non-zero exit.
-- Operational runtime query error => `NOT VERIFIED` and non-zero exit.
-
-## Matrix ↔ repository truth
-
-Canonical tenant-RLS migration explicitly defines the direct tenant-scoped surface; child policies cover `sale_items`, `purchase_items`, `import_rows`, and `import_job_rows`. The runtime matrix is checked against canonical SQL rather than treated as independent truth.
-
-RPC inventory now records, where statically discoverable:
-
-```text
-function name
-signature
-security mode
-caller classification
-application trust boundary
-tenant sensitivity
-expected denial
-migration source
-```
-
-Only `APPLICATION RPC` entries are candidates for P0-2 runtime RPC execution; trigger/internal/utility/unknown functions are not falsely treated as browser trust-boundary RPCs.
+## Repository identity
+Current tree must remain first-party Report-Advisor. `.bolt` is absent. Starter/Bolt branding must not appear in production identity metadata. Git history is preserved.
 
 ## Compatibility boundary
+`src/lib/queries-compat.ts` remains intentional compatibility infrastructure. Existing consumers are tracked; removal requires canonical migration plus regression proof. It must not become an alternate business-truth boundary.
 
-`src/lib/queries-compat.ts` remains an intentional compatibility surface for legacy consumers. The existing guard verifies canonical delegation, authoritative tenant resolution, bounded export behavior, and rejection of legacy secondary analytics RPC usage. Current consumer evidence includes `src/App.tsx` using `markAlertRead`; this remains `INTENTIONAL COMPATIBILITY` until a canonical consumer migration is safe and regression-protected.
+## Security / architecture
+Tenant authority must derive from authenticated/server-side context, not client-selected `tenant_id/company_id`. Static coverage includes RLS, RPC, Storage policy, Realtime, workers, import/export, document ownership, and canonical query boundaries. Runtime proof is separate and remains pending where environment is unavailable.
 
 ## Certification separation
+- `P0-2A = CI-VERIFIED` only after Exact-HEAD CI succeeds on the current SHA.
+- `P0-2 = BLOCKED` until a dedicated authenticated staging/test DB exists and the runtime executor is actually executed.
+- `P0-1 = BLOCKED` until authenticated browser runtime evidence exists.
+- `PRODUCTION-CERTIFIED = NO`.
+- No P0-3 transition is authorized by this index.
 
-`P0-2A = CI-VERIFIED` only after the current exact-HEAD gates succeed.
-
-`P0-2 = BLOCKED` until a safe authenticated staging/test database is available and the Tenant A/B runtime harness executes against it.
-
-`P0-1 = BLOCKED` until authenticated browser runtime evidence exists.
-
-**PRODUCTION-CERTIFIED: NO.**
+## Remaining blockers
+1. Exact-HEAD CI for `1b38e44a251c82cfb14d20b290ec0057f68a485c`.
+2. Dedicated safe authenticated staging/test Supabase environment and deterministic mutation fixtures.
+3. Live DB isolation, RPC, inference, Storage, Realtime, Workers, Import/Export and Document Intelligence evidence.
+4. Authenticated browser runtime for P0-1.
+5. Backup/restore and deployment/rollback evidence before any production certification.
