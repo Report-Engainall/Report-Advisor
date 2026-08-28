@@ -9,11 +9,11 @@ No completion percentage is used as evidence. A requirement is Production-comple
 - Verification branch: `runtime-evidence/p0-2a-readiness`
 - Base SHA: `137facaf513652dd9ec38fc2db03d734dd8c7313`
 - Prior code verification SHA: `7838dd51390708d1944b2e49c41b4da63868301d`
-- P0-2A branch HEAD at readiness implementation: `7b8e855c96a17eb702ef26d8e13ed07f753c6374`
+- Current P0-2A branch HEAD: `6c51c5521863f7f7dd5c75ac866dfa05a5d8f357`
 - PR: #69 (draft)
 - Base branch: `main`
 - Working tree: remote branch state only; local working-tree cleanliness is NOT VERIFIED.
-- P0-2A CI runs were triggered on `7b8e855c96a17eb702ef26d8e13ed07f753c6374`; at index update time they were queued, so no PASS is claimed for that SHA.
+- P0-2A CI for `6c51c5521863f7f7dd5c75ac866dfa05a5d8f357`: NOT YET OBSERVED; no PASS is claimed until a run on this exact HEAD completes successfully.
 
 ## Requirement matrix — current evidence state
 
@@ -38,14 +38,17 @@ No completion percentage is used as evidence. A requirement is Production-comple
 | Worker crash/lease/fencing/DLQ recovery | YES | YES | YES | PASS contract/runtime fixtures | NOT RUN against live service | NOT RUN | NOT CERTIFIED | GATED |
 | Backup/restore RPO/RTO | CONTRACTED | CONTRACTED | NOT PROVEN by restore exercise | PASS contract | NOT RUN | NOT RUN | NOT CERTIFIED | IMPLEMENTED |
 | AI/vector/document provenance tenant isolation | PARTIAL | PARTIAL | CONTRACT evidence | PASS contract | NOT RUN | NOT RUN | NOT CERTIFIED | GATED |
-| P0-2A runtime evidence readiness | YES | YES | YES (readiness gate) | PENDING on readiness branch HEAD | NOT RUN | NOT RUN | NOT CERTIFIED | READY |
+| P0-2A runtime evidence readiness | YES | YES | SELF-VALIDATION ADDED; exact-head CI PENDING | PENDING | NOT RUN | NOT RUN | NOT CERTIFIED | READY |
 | P0-2 Tenant A/B live database isolation | READY HARNESS | READY | READY | PENDING | BLOCKED | NOT RUN | NOT CERTIFIED | BLOCKED |
 
-## Exact-head CI evidence
+## P0-2A self-validation
 
-The prior deep verification run `33127606631` passed required verify stages for `PR_HEAD_SHA=7838dd51390708d1944b2e49c41b4da63868301d`. That result is not reused as an Exact-HEAD PASS for the P0-2A branch head.
-
-For P0-2A, GitHub created pull-request workflow runs against `7b8e855c96a17eb702ef26d8e13ed07f753c6374`. At the time this index was updated, those runs were `queued`; therefore the P0-2A Exact-HEAD CI status is **PENDING / NOT VERIFIED**.
+- Previous Exact-HEAD Quality run `33128334365` on `943d9090a5e2366f904cf498b497c3b03223e4b9` failed at the tenant legacy consumer boundary because the guarded service-role seed was not classified as a privileged evidence harness.
+- Root cause: `scripts/check-tenant-legacy-consumers.mjs` treated the intentionally privileged, environment-guarded seed as a legacy tenant consumer.
+- Fix: `scripts/check-tenant-legacy-consumers.mjs` now explicitly classifies `scripts/runtime-evidence-seed.mjs` as a privileged runtime-evidence harness; this does not relax application consumer scanning.
+- Self-validation added: `scripts/test-p0-2a-self-validation.mjs` exercises fail-closed environment/context guards, incomplete/forged evidence rejection, PASS row-count requirement, secret redaction, and seed abort behavior without a safe environment or in production.
+- Dedicated workflow added: `.github/workflows/p0-2a-self-validation.yml` runs exact-HEAD proof, readiness gate, and self-validation.
+- The new commits are not yet assigned an Exact-HEAD CI PASS; no PASS is claimed until GitHub reports successful runs on `6c51c5521863f7f7dd5c75ac866dfa05a5d8f357`.
 
 ## P0-2A Runtime Evidence Readiness
 
@@ -66,7 +69,9 @@ For P0-2A, GitHub created pull-request workflow runs against `7b8e855c96a17eb702
 - `scripts/runtime-evidence-matrix.mjs`: DB operation, child-table, RPC, tenant-manipulation and inference matrices.
 - `scripts/runtime-evidence-record.mjs`: sanitized evidence schema and PASS/FAIL/NOT VERIFIED validation.
 - `scripts/check-p0-2a-readiness.mjs`: CI-checkable readiness gate.
+- `scripts/test-p0-2a-self-validation.mjs`: fail-closed harness self-validation.
 - `.github/workflows/quality.yml`: runs the readiness gate without promoting it to a live verification claim.
+- `.github/workflows/p0-2a-self-validation.yml`: dedicated exact-head self-validation workflow.
 - `docs/runtime-evidence/P0-2A-RUNTIME-EVIDENCE-READINESS.md`: environment and safety contract.
 - `docs/runtime-evidence/P0-2-RUNTIME-EVIDENCE-INDEX.md`: separate readiness/live-evidence index.
 
