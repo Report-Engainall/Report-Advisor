@@ -5,6 +5,7 @@ import path from 'node:path';
 const dashboardSql = fs.readFileSync('supabase/migrations/20260826052000_dashboard_canonical_aggregation.sql', 'utf8');
 const inventorySql = fs.readFileSync('supabase/migrations/20260826054500_inventory_report_authoritative_paging.sql', 'utf8');
 const analyticsSql = fs.readFileSync('supabase/migrations/20260826062000_analytics_authoritative_aggregation.sql', 'utf8');
+const forecastSql = fs.readFileSync('supabase/migrations/20260826073000_forecast_canonical_snapshot.sql', 'utf8');
 const queries = fs.readFileSync('src/lib/queries.ts', 'utf8');
 const compat = fs.readFileSync('src/lib/queries-compat.ts', 'utf8');
 const adapter = fs.readFileSync('src/lib/dashboard-canonical.ts', 'utf8');
@@ -35,7 +36,12 @@ assert.match(analyticsPage,/fetchRFMSnapshot\(500\)/);assert.match(analyticsPage
 assert.match(compat,/export \* from '\.\/queries'/);assert.match(compat,/canonicalFetchMonthlyTrend/);assert.match(compat,/canonicalFetchAgingBuckets/);assert.doesNotMatch(compat,/loadSecondaryMetrics/);assert.doesNotMatch(compat,/get_sales_secondary_metrics/);assert.match(compat,/canonicalFetchForecasts/);assert.match(compat,/canonicalFetchCustomers/);assert.match(compat,/canonicalFetchProducts/);
 
 assert.match(queries,/const MAX_ENTITY_ROWS = 500/);assert.match(queries,/REPORT_QUERY_LIMIT_EXCEEDED: customers/);assert.match(queries,/REPORT_QUERY_LIMIT_EXCEEDED: products/);assert.match(queries,/order\('name',\{ascending:true\}\)/);assert.match(queries,/range\(0,MAX_ENTITY_ROWS-1\)/);assert.match(compat,/return canonicalFetchCustomers\(\)/);assert.match(compat,/return canonicalFetchProducts\(\)/);
-assert.match(queries,/MAX_FORECAST_ROWS=500/);assert.match(queries,/count:'exact'/);assert.match(queries,/range\(0,MAX_FORECAST_ROWS-1\)/);assert.match(queries,/REPORT_QUERY_LIMIT_EXCEEDED: forecasts/);assert.match(queries,/order\('period',\{ascending:true\}\)/);assert.match(queries,/order\('id',\{ascending:true\}\)/);
+assert.match(queries,/supabase\.rpc\('get_forecast_snapshot',\s*\{\s*p_limit:\s*500\s*\}\)/s);
+assert.match(forecastSql,/create or replace function public\.get_forecast_snapshot\(\s*p_limit integer default 500\s*\)/s);
+assert.match(forecastSql,/v_limit integer := greatest\(1, least\(coalesce\(p_limit, 500\), 500\)\)/);
+assert.match(forecastSql,/where company_id = v_company_id[\s\S]*limit v_limit/);
+assert.match(forecastSql,/security invoker/);
+assert.match(forecastSql,/current_company_id\(\)/);
 
 console.log('PASS dashboard canonical semantic regression');
 console.log('PASS display pagination cannot define dashboard aggregate');
@@ -55,5 +61,5 @@ console.log('PASS analytics pages no longer aggregate transactional histories in
 console.log('PASS analytics missing-data states remain explicit');
 console.log('PASS queries-compat retained intentionally as compatibility infrastructure');
 console.log('PASS secondary analytics compatibility delegates to canonical dashboard truth');
-console.log('PASS forecast collection is bounded, deterministic and fail-closed on truncation');
+console.log('PASS forecast collection is bounded by the authoritative RPC and fail-closed on truncation');
 console.log('PASS customer/product collections are bounded, deterministic and fail-closed on truncation');
