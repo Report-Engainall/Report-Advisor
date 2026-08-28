@@ -38,12 +38,28 @@ if (!canonicalTenantRls) throw new Error('Report truth contract requires the can
 
 const securityMigrationFiles = migrationFiles.filter((f) => f >= canonicalTenantRls);
 const securityMigrations = securityMigrationFiles.map((f) => fs.readFileSync(path.join(migrationsDir, f), 'utf8')).join('\n');
+
+// Parse individual CREATE POLICY statements so an intentionally global reference
+// policy cannot be confused with a tenant policy elsewhere in the migration set.
+// The only currently permitted global true-policy is the curated, authenticated-
+// read-only synonym dictionary. Every other USING(true) is a fail-closed finding.
 const policyStatements = securityMigrations.match(/CREATE\s+POLICY\b[\s\S]*?;/gi) ?? [];
 for (const statement of policyStatements) {
-  if (/USING\s*\(\s*true\s*\)/i.test(statement) && !/synonym_dictionary/i.test(statement)) {
-    throw new Error('Report truth contract detected permissive RLS policy');
+  const permissive = /USING\s*\(\s*true\s*\)/i.test(statement);
+  if (!permissive) continue;
+
+  const intendedGlobalReferencePolicy =
+    /CREATE\s+POLICY\s+authenticated_read_synonym_dictionary\b/i.test(statement) &&
+    /ON\s+(?:public\.)?synonym_dictionary\b/i.test(statement) &&
+    /FOR\s+SELECT\b/i.test(statement) &&
+    /TO\s+authenticated\b/i.test(statement) &&
+    !/WITH\s+CHECK/i.test(statement);
+
+  if (!intendedGlobalReferencePolicy) {
+    throw new Error(`Report truth contract detected permissive RLS policy: ${statement.replace(/\s+/g, ' ').trim()}`);
   }
 }
+
 if (!/company_id\s*=\s*public\.current_company_id\(\)/i.test(securityMigrations)) throw new Error('Report truth contract requires tenant-scoped RLS predicates');
 if (!/WITH CHECK\s*\(\s*company_id\s*=\s*public\.current_company_id\(\)\s*\)/i.test(securityMigrations)) throw new Error('Report truth contract requires tenant-scoped write checks');
 
