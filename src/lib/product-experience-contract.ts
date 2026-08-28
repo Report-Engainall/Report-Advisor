@@ -64,6 +64,13 @@ export const ALERT_CONTEXT = {
   learning_signal_available: '/decision-experience',
 } as const;
 
+export const EVIDENCE_TRUTH_LABELS: Record<ProductTruthState, string> = {
+  AVAILABLE: 'Evidence available from a canonical source.',
+  NOT_AVAILABLE: 'Evidence unavailable from the canonical source.',
+  NOT_YET_EXECUTED: 'Evidence is not yet produced because execution has not occurred.',
+  RUNTIME_BLOCKED: 'Evidence requires authenticated runtime authority.',
+};
+
 export function canTransitionDecision(from: DecisionLifecycle, to: DecisionLifecycle): boolean {
   const transitions: Record<DecisionLifecycle, readonly DecisionLifecycle[]> = {
     PROPOSED: ['PENDING_APPROVAL'],
@@ -76,6 +83,18 @@ export function canTransitionDecision(from: DecisionLifecycle, to: DecisionLifec
     OUTCOME: [],
   };
   return transitions[from].includes(to);
+}
+
+export function canClaimVerifiedEvidence(state: ProductTruthState): boolean {
+  return state === 'AVAILABLE';
+}
+
+export function canClaimActualOutcome(state: ProductTruthState): boolean {
+  return state === 'AVAILABLE';
+}
+
+export function canClaimLearning(actual: ProductTruthState, learning: ProductTruthState): boolean {
+  return actual === 'AVAILABLE' && learning === 'AVAILABLE';
 }
 
 export function getOutcomeMessage(actual: ProductTruthState, learning: ProductTruthState): string {
