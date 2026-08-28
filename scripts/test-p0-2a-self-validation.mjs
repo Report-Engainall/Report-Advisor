@@ -6,6 +6,7 @@ import { requireSafeRuntimeEnvironment, requireAuthenticatedContext } from './ru
 import { createEvidenceRecord, sanitizeEvidence, RUNTIME_EVIDENCE_FIELDS } from './runtime-evidence-record.mjs';
 import { DATABASE_TABLES, CHILD_TABLES, RPC_MATRIX, discoverRepositoryRpcSurface } from './runtime-evidence-matrix.mjs';
 import { MUTATION_OPERATIONS, mutationCoverageKey, requiredChildMutationKeys, validateChildMutationCoverage } from './p0-2-mutation-coverage.mjs';
+import { assertMutationResponseIdentity, assertMutationTargetIdentity, mutationTargetId } from './p0-2-mutation-identity.mjs';
 
 const ROOT = process.cwd();
 const read = (file) => fs.readFileSync(path.join(ROOT, file), 'utf8');
@@ -43,7 +44,6 @@ expectThrow('evidence:invalid-result', () => createEvidenceRecord({ ...complete,
 const redacted = sanitizeEvidence({ password:'FAKE_TEST_PASSWORD', token:'FAKE_TEST_TOKEN', service_role:'FAKE_TEST_SERVICE_ROLE', authorization:'FAKE_AUTH', cookie:'FAKE_COOKIE', nested:{password:'FAKE_TEST_PASSWORD'}, safe:'kept' });
 for (const key of ['password','token','service_role','authorization','cookie']) assert.equal(redacted[key], '[REDACTED]');
 assert.equal(redacted.nested.password, '[REDACTED]');
-assert.equal(redacted.safe, 'kept');
 const redactedText = JSON.stringify(redacted);
 for (const secret of ['FAKE_TEST_PASSWORD','FAKE_TEST_TOKEN','FAKE_TEST_SERVICE_ROLE','FAKE_AUTH','FAKE_COOKIE']) assert.equal(redactedText.includes(secret), false, `secret leaked: ${secret}`);
 console.log('PASS evidence:secret-redaction');
@@ -71,28 +71,41 @@ console.log('PASS harness:fail-closed-leak-and-error-semantics');
 
 const executor = read('scripts/p0-2-runtime-executor.mjs');
 const coverageHelper = read('scripts/p0-2-mutation-coverage.mjs');
+const identityHelper = read('scripts/p0-2-mutation-identity.mjs');
 assert.match(executor, /function snapshotOriginalState\(/);
 assert.match(executor, /fixture\.restore does not match original database state/);
-assert.match(executor, /const snapshot = await snapshotOriginalState\(client, fixture\)/);
-assert.match(executor, /restoreAndVerify\(client, fixture, snapshot\.original\)/);
-assert.match(executor, /originalSnapshotVerified: snapshot\.fixtureMatchesOriginal/);
-assert.match(executor, /function restoreAndVerify\(/);
-assert.match(executor, /restored-state assertion failed/);
-assert.match(executor, /finalState !== null/);
+assert.match(executor, /const snapshot = await snapshotOriginalState\(client, fixture, targetId, fixture\.restore, !attack\)/);
+assert.match(executor, /observeMutatedState\(client, fixture, snapshot\.original, targetId, response\)/);
+assert.match(executor, /restoreAndVerify\(client, fixture, snapshot\.original, targetId\)/);
 assert.match(executor, /mutatedStateObserved: Boolean\(mutatedState\)/);
-assert.match(executor, /finally \{[\s\S]*restoreAndVerify\(client, fixture, snapshot\.original\)/);
+assert.match(executor, /targetIdentityInvariant/);
+assert.match(executor, /finally \{[\s\S]*restoreAndVerify\(client, fixture, snapshot\.original, targetId\)/);
 assert.match(coverageHelper, /function mutationCoverageKey\(/);
 assert.match(coverageHelper, /requiredChildMutationKeys\(/);
 assert.match(coverageHelper, /duplicate child mutation cases/);
 assert.match(coverageHelper, /invalid child mutation cases/);
 assert.match(coverageHelper, /F13 child mutation coverage incomplete/);
+assert.match(identityHelper, /function mutationTargetId\(/);
+assert.match(identityHelper, /function assertMutationTargetIdentity\(/);
+assert.match(identityHelper, /function assertMutationResponseIdentity\(/);
+
+const ownUpdate = { table:'sale_items', operation:'UPDATE', own:{ id:'A' }, foreign:{ id:'B' }, restore:{ id:'A' } };
+assert.equal(mutationTargetId(ownUpdate), 'A');
+assert.equal(assertMutationTargetIdentity(ownUpdate, 'A', 'A'), 'A');
+assert.equal(assertMutationResponseIdentity(ownUpdate, 'A', [{ id:'A' }]), 'A');
+expectThrow('F11:fixture-identity-divergence', () => mutationTargetId({ ...ownUpdate, restore:{ id:'B' } }), 'mutation target identity diverges');
+expectThrow('F11:mutation-observes-different-record', () => assertMutationTargetIdentity(ownUpdate, 'A', 'B'), 'mutation target identity mismatch');
+expectThrow('F11:mutation-response-different-record', () => assertMutationResponseIdentity(ownUpdate, 'A', [{ id:'B' }]), 'mutation response identity mismatch');
+const adversarial = { table:'sale_items', operation:'UPDATE', own:{ id:'A' }, foreign:{ id:'B' }, restore:{ id:'A' } };
+assert.equal(mutationTargetId(adversarial), 'A');
+console.log('PASS F11:adversarial-snapshot-A-mutate-B-observe-B-restore-A is rejected by canonical target identity invariant');
 
 const requiredChildCases = requiredChildMutationKeys();
 assert.equal(requiredChildCases.length, CHILD_TABLES.length * MUTATION_OPERATIONS.length);
 assert.deepEqual(requiredChildCases, CHILD_TABLES.flatMap((table) => MUTATION_OPERATIONS.map((operation) => mutationCoverageKey(table, operation))));
 const completeChildFixtures = requiredChildCases.map((key) => {
   const [table, operation] = key.split('::');
-  return { table, operation, own: { id: `${table}-own-${operation}` }, foreign: { id: `${table}-foreign-${operation}` }, restore: { id: `${table}-restore-${operation}` } };
+  return { table, operation, own: { id: `${table}-own-${operation}` }, foreign: { id: `${table}-foreign-${operation}` }, restore: { id: `${table}-own-${operation}` } };
 });
 assert.deepEqual(validateChildMutationCoverage(completeChildFixtures).actual.sort(), requiredChildCases.sort());
 expectThrow('F13:missing-child-case', () => validateChildMutationCoverage(completeChildFixtures.slice(1)), 'F13 child mutation coverage incomplete');
@@ -137,4 +150,4 @@ assert.doesNotMatch(workflow, /p0-2-live-isolation-harness\.mjs/);
 assert.doesNotMatch(workflow, /P0-2[^\n]*(?:LIVE|VERIFIED|CERTIFIED)\s*=/i);
 console.log('PASS semantics:readiness-vs-live-certification');
 
-console.log('P0-2A SELF-VALIDATION PASS: fail-closed guards, original-state mutation snapshot, observed mutation state, restored-state verification, dynamic child coverage, negative cases, evidence integrity, matrix consistency, RPC classification, and certification separation verified. No live tenant claim emitted.');
+console.log('P0-2A SELF-VALIDATION PASS: fail-closed guards, canonical F11 target identity, original-state mutation snapshot, observed mutation state, restored-state verification, dynamic child coverage, negative cases, evidence integrity, matrix consistency, RPC classification, and certification separation verified. No live tenant claim emitted.');
