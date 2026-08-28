@@ -1,3 +1,6 @@
+import fs from 'node:fs';
+import path from 'node:path';
+
 // Runtime evidence matrix is derived from the canonical tenant-RLS migration surface.
 // Keep this list aligned with supabase/migrations/20260823000000_tenant_rls_global_hardening.sql.
 export const DATABASE_TABLES = [
@@ -18,19 +21,25 @@ export const DATABASE_ISOLATION_MATRIX = DATABASE_TABLES.flatMap((table) =>
   DIRECTIONS.flatMap((direction) => OPERATIONS.map((operation) => ({ table, direction, operation }))),
 );
 
-// These names are retained as discovery targets only until a live/runtime RPC inventory
-// is available. UNKNOWN is intentional and must never be promoted to a verified claim.
-export const RPC_MATRIX = Object.freeze([
-  { rpc: 'dashboard', acceptsTenantParameter: 'UNKNOWN', tenantSource: 'runtime inventory required' },
-  { rpc: 'inventory', acceptsTenantParameter: 'UNKNOWN', tenantSource: 'runtime inventory required' },
-  { rpc: 'inventory_intelligence', acceptsTenantParameter: 'UNKNOWN', tenantSource: 'runtime inventory required' },
-  { rpc: 'reports', acceptsTenantParameter: 'UNKNOWN', tenantSource: 'runtime inventory required' },
-  { rpc: 'forecast', acceptsTenantParameter: 'UNKNOWN', tenantSource: 'runtime inventory required' },
-  { rpc: 'data_quality', acceptsTenantParameter: 'UNKNOWN', tenantSource: 'runtime inventory required' },
-  { rpc: 'imports', acceptsTenantParameter: 'UNKNOWN', tenantSource: 'runtime inventory required' },
-  { rpc: 'exports', acceptsTenantParameter: 'UNKNOWN', tenantSource: 'runtime inventory required' },
-  { rpc: 'decision_intelligence', acceptsTenantParameter: 'UNKNOWN', tenantSource: 'runtime inventory required' },
-]);
+export function discoverRepositoryRpcSurface(root = process.cwd()) {
+  const migrationDir = path.join(root, 'supabase', 'migrations');
+  if (!fs.existsSync(migrationDir)) return [];
+  const names = new Set();
+  for (const file of fs.readdirSync(migrationDir).filter((name) => name.endsWith('.sql')).sort()) {
+    const text = fs.readFileSync(path.join(migrationDir, file), 'utf8');
+    for (const match of text.matchAll(/CREATE\s+(?:OR\s+REPLACE\s+)?FUNCTION\s+(?:(?:public)\.)?([a-zA-Z_][a-zA-Z0-9_]*)\s*\(/gi) {
+      names.add(match[1]);
+    }
+  }
+  return [...names].sort().map((rpc) => ({
+    rpc,
+    acceptsTenantParameter: 'UNKNOWN',
+    tenantSource: 'signature discovered from repository migrations; tenant behavior requires runtime verification',
+  }));
+}
+
+// No hand-written RPC aliases: every entry is derived from the repository's SQL function surface.
+export const RPC_MATRIX = Object.freeze(discoverRepositoryRpcSurface());
 
 export function buildClientTenantAttackCases() {
   return [
