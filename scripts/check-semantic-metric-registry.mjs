@@ -16,7 +16,7 @@ for (const token of [
   if (!registry.includes(token)) errors.push(`Registry contract missing: ${token}`);
 }
 
-if (!registry.includes("from './semanticMetrics'")) errors.push('Registry does not reuse semanticMetrics SSOT.');
+if (!/from '\.\/semanticMetrics(?:\.ts)?'/.test(registry)) errors.push('Registry does not reuse semanticMetrics SSOT.');
 if (!ssot.includes('BUSINESS_METRICS')) errors.push('BUSINESS_METRICS SSOT not found.');
 if (!registry.includes("'dashboard', 'reports', 'chatbi', 'forecast', 'recommendations', 'decision-engine'")) {
   errors.push('Required consumers are not declared.');
