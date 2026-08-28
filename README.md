@@ -70,3 +70,4 @@ Multiple organizations use the same application infrastructure. Tenant context m
 The A0 Document & Data Intelligence Engine is complete at the contract/gate level, including schema discovery hardening, entity reconciliation, review/quarantine, governed transactional routing, Onyx canonical adaptation, and golden-dataset quality gates. Downstream execution continues toward trusted report execution, entitlements, decision automation, advanced intelligence, and production SaaS certification.
 
 For the current implementation inventory and execution state, see the documents under [`docs/`](docs/).
+
