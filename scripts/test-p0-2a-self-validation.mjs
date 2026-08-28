@@ -68,6 +68,11 @@ assert.match(harness, /if \(record\.RESULT === 'FAIL'\) throw/);
 assert.match(harness, /if \(failures\.length \|\| unverified\.length\) process\.exitCode = 1/);
 console.log('PASS harness:fail-closed-leak-and-error-semantics');
 const executor = read('scripts/p0-2-runtime-executor.mjs');
+assert.match(executor, /function snapshotOriginalState\(/);
+assert.match(executor, /fixture\.restore does not match original database state/);
+assert.match(executor, /const snapshot = await snapshotOriginalState\(client, fixture\)/);
+assert.match(executor, /restoreAndVerify\(client, fixture, snapshot\.original\)/);
+assert.match(executor, /originalSnapshotVerified: snapshot\.fixtureMatchesOriginal/);
 assert.match(executor, /function restoreAndVerify\(/);
 assert.match(executor, /restored-state assertion failed/);
 assert.match(executor, /finalState !== null/);
@@ -79,7 +84,7 @@ assert.match(executor, /DENIAL_CLASS/);
 assert.match(executor, /RLS_FILTERED/);
 assert.match(executor, /UNRESOLVED_ZERO_ROWS/);
 assert.match(executor, /table === 'companies' \? 'id' : 'company_id'/);
-console.log('PASS executor:F11-restore-F13-child-F14-denial-F12-root-semantics');
+console.log('PASS executor:F11-original-snapshot-F13-child-F14-denial-F12-root-semantics');
 
 const rlsSource = read('supabase/migrations/20260823000000_tenant_rls_global_hardening.sql');
 const directBlock = rlsSource.match(/FOREACH t IN ARRAY ARRAY\[([\s\S]*?)\]\n\s*LOOP/);
@@ -115,4 +120,4 @@ assert.doesNotMatch(workflow, /p0-2-live-isolation-harness\.mjs/);
 assert.doesNotMatch(workflow, /P0-2[^\n]*(?:LIVE|VERIFIED|CERTIFIED)\s*=/i);
 console.log('PASS semantics:readiness-vs-live-certification');
 
-console.log('P0-2A SELF-VALIDATION PASS: fail-closed guards, negative cases, evidence integrity, matrix consistency, RPC classification, and certification separation verified. No live tenant claim emitted.');
+console.log('P0-2A SELF-VALIDATION PASS: fail-closed guards, original-state mutation snapshot, negative cases, evidence integrity, matrix consistency, RPC classification, and certification separation verified. No live tenant claim emitted.');
