@@ -6,76 +6,77 @@ No completion percentage is used as evidence. A requirement is Production-comple
 
 ## Exact verification point
 
-- Verification branch: `wave/final-deep-verification-20260828`
+- Verification branch: `runtime-evidence/p0-2a-readiness`
 - Base SHA: `137facaf513652dd9ec38fc2db03d734dd8c7313`
-- Current code HEAD at CI verification: `7838dd51390708d1944b2e49c41b4da63868301d`
-- PR: #68
+- Prior code verification SHA: `7838dd51390708d1944b2e49c41b4da63868301d`
+- P0-2A branch HEAD at readiness implementation: `7b8e855c96a17eb702ef26d8e13ed07f753c6374`
+- PR: #69 (draft)
 - Base branch: `main`
 - Working tree: remote branch state only; local working-tree cleanliness is NOT VERIFIED.
-- Quality run: `33127606631` / verify job `98709361044` — SUCCESS.
-- PR exact-head assertion: `PR_HEAD_SHA=7838dd51390708d1944b2e49c41b4da63868301d`.
-- CI merge ref: `40e617a85a9620499ac5b7e17951212160f1d4ba`.
+- P0-2A CI runs were triggered on `7b8e855c96a17eb702ef26d8e13ed07f753c6374`; at index update time they were queued, so no PASS is claimed for that SHA.
 
 ## Requirement matrix — current evidence state
 
 | Requirement / surface | Implementation | Integrated | Regression | Exact HEAD CI | Runtime | Live | Production | Status |
 |---|---|---|---|---|---|---|---|---|
-| Inventory Intelligence canonical source | YES | YES | YES | PASS | NOT RUN | NOT RUN | NOT CERTIFIED | GATED |
-| Inventory Intelligence page canonical consumer | YES | YES | YES | PASS | NOT RUN | NOT RUN | NOT CERTIFIED | GATED |
-| Tenant authority / client-selected tenant rejection | YES | YES | YES | PASS | NOT RUN | NOT RUN | NOT CERTIFIED | GATED |
-| Global tenant RLS contract | YES | YES | YES | PASS | NOT RUN | NOT RUN | NOT CERTIFIED | GATED |
-| Import RPC tenant context | YES | YES | YES | PASS | NOT RUN | NOT RUN | NOT CERTIFIED | GATED |
-| Import business-key invariant | YES | YES | YES | PASS | NOT RUN | NOT RUN | NOT CERTIFIED | GATED |
-| Dashboard canonical aggregation | YES | YES | YES | PASS | NOT RUN | NOT RUN | NOT CERTIFIED | GATED |
-| Report truth contract | YES | YES | YES | PASS | NOT RUN | NOT RUN | NOT CERTIFIED | GATED |
-| Production readiness contract | YES | YES | YES | PASS | NOT RUN | NOT RUN | NOT CERTIFIED | GATED |
-| Operational resilience contract | YES | YES | YES | PASS | NOT RUN | NOT RUN | NOT CERTIFIED | GATED |
-| Document intelligence contract/runtime contract | YES | YES | YES | PASS | CONTRACT TEST PASS; live runtime NOT RUN | NOT RUN | NOT CERTIFIED | GATED |
-| Performance budget | YES | YES | YES | PASS | NOT RUN | NOT RUN | NOT CERTIFIED | GATED |
+| Inventory Intelligence canonical source | YES | YES | YES | PASS on prior code verification SHA | NOT RUN | NOT RUN | NOT CERTIFIED | GATED |
+| Inventory Intelligence page canonical consumer | YES | YES | YES | PASS on prior code verification SHA | NOT RUN | NOT RUN | NOT CERTIFIED | GATED |
+| Tenant authority / client-selected tenant rejection | YES | YES | YES | PASS on prior code verification SHA | NOT RUN | NOT RUN | NOT CERTIFIED | GATED |
+| Global tenant RLS contract | YES | YES | YES | PASS on prior code verification SHA | NOT RUN | NOT RUN | NOT CERTIFIED | GATED |
+| Import RPC tenant context | YES | YES | YES | PASS on prior code verification SHA | NOT RUN | NOT RUN | NOT CERTIFIED | GATED |
+| Import business-key invariant | YES | YES | YES | PASS on prior code verification SHA | NOT RUN | NOT RUN | NOT CERTIFIED | GATED |
+| Dashboard canonical aggregation | YES | YES | YES | PASS on prior code verification SHA | NOT RUN | NOT RUN | NOT CERTIFIED | GATED |
+| Report truth contract | YES | YES | YES | PASS on prior code verification SHA | NOT RUN | NOT RUN | NOT CERTIFIED | GATED |
+| Production readiness contract | YES | YES | YES | PASS on prior code verification SHA | NOT RUN | NOT RUN | NOT CERTIFIED | GATED |
+| Operational resilience contract | YES | YES | YES | PASS on prior code verification SHA | NOT RUN | NOT RUN | NOT CERTIFIED | GATED |
+| Document intelligence contract/runtime contract | YES | YES | YES | PASS on prior code verification SHA | CONTRACT TEST PASS; live runtime NOT RUN | NOT RUN | NOT CERTIFIED | GATED |
+| Performance budget | YES | YES | YES | PASS on prior code verification SHA | NOT RUN | NOT RUN | NOT CERTIFIED | GATED |
 | Browser authenticated E2E | PARTIAL | PARTIAL | NOT PROVEN | NOT VERIFIED | NOT RUN | NOT RUN | NOT CERTIFIED | IMPLEMENTED |
-| Child-table RLS A/B runtime | YES (contract/policy) | YES | YES | PASS | NOT RUN | NOT RUN | NOT CERTIFIED | GATED |
+| Child-table RLS A/B runtime | YES (contract/policy) | YES | YES | PASS on prior code verification SHA | NOT RUN | NOT RUN | NOT CERTIFIED | GATED |
 | Storage tenant/file security | PARTIAL | PARTIAL | PARTIAL | PASS contract | NOT RUN | NOT RUN | NOT CERTIFIED | GATED |
 | Realtime tenant event isolation | PARTIAL | PARTIAL | PARTIAL | PASS contract | NOT RUN | NOT RUN | NOT CERTIFIED | GATED |
 | Worker crash/lease/fencing/DLQ recovery | YES | YES | YES | PASS contract/runtime fixtures | NOT RUN against live service | NOT RUN | NOT CERTIFIED | GATED |
 | Backup/restore RPO/RTO | CONTRACTED | CONTRACTED | NOT PROVEN by restore exercise | PASS contract | NOT RUN | NOT RUN | NOT CERTIFIED | IMPLEMENTED |
 | AI/vector/document provenance tenant isolation | PARTIAL | PARTIAL | CONTRACT evidence | PASS contract | NOT RUN | NOT RUN | NOT CERTIFIED | GATED |
+| P0-2A runtime evidence readiness | YES | YES | YES (readiness gate) | PENDING on readiness branch HEAD | NOT RUN | NOT RUN | NOT CERTIFIED | READY |
+| P0-2 Tenant A/B live database isolation | READY HARNESS | READY | READY | PENDING | BLOCKED | NOT RUN | NOT CERTIFIED | BLOCKED |
 
 ## Exact-head CI evidence
 
-Quality run `33127606631` passed all required verify stages on a PR merge checkout while explicitly asserting the branch head:
+The prior deep verification run `33127606631` passed required verify stages for `PR_HEAD_SHA=7838dd51390708d1944b2e49c41b4da63868301d`. That result is not reused as an Exact-HEAD PASS for the P0-2A branch head.
 
-- `PR_HEAD_SHA=7838dd51390708d1944b2e49c41b4da63868301d`
-- `MERGE_REF_SHA=40e617a85a9620499ac5b7e17951212160f1d4ba`
-- Typecheck: PASS
-- Behavioral regressions: PASS
-- Business intelligence regressions: PASS
-- Deep golden corpus regressions: PASS
-- Outcome feedback regressions: PASS
-- File security regressions: PASS
-- Decision evidence regressions: PASS
-- Global tenant RLS: PASS
-- Import RPC tenant context: PASS
-- Import business key: PASS
-- Lint: PASS (56 warnings, 0 errors)
-- Build: PASS
-- Performance budget: PASS (critical 833.4KB / limit 900KB; total 1395.6KB / limit 2800KB; largest JS 422.9KB / limit 600KB)
-- Inventory intelligence: PASS
-- Inventory intelligence UI: PASS
-- Production readiness: PASS contract
-- Report truth: PASS contract
-- Document intelligence service tests: PASS (3 Python tests)
-- Full resilience gate: PASS
+For P0-2A, GitHub created pull-request workflow runs against `7b8e855c96a17eb702ef26d8e13ed07f753c6374`. At the time this index was updated, those runs were `queued`; therefore the P0-2A Exact-HEAD CI status is **PENDING / NOT VERIFIED**.
 
-Other workflows on the same PR head completed successfully: `integrity-batch` 33127606602, `ci-bootstrap-smoke` 33127606641, `file-engine-header-contract` 33127606684, `batch-integrity-guards` 33127606720, `file-intelligence-security` 33127606682, `production-chain-guard` 33127606651.
+## P0-2A Runtime Evidence Readiness
 
-## Findings actually fixed in this wave
+### Environment contract
 
-1. `InventoryIntelligencePage` was not consuming the canonical source despite the canonical adapter existing. It is now wired through `fetchInventoryIntelligenceSource` and no longer performs direct database reads.
-2. Obsolete unreferenced `InventoryPageCanonical.tsx` was removed after CI exposed its missing `report-truth` dependency.
-3. Inventory truth and UI guards were corrected to verify the canonical adapter boundary rather than stale implementation details.
-4. Forecast retrieval now exposes an explicit `MAX_FORECAST_ROWS = 500` bound and fails closed on truncation.
-5. Dashboard regression assertions were corrected to test the source invariant without coupling to whitespace formatting.
-6. A dedicated final deep-verification index was added and maintained without a completion percentage.
+- Dedicated Supabase staging/test project: REQUIRED.
+- Real migrated Postgres database: REQUIRED.
+- Authenticated test identities: REQUIRED.
+- RPC/function deployment matching release: REQUIRED.
+- Storage/RealtIme/workers: OPTIONAL for P0-2 DB readiness; required for their later live gates.
+- Environment secrets remain outside source control: REQUIRED.
+
+### Built readiness infrastructure
+
+- `scripts/runtime-evidence-config.mjs`: environment and authenticated-context fail-closed guards.
+- `scripts/runtime-evidence-seed.mjs`: deterministic staging/test User A/B + Tenant A/B + sentinel company/product provisioning; secrets are environment-only.
+- `scripts/p0-2-live-isolation-harness.mjs`: authenticated Supabase session harness and cross-tenant read probes.
+- `scripts/runtime-evidence-matrix.mjs`: DB operation, child-table, RPC, tenant-manipulation and inference matrices.
+- `scripts/runtime-evidence-record.mjs`: sanitized evidence schema and PASS/FAIL/NOT VERIFIED validation.
+- `scripts/check-p0-2a-readiness.mjs`: CI-checkable readiness gate.
+- `.github/workflows/quality.yml`: runs the readiness gate without promoting it to a live verification claim.
+- `docs/runtime-evidence/P0-2A-RUNTIME-EVIDENCE-READINESS.md`: environment and safety contract.
+- `docs/runtime-evidence/P0-2-RUNTIME-EVIDENCE-INDEX.md`: separate readiness/live-evidence index.
+
+### Runtime safety rules
+
+- Missing/unknown environment => ABORT.
+- Production => destructive seed/test forbidden.
+- Missing actor/tenant/release/commit/environment => NOT VERIFIED.
+- Evidence records redact secret-like fields.
+- `READY` never means `RUNTIME-EVIDENCED` or `LIVE-VERIFIED`.
 
 ## Remaining blockers to Production Certification
 
