@@ -1,12 +1,13 @@
 import { createClient } from '@supabase/supabase-js';
 import { requireSafeRuntimeEnvironment, requireAuthenticatedContext } from './runtime-evidence-config.mjs';
-import { DATABASE_TABLES, CHILD_TABLES, INFERENCE_SURFACES } from './runtime-evidence-matrix.mjs';
+import { DATABASE_TABLES, INFERENCE_SURFACES } from './runtime-evidence-matrix.mjs';
 import { createEvidenceRecord } from './runtime-evidence-record.mjs';
+import { validateChildMutationCoverage } from './p0-2-mutation-coverage.mjs';
 
 // P0-2 runtime executor. Fail-closed by design.
 // It never writes to production and never treats a missing/ambiguous runtime
-// result as proof. Mutation tests require deterministic fixtures and a
-// post-restore state assertion before they can emit PASS.
+// result as proof. Mutation tests require deterministic fixtures and explicit
+// ORIGINAL -> MUTATED -> RESTORED state observations before they can emit PASS.
 const environment = requireSafeRuntimeEnvironment();
 const required = [
   'SUPABASE_URL', 'SUPABASE_ANON_KEY',
@@ -31,51 +32,26 @@ function context(actor, authorizedTenant, targetTenant) {
   return requireAuthenticatedContext({ actor, authorizedTenant, targetTenant, environment, release, commitSha });
 }
 
-function evidence({
-  testId, actor, authorizedTenant, targetTenant, surface, operation,
-  expected, actual, rowsReturned = 0, rowsAffected = 0, errorCode = 'NONE',
-  denialClass = 'NOT_APPLICABLE', result, input = {},
-}) {
+function evidence({ testId, actor, authorizedTenant, targetTenant, surface, operation, expected, actual, rowsReturned = 0, rowsAffected = 0, errorCode = 'NONE', denialClass = 'NOT_APPLICABLE', result, input = {} }) {
   return createEvidenceRecord({
-    TEST_ID: `${testId}-${runId}`,
-    ENVIRONMENT: environment,
-    RELEASE: release,
-    COMMIT_SHA: commitSha,
-    TIMESTAMP: new Date().toISOString(),
-    ACTOR: actor,
-    AUTHORIZED_TENANT: authorizedTenant,
-    TARGET_TENANT: targetTenant,
-    SURFACE: surface,
-    OPERATION: operation,
-    INPUT: input,
-    EXPECTED: expected,
-    ACTUAL: actual,
-    ROWS_RETURNED: rowsReturned,
-    ROWS_AFFECTED: rowsAffected,
-    ERROR_CODE: errorCode,
-    DENIAL_CLASS: denialClass,
-    RESULT: result,
+    TEST_ID: `${testId}-${runId}`, ENVIRONMENT: environment, RELEASE: release, COMMIT_SHA: commitSha,
+    TIMESTAMP: new Date().toISOString(), ACTOR: actor, AUTHORIZED_TENANT: authorizedTenant,
+    TARGET_TENANT: targetTenant, SURFACE: surface, OPERATION: operation, INPUT: input,
+    EXPECTED: expected, ACTUAL: actual, ROWS_RETURNED: rowsReturned, ROWS_AFFECTED: rowsAffected,
+    ERROR_CODE: errorCode, DENIAL_CLASS: denialClass, RESULT: result,
     EVIDENCE_REFERENCE: `runtime-evidence:${runId}`,
   });
 }
 
 async function signIn(email, password, expectedUserId) {
-  const client = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY, {
-    auth: { autoRefreshToken: false, persistSession: false },
-  });
+  const client = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY, { auth: { autoRefreshToken: false, persistSession: false } });
   const { data, error } = await client.auth.signInWithPassword({ email, password });
-  if (error || !data.user || !data.session) {
-    throw new Error(`NOT VERIFIED: authentication failed: ${error?.message ?? 'missing session'}`);
-  }
-  if (data.user.id !== expectedUserId) {
-    throw new Error(`NOT VERIFIED: authenticated actor mismatch; expected ${expectedUserId}, got ${data.user.id}`);
-  }
+  if (error || !data.user || !data.session) throw new Error(`NOT VERIFIED: authentication failed: ${error?.message ?? 'missing session'}`);
+  if (data.user.id !== expectedUserId) throw new Error(`NOT VERIFIED: authenticated actor mismatch; expected ${expectedUserId}, got ${data.user.id}`);
   return { client, user: data.user };
 }
 
 function tenantColumn(table) {
-  // companies is the tenant root. Its own identity is id; child/tenant-owned
-  // surfaces use company_id according to the deployed schema.
   return table === 'companies' ? 'id' : 'company_id';
 }
 
@@ -93,24 +69,11 @@ async function selectProbe(client, actor, authorizedTenant, targetTenant, table,
   const crossTenant = targetTenant !== authorizedTenant;
   if (error) {
     const denied = classifyDenied({ error, rows, targetKnown });
-    return evidence({
-      testId: `P0-2-SELECT-${direction}-${table}`, actor, authorizedTenant, targetTenant,
-      surface: table, operation: 'SELECT',
-      expected: crossTenant ? 'DENIED OR ZERO UNAUTHORIZED ROWS' : 'OWN TENANT READ SUCCEEDS',
-      actual: error.message, errorCode: denied.errorCode, denialClass: crossTenant ? denied.denialClass : 'DATABASE_ERROR',
-      result: 'NOT VERIFIED', input: { targetTenant, direction, tenantColumn: column, targetKnown },
-    });
+    return evidence({ testId: `P0-2-SELECT-${direction}-${table}`, actor, authorizedTenant, targetTenant, surface: table, operation: 'SELECT', expected: crossTenant ? 'DENIED OR ZERO UNAUTHORIZED ROWS' : 'OWN TENANT READ SUCCEEDS', actual: error.message, errorCode: denied.errorCode, denialClass: crossTenant ? denied.denialClass : 'DATABASE_ERROR', result: 'NOT VERIFIED', input: { targetTenant, direction, tenantColumn: column, targetKnown } });
   }
   const result = crossTenant ? (rows === 0 ? 'PASS' : 'FAIL') : 'PASS';
   const denial = crossTenant ? classifyDenied({ error: null, rows, targetKnown }) : { denialClass: 'NOT_APPLICABLE' };
-  return evidence({
-    testId: `P0-2-SELECT-${direction}-${table}`, actor, authorizedTenant, targetTenant,
-    surface: table, operation: 'SELECT',
-    expected: crossTenant ? 'ZERO UNAUTHORIZED ROWS' : 'OWN TENANT READ',
-    actual: `${rows} rows`, rowsReturned: rows, result,
-    denialClass: denial.denialClass,
-    input: { targetTenant, direction, tenantColumn: column, targetKnown },
-  });
+  return evidence({ testId: `P0-2-SELECT-${direction}-${table}`, actor, authorizedTenant, targetTenant, surface: table, operation: 'SELECT', expected: crossTenant ? 'ZERO UNAUTHORIZED ROWS' : 'OWN TENANT READ', actual: `${rows} rows`, rowsReturned: rows, result, denialClass: denial.denialClass, input: { targetTenant, direction, tenantColumn: column, targetKnown } });
 }
 
 function parseMutationFixtures() {
@@ -119,28 +82,13 @@ function parseMutationFixtures() {
   let parsed;
   try { parsed = JSON.parse(raw); } catch { throw new Error('NOT VERIFIED: mutation fixture JSON is invalid.'); }
   if (!Array.isArray(parsed) || parsed.length === 0) throw new Error('NOT VERIFIED: mutation fixtures must be a non-empty array.');
-
   const allowed = new Set(DATABASE_TABLES);
   for (const item of parsed) {
-    if (!allowed.has(item.table) || !['INSERT', 'UPDATE', 'DELETE'].includes(item.operation)) {
-      throw new Error(`NOT VERIFIED: unsupported mutation fixture for ${item.table}/${item.operation}`);
-    }
-    if (!item.own || !item.foreign || !item.restore) {
-      throw new Error(`NOT VERIFIED: mutation fixture requires own, foreign and restore cases for ${item.table}/${item.operation}`);
-    }
-    if (!item.restore.id && item.operation !== 'INSERT') {
-      throw new Error(`NOT VERIFIED: restore fixture requires deterministic id for ${item.table}/${item.operation}`);
-    }
+    if (!allowed.has(item.table) || !['INSERT', 'UPDATE', 'DELETE'].includes(item.operation)) throw new Error(`NOT VERIFIED: unsupported mutation fixture for ${item.table}/${item.operation}`);
+    if (!item.own || !item.foreign || !item.restore) throw new Error(`NOT VERIFIED: mutation fixture requires own, foreign and restore cases for ${item.table}/${item.operation}`);
+    if (!item.restore.id && item.operation !== 'INSERT') throw new Error(`NOT VERIFIED: restore fixture requires deterministic id for ${item.table}/${item.operation}`);
   }
-
-  const requiredChildCases = CHILD_TABLES.flatMap((table) =>
-    ['INSERT', 'UPDATE', 'DELETE'].map((operation) => `${table}::${operation}`));
-  const actualChildCases = new Set(parsed.map((item) => `${item.table}::${item.operation}`));
-  const missingChildCases = requiredChildCases.filter((key) => !actualChildCases.has(key));
-  if (missingChildCases.length) {
-    throw new Error(`NOT VERIFIED: F13 child mutation coverage incomplete: ${missingChildCases.join(', ')}`);
-  }
-
+  validateChildMutationCoverage(parsed);
   return parsed;
 }
 
@@ -152,29 +100,36 @@ function comparableRecord(actual, expected) {
 async function readById(client, table, id) {
   if (!id) throw new Error(`NOT VERIFIED: deterministic id missing for ${table}`);
   const { data, error } = await client.from(table).select('*').eq('id', id).maybeSingle();
-  if (error) throw new Error(`NOT VERIFIED: post-mutation state read failed for ${table}/${id}: ${error.message}`);
+  if (error) throw new Error(`NOT VERIFIED: state read failed for ${table}/${id}: ${error.message}`);
   return data ?? null;
 }
 
 async function snapshotOriginalState(client, fixture) {
   const id = fixture.restore.id ?? fixture.own.id;
-  if (!id && fixture.operation !== 'INSERT') {
-    throw new Error(`NOT VERIFIED: original-state snapshot requires deterministic id for ${fixture.table}/${fixture.operation}`);
-  }
+  if (!id && fixture.operation !== 'INSERT') throw new Error(`NOT VERIFIED: original-state snapshot requires deterministic id for ${fixture.table}/${fixture.operation}`);
   const original = id ? await readById(client, fixture.table, id) : null;
   if (fixture.operation === 'INSERT') {
-    if (original !== null) {
-      throw new Error(`NOT VERIFIED: INSERT fixture is not clean; deterministic id ${id} already exists in ${fixture.table}`);
-    }
+    if (original !== null) throw new Error(`NOT VERIFIED: INSERT fixture is not clean; deterministic id ${id} already exists in ${fixture.table}`);
     return { original: null, fixtureMatchesOriginal: true };
   }
-  if (original === null) {
-    throw new Error(`NOT VERIFIED: original-state snapshot missing for ${fixture.table}/${id}`);
-  }
-  if (!comparableRecord(original, fixture.restore)) {
-    throw new Error(`NOT VERIFIED: fixture.restore does not match original database state for ${fixture.table}/${id}`);
-  }
+  if (original === null) throw new Error(`NOT VERIFIED: original-state snapshot missing for ${fixture.table}/${id}`);
+  if (!comparableRecord(original, fixture.restore)) throw new Error(`NOT VERIFIED: fixture.restore does not match original database state for ${fixture.table}/${id}`);
   return { original, fixtureMatchesOriginal: true };
+}
+
+async function observeMutatedState(client, fixture, original, response) {
+  const id = fixture.operation === 'INSERT' ? (response.data?.[0]?.id ?? fixture.restore.id ?? fixture.own.id) : (fixture.own.id ?? fixture.restore.id);
+  if (!id) throw new Error(`NOT VERIFIED: mutation observation requires deterministic id for ${fixture.table}/${fixture.operation}`);
+  const mutated = await readById(client, fixture.table, id);
+  if (fixture.operation === 'INSERT') {
+    if (mutated === null) throw new Error(`NOT VERIFIED: INSERT mutation did not produce an observable row for ${fixture.table}/${id}`);
+  } else if (fixture.operation === 'UPDATE') {
+    if (mutated === null) throw new Error(`NOT VERIFIED: UPDATE mutation produced no observable row for ${fixture.table}/${id}`);
+    if (comparableRecord(mutated, original)) throw new Error(`NOT VERIFIED: UPDATE mutation returned success but database state did not change for ${fixture.table}/${id}`);
+  } else if (mutated !== null) {
+    throw new Error(`NOT VERIFIED: DELETE mutation returned success but row remains for ${fixture.table}/${id}`);
+  }
+  return mutated;
 }
 
 async function restoreAndVerify(client, fixture, original) {
@@ -187,14 +142,11 @@ async function restoreAndVerify(client, fixture, original) {
     if (finalState !== null || original !== null) throw new Error(`NOT VERIFIED: INSERT cleanup verification failed for ${fixture.table}/${id}`);
     return { ok: true, state: null };
   }
-
   if (!original) throw new Error(`NOT VERIFIED: original snapshot missing for ${fixture.table}/${fixture.restore.id}`);
   const restored = await client.from(fixture.table).upsert(original, { onConflict: 'id' }).select('*').maybeSingle();
   if (restored.error) throw new Error(`NOT VERIFIED: restore failed for ${fixture.table}/${fixture.restore.id}: ${restored.error.message}`);
   const finalState = await readById(client, fixture.table, fixture.restore.id);
-  if (!comparableRecord(finalState, original)) {
-    throw new Error(`NOT VERIFIED: restored-state assertion failed for ${fixture.table}/${fixture.restore.id}`);
-  }
+  if (!comparableRecord(finalState, original)) throw new Error(`NOT VERIFIED: restored-state assertion failed for ${fixture.table}/${fixture.restore.id}`);
   return { ok: true, state: finalState };
 }
 
@@ -211,40 +163,36 @@ async function runMutation(client, actor, authorizedTenant, fixture, targetTenan
   const rows = response.data?.length ?? 0;
   const denied = Boolean(response.error) || rows === 0;
   const result = attack ? (denied ? 'PASS' : 'FAIL') : (response.error ? 'FAIL' : 'PASS');
-  const denial = attack ? classifyDenied({
-    error: response.error, rows, targetKnown: true,
-  }) : { denialClass: 'NOT_APPLICABLE' };
+  const denial = attack ? classifyDenied({ error: response.error, rows, targetKnown: true }) : { denialClass: 'NOT_APPLICABLE' };
 
+  let mutatedState = null;
   let restoreError = null;
-  if (!attack || (!denied && rows > 0)) {
+  try {
+    if (!attack && !response.error && rows > 0) {
+      mutatedState = await observeMutatedState(client, fixture, snapshot.original, response);
+    } else if (attack && !denied && rows > 0) {
+      mutatedState = await observeMutatedState(client, fixture, snapshot.original, response);
+    }
+  } catch (error) {
+    restoreError = error;
+  }
+
+  if (!restoreError && (!attack || (!denied && rows > 0))) {
     try {
       await restoreAndVerify(client, fixture, snapshot.original);
     } catch (error) {
       restoreError = error;
     }
   }
-
-  if (restoreError) {
-    throw new Error(restoreError.message);
-  }
+  if (restoreError) throw new Error(restoreError.message);
 
   return evidence({
-    testId: `P0-2-${operation}-${attack ? 'FOREIGN' : 'OWN'}-${table}`,
-    actor, authorizedTenant, targetTenant: target,
+    testId: `P0-2-${operation}-${attack ? 'FOREIGN' : 'OWN'}-${table}`, actor, authorizedTenant, targetTenant: target,
     surface: table, operation,
     expected: attack ? 'CROSS-TENANT MUTATION DENIED' : 'OWN TENANT MUTATION SUCCEEDS AND RESTORES EXACT STATE',
-    actual: response.error?.message ?? `${rows} rows`,
-    rowsReturned: rows, rowsAffected: rows,
-    errorCode: response.error?.code ?? 'NONE',
-    denialClass: denial.denialClass,
-    result,
-    input: {
-      attack,
-      targetTenant: target,
-      fixtureId: fixture.restore.id ?? fixture.own.id ?? null,
-      originalSnapshotVerified: snapshot.fixtureMatchesOriginal,
-      restoreVerified: !restoreError,
-    },
+    actual: response.error?.message ?? `${rows} rows`, rowsReturned: rows, rowsAffected: rows,
+    errorCode: response.error?.code ?? 'NONE', denialClass: denial.denialClass, result,
+    input: { attack, targetTenant: target, fixtureId: fixture.restore.id ?? fixture.own.id ?? null, originalSnapshotVerified: snapshot.fixtureMatchesOriginal, mutatedStateObserved: Boolean(mutatedState), restoreVerified: !restoreError },
   });
 }
 
@@ -274,14 +222,7 @@ try {
   records.push(...await runActor('A', process.env.RUNTIME_EVIDENCE_USER_A_EMAIL, process.env.RUNTIME_EVIDENCE_USER_A_PASSWORD, process.env.RUNTIME_EVIDENCE_EXPECTED_USER_A_ID, A, B, fixtures));
   records.push(...await runActor('B', process.env.RUNTIME_EVIDENCE_USER_B_EMAIL, process.env.RUNTIME_EVIDENCE_USER_B_PASSWORD, process.env.RUNTIME_EVIDENCE_EXPECTED_USER_B_ID, B, A, fixtures));
   for (const surface of INFERENCE_SURFACES) {
-    records.push(evidence({
-      testId: `P0-2-INFERENCE-${surface}`, actor: 'runtime-executor',
-      authorizedTenant: A, targetTenant: B, surface, operation: surface,
-      expected: 'ZERO CROSS-TENANT INFORMATION LEAKAGE',
-      actual: 'APPLICATION-SPECIFIC EXECUTOR REQUIRED',
-      result: 'NOT VERIFIED',
-      denialClass: 'NOT_APPLICABLE',
-    }));
+    records.push(evidence({ testId: `P0-2-INFERENCE-${surface}`, actor: 'runtime-executor', authorizedTenant: A, targetTenant: B, surface, operation: surface, expected: 'ZERO CROSS-TENANT INFORMATION LEAKAGE', actual: 'APPLICATION-SPECIFIC EXECUTOR REQUIRED', result: 'NOT VERIFIED', denialClass: 'NOT_APPLICABLE' }));
   }
 } catch (error) {
   console.error(`NOT VERIFIED: P0-2 runtime executor aborted: ${error.message}`);
@@ -291,8 +232,5 @@ try {
 
 const failures = records.filter((record) => record.RESULT === 'FAIL');
 const unverified = records.filter((record) => record.RESULT === 'NOT VERIFIED');
-console.log(JSON.stringify({
-  status: failures.length ? 'FAIL' : unverified.length ? 'NOT VERIFIED' : 'RUNTIME_EVIDENCED',
-  environment, runId, records,
-}, null, 2));
+console.log(JSON.stringify({ status: failures.length ? 'FAIL' : unverified.length ? 'NOT VERIFIED' : 'RUNTIME_EVIDENCED', environment, runId, records }, null, 2));
 if (failures.length || unverified.length) process.exitCode = 1;
