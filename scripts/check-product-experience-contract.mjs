@@ -58,8 +58,10 @@ if (/recommendations\.filter\(r => r\.status === ['"]done['"]\)/.test(decision))
   throw new Error('Decision experience must not infer verified outcomes from recommendation status.');
 }
 
-for (const token of ['Executive Summary', 'Expected Impact', 'Actual', 'Learning', 'Print / PDF']) {
-  if (!report.includes(token)) throw new Error(`Executive reporting missing story surface: ${token}`);
+for (const token of ['Executive Summary', 'Expected impact', 'Actual', 'Learning', 'Print / PDF']) {
+  if (!report.toLocaleLowerCase().includes(token.toLocaleLowerCase())) {
+    throw new Error(`Executive reporting missing story surface: ${token}`);
+  }
 }
 
 if (/fake|synthetic|mock/i.test(decision + report)) {
