@@ -2,7 +2,6 @@
 
 Repository-side master capability guard for W2.1 and future waves.
 
-
 | Capability | Why it matters | Current foundation | Missing layer | Dependency | Business value | Architecture value | Priority | Wave | Acceptance criteria | NO |
 |---|---|---|---|---|---|---|---|---|---|---|
 | AI Provider Registry | controlled provider lifecycle | AI capability registry/policies | provider health + lifecycle | AI runtime policy | High | High | P0 | C/D | deterministic registry, permissions, audit | YES |
@@ -39,8 +38,34 @@ Foundation, End-to-End, Live, Certified, Missing, Superseded.
 
 No capability may silently disappear. A superseding implementation must explicitly record its replacement and preserve the acceptance intent.
 
-
 ## Product Moat rule
 
 YES = directly strengthens defensibility through trusted evidence, governed intelligence, deterministic action, or closed-loop outcomes.
 NO = supporting capability; still protected, but should not displace security/data-truth/evidence work.
+
+## Product Experience Integration — 2026-08-28
+
+| Capability | Classification | Status | Evidence boundary |
+|---|---|---|---|
+| Product Intelligence Flow | MOAT | IMPLEMENTED + INTEGRATED + TESTED (repository contract) | `/product-flow` uses the vertical-slice canonical model |
+| Dashboard → Finding | MOAT | INTEGRATED | product flow provides direct finding inspection |
+| Finding → Evidence Inspector | MOAT | INTEGRATED | source/document/row/fingerprint/extracted/normalized/entity/trust/calculation lineage |
+| Evidence → Semantic Metric | MOAT | INTEGRATED | W2.1 metric identity/version/confidence |
+| Metric → Insight | MOAT | INTEGRATED | stockout risk insight |
+| Insight → Recommendation | MOAT | INTEGRATED | evidence/confidence/policy/impact/alternatives |
+| Recommendation → Decision | MOAT | INTEGRATED | metric versions/evidence/rules/confidence/alternatives |
+| Decision → Approval UX | MOAT | INTEGRATED | deterministic policy display; AI does not select policy |
+| Approval → Workforce Task | MOAT | INTEGRATED | shared Decision/Task projection; owner remains `UNRESOLVED` |
+| Executive Report | MOAT | INTEGRATED | canonical SliceReport projection |
+| Print / Export PDF | MOAT | IMPLEMENTED | browser print action; browser PDF runtime pending |
+| Outcome Capture | MOAT | CONTRACT | Expected/Actual/Variance/Reason/Learning; actual remains null |
+| Command Center | SUPPORTING | INTEGRATED | same product-slice canonical state |
+| Department projections | SUPPORTING | INTEGRATED | Sales/Procurement/Warehouse/Finance share Task/Decision model |
+| Demo fixture separation | SUPPORTING | INTEGRATED | explicitly labelled DEMO FIXTURE |
+| Evidence Graph Runtime W2.2 | DEFERRED | PREPARED | blocked by W2.1 Security/Migration/Quality/Consumer/E2E gates |
+
+## Product benchmark levels
+
+Fixture Contract → Product Integration → Runtime Verification → Real Data → E2E Certification.
+
+Current slice: levels 1–2 plus repository regression coverage. It is not runtime, E2E, or certified.
