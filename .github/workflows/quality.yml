@@ -167,7 +167,7 @@ jobs:
         run: npm run test:document-intelligence-contract && npm run test:document-intelligence-semantic-foundation && npm run test:document-intelligence-hardening && npm run test:document-intelligence-decision-gate && npm run test:file-intelligence-security && npm run test:operational-file-pipeline
       - name: Document intelligence service runtime contracts
         if: ${{ always() }}
-        run: python -m unittest discover -s services/document-intelligence/tests -p 'test_*.py'
+        run: PYTHONPATH=services/document-intelligence python -m unittest discover -s services/document-intelligence/tests -p 'test_*.py'
       - name: Report truth contract
         if: ${{ always() }}
         run: npm run test:report-truth
