@@ -1,0 +1,48 @@
+name: Repair lockfile identity
+
+on:
+  push:
+    branches:
+      - runtime-evidence/p0-2a-readiness
+
+permissions:
+  contents: write
+
+jobs:
+  regenerate:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Regenerate lockfile from package.json
+        run: npm install --package-lock-only --ignore-scripts
+      - name: Verify identity and dependency graph
+        run: |
+          node - <<'NODE'
+          const fs = require('node:fs');
+          const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+          const lock = JSON.parse(fs.readFileSync('package-lock.json', 'utf8'));
+          if (lock.name !== pkg.name || lock.version !== pkg.version || lock.packages?.['']?.name !== pkg.name || lock.packages?.['']?.version !== pkg.version) {
+            throw new Error(`lockfile identity mismatch: package=${pkg.name}@${pkg.version}, lock=${lock.name}@${lock.version}`);
+          }
+          if (lock.lockfileVersion !== 3) throw new Error(`unexpected lockfileVersion=${lock.lockfileVersion}`);
+          console.log(`lockfile identity verified: ${pkg.name}@${pkg.version}`);
+          NODE
+      - name: Commit regenerated lockfile
+        run: |
+          if git diff --quiet -- package-lock.json; then
+            echo 'No lockfile change required.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add package-lock.json
+          git commit -m 'fix(repo): regenerate lockfile from package identity [skip ci]'
+          git push origin HEAD:${{ github.ref_name }}
