@@ -1,0 +1,36 @@
+name: product-experience-contract
+
+on:
+  pull_request:
+    paths:
+      - 'src/App.tsx'
+      - 'src/components/ProductJourneyNav.tsx'
+      - 'src/pages/DecisionExperiencePage.tsx'
+      - 'src/pages/ExecutiveReportPage.tsx'
+      - 'src/lib/product-experience-contract.ts'
+      - 'scripts/check-product-experience-contract.mjs'
+      - '.github/workflows/product-experience-contract.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'src/App.tsx'
+      - 'src/components/ProductJourneyNav.tsx'
+      - 'src/pages/DecisionExperiencePage.tsx'
+      - 'src/pages/ExecutiveReportPage.tsx'
+      - 'src/lib/product-experience-contract.ts'
+      - 'scripts/check-product-experience-contract.mjs'
+      - '.github/workflows/product-experience-contract.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Product experience contract
+        run: node scripts/check-product-experience-contract.mjs
