@@ -32,7 +32,7 @@ jobs:
       - name: Trust and governance
         run: node scripts/check-continuous-trust-runtime-chain.mjs && node scripts/check-governance-runtime-chain.mjs && node scripts/check-evidence-provenance-chain.mjs
       - name: Release and autonomy
-        run: node scripts/check-release-evidence-completeness.mjs && node scripts/check-production-certification-chain.mjs && node scripts/check-autonomy-safety-chain.mjs
+        run: npm run test:production-evidence-linkage && node scripts/check-release-evidence-completeness.mjs && node scripts/check-production-certification-chain.mjs && node scripts/check-autonomy-safety-chain.mjs
       - name: Final security
         run: node scripts/check-final-safety-invariants.mjs && node scripts/check-master-production-verification.mjs
       - name: Scale and runtime suites
