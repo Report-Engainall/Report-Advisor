@@ -25,7 +25,7 @@ const facts: DocumentExtractionFact[] = [
 ];
 
 const envelope = {
-  plan: { route: 'document' as const, reason: 'regression' },
+  plan: { route: 'native-text' as const, steps: ['extract'], reason: 'regression', qualityTarget: 90 },
   choices: [],
   stage: 'READY_FOR_EXTRACTION' as const,
   warnings: [],
