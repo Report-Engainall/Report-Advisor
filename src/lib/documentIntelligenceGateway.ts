@@ -78,6 +78,10 @@ export function acceptExtractedFacts(envelope: DocumentExtractionEnvelope, facts
   };
 }
 
+function stableEvidenceId(fact: DocumentExtractionFact): string {
+  return [fact.source, fact.sourceDocumentId, fact.sourceHash, fact.page, fact.location, fact.field].filter(value => value !== undefined && value !== '').join(':');
+}
+
 /**
  * Adapt only source-bearing extraction facts into the existing evidence ledger.
  * No document identity, location, confidence, or value is invented here.
@@ -86,6 +90,7 @@ export function extractedFactsToEvidence(facts: DocumentExtractionFact[]): Evide
   return facts
     .filter(fact => Boolean(fact.source) && Number.isFinite(fact.confidence) && fact.confidence >= 0 && fact.confidence <= 1)
     .map(fact => ({
+      id: stableEvidenceId(fact),
       sourceId: fact.source,
       sourceDocumentId: fact.sourceDocumentId,
       sourceHash: fact.sourceHash,
