@@ -1,14 +1,18 @@
-import { BUSINESS_METRICS, type MetricDefinition, type MetricStatus } from './semanticMetrics';
+import { getSemanticMetric, type SemanticMetricRegistryEntry } from './semantic-metric-registry';
+import type { MetricStatus } from './semanticMetrics';
 import type { ReportFact } from './free-toolbox/report-facts';
 
 export interface MetricEvaluation {
   key: string;
-  definition: MetricDefinition;
+  metricId: string;
+  metricVersion: number;
+  definition: SemanticMetricRegistryEntry;
   value: number | null;
   status: MetricStatus;
   confidence: number;
   updatedAt?: string | null;
   sourceRows?: number;
+  timeSemantic: SemanticMetricRegistryEntry['timeSemantic'];
   warnings: string[];
   fact: ReportFact;
 }
@@ -21,13 +25,18 @@ export interface MetricInput {
   updatedAt?: string | null;
   sourceRows?: number;
   warnings?: string[];
+  timeSemantic?: SemanticMetricRegistryEntry['timeSemantic'];
 }
 
 export function evaluateMetric(input: MetricInput): MetricEvaluation {
-  const definition = BUSINESS_METRICS.find(metric => metric.key === input.key);
+  const definition = getSemanticMetric(input.key);
   if (!definition) throw new Error(`Unknown metric: ${input.key}`);
 
   const warnings = [...(input.warnings ?? [])];
+  if (input.timeSemantic && input.timeSemantic !== definition.timeSemantic) {
+    throw new Error(`Time semantic mismatch for ${definition.metricId}: expected ${definition.timeSemantic}, received ${input.timeSemantic}`);
+  }
+
   const numeric = input.value != null && Number.isFinite(Number(input.value)) ? Number(input.value) : null;
   let status = input.status ?? definition.status;
   let confidence = Math.max(0, Math.min(1, input.confidence ?? (numeric == null ? 0 : 1)));
@@ -52,7 +61,20 @@ export function evaluateMetric(input: MetricInput): MetricEvaluation {
     source: status === 'FORECAST' ? 'forecast' : status === 'ESTIMATED' ? 'derived' : 'derived',
   };
 
-  return { key: input.key, definition, value: numeric, status, confidence, updatedAt: input.updatedAt, sourceRows: input.sourceRows, warnings, fact };
+  return {
+    key: input.key,
+    metricId: definition.metricId,
+    metricVersion: definition.version,
+    definition,
+    value: numeric,
+    status,
+    confidence,
+    updatedAt: input.updatedAt,
+    sourceRows: input.sourceRows,
+    timeSemantic: definition.timeSemantic,
+    warnings,
+    fact,
+  };
 }
 
 export function evaluateMetricBatch(inputs: MetricInput[]): MetricEvaluation[] {
