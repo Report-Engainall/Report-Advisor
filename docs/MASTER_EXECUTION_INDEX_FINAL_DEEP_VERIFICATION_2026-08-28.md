@@ -6,9 +6,9 @@
 ## Exact verification point
 - Branch: `runtime-evidence/p0-2a-readiness`
 - Base: `137facaf513652dd9ec38fc2db03d734dd8c7313`
-- Current HEAD (code state at index generation): `86b82dc0592d753eea5456c7bee07460132e2601`
+- Current HEAD (code state at index generation): `3b1ef098cfdb279f0d8b754df3268a50cf5c05ee`
 - PR: `#69`
-- Exact-HEAD CI: `RUN 33133750057` tested `86b82dc0592d753eea5456c7bee07460132e2601`; workflow checkout also used that exact SHA. The run is `FAIL` because the self-validation gate found a stale Master Index assertion; no PASS is claimed.
+- Exact-HEAD CI: `PENDING — current HEAD has not yet completed its exact-head Quality run.`
 - All prior SHA/Run results remain historical and do not certify this HEAD.
 
 ## P0 status
@@ -46,34 +46,34 @@ FOUND → seed assumed exclusivity → FIXED with `assertTenantExclusivity()` be
 FOUND → bootstrap artifacts/identity remained → current branch removes `.bolt` and old starter identity from production tree → regression guard is part of repository checks → current verification remains required.
 
 ### F9 — lockfile identity drift
-FOUND → `package.json=report-advisor@1.0.0` versus old lock root identity → FIXED through controlled lockfile regeneration → current exact-head Quality proved `npm ci` succeeds on `86b82dc...`; typecheck/lint/build also executed on this HEAD, with lint and build passing.
+FOUND → `package.json=report-advisor@1.0.0` versus old lock root identity → FIXED through controlled lockfile regeneration → prior exact-head Quality proved `npm ci` on `86b82dc...`; this is historical and does not certify the current SHA.
 
 ### F10 — P0-2 runtime coverage gap
 FOUND → previous harness was primarily foreign-tenant SELECT probing → FIXED by adding `scripts/p0-2-runtime-executor.mjs` with authenticated A/B actors, own/foreign SELECT, explicit INSERT/UPDATE/DELETE fixtures, child-table inclusion, evidence binding and fail-closed mutation requirements → live execution remains blocked by staging → NOT LIVE-VERIFIED.
 
 ### F11 — mutation executor identity/safety gap
-FOUND during owner-level implementation review → generic mutation executor could snapshot one record and mutate/observe another → FIXED by introducing canonical `mutationTargetId()` / `assertMutationTargetIdentity()` / `assertMutationResponseIdentity()` and carrying the same target identity through snapshot, mutation predicate/payload, observation, restore, and final comparison. UPDATE/DELETE zero-row own-tenant mutations now fail closed; INSERT/UPDATE/DELETE successful mutations require observable state change and verified cleanup/restore. Adversarial identity-divergence regression is present → current exact-head CI reached the F11 regression successfully, but overall Quality failed later on F18.
+FOUND during owner-level implementation review → generic mutation executor could snapshot one record and mutate/observe another → FIXED by canonical immutable mutation identity state plus target/response assertions; UPDATE/DELETE zero-row own-tenant mutations fail closed; successful INSERT/UPDATE/DELETE paths require observable mutation state and verified restore/cleanup. Adversarial A→B identity divergence is rejected. CI verification is required on the current SHA.
 
 ### F12 — tenant-root query semantic gap
-FOUND → treating `companies` like ordinary `company_id` tenant-owned rows would create a false executor failure → FIXED with explicit tenant-root `id` semantics; other canonical tenant-owned surfaces retain `company_id` → regression passed in exact-head run before F18 stopped the sequential gate.
+FOUND → treating `companies` like ordinary `company_id` tenant-owned rows would create a false executor failure → FIXED with explicit tenant-root `id` semantics; other canonical tenant-owned surfaces retain `company_id` → current-head CI verification required.
 
 ### F13 — child-table runtime coverage completeness
-FOUND → child tables were present in the matrix but mutation fixture completeness was not enforced → FIXED by requiring deterministic INSERT/UPDATE/DELETE fixtures for `sale_items`, `purchase_items`, `import_rows`, and `import_job_rows` before runtime execution → dynamic missing/duplicate/invalid/completion regressions passed in the exact-head run → runtime remains blocked without staging.
+FOUND → child tables were present in the matrix but mutation fixture completeness was not enforced → FIXED by requiring deterministic INSERT/UPDATE/DELETE fixtures for `sale_items`, `purchase_items`, `import_rows`, and `import_job_rows` → dynamic missing/duplicate/invalid/completion regressions are present → runtime remains blocked without staging.
 
 ### F14 — cross-tenant denial semantics
-FOUND → `0 rows` alone cannot establish why access was denied → FIXED by recording `DENIAL_CLASS` and distinguishing known-target `RLS_FILTERED` from `UNRESOLVED_ZERO_ROWS` and database/authorization errors → current exact-head self-validation reached the denial assertions successfully; runtime proof still required.
+FOUND → `0 rows` alone cannot establish why access was denied → FIXED by recording `DENIAL_CLASS` and distinguishing known-target `RLS_FILTERED` from `UNRESOLVED_ZERO_ROWS` and database/authorization errors → current-head runtime proof still required.
 
 ### F15 — CI checkout was not exact PR HEAD
-FOUND → quality workflow used default pull-request checkout semantics → FIXED by explicitly checking out `github.event.pull_request.head.sha` and asserting checked-out SHA equals PR head → current run `33133750057` checked out exactly `86b82dc0592d753eea5456c7bee07460132e2601`.
+FOUND → quality workflow used default pull-request checkout semantics → FIXED by explicitly checking out `github.event.pull_request.head.sha` and asserting checked-out SHA equals PR head → current topology also covers branch pushes.
 
 ### F16 — self-validation regex escaping defect
-FOUND on exact source inspection at `e90db391bc48a96678d47b6eb7975d6014147060` → FIXED in `fbc48544570ade89b98e6ca70fec43d64e0a930c` → exact-head self-validation executed successfully through the new F11/F13/F14 checks before reaching the stale-index assertion.
+FOUND on exact source inspection at `e90db391bc48a96678d47b6eb7975d6014147060` → FIXED in `fbc48544570ade89b98e6ca70fec43d64e0a930c` → regression remains part of exact-head self-validation.
 
 ### F17 — branch push execution gap
-FOUND → branch HEADs previously did not reliably receive Quality execution → FIXED at topology level with the protected branch push trigger and exact-head enforcer. Exact-head run `33133750057` was automatically observed for current `86b82dc...`; the enforcer check was also created for the same SHA. F17 remains `CI-VERIFIED = NOT YET`, because the Quality conclusion is currently FAIL rather than SUCCESS.
+FOUND → branch HEADs previously did not reliably receive Quality execution → FIXED at topology level with protected branch push trigger and exact-head enforcer. Exact-head execution must be observed on the current SHA before CI certification.
 
-### F18 — stale Master Index HEAD assertion
-FOUND in exact-head Quality run `33133750057` at self-validation line 144 → validator required `P0-2 Tenant A/B database isolation ... BLOCKED`, while the synchronized index uses the current wording `P0-2 Tenant A/B isolation` → ROOT CAUSE: assertion was coupled to stale historical wording instead of the canonical status row. FIX: synchronize the index to the exact current HEAD and record the current run/result. Regression must be generalized to assert semantic status, not stale prose. STATUS: FIXED IN CURRENT TREE; requires a new exact-head Quality run because this fix creates a new SHA.
+### F18 — stale Master Index assertion
+FOUND in exact-head Quality run `33133750057` at self-validation line 144 → validator required stale wording while the synchronized index used the canonical `P0-2 Tenant A/B isolation` row → ROOT CAUSE: assertion coupled to stale prose. FIX: generalized self-validation to semantic status matching instead of stale exact wording. The index is synchronized to the new exact-head state.
 
 ## P0-2 runtime executor
 `p0-2-runtime-executor.mjs` is intentionally fail-closed. It requires:
@@ -85,7 +85,7 @@ FOUND in exact-head Quality run `33133750057` at self-validation line 144 → va
 - release and commit SHA
 - deterministic mutation fixtures for INSERT/UPDATE/DELETE
 
-The executor carries one canonical mutation target identity through each mutation cycle. For own-tenant mutations the identity is derived from the fixture and must agree with both `own.id` and `restore.id`; the same identity is used for the DB predicate, response verification, observation, restore and final comparison. Cross-tenant attack paths use the foreign target identity and fail closed if an unauthorized mutation is observed or cannot be safely restored.
+The executor carries one immutable canonical mutation target identity through each mutation cycle. For own-tenant mutations the identity is derived once from the fixture and must agree with `own.id` and `restore.id`; subsequent snapshot, response, observation, restore and comparison assertions cannot silently adopt another identity. Cross-tenant attack paths fail closed if an unauthorized mutation is observed or cannot be safely restored.
 
 `INFERENCE_SURFACES` are deliberately not auto-certified by row probes. COUNT/SUM/AVG/search/autocomplete/dashboard/report/forecast/recommendation/decision outputs require application-specific measured executors before they can become `PASS`.
 
@@ -150,7 +150,7 @@ P0-1 remains blocked without authenticated browser runtime.
 No P0-3 transition is authorized by this index.
 
 ## Remaining blockers
-1. New exact-head Quality for the synchronized F18 fix; the prior exact-head run `33133750057` is FAIL and cannot certify the new SHA.
+1. Exact-head Quality for `3b1ef098cfdb279f0d8b754df3268a50cf5c05ee`.
 2. Dedicated safe authenticated Supabase staging/test environment and deterministic mutation fixtures.
 3. Live DB, child-table, RPC and inference evidence.
 4. Storage, Realtime, worker/queue, import/export and document-intelligence runtime evidence.
