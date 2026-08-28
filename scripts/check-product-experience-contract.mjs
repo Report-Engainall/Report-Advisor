@@ -31,8 +31,12 @@ for (const route of ['/command-center', '/decision-experience', '/reports/execut
   if (!app.includes(`path=\"${route}\"`)) throw new Error(`Missing coherent product route: ${route}`);
 }
 
-for (const token of ['aria-label', 'aria-current', 'focus-visible:ring']) {
-  if (!journey.includes(token)) throw new Error(`Journey navigation missing accessibility contract: ${token}`);
+for (const token of ['aria-label', 'aria-current', 'focus-visible:ring', 'URLSearchParams', 'recommendationId', 'stage']) {
+  if (!journey.includes(token)) throw new Error(`Journey navigation missing product contract: ${token}`);
+}
+
+if (!/recommendationId/.test(journey) || !/stage/.test(journey)) {
+  throw new Error('Journey navigation must preserve recommendation context and lifecycle stage.');
 }
 
 for (const token of [
@@ -67,4 +71,5 @@ console.log(`lifecycle_states=${requiredLifecycle.length}`);
 console.log(`truth_states=${requiredTruth.length}`);
 console.log(`report_story_sections=${requiredStory.length}`);
 console.log(`truth_guards=${requiredTruthGuards.length}`);
+console.log('journey_context=preserved');
 console.log('synthetic_runtime_data=NONE');
