@@ -2,6 +2,10 @@
 -- BUSINESS_METRICS remains global calculation-definition SSOT; persisted governance
 -- is tenant-scoped so authenticated consumers cannot read another company's
 -- governance/evidence metadata.
+--
+-- The preceding W2.1 governance migration already creates the canonical tenant
+-- policies. This migration hardens/normalizes those existing policies instead of
+-- creating duplicate policy names, which keeps the migration history auditable.
 
 ALTER TABLE public.metric_governance
   ADD COLUMN IF NOT EXISTS company_id uuid;
@@ -14,16 +18,14 @@ CREATE INDEX IF NOT EXISTS idx_metric_governance_company_metric_version
 CREATE INDEX IF NOT EXISTS idx_metric_governance_audit_company_metric
   ON public.metric_governance_audit(company_id, metric_id, created_at DESC);
 
-DROP POLICY IF EXISTS metric_governance_authenticated_read ON public.metric_governance;
-CREATE POLICY metric_governance_authenticated_tenant_read
+ALTER POLICY metric_governance_authenticated_tenant_read
   ON public.metric_governance
-  FOR SELECT TO authenticated
+  TO authenticated
   USING (company_id = public.current_company_id());
 
-DROP POLICY IF EXISTS metric_governance_audit_authenticated_read ON public.metric_governance_audit;
-CREATE POLICY metric_governance_audit_authenticated_tenant_read
+ALTER POLICY metric_governance_audit_authenticated_tenant_read
   ON public.metric_governance_audit
-  FOR SELECT TO authenticated
+  TO authenticated
   USING (company_id = public.current_company_id());
 
 CREATE OR REPLACE FUNCTION private.metric_governance_transition(
