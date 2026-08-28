@@ -41,6 +41,8 @@ jobs:
         run: npm ci --no-audit --no-fund
       - name: P0-2A runtime evidence readiness
         run: node scripts/check-p0-2a-readiness.mjs
+      - name: P0-2A harness self-verification
+        run: npm run test:p0-2a-self-validation
       - name: Workflow command integrity
         run: npm run test:workflow-command-integrity
       - name: CI topology and canonical release wiring
@@ -165,15 +167,13 @@ jobs:
         run: npm run test:document-intelligence-contract && npm run test:document-intelligence-semantic-foundation && npm run test:document-intelligence-hardening && npm run test:document-intelligence-decision-gate && npm run test:file-intelligence-security && npm run test:operational-file-pipeline
       - name: Document intelligence service runtime contracts
         if: ${{ always() }}
-        env:
-          PYTHONPATH: services/document-intelligence
         run: python -m unittest discover -s services/document-intelligence/tests -p 'test_*.py'
       - name: Report truth contract
         if: ${{ always() }}
         run: npm run test:report-truth
       - name: Production readiness
         if: ${{ always() }}
-        run: node scripts/check-production-readiness.mjs
+        run: npm run test:production-readiness
       - name: Full resilience gate
         if: ${{ always() }}
         run: npm run test:document-resilience && node scripts/check-document-resilience.mjs
