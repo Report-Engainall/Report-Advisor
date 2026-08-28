@@ -156,29 +156,51 @@ async function readById(client, table, id) {
   return data ?? null;
 }
 
-async function restoreAndVerify(client, fixture) {
+async function snapshotOriginalState(client, fixture) {
+  const id = fixture.restore.id ?? fixture.own.id;
+  if (!id && fixture.operation !== 'INSERT') {
+    throw new Error(`NOT VERIFIED: original-state snapshot requires deterministic id for ${fixture.table}/${fixture.operation}`);
+  }
+  const original = id ? await readById(client, fixture.table, id) : null;
+  if (fixture.operation === 'INSERT') {
+    if (original !== null) {
+      throw new Error(`NOT VERIFIED: INSERT fixture is not clean; deterministic id ${id} already exists in ${fixture.table}`);
+    }
+    return { original: null, fixtureMatchesOriginal: true };
+  }
+  if (original === null) {
+    throw new Error(`NOT VERIFIED: original-state snapshot missing for ${fixture.table}/${id}`);
+  }
+  if (!comparableRecord(original, fixture.restore)) {
+    throw new Error(`NOT VERIFIED: fixture.restore does not match original database state for ${fixture.table}/${id}`);
+  }
+  return { original, fixtureMatchesOriginal: true };
+}
+
+async function restoreAndVerify(client, fixture, original) {
   if (fixture.operation === 'INSERT') {
     const id = fixture.restore.id ?? fixture.own.id;
     if (!id) throw new Error(`NOT VERIFIED: INSERT fixture requires deterministic cleanup id for ${fixture.table}`);
     const deleted = await client.from(fixture.table).delete().eq('id', id);
     if (deleted.error) throw new Error(`NOT VERIFIED: INSERT cleanup failed for ${fixture.table}/${id}: ${deleted.error.message}`);
     const finalState = await readById(client, fixture.table, id);
-    if (finalState !== null) throw new Error(`NOT VERIFIED: INSERT cleanup verification failed for ${fixture.table}/${id}`);
+    if (finalState !== null || original !== null) throw new Error(`NOT VERIFIED: INSERT cleanup verification failed for ${fixture.table}/${id}`);
     return { ok: true, state: null };
   }
 
-  const id = fixture.restore.id;
-  const restored = await client.from(fixture.table).upsert(fixture.restore, { onConflict: 'id' }).select('*').maybeSingle();
-  if (restored.error) throw new Error(`NOT VERIFIED: restore failed for ${fixture.table}/${id}: ${restored.error.message}`);
-  const finalState = await readById(client, fixture.table, id);
-  if (!comparableRecord(finalState, fixture.restore)) {
-    throw new Error(`NOT VERIFIED: restored-state assertion failed for ${fixture.table}/${id}`);
+  if (!original) throw new Error(`NOT VERIFIED: original snapshot missing for ${fixture.table}/${fixture.restore.id}`);
+  const restored = await client.from(fixture.table).upsert(original, { onConflict: 'id' }).select('*').maybeSingle();
+  if (restored.error) throw new Error(`NOT VERIFIED: restore failed for ${fixture.table}/${fixture.restore.id}: ${restored.error.message}`);
+  const finalState = await readById(client, fixture.table, fixture.restore.id);
+  if (!comparableRecord(finalState, original)) {
+    throw new Error(`NOT VERIFIED: restored-state assertion failed for ${fixture.table}/${fixture.restore.id}`);
   }
   return { ok: true, state: finalState };
 }
 
 async function runMutation(client, actor, authorizedTenant, fixture, targetTenant, attack) {
   const { table, operation } = fixture;
+  const snapshot = await snapshotOriginalState(client, fixture);
   const payload = attack ? fixture.foreign : fixture.own;
   const target = attack ? targetTenant : authorizedTenant;
   let response;
@@ -196,7 +218,7 @@ async function runMutation(client, actor, authorizedTenant, fixture, targetTenan
   let restoreError = null;
   if (!attack || (!denied && rows > 0)) {
     try {
-      await restoreAndVerify(client, fixture);
+      await restoreAndVerify(client, fixture, snapshot.original);
     } catch (error) {
       restoreError = error;
     }
@@ -220,6 +242,7 @@ async function runMutation(client, actor, authorizedTenant, fixture, targetTenan
       attack,
       targetTenant: target,
       fixtureId: fixture.restore.id ?? fixture.own.id ?? null,
+      originalSnapshotVerified: snapshot.fixtureMatchesOriginal,
       restoreVerified: !restoreError,
     },
   });
