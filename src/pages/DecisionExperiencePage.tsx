@@ -67,11 +67,11 @@ export function DecisionExperiencePage() {
   );
 
   const commandStats: CommandStat[] = [
-    ['التوصيات', recommendations.length, Lightbulb],
-    ['التنبيهات', alerts.length, Bell],
-    ['بانتظار القرار', recommendations.filter(item => item.status === 'new').length, CircleDot],
-    ['نتائج موثقة', recommendations.filter(item => item.status === 'done').length, CheckCircle2],
-  ].map(([label, value, icon]) => ({ label, value, icon }));
+    { label: 'التوصيات', value: recommendations.length, icon: Lightbulb },
+    { label: 'التنبيهات', value: alerts.length, icon: Bell },
+    { label: 'بانتظار القرار', value: recommendations.filter(item => item.status === 'new').length, icon: CircleDot },
+    { label: 'نتائج موثقة', value: recommendations.filter(item => item.status === 'done').length, icon: CheckCircle2 },
+  ];
 
   return (
     <div dir="rtl" className="space-y-5 animate-fade-in">
