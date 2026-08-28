@@ -30,6 +30,7 @@ jobs:
       - run: node scripts/check-governance-runtime-chain.mjs
       - run: node scripts/check-evidence-provenance-chain.mjs
       - run: node scripts/check-production-certification-chain.mjs
+      - run: node scripts/check-release-evidence-completeness.mjs
       - run: node scripts/check-autonomy-safety-chain.mjs
       - run: node scripts/check-final-safety-invariants.mjs
       - run: npm run test:production-scale
