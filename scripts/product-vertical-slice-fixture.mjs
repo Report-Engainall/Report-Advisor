@@ -5,7 +5,7 @@ const inventory = fixtures.inventory_ar.rows[0];
 /** Explicit product-slice benchmark fixture: source identity/quantity/cost are taken from the existing canonical inventory fixture. */
 export const productVerticalSliceFixture = {
   datasetId: 'golden.inventory_ar',
-  sourceKind: 'canonical-fixture' as const,
+  sourceKind: 'canonical-fixture',
   rows: 1,
   asOf: '2026-08-01',
   sku: String(inventory[0]),
