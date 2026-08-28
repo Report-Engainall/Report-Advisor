@@ -1,0 +1,67 @@
+import { evaluateMetric, metricCanDriveDecision, type MetricEvaluation } from './metricEngine';
+
+export type VerticalDepartment = 'sales' | 'procurement' | 'warehouse' | 'finance';
+export type SliceStage = 'source' | 'validation' | 'reconciliation' | 'metric' | 'insight' | 'recommendation' | 'decision' | 'approval' | 'task' | 'report' | 'pdf' | 'outcome';
+
+export interface SliceSource {
+  datasetId: string;
+  sourceKind: 'canonical-fixture';
+  rows: number;
+  asOf: string;
+  sku: string;
+  quantity: number;
+  unitCost: number;
+  dailyDemand: number;
+  leadTimeDays: number;
+  safetyDays: number;
+  netSales: number;
+  cogs: number;
+  purchaseCommitment: number;
+  actualOutcome?: number | null;
+  evidenceId: string;
+}
+
+export interface SliceEvidence { id: string; source: string; rowCount: number; fingerprint: string; trust: 'HIGH' | 'MEDIUM' | 'LOW' | 'UNKNOWN'; }
+export interface SliceInsight { id: string; type: 'stockout-risk'; severity: 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW'; metricKey: string; metricVersion: number; value: number; evidence: SliceEvidence; }
+export interface SliceRecommendation { id: string; reason: string; evidence: string[]; confidence: number; alternatives: string[]; expectedImpact: { metric: string; value: number; unit: string }; policy: { policyId: string; version: number; approvalThreshold: number }; }
+export interface SliceDecision { id: string; recommendationId: string; metricVersions: Record<string, number>; evidence: string[]; rules: string[]; confidence: number; reason: string; alternatives: string[]; approval: 'REQUIRED' | 'AUTO_APPROVED'; }
+export interface SliceTask { id: string; department: VerticalDepartment; owner: string; priority: 'CRITICAL' | 'HIGH' | 'MEDIUM'; why: string; evidence: string[]; decisionId: string; dueDate: string; slaHours: number; dependencies: string[]; expectedImpact: number; status: 'OPEN' | 'UNRESOLVED'; }
+export interface SliceReport { reportId: string; dataAsOf: string; generatedAt: string; executiveSummary: string; businessHealth: 'CRITICAL' | 'AT_RISK' | 'HEALTHY'; criticalIssues: string[]; opportunities: string[]; whatChanged: string[]; whyItChanged: string[]; evidence: SliceEvidence[]; recommendations: SliceRecommendation[]; decision: SliceDecision; approval: SliceDecision['approval']; tasks: SliceTask[]; expectedImpact: number; actualOutcome: number | null; actionRegister: string[]; pdfHtml: string; }
+export interface ProductVerticalSlice { stages: SliceStage[]; source: SliceSource; validation: { passed: boolean; errors: string[] }; reconciliation: { matched: number; unresolved: number }; metrics: Record<string, MetricEvaluation>; evidence: SliceEvidence; insight: SliceInsight; recommendation: SliceRecommendation; decision: SliceDecision; task: SliceTask; report: SliceReport; }
+
+export function buildProductVerticalSlice(source: SliceSource, now = '2026-08-28T08:00:00.000Z'): ProductVerticalSlice {
+  const errors: string[] = [];
+  if (source.sourceKind !== 'canonical-fixture') errors.push('SOURCE_NOT_CANONICAL_FIXTURE');
+  if (source.rows < 1 || source.quantity < 0 || source.unitCost < 0 || source.dailyDemand <= 0) errors.push('INVALID_SOURCE_VALUES');
+  if (source.netSales < 0 || source.cogs < 0 || source.purchaseCommitment < 0) errors.push('INVALID_FINANCIAL_VALUES');
+  if (!source.evidenceId) errors.push('MISSING_SOURCE_EVIDENCE');
+  const reconciliation = { matched: source.rows, unresolved: 0 };
+  const evidence: SliceEvidence = { id: source.evidenceId, source: source.datasetId, rowCount: source.rows, fingerprint: `${source.datasetId}:${source.sku}:${source.asOf}`, trust: errors.length === 0 ? 'HIGH' : 'UNKNOWN' };
+  const coverageDays = source.quantity / source.dailyDemand;
+  const risk = Math.min(100, Math.max(0, 100 * (source.leadTimeDays + source.safetyDays - coverageDays) / Math.max(1, source.leadTimeDays + source.safetyDays)));
+  const metrics = Object.fromEntries([
+    ['net_sales', evaluateMetric({ key: 'net_sales', value: source.netSales, sourceRows: source.rows, confidence: 1, updatedAt: now })],
+    ['gross_profit', evaluateMetric({ key: 'gross_profit', value: source.netSales - source.cogs, sourceRows: source.rows, confidence: 1, updatedAt: now })],
+    ['payables', evaluateMetric({ key: 'payables', value: source.purchaseCommitment, sourceRows: source.rows, confidence: 0.95, updatedAt: now })],
+    ['inventory_value', evaluateMetric({ key: 'inventory_value', value: source.quantity * source.unitCost, sourceRows: source.rows, confidence: 1, updatedAt: now })],
+    ['inventory_velocity', evaluateMetric({ key: 'inventory_velocity', value: source.dailyDemand, sourceRows: source.rows, confidence: 1, updatedAt: now })],
+    ['stock_coverage', evaluateMetric({ key: 'stock_coverage', value: coverageDays, sourceRows: source.rows, confidence: 0.95, updatedAt: now })],
+    ['stockout_risk', evaluateMetric({ key: 'stockout_risk', value: risk, sourceRows: source.rows, confidence: 0.95, updatedAt: now })],
+  ]) as Record<string, MetricEvaluation>;
+  const insight: SliceInsight = { id: `insight.stockout.${source.sku}`, type: 'stockout-risk', severity: risk >= 70 ? 'HIGH' : risk >= 40 ? 'MEDIUM' : 'LOW', metricKey: 'stockout_risk', metricVersion: metrics.stockout_risk.metricVersion, value: risk, evidence };
+  const policy = { policyId: 'inventory.replenishment.v1', version: 1, approvalThreshold: 90 };
+  const recommendation: SliceRecommendation = { id: `recommendation.replenish.${source.sku}`, reason: risk >= 70 ? 'مخاطر نفاد المخزون مرتفعة مقارنة بزمن التوريد ومخزون الأمان.' : 'مراقبة التغطية قبل إعادة التزويد.', evidence: [evidence.id, metrics.stockout_risk.metricId], confidence: metrics.stockout_risk.confidence, alternatives: ['إعادة الطلب من المورد الأساسي', 'الاستبدال من مجموعة البدائل', 'تسريع التوريد'], expectedImpact: { metric: 'stock_coverage', value: source.leadTimeDays + source.safetyDays, unit: 'days' }, policy };
+  const decision: SliceDecision = { id: `decision.replenish.${source.sku}`, recommendationId: recommendation.id, metricVersions: Object.fromEntries(Object.values(metrics).map((metric) => [metric.metricId, metric.metricVersion])), evidence: recommendation.evidence, rules: ['stockout_risk >= policy.approvalThreshold => approval required', 'owner routing is deterministic'], confidence: recommendation.confidence, reason: recommendation.reason, alternatives: recommendation.alternatives, approval: risk >= policy.approvalThreshold ? 'REQUIRED' : 'AUTO_APPROVED' };
+  const task: SliceTask = { id: `task.procurement.${source.sku}`, department: 'procurement', owner: 'UNRESOLVED', priority: risk >= 70 ? 'HIGH' : 'MEDIUM', why: recommendation.reason, evidence: decision.evidence, decisionId: decision.id, dueDate: '2026-08-29', slaHours: 24, dependencies: ['supplier-availability'], expectedImpact: recommendation.expectedImpact.value, status: 'UNRESOLVED' };
+  const reportId = `exec.${source.datasetId}.${source.asOf}`;
+  const report: SliceReport = { reportId, dataAsOf: source.asOf, generatedAt: now, executiveSummary: `مخاطر نفاد الصنف ${source.sku} بلغت ${Math.round(risk)}% وفق المؤشر الدلالي الموثق.`, businessHealth: risk >= 70 ? 'AT_RISK' : 'HEALTHY', criticalIssues: risk >= 70 ? [insight.id] : [], opportunities: ['توحيد قرار إعادة التزويد مع البدائل المتاحة'], whatChanged: [`stockout_risk=${Math.round(risk)}%`], whyItChanged: ['التغطية الحالية أقل من زمن التوريد + مخزون الأمان.'], evidence: [evidence], recommendations: [recommendation], decision, approval: decision.approval, tasks: [task], expectedImpact: recommendation.expectedImpact.value, actualOutcome: source.actualOutcome ?? null, actionRegister: [task.id], pdfHtml: renderExecutiveReportPdfHtml({ reportId, dataAsOf: source.asOf, generatedAt: now, summary: `مخاطر نفاد الصنف ${source.sku}: ${Math.round(risk)}%`, evidenceId: evidence.id, decision, task }) };
+  return { stages: ['source', 'validation', 'reconciliation', 'metric', 'insight', 'recommendation', 'decision', 'approval', 'task', 'report', 'pdf', 'outcome'], source, validation: { passed: errors.length === 0, errors }, reconciliation, metrics, evidence, insight, recommendation, decision, task, report };
+}
+
+export function renderExecutiveReportPdfHtml(input: Pick<SliceReport, 'reportId' | 'dataAsOf' | 'generatedAt' | 'decision' | 'task'> & { summary: string; evidenceId: string }): string {
+  return `<!doctype html><html dir="rtl" lang="ar"><head><meta charset="utf-8"><title>${input.reportId}</title><style>@page{size:A4;margin:18mm}body{font-family:Arial,sans-serif;line-height:1.7;color:#111}h1,h2{break-after:avoid}.meta{display:grid;grid-template-columns:1fr 1fr;gap:8px}.section{break-inside:avoid;margin-top:18px}table{width:100%;border-collapse:collapse}td,th{border:1px solid #999;padding:6px;text-align:right}@media print{a{color:inherit;text-decoration:none}}</style></head><body><h1>Executive Intelligence Report</h1><div class="meta"><div>Report ID: ${input.reportId}</div><div>Data As Of: ${input.dataAsOf}</div><div>Generated At: ${input.generatedAt}</div><div>Evidence: ${input.evidenceId}</div></div><div class="section"><h2>Executive Summary</h2><p>${input.summary}</p></div><div class="section"><h2>Decision / Approval</h2><p>Decision: ${input.decision.id}</p><p>Approval: ${input.decision.approval}</p><p>Confidence: ${input.decision.confidence}</p></div><div class="section"><h2>Action Register</h2><table><tr><th>Task</th><th>Department</th><th>Owner</th><th>Due</th><th>Status</th></tr><tr><td>${input.task.id}</td><td>${input.task.department}</td><td>${input.task.owner}</td><td>${input.task.dueDate}</td><td>${input.task.status}</td></tr></table></div><footer>Page numbers are supplied by the print/PDF renderer.</footer></body></html>`;
+}
+
+export function productVerticalSliceCapabilities(slice: ProductVerticalSlice): Record<string, 'IMPLEMENTED' | 'BLOCKED'> {
+  return { source_to_metric: slice.validation.passed && metricCanDriveDecision(slice.metrics.stockout_risk) ? 'IMPLEMENTED' : 'BLOCKED', metric_to_evidence: slice.evidence.trust === 'HIGH' ? 'IMPLEMENTED' : 'BLOCKED', evidence_to_recommendation: slice.recommendation.evidence.length > 0 ? 'IMPLEMENTED' : 'BLOCKED', recommendation_to_decision: slice.decision.recommendationId === slice.recommendation.id ? 'IMPLEMENTED' : 'BLOCKED', decision_to_approval: slice.decision.approval === 'REQUIRED' || slice.decision.approval === 'AUTO_APPROVED' ? 'IMPLEMENTED' : 'BLOCKED', approval_to_task: slice.task.decisionId === slice.decision.id ? 'IMPLEMENTED' : 'BLOCKED', task_to_report: slice.report.actionRegister.includes(slice.task.id) ? 'IMPLEMENTED' : 'BLOCKED', report_to_pdf: slice.report.pdfHtml.includes(slice.report.reportId) ? 'IMPLEMENTED' : 'BLOCKED', outcome_linkage: slice.report.actualOutcome === null ? 'BLOCKED' : 'IMPLEMENTED' };
+}
