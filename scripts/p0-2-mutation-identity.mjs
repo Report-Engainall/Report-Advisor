@@ -1,4 +1,6 @@
-export function mutationTargetId(fixture) {
+const MUTATION_IDENTITY = Symbol('p0-2-mutation-identity');
+
+function canonicalIdentity(fixture) {
   if (!fixture || typeof fixture !== 'object') throw new Error('NOT VERIFIED: mutation fixture is required.');
   const ownId = fixture.own?.id ?? null;
   const restoreId = fixture.restore?.id ?? null;
@@ -15,6 +17,24 @@ export function mutationTargetId(fixture) {
     throw new Error(`NOT VERIFIED: mutation target identity diverges for ${fixture.table}/${fixture.operation}: own=${ownId}, restore=${restoreId}`);
   }
   return ownId;
+}
+
+export function mutationTargetId(fixture) {
+  const canonicalId = canonicalIdentity(fixture);
+  const existing = fixture[MUTATION_IDENTITY];
+  if (existing) {
+    if (existing.id !== canonicalId || existing.table !== fixture.table || existing.operation !== fixture.operation) {
+      throw new Error(`NOT VERIFIED: mutation target identity changed after cycle initialization for ${fixture.table}/${fixture.operation}`);
+    }
+    return existing.id;
+  }
+  Object.defineProperty(fixture, MUTATION_IDENTITY, {
+    value: Object.freeze({ id: canonicalId, table: fixture.table, operation: fixture.operation }),
+    enumerable: false,
+    writable: false,
+    configurable: false,
+  });
+  return canonicalId;
 }
 
 export function assertMutationTargetIdentity(fixture, targetId, observedId = targetId) {
