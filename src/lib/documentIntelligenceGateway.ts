@@ -1,5 +1,7 @@
 import { preferredBackends, type AICapabilityBackend } from './aiCapabilityRegistry';
 import { chooseDocumentRoute, type DocumentPlan, type DocumentProfile } from './free-toolbox/document-route';
+import type { Evidence } from './free-toolbox/evidence-ledger';
+import type { LineageGraph } from './free-toolbox/data-lineage';
 
 export type DocumentCapability = 'document-parsing' | 'ocr' | 'table-extraction';
 export type DocumentBackendStatus = 'AVAILABLE' | 'OPTIONAL' | 'UNAVAILABLE';
@@ -13,12 +15,23 @@ export interface DocumentBackendChoice {
   reason: string;
 }
 
+export interface DocumentExtractionFact {
+  field: string;
+  value: string | number | null;
+  confidence: number;
+  source: string;
+  page?: number;
+  location?: string;
+  sourceDocumentId?: string;
+  sourceHash?: string;
+}
+
 export interface DocumentExtractionEnvelope {
   plan: DocumentPlan;
   choices: DocumentBackendChoice[];
   stage: 'PLANNED' | 'READY_FOR_EXTRACTION' | 'INSUFFICIENT_BACKEND';
   warnings: string[];
-  facts: Array<{ field: string; value: string | number | null; confidence: number; source: string; page?: number }>;
+  facts: DocumentExtractionFact[];
 }
 
 function choose(capability: DocumentCapability): DocumentBackendChoice {
@@ -55,7 +68,7 @@ export function planDocumentIntelligence(profile: DocumentProfile): DocumentExtr
   };
 }
 
-export function acceptExtractedFacts(envelope: DocumentExtractionEnvelope, facts: DocumentExtractionEnvelope['facts']): DocumentExtractionEnvelope {
+export function acceptExtractedFacts(envelope: DocumentExtractionEnvelope, facts: DocumentExtractionFact[]): DocumentExtractionEnvelope {
   const valid = facts.filter(fact => Number.isFinite(fact.confidence) && fact.confidence >= 0 && fact.confidence <= 1 && Boolean(fact.source));
   return {
     ...envelope,
@@ -63,4 +76,59 @@ export function acceptExtractedFacts(envelope: DocumentExtractionEnvelope, facts
     facts: valid,
     warnings: [...envelope.warnings, ...(valid.length < facts.length ? ['تم رفض حقول مستخرجة تفتقد source أو confidence صالح.'] : [])],
   };
+}
+
+/**
+ * Adapt only source-bearing extraction facts into the existing evidence ledger.
+ * No document identity, location, confidence, or value is invented here.
+ */
+export function extractedFactsToEvidence(facts: DocumentExtractionFact[]): Evidence[] {
+  return facts
+    .filter(fact => Boolean(fact.source) && Number.isFinite(fact.confidence) && fact.confidence >= 0 && fact.confidence <= 1)
+    .map(fact => ({
+      sourceId: fact.source,
+      sourceDocumentId: fact.sourceDocumentId,
+      sourceHash: fact.sourceHash,
+      page: fact.page,
+      location: fact.location,
+      method: 'derived',
+      field: fact.field,
+      raw: fact.value === null ? undefined : String(fact.value),
+      normalized: fact.value,
+      confidence: fact.confidence,
+    }));
+}
+
+/**
+ * Attach extracted facts to an already-existing lineage target (insight/metric/decision).
+ * The target id must already exist; this function never fabricates downstream nodes.
+ */
+export function attachExtractedFactsToLineage(graph: LineageGraph, facts: DocumentExtractionFact[], targetId: string): LineageGraph {
+  const evidence = extractedFactsToEvidence(facts);
+  if (!graph.nodes.some(node => node.id === targetId) || evidence.length === 0) return graph;
+
+  const additions = evidence.flatMap(item => {
+    const sourceNodeId = `document-source:${item.sourceId}`;
+    const factNodeId = `document-fact:${item.sourceId}:${item.field}`;
+    const sourceLabel = item.sourceDocumentId ? `${item.sourceId} (${item.sourceDocumentId})` : item.sourceId;
+    return [
+      { id: sourceNodeId, type: 'source' as const, label: sourceLabel, evidence: [item] },
+      { id: factNodeId, type: 'metric' as const, label: item.field, evidence: [item] },
+    ];
+  });
+
+  const uniqueNodes = [...graph.nodes];
+  for (const node of additions) {
+    if (!uniqueNodes.some(existing => existing.id === node.id)) uniqueNodes.push(node);
+  }
+
+  const edges = [...graph.edges];
+  for (const item of evidence) {
+    const sourceNodeId = `document-source:${item.sourceId}`;
+    const factNodeId = `document-fact:${item.sourceId}:${item.field}`;
+    if (!edges.some(edge => edge.from === sourceNodeId && edge.to === factNodeId)) edges.push({ from: sourceNodeId, to: factNodeId, label: 'extracted-from' });
+    if (!edges.some(edge => edge.from === factNodeId && edge.to === targetId)) edges.push({ from: factNodeId, to: targetId, label: 'supports' });
+  }
+
+  return { nodes: uniqueNodes, edges };
 }
