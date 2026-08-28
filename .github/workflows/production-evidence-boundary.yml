@@ -1,5 +1,7 @@
 name: production-evidence-boundary
 on:
+  push:
+    branches: [main]
   workflow_run:
     workflows: [release-certification]
     types: [completed]
@@ -17,7 +19,7 @@ permissions:
   contents: read
   actions: read
 concurrency:
-  group: production-evidence-boundary-${{ github.event.workflow_run.id || inputs.release_certification_run_id }}
+  group: production-evidence-boundary-${{ github.event.workflow_run.id || inputs.release_certification_run_id || github.sha }}
   cancel-in-progress: true
 jobs:
   boundary:
