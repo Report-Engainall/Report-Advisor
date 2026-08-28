@@ -53,6 +53,9 @@ jobs:
       - name: Install
         run: npm ci --no-audit --no-fund
 
+      - name: Exact-head CI contract
+        run: node scripts/check-exact-head-ci-contract.mjs
+
       - name: Typecheck
         run: npm run typecheck
 
