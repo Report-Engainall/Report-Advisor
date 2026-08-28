@@ -6,7 +6,7 @@
 ## Exact verification point
 - Branch: `runtime-evidence/p0-2a-readiness`
 - Base: `137facaf513652dd9ec38fc2db03d734dd8c7313`
-- Current HEAD (code state at index generation): `4aee8750cd0a273d76cc13e539ef07f340ae8a61`
+- Current HEAD (code state at index generation): `c3b4240c3a4bb354d314f4dbfb5a81fcaf02a133`
 - PR: `#69`
 - Exact-HEAD CI: `PENDING — verification required for the post-forensic code state`
 - `c71b95...` PASS is historical only; it does not certify the current SHA.
@@ -58,6 +58,9 @@ FOUND → treating `companies` like ordinary `company_id` tenant-owned rows woul
 
 ### F13 — child-table runtime coverage completeness
 FOUND → child tables were present in the matrix but mutation fixture completeness was not enforced → FIXED by requiring deterministic INSERT/UPDATE/DELETE fixtures for `sale_items`, `purchase_items`, `import_rows`, and `import_job_rows` before runtime execution → regression guard added → runtime remains blocked without staging.
+
+### F15 — CI checkout was not exact PR HEAD
+FOUND → the quality workflow used default pull_request checkout semantics, which tests the merge ref rather than the PR head → FIXED by explicitly checking out github.event.pull_request.head.sha and asserting checked-out SHA equals PR head → current CI execution is still required on the new workflow state.
 
 ### F14 — cross-tenant denial semantics
 FOUND → `0 rows` alone cannot establish why access was denied → FIXED by recording `DENIAL_CLASS` and distinguishing known-sentinel `RLS_FILTERED` from `UNRESOLVED_ZERO_ROWS` and database/authorization errors → regression guard added → runtime proof still required.
@@ -136,7 +139,7 @@ P0-1 remains blocked without authenticated browser runtime.
 No P0-3 transition is authorized by this index.
 
 ## Remaining blockers
-1. Exact-HEAD CI for the post-forensic code state `4aee8750cd0a273d76cc13e539ef07f340ae8a61`.
+1. Exact-HEAD CI for `c3b4240c3a4bb354d314f4dbfb5a81fcaf02a133` (workflow checkout was corrected to test PR HEAD rather than merge ref).
 2. Dedicated safe authenticated Supabase staging/test environment and deterministic mutation fixtures.
 3. Live DB, child-table, RPC and inference evidence.
 4. Storage, Realtime, worker/queue, import/export and document-intelligence runtime evidence.
