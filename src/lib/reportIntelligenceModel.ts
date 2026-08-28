@@ -59,6 +59,19 @@ export interface ReportOutcome {
   status: 'pending' | 'measured' | 'failed';
 }
 
+export interface ReportSnapshot {
+  reportId: string;
+  snapshotId: string;
+  metricVersions: Record<string, string>;
+  ruleVersions: Record<string, string>;
+  mappingVersions: Record<string, string>;
+  filters: Record<string, string | number | boolean | null>;
+  evidenceReferences: string[];
+  generatedAt: string;
+  dataAsOf: string;
+  fingerprint: string;
+}
+
 export interface ReportSection {
   id: string;
   kind: ReportSectionKind;
@@ -107,4 +120,24 @@ export function validateReportProjection(report: ReportIntelligenceModel): void 
       if (!evidenceIds.has(evidenceId)) throw new Error('recommendation references missing evidence');
     }
   }
+}
+
+export function createReportFingerprint(input: Omit<ReportSnapshot, 'fingerprint'>): string {
+  const canonical = JSON.stringify({
+    reportId: input.reportId,
+    snapshotId: input.snapshotId,
+    metricVersions: Object.entries(input.metricVersions).sort(),
+    ruleVersions: Object.entries(input.ruleVersions).sort(),
+    mappingVersions: Object.entries(input.mappingVersions).sort(),
+    filters: Object.entries(input.filters).sort(),
+    evidenceReferences: [...input.evidenceReferences].sort(),
+    generatedAt: input.generatedAt,
+    dataAsOf: input.dataAsOf,
+  });
+  let hash = 2166136261;
+  for (let i = 0; i < canonical.length; i += 1) {
+    hash ^= canonical.charCodeAt(i);
+    hash = Math.imul(hash, 16777619);
+  }
+  return (hash >>> 0).toString(16).padStart(8, '0');
 }
