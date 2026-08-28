@@ -13,7 +13,6 @@ function expectThrow(name, fn, fragment) {
   console.log(`PASS ${name}`);
 }
 
-// A/B/C: environment and authenticated runtime context are fail-closed.
 for (const env of [undefined, '', 'unknown', 'undefined', 'production', 'PROD']) {
   expectThrow(`environment:${env ?? 'undefined'}`, () => requireSafeRuntimeEnvironment(env === undefined ? {} : { RUNTIME_EVIDENCE_ENV: env }), 'ABORT');
 }
@@ -22,24 +21,24 @@ assert.equal(requireSafeRuntimeEnvironment({ RUNTIME_EVIDENCE_ENV: 'TEST' }), 't
 
 const validContext = { actor:'actor-a', authorizedTenant:'tenant-a', targetTenant:'tenant-b', environment:'staging', release:'release-1', commitSha:'commit-1' };
 for (const field of Object.keys(validContext)) {
-  const copy = { ...validContext }; delete copy[field];
+  const copy = { ...validContext };
+  delete copy[field];
   expectThrow(`authenticated-context:missing-${field}`, () => requireAuthenticatedContext(copy), 'NOT VERIFIED');
 }
 
-// D: every evidence field is required and PASS cannot be manufactured from incomplete evidence.
 const complete = Object.fromEntries(RUNTIME_EVIDENCE_FIELDS.map((field) => {
   if (field === 'ROWS_RETURNED' || field === 'ROWS_AFFECTED') return [field, 0];
   if (field === 'RESULT') return [field, 'PASS'];
   return [field, `${field}-value`];
 }));
 for (const field of RUNTIME_EVIDENCE_FIELDS) {
-  const copy = { ...complete }; delete copy[field];
+  const copy = { ...complete };
+  delete copy[field];
   expectThrow(`evidence:missing-${field}`, () => createEvidenceRecord(copy), 'NOT VERIFIED');
 }
 expectThrow('evidence:pass-without-row-counts', () => createEvidenceRecord({ ...complete, ROWS_RETURNED: undefined }), 'NOT VERIFIED');
 expectThrow('evidence:invalid-result', () => createEvidenceRecord({ ...complete, RESULT:'CERTIFIED' }), 'Invalid evidence result');
 
-// E: secret redaction covers nested evidence payloads and the serialized output.
 const redacted = sanitizeEvidence({ password:'FAKE_TEST_PASSWORD', token:'FAKE_TEST_TOKEN', service_role:'FAKE_TEST_SERVICE_ROLE', authorization:'FAKE_AUTH', cookie:'FAKE_COOKIE', nested:{password:'FAKE_TEST_PASSWORD'}, safe:'kept' });
 for (const key of ['password','token','service_role','authorization','cookie']) assert.equal(redacted[key], '[REDACTED]');
 assert.equal(redacted.nested.password, '[REDACTED]');
@@ -48,7 +47,6 @@ const redactedText = JSON.stringify(redacted);
 for (const secret of ['FAKE_TEST_PASSWORD','FAKE_TEST_TOKEN','FAKE_TEST_SERVICE_ROLE','FAKE_AUTH','FAKE_COOKIE']) assert.equal(redactedText.includes(secret), false, `secret leaked: ${secret}`);
 console.log('PASS evidence:secret-redaction');
 
-// F: seed must abort before privileged client construction when no safe environment exists.
 const seedSource = read('scripts/runtime-evidence-seed.mjs');
 const guardPos = seedSource.indexOf('const environment = requireSafeRuntimeEnvironment();');
 const clientPos = seedSource.indexOf('createClient(');
@@ -62,7 +60,6 @@ assert.notEqual(productionSeed.status, 0);
 assert.match(`${productionSeed.stdout}\n${productionSeed.stderr}`, /ABORT/);
 console.log('PASS seed:abort-production');
 
-// G: the live harness cannot turn a real leak/error into PASS.
 const harness = read('scripts/p0-2-live-isolation-harness.mjs');
 assert.match(harness, /if \(!result\.verified\)/);
 assert.match(harness, /RESULT: result\.leak \? 'FAIL' : 'PASS'/);
@@ -70,7 +67,6 @@ assert.match(harness, /if \(record\.RESULT === 'FAIL'\) throw/);
 assert.match(harness, /if \(failures\.length \|\| unverified\.length\) process\.exitCode = 1/);
 console.log('PASS harness:fail-closed-leak-and-error-semantics');
 
-// H: matrix must match the canonical tenant-RLS migration, not a hand-copied legacy schema.
 const rlsSource = read('supabase/migrations/20260823000000_tenant_rls_global_hardening.sql');
 const directBlock = rlsSource.match(/FOREACH t IN ARRAY ARRAY\[([\s\S]*?)\]\n\s*LOOP/);
 assert.ok(directBlock, 'canonical tenant table array not found');
@@ -81,18 +77,18 @@ for (const child of CHILD_TABLES) assert.match(rlsSource, new RegExp(`CREATE POL
 assert.ok(DATABASE_TABLES.includes('companies'), 'MISSING COVERAGE: companies');
 console.log(`PASS matrix:tenant-schema (${DATABASE_TABLES.length} tables)`);
 
-// I: RPC matrix is derived from actual repository SQL functions; no conceptual aliases are accepted.
 const independentRpcNames = new Set();
 const migrationDir = path.join(ROOT, 'supabase', 'migrations');
 for (const file of fs.readdirSync(migrationDir).filter((name) => name.endsWith('.sql')).sort()) {
   const text = fs.readFileSync(path.join(migrationDir, file), 'utf8');
-  for (const match of text.matchAll(/CREATE\s+(?:OR\s+REPLACE\s+)?FUNCTION\s+(?:(?:public)\.)?([a-zA-Z_][a-zA-Z0-9_]*)\s*\(/gi) independentRpcNames.add(match[1]);
+  for (const match of text.matchAll(/CREATE\s+(?:OR\s+REPLACE\s+)?FUNCTION\s+(?:(?:public)\.)?([a-zA-Z_][a-zA-Z0-9_]*)\s*\(/gi) {
+    independentRpcNames.add(match[1]);
+  }
 }
 assert.deepEqual(RPC_MATRIX.map((entry) => entry.rpc), [...independentRpcNames].sort(), 'STALE/MISSING COVERAGE: RPC matrix differs from SQL function surface');
 assert.deepEqual(RPC_MATRIX.map((entry) => entry.rpc), discoverRepositoryRpcSurface(ROOT).map((entry) => entry.rpc));
 console.log(`PASS matrix:rpc-surface (${RPC_MATRIX.length} functions)`);
 
-// J: certification semantics remain explicitly separated.
 const index = read('docs/MASTER_EXECUTION_INDEX_FINAL_DEEP_VERIFICATION_2026-08-28.md');
 assert.match(index, /P0-2A runtime evidence readiness[^\n]*READY/);
 assert.match(index, /P0-2 Tenant A\/B live database isolation[^\n]*BLOCKED/);
