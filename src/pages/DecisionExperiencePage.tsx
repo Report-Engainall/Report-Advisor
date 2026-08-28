@@ -18,6 +18,8 @@ const stages: Array<{ id: Stage; label: string; icon: typeof Workflow }> = [
   { id: 'outcome', label: 'النتيجة والتعلّم', icon: Lightbulb },
 ];
 
+type CommandStat = { label: string; value: number; icon: typeof Workflow };
+
 function RuntimeBlocked({ label }: { label: string }) {
   return (
     <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4" role="status">
@@ -64,6 +66,13 @@ export function DecisionExperiencePage() {
     [recommendations, selectedId],
   );
 
+  const commandStats: CommandStat[] = [
+    ['التوصيات', recommendations.length, Lightbulb],
+    ['التنبيهات', alerts.length, Bell],
+    ['بانتظار القرار', recommendations.filter(item => item.status === 'new').length, CircleDot],
+    ['نتائج موثقة', recommendations.filter(item => item.status === 'done').length, CheckCircle2],
+  ].map(([label, value, icon]) => ({ label, value, icon }));
+
   return (
     <div dir="rtl" className="space-y-5 animate-fade-in">
       <header className="rounded-3xl bg-ink-950 p-6 text-white lg:p-8">
@@ -107,13 +116,8 @@ export function DecisionExperiencePage() {
       {stage === 'command' && (
         <section className="space-y-4">
           <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-            {[
-              ['التوصيات', recommendations.length, Lightbulb],
-              ['التنبيهات', alerts.length, Bell],
-              ['بانتظار القرار', recommendations.filter(item => item.status === 'new').length, CircleDot],
-              ['نتائج موثقة', recommendations.filter(item => item.status === 'done').length, CheckCircle2],
-            ].map(([label, value, Icon]) => (
-              <div key={String(label)} className="rounded-2xl border border-ink-200 bg-white p-4 shadow-sm">
+            {commandStats.map(({ label, value, icon: Icon }) => (
+              <div key={label} className="rounded-2xl border border-ink-200 bg-white p-4 shadow-sm">
                 <Icon size={19} className="text-primary-600" />
                 <p className="mt-3 text-xs text-ink-500">{label}</p>
                 <strong className="mt-1 block text-2xl text-ink-900">{loading ? '—' : value}</strong>
