@@ -4,7 +4,7 @@ Repository-side master capability guard for W2.1 and future waves.
 
 
 | Capability | Why it matters | Current foundation | Missing layer | Dependency | Business value | Architecture value | Priority | Wave | Acceptance criteria | NO |
-|---|---|---|---|---|---|---|---|---|---|
+|---|---|---|---|---|---|---|---|---|---|---|
 | AI Provider Registry | controlled provider lifecycle | AI capability registry/policies | provider health + lifecycle | AI runtime policy | High | High | P0 | C/D | deterministic registry, permissions, audit | YES |
 | Model Routing | reliable cost/latency/capability selection | AI runtime policy | governed router | provider registry | High | High | P0 | D | deterministic route under same policy | YES |
 | Hybrid Retrieval | grounded multi-source intelligence | document intelligence/vectors | unified retrieval router | knowledge layer | High | High | P0 | D | provenance-bound retrieval | YES |
