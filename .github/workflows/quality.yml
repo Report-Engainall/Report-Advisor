@@ -39,6 +39,8 @@ jobs:
           fi
       - name: Install
         run: npm ci --no-audit --no-fund
+      - name: P0-2A runtime evidence readiness
+        run: node scripts/check-p0-2a-readiness.mjs
       - name: Workflow command integrity
         run: npm run test:workflow-command-integrity
       - name: CI topology and canonical release wiring
