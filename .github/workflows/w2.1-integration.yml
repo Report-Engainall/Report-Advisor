@@ -1,9 +1,9 @@
 name: w2.1-integration
 on:
   pull_request:
-    branches: [main]
+    branches: [main, wave-final-exact-ci-16]
   push:
-    branches: [main]
+    branches: [main, integration/w21-controlled-24541a3]
   workflow_dispatch:
 permissions:
   contents: read
