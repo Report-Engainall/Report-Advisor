@@ -4,7 +4,7 @@ import path from 'node:path';
 import { BUSINESS_METRICS } from '../src/lib/semanticMetrics.ts';
 import { SEMANTIC_METRIC_REGISTRY, getSemanticMetric, validateSemanticMetricRegistry } from '../src/lib/semantic-metric-registry.ts';
 import { evaluateMetric } from '../src/lib/metricEngine.ts';
-import { semanticMetricIsFresh } from '../src/lib/semantic-metric-service.ts';
+import { semanticMetricIsFresh } from '../src/lib/semantic-metric-freshness.ts';
 
 const root = process.cwd();
 const read = (relative: string) => fs.readFileSync(path.join(root, relative), 'utf8');
@@ -36,13 +36,7 @@ for (const metric of SEMANTIC_METRIC_REGISTRY) {
 }
 
 assert.equal(semanticMetricIsFresh(null, new Date().toISOString()), 'UNKNOWN');
-const governance = {
-  metricId: 'metric.net_sales', version: 1, name: 'net_sales', definition: 'test', formula: 'test',
-  source: ['sales_invoices'], dimensions: [], filters: [], timeSemantics: { date: 'transaction', timezone: 'UTC' },
-  freshness: { maxAgeMinutes: 15 }, owner: 'core-data', certificationStatus: 'REVIEWED', dependencies: [],
-  consumers: requiredConsumers, tests: ['metric-contract:net_sales'], evidence: ['sales_invoices'],
-  createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), deprecatedAt: null,
-};
+const governance = { freshness: { maxAgeMinutes: 15 } };
 assert.equal(semanticMetricIsFresh(governance, new Date(Date.now() - 5 * 60_000).toISOString()), 'FRESH');
 assert.equal(semanticMetricIsFresh(governance, new Date(Date.now() - 30 * 60_000).toISOString()), 'STALE');
 
@@ -57,6 +51,7 @@ const tenantUniqueMigration = read('supabase/migrations/20260828160000_metric_go
 assert.match(registry, /BUSINESS_METRICS\.map/);
 assert.match(service, /from\('metric_governance'\)/);
 assert.match(service, /getSemanticMetric\(/);
+assert.match(service, /semantic-metric-freshness\.ts/);
 assert.match(engine, /getSemanticMetric\(input\.key\)/);
 assert.match(engine, /metricVersion/);
 assert.match(inspector, /listSemanticMetricContracts/);
