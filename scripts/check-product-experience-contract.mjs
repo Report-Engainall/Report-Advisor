@@ -21,8 +21,9 @@ const report = fs.readFileSync(reportPath, 'utf8');
 const requiredLifecycle = ['PROPOSED', 'PENDING_APPROVAL', 'APPROVED', 'REJECTED', 'OPEN', 'IN_PROGRESS', 'COMPLETED', 'OUTCOME'];
 const requiredTruth = ['AVAILABLE', 'NOT_AVAILABLE', 'NOT_YET_EXECUTED', 'RUNTIME_BLOCKED'];
 const requiredStory = ['WHAT_HAPPENED', 'WHY', 'EVIDENCE', 'RECOMMENDATION', 'DECISION', 'OWNER', 'EXPECTED_IMPACT', 'ACTUAL_OUTCOME', 'LEARNING'];
+const requiredTruthGuards = ['canClaimVerifiedEvidence', 'canClaimActualOutcome', 'canClaimDelta', 'canClaimOutcomeQuality', 'canClaimFeedback', 'canClaimLearning'];
 
-for (const token of [...requiredLifecycle, ...requiredTruth, ...requiredStory]) {
+for (const token of [...requiredLifecycle, ...requiredTruth, ...requiredStory, ...requiredTruthGuards]) {
   if (!contract.includes(token)) throw new Error(`Canonical product contract is missing ${token}`);
 }
 
@@ -34,8 +35,23 @@ for (const token of ['aria-label', 'aria-current', 'focus-visible:ring']) {
   if (!journey.includes(token)) throw new Error(`Journey navigation missing accessibility contract: ${token}`);
 }
 
-for (const token of ['Runtime unavailable', 'Evidence Inspector', 'Expected Impact', 'PENDING', 'Outcome']) {
+for (const token of [
+  'Runtime unavailable',
+  'Evidence Workspace',
+  'NOT_VERIFIED',
+  'RUNTIME_REQUIRED',
+  'DECISION CANDIDATE',
+  'PENDING_APPROVAL',
+  'APPROVED / REJECTED',
+  'Actual outcome not yet available',
+  'Delta cannot yet be calculated',
+  'Learning signal not yet verified',
+]) {
   if (!decision.includes(token)) throw new Error(`Decision experience missing truth-safe surface: ${token}`);
+}
+
+if (/recommendations\.filter\(r => r\.status === ['"]done['"]\)/.test(decision)) {
+  throw new Error('Decision experience must not infer verified outcomes from recommendation status.');
 }
 
 for (const token of ['Executive Summary', 'Expected Impact', 'Actual', 'Learning', 'Print / PDF']) {
@@ -50,4 +66,5 @@ console.log('PRODUCT_EXPERIENCE_CONTRACT=PASS');
 console.log(`lifecycle_states=${requiredLifecycle.length}`);
 console.log(`truth_states=${requiredTruth.length}`);
 console.log(`report_story_sections=${requiredStory.length}`);
+console.log(`truth_guards=${requiredTruthGuards.length}`);
 console.log('synthetic_runtime_data=NONE');
