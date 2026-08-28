@@ -1,0 +1,23 @@
+name: repository-forensics
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+permissions: {contents: read}
+jobs:
+  forensic-review:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+        with: {fetch-depth: 1, persist-credentials: false}
+      - uses: actions/setup-node@v7
+        with: {node-version: 22, cache: npm}
+      - name: Install
+        run: npm ci --no-audit --no-fund
+      - name: Repository identity and starter-artifact guard
+        run: node scripts/check-repository-forensics.mjs
+      - name: Queries compatibility boundary
+        run: node scripts/check-queries-compat-boundary.mjs
+      - name: P0-2A self-validation regression
+        run: npm run test:p0-2a-self-validation
