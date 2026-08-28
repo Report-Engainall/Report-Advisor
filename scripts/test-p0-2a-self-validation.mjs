@@ -5,6 +5,7 @@ import { spawnSync } from 'node:child_process';
 import { requireSafeRuntimeEnvironment, requireAuthenticatedContext } from './runtime-evidence-config.mjs';
 import { createEvidenceRecord, sanitizeEvidence, RUNTIME_EVIDENCE_FIELDS } from './runtime-evidence-record.mjs';
 import { DATABASE_TABLES, CHILD_TABLES, RPC_MATRIX, discoverRepositoryRpcSurface } from './runtime-evidence-matrix.mjs';
+import { MUTATION_OPERATIONS, mutationCoverageKey, requiredChildMutationKeys, validateChildMutationCoverage } from './p0-2-mutation-coverage.mjs';
 
 const ROOT = process.cwd();
 const read = (file) => fs.readFileSync(path.join(ROOT, file), 'utf8');
@@ -67,6 +68,7 @@ assert.match(harness, /RESULT: result\.leak \? 'FAIL' : 'PASS'/);
 assert.match(harness, /if \(record\.RESULT === 'FAIL'\) throw/);
 assert.match(harness, /if \(failures\.length \|\| unverified\.length\) process\.exitCode = 1/);
 console.log('PASS harness:fail-closed-leak-and-error-semantics');
+
 const executor = read('scripts/p0-2-runtime-executor.mjs');
 assert.match(executor, /function snapshotOriginalState\(/);
 assert.match(executor, /fixture\.restore does not match original database state/);
@@ -77,14 +79,25 @@ assert.match(executor, /function restoreAndVerify\(/);
 assert.match(executor, /restored-state assertion failed/);
 assert.match(executor, /finalState !== null/);
 assert.match(executor, /F13 child mutation coverage incomplete/);
-for (const child of CHILD_TABLES) for (const operation of ['INSERT', 'UPDATE', 'DELETE']) {
-  assert.ok(executor.includes(`${child}::${operation}`), `missing child mutation coverage guard: ${child}/${operation}`);
-}
+assert.match(executor, /mutationCoverageKey\(/);
+
+const requiredChildCases = requiredChildMutationKeys();
+assert.equal(requiredChildCases.length, CHILD_TABLES.length * MUTATION_OPERATIONS.length);
+assert.deepEqual(requiredChildCases, CHILD_TABLES.flatMap((table) => MUTATION_OPERATIONS.map((operation) => mutationCoverageKey(table, operation))));
+const completeChildFixtures = requiredChildCases.map((key) => {
+  const [table, operation] = key.split('::');
+  return { table, operation, own: { id: `${table}-own-${operation}` }, foreign: { id: `${table}-foreign-${operation}` }, restore: { id: `${table}-restore-${operation}` } };
+});
+assert.deepEqual(validateChildMutationCoverage(completeChildFixtures).actual.sort(), requiredChildCases.sort());
+expectThrow('F13:missing-child-case', () => validateChildMutationCoverage(completeChildFixtures.slice(1)), 'F13 child mutation coverage incomplete');
+expectThrow('F13:duplicate-child-case', () => validateChildMutationCoverage([...completeChildFixtures, completeChildFixtures[0]]), 'duplicate child mutation cases');
+expectThrow('F13:invalid-child-case', () => validateChildMutationCoverage([...completeChildFixtures, { table: 'not_a_child', operation: 'INSERT' }]), 'invalid child mutation cases');
+console.log(`PASS executor:F11-original-snapshot-F13-child-dynamic-coverage-F14-denial-F12-root-semantics (${requiredChildCases.length} required child cases)`);
+
 assert.match(executor, /DENIAL_CLASS/);
 assert.match(executor, /RLS_FILTERED/);
 assert.match(executor, /UNRESOLVED_ZERO_ROWS/);
 assert.match(executor, /table === 'companies' \? 'id' : 'company_id'/);
-console.log('PASS executor:F11-original-snapshot-F13-child-F14-denial-F12-root-semantics');
 
 const rlsSource = read('supabase/migrations/20260823000000_tenant_rls_global_hardening.sql');
 const directBlock = rlsSource.match(/FOREACH t IN ARRAY ARRAY\[([\s\S]*?)\]\n\s*LOOP/);
@@ -92,7 +105,7 @@ assert.ok(directBlock, 'canonical tenant table array not found');
 const canonicalDirect = [...directBlock[1].matchAll(/'([^']+)'/g)].map((match) => match[1]);
 const matrixDirect = DATABASE_TABLES.filter((table) => table !== 'companies' && !CHILD_TABLES.includes(table));
 assert.deepEqual([...matrixDirect].sort(), [...canonicalDirect].sort(), 'STALE MATRIX: direct tenant tables differ from canonical RLS migration');
-for (const child of CHILD_TABLES) assert.match(rlsSource, new RegExp(`CREATE POLICY tenant_${child}\b`), `MISSING COVERAGE: ${child}`);
+for (const child of CHILD_TABLES) assert.match(rlsSource, new RegExp(`CREATE POLICY tenant_${child}\\b`), `MISSING COVERAGE: ${child}`);
 assert.ok(DATABASE_TABLES.includes('companies'), 'MISSING COVERAGE: companies');
 console.log(`PASS matrix:tenant-schema (${DATABASE_TABLES.length} tables)`);
 
@@ -120,4 +133,4 @@ assert.doesNotMatch(workflow, /p0-2-live-isolation-harness\.mjs/);
 assert.doesNotMatch(workflow, /P0-2[^\n]*(?:LIVE|VERIFIED|CERTIFIED)\s*=/i);
 console.log('PASS semantics:readiness-vs-live-certification');
 
-console.log('P0-2A SELF-VALIDATION PASS: fail-closed guards, original-state mutation snapshot, negative cases, evidence integrity, matrix consistency, RPC classification, and certification separation verified. No live tenant claim emitted.');
+console.log('P0-2A SELF-VALIDATION PASS: fail-closed guards, original-state mutation snapshot, dynamic child coverage execution, negative cases, evidence integrity, matrix consistency, RPC classification, and certification separation verified. No live tenant claim emitted.');
