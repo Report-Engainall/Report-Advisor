@@ -17,24 +17,35 @@ const supabase = createClient(url, serviceRoleKey, { auth: { autoRefreshToken: f
 const A = RUNTIME_EVIDENCE_CONFIG.tenants.a;
 const B = RUNTIME_EVIDENCE_CONFIG.tenants.b;
 
-async function upsertCompany(name) {
-  const { data, error } = await supabase.from('companies').upsert({ name, legal_name: name }, { onConflict: 'name' }).select('id,name').single();
-  if (error) throw new Error(`Seed company failed: ${error.message}`);
-  return data;
+async function findOrCreateCompany(name) {
+  const existing = await supabase.from('companies').select('id,name').eq('name', name).maybeSingle();
+  if (existing.error) throw new Error(`Seed company lookup failed: ${existing.error.message}`);
+  if (existing.data) return existing.data;
+  const created = await supabase.from('companies').insert({ name, legal_name: name }).select('id,name').single();
+  if (created.error) throw new Error(`Seed company create failed: ${created.error.message}`);
+  return created.data;
 }
 
 async function ensureMembership(companyId, userId) {
-  const { error } = await supabase.from('company_memberships').upsert(
-    { company_id: companyId, user_id: userId, role: 'member', is_active: true, is_default: true },
-    { onConflict: 'company_id,user_id' },
-  );
-  if (error) throw new Error(`Seed membership failed: ${error.message}`);
+  const existing = await supabase.from('company_memberships').select('id').eq('company_id', companyId).eq('user_id', userId).maybeSingle();
+  if (existing.error) throw new Error(`Seed membership lookup failed: ${existing.error.message}`);
+  if (existing.data) {
+    const { error } = await supabase.from('company_memberships').update({ is_active: true, is_default: true }).eq('id', existing.data.id);
+    if (error) throw new Error(`Seed membership update failed: ${error.message}`);
+    return;
+  }
+  const { error } = await supabase.from('company_memberships').insert({ company_id: companyId, user_id: userId, role: 'member', is_active: true, is_default: true });
+  if (error) throw new Error(`Seed membership create failed: ${error.message}`);
 }
 
-async function upsertProduct(companyId, suffix) {
-  const { error } = await supabase.from('products').upsert({
+async function findOrCreateProduct(companyId, suffix) {
+  const sku = `RUNTIME-${suffix}-2026`;
+  const existing = await supabase.from('products').select('id,sku').eq('company_id', companyId).eq('sku', sku).maybeSingle();
+  if (existing.error) throw new Error(`Seed product lookup failed: ${existing.error.message}`);
+  if (existing.data) return existing.data;
+  const created = await supabase.from('products').insert({
     company_id: companyId,
-    sku: `RUNTIME-${suffix}-2026`,
+    sku,
     name: suffix,
     unit: 'test',
     cost_price: 11,
@@ -42,21 +53,22 @@ async function upsertProduct(companyId, suffix) {
     min_stock: 1,
     reorder_point: 2,
     is_active: true,
-  }, { onConflict: 'company_id,sku' });
-  if (error) throw new Error(`Seed product failed: ${error.message}`);
+  }).select('id,sku').single();
+  if (created.error) throw new Error(`Seed product create failed: ${created.error.message}`);
+  return created.data;
 }
 
-const companyA = await upsertCompany(A);
-const companyB = await upsertCompany(B);
+const companyA = await findOrCreateCompany(A);
+const companyB = await findOrCreateCompany(B);
 await ensureMembership(companyA.id, userAId);
 await ensureMembership(companyB.id, userBId);
-await upsertProduct(companyA.id, A);
-await upsertProduct(companyB.id, B);
+await findOrCreateProduct(companyA.id, A);
+await findOrCreateProduct(companyB.id, B);
 
 console.log(JSON.stringify({
   status: 'SEEDED_NOT_VERIFIED',
   environment,
   tenants: { A: companyA.id, B: companyB.id },
   users: { A: userAId, B: userBId },
-  sentinelProducts: [`RUNTIME-A-2026`, `RUNTIME-B-2026`],
+  sentinelProducts: ['RUNTIME-A-2026', 'RUNTIME-B-2026'],
 }, null, 2));
