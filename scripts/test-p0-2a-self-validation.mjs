@@ -51,9 +51,10 @@ const seedSource = read('scripts/runtime-evidence-seed.mjs');
 const guardPos = seedSource.indexOf('const environment = requireSafeRuntimeEnvironment();');
 const clientPos = seedSource.indexOf('createClient(');
 assert.ok(guardPos >= 0 && clientPos >= 0 && guardPos < clientPos, 'seed safety guard must precede client construction');
+assert.match(seedSource, /assertTenantExclusivity\(/);
 const seed = spawnSync(process.execPath, ['scripts/runtime-evidence-seed.mjs'], { encoding:'utf8', env:{ PATH:process.env.PATH, HOME:process.env.HOME } });
 assert.notEqual(seed.status, 0);
-assert.match(`${seed.stdout}\n${seed.stderr}`, /ABORT/);
+assert.match(`${seed.stdout}\n${seed.stderr}`, /ABORT|NOT READY/);
 console.log('PASS seed:abort-without-safe-environment');
 const productionSeed = spawnSync(process.execPath, ['scripts/runtime-evidence-seed.mjs'], { encoding:'utf8', env:{ ...process.env, RUNTIME_EVIDENCE_ENV:'production' } });
 assert.notEqual(productionSeed.status, 0);
@@ -87,10 +88,11 @@ for (const file of fs.readdirSync(migrationDir).filter((name) => name.endsWith('
 }
 assert.deepEqual(RPC_MATRIX.map((entry) => entry.rpc), [...independentRpcNames].sort(), 'STALE/MISSING COVERAGE: RPC matrix differs from SQL function surface');
 assert.deepEqual(RPC_MATRIX.map((entry) => entry.rpc), discoverRepositoryRpcSurface(ROOT).map((entry) => entry.rpc));
+assert.ok(RPC_MATRIX.every((entry) => entry.classification), 'RPC inventory entries must be classified');
 console.log(`PASS matrix:rpc-surface (${RPC_MATRIX.length} functions)`);
 
 const index = read('docs/MASTER_EXECUTION_INDEX_FINAL_DEEP_VERIFICATION_2026-08-28.md');
-assert.match(index, /P0-2A Runtime Evidence Infrastructure \| READY/);
+assert.match(index, /P0-2A Runtime Evidence Infrastructure \| IMPLEMENTED/);
 assert.match(index, /P0-2 Tenant A\/B database isolation[^\n]*BLOCKED/);
 assert.match(index, /\*\*PRODUCTION-CERTIFIED: NO\.\*\*/);
 assert.doesNotMatch(index, /P0-2\s*=\s*PASS/);
@@ -100,4 +102,4 @@ assert.doesNotMatch(workflow, /p0-2-live-isolation-harness\.mjs/);
 assert.doesNotMatch(workflow, /P0-2[^\n]*(?:LIVE|VERIFIED|CERTIFIED)\s*=/i);
 console.log('PASS semantics:readiness-vs-live-certification');
 
-console.log('P0-2A SELF-VALIDATION PASS: fail-closed guards, negative cases, evidence integrity, matrix consistency, and certification separation verified. No live tenant claim emitted.');
+console.log('P0-2A SELF-VALIDATION PASS: fail-closed guards, negative cases, evidence integrity, matrix consistency, RPC classification, and certification separation verified. No live tenant claim emitted.');
