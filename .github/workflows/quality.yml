@@ -1,6 +1,7 @@
 name: quality
 on:
-  push: {branches: [main]}
+  push:
+    branches: [main, runtime-evidence/p0-2a-readiness]
   pull_request: {branches: [main]}
   workflow_dispatch:
 permissions: {contents: read}
