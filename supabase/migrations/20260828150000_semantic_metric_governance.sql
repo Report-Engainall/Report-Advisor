@@ -1,7 +1,5 @@
 -- W2.1 Semantic Metric Layer: persistent governance snapshots.
 -- BUSINESS_METRICS in the application remains the calculation-definition SSOT.
--- This table stores versioned governance snapshots required for reproducibility,
--- certification, evidence references, consumer impact analysis and auditability.
 
 CREATE TABLE IF NOT EXISTS public.metric_governance (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -26,7 +24,6 @@ CREATE TABLE IF NOT EXISTS public.metric_governance (
   deprecated_at timestamptz NULL,
   UNIQUE(metric_id, version)
 );
-
 CREATE INDEX IF NOT EXISTS idx_metric_governance_metric_version ON public.metric_governance(metric_id, version DESC);
 CREATE INDEX IF NOT EXISTS idx_metric_governance_status ON public.metric_governance(certification_status);
 
@@ -42,6 +39,8 @@ CREATE TABLE IF NOT EXISTS public.metric_governance_audit (
   created_at timestamptz NOT NULL DEFAULT now()
 );
 CREATE INDEX IF NOT EXISTS idx_metric_governance_audit_metric ON public.metric_governance_audit(metric_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_metric_governance_audit_governance_id ON public.metric_governance_audit(metric_governance_id);
+CREATE INDEX IF NOT EXISTS idx_metric_governance_audit_actor_id ON public.metric_governance_audit(actor_id);
 
 ALTER TABLE public.metric_governance ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.metric_governance_audit ENABLE ROW LEVEL SECURITY;
@@ -49,16 +48,14 @@ REVOKE ALL ON public.metric_governance FROM anon;
 REVOKE ALL ON public.metric_governance_audit FROM anon;
 GRANT SELECT ON public.metric_governance TO authenticated;
 GRANT SELECT ON public.metric_governance_audit TO authenticated;
-
 DROP POLICY IF EXISTS metric_governance_authenticated_read ON public.metric_governance;
 CREATE POLICY metric_governance_authenticated_read ON public.metric_governance FOR SELECT TO authenticated USING (true);
 DROP POLICY IF EXISTS metric_governance_audit_authenticated_read ON public.metric_governance_audit;
-CREATE POLICY metric_governance_audit_authenticated_read ON public.metric_governance_audit FOR SELECT TO authenticated USING (true);
+CREATE POLICY metric_governance_audit_authenticated_read ON public.metric_governance FOR SELECT TO authenticated USING (true);
 
 CREATE SCHEMA IF NOT EXISTS private;
 CREATE OR REPLACE FUNCTION private.metric_governance_transition(p_metric_id text,p_version integer,p_to_status text,p_reason text)
-RETURNS public.metric_governance
-LANGUAGE plpgsql SECURITY DEFINER SET search_path=''
+RETURNS public.metric_governance LANGUAGE plpgsql SECURITY DEFINER SET search_path=''
 AS $$
 DECLARE v_row public.metric_governance; v_from_status text; v_previous_version integer;
 BEGIN
@@ -94,11 +91,8 @@ END;
 $$;
 DROP TRIGGER IF EXISTS metric_governance_guard_certified_update ON public.metric_governance;
 CREATE TRIGGER metric_governance_guard_certified_update BEFORE UPDATE ON public.metric_governance FOR EACH ROW EXECUTE FUNCTION public.metric_governance_guard_certified_update();
-
-CREATE OR REPLACE FUNCTION public.metric_governance_touch_updated_at()
-RETURNS trigger LANGUAGE plpgsql SET search_path=public AS $$ BEGIN NEW.updated_at=now(); RETURN NEW; END; $$;
+CREATE OR REPLACE FUNCTION public.metric_governance_touch_updated_at() RETURNS trigger LANGUAGE plpgsql SET search_path=public AS $$ BEGIN NEW.updated_at=now(); RETURN NEW; END; $$;
 DROP TRIGGER IF EXISTS metric_governance_touch_updated_at ON public.metric_governance;
 CREATE TRIGGER metric_governance_touch_updated_at BEFORE UPDATE ON public.metric_governance FOR EACH ROW EXECUTE FUNCTION public.metric_governance_touch_updated_at();
-
 COMMENT ON TABLE public.metric_governance IS 'Versioned semantic metric governance snapshots; BUSINESS_METRICS remains calculation SSOT.';
 COMMENT ON TABLE public.metric_governance_audit IS 'Immutable certification lifecycle audit trail for semantic metrics.';
