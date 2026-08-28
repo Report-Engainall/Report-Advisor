@@ -67,6 +67,20 @@ assert.match(harness, /RESULT: result\.leak \? 'FAIL' : 'PASS'/);
 assert.match(harness, /if \(record\.RESULT === 'FAIL'\) throw/);
 assert.match(harness, /if \(failures\.length \|\| unverified\.length\) process\.exitCode = 1/);
 console.log('PASS harness:fail-closed-leak-and-error-semantics');
+const executor = read('scripts/p0-2-runtime-executor.mjs');
+assert.match(executor, /function restoreAndVerify\\(/);
+assert.match(executor, /restored-state assertion failed/);
+assert.match(executor, /finalState !== null/);
+assert.match(executor, /F13 child mutation coverage incomplete/);
+for (const child of CHILD_TABLES) for (const operation of ['INSERT', 'UPDATE', 'DELETE']) {
+  assert.ok(executor.includes(`${child}::${operation}`), `missing child mutation coverage guard: ${child}/${operation}`);
+}
+assert.match(executor, /DENIAL_CLASS/);
+assert.match(executor, /RLS_FILTERED/);
+assert.match(executor, /UNRESOLVED_ZERO_ROWS/);
+assert.match(executor, /table === 'companies' \\? 'id' : 'company_id'/);
+console.log('PASS executor:F11-restore-F13-child-F14-denial-F12-root-semantics');
+
 
 const rlsSource = read('supabase/migrations/20260823000000_tenant_rls_global_hardening.sql');
 const directBlock = rlsSource.match(/FOREACH t IN ARRAY ARRAY\[([\s\S]*?)\]\n\s*LOOP/);
