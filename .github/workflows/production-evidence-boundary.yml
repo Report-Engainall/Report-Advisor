@@ -1,31 +1,66 @@
 name: production-evidence-boundary
 on:
+  workflow_run:
+    workflows: [release-certification]
+    types: [completed]
   workflow_dispatch:
-  push:
-    branches: [main]
+    inputs:
+      release_certification_run_id:
+        description: Exact successful release-certification workflow run ID
+        required: true
+        type: string
+      source_sha:
+        description: Exact source SHA certified by that run
+        required: true
+        type: string
 permissions:
   contents: read
+  actions: read
 concurrency:
-  group: production-evidence-boundary
+  group: production-evidence-boundary-${{ github.event.workflow_run.id || inputs.release_certification_run_id }}
   cancel-in-progress: true
 jobs:
   boundary:
+    if: ${{ (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success') || github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v5
         with:
+          ref: ${{ github.event.workflow_run.head_sha || inputs.source_sha }}
           fetch-depth: 1
           persist-credentials: false
       - uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: npm
+      - name: Download exact release evidence
+        uses: actions/download-artifact@v4
+        with:
+          name: report-advisor-release-evidence-${{ github.event.workflow_run.head_sha || inputs.source_sha }}
+          path: release-evidence
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: ${{ github.repository }}
+          run-id: ${{ github.event.workflow_run.id || inputs.release_certification_run_id }}
       - run: npm ci --no-audit --no-fund
       - run: npm run typecheck
       - run: npm run build
-      - run: node scripts/check-live-production-evidence-boundary.mjs
+      - name: Verify semantic release evidence consumption
+        env:
+          EXPECTED_SOURCE_SHA: ${{ github.event.workflow_run.head_sha || inputs.source_sha }}
+          RELEASE_CERTIFICATION_RUN_ID: ${{ github.event.workflow_run.id || inputs.release_certification_run_id }}
+          RELEASE_EVIDENCE_ARTIFACT_NAME: report-advisor-release-evidence-${{ github.event.workflow_run.head_sha || inputs.source_sha }}
+          RELEASE_EVIDENCE_MANIFEST_PATH: release-evidence/manifest.json
+          RELEASE_CERTIFICATION_DECISION_PATH: release-evidence/certification-decision.json
+        run: node scripts/check-live-production-evidence-boundary.mjs
       - run: node scripts/check-production-evidence-failclosed.mjs
       - run: node scripts/check-master-duplication-budget.mjs
       - run: node scripts/check-production-release-blockers.mjs
       - run: node scripts/check-production-certification-contract.mjs
+      - name: Upload machine-readable consumption proof
+        uses: actions/upload-artifact@v4
+        with:
+          name: report-advisor-production-evidence-consumption-${{ github.run_id }}
+          path: release-evidence/consumption-proof.json
+          if-no-files-found: error
+          retention-days: 30
