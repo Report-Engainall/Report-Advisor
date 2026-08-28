@@ -3,11 +3,8 @@ import { requireSafeRuntimeEnvironment, requireAuthenticatedContext } from './ru
 import { DATABASE_TABLES, INFERENCE_SURFACES } from './runtime-evidence-matrix.mjs';
 import { createEvidenceRecord } from './runtime-evidence-record.mjs';
 import { validateChildMutationCoverage } from './p0-2-mutation-coverage.mjs';
+import { assertMutationResponseIdentity, assertMutationTargetIdentity, mutationTargetId } from './p0-2-mutation-identity.mjs';
 
-// P0-2 runtime executor. Fail-closed by design.
-// It never writes to production and never treats a missing/ambiguous runtime
-// result as proof. Mutation tests require deterministic fixtures and explicit
-// ORIGINAL -> MUTATED -> RESTORED state observations before they can emit PASS.
 const environment = requireSafeRuntimeEnvironment();
 const required = [
   'SUPABASE_URL', 'SUPABASE_ANON_KEY',
@@ -87,6 +84,7 @@ function parseMutationFixtures() {
     if (!allowed.has(item.table) || !['INSERT', 'UPDATE', 'DELETE'].includes(item.operation)) throw new Error(`NOT VERIFIED: unsupported mutation fixture for ${item.table}/${item.operation}`);
     if (!item.own || !item.foreign || !item.restore) throw new Error(`NOT VERIFIED: mutation fixture requires own, foreign and restore cases for ${item.table}/${item.operation}`);
     if (!item.restore.id && item.operation !== 'INSERT') throw new Error(`NOT VERIFIED: restore fixture requires deterministic id for ${item.table}/${item.operation}`);
+    mutationTargetId(item);
   }
   validateChildMutationCoverage(parsed);
   return parsed;
@@ -104,66 +102,75 @@ async function readById(client, table, id) {
   return data ?? null;
 }
 
-async function snapshotOriginalState(client, fixture) {
-  const id = fixture.restore.id ?? fixture.own.id;
-  if (!id && fixture.operation !== 'INSERT') throw new Error(`NOT VERIFIED: original-state snapshot requires deterministic id for ${fixture.table}/${fixture.operation}`);
-  const original = id ? await readById(client, fixture.table, id) : null;
+async function snapshotOriginalState(client, fixture, targetId, expectedOriginal = null, requireFixtureMatch = false) {
+  const canonicalId = assertMutationTargetIdentity(fixture, targetId);
+  const original = await readById(client, fixture.table, canonicalId);
   if (fixture.operation === 'INSERT') {
-    if (original !== null) throw new Error(`NOT VERIFIED: INSERT fixture is not clean; deterministic id ${id} already exists in ${fixture.table}`);
-    return { original: null, fixtureMatchesOriginal: true };
+    if (original !== null) throw new Error(`NOT VERIFIED: INSERT fixture is not clean; deterministic id ${canonicalId} already exists in ${fixture.table}`);
+    return { original: null, fixtureMatchesOriginal: true, targetId: canonicalId };
   }
-  if (original === null) throw new Error(`NOT VERIFIED: original-state snapshot missing for ${fixture.table}/${id}`);
-  if (!comparableRecord(original, fixture.restore)) throw new Error(`NOT VERIFIED: fixture.restore does not match original database state for ${fixture.table}/${id}`);
-  return { original, fixtureMatchesOriginal: true };
+  if (original === null) throw new Error(`NOT VERIFIED: original-state snapshot missing for ${fixture.table}/${canonicalId}`);
+  if (requireFixtureMatch && !comparableRecord(original, expectedOriginal)) {
+    throw new Error(`NOT VERIFIED: fixture.restore does not match original database state for ${fixture.table}/${canonicalId}`);
+  }
+  return { original, fixtureMatchesOriginal: requireFixtureMatch ? true : null, targetId: canonicalId };
 }
 
-async function observeMutatedState(client, fixture, original, response) {
-  const id = fixture.operation === 'INSERT' ? (response.data?.[0]?.id ?? fixture.restore.id ?? fixture.own.id) : (fixture.own.id ?? fixture.restore.id);
-  if (!id) throw new Error(`NOT VERIFIED: mutation observation requires deterministic id for ${fixture.table}/${fixture.operation}`);
-  const mutated = await readById(client, fixture.table, id);
+async function observeMutatedState(client, fixture, original, targetId, response) {
+  const canonicalId = assertMutationResponseIdentity(fixture, targetId, response.data ?? []);
+  const mutated = await readById(client, fixture.table, canonicalId);
   if (fixture.operation === 'INSERT') {
-    if (mutated === null) throw new Error(`NOT VERIFIED: INSERT mutation did not produce an observable row for ${fixture.table}/${id}`);
+    if (mutated === null) throw new Error(`NOT VERIFIED: INSERT mutation did not produce an observable row for ${fixture.table}/${canonicalId}`);
   } else if (fixture.operation === 'UPDATE') {
-    if (mutated === null) throw new Error(`NOT VERIFIED: UPDATE mutation produced no observable row for ${fixture.table}/${id}`);
-    if (comparableRecord(mutated, original)) throw new Error(`NOT VERIFIED: UPDATE mutation returned success but database state did not change for ${fixture.table}/${id}`);
+    if (mutated === null) throw new Error(`NOT VERIFIED: UPDATE mutation produced no observable row for ${fixture.table}/${canonicalId}`);
+    if (comparableRecord(mutated, original)) throw new Error(`NOT VERIFIED: UPDATE mutation returned success but database state did not change for ${fixture.table}/${canonicalId}`);
   } else if (mutated !== null) {
-    throw new Error(`NOT VERIFIED: DELETE mutation returned success but row remains for ${fixture.table}/${id}`);
+    throw new Error(`NOT VERIFIED: DELETE mutation returned success but row remains for ${fixture.table}/${canonicalId}`);
   }
   return mutated;
 }
 
-async function restoreAndVerify(client, fixture, original) {
+async function restoreAndVerify(client, fixture, original, targetId) {
+  const canonicalId = assertMutationTargetIdentity(fixture, targetId);
   if (fixture.operation === 'INSERT') {
-    const id = fixture.restore.id ?? fixture.own.id;
-    if (!id) throw new Error(`NOT VERIFIED: INSERT fixture requires deterministic cleanup id for ${fixture.table}`);
-    const deleted = await client.from(fixture.table).delete().eq('id', id);
-    if (deleted.error) throw new Error(`NOT VERIFIED: INSERT cleanup failed for ${fixture.table}/${id}: ${deleted.error.message}`);
-    const finalState = await readById(client, fixture.table, id);
-    if (finalState !== null || original !== null) throw new Error(`NOT VERIFIED: INSERT cleanup verification failed for ${fixture.table}/${id}`);
-    return { ok: true, state: null };
+    if (original !== null) throw new Error(`NOT VERIFIED: INSERT original state must be null for ${fixture.table}/${canonicalId}`);
+    const deleted = await client.from(fixture.table).delete().eq('id', canonicalId);
+    const rowsAffected = deleted.data?.length ?? 0;
+    if (deleted.error) throw new Error(`NOT VERIFIED: INSERT cleanup failed for ${fixture.table}/${canonicalId}: ${deleted.error.message}`);
+    const finalState = await readById(client, fixture.table, canonicalId);
+    if (finalState !== null || rowsAffected > 1) throw new Error(`NOT VERIFIED: INSERT cleanup verification failed for ${fixture.table}/${canonicalId}`);
+    return { ok: true, state: null, targetId: canonicalId };
   }
-  if (!original) throw new Error(`NOT VERIFIED: original snapshot missing for ${fixture.table}/${fixture.restore.id}`);
+  if (!original) throw new Error(`NOT VERIFIED: original snapshot missing for ${fixture.table}/${canonicalId}`);
   const restored = await client.from(fixture.table).upsert(original, { onConflict: 'id' }).select('*').maybeSingle();
-  if (restored.error) throw new Error(`NOT VERIFIED: restore failed for ${fixture.table}/${fixture.restore.id}: ${restored.error.message}`);
-  const finalState = await readById(client, fixture.table, fixture.restore.id);
-  if (!comparableRecord(finalState, original)) throw new Error(`NOT VERIFIED: restored-state assertion failed for ${fixture.table}/${fixture.restore.id}`);
-  return { ok: true, state: finalState };
+  if (restored.error) throw new Error(`NOT VERIFIED: restore failed for ${fixture.table}/${canonicalId}: ${restored.error.message}`);
+  const finalState = await readById(client, fixture.table, canonicalId);
+  if (!comparableRecord(finalState, original)) throw new Error(`NOT VERIFIED: restored-state assertion failed for ${fixture.table}/${canonicalId}`);
+  return { ok: true, state: finalState, targetId: canonicalId };
 }
 
 async function runMutation(client, actor, authorizedTenant, fixture, targetTenant, attack) {
   const { table, operation } = fixture;
-  const snapshot = await snapshotOriginalState(client, fixture);
   const payload = attack ? fixture.foreign : fixture.own;
+  const targetId = attack ? payload?.id : mutationTargetId(fixture);
+  if (!targetId) throw new Error(`NOT VERIFIED: mutation target identity is missing for ${table}/${operation}`);
+  if (!payload?.id || payload.id !== targetId) throw new Error(`NOT VERIFIED: mutation payload identity mismatch for ${table}/${operation}: target=${targetId}, payload=${payload?.id ?? 'missing'}`);
+
+  const snapshot = await snapshotOriginalState(client, fixture, targetId, fixture.restore, !attack);
   const target = attack ? targetTenant : authorizedTenant;
   let response;
   if (operation === 'INSERT') response = await client.from(table).insert(payload).select('id');
-  else if (operation === 'UPDATE') response = await client.from(table).update(payload).eq('id', payload.id).select('id');
-  else response = await client.from(table).delete().eq('id', payload.id).select('id');
+  else if (operation === 'UPDATE') response = await client.from(table).update(payload).eq('id', targetId).select('id');
+  else response = await client.from(table).delete().eq('id', targetId).select('id');
 
   const rows = response.data?.length ?? 0;
+  const targetKnown = operation === 'INSERT' ? snapshot.original === null : snapshot.original !== null;
   const denied = Boolean(response.error) || rows === 0;
-  const result = attack ? (denied ? 'PASS' : 'FAIL') : (response.error ? 'FAIL' : 'PASS');
-  const denial = attack ? classifyDenied({ error: response.error, rows, targetKnown: true }) : { denialClass: 'NOT_APPLICABLE' };
+  const denial = attack ? classifyDenied({ error: response.error, rows, targetKnown }) : { denialClass: 'NOT_APPLICABLE', errorCode: response.error?.code ?? 'NONE' };
+
+  if (!attack && response.error) throw new Error(`NOT VERIFIED: own-tenant ${operation} failed for ${table}/${targetId}: ${response.error.message}`);
+  if (!attack && rows === 0) throw new Error(`NOT VERIFIED: own-tenant ${operation} affected zero rows for known target ${table}/${targetId}`);
+  if (attack && rows === 0 && !response.error && !targetKnown) throw new Error(`NOT VERIFIED: cross-tenant ${operation} returned zero rows but target existence is unresolved for ${table}/${targetId}`);
 
   let mutatedState = null;
   let observationError = null;
@@ -174,12 +181,12 @@ async function runMutation(client, actor, authorizedTenant, fixture, targetTenan
 
   if (restoreRequired) {
     try {
-      mutatedState = await observeMutatedState(client, fixture, snapshot.original, response);
+      mutatedState = await observeMutatedState(client, fixture, snapshot.original, targetId, response);
     } catch (error) {
       observationError = error;
     } finally {
       try {
-        await restoreAndVerify(client, fixture, snapshot.original);
+        await restoreAndVerify(client, fixture, snapshot.original, targetId);
       } catch (error) {
         restoreError = error;
       }
@@ -188,13 +195,14 @@ async function runMutation(client, actor, authorizedTenant, fixture, targetTenan
   if (observationError) throw new Error(observationError.message);
   if (restoreError) throw new Error(restoreError.message);
 
+  const result = attack ? (denied ? 'PASS' : 'FAIL') : 'PASS';
   return evidence({
     testId: `P0-2-${operation}-${attack ? 'FOREIGN' : 'OWN'}-${table}`, actor, authorizedTenant, targetTenant: target,
     surface: table, operation,
     expected: attack ? 'CROSS-TENANT MUTATION DENIED' : 'OWN TENANT MUTATION SUCCEEDS AND RESTORES EXACT STATE',
     actual: response.error?.message ?? `${rows} rows`, rowsReturned: rows, rowsAffected: rows,
     errorCode: response.error?.code ?? 'NONE', denialClass: denial.denialClass, result,
-    input: { attack, targetTenant: target, fixtureId: fixture.restore.id ?? fixture.own.id ?? null, originalSnapshotVerified: snapshot.fixtureMatchesOriginal, mutatedStateObserved: Boolean(mutatedState), restoreVerified: !restoreError },
+    input: { attack, targetTenant: target, targetId, originalSnapshotVerified: snapshot.fixtureMatchesOriginal !== false, mutatedStateObserved: Boolean(mutatedState), restoreVerified: restoreRequired ? !restoreError : true, targetIdentityInvariant: targetId === (attack ? payload.id : mutationTargetId(fixture)) },
   });
 }
 
