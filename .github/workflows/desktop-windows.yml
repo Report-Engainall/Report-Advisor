@@ -1,0 +1,34 @@
+name: desktop-windows
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feat/windows-desktop-watched-folder
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install web dependencies
+        run: npm install
+      - name: Build web application
+        run: npm run build
+      - name: Install desktop dependencies
+        working-directory: desktop
+        run: npm install
+      - name: Package Windows installer
+        working-directory: desktop
+        run: npm run package:win
+      - name: Upload installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: report-advisor-windows-installer
+          path: desktop/release/*.exe
+          if-no-files-found: error
