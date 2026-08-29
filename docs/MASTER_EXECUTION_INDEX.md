@@ -1,9 +1,9 @@
 # Report Advisor — Master Execution & Truth Index
 
-Snapshot: 2026-08-29
+Snapshot: 2026-08-30
 Repository: `Report-Engainall/Report-Advisor`
 Branch: `feat/windows-desktop-watched-folder`
-Current branch HEAD at this update: `854ba26032a23b353cbdcd59654fd56de5b7360a`
+Current branch HEAD at this update: `ca786dc29d400a6c6bb1d65b64a25a6171e4a577`
 
 ## Permanent execution policy
 `PARALLEL DISCOVERY → FAILURE-FAMILY INVENTORY → ROOT-CAUSE CLUSTERING → BATCH IMPLEMENTATION → CONSUMER/LEGACY CLOSURE → BATCH REGRESSION → EXACT-HEAD CI → VERIFY → INDEX → NEXT PARALLEL FRONTS`
@@ -15,42 +15,57 @@ No historical PASS promotion. No scanner-only closure. No runtime/LIVE/productio
 - This branch is a justified gap-closure branch from that baseline.
 - Certification remains blocked until exact-head CI, deployment, runtime and live evidence are proven.
 
-## Current execution cycle — 2026-08-29
-### Exact-head CI forensic result
-The preceding PR merge-ref CI for the watched-folder work passed the broad architectural/security/intelligence gates but failed at the compile/build layer because `FolderBatchImportPanel.tsx` imported `@/lib/import/folder-handle-store` while that module was absent from the branch.
+## Current execution cycle — 2026-08-30
+### Exact-head / branch evidence refresh
+Branch head under review: `ca786dc29d400a6c6bb1d65b64a25a6171e4a577`.
 
-Disposition: `ROOT CAUSE IDENTIFIED → FIXED IN CODE → EXACT-HEAD CI PENDING`.
+Observed successful CI on this exact branch head:
+- `quality` run `33274911754` — SUCCESS; verify job completed all listed architecture, security, intelligence, regression, typecheck, lint, build and resilience gates.
+- `integrity-batch` run `33274911753` — SUCCESS.
+- `batch-integrity-guards` run `33274911750` — SUCCESS.
+- `file-engine-header-contract` run `33274911763` — SUCCESS.
+- `ci-bootstrap-smoke` run `33274911742` — SUCCESS.
+- `production-chain-guard` run `33274911764` — SUCCESS.
+- `file-intelligence-security` run `33274911756` — SUCCESS.
 
-Evidence:
-- `quality` run `33274307097`.
-- Typecheck: `TS2307 Cannot find module '@/lib/import/folder-handle-store'`.
-- Build: same missing-module failure.
-- Performance budget: downstream `dist/index.html` absence after build failure, not an independent performance defect.
-- Lint: 0 errors, 57 warnings; warnings are non-blocking and remain a cleanup track.
-- Core architectural/security/intelligence gates continued to pass, including tenant convergence, migration schema audit, global tenant RLS, import tenant context/business key, watched-folder foundation, schema intelligence, document intelligence hardening `20/20`, report truth, production readiness, and production-scale fixtures.
+These are repository/CI proofs only. They do not promote the branch to Runtime/LIVE/Production Certification.
 
-### Canonical fix — persistent browser folder-handle module
-Commit: `690a6f916077b6c227ce66005833d3022a5e7f2c`.
+### Windows Desktop Watched Folder — evidence classification
+PR #100 `feat: Windows desktop watched-folder runtime` remains OPEN and DRAFT at branch head `ca786dc29d400a6c6bb1d65b64a25a6171e4a577`.
 
-Implemented:
-- added `src/lib/import/folder-handle-store.ts` using IndexedDB.
-- `saveFolderHandle()` persists a `FileSystemDirectoryHandle` plus timestamp.
-- `loadFolderHandle()` restores the persisted handle for the existing browser watcher resume path.
-- `forgetFolderHandle()` provides explicit cleanup support.
-- storage is isolated in its own database/store and does not become tenant/database truth.
-- IndexedDB absence and operation failures fail explicitly rather than silently succeeding.
-- database connections are closed after each operation.
+Implementation proven by repository inspection:
+- Electron native Windows host.
+- Isolated preload bridge with `contextIsolation:true`, `nodeIntegration:false`, and sandboxed BrowserWindow.
+- Native folder picker; renderer cannot supply an arbitrary root to `start`.
+- Recursive filesystem events plus 30-second polling fallback.
+- Supported-extension allowlist.
+- Relative-path-only event payloads.
+- `realpath` containment for watched root and requested file.
+- Stable `size:mtimeMs` checks before reading a file; unstable writes fail with `WATCH_FILE_STILL_WRITING`.
+- Pending-state duplicate suppression.
+- Local userData persistence of selected folder and explicit forget/stop operations.
+- Existing `FolderBatchImportPanel` sends native file events through canonical `processFolderFiles()` rather than creating a second business import engine.
+- Windows NSIS packaging manifest and dedicated Windows workflow.
 
-### Lint-hardening cycle — watched-folder renderer
-Commit: `854ba26032a23b353cbdcd59654fd56de5b7360a`.
+Evidence: PR #100 changed files and `scripts/check-windows-desktop-folder-watch-contract.mjs`.
 
-Implemented:
-- stabilized `processNativeFile` with `useCallback` and made the native event subscription depend on the actual callback contract.
-- stabilized `stopWatch` with `useCallback` and made unmount cleanup depend on the stable cleanup function.
-- removed the React Hooks dependency warnings in `FolderBatchImportPanel.tsx` without changing the canonical import flow.
-- preserved the existing native/browser watcher behavior and entity-type binding.
+### Windows Desktop — NOT PROVEN findings
+Issue #102 created as the current certification-gap record.
 
-Disposition: `IMPLEMENTED → EXACT-HEAD CI REQUIRED`.
+1. **Native runtime execution** — static contract verification exists, but there is no exact-head evidence of a real Windows Electron session performing select → persist → start → new/changed file event → stable read → canonical import handoff → database/UI result.
+2. **Reproducible desktop dependencies** — desktop workflow uses `npm install`; `desktop/package-lock.json` is not present in PR #100. Reproducible dependency resolution is therefore not proven.
+3. **Installer artifact** — exact-head Windows installer artifact evidence is not yet present in the observed CI runs.
+4. **Restart persistence** — implemented in code but not proven by a real restart test.
+5. **Partial-write behavior against a real report writer** — stability guard implemented but not proven against a real producer such as an Onyx/export writer.
+6. **Offline/reconnect behavior** — not proven.
+7. **UNC/network share behavior** — intentionally outside the current browser capability boundary; dedicated local-agent/network capability remains a separate gap.
+
+Disposition: `IMPLEMENTED → CI VERIFIED FOR WEB/REPOSITORY CONTRACTS → NATIVE RUNTIME NOT PROVEN`.
+
+### Vercel preview evidence
+PR #100 received a Ready Vercel Preview deployment on 2026-08-29. This is valid web-preview evidence only; it cannot certify the native Windows host.
+
+A Vercel deployment-rate-limit failure was also observed on one deployment attempt (`api-deployments-free-per-day`); this is an external platform quota event, not an application defect. The later preview reached Ready.
 
 ## Previously established fronts
 - Invoice page-read tenant/security closure: IMPLEMENTED → REGRESSION GUARD; exact-head/live pending.
@@ -66,23 +81,6 @@ Existing browser/PWA foundation is retained. The canonical platform contract exp
 Status: `IMPLEMENTED → CONTRACTED → LIVE RUNTIME PENDING`.
 
 Evidence: `src/lib/import-pipeline/folder-watch-contract.ts`, `src/components/FolderBatchImportPanel.tsx`, `src/lib/import/batch-folder.ts`, `src/lib/import/folder-handle-store.ts`.
-
-## Windows Desktop Watched Folder — gap closure
-Implemented on `feat/windows-desktop-watched-folder`:
-- Electron native host and isolated preload bridge.
-- Windows directory picker; renderer cannot choose an arbitrary root through the start IPC.
-- Recursive filesystem events plus 30-second polling fallback.
-- Supported-extension allowlist.
-- Renderer receives relative paths only; absolute local paths are not emitted through the file-event IPC.
-- Read requests accept relative paths only and are constrained to the selected watched root.
-- Realpath containment check prevents symlink/path indirection from escaping the watched root.
-- Window close hides the app; tray exit explicitly stops the watcher.
-- Existing `FolderBatchImportPanel` routes native events into canonical `processFolderFiles()` rather than a second business-import engine.
-- Windows NSIS packaging and dedicated Windows workflow.
-- Native watcher contract gate protects the IPC boundary and realpath/path containment invariants.
-- Native selected-folder configuration persists locally and restores after restart; live restart evidence remains pending.
-- Stable `size:mtimeMs` read gate rejects potentially partial files with `WATCH_FILE_STILL_WRITING`.
-- Native `pending` state suppresses concurrent duplicates without prematurely marking unstable files as permanently known.
 
 ## Reliability closure history
 ### Native IPC authority
@@ -105,7 +103,7 @@ Disposition: `FIXED IN CODE → RUNTIME NOT PROVEN`.
 - unstable files return `WATCH_FILE_STILL_WRITING`.
 
 ### Retry-safe watcher state
-Disposition: `FIXED IN CODE → EXACT-HEAD CI PENDING`.
+Disposition: `FIXED IN CODE → EXACT-HEAD CI VERIFIED FOR STATIC CONTRACTS; RUNTIME PENDING`.
 - pending set suppresses only concurrent checks.
 - known state is committed only after stable-read and event emission.
 - unstable/failed consumption remains retryable.
@@ -115,12 +113,13 @@ Disposition: `FIXED`.
 - renderer declaration mirrors `start()`, relative-path events, `getSelectedDirectory()` and `forget()`.
 
 ### Persistent browser folder handle compile gap
-Disposition: `FIXED IN CODE → EXACT-HEAD CI PENDING`.
+Disposition: `FIXED IN CODE`.
 - root cause was an imported-but-absent `folder-handle-store` module.
 - added canonical IndexedDB implementation with save/load/forget operations.
+- exact-head CI now proves the corrected branch compiles/builds successfully.
 
 ### Renderer hooks quality hardening
-Disposition: `IMPLEMENTED → EXACT-HEAD CI PENDING`.
+Disposition: `IMPLEMENTED`.
 - `FolderBatchImportPanel` callback/effect dependencies are now explicit and stable.
 - no business logic or data-source change was introduced.
 
@@ -133,15 +132,6 @@ Disposition: `IMPLEMENTED → EXACT-HEAD CI PENDING`.
 - Native host reuses the existing tenant-aware canonical import pipeline rather than bypassing RPC/import controls.
 - Browser folder handles are local capability state only; they are not tenant truth or database evidence.
 - No database schema or production data mutation was performed by this desktop branch.
-
-## Remaining Windows Desktop proof
-- `NOT PROVEN`: exact-head Windows installer artifact.
-- `NOT PROVEN`: install/run on a real Windows machine.
-- `NOT PROVEN`: authenticated tenant session + real report copied into watched folder → canonical import → database → analytics → UI.
-- `NOT PROVEN`: partial-write safety against a real Onyx/export writer (stability/retry guard implemented; live writer test still required).
-- `NOT PROVEN`: offline/reconnect behavior.
-- `NOT PROVEN`: restart persistence of the watched-folder configuration (code path implemented; live restart evidence still required).
-- `NOT PROVEN`: UNC/network share behavior; currently outside browser capability boundary and requires dedicated local-agent/network capability.
 
 ## Parallel remaining fronts
 ### Front A — Canonical Data Truth
@@ -187,15 +177,20 @@ Disposition: `IMPLEMENTED → EXACT-HEAD CI PENDING`.
 - LIVE VERIFIED: only with real Supabase/production evidence.
 - PRODUCTION CERTIFIED: NO.
 
-## LIVE REQUIRED
-Supabase A/B tenant isolation; Storage; Realtime; AI/vector; authenticated browser E2E; real OCR/document corpus; worker crash/recovery/DLQ; native watcher; backup restore/RPO/RTO; production telemetry; load/canary/rollback; production scale/query-plan evidence.
+## Certification blockers currently visible
+- Fresh exact-head CI is required after this index update because the index itself changes the branch SHA.
+- Native Windows runtime/installer evidence is not proven.
+- Authenticated real-data browser E2E remains required.
+- Supabase A/B tenant isolation, Storage, Realtime, AI/vector, OCR corpus, worker crash/recovery/DLQ, backup restore/RPO/RTO, production telemetry, load/canary/rollback and production scale/query-plan evidence remain LIVE requirements.
+- No P0/P1 finding may be treated as closed solely from historical evidence.
 
 ## Current next actions
-1. Fresh exact-head CI for corrected head `854ba26...` and resulting merge ref.
-2. Verify Windows artifact build from the dedicated Windows runner.
-3. Perform real Windows install/run and watched-folder test when artifact is available.
+1. Exact-head CI for the new index-update SHA.
+2. Execute/obtain the dedicated Windows workflow and installer artifact evidence.
+3. Perform real Windows install/run and watched-folder runtime test.
 4. Continue parallel canonical-data, BI/export, security/tenant, performance and reliability fronts.
 5. Continue non-blocking lint warning cleanup in isolated quality-hardening commits without changing behavior.
 6. Reconcile branch against migration/security forensic findings before promotion.
+7. Close Issue #102 only after its evidence requirements are actually proven.
 
 PRODUCTION CERTIFIED = NO until real LIVE evidence exists.
