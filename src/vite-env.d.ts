@@ -8,7 +8,7 @@ declare global {
       start(root: string): Promise<string>;
       stop(): Promise<boolean>;
       readFile(path: string): Promise<ArrayBuffer>;
-      onFile(callback: (payload: { path: string; reason: string; size: number; modifiedAt: string }) => void): () => void;
+      onFile(callback: (payload: { path: string; relativePath: string; reason: string; size: number; modifiedAt: string }) => void): () => void;
       onDeleted(callback: (payload: { path: string }) => void): () => void;
     };
   }
