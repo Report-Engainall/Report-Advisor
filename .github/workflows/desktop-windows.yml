@@ -1,0 +1,33 @@
+name: desktop-windows
+on:
+  workflow_dispatch:
+  push:
+    branches: [feat/windows-desktop-watched-folder]
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install web dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Build web application
+        run: npm run build
+      - name: Install desktop dependencies
+        working-directory: desktop
+        run: npm install --no-audit --no-fund
+      - name: Native watcher contract
+        run: node scripts/check-windows-desktop-folder-watch-contract.mjs
+      - name: Native runtime smoke
+        run: npm --prefix desktop run smoke:native
+      - name: Package Windows installer
+        run: npm --prefix desktop run package:win
+      - name: Upload installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: report-advisor-windows-installer
+          path: desktop/release/*.exe
+          if-no-files-found: error
