@@ -60,6 +60,11 @@ async function buildTextDataset(text: string, fileName: string, sourceType: stri
   const dataset = await buildDataset(rows, fileName, sourceType); for (const column of dataset.columns) column.qualityIssues.push('وثيقة نصية: لم يتم اختراع حقل أعمال؛ يلزم التعيين الدلالي قبل الكتابة'); if (warning) dataset.columns[1]?.qualityIssues.push(warning); return [dataset];
 }
 
+const PDF_OCR_MAX_PAGES = 20;
+const PDF_OCR_MAX_DIMENSION = 2200;
+const PDF_OCR_SCALE = 1.5;
+const OCR_CONFIDENCE_THRESHOLD = 70;
+
 async function parsePdfText(buffer: ArrayBuffer, fileName: string): Promise<Dataset[]> {
   // pdfjs-dist v6 exposes browser-oriented types that are not stable across the
   // application's bundler/typecheck surface. Runtime loading remains explicit;
@@ -69,8 +74,46 @@ async function parsePdfText(buffer: ArrayBuffer, fileName: string): Promise<Data
   pdfjs.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.mjs', import.meta.url).toString();
   const pdf: any = await pdfjs.getDocument({ data: new Uint8Array(buffer) }).promise; const pages: string[] = [];
   for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) { const page = await pdf.getPage(pageNumber); const content = await page.getTextContent(); const text = content.items.map((item: any) => typeof item?.str === 'string' ? item.str : '').filter(Boolean).join(' '); if (text.trim()) pages.push(`PAGE ${pageNumber}\n${text}`); }
-  if (!pages.length) throw new Error('PDF_SCANNED_IMAGE_ONLY: لم يوجد نص قابل للاستخراج؛ يلزم OCR قبل التحليل.');
-  return buildTextDataset(pages.join('\n\n'), fileName, 'pdf');
+  if (pages.length) return buildTextDataset(pages.join('\n\n'), fileName, 'pdf');
+  return parseScannedPdfWithOcr(pdf, fileName);
+}
+
+async function parseScannedPdfWithOcr(pdf: any, fileName: string): Promise<Dataset[]> {
+  if (typeof document === 'undefined') throw new Error('PDF_SCANNED_IMAGE_ONLY: OCR requires a browser runtime; no business data was fabricated.');
+  if (pdf.numPages > PDF_OCR_MAX_PAGES) throw new Error(`PDF_OCR_PAGE_LIMIT_EXCEEDED: ${pdf.numPages} pages exceeds the safe OCR limit of ${PDF_OCR_MAX_PAGES}. Split the document before analysis.`);
+  // @ts-expect-error tesseract.js runtime API is intentionally isolated from the application type graph.
+  const tesseract: any = await import('tesseract.js');
+  const worker = await tesseract.createWorker('ara+eng');
+  const pages: string[] = [];
+  const confidences: number[] = [];
+  try {
+    for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) {
+      const page = await pdf.getPage(pageNumber);
+      const baseViewport = page.getViewport({ scale: PDF_OCR_SCALE });
+      const scale = Math.min(1, PDF_OCR_MAX_DIMENSION / Math.max(baseViewport.width, baseViewport.height));
+      const viewport = scale < 1 ? page.getViewport({ scale: PDF_OCR_SCALE * scale }) : baseViewport;
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.max(1, Math.ceil(viewport.width));
+      canvas.height = Math.max(1, Math.ceil(viewport.height));
+      const context = canvas.getContext('2d');
+      if (!context) throw new Error(`PDF_OCR_CANVAS_UNAVAILABLE: page ${pageNumber}`);
+      await page.render({ canvasContext: context, viewport }).promise;
+      const result = await worker.recognize(canvas);
+      const text = typeof result?.data?.text === 'string' ? result.data.text.trim() : '';
+      const confidence = Number(result?.data?.confidence ?? 0);
+      confidences.push(confidence);
+      if (text) pages.push(`PAGE ${pageNumber}\n${text}`);
+      canvas.width = 1; canvas.height = 1;
+    }
+  } finally {
+    await worker.terminate();
+  }
+  if (!pages.length) throw new Error('PDF_SCANNED_OCR_EMPTY: OCR produced no readable text; no business data was fabricated.');
+  const minimumConfidence = confidences.length ? Math.min(...confidences) : 0;
+  const warning = minimumConfidence < OCR_CONFIDENCE_THRESHOLD
+    ? `OCR_LOW_CONFIDENCE:${Math.round(minimumConfidence)}%`
+    : `OCR_CONFIDENCE_MIN:${Math.round(minimumConfidence)}%`;
+  return buildTextDataset(pages.join('\n\n'), fileName, 'pdf-ocr', warning);
 }
 
 async function parseDocxText(buffer: ArrayBuffer, fileName: string): Promise<Dataset[]> {
@@ -82,7 +125,7 @@ async function parseDocxText(buffer: ArrayBuffer, fileName: string): Promise<Dat
 async function parseImageText(buffer: ArrayBuffer, fileName: string): Promise<Dataset[]> {
   // @ts-expect-error tesseract.js runtime API is intentionally isolated from the application type graph.
   const tesseract: any = await import('tesseract.js'); const worker = await tesseract.createWorker('ara+eng');
-  try { const { data } = await worker.recognize(buffer); return buildTextDataset(data.text, fileName, 'image', data.confidence < 70 ? `OCR_LOW_CONFIDENCE:${Math.round(data.confidence)}%` : undefined); }
+  try { const { data } = await worker.recognize(buffer); return buildTextDataset(data.text, fileName, 'image', data.confidence < 70 ? `OCR_LOW_CONFIDENCE:${Math.round(data.confidence)}%` : `OCR_CONFIDENCE:${Math.round(data.confidence)}%`); }
   finally { await worker.terminate(); }
 }
 
