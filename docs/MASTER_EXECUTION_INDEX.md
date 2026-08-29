@@ -111,7 +111,7 @@ Status: `IMPLEMENTED → REGRESSION`; exact-head CI and live A/B export isolatio
 ## New batch — Decision Runtime authorization hardening
 Finding: the previous decision runtime exposed a direct client insert into `decision_work_items`, and the database table policy checked only tenant membership. This allowed a caller inside the tenant to create an action work item for a decision that had not reached `APPROVED`. The completion RPC also did not require the linked decision to remain approved before recording an outcome.
 
-Impact: `Recommendation → Decision → Approval → Action → Outcome` could be bypassed at the action boundary. This was a release-relevant authorization/state-integrity gap, not a cosmetic issue.
+Impact: `Recommendation → Decision → Approval → Action → Outcome` could bypass the action authorization/state-integrity boundary. This was a release-relevant authorization/state-integrity gap, not a cosmetic issue.
 
 Canonical fix:
 - Added `supabase/migrations/20260830160000_harden_decision_runtime_transitions.sql`.
@@ -130,9 +130,28 @@ Evidence at implementation time:
 - New branch was created directly from exact current candidate `23e8f78466f34cf0b89852384d6848598843916e`; owner certification baseline history remains untouched.
 
 Current batch state:
-`DEFECT CONFIRMED → CANONICAL FIX COMMITTED → REGRESSION GUARD UPDATED → CI PENDING → DB APPLICATION PENDING → FRESH RUNTIME PENDING`.
+`DEFECT CONFIRMED → CANONICAL FIX COMMITTED → REGRESSION GUARD UPDATED → CI PASS → DB APPLICATION PENDING → FRESH RUNTIME PENDING`.
 
 Important: this fix is **not** counted as production-certified until the migration is applied to the correct Supabase project and exact-head CI/runtime evidence proves the transitions.
+
+## New batch — Live migration ledger reconciliation finding
+Discovery date: `2026-08-30`.
+
+Evidence:
+- Direct SQL inspection was executed against the authoritative Supabase project `fnqbvfuwbdpwvhcgzksl`.
+- The live `supabase_migrations.schema_migrations` ledger currently reports `62` migration rows.
+- The six migration filenames previously asserted as applied were not found in that live ledger query: `20260826052000_dashboard_canonical_aggregation`, `20260826100000_import_lifecycle_final_hardening`, `20260829015500_runtime_rpc_contract_reconciliation`, `20260829021000_fix_analytics_cte_runtime`, `20260829023000_restore_import_lifecycle_rpcs`, `20260829024000_harden_import_finish_search_path`.
+
+Classification: `DATABASE / MIGRATION LEDGER / PARITY NOT PROVEN`.
+
+Important interpretation: this does **not yet prove** that the corresponding DDL is absent from the live database. It proves only that the expected filenames are absent from the live migration ledger queried. The next step is object-level reconciliation: compare the canonical migration definitions against live functions, tables, policies, indexes and triggers before any ledger or DDL mutation.
+
+Safety decision:
+- No manual insertion into `schema_migrations`.
+- No blind migration replay.
+- No production DDL mutation based solely on the ledger discrepancy.
+
+Status: `DISCOVERED → INDEXED → OBJECT-LEVEL RECONCILIATION REQUIRED`.
 
 ## Status ladder
 - IMPLEMENTED: current fix exists in repository.
@@ -146,12 +165,13 @@ Important: this fix is **not** counted as production-certified until the migrati
 Supabase A/B tenant isolation; Storage; Realtime; AI/vector; authenticated browser E2E; real OCR/document corpus; worker crash/recovery/DLQ; native watcher; backup restore/RPO/RTO; production telemetry; load/canary/rollback; production scale/query-plan evidence.
 
 ## Current resume point
-1. Run exact-head CI for `hardening/decision-runtime-authorization` and verify the extended decision runtime contract.
-2. Apply the new migration only to the authoritative Supabase project after exact-head CI evidence; verify approval bypass and stale-completion cases fail closed.
-3. Obtain/observe fresh Vercel deployment bound to the SPA fix and subsequent validated HEAD before runtime claims.
-4. Verify `/login` and representative deep routes no longer return Vercel 404.
-5. Continue authenticated browser runtime sweep across critical routes.
-6. Collect network/console/runtime evidence.
-7. Continue data-truth, security, semantic/document intelligence, reliability and product-value fronts in parallel.
+1. Reconcile the six missing migration-ledger entries against actual live DB objects before any migration mutation.
+2. Run/verify exact-head CI for the updated index HEAD and retain the previous `0abab5e` CI evidence as historical evidence.
+3. Apply the decision runtime migration only after object-level reconciliation and exact-head evidence; verify approval bypass and stale-completion cases fail closed.
+4. Obtain/observe fresh Vercel deployment bound to the validated HEAD before runtime claims; do not treat the older `5dd99a...` deployment as exact-head evidence.
+5. Verify `/login` and representative deep routes no longer return Vercel 404.
+6. Continue authenticated browser runtime sweep across critical routes.
+7. Collect network/console/runtime evidence.
+8. Continue data-truth, security, semantic/document intelligence, reliability and product-value fronts in parallel.
 
 PRODUCTION CERTIFIED = NO until real LIVE evidence exists.
