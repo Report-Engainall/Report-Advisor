@@ -66,10 +66,6 @@ const PDF_OCR_SCALE = 1.5;
 const OCR_CONFIDENCE_THRESHOLD = 70;
 
 async function parsePdfText(buffer: ArrayBuffer, fileName: string): Promise<Dataset[]> {
-  // pdfjs-dist v6 exposes browser-oriented types that are not stable across the
-  // application's bundler/typecheck surface. Runtime loading remains explicit;
-  // the adapter intentionally treats the module as an opaque runtime contract.
-  // @ts-expect-error pdfjs-dist runtime module typing is incompatible with this browser adapter's isolated type surface.
   const pdfjs: any = await import('pdfjs-dist');
   pdfjs.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.mjs', import.meta.url).toString();
   const pdf: any = await pdfjs.getDocument({ data: new Uint8Array(buffer) }).promise; const pages: string[] = [];
@@ -81,7 +77,6 @@ async function parsePdfText(buffer: ArrayBuffer, fileName: string): Promise<Data
 async function parseScannedPdfWithOcr(pdf: any, fileName: string): Promise<Dataset[]> {
   if (typeof document === 'undefined') throw new Error('PDF_SCANNED_IMAGE_ONLY: OCR requires a browser runtime; no business data was fabricated.');
   if (pdf.numPages > PDF_OCR_MAX_PAGES) throw new Error(`PDF_OCR_PAGE_LIMIT_EXCEEDED: ${pdf.numPages} pages exceeds the safe OCR limit of ${PDF_OCR_MAX_PAGES}. Split the document before analysis.`);
-  // @ts-expect-error tesseract.js runtime API is intentionally isolated from the application type graph.
   const tesseract: any = await import('tesseract.js');
   const worker = await tesseract.createWorker('ara+eng');
   const pages: string[] = [];
@@ -117,13 +112,11 @@ async function parseScannedPdfWithOcr(pdf: any, fileName: string): Promise<Datas
 }
 
 async function parseDocxText(buffer: ArrayBuffer, fileName: string): Promise<Dataset[]> {
-  // @ts-expect-error mammoth's published module surface is runtime-compatible but not part of this isolated browser type contract.
   const mammoth: any = await import('mammoth'); const result = await mammoth.extractRawText({ arrayBuffer: buffer });
   return buildTextDataset(result.value, fileName, 'docx', result.messages.length ? `DOCX_EXTRACTION_WARNINGS:${result.messages.length}` : undefined);
 }
 
 async function parseImageText(buffer: ArrayBuffer, fileName: string): Promise<Dataset[]> {
-  // @ts-expect-error tesseract.js runtime API is intentionally isolated from the application type graph.
   const tesseract: any = await import('tesseract.js'); const worker = await tesseract.createWorker('ara+eng');
   try { const image = new Blob([buffer], { type: 'application/octet-stream' }); const { data } = await worker.recognize(image); return buildTextDataset(data.text, fileName, 'image', data.confidence < 70 ? `OCR_LOW_CONFIDENCE:${Math.round(data.confidence)}%` : `OCR_CONFIDENCE:${Math.round(data.confidence)}%`); }
   finally { await worker.terminate(); }
