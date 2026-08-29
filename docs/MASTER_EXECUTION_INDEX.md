@@ -88,6 +88,44 @@ Exact-head CI: **PENDING / NOT OBSERVED for the post-index SHA**.
 
 Status: `IMPLEMENTED → REGRESSION ADDED → CI PENDING`; not CLOSED.
 
+## 2026-08-29 execution sweep — SPA deep-route defect
+Evidence:
+- Production deployment `dpl_7qYynEgiLAsPrajXatBdes3ByagE` is READY and is explicitly bound to exact HEAD `4da16b9a7433e66ccf8a62b183552a872a718ef8`.
+- `/` returned HTTP 200.
+- Direct `/dashboard` returned Vercel HTTP 404 / `NOT_FOUND`.
+- The project is Vite/SPA and main had no `vercel.json`.
+Classification: `RELEASE/RUNTIME ROUTING DEFECT`.
+
+Canonical fix:
+- Created isolated branch `closure/spa-deep-route-certification`.
+- Added `vercel.json` rewriting non-`/api/` routes to `/index.html`.
+- Commit: `cf3c52c664f0b60bc7815b2edbf7440a620bcce3`.
+- Opened draft PR #97 against main; no DB mutation.
+
+Verification:
+- All currently triggered PR CI workflows for commit `cf3c52c664f0b60bc7815b2edbf7440a620bcce3` completed successfully, including quality run `33267977574`.
+- Quality verify job completed all 51 steps successfully, including typecheck, behavioral/BI/document-intelligence regressions, tenant/RLS, build, lint, performance budget, resilience and production-readiness gates.
+
+Status: `DEFECT PROVEN → FIX IMPLEMENTED → EXACT-HEAD CI PASS`; fresh deployment and direct deep-route runtime verification on the fixed commit remain required before closure.
+
+## 2026-08-29 execution sweep — database migration drift
+A live schema audit found applied Supabase migration versions after the repository's certification candidate that are not present in the `4da16b9...` repository migration surface, including multiple `harden_*`, decision-domain, financial-integrity, inventory, and watched-report hardening versions.
+
+Classification: `P0/P1 RELEASE TRACEABILITY / MIGRATION DRIFT`.
+
+Decision: **NOT PROVEN CLOSED**. Do not create empty marker migrations or guess historical SQL. The safe closure requires reconstructing the exact applied SQL/equivalent canonical migration content, reconciling it with repository history, and verifying the resulting migration state. No destructive DB mutation was performed in this sweep.
+
+## 2026-08-29 execution sweep — Supabase security posture
+Current advisor output contains WARN findings for authenticated execution of several SECURITY DEFINER functions, including `can_certify_autonomous_domain`, `can_execute_bi_decision`, `claim_report_execution_job`, `complete_decision_work_item`, `get_data_quality_snapshot`, `is_continuous_trust_healthy`, `link_recommendation_to_decision`, `mark_alert_read`, `record_decision_outcome`, `record_watched_report_file`, and `request_decision_approval`.
+
+A direct catalog audit confirmed these functions are SECURITY DEFINER, have `anon_exec=false`, and `authenticated_exec=true`. This is not by itself proof of a vulnerability because several functions intentionally require privileged server-side execution to enforce tenant boundaries/RLS, but each must be reviewed for explicit auth/tenant checks and least-privilege exposure.
+
+Additional advisor info:
+- `public.companies` has RLS enabled with zero policies. This may be intentional if all access is through tenant-authoritative RPCs, but direct table access must remain denied and the access model must be documented.
+- Performance advisors report multiple unused indexes and unindexed foreign keys; these are optimization candidates, not automatic correctness defects.
+
+Status: `DISCOVERED → CLASSIFIED → NOT PROVEN CLOSED`; no security bypass or privilege relaxation performed.
+
 ## Parallel remaining fronts
 ### Front A — Canonical Data Truth
 - Full `queries-compat.ts` function/consumer graph.
