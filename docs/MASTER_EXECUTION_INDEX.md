@@ -1,8 +1,8 @@
 # Report Advisor — Master Execution & Truth Index
 
-Snapshot: 2026-08-27  
+Snapshot: 2026-08-29  
 Repository: `Report-Engainall/Report-Advisor`  
-Branch: `main`  
+Branch: `closure/cross-tenant-reference-integrity`  
 
 ## Permanent execution policy
 `PARALLEL DISCOVERY → FAILURE-FAMILY INVENTORY → ROOT-CAUSE CLUSTERING → BATCH IMPLEMENTATION → CONSUMER/LEGACY CLOSURE → BATCH REGRESSION → EXACT-HEAD CI → VERIFY → INDEX → NEXT PARALLEL FRONTS`
@@ -10,8 +10,9 @@ Branch: `main`
 No historical PASS promotion. No scanner-only closure. No runtime/LIVE/production claims without matching evidence.
 
 ## Exact state
-- Main contains the integrated deep-closure wave through commit `c7b21db4d68e396fa6ceefe3f6fdc15b1a8b8d4c` before this index-only update.
-- Exact-head CI must be evaluated against the new SHA after this index update; no historical run is promoted.
+- Certification baseline before this closure: `4da16b9a7433e66ccf8a62b183552a872a718ef8`.
+- Runtime routing closure head: `96826543ac146d91b54c38f82e2bf7d09f2670e5`.
+- This branch adds a production-applied cross-tenant reference integrity hardening migration; its branch commit is intentionally separate pending exact-head CI.
 - Runtime, LIVE, and production certification remain unclaimed.
 
 ## Batch — invoice page-read tenant/security closure
@@ -62,6 +63,42 @@ Regression: `src/lib/export-tenant-authority.contract.test.ts`.
 
 Status: `IMPLEMENTED → REGRESSION`; exact-head CI and live A/B export isolation pending.
 
+## Deep closure — cross-tenant reference integrity
+Finding: several direct foreign-key relationships were structurally valid but did not themselves guarantee that referenced entities belonged to the same tenant.
+
+Affected paths identified by live schema/trigger audit:
+- `payments.customer_id`
+- `payments.supplier_id`
+- `payments.invoice_id`
+- `sale_items.product_id`
+- `purchase_items.product_id`
+- `warehouses.branch_id`
+
+Root cause: tenant-aware RLS protected row visibility, but relational integrity can still require an explicit same-tenant invariant when a child row carries tenant context independently or inherits it through an invoice.
+
+Fix applied to the certification Supabase project as `harden_cross_tenant_reference_integrity_v2` and mirrored canonically in `supabase/migrations/20260829175705_harden_cross_tenant_reference_integrity_v2.sql`:
+- payment references must resolve to the same `company_id` as the payment;
+- sale/purchase item products must resolve to the company owning the referenced invoice;
+- warehouse branch references must resolve to the warehouse company;
+- mismatches fail closed with `TENANT_CONTEXT_MISMATCH`;
+- missing referenced entities fail closed rather than being silently accepted.
+
+Verification:
+- migration application succeeded;
+- all four new trigger families are present for INSERT/UPDATE;
+- business corpus remains unchanged: companies=2, products=0, sales_invoices=0, sale_items=0, purchase_items=0, payments=0.
+
+Status: `PRODUCTION DB MUTATED FOR PROVEN DEFECT → VERIFIED STRUCTURALLY`; exact-head CI and live adversarial mutation evidence pending.
+
+## DB migration drift finding
+Live database currently contains 60 tracked migrations, while the repository at routing closure head contains an older canonical migration surface and does not yet mirror the later production hardening migrations applied during the same execution session.
+
+Classification: `REPOSITORY/PRODUCTION SCHEMA DRIFT`
+
+Impact: future fresh environments cannot be assumed equivalent to the currently hardened production database until the later applied migrations are restored into repository history and exact-head certification includes them.
+
+Status: `OPEN / HIGH PRIORITY`; do not claim fresh-environment equivalence until reconciled.
+
 ## DB-only legacy candidate — get_sales_secondary_metrics
 `supabase/migrations/20260826003000_sales_secondary_canonical_analytics.sql` still defines it. Repository consumer search found no source consumer, but external/database consumers cannot be excluded. Keep as `LEGACY CANDIDATE / EXTERNAL-CONSUMER RISK`; do not destructively drop yet.
 
@@ -109,6 +146,7 @@ Status: `IMPLEMENTED → REGRESSION ADDED → CI PENDING`; not CLOSED.
 - RPC grants/search_path/RLS.
 - Storage/Realtime/AI-vector.
 - workers, notifications and generated files.
+- cross-tenant relational integrity.
 
 ### Front E — Performance
 - unbounded reads.
@@ -137,6 +175,6 @@ Status: `IMPLEMENTED → REGRESSION ADDED → CI PENDING`; not CLOSED.
 Supabase A/B tenant isolation; Storage; Realtime; AI/vector; authenticated browser E2E; real OCR/document corpus; worker crash/recovery/DLQ; native watcher; backup restore/RPO/RTO; production telemetry; load/canary/rollback; production scale/query-plan evidence.
 
 ## Next execution
-Continue independent fronts without waiting for CI: cross-surface BI/Decision/Export truth, NULL semantics, tenant/security sibling discovery, and reliability/performance contract closure. Exact-head CI is a certification barrier, not a reason to pause independent work.
+Continue independent fronts without waiting for CI: cross-surface BI/Decision/Export truth, NULL semantics, tenant/security sibling discovery, relational integrity, and reliability/performance contract closure. Exact-head CI is a certification barrier, not a reason to pause independent work.
 
 PRODUCTION CERTIFIED = NO until real LIVE evidence exists.
