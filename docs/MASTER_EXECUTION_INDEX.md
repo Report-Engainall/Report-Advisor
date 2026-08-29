@@ -12,7 +12,7 @@ No historical PASS promotion. No scanner-only closure. No runtime/LIVE/productio
 ## Exact state
 - Certification baseline before this closure: `4da16b9a7433e66ccf8a62b183552a872a718ef8`.
 - Runtime routing closure head: `96826543ac146d91b54c38f82e2bf7d09f2670e5`.
-- This branch adds a production-applied cross-tenant reference integrity hardening migration; its branch commit is intentionally separate pending exact-head CI.
+- This branch adds a production-applied cross-tenant reference integrity hardening migration and its adversarial verification evidence.
 - Runtime, LIVE, and production certification remain unclaimed.
 
 ## Batch — invoice page-read tenant/security closure
@@ -86,12 +86,14 @@ Fix applied to the certification Supabase project as `harden_cross_tenant_refere
 Verification:
 - migration application succeeded;
 - all four new trigger families are present for INSERT/UPDATE;
-- business corpus remains unchanged: companies=2, products=0, sales_invoices=0, sale_items=0, purchase_items=0, payments=0.
+- adversarial transaction exercised six cross-tenant mutation attempts and completed successfully only when every attempt was rejected with `TENANT_CONTEXT_MISMATCH`;
+- all temporary test rows were removed; post-test counts for test customer/supplier/product/invoice/branch/warehouse markers are zero;
+- business corpus remains unchanged: companies=2 and core product/customer/supplier/transaction tables remain empty.
 
-Status: `PRODUCTION DB MUTATED FOR PROVEN DEFECT → VERIFIED STRUCTURALLY`; exact-head CI and live adversarial mutation evidence pending.
+Status: `PRODUCTION DB MUTATED FOR PROVEN DEFECT → ADVERSARIAL VERIFIED`; exact-head CI/live authenticated evidence still required.
 
 ## DB migration drift finding
-Live database currently contains 60 tracked migrations, while the repository at routing closure head contains an older canonical migration surface and does not yet mirror the later production hardening migrations applied during the same execution session.
+Live database currently contains **61** tracked migrations after the latest hardening migration, while the repository routing closure head does not yet mirror all later production hardening migrations applied during the current execution wave.
 
 Classification: `REPOSITORY/PRODUCTION SCHEMA DRIFT`
 
@@ -175,6 +177,6 @@ Status: `IMPLEMENTED → REGRESSION ADDED → CI PENDING`; not CLOSED.
 Supabase A/B tenant isolation; Storage; Realtime; AI/vector; authenticated browser E2E; real OCR/document corpus; worker crash/recovery/DLQ; native watcher; backup restore/RPO/RTO; production telemetry; load/canary/rollback; production scale/query-plan evidence.
 
 ## Next execution
-Continue independent fronts without waiting for CI: cross-surface BI/Decision/Export truth, NULL semantics, tenant/security sibling discovery, relational integrity, and reliability/performance contract closure. Exact-head CI is a certification barrier, not a reason to pause independent work.
+Continue independent fronts without waiting for CI: cross-surface BI/Decision/Export truth, NULL semantics, tenant/security sibling discovery, relational integrity, migration reconciliation, and reliability/performance contract closure. Exact-head CI is a certification barrier, not a reason to pause independent work.
 
 PRODUCTION CERTIFIED = NO until real LIVE evidence exists.
