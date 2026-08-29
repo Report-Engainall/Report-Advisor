@@ -3,7 +3,7 @@
 Snapshot: 2026-08-30
 Repository: `Report-Engainall/Report-Advisor`
 Branch: `feat/windows-desktop-watched-folder`
-Current branch HEAD at this update: `22571ab2e725239affe43c7af510eb5c55ae01ea`
+Current branch HEAD at this update: `22a587545bd26facb4491e0065685ca995479120`
 
 ## Permanent execution policy
 `PARALLEL DISCOVERY → FAILURE-FAMILY INVENTORY → ROOT-CAUSE CLUSTERING → BATCH IMPLEMENTATION → CONSUMER/LEGACY CLOSURE → BATCH REGRESSION → EXACT-HEAD CI → VERIFY → INDEX → NEXT PARALLEL FRONTS`
@@ -16,50 +16,58 @@ No historical PASS promotion. No scanner-only closure. No runtime/LIVE/productio
 - Certification remains blocked until exact-head CI, deployment, runtime and live evidence are proven.
 
 ## Current execution cycle — 2026-08-30
-### CI root-cause closure: workflow command integrity
-The previous PR #100 merge-check failed at `command-integrity` because the checker inspected only root `package.json` scripts while `.github/workflows/desktop-windows.yml` legitimately invokes a script in `desktop/package.json` from `working-directory: desktop`.
+### CI root-cause closure: workflow command integrity — round 1
+The PR #100 merge-check failed because the checker inspected only root `package.json` scripts while the Windows workflow invoked a script from `desktop/package.json` under a desktop working directory.
 
-Evidence:
-- Failed job `99162661824` in run `33275980507` reported exactly `desktop-windows.yml: npm run smoke:native` as missing.
-- The branch's workflow already executes the native smoke from `desktop`, and `desktop/package.json` defines `smoke:native`.
+Evidence: failed job `99162661824` / run `33275980507` reported `desktop-windows.yml: npm run smoke:native` as missing.
 
-Canonical fix committed as `22571ab2e725239affe43c7af510eb5c55ae01ea`:
-- `scripts/check-workflow-command-integrity.mjs` now resolves root scripts and scripts in explicit npm `--prefix` package contexts.
-- Missing commands remain fail-closed; the checker was not weakened to ignore the desktop command.
+Fix committed: `22571ab2e725239affe43c7af510eb5c55ae01ea`.
+The checker was extended to resolve explicit npm `--prefix` package contexts while remaining fail-closed.
 
-Status: `ROOT CAUSE IDENTIFIED → CANONICAL FIX IMPLEMENTED → EXACT-HEAD CI PENDING`.
+### CI root-cause closure: workflow command integrity — round 2
+Fresh PR CI on `22571ab...` still failed the same gate. Forensic inspection showed the workflow command itself was written as `npm run smoke:native` with `working-directory: desktop`, which is semantically valid for GitHub Actions but opaque to the repository checker, which intentionally validates command ownership from the command text.
 
-### Exact-head CI state
-For the prior exact branch head `dd923cbec9c98508a239af52ad89c2df0f162d02`:
-- `production-chain-guard` run `33275980572` — SUCCESS.
-- `ci-bootstrap-smoke` run `33275980505` — SUCCESS.
-- `file-intelligence-security` run `33275980513` — SUCCESS.
-- `file-engine-header-contract` run `33275980499` — SUCCESS.
-- `batch-integrity-guards` run `33275980491` — SUCCESS.
-- `quality` run `33275980486` — SUCCESS.
-- `integrity-batch` run `33275980507` — FAILURE, isolated to the command-integrity checker described above.
+Canonical follow-up fix committed: `22a587545bd26facb4491e0065685ca995479120`.
+- The workflow now invokes the desktop command explicitly as `npm --prefix desktop run smoke:native`.
+- This removes ambiguity between workflow working-directory semantics and the command-integrity contract.
+- The actual command remains the same desktop `smoke:native` script; no bypass or ignore rule was added.
 
-Those results are historical to `dd923cb...` and are not promoted to `22571ab...` certification evidence.
+Status: `ROOT CAUSE → FIXED IN CODE/WORKFLOW → FRESH EXACT-HEAD CI PENDING`.
 
-Current branch head is `22571ab2e725239affe43c7af510eb5c55ae01ea`. GitHub currently reports successful `CodeRabbit` and `Vercel` commit statuses, but the required Actions exact-head certification matrix is not yet proven. Therefore status remains `NOT PROVEN`.
+### Exact-head CI history
+For `dd923cbec9c98508a239af52ad89c2df0f162d02`:
+- production-chain-guard `33275980572` SUCCESS
+- ci-bootstrap-smoke `33275980505` SUCCESS
+- file-intelligence-security `33275980513` SUCCESS
+- file-engine-header-contract `33275980499` SUCCESS
+- batch-integrity-guards `33275980491` SUCCESS
+- quality `33275980486` SUCCESS
+- integrity-batch `33275980507` FAILURE at command-integrity
+
+For `e7743d059f787c1f46784b15a62c4d6afc33e21a` fresh Actions were observed starting; the integrity-batch job `33276174860` again failed at command-integrity, which led to the explicit-prefix workflow correction above.
+
+Those historical results are never promoted to the current head.
+
+Current exact branch head: `22a587545bd26facb4491e0065685ca995479120`. Fresh Actions evidence for this exact SHA is required. A Vercel status failure observed on the preceding index update pointed to `api-deployments-free-per-day` / upgrade-to-Pro and is treated as an external platform quota event, not an application defect; it does not substitute for runtime evidence.
 
 ## Windows Desktop Watched Folder
 PR #100 `feat: Windows desktop watched-folder runtime` remains OPEN/DRAFT.
 
-Implemented repository surface:
+Implemented:
 - Electron native Windows host.
-- Isolated preload bridge with `contextIsolation:true`, `nodeIntegration:false`, and sandboxed BrowserWindow.
+- Isolated preload bridge: `contextIsolation:true`, `nodeIntegration:false`, sandboxed BrowserWindow.
 - Native folder picker; renderer cannot supply an arbitrary root to `start`.
 - Recursive filesystem events plus 30-second polling fallback.
 - Supported-extension allowlist.
 - Relative-path-only event payloads.
-- `realpath` containment for watched root and requested file.
-- Stable `size:mtimeMs` checks before reading a file; unstable writes fail with `WATCH_FILE_STILL_WRITING`.
+- `realpath` containment for root and requested file.
+- Stable `size:mtimeMs` checks before reads; unstable writes fail closed.
 - Pending-state duplicate suppression.
-- Local userData persistence of selected folder and explicit forget/stop operations.
-- Existing `FolderBatchImportPanel` routes native file events through canonical `processFolderFiles()`.
-- Windows NSIS packaging manifest and dedicated Windows workflow.
-- Executable native smoke mode covering persistence, watcher event delivery, relative-path emission and stable file read.
+- Local userData persistence with stop/forget operations.
+- Existing `FolderBatchImportPanel` routes native events through canonical `processFolderFiles()`.
+- Windows NSIS packaging manifest and dedicated workflow.
+- Executable native smoke mode covering persistence, watcher event, relative-path emission and stable read.
+- Workflow command now explicitly identifies the desktop package for the command-integrity gate.
 
 Status: `IMPLEMENTED → STATIC/CONTRACT VERIFIED → NATIVE SMOKE IMPLEMENTED → EXACT-HEAD EXECUTION NOT PROVEN`.
 
@@ -70,7 +78,7 @@ Status: `IMPLEMENTED → STATIC/CONTRACT VERIFIED → NATIVE SMOKE IMPLEMENTED �
 4. Interactive installed-app restart persistence — NOT PROVEN.
 5. Real report-writer partial-write behavior — NOT PROVEN beyond generic stability guard.
 6. Offline/reconnect business ingestion — NOT PROVEN.
-7. UNC/network-share support — intentionally outside browser capability and remains a separate agent capability.
+7. UNC/network-share support — separate capability; not claimed.
 8. Native watcher → canonical import → authenticated DB/UI result — NOT PROVEN.
 
 ## Previously established fronts
@@ -79,80 +87,65 @@ Status: `IMPLEMENTED → STATIC/CONTRACT VERIFIED → NATIVE SMOKE IMPLEMENTED �
 - Dashboard Intelligence tenant boundary: IMPLEMENTED → regression; live pending.
 - Forecast read boundary: IMPLEMENTED → regression; runtime pending.
 - Export tenant authority hardening: IMPLEMENTED → regression; live A/B pending.
-- `queries-compat.ts`: retained as a compatibility boundary with regression guard; execution evidence remains required.
+- `queries-compat.ts`: retained as compatibility boundary with regression guard; execution evidence remains required.
 
 ## Browser watched-folder foundation
-Existing browser/PWA foundation remains the fallback web capability. It uses File System Access where available, SHA-256 fingerprints, incremental scanning and explicit permission handling. Browser sessions do not provide persistent background filesystem access after the normal web capability boundary. UNC/network paths remain outside browser capability.
+Existing browser/PWA capability remains the web fallback. It uses File System Access where available, SHA-256 fingerprints, incremental scanning and explicit permission handling. Persistent Windows background monitoring is provided by the native desktop path, not by pretending browser APIs can do more than they can.
 
-## Reliability/security safeguards
+## Security/data-truth safeguards
 - Native host does not expose Node integration to renderer.
-- Renderer cannot choose an arbitrary watched root through start IPC.
-- Renderer receives relative file paths only.
+- Renderer cannot choose arbitrary root through start IPC.
+- Renderer receives relative paths only.
 - Realpath containment protects against symlink escape.
-- Native host reuses the canonical import pipeline rather than a duplicate business engine.
+- Native host reuses canonical import pipeline rather than a duplicate business engine.
 - Browser folder handles are capability state, not tenant truth.
-- Native smoke uses an isolated temporary directory and synthetic CSV only.
+- Native smoke uses isolated temporary local data only.
 - No production DB mutation was performed by the desktop branch.
 
 ## Parallel remaining fronts
 ### Front A — Canonical Data Truth
-- Full `queries-compat.ts` function/consumer graph.
-- NULL/UNKNOWN/INSUFFICIENT_DATA semantics.
-- date/status/as-of consistency.
-- remaining browser business aggregation.
+Full compatibility graph, NULL/UNKNOWN/INSUFFICIENT_DATA semantics, date/status/as-of consistency, remaining browser aggregation.
 
 ### Front B — Consumer + Legacy Closure
-- zero-consumer proof for compatibility functions.
-- duplicate business engines.
-- DB-only legacy candidates with external-consumer risk.
+Zero-consumer proof, duplicate engines, DB-only legacy candidates and external-consumer risk.
 
 ### Front C — BI / Decision / Export
-- cross-surface equivalence.
-- Forecast/Demand Velocity/Inventory Intelligence.
-- export metric/date/status/as-of/filter equivalence.
+Cross-surface equivalence, Forecast/Demand Velocity/Inventory Intelligence, export metric/date/status/as-of/filter equivalence.
 
 ### Front D — Security / Tenant
-- RPC grants/search_path/RLS.
-- Storage/Realtime/AI-vector.
-- workers, notifications and generated files.
+RPC grants/search_path/RLS, Storage/Realtime/AI-vector, workers/notifications/generated files.
 
 ### Front E — Performance
-- unbounded reads.
-- query plans/indexes.
-- N+1 and payload bounds.
+Unbounded reads, query plans/indexes, N+1, payload bounds.
 
 ### Front F — Reliability
-- worker/watcher/queue/retry/idempotency/DLQ/recovery.
-- backup/restore/RPO/RTO.
+Worker/watcher/queue/retry/idempotency/DLQ/recovery, backup/restore/RPO/RTO.
 
 ### Front G — Runtime/LIVE
-- authenticated E2E.
-- Supabase A/B isolation.
-- OCR corpus, native watcher, telemetry, load/canary/rollback.
+Authenticated E2E, Supabase A/B isolation, OCR corpus, native watcher, telemetry, load/canary/rollback.
 
 ## Status ladder
-- IMPLEMENTED: current fixes implemented.
-- TESTED/REGRESSION: repository behavioral/contract evidence exists; execution must be separately evidenced.
-- GATED: NO CLAIM for current HEAD until exact-head CI evidence exists.
-- RUNTIME VERIFIED: only with real browser/native evidence.
-- LIVE VERIFIED: only with real Supabase/production evidence.
-- PRODUCTION CERTIFIED: NO.
+- IMPLEMENTED
+- TESTED/REGRESSION
+- GATED
+- RUNTIME VERIFIED
+- LIVE VERIFIED
+- PRODUCTION CERTIFIED
 
-## Certification blockers currently visible
-- Exact-head Actions matrix after `22571ab...` is not yet evidenced.
+Current certification status: `PRODUCTION CERTIFIED = NO`.
+
+## Current blockers
+- Fresh exact-head Actions matrix for `22a587...` is pending.
 - Exact-head Windows native smoke and installer artifact are pending.
 - Desktop dependency reproducibility remains unproven.
 - Authenticated real-data browser E2E remains required.
 - Supabase A/B isolation, Storage, Realtime, AI/vector, OCR corpus, worker crash/recovery/DLQ, backup restore/RPO/RTO, production telemetry, load/canary/rollback and production scale/query-plan evidence remain LIVE requirements.
-- No P0/P1 finding may be treated as closed solely from historical evidence.
 
-## Current next actions
-1. Obtain fresh exact-head CI evidence for `22571ab2e725239affe43c7af510eb5c55ae01ea`.
-2. If command-integrity now passes, inspect the next failing/unfinished gate rather than stopping at the first green result.
-3. Promote Windows native smoke only after actual Windows runner execution on the current head.
-4. Capture installer artifact evidence.
-5. Continue parallel canonical-data, BI/export, security/tenant, performance and reliability fronts.
-6. Reconcile against migration/security forensic findings before promotion.
-7. Close Issue #102 only after native runtime, installer, reproducibility, real report ingestion and required LIVE evidence are proven.
-
-PRODUCTION CERTIFIED = NO until real LIVE evidence exists.
+## Next execution sequence
+1. Inspect fresh Actions for `22a587...`; do not promote prior results.
+2. If command-integrity passes, inspect every subsequent Windows/quality gate.
+3. Capture Windows native smoke and installer artifact evidence only after actual runner success.
+4. Continue parallel data-truth, BI/export, security/tenant, performance and reliability discovery.
+5. Reconcile all findings against the forensic/migration history.
+6. Update this index after each substantive execution cycle.
+7. No certification until the full evidence chain is proven.
