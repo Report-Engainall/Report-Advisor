@@ -2,7 +2,7 @@
 
 Snapshot: 2026-08-29
 Repository: Report-Engainall/Report-Advisor
-Branch: forensic/migration-security-closure-20260829
+Branch: owner/today-report-ingestion-hardening
 
 ## Permanent execution policy
 PARALLEL DISCOVERY → FAILURE-FAMILY INVENTORY → ROOT-CAUSE CLUSTERING → BATCH IMPLEMENTATION → CONSUMER/LEGACY CLOSURE → BATCH REGRESSION → EXACT-HEAD CI → VERIFY → INDEX → NEXT PARALLEL FRONTS
@@ -112,3 +112,55 @@ Remaining live migrations: 17 are still NOT RECOVERED/RECONSTRUCTED and therefor
 Current live catalog confirms all observed SECURITY DEFINER functions have a fixed public search_path; sensitive decision/runtime functions inspected derive tenant context through current_company_id() and actor context through auth.uid() where actor attribution is required. Authenticated EXECUTE is false for anon across the observed privileged surface. This is evidence of the current live boundary, not a substitute for caller-by-caller certification.
 
 Live lifecycle table privileges also confirm direct authenticated UPDATE/DELETE/TRUNCATE are closed on audit_logs, recommendations, alerts, business_intelligence_decisions, decision_approvals, decision_work_items, recommendation_outcomes and decision_action_receipts, while intended INSERT/SELECT surfaces remain as designed. The application consumer drift found in queries.ts/queries-compat.ts has been corrected and the exact-head quality gate passed.
+
+
+## Today trial — real report ingestion hardening — 2026-08-29
+User goal: enable today's real-world trial by uploading trader reports and getting trustworthy analysis, not merely opening the dashboard.
+
+### Verified capability gap
+`CanonicalImportPage` advertised PDF, DOCX and image formats, while the canonical `parseFile()` adapter previously routed those formats to `Unsupported parser`. This meant the UI claimed broader report ingestion than the actual parser surface could execute.
+
+### Implemented
+- Added PDF text extraction through `pdfjs-dist` with explicit worker configuration.
+- Added DOCX raw-text extraction through `mammoth`.
+- Added Arabic+English OCR for image reports through `tesseract.js`.
+- Preserved source text as evidence-bearing `line_number` + `text` rows.
+- Added explicit document warnings rather than inventing business fields.
+- Kept existing spreadsheet/CSV/JSON canonical parsing unchanged.
+- Kept `.doc` and `.rtf` explicitly fail-closed because no safe canonical parser is present; the UI will not silently treat them as valid structured business data.
+
+### Safety semantics
+Document text extraction does NOT auto-invent invoice/customer/product fields. Low-confidence/unmapped document text remains review-required and cannot be treated as canonical business rows merely because OCR succeeded. This preserves the zero-hallucination requirement.
+
+### Exact-head execution
+- Initial implementation: `fdb30831fb3c595c10874fce98c7764b08d6a0fe`.
+- Initial Quality run `33269765435` exposed a TypeScript failure during Typecheck before the rest of the gate could execute.
+- Root-cause correction: isolated document parser module type surfaces via dynamic imports.
+- Current implementation head: `7d5338f8f3b7d728f539e22f9bf550f0ddda29b3`.
+- PR: `#99` — draft, intentionally not merged.
+- New Quality run: `33269830890` — queued/in progress at index update time; PASS is NOT claimed yet.
+
+### Fresh preview deployment
+- Vercel deployment: `dpl_C2FpBhqT6Zk8Ak3gsRzrxMkV75eA`.
+- Exact Git SHA: `7d5338f8f3b7d728f539e22f9bf550f0ddda29b3`.
+- State: READY.
+- Preview branch alias: `report-advisor-git-owner-today-report-ingestion-h-31d879-injaz2.vercel.app`.
+- Vercel protection still redirects unauthenticated requests to SSO; authenticated browser verification remains NOT PROVEN.
+
+### Current trial readiness
+- Spreadsheet/CSV/JSON: existing canonical parser surface remains available.
+- PDF text reports: parser implemented; scanned-image-only PDFs still require OCR integration before they can be treated as extracted text.
+- DOCX: parser implemented.
+- Images: Arabic+English OCR implemented; OCR confidence is surfaced as a warning below the defined threshold.
+- `.doc` / `.rtf`: intentionally NOT PROVEN / parser unavailable.
+- Full upload → analysis → decision → export → real-data reconciliation chain: NOT PROVEN until fresh authenticated runtime and real trader data are exercised.
+
+### Next execution fronts
+1. Wait for Exact-Head CI on `7d5338f8f3b7d728f539e22f9bf550f0ddda29b3` and fix any verified failures.
+2. Add/verify scanned-PDF OCR with bounded page/CPU limits and explicit OCR confidence/evidence.
+3. Complete authenticated preview runtime sweep for `/import`, folder watch, reports, analytics and decision surfaces.
+4. Exercise one safe real trader report end-to-end in an isolated tenant context.
+5. Independently reconcile critical totals before any business result is trusted.
+6. Continue migration provenance closure and security caller audit in parallel.
+
+Certification remains `BLOCKED` and `100% REAL RELEASE READY` remains `NO`.
