@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { FolderOpen, Loader2, CheckCircle2, XCircle, AlertTriangle, ShieldCheck, Radio, Square, Monitor } from 'lucide-react';
 import { Card, CardHeader, CardBody } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
@@ -35,7 +35,7 @@ export function FolderBatchImportPanel() {
   const nativeInFlightRef = useRef(new Set<string>());
   const isDesktop = Boolean(window.desktopFolderWatch?.isAvailable);
 
-  const processNativeFile = async (payload: NativeFilePayload) => {
+  const processNativeFile = useCallback(async (payload: NativeFilePayload) => {
     const api = window.desktopFolderWatch;
     if (!api || nativeInFlightRef.current.has(payload.relativePath)) return;
     nativeInFlightRef.current.add(payload.relativePath);
@@ -55,7 +55,7 @@ export function FolderBatchImportPanel() {
     } finally {
       nativeInFlightRef.current.delete(payload.relativePath);
     }
-  };
+  }, [entityType]);
 
   useEffect(() => {
     const api = window.desktopFolderWatch;
@@ -64,7 +64,7 @@ export function FolderBatchImportPanel() {
       void processNativeFile(payload);
     });
     return () => off();
-  }, [entityType]);
+  }, [processNativeFile]);
 
   useEffect(() => {
     const api = window.desktopFolderWatch;
@@ -172,14 +172,14 @@ export function FolderBatchImportPanel() {
     }
   };
 
-  const stopWatch = () => {
+  const stopWatch = useCallback(() => {
     stopRef.current?.();
     stopRef.current = null;
     if (window.desktopFolderWatch?.isAvailable) void window.desktopFolderWatch.stop();
     setWatching(false);
-  };
+  }, []);
 
-  useEffect(() => () => stopWatch(), []);
+  useEffect(() => () => stopWatch(), [stopWatch]);
 
   const completed = progress?.results.filter((r) => r.status === 'completed').length || 0;
   const failed = progress?.results.filter((r) => r.status === 'failed').length || 0;
