@@ -1,0 +1,11 @@
+import fs from 'node:fs';
+import path from 'node:path';
+const files=['desktop/main.cjs','desktop/preload.cjs','desktop/package.json'];
+for(const file of files)if(!fs.existsSync(path.join(process.cwd(),file)))throw new Error(`Missing Windows desktop file: ${file}`);
+const main=fs.readFileSync(path.join(process.cwd(),'desktop/main.cjs'),'utf8');
+const preload=fs.readFileSync(path.join(process.cwd(),'desktop/preload.cjs'),'utf8');
+const pkg=fs.readFileSync(path.join(process.cwd(),'desktop/package.json'),'utf8');
+for(const token of ['fs.watch','recursive:true','setInterval(rescan,30000)','WATCH_FOLDER_PATH_OUTSIDE_ROOT','read-file','desktop-folder-watch:file'])if(!main.includes(token))throw new Error(`Missing native watcher safety token: ${token}`);
+for(const token of ['contextIsolation:true','nodeIntegration:false','desktopFolderWatch','readFile','onFile'])if(!(main+preload).includes(token))throw new Error(`Missing isolated bridge token: ${token}`);
+for(const token of ['electron','electron-builder','package:win','com.reportadvisor.desktop'])if(!pkg.includes(token))throw new Error(`Missing Windows packaging token: ${token}`);
+console.log('Windows desktop watched-folder contract: PASS');
