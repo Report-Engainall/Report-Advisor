@@ -20,4 +20,21 @@ if (!migration.includes("AND d.status='PROPOSED'")) throw new Error('approval re
 if (!migration.includes("SET status=CASE WHEN p_approve THEN 'APPROVED' ELSE 'REJECTED' END")) throw new Error('approval transition is not persisted');
 if (!migration.includes("SET status='COMPLETED'")) throw new Error('completion does not persist terminal state');
 
+const hardened = fs.readFileSync('supabase/migrations/20260830160000_harden_decision_runtime_transitions.sql','utf8');
+const runtime = fs.readFileSync('src/lib/decision-automation/vertical-slice-runtime.ts','utf8');
+for (const token of ["d.status = 'APPROVED'", 'DECISION_NOT_APPROVED', 'WORK_ITEM_NOT_FOUND_OR_DECISION_NOT_APPROVED', 'WORK_ITEM_ALREADY_COMPLETED', 'requested_by', 'decided_by = v_user', 'approved_by = CASE WHEN p_approve THEN v_user ELSE NULL END', 'SECURITY DEFINER', 'SET search_path = public']) {
+  if (!hardened.includes(token)) throw new Error(`decision authorization hardening missing: ${token}`);
+}
+if (!runtime.includes("supabase.rpc('create_decision_work_item'")) throw new Error('work-item creation must use canonical approval-gated RPC');
+if (/from\(['"]decision_work_items['"]\)\.insert/.test(runtime)) throw new Error('direct client work-item insert bypasses approval gate');
+
 console.log('decision/intelligence/runtime vertical slice closure contract: PASS');
+console.log('- approval lifecycle is deterministic');
+console.log('- work lifecycle is deterministic');
+console.log('- action receipt lifecycle is deterministic');
+console.log('- approval requires PROPOSED decision');
+console.log('- work-item creation requires APPROVED decision');
+console.log('- completion rejects unapproved/stale work items');
+console.log('- duplicate completion fails closed');
+console.log('- authenticated actor identity is recorded on approval transitions');
+console.log('- client work-item creation uses canonical approval-gated RPC');

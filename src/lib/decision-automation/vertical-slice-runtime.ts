@@ -99,23 +99,21 @@ export async function decideRuntimeApproval(approvalId: string, approve: boolean
 }
 
 export async function createRuntimeWorkItem(decisionId: string, recommendationId: string | null, input: RuntimeWorkItemInput): Promise<string> {
-  const companyId = await companyIdOrThrow();
-  const { data, error } = await supabase.from('decision_work_items').insert({
-    company_id: companyId,
-    decision_id: decisionId,
-    recommendation_id: recommendationId,
-    department: input.department,
-    assignee_id: input.assigneeId ?? null,
-    assignee_label: input.assigneeLabel ?? null,
-    title: input.title,
-    description: input.description ?? null,
-    priority: input.priority,
-    due_at: input.dueAt ?? null,
-    expected_impact: input.expectedImpact,
-    evidence_refs: input.evidenceRefs,
-  }).select('id').single();
+  const { data, error } = await supabase.rpc('create_decision_work_item', {
+    p_decision_id: decisionId,
+    p_recommendation_id: recommendationId,
+    p_department: input.department,
+    p_assignee_id: input.assigneeId ?? null,
+    p_assignee_label: input.assigneeLabel ?? null,
+    p_title: input.title,
+    p_description: input.description ?? null,
+    p_priority: input.priority,
+    p_due_at: input.dueAt ?? null,
+    p_expected_impact: input.expectedImpact,
+    p_evidence_refs: input.evidenceRefs,
+  });
   if (error) throw error;
-  return data.id;
+  return data as string;
 }
 
 export async function notifyWorkItem(workItemId: string, title: string, description: string): Promise<string> {
