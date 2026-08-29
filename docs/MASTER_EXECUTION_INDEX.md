@@ -2,7 +2,7 @@
 
 Snapshot: 2026-08-30  
 Repository: `Report-Engainall/Report-Advisor`  
-Branch: `main`  
+Branch: `hardening/decision-runtime-authorization`  
 
 ## Permanent execution policy
 `PARALLEL DISCOVERY → FAILURE-FAMILY INVENTORY → ROOT-CAUSE CLUSTERING → BATCH IMPLEMENTATION → CONSUMER/LEGACY CLOSURE → BATCH REGRESSION → EXACT-HEAD CI → VERIFY → INDEX → NEXT PARALLEL FRONTS`
@@ -108,6 +108,32 @@ Status: `IMPLEMENTED → REGRESSION`; exact-head CI and live A/B export isolatio
 - Supabase A/B isolation.
 - OCR corpus, native watcher, telemetry, load/canary/rollback.
 
+## New batch — Decision Runtime authorization hardening
+Finding: the previous decision runtime exposed a direct client insert into `decision_work_items`, and the database table policy checked only tenant membership. This allowed a caller inside the tenant to create an action work item for a decision that had not reached `APPROVED`. The completion RPC also did not require the linked decision to remain approved before recording an outcome.
+
+Impact: `Recommendation → Decision → Approval → Action → Outcome` could be bypassed at the action boundary. This was a release-relevant authorization/state-integrity gap, not a cosmetic issue.
+
+Canonical fix:
+- Added `supabase/migrations/20260830160000_harden_decision_runtime_transitions.sql`.
+- `request_decision_approval()` now records `auth.uid()` in `requested_by`.
+- `decide_approval()` records `auth.uid()` in `decided_by` and `approved_by` for approved decisions.
+- Added canonical `create_decision_work_item(...)` SECURITY DEFINER RPC with fixed `search_path`, tenant authority and an explicit `decision.status = 'APPROVED'` gate.
+- `complete_decision_work_item()` now joins the decision and requires `APPROVED` before completing the work item and creating the outcome.
+- Duplicate completion fails closed with `WORK_ITEM_ALREADY_COMPLETED`.
+- Recommendation linkage is checked against the same tenant before action creation.
+- `src/lib/decision-automation/vertical-slice-runtime.ts` now routes work-item creation through the approval-gated RPC instead of a direct table insert.
+- Extended `scripts/check-decision-intelligence-closure.mjs` to guard the new authorization boundary.
+
+Evidence at implementation time:
+- Original vulnerable workflow was confirmed by inspection of `20260828170000_decision_action_outcome_runtime.sql` and `vertical-slice-runtime.ts`.
+- New migration and client boundary were committed on branch `hardening/decision-runtime-authorization`.
+- New branch was created directly from exact current candidate `23e8f78466f34cf0b89852384d6848598843916e`; owner certification baseline history remains untouched.
+
+Current batch state:
+`DEFECT CONFIRMED → CANONICAL FIX COMMITTED → REGRESSION GUARD UPDATED → CI PENDING → DB APPLICATION PENDING → FRESH RUNTIME PENDING`.
+
+Important: this fix is **not** counted as production-certified until the migration is applied to the correct Supabase project and exact-head CI/runtime evidence proves the transitions.
+
 ## Status ladder
 - IMPLEMENTED: current fix exists in repository.
 - TESTED/REGRESSION: repository behavioral/contract evidence exists; execution must be separately evidenced.
@@ -120,11 +146,12 @@ Status: `IMPLEMENTED → REGRESSION`; exact-head CI and live A/B export isolatio
 Supabase A/B tenant isolation; Storage; Realtime; AI/vector; authenticated browser E2E; real OCR/document corpus; worker crash/recovery/DLQ; native watcher; backup restore/RPO/RTO; production telemetry; load/canary/rollback; production scale/query-plan evidence.
 
 ## Current resume point
-1. Obtain/observe fresh Vercel deployment bound to `459666ea7fca6a94eb2c7e6955a2d259e3d2b8ef`.
-2. Verify `/login` and representative deep routes no longer return Vercel 404.
-3. Continue authenticated browser runtime sweep across critical routes.
-4. Collect network/console/runtime evidence.
-5. Run exact-head CI and required production certification contracts.
-6. Continue data-truth, security, semantic/document intelligence, reliability and product-value fronts.
+1. Run exact-head CI for `hardening/decision-runtime-authorization` and verify the extended decision runtime contract.
+2. Apply the new migration only to the authoritative Supabase project after exact-head CI evidence; verify approval bypass and stale-completion cases fail closed.
+3. Obtain/observe fresh Vercel deployment bound to the SPA fix and subsequent validated HEAD before runtime claims.
+4. Verify `/login` and representative deep routes no longer return Vercel 404.
+5. Continue authenticated browser runtime sweep across critical routes.
+6. Collect network/console/runtime evidence.
+7. Continue data-truth, security, semantic/document intelligence, reliability and product-value fronts in parallel.
 
 PRODUCTION CERTIFIED = NO until real LIVE evidence exists.
