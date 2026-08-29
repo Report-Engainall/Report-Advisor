@@ -125,7 +125,7 @@ async function parseDocxText(buffer: ArrayBuffer, fileName: string): Promise<Dat
 async function parseImageText(buffer: ArrayBuffer, fileName: string): Promise<Dataset[]> {
   // @ts-expect-error tesseract.js runtime API is intentionally isolated from the application type graph.
   const tesseract: any = await import('tesseract.js'); const worker = await tesseract.createWorker('ara+eng');
-  try { const { data } = await worker.recognize(buffer); return buildTextDataset(data.text, fileName, 'image', data.confidence < 70 ? `OCR_LOW_CONFIDENCE:${Math.round(data.confidence)}%` : `OCR_CONFIDENCE:${Math.round(data.confidence)}%`); }
+  try { const image = new Blob([buffer], { type: 'application/octet-stream' }); const { data } = await worker.recognize(image); return buildTextDataset(data.text, fileName, 'image', data.confidence < 70 ? `OCR_LOW_CONFIDENCE:${Math.round(data.confidence)}%` : `OCR_CONFIDENCE:${Math.round(data.confidence)}%`); }
   finally { await worker.terminate(); }
 }
 
