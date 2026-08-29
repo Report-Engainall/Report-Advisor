@@ -1,4 +1,5 @@
 import * as XLSX from 'xlsx';
+import { getDocument, GlobalWorkerOptions } from 'pdfjs-dist';
 import type { FileFormat, Dataset, ColumnProfile, ColumnStatistics } from './types';
 import { normalizeRows, normalizeColumnName, parseNumber } from './normalizer';
 import { detectColumnDataType, cleanValue } from './data-types';
@@ -97,6 +98,51 @@ async function buildDataset(rows: Row[], name: string, source: string, sheet?: s
   return { id: generateId(), name, source, sheet, rowCount: canonicalRows.length, columnCount: columns.length, columns: columnProfiles, rows: canonicalRows, preview: canonicalRows.slice(0, 50), qualityScore };
 }
 
+/** Build a safe, evidence-preserving dataset for document text. It deliberately does not invent business fields. */
+async function buildTextDataset(text: string, fileName: string, sourceType: string, warning?: string): Promise<Dataset[]> {
+  const normalized = text.replace(/\uFEFF/g, '').replace(/\r\n?/g, '\n').replace(/[ \t]+$/gm, '').trim();
+  if (!normalized) return [];
+  const lines = normalized.split('\n').map((line) => line.trim()).filter(Boolean);
+  const rows: Row[] = lines.map((line, index) => ({ line_number: index + 1, text: line }));
+  const dataset = await buildDataset(rows, fileName, sourceType);
+  for (const column of dataset.columns) {
+    column.qualityIssues.push('وثيقة نصية: لم يتم اختراع حقل أعمال؛ يلزم التعيين الدلالي قبل الكتابة');
+  }
+  if (warning) dataset.columns[1]?.qualityIssues.push(warning);
+  return [dataset];
+}
+
+async function parsePdfText(buffer: ArrayBuffer, fileName: string): Promise<Dataset[]> {
+  GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.mjs', import.meta.url).toString();
+  const pdf = await getDocument({ data: new Uint8Array(buffer) }).promise;
+  const pages: string[] = [];
+  for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) {
+    const page = await pdf.getPage(pageNumber);
+    const content = await page.getTextContent();
+    const text = content.items.map((item) => 'str' in item ? item.str : '').filter(Boolean).join(' ');
+    if (text.trim()) pages.push(`PAGE ${pageNumber}\n${text}`);
+  }
+  if (!pages.length) throw new Error('PDF_SCANNED_IMAGE_ONLY: لم يوجد نص قابل للاستخراج؛ يلزم OCR قبل التحليل.');
+  return buildTextDataset(pages.join('\n\n'), fileName, 'pdf');
+}
+
+async function parseDocxText(buffer: ArrayBuffer, fileName: string): Promise<Dataset[]> {
+  const mammoth = await import('mammoth');
+  const result = await mammoth.extractRawText({ arrayBuffer: buffer });
+  return buildTextDataset(result.value, fileName, 'docx', result.messages.length ? `DOCX_EXTRACTION_WARNINGS:${result.messages.length}` : undefined);
+}
+
+async function parseImageText(buffer: ArrayBuffer, fileName: string): Promise<Dataset[]> {
+  const { createWorker } = await import('tesseract.js');
+  const worker = await createWorker('ara+eng');
+  try {
+    const { data } = await worker.recognize(buffer);
+    return buildTextDataset(data.text, fileName, 'image', data.confidence < 70 ? `OCR_LOW_CONFIDENCE:${Math.round(data.confidence)}%` : undefined);
+  } finally {
+    await worker.terminate();
+  }
+}
+
 export async function parseSpreadsheet(buffer: ArrayBuffer, fileName: string, _format: FileFormat): Promise<Dataset[]> {
   const wb = XLSX.read(buffer, { type: 'array', cellDates: true });
   const datasets: Dataset[] = [];
@@ -184,7 +230,7 @@ async function parseJSONData(data: unknown, fileName: string, path = ''): Promis
   return datasets.length ? datasets : [await buildDataset([data], path || fileName, fileName)];
 }
 
-/** Stable public adapter consumed by ImportPage and future import flows. */
+/** Stable public adapter consumed by ImportPage and folder import flows. */
 export async function parseFile(buffer: ArrayBuffer, fileName: string, format: FileFormat): Promise<Dataset[]> {
   switch (format) {
     case 'xlsx': case 'xls': case 'xlsm': case 'ods': return parseSpreadsheet(buffer, fileName, format);
@@ -193,6 +239,10 @@ export async function parseFile(buffer: ArrayBuffer, fileName: string, format: F
     case 'json': return parseJSON(buffer, fileName);
     case 'jsonl': return parseJSONL(buffer, fileName);
     case 'txt': case 'markdown': return parseCSV(buffer, fileName);
+    case 'pdf': return parsePdfText(buffer, fileName);
+    case 'docx': return parseDocxText(buffer, fileName);
+    case 'jpg': case 'jpeg': case 'png': case 'webp': case 'tiff': case 'bmp': return parseImageText(buffer, fileName);
+    case 'doc': case 'rtf': throw new Error(`${format.toUpperCase()}_PARSER_UNAVAILABLE: هذا التنسيق يحتاج محولًا مخصصًا قبل الكتابة؛ لم يتم تخمين محتواه.`);
     default: throw new Error(`Unsupported parser for format: ${format}`);
   }
 }
