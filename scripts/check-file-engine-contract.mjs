@@ -20,6 +20,12 @@ const required = [
   ['dataTypes', 'export function detectColumnDataType'],
   ['types', 'interface MappingEvidence'],
   ['types', 'requiresReview?: boolean'],
+  ['adapters', 'PDF_OCR_MAX_PAGES = 20'],
+  ['adapters', 'PDF_OCR_MAX_DIMENSION = 2200'],
+  ['adapters', "parseScannedPdfWithOcr(pdf, fileName)"],
+  ['adapters', "buildTextDataset(pages.join('\\n\\n'), fileName, 'pdf-ocr', warning)"],
+  ['adapters', 'PDF_OCR_PAGE_LIMIT_EXCEEDED'],
+  ['adapters', 'PDF_SCANNED_OCR_EMPTY'],
 ];
 
 for (const [file, token] of required) {
