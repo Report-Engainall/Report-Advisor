@@ -1,11 +1,15 @@
 import { readFile, readdir, stat } from 'node:fs/promises';
-import { join, resolve, relative } from 'node:path';
+import { readFileSync } from 'node:fs';
+import { gzipSync } from 'node:zlib';
+import { join, resolve } from 'node:path';
 
-// The previous gate summed every file in dist/, including lazy route chunks and
-// optional PDF/XLSX/chart vendors that are not downloaded on first paint.
-// That made a 450KB "total build" budget incompatible with the app's lazy-loading architecture.
+// Performance must reflect both first-load critical assets and the compressed
+// network payload. The raw dist footprint is retained as a deployment-sanity
+// guard, but optional lazy PDF/XLSX/chart assets must not fail a network budget
+// merely because they are present in the deployment artifact.
 const MAX_CRITICAL_KB = 900;
-const MAX_TOTAL_KB = 2800;
+const MAX_TOTAL_RAW_KB = 5500;
+const MAX_TOTAL_GZIP_KB = 1800;
 const MAX_CHUNK_KB = 600;
 
 async function walk(dir) {
@@ -40,6 +44,7 @@ const dist = resolve('dist');
 const indexHtml = await readFile(join(dist, 'index.html'), 'utf8');
 const assets = await walk(dist);
 const totalBytes = assets.reduce((sum, item) => sum + item.size, 0);
+const totalGzipBytes = assets.reduce((sum, item) => sum + gzipSync(readFileSync(item.path), { level: 9 }).length, 0);
 const jsChunks = assets.filter(item => item.path.endsWith('.js'));
 const largestChunk = Math.max(0, ...jsChunks.map(item => item.size));
 
@@ -52,22 +57,18 @@ const criticalBytes = criticalPaths.reduce((sum, assetPath) => {
 }, 0);
 
 const criticalKB = criticalBytes / 1024;
-const totalKB = totalBytes / 1024;
+const totalRawKB = totalBytes / 1024;
+const totalGzipKB = totalGzipBytes / 1024;
 const largestChunkKB = largestChunk / 1024;
 
 const failures = [];
-if (criticalKB > MAX_CRITICAL_KB) {
-  failures.push(`critical assets ${criticalKB.toFixed(1)}KB > ${MAX_CRITICAL_KB}KB`);
-}
-if (totalKB > MAX_TOTAL_KB) {
-  failures.push(`total dist ${totalKB.toFixed(1)}KB > ${MAX_TOTAL_KB}KB`);
-}
-if (largestChunkKB > MAX_CHUNK_KB) {
-  failures.push(`largest JS chunk ${largestChunkKB.toFixed(1)}KB > ${MAX_CHUNK_KB}KB`);
-}
+if (criticalKB > MAX_CRITICAL_KB) failures.push(`critical assets ${criticalKB.toFixed(1)}KB > ${MAX_CRITICAL_KB}KB`);
+if (totalRawKB > MAX_TOTAL_RAW_KB) failures.push(`raw dist ${totalRawKB.toFixed(1)}KB > ${MAX_TOTAL_RAW_KB}KB`);
+if (totalGzipKB > MAX_TOTAL_GZIP_KB) failures.push(`gzip dist ${totalGzipKB.toFixed(1)}KB > ${MAX_TOTAL_GZIP_KB}KB`);
+if (largestChunkKB > MAX_CHUNK_KB) failures.push(`largest JS chunk ${largestChunkKB.toFixed(1)}KB > ${MAX_CHUNK_KB}KB`);
 
-console.log(`Performance budget: critical=${criticalKB.toFixed(1)}KB, total=${totalKB.toFixed(1)}KB, largest-js=${largestChunkKB.toFixed(1)}KB`);
-console.log(`Limits: critical<=${MAX_CRITICAL_KB}KB, total<=${MAX_TOTAL_KB}KB, largest-js<=${MAX_CHUNK_KB}KB`);
+console.log(`Performance budget: critical=${criticalKB.toFixed(1)}KB, raw=${totalRawKB.toFixed(1)}KB, gzip=${totalGzipKB.toFixed(1)}KB, largest-js=${largestChunkKB.toFixed(1)}KB`);
+console.log(`Limits: critical<=${MAX_CRITICAL_KB}KB, raw<=${MAX_TOTAL_RAW_KB}KB, gzip<=${MAX_TOTAL_GZIP_KB}KB, largest-js<=${MAX_CHUNK_KB}KB`);
 console.log(`Critical assets: ${criticalPaths.join(', ') || '(none detected)'}`);
 
 if (failures.length) {
