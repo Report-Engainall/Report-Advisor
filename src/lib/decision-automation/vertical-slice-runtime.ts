@@ -76,15 +76,11 @@ export async function createRuntimeDecision(input: RuntimeDecisionInput): Promis
 }
 
 export async function linkRecommendationToDecision(recommendationId: string, decisionId: string): Promise<void> {
-  const companyId = await companyIdOrThrow();
-  const { error: recommendationError } = await supabase.from('recommendations')
-    .update({ decision_id: decisionId })
-    .eq('id', recommendationId).eq('company_id', companyId);
-  if (recommendationError) throw recommendationError;
-  const { error: decisionError } = await supabase.from('business_intelligence_decisions')
-    .update({ recommendation_id: recommendationId })
-    .eq('id', decisionId).eq('company_id', companyId);
-  if (decisionError) throw decisionError;
+  const { error } = await supabase.rpc('link_recommendation_to_decision', {
+    p_recommendation_id: recommendationId,
+    p_decision_id: decisionId,
+  });
+  if (error) throw error;
 }
 
 export async function requestRuntimeApproval(decisionId: string, reason?: string): Promise<string> {
