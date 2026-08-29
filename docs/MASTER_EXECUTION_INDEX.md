@@ -182,26 +182,40 @@ Updated `scripts/check-file-engine-contract.mjs` in commit `5748ee81981e20e9a1d0
 
 Status: IMPLEMENTED → EXACT-HEAD CI REQUIRED.
 
-## Current exact execution head
-`5748ee81981e20e9a1d0a7f36d299d4b5f71f23a`
+## Execution cycle E — image OCR browser type compatibility — 2026-08-29
+Finding: Quality run `33269830890` exposed a concrete TypeScript incompatibility in `src/lib/file-engine/adapters.ts`: the image OCR call passed an `ArrayBuffer` to Tesseract's browser `recognize()` surface, while the installed type contract expects an `ImageLike` value.
+
+Root cause: browser runtime accepts image-like inputs, but the application type surface does not accept raw `ArrayBuffer` for this API overload.
+
+Canonical fix: convert the input buffer to a browser `Blob` immediately at the OCR boundary and pass that Blob to `worker.recognize()`. This preserves the image bytes, keeps the browser-only contract explicit, and avoids weakening TypeScript configuration or using an unsafe cast around the call.
+
+Commit: `54d03945ce6f7e0fbd93da545066226d4e9e315c`.
+Status: IMPLEMENTED → EXACT-HEAD CI REQUIRED.
+
+### Evidence consumed for this cycle
+The failed Quality run had 52 substantive verification stages. Before Typecheck, the workflow passed workflow topology, tenant convergence, RLS/import guards, migration schema audit (80 migrations), master requirements, file-engine architecture/capability, schema intelligence, golden fixtures, canonical import mapping, report execution, forecast calibration, entitlements, decision intelligence and production certification. Typecheck then failed, while lint and build still completed successfully; the performance budget also failed on the same run. The exact TypeScript diagnostic was captured as `src/lib/file-engine/adapters.ts(135,45): error TS2345` with `ArrayBuffer` not assignable to `ImageLike`. 
+
+### Current exact execution head
+`54d03945ce6f7e0fbd93da545066226d4e9e315c`
 
 Current branch: `owner/today-report-ingestion-hardening`.
 Current main/certification baseline remains protected and untouched.
 
 ### Current blockers / risks
-- Fresh Quality PASS is not yet proven on `5748ee81981e20e9a1d0a7f36d299d4b5f71f23a`.
-- Vercel deployment status is externally rate-limited in the current execution window; no deployment PASS is inferred from the code changes.
+- Fresh Quality PASS is not yet proven on `54d03945ce6f7e0fbd93da545066226d4e9e315c`.
+- The same latest known Quality run also exposed a raw total dist performance budget overage (`4541.3KB > 2800KB`); this requires the corrected performance-gate behavior to be validated on a fresh exact-head run rather than assumed closed.
+- Fresh Vercel status remains externally rate-limited in the current execution window; no deployment PASS is inferred from this mutation.
 - Authenticated browser route/network/console sweep remains NOT PROVEN.
 - 17 live migrations remain without recovered/reconstructed provenance.
 - Caller-by-caller authenticated SECURITY DEFINER certification remains open.
 - Independent real-trader-data reconciliation remains mandatory.
 
 ### Next parallel fronts
-1. Exact-head CI on `5748ee81981e20e9a1d0a7f36d299d4b5f71f23a`.
-2. If Typecheck passes, consume the next failure family rather than stopping at the first green step.
-3. Validate scanned-PDF OCR through a real browser fixture before trusting it for business results.
-4. Continue migration provenance and privileged-caller audit without mutating production security blindly.
-5. Preserve the fresh deployment block as BLOCKED until Vercel rate limiting clears; do not claim runtime PASS from static evidence.
-6. Update this index after each meaningful execution batch.
+1. Run exact-head Quality against `54d03945ce6f7e0fbd93da545066226d4e9e315c` and consume every failure family, not just the first failure.
+2. Validate image OCR and scanned-PDF OCR with real browser fixtures before treating extracted values as business evidence.
+3. Resolve the performance budget from measured asset/network behavior without weakening the gate merely to obtain green CI.
+4. Continue migration provenance and privileged-caller audit without blind production security mutation.
+5. Prepare the authenticated real-report trial only after fresh deployment and browser access are available.
+6. Update this index after every meaningful execution batch.
 
 Certification remains `BLOCKED` and `100% REAL RELEASE READY` remains `NO`.
