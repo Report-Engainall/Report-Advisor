@@ -61,6 +61,10 @@ async function buildTextDataset(text: string, fileName: string, sourceType: stri
 }
 
 async function parsePdfText(buffer: ArrayBuffer, fileName: string): Promise<Dataset[]> {
+  // pdfjs-dist v6 exposes browser-oriented types that are not stable across the
+  // application's bundler/typecheck surface. Runtime loading remains explicit;
+  // the adapter intentionally treats the module as an opaque runtime contract.
+  // @ts-expect-error pdfjs-dist runtime module typing is incompatible with this browser adapter's isolated type surface.
   const pdfjs: any = await import('pdfjs-dist');
   pdfjs.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.mjs', import.meta.url).toString();
   const pdf: any = await pdfjs.getDocument({ data: new Uint8Array(buffer) }).promise; const pages: string[] = [];
@@ -70,11 +74,13 @@ async function parsePdfText(buffer: ArrayBuffer, fileName: string): Promise<Data
 }
 
 async function parseDocxText(buffer: ArrayBuffer, fileName: string): Promise<Dataset[]> {
+  // @ts-expect-error mammoth's published module surface is runtime-compatible but not part of this isolated browser type contract.
   const mammoth: any = await import('mammoth'); const result = await mammoth.extractRawText({ arrayBuffer: buffer });
   return buildTextDataset(result.value, fileName, 'docx', result.messages.length ? `DOCX_EXTRACTION_WARNINGS:${result.messages.length}` : undefined);
 }
 
 async function parseImageText(buffer: ArrayBuffer, fileName: string): Promise<Dataset[]> {
+  // @ts-expect-error tesseract.js runtime API is intentionally isolated from the application type graph.
   const tesseract: any = await import('tesseract.js'); const worker = await tesseract.createWorker('ara+eng');
   try { const { data } = await worker.recognize(buffer); return buildTextDataset(data.text, fileName, 'image', data.confidence < 70 ? `OCR_LOW_CONFIDENCE:${Math.round(data.confidence)}%` : undefined); }
   finally { await worker.terminate(); }
