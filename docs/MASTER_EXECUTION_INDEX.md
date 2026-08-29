@@ -128,3 +128,197 @@ Supabase A/B tenant isolation; Storage; Realtime; AI/vector; authenticated brows
 6. Continue data-truth, security, semantic/document intelligence, reliability and product-value fronts.
 
 PRODUCTION CERTIFIED = NO until real LIVE evidence exists.
+
+---
+
+# FINAL OWNER-LEVEL REMAINING WORK REGISTER — 2026-08-30
+
+This section is the authoritative execution register for the final closure program. Historical sections above are preserved and are not rewritten or re-scored.
+
+## Evidence state model
+
+- 🟢 COMPLETED — requirement and applicable evidence are closed.
+- 🟡 IMPLEMENTED / VERIFICATION PENDING — implementation exists; required verification is not yet complete.
+- 🟠 RUNTIME PENDING — code/tests exist but live/runtime proof is missing.
+- 🔴 BLOCKED — a dependency or failing prerequisite prevents closure.
+- ⚫ NOT IMPLEMENTED — required capability is not present at the authoritative release head.
+
+Rule: historical evidence remains historical. No PASS is promoted across HEADs. Every PASS must bind to the exact release candidate SHA.
+
+## Authoritative release baseline
+
+- Current main SHA: 23e8f78466f34cf0b89852384d6848598843916e.
+- 23e8f7 is one documentation commit ahead of 459666ea7fca6a94eb2c7e6955a2d259e3d2b8ef; no application-code delta exists between those two commits.
+- Quality run for current main: 33276759334 — SUCCESS.
+- Production-evidence-boundary run for current main: 33276759335 — SUCCESS.
+- These runs prove repository gates only; they do NOT prove LIVE or Production Certification.
+- Production deployment previously observed was bound to 459666ea7fca6a94eb2c7e6955a2d259e3d2b8ef, not current main.
+- Current authoritative Supabase staging project: fnqbvfuwbdpwvhcgzksl.
+
+## R1 — CANONICAL FINAL RELEASE HEAD
+**Status: 🟡 IMPLEMENTED / VERIFICATION PENDING**
+Requirement: one authoritative release candidate with all included evidence bound to one SHA.
+Existing: current main 23e8f78466f34cf0b89852384d6848598843916e; quality + production-evidence gates succeeded.
+Remaining: review open PRs; classify merge/close/obsolete/evidence-only; selectively integrate only validated deltas; rerun full gates after every accepted merge.
+Key PRs: #99, #100, #101, #103, #98, #97, #95, #94, #93, #92, plus historical #18.
+Important: #103 is based directly on main but commit c66a6f169ead4d170f182432c6d4aeb7ac74a6a3 has a Vercel status failure/rate-limit; do not merge it as certified. #92/#93 are based on older main ancestry and require selective integration/revalidation, not blind merge.
+Acceptance: exact SHA + clean tree + accepted change inventory + all mandatory CI gates successful.
+
+## R2 — DATABASE / MIGRATION PARITY
+**Status: 🟡 IMPLEMENTED / VERIFICATION PENDING**
+Existing: extensive repository migration history; live migration ledger inspected; 76/76 public tables have RLS; 144 policies; 125 FKs; 181 indexes; 18 SECURITY DEFINER functions inspected for search_path hardening.
+Remaining: deterministic repository→fresh DB replay; schema diff; function/RPC/grant diff; policy diff; migration history parity against authoritative live project; resolve any drift.
+Key PR: #98; related security PRs #93/#95/#103.
+Acceptance: fresh database matches authoritative schema/security state and exact release SHA is recorded.
+
+## R3 — SECURITY FINAL CLOSURE
+**Status: 🟡 IMPLEMENTED / VERIFICATION PENDING**
+Existing: tenant-authoritative RPCs, RLS, cross-tenant FK hardening, decision DML hardening, export tenant authority.
+Remaining: authenticated A/B adversarial runtime; storage/signed URL isolation; realtime isolation; AI/vector namespace isolation; RPC grant matrix; SECURITY DEFINER review.
+Key PRs: #93, #95, #103; security branches retained as historical evidence.
+Acceptance: A/B negative tests pass against exact release candidate with reproducible evidence.
+
+## R4 — EXACT PRODUCTION DEPLOYMENT BINDING
+**Status: 🟠 RUNTIME PENDING**
+Existing: SPA fallback vercel.json is in main; current main CI passes.
+Remaining: fresh deployment whose immutable revision equals final release SHA; direct-route sweep; refresh/navigation/logout/login/network/console checks.
+Key commits/PRs: 459666ea7fca6a94eb2c7e6955a2d259e3d2b8ef, #97/#94 historical fixes.
+Acceptance: Production deployment SHA = certified SHA and representative routes load correctly.
+
+## R5 — AUTHENTICATED FULL E2E
+**Status: 🟠 RUNTIME PENDING**
+Existing: product journey contracts, decision/evidence surfaces, canonical routes and test gates exist.
+Remaining: real authenticated Login→Tenant→Import→Commit→Dashboard→Evidence→Recommendation→Decision→Approval→Work→Action→Receipt→Outcome journey, including negative/error/session cases.
+Key PR: #92; #86/#88 historical/parallel work.
+Acceptance: one complete live authenticated journey bound to exact SHA.
+
+## R6 — REAL DOCUMENT INTELLIGENCE
+**Status: 🟡 IMPLEMENTED / VERIFICATION PENDING**
+Existing: spreadsheet/CSV canonical ingestion plus document-intelligence contracts and provenance architecture.
+Remaining: integrate and verify real PDF/DOCX/image/OCR implementation; Arabic/English/mixed corpus; scanned/no-header/merged/multi-table/malformed/revised/duplicate cases; provenance and quarantine.
+Key PR: #99, not merged.
+Acceptance: golden corpus with deterministic expected outputs and provenance/quarantine evidence.
+
+## R7 — REAL BUSINESS CORPUS
+**Status: 🟠 RUNTIME PENDING**
+Existing: broad BI engines and canonical query boundaries.
+Remaining: populate safe realistic corpus covering products/customers/suppliers/sales/purchases/returns/inventory/payments/receivables/multiple periods/stockouts/substitution/anomaly/seasonality.
+Acceptance: expected-truth dataset and independent reconciliation across core intelligence.
+
+## R8 — CANONICAL BI / TRUTH CERTIFICATION
+**Status: 🟡 IMPLEMENTED / VERIFICATION PENDING**
+Existing: canonical RPCs and consumer migrations for data quality, dashboard intelligence, forecast, receivables, exports; NULL/UNKNOWN hardening.
+Remaining: complete KPI Definition→RPC→Service→UI→Report→Export matrix; verify date/status/as-of/filter/pagination/freshness semantics and cross-surface equality.
+Key files: src/lib/queries.ts and canonical report adapters; historical PRs #53/#55/#66 and later closure waves.
+Acceptance: every critical KPI has one canonical source and reconciles across all surfaces.
+
+## R9 — DECISION INTELLIGENCE FINAL LOOP
+**Status: 🟡 IMPLEMENTED / VERIFICATION PENDING**
+Existing: evidence ledger, recommendation/alert mutation hardening, decision lifecycle and action/outcome contracts; decision work-item authorization hardening exists on PR #103.
+Remaining: integrate validated decision-runtime hardening; execute live Insight→Evidence→Recommendation→Decision→Approval→Work→Action→Receipt→Outcome path; prove idempotency/no bypass/actor attribution/audit.
+Key PRs: #103, #92, #93.
+Acceptance: one complete authenticated live decision journey with immutable evidence.
+
+## R10 — WATCHED FOLDER / CONTINUOUS INTELLIGENCE
+**Status: 🟡 IMPLEMENTED / VERIFICATION PENDING**
+Existing: browser batch/folder contracts and watched-report pipeline foundation.
+Remaining: integrate/verify native Windows runtime, installer, IPC, events/polling, restart/crash recovery, revised-file detection, quarantine and end-to-end recalculation.
+Key PR: #100, not merged.
+Acceptance: new/changed file is detected, processed, reconciled and reflected in canonical intelligence after restart/recovery.
+
+## R11 — COMMERCIAL EQUIVALENCE GROUPS
+**Status: 🟡 IMPLEMENTED / VERIFICATION PENDING**
+Existing: alternative-group engines, governance/security/UI models and roadmap specification.
+Remaining: persistent model and complete merchant governance; effective dates; roles; conversion; substitution modes; conflict/cycle detection; historical reproducibility; group demand/coverage/lost-sales/replenishment/customer integration.
+Key files: src/lib/free-toolbox/alternative-group* and AlternativeGroupsPage.tsx.
+Acceptance: one complete approved group scenario reconciled at group/member/customer levels.
+
+## R12 — REPORT STUDIO / EXPORT
+**Status: 🟡 IMPLEMENTED / VERIFICATION PENDING**
+Existing: canonical report/export infrastructure, PDF multi-page support and tenant-authority hardening.
+Remaining: golden report corpus; PDF/Excel/CSV/print/RTL validation; snapshot/diff/reproducibility; UI-vs-export numeric reconciliation.
+Acceptance: export is canonical-truth equivalent to the corresponding UI/report snapshot.
+
+## R13 — AI FINAL PRODUCTIZATION
+**Status: 🟡 IMPLEMENTED / VERIFICATION PENDING**
+Existing: AI policy/tool/capability architecture and deterministic-first guardrails.
+Remaining: evidence-bound runtime scenarios; claim provenance; hallucination/unsupported-action negative tests; tenant/vector isolation; tool authorization.
+Acceptance: AI explains claims from evidence and cannot invent authoritative business facts or bypass authorization.
+
+## R14 — WORKERS / QUEUE / RELIABILITY
+**Status: 🟡 IMPLEMENTED / VERIFICATION PENDING**
+Existing: lease/heartbeat/retry/checkpoint/idempotency/DLQ foundations and resilience contracts.
+Remaining: live failure injection: kill worker, recover, resume exactly once; retry exhaustion; DLQ remediation; concurrency/backpressure.
+Key historical PR: #61; heartbeat closure #21.
+Acceptance: reproducible crash/recovery evidence on exact release.
+
+## R15 — PERFORMANCE / SCALE
+**Status: 🟡 IMPLEMENTED / VERIFICATION PENDING**
+Existing: performance budgets, bounded query/read contracts and extensive indexing.
+Remaining: real corpus load tests, query plans, N+1/payload/memory analysis, concurrent imports/analytics/exports; optimize only from evidence.
+Acceptance: measured baseline→change→result with no truth regression.
+
+## R16 — BACKUP / RESTORE / DR
+**Status: 🟠 RUNTIME PENDING**
+Existing: backup/recovery contracts and historical release/recovery gates.
+Remaining: actual backup, restore, integrity verification, files/artifacts/security verification, measured RPO/RTO.
+Acceptance: successful restore drill with recorded RPO/RTO.
+
+## R17 — OBSERVABILITY / OPERATIONS
+**Status: 🟡 IMPLEMENTED / VERIFICATION PENDING**
+Existing: operational/reliability contracts and telemetry-related architecture.
+Remaining: production error/worker/queue/DLQ/import/OCR/AI/export/auth telemetry, SLOs, alerts and alert test.
+Acceptance: operational dashboard plus triggered alert evidence.
+
+## R18 — CANARY / ROLLBACK
+**Status: 🟠 RUNTIME PENDING**
+Existing: rollback/release manifest contracts in historical execution index.
+Remaining: controlled canary, injected failure, rollback, verification and forward-fix drill on production-like deployment.
+Acceptance: reproducible rollback drill.
+
+## R19 — SAAS PRODUCTIZATION
+**Status: 🟡 IMPLEMENTED / VERIFICATION PENDING**
+Existing: entitlement/billing certification contracts and SaaS-related scripts.
+Remaining: live tenant onboarding→trial→entitlement→plan→upgrade/downgrade→expiry/grace→billing/webhook→closure lifecycle; server-side enforcement.
+Acceptance: complete lifecycle against a production-like tenant.
+
+## R20 — FINAL UX / PRODUCT JOURNEY
+**Status: 🟡 IMPLEMENTED / VERIFICATION PENDING**
+Existing: broad route/page surface, ProductJourneyNav and evidence/decision UX contracts.
+Remaining: mobile/desktop RTL sweep; loading/empty/partial/error/offline/permission states; accessibility; navigation consistency; evidence/decision/action drill-down.
+Acceptance: complete product journey test on real authenticated runtime.
+
+## R21 — FINAL BUSINESS ACCEPTANCE
+**Status: ⚫ NOT IMPLEMENTED AS CERTIFICATION EVIDENCE**
+Requirement: independent merchant-level acceptance that the system explains what changed, why, impact, evidence, action and outcome.
+Remaining: execute scripted business acceptance against golden corpus and live product journey; record findings and sign-off.
+Acceptance: business acceptance pack with traceable scenarios and no critical blocker.
+
+## R22 — FINAL PRODUCTION CERTIFICATION
+**Status: 🔴 BLOCKED**
+Dependency: R1–R21 applicable gates/evidence.
+Required evidence: exact code/CI/DB/security/tenant/storage/realtime/vector/runtime/E2E/real document corpus/real business corpus/canonical truth/decision loop/watcher/workers/performance/backup/restore/observability/canary/rollback/SaaS/UX/business acceptance.
+Acceptance: independent trace from Requirement→Code→DB→Security→Runtime→Evidence→Production on one exact release SHA.
+Current certification: PRODUCTION CERTIFIED = NO.
+
+## Current execution order
+
+R1 → R2 → R3 → R4 → R5 → R6 → R7 → R8 → R9 → R10 → R11 → R12 → R13 → R14 → R15 → R16 → R17 → R18 → R19 → R20 → R21 → R22
+
+## Release decision rule
+
+A stage may move from 🟡/🟠 to 🟢 only when its stated acceptance evidence is attached to the exact release candidate SHA. A stage may not become 🟢 merely because its source files exist or a historical branch passed CI.
+
+## Current completion dashboard
+
+| Level | Current state |
+|---|---|
+| Built / Implemented | High; broad foundation exists |
+| Integrated into current main | Moderate–high; several late closure PRs remain outside main |
+| Verified by current-main CI | 🟢 current main quality + production-evidence boundary pass |
+| Runtime Proven | 🟠 major live evidence remains |
+| Production Certified | 🔴 NO |
+
+Authoritative current-main CI evidence: 33276759334 and 33276759335, both bound to 23e8f78466f34cf0b89852384d6848598843916e.
+
+**No historical PASS is promoted.**
