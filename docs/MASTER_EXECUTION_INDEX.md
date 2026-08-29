@@ -89,3 +89,15 @@ Quality workflow run: `33269178121`.
 Result: **PASS** — all 52 substantive verification steps completed successfully, including typecheck, behavioral/BI/deep-golden/outcome/file-security/decision-evidence regressions, the new canonical lifecycle mutation boundary guard, tenant/RLS/import guards, lint, build, performance budget, document intelligence, report truth, production readiness and full resilience.
 
 This PASS is exact-head-bound to `555bd778dc82543ee127bd8692503e8635d9bd13`; it does not prove live runtime, production deployment equivalence, migration parity, or real-data reconciliation.
+
+
+## Fresh deployment/runtime evidence — 2026-08-29
+- Exact head: `c25a0ad9f8d59e01410f7e44b8fdd301672ad291`.
+- Vercel deployment: `dpl_2HPxJDQuX7dfTxnCKbs8WzpWxkQB`.
+- Deployment state: READY.
+- Deployment metadata binds the Git SHA exactly to `c25a0ad9f8d59e01410f7e44b8fdd301672ad291`.
+- Direct deep-route `/dashboard` returned HTTP 200 with the application `index.html`, proving the SPA rewrite is active on the fresh deployment.
+- Vercel runtime-log count for the selected preview deployment/time window returned no runtime log entries; this is not equivalent to browser console certification.
+- Broader route sweep could not be completed because Vercel protection-bypass requests hit a 429 rate limit. Therefore full browser route/network/console certification remains NOT PROVEN.
+
+Quality run on the exact head: `33269239425` → PASS (52 substantive verification steps).
