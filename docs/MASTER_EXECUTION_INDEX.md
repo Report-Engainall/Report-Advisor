@@ -164,7 +164,7 @@ Additional advisor finding: leaked-password protection is disabled. This remains
 - Vercel deployment `dpl_9XiBy6ieMGwZRWCYg6CfX2ky8KJZ` is READY and tied to exact Git SHA `238c63ba129e5da3792adca94146187dd743d92f`.
 - Vercel build error scan contains no build failures; only npm allow-scripts and Browserslist warnings.
 - Vercel runtime error scan for the selected 24h window reports no runtime errors.
-- Exact-head GitHub Actions for `238c63ba129e5da3792adca94146187dd7433e66ccf8a62b183552a872a718ef8` were not observed at the time of this update; no PASS is claimed.
+- Exact-head GitHub Actions for `238c63ba129e5da3792adca94146187dd743d92f` were not observed at the time of this update; no PASS is claimed.
 
 ## Parallel remaining fronts
 ### Front A — Canonical Data Truth
