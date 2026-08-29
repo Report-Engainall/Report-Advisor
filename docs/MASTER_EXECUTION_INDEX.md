@@ -3,7 +3,7 @@
 Snapshot: 2026-08-29
 Repository: `Report-Engainall/Report-Advisor`
 Branch: `feat/windows-desktop-watched-folder`
-Current branch HEAD at this update: `9f2257fe7e7f87f890f023f0d26692c02c4af61a`
+Current branch HEAD at this update: `6f987e71606211d466b7286000b0c5d2485202d6`
 
 ## Permanent execution policy
 `PARALLEL DISCOVERY → FAILURE-FAMILY INVENTORY → ROOT-CAUSE CLUSTERING → BATCH IMPLEMENTATION → CONSUMER/LEGACY CLOSURE → BATCH REGRESSION → EXACT-HEAD CI → VERIFY → INDEX → NEXT PARALLEL FRONTS`
@@ -77,7 +77,7 @@ Fixes:
 - selected Windows directory is persisted under Electron `app.getPath('userData')` as `folder-watch.json`.
 - startup restores the persisted selection without automatically starting file processing before the authenticated application session is ready.
 - preload exposes `getSelectedDirectory()` and an explicit `forget()` action.
-- UI now restores the selected folder after restart and `startWatch()` resumes it without forcing another directory picker.
+- UI restores the selected folder after restart and `startWatch()` resumes it without forcing another directory picker.
 - tray includes a deliberate "forget sync folder" action that clears the local configuration.
 
 Commits:
@@ -91,31 +91,70 @@ A fixed 1.2s event delay alone does not guarantee that a large Onyx/export file 
 Disposition: `FIXED IN CODE → RUNTIME NOT PROVEN`.
 
 Fix:
-- native `read-file` now requires the resolved file to have a stable `size:mtimeMs` signature across repeated checks before returning bytes.
+- native `read-file` requires the resolved file to have a stable `size:mtimeMs` signature across repeated checks before returning bytes.
 - the stability gate retries for up to five checks and returns `WATCH_FILE_STILL_WRITING` rather than silently returning a potentially partial file.
 - the check runs after realpath containment, so it cannot widen filesystem authority.
-- the Windows watcher contract now protects the stable-read behavior.
+- the Windows watcher contract protects the stable-read behavior.
 
-Commit:
+Commits:
 - `36b37b0fdbc126166d5b179c481bf38d82f31ddd` — stable report read before import.
 - `9f2257fe7e7f87f890f023f0d26692c02c4af61a` — regression contract + index update.
 
-Current status: `IMPLEMENTED → CONTRACT UPDATED → EXACT-HEAD CI PENDING`.
+### New forensic reliability closure — 2026-08-29
+The next inspection found a subtle retryability defect: the watcher could mark a file as `known` before the renderer successfully consumed it. If the file was still being written, a later polling pass could suppress the retry even though the import had never occurred.
 
-## Earlier CI evidence
-Branch head `097ab3527614e22c98f30aa8652e9406dff14657` had the full repository CI suite successful:
-- `quality` run `33272680089`: SUCCESS.
-- `integrity-batch` run `33272680072`: SUCCESS.
-- `batch-integrity-guards` run `33272680100`: SUCCESS.
-- `production-chain-guard` run `33272680078`: SUCCESS.
-- `file-intelligence-security` run `33272680095`: SUCCESS.
-- `file-engine-header-contract` run `33272680097`: SUCCESS.
-- `ci-bootstrap-smoke` run `33272680074`: SUCCESS.
+Disposition: `FIXED IN CODE → EXACT-HEAD CI PENDING`.
 
-An earlier desktop workflow defect (`npm run package:win` from the wrong working directory) was corrected to `npm --prefix desktop run package:win` and subsequent repository CI passed.
+Fix:
+- introduced a native `pending` set to suppress only concurrent duplicate checks.
+- the file is added to `known` only after the stability gate succeeds and the event is emitted.
+- unstable files therefore remain eligible for a later filesystem event/polling retry instead of becoming permanently suppressed.
+- watcher event delay was reduced to 200ms because the authoritative stability gate now controls readiness.
+- startup persisted-folder restoration validates that the stored path is still a directory before accepting it.
 
-## Forensic execution note — main branch procedural correction
-During this cycle, desktop files were accidentally written to `main` because the GitHub contents API defaults to the default branch when `branch` is omitted. The files were immediately deleted from `main`; no desktop implementation remains there. This created revert commits on `main`, so the historical SHA `4da16b9a...` is not the literal current main ref. Do not claim otherwise. The certification baseline remains the historical protected candidate for evidence comparison; new work is isolated on the feature branch.
+Commit:
+- `98d58d83329825b2544844ab54c45c16f8f1af9a` — retry-safe stability gate and watcher state handling.
+
+### Renderer/native contract reconciliation — 2026-08-29
+Forensic CI on the resulting PR merge ref exposed a stale TypeScript declaration: the native bridge had already moved to `start()` and `relativePath`, while `src/vite-env.d.ts` still declared `start(root)` and an obsolete absolute `path` payload.
+
+Disposition: `FIXED`.
+
+Fix:
+- renderer declaration now exactly mirrors the preload contract.
+- `getSelectedDirectory()` and `forget()` are typed.
+- `start()` takes no renderer filesystem root.
+- file events expose `relativePath` only.
+
+Commit:
+- `6f987e71606211d466b7286000b0c5d2485202d6` — renderer IPC contract reconciliation.
+
+### Exact-head CI forensic result — 2026-08-29
+The exact branch head `6f987e...` generated the repository PR merge ref `72aaad57...`. Most architectural/security/intelligence gates passed, including tenant/RLS, migration schema audit, watched-folder foundation, canonical import mapping, Onyx adapter, decision/runtime contracts, production readiness, report-truth contract and document-intelligence hardening.
+
+The CI run exposed one concrete application defect:
+- `FolderBatchImportPanel.tsx` had malformed JSX (`Badge` missing its closing tag), causing `typecheck`, `lint`, and `build` to fail.
+- the performance budget failure was a downstream consequence because `dist/index.html` was never produced after the build failure.
+
+Disposition: `ROOT CAUSE IDENTIFIED → FIXED IN CODE → NEW CI PENDING`.
+
+Fix commit:
+- `ee6443f2518e6c57aa8f406f313e6115327963bc` — rewrote the watched-folder panel JSX into structurally valid JSX while preserving canonical import wiring and added a small in-flight native-file guard.
+
+Evidence from run `33274234759`:
+- `Typecheck`: FAIL — malformed `Badge` JSX.
+- `Lint`: FAIL — same single parsing error plus non-blocking warnings.
+- `Build`: FAIL — same JSX parse error; 1585 modules transformed before failure.
+- `Performance budget`: FAIL only because `dist/index.html` was absent after build failure.
+- `Global tenant RLS`: PASS.
+- `Import RPC tenant context`: PASS.
+- `Import business key`: PASS.
+- document-intelligence hardening: `20/20 PASS`.
+- report truth: PASS.
+- production readiness: PASS.
+- operational/document resilience: PASS.
+
+Important: the run is not promoted to a PASS for the corrected head until a fresh exact-head CI cycle proves it.
 
 ## Security/data-truth safeguards in desktop work
 - Native host does not expose Node integration to renderer.
@@ -131,7 +170,7 @@ During this cycle, desktop files were accidentally written to `main` because the
 - `NOT PROVEN`: exact-head Windows installer artifact.
 - `NOT PROVEN`: install/run on a real Windows machine.
 - `NOT PROVEN`: authenticated tenant session + real report copied into watched folder → canonical import → database → analytics → UI.
-- `NOT PROVEN`: partial-write safety against a real Onyx/export writer (stable-read guard implemented; live writer test still required).
+- `NOT PROVEN`: partial-write safety against a real Onyx/export writer (stability/retry guard implemented; live writer test still required).
 - `NOT PROVEN`: offline/reconnect behavior.
 - `NOT PROVEN`: restart persistence of the watched-folder configuration (code path implemented; live restart evidence still required).
 - `NOT PROVEN`: UNC/network share behavior; currently outside browser capability boundary and requires dedicated local-agent/network capability.
@@ -184,7 +223,7 @@ During this cycle, desktop files were accidentally written to `main` because the
 Supabase A/B tenant isolation; Storage; Realtime; AI/vector; authenticated browser E2E; real OCR/document corpus; worker crash/recovery/DLQ; native watcher; backup restore/RPO/RTO; production telemetry; load/canary/rollback; production scale/query-plan evidence.
 
 ## Current next actions
-1. Run/inspect exact-head CI for `9f2257f...`.
+1. Fresh exact-head CI for corrected head `ee6443f...` and its resulting merge ref.
 2. Verify Windows artifact build from the dedicated Windows runner.
 3. Perform real Windows install/run and watched-folder test when artifact is available.
 4. Reconcile branch against migration/security forensic findings before promotion.
