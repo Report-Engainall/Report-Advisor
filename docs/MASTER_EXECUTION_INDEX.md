@@ -12,7 +12,7 @@ No historical PASS promotion. No scanner-only closure. No runtime/LIVE/productio
 ## Exact state
 - Owner certification baseline: `4da16b9a7433e66ccf8a62b183552a872a718ef8`.
 - Current working branch: `hardening/decision-runtime-authorization`.
-- Current recorded verification head before this index-only commit: `e61c3e436db08ec81cc4bcf17908b0f434974de2`.
+- Current verification head before this index-only commit: `9a293d375d9a7d424af52966fb0eb4917f7fbdec`.
 - Production certification remains `NO`.
 
 ## Vercel SPA direct-route certification defect
@@ -24,7 +24,7 @@ Canonical fix: root `vercel.json` catch-all rewrite to `/index.html`.
 
 Historical fix commit: `459666ea7fca6a94eb2c7e6955a2d259e3d2b8ef`.
 
-Status: `FIX COMMITTED → FRESH DEPLOYMENT REQUIRED → RUNTIME VERIFICATION PENDING`.
+Status: `FIX COMMITTED → HISTORICAL FIX DEPLOYMENT VERIFIED FOR /login → CURRENT-HEAD DEPLOYMENT NOT PROVEN`.
 
 ## Existing closure status retained
 ### P0 — Data Quality
@@ -96,7 +96,7 @@ Scope: authoritative Supabase project `fnqbvfuwbdpwvhcgzksl` and repository exac
 10. Confirmed `PUBLIC` has no direct table privileges on the same core tables checked.
 11. Confirmed `anon` EXECUTE on SECURITY DEFINER functions: `0`.
 12. Confirmed `PUBLIC` EXECUTE on SECURITY DEFINER functions: `0`.
-13. Enumerated the six PUBLIC-executable helper/trigger functions; all are non-SECURITY-DEFINER helper/trigger routines, not lifecycle SECURITY DEFINER RPCs.
+13. Enumerated PUBLIC-executable helper/trigger functions; they are non-SECURITY-DEFINER helper/trigger routines, not lifecycle SECURITY DEFINER RPCs.
 14. Verified authenticated lifecycle table privileges: SELECT plus only intentional INSERT surfaces; no UPDATE/DELETE/TRUNCATE on decision lifecycle tables.
 15. Verified lifecycle direct UPDATE/DELETE/TRUNCATE grants for authenticated role: `0`.
 16. Verified core tenant-scoped tables `products`, `sales_invoices`, and `purchase_invoices` use `current_company_id()` in tenant policies.
@@ -107,27 +107,57 @@ Scope: authoritative Supabase project `fnqbvfuwbdpwvhcgzksl` and repository exac
 21. Verified live companies count is `2`, consistent with the known empty-business-corpus state.
 22. Reviewed open certification Issues; current explicit blockers include Windows desktop watcher runtime evidence (#102), repository/live migration reconciliation (#96), and deep exact-head/live certification (#62).
 23. Reviewed active PR inventory; certification-sensitive work remains unmerged/draft and is not treated as production proof.
-24. Inspected PR #101's proposed bounded-parallel 20-stage release-readiness contract; it contains 20 repository-native stages but remains a separate draft branch and is not silently promoted into the current head.
+24. Inspected PR #101's proposed bounded-parallel 20-stage release-readiness contract; it remains a separate draft branch and is not silently promoted into the current head.
 25. Compared `e61c3e4` against its main base `23e8f784`; it is exactly `11` commits ahead and `0` behind, with six changed files in the current decision-runtime verification branch.
 
 ### Interpretation
 - Security posture for inspected core tables and SECURITY DEFINER RPCs is strong and evidence-backed, but this is not a complete production security certification.
 - The two child tables without a direct `company_id` (`sale_items`, `purchase_items`) are not automatically a defect because tenant authority is enforced through their invoice parent; the existing FK/policy structure was inspected before any mutation decision.
-- The six PUBLIC-executable routines are trigger/helper functions and are not SECURITY DEFINER. No mutation was performed merely to remove safe trigger execution privileges.
+- PUBLIC-executable helper/trigger routines are not SECURITY DEFINER. No mutation was performed merely to remove safe trigger execution privileges.
 - Empty business data means real-data reconciliation and authenticated A/B tenant runtime certification remain impossible to promote to PASS from current live data alone.
 - PR #101's 20-stage orchestrator is valuable but is not part of the current exact head; no cross-branch cherry-pick or merge was performed.
 
-### Current certification state after sweep
-`CI ON e61c3e4 = PASS (7/7 historical exact-head workflows)`  
-`LIVE SECURITY CORE SWEEP = PARTIAL / VERIFIED FOR INSPECTED SURFACE`  
-`REAL DATA TRUTH = NOT PROVEN (empty business corpus)`  
-`FRESH DEPLOYMENT ↔ CURRENT HEAD = NOT PROVEN`  
-`BROWSER E2E = NOT PROVEN`  
+## 2026-08-30 — exact-head CI + deployment/runtime evidence sweep
+Scope: repository exact head `9a293d375d9a7d424af52966fb0eb4917f7fbdec` and Vercel project `report-advisor`.
+
+### Exact-head CI evidence
+- Quality run `33278410174` completed `SUCCESS` with all `51/51` verification steps successful, including intelligence, analysis runtime, document intelligence, document-intelligence service runtime, report truth, production readiness and full resilience gate.
+- The seven associated workflows on `9a293d...` all completed successfully: `quality`, `integrity-batch`, `file-intelligence-security`, `production-chain-guard`, `batch-integrity-guards`, `ci-bootstrap-smoke`, and `file-engine-header-contract`.
+
+### Vercel deployment binding
+- Latest READY deployment `dpl_HLDC8cdG6QUtheN2J9CqtZyT6RXW` is bound to `e61c3e436db08ec81cc4bcf17908b0f434974de2`, not to current exact head `9a293d...`.
+- Historical exact deployment therefore cannot certify current HEAD.
+- The GitHub Vercel status for `9a293d...` is `failure` with target `build-rate-limit`; this is an external Vercel quota/rate-limit blocker, not an application build failure.
+- The READY `e61c3e4` deployment build logs show the Vite production build completed successfully in `8.06s`, outputs were deployed, and build cache creation/upload completed. This is useful historical deployment evidence but remains bound to `e61c3e4`.
+
+### Direct-route verification on the READY e61c3e4 deployment
+- Direct `/login` fetch returned HTTP `200` and served the SPA `index.html` with the expected Arabic RTL shell and compiled assets.
+- This verifies the historical SPA fallback fix on the READY `e61c3e4` deployment.
+- It does **not** certify current `9a293d...` runtime because the deployment SHA differs.
+- Root/dashboard access through the protected preview surface returned Vercel SSO redirects; this is an access-layer constraint, not evidence of an application 500.
+
+### Runtime telemetry
+- Vercel grouped runtime-error query for the project over the previous 24h returned `No runtime errors found`.
+- Preview runtime status-code grouping for `dpl_HLDC8cdG6QUtheN2J9CqtZyT6RXW` returned no recorded status-code entries in the selected window.
+- These are absence-of-observed-error signals, not proof of authenticated E2E correctness.
+
+### Repository route surface audit
+Current `src/App.tsx` defines BrowserRouter routes for dashboard, command center, import, data quality, reports and report subroutes, analytics and analytics subroutes, intelligence and intelligence subroutes, customers, products, inventory, alternative groups, settings and profile settings, with an explicit NotFound route and an application ErrorBoundary.
+
+### Current status after this sweep
+`CURRENT EXACT HEAD CI = PASS (7/7)`  
+`QUALITY = 51/51 PASS`  
+`CURRENT-HEAD VERCEL DEPLOYMENT = BLOCKED BY BUILD RATE LIMIT`  
+`READY DEPLOYMENT SHA = e61c3e4 (historical, not current)`  
+`/login ON e61c3e4 DEPLOYMENT = HTTP 200`  
+`RUNTIME ERRORS OBSERVED = 0 in selected 24h project window`  
+`REAL DATA TRUTH = NOT PROVEN (empty live business corpus)`  
+`AUTHENTICATED BROWSER E2E = NOT PROVEN`  
 `FINAL CERTIFICATION = BLOCKED`
 
 ## Next resume point
-1. Preserve the new index commit as the new exact repository state; re-prove CI on that exact SHA because this index update changes HEAD.
-2. Bind a fresh deployment to that SHA before runtime certification.
-3. Execute authenticated browser route/network/console verification.
-4. Continue live A/B tenant, storage/realtime/vector, worker/watcher, backup/restore, and real-corpus evidence closure.
+1. Re-prove CI on this index-update SHA because this documentation mutation changes exact HEAD.
+2. Obtain a fresh Vercel deployment bound to that exact SHA after the current build-rate-limit blocker clears; do not bypass the quota.
+3. Execute authenticated browser route/network/console verification across the critical route matrix.
+4. Continue live A/B tenant, Storage/Realtime/vector, worker/watcher, backup/restore, and real-corpus evidence closure.
 5. Reconcile repository migration files against the live migration ledger/object definitions before any certification promotion.
