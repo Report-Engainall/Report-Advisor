@@ -3,7 +3,7 @@
 Snapshot: 2026-08-29
 Repository: `Report-Engainall/Report-Advisor`
 Branch: `feat/windows-desktop-watched-folder`
-Current branch HEAD at this update: `577c9274a36d70e970d19dcc8adbe7f326974152`
+Current branch HEAD at this update: `a775958dd98e9ea2c3bbaeeb30dde18d368c30b0`
 
 ## Permanent execution policy
 `PARALLEL DISCOVERY → FAILURE-FAMILY INVENTORY → ROOT-CAUSE CLUSTERING → BATCH IMPLEMENTATION → CONSUMER/LEGACY CLOSURE → BATCH REGRESSION → EXACT-HEAD CI → VERIFY → INDEX → NEXT PARALLEL FRONTS`
@@ -63,10 +63,27 @@ Fixes:
 - contract test explicitly rejects the old unsafe IPC shapes.
 
 Commits:
-- `301259e5e13cce51da48fc653cdc57eb8741afe9` — native IPC hardening.
-- `cb58f200793ea9b9fe10a0f3d136753bc86bfb14` — relative-path preload bridge.
-- `f464a8e4c2f7bebde3b52d3231bf10f551f4b718` — canonical UI wiring to relative paths.
-- `577c9274a36d70e970d19dcc8adbe7f326974152` — regression contract + this index update.
+- `3012595...` — native IPC hardening.
+- `cb58f20...` — relative-path preload bridge.
+- `f464a8e...` — canonical UI wiring to relative paths.
+- `577c927...` — regression contract + index update.
+
+### New reliability finding and canonical fix — 2026-08-29
+The native watcher retained the selected directory only in process memory. A desktop restart would therefore require selecting the folder again, contradicting the intended "choose once and resume" desktop workflow.
+
+Disposition: `FIXED IN CODE → RUNTIME NOT PROVEN`.
+
+Fixes:
+- selected Windows directory is persisted under Electron `app.getPath('userData')` as `folder-watch.json`.
+- startup restores the persisted selection without automatically starting file processing before the authenticated application session is ready.
+- preload exposes `getSelectedDirectory()` and an explicit `forget()` action.
+- UI now restores the selected folder after restart and `startWatch()` resumes it without forcing another directory picker.
+- tray includes a deliberate "forget sync folder" action that clears the local configuration.
+
+Commits:
+- `a11110184cfdc8e67d651ead2ac699b2297ae3f0` — persisted native watched-folder configuration.
+- `eb398d664a17fbcc38ba33f07bcdca4d73dfaf56` — isolated preload API for restored selection.
+- `a775958dd98e9ea2c3bbaeeb30dde18d368c30b0` — UI resume flow and this index update.
 
 Current status: `IMPLEMENTED → CONTRACT UPDATED → EXACT-HEAD CI PENDING`.
 
@@ -93,6 +110,7 @@ During this cycle, desktop files were accidentally written to `main` because the
 - Local absolute paths are not sent into import evidence.
 - Native host reuses the existing tenant-aware canonical import pipeline rather than bypassing RPC/import controls.
 - No database schema or production data mutation was performed by this desktop branch.
+- Persisted desktop configuration is local machine state only; it is not treated as tenant truth or database evidence.
 
 ## Remaining Windows Desktop proof
 - `NOT PROVEN`: exact-head Windows installer artifact.
@@ -100,7 +118,7 @@ During this cycle, desktop files were accidentally written to `main` because the
 - `NOT PROVEN`: authenticated tenant session + real report copied into watched folder → canonical import → database → analytics → UI.
 - `NOT PROVEN`: partial-write safety against a real Onyx/export writer.
 - `NOT PROVEN`: offline/reconnect behavior.
-- `NOT PROVEN`: restart persistence of the watched-folder configuration.
+- `NOT PROVEN`: restart persistence of the watched-folder configuration (code path implemented; live restart evidence still required).
 - `NOT PROVEN`: UNC/network share behavior; currently outside browser capability boundary and requires dedicated local-agent/network capability.
 
 ## Parallel remaining fronts
@@ -151,7 +169,7 @@ During this cycle, desktop files were accidentally written to `main` because the
 Supabase A/B tenant isolation; Storage; Realtime; AI/vector; authenticated browser E2E; real OCR/document corpus; worker crash/recovery/DLQ; native watcher; backup restore/RPO/RTO; production telemetry; load/canary/rollback; production scale/query-plan evidence.
 
 ## Current next actions
-1. Run/inspect exact-head CI for `577c9274...`.
+1. Run/inspect exact-head CI for `a775958...`.
 2. Verify Windows artifact build from the dedicated Windows runner.
 3. Perform real Windows install/run and watched-folder test when artifact is available.
 4. Reconcile branch against migration/security forensic findings before promotion.
