@@ -22,8 +22,7 @@ jobs:
       - name: Native watcher contract
         run: node scripts/check-windows-desktop-folder-watch-contract.mjs
       - name: Native runtime smoke
-        working-directory: desktop
-        run: npm run smoke:native
+        run: npm --prefix desktop run smoke:native
       - name: Package Windows installer
         run: npm --prefix desktop run package:win
       - name: Upload installer
