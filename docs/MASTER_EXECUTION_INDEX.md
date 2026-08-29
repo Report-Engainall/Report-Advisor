@@ -3,7 +3,7 @@
 Snapshot: 2026-08-29
 Repository: `Report-Engainall/Report-Advisor`
 Branch: `feat/windows-desktop-watched-folder`
-Current branch HEAD at this update: `a775958dd98e9ea2c3bbaeeb30dde18d368c30b0`
+Current branch HEAD at this update: `9f2257fe7e7f87f890f023f0d26692c02c4af61a`
 
 ## Permanent execution policy
 `PARALLEL DISCOVERY → FAILURE-FAMILY INVENTORY → ROOT-CAUSE CLUSTERING → BATCH IMPLEMENTATION → CONSUMER/LEGACY CLOSURE → BATCH REGRESSION → EXACT-HEAD CI → VERIFY → INDEX → NEXT PARALLEL FRONTS`
@@ -85,6 +85,21 @@ Commits:
 - `eb398d664a17fbcc38ba33f07bcdca4d73dfaf56` — isolated preload API for restored selection.
 - `a775958dd98e9ea2c3bbaeeb30dde18d368c30b0` — UI resume flow and this index update.
 
+### New reliability finding and canonical fix — 2026-08-29
+A fixed 1.2s event delay alone does not guarantee that a large Onyx/export file has finished writing. Reading during an active write could still import a partial document.
+
+Disposition: `FIXED IN CODE → RUNTIME NOT PROVEN`.
+
+Fix:
+- native `read-file` now requires the resolved file to have a stable `size:mtimeMs` signature across repeated checks before returning bytes.
+- the stability gate retries for up to five checks and returns `WATCH_FILE_STILL_WRITING` rather than silently returning a potentially partial file.
+- the check runs after realpath containment, so it cannot widen filesystem authority.
+- the Windows watcher contract now protects the stable-read behavior.
+
+Commit:
+- `36b37b0fdbc126166d5b179c481bf38d82f31ddd` — stable report read before import.
+- `9f2257fe7e7f87f890f023f0d26692c02c4af61a` — regression contract + index update.
+
 Current status: `IMPLEMENTED → CONTRACT UPDATED → EXACT-HEAD CI PENDING`.
 
 ## Earlier CI evidence
@@ -116,7 +131,7 @@ During this cycle, desktop files were accidentally written to `main` because the
 - `NOT PROVEN`: exact-head Windows installer artifact.
 - `NOT PROVEN`: install/run on a real Windows machine.
 - `NOT PROVEN`: authenticated tenant session + real report copied into watched folder → canonical import → database → analytics → UI.
-- `NOT PROVEN`: partial-write safety against a real Onyx/export writer.
+- `NOT PROVEN`: partial-write safety against a real Onyx/export writer (stable-read guard implemented; live writer test still required).
 - `NOT PROVEN`: offline/reconnect behavior.
 - `NOT PROVEN`: restart persistence of the watched-folder configuration (code path implemented; live restart evidence still required).
 - `NOT PROVEN`: UNC/network share behavior; currently outside browser capability boundary and requires dedicated local-agent/network capability.
@@ -169,7 +184,7 @@ During this cycle, desktop files were accidentally written to `main` because the
 Supabase A/B tenant isolation; Storage; Realtime; AI/vector; authenticated browser E2E; real OCR/document corpus; worker crash/recovery/DLQ; native watcher; backup restore/RPO/RTO; production telemetry; load/canary/rollback; production scale/query-plan evidence.
 
 ## Current next actions
-1. Run/inspect exact-head CI for `a775958...`.
+1. Run/inspect exact-head CI for `9f2257f...`.
 2. Verify Windows artifact build from the dedicated Windows runner.
 3. Perform real Windows install/run and watched-folder test when artifact is available.
 4. Reconcile branch against migration/security forensic findings before promotion.
