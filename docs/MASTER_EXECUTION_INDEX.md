@@ -70,7 +70,7 @@ Canonical fix:
 ## LIVE migration ledger reconciliation — corrected history
 A prior query interpretation incorrectly compared migration filenames to the `version` column. Supabase stores generated numeric `version` and human-readable `name` separately. The authoritative migration listing confirmed the previously questioned six migrations are present by `name`.
 
-Status of that prior finding: `SUPERSEDED / FALSE POSITIVE DUE TO QUERY INTERPRETATION`, preserved here for forensic history.
+Status of that prior finding: `SUPERSEDED / FALSE POSITIVE DUE TO QUERY INTERPRETATION`, preserved for forensic history.
 
 ## LIVE decision-runtime migration application
 Object-level reconciliation found `complete_decision_work_item(...)` existed but `create_decision_work_item(...)` did not.
@@ -82,23 +82,32 @@ Action:
 
 Status: `LIVE MIGRATION APPLIED → OBJECT VERIFIED → AUTHORIZATION BEHAVIOR TESTING REQUIRED`.
 
-## NEW LIVE SECURITY FINDING — anonymous EXECUTE
-After application of the migration, a live privilege query found:
-- `anon_execute = TRUE` for `public.create_decision_work_item(...)`.
-- `authenticated_execute = TRUE`.
-- Migration is recorded in the live ledger.
+## Security finding — anonymous/public EXECUTE on decision action RPC
+Discovery: after the decision migration, a live privilege check initially reported `anon_execute = TRUE` for `create_decision_work_item(...)`.
 
-Classification: `P0/P1 SECURITY / RPC GRANT MISCONFIGURATION`.
+Root cause: PostgreSQL grants EXECUTE on newly created functions to `PUBLIC` by default. Revoking only from `anon` is insufficient because `anon` inherits the PUBLIC privilege.
 
-Impact: the RPC is SECURITY DEFINER and therefore must not be anonymously executable. The function itself checks `auth.uid()`, so an anonymous caller should be rejected at runtime, but exposing EXECUTE to `anon` is still an unnecessary and unsafe privilege boundary and violates the intended authenticated-only contract.
+Canonical fix:
+- Added `supabase/migrations/20260830170000_revoke_anon_decision_work_item_execute.sql`.
+- Added `supabase/migrations/20260830171000_revoke_public_decision_work_item_execute.sql`.
+- Final security migration explicitly revokes EXECUTE from `PUBLIC` and grants it only to `authenticated`.
+- Applied the canonical revocation to live project `fnqbvfuwbdpwvhcgzksl`.
 
-Decision: `FIX REQUIRED`. Do not claim the new decision action boundary as security-closed until anonymous EXECUTE is revoked and the privilege is re-verified.
+Post-fix live verification:
+```text
+public_execute       = false
+anon_execute         = false
+authenticated_execute = true
+migration_recorded   = true
+```
 
-Safety: no bypass, no disabling of security, no unrelated mutation.
+Status: `DEFECT CONFIRMED → ROOT CAUSE IDENTIFIED → CANONICAL FIX COMMITTED → LIVE FIX APPLIED → PRIVILEGE VERIFIED CLOSED`.
+
+The earlier `anon_execute=true` finding remains in forensic history; it is not deleted or rewritten.
 
 ## Exact-head CI history
 - `0abab5e6db11791ae0d13575253ca120b5912982`: Quality run `33277721910` SUCCESS, 51/51.
-- Current documentation/index mutation creates newer HEADs; each newer HEAD requires fresh CI evidence.
+- Subsequent index/security migration commits create newer HEADs; those newer HEADs require fresh CI evidence before current-branch certification.
 
 ## Deployment binding history
 - Ready deployment `dpl_8XjutNjdCyF55FcBSc4b4jUMWL1P` used SHA `5dd99a754ee0e18272d65e4f845e84135253a2a4`, not the later exact candidate.
@@ -106,25 +115,26 @@ Safety: no bypass, no disabling of security, no unrelated mutation.
 
 ## Current status
 ```text
-EXACT-HEAD CI (0abab5e)        PASS / HISTORICAL
-LIVE MIGRATION                 APPLIED
-DECISION RPC                   EXISTS
-ANON EXECUTE ON DECISION RPC  FAIL — FIX REQUIRED
-CURRENT BRANCH CI              NOT YET PROVEN AFTER INDEX COMMITS
-FRESH EXACT-HEAD DEPLOYMENT    NOT PROVEN
-BROWSER RUNTIME                NOT PROVEN
-REAL DATA RECONCILIATION       NOT PROVEN
-CERTIFICATION                  BLOCKED
+DECISION ACTION RPC                 LIVE
+DECISION RPC PUBLIC EXECUTE         CLOSED
+DECISION RPC ANON EXECUTE           CLOSED
+DECISION RPC AUTHENTICATED EXECUTE  ENABLED
+LIVE MIGRATION                      APPLIED
+EXACT-HEAD CI (0abab5e)             PASS / HISTORICAL
+CURRENT BRANCH CI                   NOT YET PROVEN AFTER LATEST COMMITS
+FRESH EXACT-HEAD DEPLOYMENT          NOT PROVEN
+BROWSER RUNTIME                     NOT PROVEN
+REAL DATA RECONCILIATION            NOT PROVEN
+CERTIFICATION                       BLOCKED
 ```
 
 ## Current resume point
-1. Revoke anonymous EXECUTE on `create_decision_work_item(...)` using a tracked canonical migration; verify authenticated-only grants.
-2. Update repository guard/tests for the grant boundary if not already covered.
-3. Obtain fresh exact-head CI after the security fix and index update.
-4. Re-test decision approval/action/outcome behavior with authenticated context when available.
-5. Obtain fresh Vercel deployment bound to the final validated HEAD and verify deep routes.
-6. Continue browser/network/console sweep.
-7. Continue real-data reconciliation, security, reliability and product-value fronts.
-8. Update this index after every material discovery and mutation.
+1. Obtain fresh exact-head CI for the latest branch HEAD after the security/index commits.
+2. Verify decision approval/action/outcome behavior with authenticated context; anonymous/public privilege is now closed.
+3. Obtain a fresh Vercel deployment bound to the final validated HEAD; verify `/login` and representative deep routes.
+4. Continue authenticated browser/network/console sweep across critical routes.
+5. Perform real-data and independent reconciliation for critical metrics.
+6. Continue reliability, semantic/document intelligence, export and product-value fronts.
+7. Update this index after every material discovery and mutation.
 
 PRODUCTION CERTIFIED = NO.
