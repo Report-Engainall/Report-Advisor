@@ -3,7 +3,7 @@
 Snapshot: 2026-08-30
 Repository: `Report-Engainall/Report-Advisor`
 Branch: `feat/windows-desktop-watched-folder`
-Current branch HEAD at this update: `ca786dc29d400a6c6bb1d65b64a25a6171e4a577`
+Current branch HEAD at this update: `7a5ae02ec03528b4b80bf4c7dc9d9c651196a12a`
 
 ## Permanent execution policy
 `PARALLEL DISCOVERY → FAILURE-FAMILY INVENTORY → ROOT-CAUSE CLUSTERING → BATCH IMPLEMENTATION → CONSUMER/LEGACY CLOSURE → BATCH REGRESSION → EXACT-HEAD CI → VERIFY → INDEX → NEXT PARALLEL FRONTS`
@@ -17,10 +17,10 @@ No historical PASS promotion. No scanner-only closure. No runtime/LIVE/productio
 
 ## Current execution cycle — 2026-08-30
 ### Exact-head / branch evidence refresh
-Branch head under review: `ca786dc29d400a6c6bb1d65b64a25a6171e4a577`.
+Branch head before this index update: `7a5ae02ec03528b4b80bf4c7dc9d9c651196a12a`.
 
-Observed successful CI on this exact branch head:
-- `quality` run `33274911754` — SUCCESS; verify job completed all listed architecture, security, intelligence, regression, typecheck, lint, build and resilience gates.
+Previous exact branch head `ca786dc29d400a6c6bb1d65b64a25a6171e4a577` had successful repository gates:
+- `quality` run `33274911754` — SUCCESS.
 - `integrity-batch` run `33274911753` — SUCCESS.
 - `batch-integrity-guards` run `33274911750` — SUCCESS.
 - `file-engine-header-contract` run `33274911763` — SUCCESS.
@@ -28,10 +28,10 @@ Observed successful CI on this exact branch head:
 - `production-chain-guard` run `33274911764` — SUCCESS.
 - `file-intelligence-security` run `33274911756` — SUCCESS.
 
-These are repository/CI proofs only. They do not promote the branch to Runtime/LIVE/Production Certification.
+The desktop runtime smoke and workflow changes were then committed on top of that evidence. Fresh CI is required for the resulting index-update SHA; no previous PASS is promoted automatically.
 
-### Windows Desktop Watched Folder — evidence classification
-PR #100 `feat: Windows desktop watched-folder runtime` remains OPEN and DRAFT at branch head `ca786dc29d400a6c6bb1d65b64a25a6171e4a577`.
+### Windows Desktop Watched Folder — implementation closure added
+PR #100 `feat: Windows desktop watched-folder runtime` remains OPEN/DRAFT.
 
 Implementation proven by repository inspection:
 - Electron native Windows host.
@@ -47,25 +47,38 @@ Implementation proven by repository inspection:
 - Existing `FolderBatchImportPanel` sends native file events through canonical `processFolderFiles()` rather than creating a second business import engine.
 - Windows NSIS packaging manifest and dedicated Windows workflow.
 
-Evidence: PR #100 changed files and `scripts/check-windows-desktop-folder-watch-contract.mjs`.
+### New runtime-verification implementation
+A real native smoke path has now been added rather than relying only on static contract checks:
+- `desktop/main.cjs` supports an explicit `REPORT_ADVISOR_NATIVE_SMOKE=1` mode.
+- The smoke path creates an isolated temporary watched directory and nested input directory.
+- It persists the selected root, reloads it, and verifies restart-style persistence through the same persisted configuration contract.
+- It starts the real Electron watcher.
+- It writes a supported CSV file into the nested directory.
+- It waits for the actual watcher event and verifies the emitted path is relative (`incoming/smoke-report.csv`).
+- It verifies the file can be read through the same stable-read filesystem path.
+- It cleans up the temporary directory and persisted state.
+- `.github/workflows/desktop-windows.yml` now executes this smoke test on the Windows runner before packaging the installer.
 
-### Windows Desktop — NOT PROVEN findings
-Issue #102 created as the current certification-gap record.
+This is a **new executable runtime gate**, not yet a PASS: the workflow must run successfully on the current exact head before the evidence is promoted.
 
-1. **Native runtime execution** — static contract verification exists, but there is no exact-head evidence of a real Windows Electron session performing select → persist → start → new/changed file event → stable read → canonical import handoff → database/UI result.
-2. **Reproducible desktop dependencies** — desktop workflow uses `npm install`; `desktop/package-lock.json` is not present in PR #100. Reproducible dependency resolution is therefore not proven.
-3. **Installer artifact** — exact-head Windows installer artifact evidence is not yet present in the observed CI runs.
-4. **Restart persistence** — implemented in code but not proven by a real restart test.
-5. **Partial-write behavior against a real report writer** — stability guard implemented but not proven against a real producer such as an Onyx/export writer.
+### Windows Desktop — remaining NOT PROVEN findings
+Issue #102 is the current certification-gap record.
+
+1. **Exact-head native runtime execution** — smoke implementation exists; successful Windows CI execution on the post-change exact head is pending.
+2. **Reproducible desktop dependencies** — desktop workflow still uses `npm install`; `desktop/package-lock.json` is absent. This remains NOT PROVEN and is intentionally not hidden.
+3. **Installer artifact** — exact-head Windows installer artifact evidence remains pending.
+4. **Real-user restart persistence** — smoke covers persistence mechanics; interactive installed-app restart remains pending.
+5. **Partial-write behavior against a real report writer** — stability guard is implemented; producer-specific runtime evidence remains pending.
 6. **Offline/reconnect behavior** — not proven.
-7. **UNC/network share behavior** — intentionally outside the current browser capability boundary; dedicated local-agent/network capability remains a separate gap.
+7. **UNC/network share behavior** — intentionally outside current browser capability; dedicated local-agent/network capability remains a separate gap.
+8. **Native watcher → canonical import → authenticated DB/UI result** — smoke proves native watcher mechanics only; end-to-end business ingestion remains pending.
 
-Disposition: `IMPLEMENTED → CI VERIFIED FOR WEB/REPOSITORY CONTRACTS → NATIVE RUNTIME NOT PROVEN`.
+Disposition: `IMPLEMENTED → STATIC/CONTRACT VERIFIED → NATIVE SMOKE ADDED → EXACT-HEAD RUNTIME EVIDENCE PENDING`.
 
 ### Vercel preview evidence
-PR #100 received a Ready Vercel Preview deployment on 2026-08-29. This is valid web-preview evidence only; it cannot certify the native Windows host.
+PR #100 received a Ready Vercel Preview on 2026-08-29. This is web-preview evidence only; it cannot certify the native Windows host.
 
-A Vercel deployment-rate-limit failure was also observed on one deployment attempt (`api-deployments-free-per-day`); this is an external platform quota event, not an application defect. The later preview reached Ready.
+A Vercel deployment-rate-limit failure was observed on one deployment attempt (`api-deployments-free-per-day`); this is an external platform quota event, not an application defect. A later preview reached Ready.
 
 ## Previously established fronts
 - Invoice page-read tenant/security closure: IMPLEMENTED → REGRESSION GUARD; exact-head/live pending.
@@ -91,19 +104,20 @@ Disposition: `FIXED`.
 - read-file is contained by the active watched root and realpath checks.
 
 ### Desktop restart persistence
-Disposition: `FIXED IN CODE → RUNTIME NOT PROVEN`.
+Disposition: `FIXED IN CODE → NATIVE SMOKE COVERAGE ADDED → INTERACTIVE RUNTIME NOT PROVEN`.
 - native configuration persisted under Electron userData.
 - preload exposes restored selection and explicit forget.
 - renderer resumes persisted selection.
+- native smoke now exercises persistence load/restore on the Windows runner.
 
 ### Partial-write protection
-Disposition: `FIXED IN CODE → RUNTIME NOT PROVEN`.
+Disposition: `FIXED IN CODE → NATIVE SMOKE COVERS STABLE READ → REAL-PRODUCER RUNTIME NOT PROVEN`.
 - stable `size:mtimeMs` signature required before bytes are returned.
 - up to five stability checks.
 - unstable files return `WATCH_FILE_STILL_WRITING`.
 
 ### Retry-safe watcher state
-Disposition: `FIXED IN CODE → EXACT-HEAD CI VERIFIED FOR STATIC CONTRACTS; RUNTIME PENDING`.
+Disposition: `FIXED IN CODE → STATIC CONTRACT VERIFIED; NATIVE SMOKE ADDED; EXACT-HEAD EXECUTION PENDING`.
 - pending set suppresses only concurrent checks.
 - known state is committed only after stable-read and event emission.
 - unstable/failed consumption remains retryable.
@@ -116,11 +130,11 @@ Disposition: `FIXED`.
 Disposition: `FIXED IN CODE`.
 - root cause was an imported-but-absent `folder-handle-store` module.
 - added canonical IndexedDB implementation with save/load/forget operations.
-- exact-head CI now proves the corrected branch compiles/builds successfully.
+- exact-head CI previously proved the corrected branch compiles/builds successfully.
 
 ### Renderer hooks quality hardening
 Disposition: `IMPLEMENTED`.
-- `FolderBatchImportPanel` callback/effect dependencies are now explicit and stable.
+- `FolderBatchImportPanel` callback/effect dependencies are explicit and stable.
 - no business logic or data-source change was introduced.
 
 ## Security/data-truth safeguards in desktop work
@@ -132,6 +146,7 @@ Disposition: `IMPLEMENTED`.
 - Native host reuses the existing tenant-aware canonical import pipeline rather than bypassing RPC/import controls.
 - Browser folder handles are local capability state only; they are not tenant truth or database evidence.
 - No database schema or production data mutation was performed by this desktop branch.
+- Native smoke uses only an isolated temporary directory and synthetic local file; it does not touch production data.
 
 ## Parallel remaining fronts
 ### Front A — Canonical Data Truth
@@ -179,18 +194,18 @@ Disposition: `IMPLEMENTED`.
 
 ## Certification blockers currently visible
 - Fresh exact-head CI is required after this index update because the index itself changes the branch SHA.
-- Native Windows runtime/installer evidence is not proven.
+- Exact-head Windows native smoke execution and installer artifact evidence are pending.
+- Desktop dependency reproducibility remains unproven because no desktop lockfile is present.
 - Authenticated real-data browser E2E remains required.
 - Supabase A/B tenant isolation, Storage, Realtime, AI/vector, OCR corpus, worker crash/recovery/DLQ, backup restore/RPO/RTO, production telemetry, load/canary/rollback and production scale/query-plan evidence remain LIVE requirements.
 - No P0/P1 finding may be treated as closed solely from historical evidence.
 
 ## Current next actions
-1. Exact-head CI for the new index-update SHA.
-2. Execute/obtain the dedicated Windows workflow and installer artifact evidence.
-3. Perform real Windows install/run and watched-folder runtime test.
+1. Wait for and inspect fresh exact-head CI, including the Windows native smoke.
+2. If smoke fails, classify root cause and make the smallest canonical fix; do not weaken the test.
+3. Capture exact-head installer artifact evidence after successful packaging.
 4. Continue parallel canonical-data, BI/export, security/tenant, performance and reliability fronts.
-5. Continue non-blocking lint warning cleanup in isolated quality-hardening commits without changing behavior.
-6. Reconcile branch against migration/security forensic findings before promotion.
-7. Close Issue #102 only after its evidence requirements are actually proven.
+5. Reconcile branch against migration/security forensic findings before promotion.
+6. Close Issue #102 only after native runtime, installer, reproducibility, real report ingestion and required LIVE evidence are actually proven.
 
 PRODUCTION CERTIFIED = NO until real LIVE evidence exists.
