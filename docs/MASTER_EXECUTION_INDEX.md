@@ -56,3 +56,13 @@ CERTIFIED = prohibited until all critical release gates are proven.
 
 PRODUCTION CERTIFIED = NO.
 100% REAL RELEASE READY = NO.
+
+
+## Append-only correction — 2026-08-29
+The prior branch revision accidentally replaced historical index content. This revision restores the full baseline index verbatim and appends the forensic cycle instead. Historical evidence must never be deleted or rewritten.
+
+### Evidence integrity
+- Historical entries preserved: YES.
+- Forensic migration/security evidence retained: YES.
+- Certification state remains: BLOCKED.
+- No historical PASS promoted to current HEAD.
