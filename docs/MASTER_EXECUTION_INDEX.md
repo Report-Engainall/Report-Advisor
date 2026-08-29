@@ -3,7 +3,7 @@
 Snapshot: 2026-08-29
 Repository: `Report-Engainall/Report-Advisor`
 Branch: `feat/windows-desktop-watched-folder`
-Current branch HEAD at this update: `690a6f916077b6c227ce66005833d3022a5e7f2c`
+Current branch HEAD at this update: `854ba26032a23b353cbdcd59654fd56de5b7360a`
 
 ## Permanent execution policy
 `PARALLEL DISCOVERY → FAILURE-FAMILY INVENTORY → ROOT-CAUSE CLUSTERING → BATCH IMPLEMENTATION → CONSUMER/LEGACY CLOSURE → BATCH REGRESSION → EXACT-HEAD CI → VERIFY → INDEX → NEXT PARALLEL FRONTS`
@@ -41,7 +41,16 @@ Implemented:
 - IndexedDB absence and operation failures fail explicitly rather than silently succeeding.
 - database connections are closed after each operation.
 
-This directly closes the exact compile/build defect while preserving the existing canonical browser folder-watcher architecture.
+### Lint-hardening cycle — watched-folder renderer
+Commit: `854ba26032a23b353cbdcd59654fd56de5b7360a`.
+
+Implemented:
+- stabilized `processNativeFile` with `useCallback` and made the native event subscription depend on the actual callback contract.
+- stabilized `stopWatch` with `useCallback` and made unmount cleanup depend on the stable cleanup function.
+- removed the React Hooks dependency warnings in `FolderBatchImportPanel.tsx` without changing the canonical import flow.
+- preserved the existing native/browser watcher behavior and entity-type binding.
+
+Disposition: `IMPLEMENTED → EXACT-HEAD CI REQUIRED`.
 
 ## Previously established fronts
 - Invoice page-read tenant/security closure: IMPLEMENTED → REGRESSION GUARD; exact-head/live pending.
@@ -73,7 +82,7 @@ Implemented on `feat/windows-desktop-watched-folder`:
 - Native watcher contract gate protects the IPC boundary and realpath/path containment invariants.
 - Native selected-folder configuration persists locally and restores after restart; live restart evidence remains pending.
 - Stable `size:mtimeMs` read gate rejects potentially partial files with `WATCH_FILE_STILL_WRITING`.
-- Native `pending` state suppresses concurrent duplicates without prematurely marking failed/unstable files as permanently known.
+- Native `pending` state suppresses concurrent duplicates without prematurely marking unstable files as permanently known.
 
 ## Reliability closure history
 ### Native IPC authority
@@ -109,6 +118,11 @@ Disposition: `FIXED`.
 Disposition: `FIXED IN CODE → EXACT-HEAD CI PENDING`.
 - root cause was an imported-but-absent `folder-handle-store` module.
 - added canonical IndexedDB implementation with save/load/forget operations.
+
+### Renderer hooks quality hardening
+Disposition: `IMPLEMENTED → EXACT-HEAD CI PENDING`.
+- `FolderBatchImportPanel` callback/effect dependencies are now explicit and stable.
+- no business logic or data-source change was introduced.
 
 ## Security/data-truth safeguards in desktop work
 - Native host does not expose Node integration to renderer.
@@ -177,11 +191,11 @@ Disposition: `FIXED IN CODE → EXACT-HEAD CI PENDING`.
 Supabase A/B tenant isolation; Storage; Realtime; AI/vector; authenticated browser E2E; real OCR/document corpus; worker crash/recovery/DLQ; native watcher; backup restore/RPO/RTO; production telemetry; load/canary/rollback; production scale/query-plan evidence.
 
 ## Current next actions
-1. Fresh exact-head CI for corrected head `690a6f9...` and resulting merge ref.
+1. Fresh exact-head CI for corrected head `854ba26...` and resulting merge ref.
 2. Verify Windows artifact build from the dedicated Windows runner.
 3. Perform real Windows install/run and watched-folder test when artifact is available.
 4. Continue parallel canonical-data, BI/export, security/tenant, performance and reliability fronts.
-5. Clean non-blocking lint warnings in a dedicated quality-hardening pass without changing behavior.
+5. Continue non-blocking lint warning cleanup in isolated quality-hardening commits without changing behavior.
 6. Reconcile branch against migration/security forensic findings before promotion.
 
 PRODUCTION CERTIFIED = NO until real LIVE evidence exists.
