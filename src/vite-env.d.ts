@@ -5,10 +5,12 @@ declare global {
     desktopFolderWatch?: {
       isAvailable: boolean;
       selectDirectory(): Promise<{ path: string; name: string } | null>;
-      start(root: string): Promise<string>;
+      getSelectedDirectory(): Promise<{ path: string; name: string } | null>;
+      start(): Promise<{ path: string; name: string }>;
       stop(): Promise<boolean>;
-      readFile(path: string): Promise<ArrayBuffer>;
-      onFile(callback: (payload: { path: string; relativePath: string; reason: string; size: number; modifiedAt: string }) => void): () => void;
+      forget(): Promise<boolean>;
+      readFile(relativePath: string): Promise<ArrayBuffer>;
+      onFile(callback: (payload: { relativePath: string; reason: string; size: number; modifiedAt: string }) => void): () => void;
       onDeleted(callback: (payload: { path: string }) => void): () => void;
     };
   }
