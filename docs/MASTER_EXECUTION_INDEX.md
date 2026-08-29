@@ -66,3 +66,18 @@ The prior branch revision accidentally replaced historical index content. This r
 - Forensic migration/security evidence retained: YES.
 - Certification state remains: BLOCKED.
 - No historical PASS promoted to current HEAD.
+
+
+## Lifecycle mutation boundary closure — 2026-08-29
+Finding: application adapters `markAlertRead()` and `updateRecommendationStatus()` still attempted direct table UPDATEs even though the production security hardening intentionally moved these lifecycle mutations behind canonical RPC boundaries.
+
+Root cause: repository consumer drift after the database privilege hardening.
+
+Fix:
+- `src/lib/queries.ts` now calls `mark_alert_read` and `update_recommendation_status` RPCs.
+- `src/lib/queries-compat.ts` now preserves the same canonical mutation boundary.
+- Added `scripts/check-lifecycle-mutation-boundary.mjs`.
+- Registered and wired the guard into `.github/workflows/quality.yml`.
+
+Status: `IMPLEMENTED → REGRESSION WIRED → EXACT-HEAD CI PENDING`.
+This finding is a real consumer/security contract defect and is not merely documentation.
