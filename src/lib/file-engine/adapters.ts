@@ -27,69 +27,27 @@ function buildColumnProfiles(rows: Row[], columns: string[], mappings: Awaited<R
       if (nums.length) {
         const sorted = [...nums].sort((a, b) => a - b);
         const sum = nums.reduce((s, n) => s + n, 0);
-        statistics.min = sorted[0];
-        statistics.max = sorted[sorted.length - 1];
-        statistics.sum = sum;
-        statistics.mean = sum / nums.length;
-        statistics.median = sorted.length % 2 === 0
-          ? (sorted[sorted.length / 2 - 1] + sorted[sorted.length / 2]) / 2
-          : sorted[Math.floor(sorted.length / 2)];
+        statistics.min = sorted[0]; statistics.max = sorted[sorted.length - 1]; statistics.sum = sum; statistics.mean = sum / nums.length;
+        statistics.median = sorted.length % 2 === 0 ? (sorted[sorted.length / 2 - 1] + sorted[sorted.length / 2]) / 2 : sorted[Math.floor(sorted.length / 2)];
       }
     }
-    return {
-      name: col,
-      mappedField: mapping?.mappedField ?? null,
-      mappingConfidence,
-      requiresReview,
-      mappingEvidence: {
-        sourceHeader: col,
-        normalizedHeader: normalizeColumnName(col),
-        matchedBy: mapping?.mappedField ? (mappingConfidence >= 80 ? 'exact' : 'partial') : 'unmapped',
-        canonicalField: mapping?.mappedField ?? null,
-        confidence: mappingConfidence,
-        requiresReview,
-      },
-      dataType,
-      nullCount,
-      uniqueCount,
-      uniqueRatio,
-      sampleValues: values.slice(0, 5),
-      statistics,
-      qualityIssues: [],
-    };
+    return { name: col, mappedField: mapping?.mappedField ?? null, mappingConfidence, requiresReview,
+      mappingEvidence: { sourceHeader: col, normalizedHeader: normalizeColumnName(col), matchedBy: mapping?.mappedField ? (mappingConfidence >= 80 ? 'exact' : 'partial') : 'unmapped', canonicalField: mapping?.mappedField ?? null, confidence: mappingConfidence, requiresReview },
+      dataType, nullCount, uniqueCount, uniqueRatio, sampleValues: values.slice(0, 5), statistics, qualityIssues: [] };
   });
 }
 
 function materializeCanonicalFields(rows: Row[], columns: ColumnProfile[]): Row[] {
   const canonicalOwners = new Map<string, ColumnProfile>();
-  for (const column of columns) {
-    const field = column.mappedField;
-    if (!field || column.mappingConfidence < 80) continue;
-    const previous = canonicalOwners.get(field);
-    if (!previous || column.mappingConfidence > previous.mappingConfidence) canonicalOwners.set(field, column);
-  }
-  return rows.map((row) => {
-    const next: Row = { ...row };
-    for (const [field, column] of canonicalOwners) {
-      if (Object.prototype.hasOwnProperty.call(next, field) && next[field] !== '' && next[field] != null) continue;
-      const value = row[column.name];
-      if (value !== '' && value !== null && value !== undefined) next[field] = value;
-    }
-    return next;
-  });
+  for (const column of columns) { const field = column.mappedField; if (!field || column.mappingConfidence < 80) continue; const previous = canonicalOwners.get(field); if (!previous || column.mappingConfidence > previous.mappingConfidence) canonicalOwners.set(field, column); }
+  return rows.map((row) => { const next: Row = { ...row }; for (const [field, column] of canonicalOwners) { if (Object.prototype.hasOwnProperty.call(next, field) && next[field] !== '' && next[field] != null) continue; const value = row[column.name]; if (value !== '' && value !== null && value !== undefined) next[field] = value; } return next; });
 }
 
 async function buildDataset(rows: Row[], name: string, source: string, sheet?: string): Promise<Dataset> {
   const normalized = normalizeRows(rows);
   if (!normalized.length) return { id: generateId(), name, source, sheet, rowCount: 0, columnCount: 0, columns: [], rows: [], preview: [], qualityScore: 0 };
-  const columns = Object.keys(normalized[0]);
-  const mappings = await mapColumns(columns);
-  const columnProfiles = buildColumnProfiles(normalized, columns, mappings);
-  for (const col of columnProfiles) {
-    if (col.nullCount > normalized.length * 0.5) col.qualityIssues.push('أكثر من 50% من القيم فارغة');
-    if (col.mappingConfidence < 80 && col.mappedField) col.qualityIssues.push('تعيين منخفض الثقة — يحتاج مراجعة');
-    if (!col.mappedField) col.qualityIssues.push('لم يتم تعريف العمود');
-  }
+  const columns = Object.keys(normalized[0]); const mappings = await mapColumns(columns); const columnProfiles = buildColumnProfiles(normalized, columns, mappings);
+  for (const col of columnProfiles) { if (col.nullCount > normalized.length * 0.5) col.qualityIssues.push('أكثر من 50% من القيم فارغة'); if (col.mappingConfidence < 80 && col.mappedField) col.qualityIssues.push('تعيين منخفض الثقة — يحتاج مراجعة'); if (!col.mappedField) col.qualityIssues.push('لم يتم تعريف العمود'); }
   const cleanedRows = normalized.map((row) => Object.fromEntries(columnProfiles.map((col) => [col.name, cleanValue(row[col.name], col.dataType)])) as Row);
   const canonicalRows = materializeCanonicalFields(cleanedRows, columnProfiles);
   const qualityScore = columnProfiles.length ? Math.round(columnProfiles.reduce((s, c) => s + c.mappingConfidence, 0) / columnProfiles.length) : 0;
@@ -97,145 +55,52 @@ async function buildDataset(rows: Row[], name: string, source: string, sheet?: s
 }
 
 async function buildTextDataset(text: string, fileName: string, sourceType: string, warning?: string): Promise<Dataset[]> {
-  const normalized = text.replace(/\uFEFF/g, '').replace(/\r\n?/g, '\n').replace(/[ \t]+$/gm, '').trim();
-  if (!normalized) return [];
-  const lines = normalized.split('\n').map((line) => line.trim()).filter(Boolean);
-  const rows: Row[] = lines.map((line, index) => ({ line_number: index + 1, text: line }));
-  const dataset = await buildDataset(rows, fileName, sourceType);
-  for (const column of dataset.columns) column.qualityIssues.push('وثيقة نصية: لم يتم اختراع حقل أعمال؛ يلزم التعيين الدلالي قبل الكتابة');
-  if (warning) dataset.columns[1]?.qualityIssues.push(warning);
-  return [dataset];
+  const normalized = text.replace(/\uFEFF/g, '').replace(/\r\n?/g, '\n').replace(/[ \t]+$/gm, '').trim(); if (!normalized) return [];
+  const rows: Row[] = normalized.split('\n').map((line) => line.trim()).filter(Boolean).map((line, index) => ({ line_number: index + 1, text: line }));
+  const dataset = await buildDataset(rows, fileName, sourceType); for (const column of dataset.columns) column.qualityIssues.push('وثيقة نصية: لم يتم اختراع حقل أعمال؛ يلزم التعيين الدلالي قبل الكتابة'); if (warning) dataset.columns[1]?.qualityIssues.push(warning); return [dataset];
 }
 
 async function parsePdfText(buffer: ArrayBuffer, fileName: string): Promise<Dataset[]> {
-  const pdfjs = await import('pdfjs-dist') as typeof import('pdfjs-dist');
+  const pdfjs: any = await import('pdfjs-dist');
   pdfjs.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.mjs', import.meta.url).toString();
-  const pdf = await pdfjs.getDocument({ data: new Uint8Array(buffer) }).promise;
-  const pages: string[] = [];
-  for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) {
-    const page = await pdf.getPage(pageNumber);
-    const content = await page.getTextContent();
-    const text = content.items.map((item) => 'str' in item ? item.str : '').filter(Boolean).join(' ');
-    if (text.trim()) pages.push(`PAGE ${pageNumber}\n${text}`);
-  }
+  const pdf: any = await pdfjs.getDocument({ data: new Uint8Array(buffer) }).promise; const pages: string[] = [];
+  for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) { const page = await pdf.getPage(pageNumber); const content = await page.getTextContent(); const text = content.items.map((item: any) => typeof item?.str === 'string' ? item.str : '').filter(Boolean).join(' '); if (text.trim()) pages.push(`PAGE ${pageNumber}\n${text}`); }
   if (!pages.length) throw new Error('PDF_SCANNED_IMAGE_ONLY: لم يوجد نص قابل للاستخراج؛ يلزم OCR قبل التحليل.');
   return buildTextDataset(pages.join('\n\n'), fileName, 'pdf');
 }
 
 async function parseDocxText(buffer: ArrayBuffer, fileName: string): Promise<Dataset[]> {
-  const mammoth = await import('mammoth') as typeof import('mammoth');
-  const result = await mammoth.extractRawText({ arrayBuffer: buffer });
+  const mammoth: any = await import('mammoth'); const result = await mammoth.extractRawText({ arrayBuffer: buffer });
   return buildTextDataset(result.value, fileName, 'docx', result.messages.length ? `DOCX_EXTRACTION_WARNINGS:${result.messages.length}` : undefined);
 }
 
 async function parseImageText(buffer: ArrayBuffer, fileName: string): Promise<Dataset[]> {
-  const tesseract = await import('tesseract.js') as typeof import('tesseract.js');
-  const worker = await tesseract.createWorker('ara+eng');
-  try {
-    const { data } = await worker.recognize(buffer);
-    return buildTextDataset(data.text, fileName, 'image', data.confidence < 70 ? `OCR_LOW_CONFIDENCE:${Math.round(data.confidence)}%` : undefined);
-  } finally {
-    await worker.terminate();
-  }
+  const tesseract: any = await import('tesseract.js'); const worker = await tesseract.createWorker('ara+eng');
+  try { const { data } = await worker.recognize(buffer); return buildTextDataset(data.text, fileName, 'image', data.confidence < 70 ? `OCR_LOW_CONFIDENCE:${Math.round(data.confidence)}%` : undefined); }
+  finally { await worker.terminate(); }
 }
 
 export async function parseSpreadsheet(buffer: ArrayBuffer, fileName: string, _format: FileFormat): Promise<Dataset[]> {
-  const wb = XLSX.read(buffer, { type: 'array', cellDates: true });
-  const datasets: Dataset[] = [];
-  for (const sheetName of wb.SheetNames) {
-    const matrix = XLSX.utils.sheet_to_json<unknown[]>(wb.Sheets[sheetName], { header: 1, defval: '', raw: true });
-    const candidate = detectHeaderRow(matrix);
-    if (!candidate) continue;
-    const rows = rowsFromDetectedHeader(matrix, candidate) as Row[];
-    if (rows.length) datasets.push(await buildDataset(rows, `${fileName} — ${sheetName}`, fileName, sheetName));
-  }
+  const wb = XLSX.read(buffer, { type: 'array', cellDates: true }); const datasets: Dataset[] = [];
+  for (const sheetName of wb.SheetNames) { const matrix = XLSX.utils.sheet_to_json<unknown[]>(wb.Sheets[sheetName], { header: 1, defval: '', raw: true }); const candidate = detectHeaderRow(matrix); if (!candidate) continue; const rows = rowsFromDetectedHeader(matrix, candidate) as Row[]; if (rows.length) datasets.push(await buildDataset(rows, `${fileName} — ${sheetName}`, fileName, sheetName)); }
   return datasets;
 }
 
-export async function parseCSV(buffer: ArrayBuffer, fileName: string, delimiter?: string): Promise<Dataset[]> {
-  const rows = parseCSVText(decodeBuffer(buffer), delimiter);
-  return rows.length ? [await buildDataset(rows, fileName, fileName)] : [];
-}
+export async function parseCSV(buffer: ArrayBuffer, fileName: string, delimiter?: string): Promise<Dataset[]> { const rows = parseCSVText(decodeBuffer(buffer), delimiter); return rows.length ? [await buildDataset(rows, fileName, fileName)] : []; }
+function decodeBuffer(buffer: ArrayBuffer): string { const bytes = new Uint8Array(buffer); const start = bytes[0] === 0xef && bytes[1] === 0xbb && bytes[2] === 0xbf ? 3 : 0; return new TextDecoder('utf-8').decode(bytes.slice(start)); }
+function parseCSVText(text: string, delimiter?: string): Row[] { const lines = text.split(/\r?\n/).filter((line) => line.trim()); if (!lines.length) return []; const delim = delimiter ?? detectDelimiter(lines[0]); const matrix = lines.map((line) => parseCSVLine(line, delim)); const candidate = detectHeaderRow(matrix); if (!candidate) return []; return rowsFromDetectedHeader(matrix, candidate) as Row[]; }
+function detectDelimiter(line: string): string { const candidates = [',', ';', '\t', '|']; const scored = candidates.map((delimiter) => ({ delimiter, fields: parseCSVLine(line, delimiter).length })).sort((a, b) => b.fields - a.fields); return scored[0]?.fields && scored[0].fields > 1 ? scored[0].delimiter : ','; }
+function parseCSVLine(line: string, delimiter: string): string[] { const result: string[] = []; let current = ''; let quoted = false; for (let i = 0; i < line.length; i += 1) { const ch = line[i]; if (ch === '"') { if (quoted && line[i + 1] === '"') { current += '"'; i += 1; } else quoted = !quoted; } else if (ch === delimiter && !quoted) { result.push(current.trim()); current = ''; } else current += ch; } result.push(current.trim()); return result; }
 
-function decodeBuffer(buffer: ArrayBuffer): string {
-  const bytes = new Uint8Array(buffer);
-  const start = bytes[0] === 0xef && bytes[1] === 0xbb && bytes[2] === 0xbf ? 3 : 0;
-  return new TextDecoder('utf-8').decode(bytes.slice(start));
-}
-
-function parseCSVText(text: string, delimiter?: string): Row[] {
-  const lines = text.split(/\r?\n/).filter((line) => line.trim());
-  if (!lines.length) return [];
-  const delim = delimiter ?? detectDelimiter(lines[0]);
-  const matrix = lines.map((line) => parseCSVLine(line, delim));
-  const candidate = detectHeaderRow(matrix);
-  if (!candidate) return [];
-  return rowsFromDetectedHeader(matrix, candidate) as Row[];
-}
-
-function detectDelimiter(line: string): string {
-  const candidates = [',', ';', '\t', '|'];
-  const scored = candidates.map((delimiter) => ({ delimiter, fields: parseCSVLine(line, delimiter).length })).sort((a, b) => b.fields - a.fields);
-  return scored[0]?.fields && scored[0].fields > 1 ? scored[0].delimiter : ',';
-}
-
-function parseCSVLine(line: string, delimiter: string): string[] {
-  const result: string[] = [];
-  let current = '';
-  let quoted = false;
-  for (let i = 0; i < line.length; i += 1) {
-    const ch = line[i];
-    if (ch === '"') {
-      if (quoted && line[i + 1] === '"') { current += '"'; i += 1; } else quoted = !quoted;
-    } else if (ch === delimiter && !quoted) {
-      result.push(current.trim());
-      current = '';
-    } else current += ch;
-  }
-  result.push(current.trim());
-  return result;
-}
-
-export async function parseJSON(buffer: ArrayBuffer, fileName: string): Promise<Dataset[]> {
-  return parseJSONData(JSON.parse(decodeBuffer(buffer)), fileName);
-}
-
-export async function parseJSONL(buffer: ArrayBuffer, fileName: string): Promise<Dataset[]> {
-  const rows = decodeBuffer(buffer).split(/\r?\n/).filter(Boolean).map((line) => {
-    const value: unknown = JSON.parse(line);
-    if (!isRecord(value)) throw new Error('JSONL contains a non-object row');
-    return value;
-  });
-  return rows.length ? [await buildDataset(rows, fileName, fileName)] : [];
-}
-
-async function parseJSONData(data: unknown, fileName: string, path = ''): Promise<Dataset[]> {
-  if (Array.isArray(data)) {
-    if (!data.length) return [];
-    if (!data.every(isRecord)) throw new Error('JSON dataset contains non-object rows');
-    return [await buildDataset(data, path || fileName, fileName)];
-  }
-  if (!isRecord(data)) return [];
-  const datasets: Dataset[] = [];
-  for (const [key, value] of Object.entries(data)) {
-    if (Array.isArray(value) && value.length) {
-      if (!value.every(isRecord)) throw new Error(`JSON dataset ${key} contains non-object rows`);
-      datasets.push(await buildDataset(value, path ? `${path} → ${key}` : key, fileName, key));
-    }
-  }
-  return datasets.length ? datasets : [await buildDataset([data], path || fileName, fileName)];
-}
+export async function parseJSON(buffer: ArrayBuffer, fileName: string): Promise<Dataset[]> { return parseJSONData(JSON.parse(decodeBuffer(buffer)), fileName); }
+export async function parseJSONL(buffer: ArrayBuffer, fileName: string): Promise<Dataset[]> { const rows = decodeBuffer(buffer).split(/\r?\n/).filter(Boolean).map((line) => { const value: unknown = JSON.parse(line); if (!isRecord(value)) throw new Error('JSONL contains a non-object row'); return value; }); return rows.length ? [await buildDataset(rows, fileName, fileName)] : []; }
+async function parseJSONData(data: unknown, fileName: string, path = ''): Promise<Dataset[]> { if (Array.isArray(data)) { if (!data.length) return []; if (!data.every(isRecord)) throw new Error('JSON dataset contains non-object rows'); return [await buildDataset(data, path || fileName, fileName)]; } if (!isRecord(data)) return []; const datasets: Dataset[] = []; for (const [key, value] of Object.entries(data)) { if (Array.isArray(value) && value.length) { if (!value.every(isRecord)) throw new Error(`JSON dataset ${key} contains non-object rows`); datasets.push(await buildDataset(value, path ? `${path} → ${key}` : key, fileName, key)); } } return datasets.length ? datasets : [await buildDataset([data], path || fileName, fileName)]; }
 
 export async function parseFile(buffer: ArrayBuffer, fileName: string, format: FileFormat): Promise<Dataset[]> {
   switch (format) {
     case 'xlsx': case 'xls': case 'xlsm': case 'ods': return parseSpreadsheet(buffer, fileName, format);
-    case 'csv': return parseCSV(buffer, fileName);
-    case 'tsv': return parseCSV(buffer, fileName, '\t');
-    case 'json': return parseJSON(buffer, fileName);
-    case 'jsonl': return parseJSONL(buffer, fileName);
-    case 'txt': case 'markdown': return parseCSV(buffer, fileName);
-    case 'pdf': return parsePdfText(buffer, fileName);
-    case 'docx': return parseDocxText(buffer, fileName);
+    case 'csv': return parseCSV(buffer, fileName); case 'tsv': return parseCSV(buffer, fileName, '\t'); case 'json': return parseJSON(buffer, fileName); case 'jsonl': return parseJSONL(buffer, fileName); case 'txt': case 'markdown': return parseCSV(buffer, fileName);
+    case 'pdf': return parsePdfText(buffer, fileName); case 'docx': return parseDocxText(buffer, fileName);
     case 'jpg': case 'jpeg': case 'png': case 'webp': case 'tiff': case 'bmp': return parseImageText(buffer, fileName);
     case 'doc': case 'rtf': throw new Error(`${format.toUpperCase()}_PARSER_UNAVAILABLE: هذا التنسيق يحتاج محولًا مخصصًا قبل الكتابة؛ لم يتم تخمين محتواه.`);
     default: throw new Error(`Unsupported parser for format: ${format}`);
