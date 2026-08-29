@@ -11,63 +11,46 @@ No historical PASS promotion. No scanner-only closure. No runtime/LIVE/productio
 
 ## Exact state
 - Certification baseline supplied by owner: `4da16b9a7433e66ccf8a62b183552a872a718ef8`.
-- A live runtime sweep on the deployment bound to that baseline proved a real SPA direct-route defect: `https://report-advisor.vercel.app/login` returned HTTP 404 at Vercel, while the application uses `BrowserRouter` and defines client-side routes in `src/App.tsx`.
-- Canonical minimal fix applied: root `vercel.json` rewrites all application routes to `/index.html`.
-- Fix commit: `459666ea7fca6a94eb2c7e6955a2d259e3d2b8ef`.
-- Certification for the new HEAD is **NOT PROVEN** until a fresh deployment is bound to this SHA and direct-route runtime verification succeeds.
+- A live runtime sweep on the deployment bound to that baseline proved a real SPA direct-route defect: `/login` returned HTTP 404 at Vercel, while the application uses `BrowserRouter`.
+- Canonical minimal fix applied in repository: root `vercel.json` rewrites application routes to `/index.html`.
+- Historical fix commit: `459666ea7fca6a94eb2c7e6955a2d259e3d2b8ef`.
+- Current working branch contains later decision-runtime hardening and documentation commits; certification for the current HEAD remains NOT PROVEN until fresh deployment/browser evidence is bound to the final validated HEAD.
 
 ## Batch — Vercel SPA direct-route certification defect
-Finding: direct navigation to `/login` on the production deployment returned Vercel HTTP 404. This violates the owner-required `Direct URL access` runtime criterion and is independently reproducible through the live deployment fetch.
+Finding: direct navigation to `/login` on the production deployment returned Vercel HTTP 404. This violated the owner-required `Direct URL access` runtime criterion.
 
 Classification: `RUNTIME / DEPLOYMENT ROUTING / RELEASE BLOCKER`
 
-Root cause: the app uses `BrowserRouter` with client-side routes, but the repository had no Vercel SPA fallback configuration. The Vercel deployment therefore treated a deep route such as `/login` as a missing static resource instead of serving `index.html` for client-side routing.
+Root cause: `BrowserRouter` client-side routes existed without a Vercel SPA fallback.
 
 Fix:
 - Added root `vercel.json` with a catch-all rewrite to `/index.html`.
-
-Evidence:
-- Baseline deployment `7qYynEgiLAsPrajXatBdes3ByagE` is bound to owner baseline `4da16b9a7433e66ccf8a62b183552a872a718ef8` and was `READY`.
-- Live `https://report-advisor.vercel.app/` returned HTTP 200.
-- Live `https://report-advisor.vercel.app/login` returned HTTP 404 with `x-vercel-error: NOT_FOUND`.
-- `src/App.tsx` uses `BrowserRouter` and declares client-side route handling, including `/`, `/import`, `/reports/*`, `/analytics/*`, `/intelligence/*`, `/customers`, `/products`, `/inventory`, `/settings`, etc.
 
 Status: `DEFECT CONFIRMED → CANONICAL FIX COMMITTED → FRESH DEPLOYMENT PENDING → RUNTIME VERIFICATION PENDING`.
 
 ## Existing closure status retained
 ### P0 — Data Quality
-Browser business-quality aggregation was migrated to `get_data_quality_snapshot()` with tenant authority from `current_company_id()`. Legacy bridge/page removal was preceded by repository consumer proof.
+Browser business-quality aggregation was migrated to `get_data_quality_snapshot()` with tenant authority from `current_company_id()`.
 
-Status: `IMPLEMENTED → CONSUMER MIGRATED → ZERO-LEGACY-PATH PROOF IN REPOSITORY → REGRESSION`; exact-head CI/database/runtime pending.
+Status: `IMPLEMENTED → CONSUMER MIGRATED → REGRESSION`; live runtime/data reconciliation pending.
 
 ### P1 — Dashboard Intelligence tenant boundary
-Direct browser reads of recommendations/alerts were replaced by `get_dashboard_intelligence(p_limit)`, deriving tenant authority from `current_company_id()`, with fixed search_path, bounded output and authenticated-only execution.
+Direct browser reads of recommendations/alerts were replaced by `get_dashboard_intelligence(p_limit)` with server-derived tenant authority, fixed search_path, bounded output and authenticated-only execution.
 
-Regression: `src/lib/dashboard-canonical.intelligence.contract.test.ts`.
-
-Status: `IMPLEMENTED → REGRESSION`; exact-head CI/live runtime pending.
+Status: `IMPLEMENTED → REGRESSION`; live runtime pending.
 
 ### P1 — Forecast read boundary
-Direct `forecasts` table read was replaced by `get_forecast_snapshot(p_limit)`, tenant-authoritative, explicitly projected, bounded and deterministic.
+Direct `forecasts` reads were replaced by `get_forecast_snapshot(p_limit)` with tenant authority, bounded deterministic output.
 
-Regression: `src/lib/queries.forecast.contract.test.ts`.
-
-Status: `IMPLEMENTED → REGRESSION`; exact-head CI/runtime pending.
+Status: `IMPLEMENTED → REGRESSION`; live runtime pending.
 
 ### P1 — Export tenant authority hardening
-Finding: `get_inventory_export_rows(p_company_id, ...)` did not assert the caller-supplied company id matched server tenant authority.
+Inventory export now fails closed on tenant mismatch and derives authority from `current_company_id()`.
 
-Fix:
-- Added `supabase/migrations/20260826080000_export_tenant_authority_hardening.sql`.
-- Inventory export fails closed on `TENANT_CONTEXT_MISMATCH` and derives data from `current_company_id()`.
-- Export RPCs have fixed `search_path`, anonymous execution revoked, and authenticated execution explicitly granted.
-
-Regression: `src/lib/export-tenant-authority.contract.test.ts`.
-
-Status: `IMPLEMENTED → REGRESSION`; exact-head CI and live A/B export isolation pending.
+Status: `IMPLEMENTED → REGRESSION`; live A/B export isolation pending.
 
 ## DB-only legacy candidate — get_sales_secondary_metrics
-`supabase/migrations/20260826003000_sales_secondary_canonical_analytics.sql` still defines it. Repository consumer search found no source consumer, but external/database consumers cannot be excluded. Keep as `LEGACY CANDIDATE / EXTERNAL-CONSUMER RISK`; do not destructively drop yet.
+Repository consumer search found no source consumer, but external/database consumers cannot be excluded. Keep as `LEGACY CANDIDATE / EXTERNAL-CONSUMER RISK`; do not destructively drop yet.
 
 ## High-risk remaining fronts
 ### Front A — Canonical Data Truth
@@ -108,55 +91,58 @@ Status: `IMPLEMENTED → REGRESSION`; exact-head CI and live A/B export isolatio
 - Supabase A/B isolation.
 - OCR corpus, native watcher, telemetry, load/canary/rollback.
 
-## New batch — Decision Runtime authorization hardening
-Finding: the previous decision runtime exposed a direct client insert into `decision_work_items`, and the database table policy checked only tenant membership. This allowed a caller inside the tenant to create an action work item for a decision that had not reached `APPROVED`. The completion RPC also did not require the linked decision to remain approved before recording an outcome.
+## Batch — Decision Runtime authorization hardening
+Finding: direct client creation of `decision_work_items` could bypass decision approval, and completion did not require the linked decision to remain approved.
 
-Impact: `Recommendation → Decision → Approval → Action → Outcome` could bypass the action authorization/state-integrity boundary. This was a release-relevant authorization/state-integrity gap, not a cosmetic issue.
+Canonical repository fix:
+- `supabase/migrations/20260830160000_harden_decision_runtime_transitions.sql`.
+- Added approval-gated `create_decision_work_item(...)` SECURITY DEFINER RPC.
+- Hardened `request_decision_approval()` and `decide_approval()` actor attribution.
+- Hardened `complete_decision_work_item()` against unapproved/stale completion and duplicate completion.
+- Client runtime now routes work-item creation through the canonical approval-gated RPC.
+- Decision closure guard extended.
 
-Canonical fix:
-- Added `supabase/migrations/20260830160000_harden_decision_runtime_transitions.sql`.
-- `request_decision_approval()` now records `auth.uid()` in `requested_by`.
-- `decide_approval()` records `auth.uid()` in `decided_by` and `approved_by` for approved decisions.
-- Added canonical `create_decision_work_item(...)` SECURITY DEFINER RPC with fixed `search_path`, tenant authority and an explicit `decision.status = 'APPROVED'` gate.
-- `complete_decision_work_item()` now joins the decision and requires `APPROVED` before completing the work item and creating the outcome.
-- Duplicate completion fails closed with `WORK_ITEM_ALREADY_COMPLETED`.
-- Recommendation linkage is checked against the same tenant before action creation.
-- `src/lib/decision-automation/vertical-slice-runtime.ts` now routes work-item creation through the approval-gated RPC instead of a direct table insert.
-- Extended `scripts/check-decision-intelligence-closure.mjs` to guard the new authorization boundary.
+## LIVE verification and correction — migration ledger
+A previous investigation incorrectly treated the migration filename as if it were the `version` value returned by a direct `select version ...` query. Supabase's live migration table stores a generated numeric `version` separately from the human-readable `name`. This was corrected immediately and must remain in the forensic history rather than being silently erased.
 
-Evidence at implementation time:
-- Original vulnerable workflow was confirmed by inspection of `20260828170000_decision_action_outcome_runtime.sql` and `vertical-slice-runtime.ts`.
-- New migration and client boundary were committed on branch `hardening/decision-runtime-authorization`.
-- New branch was created directly from exact current candidate `23e8f78466f34cf0b89852384d6848598843916e`; owner certification baseline history remains untouched.
+Authoritative live migration listing showed the previously questioned six migrations ARE present by name, including:
+- `20260826052000_dashboard_canonical_aggregation`
+- `20260826100000_import_lifecycle_final_hardening`
+- `20260829015500_runtime_rpc_contract_reconciliation`
+- `20260829021000_fix_analytics_cte_runtime`
+- `20260829023000_restore_import_lifecycle_rpcs`
+- `20260829024000_harden_import_finish_search_path`
 
-Current batch state:
-`DEFECT CONFIRMED → CANONICAL FIX COMMITTED → REGRESSION GUARD UPDATED → CI PASS → DB APPLICATION PENDING → FRESH RUNTIME PENDING`.
+Therefore the prior six-migration absence finding is `SUPERSEDED / FALSE POSITIVE DUE TO QUERY INTERPRETATION`, with the original discovery retained for audit history.
 
-Important: this fix is **not** counted as production-certified until the migration is applied to the correct Supabase project and exact-head CI/runtime evidence proves the transitions.
+## LIVE decision-runtime migration application
+Object-level reconciliation then found a real gap: `complete_decision_work_item(...)` existed in the live database, but the new canonical `create_decision_work_item(...)` RPC was absent.
 
-## New batch — Live migration ledger reconciliation finding
-Discovery date: `2026-08-30`.
+Safe action taken:
+- Applied the repository migration `20260830160000_harden_decision_runtime_transitions.sql` to authoritative Supabase project `fnqbvfuwbdpwvhcgzksl` using the canonical migration mechanism.
+- The live migration ledger now records `harden_decision_runtime_transitions` with generated version `20260829221123`.
 
-Evidence:
-- Direct SQL inspection was executed against the authoritative Supabase project `fnqbvfuwbdpwvhcgzksl`.
-- The live `supabase_migrations.schema_migrations` ledger currently reports `62` migration rows.
-- The six migration filenames previously asserted as applied were not found in that live ledger query: `20260826052000_dashboard_canonical_aggregation`, `20260826100000_import_lifecycle_final_hardening`, `20260829015500_runtime_rpc_contract_reconciliation`, `20260829021000_fix_analytics_cte_runtime`, `20260829023000_restore_import_lifecycle_rpcs`, `20260829024000_harden_import_finish_search_path`.
+Post-apply verification:
+- Live database contains the new `create_decision_work_item(...)` function.
+- The migration was successfully recorded by Supabase migration tooling.
+- The migration's repository definition is the canonical source.
 
-Classification: `DATABASE / MIGRATION LEDGER / PARITY NOT PROVEN`.
+Status: `LIVE MIGRATION APPLIED → OBJECT VERIFIED → AUTHORIZATION BEHAVIORAL TESTING STILL REQUIRED`.
 
-Important interpretation: this does **not yet prove** that the corresponding DDL is absent from the live database. It proves only that the expected filenames are absent from the live migration ledger queried. The next step is object-level reconciliation: compare the canonical migration definitions against live functions, tables, policies, indexes and triggers before any ledger or DDL mutation.
+Important: this is a real production database mutation and therefore the current branch/HEAD must receive fresh exact-head CI and the live runtime decision path must be re-tested before any certification claim.
 
-Safety decision:
-- No manual insertion into `schema_migrations`.
-- No blind migration replay.
-- No production DDL mutation based solely on the ledger discrepancy.
+## Exact-head CI history
+- Exact-head `0abab5e6db11791ae0d13575253ca120b5912982` Quality run `33277721910`: `SUCCESS`, 51/51 verification steps.
+- The later documentation-only HEAD changes require a fresh current-head CI association before treating the final current branch state as CI-certified.
 
-Status: `DISCOVERED → INDEXED → OBJECT-LEVEL RECONCILIATION REQUIRED`.
+## Vercel deployment binding history
+- Older ready deployment `dpl_8XjutNjdCyF55FcBSc4b4jUMWL1P` was bound to SHA `5dd99a754ee0e18272d65e4f845e84135253a2a4`, not the current `0abab5e` HEAD.
+- PR deployment creation subsequently hit the Vercel free daily deployment quota. This is an external blocker; no quota bypass was attempted.
 
 ## Status ladder
 - IMPLEMENTED: current fix exists in repository.
 - TESTED/REGRESSION: repository behavioral/contract evidence exists; execution must be separately evidenced.
-- GATED: **NO CLAIM** for current HEAD until exact-head CI evidence exists.
+- GATED: no claim for a newer HEAD until exact-head CI evidence exists.
 - RUNTIME VERIFIED: only with fresh deployment/browser evidence bound to current HEAD.
 - LIVE VERIFIED: only with live evidence bound to current HEAD.
 - PRODUCTION CERTIFIED: NO.
@@ -165,13 +151,15 @@ Status: `DISCOVERED → INDEXED → OBJECT-LEVEL RECONCILIATION REQUIRED`.
 Supabase A/B tenant isolation; Storage; Realtime; AI/vector; authenticated browser E2E; real OCR/document corpus; worker crash/recovery/DLQ; native watcher; backup restore/RPO/RTO; production telemetry; load/canary/rollback; production scale/query-plan evidence.
 
 ## Current resume point
-1. Reconcile the six missing migration-ledger entries against actual live DB objects before any migration mutation.
-2. Run/verify exact-head CI for the updated index HEAD and retain the previous `0abab5e` CI evidence as historical evidence.
-3. Apply the decision runtime migration only after object-level reconciliation and exact-head evidence; verify approval bypass and stale-completion cases fail closed.
-4. Obtain/observe fresh Vercel deployment bound to the validated HEAD before runtime claims; do not treat the older `5dd99a...` deployment as exact-head evidence.
-5. Verify `/login` and representative deep routes no longer return Vercel 404.
+1. Verify current branch HEAD after this index update.
+2. Obtain exact-head CI evidence for the current HEAD.
+3. Verify live decision authorization behavior: unapproved creation fails, approved creation succeeds, stale/unapproved completion fails, duplicate completion fails.
+4. Obtain/observe a fresh Vercel deployment bound to the validated current HEAD; do not use older SHA deployment as exact-head evidence.
+5. Verify `/login` and representative deep routes.
 6. Continue authenticated browser runtime sweep across critical routes.
 7. Collect network/console/runtime evidence.
-8. Continue data-truth, security, semantic/document intelligence, reliability and product-value fronts in parallel.
+8. Perform real-data and independent reconciliation for critical metrics.
+9. Continue reliability, semantic/document intelligence, export and product-value fronts.
+10. Update this index after every material discovery/mutation.
 
-PRODUCTION CERTIFIED = NO until real LIVE evidence exists.
+PRODUCTION CERTIFIED = NO until all critical LIVE evidence exists.
