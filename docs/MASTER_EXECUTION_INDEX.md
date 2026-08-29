@@ -101,3 +101,14 @@ This PASS is exact-head-bound to `555bd778dc82543ee127bd8692503e8635d9bd13`; it 
 - Broader route sweep could not be completed because Vercel protection-bypass requests hit a 429 rate limit. Therefore full browser route/network/console certification remains NOT PROVEN.
 
 Quality run on the exact head: `33269239425` → PASS (52 substantive verification steps).
+
+
+## Migration provenance progress — 2026-08-29
+Recovered/mirrored: `20260829153438`, `20260829175705`, `20260829180903`.
+Reconstructed with explicit provenance: `20260829153456`, `20260829155128`, `20260829161705`, `20260829171552`.
+Remaining live migrations: 17 are still NOT RECOVERED/RECONSTRUCTED and therefore migration parity remains OPEN.
+
+## Live privileged-boundary audit
+Current live catalog confirms all observed SECURITY DEFINER functions have a fixed public search_path; sensitive decision/runtime functions inspected derive tenant context through current_company_id() and actor context through auth.uid() where actor attribution is required. Authenticated EXECUTE is false for anon across the observed privileged surface. This is evidence of the current live boundary, not a substitute for caller-by-caller certification.
+
+Live lifecycle table privileges also confirm direct authenticated UPDATE/DELETE/TRUNCATE are closed on audit_logs, recommendations, alerts, business_intelligence_decisions, decision_approvals, decision_work_items, recommendation_outcomes and decision_action_receipts, while intended INSERT/SELECT surfaces remain as designed. The application consumer drift found in queries.ts/queries-compat.ts has been corrected and the exact-head quality gate passed.
