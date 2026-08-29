@@ -11,8 +11,9 @@ No historical PASS promotion. No scanner-only closure. No runtime/LIVE/productio
 
 ## Exact state
 - Owner certification baseline: `4da16b9a7433e66ccf8a62b183552a872a718ef8`.
-- Current working branch advances through decision-runtime hardening and forensic index updates; production certification remains NO.
-- Historical production deployment `7qYynEgiLAsPrajXatBdes3ByagE` had a real SPA deep-route defect; root `vercel.json` SPA fallback was added and awaits fresh deployment/runtime verification.
+- Current working branch: `hardening/decision-runtime-authorization`.
+- Current recorded verification head before this index-only commit: `e61c3e436db08ec81cc4bcf17908b0f434974de2`.
+- Production certification remains `NO`.
 
 ## Vercel SPA direct-route certification defect
 Finding: direct navigation to `/login` on the baseline deployment returned Vercel HTTP 404 while the app uses `BrowserRouter`.
@@ -78,65 +79,55 @@ Object-level reconciliation found `complete_decision_work_item(...)` existed but
 Action:
 - Applied `20260830160000_harden_decision_runtime_transitions` to authoritative project `fnqbvfuwbdpwvhcgzksl` through canonical Supabase migration tooling.
 - Live ledger recorded it as generated version `20260829221123`.
-- `create_decision_work_item(...)` now exists live.
 
-Status: `LIVE MIGRATION APPLIED → OBJECT VERIFIED → AUTHORIZATION BEHAVIOR TESTING REQUIRED`.
+## 2026-08-30 — live security / release-readiness forensic sweep
+Scope: authoritative Supabase project `fnqbvfuwbdpwvhcgzksl` and repository exact head `e61c3e436db08ec81cc4bcf17908b0f434974de2`.
 
-## Security finding — anonymous/public EXECUTE on decision action RPC
-Discovery: after the decision migration, a live privilege check initially reported `anon_execute = TRUE` for `create_decision_work_item(...)`.
+### Verified tasks in this sweep
+1. Enumerated tracked migration versions; latest live migration version observed: `20260829221301`.
+2. Confirmed public tables have RLS enabled: `76/76` public tables with RLS; `0` public tables without RLS.
+3. Counted public RLS policies: `144`.
+4. Counted public SECURITY DEFINER functions: `18`.
+5. Confirmed all inspected SECURITY DEFINER functions contain explicit `search_path` hardening: `0` missing.
+6. Confirmed non-internal public triggers: `13`.
+7. Confirmed public foreign-key constraints: `125`.
+8. Confirmed public indexes: `181`.
+9. Confirmed `anon` has no direct table privileges on core business/lifecycle tables checked.
+10. Confirmed `PUBLIC` has no direct table privileges on the same core tables checked.
+11. Confirmed `anon` EXECUTE on SECURITY DEFINER functions: `0`.
+12. Confirmed `PUBLIC` EXECUTE on SECURITY DEFINER functions: `0`.
+13. Enumerated the six PUBLIC-executable helper/trigger functions; all are non-SECURITY-DEFINER helper/trigger routines, not lifecycle SECURITY DEFINER RPCs.
+14. Verified authenticated lifecycle table privileges: SELECT plus only intentional INSERT surfaces; no UPDATE/DELETE/TRUNCATE on decision lifecycle tables.
+15. Verified lifecycle direct UPDATE/DELETE/TRUNCATE grants for authenticated role: `0`.
+16. Verified core tenant-scoped tables `products`, `sales_invoices`, and `purchase_invoices` use `current_company_id()` in tenant policies.
+17. Verified `sale_items` tenant policy resolves authority through its parent `sales_invoices.company_id`.
+18. Verified `purchase_items` tenant policy resolves authority through its parent `purchase_invoices.company_id`.
+19. Verified `sale_items` and `purchase_items` have product and invoice foreign-key relationships.
+20. Verified the live business corpus is empty for the inspected core business tables: customers/products/suppliers/sales/purchases/inventory/payments/recommendations/alerts/decision work/outcomes = `0` rows each.
+21. Verified live companies count is `2`, consistent with the known empty-business-corpus state.
+22. Reviewed open certification Issues; current explicit blockers include Windows desktop watcher runtime evidence (#102), repository/live migration reconciliation (#96), and deep exact-head/live certification (#62).
+23. Reviewed active PR inventory; certification-sensitive work remains unmerged/draft and is not treated as production proof.
+24. Inspected PR #101's proposed bounded-parallel 20-stage release-readiness contract; it contains 20 repository-native stages but remains a separate draft branch and is not silently promoted into the current head.
+25. Compared `e61c3e4` against its main base `23e8f784`; it is exactly `11` commits ahead and `0` behind, with six changed files in the current decision-runtime verification branch.
 
-Root cause: PostgreSQL grants EXECUTE on newly created functions to `PUBLIC` by default. Revoking only from `anon` is insufficient because `anon` inherits the PUBLIC privilege.
+### Interpretation
+- Security posture for inspected core tables and SECURITY DEFINER RPCs is strong and evidence-backed, but this is not a complete production security certification.
+- The two child tables without a direct `company_id` (`sale_items`, `purchase_items`) are not automatically a defect because tenant authority is enforced through their invoice parent; the existing FK/policy structure was inspected before any mutation decision.
+- The six PUBLIC-executable routines are trigger/helper functions and are not SECURITY DEFINER. No mutation was performed merely to remove safe trigger execution privileges.
+- Empty business data means real-data reconciliation and authenticated A/B tenant runtime certification remain impossible to promote to PASS from current live data alone.
+- PR #101's 20-stage orchestrator is valuable but is not part of the current exact head; no cross-branch cherry-pick or merge was performed.
 
-Canonical fix:
-- Added `supabase/migrations/20260830170000_revoke_anon_decision_work_item_execute.sql`.
-- Added `supabase/migrations/20260830171000_revoke_public_decision_work_item_execute.sql`.
-- Final security migration explicitly revokes EXECUTE from `PUBLIC` and grants it only to `authenticated`.
-- Applied the canonical revocation to live project `fnqbvfuwbdpwvhcgzksl`.
+### Current certification state after sweep
+`CI ON e61c3e4 = PASS (7/7 historical exact-head workflows)`  
+`LIVE SECURITY CORE SWEEP = PARTIAL / VERIFIED FOR INSPECTED SURFACE`  
+`REAL DATA TRUTH = NOT PROVEN (empty business corpus)`  
+`FRESH DEPLOYMENT ↔ CURRENT HEAD = NOT PROVEN`  
+`BROWSER E2E = NOT PROVEN`  
+`FINAL CERTIFICATION = BLOCKED`
 
-Post-fix live verification:
-```text
-public_execute       = false
-anon_execute         = false
-authenticated_execute = true
-migration_recorded   = true
-```
-
-Status: `DEFECT CONFIRMED → ROOT CAUSE IDENTIFIED → CANONICAL FIX COMMITTED → LIVE FIX APPLIED → PRIVILEGE VERIFIED CLOSED`.
-
-The earlier `anon_execute=true` finding remains in forensic history; it is not deleted or rewritten.
-
-## Exact-head CI history
-- `0abab5e6db11791ae0d13575253ca120b5912982`: Quality run `33277721910` SUCCESS, 51/51.
-- `ade2fac0cc480bc6789ad443c30946e85d5dcc4d`: Quality run `33278040284` SUCCESS, all 51 verification steps completed successfully.
-- All seven workflows associated with `ade2fac0cc480bc6789ad443c30946e85d5dcc4d` completed successfully, including `quality`, `integrity-batch`, `production-chain-guard`, `file-intelligence-security`, `file-engine-header-contract`, `batch-integrity-guards`, and `ci-bootstrap-smoke`.
-- This index update itself creates a newer documentation HEAD; therefore the above CI evidence remains bound to `ade2fac0cc480bc6789ad443c30946e85d5dcc4d` and is not promoted to the resulting index-update HEAD without fresh CI.
-
-## Deployment binding history
-- Ready deployment `dpl_8XjutNjdCyF55FcBSc4b4jUMWL1P` used SHA `5dd99a754ee0e18272d65e4f845e84135253a2a4`, not the later exact candidate.
-- Later PR deployment creation hit the Vercel free daily quota. No quota bypass attempted.
-
-## Current status
-```text
-DECISION ACTION RPC                 LIVE
-DECISION RPC PUBLIC EXECUTE         CLOSED
-DECISION RPC ANON EXECUTE           CLOSED
-DECISION RPC AUTHENTICATED EXECUTE  ENABLED
-LIVE MIGRATION                      APPLIED
-EXACT-HEAD CI (ade2fac0)            PASS / VERIFIED
-CURRENT INDEX-UPDATE HEAD CI        REQUIRED
-FRESH EXACT-HEAD DEPLOYMENT          NOT PROVEN
-BROWSER RUNTIME                     NOT PROVEN
-REAL DATA RECONCILIATION            NOT PROVEN
-CERTIFICATION                       BLOCKED
-```
-
-## Current resume point
-1. Obtain fresh exact-head CI for the documentation/index update HEAD.
-2. Verify decision approval/action/outcome behavior with authenticated context; anonymous/public privilege is now closed.
-3. Obtain a fresh Vercel deployment bound to the final validated HEAD; verify `/login` and representative deep routes.
-4. Continue authenticated browser/network/console sweep across critical routes.
-5. Perform real-data and independent reconciliation for critical metrics.
-6. Continue reliability, semantic/document intelligence, export and product-value fronts.
-7. Update this index after every material discovery and mutation.
-
-PRODUCTION CERTIFIED = NO.
+## Next resume point
+1. Preserve the new index commit as the new exact repository state; re-prove CI on that exact SHA because this index update changes HEAD.
+2. Bind a fresh deployment to that SHA before runtime certification.
+3. Execute authenticated browser route/network/console verification.
+4. Continue live A/B tenant, storage/realtime/vector, worker/watcher, backup/restore, and real-corpus evidence closure.
+5. Reconcile repository migration files against the live migration ledger/object definitions before any certification promotion.
