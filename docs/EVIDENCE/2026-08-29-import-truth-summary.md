@@ -1,0 +1,1 @@
+Import truth regression is implemented on the closure branch. The compatibility boundary no longer fabricates valid/invalid/duplicate counters from processed rows and no longer resets processed rows when only error metadata changes. Full CI verification is required before certification.
