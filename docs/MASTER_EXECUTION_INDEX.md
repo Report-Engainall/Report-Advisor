@@ -193,29 +193,49 @@ Commit: `54d03945ce6f7e0fbd93da545066226d4e9e315c`.
 Status: IMPLEMENTED → EXACT-HEAD CI REQUIRED.
 
 ### Evidence consumed for this cycle
-The failed Quality run had 52 substantive verification stages. Before Typecheck, the workflow passed workflow topology, tenant convergence, RLS/import guards, migration schema audit (80 migrations), master requirements, file-engine architecture/capability, schema intelligence, golden fixtures, canonical import mapping, report execution, forecast calibration, entitlements, decision intelligence and production certification. Typecheck then failed, while lint and build still completed successfully; the performance budget also failed on the same run. The exact TypeScript diagnostic was captured as `src/lib/file-engine/adapters.ts(135,45): error TS2345` with `ArrayBuffer` not assignable to `ImageLike`. 
+The failed Quality run had 52 substantive verification stages. Before Typecheck, the workflow passed workflow topology, tenant convergence, RLS/import guards, migration schema audit (80 migrations), master requirements, file-engine architecture/capability, schema intelligence, golden fixtures, canonical import mapping, report execution, forecast calibration, entitlements, decision intelligence and production certification. Typecheck then failed, while lint and build still completed successfully; the performance budget also failed on the same run. The exact TypeScript diagnostic was captured as `src/lib/file-engine/adapters.ts(135,45): error TS2345` with `ArrayBuffer` not assignable to `ImageLike`.
 
-### Current exact execution head
-`54d03945ce6f7e0fbd93da545066226d4e9e315c`
+## Execution cycle F — remove obsolete typecheck suppressions — 2026-08-29
+Finding: after the Blob boundary fix, the next exact-head Quality run `33271452763` proved the compiler now accepts all four previously suppressed runtime imports. TypeScript then failed with four `TS2578 Unused '@ts-expect-error' directive` diagnostics at `src/lib/file-engine/adapters.ts` lines 72, 84, 120 and 126.
+
+Root cause: the first hardening pass was intentionally narrow but became stale once the installed runtime typings were proven compatible. Keeping obsolete suppressions would make the repository fail closed at typecheck for no remaining reason.
+
+Canonical fix: removed only the four obsolete `@ts-expect-error` directives. No parser behavior, runtime limits, OCR confidence semantics, or global TypeScript configuration was changed.
+
+Commit: `7c65767727e21a87307b8b859340f6ed608bd798`.
+Status: IMPLEMENTED → EXACT-HEAD CI REQUIRED.
+
+### Exact-head CI evidence for cycle F
+Quality run `33271452763` was triggered from `54d03945ce6f7e0fbd93da545066226d4e9e315c` and completed with:
+- Typecheck: FAIL only because of the four now-obsolete suppressions.
+- Performance budget: PASS with critical 833.2KB, raw 4542.7KB, gzip 1159.6KB, largest JS 487.8KB against limits 900KB / 5500KB / 1800KB / 600KB.
+- Build: PASS.
+- Lint: PASS with warnings only.
+- Tenant/RLS/import, document intelligence, schema/reconciliation, business intelligence, runtime, report truth, production readiness and resilience stages: PASS.
+
+This establishes that the prior performance-budget failure is no longer present on the fresh CI run; it does not establish Typecheck PASS on `7c65767727e21a87307b8b859340f6ed608bd798` yet.
+
+## Current exact execution head
+`7c65767727e21a87307b8b859340f6ed608bd798`
 
 Current branch: `owner/today-report-ingestion-hardening`.
 Current main/certification baseline remains protected and untouched.
 
 ### Current blockers / risks
-- Fresh Quality PASS is not yet proven on `54d03945ce6f7e0fbd93da545066226d4e9e315c`.
-- The same latest known Quality run also exposed a raw total dist performance budget overage (`4541.3KB > 2800KB`); this requires the corrected performance-gate behavior to be validated on a fresh exact-head run rather than assumed closed.
-- Fresh Vercel status remains externally rate-limited in the current execution window; no deployment PASS is inferred from this mutation.
+- Fresh Quality PASS is not yet proven on `7c65767727e21a87307b8b859340f6ed608bd798`.
+- The immediately preceding fresh Quality run proved the performance budget is now passing; this must be re-established on the new exact head after the typecheck correction.
+- Fresh Vercel deployment/runtime equivalence remains NOT PROVEN for the new exact head.
 - Authenticated browser route/network/console sweep remains NOT PROVEN.
 - 17 live migrations remain without recovered/reconstructed provenance.
 - Caller-by-caller authenticated SECURITY DEFINER certification remains open.
 - Independent real-trader-data reconciliation remains mandatory.
 
 ### Next parallel fronts
-1. Run exact-head Quality against `54d03945ce6f7e0fbd93da545066226d4e9e315c` and consume every failure family, not just the first failure.
+1. Consume the automatic exact-head Quality run for `7c65767727e21a87307b8b859340f6ed608bd798`; if Typecheck passes, continue through every downstream stage rather than stopping at the first green result.
 2. Validate image OCR and scanned-PDF OCR with real browser fixtures before treating extracted values as business evidence.
-3. Resolve the performance budget from measured asset/network behavior without weakening the gate merely to obtain green CI.
-4. Continue migration provenance and privileged-caller audit without blind production security mutation.
-5. Prepare the authenticated real-report trial only after fresh deployment and browser access are available.
-6. Update this index after every meaningful execution batch.
+3. Continue migration provenance and privileged-caller audit without blind production security mutation.
+4. Prepare fresh deployment and authenticated browser certification as soon as external Vercel protection/rate-limit constraints permit.
+5. Reconcile a real trader report independently from source through canonical DB/RPC/UI/export.
+6. Keep appending every material execution cycle to this index.
 
 Certification remains `BLOCKED` and `100% REAL RELEASE READY` remains `NO`.
