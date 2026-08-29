@@ -28,10 +28,22 @@ if (!supportedMatch) {
   throw new Error('SUPPORTED_FORMATS declaration is missing or malformed.');
 }
 
-for (const format of ['xlsx', 'csv', 'tsv', 'json', 'jsonl']) {
-  if (!new RegExp(`['"]${format}['"]`).test(supported)) {
+const declaredFormats = [...supported.matchAll(/[\'\"]([^\'\"]+)[\'\"]/g)].map((match) => match[1]);
+const requiredProductionFormats = ['xlsx', 'csv', 'tsv', 'json', 'jsonl'];
+for (const format of requiredProductionFormats) {
+  if (!declaredFormats.includes(format)) {
     throw new Error(`Required production format is missing from SUPPORTED_FORMATS: ${format}`);
   }
 }
 
-console.log('file-engine capability contract: PASS');
+// Every declared format must have an explicit parseFile disposition. This prevents
+// detector/UI drift where a format is advertised but falls through to a generic error.
+const parseFileStart = adapters.indexOf('export async function parseFile(');
+const parseFileBody = parseFileStart >= 0 ? adapters.slice(parseFileStart) : '';
+for (const format of declaredFormats) {
+  if (!new RegExp(`case [\'\"]${format}[\'\"]\\s*:`).test(parseFileBody)) {
+    throw new Error(`Declared format has no explicit parseFile disposition: ${format}`);
+  }
+}
+
+console.log(`file-engine capability contract: PASS (${declaredFormats.length} declared formats explicitly dispatched)`);
