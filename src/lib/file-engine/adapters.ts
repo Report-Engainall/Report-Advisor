@@ -1,5 +1,4 @@
 import * as XLSX from 'xlsx';
-import { getDocument, GlobalWorkerOptions } from 'pdfjs-dist';
 import type { FileFormat, Dataset, ColumnProfile, ColumnStatistics } from './types';
 import { normalizeRows, normalizeColumnName, parseNumber } from './normalizer';
 import { detectColumnDataType, cleanValue } from './data-types';
@@ -61,7 +60,6 @@ function buildColumnProfiles(rows: Row[], columns: string[], mappings: Awaited<R
   });
 }
 
-/** Preserve source columns while materializing high-confidence canonical fields for imports. */
 function materializeCanonicalFields(rows: Row[], columns: ColumnProfile[]): Row[] {
   const canonicalOwners = new Map<string, ColumnProfile>();
   for (const column of columns) {
@@ -98,23 +96,21 @@ async function buildDataset(rows: Row[], name: string, source: string, sheet?: s
   return { id: generateId(), name, source, sheet, rowCount: canonicalRows.length, columnCount: columns.length, columns: columnProfiles, rows: canonicalRows, preview: canonicalRows.slice(0, 50), qualityScore };
 }
 
-/** Build a safe, evidence-preserving dataset for document text. It deliberately does not invent business fields. */
 async function buildTextDataset(text: string, fileName: string, sourceType: string, warning?: string): Promise<Dataset[]> {
   const normalized = text.replace(/\uFEFF/g, '').replace(/\r\n?/g, '\n').replace(/[ \t]+$/gm, '').trim();
   if (!normalized) return [];
   const lines = normalized.split('\n').map((line) => line.trim()).filter(Boolean);
   const rows: Row[] = lines.map((line, index) => ({ line_number: index + 1, text: line }));
   const dataset = await buildDataset(rows, fileName, sourceType);
-  for (const column of dataset.columns) {
-    column.qualityIssues.push('وثيقة نصية: لم يتم اختراع حقل أعمال؛ يلزم التعيين الدلالي قبل الكتابة');
-  }
+  for (const column of dataset.columns) column.qualityIssues.push('وثيقة نصية: لم يتم اختراع حقل أعمال؛ يلزم التعيين الدلالي قبل الكتابة');
   if (warning) dataset.columns[1]?.qualityIssues.push(warning);
   return [dataset];
 }
 
 async function parsePdfText(buffer: ArrayBuffer, fileName: string): Promise<Dataset[]> {
-  GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.mjs', import.meta.url).toString();
-  const pdf = await getDocument({ data: new Uint8Array(buffer) }).promise;
+  const pdfjs = await import('pdfjs-dist') as typeof import('pdfjs-dist');
+  pdfjs.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.mjs', import.meta.url).toString();
+  const pdf = await pdfjs.getDocument({ data: new Uint8Array(buffer) }).promise;
   const pages: string[] = [];
   for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) {
     const page = await pdf.getPage(pageNumber);
@@ -127,14 +123,14 @@ async function parsePdfText(buffer: ArrayBuffer, fileName: string): Promise<Data
 }
 
 async function parseDocxText(buffer: ArrayBuffer, fileName: string): Promise<Dataset[]> {
-  const mammoth = await import('mammoth');
+  const mammoth = await import('mammoth') as typeof import('mammoth');
   const result = await mammoth.extractRawText({ arrayBuffer: buffer });
   return buildTextDataset(result.value, fileName, 'docx', result.messages.length ? `DOCX_EXTRACTION_WARNINGS:${result.messages.length}` : undefined);
 }
 
 async function parseImageText(buffer: ArrayBuffer, fileName: string): Promise<Dataset[]> {
-  const { createWorker } = await import('tesseract.js');
-  const worker = await createWorker('ara+eng');
+  const tesseract = await import('tesseract.js') as typeof import('tesseract.js');
+  const worker = await tesseract.createWorker('ara+eng');
   try {
     const { data } = await worker.recognize(buffer);
     return buildTextDataset(data.text, fileName, 'image', data.confidence < 70 ? `OCR_LOW_CONFIDENCE:${Math.round(data.confidence)}%` : undefined);
@@ -230,7 +226,6 @@ async function parseJSONData(data: unknown, fileName: string, path = ''): Promis
   return datasets.length ? datasets : [await buildDataset([data], path || fileName, fileName)];
 }
 
-/** Stable public adapter consumed by ImportPage and folder import flows. */
 export async function parseFile(buffer: ArrayBuffer, fileName: string, format: FileFormat): Promise<Dataset[]> {
   switch (format) {
     case 'xlsx': case 'xls': case 'xlsm': case 'ods': return parseSpreadsheet(buffer, fileName, format);
