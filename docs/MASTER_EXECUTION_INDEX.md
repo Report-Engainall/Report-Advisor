@@ -107,7 +107,9 @@ The earlier `anon_execute=true` finding remains in forensic history; it is not d
 
 ## Exact-head CI history
 - `0abab5e6db11791ae0d13575253ca120b5912982`: Quality run `33277721910` SUCCESS, 51/51.
-- Subsequent index/security migration commits create newer HEADs; those newer HEADs require fresh CI evidence before current-branch certification.
+- `ade2fac0cc480bc6789ad443c30946e85d5dcc4d`: Quality run `33278040284` SUCCESS, all 51 verification steps completed successfully.
+- All seven workflows associated with `ade2fac0cc480bc6789ad443c30946e85d5dcc4d` completed successfully, including `quality`, `integrity-batch`, `production-chain-guard`, `file-intelligence-security`, `file-engine-header-contract`, `batch-integrity-guards`, and `ci-bootstrap-smoke`.
+- This index update itself creates a newer documentation HEAD; therefore the above CI evidence remains bound to `ade2fac0cc480bc6789ad443c30946e85d5dcc4d` and is not promoted to the resulting index-update HEAD without fresh CI.
 
 ## Deployment binding history
 - Ready deployment `dpl_8XjutNjdCyF55FcBSc4b4jUMWL1P` used SHA `5dd99a754ee0e18272d65e4f845e84135253a2a4`, not the later exact candidate.
@@ -120,8 +122,8 @@ DECISION RPC PUBLIC EXECUTE         CLOSED
 DECISION RPC ANON EXECUTE           CLOSED
 DECISION RPC AUTHENTICATED EXECUTE  ENABLED
 LIVE MIGRATION                      APPLIED
-EXACT-HEAD CI (0abab5e)             PASS / HISTORICAL
-CURRENT BRANCH CI                   NOT YET PROVEN AFTER LATEST COMMITS
+EXACT-HEAD CI (ade2fac0)            PASS / VERIFIED
+CURRENT INDEX-UPDATE HEAD CI        REQUIRED
 FRESH EXACT-HEAD DEPLOYMENT          NOT PROVEN
 BROWSER RUNTIME                     NOT PROVEN
 REAL DATA RECONCILIATION            NOT PROVEN
@@ -129,7 +131,7 @@ CERTIFICATION                       BLOCKED
 ```
 
 ## Current resume point
-1. Obtain fresh exact-head CI for the latest branch HEAD after the security/index commits.
+1. Obtain fresh exact-head CI for the documentation/index update HEAD.
 2. Verify decision approval/action/outcome behavior with authenticated context; anonymous/public privilege is now closed.
 3. Obtain a fresh Vercel deployment bound to the final validated HEAD; verify `/login` and representative deep routes.
 4. Continue authenticated browser/network/console sweep across critical routes.
