@@ -163,25 +163,43 @@ Finding: the prior performance gate counted the complete raw `dist` footprint, i
 Commit: `0766b3bb3b9b1a8c87f5b7be6c120c9694ff923b`.
 Status: IMPLEMENTED → CI REQUIRED.
 
+## Execution cycle C — scanned-PDF OCR completion — 2026-08-29
+Gap: text-based PDFs were supported but image-only/scanned PDFs stopped with `PDF_SCANNED_IMAGE_ONLY`, despite the product goal of accepting trader reports from heterogeneous document sources.
+
+Implementation in `188dee2a71c0a4f29cd4e33ee1559d91b4f86cef`:
+- PDF text extraction remains the fast/canonical first path.
+- Image-only PDFs now fall back to browser-side Arabic+English Tesseract OCR.
+- OCR is bounded to 20 pages and a maximum rendered dimension of 2200px, with a controlled render scale of 1.5.
+- Per-page OCR confidence is collected; the minimum confidence is surfaced as evidence/warning.
+- Empty OCR remains fail-closed; no business fields are invented.
+- Non-browser invocation remains explicitly fail-closed.
+- OCR worker is always terminated in `finally` to avoid worker leakage.
+
+Status: IMPLEMENTED → REGRESSION GUARD ADDED → EXACT-HEAD CI REQUIRED.
+
+## Execution cycle D — file-engine regression strengthening — 2026-08-29
+Updated `scripts/check-file-engine-contract.mjs` in commit `5748ee81981e20e9a1d0a7f36d299d4b5f71f23a` to require the bounded scanned-PDF OCR contract, page limit, dimension limit, OCR fallback, confidence evidence and fail-closed empty/page-limit states.
+
+Status: IMPLEMENTED → EXACT-HEAD CI REQUIRED.
+
 ## Current exact execution head
-`1d0c53fef0a046537298265dea7283ce556d0353`
+`5748ee81981e20e9a1d0a7f36d299d4b5f71f23a`
 
 Current branch: `owner/today-report-ingestion-hardening`.
 Current main/certification baseline remains protected and untouched.
 
 ### Current blockers / risks
-- Fresh Quality PASS is not yet proven on `1d0c53fef0a046537298265dea7283ce556d0353`.
+- Fresh Quality PASS is not yet proven on `5748ee81981e20e9a1d0a7f36d299d4b5f71f23a`.
 - Vercel deployment status is externally rate-limited in the current execution window; no deployment PASS is inferred from the code changes.
 - Authenticated browser route/network/console sweep remains NOT PROVEN.
-- Scanned-PDF OCR remains an explicit capability gap.
 - 17 live migrations remain without recovered/reconstructed provenance.
 - Caller-by-caller authenticated SECURITY DEFINER certification remains open.
 - Independent real-trader-data reconciliation remains mandatory.
 
 ### Next parallel fronts
-1. Exact-head CI on `1d0c53fef0a046537298265dea7283ce556d0353`.
+1. Exact-head CI on `5748ee81981e20e9a1d0a7f36d299d4b5f71f23a`.
 2. If Typecheck passes, consume the next failure family rather than stopping at the first green step.
-3. Add bounded scanned-PDF OCR only after validating the existing document runtime contract and worker/resource limits.
+3. Validate scanned-PDF OCR through a real browser fixture before trusting it for business results.
 4. Continue migration provenance and privileged-caller audit without mutating production security blindly.
 5. Preserve the fresh deployment block as BLOCKED until Vercel rate limiting clears; do not claim runtime PASS from static evidence.
 6. Update this index after each meaningful execution batch.
