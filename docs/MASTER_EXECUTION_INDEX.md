@@ -1,92 +1,85 @@
 # Report Advisor — Master Execution & Truth Index
 
-Snapshot: 2026-08-27  
-Repository: `Report-Engainall/Report-Advisor`  
-Branch: `main`  
+Snapshot: 2026-08-29
+Repository: `Report-Engainall/Report-Advisor`
+Branch: `feat/windows-desktop-watched-folder`
 
 ## Permanent execution policy
 `PARALLEL DISCOVERY → FAILURE-FAMILY INVENTORY → ROOT-CAUSE CLUSTERING → BATCH IMPLEMENTATION → CONSUMER/LEGACY CLOSURE → BATCH REGRESSION → EXACT-HEAD CI → VERIFY → INDEX → NEXT PARALLEL FRONTS`
 
 No historical PASS promotion. No scanner-only closure. No runtime/LIVE/production claims without matching evidence.
 
-## Exact state
-- Main contains the integrated deep-closure wave through commit `c7b21db4d68e396fa6ceefe3f6fdc15b1a8b8d4c` before this index-only update.
-- Exact-head CI must be evaluated against the new SHA after this index update; no historical run is promoted.
-- Runtime, LIVE, and production certification remain unclaimed.
+## Baseline
+- Protected certification candidate: `4da16b9a7433e66ccf8a62b183552a872a718ef8`.
+- This branch is a justified gap-closure branch from that baseline.
+- Certification remains blocked until exact-head CI, deployment, runtime and live evidence are proven.
 
-## Batch — invoice page-read tenant/security closure
-Finding: `fetchSalesInvoices()` and `fetchPurchaseInvoices()` were bounded paginated display reads but did not explicitly bind their query predicates to the authoritative tenant context, unlike sibling reads.
+## Previously established fronts
+- Invoice page-read tenant/security closure: IMPLEMENTED → REGRESSION GUARD; exact-head/live pending.
+- P0 Data Quality canonical aggregation: IMPLEMENTED → consumer migrated → regression; exact-head/live pending.
+- Dashboard Intelligence tenant boundary: IMPLEMENTED → regression; live pending.
+- Forecast read boundary: IMPLEMENTED → regression; runtime pending.
+- Export tenant authority hardening: IMPLEMENTED → regression; live A/B pending.
+- `queries-compat.ts`: retained as a compatibility boundary with regression guard; execution evidence remains required.
 
-Classification: `SECURITY/TENANT ISSUE + PERFORMANCE/DETERMINISM`
+## Watched Folder — browser foundation
+Existing browser/PWA foundation is retained. The canonical platform contract explicitly distinguishes web/PWA active-session monitoring from Windows native persistent background capability. Browser implementation uses File System Access where available, SHA-256 fingerprints, incremental scanning and explicit permission handling. UNC/network paths remain outside the browser capability boundary.
 
-Root cause: invoice list reads relied on downstream RLS alone while the shared query boundary lacked an explicit fail-closed tenant context and deterministic tie-break ordering.
+Status: `IMPLEMENTED → CONTRACTED → LIVE RUNTIME PENDING`.
 
-Fix:
-- `src/lib/queries.ts` requires `resolveCurrentCompanyId()` before either invoice read.
-- Both queries explicitly constrain `company_id` to the resolved tenant.
-- Both retain hard page-size bounds (1..500).
-- Both use deterministic `invoice_date DESC, id ASC` ordering before range pagination.
+Evidence: `src/lib/import-pipeline/folder-watch-contract.ts`, `src/components/FolderBatchImportPanel.tsx`, `src/lib/import/batch-folder.ts`.
 
-Regression: `scripts/check-tenant-adversarial-contract.mjs` covers tenant context, explicit company predicates and bounded deterministic pagination.
+## Windows Desktop Watched Folder — new gap closure
+Finding: the platform contract declared `windows.persistentBackgroundWatch=true` and `nativeDirectoryPermission=true`, but the repository had no native Windows host/adapter implementing that capability. The browser watcher could not honestly provide persistent desktop filesystem access.
 
-Status: `IMPLEMENTED → REGRESSION GUARD`; exact-head CI/runtime/live pending.
+Classification: `P1 PRODUCT + RELIABILITY + PLATFORM CAPABILITY GAP`.
 
-## P0 — Data Quality
-Browser business-quality aggregation was migrated to `get_data_quality_snapshot()` with tenant authority from `current_company_id()`. Legacy bridge/page removal was preceded by repository consumer proof.
+Fix implemented on branch `feat/windows-desktop-watched-folder`:
+- Added `desktop/main.cjs` Electron native host.
+- Added isolated `desktop/preload.cjs` bridge with `contextIsolation=true`, `nodeIntegration=false`, sandboxed renderer.
+- Native directory selection uses Windows dialog instead of accepting arbitrary filesystem paths from the web UI.
+- Native watcher uses recursive filesystem events where supported plus a 30-second polling fallback.
+- File processing waits 1.2 seconds after filesystem events before reading, reducing partial-write capture risk.
+- Supported extensions are allowlisted.
+- File reads are root-bound; traversal outside the selected root fails closed with `WATCH_FOLDER_PATH_OUTSIDE_ROOT`.
+- Absolute local filesystem paths are not persisted as import evidence; only the relative path is passed into the canonical import pipeline.
+- Window close hides the application and leaves the watcher alive; tray exit stops the watcher explicitly.
+- Added `desktop/package.json` and Windows NSIS packaging configuration.
+- Added `.github/workflows/desktop-windows.yml` for reproducible Windows installer builds.
+- Added `scripts/check-windows-desktop-folder-watch-contract.mjs` as a repository contract gate.
+- Existing `FolderBatchImportPanel` now detects the native host and routes watched-file events into the existing canonical `processFolderFiles()` pipeline instead of creating a second business-import engine.
 
-Status: `IMPLEMENTED → CONSUMER MIGRATED → ZERO-LEGACY-PATH PROOF IN REPOSITORY → REGRESSION`; exact-head CI/database/runtime pending.
+Status: `IMPLEMENTED → CI REGRESSION PASS → WINDOWS INSTALLER/LIVE E2E NOT YET PROVEN`.
 
-## P1 — Dashboard Intelligence tenant boundary
-Direct browser reads of recommendations/alerts were replaced by `get_dashboard_intelligence(p_limit)`, deriving tenant authority from `current_company_id()`, with fixed search_path, bounded output and authenticated-only execution.
+### CI evidence for branch head `097ab3527614e22c98f30aa8652e9406dff14657`
+- `quality` run `33272680089`: SUCCESS.
+- `integrity-batch` run `33272680072`: SUCCESS.
+- `batch-integrity-guards` run `33272680100`: SUCCESS.
+- `production-chain-guard` run `33272680078`: SUCCESS.
+- `file-intelligence-security` run `33272680095`: SUCCESS.
+- `file-engine-header-contract` run `33272680097`: SUCCESS.
+- `ci-bootstrap-smoke` run `33272680074`: SUCCESS.
 
-Regression: `src/lib/dashboard-canonical.intelligence.contract.test.ts`.
+An earlier run exposed a workflow-command defect because the desktop workflow used `npm run package:win` from `desktop/`; the workflow was corrected to `npm --prefix desktop run package:win`. This is recorded as `DISCOVERED → FIXED`; the subsequent repository CI suite passed.
 
-Status: `IMPLEMENTED → REGRESSION`; exact-head CI/live runtime pending.
+## Forensic execution note — main branch procedural correction
+During this cycle, desktop files were accidentally written to `main` because the GitHub contents API defaults to the default branch when `branch` is omitted. The files were immediately deleted from `main`; no desktop implementation remains there. This created revert commits on `main`, so the historical SHA `4da16b9a...` is no longer the literal current `main` ref even though the accidental file content was removed. Do not claim the original Exact HEAD is still the main branch tip. The certification baseline remains the historical protected candidate for evidence comparison, while new work is isolated on the feature branch.
 
-## P1 — Forecast read boundary
-Direct `forecasts` table read was replaced by `get_forecast_snapshot(p_limit)`, tenant-authoritative, explicitly projected, bounded and deterministic.
+## Security/data-truth safeguards added in desktop work
+- Native host does not expose Node integration to renderer.
+- Renderer cannot request reads outside the active watched root.
+- Local absolute paths are not sent into the import evidence path.
+- Native host reuses the existing tenant-aware canonical import pipeline rather than bypassing RPC/import controls.
+- No database schema or production data mutation was performed by this desktop branch.
 
-Regression: `src/lib/queries.forecast.contract.test.ts`.
-
-Status: `IMPLEMENTED → REGRESSION`; exact-head CI/runtime pending.
-
-## P1 — Export tenant authority hardening
-Finding: `get_inventory_export_rows(p_company_id, ...)` did not assert the caller-supplied company id matched server tenant authority.
-
-Fix:
-- Added `supabase/migrations/20260826080000_export_tenant_authority_hardening.sql`.
-- Inventory export fails closed on `TENANT_CONTEXT_MISMATCH` and derives data from `current_company_id()`.
-- Export RPCs have fixed `search_path`, anonymous execution revoked, and authenticated execution explicitly granted.
-
-Regression: `src/lib/export-tenant-authority.contract.test.ts`.
-
-Status: `IMPLEMENTED → REGRESSION`; exact-head CI and live A/B export isolation pending.
-
-## DB-only legacy candidate — get_sales_secondary_metrics
-`supabase/migrations/20260826003000_sales_secondary_canonical_analytics.sql` still defines it. Repository consumer search found no source consumer, but external/database consumers cannot be excluded. Keep as `LEGACY CANDIDATE / EXTERNAL-CONSUMER RISK`; do not destructively drop yet.
-
-## Batch — queries-compat tenant/canonical boundary regression
-Finding: `src/lib/queries-compat.ts` is intentionally retained as a compatibility boundary, but it still owns several direct tenant-scoped operations and canonical export adapters; these paths require a permanent guard against accidental reintroduction of browser business truth or caller-controlled tenant authority.
-
-Root cause: compatibility modules are high-risk drift points because they preserve old import surfaces while newer canonical services evolve independently.
-
-Fix:
-- Added `scripts/check-queries-compat-boundary.mjs`.
-- The regression requires all secondary analytics exports to delegate to canonical implementations.
-- It rejects direct sales-table aggregation and calls to the legacy `get_sales_secondary_metrics` RPC.
-- It requires authoritative `resolveCurrentCompanyId()` / `TENANT_REQUIRED` fail-closed semantics.
-- It checks tenant-scoped alerts, recommendations and import-job paths retain the shared tenant guard.
-- It checks export compatibility retains the bounded `p_max_rows: 10000` contract.
-
-Consumer state: compatibility remains only where repository consumers require the old import surface; business truth remains owned by canonical `queries.ts`/RPC paths.
-
-Legacy state: no destructive removal of `queries-compat.ts`; DB-only secondary analytics remains protected by external-consumer risk.
-
-Regression execution: **NOT EXECUTED in this environment**. The repository was updated with the guard, but no local checkout/runtime was available to execute it here; this is explicitly not counted as PASS.
-
-Exact-head CI: **PENDING / NOT OBSERVED for the post-index SHA**.
-
-Status: `IMPLEMENTED → REGRESSION ADDED → CI PENDING`; not CLOSED.
+## Remaining Windows Desktop proof
+- `NOT PROVEN`: Windows installer artifact from the dedicated Windows runner.
+- `NOT PROVEN`: install/run on a real Windows machine.
+- `NOT PROVEN`: authenticated tenant session + real report copied into watched folder → canonical import → database → analytics → UI.
+- `NOT PROVEN`: partial-write safety against a real Onyx/export writer.
+- `NOT PROVEN`: offline/reconnect behavior.
+- `NOT PROVEN`: restart persistence of the watched-folder configuration.
+- `NOT PROVEN`: UNC/network share behavior; currently explicitly outside the browser path and requires a later dedicated local-agent/network capability.
 
 ## Parallel remaining fronts
 ### Front A — Canonical Data Truth
@@ -127,16 +120,19 @@ Status: `IMPLEMENTED → REGRESSION ADDED → CI PENDING`; not CLOSED.
 ## Status ladder
 - IMPLEMENTED: current fixes implemented.
 - TESTED/REGRESSION: repository behavioral/contract evidence exists; execution must be separately evidenced.
-- GATED: **NO CLAIM** for current HEAD until exact-head CI evidence exists.
-- CONSUMER VERIFIED: only where consumer evidence is explicit.
-- RUNTIME VERIFIED: NO CLAIM.
-- LIVE VERIFIED: NO.
+- GATED: NO CLAIM for current HEAD until exact-head CI evidence exists.
+- RUNTIME VERIFIED: only with real browser/native evidence.
+- LIVE VERIFIED: only with real Supabase/production evidence.
 - PRODUCTION CERTIFIED: NO.
 
 ## LIVE REQUIRED
 Supabase A/B tenant isolation; Storage; Realtime; AI/vector; authenticated browser E2E; real OCR/document corpus; worker crash/recovery/DLQ; native watcher; backup restore/RPO/RTO; production telemetry; load/canary/rollback; production scale/query-plan evidence.
 
 ## Next execution
-Continue independent fronts without waiting for CI: cross-surface BI/Decision/Export truth, NULL semantics, tenant/security sibling discovery, and reliability/performance contract closure. Exact-head CI is a certification barrier, not a reason to pause independent work.
+1. Complete Windows runner installer artifact verification.
+2. Open the desktop branch for exact-head CI + Windows artifact review.
+3. Fresh desktop runtime test with a real report folder and authenticated tenant.
+4. Reconcile the branch against the later migration/security forensic findings before any production promotion.
+5. Continue the remaining parallel data-truth/security/BI/reliability fronts.
 
 PRODUCTION CERTIFIED = NO until real LIVE evidence exists.
