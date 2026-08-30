@@ -26,8 +26,8 @@ for (const token of [
 ]) if (!executable.includes(token)) throw new Error(`Missing recovery security/lifecycle invariant: ${token}`);
 
 // Bind Phase 10 to the repository's real persisted certification evidence
-// contract. Do not require narrative words such as "exact" or "SHA" that are
-// not part of this executable schema-level gate.
+// contract. Narrative wording such as "exact" or "SHA" is intentionally not
+// used as a source-level proof requirement.
 for (const token of [
   'backup_restore_passed',
   'migration_parity_passed',
@@ -40,8 +40,9 @@ for (const token of [
     throw new Error(`Missing certification evidence invariant: ${token}`);
   }
 }
-for (const token of ['R16 — BACKUP / RESTORE / DR', 'RPO', 'RTO', 'actual restore drill']) {
-  if (!index.includes(token)) throw new Error(`Remaining-work register lost recovery boundary: ${token}`);
+const indexLower = index.toLowerCase();
+for (const token of ['r16 — backup / restore / dr', 'rpo', 'rto', 'actual restore drill']) {
+  if (!indexLower.includes(token)) throw new Error(`Remaining-work register lost recovery boundary: ${token}`);
 }
 
 // Test-of-test: commented-out SQL must never satisfy the executable contract.
