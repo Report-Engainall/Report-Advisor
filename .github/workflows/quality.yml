@@ -1,3 +1,92 @@
+name: quality
+on:
+  push: {branches: [main]}
+  pull_request: {branches: [main]}
+  workflow_dispatch:
+permissions: {contents: read}
+concurrency:
+  group: quality-${{ github.ref }}-${{ github.event_name }}-${{ github.run_id }}
+  cancel-in-progress: false
+jobs:
+  verify:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v7
+        with: {fetch-depth: 1, persist-credentials: false}
+      - uses: actions/setup-node@v7
+        with: {node-version: 22, cache: npm}
+      - uses: actions/setup-python@v7
+        with: {python-version: '3.11'}
+      - name: Diagnostics
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --version
+          npm --version
+          python3 --version
+          test -f package-lock.json
+          test "$(git rev-parse HEAD)" = "${GITHUB_SHA}"
+          if [ "${GITHUB_EVENT_NAME}" = "pull_request" ]; then
+            expected_head="$(node -e "const fs=require('fs'); const e=JSON.parse(fs.readFileSync(process.env.GITHUB_EVENT_PATH,'utf8')); process.stdout.write(e.pull_request.head.sha)")"
+            actual_head="$(git ls-remote origin "refs/heads/${GITHUB_HEAD_REF}" | awk '{print $1}')"
+            test -n "$actual_head"
+            test "$actual_head" = "$expected_head"
+            echo "PR_HEAD_SHA=$actual_head"
+            echo "MERGE_REF_SHA=$GITHUB_SHA"
+          else
+            echo "CODE_HEAD_SHA=$(git rev-parse HEAD)"
+          fi
+      - name: Install
+        run: npm ci --no-audit --no-fund
+      - name: Phase 1 foundation closure
+        run: node scripts/check-phase1-foundation-closure.mjs
+      - name: 20-stage parallel release readiness
+        run: npm run test:20-stage-readiness
+      - name: Workflow command integrity
+        run: npm run test:workflow-command-integrity
+      - name: CI topology and canonical release wiring
+        run: node scripts/check-ci-execution-topology.mjs && node scripts/check-production-recovery-gate.mjs
+      - name: Cross-surface capability traceability
+        run: node scripts/check-cross-surface-traceability.mjs
+      - name: Public RPC advisor hardening
+        run: node scripts/check-public-rpc-advisor-hardening.mjs && node scripts/check-unused-recommendation-status-rpc.mjs
+      - name: Authentication and tenant convergence
+        run: npm run test:auth-tenant-convergence
+      - name: Tenant legacy consumer boundary
+        run: node scripts/check-tenant-legacy-consumers.mjs
+      - name: Tenant legacy consumer regression
+        run: node scripts/check-tenant-legacy-consumers-regression.mjs
+      - name: Adversarial tenant source boundary
+        run: node scripts/check-tenant-adversarial-contract.mjs
+      - name: Data Quality projection contract
+        run: npm run test:data-quality-projections
+      - name: Company configuration truth
+        run: node scripts/check-company-config-truth.mjs
+      - name: Database migration schema audit
+        run: npm run test:migration-schema-audit
+      - name: Database migration dependency analysis
+        run: npm run test:migration-dependencies
+      - name: Master requirements lock
+        run: npm run test:master-requirements
+      - name: Quality workflow contract
+        run: npm run test:quality-workflow-contract
+      - name: Core contracts
+        run: npm run test:file-engine-contract && npm run test:file-engine-capability-contract && npm run test:schema-intelligence && npm run test:schema-entity-reconciliation && npm run test:a0-hardening-contract && npm run test:golden-dataset-contract && npm run test:canonical-import-mapping && npm run test:onyx-adapter-contract && npm run test:report-execution-foundation && npm run test:report-execution-e2e-contract && npm run test:report-execution-coordinator-contract && npm run test:automation-executor-contract && npm run test:forecast-calibration-contract && npm run test:entitlements-billing-contract && npm run test:decision-intelligence-closure && npm run test:production-saas-certification
+      - name: Golden E2E corpus
+        run: npm run test:golden-e2e-corpus
+      - name: Report execution failure state machine
+        run: node scripts/check-report-execution-failure-state-machine.mjs && node --experimental-strip-types scripts/report-execution-runtime.test.ts
+      - name: Production certification evidence integrity
+        run: npm run test:production-certification-evidence-integrity
+      - name: Production certification
+        run: npm run test:production-certification-contract
+      - name: Release evidence consumption workflow
+        run: npm run test:release-evidence-consumption-workflow
+      - name: Operational resilience certification
+        run: npm run test:operational-resilience && npm run test:release-resilience-manifest && node scripts/check-release-evidence-contract.mjs && node scripts/check-release-workflow-contract.mjs
+      - name: Continuous trust certification
+        run: npm run test:continuous-trust
       - name: Autonomous governance certification
         run: node scripts/check-autonomous-governance-contract.mjs && node scripts/check-governance-intelligence-hardening.mjs
       - name: Watched reports and text-first pipeline
@@ -23,3 +112,91 @@
       - name: Typecheck
         run: npm run typecheck
       - name: Behavioral regressions
+        run: npm run test:file-engine-regressions && npm run test:business-key-regressions && npm run test:import-classifier-regressions && node scripts/dashboard-canonical-regression.mjs
+      - name: Business intelligence regressions
+        run: node --experimental-strip-types scripts/business-intelligence-regressions.test.ts
+      - name: Deep golden corpus regressions
+        run: node --experimental-strip-types scripts/golden-dataset-deep-regressions.test.ts
+      - name: Outcome feedback regressions
+        run: node --experimental-strip-types scripts/outcome-feedback-regressions.test.ts
+      - name: File security regressions
+        run: node --experimental-strip-types scripts/file-security-regressions.test.ts
+      - name: Decision evidence regressions
+        run: node --experimental-strip-types scripts/decision-evidence-regression.test.ts && node scripts/check-decision-metrics-unknown-regression.mjs
+      - name: Routing and security contracts (parallel discovery)
+        shell: bash
+        run: |
+          set +e
+          declare -A pids
+          declare -A names
+          commands=(
+            "node scripts/check-navigation-route-contract.mjs"
+            "node scripts/check-import-direct-write-guard.mjs"
+            "npm run test:import-transaction-contract"
+            "npm run test:import-runtime-governance"
+            "npm run test:tenant-security-contract"
+          )
+          for i in "${!commands[@]}"; do
+            echo "[routing-security] START ${commands[$i]}"
+            bash -lc "${commands[$i]}" >"/tmp/routing-security-$i.log" 2>&1 &
+            pids[$i]=$!
+            names[$i]="${commands[$i]}"
+          done
+          failures=0
+          for i in "${!commands[@]}"; do
+            wait "${pids[$i]}"
+            status=$?
+            cat "/tmp/routing-security-$i.log"
+            if [ "$status" -ne 0 ]; then
+              echo "[routing-security] FAIL ${names[$i]} (exit=$status)"
+              failures=$((failures + 1))
+            else
+              echo "[routing-security] PASS ${names[$i]}"
+            fi
+          done
+          echo "[routing-security] independent checks completed; failures=$failures"
+          test "$failures" -eq 0
+      - name: Global tenant RLS
+        if: ${{ always() }}
+        run: npm run test:global-tenant-rls
+      - name: Import RPC tenant context
+        if: ${{ always() }}
+        run: npm run test:import-rpc-tenant-context
+      - name: Import business key
+        if: ${{ always() }}
+        run: npm run test:import-business-key
+      - name: Phase 3 data and import truth closure
+        if: ${{ always() }}
+        run: npm run test:phase3-data-import-truth
+      - name: Lint
+        if: ${{ always() }}
+        run: npm run lint
+      - name: Build
+        if: ${{ always() }}
+        run: npm run build
+      - name: Performance budget
+        if: ${{ always() }}
+        run: npm run perf:budget
+      - name: Intelligence and production contracts
+        if: ${{ always() }}
+        run: npm run test:contracts && npm run test:selective-foundation && npm run test:consolidated-intelligence && npm run test:inventory-intelligence && npm run test:alternative-security && npm run test:alternative-schema && npm run test:decision-dashboard && npm run test:inventory-intelligence-ui && npm run test:demand-velocity && npm run test:batch-decision && npm run test:safe-metrics && npm run test:production-scale
+      - name: Analysis runtime contracts
+        if: ${{ always() }}
+        run: npm run test:analysis-cache-policy && npm run test:analysis-cache-coordinator && npm run test:analysis-invalidation && npm run test:concurrent-analysis && npm run test:bounded-concurrency && npm run test:analysis-batch-runner
+      - name: Document intelligence contracts
+        if: ${{ always() }}
+        run: npm run test:document-intelligence-contract && npm run test:document-intelligence-semantic-foundation && npm run test:document-intelligence-hardening && npm run test:document-intelligence-decision-gate && npm run test:file-intelligence-security && npm run test:operational-file-pipeline
+      - name: Document intelligence service runtime contracts
+        if: ${{ always() }}
+        env:
+          PYTHONPATH: services/document-intelligence
+        run: python -m unittest discover -s services/document-intelligence/tests -p 'test_*.py'
+      - name: Report truth contract
+        if: ${{ always() }}
+        run: npm run test:report-truth
+      - name: Production readiness
+        if: ${{ always() }}
+        run: node scripts/check-production-readiness.mjs
+      - name: Full resilience gate
+        if: ${{ always() }}
+        run: npm run test:document-resilience && node scripts/check-document-resilience.mjs
