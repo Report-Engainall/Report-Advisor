@@ -1,7 +1,9 @@
 import fs from 'node:fs';
 
 const migrationPath = 'supabase/migrations/20260831000500_harden_work_item_outcome_provenance.sql';
+const provenancePath = 'supabase/migrations/20260831010000_harden_evidence_snapshot_provenance.sql';
 const migration = fs.readFileSync(migrationPath, 'utf8');
+const provenance = fs.readFileSync(provenancePath, 'utf8');
 const source = fs.readFileSync('src/lib/decision-automation/vertical-slice-runtime.ts', 'utf8');
 
 const stripSqlComments = (sql) => sql
@@ -12,6 +14,12 @@ const required = [
   'complete_decision_work_item',
   "v_evidence_snapshot_id text := NULLIF(btrim(COALESCE(p_evidence->>'evidence_snapshot_id', '')), '')",
   "RAISE EXCEPTION 'OUTCOME_EVIDENCE_REQUIRED'",
+  "OUTCOME_EVIDENCE_NOT_FOUND_OR_FORBIDDEN",
+  'kpi_evidence_snapshots',
+  'business_state_snapshots',
+  'import_snapshots',
+  'operational_health_snapshots',
+  'decision_action_receipts',
   "CASE WHEN p_actual_impact IS NULL OR v_expected IS NULL THEN 'insufficient'",
   "WHEN p_actual_impact > v_expected THEN 'positive'",
   "WHEN p_actual_impact = v_expected THEN 'neutral'",
@@ -30,30 +38,33 @@ const assertContract = (sql) => {
   }
 };
 
-assertContract(migration);
+assertContract(provenance);
 if (!source.includes('p_evidence: evidence')) throw new Error('Runtime work-item completion must forward evidence to the canonical RPC');
+if (!migration.includes("RAISE EXCEPTION 'OUTCOME_EVIDENCE_REQUIRED'")) throw new Error('Historical lifecycle hardening lost its explicit evidence guard');
 
-// Test-of-test: removing the executable evidence guard must make the same
-// contract assertion fail, rather than merely checking that a string changed.
-const guard = "RAISE EXCEPTION 'OUTCOME_EVIDENCE_REQUIRED';";
-const tampered = migration.replace(guard, 'NULL;');
+const tampered = stripSqlComments(provenance)
+  .replaceAll('OUTCOME_EVIDENCE_NOT_FOUND_OR_FORBIDDEN', '')
+  .replaceAll('kpi_evidence_snapshots', '')
+  .replaceAll('business_state_snapshots', '')
+  .replaceAll('import_snapshots', '')
+  .replaceAll('operational_health_snapshots', '')
+  .replaceAll('decision_action_receipts', '') + '\n-- OUTCOME_EVIDENCE_NOT_FOUND_OR_FORBIDDEN\n-- kpi_evidence_snapshots';
 let tamperedRejected = false;
 try {
   assertContract(tampered);
 } catch {
   tamperedRejected = true;
 }
-if (!tamperedRejected) throw new Error('Test-of-test failed: tampered provenance guard still satisfied the contract');
+if (!tamperedRejected) throw new Error('Test-of-test failed: tenant-bound evidence provenance could be removed without detection');
 
-// Test-of-test: a comment-only marker must also fail the exact same assertion.
-const decoy = `${migration}\n-- RAISE EXCEPTION 'OUTCOME_EVIDENCE_REQUIRED';`;
-const decoyWithoutExecutableGuard = stripSqlComments(decoy).replace(guard, 'NULL;');
+const decoy = `${provenance}\n-- RAISE EXCEPTION 'OUTCOME_EVIDENCE_NOT_FOUND_OR_FORBIDDEN';`;
+const decoyWithoutGuard = stripSqlComments(decoy).replaceAll('OUTCOME_EVIDENCE_NOT_FOUND_OR_FORBIDDEN', '');
 let decoyRejected = false;
 try {
-  assertContract(decoyWithoutExecutableGuard);
+  assertContract(decoyWithoutGuard);
 } catch {
   decoyRejected = true;
 }
-if (!decoyRejected) throw new Error('Test-of-test accepted a comment decoy as executable evidence guard');
+if (!decoyRejected) throw new Error('Test-of-test accepted a comment decoy as executable evidence provenance');
 
-console.log('Work-item outcome provenance boundary: PASS (including executable-contract and adversarial test-of-test)');
+console.log('Work-item outcome provenance boundary: PASS (tenant-bound evidence identity and adversarial test-of-test)');
