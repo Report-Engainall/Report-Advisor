@@ -11,7 +11,7 @@ export function validateDataQualitySnapshot(data: unknown): DataQualitySnapshot 
     throw new Error('DATA_QUALITY_SNAPSHOT_INVALID');
   }
   for (const entity of snapshot.entities as EntityQuality[]) {
-    if (!entity || typeof entity.name !== 'string' || !Number.isFinite(entity.total) || !Number.isFinite(entity.issues) || !Number.isFinite(entity.score) || entity.total < 0 || entity.issues < 0 || entity.issues > entity.total || entity.score < 0 || entity.score > 100) {
+    if (!entity || typeof entity.name !== 'string' || !Number.isFinite(entity.total) || !Number.isFinite(entity.issues) || !Number.isFinite(entity.score) || entity.total < 0 || entity.issues < 0 || entity.score < 0 || entity.score > 100) {
       throw new Error('DATA_QUALITY_ENTITY_INVALID');
     }
   }
