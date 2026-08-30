@@ -1,0 +1,21 @@
+name: Phase 6 decision outcome
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+permissions: {contents: read}
+jobs:
+  verify:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 1, persist-credentials: false}
+      - uses: actions/setup-node@v4
+        with: {node-version: 22}
+      - run: test "$(git rev-parse HEAD)" = "${GITHUB_SHA}"
+      - run: npm ci --no-audit --no-fund
+      - run: node scripts/check-phase6-decision-outcome-closure.mjs
+      - run: npm run test:decision-intelligence-closure
+      - run: node --experimental-strip-types scripts/outcome-feedback-regressions.test.ts
+      - run: node scripts/decision-evidence-regression.test.ts
