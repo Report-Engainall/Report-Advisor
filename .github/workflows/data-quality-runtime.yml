@@ -1,0 +1,24 @@
+name: data-quality-runtime
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: Executable empty-quality contract
+        run: node scripts/check-data-quality-empty-runtime-contract.mjs
+      - name: Behavioral data-quality regression
+        run: npx vitest run src/lib/data-quality-snapshot.contract.test.ts
+      - name: Typecheck
+        run: npm run typecheck
