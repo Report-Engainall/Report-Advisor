@@ -1,4 +1,4 @@
-# Master Execution Index — Append-Only Cycles 025→026
+# Master Execution Index — Append-Only Cycles 025→027
 
 ## CYCLE-025 — Import NULL truth + live authenticated A/B proof
 - Start HEAD: `616078dd744ed8667503bc3e884e05a0267ca55e`.
@@ -20,6 +20,16 @@
 - Live authenticated attack proof executed: self-approval → `SELF_APPROVAL_FORBIDDEN`; wrong assignee → `WORK_ITEM_ASSIGNEE_FORBIDDEN`; non-IN_PROGRESS → `WORK_ITEM_NOT_IN_PROGRESS`.
 - Dedicated continuous workflow added: `.github/workflows/decision-runtime-authorization.yml`.
 
+## CYCLE-027 — Local Ollama capability + release-integrity evidence
+- Exact implementation HEAD: `926f5577f53e3c3a04941c14d1994d7ae21c3d7a`.
+- Change: `chore(ai): permit optional local Ollama runtime`.
+- Ollama is treated as an optional local capability rather than a mandatory paid/provider dependency.
+- Exact-head Quality workflow passed; Windows workflow passed on the same implementation candidate.
+- Decision-runtime hardening provenance was independently traced to canonical repository migration source rather than copied blindly from live Production.
+- Migration parity remains an explicit unresolved release-integrity track; no fabricated migration or unsafe Production mutation is permitted.
+
 ## Current truth boundary
 - These cycles add real repository code, live staging controls, governed test data, and authenticated adversarial evidence.
-- Production certification remains **NO** until deployment binding, restore/RPO/RTO, Windows/native lifecycle proof, authenticated E2E vertical journey, and release evidence requirements are satisfied on the final exact production candidate.
+- Ollama local capability is implemented and CI-validated.
+- Production certification remains **NO** until deployment binding, restore/RPO/RTO, Windows/native lifecycle proof, authenticated E2E vertical journey, migration reconciliation/replay, and final release evidence requirements are satisfied on the final exact production candidate.
+- This index is append-only: historical cycle evidence is preserved; new evidence is added as a new cycle rather than rewriting prior claims.
