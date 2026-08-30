@@ -1,4 +1,5 @@
 import { strict as assert } from 'node:assert';
+import fs from 'node:fs';
 import { advanceCheckpoint, canAdvanceCheckpoint, type ReportExecutionCheckpoint } from '../src/lib/report-execution/checkpoint.ts';
 import { SupabaseReportExecutionStore } from '../src/lib/report-execution/durable-worker-adapter.ts';
 import type { ReportExecutionRequest } from '../src/lib/report-execution/report-execution-contract.ts';
@@ -16,12 +17,29 @@ assert.equal(SupabaseReportExecutionStore.requestIdentity(request), 't:k:latest'
 assert.equal(SupabaseReportExecutionStore.requestIdentity({ ...request, sourceSnapshotId:'snapshot-1' }), 't:k:snapshot-1');
 assert.throws(() => SupabaseReportExecutionStore.requestIdentity({ ...request, tenantId:'' }), /tenant and idempotency context/);
 assert.throws(() => SupabaseReportExecutionStore.requestIdentity({ ...request, idempotencyKey:'' }), /tenant and idempotency context/);
-
-// A recovered job must continue from its durable source snapshot identity; it
-// must not silently create a new idempotency scope when a snapshot exists.
 assert.notEqual(
   SupabaseReportExecutionStore.requestIdentity({ ...request, sourceSnapshotId:'snapshot-1' }),
   SupabaseReportExecutionStore.requestIdentity(request),
 );
 
-console.log('Report execution runtime: PASS (checkpoint monotonicity + tenant/idempotency recovery invariants)');
+const leaseFailureSql = fs.readFileSync('supabase/migrations/20260825153000_runtime_lease_hardening.sql', 'utf8');
+for (const token of [
+  'attempt >= max_attempts',
+  "'dead_letter'",
+  "status IN ('leased','processing')",
+  'lease_expires_at > now()',
+  'company_id=public.current_company_id()',
+]) {
+  assert.ok(leaseFailureSql.includes(token), `missing failure-state invariant: ${token}`);
+}
+
+const adapter = fs.readFileSync('src/lib/report-execution/durable-worker-adapter.ts', 'utf8');
+for (const rpc of [
+  "rpc('advance_report_execution_checkpoint'",
+  "rpc('complete_report_execution_job'",
+  "rpc('retry_report_execution_job'",
+]) {
+  assert.ok(adapter.includes(rpc), `missing durable worker RPC: ${rpc}`);
+}
+
+console.log('Report execution runtime: PASS (checkpoint monotonicity + lease/failure/dead-letter + tenant/idempotency recovery invariants)');
