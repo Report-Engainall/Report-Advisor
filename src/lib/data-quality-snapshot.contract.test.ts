@@ -4,7 +4,8 @@ import { resolve } from 'node:path';
 
 describe('data quality architecture contract', () => {
   const migration = readFileSync(resolve(process.cwd(), 'supabase/migrations/20260826040000_data_quality_snapshot.sql'), 'utf8');
-  const adapter = readFileSync(resolve(process.cwd(), 'src/lib/data-quality-snapshot.ts'), 'utf8');
+  const adapter = readFileSync(resolve(process.cwd(), 'src/lib/data-quality-snapshot-runtime.ts'), 'utf8');
+  const page = readFileSync(resolve(process.cwd(), 'src/pages/DataQualitySnapshotPage.tsx'), 'utf8');
   const app = readFileSync(resolve(process.cwd(), 'src/App.tsx'), 'utf8');
 
   it('uses a tenant-authoritative RPC with no tenant parameter', () => {
@@ -17,12 +18,22 @@ describe('data quality architecture contract', () => {
     expect(migration).not.toMatch(/get_data_quality_snapshot\([^)]*(company|tenant|organization)[^)]*\)/i);
   });
 
-  it('keeps the browser adapter on the canonical RPC', () => {
+  it('keeps the browser adapter on the canonical RPC and preserves EMPTY truth', () => {
     expect(adapter).toContain("supabase.rpc('get_data_quality_snapshot')");
+    expect(adapter).toContain("status: 'OK' | 'EMPTY'");
+    expect(adapter).toContain("data.status !== 'OK' && data.status !== 'EMPTY'");
+    expect(adapter).toContain('DATA_QUALITY_EMPTY_SNAPSHOT_INCONSISTENT');
     expect(adapter).not.toContain("from('customers')");
     expect(adapter).not.toContain("from('products')");
     expect(adapter).not.toContain("from('sales_invoices')");
     expect(adapter).not.toContain("from('inventory_balances')");
+  });
+
+  it('consumes the empty-aware adapter and does not turn EMPTY into a false 100%', () => {
+    expect(page).toContain("@/lib/data-quality-snapshot-runtime");
+    expect(page).toContain("snapshot.status === 'EMPTY' ? 0");
+    expect(page).toContain('Math.max(0, Math.min(100');
+    expect(page).toContain("totalRecords===0?'لا توجد بيانات تجارية بعد؛ النتيجة EMPTY وليست نجاح جودة بيانات.'");
   });
 
   it('routes the data-quality surface to the canonical page', () => {
