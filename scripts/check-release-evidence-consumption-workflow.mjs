@@ -39,8 +39,10 @@ for (const token of [
   "workflow_name=\"$(jq -r '.name' <<<\"$run_json\")\"",
   "conclusion=\"$(jq -r '.conclusion' <<<\"$run_json\")\"",
   "head_sha=\"$(jq -r '.head_sha' <<<\"$run_json\")\"",
-  "workflow_name == \"release-certification\"",
-  'head_sha == "$EXPECTED_SOURCE_SHA"',
+  '[[ "$workflow_name" == "release-certification" ]]',
+  '[[ "$conclusion" == "success" ]]',
+  '[[ "$head_sha" == "$EXPECTED_SOURCE_SHA" ]]',
+  '[[ "$event" == "workflow_dispatch" || "$event" == "push" ]]',
 ]) requireToken(boundary, token, 'manual release-certification run validation');
 
 if (boundary.includes('push:\n    branches: [main]')) throw new Error('production-evidence-boundary must not consume an unbound push without release evidence');
