@@ -22,6 +22,38 @@ const stripSqlComments = (sql) => sql
   .replace(/\/\*[\s\S]*?\*\//g, '')
   .replace(/(^|\n)\s*--[^\n]*/g, '$1');
 
+const extractSqlFunction = (sql, functionName) => {
+  const source = stripSqlComments(sql);
+  const pattern = new RegExp(
+    `CREATE\\s+OR\\s+REPLACE\\s+FUNCTION\\s+(?:public\\.)?${functionName.replace(/[.*+?^${}()|[\\]\\]/g, '\\$&')}\\b[\\s\\S]*?\\bAS\\s+\\$\\$([\\s\\S]*?)\\$\\$`,
+    'i',
+  );
+  return source.match(pattern)?.[1] ?? '';
+};
+
+// Extract only executable `run:` blocks from GitHub Actions YAML. This avoids
+// accepting the same command in comments, step names, or unrelated metadata.
+const extractWorkflowRunCommands = (yaml) => {
+  const lines = yaml.split(/\r?\n/);
+  const commands = [];
+  for (let i = 0; i < lines.length; i += 1) {
+    const match = lines[i].match(/^(\s*)run:\s*(.*)$/);
+    if (!match) continue;
+    const indent = match[1].length;
+    const inline = match[2].trim();
+    if (inline && inline !== '|') commands.push(inline.replace(/\s+#.*$/, ''));
+    for (let j = i + 1; j < lines.length; j += 1) {
+      const line = lines[j];
+      if (!line.trim()) continue;
+      const lineIndent = line.match(/^\s*/)[0].length;
+      if (lineIndent <= indent) break;
+      commands.push(line.replace(/\s+#.*$/, '').trim());
+      i = j;
+    }
+  }
+  return commands.filter(Boolean).join('\n');
+};
+
 const migrationDir = path.join(root, 'supabase', 'migrations');
 const migrations = fs.readdirSync(migrationDir).filter((f) => f.endsWith('.sql')).sort();
 const businessKeySql = stripSqlComments(read('supabase/migrations/20260823020000_import_business_key_enforcement.sql'));
@@ -47,10 +79,15 @@ for (const [name, source, markers] of [
   ['runtime', `${runtime}\n${tenantMigration}\n${failClosedMigration}`, ['current_company_id', 'fail-closed']],
   ['state', `${jobMigration}\n${state}`, ['queued', 'processing', 'completed', 'failed']],
 ]) for (const marker of markers) must(source.toLowerCase().includes(marker.toLowerCase()), `Import ${name} contract missing ${marker}`);
-must(tenantMigration.includes('current_company_id'), 'Canonical import tenant migration must use current_company_id');
-must(failClosedMigration.includes('SECURITY INVOKER'), 'Import fail-closed migration must preserve invoker security');
-must(jobMigration.includes('import_finish_job'), 'Import job lifecycle must expose terminal completion function');
-must(/p_status\s+text/i.test(jobMigration), 'Import job lifecycle must persist explicit status');
+
+const createJobBody = extractSqlFunction(tenantMigration, 'import_create_job');
+const finishJobBody = extractSqlFunction(jobMigration, 'import_finish_job');
+const failClosedCreateBody = extractSqlFunction(failClosedMigration, 'import_create_job');
+must(createJobBody.includes('current_company_id()'), 'Canonical import_create_job must derive tenant from current_company_id()');
+must(createJobBody.includes('TENANT_CONTEXT_MISMATCH'), 'Canonical import_create_job must reject caller tenant mismatch');
+must(failClosedCreateBody.includes('SECURITY INVOKER'), 'Fail-closed import_create_job must remain SECURITY INVOKER');
+must(finishJobBody.includes('status = p_status'), 'import_finish_job must persist the requested status');
+must(finishJobBody.includes('IF NOT FOUND'), 'import_finish_job must fail closed for missing jobs');
 
 for (const token of ['ARABIC_ENGLISH', 'SCANNED', 'RANDOM_SCHEMA', 'NO_HEADER', 'COMPLEX_TABLE', 'INVOICE', 'ONYX', 'WIDE_30_PLUS']) must(golden.includes(token), `Golden corpus missing ${token}`);
 must(golden.includes('accuracy >= 0.95'), 'Golden corpus must retain the minimum accuracy threshold');
@@ -60,15 +97,21 @@ must(!stripSqlComments(decoyComment).includes('uq_products_company_normalized_sk
 const normalized = ['00123', ' 00123 ', '00123', ''].map((v) => v.trim()).filter(Boolean);
 must(new Set(normalized).size < normalized.length, 'Adversarial fixture must detect duplicate normalized business keys');
 
-// Bind this closure to the commands actually executed by the workflow, not to
-// an assumed npm alias that may not exist in package.json.
+// Bind this closure to executable workflow commands only. A command in a YAML
+// comment or step label must not satisfy the gate.
+const executableWorkflow = extractWorkflowRunCommands(quality);
 for (const command of [
   'node scripts/check-import-direct-write-guard.mjs',
   'npm run test:import-transaction-contract',
   'npm run test:import-runtime-governance',
   'npm run test:import-business-key',
   'npm run test:canonical-import-mapping',
-]) must(quality.includes(command), `Quality must execute ${command}`);
+]) must(executableWorkflow.includes(command), `Quality must execute ${command}`);
+
+// Test-of-test: a comment-only workflow decoy must not be treated as executable.
+const decoyWorkflow = `# run: ${'node scripts/check-import-direct-write-guard.mjs'}\n- name: ${'npm run test:import-business-key'}`;
+must(!extractWorkflowRunCommands(decoyWorkflow).includes('node scripts/check-import-direct-write-guard.mjs'), 'Workflow parser accepted a comment decoy as executable');
+must(!extractWorkflowRunCommands(decoyWorkflow).includes('npm run test:import-business-key'), 'Workflow parser accepted a step-name decoy as executable');
 
 if (failures.length) {
   console.error(`PHASE3_DATA_IMPORT_TRUTH_CLOSURE_FAIL\n${failures.map((x) => `- ${x}`).join('\n')}`);
