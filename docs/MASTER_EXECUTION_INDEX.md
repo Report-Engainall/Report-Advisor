@@ -120,8 +120,8 @@ Status: `IMPLEMENTED → REGRESSION`; exact-head CI and live A/B export isolatio
 Supabase A/B tenant isolation; Storage; Realtime; AI/vector; authenticated browser E2E; real OCR/document corpus; worker crash/recovery/DLQ; native watcher; backup restore/RPO/RTO; production telemetry; load/canary/rollback; production scale/query-plan evidence.
 
 ## Current resume point
-1. Obtain/observe fresh Vercel deployment bound to `459666ea7fca6a94eb2c7e6955a2d259e3d2b8ef`.
-2. Verify `/login` and representative deep routes no longer return Vercel 404.
+1. Obtain/observe fresh Vercel deployment bound to the current exact release SHA.
+2. Verify `/login` and representative deep routes no longer return Vercel 404 on that exact deployment.
 3. Continue authenticated browser runtime sweep across critical routes.
 4. Collect network/console/runtime evidence.
 5. Run exact-head CI and required production certification contracts.
@@ -147,215 +147,163 @@ Rule: historical evidence remains historical. No PASS is promoted across HEADs. 
 
 ## Authoritative release baseline
 
-- Current main SHA: 23e8f78466f34cf0b89852384d6848598843916e.
-- 23e8f7 is one documentation commit ahead of 459666ea7fca6a94eb2c7e6955a2d259e3d2b8ef; no application-code delta exists between those two commits.
-- Quality run for current main: 33276759334 — SUCCESS.
-- Production-evidence-boundary run for current main: 33276759335 — SUCCESS.
-- These runs prove repository gates only; they do NOT prove LIVE or Production Certification.
-- Production deployment previously observed was bound to 459666ea7fca6a94eb2c7e6955a2d259e3d2b8ef, not current main.
-- Current authoritative Supabase staging project: fnqbvfuwbdpwvhcgzksl.
+- Historical certification candidate: `23e8f78466f34cf0b89852384d6848598843916e`.
+- Current main advanced to `6aa01b93014333d6b5cf752a1c55280f5565fec2` by the merged CYCLE-001 readiness integration.
+- Current main advanced again to `8b6bf25dbbe9c3dca65dfd1c59e72c4f955e4018` by CYCLE-002 smoke correction.
+- Quality run `33283127468` on `6aa01b93014333d6b5cf752a1c55280f5565fec2` completed SUCCESS.
+- Production-evidence-boundary run on `6aa01b93014333d6b5cf752a1c55280f5565fec2` completed SUCCESS.
+- Fresh exact-head CI on `8b6bf25dbbe9c3dca65dfd1c59e72c4f955e4018` is running; no PASS is promoted until it completes.
+- Current authoritative Supabase project: `fnqbvfuwbdpwvhcgzksl`.
 
 ## R1 — CANONICAL FINAL RELEASE HEAD
-**Status: 🟡 IMPLEMENTED / VERIFICATION PENDING**
-Requirement: one authoritative release candidate with all included evidence bound to one SHA.
-Existing: current main 23e8f78466f34cf0b89852384d6848598843916e; quality + production-evidence gates succeeded.
-Remaining: review open PRs; classify merge/close/obsolete/evidence-only; selectively integrate only validated deltas; rerun full gates after every accepted merge.
-Key PRs: #99, #100, #101, #103, #98, #97, #95, #94, #93, #92, plus historical #18.
-Important: #103 is based directly on main but commit c66a6f169ead4d170f182432c6d4aeb7ac74a6a3 has a Vercel status failure/rate-limit; do not merge it as certified. #92/#93 are based on older main ancestry and require selective integration/revalidation, not blind merge.
+**Status: 🟡 VERIFICATION PENDING**
+Current authoritative head: `8b6bf25dbbe9c3dca65dfd1c59e72c4f955e4018`.
+PR #104 was selectively accepted and squash-merged as `6aa01b93014333d6b5cf752a1c55280f5565fec2`. PR #105 was selectively accepted and squash-merged as `8b6bf25dbbe9c3dca65dfd1c59e72c4f955e4018`.
+
+Open historical PRs #99/#100/#101/#103 were audited and closed as superseded because their substantive capability is already represented in current main or was selectively integrated; no branch-local index rewrite was imported.
+
 Acceptance: exact SHA + clean tree + accepted change inventory + all mandatory CI gates successful.
 
 ## R2 — DATABASE / MIGRATION PARITY
 **Status: 🟡 IMPLEMENTED / VERIFICATION PENDING**
-Existing: extensive repository migration history; live migration ledger inspected; 76/76 public tables have RLS; 144 policies; 125 FKs; 181 indexes; 18 SECURITY DEFINER functions inspected for search_path hardening.
-Remaining: deterministic repository→fresh DB replay; schema diff; function/RPC/grant diff; policy diff; migration history parity against authoritative live project; resolve any drift.
-Key PR: #98; related security PRs #93/#95/#103.
-Acceptance: fresh database matches authoritative schema/security state and exact release SHA is recorded.
+Live project currently reports the post-baseline migration chain through generated version `20260829221301`, including decision runtime hardening and privilege revocations. Repository/live parity still requires deterministic fresh-database replay and object-level diff.
 
 ## R3 — SECURITY FINAL CLOSURE
 **Status: 🟡 IMPLEMENTED / VERIFICATION PENDING**
-Existing: tenant-authoritative RPCs, RLS, cross-tenant FK hardening, decision DML hardening, export tenant authority.
-Remaining: authenticated A/B adversarial runtime; storage/signed URL isolation; realtime isolation; AI/vector namespace isolation; RPC grant matrix; SECURITY DEFINER review.
-Key PRs: #93, #95, #103; security branches retained as historical evidence.
-Acceptance: A/B negative tests pass against exact release candidate with reproducible evidence.
+Fresh live audit:
+- 76/76 public tables have RLS; 0 public tables without RLS.
+- 18 public SECURITY DEFINER functions; all 18 have explicit `search_path` configuration.
+- anon EXECUTE on inspected SECURITY DEFINER functions: 0.
+- PUBLIC EXECUTE on inspected SECURITY DEFINER functions: 0.
+- Authenticated UPDATE/DELETE/TRUNCATE privileges on the inspected lifecycle/core tables: 0.
+- Live business corpus remains empty across inspected core entities; this blocks real-data and A/B runtime certification rather than indicating application failure.
+
+Remaining: authenticated A/B adversarial runtime; Storage/signed URL isolation; Realtime; AI/vector namespace isolation; caller-by-caller privileged RPC certification.
 
 ## R4 — EXACT PRODUCTION DEPLOYMENT BINDING
 **Status: 🟠 RUNTIME PENDING**
-Existing: SPA fallback vercel.json is in main; current main CI passes.
-Remaining: fresh deployment whose immutable revision equals final release SHA; direct-route sweep; refresh/navigation/logout/login/network/console checks.
-Key commits/PRs: 459666ea7fca6a94eb2c7e6955a2d259e3d2b8ef, #97/#94 historical fixes.
-Acceptance: Production deployment SHA = certified SHA and representative routes load correctly.
+Vercel has READY deployments for preceding main heads, but no deployment observed yet is bound to `8b6bf25dbbe9c3dca65dfd1c59e72c4f955e4018`. Current-head deployment remains required.
 
 ## R5 — AUTHENTICATED FULL E2E
 **Status: 🟠 RUNTIME PENDING**
-Existing: product journey contracts, decision/evidence surfaces, canonical routes and test gates exist.
-Remaining: real authenticated Login→Tenant→Import→Commit→Dashboard→Evidence→Recommendation→Decision→Approval→Work→Action→Receipt→Outcome journey, including negative/error/session cases.
-Key PR: #92; #86/#88 historical/parallel work.
-Acceptance: one complete live authenticated journey bound to exact SHA.
+Live authenticated journey remains unproven.
 
 ## R6 — REAL DOCUMENT INTELLIGENCE
 **Status: 🟡 IMPLEMENTED / VERIFICATION PENDING**
-Existing: spreadsheet/CSV canonical ingestion plus document-intelligence contracts and provenance architecture.
-Remaining: integrate and verify real PDF/DOCX/image/OCR implementation; Arabic/English/mixed corpus; scanned/no-header/merged/multi-table/malformed/revised/duplicate cases; provenance and quarantine.
-Key PR: #99, not merged.
-Acceptance: golden corpus with deterministic expected outputs and provenance/quarantine evidence.
+Main contains real PDF text extraction, scanned-PDF Arabic/English OCR with page/dimension limits and confidence evidence, DOCX extraction, and image OCR. Golden corpus execution remains pending.
 
 ## R7 — REAL BUSINESS CORPUS
 **Status: 🟠 RUNTIME PENDING**
-Existing: broad BI engines and canonical query boundaries.
-Remaining: populate safe realistic corpus covering products/customers/suppliers/sales/purchases/returns/inventory/payments/receivables/multiple periods/stockouts/substitution/anomaly/seasonality.
-Acceptance: expected-truth dataset and independent reconciliation across core intelligence.
+Live core business tables inspected: 0 rows for customers, products, suppliers, sales invoices, purchase invoices, inventory movements, payments, recommendations, alerts, decision work items and recommendation outcomes. Real-data reconciliation therefore remains externally gated.
 
 ## R8 — CANONICAL BI / TRUTH CERTIFICATION
 **Status: 🟡 IMPLEMENTED / VERIFICATION PENDING**
-Existing: canonical RPCs and consumer migrations for data quality, dashboard intelligence, forecast, receivables, exports; NULL/UNKNOWN hardening.
-Remaining: complete KPI Definition→RPC→Service→UI→Report→Export matrix; verify date/status/as-of/filter/pagination/freshness semantics and cross-surface equality.
-Key files: src/lib/queries.ts and canonical report adapters; historical PRs #53/#55/#66 and later closure waves.
-Acceptance: every critical KPI has one canonical source and reconciles across all surfaces.
+Canonical query/report/export infrastructure remains present. Cross-surface KPI equivalence and independent real-data reconciliation remain open.
 
 ## R9 — DECISION INTELLIGENCE FINAL LOOP
 **Status: 🟡 IMPLEMENTED / VERIFICATION PENDING**
-Existing: evidence ledger, recommendation/alert mutation hardening, decision lifecycle and action/outcome contracts; decision work-item authorization hardening exists on PR #103.
-Remaining: integrate validated decision-runtime hardening; execute live Insight→Evidence→Recommendation→Decision→Approval→Work→Action→Receipt→Outcome path; prove idempotency/no bypass/actor attribution/audit.
-Key PRs: #103, #92, #93.
-Acceptance: one complete authenticated live decision journey with immutable evidence.
+Main contains approval-gated `create_decision_work_item`, tenant/actor checks, stale/unapproved completion rejection and duplicate-completion rejection. Live migration ledger confirms the corresponding runtime hardening is applied. Authenticated end-to-end proof remains open.
 
 ## R10 — WATCHED FOLDER / CONTINUOUS INTELLIGENCE
 **Status: 🟡 IMPLEMENTED / VERIFICATION PENDING**
-Existing: browser batch/folder contracts and watched-report pipeline foundation.
-Remaining: integrate/verify native Windows runtime, installer, IPC, events/polling, restart/crash recovery, revised-file detection, quarantine and end-to-end recalculation.
-Key PR: #100, not merged.
-Acceptance: new/changed file is detected, processed, reconciled and reflected in canonical intelligence after restart/recovery.
+CYCLE-002 found and fixed a real native smoke defect in `desktop/main.cjs`: the fixture wrote the primary file at the root while reading it via `incoming/`, then deleted the root before creating the recursive fixture. The fix is committed in exact current main `8b6bf25dbbe9c3dca65dfd1c59e72c4f955e4018` and awaits fresh Windows execution evidence.
 
 ## R11 — COMMERCIAL EQUIVALENCE GROUPS
 **Status: 🟡 IMPLEMENTED / VERIFICATION PENDING**
-Existing: alternative-group engines, governance/security/UI models and roadmap specification.
-Remaining: persistent model and complete merchant governance; effective dates; roles; conversion; substitution modes; conflict/cycle detection; historical reproducibility; group demand/coverage/lost-sales/replenishment/customer integration.
-Key files: src/lib/free-toolbox/alternative-group* and AlternativeGroupsPage.tsx.
-Acceptance: one complete approved group scenario reconciled at group/member/customer levels.
+No change this cycle; persistent merchant governance and runtime reconciliation remain open.
 
 ## R12 — REPORT STUDIO / EXPORT
 **Status: 🟡 IMPLEMENTED / VERIFICATION PENDING**
-Existing: canonical report/export infrastructure, PDF multi-page support and tenant-authority hardening.
-Remaining: golden report corpus; PDF/Excel/CSV/print/RTL validation; snapshot/diff/reproducibility; UI-vs-export numeric reconciliation.
-Acceptance: export is canonical-truth equivalent to the corresponding UI/report snapshot.
+No change this cycle; golden report/export corpus and UI-vs-export equality remain open.
 
 ## R13 — AI FINAL PRODUCTIZATION
 **Status: 🟡 IMPLEMENTED / VERIFICATION PENDING**
-Existing: AI policy/tool/capability architecture and deterministic-first guardrails.
-Remaining: evidence-bound runtime scenarios; claim provenance; hallucination/unsupported-action negative tests; tenant/vector isolation; tool authorization.
-Acceptance: AI explains claims from evidence and cannot invent authoritative business facts or bypass authorization.
+No change this cycle; evidence-bound runtime, vector isolation and negative authorization tests remain open.
 
 ## R14 — WORKERS / QUEUE / RELIABILITY
 **Status: 🟡 IMPLEMENTED / VERIFICATION PENDING**
-Existing: lease/heartbeat/retry/checkpoint/idempotency/DLQ foundations and resilience contracts.
-Remaining: live failure injection: kill worker, recover, resume exactly once; retry exhaustion; DLQ remediation; concurrency/backpressure.
-Key historical PR: #61; heartbeat closure #21.
-Acceptance: reproducible crash/recovery evidence on exact release.
+No change this cycle; live crash/recovery/DLQ evidence remains open.
 
 ## R15 — PERFORMANCE / SCALE
 **Status: 🟡 IMPLEMENTED / VERIFICATION PENDING**
-Existing: performance budgets, bounded query/read contracts and extensive indexing.
-Remaining: real corpus load tests, query plans, N+1/payload/memory analysis, concurrent imports/analytics/exports; optimize only from evidence.
-Acceptance: measured baseline→change→result with no truth regression.
+The corrected performance gate is now integrated into the canonical quality topology. Real corpus load/query-plan/N+1 evidence remains open.
 
 ## R16 — BACKUP / RESTORE / DR
 **Status: 🟠 RUNTIME PENDING**
-Existing: backup/recovery contracts and historical release/recovery gates.
-Remaining: actual backup, restore, integrity verification, files/artifacts/security verification, measured RPO/RTO.
-Acceptance: successful restore drill with recorded RPO/RTO.
+Actual restore drill and measured RPO/RTO remain open.
 
 ## R17 — OBSERVABILITY / OPERATIONS
 **Status: 🟡 IMPLEMENTED / VERIFICATION PENDING**
-Existing: operational/reliability contracts and telemetry-related architecture.
-Remaining: production error/worker/queue/DLQ/import/OCR/AI/export/auth telemetry, SLOs, alerts and alert test.
-Acceptance: operational dashboard plus triggered alert evidence.
+Runtime telemetry architecture exists; production alerting and triggered-alert evidence remain open.
 
 ## R18 — CANARY / ROLLBACK
 **Status: 🟠 RUNTIME PENDING**
-Existing: rollback/release manifest contracts in historical execution index.
-Remaining: controlled canary, injected failure, rollback, verification and forward-fix drill on production-like deployment.
-Acceptance: reproducible rollback drill.
+Controlled canary/rollback drill remains open.
 
 ## R19 — SAAS PRODUCTIZATION
 **Status: 🟡 IMPLEMENTED / VERIFICATION PENDING**
-Existing: entitlement/billing certification contracts and SaaS-related scripts.
-Remaining: live tenant onboarding→trial→entitlement→plan→upgrade/downgrade→expiry/grace→billing/webhook→closure lifecycle; server-side enforcement.
-Acceptance: complete lifecycle against a production-like tenant.
+Live lifecycle proof remains open.
 
 ## R20 — FINAL UX / PRODUCT JOURNEY
 **Status: 🟡 IMPLEMENTED / VERIFICATION PENDING**
-Existing: broad route/page surface, ProductJourneyNav and evidence/decision UX contracts.
-Remaining: mobile/desktop RTL sweep; loading/empty/partial/error/offline/permission states; accessibility; navigation consistency; evidence/decision/action drill-down.
-Acceptance: complete product journey test on real authenticated runtime.
+Authenticated responsive/RTL/accessibility/error-state sweep remains open.
 
 ## R21 — FINAL BUSINESS ACCEPTANCE
 **Status: ⚫ NOT IMPLEMENTED AS CERTIFICATION EVIDENCE**
-Requirement: independent merchant-level acceptance that the system explains what changed, why, impact, evidence, action and outcome.
-Remaining: execute scripted business acceptance against golden corpus and live product journey; record findings and sign-off.
-Acceptance: business acceptance pack with traceable scenarios and no critical blocker.
+Requires independent merchant-level acceptance on real/golden business scenarios.
 
 ## R22 — FINAL PRODUCTION CERTIFICATION
 **Status: 🔴 BLOCKED**
-Dependency: R1–R21 applicable gates/evidence.
-Required evidence: exact code/CI/DB/security/tenant/storage/realtime/vector/runtime/E2E/real document corpus/real business corpus/canonical truth/decision loop/watcher/workers/performance/backup/restore/observability/canary/rollback/SaaS/UX/business acceptance.
-Acceptance: independent trace from Requirement→Code→DB→Security→Runtime→Evidence→Production on one exact release SHA.
-Current certification: PRODUCTION CERTIFIED = NO.
+Current exact release is not production certified. Required live evidence remains outstanding.
 
-## Current execution order
+## CYCLE-002 — AUTONOMOUS EXECUTION LOG
 
-R1 → R2 → R3 → R4 → R5 → R6 → R7 → R8 → R9 → R10 → R11 → R12 → R13 → R14 → R15 → R16 → R17 → R18 → R19 → R20 → R21 → R22
+### Start state
+- Start exact main: `6aa01b93014333d6b5cf752a1c55280f5565fec2`.
+- CYCLE-001 integration PR #104 had just been merged.
+- Quality on that exact head: `33283127468` SUCCESS.
+- Production-evidence-boundary on that exact head: SUCCESS.
 
-## Release decision rule
+### Reconciliation findings
+- PR #99: substantive PDF/DOCX/image/scanned-PDF ingestion is already represented in current main; branch was stale/diverged. Closed as superseded.
+- PR #100: Windows native host is already represented in current main. During direct repository audit, its executable smoke contract in current main contained an actual fixture-lifecycle defect. Closed the stale PR and fixed the defect on a fresh main-based branch instead.
+- PR #103: decision-runtime approval-gated RPC and client routing are already represented in current main; closed stale verification branch rather than importing its branch-local index rewrite.
+- PR #101: 20-stage readiness was superseded by PR #104 and closed.
 
-A stage may move from 🟡/🟠 to 🟢 only when its stated acceptance evidence is attached to the exact release candidate SHA. A stage may not become 🟢 merely because its source files exist or a historical branch passed CI.
+### Actual engineering work
+1. Audited current `desktop/main.cjs` instead of trusting the presence of the smoke test.
+2. Reproduced the defect logically from the executable fixture sequence: root file creation followed by `incoming/` read, then root teardown before recursive fixture creation.
+3. Reused the existing watcher architecture and changed only the fixture lifecycle.
+4. Created PR #105 with one-file, one-line effective delta.
+5. Merged PR #105 into main as `8b6bf25dbbe9c3dca65dfd1c59e72c4f955e4018`.
+6. Reconciled the live Supabase security surface in parallel.
 
-## Current completion dashboard
+### Live security evidence
+- Public tables: `76`; RLS enabled: `76`; RLS disabled: `0`.
+- SECURITY DEFINER functions: `18`; explicit search_path: `18`; anon EXECUTE: `0`; PUBLIC EXECUTE: `0`.
+- Authenticated UPDATE/DELETE/TRUNCATE on inspected lifecycle/core tables: `0`.
+- Live migration ledger latest observed version: `20260829221301`, with decision runtime hardening and both anon/public execute revocations present by name.
+- Core business corpus inspected remains empty across the selected entities.
 
-| Level | Current state |
-|---|---|
-| Built / Implemented | High; broad foundation exists |
-| Integrated into current main | Moderate–high; several late closure PRs remain outside main |
-| Verified by current-main CI | 🟢 current main quality + production-evidence boundary pass |
-| Runtime Proven | 🟠 major live evidence remains |
-| Production Certified | 🔴 NO |
+### Verification state
+- Exact-head quality for `8b6bf25dbbe9c3dca65dfd1c59e72c4f955e4018`: RUNNING at time of index update; no PASS promoted yet.
+- Exact-head production-evidence-boundary: RUNNING at time of index update; no PASS promoted yet.
+- Windows native runtime: NOT PROVEN; canonical workflow currently keeps desktop verification separate from main push topology.
+- Current-head Vercel deployment: NOT YET OBSERVED.
 
-Authoritative current-main CI evidence: 33276759334 and 33276759335, both bound to 23e8f78466f34cf0b89852384d6848598843916e.
+### Remaining-work delta
+**Real work reduced this cycle:**
+- 1 confirmed native smoke defect removed from current main.
+- 1 stale release-readiness PR integrated in CYCLE-001 and closed here as superseded.
+- 4 stale high-value PR branches classified; 3 explicitly superseded/closed after verifying their substantive capability was already present in main.
+- Security evidence refreshed against the live project without mutation.
 
-**No historical PASS is promoted.**
+### Next parallel execution
+1. Consume exact-head CI results for `8b6bf25dbbe9c3dca65dfd1c59e72c4f955e4018` and fix any newly exposed failures.
+2. Re-scan current main for additional executable smoke/runtime contradictions, especially Windows packaging and restart persistence.
+3. Continue document/business golden-corpus construction and deterministic expected-truth checks.
+4. Continue migration parity/object-level reconciliation against the live ledger.
+5. Obtain current-head Vercel deployment once the platform produces it; verify deep routes against the exact SHA.
+6. Continue live Storage/Realtime/vector and authenticated A/B isolation where the environment permits.
 
----
-
-## EXECUTION CYCLE — 2026-08-30 — consolidation batch
-
-Authoritative execution head before this index update: `52f82b41c76f8c65d5af98b5ff692c30b81f5241`.
-
-### Implemented in this cycle
-- Integrated the decision-runtime authorization closure from PR #103 selectively, without importing its branch-local index rewrite.
-- Added repository migrations for approval-gated decision work-item creation and authenticated-only execution; live migration ledger already contains the corresponding applied migrations by generated versions `20260829221123`, `20260829221232`, and `20260829221301`.
-- Routed `createRuntimeWorkItem()` through the canonical approval-gated RPC and strengthened its repository regression contract.
-- Integrated the real PDF/DOCX/image ingestion adapter from PR #99 into main; the repository already carried the required runtime dependencies.
-- Added explicit capability regression for declared formats and scanned-PDF OCR limits/fail-closed behavior.
-- Integrated the Windows watched-folder native host, isolated preload bridge, root-bound reads, persistence, filesystem events/polling fallback, and executable smoke contract from PR #100.
-- Corrected the desktop workflow so it remains a manual/feature-branch verification vehicle rather than becoming a second canonical main-push CI topology.
-- Corrected the performance gate model after exact-head CI exposed that raw `dist` size was counting lazy PDF/XLSX/chart chunks as first-load budget. The gate now reports raw footprint diagnostically and enforces critical first-load, largest-JS, and compressed textual delivery budgets.
-- Hardened the Windows smoke test after its first real Windows execution exposed a nested-file event timeout; the smoke now uses a deterministic root-level filesystem event plus an explicit recursive scan/deletion assertion.
-
-### Exact verification observations
-- `99741160` — decision authorization integration: current-main CI was later exercised and the production-evidence boundary passed.
-- `79c0bfd` — document ingestion integration: quality failed only on the pre-existing raw-dist performance cap; document/intelligence/build/typecheck-related gates executed successfully.
-- `11e1f965` — Windows integration: quality failed at CI topology and performance; Windows native contract passed, but real native smoke failed with `SMOKE_FILE_EVENT_TIMEOUT`. This finding was fixed in `52f82b4`.
-- `52f82b4` — deterministic Windows smoke fix. Exact-head quality and production-evidence runs are executing for this head; no PASS is claimed until they complete.
-
-### Current live deployment
-The Vercel project has produced READY production deployments for the preceding main heads, including the decision-authorization and document-ingestion commits. Current-head deployment/evidence must still be bound and verified after the final exact SHA stabilizes; protected deep routes remain inaccessible to unauthenticated fetches because of Vercel SSO.
-
-### Status after cycle
-- R9 Decision runtime: 🟡 IMPLEMENTED / VERIFICATION PENDING — authorization bypass closed in repository and live corresponding migration state observed; authenticated end-to-end journey remains pending.
-- R6 Document intelligence: 🟡 IMPLEMENTED / VERIFICATION PENDING — real PDF/DOCX/image/scanned-PDF OCR path integrated; golden corpus/runtime proof remains pending.
-- R10 Watched folder: 🟡 IMPLEMENTED / VERIFICATION PENDING — native runtime integrated; first real Windows smoke failure was found and corrected; fresh Windows smoke evidence remains pending.
-- R15 Performance: 🟡 IMPLEMENTED / VERIFICATION PENDING — measurement model corrected; exact-head budget result pending.
-- R4/R5: 🟠 RUNTIME PENDING — deployment binding/authenticated E2E still required.
-- R22: 🔴 BLOCKED — production certification remains explicitly fail-closed.
-
-### Evidence rule
-No historical PASS is promoted. The next completed quality/boundary results must bind to the next exact head created by this index update. No production certification is claimed by this cycle.
+PRODUCTION CERTIFIED = NO.
