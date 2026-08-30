@@ -2,14 +2,17 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const root = process.cwd();
-const migrationPath = path.join(root, 'supabase', 'migrations', '20260830170000_companies_tenant_boundary_hardening.sql');
-const text = fs.readFileSync(migrationPath, 'utf8');
+const companiesMigration = path.join(root, 'supabase', 'migrations', '20260830170000_companies_tenant_boundary_hardening.sql');
+const tenantAuthorityMigration = path.join(root, 'supabase', 'migrations', '20260830172000_current_company_id_execute_contract.sql');
+const text = fs.readFileSync(companiesMigration, 'utf8');
+const tenantAuthority = fs.readFileSync(tenantAuthorityMigration, 'utf8');
 
 const stripSqlComments = (sql) => sql
   .replace(/\/\*[\s\S]*?\*\//g, '')
   .replace(/--[^\n\r]*/g, '');
 
 const sql = stripSqlComments(text);
+const authoritySql = stripSqlComments(tenantAuthority);
 
 const required = [
   /ALTER\s+TABLE\s+public\.companies\s+ENABLE\s+ROW\s+LEVEL\s+SECURITY/i,
@@ -24,6 +27,13 @@ const required = [
 
 for (const pattern of required) {
   if (!pattern.test(sql)) throw new Error(`Phase 2 security contract missing: ${pattern}`);
+}
+
+for (const pattern of [
+  /REVOKE\s+EXECUTE\s+ON\s+FUNCTION\s+public\.current_company_id\(\)\s+FROM\s+anon/i,
+  /GRANT\s+EXECUTE\s+ON\s+FUNCTION\s+public\.current_company_id\(\)\s+TO\s+authenticated/i,
+]) {
+  if (!pattern.test(authoritySql)) throw new Error(`Canonical tenant authority contract missing: ${pattern}`);
 }
 
 if (/CREATE\s+POLICY[^;]+TO\s+anon[^;]+USING\s*\(\s*true\s*\)/is.test(sql)) {
