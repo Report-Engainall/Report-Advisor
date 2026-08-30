@@ -154,7 +154,33 @@ Repository parity added:
 - `scripts/check-direct-truth-writers.mjs`
 - `.github/workflows/direct-truth-writers.yml`
 
-## Current status
-`SECURITY FRONT ADVANCED / TRUTH-WRITER BYPASSES CLOSED / AUDIT FORGERY CLOSED / FRESH CI + EXACT-HEAD VERIFICATION REQUIRED`
+## Cycle continuation — certification evidence writer bypass
+A fresh security rotation found four proof-bearing tables still directly writable by `authenticated` despite being used as certification/rollback/backup evidence:
+- `trust_certifications`
+- `autonomy_certification_runs`
+- `backup_verification_runs`
+- `autonomy_rollback_drills`
 
-Vercel deployment remains a separate parked external blocker when rate-limited; it is not treated as product proof.
+Tenant RLS alone did not prevent a tenant user from manufacturing or rewriting proof artifacts. The canonical read/validation boundary therefore needed a write restriction.
+
+Implemented live remediation:
+`harden_certification_evidence_writer_boundaries`
+
+For all four tables:
+- authenticated INSERT = false
+- authenticated UPDATE = false
+- authenticated DELETE = false
+- authenticated TRUNCATE = false
+- authenticated SELECT = true
+
+Live verification confirmed all four DML classes are denied to `authenticated` across all four proof tables.
+
+Repository parity added:
+- `supabase/migrations/20260830235920_harden_certification_evidence_writer_boundaries.sql`
+- `scripts/check-certification-evidence-writer-boundary.mjs`
+- `.github/workflows/certification-evidence-writer-boundary.yml`
+
+## Current status
+`SECURITY FRONT ADVANCED / DECISION TRUTH WRITERS CLOSED / AUDIT FORGERY CLOSED / CERTIFICATION PROOF WRITERS CLOSED / FRESH CI + EXACT-HEAD VERIFICATION REQUIRED`
+
+Vercel remains a separate external deployment blocker and is not used as evidence of product correctness.
