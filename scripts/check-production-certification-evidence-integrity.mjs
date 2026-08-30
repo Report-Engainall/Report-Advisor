@@ -1,7 +1,9 @@
 import fs from 'node:fs';
+import { execFileSync } from 'node:child_process';
 
 const migration = fs.readFileSync('supabase/migrations/20260825150000_phase_m_certification_bundle.sql', 'utf8');
 const contract = fs.readFileSync('scripts/check-production-certification-contract.mjs', 'utf8');
+const certification = fs.readFileSync('src/lib/production/productionCertification.ts', 'utf8');
 
 const requiredColumns = [
   'tenant_isolation_passed','storage_passed','realtime_passed','ai_isolation_passed',
@@ -27,4 +29,13 @@ if (!/SET search_path\s*=\s*public/i.test(migration)) throw new Error('Certifica
 if (!/status\s*=\s*'passed'/i.test(migration)) throw new Error('Certification release gate must require passed status');
 if (!/runtime|live/i.test(contract)) throw new Error('Certification contract must distinguish runtime/live evidence');
 
+for (const key of ['tenant','backup','rollback','artifact','security']) {
+  if (!new RegExp(`['\\"]${key}['\\"]`).test(certification)) {
+    throw new Error(`Certification source lost mandatory evidence key: ${key}`);
+  }
+}
+if (!certification.includes('MISSING_EVIDENCE:')) throw new Error('Certification must reject missing mandatory evidence');
+if (!certification.includes('FAILED_EVIDENCE:')) throw new Error('Certification must reject failed mandatory evidence');
+
+execFileSync(process.execPath, ['--experimental-strip-types', 'scripts/production-certification-runtime.test.mjs'], { stdio: 'inherit' });
 console.log('PRODUCTION_CERTIFICATION_EVIDENCE_INTEGRITY_PASS');
