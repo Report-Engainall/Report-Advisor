@@ -2,7 +2,7 @@
 
 Date: 2026-08-30
 Start main SHA: `5fe4bf89134d26c88e9c1817efc2052399eb1d40`
-Working branch head: `a5b5013704fbae56ce930cbde99f5f1bf2abc76b`
+Working branch latest: `0c93e45aa8600a403164a2d65f1eb3afc5f0608a`
 Pull request: #106
 
 ## Before
@@ -15,10 +15,11 @@ Pull request: #106
 1. Created a fresh branch from the exact current main SHA.
 2. Reused the current query architecture and changed only the two lifecycle adapters in each query surface from direct table UPDATE to the existing canonical RPC boundary.
 3. Added `scripts/check-lifecycle-mutation-boundary.mjs` to reject direct lifecycle UPDATE bypasses in both adapters.
-4. Added a dedicated CI workflow so the guard executes independently on every main PR/push.
-5. Mirrored the live canonical lifecycle RPC definitions into `20260830033000_canonical_lifecycle_mutation_rpc.sql`, including explicit PUBLIC/anon revocation and authenticated EXECUTE.
-6. Extracted the unique migration/security SQL from PR #98 without importing its stale Master Index rewrite or duplicate Vercel configuration.
-7. Created PR #106 for exact-head CI review/merge rather than force-merging a diverged historical branch.
+4. Initially added a dedicated workflow, then the topology gate exposed that a new workflow was not allowed by the repository's canonical CI topology. This was a real integration failure, not ignored.
+5. Root cause: the new workflow expanded the workflow topology outside the existing governance surface. Fix: removed the redundant workflow and moved the lifecycle guard into the existing `batch-integrity-guards.yml` topology.
+6. Mirrored the live canonical lifecycle RPC definitions into `20260830033000_canonical_lifecycle_mutation_rpc.sql`, including explicit PUBLIC/anon revocation and authenticated EXECUTE.
+7. Extracted the unique migration/security SQL from PR #98 without importing its stale Master Index rewrite or duplicate Vercel configuration.
+8. Created PR #106 for fresh exact-head CI review/merge rather than force-merging a diverged historical branch.
 
 ## Live proof used for the implementation decision
 The live catalog reports:
@@ -33,8 +34,10 @@ The live definitions derive tenant authority from `current_company_id()` and rej
 - Unique useful delta extracted: lifecycle client boundary + lifecycle regression guard + post-baseline migration/security provenance files.
 - Stale/unsafe delta not imported: historical Master Index replacement, duplicate `vercel.json`, and the unrelated package formatting-only expansion.
 
-## Verification state
-Repository execution in this connector environment is not claimed as local runtime PASS. The branch is intentionally left for fresh exact-head GitHub Actions verification. The live Supabase RPC definitions were independently queried before mirroring.
+## Verification evidence
+- Dedicated lifecycle guard run `33283562843` completed **SUCCESS** on the earlier branch head, proving the guard itself executes cleanly.
+- Exact-head quality run `33283562809` reached the CI topology gate and failed there before downstream checks. The failure was treated as a regression, root-caused to the extra workflow, and corrected by moving the guard into the existing integrity workflow.
+- A fresh exact-head CI run is required after the topology correction; no PASS is promoted from the pre-fix SHA.
 
 ## Certification rule
-This cycle does not promote R1/R2/R3/R22 to certified. Exact-head CI, fresh migration replay, authenticated runtime, and production evidence remain separate requirements.
+This cycle does not promote R1/R2/R3/R22 to certified. Exact-head CI after the topology fix, fresh migration replay, authenticated runtime, and production evidence remain separate requirements.
