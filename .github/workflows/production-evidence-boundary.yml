@@ -34,6 +34,24 @@ jobs:
         with:
           node-version: 22
           cache: npm
+      - name: Validate exact certification run
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        env:
+          RUN_ID: ${{ inputs.release_certification_run_id }}
+          EXPECTED_SOURCE_SHA: ${{ inputs.source_sha }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          run_json="$(gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${RUN_ID}")"
+          workflow_name="$(jq -r '.name' <<<"$run_json")"
+          conclusion="$(jq -r '.conclusion' <<<"$run_json")"
+          head_sha="$(jq -r '.head_sha' <<<"$run_json")"
+          event="$(jq -r '.event' <<<"$run_json")"
+          [[ "$workflow_name" == "release-certification" ]] || { echo "Unexpected workflow: $workflow_name"; exit 1; }
+          [[ "$conclusion" == "success" ]] || { echo "Certification run is not successful: $conclusion"; exit 1; }
+          [[ "$head_sha" == "$EXPECTED_SOURCE_SHA" ]] || { echo "Certification run SHA mismatch: $head_sha != $EXPECTED_SOURCE_SHA"; exit 1; }
+          [[ "$event" == "workflow_dispatch" || "$event" == "push" ]] || { echo "Unexpected certification trigger: $event"; exit 1; }
+          echo "Exact release-certification run validated: $RUN_ID / $head_sha"
       - name: Download exact release evidence
         uses: actions/download-artifact@v4
         with:
