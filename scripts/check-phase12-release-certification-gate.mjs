@@ -11,32 +11,54 @@ const files = [
 ];
 for (const file of files) if (!fs.existsSync(path.join(root, file))) throw new Error(`Missing release surface: ${file}`);
 
-const vercel = read('vercel.json');
-const pkg = read('package.json');
+const vercelSource = read('vercel.json');
+const pkg = JSON.parse(read('package.json'));
 const blockers = read('scripts/check-production-release-blockers.mjs');
 const cert = read('scripts/check-production-certification-contract.mjs');
 
-if (!vercel.includes('"destination": "/index.html"')) throw new Error('Release gate missing SPA fallback');
-for (const token of ['build', 'lint', 'typecheck']) if (!pkg.includes(token)) throw new Error(`Release gate missing repository check: ${token}`);
+const assertSpaFallback = (config) => {
+  const rewrites = Array.isArray(config.rewrites) ? config.rewrites : [];
+  if (!rewrites.some((rewrite) => rewrite && rewrite.destination === '/index.html')) {
+    throw new Error('Release gate missing SPA fallback');
+  }
+};
+
+let vercel;
+try {
+  vercel = JSON.parse(vercelSource);
+} catch (error) {
+  throw new Error(`Release gate invalid vercel.json: ${error.message}`);
+}
+assertSpaFallback(vercel);
+
+for (const token of ['build', 'lint', 'typecheck']) {
+  if (typeof pkg.scripts?.[token] !== 'string' || !pkg.scripts[token].trim()) {
+    throw new Error(`Release gate missing package script: ${token}`);
+  }
+}
 for (const token of ['artifact-integrity', 'idempotencyKey', 'requiresApproval', 'MISSING_TENANT']) if (!blockers.includes(token)) throw new Error(`Release blocker coverage missing ${token}`);
 
-// Bind Phase 12 to the real canonical certification evidence contract. Do not
-// require narrative words such as "exact" or "SHA" to appear in a meta-checker.
-for (const token of [
-  'PRODUCTION_CERTIFICATION_EVIDENCE_KEYS',
-  "'tenant'",
-  "'backup'",
-  "'rollback'",
-  "'artifact'",
-  "'security'",
-]) if (!cert.includes(token)) throw new Error(`Certification binding missing canonical evidence invariant: ${token}`);
+// Bind Phase 12 to the canonical evidence declaration rather than arbitrary
+// source text, comments, or dead code.
+const evidenceKeysMatch = cert.match(
+  /PRODUCTION_CERTIFICATION_EVIDENCE_KEYS\s*:[^=]+?=\s*\[([\s\S]*?)\];/,
+);
+if (!evidenceKeysMatch) throw new Error('Certification binding missing canonical evidence declaration');
+const canonicalEvidenceKeys = [...evidenceKeysMatch[1].matchAll(/['\"]([a-z_]+)['\"]/g)].map((match) => match[1]);
+for (const key of ['tenant', 'backup', 'rollback', 'artifact', 'security']) {
+  if (!canonicalEvidenceKeys.includes(key)) throw new Error(`Certification binding missing canonical evidence invariant: ${key}`);
+}
 
-// A release gate must never certify deployment merely from source text.
 if (/PRODUCTION CERTIFIED\s*=\s*YES/i.test(cert)) throw new Error('Release gate rejects fabricated production certification');
 
-// Test-of-test: a comment-only marker must not be mistaken for an executable rewrite.
-const decoy = '// "destination": "/index.html"';
-const strippedDecoy = decoy.replace(/^\s*\/\/.*$/gm, '');
-if (strippedDecoy.includes('"destination": "/index.html"')) throw new Error('Test-of-test accepted a comment-decoy as executable rewrite evidence');
+// Test-of-test: invoke the same SPA validator against a comment-only decoy.
+const decoyConfig = { rewrites: [{ source: '/(.*)', destination: '// "destination": "/index.html"' }] };
+let decoyRejected = false;
+try {
+  assertSpaFallback(decoyConfig);
+} catch {
+  decoyRejected = true;
+}
+if (!decoyRejected) throw new Error('Test-of-test accepted a comment-decoy as executable rewrite evidence');
 
 console.log('Phase 12 release certification gate: PASS (repository-level; deployment evidence remains external)');
