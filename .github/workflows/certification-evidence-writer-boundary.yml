@@ -1,0 +1,14 @@
+name: certification-evidence-writer-boundary
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify certification evidence writer boundary
+        run: node scripts/check-certification-evidence-writer-boundary.mjs
