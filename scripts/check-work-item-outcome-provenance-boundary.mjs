@@ -7,11 +7,10 @@ const required = [
   'complete_decision_work_item',
   "v_evidence_snapshot_id text := NULLIF(btrim(COALESCE(p_evidence->>'evidence_snapshot_id', '')), '')",
   "RAISE EXCEPTION 'OUTCOME_EVIDENCE_REQUIRED'",
-  'v_status :=',
-  "'insufficient'",
-  "'positive'",
-  "'negative'",
-  "'neutral'",
+  "CASE WHEN p_actual_impact IS NULL OR v_expected IS NULL THEN 'insufficient'",
+  "WHEN p_actual_impact > v_expected THEN 'positive'",
+  "WHEN p_actual_impact = v_expected THEN 'neutral'",
+  "ELSE 'negative'",
   "'evidence_snapshot_id', v_evidence_snapshot_id",
   'status = EXCLUDED.status',
   'company_id = v_company',
@@ -23,10 +22,18 @@ for (const token of required) {
 }
 if (!source.includes('p_evidence: evidence')) throw new Error('Runtime work-item completion must forward evidence to the canonical RPC');
 
-// Test-of-test: removing the evidence guard must make the checker fail.
-const tampered = migration.replace("RAISE EXCEPTION 'OUTCOME_EVIDENCE_REQUIRED';", 'NULL;');
-if (tampered.includes("RAISE EXCEPTION 'OUTCOME_EVIDENCE_REQUIRED'")) {
+// Test-of-test: removing the executable evidence guard must make the checker fail.
+const guard = "RAISE EXCEPTION 'OUTCOME_EVIDENCE_REQUIRED';";
+const tampered = migration.replace(guard, 'NULL;');
+if (tampered.includes(guard)) {
   throw new Error('Test-of-test failed: tampered provenance guard still appears present');
+}
+
+// Test-of-test: a comment-only marker must never satisfy the executable contract.
+const decoy = '-- RAISE EXCEPTION \'OUTCOME_EVIDENCE_REQUIRED\';';
+const strippedDecoy = decoy.replace(/^\s*--.*$/gm, '');
+if (strippedDecoy.includes("RAISE EXCEPTION 'OUTCOME_EVIDENCE_REQUIRED'")) {
+  throw new Error('Test-of-test accepted a comment decoy as executable evidence guard');
 }
 
 console.log('Work-item outcome provenance boundary: PASS (including adversarial test-of-test)');
