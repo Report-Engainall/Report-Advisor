@@ -21,6 +21,8 @@ jobs:
           node-version: 22
       - name: Verify certification evidence write boundary
         run: node scripts/check-certification-evidence-write-boundary.mjs
+      - name: Verify certification completeness boundary
+        run: node scripts/check-production-certification-adversarial.mjs
       - name: Verify queue immutability boundary
         run: node scripts/check-report-queue-immutability.mjs
       - name: Verify queue gate test-of-test
