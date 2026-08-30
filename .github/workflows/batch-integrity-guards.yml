@@ -23,3 +23,5 @@ jobs:
         run: npm run test:import-state-contract
       - name: Canonical lifecycle mutation boundary
         run: node scripts/check-lifecycle-mutation-boundary.mjs
+      - name: Golden business corpus truth
+        run: node scripts/business-golden-corpus-contract.mjs
