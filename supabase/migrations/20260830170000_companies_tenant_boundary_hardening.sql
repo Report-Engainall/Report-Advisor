@@ -13,6 +13,13 @@ CREATE POLICY companies_select_current_tenant
   ON public.companies
   FOR SELECT
   TO authenticated
-  USING (id = public.current_company_id());
+  USING (
+    EXISTS (
+      SELECT 1
+      FROM public.company_memberships AS membership
+      WHERE membership.company_id = companies.id
+        AND membership.user_id = auth.uid()
+    )
+  );
 
 -- Defense-in-depth: no anonymous policy and no client mutation policy is created.
