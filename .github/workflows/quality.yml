@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
 permissions: {contents: read}
 concurrency:
-  group: quality-${{ github.ref }}-${{ github.event_name }}-${{ github.run_id }}
+  group: quality-${{ github.ref }}-${{ github.event_name}}-${{ github.run_id}}
   cancel-in-progress: false
 jobs:
   verify:
@@ -109,6 +109,8 @@ jobs:
         run: node scripts/check-work-item-outcome-provenance-boundary.mjs
       - name: Outcome evidence snapshot identity
         run: node scripts/check-outcome-provenance-identity.mjs
+      - name: Work-item assignment integrity
+        run: node scripts/check-work-item-assignment-integrity.mjs
       - name: A0 intelligence hardening
         run: node scripts/check-intelligence-hardening.mjs && node scripts/check-golden-intelligence-gates.mjs
       - name: Typecheck
