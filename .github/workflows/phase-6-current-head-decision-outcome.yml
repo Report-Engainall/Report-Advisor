@@ -1,0 +1,28 @@
+name: Phase 6 current-head decision outcome
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 1, persist-credentials: false}
+      - uses: actions/setup-node@v4
+        with: {node-version: 22}
+      - name: Exact HEAD
+        run: test "$(git rev-parse HEAD)" = "${GITHUB_SHA}"
+      - name: Install
+        run: npm ci --no-audit --no-fund
+      - name: Decision outcome closure
+        run: node scripts/check-phase6-current-head-decision-outcome-closure.mjs
+      - name: Decision regression
+        run: npm run test:decision-intelligence-closure
+      - name: Outcome regression
+        run: node --experimental-strip-types scripts/outcome-feedback-regressions.test.ts
+      - name: Evidence regression
+        run: node scripts/decision-evidence-regression.test.ts
