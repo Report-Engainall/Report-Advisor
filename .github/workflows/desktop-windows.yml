@@ -39,7 +39,17 @@ jobs:
       - name: Native watcher contract
         run: node scripts/check-windows-desktop-folder-watch-contract.mjs
       - name: Native runtime smoke
-        run: npm --prefix desktop run smoke:native
+        shell: pwsh
+        run: |
+          npm --prefix desktop run smoke:native *>&1 | Tee-Object desktop/native-smoke.log
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Upload native smoke diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: report-advisor-native-smoke-diagnostics
+          path: desktop/native-smoke.log
+          if-no-files-found: warn
       - name: Package Windows installer
         run: npm --prefix desktop run package:win
       - name: Upload installer
