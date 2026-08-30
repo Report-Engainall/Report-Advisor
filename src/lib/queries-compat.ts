@@ -25,8 +25,8 @@ export async function fetchForecasts(): Promise<Forecast[]> { return canonicalFe
 export async function fetchCustomers(): Promise<Customer[]> { return canonicalFetchCustomers(); }
 export async function fetchProducts(): Promise<Product[]> { return canonicalFetchProducts(); }
 
-export async function markAlertRead(id: string): Promise<void> { const companyId = await requireTenant(); const { error } = await supabase.from('alerts').update({ is_read: true }).eq('id', id).eq('company_id', companyId); if (error) throw error; }
-export async function updateRecommendationStatus(id: string, status: string): Promise<void> { const companyId = await requireTenant(); const { error } = await supabase.from('recommendations').update({ status }).eq('id', id).eq('company_id', companyId); if (error) throw error; }
+export async function markAlertRead(id: string): Promise<void> { await requireTenant(); const { error } = await supabase.rpc('mark_alert_read', { p_alert_id: id }); if (error) throw error; }
+export async function updateRecommendationStatus(id: string, status: string): Promise<void> { await requireTenant(); const { error } = await supabase.rpc('update_recommendation_status', { p_recommendation_id: id, p_status: status }); if (error) throw error; }
 
 type ImportRecordInput = Omit<ImportRecord, 'id' | 'company_id' | 'created_at' | 'error_message' | 'completed_at'>;
 type ImportRecordPatch = Partial<Pick<ImportRecord, 'status' | 'progress' | 'error_message' | 'completed_at'>>;
