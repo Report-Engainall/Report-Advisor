@@ -1,7 +1,7 @@
-import { preferredBackends, type AICapabilityBackend } from './aiCapabilityRegistry';
-import { chooseDocumentRoute, type DocumentPlan, type DocumentProfile } from './free-toolbox/document-route';
-import type { Evidence } from './free-toolbox/evidence-ledger';
-import type { EvidenceRef, LineageGraph } from './free-toolbox/data-lineage';
+import { preferredBackends, type AICapabilityBackend } from './aiCapabilityRegistry.ts';
+import { chooseDocumentRoute, type DocumentPlan, type DocumentProfile } from './free-toolbox/document-route.ts';
+import type { Evidence } from './free-toolbox/evidence-ledger.ts';
+import type { EvidenceRef, LineageGraph } from './free-toolbox/data-lineage.ts';
 
 export type DocumentCapability = 'document-parsing' | 'ocr' | 'table-extraction';
 export type DocumentBackendStatus = 'AVAILABLE' | 'OPTIONAL' | 'UNAVAILABLE';
@@ -36,9 +36,7 @@ export function acceptExtractedFacts(envelope: DocumentExtractionEnvelope, facts
 function stableEvidenceId(f: DocumentExtractionFact) { return [f.source, f.sourceDocumentId, f.sourceHash, f.page, f.location, f.field].filter(v => v !== undefined && v !== '').join(':'); }
 
 export function extractedFactsToEvidence(facts: DocumentExtractionFact[]): Evidence[] {
-  return facts
-    .filter(f => Boolean(f.source) && Number.isFinite(f.confidence) && f.confidence >= 0 && f.confidence <= 1)
-    .map(f => ({ id: stableEvidenceId(f), sourceId: f.source, sourceDocumentId: f.sourceDocumentId, sourceHash: f.sourceHash, page: f.page, location: f.location, method: 'derived', field: f.field, raw: f.value === null ? undefined : String(f.value), normalized: f.value, confidence: f.confidence }));
+  return facts.filter(f => Boolean(f.source) && Number.isFinite(f.confidence) && f.confidence >= 0 && f.confidence <= 1).map(f => ({ id: stableEvidenceId(f), sourceId: f.source, sourceDocumentId: f.sourceDocumentId, sourceHash: f.sourceHash, page: f.page, location: f.location, method: 'derived', field: f.field, raw: f.value === null ? undefined : String(f.value), normalized: f.value, confidence: f.confidence }));
 }
 
 function toLineageEvidence(e: Evidence): EvidenceRef { return { sourceId: e.sourceId, sourceDocumentId: e.sourceDocumentId, sourceHash: e.sourceHash, label: e.field ?? 'document fact', location: e.location ?? (e.page !== undefined ? `page:${e.page}` : undefined), value: typeof e.normalized === 'string' || typeof e.normalized === 'number' ? e.normalized : undefined }; }
