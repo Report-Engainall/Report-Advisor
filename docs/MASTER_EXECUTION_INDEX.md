@@ -307,3 +307,71 @@ Current exact release is not production certified. Required live evidence remain
 6. Continue live Storage/Realtime/vector and authenticated A/B isolation where the environment permits.
 
 PRODUCTION CERTIFIED = NO.
+
+---
+
+# CYCLE-003 — PHASE 1 FOUNDATION CLOSURE
+
+### Objective
+Close the executable part of Phase 1 — Foundation & Architecture — without changing domain architecture or replacing the existing stack.
+
+### Current-head work
+1. Added `scripts/check-phase1-foundation-closure.mjs`.
+2. The new contract verifies, from repository source, all of the following:
+   - one `BrowserRouter` application boundary;
+   - application error boundary;
+   - Suspense/lazy-loading boundary;
+   - explicit not-found route;
+   - Vercel SPA fallback to `index.html`;
+   - persistent Supabase auth session;
+   - tenant resolution exclusively through `current_company_id()`;
+   - rejection of browser/demo tenant fallbacks;
+   - canonical dashboard/intelligence query ownership;
+   - compatibility-layer delegation rather than business-truth ownership;
+   - strict TypeScript and bundler module resolution;
+   - architecture contract coverage for typecheck/lint/build;
+   - quality workflow presence of architecture-contract execution;
+   - exact checked-out SHA binding in CI.
+3. Wired the new Phase-1 contract into `.github/workflows/quality.yml` immediately after dependency installation, so it is a first-class release gate rather than an orphan script.
+
+### Evidence inspected before implementation
+- `src/App.tsx` uses a single `BrowserRouter`, `AppErrorBoundary`, `Suspense`, and explicit `*` not-found route. fileciteturn279file0
+- `vercel.json` contains the catch-all SPA rewrite. fileciteturn280file0
+- `src/lib/supabase.ts` persists sessions and resolves tenant through the database `current_company_id()` RPC. fileciteturn285file0
+- `src/lib/queries.ts` delegates dashboard/business aggregation to canonical snapshot/intelligence boundaries. fileciteturn282file0
+- `src/lib/queries-compat.ts` declares itself a compatibility boundary and delegates its legacy read functions to canonical query implementations. fileciteturn281file0
+- Existing architecture contract already required the core free-toolbox modules and typecheck/lint/build/concurrency gates. fileciteturn284file0
+- Quality workflow already enforces exact checked-out SHA equality and contains the broader contract suite; the new Phase-1 gate is now explicitly inserted into that topology. fileciteturn287file0
+
+### Implementation commits
+- Phase-1 contract: `4f3ad8b6ae3668fa7653f4d19ee7584a016d2e55`.
+- Quality topology wiring: `69e975bf058ce084ab5532cf315b1eba5cc0071b`.
+
+### Verification rule
+The new gate is **not promoted to PASS merely because the source inspection succeeds**. Fresh exact-head CI must execute it on the resulting HEAD, and any failure must be attacked before Phase 1 can be marked closed.
+
+### Phase 1 exit criteria
+Phase 1 will be considered closed only when all are true on one exact release candidate:
+
+```text
+Foundation contract PASS
++ architecture contract PASS
++ typecheck PASS
++ lint PASS
++ build PASS
++ canonical boundary regressions PASS
++ adversarial architecture checks PASS
++ exact-head CI PASS
++ no newly discovered P0/P1 foundation contradiction
+```
+
+### Next executable Phase-1 attack surfaces
+- scan for direct browser business-table aggregation outside canonical query boundaries;
+- scan compatibility consumers and prove no duplicate business engine remains;
+- attack tenant resolver assumptions and cache-key boundaries;
+- inspect error/loading/empty semantics for silent fallback to fabricated business values;
+- inspect route/deep-link and lazy-chunk failure recovery;
+- verify performance and concurrency boundaries remain bounded;
+- rerun all Phase-1 checks against the fresh exact HEAD.
+
+PRODUCTION CERTIFIED = NO.
