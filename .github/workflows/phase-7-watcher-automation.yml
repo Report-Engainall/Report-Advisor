@@ -1,0 +1,21 @@
+name: Phase 7 watcher automation
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+permissions: {contents: read}
+jobs:
+  verify:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 1, persist-credentials: false}
+      - uses: actions/setup-node@v4
+        with: {node-version: 22}
+      - run: test "$(git rev-parse HEAD)" = "${GITHUB_SHA}"
+      - run: npm ci --no-audit --no-fund
+      - run: node scripts/check-phase7-watcher-automation-closure.mjs
+      - run: npm run test:folder-watch-platform-contract
+      - run: npm run test:watched-report-pipeline
+      - run: npm run test:incremental-import-ledger
