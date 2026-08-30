@@ -5,7 +5,7 @@ for(const file of files)if(!fs.existsSync(path.join(process.cwd(),file)))throw n
 const main=fs.readFileSync(path.join(process.cwd(),'desktop/main.cjs'),'utf8');
 const preload=fs.readFileSync(path.join(process.cwd(),'desktop/preload.cjs'),'utf8');
 const pkg=fs.readFileSync(path.join(process.cwd(),'desktop/package.json'),'utf8');
-for(const token of ['fs.watch','recursive:true','WATCH_FOLDER_PATH_OUTSIDE_ROOT','read-file','desktop-folder-watch:file','queueFileCandidate','handleFilesystemEvent','void rescan();','scheduleEventRescan','stableSince','requiredStableMs=400','watchGeneration','activeRescanPromise'])if(!main.includes(token))throw new Error(`Missing native watcher safety token: ${token}`);
+for(const token of ['fs.watch','recursive:true','WATCH_FOLDER_PATH_OUTSIDE_ROOT','read-file','desktop-folder-watch:file','queueFileCandidate','handleFilesystemEvent','void rescan();','scheduleEventRescan','stableSince','requiredStableMs=400','watchGeneration','activeRescanPromise','const latest=new Set(walk(root))'])if(!main.includes(token))throw new Error(`Missing native watcher safety token: ${token}`);
 if(!main.includes('setInterval(()=>{void rescan();}'))throw new Error('Missing native watcher polling token');
 if(!main.includes('30000'))throw new Error('Missing production watcher polling interval');
 if(!main.includes('process.env.REPORT_ADVISOR_NATIVE_SMOKE?100:30000'))throw new Error('Missing native smoke polling interval');
