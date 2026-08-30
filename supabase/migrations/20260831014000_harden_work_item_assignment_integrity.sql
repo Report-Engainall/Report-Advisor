@@ -30,7 +30,9 @@ BEGIN
   ) THEN RAISE EXCEPTION 'DECISION_NOT_APPROVED'; END IF;
   IF p_recommendation_id IS NOT NULL AND NOT EXISTS (
     SELECT 1 FROM public.recommendations r
-    WHERE r.id = p_recommendation_id AND r.company_id = v_company AND (r.decision_id = p_decision_id OR r.decision_id IS NULL)
+    WHERE r.id = p_recommendation_id
+      AND r.company_id = v_company
+      AND r.decision_id = p_decision_id
   ) THEN RAISE EXCEPTION 'RECOMMENDATION_NOT_FOUND_OR_NOT_LINKED'; END IF;
   IF p_assignee_id IS NOT NULL AND NOT EXISTS (
     SELECT 1 FROM public.company_memberships m
