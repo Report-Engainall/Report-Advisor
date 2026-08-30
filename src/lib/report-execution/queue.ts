@@ -7,6 +7,7 @@ export interface ReportQueueJob {
   attempts: number;
   maxAttempts: number;
   leaseOwner?: string;
+  leaseToken?: string;
   leaseExpiresAt?: number;
   createdAt: number;
   updatedAt: number;
@@ -44,6 +45,7 @@ export class InMemoryReportQueue {
         job.status = 'running';
         job.attempts += 1;
         job.leaseOwner = workerId;
+        job.leaseToken = `${runIdToken(job.runId)}:${job.attempts}:${now}`;
         job.leaseExpiresAt = now + leaseMs;
         job.updatedAt = now;
         return { ...job };
@@ -52,22 +54,24 @@ export class InMemoryReportQueue {
     return undefined;
   }
 
-  heartbeat(runId: string, workerId: string, leaseMs = 60_000): void {
+  heartbeat(runId: string, workerId: string, leaseToken: string, leaseMs = 60_000): void {
     const job = this.require(runId);
-    if (job.status !== 'running' || job.leaseOwner !== workerId) throw new Error('Report job lease is not owned by worker');
+    this.assertLease(job, workerId, leaseToken);
     if (leaseMs <= 0) throw new Error('leaseMs must be positive');
-    job.leaseExpiresAt = Date.now() + leaseMs;
-    job.updatedAt = Date.now();
+    const now = Date.now();
+    job.leaseExpiresAt = now + leaseMs;
+    job.updatedAt = now;
   }
 
-  complete(runId: string, workerId: string): void { this.transition(runId, workerId, 'succeeded'); }
-  cancel(runId: string, workerId: string): void { this.transition(runId, workerId, 'cancelled'); }
+  complete(runId: string, workerId: string, leaseToken: string): void { this.transition(runId, workerId, leaseToken, 'succeeded'); }
+  cancel(runId: string, workerId: string, leaseToken: string): void { this.transition(runId, workerId, leaseToken, 'cancelled'); }
 
-  fail(runId: string, workerId: string, error: string): ReportQueueJob {
+  fail(runId: string, workerId: string, leaseToken: string, error: string): ReportQueueJob {
     const job = this.require(runId);
-    if (job.status !== 'running' || job.leaseOwner !== workerId) throw new Error('Report job lease is not owned by worker');
+    this.assertLease(job, workerId, leaseToken);
     job.lastError = error;
     job.leaseOwner = undefined;
+    job.leaseToken = undefined;
     job.leaseExpiresAt = undefined;
     job.status = job.attempts < job.maxAttempts ? 'queued' : 'failed';
     job.updatedAt = Date.now();
@@ -77,9 +81,25 @@ export class InMemoryReportQueue {
   get(runId: string): ReportQueueJob | undefined { const job = this.jobs.get(runId); return job ? { ...job } : undefined; }
   listDeadLetters(): ReportQueueJob[] { return [...this.jobs.values()].filter(job => job.status === 'failed' && job.attempts >= job.maxAttempts).map(job => ({ ...job })); }
   private require(runId: string): ReportQueueJob { const job = this.jobs.get(runId); if (!job) throw new Error(`Report job not found: ${runId}`); return job; }
-  private transition(runId: string, workerId: string, status: ReportJobStatus): void {
-    const job = this.require(runId);
-    if (job.status !== 'running' || job.leaseOwner !== workerId) throw new Error('Report job lease is not owned by worker');
-    job.status = status; job.leaseOwner = undefined; job.leaseExpiresAt = undefined; job.updatedAt = Date.now();
+  private assertLease(job: ReportQueueJob, workerId: string, leaseToken: string): void {
+    if (job.status !== 'running' || job.leaseOwner !== workerId || !leaseToken || job.leaseToken !== leaseToken) {
+      throw new Error('Report job lease is not owned by worker or fencing token is stale');
+    }
+    if (!job.leaseExpiresAt || job.leaseExpiresAt <= Date.now()) throw new Error('Report job lease has expired');
   }
+  private transition(runId: string, workerId: string, leaseToken: string, status: ReportJobStatus): void {
+    const job = this.require(runId);
+    this.assertLease(job, workerId, leaseToken);
+    job.status = status;
+    job.leaseOwner = undefined;
+    job.leaseToken = undefined;
+    job.leaseExpiresAt = undefined;
+    job.updatedAt = Date.now();
+  }
+}
+
+function runIdToken(runId: string): string {
+  let hash = 2166136261;
+  for (let i = 0; i < runId.length; i += 1) hash = Math.imul(hash ^ runId.charCodeAt(i), 16777619);
+  return (hash >>> 0).toString(16);
 }
