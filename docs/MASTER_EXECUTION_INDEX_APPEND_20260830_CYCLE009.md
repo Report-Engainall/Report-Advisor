@@ -5,7 +5,7 @@ Date: 2026-08-30
 ## Execution anchor
 
 - Previous HEAD: `6cb7d2dbd3cd99f437d23ce759b6e1fa0770c6b5`
-- New HEAD: `a6f6f0c0f0b1e6f0d9f0b5b6e8d0d6c9f3f3b1d2` (expected branch tip after this append; verify from GitHub before merge)
+- New HEAD: `55da2cca80dd032d92fc60c960abfe6986444a3b`
 - PR: #188
 
 ## Real work closed
