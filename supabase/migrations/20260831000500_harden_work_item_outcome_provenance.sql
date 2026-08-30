@@ -71,11 +71,11 @@ BEGIN
   VALUES (
     v_company, v_recommendation_key, v_decision, v_expected, p_actual_impact,
     v_status,
-    jsonb_build_object(
+    COALESCE(p_evidence, '{}'::jsonb) || jsonb_build_object(
       'work_item_id', p_work_item_id,
       'evidence_snapshot_id', v_evidence_snapshot_id,
       'outcome_delta', CASE WHEN v_expected IS NULL OR p_actual_impact IS NULL THEN NULL ELSE p_actual_impact - v_expected END
-    ) || COALESCE(p_evidence, '{}'::jsonb)
+    )
   )
   ON CONFLICT(company_id, recommendation_key) DO UPDATE
     SET actual_impact = EXCLUDED.actual_impact,
