@@ -3,6 +3,11 @@ import{strict as assert}from'node:assert';import{getCorpus}from'./golden-e2e-cor
 const c=getCorpus();
 const allowed=new Set(['PASS','REVIEW','QUARANTINE']);
 const requiredGates=['extraction','fidelity','quality','schema','mapping','semantic','arithmetic','reconciliation','evidence'];
+const requiredQuarantineSignals={
+  'corrupt-extraction':['no_reliable_extractor'],
+  'arithmetic-mismatch':['qty_price_total_mismatch'],
+  'reconciliation-mismatch':['opening_debit_credit_balance'],
+};
 
 assert.equal(c.length,7,'golden corpus size must remain stable');
 assert.equal(new Set(c.map(x=>x.id)).size,c.length,'golden corpus IDs must be unique');
@@ -14,16 +19,16 @@ for(const x of c){
 }
 
 const byId=Object.fromEntries(c.map(x=>[x.id,x]));
-assert.equal(byId['exchange-arabic'].expect,'PASS');
-assert.equal(byId['exchange-ocr'].expect,'REVIEW');
-assert.equal(byId['unknown-layout'].expect,'REVIEW');
-assert.equal(byId['corrupt-extraction'].expect,'QUARANTINE');
-assert.equal(byId['arithmetic-mismatch'].expect,'QUARANTINE');
-assert.equal(byId['reconciliation-mismatch'].expect,'QUARANTINE');
+for(const [id,expect] of Object.entries({
+  'exchange-arabic':'PASS','exchange-ocr':'REVIEW','unknown-layout':'REVIEW',
+  'corrupt-extraction':'QUARANTINE','arithmetic-mismatch':'QUARANTINE','reconciliation-mismatch':'QUARANTINE'
+})) assert.equal(byId[id].expect,expect);
 
 for(const x of c.filter(x=>x.expect==='QUARANTINE')){
-  assert.ok(x.features.some(f=>f.includes('mismatch')||f.includes('no_reliable_extractor')),
-    `quarantine fixture lacks an explicit hard-failure feature: ${x.id}`);
+  const signals=requiredQuarantineSignals[x.id];
+  assert.ok(signals,`quarantine fixture missing explicit signal contract: ${x.id}`);
+  assert.ok(signals.every(signal=>x.features.includes(signal)),
+    `quarantine fixture lost its explicit hard-failure signal: ${x.id}`);
 }
 
-console.log('Golden E2E corpus tests PASS (fixture identity + disposition + complete gate-chain invariants).');
+console.log('Golden E2E corpus tests PASS (identity + disposition + gate-chain + quarantine-signal invariants).');
