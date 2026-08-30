@@ -116,7 +116,7 @@ jobs:
       - name: Outcome evidence snapshot identity
         run: node scripts/check-outcome-provenance-identity.mjs
       - name: Work-item assignment integrity
-        run: node scripts/check-work-item-assignment-integrity.mjs
+        run: node scripts/check-work-item-assignment-integrity.mjs && node scripts/check-work-item-assignment-integrity-regression.mjs
       - name: A0 intelligence hardening
         run: node scripts/check-intelligence-hardening.mjs && node scripts/check-golden-intelligence-gates.mjs
       - name: Typecheck
