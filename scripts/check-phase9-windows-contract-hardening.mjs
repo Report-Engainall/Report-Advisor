@@ -36,14 +36,18 @@ for (const token of ['electron', 'electron-builder', 'package:win', 'com.reporta
 if (main.includes("startWatch(root)=>startWatch(root)")) throw new Error('Phase 9 rejects renderer-selected arbitrary watch roots');
 if (main.includes("send('desktop-folder-watch:file',{path:filePath")) throw new Error('Phase 9 rejects absolute path leakage');
 
-// Test-of-test: comment-only decoys must not satisfy executable evidence.
+// Test-of-test: a comment-only decoy must never satisfy executable evidence.
+// Keep the decoy independent from the real guard so the self-test proves the
+// comment stripper itself rather than relying on incidental guard formatting.
 const stripJsComments = (text) => text
   .replace(/\/\*[\s\S]*?\*\//g, '')
   .replace(/(^|\n)\s*\/\/[^\n]*/g, '$1');
-const decoy = guard.replace(/fs\.watch/g, '// fs.watch').replace(/recursive:true/g, '// recursive:true');
+const decoy = `// fs.watch\n// recursive:true\n// fs.watch(root, { recursive: true })`;
 const strippedDecoy = stripJsComments(decoy);
-if (strippedDecoy.includes('fs.watch') || strippedDecoy.includes('recursive:true')) {
-  throw new Error('Phase 9 test-of-test accepted a comment decoy as executable runtime evidence');
+for (const token of ['fs.watch', 'recursive:true']) {
+  if (strippedDecoy.includes(token)) {
+    throw new Error(`Phase 9 test-of-test accepted a comment decoy as executable runtime evidence: ${token}`);
+  }
 }
 
 console.log('Phase 9 Windows contract hardening: PASS (source-level; fresh Windows runtime evidence remains separate)');
