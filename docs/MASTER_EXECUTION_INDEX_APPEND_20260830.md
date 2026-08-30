@@ -44,3 +44,20 @@ This file is an append-only extension to `docs/MASTER_EXECUTION_INDEX.md`. Histo
 - Closed: three client-side lifecycle DML bypass classes (recommendation/decision/alert creation; recommendation outcome persistence) plus outcome provenance gap.
 - Closed: default PUBLIC/anon execution exposure introduced by CYCLE-015 was detected and corrected before production promotion.
 - Still open: exact-head CI on merged HEADs; authenticated A/B runtime; live business corpus reconciliation; document corpus runtime; Windows watcher lifecycle; backup/restore; deployment binding; production certification.
+
+## CYCLE-021 APPEND-ONLY ENTRY
+- Start HEAD: `6c9cf1a1d4b47bfd0865a899736634e2ccb298c8`
+- Workstream: stale PR #92 value extraction into an evidence-first decision/report product journey.
+- PR forensics: document gateway provenance logic was already present on current main; it was reused rather than duplicated. Unique usable value was the decision lifecycle/product-experience contract and user journey surfaces.
+- Real delta: added fail-closed product truth states; Decision Experience route; Executive Report route; journey navigation; lifecycle/outcome regression tests.
+- Test-the-test guard: runtime outcome/evidence claims are explicitly false until canonical runtime evidence is available; illegal decision transitions are rejected.
+- PR: #130
+- Head SHA before final CI: `a874f4a6b188af1560da3db9355d11a774206096`
+- Final branch SHA after type-hardening: `a874f4a6b188af1560da3db9355d11a774206096`.
+- Fresh CI: current head has fresh PR check suites; quality run `33288207409` is still `IN PROGRESS` at append time. Other relevant checks on this exact head have completed successfully.
+- Merge status: PR #130 remains unmerged until all required fresh checks finish.
+- Production certification: NO.
+
+## CYCLE-020 FOLLOW-UP NOTE
+- Windows watcher PR #127 remains open and unmerged. Native filesystem callbacks were observed previously while application delivery was not; the branch was corrected to process the event filename directly, await rescan work, stabilize partial files, and run the Windows workflow on relevant `desktop/**` changes rather than only the old watcher branch.
+- This remains runtime-unproven until a fresh Windows workflow executes against the corrected head.
