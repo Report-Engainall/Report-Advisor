@@ -169,12 +169,12 @@ export interface ImportRecord {
   file_size: number;
   source_type: string;
   status: string;
-  total_rows: number;
-  valid_rows: number;
-  invalid_rows: number;
-  quarantined_rows: number;
+  total_rows: number | null;
+  valid_rows: number | null;
+  invalid_rows: number | null;
+  quarantined_rows: number | null;
   entity_type: string | null;
-  progress: number;
+  progress: number | null;
   error_message: string | null;
   created_at: string;
   completed_at: string | null;
