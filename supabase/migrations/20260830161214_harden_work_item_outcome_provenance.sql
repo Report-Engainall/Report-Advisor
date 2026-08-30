@@ -37,9 +37,8 @@ BEGIN
   v_status := CASE WHEN p_actual_impact IS NULL OR v_expected IS NULL THEN 'insufficient' WHEN p_actual_impact > v_expected THEN 'positive' WHEN p_actual_impact = v_expected THEN 'neutral' ELSE 'negative' END;
   INSERT INTO public.recommendation_outcomes(company_id, recommendation_key, decision_id, expected_impact, actual_impact, status, evidence)
   VALUES (v_company, v_recommendation_key, v_decision, v_expected, p_actual_impact, v_status,
-    jsonb_build_object('work_item_id', p_work_item_id, 'evidence_snapshot_id', v_evidence_snapshot_id,
-      'outcome_delta', CASE WHEN v_expected IS NULL OR p_actual_impact IS NULL THEN NULL ELSE p_actual_impact - v_expected END)
-      || COALESCE(p_evidence, '{}'::jsonb))
+    COALESCE(p_evidence, '{}'::jsonb) || jsonb_build_object('work_item_id', p_work_item_id, 'evidence_snapshot_id', v_evidence_snapshot_id,
+      'outcome_delta', CASE WHEN v_expected IS NULL OR p_actual_impact IS NULL THEN NULL ELSE p_actual_impact - v_expected END))
   ON CONFLICT(company_id, recommendation_key) DO UPDATE SET actual_impact = EXCLUDED.actual_impact, status = EXCLUDED.status, observed_at = now(), evidence = EXCLUDED.evidence;
   UPDATE public.business_intelligence_decisions SET status = 'EXECUTED', executed_at = now()
   WHERE id = v_decision AND company_id = v_company AND status = 'APPROVED';
