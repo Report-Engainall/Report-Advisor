@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
 permissions: {contents: read}
 concurrency:
-  group: quality-${{ github.ref }}-${{ github.event_name }}-${{ github.run_id }}
+  group: quality-${{ github.ref }}-${{ github.event_name}}-${{ github.run_id }}
   cancel-in-progress: false
 jobs:
   verify:
@@ -99,6 +99,8 @@ jobs:
         run: node scripts/check-secondary-consumer-canonical.mjs && node scripts/check-report-data-truth-closure.mjs
       - name: Production release blockers
         run: npm run test:production-release-blockers
+      - name: Phase 10 backup/restore contract
+        run: node scripts/check-phase10-backup-restore-contract.mjs
       - name: Phase 12 release certification gate
         run: node scripts/check-phase12-release-certification-gate.mjs
       - name: Work-item outcome provenance boundary
