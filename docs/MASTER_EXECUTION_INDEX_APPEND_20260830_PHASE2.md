@@ -120,7 +120,41 @@ Repository parity added:
 - `scripts/check-work-item-terminal-guard.mjs`
 - `.github/workflows/work-item-terminal-guard.yml`
 
+## Cycle continuation — direct decision-outcome writer bypass
+A fresh privilege scan found `authenticated` still had direct `INSERT` on `public.decision_outcomes`, even though the canonical `record_decision_outcome()` RPC enforces tenant provenance, evidence identity, valid outcome labels, and duplicate protection.
+
+This was a real truth-integrity bypass: tenant RLS alone could not enforce the lifecycle/provenance contract against direct table writes.
+
+Implemented live remediation:
+`harden_decision_outcomes_direct_dml`
+
+- authenticated INSERT/UPDATE/DELETE/TRUNCATE = false
+- authenticated SELECT = true
+- canonical `record_decision_outcome()` remains the controlled writer.
+
+Live verification:
+`INSERT=false, UPDATE=false, DELETE=false, TRUNCATE=false, SELECT=true`.
+
+## Cycle continuation — audit forgery boundary
+The same fresh privilege scan found `authenticated` could directly INSERT into `audit_logs`. Although UPDATE/DELETE/TRUNCATE were already blocked, direct inserts could forge audit history and therefore weaken evidence provenance.
+
+Repository/runtime remediation:
+`REVOKE INSERT ON TABLE public.audit_logs FROM authenticated;`
+
+Live verification:
+- INSERT = false
+- UPDATE = false
+- DELETE = false
+- TRUNCATE = false
+
+The existing `SECURITY DEFINER` audit trigger remains the controlled writer for decision-runtime audit entries.
+
+Repository parity added:
+- `supabase/migrations/20260830235910_harden_direct_truth_writers.sql`
+- `scripts/check-direct-truth-writers.mjs`
+- `.github/workflows/direct-truth-writers.yml`
+
 ## Current status
-`SECURITY FRONT ADVANCED / CERTIFICATION RPC CLOSED / WORK LIFECYCLE BYPASS CLOSED / FRESH CI + EXACT-HEAD VERIFICATION REQUIRED`
+`SECURITY FRONT ADVANCED / TRUTH-WRITER BYPASSES CLOSED / AUDIT FORGERY CLOSED / FRESH CI + EXACT-HEAD VERIFICATION REQUIRED`
 
 Vercel deployment remains a separate parked external blocker when rate-limited; it is not treated as product proof.
