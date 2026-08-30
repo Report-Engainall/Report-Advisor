@@ -1,3 +1,4 @@
+/** Compatibility boundary only: preserve legacy imports without owning business truth. */
 import { supabase, resolveCurrentCompanyId } from './supabase';
 import { fetchMonthlyTrend as canonicalFetchMonthlyTrend, fetchTopCustomers as canonicalFetchTopCustomers, fetchTopProducts as canonicalFetchTopProducts, fetchCategoryBreakdown as canonicalFetchCategoryBreakdown, fetchAgingBuckets as canonicalFetchAgingBuckets, fetchForecasts as canonicalFetchForecasts, fetchCustomers as canonicalFetchCustomers, fetchProducts as canonicalFetchProducts } from './queries';
 import type { Customer, Forecast, ImportRecord, Product } from './types';
