@@ -75,6 +75,8 @@ jobs:
         run: npm run test:golden-e2e-corpus
       - name: Report execution failure state machine
         run: node scripts/check-report-execution-failure-state-machine.mjs && node --experimental-strip-types scripts/report-execution-runtime.test.ts
+      - name: Production certification evidence integrity
+        run: npm run test:production-certification-evidence-integrity
       - name: Production certification
         run: npm run test:production-certification-contract
       - name: Release evidence consumption workflow
