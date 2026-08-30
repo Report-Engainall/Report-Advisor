@@ -18,7 +18,8 @@ const required = [
   /GRANT\s+SELECT\s+ON\s+TABLE\s+public\.companies\s+TO\s+authenticated/i,
   /CREATE\s+POLICY\s+companies_select_current_tenant/i,
   /FOR\s+SELECT\s+TO\s+authenticated/i,
-  /id\s*=\s*public\.current_company_id\(\)/i,
+  /membership\.company_id\s*=\s*companies\.id/i,
+  /membership\.user_id\s*=\s*auth\.uid\(\)/i,
 ];
 
 for (const pattern of required) {
@@ -33,6 +34,9 @@ if (/CREATE\s+POLICY[^;]+TO\s+authenticated[^;]+USING\s*\(\s*true\s*\)/is.test(s
 }
 if (/GRANT\s+(?:ALL|INSERT|UPDATE|DELETE|TRUNCATE)\s+ON\s+TABLE\s+public\.companies\s+TO\s+(?:anon|authenticated)/i.test(sql)) {
   throw new Error('Client mutation grant detected for companies');
+}
+if (/current_company_id\s*\(\)/i.test(sql)) {
+  throw new Error('Companies RLS policy must not depend on EXECUTE privilege of current_company_id()');
 }
 
 // Adversarial test: comments that look like grants/policies must not satisfy the gate.
