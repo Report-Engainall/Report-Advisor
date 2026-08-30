@@ -39,6 +39,8 @@ jobs:
           fi
       - name: Install
         run: npm ci --no-audit --no-fund
+      - name: 20-stage parallel release readiness
+        run: npm run test:20-stage-readiness
       - name: Workflow command integrity
         run: npm run test:workflow-command-integrity
       - name: CI topology and canonical release wiring
