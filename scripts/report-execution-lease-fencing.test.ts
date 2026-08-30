@@ -50,6 +50,6 @@ queue.fail('run-2', 'worker-b', failureSecond.leaseToken, 'terminal crash');
 assert.equal(queue.get('run-2')?.status, 'failed');
 assert.equal(queue.listDeadLetters().length, 1);
 assert.equal(queue.get('run-2')?.leaseToken, undefined);
-assert.throws(() => queue.claim('worker-c', 60_000), /maxAttempts|undefined/);
+assert.equal(queue.claim('worker-c', 60_000), undefined, 'dead-lettered job must not be claimed again');
 
 console.log('report-execution lease fencing adversarial regression: PASS');
