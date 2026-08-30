@@ -1,0 +1,20 @@
+name: recommendation-outcome-dml-boundary
+on:
+  push: {branches: [main]}
+  pull_request: {branches: [main]}
+  workflow_dispatch:
+permissions: {contents: read}
+concurrency:
+  group: recommendation-outcome-dml-boundary-${{ github.ref }}-${{ github.event_name }}
+  cancel-in-progress: false
+jobs:
+  verify:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+        with: {fetch-depth: 1, persist-credentials: false}
+      - uses: actions/setup-node@v7
+        with: {node-version: 22}
+      - name: Recommendation outcome DML boundary
+        run: node scripts/check-recommendation-outcome-dml-boundary.mjs
