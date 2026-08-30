@@ -6,7 +6,7 @@ import { Header } from '@/components/Header';
 import { AuthGate } from '@/components/AuthGate';
 import { CommandPalette } from '@/components/CommandPalette';
 import { DashboardPage } from '@/pages/DashboardPage';
-import { markAlertRead } from '@/lib/queries-compat';
+import { markAlertRead } from '@/lib/queries';
 import { fetchDashboardIntelligence } from '@/lib/dashboard-canonical';
 import { getAuthenticatedUser } from '@/lib/auth-session';
 import type { Alert } from '@/lib/types';
