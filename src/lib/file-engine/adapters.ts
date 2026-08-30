@@ -94,7 +94,7 @@ async function parseScannedPdfWithOcr(pdf: PdfDocument, fileName: string): Promi
       canvas.height = Math.max(1, Math.ceil(viewport.height));
       const context = canvas.getContext('2d');
       if (!context) throw new Error(`PDF_OCR_CANVAS_UNAVAILABLE: page ${pageNumber}`);
-      await page.render({ canvasContext: context, viewport }).promise;
+      await page.render({ canvasContext: context, viewport, canvas }).promise;
       const result = await worker.recognize(canvas);
       const text = typeof result?.data?.text === 'string' ? result.data.text.trim() : '';
       const confidence = Number(result?.data?.confidence ?? 0);
