@@ -13,40 +13,56 @@ for (const file of files) {
 
 const read = (file) => fs.readFileSync(file, 'utf8');
 const sources = Object.fromEntries(files.map((file) => [file, read(file)]));
+const stripJsComments = (source) => source
+  .replace(/\/\*[\s\S]*?\*\//g, '')
+  .replace(/(^|\n)\s*\/\/[^\n]*/g, '$1');
 const must = (condition, message) => {
   if (!condition) throw new Error(`PHASE11_E2E_PERFORMANCE_CLOSURE_FAIL: ${message}`);
 };
 
-const e2e = sources[files[0]] + '\n' + sources[files[1]];
-const scale = sources[files[2]];
-const perf = sources[files[3]];
-const blockers = sources[files[4]];
+const executable = Object.fromEntries(
+  Object.entries(sources).map(([file, source]) => [file, stripJsComments(source)]),
+);
+const e2e = executable[files[0]] + '\n' + executable[files[1]];
+const scale = executable[files[2]];
+const perf = executable[files[3]];
+const blockers = executable[files[4]];
 
-for (const token of ['tenantId', 'sourceSnapshotId', 'idempotencyKey', 'ReportExecutionEvidence']) {
-  must(e2e.includes(token), `E2E evidence contract missing ${token}`);
-}
-for (const token of ['golden', 'deterministic', 'expected', 'corpus']) {
-  must(sources[files[0]].toLowerCase().includes(token), `golden E2E corpus missing ${token}`);
-}
-for (const token of ['250K', 'chunking', 'bounded']) {
-  must(scale.toLowerCase().includes(token.toLowerCase()), `scale contract missing ${token}`);
-}
-for (const token of ['600KB', '900KB']) {
-  must(perf.includes(token), `performance budget missing ${token}`);
-}
-must(e2e.toLowerCase().includes('fail-closed'), 'E2E contract must preserve fail-closed negative paths');
-must(blockers.toLowerCase().includes('idempotencykey'), 'release blockers must preserve idempotency coverage');
+const assertClosure = (contractE2E, contractScale, contractPerf, contractBlockers) => {
+  for (const token of ['tenantId', 'sourceSnapshotId', 'idempotencyKey', 'ReportExecutionEvidence']) {
+    must(contractE2E.includes(token), `E2E evidence contract missing ${token}`);
+  }
+  for (const token of ['golden', 'deterministic', 'expected', 'corpus']) {
+    must(executable[files[0]].toLowerCase().includes(token), `golden E2E corpus missing ${token}`);
+  }
+  for (const token of ['250K', 'chunking', 'bounded']) {
+    must(contractScale.toLowerCase().includes(token.toLowerCase()), `scale contract missing ${token}`);
+  }
+  for (const token of ['600KB', '900KB']) {
+    must(contractPerf.includes(token), `performance budget missing ${token}`);
+  }
+  must(contractE2E.toLowerCase().includes('fail-closed'), 'E2E contract must preserve fail-closed negative paths');
+  must(contractBlockers.toLowerCase().includes('idempotencykey'), 'release blockers must preserve idempotency coverage');
+};
 
-// Test-of-test: the gate must actually fail when a required executable marker is removed.
-const requiredMarker = 'tenantId';
-const tamperedE2E = e2e.replaceAll(requiredMarker, '');
-must(!tamperedE2E.includes(requiredMarker), 'tampering fixture failed to remove the required marker');
-must(!tamperedE2E.includes('ReportExecutionEvidence'), 'tampering fixture must remove an execution evidence dependency as well');
+assertClosure(e2e, scale, perf, blockers);
+
+// Test-of-test: removing executable evidence must make the same closure assertion fail.
+const tamperedE2E = e2e
+  .replaceAll('tenantId', '')
+  .replaceAll('ReportExecutionEvidence', '');
+let tamperedRejected = false;
+try {
+  assertClosure(tamperedE2E, scale, perf, blockers);
+} catch {
+  tamperedRejected = true;
+}
+must(tamperedRejected, 'tampered E2E evidence still satisfied the closure contract');
 
 // Test-of-test: comment-only markers must not count as executable evidence.
-const commentDecoy = `// ${requiredMarker}\n// ReportExecutionEvidence`;
-const executableDecoy = commentDecoy.replace(/^\s*\/\/.*$/gm, '');
-must(!executableDecoy.includes(requiredMarker), 'comment-only tenant marker was accepted');
+const commentDecoy = `// tenantId\n// ReportExecutionEvidence`;
+const executableDecoy = stripJsComments(commentDecoy);
+must(!executableDecoy.includes('tenantId'), 'comment-only tenant marker was accepted');
 must(!executableDecoy.includes('ReportExecutionEvidence'), 'comment-only evidence marker was accepted');
 
 console.log('PHASE11_E2E_PERFORMANCE_CLOSURE_PASS (golden E2E, negative-path, scale, performance, release-blocker, and adversarial checks)');
