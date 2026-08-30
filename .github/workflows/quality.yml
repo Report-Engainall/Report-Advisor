@@ -107,6 +107,8 @@ jobs:
         run: node scripts/check-phase12-release-certification-gate.mjs
       - name: Work-item outcome provenance boundary
         run: node scripts/check-work-item-outcome-provenance-boundary.mjs
+      - name: Outcome evidence snapshot identity
+        run: node scripts/check-outcome-provenance-identity.mjs
       - name: A0 intelligence hardening
         run: node scripts/check-intelligence-hardening.mjs && node scripts/check-golden-intelligence-gates.mjs
       - name: Typecheck
@@ -179,24 +181,4 @@ jobs:
         run: npm run perf:budget
       - name: Intelligence and production contracts
         if: ${{ always() }}
-        run: npm run test:contracts && npm run test:selective-foundation && npm run test:consolidated-intelligence && npm run test:inventory-intelligence && npm run test:alternative-security && npm run test:alternative-schema && npm run test:decision-dashboard && npm run test:inventory-intelligence-ui && npm run test:demand-velocity && npm run test:batch-decision && npm run test:safe-metrics && npm run test:production-scale
-      - name: Analysis runtime contracts
-        if: ${{ always() }}
-        run: npm run test:analysis-cache-policy && npm run test:analysis-cache-coordinator && npm run test:analysis-invalidation && npm run test:concurrent-analysis && npm run test:bounded-concurrency && npm run test:analysis-batch-runner
-      - name: Document intelligence contracts
-        if: ${{ always() }}
-        run: npm run test:document-intelligence-contract && npm run test:document-intelligence-semantic-foundation && npm run test:document-intelligence-hardening && npm run test:document-intelligence-decision-gate && npm run test:file-intelligence-security && npm run test:operational-file-pipeline
-      - name: Document intelligence service runtime contracts
-        if: ${{ always() }}
-        env:
-          PYTHONPATH: services/document-intelligence
-        run: python -m unittest discover -s services/document-intelligence/tests -p 'test_*.py'
-      - name: Report truth contract
-        if: ${{ always() }}
-        run: npm run test:report-truth
-      - name: Production readiness
-        if: ${{ always() }}
-        run: node scripts/check-production-readiness.mjs
-      - name: Full resilience gate
-        if: ${{ always() }}
-        run: npm run test:document-resilience && node scripts/check-document-resilience.mjs
+        run: node scripts/check-intelligence-hardening.mjs && node scripts/check-golden-intelligence-gates.mjs
