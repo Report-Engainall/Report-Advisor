@@ -16,6 +16,8 @@ for (const pattern of [
   /v_evidence_snapshot_id\s+text/i,
   /OUTCOME_EVIDENCE_NOT_FOUND_OR_FORBIDDEN/i,
   /REVOKE ALL ON FUNCTION public\.complete_decision_work_item/i,
+  /REVOKE ALL ON FUNCTION public\.complete_decision_work_item\(uuid,numeric,jsonb\) FROM PUBLIC, anon/i,
+  /GRANT EXECUTE ON FUNCTION public\.complete_decision_work_item\(uuid,numeric,jsonb\) TO authenticated/i,
 ]) {
   if (!pattern.test(sql)) {
     throw new Error(`Missing work-item authorization invariant: ${pattern}`);
@@ -23,5 +25,5 @@ for (const pattern of [
 }
 
 console.log(
-  'Work-item assignment integrity: PASS (tenant, actor, lifecycle, and evidence boundaries)',
+  'Work-item assignment integrity: PASS (tenant, actor, lifecycle, evidence, and EXECUTE ACL boundaries)',
 );
