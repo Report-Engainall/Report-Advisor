@@ -34,8 +34,9 @@ for (const token of [
 // A release gate must never certify deployment merely from source text.
 if (/PRODUCTION CERTIFIED\s*=\s*YES/i.test(cert)) throw new Error('Release gate rejects fabricated production certification');
 
-// Test-of-test: a comment-only destination must not satisfy the executable rewrite contract.
-const decoy = vercel.replace(/"destination": "/, '// "destination": "');
-if (decoy.includes('"destination": "/index.html"')) throw new Error('Test-of-test accepted a comment-decoy as executable rewrite evidence');
+// Test-of-test: a comment-only marker must not be mistaken for an executable rewrite.
+const decoy = '// "destination": "/index.html"';
+const strippedDecoy = decoy.replace(/^\s*\/\/.*$/gm, '');
+if (strippedDecoy.includes('"destination": "/index.html"')) throw new Error('Test-of-test accepted a comment-decoy as executable rewrite evidence');
 
 console.log('Phase 12 release certification gate: PASS (repository-level; deployment evidence remains external)');
