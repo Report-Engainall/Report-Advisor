@@ -1,0 +1,19 @@
+name: Phase 10 backup recovery
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+permissions: {contents: read}
+jobs:
+  verify:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 1, persist-credentials: false}
+      - uses: actions/setup-node@v4
+        with: {node-version: 22}
+      - run: test "$(git rev-parse HEAD)" = "${GITHUB_SHA}"
+      - run: npm ci --no-audit --no-fund
+      - run: node scripts/check-phase10-backup-recovery-closure.mjs
+      - run: npm run test:operational-resilience
+      - run: npm run test:release-resilience-manifest
