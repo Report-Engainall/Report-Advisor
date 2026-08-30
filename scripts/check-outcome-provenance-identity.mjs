@@ -26,9 +26,10 @@ const assertContract = (source) => {
 
 assertContract(sql);
 
-// Test-of-test: remove an executable guard and require the same assertion to fail.
+// Test-of-test: remove every executable occurrence of a mandatory guard and
+// require the exact same assertion to fail.
 const guard = 'OUTCOME_PROVENANCE_NOT_FOUND';
-const tampered = sql.replace(guard, 'OUTCOME_PROVENANCE_REMOVED');
+const tampered = sql.replaceAll(guard, 'OUTCOME_PROVENANCE_REMOVED');
 let tamperedRejected = false;
 try {
   assertContract(tampered);
