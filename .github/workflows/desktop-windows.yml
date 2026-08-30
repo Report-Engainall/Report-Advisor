@@ -2,7 +2,7 @@ name: desktop-windows
 on:
   workflow_dispatch:
   push:
-    branches: [main]
+    branches: [feat/windows-desktop-watched-folder]
 jobs:
   build-windows:
     runs-on: windows-latest
