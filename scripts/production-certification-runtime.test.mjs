@@ -22,6 +22,7 @@ assert.ok(duplicate.blockers.includes('DUPLICATE_EVIDENCE:backup'));
 
 const arbitrary = certifyProduction([...complete, check('unrelated-warning', false, 'WARNING')]);
 assert.equal(arbitrary.certified, true, 'non-mandatory warnings must not invalidate complete mandatory evidence');
+assert.equal(arbitrary.score, 1, 'non-mandatory warnings must not dilute the mandatory score');
 
 assert.equal(isMandatoryCertificationEvidenceKey('tenant'), true);
 assert.equal(isMandatoryCertificationEvidenceKey('live'), false);
