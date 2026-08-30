@@ -1,0 +1,33 @@
+name: Phase 2 security closure
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  phase-2-security:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact commit
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Verify exact HEAD
+        shell: bash
+        run: test "$(git rev-parse HEAD)" = "${GITHUB_SHA}"
+
+      - name: Phase 2 companies tenant boundary contract
+        run: node scripts/check-phase2-security-closure.mjs
+
+      - name: Phase 2 SECURITY DEFINER surface contract
+        run: node scripts/check-phase2-security-definer-surface.mjs
