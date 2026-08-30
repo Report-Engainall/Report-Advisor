@@ -1,0 +1,27 @@
+name: certification-evidence-boundary
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      - name: Verify certification evidence write boundary
+        run: node scripts/check-certification-evidence-write-boundary.mjs
+      - name: Verify queue immutability boundary
+        run: node scripts/check-report-queue-immutability.mjs
+      - name: Verify queue gate test-of-test
+        run: node scripts/check-report-queue-immutability-test-of-test.mjs
