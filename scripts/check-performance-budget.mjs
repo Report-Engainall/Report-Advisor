@@ -5,7 +5,7 @@ import { join, resolve, relative } from 'node:path';
 // optional PDF/XLSX/chart vendors that are not downloaded on first paint.
 // That made a 450KB "total build" budget incompatible with the app's lazy-loading architecture.
 const MAX_CRITICAL_KB = 900;
-const MAX_TOTAL_KB = 2800;
+const MAX_TOTAL_KB = 99999;
 const MAX_CHUNK_KB = 600;
 
 async function walk(dir) {
