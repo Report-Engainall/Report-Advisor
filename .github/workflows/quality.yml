@@ -111,6 +111,8 @@ jobs:
         run: npm run test:phase11-e2e-performance-closure
       - name: Phase 12 release certification gate
         run: node scripts/check-phase12-release-certification-gate.mjs
+      - name: Decision runtime authorization
+        run: npm run test:decision-runtime-authorization
       - name: Work-item outcome provenance boundary
         run: node scripts/check-work-item-outcome-provenance-boundary.mjs
       - name: Outcome evidence snapshot identity
