@@ -13,20 +13,22 @@ queue.heartbeat('run-1', 'worker-a', firstToken);
 assert.throws(() => queue.heartbeat('run-1', 'worker-a', 'stale-token'), /fencing token is stale/);
 
 const realNow = Date.now;
+const expiredNow = (first.leaseExpiresAt ?? realNow()) + 1;
 try {
-  Date.now = () => (first.leaseExpiresAt ?? realNow()) + 1;
+  Date.now = () => expiredNow;
   assert.throws(() => queue.heartbeat('run-1', 'worker-a', firstToken), /lease has expired/);
   assert.throws(() => queue.complete('run-1', 'worker-a', firstToken), /lease has expired/);
   assert.throws(() => queue.fail('run-1', 'worker-a', firstToken, 'late crash'), /lease has expired/);
+  const second = queue.claim('worker-b', 60_000);
+  assert.ok(second?.leaseToken);
+  assert.notEqual(second.leaseToken, firstToken);
+  assert.equal(second.leaseOwner, 'worker-b');
+  Date.now = realNow;
+  assert.throws(() => queue.complete('run-1', 'worker-a', firstToken), /fencing token is stale/);
+  queue.cancel('run-1', 'worker-b', second.leaseToken);
 } finally {
   Date.now = realNow;
 }
-
-const second = queue.claim('worker-b', 60_000);
-assert.ok(second?.leaseToken);
-assert.notEqual(second.leaseToken, firstToken);
-assert.throws(() => queue.complete('run-1', 'worker-a', firstToken), /fencing token is stale/);
-queue.cancel('run-1', 'worker-b', second.leaseToken);
 assert.equal(queue.get('run-1')?.status, 'cancelled');
 assert.equal(queue.get('run-1')?.leaseToken, undefined);
 
