@@ -4,6 +4,7 @@ import { execFileSync } from 'node:child_process';
 const migration = fs.readFileSync('supabase/migrations/20260825150000_phase_m_certification_bundle.sql', 'utf8');
 const contract = fs.readFileSync('scripts/check-production-certification-contract.mjs', 'utf8');
 const certification = fs.readFileSync('src/lib/production/productionCertification.ts', 'utf8');
+const runtimeTest = fs.readFileSync('scripts/production-certification-runtime.test.mjs', 'utf8');
 
 const requiredColumns = [
   'tenant_isolation_passed','storage_passed','realtime_passed','ai_isolation_passed',
@@ -28,7 +29,10 @@ if (!/REVOKE ALL ON TABLE[^;]+FROM anon/i.test(migration) &&
 if (!/company_id\s*=\s*public\.current_company_id\(\)/i.test(migration)) throw new Error('Certification evidence must be tenant-authoritative');
 if (!/SET search_path\s*=\s*public/i.test(migration)) throw new Error('Certification SECURITY DEFINER function must pin search_path');
 if (!/status\s*=\s*'passed'/i.test(migration)) throw new Error('Certification release gate must require passed status');
-if (!/runtime|live/i.test(contract)) throw new Error('Certification contract must distinguish runtime/live evidence');
+
+if (!/PRODUCTION_CERTIFICATION_EVIDENCE_KEYS/i.test(contract)) throw new Error('Certification contract must expose canonical evidence keys');
+if (!/complete|missing|failed|duplicate|unrelated/i.test(runtimeTest)) throw new Error('Certification runtime harness must exercise adversarial evidence states');
+if (!/runtime|live/i.test(runtimeTest)) throw new Error('Certification runtime harness must identify runtime/live verification');
 
 for (const key of ['tenant','backup','rollback','artifact','security']) {
   if (!new RegExp(`['\\"]${key}['\\"]`).test(certification)) {
