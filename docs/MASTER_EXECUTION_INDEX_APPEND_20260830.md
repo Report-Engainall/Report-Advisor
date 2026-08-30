@@ -80,3 +80,14 @@ This file is an append-only extension to `docs/MASTER_EXECUTION_INDEX.md`. Histo
 - Live verification remained green for the certification evidence boundary after the Phase-M schema prerequisite and lockdown migrations: RLS enabled; authenticated SELECT only; authenticated write privileges denied on both evidence tables.
 - Fresh CI status for the newest repository HEAD remains pending; no CI PASS is claimed until the workflow executes against that exact SHA.
 - Production certification: NO. Continuous source-level enforcement is strengthened; runtime A/B, authenticated E2E, restore drill, Windows, deployment binding and live production evidence remain separate requirements.
+
+## CYCLE-024 APPEND-ONLY ENTRY
+- Start HEAD: `34acaf22b6cc81f2544c852329c6033c73bffa56`.
+- Workstream: production certification truth completeness.
+- Discovery: `certifyProduction()` could previously reach `certified=true` from the 95% score threshold without requiring every canonical evidence key to exist and pass. This created a potential truth collapse where omitted mandatory evidence could be mistaken for successful certification.
+- Fix: mandatory canonical evidence keys (`tenant`, `backup`, `rollback`, `artifact`, `security`) are now required; missing/failed mandatory evidence becomes a blocker; duplicate evidence keys are rejected.
+- Adversarial regression: `scripts/check-production-certification-adversarial.mjs` checks missing/failed/duplicate evidence handling and includes a test-of-test against comment-decoy markers.
+- CI integration: the certification evidence boundary workflow now executes the certification completeness adversarial gate alongside the write-boundary and report-queue adversarial gates.
+- Latest repository HEAD: `3b5bba92c9e3315e2de8b0b5b0f2b8f0c51e8e33`.
+- Exact-head status: Vercel reports `failure` solely because deployment is rate-limited for 24 hours; this is an external deployment blocker and is not treated as application certification evidence.
+- Production certification: NO. Mandatory source-level evidence semantics are hardened; live deployment, A/B tenant isolation, authenticated E2E, restore/RPO/RTO, Windows and production telemetry remain open.
