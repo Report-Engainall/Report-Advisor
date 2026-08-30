@@ -33,3 +33,5 @@ BEGIN
   RETURN v_id;
 END;
 $function$;
+
+CREATE INDEX IF NOT EXISTS idx_watched_report_files_folder_id ON public.watched_report_files(folder_id);
