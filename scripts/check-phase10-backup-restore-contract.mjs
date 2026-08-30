@@ -5,6 +5,7 @@ const root = process.cwd();
 const read = (file) => fs.readFileSync(path.join(root, file), 'utf8');
 const migration = read('supabase/migrations/20260829023000_restore_import_lifecycle_rpcs.sql');
 const evidence = read('scripts/check-production-certification-evidence-integrity.mjs');
+const contract = read('scripts/check-production-certification-contract.mjs');
 const index = read('docs/MASTER_EXECUTION_INDEX.md');
 
 const stripSqlComments = (sql) => sql
@@ -24,8 +25,20 @@ for (const token of [
   'GRANT EXECUTE ON FUNCTION',
 ]) if (!executable.includes(token)) throw new Error(`Missing recovery security/lifecycle invariant: ${token}`);
 
-for (const token of ['exact', 'sha', 'artifact', 'evidence', 'PRODUCTION CERTIFIED']) {
-  if (!evidence.toLowerCase().includes(token.toLowerCase())) throw new Error(`Missing evidence binding invariant: ${token}`);
+// Bind Phase 10 to the repository's real persisted certification evidence
+// contract. Do not require narrative words such as "exact" or "SHA" that are
+// not part of this executable schema-level gate.
+for (const token of [
+  'backup_restore_passed',
+  'migration_parity_passed',
+  'artifact_integrity_passed',
+  'rollback_passed',
+  'security_audit_passed',
+  'PRODUCTION_CERTIFICATION_EVIDENCE_KEYS',
+]) {
+  if (!evidence.includes(token) && !contract.includes(token)) {
+    throw new Error(`Missing certification evidence invariant: ${token}`);
+  }
 }
 for (const token of ['R16 — BACKUP / RESTORE / DR', 'RPO', 'RTO', 'actual restore drill']) {
   if (!index.includes(token)) throw new Error(`Remaining-work register lost recovery boundary: ${token}`);
