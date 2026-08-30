@@ -18,9 +18,9 @@ const quality = await read('.github/workflows/quality.yml');
 
 const must = (condition, message) => { if (!condition) failures.push(message); };
 
-must((app.match(/BrowserRouter/g) ?? []).length === 1, 'App must have exactly one BrowserRouter application boundary');
+must((app.match(/<BrowserRouter\b/g) ?? []).length === 1, 'App must have exactly one BrowserRouter application boundary');
 must(/AppErrorBoundary/.test(app), 'App must expose an application error boundary');
-must(/Suspense/.test(app), 'App must use a Suspense boundary for lazy routes');
+must(/<Suspense\b/.test(app), 'App must use a Suspense boundary for lazy routes');
 must(/path="\*"/.test(app), 'App must have an explicit not-found route');
 must(/rewrites/.test(routerConfig) && /index\.html/.test(routerConfig), 'Vercel SPA fallback must exist');
 
@@ -32,7 +32,7 @@ must(/fetchDashboardSnapshot/.test(queries), 'Canonical dashboard snapshot must 
 must(/fetchDashboardIntelligence/.test(queries), 'Canonical dashboard intelligence must own recommendation/alert reads');
 must(/Compatibility boundary only/.test(compat), 'Compatibility layer must explicitly declare non-ownership of business truth');
 for (const symbol of ['MonthlyTrend','TopCustomers','TopProducts','CategoryBreakdown','AgingBuckets','Forecasts']) {
-  must(new RegExp(`canonicalFetch${symbol === 'MonthlyTrend' ? 'MonthlyTrend' : symbol}`).test(compat), `Compatibility ${symbol} must delegate to canonical query`);
+  must(new RegExp(`canonicalFetch${symbol}`).test(compat), `Compatibility ${symbol} must delegate to canonical query`);
 }
 
 must(/strict"\s*:\s*true/.test(tsconfig), 'TypeScript strict mode must remain enabled');
