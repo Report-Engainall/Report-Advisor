@@ -16,4 +16,4 @@ jobs:
       - uses: actions/setup-node@v7
         with: {node-version: 22}
       - name: Recommendation outcome boundary and provenance
-        run: node scripts/check-recommendation-outcome-dml-boundary.mjs && node scripts/check-recommendation-outcome-provenance.mjs
+        run: node scripts/check-recommendation-outcome-dml-boundary.mjs && node scripts/check-recommendation-outcome-provenance.mjs && node scripts/check-outcome-provenance-identity.mjs
