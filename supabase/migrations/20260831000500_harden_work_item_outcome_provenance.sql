@@ -52,7 +52,7 @@ BEGIN
 
   SELECT COALESCE(r.id::text, d.decision_key)
     INTO v_recommendation_key
-  FROM public.business_intELLIGENCE_decisions d
+  FROM public.business_intelligence_decisions d
   LEFT JOIN public.recommendations r
     ON r.id = d.recommendation_id AND r.company_id = v_company
   WHERE d.id = v_decision AND d.company_id = v_company;
