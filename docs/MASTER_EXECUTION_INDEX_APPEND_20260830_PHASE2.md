@@ -9,7 +9,7 @@
 Live Supabase security inspection found `public.companies` had RLS enabled but **zero policies** and client roles retained broad table privileges. This left the tenant registry without an explicit row-authorization contract and exposed unnecessary client mutation privileges.
 
 ## First implementation attack and correction
-The first policy draft used `public.current_company_id()` directly inside the RLS predicate. An authenticated-role runtime test correctly rejected that design because `current_company_id()` itself is not executable by `authenticated`.
+The first policy draft used `public.current_company_id()` directly inside the RLS predicate. An authenticated-role runtime test correctly rejected that design because `current_company_id()` itself was not executable by `authenticated`.
 
 This was treated as a real test-discovered defect, not suppressed.
 
@@ -17,9 +17,18 @@ The policy was corrected to use the already-protected membership boundary direct
 
 `EXISTS (SELECT 1 FROM public.company_memberships membership WHERE membership.company_id = companies.id AND membership.user_id = auth.uid())`
 
-This avoids expanding EXECUTE privileges on the privileged helper while preserving tenant authority.
+## Second discovery: canonical tenant helper was itself under-granted
+A live catalog scan found multiple authenticated functions call `public.current_company_id()`, while the helper had `EXECUTE=false` for `authenticated`. This would break the Phase-1 browser tenant resolver and authenticated reporting/import functions at runtime.
 
-## Final fix
+Implemented migration:
+`supabase/migrations/20260830172000_current_company_id_execute_contract.sql`
+
+- `anon EXECUTE = false`
+- `authenticated EXECUTE = true`
+
+This restores the intended canonical tenant authority without exposing it anonymously.
+
+## Final companies fix
 Migration: `supabase/migrations/20260830170000_companies_tenant_boundary_hardening.sql`
 
 - RLS remains enabled.
@@ -38,19 +47,27 @@ Verified:
 - `auth_insert = false`
 - `auth_update = false`
 - `auth_delete = false`
+- `current_company_id(): anon_exec=false, auth_exec=true`
 - authenticated user sees exactly one company, its membership company.
 
-## Adversarial cross-tenant attack
-Inside a transaction, a synthetic foreign company row was inserted, the session switched to `authenticated`, and the JWT subject was bound to an existing test membership.
+## Adversarial cross-tenant attacks
+1. Inside a transaction, a synthetic foreign company row was inserted, the session switched to `authenticated`, and the JWT subject was bound to an existing test membership.
+   - `foreign_rows_visible = 0`
+   - `visible_total = 1`
+   - transaction rolled back.
 
-Result:
-- `foreign_rows_visible = 0`
-- `visible_total = 1`
+2. An authenticated call to `cash_liquidity_snapshot()` with a foreign company id was attempted.
+   - Result: `TENANT_CONTEXT_MISMATCH`
+   - No cross-tenant data returned.
+   - transaction rolled back.
 
-The transaction was rolled back; no fixture data was retained.
+3. After the tenant helper grant, an authenticated call to `current_company_id()` resolved the expected membership company, and `cash_liquidity_snapshot()` executed successfully for the authorized tenant.
 
 ## SECURITY DEFINER surface
 A live catalog scan found all `SECURITY DEFINER` functions have fixed `search_path=public`, no anonymous EXECUTE, and every authenticated-executable privileged function is bound to `current_company_id()` or `auth.uid()`.
+
+## All public-table baseline
+Live catalog query returned no public table with RLS disabled or with zero policies.
 
 ## Test hardening
 Added:
@@ -61,6 +78,8 @@ Added:
 The tests strip SQL comments and include adversarial decoy checks so commented-out grants/policies cannot satisfy the gate.
 
 ## Status
-`IMPLEMENTED + LIVE VERIFIED + ADVERSARIAL VERIFIED / FRESH CI PENDING`
+`PHASE-2 SECURITY IMPLEMENTATION + LIVE RUNTIME/ADVERSARIAL VERIFICATION COMPLETE / FRESH CI PENDING`
 
-Vercel reports a rate-limit failure independently of this branch; it is parked and is not treated as product/security proof. CodeRabbit is green. Fresh Phase 2 CI must bind to the final PR SHA before merge.
+Phase 1 tenant-authority runtime defect discovered during this cycle is fixed in the same controlled branch. Production certification is not claimed until fresh CI is green on the final SHA.
+
+Vercel rate-limit remains parked and is not treated as a product/security proof.
