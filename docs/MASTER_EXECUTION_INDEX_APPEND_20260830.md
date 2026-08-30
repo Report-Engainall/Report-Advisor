@@ -61,3 +61,14 @@ This file is an append-only extension to `docs/MASTER_EXECUTION_INDEX.md`. Histo
 ## CYCLE-020 FOLLOW-UP NOTE
 - Windows watcher PR #127 remains open and unmerged. Native filesystem callbacks were observed previously while application delivery was not; the branch was corrected to process the event filename directly, await rescan work, stabilize partial files, and run the Windows workflow on relevant `desktop/**` changes rather than only the old watcher branch.
 - This remains runtime-unproven until a fresh Windows workflow executes against the corrected head.
+
+## CYCLE-022 APPEND-ONLY ENTRY
+- Start HEAD: `647abfc79914fba6ae98280e5e66a2bc68249410`.
+- Workstream: certification evidence integrity / release-control tenant boundary.
+- Discovery: `production_certification_bundles` and `production_rollback_drills` were exposed to `authenticated` through broad `FOR ALL` RLS policies, while the certification release gate consumed persisted pass booleans. This allowed an authenticated tenant actor with table write privilege to potentially manufacture release evidence; this was a real security/truth-boundary defect.
+- Fix: added `supabase/migrations/20260830200000_certification_evidence_write_lockdown.sql`; authenticated INSERT/UPDATE/DELETE/TRUNCATE revoked on both certification evidence tables; authenticated access reduced to tenant-scoped SELECT only.
+- Live schema repair: the authoritative Supabase project did not yet contain the certification evidence tables, so the prerequisite Phase-M schema migration was applied first, followed by the write lockdown migration. This exposed and corrected a repository/live migration-parity gap rather than assuming the tables existed.
+- Live verification: both tables now have RLS enabled; authenticated SELECT is allowed; authenticated INSERT/UPDATE/DELETE/TRUNCATE are all denied; tenant SELECT policies use `company_id = current_company_id()`.
+- Repository regression: `scripts/check-certification-evidence-write-boundary.mjs` verifies the privilege and policy boundary and includes a comment-decoy test-of-test.
+- Report queue continuation: defensive cloning was previously added for nested report execution request state; fresh CI status remains separate evidence and is not promoted automatically.
+- Production certification: NO. This cycle closes a concrete evidence-forgery write path but does not substitute for live A/B, deployment, restore, Windows, or authenticated E2E evidence.
