@@ -35,7 +35,7 @@ if (!routeSource.includes('fetchDataQualitySnapshot')) {
 if (!emptyTruthMigration.includes("'status',case when customer_total+product_total+invoice_total+balance_total=0 then 'EMPTY' else 'OK' end")) {
   throw new Error('Empty Data Quality snapshot must be explicitly marked EMPTY');
 }
-if ((emptyTruthMigration.match(/'score',case when [^\\n]+ else 0 end/g) || []).length !== 4) {
+if ((emptyTruthMigration.match(/'score',case when[\\s\\S]*?else 0 end/g) || []).length !== 4) {
   throw new Error('All four empty entity scores must remain 0, never 100');
 }
 if (/else 100 end/.test(emptyTruthMigration)) {
