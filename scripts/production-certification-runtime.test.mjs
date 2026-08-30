@@ -6,6 +6,7 @@ const complete = PRODUCTION_CERTIFICATION_EVIDENCE_KEYS.map(key => check(key));
 
 const certified = certifyProduction(complete);
 assert.equal(certified.certified, true, 'complete mandatory evidence must certify');
+assert.equal(certified.score, 1, 'complete mandatory evidence must produce a perfect mandatory score');
 assert.deepEqual(certified.blockers, [], 'complete evidence must have no blockers');
 
 const missing = certifyProduction(complete.filter(x => x.key !== 'backup'));
@@ -22,6 +23,7 @@ assert.ok(duplicate.blockers.includes('DUPLICATE_EVIDENCE:backup'));
 
 const arbitrary = certifyProduction([...complete, check('unrelated-warning', false, 'WARNING')]);
 assert.equal(arbitrary.certified, true, 'non-mandatory warnings must not invalidate complete mandatory evidence');
+assert.equal(arbitrary.score, 1, 'non-mandatory warnings must not dilute the mandatory score');
 
 assert.equal(isMandatoryCertificationEvidenceKey('tenant'), true);
 assert.equal(isMandatoryCertificationEvidenceKey('live'), false);
