@@ -68,13 +68,13 @@ BEGIN
   SELECT jsonb_build_object(
     'status',case when customer_total+product_total+invoice_total+balance_total=0 then 'EMPTY' else 'OK' end,
     'tenant_id',v_company,
-    'entities',jsonb_build_array(
+    'entities',case when customer_total+product_total+invoice_total+balance_total=0 then '[]'::jsonb else jsonb_build_array(
       jsonb_build_object('name','العملاء','total',customer_total,'issues',customer_issues,'score',case when customer_total>0 then round(((customer_total-customer_issues)::numeric/customer_total)*100) else 0 end,'icon','users'),
       jsonb_build_object('name','المنتجات','total',product_total,'issues',product_issues,'score',case when product_total>0 then round(((product_total-product_issues)::numeric/product_total)*100) else 0 end,'icon','package'),
       jsonb_build_object('name','الفواتير','total',invoice_total,'issues',invoice_issues,'score',case when invoice_total>0 then round(((invoice_total-invoice_issues)::numeric/invoice_total)*100) else 0 end,'icon','receipt'),
       jsonb_build_object('name','المخزون','total',balance_total,'issues',balance_issues,'score',case when balance_total>0 then round(((balance_total-balance_issues)::numeric/balance_total)*100) else 0 end,'icon','warehouse')
-    ),
-    'issues',jsonb_build_array(
+    ) end,
+    'issues',case when customer_total+product_total+invoice_total+balance_total=0 then '[]'::jsonb else jsonb_build_array(
       jsonb_build_object('entity','العملاء','field','الاسم','issue','اسم فارغ','count',customer_missing_name,'severity','critical'),
       jsonb_build_object('entity','العملاء','field','الهاتف','issue','هاتف فارغ','count',customer_missing_phone,'severity','warning'),
       jsonb_build_object('entity','العملاء','field','الكود','issue','كود فارغ','count',customer_missing_code,'severity','info'),
@@ -93,7 +93,7 @@ BEGIN
       jsonb_build_object('entity','المخزون','field','الكمية','issue','كمية سالبة','count',balance_negative_quantity,'severity','critical'),
       jsonb_build_object('entity','المخزون','field','التكلفة','issue','تكلفة سالبة','count',balance_negative_cost,'severity','critical'),
       jsonb_build_object('entity','المخزون','field','المنتج','issue','منتج فارغ','count',balance_missing_product,'severity','critical')
-    )
+    ) end
   ) INTO v_result FROM n;
   RETURN v_result;
 END;
