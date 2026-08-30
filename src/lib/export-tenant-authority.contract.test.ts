@@ -19,7 +19,7 @@ describe('export tenant authority contract', () => {
     expect(receivablesMigration).toContain('public.current_company_id()');
     expect(receivablesMigration).toContain('p_company_id IS DISTINCT FROM v_company_id');
     expect(receivablesMigration).toContain("RAISE EXCEPTION 'TENANT_CONTEXT_MISMATCH'");
-    expect(receivablesMigration).toContain('where s.company_id=v_company_id');
+    expect(receivablesMigration).toMatch(/where\s+s\.company_id\s*=\s*v_company_id/i);
   });
 
   it('hardens all canonical export RPCs against anonymous execution', () => {
