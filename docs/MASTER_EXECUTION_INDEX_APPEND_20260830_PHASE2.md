@@ -95,7 +95,32 @@ Repository parity added:
 
 The certification RPC is now deliberately unavailable through the normal PostgREST client roles while remaining available to the privileged service boundary.
 
+## Cycle continuation — work-item lifecycle attack
+Adversarial review of `complete_decision_work_item()` found a genuine state-machine gap: the previous implementation rejected `COMPLETED`, but did not reject `BLOCKED` or `CANCELLED` before producing an outcome and marking the decision `EXECUTED`.
+
+This violated the lifecycle truth boundary:
+`BLOCKED/CANCELLED != EXECUTABLE`.
+
+Implemented live migration:
+`20260830173000_harden_work_item_terminal_transition`
+
+New fail-closed rule:
+- only `OPEN` and `IN_PROGRESS` work items may complete;
+- `COMPLETED` returns `WORK_ITEM_ALREADY_COMPLETED`;
+- `BLOCKED` and `CANCELLED` return `WORK_ITEM_NOT_ACTIONABLE`;
+- anonymous execution is explicitly revoked.
+
+Live verification after migration:
+- `anon_execute = false`
+- `authenticated_execute = true`
+- `terminal_guard_present = true`
+
+Repository parity added:
+- `supabase/migrations/20260830173000_harden_work_item_terminal_transition.sql`
+- `scripts/check-work-item-terminal-guard.mjs`
+- `.github/workflows/work-item-terminal-guard.yml`
+
 ## Current status
-`SECURITY FRONT ADVANCED / CERTIFICATION RPC CLOSED / FRESH CI + EXACT-HEAD VERIFICATION REQUIRED`
+`SECURITY FRONT ADVANCED / CERTIFICATION RPC CLOSED / WORK LIFECYCLE BYPASS CLOSED / FRESH CI + EXACT-HEAD VERIFICATION REQUIRED`
 
 Vercel deployment remains a separate parked external blocker when rate-limited; it is not treated as product proof.
