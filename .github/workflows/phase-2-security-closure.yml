@@ -27,5 +27,8 @@ jobs:
         shell: bash
         run: test "$(git rev-parse HEAD)" = "${GITHUB_SHA}"
 
-      - name: Phase 2 security closure contract
+      - name: Phase 2 companies tenant boundary contract
         run: node scripts/check-phase2-security-closure.mjs
+
+      - name: Phase 2 SECURITY DEFINER surface contract
+        run: node scripts/check-phase2-security-definer-surface.mjs
