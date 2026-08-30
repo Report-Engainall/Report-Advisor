@@ -23,7 +23,8 @@ for (const fn of requiredFunctions) {
 }
 if (!/ALTER TABLE[^;]+ENABLE ROW LEVEL SECURITY/i.test(migration) &&
     !/ENABLE ROW LEVEL SECURITY/i.test(migration)) throw new Error('Certification evidence tables must enable RLS');
-if (!/REVOKE ALL ON TABLE[^;]+FROM anon/i.test(migration)) throw new Error('Certification evidence tables must revoke anon access');
+if (!/REVOKE ALL ON TABLE[^;]+FROM anon/i.test(migration) &&
+    !/REVOKE ALL ON TABLE %I FROM anon/i.test(migration)) throw new Error('Certification evidence tables must revoke anon access');
 if (!/company_id\s*=\s*public\.current_company_id\(\)/i.test(migration)) throw new Error('Certification evidence must be tenant-authoritative');
 if (!/SET search_path\s*=\s*public/i.test(migration)) throw new Error('Certification SECURITY DEFINER function must pin search_path');
 if (!/status\s*=\s*'passed'/i.test(migration)) throw new Error('Certification release gate must require passed status');
