@@ -1,0 +1,55 @@
+import { readFile } from 'node:fs/promises';
+
+const failures = [];
+
+async function read(path) {
+  try { return await readFile(path, 'utf8'); }
+  catch { failures.push(`${path}: missing file`); return ''; }
+}
+
+const app = await read('src/App.tsx');
+const routerConfig = await read('vercel.json');
+const tenant = await read('src/lib/supabase.ts');
+const queries = await read('src/lib/queries.ts');
+const compat = await read('src/lib/queries-compat.ts');
+const tsconfig = await read('tsconfig.app.json');
+const architecture = await read('scripts/check-architecture-contract.mjs');
+const quality = await read('.github/workflows/quality.yml');
+
+const must = (condition, message) => { if (!condition) failures.push(message); };
+
+must(/BrowserRouter/.test(app), 'App must use a single BrowserRouter boundary');
+must(/AppErrorBoundary/.test(app), 'App must expose an application error boundary');
+must(/Suspense/.test(app), 'App must use a Suspense boundary for lazy routes');
+must(/path="\*"/.test(app), 'App must have an explicit not-found route');
+must(/rewrites/.test(routerConfig) && /index\.html/.test(routerConfig), 'Vercel SPA fallback must exist');
+
+must(/persistSession:\s*true/.test(tenant), 'Auth session persistence must remain enabled');
+must(/supabase\.rpc\('current_company_id'\)/.test(tenant), 'Tenant authority must resolve through current_company_id()');
+must(!/localStorage.*company|sessionStorage.*company|demo.*company|fallback.*company/i.test(tenant), 'Tenant resolver must not contain browser/demo company fallbacks');
+
+must(/fetchDashboardSnapshot/.test(queries), 'Canonical dashboard snapshot must own dashboard aggregation');
+must(/fetchDashboardIntelligence/.test(queries), 'Canonical dashboard intelligence must own recommendation/alert reads');
+must(/Compatibility boundary only/.test(compat), 'Compatibility layer must explicitly declare non-ownership of business truth');
+must(/return canonicalFetchMonthlyTrend/.test(compat), 'Compatibility monthly trend must delegate to canonical query');
+must(/return canonicalFetchTopCustomers/.test(compat), 'Compatibility top customers must delegate to canonical query');
+must(/return canonicalFetchTopProducts/.test(compat), 'Compatibility top products must delegate to canonical query');
+must(/return canonicalFetchCategoryBreakdown/.test(compat), 'Compatibility category breakdown must delegate to canonical query');
+must(/return canonicalFetchAgingBuckets/.test(compat), 'Compatibility aging must delegate to canonical query');
+must(/return canonicalFetchForecasts/.test(compat), 'Compatibility forecasts must delegate to canonical query');
+
+must(/strict":true/.test(tsconfig), 'TypeScript strict mode must remain enabled');
+must(/moduleResolution":\s*"bundler"/.test(tsconfig), 'Bundler module resolution must remain explicit');
+must(/@\/lib\/queries/.test(tsconfig), 'Canonical query alias must remain explicit');
+must(/npm run typecheck/.test(architecture) && /npm run lint/.test(architecture) && /npm run build/.test(architecture), 'Architecture contract must require typecheck/lint/build');
+must(/npm run test:contracts/.test(quality), 'Quality workflow must execute the architecture contract');
+must(/test\(\"\$\(git rev-parse HEAD\)\" = \"\$GITHUB_SHA\"\)/.test(quality), 'Quality workflow must bind execution to exact checked-out SHA');
+
+if (failures.length) {
+  console.error('PHASE1_FOUNDATION_CLOSURE_FAILED');
+  for (const failure of failures) console.error(`- ${failure}`);
+  process.exit(1);
+}
+
+console.log('PHASE1_FOUNDATION_CLOSURE_PASS');
+console.log('Verified: routing boundary, error/loading boundaries, tenant authority, canonical-query ownership, compatibility delegation, TypeScript strictness, SPA fallback, and exact-head CI binding.');
