@@ -1,13 +1,48 @@
-import fs from 'node:fs';
-import path from 'node:path';
-const root=process.cwd();
-const registry=fs.readFileSync(path.join(root,'src/lib/semantic-metric-registry.ts'),'utf8');
-const ssot=fs.readFileSync(path.join(root,'src/lib/semanticMetrics.ts'),'utf8');
-const errors=[];
-for(const token of ['metricId','version','owner','certificationStatus','timeSemantic','freshness','consumers','tests','evidence','SEMANTIC_METRIC_REGISTRY','validateSemanticMetricRegistry']) if(!registry.includes(token)) errors.push(`Registry contract missing: ${token}`);
-if(!/from '\.\/semanticMetrics(?:\.ts)?'/.test(registry)) errors.push('Registry does not reuse semanticMetrics SSOT.');
-if(!ssot.includes('BUSINESS_METRICS')) errors.push('BUSINESS_METRICS SSOT not found.');
-if(!registry.includes("'dashboard', 'reports', 'chatbi', 'forecast', 'recommendations', 'decision-engine'")) errors.push('Required consumers are not declared.');
-if(!registry.includes('source-derived')) errors.push('Freshness contract is missing.');
-if(errors.length){console.error('Semantic metric registry contract: FAIL');console.error(errors.join('\n'));process.exit(1);}
-console.log('Semantic metric registry contract: PASS');
+import { BUSINESS_METRICS } from '../src/lib/semanticMetrics.ts';
+import {
+  SEMANTIC_METRIC_REGISTRY,
+  getSemanticMetric,
+  validateSemanticMetricRegistry,
+} from '../src/lib/semantic-metric-registry.ts';
+
+const errors = [];
+
+const validationErrors = validateSemanticMetricRegistry();
+if (validationErrors.length > 0) {
+  errors.push(`Runtime registry validation failed: ${validationErrors.join(' | ')}`);
+}
+
+if (SEMANTIC_METRIC_REGISTRY.length !== BUSINESS_METRICS.length) {
+  errors.push(
+    `Registry cardinality drift: expected ${BUSINESS_METRICS.length}, got ${SEMANTIC_METRIC_REGISTRY.length}`,
+  );
+}
+
+const ids = new Set(SEMANTIC_METRIC_REGISTRY.map(metric => metric.metricId));
+if (ids.size !== SEMANTIC_METRIC_REGISTRY.length) {
+  errors.push('Registry contains duplicate metric IDs.');
+}
+
+for (const metric of BUSINESS_METRICS) {
+  const entry = getSemanticMetric(`metric.${metric.key}`);
+  if (!entry) {
+    errors.push(`Missing registry entry for SSOT metric: ${metric.key}`);
+    continue;
+  }
+  if (entry.formula !== metric.formula) {
+    errors.push(`Formula drift for metric: ${metric.key}`);
+  }
+  if (entry.source.length === 0 || entry.evidence.length === 0) {
+    errors.push(`Lineage/evidence missing for metric: ${metric.key}`);
+  }
+}
+
+if (errors.length > 0) {
+  console.error('Semantic metric registry contract: FAIL');
+  console.error(errors.join('\n'));
+  process.exit(1);
+}
+
+console.log(
+  `Semantic metric registry contract: PASS (${SEMANTIC_METRIC_REGISTRY.length} metrics; runtime validation executed)`,
+);
