@@ -43,6 +43,8 @@ jobs:
         run: node scripts/check-phase1-foundation-closure.mjs
       - name: Architecture contract
         run: npm run test:contracts
+      - name: Concurrent analysis contract
+        run: npm run test:concurrent-analysis
       - name: 20-stage parallel release readiness
         run: npm run test:20-stage-readiness
       - name: Workflow command integrity
