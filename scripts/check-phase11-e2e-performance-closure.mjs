@@ -38,9 +38,11 @@ const assertClosure = (contractE2E, contractScale, contractPerf, contractBlocker
   for (const token of ['250000', 'chunking', 'streaming-count']) {
     must(contractScale.toLowerCase().includes(token.toLowerCase()), `scale contract missing ${token}`);
   }
-  for (const token of ['600KB', '900KB']) {
-    must(contractPerf.includes(token), `performance budget missing ${token}`);
-  }
+  const criticalLimit = contractPerf.match(/const\s+MAX_CRITICAL_KB\s*=\s*(\d+)/)?.[1];
+  const chunkLimit = contractPerf.match(/const\s+MAX_CHUNK_KB\s*=\s*(\d+)/)?.[1];
+  must(criticalLimit === '900', `performance budget critical limit drifted: expected 900KB, got ${criticalLimit ?? 'missing'}`);
+  must(chunkLimit === '600', `performance budget chunk limit drifted: expected 600KB, got ${chunkLimit ?? 'missing'}`);
+  must(contractPerf.includes('largest JS chunk'), 'performance budget must measure largest JS chunk');
   must(contractE2E.toLowerCase().includes('fail-closed'), 'E2E contract must preserve fail-closed negative paths');
   must(contractBlockers.toLowerCase().includes('idempotencykey'), 'release blockers must preserve idempotency coverage');
 };
@@ -57,6 +59,15 @@ try {
   tamperedRejected = true;
 }
 must(tamperedRejected, 'tampered E2E evidence still satisfied the closure contract');
+
+const tamperedPerf = perf.replace('const MAX_CHUNK_KB = 600;', 'const MAX_CHUNK_KB = 500;');
+let tamperedPerfRejected = false;
+try {
+  assertClosure(e2e, scale, tamperedPerf, blockers);
+} catch {
+  tamperedPerfRejected = true;
+}
+must(tamperedPerfRejected, 'tampered performance limit still satisfied the closure contract');
 
 const commentDecoy = `// tenantId\n// ReportExecutionEvidence`;
 const executableDecoy = stripJsComments(commentDecoy);
