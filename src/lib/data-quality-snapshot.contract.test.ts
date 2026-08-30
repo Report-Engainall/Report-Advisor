@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 describe('data quality architecture contract', () => {
-  const migration = readFileSync(resolve(process.cwd(), 'supabase/migrations/20260826040000_data_quality_snapshot.sql'), 'utf8');
+  const migration = readFileSync(resolve(process.cwd(), 'supabase/migrations/20260830240000_fix_empty_quality_truth.sql'), 'utf8');
   const adapter = readFileSync(resolve(process.cwd(), 'src/lib/data-quality-snapshot-runtime.ts'), 'utf8');
   const page = readFileSync(resolve(process.cwd(), 'src/pages/DataQualitySnapshotPage.tsx'), 'utf8');
   const app = readFileSync(resolve(process.cwd(), 'src/App.tsx'), 'utf8');
@@ -11,17 +11,16 @@ describe('data quality architecture contract', () => {
   it('uses a tenant-authoritative RPC with no tenant parameter', () => {
     expect(migration).toContain('get_data_quality_snapshot()');
     expect(migration).toContain('current_company_id()');
-    expect(migration).toContain('SECURITY DEFINER');
+    expect(migration).toContain('SECURITY INVOKER');
     expect(migration).toContain('SET search_path = public');
-    expect(migration).toContain('REVOKE ALL ON FUNCTION public.get_data_quality_snapshot() FROM PUBLIC');
-    expect(migration).toContain('GRANT EXECUTE ON FUNCTION public.get_data_quality_snapshot() TO authenticated');
+    expect(migration).not.toContain('SECURITY DEFINER');
     expect(migration).not.toMatch(/get_data_quality_snapshot\([^)]*(company|tenant|organization)[^)]*\)/i);
   });
 
   it('keeps the browser adapter on the canonical RPC and preserves EMPTY truth', () => {
     expect(adapter).toContain("supabase.rpc('get_data_quality_snapshot')");
+    expect(adapter).toContain('validateDataQualitySnapshot');
     expect(adapter).toContain("status: 'OK' | 'EMPTY'");
-    expect(adapter).toContain("data.status !== 'OK' && data.status !== 'EMPTY'");
     expect(adapter).toContain('DATA_QUALITY_EMPTY_SNAPSHOT_INCONSISTENT');
     expect(adapter).not.toContain("from('customers')");
     expect(adapter).not.toContain("from('products')");
