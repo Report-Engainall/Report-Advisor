@@ -157,6 +157,9 @@ jobs:
       - name: Import business key
         if: ${{ always() }}
         run: npm run test:import-business-key
+      - name: Phase 3 data and import truth closure
+        if: ${{ always() }}
+        run: npm run test:phase3-data-import-truth
       - name: Lint
         if: ${{ always() }}
         run: npm run lint
