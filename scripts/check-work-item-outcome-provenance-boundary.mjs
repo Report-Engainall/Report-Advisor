@@ -10,10 +10,14 @@ const stripSqlComments = (sql) => sql
   .replace(/\/\*[\s\S]*?\*\//g, '')
   .replace(/(^|\n)\s*--[^\n]*/g, '$1');
 
+const normalizeSql = (sql) => stripSqlComments(sql).replace(/\s+/g, ' ').trim();
+
 const assertContains = (sql, tokens, label) => {
   const executable = stripSqlComments(sql);
+  const normalized = normalizeSql(sql);
   for (const token of tokens) {
-    if (!executable.includes(token)) throw new Error(`Missing ${label} invariant: ${token}`);
+    const normalizedToken = token.replace(/\s+/g, ' ').trim();
+    if (!normalized.includes(normalizedToken)) throw new Error(`Missing ${label} invariant: ${token}`);
   }
   return executable;
 };
