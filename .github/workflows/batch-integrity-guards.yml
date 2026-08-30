@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 permissions: {contents: read}
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name }}-${{ github.run_id }}
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name}}-${{ github.run_id }}
   cancel-in-progress: false
 jobs:
   guards:
@@ -21,3 +21,5 @@ jobs:
         run: npm run test:workflow-batch-integrity
       - name: Import lifecycle integrity
         run: npm run test:import-state-contract
+      - name: Golden business corpus truth
+        run: node scripts/business-golden-corpus-contract.mjs
