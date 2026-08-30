@@ -25,9 +25,17 @@ const forbidden = [
 ];
 for (const check of forbidden) if (!check.pattern.test(migration)) throw new Error(`Decision runtime authorization regression: ${check.name}`);
 
-// Test-of-test: deleting the self-approval guard must be detected.
-const weakened = migration.replace("IF p_approve AND v_requested_by = v_user THEN RAISE EXCEPTION 'SELF_APPROVAL_FORBIDDEN'; END IF;", 'NULL;');
+// Test-of-test: remove the complete self-approval guard using whitespace-tolerant matching.
+const weakened = migration.replace(
+  /IF\s+p_approve\s+AND\s+v_requested_by\s*=\s*v_user\s+THEN\s+RAISE\s+EXCEPTION\s+'SELF_APPROVAL_FORBIDDEN';\s*END\s+IF;\s*/i,
+  ''
+);
 if (/SELF_APPROVAL_FORBIDDEN/i.test(weakened)) throw new Error('Decision self-approval test-of-test is invalid');
-if (!/SELF_APPROVAL_FORBIDDEN/i.test(migration)) throw new Error('Decision self-approval guard was not detected');
+if (/IF\s+p_approve\s+AND\s+v_requested_by\s*=\s*v_user\s+THEN\s+RAISE\s+EXCEPTION\s+'SELF_APPROVAL_FORBIDDEN'/i.test(migration) === false) {
+  throw new Error('Decision self-approval guard was not detected');
+}
+if (/IF\s+p_approve\s+AND\s+v_requested_by\s*=\s*v_user\s+THEN\s+RAISE\s+EXCEPTION\s+'SELF_APPROVAL_FORBIDDEN'/i.test(weakened)) {
+  throw new Error('Decision self-approval guard survived weakening');
+}
 
 console.log('Decision runtime authorization hardening: PASS');
