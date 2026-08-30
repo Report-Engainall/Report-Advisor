@@ -41,6 +41,8 @@ jobs:
         run: npm ci --no-audit --no-fund
       - name: Phase 1 foundation closure
         run: node scripts/check-phase1-foundation-closure.mjs
+      - name: Architecture contract
+        run: npm run test:contracts
       - name: 20-stage parallel release readiness
         run: npm run test:20-stage-readiness
       - name: Workflow command integrity
