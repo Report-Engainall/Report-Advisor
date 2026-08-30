@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { validateDataQualitySnapshot } from './data-quality-snapshot-runtime';
 
 describe('data quality architecture contract', () => {
   const migration = readFileSync(resolve(process.cwd(), 'supabase/migrations/20260830240000_fix_empty_quality_truth.sql'), 'utf8');
@@ -28,11 +29,39 @@ describe('data quality architecture contract', () => {
     expect(adapter).not.toContain("from('inventory_balances')");
   });
 
-  it('consumes the empty-aware adapter and does not turn EMPTY into a false 100%', () => {
+  it('consumes the empty-aware adapter and does not turn zero records into a false 100%', () => {
     expect(page).toContain("@/lib/data-quality-snapshot-runtime");
-    expect(page).toContain("snapshot.status === 'EMPTY' ? 0");
+    expect(page).toContain("totalRecords === 0 ? 0");
     expect(page).toContain('Math.max(0, Math.min(100');
     expect(page).toContain("totalRecords===0?'لا توجد بيانات تجارية بعد؛ النتيجة EMPTY وليست نجاح جودة بيانات.'");
+  });
+
+  it('behaviorally accepts a valid EMPTY snapshot', () => {
+    expect(validateDataQualitySnapshot({ status: 'EMPTY', tenant_id: 'tenant-1', entities: [], issues: [] })).toMatchObject({ status: 'EMPTY', entities: [], issues: [] });
+  });
+
+  it('behaviorally rejects an EMPTY snapshot with fabricated detail', () => {
+    expect(() => validateDataQualitySnapshot({ status: 'EMPTY', tenant_id: 'tenant-1', entities: [{ name: 'العملاء', total: 1, issues: 1, score: 0, icon: 'users' }], issues: [] })).toThrow('DATA_QUALITY_EMPTY_SNAPSHOT_INCONSISTENT');
+  });
+
+  it('behaviorally preserves aggregate issue counts even when multiple findings exceed entity row count', () => {
+    const snapshot = validateDataQualitySnapshot({
+      status: 'OK', tenant_id: 'tenant-1',
+      entities: [{ name: 'المنتجات', total: 2, issues: 4, score: 0, icon: 'package' }],
+      issues: [
+        { entity: 'المنتجات', field: 'SKU', issue: 'SKU فارغ', count: 2, severity: 'critical' },
+        { entity: 'المنتجات', field: 'الاسم', issue: 'اسم فارغ', count: 2, severity: 'critical' },
+      ],
+    });
+    expect(snapshot.entities[0].issues).toBe(4);
+  });
+
+  it('behaviorally rejects negative findings so the test cannot pass by accepting invalid truth', () => {
+    expect(() => validateDataQualitySnapshot({
+      status: 'OK', tenant_id: 'tenant-1',
+      entities: [{ name: 'المنتجات', total: 2, issues: -1, score: 100, icon: 'package' }],
+      issues: [],
+    })).toThrow('DATA_QUALITY_ENTITY_INVALID');
   });
 
   it('routes the data-quality surface to the canonical page', () => {
