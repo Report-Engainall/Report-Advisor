@@ -77,9 +77,25 @@ Added:
 
 The tests strip SQL comments and include adversarial decoy checks so commented-out grants/policies cannot satisfy the gate.
 
-## Status
-`PHASE-2 SECURITY IMPLEMENTATION + LIVE RUNTIME/ADVERSARIAL VERIFICATION COMPLETE / FRESH CI PENDING`
+## Cycle continuation — certification RPC exposure
+Fresh live advisor scan discovered that `public.can_release_production_certification(text)` remained executable by `PUBLIC`, `anon`, and `authenticated` despite being an internal release-decision boundary.
 
-Phase 1 tenant-authority runtime defect discovered during this cycle is fixed in the same controlled branch. Production certification is not claimed until fresh CI is green on the final SHA.
+Live remediation applied:
+`REVOKE EXECUTE ON FUNCTION public.can_release_production_certification(text) FROM PUBLIC, anon, authenticated;`
 
-Vercel rate-limit remains parked and is not treated as a product/security proof.
+Live verification:
+- `anon EXECUTE = false`
+- `authenticated EXECUTE = false`
+- `service_role EXECUTE = true`
+
+Repository parity added:
+- `supabase/migrations/20260830172500_revoke_certification_rpc_execute.sql`
+- `scripts/check-certification-rpc-exposure.mjs`
+- `.github/workflows/certification-rpc-exposure.yml`
+
+The certification RPC is now deliberately unavailable through the normal PostgREST client roles while remaining available to the privileged service boundary.
+
+## Current status
+`SECURITY FRONT ADVANCED / CERTIFICATION RPC CLOSED / FRESH CI + EXACT-HEAD VERIFICATION REQUIRED`
+
+Vercel deployment remains a separate parked external blocker when rate-limited; it is not treated as product proof.
