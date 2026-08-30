@@ -48,13 +48,14 @@ if (runtimeMain.includes("startWatch(root)=>startWatch(root)")) throw new Error(
 if (runtimeMain.includes("send('desktop-folder-watch:file',{path:filePath")) throw new Error('Phase 9 rejects absolute path leakage');
 
 // Test-of-test: remove every executable runtime marker and leave comment-only
-// decoys behind; the same invariant assertion must reject the tampered source.
+// decoys behind. Re-parse the tampered source exactly as production evidence is
+// parsed; comments must not satisfy the executable invariant.
 let tampered = runtimeMain;
 for (const token of requiredRuntimeTokens) tampered = tampered.replace(token, '');
 tampered += `\n// ${requiredRuntimeTokens.join('\n// ')}`;
 let tamperedRejected = false;
 try {
-  assertRuntimeContract(tampered);
+  assertRuntimeContract(stripJsComments(tampered));
 } catch {
   tamperedRejected = true;
 }
