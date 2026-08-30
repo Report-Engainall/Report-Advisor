@@ -1,0 +1,14 @@
+name: certification-rpc-exposure
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify certification RPC exposure contract
+        run: node scripts/check-certification-rpc-exposure.mjs
