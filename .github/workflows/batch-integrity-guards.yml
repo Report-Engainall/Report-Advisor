@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 permissions: {contents: read}
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name }}-${{ github.run_id }}
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name}}-${{ github.run_id}}
   cancel-in-progress: false
 jobs:
   guards:
@@ -29,5 +29,7 @@ jobs:
         run: node scripts/check-receivables-canonical-closure.mjs
       - name: Profitability financial truth
         run: node scripts/check-profitability-financial-truth.mjs
+      - name: Queries compatibility consumer closure
+        run: node scripts/check-queries-compat-consumers.mjs
       - name: Golden business corpus truth
         run: node scripts/business-golden-corpus-contract.mjs
