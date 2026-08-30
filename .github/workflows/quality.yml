@@ -181,6 +181,9 @@ jobs:
       - name: Performance budget
         if: ${{ always() }}
         run: npm run perf:budget
+      - name: Production scale contract
+        if: ${{ always() }}
+        run: npm run test:production-scale
       - name: Intelligence and production contracts
         if: ${{ always() }}
         run: node scripts/check-intelligence-hardening.mjs && node scripts/check-golden-intelligence-gates.mjs
