@@ -15,6 +15,7 @@ const compat = await read('src/lib/queries-compat.ts');
 const tsconfig = await read('tsconfig.app.json');
 const architecture = await read('scripts/check-architecture-contract.mjs');
 const quality = await read('.github/workflows/quality.yml');
+const tenantAuthority = await read('supabase/migrations/20260830172000_current_company_id_execute_contract.sql');
 
 const must = (condition, message) => { if (!condition) failures.push(message); };
 
@@ -27,6 +28,8 @@ must(/rewrites/.test(routerConfig) && /index\.html/.test(routerConfig), 'Vercel 
 must(/persistSession:\s*true/.test(tenant), 'Auth session persistence must remain enabled');
 must(/supabase\.rpc\('current_company_id'\)/.test(tenant), 'Tenant authority must resolve through current_company_id()');
 must(!/localStorage.*company|sessionStorage.*company|demo.*company|fallback.*company/i.test(tenant), 'Tenant resolver must not contain browser/demo company fallbacks');
+must(/GRANT\s+EXECUTE\s+ON\s+FUNCTION\s+public\.current_company_id\(\)\s+TO\s+authenticated/i.test(tenantAuthority), 'Canonical tenant authority must be executable by authenticated clients');
+must(/REVOKE\s+EXECUTE\s+ON\s+FUNCTION\s+public\.current_company_id\(\)\s+FROM\s+anon/i.test(tenantAuthority), 'Canonical tenant authority must remain unavailable to anon');
 
 must(/fetchDashboardSnapshot/.test(queries), 'Canonical dashboard snapshot must own dashboard aggregation');
 must(/fetchDashboardIntelligence/.test(queries), 'Canonical dashboard intelligence must own recommendation/alert reads');
@@ -50,4 +53,4 @@ if (failures.length) {
 }
 
 console.log('PHASE1_FOUNDATION_CLOSURE_PASS');
-console.log('Verified: routing boundary, error/loading boundaries, tenant authority, canonical-query ownership, compatibility delegation, TypeScript strictness, SPA fallback, and exact-head CI binding.');
+console.log('Verified: routing boundary, error/loading boundaries, tenant authority, canonical-query ownership, compatibility delegation, TypeScript strictness, SPA fallback, exact-head CI binding, and tenant-helper EXECUTE contract.');
