@@ -7,6 +7,7 @@ const preload=fs.readFileSync(path.join(process.cwd(),'desktop/preload.cjs'),'ut
 const pkg=fs.readFileSync(path.join(process.cwd(),'desktop/package.json'),'utf8');
 for(const token of ['fs.watch','recursive:true','WATCH_FOLDER_PATH_OUTSIDE_ROOT','read-file','desktop-folder-watch:file','queueFileCandidate','handleFilesystemEvent'])if(!main.includes(token))throw new Error(`Missing native watcher safety token: ${token}`);
 if(!/setInterval\(.*rescan\(\).*30000\)/.test(main))throw new Error('Missing native watcher polling token');
+if(!/path\.isAbsolute\(raw\)\?path\.resolve\(raw\):path\.resolve\(watchedRoot,raw\)/.test(main))throw new Error('Windows watcher must preserve absolute callback paths before containment validation');
 for(const token of ['contextIsolation:true','nodeIntegration:false','desktopFolderWatch','readFile','onFile'])if(!(main+preload).includes(token))throw new Error(`Missing isolated bridge token: ${token}`);
 for(const token of ['selectedRoot','desktop-folder-watch:start\',()=>startWatch()','realpath(watchedRoot)','realpath(resolved)','relativePath','configPath','persistSelectedRoot','get-selected','forget','waitForStableFile','WATCH_FILE_STILL_WRITING'])if(!main.includes(token))throw new Error(`Missing native IPC/reliability token: ${token}`);
 if(main.includes("startWatch(root)=>startWatch(root)"))throw new Error('Native watcher must not accept an arbitrary renderer-supplied root');
