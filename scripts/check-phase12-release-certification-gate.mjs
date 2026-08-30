@@ -8,13 +8,15 @@ const files = [
   'package.json',
   'scripts/check-production-release-blockers.mjs',
   'scripts/check-production-certification-contract.mjs',
+  'src/lib/production/productionCertification.ts',
 ];
 for (const file of files) if (!fs.existsSync(path.join(root, file))) throw new Error(`Missing release surface: ${file}`);
 
 const vercelSource = read('vercel.json');
 const pkg = JSON.parse(read('package.json'));
 const blockers = read('scripts/check-production-release-blockers.mjs');
-const cert = read('scripts/check-production-certification-contract.mjs');
+const certificationContract = read('scripts/check-production-certification-contract.mjs');
+const productionCertification = read('src/lib/production/productionCertification.ts');
 
 const assertSpaFallback = (config) => {
   const rewrites = Array.isArray(config.rewrites) ? config.rewrites : [];
@@ -36,11 +38,13 @@ for (const token of ['build', 'lint', 'typecheck']) {
     throw new Error(`Release gate missing package script: ${token}`);
   }
 }
-for (const token of ['artifact-integrity', 'idempotencyKey', 'requiresApproval', 'MISSING_TENANT']) if (!blockers.includes(token)) throw new Error(`Release blocker coverage missing ${token}`);
+for (const token of ['artifact-integrity', 'idempotencyKey', 'requiresApproval', 'MISSING_TENANT']) {
+  if (!blockers.includes(token)) throw new Error(`Release blocker coverage missing ${token}`);
+}
 
-// Bind Phase 12 to the canonical evidence declaration rather than arbitrary
-// source text, comments, or dead code.
-const evidenceKeysMatch = cert.match(
+// Bind Phase 12 to the canonical production certification source itself,
+// not to the checker that merely validates it.
+const evidenceKeysMatch = productionCertification.match(
   /PRODUCTION_CERTIFICATION_EVIDENCE_KEYS\s*:[^=]+?=\s*\[([\s\S]*?)\];/,
 );
 if (!evidenceKeysMatch) throw new Error('Certification binding missing canonical evidence declaration');
@@ -48,8 +52,12 @@ const canonicalEvidenceKeys = [...evidenceKeysMatch[1].matchAll(/['\"]([a-z_]+)[
 for (const key of ['tenant', 'backup', 'rollback', 'artifact', 'security']) {
   if (!canonicalEvidenceKeys.includes(key)) throw new Error(`Certification binding missing canonical evidence invariant: ${key}`);
 }
+if (JSON.stringify(canonicalEvidenceKeys) !== JSON.stringify(['tenant', 'backup', 'rollback', 'artifact', 'security'])) {
+  throw new Error(`Certification binding canonical evidence order drifted: ${JSON.stringify(canonicalEvidenceKeys)}`);
+}
+if (!certificationContract.includes('PRODUCTION_CERTIFICATION_EVIDENCE_KEYS')) throw new Error('Certification contract must validate the same canonical evidence declaration');
 
-if (/PRODUCTION CERTIFIED\s*=\s*YES/i.test(cert)) throw new Error('Release gate rejects fabricated production certification');
+if (/PRODUCTION CERTIFIED\s*=\s*YES/i.test(productionCertification)) throw new Error('Release gate rejects fabricated production certification');
 
 // Test-of-test: invoke the same SPA validator against a comment-only decoy.
 const decoyConfig = { rewrites: [{ source: '/(.*)', destination: '// "destination": "/index.html"' }] };
