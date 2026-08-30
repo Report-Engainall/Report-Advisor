@@ -17,11 +17,13 @@ export function certifyProduction(checks: CertificationCheck[]): CertificationRe
   const blockers = checks.filter(c => !c.passed && c.severity === 'BLOCKER').map(c => c.key);
   const warnings = checks.filter(c => !c.passed && c.severity === 'WARNING').map(c => c.key);
 
+  const seen = new Set<string>();
   const checksByKey = new Map<string, CertificationCheck>();
   const duplicateEvidence = new Set<string>();
   for (const check of checks) {
-    if (checksByKey.has(check.key)) duplicateEvidence.add(check.key);
+    if (seen.has(check.key)) duplicateEvidence.add(check.key);
     else checksByKey.set(check.key, check);
+    seen.add(check.key);
   }
 
   const missingEvidence = PRODUCTION_CERTIFICATION_EVIDENCE_KEYS.filter(key => !checksByKey.has(key));
