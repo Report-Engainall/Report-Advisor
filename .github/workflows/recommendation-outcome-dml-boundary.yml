@@ -15,5 +15,5 @@ jobs:
         with: {fetch-depth: 1, persist-credentials: false}
       - uses: actions/setup-node@v7
         with: {node-version: 22}
-      - name: Recommendation outcome DML boundary
-        run: node scripts/check-recommendation-outcome-dml-boundary.mjs
+      - name: Recommendation outcome boundary and provenance
+        run: node scripts/check-recommendation-outcome-dml-boundary.mjs && node scripts/check-recommendation-outcome-provenance.mjs
