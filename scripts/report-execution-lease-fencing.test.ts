@@ -2,8 +2,22 @@ import assert from 'node:assert/strict';
 import { InMemoryReportQueue } from '../src/lib/report-execution/queue.ts';
 import type { ReportExecutionRequest } from '../src/lib/report-execution/report-execution-contract.ts';
 
-const request = { tenantId: 'tenant-a', idempotencyKey: 'lease-fencing-regression', sourceSnapshotId: 'snapshot-1' } as ReportExecutionRequest;
+const request: ReportExecutionRequest = {
+  reportId: 'report-lease-fencing',
+  tenantId: 'tenant-a',
+  requestedBy: 'user-a',
+  parameters: { scope: 'all' },
+  formats: ['web'],
+  idempotencyKey: 'lease-fencing-regression',
+  sourceSnapshotId: 'snapshot-1',
+};
 const queue = new InMemoryReportQueue();
+
+// Boundary regression: malformed queue input must fail before cloning/iteration.
+assert.throws(() => queue.enqueue({ ...request, formats: undefined } as unknown as ReportExecutionRequest), /at least one output format/);
+assert.throws(() => queue.enqueue({ ...request, formats: [] } as ReportExecutionRequest), /at least one output format/);
+assert.throws(() => queue.enqueue({ ...request, formats: ['web', 'web'] } as ReportExecutionRequest), /Duplicate output formats/);
+
 const original = queue.enqueue(request, 'run-1', 3);
 const duplicate = queue.enqueue(request, 'run-ignored', 3);
 assert.equal(duplicate.runId, original.runId, 'idempotent enqueue must return the existing run');
