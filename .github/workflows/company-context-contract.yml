@@ -1,7 +1,5 @@
 name: company-context-contract
 on:
-  push:
-    branches: [main]
   pull_request:
     branches: [main]
   workflow_dispatch:
