@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { acceptExtractedFacts, attachExtractedFactsToLineage, extractedFactsToEvidence, type DocumentExtractionEnvelope, type DocumentExtractionFact } from '../src/lib/documentIntelligenceGateway.ts';
 
 const envelope: DocumentExtractionEnvelope = {
-  plan: { route: 'hybrid', reasons: [], requiredCapabilities: ['document-parsing', 'table-extraction'] },
+  plan: { route: 'hybrid', steps: ['native text extraction', 'table extraction'], reason: 'test', qualityTarget: 95 },
   choices: [],
   stage: 'READY_FOR_EXTRACTION',
   warnings: [],
