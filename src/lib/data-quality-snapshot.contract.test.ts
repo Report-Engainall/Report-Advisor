@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { validateDataQualitySnapshot } from './data-quality-snapshot-runtime';
+import { validateDataQualitySnapshot } from './data-quality-snapshot-core';
 
 describe('data quality architecture contract', () => {
   const migration = readFileSync(resolve(process.cwd(), 'supabase/migrations/20260830240000_fix_empty_quality_truth.sql'), 'utf8');
@@ -18,11 +18,10 @@ describe('data quality architecture contract', () => {
     expect(migration).not.toMatch(/get_data_quality_snapshot\([^)]*(company|tenant|organization)[^)]*\)/i);
   });
 
-  it('keeps the browser adapter on the canonical RPC and preserves EMPTY truth', () => {
+  it('keeps the browser adapter on the canonical RPC and delegates validation to the pure core', () => {
     expect(adapter).toContain("supabase.rpc('get_data_quality_snapshot')");
     expect(adapter).toContain('validateDataQualitySnapshot');
-    expect(adapter).toContain("status: 'OK' | 'EMPTY'");
-    expect(adapter).toContain('DATA_QUALITY_EMPTY_SNAPSHOT_INCONSISTENT');
+    expect(adapter).toContain("./data-quality-snapshot-core");
     expect(adapter).not.toContain("from('customers')");
     expect(adapter).not.toContain("from('products')");
     expect(adapter).not.toContain("from('sales_invoices')");
