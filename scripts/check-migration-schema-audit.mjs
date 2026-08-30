@@ -15,6 +15,10 @@ const seenObjects = new Map();
 const duplicateObjects = [];
 const findings = [];
 
+function stripSqlComments(text) {
+  return text.replace(/\/\*[\s\S]*?\*\//g, ' ').replace(/(^|\n)\s*--[^\n]*/g, '$1');
+}
+
 function record(kind, name, file, safeReplacement) {
   const key = `${kind}:${name}`;
   const previous = seenObjects.get(key);
@@ -35,7 +39,8 @@ function triggerIsReplacement(text, name) {
 }
 
 for (const file of files) {
-  const text = fs.readFileSync(path.join(dir, file), 'utf8');
+  const rawText = fs.readFileSync(path.join(dir, file), 'utf8');
+  const text = stripSqlComments(rawText);
   const statements = text.split(';').map((statement) => statement.trim()).filter(Boolean);
 
   for (const statement of statements) {
