@@ -1,0 +1,25 @@
+name: security-definer-helper-contract
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'supabase/migrations/**'
+      - 'scripts/check-security-definer-helper-contract.mjs'
+      - '.github/workflows/security-definer-helper-contract.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Verify helper execution boundary
+        run: node scripts/check-security-definer-helper-contract.mjs
