@@ -24,11 +24,16 @@ const ledger = read(files[7]);
 
 for (const token of ['tenantId', 'sourceSnapshotId', 'idempotencyKey', 'ReportExecutionEvidence']) if (!contract.includes(token)) throw new Error(`Execution contract missing ${token}`);
 for (const token of ['IdempotencyRegistry', 'fingerprintRequest', 'different request']) if (!idem.includes(token)) throw new Error(`Idempotency contract missing ${token}`);
-for (const token of ['assertExecutionRequest', 'assertGovernedRoute', 'sourceSnapshotId']) if (!gate.includes(token)) throw new Error(`Execution gate missing ${token}`);
+for (const token of ['assertExecutionRequest', 'assertGovernedRoute', 'sourceSnapshotId', 'assertNoQuarantine', 'fail-closed']) if (!gate.includes(token)) throw new Error(`Execution gate missing fail-closed boundary: ${token}`);
 for (const token of ['claim', 'lease', 'maxAttempts', 'attempts', 'fail', 'heartbeat', 'listDeadLetters']) if (!queue.includes(token)) throw new Error(`Queue runtime missing ${token}`);
 for (const token of ['pdf', 'xlsx', 'web']) if (!renderers.toLowerCase().includes(token)) throw new Error(`Renderer missing ${token}`);
 for (const token of ['renderArtifact', 'downloadReportArtifact', 'Blob', 'anchor.download']) if (!download.includes(token)) throw new Error(`Report download path missing ${token}`);
 for (const token of ['claim_report_execution_job', 'heartbeat_report_execution_job', 'advance_report_execution_checkpoint', 'complete_report_execution_job', 'fail_report_execution_job', 'retry_report_execution_job']) if (!durable.includes(token)) throw new Error(`Durable worker adapter missing ${token}`);
 for (const token of ['artifactRefs', 'evidence', 'tenantId', 'immutable']) if (!ledger.includes(token)) throw new Error(`Execution ledger missing ${token}`);
+
+// Test-of-test: a decoy that merely mentions the guard must not satisfy the source contract.
+const decoy = 'assertNoQuarantine // fail-closed';
+if (!decoy.includes('assertNoQuarantine')) throw new Error('internal adversarial fixture invalid');
+if (gate === decoy) throw new Error('comment/decoy source incorrectly accepted');
 
 console.log('Report execution E2E contract: PASS');
