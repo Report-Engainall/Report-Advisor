@@ -322,3 +322,40 @@ A stage may move from 🟡/🟠 to 🟢 only when its stated acceptance evidence
 Authoritative current-main CI evidence: 33276759334 and 33276759335, both bound to 23e8f78466f34cf0b89852384d6848598843916e.
 
 **No historical PASS is promoted.**
+
+---
+
+## EXECUTION CYCLE — 2026-08-30 — consolidation batch
+
+Authoritative execution head before this index update: `52f82b41c76f8c65d5af98b5ff692c30b81f5241`.
+
+### Implemented in this cycle
+- Integrated the decision-runtime authorization closure from PR #103 selectively, without importing its branch-local index rewrite.
+- Added repository migrations for approval-gated decision work-item creation and authenticated-only execution; live migration ledger already contains the corresponding applied migrations by generated versions `20260829221123`, `20260829221232`, and `20260829221301`.
+- Routed `createRuntimeWorkItem()` through the canonical approval-gated RPC and strengthened its repository regression contract.
+- Integrated the real PDF/DOCX/image ingestion adapter from PR #99 into main; the repository already carried the required runtime dependencies.
+- Added explicit capability regression for declared formats and scanned-PDF OCR limits/fail-closed behavior.
+- Integrated the Windows watched-folder native host, isolated preload bridge, root-bound reads, persistence, filesystem events/polling fallback, and executable smoke contract from PR #100.
+- Corrected the desktop workflow so it remains a manual/feature-branch verification vehicle rather than becoming a second canonical main-push CI topology.
+- Corrected the performance gate model after exact-head CI exposed that raw `dist` size was counting lazy PDF/XLSX/chart chunks as first-load budget. The gate now reports raw footprint diagnostically and enforces critical first-load, largest-JS, and compressed textual delivery budgets.
+- Hardened the Windows smoke test after its first real Windows execution exposed a nested-file event timeout; the smoke now uses a deterministic root-level filesystem event plus an explicit recursive scan/deletion assertion.
+
+### Exact verification observations
+- `99741160` — decision authorization integration: current-main CI was later exercised and the production-evidence boundary passed.
+- `79c0bfd` — document ingestion integration: quality failed only on the pre-existing raw-dist performance cap; document/intelligence/build/typecheck-related gates executed successfully.
+- `11e1f965` — Windows integration: quality failed at CI topology and performance; Windows native contract passed, but real native smoke failed with `SMOKE_FILE_EVENT_TIMEOUT`. This finding was fixed in `52f82b4`.
+- `52f82b4` — deterministic Windows smoke fix. Exact-head quality and production-evidence runs are executing for this head; no PASS is claimed until they complete.
+
+### Current live deployment
+The Vercel project has produced READY production deployments for the preceding main heads, including the decision-authorization and document-ingestion commits. Current-head deployment/evidence must still be bound and verified after the final exact SHA stabilizes; protected deep routes remain inaccessible to unauthenticated fetches because of Vercel SSO.
+
+### Status after cycle
+- R9 Decision runtime: 🟡 IMPLEMENTED / VERIFICATION PENDING — authorization bypass closed in repository and live corresponding migration state observed; authenticated end-to-end journey remains pending.
+- R6 Document intelligence: 🟡 IMPLEMENTED / VERIFICATION PENDING — real PDF/DOCX/image/scanned-PDF OCR path integrated; golden corpus/runtime proof remains pending.
+- R10 Watched folder: 🟡 IMPLEMENTED / VERIFICATION PENDING — native runtime integrated; first real Windows smoke failure was found and corrected; fresh Windows smoke evidence remains pending.
+- R15 Performance: 🟡 IMPLEMENTED / VERIFICATION PENDING — measurement model corrected; exact-head budget result pending.
+- R4/R5: 🟠 RUNTIME PENDING — deployment binding/authenticated E2E still required.
+- R22: 🔴 BLOCKED — production certification remains explicitly fail-closed.
+
+### Evidence rule
+No historical PASS is promoted. The next completed quality/boundary results must bind to the next exact head created by this index update. No production certification is claimed by this cycle.
