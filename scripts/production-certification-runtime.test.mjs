@@ -17,7 +17,8 @@ assert.equal(failed.certified, false, 'failed mandatory evidence must not certif
 assert.ok(failed.blockers.includes('FAILED_EVIDENCE:rollback'));
 
 const duplicate = certifyProduction([...complete, check('backup', false, 'BLOCKER')]);
-assert.equal(duplicate.certified, true, 'a later duplicate must not override the first canonical evidence result');
+assert.equal(duplicate.certified, false, 'duplicate mandatory evidence must not certify');
+assert.ok(duplicate.blockers.includes('DUPLICATE_EVIDENCE:backup'));
 
 const arbitrary = certifyProduction([...complete, check('unrelated-warning', false, 'WARNING')]);
 assert.equal(arbitrary.certified, true, 'non-mandatory warnings must not invalidate complete mandatory evidence');
