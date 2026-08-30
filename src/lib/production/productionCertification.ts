@@ -19,8 +19,10 @@ export function certifyProduction(checks: CertificationCheck[]): CertificationRe
   const score = checks.length ? checks.filter(c => c.passed).length / checks.length : 0;
 
   const checksByKey = new Map<string, CertificationCheck>();
+  const duplicateEvidence = new Set<string>();
   for (const check of checks) {
-    if (!checksByKey.has(check.key)) checksByKey.set(check.key, check);
+    if (checksByKey.has(check.key)) duplicateEvidence.add(check.key);
+    else checksByKey.set(check.key, check);
   }
 
   const missingEvidence = PRODUCTION_CERTIFICATION_EVIDENCE_KEYS.filter(key => !checksByKey.has(key));
@@ -28,12 +30,14 @@ export function certifyProduction(checks: CertificationCheck[]): CertificationRe
     const check = checksByKey.get(key);
     return check !== undefined && !check.passed;
   });
-  const evidenceComplete = missingEvidence.length === 0 && failedEvidence.length === 0;
+  const duplicateMandatoryEvidence = PRODUCTION_CERTIFICATION_EVIDENCE_KEYS.filter(key => duplicateEvidence.has(key));
+  const evidenceComplete = missingEvidence.length === 0 && failedEvidence.length === 0 && duplicateMandatoryEvidence.length === 0;
 
   const certificationBlockers = [
     ...blockers,
     ...missingEvidence.map(key => `MISSING_EVIDENCE:${key}`),
     ...failedEvidence.map(key => `FAILED_EVIDENCE:${key}`),
+    ...duplicateMandatoryEvidence.map(key => `DUPLICATE_EVIDENCE:${key}`),
   ];
 
   return {
