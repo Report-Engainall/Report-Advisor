@@ -29,5 +29,7 @@ jobs:
         run: node scripts/check-receivables-canonical-closure.mjs
       - name: Profitability financial truth
         run: node scripts/check-profitability-financial-truth.mjs
+      - name: Worker lease fencing regression
+        run: node --experimental-strip-types scripts/report-execution-lease-fencing.test.ts
       - name: Golden business corpus truth
         run: node scripts/business-golden-corpus-contract.mjs
