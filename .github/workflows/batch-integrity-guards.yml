@@ -25,5 +25,7 @@ jobs:
         run: node scripts/check-lifecycle-mutation-boundary.mjs
       - name: Decision link RPC boundary
         run: node scripts/check-decision-link-rpc-boundary.mjs
+      - name: Receivables canonical truth
+        run: node scripts/check-receivables-canonical-closure.mjs
       - name: Golden business corpus truth
         run: node scripts/business-golden-corpus-contract.mjs

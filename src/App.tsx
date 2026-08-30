@@ -19,7 +19,7 @@ const PurchasesReportPage = lazy(() => import('@/pages/ReportsPage').then(m => (
 const InventoryReportPage = lazy(() => import('@/pages/ReportsPage').then(m => ({ default: m.InventoryReportPage })));
 const InventoryIntelligencePage = lazy(() => import('@/pages/InventoryIntelligencePage').then(m => ({ default: m.InventoryIntelligencePage })));
 const DemandVelocityPage = lazy(() => import('@/pages/DemandVelocityPage').then(m => ({ default: m.DemandVelocityPage })));
-const ReceivablesReportPage = lazy(() => import('@/pages/ReportsPage').then(m => ({ default: m.ReceivablesReportPage })));
+const ReceivablesReportPage = lazy(() => import('@/pages/ReceivablesReportCanonicalPage').then(m => ({ default: m.ReceivablesReportCanonicalPage })));
 const ProfitabilityReportPage = lazy(() => import('@/pages/ReportsPage').then(m => ({ default: m.ProfitabilityReportPage })));
 const AnalyticsCenterPage = lazy(() => import('@/pages/AnalyticsPage').then(m => ({ default: m.AnalyticsCenterPage })));
 const RFMAnalysisPage = lazy(() => import('@/pages/AnalyticsPage').then(m => ({ default: m.RFMAnalysisPage })));
