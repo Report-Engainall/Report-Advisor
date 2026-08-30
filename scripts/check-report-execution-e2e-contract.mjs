@@ -35,21 +35,27 @@ required(download, ['renderArtifact', 'downloadReportArtifact', 'Blob', 'anchor.
 required(durable, ['claim_report_execution_job', 'heartbeat_report_execution_job', 'advance_report_execution_checkpoint', 'complete_report_execution_job', 'fail_report_execution_job', 'retry_report_execution_job'], 'Durable worker adapter');
 required(ledger, ['artifactRefs', 'evidence', 'tenantId', 'immutable'], 'Execution ledger');
 
-// Test-of-test: prove the gate checker detects removal of the two most important
+const assertGateImplementation = (source) => {
+  if (!source.includes("if (!input.sourceSnapshotId) throw new Error('Report execution requires a source snapshot');")) {
+    throw new Error('source snapshot guard missing');
+  }
+  if (!source.includes('assertNoQuarantine(input.routePlan);')) throw new Error('quarantine guard missing');
+};
+assertGateImplementation(gate);
+
+// Test-of-test: prove the gate checker detects removal of the two critical
 // fail-closed preconditions instead of merely checking that their names exist.
-const tamperedWithoutSnapshot = gate.replaceAll('if (!input.sourceSnapshotId) throw new Error(\'Report execution requires a source snapshot\');', '');
+const tamperedWithoutSnapshot = gate.replace(
+  "  if (!input.sourceSnapshotId) throw new Error('Report execution requires a source snapshot');\n",
+  '',
+);
 let snapshotTamperRejected = false;
-try {
-  required(tamperedWithoutSnapshot, ['sourceSnapshotId'], 'Tampered execution gate');
-  if (!/sourceSnapshotId/.test(tamperedWithoutSnapshot)) throw new Error('tampered');
-} catch { snapshotTamperRejected = true; }
+try { assertGateImplementation(tamperedWithoutSnapshot); } catch { snapshotTamperRejected = true; }
 if (!snapshotTamperRejected) throw new Error('Test-of-test failed: source snapshot guard removal was not detected');
 
-const tamperedWithoutQuarantine = gate.replaceAll('assertNoQuarantine(input.routePlan);', '');
+const tamperedWithoutQuarantine = gate.replace('  assertNoQuarantine(input.routePlan);\n', '');
 let quarantineTamperRejected = false;
-try {
-  if (!tamperedWithoutQuarantine.includes('assertNoQuarantine(input.routePlan);')) throw new Error('tampered');
-} catch { quarantineTamperRejected = true; }
+try { assertGateImplementation(tamperedWithoutQuarantine); } catch { quarantineTamperRejected = true; }
 if (!quarantineTamperRejected) throw new Error('Test-of-test failed: quarantine gate removal was not detected');
 
 console.log('Report execution E2E contract: PASS (component boundaries plus adversarial guard-removal tests)');
