@@ -24,15 +24,15 @@ export class InMemoryReportQueue {
     const existingRunId = this.idempotency.get(key);
     if (existingRunId) {
       const existing = this.jobs.get(existingRunId);
-      if (existing) return { ...existing };
+      if (existing) return cloneJob(existing);
       throw new Error('Idempotency registry points to a missing report job');
     }
     if (this.jobs.has(runId)) throw new Error(`Report run already exists: ${runId}`);
     const now = Date.now();
-    const job: ReportQueueJob = { runId, request, status: 'queued', attempts: 0, maxAttempts, createdAt: now, updatedAt: now };
+    const job: ReportQueueJob = { runId, request: cloneRequest(request), status: 'queued', attempts: 0, maxAttempts, createdAt: now, updatedAt: now };
     this.jobs.set(runId, job);
     this.idempotency.set(key, runId);
-    return { ...job };
+    return cloneJob(job);
   }
 
   claim(workerId: string, leaseMs = 60_000): ReportQueueJob | undefined {
@@ -48,7 +48,7 @@ export class InMemoryReportQueue {
         job.leaseToken = `${runIdToken(job.runId)}:${job.attempts}:${now}`;
         job.leaseExpiresAt = now + leaseMs;
         job.updatedAt = now;
-        return { ...job };
+        return cloneJob(job);
       }
     }
     return undefined;
@@ -75,16 +75,14 @@ export class InMemoryReportQueue {
     job.leaseExpiresAt = undefined;
     job.status = job.attempts < job.maxAttempts ? 'queued' : 'failed';
     job.updatedAt = Date.now();
-    return { ...job };
+    return cloneJob(job);
   }
 
-  get(runId: string): ReportQueueJob | undefined { const job = this.jobs.get(runId); return job ? { ...job } : undefined; }
-  listDeadLetters(): ReportQueueJob[] { return [...this.jobs.values()].filter(job => job.status === 'failed' && job.attempts >= job.maxAttempts).map(job => ({ ...job })); }
+  get(runId: string): ReportQueueJob | undefined { const job = this.jobs.get(runId); return job ? cloneJob(job) : undefined; }
+  listDeadLetters(): ReportQueueJob[] { return [...this.jobs.values()].filter(job => job.status === 'failed' && job.attempts >= job.maxAttempts).map(cloneJob); }
   private require(runId: string): ReportQueueJob { const job = this.jobs.get(runId); if (!job) throw new Error(`Report job not found: ${runId}`); return job; }
   private assertLease(job: ReportQueueJob, workerId: string, leaseToken: string): void {
-    if (job.status !== 'running' || job.leaseOwner !== workerId || !leaseToken || job.leaseToken !== leaseToken) {
-      throw new Error('Report job lease is not owned by worker or fencing token is stale');
-    }
+    if (job.status !== 'running' || job.leaseOwner !== workerId || !leaseToken || job.leaseToken !== leaseToken) throw new Error('Report job lease is not owned by worker or fencing token is stale');
     if (!job.leaseExpiresAt || job.leaseExpiresAt <= Date.now()) throw new Error('Report job lease has expired');
   }
   private transition(runId: string, workerId: string, leaseToken: string, status: ReportJobStatus): void {
@@ -97,6 +95,11 @@ export class InMemoryReportQueue {
     job.updatedAt = Date.now();
   }
 }
+
+function cloneRequest(request: ReportExecutionRequest): ReportExecutionRequest {
+  return { ...request, parameters: structuredClone(request.parameters), formats: [...request.formats] };
+}
+function cloneJob(job: ReportQueueJob): ReportQueueJob { return { ...job, request: cloneRequest(job.request) }; }
 
 function runIdToken(runId: string): string {
   let hash = 2166136261;
