@@ -1,5 +1,5 @@
-import type { ReportExecutionRequest, ReportJobStatus } from './report-execution-contract';
-import { assertExecutionRequest } from './report-execution-contract';
+import type { ReportExecutionRequest, ReportJobStatus } from './report-execution-contract.ts';
+import { assertExecutionRequest } from './report-execution-contract.ts';
 
 export interface ReportQueueJob {
   runId: string;
