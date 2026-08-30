@@ -41,38 +41,33 @@ async function companyIdOrThrow(): Promise<string> {
 }
 
 export async function createRuntimeRecommendation(input: RuntimeRecommendationInput): Promise<string> {
-  const companyId = await companyIdOrThrow();
-  const { data, error } = await supabase.from('recommendations').insert({
-    company_id: companyId,
-    category: input.category,
-    priority: input.priority,
-    title: input.title,
-    description: input.description ?? null,
-    evidence: input.evidence,
-    expected_impact: input.expectedImpact,
-    confidence: 'CALCULATED',
-    status: 'new',
-    evidence_snapshot_id: input.evidenceSnapshotId,
-    metric_versions: input.metricVersions,
-  }).select('id').single();
+  await companyIdOrThrow();
+  const { data, error } = await supabase.rpc('create_runtime_recommendation', {
+    p_category: input.category,
+    p_priority: input.priority,
+    p_title: input.title,
+    p_description: input.description ?? null,
+    p_evidence: input.evidence,
+    p_expected_impact: input.expectedImpact,
+    p_evidence_snapshot_id: input.evidenceSnapshotId,
+    p_metric_versions: input.metricVersions,
+  });
   if (error) throw error;
-  return data.id;
+  return data as string;
 }
 
 export async function createRuntimeDecision(input: RuntimeDecisionInput): Promise<string> {
-  const companyId = await companyIdOrThrow();
+  await companyIdOrThrow();
   if (input.confidence < 0 || input.confidence > 1) throw new Error('DECISION_CONFIDENCE_OUT_OF_RANGE');
-  const { data, error } = await supabase.from('business_intelligence_decisions').insert({
-    company_id: companyId,
-    decision_key: input.decisionKey,
-    decision_type: input.decisionType,
-    status: 'PROPOSED',
-    confidence: input.confidence,
-    expected_impact: input.expectedImpact,
-    evidence: input.evidence,
-  }).select('id').single();
+  const { data, error } = await supabase.rpc('create_runtime_decision', {
+    p_decision_key: input.decisionKey,
+    p_decision_type: input.decisionType,
+    p_confidence: input.confidence,
+    p_expected_impact: input.expectedImpact,
+    p_evidence: input.evidence,
+  });
   if (error) throw error;
-  return data.id;
+  return data as string;
 }
 
 export async function linkRecommendationToDecision(recommendationId: string, decisionId: string): Promise<void> {
@@ -113,20 +108,14 @@ export async function createRuntimeWorkItem(decisionId: string, recommendationId
 }
 
 export async function notifyWorkItem(workItemId: string, title: string, description: string): Promise<string> {
-  const companyId = await companyIdOrThrow();
-  const { data, error } = await supabase.from('decision_work_items').select('id,decision_id,department,assignee_id').eq('id', workItemId).eq('company_id', companyId).single();
+  await companyIdOrThrow();
+  const { data, error } = await supabase.rpc('notify_decision_work_item', {
+    p_work_item_id: workItemId,
+    p_title: title,
+    p_description: description,
+  });
   if (error) throw error;
-  const { data: alert, error: alertError } = await supabase.from('alerts').insert({
-    company_id: companyId,
-    severity: 'info',
-    category: 'decision_action',
-    title,
-    description,
-    entity_type: 'decision_work_item',
-    entity_id: data.id,
-  }).select('id').single();
-  if (alertError) throw alertError;
-  return alert.id;
+  return data as string;
 }
 
 export async function completeRuntimeWorkItem(workItemId: string, actualImpact: number, evidence: Record<string, unknown> = {}): Promise<void> {
