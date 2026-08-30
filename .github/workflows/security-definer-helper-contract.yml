@@ -5,6 +5,7 @@ on:
     paths:
       - 'supabase/migrations/**'
       - 'scripts/check-security-definer-helper-contract.mjs'
+      - 'scripts/check-work-item-completion-gate.mjs'
       - '.github/workflows/security-definer-helper-contract.yml'
   workflow_dispatch:
 permissions:
@@ -21,5 +22,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Verify helper execution boundary
+      - name: Verify security-definer helper boundary
         run: node scripts/check-security-definer-helper-contract.mjs
+      - name: Verify work-item completion lifecycle gate
+        run: node scripts/check-work-item-completion-gate.mjs
