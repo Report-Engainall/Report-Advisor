@@ -1,0 +1,30 @@
+name: Phase 5 current-head BI truth
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 1, persist-credentials: false}
+      - uses: actions/setup-node@v4
+        with: {node-version: 22}
+      - name: Exact HEAD
+        run: test "$(git rev-parse HEAD)" = "${GITHUB_SHA}"
+      - name: Install
+        run: npm ci --no-audit --no-fund
+      - name: BI truth closure
+        run: node scripts/check-phase5-current-head-bi-truth-closure.mjs
+      - name: Consolidated intelligence regression
+        run: npm run test:consolidated-intelligence
+      - name: Safe metrics regression
+        run: npm run test:safe-metrics
+      - name: BI regression
+        run: node --experimental-strip-types scripts/business-intelligence-regressions.test.ts
+      - name: Report truth regression
+        run: npm run test:report-truth
