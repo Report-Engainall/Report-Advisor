@@ -6,12 +6,15 @@ on:
     paths:
       - 'supabase/migrations/**decision_runtime_authorization.sql'
       - 'scripts/check-decision-runtime-authorization.mjs'
+      - 'docs/MASTER_EXECUTION_INDEX_APPEND_20260830_CYCLE025_026.md'
       - '.github/workflows/decision-runtime-authorization.yml'
   pull_request:
     paths:
       - 'supabase/migrations/**decision_runtime_authorization.sql'
       - 'scripts/check-decision-runtime-authorization.mjs'
+      - 'docs/MASTER_EXECUTION_INDEX_APPEND_20260830_CYCLE025_026.md'
       - '.github/workflows/decision-runtime-authorization.yml'
+  workflow_dispatch:
 
 jobs:
   contract:
