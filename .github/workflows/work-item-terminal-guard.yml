@@ -1,0 +1,14 @@
+name: work-item-terminal-guard
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify terminal work-item transition guard
+        run: node scripts/check-work-item-terminal-guard.mjs
