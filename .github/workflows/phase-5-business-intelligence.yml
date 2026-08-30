@@ -1,0 +1,39 @@
+name: Phase 5 business intelligence truth
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  phase-5-business-intelligence:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    steps:
+      - name: Checkout exact commit
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Verify exact HEAD
+        shell: bash
+        run: test "$(git rev-parse HEAD)" = "${GITHUB_SHA}"
+      - name: Install
+        run: npm ci --no-audit --no-fund
+      - name: Phase 5 business intelligence truth closure
+        run: node scripts/check-phase5-business-intelligence-truth-closure.mjs
+      - name: Consolidated intelligence regression
+        run: npm run test:consolidated-intelligence
+      - name: Safe metrics regression
+        run: npm run test:safe-metrics
+      - name: Business intelligence regression
+        run: node --experimental-strip-types scripts/business-intelligence-regressions.test.ts
+      - name: Report truth regression
+        run: npm run test:report-truth
