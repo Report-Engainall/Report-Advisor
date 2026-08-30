@@ -33,6 +33,16 @@ for (const token of [
   'consumption-proof.json',
 ]) requireToken(boundary, token, 'production-evidence-boundary');
 
+for (const token of [
+  'Validate exact certification run',
+  'gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${RUN_ID}"',
+  "workflow_name=\"$(jq -r '.name' <<<\"$run_json\")\"",
+  "conclusion=\"$(jq -r '.conclusion' <<<\"$run_json\")\"",
+  "head_sha=\"$(jq -r '.head_sha' <<<\"$run_json\")\"",
+  "workflow_name == \"release-certification\"",
+  'head_sha == "$EXPECTED_SOURCE_SHA"',
+]) requireToken(boundary, token, 'manual release-certification run validation');
+
 if (boundary.includes('push:\n    branches: [main]')) throw new Error('production-evidence-boundary must not consume an unbound push without release evidence');
 if (!boundary.includes('if-no-files-found: error')) throw new Error('production consumption proof must fail closed when absent');
 
