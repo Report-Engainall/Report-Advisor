@@ -12,11 +12,12 @@ const businessKey = read('scripts/check-import-business-key.mjs');
 const transaction = read('scripts/check-import-transaction-contract.mjs');
 const runtime = read('scripts/check-import-runtime-governance.mjs');
 const state = read('scripts/check-import-state-contract.mjs');
+const jobMigration = read('supabase/migrations/20260819203000_import_engine_jobs.sql');
+const tenantMigration = read('supabase/migrations/20260823010000_import_rpc_canonical_tenant.sql');
+const failClosedMigration = read('supabase/migrations/20260822210000_import_rpc_fail_closed.sql');
 const golden = read('src/lib/document-intelligence/golden-dataset.ts');
 const quality = read('.github/workflows/quality.yml');
 
-// Strip SQL comments before evaluating executable migration evidence. This is
-// deliberately kept local to the gate so a commented decoy cannot satisfy it.
 const stripSqlComments = (sql) => sql
   .replace(/\/\*[\s\S]*?\*\//g, '')
   .replace(/(^|\n)\s*--[^\n]*/g, '$1');
@@ -43,14 +44,18 @@ must(rpcSql.includes('current_company_id'), 'Import upsert must resolve tenant f
 must(rpcSql.includes('ON CONFLICT') || rpcSql.includes('unique_violation'), 'Import upsert must handle concurrent business-key races');
 must(rpcSql.includes('FOR UPDATE'), 'Import upsert must fence mutable existing rows');
 
-// Phase 3C: transaction/runtime/state guards are wired, not orphaned.
+// Phase 3C: transaction/runtime/state guards must verify their actual implementation surfaces.
 for (const [name, source, markers] of [
   ['transaction', transaction, ['transaction', 'rollback', 'atomic']],
-  ['runtime', runtime, ['current_company_id', 'tenant', 'fail-closed']],
-  ['state', state, ['PREVIEW', 'RUNNING', 'COMPLETED', 'FAILED']],
+  ['runtime', `${runtime}\n${tenantMigration}\n${failClosedMigration}`, ['current_company_id', 'fail-closed']],
+  ['state', `${jobMigration}\n${state}`, ['queued', 'processing', 'completed', 'failed']],
 ]) {
   for (const marker of markers) must(source.toLowerCase().includes(marker.toLowerCase()), `Import ${name} contract missing ${marker}`);
 }
+must(tenantMigration.includes('current_company_id'), 'Canonical import tenant migration must use current_company_id');
+must(failClosedMigration.includes('SECURITY INVOKER'), 'Import fail-closed migration must preserve invoker security');
+must(jobMigration.includes('import_finish_job'), 'Import job lifecycle must expose terminal completion function');
+must(/p_status\s+text/i.test(jobMigration), 'Import job lifecycle must persist explicit status');
 
 // Phase 3D: golden corpus must exercise hard document/data shapes.
 for (const token of ['ARABIC_ENGLISH', 'SCANNED', 'RANDOM_SCHEMA', 'NO_HEADER', 'COMPLEX_TABLE', 'INVOICE', 'ONYX', 'WIDE_30_PLUS']) {
@@ -68,11 +73,13 @@ const normalized = duplicateKeys.map((v) => v.trim()).filter(Boolean);
 must(new Set(normalized).size < normalized.length, 'Adversarial fixture must detect duplicate normalized business keys');
 
 // The canonical quality workflow must execute the relevant import guards.
-must(quality.includes('npm run test:import-direct-write-guard'), 'Quality must execute direct-write import guard');
-must(quality.includes('npm run test:import-transaction-contract'), 'Quality must execute import transaction contract');
-must(quality.includes('npm run test:import-runtime-governance'), 'Quality must execute import runtime governance');
-must(quality.includes('npm run test:import-business-key'), 'Quality must execute business-key guard');
-must(quality.includes('npm run test:canonical-import-mapping'), 'Quality must execute canonical import mapping guard');
+for (const command of [
+  'npm run test:import-direct-write-guard',
+  'npm run test:import-transaction-contract',
+  'npm run test:import-runtime-governance',
+  'npm run test:import-business-key',
+  'npm run test:canonical-import-mapping',
+]) must(quality.includes(command), `Quality must execute ${command}`);
 
 if (failures.length) {
   console.error(`PHASE3_DATA_IMPORT_TRUTH_CLOSURE_FAIL\n${failures.map((x) => `- ${x}`).join('\n')}`);
