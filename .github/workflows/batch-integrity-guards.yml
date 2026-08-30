@@ -31,5 +31,7 @@ jobs:
         run: node scripts/check-profitability-financial-truth.mjs
       - name: Queries compatibility consumer closure
         run: node scripts/check-queries-compat-consumers.mjs
+      - name: Worker lease fencing regression
+        run: node --experimental-strip-types scripts/report-execution-lease-fencing.test.ts
       - name: Golden business corpus truth
         run: node scripts/business-golden-corpus-contract.mjs
