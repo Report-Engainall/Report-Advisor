@@ -15,16 +15,12 @@ const routing = read('src/lib/document-intelligence/routing.ts');
 const hardening = read('scripts/check-document-intelligence-hardening.mjs');
 const serviceTests = fs.readdirSync(path.join(root, 'services/document-intelligence/tests')).filter((f) => f.endsWith('.py'));
 
-for (const symbol of ['ProcessingState','Provenance','ExtractedField','DocumentEnvelope','DocumentParser','OCRProvider','TableExtractor','EntityResolver','ValidationEngine','RoutingEngine']) {
-  must(contracts.includes(symbol), `missing document contract: ${symbol}`);
-}
+for (const symbol of ['ProcessingState','Provenance','ExtractedField','DocumentEnvelope','DocumentParser','OCRProvider','TableExtractor','EntityResolver','ValidationEngine','RoutingEngine']) must(contracts.includes(symbol), `missing document contract: ${symbol}`);
 must(policy.includes('require_validated'), 'validated boundary must be enforced');
 must(policy.includes('require_approved'), 'approved boundary must be enforced');
 must(policy.includes('RawDataBoundaryError'), 'raw-data boundary guard must exist');
 must(requirements.includes('Raw → Extracted → Staging → Validated → Reconciled → Approved'), 'document lifecycle must remain canonical');
 must(requirements.includes('Unknown does not mean ignored'), 'unknown fields must be preserved explicitly');
-
-// Truth and quarantine invariants.
 must(schema.includes('ambiguous-top-candidates'), 'ambiguous schema matches must be recorded');
 must(schema.includes('Math.min(best, 0.69)'), 'ambiguous schema matches must be confidence-capped');
 must(schema.includes("replace(/٫/g, '.')"), 'Arabic decimal separator must be normalized');
@@ -33,23 +29,12 @@ must(validation.includes('RECONCILIATION_INPUT_INVALID'), 'non-finite reconcilia
 must(validation.includes('VALIDATION_INPUT_INCOMPLETE'), 'incomplete line math must remain explicit');
 must(validation.includes('Number.isFinite(score)'), 'evidence confidence must reject non-finite values');
 must(routing.includes("destination: 'quarantine'"), 'unknown routing must quarantine');
-must(routing.includes("action: 'QUARANTINE'"), 'duplicate/unsafe routing must quarantine');
+must(routing.includes("decision.action = 'QUARANTINE'"), 'duplicate/unsafe routing must quarantine');
 must(routing.includes('Number.isFinite(value)'), 'routing confidence must sanitize NaN/Infinity');
-
-// The hardening test must itself exercise the above contracts rather than merely exist.
-for (const token of ['behavioralChecks','schema explicitly translates Arabic decimal separator','routing sanitizes NaN and Infinity confidence']) {
-  must(hardening.includes(token), `document hardening regression is missing executable case: ${token}`);
-}
+for (const token of ['behavioralChecks','schema explicitly translates Arabic decimal separator','routing sanitizes NaN and Infinity confidence']) must(hardening.includes(token), `document hardening regression is missing executable case: ${token}`);
 must(serviceTests.length >= 3, 'document-intelligence service must retain a non-trivial Python test suite');
-
-// Test the test: a commented-out contract decoy must not satisfy this gate.
 const stripComments = (s) => s.replace(/\/\*[\s\S]*?\*\//g, '').replace(/(^|\n)\s*#[^\n]*/g, '$1');
-const decoy = '# RawDataBoundaryError\n# require_approved\n';
-const sanitized = stripComments(decoy);
+const sanitized = stripComments('# RawDataBoundaryError\n# require_approved\n');
 must(!sanitized.includes('RawDataBoundaryError') && !sanitized.includes('require_approved'), 'comment decoy must not satisfy document contract checks');
-
-if (failures.length) {
-  console.error(`PHASE4_DOCUMENT_INTELLIGENCE_CLOSURE_FAIL\n${failures.map((x) => `- ${x}`).join('\n')}`);
-  process.exit(1);
-}
+if (failures.length) { console.error(`PHASE4_DOCUMENT_INTELLIGENCE_CLOSURE_FAIL\n${failures.map((x) => `- ${x}`).join('\n')}`); process.exit(1); }
 console.log(`PHASE4_DOCUMENT_INTELLIGENCE_CLOSURE_PASS (${serviceTests.length} Python test files; contracts, truth, quarantine, Arabic numeric normalization, and test-of-test decoy checks)`);
