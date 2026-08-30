@@ -16,7 +16,6 @@ const REQUIRED_EVIDENCE_KEYS = new Set<string>(PRODUCTION_CERTIFICATION_EVIDENCE
 export function certifyProduction(checks: CertificationCheck[]): CertificationResult {
   const blockers = checks.filter(c => !c.passed && c.severity === 'BLOCKER').map(c => c.key);
   const warnings = checks.filter(c => !c.passed && c.severity === 'WARNING').map(c => c.key);
-  const score = checks.length ? checks.filter(c => c.passed).length / checks.length : 0;
 
   const checksByKey = new Map<string, CertificationCheck>();
   const duplicateEvidence = new Set<string>();
@@ -32,6 +31,16 @@ export function certifyProduction(checks: CertificationCheck[]): CertificationRe
   });
   const duplicateMandatoryEvidence = PRODUCTION_CERTIFICATION_EVIDENCE_KEYS.filter(key => duplicateEvidence.has(key));
   const evidenceComplete = missingEvidence.length === 0 && failedEvidence.length === 0 && duplicateMandatoryEvidence.length === 0;
+
+  // Certification score measures the five mandatory evidence domains. Non-mandatory
+  // informational/warning observations remain visible but cannot dilute a complete
+  // mandatory evidence package below the certification threshold.
+  const mandatoryChecks = PRODUCTION_CERTIFICATION_EVIDENCE_KEYS.map(key => checksByKey.get(key)).filter(
+    (check): check is CertificationCheck => check !== undefined,
+  );
+  const score = PRODUCTION_CERTIFICATION_EVIDENCE_KEYS.length
+    ? mandatoryChecks.filter(c => c.passed).length / PRODUCTION_CERTIFICATION_EVIDENCE_KEYS.length
+    : 0;
 
   const certificationBlockers = [
     ...blockers,
