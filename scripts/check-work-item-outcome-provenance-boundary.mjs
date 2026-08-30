@@ -14,7 +14,7 @@ const required = [
   'complete_decision_work_item',
   "v_evidence_snapshot_id text := NULLIF(btrim(COALESCE(p_evidence->>'evidence_snapshot_id', '')), '')",
   "RAISE EXCEPTION 'OUTCOME_EVIDENCE_REQUIRED'",
-  "OUTCOME_EVIDENCE_NOT_FOUND_OR_FORBIDDEN",
+  'OUTCOME_EVIDENCE_NOT_FOUND_OR_FORBIDDEN',
   'kpi_evidence_snapshots',
   'business_state_snapshots',
   'import_snapshots',
@@ -24,7 +24,6 @@ const required = [
   "WHEN p_actual_impact > v_expected THEN 'positive'",
   "WHEN p_actual_impact = v_expected THEN 'neutral'",
   "ELSE 'negative'",
-  "'evidence_snapshot_id', v_evidence_snapshot_id",
   'status = EXCLUDED.status',
   'company_id = v_company',
   "status <> 'IN_PROGRESS'",
@@ -35,6 +34,10 @@ const assertContract = (sql) => {
   const executable = stripSqlComments(sql);
   for (const token of required) {
     if (!executable.includes(token)) throw new Error(`Missing work-item outcome provenance invariant: ${token}`);
+  }
+  // SQL formatting is not a semantic invariant: permit arbitrary whitespace around the JSON key/value pair.
+  if (!/'evidence_snapshot_id'\s*,\s*v_evidence_snapshot_id/.test(executable)) {
+    throw new Error('Missing work-item outcome provenance invariant: evidence_snapshot_id JSON identity');
   }
 };
 
@@ -48,7 +51,8 @@ const tampered = stripSqlComments(provenance)
   .replaceAll('business_state_snapshots', '')
   .replaceAll('import_snapshots', '')
   .replaceAll('operational_health_snapshots', '')
-  .replaceAll('decision_action_receipts', '') + '\n-- OUTCOME_EVIDENCE_NOT_FOUND_OR_FORBIDDEN\n-- kpi_evidence_snapshots';
+  .replaceAll('decision_action_receipts', '')
+  .replace(/'evidence_snapshot_id'\s*,\s*v_evidence_snapshot_id/g, '') + '\n-- OUTCOME_EVIDENCE_NOT_FOUND_OR_FORBIDDEN\n-- kpi_evidence_snapshots';
 let tamperedRejected = false;
 try {
   assertContract(tampered);
