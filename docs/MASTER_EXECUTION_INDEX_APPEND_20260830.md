@@ -72,3 +72,11 @@ This file is an append-only extension to `docs/MASTER_EXECUTION_INDEX.md`. Histo
 - Repository regression: `scripts/check-certification-evidence-write-boundary.mjs` verifies the privilege and policy boundary and includes a comment-decoy test-of-test.
 - Report queue continuation: defensive cloning was previously added for nested report execution request state; fresh CI status remains separate evidence and is not promoted automatically.
 - Production certification: NO. This cycle closes a concrete evidence-forgery write path but does not substitute for live A/B, deployment, restore, Windows, or authenticated E2E evidence.
+
+## CYCLE-023 APPEND-ONLY ENTRY
+- Start HEAD: `647abfc79914fba6ae98280e5e66a2bc68249410`.
+- Workstream: make the certification-evidence and report-queue adversarial checks continuously executable in CI.
+- Real delta: added `.github/workflows/certification-evidence-boundary.yml`, running the certification write-boundary gate, report-queue immutability gate, and queue test-of-test on main pushes, pull requests, and manual dispatch.
+- Live verification remained green for the certification evidence boundary after the Phase-M schema prerequisite and lockdown migrations: RLS enabled; authenticated SELECT only; authenticated write privileges denied on both evidence tables.
+- Fresh CI status for the newest repository HEAD remains pending; no CI PASS is claimed until the workflow executes against that exact SHA.
+- Production certification: NO. Continuous source-level enforcement is strengthened; runtime A/B, authenticated E2E, restore drill, Windows, deployment binding and live production evidence remain separate requirements.
