@@ -35,7 +35,7 @@ const assertClosure = (contractE2E, contractScale, contractPerf, contractBlocker
   for (const token of ['golden', 'deterministic', 'expected', 'corpus']) {
     must(executable[files[0]].toLowerCase().includes(token), `golden E2E corpus missing ${token}`);
   }
-  for (const token of ['250K', 'chunking', 'bounded']) {
+  for (const token of ['250000', 'chunking', 'streaming-count']) {
     must(contractScale.toLowerCase().includes(token.toLowerCase()), `scale contract missing ${token}`);
   }
   for (const token of ['600KB', '900KB']) {
@@ -47,7 +47,6 @@ const assertClosure = (contractE2E, contractScale, contractPerf, contractBlocker
 
 assertClosure(e2e, scale, perf, blockers);
 
-// Test-of-test: removing executable evidence must make the same closure assertion fail.
 const tamperedE2E = e2e
   .replaceAll('tenantId', '')
   .replaceAll('ReportExecutionEvidence', '');
@@ -59,7 +58,6 @@ try {
 }
 must(tamperedRejected, 'tampered E2E evidence still satisfied the closure contract');
 
-// Test-of-test: comment-only markers must not count as executable evidence.
 const commentDecoy = `// tenantId\n// ReportExecutionEvidence`;
 const executableDecoy = stripJsComments(commentDecoy);
 must(!executableDecoy.includes('tenantId'), 'comment-only tenant marker was accepted');
