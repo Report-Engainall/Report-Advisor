@@ -12,7 +12,7 @@ BEGIN
   IF p_folder_id IS NULL OR p_relative_path IS NULL OR btrim(p_relative_path) = ''
      OR p_content_hash IS NULL OR btrim(p_content_hash) = '' THEN RAISE EXCEPTION 'WATCHED_FILE_IDENTITY_REQUIRED'; END IF;
   IF p_relative_path ~ '(^|[\\/])\.\.([\\/]|$)'
-     OR p_relative_path ~ '^[A-Za-z]:[\\/]'
+     OR p_relative_path ~ '^[A-Za-z]:'
      OR left(p_relative_path, 1) IN ('/', E'\\') THEN
     RAISE EXCEPTION 'WATCHED_FILE_PATH_INVALID';
   END IF;
