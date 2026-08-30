@@ -99,6 +99,8 @@ jobs:
         run: node scripts/check-secondary-consumer-canonical.mjs && node scripts/check-report-data-truth-closure.mjs
       - name: Production release blockers
         run: npm run test:production-release-blockers
+      - name: Phase 12 release certification gate
+        run: node scripts/check-phase12-release-certification-gate.mjs
       - name: A0 intelligence hardening
         run: node scripts/check-intelligence-hardening.mjs && node scripts/check-golden-intelligence-gates.mjs
       - name: Typecheck
