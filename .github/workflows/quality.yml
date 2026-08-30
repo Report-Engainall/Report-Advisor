@@ -71,6 +71,8 @@ jobs:
         run: npm run test:file-engine-contract && npm run test:file-engine-capability-contract && npm run test:schema-intelligence && npm run test:schema-entity-reconciliation && npm run test:a0-hardening-contract && npm run test:golden-dataset-contract && npm run test:canonical-import-mapping && npm run test:onyx-adapter-contract && npm run test:report-execution-foundation && npm run test:report-execution-e2e-contract && npm run test:report-execution-coordinator-contract && npm run test:automation-executor-contract && npm run test:forecast-calibration-contract && npm run test:entitlements-billing-contract && npm run test:decision-intelligence-closure && npm run test:production-saas-certification
       - name: Production certification
         run: npm run test:production-certification-contract
+      - name: Release evidence consumption workflow
+        run: npm run test:release-evidence-consumption-workflow
       - name: Operational resilience certification
         run: npm run test:operational-resilience && npm run test:release-resilience-manifest && node scripts/check-release-evidence-contract.mjs && node scripts/check-release-workflow-contract.mjs
       - name: Continuous trust certification
