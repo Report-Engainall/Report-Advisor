@@ -1,0 +1,41 @@
+name: Phase 4 document intelligence
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  phase-4-document-intelligence:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    steps:
+      - name: Checkout exact commit
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Verify exact HEAD
+        shell: bash
+        run: test "$(git rev-parse HEAD)" = "${GITHUB_SHA}"
+      - name: Install
+        run: npm ci --no-audit --no-fund
+      - name: Phase 4 document intelligence closure
+        run: node scripts/check-phase4-document-intelligence-closure.mjs
+      - name: Existing document hardening
+        run: npm run test:document-intelligence-hardening
+      - name: Document service tests
+        env:
+          PYTHONPATH: services/document-intelligence
+        run: python -m unittest discover -s services/document-intelligence/tests -p 'test_*.py'
