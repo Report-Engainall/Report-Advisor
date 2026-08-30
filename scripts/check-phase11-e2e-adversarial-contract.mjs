@@ -21,10 +21,15 @@ for (const token of ['golden','deterministic','expected','corpus'])
 for (const token of ['release','blocker','exact'])
   if (!blockers.toLowerCase().includes(token.toLowerCase())) throw new Error(`Release blocker contract missing ${token}`);
 
-// Adversarial test: a comment-only decoy must not satisfy the critical tenant token.
+const stripComments = source => source
+  .replace(/\/\*[\s\S]*?\*\//g, '')
+  .replace(/^\s*\/\/.*$/gm, '');
+
+// Adversarial test-of-test: a comment-only decoy must not satisfy executable evidence.
 const decoy = e2e.replace(/tenantId/g, '// tenantId');
-const executableTenantUses = (decoy.match(/\btenantId\b/g) ?? []).filter((_, i) => i >= 0).length;
-if (executableTenantUses === 0) throw new Error('Test-of-test setup invalid');
+const executable = stripComments(decoy);
+if (/\btenantId\b/.test(executable)) throw new Error('Test-of-test detected comment-decoy as executable tenant evidence');
+if (!/\btenantId\b/.test(stripComments(e2e))) throw new Error('Test-of-test setup invalid: real executable tenant evidence missing');
 
 // Explicitly preserve the certification boundary: source-level contracts cannot claim live E2E.
 if (/LIVE VERIFIED\s*=\s*YES/i.test(cert) || /RUNTIME VERIFIED\s*=\s*YES/i.test(cert))
