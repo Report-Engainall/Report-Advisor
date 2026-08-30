@@ -27,5 +27,7 @@ jobs:
         run: node scripts/check-decision-link-rpc-boundary.mjs
       - name: Receivables canonical truth
         run: node scripts/check-receivables-canonical-closure.mjs
+      - name: Worker lease fencing regression
+        run: node --experimental-strip-types scripts/report-execution-lease-fencing.test.ts
       - name: Golden business corpus truth
         run: node scripts/business-golden-corpus-contract.mjs
