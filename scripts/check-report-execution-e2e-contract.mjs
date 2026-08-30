@@ -22,13 +22,40 @@ const download = read(files[5]);
 const durable = read(files[6]);
 const ledger = read(files[7]);
 
-for (const token of ['tenantId', 'sourceSnapshotId', 'idempotencyKey', 'ReportExecutionEvidence']) if (!contract.includes(token)) throw new Error(`Execution contract missing ${token}`);
-for (const token of ['IdempotencyRegistry', 'fingerprintRequest', 'different request']) if (!idem.includes(token)) throw new Error(`Idempotency contract missing ${token}`);
-for (const token of ['assertExecutionRequest', 'assertGovernedRoute', 'sourceSnapshotId']) if (!gate.includes(token)) throw new Error(`Execution gate missing ${token}`);
-for (const token of ['claim', 'lease', 'maxAttempts', 'attempts', 'fail', 'heartbeat', 'listDeadLetters']) if (!queue.includes(token)) throw new Error(`Queue runtime missing ${token}`);
-for (const token of ['pdf', 'xlsx', 'web']) if (!renderers.toLowerCase().includes(token)) throw new Error(`Renderer missing ${token}`);
-for (const token of ['renderArtifact', 'downloadReportArtifact', 'Blob', 'anchor.download']) if (!download.includes(token)) throw new Error(`Report download path missing ${token}`);
-for (const token of ['claim_report_execution_job', 'heartbeat_report_execution_job', 'advance_report_execution_checkpoint', 'complete_report_execution_job', 'fail_report_execution_job', 'retry_report_execution_job']) if (!durable.includes(token)) throw new Error(`Durable worker adapter missing ${token}`);
-for (const token of ['artifactRefs', 'evidence', 'tenantId', 'immutable']) if (!ledger.includes(token)) throw new Error(`Execution ledger missing ${token}`);
+const required = (source, tokens, label) => {
+  for (const token of tokens) if (!source.includes(token)) throw new Error(`${label} missing ${token}`);
+};
 
-console.log('Report execution E2E contract: PASS');
+required(contract, ['tenantId', 'sourceSnapshotId', 'idempotencyKey', 'ReportExecutionEvidence'], 'Execution contract');
+required(idem, ['IdempotencyRegistry', 'fingerprintRequest', 'different request'], 'Idempotency contract');
+required(gate, ['assertExecutionRequest', 'assertGovernedRoute', 'sourceSnapshotId', 'assertNoQuarantine', 'fail-closed'], 'Execution gate');
+required(queue, ['claim', 'lease', 'maxAttempts', 'attempts', 'fail', 'heartbeat', 'listDeadLetters'], 'Queue runtime');
+required(renderers.toLowerCase(), ['pdf', 'xlsx', 'web'], 'Renderer');
+required(download, ['renderArtifact', 'downloadReportArtifact', 'Blob', 'anchor.download'], 'Report download path');
+required(durable, ['claim_report_execution_job', 'heartbeat_report_execution_job', 'advance_report_execution_checkpoint', 'complete_report_execution_job', 'fail_report_execution_job', 'retry_report_execution_job'], 'Durable worker adapter');
+required(ledger, ['artifactRefs', 'evidence', 'tenantId', 'immutable'], 'Execution ledger');
+
+const assertGateImplementation = (source) => {
+  if (!source.includes("if (!input.sourceSnapshotId) throw new Error('Report execution requires a source snapshot');")) {
+    throw new Error('source snapshot guard missing');
+  }
+  if (!source.includes('assertNoQuarantine(input.routePlan);')) throw new Error('quarantine guard missing');
+};
+assertGateImplementation(gate);
+
+// Test-of-test: prove the gate checker detects removal of the two critical
+// fail-closed preconditions instead of merely checking that their names exist.
+const tamperedWithoutSnapshot = gate.replace(
+  "  if (!input.sourceSnapshotId) throw new Error('Report execution requires a source snapshot');\n",
+  '',
+);
+let snapshotTamperRejected = false;
+try { assertGateImplementation(tamperedWithoutSnapshot); } catch { snapshotTamperRejected = true; }
+if (!snapshotTamperRejected) throw new Error('Test-of-test failed: source snapshot guard removal was not detected');
+
+const tamperedWithoutQuarantine = gate.replace('  assertNoQuarantine(input.routePlan);\n', '');
+let quarantineTamperRejected = false;
+try { assertGateImplementation(tamperedWithoutQuarantine); } catch { quarantineTamperRejected = true; }
+if (!quarantineTamperRejected) throw new Error('Test-of-test failed: quarantine gate removal was not detected');
+
+console.log('Report execution E2E contract: PASS (component boundaries plus adversarial guard-removal tests)');

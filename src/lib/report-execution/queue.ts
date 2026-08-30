@@ -1,4 +1,5 @@
-import type { ReportExecutionRequest, ReportJobStatus } from './report-execution-contract';
+import type { ReportExecutionRequest, ReportJobStatus } from './report-execution-contract.ts';
+import { assertExecutionRequest } from './report-execution-contract.ts';
 
 export interface ReportQueueJob {
   runId: string;
@@ -19,6 +20,7 @@ export class InMemoryReportQueue {
   private readonly idempotency = new Map<string, string>();
 
   enqueue(request: ReportExecutionRequest, runId: string, maxAttempts = 3): ReportQueueJob {
+    assertExecutionRequest(request);
     if (maxAttempts < 1) throw new Error('maxAttempts must be positive');
     const key = `${request.tenantId}:${request.idempotencyKey}`;
     const existingRunId = this.idempotency.get(key);

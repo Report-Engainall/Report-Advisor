@@ -35,12 +35,13 @@ export interface ReportExecutionResult {
 }
 
 export function assertExecutionRequest(request: ReportExecutionRequest): void {
-  if (!request.reportId || !request.tenantId || !request.requestedBy) throw new Error('Invalid report execution identity');
+  if (!request || !request.reportId || !request.tenantId || !request.requestedBy) throw new Error('Invalid report execution identity');
   if (!request.idempotencyKey) throw new Error('Report execution requires an idempotency key');
-  if (!request.formats.length) throw new Error('Report execution requires at least one output format');
+  if (!Array.isArray(request.formats) || request.formats.length === 0) throw new Error('Report execution requires at least one output format');
   if (new Set(request.formats).size !== request.formats.length) throw new Error('Duplicate output formats are not allowed');
+  if (request.formats.some((format) => !['web', 'pdf', 'xlsx'].includes(format))) throw new Error('Unsupported report output format');
 }
 
 export function assertEvidenceTenant(evidence: ReportExecutionEvidence, tenantId: string): void {
-  if (evidence.tenantId !== tenantId) throw new Error('Report evidence tenant mismatch');
+  if (!evidence || evidence.tenantId !== tenantId) throw new Error('Report evidence tenant mismatch');
 }

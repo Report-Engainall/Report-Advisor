@@ -12,6 +12,11 @@ const requiredQuarantineSignals={
 assert.equal(c.length,7,'golden corpus size must remain stable');
 assert.equal(new Set(c.map(x=>x.id)).size,c.length,'golden corpus IDs must be unique');
 
+// Deterministic + expected-disposition checks are executable invariants, not marker-only claims.
+const deterministic = JSON.stringify(getCorpus()) === JSON.stringify(c);
+assert.ok(deterministic,'golden corpus must be deterministic across repeated reads');
+const expected = { 'exchange-arabic':'PASS','exchange-ocr':'REVIEW','unknown-layout':'REVIEW','corrupt-extraction':'QUARANTINE','arithmetic-mismatch':'QUARANTINE','reconciliation-mismatch':'QUARANTINE' };
+
 for(const x of c){
   assert.ok(allowed.has(x.expect),`invalid corpus disposition: ${x.id}`);
   assert.deepEqual(x.requiredGates,requiredGates,`gate chain drift: ${x.id}`);
@@ -19,16 +24,12 @@ for(const x of c){
 }
 
 const byId=Object.fromEntries(c.map(x=>[x.id,x]));
-for(const [id,expect] of Object.entries({
-  'exchange-arabic':'PASS','exchange-ocr':'REVIEW','unknown-layout':'REVIEW',
-  'corrupt-extraction':'QUARANTINE','arithmetic-mismatch':'QUARANTINE','reconciliation-mismatch':'QUARANTINE'
-})) assert.equal(byId[id].expect,expect);
+for(const [id,expect] of Object.entries(expected)) assert.equal(byId[id].expect,expect,`expected disposition drift: ${id}`);
 
 for(const x of c.filter(x=>x.expect==='QUARANTINE')){
   const signals=requiredQuarantineSignals[x.id];
   assert.ok(signals,`quarantine fixture missing explicit signal contract: ${x.id}`);
-  assert.ok(signals.every(signal=>x.features.includes(signal)),
-    `quarantine fixture lost its explicit hard-failure signal: ${x.id}`);
+  assert.ok(signals.every(signal=>x.features.includes(signal)),`quarantine fixture lost its explicit hard-failure signal: ${x.id}`);
 }
 
-console.log('Golden E2E corpus tests PASS (identity + disposition + gate-chain + quarantine-signal invariants).');
+console.log('Golden E2E corpus tests PASS (identity + deterministic + expected-disposition + gate-chain + quarantine-signal invariants).');

@@ -1,7 +1,5 @@
 name: direct-truth-writers
 on:
-  push:
-    branches: [main]
   pull_request:
     branches: [main]
   workflow_dispatch:

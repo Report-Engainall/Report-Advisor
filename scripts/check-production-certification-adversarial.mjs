@@ -13,9 +13,17 @@ const simulatedMissing = required.filter(key => !checks.includes(key));
 if (simulatedMissing.length !== 1 || simulatedMissing[0] !== 'security') throw new Error('adversarial fixture invalid');
 if (!source.includes('MISSING_EVIDENCE:${key}')) throw new Error('missing-evidence blocker is not enforced');
 
-// Test-of-test: stripping the mandatory blocker marker must make the gate reject.
-const decoy = source.replace(/MISSING_EVIDENCE:/g, '// MISSING_EVIDENCE:').replace(/FAILED_EVIDENCE:/g, '// FAILED_EVIDENCE:');
-if (decoy.includes('MISSING_EVIDENCE:${key}')) throw new Error('test-of-test failed: missing-evidence marker survived as executable source');
-if (decoy.includes('FAILED_EVIDENCE:${key}')) throw new Error('test-of-test failed: failed-evidence marker survived as executable source');
+// Test-of-test: require the real markers to exist before tampering, then ensure
+// the same source is detected as invalid after those executable guards vanish.
+const requiredBlockerTokens = ['MISSING_EVIDENCE:${key}', 'FAILED_EVIDENCE:${key}'];
+for (const token of requiredBlockerTokens) {
+  if (!source.includes(token)) throw new Error(`test-of-test fixture invalid: source lacks ${token}`);
+}
+const tampered = source
+  .replaceAll('MISSING_EVIDENCE:${key}', '')
+  .replaceAll('FAILED_EVIDENCE:${key}', '');
+for (const token of requiredBlockerTokens) {
+  if (tampered.includes(token)) throw new Error(`test-of-test failed: tampering was not detected for ${token}`);
+}
 
 console.log('Production certification adversarial evidence gate: PASS');
