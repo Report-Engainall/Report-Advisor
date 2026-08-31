@@ -4,9 +4,9 @@ import type { ReportFact } from './free-toolbox/report-facts';
 export interface MetricEvaluation { key: string; definition: MetricDefinition; value: number | null; status: MetricStatus; confidence: number; updatedAt?: string | null; sourceRows?: number; warnings: string[]; fact: ReportFact; }
 export interface MetricInput { key: string; value: number | null | undefined; confidence?: number; status?: MetricStatus; updatedAt?: string | null; sourceRows?: number; warnings?: string[]; }
 
-const boundedConfidence = (value: unknown, fallback: number) => {
-  if (typeof value !== 'number' || !Number.isFinite(value)) return fallback;
-  return Math.max(0, Math.min(1, value));
+const boundedConfidence = (value: unknown) => {
+  if (typeof value !== 'number' || !Number.isFinite(value) || value < 0 || value > 1) return 0;
+  return value;
 };
 const validSourceRows = (value: unknown) => typeof value === 'number' && Number.isInteger(value) && value > 0;
 
@@ -16,7 +16,7 @@ export function evaluateMetric(input: MetricInput): MetricEvaluation {
   const warnings = [...(input.warnings ?? [])];
   const numeric = input.value != null && Number.isFinite(Number(input.value)) ? Number(input.value) : null;
   let status = input.status ?? definition.status;
-  let confidence = boundedConfidence(input.confidence, numeric == null ? 0 : 1);
+  let confidence = boundedConfidence(input.confidence);
   if (numeric == null) {
     status = 'UNAVAILABLE'; confidence = 0; warnings.push('القيمة غير متاحة أو غير رقمية.');
   } else if (input.sourceRows !== undefined && !validSourceRows(input.sourceRows)) {
