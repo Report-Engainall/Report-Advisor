@@ -2,8 +2,6 @@ name: canonical-aggregation-truth
 
 on:
   pull_request:
-  push:
-    branches: [main]
 
 jobs:
   canonical-aggregation-truth:
