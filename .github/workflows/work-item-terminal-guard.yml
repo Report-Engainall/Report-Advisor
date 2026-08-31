@@ -10,3 +10,5 @@ jobs:
       - uses: actions/checkout@v4
       - name: Verify terminal work-item transition guard
         run: node scripts/check-work-item-terminal-guard.mjs
+      - name: Verify decision outcome terminal provenance
+        run: node scripts/check-decision-outcome-actor-provenance.mjs && node scripts/check-outcome-provenance-identity.mjs
