@@ -1,12 +1,9 @@
-import assert from 'node:assert/strict';
-const hasScope = (v) => typeof v === 'string' && v.trim().length > 0;
-const sameTenant = (requested, authenticated) => hasScope(requested) && hasScope(authenticated) && requested.trim() === authenticated.trim();
-assert.equal(hasScope('tenant-a'), true);
-assert.equal(hasScope('   '), false);
-assert.equal(hasScope(''), false);
-assert.equal(hasScope(null), false);
-assert.equal(sameTenant('tenant-a', 'tenant-a'), true);
-assert.equal(sameTenant(' tenant-a ', 'tenant-a'), true);
-assert.equal(sameTenant('tenant-a', 'tenant-b'), false);
-assert.equal(sameTenant('tenant-a', '   '), false);
-console.log('AI tenant boundary contract: PASS');
+import { spawnSync } from 'node:child_process';
+
+const result = spawnSync('npx', ['vitest', 'run', 'src/lib/aiDataPolicy.boundary.test.ts'], {
+  stdio: 'inherit',
+  shell: process.platform === 'win32',
+});
+
+if (result.error) throw result.error;
+process.exit(result.status ?? 1);
