@@ -1,0 +1,15 @@
+name: Metric Boundary Hardening
+on:
+  pull_request:
+  push:
+
+jobs:
+  metric-boundaries:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Source evidence contract
+        run: node scripts/check-metric-source-evidence.mjs
