@@ -118,4 +118,78 @@ jobs:
       - name: Work-item assignment integrity
         run: node scripts/check-work-item-assignment-integrity.mjs && node scripts/check-work-item-assignment-integrity-regression.mjs
       - name: A0 intelligence hardening
-        run: npm run test:a0-hardening-contract
+        run: node scripts/check-intelligence-hardening.mjs && node scripts/check-golden-intelligence-gates.mjs
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Behavioral regressions
+        run: npm run test:file-engine-regressions && npm run test:business-key-regressions && npm run test:import-classifier-regressions && node scripts/dashboard-canonical-regression.mjs
+      - name: Business intelligence regressions
+        run: node --experimental-strip-types scripts/business-intelligence-regressions.test.ts
+      - name: Deep golden corpus regressions
+        run: node --experimental-strip-types scripts/golden-dataset-deep-regressions.test.ts
+      - name: Outcome feedback regressions
+        run: node --experimental-strip-types scripts/outcome-feedback-regressions.test.ts
+      - name: File security regressions
+        run: node --experimental-strip-types scripts/file-security-regressions.test.ts
+      - name: Decision evidence regressions
+        run: node --experimental-strip-types scripts/decision-evidence-regression.test.ts && node scripts/check-decision-metrics-unknown-regression.mjs
+      - name: Routing and security contracts (parallel discovery)
+        shell: bash
+        run: |
+          set +e
+          declare -A pids
+          declare -A names
+          commands=(
+            "node scripts/check-navigation-route-contract.mjs"
+            "node scripts/check-import-direct-write-guard.mjs"
+            "npm run test:import-transaction-contract"
+            "npm run test:import-runtime-governance"
+            "npm run test:tenant-security-contract"
+          )
+          for i in "${!commands[@]}"; do
+            echo "[routing-security] START ${commands[$i]}"
+            bash -lc "${commands[$i]}" >"/tmp/routing-security-$i.log" 2>&1 &
+            pids[$i]=$!
+            names[$i]="${commands[$i]}"
+          done
+          failures=0
+          for i in "${!commands[@]}"; do
+            wait "${pids[$i]}"
+            status=$?
+            cat "/tmp/routing-security-$i.log"
+            if [ "$status" -ne 0 ]; then
+              echo "[routing-security] FAIL ${names[$i]} (exit=$status)"
+              failures=$((failures + 1))
+            else
+              echo "[routing-security] PASS ${names[$i]}"
+            fi
+          done
+          echo "[routing-security] independent checks completed; failures=$failures"
+          test "$failures" -eq 0
+      - name: Global tenant RLS
+        if: ${{ always() }}
+        run: npm run test:global-tenant-rls
+      - name: Import RPC tenant context
+        if: ${{ always() }}
+        run: npm run test:import-rpc-tenant-context
+      - name: Import business key
+        if: ${{ always() }}
+        run: npm run test:import-business-key
+      - name: Phase 3 data and import truth closure
+        if: ${{ always() }}
+        run: npm run test:phase3-data-import-truth
+      - name: Lint
+        if: ${{ always() }}
+        run: npm run lint
+      - name: Build
+        if: ${{ always() }}
+        run: npm run build
+      - name: Performance budget
+        if: ${{ always() }}
+        run: npm run perf:budget
+      - name: Production scale contract
+        if: ${{ always() }}
+        run: npm run test:production-scale
+      - name: Intelligence and production contracts
+        if: ${{ always() }}
+        run: node scripts/check-intelligence-hardening.mjs && node scripts/check-golden-intelligence-gates.mjs
