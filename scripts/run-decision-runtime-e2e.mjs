@@ -1,6 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 
-const required = ['SUPABASE_URL','SUPABASE_ANON_KEY','TEST_USER_A_EMAIL','TEST_USER_A_PASSWORD','TEST_APPROVER_EMAIL','TEST_APPROVER_PASSWORD','TEST_USER_B_EMAIL','TEST_USER_B_PASSWORD'];
+const required = ['SUPABASE_URL','SUPABASE_ANON_KEY','TEST_USER_A_EMAIL','TEST_USER_A_PASSWORD','TEST_APPROVER_EMAIL','TEST_APPROVER_PASSWORD','TEST_USER_B_EMAIL','TEST_USER_B_PASSWORD','TEST_EVIDENCE_SNAPSHOT_ID'];
 for (const name of required) if (!process.env[name]) throw new Error(`MISSING_ENV:${name}`);
 
 const client = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY, { auth: { persistSession: false } });
@@ -38,7 +38,7 @@ await expectFailure('self approval', async () => client.rpc('decide_approval', {
   p_reason: 'self approval must be rejected',
 }).then(({ error }) => { if (error) throw error; }));
 
-const userB = await signIn(process.env.TEST_USER_B_EMAIL, process.env.TEST_USER_B_PASSWORD);
+await signIn(process.env.TEST_USER_B_EMAIL, process.env.TEST_USER_B_PASSWORD);
 await expectFailure('cross-tenant approval', async () => client.rpc('decide_approval', {
   p_approval_id: approval,
   p_approve: true,
@@ -78,10 +78,14 @@ const { error: startError } = await client.rpc('start_decision_work_item', { p_w
 if (startError) throw startError;
 
 await expectFailure('outcome without valid work item', async () => client.rpc('complete_decision_work_item', {
-  p_work_item_id: crypto.randomUUID(), p_actual_impact: 100, p_evidence: {},
+  p_work_item_id: crypto.randomUUID(), p_actual_impact: 100, p_evidence: { evidence_snapshot_id: process.env.TEST_EVIDENCE_SNAPSHOT_ID },
 }).then(({ error }) => { if (error) throw error; }));
 
-const forged = { work_item_id: 'forged-by-caller', outcome_delta: 999, source: 'synthetic' };
+await expectFailure('missing outcome evidence', async () => client.rpc('complete_decision_work_item', {
+  p_work_item_id: workItem, p_actual_impact: 90, p_evidence: {},
+}).then(({ error }) => { if (error) throw error; }));
+
+const forged = { evidence_snapshot_id: process.env.TEST_EVIDENCE_SNAPSHOT_ID, work_item_id: 'forged-by-caller', outcome_delta: 999, source: 'synthetic' };
 const { error: completeError } = await client.rpc('complete_decision_work_item', {
   p_work_item_id: workItem,
   p_actual_impact: 90,
@@ -90,13 +94,13 @@ const { error: completeError } = await client.rpc('complete_decision_work_item',
 if (completeError) throw completeError;
 
 await expectFailure('duplicate completion', async () => client.rpc('complete_decision_work_item', {
-  p_work_item_id: workItem, p_actual_impact: 90, p_evidence: {},
+  p_work_item_id: workItem, p_actual_impact: 90, p_evidence: forged,
 }).then(({ error }) => { if (error) throw error; }));
 
 const { data: outcome, error: outcomeError } = await client.from('recommendation_outcomes')
   .select('evidence,actual_impact,status').eq('decision_id', decision).single();
 if (outcomeError) throw outcomeError;
-if (outcome.actual_impact !== 90 || outcome.evidence.work_item_id !== workItem || outcome.evidence.outcome_delta !== -10) {
+if (outcome.actual_impact !== 90 || outcome.evidence.work_item_id !== workItem || outcome.evidence.outcome_delta !== -10 || outcome.evidence.evidence_snapshot_id !== process.env.TEST_EVIDENCE_SNAPSHOT_ID) {
   throw new Error('GENERATED_PROVENANCE_ASSERTION_FAILED');
 }
 
@@ -107,5 +111,5 @@ if (finalDecision.status !== 'EXECUTED') throw new Error(`DECISION_NOT_EXECUTED:
 
 console.log(JSON.stringify({ status: 'PASS', synthetic: true, decision, workItem, tested: [
   'self approval', 'cross tenant approval', 'wrong assignee start', 'valid start',
-  'invalid outcome work item', 'generated provenance precedence', 'duplicate completion', 'terminal decision execution'
+  'invalid outcome work item', 'missing outcome evidence', 'generated provenance precedence', 'duplicate completion', 'terminal decision execution'
 ] }, null, 2));
