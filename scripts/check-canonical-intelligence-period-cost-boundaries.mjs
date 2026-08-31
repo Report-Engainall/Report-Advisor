@@ -1,0 +1,13 @@
+import assert from 'node:assert/strict';
+const finitePositive = (value, fallback) => Number.isFinite(value) && value > 0 ? value : fallback;
+const hasInvalidCost = (value) => !Number.isFinite(value) || value <= 0;
+assert.equal(finitePositive(Number.NaN, 365), 365);
+assert.equal(finitePositive(-1, 365), 365);
+assert.equal(finitePositive(0, 365), 365);
+assert.equal(finitePositive(30, 365), 30);
+assert.equal(hasInvalidCost(Number.NaN), true);
+assert.equal(hasInvalidCost(Infinity), true);
+assert.equal(hasInvalidCost(-1), true);
+assert.equal(hasInvalidCost(0), true);
+assert.equal(hasInvalidCost(100), false);
+console.log('canonical period/cost boundaries: PASS');
