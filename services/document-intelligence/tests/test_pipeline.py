@@ -63,3 +63,20 @@ def test_parser_hash_mismatch_is_blocked() -> None:
         assert "source hash" in str(exc)
     else:
         raise AssertionError("provider hash mismatch must fail closed")
+
+
+def test_api_boundary_uses_guarded_pipeline_for_unsafe_filename() -> None:
+    from app.main import parse_fallback
+    try:
+        build_processing_snapshot(b"abc", "../evil.pdf", "application/pdf")
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("API ingestion must reject unsafe filenames before parser execution")
+
+
+def test_image_route_requires_ocr_and_review() -> None:
+    snapshot = build_processing_snapshot(b"image-bytes", "invoice.png", "image/png", structured_available=False)
+    assert snapshot["route"]["route"] == "ocr"
+    assert snapshot["route"]["requires_ocr"] is True
+    assert snapshot["route"]["requires_review"] is True
