@@ -73,7 +73,66 @@ def parse_with_docling(data: bytes, filename: str, mime: str) -> dict[str, Any] 
         return {"document": envelope.to_dict(), "engine": "docling", "warnings": []}
 
 
-def parse_fallback(data: bytes, filename: str, mime: str) -> dict[str, Any]:
+def parse_with_ocr(data: bytes, filename: str, mime: str) -> dict[str, Any] | None:
+    """Optional OCR adapter. Never silently converts an unavailable OCR path into success."""
+    try:
+        from paddleocr import PaddleOCR
+    except Exception:
+        return None
+
+    try:
+        from PIL import Image
+        import io
+        image = Image.open(io.BytesIO(data))
+        result = PaddleOCR(use_doc_orientation_classify=True, use_doc_unwarping=False, use_textline_orientation=True, lang="arabic").predict(image)
+        envelope = _envelope(data, filename, mime, "paddleocr", [])
+        text_parts: list[str] = []
+        for page_result in result:
+            payload = getattr(page_result, "json", None)
+            payload = payload() if callable(payload) else payload
+            if isinstance(payload, dict):
+                for text in payload.get("res", {}).get("rec_texts", []) or []:
+                    if isinstance(text, str) and text.strip():
+                        text_parts.append(text.strip())
+        if text_parts:
+            envelope.pages.append(Page(number=1, blocks=[Block(
+                type="ocr_text",
+                text="\\n".join(text_parts),
+                confidence=0.0,
+                provenance=Provenance(
+                    source_file=filename,
+                    source_sha256=envelope.source_sha256,
+                    page=1,
+                    parser="paddleocr",
+                ),
+            )]))
+        else:
+            envelope.warnings.append("OCR backend returned no reliable text; document requires review.")
+        return {"document": envelope.to_dict(), "engine": "paddleocr", "warnings": envelope.warnings}
+    except Exception as exc:
+        return {"document": _envelope(data, filename, mime, "paddleocr", [f"OCR execution failed: {type(exc).__name__}"]).to_dict(),
+                "engine": "paddleocr", "warnings": ["OCR execution failed; document is not considered successfully extracted."]}
+
+
+def parse_fallback(data: bytes, filename: str, mime: str, *, ocr_required: bool = False) -> dict[str, Any]:
+    text = data.decode("utf-8", errors="replace") if mime.startswith("text/") else ""
+    warnings = ["No optional structured document backend was available."]
+    if ocr_required:
+        warnings = ["OCR is required for this document but no OCR backend is available; extraction is incomplete and requires review."]
+    envelope = _envelope(data, filename, mime, "fallback", warnings)
+    if text:
+        envelope.pages.append(Page(number=1, blocks=[Block(
+            type="text",
+            text=text,
+            provenance=Provenance(source_file=filename, source_sha256=envelope.source_sha256, page=1, parser="fallback"),
+        )]))
+    return {"document": envelope.to_dict(), "engine": "fallback", "warnings": envelope.warnings}
+
+
+def _legacy_fallback_marker():
+    pass
+
+
     text = data.decode("utf-8", errors="replace") if mime.startswith("text/") else ""
     envelope = _envelope(
         data,
@@ -119,4 +178,10 @@ async def parse_document(file: UploadFile = File(...)) -> dict[str, Any]:
 
     filename = file.filename or "document"
     result = parse_with_docling(data, filename, file.content_type)
-    return result or parse_fallback(data, filename, file.content_type)
+    if result:
+        return result
+    if file.content_type.startswith("image/"):
+        return parse_with_ocr(data, filename, file.content_type) or parse_fallback(data, filename, file.content_type, ocr_required=True)
+    if file.content_type == "application/pdf":
+        return parse_with_ocr(data, filename, file.content_type) or parse_fallback(data, filename, file.content_type, ocr_required=True)
+    return parse_fallback(data, filename, file.content_type)
