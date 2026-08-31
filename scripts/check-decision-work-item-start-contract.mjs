@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 
 const migration = fs.readFileSync('supabase/migrations/20260831013000_start_decision_work_item.sql', 'utf8');
+const exposureFix = fs.readFileSync('supabase/migrations/20260831013100_restrict_start_decision_work_item_execute.sql', 'utf8');
 const runtime = fs.readFileSync('src/lib/decision-automation/vertical-slice-runtime.ts', 'utf8');
 
 const required = [
@@ -14,11 +15,18 @@ const required = [
   [/v_assignee\s+IS NOT NULL\s+AND\s+v_assignee\s+<>\s+v_user/i, 'RPC enforces assignee'],
   [/status\s*=\s*'IN_PROGRESS'/i, 'RPC enters IN_PROGRESS'],
   [/GRANT EXECUTE ON FUNCTION public\.start_decision_work_item\(uuid\) TO authenticated/i, 'authenticated EXECUTE granted'],
-  [/REVOKE EXECUTE ON FUNCTION public\.start_decision_work_item\(uuid\) FROM anon/i, 'anon EXECUTE revoked'],
 ];
 
 for (const [pattern, label] of required) {
   if (!pattern.test(migration)) throw new Error(`Start work-item contract missing: ${label}`);
+}
+
+for (const [pattern, label] of [
+  [/REVOKE EXECUTE ON FUNCTION public\.start_decision_work_item\(uuid\) FROM PUBLIC/i, 'PUBLIC EXECUTE revoked'],
+  [/REVOKE EXECUTE ON FUNCTION public\.start_decision_work_item\(uuid\) FROM anon/i, 'anon EXECUTE revoked'],
+  [/GRANT EXECUTE ON FUNCTION public\.start_decision_work_item\(uuid\) TO authenticated/i, 'authenticated EXECUTE retained'],
+]) {
+  if (!pattern.test(exposureFix)) throw new Error(`Start work-item exposure contract missing: ${label}`);
 }
 
 if (!/export async function startRuntimeWorkItem\(workItemId: string\)/.test(runtime)) {
