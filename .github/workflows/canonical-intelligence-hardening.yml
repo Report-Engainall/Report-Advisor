@@ -1,0 +1,17 @@
+name: Canonical Intelligence Hardening
+on:
+  pull_request:
+  push:
+
+jobs:
+  canonical-boundaries:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Run executable numeric boundary contract
+        run: node scripts/check-canonical-intelligence-inputs.mjs
+      - name: Run boundary invariant contract
+        run: node scripts/check-canonical-intelligence-boundaries.mjs
