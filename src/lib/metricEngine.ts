@@ -19,7 +19,7 @@ export function evaluateMetric(input: MetricInput): MetricEvaluation {
   let confidence = boundedConfidence(input.confidence);
   if (numeric == null) {
     status = 'UNAVAILABLE'; confidence = 0; warnings.push('القيمة غير متاحة أو غير رقمية.');
-  } else if (input.sourceRows !== undefined && !validSourceRows(input.sourceRows)) {
+  } else if (!validSourceRows(input.sourceRows)) {
     status = 'INSUFFICIENT_DATA'; confidence = 0; warnings.push('عدد صفوف المصدر غير صالح لإثبات المؤشر.');
   } else if (confidence < 0.7 && status !== 'FORECAST' && status !== 'ESTIMATED') {
     warnings.push('الثقة أقل من حد العرض الموثوق.');
