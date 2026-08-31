@@ -1,6 +1,8 @@
 import fs from 'node:fs';
 
-const migration = fs.readFileSync('supabase/migrations/20260831090000_harden_decision_outcome_actor_identity.sql','utf8');
+const actorMigration = fs.readFileSync('supabase/migrations/20260831090000_harden_decision_outcome_actor_identity.sql','utf8');
+const terminalMigration = fs.readFileSync('supabase/migrations/20260831143000_harden_decision_outcome_work_item_terminal.sql','utf8');
+const migration = `${actorMigration}\n${terminalMigration}`;
 for (const token of [
   'recommendation_outcomes',
   'decision_outcomes',
