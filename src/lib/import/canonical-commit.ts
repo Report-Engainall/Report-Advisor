@@ -1,4 +1,5 @@
 import { supabase, resolveCurrentCompanyId } from '@/lib/supabase';
+import { assertCanonicalBoundary, type ReconciledCanonicalImportRow } from '@/lib/import/canonical-truth-boundary';
 
 export interface CanonicalImportRow { data: Record<string, unknown>; rowNumber: number }
 export interface CanonicalCommitResult { committed: number; ids: string[] }
@@ -69,13 +70,17 @@ function canonicalizeRow(entityType: 'products' | 'customers' | 'sales_invoices'
   };
 }
 
-export async function commitImportBatch(entityType: 'products' | 'customers' | 'sales_invoices', rows: CanonicalImportRow[]): Promise<CanonicalCommitResult> {
+export async function commitImportBatch(
+  entityType: 'products' | 'customers' | 'sales_invoices',
+  rows: ReconciledCanonicalImportRow[],
+): Promise<CanonicalCommitResult> {
   if (!rows.length) return { committed: 0, ids: [] };
   const companyId = await resolveCurrentCompanyId();
   if (!companyId) throw new Error('No authenticated tenant context is available for canonical import');
 
-  // Validate and normalize the whole chunk before any write occurs.
-  const payload = rows.map((row) => canonicalizeRow(entityType, row));
+  // The canonical boundary is intentionally runtime-enforced, not merely a TypeScript type.
+  rows.forEach((row) => assertCanonicalBoundary(row, companyId));
+  const payload = rows.map((row) => canonicalizeRow(entityType, { data: row.data, rowNumber: row.rowNumber }));
   const { data, error } = await supabase.rpc('import_commit_batch', {
     p_company_id: companyId,
     p_entity_type: entityType,

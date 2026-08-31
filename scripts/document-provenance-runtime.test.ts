@@ -27,6 +27,13 @@ assert.equal(evidence[0]?.sourceHash, 'sha256:abc');
 assert.equal(evidence[0]?.location, 'table:total');
 assert.equal(evidence[1]?.normalized, null);
 
+const sameLocationDifferentValues: DocumentExtractionFact[] = [
+  { field: 'total', value: 1250, confidence: 0.95, source: 'invoice.pdf', page: 2, location: 'table:total', sourceDocumentId: 'doc-7', sourceHash: 'sha256:abc' },
+  { field: 'total', value: 1500, confidence: 0.95, source: 'invoice.pdf', page: 2, location: 'table:total', sourceDocumentId: 'doc-7', sourceHash: 'sha256:abc' },
+];
+const collisionCheck = extractedFactsToEvidence(sameLocationDifferentValues);
+assert.notEqual(collisionCheck[0]?.id, collisionCheck[1]?.id, 'evidence identity must distinguish conflicting values at the same source location');
+
 const graph = attachExtractedFactsToLineage(
   { nodes: [{ id: 'recommendation-1', type: 'insight', label: 'Recommendation' }], edges: [] },
   accepted.facts,
