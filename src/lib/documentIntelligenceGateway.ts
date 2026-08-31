@@ -5,7 +5,6 @@ import type { EvidenceRef, LineageGraph } from './free-toolbox/data-lineage.ts';
 
 export type DocumentCapability = 'document-parsing' | 'ocr' | 'table-extraction';
 export type DocumentBackendStatus = 'AVAILABLE' | 'OPTIONAL' | 'UNAVAILABLE';
-
 export interface DocumentBackendChoice { capability: DocumentCapability; backend: AICapabilityBackend['backend']; status: DocumentBackendStatus; requiresInstall: boolean; mayCostMoney: boolean; reason: string }
 export interface DocumentExtractionFact { field: string; value: string | number | null; confidence: number; source: string; page?: number; location?: string; sourceDocumentId?: string; sourceHash?: string }
 export interface DocumentExtractionEnvelope { plan: DocumentPlan; choices: DocumentBackendChoice[]; stage: 'PLANNED' | 'READY_FOR_EXTRACTION' | 'INSUFFICIENT_BACKEND'; warnings: string[]; facts: DocumentExtractionFact[] }
@@ -33,7 +32,10 @@ export function acceptExtractedFacts(envelope: DocumentExtractionEnvelope, facts
   return { ...envelope, stage: envelope.stage === 'INSUFFICIENT_BACKEND' ? envelope.stage : 'READY_FOR_EXTRACTION', facts: valid, warnings: [...envelope.warnings, ...(valid.length < facts.length ? ['تم رفض حقول مستخرجة تفتقد source أو confidence صالح.'] : [])] };
 }
 
-function stableEvidenceId(f: DocumentExtractionFact) { return [f.source, f.sourceDocumentId, f.sourceHash, f.page, f.location, f.field].filter(v => v !== undefined && v !== '').join(':'); }
+function stableEvidenceId(f: DocumentExtractionFact) {
+  const identity = [f.source, f.sourceDocumentId, f.sourceHash, f.page, f.location, f.field, f.value === null ? 'NULL' : JSON.stringify(f.value)];
+  return identity.filter(v => v !== undefined && v !== '').join(':');
+}
 
 export function extractedFactsToEvidence(facts: DocumentExtractionFact[]): Evidence[] {
   return facts.filter(f => Boolean(f.source) && Number.isFinite(f.confidence) && f.confidence >= 0 && f.confidence <= 1).map(f => ({ id: stableEvidenceId(f), sourceId: f.source, sourceDocumentId: f.sourceDocumentId, sourceHash: f.sourceHash, page: f.page, location: f.location, method: 'derived', field: f.field, raw: f.value === null ? undefined : String(f.value), normalized: f.value, confidence: f.confidence }));
