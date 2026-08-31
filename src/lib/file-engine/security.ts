@@ -1,4 +1,4 @@
-import { resolveCurrentCompanyId, supabase } from '../supabase';
+import { resolveCurrentCompanyId, supabase } from '../supabase.ts';
 import type { SecurityScanResult } from './types';
 import { MAX_FILE_SIZE } from './types';
 import { computeSHA256 } from './file-identity-core';
