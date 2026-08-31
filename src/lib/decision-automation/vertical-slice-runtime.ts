@@ -107,6 +107,11 @@ export async function createRuntimeWorkItem(decisionId: string, recommendationId
   return data as string;
 }
 
+export async function startRuntimeWorkItem(workItemId: string): Promise<void> {
+  const { error } = await supabase.rpc('start_decision_work_item', { p_work_item_id: workItemId });
+  if (error) throw error;
+}
+
 export async function notifyWorkItem(workItemId: string, title: string, description: string): Promise<string> {
   await companyIdOrThrow();
   const { data, error } = await supabase.rpc('notify_decision_work_item', {
