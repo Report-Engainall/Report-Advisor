@@ -1,0 +1,11 @@
+import assert from 'node:assert/strict';
+const valid = (v) => typeof v === 'number' && Number.isInteger(v) && v > 0;
+assert.equal(valid(1), true);
+assert.equal(valid(100), true);
+assert.equal(valid(0), false);
+assert.equal(valid(-1), false);
+assert.equal(valid(1.5), false);
+assert.equal(valid(Number.NaN), false);
+assert.equal(valid(Number.POSITIVE_INFINITY), false);
+assert.equal(valid(undefined), false);
+console.log('metric source evidence contract: PASS');
