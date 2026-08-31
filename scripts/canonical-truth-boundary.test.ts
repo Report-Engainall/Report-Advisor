@@ -43,16 +43,10 @@ assert.equal(conflict.rows.length, 1);
 assert.deepEqual(conflict.rejected, [{ rowNumber: 2, reason: 'CONFLICTING_EVIDENCE_FOR_SAME_CANONICAL_IDENTITY' }]);
 
 // Adversarial: incomplete provenance is fail-closed.
-const incomplete = reconcileForCanonical(
-  'products',
-  'tenant-a',
-  '',
-  'sha256:file-a',
-  'sha256:file-a',
-  () => 'evidence:x',
-  [base],
+assert.throws(
+  () => reconcileForCanonical('products', 'tenant-a', '', 'sha256:file-a', 'sha256:file-a', () => 'evidence:x', [base]),
+  /SOURCE_REQUIRED/,
 );
-assert.throws(() => incomplete, /SOURCE_REQUIRED/);
 
 // Adversarial: a reconciled row cannot cross a different tenant boundary.
 assert.throws(() => assertCanonicalBoundary(reconciled.rows[0]!, 'tenant-b'), /CANONICAL_TENANT_MISMATCH/);
