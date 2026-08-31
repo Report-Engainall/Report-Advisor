@@ -1,0 +1,14 @@
+name: Golden Score Identity
+on:
+  pull_request:
+  push:
+
+jobs:
+  golden-score:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node scripts/check-golden-score-identity.mjs
