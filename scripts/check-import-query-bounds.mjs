@@ -24,7 +24,8 @@ if (!/select\([^)]*result_summary/.test(fn)) {
   throw new Error('import history projection missing');
 }
 
-if (/\.select\([^;]+\)\.eq\('company_id', companyId\)\.order/.test(fn)) {
+const importRead = fn.match(/\.from\('import_jobs'\)[^;]+;/)?.[0] ?? '';
+if (importRead && !importRead.includes('.range(0, MAX_IMPORT_RECORD_ROWS - 1)')) {
   throw new Error('import history query still has an unbounded tenant read');
 }
 
