@@ -23,3 +23,15 @@ export function evaluateAIDataPolicy(input: AIDataPolicyInput): AIDataPolicyDeci
   if (!input.text?.trim()) return { allowed: false, reason: 'Approved context is empty', payloadMode: 'none' };
   return { allowed: true, reason: 'Approved minimum context', payloadMode: 'approved-context' };
 }
+
+/**
+ * Session-bound entry point. A caller-controlled tenant id must never be
+ * sufficient to authorize AI access; the authenticated session tenant is the
+ * authority and must match the requested tenant before the existing policy
+ * is evaluated.
+ */
+export function evaluateAIDataPolicyForSession(input: AIDataPolicyInput, authenticatedTenantId: string | null | undefined): AIDataPolicyDecision {
+  if (!authenticatedTenantId) return { allowed: false, reason: 'Authenticated tenant scope is required', payloadMode: 'none' };
+  if (input.tenantId !== authenticatedTenantId) return { allowed: false, reason: 'Requested tenant does not match authenticated tenant', payloadMode: 'none' };
+  return evaluateAIDataPolicy(input);
+}
