@@ -3,15 +3,28 @@ import { readFileSync } from 'node:fs';
 const source = readFileSync('src/lib/queries.ts', 'utf8');
 const start = source.indexOf('export async function fetchImportRecords');
 const end = source.indexOf('export async function markAlertRead', start);
-if (start < 0 || end < 0) throw new Error('fetchImportRecords boundary not found');
-const fn = source.slice(start, end);
 
-for (const token of ["{ count: 'exact' }", '.range(0,MAX_ENTITY_ROWS-1)', 'REPORT_QUERY_LIMIT_EXCEEDED: imports require explicit pagination']) {
-  if (!fn.includes(token)) throw new Error(`import query bound contract missing: ${token}`);
+if (start < 0 || end < 0) {
+  throw new Error('fetchImportRecords boundary not found');
 }
 
-if (!/select\([^)]*result_summary/.test(fn)) throw new Error('import history projection missing');
-if (/\.select\([^;]+\)\.eq\('company_id',companyId\)\.order/.test(fn)) {
+const fn = source.slice(start, end);
+
+for (const token of [
+  "{ count: 'exact' }",
+  '.range(0, MAX_IMPORT_RECORD_ROWS - 1)',
+  'REPORT_QUERY_LIMIT_EXCEEDED: imports require explicit pagination',
+]) {
+  if (!fn.includes(token)) {
+    throw new Error(`import query bound contract missing: ${token}`);
+  }
+}
+
+if (!/select\([^)]*result_summary/.test(fn)) {
+  throw new Error('import history projection missing');
+}
+
+if (/\.select\([^;]+\)\.eq\('company_id', companyId\)\.order/.test(fn)) {
   throw new Error('import history query still has an unbounded tenant read');
 }
 
