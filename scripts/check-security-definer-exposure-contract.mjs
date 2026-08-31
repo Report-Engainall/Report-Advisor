@@ -43,7 +43,7 @@ for (const name of intendedAuthenticatedSecurityDefiners) {
   if (!/SECURITY\s+DEFINER/i.test(window)) {
     failures.push(`${name}: SECURITY DEFINER not found in function definition window`);
   }
-  if (!/SET\s+search_path\s*=\s*public\b/i.test(window)) {
+  if (!/SET\s+search_path\s*(?:=|TO)\s*'?public'?\b/i.test(window)) {
     failures.push(`${name}: explicit search_path=public not found in function definition window`);
   }
   if (name !== 'current_company_id' && !/(auth\.uid\s*\(\)|current_company_id\s*\(\))/i.test(window)) {
