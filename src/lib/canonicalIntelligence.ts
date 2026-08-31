@@ -22,7 +22,8 @@ export function buildCanonicalIntelligence(input: CanonicalIntelligenceInput): C
   const inventoryValue = inventory.reduce((sum, row) => sum + nonNegative(row.stock) * nonNegative(row.unitCost), 0);
   const trend = analyzeTrend(salesHistory.map((value, index) => ({ id: `sales-history-${index}`, date: String(index), value })));
   const forecast = forecastSeries(salesHistory, 30, 7); const backtest = backtestForecast(salesHistory, 7);
-  const ccc = cashConversionCycle({ receivables, revenue: salesTotal, inventory: inventoryValue, costOfSales: nonNegative(input.costOfSales), payables, purchases: purchaseTotal, periodDays: input.periodDays ?? 365 });
+  const periodDays = finite(input.periodDays) > 0 ? input.periodDays! : 365;
+  const ccc = cashConversionCycle({ receivables, revenue: salesTotal, inventory: inventoryValue, costOfSales: nonNegative(input.costOfSales), payables, purchases: purchaseTotal, periodDays });
   const liquidity = projectLiquidity({ openingLiquidity: nonNegative(input.openingLiquidity), horizons: [0, 7, 15, 30, 60, 90], dailyInflow: nonNegative(input.dailyInflow), dailyOutflow: nonNegative(input.dailyOutflow), committedOutflow: nonNegative(input.committedOutflow) });
   const reserveProtection = protectCashReserve({ openingCash: nonNegative(input.openingLiquidity), committedOutflow: nonNegative(input.committedOutflow), collectibleInflow: nonNegative(input.dailyInflow) * 30 });
   const collections = prioritizeReceivables(input.receivablePriorities ?? sales.map(row => ({ id: row.id, amount: outstanding(row.total, row.paidAmount), overdueDays: 0 })));
@@ -41,6 +42,6 @@ export function buildCanonicalIntelligence(input: CanonicalIntelligenceInput): C
   const dataConfidence = Math.min(1, (sales.length ? 0.25 : 0) + (inventory.length ? 0.25 : 0) + (purchases.length ? 0.2 : 0) + (salesHistory.length >= 7 ? 0.3 : 0));
   const forecastConfidence = backtest.ready ? Math.max(0, Math.min(1, forecast.confidence * (1 - Math.min(1, (backtest.mape ?? 100) / 100)))) : 0.35 * forecast.confidence;
   const confidence = unifiedConfidence({ data: dataConfidence, mapping: 1, calculation: 0.95, forecast: forecastConfidence, recommendation: inventory.length ? 0.9 : 0.3 });
-  const warnings: string[] = []; if (!sales.length) warnings.push('لا توجد مبيعات صالحة للتحليل.'); if (!inventory.length) warnings.push('لا توجد أرصدة مخزون صالحة للتحليل.'); if (!backtest.ready) warnings.push('التنبؤ لم يجتز حد البيانات الكافي للاختبار الخلفي.'); if (input.costOfSales == null || input.costOfSales <= 0) warnings.push('CCC غير مكتمل: تكلفة المبيعات الفعلية غير متاحة، ولن يتم استبدالها بقيمة المشتريات.'); if (ccc.status === 'INSUFFICIENT_DATA') warnings.push('CCC غير متاح بسبب نقص أساس التكلفة أو المشتريات.');
+  const warnings: string[] = []; if (!sales.length) warnings.push('لا توجد مبيعات صالحة للتحليل.'); if (!inventory.length) warnings.push('لا توجد أرصدة مخزون صالحة للتحليل.'); if (!backtest.ready) warnings.push('التنبؤ لم يجتز حد البيانات الكافي للاختبار الخلفي.'); if (!Number.isFinite(input.costOfSales) || input.costOfSales! <= 0) warnings.push('CCC غير مكتمل: تكلفة المبيعات الفعلية غير متاحة، ولن يتم استبدالها بقيمة المشتريات.'); if (ccc.status === 'INSUFFICIENT_DATA') warnings.push('CCC غير متاح بسبب نقص أساس التكلفة أو المشتريات.');
   return { metrics, trend, forecast, backtest, cashConversionCycle: ccc, liquidity, reserveProtection, collections, supplierPayments, replenishment, stochasticInventory, alternativeGroups, confidence, warnings };
 }
