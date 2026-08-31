@@ -18,8 +18,18 @@ export class IdempotencyRegistry {
   get(key: string, tenantId: string): IdempotencyRecord | undefined { return this.records.get(`${tenantId}:${key}`); }
 }
 
+function canonicalize(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(canonicalize);
+  if (value && typeof value === 'object') {
+    return Object.fromEntries(Object.entries(value as Record<string, unknown>)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([key, item]) => [key, canonicalize(item)]));
+  }
+  return value;
+}
+
 export function fingerprintRequest(request: unknown): string {
-  const stable = JSON.stringify(request, Object.keys((request as object) ?? {}).sort());
+  const stable = JSON.stringify(canonicalize(request));
   let hash = 2166136261;
   for (let i = 0; i < stable.length; i++) { hash ^= stable.charCodeAt(i); hash = Math.imul(hash, 16777619); }
   return (hash >>> 0).toString(16).padStart(8, '0');
