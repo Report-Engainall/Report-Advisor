@@ -46,7 +46,7 @@ jobs:
       - name: Concurrent analysis contract
         run: npm run test:concurrent-analysis
       - name: Document resilience contract
-        run: npm run test:document-resilience
+        run: npm run test:document-resilience && node --experimental-strip-types scripts/check-document-extraction-behavior.ts
       - name: 20-stage parallel release readiness
         run: npm run test:20-stage-readiness
       - name: Workflow command integrity
