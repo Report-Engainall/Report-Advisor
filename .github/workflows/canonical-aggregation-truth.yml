@@ -14,3 +14,4 @@ jobs:
           cache: npm
       - run: npm ci
       - run: node scripts/canonical-profitability-null-truth.test.mjs
+      - run: node scripts/dashboard-truth-adversarial-regression.mjs
