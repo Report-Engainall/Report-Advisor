@@ -34,17 +34,22 @@ for (const name of intendedAuthenticatedSecurityDefiners) {
     continue;
   }
 
-  const window = sql.slice(definition.index, definition.index + 12000);
-  if (!/SECURITY\\s+DEFINER/i.test(window)) {
+  const nextFunction = /CREATE\s+(?:OR\s+REPLACE\s+)?FUNCTION\s+public\./gi;
+  nextFunction.lastIndex = definition.index + definition[0].length;
+  const next = nextFunction.exec(sql);
+  const windowEnd = next ? next.index : sql.length;
+  const window = sql.slice(definition.index, windowEnd);
+
+  if (!/SECURITY\s+DEFINER/i.test(window)) {
     failures.push(`${name}: SECURITY DEFINER not found in function definition window`);
   }
-  if (!/SET\\s+search_path\\s*=\\s*public\\b/i.test(window)) {
+  if (!/SET\s+search_path\s*=\s*public\b/i.test(window)) {
     failures.push(`${name}: explicit search_path=public not found in function definition window`);
   }
-  if (name !== 'current_company_id' && !/(auth\\.uid\\s*\\(\\)|current_company_id\\s*\\(\\))/i.test(window)) {
+  if (name !== 'current_company_id' && !/(auth\.uid\s*\(\)|current_company_id\s*\(\))/i.test(window)) {
     failures.push(`${name}: explicit caller/tenant context reference not found in function definition window`);
   }
-  if (name === 'current_company_id' && !/auth\\.uid\\s*\\(\\)/i.test(window)) {
+  if (name === 'current_company_id' && !/auth\.uid\s*\(\)/i.test(window)) {
     failures.push('current_company_id: auth.uid() binding not found in function definition window');
   }
 
