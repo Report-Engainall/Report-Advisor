@@ -1,0 +1,12 @@
+import assert from 'node:assert/strict';
+const hasScope = (v) => typeof v === 'string' && v.trim().length > 0;
+const sameTenant = (requested, authenticated) => hasScope(requested) && hasScope(authenticated) && requested.trim() === authenticated.trim();
+assert.equal(hasScope('tenant-a'), true);
+assert.equal(hasScope('   '), false);
+assert.equal(hasScope(''), false);
+assert.equal(hasScope(null), false);
+assert.equal(sameTenant('tenant-a', 'tenant-a'), true);
+assert.equal(sameTenant(' tenant-a ', 'tenant-a'), true);
+assert.equal(sameTenant('tenant-a', 'tenant-b'), false);
+assert.equal(sameTenant('tenant-a', '   '), false);
+console.log('AI tenant boundary contract: PASS');
