@@ -11,7 +11,8 @@ import { detectFormat } from '@/lib/file-engine/detector';
 import { securityScan, computeSHA256, checkDuplicate } from '@/lib/file-engine/security';
 import { parseFile } from '@/lib/file-engine/adapters';
 import { FORMAT_LABELS, MAX_FILE_SIZE, type FileFormat, type Dataset } from '@/lib/file-engine/types';
-import { commitImportBatch, type CanonicalImportRow } from '@/lib/import/canonical-commit';
+import { commitImportBatch } from '@/lib/import/canonical-commit';
+import { reconcileForCanonical } from '@/lib/import/canonical-truth-boundary';
 
 type Step = 'upload' | 'scanning' | 'preview' | 'committing' | 'done';
 type EntityType = 'sales_invoices' | 'products' | 'customers';
@@ -34,6 +35,7 @@ export function CanonicalImportPage() {
   const [step, setStep] = useState<Step>('upload');
   const [entityType, setEntityType] = useState<EntityType>('sales_invoices');
   const [file, setFile] = useState<{ name: string; size: number; format: FileFormat } | null>(null);
+  const [fileHash, setFileHash] = useState<string | null>(null);
   const [rows, setRows] = useState<Row[]>([]);
   const [headers, setHeaders] = useState<string[]>([]);
   const [quality, setQuality] = useState(0);
@@ -66,6 +68,7 @@ export function CanonicalImportPage() {
       setFile({ name: selected.name, size: selected.size, format: detection.format });
       if (detection.warnings.length) setWarnings(detection.warnings);
       const hash = await computeSHA256(buffer);
+      setFileHash(hash);
       const companyId = await resolveCurrentCompanyId();
       if (!companyId) throw new Error('TENANT_CONTEXT_REQUIRED');
       const dup = await checkDuplicate(hash, companyId, supabase);
@@ -95,16 +98,30 @@ export function CanonicalImportPage() {
 
   const commit = useCallback(async () => {
     const valid = rows.filter(r => r.valid);
-    if (!valid.length || !file) return;
+    if (!valid.length || !file || !fileHash) return;
     setStep('committing'); setProgress(0); setError(null);
     try {
+      const companyId = await resolveCurrentCompanyId();
+      if (!companyId) throw new Error('TENANT_CONTEXT_REQUIRED');
       const rec = await createImportRecord({ file_name: file.name, file_size: file.size, source_type: file.format, status: 'processing', total_rows: rows.length, valid_rows: valid.length, invalid_rows: rows.length - valid.length, quarantined_rows: rows.length - valid.length, entity_type: entityType, progress: 0 });
+      const reconciled = reconcileForCanonical(
+        entityType,
+        companyId,
+        file.name,
+        fileHash,
+        rec.id,
+        (data, rowNumber) => `${fileHash}:${rowNumber}:${JSON.stringify(data)}`,
+        valid.map(r => ({ rowNumber: r.rowNumber, data: r.data })),
+      );
+      if (reconciled.rejected.length > 0) {
+        throw new Error(`CANONICAL_RECONCILIATION_REJECTED:${reconciled.rejected.map(r => `${r.rowNumber}:${r.reason}`).join(',')}`);
+      }
       const batchSize = 50; let committed = 0;
-      for (let i = 0; i < valid.length; i += batchSize) {
-        const batch: CanonicalImportRow[] = valid.slice(i, i + batchSize).map(r => ({ rowNumber: r.rowNumber, data: r.data }));
+      for (let i = 0; i < reconciled.rows.length; i += batchSize) {
+        const batch = reconciled.rows.slice(i, i + batchSize);
         await commitImportBatch(entityType, batch);
         committed += batch.length;
-        setProgress(Math.round((committed / valid.length) * 100));
+        setProgress(Math.round((committed / reconciled.rows.length) * 100));
       }
       await updateImportRecord(rec.id, { status: 'completed', progress: 100, completed_at: new Date().toISOString() });
       setResult({ total: rows.length, valid: valid.length, invalid: rows.length - valid.length, importId: rec.id });
@@ -112,9 +129,9 @@ export function CanonicalImportPage() {
     } catch (e: any) {
       setError(`فشل الاستيراد: ${e?.message || 'خطأ غير معروف'}`); setStep('preview');
     }
-  }, [rows, file, entityType, loadHistory]);
+  }, [rows, file, fileHash, entityType, loadHistory]);
 
-  const reset = () => { setStep('upload'); setFile(null); setRows([]); setHeaders([]); setQuality(0); setMappings([]); setWarnings([]); setError(null); setDuplicate(false); setResult(null); setProgress(0); };
+  const reset = () => { setStep('upload'); setFile(null); setFileHash(null); setRows([]); setHeaders([]); setQuality(0); setMappings([]); setWarnings([]); setError(null); setDuplicate(false); setResult(null); setProgress(0); };
   const valid = rows.filter(r => r.valid).length;
   const invalid = rows.length - valid;
 
@@ -136,6 +153,6 @@ export function CanonicalImportPage() {
     </div>}
     {step === 'committing' && <Card><CardBody><div className="flex flex-col items-center py-10 gap-4"><Loader2 className="animate-spin text-primary-500" size={32}/><b>جارٍ تنفيذ الاستيراد المركزي...</b><span>{progress}%</span><div className="w-full max-w-md h-2 bg-ink-100 rounded-full"><div className="h-full bg-primary-500 rounded-full" style={{width:`${progress}%`}}/></div></div></CardBody></Card>}
     {step === 'done' && result && <Card><CardBody><div className="flex flex-col items-center py-8 gap-4"><CheckCircle2 className="text-success-500" size={48}/><h3 className="text-lg font-semibold">تم الاستيراد بنجاح</h3><p className="text-sm text-ink-500">{formatNumber(result.valid)} صف صالح من أصل {formatNumber(result.total)}</p><button onClick={reset} className="btn-primary">استيراد ملف آخر</button></div></CardBody></Card>}
-    <Card><CardHeader title="سجل الاستيرادات" subtitle="آخر العمليات"/>{loadingHistory?<LoadingState message="جارٍ تحميل السجل..."/>:history.length===0?<EmptyState icon={<Database size={32}/>} title="لا توجد استيرادات سابقة" message="ابدأ باستيراد ملفك الأول"/>:<DataTable columns={[{key:'file_name',label:'الملف'},{key:'entity_type',label:'النوع'},{key:'total_rows',label:'الصفوف',align:'center'},{key:'valid_rows',label:'صالح',align:'center'},{key:'invalid_rows',label:'مرفوض',align:'center'},{key:'status',label:'الحالة',align:'center',render:(r:any)=><StatusBadge status={r.status}/>},{key:'created_at',label:'التاريخ',render:(r:any)=>formatDateTime(r.created_at)}]} data={history}/>}</Card>
+    <Card><CardHeader title="سجل الاستيرادات" subtitle="آخر العمليات"/>{loadingHistory?<LoadingState message="جارٍ تحميل السجل..."/>:history.length===0?<EmptyState icon={<Database size={32}/>} title="لا توجد استيرادات سابقة" message="ابدأ باستيراد ملفك الأول"/>:<DataTable columns={[{key:'file_name',label:'الملف'},{key:'entity_type',label:'النوع'},{key:'total_rows',label:'الصفوف',align:'center'},{key:'valid_rows',label:'صالح',align:'center'},{key:'invalid_rows',label:'مرفوض',align:'center'},{key:'status',label:'الحالة',align:'center',render:(r:any)=><StatusBadge status={r.status}/>},{key:'created_at',label:'التاريخ',render:(r:any)=>formatDateTime(r.created_at)}]} data={history} emptyMessage="لا توجد استيرادات"/></Card>
   </div>;
 }
