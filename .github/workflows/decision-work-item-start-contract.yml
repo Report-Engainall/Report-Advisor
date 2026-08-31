@@ -25,3 +25,5 @@ jobs:
           echo "EXACT_HEAD=$(git rev-parse HEAD)"
       - name: Work-item start transition contract
         run: node scripts/check-decision-work-item-start-contract.mjs
+      - name: Generated outcome provenance precedence
+        run: node scripts/check-generated-outcome-provenance-precedence.mjs
