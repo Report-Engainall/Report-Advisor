@@ -1,6 +1,9 @@
 import { spawnSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import { dirname, join } from 'node:path';
 
+const root = dirname(fileURLToPath(import.meta.url));
 const gates = [
   'check-j-runtime-chain.mjs','check-recovery-contract.mjs','check-n-to-s-real-gates.mjs','check-next-wave-closure.mjs','check-recovery-readiness.mjs',
   'check-document-resilience.mjs','check-master-p0-inventory.mjs','check-release-audit-bundle.mjs','check-production-readiness.mjs','check-n-to-s-release-matrix.mjs',
@@ -10,7 +13,7 @@ const gates = [
   'check-import-direct-write-guard.mjs','check-semantic-metric-registry.mjs','check-workflow-batch-integrity.mjs','check-workflow-command-integrity.mjs','check-auth-tenant-convergence.mjs',
 ];
 
-const missing = gates.filter((g) => !existsSync(new URL(`./${g}`, import.meta.url)));
+const missing = gates.filter((g) => !existsSync(join(root, g)));
 if (missing.length) {
   console.error(`MISSING_GATES=${missing.join(',')}`);
   process.exit(1);
@@ -18,7 +21,7 @@ if (missing.length) {
 
 let failed = 0;
 for (const gate of gates) {
-  const r = spawnSync(process.execPath, [new URL(`./${gate}`, import.meta.url)], { encoding: 'utf8' });
+  const r = spawnSync(process.execPath, [join(root, gate)], { encoding: 'utf8' });
   if (r.status !== 0) {
     failed += 1;
     console.error(`FAIL ${gate}`);
