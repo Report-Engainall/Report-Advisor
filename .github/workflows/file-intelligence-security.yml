@@ -24,3 +24,5 @@ jobs:
         run: npm ci --no-audit --no-fund
       - name: File Intelligence security contract
         run: npm run test:file-intelligence-security
+      - name: ZIP archive traversal regression
+        run: npm run test:file-security-archive-traversal
