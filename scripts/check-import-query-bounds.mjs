@@ -14,6 +14,7 @@ for (const token of [
   "{ count: 'exact' }",
   '.range(0, MAX_IMPORT_RECORD_ROWS - 1)',
   'REPORT_QUERY_LIMIT_EXCEEDED: imports require explicit pagination',
+  'if (count == null) throw new Error',
 ]) {
   if (!fn.includes(token)) {
     throw new Error(`import query bound contract missing: ${token}`);
