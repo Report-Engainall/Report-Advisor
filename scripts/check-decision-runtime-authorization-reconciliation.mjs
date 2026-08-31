@@ -8,6 +8,7 @@ const migration = fs.readFileSync(
 const required = [
   /current_company_id\(\)/i,
   /auth\.uid\(\)/i,
+  /SECURITY DEFINER/i,
   /SELF_APPROVAL_FORBIDDEN/i,
   /requested_by/i,
   /v_status\s*<>\s*'IN_PROGRESS'/i,
@@ -17,6 +18,8 @@ const required = [
   /status\s*=\s*'IN_PROGRESS'/i,
   /status\s*=\s*'APPROVED'/i,
   /SET search_path\s*=\s*public/i,
+  /GRANT EXECUTE ON FUNCTION public\.decide_approval\(uuid,boolean,text\) TO authenticated;/i,
+  /GRANT EXECUTE ON FUNCTION public\.complete_decision_work_item\(uuid,numeric,jsonb\) TO authenticated;/i,
 ];
 
 for (const pattern of required) {
