@@ -8,6 +8,7 @@ from typing import Any
 from fastapi import FastAPI, File, HTTPException, UploadFile
 
 from intermediate_model import Block, DocumentEnvelope, Page, Provenance
+from pipeline import build_processing_snapshot, process_with_parser
 
 app = FastAPI(title="Report Advisor Document Intelligence", version="0.2.0")
 
@@ -118,5 +119,25 @@ async def parse_document(file: UploadFile = File(...)) -> dict[str, Any]:
         raise HTTPException(status_code=413, detail="Document exceeds configured size limit")
 
     filename = file.filename or "document"
-    result = parse_with_docling(data, filename, file.content_type)
-    return result or parse_fallback(data, filename, file.content_type)
+    try:
+        snapshot = build_processing_snapshot(data, filename, file.content_type, structured_available=True)
+    except (TypeError, ValueError) as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    def parser(payload: bytes, name: str, mime: str) -> DocumentEnvelope:
+        result = parse_with_docling(payload, name, mime)
+        if result:
+            envelope = DocumentEnvelope.from_dict(result["document"])
+            return envelope
+        return DocumentEnvelope.from_dict(parse_fallback(payload, name, mime)["document"])
+
+    document, _ = process_with_parser(data, filename, file.content_type, parser)
+    route = snapshot["route"]
+    return {
+        "document": document.to_dict(),
+        "engine": document.engine,
+        "warnings": document.warnings,
+        "route": route,
+        "source_sha256": snapshot["source_sha256"],
+        "contract_version": snapshot["contract_version"],
+    }
