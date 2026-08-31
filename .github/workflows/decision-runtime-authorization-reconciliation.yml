@@ -1,0 +1,22 @@
+name: decision-runtime-authorization-reconciliation
+
+on:
+  pull_request:
+    paths:
+      - 'supabase/migrations/20260831032000_reconcile_live_cycle013_decision_runtime_authorization.sql'
+      - 'scripts/check-decision-runtime-authorization-reconciliation.mjs'
+      - '.github/workflows/decision-runtime-authorization-reconciliation.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Verify repository decision authorization reconciliation
+        run: node scripts/check-decision-runtime-authorization-reconciliation.mjs
