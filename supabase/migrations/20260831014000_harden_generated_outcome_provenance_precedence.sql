@@ -1,4 +1,4 @@
--- Preserve the existing outcome-evidence contract while making generated provenance authoritative.
+-- Preserve the existing outcome-evidence and terminal-state contracts while making generated provenance authoritative.
 -- Caller evidence remains extensible, but cannot overwrite server-owned identity/delta metadata.
 CREATE OR REPLACE FUNCTION public.complete_decision_work_item(
   p_work_item_id uuid,
@@ -73,6 +73,13 @@ BEGIN
   )
   ON CONFLICT(company_id,recommendation_key) DO UPDATE
     SET actual_impact=EXCLUDED.actual_impact,status=EXCLUDED.status,observed_at=now(),evidence=EXCLUDED.evidence;
+
+  IF EXISTS (
+    SELECT 1 FROM public.decision_work_items w
+    WHERE w.company_id=v_company AND w.decision_id=v_decision AND w.status <> 'COMPLETED'
+  ) THEN
+    RETURN true;
+  END IF;
 
   UPDATE public.business_intelligence_decisions
     SET status='EXECUTED',executed_at=now()
