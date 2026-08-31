@@ -25,7 +25,7 @@ if (!/select\([^)]*result_summary/.test(fn)) {
 }
 
 const importRead = fn.match(/\.from\('import_jobs'\)[^;]+;/)?.[0] ?? '';
-if (importRead && !importRead.includes('.range(0, MAX_IMPORT_RECORD_ROWS - 1)')) {
+if (importRead && !/\.range\s*\(\s*0\s*,\s*MAX_IMPORT_RECORD_ROWS\s*-\s*1\s*\)/.test(importRead)) {
   throw new Error('import history query still has an unbounded tenant read');
 }
 
