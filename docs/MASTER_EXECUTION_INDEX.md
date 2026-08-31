@@ -8,63 +8,56 @@ This file is the authoritative execution index. Historical PASS remains historic
 
 - Planning estimate from latest developer assessment: **~88%** overall.
 - Independent release-readiness judgment: advanced Release Candidate; **NOT Production Certified / NOT Sellable yet**.
-- Current `main` baseline before the new integration work: `a3c4e22b410482fdd2ddf73eb125cf9f51586a96`.
+- Current `main` release baseline before PR #294 integration: `4705028d1e19ea7201f4cb9945ce3e1cc1a550a2`.
 - Owner integration PR: **#294**, OPEN / NOT MERGED.
-- PR #294 head: `e0cf21cad8296d3a98cd2107c349b5a97c8bac22`.
+- Latest PR #294 head: `688be5ea9636f47d9d205ec3a1fa8193368a86ca`.
 - PR #294 base SHA: `4705028d1e19ea7201f4cb9945ce3e1cc1a550a2`.
-- Do not call `e0cf21c...` `main` PASS until PR #294 is merged and exact-head CI passes.
+- Do not call the PR head `main` PASS until PR #294 is merged and exact-head CI passes.
 
-## Latest Executed Cycle — Developer Evidence
+## Latest Executed Cycle — 2026-09-01
 
-The developer reports that PR #289–#293 hardening was consolidated into PR #294 rather than merging stale/diverged branches directly.
+The developer continued PR #294 on the same integration branch and found a structural CI defect in the Final Certification Gate: certification contract scripts were executed before `npm ci`, although new contracts depend on project dependencies.
 
 Executed:
-- Confidence guards: NaN / Infinity / -Infinity / negative / >1 / missing are fail-closed; 0/1 boundaries covered.
-- Tenant ID guards: null / undefined / non-string / empty / whitespace / mismatch handled before trim.
-- Canonical financial inputs sanitized against invalid/non-finite/negative values.
-- Report-fact confidence/evidence strengthened and ledger evidence made authoritative.
-- Executable Vitest boundary contracts added.
-- Least-privilege CI workflows added for those contracts.
-- Evidence classification tooling integrated without stale historical/package mutations.
-- Production DB grant hardened so `anon` cannot execute `finalize_runtime_decision`; `authenticated` can.
+- Changed the Final Certification Gate to run `npm ci` from the lockfile before certification contracts.
+- Added `persist-credentials: false` and `contents: read` least-privilege settings.
+- Applied the change directly to PR #294 without forced merge.
+- Confirmed PR #294 still targets the intended baseline.
 
-Verified/reported:
-- `anon EXECUTE = FALSE`; `authenticated EXECUTE = TRUE` for `finalize_runtime_decision`.
-- Direct scan of executable public SECURITY DEFINER RPCs exposed to `anon`: 0 results.
-- Supabase currently reports 2 tenants/companies.
-- Backup verification records: 0 PASS.
-- Production rollback drills: 0 PASS.
-- Autonomy rollback drills: 0 PASS.
-- Current public Production is reachable, but is not a fresh deployment of the current integration candidate.
-- New Vitest contracts are **NOT PASS** yet because no real GitHub execution result has been produced.
+Verified:
+- Current PR #294 exact HEAD: `688be5ea9636f47d9d205ec3a1fa8193368a86ca`.
+- PR #294 remains **OPEN / NOT MERGED**.
+- Previous `e0cf21...` CI failures included Final Certification Gate, quality, and file-intelligence-security; desktop-windows was in progress.
+- The new HEAD has **not yet produced an Exact-Head GitHub Actions run** at the time of this update.
+- Therefore no PASS is promoted to `688be5...` or `main`.
 
-## Active Blockers
+## Current Operational Truth
 
-1. **Vercel quota:** new deployment currently blocked by `api-deployments-free-per-day` (>100 deployments/24h). Do not wait on it; continue independent fronts.
-2. **Authenticated A/B:** no operational credentials/sessions available for honest LIVE authenticated E2E evidence. Do not fabricate.
-3. **Backup/Restore:** no real backup/restore verification runs yet.
-4. **Rollback:** no real production/safe-environment rollback drill evidence yet.
-5. **Supabase leaked-password protection:** disabled; requires Auth configuration access.
-6. **PR #294:** open and unverified; no merge until exact-head CI.
+- Vercel remains independently blocked by `api-deployments-free-per-day` (>100 deployments/24h).
+- Combined status currently shows Vercel failure and CodeRabbit pending for `688be5...`; this is not an application certification PASS.
+- Authenticated A/B runtime proof remains unavailable without operational credentials/sessions; do not fabricate evidence.
+- Backup/restore has no real PASS run yet.
+- Production/safe-environment rollback has no real PASS run yet.
+- Supabase leaked-password protection remains disabled and requires Auth configuration access.
+- New Vitest contracts are **NOT PASS** until actually executed on the candidate SHA.
 
 ## Parallel Execution Board
 
 ### P0-A — PR #294 exact-head closure
 **Immediate.**
-- Run real Vitest contracts.
-- Run typecheck/lint/build/regression/security/quality gates.
-- Review changed migrations and grants.
-- Attack confidence, tenant-ID, financial-number, evidence, and permission boundaries.
-- Verify exact candidate SHA.
-- Merge only when evidence-backed.
+- Wait for/trigger real GitHub Actions execution on `688be5...`.
+- Run Vitest contracts, typecheck, lint, build, regression, security, quality.
+- Investigate any failure rather than reporting it as infrastructure without evidence.
+- Review changed migrations/grants and boundary behavior.
+- Merge only after all required gates pass on the exact candidate SHA.
 
 **Exit:** one clean merged SHA with all accepted hardening + exact-head CI PASS.
 
 ### P0-B — Authenticated Runtime / Tenant A-B
-**Parallel.**
-- Actor A and B real login/session.
-- Own-data CRUD/persistence/re-login.
-- Cross-tenant IDs/RPC/read/write denial.
+**Parallel; do not wait on CI.**
+- Prepare/execute Actor A and B login/session journeys.
+- Own-data CRUD, persistence, reload, logout/re-login.
+- Cross-tenant direct IDs/RPC/read/write denial.
 - Storage/signed URLs, Realtime, AI/vector isolation.
 - Browser/network/console evidence.
 
@@ -72,7 +65,7 @@ Verified/reported:
 
 ### P0-C — Vercel / Runtime Deployment
 **Parallel; never wait if quota-blocked.**
-- Fresh deployment of final candidate.
+- Prepare fresh deployment for final candidate.
 - SHA binding.
 - `/`, `/login`, deep routes, authenticated journey.
 - Console/network/runtime checks.
@@ -217,3 +210,5 @@ ONE EXACT RELEASE SHA
 ## Current Owner Decision
 
 The project is in **PROVE → CERTIFY → RELEASE**, not BUILD. Do not rebuild completed subsystems merely to increase a percentage. The remaining work is predominantly integration, execution evidence, runtime proof, resilience, security hardening, and final release convergence.
+
+**Latest owner execution directive:** PR #294 must first obtain real Exact-Head CI evidence on `688be5...`. In parallel, all independent runtime/proof fronts continue. No blocker is allowed to serialize the project, and no historical or branch-local PASS may be promoted to the final release SHA.
