@@ -1,0 +1,38 @@
+name: decision-runtime-authenticated-e2e
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  authenticated-e2e:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+      - name: Exact-head diagnostic
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "${GITHUB_SHA}"
+          echo "EXACT_HEAD=$(git rev-parse HEAD)"
+      - name: Install
+        run: npm ci --ignore-scripts
+      - name: Authenticated decision runtime E2E
+        env:
+          SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
+          TEST_USER_A_EMAIL: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_EMAIL }}
+          TEST_USER_A_PASSWORD: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_PASSWORD }}
+          TEST_APPROVER_EMAIL: ${{ secrets.REPORT_ADVISOR_E2E_APPROVER_EMAIL }}
+          TEST_APPROVER_PASSWORD: ${{ secrets.REPORT_ADVISOR_E2E_APPROVER_PASSWORD }}
+          TEST_USER_B_EMAIL: ${{ secrets.REPORT_ADVISOR_E2E_USER_B_EMAIL }}
+          TEST_USER_B_PASSWORD: ${{ secrets.REPORT_ADVISOR_E2E_USER_B_PASSWORD }}
+          TEST_EVIDENCE_SNAPSHOT_ID: ${{ secrets.REPORT_ADVISOR_E2E_EVIDENCE_SNAPSHOT_ID }}
+        run: node scripts/run-decision-runtime-e2e.mjs
