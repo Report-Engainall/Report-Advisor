@@ -1,9 +1,9 @@
-import assert from 'node:assert/strict';
-const bounded = (v) => typeof v === 'number' && Number.isFinite(v) ? Math.max(0, Math.min(1, v)) : 0;
-assert.equal(bounded(1), 1);
-assert.equal(bounded(0.7), 0.7);
-assert.equal(bounded(2), 1);
-assert.equal(bounded(-1), 0);
-assert.equal(bounded(Number.NaN), 0);
-assert.equal(bounded(Number.POSITIVE_INFINITY), 0);
-console.log('report facts confidence contract: PASS');
+import { spawnSync } from 'node:child_process';
+
+const result = spawnSync('npx', ['vitest', 'run', 'src/lib/report-facts.boundary.test.ts'], {
+  stdio: 'inherit',
+  shell: process.platform === 'win32',
+});
+
+if (result.error) throw result.error;
+process.exit(result.status ?? 1);
