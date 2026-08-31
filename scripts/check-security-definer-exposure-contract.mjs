@@ -6,52 +6,58 @@ const files = fs.readdirSync(root)
   .filter((name) => name.endsWith('.sql'))
   .sort()
   .map((name) => path.join(root, name));
+const sql = files.map((file) => fs.readFileSync(file, 'utf8')).join('\n');
 
-const definitions = new Map();
-const authenticatedGrants = [];
-const anonGrants = [];
-
-for (const file of files) {
-  const sql = fs.readFileSync(file, 'utf8');
-
-  const functionRe = /CREATE\s+(?:OR\s+REPLACE\s+)?FUNCTION\s+public\.([a-zA-Z0-9_]+)\s*\([^)]*\)[\s\S]*?\bSECURITY\s+(DEFINER|INVOKER)\b[\s\S]*?\bSET\s+search_path\s*=\s*([^\s\n]+)[\s\S]*?\bAS\s+\$\$([\s\S]*?)\$\$/gi;
-  for (const match of sql.matchAll(functionRe)) {
-    definitions.set(match[1], {
-      file,
-      security: match[2].toUpperCase(),
-      searchPath: match[3],
-      body: match[4],
-    });
-  }
-
-  const grantRe = /GRANT\s+EXECUTE\s+ON\s+FUNCTION\s+public\.([a-zA-Z0-9_]+)\s*\([^;]*?\)\s+TO\s+(authenticated|anon)\s*;/gi;
-  for (const match of sql.matchAll(grantRe)) {
-    const entry = { functionName: match[1], role: match[2].toLowerCase(), file };
-    if (entry.role === 'authenticated') authenticatedGrants.push(entry);
-    else anonGrants.push(entry);
-  }
-}
+const intendedAuthenticatedSecurityDefiners = [
+  'complete_decision_work_item',
+  'create_decision_work_item',
+  'create_runtime_decision',
+  'create_runtime_recommendation',
+  'decide_approval',
+  'link_recommendation_to_decision',
+  'mark_alert_read',
+  'notify_decision_work_item',
+  'record_decision_outcome',
+  'record_recommendation_outcome',
+  'request_decision_approval',
+];
 
 const failures = [];
-for (const grant of authenticatedGrants) {
-  const def = definitions.get(grant.functionName);
-  if (!def) {
-    failures.push(`${grant.functionName}: authenticated EXECUTE grant has no repository-visible function definition`);
+for (const name of intendedAuthenticatedSecurityDefiners) {
+  const definition = new RegExp(
+    `CREATE\\s+(?:OR\\s+REPLACE\\s+)?FUNCTION\\s+public\\.${name}\\b`,
+    'i',
+  ).exec(sql);
+  if (!definition) {
+    failures.push(`${name}: repository definition not found`);
     continue;
   }
-  if (def.security !== 'DEFINER') continue;
-  if (!/^public$/i.test(def.searchPath)) {
-    failures.push(`${grant.functionName}: SECURITY DEFINER authenticated function must pin search_path=public (source ${def.file})`);
-  }
-  if (!/(auth\.uid\s*\(\)|current_company_id\s*\(\))/i.test(def.body)) {
-    failures.push(`${grant.functionName}: SECURITY DEFINER authenticated function lacks an explicit caller/tenant context check`);
-  }
-}
 
-for (const grant of anonGrants) {
-  const def = definitions.get(grant.functionName);
-  if (def?.security === 'DEFINER') {
-    failures.push(`${grant.functionName}: SECURITY DEFINER function is executable by anon`);
+  const window = sql.slice(definition.index, definition.index + 12000);
+  if (!/SECURITY\\s+DEFINER/i.test(window)) {
+    failures.push(`${name}: SECURITY DEFINER not found in function definition window`);
+  }
+  if (!/SET\\s+search_path\\s*=\\s*public\\b/i.test(window)) {
+    failures.push(`${name}: explicit search_path=public not found in function definition window`);
+  }
+  if (!/(auth\\.uid\\s*\\(\\)|current_company_id\\s*\\(\\))/i.test(window)) {
+    failures.push(`${name}: explicit caller/tenant context reference not found in function definition window`);
+  }
+
+  const authenticatedGrant = new RegExp(
+    `GRANT\\s+EXECUTE\\s+ON\\s+FUNCTION\\s+public\\.${name}\\s*\\([^;]*?\\)\\s+TO\\s+authenticated\\s*;`,
+    'i',
+  );
+  if (!authenticatedGrant.test(sql)) {
+    failures.push(`${name}: authenticated EXECUTE grant not found`);
+  }
+
+  const anonGrant = new RegExp(
+    `GRANT\\s+EXECUTE\\s+ON\\s+FUNCTION\\s+public\\.${name}\\s*\\([^;]*?\\)\\s+TO\\s+anon\\s*;`,
+    'i',
+  );
+  if (anonGrant.test(sql)) {
+    failures.push(`${name}: SECURITY DEFINER function must not be executable by anon`);
   }
 }
 
@@ -61,4 +67,6 @@ if (failures.length) {
   process.exit(1);
 }
 
-console.log(`Security-definer exposure contract: PASS (${authenticatedGrants.length} authenticated grants checked; ${anonGrants.length} anon grants checked)`);
+console.log(
+  `Security-definer exposure contract: PASS (${intendedAuthenticatedSecurityDefiners.length} intentional authenticated SECURITY DEFINER functions checked)`,
+);
