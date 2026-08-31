@@ -13,6 +13,7 @@ const intendedAuthenticatedSecurityDefiners = [
   'create_decision_work_item',
   'create_runtime_decision',
   'create_runtime_recommendation',
+  'current_company_id',
   'decide_approval',
   'link_recommendation_to_decision',
   'mark_alert_read',
@@ -40,8 +41,11 @@ for (const name of intendedAuthenticatedSecurityDefiners) {
   if (!/SET\\s+search_path\\s*=\\s*public\\b/i.test(window)) {
     failures.push(`${name}: explicit search_path=public not found in function definition window`);
   }
-  if (!/(auth\\.uid\\s*\\(\\)|current_company_id\\s*\\(\\))/i.test(window)) {
+  if (name !== 'current_company_id' && !/(auth\\.uid\\s*\\(\\)|current_company_id\\s*\\(\\))/i.test(window)) {
     failures.push(`${name}: explicit caller/tenant context reference not found in function definition window`);
+  }
+  if (name === 'current_company_id' && !/auth\\.uid\\s*\\(\\)/i.test(window)) {
+    failures.push('current_company_id: auth.uid() binding not found in function definition window');
   }
 
   const authenticatedGrant = new RegExp(
