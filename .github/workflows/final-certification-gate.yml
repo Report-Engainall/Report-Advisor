@@ -1,0 +1,29 @@
+name: Final Certification Gate
+on:
+  pull_request:
+  push:
+
+jobs:
+  certification-contracts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Run certification contract tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          for f in scripts/check-*.mjs; do
+            echo "Running $f"
+            node "$f"
+          done
+      - name: Enforce exact commit evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "${GITHUB_SHA}"
+          echo "CERTIFICATION_EXACT_SHA=${GITHUB_SHA}" >> "$GITHUB_STEP_SUMMARY"
+          echo "Repository certification contracts: PASS" >> "$GITHUB_STEP_SUMMARY"
+          echo "Live/production certification remains dependent on external runtime evidence." >> "$GITHUB_STEP_SUMMARY"
