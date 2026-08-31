@@ -6,30 +6,84 @@ This addendum is authoritative for execution priority. Historical records remain
 
 ### Reconciled owner/developer assessment
 
-The latest developer assessment supplied by the owner estimated overall completion at approximately **88%**, with the product already at an advanced Release Candidate stage. It identified the principal remaining work as operational/runtime proof rather than rebuilding the core product. fileciteturn22file0L5-L8
+The latest developer assessment supplied by the owner estimated overall completion at approximately **88%**, with the product already at an advanced Release Candidate stage. It identified the principal remaining work as operational/runtime proof rather than rebuilding the core product.
 
-The assessment reported these planning estimates: Foundation/DB/Security/RLS/RBAC 100%; Core Product 95%; Import/Reconciliation/Canonical Truth 95%; Decision/Evidence/Outcome 93%; Runtime/Workers/Queue 85%; Document/OCR 82%; Watched Folder/Backup/Restore/Rollback 75%; Authenticated Runtime/Tenant A/B 65%; UI E2E/Regression 80%; Performance/Scalability 90%; Observability/Governance/CI 90%; Release/Quality Gates 100%. These are planning estimates, not certification evidence. fileciteturn22file0L52-L68
+The assessment reported these planning estimates: Foundation/DB/Security/RLS/RBAC 100%; Core Product 95%; Import/Reconciliation/Canonical Truth 95%; Decision/Evidence/Outcome 93%; Runtime/Workers/Queue 85%; Document/OCR 82%; Watched Folder/Backup/Restore/Rollback 75%; Authenticated Runtime/Tenant A/B 65%; UI E2E/Regression 80%; Performance/Scalability 90%; Observability/Governance/CI 90%; Release/Quality Gates 100%. These are planning estimates, not certification evidence.
 
 Independent reconciliation confirms the main conclusion: **do not rebuild the stack or core engines merely to increase a percentage. Finish integration, runtime proof, resilience, and certification.**
 
 ### Current release truth
 
-- Current observed `main`: `a3c4e22b410482fdd2ddf73eb125cf9f51586a96`.
+- Current observed release baseline: `4705028d1e19ea7201f4cb9945ce3e1cc1a550a2`.
 - Production Certified: **NO**.
 - Sellable: **NOT YET CERTIFIED**.
 - Current objective: converge all required proof onto one exact release SHA.
 
 ### Important reconciliation findings
 
-1. **Authenticated runtime remains the largest release blocker.** The developer assessment explicitly states that authenticated production behavior, persistence, re-login, and tenant A/B isolation are not yet proven live. fileciteturn22file0L420-L465
-2. **Backup/restore and rollback remain runtime evidence gaps.** The required restore validation, integrity checks, RPO/RTO measurement, and controlled rollback evidence are still required. fileciteturn22file0L569-L630
-3. **OCR is technically present but needs a deterministic Golden Corpus and measurable accuracy/regression evidence.** fileciteturn22file0L636-L668
-4. **Workers/queue/watched-folder require execution/recovery evidence**, not another implementation report. fileciteturn22file0L672-L724
-5. **Windows/Electron was reported as PASS on its tested release candidate**, but that evidence must remain SHA-bound. It cannot be silently transferred to a later `main` SHA unless the Electron change and native evidence are both bound to that same candidate. fileciteturn22file0L314-L346
-6. **CI/Quality was reported as successful**, but this does not replace live runtime evidence. fileciteturn22file0L352-L374
-7. **The previous Vercel `/login` routing defect has a repository-level SPA fallback fix**, but the current exact release still requires a fresh deployment and direct-route runtime verification.
-8. Recent hardening PRs (#289–#293) must be treated as current engineering work until their accepted changes are integrated and exact-head verified. Do not report their branch-local PASS as `main` PASS.
-9. PR #291 requires correction of its confidence/NaN semantics before merge; PR #292 requires a null/non-string tenant-ID guard before `.trim()`; PR #293 requires final review and exact-head proof. These are concrete release-closure items, not requests for another broad project scan.
+1. **Authenticated runtime remains the largest release blocker.** Authenticated production behavior, persistence, re-login, and tenant A/B isolation are not yet proven live.
+2. **Backup/restore and rollback remain runtime evidence gaps.** The required restore validation, integrity checks, RPO/RTO measurement, and controlled rollback evidence are still required.
+3. **OCR is technically present but needs a deterministic Golden Corpus and measurable accuracy/regression evidence.**
+4. **Workers/queue/watched-folder require execution/recovery evidence**, not another implementation report.
+5. **Windows/Electron PASS remains SHA-bound.** It cannot be silently transferred to a later release SHA.
+6. **CI/Quality success does not replace live runtime evidence.**
+7. **The previous Vercel `/login` routing defect has a repository-level SPA fallback fix**, but the current exact release still requires fresh deployment and direct-route runtime verification.
+8. Recent hardening PRs (#289–#293) are current engineering work until accepted changes are integrated and exact-head verified.
+9. PR #291 required correction of confidence/NaN semantics before merge; PR #292 required null/non-string tenant-ID handling before `.trim()`; PR #293 required final review and exact-head proof.
+
+## EXECUTION UPDATE — 2026-09-01
+
+### Integrated hardening candidate
+
+A new integration branch/PR was created from the current release baseline to avoid attempting to merge stale, diverged PR branches directly:
+
+- Branch: `codex/p0-hardening-integration-20260901`
+- PR: **#294**
+- Integration candidate HEAD at this update: `e2d7f57e4a4eab3327b54d762427a46e4d3a3264`
+- PR #294 remains **OPEN / NOT MERGED** pending exact-head verification; no branch-local PASS is promoted to `main`.
+
+The integration contains justified portions of #289–#293 and intentionally excludes stale historical/package-only changes that do not advance the current release.
+
+### Concrete fixes executed
+
+- Metric confidence is now fail-closed for `NaN`, `Infinity`, `-Infinity`, negative values, values above `1`, and missing/undefined confidence. Valid boundaries `0` and `1` remain explicit. Missing/invalid source-row evidence is also fail-closed.
+- AI tenant scope validates type and non-blank content before `.trim()`, including requested and authenticated tenant IDs; mismatch is denied.
+- Canonical intelligence sanitizes non-finite/negative numeric inputs, history, inventory demand, and caller-supplied payment/receivable amounts.
+- Report facts normalize non-finite confidence to zero and attach evidence from the authoritative ledger.
+- New executable Vitest boundary contracts were added for these protections.
+- New CI boundary workflows use least privilege and `npm ci` before executing the real Vitest contracts.
+- Release evidence classification and executable contract batch tooling from #289 were integrated without its stale index/package mutations.
+
+### Production database hardening executed
+
+Applied and verified migration:
+
+`20260901000000_lock_finalize_runtime_decision_to_authenticated.sql`
+
+It revokes PUBLIC execution of `public.finalize_runtime_decision(uuid)` and grants execution only to `authenticated`.
+
+Direct privilege verification:
+
+- `anon` EXECUTE: **FALSE**
+- `authenticated` EXECUTE: **TRUE**
+
+The Supabase security advisor may retain a cached warning; direct privilege inspection is the authoritative verification for this grant boundary.
+
+### Current operational evidence state
+
+- Supabase currently has **2 companies / tenant memberships**, but no live tenant-isolation canary run has been recorded yet.
+- `backup_verification_runs`: **0** records / **0 PASS**.
+- `production_rollback_drills`: **0** records / **0 PASS**.
+- `autonomy_rollback_drills`: **0** records / **0 PASS**.
+- Existing Production public deployment is reachable, but the new integration candidate has not received a fresh Vercel deployment because the Vercel project hit the free deployment quota (`api-deployments-free-per-day`, more than 100 deployments in 24h).
+
+### New security observation
+
+Supabase security advisory inspection identified multiple intentionally authenticated `SECURITY DEFINER` RPCs that already enforce tenant/user context. The one exposed to `anon`, `finalize_runtime_decision`, was corrected at the database grant layer and verified directly. Leaked-password protection remains disabled and requires Auth configuration access; this is an operational security hardening item, not a reason to fabricate evidence.
+
+### Parallel execution rule remains active
+
+Do not stop because Vercel, Auth, Backup, or another external surface is blocked. Continue independent fronts: canonical truth, OCR/document corpus, workers/queue, deterministic boundary tests, performance, observability, and business acceptance preparation.
 
 ## PARALLEL EXECUTION BOARD
 
@@ -222,6 +276,6 @@ ONE EXACT RELEASE SHA
 
 ## OWNER DECISION
 
-The developer's **~88%** estimate is retained as the latest planning assessment, not replaced by an artificially lower percentage. The owner's independent gate is stricter: the product is an advanced Release Candidate, but **not certified for sale until live operational proof and the remaining exact-SHA gates are closed**. fileciteturn22file0L927-L952
+The developer's **~88%** estimate is retained as the latest planning assessment, not replaced by an artificially lower percentage. The owner's independent gate is stricter: the product is an advanced Release Candidate, but **not certified for sale until live operational proof and the remaining exact-SHA gates are closed**.
 
-The project has therefore moved from **BUILD** to **PROVE → CERTIFY → RELEASE**. fileciteturn22file0L917-L923
+The project has therefore moved from **BUILD** to **PROVE → CERTIFY → RELEASE**.
