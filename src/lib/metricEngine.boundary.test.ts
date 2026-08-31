@@ -42,6 +42,20 @@ describe('metric confidence boundary', () => {
     expect(metric.confidence).toBe(1);
     expect(metricCanDriveDecision(metric)).toBe(true);
   });
+  it('rejects missing source evidence', () => {
+    const metric = evaluateMetric({ key: 'net_sales', value: 100, confidence: 1 });
+    expect(metric.status).toBe('INSUFFICIENT_DATA');
+    expect(metric.confidence).toBe(0);
+    expect(metricCanDriveDecision(metric)).toBe(false);
+  });
+  it('rejects zero, negative, fractional, NaN and infinite source evidence', () => {
+    for (const sourceRows of [0, -1, 1.5, Number.NaN, Number.POSITIVE_INFINITY]) {
+      const metric = evaluateMetric({ key: 'net_sales', value: 100, confidence: 1, sourceRows });
+      expect(metric.status).toBe('INSUFFICIENT_DATA');
+      expect(metric.confidence).toBe(0);
+      expect(metricCanDriveDecision(metric)).toBe(false);
+    }
+  });
   it('forces unavailable values to zero confidence', () => {
     const metric = evaluateMetric({ key: 'net_sales', value: Number.NaN, confidence: 1, sourceRows: 1 });
     expect(metric.status).toBe('UNAVAILABLE');
