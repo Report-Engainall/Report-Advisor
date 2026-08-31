@@ -5,7 +5,7 @@ export interface CanonicalTextArtifact { sourceHash:string; textHash:string; tex
 export interface ExtractionOutcome { artifact?:CanonicalTextArtifact; status:ExtractionStatus; continueWithFallback:boolean; analysisInputMode:AnalysisInputMode; warnings:string[]; errors:string[]; }
 
 export function normalizeExtractedText(input:string):string {
-  return input.replace(/\uFEFF/g,'').replace(/\r\n?/g,'\n').replace(/[ \t]+$/gm,'').replace(/\n{3,}/g,'\n\n').trim();
+  return input.replace(/^\uFEFF/,'').replace(/\r\n?/g,'\n').replace(/[ \t]+$/gm,'').replace(/\n{3,}/g,'\n\n');
 }
 
 export async function hashText(text:string):Promise<string> {
@@ -17,7 +17,7 @@ export async function hashText(text:string):Promise<string> {
 export async function finalizeExtraction(sourceHash:string, sourceType:string, rawText:string, extractionError?:unknown):Promise<ExtractionOutcome> {
   const errors = extractionError ? [extractionError instanceof Error ? extractionError.message : String(extractionError)] : [];
   const text = normalizeExtractedText(rawText);
-  if (text) {
+  if (text.trim()) {
     const textHash = await hashText(text);
     return { status: extractionError ? 'partial' : 'succeeded', continueWithFallback: false, analysisInputMode:'canonical_text',
       artifact:{sourceHash,textHash,text,status:extractionError?'partial':'succeeded',sourceType,warnings:extractionError?['EXTRACTION_PARTIAL_FALLBACK_USED']:[],errors},warnings:[],errors };
