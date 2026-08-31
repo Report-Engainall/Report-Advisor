@@ -5,7 +5,7 @@ function assert(condition: unknown, message: string): asserts condition {
 }
 
 const normalized = normalizeExtractedText('\uFEFF  Sales  \r\n\r\n\r\n  2026  \t\r\n');
-assert(normalized === '  Sales\n\n  2026', 'normalization must remove BOM, normalize newlines, trim trailing whitespace, and collapse blank runs');
+assert(normalized === 'Sales\n\n  2026', 'normalization must remove BOM, normalize newlines, trim outer whitespace, trim line endings, and collapse blank runs');
 
 const hashA = await hashText('canonical report');
 const hashB = await hashText('canonical report');
