@@ -135,5 +135,49 @@ Source-level work can continue; Windows native/installer and authenticated produ
 - Post-probe residue query is clean: `report_execution_jobs=0`, `watched_report_folders=0`, `watched_report_files=0` for the cycle. No synthetic residue remains.
 - Added `.github/workflows/cycle16-worker-runtime.yml` to execute the existing Node-based report-execution, foundation, E2E, and watched-report contracts under Node 22. GitHub has not yet exposed a workflow run for the latest branch commit, so these CI checks are **NOT EXECUTED** and are not promoted to PASS.
 - Repository Vitest execution remains **NOT EXECUTED**: the exact head has a Node-based executable report contract but no configured Vitest package/config, and this environment has no repository checkout capable of running the requested Vitest harness. No Vitest PASS was claimed.
-- The worker lifecycle implementation is source-backed by `src/lib/report-execution/durable-worker-adapter.ts`, which calls the exact five RPC names and parameter shapes implemented by the new migration. fileciteturn88file0L1-L6
+- The worker lifecycle implementation is source-backed by `src/lib/report-execution/durable-worker-adapter.ts`, which calls the exact five RPC names and parameter shapes implemented by the new migration. 
 - Current certification status remains **NOT CERTIFIED / NOT SELLABLE** pending authenticated product runtime, tenant A/B, production deployment/runtime, OCR live proof, backup/restore, rollback, Windows runtime, performance, and exact-head CI/evidence convergence.
+
+## CYCLE 19 EXECUTION UPDATE — 2026-09-01
+
+- Exact reference at cycle start: `a8b2b807c16a03cf25e22b11167f45e982c449b1`; PR #294 remains OPEN / NOT MERGED.
+- Container checkout was re-verified as unavailable. Node 22.16.0 and npm 10.9.2 are installed, but the container has no repository checkout. A fresh `git clone` attempt was not repeated after the prior DNS result; the established blocker remains container GitHub network/DNS access. No fake checkout or alternate runner was created.
+- GitHub repository access itself is available through the repository connector. The exact-head workflow `cycle16-worker-runtime.yml` exists and is configured for `pull_request` and `push`, uses `actions/checkout@v4`, Node 22, `npm ci`, and the existing four Node contracts. No workflow run is exposed for the exact SHA, so CI is not promoted to PASS.
+- A real live Staging canonical/runtime probe was executed under two authenticated tenant contexts. `get_dashboard_snapshot(12,current_date)` returned tenant-scoped dashboard truth for Tenant A and Tenant B with different datasets; `get_rfm_snapshot`, `get_abc_snapshot`, and `get_inventory_report_snapshot` also executed for Tenant A with `CALCULATED` status and zero unknown rows. This is live RPC/database evidence, not repository-suite PASS.
+- Live export parity was exercised for Tenant A: sales export count 2, purchase export count 1, inventory export count 1, receivables export count 2. The rows matched the tenant's dashboard totals (sales 500; inventory value 500; receivables 360). A direct Tenant A request for Tenant B sales export was denied with `TENANT_CONTEXT_MISMATCH`.
+- A real source/runtime drift was discovered: `src/lib/dashboard-canonical.ts` called `get_dashboard_top_entities`, but the connected Staging database has no such routine. The canonical migration `20260826052000_dashboard_canonical_aggregation.sql` already returns `topCustomers` and `topProducts` inside `get_dashboard_snapshot`; therefore the frontend was making an unnecessary/missing-RPC call. This is a genuine UI/RPC/schema parity defect, not a historical finding.
+- Fixed the defect at the source: `fetchDashboardSnapshot()` now calls only the canonical `get_dashboard_snapshot` RPC and consumes `row.topCustomers` / `row.topProducts` directly. Commit: `daa383a66cd42404d22c1ab8d0c74744295e28f9`.
+- Exact source verification after the mutation confirms the new implementation no longer references `get_dashboard_top_entities` and uses the canonical snapshot fields. The source file is bound to the new commit SHA.
+- `get_profitability_snapshot` is also referenced by an exported source function but is absent from the connected database; no usage was found by repository code search. It remains a latent source/API drift item and was not removed or replaced without proof of its consumer contract.
+- Updated this Master Execution Index as part of the real defect fix. The index is included in the final exact SHA below.
+- No worker lifecycle or Security reopening was performed. No synthetic operational residue was introduced by the read-only canonical probes.
+
+### Cycle 19 current certification impact
+
+```text
+Worker Full Lifecycle          RUNTIME-PROVEN (Cycle 16)
+Worker Tenant Isolation        RUNTIME-PROVEN (Cycle 16)
+Reserve boundaries             RUNTIME-PROVEN (Cycle 18)
+Dashboard RPC parity           DEFECT FOUND → FIXED (Cycle 19)
+Live dashboard tenant reads    EXECUTED
+RFM                             EXECUTED
+ABC                             EXECUTED
+Inventory snapshot              EXECUTED
+Tenant-scoped exports            EXECUTED
+Cross-tenant export denial       EXECUTED / DENIED
+Repository full npm runner       BLOCKED
+Vitest                           NOT EXECUTED
+Exact-head CI                    NOT EXECUTED
+Watched-folder full E2E          NOT EXECUTED
+Authenticated browser E2E        NOT EXECUTED
+OCR live corpus                  NOT EXECUTED
+Performance benchmark            NOT EXECUTED
+Backup/Restore                   EXTERNAL BLOCKED
+Rollback                         EXTERNAL BLOCKED
+Windows/Electron                 NOT EXECUTED
+Production certification         NO
+```
+
+## CERTIFICATION STATE
+
+Production certification remains **NOT CERTIFIED / NOT SELLABLE** until the remaining runtime, CI, operational, and authenticated evidence converges on one exact release SHA. No historical PASS is promoted to the current SHA.
