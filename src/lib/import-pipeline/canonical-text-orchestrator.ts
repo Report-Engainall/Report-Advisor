@@ -5,7 +5,7 @@ export interface CanonicalTextArtifact { sourceHash:string; textHash:string; tex
 export interface ExtractionOutcome { artifact?:CanonicalTextArtifact; status:ExtractionStatus; continueWithFallback:boolean; analysisInputMode:AnalysisInputMode; warnings:string[]; errors:string[]; }
 
 export function normalizeExtractedText(input:string):string {
-  return input.replace(/^\uFEFF/,'').replace(/\r\n?/g,'\n').replace(/[ \t]+$/gm,'').replace(/\n{3,}/g,'\n\n');
+  return input.replace(/^\uFEFF/,'').replace(/\r\n?/g,'\n').replace(/[ \t]+$/gm,'').replace(/\n{3,}/g,'\n\n').trimEnd();
 }
 
 export async function hashText(text:string):Promise<string> {
@@ -22,7 +22,6 @@ export async function finalizeExtraction(sourceHash:string, sourceType:string, r
     return { status: extractionError ? 'partial' : 'succeeded', continueWithFallback: false, analysisInputMode:'canonical_text',
       artifact:{sourceHash,textHash,text,status:extractionError?'partial':'succeeded',sourceType,warnings:extractionError?['EXTRACTION_PARTIAL_FALLBACK_USED']:[],errors},warnings:[],errors };
   }
-  // Extraction is a preferred accuracy layer, never a single point of failure. Downstream structured analysis may continue.
   return { status:'failed', continueWithFallback:true, analysisInputMode:'structured_source_fallback', warnings:['CANONICAL_TEXT_UNAVAILABLE_ANALYSIS_CONTINUES'], errors };
 }
 
