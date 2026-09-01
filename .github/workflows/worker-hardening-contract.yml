@@ -4,7 +4,6 @@ on:
   push:
     paths:
       - 'supabase/migrations/20260901040000_report_execution_worker_lifecycle.sql'
-      - 'supabase/migrations/20260901030000_report_execution_worker_claim.sql'
       - 'src/lib/report-execution.ts'
       - 'scripts/check-worker-*-contract.mjs'
       - 'scripts/check-worker-lifecycle-guards.mjs'
@@ -13,7 +12,6 @@ on:
   pull_request:
     paths:
       - 'supabase/migrations/20260901040000_report_execution_worker_lifecycle.sql'
-      - 'supabase/migrations/20260901030000_report_execution_worker_claim.sql'
       - 'src/lib/report-execution.ts'
       - 'scripts/check-worker-*-contract.mjs'
       - 'scripts/check-worker-lifecycle-guards.mjs'
@@ -40,8 +38,6 @@ jobs:
         run: node scripts/check-worker-lease-clearance-contract.mjs
       - name: Execute grants contract
         run: node scripts/check-worker-execution-grants-contract.mjs
-      - name: Claim lease contract
-        run: node scripts/check-worker-claim-lease-contract.mjs
       - name: Checkpoint monotonicity contract
         run: node scripts/check-worker-checkpoint-monotonicity-contract.mjs
       - name: Retry eligibility contract
@@ -50,3 +46,13 @@ jobs:
         run: node scripts/check-worker-terminality-contract.mjs
       - name: Tenant boundary contract
         run: node scripts/check-worker-tenant-boundary-contract.mjs
+      - name: RPC signature contract
+        run: node scripts/check-worker-rpc-signature-contract.mjs
+      - name: RPC return contract
+        run: node scripts/check-worker-return-contract.mjs
+      - name: Updated-at contract
+        run: node scripts/check-worker-updated-at-contract.mjs
+      - name: Active-state contract
+        run: node scripts/check-worker-active-state-contract.mjs
+      - name: Completion evidence contract
+        run: node scripts/check-worker-completion-evidence-contract.mjs
