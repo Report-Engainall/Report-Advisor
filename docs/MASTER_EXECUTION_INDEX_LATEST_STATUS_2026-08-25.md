@@ -1,4 +1,4 @@
-# Master Execution Index — Latest Status — 2026-08-25
+# Master Execution Index — Latest Status — 2026-08-31
 
 This is the authoritative compact execution snapshot. Repository source, executable CI/runtime evidence, and certification artifacts are authoritative; conversation history is not evidence.
 
@@ -6,14 +6,14 @@ This is the authoritative compact execution snapshot. Repository source, executa
 `UNKNOWN → INVENTORIED → IMPLEMENTED → GATED → INTEGRATED → RUNTIME-EVIDENCED → PRODUCTION-CERTIFIED`; use `BLOCKED` only for an external prerequisite.
 
 ## Current indexed head
-The proactive closure sequence now includes workflow-batch integrity and import-lifecycle guards in addition to tenant/import/reconciliation hardening.
+The proactive closure sequence includes workflow-batch integrity, import-lifecycle guards, reliability/certification contracts, and document normalization hardening.
 
-Latest implementation commits in this execution wave:
-- `e191873d` — adds a dedicated parallel `batch-integrity-guards` workflow.
-- `68f43a44` — wires workflow-batch and import-state guards into package scripts.
-- `2923c326` — hardens workflow integrity checks without prohibiting legitimate cancellation in unrelated workflows; quality.yml remains fail-closed.
-- `07580013` — adds the import lifecycle contract guard.
-- `f884a62e` — initial workflow batch integrity guard.
+### 2026-08-31 execution wave
+- `759d637bd36393219b3fd20d3e52b8bfbfe7e3fa` — document canonical text normalization fix: remove BOM only at the beginning, preserve meaningful leading whitespace, and reject whitespace-only content.
+- `56d760f15fe1ed25bc858ae51db3f7f6d0458273` — certification lock merged into `main`.
+- Repository-side certification/evidence contracts were added for release evidence, E2E, DR, reliability, and final certification boundaries.
+- `78607d759d0e0c4f75575dc4cdd1b76183a972ee` — executable contract batch runner added.
+- `2956abdbadd461538433c394df8af82572377a1e` — release evidence classification guard added.
 
 Earlier verified closure work remains part of this state: authoritative tenant filters, tenant-authoritative duplicate lookup, folder duplicate lookup, deleted-row reconciliation, authoritative KPI tenant resolution, evidence-bound decisions, fail-closed batch decisions, atomic import chunks, terminal failed-import state, report retry/recovery hardening, and K/L integration contracts.
 
@@ -43,6 +43,9 @@ Earlier verified closure work remains part of this state: authoritative tenant f
 | Workflow batch integrity | IMPLEMENTED | NEW GUARD | PENDING RUN | NOT PROVEN | NO |
 | Import lifecycle contract guard | IMPLEMENTED | NEW GUARD | PENDING RUN | NOT PROVEN | NO |
 | CI runner execution | IMPLEMENTED | YES | NEW RUN REQUIRED | NOT PROVEN | NO |
+| Reliability/idempotency contracts | IMPLEMENTED | YES | PENDING RUN | NOT PROVEN | NO |
+| Evidence classification | IMPLEMENTED | YES | PENDING RUN | NOT PROVEN | NO |
+| Certification lock | IMPLEMENTED | YES | MERGED | NOT PROVEN | NO |
 
 ## Tenant canonical rules
 - Effective tenant is database-authoritative through `current_company_id()`.
@@ -82,6 +85,12 @@ The following cannot be honestly promoted from implementation to runtime/product
 - Production backup/restore and rollback proof.
 - End-to-end K/L coordinator execution with durable runtime evidence.
 - Native Windows/Android/iOS watcher execution on target platforms.
+- Production deployment verification when Vercel access/quota permits.
+
+## EXTERNAL BLOCKERS
+- Vercel deployment verification: external project/quota/access dependency; do not mutate aliases or fabricate deployment evidence.
+- Authenticated live/production sessions: real environment credentials/session required.
+- DR drills: operational authority and production-safe backup/restore/rollback execution required.
 
 ## Prohibited shortcuts
 No mocked business data, fake runtime evidence, fabricated defaults, `any` in newly hardened core code, parallel engines, or status inflation from commits/files.
