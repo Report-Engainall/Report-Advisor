@@ -123,16 +123,16 @@ jobs:
         run: npm run test:file-engine-regressions && npm run test:business-key-regressions && npm run test:import-classifier-regressions && node scripts/dashboard-canonical-regression.mjs
       - name: Business intelligence regressions
         run: node --experimental-strip-types scripts/business-intelligence-regressions.test.ts
-      - name: Deep golden corpus regressions
-        run: npm run test:deep-golden-corpus
-      - name: Outcome feedback regressions
-        run: npm run test:outcome-feedback-regressions
-      - name: File security regressions
-        run: npm run test:file-security-regressions
-      - name: Decision evidence regressions
-        run: npm run test:decision-evidence-regressions
-      - name: Routing and security contracts (parallel discovery)
-        run: npm run test:navigation-route-contract && npm run test:security-boundaries
+      - name: Golden corpus regression coverage
+        run: npm run test:golden-e2e-corpus && npm run test:golden-dataset-contract
+      - name: Outcome provenance regression coverage
+        run: node scripts/check-work-item-outcome-provenance-boundary.mjs && node scripts/check-outcome-provenance-identity.mjs
+      - name: File security regression coverage
+        run: npm run test:file-intelligence-security && npm run test:file-security-archive-traversal
+      - name: Decision evidence regression coverage
+        run: npm run test:production-certification-evidence-integrity && node scripts/check-kpi-presentation-truth.mjs
+      - name: Routing and security contracts
+        run: npm run test:quality-workflow-contract && npm run test:tenant-security-contract
       - name: Global tenant RLS
         run: npm run test:global-tenant-rls
       - name: Import RPC tenant context
@@ -140,7 +140,7 @@ jobs:
       - name: Import business key
         run: npm run test:import-business-key
       - name: Phase 3 data and import truth closure
-        run: npm run test:phase3-data-import-truth-closure
+        run: npm run test:phase3-data-import-truth
       - name: Lint
         run: npm run lint
       - name: Build
