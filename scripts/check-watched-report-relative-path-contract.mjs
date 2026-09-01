@@ -12,6 +12,7 @@ if(!sql.includes('current_company_id()')||!sql.includes('auth.uid()'))throw new 
 const traversal=/(^|[\\/])\.\.([\\/]|$)/;
 const drive=/^[A-Za-z]:/;
 const absolute=/^[\\/]/;
-for(const value of ['../outside.csv','incoming/../../outside.csv','incoming\\..\\outside.csv','C:\\outside.csv','C:outside.csv','/outside.csv','\\\\server\\share\\outside.csv'])if(!(traversal.test(value)||drive.test(value)||absolute.test(value)))throw new Error(`Traversal fixture unexpectedly accepted: ${value}`);
-for(const value of ['incoming/report.csv','incoming\\report.csv','2026/08/report.pdf','incoming/ملف.xlsx'])if(traversal.test(value)||drive.test(value)||absolute.test(value))throw new Error(`Safe relative-path fixture unexpectedly rejected: ${value}`);
+const invalidControl=/[\u0000\r\n]/;
+for(const value of ['../outside.csv','incoming/../../outside.csv','incoming\\..\\outside.csv','C:\\outside.csv','C:outside.csv','/outside.csv','\\\\server\\share\\outside.csv','incoming/\u0000outside.csv','incoming/report\n.csv'])if(!(traversal.test(value)||drive.test(value)||absolute.test(value)||invalidControl.test(value)))throw new Error(`Traversal/control fixture unexpectedly accepted: ${value}`);
+for(const value of ['incoming/report.csv','incoming\\report.csv','2026/08/report.pdf','incoming/ملف.xlsx'])if(traversal.test(value)||drive.test(value)||absolute.test(value)||invalidControl.test(value))throw new Error(`Safe relative-path fixture unexpectedly rejected: ${value}`);
 console.log('Watched report relative-path contract: PASS');
