@@ -21,4 +21,20 @@ describe('AI data policy tenant boundaries', () => {
   it('still blocks raw business rows after tenant validation', () => {
     expect(evaluateAIDataPolicy({ ...valid, includeRawBusinessRows: true }).allowed).toBe(false);
   });
+  it('rejects unsupported capability values at runtime', () => {
+    expect(evaluateAIDataPolicy({ ...valid, capability: 'sql' } as never).reason).toBe('AI capability is not supported');
+  });
+  it('rejects malformed policy records and coercible security flags', () => {
+    expect(evaluateAIDataPolicy(null as never).allowed).toBe(false);
+    expect(evaluateAIDataPolicy([] as never).allowed).toBe(false);
+    expect(evaluateAIDataPolicy({ ...valid, includeRawBusinessRows: 'false' } as never).reason).toBe('Raw business row flag is invalid');
+    expect(evaluateAIDataPolicy({ ...valid, trustedProvider: 'true' } as never).reason).toBe('Provider approval flag is invalid');
+  });
+  it('rejects non-text context instead of relying on optional chaining coercion', () => {
+    expect(evaluateAIDataPolicy({ ...valid, text: 123 } as never).reason).toBe('Approved context must be text');
+  });
+  it('requires an authenticated tenant for session-bound authorization', () => {
+    expect(evaluateAIDataPolicyForSession(valid, null).reason).toBe('Authenticated tenant scope is required');
+    expect(evaluateAIDataPolicyForSession(valid, undefined).reason).toBe('Authenticated tenant scope is required');
+  });
 });
