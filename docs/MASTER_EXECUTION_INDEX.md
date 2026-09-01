@@ -8,18 +8,17 @@ This index is authoritative for execution state. Historical PASS is never promot
 - Repository: `Report-Engainall/Report-Advisor`
 - PR: **#294 — OPEN / NOT MERGED**
 - Base: `main` @ `89c8361e85878521c915328f6d0a595663498cd3`
-- Current execution head: `9ed1bb7e103b03c26a346e3c7f2827b9c21be1ea`
+- Current execution head: `9be1f46cc5e58690bbc2f1ce627aed2e2760c415`
 - Current branch: `codex/p0-hardening-integration-20260901`
 - Exact-head CI is required after the latest K/L evidence-checker repair; no final PASS is claimed yet.
-- Branch pointer was independently verified against GitHub; the previous index value `eefb739...` was the parent of the current head and is corrected here.
 
 ### Latest executed work
 - Exact-head certification on `71936266efb39d0c2be68292cc15fe0e6cb71101` passed the **20/20 release-readiness matrix** and reached **30/30 Final Execution Batch** before failing at `check-k-l-execution-evidence-chain.mjs`.
 - The failure was a checker/API naming mismatch: the runtime implements canonical consolidation through `consolidateByPrecedence`, while the checker required the literal token `consolidation`.
-- Repaired the checker to validate canonical runtime APIs using explicit alternatives: `buildLineage/diffRows`, `consolidateByPrecedence`, `selectBoundedScenario`, `rankPortfolio`, `RuntimeEvidence/recordExecutiveEvidenceEdge`, `controlPlaneHealth/recordControlPlaneHealth`, and `evaluateAutonomyGate/autonomyRuntimeGate`.
+- Repaired the checker to validate canonical runtime APIs using explicit alternatives: `buildLineage/diffRows`, `consolidateByPrecedence/consolidateRuntime`, `selectBoundedScenario/chooseScenario`, `rankPortfolio/prioritizeDecisions`, `RuntimeEvidence/recordEvidenceEdge/recordExecutiveEvidenceEdge`, `controlPlaneHealth/recordHealth/recordControlPlaneHealth`, and `evaluateAutonomyGate/canAutonomouslyExecute/autonomyRuntimeGate`.
 - Tenant/lease invariants remain mandatory: `company_id`, `current_company_id`, `lease_owner`, `lease_expires_at`.
 - No production runtime behavior was weakened and no bypass was added.
-- Latest branch head after the repair is `9ed1bb7...` and is now reflected accurately in this index.
+- Latest branch head after the repair is `9be1f46...` and is now reflected accurately in this index.
 
 ### Verification and audit sweep
 - 20-stage release readiness: **20/20 PASS** on the immediately preceding exact-head cycle.
