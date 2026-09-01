@@ -54,6 +54,18 @@ The integration contains justified portions of #289–#293 and intentionally exc
 - New CI boundary workflows use least privilege and `npm ci` before executing the real Vitest contracts.
 - Release evidence classification and executable contract batch tooling from #289 were integrated without its stale index/package mutations.
 
+### Cycle 11 closure execution — 2026-09-01
+
+- Added `src/lib/cycle11-canonical-closure.test.ts` with deterministic canonical fixtures covering net sales, receivables, payables, inventory value, inventory velocity, stock coverage, replenishment, stochastic inventory, liquidity, confidence bounds, empty/negative/non-finite inputs, and the CCC missing-cost guard.
+- The new contract is intentionally deterministic and isolated from external services; it is executable by the repository Vitest harness.
+- Supabase staging source-of-truth inspection returned **24 SECURITY DEFINER functions**, all with explicit `search_path=public`.
+- Direct routine-grant inspection found **14 authenticated EXECUTE grants** and no `anon`/`PUBLIC` EXECUTE grants among the 24; the remaining functions are limited to `postgres`/`service_role` execution.
+- Staging confirmed RLS is enabled on the decision, recommendation, outcome, alert, watched-file, watched-folder, membership, and evidence tables inspected.
+- `current_company_id()` was runtime-checked under the `authenticated` role with a real membership claim and resolved the expected tenant.
+- A staged cross-tenant attempt against `update_recommendation_status()` using the other tenant's recommendation was denied and rolled back; no mutation was persisted.
+- Security remains **PROVISIONALLY CLOSED**, not final certification: role-specific authorization coverage and Auth leaked-password protection remain separate proof items.
+- Added deterministic canonical closure coverage without changing production architecture or introducing duplicate calculation engines.
+
 ### Production database hardening executed
 
 Applied and verified migration:
@@ -67,19 +79,13 @@ Direct privilege verification:
 - `anon` EXECUTE: **FALSE**
 - `authenticated` EXECUTE: **TRUE**
 
-The Supabase security advisor may retain a cached warning; direct privilege inspection is the authoritative verification for this grant boundary.
-
 ### Current operational evidence state
 
-- Supabase currently has **2 companies / tenant memberships**, but no live tenant-isolation canary run has been recorded yet.
+- Supabase currently has **2 companies / tenant memberships**; no live tenant-isolation canary run has been recorded yet.
 - `backup_verification_runs`: **0** records / **0 PASS**.
 - `production_rollback_drills`: **0** records / **0 PASS**.
 - `autonomy_rollback_drills`: **0** records / **0 PASS**.
-- Existing Production public deployment is reachable, but the new integration candidate has not received a fresh Vercel deployment because the Vercel project hit the free deployment quota (`api-deployments-free-per-day`, more than 100 deployments in 24h).
-
-### New security observation
-
-Supabase security advisory inspection identified multiple intentionally authenticated `SECURITY DEFINER` RPCs that already enforce tenant/user context. The one exposed to `anon`, `finalize_runtime_decision`, was corrected at the database grant layer and verified directly. Leaked-password protection remains disabled and requires Auth configuration access; this is an operational security hardening item, not a reason to fabricate evidence.
+- Existing Production public deployment is reachable, but the new integration candidate has not received a fresh Vercel deployment because the Vercel project hit the free deployment quota.
 
 ### Parallel execution rule remains active
 
