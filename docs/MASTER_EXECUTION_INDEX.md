@@ -8,17 +8,15 @@ This index is authoritative for execution state. Historical PASS is never promot
 - Repository: `Report-Engainall/Report-Advisor`
 - PR: **#294 — OPEN / NOT MERGED**
 - Base: `main`
-- Current execution head: `0f0d8458ee35857961920e713312968ace9c9ff5`
+- Current execution head: `32a72e56c8f2cd63bf27b33eb5299a5209ebc955`
 - Exact-head CI is required after every source/workflow mutation; no final PASS is claimed until that exact SHA is verified.
 
-### Completed worker lifecycle hardening
-1. Added `check-worker-lifecycle-guards.mjs` covering heartbeat, checkpoint, completion, failure, and retry invariants.
-2. Added `check-worker-lease-expiry.mjs` for expired-lease rejection.
-3. Added `check-worker-service-role-boundary.mjs` for SECURITY DEFINER and execution grants.
-4. Added `check-worker-tenant-isolation.mjs` for `current_company_id()` tenant scoping.
-5. Added `check-worker-terminal-state-guards.mjs` for terminal-state and bounded-retry transitions.
-6. Wired all five regression checks into `package.json`.
-7. Recorded the exact execution head and evidence boundary in this index.
+### Completed execution-governance hardening
+1. Added and wired five execution governance guards: execution-index integrity, worker-index contract, release-boundary contract, closure-track contract, and certification-overclaim guard.
+2. Added and wired an execution-guard self-test covering all five governance guards with fail-closed and PASS assertions.
+3. Added and wired five checkpoint contract guards: initialization, source-hash immutability, row-count validation, resume validation, and monotonic transition enforcement.
+4. Added and wired five additional checkpoint guards: evidence deduplication, evidence preservation, timestamp validity, nine-stage enum coverage, and advance-output contract.
+5. Added and wired package-level test scripts for every guard added in this execution batch.
 
 ### Active closure tracks
 - P0-A Authenticated Runtime
