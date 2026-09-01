@@ -8,7 +8,7 @@ This index is authoritative for execution state. Historical PASS is never promot
 - Repository: `Report-Engainall/Report-Advisor`
 - PR: **#294 — OPEN / NOT MERGED**
 - Base: `main`
-- Current execution head: `a0e4d05e3ae3462fe694f61022558d584990d649`
+- Current execution head: `c1ae06e7f34b6f71fa1001bd3a308049bc74a44f`
 - Exact-head CI is required after every source/workflow mutation; no final PASS is claimed until that exact SHA is verified.
 
 ### Completed execution-governance hardening
@@ -23,7 +23,11 @@ This index is authoritative for execution state. Historical PASS is never promot
 2. Hardened optional source-snapshot identity so blank snapshot IDs are rejected rather than silently canonicalized.
 3. Hardened durable worker adapter inputs: job/worker IDs must be non-blank and lease duration must be a positive integer before RPC execution.
 4. Hardened checkpoint evidence validation to accept only non-blank string keys, with deterministic deduplication/sorting, and fail-closed resume validation for timestamp and row-count invariants.
-5. Expanded executable runtime regression coverage across checkpoint monotonicity, evidence integrity, request identity, tenant evidence boundaries, durable adapter RPC guards, and lease/failure/dead-letter SQL invariants.
+5. Added and wired the report-execution input-boundary guard covering canonical request/checkpoint/adapter boundary tokens.
+6. Expanded executable runtime regression coverage across checkpoint monotonicity, evidence integrity, request identity, tenant evidence boundaries, durable adapter RPC guards, and lease/failure/dead-letter SQL invariants.
+7. Added deterministic in-memory Supabase adapter execution coverage for claim, heartbeat, checkpoint, complete, fail, and retry RPC paths, including argument assertions.
+8. Added negative adapter-path coverage proving invalid worker/job/lease inputs fail before any RPC side effect.
+9. Restored the complete existing package test-script inventory while retaining the new report-execution input-boundary command; no unrelated test wiring was intentionally removed.
 
 ### Active closure tracks
 - P0-A Authenticated Runtime
