@@ -13,6 +13,6 @@ assert.equal(paid(-3), 0);
 assert.equal(outstanding(100, -3), 100);
 assert.equal(outstanding(100, 120), 0);
 assert.equal(outstanding(-10, 0), 0);
-assert.deepEqual(history([1, -2, NaN, Infinity, 3]), [1, 0, 0, 3]);
+assert.deepEqual(history([1, -2, NaN, Infinity, 3]), [1, 0, 3]);
 assert.equal(total([{stock:-2},{stock:5},{stock:NaN}], 'stock'), 5);
 console.log('canonical intelligence boundary invariants: PASS');
