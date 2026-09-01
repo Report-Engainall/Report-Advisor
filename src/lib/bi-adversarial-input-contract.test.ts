@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { cashConversionCycle, decideReplenishment, projectLiquidity, scoreCustomer, scoreSupplier, whatIf } from './businessIntelligenceEngines';
+import { analyzeTrend, buildAgingBuckets, cashConversionCycle, decideReplenishment, projectLiquidity, scoreCustomer, scoreSupplier, whatIf } from './businessIntelligenceEngines';
 
 describe('BI adversarial input contract', () => {
   it('rejects negative inventory demand inputs', () => {
@@ -24,11 +24,21 @@ describe('BI adversarial input contract', () => {
   it('rejects non-finite What-If baseline and changes', () => {
     expect(() => whatIf({ baseline: Number.POSITIVE_INFINITY, changes: [] })).toThrow('BI_INVALID_NUMBER:baseline');
     expect(() => whatIf({ baseline: 100, changes: [{ label: 'x', pct: Number.NEGATIVE_INFINITY }] })).toThrow('BI_INVALID_WHAT_IF_CHANGE');
+    expect(() => whatIf({ baseline: 100, changes: [{ label: 'x', pct: -101 }] })).toThrow('BI_INVALID_WHAT_IF_CHANGE');
   });
   it('rejects NaN and non-array runtime payloads at public boundaries', () => {
     expect(() => decideReplenishment({ onHand: Number.NaN, avgDailyDemand: 1, leadTimeDays: 1 })).toThrow('BI_INVALID_NUMBER:onHand');
     expect(() => scoreCustomer({ recencyDays: 1, orders: Number.POSITIVE_INFINITY, revenue: 1 })).toThrow('BI_INVALID_NUMBER:orders');
     expect(() => projectLiquidity({ openingLiquidity: 1, horizons: '30', dailyInflow: 1, dailyOutflow: 1 } as never)).toThrow('BI_INVALID_HORIZONS');
     expect(() => whatIf({ baseline: 1, changes: null } as never)).toThrow('BI_INVALID_CHANGES');
+  });
+  it('fails closed instead of silently dropping malformed aging records', () => {
+    expect(() => buildAgingBuckets([{ amount: Number.NaN }], new Date('2026-01-01'))).toThrow('BI_INVALID_NUMBER:aging.amount');
+    expect(() => buildAgingBuckets([{ amount: -1 }], new Date('2026-01-01'))).toThrow('BI_NEGATIVE_VALUE:aging.amount');
+    expect(() => buildAgingBuckets([{ amount: 1, dueDate: 'not-a-date' }], new Date('2026-01-01'))).toThrow('BI_INVALID_DATE:aging.dueDate');
+  });
+  it('fails closed on malformed trend points instead of silently filtering them', () => {
+    expect(() => analyzeTrend([{ date: '2026-01-01', value: 1 }, { date: 'bad-date', value: 2 }, { date: '2026-01-03', value: 3 }])).toThrow('BI_INVALID_DATE:trend.date');
+    expect(() => analyzeTrend([{ date: '2026-01-01', value: Number.NaN }, { date: '2026-01-02', value: 2 }, { date: '2026-01-03', value: 3 }])).toThrow('BI_INVALID_NUMBER:trend.value');
   });
 });
