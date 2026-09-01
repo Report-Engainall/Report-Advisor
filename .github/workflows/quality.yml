@@ -26,6 +26,8 @@ jobs:
         run: node scripts/check-ci-execution-topology.mjs && node scripts/check-production-recovery-gate.mjs
       - name: Cross-surface capability traceability
         run: node scripts/check-cross-surface-traceability.mjs
+      - name: Connected certification and 100-point audit
+        run: npm run test:connected-certification && npm run test:100-point-release-audit
       - name: Authentication and tenant convergence
         run: npm run test:auth-tenant-convergence
       - name: Tenant legacy consumer boundary
