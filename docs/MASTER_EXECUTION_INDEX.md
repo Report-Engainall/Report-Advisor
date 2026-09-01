@@ -59,11 +59,18 @@ This file is the authoritative execution index. Historical PASS remains historic
 39. **Canonical text provenance hardening:** provenance builder now safely normalizes malformed blocks/page counts, while fidelity validation rejects missing/non-string source and artifact hashes and blank extraction engines.
 40. **Document adversarial expansion:** added explicit NUL-filename quarantine and encrypted/password-protected document review cases to the golden adversarial corpus.
 41. **Expanded corpus executable enforcement:** regression suite now enforces the 12-case corpus size, uniqueness and newly added unsafe-file/encryption expectations.
+42. **BI aging-input boundary hardening:** aging-bucket calculation now rejects non-array runtime payloads and ignores malformed rows before financial bucketing.
+43. **BI trend-input boundary hardening:** trend analysis now rejects non-array payloads before chronological normalization and statistical calculations.
+44. **BI aging overflow hardening:** bucket accumulation now fails closed when finite inputs would overflow the numeric result boundary.
+45. **BI replenishment overflow hardening:** coverage and required-quantity calculations now fail closed instead of emitting infinite inventory decisions.
+46. **BI liquidity overflow hardening:** horizon inflow, outflow and projected-liquidity results now have explicit finite-result boundaries.
+47. **BI CCC result hardening:** DSO/DIO/DPO and final CCC now reject arithmetic overflow rather than exposing non-finite financial KPIs.
+48. **BI what-if result hardening:** scenario delta and delta-percent now have explicit finite-result guards; malformed change arrays fail closed.
 
 ### Exact implementation chain
 
 - Branch: `codex/release-hardening-integration-20260901`
-- Latest code commit before this index update: `71e81d42b445ea87d782806f1668e96233c6ee73`
+- Latest code commit before this index update: `743dd8fa3c1a7b6992fbf8a0d6ae27c66e975f2b`
 - This index update is documentation-only and must not be treated as code certification.
 
 ## Certification Boundaries
