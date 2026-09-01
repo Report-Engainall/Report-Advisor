@@ -41,7 +41,14 @@ for (const token of [
   }
 }
 const indexLower = index.toLowerCase();
-for (const token of ['r16 — backup / restore / dr', 'rpo', 'rto', 'actual restore drill']) {
+const recoveryBoundaryTokens = [
+  'p1-h — backup / restore / dr',
+  'r16 — backup / restore / dr',
+];
+if (!recoveryBoundaryTokens.some((token) => indexLower.includes(token))) {
+  throw new Error('Remaining-work register lost recovery boundary: expected canonical P1-H or legacy R16 backup / restore / DR boundary');
+}
+for (const token of ['rpo', 'rto', 'actual restore drill']) {
   if (!indexLower.includes(token)) throw new Error(`Remaining-work register lost recovery boundary: ${token}`);
 }
 
