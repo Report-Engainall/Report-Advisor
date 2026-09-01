@@ -9,24 +9,24 @@ This index is authoritative for execution state. Historical PASS is never promot
 - PR: **#294 — OPEN / NOT MERGED**
 - Base: `main` @ `89c8361e85878521c915328f6d0a595663498cd3`
 - Current branch: `codex/p0-hardening-integration-20260901`
-- Current execution head after latest Phase-H checker repair: `eef8c1aa2a625e95bb5b77f95d5d8e9421a82bed`
+- Current execution head after Phase-K checker repair: `6a625e9ef378ca491b59cc65c78d526fa56a5deb`
 - Exact-head CI is required after every source/workflow mutation; no final PASS is claimed until that exact SHA is verified.
 
-### Latest certification findings and repairs
-- The latest exact-head certification evidence previously checked out `c4d3f730232fee78c3852ed3e68d5d34655bbe06` exactly and passed its 20-stage readiness matrix and 30-stage final execution batch before a Phase-H checker failure.
-- `check-phase-h-continuous-trust.mjs` was using a stale/non-canonical migration filename and stale table/function names.
-- The canonical Phase-H migration is `supabase/migrations/20260825090000_continuous_trust_autonomous_ops.sql`, which defines tenant-isolation canary runs, remediation runs, intelligence-safety adjustments, billing liveness probes, artifact verification runs, incident-regression links, continuous-trust health, and tenant-scoped RLS.
-- The Phase-H checker was corrected to scan all canonical SQL migrations and assert the actual Phase-H primitives rather than hard-coding a stale filename/schema vocabulary.
-- This is a checker repair, not a production-certification claim; the new head `eef8c1aa...` requires fresh exact-head CI.
+### Latest certification finding and repair
+- Exact-head certification on `c53278730a28edf96518880fa9489fcb8d6207e0` passed the 20-stage readiness matrix, 30-stage final execution batch, P0 13/13, and P1 8/8 before `check-phase-k-runtime-closure.mjs` failed.
+- Root cause: the Phase-K checker required stale API vocabulary (`buildRowLineage`, `consolidateChronologically`, `selectBoundedScenario`, `rankDecisionPortfolio`, `evaluateAutonomy`) even though the canonical production coordinator bridge uses `diffRows`, `consolidateRuntime`, `chooseScenario`, `prioritizeDecisions`, and `canAutonomouslyExecute`.
+- Repair: Phase-K checker now accepts the canonical runtime APIs while retaining backward-compatible alternatives, and continues requiring the sourceHash identity.
+- This is a checker repair, not a production-certification claim; the new head `6a625e9...` requires fresh exact-head CI.
 
-### Latest repository hardening
+### Repository hardening already completed
 - Release-evidence SHA validation requires exactly 40 hexadecimal characters with adversarial short/long/alphabet cases.
 - Watched-folder import remains bound to canonical `commitImportBatch` persistence/governance.
 - K/L evidence validation is aligned with canonical runtime APIs and tenant/lease invariants.
 - Intelligence foundation fixtures use canonical `aggregateAlternativeGroup` and `buildExecutiveScorecard` APIs.
 - Final certification PR workflow separates PR contract checks from release-only operational evidence.
-- `check-parallel-runtime-hardening.mjs` has truthful positive and cross-tenant-negative fixtures and a valid terminal-guard fixture.
-- Phase-H continuous-trust validation now consumes the canonical migration surface instead of a stale migration name.
+- Parallel-runtime fixtures explicitly cover same-tenant allow, cross-tenant deny, and terminal duplicate-transition rejection.
+- Phase-H continuous-trust validation consumes the canonical migration surface instead of a stale migration name.
+- Phase-K runtime closure validation now consumes the canonical production-coordinator bridge API vocabulary.
 
 ### Current dependency/security observation
 - `npm ci` reports **19 dependency vulnerabilities (2 low, 4 moderate, 13 high)**. No blind `npm audit fix` is authorized. Package-level triage is required before release certification.
@@ -62,12 +62,13 @@ Repository-executable fronts continue even when operational fronts are blocked b
 - **T14 PR/branch synchronization audit:** ensure PR metadata, branch ref, index, and CI checkout all agree before promoting evidence.
 - **T15 Parallel-runtime adversarial regression:** keep same-tenant allow and cross-tenant deny fixtures explicit; ensure terminal duplicate transitions are rejected without tautological assertions.
 - **T16 Phase-H canonical migration alignment:** keep Phase-H checker vocabulary bound to canonical migration primitives and prevent stale migration-name regressions.
+- **T17 Phase-K canonical runtime alignment:** keep Phase-K checker vocabulary bound to canonical production-coordinator APIs and prevent stale API-name regressions.
 
 ## RECOVERY BOUNDARY REGISTER
 - **P1-H — Backup / Restore / DR** remains an explicit certification boundary.
 - RPO/RTO are operational evidence requirements, not source-level claims.
 - Backup, restore, migration parity, artifact integrity, rollback, and security audit evidence are required before production certification.
-- Source-level Phase 10 validation must never convert a missing live restore drill into PASS.
+- Source-level recovery validation must never convert a missing live restore drill into PASS.
 
 ## NON-NEGOTIABLE CERTIFICATION BLOCKERS
 - Production authenticated runtime.
