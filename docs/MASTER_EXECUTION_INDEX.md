@@ -11,7 +11,7 @@ This file is the authoritative execution index. Historical PASS remains historic
 - Current `main` release baseline: `17a49420c70faca143cf7cc58ad11aae6edcb662`.
 - Owner integration PR: **#294**, OPEN / NOT MERGED.
 - This execution wave adds implementation PR **#300**, OPEN / NOT MERGED.
-- PR #300 current head: `5841f44fe26f0d326f6c06ccb0baea520e1f14eb`.
+- PR #300 current head: `348a1988329fe7c791127b33bde231ab3c65a442`.
 - Do not call branch-local hardening PASS `main` PASS until exact-head CI and merge conditions are satisfied.
 
 ## Latest Executed Cycle — 2026-09-01
@@ -36,6 +36,7 @@ This file is the authoritative execution index. Historical PASS remains historic
 16. **CI credential hardening:** disabled persisted checkout credentials in the file-intelligence security workflow.
 17. **File-security integrity restoration:** restored the complete `security.ts` implementation after the prior branch edit had replaced it with an incomplete prefix; all scanner and duplicate-check exports are present again while retaining explicit ESM imports.
 18. **Archive traversal adversarial expansion:** extended the executable ZIP regression matrix to cover backslash traversal, NUL entry names, unsafe uploaded archive filenames and NUL-containing uploaded filenames, in addition to POSIX/Windows absolute and nested parent traversal.
+19. **Security-definer contract hardening:** the repository security-definer verifier now strips SQL comments before matching function definitions/grants, preventing commented-out SQL from satisfying the exposure contract.
 
 ### Exact implementation SHAs
 
@@ -46,19 +47,20 @@ This file is the authoritative execution index. Historical PASS remains historic
 - Metric boundary hardening: `a284144b5d614c2991712a596992394f52dbb203`
 - File-security restoration: `a61892bd1153e32d3b35ba396342b9faa00a7155`
 - Archive traversal regression expansion: `5841f44fe26f0d326f6c06ccb0baea520e1f14eb`
+- Security-definer contract hardening: `348a1988329fe7c791127b33bde231ab3c65a442`
 - Earlier execution fix commits: `a857f4404b8c99bbd4da3b264b59c65d3f2a3751`, `29a99caf0f59178cfe9fb3fdf373d5e02a6ad232`, `15159f207402ac8a0df4f169d0505925c4744f15`, `95bb48acc2a694a9bf9c948cc1cbade3f4ff37ee`
 
 ## Verification Truth
 
 - The exact-head CI for `dff150f...` proved the previous archive regression failure was a real module-export failure because the branch file was incomplete; it is now restored at `a61892b...` and the regression matrix was expanded at `5841f44...`.
 - Before the regression, the File Intelligence security contract itself passed; no current post-fix security PASS is claimed until the new exact-head run completes.
-- The latest post-fix commit has triggered the PR CI matrix; queued runs are the active verification state and are not yet PASS.
+- The current post-fix branch has active PR verification; queued checks must be evaluated against the latest head `348a1988...`, not against historical SHAs.
 - The latest status still includes the known Vercel deployment quota failure; this remains external and does not become a code PASS.
 - No production certification, authenticated tenant A/B PASS, backup/restore PASS, rollback PASS, or Vercel runtime PASS is claimed.
 
 ## Current Operational Truth / Blockers
 
-1. **Exact-head CI:** queued/running against `5841f44...`; must finish green before merge.
+1. **Exact-head CI:** must finish against `348a1988...`; historical runs do not certify this head.
 2. **Security:** Advisor findings require per-function analysis; leaked-password protection remains an operational configuration gap.
 3. **Authenticated A/B:** no operational credentials/sessions available for honest LIVE E2E evidence.
 4. **Backup/Restore:** no real PASS run yet.
@@ -182,4 +184,4 @@ ONE EXACT RELEASE SHA
 
 ## OWNER DECISION
 
-The project remains in **PROVE → CERTIFY → RELEASE**, not BUILD. This cycle restored the complete file-security scanner, preserved the intended ESM repair, and materially expanded adversarial archive traversal coverage. Exact-head CI is now the active proof gate; no merge or certification is claimed until it converges on the current SHA.
+The project remains in **PROVE → CERTIFY → RELEASE**, not BUILD. This cycle restored the complete file-security scanner, expanded adversarial archive traversal coverage, and hardened the SECURITY DEFINER exposure contract against commented SQL. Exact-head CI remains the active proof gate; no merge or certification is claimed until it converges on the current SHA.
