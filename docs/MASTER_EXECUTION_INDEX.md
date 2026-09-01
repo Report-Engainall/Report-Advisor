@@ -9,7 +9,7 @@ This index is authoritative for execution state. Historical PASS is never promot
 - PR: **#294 — OPEN / NOT MERGED**
 - Base: `main` @ `89c8361e85878521c915328f6d0a595663498cd3`
 - Current branch: `codex/p0-hardening-integration-20260901`
-- Execution head immediately before this index update: `dab9ba1b10ebe928950d7ca8be7abdb7f6fcd3e6`
+- Execution head immediately before this index update: `2e4b69248a5cee6dcf1e5094723f18c681943b33`
 - This index update itself advances the branch; therefore the next exact-head CI target is the commit produced by this update.
 - Exact-head CI is required after every source/workflow mutation; no final PASS is claimed until that exact SHA is verified.
 
@@ -38,12 +38,12 @@ This index is authoritative for execution state. Historical PASS is never promot
 7. Current exact-head workflow state is **not yet certified PASS**; queued/pending/in-progress runs are not promoted to PASS.
 
 ### New completed work — worker lifecycle transition extension
-1. Added `check-worker-claim-lease-contract.mjs` covering claim-side lease establishment and expired-lease handling.
-2. Added `check-worker-checkpoint-monotonicity-contract.mjs` covering checkpoint transition/resume gates and regression coverage.
-3. Added `check-worker-retry-eligibility-contract.mjs` covering failed-only retry, bounded attempts, queue re-entry, and lease clearance.
-4. Added `check-worker-terminality-contract.mjs` covering explicit completion/failure terminal transitions and rejection of lifecycle mutation against completed state.
-5. Added `check-worker-tenant-boundary-contract.mjs` requiring `current_company_id()` enforcement in every lifecycle RPC.
-6. Extended `.github/workflows/worker-hardening-contract.yml` to execute these five additional guards and trigger on their canonical source/test surfaces.
+1. Added `check-worker-checkpoint-monotonicity-contract.mjs` covering checkpoint transition/resume gates and regression coverage.
+2. Added `check-worker-retry-eligibility-contract.mjs` covering failed-only retry, bounded attempts, queue re-entry, and lease clearance.
+3. Added `check-worker-terminality-contract.mjs` covering explicit completion/failure terminal transitions and rejection of lifecycle mutation against completed state.
+4. Added `check-worker-tenant-boundary-contract.mjs` requiring `current_company_id()` enforcement in every lifecycle RPC.
+5. Corrected the workflow to remove an invalid claim-migration reference and retained only guards backed by canonical repository files.
+6. Extended `.github/workflows/worker-hardening-contract.yml` with five additional executable contracts: RPC signatures, boolean/affected-row return semantics, `updated_at` mutation, active-state restrictions, and completion evidence persistence.
 7. Current exact-head workflow state is **not yet certified PASS**; the index update itself creates a new exact-head CI target.
 
 These are source-level regression guards. They improve repository-executable evidence but do **not** close live production, authenticated E2E, tenant A/B, backup/restore, rollback, or other external operational certification boundaries.
@@ -82,7 +82,7 @@ Repository-executable fronts continue even when operational fronts are blocked b
 - **T4 Workflow coverage/regression audit:** compare package scripts with Quality/Certification/Release workflows and detect dropped coverage.
 - **T5 Security-definer classification:** classify privilege, caller, search_path, grants, tenant guards, exploitability; harden only demonstrated excessive privilege.
 - **T6 Canonical truth adversarial corpus:** missing cost/sale items, invalid numerics, duplicate SKU, currency mismatch, UNKNOWN/INSUFFICIENT_DATA, forecast confidence.
-- **T7 Worker lifecycle security regression:** service-role authority, tenant scope, lease, retry, checkpoint, dead-letter, resume. **Extended with fifteen executable repository guards/contracts.**
+- **T7 Worker lifecycle security regression:** service-role authority, tenant scope, lease, retry, checkpoint, dead-letter, resume. **Extended with twenty executable repository guards/contracts.**
 - **T8 Document/OCR evidence readiness:** hashes, confidence, normalized output, provenance, duplicate/unknown handling, Golden Corpus scoring.
 - **T9 Performance readiness:** repository-level P95/bounded reads/concurrency; defer live load evidence until runtime.
 - **T10 UX/PWA acceptance preparation:** authenticated mobile/RTL/slow-network/offline/installability evidence cases.
