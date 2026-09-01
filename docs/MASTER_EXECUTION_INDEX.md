@@ -104,7 +104,6 @@ Source-level work can continue; Windows native/installer and authenticated produ
 - Current operational counts remain zero after rollback; no synthetic runtime PASS was promoted to persistent operational evidence.
 - Security remains provisionally closed; no duplicate security investigation was opened.
 
-
 ## CYCLE 14 CLOSURE UPDATE — 2026-09-01
 
 - Found and fixed a canonical-layer fail-open propagation defect: `buildCanonicalIntelligence()` previously sanitized explicit non-finite reserve inputs before passing them to `protectCashReserve()`, which could convert an invalid reserve context into an apparently valid zero-value reserve. The canonical layer now preserves explicit invalidity while still defaulting omitted optional values to zero.
@@ -112,7 +111,6 @@ Source-level work can continue; Windows native/installer and authenticated produ
 - Repository package scripts confirm dedicated executable contracts exist for report execution, watched-report pipeline, operational resilience, golden corpus, and production certification; however the available execution environment still cannot run the repository Node/Vitest harness, so no unexecuted contract was promoted to PASS.
 - Staging lifecycle functions were re-inspected after the Cycle 13 drills. Worker claiming remains service-role/postgres-only by design; watched-file recording remains authenticated-context guarded. No new persisted synthetic operational data was created in this cycle.
 - CI, Vercel quota, browser-authenticated journeys, live OCR backend, Windows native execution, and destructive/operational backup/restore/rollback drills remain external runtime capabilities and are not represented as PASS.
-
 
 ## CYCLE 15 EXECUTION UPDATE — 2026-09-01
 
@@ -123,7 +121,16 @@ Source-level work can continue; Windows native/installer and authenticated produ
 - Staging capability inspection found `report_execution_jobs` present but the candidate lifecycle functions `heartbeat_report_execution_job`, `advance_report_execution_checkpoint`, `complete_report_execution_job`, `fail_report_execution_job`, and `retry_report_execution_job` absent from the connected staging database. The older staging surface therefore cannot execute the complete candidate worker lifecycle until the corresponding migrations/functions are applied.
 - Staging operational counts after the rolled-back probe remain zero for `report_execution_jobs`, `watched_report_folders`, `watched_report_files`, `backup_verification_runs`, `production_rollback_drills`, and `autonomy_rollback_drills`.
 - Supabase advisors were re-read. Security still reports authenticated SECURITY DEFINER warnings and leaked-password protection remains a configuration blocker; these are not reclassified as new defects because the existing security boundary was already provisionally closed and the affected authenticated functions are intentional API boundaries. Performance findings remain INFO-level unused-index notices; no index was removed without workload evidence.
-- Backup/restore remains procedure/runtime-bound: Supabase's current documented path supports `supabase db dump` for logical artifacts and restore to an isolated/new target; the production restore itself remains an operational drill. 
-
-
+- Backup/restore remains procedure/runtime-bound: Supabase's current documented path supports `supabase db dump` for logical artifacts and restore to an isolated/new target; the production restore itself remains an operational drill.
 - Staging authenticated tenant-boundary probe executed under `authenticated` role with tenant A context: `A → A` watched-folder create was allowed; `A → B` direct create was denied by the database boundary. The whole probe rolled back and left no persistent fixture.
+
+## CYCLE 16 EXECUTION UPDATE — 2026-09-01
+
+- Exact reference at cycle start: `765e169d6a9dfd526ad5e3840bbaed8b9e29422f`; PR #294 is open and points to that SHA.
+- Live Staging schema inspection confirms `report_execution_jobs` exists with explicit lease/checkpoint/attempt/error/evidence/completion fields. The only installed lifecycle routine is `claim_report_execution_job(p_job_id uuid, p_lease_owner text, p_lease_seconds integer DEFAULT 300)`. The required `heartbeat_report_execution_job`, `advance_report_execution_checkpoint`, `complete_report_execution_job`, `fail_report_execution_job`, and `retry_report_execution_job` routines are absent. No lifecycle API was marked PASS.
+- The installed claim routine was inspected directly. It is tenant-bound through `current_company_id()`, accepts queued/expired leases, increments `attempt`, and sets `lease_owner`/`lease_expires_at`. This confirms the existing claim primitive is real runtime code, not merely historical evidence.
+- A fresh residue query after the cycle's database inspection returned **0 `report_execution_jobs`, 0 `watched_report_folders`, and 0 `watched_report_files`**. No synthetic residue was left by the inspection work.
+- Repository inspection shows the current executable report-execution contract is a Node script (`scripts/report-execution-runtime.test.ts`) rather than a configured Vitest runner. The current package/CI contract uses Node 22 for these executable checks; no `vitest.config.*` or Vitest package was found at the exact head. Therefore the requested Vitest execution was **NOT EXECUTED**, not falsely marked PASS.
+- The existing canonical boundary/financial hardening source remains present at the exact head, but a repository-local runner was not available in this environment to execute the requested Vitest suite. No test result was promoted without execution evidence.
+- Exact-head PR metadata remains: branch `codex/p0-hardening-integration-20260901`, PR #294 OPEN, head `765e169d6a9dfd526ad5e3840bbaed8b9e29422f`. fileciteturn82file0L10-L16
+- Certification remains **NOT CERTIFIED / NOT SELLABLE**. Production, authenticated E2E, live tenant A/B, backup/restore, rollback, live OCR, Windows runtime, and P95 performance remain operational evidence requirements.
