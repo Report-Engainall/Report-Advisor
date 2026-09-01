@@ -1,0 +1,28 @@
+name: brand-identity-contract
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'src/lib/brand.ts'
+      - 'src/pages/LoginPage.tsx'
+      - 'src/components/Sidebar.tsx'
+      - 'index.html'
+      - 'scripts/check-brand-identity-contract.mjs'
+      - '.github/workflows/brand-identity-contract.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      - name: Verify Alaghbari brand identity
+        run: node scripts/check-brand-identity-contract.mjs
