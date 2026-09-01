@@ -8,9 +8,17 @@ This index is authoritative for execution state. Historical PASS is never promot
 - Repository: `Report-Engainall/Report-Advisor`
 - PR: **#294 — OPEN / NOT MERGED**
 - Base: `main` @ `89c8361e85878521c915328f6d0a595663498cd3`
-- Current PR head: `cb834b8736dd71e5b057db1d80eaae302530e0d2`
+- Current execution head: `e7a513f2f9ab6d9e3dc1805e7fd604d404f1feb0`
 - Current branch: `codex/p0-hardening-integration-20260901`
-- Exact-head CI for `cb834b8736...`: newly triggered / awaiting workflow registration at last inspection; no final PASS claimed.
+- The previous exact-head cycle exposed a real Phase 3 CI contract gap; it has been repaired and requires a new exact-head CI cycle.
+
+### Latest executed repair
+- `quality.yml` now explicitly executes the three Phase 3 checks that `check-phase3-data-import-truth-closure.mjs` requires:
+  - `node scripts/check-import-direct-write-guard.mjs`
+  - `npm run test:import-transaction-contract`
+  - `npm run test:import-runtime-governance`
+- Existing canonical import business-key and mapping gates remain active.
+- No no-op aliases or bypasses were introduced.
 
 ### Verified in immediately preceding exact-head cycle
 - 20-stage release readiness: **20/20 PASS**.
@@ -20,16 +28,11 @@ This index is authoritative for execution state. Historical PASS is never promot
 - DR recovery contract/readiness: PASS.
 - Evidence provenance/lineage: PASS.
 - Decision/work-item authorization and DML boundaries: PASS.
-- Import security/transaction/runtime governance: PASS.
+- Import security/transaction/runtime governance: PASS where independently executed.
 - Storage tenant isolation: PASS.
 - Canonical truth/aggregation/dashboard numeric truth: PASS where exact-head evidence existed.
 - Production-chain and release-blocker contracts: PASS where exact-head evidence existed.
-
-### Latest CI repairs
-1. Reconciled `quality.yml` with the actual npm script inventory. Seven stale commands (`test:deep-golden-corpus`, `test:outcome-feedback-regressions`, `test:file-security-regressions`, `test:decision-evidence-regressions`, `test:navigation-route-contract`, `test:security-boundaries`, `test:phase3-data-import-truth-closure`) did not exist in `package.json` and were causing command-integrity failure.
-2. Replaced those aliases with the canonical executable checks already present in the repository, preserving coverage without inventing scripts or adding no-op aliases.
-3. Kept Exact-SHA diagnostics, locked `npm ci`, typecheck, lint, build, tenant RLS, import security, production certification, recovery, and performance gates intact.
-4. The change is CI-contract reconciliation only; it does not weaken product/runtime security boundaries.
+- Windows contract: PASS on the preceding exact-head cycle.
 
 ### Security hardening already applied
 - Worker lifecycle RPCs are restricted to `service_role`; authenticated EXECUTE was revoked for checkpoint/complete/fail/heartbeat/retry operations.
