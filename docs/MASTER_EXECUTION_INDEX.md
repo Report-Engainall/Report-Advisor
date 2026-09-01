@@ -54,11 +54,16 @@ This file is the authoritative execution index. Historical PASS remains historic
 34. **Tenant adversarial regression expansion:** tenant-boundary contract now executes concrete adversarial fixtures for browser storage, query parameters, client-selected filters, browser globals and static tenant fallbacks.
 35. **Watched-report path boundary expansion:** executable watched-report contract now includes NUL/control-character path fixtures alongside traversal, absolute-path and Windows-drive cases.
 36. **Golden-evidence identity contract:** golden evidence now requires array inputs, non-empty unique expected IDs and fails closed on malformed top-level inputs.
+37. **Adversarial document corpus identity hardening:** corpus tests now require unique, non-empty case IDs/failure descriptors and explicitly require the critical quarantine/review cases.
+38. **Business golden corpus schema hardening:** contract now validates tenant identity shape, expected-truth object shape, numeric financial fields and zero-stock SKU arrays before asserting canonical values.
+39. **Canonical text provenance hardening:** provenance builder now safely normalizes malformed blocks/page counts, while fidelity validation rejects missing/non-string source and artifact hashes and blank extraction engines.
+40. **Document adversarial expansion:** added explicit NUL-filename quarantine and encrypted/password-protected document review cases to the golden adversarial corpus.
+41. **Expanded corpus executable enforcement:** regression suite now enforces the 12-case corpus size, uniqueness and newly added unsafe-file/encryption expectations.
 
 ### Exact implementation chain
 
 - Branch: `codex/release-hardening-integration-20260901`
-- Latest code commit before this index update: `87abbe7611931d23b0c41abc419770c84fdb9cc6`
+- Latest code commit before this index update: `71e81d42b445ea87d782806f1668e96233c6ee73`
 - This index update is documentation-only and must not be treated as code certification.
 
 ## Certification Boundaries
