@@ -1,6 +1,12 @@
 import fs from 'node:fs';
 const workflow = fs.readFileSync('.github/workflows/worker-hardening-contract.yml', 'utf8');
 const guards = [
+  'check-worker-workflow-security-contract.mjs',
+  'check-worker-workflow-trigger-contract.mjs',
+  'check-worker-workflow-referenced-files.mjs',
+  'check-worker-workflow-coverage.mjs',
+  'check-worker-workflow-timeout-contract.mjs',
+  'check-worker-runtime-authority-contract.mjs',
   'check-worker-lifecycle-guards.mjs',
   'check-worker-search-path-contract.mjs',
   'check-worker-lease-floor-contract.mjs',
