@@ -23,6 +23,12 @@ export interface MetricInput {
   warnings?: string[];
 }
 
+const boundedConfidence = (value: unknown) => {
+  if (typeof value !== 'number' || !Number.isFinite(value) || value < 0 || value > 1) return 0;
+  return value;
+};
+const validSourceRows = (value: unknown) => typeof value === 'number' && Number.isInteger(value) && value > 0;
+
 export function evaluateMetric(input: MetricInput): MetricEvaluation {
   const definition = BUSINESS_METRICS.find(metric => metric.key === input.key);
   if (!definition) throw new Error(`Unknown metric: ${input.key}`);
@@ -30,16 +36,16 @@ export function evaluateMetric(input: MetricInput): MetricEvaluation {
   const warnings = [...(input.warnings ?? [])];
   const numeric = input.value != null && Number.isFinite(Number(input.value)) ? Number(input.value) : null;
   let status = input.status ?? definition.status;
-  let confidence = Math.max(0, Math.min(1, input.confidence ?? (numeric == null ? 0 : 1)));
+  let confidence = input.confidence === undefined ? (numeric == null ? 0 : 1) : boundedConfidence(input.confidence);
 
   if (numeric == null) {
     status = 'UNAVAILABLE';
     confidence = 0;
     warnings.push('القيمة غير متاحة أو غير رقمية.');
-  } else if (input.sourceRows !== undefined && input.sourceRows <= 0) {
+  } else if (!validSourceRows(input.sourceRows)) {
     status = 'INSUFFICIENT_DATA';
     confidence = 0;
-    warnings.push('لا توجد صفوف مصدر كافية لإثبات المؤشر.');
+    warnings.push('عدد صفوف المصدر غير صالح لإثبات المؤشر.');
   } else if (confidence < 0.7 && status !== 'FORECAST' && status !== 'ESTIMATED') {
     warnings.push('الثقة أقل من حد العرض الموثوق.');
   }
@@ -49,7 +55,7 @@ export function evaluateMetric(input: MetricInput): MetricEvaluation {
     value: numeric,
     unit: definition.unit,
     confidence,
-    source: status === 'FORECAST' ? 'forecast' : status === 'ESTIMATED' ? 'derived' : 'derived',
+    source: status === 'FORECAST' ? 'forecast' : 'derived',
   };
 
   return { key: input.key, definition, value: numeric, status, confidence, updatedAt: input.updatedAt, sourceRows: input.sourceRows, warnings, fact };
