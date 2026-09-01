@@ -1,6 +1,6 @@
 import { strict as assert } from 'node:assert';
 import fs from 'node:fs';
-import { advanceCheckpoint, canAdvanceCheckpoint, type ReportExecutionCheckpoint } from '../src/lib/report-execution/checkpoint.ts';
+import { advanceCheckpoint, canAdvanceCheckpoint, createInitialCheckpoint, resumeFromCheckpoint, type ReportExecutionCheckpoint } from '../src/lib/report-execution/checkpoint.ts';
 import { SupabaseReportExecutionStore } from '../src/lib/report-execution/durable-worker-adapter.ts';
 import type { ReportExecutionRequest } from '../src/lib/report-execution/report-execution-contract.ts';
 
@@ -11,6 +11,22 @@ const next = advanceCheckpoint(initial, { stage:'fingerprinted', sourceHash:'sha
 assert.deepEqual(next.evidenceKeys, ['source:sha-a']);
 assert.throws(() => advanceCheckpoint(next, { stage:'analyzed', sourceHash:'sha-a', evidenceKeys:[] }), /Invalid checkpoint transition/);
 assert.throws(() => advanceCheckpoint(next, { stage:'extracted', sourceHash:'sha-b', evidenceKeys:[] }), /source hash/);
+
+// Initialization rejects unusable source identity and canonicalizes evidence keys.
+assert.throws(() => createInitialCheckpoint('   '), /requires a source hash/);
+assert.deepEqual(createInitialCheckpoint('sha-init', ['b','a','a']).evidenceKeys, ['a','b']);
+
+// Advancement rejects malformed row counts and preserves/deduplicates evidence.
+assert.throws(() => advanceCheckpoint(next, { stage:'extracted', sourceHash:'sha-a', rowCount:-1, evidenceKeys:[] }), /rowCount/);
+const enriched = advanceCheckpoint(next, { stage:'extracted', sourceHash:'sha-a', rowCount:0, evidenceKeys:['source:sha-a','extract:1'] });
+assert.deepEqual(enriched.evidenceKeys, ['extract:1','source:sha-a']);
+
+// Resume validation rejects missing identity, malformed evidence, invalid timestamps, and unknown stages.
+assert.equal(resumeFromCheckpoint(enriched), 'extracted');
+assert.throws(() => resumeFromCheckpoint({ ...enriched, sourceHash:'' }), /source hash/);
+assert.throws(() => resumeFromCheckpoint({ ...enriched, evidenceKeys:null as unknown as string[] }), /evidence keys/);
+assert.throws(() => resumeFromCheckpoint({ ...enriched, updatedAt:Number.NaN }), /timestamp/);
+assert.throws(() => resumeFromCheckpoint({ ...enriched, stage:'unknown' as ReportExecutionCheckpoint['stage'] }), /unknown checkpoint stage/);
 
 const request: ReportExecutionRequest = { reportId:'r', tenantId:'t', requestedBy:'u', parameters:{}, formats:['web'], idempotencyKey:'k' };
 assert.equal(SupabaseReportExecutionStore.requestIdentity(request), 't:k:latest');
@@ -42,4 +58,4 @@ for (const rpc of [
   assert.ok(adapter.includes(rpc), `missing durable worker RPC: ${rpc}`);
 }
 
-console.log('Report execution runtime: PASS (checkpoint monotonicity + lease/failure/dead-letter + tenant/idempotency recovery invariants)');
+console.log('Report execution runtime: PASS (checkpoint initialization/resume/monotonicity + evidence/row-count + lease/failure/dead-letter + tenant/idempotency invariants)');
