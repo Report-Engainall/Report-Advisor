@@ -8,39 +8,50 @@ This index is authoritative for execution state. Historical PASS is never promot
 - Repository: `Report-Engainall/Report-Advisor`
 - PR: **#294 — OPEN / NOT MERGED**
 - Base: `main` @ `89c8361e85878521c915328f6d0a595663498cd3`
-- Current execution head: `cf14fb1375f57c0e19b73e982181423a02362a02`
+- Current execution head: `0ff390718987aab34f49fe0b06dd720a5f3ef356`
 - Current branch: `codex/p0-hardening-integration-20260901`
-- Exact-head CI is required after the latest K→S production-run-policy wiring; no final PASS is claimed yet.
+- Exact-head CI is required after the latest governance runtime checker reconciliation; no final PASS is claimed yet.
 
 ### Latest executed repair
-- Exact-head Quality run `33516668409` on `f3831c2e3ba93e621a7bf02b8c591e64e68e022b` reached the K→S runtime integration gate after 36 prior successful stages.
-- The K→S checker failed on one concrete missing CI contract: `quality missing test:production-run-policy`.
-- The repository already contained the canonical `src/lib/report-execution/production-run-policy.ts` policy surface and a checker for it, but the checker was not exposed as an npm script and executed by Quality.
-- Added `test:production-run-policy` to `package.json` and wired `npm run test:production-run-policy` into `quality.yml` immediately after the K→S runtime integration gate.
-- No bypass or weakened assertion was introduced; the existing fail-closed production policy remains the source of truth.
-- New exact head: `cf14fb1375f57c0e19b73e982181423a02362a02`.
+- Exact-head Final Certification on `facfae98eff52ce32dbf6df95581a4f31a8cb464` completed checkout identity successfully and passed the 20-stage release-readiness matrix: **20/20 PASS**.
+- It then executed the final execution batch and recorded **30 PASS** before failing on `scripts/check-governance-runtime-chain.mjs`.
+- Failure was concrete: the checker referenced superseded/nonexistent migration filenames `20260825110000_autonomous_governance_bi.sql` and `20260825120000_phase_i_autonomous_governance.sql`.
+- Canonical migration inventory confirms the actual governance surfaces are `20260825100000_autonomous_governance_business_intelligence.sql` and `20260825110000_governance_intelligence_hardening.sql`.
+- Updated the checker to those canonical migrations and reconciled its primitive names to the actual schema (`business_intelligence_decisions`, `business_risk_budgets`, `decision_graph_nodes`, `human_override_feedback`, etc.) while retaining anonymous-access fail-closed checks.
+- New exact head: `0ff390718987aab34f49fe0b06dd720a5f3ef356`.
 
-### Verified on the inspected exact-head cycle before the latest repair
+### Verified immediately before the latest repair
 - 20-stage release readiness: **20/20 PASS**.
-- Phase 1 foundation closure: PASS.
-- Architecture contract: PASS.
-- Concurrent analysis: PASS.
-- Production scale: PASS.
-- Document resilience: PASS.
-- Workflow command integrity: PASS across 68 workflows.
-- CI topology / production recovery gate: PASS.
-- Authentication/tenant convergence and adversarial tenant boundaries: PASS.
-- Migration schema audit: PASS (139 migrations; 96 tables/indexes, 106 policies, 11 triggers; no findings).
-- Core file/schema/document/business/decision intelligence contracts: PASS.
-- Golden E2E corpus: PASS.
-- Worker failure/recovery runtime: PASS.
-- Production certification evidence integrity: PASS.
-- Production certification contract: PASS.
-- Release evidence consumption: PASS.
-- Operational resilience and release resilience manifest: PASS.
-- Continuous trust and autonomous governance: PASS.
-- Watched-folder/text-first/incremental ledger: PASS.
-- Separate security/truth/storage/Windows/inventory/OCR workflows: PASS.
+- Final execution batch: **30 PASS** before the governance checker failure.
+- A0 hardening: PASS.
+- Auth/Tenant convergence: PASS.
+- Authenticated E2E authorization/session/operation matrices: PASS as executable contracts.
+- Autonomous governance + autonomy safety chain: PASS.
+- Batch decision engine: PASS at 50,000 rows with invalid-input fail-closed behavior.
+- Bounded concurrency: PASS.
+- Canonical import mapping: PASS.
+- Canonical intelligence boundaries/inputs/period-cost boundaries: PASS.
+- Certification evidence writer/lock/RPC exposure: PASS.
+- CI execution topology: PASS.
+- Company configuration/default context: PASS.
+- Continuous trust contract/runtime chain: PASS.
+- Cross-surface traceability: PASS across 8 critical chains.
+- Dashboard null/numeric truth: PASS.
+- Data Quality canonical snapshot: PASS.
+- Decision intelligence/authorization/DML/work-item/outcome matrices: PASS.
+- Document Intelligence hardening: **20/20 PASS**.
+- Document adversarial/canonical/lineage/resilience contracts: PASS.
+- DR operational evidence/recovery contract/readiness: PASS as source-level contracts.
+- Durable production runner: PASS.
+- Evidence lineage/provenance/regression: PASS.
+- File engine capability: PASS for 21 declared formats.
+- Final certification immutability/manifest: PASS.
+- Final execution batch: 30 checks PASS before governance runtime checker.
+- Final release readiness and safety invariants: PASS.
+- Free-first policy: PASS across 25 dependencies.
+- Global tenant RLS: PASS (22 tenant tables; 139 migrations).
+- Golden dataset/evidence/intelligence/score identity: PASS.
+- Governance intelligence hardening: PASS.
 
 ## RECOVERY BOUNDARY REGISTER
 
