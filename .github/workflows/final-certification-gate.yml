@@ -13,12 +13,26 @@ jobs:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
       - name: Install locked dependencies
         run: npm ci
+      - name: Assert certification checkout identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          expected="${{ github.event.pull_request.head.sha || github.sha }}"
+          actual="$(git rev-parse HEAD)"
+          test "$expected" = "$actual"
+          if [ "${GITHUB_EVENT_NAME}" = "pull_request" ]; then
+            test "$actual" = "${{ github.event.pull_request.head.sha }}"
+          else
+            test "$actual" = "${GITHUB_SHA}"
+          fi
+          echo "CERTIFICATION_EXACT_SHA=$actual" >> "$GITHUB_STEP_SUMMARY"
       - name: Run certification contract tests
         shell: bash
         run: |
@@ -31,7 +45,9 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          test -n "${GITHUB_SHA}"
-          echo "CERTIFICATION_EXACT_SHA=${GITHUB_SHA}" >> "$GITHUB_STEP_SUMMARY"
+          actual="$(git rev-parse HEAD)"
+          expected="${{ github.event.pull_request.head.sha || github.sha }}"
+          test "$actual" = "$expected"
+          echo "CERTIFICATION_EXACT_SHA=$actual" >> "$GITHUB_STEP_SUMMARY"
           echo "Repository certification contracts: PASS" >> "$GITHUB_STEP_SUMMARY"
           echo "Live/production certification remains dependent on external runtime evidence." >> "$GITHUB_STEP_SUMMARY"
