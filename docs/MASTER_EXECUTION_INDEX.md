@@ -66,11 +66,16 @@ This file is the authoritative execution index. Historical PASS remains historic
 46. **BI liquidity overflow hardening:** horizon inflow, outflow and projected-liquidity results now have explicit finite-result boundaries.
 47. **BI CCC result hardening:** DSO/DIO/DPO and final CCC now reject arithmetic overflow rather than exposing non-finite financial KPIs.
 48. **BI what-if result hardening:** scenario delta and delta-percent now have explicit finite-result guards; malformed change arrays fail closed.
+49. **BI runtime boundary regression suite:** added executable Vitest coverage for malformed array payloads, non-positive periods, non-finite demand, malformed liquidity horizons, malformed What-If changes and preserved valid semantics.
+50. **BI input immutability contract:** added regression coverage proving trend and liquidity analysis do not mutate caller-owned input arrays while normalizing/sorting internally.
+51. **BI insufficient-data contract:** locked explicit `INSUFFICIENT_DATA` behavior for short trend histories and incomplete CCC denominators, preventing silent fake KPI completion.
+52. **BI financial overflow regression matrix:** added executable cases for CCC, liquidity, supplier-risk and What-If overflow boundaries.
+53. **BI CI enforcement:** added a read-only pull-request workflow that installs dependencies and executes the BI runtime-boundary contract on every PR.
 
 ### Exact implementation chain
 
 - Branch: `codex/release-hardening-integration-20260901`
-- Latest code commit before this index update: `743dd8fa3c1a7b6992fbf8a0d6ae27c66e975f2b`
+- Latest code commit in this execution cycle: `f325159b36377b8295a02d5e9971d44d6e8815dc`
 - This index update is documentation-only and must not be treated as code certification.
 
 ## Certification Boundaries
