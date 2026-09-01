@@ -8,50 +8,44 @@ This index is authoritative for execution state. Historical PASS is never promot
 - Repository: `Report-Engainall/Report-Advisor`
 - PR: **#294 — OPEN / NOT MERGED**
 - Base: `main` @ `89c8361e85878521c915328f6d0a595663498cd3`
-- Current execution head: `0ff390718987aab34f49fe0b06dd720a5f3ef356`
+- Current execution head: `f9cf416745c8d7e5035d804ad24c5450c6c92bae`
 - Current branch: `codex/p0-hardening-integration-20260901`
-- Exact-head CI is required after the latest governance runtime checker reconciliation; no final PASS is claimed yet.
+- Exact-head CI is required after the latest integration-boundary regression repair; no final PASS is claimed yet.
 
 ### Latest executed repair
-- Exact-head Final Certification on `facfae98eff52ce32dbf6df95581a4f31a8cb464` completed checkout identity successfully and passed the 20-stage release-readiness matrix: **20/20 PASS**.
-- It then executed the final execution batch and recorded **30 PASS** before failing on `scripts/check-governance-runtime-chain.mjs`.
-- Failure was concrete: the checker referenced superseded/nonexistent migration filenames `20260825110000_autonomous_governance_bi.sql` and `20260825120000_phase_i_autonomous_governance.sql`.
-- Canonical migration inventory confirms the actual governance surfaces are `20260825100000_autonomous_governance_business_intelligence.sql` and `20260825110000_governance_intelligence_hardening.sql`.
-- Updated the checker to those canonical migrations and reconciled its primitive names to the actual schema (`business_intelligence_decisions`, `business_risk_budgets`, `decision_graph_nodes`, `human_override_feedback`, etc.) while retaining anonymous-access fail-closed checks.
-- New exact head: `0ff390718987aab34f49fe0b06dd720a5f3ef356`.
+- Final Certification Gate run `33518230091` checked out exact SHA `4701cf5870a1d5cea89dd8006cd89b9a191ad537` successfully.
+- The 20-stage release-readiness matrix passed **20/20**, and the final execution batch reached **30 PASS** before failing at `scripts/check-integration-boundaries.mjs`.
+- Failure was a genuine adversarial-test defect: the fixture was already safe (`crossTenantDenied=true`) while `assert.throws()` was incorrectly applied directly to that safe fixture, producing `Missing expected exception`.
+- Repaired the test by creating an isolated deliberately-unsafe copy (`crossTenantDenied=false`) and asserting that the guard rejects that unsafe state. The production-safe fixture assertions remain unchanged.
+- New exact head: `f9cf416745c8d7e5035d804ad24c5450c6c92bae`.
 
 ### Verified immediately before the latest repair
 - 20-stage release readiness: **20/20 PASS**.
-- Final execution batch: **30 PASS** before the governance checker failure.
+- Final execution batch: **30 PASS** before integration-boundary regression.
 - A0 hardening: PASS.
 - Auth/Tenant convergence: PASS.
 - Authenticated E2E authorization/session/operation matrices: PASS as executable contracts.
 - Autonomous governance + autonomy safety chain: PASS.
 - Batch decision engine: PASS at 50,000 rows with invalid-input fail-closed behavior.
 - Bounded concurrency: PASS.
-- Canonical import mapping: PASS.
-- Canonical intelligence boundaries/inputs/period-cost boundaries: PASS.
+- Canonical import mapping and all import security/transaction/runtime contracts: PASS.
 - Certification evidence writer/lock/RPC exposure: PASS.
 - CI execution topology: PASS.
-- Company configuration/default context: PASS.
-- Continuous trust contract/runtime chain: PASS.
-- Cross-surface traceability: PASS across 8 critical chains.
+- Continuous trust and governance chains: PASS.
+- Cross-surface traceability: PASS.
 - Dashboard null/numeric truth: PASS.
-- Data Quality canonical snapshot: PASS.
 - Decision intelligence/authorization/DML/work-item/outcome matrices: PASS.
 - Document Intelligence hardening: **20/20 PASS**.
 - Document adversarial/canonical/lineage/resilience contracts: PASS.
 - DR operational evidence/recovery contract/readiness: PASS as source-level contracts.
-- Durable production runner: PASS.
 - Evidence lineage/provenance/regression: PASS.
 - File engine capability: PASS for 21 declared formats.
 - Final certification immutability/manifest: PASS.
-- Final execution batch: 30 checks PASS before governance runtime checker.
 - Final release readiness and safety invariants: PASS.
 - Free-first policy: PASS across 25 dependencies.
 - Global tenant RLS: PASS (22 tenant tables; 139 migrations).
 - Golden dataset/evidence/intelligence/score identity: PASS.
-- Governance intelligence hardening: PASS.
+- Governance runtime chain: PASS against canonical migrations.
 
 ## RECOVERY BOUNDARY REGISTER
 
