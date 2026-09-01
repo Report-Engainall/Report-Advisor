@@ -36,9 +36,19 @@ describe('BI adversarial input contract', () => {
     expect(() => buildAgingBuckets([{ amount: Number.NaN }], new Date('2026-01-01'))).toThrow('BI_INVALID_NUMBER:aging.amount');
     expect(() => buildAgingBuckets([{ amount: -1 }], new Date('2026-01-01'))).toThrow('BI_NEGATIVE_VALUE:aging.amount');
     expect(() => buildAgingBuckets([{ amount: 1, dueDate: 'not-a-date' }], new Date('2026-01-01'))).toThrow('BI_INVALID_DATE:aging.dueDate');
+    expect(() => buildAgingBuckets([null] as never, new Date('2026-01-01'))).toThrow('BI_INVALID_ITEM:aging');
   });
   it('fails closed on malformed trend points instead of silently filtering them', () => {
     expect(() => analyzeTrend([{ date: '2026-01-01', value: 1 }, { date: 'bad-date', value: 2 }, { date: '2026-01-03', value: 3 }])).toThrow('BI_INVALID_DATE:trend.date');
     expect(() => analyzeTrend([{ date: '2026-01-01', value: Number.NaN }, { date: '2026-01-02', value: 2 }, { date: '2026-01-03', value: 3 }])).toThrow('BI_INVALID_NUMBER:trend.value');
+    expect(() => analyzeTrend([null] as never)).toThrow('BI_INVALID_POINT:trend');
+  });
+  it('rejects malformed top-level BI records with stable boundary errors', () => {
+    expect(() => decideReplenishment(null as never)).toThrow('BI_INVALID_INPUT:replenishment');
+    expect(() => scoreCustomer([] as never)).toThrow('BI_INVALID_INPUT:customer');
+    expect(() => scoreSupplier(null as never)).toThrow('BI_INVALID_INPUT:supplier');
+    expect(() => projectLiquidity([] as never)).toThrow('BI_INVALID_INPUT:liquidity');
+    expect(() => cashConversionCycle(null as never)).toThrow('BI_INVALID_INPUT:ccc');
+    expect(() => whatIf([] as never)).toThrow('BI_INVALID_INPUT:whatIf');
   });
 });
