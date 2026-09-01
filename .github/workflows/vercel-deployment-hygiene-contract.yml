@@ -1,0 +1,25 @@
+name: vercel-deployment-hygiene-contract
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'docs/VERCEL_DEPLOYMENT_RETENTION.md'
+      - 'scripts/check-vercel-deployment-retention-contract.mjs'
+      - '.github/workflows/vercel-deployment-hygiene-contract.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      - name: Verify Vercel retention safety contract
+        run: node scripts/check-vercel-deployment-retention-contract.mjs
