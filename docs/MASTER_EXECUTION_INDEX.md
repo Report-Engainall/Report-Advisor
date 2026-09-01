@@ -10,7 +10,7 @@ This index is authoritative for execution state. Historical PASS is never promot
 - Base: `main` @ `89c8361e85878521c915328f6d0a595663498cd3`
 - Current branch: `codex/p0-hardening-integration-20260901`
 - Latest source/workflow hardening commits include bounded Worker and Certification workflows plus their coverage guards.
-- Latest corpus-hardening commits: `f2cc5d65b3ca65eba6ca4b0cc65af402b0ad9479`, `657369e40c7eefc39ba3ef1d4ebb57c2cca9c975`, `239f117334780c12b47bc1f9a4f9862d9efbd669`, `a00e1816c4bb2ba2c40792aeb9afea799ef0bbed`, `836a05d67518916e90fedd5639d81c6e62ea40a5`, workflow wiring `2412b268a679b89edf95a6e643b9fe62f877f534`, and coverage `88266c59c3922d92f5a5def703189d394852283a`.
+- Latest corpus-hardening commits include five new repository guards, workflow wiring, coverage expansion, and a fixture-alignment correction; latest pre-index source correction is `cf44edfaf4acc80af5b269f95c5c673f98bf3d9e`.
 - The index update itself advances the branch; the resulting commit is the next exact-head CI target.
 - Exact-head CI is required after every source/workflow mutation; no final PASS is claimed until that exact SHA is verified.
 
@@ -50,11 +50,12 @@ This index is authoritative for execution state. Historical PASS is never promot
 13. Added adversarial document corpus completeness guard: unique IDs, valid outcomes, and required high-risk/Arabic/numeric cases.
 14. Added adversarial document corpus severity guard: quarantine/review/fallback/pass outcomes are explicitly locked for the ten canonical cases.
 15. Added business golden corpus tenant-integrity guard: unique tenant IDs and required expected-truth fields for every tenant.
-16. Added business golden corpus adversarial guard: all declared cross-tenant adversarial cases are fail-closed `REJECT` outcomes.
+16. Added business golden corpus adversarial guard: cross-tenant cases are fail-closed `REJECT`, while the fixture's null-quantity case preserves its explicit `REJECT_OR_QUARANTINE_NOT_ZERO` contract.
 17. Added business golden corpus truth-invariant guard: numeric truth fields are finite/non-negative and zero-stock semantics retain the known `A-002`/`A-001` distinction.
 18. Wired all five corpus guards into the Certification Evidence Boundary workflow.
 19. Expanded certification workflow coverage guard so corpus guards cannot silently disappear from the workflow.
-20. These guards strengthen repository-executable document/business truth; they do not substitute for real Arabic Golden Corpus execution or live tenant/runtime evidence.
+20. Corrected the adversarial guard against the actual fixture contract before certification; no knowingly inconsistent test was left in the branch.
+21. These guards strengthen repository-executable document/business truth; they do not substitute for real Arabic Golden Corpus execution or live tenant/runtime evidence.
 
 ### Repository hardening already completed
 - Release-evidence SHA validation requires exactly 40 hexadecimal characters with adversarial short/long/alphabet cases.
