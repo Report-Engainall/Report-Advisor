@@ -32,6 +32,7 @@ export function buildAgingBuckets(items: AgingItem[], asOf = new Date()): AgingB
     if (!item || typeof item !== 'object' || Array.isArray(item)) throw new Error('BI_INVALID_ITEM:aging');
     const amount = requireNonNegative((item as AgingItem).amount, 'aging.amount');
     if (!item.dueDate) { unnumbered.amount = requireFiniteResult(unnumbered.amount + amount, 'aging.amount'); unnumbered.count += 1; continue; }
+    if (typeof item.dueDate !== 'string') throw new Error('BI_INVALID_DATE:aging.dueDate');
     const dueTime = new Date(item.dueDate).getTime();
     if (!Number.isFinite(dueTime)) throw new Error('BI_INVALID_DATE:aging.dueDate');
     const days = Math.max(0, Math.floor((asOf.getTime() - dueTime) / 86400000));
@@ -67,7 +68,7 @@ export function decideReplenishment(input: { onHand: number; reserved?: number; 
   const reserved = requireNonNegative(input.reserved ?? 0, 'reserved'); const onOrder = requireNonNegative(input.onOrder ?? 0, 'onOrder'); const safetyDays = requireNonNegative(input.safetyDays ?? 7, 'safetyDays');
   const maxDays = requireNonNegative(input.maxStockDays ?? Math.max(safetyDays, leadTimeDays + safetyDays) * 2.5, 'maxStockDays'); const available = Math.max(0, onHand - reserved);
   if (avgDailyDemand === 0) return { action: available > 0 ? 'MONITOR' : 'DO_NOT_BUY', suggestedQuantity: 0, coverageDays: null, reason: 'No valid demand baseline', confidence: 0 };
-  const coverageDays = requireFiniteResult(available / avgDailyDemand, 'replenishment.coverageDays'); const targetDays = Math.max(safetyDays, leadTimeDays + safetyDays);
+  const coverageDays = requireFiniteResult(available / avgDailyDemand, 'replenishment.coverageDays'); const targetDays = requireFiniteResult(Math.max(safetyDays, leadTimeDays + safetyDays), 'replenishment.targetDays');
   const required = requireFiniteResult(Math.max(0, avgDailyDemand * targetDays - available - onOrder), 'replenishment.required');
   if (coverageDays > maxDays && onOrder > 0) return { action: 'OVERSTOCK', suggestedQuantity: 0, coverageDays, reason: 'Projected coverage exceeds maximum target and stock is already on order', confidence: 86 };
   if (coverageDays <= leadTimeDays) return { action: 'BUY_NOW', suggestedQuantity: Math.ceil(required), coverageDays, reason: 'Available stock does not cover lead time', confidence: 88 };
@@ -79,7 +80,8 @@ export function scoreCustomer(input: { recencyDays: number; orders: number; reve
   requireRecord(input, 'customer');
   const recencyDays = requireNonNegative(input.recencyDays, 'recencyDays'); const orders = requireNonNegative(input.orders, 'orders'); const revenue = requireNonNegative(input.revenue, 'revenue');
   const threshold = requireNonNegative(input.inactivityThresholdDays ?? 90, 'inactivityThresholdDays'); if (threshold <= 0) throw new Error('BI_NON_POSITIVE_THRESHOLD:inactivityThresholdDays');
-  const recency = clamp(100 - (recencyDays / threshold) * 100); const frequency = scaleAndClamp(orders, 10, 'customer.frequency');
+  const recency = clamp(requireFiniteResult(100 - (recencyDays / threshold) * 100, 'customer.recency'));
+  const frequency = scaleAndClamp(orders, 10, 'customer.frequency');
   const monetary = revenue === 0 ? 0 : clamp(requireFiniteResult(50 + Math.log10(revenue + 1) * 10, 'customer.monetary'));
   const score = Math.round(requireFiniteResult(recency * 0.4 + frequency * 0.25 + monetary * 0.35, 'customer.score'));
   const segment = orders <= 1 && recencyDays <= 30 ? 'NEW' : recencyDays > threshold * 1.5 ? 'INACTIVE' : recencyDays > threshold ? 'AT_RISK' : score >= 80 ? 'CHAMPION' : score >= 60 ? 'LOYAL' : 'OTHER';
@@ -117,6 +119,6 @@ export function cashConversionCycle(input: { receivables: number; revenue: numbe
 export function whatIf(input: { baseline: number; changes: Array<{ label: string; pct: number }> }): WhatIfResult {
   requireRecord(input, 'whatIf');
   const baseline = requireFinite(input.baseline, 'baseline'); if (!Array.isArray(input.changes)) throw new Error('BI_INVALID_CHANGES'); let scenario = baseline;
-  for (const change of input.changes) { if (!change || !isFiniteNumber(change.pct) || change.pct < -100 || typeof change.label !== 'string' || !change.label.trim()) throw new Error('BI_INVALID_WHAT_IF_CHANGE'); scenario *= 1 + change.pct / 100; if (!Number.isFinite(scenario)) throw new Error('BI_WHAT_IF_OVERFLOW'); }
+  for (const change of input.changes) { if (!change || typeof change !== 'object' || Array.isArray(change) || typeof change.label !== 'string' || !change.label.trim() || !isFiniteNumber(change.pct) || change.pct < -100) throw new Error('BI_INVALID_WHAT_IF_CHANGE'); scenario *= 1 + change.pct / 100; if (!Number.isFinite(scenario)) throw new Error('BI_WHAT_IF_OVERFLOW'); }
   return { baseline, scenario, delta: requireFiniteResult(scenario - baseline, 'whatIf.delta'), deltaPct: baseline === 0 ? null : requireFiniteResult((scenario - baseline) / Math.abs(baseline) * 100, 'whatIf.deltaPct'), assumptions: input.changes.map(c => `${c.label.trim()}: ${c.pct}%`) };
 }
