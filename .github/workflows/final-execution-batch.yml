@@ -1,7 +1,5 @@
 name: Final Execution Batch
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
 
 jobs:

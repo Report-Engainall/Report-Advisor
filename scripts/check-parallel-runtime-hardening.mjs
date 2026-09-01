@@ -21,9 +21,8 @@ function tenantScoped(actorTenant, resourceTenant) {
   return actorTenant === resourceTenant;
 }
 
-function assertTenantBoundary(actorTenant, resourceTenant) {
-  assert.equal(tenantScoped(actorTenant, resourceTenant), true);
-  assert.equal(tenantScoped(actorTenant, `${resourceTenant}-other`), false);
+function assertTenantBoundary(actorTenant, resourceTenant, expectedAllowed) {
+  assert.equal(tenantScoped(actorTenant, resourceTenant), expectedAllowed);
 }
 
 function assertTerminalGuard(state, next) {
@@ -38,8 +37,8 @@ requireEvidence({
   environment: 'test',
 });
 
-assertTenantBoundary('tenant-a', 'tenant-a');
-assertTenantBoundary('tenant-a', 'tenant-b');
-assertTerminalGuard('COMPLETED', 'COMPLETED');
+assertTenantBoundary('tenant-a', 'tenant-a', true);
+assertTenantBoundary('tenant-a', 'tenant-b', false);
+assertTerminalGuard('COMPLETED', 'REOPENED');
 
 console.log('parallel runtime hardening: PASS');

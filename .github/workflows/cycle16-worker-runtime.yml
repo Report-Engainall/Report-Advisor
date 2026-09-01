@@ -1,0 +1,29 @@
+name: Cycle 16 Worker Runtime
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  worker-runtime:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Run report execution runtime contract
+        run: npm run test:phase-l-resumable-execution
+      - name: Run report execution foundation contract
+        run: npm run test:report-execution-foundation
+      - name: Run report execution E2E contract
+        run: npm run test:report-execution-e2e-contract
+      - name: Run watched report pipeline contract
+        run: npm run test:watched-report-pipeline

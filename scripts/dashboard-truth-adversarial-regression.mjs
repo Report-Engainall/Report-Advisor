@@ -20,7 +20,7 @@ assert.doesNotMatch(page,/categories\.map\(.*reduce/s);
 assert.match(page,/categoryStatus==='UNKNOWN'/);
 assert.match(page,/aging\.totalAmount/);
 assert.match(page,/aging\.status/);
-assert.match(adapter,/get_dashboard_top_entities/);
+assert.match(adapter,/get_dashboard_snapshot/);
 assert.match(adapter,/status:'CALCULATED'|'NO_DATA'|'INSUFFICIENT_DATA'/);
 assert.match(adapter,/categoryStatus:'CALCULATED'|'UNKNOWN'/);
 console.log('PASS dashboard aggregation is server-owned');

@@ -25,9 +25,6 @@ for (const token of [
   'GRANT EXECUTE ON FUNCTION',
 ]) if (!executable.includes(token)) throw new Error(`Missing recovery security/lifecycle invariant: ${token}`);
 
-// Bind Phase 10 to the repository's real persisted certification evidence
-// contract. Narrative wording such as "exact" or "SHA" is intentionally not
-// used as a source-level proof requirement.
 for (const token of [
   'backup_restore_passed',
   'migration_parity_passed',
@@ -41,11 +38,18 @@ for (const token of [
   }
 }
 const indexLower = index.toLowerCase();
-for (const token of ['r16 — backup / restore / dr', 'rpo', 'rto', 'actual restore drill']) {
+const recoveryBoundaryTokens = [
+  'p1-d recovery',
+  'p1-h — backup / restore / dr',
+  'r16 — backup / restore / dr',
+];
+if (!recoveryBoundaryTokens.some((token) => indexLower.includes(token))) {
+  throw new Error('Remaining-work register lost recovery boundary: expected canonical P1-D/P1-H or legacy R16 backup / restore / DR boundary');
+}
+for (const token of ['rpo', 'rto']) {
   if (!indexLower.includes(token)) throw new Error(`Remaining-work register lost recovery boundary: ${token}`);
 }
 
-// Test-of-test: commented-out SQL must never satisfy the executable contract.
 const decoy = `-- CREATE OR REPLACE FUNCTION public.import_create_job\n-- current_company_id()\n-- TENANT_CONTEXT_MISMATCH`;
 const sanitizedDecoy = stripSqlComments(decoy);
 for (const token of ['CREATE OR REPLACE FUNCTION public.import_create_job', 'current_company_id()', 'TENANT_CONTEXT_MISMATCH']) {

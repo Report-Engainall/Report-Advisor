@@ -1,174 +1,126 @@
 # Report Advisor — Master Execution & Truth Index
 
-## OWNER-LEVEL RELEASE CLOSURE — 2026-09-01
+## CURRENT EXECUTION TRUTH — 2026-09-01
 
-This file is the authoritative execution index. Historical PASS remains historical. No PASS may move between branches/SHAs without exact-head evidence.
+This index is authoritative for execution state. Historical PASS is never promoted across SHAs. Certification requires exact-head evidence.
 
-## Current Truth
+### Current candidate
+- Repository: `Report-Engainall/Report-Advisor`
+- PR: **#294 — OPEN / NOT MERGED**
+- Base: `main` @ `89c8361e85878521c915328f6d0a595663498cd3`
+- Current branch: `codex/p0-hardening-integration-20260901`
+- Latest source/workflow hardening includes bounded Worker and Certification workflows, corpus guards, business-golden integrity guards, recovery-boundary alignment, checkpoint resume coverage, and the Alaghbari brand identity migration.
+- Exact-head CI is required after every source/workflow mutation; no final PASS is claimed until that exact SHA is verified.
 
-- Planning estimate from latest developer assessment: **~88%** overall.
-- Independent release-readiness judgment: advanced Release Candidate; **NOT Production Certified / NOT Sellable yet**.
-- Current `main` release baseline: `4705028d1e19ea7201f4cb9945ce3e1cc1a550a2`.
-- Owner integration PR: **#294**, OPEN / NOT MERGED.
-- Latest PR #294 head: `688be5ea9636f47d9d205ec3a1fa8193368a86ca`.
-- PR #294 base SHA: `4705028d1e19ea7201f4cb9945ce3e1cc1a550a2`.
-- `e2d7f57e4a4eab3327b54d762427a46e4d3a3264` is an index-referenced integration candidate only; it is NOT the current PR #294 HEAD.
-- Do not call the PR head `main` PASS until PR #294 is merged and exact-head CI passes.
+### Latest certification finding and repair
+- Exact-head certification on `c53278730a28edf96518880fa9489fcb8d6207e0` passed the 20-stage readiness matrix, 30-stage final execution batch, P0 13/13, and P1 8/8 before `check-phase-k-runtime-closure.mjs` failed.
+- Root cause: the Phase-K checker required stale API vocabulary while the canonical production coordinator bridge uses current runtime APIs.
+- Repair: Phase-K checker now accepts canonical runtime APIs while retaining backward-compatible alternatives and sourceHash identity.
+- Fresh exact-head CI remains mandatory; no certification is inferred from historical PASS.
 
-## Latest Executed Cycle — 2026-09-01
+### Worker lifecycle hardening
+- Worker lifecycle regression suite covers heartbeat, checkpoint, completion, failure, retry, lease expiry, service-role authority, tenant isolation, terminal-state guards, search_path, lease floor, null payloads, lease clearance, grants, checkpoint monotonicity, retry eligibility, terminality, tenant boundary, RPC signatures, return semantics, updated_at, active-state restrictions, and completion evidence.
+- `.github/workflows/worker-hardening-contract.yml` executes the repository-backed worker contract suite.
+- Checkpoint monotonicity guard now targets the canonical `src/lib/report-execution/checkpoint.ts` module instead of a removed flat module path.
+- Checkpoint resume regression coverage is now explicit in `scripts/report-execution-runtime.test.ts`.
+- An invalid nonexistent claim-migration reference was removed; no unsupported guard remains.
 
-The developer revalidated PR #294 and the index, confirmed the candidate remains unmerged, and attempted additional direct Supabase and local-test verification. Those attempts were blocked by missing valid Supabase project reference and unavailable GitHub network access in the execution environment. No fabricated DB/test PASS was accepted.
+### Certification evidence boundary hardening
+- Canonical mandatory evidence order is tenant, backup, rollback, artifact, security.
+- Score derivation, fail-closed behavior, duplicate/missing/failed evidence, key uniqueness, unknown keys, blocker propagation, warning separation, evidence preservation, set membership, adversarial coverage, writer-table coverage, runtime-test wiring, workflow trigger/security, and referenced-file integrity are guarded.
+- Certification workflow has a 10-minute job timeout, read-only contents permission, shallow checkout, credential persistence disabled, and explicit action-major contract (`checkout@v7`, `setup-node@v7`, Node 22).
+- Phase-10 recovery guard now recognizes the canonical P1-D Recovery closure track while retaining legacy P1-H/R16 compatibility.
 
-Security work continues as function-level analysis rather than blanket revoke. The previous staging verification remains recorded: `finalize_runtime_decision` had `anon EXECUTE = FALSE` and `authenticated EXECUTE = TRUE`; Security Advisor identified multiple authenticated-callable `SECURITY DEFINER` functions; leaked-password protection remains disabled.
+### Completed repository hardening — prior batches
+1. Worker workflow security contract.
+2. Worker workflow trigger contract.
+3. Worker referenced-file integrity guard.
+4. Worker workflow coverage guard.
+5. Worker runtime-authority contract.
+6. Worker workflow timeout contract.
+7. Worker workflow meta-guard coverage.
+8. Certification workflow action contract.
+9. Certification workflow timeout contract.
+10. Certification workflow wiring for bounded execution guards.
+11. Certification workflow coverage expansion.
+12. Explicit separation between repository controls and live operational certification.
+13. Adversarial document corpus completeness guard.
+14. Adversarial document corpus severity guard.
+15. Business golden corpus tenant-integrity guard.
+16. Business golden corpus adversarial contract guard.
+17. Business golden corpus truth-invariant guard.
+18. Wiring of the five corpus guards into Certification Evidence Boundary.
+19. Certification workflow coverage expansion for corpus guards.
+20. Correction of adversarial fixture contract alignment before certification.
+21. Explicit statement that corpus guards do not substitute for live Arabic Golden Corpus or tenant/runtime evidence.
 
-A reference mismatch was explicitly confirmed: the index referenced `e2d7f57...` while PR #294 remained at `688be5...`. This is recorded as a mismatch, not reconciled by assumption. `main` remains `4705028...`.
+### New completed work — Business Golden Corpus integrity batch
+22. Added arithmetic guard locking gross sales, returns, net sales, purchases, inventory value, payments, receivables, and gross-profit derivation against fixture rows.
+23. Added referential-integrity guard locking tenant ownership for sale customers, purchase suppliers, sale/purchase products, inventory products, and payment customers.
+24. Added row-shape guard requiring the canonical fields for products, customers, suppliers, sales, purchases, inventory, and payments.
+25. Added unique-identifier guard for entity IDs plus tenant/SKU uniqueness for inventory and products.
+26. Added temporal/value guard enforcing ISO dates, non-negative monetary quantities, positive transaction quantities, return <= gross, and finite numeric values.
+27. Wired all five new integrity guards into the Certification Evidence Boundary workflow.
+28. Expanded certification workflow coverage so all five new integrity guards are mandatory and cannot silently disappear.
 
-## Security Interpretation Rule
+### New completed work — Business Golden Corpus traceability batch
+29. Added COGS derivation guard from transaction quantities and canonical product costs.
+30. Added transaction-line arithmetic guard for sales gross and purchase totals.
+31. Added zero-stock truth guard against the fixture's canonical `zero_stock_skus` set.
+32. Added payment/receivables trace guard linking payment rows to tenant-owned customers and expected receivable totals.
+33. Added isolation-completeness guard requiring populated, tenant-pure collections and tenant-correct sale/customer links for every golden tenant.
+34. Wired all five traceability guards into Certification Evidence Boundary.
+35. Expanded certification workflow coverage so the five traceability guards are mandatory.
 
-A `SECURITY DEFINER` function being executable by `authenticated` is **not by itself proof of a vulnerability**. It becomes a release blocker when its effective privileges or implementation allow an authenticated caller to bypass intended tenant/user authorization, RLS boundaries, or least-privilege requirements. Each flagged function must therefore be classified individually before any revoke.
+### New completed work — Brand identity migration
+36. Replaced the login-screen business identity with **الأغبري** and **منصة الأغبري لذكاء الأعمال والقرار**.
+37. Redesigned the login surface with a branded split presentation, executive positioning, secure-entry indicator, and responsive mobile layout.
+38. Rebranded the authenticated sidebar to **الأغبري** with the same canonical brand title and refreshed visual treatment.
+39. Added centralized `src/lib/brand.ts` as the source of truth for brand name, title, description, and mark.
+40. Added a brand regression contract and dedicated CI workflow preventing the retired identity from returning to the login/sidebar/index surfaces.
 
-Required classification for every Advisor-flagged function:
+### New completed work — large closure batch 01
+41. Repaired the Worker checkpoint guard's stale source path and added an explicit advancement-implementation assertion.
+42. Completed Tenant-B Golden Corpus profitability truth with `estimated_cogs=440` and `estimated_gross_profit=200`, eliminating a real arithmetic gate failure.
+43. Hardened the Golden Corpus arithmetic guard to fail closed when mandatory profitability truth fields are missing or non-finite.
+44. Added a recursive source sweep preventing the retired **العامري** identity from reappearing anywhere under active `src` source files.
+45. Wired the retired-brand source sweep into the dedicated brand CI workflow and expanded its PR path coverage to the whole `src/**` tree.
+46. Repaired Phase-10 recovery-boundary vocabulary drift so the guard follows the canonical P1-D Recovery track while preserving historical compatibility.
 
-`FUNCTION → CALLERS → SECURITY DEFINER → search_path → EXECUTE grants → tenant/user guards → underlying tables/RLS → intended runtime caller → exploit test → decision`
+### New completed work — large closure batch 02
+47. Added explicit checkpoint-resume regression assertions for same-stage resume, backward-stage rejection, and source-hash mismatch rejection.
+48. Strengthened the Worker runtime contract output to explicitly include checkpoint-resume coverage.
+49. Revalidated the canonical Worker checkpoint implementation against the runtime regression harness after the stale-path repair.
+50. Preserved strict tenant/idempotency identity invariants while expanding recovery-path coverage.
+51. Updated the authoritative execution index to record the checkpoint-resume closure and current recovery alignment.
 
-Allowed decisions:
-- `RETAIN + JUSTIFY + TEST`
-- `HARDEN + TEST`
-- `REVOKE + TEST`
+### New completed work — operational hygiene + regression alignment batch
+52. Corrected checkpoint-resume regression coverage to match the canonical one-argument `resumeFromCheckpoint(checkpoint)` API, including invalid-stage, source-hash, evidence-key, and timestamp rejection cases.
+53. Simplified brand workflow path coverage so `src/**` is the single authoritative source-tree trigger without redundant file-specific entries.
+54. Added `docs/VERCEL_DEPLOYMENT_RETENTION.md` defining safe Preview/Canceled/Errored retention targets and strict preservation rules for Production, RC, rollback, and certification evidence.
+55. Added `scripts/check-vercel-deployment-retention-contract.mjs` plus `.github/workflows/vercel-deployment-hygiene-contract.yml` to prevent unsafe project-wide deletion instructions and retention-policy drift.
+56. Verified Vercel project state through the connected project API: Hobby plan, project `report-advisor`, current deployment inventory visible, and no deployment-delete mutation exposed by the available connector; no unsafe deletion was fabricated.
 
-No blanket revoke is permitted without this analysis.
+### New completed work — exact-head CI repair batch
+57. Fixed the Worker RPC signature guard's newline-sensitive retry signature regex; the canonical migration already uses the correct `retry_report_execution_job(uuid)` signature, so the guard was repaired rather than the database contract being changed.
+58. Fixed the Certification fail-closed guard to anchor on the canonical returned certification decision, avoiding accidental matching against the TypeScript type declaration.
+59. Fresh exact-head CI for `0e8ba2eadb3cd622e1d3b65eb43a9a607726d78a` exposed these two guard defects while the remaining Worker/Certification corpus checks passed up to each failing guard; both root causes are now addressed on the branch.
 
-## Current Operational Truth / Blockers
+### Current dependency/security observation
+- `npm ci` currently reports **21 dependency vulnerabilities (3 low, 4 moderate, 14 high)** in the latest exact-head run. No blind `npm audit fix` is authorized.
+- `pdfjs-dist@6.2.108` is already on the patched line for the current 2026 PDF.js advisory.
+- `xlsx@0.18.5` remains a separate unresolved high-severity direct dependency decision; no false PASS or blind replacement has been made.
 
-1. **Exact-Head CI:** no run yet for `688be5...`; no PASS.
-2. **Security:** Advisor findings require per-function analysis; leaked-password protection is still disabled.
-3. **Authenticated A/B:** no operational credentials/sessions available for honest LIVE E2E evidence.
-4. **Backup/Restore:** no real PASS run yet.
-5. **Rollback:** no real PASS run yet.
-6. **Vercel:** new deployment remains blocked by `api-deployments-free-per-day` (>100 deployments/24h).
-7. **Local test execution:** current execution environment cannot reach GitHub; therefore no local `npm ci`/Vitest PASS is claimed.
-8. **Supabase direct SQL:** valid project reference was unavailable to the execution tool in the latest cycle; no new DB PASS is claimed from that attempt.
+## PARALLEL CLOSURE TRACKS
+- **P0-A Authenticated Runtime:** real login/session/browser E2E and authenticated operation matrix.
+- **P0-B Tenant A/B:** real cross-tenant adversarial runtime verification with zero leakage.
+- **P1-C Production Runtime:** deployment identity, runtime health, Supabase connectivity, smoke, and source-SHA binding.
+- **P1-D Recovery:** real backup, restore, migration parity, integrity, RPO/RTO evidence, and rollback drill.
+- **P1-E Documents/OCR:** real Arabic Golden Corpus execution and evidence comparison.
+- **P1-F Import/Reconciliation:** realistic Excel/import/reconciliation/conflict/canonical-truth business dataset drill.
+- **P1-G Workers:** real queue/claim/heartbeat/checkpoint/retry/dead-letter/resume and tenant isolation drill.
+- **P2-H Performance:** production-like concurrency, P95 read/write/preview and large-import behavior.
+- **P2-I Operations/UX:** observability, PWA/mobile/RTL/slow-network/offline/installability and recovery UX sweep.
+- **P2-J Acceptance:** independent business acceptance and final evidence completeness.
 
-## Parallel Execution Board
-
-### P0-A — PR #294 exact-head closure
-- Obtain real GitHub Actions execution on the candidate.
-- Run Vitest contracts, typecheck, lint, build, regression, security, quality.
-- Inspect and fix failures.
-- Do not promote old/e0cf21 PASS to `688be5...`.
-- Merge only after required exact-head gates pass.
-
-### P0-B — Security Advisor remediation
-- Enumerate every flagged `SECURITY DEFINER` function.
-- Trace callers and effective privileges.
-- Verify tenant/user guards, `search_path`, underlying RLS, and intended runtime use.
-- Build exploit/negative tests for unauthorized access.
-- Retain intentional functions with documented justification and proof.
-- Harden or revoke only where analysis demonstrates excessive privilege.
-- Re-run Security Advisor and targeted regression after changes.
-- Resolve Leaked Password Protection through the correct Auth configuration surface when access is available.
-
-**Exit:** every Advisor finding is safely remediated or explicitly proven intentional with runtime/security evidence; no unexplained authorization bypass remains.
-
-### P0-C — Authenticated Runtime / Tenant A-B
-Prepare and execute Actor A/B login/session journeys, own-data CRUD/persistence, cross-tenant denial, Storage/signed URLs, Realtime and AI/vector isolation, with browser/network/console evidence. Do not invent evidence without credentials.
-
-### P0-D — Vercel / Runtime Deployment
-Do not wait on quota. When deployment is possible, bind deployment to final candidate SHA and prove `/`, `/login`, deep routes, authenticated journey, console/network and Supabase connectivity.
-
-### P0-E — Canonical Truth / BI / Export
-Golden business corpus; UI = RPC = Export; date/status/as-of/filter semantics; NULL/UNKNOWN/INSUFFICIENT_DATA; forecast/demand/inventory; legacy/compatibility risks. Fix discrepancies rather than merely report them.
-
-### P1-F — OCR / Document Golden Corpus
-Execute PDF text, scanned PDF, Arabic/English OCR, DOCX, images and malformed corpus. Record ground truth, actual, diff, score, provenance and regression evidence.
-
-### P1-G — Workers / Queue / Watched Folder
-Execute success/failure/retry/lock/idempotency/duplicate/crash/restart/recovery/DLQ and watched-folder detect → parse → validate → import → reconcile → canonical → evidence.
-
-### P1-H — Backup / Restore / DR
-Real backup artifact verification and safe-environment restore verification for schema, data, relationships, constraints and application behavior; record RPO/RTO.
-
-### P1-I — Canary / Rollback
-Controlled known-good → canary → rollback → verify drill in a safe environment; verify DB/schema/data/auth/core workflow/canonical truth/application health.
-
-### P1-J — Performance / Scale
-Read P95 ≤300ms; write P95 ≤800ms; preview ≤1500ms; realistic corpus; query plans/indexes; N+1/unbounded-read attacks; fix and remeasure.
-
-### P1-K — Observability / Operations
-DB/Realtime/services/Storage/notifications/security health, representative alert triggers, visibility and recovery, exact-SHA evidence.
-
-### P2-L — UI/UX
-Authenticated responsive/RTL/accessibility, loading/empty/error states, deep links, import/documents/evidence/admin/logout.
-
-### P2-M — Business Acceptance
-Merchant golden scenarios, independent expected results, decision/evidence/outcome, UI/export equality, and operation without developer intervention.
-
-## SHA / Evidence Rules
-
-1. Branch-local PASS is not `main` PASS.
-2. Historical PASS is not current candidate PASS.
-3. A migration being present is not proof of runtime behavior.
-4. A test file existing is not test PASS.
-5. A reachable deployment is not runtime certification.
-6. Every final PASS must identify the exact tested SHA.
-7. Certification requires all required evidence to converge on ONE release SHA.
-8. A Security Advisor warning must be classified by actual exploitability/privilege semantics; do not close it by blanket revoke or by ignoring it.
-9. If an index entry names a SHA different from the actual PR head, the PR head is authoritative for PR status; reconcile the index only after direct verification.
-
-## No-Waste Operating Protocol
-
-The programmer must NOT restart with a broad repository tour or repeat old reports.
-
-For every cycle:
-
-`OPEN INDEX → SELECT ALL INDEPENDENT FRONTS → INSPECT MINIMUM NEEDED → IMPLEMENT → TARGETED TEST → ADVERSARIAL TEST → REQUIRED REGRESSION → EXACT SHA → MERGE IF JUSTIFIED → IMMEDIATELY CONTINUE`
-
-If one front is blocked, continue all independent fronts.
-
-Required update format only:
-
-```text
-EXECUTED:
-- concrete implementation
-
-VERIFIED:
-- actually executed tests/evidence
-
-SHA:
-- exact SHA
-
-BLOCKED:
-- real blocker only
-
-NEXT PARALLEL:
-- next executable fronts
-```
-
-## Final Definition of Done
-
-```text
-ONE EXACT RELEASE SHA
-+ Build/Typecheck/Lint
-+ Quality/Architecture
-+ Security
-+ DB/Migration parity
-+ Canonical Truth
-+ Authenticated E2E
-+ Tenant A/B
-+ Storage/Realtime/AI isolation
-+ Vercel/runtime
-+ OCR/document corpus
-+ Workers/queue/recovery
-+ Backup/Restore
-+ Rollback
-+ Performance
-+ Observability
-+ Critical UX
-+ Business Acceptance
-+ Complete Evidence Pack
-= PRODUCTION CERTIFIED / SELLABLE
-```
-
-## OWNER DECISION
-
-The project remains in **PROVE → CERTIFY → RELEASE**, not BUILD. The latest cycle adds no fabricated PASS. The real security findings remain an active P0 closure lane, while environmental blockers are explicitly isolated so independent engineering work continues in parallel.
+Repository-executable fronts continue even when operational fronts are blocked by external access.

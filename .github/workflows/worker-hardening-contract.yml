@@ -1,0 +1,81 @@
+name: Worker Hardening Contract
+
+on:
+  push:
+    paths:
+      - 'supabase/migrations/20260901040000_report_execution_worker_lifecycle.sql'
+      - 'supabase/migrations/20260901150000_harden_worker_runtime_authority.sql'
+      - 'src/lib/report-execution.ts'
+      - 'src/lib/report-execution-coordinator.ts'
+      - 'scripts/check-worker-*-contract.mjs'
+      - 'scripts/check-worker-lifecycle-guards.mjs'
+      - 'scripts/report-execution-runtime.test.ts'
+      - '.github/workflows/worker-hardening-contract.yml'
+  pull_request:
+    paths:
+      - 'supabase/migrations/20260901040000_report_execution_worker_lifecycle.sql'
+      - 'supabase/migrations/20260901150000_harden_worker_runtime_authority.sql'
+      - 'src/lib/report-execution.ts'
+      - 'src/lib/report-execution-coordinator.ts'
+      - 'scripts/check-worker-*-contract.mjs'
+      - 'scripts/check-worker-lifecycle-guards.mjs'
+      - 'scripts/report-execution-runtime.test.ts'
+      - '.github/workflows/worker-hardening-contract.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  guards:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Workflow security contract
+        run: node scripts/check-worker-workflow-security-contract.mjs
+      - name: Workflow trigger contract
+        run: node scripts/check-worker-workflow-trigger-contract.mjs
+      - name: Workflow referenced files
+        run: node scripts/check-worker-workflow-referenced-files.mjs
+      - name: Workflow coverage
+        run: node scripts/check-worker-workflow-coverage.mjs
+      - name: Workflow timeout contract
+        run: node scripts/check-worker-workflow-timeout-contract.mjs
+      - name: Runtime authority contract
+        run: node scripts/check-worker-runtime-authority-contract.mjs
+      - name: Worker lifecycle guards
+        run: node scripts/check-worker-lifecycle-guards.mjs
+      - name: Search path contract
+        run: node scripts/check-worker-search-path-contract.mjs
+      - name: Lease floor contract
+        run: node scripts/check-worker-lease-floor-contract.mjs
+      - name: Null payload contract
+        run: node scripts/check-worker-null-payload-contract.mjs
+      - name: Lease clearance contract
+        run: node scripts/check-worker-lease-clearance-contract.mjs
+      - name: Execute grants contract
+        run: node scripts/check-worker-execution-grants-contract.mjs
+      - name: Checkpoint monotonicity contract
+        run: node scripts/check-worker-checkpoint-monotonicity-contract.mjs
+      - name: Retry eligibility contract
+        run: node scripts/check-worker-retry-eligibility-contract.mjs
+      - name: Terminality contract
+        run: node scripts/check-worker-terminality-contract.mjs
+      - name: Tenant boundary contract
+        run: node scripts/check-worker-tenant-boundary-contract.mjs
+      - name: RPC signature contract
+        run: node scripts/check-worker-rpc-signature-contract.mjs
+      - name: RPC return contract
+        run: node scripts/check-worker-return-contract.mjs
+      - name: Updated-at contract
+        run: node scripts/check-worker-updated-at-contract.mjs
+      - name: Active-state contract
+        run: node scripts/check-worker-active-state-contract.mjs
+      - name: Completion evidence contract
+        run: node scripts/check-worker-completion-evidence-contract.mjs

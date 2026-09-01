@@ -53,6 +53,14 @@ export class PhaseKLSupabaseRuntime {
     return data as string;
   }
 
+  async isContinuousTrustHealthy(certificateKey: string): Promise<boolean> {
+    const { data, error } = await this.client.rpc('is_continuous_trust_healthy', {
+      p_certificate_key: certificateKey,
+    });
+    if (error) throw error;
+    return data as boolean;
+  }
+
   async autonomyGate(domainKey: string): Promise<{ domain: string; eligible: boolean; health: number; trust_healthy: boolean; critical_drift: boolean }> {
     const { data, error } = await this.client.rpc('autonomy_runtime_gate', { p_domain_key: domainKey });
     if (error) throw error;

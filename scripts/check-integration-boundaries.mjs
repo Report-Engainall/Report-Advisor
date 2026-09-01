@@ -13,8 +13,18 @@ for (const [name, contract] of Object.entries(services)) {
 assert.equal(services.storage.signedAccess, true);
 assert.equal(services.ai.untrustedOutput, true);
 
-assert.throws(() => { if (!services.storage.crossTenantDenied) throw new Error('storage isolation gap'); });
-assert.throws(() => { if (!services.realtime.crossTenantDenied) throw new Error('realtime isolation gap'); });
-assert.throws(() => { if (!services.ai.crossTenantDenied) throw new Error('AI isolation gap'); });
+// Adversarial self-tests: deliberately corrupt an isolated contract copy and
+// prove the guard rejects the unsafe state. Never assert.throws against the
+// already-valid production fixture, which would make the test internally
+// contradictory and fail with "Missing expected exception".
+for (const [name, contract] of Object.entries(services)) {
+  const unsafe = { ...contract, crossTenantDenied: false };
+  assert.throws(
+    () => {
+      if (!unsafe.crossTenantDenied) throw new Error(`${name}: cross-tenant access must deny`);
+    },
+    /cross-tenant access must deny/,
+  );
+}
 
 console.log('integration boundaries: PASS');

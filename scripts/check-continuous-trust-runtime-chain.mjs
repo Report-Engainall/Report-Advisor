@@ -6,7 +6,7 @@ for(const f of files) if(!fs.existsSync(path.join(root,f))) throw new Error(`Mis
 const sql=fs.readFileSync(path.join(root,files[0]),'utf8');
 const intelligence=fs.readFileSync(path.join(root,files[1]),'utf8');
 const runtime=fs.readFileSync(path.join(root,files[2]),'utf8');
-for(const t of ['is_continuous_trust_healthy','tenant_isolation_canaries','billing_liveness_checks','artifact_verifications','incident_regressions','intelligence_safety_adjustments']) if(!sql.includes(t)) throw new Error(`Trust persistence missing: ${t}`);
+for(const t of ['is_continuous_trust_healthy','tenant_isolation_canary_runs','billing_liveness_probes','artifact_verification_runs','incident_regression_links','intelligence_safety_adjustments']) if(!sql.includes(t)) throw new Error(`Trust persistence missing: ${t}`);
 for(const t of ['trustHealthy','criticalDrift','rollbackVerified','isolationVerified']) if(!intelligence.includes(t)) throw new Error(`Decision trust invariant missing: ${t}`);
 for(const t of ['is_continuous_trust_healthy','autonomy_runtime_gate']) if(!runtime.includes(t)) throw new Error(`Runtime trust link missing: ${t}`);
 if(/GRANT\s+ALL\s+TO\s+anon/i.test(sql)) throw new Error('Unsafe anonymous privilege detected');

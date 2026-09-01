@@ -17,10 +17,80 @@ jobs:
       - uses: actions/setup-node@v7
         with:
           node-version: 22
+      - name: Verify certification workflow security contract
+        run: node scripts/check-certification-workflow-security-contract.mjs
+      - name: Verify certification workflow trigger contract
+        run: node scripts/check-certification-workflow-trigger-contract.mjs
+      - name: Verify certification workflow action contract
+        run: node scripts/check-certification-workflow-action-contract.mjs
+      - name: Verify certification workflow timeout contract
+        run: node scripts/check-certification-workflow-timeout-contract.mjs
+      - name: Verify certification workflow referenced files
+        run: node scripts/check-certification-workflow-referenced-files.mjs
+      - name: Verify certification boundary workflow coverage
+        run: node scripts/check-certification-boundary-workflow-coverage.mjs
+      - name: Verify adversarial document corpus completeness
+        run: node scripts/check-adversarial-document-corpus-completeness.mjs
+      - name: Verify adversarial document corpus severity
+        run: node scripts/check-adversarial-document-corpus-severity.mjs
+      - name: Verify business golden corpus tenant integrity
+        run: node scripts/check-business-golden-corpus-tenant-integrity.mjs
+      - name: Verify business golden corpus adversarial rejection
+        run: node scripts/check-business-golden-corpus-adversarial-contract.mjs
+      - name: Verify business golden corpus truth invariants
+        run: node scripts/check-business-golden-corpus-truth-invariants.mjs
+      - name: Verify business golden corpus arithmetic
+        run: node scripts/check-business-golden-corpus-arithmetic.mjs
+      - name: Verify business golden corpus referential integrity
+        run: node scripts/check-business-golden-corpus-referential-integrity.mjs
+      - name: Verify business golden corpus row shape
+        run: node scripts/check-business-golden-corpus-row-shape.mjs
+      - name: Verify business golden corpus unique identifiers
+        run: node scripts/check-business-golden-corpus-unique-identifiers.mjs
+      - name: Verify business golden corpus temporal and value contracts
+        run: node scripts/check-business-golden-corpus-temporal-and-value-contract.mjs
+      - name: Verify business golden corpus cogs derivation
+        run: node scripts/check-business-golden-corpus-cogs.mjs
+      - name: Verify business golden corpus transaction line math
+        run: node scripts/check-business-golden-corpus-gross-line-math.mjs
+      - name: Verify business golden corpus zero stock truth
+        run: node scripts/check-business-golden-corpus-zero-stock.mjs
+      - name: Verify business golden corpus payment trace
+        run: node scripts/check-business-golden-corpus-payment-trace.mjs
+      - name: Verify business golden corpus isolation completeness
+        run: node scripts/check-business-golden-corpus-isolation-completeness.mjs
       - name: Verify certification evidence write boundary
         run: node scripts/check-certification-evidence-write-boundary.mjs
       - name: Verify certification completeness boundary
         run: node scripts/check-production-certification-adversarial.mjs
+      - name: Verify certification evidence order
+        run: node scripts/check-certification-evidence-order-contract.mjs
+      - name: Verify certification score derivation
+        run: node scripts/check-certification-score-contract.mjs
+      - name: Verify certification fail-closed decision
+        run: node scripts/check-certification-fail-closed-contract.mjs
+      - name: Verify certification duplicate evidence handling
+        run: node scripts/check-certification-duplicate-contract.mjs
+      - name: Verify certification missing/failed evidence handling
+        run: node scripts/check-certification-missing-failed-contract.mjs
+      - name: Verify certification key uniqueness
+        run: node scripts/check-certification-key-uniqueness-contract.mjs
+      - name: Verify certification unknown-key handling
+        run: node scripts/check-certification-unknown-key-contract.mjs
+      - name: Verify certification blocker propagation
+        run: node scripts/check-certification-blocker-propagation-contract.mjs
+      - name: Verify certification warning separation
+        run: node scripts/check-certification-warning-separation-contract.mjs
+      - name: Verify certification evidence preservation
+        run: node scripts/check-certification-evidence-preservation-contract.mjs
+      - name: Verify certification set membership
+        run: node scripts/check-certification-set-membership-contract.mjs
+      - name: Verify certification adversarial coverage
+        run: node scripts/check-certification-adversarial-coverage-contract.mjs
+      - name: Verify certification writer table coverage
+        run: node scripts/check-certification-writer-table-coverage-contract.mjs
+      - name: Verify certification runtime test wiring
+        run: node scripts/check-certification-runtime-test-wiring-contract.mjs
       - name: Verify queue immutability boundary
         run: node scripts/check-report-queue-immutability.mjs
       - name: Verify queue gate test-of-test

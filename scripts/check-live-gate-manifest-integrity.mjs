@@ -9,5 +9,5 @@ for(const s of scripts) if(!pkg.scripts?.[s]) throw new Error(`Live gate package
 const release=fs.readFileSync(path.join(root,'.github/workflows/release-certification.yml'),'utf8');
 for(const token of ['staging','production','source_sha','migrations_fingerprint','artifact_fingerprint','actions/upload-artifact@v4']) if(!release.includes(token)) throw new Error(`Release evidence invariant missing: ${token}`);
 const phaseF=fs.readFileSync(path.join(root,'.github/workflows/phase-f-live-resilience.yml'),'utf8');
-for(const token of ['workflow_dispatch','phase-f-live-resilience-probes.mjs','check-operational-resilience-contract.mjs']) if(!phaseF.includes(token)) throw new Error(`Phase F live invariant missing: ${token}`);
+for(const token of ['workflow_dispatch','phase-f-live-resilience-probes.mjs','npm run test:operational-resilience']) if(!phaseF.includes(token)) throw new Error(`Phase F live invariant missing: ${token}`);
 console.log('Live gate manifest integrity: PASS');
