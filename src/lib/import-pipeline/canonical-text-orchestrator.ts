@@ -5,7 +5,7 @@ export interface CanonicalTextArtifact { sourceHash:string; textHash:string; tex
 export interface ExtractionOutcome { artifact?:CanonicalTextArtifact; status:ExtractionStatus; continueWithFallback:boolean; analysisInputMode:AnalysisInputMode; warnings:string[]; errors:string[]; }
 
 export function normalizeExtractedText(input:string):string {
-  return input.replace(/^\uFEFF/,'').replace(/\r\n?/g,'\n').replace(/[ \t]+$/gm,'').replace(/\n{3,}/g,'\n\n');
+  return input.replace(/^\uFEFF/,'').replace(/\r\n?/g,'\n').replace(/[ \t]+$/gm,'').replace(/\n{3,}/g,'\n\n').replace(/\n+$/,'');
 }
 
 export async function hashText(text:string):Promise<string> {
