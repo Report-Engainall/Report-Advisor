@@ -3,6 +3,7 @@ import path from 'node:path';
 
 const root = process.cwd();
 const required = [
+  'scripts/production-readiness-manifest.mjs',
   'scripts/production-readiness-manifest.test.mjs',
   'scripts/production-readiness-evidence.test.mjs',
   'scripts/production-release-decision.test.mjs',
@@ -14,10 +15,10 @@ for (const file of required) {
 }
 
 const read = file => fs.readFileSync(path.join(root, file), 'utf8').toLowerCase();
-const manifest = read(required[0]);
-const evidence = read(required[1]);
-const decision = read(required[2]);
-const failclosed = read(required[3]);
+const manifest = read('scripts/production-readiness-manifest.mjs');
+const evidence = read('scripts/production-readiness-evidence.test.mjs');
+const decision = read('scripts/production-release-decision.test.mjs');
+const failclosed = read('scripts/check-production-evidence-failclosed.mjs');
 
 for (const token of ['readiness', 'manifest', 'evidence']) {
   if (!manifest.includes(token)) throw new Error(`Manifest contract missing: ${token}`);
