@@ -101,6 +101,11 @@ This index is authoritative for execution state. Historical PASS is never promot
 55. Added `scripts/check-vercel-deployment-retention-contract.mjs` plus `.github/workflows/vercel-deployment-hygiene-contract.yml` to prevent unsafe project-wide deletion instructions and retention-policy drift.
 56. Verified Vercel project state through the connected project API: Hobby plan, project `report-advisor`, current deployment inventory visible, and no deployment-delete mutation exposed by the available connector; no unsafe deletion was fabricated.
 
+### New completed work — exact-head CI repair batch
+57. Fixed the Worker RPC signature guard's newline-sensitive retry signature regex; the canonical migration already uses the correct `retry_report_execution_job(uuid)` signature, so the guard was repaired rather than the database contract being changed.
+58. Fixed the Certification fail-closed guard to anchor on the canonical returned certification decision, avoiding accidental matching against the TypeScript type declaration.
+59. Fresh exact-head CI for `0e8ba2eadb3cd622e1d3b65eb43a9a607726d78a` exposed these two guard defects while the remaining Worker/Certification corpus checks passed up to each failing guard; both root causes are now addressed on the branch.
+
 ### Current dependency/security observation
 - `npm ci` currently reports **21 dependency vulnerabilities (3 low, 4 moderate, 14 high)** in the latest exact-head run. No blind `npm audit fix` is authorized.
 - `pdfjs-dist@6.2.108` is already on the patched line for the current 2026 PDF.js advisory.
