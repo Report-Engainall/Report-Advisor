@@ -9,7 +9,7 @@ This index is authoritative for execution state. Historical PASS is never promot
 - PR: **#294 — OPEN / NOT MERGED**
 - Base: `main` @ `89c8361e85878521c915328f6d0a595663498cd3`
 - Current branch: `codex/p0-hardening-integration-20260901`
-- Latest source/workflow hardening includes bounded Worker and Certification workflows, corpus guards, and business-golden integrity guards.
+- Latest source/workflow hardening includes bounded Worker and Certification workflows, corpus guards, business-golden integrity guards, and the Alaghbari brand identity migration.
 - Exact-head CI is required after every source/workflow mutation; no final PASS is claimed until that exact SHA is verified.
 
 ### Latest certification finding and repair
@@ -68,6 +68,13 @@ This index is authoritative for execution state. Historical PASS is never promot
 33. Added isolation-completeness guard requiring populated, tenant-pure collections and tenant-correct sale/customer links for every golden tenant.
 34. Wired all five traceability guards into Certification Evidence Boundary.
 35. Expanded certification workflow coverage so the five traceability guards are mandatory.
+
+### New completed work — Brand identity migration
+36. Replaced the login-screen business identity with **الأغبري** and **منصة الأغبري لذكاء الأعمال والقرار**.
+37. Redesigned the login surface with a branded split presentation, executive positioning, secure-entry indicator, and responsive mobile layout.
+38. Rebranded the authenticated sidebar to **الأغبري** with the same canonical brand title and refreshed visual treatment.
+39. Added centralized `src/lib/brand.ts` as the source of truth for brand name, title, description, and mark.
+40. Added a brand regression contract and dedicated CI workflow preventing the retired identity from returning to the login/sidebar/index surfaces.
 
 ### Current dependency/security observation
 - `npm ci` reports **19 dependency vulnerabilities (2 low, 4 moderate, 13 high)**. No blind `npm audit fix` is authorized.
