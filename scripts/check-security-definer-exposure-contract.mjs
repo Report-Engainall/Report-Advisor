@@ -6,7 +6,14 @@ const files = fs.readdirSync(root)
   .filter((name) => name.endsWith('.sql'))
   .sort()
   .map((name) => path.join(root, name));
-const sql = files.map((file) => fs.readFileSync(file, 'utf8')).join('\n');
+
+function stripSqlComments(input) {
+  return input
+    .replace(/\/\*[\s\S]*?\*\//g, '\n')
+    .replace(/(^|\n)\s*--[^\n]*/g, '$1');
+}
+
+const sql = stripSqlComments(files.map((file) => fs.readFileSync(file, 'utf8')).join('\n'));
 
 const intendedAuthenticatedSecurityDefiners = [
   'complete_decision_work_item',
