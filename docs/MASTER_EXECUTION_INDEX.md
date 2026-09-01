@@ -8,67 +8,70 @@ This file is the authoritative execution index. Historical PASS remains historic
 
 - Planning estimate from latest developer assessment: **~88%** overall.
 - Independent release-readiness judgment: advanced Release Candidate; **NOT Production Certified / NOT Sellable yet**.
-- Current `main` release baseline: `4705028d1e19ea7201f4cb9945ce3e1cc1a550a2`.
+- Current `main` release baseline: `17a49420c70faca143cf7cc58ad11aae6edcb662`.
 - Owner integration PR: **#294**, OPEN / NOT MERGED.
-- Latest PR #294 head: `688be5ea9636f47d9d205ec3a1fa8193368a86ca`.
-- PR #294 base SHA: `4705028d1e19ea7201f4cb9945ce3e1cc1a550a2`.
-- `e2d7f57e4a4eab3327b54d762427a46e4d3a3264` is an index-referenced integration candidate only; it is NOT the current PR #294 HEAD.
-- Do not call the PR head `main` PASS until PR #294 is merged and exact-head CI passes.
+- This execution wave adds implementation PR **#300**, OPEN / NOT MERGED.
+- PR #300 head: `c8f417e2ce77a363ad9562b5ef5feaefc9fb0d14`.
+- Do not call branch-local hardening PASS `main` PASS until exact-head CI and merge conditions are satisfied.
 
 ## Latest Executed Cycle — 2026-09-01
 
-The developer revalidated PR #294 and the index, confirmed the candidate remains unmerged, and attempted additional direct Supabase and local-test verification. Those attempts were blocked by missing valid Supabase project reference and unavailable GitHub network access in the execution environment. No fabricated DB/test PASS was accepted.
+### Concrete implementation completed in PR #300
 
-Security work continues as function-level analysis rather than blanket revoke. The previous staging verification remains recorded: `finalize_runtime_decision` had `anon EXECUTE = FALSE` and `authenticated EXECUTE = TRUE`; Security Advisor identified multiple authenticated-callable `SECURITY DEFINER` functions; leaked-password protection remains disabled.
+1. **Canonical intelligence numeric hardening:** negative/non-finite payment values are sanitized before receivables/payables calculations.
+2. **Canonical history hardening:** negative/non-finite sales history is sanitized before trend, velocity, forecast and backtest inputs.
+3. **Inventory stochastic-input hardening:** negative/non-finite daily demand is sanitized before stochastic inventory decisions.
+4. **CCC period hardening:** invalid/non-positive reporting periods fail to a deterministic safe period rather than reaching CCC as invalid input.
+5. **Metric confidence hardening:** explicit NaN/infinite/out-of-range confidence fails closed to zero while omitted confidence retains the established valid-data fallback.
+6. **Metric source-evidence hardening:** missing, fractional, negative, NaN or infinite source-row counts become `INSUFFICIENT_DATA` and cannot drive decisions.
+7. **AI tenant hardening:** requested and authenticated tenant IDs are type-checked, trimmed and compared against session authority before hosted AI access.
+8. **Evidence confidence hardening:** report-fact confidence is normalized to a safe `[0,1]` range and invalid values fail closed.
+9. **Evidence provenance hardening:** evidence attachment is now derived from the authoritative ledger rather than preserving caller-supplied evidence.
+10. **Executable regression coverage:** focused boundary tests were added for canonical intelligence, metrics, AI tenant policy and report-fact evidence.
+11. **CI contracts:** read-only GitHub Actions workflows and deterministic runners were added for the four hardening surfaces.
+12. **Release integration:** all of the above were consolidated onto one implementation branch and opened as PR #300 instead of mutating production aliases or fabricating runtime evidence.
 
-A reference mismatch was explicitly confirmed: the index referenced `e2d7f57...` while PR #294 remained at `688be5...`. This is recorded as a mismatch, not reconciled by assumption. `main` remains `4705028...`.
+### Exact implementation SHAs
 
-## Security Interpretation Rule
+- Canonical intelligence: `643b7dda45b0f7f034a622aa4f97a7b0dcdc73f7`
+- Financial decision boundaries: `03a6f23707efcd6bae81f2788bcc52d011b2a007`
+- AI tenant policy: `ea8d89efe485ae5d710d36983662a0b2b3700ba3`
+- Report-fact provenance/confidence: `8043d9ec069d110922b01997e5578c7e34d4d64e`
+- Metric boundary hardening: `a284144b5d614c2991712a596992394f52dbb203`
+- Integrated regression/CI branch final HEAD: `c8f417e2ce77a363ad9562b5ef5feaefc9fb0d14`
 
-A `SECURITY DEFINER` function being executable by `authenticated` is **not by itself proof of a vulnerability**. It becomes a release blocker when its effective privileges or implementation allow an authenticated caller to bypass intended tenant/user authorization, RLS boundaries, or least-privilege requirements. Each flagged function must therefore be classified individually before any revoke.
+## Verification Truth
 
-Required classification for every Advisor-flagged function:
-
-`FUNCTION → CALLERS → SECURITY DEFINER → search_path → EXECUTE grants → tenant/user guards → underlying tables/RLS → intended runtime caller → exploit test → decision`
-
-Allowed decisions:
-- `RETAIN + JUSTIFY + TEST`
-- `HARDEN + TEST`
-- `REVOKE + TEST`
-
-No blanket revoke is permitted without this analysis.
+- The implementation changes were committed successfully to the integration branch.
+- PR #300 was opened against current `main`.
+- Current GitHub combined status for PR #300 HEAD contains a Vercel failure caused by the known deployment quota (`api-deployments-free-per-day`); this is an external deployment blocker, not evidence that the hardening code failed.
+- No local Vitest PASS is claimed because the current execution environment does not provide a valid local repository test runtime.
+- No production certification, authenticated tenant A/B PASS, backup/restore PASS, rollback PASS, or Vercel runtime PASS is claimed.
 
 ## Current Operational Truth / Blockers
 
-1. **Exact-Head CI:** no run yet for `688be5...`; no PASS.
-2. **Security:** Advisor findings require per-function analysis; leaked-password protection is still disabled.
+1. **Exact-head CI:** PR #300 requires actual CI execution and exact-head verification.
+2. **Security:** Advisor findings require per-function analysis; leaked-password protection remains an operational configuration gap.
 3. **Authenticated A/B:** no operational credentials/sessions available for honest LIVE E2E evidence.
 4. **Backup/Restore:** no real PASS run yet.
 5. **Rollback:** no real PASS run yet.
-6. **Vercel:** new deployment remains blocked by `api-deployments-free-per-day` (>100 deployments/24h).
-7. **Local test execution:** current execution environment cannot reach GitHub; therefore no local `npm ci`/Vitest PASS is claimed.
-8. **Supabase direct SQL:** valid project reference was unavailable to the execution tool in the latest cycle; no new DB PASS is claimed from that attempt.
+6. **Vercel:** deployment checks remain blocked by `api-deployments-free-per-day` (>100 deployments/24h).
+7. **Local test execution:** no local `npm ci`/Vitest PASS is claimed from this environment.
+8. **Supabase direct SQL:** no new DB PASS is claimed without a valid project reference and execution evidence.
 
 ## Parallel Execution Board
 
-### P0-A — PR #294 exact-head closure
-- Obtain real GitHub Actions execution on the candidate.
-- Run Vitest contracts, typecheck, lint, build, regression, security, quality.
-- Inspect and fix failures.
-- Do not promote old/e0cf21 PASS to `688be5...`.
+### P0-A — PR #300 exact-head closure
+- Obtain real GitHub Actions execution on PR #300.
+- Run boundary tests, typecheck, lint, build, regression and security gates.
+- Fix only actual failures.
 - Merge only after required exact-head gates pass.
 
 ### P0-B — Security Advisor remediation
 - Enumerate every flagged `SECURITY DEFINER` function.
 - Trace callers and effective privileges.
-- Verify tenant/user guards, `search_path`, underlying RLS, and intended runtime use.
-- Build exploit/negative tests for unauthorized access.
-- Retain intentional functions with documented justification and proof.
-- Harden or revoke only where analysis demonstrates excessive privilege.
-- Re-run Security Advisor and targeted regression after changes.
-- Resolve Leaked Password Protection through the correct Auth configuration surface when access is available.
-
-**Exit:** every Advisor finding is safely remediated or explicitly proven intentional with runtime/security evidence; no unexplained authorization bypass remains.
+- Verify tenant/user guards, `search_path`, underlying RLS, intended runtime use and exploitability.
+- Retain intentional functions with proof; harden/revoke only where excessive privilege is demonstrated.
 
 ### P0-C — Authenticated Runtime / Tenant A-B
 Prepare and execute Actor A/B login/session journeys, own-data CRUD/persistence, cross-tenant denial, Storage/signed URLs, Realtime and AI/vector isolation, with browser/network/console evidence. Do not invent evidence without credentials.
@@ -171,4 +174,4 @@ ONE EXACT RELEASE SHA
 
 ## OWNER DECISION
 
-The project remains in **PROVE → CERTIFY → RELEASE**, not BUILD. The latest cycle adds no fabricated PASS. The real security findings remain an active P0 closure lane, while environmental blockers are explicitly isolated so independent engineering work continues in parallel.
+The project remains in **PROVE → CERTIFY → RELEASE**, not BUILD. This execution cycle materially advanced implementation across canonical intelligence, financial decision safety, metric truth, AI tenant isolation and evidence provenance. The work is not promoted to production certification until exact-head CI and the remaining live operational gates are closed.
