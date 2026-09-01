@@ -30,6 +30,14 @@ describe('metric confidence and source boundaries', () => {
       expect(metric.confidence).toBe(0);
     }
   });
+  it('fails closed for structured non-numeric runtime values', () => {
+    for (const value of [{ value: 100 }, [100], new Date('2026-01-01')]) {
+      const metric = evaluateMetric({ key: 'net_sales', value: value as never, sourceRows: 1 });
+      expect(metric.value).toBeNull();
+      expect(metric.status).toBe('UNAVAILABLE');
+      expect(metric.confidence).toBe(0);
+    }
+  });
   it('does not trust malformed warning containers', () => {
     const metric = evaluateMetric({ key: 'net_sales', value: 100, sourceRows: 1, warnings: 'not-an-array' as never });
     expect(metric.warnings).toEqual([]);
