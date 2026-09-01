@@ -9,8 +9,8 @@ This index is authoritative for execution state. Historical PASS is never promot
 - PR: **#294 — OPEN / NOT MERGED**
 - Base: `main` @ `89c8361e85878521c915328f6d0a595663498cd3`
 - Current branch: `codex/p0-hardening-integration-20260901`
-- Execution head immediately before this index update: `0323300f7a4f6adcd472564414fff733e237b3ac`
-- This index update itself advances the branch; therefore the next exact-head CI target is the commit produced by this update.
+- Latest source/workflow hardening commits include bounded Worker and Certification workflows plus their coverage guards.
+- This index update itself advances the branch; the resulting commit is the next exact-head CI target.
 - Exact-head CI is required after every source/workflow mutation; no final PASS is claimed until that exact SHA is verified.
 
 ### Latest certification finding and repair
@@ -24,46 +24,26 @@ This index is authoritative for execution state. Historical PASS is never promot
 - `.github/workflows/worker-hardening-contract.yml` executes the repository-backed worker contract suite.
 - An invalid nonexistent claim-migration reference was removed; no unsupported guard remains.
 
-### New completed work — certification evidence decision hardening
-1. Added `check-certification-evidence-order-contract.mjs` to lock canonical mandatory evidence order: tenant, backup, rollback, artifact, security.
-2. Added `check-certification-score-contract.mjs` to require score derivation from the canonical mandatory evidence set.
-3. Added `check-certification-fail-closed-contract.mjs` to require blockers empty, score >= 0.95, and complete evidence before certification.
-4. Added `check-certification-duplicate-contract.mjs` for duplicate mandatory-evidence rejection.
-5. Added `check-certification-missing-failed-contract.mjs` for missing/failed mandatory evidence rejection.
+### Certification evidence boundary hardening
+- Canonical mandatory evidence order is tenant, backup, rollback, artifact, security.
+- Score derivation, fail-closed behavior, duplicate/missing/failed evidence, key uniqueness, unknown keys, blocker propagation, warning separation, evidence preservation, set membership, adversarial coverage, writer-table coverage, runtime-test wiring, workflow trigger/security, and referenced-file integrity are guarded.
+- Certification workflow currently has an explicit 10-minute job timeout, read-only contents permission, shallow checkout, credential persistence disabled, and explicit action-major contract (`checkout@v7`, `setup-node@v7`, Node 22).
 
-### New completed work — certification adversarial expansion
-6. Added `check-certification-key-uniqueness-contract.mjs` to prevent duplicate canonical evidence keys.
-7. Added `check-certification-unknown-key-contract.mjs` to ensure scoring remains bound to canonical evidence keys.
-8. Added `check-certification-blocker-propagation-contract.mjs` to preserve non-passing BLOCKER semantics.
-9. Added `check-certification-warning-separation-contract.mjs` to keep WARNING evidence separate from blockers.
-10. Added `check-certification-evidence-preservation-contract.mjs` to preserve the supplied evidence array and deduplicate returned blockers.
-11. Added `check-certification-set-membership-contract.mjs` to bind mandatory-key membership to the canonical Set.
-12. Added `check-certification-adversarial-coverage-contract.mjs` to enforce runtime adversarial cases: missing, failed, duplicate, unrelated, complete.
-13. Added `check-certification-writer-table-coverage-contract.mjs` to protect all four certification proof tables.
-14. Added `check-certification-runtime-test-wiring-contract.mjs` to require the runtime certification harness in both boundary and integrity paths.
-15. Added `check-certification-boundary-workflow-coverage.mjs` to detect dropped certification guard steps; expanded it to cover the workflow's new integrity guards.
-16. Extended `.github/workflows/certification-evidence-boundary.yml` to execute the expanded certification guard suite plus workflow security, trigger, referenced-file, coverage, writer/completeness/queue boundaries.
-17. Added `check-certification-workflow-referenced-files.mjs` to fail closed when a workflow-referenced Node guard is missing.
-18. Added `check-certification-workflow-security-contract.mjs` to protect read-only permissions, shallow checkout, and credential persistence settings.
-19. Added `check-certification-workflow-trigger-contract.mjs` to protect PR-to-main and manual workflow triggers plus read-only permissions.
-20. These changes are repository-executable evidence only; they do not certify live production or external operational evidence.
+### New completed work — worker workflow closure
+1. Added Worker workflow security contract for read-only permissions, shallow checkout, disabled credential persistence, checkout/setup actions, and Node 22.
+2. Added Worker workflow trigger contract covering lifecycle migration, runtime authority migration, coordinator/runtime source, guard scripts, runtime test, and workflow changes on push/PR.
+3. Added Worker referenced-file integrity guard.
+4. Added Worker workflow coverage guard for the full contract suite and its meta-guards.
+5. Added Worker runtime-authority contract protecting service-role grants and authenticated direct-table write revocation.
+6. Added explicit 10-minute Worker workflow timeout and a guard for it.
+7. Expanded Worker workflow coverage to include all meta/security/authority/timeout guards.
 
-### New completed work — worker workflow hardening expansion
-21. Added `check-worker-workflow-security-contract.mjs` to verify the worker contract workflow uses pinned Node 22 setup and explicit checkout/setup actions.
-22. Added `check-worker-workflow-trigger-contract.mjs` to ensure worker hardening runs on both push and pull-request changes covering lifecycle, contracts, runtime tests, and workflow changes.
-23. Added `check-worker-workflow-referenced-files.mjs` to fail closed when any executable worker workflow guard references a missing script.
-24. Added `check-worker-workflow-coverage.mjs` to ensure the full existing worker lifecycle guard suite remains wired into CI.
-25. Added `check-worker-runtime-authority-contract.mjs` to protect service-role execution grants/revocations and authenticated table-write revocation for worker jobs.
-26. Extended `.github/workflows/worker-hardening-contract.yml` to execute the five new workflow/authority guards before the existing lifecycle suite.
-27. This worker expansion is repository-executable evidence only; it does not certify live queue operation, production workers, or tenant A/B runtime isolation.
-
-### New completed work — worker workflow trigger/security closure
-28. Closed the worker workflow security contract by enforcing `permissions: contents: read` at workflow scope.
-29. Hardened checkout against credential persistence and retained `fetch-depth: 1` as an explicit shallow-clone invariant.
-30. Added the worker runtime-authority migration `20260901150000_harden_worker_runtime_authority.sql` to both push and pull-request trigger paths, preventing silent CI gaps when execution grants/table-write boundaries change.
-31. Added `src/lib/report-execution-coordinator.ts` to both worker workflow trigger paths so coordinator/runtime authority changes cannot bypass the worker contract suite.
-32. Extended `check-worker-workflow-trigger-contract.mjs` and `check-worker-workflow-security-contract.mjs` to enforce these new trigger and security invariants.
-33. Fresh exact-head CI has been triggered by these workflow/source changes; current runs are queued/pending and are not yet certified PASS.
+### New completed work — certification workflow bounded execution
+8. Added Certification workflow action contract to lock the currently deployed action majors and Node 22.
+9. Added Certification workflow timeout contract for the existing 10-minute bound.
+10. Wired both new certification guards into the certification workflow.
+11. Expanded certification workflow coverage guard to include action and timeout contracts.
+12. These are repository-executable safety controls only; they do not certify live production or external operational evidence.
 
 ### Repository hardening already completed
 - Release-evidence SHA validation requires exactly 40 hexadecimal characters with adversarial short/long/alphabet cases.
@@ -101,7 +81,7 @@ Repository-executable fronts continue even when operational fronts are blocked b
 - **T4** Workflow coverage/regression audit.
 - **T5** Security-definer classification.
 - **T6** Canonical truth adversarial corpus.
-- **T7** Worker lifecycle security regression — extended with twenty executable guards/contracts plus workflow integrity/authority guards.
+- **T7** Worker lifecycle security regression — extended with executable workflow/security/authority guards.
 - **T8** Document/OCR evidence readiness.
 - **T9** Performance readiness.
 - **T10** UX/PWA acceptance preparation.
@@ -119,4 +99,4 @@ Repository-executable fronts continue even when operational fronts are blocked b
 - Backup, restore, migration parity, artifact integrity, rollback, and security audit evidence are required before production certification.
 
 ## CERTIFICATION TRUTH
-The expanded source guards strengthen the decision boundary but do not close Production Runtime, Authenticated E2E, Tenant A/B, Backup/Restore, Rollback, or other external operational certification gates. Historical PASS is never promoted to the new head.
+The expanded source and workflow guards strengthen the decision boundary but do not close Production Runtime, Authenticated E2E, Tenant A/B, Backup/Restore, Rollback, or other external operational certification gates. Historical PASS is never promoted to the new head.
