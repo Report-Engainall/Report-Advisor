@@ -33,15 +33,17 @@ jobs:
             test "$actual" = "${GITHUB_SHA}"
           fi
           echo "CERTIFICATION_EXACT_SHA=$actual" >> "$GITHUB_STEP_SUMMARY"
-      - name: Run certification contract tests
+      - name: Run repository certification contract tests
         shell: bash
         run: |
           set -euo pipefail
           for f in scripts/check-*.mjs; do
-            if [ "$f" = "scripts/check-evidence-freshness.mjs" ]; then
-              echo "Skipping release-only evidence freshness checker in PR certification: $f"
-              continue
-            fi
+            case "$f" in
+              scripts/check-evidence-freshness.mjs|scripts/check-live-production-evidence-boundary.mjs)
+                echo "Skipping release-only operational evidence checker in PR certification: $f"
+                continue
+                ;;
+            esac
             echo "Running $f"
             node "$f"
           done
