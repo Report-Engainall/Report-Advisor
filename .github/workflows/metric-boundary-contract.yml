@@ -6,6 +6,7 @@ on:
       - 'src/lib/metricEngine.ts'
       - 'src/lib/metricEngine.boundary.test.ts'
       - 'scripts/check-metric-boundary-contract.mjs'
+      - 'scripts/check-metric-boundary-wiring.mjs'
       - 'package.json'
       - 'package-lock.json'
       - '.github/workflows/metric-boundary-contract.yml'
@@ -31,5 +32,7 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      - name: Verify metric boundary wiring
+        run: node scripts/check-metric-boundary-wiring.mjs
       - name: Execute metric boundary contract
         run: npm run test:metric-boundary
