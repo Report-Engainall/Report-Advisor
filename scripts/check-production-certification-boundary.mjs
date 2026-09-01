@@ -23,7 +23,7 @@ const failclosed = read('scripts/check-production-evidence-failclosed.mjs');
 for (const token of ['readiness', 'manifest', 'evidence']) {
   if (!manifest.includes(token)) throw new Error(`Manifest contract missing: ${token}`);
 }
-for (const token of ['evidence', 'production', 'certif']) {
+for (const token of ['evidence', 'production', 'approved']) {
   if (!evidence.includes(token)) throw new Error(`Evidence contract missing: ${token}`);
 }
 for (const token of ['blocked', 'release', 'regression']) {
