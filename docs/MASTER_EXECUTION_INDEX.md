@@ -9,14 +9,14 @@ This index is authoritative for execution state. Historical PASS is never promot
 - PR: **#294 — OPEN / NOT MERGED**
 - Base: `main` @ `89c8361e85878521c915328f6d0a595663498cd3`
 - Current branch: `codex/p0-hardening-integration-20260901`
-- Current execution head after latest hardening: `4a9b9facd9119f1209c01aec91a074b8b7e51530`
+- Current execution head after latest hardening and evidence record: `529ed6df5e6b4a813ab59c74673577b5dce8826a`
 - Exact-head CI is required after every source/workflow mutation; no final PASS is claimed until that exact SHA is verified.
 
 ### Latest certification findings and repairs
 - Exact-head Final Certification run `33522211063` checked out `f2e20bd17f90725264fc1897009c067f83f770c6` exactly.
 - Its 20-stage release-readiness matrix passed **20/20** and the Final Execution Batch passed **30/30**.
 - The release-only production evidence boundary was correctly skipped in PR certification because real release-certification run/artifact identity is unavailable in PR contract runs.
-- A real defect then surfaced in `check-parallel-runtime-hardening.mjs`: `assertTenantBoundary()` always asserted `true`, while the adversarial `tenant-a` → `tenant-b` fixture correctly requires `false`. The same fixture also passed an invalid terminal duplicate transition expectation.
+- A real checker-fixture defect surfaced in `check-parallel-runtime-hardening.mjs`: `assertTenantBoundary()` always asserted `true`, while the adversarial `tenant-a` → `tenant-b` case requires `false`; the terminal-guard fixture also used an invalid duplicate next-state expectation.
 - The checker was corrected to accept an explicit expected tenant-scope result and to use a distinct next-state for the terminal-guard fixture.
 
 ### Latest repository hardening
@@ -26,11 +26,13 @@ This index is authoritative for execution state. Historical PASS is never promot
 - Intelligence foundation fixtures use canonical `aggregateAlternativeGroup` and `buildExecutiveScorecard` APIs.
 - Final certification PR workflow separates PR contract checks from release-only operational evidence.
 - `check-parallel-runtime-hardening.mjs` now has truthful positive and cross-tenant-negative fixtures and a valid terminal-guard fixture.
+- Added `docs/parallel-closure/T15_PARALLEL_RUNTIME_HARDENING_EVIDENCE.md` documenting the finding, repair, exact-head evidence, and operational boundary.
 
 ### Latest exact-head CI result before current mutation
 - Quality run `33522210968` / job `99904025614` on `f2e20bd17f90725264fc1897009c067f83f770c6`: **SUCCESS**.
 - Quality verified exact checkout, 20/20 readiness, 35 workflow/npm command integrity, 139-migration schema audit, Auth/Tenant, Global RLS, import security/transaction/runtime, Document Intelligence, Decision/Outcome, K→S, production readiness, Phase 10/11/12 contracts, P0/P1 batches, typecheck, lint, build, and performance budget.
 - Final Certification run `33522211063` on the same exact SHA failed only at the subsequently identified `check-parallel-runtime-hardening.mjs` fixture assertion; all preceding certification checks shown in the log passed, including P0 **13/13**, P1 **8/8**, 20/20 readiness, 30/30 final execution batch, and final safety/release-readiness gates.
+- Current repair head `529ed6df...` has no CI result yet; historical PASS is not promoted to it.
 
 ### Current dependency/security observation
 - `npm ci` reports **19 dependency vulnerabilities (2 low, 4 moderate, 13 high)**. No blind `npm audit fix` is authorized. Package-level triage is required before release certification.
