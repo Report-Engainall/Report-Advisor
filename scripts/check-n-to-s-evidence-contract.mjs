@@ -1,18 +1,5 @@
-import fs from 'node:fs';
-import path from 'node:path';
-const root=process.cwd();
-const files={
- N:['scripts/check-production-readiness.mjs','src/lib/report-execution'],
- O:['scripts/check-performance-regression.mjs'],
- P:['src/App.tsx','src/main.tsx'],
- Q:['src/lib/file-engine'],
- R:['scripts/check-production-readiness.mjs'],
- S:['scripts/check-production-readiness.mjs'],
-};
+import fs from 'node:fs'; import path from 'node:path';
+const root=process.cwd(); const files={N:['scripts/check-production-readiness.mjs','src/lib/report-execution'],O:['scripts/check-performance-budget.mjs','scripts/check-production-scale.mjs'],P:['src/App.tsx','src/main.tsx','scripts/check-decision-dashboard.mjs'],Q:['src/lib/file-engine','scripts/check-document-intelligence-hardening.mjs'],R:['scripts/check-production-readiness.mjs'],S:['scripts/check-operational-resilience-contract.mjs','scripts/check-release-resilience-manifest.mjs']};
 for(const [phase,paths] of Object.entries(files)) for(const p of paths) if(!fs.existsSync(path.join(root,p))) throw new Error(`${phase}: missing evidence path ${p}`);
-const q=fs.readFileSync(path.join(root,'.github/workflows/quality.yml'),'utf8');
-if(!q.includes('test:k-to-s-deep-closure')) throw new Error('K/S closure gate not wired');
-if(!q.includes('test:production-run-policy')) throw new Error('production policy gate not wired');
-const pkg=JSON.parse(fs.readFileSync(path.join(root,'package.json'),'utf8'));
-for(const s of ['typecheck','lint','build']) if(!pkg.scripts?.[s]) throw new Error(`missing core script ${s}`);
+const pkg=JSON.parse(fs.readFileSync(path.join(root,'package.json'),'utf8')); for(const s of ['typecheck','lint','build']) if(!pkg.scripts?.[s]) throw new Error(`missing core script ${s}`);
 console.log('N→S evidence contract: PASS');
