@@ -16,7 +16,9 @@ export function evaluateMetric(input: MetricInput): MetricEvaluation {
   const warnings = [...(input.warnings ?? [])];
   const numeric = input.value != null && Number.isFinite(Number(input.value)) ? Number(input.value) : null;
   let status = input.status ?? definition.status;
-  let confidence = boundedConfidence(input.confidence);
+  let confidence = input.confidence === undefined
+    ? (numeric == null ? 0 : 1)
+    : boundedConfidence(input.confidence);
   if (numeric == null) {
     status = 'UNAVAILABLE'; confidence = 0; warnings.push('القيمة غير متاحة أو غير رقمية.');
   } else if (!validSourceRows(input.sourceRows)) {
