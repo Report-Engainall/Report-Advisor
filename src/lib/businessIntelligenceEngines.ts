@@ -28,20 +28,25 @@ export function buildAgingBuckets(items: AgingItem[], asOf = new Date()): AgingB
   const buckets = ranges.map(([label, minDays, maxDays]) => ({ label, minDays, maxDays, amount: 0, count: 0 }));
   const unnumbered = buckets[buckets.length - 1];
   for (const item of items) {
-    if (!item || !isFiniteNumber(item.amount)) continue;
-    if (!item.dueDate) { unnumbered.amount = requireFiniteResult(unnumbered.amount + item.amount, 'aging.amount'); unnumbered.count += 1; continue; }
+    if (!item || typeof item !== 'object') throw new Error('BI_INVALID_ITEM:aging');
+    const amount = requireNonNegative((item as AgingItem).amount, 'aging.amount');
+    if (!item.dueDate) { unnumbered.amount = requireFiniteResult(unnumbered.amount + amount, 'aging.amount'); unnumbered.count += 1; continue; }
     const dueTime = new Date(item.dueDate).getTime();
-    if (!Number.isFinite(dueTime)) { unnumbered.amount = requireFiniteResult(unnumbered.amount + item.amount, 'aging.amount'); unnumbered.count += 1; continue; }
+    if (!Number.isFinite(dueTime)) throw new Error('BI_INVALID_DATE:aging.dueDate');
     const days = Math.max(0, Math.floor((asOf.getTime() - dueTime) / 86400000));
     const bucket = buckets.find(b => b.minDays != null && days >= b.minDays && (b.maxDays == null || days <= b.maxDays));
-    if (bucket) { bucket.amount = requireFiniteResult(bucket.amount + item.amount, 'aging.amount'); bucket.count += 1; }
+    if (bucket) { bucket.amount = requireFiniteResult(bucket.amount + amount, 'aging.amount'); bucket.count += 1; }
   }
   return buckets;
 }
 
 export function analyzeTrend(points: TrendPoint[]): TrendAnalysis {
   if (!Array.isArray(points)) throw new Error('BI_INVALID_POINTS:trend');
-  const valid = points.filter(p => p && typeof p.date === 'string' && Number.isFinite(new Date(p.date).getTime()) && isFiniteNumber(p.value)).map(p => ({ date: p.date, value: p.value, time: new Date(p.date).getTime() })).sort((a, b) => a.time - b.time);
+  for (const point of points) {
+    if (!point || typeof point.date !== 'string' || !Number.isFinite(new Date(point.date).getTime())) throw new Error('BI_INVALID_DATE:trend.date');
+    requireFinite(point.value, 'trend.value');
+  }
+  const valid = points.map(p => ({ date: p.date, value: p.value, time: new Date(p.date).getTime() })).sort((a, b) => a.time - b.time);
   if (valid.length < 3) return { direction: 'INSUFFICIENT_DATA', velocity: null, acceleration: null, volatility: null, seasonalityHint: 'UNKNOWN' };
   const values = valid.map(p => p.value); const n = values.length; const half = Math.max(1, Math.floor(n / 2));
   const first = mean(values.slice(0, half))!; const last = mean(values.slice(-half))!;
@@ -104,6 +109,6 @@ export function cashConversionCycle(input: { receivables: number; revenue: numbe
 
 export function whatIf(input: { baseline: number; changes: Array<{ label: string; pct: number }> }): WhatIfResult {
   const baseline = requireFinite(input.baseline, 'baseline'); if (!Array.isArray(input.changes)) throw new Error('BI_INVALID_CHANGES'); let scenario = baseline;
-  for (const change of input.changes) { if (!change || !isFiniteNumber(change.pct) || typeof change.label !== 'string' || !change.label.trim()) throw new Error('BI_INVALID_WHAT_IF_CHANGE'); scenario *= 1 + change.pct / 100; if (!Number.isFinite(scenario)) throw new Error('BI_WHAT_IF_OVERFLOW'); }
+  for (const change of input.changes) { if (!change || !isFiniteNumber(change.pct) || change.pct < -100 || typeof change.label !== 'string' || !change.label.trim()) throw new Error('BI_INVALID_WHAT_IF_CHANGE'); scenario *= 1 + change.pct / 100; if (!Number.isFinite(scenario)) throw new Error('BI_WHAT_IF_OVERFLOW'); }
   return { baseline, scenario, delta: requireFiniteResult(scenario - baseline, 'whatIf.delta'), deltaPct: baseline === 0 ? null : requireFiniteResult((scenario - baseline) / Math.abs(baseline) * 100, 'whatIf.deltaPct'), assumptions: input.changes.map(c => `${c.label.trim()}: ${c.pct}%`) };
 }
