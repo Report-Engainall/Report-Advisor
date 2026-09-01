@@ -8,10 +8,11 @@ const certificationPath = process.env.RELEASE_CERTIFICATION_DECISION_PATH || 're
 const expectedSourceSha = process.env.EXPECTED_SOURCE_SHA || process.env.GITHUB_SHA || '';
 const certificationRunId = process.env.RELEASE_CERTIFICATION_RUN_ID || '';
 const artifactName = process.env.RELEASE_EVIDENCE_ARTIFACT_NAME || '';
+const SHA_RE = /^[0-9a-f]{40}$/i;
 const resolve = (value) => path.isAbsolute(value) ? value : path.join(root, value);
 const proofPath = resolve(process.env.RELEASE_CONSUMPTION_PROOF_PATH || path.join(path.dirname(manifestPath), 'consumption-proof.json'));
 
-if (!expectedSourceSha) throw new Error('Missing expected source SHA for release evidence boundary');
+if (!SHA_RE.test(expectedSourceSha)) throw new Error('Expected source SHA must be exactly 40 hexadecimal characters');
 if (!certificationRunId) throw new Error('Missing release certification workflow run identity');
 if (!artifactName) throw new Error('Missing release evidence artifact identity');
 if (artifactName !== `report-advisor-release-evidence-${expectedSourceSha}`) throw new Error('Release evidence artifact is not bound to expected source SHA');
@@ -31,6 +32,8 @@ for (const field of ['schema_version', 'certification_decision_id', 'consumed_re
   if (!(field in certification)) throw new Error(`Certification decision missing ${field}`);
 }
 
+if (!SHA_RE.test(manifest.source_sha)) throw new Error('Manifest source SHA must be exactly 40 hexadecimal characters');
+if (!SHA_RE.test(certification.consumed_source_sha)) throw new Error('Certification decision source SHA must be exactly 40 hexadecimal characters');
 if (manifest.source_sha !== expectedSourceSha) throw new Error('Manifest source SHA does not match boundary source SHA');
 if (manifest.certification_run_id !== certificationRunId) throw new Error('Manifest certification run does not match boundary run');
 if (certification.consumed_source_sha !== expectedSourceSha) throw new Error('Certification decision source SHA mismatch');
