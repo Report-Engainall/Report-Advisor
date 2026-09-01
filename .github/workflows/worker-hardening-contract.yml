@@ -28,6 +28,7 @@ permissions:
 jobs:
   guards:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
         with:
@@ -44,6 +45,8 @@ jobs:
         run: node scripts/check-worker-workflow-referenced-files.mjs
       - name: Workflow coverage
         run: node scripts/check-worker-workflow-coverage.mjs
+      - name: Workflow timeout contract
+        run: node scripts/check-worker-workflow-timeout-contract.mjs
       - name: Runtime authority contract
         run: node scripts/check-worker-runtime-authority-contract.mjs
       - name: Worker lifecycle guards
