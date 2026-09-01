@@ -4,7 +4,9 @@ on:
   push:
     paths:
       - 'supabase/migrations/20260901040000_report_execution_worker_lifecycle.sql'
+      - 'supabase/migrations/20260901150000_harden_worker_runtime_authority.sql'
       - 'src/lib/report-execution.ts'
+      - 'src/lib/report-execution-coordinator.ts'
       - 'scripts/check-worker-*-contract.mjs'
       - 'scripts/check-worker-lifecycle-guards.mjs'
       - 'scripts/report-execution-runtime.test.ts'
@@ -12,17 +14,25 @@ on:
   pull_request:
     paths:
       - 'supabase/migrations/20260901040000_report_execution_worker_lifecycle.sql'
+      - 'supabase/migrations/20260901150000_harden_worker_runtime_authority.sql'
       - 'src/lib/report-execution.ts'
+      - 'src/lib/report-execution-coordinator.ts'
       - 'scripts/check-worker-*-contract.mjs'
       - 'scripts/check-worker-lifecycle-guards.mjs'
       - 'scripts/report-execution-runtime.test.ts'
       - '.github/workflows/worker-hardening-contract.yml'
+
+permissions:
+  contents: read
 
 jobs:
   guards:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          persist-credentials: false
       - uses: actions/setup-node@v4
         with:
           node-version: 22
