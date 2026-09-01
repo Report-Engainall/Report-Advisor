@@ -103,11 +103,19 @@ This file is the authoritative execution index. Historical PASS remains historic
 86. **AI policy security-flag strictness:** raw-row and provider approval flags must be actual booleans; coercible strings can no longer bypass the policy boundary.
 87. **AI policy context-type hardening:** non-string context payloads now fail closed before trimming or authorization.
 88. **AI session authorization regression expansion:** authenticated-tenant absence and all new AI policy adversarial boundaries are covered by executable Vitest cases.
+89. **Metric hostile-value hardening:** metric evaluation now safely classifies Symbol/BigInt/non-finite runtime values as unavailable instead of allowing coercion exceptions or non-finite values into decisions.
+90. **Metric input-shape hardening:** malformed/null/array metric records and blank metric keys now fail closed with deterministic input errors before property access or registry lookup.
+91. **Metric batch boundary hardening:** non-array batch payloads now fail closed instead of leaking incidental `.map` errors.
+92. **Metric warning-shape hardening:** malformed warning containers no longer spread arbitrary runtime values into the emitted warning list.
+93. **Metric decision/display finite boundary:** decision eligibility and display formatting now explicitly reject non-finite metric values even if a malformed caller constructs an invalid evaluation object.
+94. **Metric regression expansion:** executable Vitest coverage now locks hostile numeric values, malformed warning containers, malformed top-level/batch inputs and finite decision/display semantics.
+95. **Metric release command integration:** added a dedicated `test:metric-boundary` npm command so the metric contract is directly executable by developers and CI.
+96. **Release-readiness metric gate:** added stage 24 to the consolidated release-readiness runner, making the metric boundary contract part of the release-facing gate.
 
 ## Exact implementation chain
 
 - Branch: `codex/release-hardening-integration-20260901`
-- Latest implementation commit: `1aa4175f224215501a3e0d64b086c672336dcd57`
+- Latest implementation commits: `d0eaa338ebd3f9973e8d522c7537333414726d3e` (metric runtime), `1147a56b1d07e70265d1d1ea994fa72c54e38e2d` (metric tests), `7ee53e101675019b7b76d44af97d1b243819fe98` (release command), `081bbf184c80eba1dd266b65eef38362d262e78f` (release gate).
 - This index update is documentation-only and must not be treated as code certification.
 
 ## Certification Boundaries
