@@ -14,7 +14,7 @@ This file is the authoritative execution index. Historical PASS remains historic
 - PR #300 integration branch current head: see PR metadata / exact latest commit below.
 - Do not call branch-local hardening PASS `main` PASS until exact-head CI and merge conditions are satisfied.
 
-## Latest Executed Cycle — 2026-09-01
+## Latest Executed Cycle — 2026-09-02
 
 ### Concrete implementation completed in PR #300
 
@@ -71,11 +71,16 @@ This file is the authoritative execution index. Historical PASS remains historic
 51. **BI insufficient-data contract:** locked explicit `INSUFFICIENT_DATA` behavior for short trend histories and incomplete CCC denominators, preventing silent fake KPI completion.
 52. **BI financial overflow regression matrix:** added executable cases for CCC, liquidity, supplier-risk and What-If overflow boundaries.
 53. **BI CI enforcement:** added a read-only pull-request workflow that installs dependencies and executes the BI runtime-boundary contract on every PR.
+54. **BI risk-scaling overflow enforcement:** supplier delivery/price risk now validates multiplication before clamping, preventing `Infinity` from being silently converted into a bounded risk score.
+55. **BI customer-frequency overflow enforcement:** customer frequency scoring now validates the order-count scaling result before clamping, preventing huge finite inputs from becoming an artificial 100 score after overflow.
+56. **BI customer-score finite-result enforcement:** final customer score arithmetic now has an explicit finite-result boundary before segment selection and emission.
+57. **BI financial adversarial expansion:** financial regression coverage now separately proves supplier delivery-risk overflow, supplier price-risk overflow and customer frequency overflow are rejected.
+58. **BI financial CI runner/workflow:** added a deterministic executable runner and read-only PR/manual GitHub Actions workflow for the financial overflow contract.
 
 ### Exact implementation chain
 
 - Branch: `codex/release-hardening-integration-20260901`
-- Latest code commit in this execution cycle: `f325159b36377b8295a02d5e9971d44d6e8815dc`
+- Latest code commit before this index update: `216bd22742a52c10f2193b8636866fab661b0373`
 - This index update is documentation-only and must not be treated as code certification.
 
 ## Certification Boundaries
