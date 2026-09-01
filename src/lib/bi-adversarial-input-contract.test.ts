@@ -6,9 +6,15 @@ describe('BI adversarial input contract', () => {
     expect(() => decideReplenishment({ onHand: -1, avgDailyDemand: 2, leadTimeDays: 3 })).toThrow('BI_NEGATIVE_VALUE:onHand');
     expect(() => decideReplenishment({ onHand: 1, avgDailyDemand: 2, leadTimeDays: -3 })).toThrow('BI_NEGATIVE_VALUE:leadTimeDays');
   });
+  it('rejects overflowing replenishment target arithmetic', () => {
+    expect(() => decideReplenishment({ onHand: 1, avgDailyDemand: 1, leadTimeDays: Number.MAX_VALUE, safetyDays: Number.MAX_VALUE })).toThrow('BI_RESULT_OVERFLOW:replenishment.targetDays');
+  });
   it('rejects negative customer financial inputs', () => {
     expect(() => scoreCustomer({ recencyDays: -1, orders: 2, revenue: 10 })).toThrow('BI_NEGATIVE_VALUE:recencyDays');
     expect(() => scoreCustomer({ recencyDays: 1, orders: 2, revenue: -10 })).toThrow('BI_NEGATIVE_VALUE:revenue');
+  });
+  it('rejects overflowing customer recency arithmetic before clamping', () => {
+    expect(() => scoreCustomer({ recencyDays: Number.MAX_VALUE, orders: 1, revenue: 1, inactivityThresholdDays: Number.MIN_VALUE })).toThrow('BI_RESULT_OVERFLOW:customer.recency');
   });
   it('rejects negative supplier dependency input', () => {
     expect(() => scoreSupplier({ avgDeliveryDelayDays: 1, priceVariationPct: 2, dependencyPct: -1 })).toThrow('BI_NEGATIVE_VALUE:dependencyPct');
@@ -26,6 +32,11 @@ describe('BI adversarial input contract', () => {
     expect(() => whatIf({ baseline: 100, changes: [{ label: 'x', pct: Number.NEGATIVE_INFINITY }] })).toThrow('BI_INVALID_WHAT_IF_CHANGE');
     expect(() => whatIf({ baseline: 100, changes: [{ label: 'x', pct: -101 }] })).toThrow('BI_INVALID_WHAT_IF_CHANGE');
   });
+  it('rejects malformed What-If change records', () => {
+    expect(() => whatIf({ baseline: 100, changes: [null] } as never)).toThrow('BI_INVALID_WHAT_IF_CHANGE');
+    expect(() => whatIf({ baseline: 100, changes: [[]] } as never)).toThrow('BI_INVALID_WHAT_IF_CHANGE');
+    expect(() => whatIf({ baseline: 100, changes: [{ label: 7, pct: 10 }] } as never)).toThrow('BI_INVALID_WHAT_IF_CHANGE');
+  });
   it('rejects NaN and non-array runtime payloads at public boundaries', () => {
     expect(() => decideReplenishment({ onHand: Number.NaN, avgDailyDemand: 1, leadTimeDays: 1 })).toThrow('BI_INVALID_NUMBER:onHand');
     expect(() => scoreCustomer({ recencyDays: 1, orders: Number.POSITIVE_INFINITY, revenue: 1 })).toThrow('BI_INVALID_NUMBER:orders');
@@ -36,6 +47,7 @@ describe('BI adversarial input contract', () => {
     expect(() => buildAgingBuckets([{ amount: Number.NaN }], new Date('2026-01-01'))).toThrow('BI_INVALID_NUMBER:aging.amount');
     expect(() => buildAgingBuckets([{ amount: -1 }], new Date('2026-01-01'))).toThrow('BI_NEGATIVE_VALUE:aging.amount');
     expect(() => buildAgingBuckets([{ amount: 1, dueDate: 'not-a-date' }], new Date('2026-01-01'))).toThrow('BI_INVALID_DATE:aging.dueDate');
+    expect(() => buildAgingBuckets([{ amount: 1, dueDate: 123 } as never], new Date('2026-01-01'))).toThrow('BI_INVALID_DATE:aging.dueDate');
     expect(() => buildAgingBuckets([null] as never, new Date('2026-01-01'))).toThrow('BI_INVALID_ITEM:aging');
   });
   it('fails closed on malformed trend points instead of silently filtering them', () => {
