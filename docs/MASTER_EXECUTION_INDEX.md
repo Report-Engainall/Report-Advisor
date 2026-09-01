@@ -8,27 +8,28 @@ This index is authoritative for execution state. Historical PASS is never promot
 - Repository: `Report-Engainall/Report-Advisor`
 - PR: **#294 — OPEN / NOT MERGED**
 - Base: `main` @ `89c8361e85878521c915328f6d0a595663498cd3`
-- Current execution head: `92cec31895e962964e360512d37c3f02db5f5ea2`
+- Current execution head: `81ea581ea0757b29fa387aa9c8e7ec0eed466ffe`
 - Current branch: `codex/p0-hardening-integration-20260901`
-- Exact-head CI is required after the latest free-toolbox ESM import repair; no final PASS is claimed yet.
+- Exact-head CI is required after the latest intelligence-foundation contract repair; no final PASS is claimed yet.
 
 ### Latest executed repair
-- Final Certification Gate on `a804002274509f2b8f9ee8ff6b3f575a1a26e1ca` passed exact checkout and the full 20-stage release-readiness matrix (**20/20 PASS**).
-- Final execution batch reached **30 PASS** before `check-intelligence-foundation.mjs` failed with `ERR_MODULE_NOT_FOUND` for `src/lib/free-toolbox/statistics` imported by `time-series.ts`.
-- Canonical `src/lib/free-toolbox/statistics.ts` exists; the defect was Node ESM resolution of an extensionless TypeScript import in a source-level checker path.
-- Repaired `time-series.ts` to use the explicit `.ts` import. `tsconfig.app.json` already enables `allowImportingTsExtensions`, so the application typecheck remains compatible.
-- The documentation commit that records this repair is now the current execution head: `92cec31895e962964e360512d37c3f02db5f5ea2`.
-- No PASS is promoted from the prior SHA; a new Exact-head CI run is required.
+- Final Certification Gate on `cc667605cd8c21f3ab43a5a8bde935313070c320` completed exact checkout successfully.
+- The 20-stage release-readiness matrix passed **20/20** and the final execution batch passed **30/30** before `check-intelligence-foundation.mjs` failed.
+- Failure was a real API/checker drift: the checker imported `calculateGroupDemand`, but the canonical `groupDemand.ts` exports `aggregateAlternativeGroup` / `aggregateAlternativeGroups` instead.
+- Confirmed by repository search that `calculateGroupDemand` has no remaining canonical implementation.
+- Repaired the checker to exercise the canonical `aggregateAlternativeGroup` API, including duplicate-SKU normalization, demand/stock/sales truth, critical risk, and recommended-order assertions.
+- New exact head: `81ea581ea0757b29fa387aa9c8e7ec0eed466ffe`.
+- No PASS is promoted from the prior SHA; a fresh Exact-head CI run is mandatory.
 
 ## VERIFIED EXACT-HEAD RESULTS BEFORE LATEST REPAIR
 - 20-stage release readiness: **20/20 PASS**.
-- Final execution batch: **30 PASS** before intelligence-foundation failure.
+- Final execution batch: **30/30 PASS** before intelligence-foundation failure.
 - Integration boundaries: PASS after adversarial self-test repair.
 - Governance runtime chain: PASS against canonical migrations.
-- A0 hardening, Auth/Tenant, authenticated E2E contract matrices, autonomy safety, batch decision, bounded concurrency: PASS.
+- A0 hardening, Auth/Tenant convergence, authenticated E2E contract matrices, autonomy safety, batch decision, bounded concurrency: PASS.
 - Import security/transaction/runtime, canonical mapping, tenant context: PASS.
 - Certification evidence writer/lock/RPC exposure: PASS.
-- CI topology, company context, continuous trust: PASS.
+- CI execution topology, company context, continuous trust: PASS.
 - Dashboard null/numeric truth and Data Quality canonical snapshot: PASS.
 - Decision authorization/DML/work-item/outcome: PASS.
 - Document Intelligence: **20/20 PASS**.
