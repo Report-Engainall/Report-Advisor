@@ -1,10 +1,12 @@
 import{strict as assert}from'node:assert';import{adversarialCorpus}from'./adversarial-document-corpus.mjs';
 const ids=adversarialCorpus.map(x=>x.id);
-assert.equal(adversarialCorpus.length,10);
+assert.equal(adversarialCorpus.length,12);
 assert.equal(new Set(ids).size,ids.length);
 assert.ok(adversarialCorpus.every(x=>typeof x.id==='string'&&x.id.trim()&&typeof x.failure==='string'&&x.failure.trim()));
 assert.equal(adversarialCorpus.find(x=>x.id==='truncated-pdf').expected,'QUARANTINE');
 assert.equal(adversarialCorpus.find(x=>x.id==='numeric-separator-chaos').expected,'PASS');
+assert.equal(adversarialCorpus.find(x=>x.id==='nul-filename').expected,'QUARANTINE');
+assert.equal(adversarialCorpus.find(x=>x.id==='encrypted-document').expected,'REVIEW');
 for(const x of adversarialCorpus)assert.ok(['PASS','REVIEW','FALLBACK_OR_REVIEW','QUARANTINE'].includes(x.expected));
-for(const id of ['truncated-pdf','empty-sheet','arabic-ocr-noise','wrong-extension','binary-garbage'])assert.ok(ids.includes(id),`missing required adversarial case: ${id}`);
+for(const id of ['truncated-pdf','empty-sheet','arabic-ocr-noise','wrong-extension','binary-garbage','nul-filename','encrypted-document'])assert.ok(ids.includes(id),`missing required adversarial case: ${id}`);
 console.log('Adversarial corpus tests PASS.');
