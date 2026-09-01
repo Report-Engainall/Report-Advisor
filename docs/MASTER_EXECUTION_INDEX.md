@@ -9,7 +9,7 @@ This index is authoritative for execution state. Historical PASS is never promot
 - PR: **#294 — OPEN / NOT MERGED**
 - Base: `main` @ `89c8361e85878521c915328f6d0a595663498cd3`
 - Current branch: `codex/p0-hardening-integration-20260901`
-- Execution head immediately before this index update: `737cfc5d869e66c1f4d167737b0cd96e577dbc6e`
+- Execution head immediately before this index update: `d0b1a2d093db456f4d6b2cac687d19a9ff2243f5`
 - This index update itself advances the branch; therefore the next exact-head CI target is the commit produced by this update.
 - Exact-head CI is required after every source/workflow mutation; no final PASS is claimed until that exact SHA is verified.
 
@@ -48,6 +48,15 @@ This index is authoritative for execution state. Historical PASS is never promot
 19. Added `check-certification-workflow-trigger-contract.mjs` to protect PR-to-main and manual workflow triggers plus read-only permissions.
 20. These changes are repository-executable evidence only; they do not certify live production or external operational evidence.
 
+### New completed work — worker workflow hardening expansion
+21. Added `check-worker-workflow-security-contract.mjs` to verify the worker contract workflow uses pinned Node 22 setup and explicit checkout/setup actions.
+22. Added `check-worker-workflow-trigger-contract.mjs` to ensure worker hardening runs on both push and pull-request changes covering lifecycle, contracts, runtime tests, and workflow changes.
+23. Added `check-worker-workflow-referenced-files.mjs` to fail closed when any executable worker workflow guard references a missing script.
+24. Added `check-worker-workflow-coverage.mjs` to ensure the full existing worker lifecycle guard suite remains wired into CI.
+25. Added `check-worker-runtime-authority-contract.mjs` to protect service-role execution grants/revocations and authenticated table-write revocation for worker jobs.
+26. Extended `.github/workflows/worker-hardening-contract.yml` to execute the five new workflow/authority guards before the existing lifecycle suite.
+27. This worker expansion is repository-executable evidence only; it does not certify live queue operation, production workers, or tenant A/B runtime isolation.
+
 ### Repository hardening already completed
 - Release-evidence SHA validation requires exactly 40 hexadecimal characters with adversarial short/long/alphabet cases.
 - Watched-folder import remains bound to canonical `commitImportBatch` persistence/governance.
@@ -84,7 +93,7 @@ Repository-executable fronts continue even when operational fronts are blocked b
 - **T4** Workflow coverage/regression audit.
 - **T5** Security-definer classification.
 - **T6** Canonical truth adversarial corpus.
-- **T7** Worker lifecycle security regression — extended with twenty executable guards/contracts.
+- **T7** Worker lifecycle security regression — extended with twenty executable guards/contracts plus workflow integrity/authority guards.
 - **T8** Document/OCR evidence readiness.
 - **T9** Performance readiness.
 - **T10** UX/PWA acceptance preparation.
