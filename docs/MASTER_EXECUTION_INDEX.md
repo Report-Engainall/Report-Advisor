@@ -87,11 +87,17 @@ This file is the authoritative execution index. Historical PASS remains historic
 70. **Consolidated BI boundary runner:** added one deterministic command that executes both output-integrity and adversarial-input Vitest suites as a single release-facing contract.
 71. **Release-readiness expansion:** added stage 23 for the consolidated BI boundary suite and updated the readiness summary from 22 to 23 stages.
 72. **Consolidated BI CI enforcement:** added a dedicated Node 22 PR/manual workflow for the combined boundary suite with persisted checkout credentials disabled.
+73. **BI public-record boundary hardening:** replenishment, customer, supplier, liquidity, CCC and What-If engines now reject null, array and primitive top-level payloads with stable fail-closed errors.
+74. **BI aging-record integrity:** aging entries now reject null/array record shapes before financial processing instead of relying on implicit property access.
+75. **BI trend-record integrity:** trend entries now reject null/array record shapes before date/value validation and chronological projection.
+76. **BI malformed-boundary regression matrix:** executable adversarial coverage now locks six top-level object contracts plus malformed aging/trend records.
+77. **BI error-contract stability:** malformed public payloads use deterministic `BI_INVALID_INPUT:*`, `BI_INVALID_ITEM:*` and `BI_INVALID_POINT:*` classifications rather than leaking incidental JavaScript type errors.
+78. **Release-facing adversarial closure:** the new malformed-object checks execute through the existing consolidated BI runner and therefore remain part of the 23-stage release-readiness matrix.
 
 ## Exact implementation chain
 
 - Branch: `codex/release-hardening-integration-20260901`
-- Latest implementation commit: `5bc8ed74bebb8ad50958a50527c1576ce875abb4`
+- Latest implementation commit: `20a51aa10e334c79503f42e7867989eb18d795a3`
 - This index update is documentation-only and must not be treated as code certification.
 
 ## Certification Boundaries
