@@ -1,4 +1,4 @@
-import {finiteNonNegative,finitePercent,safeDays} from './safe-metrics.ts'
+import {finitePercent,safeDays} from './safe-metrics.ts'
 export interface BatchDecisionRow{groupId:string;stock:number;forecastDaily:number;targetDays:number;lostUnits:number;liquidityScore:number;continuityRisk:number;seasonalityScore:number;confidence:number}
 export interface BatchDecisionSummary{rows:number;reorder:number;critical:number;averagePriority:number;elapsedMs:number}
 
