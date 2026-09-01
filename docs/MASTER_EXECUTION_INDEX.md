@@ -10,7 +10,7 @@ This file is the authoritative execution index. Historical PASS remains historic
 - Independent release-readiness judgment: advanced Release Candidate; **NOT Production Certified / NOT Sellable yet**.
 - Current `main` release baseline: `89c8361e85878521c915328f6d0a595663498cd3`.
 - Owner integration PR: **#294**, OPEN / NOT MERGED.
-- PR #294 current exact head: `4b46af125986888d1300a12e7eb21e0a2622c270`.
+- PR #294 current exact head: `4431317d6bf5e8ee620b8a043463cae56727d6b8`.
 - PR #294 base SHA: `89c8361e85878521c915328f6d0a595663498cd3`.
 - `e2d7f57e4a4eab3327b54d762427a46e4d3a3264` is an index-referenced integration candidate only; it is NOT the current PR #294 HEAD.
 - The prior frozen candidate `dc8d1be34a98d0766fd0baaba29effaf8bf9ed44` remains a historical candidate and is not certified by this documentation-only reconciliation commit.
@@ -340,3 +340,13 @@ New exact-head CI                                 QUEUED / IN PROGRESS
 Security Advisor                                  RE-READ / CLASSIFIED
 Production certification                          NO
 ```
+
+
+## CYCLE 21 SECURITY CLOSURE — 2026-09-01
+
+- Direct Staging privilege inspection exposed a real least-privilege gap: the five report-worker lifecycle RPCs (`advance_report_execution_checkpoint`, `complete_report_execution_job`, `fail_report_execution_job`, `heartbeat_report_execution_job`, `retry_report_execution_job`) were `SECURITY DEFINER`, tenant-scoped, and executable by `authenticated` even though the worker claim path is service-role/postgres-only.
+- The internal `report_execution_jobs` table also granted authenticated INSERT/UPDATE/DELETE/TRUNCATE. Because authenticated users could read tenant-scoped jobs, the exposed worker RPCs accepted caller-supplied worker identifiers and represented an unnecessary mutation surface.
+- Immediate Staging hardening was applied and verified: authenticated EXECUTE is now **FALSE** for all five worker lifecycle RPCs; service-role EXECUTE remains **TRUE**. Authenticated direct INSERT/UPDATE/DELETE on `report_execution_jobs` are **FALSE** while tenant-scoped SELECT remains available.
+- Repository migration added: `supabase/migrations/20260901150000_harden_worker_runtime_authority.sql`, preserving service-worker execution while removing browser mutation authority.
+- This is a genuine security/least-privilege fix, not a blanket Advisor suppression. User-facing decision/evidence RPCs were not revoked.
+- The security state therefore moves from **PROVISIONALLY CLOSED** to **HARDENED IN STAGING / REQUIRES EXACT-HEAD CI + PRODUCTION MIGRATION APPLICATION**.
