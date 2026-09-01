@@ -93,11 +93,16 @@ This file is the authoritative execution index. Historical PASS remains historic
 76. **BI malformed-boundary regression matrix:** executable adversarial coverage now locks six top-level object contracts plus malformed aging/trend records.
 77. **BI error-contract stability:** malformed public payloads use deterministic `BI_INVALID_INPUT:*`, `BI_INVALID_ITEM:*` and `BI_INVALID_POINT:*` classifications rather than leaking incidental JavaScript type errors.
 78. **Release-facing adversarial closure:** the new malformed-object checks execute through the existing consolidated BI runner and therefore remain part of the 23-stage release-readiness matrix.
+79. **BI replenishment target overflow boundary:** target-day arithmetic now has a finite-result guard before required-quantity calculation, preventing huge lead/safety combinations from creating an infinite target.
+80. **BI customer recency overflow boundary:** recency scaling is now validated for finite arithmetic before clamping, preventing `Infinity` from being silently converted into a bounded 100 score.
+81. **BI What-If nested-record boundary:** scenario changes now reject null, array and malformed object records with the stable `BI_INVALID_WHAT_IF_CHANGE` contract.
+82. **BI aging date-type boundary:** non-string due dates now fail with the explicit aging date contract instead of reaching JavaScript `Date` coercion.
+83. **BI adversarial matrix expansion:** executable tests now cover replenishment target overflow, customer recency overflow and malformed What-If/aging nested records.
 
 ## Exact implementation chain
 
 - Branch: `codex/release-hardening-integration-20260901`
-- Latest implementation commit: `20a51aa10e334c79503f42e7867989eb18d795a3`
+- Latest implementation commit: `c7e493903afa5bd63d0d6bf6c939b02c3f2ecf10`
 - This index update is documentation-only and must not be treated as code certification.
 
 ## Certification Boundaries
