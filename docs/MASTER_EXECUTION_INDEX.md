@@ -8,17 +8,17 @@ This index is authoritative for execution state. Historical PASS is never promot
 - Repository: `Report-Engainall/Report-Advisor`
 - PR: **#294 — OPEN / NOT MERGED**
 - Base: `main` @ `89c8361e85878521c915328f6d0a595663498cd3`
-- Current execution head: `81ea581ea0757b29fa387aa9c8e7ec0eed466ffe`
+- Current execution head: `ddd9a6c5595d05f86a9cc45e62654b89aa00385b`
 - Current branch: `codex/p0-hardening-integration-20260901`
 - Exact-head CI is required after the latest intelligence-foundation contract repair; no final PASS is claimed yet.
 
 ### Latest executed repair
 - Final Certification Gate on `cc667605cd8c21f3ab43a5a8bde935313070c320` completed exact checkout successfully.
 - The 20-stage release-readiness matrix passed **20/20** and the final execution batch passed **30/30** before `check-intelligence-foundation.mjs` failed.
-- Failure was a real API/checker drift: the checker imported `calculateGroupDemand`, but the canonical `groupDemand.ts` exports `aggregateAlternativeGroup` / `aggregateAlternativeGroups` instead.
+- Failure was a real API/checker drift: the checker imported `calculateGroupDemand`, but canonical `groupDemand.ts` exports `aggregateAlternativeGroup` / `aggregateAlternativeGroups` instead.
 - Confirmed by repository search that `calculateGroupDemand` has no remaining canonical implementation.
 - Repaired the checker to exercise the canonical `aggregateAlternativeGroup` API, including duplicate-SKU normalization, demand/stock/sales truth, critical risk, and recommended-order assertions.
-- New exact head: `81ea581ea0757b29fa387aa9c8e7ec0eed466ffe`.
+- Corrected the index itself to point to the actual PR head `ddd9a6c5595d05f86a9cc45e62654b89aa00385b`; historical intermediate SHA references are retained only as evidence, never as current truth.
 - No PASS is promoted from the prior SHA; a fresh Exact-head CI run is mandatory.
 
 ## VERIFIED EXACT-HEAD RESULTS BEFORE LATEST REPAIR
@@ -40,6 +40,20 @@ This index is authoritative for execution state. Historical PASS is never promot
 - Free-first policy: PASS across 25 dependencies.
 - Global tenant RLS: PASS (22 tenant tables; 139 migrations).
 - Golden dataset/evidence/intelligence/score identity: PASS.
+
+## PARALLEL CLOSURE TRACKS
+- **P0-A Authenticated Runtime:** real login/session/browser E2E and authenticated operation matrix.
+- **P0-B Tenant A/B:** real cross-tenant adversarial runtime verification with zero leakage.
+- **P1-C Production Runtime:** deployment identity, runtime health, Supabase connectivity, smoke, and source-SHA binding.
+- **P1-D Recovery:** real backup, restore, migration parity, integrity, RPO/RTO evidence, and rollback drill.
+- **P1-E Documents/OCR:** real Arabic Golden Corpus execution and evidence comparison.
+- **P1-F Import/Reconciliation:** realistic Excel/import/reconciliation/conflict/canonical-truth business dataset drill.
+- **P1-G Workers:** real queue/claim/heartbeat/checkpoint/retry/dead-letter/resume and tenant isolation drill.
+- **P2-H Performance:** production-like concurrency, P95 read/write/preview and large-import behavior.
+- **P2-I Operations/UX:** observability, PWA/mobile/RTL/slow-network/offline/installability and recovery UX sweep.
+- **P2-J Acceptance:** independent business acceptance and final evidence completeness.
+
+Repository-executable fronts must continue even when operational fronts are blocked by external access.
 
 ## RECOVERY BOUNDARY REGISTER
 - **P1-H — Backup / Restore / DR** remains an explicit certification boundary.
