@@ -28,6 +28,7 @@ function requireNonNegative(value: unknown, field: string): number {
 }
 
 export function buildAgingBuckets(items: AgingItem[], asOf = new Date()): AgingBucket[] {
+  if (!Array.isArray(items)) throw new Error('BI_INVALID_ITEMS:aging');
   if (!(asOf instanceof Date) || !Number.isFinite(asOf.getTime())) throw new Error('BI_INVALID_AS_OF');
   const ranges: Array<readonly [string, number | null, number | null]> = [
     ['0-30', 0, 30], ['31-60', 31, 60], ['61-90', 61, 90], ['91-180', 91, 180], ['180+', 181, null], ['UNDATED', null, null],
@@ -35,7 +36,7 @@ export function buildAgingBuckets(items: AgingItem[], asOf = new Date()): AgingB
   const buckets = ranges.map(([label, minDays, maxDays]) => ({ label, minDays, maxDays, amount: 0, count: 0 }));
   const unnumbered = buckets[buckets.length - 1];
   for (const item of items) {
-    if (!isFiniteNumber(item.amount)) continue;
+    if (!item || !isFiniteNumber(item.amount)) continue;
     if (!item.dueDate) { unnumbered.amount += item.amount; unnumbered.count += 1; continue; }
     const dueTime = new Date(item.dueDate).getTime();
     if (!Number.isFinite(dueTime)) { unnumbered.amount += item.amount; unnumbered.count += 1; continue; }
@@ -47,6 +48,7 @@ export function buildAgingBuckets(items: AgingItem[], asOf = new Date()): AgingB
 }
 
 export function analyzeTrend(points: TrendPoint[]): TrendAnalysis {
+  if (!Array.isArray(points)) throw new Error('BI_INVALID_POINTS:trend');
   const valid = points
     .filter(p => p && typeof p.date === 'string' && Number.isFinite(new Date(p.date).getTime()) && isFiniteNumber(p.value))
     .map(p => ({ date: p.date, value: p.value, time: new Date(p.date).getTime() }))
@@ -116,6 +118,7 @@ export function projectLiquidity(input: { openingLiquidity: number; horizons: nu
   const dailyInflow = requireNonNegative(input.dailyInflow, 'dailyInflow');
   const dailyOutflow = requireNonNegative(input.dailyOutflow, 'dailyOutflow');
   const committed = requireNonNegative(input.committedOutflow ?? 0, 'committedOutflow');
+  if (!Array.isArray(input.horizons)) throw new Error('BI_INVALID_HORIZONS');
   return [...input.horizons].map(h => requireNonNegative(h, 'horizonDays')).sort((a, b) => a - b).map(horizonDays => {
     const expectedInflow = dailyInflow * horizonDays;
     const expectedOutflow = dailyOutflow * horizonDays + committed;
@@ -144,6 +147,7 @@ export function cashConversionCycle(input: { receivables: number; revenue: numbe
 
 export function whatIf(input: { baseline: number; changes: Array<{ label: string; pct: number }> }): WhatIfResult {
   const baseline = requireFinite(input.baseline, 'baseline');
+  if (!Array.isArray(input.changes)) throw new Error('BI_INVALID_CHANGES');
   let scenario = baseline;
   for (const change of input.changes) {
     if (!change || !isFiniteNumber(change.pct) || typeof change.label !== 'string' || !change.label.trim()) throw new Error('BI_INVALID_WHAT_IF_CHANGE');
