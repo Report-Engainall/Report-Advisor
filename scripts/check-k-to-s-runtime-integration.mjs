@@ -3,7 +3,7 @@ import path from 'node:path';
 const root=process.cwd();
 const read=p=>fs.readFileSync(path.join(root,p),'utf8');
 const must=(file,tokens)=>{if(!fs.existsSync(path.join(root,file))) throw new Error(`missing ${file}`); const s=read(file); for(const t of tokens) if(!s.includes(t)) throw new Error(`${file}: missing ${t}`)};
-must('src/lib/report-execution/production-coordinator-bridge.ts',['sourceHash','advanceLifecycle','chooseBoundedScenario','buildDecisionPortfolio','autonomyDecision']);
+must('src/lib/report-execution/production-coordinator-bridge.ts',['sourceHash','runProductionLifecycle','chooseScenario','prioritizeDecisions','canAutonomouslyExecute']);
 must('src/lib/phase-kl-supabase-runtime.ts',['recordHealth','recordEvidenceEdge','autonomyGate']);
 must('src/lib/report-execution/checkpoint.ts',['assertValidTransition','sourceHash']);
 must('src/lib/production-intelligence.ts',['evaluateAutonomyGate','selectBoundedScenario','rankPortfolio','calibrateConfidence']);
