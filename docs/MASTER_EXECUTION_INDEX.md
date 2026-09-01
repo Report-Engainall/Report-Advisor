@@ -42,6 +42,13 @@ This index is authoritative for execution state. Historical PASS is never promot
 - Watched-folder/text-first/incremental ledger: PASS.
 - Separate security/truth/storage/Windows/inventory/OCR workflows: PASS.
 
+## RECOVERY BOUNDARY REGISTER
+
+- **P1-H — Backup / Restore / DR** remains an explicit certification boundary.
+- RPO/RTO are operational evidence requirements, not source-level claims.
+- Backup, restore, migration parity, artifact integrity, rollback, and security audit evidence are required before production certification.
+- The source-level Phase 10 checker validates wiring only; it must never convert a missing live restore drill into PASS.
+
 ### Security hardening already applied
 - Worker lifecycle RPCs are restricted to `service_role`; authenticated EXECUTE was revoked for checkpoint/complete/fail/heartbeat/retry operations.
 - Authenticated direct INSERT/UPDATE/DELETE/TRUNCATE on `report_execution_jobs` were revoked; read-only tenant-scoped access remains.
