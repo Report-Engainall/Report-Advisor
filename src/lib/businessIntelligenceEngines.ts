@@ -16,33 +16,15 @@ const clamp = (n: number, min = 0, max = 100) => Math.min(max, Math.max(min, n))
 const safeDiv = (a: number, b: number) => b === 0 ? null : a / b;
 const mean = (xs: number[]) => xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : null;
 
-function requireFinite(value: unknown, field: string): number {
-  if (!isFiniteNumber(value)) throw new Error(`BI_INVALID_NUMBER:${field}`);
-  return value;
-}
-
-function requireNonNegative(value: unknown, field: string): number {
-  const n = requireFinite(value, field);
-  if (n < 0) throw new Error(`BI_NEGATIVE_VALUE:${field}`);
-  return n;
-}
-
-function requireFiniteResult(value: number, field: string): number {
-  if (!Number.isFinite(value)) throw new Error(`BI_RESULT_OVERFLOW:${field}`);
-  return value;
-}
-
-function scaleAndClamp(value: number, factor: number, field: string): number {
-  const scaled = requireFiniteResult(value * factor, field);
-  return clamp(scaled);
-}
+function requireFinite(value: unknown, field: string): number { if (!isFiniteNumber(value)) throw new Error(`BI_INVALID_NUMBER:${field}`); return value; }
+function requireNonNegative(value: unknown, field: string): number { const n = requireFinite(value, field); if (n < 0) throw new Error(`BI_NEGATIVE_VALUE:${field}`); return n; }
+function requireFiniteResult(value: number, field: string): number { if (!Number.isFinite(value)) throw new Error(`BI_RESULT_OVERFLOW:${field}`); return value; }
+function scaleAndClamp(value: number, factor: number, field: string): number { return clamp(requireFiniteResult(value * factor, field)); }
 
 export function buildAgingBuckets(items: AgingItem[], asOf = new Date()): AgingBucket[] {
   if (!Array.isArray(items)) throw new Error('BI_INVALID_ITEMS:aging');
   if (!(asOf instanceof Date) || !Number.isFinite(asOf.getTime())) throw new Error('BI_INVALID_AS_OF');
-  const ranges: Array<readonly [string, number | null, number | null]> = [
-    ['0-30', 0, 30], ['31-60', 31, 60], ['61-90', 61, 90], ['91-180', 91, 180], ['180+', 181, null], ['UNDATED', null, null],
-  ];
+  const ranges: Array<readonly [string, number | null, number | null]> = [['0-30', 0, 30], ['31-60', 31, 60], ['61-90', 61, 90], ['91-180', 91, 180], ['180+', 181, null], ['UNDATED', null, null]];
   const buckets = ranges.map(([label, minDays, maxDays]) => ({ label, minDays, maxDays, amount: 0, count: 0 }));
   const unnumbered = buckets[buckets.length - 1];
   for (const item of items) {
@@ -59,38 +41,25 @@ export function buildAgingBuckets(items: AgingItem[], asOf = new Date()): AgingB
 
 export function analyzeTrend(points: TrendPoint[]): TrendAnalysis {
   if (!Array.isArray(points)) throw new Error('BI_INVALID_POINTS:trend');
-  const valid = points
-    .filter(p => p && typeof p.date === 'string' && Number.isFinite(new Date(p.date).getTime()) && isFiniteNumber(p.value))
-    .map(p => ({ date: p.date, value: p.value, time: new Date(p.date).getTime() }))
-    .sort((a, b) => a.time - b.time);
+  const valid = points.filter(p => p && typeof p.date === 'string' && Number.isFinite(new Date(p.date).getTime()) && isFiniteNumber(p.value)).map(p => ({ date: p.date, value: p.value, time: new Date(p.date).getTime() })).sort((a, b) => a.time - b.time);
   if (valid.length < 3) return { direction: 'INSUFFICIENT_DATA', velocity: null, acceleration: null, volatility: null, seasonalityHint: 'UNKNOWN' };
-  const values = valid.map(p => p.value);
-  const n = values.length;
-  const half = Math.max(1, Math.floor(n / 2));
-  const first = mean(values.slice(0, half))!;
-  const last = mean(values.slice(-half))!;
+  const values = valid.map(p => p.value); const n = values.length; const half = Math.max(1, Math.floor(n / 2));
+  const first = mean(values.slice(0, half))!; const last = mean(values.slice(-half))!;
   const velocity = requireFiniteResult(safeDiv(last - first, Math.max(1, half))!, 'trend.velocity');
   const prevVelocity = safeDiv(values[n - 2] - values[0], Math.max(1, n - 2));
   const acceleration = prevVelocity == null ? null : requireFiniteResult(velocity - prevVelocity, 'trend.acceleration');
-  const avg = mean(values)!;
-  const variance = requireFiniteResult(mean(values.map(v => (v - avg) ** 2))!, 'trend.variance');
+  const avg = mean(values)!; const variance = requireFiniteResult(mean(values.map(v => (v - avg) ** 2))!, 'trend.variance');
   const volatility = avg === 0 ? Math.sqrt(variance) : requireFiniteResult(Math.sqrt(variance) / Math.abs(avg), 'trend.volatility');
   const direction = Math.abs(last - first) <= Math.max(1e-9, Math.abs(avg) * 0.02) ? 'FLAT' : last > first ? 'UP' : 'DOWN';
   return { direction, velocity, acceleration, volatility, seasonalityHint: volatility > 0.5 ? 'HIGH' : volatility > 0.2 ? 'MEDIUM' : 'LOW' };
 }
 
 export function decideReplenishment(input: { onHand: number; reserved?: number; onOrder?: number; avgDailyDemand: number; leadTimeDays: number; safetyDays?: number; maxStockDays?: number; }): InventoryDecision {
-  const onHand = requireNonNegative(input.onHand, 'onHand');
-  const avgDailyDemand = requireNonNegative(input.avgDailyDemand, 'avgDailyDemand');
-  const leadTimeDays = requireNonNegative(input.leadTimeDays, 'leadTimeDays');
-  const reserved = requireNonNegative(input.reserved ?? 0, 'reserved');
-  const onOrder = requireNonNegative(input.onOrder ?? 0, 'onOrder');
-  const safetyDays = requireNonNegative(input.safetyDays ?? 7, 'safetyDays');
-  const maxDays = requireNonNegative(input.maxStockDays ?? Math.max(safetyDays, leadTimeDays + safetyDays) * 2.5, 'maxStockDays');
-  const available = Math.max(0, onHand - reserved);
+  const onHand = requireNonNegative(input.onHand, 'onHand'); const avgDailyDemand = requireNonNegative(input.avgDailyDemand, 'avgDailyDemand'); const leadTimeDays = requireNonNegative(input.leadTimeDays, 'leadTimeDays');
+  const reserved = requireNonNegative(input.reserved ?? 0, 'reserved'); const onOrder = requireNonNegative(input.onOrder ?? 0, 'onOrder'); const safetyDays = requireNonNegative(input.safetyDays ?? 7, 'safetyDays');
+  const maxDays = requireNonNegative(input.maxStockDays ?? Math.max(safetyDays, leadTimeDays + safetyDays) * 2.5, 'maxStockDays'); const available = Math.max(0, onHand - reserved);
   if (avgDailyDemand === 0) return { action: available > 0 ? 'MONITOR' : 'DO_NOT_BUY', suggestedQuantity: 0, coverageDays: null, reason: 'No valid demand baseline', confidence: 0 };
-  const coverageDays = requireFiniteResult(available / avgDailyDemand, 'replenishment.coverageDays');
-  const targetDays = Math.max(safetyDays, leadTimeDays + safetyDays);
+  const coverageDays = requireFiniteResult(available / avgDailyDemand, 'replenishment.coverageDays'); const targetDays = Math.max(safetyDays, leadTimeDays + safetyDays);
   const required = requireFiniteResult(Math.max(0, avgDailyDemand * targetDays - available - onOrder), 'replenishment.required');
   if (coverageDays > maxDays && onOrder > 0) return { action: 'OVERSTOCK', suggestedQuantity: 0, coverageDays, reason: 'Projected coverage exceeds maximum target and stock is already on order', confidence: 86 };
   if (coverageDays <= leadTimeDays) return { action: 'BUY_NOW', suggestedQuantity: Math.ceil(required), coverageDays, reason: 'Available stock does not cover lead time', confidence: 88 };
@@ -99,70 +68,42 @@ export function decideReplenishment(input: { onHand: number; reserved?: number; 
 }
 
 export function scoreCustomer(input: { recencyDays: number; orders: number; revenue: number; inactivityThresholdDays?: number }): CustomerScore {
-  const recencyDays = requireNonNegative(input.recencyDays, 'recencyDays');
-  const orders = requireNonNegative(input.orders, 'orders');
-  const revenue = requireNonNegative(input.revenue, 'revenue');
-  const threshold = requireNonNegative(input.inactivityThresholdDays ?? 90, 'inactivityThresholdDays');
-  if (threshold <= 0) throw new Error('BI_NON_POSITIVE_THRESHOLD:inactivityThresholdDays');
-  const recency = clamp(100 - (recencyDays / threshold) * 100);
-  const frequency = scaleAndClamp(orders, 10, 'customer.frequency');
-  const monetary = revenue === 0 ? 0 : clamp(50 + Math.log10(revenue + 1) * 10);
-  const score = requireFiniteResult(Math.round(recency * 0.4 + frequency * 0.25 + monetary * 0.35), 'customer.score');
+  const recencyDays = requireNonNegative(input.recencyDays, 'recencyDays'); const orders = requireNonNegative(input.orders, 'orders'); const revenue = requireNonNegative(input.revenue, 'revenue');
+  const threshold = requireNonNegative(input.inactivityThresholdDays ?? 90, 'inactivityThresholdDays'); if (threshold <= 0) throw new Error('BI_NON_POSITIVE_THRESHOLD:inactivityThresholdDays');
+  const recency = clamp(100 - (recencyDays / threshold) * 100); const frequency = scaleAndClamp(orders, 10, 'customer.frequency');
+  const monetary = revenue === 0 ? 0 : clamp(requireFiniteResult(50 + Math.log10(revenue + 1) * 10, 'customer.monetary'));
+  const score = Math.round(requireFiniteResult(recency * 0.4 + frequency * 0.25 + monetary * 0.35, 'customer.score'));
   const segment = orders <= 1 && recencyDays <= 30 ? 'NEW' : recencyDays > threshold * 1.5 ? 'INACTIVE' : recencyDays > threshold ? 'AT_RISK' : score >= 80 ? 'CHAMPION' : score >= 60 ? 'LOYAL' : 'OTHER';
   return { recency, frequency, monetary, inactivityDays: recencyDays, segment, score };
 }
 
 export function scoreSupplier(input: { avgDeliveryDelayDays: number; priceVariationPct: number; dependencyPct: number }): SupplierScore {
-  const avgDeliveryDelayDays = requireNonNegative(input.avgDeliveryDelayDays, 'avgDeliveryDelayDays');
-  const priceVariationPct = requireFinite(input.priceVariationPct, 'priceVariationPct');
-  const dependencyPct = requireNonNegative(input.dependencyPct, 'dependencyPct');
-  const deliveryRisk = scaleAndClamp(avgDeliveryDelayDays, 12, 'supplier.deliveryRisk');
-  const priceRisk = scaleAndClamp(Math.abs(priceVariationPct), 2, 'supplier.priceRisk');
-  const dependencyRisk = clamp(dependencyPct);
+  const avgDeliveryDelayDays = requireNonNegative(input.avgDeliveryDelayDays, 'avgDeliveryDelayDays'); const priceVariationPct = requireFinite(input.priceVariationPct, 'priceVariationPct'); const dependencyPct = requireNonNegative(input.dependencyPct, 'dependencyPct');
+  const deliveryRisk = scaleAndClamp(avgDeliveryDelayDays, 12, 'supplier.deliveryRisk'); const priceRisk = scaleAndClamp(Math.abs(priceVariationPct), 2, 'supplier.priceRisk'); const dependencyRisk = clamp(requireFiniteResult(dependencyPct, 'supplier.dependencyRisk'));
   const risk = requireFiniteResult(deliveryRisk * 0.35 + priceRisk * 0.25 + dependencyRisk * 0.4, 'supplier.risk');
-  return { score: Math.round(100 - risk), deliveryRisk, priceRisk, dependencyRisk, priority: risk >= 70 ? 'CRITICAL' : risk >= 45 ? 'HIGH' : 'NORMAL' };
+  return { score: Math.round(requireFiniteResult(100 - risk, 'supplier.score')), deliveryRisk, priceRisk, dependencyRisk, priority: risk >= 70 ? 'CRITICAL' : risk >= 45 ? 'HIGH' : 'NORMAL' };
 }
 
 export function projectLiquidity(input: { openingLiquidity: number; horizons: number[]; dailyInflow: number; dailyOutflow: number; committedOutflow?: number }): LiquidityProjection[] {
-  const openingLiquidity = requireFinite(input.openingLiquidity, 'openingLiquidity');
-  const dailyInflow = requireNonNegative(input.dailyInflow, 'dailyInflow');
-  const dailyOutflow = requireNonNegative(input.dailyOutflow, 'dailyOutflow');
-  const committed = requireNonNegative(input.committedOutflow ?? 0, 'committedOutflow');
+  const openingLiquidity = requireFinite(input.openingLiquidity, 'openingLiquidity'); const dailyInflow = requireNonNegative(input.dailyInflow, 'dailyInflow'); const dailyOutflow = requireNonNegative(input.dailyOutflow, 'dailyOutflow'); const committed = requireNonNegative(input.committedOutflow ?? 0, 'committedOutflow');
   if (!Array.isArray(input.horizons)) throw new Error('BI_INVALID_HORIZONS');
   return [...input.horizons].map(h => requireNonNegative(h, 'horizonDays')).sort((a, b) => a - b).map(horizonDays => {
-    const expectedInflow = requireFiniteResult(dailyInflow * horizonDays, 'liquidity.expectedInflow');
-    const expectedOutflow = requireFiniteResult(dailyOutflow * horizonDays + committed, 'liquidity.expectedOutflow');
-    const projectedLiquidity = requireFiniteResult(openingLiquidity + expectedInflow - expectedOutflow, 'liquidity.projected');
-    const gap = Math.max(0, -projectedLiquidity);
-    const watchThreshold = Math.max(0, Math.abs(openingLiquidity) * 0.2);
+    const expectedInflow = requireFiniteResult(dailyInflow * horizonDays, 'liquidity.expectedInflow'); const expectedOutflow = requireFiniteResult(dailyOutflow * horizonDays + committed, 'liquidity.expectedOutflow'); const projectedLiquidity = requireFiniteResult(openingLiquidity + expectedInflow - expectedOutflow, 'liquidity.projected');
+    const gap = Math.max(0, -projectedLiquidity); const watchThreshold = Math.max(0, Math.abs(openingLiquidity) * 0.2);
     return { horizonDays, openingLiquidity, expectedInflow, expectedOutflow, projectedLiquidity, gap, status: gap > 0 ? 'GAP' : projectedLiquidity < watchThreshold ? 'WATCH' : 'SAFE' };
   });
 }
 
 export function cashConversionCycle(input: { receivables: number; revenue: number; inventory: number; costOfSales: number; payables: number; purchases: number; periodDays?: number }): CashConversionCycle {
-  const receivables = requireNonNegative(input.receivables, 'receivables');
-  const revenue = requireNonNegative(input.revenue, 'revenue');
-  const inventory = requireNonNegative(input.inventory, 'inventory');
-  const costOfSales = requireNonNegative(input.costOfSales, 'costOfSales');
-  const payables = requireNonNegative(input.payables, 'payables');
-  const purchases = requireNonNegative(input.purchases, 'purchases');
-  const days = requireNonNegative(input.periodDays ?? 365, 'periodDays');
-  if (days <= 0) throw new Error('BI_NON_POSITIVE_PERIOD:periodDays');
-  const dso = revenue > 0 ? requireFiniteResult(receivables / revenue * days, 'ccc.dso') : null;
-  const dio = costOfSales > 0 ? requireFiniteResult(inventory / costOfSales * days, 'ccc.dio') : null;
-  const dpo = purchases > 0 ? requireFiniteResult(payables / purchases * days, 'ccc.dpo') : null;
+  const receivables = requireNonNegative(input.receivables, 'receivables'); const revenue = requireNonNegative(input.revenue, 'revenue'); const inventory = requireNonNegative(input.inventory, 'inventory'); const costOfSales = requireNonNegative(input.costOfSales, 'costOfSales'); const payables = requireNonNegative(input.payables, 'payables'); const purchases = requireNonNegative(input.purchases, 'purchases');
+  const days = requireNonNegative(input.periodDays ?? 365, 'periodDays'); if (days <= 0) throw new Error('BI_NON_POSITIVE_PERIOD:periodDays');
+  const dso = revenue > 0 ? requireFiniteResult(receivables / revenue * days, 'ccc.dso') : null; const dio = costOfSales > 0 ? requireFiniteResult(inventory / costOfSales * days, 'ccc.dio') : null; const dpo = purchases > 0 ? requireFiniteResult(payables / purchases * days, 'ccc.dpo') : null;
   if (dso == null || dio == null || dpo == null) return { dso, dio, dpo, ccc: null, status: 'INSUFFICIENT_DATA' };
   return { dso, dio, dpo, ccc: requireFiniteResult(dso + dio - dpo, 'ccc.total'), status: 'READY' };
 }
 
 export function whatIf(input: { baseline: number; changes: Array<{ label: string; pct: number }> }): WhatIfResult {
-  const baseline = requireFinite(input.baseline, 'baseline');
-  if (!Array.isArray(input.changes)) throw new Error('BI_INVALID_CHANGES');
-  let scenario = baseline;
-  for (const change of input.changes) {
-    if (!change || !isFiniteNumber(change.pct) || typeof change.label !== 'string' || !change.label.trim()) throw new Error('BI_INVALID_WHAT_IF_CHANGE');
-    scenario *= 1 + change.pct / 100;
-    if (!Number.isFinite(scenario)) throw new Error('BI_WHAT_IF_OVERFLOW');
-  }
+  const baseline = requireFinite(input.baseline, 'baseline'); if (!Array.isArray(input.changes)) throw new Error('BI_INVALID_CHANGES'); let scenario = baseline;
+  for (const change of input.changes) { if (!change || !isFiniteNumber(change.pct) || typeof change.label !== 'string' || !change.label.trim()) throw new Error('BI_INVALID_WHAT_IF_CHANGE'); scenario *= 1 + change.pct / 100; if (!Number.isFinite(scenario)) throw new Error('BI_WHAT_IF_OVERFLOW'); }
   return { baseline, scenario, delta: requireFiniteResult(scenario - baseline, 'whatIf.delta'), deltaPct: baseline === 0 ? null : requireFiniteResult((scenario - baseline) / Math.abs(baseline) * 100, 'whatIf.deltaPct'), assumptions: input.changes.map(c => `${c.label.trim()}: ${c.pct}%`) };
 }
