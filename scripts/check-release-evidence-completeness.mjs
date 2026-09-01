@@ -1,15 +1,4 @@
-import fs from 'node:fs';
-import path from 'node:path';
-const root=process.cwd();
-const required=['source_sha','migrations_fingerprint','dependency_fingerprint','artifact_fingerprint','certification','canary','rollback','trust'];
-const candidates=[];
-for(const file of [
-  '.github/workflows/release-certification.yml',
-  'supabase/migrations/20260825150000_phase_m_certification_bundle.sql',
-  'scripts/check-production-certification-contract.mjs',
-  'scripts/check-production-release-blockers.mjs',
-]) if(fs.existsSync(path.join(root,file))) candidates.push(fs.readFileSync(path.join(root,file),'utf8').toLowerCase());
-const text=candidates.join('\n');
-for(const token of required) if(!text.includes(token)) throw new Error(`Release evidence completeness missing: ${token}`);
-if(!text.includes('fail-closed') && !text.includes('fail_closed')) throw new Error('Release evidence must be fail-closed');
-console.log('Release evidence completeness: PASS');
+import fs from 'node:fs'; import path from 'node:path';
+const root=process.cwd(); const required=['source_sha','migrations_fingerprint','dependency_lock_fingerprint','artifact_fingerprint','certification','canary','rollback','trust'];
+const candidates=[]; for(const file of ['.github/workflows/release-certification.yml','supabase/migrations/20260825150000_phase_m_certification_bundle.sql','scripts/check-production-certification-contract.mjs','scripts/check-production-release-blockers.mjs']) if(fs.existsSync(path.join(root,file))) candidates.push(fs.readFileSync(path.join(root,file),'utf8').toLowerCase());
+const text=candidates.join('\n'); for(const token of required) if(!text.includes(token)) throw new Error(`Release evidence completeness missing: ${token}`); if(!text.includes('fail-closed')&&!text.includes('fail_closed')) throw new Error('Release evidence must be fail-closed'); console.log('Release evidence completeness: PASS');
