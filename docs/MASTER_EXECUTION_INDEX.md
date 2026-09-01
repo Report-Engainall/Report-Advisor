@@ -9,7 +9,8 @@ This index is authoritative for execution state. Historical PASS is never promot
 - PR: **#294 — OPEN / NOT MERGED**
 - Base: `main` @ `89c8361e85878521c915328f6d0a595663498cd3`
 - Current branch: `codex/p0-hardening-integration-20260901`
-- Current execution head: `3b551b548aadaf23226cac1f3835fcc2e7f5a025`
+- Execution head immediately before this index update: `161b50bd0b4facb89e57b73243aef877686a964e`
+- This index update itself advances the branch; therefore the next exact-head CI target is the commit produced by this update.
 - Exact-head CI is required after every source/workflow mutation; no final PASS is claimed until that exact SHA is verified.
 
 ### Latest certification finding and repair
@@ -19,7 +20,6 @@ This index is authoritative for execution state. Historical PASS is never promot
 - The repair requires fresh exact-head CI; no certification is inferred from historical PASS.
 
 ### New completed work — worker lifecycle regression suite
-The following five repository changes are now committed and indexed on the current branch:
 1. Added `check-worker-lifecycle-guards.mjs` covering heartbeat, checkpoint, completion, failure, and retry invariants.
 2. Added `check-worker-lease-expiry.mjs` to prevent heartbeat from accepting expired leases.
 3. Added `check-worker-service-role-boundary.mjs` covering security-definer and execution-grant boundaries for all lifecycle RPCs.
@@ -28,7 +28,16 @@ The following five repository changes are now committed and indexed on the curre
 6. Wired the complete worker lifecycle regression suite into `package.json` as runnable npm scripts.
 7. Updated this index to record the exact execution head and these completed items.
 
-These are source-level regression guards. They are **not** represented as PASS until exact-head CI executes them.
+### New completed work — worker contract hardening extension
+1. Added `check-worker-search-path-contract.mjs` covering fixed `search_path = public` on every lifecycle SECURITY DEFINER RPC.
+2. Added `check-worker-lease-floor-contract.mjs` covering the minimum 30-second heartbeat lease extension.
+3. Added `check-worker-null-payload-contract.mjs` covering deterministic `{}` JSON fallbacks for checkpoint/evidence/error payloads.
+4. Added `check-worker-lease-clearance-contract.mjs` covering terminal/retry lease-owner and lease-expiry clearance.
+5. Added `check-worker-execution-grants-contract.mjs` covering fail-closed `public/anon` revocation and `service_role` execution grants.
+6. Added `.github/workflows/worker-hardening-contract.yml` to execute the complete worker lifecycle/contract guard set on relevant source changes.
+7. Current exact-head workflow state is **not yet certified PASS**; queued/pending/in-progress runs are not promoted to PASS.
+
+These are source-level regression guards. They improve repository-executable evidence but do **not** close live production, authenticated E2E, tenant A/B, backup/restore, rollback, or other external operational certification boundaries.
 
 ### Repository hardening already completed
 - Release-evidence SHA validation requires exactly 40 hexadecimal characters with adversarial short/long/alphabet cases.
@@ -64,7 +73,7 @@ Repository-executable fronts continue even when operational fronts are blocked b
 - **T4 Workflow coverage/regression audit:** compare package scripts with Quality/Certification/Release workflows and detect dropped coverage.
 - **T5 Security-definer classification:** classify privilege, caller, search_path, grants, tenant guards, exploitability; harden only demonstrated excessive privilege.
 - **T6 Canonical truth adversarial corpus:** missing cost/sale items, invalid numerics, duplicate SKU, currency mismatch, UNKNOWN/INSUFFICIENT_DATA, forecast confidence.
-- **T7 Worker lifecycle security regression:** service-role authority, tenant scope, lease, retry, checkpoint, dead-letter, resume. **Extended with five executable regression guards on current head.**
+- **T7 Worker lifecycle security regression:** service-role authority, tenant scope, lease, retry, checkpoint, dead-letter, resume. **Extended with ten executable repository guards/contracts.**
 - **T8 Document/OCR evidence readiness:** hashes, confidence, normalized output, provenance, duplicate/unknown handling, Golden Corpus scoring.
 - **T9 Performance readiness:** repository-level P95/bounded reads/concurrency; defer live load evidence until runtime.
 - **T10 UX/PWA acceptance preparation:** authenticated mobile/RTL/slow-network/offline/installability evidence cases.
