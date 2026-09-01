@@ -98,11 +98,16 @@ This file is the authoritative execution index. Historical PASS remains historic
 81. **BI What-If nested-record boundary:** scenario changes now reject null, array and malformed object records with the stable `BI_INVALID_WHAT_IF_CHANGE` contract.
 82. **BI aging date-type boundary:** non-string due dates now fail with the explicit aging date contract instead of reaching JavaScript `Date` coercion.
 83. **BI adversarial matrix expansion:** executable tests now cover replenishment target overflow, customer recency overflow and malformed What-If/aging nested records.
+84. **AI policy capability allowlist:** hosted AI policy now rejects unsupported runtime capability values instead of trusting TypeScript-only unions.
+85. **AI policy record-shape hardening:** malformed/null/array policy payloads now fail closed before tenant/provider evaluation.
+86. **AI policy security-flag strictness:** raw-row and provider approval flags must be actual booleans; coercible strings can no longer bypass the policy boundary.
+87. **AI policy context-type hardening:** non-string context payloads now fail closed before trimming or authorization.
+88. **AI session authorization regression expansion:** authenticated-tenant absence and all new AI policy adversarial boundaries are covered by executable Vitest cases.
 
 ## Exact implementation chain
 
 - Branch: `codex/release-hardening-integration-20260901`
-- Latest implementation commit: `c7e493903afa5bd63d0d6bf6c939b02c3f2ecf10`
+- Latest implementation commit: `1aa4175f224215501a3e0d64b086c672336dcd57`
 - This index update is documentation-only and must not be treated as code certification.
 
 ## Certification Boundaries
