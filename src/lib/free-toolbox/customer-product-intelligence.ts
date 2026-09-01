@@ -5,6 +5,7 @@ const n=(v: unknown)=>typeof v==='number'&&Number.isFinite(v)?Math.max(0,v):0;
 const text=(v: unknown)=>typeof v==='string'?v.trim():'';
 
 export function analyzeCustomerProductContinuity(rows: CustomerProductPoint[]): CustomerProductSignal[] {
+ if(!Array.isArray(rows)) throw new Error('INSUFFICIENT_CONTINUITY_DATA:rows');
  const groups=new Map<string,CustomerProductPoint[]>();
  for(const r of rows){
   if(!r || typeof r!=='object') continue;
