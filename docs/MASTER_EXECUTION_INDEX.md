@@ -8,38 +8,33 @@ This index is authoritative for execution state. Historical PASS is never promot
 - Repository: `Report-Engainall/Report-Advisor`
 - PR: **#294 — OPEN / NOT MERGED**
 - Base: `main` @ `89c8361e85878521c915328f6d0a595663498cd3`
-- Current execution head: `de8e442fbe0f4963dc0cdd5a494db8a7a74ec562`
+- Current execution head: `eefb739bbb4dbd1066726d37e7a2f5b45d1b2542`
 - Current branch: `codex/p0-hardening-integration-20260901`
-- Exact-head CI is required after the latest intelligence-foundation fixture repair; no final PASS is claimed yet.
+- Exact-head CI is required after the latest K/L evidence-checker repair; no final PASS is claimed yet.
 
 ### Latest executed work
-- Final Certification Gate on `ddd9a6c5595d05f86a9cc45e62654b89aa00385b` completed exact checkout successfully.
-- The 20-stage release-readiness matrix passed **20/20** and the final execution batch passed **30/30** before `check-intelligence-foundation.mjs` failed.
-- The failure was a real checker/fixture API mismatch: `buildExecutiveScorecard` requires `ScorecardMetric[]`, while the fixture supplied a legacy object and asserted the obsolete `overall` field.
-- Repaired the fixture to use canonical metric-array input and assert the canonical `score`, `grade`, and per-metric achievement/weighted outputs.
-- Added `docs/PRODUCTION_OPERATIONAL_EVIDENCE_RUNBOOK.md` covering P0 authenticated runtime, Tenant A/B, Production Runtime, Backup/Restore/Rollback, OCR Golden Corpus, Import/Reconciliation, Workers, Performance, Operations/UX, Business Acceptance, evidence identity, and fail-closed rules.
-- Corrected this index to track the actual current execution head after each sequential branch write.
-- No PASS is promoted from prior SHAs; a fresh Exact-head CI run is mandatory.
+- Exact-head certification on `71936266efb39d0c2be68292cc15fe0e6cb71101` passed the **20/20 release-readiness matrix** and reached **30/30 Final Execution Batch** before failing at `check-k-l-execution-evidence-chain.mjs`.
+- The failure was a checker/API naming mismatch: the runtime implements canonical consolidation through `consolidateByPrecedence`, while the checker required the literal token `consolidation`.
+- Repaired the checker to validate canonical runtime APIs using explicit alternative tokens: `buildLineage/diffRows`, `consolidateByPrecedence`, `selectBoundedScenario`, `rankPortfolio`, `RuntimeEvidence/recordExecutiveEvidenceEdge`, `controlPlaneHealth/recordControlPlaneHealth`, and `evaluateAutonomyGate/autonomyRuntimeGate`.
+- Tenant/lease invariants remain mandatory: `company_id`, `current_company_id`, `lease_owner`, `lease_expires_at`.
+- No production runtime behavior was weakened and no bypass was added.
+- Latest branch head after the repair: `eefb739bbb4dbd1066726d37e7a2f5b45d1b2542`.
 
-## VERIFIED EXACT-HEAD RESULTS BEFORE LATEST REPAIR
+### Verified exact-head results before latest repair
 - 20-stage release readiness: **20/20 PASS**.
-- Final execution batch: **30/30 PASS** before intelligence-foundation failure.
-- Integration boundaries: PASS after adversarial self-test repair.
-- Governance runtime chain: PASS against canonical migrations.
-- A0 hardening, Auth/Tenant convergence, authenticated E2E contract matrices, autonomy safety, batch decision, bounded concurrency: PASS.
-- Import security/transaction/runtime, canonical mapping, tenant context: PASS.
-- Certification evidence writer/lock/RPC exposure: PASS.
-- CI execution topology, company context, continuous trust: PASS.
-- Dashboard null/numeric truth and Data Quality canonical snapshot: PASS.
-- Decision authorization/DML/work-item/outcome: PASS.
+- Final execution batch: **30/30 PASS** before K/L evidence-chain failure.
+- A0 hardening, Auth/Tenant convergence, authenticated E2E contract matrices, autonomy safety: PASS.
+- Global tenant RLS: PASS (22 tenant tables; 139 migrations).
+- Import security/transaction/runtime, canonical mapping and tenant context: PASS.
 - Document Intelligence: **20/20 PASS**.
 - DR source-level contracts/readiness: PASS.
 - Evidence lineage/provenance/regression: PASS.
-- File engine: **21 declared formats** PASS.
-- Final certification immutability/manifest: PASS.
-- Free-first policy: PASS across 25 dependencies.
-- Global tenant RLS: PASS (22 tenant tables; 139 migrations).
+- Governance Runtime: PASS.
+- Decision authorization/DML/work-item/outcome: PASS.
+- Production Scale: PASS.
+- Certification immutability/manifest: PASS.
 - Golden dataset/evidence/intelligence/score identity: PASS.
+- Windows contract and Storage tenant isolation: PASS.
 
 ## PARALLEL CLOSURE TRACKS
 - **P0-A Authenticated Runtime:** real login/session/browser E2E and authenticated operation matrix.
