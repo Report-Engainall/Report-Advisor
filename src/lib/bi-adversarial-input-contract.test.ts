@@ -25,4 +25,10 @@ describe('BI adversarial input contract', () => {
     expect(() => whatIf({ baseline: Number.POSITIVE_INFINITY, changes: [] })).toThrow('BI_INVALID_NUMBER:baseline');
     expect(() => whatIf({ baseline: 100, changes: [{ label: 'x', pct: Number.NEGATIVE_INFINITY }] })).toThrow('BI_INVALID_WHAT_IF_CHANGE');
   });
+  it('rejects NaN and non-array runtime payloads at public boundaries', () => {
+    expect(() => decideReplenishment({ onHand: Number.NaN, avgDailyDemand: 1, leadTimeDays: 1 })).toThrow('BI_INVALID_NUMBER:onHand');
+    expect(() => scoreCustomer({ recencyDays: 1, orders: Number.POSITIVE_INFINITY, revenue: 1 })).toThrow('BI_INVALID_NUMBER:orders');
+    expect(() => projectLiquidity({ openingLiquidity: 1, horizons: '30', dailyInflow: 1, dailyOutflow: 1 } as never)).toThrow('BI_INVALID_HORIZONS');
+    expect(() => whatIf({ baseline: 1, changes: null } as never)).toThrow('BI_INVALID_CHANGES');
+  });
 });
