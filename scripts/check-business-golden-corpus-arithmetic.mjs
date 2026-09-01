@@ -2,6 +2,11 @@ import fs from 'node:fs';
 
 const fixture = JSON.parse(fs.readFileSync('tests/fixtures/business-golden/cycle-004.json', 'utf8'));
 for (const [tenantId, truth] of Object.entries(fixture.expected_truth).filter(([k]) => k !== 'isolation')) {
+  for (const key of ['gross_sales', 'returns', 'net_sales', 'purchases', 'inventory_value', 'payments', 'receivables', 'estimated_cogs', 'estimated_gross_profit']) {
+    if (typeof truth[key] !== 'number' || !Number.isFinite(truth[key])) {
+      throw new Error(`BUSINESS_GOLDEN_ARITHMETIC_MISSING:${tenantId}:${key}`);
+    }
+  }
   const sales = fixture.sales.filter((row) => row.tenant_id === tenantId);
   const purchases = fixture.purchases.filter((row) => row.tenant_id === tenantId);
   const inventory = fixture.inventory.filter((row) => row.tenant_id === tenantId);
