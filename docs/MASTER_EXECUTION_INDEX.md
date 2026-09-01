@@ -11,7 +11,7 @@ This file is the authoritative execution index. Historical PASS remains historic
 - Current `main` release baseline: `17a49420c70faca143cf7cc58ad11aae6edcb662`.
 - Owner integration PR: **#294**, OPEN / NOT MERGED.
 - This execution wave adds implementation PR **#300**, OPEN / NOT MERGED.
-- PR #300 integration branch current head: `a256b2651e8a6ae1cd98b6d7710bc4e397f29f00`.
+- PR #300 integration branch current head: see PR metadata / exact latest commit below.
 - Do not call branch-local hardening PASS `main` PASS until exact-head CI and merge conditions are satisfied.
 
 ## Latest Executed Cycle — 2026-09-01
@@ -48,3 +48,34 @@ This file is the authoritative execution index. Historical PASS remains historic
 28. **Customer-product continuity hardening:** malformed rows, blank identities/periods and non-finite/negative numeric inputs are excluded or normalized before continuity, loss and fill-rate calculations.
 29. **Batch decision input hardening:** non-array batches, malformed rows and blank group IDs now fail closed before any decision calculation.
 30. **Data-quality runtime import simplification:** removed redundant multiline import syntax while preserving validation and type re-export behavior.
+31. **Batch decision numeric strictness:** decision metrics now reject numeric strings and other coercible non-number values instead of silently converting them into decision inputs.
+32. **Customer-product runtime contract:** continuity analysis now explicitly fails closed when its top-level input is not an array, preventing malformed runtime payloads from reaching grouping logic.
+33. **Import write-guard resilience:** direct-write detection now strips comments before scanning import UI source, preventing commented examples from creating false violations while retaining the real-write guard.
+34. **Tenant adversarial regression expansion:** tenant-boundary contract now executes concrete adversarial fixtures for browser storage, query parameters, client-selected filters, browser globals and static tenant fallbacks.
+35. **Watched-report path boundary expansion:** executable watched-report contract now includes NUL/control-character path fixtures alongside traversal, absolute-path and Windows-drive cases.
+36. **Golden-evidence identity contract:** golden evidence now requires array inputs, non-empty unique expected IDs and fails closed on malformed top-level inputs.
+
+### Exact implementation chain
+
+- Branch: `codex/release-hardening-integration-20260901`
+- Latest code commit before this index update: `87abbe7611931d23b0c41abc419770c84fdb9cc6`
+- This index update is documentation-only and must not be treated as code certification.
+
+## Certification Boundaries
+
+- Production runtime: **BLOCKED — external operational access required**.
+- Authenticated E2E: **BLOCKED — real authenticated session required**.
+- Live Tenant A/B isolation: **BLOCKED — real tenant credentials/session required**.
+- Backup/Restore: **BLOCKED — actual DB operational evidence required**.
+- Rollback: **BLOCKED — actual deployment/alias operational evidence required**.
+- Production alias binding: **NOT CERTIFIED**; no alias mutation or rollback is authorized by this index.
+- Vercel deployment quota may remain an external blocker; do not convert quota failure into a code PASS.
+
+## Execution Rules
+
+1. Continue independent implementation fronts while external operational blockers remain.
+2. Every execution cycle must add at least five real implementation/verification improvements beyond discovery-only work.
+3. Never fabricate CI, runtime, tenant, backup, restore, rollback or production evidence.
+4. Never mutate protected production aliases merely to obtain evidence.
+5. Do not reopen closed work unless new concrete evidence identifies a regression.
+6. Exact SHA is the only certification identity.
