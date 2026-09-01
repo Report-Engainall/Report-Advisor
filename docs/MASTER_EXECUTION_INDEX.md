@@ -10,7 +10,7 @@ This file is the authoritative execution index. Historical PASS remains historic
 - Independent release-readiness judgment: advanced Release Candidate; **NOT Production Certified / NOT Sellable yet**.
 - Current `main` release baseline: `89c8361e85878521c915328f6d0a595663498cd3`.
 - Owner integration PR: **#294**, OPEN / NOT MERGED.
-- PR #294 current exact head: `4431317d6bf5e8ee620b8a043463cae56727d6b8`.
+- PR #294 current exact head: `fcb1ac527fbe7b54c15fe45752af9f130b6b6c58`.
 - PR #294 base SHA: `89c8361e85878521c915328f6d0a595663498cd3`.
 - `e2d7f57e4a4eab3327b54d762427a46e4d3a3264` is an index-referenced integration candidate only; it is NOT the current PR #294 HEAD.
 - The prior frozen candidate `dc8d1be34a98d0766fd0baaba29effaf8bf9ed44` remains a historical candidate and is not certified by this documentation-only reconciliation commit.
