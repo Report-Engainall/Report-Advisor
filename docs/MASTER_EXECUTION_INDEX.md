@@ -11,7 +11,7 @@ This file is the authoritative execution index. Historical PASS remains historic
 - Current `main` release baseline: `17a49420c70faca143cf7cc58ad11aae6edcb662`.
 - Owner integration PR: **#294**, OPEN / NOT MERGED.
 - This execution wave adds implementation PR **#300**, OPEN / NOT MERGED.
-- PR #300 integration branch current head: `488ee767cb351f7ecc33e2f8681737e944fe6a93`.
+- PR #300 integration branch current head: `a256b2651e8a6ae1cd98b6d7710bc4e397f29f00`.
 - Do not call branch-local hardening PASS `main` PASS until exact-head CI and merge conditions are satisfied.
 
 ## Latest Executed Cycle — 2026-09-01
@@ -42,11 +42,9 @@ This file is the authoritative execution index. Historical PASS remains historic
 22. **Data-quality runtime cleanup:** removed duplicate type imports while retaining the public type re-exports and validation boundary.
 23. **Decision-engine cleanup:** removed an unused safety-metric import without changing decision calculations or thresholds.
 24. **Semantic-metric cleanup:** removed a duplicate freshness import while retaining the explicit public freshness re-export.
-
-## Verification boundary
-
-- Historical topology failure was diagnosed on PR merge SHA `7d1effd70cbb747c735361e509e7caf1586d2619`: all earlier readiness/build/lint/scale gates passed, while the topology checker correctly rejected eight broad non-canonical push workflows.
-- The eight offending workflow triggers were subsequently removed on the integration branch; this is an implementation change, not yet a certification claim.
-- Current integration HEAD is `488ee767cb351f7ecc33e2f8681737e944fe6a93`.
-- The 20-stage readiness gate previously produced `TOTAL=20 PASS=20 FAIL=0` on the pre-topology-fix merge SHA; that result remains historical until rerun on the current exact HEAD.
-- Production runtime, authenticated E2E/Tenant A-B, backup/restore, rollback and production alias binding remain operational evidence boundaries and must not be fabricated or inferred from static CI.
+25. **Golden-evidence integrity hardening:** executable contract now ignores malformed result records and requires boolean `passed` values, preventing truthy non-boolean evidence from counting as PASS.
+26. **Golden-score identity hardening:** executable contract rejects malformed results, duplicate identities, empty expected IDs and empty corpora; readiness remains fail-closed.
+27. **OCR confidence boundary expansion:** executable contract now covers negative infinity, negative confidence, threshold equality, out-of-range clamping, string confidence, Unicode whitespace and null text.
+28. **Customer-product continuity hardening:** malformed rows, blank identities/periods and non-finite/negative numeric inputs are excluded or normalized before continuity, loss and fill-rate calculations.
+29. **Batch decision input hardening:** non-array batches, malformed rows and blank group IDs now fail closed before any decision calculation.
+30. **Data-quality runtime import simplification:** removed redundant multiline import syntax while preserving validation and type re-export behavior.
