@@ -94,6 +94,13 @@ This index is authoritative for execution state. Historical PASS is never promot
 50. Preserved strict tenant/idempotency identity invariants while expanding recovery-path coverage.
 51. Updated the authoritative execution index to record the checkpoint-resume closure and current recovery alignment.
 
+### New completed work — operational hygiene + regression alignment batch
+52. Corrected checkpoint-resume regression coverage to match the canonical one-argument `resumeFromCheckpoint(checkpoint)` API, including invalid-stage, source-hash, evidence-key, and timestamp rejection cases.
+53. Simplified brand workflow path coverage so `src/**` is the single authoritative source-tree trigger without redundant file-specific entries.
+54. Added `docs/VERCEL_DEPLOYMENT_RETENTION.md` defining safe Preview/Canceled/Errored retention targets and strict preservation rules for Production, RC, rollback, and certification evidence.
+55. Added `scripts/check-vercel-deployment-retention-contract.mjs` plus `.github/workflows/vercel-deployment-hygiene-contract.yml` to prevent unsafe project-wide deletion instructions and retention-policy drift.
+56. Verified Vercel project state through the connected project API: Hobby plan, project `report-advisor`, current deployment inventory visible, and no deployment-delete mutation exposed by the available connector; no unsafe deletion was fabricated.
+
 ### Current dependency/security observation
 - `npm ci` currently reports **21 dependency vulnerabilities (3 low, 4 moderate, 14 high)** in the latest exact-head run. No blind `npm audit fix` is authorized.
 - `pdfjs-dist@6.2.108` is already on the patched line for the current 2026 PDF.js advisory.
