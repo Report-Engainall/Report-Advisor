@@ -43,7 +43,7 @@ must(/moduleResolution"\s*:\s*"bundler"/.test(tsconfig), 'Bundler module resolut
 must(/@\/lib\/queries/.test(tsconfig), 'Canonical query alias must remain explicit');
 must(/npm run typecheck/.test(architecture) && /npm run lint/.test(architecture) && /npm run build/.test(architecture), 'Architecture contract must require typecheck/lint/build');
 must(/npm run test:contracts/.test(quality), 'Quality workflow must execute the architecture contract');
-must(/test\s+"\$\(git rev-parse HEAD\)"\s*=\s*"\$\{GITHUB_SHA\}"/.test(quality), 'Quality workflow must bind execution to exact checked-out SHA');
+must(/expected="\$\{\{\s*github\.event\.pull_request\.head\.sha\s*\|\|\s*github\.sha\s*\}\}"/.test(quality) && /actual="\$\(git rev-parse HEAD\)"/.test(quality) && /test "\$actual" = "\$expected"/.test(quality), 'Quality workflow must bind execution to the exact checked-out event SHA');
 must(/name: Phase 1 foundation closure/.test(quality) && /node scripts\/check-phase1-foundation-closure\.mjs/.test(quality), 'Quality workflow must execute the Phase-1 foundation gate');
 
 if (failures.length) {
