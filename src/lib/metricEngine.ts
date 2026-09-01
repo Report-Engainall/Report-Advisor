@@ -33,17 +33,21 @@ const safeNumericValue = (value: unknown): number | null => {
   const numeric = typeof value === 'number' ? value : Number(value);
   return Number.isFinite(numeric) ? numeric : null;
 };
+const validStatus = (value: unknown): value is MetricStatus =>
+  value === 'AVAILABLE' || value === 'UNAVAILABLE' || value === 'INSUFFICIENT_DATA' || value === 'FORECAST' || value === 'ESTIMATED';
 
 export function evaluateMetric(input: MetricInput): MetricEvaluation {
   if (!input || typeof input !== 'object' || Array.isArray(input)) throw new Error('Metric input is required');
   if (typeof input.key !== 'string' || !input.key.trim()) throw new Error('Metric key is required');
 
-  const definition = BUSINESS_METRICS.find(metric => metric.key === input.key);
+  const definition = BUSINESS_METRICS.find(metric => metric.key === input.key.trim());
   if (!definition) throw new Error(`Unknown metric: ${input.key}`);
 
-  const warnings = Array.isArray(input.warnings) ? [...input.warnings] : [];
+  const warnings = Array.isArray(input.warnings) && input.warnings.every(warning => typeof warning === 'string')
+    ? [...input.warnings]
+    : [];
   const numeric = safeNumericValue(input.value);
-  let status = input.status ?? definition.status;
+  let status = validStatus(input.status) ? input.status : definition.status;
   let confidence = input.confidence === undefined ? (numeric == null ? 0 : 1) : boundedConfidence(input.confidence);
 
   if (numeric == null) {
@@ -59,14 +63,14 @@ export function evaluateMetric(input: MetricInput): MetricEvaluation {
   }
 
   const fact: ReportFact = {
-    key: input.key,
+    key: definition.key,
     value: numeric,
     unit: definition.unit,
     confidence,
     source: status === 'FORECAST' ? 'forecast' : 'derived',
   };
 
-  return { key: input.key, definition, value: numeric, status, confidence, updatedAt: input.updatedAt, sourceRows: input.sourceRows, warnings, fact };
+  return { key: definition.key, definition, value: numeric, status, confidence, updatedAt: input.updatedAt, sourceRows: input.sourceRows, warnings, fact };
 }
 
 export function evaluateMetricBatch(inputs: MetricInput[]): MetricEvaluation[] {
