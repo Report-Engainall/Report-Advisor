@@ -3,7 +3,7 @@ import path from 'node:path';
 const root=process.cwd();
 const quality=fs.readFileSync(path.join(root,'.github/workflows/quality.yml'),'utf8');
 const boundary=fs.readFileSync(path.join(root,'.github/workflows/production-evidence-boundary.yml'),'utf8');
-const requiredQuality=['test:master-requirements','test:production-certification-contract','test:continuous-trust','test:phase-k-runtime','test:phase-l-runtime','test:phase-m-certification','test:production-release-blockers','test:production-scale','test:document-resilience'];
+const requiredQuality=['test:master-requirements','test:production-certification-contract','test:continuous-trust','test:phase-k-runtime','test:phase-l-runtime','test:phase-m-certification','test:production-release-blockers','test:concurrent-analysis','test:document-resilience'];
 for(const x of requiredQuality) if(!quality.includes(x)) throw new Error(`Quality chain missing ${x}`);
 for(const x of ['check-live-production-evidence-boundary.mjs','check-production-evidence-failclosed.mjs','check-master-duplication-budget.mjs','check-production-release-blockers.mjs','check-production-certification-contract.mjs','actions/download-artifact@v4','consumption-proof.json']) if(!boundary.includes(x)) throw new Error(`Production boundary missing ${x}`);
 if(!quality.includes('branches: [main]')) throw new Error('Quality main branch trigger missing');
