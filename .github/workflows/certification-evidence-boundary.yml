@@ -49,6 +49,16 @@ jobs:
         run: node scripts/check-business-golden-corpus-unique-identifiers.mjs
       - name: Verify business golden corpus temporal and value contracts
         run: node scripts/check-business-golden-corpus-temporal-and-value-contract.mjs
+      - name: Verify business golden corpus cogs derivation
+        run: node scripts/check-business-golden-corpus-cogs.mjs
+      - name: Verify business golden corpus transaction line math
+        run: node scripts/check-business-golden-corpus-gross-line-math.mjs
+      - name: Verify business golden corpus zero stock truth
+        run: node scripts/check-business-golden-corpus-zero-stock.mjs
+      - name: Verify business golden corpus payment trace
+        run: node scripts/check-business-golden-corpus-payment-trace.mjs
+      - name: Verify business golden corpus isolation completeness
+        run: node scripts/check-business-golden-corpus-isolation-completeness.mjs
       - name: Verify certification evidence write boundary
         run: node scripts/check-certification-evidence-write-boundary.mjs
       - name: Verify certification completeness boundary
