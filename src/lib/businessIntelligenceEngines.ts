@@ -16,6 +16,7 @@ const clamp = (n: number, min = 0, max = 100) => Math.min(max, Math.max(min, n))
 const safeDiv = (a: number, b: number) => b === 0 ? null : a / b;
 const mean = (xs: number[]) => xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : null;
 
+function requireRecord(value: unknown, field: string): asserts value is Record<string, unknown> { if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error(`BI_INVALID_INPUT:${field}`); }
 function requireFinite(value: unknown, field: string): number { if (!isFiniteNumber(value)) throw new Error(`BI_INVALID_NUMBER:${field}`); return value; }
 function requireNonNegative(value: unknown, field: string): number { const n = requireFinite(value, field); if (n < 0) throw new Error(`BI_NEGATIVE_VALUE:${field}`); return n; }
 function requireFiniteResult(value: number, field: string): number { if (!Number.isFinite(value)) throw new Error(`BI_RESULT_OVERFLOW:${field}`); return value; }
@@ -28,7 +29,7 @@ export function buildAgingBuckets(items: AgingItem[], asOf = new Date()): AgingB
   const buckets = ranges.map(([label, minDays, maxDays]) => ({ label, minDays, maxDays, amount: 0, count: 0 }));
   const unnumbered = buckets[buckets.length - 1];
   for (const item of items) {
-    if (!item || typeof item !== 'object') throw new Error('BI_INVALID_ITEM:aging');
+    if (!item || typeof item !== 'object' || Array.isArray(item)) throw new Error('BI_INVALID_ITEM:aging');
     const amount = requireNonNegative((item as AgingItem).amount, 'aging.amount');
     if (!item.dueDate) { unnumbered.amount = requireFiniteResult(unnumbered.amount + amount, 'aging.amount'); unnumbered.count += 1; continue; }
     const dueTime = new Date(item.dueDate).getTime();
@@ -43,7 +44,8 @@ export function buildAgingBuckets(items: AgingItem[], asOf = new Date()): AgingB
 export function analyzeTrend(points: TrendPoint[]): TrendAnalysis {
   if (!Array.isArray(points)) throw new Error('BI_INVALID_POINTS:trend');
   for (const point of points) {
-    if (!point || typeof point.date !== 'string' || !Number.isFinite(new Date(point.date).getTime())) throw new Error('BI_INVALID_DATE:trend.date');
+    if (!point || typeof point !== 'object' || Array.isArray(point)) throw new Error('BI_INVALID_POINT:trend');
+    if (typeof point.date !== 'string' || !Number.isFinite(new Date(point.date).getTime())) throw new Error('BI_INVALID_DATE:trend.date');
     requireFinite(point.value, 'trend.value');
   }
   const valid = points.map(p => ({ date: p.date, value: p.value, time: new Date(p.date).getTime() })).sort((a, b) => a.time - b.time);
@@ -60,6 +62,7 @@ export function analyzeTrend(points: TrendPoint[]): TrendAnalysis {
 }
 
 export function decideReplenishment(input: { onHand: number; reserved?: number; onOrder?: number; avgDailyDemand: number; leadTimeDays: number; safetyDays?: number; maxStockDays?: number; }): InventoryDecision {
+  requireRecord(input, 'replenishment');
   const onHand = requireNonNegative(input.onHand, 'onHand'); const avgDailyDemand = requireNonNegative(input.avgDailyDemand, 'avgDailyDemand'); const leadTimeDays = requireNonNegative(input.leadTimeDays, 'leadTimeDays');
   const reserved = requireNonNegative(input.reserved ?? 0, 'reserved'); const onOrder = requireNonNegative(input.onOrder ?? 0, 'onOrder'); const safetyDays = requireNonNegative(input.safetyDays ?? 7, 'safetyDays');
   const maxDays = requireNonNegative(input.maxStockDays ?? Math.max(safetyDays, leadTimeDays + safetyDays) * 2.5, 'maxStockDays'); const available = Math.max(0, onHand - reserved);
@@ -73,6 +76,7 @@ export function decideReplenishment(input: { onHand: number; reserved?: number; 
 }
 
 export function scoreCustomer(input: { recencyDays: number; orders: number; revenue: number; inactivityThresholdDays?: number }): CustomerScore {
+  requireRecord(input, 'customer');
   const recencyDays = requireNonNegative(input.recencyDays, 'recencyDays'); const orders = requireNonNegative(input.orders, 'orders'); const revenue = requireNonNegative(input.revenue, 'revenue');
   const threshold = requireNonNegative(input.inactivityThresholdDays ?? 90, 'inactivityThresholdDays'); if (threshold <= 0) throw new Error('BI_NON_POSITIVE_THRESHOLD:inactivityThresholdDays');
   const recency = clamp(100 - (recencyDays / threshold) * 100); const frequency = scaleAndClamp(orders, 10, 'customer.frequency');
@@ -83,6 +87,7 @@ export function scoreCustomer(input: { recencyDays: number; orders: number; reve
 }
 
 export function scoreSupplier(input: { avgDeliveryDelayDays: number; priceVariationPct: number; dependencyPct: number }): SupplierScore {
+  requireRecord(input, 'supplier');
   const avgDeliveryDelayDays = requireNonNegative(input.avgDeliveryDelayDays, 'avgDeliveryDelayDays'); const priceVariationPct = requireFinite(input.priceVariationPct, 'priceVariationPct'); const dependencyPct = requireNonNegative(input.dependencyPct, 'dependencyPct');
   const deliveryRisk = scaleAndClamp(avgDeliveryDelayDays, 12, 'supplier.deliveryRisk'); const priceRisk = scaleAndClamp(Math.abs(priceVariationPct), 2, 'supplier.priceRisk'); const dependencyRisk = clamp(requireFiniteResult(dependencyPct, 'supplier.dependencyRisk'));
   const risk = requireFiniteResult(deliveryRisk * 0.35 + priceRisk * 0.25 + dependencyRisk * 0.4, 'supplier.risk');
@@ -90,6 +95,7 @@ export function scoreSupplier(input: { avgDeliveryDelayDays: number; priceVariat
 }
 
 export function projectLiquidity(input: { openingLiquidity: number; horizons: number[]; dailyInflow: number; dailyOutflow: number; committedOutflow?: number }): LiquidityProjection[] {
+  requireRecord(input, 'liquidity');
   const openingLiquidity = requireFinite(input.openingLiquidity, 'openingLiquidity'); const dailyInflow = requireNonNegative(input.dailyInflow, 'dailyInflow'); const dailyOutflow = requireNonNegative(input.dailyOutflow, 'dailyOutflow'); const committed = requireNonNegative(input.committedOutflow ?? 0, 'committedOutflow');
   if (!Array.isArray(input.horizons)) throw new Error('BI_INVALID_HORIZONS');
   return [...input.horizons].map(h => requireNonNegative(h, 'horizonDays')).sort((a, b) => a - b).map(horizonDays => {
@@ -100,6 +106,7 @@ export function projectLiquidity(input: { openingLiquidity: number; horizons: nu
 }
 
 export function cashConversionCycle(input: { receivables: number; revenue: number; inventory: number; costOfSales: number; payables: number; purchases: number; periodDays?: number }): CashConversionCycle {
+  requireRecord(input, 'ccc');
   const receivables = requireNonNegative(input.receivables, 'receivables'); const revenue = requireNonNegative(input.revenue, 'revenue'); const inventory = requireNonNegative(input.inventory, 'inventory'); const costOfSales = requireNonNegative(input.costOfSales, 'costOfSales'); const payables = requireNonNegative(input.payables, 'payables'); const purchases = requireNonNegative(input.purchases, 'purchases');
   const days = requireNonNegative(input.periodDays ?? 365, 'periodDays'); if (days <= 0) throw new Error('BI_NON_POSITIVE_PERIOD:periodDays');
   const dso = revenue > 0 ? requireFiniteResult(receivables / revenue * days, 'ccc.dso') : null; const dio = costOfSales > 0 ? requireFiniteResult(inventory / costOfSales * days, 'ccc.dio') : null; const dpo = purchases > 0 ? requireFiniteResult(payables / purchases * days, 'ccc.dpo') : null;
@@ -108,6 +115,7 @@ export function cashConversionCycle(input: { receivables: number; revenue: numbe
 }
 
 export function whatIf(input: { baseline: number; changes: Array<{ label: string; pct: number }> }): WhatIfResult {
+  requireRecord(input, 'whatIf');
   const baseline = requireFinite(input.baseline, 'baseline'); if (!Array.isArray(input.changes)) throw new Error('BI_INVALID_CHANGES'); let scenario = baseline;
   for (const change of input.changes) { if (!change || !isFiniteNumber(change.pct) || change.pct < -100 || typeof change.label !== 'string' || !change.label.trim()) throw new Error('BI_INVALID_WHAT_IF_CHANGE'); scenario *= 1 + change.pct / 100; if (!Number.isFinite(scenario)) throw new Error('BI_WHAT_IF_OVERFLOW'); }
   return { baseline, scenario, delta: requireFiniteResult(scenario - baseline, 'whatIf.delta'), deltaPct: baseline === 0 ? null : requireFiniteResult((scenario - baseline) / Math.abs(baseline) * 100, 'whatIf.deltaPct'), assumptions: input.changes.map(c => `${c.label.trim()}: ${c.pct}%`) };
