@@ -9,7 +9,7 @@ This index is authoritative for execution state. Historical PASS is never promot
 - PR: **#294 — OPEN / NOT MERGED**
 - Base: `main` @ `89c8361e85878521c915328f6d0a595663498cd3`
 - Current branch: `codex/p0-hardening-integration-20260901`
-- Execution head immediately before this index update: `17761aef99e3e3ae12c411c2a6a8cac655930cf3`
+- Execution head immediately before this index update: `c5320a0d4bad5afae95fdeb1058f7d97bd3276ca`
 - This index update itself advances the branch; therefore the next exact-head CI target is the commit produced by this update.
 - Exact-head CI is required after every source/workflow mutation; no final PASS is claimed until that exact SHA is verified.
 
@@ -19,43 +19,31 @@ This index is authoritative for execution state. Historical PASS is never promot
 - Repair: Phase-K checker now accepts the canonical runtime APIs while retaining backward-compatible alternatives and sourceHash identity.
 - The repair requires fresh exact-head CI; no certification is inferred from historical PASS.
 
-### New completed work — worker lifecycle regression suite
-1. Added `check-worker-lifecycle-guards.mjs` covering heartbeat, checkpoint, completion, failure, and retry invariants.
-2. Added `check-worker-lease-expiry.mjs` to prevent heartbeat from accepting expired leases.
-3. Added `check-worker-service-role-boundary.mjs` covering security-definer and execution-grant boundaries for all lifecycle RPCs.
-4. Added `check-worker-tenant-isolation.mjs` requiring `current_company_id()` tenant scope across lifecycle RPCs.
-5. Added `check-worker-terminal-state-guards.mjs` covering active-state completion/failure and failed-state bounded retry transitions.
-6. Wired the complete worker lifecycle regression suite into `package.json` as runnable npm scripts.
-7. Updated this index to record the exact execution head and these completed items.
-
-### New completed work — worker contract hardening extension
-1. Added `check-worker-search-path-contract.mjs` covering fixed `search_path = public` on every lifecycle SECURITY DEFINER RPC.
-2. Added `check-worker-lease-floor-contract.mjs` covering the minimum 30-second heartbeat lease extension.
-3. Added `check-worker-null-payload-contract.mjs` covering deterministic `{}` JSON fallbacks for checkpoint/evidence/error payloads.
-4. Added `check-worker-lease-clearance-contract.mjs` covering terminal/retry lease-owner and lease-expiry clearance.
-5. Added `check-worker-execution-grants-contract.mjs` covering fail-closed `public/anon` revocation and `service_role` execution grants.
-6. Added `.github/workflows/worker-hardening-contract.yml` to execute the complete worker lifecycle/contract guard set on relevant source changes.
-7. Current exact-head workflow state is **not yet certified PASS**; queued/pending/in-progress runs are not promoted to PASS.
-
-### New completed work — worker lifecycle transition extension
-1. Added `check-worker-checkpoint-monotonicity-contract.mjs` covering checkpoint transition/resume gates and regression coverage.
-2. Added `check-worker-retry-eligibility-contract.mjs` covering failed-only retry, bounded attempts, queue re-entry, and lease clearance.
-3. Added `check-worker-terminality-contract.mjs` covering explicit completion/failure terminal transitions and rejection of lifecycle mutation against completed state.
-4. Added `check-worker-tenant-boundary-contract.mjs` requiring `current_company_id()` enforcement in every lifecycle RPC.
-5. Corrected the workflow to remove an invalid claim-migration reference and retained only guards backed by canonical repository files.
-6. Extended `.github/workflows/worker-hardening-contract.yml` with five additional executable contracts: RPC signatures, boolean/affected-row return semantics, `updated_at` mutation, active-state restrictions, and completion evidence persistence.
-7. Current exact-head workflow state is **not yet certified PASS**; the index update itself creates a new exact-head CI target.
+### Worker lifecycle hardening
+- Worker lifecycle regression suite covers heartbeat, checkpoint, completion, failure, retry, lease expiry, service-role authority, tenant isolation, terminal-state guards, search_path, lease floor, null payloads, lease clearance, grants, checkpoint monotonicity, retry eligibility, terminality, tenant boundary, RPC signatures, return semantics, updated_at, active-state restrictions, and completion evidence.
+- `.github/workflows/worker-hardening-contract.yml` executes the repository-backed worker contract suite.
+- An invalid nonexistent claim-migration reference was removed; no unsupported guard remains.
 
 ### New completed work — certification evidence decision hardening
-1. Added `check-certification-evidence-order-contract.mjs` to lock the canonical mandatory evidence order: tenant, backup, rollback, artifact, security.
-2. Added `check-certification-score-contract.mjs` to require score derivation from the canonical mandatory evidence set rather than an independent denominator/input.
-3. Added `check-certification-fail-closed-contract.mjs` to require certification only when blockers are empty, score is at least 0.95, and evidence is complete.
-4. Added `check-certification-duplicate-contract.mjs` to require explicit duplicate mandatory-evidence detection and blocker emission.
-5. Added `check-certification-missing-failed-contract.mjs` to require explicit missing and failed mandatory-evidence detection.
-6. Extended `.github/workflows/certification-evidence-boundary.yml` to execute all five new certification decision contracts alongside the existing writer/completeness/queue boundaries.
-7. Current exact-head CI state is **not yet certified PASS**; these changes create a new exact-head CI target.
+1. Added `check-certification-evidence-order-contract.mjs` to lock canonical mandatory evidence order: tenant, backup, rollback, artifact, security.
+2. Added `check-certification-score-contract.mjs` to require score derivation from the canonical mandatory evidence set.
+3. Added `check-certification-fail-closed-contract.mjs` to require blockers empty, score >= 0.95, and complete evidence before certification.
+4. Added `check-certification-duplicate-contract.mjs` for duplicate mandatory-evidence rejection.
+5. Added `check-certification-missing-failed-contract.mjs` for missing/failed mandatory evidence rejection.
 
-These are source-level regression guards. They improve repository-executable evidence but do **not** close live production, authenticated E2E, tenant A/B, backup/restore, rollback, or other external operational certification boundaries.
+### New completed work — certification adversarial expansion
+6. Added `check-certification-key-uniqueness-contract.mjs` to prevent duplicate canonical evidence keys.
+7. Added `check-certification-unknown-key-contract.mjs` to ensure scoring remains bound to canonical evidence keys.
+8. Added `check-certification-blocker-propagation-contract.mjs` to preserve non-passing BLOCKER semantics.
+9. Added `check-certification-warning-separation-contract.mjs` to keep WARNING evidence separate from blockers.
+10. Added `check-certification-evidence-preservation-contract.mjs` to preserve the supplied evidence array and deduplicate returned blockers.
+11. Added `check-certification-set-membership-contract.mjs` to bind mandatory-key membership to the canonical Set.
+12. Added `check-certification-adversarial-coverage-contract.mjs` to enforce runtime adversarial cases: missing, failed, duplicate, unrelated, complete.
+13. Added `check-certification-writer-table-coverage-contract.mjs` to protect all four certification proof tables.
+14. Added `check-certification-runtime-test-wiring-contract.mjs` to require the runtime certification harness in both boundary and integrity paths.
+15. Added `check-certification-boundary-workflow-coverage.mjs` to detect dropped certification guard steps.
+16. Extended `.github/workflows/certification-evidence-boundary.yml` to execute the expanded certification guard suite plus existing writer/completeness/queue boundaries.
+17. This expansion is repository-executable evidence only; it does not certify live production or external operational evidence.
 
 ### Repository hardening already completed
 - Release-evidence SHA validation requires exactly 40 hexadecimal characters with adversarial short/long/alphabet cases.
@@ -63,13 +51,14 @@ These are source-level regression guards. They improve repository-executable evi
 - K/L evidence validation is aligned with canonical runtime APIs and tenant/lease invariants.
 - Intelligence foundation fixtures use canonical `aggregateAlternativeGroup` and `buildExecutiveScorecard` APIs.
 - Final certification PR workflow separates PR contract checks from release-only operational evidence.
-- Parallel-runtime fixtures explicitly cover same-tenant allow, cross-tenant deny, and terminal duplicate-transition rejection.
-- Phase-H continuous-trust validation consumes the canonical migration surface instead of a stale migration name.
-- Phase-K runtime closure validation now consumes the canonical production-coordinator bridge API vocabulary.
+- Parallel-runtime fixtures cover same-tenant allow, cross-tenant deny, and terminal duplicate-transition rejection.
+- Phase-H continuous-trust validation consumes canonical migration primitives.
+- Phase-K runtime closure validation consumes canonical production-coordinator bridge APIs.
 
 ### Current dependency/security observation
-- `npm ci` reports **19 dependency vulnerabilities (2 low, 4 moderate, 13 high)**. No blind `npm audit fix` is authorized. Package-level triage is required before release certification.
-- Current direct dependency review confirms `pdfjs-dist` is pinned to `6.2.108`, which is the patched version for the July 2026 PDF.js advisory; no version bump is required for that finding. The direct `xlsx@^0.18.5` dependency remains a separate high-severity triage item because the npm-published 0.18.5 line has known advisories and no normal npm upgrade path. This remains a remediation decision, not a false PASS claim.
+- `npm ci` reports **19 dependency vulnerabilities (2 low, 4 moderate, 13 high)**. No blind `npm audit fix` is authorized.
+- Current direct dependency review confirms `pdfjs-dist@6.2.108` is already on the patched line for the current 2026 PDF.js advisory.
+- `xlsx@0.18.5` remains a separate unresolved high-severity direct dependency decision; no false PASS or blind replacement has been made.
 
 ## PARALLEL CLOSURE TRACKS
 - **P0-A Authenticated Runtime:** real login/session/browser E2E and authenticated operation matrix.
@@ -86,25 +75,28 @@ These are source-level regression guards. They improve repository-executable evi
 Repository-executable fronts continue even when operational fronts are blocked by external access.
 
 ## ENGINEERING TASK BOARD — OPEN IN PARALLEL
-- **T1 Exact-head CI reconciliation:** count only results whose checkout equals current PR head.
-- **T2 Release evidence adversarial validation:** malformed SHA, wrong artifact identity, mismatched manifest/certification SHA, missing run identity, stale evidence.
-- **T3 Folder import adversarial validation:** canonical commit, duplicate detection, traversal/security, parse failure, malformed workbook, cross-tenant attempt.
-- **T4 Workflow coverage/regression audit:** compare package scripts with Quality/Certification/Release workflows and detect dropped coverage.
-- **T5 Security-definer classification:** classify privilege, caller, search_path, grants, tenant guards, exploitability; harden only demonstrated excessive privilege.
-- **T6 Canonical truth adversarial corpus:** missing cost/sale items, invalid numerics, duplicate SKU, currency mismatch, UNKNOWN/INSUFFICIENT_DATA, forecast confidence.
-- **T7 Worker lifecycle security regression:** service-role authority, tenant scope, lease, retry, checkpoint, dead-letter, resume. **Extended with twenty executable repository guards/contracts.**
-- **T8 Document/OCR evidence readiness:** hashes, confidence, normalized output, provenance, duplicate/unknown handling, Golden Corpus scoring.
-- **T9 Performance readiness:** repository-level P95/bounded reads/concurrency; defer live load evidence until runtime.
-- **T10 UX/PWA acceptance preparation:** authenticated mobile/RTL/slow-network/offline/installability evidence cases.
-- **T11 Dependency vulnerability triage:** map all 19 findings to direct/transitive package, code path, exploitability, fixed version, compatibility, and safe remediation. **Advanced: pdfjs-dist 6.2.108 confirmed patched for the current 2026 advisory; xlsx 0.18.5 isolated as the separate unresolved high-severity direct dependency decision.**
-- **T12 Release-only evidence boundary verification:** confirm release-certification is sole producer of run-bound manifest/certification evidence.
-- **T13 Current-head CI reproof:** after each mutation, run and inspect all exact-head gates; repair only real failures.
-- **T14 PR/branch synchronization audit:** ensure PR metadata, branch ref, index, and CI checkout all agree before promoting evidence.
-- **T15 Parallel-runtime adversarial regression:** keep same-tenant allow and cross-tenant deny fixtures explicit; ensure terminal duplicate transitions are rejected without tautological assertions.
-- **T16 Phase-H canonical migration alignment:** keep Phase-H checker vocabulary bound to canonical migration primitives and prevent stale migration-name regressions.
-- **T17 Phase-K canonical runtime alignment:** keep Phase-K checker vocabulary bound to canonical production-coordinator APIs and prevent stale API-name regressions.
+- **T1** Exact-head CI reconciliation.
+- **T2** Release evidence adversarial validation.
+- **T3** Folder import adversarial validation.
+- **T4** Workflow coverage/regression audit.
+- **T5** Security-definer classification.
+- **T6** Canonical truth adversarial corpus.
+- **T7** Worker lifecycle security regression — extended with twenty executable guards/contracts.
+- **T8** Document/OCR evidence readiness.
+- **T9** Performance readiness.
+- **T10** UX/PWA acceptance preparation.
+- **T11** Dependency vulnerability triage — pdfjs patched; xlsx remains unresolved.
+- **T12** Release-only evidence boundary verification.
+- **T13** Current-head CI reproof.
+- **T14** PR/branch synchronization audit.
+- **T15** Parallel-runtime adversarial regression.
+- **T16** Phase-H canonical migration alignment.
+- **T17** Phase-K canonical runtime alignment.
 
 ## RECOVERY BOUNDARY REGISTER
 - **P1-H — Backup / Restore / DR** remains an explicit certification boundary.
 - RPO/RTO are operational evidence requirements, not source-level claims.
 - Backup, restore, migration parity, artifact integrity, rollback, and security audit evidence are required before production certification.
+
+## CERTIFICATION TRUTH
+The expanded source guards strengthen the decision boundary but do not close Production Runtime, Authenticated E2E, Tenant A/B, Backup/Restore, Rollback, or other external operational certification gates. Historical PASS is never promoted to the new head.
