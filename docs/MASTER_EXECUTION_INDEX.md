@@ -8,22 +8,29 @@ This index is authoritative for execution state. Historical PASS is never promot
 - Repository: `Report-Engainall/Report-Advisor`
 - PR: **#294 — OPEN / NOT MERGED**
 - Base: `main` @ `89c8361e85878521c915328f6d0a595663498cd3`
-- Current PR head verified by GitHub: `b51d10225b96b5d5ff2f88a4b168aa90695a6310`
+- Current PR head: `91f41c477ca0d1dd973673021265501ecb6754a4`
 - Current branch: `codex/p0-hardening-integration-20260901`
-- Exact-head CI is required after the latest certification-workflow boundary repair; no final PASS is claimed yet.
+- Exact-head CI is required after the certification-workflow boundary repair; no final PASS is claimed yet.
 
 ### Latest certification finding and repair
-- Exact-head Final Certification run `33521293190` checked out the exact PR head `b51d10225b96b5d5ff2f88a4b168aa90695a6310` successfully.
+- Exact-head Final Certification run `33521293190` checked out `b51d10225b96b5d5ff2f88a4b168aa90695a6310` exactly.
 - The 20-stage release-readiness matrix passed **20/20**.
 - The Final Execution Batch passed **30/30**.
-- The certification contract sweep passed through the repository-executable checks until `check-live-production-evidence-boundary.mjs`.
-- That checker requires a real `RELEASE_CERTIFICATION_RUN_ID` and release artifact identity. Those values intentionally do not exist in PR contract runs; they are produced by the dedicated `release-certification.yml` workflow after a real release-certification run.
-- Updated `.github/workflows/final-certification-gate.yml` so PR certification skips only the two release-only operational evidence consumers: `check-evidence-freshness.mjs` and `check-live-production-evidence-boundary.mjs`.
-- This is not a certification bypass: the dedicated release-certification workflow remains responsible for generating the manifest/certification decision and running freshness validation, while live production evidence remains fail-closed.
+- The certification sweep reached `check-live-production-evidence-boundary.mjs`, which correctly requires real release-certification run/artifact identity unavailable in PR contract runs.
+- PR certification now skips only the release-only operational evidence consumers `check-evidence-freshness.mjs` and `check-live-production-evidence-boundary.mjs`.
+- The dedicated release-certification workflow remains responsible for producing run-bound manifest/certification evidence and live production evidence remains fail-closed.
 
-### Verified exact-head results on the current PR head
-- 20/20 Release Readiness: PASS.
-- 30/30 Final Execution Batch: PASS.
+### Latest repository hardening
+- Release-evidence SHA validation requires exactly 40 hexadecimal characters with adversarial short/long/alphabet cases.
+- Watched-folder import remains bound to canonical `commitImportBatch` persistence/governance.
+- K/L evidence validation is aligned with canonical runtime APIs and tenant/lease invariants.
+- Intelligence foundation fixtures use canonical `aggregateAlternativeGroup` and `buildExecutiveScorecard` APIs.
+- Final certification PR workflow now cleanly separates PR contract checks from release-only operational evidence.
+- The branch was fast-forwarded to `91f41c477ca0d1dd973673021265501ecb6754a4`; this SHA has not yet earned a new CI PASS.
+
+### Verified exact-head historical results
+- 20/20 Release Readiness: PASS on the immediately preceding exact-head cycle.
+- 30/30 Final Execution Batch: PASS on the immediately preceding exact-head cycle.
 - A0 hardening: PASS.
 - Auth/Tenant convergence and authenticated E2E contract matrices: PASS.
 - Global tenant RLS: PASS (22 tenant tables; 139 migrations).
@@ -41,7 +48,7 @@ This index is authoritative for execution state. Historical PASS is never promot
 - Static TODO/FIXME/HACK sweep: no indexed matches in the searched repository surface.
 
 ### Current dependency/security observation
-- `npm ci` on the current exact-head CI reports **19 dependency vulnerabilities (2 low, 4 moderate, 13 high)**. No blind `npm audit fix` is authorized. These require package-level triage for exploitability, runtime exposure, transitive source, and safe lockfile remediation before release certification.
+- `npm ci` reports **19 dependency vulnerabilities (2 low, 4 moderate, 13 high)**. No blind `npm audit fix` is authorized. Package-level triage is required before release certification.
 
 ## PARALLEL CLOSURE TRACKS
 - **P0-A Authenticated Runtime:** real login/session/browser E2E and authenticated operation matrix.
@@ -55,56 +62,23 @@ This index is authoritative for execution state. Historical PASS is never promot
 - **P2-I Operations/UX:** observability, PWA/mobile/RTL/slow-network/offline/installability and recovery UX sweep.
 - **P2-J Acceptance:** independent business acceptance and final evidence completeness.
 
-Repository-executable fronts must continue even when operational fronts are blocked by external access.
+Repository-executable fronts continue even when operational fronts are blocked by external access.
 
 ## NEW ENGINEERING TASK BOARD — OPEN IN PARALLEL
-
-### T1 — Exact-head CI reconciliation
-- Verify every current workflow result against the GitHub-verified PR head.
-- Count only exact-head results; stale SHA, merge-ref, skipped, or absent results are not PASS.
-
-### T2 — Release evidence adversarial validation
-- Exercise malformed SHA, wrong artifact identity, mismatched manifest/certification SHA, missing run identity, and stale evidence.
-- Ensure all fail closed without weakening production evidence boundaries.
-
-### T3 — Folder import adversarial validation
-- Verify canonical commit path, duplicate detection, traversal/security scan, parse failure, malformed workbook, and cross-tenant attempt behavior.
-- Ensure no direct persistence path bypasses canonical import transaction/governance.
-
-### T4 — Workflow coverage / regression audit
-- Compare `package.json` gate inventory against Quality, Final Certification, Release Certification, and dedicated workflows.
-- Detect silently dropped regression coverage or duplicated checks.
-- Do not add aliases solely to satisfy text checks.
-
-### T5 — Security-definer classification
-- Enumerate flagged SECURITY DEFINER functions and classify caller, search_path, grants, tenant/user guards, underlying RLS, intended runtime caller, and exploitability.
-- Retain intentional functions only with explicit justification and tests; harden/revoke only where excessive privilege is demonstrated.
-
-### T6 — Canonical truth adversarial corpus
-- Expand negative cases for missing cost, missing sale items, invalid numeric values, duplicate SKU, currency mismatch, UNKNOWN/INSUFFICIENT_DATA, and forecast confidence.
-- Verify UI/RPC/export semantics remain aligned.
-
-### T7 — Worker lifecycle security regression
-- Verify service-role-only lifecycle authority, tenant scope, lease owner/expiry, retry limits, checkpoint integrity, dead-letter, and resume behavior.
-- Confirm authenticated users cannot directly mutate lifecycle state.
-
-### T8 — Document/OCR evidence readiness
-- Validate file hashes, OCR confidence, normalized output, provenance, duplicate/unknown handling, and Golden Corpus scoring before live execution.
-
-### T9 — Performance readiness
-- Validate declared P95 budgets and bounded reads/concurrency through repository-level checks; defer live load evidence until runtime is available.
-
-### T10 — UX/PWA acceptance preparation
-- Prepare deterministic authenticated mobile/RTL/slow-network/offline/installability cases and evidence IDs so the live acceptance run is execution-ready.
-
-### T11 — Dependency vulnerability triage
-- Inventory the 19 vulnerabilities reported by `npm ci`.
-- Map each to direct/transitive dependency, affected code path, severity/exploitability, fixed version, compatibility impact, and whether remediation can be safely applied.
-- Do not run blanket `npm audit fix`.
-
-### T12 — Release-only evidence boundary verification
-- Confirm the dedicated `release-certification.yml` workflow is the sole producer of run-bound manifest/certification evidence.
-- Verify artifact naming, source SHA, manifest fingerprint, certification decision, freshness, and consumption proof remain exact and fail-closed.
+- **T1 Exact-head CI reconciliation:** count only results whose checkout equals current PR head.
+- **T2 Release evidence adversarial validation:** malformed SHA, wrong artifact identity, mismatched manifest/certification SHA, missing run identity, stale evidence.
+- **T3 Folder import adversarial validation:** canonical commit, duplicate detection, traversal/security, parse failure, malformed workbook, cross-tenant attempt.
+- **T4 Workflow coverage/regression audit:** compare package scripts with Quality/Certification/Release workflows and detect dropped coverage.
+- **T5 Security-definer classification:** classify privilege, caller, search_path, grants, tenant guards, exploitability; harden only demonstrated excessive privilege.
+- **T6 Canonical truth adversarial corpus:** missing cost/sale items, invalid numerics, duplicate SKU, currency mismatch, UNKNOWN/INSUFFICIENT_DATA, forecast confidence.
+- **T7 Worker lifecycle security regression:** service-role authority, tenant scope, lease, retry, checkpoint, dead-letter, resume.
+- **T8 Document/OCR evidence readiness:** hashes, confidence, normalized output, provenance, duplicate/unknown handling, Golden Corpus scoring.
+- **T9 Performance readiness:** repository-level P95/bounded reads/concurrency; defer live load evidence until runtime.
+- **T10 UX/PWA acceptance preparation:** authenticated mobile/RTL/slow-network/offline/installability evidence cases.
+- **T11 Dependency vulnerability triage:** map all 19 findings to direct/transitive package, code path, exploitability, fixed version, compatibility, and safe remediation.
+- **T12 Release-only evidence boundary verification:** confirm release-certification is sole producer of run-bound manifest/certification evidence.
+- **T13 Current-head CI reproof:** after workflow repair, run and inspect all exact-head gates; repair only real failures.
+- **T14 PR/branch synchronization audit:** ensure PR metadata, branch ref, index, and CI checkout all agree before promoting evidence.
 
 ## RECOVERY BOUNDARY REGISTER
 - **P1-H — Backup / Restore / DR** remains an explicit certification boundary.
