@@ -11,7 +11,7 @@ This file is the authoritative execution index. Historical PASS remains historic
 - Current `main` release baseline: `17a49420c70faca143cf7cc58ad11aae6edcb662`.
 - Owner integration PR: **#294**, OPEN / NOT MERGED.
 - This execution wave adds implementation PR **#300**, OPEN / NOT MERGED.
-- PR #300 head: `c8f417e2ce77a363ad9562b5ef5feaefc9fb0d14`.
+- PR #300 head advances beyond the previously indexed `c8f417e...` through the execution fixes below.
 - Do not call branch-local hardening PASS `main` PASS until exact-head CI and merge conditions are satisfied.
 
 ## Latest Executed Cycle — 2026-09-01
@@ -30,6 +30,10 @@ This file is the authoritative execution index. Historical PASS remains historic
 10. **Executable regression coverage:** focused boundary tests were added for canonical intelligence, metrics, AI tenant policy and report-fact evidence.
 11. **CI contracts:** read-only GitHub Actions workflows and deterministic runners were added for the four hardening surfaces.
 12. **Release integration:** all of the above were consolidated onto one implementation branch and opened as PR #300 instead of mutating production aliases or fabricating runtime evidence.
+13. **CI topology repair:** removed the duplicate `main` push trigger from `final-execution-batch.yml`, leaving its explicit manual execution path intact.
+14. **Tenant-isolation workflow repair:** removed the duplicate `main` push trigger from `storage-tenant-isolation.yml`, preserving PR and manual execution.
+15. **File-security ESM repair:** normalized `security.ts` imports to explicit `.ts` module paths so the archive traversal regression can execute under Node's ESM resolver.
+16. **CI credential hardening:** disabled persisted checkout credentials in the file-intelligence security workflow.
 
 ### Exact implementation SHAs
 
@@ -38,19 +42,19 @@ This file is the authoritative execution index. Historical PASS remains historic
 - AI tenant policy: `ea8d89efe485ae5d710d36983662a0b2b3700ba3`
 - Report-fact provenance/confidence: `8043d9ec069d110922b01997e5578c7e34d4d64e`
 - Metric boundary hardening: `a284144b5d614c2991712a596992394f52dbb203`
-- Integrated regression/CI branch final HEAD: `c8f417e2ce77a363ad9562b5ef5feaefc9fb0d14`
+- Latest execution fix commits: `a857f4404b8c99bbd4da3b264b59c65d3f2a3751`, `29a99caf0f59178cfe9fb3fdf373d5e02a6ad232`, `15159f207402ac8a0df4f169d0505925c4744f15`, `95bb48acc2a694a9bf9c948cc1cbade3f4ff37ee`
 
 ## Verification Truth
 
-- The implementation changes were committed successfully to the integration branch.
-- PR #300 was opened against current `main`.
-- Current GitHub combined status for PR #300 HEAD contains a Vercel failure caused by the known deployment quota (`api-deployments-free-per-day`); this is an external deployment blocker, not evidence that the hardening code failed.
-- No local Vitest PASS is claimed because the current execution environment does not provide a valid local repository test runtime.
+- The latest exact-head CI evidence for the pre-fix PR #300 merge ref showed **20/20 release-readiness stages PASS**, while the quality job failed specifically at CI topology because three workflows were independently declaring a canonical `main` push trigger.
+- The same exact-head run exposed a separate file-security regression failure: Node ESM could not resolve the extensionless `./types` import from `security.ts`; this was corrected on the branch.
+- File-intelligence security contract itself passed before the archive traversal test reached the import-resolution failure.
+- The latest status still includes the known Vercel deployment quota failure; this remains external and does not become a code PASS.
 - No production certification, authenticated tenant A/B PASS, backup/restore PASS, rollback PASS, or Vercel runtime PASS is claimed.
 
 ## Current Operational Truth / Blockers
 
-1. **Exact-head CI:** PR #300 requires actual CI execution and exact-head verification.
+1. **Exact-head CI:** must re-run against the post-fix PR #300 head.
 2. **Security:** Advisor findings require per-function analysis; leaked-password protection remains an operational configuration gap.
 3. **Authenticated A/B:** no operational credentials/sessions available for honest LIVE E2E evidence.
 4. **Backup/Restore:** no real PASS run yet.
@@ -62,7 +66,7 @@ This file is the authoritative execution index. Historical PASS remains historic
 ## Parallel Execution Board
 
 ### P0-A — PR #300 exact-head closure
-- Obtain real GitHub Actions execution on PR #300.
+- Obtain real GitHub Actions execution on the post-fix head.
 - Run boundary tests, typecheck, lint, build, regression and security gates.
 - Fix only actual failures.
 - Merge only after required exact-head gates pass.
@@ -174,4 +178,4 @@ ONE EXACT RELEASE SHA
 
 ## OWNER DECISION
 
-The project remains in **PROVE → CERTIFY → RELEASE**, not BUILD. This execution cycle materially advanced implementation across canonical intelligence, financial decision safety, metric truth, AI tenant isolation and evidence provenance. The work is not promoted to production certification until exact-head CI and the remaining live operational gates are closed.
+The project remains in **PROVE → CERTIFY → RELEASE**, not BUILD. This cycle materially closed five executable defects/hardening items: CI topology duplication, storage trigger duplication, Node ESM file-security resolution, and persisted CI credentials, while preserving the existing hardening work. Exact-head CI must now prove the post-fix state before any merge or certification decision.
