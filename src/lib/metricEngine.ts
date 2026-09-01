@@ -29,7 +29,7 @@ const boundedConfidence = (value: unknown) => {
 };
 const validSourceRows = (value: unknown) => typeof value === 'number' && Number.isInteger(value) && value > 0;
 const safeNumericValue = (value: unknown): number | null => {
-  if (value == null || typeof value === 'symbol' || typeof value === 'bigint') return null;
+  if (value == null || typeof value === 'symbol' || typeof value === 'bigint' || typeof value === 'boolean') return null;
   if (typeof value === 'number') return Number.isFinite(value) ? value : null;
   if (typeof value !== 'string' || !value.trim()) return null;
   const numeric = Number(value.trim());
