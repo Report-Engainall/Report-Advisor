@@ -42,7 +42,10 @@ export function protectCashReserve(input: { openingCash: number; minimumReserveP
   const valid = isFiniteNumber(input.openingCash)
     && isFiniteNumber(input.committedOutflow)
     && isFiniteNumber(input.collectibleInflow)
-    && (input.minimumReservePct === undefined || isFiniteNumber(input.minimumReservePct));
+    && input.openingCash >= 0
+    && input.committedOutflow >= 0
+    && input.collectibleInflow >= 0
+    && (input.minimumReservePct === undefined || (isFiniteNumber(input.minimumReservePct) && input.minimumReservePct >= 0 && input.minimumReservePct <= 100));
   const openingCash = nonNegativeFinite(input.openingCash);
   const minimumReservePct = clamp(input.minimumReservePct ?? 20, 0, 100);
   const minimumReserve = openingCash * minimumReservePct / 100;
