@@ -8,34 +8,40 @@ This index is authoritative for execution state. Historical PASS is never promot
 - Repository: `Report-Engainall/Report-Advisor`
 - PR: **#294 — OPEN / NOT MERGED**
 - Base: `main` @ `89c8361e85878521c915328f6d0a595663498cd3`
-- Current execution head: `9be1f46cc5e58690bbc2f1ce627aed2e2760c415`
+- Current execution head: `4a87de57813bd8161b3fb20f569f25016cac774a`
 - Current branch: `codex/p0-hardening-integration-20260901`
-- Exact-head CI is required after the latest K/L evidence-checker repair; no final PASS is claimed yet.
+- Exact-head CI is required after the latest release-evidence and folder-import hardening; no final PASS is claimed yet.
 
-### Latest executed work
-- Exact-head certification on `71936266efb39d0c2be68292cc15fe0e6cb71101` passed the **20/20 release-readiness matrix** and reached **30/30 Final Execution Batch** before failing at `check-k-l-execution-evidence-chain.mjs`.
-- The failure was a checker/API naming mismatch: the runtime implements canonical consolidation through `consolidateByPrecedence`, while the checker required the literal token `consolidation`.
-- Repaired the checker to validate canonical runtime APIs using explicit alternatives: `buildLineage/diffRows`, `consolidateByPrecedence/consolidateRuntime`, `selectBoundedScenario/chooseScenario`, `rankPortfolio/prioritizeDecisions`, `RuntimeEvidence/recordEvidenceEdge/recordExecutiveEvidenceEdge`, `controlPlaneHealth/recordHealth/recordControlPlaneHealth`, and `evaluateAutonomyGate/canAutonomouslyExecute/autonomyRuntimeGate`.
-- Tenant/lease invariants remain mandatory: `company_id`, `current_company_id`, `lease_owner`, `lease_expires_at`.
-- No production runtime behavior was weakened and no bypass was added.
-- Latest branch head after the repair is `9be1f46...` and is now reflected accurately in this index.
+### Latest executed hardening batch
+- Hardened release-evidence SHA validation to require exactly 40 hexadecimal characters, including adversarial tests for invalid alphabet, short, and long SHAs.
+- Restored an explicit watched-folder import security guard so the folder importer cannot bypass the canonical `commitImportBatch` path.
+- Added concise executable documentation to both hardened contracts.
+- These changes are source-level hardening only and do not manufacture runtime/production evidence.
+
+### Verified historical execution
+- Exact-head certification on `71936266efb39d0c2be68292cc15fe0e6cb71101` passed the **20/20 release-readiness matrix** and reached **30/30 Final Execution Batch** before the K/L evidence-chain checker failure.
+- K/L checker repair aligned validation with canonical runtime APIs: `buildLineage/diffRows`, `consolidateByPrecedence/consolidateRuntime`, `selectBoundedScenario/chooseScenario`, `rankPortfolio/prioritizeDecisions`, `RuntimeEvidence/recordEvidenceEdge/recordExecutiveEvidenceEdge`, `controlPlaneHealth/recordHealth/recordControlPlaneHealth`, and `evaluateAutonomyGate/canAutonomouslyExecute/autonomyRuntimeGate`.
+- Governance checker was aligned with canonical governance migrations rather than a nonexistent migration name.
+- Intelligence foundation fixtures were aligned with the canonical `aggregateAlternativeGroup` and `buildExecutiveScorecard` APIs.
+- Exact-head workflow identity was hardened to compare checked-out `git rev-parse HEAD` against the PR head SHA.
+- Production Scale is an explicit Quality gate.
 
 ### Verification and audit sweep
 - 20-stage release readiness: **20/20 PASS** on the immediately preceding exact-head cycle.
 - Final execution batch: **30/30 PASS** before the K/L evidence-chain failure.
-- A0 hardening, Auth/Tenant convergence, authenticated E2E contract matrices, autonomy safety: PASS.
-- Global tenant RLS: PASS (22 tenant tables; 139 migrations).
-- Import security/transaction/runtime, canonical mapping and tenant context: PASS.
-- Document Intelligence: **20/20 PASS**.
-- DR source-level contracts/readiness: PASS.
-- Evidence lineage/provenance/regression: PASS.
-- Governance Runtime: PASS.
-- Decision authorization/DML/work-item/outcome: PASS.
-- Production Scale: PASS.
-- Certification immutability/manifest: PASS.
-- Golden dataset/evidence/intelligence/score identity: PASS.
-- Windows contract and Storage tenant isolation: PASS.
-- Static repository sweep found no indexed `TODO`, `FIXME`, `HACK`, `XXX`, or debug `console.log` matches in the searchable repository surface.
+- A0 hardening, Auth/Tenant convergence, authenticated E2E contract matrices, autonomy safety: PASS historically; current SHA must be re-proven.
+- Global tenant RLS: PASS historically (22 tenant tables; 139 migrations).
+- Import security/transaction/runtime, canonical mapping and tenant context: PASS historically.
+- Document Intelligence: **20/20 PASS** historically.
+- DR source-level contracts/readiness: PASS historically.
+- Evidence lineage/provenance/regression: PASS historically.
+- Governance Runtime: PASS historically.
+- Decision authorization/DML/work-item/outcome: PASS historically.
+- Production Scale: PASS historically.
+- Certification immutability/manifest: PASS historically.
+- Golden dataset/evidence/intelligence/score identity: PASS historically.
+- Windows contract and Storage tenant isolation: PASS historically.
+- Static repository sweep previously found no indexed `TODO`, `FIXME`, `HACK`, `XXX`, or debug `console.log` matches in the searchable repository surface.
 
 ## PARALLEL CLOSURE TRACKS
 - **P0-A Authenticated Runtime:** real login/session/browser E2E and authenticated operation matrix.
@@ -50,6 +56,47 @@ This index is authoritative for execution state. Historical PASS is never promot
 - **P2-J Acceptance:** independent business acceptance and final evidence completeness.
 
 Repository-executable fronts must continue even when operational fronts are blocked by external access.
+
+## NEW ENGINEERING TASK BOARD — OPEN IN PARALLEL
+
+### T1 — Exact-head CI reconciliation
+- Verify every current workflow result against `4a87de57813bd8161b3fb20f569f25016cac774a`.
+- Count only exact-head results; `IN_PROGRESS`, `SKIPPED`, stale SHA, and merge-ref results are not PASS.
+- First actionable failure becomes the next minimal repair target.
+
+### T2 — Release evidence adversarial validation
+- Exercise malformed SHA, wrong artifact identity, mismatched manifest/certification SHA, missing run identity, and stale evidence.
+- Ensure all fail closed without weakening production evidence boundaries.
+
+### T3 — Folder import adversarial validation
+- Verify canonical commit path, duplicate detection, traversal/security scan, parse failure, malformed workbook, and cross-tenant attempt behavior.
+- Ensure no direct persistence path bypasses canonical import transaction/governance.
+
+### T4 — Workflow coverage / regression audit
+- Compare `package.json` gate inventory against Quality, Final Certification, Release Certification, and dedicated workflows.
+- Detect silently dropped regression coverage or duplicated checks.
+- Do not add aliases solely to satisfy text checks.
+
+### T5 — Security-definer classification
+- Enumerate flagged SECURITY DEFINER functions and classify caller, search_path, grants, tenant/user guards, underlying RLS, intended runtime caller, and exploitability.
+- Retain intentional functions only with explicit justification and tests; harden/revoke only where excessive privilege is demonstrated.
+
+### T6 — Canonical truth adversarial corpus
+- Expand negative cases for missing cost, missing sale items, invalid numeric values, duplicate SKU, currency mismatch, UNKNOWN/INSUFFICIENT_DATA, and forecast confidence.
+- Verify UI/RPC/export semantics remain aligned.
+
+### T7 — Worker lifecycle security regression
+- Verify service-role-only lifecycle authority, tenant scope, lease owner/expiry, retry limits, checkpoint integrity, dead-letter, and resume behavior.
+- Confirm authenticated users cannot directly mutate lifecycle state.
+
+### T8 — Document/OCR evidence readiness
+- Validate file hashes, OCR confidence, normalized output, provenance, duplicate/unknown case handling, and Golden Corpus scoring before live execution.
+
+### T9 — Performance readiness
+- Validate declared P95 budgets and bounded reads/concurrency through repository-level checks; defer live load evidence until a suitable runtime is available.
+
+### T10 — UX/PWA acceptance preparation
+- Prepare deterministic authenticated mobile/RTL/slow-network/offline/installability cases and evidence IDs so the live acceptance run is execution-ready.
 
 ## RECOVERY BOUNDARY REGISTER
 - **P1-H — Backup / Restore / DR** remains an explicit certification boundary.
