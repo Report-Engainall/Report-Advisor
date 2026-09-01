@@ -30,7 +30,9 @@ const boundedConfidence = (value: unknown) => {
 const validSourceRows = (value: unknown) => typeof value === 'number' && Number.isInteger(value) && value > 0;
 const safeNumericValue = (value: unknown): number | null => {
   if (value == null || typeof value === 'symbol' || typeof value === 'bigint') return null;
-  const numeric = typeof value === 'number' ? value : Number(value);
+  if (typeof value === 'number') return Number.isFinite(value) ? value : null;
+  if (typeof value !== 'string' || !value.trim()) return null;
+  const numeric = Number(value.trim());
   return Number.isFinite(numeric) ? numeric : null;
 };
 const validStatus = (value: unknown): value is MetricStatus =>
