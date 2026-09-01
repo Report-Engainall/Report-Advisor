@@ -3,11 +3,13 @@ on:
   pull_request:
     branches: [main]
     paths:
+      - 'src/**'
       - 'src/lib/brand.ts'
       - 'src/pages/LoginPage.tsx'
       - 'src/components/Sidebar.tsx'
       - 'index.html'
       - 'scripts/check-brand-identity-contract.mjs'
+      - 'scripts/check-brand-identity-source-sweep.mjs'
       - '.github/workflows/brand-identity-contract.yml'
   workflow_dispatch:
 permissions:
@@ -26,3 +28,5 @@ jobs:
           node-version: 22
       - name: Verify Alaghbari brand identity
         run: node scripts/check-brand-identity-contract.mjs
+      - name: Sweep retired brand identity from source
+        run: node scripts/check-brand-identity-source-sweep.mjs
