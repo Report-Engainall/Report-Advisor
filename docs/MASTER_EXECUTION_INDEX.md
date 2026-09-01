@@ -9,7 +9,7 @@ This index is authoritative for execution state. Historical PASS is never promot
 - PR: **#294 — OPEN / NOT MERGED**
 - Base: `main` @ `89c8361e85878521c915328f6d0a595663498cd3`
 - Current branch: `codex/p0-hardening-integration-20260901`
-- Execution head immediately before this index update: `2e4b69248a5cee6dcf1e5094723f18c681943b33`
+- Execution head immediately before this index update: `17761aef99e3e3ae12c411c2a6a8cac655930cf3`
 - This index update itself advances the branch; therefore the next exact-head CI target is the commit produced by this update.
 - Exact-head CI is required after every source/workflow mutation; no final PASS is claimed until that exact SHA is verified.
 
@@ -46,6 +46,15 @@ This index is authoritative for execution state. Historical PASS is never promot
 6. Extended `.github/workflows/worker-hardening-contract.yml` with five additional executable contracts: RPC signatures, boolean/affected-row return semantics, `updated_at` mutation, active-state restrictions, and completion evidence persistence.
 7. Current exact-head workflow state is **not yet certified PASS**; the index update itself creates a new exact-head CI target.
 
+### New completed work — certification evidence decision hardening
+1. Added `check-certification-evidence-order-contract.mjs` to lock the canonical mandatory evidence order: tenant, backup, rollback, artifact, security.
+2. Added `check-certification-score-contract.mjs` to require score derivation from the canonical mandatory evidence set rather than an independent denominator/input.
+3. Added `check-certification-fail-closed-contract.mjs` to require certification only when blockers are empty, score is at least 0.95, and evidence is complete.
+4. Added `check-certification-duplicate-contract.mjs` to require explicit duplicate mandatory-evidence detection and blocker emission.
+5. Added `check-certification-missing-failed-contract.mjs` to require explicit missing and failed mandatory-evidence detection.
+6. Extended `.github/workflows/certification-evidence-boundary.yml` to execute all five new certification decision contracts alongside the existing writer/completeness/queue boundaries.
+7. Current exact-head CI state is **not yet certified PASS**; these changes create a new exact-head CI target.
+
 These are source-level regression guards. They improve repository-executable evidence but do **not** close live production, authenticated E2E, tenant A/B, backup/restore, rollback, or other external operational certification boundaries.
 
 ### Repository hardening already completed
@@ -60,6 +69,7 @@ These are source-level regression guards. They improve repository-executable evi
 
 ### Current dependency/security observation
 - `npm ci` reports **19 dependency vulnerabilities (2 low, 4 moderate, 13 high)**. No blind `npm audit fix` is authorized. Package-level triage is required before release certification.
+- Current direct dependency review confirms `pdfjs-dist` is pinned to `6.2.108`, which is the patched version for the July 2026 PDF.js advisory; no version bump is required for that finding. The direct `xlsx@^0.18.5` dependency remains a separate high-severity triage item because the npm-published 0.18.5 line has known advisories and no normal npm upgrade path. This remains a remediation decision, not a false PASS claim.
 
 ## PARALLEL CLOSURE TRACKS
 - **P0-A Authenticated Runtime:** real login/session/browser E2E and authenticated operation matrix.
@@ -86,7 +96,7 @@ Repository-executable fronts continue even when operational fronts are blocked b
 - **T8 Document/OCR evidence readiness:** hashes, confidence, normalized output, provenance, duplicate/unknown handling, Golden Corpus scoring.
 - **T9 Performance readiness:** repository-level P95/bounded reads/concurrency; defer live load evidence until runtime.
 - **T10 UX/PWA acceptance preparation:** authenticated mobile/RTL/slow-network/offline/installability evidence cases.
-- **T11 Dependency vulnerability triage:** map all 19 findings to direct/transitive package, code path, exploitability, fixed version, compatibility, and safe remediation.
+- **T11 Dependency vulnerability triage:** map all 19 findings to direct/transitive package, code path, exploitability, fixed version, compatibility, and safe remediation. **Advanced: pdfjs-dist 6.2.108 confirmed patched for the current 2026 advisory; xlsx 0.18.5 isolated as the separate unresolved high-severity direct dependency decision.**
 - **T12 Release-only evidence boundary verification:** confirm release-certification is sole producer of run-bound manifest/certification evidence.
 - **T13 Current-head CI reproof:** after each mutation, run and inspect all exact-head gates; repair only real failures.
 - **T14 PR/branch synchronization audit:** ensure PR metadata, branch ref, index, and CI checkout all agree before promoting evidence.
