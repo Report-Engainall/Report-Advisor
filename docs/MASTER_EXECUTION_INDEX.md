@@ -11,6 +11,7 @@ This file is the authoritative execution index. Historical PASS remains historic
 - Current `main` release baseline: `17a49420c70faca143cf7cc58ad11aae6edcb662`.
 - Owner integration PR: **#294**, OPEN / NOT MERGED.
 - This execution wave adds implementation PR **#300**, OPEN / NOT MERGED.
+- Active branch: `codex/release-hardening-integration-20260901`.
 - Do not call branch-local hardening PASS `main` PASS until exact-head CI and merge conditions are satisfied.
 
 ## Executed Work — 2026-09-01 → 2026-09-02
@@ -115,14 +116,25 @@ This file is the authoritative execution index. Historical PASS remains historic
 98. **Metric identity normalization:** surrounding whitespace is removed from metric keys before registry lookup and emitted fact identity, preventing whitespace variants from creating ambiguous identities.
 99. **Metric warning element hardening:** warning arrays are accepted only when every element is a string; mixed/non-string warning payloads fail closed to an empty trusted warning set.
 100. **Metric deterministic boundary runner:** added a dedicated executable metric boundary runner and PR/manual GitHub Actions contract using Node 22 with persisted checkout credentials disabled.
+101. **Metric runner canonicalization:** `test:metric-boundary` now points to the dedicated `check-metric-boundary-contract.mjs` runner, removing command ambiguity between two equivalent metric runners.
+102. **Metric CI execution alignment:** the metric boundary workflow now executes the package-level canonical command instead of bypassing package wiring, keeping local and CI execution identical.
+103. **Metric CI scope/efficiency hardening:** the metric boundary workflow now has explicit path filters, a five-minute timeout, and cancel-in-progress concurrency so stale PR runs do not consume unnecessary CI capacity.
+104. **Metric wiring contract:** added an executable contract that verifies package command, canonical runner, boundary test path, credential persistence hardening and CI timeout are all wired consistently.
+105. **Release-readiness wiring gate:** added stage 25 for metric-boundary wiring, making broken package/CI contract wiring a release-readiness failure rather than an implicit assumption.
 
 ## Exact implementation chain
 
 - Branch: `codex/release-hardening-integration-20260901`
-- Latest metric runtime commit: `7b795eb64e452a21a52afea63715177f728301b6`
-- Latest metric regression commit: `9eee85a51843bd59f5acdc5140236db7a202da5f`
+- Metric runtime commit: `7b795eb64e452a21a52afea63715177f728301b6`
+- Metric regression commit: `9eee85a51843bd59f5acdc5140236db7a202da5f`
 - Dedicated metric runner commit: `5e1e1801a377f9bc47e51258ecf136253b2d9446`
 - Dedicated metric CI commit: `86ebce4686894358b4f29c85a5d5e1f954bf0350`
+- Canonical package wiring commit: `e103f3b29b4862738a866871fb42f56eb49f18ce`
+- Metric CI tightening commit: `d45a6a6b54d12f048b838d39f962f77cf01347df`
+- Metric wiring contract commit: `f0b92bd17b245f0035948379cbd36cfffeb2b83c`
+- Metric wiring package exposure commit: `ed75fd069c4f90c96dc914b19f5271c41ef7865f`
+- Metric wiring CI commit: `e8e7197008a550f27a4ed89f8809ce5a19b6bcf2`
+- Release-readiness stage 25 commit: `3d40d11c9988db62881e980a04450adc13a2a8ba`
 - This index update is documentation-only and must not be treated as code certification.
 
 ## Certification Boundaries
