@@ -31,10 +31,16 @@ assert(!traversal.passed && traversal.isZipTraversal, 'parent traversal entry mu
 const nestedTraversal = scan('reports/../../outside.txt');
 assert(!nestedTraversal.passed && nestedTraversal.isZipTraversal, 'nested parent traversal entry must be rejected');
 
+const windowsTraversal = scan('reports\\..\\outside.txt');
+assert(!windowsTraversal.passed && windowsTraversal.isZipTraversal, 'backslash parent traversal entry must be rejected');
+
 const absolute = scan('/absolute/path.txt');
 assert(!absolute.passed && absolute.isZipTraversal, 'absolute POSIX entry path must be rejected');
 
 const windowsAbsolute = scan('C:/absolute/path.txt');
 assert(!windowsAbsolute.passed && windowsAbsolute.isZipTraversal, 'absolute Windows entry path must be rejected');
+
+const nulPath = scan('reports/\0outside.txt');
+assert(!nulPath.passed && nulPath.isZipTraversal, 'NUL-containing entry path must be rejected');
 
 console.log('File security archive traversal: PASS');
