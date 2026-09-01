@@ -17,6 +17,14 @@ jobs:
       - uses: actions/setup-node@v7
         with:
           node-version: 22
+      - name: Verify certification workflow security contract
+        run: node scripts/check-certification-workflow-security-contract.mjs
+      - name: Verify certification workflow trigger contract
+        run: node scripts/check-certification-workflow-trigger-contract.mjs
+      - name: Verify certification workflow referenced files
+        run: node scripts/check-certification-workflow-referenced-files.mjs
+      - name: Verify certification boundary workflow coverage
+        run: node scripts/check-certification-boundary-workflow-coverage.mjs
       - name: Verify certification evidence write boundary
         run: node scripts/check-certification-evidence-write-boundary.mjs
       - name: Verify certification completeness boundary
