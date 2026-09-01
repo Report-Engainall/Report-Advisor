@@ -124,3 +124,6 @@ Source-level work can continue; Windows native/installer and authenticated produ
 - Staging operational counts after the rolled-back probe remain zero for `report_execution_jobs`, `watched_report_folders`, `watched_report_files`, `backup_verification_runs`, `production_rollback_drills`, and `autonomy_rollback_drills`.
 - Supabase advisors were re-read. Security still reports authenticated SECURITY DEFINER warnings and leaked-password protection remains a configuration blocker; these are not reclassified as new defects because the existing security boundary was already provisionally closed and the affected authenticated functions are intentional API boundaries. Performance findings remain INFO-level unused-index notices; no index was removed without workload evidence.
 - Backup/restore remains procedure/runtime-bound: Supabase's current documented path supports `supabase db dump` for logical artifacts and restore to an isolated/new target; the production restore itself remains an operational drill. 
+
+
+- Staging authenticated tenant-boundary probe executed under `authenticated` role with tenant A context: `A → A` watched-folder create was allowed; `A → B` direct create was denied by the database boundary. The whole probe rolled back and left no persistent fixture.
