@@ -10,7 +10,7 @@ This file is the authoritative execution index. Historical PASS remains historic
 - Independent release-readiness judgment: advanced Release Candidate; **NOT Production Certified / NOT Sellable yet**.
 - Current `main` release baseline: `89c8361e85878521c915328f6d0a595663498cd3`.
 - Owner integration PR: **#294**, OPEN / NOT MERGED.
-- PR #294 current exact head: `fcb1ac527fbe7b54c15fe45752af9f130b6b6c58`.
+- PR #294 current exact head: `19f7d4028bf7558da6f93b7d17be5c000eebb9d4`.
 - PR #294 base SHA: `89c8361e85878521c915328f6d0a595663498cd3`.
 - `e2d7f57e4a4eab3327b54d762427a46e4d3a3264` is an index-referenced integration candidate only; it is NOT the current PR #294 HEAD.
 - The prior frozen candidate `dc8d1be34a98d0766fd0baaba29effaf8bf9ed44` remains a historical candidate and is not certified by this documentation-only reconciliation commit.
@@ -350,3 +350,12 @@ Production certification                          NO
 - Repository migration added: `supabase/migrations/20260901150000_harden_worker_runtime_authority.sql`, preserving service-worker execution while removing browser mutation authority.
 - This is a genuine security/least-privilege fix, not a blanket Advisor suppression. User-facing decision/evidence RPCs were not revoked.
 - The security state therefore moves from **PROVISIONALLY CLOSED** to **HARDENED IN STAGING / REQUIRES EXACT-HEAD CI + PRODUCTION MIGRATION APPLICATION**.
+
+
+## CYCLE 22 — FINAL CERTIFICATION CONTRACT REPAIR — 2026-09-01
+
+- Exact-head Final Certification Gate on `edd1f795489cd42ebccfc0ef2bd82317f530231e` exposed three stale contract assumptions: J runtime expected literal `dead-letter` while canonical code uses `deadletter`; recovery checker searched for superseded filenames; K→S checker expected a quality script name that was not actually executed by `quality.yml`.
+- All three were repaired against canonical repository/runtime surfaces.
+- `quality.yml` now executes `check-k-to-s-runtime-integration.mjs` directly, making the K→S contract an actual CI gate rather than an implied contract.
+- New exact head: `19f7d4028bf7558da6f93b7d17be5c000eebb9d4`.
+- Awaiting exact-head CI. No certification claim is made until the new Final Certification Gate and Quality complete successfully.
