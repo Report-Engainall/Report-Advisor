@@ -10,6 +10,7 @@ const files = [
   'scripts/check-evidence-lineage-contract.mjs',
   'scripts/check-phase11-e2e-performance-closure.mjs',
   'scripts/check-storage-tenant-isolation.mjs',
+  'scripts/check-platform-boundary-contract.mjs',
   'supabase/migrations/20260825150000_phase_m_certification_bundle.sql',
 ];
 
@@ -51,8 +52,7 @@ for (const token of ['fail-closed', 'blocker', 'production']) {
 }
 
 // Security-grant inspection is deliberately scoped to the certification SQL migration.
-// The contract test itself contains the forbidden phrase as a negative assertion, so
-// scanning all component source would produce a false positive.
+// Contract tests may contain forbidden phrases as negative assertions.
 const certificationMigration = fs
   .readFileSync(path.join(root, 'supabase/migrations/20260825150000_phase_m_certification_bundle.sql'), 'utf8')
   .toLowerCase();
