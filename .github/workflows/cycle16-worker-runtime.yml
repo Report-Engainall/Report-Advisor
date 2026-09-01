@@ -2,7 +2,7 @@ name: Cycle 16 Worker Runtime
 
 on:
   pull_request:
-  push:
+  workflow_dispatch:
 
 permissions:
   contents: read
