@@ -1,7 +1,6 @@
 name: Report Facts Confidence Boundary
 on:
   pull_request:
-  push:
 
 permissions:
   contents: read
