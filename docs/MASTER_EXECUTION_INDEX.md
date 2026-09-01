@@ -8,31 +8,32 @@ This index is authoritative for execution state. Historical PASS is never promot
 - Repository: `Report-Engainall/Report-Advisor`
 - PR: **#294 — OPEN / NOT MERGED**
 - Base: `main` @ `89c8361e85878521c915328f6d0a595663498cd3`
-- Current execution head: `f6ff957f14f0e1140af3f95a4404c3d4ad9caa46`
+- Current execution head: `4d8cb88576c42aedd9d5e440614f8481c9d5ad33`
 - Current branch: `codex/p0-hardening-integration-20260901`
-- Exact-head CI is required after the latest architecture/Quality gate repair; no final PASS is claimed yet.
+- Exact-head CI is required after the latest Phase-1 exact-head assertion repair; no final PASS is claimed yet.
 
 ### Latest executed repair
-- Exact-head Final Certification on `19608dd53b582d70c1ab90ae053ca3646ce31585` reached **19/20 PASS** in the release-readiness matrix.
-- The sole failing stage was `03-architecture / test:contracts`, which correctly exposed that `quality.yml` did not explicitly execute `npm run test:production-scale`.
-- Added the missing canonical `npm run test:production-scale` execution to Quality. No alias, bypass, or weakened assertion was introduced.
-- All other 19 release-readiness stages passed on that exact SHA, including build/typecheck, lint, auth/tenant, RLS, migration audit/dependencies, import security/transaction/runtime, file/schema/document/data/business/decision intelligence, watched-folder, production resilience, and release blockers.
-- New exact head: `f6ff957f14f0e1140af3f95a4404c3d4ad9caa46`.
+- Final Certification run `33516061527` and Quality run `33516061611` were inspected at the log level.
+- Both were executing the older exact SHA `a09c90027870dd687ab92871a7cff5682e07a1dc`, not the newer candidate. This explains why they could not validate later fixes.
+- Quality's Phase-1 checker failed on an outdated assertion requiring literal `${GITHUB_SHA}` syntax, while the canonical workflow correctly uses the PR head SHA expression and compares it to `git rev-parse HEAD`.
+- Updated `scripts/check-phase1-foundation-closure.mjs` to validate the actual fail-closed exact-head contract rather than a superseded syntax pattern.
+- New exact head: `4d8cb88576c42aedd9d5e440614f8481c9d5ad33`.
 
-### Verified in immediately preceding exact-head cycle
-- Final Certification: **19/20 release-readiness stages PASS**, one architecture gate failure repaired above.
-- Production-chain-guard: PASS.
-- Phase 3 data/import truth: PASS.
-- Worker Runtime: PASS.
-- Golden Evidence Integrity: PASS.
-- Storage tenant isolation: PASS.
-- Security-definer exposure: PASS.
-- Canonical truth: PASS.
-- Inventory intelligence: PASS.
-- Windows contract: PASS.
-- OCR Confidence Contract: PASS.
-- Dashboard numeric/null truth: PASS.
-- Direct truth writers: PASS.
+### Verified on the inspected exact-head cycle
+- 20-stage release readiness: **19/20 PASS** before the Phase-1 repair; all stages except architecture passed.
+- Build/typecheck: PASS.
+- Lint: PASS.
+- Auth/tenant: PASS.
+- Global RLS: PASS.
+- Migration schema/dependencies: PASS.
+- Import security/transaction/runtime: PASS.
+- File/schema/document/data/business/decision intelligence: PASS.
+- Watched-folder: PASS.
+- Production resilience: PASS.
+- Production scale: PASS.
+- Release blockers: PASS.
+- Separate integrity/security/truth workflows: PASS.
+- `production-chain-guard`: PASS.
 
 ### Security hardening already applied
 - Worker lifecycle RPCs are restricted to `service_role`; authenticated EXECUTE was revoked for checkpoint/complete/fail/heartbeat/retry operations.
