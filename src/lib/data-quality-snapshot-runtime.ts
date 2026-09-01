@@ -1,9 +1,6 @@
 import { supabase } from './supabase';
 import {
   validateDataQualitySnapshot,
-  type DataQualitySnapshot,
-  type EntityQuality,
-  type QualityIssue,
 } from './data-quality-snapshot-core';
 
 export type { DataQualitySnapshot, EntityQuality, QualityIssue } from './data-quality-snapshot-core';
