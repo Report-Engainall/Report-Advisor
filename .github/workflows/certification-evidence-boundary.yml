@@ -21,6 +21,10 @@ jobs:
         run: node scripts/check-certification-workflow-security-contract.mjs
       - name: Verify certification workflow trigger contract
         run: node scripts/check-certification-workflow-trigger-contract.mjs
+      - name: Verify certification workflow action contract
+        run: node scripts/check-certification-workflow-action-contract.mjs
+      - name: Verify certification workflow timeout contract
+        run: node scripts/check-certification-workflow-timeout-contract.mjs
       - name: Verify certification workflow referenced files
         run: node scripts/check-certification-workflow-referenced-files.mjs
       - name: Verify certification boundary workflow coverage
