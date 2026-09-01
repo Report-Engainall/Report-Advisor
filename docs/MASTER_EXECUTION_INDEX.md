@@ -23,7 +23,6 @@ This addendum is authoritative for execution priority. Historical records remain
 
 - Main baseline: `4705028d1e19ea7201f4cb9945ce3e1cc1a550a2`.
 - PR #294: **OPEN / NOT MERGED**.
-- Current PR #294 head after Cycle 11 commits: `cfa8a76f9e5a4d75d58fd3f55e7dba04cb9d6d2f`.
 - Exact-head CI remains unproven; historical/branch-local PASS is not promoted to the release baseline.
 - Production certification remains **NO**.
 
