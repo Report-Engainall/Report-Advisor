@@ -9,7 +9,7 @@ This index is authoritative for execution state. Historical PASS is never promot
 - PR: **#294 — OPEN / NOT MERGED**
 - Base: `main` @ `89c8361e85878521c915328f6d0a595663498cd3`
 - Current branch: `codex/p0-hardening-integration-20260901`
-- Execution head immediately before this index update: `c5320a0d4bad5afae95fdeb1058f7d97bd3276ca`
+- Execution head immediately before this index update: `737cfc5d869e66c1f4d167737b0cd96e577dbc6e`
 - This index update itself advances the branch; therefore the next exact-head CI target is the commit produced by this update.
 - Exact-head CI is required after every source/workflow mutation; no final PASS is claimed until that exact SHA is verified.
 
@@ -41,9 +41,12 @@ This index is authoritative for execution state. Historical PASS is never promot
 12. Added `check-certification-adversarial-coverage-contract.mjs` to enforce runtime adversarial cases: missing, failed, duplicate, unrelated, complete.
 13. Added `check-certification-writer-table-coverage-contract.mjs` to protect all four certification proof tables.
 14. Added `check-certification-runtime-test-wiring-contract.mjs` to require the runtime certification harness in both boundary and integrity paths.
-15. Added `check-certification-boundary-workflow-coverage.mjs` to detect dropped certification guard steps.
-16. Extended `.github/workflows/certification-evidence-boundary.yml` to execute the expanded certification guard suite plus existing writer/completeness/queue boundaries.
-17. This expansion is repository-executable evidence only; it does not certify live production or external operational evidence.
+15. Added `check-certification-boundary-workflow-coverage.mjs` to detect dropped certification guard steps; expanded it to cover the workflow's new integrity guards.
+16. Extended `.github/workflows/certification-evidence-boundary.yml` to execute the expanded certification guard suite plus workflow security, trigger, referenced-file, coverage, writer/completeness/queue boundaries.
+17. Added `check-certification-workflow-referenced-files.mjs` to fail closed when a workflow-referenced Node guard is missing.
+18. Added `check-certification-workflow-security-contract.mjs` to protect read-only permissions, shallow checkout, and credential persistence settings.
+19. Added `check-certification-workflow-trigger-contract.mjs` to protect PR-to-main and manual workflow triggers plus read-only permissions.
+20. These changes are repository-executable evidence only; they do not certify live production or external operational evidence.
 
 ### Repository hardening already completed
 - Release-evidence SHA validation requires exactly 40 hexadecimal characters with adversarial short/long/alphabet cases.
