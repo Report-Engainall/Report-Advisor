@@ -1,0 +1,36 @@
+name: Worker Hardening Contract
+
+on:
+  push:
+    paths:
+      - 'supabase/migrations/20260901040000_report_execution_worker_lifecycle.sql'
+      - 'scripts/check-worker-*-contract.mjs'
+      - 'scripts/check-worker-lifecycle-guards.mjs'
+      - '.github/workflows/worker-hardening-contract.yml'
+  pull_request:
+    paths:
+      - 'supabase/migrations/20260901040000_report_execution_worker_lifecycle.sql'
+      - 'scripts/check-worker-*-contract.mjs'
+      - 'scripts/check-worker-lifecycle-guards.mjs'
+      - '.github/workflows/worker-hardening-contract.yml'
+
+jobs:
+  guards:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Worker lifecycle guards
+        run: node scripts/check-worker-lifecycle-guards.mjs
+      - name: Search path contract
+        run: node scripts/check-worker-search-path-contract.mjs
+      - name: Lease floor contract
+        run: node scripts/check-worker-lease-floor-contract.mjs
+      - name: Null payload contract
+        run: node scripts/check-worker-null-payload-contract.mjs
+      - name: Lease clearance contract
+        run: node scripts/check-worker-lease-clearance-contract.mjs
+      - name: Execute grants contract
+        run: node scripts/check-worker-execution-grants-contract.mjs
