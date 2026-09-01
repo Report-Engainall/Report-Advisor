@@ -9,14 +9,26 @@ This index is authoritative for execution state. Historical PASS is never promot
 - PR: **#294 — OPEN / NOT MERGED**
 - Base: `main` @ `89c8361e85878521c915328f6d0a595663498cd3`
 - Current branch: `codex/p0-hardening-integration-20260901`
-- Current execution head after Phase-K checker repair: `6c07206082c1ae7091e9874ccfedaeb5bab4c140`
+- Current execution head: `3b551b548aadaf23226cac1f3835fcc2e7f5a025`
 - Exact-head CI is required after every source/workflow mutation; no final PASS is claimed until that exact SHA is verified.
 
 ### Latest certification finding and repair
 - Exact-head certification on `c53278730a28edf96518880fa9489fcb8d6207e0` passed the 20-stage readiness matrix, 30-stage final execution batch, P0 13/13, and P1 8/8 before `check-phase-k-runtime-closure.mjs` failed.
-- Root cause: the Phase-K checker required stale API vocabulary (`buildRowLineage`, `consolidateChronologically`, `selectBoundedScenario`, `rankDecisionPortfolio`, `evaluateAutonomy`) even though the canonical production coordinator bridge uses `diffRows`, `consolidateRuntime`, `chooseScenario`, `prioritizeDecisions`, and `canAutonomouslyExecute`.
-- Repair: Phase-K checker now accepts the canonical runtime APIs while retaining backward-compatible alternatives, and continues requiring the sourceHash identity.
-- This is a checker repair, not a production-certification claim; the new head `6c072060...` requires fresh exact-head CI.
+- Root cause: the Phase-K checker required stale API vocabulary even though the canonical production coordinator bridge uses the current runtime APIs.
+- Repair: Phase-K checker now accepts the canonical runtime APIs while retaining backward-compatible alternatives and sourceHash identity.
+- The repair requires fresh exact-head CI; no certification is inferred from historical PASS.
+
+### New completed work — worker lifecycle regression suite
+The following five repository changes are now committed and indexed on the current branch:
+1. Added `check-worker-lifecycle-guards.mjs` covering heartbeat, checkpoint, completion, failure, and retry invariants.
+2. Added `check-worker-lease-expiry.mjs` to prevent heartbeat from accepting expired leases.
+3. Added `check-worker-service-role-boundary.mjs` covering security-definer and execution-grant boundaries for all lifecycle RPCs.
+4. Added `check-worker-tenant-isolation.mjs` requiring `current_company_id()` tenant scope across lifecycle RPCs.
+5. Added `check-worker-terminal-state-guards.mjs` covering active-state completion/failure and failed-state bounded retry transitions.
+6. Wired the complete worker lifecycle regression suite into `package.json` as runnable npm scripts.
+7. Updated this index to record the exact execution head and these completed items.
+
+These are source-level regression guards. They are **not** represented as PASS until exact-head CI executes them.
 
 ### Repository hardening already completed
 - Release-evidence SHA validation requires exactly 40 hexadecimal characters with adversarial short/long/alphabet cases.
@@ -52,7 +64,7 @@ Repository-executable fronts continue even when operational fronts are blocked b
 - **T4 Workflow coverage/regression audit:** compare package scripts with Quality/Certification/Release workflows and detect dropped coverage.
 - **T5 Security-definer classification:** classify privilege, caller, search_path, grants, tenant guards, exploitability; harden only demonstrated excessive privilege.
 - **T6 Canonical truth adversarial corpus:** missing cost/sale items, invalid numerics, duplicate SKU, currency mismatch, UNKNOWN/INSUFFICIENT_DATA, forecast confidence.
-- **T7 Worker lifecycle security regression:** service-role authority, tenant scope, lease, retry, checkpoint, dead-letter, resume.
+- **T7 Worker lifecycle security regression:** service-role authority, tenant scope, lease, retry, checkpoint, dead-letter, resume. **Extended with five executable regression guards on current head.**
 - **T8 Document/OCR evidence readiness:** hashes, confidence, normalized output, provenance, duplicate/unknown handling, Golden Corpus scoring.
 - **T9 Performance readiness:** repository-level P95/bounded reads/concurrency; defer live load evidence until runtime.
 - **T10 UX/PWA acceptance preparation:** authenticated mobile/RTL/slow-network/offline/installability evidence cases.
