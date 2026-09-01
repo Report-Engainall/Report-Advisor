@@ -9,7 +9,7 @@ This index is authoritative for execution state. Historical PASS is never promot
 - PR: **#294 — OPEN / NOT MERGED**
 - Base: `main` @ `89c8361e85878521c915328f6d0a595663498cd3`
 - Current branch: `codex/p0-hardening-integration-20260901`
-- Execution head immediately before this index update: `d0b1a2d093db456f4d6b2cac687d19a9ff2243f5`
+- Execution head immediately before this index update: `0323300f7a4f6adcd472564414fff733e237b3ac`
 - This index update itself advances the branch; therefore the next exact-head CI target is the commit produced by this update.
 - Exact-head CI is required after every source/workflow mutation; no final PASS is claimed until that exact SHA is verified.
 
@@ -56,6 +56,14 @@ This index is authoritative for execution state. Historical PASS is never promot
 25. Added `check-worker-runtime-authority-contract.mjs` to protect service-role execution grants/revocations and authenticated table-write revocation for worker jobs.
 26. Extended `.github/workflows/worker-hardening-contract.yml` to execute the five new workflow/authority guards before the existing lifecycle suite.
 27. This worker expansion is repository-executable evidence only; it does not certify live queue operation, production workers, or tenant A/B runtime isolation.
+
+### New completed work — worker workflow trigger/security closure
+28. Closed the worker workflow security contract by enforcing `permissions: contents: read` at workflow scope.
+29. Hardened checkout against credential persistence and retained `fetch-depth: 1` as an explicit shallow-clone invariant.
+30. Added the worker runtime-authority migration `20260901150000_harden_worker_runtime_authority.sql` to both push and pull-request trigger paths, preventing silent CI gaps when execution grants/table-write boundaries change.
+31. Added `src/lib/report-execution-coordinator.ts` to both worker workflow trigger paths so coordinator/runtime authority changes cannot bypass the worker contract suite.
+32. Extended `check-worker-workflow-trigger-contract.mjs` and `check-worker-workflow-security-contract.mjs` to enforce these new trigger and security invariants.
+33. Fresh exact-head CI has been triggered by these workflow/source changes; current runs are queued/pending and are not yet certified PASS.
 
 ### Repository hardening already completed
 - Release-evidence SHA validation requires exactly 40 hexadecimal characters with adversarial short/long/alphabet cases.
