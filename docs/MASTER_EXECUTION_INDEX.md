@@ -9,15 +9,15 @@ This index is authoritative for execution state. Historical PASS is never promot
 - PR: **#294 — OPEN / NOT MERGED**
 - Base: `main` @ `89c8361e85878521c915328f6d0a595663498cd3`
 - Current branch: `codex/p0-hardening-integration-20260901`
-- Current execution head after latest hardening and evidence record: `529ed6df5e6b4a813ab59c74673577b5dce8826a`
+- Current execution head after latest Phase-H checker repair: `eef8c1aa2a625e95bb5b77f95d5d8e9421a82bed`
 - Exact-head CI is required after every source/workflow mutation; no final PASS is claimed until that exact SHA is verified.
 
 ### Latest certification findings and repairs
-- Exact-head Final Certification run `33522211063` checked out `f2e20bd17f90725264fc1897009c067f83f770c6` exactly.
-- Its 20-stage release-readiness matrix passed **20/20** and the Final Execution Batch passed **30/30**.
-- The release-only production evidence boundary was correctly skipped in PR certification because real release-certification run/artifact identity is unavailable in PR contract runs.
-- A real checker-fixture defect surfaced in `check-parallel-runtime-hardening.mjs`: `assertTenantBoundary()` always asserted `true`, while the adversarial `tenant-a` → `tenant-b` case requires `false`; the terminal-guard fixture also used an invalid duplicate next-state expectation.
-- The checker was corrected to accept an explicit expected tenant-scope result and to use a distinct next-state for the terminal-guard fixture.
+- The latest exact-head certification evidence previously checked out `c4d3f730232fee78c3852ed3e68d5d34655bbe06` exactly and passed its 20-stage readiness matrix and 30-stage final execution batch before a Phase-H checker failure.
+- `check-phase-h-continuous-trust.mjs` was using a stale/non-canonical migration filename and stale table/function names.
+- The canonical Phase-H migration is `supabase/migrations/20260825090000_continuous_trust_autonomous_ops.sql`, which defines tenant-isolation canary runs, remediation runs, intelligence-safety adjustments, billing liveness probes, artifact verification runs, incident-regression links, continuous-trust health, and tenant-scoped RLS.
+- The Phase-H checker was corrected to scan all canonical SQL migrations and assert the actual Phase-H primitives rather than hard-coding a stale filename/schema vocabulary.
+- This is a checker repair, not a production-certification claim; the new head `eef8c1aa...` requires fresh exact-head CI.
 
 ### Latest repository hardening
 - Release-evidence SHA validation requires exactly 40 hexadecimal characters with adversarial short/long/alphabet cases.
@@ -25,14 +25,8 @@ This index is authoritative for execution state. Historical PASS is never promot
 - K/L evidence validation is aligned with canonical runtime APIs and tenant/lease invariants.
 - Intelligence foundation fixtures use canonical `aggregateAlternativeGroup` and `buildExecutiveScorecard` APIs.
 - Final certification PR workflow separates PR contract checks from release-only operational evidence.
-- `check-parallel-runtime-hardening.mjs` now has truthful positive and cross-tenant-negative fixtures and a valid terminal-guard fixture.
-- Added `docs/parallel-closure/T15_PARALLEL_RUNTIME_HARDENING_EVIDENCE.md` documenting the finding, repair, exact-head evidence, and operational boundary.
-
-### Latest exact-head CI result before current mutation
-- Quality run `33522210968` / job `99904025614` on `f2e20bd17f90725264fc1897009c067f83f770c6`: **SUCCESS**.
-- Quality verified exact checkout, 20/20 readiness, 35 workflow/npm command integrity, 139-migration schema audit, Auth/Tenant, Global RLS, import security/transaction/runtime, Document Intelligence, Decision/Outcome, K→S, production readiness, Phase 10/11/12 contracts, P0/P1 batches, typecheck, lint, build, and performance budget.
-- Final Certification run `33522211063` on the same exact SHA failed only at the subsequently identified `check-parallel-runtime-hardening.mjs` fixture assertion; all preceding certification checks shown in the log passed, including P0 **13/13**, P1 **8/8**, 20/20 readiness, 30/30 final execution batch, and final safety/release-readiness gates.
-- Current repair head `529ed6df...` has no CI result yet; historical PASS is not promoted to it.
+- `check-parallel-runtime-hardening.mjs` has truthful positive and cross-tenant-negative fixtures and a valid terminal-guard fixture.
+- Phase-H continuous-trust validation now consumes the canonical migration surface instead of a stale migration name.
 
 ### Current dependency/security observation
 - `npm ci` reports **19 dependency vulnerabilities (2 low, 4 moderate, 13 high)**. No blind `npm audit fix` is authorized. Package-level triage is required before release certification.
@@ -67,6 +61,7 @@ Repository-executable fronts continue even when operational fronts are blocked b
 - **T13 Current-head CI reproof:** after each mutation, run and inspect all exact-head gates; repair only real failures.
 - **T14 PR/branch synchronization audit:** ensure PR metadata, branch ref, index, and CI checkout all agree before promoting evidence.
 - **T15 Parallel-runtime adversarial regression:** keep same-tenant allow and cross-tenant deny fixtures explicit; ensure terminal duplicate transitions are rejected without tautological assertions.
+- **T16 Phase-H canonical migration alignment:** keep Phase-H checker vocabulary bound to canonical migration primitives and prevent stale migration-name regressions.
 
 ## RECOVERY BOUNDARY REGISTER
 - **P1-H — Backup / Restore / DR** remains an explicit certification boundary.
