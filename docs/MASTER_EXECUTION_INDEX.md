@@ -16,44 +16,67 @@ This file is the authoritative execution index. Historical PASS remains historic
 
 ## Latest Executed Cycle — 2026-09-01
 
-The developer continued PR #294 on the same integration branch and found a structural CI defect in the Final Certification Gate: certification contract scripts were executed before `npm ci`, although new contracts depend on project dependencies.
+The developer continued Cycle 3 without waiting for CI and performed direct staging Supabase verification. A new security-advisor finding was surfaced and retained as a real remediation item rather than hidden under historical PASS.
 
-Executed:
-- Changed the Final Certification Gate to run `npm ci` from the lockfile before certification contracts.
-- Added `persist-credentials: false` and `contents: read` least-privilege settings.
-- Applied the change directly to PR #294 without forced merge.
-- Confirmed PR #294 still targets the intended baseline.
+Executed/verified:
+- Staging Supabase is reported `ACTIVE_HEALTHY`, PostgreSQL 17, with **78 public tables**.
+- `public.finalize_runtime_decision(uuid)`: `anon EXECUTE = FALSE`; `authenticated EXECUTE = TRUE`.
+- Security Advisor was executed against staging and identified multiple `SECURITY DEFINER` functions executable by `authenticated`, including runtime decision functions and `current_company_id`.
+- Leaked Password Protection remains disabled.
+- No broad/reckless revoke was performed because some authenticated `SECURITY DEFINER` functions may be intentional runtime contracts and must be reviewed against callers, tenant checks, RLS, and least privilege before changing grants.
+- PR #294 remains **OPEN / NOT MERGED** at `688be5ea9636f47d9d205ec3a1fa8193368a86ca`.
+- No GitHub Actions workflow run has yet been observed for the exact `688be5...` candidate; therefore no Exact-Head CI PASS exists.
+- Backup verification remains 0 PASS; production rollback drills remain 0 PASS; autonomy rollback drills remain 0 PASS.
 
-Verified:
-- Current PR #294 exact HEAD: `688be5ea9636f47d9d205ec3a1fa8193368a86ca`.
-- PR #294 remains **OPEN / NOT MERGED**.
-- Previous `e0cf21...` CI failures included Final Certification Gate, quality, and file-intelligence-security; desktop-windows was in progress.
-- The new HEAD has **not yet produced an Exact-Head GitHub Actions run** at the time of this update.
-- Therefore no PASS is promoted to `688be5...` or `main`.
+## Security Interpretation Rule
 
-## Current Operational Truth
+A `SECURITY DEFINER` function being executable by `authenticated` is **not by itself proof of a vulnerability**. It becomes a release blocker when its effective privileges or implementation allow an authenticated caller to bypass intended tenant/user authorization, RLS boundaries, or least-privilege requirements. Each flagged function must therefore be classified individually before any revoke.
 
-- Vercel remains independently blocked by `api-deployments-free-per-day` (>100 deployments/24h).
-- Combined status currently shows Vercel failure and CodeRabbit pending for `688be5...`; this is not an application certification PASS.
-- Authenticated A/B runtime proof remains unavailable without operational credentials/sessions; do not fabricate evidence.
-- Backup/restore has no real PASS run yet.
-- Production/safe-environment rollback has no real PASS run yet.
-- Supabase leaked-password protection remains disabled and requires Auth configuration access.
-- New Vitest contracts are **NOT PASS** until actually executed on the candidate SHA.
+Required classification for every Advisor-flagged function:
+
+`FUNCTION → CALLERS → SECURITY DEFINER → search_path → EXECUTE grants → tenant/user guards → underlying tables/RLS → intended runtime caller → exploit test → decision`
+
+Allowed decisions:
+
+- `RETAIN + JUSTIFY + TEST`
+- `HARDEN + TEST`
+- `REVOKE + TEST`
+
+No blanket revoke is permitted without this analysis.
+
+## Current Operational Truth / Blockers
+
+1. **Exact-Head CI:** no run yet for `688be5...`; no PASS.
+2. **Security:** Advisor findings require per-function analysis; leaked-password protection is still disabled.
+3. **Authenticated A/B:** no operational credentials/sessions available for honest LIVE E2E evidence.
+4. **Backup/Restore:** no real PASS run yet.
+5. **Rollback:** no real PASS run yet.
+6. **Vercel:** new deployment remains blocked by `api-deployments-free-per-day` (>100 deployments/24h).
+7. **Runtime certification:** current public production is reachable but is not a fresh deployment of the current integration candidate.
 
 ## Parallel Execution Board
 
 ### P0-A — PR #294 exact-head closure
-**Immediate.**
-- Wait for/trigger real GitHub Actions execution on `688be5...`.
+- Trigger/obtain real GitHub Actions execution on the candidate.
 - Run Vitest contracts, typecheck, lint, build, regression, security, quality.
-- Investigate any failure rather than reporting it as infrastructure without evidence.
-- Review changed migrations/grants and boundary behavior.
-- Merge only after all required gates pass on the exact candidate SHA.
+- Inspect and fix failures.
+- Do not promote old/e0cf21 PASS to `688be5...`.
+- Merge only after required exact-head gates pass.
 
-**Exit:** one clean merged SHA with all accepted hardening + exact-head CI PASS.
+### P0-B — Security Advisor remediation
+**Immediate and parallel.**
+- Enumerate every flagged `SECURITY DEFINER` function.
+- For each, trace callers and effective privileges.
+- Verify tenant/user guards, `search_path`, underlying RLS, and intended runtime use.
+- Build exploit/negative tests for unauthorized access.
+- Retain intentional functions with documented justification and proof.
+- Harden or revoke only where analysis demonstrates excessive privilege.
+- Re-run Security Advisor and targeted regression after each change.
+- Resolve Leaked Password Protection through the correct Auth configuration surface when access is available.
 
-### P0-B — Authenticated Runtime / Tenant A-B
+**Exit:** every Advisor finding is either safely remediated or explicitly proven intentional with runtime/security evidence; no unexplained authorization bypass remains.
+
+### P0-C — Authenticated Runtime / Tenant A-B
 **Parallel; do not wait on CI.**
 - Prepare/execute Actor A and B login/session journeys.
 - Own-data CRUD, persistence, reload, logout/re-login.
@@ -61,18 +84,14 @@ Verified:
 - Storage/signed URLs, Realtime, AI/vector isolation.
 - Browser/network/console evidence.
 
-**Exit:** A own PASS, B own PASS, A→B DENY, B→A DENY, evidence bound to release SHA.
-
-### P0-C — Vercel / Runtime Deployment
+### P0-D — Vercel / Runtime Deployment
 **Parallel; never wait if quota-blocked.**
 - Prepare fresh deployment for final candidate.
 - SHA binding.
 - `/`, `/login`, deep routes, authenticated journey.
 - Console/network/runtime checks.
 
-**Exit:** exact release candidate deployed and runtime-proven.
-
-### P0-D — Canonical Truth / BI / Export
+### P0-E — Canonical Truth / BI / Export
 **Parallel.**
 - Golden business corpus.
 - UI = RPC = Export.
@@ -81,40 +100,30 @@ Verified:
 - Forecast/demand/inventory.
 - Legacy/compatibility consumer risks.
 
-**Exit:** no unexplained KPI divergence.
-
-### P1-E — OCR / Document Golden Corpus
+### P1-F — OCR / Document Golden Corpus
 - PDF text, scanned PDF, Arabic/English OCR, DOCX, images, malformed files.
 - Ground truth comparison.
 - Accuracy/confidence/provenance/regression baseline.
 
-**Exit:** deterministic measurable OCR/document PASS.
-
-### P1-F — Workers / Queue / Watched Folder
+### P1-G — Workers / Queue / Watched Folder
 - Success/failure/retry/lock/idempotency.
 - Crash/restart/recovery/DLQ.
 - Watched folder: detect → parse → validate → import → reconcile → canonical → evidence.
 - Duplicate/malformed/interrupted/reprocess.
 
-**Exit:** recovery behavior demonstrated with evidence.
-
-### P1-G — Backup / Restore / DR
+### P1-H — Backup / Restore / DR
 - Real backup artifact.
 - Restore in safe environment.
 - Schema/data/relationship/application integrity.
 - Measure RPO/RTO.
 
-**Exit:** BACKUP PASS + RESTORE PASS.
-
-### P1-H — Canary / Rollback
+### P1-I — Canary / Rollback
 - Known-good candidate.
 - Controlled canary.
 - Controlled rollback in safe environment.
 - Verify integrity and runtime after rollback.
 
-**Exit:** ROLLBACK PASS.
-
-### P1-I — Performance / Scale
+### P1-J — Performance / Scale
 - Read P95 ≤300ms.
 - Write P95 ≤800ms.
 - Preview ≤1500ms.
@@ -122,21 +131,19 @@ Verified:
 - Query plans/indexes.
 - N+1/unbounded-read attacks.
 
-**Exit:** production-representative evidence or justified exception.
-
-### P1-J — Observability / Operations
+### P1-K — Observability / Operations
 - DB/Realtime/services/Storage/notifications/security health.
 - Trigger representative alerts.
 - Verify alert visibility and recovery.
 - Bind evidence to exact SHA.
 
-### P2-K — UI/UX
+### P2-L — UI/UX
 - Authenticated responsive/RTL/accessibility.
 - Loading/empty/error states.
 - Deep links.
 - Import/documents/evidence/admin/logout.
 
-### P2-L — Business Acceptance
+### P2-M — Business Acceptance
 - Merchant golden scenarios.
 - Independent expected results.
 - Decision/evidence/outcome.
@@ -152,6 +159,7 @@ Verified:
 5. A reachable deployment is not runtime certification.
 6. Every final PASS must identify the exact tested SHA.
 7. Certification requires all required evidence to converge on ONE release SHA.
+8. A Security Advisor warning must be classified by actual exploitability/privilege semantics; do not close it by blanket revoke or by ignoring it.
 
 ## No-Waste Operating Protocol
 
@@ -207,8 +215,6 @@ ONE EXACT RELEASE SHA
 = PRODUCTION CERTIFIED / SELLABLE
 ```
 
-## Current Owner Decision
+## OWNER DECISION
 
-The project is in **PROVE → CERTIFY → RELEASE**, not BUILD. Do not rebuild completed subsystems merely to increase a percentage. The remaining work is predominantly integration, execution evidence, runtime proof, resilience, security hardening, and final release convergence.
-
-**Latest owner execution directive:** PR #294 must first obtain real Exact-Head CI evidence on `688be5...`. In parallel, all independent runtime/proof fronts continue. No blocker is allowed to serialize the project, and no historical or branch-local PASS may be promoted to the final release SHA.
+The project remains in **PROVE → CERTIFY → RELEASE**, not BUILD. The newly surfaced Security Advisor findings are a real release-closure workstream, but they must be handled by per-function authorization analysis rather than blanket revocation. No security PASS is granted until the flagged functions are classified, negative authorization paths are tested, and the final candidate is re-verified.
