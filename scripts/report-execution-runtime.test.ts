@@ -17,18 +17,24 @@ assert.throws(() => advanceCheckpoint(next, { stage:'extracted', sourceHash:'sha
 // 2. Initialization rejects unusable source identity and canonicalizes evidence keys.
 assert.throws(() => createInitialCheckpoint('   '), /requires a source hash/);
 assert.deepEqual(createInitialCheckpoint('sha-init', ['b','a','a']).evidenceKeys, ['a','b']);
+assert.throws(() => createInitialCheckpoint('sha-init', ['ok',' ']), /evidence keys/);
+assert.throws(() => createInitialCheckpoint('sha-init', ['ok', 1 as unknown as string]), /evidence keys/);
 
 // 3. Advancement rejects malformed row counts and preserves/deduplicates evidence.
 assert.throws(() => advanceCheckpoint(next, { stage:'extracted', sourceHash:'sha-a', rowCount:-1, evidenceKeys:[] }), /rowCount/);
 assert.throws(() => advanceCheckpoint(next, { stage:'extracted', sourceHash:'sha-a', rowCount:1.5, evidenceKeys:[] }), /rowCount/);
+assert.throws(() => advanceCheckpoint(next, { stage:'extracted', sourceHash:'sha-a', rowCount:0, evidenceKeys:[' '] }), /evidence keys/);
 const enriched = advanceCheckpoint(next, { stage:'extracted', sourceHash:'sha-a', rowCount:0, evidenceKeys:['source:sha-a','extract:1'] });
 assert.deepEqual(enriched.evidenceKeys, ['extract:1','source:sha-a']);
 
-// 4. Resume validation rejects missing identity, malformed evidence, invalid timestamps, and unknown stages.
+// 4. Resume validation rejects missing identity, malformed evidence, invalid timestamps/row counts, and unknown stages.
 assert.equal(resumeFromCheckpoint(enriched), 'extracted');
 assert.throws(() => resumeFromCheckpoint({ ...enriched, sourceHash:'' }), /source hash/);
 assert.throws(() => resumeFromCheckpoint({ ...enriched, evidenceKeys:null as unknown as string[] }), /evidence keys/);
+assert.throws(() => resumeFromCheckpoint({ ...enriched, evidenceKeys:[' '] }), /evidence keys/);
 assert.throws(() => resumeFromCheckpoint({ ...enriched, updatedAt:Number.NaN }), /timestamp/);
+assert.throws(() => resumeFromCheckpoint({ ...enriched, updatedAt:-1 }), /timestamp/);
+assert.throws(() => resumeFromCheckpoint({ ...enriched, rowCount:-1 }), /rowCount/);
 assert.throws(() => resumeFromCheckpoint({ ...enriched, stage:'unknown' as ReportExecutionCheckpoint['stage'] }), /unknown checkpoint stage/);
 
 // 5. Execution request validation rejects whitespace identity and blank snapshot context.
