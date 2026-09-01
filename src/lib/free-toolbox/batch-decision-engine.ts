@@ -3,8 +3,8 @@ export interface BatchDecisionRow{groupId:string;stock:number;forecastDaily:numb
 export interface BatchDecisionSummary{rows:number;reorder:number;critical:number;averagePriority:number;elapsedMs:number}
 
 function requireDecisionNumber(value: unknown, field: string, groupId: string, options: {min?: number; max?: number} = {}): number {
-  const n = typeof value === 'number' ? value : Number(value)
-  if (!Number.isFinite(n) || (options.min != null && n < options.min) || (options.max != null && n > options.max)) {
+  const n = value
+  if (typeof n !== 'number' || !Number.isFinite(n) || (options.min != null && n < options.min) || (options.max != null && n > options.max)) {
     throw new Error(`INSUFFICIENT_DECISION_DATA:${groupId}:${field}`)
   }
   return n
