@@ -29,6 +29,16 @@ jobs:
         run: node scripts/check-certification-workflow-referenced-files.mjs
       - name: Verify certification boundary workflow coverage
         run: node scripts/check-certification-boundary-workflow-coverage.mjs
+      - name: Verify adversarial document corpus completeness
+        run: node scripts/check-adversarial-document-corpus-completeness.mjs
+      - name: Verify adversarial document corpus severity
+        run: node scripts/check-adversarial-document-corpus-severity.mjs
+      - name: Verify business golden corpus tenant integrity
+        run: node scripts/check-business-golden-corpus-tenant-integrity.mjs
+      - name: Verify business golden corpus adversarial rejection
+        run: node scripts/check-business-golden-corpus-adversarial-contract.mjs
+      - name: Verify business golden corpus truth invariants
+        run: node scripts/check-business-golden-corpus-truth-invariants.mjs
       - name: Verify certification evidence write boundary
         run: node scripts/check-certification-evidence-write-boundary.mjs
       - name: Verify certification completeness boundary
