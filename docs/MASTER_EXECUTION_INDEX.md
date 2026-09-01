@@ -9,14 +9,14 @@ This index is authoritative for execution state. Historical PASS is never promot
 - PR: **#294 — OPEN / NOT MERGED**
 - Base: `main` @ `89c8361e85878521c915328f6d0a595663498cd3`
 - Current branch: `codex/p0-hardening-integration-20260901`
-- Current execution head after Phase-K checker repair: `6a625e9ef378ca491b59cc65c78d526fa56a5deb`
+- Current execution head after Phase-K checker repair: `6c07206082c1ae7091e9874ccfedaeb5bab4c140`
 - Exact-head CI is required after every source/workflow mutation; no final PASS is claimed until that exact SHA is verified.
 
 ### Latest certification finding and repair
 - Exact-head certification on `c53278730a28edf96518880fa9489fcb8d6207e0` passed the 20-stage readiness matrix, 30-stage final execution batch, P0 13/13, and P1 8/8 before `check-phase-k-runtime-closure.mjs` failed.
 - Root cause: the Phase-K checker required stale API vocabulary (`buildRowLineage`, `consolidateChronologically`, `selectBoundedScenario`, `rankDecisionPortfolio`, `evaluateAutonomy`) even though the canonical production coordinator bridge uses `diffRows`, `consolidateRuntime`, `chooseScenario`, `prioritizeDecisions`, and `canAutonomouslyExecute`.
 - Repair: Phase-K checker now accepts the canonical runtime APIs while retaining backward-compatible alternatives, and continues requiring the sourceHash identity.
-- This is a checker repair, not a production-certification claim; the new head `6a625e9...` requires fresh exact-head CI.
+- This is a checker repair, not a production-certification claim; the new head `6c072060...` requires fresh exact-head CI.
 
 ### Repository hardening already completed
 - Release-evidence SHA validation requires exactly 40 hexadecimal characters with adversarial short/long/alphabet cases.
@@ -68,23 +68,3 @@ Repository-executable fronts continue even when operational fronts are blocked b
 - **P1-H — Backup / Restore / DR** remains an explicit certification boundary.
 - RPO/RTO are operational evidence requirements, not source-level claims.
 - Backup, restore, migration parity, artifact integrity, rollback, and security audit evidence are required before production certification.
-- Source-level recovery validation must never convert a missing live restore drill into PASS.
-
-## NON-NEGOTIABLE CERTIFICATION BLOCKERS
-- Production authenticated runtime.
-- Real Actor A/B tenant isolation.
-- Real backup + restore drill.
-- Real rollback drill.
-- Live Vercel deployment/runtime bound to the certified SHA.
-- Real browser authenticated E2E with valid credentials.
-- Live OCR/Golden Corpus execution where backend/device capability is required.
-- Independent business acceptance.
-- Dependency vulnerability triage/remediation decision for the current lockfile.
-
-## EXECUTION PROTOCOL
-`OPEN INDEX → SELECT INDEPENDENT FRONTS → INSPECT MINIMUM → IMPLEMENT → TARGETED TEST → ADVERSARIAL TEST → REGRESSION → EXACT SHA → VERIFY → CONTINUE`
-
-Do not rebuild closed work. Do not promote historical PASS. Do not mutate the frozen release candidate or production alias without certification evidence. If one operational front is blocked, continue all repository-executable fronts.
-
-## RELEASE EQUATION
-`ONE EXACT SHA + build/typecheck/lint + quality/security + canonical truth + authenticated E2E + tenant A/B + deployment/runtime + OCR/document + workers/recovery + backup/restore + rollback + performance + observability + UX + business acceptance + complete evidence = PRODUCTION CERTIFIED / SELLABLE`
