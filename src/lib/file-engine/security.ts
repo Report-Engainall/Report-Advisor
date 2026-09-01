@@ -1,6 +1,6 @@
 import { resolveCurrentCompanyId, supabase } from '../supabase.ts';
-import type { SecurityScanResult } from './types';
-import { MAX_FILE_SIZE } from './types';
+import type { SecurityScanResult } from './types.ts';
+import { MAX_FILE_SIZE } from './types.ts';
 import { computeSHA256 } from './file-identity-core';
 export { computeSHA256 } from './file-identity-core';
 
