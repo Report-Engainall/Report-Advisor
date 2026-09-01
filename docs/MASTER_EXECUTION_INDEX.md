@@ -109,13 +109,20 @@ This file is the authoritative execution index. Historical PASS remains historic
 92. **Metric warning-shape hardening:** malformed warning containers no longer spread arbitrary runtime values into the emitted warning list.
 93. **Metric decision/display finite boundary:** decision eligibility and display formatting now explicitly reject non-finite metric values even if a malformed caller constructs an invalid evaluation object.
 94. **Metric regression expansion:** executable Vitest coverage now locks hostile numeric values, malformed warning containers, malformed top-level/batch inputs and finite decision/display semantics.
-95. **Metric release command integration:** added a dedicated `test:metric-boundary` npm command so the metric contract is directly executable by developers and CI.
-96. **Release-readiness metric gate:** added stage 24 to the consolidated release-readiness runner, making the metric boundary contract part of the release-facing gate.
+95. **Metric release command integration:** the package exposes a dedicated `test:metric-boundary` command for developers and CI.
+96. **Release-readiness metric gate:** the consolidated release-readiness runner now includes stage 24 for the metric boundary contract.
+97. **Metric status runtime hardening:** metric status values are validated at runtime instead of trusting TypeScript-only unions, with invalid statuses falling back to the canonical metric definition.
+98. **Metric identity normalization:** surrounding whitespace is removed from metric keys before registry lookup and emitted fact identity, preventing whitespace variants from creating ambiguous identities.
+99. **Metric warning element hardening:** warning arrays are accepted only when every element is a string; mixed/non-string warning payloads fail closed to an empty trusted warning set.
+100. **Metric deterministic boundary runner:** added a dedicated executable metric boundary runner and PR/manual GitHub Actions contract using Node 22 with persisted checkout credentials disabled.
 
 ## Exact implementation chain
 
 - Branch: `codex/release-hardening-integration-20260901`
-- Latest implementation commits: `d0eaa338ebd3f9973e8d522c7537333414726d3e` (metric runtime), `1147a56b1d07e70265d1d1ea994fa72c54e38e2d` (metric tests), `7ee53e101675019b7b76d44af97d1b243819fe98` (release command), `081bbf184c80eba1dd266b65eef38362d262e78f` (release gate).
+- Latest metric runtime commit: `7b795eb64e452a21a52afea63715177f728301b6`
+- Latest metric regression commit: `9eee85a51843bd59f5acdc5140236db7a202da5f`
+- Dedicated metric runner commit: `5e1e1801a377f9bc47e51258ecf136253b2d9446`
+- Dedicated metric CI commit: `86ebce4686894358b4f29c85a5d5e1f954bf0350`
 - This index update is documentation-only and must not be treated as code certification.
 
 ## Certification Boundaries
