@@ -32,6 +32,11 @@ function requireFiniteResult(value: number, field: string): number {
   return value;
 }
 
+function scaleAndClamp(value: number, factor: number, field: string): number {
+  const scaled = requireFiniteResult(value * factor, field);
+  return clamp(scaled);
+}
+
 export function buildAgingBuckets(items: AgingItem[], asOf = new Date()): AgingBucket[] {
   if (!Array.isArray(items)) throw new Error('BI_INVALID_ITEMS:aging');
   if (!(asOf instanceof Date) || !Number.isFinite(asOf.getTime())) throw new Error('BI_INVALID_AS_OF');
@@ -100,9 +105,9 @@ export function scoreCustomer(input: { recencyDays: number; orders: number; reve
   const threshold = requireNonNegative(input.inactivityThresholdDays ?? 90, 'inactivityThresholdDays');
   if (threshold <= 0) throw new Error('BI_NON_POSITIVE_THRESHOLD:inactivityThresholdDays');
   const recency = clamp(100 - (recencyDays / threshold) * 100);
-  const frequency = clamp(orders * 10);
+  const frequency = scaleAndClamp(orders, 10, 'customer.frequency');
   const monetary = revenue === 0 ? 0 : clamp(50 + Math.log10(revenue + 1) * 10);
-  const score = Math.round(recency * 0.4 + frequency * 0.25 + monetary * 0.35);
+  const score = requireFiniteResult(Math.round(recency * 0.4 + frequency * 0.25 + monetary * 0.35), 'customer.score');
   const segment = orders <= 1 && recencyDays <= 30 ? 'NEW' : recencyDays > threshold * 1.5 ? 'INACTIVE' : recencyDays > threshold ? 'AT_RISK' : score >= 80 ? 'CHAMPION' : score >= 60 ? 'LOYAL' : 'OTHER';
   return { recency, frequency, monetary, inactivityDays: recencyDays, segment, score };
 }
@@ -111,8 +116,8 @@ export function scoreSupplier(input: { avgDeliveryDelayDays: number; priceVariat
   const avgDeliveryDelayDays = requireNonNegative(input.avgDeliveryDelayDays, 'avgDeliveryDelayDays');
   const priceVariationPct = requireFinite(input.priceVariationPct, 'priceVariationPct');
   const dependencyPct = requireNonNegative(input.dependencyPct, 'dependencyPct');
-  const deliveryRisk = clamp(avgDeliveryDelayDays * 12);
-  const priceRisk = clamp(Math.abs(priceVariationPct) * 2);
+  const deliveryRisk = scaleAndClamp(avgDeliveryDelayDays, 12, 'supplier.deliveryRisk');
+  const priceRisk = scaleAndClamp(Math.abs(priceVariationPct), 2, 'supplier.priceRisk');
   const dependencyRisk = clamp(dependencyPct);
   const risk = requireFiniteResult(deliveryRisk * 0.35 + priceRisk * 0.25 + dependencyRisk * 0.4, 'supplier.risk');
   return { score: Math.round(100 - risk), deliveryRisk, priceRisk, dependencyRisk, priority: risk >= 70 ? 'CRITICAL' : risk >= 45 ? 'HIGH' : 'NORMAL' };
