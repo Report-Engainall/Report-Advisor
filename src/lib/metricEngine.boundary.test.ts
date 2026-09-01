@@ -15,7 +15,7 @@ describe('metric confidence and source boundaries', () => {
     expect(metricCanDriveDecision(metric)).toBe(true);
   });
   it('rejects missing or invalid source evidence', () => {
-    for (const sourceRows of [undefined, 0, -1, 1.5, Number.NaN, Number.POSITIVE_INFINITY]) {
+    for (const sourceRows of [undefined, 0, -1, 1.5, Number.NaN, Number.POSITIVE_INFINITY, true as never]) {
       const metric = evaluateMetric({ key: 'net_sales', value: 100, confidence: 1, sourceRows });
       expect(metric.status).toBe('INSUFFICIENT_DATA');
       expect(metric.confidence).toBe(0);
@@ -31,7 +31,7 @@ describe('metric confidence and source boundaries', () => {
     }
   });
   it('fails closed for structured non-numeric runtime values', () => {
-    for (const value of [{ value: 100 }, [100], new Date('2026-01-01')]) {
+    for (const value of [{ value: 100 }, [100], new Date('2026-01-01'), new Number(100), { valueOf: () => 100 }]) {
       const metric = evaluateMetric({ key: 'net_sales', value: value as never, sourceRows: 1 });
       expect(metric.value).toBeNull();
       expect(metric.status).toBe('UNAVAILABLE');
@@ -45,6 +45,12 @@ describe('metric confidence and source boundaries', () => {
       expect(metric.status).toBe('UNAVAILABLE');
       expect(metric.confidence).toBe(0);
     }
+  });
+  it('does not mutate caller-owned warnings when adding boundary warnings', () => {
+    const warnings = ['caller-warning'];
+    const metric = evaluateMetric({ key: 'net_sales', value: 'not-a-number' as never, sourceRows: 1, warnings });
+    expect(warnings).toEqual(['caller-warning']);
+    expect(metric.warnings).toEqual(['caller-warning', 'القيمة غير متاحة أو غير رقمية.']);
   });
   it('does not trust malformed warning containers', () => {
     const metric = evaluateMetric({ key: 'net_sales', value: 100, sourceRows: 1, warnings: 'not-an-array' as never });
