@@ -1,6 +1,6 @@
 import { strict as assert } from 'node:assert';
 import fs from 'node:fs';
-import { advanceCheckpoint, canAdvanceCheckpoint, type ReportExecutionCheckpoint } from '../src/lib/report-execution/checkpoint.ts';
+import { advanceCheckpoint, canAdvanceCheckpoint, resumeFromCheckpoint, type ReportExecutionCheckpoint } from '../src/lib/report-execution/checkpoint.ts';
 import { SupabaseReportExecutionStore } from '../src/lib/report-execution/durable-worker-adapter.ts';
 import type { ReportExecutionRequest } from '../src/lib/report-execution/report-execution-contract.ts';
 
@@ -11,6 +11,11 @@ const next = advanceCheckpoint(initial, { stage:'fingerprinted', sourceHash:'sha
 assert.deepEqual(next.evidenceKeys, ['source:sha-a']);
 assert.throws(() => advanceCheckpoint(next, { stage:'analyzed', sourceHash:'sha-a', evidenceKeys:[] }), /Invalid checkpoint transition/);
 assert.throws(() => advanceCheckpoint(next, { stage:'extracted', sourceHash:'sha-b', evidenceKeys:[] }), /source hash/);
+
+const resumed = resumeFromCheckpoint(next, { stage:'fingerprinted', sourceHash:'sha-a', evidenceKeys:['source:sha-a'] });
+assert.deepEqual(resumed, next);
+assert.throws(() => resumeFromCheckpoint(next, { stage:'queued', sourceHash:'sha-a', evidenceKeys:[] }), /checkpoint|resume/i);
+assert.throws(() => resumeFromCheckpoint(next, { stage:'fingerprinted', sourceHash:'sha-b', evidenceKeys:[] }), /source hash/i);
 
 const request: ReportExecutionRequest = { reportId:'r', tenantId:'t', requestedBy:'u', parameters:{}, formats:['web'], idempotencyKey:'k' };
 assert.equal(SupabaseReportExecutionStore.requestIdentity(request), 't:k:latest');
@@ -42,4 +47,4 @@ for (const rpc of [
   assert.ok(adapter.includes(rpc), `missing durable worker RPC: ${rpc}`);
 }
 
-console.log('Report execution runtime: PASS (checkpoint monotonicity + lease/failure/dead-letter + tenant/idempotency recovery invariants)');
+console.log('Report execution runtime: PASS (checkpoint monotonicity + checkpoint resume + lease/failure/dead-letter + tenant/idempotency recovery invariants)');
