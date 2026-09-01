@@ -8,18 +8,17 @@ This index is authoritative for execution state. Historical PASS is never promot
 - Repository: `Report-Engainall/Report-Advisor`
 - PR: **#294 — OPEN / NOT MERGED**
 - Base: `main` @ `89c8361e85878521c915328f6d0a595663498cd3`
-- Current execution head: `ddd9a6c5595d05f86a9cc45e62654b89aa00385b`
+- Current execution head: `141a2c3785ead017fbc8baad6060b3cd04a65d16`
 - Current branch: `codex/p0-hardening-integration-20260901`
-- Exact-head CI is required after the latest intelligence-foundation contract repair; no final PASS is claimed yet.
+- Exact-head CI is required after the latest intelligence-foundation repair and operational-evidence runbook addition; no final PASS is claimed yet.
 
-### Latest executed repair
-- Final Certification Gate on `cc667605cd8c21f3ab43a5a8bde935313070c320` completed exact checkout successfully.
-- The 20-stage release-readiness matrix passed **20/20** and the final execution batch passed **30/30** before `check-intelligence-foundation.mjs` failed.
-- Failure was a real API/checker drift: the checker imported `calculateGroupDemand`, but canonical `groupDemand.ts` exports `aggregateAlternativeGroup` / `aggregateAlternativeGroups` instead.
-- Confirmed by repository search that `calculateGroupDemand` has no remaining canonical implementation.
-- Repaired the checker to exercise the canonical `aggregateAlternativeGroup` API, including duplicate-SKU normalization, demand/stock/sales truth, critical risk, and recommended-order assertions.
-- Corrected the index itself to point to the actual PR head `ddd9a6c5595d05f86a9cc45e62654b89aa00385b`; historical intermediate SHA references are retained only as evidence, never as current truth.
-- No PASS is promoted from the prior SHA; a fresh Exact-head CI run is mandatory.
+### Latest executed work
+- Final Certification Gate on `cc667605cd8c21f3ab43a5a8bde935313070c320` completed exact checkout successfully; its 20-stage release-readiness matrix passed **20/20** and final execution batch passed **30/30** before the intelligence-foundation checker failure.
+- Repaired intelligence-foundation checker drift to use canonical `aggregateAlternativeGroup` APIs rather than the nonexistent `calculateGroupDemand` API.
+- Corrected this index to track the actual PR head instead of an intermediate documentation SHA.
+- Added `docs/PRODUCTION_OPERATIONAL_EVIDENCE_RUNBOOK.md`, covering P0 authenticated runtime, Tenant A/B, Production Runtime, Backup/Restore/Rollback, OCR Golden Corpus, Import/Reconciliation, Workers, Performance, Operations/UX, Business Acceptance, evidence identity, and fail-closed rules.
+- The runbook explicitly prevents source-level contracts from being promoted as live operational evidence.
+- No PASS is promoted from any prior SHA; a fresh Exact-head CI run is mandatory.
 
 ## VERIFIED EXACT-HEAD RESULTS BEFORE LATEST REPAIR
 - 20-stage release readiness: **20/20 PASS**.
