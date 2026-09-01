@@ -1,6 +1,5 @@
 import { supabase } from './supabase';
 import { getSemanticMetric, type SemanticMetricRegistryEntry } from './semantic-metric-registry.ts';
-import { semanticMetricIsFresh } from './semantic-metric-freshness.ts';
 
 export interface MetricGovernanceSnapshot {
   metricId: string; version: number; name: string; definition: string; formula: string;
