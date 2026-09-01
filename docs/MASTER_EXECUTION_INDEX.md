@@ -60,6 +60,15 @@ This index is authoritative for execution state. Historical PASS is never promot
 27. Wired all five new integrity guards into the Certification Evidence Boundary workflow.
 28. Expanded certification workflow coverage so all five new integrity guards are mandatory and cannot silently disappear.
 
+### New completed work — Business Golden Corpus traceability batch
+29. Added COGS derivation guard from transaction quantities and canonical product costs.
+30. Added transaction-line arithmetic guard for sales gross and purchase totals.
+31. Added zero-stock truth guard against the fixture's canonical `zero_stock_skus` set.
+32. Added payment/receivables trace guard linking payment rows to tenant-owned customers and expected receivable totals.
+33. Added isolation-completeness guard requiring populated, tenant-pure collections and tenant-correct sale/customer links for every golden tenant.
+34. Wired all five traceability guards into Certification Evidence Boundary.
+35. Expanded certification workflow coverage so the five traceability guards are mandatory.
+
 ### Current dependency/security observation
 - `npm ci` reports **19 dependency vulnerabilities (2 low, 4 moderate, 13 high)**. No blind `npm audit fix` is authorized.
 - `pdfjs-dist@6.2.108` is already on the patched line for the current 2026 PDF.js advisory.
@@ -78,10 +87,3 @@ This index is authoritative for execution state. Historical PASS is never promot
 - **P2-J Acceptance:** independent business acceptance and final evidence completeness.
 
 Repository-executable fronts continue even when operational fronts are blocked by external access.
-
-## ENGINEERING TASK BOARD — OPEN IN PARALLEL
-- **T1** Exact-head CI reconciliation.
-- **T2** Release evidence adversarial validation.
-- **T3** Folder import adversarial validation.
-- **T4** Document/OCR golden corpus validation.
-- **T5** Business golden corpus integrity validation.
