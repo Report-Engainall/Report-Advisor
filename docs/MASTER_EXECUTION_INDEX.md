@@ -8,44 +8,29 @@ This index is authoritative for execution state. Historical PASS is never promot
 - Repository: `Report-Engainall/Report-Advisor`
 - PR: **#294 — OPEN / NOT MERGED**
 - Base: `main` @ `89c8361e85878521c915328f6d0a595663498cd3`
-- Current PR head: `91f41c477ca0d1dd973673021265501ecb6754a4`
 - Current branch: `codex/p0-hardening-integration-20260901`
-- Exact-head CI is required after the certification-workflow boundary repair; no final PASS is claimed yet.
+- Current execution head after latest hardening: `4a9b9facd9119f1209c01aec91a074b8b7e51530`
+- Exact-head CI is required after every source/workflow mutation; no final PASS is claimed until that exact SHA is verified.
 
-### Latest certification finding and repair
-- Exact-head Final Certification run `33521293190` checked out `b51d10225b96b5d5ff2f88a4b168aa90695a6310` exactly.
-- The 20-stage release-readiness matrix passed **20/20**.
-- The Final Execution Batch passed **30/30**.
-- The certification sweep reached `check-live-production-evidence-boundary.mjs`, which correctly requires real release-certification run/artifact identity unavailable in PR contract runs.
-- PR certification now skips only the release-only operational evidence consumers `check-evidence-freshness.mjs` and `check-live-production-evidence-boundary.mjs`.
-- The dedicated release-certification workflow remains responsible for producing run-bound manifest/certification evidence and live production evidence remains fail-closed.
+### Latest certification findings and repairs
+- Exact-head Final Certification run `33522211063` checked out `f2e20bd17f90725264fc1897009c067f83f770c6` exactly.
+- Its 20-stage release-readiness matrix passed **20/20** and the Final Execution Batch passed **30/30**.
+- The release-only production evidence boundary was correctly skipped in PR certification because real release-certification run/artifact identity is unavailable in PR contract runs.
+- A real defect then surfaced in `check-parallel-runtime-hardening.mjs`: `assertTenantBoundary()` always asserted `true`, while the adversarial `tenant-a` → `tenant-b` fixture correctly requires `false`. The same fixture also passed an invalid terminal duplicate transition expectation.
+- The checker was corrected to accept an explicit expected tenant-scope result and to use a distinct next-state for the terminal-guard fixture.
 
 ### Latest repository hardening
 - Release-evidence SHA validation requires exactly 40 hexadecimal characters with adversarial short/long/alphabet cases.
 - Watched-folder import remains bound to canonical `commitImportBatch` persistence/governance.
 - K/L evidence validation is aligned with canonical runtime APIs and tenant/lease invariants.
 - Intelligence foundation fixtures use canonical `aggregateAlternativeGroup` and `buildExecutiveScorecard` APIs.
-- Final certification PR workflow now cleanly separates PR contract checks from release-only operational evidence.
-- The branch was fast-forwarded to `91f41c477ca0d1dd973673021265501ecb6754a4`; this SHA has not yet earned a new CI PASS.
+- Final certification PR workflow separates PR contract checks from release-only operational evidence.
+- `check-parallel-runtime-hardening.mjs` now has truthful positive and cross-tenant-negative fixtures and a valid terminal-guard fixture.
 
-### Verified exact-head historical results
-- 20/20 Release Readiness: PASS on the immediately preceding exact-head cycle.
-- 30/30 Final Execution Batch: PASS on the immediately preceding exact-head cycle.
-- A0 hardening: PASS.
-- Auth/Tenant convergence and authenticated E2E contract matrices: PASS.
-- Global tenant RLS: PASS (22 tenant tables; 139 migrations).
-- Import security/transaction/runtime and canonical mapping: PASS.
-- Document Intelligence hardening: 20/20 PASS.
-- DR source-level contracts/readiness: PASS.
-- Evidence lineage/provenance/regression: PASS.
-- Governance Runtime: PASS.
-- Decision authorization/DML/work-item/outcome: PASS.
-- K/L and K→S runtime/evidence chains: PASS.
-- Production Scale: PASS.
-- Certification immutability/manifest: PASS.
-- Golden dataset/evidence/intelligence/score identity: PASS.
-- Windows contract and Storage tenant isolation: PASS.
-- Static TODO/FIXME/HACK sweep: no indexed matches in the searched repository surface.
+### Latest exact-head CI result before current mutation
+- Quality run `33522210968` / job `99904025614` on `f2e20bd17f90725264fc1897009c067f83f770c6`: **SUCCESS**.
+- Quality verified exact checkout, 20/20 readiness, 35 workflow/npm command integrity, 139-migration schema audit, Auth/Tenant, Global RLS, import security/transaction/runtime, Document Intelligence, Decision/Outcome, K→S, production readiness, Phase 10/11/12 contracts, P0/P1 batches, typecheck, lint, build, and performance budget.
+- Final Certification run `33522211063` on the same exact SHA failed only at the subsequently identified `check-parallel-runtime-hardening.mjs` fixture assertion; all preceding certification checks shown in the log passed, including P0 **13/13**, P1 **8/8**, 20/20 readiness, 30/30 final execution batch, and final safety/release-readiness gates.
 
 ### Current dependency/security observation
 - `npm ci` reports **19 dependency vulnerabilities (2 low, 4 moderate, 13 high)**. No blind `npm audit fix` is authorized. Package-level triage is required before release certification.
@@ -64,7 +49,7 @@ This index is authoritative for execution state. Historical PASS is never promot
 
 Repository-executable fronts continue even when operational fronts are blocked by external access.
 
-## NEW ENGINEERING TASK BOARD — OPEN IN PARALLEL
+## ENGINEERING TASK BOARD — OPEN IN PARALLEL
 - **T1 Exact-head CI reconciliation:** count only results whose checkout equals current PR head.
 - **T2 Release evidence adversarial validation:** malformed SHA, wrong artifact identity, mismatched manifest/certification SHA, missing run identity, stale evidence.
 - **T3 Folder import adversarial validation:** canonical commit, duplicate detection, traversal/security, parse failure, malformed workbook, cross-tenant attempt.
@@ -77,8 +62,9 @@ Repository-executable fronts continue even when operational fronts are blocked b
 - **T10 UX/PWA acceptance preparation:** authenticated mobile/RTL/slow-network/offline/installability evidence cases.
 - **T11 Dependency vulnerability triage:** map all 19 findings to direct/transitive package, code path, exploitability, fixed version, compatibility, and safe remediation.
 - **T12 Release-only evidence boundary verification:** confirm release-certification is sole producer of run-bound manifest/certification evidence.
-- **T13 Current-head CI reproof:** after workflow repair, run and inspect all exact-head gates; repair only real failures.
+- **T13 Current-head CI reproof:** after each mutation, run and inspect all exact-head gates; repair only real failures.
 - **T14 PR/branch synchronization audit:** ensure PR metadata, branch ref, index, and CI checkout all agree before promoting evidence.
+- **T15 Parallel-runtime adversarial regression:** keep same-tenant allow and cross-tenant deny fixtures explicit; ensure terminal duplicate transitions are rejected without tautological assertions.
 
 ## RECOVERY BOUNDARY REGISTER
 - **P1-H — Backup / Restore / DR** remains an explicit certification boundary.
