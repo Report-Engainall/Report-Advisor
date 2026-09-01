@@ -80,11 +80,17 @@ This file is the authoritative execution index. Historical PASS remains historic
 63. **BI adversarial-input CI:** added a separate read-only PR/manual workflow and deterministic runner so hostile-input coverage cannot silently disappear from CI.
 64. **Release-readiness integration:** expanded the executable release-readiness matrix from 20 to 22 stages so both BI integrity contracts participate in the same readiness command.
 65. **Execution-index integrity restored:** preserved the complete historical execution chain instead of replacing earlier indexed work with only the latest cycle.
+66. **BI aging fail-closed hardening:** malformed aging records, non-finite amounts, negative amounts and invalid due dates now fail closed instead of being silently dropped.
+67. **BI trend fail-closed hardening:** malformed dates and non-finite trend values now fail closed instead of being silently filtered from statistical inputs.
+68. **BI What-If scenario safety:** percentage changes below `-100%` are rejected so scenario arithmetic cannot silently create nonsensical negative multipliers.
+69. **BI malformed-input regression expansion:** adversarial tests now lock the aging, trend and `-101%` What-If boundaries with exact error contracts.
+70. **Consolidated BI boundary runner:** added one deterministic command that executes both output-integrity and adversarial-input Vitest suites as a single release-facing contract.
+71. **Release-readiness expansion:** added stage 23 for the consolidated BI boundary suite and updated the readiness summary from 22 to 23 stages.
 
 ## Exact implementation chain
 
 - Branch: `codex/release-hardening-integration-20260901`
-- Latest implementation commit before this index update: `34280abfda4e775e416b80cc756a374f9022f0a2`
+- Latest implementation commit: `af03bf24386ea5b3a367e339e4851efe96d8321a`
 - This index update is documentation-only and must not be treated as code certification.
 
 ## Certification Boundaries
