@@ -45,4 +45,24 @@ describe('metric confidence and source boundaries', () => {
     expect(metricCanDriveDecision(metric)).toBe(true);
     expect(metricDisplayValue(metric)).toContain('100');
   });
+  it('rejects malformed status values instead of trusting TypeScript-only unions', () => {
+    const metric = evaluateMetric({ key: 'net_sales', value: 100, confidence: 1, sourceRows: 1, status: 'APPROVED' as never });
+    expect(metric.status).toBe('AVAILABLE');
+  });
+  it('normalizes whitespace around metric keys without changing identity', () => {
+    const metric = evaluateMetric({ key: ' net_sales ', value: 100, confidence: 1, sourceRows: 1 });
+    expect(metric.key).toBe('net_sales');
+    expect(metric.fact.key).toBe('net_sales');
+  });
+  it('drops non-string warning entries rather than exposing malformed UI payloads', () => {
+    const metric = evaluateMetric({ key: 'net_sales', value: 100, sourceRows: 1, warnings: ['ok', 42] as never });
+    expect(metric.warnings).toEqual([]);
+  });
+  it('preserves finite numeric-string compatibility while rejecting non-finite strings', () => {
+    const valid = evaluateMetric({ key: 'net_sales', value: '100.5' as never, sourceRows: 1 });
+    expect(valid.value).toBe(100.5);
+    const invalid = evaluateMetric({ key: 'net_sales', value: 'Infinity' as never, sourceRows: 1 });
+    expect(invalid.value).toBeNull();
+    expect(invalid.status).toBe('UNAVAILABLE');
+  });
 });
