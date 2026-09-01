@@ -26,6 +26,16 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+      - name: Workflow security contract
+        run: node scripts/check-worker-workflow-security-contract.mjs
+      - name: Workflow trigger contract
+        run: node scripts/check-worker-workflow-trigger-contract.mjs
+      - name: Workflow referenced files
+        run: node scripts/check-worker-workflow-referenced-files.mjs
+      - name: Workflow coverage
+        run: node scripts/check-worker-workflow-coverage.mjs
+      - name: Runtime authority contract
+        run: node scripts/check-worker-runtime-authority-contract.mjs
       - name: Worker lifecycle guards
         run: node scripts/check-worker-lifecycle-guards.mjs
       - name: Search path contract
