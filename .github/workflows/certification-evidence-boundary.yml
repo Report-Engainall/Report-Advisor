@@ -21,6 +21,16 @@ jobs:
         run: node scripts/check-certification-evidence-write-boundary.mjs
       - name: Verify certification completeness boundary
         run: node scripts/check-production-certification-adversarial.mjs
+      - name: Verify certification evidence order
+        run: node scripts/check-certification-evidence-order-contract.mjs
+      - name: Verify certification score derivation
+        run: node scripts/check-certification-score-contract.mjs
+      - name: Verify certification fail-closed decision
+        run: node scripts/check-certification-fail-closed-contract.mjs
+      - name: Verify certification duplicate evidence handling
+        run: node scripts/check-certification-duplicate-contract.mjs
+      - name: Verify certification missing/failed evidence handling
+        run: node scripts/check-certification-missing-failed-contract.mjs
       - name: Verify queue immutability boundary
         run: node scripts/check-report-queue-immutability.mjs
       - name: Verify queue gate test-of-test
