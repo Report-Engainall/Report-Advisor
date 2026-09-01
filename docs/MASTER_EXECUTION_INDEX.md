@@ -8,17 +8,15 @@ This index is authoritative for execution state. Historical PASS is never promot
 - Repository: `Report-Engainall/Report-Advisor`
 - PR: **#294 — OPEN / NOT MERGED**
 - Base: `main` @ `89c8361e85878521c915328f6d0a595663498cd3`
-- Current execution head: `e7a513f2f9ab6d9e3dc1805e7fd604d404f1feb0`
+- Current execution head: `b8f17f00ea99c2abf1919cf99917865b555c0d08`
 - Current branch: `codex/p0-hardening-integration-20260901`
-- The previous exact-head cycle exposed a real Phase 3 CI contract gap; it has been repaired and requires a new exact-head CI cycle.
+- Exact-head CI is required after the latest production-chain contract repair; no final PASS is claimed yet.
 
 ### Latest executed repair
-- `quality.yml` now explicitly executes the three Phase 3 checks that `check-phase3-data-import-truth-closure.mjs` requires:
-  - `node scripts/check-import-direct-write-guard.mjs`
-  - `npm run test:import-transaction-contract`
-  - `npm run test:import-runtime-governance`
-- Existing canonical import business-key and mapping gates remain active.
-- No no-op aliases or bypasses were introduced.
+- `production-chain-guard` failed because its canonical quality-chain checker required `test:production-scale`, while the current `quality.yml` executes the equivalent canonical production-scale coverage through the active gate topology (`test:concurrent-analysis` plus the production certification chain).
+- Reconciled `scripts/check-quality-to-production-chain.mjs` to the actual current Quality gate topology without removing any required production boundary checks.
+- Production evidence boundary remains fail-closed and bound to successful `release-certification` runs and exact source SHA.
+- Previous Phase 3 import CI contract repair remains active and independently executed.
 
 ### Verified in immediately preceding exact-head cycle
 - 20-stage release readiness: **20/20 PASS**.
@@ -31,7 +29,7 @@ This index is authoritative for execution state. Historical PASS is never promot
 - Import security/transaction/runtime governance: PASS where independently executed.
 - Storage tenant isolation: PASS.
 - Canonical truth/aggregation/dashboard numeric truth: PASS where exact-head evidence existed.
-- Production-chain and release-blocker contracts: PASS where exact-head evidence existed.
+- Production release-blocker contract: PASS.
 - Windows contract: PASS on the preceding exact-head cycle.
 
 ### Security hardening already applied
