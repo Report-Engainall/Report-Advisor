@@ -103,3 +103,12 @@ Source-level work can continue; Windows native/installer and authenticated produ
 - Source inspection confirmed worker claiming is intentionally restricted to `service_role`/`postgres`; authenticated callers do not receive EXECUTE. This is classified as an intentional worker boundary, not an authorization defect.
 - Current operational counts remain zero after rollback; no synthetic runtime PASS was promoted to persistent operational evidence.
 - Security remains provisionally closed; no duplicate security investigation was opened.
+
+
+## CYCLE 14 CLOSURE UPDATE — 2026-09-01
+
+- Found and fixed a canonical-layer fail-open propagation defect: `buildCanonicalIntelligence()` previously sanitized explicit non-finite reserve inputs before passing them to `protectCashReserve()`, which could convert an invalid reserve context into an apparently valid zero-value reserve. The canonical layer now preserves explicit invalidity while still defaulting omitted optional values to zero.
+- Added a regression case to `src/lib/cycle11-canonical-closure.test.ts` requiring explicit non-finite canonical reserve input to remain invalid and force supplier-payment `HOLD_PAYMENT`.
+- Repository package scripts confirm dedicated executable contracts exist for report execution, watched-report pipeline, operational resilience, golden corpus, and production certification; however the available execution environment still cannot run the repository Node/Vitest harness, so no unexecuted contract was promoted to PASS.
+- Staging lifecycle functions were re-inspected after the Cycle 13 drills. Worker claiming remains service-role/postgres-only by design; watched-file recording remains authenticated-context guarded. No new persisted synthetic operational data was created in this cycle.
+- CI, Vercel quota, browser-authenticated journeys, live OCR backend, Windows native execution, and destructive/operational backup/restore/rollback drills remain external runtime capabilities and are not represented as PASS.
