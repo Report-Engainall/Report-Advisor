@@ -38,6 +38,10 @@ jobs:
         run: |
           set -euo pipefail
           for f in scripts/check-*.mjs; do
+            if [ "$f" = "scripts/check-evidence-freshness.mjs" ]; then
+              echo "Skipping release-only evidence freshness checker in PR certification: $f"
+              continue
+            fi
             echo "Running $f"
             node "$f"
           done
