@@ -8,11 +8,11 @@ This index is authoritative for execution state. Historical PASS is never promot
 - Repository: `Report-Engainall/Report-Advisor`
 - PR: **#294 — OPEN / NOT MERGED**
 - Base: `main` @ `89c8361e85878521c915328f6d0a595663498cd3`
-- Current PR head: `79b79098bc784aa6ffe690dd809e250796dc6387`
+- Current PR head: `cb834b8736dd71e5b057db1d80eaae302530e0d2`
 - Current branch: `codex/p0-hardening-integration-20260901`
-- Exact-head CI on the preceding `8df3b143...` exposed CI-boundary failures; those are now repaired and a new exact-head cycle is required on `79b79098...`.
+- Exact-head CI for `cb834b8736...`: newly triggered / awaiting workflow registration at last inspection; no final PASS claimed.
 
-### Verified in the immediately preceding exact-head cycle
+### Verified in immediately preceding exact-head cycle
 - 20-stage release readiness: **20/20 PASS**.
 - Auth/tenant convergence: PASS.
 - Authenticated E2E authorization/session/operation matrices: PASS as executable contracts.
@@ -21,16 +21,15 @@ This index is authoritative for execution state. Historical PASS is never promot
 - Evidence provenance/lineage: PASS.
 - Decision/work-item authorization and DML boundaries: PASS.
 - Import security/transaction/runtime governance: PASS.
-- Windows contract: pending exact-head re-run after CI identity-gate repair.
 - Storage tenant isolation: PASS.
-- Canonical truth/aggregation/dashboard numeric truth: pending exact-head re-run after identity-gate repair.
-- Production-chain and release-blocker contracts: PASS.
+- Canonical truth/aggregation/dashboard numeric truth: PASS where exact-head evidence existed.
+- Production-chain and release-blocker contracts: PASS where exact-head evidence existed.
 
-### Current CI repairs
-1. Quality Diagnostics was incorrectly attempting `git ls-remote` after checkout had deliberately disabled persisted credentials. The exact PR SHA is already supplied by the pull-request event and checked out directly; the unauthenticated remote lookup was removed.
-2. Phase 9 Windows exact-head verification had the same credential-dependent remote lookup; replaced with local checked-out SHA versus PR event SHA.
-3. Dashboard numeric truth had the same credential-dependent remote lookup; replaced with local exact-head verification.
-4. The resulting change is intentionally limited to CI identity validation; no product/runtime behavior was altered.
+### Latest CI repairs
+1. Reconciled `quality.yml` with the actual npm script inventory. Seven stale commands (`test:deep-golden-corpus`, `test:outcome-feedback-regressions`, `test:file-security-regressions`, `test:decision-evidence-regressions`, `test:navigation-route-contract`, `test:security-boundaries`, `test:phase3-data-import-truth-closure`) did not exist in `package.json` and were causing command-integrity failure.
+2. Replaced those aliases with the canonical executable checks already present in the repository, preserving coverage without inventing scripts or adding no-op aliases.
+3. Kept Exact-SHA diagnostics, locked `npm ci`, typecheck, lint, build, tenant RLS, import security, production certification, recovery, and performance gates intact.
+4. The change is CI-contract reconciliation only; it does not weaken product/runtime security boundaries.
 
 ### Security hardening already applied
 - Worker lifecycle RPCs are restricted to `service_role`; authenticated EXECUTE was revoked for checkpoint/complete/fail/heartbeat/retry operations.
