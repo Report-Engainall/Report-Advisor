@@ -24,6 +24,7 @@ const stages = [
   ['21-bi-output-integrity', ['test:bi-output-integrity']],
   ['22-bi-adversarial-input', ['test:bi-adversarial-input']],
   ['23-bi-boundary-suite', ['test:bi-boundary-suite']],
+  ['24-metric-boundary', ['test:metric-boundary']],
 ];
 
 const maxParallel = Math.max(1, Number(process.env.READINESS_PARALLELISM ?? 5));
@@ -101,7 +102,7 @@ await Promise.all(Array.from({ length: Math.min(maxParallel, stages.length) }, w
 
 const ordered = stages.map(([name]) => [name, results.get(name)]);
 const failed = ordered.filter(([, result]) => result.status !== 'PASS');
-console.log('\n=== 23-STAGE RELEASE READINESS ===');
+console.log('\n=== 24-STAGE RELEASE READINESS ===');
 for (const [name, result] of ordered) {
   console.log(`${result.status.padEnd(4)} ${name} :: ${result.scripts.join(' && ')} :: ${result.durationMs}ms`);
 }
