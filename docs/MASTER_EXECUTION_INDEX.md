@@ -9,7 +9,7 @@ This index is authoritative for execution state. Historical PASS is never promot
 - PR: **#294 — OPEN / NOT MERGED**
 - Base: `main` @ `89c8361e85878521c915328f6d0a595663498cd3`
 - Current branch: `codex/p0-hardening-integration-20260901`
-- Latest source/workflow hardening includes bounded Worker and Certification workflows, corpus guards, business-golden integrity guards, and the Alaghbari brand identity migration.
+- Latest source/workflow hardening includes bounded Worker and Certification workflows, corpus guards, business-golden integrity guards, recovery-boundary alignment, and the Alaghbari brand identity migration.
 - Exact-head CI is required after every source/workflow mutation; no final PASS is claimed until that exact SHA is verified.
 
 ### Latest certification finding and repair
@@ -21,12 +21,14 @@ This index is authoritative for execution state. Historical PASS is never promot
 ### Worker lifecycle hardening
 - Worker lifecycle regression suite covers heartbeat, checkpoint, completion, failure, retry, lease expiry, service-role authority, tenant isolation, terminal-state guards, search_path, lease floor, null payloads, lease clearance, grants, checkpoint monotonicity, retry eligibility, terminality, tenant boundary, RPC signatures, return semantics, updated_at, active-state restrictions, and completion evidence.
 - `.github/workflows/worker-hardening-contract.yml` executes the repository-backed worker contract suite.
+- Checkpoint monotonicity guard now targets the canonical `src/lib/report-execution/checkpoint.ts` module instead of a removed flat module path.
 - An invalid nonexistent claim-migration reference was removed; no unsupported guard remains.
 
 ### Certification evidence boundary hardening
 - Canonical mandatory evidence order is tenant, backup, rollback, artifact, security.
 - Score derivation, fail-closed behavior, duplicate/missing/failed evidence, key uniqueness, unknown keys, blocker propagation, warning separation, evidence preservation, set membership, adversarial coverage, writer-table coverage, runtime-test wiring, workflow trigger/security, and referenced-file integrity are guarded.
 - Certification workflow has a 10-minute job timeout, read-only contents permission, shallow checkout, credential persistence disabled, and explicit action-major contract (`checkout@v7`, `setup-node@v7`, Node 22).
+- Phase-10 recovery guard now recognizes the canonical P1-D Recovery closure track while retaining legacy P1-H/R16 compatibility.
 
 ### Completed repository hardening — prior batches
 1. Worker workflow security contract.
@@ -76,8 +78,16 @@ This index is authoritative for execution state. Historical PASS is never promot
 39. Added centralized `src/lib/brand.ts` as the source of truth for brand name, title, description, and mark.
 40. Added a brand regression contract and dedicated CI workflow preventing the retired identity from returning to the login/sidebar/index surfaces.
 
+### New completed work — large closure batch 01
+41. Repaired the Worker checkpoint guard's stale source path and added an explicit advancement-implementation assertion.
+42. Completed Tenant-B Golden Corpus profitability truth with `estimated_cogs=440` and `estimated_gross_profit=200`, eliminating a real arithmetic gate failure.
+43. Hardened the Golden Corpus arithmetic guard to fail closed when mandatory profitability truth fields are missing or non-finite.
+44. Added a recursive source sweep preventing the retired **العامري** identity from reappearing anywhere under active `src` source files.
+45. Wired the retired-brand source sweep into the dedicated brand CI workflow and expanded its PR path coverage to the whole `src/**` tree.
+46. Repaired Phase-10 recovery-boundary vocabulary drift so the guard follows the canonical P1-D Recovery track while preserving historical compatibility.
+
 ### Current dependency/security observation
-- `npm ci` reports **19 dependency vulnerabilities (2 low, 4 moderate, 13 high)**. No blind `npm audit fix` is authorized.
+- `npm ci` currently reports **21 dependency vulnerabilities (3 low, 4 moderate, 14 high)** in the latest exact-head run. No blind `npm audit fix` is authorized.
 - `pdfjs-dist@6.2.108` is already on the patched line for the current 2026 PDF.js advisory.
 - `xlsx@0.18.5` remains a separate unresolved high-severity direct dependency decision; no false PASS or blind replacement has been made.
 
