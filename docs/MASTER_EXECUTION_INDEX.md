@@ -8,32 +8,39 @@ This index is authoritative for execution state. Historical PASS is never promot
 - Repository: `Report-Engainall/Report-Advisor`
 - PR: **#294 — OPEN / NOT MERGED**
 - Base: `main` @ `89c8361e85878521c915328f6d0a595663498cd3`
-- Current execution head: `4d8cb88576c42aedd9d5e440614f8481c9d5ad33`
+- Current execution head: `cf14fb1375f57c0e19b73e982181423a02362a02`
 - Current branch: `codex/p0-hardening-integration-20260901`
-- Exact-head CI is required after the latest Phase-1 exact-head assertion repair; no final PASS is claimed yet.
+- Exact-head CI is required after the latest K→S production-run-policy wiring; no final PASS is claimed yet.
 
 ### Latest executed repair
-- Final Certification run `33516061527` and Quality run `33516061611` were inspected at the log level.
-- Both were executing the older exact SHA `a09c90027870dd687ab92871a7cff5682e07a1dc`, not the newer candidate. This explains why they could not validate later fixes.
-- Quality's Phase-1 checker failed on an outdated assertion requiring literal `${GITHUB_SHA}` syntax, while the canonical workflow correctly uses the PR head SHA expression and compares it to `git rev-parse HEAD`.
-- Updated `scripts/check-phase1-foundation-closure.mjs` to validate the actual fail-closed exact-head contract rather than a superseded syntax pattern.
-- New exact head: `4d8cb88576c42aedd9d5e440614f8481c9d5ad33`.
+- Exact-head Quality run `33516668409` on `f3831c2e3ba93e621a7bf02b8c591e64e68e022b` reached the K→S runtime integration gate after 36 prior successful stages.
+- The K→S checker failed on one concrete missing CI contract: `quality missing test:production-run-policy`.
+- The repository already contained the canonical `src/lib/report-execution/production-run-policy.ts` policy surface and a checker for it, but the checker was not exposed as an npm script and executed by Quality.
+- Added `test:production-run-policy` to `package.json` and wired `npm run test:production-run-policy` into `quality.yml` immediately after the K→S runtime integration gate.
+- No bypass or weakened assertion was introduced; the existing fail-closed production policy remains the source of truth.
+- New exact head: `cf14fb1375f57c0e19b73e982181423a02362a02`.
 
-### Verified on the inspected exact-head cycle
-- 20-stage release readiness: **19/20 PASS** before the Phase-1 repair; all stages except architecture passed.
-- Build/typecheck: PASS.
-- Lint: PASS.
-- Auth/tenant: PASS.
-- Global RLS: PASS.
-- Migration schema/dependencies: PASS.
-- Import security/transaction/runtime: PASS.
-- File/schema/document/data/business/decision intelligence: PASS.
-- Watched-folder: PASS.
-- Production resilience: PASS.
+### Verified on the inspected exact-head cycle before the latest repair
+- 20-stage release readiness: **20/20 PASS**.
+- Phase 1 foundation closure: PASS.
+- Architecture contract: PASS.
+- Concurrent analysis: PASS.
 - Production scale: PASS.
-- Release blockers: PASS.
-- Separate integrity/security/truth workflows: PASS.
-- `production-chain-guard`: PASS.
+- Document resilience: PASS.
+- Workflow command integrity: PASS across 68 workflows.
+- CI topology / production recovery gate: PASS.
+- Authentication/tenant convergence and adversarial tenant boundaries: PASS.
+- Migration schema audit: PASS (139 migrations; 96 tables/indexes, 106 policies, 11 triggers; no findings).
+- Core file/schema/document/business/decision intelligence contracts: PASS.
+- Golden E2E corpus: PASS.
+- Worker failure/recovery runtime: PASS.
+- Production certification evidence integrity: PASS.
+- Production certification contract: PASS.
+- Release evidence consumption: PASS.
+- Operational resilience and release resilience manifest: PASS.
+- Continuous trust and autonomous governance: PASS.
+- Watched-folder/text-first/incremental ledger: PASS.
+- Separate security/truth/storage/Windows/inventory/OCR workflows: PASS.
 
 ### Security hardening already applied
 - Worker lifecycle RPCs are restricted to `service_role`; authenticated EXECUTE was revoked for checkpoint/complete/fail/heartbeat/retry operations.
