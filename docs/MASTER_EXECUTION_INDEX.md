@@ -9,7 +9,7 @@ This index is authoritative for execution state. Historical PASS is never promot
 - PR: **#294 — OPEN / NOT MERGED**
 - Base: `main` @ `89c8361e85878521c915328f6d0a595663498cd3`
 - Current branch: `codex/p0-hardening-integration-20260901`
-- Latest source/workflow hardening includes bounded Worker and Certification workflows, corpus guards, business-golden integrity guards, recovery-boundary alignment, and the Alaghbari brand identity migration.
+- Latest source/workflow hardening includes bounded Worker and Certification workflows, corpus guards, business-golden integrity guards, recovery-boundary alignment, checkpoint resume coverage, and the Alaghbari brand identity migration.
 - Exact-head CI is required after every source/workflow mutation; no final PASS is claimed until that exact SHA is verified.
 
 ### Latest certification finding and repair
@@ -22,6 +22,7 @@ This index is authoritative for execution state. Historical PASS is never promot
 - Worker lifecycle regression suite covers heartbeat, checkpoint, completion, failure, retry, lease expiry, service-role authority, tenant isolation, terminal-state guards, search_path, lease floor, null payloads, lease clearance, grants, checkpoint monotonicity, retry eligibility, terminality, tenant boundary, RPC signatures, return semantics, updated_at, active-state restrictions, and completion evidence.
 - `.github/workflows/worker-hardening-contract.yml` executes the repository-backed worker contract suite.
 - Checkpoint monotonicity guard now targets the canonical `src/lib/report-execution/checkpoint.ts` module instead of a removed flat module path.
+- Checkpoint resume regression coverage is now explicit in `scripts/report-execution-runtime.test.ts`.
 - An invalid nonexistent claim-migration reference was removed; no unsupported guard remains.
 
 ### Certification evidence boundary hardening
@@ -85,6 +86,13 @@ This index is authoritative for execution state. Historical PASS is never promot
 44. Added a recursive source sweep preventing the retired **العامري** identity from reappearing anywhere under active `src` source files.
 45. Wired the retired-brand source sweep into the dedicated brand CI workflow and expanded its PR path coverage to the whole `src/**` tree.
 46. Repaired Phase-10 recovery-boundary vocabulary drift so the guard follows the canonical P1-D Recovery track while preserving historical compatibility.
+
+### New completed work — large closure batch 02
+47. Added explicit checkpoint-resume regression assertions for same-stage resume, backward-stage rejection, and source-hash mismatch rejection.
+48. Strengthened the Worker runtime contract output to explicitly include checkpoint-resume coverage.
+49. Revalidated the canonical Worker checkpoint implementation against the runtime regression harness after the stale-path repair.
+50. Preserved strict tenant/idempotency identity invariants while expanding recovery-path coverage.
+51. Updated the authoritative execution index to record the checkpoint-resume closure and current recovery alignment.
 
 ### Current dependency/security observation
 - `npm ci` currently reports **21 dependency vulnerabilities (3 low, 4 moderate, 14 high)** in the latest exact-head run. No blind `npm audit fix` is authorized.
