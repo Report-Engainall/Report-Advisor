@@ -2,14 +2,26 @@ name: Metric Boundary Contract
 
 on:
   pull_request:
+    paths:
+      - 'src/lib/metricEngine.ts'
+      - 'src/lib/metricEngine.boundary.test.ts'
+      - 'scripts/check-metric-boundary-contract.mjs'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/metric-boundary-contract.yml'
   workflow_dispatch:
 
 permissions:
   contents: read
 
+concurrency:
+  group: metric-boundary-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   metric-boundary:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
         with:
@@ -20,4 +32,4 @@ jobs:
           cache: npm
       - run: npm ci
       - name: Execute metric boundary contract
-        run: node scripts/check-metric-boundary-contract.mjs
+        run: npm run test:metric-boundary
