@@ -12,12 +12,14 @@ export interface AIDataPolicyDecision {
   payloadMode: 'none' | 'redacted-context' | 'approved-context';
 }
 
+const hasTenantScope = (tenantId: unknown): tenantId is string => typeof tenantId === 'string' && tenantId.trim().length > 0;
+
 /**
  * Hosted AI is not allowed to receive arbitrary database rows. Callers must
  * first construct a minimal, approved context or use deterministic tools.
  */
 export function evaluateAIDataPolicy(input: AIDataPolicyInput): AIDataPolicyDecision {
-  if (!input.tenantId) return { allowed: false, reason: 'Tenant scope is required', payloadMode: 'none' };
+  if (!hasTenantScope(input.tenantId)) return { allowed: false, reason: 'Tenant scope is required', payloadMode: 'none' };
   if (input.includeRawBusinessRows) return { allowed: false, reason: 'Raw business rows are not allowed in hosted AI context', payloadMode: 'none' };
   if (input.trustedProvider !== true) return { allowed: false, reason: 'Provider is not approved for company data', payloadMode: 'none' };
   if (!input.text?.trim()) return { allowed: false, reason: 'Approved context is empty', payloadMode: 'none' };
@@ -31,7 +33,8 @@ export function evaluateAIDataPolicy(input: AIDataPolicyInput): AIDataPolicyDeci
  * is evaluated.
  */
 export function evaluateAIDataPolicyForSession(input: AIDataPolicyInput, authenticatedTenantId: string | null | undefined): AIDataPolicyDecision {
-  if (!authenticatedTenantId) return { allowed: false, reason: 'Authenticated tenant scope is required', payloadMode: 'none' };
-  if (input.tenantId !== authenticatedTenantId) return { allowed: false, reason: 'Requested tenant does not match authenticated tenant', payloadMode: 'none' };
+  if (!hasTenantScope(authenticatedTenantId)) return { allowed: false, reason: 'Authenticated tenant scope is required', payloadMode: 'none' };
+  if (!hasTenantScope(input.tenantId)) return { allowed: false, reason: 'Requested tenant scope is required', payloadMode: 'none' };
+  if (input.tenantId.trim() !== authenticatedTenantId.trim()) return { allowed: false, reason: 'Requested tenant does not match authenticated tenant', payloadMode: 'none' };
   return evaluateAIDataPolicy(input);
 }
