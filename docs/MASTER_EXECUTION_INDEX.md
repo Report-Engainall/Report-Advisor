@@ -8,10 +8,10 @@ This file is the authoritative execution index. Historical PASS remains historic
 
 - Planning estimate from latest developer assessment: **~88%** overall.
 - Independent release-readiness judgment: advanced Release Candidate; **NOT Production Certified / NOT Sellable yet**.
-- Current `main` release baseline: `4705028d1e19ea7201f4cb9945ce3e1cc1a550a2`.
+- Current `main` release baseline: `89c8361e85878521c915328f6d0a595663498cd3`.
 - Owner integration PR: **#294**, OPEN / NOT MERGED.
-- PR #294 current frozen head before this conflict-resolution commit: `dc8d1be34a98d0766fd0baaba29effaf8bf9ed44`.
-- PR #294 base SHA: `4705028d1e19ea7201f4cb9945ce3e1cc1a550a2`.
+- PR #294 current exact head: `4b46af125986888d1300a12e7eb21e0a2622c270`.
+- PR #294 base SHA: `89c8361e85878521c915328f6d0a595663498cd3`.
 - `e2d7f57e4a4eab3327b54d762427a46e4d3a3264` is an index-referenced integration candidate only; it is NOT the current PR #294 HEAD.
 - The prior frozen candidate `dc8d1be34a98d0766fd0baaba29effaf8bf9ed44` remains a historical candidate and is not certified by this documentation-only reconciliation commit.
 - Do not call the PR head `main` PASS until PR #294 is merged and exact-head CI passes.
@@ -316,3 +316,27 @@ ONE EXACT RELEASE SHA
 ## OWNER DECISION
 
 The project remains in **PROVE → CERTIFY → RELEASE**, not BUILD. The latest cycle adds no fabricated PASS. The real security findings remain an active P0 closure lane, while environmental blockers are explicitly isolated so independent engineering work continues in parallel.
+
+
+## CYCLE 20 EXECUTION UPDATE — 2026-09-01
+
+- Exact PR #294 head advanced to `4b46af125986888d1300a12e7eb21e0a2622c270` after four real certification-contract defects were repaired on the same integration branch.
+- Fixed `check-evidence-provenance-chain.mjs`: the old contract searched for the literal word `provenance` in three implementation files and failed even though the runtime exposed source identity, source hashes, lineage, evidence quality, and tenant-bound evidence edges. The contract now checks the actual runtime invariants.
+- Fixed `check-k-to-s-runtime-integration.mjs`: reconciled stale symbol names (`advanceLifecycle`, `chooseBoundedScenario`, `buildDecisionPortfolio`, `autonomyDecision`) with the canonical current bridge API (`runProductionLifecycle`, `chooseScenario`, `prioritizeDecisions`, `canAutonomouslyExecute`).
+- Fixed `check-live-gate-manifest-integrity.mjs`: the Phase F workflow correctly runs `npm run test:operational-resilience`; the stale contract was checking for a nonexistent direct command token.
+- Fixed `check-release-evidence-completeness.mjs`: the required `source_sha` evidence is defined by the release workflow, so the workflow is now included in the contract's inspected sources.
+- Fixed `check-folder-batch-import.mjs`: reconciled the test with the current production UI wording `سحب ومزامنة التقارير من مجلد`; the folder importer itself already contains the required security scan, SHA-256 identity, duplicate check, parsing, reconciliation, and canonical commit path.
+- Exact-head CI on the preceding head `36fb5a522522c439cb86c8c9b3736dc0047c4f93` exposed these four stale-contract failures; all other reported certification-contract checks in that run passed before the failures.
+- New exact-head CI for `4b46af125986888d1300a12e7eb21e0a2622c270` has been triggered; at the latest inspection it was queued/in progress and therefore is **NOT yet PASS**.
+- Current Staging Security Advisor was re-read directly. It reports authenticated-callable SECURITY DEFINER warnings for 18 public routines; direct inspection shows the affected routines use `search_path=public` and tenant/user guards where appropriate. No blanket revoke was performed. Worker claim remains service-role/postgres-only; user-facing decision/evidence RPCs remain intentional authenticated boundaries pending final per-function exploit proof.
+- Staging project is reachable and healthy: `fnqbvfuwbdpwvhcgzksl`, PostgreSQL 17.6.1.166. Performance Advisor findings remain INFO-level unused-index notices; no index was removed without workload evidence.
+- Certification remains **NOT CERTIFIED / NOT SELLABLE**. No live authenticated A/B, production runtime, backup/restore, rollback, or browser/OCR/Windows evidence was fabricated.
+
+### Cycle 20 certification impact
+
+```text
+Contract defects from prior exact-head run       FIXED
+New exact-head CI                                 QUEUED / IN PROGRESS
+Security Advisor                                  RE-READ / CLASSIFIED
+Production certification                          NO
+```
