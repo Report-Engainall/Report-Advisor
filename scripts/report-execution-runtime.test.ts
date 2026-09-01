@@ -81,7 +81,48 @@ for (const token of [
   assert.ok(adapterSource.includes(token), `missing adapter runtime guard/RPC: ${token}`);
 }
 
-// 9. Lease/failure/dead-letter SQL remains tenant-scoped and fail-closed.
+// 9. Execute all durable adapter RPC paths against a deterministic in-memory Supabase double.
+const calls: Array<{ name: string; args: Record<string, unknown> }> = [];
+const fakeClient = {
+  rpc: async (name: string, args: Record<string, unknown>) => { calls.push({ name, args }); return { data: true, error: null }; },
+  from: () => ({
+    select: () => ({
+      eq: () => ({
+        single: async () => ({ data: { id:'job-1', company_id:'tenant-a', status:'processing', checkpoint: enriched, attempt:1, max_attempts:3, lease_owner:'worker-a', lease_expires_at:'2099-01-01T00:00:00Z' }, error:null }),
+      }),
+    }),
+  }),
+};
+const store = new SupabaseReportExecutionStore(fakeClient as never);
+await store.claim('job-1', 'worker-a', 60);
+await store.heartbeat('job-1', 'worker-a', 60);
+await store.saveCheckpoint('job-1', enriched, 'worker-a');
+await store.complete('job-1', 'worker-a', { ok:true });
+await store.fail('job-1', 'worker-a', { code:'E_TEST' });
+await store.retry('job-1');
+assert.deepEqual(calls.map((call) => call.name), [
+  'claim_report_execution_job',
+  'heartbeat_report_execution_job',
+  'advance_report_execution_checkpoint',
+  'complete_report_execution_job',
+  'fail_report_execution_job',
+  'retry_report_execution_job',
+]);
+assert.equal(calls[0].args.p_lease_seconds, 60);
+assert.equal(calls[2].args.p_worker_id, 'worker-a');
+assert.deepEqual(calls[3].args.p_evidence, { ok:true });
+
+// 10. Adapter rejects invalid input before any RPC side effect.
+const beforeInvalid = calls.length;
+await assert.rejects(() => store.claim(' ', 'worker-a'), /job id is required/);
+await assert.rejects(() => store.claim('job-1', ' ', 60), /worker id is required/);
+await assert.rejects(() => store.claim('job-1', 'worker-a', 0), /positive integer/);
+await assert.rejects(() => store.heartbeat('job-1', 'worker-a', 1.5), /positive integer/);
+await assert.rejects(() => store.saveCheckpoint('job-1', enriched), /active worker lease owner/);
+await assert.rejects(() => store.complete('job-1', ' '), /worker id is required/);
+assert.equal(calls.length, beforeInvalid);
+
+// 11. Lease/failure/dead-letter SQL remains tenant-scoped and fail-closed.
 const leaseFailureSql = fs.readFileSync('supabase/migrations/20260825153000_runtime_lease_hardening.sql', 'utf8');
 for (const token of [
   'attempt >= max_attempts',
@@ -93,4 +134,4 @@ for (const token of [
   assert.ok(leaseFailureSql.includes(token), `missing failure-state invariant: ${token}`);
 }
 
-console.log('Report execution runtime: PASS (checkpoint + evidence + request identity + tenant boundary + durable adapter + lease/failure invariants)');
+console.log('Report execution runtime: PASS (checkpoint + evidence + request identity + tenant boundary + durable adapter execution + lease/failure invariants)');
