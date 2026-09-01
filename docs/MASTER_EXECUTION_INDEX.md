@@ -8,9 +8,9 @@ This index is authoritative for execution state. Historical PASS is never promot
 - Repository: `Report-Engainall/Report-Advisor`
 - PR: **#294 — OPEN / NOT MERGED**
 - Base: `main` @ `89c8361e85878521c915328f6d0a595663498cd3`
-- Current PR head: `8df3b1433974ba4f074c9835539cc52c3322b523`
+- Current PR head: `79b79098bc784aa6ffe690dd809e250796dc6387`
 - Current branch: `codex/p0-hardening-integration-20260901`
-- Exact-head CI for `8df3b143...`: **RUNNING / QUEUED** at last inspection; no final PASS claimed.
+- Exact-head CI on the preceding `8df3b143...` exposed CI-boundary failures; those are now repaired and a new exact-head cycle is required on `79b79098...`.
 
 ### Verified in the immediately preceding exact-head cycle
 - 20-stage release readiness: **20/20 PASS**.
@@ -21,20 +21,21 @@ This index is authoritative for execution state. Historical PASS is never promot
 - Evidence provenance/lineage: PASS.
 - Decision/work-item authorization and DML boundaries: PASS.
 - Import security/transaction/runtime governance: PASS.
-- Windows contract: PASS.
+- Windows contract: pending exact-head re-run after CI identity-gate repair.
 - Storage tenant isolation: PASS.
-- Canonical truth/aggregation/dashboard numeric truth: PASS.
+- Canonical truth/aggregation/dashboard numeric truth: pending exact-head re-run after identity-gate repair.
 - Production-chain and release-blocker contracts: PASS.
 
-### Last discovered failures and their repairs
-1. J runtime contract expected a literal `deadletter` token in the wrong source set. Rebound the invariant to the canonical runtime-closure migration and resumability contract while retaining the semantic `dead-letter` requirement.
-2. N→S release matrix required a nonexistent npm alias `test:k-to-s-runtime-integration`; changed it to verify the actual checker `check-k-to-s-runtime-integration.mjs` executed by CI.
-3. K→S runtime integration checker made the same stale npm-alias assumption; changed it to validate the actual CI-executed checker plus the real runtime API symbols.
+### Current CI repairs
+1. Quality Diagnostics was incorrectly attempting `git ls-remote` after checkout had deliberately disabled persisted credentials. The exact PR SHA is already supplied by the pull-request event and checked out directly; the unauthenticated remote lookup was removed.
+2. Phase 9 Windows exact-head verification had the same credential-dependent remote lookup; replaced with local checked-out SHA versus PR event SHA.
+3. Dashboard numeric truth had the same credential-dependent remote lookup; replaced with local exact-head verification.
+4. The resulting change is intentionally limited to CI identity validation; no product/runtime behavior was altered.
 
 ### Security hardening already applied
 - Worker lifecycle RPCs are restricted to `service_role`; authenticated EXECUTE was revoked for checkpoint/complete/fail/heartbeat/retry operations.
 - Authenticated direct INSERT/UPDATE/DELETE/TRUNCATE on `report_execution_jobs` were revoked; read-only tenant-scoped access remains.
-- Repository migration added: `supabase/migrations/20260901150000_harden_worker_runtime_authority.sql`.
+- Repository migration: `supabase/migrations/20260901150000_harden_worker_runtime_authority.sql`.
 - No blanket SECURITY DEFINER revoke was used; user-facing authenticated APIs remain subject to individual privilege/tenant analysis.
 
 ## NON-NEGOTIABLE CERTIFICATION BLOCKERS
@@ -46,7 +47,7 @@ These are not to be fabricated as PASS:
 - Real rollback drill.
 - Live Vercel deployment/runtime bound to the certified SHA.
 - Real browser authenticated E2E with valid credentials.
-- Live OCR/Golde​n Corpus execution where backend/device capability is required.
+- Live OCR/Golden Corpus execution where backend/device capability is required.
 - Independent business acceptance.
 
 ## EXECUTION PROTOCOL
