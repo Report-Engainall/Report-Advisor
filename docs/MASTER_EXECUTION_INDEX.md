@@ -91,3 +91,15 @@ Source-level work can continue; Windows native/installer and authenticated produ
 - Treating contracts as runtime PASS.
 - Treating historical PASS as current exact-SHA PASS.
 - Waiting for CI, Vercel quota, or Windows when independent repository work is executable.
+
+## CYCLE 13 CLOSURE UPDATE — 2026-09-01
+
+- Executed the deterministic Golden Corpus boundary logic directly with the repository fixture definitions: **8/8 cases**, all canonical expected outputs accepted; duplicate/unknown IDs were ignored by the scorer; NaN and below-threshold confidence were rejected.
+- Identified and fixed a real financial-decision fail-open defect: non-finite cash-reserve inputs could be normalized to zero and permit payment decisions. `protectCashReserve()` now exposes a validity boundary; supplier-payment prioritization holds payment when the reserve input is invalid.
+- Added `src/lib/financialDecisionEngines.boundary.test.ts` covering four invalid reserve-input classes plus valid behavior.
+- Executed the new financial reserve boundary harness directly with Node 22: **4/4 invalid cases blocked + 1/1 valid case preserved**.
+- Hardened release-evidence consumption so expected, manifest, and consumed source SHAs must each match exactly **40 hexadecimal characters** before evidence can be consumed.
+- Staging worker/watch-folder execution was advanced with transaction-scoped synthetic fixtures. `claim_report_execution_job()` successfully leased a synthetic job once and rejected the second claim while the first lease was active; the transaction was rolled back. `record_watched_report_file()` successfully created then updated the same path, proving the unique tenant/folder/path idempotent update behavior (`source_version` 1 → 2); malformed empty path and negative size were rejected. No synthetic data was left behind.
+- Source inspection confirmed worker claiming is intentionally restricted to `service_role`/`postgres`; authenticated callers do not receive EXECUTE. This is classified as an intentional worker boundary, not an authorization defect.
+- Current operational counts remain zero after rollback; no synthetic runtime PASS was promoted to persistent operational evidence.
+- Security remains provisionally closed; no duplicate security investigation was opened.
