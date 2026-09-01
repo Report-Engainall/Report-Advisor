@@ -15,17 +15,21 @@ function clampPercent(value: number): number {
 }
 
 export function evaluateDecisionBatch(rows:BatchDecisionRow[]):BatchDecisionSummary{
+  if(!Array.isArray(rows)) throw new Error('INSUFFICIENT_DECISION_DATA:batch:rows')
   const started=typeof performance!=='undefined'?performance.now():Date.now()
   let reorder=0,critical=0,total=0
   for(const r of rows){
-    const stock=requireDecisionNumber(r.stock,'stock',r.groupId,{min:0})
-    const demand=requireDecisionNumber(r.forecastDaily,'forecastDaily',r.groupId,{min:0})
-    const targetDays=requireDecisionNumber(r.targetDays,'targetDays',r.groupId,{min:Number.EPSILON})
-    const lostUnits=requireDecisionNumber(r.lostUnits,'lostUnits',r.groupId,{min:0})
-    const liquidityScore=requireDecisionNumber(r.liquidityScore,'liquidityScore',r.groupId,{min:0,max:100})
-    const continuityRisk=requireDecisionNumber(r.continuityRisk,'continuityRisk',r.groupId,{min:0,max:100})
-    const seasonalityScore=requireDecisionNumber(r.seasonalityScore,'seasonalityScore',r.groupId,{min:0,max:100})
-    requireDecisionNumber(r.confidence,'confidence',r.groupId,{min:0,max:100})
+    if(!r || typeof r!=='object') throw new Error('INSUFFICIENT_DECISION_DATA:batch:row')
+    const groupId=typeof r.groupId==='string'?r.groupId.trim():''
+    if(!groupId) throw new Error('INSUFFICIENT_DECISION_DATA:batch:groupId')
+    const stock=requireDecisionNumber(r.stock,'stock',groupId,{min:0})
+    const demand=requireDecisionNumber(r.forecastDaily,'forecastDaily',groupId,{min:0})
+    const targetDays=requireDecisionNumber(r.targetDays,'targetDays',groupId,{min:Number.EPSILON})
+    const lostUnits=requireDecisionNumber(r.lostUnits,'lostUnits',groupId,{min:0})
+    const liquidityScore=requireDecisionNumber(r.liquidityScore,'liquidityScore',groupId,{min:0,max:100})
+    const continuityRisk=requireDecisionNumber(r.continuityRisk,'continuityRisk',groupId,{min:0,max:100})
+    const seasonalityScore=requireDecisionNumber(r.seasonalityScore,'seasonalityScore',groupId,{min:0,max:100})
+    requireDecisionNumber(r.confidence,'confidence',groupId,{min:0,max:100})
 
     const coverage=safeDays(stock,demand)
     const coverageRisk=finitePercent(clampPercent(100-(coverage/targetDays)*100))
