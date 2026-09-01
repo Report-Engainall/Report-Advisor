@@ -4,6 +4,8 @@ const workflow = fs.readFileSync('.github/workflows/certification-evidence-bound
 const guards = [
   'check-certification-workflow-security-contract.mjs',
   'check-certification-workflow-trigger-contract.mjs',
+  'check-certification-workflow-action-contract.mjs',
+  'check-certification-workflow-timeout-contract.mjs',
   'check-certification-workflow-referenced-files.mjs',
   'check-certification-evidence-order-contract.mjs',
   'check-certification-score-contract.mjs',
