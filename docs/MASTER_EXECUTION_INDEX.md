@@ -11,7 +11,7 @@ This file is the authoritative execution index. Historical PASS remains historic
 - Current `main` release baseline: `17a49420c70faca143cf7cc58ad11aae6edcb662`.
 - Owner integration PR: **#294**, OPEN / NOT MERGED.
 - This execution wave adds implementation PR **#300**, OPEN / NOT MERGED.
-- PR #300 head advances beyond the previously indexed `c8f417e...` through the execution fixes below.
+- PR #300 current head: `5841f44fe26f0d326f6c06ccb0baea520e1f14eb`.
 - Do not call branch-local hardening PASS `main` PASS until exact-head CI and merge conditions are satisfied.
 
 ## Latest Executed Cycle — 2026-09-01
@@ -34,6 +34,8 @@ This file is the authoritative execution index. Historical PASS remains historic
 14. **Tenant-isolation workflow repair:** removed the duplicate `main` push trigger from `storage-tenant-isolation.yml`, preserving PR and manual execution.
 15. **File-security ESM repair:** normalized `security.ts` imports to explicit `.ts` module paths so the archive traversal regression can execute under Node's ESM resolver.
 16. **CI credential hardening:** disabled persisted checkout credentials in the file-intelligence security workflow.
+17. **File-security integrity restoration:** restored the complete `security.ts` implementation after the prior branch edit had replaced it with an incomplete prefix; all scanner and duplicate-check exports are present again while retaining explicit ESM imports.
+18. **Archive traversal adversarial expansion:** extended the executable ZIP regression matrix to cover backslash traversal, NUL entry names, unsafe uploaded archive filenames and NUL-containing uploaded filenames, in addition to POSIX/Windows absolute and nested parent traversal.
 
 ### Exact implementation SHAs
 
@@ -42,19 +44,21 @@ This file is the authoritative execution index. Historical PASS remains historic
 - AI tenant policy: `ea8d89efe485ae5d710d36983662a0b2b3700ba3`
 - Report-fact provenance/confidence: `8043d9ec069d110922b01997e5578c7e34d4d64e`
 - Metric boundary hardening: `a284144b5d614c2991712a596992394f52dbb203`
-- Latest execution fix commits: `a857f4404b8c99bbd4da3b264b59c65d3f2a3751`, `29a99caf0f59178cfe9fb3fdf373d5e02a6ad232`, `15159f207402ac8a0df4f169d0505925c4744f15`, `95bb48acc2a694a9bf9c948cc1cbade3f4ff37ee`
+- File-security restoration: `a61892bd1153e32d3b35ba396342b9faa00a7155`
+- Archive traversal regression expansion: `5841f44fe26f0d326f6c06ccb0baea520e1f14eb`
+- Earlier execution fix commits: `a857f4404b8c99bbd4da3b264b59c65d3f2a3751`, `29a99caf0f59178cfe9fb3fdf373d5e02a6ad232`, `15159f207402ac8a0df4f169d0505925c4744f15`, `95bb48acc2a694a9bf9c948cc1cbade3f4ff37ee`
 
 ## Verification Truth
 
-- The latest exact-head CI evidence for the pre-fix PR #300 merge ref showed **20/20 release-readiness stages PASS**, while the quality job failed specifically at CI topology because three workflows were independently declaring a canonical `main` push trigger.
-- The same exact-head run exposed a separate file-security regression failure: Node ESM could not resolve the extensionless `./types` import from `security.ts`; this was corrected on the branch.
-- File-intelligence security contract itself passed before the archive traversal test reached the import-resolution failure.
+- The exact-head CI for `dff150f...` proved the previous archive regression failure was a real module-export failure because the branch file was incomplete; it is now restored at `a61892b...` and the regression matrix was expanded at `5841f44...`.
+- Before the regression, the File Intelligence security contract itself passed; no current post-fix security PASS is claimed until the new exact-head run completes.
+- The latest post-fix commit has triggered the PR CI matrix; queued runs are the active verification state and are not yet PASS.
 - The latest status still includes the known Vercel deployment quota failure; this remains external and does not become a code PASS.
 - No production certification, authenticated tenant A/B PASS, backup/restore PASS, rollback PASS, or Vercel runtime PASS is claimed.
 
 ## Current Operational Truth / Blockers
 
-1. **Exact-head CI:** must re-run against the post-fix PR #300 head.
+1. **Exact-head CI:** queued/running against `5841f44...`; must finish green before merge.
 2. **Security:** Advisor findings require per-function analysis; leaked-password protection remains an operational configuration gap.
 3. **Authenticated A/B:** no operational credentials/sessions available for honest LIVE E2E evidence.
 4. **Backup/Restore:** no real PASS run yet.
@@ -178,4 +182,4 @@ ONE EXACT RELEASE SHA
 
 ## OWNER DECISION
 
-The project remains in **PROVE → CERTIFY → RELEASE**, not BUILD. This cycle materially closed five executable defects/hardening items: CI topology duplication, storage trigger duplication, Node ESM file-security resolution, and persisted CI credentials, while preserving the existing hardening work. Exact-head CI must now prove the post-fix state before any merge or certification decision.
+The project remains in **PROVE → CERTIFY → RELEASE**, not BUILD. This cycle restored the complete file-security scanner, preserved the intended ESM repair, and materially expanded adversarial archive traversal coverage. Exact-head CI is now the active proof gate; no merge or certification is claimed until it converges on the current SHA.
