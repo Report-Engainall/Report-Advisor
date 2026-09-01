@@ -8,7 +8,7 @@ This index is authoritative for execution state. Historical PASS is never promot
 - Repository: `Report-Engainall/Report-Advisor`
 - PR: **#294 — OPEN / NOT MERGED**
 - Base: `main` @ `89c8361e85878521c915328f6d0a595663498cd3`
-- Current execution head: `e8f7a5d1a7d8f4d8dfe3a8cfb8e9d4b5f8c5b9f0`
+- Current execution head: `92cec31895e962964e360512d37c3f02db5f5ea2`
 - Current branch: `codex/p0-hardening-integration-20260901`
 - Exact-head CI is required after the latest free-toolbox ESM import repair; no final PASS is claimed yet.
 
@@ -17,7 +17,8 @@ This index is authoritative for execution state. Historical PASS is never promot
 - Final execution batch reached **30 PASS** before `check-intelligence-foundation.mjs` failed with `ERR_MODULE_NOT_FOUND` for `src/lib/free-toolbox/statistics` imported by `time-series.ts`.
 - Canonical `src/lib/free-toolbox/statistics.ts` exists; the defect was Node ESM resolution of an extensionless TypeScript import in a source-level checker path.
 - Repaired `time-series.ts` to use the explicit `.ts` import. `tsconfig.app.json` already enables `allowImportingTsExtensions`, so the application typecheck remains compatible.
-- New exact head must be established by CI; no PASS is promoted from the prior SHA.
+- The documentation commit that records this repair is now the current execution head: `92cec31895e962964e360512d37c3f02db5f5ea2`.
+- No PASS is promoted from the prior SHA; a new Exact-head CI run is required.
 
 ## VERIFIED EXACT-HEAD RESULTS BEFORE LATEST REPAIR
 - 20-stage release readiness: **20/20 PASS**.
