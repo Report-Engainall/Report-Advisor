@@ -9,6 +9,7 @@ const files = [
   'scripts/check-evidence-provenance-chain.mjs',
   'scripts/check-evidence-lineage-contract.mjs',
   'scripts/check-phase11-e2e-performance-closure.mjs',
+  'scripts/check-storage-tenant-isolation.mjs',
   'supabase/migrations/20260825150000_phase_m_certification_bundle.sql',
 ];
 
