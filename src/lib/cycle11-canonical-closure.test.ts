@@ -77,4 +77,18 @@ describe('cycle 11 canonical closure', () => {
     expect(result.cashConversionCycle.status).toBe('INSUFFICIENT_DATA');
     expect(result.warnings.some((warning) => warning.includes('تكلفة المبيعات'))).toBe(true);
   });
+
+  it('fails closed when canonical reserve inputs are explicitly non-finite', () => {
+    const result = buildCanonicalIntelligence({
+      ...fixture,
+      openingLiquidity: Number.NaN,
+      dailyInflow: 100,
+      committedOutflow: 0,
+    });
+
+    expect(result.reserveProtection.valid).toBe(false);
+    expect(result.reserveProtection.availableForPayments).toBe(0);
+    expect(result.reserveProtection.blockedAmount).toBeGreaterThan(0);
+    expect(result.supplierPayments.every((item) => item.priority === 'HOLD_PAYMENT')).toBe(true);
+  });
 });
