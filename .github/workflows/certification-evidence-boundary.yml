@@ -31,6 +31,24 @@ jobs:
         run: node scripts/check-certification-duplicate-contract.mjs
       - name: Verify certification missing/failed evidence handling
         run: node scripts/check-certification-missing-failed-contract.mjs
+      - name: Verify certification key uniqueness
+        run: node scripts/check-certification-key-uniqueness-contract.mjs
+      - name: Verify certification unknown-key handling
+        run: node scripts/check-certification-unknown-key-contract.mjs
+      - name: Verify certification blocker propagation
+        run: node scripts/check-certification-blocker-propagation-contract.mjs
+      - name: Verify certification warning separation
+        run: node scripts/check-certification-warning-separation-contract.mjs
+      - name: Verify certification evidence preservation
+        run: node scripts/check-certification-evidence-preservation-contract.mjs
+      - name: Verify certification set membership
+        run: node scripts/check-certification-set-membership-contract.mjs
+      - name: Verify certification adversarial coverage
+        run: node scripts/check-certification-adversarial-coverage-contract.mjs
+      - name: Verify certification writer table coverage
+        run: node scripts/check-certification-writer-table-coverage-contract.mjs
+      - name: Verify certification runtime test wiring
+        run: node scripts/check-certification-runtime-test-wiring-contract.mjs
       - name: Verify queue immutability boundary
         run: node scripts/check-report-queue-immutability.mjs
       - name: Verify queue gate test-of-test
