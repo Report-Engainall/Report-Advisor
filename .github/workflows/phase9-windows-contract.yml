@@ -25,9 +25,8 @@ jobs:
         run: |
           set -euo pipefail
           expected_head="$(node -e "const fs=require('fs'); const e=JSON.parse(fs.readFileSync(process.env.GITHUB_EVENT_PATH,'utf8')); process.stdout.write(e.pull_request.head.sha)")"
-          test "$(git rev-parse HEAD)" = "$expected_head"
-          actual_head="$(git ls-remote origin "refs/heads/${GITHUB_HEAD_REF}" | awk '{print $1}')"
-          test -n "$actual_head"
+          actual_head="$(git rev-parse HEAD)"
           test "$actual_head" = "$expected_head"
+          echo "EXACT_HEAD_SHA=$actual_head"
       - name: Phase 9 Windows contract
         run: node scripts/check-phase9-windows-contract-hardening.mjs
