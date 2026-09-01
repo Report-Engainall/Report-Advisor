@@ -10,6 +10,7 @@ This index is authoritative for execution state. Historical PASS is never promot
 - Base: `main` @ `89c8361e85878521c915328f6d0a595663498cd3`
 - Current branch: `codex/p0-hardening-integration-20260901`
 - Latest source/workflow hardening commits include bounded Worker and Certification workflows plus their coverage guards.
+- Latest source/workflow mutation before this index update: `42f535b5e844c9fa994309915ccdb10bcdf75b1a`.
 - This index update itself advances the branch; the resulting commit is the next exact-head CI target.
 - Exact-head CI is required after every source/workflow mutation; no final PASS is claimed until that exact SHA is verified.
 
@@ -78,25 +79,3 @@ Repository-executable fronts continue even when operational fronts are blocked b
 - **T1** Exact-head CI reconciliation.
 - **T2** Release evidence adversarial validation.
 - **T3** Folder import adversarial validation.
-- **T4** Workflow coverage/regression audit.
-- **T5** Security-definer classification.
-- **T6** Canonical truth adversarial corpus.
-- **T7** Worker lifecycle security regression — extended with executable workflow/security/authority guards.
-- **T8** Document/OCR evidence readiness.
-- **T9** Performance readiness.
-- **T10** UX/PWA acceptance preparation.
-- **T11** Dependency vulnerability triage — pdfjs patched; xlsx remains unresolved.
-- **T12** Release-only evidence boundary verification.
-- **T13** Current-head CI reproof.
-- **T14** PR/branch synchronization audit.
-- **T15** Parallel-runtime adversarial regression.
-- **T16** Phase-H canonical migration alignment.
-- **T17** Phase-K canonical runtime alignment.
-
-## RECOVERY BOUNDARY REGISTER
-- **P1-H — Backup / Restore / DR** remains an explicit certification boundary.
-- RPO/RTO are operational evidence requirements, not source-level claims.
-- Backup, restore, migration parity, artifact integrity, rollback, and security audit evidence are required before production certification.
-
-## CERTIFICATION TRUTH
-The expanded source and workflow guards strengthen the decision boundary but do not close Production Runtime, Authenticated E2E, Tenant A/B, Backup/Restore, Rollback, or other external operational certification gates. Historical PASS is never promoted to the new head.
