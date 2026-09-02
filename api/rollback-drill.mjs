@@ -60,6 +60,7 @@ export default async function handler(req, res) {
   const from = process.env.RESILIENCE_ROLLBACK_FROM_DEPLOYMENT.trim();
   const forward = process.env.RESILIENCE_ROLLBACK_FORWARD_DEPLOYMENT.trim();
   const verifyUrl = process.env.RESILIENCE_ROLLBACK_VERIFY_URL.trim();
+  if (from === forward) return json(res, 409, { status: 'blocked', error: 'rollback_deployments_must_differ' });
   const incidentKey = `rollback-drill-${Date.now()}`;
   const started = Date.now();
   try {
