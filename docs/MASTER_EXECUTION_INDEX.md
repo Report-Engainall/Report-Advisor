@@ -1,17 +1,17 @@
 # Report Advisor — Master Execution & Truth Index
 
-## CURRENT RESUME EXECUTION MAP — 2026-09-02 — v4.3 / CURRENT-HEAD SYNCHRONIZED
+## CURRENT RESUME EXECUTION MAP — 2026-09-02 — v4.4 / CURRENT-HEAD SYNCHRONIZED
 
 > This file is the authoritative current execution index. Historical execution records remain preserved in Git history and dated execution/evidence documents. No evidence crosses an exact-SHA boundary.
 
 ### CURRENT PROJECT STATE
 - Repository: `Report-Engainall/Report-Advisor`.
-- Current exact repository HEAD: `630f382e1eb3eb4095e5b4030ada96644b2436bf`.
+- Latest repository synchronization commit: `517c7a40e7926ea1f167434a9d4ca6a581d158ab` (documentation-only synchronization; stable pointer, not a self-referential HEAD claim).
 - Current code/test head: `ab1cf0d9c16864f9bda07acd33973954c2dc1b7a`.
 - Current exact code/test candidate: `ab1cf0d9c16864f9bda07acd33973954c2dc1b7a`.
 - Fresh Quality run `33662117870` on the exact code/test SHA: **PASS**, all 63 substantive verification steps completed successfully.
 - Final Execution Batch `33662117840` on the exact code/test SHA: **PASS**, release artifact/manifest generation and 30 deterministic gates completed successfully.
-- Index synchronization commit `630f382e1eb3eb4095e5b4030ada96644b2436bf` contains documentation/state synchronization only; it does not change product code/test behavior.
+- Documentation synchronization commits after the code/test candidate contain documentation/state synchronization only; they do not change product code/test behavior and are not promoted to a new release candidate.
 
 ### 2026-09-02 CURRENT-HEAD CLOSURE WAVE — ab1cf0d9
 - Authenticated Tenant A/B E2E harness was hardened to require canonical tenant IDs and anon key, use `company_memberships`, verify A/B membership resolution, and perform adversarial cross-tenant exposure checks in both directions.
@@ -63,8 +63,9 @@
 3. Keep Production binding, backup/restore, RPO/RTO, rollback, DR, and final certification fail-closed until real evidence exists.
 4. Enable leaked-password protection through the Supabase Auth control plane when that setting is reachable; do not fake or substitute it with unrelated DB mutations.
 5. Re-run exact-head repository verification after any future code/test mutation; documentation-only synchronization must not be mistaken for a new code candidate.
+6. Desktop Windows certification is backed by an actual native smoke path in the workflow; reproducible desktop dependency installation still requires a committed `desktop/package-lock.json` before `npm ci` can replace `npm install`.
 
 ### HISTORICAL RECORD / SHA BOUNDARIES
-- Previous index blob: `3cf46af821ad116c1a72a75d7c22a3f4cd9dc27c`.
+- Previous index blob: `1b0f56576b167151daf2eb02c9c2424b7c39f3a9`.
 - Historical execution content remains preserved by Git history.
 - Previous code/test boundaries include `ae3f50aec381eae99b29489ef8c6965e325dc31a`, `99f2f3bd0784b79b518c2088ebecf30f4e66913b`, and current `ab1cf0d9c16864f9bda07acd33973954c2dc1b7a`.
