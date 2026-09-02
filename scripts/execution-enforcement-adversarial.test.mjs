@@ -20,7 +20,10 @@ const attack = (name, mutate) => {
 
 attack('renamed rule', text => text.replace('E-01 — Parallelism before reporting', 'E-01 — Parallel execution'));
 attack('missing section', text => text.replace('### E-08 — Test-of-test requirement', '### E-08 — REMOVED'));
-attack('comment decoy', text => `${text}\n<!-- E-01 — Parallelism before reporting -->` .replace('If an independent safe executable front exists', 'If an independent safe executable front exists'));
+attack('comment-only decoy', text => text.replace(
+  '### E-01 — Parallelism before reporting',
+  '<!-- ### E-01 — Parallelism before reporting -->',
+));
 attack('weak NEXT+1 wording', text => `${text}\nNEXT+1 is optional and may be deferred when convenient.`);
 attack('blocker stops unrelated work', text => `${text}\nA blocker may stop unrelated local work.`);
 attack('old PASS transfer', text => `${text}\nHistorical PASS transfers automatically to the next SHA.`);
@@ -31,7 +34,7 @@ attack('documentation counted as closure', text => `${text}\nAn index update cou
 
 // Removing any behavioral case must fail: presence of the rules alone is not enough.
 for (const marker of ['CASE A:', 'CASE B:', 'CASE C:', 'CASE D:', 'CASE E:', 'CASE F:', 'CASE G:', 'CASE H:']) {
-  attack(`missing behavioral ${marker}`, text => text.replace(marker, `${marker}REMOVED`));
+  attack(`missing behavioral ${marker}`, text => text.replace(marker, `${marker.replace(':', '')} REMOVED:`));
 }
 
 console.log('PASS execution-enforcement adversarial suite: formatting, renaming, decoys, weakening, behavioral-case and true-stop attacks rejected.');
