@@ -50,7 +50,7 @@ const governanceAttack = (name, mutate) => { const candidate = mutate(governance
 governanceAttack('missing layer separation', text => text.replaceAll('Layer 3', 'Layer X').replaceAll('LAYER 3', 'LAYER X'));
 governanceAttack('precedence removed', text => text.replace('P0 — Safety / Security / Evidence Integrity', 'P0 — Convenience'));
 governanceAttack('performance ledger removed', text => text.replace('EXECUTION PERFORMANCE LEDGER', 'PERFORMANCE LEDGER REMOVED'));
-governanceAttack('under-execution detection removed', text => text.replace('UNDER-EXECUTION EVENT', 'UNDER-EXECUTION REMOVED'));
+governanceAttack('under-execution detection removed', text => { const candidate = text.replaceAll('UNDER-EXECUTION EVENT', 'UNDER-EXECUTION REMOVED'); assert.notEqual(candidate, text); return candidate; });
 governanceAttack('low-value detection removed', text => text.replace('LOW-VALUE EXECUTION', 'LOW-VALUE REMOVED'));
 governanceAttack('strategy memory removed', text => text.replace('STRATEGY MEMORY', 'STRATEGY STATE'));
 governanceAttack('measured-data rule removed', text => text.replace('REAL MEASURED DATA > ESTIMATE > NO CLAIM', 'USE ANY PERCENTAGE'));
