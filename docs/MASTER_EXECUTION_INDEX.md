@@ -1,17 +1,16 @@
 # Report Advisor — Master Execution & Truth Index
 
-## CURRENT RESUME EXECUTION MAP — 2026-09-02 — v4.11 / ENFORCEMENT BOUNDARY CLOSED
+## CURRENT RESUME EXECUTION MAP — 2026-09-02 — v4.12 / ENFORCEMENT BOUNDARY CLOSED
 
 > This file is the authoritative current execution index. Historical execution records remain preserved in Git history and dated execution/evidence documents. No evidence crosses an exact-SHA boundary.
 
 ### CURRENT PROJECT STATE
 - Repository: `Report-Engainall/Report-Advisor`.
 - Latest repository synchronization commit before this documentation sync: `dd6b437e6a76e2a3d0d90586880872bfc9a8b575` (enforcement workflow boundary hardening; current code/test candidate).
-- Current repository head: `dd6b437e6a76e2a3d0d90586880872bfc9a8b575`.
-- Current code/test head: `dd6b437e6a76e2a3d0d90586880872bfc9a8b575`.
+- Current repository head is intentionally allowed to advance through governed index-only synchronization commits; the current code/test head remains `dd6b437e6a76e2a3d0d90586880872bfc9a8b575`.
 - Current exact code/test candidate: `dd6b437e6a76e2a3d0d90586880872bfc9a8b575`.
 - Fresh Quality `33670067052` and Final Execution Batch `33670067057` passed on `1bdd5815`; later enforcement-boundary mutations require fresh exact-head evidence.
-- The enforcement verifier and workflow now form a closed boundary: the verifier proves index-only drift from actual Git paths, while the workflow runs on every push/PR so a governed index synchronization cannot silently escape the contract.
+- **INDEX DRIFT** is governed explicitly: the enforcement verifier accepts only exact code/test head match or a fail-closed, ancestor-proven chain whose complete changed-file set is exactly `docs/MASTER_EXECUTION_INDEX.md`.
 
 ### 2026-09-02 RESILIENCE SECURITY CLOSURE WAVE
 - Closed a real SSRF target-class defect in the resilience outbound transport: configured HTTPS URLs are rejected when their literal or resolved addresses are loopback, private, link-local, carrier-grade NAT, documentation/reserved, multicast, or otherwise non-public ranges covered by the guard.
@@ -57,9 +56,9 @@
 ### CERTIFICATION STATUS — FAIL CLOSED
 | Gate | State | Reason |
 |---|---|---|
-| Repository quality | **STALE — reverify @ dd6b437e** | Enforcement workflow mutation changed the exact candidate boundary |
-| Release deterministic gates | **STALE — reverify @ dd6b437e** | Exact-head deterministic evidence is required after the boundary mutation |
-| Execution enforcement contract | **STALE — reverify @ dd6b437e** | Verifier + workflow boundary hardened; fresh exact-head evidence required |
+| Repository quality | STALE | Fresh exact-head quality evidence required after enforcement-boundary mutations |
+| Release deterministic gates | STALE | Fresh exact-head deterministic evidence required after enforcement-boundary mutations |
+| Execution enforcement contract | **FRESH RUN PENDING** | Current index-only boundary now contains the required INDEX DRIFT rule; exact-head workflow is running |
 | Storage tenant isolation contract | STALE | Prior evidence is on older exact head; runtime still unproven |
 | Work Item Actionability Guard | STALE | Prior evidence is on older exact head |
 | Production runtime | UNPROVEN | Requires authenticated live product runtime evidence |
@@ -80,7 +79,7 @@
 - No owner/device request is made while independent executable work remains.
 
 ### NEXT EXECUTION FRONT
-1. Consume fresh exact-head Quality, deterministic, and Execution Enforcement results for `dd6b437e6a76e2a3d0d90586880872bfc9a8b575`.
+1. Consume the fresh exact-head Execution Enforcement result and then fresh Quality/Final Execution results at the governed candidate boundary.
 2. If a fresh gate exposes another real regression, fix the smallest proven defect and reverify; otherwise continue independent resilience/runtime/security closure.
 3. Prepare exact live authenticated Tenant A/B and resilience evidence paths; never fabricate credentials or operational artifacts.
 4. Keep Production binding, backup/restore, RPO/RTO, rollback, DR, and final certification fail-closed until real evidence exists.
@@ -88,6 +87,6 @@
 6. Desktop Windows certification remains backed by native smoke workflow; `desktop/package-lock.json` is absent, so reproducible desktop `npm ci` remains a real dependency-resolution gap rather than something to handcraft.
 
 ### HISTORICAL RECORD / SHA BOUNDARIES
-- Previous index blob: `61b03b360ce829ef0efadb26233a41ec02138aa0`.
+- Previous index blob: `d1bc4e24e838112d2218d20e7af328717011fcf1`.
 - Previous certified code/test boundary: `ab1cf0d9c16864f9bda07acd33973954c2dc1b7a`.
 - Historical execution content remains preserved by Git history; documentation synchronization commits are never promoted to code/test candidates unless they contain a real product/test mutation.
