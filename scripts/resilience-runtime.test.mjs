@@ -14,45 +14,52 @@ const files = [
 ];
 for (const file of files) execFileSync(process.execPath, ['--check', file], { stdio: 'inherit' });
 
-const a = Buffer.from('resilience-secret');
-const b = Buffer.from('resilience-secret');
-assert.equal(timingSafeEqual(a, b), true);
-
+assert.equal(timingSafeEqual(Buffer.from('resilience-secret'), Buffer.from('resilience-secret')), true);
 process.env.RESILIENCE_TARGET_ENV = 'production';
 assert.equal(isProductionEnv(), true);
 delete process.env.RESILIENCE_TARGET_ENV;
 
-const originalFetch = globalThis.fetch;
-const originalProjectId = process.env.VERCEL_PROJECT_ID;
-const originalVercelToken = process.env.VERCEL_TOKEN;
-const originalTargetEnv = process.env.RESILIENCE_TARGET_ENV;
-const originalCompanyId = process.env.RESILIENCE_COMPANY_ID;
-const originalDomain = process.env.RESILIENCE_ROLLBACK_DRILL_DOMAIN;
-const originalProductionDomain = process.env.RESILIENCE_PRODUCTION_DOMAIN;
-const originalFrom = process.env.RESILIENCE_ROLLBACK_FROM_DEPLOYMENT;
-const originalForward = process.env.RESILIENCE_ROLLBACK_FORWARD_DEPLOYMENT;
-const originalVerifyUrl = process.env.RESILIENCE_ROLLBACK_VERIFY_URL;
-const originalOperationalToken = process.env.RESILIENCE_OPERATIONAL_TOKEN;
+const original = Object.fromEntries([
+  'VERCEL_PROJECT_ID', 'VERCEL_TOKEN', 'RESILIENCE_TARGET_ENV', 'RESILIENCE_COMPANY_ID',
+  'RESILIENCE_ROLLBACK_DRILL_DOMAIN', 'RESILIENCE_PRODUCTION_DOMAIN',
+  'RESILIENCE_ROLLBACK_FROM_DEPLOYMENT', 'RESILIENCE_ROLLBACK_FORWARD_DEPLOYMENT',
+  'RESILIENCE_ROLLBACK_VERIFY_URL', 'RESILIENCE_OPERATIONAL_TOKEN',
+].map((key) => [key, process.env[key]]));
 process.env.VERCEL_PROJECT_ID = 'project-good';
 process.env.VERCEL_TOKEN = 'test-token';
 
-const responses = new Map();
-const mockFetch = async (url) => {
-  const id = decodeURIComponent(new URL(url).pathname.split('/').pop());
+const responses = new Map([
+  ['same-a', { id: 'same-a', projectId: 'project-good', readyState: 'READY' }],
+  ['same-b', { id: 'same-b', projectId: 'project-good', readyState: 'READY' }],
+  ['foreign', { id: 'foreign', projectId: 'project-other', readyState: 'READY' }],
+  ['not-ready', { id: 'not-ready', projectId: 'project-good', readyState: 'BUILDING' }],
+  ['api-fail', new Error('network_timeout')],
+]);
+let aliasCalls = [];
+const originalFetch = globalThis.fetch;
+globalThis.fetch = async (url, options = {}) => {
+  const parsed = new URL(url);
+  if (options.method === 'POST' && parsed.pathname.includes('/aliases')) {
+    aliasCalls.push(parsed.pathname);
+    return new Response('{}', { status: 200, headers: { 'content-type': 'application/json' } });
+  }
+  const id = decodeURIComponent(parsed.pathname.split('/').pop());
   const entry = responses.get(id);
   if (entry instanceof Error) throw entry;
   if (!entry) return new Response('not found', { status: 404 });
   return new Response(JSON.stringify(entry), { status: 200, headers: { 'content-type': 'application/json' } });
 };
 
-globalThis.fetch = mockFetch;
-try {
-  responses.set('same-a', { id: 'same-a', projectId: 'project-good', readyState: 'READY' });
-  responses.set('same-b', { id: 'same-b', projectId: 'project-good', readyState: 'READY' });
-  responses.set('foreign', { id: 'foreign', projectId: 'project-other', readyState: 'READY' });
-  responses.set('not-ready', { id: 'not-ready', projectId: 'project-good', readyState: 'BUILDING' });
-  responses.set('api-fail', new Error('network_timeout'));
+const makeResponse = () => {
+  const state = { status: null, body: null };
+  return { state, res: {
+    status(code) { state.status = code; return this; },
+    setHeader() { return this; },
+    end(body) { state.body = JSON.parse(body); },
+  }};
+};
 
+try {
   await assert.doesNotReject(() => deploymentReady('same-a'));
   await assert.doesNotReject(() => deploymentReady('same-b'));
   await assert.rejects(() => deploymentReady('foreign'), /deployment_project_mismatch/);
@@ -60,25 +67,10 @@ try {
   await assert.rejects(() => deploymentReady('not-ready'), /deployment_not_ready:BUILDING/);
   await assert.rejects(() => deploymentReady('api-fail'), /network_timeout/);
   await assert.rejects(() => deploymentReady(''), /deployment_id_required/);
-
-  const mixed = async () => Promise.all([deploymentReady('same-a'), deploymentReady('foreign')]);
-  await assert.rejects(mixed, /deployment_project_mismatch/);
-
+  await assert.rejects(() => Promise.all([deploymentReady('same-a'), deploymentReady('foreign')]), /deployment_project_mismatch/);
   delete process.env.VERCEL_PROJECT_ID;
   await assert.rejects(() => deploymentReady('same-a'), /vercel_project_id_required/);
   process.env.VERCEL_PROJECT_ID = 'project-good';
-
-  const response = () => {
-    const state = { status: null, body: null };
-    return {
-      state,
-      res: {
-        status(code) { state.status = code; return this; },
-        setHeader() { return this; },
-        end(body) { state.body = JSON.parse(body); },
-      },
-    };
-  };
 
   process.env.RESILIENCE_OPERATIONAL_TOKEN = 'test-token';
   process.env.RESILIENCE_TARGET_ENV = 'staging';
@@ -88,36 +80,43 @@ try {
   process.env.RESILIENCE_ROLLBACK_FROM_DEPLOYMENT = 'same-a';
   process.env.RESILIENCE_ROLLBACK_FORWARD_DEPLOYMENT = 'same-a';
   process.env.RESILIENCE_ROLLBACK_VERIFY_URL = 'https://verify.example.test';
-  let captured = response();
+
+  let captured = makeResponse();
   await rollbackHandler({ method: 'POST', headers: { 'x-resilience-token': 'test-token' } }, captured.res);
   assert.equal(captured.state.status, 409);
   assert.equal(captured.state.body.error, 'rollback_deployments_must_differ');
+  assert.equal(aliasCalls.length, 0);
 
   process.env.RESILIENCE_TARGET_ENV = 'production';
   process.env.RESILIENCE_ROLLBACK_FORWARD_DEPLOYMENT = 'same-b';
-  captured = response();
+  captured = makeResponse();
   await rollbackHandler({ method: 'POST', headers: { 'x-resilience-token': 'test-token' } }, captured.res);
   assert.equal(captured.state.status, 409);
   assert.equal(captured.state.body.error, 'production_rollback_drill_forbidden');
+  assert.equal(aliasCalls.length, 0);
 
   process.env.RESILIENCE_TARGET_ENV = 'staging';
   process.env.RESILIENCE_ROLLBACK_DRILL_DOMAIN = 'production.example.test';
-  captured = response();
+  captured = makeResponse();
   await rollbackHandler({ method: 'POST', headers: { 'x-resilience-token': 'test-token' } }, captured.res);
   assert.equal(captured.state.status, 409);
   assert.equal(captured.state.body.error, 'rollback_domain_is_production_domain');
+  assert.equal(aliasCalls.length, 0);
+
+  process.env.RESILIENCE_ROLLBACK_DRILL_DOMAIN = 'drill.example.test';
+  process.env.RESILIENCE_ROLLBACK_FROM_DEPLOYMENT = 'api-fail';
+  process.env.RESILIENCE_ROLLBACK_FORWARD_DEPLOYMENT = 'foreign';
+  aliasCalls = [];
+  captured = makeResponse();
+  await rollbackHandler({ method: 'POST', headers: { 'x-resilience-token': 'test-token' } }, captured.res);
+  assert.equal(captured.state.status, 503);
+  assert.equal(captured.state.body.status, 'failed');
+  assert.equal(aliasCalls.length, 0, 'must not alias an unvalidated forward deployment');
 } finally {
   globalThis.fetch = originalFetch;
-  if (originalProjectId === undefined) delete process.env.VERCEL_PROJECT_ID; else process.env.VERCEL_PROJECT_ID = originalProjectId;
-  if (originalVercelToken === undefined) delete process.env.VERCEL_TOKEN; else process.env.VERCEL_TOKEN = originalVercelToken;
-  if (originalTargetEnv === undefined) delete process.env.RESILIENCE_TARGET_ENV; else process.env.RESILIENCE_TARGET_ENV = originalTargetEnv;
-  if (originalCompanyId === undefined) delete process.env.RESILIENCE_COMPANY_ID; else process.env.RESILIENCE_COMPANY_ID = originalCompanyId;
-  if (originalDomain === undefined) delete process.env.RESILIENCE_ROLLBACK_DRILL_DOMAIN; else process.env.RESILIENCE_ROLLBACK_DRILL_DOMAIN = originalDomain;
-  if (originalProductionDomain === undefined) delete process.env.RESILIENCE_PRODUCTION_DOMAIN; else process.env.RESILIENCE_PRODUCTION_DOMAIN = originalProductionDomain;
-  if (originalFrom === undefined) delete process.env.RESILIENCE_ROLLBACK_FROM_DEPLOYMENT; else process.env.RESILIENCE_ROLLBACK_FROM_DEPLOYMENT = originalFrom;
-  if (originalForward === undefined) delete process.env.RESILIENCE_ROLLBACK_FORWARD_DEPLOYMENT; else process.env.RESILIENCE_ROLLBACK_FORWARD_DEPLOYMENT = originalForward;
-  if (originalVerifyUrl === undefined) delete process.env.RESILIENCE_ROLLBACK_VERIFY_URL; else process.env.RESILIENCE_ROLLBACK_VERIFY_URL = originalVerifyUrl;
-  if (originalOperationalToken === undefined) delete process.env.RESILIENCE_OPERATIONAL_TOKEN; else process.env.RESILIENCE_OPERATIONAL_TOKEN = originalOperationalToken;
+  for (const [key, value] of Object.entries(original)) {
+    if (value === undefined) delete process.env[key]; else process.env[key] = value;
+  }
 }
 
-console.log(`PASS: resilience runtime syntax + rollback security guards (${files.length} files).`);
+console.log(`PASS: resilience syntax + rollback security/adversarial guards (${files.length} files).`);
