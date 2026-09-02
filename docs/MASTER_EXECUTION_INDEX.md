@@ -3,9 +3,9 @@
 ## CURRENT RESUME EXECUTION MAP — 2026-09-02 — v4.1 COMPACT EVIDENCE + PROJECT IDENTITY
 
 ### CURRENT PROJECT STATE
-- Current repository exact HEAD: `1ff7f2b079a91d7442af1cf908a203094d57b2ce`.
-- Current code/test head: `1ff7f2b079a91d7442af1cf908a203094d57b2ce` (canonical branding repair in `src/components/Sidebar.tsx` and `src/pages/LoginPage.tsx`; fresh exact-head CI required).
-- `d02024628dad67d151e681e3d108f5357f6faa99` is a prior documentation-only boundary and is not treated as the current code/test head.
+- Current repository exact HEAD: `da6fbe8b58cf0bb97bc022766eacdb59faf53519`.
+- Current code/test head: `da6fbe8b58cf0bb97bc022766eacdb59faf53519` (canonical branding repair plus project-identity adversarial test-of-test hardening; fresh exact-head CI required).
+- `1ff7f2b079a91d7442af1cf908a203094d57b2ce` is the prior code/test boundary; `00c6acb360f98405ab40ea8a2494e0fdc8260ff2` is its documentation-only synchronization. Neither prior evidence nor PASS is transferred to `da6fbe8b58cf0bb97bc022766eacdb59faf53519`.
 - No prior evidence is promoted across the new code/test SHA.
 - v4.0 batch start head: `811070805114956c8f8f1766b7bf6c3c9704b4c0`.
 - Previous v3.2 index boundary: `a4b26ef13ce08d54d2e9c0723530499bcc6e66c5`.
@@ -14,6 +14,10 @@
 - Operational runtime/recovery proof remains UNPROVEN.
 
 
+
+### 2026-09-02 BRANDING ENFORCEMENT TEST-OF-TEST UPDATE
+- `DATE → EXACT HEAD → ACTION → RESULT → BLOCKER → NEXT`: `2026-09-02 → da6fbe8b58cf0bb97bc022766eacdb59faf53519 → added adversarial project-identity test-of-test → CI triggered; result pending at index update → no Production mutation → consume exact-head CI and do not transfer prior PASS`.
+- Evidence inventory remains 145 docs blobs; exact-duplicate content groups found: 0. No certification-critical historical evidence was deleted. Separate historical records were retained because exact-duplicate analysis found none and several contain unique provenance/evidence.
 
 ### 2026-09-02 COMPACT EXECUTION UPDATE
 - `DATE → EXACT HEAD → ACTION → RESULT → BLOCKER → NEXT`: `2026-09-02 → 1ff7f2b079a91d7442af1cf908a203094d57b2ce → repaired legacy branding in two current frontend files after exact-head CI caught it → repair committed; post-repair CI pending → no local blocker; certification remains externally blocked → consume fresh exact-head CI and retain Production/Phase-E fail-closed boundaries`.
@@ -27,7 +31,8 @@
 - Adversarial enforcement coverage now rejects removal of the v4.1 compact-evidence, project-identity, certification-provenance, Production-safety, and protocol-first rules.
 - Branding audit at `291991d...` found legacy **العامري** in `src/components/Sidebar.tsx` and `src/pages/LoginPage.tsx`; this was a real current-frontend defect caught by exact-head enforcement CI.
 - Repair: replaced those current UI occurrences with canonical **الأغبري**. This was a non-Production frontend mutation; no Production configuration/data/security mutation was performed.
-- Post-repair CI is required on exact code/test head `1ff7f2b079a91d7442af1cf908a203094d57b2ce`.
+- Project-identity adversarial test-of-test was added to `scripts/execution-enforcement-adversarial.test.mjs`; it verifies a legacy-branding decoy is rejected by the identity enforcement path.
+- Post-repair/post-test-hardening CI is required on exact code/test head `da6fbe8b58cf0bb97bc022766eacdb59faf53519`.
 - Compact-evidence application: historical certification/security/change/failure evidence remains retained. No certification-critical evidence was deleted or rewritten. Existing repetitive ledgers remain historical where deletion would weaken auditability; the canonical Master Index now carries the current compact state.
 - Phase E remains blocked by the already-established missing owner configuration; no certification endpoint, bucket, object, target, or secret was fabricated.
 - Dashboard remains CLOSED / PROVEN and untouched.
