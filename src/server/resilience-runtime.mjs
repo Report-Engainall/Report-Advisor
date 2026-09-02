@@ -1,4 +1,6 @@
 import { createHash, timingSafeEqual } from 'node:crypto';
+import dns from 'node:dns/promises';
+import net from 'node:net';
 
 export const json = (res, status, body) => {
   res.status(status).setHeader('Content-Type', 'application/json; charset=utf-8');
@@ -82,6 +84,70 @@ export async function managementRequest(path, options = {}) {
   });
 }
 
+function ipv4ToInt(value) {
+  const parts = value.split('.').map(Number);
+  if (parts.length !== 4 || parts.some((part) => !Number.isInteger(part) || part < 0 || part > 255)) return null;
+  return (((parts[0] * 256 + parts[1]) * 256 + parts[2]) * 256 + parts[3]) >>> 0;
+}
+
+function ipv4InRange(value, base, maskBits) {
+  const address = ipv4ToInt(value);
+  const network = ipv4ToInt(base);
+  if (address === null || network === null) return false;
+  const mask = maskBits === 0 ? 0 : (0xffffffff << (32 - maskBits)) >>> 0;
+  return (address & mask) === (network & mask);
+}
+
+function expandIpv6(value) {
+  const lower = value.toLowerCase();
+  if (!lower.includes('::')) {
+    const groups = lower.split(':');
+    return groups.length === 8 && groups.every((group) => /^[0-9a-f]{1,4}$/.test(group)) ? groups : null;
+  }
+  if (lower.indexOf('::') !== lower.lastIndexOf('::')) return null;
+  const [left, right] = lower.split('::');
+  const leftGroups = left ? left.split(':') : [];
+  const rightGroups = right ? right.split(':') : [];
+  if ([...leftGroups, ...rightGroups].some((group) => !/^[0-9a-f]{1,4}$/.test(group))) return null;
+  const missing = 8 - leftGroups.length - rightGroups.length;
+  if (missing < 1) return null;
+  return [...leftGroups, ...Array(missing).fill('0'), ...rightGroups];
+}
+
+function ipv6ToBigInt(value) {
+  const groups = expandIpv6(value);
+  if (!groups) return null;
+  return groups.reduce((acc, group) => (acc << 16n) | BigInt(parseInt(group, 16)), 0n);
+}
+
+function ipv6InRange(value, base, prefixBits) {
+  const address = ipv6ToBigInt(value);
+  const network = ipv6ToBigInt(base);
+  if (address === null || network === null) return false;
+  const shift = 128n - BigInt(prefixBits);
+  return shift === 128n ? true : (address >> shift) === (network >> shift);
+}
+
+export function isDisallowedOutboundAddress(address) {
+  if (net.isIPv4(address)) {
+    return [
+      ['0.0.0.0', 8], ['10.0.0.0', 8], ['100.64.0.0', 10], ['127.0.0.0', 8],
+      ['169.254.0.0', 16], ['172.16.0.0', 12], ['192.0.0.0', 24], ['192.0.2.0', 24],
+      ['192.168.0.0', 16], ['198.18.0.0', 15], ['198.51.100.0', 24], ['203.0.113.0', 24],
+      ['224.0.0.0', 4], ['240.0.0.0', 4],
+    ].some(([base, bits]) => ipv4InRange(address, base, bits));
+  }
+  if (net.isIPv6(address)) {
+    const mapped = address.match(/^::ffff:(\d+\.\d+\.\d+\.\d+)$/i);
+    if (mapped && net.isIPv4(mapped[1])) return isDisallowedOutboundAddress(mapped[1]);
+    return [
+      ['::', 128], ['::1', 128], ['fc00::', 7], ['fe80::', 10], ['ff00::', 8],
+      ['2001:db8::', 32], ['2001::', 32],
+    ].some(([base, bits]) => ipv6InRange(address, base, bits));
+  }
+  return false;
+}
+
 export function parseSecureOutboundUrl(value, configName) {
   let url;
   try {
@@ -91,6 +157,9 @@ export function parseSecureOutboundUrl(value, configName) {
   }
   if (url.protocol !== 'https:') throw new Error(`insecure_${configName}`);
   if (url.username || url.password) throw new Error(`credentialed_${configName}`);
+  if (net.isIP(url.hostname) && isDisallowedOutboundAddress(url.hostname)) {
+    throw new Error(`private_${configName}`);
+  }
   return url;
 }
 
@@ -103,6 +172,17 @@ export async function secureOutboundFetch(value, configName, options = {}) {
   }
   const timeout = setTimeout(() => controller.abort(), timeoutMs);
   try {
+    if (!net.isIP(url.hostname)) {
+      let addresses;
+      try {
+        addresses = await dns.lookup(url.hostname, { all: true, order: 'verbatim' });
+      } catch {
+        throw new Error(`dns_resolution_failed_${configName}`);
+      }
+      if (!addresses.length || addresses.some(({ address }) => isDisallowedOutboundAddress(address))) {
+        throw new Error(`private_${configName}`);
+      }
+    }
     return await fetch(url, { ...options, redirect: 'error', signal: controller.signal });
   } finally {
     clearTimeout(timeout);
@@ -134,8 +214,19 @@ export async function persistIncidentEvidence(companyId, evidence) {
 }
 
 export async function sha256ResponseBody(response) {
-  const buffer = Buffer.from(await response.arrayBuffer());
-  return { sha256: createHash('sha256').update(buffer).digest('hex'), bytes: buffer.length };
+  if (!response.body) return { sha256: createHash('sha256').digest('hex'), bytes: 0 };
+  const hash = createHash('sha256');
+  const reader = response.body.getReader();
+  let bytes = 0;
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    if (value) {
+      bytes += value.byteLength;
+      hash.update(value);
+    }
+  }
+  return { sha256: hash.digest('hex'), bytes };
 }
 
 export function isProductionEnv() {
