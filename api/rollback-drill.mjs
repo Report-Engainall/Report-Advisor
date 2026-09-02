@@ -63,8 +63,10 @@ export default async function handler(req, res) {
   if (from === forward) return json(res, 409, { status: 'blocked', error: 'rollback_deployments_must_differ' });
   const incidentKey = `rollback-drill-${Date.now()}`;
   const started = Date.now();
+  let validatedForwardDeployment;
   try {
     const [fromDeployment, forwardDeployment] = await Promise.all([deploymentReady(from), deploymentReady(forward)]);
+    validatedForwardDeployment = forwardDeployment;
     const before = await verify(verifyUrl);
     if (!before.ok) return json(res, 503, { status: 'blocked', error: `forward_baseline_failed:${before.status}` });
 
@@ -95,7 +97,9 @@ export default async function handler(req, res) {
     });
     return json(res, 200, { status: 'passed', production_touched: false, rollback_verified: true, forward_recovery_verified: true, rto_seconds: rtoSeconds });
   } catch (error) {
-    try { await assignAlias(forward, domain); } catch {}
+    if (validatedForwardDeployment) {
+      try { await assignAlias(validatedForwardDeployment.id, domain); } catch {}
+    }
     return json(res, 503, { status: 'failed', production_touched: false, error: String(error) });
   }
 }
