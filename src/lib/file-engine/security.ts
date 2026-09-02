@@ -1,7 +1,4 @@
 import { resolveCurrentCompanyId, supabase } from '../supabase.ts';
-import type { SecurityScanResult } from './types.ts';
-import { computeSHA256 } from './file-identity-core.ts';
-import { securityScan } from './security-scan.ts';
 export { computeSHA256 } from './file-identity-core.ts';
 export { securityScan } from './security-scan.ts';
 
