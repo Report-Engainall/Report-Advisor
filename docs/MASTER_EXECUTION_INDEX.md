@@ -2,13 +2,14 @@
 
 ## CURRENT TRUTH — 2026-09-02 — CONTINUOUS MISSION
 
-- Current canonical `main` / exact HEAD: **`08fc4adc81c7c2803be8408f61ef168f8f03cae2`**.
-- Immediate parent: `33a541fe4b38ca57d9dfdd816d1f4f1de8bbc136`.
+- Current canonical `main` / exact HEAD: **`8234b13f95a536cdfab206362565f95b0985aeb8`**.
+- Immediate parent: `5682c1c5478e5360fcd871fe6469bc8bf211de8d`.
 - This execution continued automatically after CI exposed second-order checker/workflow drift.
 - Verified failing exact-head run `33581895076` on `56d4c9fadbc57055f3feb3eeb65734d463f56969` exposed multiple stale contracts in the deterministic final batch; no historical PASS was promoted.
 - Implemented canonical checker/workflow alignment for Phase F, N→S real gates, N→S release matrix, N→S evidence, K→S lifecycle bridge, release evidence completeness, folder batch import, and final-batch build preparation.
+- Follow-up exact-head rescan found three remaining checker couplings: Phase-F `if:` wording, production-readiness token wording, and release-evidence fail-closed wording. These were corrected without weakening gates.
 - Backup/Restore/RPO/RTO/DR remain **UNPROVEN**. Live runtime evidence remains separate from static contract PASS.
-- Quality `33582027498` was tied to `0e93513b925737f5cc9ddfe9d066a641a1c328cc` while these changes were being executed; fresh verification is required for `08fc4adc...`.
+- Fresh verification for current exact HEAD `8234b13f...` is required; no prior CI result transfers.
 
 ## Latest CI-Driven Closure Cycle
 
@@ -33,8 +34,12 @@ The deterministic final batch on `56d4c9fadbc57055f3feb3eeb65734d463f56969` exec
 - `0e93513b925737f5cc9ddfe9d066a641a1c328cc` — final execution batch now installs/builds before deterministic gates.
 - `33a541fe4b38ca57d9dfdd816d1f4f1de8bbc136` — folder batch import UI contract alignment.
 - `08fc4adc81c7c2803be8408f61ef168f8f03cae2` — restored full historical index and updated current-truth ledger.
+- `a419e967638baaf4accee9afebe806069b2b8db3` — Phase F dispatch-boundary contract alignment.
+- `73960ef388ff7c58c4b4909d1b63235623860dff` — production-readiness checker token alignment.
+- `5682c1c5478e5360fcd871fe6469bc8bf211de8d` — live-gate manifest alignment.
+- `8234b13f95a536cdfab206362565f95b0985aeb8` — fail-closed release-evidence semantics bound to canonical certification logic.
 
-## Execution Cycle — backup/restore evidence integrity hardening
+## Backup/Restore Evidence Integrity Hardening
 
 ### RCA
 The backup/restore verifier accepted two evidence inputs without sufficiently strict integrity semantics: `RESILIENCE_MAX_RPO_SECONDS` could parse to `NaN` and bypass the RPO comparison, and completed backup records with malformed timestamps or missing IDs could become invalid evidence candidates. More importantly, the restore verifier's self-reported `rto_seconds` was previously allowed to replace the server-measured elapsed restore time, which could make RTO evidence non-measurement-derived.
@@ -122,9 +127,9 @@ Required operational proof remains: real artifact + SHA-256, safe non-production
 
 - Quality `33581248795` — FAIL on exact SHA `524de3ad9c344ac133b3a558cff559d46da3a7d2`; failures were stale Phase-1 SPA fallback assertion and missing declared ESLint `globals`.
 - Final Execution Batch `33581895076` — FAIL on exact SHA `56d4c9fadbc57055f3feb3eeb65734d463f56969`; deterministic rescan exposed the contract drifts recorded above.
-- Quality `33582027498` — ran against exact SHA `0e93513b925737f5cc9ddfe9d066a641a1c328cc` and progressed through many contracts; it must not be promoted to `08fc4adc...`.
-- Fresh CI for `08fc4adc81c7c2803be8408f61ef168f8f03cae2` is required.
-- No historical CI result is promoted to the new exact SHA.
+- Final Execution Batch `33582059916` — FAIL on exact SHA `08fc4adc81c7c2803be8408f61ef168f8f03cae2`; remaining failures were the Phase-F `if:` wording, K→S production-readiness token wording, live-gate operational-resilience literal, and release-evidence fail-closed wording. Those have since been corrected.
+- Fresh CI for current exact SHA `8234b13f95a536cdfab206362565f95b0985aeb8` is now running/required.
+- No historical CI result is promoted to the current exact SHA.
 - Vercel project `report-advisor` currently has a READY production deployment whose recorded Git SHA is older than the current exact HEAD; therefore current production is **NOT current-HEAD proven** and no deployment evidence is promoted.
 
 ## Historical Integrity Rules
