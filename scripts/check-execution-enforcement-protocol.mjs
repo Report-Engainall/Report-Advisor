@@ -11,14 +11,12 @@ export const REQUIRED_RULES = [
   'E-SCHED — Dependency-Aware Scheduling', 'E-INDEX-HEAD — Current-Head Index Gate',
   'E-DEBT — Actionable vs External Debt', 'E-UTIL — Execution Utilization', 'E-EVOLVE — Automatic Protocol Evolution',
 ];
-
 const REQUIRED_BEHAVIORAL_CASES = ['CASE A:', 'CASE B:', 'CASE C:', 'CASE D:', 'CASE E:', 'CASE F:', 'CASE G:', 'CASE H:'];
 const REQUIRED_CONTRACT_ANCHORS = [
   'EXECUTION DEBT', 'EXECUTION DEBT = 0', 'ACTIONABLE DEBT', 'EXTERNAL DEBT', 'RELEASE VELOCITY',
   'EXECUTION UTILIZATION', 'WAITING-TIME PARALLELIZATION', 'MAXIMUM SAFE PARALLELISM',
   'DEPENDENCY-AWARE SCHEDULING', 'INDEX DRIFT', 'Built', 'Integrated', 'Verified', 'Runtime Proven',
-  'Production Certified', 'MUST NOT stop', 'MUST NOT be promoted', 'NEXT+1', 'NEXT+2',
-  'READY + INDEPENDENT = EXECUTE NOW',
+  'Production Certified', 'MUST NOT stop', 'MUST NOT be promoted', 'NEXT+1', 'NEXT+2', 'READY + INDEPENDENT = EXECUTE NOW',
 ];
 const FORBIDDEN_WEAKENING_PATTERNS = [
   /historical\s+pass[\s\S]{0,120}\btransfer(?:s|red)?\b\s+automatically/i,
@@ -53,18 +51,20 @@ export function validateExecutionEnforcementProtocol(protocol) {
   return true;
 }
 
-export function validateCurrentHeadIndex(index, currentHead) {
+export function validateCurrentHeadIndex(index, currentHead, parentHead = '') {
   const normalizedIndex = normalize(stripComments(index));
   const head = normalize(currentHead);
   if (!head || !/^[0-9a-f]{40}$/.test(head)) throw new Error('Index current-head gate rejected: invalid repository HEAD');
   const currentStateMatch = index.match(/CURRENT PROJECT STATE[\s\S]{0,1200}?Exact code\/test head[^`]*`([0-9a-f]{40})`/i);
-  if (!currentStateMatch || currentStateMatch[1].toLowerCase() !== head) throw new Error(`Index current-head gate rejected: INDEX DRIFT (index=${currentStateMatch?.[1] ?? 'missing'}, head=${currentHead})`);
+  const indexedHead = currentStateMatch?.[1]?.toLowerCase();
+  const exactMatch = indexedHead === head;
+  const versionedIndexCommitMatch = indexedHead && normalize(parentHead) === indexedHead;
+  if (!exactMatch && !versionedIndexCommitMatch) throw new Error(`Index current-head gate rejected: INDEX DRIFT (index=${indexedHead ?? 'missing'}, head=${currentHead}, parent=${parentHead || 'unknown'})`);
   if (!normalizedIndex.includes('index drift')) throw new Error('Index current-head gate rejected: INDEX DRIFT rule missing from live index');
   return true;
 }
 
-const debtLedgerPath = 'docs/EXECUTION_DEBT_AND_RELEASE_VELOCITY.md';
-const debtLedger = fs.readFileSync(debtLedgerPath, 'utf8');
+const debtLedger = fs.readFileSync('docs/EXECUTION_DEBT_AND_RELEASE_VELOCITY.md', 'utf8');
 for (const anchor of ['EXECUTION DEBT', 'ACTIONABLE DEBT', 'EXTERNAL DEBT', 'RELEASE VELOCITY', 'EXECUTION UTILIZATION', 'TRUE STOP', 'Built', 'Integrated', 'Verified', 'Runtime Proven', 'Production Certified']) {
   if (!normalize(stripComments(debtLedger)).includes(normalize(anchor))) throw new Error(`Execution enforcement protocol rejected: debt/velocity ledger missing ${anchor}`);
 }
@@ -74,10 +74,16 @@ if (process.argv[1] && process.argv[1].endsWith('check-execution-enforcement-pro
   validateExecutionEnforcementProtocol(protocol);
   if (process.env.ENFORCE_INDEX_HEAD_GATE === '1') {
     const index = fs.readFileSync('docs/MASTER_EXECUTION_INDEX.md', 'utf8');
-    let currentHead;
-    try { currentHead = execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(); }
-    catch { currentHead = process.env.GITHUB_SHA?.trim() ?? ''; }
-    validateCurrentHeadIndex(index, currentHead);
+    let currentHead = '';
+    let parentHead = '';
+    try {
+      currentHead = execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
+      parentHead = execFileSync('git', ['rev-parse', 'HEAD^'], { encoding: 'utf8' }).trim();
+    } catch {
+      currentHead = process.env.GITHUB_SHA?.trim() ?? '';
+      parentHead = process.env.GITHUB_PARENT_SHA?.trim() ?? '';
+    }
+    validateCurrentHeadIndex(index, currentHead, parentHead);
   }
-  console.log(`PASS execution enforcement protocol: ${REQUIRED_RULES.length} mandatory rules, behavioral cases, scheduling controls, debt/velocity ledger, and explicit index-head certification gate active`);
+  console.log(`PASS execution enforcement protocol: ${REQUIRED_RULES.length} mandatory rules, behavioral cases, scheduling controls, debt/velocity ledger, and versioned index-head certification gate active`);
 }
