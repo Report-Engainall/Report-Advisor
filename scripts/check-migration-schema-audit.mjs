@@ -18,20 +18,20 @@ const findings = [];
 function record(kind, name, file, safeReplacement) {
   const key = `${kind}:${name}`;
   const previous = seenObjects.get(key);
-  if (previous && previous.file !== file && !(previous.safeReplacement && safeReplacement)) {
+  if (previous && previous.file !== file && !(previous.safeReplacement || safeReplacement)) {
     duplicateObjects.push({ kind, name, previous: previous.file, file });
   }
-  seenObjects.set(key, { file, safeReplacement });
+  seenObjects.set(key, { file, safeReplacement: Boolean(previous?.safeReplacement || safeReplacement) });
 }
 
 function policyIsReplacement(text, name) {
   const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  return new RegExp(`DROP\\s+POLICY\\s+IF\\s+EXISTS\\s+[\\\"]?${escaped}[\\\"]?`, 'i').test(text);
+  return new RegExp(`\\bDROP\\s+POLICY\\s+IF\\s+EXISTS\\s+[\"']?${escaped}[\"']?\\s+ON\\b`, 'i').test(text);
 }
 
 function triggerIsReplacement(text, name) {
   const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  return new RegExp(`DROP\\s+TRIGGER\\s+IF\\s+EXISTS\\s+[\\\"]?${escaped}[\\\"]?`, 'i').test(text);
+  return new RegExp(`\\bDROP\\s+TRIGGER\\s+IF\\s+EXISTS\\s+[\"']?${escaped}[\"']?\\s+ON\\b`, 'i').test(text);
 }
 
 for (const file of files) {
