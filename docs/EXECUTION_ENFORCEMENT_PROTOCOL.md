@@ -1,4 +1,4 @@
-# Autonomous Execution Enforcement Protocol — v3.1
+# Autonomous Execution Enforcement Protocol — v3.2
 
 This contract strengthens `docs/MASTER_EXECUTION_INDEX.md` without deleting or rewriting historical ledger entries.
 
@@ -35,7 +35,7 @@ Execution progress is measured by resolved capability/evidence/certification gap
 The master index remains append-only historical ledger + live state map + execution contract. Current-state edits must preserve historical SHA/RCA/evidence/blocker records.
 
 ### E-11 — True-stop gate
-`TRUE STOP` is allowed only after safe local work, parallel work, NEXT/NEXT+1/NEXT+2, adversarial checks, regression, rescan, exact-head verification, index update, execution-debt review, external blocker isolation, and executable handoff preparation are exhausted.
+`TRUE STOP` is allowed only after safe local work, parallel work, NEXT/NEXT+1/NEXT+2, adversarial checks, regression, rescan, exact-head verification, index update, execution-debt review, external blocker isolation, executable handoff preparation, and waiting-window exhaustion are exhausted.
 
 ### E-12 — Automatic protocol evolution
 When execution exposes a repeatable under-execution pattern, add a stronger enforcement rule, preserve the prior history, test the new enforcement path where practical, and apply it immediately.
@@ -58,6 +58,27 @@ CASE H: index updated + no capability progress → MUST NOT count as execution c
 ### E-15 — Release Velocity truth metric
 `RELEASE VELOCITY` measures closure movement across `Built`, `Integrated`, `Verified`, `Runtime Proven`, and `Production Certified`. Commits, lines changed, documentation updates, and report count are not velocity. A cycle that does not reduce Remaining Work or increase valid evidence/certification readiness must expose zero closure velocity.
 
+### E-TIME — Waiting-Time Parallelization
+When any asynchronous operation is running, including CI, Quality, Final Batch, build, deployment, workflow, test, API request, external verification, or similar operation, elapsed time is an execution window. If independent actionable work exists, it MUST be executed before returning or waiting for the asynchronous result. `waiting for CI`, `waiting for test`, `waiting for deployment`, and `waiting for workflow` MUST NOT be stop conditions while independent actionable work exists. When the asynchronous operation completes, its result MUST be consumed immediately and execution MUST continue.
+
+### E-MAX — Maximum Safe Parallelism
+At every execution point, schedule the maximum number of independent safe actionable tasks without creating conflicting mutations, races, unsafe shared-file writes, or ambiguous evidence lineage. Tasks sharing a mutation chain or exact-head dependency MUST run sequentially. Independent tasks MUST be treated as parallel-ready.
+
+### E-SCHED — Dependency-Aware Scheduling
+The execution scheduler MUST track each task as `TASK`, `DEPENDENCY`, `STATE`, `PARALLEL?`, `BLOCKER`, `CAN START NOW?`, and `EXPECTED UNLOCK`. `READY + INDEPENDENT = EXECUTE NOW`. External blockers isolate only the dependent task; preparation and independent validation remain executable.
+
+### E-INDEX-HEAD — Current-Head Index Gate
+If the live index current exact HEAD differs from the repository current exact HEAD, the state is `INDEX DRIFT`. The index MUST be refreshed while preserving all historical ledger entries. `INDEX DRIFT` forbids TRUE STOP and certification readiness until reconciled and verified.
+
+### E-DEBT — Actionable vs External Debt
+Execution debt MUST distinguish `ACTIONABLE DEBT` from `EXTERNAL DEBT`. Actionable debt MUST be executed. External debt MUST be isolated, prepared where possible, and documented; it MUST NOT suppress unrelated actionable work.
+
+### E-UTIL — Execution Utilization
+Release Velocity accounting MUST expose async operations running, parallel work executed, parallel work available, execution debt closed, and remaining work reduced. Waiting time with available independent work but zero execution is an under-utilization condition, not progress.
+
+### E-EVOLVE — Automatic Protocol Evolution
+When execution reveals a repeatable protocol weakness, the agent MUST `OBSERVE → RCA → DEFINE NEW RULE → UPDATE INDEX → ADD ENFORCEMENT → ADD TEST → ADD TEST-OF-TEST → ADVERSARIAL → REGRESSION → RESCAN`, then apply the rule immediately. This rule is itself permanent v3.x behavior.
+
 ## Current application
 
-The 2026-09-02 final sweep identified the historical failure mode of returning while CI was running despite independent work. E-01, E-02, E-03, and E-11 explicitly prevent recurrence. The v3.1 behavioral matrix, execution-debt zero-gate, and release-velocity contract now make under-execution testable rather than text-only. The live master index remains the authoritative execution map; this file is the durable enforcement contract it references.
+The 2026-09-02 execution sweep identified that asynchronous runtime can conceal unused execution capacity. v3.2 therefore makes waiting-time parallelization, maximum safe parallelism, dependency-aware scheduling, index-current-head enforcement, actionable/external debt separation, utilization accounting, and automatic protocol evolution explicit mandatory controls. The live master index remains the authoritative execution map; this file is the durable enforcement contract it references.
