@@ -1,6 +1,6 @@
-# Autonomous Execution Enforcement Protocol — v3.2
+# Autonomous Execution Enforcement Protocol — v3.2 + v4.0 Governance
 
-This contract strengthens `docs/MASTER_EXECUTION_INDEX.md` without deleting or rewriting historical ledger entries.
+This contract is Layer 1 of the execution system. It strengthens `docs/MASTER_EXECUTION_INDEX.md` without deleting or rewriting historical ledger entries. Layer 3 strategy governance is defined separately in `docs/ADAPTIVE_EXECUTION_GOVERNANCE.md`.
 
 ## Mandatory enforcement rules
 
@@ -77,8 +77,16 @@ Execution debt MUST distinguish `ACTIONABLE DEBT` from `EXTERNAL DEBT`. Actionab
 Release Velocity accounting MUST expose async operations running, parallel work executed, parallel work available, execution debt closed, and remaining work reduced. Waiting time with available independent work but zero execution is an under-utilization condition, not progress.
 
 ### E-EVOLVE — Automatic Protocol Evolution
-When execution reveals a repeatable protocol weakness, the agent MUST `OBSERVE → RCA → DEFINE NEW RULE → UPDATE INDEX → ADD ENFORCEMENT → ADD TEST → ADD TEST-OF-TEST → ADVERSARIAL → REGRESSION → RESCAN`, then apply the rule immediately. This rule is itself permanent v3.x behavior.
+When execution reveals a repeatable protocol weakness, the agent MUST `OBSERVE → RCA → DEFINE NEW RULE → UPDATE INDEX → ADD ENFORCEMENT → ADD TEST → ADD TEST-OF-TEST → ADVERSARIAL → REGRESSION → RESCAN`, then apply the rule immediately. This rule is permanent v3.x behavior.
+
+## Layer precedence
+
+The execution system has three distinct layers. Layer 1 defines mandatory programmer behavior; Layer 2 is the authoritative master execution state; Layer 3 governs strategy measurement and controlled improvement. The formal precedence is `P0 Safety / Security / Evidence Integrity > P1 Exact-SHA / Truth / Certification Integrity > P2 Current Master Execution Index > P3 Adaptive Execution Governance > P4 Programmer Execution Protocol > P5 Current Batch Instructions > P6 Convenience / Optimization`. A lower-priority instruction MUST NOT override a higher-priority constraint.
+
+## v4.0 governance binding
+
+`docs/ADAPTIVE_EXECUTION_GOVERNANCE.md` is mandatory Layer 3. It defines `EXECUTION PERFORMANCE LEDGER`, `EXECUTION EFFECTIVENESS`, `UNDER-EXECUTION EVENT`, `LOW-VALUE EXECUTION`, `COMMAND QUALITY FEEDBACK`, `STRATEGY MEMORY`, `BASELINE`, `RESULT`, `SMART FRONT PRIORITIZATION`, and controlled protocol evolution. The governance layer MUST use measured data when available and MUST use `HIGH | MEDIUM | LOW | UNPROVEN` rather than invented percentages when measurement is insufficient.
 
 ## Current application
 
-The 2026-09-02 execution sweep identified that asynchronous runtime can conceal unused execution capacity. v3.2 therefore makes waiting-time parallelization, maximum safe parallelism, dependency-aware scheduling, index-current-head enforcement, actionable/external debt separation, utilization accounting, and automatic protocol evolution explicit mandatory controls. The live master index remains the authoritative execution map; this file is the durable enforcement contract it references.
+The 2026-09-02 execution sweep established v3.2 time-aware execution enforcement. v4.0 now adds a separate adaptive governance layer so execution strategy can be measured without conflating activity with release progress, while preserving exact-SHA, safety, evidence, and certification precedence.
