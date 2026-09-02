@@ -3,8 +3,8 @@
 ## CURRENT RESUME EXECUTION MAP — 2026-09-02 — v4.1 COMPACT EVIDENCE + PROJECT IDENTITY
 
 ### CURRENT PROJECT STATE
-- Current repository exact HEAD: `51267cc0cdfa074ce61d257e06f8333bb3a9364d`.
-- Current code/test head: `51267cc0cdfa074ce61d257e06f8333bb3a9364d` (adversarial section-removal regex hardening after fresh exact-head CI exposed a false-negative mutation; exact-head CI is required).
+- Current repository exact HEAD: `9a32f382827a95130a4172a8740d0b75aeeff979`.
+- Current code/test head: `51267cc0cdfa074ce61d257e06f8333bb3a9364d` (adversarial section-removal regex hardening; fresh exact-head CI remains required).
 - `e96a894ba283954f5e38cfac536faa59e3db5be2` is the prior code/test boundary; its evidence is not transferred to `51267cc0cdfa074ce61d257e06f8333bb3a9364d`.
 - `4df56cd9ec6417be1c70dc366ea67b1fdad6d592` remains the prior documentation/index synchronization boundary; it is not the Tested Code SHA for the current candidate.
 - No prior evidence is promoted across the new code/test SHA.
