@@ -3,8 +3,9 @@
 ## CURRENT RESUME EXECUTION MAP — 2026-09-02 — FINAL SWEEP
 
 ### CURRENT PROJECT STATE
-- Exact code/test head entering this sweep: `67820aaec9b8594be6ace2f87c5ff4cf4307c61b`.
-- v3.2 execution-window mutations completed before this final index refresh: `bae9a099adeb85590810289507b55369bd05cf85` → `028f88993aefafa53dcca0d77575e2e3d7c90da0` → `c897bfec6a0b4464faacfd151a0ec2646bcd92a0` → `9aacfee8c48224c9b62be640195bd28a45691548` → `544ec2d8a6e847d9490a81f795ad0043f4d5cf75` / `a15a9ea4126964888aa7f20e782b5337b182a154` → `d0edb9fff9ce78dda28c16df17bc5e74e2a65c1e` → `67820aaec9b8594be6ace2f87c5ff4cf4307c61b`.
+- Exact code/test head entering this sweep: `f645fb932015d5a29edf51167a11e7fc28959bb3`.
+- v3.2 execution-window mutations completed before this final index refresh: `bae9a099adeb85590810289507b55369bd05cf85` → `028f88993aefafa53dcca0d77575e2e3d7c90da0` → `c897bfec6a0b4464faacfd151a0ec2646bcd92a0` → `9aacfee8c48224c9b62be640195bd28a45691548` → `544ec2d8a6e847d9490a81f795ad0043f4d5cf75` / `a15a9ea4126964888aa7f20e782b5337b182a154` → `d0edb9fff9ce78dda28c16df17bc5e74e2a65c1e` → `67820aaec9b8594be6ace2f87c5ff4cf4307c61b` → `f645fb932015d5a29edf51167a11e7fc28959bb3`.
+- RCA from fresh enforcement CI: the waiting-time weakening regex was too broad and matched legitimate `MUST NOT` wording. It was narrowed to explicit weakening modals (`may/can/could/should`) and the gate was strengthened without weakening enforcement.
 - The current index refresh is the final mutation in this execution window. The index commit itself is versioned separately; its parent is the exact code/test head above. Historical ledger content below is preserved; no older evidence transfers to this new boundary.
 - `main` is currently unprotected; certification remains fail-closed and exact-SHA bound.
 - Operational runtime/recovery proof is still separate from deterministic/static verification and remains UNPROVEN.
@@ -21,9 +22,10 @@
 ### WAITING WINDOWS — EXECUTION WINDOW LEDGER
 | Async operation | State | Parallel window | Independent work executed in window | Consumption rule |
 |---|---|---|---|---|
-| Quality | IN-PROGRESS at window start | OPEN | v3.2 protocol, checker, scheduler, debt/velocity, adversarial work, index reconciliation | consume exact result immediately |
-| Storage tenant isolation | IN-PROGRESS at window start | OPEN | v3.2 protocol/checker/test work and E1–E8 preparation | consume exact result immediately |
-| Final Execution Batch | current-cycle | OPEN | enforcement hardening and independent release/evidence preparation | consume exact result immediately |
+| Quality | RUNNING at final code head | OPEN | v3.2 protocol, checker, scheduler, debt/velocity, adversarial work, RCA, regression, index reconciliation | consume exact result immediately |
+| Storage tenant isolation | RUNNING at final index boundary | OPEN | v3.2 protocol/checker/test work and E1–E8 preparation | consume exact result immediately |
+| Final Execution Batch | RUNNING at final index boundary | OPEN | enforcement hardening and independent release/evidence preparation | consume exact result immediately |
+| Enforcement Contract | FAILED on `67820aa...` due checker false positive; RCA/fix executed on `f645fb...` | CLOSED FOR THAT WINDOW | false-positive detector fixed and index resynchronized | fresh result required on new SHA |
 
 A waiting window closes only when `result received AND result consumed AND new work evaluated`.
 
@@ -32,7 +34,7 @@ A waiting window closes only when `result received AND result consumed AND new w
 |---|---|---|---|---|---|---|
 | Quality exact-head CI | current SHA | RUNNING/CONSUME IMMEDIATELY | YES | none | YES | deterministic verification |
 | Storage isolation contract | current SHA | RUNNING/CONSUME IMMEDIATELY | YES | none | YES | tenant contract confidence |
-| Enforcement adversarial validation | protocol/checker | EXECUTED | YES | none | YES | enforcement confidence |
+| Enforcement adversarial validation | protocol/checker | RCA FIXED; FRESH CI REQUIRED | YES | none | YES | enforcement confidence |
 | Security/DB/RPC/evidence rescans | repository | READY | YES | none | YES | local defect closure |
 | E1 deployment validation/preparation | deployment contract | READY | YES | live Vercel for deployment | YES prep / NO live | runtime handoff |
 | E2 authenticated harness preparation | E1 live | READY | YES | live deployment for execution | YES prep / NO live | E2 readiness |
@@ -44,7 +46,7 @@ A waiting window closes only when `result received AND result consumed AND new w
 | E8 DR exercise preparation | E5/E7 | READY | YES | approved DR environment | YES prep / NO live | DR handoff |
 
 ### EXECUTION DEBT / RELEASE VELOCITY / UTILIZATION
-- `ACTIONABLE DEBT`: fresh exact-head CI result consumption; any local security/DB/RPC/evidence finding exposed by the active rescan; local E1–E8 preparation; and any subsequent index drift after a new mutation.
+- `ACTIONABLE DEBT`: fresh exact-head Quality/Final Batch/Storage/Enforcement result consumption; any local security/DB/RPC/evidence finding exposed by the active rescan; local E1–E8 preparation; and any subsequent index drift after a new mutation.
 - `EXTERNAL DEBT`: exact-head live deployment authorization/rate-limit access, authenticated runtime credentials, live Tenant A/B runtime, real backup/restore/RPO/RTO environment, staging rollback/forward-recovery authorization, and approved DR environment.
 - Rule: `ACTIONABLE DEBT → MUST EXECUTE`; `EXTERNAL DEBT → ISOLATE + PREPARE + DOCUMENT`.
 - `RELEASE VELOCITY`: measure only movement through `Built → Integrated → Verified → Runtime Proven → Production Certified`.
@@ -62,8 +64,8 @@ A waiting window closes only when `result received AND result consumed AND new w
 - Enforcement v3.2: time-aware parallelization, safe parallelism, scheduler fields, debt split, utilization accounting, explicit certification-mode index gate, and adversarial comment-decoy/test-of-test coverage are encoded in the durable protocol/checker.
 
 ### IN-PROGRESS
-- Fresh exact-head CI for `67820aaec9b8594be6ace2f87c5ff4cf4307c61b` plus the index-only boundary commit.
-- Immediate consumption of Quality/Final Batch/Storage results for the exact code/test head and its index boundary.
+- Fresh exact-head CI for `f645fb932015d5a29edf51167a11e7fc28959bb3` plus the final index-only boundary commit.
+- Immediate consumption of Quality/Final Batch/Storage/Enforcement results for the exact code/test head and its index boundary.
 - Independent security/evidence/import/OCR/workflow rescan and E1–E8 preparation.
 - Final certification gap decomposition.
 
