@@ -90,3 +90,21 @@ The execution system has three distinct layers. Layer 1 defines mandatory progra
 ## Current application
 
 The 2026-09-02 execution sweep established v3.2 time-aware execution enforcement. v4.0 now adds a separate adaptive governance layer so execution strategy can be measured without conflating activity with release progress, while preserving exact-SHA, safety, evidence, and certification precedence.
+
+
+## v4.1 Governance — Compact Evidence and Project Identity
+
+### E-16 — Compact Evidence / Auditability
+Execution evidence MUST be stored first in the canonical compact record whenever that record can represent the state without loss of auditability. Repeated cycle reports MUST NOT be created when an existing canonical record can be updated. Raw CI logs and large outputs MUST remain outside the repository unless a specific certification claim requires them. Historical evidence required to prove a change, decision, failure, repair, security finding, or certification state MUST be retained; obsolete/redundant material MAY be compacted or archived without deleting the audit trail. Every compact state entry MUST preserve the minimum lineage: `DATE → EXACT HEAD → ACTION → RESULT → BLOCKER → NEXT`. Storage reduction MUST NOT remove evidence required for certification.
+
+### E-17 — Project Identity / Old Branding Integrity
+The canonical project identity is **الأغبري**. The legacy branding **العامري** is NOT an approved current project/UI identity. Any Frontend/UI/Branding audit MUST perform `OLD BRANDING → SEARCH → CLASSIFY → REMOVE/REPAIR → VERIFY → REGRESSION`. Current frontend surfaces, application metadata, titles, navigation, logos/alt text, and documentation representing current identity MUST use **الأغبري**. Historical evidence may preserve legacy wording when required to explain history; such historical wording MUST NOT be treated as current branding.
+
+### E-18 — Certification Configuration Provenance
+Certification configuration MUST be sourced from existing canonical configuration or explicit Owner Input. Missing certification URLs, endpoints, buckets, objects, target identities, or credentials MUST remain `OWNER INPUT REQUIRED` / `NOT AVAILABLE`; fabricated values, inferred Production targets, and synthetic operational endpoints are forbidden. Staging MUST NOT be substituted for Production merely to satisfy a certification gate.
+
+### E-19 — Production Safety Boundary
+No Production binding, database, authentication, authorization/RLS, migration, restore, rollback, infrastructure, or privileged-credential mutation may be performed solely to clear a certification blocker without explicit Owner Approval. Discovery of a required Production mutation is a stop at the safety boundary, not a certification PASS.
+
+### Protocol-first execution order
+Before any Audit, Mutation, Certification, or execution decision, the agent MUST read the canonical Layer 1 protocol, the current Layer 2 Master Execution Index, and the Layer 3 Adaptive Execution Governance; then `READ CURRENT STATE → AUDIT → CLASSIFY → EXECUTE → TEST → BYPASS SEARCH → REGRESSION → VERIFY → EVIDENCE → UPDATE CANONICAL RECORD → COMMIT`. A conversation instruction MUST NOT override a higher-precedence repository protocol rule.
