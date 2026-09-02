@@ -21,10 +21,11 @@ const productionCertification = read('src/lib/production/productionCertification
 const assertSpaFallback = (config) => {
   const routes = Array.isArray(config.routes) ? config.routes : [];
   const rewrites = Array.isArray(config.rewrites) ? config.rewrites : [];
-  const routeFallback = routes.some((route) => route && route.handle === 'filesystem')
-    && routes.some((route) => route && route.dest === '/index.html' && typeof route.src === 'string' && route.src.length > 0);
+  const filesystemIndex = routes.findIndex((route) => route && route.handle === 'filesystem');
+  const fallbackIndex = routes.findIndex((route) => route && route.dest === '/index.html' && typeof route.src === 'string' && route.src.length > 0);
+  const routeFallback = filesystemIndex >= 0 && fallbackIndex > filesystemIndex;
   const rewriteFallback = rewrites.some((rewrite) => rewrite && rewrite.destination === '/index.html' && typeof rewrite.source === 'string' && rewrite.source.length > 0);
-  if (!routeFallback && !rewriteFallback) throw new Error('Release gate missing SPA fallback');
+  if (!routeFallback && !rewriteFallback) throw new Error('Release gate missing ordered SPA fallback');
 };
 
 let vercel;
@@ -61,16 +62,21 @@ if (!certificationContract.includes('PRODUCTION_CERTIFICATION_EVIDENCE_KEYS')) t
 
 if (/PRODUCTION CERTIFIED\s*=\s*YES/i.test(productionCertification)) throw new Error('Release gate rejects fabricated production certification');
 
-// Test-of-test: executable canonical route must be recognized, while a comment-only decoy must fail.
+// Test-of-test: executable canonical route must be recognized; decoys and
+// misordered routes must be rejected as non-functional release evidence.
 const canonicalRouteConfig = { routes: [{ handle: 'filesystem' }, { src: '/.*', dest: '/index.html' }] };
 assertSpaFallback(canonicalRouteConfig);
-const decoyConfig = { routes: [{ handle: 'filesystem' }, { src: '/.*', dest: '// "dest": "/index.html"' }] };
-let decoyRejected = false;
-try {
-  assertSpaFallback(decoyConfig);
-} catch {
-  decoyRejected = true;
+for (const decoyConfig of [
+  { routes: [{ handle: 'filesystem' }, { src: '/.*', dest: '// "dest": "/index.html"' }] },
+  { routes: [{ src: '/.*', dest: '/index.html' }, { handle: 'filesystem' }] },
+]) {
+  let rejected = false;
+  try {
+    assertSpaFallback(decoyConfig);
+  } catch {
+    rejected = true;
+  }
+  if (!rejected) throw new Error('Test-of-test accepted non-functional SPA route evidence');
 }
-if (!decoyRejected) throw new Error('Test-of-test accepted a comment-decoy as executable route evidence');
 
 console.log('Phase 12 release certification gate: PASS (repository-level; deployment evidence remains external)');
