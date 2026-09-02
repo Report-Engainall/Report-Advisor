@@ -3,9 +3,10 @@
 ## CURRENT RESUME EXECUTION MAP — 2026-09-02 — v4.1 COMPACT EVIDENCE + PROJECT IDENTITY
 
 ### CURRENT PROJECT STATE
-- Current repository exact HEAD: `d02024628dad67d151e681e3d108f5357f6faa99`.
-- Current code/test head: `291991d9863204f839781574ae16e787715b5691` (v4.1 protocol/checker/adversarial changes; fresh exact-head CI required).
-- The current documentation synchronization will be the next index-only boundary; no prior evidence is promoted across the new code/test SHA.
+- Current repository exact HEAD: `1ff7f2b079a91d7442af1cf908a203094d57b2ce`.
+- Current code/test head: `1ff7f2b079a91d7442af1cf908a203094d57b2ce` (canonical branding repair in `src/components/Sidebar.tsx` and `src/pages/LoginPage.tsx`; fresh exact-head CI required).
+- `d02024628dad67d151e681e3d108f5357f6faa99` is a prior documentation-only boundary and is not treated as the current code/test head.
+- No prior evidence is promoted across the new code/test SHA.
 - v4.0 batch start head: `811070805114956c8f8f1766b7bf6c3c9704b4c0`.
 - Previous v3.2 index boundary: `a4b26ef13ce08d54d2e9c0723530499bcc6e66c5`.
 - v4.0 code/test mutations culminated at `f29cdbc3fead457e3f31c2b86fbd458f9bd9c80c`; governance self-audit documentation then landed at `356a86bd14296554374df7d18a6b0395d65099fd`.
@@ -14,16 +15,24 @@
 
 
 
+### 2026-09-02 COMPACT EXECUTION UPDATE
+- `DATE → EXACT HEAD → ACTION → RESULT → BLOCKER → NEXT`: `2026-09-02 → 1ff7f2b079a91d7442af1cf908a203094d57b2ce → repaired legacy branding in two current frontend files after exact-head CI caught it → repair committed; post-repair CI pending → no local blocker; certification remains externally blocked → consume fresh exact-head CI and retain Production/Phase-E fail-closed boundaries`.
+- Evidence inventory at the pre-repair boundary: 10 files under `docs/EVIDENCE/`, total 25,372 bytes; no raw CI log files were found there. Distinct historical evidence remains retained; no certification-critical evidence was deleted.
+- Exact-head CI on `291991d...`: Quality `33618525536` success; Final Execution Batch `33618525551` success; storage tenant-isolation `33618525533` success; Execution Enforcement Contract `33618525580` failed specifically on legacy branding in two frontend files; desktop-windows `33618525496` was still in progress at inspection.
+- The enforcement failure was treated as an actionable defect and repaired. No PASS from `291991d...` is transferred to `1ff7f2b...`.
+
 ### v4.1 GOVERNANCE UPDATE — COMPACT EVIDENCE / PROJECT IDENTITY
 - Canonical Layer 1 protocol now requires compact evidence storage, minimum lineage `DATE → EXACT HEAD → ACTION → RESULT → BLOCKER → NEXT`, preservation of certification-critical history, certification configuration provenance, Production safety boundaries, and protocol-first execution order.
 - Enforcement checker now requires the v4.1 protocol anchors and validates current frontend identity surfaces (`index.html`, `package.json`, `README.md`, `src/`, `public/`) against legacy branding **العامري** while requiring **الأغبري** in `index.html`.
 - Adversarial enforcement coverage now rejects removal of the v4.1 compact-evidence, project-identity, certification-provenance, Production-safety, and protocol-first rules.
-- Branding audit at this boundary found no legacy **العامري** occurrence in the inspected current frontend surfaces; `index.html` explicitly contains **الأغبري**. No frontend repair was necessary.
+- Branding audit at `291991d...` found legacy **العامري** in `src/components/Sidebar.tsx` and `src/pages/LoginPage.tsx`; this was a real current-frontend defect caught by exact-head enforcement CI.
+- Repair: replaced those current UI occurrences with canonical **الأغبري**. This was a non-Production frontend mutation; no Production configuration/data/security mutation was performed.
+- Post-repair CI is required on exact code/test head `1ff7f2b079a91d7442af1cf908a203094d57b2ce`.
 - Compact-evidence application: historical certification/security/change/failure evidence remains retained. No certification-critical evidence was deleted or rewritten. Existing repetitive ledgers remain historical where deletion would weaken auditability; the canonical Master Index now carries the current compact state.
 - Phase E remains blocked by the already-established missing owner configuration; no certification endpoint, bucket, object, target, or secret was fabricated.
 - Dashboard remains CLOSED / PROVEN and untouched.
 - Production binding remains STOPPED; no Production mutation was performed.
-- Exact-SHA boundary: the v4.1 checker/test mutations are not certification-proven until fresh CI runs on `291991d9863204f839781574ae16e787715b5691`.
+- Exact-SHA boundary: the v4.1 checker/test changes and subsequent branding repair are not certification-proven until fresh CI is consumed on `1ff7f2b079a91d7442af1cf908a203094d57b2ce`.
 
 ### LAYERED EXECUTION ARCHITECTURE
 - **LAYER 1 — Programmer Execution Protocol:** `docs/EXECUTION_ENFORCEMENT_PROTOCOL.md`; mandatory execution behavior.
