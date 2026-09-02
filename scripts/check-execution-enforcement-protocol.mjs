@@ -83,7 +83,12 @@ if (process.argv[1] && process.argv[1].endsWith('check-execution-enforcement-pro
       const normalizedIndex = normalize(stripComments(index));
       const match = index.match(/CURRENT PROJECT STATE[\s\S]{0,1200}?(?:Exact |Current )code\/test head[^`]*`([0-9a-f]{40})`/i); const indexedHead = match?.[1]?.toLowerCase(); if (!indexedHead) throw error;
       let ancestryVerified = false; let changedFiles = [];
-      try { execFileSync('git', ['merge-base', '--is-ancestor', indexedHead, currentHead]); changedFiles = execFileSync('git', ['diff', '--name-only', `${indexedHead}..${currentHead}`], { encoding: 'utf8' }).trim().split('\n').filter(Boolean); ancestryVerified = changedFiles.length > 0 && changedFiles.every(file => file === 'docs/MASTER_EXECUTION_INDEX.md'); } catch { ancestryVerified = false; }
+      try {
+        execFileSync('git', ['merge-base', '--is-ancestor', indexedHead, currentHead]);
+        const diffRange = normalize(parentHead) === indexedHead ? `${parentHead}..${currentHead}` : `${indexedHead}..${currentHead}`;
+        changedFiles = execFileSync('git', ['diff', '--name-only', diffRange], { encoding: 'utf8' }).trim().split('\n').filter(Boolean);
+        ancestryVerified = changedFiles.length > 0 && changedFiles.every(file => file === 'docs/MASTER_EXECUTION_INDEX.md');
+      } catch { ancestryVerified = false; }
       if (!ancestryVerified || !normalizedIndex.includes('index drift')) throw error;
       validateCurrentHeadIndex(index, currentHead, indexedHead, changedFiles);
       console.log(`PASS index-head gate: current HEAD ${currentHead} differs from indexed code/test head ${indexedHead} only through verified index-only commits`);
