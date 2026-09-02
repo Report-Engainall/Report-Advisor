@@ -1,17 +1,50 @@
 # Execution Debt & Release Velocity — 2026-09-02
 
 ## Purpose
-This is the live supplemental accounting contract for the autonomous execution protocol. The master execution index remains the authoritative ledger; this file prevents execution debt and release velocity from being silently omitted while the index is awaiting its next safe full-content refresh.
+This is the live supplemental accounting contract for the autonomous execution protocol. The master execution index remains the authoritative ledger; this file prevents execution debt, release velocity, and time-utilization state from being silently omitted while the index is refreshed safely.
 
 ## EXECUTION DEBT
 
 ### Current debt
-- `INDEX-CURRENT-HEAD-REFRESH`: actionable documentation debt. `docs/MASTER_EXECUTION_INDEX.md` still records an older current-head narrative and must be refreshed without deleting historical ledger content.
-- `CI-REVALIDATION`: current exact-head Quality is still running; no PASS is promoted until it completes on the current exact SHA.
+- `INDEX-CURRENT-HEAD-REFRESH`: actionable documentation debt; the master index must always be refreshed after the final mutation in an execution window while preserving historical ledger content.
+- `CI-REVALIDATION`: current exact-head Quality/Final Batch results must be consumed on the exact SHA; historical PASS is never promoted.
 
-### Explicitly not debt
-- Production runtime, authenticated E2E, live tenant A/B, real Backup/Restore/RPO/RTO, staging Rollback/Forward Recovery, and DR are externally blocked capabilities; their local preparation is executable and has been maintained in E1–E8.
-- Historical CI PASS, runtime evidence, or certification evidence from an older SHA is not considered usable work; it is intentionally excluded by the exact-SHA rule.
+### ACTIONABLE DEBT
+- local security/DB/RPC/evidence/test-of-test findings exposed by the current rescan;
+- local E1–E8 preparation and evidence-schema validation;
+- exact-head index synchronization after the mutation batch;
+- immediate consumption and re-scheduling of asynchronous results.
+
+### EXTERNAL DEBT
+- exact-head live deployment authorization/rate-limit access;
+- authenticated runtime credentials;
+- live Tenant A/B runtime;
+- real backup/restore/RPO/RTO environment;
+- staging rollback/forward-recovery authorization;
+- approved DR environment.
+
+Rule: `ACTIONABLE DEBT → MUST EXECUTE`; `EXTERNAL DEBT → ISOLATE + PREPARE + DOCUMENT`. External debt never clears unrelated actionable debt.
+
+## WAITING WINDOWS
+
+An asynchronous operation creates a `WAITING WINDOW` with:
+- operation;
+- status;
+- parallel window state;
+- available independent work;
+- work actually executed;
+- result-consumption state.
+
+A waiting window closes only when `result received AND result consumed AND new work evaluated`.
+
+## EXECUTION SCHEDULER
+
+Each task is tracked as:
+`TASK | DEPENDENCY | STATE | PARALLEL? | BLOCKER | CAN START NOW? | EXPECTED UNLOCK`.
+
+`READY + INDEPENDENT = EXECUTE NOW`.
+
+Tasks sharing a mutation chain, file write, exact-SHA evidence boundary, or unsafe external side effect remain sequential. Independent read-only audits, harnesses, contract validation, and preparation work are parallel-ready.
 
 ## RELEASE VELOCITY
 
@@ -19,16 +52,19 @@ Velocity is measured only by capability/evidence closure movement across:
 
 `Built → Integrated → Verified → Runtime Proven → Production Certified`
 
-This enforcement cycle produced real closure in the enforcement/certification layer:
-- behavioral enforcement matrix added for CASE A–H;
-- execution-debt zero-gate added;
-- release-velocity truth metric added;
-- enforcement checker strengthened against whitespace/case variation, renamed rules, comment-only decoys, weakening clauses, missing behavioral cases, and fake TRUE STOP;
-- adversarial test-of-test suite wired into CI;
-- current exact-head Final Execution Batch passed all 30 deterministic gates.
+No commit count, line count, documentation volume, elapsed waiting time, or report count is release velocity.
 
-No commit count, line count, documentation volume, or report count is treated as release velocity.
+## EXECUTION UTILIZATION
+
+Track:
+- `Async Operations Running`
+- `Parallel Work Available`
+- `Parallel Work Executed`
+- `Execution Debt Closed`
+- `Remaining Work Reduced`
+
+If asynchronous work is running while independent actionable work is available and zero independent work is executed, classify the interval as `UNDER-UTILIZATION`, not progress.
 
 ## TRUE STOP IMPACT
 
-`EXECUTION DEBT = 0` is required before TRUE STOP for locally executable debt. Therefore TRUE STOP is **NOT PERMITTED** while the current-head index refresh or any other local actionable debt remains.
+`EXECUTION DEBT = 0` is required before TRUE STOP for locally executable debt. TRUE STOP is forbidden while a waiting window has independent actionable work, while INDEX DRIFT exists, or while E1–E8 has unprepared local work.
