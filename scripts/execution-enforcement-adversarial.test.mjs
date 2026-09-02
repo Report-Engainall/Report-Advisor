@@ -47,7 +47,7 @@ attack('actionable/external debt distinction removed', text => text.replace(/###
 for (const marker of ['CASE A:', 'CASE B:', 'CASE C:', 'CASE D:', 'CASE E:', 'CASE F:', 'CASE G:', 'CASE H:']) attack(`missing behavioral ${marker}`, text => text.replace(marker, `${marker.replace(':', '')} REMOVED:`));
 
 const governanceAttack = (name, mutate) => { const candidate = mutate(governance); assert.throws(() => validateAdaptiveGovernance(candidate), /Adaptive governance rejected/, `${name} must be rejected`); };
-governanceAttack('missing layer separation', text => text.replaceAll('LAYER 3 — Adaptive Execution Governance', 'LAYER X — Adaptive Execution Governance').replaceAll('LAYER 3 of the execution system', 'LAYER X of the execution system'));
+governanceAttack('missing layer separation', text => text.replaceAll('Layer 3', 'Layer X').replaceAll('LAYER 3', 'LAYER X'));
 governanceAttack('precedence removed', text => text.replace('P0 — Safety / Security / Evidence Integrity', 'P0 — Convenience'));
 governanceAttack('performance ledger removed', text => text.replace('EXECUTION PERFORMANCE LEDGER', 'PERFORMANCE LEDGER REMOVED'));
 governanceAttack('under-execution detection removed', text => text.replace('UNDER-EXECUTION EVENT', 'UNDER-EXECUTION REMOVED'));
