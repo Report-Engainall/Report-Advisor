@@ -85,18 +85,14 @@ if (process.argv[1] && process.argv[1].endsWith('check-execution-enforcement-pro
       let ancestryVerified = false; let changedFiles = [];
       try {
         execFileSync('git', ['merge-base', '--is-ancestor', indexedHead, currentHead]);
-        const diffArgs = normalize(parentHead) === indexedHead
-          ? ['diff-tree', '--no-commit-id', '--name-only', '-r', currentHead]
-          : ['diff', '--name-only', `${indexedHead}..${currentHead}`];
-        changedFiles = execFileSync('git', diffArgs, { encoding: 'utf8' }).trim().split('\n').filter(Boolean);
-        if (!changedFiles.length && normalize(parentHead) === indexedHead) {
-          changedFiles = execFileSync('git', ['show', '--format=', '--name-only', currentHead], { encoding: 'utf8' }).trim().split('\n').filter(Boolean);
-        }
-        ancestryVerified = changedFiles.length > 0 && changedFiles.every(file => file === 'docs/MASTER_EXECUTION_INDEX.md');
+        const indexOnlyProbe = ['diff', '--quiet', indexedHead, currentHead, '--', '.', ':(exclude)docs/MASTER_EXECUTION_INDEX.md'];
+        execFileSync('git', indexOnlyProbe, { stdio: 'ignore' });
+        changedFiles = ['docs/MASTER_EXECUTION_INDEX.md'];
+        ancestryVerified = true;
       } catch { ancestryVerified = false; }
       if (!ancestryVerified || !normalizedIndex.includes('index drift')) throw error;
       validateCurrentHeadIndex(index, currentHead, indexedHead, changedFiles);
-      console.log(`PASS index-head gate: current HEAD ${currentHead} differs from indexed code/test head ${indexedHead} only through verified index-only commit changes`);
+      console.log(`PASS index-head gate: current HEAD ${currentHead} differs from indexed code/test head ${indexedHead} only through the governed execution-index path`);
     }
   }
   console.log(`PASS execution enforcement protocol: ${REQUIRED_RULES.length} mandatory rules, behavioral cases, v4 governance layer, scheduling controls, debt/velocity ledger, and versioned index-head certification gate active`);
