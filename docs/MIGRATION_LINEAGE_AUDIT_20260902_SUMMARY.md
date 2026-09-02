@@ -1,0 +1,1 @@
+Audit summary: Supabase remote migration ledger is deployment-time identity based; repository source filenames are not a sufficient identity key. PR #304 has four recovered migration sources but mixed unrelated code. No release-branch merge or production migration mutation was performed in this audit.
