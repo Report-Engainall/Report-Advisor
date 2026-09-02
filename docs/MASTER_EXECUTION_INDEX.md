@@ -1,35 +1,35 @@
 # Report Advisor — Master Execution & Truth Index
 
-## CURRENT RESUME EXECUTION MAP — 2026-09-02 — v4.14 / GOVERNANCE ADVERSARIAL CLOSURE
+## CURRENT RESUME EXECUTION MAP — 2026-09-02 — v4.15 / GOVERNANCE ADVERSARIAL REVERIFICATION
 
 > This file is the authoritative current execution index. Historical execution records remain preserved in Git history and dated execution/evidence documents. No evidence crosses an exact-SHA boundary.
 
 ### CURRENT PROJECT STATE
 - Repository: `Report-Engainall/Report-Advisor`.
-- Latest repository code/test synchronization commit: `9037966f86f95c49288c4f00ead605cf9a6424fd` (governance adversarial test hardening).
-- Current repository head is intentionally allowed to advance through governed index-only synchronization commits; the current code/test head is `9037966f86f95c49288c4f00ead605cf9a6424fd` until a later real code/test mutation.
-- Current exact code/test candidate: `9037966f86f95c49288c4f00ead605cf9a6424fd`.
-- Quality `33671871209` on `960cffde` passed all 63 substantive verification steps; Final Execution Batch `33671871130` passed all 30 deterministic gates; Storage Tenant Isolation `33671871152` passed its contract job.
-- Execution Enforcement `33671871043` exposed a real test-of-test defect: the under-execution governance mutation did not remove the detection section strongly enough to prove rejection.
-- Fixed the adversarial mutation so the entire `UNDER-EXECUTION DETECTION` section is removed in the attack candidate, ensuring the validator must reject the weakened governance contract rather than accidentally accepting a surviving anchor.
-- Fresh exact-head Quality/Final Execution/Enforcement/Storage evidence is required for `9037966...`; no older PASS is carried across this mutation.
+- Latest repository code/test synchronization commit: `6263375052ffc7e02134d540e019b652d22c1d8a` (governance adversarial removal attack strengthened).
+- Current repository head is intentionally allowed to advance through governed index-only synchronization commits; the current code/test head is `6263375052ffc7e02134d540e019b652d22c1d8a` until a later real code/test mutation.
+- Current exact code/test candidate: `6263375052ffc7e02134d540e019b652d22c1d8a`.
+- Quality `33672406562` on repository head `559759...` passed all 63 substantive verification steps; this predates the latest adversarial test mutation and is therefore stale for certification.
+- Execution Enforcement `33672437701` exposed a real test-of-test weakness: the attempted section removal renamed the heading to `UNDER-EXECUTION DETECTION REMOVED`, leaving a validator anchor intact.
+- Fixed the attack mutation to remove the complete detection section and replace it directly with the next section heading, so the attack no longer preserves the `UNDER-EXECUTION DETECTION` anchor.
+- Fresh exact-head Quality/Final Execution/Enforcement/Storage evidence is required for `626337505...`; no older PASS is carried across this mutation.
 - **INDEX DRIFT** remains governed explicitly: the enforcement verifier accepts only exact code/test head match or a fail-closed, ancestor-proven chain whose complete changed-file set is exactly `docs/MASTER_EXECUTION_INDEX.md`.
 
-### 2026-09-02 GOVERNANCE ADVERSARIAL CLOSURE WAVE
-- Root cause: the adversarial test attempted to remove only the literal `UNDER-EXECUTION EVENT` anchor, but the validator accepted the resulting candidate because the broader detection contract was still represented by surrounding governance content. The test therefore failed to prove the intended weakening attack.
-- Corrected the test mutation to remove the complete `UNDER-EXECUTION DETECTION` section before the next governance section. This targets the actual semantic contract rather than relying on a single token replacement.
-- No production alias, deployment, restore, rollback, live tenant state, or secret was mutated.
-- Commit: `9037966f86f95c49288c4f00ead605cf9a6424fd`.
+### 2026-09-02 GOVERNANCE ADVERSARIAL REVERIFICATION WAVE
+- Enforcement run `33672437701` verified the index-head contract itself, then failed only in the adversarial test-of-test suite.
+- Failure was precise: `under-execution detection removed must be rejected` was not rejected because the mutation preserved the substring `UNDER-EXECUTION DETECTION` in the renamed heading.
+- Corrected the test attack to remove the entire `UNDER-EXECUTION DETECTION` section and emit only the following `OVER-EXECUTION / LOW-VALUE EXECUTION` heading.
+- This is a real test-hardening mutation, not metric/documentation padding.
+- Commit: `6263375052ffc7e02134d540e019b652d22c1d8a`.
 
 ### 2026-09-02 CI TOPOLOGY RECONCILIATION WAVE
-- Quality failed at the CI topology gate, while the preceding 20-stage readiness, build/typecheck, lint, RLS, import, performance, scale, and intelligence checks all passed in that run.
+- Quality failed at the CI topology gate, while the preceding readiness, build/typecheck, lint, RLS, import, performance, scale, and intelligence checks passed in that run.
 - Root cause was not product behavior: `scripts/check-ci-execution-topology.mjs` treated every broad push workflow other than `quality.yml` as forbidden.
-- The enforcement workflow is intentionally broad-push by design because it must cover every push and pull request, including documentation-only/index synchronization and any future mutation that could otherwise bypass enforcement.
 - Reconciled the topology checker so `execution-enforcement-contract.yml` is an explicit, singular governance exception and is itself asserted to remain broad-push.
 - Commit: `baee24662765aebb4d52d925c2724627d2044836`.
 
 ### 2026-09-02 RESILIENCE SECURITY CLOSURE WAVE
-- Closed a real SSRF target-class defect in the resilience outbound transport, including IPv4-mapped IPv6 normalization and fail-closed DNS resolution.
+- Closed the real IPv4-mapped IPv6 SSRF target-class defect in resilience outbound transport, including fail-closed DNS resolution.
 - Replaced whole-artifact buffering with incremental Web Stream hashing and added adversarial regression coverage.
 - Wired resilience runtime tests into Quality.
 - Commits: `a6ec26e3297636196c00cc0e5795e2cb82586a93`, `24ed4e33ca5066d5647d620db75b0c3850498958`, `24d853d958c3d05979864883a9f9e77d431841c6`, `1bdd5815d5f79f7e88dec0cf2ff8c2724bc0a9b9`.
@@ -57,9 +57,9 @@
 ### CERTIFICATION STATUS — FAIL CLOSED
 | Gate | State | Reason |
 |---|---|---|
-| Repository quality | **FRESH RUN PENDING** | Candidate changed at `9037966...`; fresh exact-head Quality required |
+| Repository quality | **FRESH RUN PENDING** | Candidate changed at `626337505...`; fresh exact-head Quality required |
 | Release deterministic gates | **FRESH RUN PENDING** | Candidate changed; fresh exact-head deterministic evidence required |
-| Execution enforcement contract | **FRESH RUN PENDING** | Adversarial test corrected; fresh exact-head result required |
+| Execution enforcement contract | **FRESH RUN PENDING** | Adversarial mutation corrected; fresh exact-head result required |
 | Storage tenant isolation contract | **FRESH RUN PENDING** | Prior evidence is on older exact head |
 | Work Item Actionability Guard | **STALE** | Prior evidence is on older exact head |
 | Production runtime | UNPROVEN | Requires authenticated live product runtime evidence |
@@ -80,7 +80,7 @@
 - No owner/device request is made while independent executable work remains.
 
 ### NEXT EXECUTION FRONT
-1. Consume fresh exact-head Enforcement, Quality, Final Execution, and Storage Tenant Isolation results at `9037966...`.
+1. Consume fresh exact-head Enforcement, Quality, Final Execution, and Storage Tenant Isolation results at `626337505...`.
 2. If a fresh gate exposes another real regression, fix the smallest proven defect and immediately reverify at the new exact head.
 3. Continue independent repository-side security/runtime/contract closure without reopening closed findings.
 4. Prepare exact live authenticated Tenant A/B and resilience evidence paths; never fabricate credentials or operational artifacts.
@@ -89,6 +89,6 @@
 7. Desktop Windows certification remains backed by native smoke workflow; `desktop/package-lock.json` is absent, so reproducible desktop `npm ci` remains a real dependency-resolution gap rather than something to handcraft.
 
 ### HISTORICAL RECORD / SHA BOUNDARIES
-- Previous index blob: `4a12786a2763410eaa701a36f4c29924a5cde6a3`.
-- Previous code/test boundary: `baee24662765aebb4d52d925c2724627d2044836`.
+- Previous index blob: `3913d6ddc451c1e7bfb552151c899caf2fc18f21`.
+- Previous code/test boundary: `9037966f86f95c49288c4f00ead605cf9a6424fd`.
 - Historical execution content remains preserved by Git history; documentation synchronization commits are never promoted to code/test candidates unless they contain a real product/test mutation.
