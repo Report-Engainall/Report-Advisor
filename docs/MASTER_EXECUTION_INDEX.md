@@ -1,33 +1,33 @@
 # Report Advisor — Master Execution & Truth Index
 
-## CURRENT RESUME EXECUTION MAP — 2026-09-02 — v4.19 / GOVERNANCE ADVERSARIAL CLOSURE
+## CURRENT RESUME EXECUTION MAP — 2026-09-02 — v4.20 / GOVERNANCE ADVERSARIAL CLOSURE
 
 > This file is the authoritative current execution index. Historical execution records remain preserved in Git history and dated execution/evidence documents. No evidence crosses an exact-SHA boundary.
 
 ### CURRENT PROJECT STATE
 - Repository: `Report-Engainall/Report-Advisor`.
-- Latest repository code/test synchronization commit: `7b9ad72b08bb75ff508a563ba047307d21659699` (adaptive-governance structural section enforcement).
-- Current repository head is intentionally allowed to advance through governed index-only synchronization commits; the current code/test head is `7b9ad72b08bb75ff508a563ba047307d21659699` until a later real code/test mutation.
-- Current exact code/test candidate: `7b9ad72b08bb75ff508a563ba047307d21659699`.
-- Proven defect: anchor-only governance validation could be bypassed by renaming a primary section while preserving a duplicate occurrence elsewhere.
-- Closed by structural section validation across all mandatory adaptive-governance sections.
-- This is a real governance enforcement closure, not documentation or metric padding.
-- All earlier CI evidence on `626337...`, `fdfbea...`, `3a8f...`, and index-sync heads is historical/stale for the current candidate and is not promoted.
-- Fresh exact-head Quality, Final Execution, Enforcement, Storage, and Desktop evidence is mandatory for certification of `7b9ad...`.
+- Latest repository code/test synchronization commit: `27464d5f1fcdc22e30cb3d9eed31b7730e39cf98` (adaptive-governance truth-invariant enforcement).
+- Current repository head is intentionally allowed to advance through governed index-only synchronization commits; the current code/test head is `27464d5f1fcdc22e30cb3d9eed31b7730e39cf98` until a later real code/test mutation.
+- Current exact code/test candidate: `27464d5f1fcdc22e30cb3d9eed31b7730e39cf98`.
+- Proven defect: the adversarial `discovery promoted to closure` mutation could weaken the governance truth contract while structural section/anchor checks still passed.
+- Closed by requiring the six governance truth invariants as exact structural contract text: discovery/closure, exact-SHA evidence, UNPROVEN/PASS, external blocker/local stop, index-only boundary, and index update/capability closure.
+- This is a real governance enforcement/test-of-test closure, not documentation or metric padding.
+- All earlier CI evidence on `7b9ad...`, `a3a...`, and prior heads is historical/stale for the current candidate and is not promoted.
+- Fresh exact-head Quality, Final Execution, Enforcement, Storage, and Desktop evidence is mandatory for certification of `27464d...`.
 
 ### 2026-09-02 GOVERNANCE ADVERSARIAL CLOSURE WAVE
-- Enforcement `33673922686` on `8e8b...` exposed the `strategy memory removed` adversarial bypass.
-- Added structural requirements for execution performance/effectiveness, under/over-execution, command feedback, adaptive strategy rules, controlled evolution, strategy memory, baseline/result, smart prioritization, release progress, and governance truth invariants.
-- Commit: `7b9ad72b08bb75ff508a563ba047307d21659699`.
+- Fresh Enforcement `33674192115` on `a3a...` passed the index-head verifier but failed the adversarial suite at `discovery promoted to closure`.
+- Root cause: `validateAdaptiveGovernance()` did not bind the actual governance truth-invariant wording even though the test expected the mutation to be rejected.
+- Fixed validator to enforce all six mandatory governance truth invariants structurally.
+- Commit: `27464d5f1fcdc22e30cb3d9eed31b7730e39cf98`.
 - No production alias, deployment, restore, rollback, live tenant state, or secret was mutated.
 
 ### EXACT-HEAD CI RECONCILIATION
-- `Final Execution Batch 33674070346` on `7b9ad...`: PASS — all deterministic gates completed successfully.
-- `Storage Tenant Isolation 33674070373` on `7b9ad...`: PASS.
-- `Desktop Windows 33674070362` on `7b9ad...`: was still in progress at last consumption; final completion must be consumed before exact-head desktop certification.
-- `Quality 33674070377` on `7b9ad...`: was still in progress at last consumption; final 63-step result must be consumed before quality certification.
-- `Execution Enforcement 33674070370` on `7b9ad...`: FAIL at the index-head verifier because the index on that exact commit still referenced the prior code/test head `3a8f...`; the failure is an index synchronization boundary issue and no adversarial suite ran on that attempt.
-- A governed index-only synchronization is now required; its parent is the exact code/test candidate `7b9ad...`.
+- `Quality 33674192174` on `a3a...`: PASS — all 63 verification steps completed successfully; stale for current candidate.
+- `Storage Tenant Isolation 33674192240` on `a3a...`: PASS; stale for current candidate.
+- `Final Execution Batch 33674192155` on `a3a...`: PASS; stale for current candidate.
+- `Execution Enforcement 33674192115` on `a3a...`: index-head PASS; adversarial test exposed the discovery/closure validator weakness fixed at `27464d...`.
+- Current candidate `27464d...` requires a fresh exact-head CI wave; no evidence is promoted across this SHA boundary.
 
 ### LIVE DATABASE / SECURITY TRUTH
 - Live Staging: 78/78 public tables have RLS; 147 policies; 0 policies targeting `anon`; 0 policies targeting `PUBLIC`; 0 direct `anon` EXECUTE grants on public routines.
@@ -52,11 +52,11 @@
 ### CERTIFICATION STATUS — FAIL CLOSED
 | Gate | State | Reason |
 |---|---|---|
-| Repository quality | **FRESH RUN PENDING** | Candidate `7b9ad...` needs fresh Quality consumption |
-| Release deterministic gates | **PASS** | `33674070346` passed all deterministic gates on `7b9ad...` |
-| Execution enforcement contract | **FRESH RUN PENDING** | `33674070370` hit index drift; index-only synchronization now aligns boundary |
-| Storage tenant isolation contract | **PASS** | `33674070373` passed on `7b9ad...` |
-| Windows desktop | **FRESH RUN PENDING** | `33674070362` was in progress at last consumption |
+| Repository quality | **FRESH RUN PENDING** | Candidate `27464d...` needs fresh Quality consumption |
+| Release deterministic gates | **FRESH RUN PENDING** | New code/test candidate requires fresh exact-head run |
+| Execution enforcement contract | **FRESH RUN PENDING** | `33674192115` exposed a real adversarial weakness fixed at `27464d...` |
+| Storage tenant isolation contract | **FRESH RUN PENDING** | Prior PASS is on `a3a...` |
+| Windows desktop | **FRESH RUN PENDING** | Prior result was on an older candidate |
 | Work Item Actionability Guard | **STALE** | Prior evidence is on older exact head |
 | Production runtime | UNPROVEN | Requires authenticated live product runtime evidence |
 | Authenticated E2E | UNPROVEN | Harness ready; real exact-environment execution evidence required |
@@ -76,8 +76,8 @@
 - No owner/device request is made while independent executable work remains.
 
 ### NEXT EXECUTION FRONT
-1. Consume the fresh index-only-boundary Enforcement run after this synchronization.
-2. Consume fresh Quality, Final Execution, Storage, and Desktop exact-head evidence at the resulting governed head.
+1. Consume the fresh exact-head Enforcement run for `27464d...` after this index synchronization.
+2. Consume fresh Quality, Final Execution, Storage, and Desktop exact-head evidence at `27464d...`.
 3. If a fresh gate exposes another real regression, fix the smallest proven defect and immediately reverify at the new exact head.
 4. Continue independent repository-side security/runtime/contract closure without reopening closed findings.
 5. Prepare exact live authenticated Tenant A/B and resilience evidence paths; never fabricate credentials or operational artifacts.
@@ -86,6 +86,6 @@
 8. Desktop `package-lock.json` remains absent; reproducible desktop `npm ci` is a real dependency-resolution gap and must not be hand-crafted.
 
 ### HISTORICAL RECORD / SHA BOUNDARIES
-- Previous index blob: `e1f9e789bf53d1c120721cc115272b5461ae4909`.
-- Previous code/test boundary: `7b9ad72b08bb75ff508a563ba047307d21659699`.
+- Previous index blob: `bcf56a3328dccf555d54d83147c4988e78f3d560`.
+- Previous code/test boundary: `27464d5f1fcdc22e30cb3d9eed31b7730e39cf98`.
 - Historical execution content remains preserved by Git history; documentation synchronization commits are never promoted to code/test candidates unless they contain a real product/test mutation.
