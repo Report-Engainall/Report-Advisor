@@ -1,6 +1,6 @@
 # Report Advisor — Master Execution & Truth Index
 
-## CURRENT RESUME EXECUTION MAP — 2026-09-02 — v4.4 / CURRENT-HEAD SYNCHRONIZED
+## CURRENT RESUME EXECUTION MAP — 2026-09-02 — v4.5 / CURRENT-HEAD SYNCHRONIZED
 
 > This file is the authoritative current execution index. Historical execution records remain preserved in Git history and dated execution/evidence documents. No evidence crosses an exact-SHA boundary.
 
@@ -19,6 +19,7 @@
 - Live Staging security truth: 78/78 public tables have RLS; 147 policies; 0 policies targeting `anon`; 0 policies targeting `PUBLIC`; 0 `anon` EXECUTE grants on public routines.
 - Observed public SECURITY DEFINER routines use `search_path=pg_catalog`. The authenticated-executable SECURITY DEFINER routines are intentional authenticated RPC API boundaries; their tenant/user checks remain enforced. Supabase advisor warning `authenticated_security_definer_function_executable` is retained as a reviewed design warning, not “fixed” by breaking the supported RPC surface.
 - Supabase Auth live logs show successful password-login requests and `/user` 200 responses for authenticated users; this is supporting operational evidence, not full product E2E certification.
+- Live authenticated write-privilege audit confirms the sensitive evidence/control tables `production_certification_bundles`, `production_rollback_drills`, `backup_verification_runs`, `metric_governance`, `metric_governance_audit`, `decision_work_items`, `decision_action_receipts`, and `audit_logs` expose no direct authenticated DML grant in the inspected privilege boundary. This is database security evidence, not a substitute for runtime certification.
 - A single live Auth security configuration warning remains: leaked-password protection is disabled. The connected database/project toolset does not expose the Auth security-setting mutation required to enable it, so this is explicitly retained as an owner/control-plane last-mile item rather than silently claimed closed.
 - Live storage boundary has tenant-path/owner-aware authenticated policies, but storage runtime remains UNPROVEN and no canonical bucket-creation contract was found; no speculative bucket was created.
 - Backup/restore verification is hardened to require a safe non-production target environment allowlist; production/unknown restore targets fail closed.
@@ -63,9 +64,9 @@
 3. Keep Production binding, backup/restore, RPO/RTO, rollback, DR, and final certification fail-closed until real evidence exists.
 4. Enable leaked-password protection through the Supabase Auth control plane when that setting is reachable; do not fake or substitute it with unrelated DB mutations.
 5. Re-run exact-head repository verification after any future code/test mutation; documentation-only synchronization must not be mistaken for a new code candidate.
-6. Desktop Windows certification is backed by an actual native smoke path in the workflow; reproducible desktop dependency installation still requires a committed `desktop/package-lock.json` before `npm ci` can replace `npm install`.
+6. Desktop Windows certification is backed by an actual native smoke path in the workflow; `desktop/package-lock.json` is confirmed absent, so reproducible desktop dependency installation via `npm ci` cannot yet replace `npm install` without a real generated lockfile.
 
 ### HISTORICAL RECORD / SHA BOUNDARIES
-- Previous index blob: `1b0f56576b167151daf2eb02c9c2424b7c39f3a9`.
+- Previous index blob: `972234d980a436337fd211e63d6a9c4f77cdde2f`.
 - Historical execution content remains preserved by Git history.
 - Previous code/test boundaries include `ae3f50aec381eae99b29489ef8c6965e325dc31a`, `99f2f3bd0784b79b518c2088ebecf30f4e66913b`, and current `ab1cf0d9c16864f9bda07acd33973954c2dc1b7a`.
