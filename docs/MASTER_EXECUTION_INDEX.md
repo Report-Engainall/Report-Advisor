@@ -1,33 +1,36 @@
 # Report Advisor — Master Execution & Truth Index
 
-## CURRENT RESUME EXECUTION MAP — 2026-09-02 — v4.16 / GOVERNANCE STRUCTURAL CLOSURE
+## CURRENT RESUME EXECUTION MAP — 2026-09-02 — v4.17 / GOVERNANCE STRUCTURAL CLOSURE
 
 > This file is the authoritative current execution index. Historical execution records remain preserved in Git history and dated execution/evidence documents. No evidence crosses an exact-SHA boundary.
 
 ### CURRENT PROJECT STATE
 - Repository: `Report-Engainall/Report-Advisor`.
-- Latest repository code/test synchronization commit: `fdfbea8802f9f6498bfb0496156d4308c0c1731f` (adaptive-governance structural validator hardening).
-- Current repository head is intentionally allowed to advance through governed index-only synchronization commits; the current code/test head is `fdfbea8802f9f6498bfb0496156d4308c0c1731f` until a later real code/test mutation.
-- Current exact code/test candidate: `fdfbea8802f9f6498bfb0496156d4308c0c1731f`.
-- Proven issue: governance adversarial test removal of the complete `UNDER-EXECUTION DETECTION` section was still accepted by the validator, so the validator itself lacked structural enforcement.
-- Fixed the validator to require the `UNDER-EXECUTION DETECTION` and `OVER-EXECUTION / LOW-VALUE EXECUTION` sections and to require `UNDER-EXECUTION EVENT` structurally inside the correct section, with `LOW-VALUE EXECUTION` anchored in its own section.
-- This is a real governance enforcement defect closure, not documentation or metric padding.
-- Prior exact-head Final Execution `33672894946` and Storage `33672894904` remain valid for `626337...` only and are stale for the new code/test candidate.
-- Fresh exact-head CI is mandatory for `fdfbea...`.
+- Latest repository code/test synchronization commit: `3a8f10490c6a35a05bea6b5208c5053c410f3b05` (governance/index-head validator hardening).
+- Current repository head is intentionally allowed to advance through governed index-only synchronization commits; the current code/test head is `3a8f10490c6a35a05bea6b5208c5053c410f3b05` until a later real code/test mutation.
+- Current exact code/test candidate: `3a8f10490c6a35a05bea6b5208c5053c410f3b05`.
+- Proven defect chain: adversarial governance removal exposed missing structural validation; the subsequent index-only run exposed an unnecessary textual `INDEX DRIFT` assertion that contradicted the already-executable ancestry/path boundary check.
+- Fixed the validator to rely on the executable exact-head/ancestor/path boundary rather than a redundant documentation substring assertion, while retaining strict structural governance checks.
+- This is a real validator correctness closure, not documentation or metric padding.
+- Prior Final/Storage/Desktop evidence is stale for this new code/test candidate and is not carried forward.
+- Fresh exact-head Quality, Final Execution, Enforcement, Storage, and Desktop evidence is mandatory for certification of `3a8f...`.
 
 ### 2026-09-02 GOVERNANCE STRUCTURAL CLOSURE WAVE
-- Enforcement `33673524280` passed the index-head gate but failed its adversarial suite: `under-execution detection removed must be rejected` was not rejected.
-- Root cause: `validateAdaptiveGovernance()` checked presence of anchors but did not bind the `UNDER-EXECUTION EVENT` anchor to the required section structure.
-- Hardened `validateAdaptiveGovernance()` with structural section ordering and containment checks.
+- Enforcement `33673524280` proved the index-head gate and then exposed that removing the full `UNDER-EXECUTION DETECTION` section could still pass governance validation.
+- Hardened `validateAdaptiveGovernance()` so the under-execution event must structurally exist inside the required section and the low-value anchor must exist in its own section.
 - Commit: `fdfbea8802f9f6498bfb0496156d4308c0c1731f`.
+- Follow-up enforcement on index-sync `a76233c...` exposed a false-negative in the redundant textual `INDEX DRIFT` assertion.
+- Removed that redundant assertion while preserving executable index-head ancestry and exact-path enforcement.
+- Commit: `3a8f10490c6a35a05bea6b5208c5053c410f3b05`.
 - No production alias, deployment, restore, rollback, live tenant state, or secret was mutated.
 
-### 2026-09-02 EXACT-HEAD CI RECONCILIATION
-- `Final Execution Batch 33672894946` on `626337...`: PASS — all 30 deterministic gates.
-- `Storage Tenant Isolation 33672894904` on `626337...`: PASS.
-- `Desktop Windows 33672894991` on `626337...`: PASS — web build, desktop dependency install, native watcher contract, native runtime smoke, diagnostics, installer packaging, and upload completed successfully.
-- `Execution Enforcement 33673524280` on index-synchronized `489f...`: index-head gate PASS; adversarial governance test exposed the structural validator defect now fixed at `fdfbea...`.
-- All evidence is exact-SHA bound and must be refreshed for `fdfbea...`.
+### EXACT-HEAD CI RECONCILIATION
+- `Final Execution Batch 33672894946` on `626337...`: PASS — all 30 deterministic gates; stale for current candidate.
+- `Storage Tenant Isolation 33672894904` on `626337...`: PASS; stale for current candidate.
+- `Desktop Windows 33672894991` on `626337...`: PASS — web build, desktop install, watcher contract, native smoke, diagnostics, installer packaging/upload; stale for current candidate.
+- `Execution Enforcement 33673524280` on `489f...`: index-head PASS, adversarial suite found the structural governance defect fixed at `fdfbea...`.
+- `Execution Enforcement 33673701284` on `a762...`: failed at index-head gate because the redundant textual `INDEX DRIFT` check rejected a valid index-only synchronization; fixed at `3a8f...`.
+- Fresh exact-head CI is now required for `3a8f...`.
 
 ### LIVE DATABASE / SECURITY TRUTH
 - Live Staging: 78/78 public tables have RLS; 147 policies; 0 policies targeting `anon`; 0 policies targeting `PUBLIC`; 0 direct `anon` EXECUTE grants on public routines.
@@ -52,11 +55,11 @@
 ### CERTIFICATION STATUS — FAIL CLOSED
 | Gate | State | Reason |
 |---|---|---|
-| Repository quality | **FRESH RUN PENDING** | Code/test candidate advanced to `fdfbea...` |
-| Release deterministic gates | **FRESH RUN PENDING** | New code/test candidate requires fresh exact-head run |
-| Execution enforcement contract | **FRESH RUN PENDING** | Structural validator defect fixed; fresh adversarial run required |
-| Storage tenant isolation contract | **FRESH RUN PENDING** | Prior PASS is on `626337...` |
-| Windows desktop | **PASS on prior candidate** | `33672894991` passed on `626337...`; refresh if certification requires exact current candidate |
+| Repository quality | **FRESH RUN PENDING** | Code/test candidate advanced to `3a8f...` |
+| Release deterministic gates | **FRESH RUN PENDING** | New exact candidate requires fresh run |
+| Execution enforcement contract | **FRESH RUN PENDING** | Structural governance/index validator fixes require fresh adversarial run |
+| Storage tenant isolation contract | **FRESH RUN PENDING** | Prior PASS is on older candidate |
+| Windows desktop | **FRESH RUN PENDING** | Prior PASS is on older candidate |
 | Work Item Actionability Guard | **STALE** | Prior evidence is on older exact head |
 | Production runtime | UNPROVEN | Requires authenticated live product runtime evidence |
 | Authenticated E2E | UNPROVEN | Harness ready; real exact-environment execution evidence required |
@@ -76,8 +79,8 @@
 - No owner/device request is made while independent executable work remains.
 
 ### NEXT EXECUTION FRONT
-1. Consume fresh exact-head Enforcement, Quality, Final Execution, and Storage results for `fdfbea...`.
-2. If a fresh gate exposes another real regression, fix the smallest proven defect and immediately reverify at the new exact head.
+1. Consume fresh exact-head Enforcement, Quality, Final Execution, Storage, and Desktop results for `3a8f...`.
+2. If any fresh gate exposes a real regression, fix the smallest proven defect and immediately reverify at the new exact head.
 3. Continue independent repository-side security/runtime/contract closure without reopening closed findings.
 4. Prepare exact live authenticated Tenant A/B and resilience evidence paths; never fabricate credentials or operational artifacts.
 5. Keep Production binding, backup/restore, RPO/RTO, rollback, DR, and final certification fail-closed until real evidence exists.
@@ -85,6 +88,6 @@
 7. Desktop `package-lock.json` remains absent; reproducible desktop `npm ci` is a real dependency-resolution gap and must not be hand-crafted.
 
 ### HISTORICAL RECORD / SHA BOUNDARIES
-- Previous index blob: `7f5206c8da9dd49c0882c1fb0002921930cc4cd3`.
-- Previous code/test boundary: `6263375052ffc7e02134d540e019b652d22c1d8a`.
+- Previous index blob: `376f92742d166db056037454a6b5a0700aeb743a`.
+- Previous code/test boundary: `fdfbea8802f9f6498bfb0496156d4308c0c1731f`.
 - Historical execution content remains preserved by Git history; documentation synchronization commits are never promoted to code/test candidates unless they contain a real product/test mutation.
