@@ -1,7 +1,7 @@
 name: Golden Evidence Integrity
 on:
   pull_request:
-  push:
+  workflow_dispatch:
 jobs:
   contract:
     runs-on: ubuntu-latest
