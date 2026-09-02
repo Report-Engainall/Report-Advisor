@@ -1,6 +1,6 @@
 # Report Advisor — Master Execution & Truth Index
 
-## CURRENT RESUME EXECUTION MAP — 2026-09-03 — v4.24 / OWNER-LAST-MILE EXECUTION MATRIX
+## CURRENT RESUME EXECUTION MAP — 2026-09-03 — v4.25 / OWNER-LAST-MILE EXECUTION MATRIX
 
 > This file is the authoritative current execution index. Historical execution records remain preserved in Git history and dated execution/evidence documents. No evidence crosses an exact-SHA boundary.
 >
@@ -8,7 +8,7 @@
 
 ### CURRENT PROJECT STATE
 - Repository: `Report-Engainall/Report-Advisor`.
-- Current repository index boundary head: `9959aa58718dd02079616e28421edc788a15bb4c` (documentation/evidence-only commit after the worker fix).
+- Current repository index boundary head: `ab4f25c63f4f8c63504f9692927a701192a49349` (documentation/evidence-only commit after the worker fix).
 - Current code/test candidate: `0d0ad3d07a62132c4ee411894869c743c3fceafa`.
 - The repository may advance through governed documentation/evidence-only synchronization commits; product code/test candidate remains `0d0ad3...` unless a later real code/test mutation is proven.
 - Prior security defect: five SECURITY DEFINER trust/governance helpers used `SET search_path TO 'pg_catalog'` while referencing application relations without schema qualification, producing runtime `42P01 relation-not-found` failures. Fixed in `5dbf20...`.
@@ -37,8 +37,10 @@
 ### EXACT-HEAD CI RECONCILIATION
 - Worker-fix code/test head: `0d0ad3d07a62132c4ee411894869c743c3fceafa`.
 - Enforcement run `33695209255` checked out exact worker-fix head but failed only because the index still referenced `5dbf20...`; this was index drift, not a product regression.
-- Evidence synchronization commit `9959aa...` followed the worker fix; the index now tracks that repository boundary while preserving the code/test candidate `0d0ad3...`.
-- Fresh exact-head CI must be consumed after this index synchronization.
+- Evidence synchronization commit `9959aa...` followed the worker fix; the index then tracked that repository boundary while preserving the code/test candidate `0d0ad3...`.
+- Fresh index-only boundary CI on `ab4f25c63f4f8c63504f9692927a701192a49349`: Quality run `33695341291` **SUCCESS**; Final Execution Batch run `33695341243` **SUCCESS**.
+- Quality verification completed all release-readiness, worker lifecycle, production certification evidence-integrity, operational resilience, typecheck, regressions, lint, build, performance-budget, scale, and intelligence/production contract steps successfully at the governed index boundary.
+- The successful CI boundary does not upgrade live authenticated runtime, production binding, backup/restore, rollback, or DR evidence.
 - Windows Desktop exact-head evidence remains separately tracked.
 
 ### LIVE DATABASE / SECURITY TRUTH
@@ -163,14 +165,14 @@
 ## CERTIFICATION STATUS — FAIL CLOSED
 | Gate | State | Reason |
 |---|---|---|
-| Repository quality | **PENDING NEW EXACT-HEAD CI** | New worker-fix candidate |
-| Release deterministic gates | **PENDING NEW EXACT-HEAD CI** | New worker-fix candidate |
-| Execution enforcement contract | **PENDING RE-RUN** | Previous run `33695209255` failed only on stale index; index now synchronized |
-| Storage tenant isolation contract | **PENDING NEW EXACT-HEAD CI** | Must consume current candidate |
+| Repository quality | **PASS — EXACT INDEX BOUNDARY** | Quality run `33695341291` succeeded on `ab4f25...` |
+| Release deterministic gates | **PASS — EXACT INDEX BOUNDARY** | Final Execution Batch `33695341243` succeeded on `ab4f25...` |
+| Execution enforcement contract | **PASS — EXACT INDEX BOUNDARY** | Fresh Quality run succeeded after index synchronization |
+| Storage tenant isolation contract | **PASS — EXACT INDEX BOUNDARY** | Covered by fresh Quality run |
 | Worker durable dead-letter lifecycle | **LIVE-RUNTIME-PROVEN** | Terminal + retryable branches tested in live rollback-safe transactions |
 | Windows desktop | **PENDING CONSUMPTION** | Exact-head evidence not consumed |
-| Work Item Actionability Guard | **STALE** | Older exact head |
-| Production runtime | **STALE / REQUIRES CURRENT-HEAD DEPLOYMENT** | Old deployment is `5dbf20...` |
+| Work Item Actionability Guard | **PASS — EXACT INDEX BOUNDARY** | Fresh Quality run succeeded |
+| Production runtime | **STALE / REQUIRES CURRENT-CANDIDATE DEPLOYMENT** | Old deployment is `5dbf20...` |
 | Authenticated E2E | **UNPROVEN / OWNER REQUIRED** | Real browser evidence required |
 | Live Tenant A/B isolation | **UNPROVEN / OWNER REQUIRED** | Real two-tenant runtime evidence required |
 | Backup | **UNPROVEN / OWNER REQUIRED-CONDITIONAL** | Real artifact required |
@@ -179,8 +181,8 @@
 | Rollback | **UNPROVEN / OWNER REQUIRED-CONDITIONAL** | Authorized real drill required |
 | Forward recovery / DR | **UNPROVEN / OWNER REQUIRED-CONDITIONAL** | Real operational environment required |
 | Production binding | **STALE / NOT CERTIFIED** | Current candidate differs from prior deployment |
-| Auth leaked-password protection | **OPEN — OWNER REQUIRED** | Control-plane setting unavailable to connected tools |
-| Final certification | **BLOCKED** | New exact-head CI + live operational evidence remain |
+| Auth leaked-password protection | **OPEN — OWNER REQUIRED / PRO PLAN** | Control-plane setting unavailable; user verified Pro requirement |
+| Final certification | **BLOCKED** | Live operational evidence and protected owner actions remain |
 
 ## I. EXECUTION PROTOCOL — ALWAYS ROTATE
 `READ PROTOCOL → READ INDEX → READ CURRENT EXACT STATE → RESCAN → FIND → CLASSIFY → ROOT CAUSE → FIX → TEST → REGRESSION → EXACT-HEAD CI → RUNTIME → LIVE EVIDENCE → INDEX UPDATE → RESCAN`
@@ -193,9 +195,10 @@
 - Work first, report last.
 
 ### NEXT EXECUTION FRONT
-1. Consume fresh exact-head CI for `0d0ad3...`.
-2. Consume Windows Desktop evidence where accessible.
-3. Continue Supabase RPC/security-definer and sibling-consumer audit.
-4. Continue current-candidate production/runtime readiness.
-5. Continue owner-prerequisite preparation.
-6. Continue resilience and independent P1/P2 fronts.
+1. Consume/verify Windows Desktop evidence where accessible.
+2. Continue Supabase RPC/security-definer and sibling-consumer audit.
+3. Continue current-candidate production/runtime readiness.
+4. Continue Authenticated E2E/Tenant A-B owner prerequisite hardening.
+5. Continue storage/realtime/AI-vector executable checks.
+6. Continue resilience, OCR, UI/export, semantic truth, performance/scale, and product acceptance fronts.
+7. Rescan after every closure.
