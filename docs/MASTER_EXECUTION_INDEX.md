@@ -3,9 +3,9 @@
 ## CURRENT RESUME EXECUTION MAP — 2026-09-02 — FINAL SWEEP
 
 ### CURRENT PROJECT STATE
-- Exact code/test head entering this sweep: `a15a9ea4126964888aa7f20e782b5337b182a154`.
-- v3.2 execution-window mutations: `bae9a099adeb85590810289507b55369bd05cf85` (time-aware protocol) → `028f88993aefafa53dcca0d77575e2e3d7c90da0` (behavioral/scheduling/current-head checker) → `c897bfec6a0b4464faacfd151a0ec2646bcd92a0` (explicit certification-mode index gate) → `9aacfee8c48224c9b62be640195bd28a45691548` (debt/velocity utilization ledger) → `544ec2d8a6e847d9490a81f795ad0043f4d5cf75` / `a15a9ea4126964888aa7f20e782b5337b182a154` (adversarial test-of-test and comment-decoy fix).
-- The current index refresh is the final mutation in this execution window. Historical ledger content below is preserved; no older evidence transfers to this new exact SHA.
+- Exact code/test head entering this sweep: `d0edb9fff9ce78dda28c16df17bc5e74e2a65c1e`.
+- v3.2 execution-window mutations: `bae9a099adeb85590810289507b55369bd05cf85` → `028f88993aefafa53dcca0d77575e2e3d7c90da0` → `c897bfec6a0b4464faacfd151a0ec2646bcd92a0` → `9aacfee8c48224c9b62be640195bd28a45691548` → `544ec2d8a6e847d9490a81f795ad0043f4d5cf75` / `a15a9ea4126964888aa7f20e782b5337b182a154` → `d0edb9fff9ce78dda28c16df17bc5e74e2a65c1e`.
+- The current index refresh is the final mutation in this execution window. The index commit itself is versioned separately; its parent is the exact code/test head above. Historical ledger content below is preserved; no older evidence transfers to this new boundary.
 - `main` is currently unprotected; certification remains fail-closed and exact-SHA bound.
 - Operational runtime/recovery proof is still separate from deterministic/static verification and remains UNPROVEN.
 
@@ -13,7 +13,7 @@
 - `E-TIME — WAITING-TIME PARALLELIZATION`: every asynchronous operation opens a parallel execution window. Waiting is not a stop condition while independent actionable work exists. Completed async results must be consumed immediately.
 - `E-MAX — MAXIMUM SAFE PARALLELISM`: execute the maximum independent safe work without conflicting mutations, races, or ambiguous evidence lineage; shared mutation chains remain sequential.
 - `E-SCHED — DEPENDENCY-AWARE SCHEDULING`: each task is tracked as `TASK | DEPENDENCY | STATE | PARALLEL? | BLOCKER | CAN START NOW? | EXPECTED UNLOCK`; `READY + INDEPENDENT = EXECUTE NOW`.
-- `E-INDEX-HEAD`: any mismatch between repository HEAD and the live index current HEAD is `INDEX DRIFT`; TRUE STOP and certification readiness are forbidden until reconciled. Because the index is itself versioned, the certification-mode checker is explicit and the index refresh is performed as the final mutation of the execution window.
+- `E-INDEX-HEAD`: a mismatch between the repository code/test head and the live index code/test head is `INDEX DRIFT`; TRUE STOP and certification readiness are forbidden until reconciled. The versioned index commit is handled explicitly by the certification-mode checker: exact head or index-parent equivalence is accepted only for the index-only self-commit boundary.
 - `E-DEBT`: execution debt is split into `ACTIONABLE DEBT` and `EXTERNAL DEBT`; actionable debt must execute, external debt must be isolated and prepared around.
 - `E-UTIL`: utilization exposes async operations running, parallel work executed, parallel work available, debt closed, and remaining work reduced; waiting with unused independent capacity is under-utilization.
 - `E-EVOLVE`: repeatable protocol weakness triggers `OBSERVE → RCA → DEFINE NEW RULE → UPDATE INDEX → ADD ENFORCEMENT → ADD TEST → ADD TEST-OF-TEST → ADVERSARIAL → REGRESSION → RESCAN` and immediate application.
@@ -23,7 +23,7 @@
 |---|---|---|---|---|
 | Quality | IN-PROGRESS at window start | OPEN | v3.2 protocol, checker, scheduler, debt/velocity, adversarial work, index reconciliation | consume exact result immediately |
 | Storage tenant isolation | IN-PROGRESS at window start | OPEN | v3.2 protocol/checker/test work and E1–E8 preparation | consume exact result immediately |
-| Final Execution Batch | expected/current-cycle | OPEN | enforcement hardening and independent release/evidence preparation | consume exact result immediately |
+| Final Execution Batch | current-cycle | OPEN | enforcement hardening and independent release/evidence preparation | consume exact result immediately |
 
 A waiting window closes only when `result received AND result consumed AND new work evaluated`.
 
@@ -62,8 +62,8 @@ A waiting window closes only when `result received AND result consumed AND new w
 - Enforcement v3.2: time-aware parallelization, safe parallelism, scheduler fields, debt split, utilization accounting, explicit certification-mode index gate, and adversarial comment-decoy/test-of-test coverage are encoded in the durable protocol/checker.
 
 ### IN-PROGRESS
-- Fresh exact-head CI for `a15a9ea4126964888aa7f20e782b5337b182a154`.
-- Immediate consumption of Quality/Final Batch/Storage results for this exact SHA.
+- Fresh exact-head CI for `d0edb9fff9ce78dda28c16df17bc5e74e2a65c1e` plus the index-only boundary commit.
+- Immediate consumption of Quality/Final Batch/Storage results for the exact code/test head and its index boundary.
 - Independent security/evidence/import/OCR/workflow rescan and E1–E8 preparation.
 - Final certification gap decomposition.
 
@@ -74,9 +74,9 @@ A waiting window closes only when `result received AND result consumed AND new w
 | A. Code / Correctness | Eliminate actionable correctness/error-path defects | ACTIONABLE NOW | None | YES | Exact-SHA mutation + test result | targeted + regression + rescan | no actionable defect | B | D |
 | B. Security | Auth/authz/RLS/tenant/evidence/bypass resistance | ACTIONABLE NOW | None | YES | security contract + adversarial output | positive/negative/foreign/malformed/replay where applicable | no actionable security defect | C | E |
 | C. Database / RPC | Migration/RPC/schema/signature/tenant consistency | ACTIONABLE NOW | None for static audit; runtime for live proof | YES static / NO live | canonical migration and checker lineage | migration/schema/RPC contract suite | canonical contracts aligned | D | E |
-| D. Deterministic CI | Exact-head full quality/final batch | IN-PROGRESS | current exact HEAD | YES | run ID + SHA + artifacts | full configured workflows | all required jobs PASS on same SHA | E | O |
+| D. Deterministic CI | Exact-head full quality/final batch | IN-PROGRESS | current exact code/test HEAD | YES | run ID + SHA + artifacts | full configured workflows | all required jobs PASS on same SHA | E | O |
 | E. Runtime | Prove exact-head deployment, readiness, health/canary | EXTERNAL BLOCKED | Vercel + runtime access | NO live / YES prep | deployment ID/source SHA/READY/health | authenticated smoke + canary | live endpoint proves exact source SHA + readiness | F | G |
-| F. Authenticated E2E | Login/session/protected flows | EXTERNAL BLOCKED | approved credentials + deployed exact HEAD | NO live / YES prep | session + flow evidence | authenticated E2E | critical user journeys pass | G | O |
+| F. Authenticated E2E | Login/session/protected flows | EXTERNAL BLOCKED | approved credentials + deployed exact HEAD | NO live / YES prep | session + source SHA + flow evidence | authenticated E2E | critical user journeys pass | G | O |
 | G. Tenant Isolation | Tenant A/B + cross-tenant denial | EXTERNAL BLOCKED | authenticated runtime + two tenants | NO live / YES prep | A/B positive + cross-tenant negative evidence | adversarial tenant tests | zero cross-tenant leakage | H | O |
 | H. Backup | Real backup artifact and identity | EXTERNAL BLOCKED | real backup service | NO / YES prep | backup ID/timestamp/SHA-256 | real backup verifier | valid completed artifact captured | I | J |
 | I. Restore | Safe-target restore and integrity | EXTERNAL BLOCKED | H | NO / YES prep | restored=true, integrity_verified=true | real restore + integrity check | safe restore succeeds and persists evidence | J | K |
