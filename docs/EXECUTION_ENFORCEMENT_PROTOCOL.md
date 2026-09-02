@@ -1,4 +1,4 @@
-# Autonomous Execution Enforcement Protocol — v3.0
+# Autonomous Execution Enforcement Protocol — v3.1
 
 This contract strengthens `docs/MASTER_EXECUTION_INDEX.md` without deleting or rewriting historical ledger entries.
 
@@ -40,6 +40,24 @@ The master index remains append-only historical ledger + live state map + execut
 ### E-12 — Automatic protocol evolution
 When execution exposes a repeatable under-execution pattern, add a stronger enforcement rule, preserve the prior history, test the new enforcement path where practical, and apply it immediately.
 
+### E-13 — Behavioral enforcement matrix
+The contract must explicitly reject execution behavior that stops early even when work remains. The following cases are mandatory and are executable test inputs, not prose-only examples:
+
+CASE A: CI waiting + independent task exists → MUST NOT stop.
+CASE B: NEXT complete + NEXT+1 executable → MUST NOT stop.
+CASE C: NEXT+1 complete + NEXT+2 executable → MUST NOT stop.
+CASE D: one external blocker + unrelated local work exists → MUST NOT stop unrelated work.
+CASE E: discovery made + executable fix exists → MUST NOT report discovery-only closure.
+CASE F: mutation made + adversarial test missing → MUST NOT declare closure.
+CASE G: new SHA + old evidence → MUST reject evidence transfer.
+CASE H: index updated + no capability progress → MUST NOT count as execution closure.
+
+### E-14 — Execution Debt zero-gate
+`EXECUTION DEBT` records actionable but not executed work, skipped parallel work, skipped NEXT+1/NEXT+2, deferred adversarial/test-of-test work, and known executable follow-ups. `EXECUTION DEBT = 0` is mandatory for TRUE STOP when the debt is locally executable. External blockers do not erase execution debt for unrelated local work.
+
+### E-15 — Release Velocity truth metric
+`RELEASE VELOCITY` measures closure movement across `Built`, `Integrated`, `Verified`, `Runtime Proven`, and `Production Certified`. Commits, lines changed, documentation updates, and report count are not velocity. A cycle that does not reduce Remaining Work or increase valid evidence/certification readiness must expose zero closure velocity.
+
 ## Current application
 
-The 2026-09-02 final sweep identified the historical failure mode of returning while CI was running despite independent work. E-01, E-02, E-03, and E-11 explicitly prevent recurrence. The live master index remains the authoritative execution map; this file is the durable enforcement contract it references.
+The 2026-09-02 final sweep identified the historical failure mode of returning while CI was running despite independent work. E-01, E-02, E-03, and E-11 explicitly prevent recurrence. The v3.1 behavioral matrix, execution-debt zero-gate, and release-velocity contract now make under-execution testable rather than text-only. The live master index remains the authoritative execution map; this file is the durable enforcement contract it references.
