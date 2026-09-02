@@ -1,20 +1,23 @@
 import assert from 'node:assert/strict';
 
-const baseUrl = process.env.E2E_BASE_URL;
+const baseUrl = process.env.E2E_BASE_URL?.replace(/\/$/, '');
+const anonKey = process.env.E2E_SUPABASE_ANON_KEY?.trim();
+const tenantAId = process.env.E2E_TENANT_A_ID?.trim();
+const tenantBId = process.env.E2E_TENANT_B_ID?.trim();
 const users = {
   A: { email: process.env.E2E_TENANT_A_EMAIL, password: process.env.E2E_TENANT_A_PASSWORD },
   B: { email: process.env.E2E_TENANT_B_EMAIL, password: process.env.E2E_TENANT_B_PASSWORD },
 };
 
-if (!baseUrl || !users.A.email || !users.A.password || !users.B.email || !users.B.password) {
-  console.log('BLOCKED — OWNER/ENVIRONMENT ACTION: authenticated E2E credentials and E2E_BASE_URL are required.');
+if (!baseUrl || !anonKey || !tenantAId || !tenantBId || tenantAId === tenantBId || !users.A.email || !users.A.password || !users.B.email || !users.B.password) {
+  console.log('BLOCKED — OWNER/ENVIRONMENT ACTION: authenticated E2E base URL, anon key, distinct tenant IDs, and A/B credentials are required.');
   process.exit(2);
 }
 
 async function login(user) {
-  const response = await fetch(`${baseUrl.replace(/\/$/, '')}/auth/v1/token?grant_type=password`, {
+  const response = await fetch(`${baseUrl}/auth/v1/token?grant_type=password`, {
     method: 'POST',
-    headers: { 'content-type': 'application/json', apikey: process.env.E2E_SUPABASE_ANON_KEY ?? '' },
+    headers: { 'content-type': 'application/json', apikey: anonKey },
     body: JSON.stringify({ email: user.email, password: user.password }),
   });
   const body = await response.json().catch(() => ({}));
@@ -23,9 +26,9 @@ async function login(user) {
   return body.access_token;
 }
 
-async function probe(token, tenantId) {
-  const response = await fetch(`${baseUrl.replace(/\/$/, '')}/rest/v1/profiles?select=id,tenant_id&limit=1`, {
-    headers: { apikey: process.env.E2E_SUPABASE_ANON_KEY ?? '', Authorization: `Bearer ${token}`, 'x-e2e-tenant': tenantId },
+async function probe(token) {
+  const response = await fetch(`${baseUrl}/rest/v1/company_memberships?select=company_id,user_id&limit=10`, {
+    headers: { apikey: anonKey, Authorization: `Bearer ${token}` },
   });
   assert.equal(response.ok, true, `authenticated tenant probe failed: ${response.status}`);
   const rows = await response.json();
@@ -35,15 +38,16 @@ async function probe(token, tenantId) {
 
 const tokenA = await login(users.A);
 const tokenB = await login(users.B);
-const rowsA = await probe(tokenA, process.env.E2E_TENANT_A_ID);
-const rowsB = await probe(tokenB, process.env.E2E_TENANT_B_ID);
+const rowsA = await probe(tokenA);
+const rowsB = await probe(tokenB);
 
-for (const row of [...rowsA, ...rowsB]) {
-  assert.ok(row.tenant_id, 'runtime result must expose tenant_id for evidence');
-}
+assert.ok(rowsA.some(row => row.company_id === tenantAId), 'Tenant A session must resolve Tenant A membership');
+assert.ok(rowsB.some(row => row.company_id === tenantBId), 'Tenant B session must resolve Tenant B membership');
+assert.equal(rowsA.some(row => row.company_id === tenantBId), false, 'Tenant A session must not expose Tenant B membership');
+assert.equal(rowsB.some(row => row.company_id === tenantAId), false, 'Tenant B session must not expose Tenant A membership');
 
 console.log('PASS authenticated login A');
 console.log('PASS authenticated login B');
-console.log('PASS tenant-scoped authenticated reads A/B');
-console.log('PASS runtime evidence includes tenant identity');
-console.log('LIVE AUTHENTICATED E2E BASELINE VERIFIED');
+console.log('PASS canonical company_memberships tenant resolution A/B');
+console.log('PASS adversarial cross-tenant membership isolation A→B and B→A');
+console.log('LIVE AUTHENTICATED TENANT ISOLATION BASELINE VERIFIED');
