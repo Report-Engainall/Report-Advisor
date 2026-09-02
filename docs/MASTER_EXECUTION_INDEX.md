@@ -3,20 +3,23 @@
 ## CURRENT RESUME EXECUTION MAP — 2026-09-02 — v4.1 COMPACT EVIDENCE + PROJECT IDENTITY
 
 ### CURRENT PROJECT STATE
-- Current repository exact HEAD: `e96a894ba283954f5e38cfac536faa59e3db5be2`.
-- Current code/test head: `e96a894ba283954f5e38cfac536faa59e3db5be2` (canonical branding repair plus project-identity adversarial test-of-test hardening; fresh exact-head CI required).
-- `1ff7f2b079a91d7442af1cf908a203094d57b2ce` is the prior code/test boundary; `00c6acb360f98405ab40ea8a2494e0fdc8260ff2` is its documentation-only synchronization. Neither prior evidence nor PASS is transferred to `da6fbe8b58cf0bb97bc022766eacdb59faf53519`.
+- Current repository exact HEAD: `51267cc0cdfa074ce61d257e06f8333bb3a9364d`.
+- Current code/test head: `51267cc0cdfa074ce61d257e06f8333bb3a9364d` (adversarial section-removal regex hardening after fresh exact-head CI exposed a false-negative mutation; exact-head CI is required).
+- `e96a894ba283954f5e38cfac536faa59e3db5be2` is the prior code/test boundary; its evidence is not transferred to `51267cc0cdfa074ce61d257e06f8333bb3a9364d`.
+- `4df56cd9ec6417be1c70dc366ea67b1fdad6d592` remains the prior documentation/index synchronization boundary; it is not the Tested Code SHA for the current candidate.
 - No prior evidence is promoted across the new code/test SHA.
-- v4.0 batch start head: `811070805114956c8f8f1766b7bf6c3c9704b4c0`.
+- v4.0 batch start head: `811070805114956c8f7f1766b7bf6c3c9704b4c0`.
 - Previous v3.2 index boundary: `a4b26ef13ce08d54d2e9c0723530499bcc6e66c5`.
 - v4.0 code/test mutations culminated at `f29cdbc3fead457e3f31c2b86fbd458f9bd9c80c`; governance self-audit documentation then landed at `356a86bd14296554374df7d18a6b0395d65099fd`.
 - No historical evidence transfers across a new exact-SHA boundary. Fresh CI must be consumed for any new code/test candidate SHA before certification claims.
 - Operational runtime/recovery proof remains UNPROVEN.
 
-
+### 2026-09-02 CURRENT EXACT-SHA ADVERSARIAL FIX UPDATE
+- `DATE → EXACT HEAD → ACTION → RESULT → BLOCKER → NEXT`: `2026-09-02 → 51267cc0cdfa074ce61d257e06f8333bb3a9364d → corrected adversarial section-removal regexes after Execution Enforcement Contract `33621035733` failed at the exact-head index gate; the failure was caused by stale Master Index HEAD `e96a894...` while the tested code HEAD was `51267cc...` → targeted test hardening committed; Quality `33621035810` PASS and Storage `33621035798` PASS on `51267cc...`; Enforcement result for the code head was blocked by index drift and must not be treated as code/test PASS → Master Index synchronization is required; no Production mutation → consume exact-head results only and preserve SHA boundaries`.
+- Failure RCA: `33621035733` checked actual SHA `51267cc0cdfa074ce61d257e06f8333bb3a9364d` and rejected `INDEX DRIFT` because the index still declared `e96a894ba283954f5e38cfac536faa59e3db5be2`; the adversarial suite was skipped. This was an exact-head/index synchronization failure, not a Product Runtime or Production failure.
 
 ### 2026-09-02 ADVERSARIAL TEST FIX UPDATE
-- `DATE → EXACT HEAD → ACTION → RESULT → BLOCKER → NEXT`: `2026-09-02 → e96a894ba283954f5e38cfac536faa59e3db5be2 → corrected compact-evidence adversarial mutation after CI identified a false-negative test mutation → fix committed; fresh exact-head CI pending → no Production mutation → consume new exact-head CI`.
+- `DATE → EXACT HEAD → ACTION → RESULT → BLOCKER → NEXT`: `2026-09-02 → e96a894ba283954f5e38cfac536faa59e3db5be2 → corrected compact-evidence adversarial mutation after CI identified a false-negative test mutation → fix committed; superseded by `51267cc0cdfa074ce61d257e06f8333bb3a9364d` after exact-head/index correction → no Production mutation → consume new exact-head CI`.
 
 ### 2026-09-02 BRANDING ENFORCEMENT TEST-OF-TEST UPDATE
 - `DATE → EXACT HEAD → ACTION → RESULT → BLOCKER → NEXT`: `2026-09-02 → da6fbe8b58cf0bb97bc022766eacdb59faf53519 → added adversarial project-identity test-of-test → CI triggered; result pending at index update → no Production mutation → consume exact-head CI and do not transfer prior PASS`.
@@ -141,7 +144,7 @@ A waiting window closes only when `result received AND result consumed AND new w
 - v4.0 adaptive governance: layered architecture, precedence, performance ledger, effectiveness, under/over-execution detection, command feedback, strategy memory, smart prioritization, controlled evolution, governance adversarial suite, workflow trigger binding, consecutive index-only boundary validation, corrected layer-separation decoy, and governance self-audit.
 
 ### IN-PROGRESS
-- Fresh exact-head CI consumption for code/test candidate `f29cdbc3fead457e3f31c2b86fbd458f9bd9c80c`.
+- Fresh exact-head CI consumption for code/test candidate `51267cc0...`.
 - Security/DB/RPC/import/OCR/evidence/workflow rescan and immediate consumption.
 - Final performance-ledger result closure.
 - E1–E8 handoff preparation and external evidence readiness.
@@ -197,7 +200,7 @@ A waiting window closes only when `result received AND result consumed AND new w
 - Final certification requires all mandatory operational evidence plus fresh exact-head deterministic verification.
 
 ### NEXT / NEXT+1 / NEXT+2
-- NEXT: consume exact-head CI for `f29cdbc3...`; execute first failure RCA/fix chain if needed; concurrently continue independent rescan and E1–E8 preparation.
+- NEXT: consume exact-head CI for `51267cc0...`; execute first failure RCA/fix chain if needed; concurrently continue independent rescan and E1–E8 preparation.
 - NEXT+1: close actionable findings with RCA → fix → targeted → adversarial → regression → rescan; update performance result.
 - NEXT+2: fresh exact-head CI on resulting SHA; rebind evidence; consume newly unlocked gates; reprioritize.
 
@@ -305,7 +308,7 @@ A waiting window closes only when `result received AND result consumed AND new w
 - Final Certification: BLOCKED by operational evidence and fresh exact-head certification CI.
 
 ### EVIDENCE LINEAGE RULE
-Every mutation after `c51cb6d...` creates a new exact evidence boundary. The current code/test mutation boundary is `f29cdbc3...`; the subsequent `356a86bd...` commit is documentation-only governance self-audit. Any future code/test mutation requires fresh CI/evidence rebinding. An index-only synchronization commit may be recognized only when the enforcement checker proves that every changed path is exactly `docs/MASTER_EXECUTION_INDEX.md`.
+Every mutation after `c51cb6d...` creates a new exact evidence boundary. The current code/test mutation boundary is `51267cc0...`; any future code/test mutation requires fresh CI/evidence rebinding. An index-only synchronization commit may be recognized only when the enforcement checker proves that every changed path is exactly `docs/MASTER_EXECUTION_INDEX.md`.
 
 ---
 
