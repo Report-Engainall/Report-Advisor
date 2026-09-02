@@ -3,7 +3,7 @@
 ## CURRENT RESUME EXECUTION MAP — 2026-09-02 — v4.1 COMPACT EVIDENCE + PROJECT IDENTITY
 
 ### CURRENT PROJECT STATE
-- Current repository exact HEAD: `9a32f382827a95130a4172a8740d0b75aeeff979`.
+- Current repository exact HEAD: `492d91efbe7494631502d1a48d74a89bb8f5d7ab` (latest parent-equivalent evidence commit; the next index-only synchronization commit must treat this SHA as its parent boundary).
 - Current code/test head: `51267cc0cdfa074ce61d257e06f8333bb3a9364d` (adversarial section-removal regex hardening; fresh exact-head CI remains required).
 - `e96a894ba283954f5e38cfac536faa59e3db5be2` is the prior code/test boundary; its evidence is not transferred to `51267cc0cdfa074ce61d257e06f8333bb3a9364d`.
 - `4df56cd9ec6417be1c70dc366ea67b1fdad6d592` remains the prior documentation/index synchronization boundary; it is not the Tested Code SHA for the current candidate.
@@ -13,6 +13,14 @@
 - v4.0 code/test mutations culminated at `f29cdbc3fead457e3f31c2b86fbd458f9bd9c80c`; governance self-audit documentation then landed at `356a86bd14296554374df7d18a6b0395d65099fd`.
 - No historical evidence transfers across a new exact-SHA boundary. Fresh CI must be consumed for any new code/test candidate SHA before certification claims.
 - Operational runtime/recovery proof remains UNPROVEN.
+- **INDEX DRIFT RECONCILIATION:** evidence commit `492d91ef...` added the live Supabase truth sweep without changing product code. This index synchronization records that exact parent boundary and preserves the evidence lineage; it does not promote runtime proof or alter certification gates.
+
+### 2026-09-02 LIVE SUPABASE TRUTH SWEEP — DIRECT DATABASE STATE
+- `DATE → EXACT PARENT HEAD → ACTION → RESULT → BLOCKER → NEXT`: `2026-09-02 → 492d91efbe7494631502d1a48d74a89bb8f5d7ab → directly inspected Report-Advisor-P0-2-Staging PostgreSQL state instead of relying on migrations alone → PostgreSQL 17.6; 78 public base tables; 78/78 RLS enabled; 78/78 tables have policies; 147 RLS policies; 72 tenant-scoped tables; 127 FKs; 87 ON DELETE CASCADE; 0 ON UPDATE CASCADE; dashboard/decision/recommendation/outcome/report-execution RPC families present → no live authenticated E2E/Tenant A/B/backup/restore/RPO/RTO/rollback/forward/DR proof obtained → preserve fail-closed boundaries and continue contract closure in parallel`.
+- Data-truth snapshot verified: companies=2, company_memberships=2, customers=3, products=4, categories=2, recommendations=1, decision_outcomes=1, file_records=0, import_jobs=0, report_execution_jobs=0.
+- Security-definer inventory was inspected. The inspected functions use `SET search_path TO 'pg_catalog'` and relevant tenant/user context checks; no blanket EXECUTE revoke was performed because application-facing authenticated RPC contracts must be verified before privilege mutation.
+- Performance Advisor unused-index findings were not converted into destructive mutations; no index was deleted solely to improve Advisor metrics.
+- Evidence record: `docs/EVIDENCE/2026-09-02-supabase-live-truth-sweep.md` at `492d91ef...`.
 
 ### 2026-09-02 CURRENT EXACT-SHA ADVERSARIAL FIX UPDATE
 - `DATE → EXACT HEAD → ACTION → RESULT → BLOCKER → NEXT`: `2026-09-02 → 51267cc0cdfa074ce61d257e06f8333bb3a9364d → corrected adversarial section-removal regexes after Execution Enforcement Contract `33621035733` failed at the exact-head index gate; the failure was caused by stale Master Index HEAD `e96a894...` while the tested code HEAD was `51267cc...` → targeted test hardening committed; Quality `33621035810` PASS and Storage `33621035798` PASS on `51267cc...`; Enforcement result for the code head was blocked by index drift and must not be treated as code/test PASS → Master Index synchronization is required; no Production mutation → consume exact-head results only and preserve SHA boundaries`.
@@ -109,9 +117,9 @@ A waiting window closes only when `result received AND result consumed AND new w
 ### EXECUTION SCHEDULER — CURRENT
 | Task | Dependency | State | Parallel? | Blocker | Can start now? | Expected unlock |
 |---|---|---|---|---|---|---|
-| Exact-head CI | `f29cdbc3...` | ACTIONABLE | YES | none | YES | deterministic verification |
+| Exact-head CI | `51267cc...` | ACTIONABLE | YES | index synchronization was pending; now being reconciled | YES | deterministic verification |
 | v4 governance adversarial | protocol + governance | IMPLEMENTED | YES | none | YES | governance confidence |
-| Security/DB/RPC/evidence rescan | repository | READY | YES | none | YES | local defect closure |
+| Security/DB/RPC/evidence rescan | repository + staging truth | VERIFIED BASELINE / CONTINUE | YES | none for static/contract work | YES | local defect closure |
 | Import/reconciliation audit | repository | READY | YES | none | YES | data correctness confidence |
 | OCR/golden corpus audit | repository | READY | YES | none | YES | document confidence |
 | E1 deployment preparation | deployment contract | PREPARED | YES | Vercel live access | YES prep / NO live | runtime handoff |
@@ -124,7 +132,7 @@ A waiting window closes only when `result received AND result consumed AND new w
 | E8 DR | E5/E7 | PREPARED | YES | approved DR environment | YES prep / NO live | DR proof |
 
 ### EXECUTION DEBT / RELEASE VELOCITY / UTILIZATION
-- `ACTIONABLE DEBT`: fresh CI for code/test candidate `f29cdbc3...`; local findings from active rescan; E1–E8 local preparation; post-mutation index synchronization.
+- `ACTIONABLE DEBT`: fresh CI for code/test candidate `51267cc...`; final rescan consumption; import/reconciliation/OCR contract closure; post-mutation index synchronization.
 - `EXTERNAL DEBT`: live deployment authorization/rate-limit; authenticated runtime credentials; live Tenant A/B; real backup/restore/RPO/RTO; staging rollback/forward authorization; approved DR environment.
 - Rule: `ACTIONABLE DEBT → MUST EXECUTE`; `EXTERNAL DEBT → ISOLATE + PREPARE + DOCUMENT`.
 - `RELEASE VELOCITY`: only movement through `Built → Integrated → Verified → Runtime Proven → Production Certified`.
@@ -142,6 +150,7 @@ A waiting window closes only when `result received AND result consumed AND new w
 - Production certification adversarial coverage: complete/missing/failed/duplicate/unrelated/malformed evidence attacks.
 - v3.2 enforcement: waiting-time parallelization, safe parallelism, scheduler, debt split, utilization, index-head gate, adversarial test-of-test, depth-2 parent validation.
 - v4.0 adaptive governance: layered architecture, precedence, performance ledger, effectiveness, under/over-execution detection, command feedback, strategy memory, smart prioritization, controlled evolution, governance adversarial suite, workflow trigger binding, consecutive index-only boundary validation, corrected layer-separation decoy, and governance self-audit.
+- **Staging database truth baseline:** direct catalog/data inspection verified 78/78 RLS coverage, 147 policies, 72 tenant-scoped tables, 127 FKs, and 87 delete cascades; RPC family existence verified; data-truth counts captured. This is a verified staging baseline, not live application proof.
 
 ### IN-PROGRESS
 - Fresh exact-head CI consumption for code/test candidate `51267cc0...`.
@@ -149,6 +158,7 @@ A waiting window closes only when `result received AND result consumed AND new w
 - Final performance-ledger result closure.
 - E1–E8 handoff preparation and external evidence readiness.
 - Final certification gap decomposition.
+- Index synchronization commit immediately after evidence commit `492d91ef...`.
 
 ### FINAL CLOSURE MAP — A TO Q
 
@@ -200,7 +210,7 @@ A waiting window closes only when `result received AND result consumed AND new w
 - Final certification requires all mandatory operational evidence plus fresh exact-head deterministic verification.
 
 ### NEXT / NEXT+1 / NEXT+2
-- NEXT: consume exact-head CI for `51267cc0...`; execute first failure RCA/fix chain if needed; concurrently continue independent rescan and E1–E8 preparation.
+- NEXT: reconcile the `492d91ef...` evidence commit with an index-only parent-equivalent synchronization, then consume exact-head CI for `51267cc0...`; execute first failure RCA/fix chain if needed; concurrently continue independent rescan and E1–E8 preparation.
 - NEXT+1: close actionable findings with RCA → fix → targeted → adversarial → regression → rescan; update performance result.
 - NEXT+2: fresh exact-head CI on resulting SHA; rebind evidence; consume newly unlocked gates; reprioritize.
 
