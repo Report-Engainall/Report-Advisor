@@ -138,8 +138,15 @@ export function isDisallowedOutboundAddress(address) {
     ].some(([base, bits]) => ipv4InRange(address, base, bits));
   }
   if (net.isIPv6(address)) {
-    const mapped = address.match(/^::ffff:(\d+\.\d+\.\d+\.\d+)$/i);
-    if (mapped && net.isIPv4(mapped[1])) return isDisallowedOutboundAddress(mapped[1]);
+    const mappedDecimal = address.match(/^::ffff:(\d+\.\d+\.\d+\.\d+)$/i);
+    if (mappedDecimal && net.isIPv4(mappedDecimal[1])) return isDisallowedOutboundAddress(mappedDecimal[1]);
+    const mappedHex = address.match(/^::ffff:([0-9a-f]{1,4}):([0-9a-f]{1,4})$/i);
+    if (mappedHex) {
+      const high = parseInt(mappedHex[1], 16);
+      const low = parseInt(mappedHex[2], 16);
+      const mappedIpv4 = `${high >> 8}.${high & 255}.${low >> 8}.${low & 255}`;
+      return isDisallowedOutboundAddress(mappedIpv4);
+    }
     return [
       ['::', 128], ['::1', 128], ['fc00::', 7], ['fe80::', 10], ['ff00::', 8],
       ['2001:db8::', 32], ['2001::', 32],
