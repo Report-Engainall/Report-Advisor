@@ -71,18 +71,19 @@ export function validateAdaptiveGovernance(governance) {
   if (missing.length) throw new Error(`Adaptive governance rejected: missing anchors: ${missing.join(', ')}`);
   if (!normalized.includes('one-off incident') || !normalized.includes('repeated pattern') || !normalized.includes('proven systemic failure')) throw new Error('Adaptive governance rejected: evolution threshold is incomplete');
   if (!normalized.includes('commits, lines changed, report size, index size, and test count are not progress metrics')) throw new Error('Adaptive governance rejected: activity/progress separation missing');
+  if (!normalized.includes('lower-priority instruction must not override a higher-priority')) throw new Error('Adaptive governance rejected: precedence binding missing');
   return true;
 }
 
-export function validateCurrentHeadIndex(index, currentHead, parentHead = '') {
+export function validateCurrentHeadIndex(index, currentHead, parentHead = '', changedFiles = null) {
   const normalizedIndex = normalize(stripComments(index));
   const head = normalize(currentHead);
   if (!head || !/^[0-9a-f]{40}$/.test(head)) throw new Error('Index current-head gate rejected: invalid repository HEAD');
   const currentStateMatch = index.match(/CURRENT PROJECT STATE[\s\S]{0,1200}?Exact code\/test head[^`]*`([0-9a-f]{40})`/i);
   const indexedHead = currentStateMatch?.[1]?.toLowerCase();
   const exactMatch = indexedHead === head;
-  const versionedIndexCommitMatch = indexedHead && normalize(parentHead) === indexedHead;
-  if (!exactMatch && !versionedIndexCommitMatch) throw new Error(`Index current-head gate rejected: INDEX DRIFT (index=${indexedHead ?? 'missing'}, head=${currentHead}, parent=${parentHead || 'unknown'})`);
+  const indexOnlyBoundary = indexedHead && normalize(parentHead) === indexedHead && Array.isArray(changedFiles) && changedFiles.length > 0 && changedFiles.every(file => file === 'docs/MASTER_EXECUTION_INDEX.md');
+  if (!exactMatch && !indexOnlyBoundary) throw new Error(`Index current-head gate rejected: INDEX DRIFT (index=${indexedHead ?? 'missing'}, head=${currentHead}, parent=${parentHead || 'unknown'}, indexOnly=${indexOnlyBoundary})`);
   if (!normalizedIndex.includes('index drift')) throw new Error('Index current-head gate rejected: INDEX DRIFT rule missing from live index');
   return true;
 }
@@ -117,14 +118,16 @@ if (process.argv[1] && process.argv[1].endsWith('check-execution-enforcement-pro
       const indexedHead = match?.[1]?.toLowerCase();
       if (!indexedHead) throw error;
       let ancestryVerified = false;
+      let changedFiles = [];
       try {
         execFileSync('git', ['merge-base', '--is-ancestor', indexedHead, currentHead]);
-        const changedFiles = execFileSync('git', ['diff', '--name-only', `${indexedHead}..${currentHead}`], { encoding: 'utf8' }).trim().split('\n').filter(Boolean);
+        changedFiles = execFileSync('git', ['diff', '--name-only', `${indexedHead}..${currentHead}`], { encoding: 'utf8' }).trim().split('\n').filter(Boolean);
         ancestryVerified = changedFiles.length > 0 && changedFiles.every(file => file === 'docs/MASTER_EXECUTION_INDEX.md');
       } catch {
         ancestryVerified = false;
       }
       if (!ancestryVerified || !normalizedIndex.includes('index drift')) throw error;
+      validateCurrentHeadIndex(index, currentHead, indexedHead, changedFiles);
       console.log(`PASS index-head gate: current HEAD ${currentHead} differs from indexed code/test head ${indexedHead} only through verified index-only commits`);
     }
   }
