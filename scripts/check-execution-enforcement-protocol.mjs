@@ -48,7 +48,16 @@ export function validateCurrentHeadIndex(index, currentHead, parentHead = '', ch
   const currentStateMatch = index.match(/CURRENT PROJECT STATE[\s\S]{0,1200}?(?:Exact |Current )code\/test head[^`]*`([0-9a-f]{40})`/i);
   const indexedHead = currentStateMatch?.[1]?.toLowerCase();
   const exactMatch = indexedHead === head;
-  const indexOnlyBoundary = indexedHead && normalize(parentHead) === indexedHead && Array.isArray(changedFiles) && changedFiles.length > 0 && changedFiles.every(file => file === 'docs/MASTER_EXECUTION_INDEX.md');
+  let computedIndexOnlyBoundary = false;
+  if (!exactMatch && indexedHead) {
+    try {
+      execFileSync('git', ['merge-base', '--is-ancestor', indexedHead, head], { stdio: 'ignore' });
+      const files = execFileSync('git', ['diff', '--name-only', indexedHead, head], { encoding: 'utf8' }).trim().split('\n').filter(Boolean);
+      computedIndexOnlyBoundary = files.length > 0 && files.every(file => file === 'docs/MASTER_EXECUTION_INDEX.md');
+    } catch { computedIndexOnlyBoundary = false; }
+  }
+  const suppliedIndexOnlyBoundary = indexedHead && normalize(parentHead) === indexedHead && Array.isArray(changedFiles) && changedFiles.length > 0 && changedFiles.every(file => file === 'docs/MASTER_EXECUTION_INDEX.md');
+  const indexOnlyBoundary = computedIndexOnlyBoundary || suppliedIndexOnlyBoundary;
   if (!exactMatch && !indexOnlyBoundary) throw new Error(`Index current-head gate rejected: INDEX DRIFT (index=${indexedHead ?? 'missing'}, head=${currentHead}, parent=${parentHead || 'unknown'}, indexOnly=${indexOnlyBoundary})`);
   if (!normalizedIndex.includes('index drift')) throw new Error('Index current-head gate rejected: INDEX DRIFT rule missing from live index');
   return true;
@@ -78,20 +87,8 @@ if (process.argv[1] && process.argv[1].endsWith('check-execution-enforcement-pro
     const index = fs.readFileSync('docs/MASTER_EXECUTION_INDEX.md', 'utf8');
     let currentHead = ''; let parentHead = '';
     try { currentHead = execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(); parentHead = execFileSync('git', ['rev-parse', 'HEAD^'], { encoding: 'utf8' }).trim(); } catch { currentHead = process.env.GITHUB_SHA?.trim() ?? ''; parentHead = process.env.GITHUB_PARENT_SHA?.trim() ?? ''; }
-    try { validateCurrentHeadIndex(index, currentHead, parentHead); }
-    catch (error) {
-      const normalizedIndex = normalize(stripComments(index));
-      const match = index.match(/CURRENT PROJECT STATE[\s\S]{0,1200}?(?:Exact |Current )code\/test head[^`]*`([0-9a-f]{40})`/i); const indexedHead = match?.[1]?.toLowerCase(); if (!indexedHead) throw error;
-      let ancestryVerified = false; let changedFiles = [];
-      try {
-        execFileSync('git', ['merge-base', '--is-ancestor', indexedHead, currentHead]);
-        changedFiles = execFileSync('git', ['diff', '--name-only', indexedHead, currentHead], { encoding: 'utf8' }).trim().split('\n').filter(Boolean);
-        ancestryVerified = changedFiles.length > 0 && changedFiles.every(file => file === 'docs/MASTER_EXECUTION_INDEX.md');
-      } catch { ancestryVerified = false; }
-      if (!ancestryVerified || !normalizedIndex.includes('index drift')) throw error;
-      validateCurrentHeadIndex(index, currentHead, indexedHead, changedFiles);
-      console.log(`PASS index-head gate: current HEAD ${currentHead} differs from indexed code/test head ${indexedHead} only through the governed execution-index path`);
-    }
+    validateCurrentHeadIndex(index, currentHead, parentHead);
+    console.log(`PASS index-head gate: current HEAD ${currentHead} is exactly indexed or differs from the indexed code/test head only through the governed execution-index path`);
   }
   console.log(`PASS execution enforcement protocol: ${REQUIRED_RULES.length} mandatory rules, behavioral cases, v4 governance layer, scheduling controls, debt/velocity ledger, and versioned index-head certification gate active`);
 }
