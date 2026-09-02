@@ -6,18 +6,18 @@
 
 ### CURRENT PROJECT STATE
 - Repository: `Report-Engainall/Report-Advisor`.
-- Current exact repository HEAD: `99f2f3bd0784b79b518c2088ebecf30f4e66913b` (test/code mutation boundary).
-- Current code/test head: `99f2f3bd0784b79b518c2088ebecf30f4e66913b`.
-- Current exact code/test candidate: `99f2f3bd0784b79b518c2088ebecf30f4e66913b`.
+- Current exact repository HEAD: `ab1cf0d9c16864f9bda07acd33973954c2dc1b7a` (test/code mutation boundary).
+- Current code/test head: `ab1cf0d9c16864f9bda07acd33973954c2dc1b7a`.
+- Current exact code/test candidate: `ab1cf0d9c16864f9bda07acd33973954c2dc1b7a`.
 - Latest Quality run consumed on the prior exact code/test SHA: `33658410079` — PASS, 63/63 substantive steps successful.
-- Fresh exact-head Quality/adversarial verification is REQUIRED for `99f2f3bd0784b79b518c2088ebecf30f4e66913b`; prior PASS is not transferred.
-- Verified companion gates on the prior exact code/test SHA include storage tenant-isolation and Work Item Actionability Guard PASS; fresh exact-head evidence is required after this test mutation.
+- Fresh exact-head Quality/adversarial verification is REQUIRED for `ab1cf0d9c16864f9bda07acd33973954c2dc1b7a`; prior PASS is not transferred.
+- Prior companion gates on older exact heads are stale for certification after this E2E harness mutation.
 - No evidence from older SHAs is transferred to the current candidate.
 - Operational runtime/recovery certification remains UNPROVEN.
 
-### 2026-09-02 CURRENT-HEAD CLOSURE WAVE — 99f2f3bd
-- `DATE → EXACT HEAD → ACTION → RESULT → BLOCKER → NEXT`: `2026-09-02 → 99f2f3bd0784b79b518c2088ebecf30f4e66913b → hardened the adaptive-governance adversarial test mutation so the under-execution deletion attack must actually mutate the candidate before validation → test harness now guards against a false-negative mutation and requires rejection of the weakened governance contract → fresh exact-head CI must be consumed before certification claims → continue independent closure; do not mutate Production or invent live evidence`.
-- Previous code/test boundary: `ae3f50aec381eae99b29489ef8c6965e325dc31a` (`db: reconcile direct decision work item insert boundary`).
+### 2026-09-02 CURRENT-HEAD CLOSURE WAVE — ab1cf0d9
+- `DATE → EXACT HEAD → ACTION → RESULT → BLOCKER → NEXT`: `2026-09-02 → ab1cf0d9c16864f9bda07acd33973954c2dc1b7a → hardened authenticated Tenant A/B E2E harness to require canonical tenant IDs and anon key, use company_memberships instead of the absent profiles surface, verify A/B membership resolution, and perform adversarial cross-tenant exposure checks in both directions → runtime harness is now aligned with the canonical tenant contract and cannot claim tenant isolation from a legacy/nonexistent probe surface → fresh exact-head CI and real credentials/runtime are still required for LIVE evidence → continue independent closure; do not mutate Production or invent live evidence`.
+- Previous code/test boundary: `99f2f3bd0784b79b518c2088ebecf30f4e66913b` (`test: harden adaptive governance adversarial mutation`).
 - Live staging security truth: 78/78 public tables have RLS; 147 policies; 0 policies targeting `anon`; 0 policies targeting `PUBLIC`; 0 `anon` EXECUTE grants on public routines; observed SECURITY DEFINER functions use explicit `pg_catalog` search paths.
 - Live authenticated SECURITY DEFINER decision/runtime routines enforce current-company/current-user boundaries where inspected; no cross-tenant write path was established.
 - Live storage boundary has tenant-path/owner-aware authenticated policies, but storage runtime remains UNPROVEN and no canonical bucket-creation contract was found; no speculative bucket was created.
@@ -48,11 +48,11 @@
 ### CERTIFICATION STATUS — FAIL CLOSED
 | Gate | State | Reason |
 |---|---|---|
-| Repository quality | STALE | Prior exact-head Quality `33658410079` is on `ae3f50...`, not current `99f2f3bd...` |
+| Repository quality | STALE | Prior exact-head Quality `33658410079` is on `ae3f50...`, not current `ab1cf0d9...` |
 | Storage tenant isolation contract | STALE | Prior evidence is on older exact head |
 | Work Item Actionability Guard | STALE | Prior evidence is on older exact head |
 | Production runtime | UNPROVEN | Requires authenticated live runtime evidence |
-| Authenticated E2E | UNPROVEN | Requires real authenticated session |
+| Authenticated E2E | UNPROVEN | Requires real authenticated session and live environment |
 | Live Tenant A/B isolation | UNPROVEN | Requires real cross-tenant adversarial runtime |
 | Backup | UNPROVEN | Requires real backup artifact/inventory evidence |
 | Restore | UNPROVEN | Requires real non-production restore verification |
@@ -68,13 +68,13 @@
 - No request for owner/device action is made while independent executable work remains.
 
 ### NEXT EXECUTION FRONT
-1. Consume fresh exact-head CI for `99f2f3bd0784b79b518c2088ebecf30f4e66913b` and repair only genuine failures.
+1. Consume fresh exact-head CI for `ab1cf0d9c16864f9bda07acd33973954c2dc1b7a` and repair only genuine failures.
 2. Continue repository/static/migration/security/RPC/runtime-contract closure that can be executed without owner access.
 3. Prepare the final authenticated runtime/Tenant A/B and resilience evidence paths without fabricating credentials, targets, artifacts, or production bindings.
 4. Keep Production alias binding, backup/restore, rollback, DR, and final certification fail-closed until real operational evidence exists.
 
 ### HISTORICAL RECORD / SHA BOUNDARIES
 - Previous Master Index blob: `9107ff2aba8bcb033cb3ec907cb90643cc12aeae`.
-- Historical index content is preserved by Git history; this update intentionally creates a new current-truth boundary rather than rewriting historical claims.
+- Historical index content is preserved by Git history; this synchronization intentionally creates a new current-truth boundary rather than rewriting historical claims.
 - Important prior boundaries remain historical only, including `3374e16f...`, `51267cc...`, `e96a894...`, `1ff7f2b...`, and earlier release candidates.
-- Previous exact code/test evidence begins at `ae3f50aec381eae99b29489ef8c6965e325dc31a`; the current code/test candidate is `99f2f3bd0784b79b518c2088ebecf30f4e66913b`.
+- Previous exact code/test evidence begins at `ae3f50aec381eae99b29489ef8c6965e325dc31a`; subsequent test/governance boundaries are `99f2f3bd...` then `ab1cf0d9...`.
