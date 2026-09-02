@@ -2,47 +2,88 @@
 
 ## Current Truth — 2026-09-02
 
-- Current canonical `main` / exact HEAD: **`a5bdfa8a32a6ace477a1c0ef6e8f6d5132395788`**.
-- Previous exact verification target: `1eede4439b1cc32a597c81158a0d93ad07138923`.
-- Fresh Final Execution Batch `#33578760739` proved J runtime = PASS on exact `1eede443...`; **J has not been mutated in the operational-layer work below**.
-- Fresh Quality `#33578760766` proved Phase 10 remains blocked by missing actual recovery evidence on exact `1eede443...`.
-- The new operational-runtime commits below are descendants of that exact head and therefore require fresh CI/exact-SHA verification before any PASS is claimed.
+- Current canonical `main` / exact HEAD: **`3230a452ee86fe2332d66a4a40f767fdf6fc9cf5`**.
+- Previous exact HEAD: `a5bdfa8a32a6ace477a1c0ef6e8f6d5132395788`.
+- Earlier operational-layer implementation boundary: `76baf8b1b5e7f2b812bb1e4e17057a7d5ee7f126` (historical only for current verification).
+- Fresh Final Execution Batch `#33578760739` and Fresh Quality `#33578760766` remain historical evidence for `1eede4439b1cc32a597c81158a0d93ad07138923`; they do not transfer to the current HEAD.
+- J runtime was PASS on `1eede443...` and has not been mutated in the operational-layer work.
 - Backup/Restore operational truth remains: `RPO = UNPROVEN`, `RTO = UNPROVEN`, `RESTORE = UNPROVEN`, `DR = UNPROVEN`.
 - Vercel remains `BLOCKED — External Deployment Rate Limit`; no substitute production/runtime evidence is accepted.
 - MERGE / RELEASE / CERTIFICATION = **STOPPED**.
 
-## Operational Runtime Layer — IMPLEMENTED BOUNDARY
+## Operational Runtime Layer — IMPLEMENTED / VERIFICATION IN PROGRESS
+
+### RCA
+The rollback drill trusted Vercel API authorization, production-domain guards, and readiness state but did not independently prove that either deployment ID belonged to the configured `VERCEL_PROJECT_ID`. This permitted a cross-project deployment identifier to reach the alias-operation stage if the token had sufficient authority. This is a real server-side isolation gap.
 
 ### Architecture Decision
+**Vercel Node.js serverless functions** remain the smallest safe in-application runtime layer for bounded operational HTTP surfaces. Privileged credentials remain server-side. Database/runtime checks use Supabase server APIs; deployment rollback uses the Vercel API only for an explicitly non-production drill domain. Long-lived or privileged restore execution remains an external operational dependency because the application runtime cannot safely invent a cross-project restore target.
 
-**Vercel Node.js serverless functions** are the smallest safe in-application runtime layer for bounded operational HTTP surfaces. They keep privileged credentials server-side and are not exposed through the SPA client. Database/runtime checks use Supabase server APIs; deployment rollback uses the Vercel API only for an explicitly non-production drill domain. Long-lived or privileged restore execution remains an external operational dependency because the current platform APIs do not provide a safe cross-project restore target primitive inside this application runtime.
+### Security Fix
+`api/rollback-drill.mjs` now:
+- requires `VERCEL_PROJECT_ID` before any deployment lookup;
+- rejects missing deployment IDs;
+- fetches deployment metadata from the Vercel API server-side;
+- requires exact `deployment.projectId === VERCEL_PROJECT_ID`;
+- applies the check independently to FROM and FORWARD deployments before any alias mutation;
+- preserves existing READY, target-environment, and production-domain fail-closed guards;
+- uses the validated metadata IDs for alias operations.
 
-### Implemented
+### Files Changed in This Cycle
+- `api/rollback-drill.mjs` — same-project deployment enforcement.
+- `scripts/resilience-runtime.test.mjs` — adversarial project-isolation test coverage.
+- `docs/MASTER_EXECUTION_INDEX.md` — exact-head/security/evidence ledger update.
 
-- `src/server/resilience-runtime.mjs` — fail-closed operational auth, server-side Supabase/Management API helpers, evidence persistence, integrity hashing, production guard.
-- `api/health.mjs` — real DB-backed readiness/health probe and `operational_health_snapshots` evidence persistence.
-- `api/tenant-canary.mjs` — authenticated tenant isolation canary. It requires a seeded foreign-tenant sentinel and proves the authenticated tenant can read its own evidence while receiving zero foreign rows.
-- `api/backup-restore-verify.mjs` — real backup inventory via Supabase Management API, RPO measurement, real artifact SHA-256 verification, and orchestration to a separately controlled restore verifier. It fails closed unless an actual artifact, expected hash, and restore verifier are configured and the verifier explicitly proves `restored=true` and `integrity_verified=true`.
-- `api/rollback-drill.mjs` — real non-production Vercel rollback → probe → forward recovery drill with deployment readiness checks, alias reassignment, measured recovery time, evidence persistence, and hard rejection of production targets.
-- `vercel.json` — filesystem-first routing so `/api/*` functions are not swallowed by the SPA fallback.
-- `.github/workflows/phase-f-live-resilience.yml` — runs local runtime syntax/guard tests, static resilience contracts, then authenticated fail-closed live probes.
-- `scripts/phase-f-live-resilience-probes.mjs` — now requires operational auth plus an authenticated canary token and sends them server-side; fail-closed behavior is unchanged.
-- `scripts/resilience-runtime.test.mjs` — local syntax/guard coverage for the operational layer.
+### Tests Added / Intended Adversarial Coverage
+The resilience test now covers:
+- same-project FROM deployment;
+- same-project FORWARD deployment;
+- foreign-project deployment;
+- nonexistent deployment;
+- non-READY deployment;
+- Vercel API/network failure;
+- missing deployment ID;
+- mixed same-project + foreign-project pair;
+- missing `VERCEL_PROJECT_ID`;
+- production-environment guard remains covered;
+- syntax checks for all operational runtime files.
+
+These tests are **not claimed PASS** until executed by a runtime/CI environment.
+
+### Exact-SHA Chain
+- Previous exact HEAD: `a5bdfa8a32a6ace477a1c0ef6e8f6d5132395788`.
+- Security-fix commit: `cfe23fbb9968d8c1f019aa1b359f595e25ebdbcf5`.
+- Adversarial-test commit: `3230a452ee86fe2332d66a4a40f767fdf6fc9cf5`.
+- Current index-update HEAD: **`3230a452ee86fe2332d66a4a40f767fdf6fc9cf5`**.
+- Parent of current HEAD: `cfe23fbb9968d8c1f019aa1b359f595e25ebdbcf5`.
+
+### Verification Truth
+- Local execution: **EXECUTION BLOCKED** — no repository checkout is mounted in the current execution container; therefore `scripts/resilience-runtime.test.mjs` was not executed locally and no local PASS is claimed.
+- Static source inspection: completed on the current cycle; not equivalent to runtime PASS.
+- Fresh Final Execution Batch: not run from this connector session; no Run ID invented.
+- Fresh Quality: not run from this connector session; no Run ID invented.
+- Live Health: UNPROVEN.
+- Live Tenant Canary: UNPROVEN.
+- Backup artifact verification: UNPROVEN.
+- Restore: UNPROVEN.
+- RPO: UNPROVEN.
+- RTO: UNPROVEN.
+- Rollback: UNPROVEN.
+- DR: UNPROVEN.
 
 ### Security / Failure Behavior
-
 - No secrets are committed to Git.
 - Operational endpoints require `x-resilience-token`.
 - Tenant canary separately requires an authenticated Supabase bearer token.
 - Restore/rollback endpoints do not silently downgrade to PASS when configuration or evidence is missing.
 - Production rollback drills are explicitly rejected by the runtime.
+- Cross-project deployment IDs are now explicitly rejected before alias mutation.
 - No production backup/restore/rollback is automatically executed by CI.
 - Existing J runtime was not touched.
 - `check-recovery-contract.mjs` was intentionally not modified.
 
 ### External Dependency Remaining
-
-A real restore verifier still requires a safe restore target and credentials/permissions to restore the real backup artifact into that target. The application layer is now capable of consuming and persisting that proof, but it cannot safely invent or substitute the restore target. Therefore `RESTORE/RTO/DR` remain **UNPROVEN** until a real operational verifier is configured and exercised.
+A real restore verifier still requires a safe restore target and credentials/permissions to restore the real backup artifact into that target. Vercel deployment access is also externally blocked by the deployment rate limit. Therefore no live runtime, restore, RPO/RTO, rollback, or DR PASS is currently certified.
 
 ## Operational Boundaries
 
