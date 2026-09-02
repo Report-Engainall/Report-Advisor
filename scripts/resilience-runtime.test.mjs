@@ -24,7 +24,9 @@ delete process.env.RESILIENCE_TARGET_ENV;
 
 const originalFetch = globalThis.fetch;
 const originalProjectId = process.env.VERCEL_PROJECT_ID;
+const originalVercelToken = process.env.VERCEL_TOKEN;
 process.env.VERCEL_PROJECT_ID = 'project-good';
+process.env.VERCEL_TOKEN = 'test-token';
 
 const responses = new Map();
 const mockFetch = async (url) => {
@@ -51,17 +53,17 @@ try {
   await assert.rejects(() => deploymentReady('api-fail'), /network_timeout/);
   await assert.rejects(() => deploymentReady(''), /deployment_id_required/);
 
-  // Mixed same-project + foreign-project pairs fail before any alias mutation.
   const mixed = async () => Promise.all([deploymentReady('same-a'), deploymentReady('foreign')]);
   await assert.rejects(mixed, /deployment_project_mismatch/);
 
-  // Missing project configuration fails closed before a Vercel request.
   delete process.env.VERCEL_PROJECT_ID;
   await assert.rejects(() => deploymentReady('same-a'), /vercel_project_id_required/);
 } finally {
   globalThis.fetch = originalFetch;
   if (originalProjectId === undefined) delete process.env.VERCEL_PROJECT_ID;
   else process.env.VERCEL_PROJECT_ID = originalProjectId;
+  if (originalVercelToken === undefined) delete process.env.VERCEL_TOKEN;
+  else process.env.VERCEL_TOKEN = originalVercelToken;
 }
 
 console.log(`PASS: resilience runtime syntax + rollback security guards (${files.length} files).`);
