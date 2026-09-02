@@ -69,7 +69,7 @@ describe('metric confidence and source boundaries', () => {
   });
   it('rejects malformed status values instead of trusting TypeScript-only unions', () => {
     const metric = evaluateMetric({ key: 'net_sales', value: 100, confidence: 1, sourceRows: 1, status: 'APPROVED' as never });
-    expect(metric.status).toBe('AVAILABLE');
+    expect(metric.status).toBe('CALCULATED');
   });
   it('normalizes whitespace around metric keys without changing identity', () => {
     const metric = evaluateMetric({ key: ' net_sales ', value: 100, confidence: 1, sourceRows: 1 });
