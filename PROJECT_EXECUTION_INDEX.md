@@ -10,6 +10,7 @@
 
 - `docs/MASTER_EXECUTION_INDEX.md` — الحالة الشاملة الحالية، المراحل، المتطلبات، الـCI، الـgaps، الـbacklog وتسلسل التنفيذ.
 - `docs/MASTER_EXECUTION_INDEX_ADDENDUM_2026-09-02-DASHBOARD-RUNTIME.md` — أحدث إضافة توثيقية خاصة بإغلاق Dashboard RPC/runtime على exact SHA `ec6eb4cce7803af8e94697adfa6d9308f69a9ee2`.
+- `docs/EVIDENCE/2026-09-02-production-separation-forensics.md` — أحدث forensic evidence يثبت خلل binding بين Production Vercel artifact وStaging Supabase.
 - `docs/IMPLEMENTATION_ROADMAP.md` — التسلسل المرحلي الأصلي.
 - `docs/MASTER_PRODUCT_REFERENCE.md` — المتطلبات والـguardrails المرجعية.
 - `docs/INSPIRATION_IMPLEMENTATION_AUDIT.md` — تدقيق فجوات المنتج/UX.
@@ -65,6 +66,16 @@
 - Mutation record: `docs/MUTATION_RECORD_DASHBOARD_RPC_2026-09-02.md`.
 - Evidence pack: `docs/EVIDENCE/2026-09-02-dashboard-rpc-runtime-certification.md`.
 
+## Current Production Separation Forensics
+
+- Forensic evidence commit: `0fefd8b3316d2721ef5afc63d1f94f9c1a256335`.
+- Live production artifact `/assets/index-B49eOQQy.js` was fetched read-only and contains Supabase URL `https://fnqbvfuwbdpwvhcgzksl.supabase.co`.
+- That URL is the Staging project `Report-Advisor-P0-2-Staging`, not a separately proven Production Supabase target.
+- Therefore `Production separation = FAILED / NOT CERTIFIED` for the currently served artifact.
+- No production configuration, DB, Auth, RLS, deployment, or infrastructure mutation was performed.
+- Recovery candidate `oirazrmpvwwmklqfrdur` is INACTIVE and could not be connected to read-only SQL; it is not a verified recovery target.
+- Staging parent remains ACTIVE_HEALTHY with 110 recorded migrations, but target writability remains UNPROVEN.
+
 ## Next action
 
-**Dashboard RPC/runtime closure is documented. Do not perform further code/DB/workflow mutation for this incident. Overall Production Certification remains fail-closed and must use the independent mandatory evidence domains and operational gates.**
+**STOP BEFORE PRODUCTION-IMPACTING MUTATION.** The next minimal action is to correct/prove the Production Supabase binding using an approved production configuration/deployment path. Backup/Restore/RPO/RTO/Rollback/Forward Recovery/DR remain independently unproven and must not be inferred from this finding.
