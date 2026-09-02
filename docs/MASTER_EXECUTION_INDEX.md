@@ -9,10 +9,11 @@
 - Latest repository code/test synchronization commit: `6263375052ffc7e02134d540e019b652d22c1d8a` (governance adversarial removal attack strengthened).
 - Current repository head is intentionally allowed to advance through governed index-only synchronization commits; the current code/test head is `6263375052ffc7e02134d540e019b652d22c1d8a` until a later real code/test mutation.
 - Current exact code/test candidate: `6263375052ffc7e02134d540e019b652d22c1d8a`.
-- Quality `33672406562` on repository head `559759...` passed all 63 substantive verification steps; this predates the latest adversarial test mutation and is therefore stale for certification.
-- Execution Enforcement `33672437701` exposed a real test-of-test weakness: the attempted section removal renamed the heading to `UNDER-EXECUTION DETECTION REMOVED`, leaving a validator anchor intact.
-- Fixed the attack mutation to remove the complete detection section and replace it directly with the next section heading, so the attack no longer preserves the `UNDER-EXECUTION DETECTION` anchor.
-- Fresh exact-head Quality/Final Execution/Enforcement/Storage evidence is required for `626337505...`; no older PASS is carried across this mutation.
+- Final Execution Batch `33672894946` on `626337...` passed all 30 deterministic gates.
+- Storage Tenant Isolation `33672894904` on `626337...` passed its contract job.
+- Execution Enforcement `33672894921` on `626337...` failed only because this index still pointed at `9037966...`; this is an index synchronization defect, not a product/test defect.
+- The latest adversarial test mutation removes the complete `UNDER-EXECUTION DETECTION` section and replaces it with a neutral marker, preventing a surviving governance anchor from masking a weakened contract.
+- Fresh exact-head Quality and Enforcement evidence is required after this index synchronization commit; no older PASS is carried across a mutation.
 - **INDEX DRIFT** remains governed explicitly: the enforcement verifier accepts only exact code/test head match or a fail-closed, ancestor-proven chain whose complete changed-file set is exactly `docs/MASTER_EXECUTION_INDEX.md`.
 
 ### 2026-09-02 GOVERNANCE ADVERSARIAL REVERIFICATION WAVE
@@ -57,10 +58,10 @@
 ### CERTIFICATION STATUS — FAIL CLOSED
 | Gate | State | Reason |
 |---|---|---|
-| Repository quality | **FRESH RUN PENDING** | Candidate changed at `626337505...`; fresh exact-head Quality required |
-| Release deterministic gates | **FRESH RUN PENDING** | Candidate changed; fresh exact-head deterministic evidence required |
-| Execution enforcement contract | **FRESH RUN PENDING** | Adversarial mutation corrected; fresh exact-head result required |
-| Storage tenant isolation contract | **FRESH RUN PENDING** | Prior evidence is on older exact head |
+| Repository quality | **FRESH RUN PENDING** | Index synchronization changes the repository head; fresh exact-head Quality required |
+| Release deterministic gates | **PASS — 30/30** | Run `33672894946` at code/test head `626337...` |
+| Execution enforcement contract | **FRESH RUN PENDING** | Prior run `33672894921` failed only on stale index drift; synchronized index requires fresh exact-head run |
+| Storage tenant isolation contract | **PASS** | Run `33672894904` at `626337...` |
 | Work Item Actionability Guard | **STALE** | Prior evidence is on older exact head |
 | Production runtime | UNPROVEN | Requires authenticated live product runtime evidence |
 | Authenticated E2E | UNPROVEN | Harness ready; real exact-environment execution evidence required |
@@ -80,15 +81,16 @@
 - No owner/device request is made while independent executable work remains.
 
 ### NEXT EXECUTION FRONT
-1. Consume fresh exact-head Enforcement, Quality, Final Execution, and Storage Tenant Isolation results at `626337505...`.
-2. If a fresh gate exposes another real regression, fix the smallest proven defect and immediately reverify at the new exact head.
-3. Continue independent repository-side security/runtime/contract closure without reopening closed findings.
-4. Prepare exact live authenticated Tenant A/B and resilience evidence paths; never fabricate credentials or operational artifacts.
-5. Keep Production binding, backup/restore, RPO/RTO, rollback, DR, and final certification fail-closed until real evidence exists.
-6. Enable leaked-password protection through the Supabase Auth control plane when that setting is reachable.
-7. Desktop Windows certification remains backed by native smoke workflow; `desktop/package-lock.json` is absent, so reproducible desktop `npm ci` remains a real dependency-resolution gap rather than something to handcraft.
+1. Consume fresh exact-head Enforcement and Quality results after this index-only synchronization.
+2. Consume the final Desktop Windows job result and preserve its exact SHA.
+3. If any fresh gate exposes a real regression, fix the smallest proven defect and immediately reverify at the new exact head.
+4. Continue independent repository-side security/runtime/contract closure without reopening closed findings.
+5. Prepare exact live authenticated Tenant A/B and resilience evidence paths; never fabricate credentials or operational artifacts.
+6. Keep Production binding, backup/restore, RPO/RTO, rollback, DR, and final certification fail-closed until real evidence exists.
+7. Enable leaked-password protection through the Supabase Auth control plane when that setting is reachable.
+8. Desktop `package-lock.json` remains absent; reproducible desktop `npm ci` is a real dependency-resolution gap and must not be hand-crafted.
 
 ### HISTORICAL RECORD / SHA BOUNDARIES
-- Previous index blob: `3913d6ddc451c1e7bfb552151c899caf2fc18f21`.
-- Previous code/test boundary: `9037966f86f95c49288c4f00ead605cf9a6424fd`.
+- Previous index blob: `e87f9e05412e8f778c7aa13d6962aec8a170df39`.
+- Previous code/test boundary: `6263375052ffc7e02134d540e019b652d22c1d8a`.
 - Historical execution content remains preserved by Git history; documentation synchronization commits are never promoted to code/test candidates unless they contain a real product/test mutation.
