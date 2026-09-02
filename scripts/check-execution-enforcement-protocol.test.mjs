@@ -5,8 +5,12 @@ import { validateExecutionEnforcementProtocol, validateCurrentHeadIndex } from '
 const protocol = fs.readFileSync('docs/EXECUTION_ENFORCEMENT_PROTOCOL.md', 'utf8');
 assert.equal(validateExecutionEnforcementProtocol(protocol), true);
 
+const commentDecoy = protocol.replace(
+  /### E-TIME[\s\S]*?### E-MAX/,
+  '<!-- E-TIME — Waiting-Time Parallelization -->\n\n### E-MAX',
+);
 const mustReject = [
-  ['comment decoy', `${protocol}\n<!-- E-TIME — Waiting-Time Parallelization -->` .replace('E-TIME — Waiting-Time Parallelization', 'E-TIME — Waiting-Time Parallelization')],
+  ['comment decoy', commentDecoy],
   ['missing E-TIME', protocol.replace(/### E-TIME[\s\S]*?### E-MAX/, '### E-MAX')],
   ['waiting bypass', `${protocol}\nwaiting for CI may stop and report`],
   ['optional NEXT+1', `${protocol}\nNEXT+1 is optional`],
