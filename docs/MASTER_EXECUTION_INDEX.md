@@ -1,120 +1,208 @@
 # Report Advisor — Master Execution & Truth Index
 
-## CURRENT RESUME EXECUTION MAP — 2026-09-02
+## CURRENT RESUME EXECUTION MAP — 2026-09-02 — FINAL SWEEP
 
-### CURRENT STATE
-- Current `main` exact HEAD before this documentation mutation: `da58f5faf9961a1ad6f731911eb777ae7821b8e8`.
-- This documentation mutation is correcting the prior resume-map write while preserving the historical ledger below verbatim from its `ecd4f9c...` parent.
-- `ecd4f9c55014a6eec91c490415ed6617fb3ea484` was the verified exact HEAD before the first resume-map write; Final Execution Batch `33582147261` tested it and completed SUCCESS with all 30 deterministic gates.
-- Storage tenant-isolation run `33582147305` tested `ecd4f9c...` and completed SUCCESS.
-- Quality full workflow is not proven for `ecd4f9c...`; no historical Quality PASS transfers.
-- Operational runtime/recovery evidence remains UNPROVEN.
+### CURRENT PROJECT STATE
+- Exact code/test head entering this sweep: `c51cb6d2499d5810dda0edc931bb24cfc78af614`.
+- Resume-map/documentation mutations in this sweep: `243e9a36d1e81e1f1f59e5af19847cadbe104c2d` (malformed certification adversarial coverage locked) → `9c66a36142000d40bd5dd8afbba03785dc0f35b1` (Phase-12 SPA route ordering enforced) → this ledger refresh.
+- The resulting documentation commit becomes the new exact HEAD; no evidence from `c51cb6d...` or earlier transfers automatically.
+- `main` is currently unprotected; certification remains fail-closed and exact-SHA bound.
+- Operational runtime/recovery proof is still separate from deterministic/static verification and remains UNPROVEN.
 
-### DONE / VERIFIED
-- 30 deterministic gates: VERIFIED SUCCESS on `ecd4f9c...` via `33582147261`.
-- Storage tenant isolation: VERIFIED SUCCESS on `ecd4f9c...` via `33582147305`.
-- Backup evidence integrity hardening: IMPLEMENTED and contract-wired; not runtime proven.
-- Rollback security hardening: IMPLEMENTED and focused adversarially verified; not staging-runtime proven.
-- Release evidence fail-closed semantics: IMPLEMENTED and deterministic gate executed successfully.
+### COMPLETED PHASES / VERIFIED TRUTH
+- Deterministic final-batch gate set: historically verified on exact prior SHAs; no historical PASS is promoted to this new HEAD until fresh CI executes it.
+- Storage tenant-isolation deterministic workflow: success on `c51cb6d...`; this is static/contract evidence, not live A/B runtime proof.
+- Backup/restore verifier integrity hardening: implemented and contract-wired; runtime Backup/Restore/RPO/RTO remains UNPROVEN.
+- Rollback deployment ownership/readiness/production guards and validated recovery aliasing: implemented + adversarially exercised; real staging rollback remains UNPROVEN.
+- Production certification aggregation: fail-closed canonical mandatory keys `tenant|backup|rollback|artifact|security`; malformed evidence cannot certify.
+- Phase-12 SPA fallback checker: canonical `routes[]` support retained and route ordering is now enforced; canonical route and decoy/misordered-route rejection tested.
+- Production certification adversarial runtime coverage: complete/missing/failed/duplicate/unrelated/malformed evidence attacks are present.
 
-### REMAINING PHASES
+### IN-PROGRESS
+- Fresh exact-head CI for the resulting documentation HEAD.
+- Independent security/evidence/import/OCR/workflow rescan.
+- Final certification gap decomposition and computer handoff readiness.
 
-#### P0 Security / Data Integrity
-- ACTIONABLE NOW: adversarial audit of Auth/RLS/RPC/evidence boundaries and newly exposed second-order contracts.
-- Completion: no actionable security/correctness defect remains and changed boundaries are CI-covered.
+### FINAL CLOSURE MAP — A TO Q
 
-#### P1 Authenticated Product Runtime
-- EXTERNAL BLOCKED: exact-head deployment, authenticated session, Tenant A/B runtime, cross-tenant adversarial proof.
-- ACTIONABLE NOW: finalize runtime probes, evidence schema, fail-closed aggregation, and exact-source identity checks.
-- Completion: authenticated exact-head runtime evidence plus A/B isolation evidence persisted and SHA-bound.
+| Gate | Objective | Current status | Dependency | Can execute now? | Required evidence | Required test | Completion condition | Next | Next+1 |
+|---|---|---|---|---|---|---|---|---|---|
+| A. Code / Correctness | Eliminate actionable correctness/error-path defects | ACTIONABLE NOW | None | YES | Exact-SHA mutation + test result | targeted + regression + rescan | no actionable defect | B | D |
+| B. Security | Auth/authz/RLS/tenant/evidence/bypass resistance | ACTIONABLE NOW | None | YES | security contract + adversarial output | positive/negative/foreign/malformed/replay where applicable | no actionable security defect | C | E |
+| C. Database / RPC | Migration/RPC/schema/signature/tenant consistency | ACTIONABLE NOW | None for static audit; runtime for live proof | YES static / NO live | canonical migration and checker lineage | migration/schema/RPC contract suite | canonical contracts aligned | D | E |
+| D. Deterministic CI | Exact-head full quality/final batch | IN-PROGRESS | current exact HEAD | YES | run ID + SHA + artifacts | full configured workflows | all required jobs PASS on same SHA | E | O |
+| E. Runtime | Prove exact-head deployment, readiness, health/canary | EXTERNAL BLOCKED | Vercel + runtime access | NO live / YES prep | deployment ID/source SHA/READY/health | authenticated smoke + canary | live endpoint proves exact source SHA + readiness | F | G |
+| F. Authenticated E2E | Login/session/protected flows | EXTERNAL BLOCKED | approved credentials + deployed exact HEAD | NO live / YES prep | session + flow evidence | authenticated E2E | critical user journeys pass | G | O |
+| G. Tenant Isolation | Tenant A/B + cross-tenant denial | EXTERNAL BLOCKED | authenticated runtime + two tenants | NO live / YES prep | A/B positive + cross-tenant negative evidence | adversarial tenant tests | zero cross-tenant leakage | H | O |
+| H. Backup | Real backup artifact and identity | EXTERNAL BLOCKED | real backup service | NO / YES prep | backup ID/timestamp/SHA-256 | real backup verifier | valid completed artifact captured | I | J |
+| I. Restore | Safe-target restore and integrity | EXTERNAL BLOCKED | H | NO / YES prep | restored=true, integrity_verified=true | real restore + integrity check | safe restore succeeds and persists evidence | J | K |
+| J. RPO | Measure backup freshness from valid completion timestamp | EXTERNAL BLOCKED | real backup evidence | NO / YES prep | measured RPO + timestamps | verifier + threshold test | measured RPO within policy | K | O |
+| K. RTO | Server-measured restore timing | EXTERNAL BLOCKED | real restore | NO / YES prep | measured elapsed restore time | restore timing verification | measured RTO within policy | L | O |
+| L. Rollback | Real staging rollback | EXTERNAL BLOCKED | two same-project READY non-prod deployments | NO / YES prep | before/after deployment identity | rollback drill | rollback succeeds without production target | M | O |
+| M. Forward Recovery | Restore forward deployment after rollback | EXTERNAL BLOCKED | L | NO / YES prep | forward deployment identity + health | forward-recovery drill | forward state verified | N | O |
+| N. DR | Approved non-production DR exercise | EXTERNAL BLOCKED | recovery environment/access | NO / YES prep | exercise, recovery, timing, identity | DR drill | recovery verified and persisted | O | Q |
+| O. Evidence | Persist complete exact-SHA evidence lineage | ACTIONABLE NOW | None for schema; operational inputs for completion | YES schema / NO missing runtime evidence | source SHA, run IDs, timestamps, artifact hashes | evidence integrity + aggregation | all mandatory evidence complete and current | P | Q |
+| P. Release | Manifest/config/deployment/rollback readiness | ACTIONABLE NOW | D; E/L for operational certification | YES prep | release manifest + exact source identity | release blockers + certification contracts | no local release blocker | Q | E |
+| Q. Final Certification | Aggregate all mandatory evidence and certify | AFTER DEPENDENCIES | D + E/F/G/H/I/J/K/L/M/N/O/P | NO | exact-head complete bundle | final certification gate | all mandatory checks pass on same exact SHA | RELEASE | — |
 
-#### P1 Production Health
-- EXTERNAL BLOCKED: exact-head Vercel deployment/alias and live health/readiness.
-- ACTIONABLE NOW: verify deployment-bound health/canary contracts and consumers.
-- Completion: live endpoint proves exact source SHA and readiness.
-
-#### P1 Backup / Restore / RPO / RTO
-- IMPLEMENTED / NOT RUNTIME PROVEN: verifier integrity and measurement rules.
-- EXTERNAL BLOCKED: real backup artifact, safe non-production restore, integrity verification, measured RPO/RTO, persisted evidence.
-- ACTIONABLE NOW: audit evidence persistence and fail-closed aggregation.
-- Completion: artifact SHA-256 + restore=true + integrity_verified=true + measured RPO/RTO + persisted evidence.
-
-#### P1 Rollback / Forward Recovery
-- IMPLEMENTED / FOCUSED VERIFIED: project ownership, READY, distinct targets, production guards, validated recovery aliasing.
-- EXTERNAL BLOCKED: real staging rollback, rollback probe, forward recovery, measured RTO.
-- Completion: staging rollback → verify → forward recovery → verify → measured RTO.
-
-#### P1 DR
-- ACTIONABLE NOW: deterministic DR/evidence aggregation audit.
-- EXTERNAL BLOCKED: actual non-production DR exercise and recovery proof.
-- Completion: real DR exercise + recovery proof + measured timing + persisted evidence.
-
-#### P1 Document / OCR Golden Corpus
-- ACTIONABLE NOW: audit Arabic PDF/OCR corpus contracts and deterministic regression coverage.
-- ACTIONABLE AFTER AUDIT: implement only genuine missing corpus/contract coverage.
-- Completion: representative Arabic corpus + extraction correctness + regression + exact-head CI.
-
-#### P1 Import / Reconciliation
-- VERIFIED: folder/import deterministic contracts are in the 30-gate batch.
-- ACTIONABLE NOW: adversarial idempotency, malformed input, partial failure, replay, and tenant-boundary audit.
-
-#### P2 Performance / Scalability
-- VERIFIED: performance budget gate runs after release build.
-- ACTIONABLE NOW: audit stale performance evidence consumers and exact-head binding.
-
-#### P2 Observability / Governance / Certification
-- VERIFIED: release evidence fail-closed contract.
-- ACTIONABLE NOW: audit source identity, dependency/migration fingerprints, evidence completeness, and certification aggregation.
-
-### PARALLEL EXECUTION MATRIX
-- Security/Auth/RLS/RPC audit.
-- Import/reconciliation adversarial audit.
-- OCR/golden-corpus audit.
+### PARALLEL TASKS — EXECUTED/AVAILABLE NOW
+- Security/auth/RLS/evidence adversarial source audit.
+- Database migration/RPC canonical-contract audit.
+- Import/reconciliation replay/idempotency/error-path audit.
+- OCR/golden-corpus contract and regression audit.
+- Workflow/checker stale-contract and exact-head binding audit.
 - Evidence/certification aggregation audit.
-- Workflow/checker stale-contract audit.
-- Runtime probe preparation.
+- Runtime probe/checklist preparation.
 - CI result processing.
+- Release manifest/readiness preparation.
 
-### SEQUENTIAL CHAINS
-- Fresh exact-head CI → if failure RCA → fix → focused test → adversarial → regression → fresh CI.
-- Deployment → auth → Tenant A/B → isolation attack → health/canary → backup → restore → RPO/RTO → rollback → forward recovery → DR → evidence → certification.
-- OCR audit → genuine fixture/contract fix → regression → CI.
+### SEQUENTIAL TASKS
+1. Exact-head CI → isolate first failure → RCA → minimal fix → targeted test → adversarial → regression → rescan → fresh CI.
+2. Exact-head deployment → authenticated runtime → Tenant A/B → cross-tenant negative → health/canary.
+3. Backup → restore → RPO → RTO.
+4. Rollback → verification → forward recovery → verification.
+5. DR → evidence persistence → exact-head certification.
+
+### DEPENDENCIES
+- Code/security/database/deterministic CI do not depend on Vercel runtime and must continue independently.
+- Authenticated E2E and tenant isolation require an exact-head deployed environment and approved credentials.
+- Backup/restore/RPO/RTO require a real safe operational environment; static contracts cannot satisfy them.
+- Rollback/forward recovery require same-project READY non-production deployments and authorized alias operations.
+- DR requires an approved recovery environment/exercise.
+- Final certification requires all mandatory operational evidence plus current exact-head deterministic verification.
 
 ### NEXT / NEXT+1 / NEXT+2
-- NEXT: execute independent security/evidence/import/OCR/checker rescan.
-- NEXT+1: fix every actionable defect found and run focused/adversarial regression.
-- NEXT+2: fresh exact-head CI for resulting SHA and rebind all claims.
+- NEXT: finish independent security/database/import/OCR/evidence/checker rescan while current CI runs.
+- NEXT+1: close every actionable finding with RCA → fix → targeted → adversarial → regression → rescan.
+- NEXT+2: fresh exact-head CI on the resulting SHA and rebind all evidence claims; then consume any newly unlocked gate immediately.
 
-### COMPUTER / EXTERNAL HANDOFF
-1. Deploy the exact certified candidate SHA to approved non-production Vercel target.
-2. Record deployment ID, source SHA, READY state, and non-production domain.
-3. Authenticate approved test users and execute Tenant A/B plus cross-tenant negative tests.
-4. Create real non-production backup; record artifact SHA-256, completion timestamp, run identity.
-5. Restore only into approved safe target; record `restored=true`, `integrity_verified=true`, measured elapsed RTO and persisted evidence.
-6. Execute staging rollback using validated same-project READY deployments; verify rollback and forward recovery.
-7. Execute approved DR exercise and persist recovery evidence.
-8. Re-run exact-head certification aggregation only after all operational evidence is present.
+### EXTERNAL BLOCKERS — NOT PROJECT STOPS
+- Vercel deployment status currently reports deployment rate limiting/retry window; current exact-head production/live deployment is not certified.
+- Connected Vercel API access has previously returned 403 for deployment listing; this is external access, not evidence of product failure.
+- Supabase authenticated runtime requires approved tenant/user access; no live A/B proof is inferred from static RLS contracts.
+- Real backup/restore and DR environments are unavailable to this execution context.
+- Staging rollback requires an approved non-production deployment pair and runtime authorization.
 
-### EXTERNAL BLOCKERS
-- Vercel deployment/authentication/live runtime.
-- Supabase authenticated tenant runtime.
-- Real backup/restore environment.
-- Staging rollback environment.
-- DR environment/exercise.
+### COMPUTER / EXTERNAL HANDOFF — EXECUTABLE
 
-### CERTIFICATION STATE
-- Deterministic gates: VERIFIED SUCCESS on `ecd4f9c...` at run `33582147261`.
-- Storage tenant isolation: VERIFIED SUCCESS on `ecd4f9c...` at run `33582147305`.
-- Quality full workflow at `ecd4f9c...`: UNVERIFIED.
-- Production Runtime: UNPROVEN.
-- Authenticated E2E: UNPROVEN.
-- Live Tenant Isolation: UNPROVEN.
-- Backup: UNPROVEN.
-- Restore: UNPROVEN.
-- RPO: UNPROVEN.
-- RTO: UNPROVEN.
-- Rollback: UNPROVEN operationally.
-- DR: UNPROVEN.
+#### E1 — Exact-head non-production deployment
+- Objective: deploy the final candidate SHA to an approved non-production target.
+- Environment: Vercel project `report-advisor`, non-production only.
+- Required access: Vercel deployment authorization and project access.
+- Prerequisite: exact candidate SHA has fresh deterministic CI PASS; no production target.
+- Exact action: deploy the exact candidate SHA; capture deployment ID, source SHA, environment, READY state, URL.
+- Expected result: deployment READY and reported source SHA exactly equals candidate SHA.
+- Evidence: deployment ID + source SHA + READY + timestamp + domain.
+- Unlocks: E2/F2/G2/E3.
+- Next: authenticated runtime.
+- Next+1: Tenant A/B.
+
+#### E2 — Authenticated runtime / E2E
+- Objective: prove protected application works at exact deployed SHA.
+- Environment: approved non-production URL.
+- Required access: approved test users/tenant membership.
+- Prerequisite: E1.
+- Exact procedure: sign in; verify session persistence; load protected routes; exercise critical dashboard/data flows; sign out; verify anonymous boundary.
+- Expected: no auth 401/tenant hydration errors; protected routes are accessible only when authenticated.
+- Evidence: session identity + source SHA + request/result trace + E2E artifact.
+- Unlocks: F and G.
+- Next: Tenant A/B.
+- Next+1: health/canary.
+
+#### E3 — Tenant A/B isolation
+- Objective: prove no cross-tenant read/write/evidence leakage.
+- Environment: same approved non-production deployment and Supabase project.
+- Required access: two approved tenants/users.
+- Prerequisite: E2.
+- Exact procedure: perform A-owned reads/writes; perform B-owned reads/writes; attempt A→B and B→A reads, writes, evidence, storage, RPC calls; test malformed/foreign tenant IDs.
+- Expected: own-tenant operations succeed; cross-tenant operations fail/return no unauthorized data; no side effects.
+- Evidence: A/B identities, requests, denied responses, before/after state.
+- Unlocks: live tenant gate.
+- Next: health/canary.
+- Next+1: backup.
+
+#### E4 — Backup
+- Objective: create real backup and prove artifact identity/freshness.
+- Environment: approved non-production backup target.
+- Required access: backup/DB operational access.
+- Prerequisite: E1 and stable runtime.
+- Exact procedure: create backup; capture immutable backup ID, completion timestamp, artifact SHA-256, source environment, run identity.
+- Expected: completed valid backup record with non-empty ID, valid timestamp, expected SHA-256.
+- Evidence: backup record + artifact hash + timestamps.
+- Unlocks: restore/RPO.
+- Next: safe restore.
+- Next+1: measured RPO.
+
+#### E5 — Restore / integrity
+- Objective: restore into a safe non-production target and verify integrity.
+- Environment: isolated restore target; never production.
+- Required access: DB restore + verifier access.
+- Prerequisite: E4.
+- Exact procedure: restore; capture server-measured elapsed time; verify `restored=true`; verify `integrity_verified=true`; verify artifact SHA-256; persist evidence.
+- Expected: restore succeeds and integrity is independently verified.
+- Evidence: restore result, measured elapsed time, integrity proof, target identity.
+- Unlocks: RTO and recovery confidence.
+- Next: RPO/RTO.
+- Next+1: rollback.
+
+#### E6 — RPO/RTO
+- Objective: prove policy-bound measured recovery objectives.
+- Environment: same safe non-production recovery target.
+- Required access: timestamps + server timing.
+- Prerequisite: E4/E5.
+- Exact procedure: calculate RPO from valid backup completion timestamp; use server-measured restore elapsed time for RTO; reject self-reported/untrusted timing as authoritative.
+- Expected: both values are measured and within configured policy.
+- Evidence: raw timestamps, measured values, policy thresholds, verifier output.
+- Unlocks: recovery certification.
+- Next: rollback.
+- Next+1: forward recovery.
+
+#### E7 — Rollback / forward recovery
+- Objective: prove reversible non-production deployment recovery.
+- Environment: same-project non-production Vercel deployments.
+- Required access: deployment metadata + alias mutation authorization.
+- Prerequisite: E1 and two distinct READY same-project deployments.
+- Exact procedure: validate FROM/FORWARD ownership, READY, distinct IDs, non-production guards; execute rollback; verify target; execute forward recovery; verify forward target; capture timing.
+- Expected: no production target touched; both transitions verified.
+- Evidence: deployment IDs/project IDs/statuses, alias results, before/after health, timing.
+- Unlocks: rollback/forward-recovery certification.
+- Next: DR.
+- Next+1: evidence aggregation.
+
+#### E8 — DR
+- Objective: execute approved recovery exercise in non-production/recovery environment.
+- Environment: approved DR environment.
+- Required access: recovery environment + operational authorization.
+- Prerequisite: E5/E7 and approved exercise window.
+- Exact procedure: execute recovery scenario; verify application/data integrity; capture measured recovery time and environment identity.
+- Expected: service/data recovery verified without production mutation.
+- Evidence: exercise ID, source/target identity, timing, validation results.
+- Unlocks: final certification.
+- Next: evidence bundle.
+- Next+1: final certification.
+
+### CERTIFICATION GATES
+- Exact-head deterministic CI: MUST be fresh for current candidate SHA.
+- Production certification mandatory evidence domain: `tenant | backup | rollback | artifact | security`.
+- Certification must fail closed on missing, failed, duplicate, malformed mandatory evidence.
+- Runtime evidence must identify exact source SHA/environment and must not be inferred from static/mock tests.
+- Backup/Restore/DR/RPO/RTO/Rollback remain UNPROVEN until real operational evidence exists.
+
+### FINAL RELEASE BLOCKERS — CURRENT REASON
+- Production Runtime: UNPROVEN — deployment/current-head runtime evidence missing; external deployment rate-limit/access blocker.
+- Authenticated E2E: UNPROVEN — approved authenticated runtime session evidence missing.
+- Live Tenant Isolation: UNPROVEN — A/B live adversarial evidence missing.
+- Backup: UNPROVEN — no real exact-head operational backup artifact evidence.
+- Restore: UNPROVEN — no real safe-target restore evidence.
+- RPO: UNPROVEN — no real measured backup completion delta bound to exact operational run.
+- RTO: UNPROVEN — no real server-measured restore timing evidence.
+- Rollback: UNPROVEN operationally — code path is hardened, real staging drill missing.
+- Forward Recovery: UNPROVEN operationally — real forward recovery drill missing.
+- DR: UNPROVEN — real approved recovery exercise missing.
+- Final Certification: BLOCKED by the above operational evidence and fresh exact-head certification CI.
+
+### EVIDENCE LINEAGE RULE
+Every mutation after `c51cb6d...` creates a new exact evidence boundary. The current ledger mutation itself is a new HEAD; therefore no prior CI PASS is promoted. Each future mutation requires fresh CI/evidence rebinding.
 
 ---
 
@@ -247,7 +335,7 @@ Required operational proof remains: real artifact + SHA-256, safe non-production
 
 - Quality `33581248795` — FAIL on exact SHA `524de3ad9c344ac133b3a558cff559d46da3a7d2`; failures were stale Phase-1 SPA fallback assertion and missing declared ESLint `globals`.
 - Final Execution Batch `33581895076` — FAIL on exact SHA `56d4c9fadbc57055f3feb3eeb65734d463f56969`; deterministic rescan exposed the contract drifts recorded above.
-- Final Execution Batch `33582059916` — FAIL on exact SHA `08fc4adc81c7c2803be8408f61ef168f8f03cae2`; remaining failures were the Phase-F `if:` wording, K→S production-readiness token wording, live-gate operational-resilience literal, and release-evidence fail-closed wording. Those have since been corrected.
+- Final Execution Batch `33582059916` — FAIL on exact SHA `08fc4adc81c7c2803be8408f61ef168f8f03cae2; remaining failures were the Phase-F `if:` wording, K→S production-readiness token wording, live-gate operational-resilience literal, and release-evidence fail-closed wording. Those have since been corrected.
 - Fresh CI for current exact SHA `8234b13f95a536cdfab206362565f95b0985aeb8` was required at that historical boundary.
 - No historical CI result is promoted to the current exact SHA.
 - Vercel project `report-advisor` currently has a READY production deployment whose recorded Git SHA is older than the current exact HEAD at that historical boundary; therefore current production was **NOT current-HEAD proven** and no deployment evidence was promoted.
