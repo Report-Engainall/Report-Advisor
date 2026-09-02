@@ -1,9 +1,11 @@
 import { strict as assert } from 'node:assert';
 import fs from 'node:fs';
-import { validateExecutionEnforcementProtocol, validateCurrentHeadIndex } from './check-execution-enforcement-protocol.mjs';
+import { validateExecutionEnforcementProtocol, validateAdaptiveGovernance, validateCurrentHeadIndex } from './check-execution-enforcement-protocol.mjs';
 
 const protocol = fs.readFileSync('docs/EXECUTION_ENFORCEMENT_PROTOCOL.md', 'utf8');
+const governance = fs.readFileSync('docs/ADAPTIVE_EXECUTION_GOVERNANCE.md', 'utf8');
 assert.doesNotThrow(() => validateExecutionEnforcementProtocol(protocol));
+assert.doesNotThrow(() => validateAdaptiveGovernance(governance));
 
 // Formatting must not be a bypass: case and whitespace variation remain valid.
 const formattingVariation = protocol
@@ -39,9 +41,24 @@ for (const marker of ['CASE A:', 'CASE B:', 'CASE C:', 'CASE D:', 'CASE E:', 'CA
   attack(`missing behavioral ${marker}`, text => text.replace(marker, `${marker.replace(':', '')} REMOVED:`));
 }
 
+const governanceAttack = (name, mutate) => {
+  const candidate = mutate(governance);
+  assert.throws(() => validateAdaptiveGovernance(candidate), /Adaptive governance rejected/, `${name} must be rejected`);
+};
+
+governanceAttack('missing layer separation', text => text.replace('LAYER 3 — Adaptive Execution Governance', 'LAYER X — Adaptive Execution Governance'));
+governanceAttack('precedence removed', text => text.replace('P0 — Safety / Security / Evidence Integrity', 'P0 — Convenience'));
+governanceAttack('performance ledger removed', text => text.replace('EXECUTION PERFORMANCE LEDGER', 'PERFORMANCE LEDGER REMOVED'));
+governanceAttack('under-execution detection removed', text => text.replace('UNDER-EXECUTION EVENT', 'UNDER-EXECUTION REMOVED'));
+governanceAttack('low-value detection removed', text => text.replace('LOW-VALUE EXECUTION', 'LOW-VALUE REMOVED'));
+governanceAttack('strategy memory removed', text => text.replace('STRATEGY MEMORY', 'STRATEGY MEMORY REMOVED'));
+governanceAttack('measured-data rule removed', text => text.replace('REAL MEASURED DATA > ESTIMATE > NO CLAIM', 'USE ANY PERCENTAGE'));
+governanceAttack('silent evolution', text => text.replace('Protocol changes must never be silently introduced.', 'Protocol changes may be silent.'));
+governanceAttack('one-off threshold weakened', text => text.replace('ONE-OFF INCIDENT → RECORD', 'ONE-OFF INCIDENT → MANDATORY RULE'));
+
 const validIndex = `## CURRENT PROJECT STATE\n- Exact code/test head entering this sweep: \`aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\`.\n- E-INDEX-HEAD: INDEX DRIFT is forbidden before TRUE STOP.`;
 assert.doesNotThrow(() => validateCurrentHeadIndex(validIndex, 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'));
 assert.throws(() => validateCurrentHeadIndex(validIndex, 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'), /INDEX DRIFT/);
 assert.doesNotThrow(() => validateCurrentHeadIndex(validIndex, 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb', 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'));
 
-console.log('PASS v3.2 execution-enforcement adversarial suite: formatting, renaming, decoys, weakening, E-TIME, scheduler, debt split, behavioral cases, and versioned index-head attacks rejected.');
+console.log('PASS v4 governance adversarial suite: protocol integrity, layer separation, precedence, performance ledger, under/over-execution, strategy memory, controlled evolution, and exact-SHA index-head attacks rejected.');
