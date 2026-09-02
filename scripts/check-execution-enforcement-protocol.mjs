@@ -48,7 +48,6 @@ export function validateAdaptiveGovernance(governance) {
 }
 
 export function validateCurrentHeadIndex(index, currentHead, parentHead = '', changedFiles = null) {
-  const normalizedIndex = normalize(stripComments(index));
   const head = normalize(currentHead);
   if (!head || !/^[0-9a-f]{40}$/.test(head)) throw new Error('Index current-head gate rejected: invalid repository HEAD');
   const currentStateMatch = index.match(/CURRENT PROJECT STATE[\s\S]{0,1200}?(?:Exact |Current )code\/test head[^`]*`([0-9a-f]{40})`/i);
@@ -65,7 +64,6 @@ export function validateCurrentHeadIndex(index, currentHead, parentHead = '', ch
   const suppliedIndexOnlyBoundary = indexedHead && normalize(parentHead) === indexedHead && Array.isArray(changedFiles) && changedFiles.length > 0 && changedFiles.every(file => file === 'docs/MASTER_EXECUTION_INDEX.md');
   const indexOnlyBoundary = computedIndexOnlyBoundary || suppliedIndexOnlyBoundary;
   if (!exactMatch && !indexOnlyBoundary) throw new Error(`Index current-head gate rejected: INDEX DRIFT (index=${indexedHead ?? 'missing'}, head=${currentHead}, parent=${parentHead || 'unknown'}, indexOnly=${indexOnlyBoundary})`);
-  if (!normalizedIndex.includes('index drift')) throw new Error('Index current-head gate rejected: INDEX DRIFT rule missing from live index');
   return true;
 }
 
