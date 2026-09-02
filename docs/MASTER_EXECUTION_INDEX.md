@@ -1,95 +1,138 @@
 # Report Advisor — Master Execution & Truth Index
 
-## CURRENT RESUME EXECUTION MAP — 2026-09-02 — FINAL SWEEP
+## CURRENT RESUME EXECUTION MAP — 2026-09-02 — v4.0 ADAPTIVE EXECUTION GOVERNANCE
 
 ### CURRENT PROJECT STATE
-- Exact code/test head entering this sweep: `811070805114956c8f7f1766b7bf6c3c9704b4c0`.
-- v3.2 execution-window mutations completed before this final index refresh: `bae9a099adeb85590810289507b55369bd05cf85` → `028f88993aefafa53dcca0d77575e2e3d7c90da0` → `c897bfec6a0b4464faacfd151a0ec2646bcd92a0` → `9aacfee8c48224c9b62be640195bd28a45691548` → `544ec2d8a6e847d9490a81f795ad0043f4d5cf75` / `a15a9ea4126964888aa7f20e782b5337b182a154` → `d0edb9fff9ce78dda28c16df17bc5e74e2a65c1e` → `67820aaec9b8594be6ace2f87c5ff4cf4307c61b` → `f645fb932015d5a29edf51167a11e7fc28959bb3` → `17a36274690321786bd3b6456aa20ac0f53902e3` → `e3fb8aae368c58c3781427f80c95b9ca539124c7` → `6b619f1d94e6f1bb39ee851fc35e6b55d442df69` → `811070805114956c8f7f1766b7bf6c3c9704b4c0`.
-- The enforcement adversarial suite exposed one test-fixture mismatch after the checker was correctly narrowed: the fixture used absolute external-debt clearing language while the checker intentionally rejects explicit weakening modals. The fixture was corrected to the explicit `may clear` attack; no enforcement weakening occurred.
-- The current index refresh is the final mutation in this execution window. The index commit itself is versioned separately; its parent is the exact code/test head above. Historical ledger content below is preserved; no older evidence transfers to this new boundary.
-- `main` is currently unprotected; certification remains fail-closed and exact-SHA bound.
-- Operational runtime/recovery proof is still separate from deterministic/static verification and remains UNPROVEN.
+- Current exact repository code/test head after the v4.0 governance mutation batch: `e80fe712184b2404e97c0b266293323e8a00a58a`.
+- v4.0 batch start head: `811070805114956c8f7f1766b7bf6c3c9704b4c0`.
+- Previous v3.2 index boundary: `a4b26ef13ce08d54d2e9c0723530499bcc6e66c5`.
+- v4.0 mutations: `727775a40566f7cff43f73d5eab492dc996ce5a1` → `a64356981001b0a6b6b3c41c4b985bd9152d891f` → `a353ad14b4610793e5c62e67633f3ab54b42bc57` → `c034903a16d5975e3e7a7f3ed7233e771be251c8` → `7fef559b959917c8e17492ffae8ec105d9c6c105` → `e80fe712184b2404e97c0b266293323e8a00a58a`.
+- No historical evidence transfers across this new exact-SHA boundary. Fresh CI must be consumed for `e80fe712...` before any certification claim.
+- Operational runtime/recovery proof remains UNPROVEN.
 
-### CURRENT ENFORCEMENT — v3.2
-- `E-TIME — WAITING-TIME PARALLELIZATION`: every asynchronous operation opens a parallel execution window. Waiting is not a stop condition while independent actionable work exists. Completed async results must be consumed immediately.
-- `E-MAX — MAXIMUM SAFE PARALLELISM`: execute the maximum independent safe work without conflicting mutations, races, or ambiguous evidence lineage; shared mutation chains remain sequential.
-- `E-SCHED — DEPENDENCY-AWARE SCHEDULING`: each task is tracked as `TASK | DEPENDENCY | STATE | PARALLEL? | BLOCKER | CAN START NOW? | EXPECTED UNLOCK`; `READY + INDEPENDENT = EXECUTE NOW`.
-- `E-INDEX-HEAD`: a mismatch between the repository code/test head and the live index code/test head is `INDEX DRIFT`; TRUE STOP and certification readiness are forbidden until reconciled. The versioned index commit is handled explicitly by the certification-mode checker: exact head or index-parent equivalence is accepted only for the index-only self-commit boundary.
-- `E-DEBT`: execution debt is split into `ACTIONABLE DEBT` and `EXTERNAL DEBT`; actionable debt must execute, external debt must be isolated and prepared around.
-- `E-UTIL`: utilization exposes async operations running, parallel work executed, parallel work available, debt closed, and remaining work reduced; waiting with unused independent capacity is under-utilization.
-- `E-EVOLVE`: repeatable protocol weakness triggers `OBSERVE → RCA → DEFINE NEW RULE → UPDATE INDEX → ADD ENFORCEMENT → ADD TEST → ADD TEST-OF-TEST → ADVERSARIAL → REGRESSION → RESCAN` and immediate application.
+### LAYERED EXECUTION ARCHITECTURE
+- **LAYER 1 — Programmer Execution Protocol:** `docs/EXECUTION_ENFORCEMENT_PROTOCOL.md`; mandatory execution behavior.
+- **LAYER 2 — Master Execution Index:** this file; authoritative live state + preserved historical ledger.
+- **LAYER 3 — Adaptive Execution Governance:** `docs/ADAPTIVE_EXECUTION_GOVERNANCE.md`; strategy measurement and controlled protocol evolution.
+- Performance ledger: `docs/EXECUTION_PERFORMANCE_LEDGER.md`.
+- Activity is not progress: `COMMITS ≠ PROGRESS`, `LINES CHANGED ≠ PROGRESS`, `REPORT SIZE ≠ PROGRESS`, `INDEX SIZE ≠ PROGRESS`, `TEST COUNT ≠ PROGRESS`.
+- Release-relevant progress = `RELEASE-RELEVANT CLOSURE + VERIFIED EVIDENCE + REMAINING WORK REDUCTION + CERTIFICATION UNLOCKS`.
+
+### PROTOCOL PRECEDENCE
+`P0 — Safety / Security / Evidence Integrity`
+`P1 — Exact-SHA / Truth / Certification Integrity`
+`P2 — Current Master Execution Index`
+`P3 — Adaptive Execution Governance`
+`P4 — Programmer Execution Protocol`
+`P5 — Current Batch Instructions`
+`P6 — Convenience / Optimization`
+
+A lower-priority instruction MUST NOT override a higher-priority constraint.
+
+### v4.0 ADAPTIVE EXECUTION GOVERNANCE
+- `EXECUTION PERFORMANCE LEDGER`: every batch records measured start/end heads, strategy, parallel windows/tasks, actionable work found/closed, debt before/after, remaining work before/after, new evidence, certification readiness, isolated blockers, tests, adversarial, regression, rescan, missed actions, premature stops, under-utilization, and protocol changes.
+- `EXECUTION EFFECTIVENESS`: `Actual Verified Closure / Actionable Work Available`; use `REAL MEASURED DATA > ESTIMATE > NO CLAIM`. If reliable numeric data is unavailable use `HIGH | MEDIUM | LOW | UNPROVEN`.
+- `UNDER-EXECUTION EVENT`: async wait + unused independent work; skipped NEXT+1/NEXT+2; blocker stopping unrelated work; discovery without executable fix.
+- `LOW-VALUE EXECUTION`: unnecessary mutation, duplicate/redundant work, repeated audit/recheck/documentation, or unsafe parallelism without meaningful release-relevant progress.
+- `COMMAND QUALITY FEEDBACK`: evaluate `COMMAND → EXECUTION → RESULT` for closure, rework, missed parallelism, evidence strength, and clarification burden.
+- `STRATEGY MEMORY`: retain proven strategies and mark weak strategies; do not reuse weak strategies without explicit reason.
+- `BASELINE → RESULT`: compare remaining work, execution debt, verified gates, runtime readiness, certification readiness, and external blockers.
+- `SMART FRONT PRIORITIZATION`: classify by `IMPACT | URGENCY | RISK | DEPENDENCY | EXECUTABILITY | CERTIFICATION UNLOCK`; prefer high-impact/low-dependency work, aggressively prepare high-impact blocked work.
+- Protocol evolution is controlled: `OBSERVATION → EVIDENCE → RCA → PROPOSED RULE → CONFLICT CHECK → TEST → ADVERSARIAL → ACCEPT → VERSION → INDEX UPDATE`.
+- One-off incident → record; repeated pattern → candidate strategy/rule; proven systemic failure → mandatory enforcement rule.
+- No silent protocol mutation.
+
+### CURRENT ENFORCEMENT — v3.2 + v4.0 GOVERNANCE
+- `E-TIME — WAITING-TIME PARALLELIZATION`: asynchronous work opens a parallel execution window; waiting is not a stop while independent actionable work exists; completed results are consumed immediately.
+- `E-MAX — MAXIMUM SAFE PARALLELISM`: execute maximum independent safe work without race, mutation conflict, or evidence ambiguity.
+- `E-SCHED — DEPENDENCY-AWARE SCHEDULING`: `TASK | DEPENDENCY | STATE | PARALLEL? | BLOCKER | CAN START NOW? | EXPECTED UNLOCK`; `READY + INDEPENDENT = EXECUTE NOW`.
+- `E-INDEX-HEAD`: repository/index mismatch is `INDEX DRIFT`; TRUE STOP/certification readiness are forbidden until reconciled. Versioned index-only self-commit may use parent-equivalence only under the enforcement checker.
+- `E-DEBT`: distinguish `ACTIONABLE DEBT` from `EXTERNAL DEBT`; actionable debt executes, external debt is isolated/prepared/documented.
+- `E-UTIL`: record async operations, parallel work available/executed, debt closed, remaining work reduced; unused capacity is under-utilization.
+- `E-EVOLVE`: repeatable protocol weakness follows the controlled evolution chain and must be tested adversarially before acceptance.
+- v4.0 governance layer is mandatory and separately validated by the enforcement checker.
+
+### PERFORMANCE BASELINE — BATCH V4-2026-09-02-01
+- Start head: `811070805114956c8f7f1766b7bf6c3c9704b4c0`.
+- Current end head: `e80fe712184b2404e97c0b266293323e8a00a58a`.
+- Actionable closure: v4 governance layer created; checker bound; adversarial coverage created; performance ledger created; index synchronization executed.
+- Exact numeric effectiveness: `UNPROVEN` because an objective denominator for all actionable work was not available.
+- Qualitative effectiveness: `HIGH` for governance capability closure, but this does not certify product/runtime.
+- Execution debt remaining: fresh exact-head CI consumption, final rescan consumption, and all external runtime/recovery evidence.
+- External blockers isolated: Vercel deployment/access, authenticated runtime credentials, live Tenant A/B, real backup/restore/RPO/RTO, rollback authorization, DR environment.
 
 ### WAITING WINDOWS — EXECUTION WINDOW LEDGER
 | Async operation | State | Parallel window | Independent work executed in window | Consumption rule |
 |---|---|---|---|---|
-| Quality | fresh run required on final code head | OPEN | v3.2 protocol, checker, scheduler, debt/velocity, adversarial work, RCA, regression, index reconciliation | consume exact result immediately |
-| Storage tenant isolation | fresh run required on final code head | OPEN | v3.2 protocol/checker/test work and E1–E8 preparation | consume exact result immediately |
-| Final Execution Batch | fresh run required on final code head | OPEN | enforcement hardening and independent release/evidence preparation | consume exact result immediately |
-| Enforcement Contract | prior variants failed and were repaired; fixture corrected; fresh depth-2 validation required on final code head | OPEN | false-positive RCA/fix and adversarial fixture correction | consume fresh result immediately |
+| Exact-head CI | fresh run required on `e80fe712...` | OPEN | v4 governance implementation, checker binding, adversarial tests, performance ledger, E1–E8 preparation | consume exact result immediately |
+| Vercel deployment | external pending/rate-limited | OPEN | all local v4 work executed; no live certification inferred | consume status immediately |
 
 A waiting window closes only when `result received AND result consumed AND new work evaluated`.
 
 ### EXECUTION SCHEDULER — CURRENT
 | Task | Dependency | State | Parallel? | Blocker | Can start now? | Expected unlock |
 |---|---|---|---|---|---|---|
-| Quality exact-head CI | current SHA | READY/RUNNING | YES | none | YES | deterministic verification |
-| Storage isolation contract | current SHA | READY/RUNNING | YES | none | YES | tenant contract confidence |
-| Enforcement adversarial validation | protocol/checker/index | FIXED; FRESH CI REQUIRED | YES | none | YES | enforcement confidence |
-| Security/DB/RPC/evidence rescans | repository | READY | YES | none | YES | local defect closure |
-| E1 deployment validation/preparation | deployment contract | READY | YES | live Vercel for deployment | YES prep / NO live | runtime handoff |
-| E2 authenticated harness preparation | E1 live | READY | YES | live deployment for execution | YES prep / NO live | E2 readiness |
-| E3 tenant A/B harness preparation | E2 live | READY | YES | live auth/runtime | YES prep / NO live | isolation readiness |
-| E4 backup verifier/evidence preparation | operational backup | READY | YES | real backup service | YES prep / NO live | backup handoff |
-| E5 restore verifier/evidence preparation | E4 | READY | YES | real restore target | YES prep / NO live | restore handoff |
-| E6 RPO/RTO measurement validation | E4/E5 | READY | YES | real timestamps/timing | YES prep / NO live | recovery metrics |
-| E7 rollback/forward validation | E1 + deployment pair | READY | YES | Vercel runtime/authorization | YES prep / NO live | rollback handoff |
-| E8 DR exercise preparation | E5/E7 | READY | YES | approved DR environment | YES prep / NO live | DR handoff |
+| Exact-head CI | `e80fe712...` | READY/RUNNING | YES | none | YES | deterministic verification |
+| v4 governance adversarial | protocol + governance | IMPLEMENTED | YES | none | YES | governance confidence |
+| Security/DB/RPC/evidence rescan | repository | READY | YES | none | YES | local defect closure |
+| Import/reconciliation audit | repository | READY | YES | none | YES | data correctness confidence |
+| OCR/golden corpus audit | repository | READY | YES | none | YES | document confidence |
+| E1 deployment preparation | deployment contract | PREPARED | YES | Vercel live access | YES prep / NO live | runtime handoff |
+| E2 authenticated harness | E1 | PREPARED | YES | live deployment + credentials | YES prep / NO live | E2 readiness |
+| E3 Tenant A/B harness | E2 | PREPARED | YES | live auth/runtime | YES prep / NO live | tenant proof |
+| E4 backup evidence | operational backup | PREPARED | YES | real backup service | YES prep / NO live | backup proof |
+| E5 restore evidence | E4 | PREPARED | YES | real restore target | YES prep / NO live | restore proof |
+| E6 RPO/RTO | E4/E5 | PREPARED | YES | real timing | YES prep / NO live | recovery metrics |
+| E7 rollback/forward | E1 + deployment pair | PREPARED | YES | Vercel authorization | YES prep / NO live | rollback proof |
+| E8 DR | E5/E7 | PREPARED | YES | approved DR environment | YES prep / NO live | DR proof |
 
 ### EXECUTION DEBT / RELEASE VELOCITY / UTILIZATION
-- `ACTIONABLE DEBT`: fresh exact-head Quality/Final Batch/Storage/Enforcement result consumption; any local security/DB/RPC/evidence finding exposed by the active rescan; local E1–E8 preparation; and any subsequent index drift after a new mutation.
-- `EXTERNAL DEBT`: exact-head live deployment authorization/rate-limit access, authenticated runtime credentials, live Tenant A/B runtime, real backup/restore/RPO/RTO environment, staging rollback/forward-recovery authorization, and approved DR environment.
+- `ACTIONABLE DEBT`: exact-head CI consumption; local findings from active rescan; E1–E8 local preparation; final index synchronization after subsequent mutations.
+- `EXTERNAL DEBT`: live deployment authorization/rate-limit; authenticated runtime credentials; live Tenant A/B; real backup/restore/RPO/RTO; staging rollback/forward authorization; approved DR environment.
 - Rule: `ACTIONABLE DEBT → MUST EXECUTE`; `EXTERNAL DEBT → ISOLATE + PREPARE + DOCUMENT`.
-- `RELEASE VELOCITY`: measure only movement through `Built → Integrated → Verified → Runtime Proven → Production Certified`.
-- `EXECUTION UTILIZATION`: record async operations running, parallel work executed, parallel work available, execution debt closed, and remaining work reduced. CI time with zero available-work execution is an under-utilization signal.
-- `TRUE STOP` requires `EXECUTION DEBT = 0`, no safe actionable parallel work, exhausted NEXT/NEXT+1/NEXT+2, complete adversarial/test-of-test/regression/rescan, verified exact-SHA lineage, reconciled index, and fully prepared E1–E8.
+- `RELEASE VELOCITY`: only movement through `Built → Integrated → Verified → Runtime Proven → Production Certified`.
+- `EXECUTION UTILIZATION`: async operations running, parallel work available/executed, debt closed, remaining work reduced.
+- TRUE STOP requires all v4 conditions plus exact-SHA, current index, updated strategy memory, no under-execution, no low-value loop, no preparable external work, and genuinely external/human remaining blockers.
 
 ### COMPLETED PHASES / VERIFIED TRUTH
-- Deterministic final-batch gate set: historically verified on exact prior SHAs; no historical PASS is promoted to this new HEAD until fresh CI executes it.
-- Storage tenant-isolation deterministic workflow: success on `c51cb6d...`; this is static/contract evidence, not live A/B runtime proof.
+- Deterministic final-batch gate set: historically verified on prior exact SHAs; no historical PASS transfers to `e80fe712...`.
+- Storage tenant-isolation deterministic workflow: success on `c51cb6d...`; static/contract evidence only, not live A/B proof.
 - Backup/restore verifier integrity hardening: implemented and contract-wired; runtime Backup/Restore/RPO/RTO remains UNPROVEN.
 - Rollback deployment ownership/readiness/production guards and validated recovery aliasing: implemented + adversarially exercised; real staging rollback remains UNPROVEN.
-- Production certification aggregation: fail-closed canonical mandatory keys `tenant|backup|rollback|artifact|security`; malformed evidence cannot certify.
-- Phase-12 SPA fallback checker: canonical `routes[]` support retained and route ordering is now enforced; canonical route and decoy/misordered-route rejection tested.
-- Production certification adversarial runtime coverage: complete/missing/failed/duplicate/unrelated/malformed evidence attacks are present.
-- Enforcement v3.2: time-aware parallelization, safe parallelism, scheduler fields, debt split, utilization accounting, explicit certification-mode index gate, adversarial comment-decoy/test-of-test coverage, master-index workflow binding, depth-2 parent validation, and corrected external-debt fixture are encoded in the durable protocol/checker.
+- Production certification aggregation: fail-closed mandatory keys `tenant|backup|rollback|artifact|security`.
+- Phase-12 SPA fallback checker: canonical `routes[]` support and route ordering enforced; decoy/misordered-route rejection tested.
+- Production certification adversarial coverage: complete/missing/failed/duplicate/unrelated/malformed evidence attacks.
+- v3.2 enforcement: waiting-time parallelization, safe parallelism, scheduler, debt split, utilization, index-head gate, adversarial test-of-test, depth-2 parent validation.
+- v4.0 adaptive governance: layered architecture, precedence, performance ledger, effectiveness, under/over-execution detection, command feedback, strategy memory, smart prioritization, controlled evolution, and governance adversarial suite.
 
 ### IN-PROGRESS
-- Fresh exact-head CI for `811070805114956c8f7f1766b7bf6c3c9704b4c0` plus the final index-only boundary commit.
-- Immediate consumption of Quality/Final Batch/Storage/Enforcement results for the exact code/test head and its index boundary.
-- Independent security/evidence/import/OCR/workflow rescan and E1–E8 preparation.
+- Fresh exact-head CI for `e80fe712184b2404e97c0b266293323e8a00a58a`.
+- Security/DB/RPC/import/OCR/evidence/workflow rescan and immediate consumption.
+- Final performance-ledger result closure.
+- E1–E8 handoff preparation and external evidence readiness.
 - Final certification gap decomposition.
 
 ### FINAL CLOSURE MAP — A TO Q
 
 | Gate | Objective | Current status | Dependency | Can execute now? | Required evidence | Required test | Completion condition | Next | Next+1 |
 |---|---|---|---|---|---|---|---|---|---|
-| A. Code / Correctness | Eliminate actionable correctness/error-path defects | ACTIONABLE NOW | None | YES | Exact-SHA mutation + test result | targeted + regression + rescan | no actionable defect | B | D |
-| B. Security | Auth/authz/RLS/tenant/evidence/bypass resistance | ACTIONABLE NOW | None | YES | security contract + adversarial output | positive/negative/foreign/malformed/replay where applicable | no actionable security defect | C | E |
-| C. Database / RPC | Migration/RPC/schema/signature/tenant consistency | ACTIONABLE NOW | None for static audit; runtime for live proof | YES static / NO live | canonical migration and checker lineage | migration/schema/RPC contract suite | canonical contracts aligned | D | E |
+| A. Code / Correctness | Eliminate actionable correctness/error-path defects | ACTIONABLE NOW | None | YES | exact-SHA mutation + test | targeted + regression + rescan | no actionable defect | B | D |
+| B. Security | Auth/authz/RLS/tenant/evidence/bypass resistance | ACTIONABLE NOW | None | YES | security contract + adversarial output | positive/negative/foreign/malformed/replay | no actionable security defect | C | E |
+| C. Database / RPC | Migration/RPC/schema/signature/tenant consistency | ACTIONABLE NOW | static audit; runtime for live proof | YES static / NO live | canonical migration/checker lineage | schema/RPC contract | canonical contracts aligned | D | E |
 | D. Deterministic CI | Exact-head full quality/final batch | IN-PROGRESS | current exact code/test HEAD | YES | run ID + SHA + artifacts | full configured workflows | all required jobs PASS on same SHA | E | O |
-| E. Runtime | Prove exact-head deployment, readiness, health/canary | EXTERNAL BLOCKED | Vercel + runtime access | NO live / YES prep | deployment ID/source SHA/READY/health | authenticated smoke + canary | live endpoint proves exact source SHA + readiness | F | G |
-| F. Authenticated E2E | Login/session/protected flows | EXTERNAL BLOCKED | approved credentials + deployed exact HEAD | NO live / YES prep | session + source SHA + flow evidence | authenticated E2E | critical user journeys pass | G | O |
-| G. Tenant Isolation | Tenant A/B + cross-tenant denial | EXTERNAL BLOCKED | authenticated runtime + two tenants | NO live / YES prep | A/B positive + cross-tenant negative evidence | adversarial tenant tests | zero cross-tenant leakage | H | O |
-| H. Backup | Real backup artifact and identity | EXTERNAL BLOCKED | real backup service | NO / YES prep | backup ID/timestamp/SHA-256 | real backup verifier | valid completed artifact captured | I | J |
-| I. Restore | Safe-target restore and integrity | EXTERNAL BLOCKED | H | NO / YES prep | restored=true, integrity_verified=true | real restore + integrity check | safe restore succeeds and persists evidence | J | K |
-| J. RPO | Measure backup freshness from valid completion timestamp | EXTERNAL BLOCKED | real backup evidence | NO / YES prep | measured RPO + timestamps | verifier + threshold test | measured RPO within policy | K | O |
-| K. RTO | Server-measured restore timing | EXTERNAL BLOCKED | real restore | NO / YES prep | measured elapsed restore time | restore timing verification | measured RTO within policy | L | O |
-| L. Rollback | Real staging rollback | EXTERNAL BLOCKED | two same-project READY non-prod deployments | NO / YES prep | before/after deployment identity | rollback drill | rollback succeeds without production target | M | O |
-| M. Forward Recovery | Restore forward deployment after rollback | EXTERNAL BLOCKED | L | NO / YES prep | forward deployment identity + health | forward-recovery drill | forward state verified | N | O |
-| N. DR | Approved non-production DR exercise | EXTERNAL BLOCKED | recovery environment/access | NO / YES prep | exercise, recovery, timing, identity | DR drill | recovery verified and persisted | O | Q |
-| O. Evidence | Persist complete exact-SHA evidence lineage | ACTIONABLE NOW | None for schema; operational inputs for completion | YES schema / NO missing runtime evidence | source SHA, run IDs, timestamps, artifact hashes | evidence integrity + aggregation | all mandatory evidence complete and current | P | Q |
-| P. Release | Manifest/config/deployment/rollback readiness | ACTIONABLE NOW | D; E/L for operational certification | YES prep | release manifest + exact source identity | release blockers + certification contracts | no local release blocker | Q | E |
-| Q. Final Certification | Aggregate all mandatory evidence and certify | AFTER DEPENDENCIES | D + E/F/G/H/I/J/K/L/M/N/O/P | NO | exact-head complete bundle | final certification gate | all mandatory checks pass on same exact SHA | RELEASE | — |
+| E. Runtime | Exact-head deployment/readiness/health | EXTERNAL BLOCKED | Vercel + runtime access | NO live / YES prep | deployment ID/source SHA/READY/health | smoke + canary | exact source SHA + readiness | F | G |
+| F. Authenticated E2E | Login/session/protected flows | EXTERNAL BLOCKED | credentials + deployed exact HEAD | NO live / YES prep | session + source SHA + flow evidence | authenticated E2E | critical journeys pass | G | O |
+| G. Tenant Isolation | Tenant A/B + cross-tenant denial | EXTERNAL BLOCKED | authenticated runtime + two tenants | NO live / YES prep | A/B positive + cross-tenant negative | adversarial tenant tests | zero leakage | H | O |
+| H. Backup | Real backup artifact and identity | EXTERNAL BLOCKED | real backup service | NO / YES prep | backup ID/timestamp/SHA-256 | real backup verifier | valid artifact | I | J |
+| I. Restore | Safe-target restore and integrity | EXTERNAL BLOCKED | H | NO / YES prep | restored=true, integrity_verified=true | restore + integrity | safe restore succeeds | J | K |
+| J. RPO | Backup freshness | EXTERNAL BLOCKED | real backup evidence | NO / YES prep | timestamps + measured RPO | threshold test | within policy | K | O |
+| K. RTO | Server-measured restore timing | EXTERNAL BLOCKED | real restore | NO / YES prep | measured elapsed time | timing verification | within policy | L | O |
+| L. Rollback | Real staging rollback | EXTERNAL BLOCKED | two same-project READY non-prod deployments | NO / YES prep | before/after deployment identity | rollback drill | rollback succeeds safely | M | O |
+| M. Forward Recovery | Restore forward deployment | EXTERNAL BLOCKED | L | NO / YES prep | forward deployment identity + health | forward drill | forward state verified | N | O |
+| N. DR | Approved recovery exercise | EXTERNAL BLOCKED | recovery environment | NO / YES prep | exercise/recovery/timing/identity | DR drill | recovery verified | O | Q |
+| O. Evidence | Complete exact-SHA evidence lineage | ACTIONABLE NOW | operational inputs for completion | YES schema / NO missing runtime evidence | SHA/run IDs/timestamps/hashes | integrity + aggregation | all mandatory evidence current | P | Q |
+| P. Release | Manifest/config/deployment/rollback readiness | ACTIONABLE NOW | D; E/L operational | YES prep | release manifest + exact source | release blockers | no local release blocker | Q | E |
+| Q. Final Certification | Aggregate and certify | BLOCKED | D + E/F/G/H/I/J/K/L/M/N/O/P | NO | exact-head bundle | final certification | all mandatory checks same SHA | RELEASE | — |
 
 ### PARALLEL TASKS — EXECUTED/AVAILABLE NOW
 - Security/auth/RLS/evidence adversarial source audit.
@@ -101,10 +144,10 @@ A waiting window closes only when `result received AND result consumed AND new w
 - Runtime probe/checklist preparation.
 - CI result processing.
 - Release manifest/readiness preparation.
-- v3.2 enforcement adversarial/test-of-test validation.
+- v4 governance/adversarial/test-of-test validation.
 
 ### SEQUENTIAL TASKS
-1. Exact-head CI → isolate first failure → RCA → minimal fix → targeted test → adversarial → regression → rescan → fresh CI.
+1. Exact-head CI → first failure RCA → minimal fix → targeted → adversarial → regression → rescan → fresh CI.
 2. Exact-head deployment → authenticated runtime → Tenant A/B → cross-tenant negative → health/canary.
 3. Backup → restore → RPO → RTO.
 4. Rollback → verification → forward recovery → verification.
@@ -112,37 +155,34 @@ A waiting window closes only when `result received AND result consumed AND new w
 
 ### DEPENDENCIES
 - Code/security/database/deterministic CI do not depend on Vercel runtime and must continue independently.
-- Authenticated E2E and tenant isolation require an exact-head deployed environment and approved credentials.
+- Authenticated E2E and tenant isolation require exact-head deployment + approved credentials.
 - Backup/restore/RPO/RTO require a real safe operational environment; static contracts cannot satisfy them.
-- Rollback/forward recovery require same-project READY non-production deployments and authorized alias operations.
-- DR requires an approved recovery environment/exercise.
-- Final certification requires all mandatory operational evidence plus current exact-head deterministic verification.
+- Rollback/forward recovery require same-project READY non-production deployments and authorization.
+- DR requires approved recovery environment/exercise.
+- Final certification requires all mandatory operational evidence plus fresh exact-head deterministic verification.
 
 ### NEXT / NEXT+1 / NEXT+2
-- NEXT: consume fresh exact-head CI results immediately and execute any first failure RCA/fix chain; concurrently continue independent security/database/import/OCR/evidence/checker rescan.
-- NEXT+1: close every actionable finding with RCA → fix → targeted → adversarial → regression → rescan; prepare every executable E1–E8 artifact/harness.
-- NEXT+2: fresh exact-head CI on any resulting SHA, rebind all evidence claims, consume newly unlocked gates immediately, and re-evaluate remaining work.
+- NEXT: consume exact-head CI; execute first failure RCA/fix chain; concurrently continue independent rescan and E1–E8 preparation.
+- NEXT+1: close actionable findings with RCA → fix → targeted → adversarial → regression → rescan; update performance result.
+- NEXT+2: fresh exact-head CI on resulting SHA; rebind evidence; consume newly unlocked gates; reprioritize.
 
 ### EXTERNAL BLOCKERS — NOT PROJECT STOPS
-- Vercel deployment status currently reports deployment rate limiting/retry window; current exact-head production/live deployment is not certified.
-- Connected Vercel API access has previously returned 403 for deployment listing; this is external access, not evidence of product failure.
-- Supabase authenticated runtime requires approved tenant/user access; no live A/B proof is inferred from static RLS contracts.
+- Vercel deployment/access remains externally constrained; current exact-head production/live deployment is not certified.
+- Authenticated Supabase runtime requires approved tenant/user access.
 - Real backup/restore and DR environments are unavailable to this execution context.
-- Staging rollback requires an approved non-production deployment pair and runtime authorization.
+- Staging rollback requires an approved non-production deployment pair and authorization.
 
 ### COMPUTER / EXTERNAL HANDOFF — EXECUTABLE
 
 #### E1 — Exact-head non-production deployment
-- Objective: deploy the final candidate SHA to an approved non-production target.
+- Objective: deploy final candidate SHA to approved non-production target.
 - Environment: Vercel project `report-advisor`, non-production only.
-- Required access: Vercel deployment authorization and project access.
+- Required access: Vercel deployment authorization/project access.
 - Prerequisite: exact candidate SHA has fresh deterministic CI PASS; no production target.
-- Exact action: deploy the exact candidate SHA; capture deployment ID, source SHA, environment, READY state, URL.
-- Expected result: deployment READY and reported source SHA exactly equals candidate SHA.
+- Exact action: deploy exact candidate SHA; capture deployment ID, source SHA, environment, READY state, URL.
+- Expected: deployment READY and source SHA exactly equals candidate SHA.
 - Evidence: deployment ID + source SHA + READY + timestamp + domain.
 - Unlocks: E2/F2/G2/E3.
-- Next: authenticated runtime.
-- Next+1: Tenant A/B.
 
 #### E2 — Authenticated runtime / E2E
 - Objective: prove protected application works at exact deployed SHA.
@@ -150,23 +190,18 @@ A waiting window closes only when `result received AND result consumed AND new w
 - Required access: approved test users/tenant membership.
 - Prerequisite: E1.
 - Exact procedure: sign in; verify session persistence; load protected routes; exercise critical dashboard/data flows; sign out; verify anonymous boundary.
-- Expected: no auth 401/tenant hydration errors; protected routes are accessible only when authenticated.
+- Expected: no auth 401/tenant hydration errors; protected routes accessible only when authenticated.
 - Evidence: session identity + source SHA + request/result trace + E2E artifact.
 - Unlocks: F and G.
-- Next: Tenant A/B.
-- Next+1: health/canary.
 
 #### E3 — Tenant A/B isolation
 - Objective: prove no cross-tenant read/write/evidence leakage.
 - Environment: same approved non-production deployment and Supabase project.
 - Required access: two approved tenants/users.
 - Prerequisite: E2.
-- Exact procedure: perform A-owned reads/writes; perform B-owned reads/writes; attempt A→B and B→A reads, writes, evidence, storage, RPC calls; test malformed/foreign tenant IDs.
-- Expected: own-tenant operations succeed; cross-tenant operations fail/return no unauthorized data; no side effects.
+- Exact procedure: A-owned reads/writes; B-owned reads/writes; A→B and B→A reads/writes/evidence/storage/RPC calls; malformed/foreign tenant IDs.
+- Expected: own-tenant operations succeed; cross-tenant operations fail/no unauthorized data; no side effects.
 - Evidence: A/B identities, requests, denied responses, before/after state.
-- Unlocks: live tenant gate.
-- Next: health/canary.
-- Next+1: backup.
 
 #### E4 — Backup
 - Objective: create real backup and prove artifact identity/freshness.
@@ -176,21 +211,15 @@ A waiting window closes only when `result received AND result consumed AND new w
 - Exact procedure: create backup; capture immutable backup ID, completion timestamp, artifact SHA-256, source environment, run identity.
 - Expected: completed valid backup record with non-empty ID, valid timestamp, expected SHA-256.
 - Evidence: backup record + artifact hash + timestamps.
-- Unlocks: restore/RPO.
-- Next: safe restore.
-- Next+1: measured RPO.
 
 #### E5 — Restore / integrity
-- Objective: restore into a safe non-production target and verify integrity.
+- Objective: restore into safe non-production target and verify integrity.
 - Environment: isolated restore target; never production.
 - Required access: DB restore + verifier access.
 - Prerequisite: E4.
 - Exact procedure: restore; capture server-measured elapsed time; verify `restored=true`; verify `integrity_verified=true`; verify artifact SHA-256; persist evidence.
 - Expected: restore succeeds and integrity is independently verified.
 - Evidence: restore result, measured elapsed time, integrity proof, target identity.
-- Unlocks: RTO and recovery confidence.
-- Next: RPO/RTO.
-- Next+1: rollback.
 
 #### E6 — RPO/RTO
 - Objective: prove policy-bound measured recovery objectives.
@@ -198,23 +227,17 @@ A waiting window closes only when `result received AND result consumed AND new w
 - Required access: timestamps + server timing.
 - Prerequisite: E4/E5.
 - Exact procedure: calculate RPO from valid backup completion timestamp; use server-measured restore elapsed time for RTO; reject self-reported/untrusted timing as authoritative.
-- Expected: both values are measured and within configured policy.
+- Expected: both values measured and within configured policy.
 - Evidence: raw timestamps, measured values, policy thresholds, verifier output.
-- Unlocks: recovery certification.
-- Next: rollback.
-- Next+1: forward recovery.
 
 #### E7 — Rollback / forward recovery
 - Objective: prove reversible non-production deployment recovery.
 - Environment: same-project non-production Vercel deployments.
 - Required access: deployment metadata + alias mutation authorization.
 - Prerequisite: E1 and two distinct READY same-project deployments.
-- Exact procedure: validate FROM/FORWARD ownership, READY, distinct IDs, non-production guards; execute rollback; verify target; execute forward recovery; verify forward target; capture timing.
+- Exact procedure: validate FROM/FORWARD ownership, READY, distinct IDs, non-production guards; rollback; verify target; forward recover; verify forward target; capture timing.
 - Expected: no production target touched; both transitions verified.
 - Evidence: deployment IDs/project IDs/statuses, alias results, before/after health, timing.
-- Unlocks: rollback/forward-recovery certification.
-- Next: DR.
-- Next+1: evidence aggregation.
 
 #### E8 — DR
 - Objective: execute approved recovery exercise in non-production/recovery environment.
@@ -224,33 +247,30 @@ A waiting window closes only when `result received AND result consumed AND new w
 - Exact procedure: execute recovery scenario; verify application/data integrity; capture measured recovery time and environment identity.
 - Expected: service/data recovery verified without production mutation.
 - Evidence: exercise ID, source/target identity, timing, validation results.
-- Unlocks: final certification.
-- Next: evidence bundle.
-- Next+1: final certification.
 
 ### CERTIFICATION GATES
-- Exact-head deterministic CI: MUST be fresh for current candidate SHA.
+- Exact-head deterministic CI MUST be fresh for current candidate SHA.
 - Production certification mandatory evidence domain: `tenant | backup | rollback | artifact | security`.
-- Certification must fail closed on missing, failed, duplicate, malformed mandatory evidence.
+- Certification fails closed on missing, failed, duplicate, malformed mandatory evidence.
 - Runtime evidence must identify exact source SHA/environment and must not be inferred from static/mock tests.
 - Backup/Restore/DR/RPO/RTO/Rollback remain UNPROVEN until real operational evidence exists.
 - `INDEX DRIFT` and locally executable `ACTIONABLE DEBT` forbid TRUE STOP/certification readiness.
 
 ### FINAL RELEASE BLOCKERS — CURRENT REASON
-- Production Runtime: UNPROVEN — deployment/current-head runtime evidence missing; external deployment rate-limit/access blocker.
+- Production Runtime: UNPROVEN — current exact-head runtime evidence missing; external deployment/access blocker.
 - Authenticated E2E: UNPROVEN — approved authenticated runtime session evidence missing.
 - Live Tenant Isolation: UNPROVEN — A/B live adversarial evidence missing.
 - Backup: UNPROVEN — no real exact-head operational backup artifact evidence.
 - Restore: UNPROVEN — no real safe-target restore evidence.
 - RPO: UNPROVEN — no real measured backup completion delta bound to exact operational run.
 - RTO: UNPROVEN — no real server-measured restore timing evidence.
-- Rollback: UNPROVEN operationally — code path is hardened, real staging drill missing.
+- Rollback: UNPROVEN operationally — code path hardened, real staging drill missing.
 - Forward Recovery: UNPROVEN operationally — real forward recovery drill missing.
 - DR: UNPROVEN — real approved recovery exercise missing.
-- Final Certification: BLOCKED by the above operational evidence and fresh exact-head certification CI.
+- Final Certification: BLOCKED by operational evidence and fresh exact-head certification CI.
 
 ### EVIDENCE LINEAGE RULE
-Every mutation after `c51cb6d...` creates a new exact evidence boundary. The current ledger mutation is the final mutation of this execution window; therefore no prior CI PASS is promoted. Each future mutation requires fresh CI/evidence rebinding and a new index synchronization window.
+Every mutation after `c51cb6d...` creates a new exact evidence boundary. Current v4 mutation batch ends at `e80fe712...`; therefore no prior CI PASS is promoted. Each future mutation requires fresh CI/evidence rebinding and a new index synchronization window.
 
 ---
 
@@ -258,7 +278,7 @@ Every mutation after `c51cb6d...` creates a new exact evidence boundary. The cur
 
 ## CURRENT TRUTH — 2026-09-02 — CONTINUOUS MISSION
 
-- Current canonical `main` / exact HEAD at the start of this resume: **`8234b13f95a536cdfab206362565f95b0985aeb8`**.
+- Current canonical `main` / exact HEAD at the start of this historical resume: **`8234b13f95a536cdfab206362565f95b0985aeb8`**.
 - Immediate parent at that boundary: `5682c1c5478e5360fcd871fe6469bc8bf211de8d`.
 - This execution continued automatically after CI exposed second-order checker/workflow drift.
 - Verified failing exact-head run `33581895076` on `56d4c9fadbc57055f3feb3eeb65734d463f56969` exposed multiple stale contracts in the deterministic final batch; no historical PASS was promoted.
@@ -383,10 +403,10 @@ Required operational proof remains: real artifact + SHA-256, safe non-production
 
 - Quality `33581248795` — FAIL on exact SHA `524de3ad9c344ac133b3a558cff559d46da3a7d2`; failures were stale Phase-1 SPA fallback assertion and missing declared ESLint `globals`.
 - Final Execution Batch `33581895076` — FAIL on exact SHA `56d4c9fadbc57055f3feb3eeb65734d463f56969`; deterministic rescan exposed the contract drifts recorded above.
-- Final Execution Batch `33582059916` — FAIL on exact SHA `08fc4adc81c7c2803be8408f61ef168f8f03cae2; remaining failures were the Phase-F `if:` wording, K→S production-readiness token wording, live-gate operational-resilience literal, and release-evidence fail-closed wording. Those have since been corrected.
-- Fresh CI for current exact SHA `8234b13f95a536cdfab206362565f95b0985aeb8` was required at that historical boundary.
+- Final Execution Batch `33582059916` — FAIL on exact SHA `08fc4adc81c7c2803be8408f61ef168f8f03cae2`; remaining failures were the Phase-F `if:` wording, K→S production-readiness token wording, live-gate operational-resilience literal, and release-evidence fail-closed wording. Those have since been corrected.
+- Fresh CI for historical exact SHA `8234b13f95a536cdfab206362565f95b0985aeb8` was required at that boundary.
 - No historical CI result is promoted to the current exact SHA.
-- Vercel project `report-advisor` currently has a READY production deployment whose recorded Git SHA is older than the current exact HEAD at that historical boundary; therefore current production was **NOT current-HEAD proven** and no deployment evidence was promoted.
+- Vercel project `report-advisor` had a READY production deployment whose recorded Git SHA was older than the current exact HEAD at that historical boundary; therefore current production was **NOT current-HEAD proven** and no deployment evidence was promoted.
 
 ## Historical Integrity Rules
 
