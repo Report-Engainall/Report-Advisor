@@ -27,7 +27,7 @@ const FORBIDDEN_WEAKENING_PATTERNS = [
   /execution\s+debt[\s\S]{0,100}\b(?:may|can|could|should)\s+be\s+ignored/i,
   /index\s+update[\s\S]{0,100}\bcounts\s+as\s+(?:execution\s+)?closure/i,
   /true\s*stop[\s\S]{0,80}\bis\s+allowed\s+before/i,
-  /waiting\s+(?:for|on)\s+(?:ci|test|deployment|workflow)[\s\S]{0,120}\b(?:stop|return|report)\b/i,
+  /waiting\s+(?:for|on)\s+(?:ci|test|deployment|workflow)[\s\S]{0,120}\b(?:may|can|could|should)\s+(?:stop|return|report)\b/i,
   /parallel\s+work[\s\S]{0,100}\b(?:optional|unnecessary|may\s+be\s+skipped)\b/i,
   /external\s+blocker[\s\S]{0,120}\b(?:clears?|erases?|satisfies?)\s+execution\s+debt/i,
 ];
