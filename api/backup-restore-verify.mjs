@@ -1,4 +1,4 @@
-import { json, requireConfig, requireMethod, requireOperationalToken, managementRequest, sha256ResponseBody, persistBackupEvidence, isProductionEnv, isSafeRestoreTargetEnv } from '../src/server/resilience-runtime.mjs';
+import { json, requireConfig, requireMethod, requireOperationalToken, managementRequest, secureOutboundFetch, sha256ResponseBody, persistBackupEvidence, isProductionEnv, isSafeRestoreTargetEnv } from '../src/server/resilience-runtime.mjs';
 
 export default async function handler(req, res) {
   if (!requireMethod(req, res, 'POST')) return;
@@ -54,7 +54,7 @@ export default async function handler(req, res) {
       return json(res, 503, { status: 'failed', error: 'rpo_budget_exceeded', rpo_seconds: rpoSeconds });
     }
 
-    const artifactResponse = await fetch(process.env.RESILIENCE_BACKUP_ARTIFACT_URL.trim(), { headers: { Accept: 'application/octet-stream' } });
+    const artifactResponse = await secureOutboundFetch(process.env.RESILIENCE_BACKUP_ARTIFACT_URL, 'backup_artifact_url', { headers: { Accept: 'application/octet-stream' } });
     if (!artifactResponse.ok) return json(res, 503, { status: 'blocked', error: `backup_artifact_fetch_failed:${artifactResponse.status}` });
     const { sha256, bytes } = await sha256ResponseBody(artifactResponse);
     if (sha256 !== expectedArtifactSha256) {
@@ -70,7 +70,7 @@ export default async function handler(req, res) {
     }
 
     const restoreStartedAt = Date.now();
-    const restoreResponse = await fetch(process.env.RESILIENCE_RESTORE_VERIFIER_URL.trim(), {
+    const restoreResponse = await secureOutboundFetch(process.env.RESILIENCE_RESTORE_VERIFIER_URL, 'restore_verifier_url', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
       body: JSON.stringify({
