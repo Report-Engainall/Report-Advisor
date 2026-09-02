@@ -1,25 +1,7 @@
 name: Execution Enforcement Contract
 on:
   push:
-    paths:
-      - 'docs/EXECUTION_ENFORCEMENT_PROTOCOL.md'
-      - 'docs/ADAPTIVE_EXECUTION_GOVERNANCE.md'
-      - 'docs/EXECUTION_PERFORMANCE_LEDGER.md'
-      - 'docs/EXECUTION_DEBT_AND_RELEASE_VELOCITY.md'
-      - 'docs/MASTER_EXECUTION_INDEX.md'
-      - 'scripts/check-execution-enforcement-protocol.mjs'
-      - 'scripts/execution-enforcement-adversarial.test.mjs'
-      - '.github/workflows/execution-enforcement-contract.yml'
   pull_request:
-    paths:
-      - 'docs/EXECUTION_ENFORCEMENT_PROTOCOL.md'
-      - 'docs/ADAPTIVE_EXECUTION_GOVERNANCE.md'
-      - 'docs/EXECUTION_PERFORMANCE_LEDGER.md'
-      - 'docs/EXECUTION_DEBT_AND_RELEASE_VELOCITY.md'
-      - 'docs/MASTER_EXECUTION_INDEX.md'
-      - 'scripts/check-execution-enforcement-protocol.mjs'
-      - 'scripts/execution-enforcement-adversarial.test.mjs'
-      - '.github/workflows/execution-enforcement-contract.yml'
   workflow_dispatch:
 
 jobs:
