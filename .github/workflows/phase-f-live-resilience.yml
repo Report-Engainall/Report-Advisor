@@ -20,6 +20,8 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci --no-audit --no-fund
+      - name: Local operational runtime tests
+        run: node scripts/resilience-runtime.test.mjs
       - name: Static resilience contracts
         run: npm run test:operational-resilience && npm run test:release-resilience-manifest && npm run test:continuous-trust
       - name: Live resilience probes
