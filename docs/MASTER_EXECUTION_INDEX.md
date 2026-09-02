@@ -3,7 +3,7 @@
 ## CURRENT RESUME EXECUTION MAP — 2026-09-02 — v4.1 COMPACT EVIDENCE + PROJECT IDENTITY
 
 ### CURRENT PROJECT STATE
-- Current repository exact HEAD before this index synchronization: `291991d9863204f839781574ae16e787715b5691`.
+- Current repository exact HEAD: `d02024628dad67d151e681e3d108f5357f6faa99`.
 - Current code/test head: `291991d9863204f839781574ae16e787715b5691` (v4.1 protocol/checker/adversarial changes; fresh exact-head CI required).
 - The current documentation synchronization will be the next index-only boundary; no prior evidence is promoted across the new code/test SHA.
 - v4.0 batch start head: `811070805114956c8f8f1766b7bf6c3c9704b4c0`.
