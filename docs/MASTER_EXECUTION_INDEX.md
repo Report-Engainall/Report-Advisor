@@ -6,10 +6,10 @@
 
 ### CURRENT PROJECT STATE
 - Repository: `Report-Engainall/Report-Advisor`.
-- Latest repository synchronization commit before this documentation sync: `d4731152bda8970503929ca459c16baf50d92c64` (documentation-only synchronization; stable historical pointer).
-- Current repository head: `24d853d958c3d05979864883a9f9e77d431841c6`.
-- Current code/test head: `24ed4e33ca5066d5647d620db75b0c3850498958`.
-- Current exact code/test candidate: `24d853d958c3d05979864883a9f9e77d431841c6` (includes the CI wiring that executes the new resilience regression suite).
+- Latest repository synchronization commit before this documentation sync: `24d853d958c3d05979864883a9f9e77d431841c6` (CI execution wiring; current code/test candidate).
+- Current repository head: `b086640d6c56ff3034c7a68882680315fb23d709`.
+- Current code/test head: `b086640d6c56ff3034c7a68882680315fb23d709`.
+- Current exact code/test candidate: `b086640d6c56ff3034c7a68882680315fb23d709` (index synchronization only; no product/test mutation in this commit).
 - Previous exact-head Quality run `33662117870` and Final Execution Batch `33662117840` passed on `ab1cf0d9`; all later code/test/CI mutations are outside those evidence boundaries.
 - Current candidate requires fresh exact-head repository verification before certification claims are renewed.
 
@@ -20,7 +20,7 @@
 - Replaced full-response `arrayBuffer()` buffering in the backup artifact SHA-256 path with incremental Web Stream hashing, removing an avoidable whole-artifact memory spike while preserving byte count and digest output.
 - Added adversarial regression coverage for private IPv4/IPv6 targets, IPv4-mapped IPv6, public-address acceptance, and streaming hash behavior.
 - Wired `scripts/resilience-runtime.test.mjs` into the existing Operational Resilience certification step so this security regression suite is executed by Quality rather than merely existing as an uncalled test file.
-- Commits: `a6ec26e3297636196c00cc0e5795e2cb82586a93` (SSRF/DNS + streaming implementation), `24ed4e33ca5066d5647d620db75b0c3850498958` (adversarial/streaming tests), `24d853d958c3d05979864883a9f9e77d431841c6` (Quality execution wiring/current repository candidate).
+- Commits: `a6ec26e3297636196c00cc0e5795e2cb82586a93` (SSRF/DNS + streaming implementation), `24ed4e33ca5066d5647d620db75b0c3850498958` (adversarial/streaming tests), `24d853d958c3d05979864883a9f9e77d431841c6` (Quality execution wiring/current code/test candidate).
 - No production alias mutation, rollback, restore, or fabricated operational evidence was performed.
 
 ### LIVE DATABASE / SECURITY TRUTH
@@ -79,6 +79,6 @@
 6. Desktop Windows certification remains backed by native smoke workflow; `desktop/package-lock.json` is absent, so reproducible desktop `npm ci` remains a real dependency-resolution gap rather than something to handcraft.
 
 ### HISTORICAL RECORD / SHA BOUNDARIES
-- Previous index blob: `7ba0458349a760096a2cc73282ce79cf7948c938`.
+- Previous index blob: `b7fd95c7b344b748f08ed1a3e17e7e8730761b81`.
 - Previous certified code/test boundary: `ab1cf0d9c16864f9bda07acd33973954c2dc1b7a`.
 - Historical execution content remains preserved by Git history; documentation synchronization commits are never promoted to code/test candidates unless they contain a real product/test mutation.
