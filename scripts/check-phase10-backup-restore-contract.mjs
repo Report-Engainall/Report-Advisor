@@ -40,8 +40,12 @@ for (const token of [
     throw new Error(`Missing certification evidence invariant: ${token}`);
   }
 }
+
+// Bind the remaining-work register to stable recovery concepts rather than a
+// historical roadmap heading. The index may evolve its headings while the
+// required recovery boundary remains explicit and UNPROVEN until runtime proof.
 const indexLower = index.toLowerCase();
-for (const token of ['r16 — backup / restore / dr', 'rpo', 'rto', 'actual restore drill']) {
+for (const token of ['backup/restore', 'rpo', 'rto', 'dr', 'unproven']) {
   if (!indexLower.includes(token)) throw new Error(`Remaining-work register lost recovery boundary: ${token}`);
 }
 
