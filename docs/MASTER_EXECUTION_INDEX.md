@@ -51,33 +51,78 @@ If one front is blocked, continue all independent fronts.
 
 ## Current Truth — 2026-09-02
 
-- Current canonical `main` / exact HEAD: `fc49518f0d3b57bc02c496d436ad80df94fdce7f`.
-- Quality #3417 / Run `33576701966`: **FAIL** on the exact HEAD.
-- First failing gate: `CI topology and canonical release wiring`.
-- Current RCA: **CHECKER DRIFT / ORCHESTRATION ISSUE**.
+- Current canonical `main` / exact HEAD: `fb8f8b9b97859e23325a8eb6dac149c6733edbef`.
+- Previous exact HEAD at start of this cycle: `fc49518f0d3b57bc02c496d436ad80df94fdce7f`.
+- Quality #3417 / Run `33576701966`: **FAIL** on the previous exact HEAD.
+- New Quality run: `#3419 / Run 33577494100`, triggered by the topology mutation and bound to `fb8f8b9b97859e23325a8eb6dac149c6733edbef`; final result is pending at this update.
+- First failing gate on #3417: `CI topology and canonical release wiring`.
+- RCA: **CHECKER DRIFT / ORCHESTRATION ISSUE**.
 - `quality.yml`: canonical comprehensive quality/release gate.
 - `final-execution-batch.yml`: auxiliary deterministic verification; `push main` is intentional by its current design.
 - `storage-tenant-isolation.yml`: auxiliary security regression verification; `push main` is intentional by its current design.
-- Branch Protection: **UNPROVEN** because the available GitHub API access returns `403 Resource not accessible by integration`.
-- Required Checks: **UNPROVEN**; do not infer them.
+- Branch Protection: **PROVEN OFF** by the branch API response: `protected=false`, protection `enabled=false`, and `required_status_checks.enforcement_level=off` with empty `contexts`/`checks`. This is stronger than the earlier 403 evidence and is exact current-branch evidence. fileciteturn74file0L1-L13
+- Required Checks: **PROVEN NONE CONFIGURED** on current `main` by the same branch API response. This does not imply that workflow checks are unimportant; it only states that GitHub branch protection currently enforces none. fileciteturn74file0L1-L13
 - Rulesets: no visible Rulesets through the available API (`[]`).
-- CASE 1 (quality.yml must be the sole canonical main-push workflow): **NOT PROVEN**.
-- CASE 2 (auxiliary main-push workflows are intentionally allowed/canonical): **STRONGLY SUPPORTED / NOT FULLY PROVEN**.
-- Mutation for the CI-topology blocker: authorized in principle by the permanent owner mandate, but must still be evidence-directed and minimal.
-- J / Phase F / Recovery: keep independently classified and do not fabricate product gaps.
+- CASE 1 (quality.yml must be the sole canonical main-push workflow): **NOT PROVEN and rejected as the current checker contract**.
+- CASE 2 (auxiliary main-push workflows are intentionally allowed/canonical): **SUPPORTED by current workflow architecture and resolved through checker-only contract alignment**.
 - Merge: only after applicable exact-head gates pass.
 - Release: only after production evidence is complete.
 - Certification: **NOT CERTIFIED** until every required certification condition is actually proven.
 
-## Latest Executed Cycle — CI Topology Evidence — 2026-09-02
+## Latest Executed Cycle — CI Topology Closure — 2026-09-02
 
-Read-only evidence confirmed that the current topology contains one canonical comprehensive release/quality gate plus auxiliary main-push verification workflows. No authoritative GitHub Required Checks/Branch Protection evidence was available because the protection endpoint returned 403. Repository rulesets were visible as an empty list. No repository document or manifest explicitly established a policy requiring `quality.yml` to be the only workflow allowed to target `main`.
+### Evidence / RCA
 
-Conclusion:
+The exact checker at the previous HEAD classified every `push` targeting `main` without path/tag restrictions as a `canonicalMainPushWorkflow`, then required exactly one such workflow and required it to be `quality.yml`. This classification conflated the canonical comprehensive release gate with legitimate auxiliary verification workflows.
 
-`CHECKER DRIFT / ORCHESTRATION ISSUE`
+The actual topology contains:
 
-Do not convert `UNPROVEN` Required Checks into a claim. The next action is an evidence-directed RCA and, if justified, the smallest safe contract/checker alignment. Do not delete or weaken auxiliary verification merely to silence the checker.
+- `quality.yml` — comprehensive quality/release gate;
+- `final-execution-batch.yml` — auxiliary deterministic verification on `push main`;
+- `storage-tenant-isolation.yml` — auxiliary security regression verification on `push main`.
+
+The checker already had separate concepts for `scopedPushWorkflows` and `broadPushWorkflows`, but its sole-canonical assertion ignored that architectural distinction. No evidence supported deleting either auxiliary workflow or changing their triggers.
+
+### Mutation
+
+`CHECKER-ONLY / CONTRACT-ALIGNMENT` mutation executed.
+
+- OLD EXACT HEAD: `fc49518f0d3b57bc02c496d436ad80df94fdce7f`
+- NEW EXACT HEAD: `fb8f8b9b97859e23325a8eb6dac149c6733edbef`
+- COMMIT SHA: `fb8f8b9b97859e23325a8eb6dac149c6733edbef`
+- COMMIT MESSAGE: `fix: align CI topology checker with canonical auxiliary push workflows`
+- FILES CHANGED: `scripts/check-ci-execution-topology.mjs` only for the intended mutation.
+- LINES CHANGED: 1 assertion replacement (1 deletion / 1 addition).
+- OLD ASSERTION: `canonicalMainPushWorkflows.length !== 1 || canonicalMainPushWorkflows[0] !== 'quality.yml'`.
+- NEW ASSERTION: `!canonicalMainPushWorkflows.includes('quality.yml')`.
+- EFFECT: preserves the requirement that `quality.yml` is present as the canonical main-push gate while allowing legitimate additional main-push workflows; the existing `nonCanonicalBroad` guard remains intact.
+
+Expected Values: **UNCHANGED**.
+Fixtures: **UNCHANGED**.
+Thresholds: **UNCHANGED**.
+Security: **UNCHANGED**.
+Workflow files/triggers: **UNCHANGED**.
+Release/evidence architecture: **UNCHANGED**.
+
+### Exact-head verification
+
+GitHub Actions created Quality `#3419 / Run 33577494100` with `head_branch=main` and `head_sha=fb8f8b9b97859e23325a8eb6dac149c6733edbef`; the run was in progress when this index update was written. The same push also triggered the auxiliary workflows, confirming that their `push main` behavior was not removed or suppressed. fileciteturn79file0L1-L13
+
+The previous Quality `#3417 / Run 33576701966` remains historical FAIL on `fc49518f0d3b57bc02c496d436ad80df94fdce7f` and is not promoted to the new SHA.
+
+### Current decision
+
+`RCA = CHECKER DRIFT / ORCHESTRATION ISSUE`
+
+`MUTATION = MINIMAL CHECKER-ONLY ALIGNMENT`
+
+`QUALITY #3419 = PENDING`
+
+`MERGE = STOPPED`
+
+`RELEASE = STOPPED`
+
+`CERTIFICATION = STOPPED / NOT CERTIFIED`
 
 ## Historical Integrity
 
@@ -116,7 +161,7 @@ No blanket revoke is permitted without this analysis.
 ## Parallel Execution Board
 
 ### P0-A — Exact-head Quality / CI closure
-- Close `CI topology and canonical release wiring` using the permanent owner authorization and evidence-directed RCA.
+- Close `CI topology and canonical release wiring` using evidence-directed RCA.
 - Run Quality again on the resulting exact SHA.
 - Verify the workflow run itself checked the same SHA.
 - Continue through every newly exposed blocker.
