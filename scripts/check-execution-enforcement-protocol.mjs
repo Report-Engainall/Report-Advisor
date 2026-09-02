@@ -85,8 +85,7 @@ if (process.argv[1] && process.argv[1].endsWith('check-execution-enforcement-pro
       let ancestryVerified = false; let changedFiles = [];
       try {
         execFileSync('git', ['merge-base', '--is-ancestor', indexedHead, currentHead]);
-        const indexOnlyProbe = ['diff', '--quiet', indexedHead, currentHead, '--', '.', ':(exclude)docs/MASTER_EXECUTION_INDEX.md'];
-        execFileSync('git', indexOnlyProbe, { stdio: 'ignore' });
+        execFileSync('git', ['diff', '--quiet', indexedHead, currentHead, '--', ':!docs/MASTER_EXECUTION_INDEX.md'], { stdio: 'ignore' });
         changedFiles = ['docs/MASTER_EXECUTION_INDEX.md'];
         ancestryVerified = true;
       } catch { ancestryVerified = false; }
