@@ -31,7 +31,7 @@ export function LoginPage() {
         <div className="text-center">
           <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary-600 to-accent-500 text-2xl font-black text-white">ع</div>
           <h1 className="mt-5 text-2xl font-bold text-ink-900">تسجيل الدخول</h1>
-          <p className="mt-2 text-sm leading-6 text-ink-500">سجّل الدخول للوصول إلى منصة العامري لذكاء الأعمال والقرار.</p>
+          <p className="mt-2 text-sm leading-6 text-ink-500">سجّل الدخول للوصول إلى منصة الأغبري لذكاء الأعمال والقرار.</p>
         </div>
 
         <form onSubmit={handleSubmit} className="mt-7 space-y-5">
