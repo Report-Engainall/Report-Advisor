@@ -1,5 +1,6 @@
 import { advanceCheckpoint, type ReportExecutionCheckpoint, type ReportCheckpointStage } from './report-execution/checkpoint';
 import { consolidateByPrecedence, diffRows, evaluateAutonomyGate, rankPortfolio, selectBoundedScenario, type PortfolioCandidate, type RiskBudget, type RowVersion, type ScenarioOption, type SourceCandidate } from './production-intelligence';
+import { DeadLetterQueue, toDeadLetter } from './report-execution/dead-letter';
 
 export interface RuntimeEvidence {
   key: string;
@@ -68,3 +69,10 @@ export function evidenceQuality(evidence: RuntimeEvidence[]) {
 export function canAutonomouslyExecute(input: Parameters<typeof evaluateAutonomyGate>[0]) {
   return evaluateAutonomyGate(input);
 }
+
+export function createDeadLetterQueue<T>() {
+  return new DeadLetterQueue<T>();
+}
+
+export { toDeadLetter };
+export type { DeadLetterRecord } from './report-execution/dead-letter';
