@@ -3,16 +3,27 @@
 ## CURRENT RESUME EXECUTION MAP — 2026-09-02 — v4.1 COMPACT EVIDENCE + PROJECT IDENTITY
 
 ### CURRENT PROJECT STATE
-- Current repository exact HEAD: `9a32f382827a95130a4172a8740d0b75aeeff979`.
-- Current code/test head: `51267cc0cdfa074ce61d257e06f8333bb3a9364d` (adversarial section-removal regex hardening; fresh exact-head CI remains required).
-- `e96a894ba283954f5e38cfac536faa59e3db5be2` is the prior code/test boundary; its evidence is not transferred to `51267cc0cdfa074ce61d257e06f8333bb3a9364d`.
-- `4df56cd9ec6417be1c70dc366ea67b1fdad6d592` remains the prior documentation/index synchronization boundary; it is not the Tested Code SHA for the current candidate.
+- Current repository exact HEAD: `3fa9e9c839b1ef3d7d71c06f93b7a29c76de43d4`.
+- Current code/test head: `3fa9e9c839b1ef3d7d71c06f93b7a29c76de43d4` (current main candidate; fresh exact-head CI remains required).
+- `51267cc0cdfa074ce61d257e06f8333bb3a9364d` is the prior code/test boundary; its evidence is not transferred to `3fa9e9c839b1ef3d7d71c06f93b7a29c76de43d4`.
+- `c78c881d0b773caa7fe6fc1a2915fc08424f302a` is the prior documentation/index synchronization boundary; this update creates a new index-only boundary on current main.
 - No prior evidence is promoted across the new code/test SHA.
+- No historical evidence is promoted across the current index-only synchronization boundary.
 - v4.0 batch start head: `811070805114956c8f7f1766b7bf6c3c9704b4c0`.
 - Previous v3.2 index boundary: `a4b26ef13ce08d54d2e9c0723530499bcc6e66c5`.
 - v4.0 code/test mutations culminated at `f29cdbc3fead457e3f31c2b86fbd458f9bd9c80c`; governance self-audit documentation then landed at `356a86bd14296554374df7d18a6b0395d65099fd`.
 - No historical evidence transfers across a new exact-SHA boundary. Fresh CI must be consumed for any new code/test candidate SHA before certification claims.
 - Operational runtime/recovery proof remains UNPROVEN.
+
+### 2026-09-02 CURRENT-HEAD CLOSURE WAVE — 3fa9e9c
+- `DATE → EXACT HEAD → ACTION → RESULT → BLOCKER → NEXT`: `2026-09-02 → 3fa9e9c839b1ef3d7d71c06f93b7a29c76de43d4 → synchronized this Master Index to the actual main HEAD after the residual-anon-grant migration landed; queried Supabase directly → 78/78 public tables have RLS enabled, 0 anon SELECT grants remain, 30 public SECURITY DEFINER functions have 0 anon and 0 PUBLIC EXECUTE, and migration `20260828182158_revoke_residual_anon_table_grants` is applied → fresh exact-head CI still required; Supabase security advisor continues to warn on intentionally authenticated business SECURITY DEFINER RPCs and leaked-password protection → continue exact-head CI/rescan and local actionable closure; do not transfer older CI or runtime evidence`.
+- Runtime authentication evidence in the current Supabase window includes successful password login and `/user` 200 responses. One refresh-token 400 was observed during session churn, followed by successful authentication; this does not establish an application-wide auth failure.
+- `current_company_id`, business RPC authorization paths, and selected SECURITY DEFINER functions were inspected directly. The sampled business functions fail closed when `auth.uid()` or tenant context is absent and bind data operations to `current_company_id()`.
+- The Supabase security advisor still reports authenticated execution of business SECURITY DEFINER RPCs. This is not treated as an automatic defect because these RPCs are intentionally exposed business entry points and their bodies were verified for authenticated user + tenant context; blanket revocation would risk breaking the canonical application path.
+- Supabase leaked-password protection remains an external Auth configuration item; no fabricated configuration or synthetic certification evidence is allowed.
+- The current main commit `3fa9e9c...` is the exact code boundary for the residual-anon-grant migration. The migration is applied in the inspected Supabase project and the resulting privilege boundary was re-queried after application.
+- The closure branch `closure/current-head-3fa9e9c` remains six documentation/evidence commits ahead of `3fa9e9c...`; those evidence-only commits are not silently promoted to main.
+- No Production binding, restore, rollback, DR exercise, or certification claim was performed.
 
 ### 2026-09-02 CURRENT EXACT-SHA ADVERSARIAL FIX UPDATE
 - `DATE → EXACT HEAD → ACTION → RESULT → BLOCKER → NEXT`: `2026-09-02 → 51267cc0cdfa074ce61d257e06f8333bb3a9364d → corrected adversarial section-removal regexes after Execution Enforcement Contract `33621035733` failed at the exact-head index gate; the failure was caused by stale Master Index HEAD `e96a894...` while the tested code HEAD was `51267cc...` → targeted test hardening committed; Quality `33621035810` PASS and Storage `33621035798` PASS on `51267cc...`; Enforcement result for the code head was blocked by index drift and must not be treated as code/test PASS → Master Index synchronization is required; no Production mutation → consume exact-head results only and preserve SHA boundaries`.
@@ -32,7 +43,7 @@
 - The enforcement failure was treated as an actionable defect and repaired. No PASS from `291991d...` is transferred to `1ff7f2b...`.
 
 ### v4.1 GOVERNANCE UPDATE — COMPACT EVIDENCE / PROJECT IDENTITY
-- Canonical Layer 1 protocol now requires compact evidence storage, minimum lineage `DATE → EXACT HEAD → ACTION → RESULT → BLOCKER → NEXT`, preservation of certification-critical history, certification configuration provenance, Production safety boundaries, and protocol-first execution order.
+- Canonical Layer 1 protocol now requires compact evidence storage, minimum lineage `DATE → EXACT HEAD → ACTION → RESULT → BLOCKER → NEXT`, preservation of certification-critical history, certification configuration provenance, Production-safety boundaries, and protocol-first execution order.
 - Enforcement checker now requires the v4.1 protocol anchors and validates current frontend identity surfaces (`index.html`, `package.json`, `README.md`, `src/`, `public/`) against legacy branding **العامري** while requiring **الأغبري** in `index.html`.
 - Adversarial enforcement coverage now rejects removal of the v4.1 compact-evidence, project-identity, certification-provenance, Production-safety, and protocol-first rules.
 - Branding audit at `291991d...` found legacy **العامري** in `src/components/Sidebar.tsx` and `src/pages/LoginPage.tsx`; this was a real current-frontend defect caught by exact-head enforcement CI.
@@ -101,17 +112,16 @@ A lower-priority instruction MUST NOT override a higher-priority constraint.
 ### WAITING WINDOWS — EXECUTION WINDOW LEDGER
 | Async operation | State | Parallel window | Independent work executed in window | Consumption rule |
 |---|---|---|---|---|
-| Exact-head CI | fresh run required for `f29cdbc3...` | OPEN/CLOSE ON CONSUMPTION | v4 governance implementation, checker binding, adversarial tests, performance ledger, workflow trigger audit, index-head gate hardening, governance self-audit | consume exact result immediately |
-| Vercel deployment | external pending/rate-limited | OPEN | all local v4 work executed; no live certification inferred | consume status immediately |
+| Exact-head CI | fresh run required for current `3fa9e9c...` | OPEN | Supabase security/RLS/grants verification, RPC security inspection, migration application verification, current runtime auth log consumption | consume exact result immediately |
+| Vercel deployment | external pending/rate-limited | OPEN | all local/static/security/database preparation continues; no live certification inferred | consume status immediately |
 
 A waiting window closes only when `result received AND result consumed AND new work evaluated`.
 
 ### EXECUTION SCHEDULER — CURRENT
 | Task | Dependency | State | Parallel? | Blocker | Can start now? | Expected unlock |
 |---|---|---|---|---|---|---|
-| Exact-head CI | `f29cdbc3...` | ACTIONABLE | YES | none | YES | deterministic verification |
-| v4 governance adversarial | protocol + governance | IMPLEMENTED | YES | none | YES | governance confidence |
-| Security/DB/RPC/evidence rescan | repository | READY | YES | none | YES | local defect closure |
+| Exact-head CI | `3fa9e9c...` | ACTIONABLE | YES | no workflow run currently attached to exact SHA | YES if trigger becomes available | deterministic verification |
+| Security/DB/RPC/evidence rescan | repository + Supabase | VERIFIED/CONTINUE | YES | none for static/DB inspection | YES | local defect closure |
 | Import/reconciliation audit | repository | READY | YES | none | YES | data correctness confidence |
 | OCR/golden corpus audit | repository | READY | YES | none | YES | document confidence |
 | E1 deployment preparation | deployment contract | PREPARED | YES | Vercel live access | YES prep / NO live | runtime handoff |
@@ -124,8 +134,8 @@ A waiting window closes only when `result received AND result consumed AND new w
 | E8 DR | E5/E7 | PREPARED | YES | approved DR environment | YES prep / NO live | DR proof |
 
 ### EXECUTION DEBT / RELEASE VELOCITY / UTILIZATION
-- `ACTIONABLE DEBT`: fresh CI for code/test candidate `f29cdbc3...`; local findings from active rescan; E1–E8 local preparation; post-mutation index synchronization.
-- `EXTERNAL DEBT`: live deployment authorization/rate-limit; authenticated runtime credentials; live Tenant A/B; real backup/restore/RPO/RTO; staging rollback/forward authorization; approved DR environment.
+- `ACTIONABLE DEBT`: fresh CI for code/test candidate `3fa9e9c...`; local import/reconciliation/OCR/evidence rescan; E1–E8 local preparation; exact-head index-only boundary verification.
+- `EXTERNAL DEBT`: live deployment authorization/rate-limit; authenticated runtime credentials; live Tenant A/B; real backup/restore/RPO/RTO; staging rollback/forward authorization; approved DR environment; leaked-password protection configuration.
 - Rule: `ACTIONABLE DEBT → MUST EXECUTE`; `EXTERNAL DEBT → ISOLATE + PREPARE + DOCUMENT`.
 - `RELEASE VELOCITY`: only movement through `Built → Integrated → Verified → Runtime Proven → Production Certified`.
 - `EXECUTION UTILIZATION`: async operations running, parallel work available/executed, debt closed, remaining work reduced.
@@ -142,9 +152,10 @@ A waiting window closes only when `result received AND result consumed AND new w
 - Production certification adversarial coverage: complete/missing/failed/duplicate/unrelated/malformed evidence attacks.
 - v3.2 enforcement: waiting-time parallelization, safe parallelism, scheduler, debt split, utilization, index-head gate, adversarial test-of-test, depth-2 parent validation.
 - v4.0 adaptive governance: layered architecture, precedence, performance ledger, effectiveness, under/over-execution detection, command feedback, strategy memory, smart prioritization, controlled evolution, governance adversarial suite, workflow trigger binding, consecutive index-only boundary validation, corrected layer-separation decoy, and governance self-audit.
+- Current-head security/database truth: 78/78 public tables RLS enabled; 0 anon SELECT grants; 30 public SECURITY DEFINER functions with 0 anon and 0 PUBLIC EXECUTE; residual-anon-grant migration applied and verified.
 
 ### IN-PROGRESS
-- Fresh exact-head CI consumption for code/test candidate `51267cc0...`.
+- Fresh exact-head CI consumption for code/test candidate `3fa9e9c...`.
 - Security/DB/RPC/import/OCR/evidence/workflow rescan and immediate consumption.
 - Final performance-ledger result closure.
 - E1–E8 handoff preparation and external evidence readiness.
@@ -155,9 +166,9 @@ A waiting window closes only when `result received AND result consumed AND new w
 | Gate | Objective | Current status | Dependency | Can execute now? | Required evidence | Required test | Completion condition | Next | Next+1 |
 |---|---|---|---|---|---|---|---|---|---|
 | A. Code / Correctness | Eliminate actionable correctness/error-path defects | ACTIONABLE NOW | None | YES | exact-SHA mutation + test | targeted + regression + rescan | no actionable defect | B | D |
-| B. Security | Auth/authz/RLS/tenant/evidence/bypass resistance | ACTIONABLE NOW | None | YES | security contract + adversarial output | positive/negative/foreign/malformed/replay | no actionable security defect | C | E |
-| C. Database / RPC | Migration/RPC/schema/signature/tenant consistency | ACTIONABLE NOW | static audit; runtime for live proof | YES static / NO live | canonical migration/checker lineage | schema/RPC contract | canonical contracts aligned | D | E |
-| D. Deterministic CI | Exact-head full quality/final batch | IN-PROGRESS | current exact code/test HEAD | YES | run ID + SHA + artifacts | full configured workflows | all required jobs PASS on same SHA | E | O |
+| B. Security | Auth/authz/RLS/tenant/evidence/bypass resistance | VERIFIED STATIC / CONTINUE | None | YES | security contract + adversarial output | positive/negative/foreign/malformed/replay | no actionable security defect | C | E |
+| C. Database / RPC | Migration/RPC/schema/signature/tenant consistency | VERIFIED STATIC / CONTINUE | static audit; runtime for live proof | YES static / NO live | canonical migration/checker lineage | schema/RPC contract | canonical contracts aligned | D | E |
+| D. Deterministic CI | Exact-head full quality/final batch | IN-PROGRESS | current exact code/test HEAD | YES if trigger available | run ID + SHA + artifacts | full configured workflows | all required jobs PASS on same SHA | E | O |
 | E. Runtime | Exact-head deployment/readiness/health | EXTERNAL BLOCKED | Vercel + runtime access | NO live / YES prep | deployment ID/source SHA/READY/health | smoke + canary | exact source SHA + readiness | F | G |
 | F. Authenticated E2E | Login/session/protected flows | EXTERNAL BLOCKED | credentials + deployed exact HEAD | NO live / YES prep | session + source SHA + flow evidence | authenticated E2E | critical journeys pass | G | O |
 | G. Tenant Isolation | Tenant A/B + cross-tenant denial | EXTERNAL BLOCKED | authenticated runtime + two tenants | NO live / YES prep | A/B positive + cross-tenant negative | adversarial tenant tests | zero leakage | H | O |
@@ -200,7 +211,7 @@ A waiting window closes only when `result received AND result consumed AND new w
 - Final certification requires all mandatory operational evidence plus fresh exact-head deterministic verification.
 
 ### NEXT / NEXT+1 / NEXT+2
-- NEXT: consume exact-head CI for `51267cc0...`; execute first failure RCA/fix chain if needed; concurrently continue independent rescan and E1–E8 preparation.
+- NEXT: consume exact-head CI for `3fa9e9c...`; execute first failure RCA/fix chain if needed; concurrently continue independent rescan and E1–E8 preparation.
 - NEXT+1: close actionable findings with RCA → fix → targeted → adversarial → regression → rescan; update performance result.
 - NEXT+2: fresh exact-head CI on resulting SHA; rebind evidence; consume newly unlocked gates; reprioritize.
 
@@ -209,6 +220,7 @@ A waiting window closes only when `result received AND result consumed AND new w
 - Authenticated Supabase runtime requires approved tenant/user access.
 - Real backup/restore and DR environments are unavailable to this execution context.
 - Staging rollback requires an approved non-production deployment pair and authorization.
+- Supabase leaked-password protection requires Auth configuration access; no configuration is fabricated.
 
 ### COMPUTER / EXTERNAL HANDOFF — EXECUTABLE
 
@@ -308,7 +320,7 @@ A waiting window closes only when `result received AND result consumed AND new w
 - Final Certification: BLOCKED by operational evidence and fresh exact-head certification CI.
 
 ### EVIDENCE LINEAGE RULE
-Every mutation after `c51cb6d...` creates a new exact evidence boundary. The current code/test mutation boundary is `51267cc0...`; any future code/test mutation requires fresh CI/evidence rebinding. An index-only synchronization commit may be recognized only when the enforcement checker proves that every changed path is exactly `docs/MASTER_EXECUTION_INDEX.md`.
+Every mutation after `c51cb6d...` creates a new exact evidence boundary. The current code/test mutation boundary is `3fa9e9c...`; any future code/test mutation requires fresh CI/evidence rebinding. The current synchronization is index-only and must be verified as such before treating it as a valid index-only boundary.
 
 ---
 
