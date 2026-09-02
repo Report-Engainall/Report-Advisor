@@ -23,7 +23,7 @@ must((app.match(/<BrowserRouter\b/g) ?? []).length === 1, 'App must have exactly
 must(/AppErrorBoundary/.test(app), 'App must expose an application error boundary');
 must(/<Suspense\b/.test(app), 'App must use a Suspense boundary for lazy routes');
 must(/path="\*"/.test(app), 'App must have an explicit not-found route');
-must(/rewrites/.test(routerConfig) && /index\.html/.test(routerConfig), 'Vercel SPA fallback must exist');
+must((/rewrites/.test(routerConfig) || /routes/.test(routerConfig)) && /index\.html/.test(routerConfig), 'Vercel SPA fallback must exist');
 
 must(/persistSession:\s*true/.test(tenant), 'Auth session persistence must remain enabled');
 must(/supabase\.rpc\('current_company_id'\)/.test(tenant), 'Tenant authority must resolve through current_company_id()');
