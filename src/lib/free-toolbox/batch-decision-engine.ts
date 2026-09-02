@@ -1,10 +1,10 @@
-import {finiteNonNegative,finitePercent,safeDays} from './safe-metrics.ts'
+import {finitePercent,safeDays} from './safe-metrics.ts'
 export interface BatchDecisionRow{groupId:string;stock:number;forecastDaily:number;targetDays:number;lostUnits:number;liquidityScore:number;continuityRisk:number;seasonalityScore:number;confidence:number}
 export interface BatchDecisionSummary{rows:number;reorder:number;critical:number;averagePriority:number;elapsedMs:number}
 
 function requireDecisionNumber(value: unknown, field: string, groupId: string, options: {min?: number; max?: number} = {}): number {
-  const n = typeof value === 'number' ? value : Number(value)
-  if (!Number.isFinite(n) || (options.min != null && n < options.min) || (options.max != null && n > options.max)) {
+  const n = value
+  if (typeof n !== 'number' || !Number.isFinite(n) || (options.min != null && n < options.min) || (options.max != null && n > options.max)) {
     throw new Error(`INSUFFICIENT_DECISION_DATA:${groupId}:${field}`)
   }
   return n
@@ -15,17 +15,21 @@ function clampPercent(value: number): number {
 }
 
 export function evaluateDecisionBatch(rows:BatchDecisionRow[]):BatchDecisionSummary{
+  if(!Array.isArray(rows)) throw new Error('INSUFFICIENT_DECISION_DATA:batch:rows')
   const started=typeof performance!=='undefined'?performance.now():Date.now()
   let reorder=0,critical=0,total=0
   for(const r of rows){
-    const stock=requireDecisionNumber(r.stock,'stock',r.groupId,{min:0})
-    const demand=requireDecisionNumber(r.forecastDaily,'forecastDaily',r.groupId,{min:0})
-    const targetDays=requireDecisionNumber(r.targetDays,'targetDays',r.groupId,{min:Number.EPSILON})
-    const lostUnits=requireDecisionNumber(r.lostUnits,'lostUnits',r.groupId,{min:0})
-    const liquidityScore=requireDecisionNumber(r.liquidityScore,'liquidityScore',r.groupId,{min:0,max:100})
-    const continuityRisk=requireDecisionNumber(r.continuityRisk,'continuityRisk',r.groupId,{min:0,max:100})
-    const seasonalityScore=requireDecisionNumber(r.seasonalityScore,'seasonalityScore',r.groupId,{min:0,max:100})
-    requireDecisionNumber(r.confidence,'confidence',r.groupId,{min:0,max:100})
+    if(!r || typeof r!=='object') throw new Error('INSUFFICIENT_DECISION_DATA:batch:row')
+    const groupId=typeof r.groupId==='string'?r.groupId.trim():''
+    if(!groupId) throw new Error('INSUFFICIENT_DECISION_DATA:batch:groupId')
+    const stock=requireDecisionNumber(r.stock,'stock',groupId,{min:0})
+    const demand=requireDecisionNumber(r.forecastDaily,'forecastDaily',groupId,{min:0})
+    const targetDays=requireDecisionNumber(r.targetDays,'targetDays',groupId,{min:Number.EPSILON})
+    const lostUnits=requireDecisionNumber(r.lostUnits,'lostUnits',groupId,{min:0})
+    const liquidityScore=requireDecisionNumber(r.liquidityScore,'liquidityScore',groupId,{min:0,max:100})
+    const continuityRisk=requireDecisionNumber(r.continuityRisk,'continuityRisk',groupId,{min:0,max:100})
+    const seasonalityScore=requireDecisionNumber(r.seasonalityScore,'seasonalityScore',groupId,{min:0,max:100})
+    requireDecisionNumber(r.confidence,'confidence',groupId,{min:0,max:100})
 
     const coverage=safeDays(stock,demand)
     const coverageRisk=finitePercent(clampPercent(100-(coverage/targetDays)*100))

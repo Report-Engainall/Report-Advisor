@@ -2,7 +2,16 @@ import fs from 'node:fs';
 import assert from 'node:assert/strict';
 const fixture = JSON.parse(fs.readFileSync('tests/fixtures/business-golden/cycle-004.json', 'utf8'));
 assert.equal(fixture.kind, 'synthetic');
+assert.ok(Array.isArray(fixture.tenants));
 assert.equal(fixture.tenants.length, 2);
+assert.deepEqual(fixture.tenants.map((tenant) => tenant.id).sort(), ['tenant-a', 'tenant-b']);
+assert.ok(fixture.expected_truth && typeof fixture.expected_truth === 'object');
+for (const tenantId of ['tenant-a', 'tenant-b']) {
+  const truth = fixture.expected_truth[tenantId];
+  assert.ok(truth && typeof truth === 'object');
+  for (const field of ['net_sales', 'inventory_value', 'receivables']) assert.equal(typeof truth[field], 'number');
+  assert.ok(Array.isArray(truth.zero_stock_skus));
+}
 assert.equal(fixture.expected_truth['tenant-a'].net_sales, 1100);
 assert.equal(fixture.expected_truth['tenant-a'].inventory_value, 200);
 assert.equal(fixture.expected_truth['tenant-a'].receivables, 800);

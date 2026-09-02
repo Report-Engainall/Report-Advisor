@@ -17,9 +17,9 @@ function makeZipEntry(name: string): Uint8Array {
   return new Uint8Array([...local, ...central, ...eocd, ...new Array(100).fill(0)]);
 }
 
-function scan(name: string) {
-  const bytes = makeZipEntry(name);
-  return securityScan(new File([bytes], 'upload.zip', { type: 'application/zip' }), bytes.buffer);
+function scan(entryName: string, uploadName = 'upload.zip') {
+  const bytes = makeZipEntry(entryName);
+  return securityScan(new File([bytes], uploadName, { type: 'application/zip' }), bytes.buffer);
 }
 
 const safe = scan('reports/2026/report.csv');
@@ -31,10 +31,22 @@ assert(!traversal.passed && traversal.isZipTraversal, 'parent traversal entry mu
 const nestedTraversal = scan('reports/../../outside.txt');
 assert(!nestedTraversal.passed && nestedTraversal.isZipTraversal, 'nested parent traversal entry must be rejected');
 
+const windowsTraversal = scan('reports\\..\\outside.txt');
+assert(!windowsTraversal.passed && windowsTraversal.isZipTraversal, 'backslash parent traversal entry must be rejected');
+
 const absolute = scan('/absolute/path.txt');
 assert(!absolute.passed && absolute.isZipTraversal, 'absolute POSIX entry path must be rejected');
 
 const windowsAbsolute = scan('C:/absolute/path.txt');
 assert(!windowsAbsolute.passed && windowsAbsolute.isZipTraversal, 'absolute Windows entry path must be rejected');
+
+const nulPath = scan('reports/\0outside.txt');
+assert(!nulPath.passed && nulPath.isZipTraversal, 'NUL-containing entry path must be rejected');
+
+const unsafeUploadName = scan('reports/2026/report.csv', '../outside.zip');
+assert(!unsafeUploadName.passed && unsafeUploadName.isZipTraversal, 'unsafe uploaded archive filename must be rejected');
+
+const nulUploadName = scan('reports/2026/report.csv', 'upload\0.zip');
+assert(!nulUploadName.passed && nulUploadName.isZipTraversal, 'NUL-containing uploaded archive filename must be rejected');
 
 console.log('File security archive traversal: PASS');

@@ -11,7 +11,6 @@ interface AuthGateProps {
 type GateState = 'checking' | 'ready' | 'unauthenticated' | 'tenant-missing';
 
 export function AuthGate({ children }: AuthGateProps) {
-  const [user, setUser] = useState<User | null>(null);
   const [state, setState] = useState<GateState>('checking');
 
   useEffect(() => {
@@ -19,17 +18,11 @@ export function AuthGate({ children }: AuthGateProps) {
 
     const sync = async (authenticatedUser: User | null) => {
       if (!authenticatedUser) {
-        if (mounted) {
-          setUser(null);
-          setState('unauthenticated');
-        }
+        if (mounted) setState('unauthenticated');
         return;
       }
 
-      if (mounted) {
-        setUser(authenticatedUser);
-        setState('checking');
-      }
+      if (mounted) setState('checking');
 
       const companyId = await resolveCurrentCompanyId();
       if (!mounted) return;

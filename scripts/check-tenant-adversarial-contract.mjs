@@ -31,7 +31,7 @@ function forbidden(rel,text){
     [/\b(?:URLSearchParams|searchParams|location\.search)[\s\S]{0,180}\b(?:companyId|tenantId|company_id|tenant_id)\b/i,'URL/query tenant source'],
     [/\.(?:eq|neq|in|filter)\(\s*['\"](?:company_id|tenant_id)['\"]\s*,\s*(?:selectedCompanyId|selectedTenantId)\s*\)/i,'client-selected tenant filter'],
     [/\b(?:companyId|tenantId)\s*=\s*(?:window\.|document\.|location\.)/i,'browser-global tenant source'],
-    [/\b(?:companyId|tenantId|company_id|tenant_id)\s*\?\?\s*['\"][0-9a-f-]{16,}['\"]|\b(?:companyId|tenantId|company_id|tenant_id)\s*\|\|\s*['\"][0-9a-f-]{16,}['\"]/i,'static tenant fallback'],
+    [/\b(?:companyId|tenantId|company_id|tenant_id)\s*(?:\?\?|\|\|)\s*['\"][0-9a-f-]{16,}['\"]/i,'static tenant fallback'],
   ];
   for (const [pattern,label] of rules) if(pattern.test(code)) findings.push(label);
   return findings;
@@ -45,7 +45,7 @@ for(const base of roots) for(const file of walk(path.join(root,base))){
 
 const queriesPath = path.join(root,'src/lib/queries.ts');
 if (fs.existsSync(queriesPath)) {
-  const queries = fs.readFileSync(queriesPath,'utf8');
+  const queries = stripComments(fs.readFileSync(queriesPath,'utf8'));
   const requiredInvoiceContract = [
     /fetchSalesInvoices[\s\S]*?resolveCurrentCompanyId\(\)/,
     /fetchPurchaseInvoices[\s\S]*?resolveCurrentCompanyId\(\)/,
@@ -56,6 +56,17 @@ if (fs.existsSync(queriesPath)) {
   for (const pattern of requiredInvoiceContract) {
     if (!pattern.test(queries)) findings.push({file:'src/lib/queries.ts',hits:[`invoice tenant contract missing: ${pattern}`]});
   }
+}
+
+const adversarialFixtures = [
+  "localStorage.getItem('tenantId')",
+  "new URLSearchParams(location.search).get('companyId')",
+  "query.eq('company_id', selectedCompanyId)",
+  "const tenantId = window.tenantId",
+  "const company_id = company_id ?? '01234567-89ab-cdef-0123-456789abcdef'",
+];
+for (const fixture of adversarialFixtures) {
+  if (!forbidden('__fixture__', fixture).length) throw new Error(`Adversarial tenant fixture unexpectedly accepted: ${fixture}`);
 }
 
 if(findings.length){

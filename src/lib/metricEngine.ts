@@ -23,47 +23,68 @@ export interface MetricInput {
   warnings?: string[];
 }
 
+const boundedConfidence = (value: unknown) => {
+  if (typeof value !== 'number' || !Number.isFinite(value) || value < 0 || value > 1) return 0;
+  return value;
+};
+const validSourceRows = (value: unknown) => typeof value === 'number' && Number.isInteger(value) && value > 0;
+const safeNumericValue = (value: unknown): number | null => {
+  if (value == null || typeof value === 'symbol' || typeof value === 'bigint' || typeof value === 'boolean') return null;
+  if (typeof value === 'number') return Number.isFinite(value) ? value : null;
+  if (typeof value !== 'string' || !value.trim()) return null;
+  const numeric = Number(value.trim());
+  return Number.isFinite(numeric) ? numeric : null;
+};
+const validStatus = (value: unknown): value is MetricStatus =>
+  value === 'CONFIRMED' || value === 'CALCULATED' || value === 'INSUFFICIENT_DATA' || value === 'UNAVAILABLE' || value === 'FORECAST' || value === 'ESTIMATED';
+
 export function evaluateMetric(input: MetricInput): MetricEvaluation {
-  const definition = BUSINESS_METRICS.find(metric => metric.key === input.key);
+  if (!input || typeof input !== 'object' || Array.isArray(input)) throw new Error('Metric input is required');
+  if (typeof input.key !== 'string' || !input.key.trim()) throw new Error('Metric key is required');
+
+  const definition = BUSINESS_METRICS.find(metric => metric.key === input.key.trim());
   if (!definition) throw new Error(`Unknown metric: ${input.key}`);
 
-  const warnings = [...(input.warnings ?? [])];
-  const numeric = input.value != null && Number.isFinite(Number(input.value)) ? Number(input.value) : null;
-  let status = input.status ?? definition.status;
-  let confidence = Math.max(0, Math.min(1, input.confidence ?? (numeric == null ? 0 : 1)));
+  const warnings = Array.isArray(input.warnings) && input.warnings.every(warning => typeof warning === 'string')
+    ? [...input.warnings]
+    : [];
+  const numeric = safeNumericValue(input.value);
+  let status = validStatus(input.status) ? input.status : definition.status;
+  let confidence = input.confidence === undefined ? (numeric == null ? 0 : 1) : boundedConfidence(input.confidence);
 
   if (numeric == null) {
     status = 'UNAVAILABLE';
     confidence = 0;
     warnings.push('القيمة غير متاحة أو غير رقمية.');
-  } else if (input.sourceRows !== undefined && input.sourceRows <= 0) {
+  } else if (!validSourceRows(input.sourceRows)) {
     status = 'INSUFFICIENT_DATA';
     confidence = 0;
-    warnings.push('لا توجد صفوف مصدر كافية لإثبات المؤشر.');
+    warnings.push('عدد صفوف المصدر غير صالح لإثبات المؤشر.');
   } else if (confidence < 0.7 && status !== 'FORECAST' && status !== 'ESTIMATED') {
     warnings.push('الثقة أقل من حد العرض الموثوق.');
   }
 
   const fact: ReportFact = {
-    key: input.key,
+    key: definition.key,
     value: numeric,
     unit: definition.unit,
     confidence,
-    source: status === 'FORECAST' ? 'forecast' : status === 'ESTIMATED' ? 'derived' : 'derived',
+    source: status === 'FORECAST' ? 'forecast' : 'derived',
   };
 
-  return { key: input.key, definition, value: numeric, status, confidence, updatedAt: input.updatedAt, sourceRows: input.sourceRows, warnings, fact };
+  return { key: definition.key, definition, value: numeric, status, confidence, updatedAt: input.updatedAt, sourceRows: input.sourceRows, warnings, fact };
 }
 
 export function evaluateMetricBatch(inputs: MetricInput[]): MetricEvaluation[] {
+  if (!Array.isArray(inputs)) throw new Error('Metric batch input is required');
   return inputs.map(evaluateMetric);
 }
 
 export function metricCanDriveDecision(metric: MetricEvaluation): boolean {
-  return metric.value !== null && metric.confidence >= 0.7 && metric.status !== 'UNAVAILABLE' && metric.status !== 'INSUFFICIENT_DATA';
+  return metric.value !== null && Number.isFinite(metric.value) && metric.confidence >= 0.7 && metric.status !== 'UNAVAILABLE' && metric.status !== 'INSUFFICIENT_DATA';
 }
 
 export function metricDisplayValue(metric: MetricEvaluation): string {
-  if (metric.value === null) return 'غير متوفر';
+  if (metric.value === null || !Number.isFinite(metric.value)) return 'غير متوفر';
   return new Intl.NumberFormat('ar', { maximumFractionDigits: 2 }).format(metric.value);
 }

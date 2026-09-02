@@ -26,15 +26,6 @@ export function KPICard({ label, value, format, change, changeLabel, icon, statu
   const isNegative = change !== undefined && change < 0;
   const isNeutral = change === 0;
 
-  const statusColors: Record<string, string> = {
-    CONFIRMED: 'text-success-600',
-    CALCULATED: 'text-primary-600',
-    ESTIMATED: 'text-warning-600',
-    FORECAST: 'text-accent-600',
-    INSUFFICIENT_DATA: 'text-ink-400',
-    UNAVAILABLE: 'text-ink-400',
-  };
-
   return (
     <div className="card card-hover p-5 group">
       <div className="flex items-start justify-between mb-3">

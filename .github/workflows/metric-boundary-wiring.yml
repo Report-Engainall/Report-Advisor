@@ -1,0 +1,32 @@
+name: Metric Boundary Wiring
+
+on:
+  pull_request:
+    paths:
+      - 'package.json'
+      - 'scripts/check-metric-boundary-contract.mjs'
+      - 'scripts/check-metric-boundary-wiring.mjs'
+      - '.github/workflows/metric-boundary-contract.yml'
+      - '.github/workflows/metric-boundary-wiring.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: metric-boundary-wiring-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Verify metric boundary wiring
+        run: npm run test:metric-boundary-wiring
