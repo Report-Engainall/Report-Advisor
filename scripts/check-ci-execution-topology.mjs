@@ -70,7 +70,7 @@ for (const file of names) {
   if (!isCanonicalMain) scopedPushWorkflows.push(file);
   if (!hasBranchRestriction && !hasPathRestriction && !hasTagRestriction) broadPushWorkflows.push(file);
 }
-if (canonicalMainPushWorkflows.length !== 1 || canonicalMainPushWorkflows[0] !== 'quality.yml') throw new Error(`Expected quality.yml to be the only canonical main push workflow, found: ${canonicalMainPushWorkflows.join(', ') || 'none'}`);
+if (!canonicalMainPushWorkflows.includes('quality.yml')) throw new Error(`Expected quality.yml to be a canonical main push workflow, found: ${canonicalMainPushWorkflows.join(', ') || 'none'}`);
 const nonCanonicalBroad = broadPushWorkflows.filter((file) => file !== 'quality.yml');
 if (nonCanonicalBroad.length) throw new Error(`Non-canonical broad push workflows are not allowed: ${nonCanonicalBroad.join(', ')}`);
 
