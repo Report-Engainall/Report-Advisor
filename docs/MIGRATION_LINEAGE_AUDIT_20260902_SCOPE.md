@@ -1,0 +1,1 @@
+Scope record: migration parity gate, remote deployment-time migration identity, fresh-environment replay safety. No DB mutation performed from the audit branch.
