@@ -1,4 +1,4 @@
-import { json, requireConfig, requireMethod, requireOperationalToken, persistIncidentEvidence, isProductionEnv } from '../src/server/resilience-runtime.mjs';
+import { json, requireConfig, requireMethod, requireOperationalToken, persistIncidentEvidence, isProductionEnv, secureOutboundFetch } from '../src/server/resilience-runtime.mjs';
 
 async function vercelRequest(path, options = {}) {
   const token = process.env.VERCEL_TOKEN.trim();
@@ -34,7 +34,7 @@ async function assignAlias(deploymentId, alias) {
 }
 
 async function verify(url) {
-  const response = await fetch(url, { headers: { Accept: 'application/json' }, cache: 'no-store' });
+  const response = await secureOutboundFetch(url, 'rollback_verify_url', { headers: { Accept: 'application/json' }, cache: 'no-store' });
   return { ok: response.ok, status: response.status };
 }
 
