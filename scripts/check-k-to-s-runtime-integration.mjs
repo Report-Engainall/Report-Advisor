@@ -7,7 +7,7 @@ must('src/lib/report-execution/production-coordinator-bridge.ts',['sourceHash','
 must('src/lib/phase-kl-supabase-runtime.ts',['recordHealth','recordEvidenceEdge','autonomyGate']);
 must('src/lib/report-execution/checkpoint.ts',['assertValidTransition','sourceHash']);
 must('src/lib/production-intelligence.ts',['evaluateAutonomyGate','selectBoundedScenario','rankPortfolio','calibrateConfidence']);
-must('scripts/check-production-readiness.mjs',['blocking','fail']);
+must('scripts/check-production-readiness.mjs',['Production readiness contract: FAIL','missing']);
 const q=read('.github/workflows/quality.yml');
 for(const t of ['test:k-to-s-closure','test:k-to-s-deep-closure','test:phase-l-runtime']) if(!q.includes(t)) throw new Error(`quality missing ${t}`);
 console.log('K→S runtime integration gate: PASS');
