@@ -17,6 +17,17 @@ const REQUIRED_CONTRACT_ANCHORS = [
   'EXECUTION UTILIZATION', 'WAITING-TIME PARALLELIZATION', 'MAXIMUM SAFE PARALLELISM', 'DEPENDENCY-AWARE SCHEDULING',
   'INDEX DRIFT', 'Built', 'Integrated', 'Verified', 'Runtime Proven', 'Production Certified', 'MUST NOT stop',
   'MUST NOT be promoted', 'NEXT+1', 'NEXT+2', 'READY + INDEPENDENT = EXECUTE NOW',
+  'Layer precedence', 'v4.0 governance binding',
+];
+const GOVERNANCE_FILE = 'docs/ADAPTIVE_EXECUTION_GOVERNANCE.md';
+const REQUIRED_GOVERNANCE_ANCHORS = [
+  'LAYER 1', 'LAYER 2', 'LAYER 3', 'P0 — Safety / Security / Evidence Integrity',
+  'P1 — Exact-SHA / Truth / Certification Integrity', 'P2 — Current Master Execution Index',
+  'P3 — Adaptive Execution Governance', 'P4 — Programmer Execution Protocol',
+  'EXECUTION PERFORMANCE LEDGER', 'EXECUTION EFFECTIVENESS', 'UNDER-EXECUTION EVENT',
+  'LOW-VALUE EXECUTION', 'COMMAND QUALITY FEEDBACK', 'STRATEGY MEMORY', 'BASELINE', 'RESULT',
+  'SMART FRONT PRIORITIZATION', 'OBSERVATION → EVIDENCE → RCA → PROPOSED RULE → CONFLICT CHECK → TEST → ADVERSARIAL → ACCEPT → VERSION → INDEX UPDATE',
+  'REAL MEASURED DATA > ESTIMATE > NO CLAIM', 'HIGH | MEDIUM | LOW | UNPROVEN',
 ];
 const FORBIDDEN_WEAKENING_PATTERNS = [
   /historical\s+pass[\s\S]{0,120}\btransfer(?:s|red)?\b\s+automatically/i,
@@ -51,6 +62,16 @@ export function validateExecutionEnforcementProtocol(protocol) {
   return true;
 }
 
+export function validateAdaptiveGovernance(governance) {
+  if (typeof governance !== 'string' || governance.trim().length === 0) throw new Error('Adaptive governance rejected: empty/non-string contract');
+  const normalized = normalize(stripComments(governance));
+  const missing = REQUIRED_GOVERNANCE_ANCHORS.filter(anchor => !normalized.includes(normalize(anchor)));
+  if (missing.length) throw new Error(`Adaptive governance rejected: missing anchors: ${missing.join(', ')}`);
+  if (!normalized.includes('one-off incident') || !normalized.includes('repeated pattern') || !normalized.includes('proven systemic failure')) throw new Error('Adaptive governance rejected: evolution threshold is incomplete');
+  if (!normalized.includes('commits, lines changed, report size, index size, and test count are not progress metrics')) throw new Error('Adaptive governance rejected: activity/progress separation missing');
+  return true;
+}
+
 export function validateCurrentHeadIndex(index, currentHead, parentHead = '') {
   const normalizedIndex = normalize(stripComments(index));
   const head = normalize(currentHead);
@@ -69,6 +90,9 @@ for (const anchor of ['EXECUTION DEBT', 'ACTIONABLE DEBT', 'EXTERNAL DEBT', 'REL
   if (!normalize(stripComments(debtLedger)).includes(normalize(anchor))) throw new Error(`Execution enforcement protocol rejected: debt/velocity ledger missing ${anchor}`);
 }
 
+const adaptiveGovernance = fs.readFileSync(GOVERNANCE_FILE, 'utf8');
+validateAdaptiveGovernance(adaptiveGovernance);
+
 if (process.argv[1] && process.argv[1].endsWith('check-execution-enforcement-protocol.mjs')) {
   const protocol = fs.readFileSync('docs/EXECUTION_ENFORCEMENT_PROTOCOL.md', 'utf8');
   validateExecutionEnforcementProtocol(protocol);
@@ -85,5 +109,5 @@ if (process.argv[1] && process.argv[1].endsWith('check-execution-enforcement-pro
     }
     validateCurrentHeadIndex(index, currentHead, parentHead);
   }
-  console.log(`PASS execution enforcement protocol: ${REQUIRED_RULES.length} mandatory rules, behavioral cases, scheduling controls, debt/velocity ledger, and versioned index-head certification gate active`);
+  console.log(`PASS execution enforcement protocol: ${REQUIRED_RULES.length} mandatory rules, behavioral cases, v4 governance layer, scheduling controls, debt/velocity ledger, and versioned index-head certification gate active`);
 }
