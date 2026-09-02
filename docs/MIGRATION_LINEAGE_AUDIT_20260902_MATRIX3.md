@@ -1,0 +1,1 @@
+Remote-to-repository parity is unresolved because remote deployment-time version identities differ from source migration prefixes. This branch is evidence-only and is not a release candidate.
