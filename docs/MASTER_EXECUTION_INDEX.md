@@ -3,8 +3,8 @@
 ## CURRENT RESUME EXECUTION MAP — 2026-09-02 — FINAL SWEEP
 
 ### CURRENT PROJECT STATE
-- Exact code/test head entering this sweep: `d0edb9fff9ce78dda28c16df17bc5e74e2a65c1e`.
-- v3.2 execution-window mutations: `bae9a099adeb85590810289507b55369bd05cf85` → `028f88993aefafa53dcca0d77575e2e3d7c90da0` → `c897bfec6a0b4464faacfd151a0ec2646bcd92a0` → `9aacfee8c48224c9b62be640195bd28a45691548` → `544ec2d8a6e847d9490a81f795ad0043f4d5cf75` / `a15a9ea4126964888aa7f20e782b5337b182a154` → `d0edb9fff9ce78dda28c16df17bc5e74e2a65c1e`.
+- Exact code/test head entering this sweep: `67820aaec9b8594be6ace2f87c5ff4cf4307c61b`.
+- v3.2 execution-window mutations completed before this final index refresh: `bae9a099adeb85590810289507b55369bd05cf85` → `028f88993aefafa53dcca0d77575e2e3d7c90da0` → `c897bfec6a0b4464faacfd151a0ec2646bcd92a0` → `9aacfee8c48224c9b62be640195bd28a45691548` → `544ec2d8a6e847d9490a81f795ad0043f4d5cf75` / `a15a9ea4126964888aa7f20e782b5337b182a154` → `d0edb9fff9ce78dda28c16df17bc5e74e2a65c1e` → `67820aaec9b8594be6ace2f87c5ff4cf4307c61b`.
 - The current index refresh is the final mutation in this execution window. The index commit itself is versioned separately; its parent is the exact code/test head above. Historical ledger content below is preserved; no older evidence transfers to this new boundary.
 - `main` is currently unprotected; certification remains fail-closed and exact-SHA bound.
 - Operational runtime/recovery proof is still separate from deterministic/static verification and remains UNPROVEN.
@@ -62,7 +62,7 @@ A waiting window closes only when `result received AND result consumed AND new w
 - Enforcement v3.2: time-aware parallelization, safe parallelism, scheduler fields, debt split, utilization accounting, explicit certification-mode index gate, and adversarial comment-decoy/test-of-test coverage are encoded in the durable protocol/checker.
 
 ### IN-PROGRESS
-- Fresh exact-head CI for `d0edb9fff9ce78dda28c16df17bc5e74e2a65c1e` plus the index-only boundary commit.
+- Fresh exact-head CI for `67820aaec9b8594be6ace2f87c5ff4cf4307c61b` plus the index-only boundary commit.
 - Immediate consumption of Quality/Final Batch/Storage results for the exact code/test head and its index boundary.
 - Independent security/evidence/import/OCR/workflow rescan and E1–E8 preparation.
 - Final certification gap decomposition.
