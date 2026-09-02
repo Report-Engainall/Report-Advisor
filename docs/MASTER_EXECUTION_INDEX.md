@@ -3,9 +3,9 @@
 ## CURRENT RESUME EXECUTION MAP — 2026-09-02 — FINAL SWEEP
 
 ### CURRENT PROJECT STATE
-- Exact code/test head entering this sweep: `e3fb8aae368c58c3781427f80c95b9ca539124c7`.
-- v3.2 execution-window mutations completed before this final index refresh: `bae9a099adeb85590810289507b55369bd05cf85` → `028f88993aefafa53dcca0d77575e2e3d7c90da0` → `c897bfec6a0b4464faacfd151a0ec2646bcd92a0` → `9aacfee8c48224c9b62be640195bd28a45691548` → `544ec2d8a6e847d9490a81f795ad0043f4d5cf75` / `a15a9ea4126964888aa7f20e782b5337b182a154` → `d0edb9fff9ce78dda28c16df17bc5e74e2a65c1e` → `67820aaec9b8594be6ace2f87c5ff4cf4307c61b` → `f645fb932015d5a29edf51167a11e7fc28959bb3` → `17a36274690321786bd3b6456aa20ac0f53902e3` → `e3fb8aae368c58c3781427f80c95b9ca539124c7`.
-- The waiting-time enforcement cycle exposed two real checker false positives (legitimate MUST-NOT wording around waiting and external debt). Both were narrowed to explicit weakening modal language, then the enforcement workflow was bound to `MASTER_EXECUTION_INDEX.md` and `ENFORCE_INDEX_HEAD_GATE=1`.
+- Exact code/test head entering this sweep: `6b619f1d94e6f1bb39ee851fc35e6b55d442df69`.
+- v3.2 execution-window mutations completed before this final index refresh: `bae9a099adeb85590810289507b55369bd05cf85` → `028f88993aefafa53dcca0d77575e2e3d7c90da0` → `c897bfec6a0b4464faacfd151a0ec2646bcd92a0` → `9aacfee8c48224c9b62be640195bd28a45691548` → `544ec2d8a6e847d9490a81f795ad0043f4d5cf75` / `a15a9ea4126964888aa7f20e782b5337b182a154` → `d0edb9fff9ce78dda28c16df17bc5e74e2a65c1e` → `67820aaec9b8594be6ace2f87c5ff4cf4307c61b` → `f645fb932015d5a29edf51167a11e7fc28959bb3` → `17a36274690321786bd3b6456aa20ac0f53902e3` → `e3fb8aae368c58c3781427f80c95b9ca539124c7` → `6b619f1d94e6f1bb39ee851fc35e6b55d442df69`.
+- The waiting-time enforcement cycle exposed two real checker false positives and one CI-environment defect: legitimate MUST-NOT wording was mistaken for weakening, then shallow checkout prevented HEAD-parent validation. All were corrected without weakening the gate; the enforcement workflow now fetches depth 2, binds to the master index, and enables the certification-mode index-head gate.
 - The current index refresh is the final mutation in this execution window. The index commit itself is versioned separately; its parent is the exact code/test head above. Historical ledger content below is preserved; no older evidence transfers to this new boundary.
 - `main` is currently unprotected; certification remains fail-closed and exact-SHA bound.
 - Operational runtime/recovery proof is still separate from deterministic/static verification and remains UNPROVEN.
@@ -25,7 +25,7 @@
 | Quality | fresh run required on final code head | OPEN | v3.2 protocol, checker, scheduler, debt/velocity, adversarial work, RCA, regression, index reconciliation | consume exact result immediately |
 | Storage tenant isolation | fresh run required on final code head | OPEN | v3.2 protocol/checker/test work and E1–E8 preparation | consume exact result immediately |
 | Final Execution Batch | fresh run required on final code head | OPEN | enforcement hardening and independent release/evidence preparation | consume exact result immediately |
-| Enforcement Contract | failed on two prior detector variants; final detector/workflow binding now corrected | OPEN | false-positive RCA/fix and certification-mode index gate | consume fresh result immediately |
+| Enforcement Contract | prior variants failed and were repaired; fresh depth-2 validation required on final code head | OPEN | false-positive RCA/fix and certification-mode index gate | consume fresh result immediately |
 
 A waiting window closes only when `result received AND result consumed AND new work evaluated`.
 
@@ -61,10 +61,10 @@ A waiting window closes only when `result received AND result consumed AND new w
 - Production certification aggregation: fail-closed canonical mandatory keys `tenant|backup|rollback|artifact|security`; malformed evidence cannot certify.
 - Phase-12 SPA fallback checker: canonical `routes[]` support retained and route ordering is now enforced; canonical route and decoy/misordered-route rejection tested.
 - Production certification adversarial runtime coverage: complete/missing/failed/duplicate/unrelated/malformed evidence attacks are present.
-- Enforcement v3.2: time-aware parallelization, safe parallelism, scheduler fields, debt split, utilization accounting, explicit certification-mode index gate, adversarial comment-decoy/test-of-test coverage, and workflow binding to the master index are encoded in the durable protocol/checker.
+- Enforcement v3.2: time-aware parallelization, safe parallelism, scheduler fields, debt split, utilization accounting, explicit certification-mode index gate, adversarial comment-decoy/test-of-test coverage, master-index workflow binding, and depth-2 parent validation are encoded in the durable protocol/checker.
 
 ### IN-PROGRESS
-- Fresh exact-head CI for `e3fb8aae368c58c3781427f80c95b9ca539124c7` plus the final index-only boundary commit.
+- Fresh exact-head CI for `6b619f1d94e6f1bb39ee851fc35e6b55d442df69` plus the final index-only boundary commit.
 - Immediate consumption of Quality/Final Batch/Storage/Enforcement results for the exact code/test head and its index boundary.
 - Independent security/evidence/import/OCR/workflow rescan and E1–E8 preparation.
 - Final certification gap decomposition.
