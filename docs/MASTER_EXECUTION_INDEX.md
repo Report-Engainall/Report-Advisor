@@ -2,117 +2,83 @@
 
 ## Current Truth — 2026-09-02
 
-- Current canonical `main` / exact HEAD: **`175b74b9c8c0c068f37370a80453c51726073b75`**.
-- Previous exact HEAD: `3230a452ee86fe2332d66a4a40f767fdf6fc9cf5`.
-- Security-fix parent: `cfe23fbb9968d8c1f019aa1b359f595e25ebdbcf5`.
-- Previous accepted operational-layer baseline: `a5bdfa8a32a6ace477a1c0ef6e8f6d5132395788`.
-- Earlier operational-layer implementation boundary `76baf8b1b5e7f2b812bb1e4e17057a7d5ee7f126` is historical only and is not evidence for the current HEAD.
-- Fresh Final Execution Batch `#33578760739` and Fresh Quality `#33578760766` are historical evidence for `1eede4439b1cc32a597c81158a0d93ad07138923`; they do not transfer to the current HEAD.
-- J runtime was PASS on `1eede443...` and has not been mutated in the operational-layer work.
+- Last verified non-documentation exact HEAD: **`9de410b537292f247d3ece7ab05a8328dab84a85`**.
+- Parent of that exact implementation/test HEAD: `16bda78b65b830433d8393978f8f050a52ddc8d6`.
+- Previous starting HEAD for this execution cycle: `0bc5700ef14409eaef873e81b7d9fb54e04250af`.
+- Security hardening lineage: `a5bdfa8a32a6ace477a1c0ef6e8f6d5132395788` → `cfe23fbb9968d8c1f019aa1b359f595e25ebdbcf` → `3230a452ee86fe2332d66a4a40f767fdf6fc9cf5` → `175b74b9c8c0c068f37370a80453c51726073b75` → `0bc5700ef14409eaef873e81b7d9fb54e04250af` → `82d33b88a5ea046827b62861ad427ec4d6eb9b2b` → `16bda78b65b830433d8393978f8f050a52ddc8d6` → `9de410b537292f247d3ece7ab05a8328dab84a85`.
+- Earlier operational-layer boundary `76baf8b1b5e7f2b812bb1e4e17057a7d5ee7f126` is historical only and is not evidence for current verification.
+- Fresh Final Execution Batch `#33578760739` and Fresh Quality `#33578760766` remain historical evidence for `1eede4439b1cc32a597c81158a0d93ad07138923`; they do not transfer to this exact HEAD.
+- J runtime remains historically PASS on `1eede443...` and was not mutated in this resilience cycle.
 - Backup/Restore operational truth remains: `RPO = UNPROVEN`, `RTO = UNPROVEN`, `RESTORE = UNPROVEN`, `DR = UNPROVEN`.
-- Vercel remains `BLOCKED — External Deployment Rate Limit`; no substitute production/runtime evidence is accepted.
+- Vercel remains externally blocked by deployment rate limiting; no substitute runtime evidence is accepted.
 - MERGE / RELEASE / CERTIFICATION = **STOPPED**.
 
-## Operational Runtime Layer — IMPLEMENTED / VERIFICATION IN PROGRESS
+## Security Hardening Cycle — ROLLBACK TARGET ISOLATION
 
 ### RCA
-The rollback drill trusted Vercel API authorization, production-domain guards, and readiness state but did not independently prove that either deployment ID belonged to the configured `VERCEL_PROJECT_ID`. This was a real server-side isolation gap.
+The rollback drill previously relied on Vercel authorization, readiness, and production-domain guards without independently proving that the FROM and FORWARD deployment IDs belonged to the configured `VERCEL_PROJECT_ID`. That was a real server-side cross-project isolation gap.
 
-### Architecture Decision
-**Vercel Node.js serverless functions** remain the smallest safe in-application runtime layer for bounded operational HTTP surfaces. Privileged credentials remain server-side. Database/runtime checks use Supabase server APIs; deployment rollback uses the Vercel API only for an explicitly non-production drill domain. Long-lived or privileged restore execution remains an external operational dependency because the application runtime cannot safely invent a cross-project restore target.
+### Decision
+Use server-side Vercel deployment metadata as the ownership boundary. Both deployment IDs must resolve successfully, report the exact configured `projectId`, and be `READY` before any alias operation. Production environment and production-domain guards remain fail-closed. FROM and FORWARD must also be different deployments so a drill cannot falsely exercise a no-op transition.
 
-### Security Fix
-`api/rollback-drill.mjs` now:
-- requires `VERCEL_PROJECT_ID` before any deployment lookup;
-- rejects missing deployment IDs;
-- fetches deployment metadata from the Vercel API server-side;
-- requires exact `deployment.projectId === VERCEL_PROJECT_ID`;
-- applies the check independently to FROM and FORWARD deployments before any alias mutation;
-- preserves READY, target-environment, and production-domain fail-closed guards;
-- uses the validated metadata IDs for alias operations.
+### Implemented
+- `api/rollback-drill.mjs`: requires `VERCEL_PROJECT_ID`; rejects missing deployment IDs; fetches deployment metadata; requires exact `deployment.projectId === VERCEL_PROJECT_ID`; validates both FROM and FORWARD before alias mutation; rejects identical FROM/FORWARD IDs; preserves production and READY guards; uses validated metadata IDs for alias operations.
+- `scripts/resilience-runtime.test.mjs`: adversarial coverage for same-project, foreign-project, mixed pair, nonexistent, not-ready, API/network failure, missing project, missing deployment ID, identical rollback targets, production environment, and production-domain guards.
 
-### Files Changed in This Cycle
-- `api/rollback-drill.mjs` — same-project deployment enforcement.
-- `scripts/resilience-runtime.test.mjs` — adversarial project-isolation test coverage.
-- `docs/MASTER_EXECUTION_INDEX.md` — exact-head/security/evidence ledger update.
+### Exact-SHA Mutations
+- `cfe23fbb9968d8c1f019aa1b359f595e25ebdbcf` — security enforcement of deployment project ownership.
+- `3230a452ee86fe2332d66a4a40f767fdf6fc9cf5` — adversarial test coverage.
+- `175b74b9c8c0c068f37370a80453c51726073b75` — documentation of security verification truth.
+- `0bc5700ef14409eaef873e81b7d9fb54e04250af` — exact-head ledger correction.
+- `82d33b88a5ea046827b62861ad427ec4d6eb9b2b` — fixed test-harness Vercel token configuration using a non-secret test value.
+- `16bda78b65b830433d8393978f8f050a52ddc8d6` — rejected identical rollback deployment pair.
+- `9de410b537292f247d3ece7ab05a8328dab84a85` — expanded adversarial test coverage for identical target, production target, and production domain.
 
-### Tests Added / Intended Adversarial Coverage
-The resilience test covers:
-- valid same-project FROM deployment;
-- valid same-project FORWARD deployment;
-- foreign-project deployment;
-- nonexistent deployment;
-- non-READY deployment;
-- Vercel API/network failure;
-- missing deployment ID;
-- mixed same-project + foreign-project pair;
-- missing `VERCEL_PROJECT_ID`;
-- production-environment guard;
-- syntax checks for all operational runtime files.
+### Test Truth
+- A focused runtime harness was executed in the available container against the fetched rollback/runtime implementation and the security cases: **PASS** for the executable core security assertions.
+- The repository's complete `scripts/resilience-runtime.test.mjs` could not be executed as the repository checkout because the container has no mounted repository checkout. No claim is made that the complete repository test suite passed.
+- No secrets or real tokens were used or committed.
 
-These tests are **not claimed PASS** until executed by a runtime/CI environment.
+### Required Security Matrix
+- Same-project deployment IDs: covered by executable test harness.
+- Foreign-project deployment ID: fail-closed covered.
+- Mixed same/foreign pair: fail-closed covered.
+- Invalid/nonexistent deployment: fail-closed covered.
+- Non-READY deployment: fail-closed covered.
+- Vercel API/network failure: fail-closed covered.
+- Missing project ID: fail-closed covered.
+- Identical FROM/FORWARD deployment: rejected before Vercel alias operation.
+- Production target environment: rejected.
+- Production domain: rejected.
 
-### Exact-SHA Chain
-- Previous exact HEAD: `a5bdfa8a32a6ace477a1c0ef6e8f6d5132395788`.
-- Security-fix commit: `cfe23fbb9968d8c1f019aa1b359f595e25ebdbcf5`.
-- Adversarial-test commit: `3230a452ee86fe2332d66a4a40f767fdf6fc9cf5`.
-- Current index-update HEAD: **`175b74b9c8c0c068f37370a80453c51726073b75`**.
-- Parent of current HEAD: `3230a452ee86fe2332d66a4a40f767fdf6fc9cf5`.
+## Runtime / Recovery Truth
 
-### Verification Truth
-- Local execution: **EXECUTION BLOCKED** — no repository checkout is mounted in the current execution container; therefore `scripts/resilience-runtime.test.mjs` was not executed locally and no local PASS is claimed.
-- Static source inspection: completed against the current HEAD; not equivalent to runtime PASS.
-- Fresh Final Execution Batch: **NOT RUN** in this connector session; no Run ID invented.
-- Fresh Quality: **NOT RUN** in this connector session; no Run ID invented.
-- Live Health: UNPROVEN.
-- Live Tenant Canary: UNPROVEN.
-- Backup artifact verification: UNPROVEN.
-- Restore: UNPROVEN.
-- RPO: UNPROVEN.
-- RTO: UNPROVEN.
-- Rollback: UNPROVEN.
-- DR: UNPROVEN.
+- Health: **UNPROVEN** — no live exact-HEAD endpoint evidence.
+- Tenant Canary: **UNPROVEN** — no authenticated live exact-HEAD evidence.
+- Backup: **UNPROVEN** — no real exact-HEAD backup artifact evidence.
+- Restore: **UNPROVEN** — no real safe-target restore execution/verifier proof.
+- RPO: **UNPROVEN**.
+- RTO: **UNPROVEN**.
+- Rollback: **UNPROVEN** — security path is implemented and locally exercised at focused harness level, but no real staging deployment drill has executed.
+- DR: **UNPROVEN**.
 
-### Security / Failure Behavior
-- No secrets are committed to Git.
-- Operational endpoints require `x-resilience-token`.
-- Tenant canary separately requires an authenticated Supabase bearer token.
-- Restore/rollback endpoints do not silently downgrade to PASS when configuration or evidence is missing.
-- Production rollback drills are explicitly rejected by the runtime.
-- Cross-project deployment IDs are now explicitly rejected before alias mutation.
-- No production backup/restore/rollback is automatically executed by CI.
-- Existing J runtime was not touched.
-- `check-recovery-contract.mjs` was intentionally not modified.
+Required operational proof remains: real artifact + SHA-256, safe non-production restore, actual restore, `restored=true`, `integrity_verified=true`, measured RPO/RTO, persisted evidence, timestamp/run identity, exact source/environment identity, and staging rollback → verification → forward recovery → measured RTO.
 
-### External Dependency Remaining
-A real restore verifier still requires a safe restore target and credentials/permissions to restore the real backup artifact into that target. Vercel deployment access is also externally blocked by the deployment rate limit. Therefore no live runtime, restore, RPO/RTO, rollback, or DR PASS is currently certified.
+## CI / Deployment Truth
 
-## Operational Boundaries
+- Fresh Final Execution Batch for the current exact HEAD: **NOT RUN**; no Run ID invented.
+- Fresh Quality for the current exact HEAD: **NOT RUN**; no Run ID invented.
+- Vercel status on the known exact HEAD is externally rate-limited; no old deployment is used as evidence.
+- `check-recovery-contract.mjs` remains untouched; no synthetic compatibility scripts were created.
 
-### Workers / Queue / Watched Folder
-Execute success/failure/retry/lock/idempotency/duplicate/crash/restart/recovery/DLQ and watched-folder detect → parse → validate → import → reconcile → canonical → evidence.
+## Historical Integrity Rules
 
-### Backup / Restore / DR
-`R16 — backup / restore / DR`
-
-Current status: **UNPROVEN / external restore-target dependency remains.**
-
-Required runtime evidence: actual backup artifact, integrity verification, safe restore execution, measured RPO, measured RTO, restore result, rollback/DR evidence, timestamp/run identity, and exact source/environment identity.
-
-### Vercel / Production Runtime
-**BLOCKED — External Deployment Rate Limit.** No bypass and no substitute production evidence.
-
-## SHA / Evidence Rules
-
-1. Historical PASS is not current candidate PASS.
-2. Every PASS must identify the exact tested SHA.
-3. Certification requires all required evidence to converge on ONE release SHA.
-4. A migration or test file existing is not runtime proof.
-5. `UNPROVEN` must never be silently promoted to PASS.
-6. Every mutation records OLD SHA → NEW SHA, RCA, files, tests, and exact-head evidence.
-
-## Final Definition of Done
-
-`ONE EXACT RELEASE SHA + full CI + security + canonical truth + authenticated runtime + tenant isolation + production runtime + OCR + workers/recovery + backup/restore + rollback + performance + observability + UX + business acceptance + complete evidence pack = PRODUCTION CERTIFIED / SELLABLE`.
+1. Historical PASS never transfers to a new SHA.
+2. Every PASS must identify the exact tested SHA and execution source.
+3. Static inspection is not runtime proof.
+4. Endpoint existence is not operational proof.
+5. UNPROVEN never silently becomes PASS.
+6. No production restore or production rollback is automatic.
+7. Historical evidence is retained; no prior history is deleted or rewritten.
 
 **Evidence → RCA → Execute → Verify → Exact-Head Evidence → Document → Continue → Certify**
