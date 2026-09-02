@@ -3,11 +3,53 @@
 ## CURRENT RESUME EXECUTION MAP — 2026-09-02 — FINAL SWEEP
 
 ### CURRENT PROJECT STATE
-- Exact code/test head entering this sweep: `c51cb6d2499d5810dda0edc931bb24cfc78af614`.
-- Resume-map/documentation mutations in this sweep: `243e9a36d1e81e1f1f59e5af19847cadbe104c2d` (malformed certification adversarial coverage locked) → `9c66a36142000d40bd5dd8afbba03785dc0f35b1` (Phase-12 SPA route ordering enforced) → this ledger refresh.
-- The resulting documentation commit becomes the new exact HEAD; no evidence from `c51cb6d...` or earlier transfers automatically.
+- Exact code/test head entering this sweep: `028f88993aefafa53dcca0d77575e2e3d7c90da0`.
+- v3.2 enforcement mutations in this sweep: `bae9a099adeb85590810289507b55369bd05cf85` (time-aware protocol) → `028f88993aefafa53dcca0d77575e2e3d7c90da0` (behavioral/scheduling/current-head enforcement checker).
+- The index itself is now refreshed on the current branch while preserving the full historical ledger below. This refresh creates a new exact evidence boundary; no prior evidence transfers automatically.
 - `main` is currently unprotected; certification remains fail-closed and exact-SHA bound.
 - Operational runtime/recovery proof is still separate from deterministic/static verification and remains UNPROVEN.
+
+### CURRENT ENFORCEMENT — v3.2
+- `E-TIME — WAITING-TIME PARALLELIZATION`: every asynchronous operation opens a parallel execution window. Waiting is not a stop condition while independent actionable work exists. Completed async results must be consumed immediately.
+- `E-MAX — MAXIMUM SAFE PARALLELISM`: execute the maximum independent safe work without conflicting mutations, races, or ambiguous evidence lineage; shared mutation chains remain sequential.
+- `E-SCHED — DEPENDENCY-AWARE SCHEDULING`: each task is tracked as `TASK | DEPENDENCY | STATE | PARALLEL? | BLOCKER | CAN START NOW? | EXPECTED UNLOCK`; `READY + INDEPENDENT = EXECUTE NOW`.
+- `E-INDEX-HEAD`: any mismatch between repository HEAD and the live index current HEAD is `INDEX DRIFT`; TRUE STOP and certification readiness are forbidden until reconciled.
+- `E-DEBT`: execution debt is split into `ACTIONABLE DEBT` and `EXTERNAL DEBT`; actionable debt must execute, external debt must be isolated and prepared around.
+- `E-UTIL`: utilization exposes async operations running, parallel work executed, parallel work available, debt closed, and remaining work reduced; waiting with unused independent capacity is under-utilization.
+- `E-EVOLVE`: repeatable protocol weakness triggers `OBSERVE → RCA → DEFINE NEW RULE → UPDATE INDEX → ADD ENFORCEMENT → ADD TEST → ADD TEST-OF-TEST → ADVERSARIAL → REGRESSION → RESCAN` and immediate application.
+
+### WAITING WINDOWS — LIVE EXECUTION LEDGER
+| Async operation | State | Parallel window | Independent work policy | Consumption rule |
+|---|---|---|---|---|
+| Quality | RUNNING | OPEN | security, DB/RPC, workflow, evidence, release, E1–E8 prep | consume result immediately |
+| Storage tenant isolation | RUNNING | OPEN | local security/evidence/scheduler work | consume result immediately |
+| Final Execution Batch | RUNNING/EXPECTED | OPEN | all non-conflicting local fronts | consume result immediately |
+
+A waiting window closes only when `result received AND result consumed AND new work evaluated`.
+
+### EXECUTION SCHEDULER — CURRENT
+| Task | Dependency | State | Parallel? | Blocker | Can start now? | Expected unlock |
+|---|---|---|---|---|---|---|
+| Quality exact-head CI | current SHA | RUNNING | YES | none | YES | deterministic verification |
+| Storage isolation contract | current SHA | RUNNING | YES | none | YES | tenant contract confidence |
+| Enforcement adversarial validation | protocol/checker | READY | YES | none | YES | enforcement confidence |
+| Security/DB/RPC/evidence rescans | repository | READY | YES | none | YES | local defect closure |
+| E1 deployment validation/preparation | deployment contract | READY | YES | live Vercel for deployment | YES prep / NO live | runtime handoff |
+| E2 authenticated harness preparation | E1 live | READY | YES | live deployment for execution | YES prep / NO live | E2 readiness |
+| E3 tenant A/B harness preparation | E2 live | READY | YES | live auth/runtime | YES prep / NO live | isolation readiness |
+| E4 backup verifier/evidence preparation | operational backup | READY | YES | real backup service | YES prep / NO live | backup handoff |
+| E5 restore verifier/evidence preparation | E4 | READY | YES | real restore target | YES prep / NO live | restore handoff |
+| E6 RPO/RTO measurement validation | E4/E5 | READY | YES | real timestamps/timing | YES prep / NO live | recovery metrics |
+| E7 rollback/forward validation | E1 + deployment pair | READY | YES | Vercel runtime/authorization | YES prep / NO live | rollback handoff |
+| E8 DR exercise preparation | E5/E7 | READY | YES | approved DR environment | YES prep / NO live | DR handoff |
+
+### EXECUTION DEBT / RELEASE VELOCITY / UTILIZATION
+- `ACTIONABLE DEBT`: current-head exact index/enforcement synchronization, fresh CI consumption, and any local finding exposed by the active rescan.
+- `EXTERNAL DEBT`: exact-head live deployment, authenticated runtime access, live Tenant A/B, real backup/restore/RPO/RTO, staging rollback/forward recovery, and DR.
+- Rule: `ACTIONABLE DEBT → MUST EXECUTE`; `EXTERNAL DEBT → ISOLATE + PREPARE + DOCUMENT`.
+- `RELEASE VELOCITY`: measure only movement through `Built → Integrated → Verified → Runtime Proven → Production Certified`.
+- `EXECUTION UTILIZATION`: record async operations running, parallel work executed, parallel work available, execution debt closed, and remaining work reduced. CI time with zero available-work execution is an under-utilization signal.
+- `TRUE STOP` requires `EXECUTION DEBT = 0` for locally executable debt and no safe actionable parallel work.
 
 ### COMPLETED PHASES / VERIFIED TRUTH
 - Deterministic final-batch gate set: historically verified on exact prior SHAs; no historical PASS is promoted to this new HEAD until fresh CI executes it.
@@ -17,10 +59,12 @@
 - Production certification aggregation: fail-closed canonical mandatory keys `tenant|backup|rollback|artifact|security`; malformed evidence cannot certify.
 - Phase-12 SPA fallback checker: canonical `routes[]` support retained and route ordering is now enforced; canonical route and decoy/misordered-route rejection tested.
 - Production certification adversarial runtime coverage: complete/missing/failed/duplicate/unrelated/malformed evidence attacks are present.
+- Enforcement v3.2: time-aware parallelization, safe parallelism, scheduler fields, debt split, utilization accounting, and current-head gate are encoded in the durable protocol/checker.
 
 ### IN-PROGRESS
-- Fresh exact-head CI for the resulting documentation HEAD.
+- Fresh exact-head CI for `028f88993aefafa53dcca0d77575e2e3d7c90da0`.
 - Independent security/evidence/import/OCR/workflow rescan.
+- Enforcement test-of-test/adversarial validation for v3.2.
 - Final certification gap decomposition and computer handoff readiness.
 
 ### FINAL CLOSURE MAP — A TO Q
@@ -55,6 +99,7 @@
 - Runtime probe/checklist preparation.
 - CI result processing.
 - Release manifest/readiness preparation.
+- v3.2 enforcement adversarial/test-of-test validation.
 
 ### SEQUENTIAL TASKS
 1. Exact-head CI → isolate first failure → RCA → minimal fix → targeted test → adversarial → regression → rescan → fresh CI.
@@ -187,6 +232,7 @@
 - Certification must fail closed on missing, failed, duplicate, malformed mandatory evidence.
 - Runtime evidence must identify exact source SHA/environment and must not be inferred from static/mock tests.
 - Backup/Restore/DR/RPO/RTO/Rollback remain UNPROVEN until real operational evidence exists.
+- `INDEX DRIFT` and locally executable `ACTIONABLE DEBT` forbid TRUE STOP/certification readiness.
 
 ### FINAL RELEASE BLOCKERS — CURRENT REASON
 - Production Runtime: UNPROVEN — deployment/current-head runtime evidence missing; external deployment rate-limit/access blocker.
