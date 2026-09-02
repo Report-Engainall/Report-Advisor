@@ -1,17 +1,17 @@
 # Report Advisor — Master Execution & Truth Index
 
-## CURRENT RESUME EXECUTION MAP — 2026-09-02 — v4.8 / RESILIENCE MAPPED-IP CLOSURE
+## CURRENT RESUME EXECUTION MAP — 2026-09-02 — v4.9 / EXECUTION-ENFORCEMENT INDEX-ONLY CLOSURE
 
 > This file is the authoritative current execution index. Historical execution records remain preserved in Git history and dated execution/evidence documents. No evidence crosses an exact-SHA boundary.
 
 ### CURRENT PROJECT STATE
 - Repository: `Report-Engainall/Report-Advisor`.
-- Latest repository synchronization commit before this documentation sync: `1bdd5815d5f79f7e88dec0cf2ff8c2724bc0a9b9` (resilience mapped-IPv6 private-target closure; current code/test candidate).
-- Current repository head: `1bdd5815d5f79f7e88dec0cf2ff8c2724bc0a9b9`.
-- Current code/test head: `1bdd5815d5f79f7e88dec0cf2ff8c2724bc0a9b9`.
-- Current exact code/test candidate: `1bdd5815d5f79f7e88dec0cf2ff8c2724bc0a9b9` (resilience mapped-IPv6 private-target closure).
-- Previous exact-head Quality run `33662117870` and Final Execution Batch `33662117840` passed on `ab1cf0d9`; later resilience/CI mutations require fresh exact-head evidence.
-- Quality at the current pre-fix boundary exposed a real resilience regression: URL-normalized IPv4-mapped IPv6 private targets were not rejected by the parser; this was corrected at the current candidate.
+- Latest repository synchronization commit before this documentation sync: `09c9b1b1f0da54950ec022a230f3132c61e38c59` (execution-enforcement index-only path proof; current code/test candidate).
+- Current repository head: `09c9b1b1f0da54950ec022a230f3132c61e38c59`.
+- Current code/test head: `09c9b1b1f0da54950ec022a230f3132c61e38c59`.
+- Current exact code/test candidate: `09c9b1b1f0da54950ec022a230f3132c61e38c59` (execution-enforcement index-only path proof).
+- Fresh Quality run `33670067052` passed on `1bdd5815`; fresh Final Execution Batch `33670067057` passed on `1bdd5815`. The enforcement verifier then exposed a real defect in its own index-only path detection, corrected at the current candidate.
+- The enforcement fix preserves the exact-SHA rule while proving an index-only boundary from the actual Git changed-file list instead of relying on a fragile pathspec exclusion.
 
 ### 2026-09-02 RESILIENCE SECURITY CLOSURE WAVE
 - Closed a real SSRF target-class defect in the resilience outbound transport: configured HTTPS URLs are rejected when their literal or resolved addresses are loopback, private, link-local, carrier-grade NAT, documentation/reserved, multicast, or otherwise non-public ranges covered by the guard.
@@ -22,6 +22,12 @@
 - Wired `scripts/resilience-runtime.test.mjs` into the existing Operational Resilience certification step so this security regression suite is executed by Quality rather than merely existing as an uncalled test file.
 - Commits: `a6ec26e3297636196c00cc0e5795e2cb82586a93` (SSRF/DNS + streaming implementation), `24ed4e33ca5066d5647d620db75b0c3850498958` (adversarial/streaming tests), `24d853d958c3d05979864883a9f9e77d431841c6` (Quality execution wiring), `1bdd5815d5f79f7e88dec0cf2ff8c2724bc0a9b9` (mapped-IPv6 private-target fix).
 - No production alias mutation, rollback, restore, or fabricated operational evidence was performed.
+
+### EXECUTION-ENFORCEMENT CLOSURE WAVE
+- Fixed a real verifier defect in the governed index-only boundary: the previous `git diff --quiet ... :!path` probe did not reliably establish that only `docs/MASTER_EXECUTION_INDEX.md` changed.
+- The verifier now obtains `git diff --name-only <indexed> <current>` and accepts the boundary only when the indexed SHA is an ancestor and the complete changed-file set is non-empty and consists solely of `docs/MASTER_EXECUTION_INDEX.md`.
+- This is fail-closed: any product, test, workflow, migration, or other file change prevents index-only acceptance.
+- Commit: `09c9b1b1f0da54950ec022a230f3132c61e38c59`.
 
 ### LIVE DATABASE / SECURITY TRUTH
 - Live Staging: 78/78 public tables have RLS; 147 policies; 0 policies targeting `anon`; 0 policies targeting `PUBLIC`; 0 direct `anon` EXECUTE grants on public routines.
@@ -49,9 +55,10 @@
 ### CERTIFICATION STATUS — FAIL CLOSED
 | Gate | State | Reason |
 |---|---|---|
-| Repository quality | **STALE — reverify @ 1bdd5815** | Last Quality boundary failed on the mapped-IPv6 resilience regression; fix now landed on current candidate |
-| Release deterministic gates | **STALE — reverify @ 1bdd5815** | Exact-head deterministic evidence is required after the resilience fix |
-| Storage tenant isolation contract | STALE | Prior evidence is on older exact head; runtime still unproven |
+| Repository quality | **PASS @ 1bdd5815** | Fresh exact-head Quality run `33670067052` passed all 63 verification steps |
+| Release deterministic gates | **PASS @ 1bdd5815** | Fresh exact-head Final Execution Batch `33670067057` passed all 30 deterministic gates |
+| Execution enforcement contract | **STALE — reverify @ 09c9b1b1** | Real verifier defect fixed; fresh exact-head enforcement evidence required |
+| Storage tenant isolation contract | **PASS @ 04be92d** | Fresh push-boundary workflow `33670104922` succeeded; live runtime remains unproven |
 | Work Item Actionability Guard | STALE | Prior evidence is on older exact head |
 | Production runtime | UNPROVEN | Requires authenticated live product runtime evidence |
 | Authenticated E2E | UNPROVEN | Harness is ready; real exact-environment execution evidence still required |
@@ -71,15 +78,15 @@
 - No owner/device request is made while independent executable work remains.
 
 ### NEXT EXECUTION FRONT
-1. Consume the fresh Quality result for `1bdd5815d5f79f7e88dec0cf2ff8c2724bc0a9b9`; the mapped-IPv6 parser regression must be proven closed by the exact-head resilience suite.
-2. Obtain fresh exact-head deterministic release-gate verification for `1bdd5815d5f79f7e88dec0cf2ff8c2724bc0a9b9`.
-3. If a fresh gate exposes another real regression, fix the smallest proven defect and reverify; otherwise continue independent resilience/runtime/security closure.
+1. Consume fresh exact-head Execution Enforcement evidence for `09c9b1b1f0da54950ec022a230f3132c61e38c59`.
+2. Re-run the exact-head Quality and deterministic gates after the verifier fix if the new push invalidates prior boundaries; do not transfer evidence automatically.
+3. Continue independent security/resilience closure while operational gates remain external.
 4. Prepare exact live authenticated Tenant A/B and resilience evidence paths; never fabricate credentials or operational artifacts.
 5. Keep Production binding, backup/restore, RPO/RTO, rollback, DR, and final certification fail-closed until real evidence exists.
 6. Enable leaked-password protection through the Supabase Auth control plane when that setting is reachable.
 7. Desktop Windows certification remains backed by native smoke workflow; `desktop/package-lock.json` is absent, so reproducible desktop `npm ci` remains a real dependency-resolution gap rather than something to handcraft.
 
 ### HISTORICAL RECORD / SHA BOUNDARIES
-- Previous index blob: `48ccfba61772ddbbc6101e1fbb3a0a2453476605`.
+- Previous index blob: `f625cb7ac2a02205ad6a8d20f9d650f7d635e9b4`.
 - Previous certified code/test boundary: `ab1cf0d9c16864f9bda07acd33973954c2dc1b7a`.
 - Historical execution content remains preserved by Git history; documentation synchronization commits are never promoted to code/test candidates unless they contain a real product/test mutation.
