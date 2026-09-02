@@ -44,7 +44,7 @@ const governanceAttack = (name, mutate) => {
   assert.throws(() => validateAdaptiveGovernance(candidate), /Adaptive governance rejected/, `${name} must be rejected`);
 };
 
-governanceAttack('missing layer separation', text => text.replace('LAYER 3 — Adaptive Execution Governance', 'LAYER X — Adaptive Execution Governance'));
+governanceAttack('missing layer separation', text => text.replaceAll('LAYER 3 — Adaptive Execution Governance', 'LAYER X — Adaptive Execution Governance').replaceAll('LAYER 3 of the execution system', 'LAYER X of the execution system'));
 governanceAttack('precedence removed', text => text.replace('P0 — Safety / Security / Evidence Integrity', 'P0 — Convenience'));
 governanceAttack('performance ledger removed', text => text.replace('EXECUTION PERFORMANCE LEDGER', 'PERFORMANCE LEDGER REMOVED'));
 governanceAttack('under-execution detection removed', text => text.replace('UNDER-EXECUTION EVENT', 'UNDER-EXECUTION REMOVED'));
