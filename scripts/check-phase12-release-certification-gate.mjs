@@ -19,10 +19,12 @@ const certificationContract = read('scripts/check-production-certification-contr
 const productionCertification = read('src/lib/production/productionCertification.ts');
 
 const assertSpaFallback = (config) => {
+  const routes = Array.isArray(config.routes) ? config.routes : [];
   const rewrites = Array.isArray(config.rewrites) ? config.rewrites : [];
-  if (!rewrites.some((rewrite) => rewrite && rewrite.destination === '/index.html')) {
-    throw new Error('Release gate missing SPA fallback');
-  }
+  const routeFallback = routes.some((route) => route && route.handle === 'filesystem')
+    && routes.some((route) => route && route.dest === '/index.html' && typeof route.src === 'string' && route.src.length > 0);
+  const rewriteFallback = rewrites.some((rewrite) => rewrite && rewrite.destination === '/index.html' && typeof rewrite.source === 'string' && rewrite.source.length > 0);
+  if (!routeFallback && !rewriteFallback) throw new Error('Release gate missing SPA fallback');
 };
 
 let vercel;
@@ -59,14 +61,16 @@ if (!certificationContract.includes('PRODUCTION_CERTIFICATION_EVIDENCE_KEYS')) t
 
 if (/PRODUCTION CERTIFIED\s*=\s*YES/i.test(productionCertification)) throw new Error('Release gate rejects fabricated production certification');
 
-// Test-of-test: invoke the same SPA validator against a comment-only decoy.
-const decoyConfig = { rewrites: [{ source: '/(.*)', destination: '// "destination": "/index.html"' }] };
+// Test-of-test: executable canonical route must be recognized, while a comment-only decoy must fail.
+const canonicalRouteConfig = { routes: [{ handle: 'filesystem' }, { src: '/.*', dest: '/index.html' }] };
+assertSpaFallback(canonicalRouteConfig);
+const decoyConfig = { routes: [{ handle: 'filesystem' }, { src: '/.*', dest: '// "dest": "/index.html"' }] };
 let decoyRejected = false;
 try {
   assertSpaFallback(decoyConfig);
 } catch {
   decoyRejected = true;
 }
-if (!decoyRejected) throw new Error('Test-of-test accepted a comment-decoy as executable rewrite evidence');
+if (!decoyRejected) throw new Error('Test-of-test accepted a comment-decoy as executable route evidence');
 
 console.log('Phase 12 release certification gate: PASS (repository-level; deployment evidence remains external)');
