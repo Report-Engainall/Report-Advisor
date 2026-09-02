@@ -1,9 +1,14 @@
-import fs from 'node:fs';
-import path from 'node:path';
-const root=process.cwd();
-const candidates=['scripts/check-backup-integrity.mjs','scripts/check-restore-integrity.mjs','scripts/check-disaster-recovery.mjs'];
-const existing=candidates.filter(f=>fs.existsSync(path.join(root,f)));
-if(existing.length<2) throw new Error(`Recovery contract incomplete: found ${existing.length}/${candidates.length}`);
-const text=existing.map(f=>fs.readFileSync(path.join(root,f),'utf8').toLowerCase()).join('\n');
-for(const token of ['backup','restore','rollback']) if(!text.includes(token)) throw new Error(`Recovery contract missing: ${token}`);
-console.log(`RECOVERY CONTRACT: PASS (${existing.length} checks)`);
+import { execFileSync } from 'node:child_process';
+
+const canonicalChecks = [
+  'scripts/check-phase-f-runtime-closure.mjs',
+  'scripts/check-operational-resilience-contract.mjs',
+  'scripts/check-release-resilience-manifest.mjs',
+  'scripts/check-continuous-trust-contract.mjs',
+];
+
+for (const check of canonicalChecks) {
+  execFileSync(process.execPath, [check], { stdio: 'inherit' });
+}
+
+console.log(`RECOVERY CONTRACT: PASS (canonical Phase-F checks: ${canonicalChecks.length})`);
