@@ -6,7 +6,7 @@ const scripts=pkg.scripts ?? {};
 const required={
  N:['test:report-execution-e2e-contract','test:operational-file-pipeline','test:production-gate-runtime'],
  O:['test:production-scale','test:concurrent-analysis','test:bounded-concurrency','perf:budget'],
- P:['test:navigation-route-contract','test:decision-dashboard','test:inventory-intelligence-ui'],
+ P:['test:contracts','test:decision-dashboard','test:inventory-intelligence-ui'],
  Q:['test:file-engine-regressions','test:schema-intelligence','test:document-intelligence-hardening','test:report-truth'],
  R:['test:production-readiness','test:production-release-blockers','test:production-certification-contract'],
  S:['test:operational-resilience','test:release-resilience-manifest','test:continuous-trust'],
