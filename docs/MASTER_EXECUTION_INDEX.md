@@ -2,19 +2,28 @@
 
 ## Current Truth — 2026-09-02
 
-- Current canonical `main` / exact HEAD before this documentation mutation: **`b5b0e727f59390798b7b9783a7a69ea1ab9caad4`**.
-- Actual parent: `ce3252150385fdbdef08acef13d7898990af3e58`.
-- Previous candidate HEAD at start of this audit: `84ae478671e74de550e501ee29b33b119fe2d19c`.
-- Previous starting HEAD for the ancestry audit: `0bc5700ef14409eaef873e81b7d9fb54e04250af`.
-- Ancestry result: `0bc5700...` is an ancestor of `84ae478...`; GitHub compare reports `ahead_by=4`, `behind_by=0`, `merge_base=0bc5700...`.
-- The audited lineage is linear: `0bc5700...` → `82d33b8...` → `16bda78...` → `9de410b...` → `84ae478...` → `4ca82e5...` → `afe4b849...` → `ce325215...` → `b5b0e727...`.
-- No merge/rebase/cherry-pick topology is indicated by the actual single-parent commit objects in this segment. `9de410...` is the actual parent of `84ae478...` because that commit was the immediate predecessor on `main`; it is not a merge artifact.
-- Security hardening lineage before the current rescan remains preserved: `a5bdfa8...` → `cfe23fb...` → `3230a45...` → `175b74b...` → `0bc5700...` → `82d33b8...` → `16bda78...` → `9de410b...` → `84ae478...`.
-- Earlier operational-layer boundary `76baf8b1b5e7f2b812bb1e4e17057a7d5ee7f126` is historical only and is not evidence for current verification.
-- Fresh Final Execution Batch `#33578760739` and Fresh Quality `#33578760766` remain historical evidence for `1eede4439b1cc32a597c81158a0d93ad07138923`; they do not transfer to this exact HEAD.
+- Current canonical `main` / exact HEAD: **`e8970401d2ba0d298749abb9b2dd321a573c588c`**.
+- Actual parent: `35ff36b5b5f6b253af002cff0afbb5084cb8aed7`.
+- Execution resumed from owner-designated exact HEAD `9f364068bf2b678c330f2665f4ac75a2c21e0aba`; actual main matched that starting point before this execution cycle.
+- This cycle introduced backup/restore evidence-integrity hardening and a dedicated executable contract check; no historical PASS was transferred to the new SHA.
 - Backup/Restore operational truth remains: `RPO = UNPROVEN`, `RTO = UNPROVEN`, `RESTORE = UNPROVEN`, `DR = UNPROVEN`.
-- Vercel remains externally blocked by deployment rate limiting; no substitute runtime evidence is accepted.
-- MERGE / RELEASE / CERTIFICATION = **STOPPED**.
+- Vercel/live runtime remains externally dependent; no substitute runtime evidence is accepted.
+- MERGE / RELEASE / CERTIFICATION remain **STOPPED** until exact-HEAD operational evidence and required gates are satisfied.
+
+## Execution Cycle — backup/restore evidence integrity hardening
+
+### RCA
+The backup/restore verifier accepted two evidence inputs without sufficiently strict integrity semantics: `RESILIENCE_MAX_RPO_SECONDS` could parse to `NaN` and bypass the RPO comparison, and completed backup records with malformed timestamps or missing IDs could become invalid evidence candidates. More importantly, the restore verifier's self-reported `rto_seconds` was previously allowed to replace the server-measured elapsed restore time, which could make RTO evidence non-measurement-derived.
+
+### Implemented
+- `api/backup-restore-verify.mjs`: fail-closed validation of maximum RPO configuration; require a 64-hex expected artifact SHA-256; reject completed backup candidates without a valid timestamp or non-empty backup ID; use the server-measured restore elapsed time as authoritative `rto_seconds`; preserve verifier-reported RTO only as supplemental evidence.
+- `scripts/check-backup-restore-evidence-integrity.mjs`: executable contract regression covering all newly enforced evidence-integrity invariants and explicitly rejecting the old untrusted-RTO expression.
+- `package.json`: wired the new check into `test:operational-resilience`, so the existing Quality operational-resilience gate executes it automatically.
+
+### Verification State
+- GitHub `Final Execution Batch` and `quality` workflows were automatically triggered by the mutation and are tied to exact HEAD `35ff36b5...` for the intermediate commit and will be superseded by the final exact HEAD `e8970401...` after the package wiring mutation.
+- No local repository checkout exists in the execution container, so no local full-suite PASS is claimed.
+- Fresh CI for final exact HEAD must be evaluated by exact SHA; no earlier run is promoted.
 
 ## Rescan — rollback recovery-path isolation
 
@@ -87,9 +96,9 @@ Required operational proof remains: real artifact + SHA-256, safe non-production
 
 ## CI / Deployment Truth
 
-- Fresh Final Execution Batch for the current exact HEAD: **NOT RUN**; no Run ID invented.
-- Fresh Quality for the current exact HEAD: **NOT RUN**; no Run ID invented.
-- Current GitHub combined status on the latest exact HEAD is Vercel `failure` with deployment-rate-limit target, plus Vercel Deployments `pending`; this is an external environment blocker, not substituted with an old deployment.
+- Fresh Final Execution Batch for the current exact HEAD: **PENDING**; the push-triggered workflow must be checked against `e8970401d2ba0d298749abb9b2dd321a573c588c`.
+- Fresh Quality for the current exact HEAD: **PENDING**; the push-triggered workflow must be checked against `e8970401d2ba0d298749abb9b2dd321a573c588c`.
+- No historical CI result is promoted to the new exact HEAD.
 - Live Health / Tenant Canary / Backup / Restore / Rollback / DR remain **UNPROVEN** until an exact-HEAD deployment and real operational evidence exist.
 
 ## Historical Integrity Rules
