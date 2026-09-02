@@ -3,11 +3,11 @@
 ## CURRENT RESUME EXECUTION MAP — 2026-09-02 — v4.0 ADAPTIVE EXECUTION GOVERNANCE
 
 ### CURRENT PROJECT STATE
-- Exact code/test head entering this sweep: `930b934a90afe908646523dcb390075447f76318`.
-- v4.0 batch start head: `811070805114956c8f7f1766b7bf6b7bf6c3c9704b4c0`.
+- Exact code/test head entering this sweep: `6e926cb27ddaaa82ec6722e0e6fb5c729025c358`.
+- v4.0 batch start head: `811070805114956c8f7f1766b7bf6c3c9704b4c0`.
 - Previous v3.2 index boundary: `a4b26ef13ce08d54d2e9c0723530499bcc6e66c5`.
-- v4.0 mutations: `727775a40566f7cff43f73d5eab492dc996ce5a1` → `a64356981001b0a6b6b3c41c4b985bd9152d891f` → `a353ad14b4610793e5c62e67633f3ab54b42bc57` → `c034903a16d5975e3e7a7f3ed7233e771be251c8` → `7fef559b959917c8e17492ffae8ec105d9c6c105` → `e80fe712184b2404e97c0b266293323e8a00a58a` → `92b9077a9b902266ab3603721a9b7d96acb3162d` → `d54c3e4b5f5092656e0f6ee0a724d7c64c291da9` → `e7a75a3859ebc269cb9a12e97a44cef4e02fdbc4` → `930b934a90afe908646523dcb390075447f76318`.
-- No historical evidence transfers across this new exact-SHA boundary. Fresh CI must be consumed for `930b934a...` before any certification claim.
+- v4.0 mutations: `727775a40566f7cff43f73d5eab492dc996ce5a1` → `a64356981001b0a6b6b3c41c4b985bd9152d891f` → `a353ad14b4610793e5c62e67633f3ab54b42bc57` → `c034903a16d5975e3e7a7f3ed7233e771be251c8` → `7fef559b959917c8e17492ffae8ec105d9c6c105` → `e80fe712184b2404e97c0b266293323e8a00a58a` → `92b9077a9b902266ab3603721a9b7d96acb3162d` → `d54c3e4b5f5092656e0f6ee0a724d7c64c291da9` → `e7a75a3859ebc269cb9a12e97a44cef4e02fdbc4` → `930b934a90afe908646523dcb390075447f76318` → `6e926cb27ddaaa82ec6722e0e6fb5c729025c358`.
+- No historical evidence transfers across this new exact-SHA boundary. Fresh CI must be consumed for `6e926cb2...` before any certification claim.
 - Operational runtime/recovery proof remains UNPROVEN.
 
 ### LAYERED EXECUTION ARCHITECTURE
@@ -54,8 +54,8 @@ A lower-priority instruction MUST NOT override a higher-priority constraint.
 
 ### PERFORMANCE BASELINE — BATCH V4-2026-09-02-01
 - Start head: `811070805114956c8f7f1766b7bf6c3c9704b4c0`.
-- Current end code/test head: `930b934a90afe908646523dcb390075447f76318`.
-- Actionable closure: v4 governance layer created; checker bound; adversarial coverage created; performance ledger created; enforcement workflow trigger path fixed; consecutive index-only boundaries hardened; index synchronization executed.
+- Current end code/test head: `6e926cb27ddaaa82ec6722e0e6fb5c729025c358`.
+- Actionable closure: v4 governance layer created; checker bound; adversarial coverage created; performance ledger created; enforcement workflow trigger path fixed; consecutive index-only boundaries hardened; layer-separation adversarial decoy corrected; index synchronization executed.
 - Exact numeric effectiveness: `UNPROVEN` because an objective denominator for all actionable work was not available.
 - Qualitative effectiveness: `HIGH` for governance capability closure, but this does not certify product/runtime.
 - Execution debt remaining: fresh exact-head CI consumption, final rescan consumption, and all external runtime/recovery evidence.
@@ -64,7 +64,7 @@ A lower-priority instruction MUST NOT override a higher-priority constraint.
 ### WAITING WINDOWS — EXECUTION WINDOW LEDGER
 | Async operation | State | Parallel window | Independent work executed in window | Consumption rule |
 |---|---|---|---|---|
-| Exact-head CI | fresh run required on `930b934a...` | OPEN | v4 governance implementation, checker binding, adversarial tests, performance ledger, workflow trigger audit, index-head gate hardening, E1–E8 preparation | consume exact result immediately |
+| Exact-head CI | fresh run required on `6e926cb2...` | OPEN | v4 governance implementation, checker binding, adversarial tests, performance ledger, workflow trigger audit, index-head gate hardening, E1–E8 preparation | consume exact result immediately |
 | Vercel deployment | external pending/rate-limited | OPEN | all local v4 work executed; no live certification inferred | consume status immediately |
 
 A waiting window closes only when `result received AND result consumed AND new work evaluated`.
@@ -72,7 +72,7 @@ A waiting window closes only when `result received AND result consumed AND new w
 ### EXECUTION SCHEDULER — CURRENT
 | Task | Dependency | State | Parallel? | Blocker | Can start now? | Expected unlock |
 |---|---|---|---|---|---|---|
-| Exact-head CI | `930b934a...` | READY/RUNNING | YES | none | YES | deterministic verification |
+| Exact-head CI | `6e926cb2...` | READY/RUNNING | YES | none | YES | deterministic verification |
 | v4 governance adversarial | protocol + governance | IMPLEMENTED | YES | none | YES | governance confidence |
 | Security/DB/RPC/evidence rescan | repository | READY | YES | none | YES | local defect closure |
 | Import/reconciliation audit | repository | READY | YES | none | YES | data correctness confidence |
@@ -95,7 +95,7 @@ A waiting window closes only when `result received AND result consumed AND new w
 - TRUE STOP requires all v4 conditions plus exact-SHA, current index, updated strategy memory, no under-execution, no low-value loop, no preparable external work, and genuinely external/human remaining blockers.
 
 ### COMPLETED PHASES / VERIFIED TRUTH
-- Deterministic final-batch gate set: historically verified on prior exact SHAs; no historical PASS transfers to `930b934a...`.
+- Deterministic final-batch gate set: historically verified on prior exact SHAs; no historical PASS transfers to `6e926cb2...`.
 - Storage tenant-isolation deterministic workflow: success on `c51cb6d...`; static/contract evidence only, not live A/B proof.
 - Backup/restore verifier integrity hardening: implemented and contract-wired; runtime Backup/Restore/RPO/RTO remains UNPROVEN.
 - Rollback deployment ownership/readiness/production guards and validated recovery aliasing: implemented + adversarially exercised; real staging rollback remains UNPROVEN.
@@ -103,10 +103,10 @@ A waiting window closes only when `result received AND result consumed AND new w
 - Phase-12 SPA fallback checker: canonical `routes[]` support and route ordering enforced; decoy/misordered-route rejection tested.
 - Production certification adversarial coverage: complete/missing/failed/duplicate/unrelated/malformed evidence attacks.
 - v3.2 enforcement: waiting-time parallelization, safe parallelism, scheduler, debt split, utilization, index-head gate, adversarial test-of-test, depth-2 parent validation.
-- v4.0 adaptive governance: layered architecture, precedence, performance ledger, effectiveness, under/over-execution detection, command feedback, strategy memory, smart prioritization, controlled evolution, governance adversarial suite, workflow trigger binding, and consecutive index-only boundary validation.
+- v4.0 adaptive governance: layered architecture, precedence, performance ledger, effectiveness, under/over-execution detection, command feedback, strategy memory, smart prioritization, controlled evolution, governance adversarial suite, workflow trigger binding, consecutive index-only boundary validation, and corrected layer-separation decoy.
 
 ### IN-PROGRESS
-- Fresh exact-head CI for `930b934a90afe908646523dcb390075447f76318`.
+- Fresh exact-head CI for `6e926cb27ddaaa82ec6722e0e6fb5c729025c358`.
 - Security/DB/RPC/import/OCR/evidence/workflow rescan and immediate consumption.
 - Final performance-ledger result closure.
 - E1–E8 handoff preparation and external evidence readiness.
@@ -270,7 +270,7 @@ A waiting window closes only when `result received AND result consumed AND new w
 - Final Certification: BLOCKED by operational evidence and fresh exact-head certification CI.
 
 ### EVIDENCE LINEAGE RULE
-Every mutation after `c51cb6d...` creates a new exact evidence boundary. Current v4 mutation batch ends at `930b934a...`; therefore no prior CI PASS is promoted. Each future mutation requires fresh CI/evidence rebinding and a new index synchronization window.
+Every mutation after `c51cb6d...` creates a new exact evidence boundary. Current v4 mutation batch ends at `6e926cb2...`; therefore no prior CI PASS is promoted. Each future mutation requires fresh CI/evidence rebinding and a new index synchronization window.
 
 ---
 
