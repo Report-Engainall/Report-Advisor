@@ -7,9 +7,9 @@
 ### CURRENT PROJECT STATE
 - Repository: `Report-Engainall/Report-Advisor`.
 - Latest repository synchronization commit before this documentation sync: `24d853d958c3d05979864883a9f9e77d431841c6` (CI execution wiring; current code/test candidate).
-- Current repository head: `b086640d6c56ff3034c7a68882680315fb23d709`.
-- Current code/test head: `b086640d6c56ff3034c7a68882680315fb23d709`.
-- Current exact code/test candidate: `b086640d6c56ff3034c7a68882680315fb23d709` (index synchronization only; no product/test mutation in this commit).
+- Current repository head: `fbc641bc47bc6cf90b6029148ea22d98c9cad84e`.
+- Current code/test head: `24d853d958c3d05979864883a9f9e77d431841c6`.
+- Current exact code/test candidate: `24d853d958c3d05979864883a9f9e77d431841c6` (repository commits after this candidate are documentation-only index synchronization).
 - Previous exact-head Quality run `33662117870` and Final Execution Batch `33662117840` passed on `ab1cf0d9`; all later code/test/CI mutations are outside those evidence boundaries.
 - Current candidate requires fresh exact-head repository verification before certification claims are renewed.
 
@@ -79,6 +79,6 @@
 6. Desktop Windows certification remains backed by native smoke workflow; `desktop/package-lock.json` is absent, so reproducible desktop `npm ci` remains a real dependency-resolution gap rather than something to handcraft.
 
 ### HISTORICAL RECORD / SHA BOUNDARIES
-- Previous index blob: `b7fd95c7b344b748f08ed1a3e17e7e8730761b81`.
+- Previous index blob: `2c4689c8cc1baede51a317ad9fa1bde90686dc17`.
 - Previous certified code/test boundary: `ab1cf0d9c16864f9bda07acd33973954c2dc1b7a`.
 - Historical execution content remains preserved by Git history; documentation synchronization commits are never promoted to code/test candidates unless they contain a real product/test mutation.
