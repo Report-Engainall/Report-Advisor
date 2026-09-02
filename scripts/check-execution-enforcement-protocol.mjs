@@ -38,6 +38,22 @@ export function validateAdaptiveGovernance(governance) {
   if (!normalized.includes('one-off incident') || !normalized.includes('repeated pattern') || !normalized.includes('proven systemic failure')) throw new Error('Adaptive governance rejected: evolution threshold is incomplete');
   if (!normalized.includes('commits, lines changed, report size, index size, and test count are not progress metrics')) throw new Error('Adaptive governance rejected: activity/progress separation missing');
   if (!normalized.includes('lower-priority instruction must not override a higher-priority')) throw new Error('Adaptive governance rejected: precedence binding missing');
+  const requiredSections = [
+    '## execution performance ledger',
+    '## execution effectiveness',
+    '## under-execution detection',
+    '## over-execution / low-value execution',
+    '## command quality feedback',
+    '## adaptive strategy rules',
+    '## controlled protocol evolution',
+    '## strategy memory',
+    '## baseline / result',
+    '## smart front prioritization',
+    '## release-relevant progress',
+    '## governance truth invariants',
+  ];
+  const missingSections = requiredSections.filter(section => !normalized.includes(section));
+  if (missingSections.length) throw new Error(`Adaptive governance rejected: missing structural sections: ${missingSections.join(', ')}`);
   const underSection = normalized.indexOf('## under-execution detection');
   const overSection = normalized.indexOf('## over-execution / low-value execution');
   const underEvent = normalized.indexOf('under-execution event');
