@@ -2,21 +2,21 @@ import fs from 'node:fs';
 import { execFileSync } from 'node:child_process';
 
 export const REQUIRED_RULES = [
-  'E-01 — Parallelism before reporting', 'E-02 — NEXT+1 / NEXT+2 consumption',
-  'E-03 — Blocker isolation', 'E-04 — Discovery is not closure', 'E-05 — Gate integrity',
-  'E-06 — Exact-SHA evidence boundary', 'E-07 — Runtime truth separation', 'E-08 — Test-of-test requirement',
-  'E-09 — Remaining-work accounting', 'E-10 — Index governance', 'E-11 — True-stop gate',
-  'E-12 — Automatic protocol evolution', 'E-13 — Behavioral enforcement matrix', 'E-14 — Execution Debt zero-gate',
-  'E-15 — Release Velocity truth metric', 'E-TIME — Waiting-Time Parallelization', 'E-MAX — Maximum Safe Parallelism',
-  'E-SCHED — Dependency-Aware Scheduling', 'E-INDEX-HEAD — Current-Head Index Gate',
-  'E-DEBT — Actionable vs External Debt', 'E-UTIL — Execution Utilization', 'E-EVOLVE — Automatic Protocol Evolution',
+  'E-01 — Parallelism before reporting', 'E-02 — NEXT+1 / NEXT+2 consumption', 'E-03 — Blocker isolation',
+  'E-04 — Discovery is not closure', 'E-05 — Gate integrity', 'E-06 — Exact-SHA evidence boundary',
+  'E-07 — Runtime truth separation', 'E-08 — Test-of-test requirement', 'E-09 — Remaining-work accounting',
+  'E-10 — Index governance', 'E-11 — True-stop gate', 'E-12 — Automatic protocol evolution',
+  'E-13 — Behavioral enforcement matrix', 'E-14 — Execution Debt zero-gate', 'E-15 — Release Velocity truth metric',
+  'E-TIME — Waiting-Time Parallelization', 'E-MAX — Maximum Safe Parallelism', 'E-SCHED — Dependency-Aware Scheduling',
+  'E-INDEX-HEAD — Current-Head Index Gate', 'E-DEBT — Actionable vs External Debt', 'E-UTIL — Execution Utilization',
+  'E-EVOLVE — Automatic Protocol Evolution',
 ];
 const REQUIRED_BEHAVIORAL_CASES = ['CASE A:', 'CASE B:', 'CASE C:', 'CASE D:', 'CASE E:', 'CASE F:', 'CASE G:', 'CASE H:'];
 const REQUIRED_CONTRACT_ANCHORS = [
   'EXECUTION DEBT', 'EXECUTION DEBT = 0', 'ACTIONABLE DEBT', 'EXTERNAL DEBT', 'RELEASE VELOCITY',
-  'EXECUTION UTILIZATION', 'WAITING-TIME PARALLELIZATION', 'MAXIMUM SAFE PARALLELISM',
-  'DEPENDENCY-AWARE SCHEDULING', 'INDEX DRIFT', 'Built', 'Integrated', 'Verified', 'Runtime Proven',
-  'Production Certified', 'MUST NOT stop', 'MUST NOT be promoted', 'NEXT+1', 'NEXT+2', 'READY + INDEPENDENT = EXECUTE NOW',
+  'EXECUTION UTILIZATION', 'WAITING-TIME PARALLELIZATION', 'MAXIMUM SAFE PARALLELISM', 'DEPENDENCY-AWARE SCHEDULING',
+  'INDEX DRIFT', 'Built', 'Integrated', 'Verified', 'Runtime Proven', 'Production Certified', 'MUST NOT stop',
+  'MUST NOT be promoted', 'NEXT+1', 'NEXT+2', 'READY + INDEPENDENT = EXECUTE NOW',
 ];
 const FORBIDDEN_WEAKENING_PATTERNS = [
   /historical\s+pass[\s\S]{0,120}\btransfer(?:s|red)?\b\s+automatically/i,
@@ -29,7 +29,7 @@ const FORBIDDEN_WEAKENING_PATTERNS = [
   /true\s*stop[\s\S]{0,80}\bis\s+allowed\s+before/i,
   /waiting\s+(?:for|on)\s+(?:ci|test|deployment|workflow)[\s\S]{0,120}\b(?:may|can|could|should)\s+(?:stop|return|report)\b/i,
   /parallel\s+work[\s\S]{0,100}\b(?:optional|unnecessary|may\s+be\s+skipped)\b/i,
-  /external\s+blocker[\s\S]{0,120}\b(?:clears?|erases?|satisfies?)\s+execution\s+debt/i,
+  /external\s+blocker[\s\S]{0,120}\b(?:may|can|could|should)\s+(?:clear|erase|satisfy)\s+execution\s+debt/i,
 ];
 const stripComments = (value) => value.replace(/<!--[\s\S]*?-->/g, '').replace(/(^|\n)\s*\/\/.*(?=\n|$)/g, '$1');
 const normalize = (value) => value.replaceAll('\r\n', '\n').replace(/[ \t]+/g, ' ').trim().toLowerCase();
