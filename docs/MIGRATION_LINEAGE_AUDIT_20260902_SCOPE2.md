@@ -1,0 +1,1 @@
+Migration lineage scope retained on isolated audit branch only.
