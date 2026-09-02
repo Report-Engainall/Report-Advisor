@@ -148,6 +148,10 @@ export function isDisallowedOutboundAddress(address) {
   return false;
 }
 
+function normalizedHostname(url) {
+  return url.hostname.startsWith('[') && url.hostname.endsWith(']') ? url.hostname.slice(1, -1) : url.hostname;
+}
+
 export function parseSecureOutboundUrl(value, configName) {
   let url;
   try {
@@ -157,7 +161,7 @@ export function parseSecureOutboundUrl(value, configName) {
   }
   if (url.protocol !== 'https:') throw new Error(`insecure_${configName}`);
   if (url.username || url.password) throw new Error(`credentialed_${configName}`);
-  if (net.isIP(url.hostname) && isDisallowedOutboundAddress(url.hostname)) {
+  if (net.isIP(normalizedHostname(url)) && isDisallowedOutboundAddress(normalizedHostname(url))) {
     throw new Error(`private_${configName}`);
   }
   return url;
@@ -165,6 +169,7 @@ export function parseSecureOutboundUrl(value, configName) {
 
 export async function secureOutboundFetch(value, configName, options = {}) {
   const url = parseSecureOutboundUrl(value, configName);
+  const hostname = normalizedHostname(url);
   const controller = new AbortController();
   const timeoutMs = Number(process.env.RESILIENCE_OUTBOUND_TIMEOUT_MS || 15000);
   if (!Number.isFinite(timeoutMs) || timeoutMs < 1000 || timeoutMs > 60000) {
@@ -172,10 +177,10 @@ export async function secureOutboundFetch(value, configName, options = {}) {
   }
   const timeout = setTimeout(() => controller.abort(), timeoutMs);
   try {
-    if (!net.isIP(url.hostname)) {
+    if (!net.isIP(hostname)) {
       let addresses;
       try {
-        addresses = await dns.lookup(url.hostname, { all: true, order: 'verbatim' });
+        addresses = await dns.lookup(hostname, { all: true, order: 'verbatim' });
       } catch {
         throw new Error(`dns_resolution_failed_${configName}`);
       }
