@@ -53,10 +53,17 @@ governanceAttack('strategy memory removed', text => text.replace('STRATEGY MEMOR
 governanceAttack('measured-data rule removed', text => text.replace('REAL MEASURED DATA > ESTIMATE > NO CLAIM', 'USE ANY PERCENTAGE'));
 governanceAttack('silent evolution', text => text.replace('Protocol changes must never be silently introduced.', 'Protocol changes may be silent.'));
 governanceAttack('one-off threshold weakened', text => text.replace('ONE-OFF INCIDENT → RECORD', 'SINGLE INCIDENT → RECORD'));
+governanceAttack('precedence weakening', text => text.replace('A lower-priority instruction MUST NOT override a higher-priority safety, truth, evidence, certification, or exact-SHA constraint.', 'A lower-priority instruction may override a higher-priority constraint.'));
+
+governanceAttack('discovery promoted to closure', text => text.replace('A discovery has an executable fix but only a report is produced.', 'A discovery may be reported as closure without executing the fix.'));
+governanceAttack('evidence transfer', text => text.replace('No historical evidence transfers across this new exact-SHA boundary.', 'Historical evidence may transfer across exact-SHA boundaries.'));
 
 const validIndex = `## CURRENT PROJECT STATE\n- Exact code/test head entering this sweep: \`aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\`.\n- E-INDEX-HEAD: INDEX DRIFT is forbidden before TRUE STOP.`;
 assert.doesNotThrow(() => validateCurrentHeadIndex(validIndex, 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'));
 assert.throws(() => validateCurrentHeadIndex(validIndex, 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'), /INDEX DRIFT/);
-assert.doesNotThrow(() => validateCurrentHeadIndex(validIndex, 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb', 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'));
+assert.throws(() => validateCurrentHeadIndex(validIndex, 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb', 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'), /INDEX DRIFT/);
+assert.doesNotThrow(() => validateCurrentHeadIndex(validIndex, 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb', 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', ['docs/MASTER_EXECUTION_INDEX.md']));
+assert.throws(() => validateCurrentHeadIndex(validIndex, 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb', 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', ['src/app.tsx']), /INDEX DRIFT/);
+assert.throws(() => validateCurrentHeadIndex(validIndex, 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb', 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', []), /INDEX DRIFT/);
 
-console.log('PASS v4 governance adversarial suite: protocol integrity, layer separation, precedence, performance ledger, under/over-execution, strategy memory, controlled evolution, and exact-SHA index-head attacks rejected.');
+console.log('PASS v4 governance adversarial suite: protocol integrity, layer separation, precedence, performance ledger, under/over-execution, strategy memory, controlled evolution, discovery/evidence truth, and exact-SHA/index-only boundary attacks rejected.');
