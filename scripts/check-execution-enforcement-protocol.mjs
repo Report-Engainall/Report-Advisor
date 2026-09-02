@@ -1,7 +1,6 @@
 import fs from 'node:fs';
 
-const protocol = fs.readFileSync('docs/EXECUTION_ENFORCEMENT_PROTOCOL.md', 'utf8');
-const requiredRules = [
+export const REQUIRED_RULES = [
   'E-01 — Parallelism before reporting',
   'E-02 — NEXT+1 / NEXT+2 consumption',
   'E-03 — Blocker isolation',
@@ -16,25 +15,76 @@ const requiredRules = [
   'E-12 — Automatic protocol evolution',
 ];
 
-for (const rule of requiredRules) {
-  if (!protocol.includes(rule)) throw new Error(`Missing enforcement rule: ${rule}`);
-}
-
-const weakeningDecoys = [
-  'historical PASS transfers automatically',
-  'UNPROVEN becomes PASS automatically',
-  'blocker stops unrelated work',
+const REQUIRED_BEHAVIORAL_CASES = [
+  'CASE A:', 'CASE B:', 'CASE C:', 'CASE D:',
+  'CASE E:', 'CASE F:', 'CASE G:', 'CASE H:',
 ];
 
-for (const decoy of weakeningDecoys) {
-  if (protocol.includes(decoy)) throw new Error(`Potential protocol weakening detected: ${decoy}`);
+const REQUIRED_CONTRACT_ANCHORS = [
+  'EXECUTION DEBT',
+  'EXECUTION DEBT = 0',
+  'RELEASE VELOCITY',
+  'Built', 'Integrated', 'Verified', 'Runtime Proven', 'Production Certified',
+  'MUST NOT stop',
+  'MUST NOT be promoted',
+  'NEXT+1', 'NEXT+2',
+];
+
+const FORBIDDEN_WEAKENING_PATTERNS = [
+  /historical\s+pass[\s\S]{0,120}\btransfer(?:s|red)?\b\s+automatically/i,
+  /unproven[\s\S]{0,120}\b(?:be\s+)?(?:promoted|converted)\s+to\s+pass/i,
+  /blocker[\s\S]{0,120}\b(?:may|can|could|should)\s+stop\s+unrelated/i,
+  /next\s*\+\s*1[\s\S]{0,80}\b(?:is\s+)?optional\b/i,
+  /next\s*\+\s*2[\s\S]{0,80}\b(?:is\s+)?optional\b/i,
+  /execution\s+debt[\s\S]{0,100}\b(?:may|can|could|should)\s+be\s+ignored/i,
+  /index\s+update[\s\S]{0,100}\bcounts\s+as\s+(?:execution\s+)?closure/i,
+  /true\s*stop[\s\S]{0,80}\bis\s+allowed\s+before/i,
+];
+
+const normalize = (value) => value
+  .replaceAll('\r\n', '\n')
+  .replace(/[ \t]+/g, ' ')
+  .trim()
+  .toLowerCase();
+
+export function validateExecutionEnforcementProtocol(protocol) {
+  if (typeof protocol !== 'string' || protocol.trim().length === 0) {
+    throw new Error('Execution enforcement protocol rejected: empty/non-string contract');
+  }
+
+  const normalized = normalize(protocol);
+  const missingRules = REQUIRED_RULES.filter(rule => !normalized.includes(normalize(rule)));
+  if (missingRules.length) {
+    throw new Error(`Execution enforcement protocol rejected: missing rules: ${missingRules.join(', ')}`);
+  }
+
+  const missingAnchors = REQUIRED_CONTRACT_ANCHORS.filter(anchor => !normalized.includes(normalize(anchor)));
+  if (missingAnchors.length) {
+    throw new Error(`Execution enforcement protocol rejected: missing contract anchors: ${missingAnchors.join(', ')}`);
+  }
+
+  const missingCases = REQUIRED_BEHAVIORAL_CASES.filter(marker => !normalized.includes(marker.toLowerCase()));
+  if (missingCases.length) {
+    throw new Error(`Execution enforcement protocol rejected: missing behavioral cases: ${missingCases.join(', ')}`);
+  }
+
+  for (const pattern of FORBIDDEN_WEAKENING_PATTERNS) {
+    if (pattern.test(protocol)) {
+      throw new Error(`Execution enforcement protocol rejected: weakening pattern: ${pattern}`);
+    }
+  }
+
+  const trueStopIndex = normalized.indexOf('true stop');
+  const debtIndex = normalized.indexOf('execution debt = 0');
+  if (trueStopIndex === -1 || debtIndex === -1 || debtIndex > trueStopIndex + 5000) {
+    throw new Error('Execution enforcement protocol rejected: TRUE STOP is not explicitly gated by zero execution debt');
+  }
+
+  return true;
 }
 
-if (!protocol.includes('MUST NOT be promoted')) {
-  throw new Error('Exact-SHA anti-transfer enforcement is missing');
+if (process.argv[1] && process.argv[1].endsWith('check-execution-enforcement-protocol.mjs')) {
+  const protocol = fs.readFileSync('docs/EXECUTION_ENFORCEMENT_PROTOCOL.md', 'utf8');
+  validateExecutionEnforcementProtocol(protocol);
+  console.log(`PASS execution enforcement protocol: ${REQUIRED_RULES.length} mandatory rules, behavioral cases, debt/velocity anchors, and weakening rejection active`);
 }
-if (!protocol.includes('MUST NOT stop unrelated')) {
-  throw new Error('Blocker isolation enforcement is missing');
-}
-
-console.log(`PASS execution enforcement protocol: ${requiredRules.length} mandatory rules present; weakening decoys rejected`);
