@@ -1,4 +1,5 @@
 import fs from 'node:fs';
+import { execFileSync } from 'node:child_process';
 
 export const REQUIRED_RULES = [
   'E-01 — Parallelism before reporting',
@@ -13,6 +14,16 @@ export const REQUIRED_RULES = [
   'E-10 — Index governance',
   'E-11 — True-stop gate',
   'E-12 — Automatic protocol evolution',
+  'E-13 — Behavioral enforcement matrix',
+  'E-14 — Execution Debt zero-gate',
+  'E-15 — Release Velocity truth metric',
+  'E-TIME — Waiting-Time Parallelization',
+  'E-MAX — Maximum Safe Parallelism',
+  'E-SCHED — Dependency-Aware Scheduling',
+  'E-INDEX-HEAD — Current-Head Index Gate',
+  'E-DEBT — Actionable vs External Debt',
+  'E-UTIL — Execution Utilization',
+  'E-EVOLVE — Automatic Protocol Evolution',
 ];
 
 const REQUIRED_BEHAVIORAL_CASES = [
@@ -21,13 +32,12 @@ const REQUIRED_BEHAVIORAL_CASES = [
 ];
 
 const REQUIRED_CONTRACT_ANCHORS = [
-  'EXECUTION DEBT',
-  'EXECUTION DEBT = 0',
-  'RELEASE VELOCITY',
+  'EXECUTION DEBT', 'EXECUTION DEBT = 0', 'ACTIONABLE DEBT', 'EXTERNAL DEBT',
+  'RELEASE VELOCITY', 'EXECUTION UTILIZATION', 'WAITING-TIME PARALLELIZATION',
+  'MAXIMUM SAFE PARALLELISM', 'DEPENDENCY-AWARE SCHEDULING', 'INDEX DRIFT',
   'Built', 'Integrated', 'Verified', 'Runtime Proven', 'Production Certified',
-  'MUST NOT stop',
-  'MUST NOT be promoted',
-  'NEXT+1', 'NEXT+2',
+  'MUST NOT stop', 'MUST NOT be promoted', 'NEXT+1', 'NEXT+2',
+  'READY + INDEPENDENT = EXECUTE NOW',
 ];
 
 const FORBIDDEN_WEAKENING_PATTERNS = [
@@ -39,6 +49,9 @@ const FORBIDDEN_WEAKENING_PATTERNS = [
   /execution\s+debt[\s\S]{0,100}\b(?:may|can|could|should)\s+be\s+ignored/i,
   /index\s+update[\s\S]{0,100}\bcounts\s+as\s+(?:execution\s+)?closure/i,
   /true\s*stop[\s\S]{0,80}\bis\s+allowed\s+before/i,
+  /waiting\s+(?:for|on)\s+(?:ci|test|deployment|workflow)[\s\S]{0,120}\b(?:stop|return|report)\b/i,
+  /parallel\s+work[\s\S]{0,100}\b(?:optional|unnecessary|may\s+be\s+skipped)\b/i,
+  /external\s+blocker[\s\S]{0,120}\b(?:clears?|erases?|satisfies?)\s+execution\s+debt/i,
 ];
 
 const stripComments = (value) => value
@@ -84,12 +97,32 @@ export function validateExecutionEnforcementProtocol(protocol) {
     throw new Error('Execution enforcement protocol rejected: TRUE STOP is not explicitly gated by zero execution debt');
   }
 
+  if (!normalized.includes('waiting-time parallelization') || !normalized.includes('result must be consumed immediately')) {
+    throw new Error('Execution enforcement protocol rejected: async waiting window is not enforceably consumed');
+  }
+
+  return true;
+}
+
+export function validateCurrentHeadIndex(index, currentHead) {
+  const normalizedIndex = normalize(stripComments(index));
+  const head = normalize(currentHead);
+  if (!head || !/^[0-9a-f]{40}$/.test(head)) {
+    throw new Error('Index current-head gate rejected: invalid repository HEAD');
+  }
+  const currentStateMatch = index.match(/CURRENT PROJECT STATE[\s\S]{0,1200}?Exact code\/test head[^`]*`([0-9a-f]{40})`/i);
+  if (!currentStateMatch || currentStateMatch[1].toLowerCase() !== head) {
+    throw new Error(`Index current-head gate rejected: INDEX DRIFT (index=${currentStateMatch?.[1] ?? 'missing'}, head=${currentHead})`);
+  }
+  if (!normalizedIndex.includes('index drift')) {
+    throw new Error('Index current-head gate rejected: INDEX DRIFT rule missing from live index');
+  }
   return true;
 }
 
 const debtLedgerPath = 'docs/EXECUTION_DEBT_AND_RELEASE_VELOCITY.md';
 const debtLedger = fs.readFileSync(debtLedgerPath, 'utf8');
-for (const anchor of ['EXECUTION DEBT', 'RELEASE VELOCITY', 'TRUE STOP', 'Built', 'Integrated', 'Verified', 'Runtime Proven', 'Production Certified']) {
+for (const anchor of ['EXECUTION DEBT', 'ACTIONABLE DEBT', 'EXTERNAL DEBT', 'RELEASE VELOCITY', 'EXECUTION UTILIZATION', 'TRUE STOP', 'Built', 'Integrated', 'Verified', 'Runtime Proven', 'Production Certified']) {
   if (!normalize(stripComments(debtLedger)).includes(normalize(anchor))) {
     throw new Error(`Execution enforcement protocol rejected: debt/velocity ledger missing ${anchor}`);
   }
@@ -98,5 +131,13 @@ for (const anchor of ['EXECUTION DEBT', 'RELEASE VELOCITY', 'TRUE STOP', 'Built'
 if (process.argv[1] && process.argv[1].endsWith('check-execution-enforcement-protocol.mjs')) {
   const protocol = fs.readFileSync('docs/EXECUTION_ENFORCEMENT_PROTOCOL.md', 'utf8');
   validateExecutionEnforcementProtocol(protocol);
-  console.log(`PASS execution enforcement protocol: ${REQUIRED_RULES.length} mandatory rules, behavioral cases, debt/velocity ledger, and weakening rejection active`);
+  const index = fs.readFileSync('docs/MASTER_EXECUTION_INDEX.md', 'utf8');
+  let currentHead;
+  try {
+    currentHead = execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
+  } catch {
+    currentHead = process.env.GITHUB_SHA?.trim() ?? '';
+  }
+  validateCurrentHeadIndex(index, currentHead);
+  console.log(`PASS execution enforcement protocol: ${REQUIRED_RULES.length} mandatory rules, behavioral cases, scheduling controls, debt/velocity ledger, and current-head index gate active`);
 }
