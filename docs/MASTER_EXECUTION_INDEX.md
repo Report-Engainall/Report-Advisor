@@ -1,14 +1,36 @@
 # Report Advisor — Master Execution & Truth Index
 
-## Current Truth — 2026-09-02
+## CURRENT TRUTH — 2026-09-02 — OWNER-LEVEL CONTINUOUS EXECUTION
 
-- Current canonical `main` / exact HEAD: **`e8970401d2ba0d298749abb9b2dd321a573c588c`**.
-- Actual parent: `35ff36b5b5f6b253af002cff0afbb5084cb8aed7`.
-- Execution resumed from owner-designated exact HEAD `9f364068bf2b678c330f2665f4ac75a2c21e0aba`; actual main matched that starting point before this execution cycle.
-- This cycle introduced backup/restore evidence-integrity hardening and a dedicated executable contract check; no historical PASS was transferred to the new SHA.
-- Backup/Restore operational truth remains: `RPO = UNPROVEN`, `RTO = UNPROVEN`, `RESTORE = UNPROVEN`, `DR = UNPROVEN`.
-- Vercel/live runtime remains externally dependent; no substitute runtime evidence is accepted.
-- MERGE / RELEASE / CERTIFICATION remain **STOPPED** until exact-HEAD operational evidence and required gates are satisfied.
+- Current canonical `main` / exact HEAD: **`3f51a5039357861a5e62adb544fb51275e6fcc8a`**.
+- Immediate parent: `0e82f11441ac74ce409ca0d1a6ae8b139018b197`.
+- This cycle resumed from verified `524de3ad9c344ac133b3a558cff559d46da3a7d2` and closed two actionable CI defects found by exact-HEAD execution.
+- Defect 1 — Phase 1 foundation gate falsely rejected the canonical `vercel.json` because the checker required literal `rewrites`, while the repository uses a valid `routes` filesystem + `/index.html` fallback. Fix: checker now accepts either canonical `rewrites` or `routes` fallback forms while still requiring `/index.html`.
+- Defect 2 — `eslint.config.js` imported `globals`, but `package.json` did not declare it. The lockfile already contained the package; the manifest was drifted. Fix: restore `globals` as a declared dev dependency so clean `npm ci` installs the required module.
+- Fresh CI for `524de3ad...`: **FAIL**, exact SHA verified. Phase 1 failed on stale SPA-fallback assertion; Lint failed on missing declared `globals`. Build, performance, production-scale, intelligence contracts, global tenant RLS, import tenant context, import business-key, and Phase 3 data/import truth passed within that run. Downstream gates were skipped by fail-fast ordering.
+- Fresh CI for `3f51a503...` is required and must be evaluated independently; no prior PASS transfers.
+- Backup/Restore/RPO/RTO/DR remain **UNPROVEN**. Runtime/live/Vercel evidence remains externally dependent and is not replaced by static contracts.
+- No release/certification claim is made from these fixes alone.
+
+## Execution Cycle — CI defect closure
+
+### RCA / Evidence
+The exact-head Quality run `33581248795` checked out `524de3ad9c344ac133b3a558cff559d46da3a7d2` and failed at two independent blocking steps. `check-phase1-foundation-closure.mjs` asserted `rewrites` even though `vercel.json` canonically declares `routes` with `{ "handle": "filesystem" }` followed by `{ "src": "/.*", "dest": "/index.html" }`. The same run's ESLint invocation failed with `ERR_MODULE_NOT_FOUND` for `globals`; `eslint.config.js` imports `globals`, while the package manifest omitted the dependency although the lockfile root already contained it.
+
+### Executed Fixes
+1. `scripts/check-phase1-foundation-closure.mjs` — corrected the SPA fallback invariant to accept either `rewrites` or `routes` when `/index.html` is present. This fixes checker/config contract drift without weakening the actual fallback requirement.
+2. `package.json` — restored `globals` `^15.9.0` to `devDependencies`, matching the existing lockfile entry. This fixes clean-install dependency truth without changing lint rules or suppressing findings.
+
+### Exact Mutations
+- `0e82f11441ac74ce409ca0d1a6ae8b139018b197` — `fix(ci): align SPA fallback contract with canonical Vercel routes`
+- `3f51a5039357861a5e62adb544fb51275e6fcc8a` — `fix(ci): restore declared ESLint globals dependency`
+
+### Verification Boundary
+- Exact checked-out SHA proven for failing CI: `524de3ad9c344ac133b3a558cff559d46da3a7d2`.
+- `vercel.json` inspection confirms canonical `routes` fallback to `/index.html`.
+- `eslint.config.js` inspection confirms runtime import of `globals`.
+- `package-lock.json` inspection confirms `globals` is already represented at the lockfile root, so manifest restoration is the minimal consistency fix.
+- New exact HEAD `3f51a5039357861a5e62adb544fb51275e6fcc8a` is now the certification/evidence boundary; prior CI remains historical.
 
 ## Execution Cycle — backup/restore evidence integrity hardening
 
@@ -35,7 +57,7 @@ The full rescan found a real second-order security defect in `api/rollback-drill
 - No production target is permitted; no production rollback is automatic.
 
 ### Adversarial Regression
-`scripts/resilience-runtime.test.mjs` now asserts that a validation failure involving an invalid/foreign FORWARD target produces failure without any alias call. Existing coverage remains for same-project, foreign-project, mixed pair, nonexistent, not-ready, API/network failure, missing project, missing deployment ID, identical targets, production environment, and production-domain guards.
+`scripts/resilience-runtime.test.mjs` now asserts that a validation failure involving an invalid/foreign FORWARD target produces failure without any alias call. Existing coverage remains for same-project, foreign-project, mixed pair, nonexistent, not-ready, API/network failure, missing project, missing deployment ID, identical targets, production environment, production-domain guards, and unvalidated recovery-alias prevention.
 
 ### Executed Focused Verification
 A Node 22 focused harness was executed against the current fetched rollback/runtime implementation. Result: **PASS** for the executable core security assertions, including the no-unvalidated-recovery-alias invariant. The full repository test file was not claimed as a full-repository PASS because the execution container has no mounted repository checkout; four non-core syntax targets were represented by syntax-equivalent stubs in the local harness.
@@ -96,8 +118,8 @@ Required operational proof remains: real artifact + SHA-256, safe non-production
 
 ## CI / Deployment Truth
 
-- Fresh Final Execution Batch for the current exact HEAD: **PENDING**; the push-triggered workflow must be checked against `e8970401d2ba0d298749abb9b2dd321a573c588c`.
-- Fresh Quality for the current exact HEAD: **PENDING**; the push-triggered workflow must be checked against `e8970401d2ba0d298749abb9b2dd321a573c588c`.
+- `quality` run `33581248795` — **FAIL** on exact SHA `524de3ad9c344ac133b3a558cff559d46da3a7d2`; failure causes recorded above. Phase 1 and Lint failed; independent later steps that executed passed as recorded.
+- New exact HEAD `3f51a5039357861a5e62adb544fb51275e6fcc8a` requires fresh Quality and Final Execution Batch verification.
 - No historical CI result is promoted to the new exact HEAD.
 - Live Health / Tenant Canary / Backup / Restore / Rollback / DR remain **UNPROVEN** until an exact-HEAD deployment and real operational evidence exist.
 
