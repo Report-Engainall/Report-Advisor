@@ -60,6 +60,16 @@ export function validateAdaptiveGovernance(governance) {
   if (underSection === -1 || overSection === -1 || underEvent < underSection || underEvent > overSection) throw new Error('Adaptive governance rejected: UNDER-EXECUTION DETECTION section is missing or structurally incomplete');
   const lowValue = normalized.indexOf('low-value execution');
   if (lowValue < overSection) throw new Error('Adaptive governance rejected: LOW-VALUE EXECUTION anchor is not inside its required section');
+  const requiredTruthInvariants = [
+    'discovery ≠ closure: an executable fix must be executed and verified before closure is claimed.',
+    'evidence is exact-sha bound: evidence from an older sha must not be transferred to a newer sha.',
+    'unproven ≠ pass: missing runtime/operational proof remains unproven.',
+    'external blocker ≠ local stop: external blockers isolate only dependent work; independent actionable work must continue.',
+    'index-only boundary: a current head may differ from the indexed code/test head only when ancestry is verified and every changed path is exactly `docs/master_execution_index.md`; otherwise it is index drift.',
+    'index update ≠ capability closure: documentation/history synchronization never counts as product capability progress by itself.',
+  ];
+  const missingTruthInvariants = requiredTruthInvariants.filter(invariant => !normalized.includes(invariant));
+  if (missingTruthInvariants.length) throw new Error(`Adaptive governance rejected: governance truth invariant weakened: ${missingTruthInvariants.join(' | ')}`);
   return true;
 }
 
@@ -106,7 +116,7 @@ if (process.argv[1] && process.argv[1].endsWith('check-execution-enforcement-pro
   if (process.env.ENFORCE_INDEX_HEAD_GATE === '1') {
     const index = fs.readFileSync('docs/MASTER_EXECUTION_INDEX.md', 'utf8');
     let currentHead = ''; let parentHead = '';
-    try { currentHead = execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(); parentHead = execFileSync('git', ['rev-parse', 'HEAD^'], { encoding: 'utf8' }).trim(); } catch { currentHead = process.env.GITHUB_SHA?.trim() ?? ''; parentHead = process.env.GITHUB_PARENT_SHA?.trim() ?? ''; }
+    try { currentHead = execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(); parentHead = execFileSync('git', ['rev-parse', 'HEAD^',], { encoding: 'utf8' }).trim(); } catch { currentHead = process.env.GITHUB_SHA?.trim() ?? ''; parentHead = process.env.GITHUB_PARENT_SHA?.trim() ?? ''; }
     validateCurrentHeadIndex(index, currentHead, parentHead);
     console.log(`PASS index-head gate: current HEAD ${currentHead} is exactly indexed or differs from the indexed code/test head only through the governed execution-index path`);
   }
