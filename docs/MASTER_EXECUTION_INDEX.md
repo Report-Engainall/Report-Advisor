@@ -3,8 +3,8 @@
 ## CURRENT RESUME EXECUTION MAP — 2026-09-02 — v4.1 COMPACT EVIDENCE + PROJECT IDENTITY
 
 ### CURRENT PROJECT STATE
-- Current repository exact HEAD: `da6fbe8b58cf0bb97bc022766eacdb59faf53519`.
-- Current code/test head: `da6fbe8b58cf0bb97bc022766eacdb59faf53519` (canonical branding repair plus project-identity adversarial test-of-test hardening; fresh exact-head CI required).
+- Current repository exact HEAD: `e96a894ba283954f5e38cfac536faa59e3db5be2`.
+- Current code/test head: `e96a894ba283954f5e38cfac536faa59e3db5be2` (canonical branding repair plus project-identity adversarial test-of-test hardening; fresh exact-head CI required).
 - `1ff7f2b079a91d7442af1cf908a203094d57b2ce` is the prior code/test boundary; `00c6acb360f98405ab40ea8a2494e0fdc8260ff2` is its documentation-only synchronization. Neither prior evidence nor PASS is transferred to `da6fbe8b58cf0bb97bc022766eacdb59faf53519`.
 - No prior evidence is promoted across the new code/test SHA.
 - v4.0 batch start head: `811070805114956c8f8f1766b7bf6c3c9704b4c0`.
@@ -14,6 +14,9 @@
 - Operational runtime/recovery proof remains UNPROVEN.
 
 
+
+### 2026-09-02 ADVERSARIAL TEST FIX UPDATE
+- `DATE → EXACT HEAD → ACTION → RESULT → BLOCKER → NEXT`: `2026-09-02 → e96a894ba283954f5e38cfac536faa59e3db5be2 → corrected compact-evidence adversarial mutation after CI identified a false-negative test mutation → fix committed; fresh exact-head CI pending → no Production mutation → consume new exact-head CI`.
 
 ### 2026-09-02 BRANDING ENFORCEMENT TEST-OF-TEST UPDATE
 - `DATE → EXACT HEAD → ACTION → RESULT → BLOCKER → NEXT`: `2026-09-02 → da6fbe8b58cf0bb97bc022766eacdb59faf53519 → added adversarial project-identity test-of-test → CI triggered; result pending at index update → no Production mutation → consume exact-head CI and do not transfer prior PASS`.
@@ -32,7 +35,8 @@
 - Branding audit at `291991d...` found legacy **العامري** in `src/components/Sidebar.tsx` and `src/pages/LoginPage.tsx`; this was a real current-frontend defect caught by exact-head enforcement CI.
 - Repair: replaced those current UI occurrences with canonical **الأغبري**. This was a non-Production frontend mutation; no Production configuration/data/security mutation was performed.
 - Project-identity adversarial test-of-test was added to `scripts/execution-enforcement-adversarial.test.mjs`; it verifies a legacy-branding decoy is rejected by the identity enforcement path.
-- Post-repair/post-test-hardening CI is required on exact code/test head `da6fbe8b58cf0bb97bc022766eacdb59faf53519`.
+- Exact-head adversarial CI on `540419b...` exposed a defect in the adversarial test itself: the compact-evidence removal mutation did not reliably alter the canonical rule. The test mutation was corrected to an exact heading replacement; no enforcement assertion was weakened.
+- Post-repair/post-test-hardening CI is required on exact code/test head `e96a894ba283954f5e38cfac536faa59e3db5be2`.
 - Compact-evidence application: historical certification/security/change/failure evidence remains retained. No certification-critical evidence was deleted or rewritten. Existing repetitive ledgers remain historical where deletion would weaken auditability; the canonical Master Index now carries the current compact state.
 - Phase E remains blocked by the already-established missing owner configuration; no certification endpoint, bucket, object, target, or secret was fabricated.
 - Dashboard remains CLOSED / PROVEN and untouched.
