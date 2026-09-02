@@ -85,8 +85,10 @@ if (process.argv[1] && process.argv[1].endsWith('check-execution-enforcement-pro
       let ancestryVerified = false; let changedFiles = [];
       try {
         execFileSync('git', ['merge-base', '--is-ancestor', indexedHead, currentHead]);
-        const diffRange = normalize(parentHead) === indexedHead ? `${parentHead}..${currentHead}` : `${indexedHead}..${currentHead}`;
-        changedFiles = execFileSync('git', ['diff', '--name-only', diffRange], { encoding: 'utf8' }).trim().split('\n').filter(Boolean);
+        const diffArgs = normalize(parentHead) === indexedHead
+          ? ['diff-tree', '--no-commit-id', '--name-only', '-r', currentHead]
+          : ['diff', '--name-only', `${indexedHead}..${currentHead}`];
+        changedFiles = execFileSync('git', diffArgs, { encoding: 'utf8' }).trim().split('\n').filter(Boolean);
         ancestryVerified = changedFiles.length > 0 && changedFiles.every(file => file === 'docs/MASTER_EXECUTION_INDEX.md');
       } catch { ancestryVerified = false; }
       if (!ancestryVerified || !normalizedIndex.includes('index drift')) throw error;
