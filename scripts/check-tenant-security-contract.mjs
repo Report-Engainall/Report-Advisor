@@ -16,19 +16,15 @@ const failClosedCandidates = migrations.filter(({ file }) => file.includes('impo
 if (!resolver) throw new Error('Canonical tenant resolver migration is missing');
 if (failClosedCandidates.length === 0) throw new Error('Import RPC fail-closed migration is missing');
 
-// Tenant membership is deliberately evolved across migrations. Schema-level
-// evidence belongs to the whole migration chain, while resolver invariants belong
-// to the latest CREATE OR REPLACE definition. This avoids false failures when the
-// latest resolver only alters an earlier schema primitive.
-const schemaMigrations = migrations.filter(({ text }) =>
-  /company_memberships/i.test(text),
-);
+// Tenant membership schema lineage and resolver hardening are separate concerns.
+// A later security-only CREATE OR REPLACE migration is valid even when it does not
+// ALTER company_memberships. The complete migration chain remains authoritative
+// for schema primitives; the latest resolver definition is authoritative for
+// auth/tenant invariants.
+const schemaMigrations = migrations.filter(({ text }) => /company_memberships/i.test(text));
 const schemaText = schemaMigrations.map(({ text }) => text).join('\n');
 if (!/CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?company_memberships/i.test(schemaText)) {
-  throw new Error(`Tenant membership base schema is missing from migration history`);
-}
-if (!/ALTER\s+TABLE\s+company_memberships/i.test(resolver.text)) {
-  throw new Error(`Latest tenant resolver ${resolver.file} does not evolve company_memberships schema`);
+  throw new Error('Tenant membership base schema is missing from migration history');
 }
 
 const schemaMarkers = [
