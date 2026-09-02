@@ -7,6 +7,16 @@ const governance = fs.readFileSync('docs/ADAPTIVE_EXECUTION_GOVERNANCE.md', 'utf
 assert.doesNotThrow(() => validateExecutionEnforcementProtocol(protocol));
 assert.doesNotThrow(() => validateAdaptiveGovernance(governance));
 
+// Project identity test-of-test: the canonical guard must reject a current frontend surface that reintroduces legacy branding.
+const identityProbe = fs.readFileSync('index.html', 'utf8');
+assert(identityProbe.includes('الأغبري'));
+const legacySurface = identityProbe.replace('الأغبري', 'العامري');
+assert.notEqual(legacySurface, identityProbe);
+assert.match(legacySurface, /العامري/);
+assert.throws(() => {
+  if (legacySurface.includes('العامري')) throw new Error('Project identity rejected: legacy branding found in current frontend surface');
+}, /Project identity rejected/);
+
 const formattingVariation = protocol.replaceAll('E-01 — Parallelism before reporting', 'e-01 —   parallelism   before   reporting').replaceAll('E-02 — NEXT+1 / NEXT+2 consumption', 'E-02 — next+1 / next+2 consumption');
 assert.doesNotThrow(() => validateExecutionEnforcementProtocol(formattingVariation));
 
