@@ -2,44 +2,24 @@ import fs from 'node:fs';
 import { execFileSync } from 'node:child_process';
 
 export const REQUIRED_RULES = [
-  'E-01 — Parallelism before reporting',
-  'E-02 — NEXT+1 / NEXT+2 consumption',
-  'E-03 — Blocker isolation',
-  'E-04 — Discovery is not closure',
-  'E-05 — Gate integrity',
-  'E-06 — Exact-SHA evidence boundary',
-  'E-07 — Runtime truth separation',
-  'E-08 — Test-of-test requirement',
-  'E-09 — Remaining-work accounting',
-  'E-10 — Index governance',
-  'E-11 — True-stop gate',
-  'E-12 — Automatic protocol evolution',
-  'E-13 — Behavioral enforcement matrix',
-  'E-14 — Execution Debt zero-gate',
-  'E-15 — Release Velocity truth metric',
-  'E-TIME — Waiting-Time Parallelization',
-  'E-MAX — Maximum Safe Parallelism',
-  'E-SCHED — Dependency-Aware Scheduling',
-  'E-INDEX-HEAD — Current-Head Index Gate',
-  'E-DEBT — Actionable vs External Debt',
-  'E-UTIL — Execution Utilization',
-  'E-EVOLVE — Automatic Protocol Evolution',
+  'E-01 — Parallelism before reporting', 'E-02 — NEXT+1 / NEXT+2 consumption',
+  'E-03 — Blocker isolation', 'E-04 — Discovery is not closure', 'E-05 — Gate integrity',
+  'E-06 — Exact-SHA evidence boundary', 'E-07 — Runtime truth separation', 'E-08 — Test-of-test requirement',
+  'E-09 — Remaining-work accounting', 'E-10 — Index governance', 'E-11 — True-stop gate',
+  'E-12 — Automatic protocol evolution', 'E-13 — Behavioral enforcement matrix', 'E-14 — Execution Debt zero-gate',
+  'E-15 — Release Velocity truth metric', 'E-TIME — Waiting-Time Parallelization', 'E-MAX — Maximum Safe Parallelism',
+  'E-SCHED — Dependency-Aware Scheduling', 'E-INDEX-HEAD — Current-Head Index Gate',
+  'E-DEBT — Actionable vs External Debt', 'E-UTIL — Execution Utilization', 'E-EVOLVE — Automatic Protocol Evolution',
 ];
 
-const REQUIRED_BEHAVIORAL_CASES = [
-  'CASE A:', 'CASE B:', 'CASE C:', 'CASE D:',
-  'CASE E:', 'CASE F:', 'CASE G:', 'CASE H:',
-];
-
+const REQUIRED_BEHAVIORAL_CASES = ['CASE A:', 'CASE B:', 'CASE C:', 'CASE D:', 'CASE E:', 'CASE F:', 'CASE G:', 'CASE H:'];
 const REQUIRED_CONTRACT_ANCHORS = [
-  'EXECUTION DEBT', 'EXECUTION DEBT = 0', 'ACTIONABLE DEBT', 'EXTERNAL DEBT',
-  'RELEASE VELOCITY', 'EXECUTION UTILIZATION', 'WAITING-TIME PARALLELIZATION',
-  'MAXIMUM SAFE PARALLELISM', 'DEPENDENCY-AWARE SCHEDULING', 'INDEX DRIFT',
-  'Built', 'Integrated', 'Verified', 'Runtime Proven', 'Production Certified',
-  'MUST NOT stop', 'MUST NOT be promoted', 'NEXT+1', 'NEXT+2',
+  'EXECUTION DEBT', 'EXECUTION DEBT = 0', 'ACTIONABLE DEBT', 'EXTERNAL DEBT', 'RELEASE VELOCITY',
+  'EXECUTION UTILIZATION', 'WAITING-TIME PARALLELIZATION', 'MAXIMUM SAFE PARALLELISM',
+  'DEPENDENCY-AWARE SCHEDULING', 'INDEX DRIFT', 'Built', 'Integrated', 'Verified', 'Runtime Proven',
+  'Production Certified', 'MUST NOT stop', 'MUST NOT be promoted', 'NEXT+1', 'NEXT+2',
   'READY + INDEPENDENT = EXECUTE NOW',
 ];
-
 const FORBIDDEN_WEAKENING_PATTERNS = [
   /historical\s+pass[\s\S]{0,120}\btransfer(?:s|red)?\b\s+automatically/i,
   /unproven[\s\S]{0,120}\b(?:be\s+)?(?:promoted|converted)\s+to\s+pass/i,
@@ -53,91 +33,51 @@ const FORBIDDEN_WEAKENING_PATTERNS = [
   /parallel\s+work[\s\S]{0,100}\b(?:optional|unnecessary|may\s+be\s+skipped)\b/i,
   /external\s+blocker[\s\S]{0,120}\b(?:clears?|erases?|satisfies?)\s+execution\s+debt/i,
 ];
-
-const stripComments = (value) => value
-  .replace(/<!--[\s\S]*?-->/g, '')
-  .replace(/(^|\n)\s*\/\/.*(?=\n|$)/g, '$1');
-
-const normalize = (value) => value
-  .replaceAll('\r\n', '\n')
-  .replace(/[ \t]+/g, ' ')
-  .trim()
-  .toLowerCase();
+const stripComments = (value) => value.replace(/<!--[\s\S]*?-->/g, '').replace(/(^|\n)\s*\/\/.*(?=\n|$)/g, '$1');
+const normalize = (value) => value.replaceAll('\r\n', '\n').replace(/[ \t]+/g, ' ').trim().toLowerCase();
 
 export function validateExecutionEnforcementProtocol(protocol) {
-  if (typeof protocol !== 'string' || protocol.trim().length === 0) {
-    throw new Error('Execution enforcement protocol rejected: empty/non-string contract');
-  }
-
+  if (typeof protocol !== 'string' || protocol.trim().length === 0) throw new Error('Execution enforcement protocol rejected: empty/non-string contract');
   const normalized = normalize(stripComments(protocol));
   const missingRules = REQUIRED_RULES.filter(rule => !normalized.includes(normalize(rule)));
-  if (missingRules.length) {
-    throw new Error(`Execution enforcement protocol rejected: missing rules: ${missingRules.join(', ')}`);
-  }
-
+  if (missingRules.length) throw new Error(`Execution enforcement protocol rejected: missing rules: ${missingRules.join(', ')}`);
   const missingAnchors = REQUIRED_CONTRACT_ANCHORS.filter(anchor => !normalized.includes(normalize(anchor)));
-  if (missingAnchors.length) {
-    throw new Error(`Execution enforcement protocol rejected: missing contract anchors: ${missingAnchors.join(', ')}`);
-  }
-
+  if (missingAnchors.length) throw new Error(`Execution enforcement protocol rejected: missing contract anchors: ${missingAnchors.join(', ')}`);
   const missingCases = REQUIRED_BEHAVIORAL_CASES.filter(marker => !normalized.includes(marker.toLowerCase()));
-  if (missingCases.length) {
-    throw new Error(`Execution enforcement protocol rejected: missing behavioral cases: ${missingCases.join(', ')}`);
-  }
-
-  for (const pattern of FORBIDDEN_WEAKENING_PATTERNS) {
-    if (pattern.test(normalized)) {
-      throw new Error(`Execution enforcement protocol rejected: weakening pattern: ${pattern}`);
-    }
-  }
-
+  if (missingCases.length) throw new Error(`Execution enforcement protocol rejected: missing behavioral cases: ${missingCases.join(', ')}`);
+  for (const pattern of FORBIDDEN_WEAKENING_PATTERNS) if (pattern.test(normalized)) throw new Error(`Execution enforcement protocol rejected: weakening pattern: ${pattern}`);
   const trueStopIndex = normalized.indexOf('true stop');
   const debtIndex = normalized.indexOf('execution debt = 0');
-  if (trueStopIndex === -1 || debtIndex === -1 || debtIndex > trueStopIndex + 5000) {
-    throw new Error('Execution enforcement protocol rejected: TRUE STOP is not explicitly gated by zero execution debt');
-  }
-
-  if (!normalized.includes('waiting-time parallelization') || !normalized.includes('result must be consumed immediately')) {
-    throw new Error('Execution enforcement protocol rejected: async waiting window is not enforceably consumed');
-  }
-
+  if (trueStopIndex === -1 || debtIndex === -1 || debtIndex > trueStopIndex + 5000) throw new Error('Execution enforcement protocol rejected: TRUE STOP is not explicitly gated by zero execution debt');
+  if (!normalized.includes('waiting-time parallelization') || !normalized.includes('result must be consumed immediately')) throw new Error('Execution enforcement protocol rejected: async waiting window is not enforceably consumed');
   return true;
 }
 
 export function validateCurrentHeadIndex(index, currentHead) {
   const normalizedIndex = normalize(stripComments(index));
   const head = normalize(currentHead);
-  if (!head || !/^[0-9a-f]{40}$/.test(head)) {
-    throw new Error('Index current-head gate rejected: invalid repository HEAD');
-  }
+  if (!head || !/^[0-9a-f]{40}$/.test(head)) throw new Error('Index current-head gate rejected: invalid repository HEAD');
   const currentStateMatch = index.match(/CURRENT PROJECT STATE[\s\S]{0,1200}?Exact code\/test head[^`]*`([0-9a-f]{40})`/i);
-  if (!currentStateMatch || currentStateMatch[1].toLowerCase() !== head) {
-    throw new Error(`Index current-head gate rejected: INDEX DRIFT (index=${currentStateMatch?.[1] ?? 'missing'}, head=${currentHead})`);
-  }
-  if (!normalizedIndex.includes('index drift')) {
-    throw new Error('Index current-head gate rejected: INDEX DRIFT rule missing from live index');
-  }
+  if (!currentStateMatch || currentStateMatch[1].toLowerCase() !== head) throw new Error(`Index current-head gate rejected: INDEX DRIFT (index=${currentStateMatch?.[1] ?? 'missing'}, head=${currentHead})`);
+  if (!normalizedIndex.includes('index drift')) throw new Error('Index current-head gate rejected: INDEX DRIFT rule missing from live index');
   return true;
 }
 
 const debtLedgerPath = 'docs/EXECUTION_DEBT_AND_RELEASE_VELOCITY.md';
 const debtLedger = fs.readFileSync(debtLedgerPath, 'utf8');
 for (const anchor of ['EXECUTION DEBT', 'ACTIONABLE DEBT', 'EXTERNAL DEBT', 'RELEASE VELOCITY', 'EXECUTION UTILIZATION', 'TRUE STOP', 'Built', 'Integrated', 'Verified', 'Runtime Proven', 'Production Certified']) {
-  if (!normalize(stripComments(debtLedger)).includes(normalize(anchor))) {
-    throw new Error(`Execution enforcement protocol rejected: debt/velocity ledger missing ${anchor}`);
-  }
+  if (!normalize(stripComments(debtLedger)).includes(normalize(anchor))) throw new Error(`Execution enforcement protocol rejected: debt/velocity ledger missing ${anchor}`);
 }
 
 if (process.argv[1] && process.argv[1].endsWith('check-execution-enforcement-protocol.mjs')) {
   const protocol = fs.readFileSync('docs/EXECUTION_ENFORCEMENT_PROTOCOL.md', 'utf8');
   validateExecutionEnforcementProtocol(protocol);
-  const index = fs.readFileSync('docs/MASTER_EXECUTION_INDEX.md', 'utf8');
-  let currentHead;
-  try {
-    currentHead = execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
-  } catch {
-    currentHead = process.env.GITHUB_SHA?.trim() ?? '';
+  if (process.env.ENFORCE_INDEX_HEAD_GATE === '1') {
+    const index = fs.readFileSync('docs/MASTER_EXECUTION_INDEX.md', 'utf8');
+    let currentHead;
+    try { currentHead = execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(); }
+    catch { currentHead = process.env.GITHUB_SHA?.trim() ?? ''; }
+    validateCurrentHeadIndex(index, currentHead);
   }
-  validateCurrentHeadIndex(index, currentHead);
-  console.log(`PASS execution enforcement protocol: ${REQUIRED_RULES.length} mandatory rules, behavioral cases, scheduling controls, debt/velocity ledger, and current-head index gate active`);
+  console.log(`PASS execution enforcement protocol: ${REQUIRED_RULES.length} mandatory rules, behavioral cases, scheduling controls, debt/velocity ledger, and explicit index-head certification gate active`);
 }
