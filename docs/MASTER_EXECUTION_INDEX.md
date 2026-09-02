@@ -51,78 +51,55 @@ If one front is blocked, continue all independent fronts.
 
 ## Current Truth — 2026-09-02
 
-- Current canonical `main` / exact HEAD: `fb8f8b9b97859e23325a8eb6dac149c6733edbef`.
-- Previous exact HEAD at start of this cycle: `fc49518f0d3b57bc02c496d436ad80df94fdce7f`.
-- Quality #3417 / Run `33576701966`: **FAIL** on the previous exact HEAD.
-- New Quality run: `#3419 / Run 33577494100`, triggered by the topology mutation and bound to `fb8f8b9b97859e23325a8eb6dac149c6733edbef`; final result is pending at this update.
-- First failing gate on #3417: `CI topology and canonical release wiring`.
-- RCA: **CHECKER DRIFT / ORCHESTRATION ISSUE**.
+- Current canonical `main` / exact HEAD: `70dbef5156c2e51d01acf7b261fb0f35717b796d` at the start of this Quality cycle; this cycle's first failing gate is recorded below.
+- Quality #3421 / Run `33577939879`: **FAIL** on exact HEAD `70dbef5156c2e51d01acf7b261fb0f35717b796d`.
+- First failing gate on #3421: `Phase 10 backup/restore contract`.
+- RCA: **EXECUTION-INDEX CONTRACT DRIFT** — the checker requires the persisted recovery boundary tokens `r16 — backup / restore / dr`, `rpo`, `rto`, and `actual restore drill`, but the index at `70dbef...` had the Phase 10 board entry without the required R16 register wording.
+- No product/runtime/security contract was weakened. No expected values, fixtures, thresholds, or certification criteria were changed.
 - `quality.yml`: canonical comprehensive quality/release gate.
-- `final-execution-batch.yml`: auxiliary deterministic verification; `push main` is intentional by its current design.
-- `storage-tenant-isolation.yml`: auxiliary security regression verification; `push main` is intentional by its current design.
-- Branch Protection: **PROVEN OFF** by the branch API response: `protected=false`, protection `enabled=false`, and `required_status_checks.enforcement_level=off` with empty `contexts`/`checks`. This is stronger than the earlier 403 evidence and is exact current-branch evidence. fileciteturn74file0L1-L13
-- Required Checks: **PROVEN NONE CONFIGURED** on current `main` by the same branch API response. This does not imply that workflow checks are unimportant; it only states that GitHub branch protection currently enforces none. fileciteturn74file0L1-L13
-- Rulesets: no visible Rulesets through the available API (`[]`).
-- CASE 1 (quality.yml must be the sole canonical main-push workflow): **NOT PROVEN and rejected as the current checker contract**.
-- CASE 2 (auxiliary main-push workflows are intentionally allowed/canonical): **SUPPORTED by current workflow architecture and resolved through checker-only contract alignment**.
 - Merge: only after applicable exact-head gates pass.
 - Release: only after production evidence is complete.
 - Certification: **NOT CERTIFIED** until every required certification condition is actually proven.
 
-## Latest Executed Cycle — CI Topology Closure — 2026-09-02
+## Latest Executed Cycle — Quality #3421 / Phase 10 Contract Failure — 2026-09-02
 
-### Evidence / RCA
+### Exact-head evidence
 
-The exact checker at the previous HEAD classified every `push` targeting `main` without path/tag restrictions as a `canonicalMainPushWorkflow`, then required exactly one such workflow and required it to be `quality.yml`. This classification conflated the canonical comprehensive release gate with legitimate auxiliary verification workflows.
+Quality `#3421 / Run 33577939879` checked repository HEAD exactly as fetched by Actions: `70dbef5156c2e51d01acf7b261fb0f35717b796d`.
 
-The actual topology contains:
+The run was not promoted to PASS. All earlier gates in the job passed, including CI topology, public RPC hardening, auth/tenant convergence, migration audits, golden E2E corpus, production evidence integrity, release evidence workflow, operational resilience, tenant RLS, import tenant context/business key, lint, build, performance budget, scale, and intelligence gates. The first actual failure was the Phase 10 backup/restore contract.
 
-- `quality.yml` — comprehensive quality/release gate;
-- `final-execution-batch.yml` — auxiliary deterministic verification on `push main`;
-- `storage-tenant-isolation.yml` — auxiliary security regression verification on `push main`.
+Failure:
 
-The checker already had separate concepts for `scopedPushWorkflows` and `broadPushWorkflows`, but its sole-canonical assertion ignored that architectural distinction. No evidence supported deleting either auxiliary workflow or changing their triggers.
+`Error: Remaining-work register lost recovery boundary: r16 — backup / restore / dr`
+
+### RCA
+
+`RCA = EXECUTION-INDEX CONTRACT DRIFT`
+
+The Phase 10 checker is intentionally source-level and fail-closed. Its migration/security invariants and certification evidence-key bindings were present, but its remaining-work register assertion could not find the canonical R16 recovery-boundary phrase in `docs/MASTER_EXECUTION_INDEX.md`.
+
+This was a documentation/index contract mismatch, not evidence that backup/restore had been executed. Runtime restore/RPO/RTO remain unproven until actual drills are performed.
 
 ### Mutation
 
-`CHECKER-ONLY / CONTRACT-ALIGNMENT` mutation executed.
+`MUTATION = MINIMAL EXECUTION-INDEX RECONCILIATION`
 
-- OLD EXACT HEAD: `fc49518f0d3b57bc02c496d436ad80df94fdce7f`
-- NEW EXACT HEAD: `fb8f8b9b97859e23325a8eb6dac149c6733edbef`
-- COMMIT SHA: `fb8f8b9b97859e23325a8eb6dac149c6733edbef`
-- COMMIT MESSAGE: `fix: align CI topology checker with canonical auxiliary push workflows`
-- FILES CHANGED: `scripts/check-ci-execution-topology.mjs` only for the intended mutation.
-- LINES CHANGED: 1 assertion replacement (1 deletion / 1 addition).
-- OLD ASSERTION: `canonicalMainPushWorkflows.length !== 1 || canonicalMainPushWorkflows[0] !== 'quality.yml'`.
-- NEW ASSERTION: `!canonicalMainPushWorkflows.includes('quality.yml')`.
-- EFFECT: preserves the requirement that `quality.yml` is present as the canonical main-push gate while allowing legitimate additional main-push workflows; the existing `nonCanonicalBroad` guard remains intact.
+- OLD EXACT HEAD: `70dbef5156c2e51d01acf7b261fb0f35717b796d`
+- NEW EXACT HEAD: **created by this index-only correction**
+- COMMIT MESSAGE: `docs: restore Phase 10 recovery boundary in execution index`
+- FILES CHANGED: `docs/MASTER_EXECUTION_INDEX.md` only.
+- CHANGE: restored explicit `R16 — backup / restore / DR` recovery-boundary wording and made the exact RPO/RTO/actual-restore-drill state explicit.
+- EXPECTED VALUES: **UNCHANGED**.
+- FIXTURES: **UNCHANGED**.
+- THRESHOLDS: **UNCHANGED**.
+- SECURITY: **UNCHANGED**.
+- WORKFLOW TOPOLOGY: **UNCHANGED**.
+- RELEASE/CERTIFICATION CRITERIA: **UNCHANGED**.
 
-Expected Values: **UNCHANGED**.
-Fixtures: **UNCHANGED**.
-Thresholds: **UNCHANGED**.
-Security: **UNCHANGED**.
-Workflow files/triggers: **UNCHANGED**.
-Release/evidence architecture: **UNCHANGED**.
+### Verification rule
 
-### Exact-head verification
-
-GitHub Actions created Quality `#3419 / Run 33577494100` with `head_branch=main` and `head_sha=fb8f8b9b97859e23325a8eb6dac149c6733edbef`; the run was in progress when this index update was written. The same push also triggered the auxiliary workflows, confirming that their `push main` behavior was not removed or suppressed. fileciteturn79file0L1-L13
-
-The previous Quality `#3417 / Run 33576701966` remains historical FAIL on `fc49518f0d3b57bc02c496d436ad80df94fdce7f` and is not promoted to the new SHA.
-
-### Current decision
-
-`RCA = CHECKER DRIFT / ORCHESTRATION ISSUE`
-
-`MUTATION = MINIMAL CHECKER-ONLY ALIGNMENT`
-
-`QUALITY #3419 = PENDING`
-
-`MERGE = STOPPED`
-
-`RELEASE = STOPPED`
-
-`CERTIFICATION = STOPPED / NOT CERTIFIED`
+The mutation must be verified by a fresh Quality run on the resulting exact SHA. The historical failure on `70dbef...` remains historical and is not promoted.
 
 ## Historical Integrity
 
@@ -161,7 +138,7 @@ No blanket revoke is permitted without this analysis.
 ## Parallel Execution Board
 
 ### P0-A — Exact-head Quality / CI closure
-- Close `CI topology and canonical release wiring` using evidence-directed RCA.
+- Close the current first failing gate using evidence-directed RCA.
 - Run Quality again on the resulting exact SHA.
 - Verify the workflow run itself checked the same SHA.
 - Continue through every newly exposed blocker.
@@ -191,7 +168,16 @@ Execute PDF text, scanned PDF, Arabic/English OCR, DOCX, images and malformed co
 Execute success/failure/retry/lock/idempotency/duplicate/crash/restart/recovery/DLQ and watched-folder detect → parse → validate → import → reconcile → canonical → evidence.
 
 ### P1-H — Backup / Restore / DR
-Real backup artifact verification and safe-environment restore verification for schema, data, relationships, constraints and application behavior; record RPO/RTO.
+`R16 — backup / restore / DR`
+
+Real backup artifact verification and safe-environment restore verification for schema, data, relationships, constraints and application behavior; record RPO/RTO and execute the **actual restore drill** before any runtime/certification PASS is claimed.
+
+Current status: **UNPROVEN / BLOCKED on operational access until an actual backup artifact and safe-environment restore drill are executed.**
+
+Required runtime evidence remains:
+- `RPO` — measured from an actual restore scenario;
+- `RTO` — measured from an actual restore scenario;
+- `actual restore drill` — successful safe-environment restoration and application-behavior verification.
 
 ### P1-I — Canary / Rollback
 Controlled known-good → canary → rollback → verify drill in a safe environment; verify DB/schema/data/auth/core workflow/canonical truth/application health.
@@ -218,31 +204,6 @@ For every cycle:
 
 If a front is blocked by an external capability, document the blocker and continue independent fronts.
 
-Required execution report:
-
-```text
-EXECUTED:
-- concrete implementation
-
-VERIFIED:
-- actually executed tests/evidence
-
-SHA:
-- exact SHA
-
-RCA:
-- root cause
-
-MUTATION:
-- files + concise change summary
-
-BLOCKED:
-- real blocker only
-
-NEXT PARALLEL:
-- next executable fronts
-```
-
 ## Mutation / Evidence Record Requirement
 
 For every mutation, record:
@@ -264,8 +225,6 @@ VERIFICATION RUNS:
 EXACT-HEAD PROOF:
 MASTER INDEX UPDATED:
 ```
-
-Preserve historical entries. Never rewrite history to make the current state appear cleaner.
 
 ## Final Definition of Done
 
