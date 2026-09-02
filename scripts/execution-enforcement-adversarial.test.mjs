@@ -7,16 +7,10 @@ const governance = fs.readFileSync('docs/ADAPTIVE_EXECUTION_GOVERNANCE.md', 'utf
 assert.doesNotThrow(() => validateExecutionEnforcementProtocol(protocol));
 assert.doesNotThrow(() => validateAdaptiveGovernance(governance));
 
-const formattingVariation = protocol
-  .replaceAll('E-01 — Parallelism before reporting', 'e-01 —   parallelism   before   reporting')
-  .replaceAll('E-02 — NEXT+1 / NEXT+2 consumption', 'E-02 — next+1 / next+2 consumption');
+const formattingVariation = protocol.replaceAll('E-01 — Parallelism before reporting', 'e-01 —   parallelism   before   reporting').replaceAll('E-02 — NEXT+1 / NEXT+2 consumption', 'E-02 — next+1 / next+2 consumption');
 assert.doesNotThrow(() => validateExecutionEnforcementProtocol(formattingVariation));
 
-const attack = (name, mutate) => {
-  const candidate = mutate(protocol);
-  assert.throws(() => validateExecutionEnforcementProtocol(candidate), /Execution enforcement protocol rejected/, `${name} must be rejected`);
-};
-
+const attack = (name, mutate) => { const candidate = mutate(protocol); assert.throws(() => validateExecutionEnforcementProtocol(candidate), /Execution enforcement protocol rejected/, `${name} must be rejected`); };
 attack('renamed rule', text => text.replace('E-01 — Parallelism before reporting', 'E-01 — Parallel execution'));
 attack('missing section', text => text.replace('### E-08 — Test-of-test requirement', '### E-08 — REMOVED'));
 attack('comment-only decoy', text => text.replace('### E-01 — Parallelism before reporting', '<!-- ### E-01 — Parallelism before reporting -->'));
@@ -35,15 +29,9 @@ attack('E-MAX removed', text => text.replace(/### E-MAX[\s\S]*?### E-SCHED/, '##
 attack('scheduler removed', text => text.replace(/### E-SCHED[\s\S]*?### E-INDEX-HEAD/, '### E-INDEX-HEAD'));
 attack('utilization removed', text => text.replace(/### E-UTIL[\s\S]*?### E-EVOLVE/, '### E-EVOLVE'));
 attack('actionable/external debt distinction removed', text => text.replace(/### E-DEBT[\s\S]*?### E-UTIL/, '### E-UTIL'));
-for (const marker of ['CASE A:', 'CASE B:', 'CASE C:', 'CASE D:', 'CASE E:', 'CASE F:', 'CASE G:', 'CASE H:']) {
-  attack(`missing behavioral ${marker}`, text => text.replace(marker, `${marker.replace(':', '')} REMOVED:`));
-}
+for (const marker of ['CASE A:', 'CASE B:', 'CASE C:', 'CASE D:', 'CASE E:', 'CASE F:', 'CASE G:', 'CASE H:']) attack(`missing behavioral ${marker}`, text => text.replace(marker, `${marker.replace(':', '')} REMOVED:`));
 
-const governanceAttack = (name, mutate) => {
-  const candidate = mutate(governance);
-  assert.throws(() => validateAdaptiveGovernance(candidate), /Adaptive governance rejected/, `${name} must be rejected`);
-};
-
+const governanceAttack = (name, mutate) => { const candidate = mutate(governance); assert.throws(() => validateAdaptiveGovernance(candidate), /Adaptive governance rejected/, `${name} must be rejected`); };
 governanceAttack('missing layer separation', text => text.replaceAll('LAYER 3 — Adaptive Execution Governance', 'LAYER X — Adaptive Execution Governance').replaceAll('LAYER 3 of the execution system', 'LAYER X of the execution system'));
 governanceAttack('precedence removed', text => text.replace('P0 — Safety / Security / Evidence Integrity', 'P0 — Convenience'));
 governanceAttack('performance ledger removed', text => text.replace('EXECUTION PERFORMANCE LEDGER', 'PERFORMANCE LEDGER REMOVED'));
@@ -54,9 +42,12 @@ governanceAttack('measured-data rule removed', text => text.replace('REAL MEASUR
 governanceAttack('silent evolution', text => text.replace('Protocol changes must never be silently introduced.', 'Protocol changes may be silent.'));
 governanceAttack('one-off threshold weakened', text => text.replace('ONE-OFF INCIDENT → RECORD', 'SINGLE INCIDENT → RECORD'));
 governanceAttack('precedence weakening', text => text.replace('A lower-priority instruction MUST NOT override a higher-priority safety, truth, evidence, certification, or exact-SHA constraint.', 'A lower-priority instruction may override a higher-priority constraint.'));
-
-governanceAttack('discovery promoted to closure', text => text.replace('A discovery has an executable fix but only a report is produced.', 'A discovery may be reported as closure without executing the fix.'));
-governanceAttack('evidence transfer', text => text.replace('No historical evidence transfers across this new exact-SHA boundary.', 'Historical evidence may transfer across exact-SHA boundaries.'));
+governanceAttack('discovery promoted to closure', text => text.replace('an executable fix must be executed and verified before closure is claimed.', 'an executable fix may be reported as closure without execution.'));
+governanceAttack('evidence transfer', text => text.replace('evidence from an older SHA MUST NOT be transferred to a newer SHA.', 'evidence from an older SHA may be transferred to a newer SHA.'));
+governanceAttack('unproven promoted', text => text.replace('missing runtime/operational proof remains UNPROVEN.', 'missing runtime/operational proof may be treated as PASS.'));
+governanceAttack('external blocker local stop', text => text.replace('independent actionable work MUST continue.', 'independent actionable work may stop.'));
+governanceAttack('index-only boundary weakened', text => text.replace('every changed path is exactly `docs/MASTER_EXECUTION_INDEX.md`', 'changed paths may include source code'));
+governanceAttack('index update as capability closure', text => text.replace('never counts as product capability progress by itself.', 'counts as product capability progress by itself.'));
 
 const validIndex = `## CURRENT PROJECT STATE\n- Exact code/test head entering this sweep: \`aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\`.\n- E-INDEX-HEAD: INDEX DRIFT is forbidden before TRUE STOP.`;
 assert.doesNotThrow(() => validateCurrentHeadIndex(validIndex, 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'));
