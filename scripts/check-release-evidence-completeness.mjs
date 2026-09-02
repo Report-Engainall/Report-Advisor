@@ -7,7 +7,7 @@ const text=candidates.join('\n');
 const groups=[
  ['source identity',['sourcesha','source_sha']],
  ['migration fingerprint',['migrationfingerprint','migrations_fingerprint']],
- ['dependency fingerprint',['dependencyfingerprint','dependency_fingerprint']],
+ ['dependency fingerprint',['dependencyfingerprint','dependency_fingerprint','dependency_lock_fingerprint']],
  ['artifact evidence',['artifact_integrity_passed','artifact_fingerprint']],
  ['certification evidence',['production_certification_evidence_keys','certification']],
  ['canary evidence',['canary','tenant_isolation_passed']],
@@ -15,5 +15,6 @@ const groups=[
  ['trust evidence',['trust','security_audit_passed']],
 ];
 for(const [label,tokens] of groups) if(!tokens.some(token=>text.includes(token))) throw new Error(`Release evidence completeness missing ${label}`);
-if(!text.includes('fail-closed') && !text.includes('fail_closed')) throw new Error('Release evidence must be fail-closed');
+const certificationSource=fs.readFileSync(path.join(root,'src/lib/production/productionCertification.ts'),'utf8');
+if(!certificationSource.includes('certificationBlockers.length === 0') || !certificationSource.includes('evidenceComplete')) throw new Error('Release certification must remain fail-closed');
 console.log('Release evidence completeness: PASS');
