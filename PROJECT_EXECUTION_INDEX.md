@@ -10,6 +10,7 @@
 
 - `docs/MASTER_EXECUTION_INDEX.md` — الحالة الشاملة الحالية، المراحل، المتطلبات، الـCI، الـgaps، الـbacklog وتسلسل التنفيذ.
 - `docs/MASTER_EXECUTION_INDEX_ADDENDUM_2026-09-02-DASHBOARD-RUNTIME.md` — أحدث إضافة توثيقية خاصة بإغلاق Dashboard RPC/runtime على exact SHA `ec6eb4cce7803af8e94697adfa6d9308f69a9ee2`.
+- `docs/MASTER_EXECUTION_INDEX_ADDENDUM_2026-09-02-PRODUCTION-TARGET-FORENSICS.md` — أحدث إضافة توثيقية لربط Vercel Production بالـruntime artifact وتحديد أن Production Supabase target identity ما زالت UNPROVEN.
 - `docs/EVIDENCE/2026-09-02-production-separation-forensics.md` — أحدث forensic evidence يثبت خلل binding بين Production Vercel artifact وStaging Supabase.
 - `docs/IMPLEMENTATION_ROADMAP.md` — التسلسل المرحلي الأصلي.
 - `docs/MASTER_PRODUCT_REFERENCE.md` — المتطلبات والـguardrails المرجعية.
@@ -76,6 +77,16 @@
 - Recovery candidate `oirazrmpvwwmklqfrdur` is INACTIVE and could not be connected to read-only SQL; it is not a verified recovery target.
 - Staging parent remains ACTIVE_HEALTHY with 110 recorded migrations, but target writability remains UNPROVEN.
 
+## Latest Production Target Identity Forensics
+
+- Vercel project `report-advisor` (`prj_jcqgz6UKGd6tPgHZlttgFXaXvyvo`) is confirmed as the Production project serving `report-advisor.vercel.app`.
+- Latest observed aliased Production deployment: `dpl_4RLSYao4YqpSoM5qEZ5UX1RhciSf`, READY, target `production`.
+- Its build provenance is GitHub `Report-Engainall/Report-Advisor`, `main`, source commit `0fefd8b3316d2721ef5afc63d1f94f9c1a256335`.
+- Its served artifact `/assets/index-B49eOQQy.js` resolves to Supabase project `fnqbvfuwbdpwvhcgzksl` (`Report-Advisor-P0-2-Staging`).
+- Independent Supabase registry inspection found only that Staging project and an unrelated/inactive project `oirazrmpvwwmklqfrdur`; neither is proven to be the intended Production target.
+- Therefore `PRODUCTION TARGET IDENTITY = UNPROVEN / BLOCKED`.
+- No Vercel environment variable change, Supabase mutation, Auth/RLS change, credential creation, deployment, restore, rollback, or DR action was performed.
+
 ## Next action
 
-**STOP BEFORE PRODUCTION-IMPACTING MUTATION.** The next minimal action is to correct/prove the Production Supabase binding using an approved production configuration/deployment path. Backup/Restore/RPO/RTO/Rollback/Forward Recovery/DR remain independently unproven and must not be inferred from this finding.
+**STOP BEFORE PRODUCTION-IMPACTING MUTATION.** The Production target identity is not provable from currently exposed read-only metadata. The next allowed action remains read-only discovery of any additional canonical production-target evidence; otherwise Owner approval is required before correcting the binding. Backup/Restore/RPO/RTO/Rollback/Forward Recovery/DR/Tenant A-B remain independently unproven and must not be inferred from this finding.
