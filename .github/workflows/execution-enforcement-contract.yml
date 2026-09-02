@@ -4,11 +4,13 @@ on:
     paths:
       - 'docs/EXECUTION_ENFORCEMENT_PROTOCOL.md'
       - 'scripts/check-execution-enforcement-protocol.mjs'
+      - 'scripts/execution-enforcement-adversarial.test.mjs'
       - '.github/workflows/execution-enforcement-contract.yml'
   pull_request:
     paths:
       - 'docs/EXECUTION_ENFORCEMENT_PROTOCOL.md'
       - 'scripts/check-execution-enforcement-protocol.mjs'
+      - 'scripts/execution-enforcement-adversarial.test.mjs'
       - '.github/workflows/execution-enforcement-contract.yml'
   workflow_dispatch:
 
@@ -22,3 +24,5 @@ jobs:
           node-version: 22
       - name: Verify execution enforcement contract
         run: node scripts/check-execution-enforcement-protocol.mjs
+      - name: Run enforcement adversarial test-of-test suite
+        run: node scripts/execution-enforcement-adversarial.test.mjs
