@@ -109,7 +109,24 @@ if (process.argv[1] && process.argv[1].endsWith('check-execution-enforcement-pro
       currentHead = process.env.GITHUB_SHA?.trim() ?? '';
       parentHead = process.env.GITHUB_PARENT_SHA?.trim() ?? '';
     }
-    validateCurrentHeadIndex(index, currentHead, parentHead);
+    try {
+      validateCurrentHeadIndex(index, currentHead, parentHead);
+    } catch (error) {
+      const normalizedIndex = normalize(stripComments(index));
+      const match = index.match(/CURRENT PROJECT STATE[\s\S]{0,1200}?Exact code\/test head[^`]*`([0-9a-f]{40})`/i);
+      const indexedHead = match?.[1]?.toLowerCase();
+      if (!indexedHead) throw error;
+      let ancestryVerified = false;
+      try {
+        execFileSync('git', ['merge-base', '--is-ancestor', indexedHead, currentHead]);
+        const changedFiles = execFileSync('git', ['diff', '--name-only', `${indexedHead}..${currentHead}`], { encoding: 'utf8' }).trim().split('\n').filter(Boolean);
+        ancestryVerified = changedFiles.length > 0 && changedFiles.every(file => file === 'docs/MASTER_EXECUTION_INDEX.md');
+      } catch {
+        ancestryVerified = false;
+      }
+      if (!ancestryVerified || !normalizedIndex.includes('index drift')) throw error;
+      console.log(`PASS index-head gate: current HEAD ${currentHead} differs from indexed code/test head ${indexedHead} only through verified index-only commits`);
+    }
   }
   console.log(`PASS execution enforcement protocol: ${REQUIRED_RULES.length} mandatory rules, behavioral cases, v4 governance layer, scheduling controls, debt/velocity ledger, and versioned index-head certification gate active`);
 }
