@@ -1,0 +1,24 @@
+name: Execution Enforcement Contract
+on:
+  push:
+    paths:
+      - 'docs/EXECUTION_ENFORCEMENT_PROTOCOL.md'
+      - 'scripts/check-execution-enforcement-protocol.mjs'
+      - '.github/workflows/execution-enforcement-contract.yml'
+  pull_request:
+    paths:
+      - 'docs/EXECUTION_ENFORCEMENT_PROTOCOL.md'
+      - 'scripts/check-execution-enforcement-protocol.mjs'
+      - '.github/workflows/execution-enforcement-contract.yml'
+  workflow_dispatch:
+
+jobs:
+  enforcement-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Verify execution enforcement contract
+        run: node scripts/check-execution-enforcement-protocol.mjs
