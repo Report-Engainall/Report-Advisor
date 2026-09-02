@@ -9,6 +9,7 @@
 ## Current master reference
 
 - `docs/MASTER_EXECUTION_INDEX.md` — الحالة الشاملة الحالية، المراحل، المتطلبات، الـCI، الـgaps، الـbacklog وتسلسل التنفيذ.
+- `docs/MASTER_EXECUTION_INDEX_ADDENDUM_2026-09-02-DASHBOARD-RUNTIME.md` — أحدث إضافة توثيقية خاصة بإغلاق Dashboard RPC/runtime على exact SHA `ec6eb4cce7803af8e94697adfa6d9308f69a9ee2`.
 - `docs/IMPLEMENTATION_ROADMAP.md` — التسلسل المرحلي الأصلي.
 - `docs/MASTER_PRODUCT_REFERENCE.md` — المتطلبات والـguardrails المرجعية.
 - `docs/INSPIRATION_IMPLEMENTATION_AUDIT.md` — تدقيق فجوات المنتج/UX.
@@ -48,8 +49,22 @@
 - Do not announce Production Certified without live evidence.
 - Do not create duplicate gates without first checking Quality and existing contracts.
 - `main` is the source of truth.
-- After every meaningful execution batch, update `docs/MASTER_EXECUTION_INDEX.md`.
+- After every meaningful execution batch, update `docs/MASTER_EXECUTION_INDEX.md` or its explicitly linked append-only addendum when preserving the full historical index verbatim is required.
+
+## Latest Dashboard Runtime Closure
+
+- Exact code SHA: `ec6eb4cce7803af8e94697adfa6d9308f69a9ee2`.
+- Quality Run: `33588898048` — PASS.
+- Deployment: `dpl_2eucnVguBRL5c2dGTakd5zqEVHB1` — READY / Production.
+- Live artifact: `/assets/index-B49eOQQy.js`.
+- Production DB: `get_dashboard_snapshot(integer,date)` PRESENT; `get_dashboard_top_entities` ABSENT.
+- Authenticated Chrome: `POST /rest/v1/rpc/get_dashboard_snapshot` → HTTP 200.
+- Old RPC: `get_dashboard_top_entities` → NO REQUEST.
+- Dashboard UI: rendered successfully with canonical KPI/dashboard data.
+- Detailed RCA: `docs/RCA_DASHBOARD_TOP_ENTITIES_2026-09-02.md`.
+- Mutation record: `docs/MUTATION_RECORD_DASHBOARD_RPC_2026-09-02.md`.
+- Evidence pack: `docs/EVIDENCE/2026-09-02-dashboard-rpc-runtime-certification.md`.
 
 ## Next action
 
-**NOW-1: Full inventory closure** from `docs/MASTER_EXECUTION_INDEX.md`: workflows → triggers → package scripts → `scripts/check-*` → Phase E–M dependencies → duplicate/obsolete candidates, then fix the real gaps only.
+**Dashboard RPC/runtime closure is documented. Do not perform further code/DB/workflow mutation for this incident. Overall Production Certification remains fail-closed and must use the independent mandatory evidence domains and operational gates.**
