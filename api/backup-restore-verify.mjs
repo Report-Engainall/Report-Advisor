@@ -1,4 +1,4 @@
-import { json, requireConfig, requireMethod, requireOperationalToken, managementRequest, sha256ResponseBody, persistBackupEvidence } from '../src/server/resilience-runtime.mjs';
+import { json, requireConfig, requireMethod, requireOperationalToken, managementRequest, sha256ResponseBody, persistBackupEvidence, isProductionEnv } from '../src/server/resilience-runtime.mjs';
 
 export default async function handler(req, res) {
   if (!requireMethod(req, res, 'POST')) return;
@@ -7,11 +7,13 @@ export default async function handler(req, res) {
     'SUPABASE_MANAGEMENT_TOKEN',
     'SUPABASE_PROJECT_REF',
     'RESILIENCE_COMPANY_ID',
+    'RESILIENCE_TARGET_ENV',
     'RESILIENCE_MAX_RPO_SECONDS',
     'RESILIENCE_BACKUP_ARTIFACT_URL',
     'RESILIENCE_BACKUP_ARTIFACT_SHA256',
     'RESILIENCE_RESTORE_VERIFIER_URL',
   ])) return;
+  if (isProductionEnv()) return json(res, 409, { status: 'blocked', error: 'production_restore_verification_forbidden' });
 
   const maxRpoSeconds = Number(process.env.RESILIENCE_MAX_RPO_SECONDS);
   const expectedArtifactSha256 = process.env.RESILIENCE_BACKUP_ARTIFACT_SHA256.trim().toLowerCase();
@@ -75,7 +77,7 @@ export default async function handler(req, res) {
         backup_ref: String(latest.id),
         backup_artifact_url: process.env.RESILIENCE_BACKUP_ARTIFACT_URL.trim(),
         backup_sha256: sha256,
-        target_env: process.env.RESILIENCE_TARGET_ENV?.trim() || 'unknown',
+        target_env: process.env.RESILIENCE_TARGET_ENV.trim(),
       }),
     });
     const restoreText = await restoreResponse.text();
