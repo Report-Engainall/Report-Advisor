@@ -34,6 +34,26 @@ const arbitrary = certifyProduction([...complete, check('unrelated-warning', fal
 assert.equal(arbitrary.certified, true);
 assert.equal(arbitrary.score, 1);
 
+// Adversarial runtime inputs must never exploit JavaScript truthiness to turn
+// malformed evidence into certification.
+const stringFalse = certifyProduction(complete.map(x => x.key === 'backup' ? { ...x, passed: 'false' } : x));
+assert.equal(stringFalse.certified, false);
+assert.ok(stringFalse.blockers.includes('MALFORMED_CERTIFICATION_CHECK'));
+assert.ok(stringFalse.blockers.includes('FAILED_EVIDENCE:backup'));
+
+const invalidSeverity = certifyProduction(complete.map(x => x.key === 'rollback' ? { ...x, severity: 'PASS' } : x));
+assert.equal(invalidSeverity.certified, false);
+assert.ok(invalidSeverity.blockers.includes('MALFORMED_CERTIFICATION_CHECK'));
+
+const emptyKey = certifyProduction(complete.map(x => x.key === 'tenant' ? { ...x, key: '' } : x));
+assert.equal(emptyKey.certified, false);
+assert.ok(emptyKey.blockers.includes('MALFORMED_CERTIFICATION_CHECK'));
+assert.ok(emptyKey.blockers.includes('MISSING_EVIDENCE:tenant'));
+
+const nonArray = certifyProduction(null);
+assert.equal(nonArray.certified, false);
+assert.ok(nonArray.blockers.includes('MISSING_EVIDENCE:tenant'));
+
 assert.equal(isMandatoryCertificationEvidenceKey('tenant'), true);
 assert.equal(isMandatoryCertificationEvidenceKey('live'), false);
 assert.equal(isMandatoryCertificationEvidenceKey('backup'), true);
@@ -44,4 +64,4 @@ const weakenedScore = arbitrary.score * (PRODUCTION_CERTIFICATION_EVIDENCE_KEYS.
   (PRODUCTION_CERTIFICATION_EVIDENCE_KEYS.length + 1));
 assert.notEqual(weakenedScore, arbitrary.score);
 
-console.log('Production certification runtime tests PASS (complete/missing/failed/duplicate/unrelated evidence attacks).');
+console.log('Production certification runtime tests PASS (complete/missing/failed/duplicate/unrelated/malformed evidence attacks).');
