@@ -114,3 +114,8 @@ export async function sha256ResponseBody(response) {
 export function isProductionEnv() {
   return /^(prod|production)$/i.test(process.env.RESILIENCE_TARGET_ENV?.trim() || '');
 }
+
+export function isSafeRestoreTargetEnv() {
+  const target = process.env.RESILIENCE_TARGET_ENV?.trim() || '';
+  return /^(staging|preview|test|testing|qa|development|dev|recovery|dr)([-_].*)?$/i.test(target);
+}
