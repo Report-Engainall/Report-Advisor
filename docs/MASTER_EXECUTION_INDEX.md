@@ -1,16 +1,26 @@
 # Report Advisor — Master Execution & Truth Index
 
-## CURRENT RESUME EXECUTION MAP — 2026-09-02 — v4.12 / ENFORCEMENT BOUNDARY CLOSED
+## CURRENT RESUME EXECUTION MAP — 2026-09-02 — v4.13 / CI TOPOLOGY RECONCILIATION
 
 > This file is the authoritative current execution index. Historical execution records remain preserved in Git history and dated execution/evidence documents. No evidence crosses an exact-SHA boundary.
 
 ### CURRENT PROJECT STATE
 - Repository: `Report-Engainall/Report-Advisor`.
-- Latest repository synchronization commit before this documentation sync: `dd6b437e6a76e2a3d0d90586880872bfc9a8b575` (enforcement workflow boundary hardening; current code/test candidate).
-- Current repository head is intentionally allowed to advance through governed index-only synchronization commits; the current code/test head remains `dd6b437e6a76e2a3d0d90586880872bfc9a8b575`.
-- Current exact code/test candidate: `dd6b437e6a76e2a3d0d90586880872bfc9a8b575`.
-- Fresh Quality `33670067052` and Final Execution Batch `33670067057` passed on `1bdd5815`; later enforcement-boundary mutations require fresh exact-head evidence.
-- **INDEX DRIFT** is governed explicitly: the enforcement verifier accepts only exact code/test head match or a fail-closed, ancestor-proven chain whose complete changed-file set is exactly `docs/MASTER_EXECUTION_INDEX.md`.
+- Latest repository code/test synchronization commit: `baee24662765aebb4d52d925c2724627d2044836` (CI topology checker reconciliation).
+- Current repository head is intentionally allowed to advance through governed index-only synchronization commits; the current code/test head is `baee24662765aebb4d52d925c2724627d2044836` until a later real code/test mutation.
+- Current exact code/test candidate: `baee24662765aebb4d52d925c2724627d2044836`.
+- Quality `33670903892` on `13dd633` exposed a real CI topology contract defect: the checker rejected the mandatory broad-push `execution-enforcement-contract.yml` even though the enforcement workflow was deliberately hardened to run on every push/PR so no repository mutation can bypass the enforcement boundary.
+- The defect was fixed by explicitly classifying `execution-enforcement-contract.yml` as the sole governance broad-push exception and asserting that it remains broad-push; all other non-canonical broad push workflows remain forbidden.
+- Fresh exact-head Quality/Final Execution/Enforcement evidence is required for `baee246...`; no older PASS is carried across this mutation.
+- **INDEX DRIFT** remains governed explicitly: the enforcement verifier accepts only exact code/test head match or a fail-closed, ancestor-proven chain whose complete changed-file set is exactly `docs/MASTER_EXECUTION_INDEX.md`.
+
+### 2026-09-02 CI TOPOLOGY RECONCILIATION WAVE
+- Quality failed at the CI topology gate, while the preceding 20-stage readiness, build/typecheck, lint, RLS, import, performance, scale, and intelligence checks all passed in that run.
+- Root cause was not product behavior: `scripts/check-ci-execution-topology.mjs` treated every broad push workflow other than `quality.yml` as forbidden.
+- The enforcement workflow is intentionally broad-push by design because it must cover every push and pull request, including documentation-only/index synchronization and any future mutation that could otherwise bypass enforcement.
+- Reconciled the topology checker so `execution-enforcement-contract.yml` is an explicit, singular governance exception and is itself asserted to remain broad-push.
+- This is a minimal contract correction; no production alias, deployment, restore, rollback, or live tenant state was mutated.
+- Commit: `baee24662765aebb4d52d925c2724627d2044836`.
 
 ### 2026-09-02 RESILIENCE SECURITY CLOSURE WAVE
 - Closed a real SSRF target-class defect in the resilience outbound transport: configured HTTPS URLs are rejected when their literal or resolved addresses are loopback, private, link-local, carrier-grade NAT, documentation/reserved, multicast, or otherwise non-public ranges covered by the guard.
@@ -43,7 +53,6 @@
 - Backup artifact integrity hashing streams the response instead of buffering the full artifact in memory.
 - Rollback drill validates deployment IDs for exact project ownership and READY state, rejects identical/untrusted targets, forbids production drills, and uses the same secure verification transport. No production alias mutation was performed.
 - Current Vercel production deployment is not certified as the exact current candidate; deployment/platform state must be reverified after the candidate's CI gates pass.
-- Vercel build-rate-limit remains a platform/deployment-capacity condition when encountered, not a product-code failure.
 - Backup, restore, RPO/RTO, rollback, forward recovery/DR, and production binding remain UNPROVEN/NOT CERTIFIED until real operational evidence is captured at the exact candidate boundary.
 
 ### EXACT-SHA / EVIDENCE RULES
@@ -56,11 +65,11 @@
 ### CERTIFICATION STATUS — FAIL CLOSED
 | Gate | State | Reason |
 |---|---|---|
-| Repository quality | STALE | Fresh exact-head quality evidence required after enforcement-boundary mutations |
-| Release deterministic gates | STALE | Fresh exact-head deterministic evidence required after enforcement-boundary mutations |
-| Execution enforcement contract | **FRESH RUN PENDING** | Current index-only boundary now contains the required INDEX DRIFT rule; exact-head workflow is running |
-| Storage tenant isolation contract | STALE | Prior evidence is on older exact head; runtime still unproven |
-| Work Item Actionability Guard | STALE | Prior evidence is on older exact head |
+| Repository quality | **FRESH RUN PENDING** | Current code/test candidate changed at `baee246...`; fresh exact-head Quality required |
+| Release deterministic gates | **FRESH RUN PENDING** | Current code/test candidate changed; fresh exact-head deterministic evidence required |
+| Execution enforcement contract | **FRESH RUN PENDING** | Must consume fresh exact-head enforcement result after topology checker mutation |
+| Storage tenant isolation contract | **STALE** | Prior evidence is on older exact head; runtime still unproven |
+| Work Item Actionability Guard | **STALE** | Prior evidence is on older exact head |
 | Production runtime | UNPROVEN | Requires authenticated live product runtime evidence |
 | Authenticated E2E | UNPROVEN | Harness is ready; real exact-environment execution evidence still required |
 | Live Tenant A/B isolation | UNPROVEN | Requires real two-tenant adversarial runtime evidence |
@@ -79,14 +88,15 @@
 - No owner/device request is made while independent executable work remains.
 
 ### NEXT EXECUTION FRONT
-1. Consume the fresh exact-head Execution Enforcement result and then fresh Quality/Final Execution results at the governed candidate boundary.
-2. If a fresh gate exposes another real regression, fix the smallest proven defect and reverify; otherwise continue independent resilience/runtime/security closure.
-3. Prepare exact live authenticated Tenant A/B and resilience evidence paths; never fabricate credentials or operational artifacts.
-4. Keep Production binding, backup/restore, RPO/RTO, rollback, DR, and final certification fail-closed until real evidence exists.
-5. Enable leaked-password protection through the Supabase Auth control plane when that setting is reachable.
-6. Desktop Windows certification remains backed by native smoke workflow; `desktop/package-lock.json` is absent, so reproducible desktop `npm ci` remains a real dependency-resolution gap rather than something to handcraft.
+1. Consume fresh exact-head Enforcement, Quality, Final Execution, and Storage Tenant Isolation results at `baee246...`.
+2. If any fresh gate exposes another real regression, fix the smallest proven defect and immediately reverify at the new exact head.
+3. In parallel, continue repository-side security/runtime/contract closure without reopening already-closed findings.
+4. Prepare exact live authenticated Tenant A/B and resilience evidence paths; never fabricate credentials or operational artifacts.
+5. Keep Production binding, backup/restore, RPO/RTO, rollback, DR, and final certification fail-closed until real evidence exists.
+6. Enable leaked-password protection through the Supabase Auth control plane when that setting is reachable.
+7. Desktop Windows certification remains backed by native smoke workflow; `desktop/package-lock.json` is absent, so reproducible desktop `npm ci` remains a real dependency-resolution gap rather than something to handcraft.
 
 ### HISTORICAL RECORD / SHA BOUNDARIES
-- Previous index blob: `d1bc4e24e838112d2218d20e7af328717011fcf1`.
-- Previous certified code/test boundary: `ab1cf0d9c16864f9bda07acd33973954c2dc1b7a`.
+- Previous index blob: `f2e759d79b3fcf995e451cf9b1a40ddd8fd8e398`.
+- Previous code/test boundary: `dd6b437e6a76e2a3d0d90586880872bfc9a8b575`.
 - Historical execution content remains preserved by Git history; documentation synchronization commits are never promoted to code/test candidates unless they contain a real product/test mutation.
