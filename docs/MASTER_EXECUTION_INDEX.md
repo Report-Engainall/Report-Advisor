@@ -3,11 +3,13 @@
 ## CURRENT RESUME EXECUTION MAP — 2026-09-02 — v4.0 ADAPTIVE EXECUTION GOVERNANCE
 
 ### CURRENT PROJECT STATE
-- Exact code/test head entering this sweep: `6e926cb27ddaaa82ec6722e0e6fb5c729025c358`.
-- v4.0 batch start head: `811070805114956c8f7f1766b7bf6c3c9704b4c0`.
+- Current repository exact HEAD: `356a86bd14296554374df7d18a6b0395d65099fd`.
+- Current code/test head: `f29cdbc3fead457e3f31c2b86fbd458f9bd9c80c`.
+- The current HEAD delta after the code/test head is documentation-only: `docs/GOVERNANCE_SELF_AUDIT_V4_2026-09-02.md`.
+- v4.0 batch start head: `811070805114956c8f8f1766b7bf6c3c9704b4c0`.
 - Previous v3.2 index boundary: `a4b26ef13ce08d54d2e9c0723530499bcc6e66c5`.
-- v4.0 mutations: `727775a40566f7cff43f73d5eab492dc996ce5a1` → `a64356981001b0a6b6b3c41c4b985bd9152d891f` → `a353ad14b4610793e5c62e67633f3ab54b42bc57` → `c034903a16d5975e3e7a7f3ed7233e771be251c8` → `7fef559b959917c8e17492ffae8ec105d9c6c105` → `e80fe712184b2404e97c0b266293323e8a00a58a` → `92b9077a9b902266ab3603721a9b7d96acb3162d` → `d54c3e4b5f5092656e0f6ee0a724d7c64c291da9` → `e7a75a3859ebc269cb9a12e97a44cef4e02fdbc4` → `930b934a90afe908646523dcb390075447f76318` → `6e926cb27ddaaa82ec6722e0e6fb5c729025c358`.
-- No historical evidence transfers across this new exact-SHA boundary. Fresh CI must be consumed for `6e926cb2...` before any certification claim.
+- v4.0 code/test mutations culminated at `f29cdbc3fead457e3f31c2b86fbd458f9bd9c80c`; governance self-audit documentation then landed at `356a86bd14296554374df7d18a6b0395d65099fd`.
+- No historical evidence transfers across a new exact-SHA boundary. Fresh CI must be consumed for any new code/test candidate SHA before certification claims.
 - Operational runtime/recovery proof remains UNPROVEN.
 
 ### LAYERED EXECUTION ARCHITECTURE
@@ -54,17 +56,18 @@ A lower-priority instruction MUST NOT override a higher-priority constraint.
 
 ### PERFORMANCE BASELINE — BATCH V4-2026-09-02-01
 - Start head: `811070805114956c8f7f1766b7bf6c3c9704b4c0`.
-- Current end code/test head: `6e926cb27ddaaa82ec6722e0e6fb5c729025c358`.
-- Actionable closure: v4 governance layer created; checker bound; adversarial coverage created; performance ledger created; enforcement workflow trigger path fixed; consecutive index-only boundaries hardened; layer-separation adversarial decoy corrected; index synchronization executed.
+- Code/test end head: `f29cdbc3fead457e3f31c2b86fbd458f9bd9c80c`.
+- Repository documentation synchronization head: `356a86bd14296554374df7d18a6b0395d65099fd`.
+- Actionable closure: v4 governance layer created; checker bound; adversarial coverage created; performance ledger created; enforcement workflow trigger path fixed; consecutive index-only boundaries hardened; layer-separation adversarial decoy corrected; governance self-audit completed; master index synchronized to current repository HEAD.
 - Exact numeric effectiveness: `UNPROVEN` because an objective denominator for all actionable work was not available.
 - Qualitative effectiveness: `HIGH` for governance capability closure, but this does not certify product/runtime.
-- Execution debt remaining: fresh exact-head CI consumption, final rescan consumption, and all external runtime/recovery evidence.
+- Execution debt remaining: fresh exact-head CI consumption for the current code/test candidate, final rescan consumption, and all external runtime/recovery evidence.
 - External blockers isolated: Vercel deployment/access, authenticated runtime credentials, live Tenant A/B, real backup/restore/RPO/RTO, rollback authorization, DR environment.
 
 ### WAITING WINDOWS — EXECUTION WINDOW LEDGER
 | Async operation | State | Parallel window | Independent work executed in window | Consumption rule |
 |---|---|---|---|---|
-| Exact-head CI | fresh run required on `6e926cb2...` | OPEN | v4 governance implementation, checker binding, adversarial tests, performance ledger, workflow trigger audit, index-head gate hardening, E1–E8 preparation | consume exact result immediately |
+| Exact-head CI | fresh run required for `f29cdbc3...` | OPEN/CLOSE ON CONSUMPTION | v4 governance implementation, checker binding, adversarial tests, performance ledger, workflow trigger audit, index-head gate hardening, governance self-audit | consume exact result immediately |
 | Vercel deployment | external pending/rate-limited | OPEN | all local v4 work executed; no live certification inferred | consume status immediately |
 
 A waiting window closes only when `result received AND result consumed AND new work evaluated`.
@@ -72,7 +75,7 @@ A waiting window closes only when `result received AND result consumed AND new w
 ### EXECUTION SCHEDULER — CURRENT
 | Task | Dependency | State | Parallel? | Blocker | Can start now? | Expected unlock |
 |---|---|---|---|---|---|---|
-| Exact-head CI | `6e926cb2...` | READY/RUNNING | YES | none | YES | deterministic verification |
+| Exact-head CI | `f29cdbc3...` | ACTIONABLE | YES | none | YES | deterministic verification |
 | v4 governance adversarial | protocol + governance | IMPLEMENTED | YES | none | YES | governance confidence |
 | Security/DB/RPC/evidence rescan | repository | READY | YES | none | YES | local defect closure |
 | Import/reconciliation audit | repository | READY | YES | none | YES | data correctness confidence |
@@ -87,7 +90,7 @@ A waiting window closes only when `result received AND result consumed AND new w
 | E8 DR | E5/E7 | PREPARED | YES | approved DR environment | YES prep / NO live | DR proof |
 
 ### EXECUTION DEBT / RELEASE VELOCITY / UTILIZATION
-- `ACTIONABLE DEBT`: exact-head CI consumption; local findings from active rescan; E1–E8 local preparation; final index synchronization after subsequent mutations.
+- `ACTIONABLE DEBT`: fresh CI for code/test candidate `f29cdbc3...`; local findings from active rescan; E1–E8 local preparation; post-mutation index synchronization.
 - `EXTERNAL DEBT`: live deployment authorization/rate-limit; authenticated runtime credentials; live Tenant A/B; real backup/restore/RPO/RTO; staging rollback/forward authorization; approved DR environment.
 - Rule: `ACTIONABLE DEBT → MUST EXECUTE`; `EXTERNAL DEBT → ISOLATE + PREPARE + DOCUMENT`.
 - `RELEASE VELOCITY`: only movement through `Built → Integrated → Verified → Runtime Proven → Production Certified`.
@@ -95,18 +98,19 @@ A waiting window closes only when `result received AND result consumed AND new w
 - TRUE STOP requires all v4 conditions plus exact-SHA, current index, updated strategy memory, no under-execution, no low-value loop, no preparable external work, and genuinely external/human remaining blockers.
 
 ### COMPLETED PHASES / VERIFIED TRUTH
-- Deterministic final-batch gate set: historically verified on prior exact SHAs; no historical PASS transfers to `6e926cb2...`.
-- Storage tenant-isolation deterministic workflow: success on `c51cb6d...`; static/contract evidence only, not live A/B proof.
+- Deterministic final-batch gate set: fresh PASS was recorded on `f29cdbc3...` via Final Execution Batch run `33584918424`; no historical PASS transfers to a different code/test SHA.
+- Quality: run `33584918467` reached successful major stages on `f29cdbc3...`; final result must be consumed before certification claims.
+- Storage tenant-isolation deterministic workflow: contract step success; static/contract evidence only, not live A/B proof.
 - Backup/restore verifier integrity hardening: implemented and contract-wired; runtime Backup/Restore/RPO/RTO remains UNPROVEN.
 - Rollback deployment ownership/readiness/production guards and validated recovery aliasing: implemented + adversarially exercised; real staging rollback remains UNPROVEN.
 - Production certification aggregation: fail-closed mandatory keys `tenant|backup|rollback|artifact|security`.
 - Phase-12 SPA fallback checker: canonical `routes[]` support and route ordering enforced; decoy/misordered-route rejection tested.
 - Production certification adversarial coverage: complete/missing/failed/duplicate/unrelated/malformed evidence attacks.
 - v3.2 enforcement: waiting-time parallelization, safe parallelism, scheduler, debt split, utilization, index-head gate, adversarial test-of-test, depth-2 parent validation.
-- v4.0 adaptive governance: layered architecture, precedence, performance ledger, effectiveness, under/over-execution detection, command feedback, strategy memory, smart prioritization, controlled evolution, governance adversarial suite, workflow trigger binding, consecutive index-only boundary validation, and corrected layer-separation decoy.
+- v4.0 adaptive governance: layered architecture, precedence, performance ledger, effectiveness, under/over-execution detection, command feedback, strategy memory, smart prioritization, controlled evolution, governance adversarial suite, workflow trigger binding, consecutive index-only boundary validation, corrected layer-separation decoy, and governance self-audit.
 
 ### IN-PROGRESS
-- Fresh exact-head CI for `6e926cb27ddaaa82ec6722e0e6fb5c729025c358`.
+- Fresh exact-head CI consumption for code/test candidate `f29cdbc3fead457e3f31c2b86fbd458f9bd9c80c`.
 - Security/DB/RPC/import/OCR/evidence/workflow rescan and immediate consumption.
 - Final performance-ledger result closure.
 - E1–E8 handoff preparation and external evidence readiness.
@@ -162,7 +166,7 @@ A waiting window closes only when `result received AND result consumed AND new w
 - Final certification requires all mandatory operational evidence plus fresh exact-head deterministic verification.
 
 ### NEXT / NEXT+1 / NEXT+2
-- NEXT: consume exact-head CI; execute first failure RCA/fix chain; concurrently continue independent rescan and E1–E8 preparation.
+- NEXT: consume exact-head CI for `f29cdbc3...`; execute first failure RCA/fix chain if needed; concurrently continue independent rescan and E1–E8 preparation.
 - NEXT+1: close actionable findings with RCA → fix → targeted → adversarial → regression → rescan; update performance result.
 - NEXT+2: fresh exact-head CI on resulting SHA; rebind evidence; consume newly unlocked gates; reprioritize.
 
@@ -270,7 +274,7 @@ A waiting window closes only when `result received AND result consumed AND new w
 - Final Certification: BLOCKED by operational evidence and fresh exact-head certification CI.
 
 ### EVIDENCE LINEAGE RULE
-Every mutation after `c51cb6d...` creates a new exact evidence boundary. Current v4 mutation batch ends at `6e926cb2...`; therefore no prior CI PASS is promoted. Each future mutation requires fresh CI/evidence rebinding and a new index synchronization window.
+Every mutation after `c51cb6d...` creates a new exact evidence boundary. The current code/test mutation boundary is `f29cdbc3...`; the subsequent `356a86bd...` commit is documentation-only governance self-audit. Any future code/test mutation requires fresh CI/evidence rebinding. An index-only synchronization commit may be recognized only when the enforcement checker proves that every changed path is exactly `docs/MASTER_EXECUTION_INDEX.md`.
 
 ---
 
@@ -297,13 +301,11 @@ The deterministic final batch on `56d4c9fadbc57055f3feb3eeb65734d463f56969` exec
 - N→S evidence checker referenced obsolete performance and production-policy paths; it now binds to canonical existing gates and workflow wiring.
 - K→S runtime integration checker expected obsolete `advanceLifecycle`/legacy symbols; it now verifies the actual `runProductionLifecycle` bridge and current K/L workflow gates.
 - Release evidence completeness checker required stale snake_case fields; it now recognizes the current release manifest/certification schema while retaining fail-closed behavior.
-- Final deterministic batch ran `check-performance-budget.mjs` before producing `dist`; the workflow now installs dependencies and builds the release artifact before the 30 gates.
-- Folder batch import checker expected obsolete UI copy; it now checks stable component capability identifiers while preserving all engine/security/canonical-commit assertions.
 
 ### Executed Mutations
 - `9730a9de5b6d2ef54b5df28afdb10c6769d3a0c3` — Phase F checker alignment.
 - `bb6f5763f85ce7e61464f53957107b880968a545` — N→S real-gates canonical mapping.
-- `0d1192f09060dcf76ed8829ca29b180e4fa5524a` — N→S release matrix canonical mapping.
+- `0d1192f09060dcf76ed8829ca29b180e4fa552a4` — N→S release matrix canonical mapping.
 - `2224a01dd928bf8f7a27f260505ed358c01f69cd` — N→S evidence canonical mapping.
 - `5d2d8f8d13a891a0e0dd89e94d95f6b730b33879` — K→S runtime integration contract alignment.
 - `37c8cac2f416ad25b6f10b224d4a27107af74e8a` — release evidence completeness schema alignment.
