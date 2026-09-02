@@ -8,6 +8,8 @@ const source = readFileSync(endpoint, 'utf8');
 execFileSync(process.execPath, ['--check', endpoint], { stdio: 'inherit' });
 
 const requiredContracts = [
+  "'RESILIENCE_TARGET_ENV',",
+  "if (isProductionEnv()) return json(res, 409, { status: 'blocked', error: 'production_restore_verification_forbidden' });",
   "const maxRpoSeconds = Number(process.env.RESILIENCE_MAX_RPO_SECONDS);",
   "if (!Number.isFinite(maxRpoSeconds) || maxRpoSeconds < 0)",
   "if (!/^[a-f0-9]{64}$/.test(expectedArtifactSha256))",
