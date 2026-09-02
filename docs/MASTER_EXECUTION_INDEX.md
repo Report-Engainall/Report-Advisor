@@ -1,6 +1,6 @@
 # Report Advisor — Master Execution & Truth Index
 
-## CURRENT RESUME EXECUTION MAP — 2026-09-02 — v4.21 / SECURITY DEFINER SEARCH-PATH CLOSURE
+## CURRENT RESUME EXECUTION MAP — 2026-09-02 — v4.22 / MULTI-FRONT EXACT-HEAD RECONCILIATION
 
 > This file is the authoritative current execution index. Historical execution records remain preserved in Git history and dated execution/evidence documents. No evidence crosses an exact-SHA boundary.
 
@@ -9,29 +9,31 @@
 - Latest repository code/test synchronization commit: `5dbf20f4f376896a58f9e8110b9fc813b5069967` (SECURITY DEFINER relation qualification under locked `pg_catalog` search path).
 - Current repository head may advance through governed index-only synchronization commits; the current code/test head is `5dbf20f4f376896a58f9e8110b9fc813b5069967` until a later real code/test mutation.
 - Current exact code/test candidate: `5dbf20f4f376896a58f9e8110b9fc813b5069967`.
-- Proven defect: six SECURITY DEFINER trust/governance helpers used `SET search_path TO 'pg_catalog'` while referencing application relations without schema qualification, producing runtime `42P01 relation-not-found` failures under the locked search path.
-- Closed by adding `public.` qualification to every application relation in the affected six helpers while preserving the locked `pg_catalog` search path and existing tenant/trust predicates.
+- Proven defect: **five** SECURITY DEFINER trust/governance helpers used `SET search_path TO 'pg_catalog'` while referencing application relations without schema qualification, producing runtime `42P01 relation-not-found` failures under the locked search path.
+- Closed by adding `public.` qualification to every application relation in the affected five helpers while preserving the locked `pg_catalog` search path and existing tenant/trust predicates.
 - This is a real runtime/security hardening closure, not documentation or metric padding.
-- Prior CI evidence on `7c03d62...` and earlier heads is historical/stale for the current candidate and is not promoted.
-- Fresh exact-head Quality, Final Execution, Enforcement, Storage, and Desktop evidence is mandatory for certification of `5dbf20...`.
+- Fresh exact-head CI on the synchronized repository head `3bed44d8ca8a2da76bba8ccec16010cf6c3869a1` is now consumed: Quality, Final Execution, Enforcement, Storage Tenant Isolation all PASS.
+- Windows Desktop fresh exact-head result is the remaining repository CI item to consume if not yet present.
 
 ### 2026-09-02 SECURITY DEFINER SEARCH-PATH CLOSURE WAVE
-- Live audit confirmed all public SECURITY DEFINER functions use `search_path=pg_catalog`; the six trust/governance helpers named above had unqualified application relations and were therefore unsafe/broken under the intended locked path.
+- Live audit confirmed all public SECURITY DEFINER functions use `search_path=pg_catalog`; the five trust/governance helpers named above had unqualified application relations and were therefore unsafe/broken under the intended locked path.
 - Applied migration: `supabase/migrations/20260902231600_reconcile_security_definer_search_path_qualification.sql`.
 - Commit: `5dbf20f4f376896a58f9e8110b9fc813b5069967`.
-- The migration changes only function definitions; no production alias, deployment, restore, rollback, live tenant state, or secret was mutated.
-- Fresh Quality run `33678527913` on `5dbf20...` completed successfully across all 63 verification steps.
-- Fresh Enforcement run `33678527891` on `5dbf20...` reached the verifier and correctly failed closed because this index still referenced `27464d...`; this is an index synchronization boundary failure, not evidence against the code/test mutation.
+- The migration changes only function definitions; no restore, rollback, live tenant state, or secret was mutated.
+- Fresh Quality run `33678527913` on `5dbf20...`: PASS — historical exact-candidate evidence.
+- After index synchronization, fresh repository-head runs completed successfully: Quality `33678779951`, Enforcement `33678779980`, Storage Tenant Isolation `33678779994`, Final Execution `33678780020`.
 
 ### EXACT-HEAD CI RECONCILIATION
-- `Quality 33678527913` on `5dbf20...`: PASS — 63 verification steps completed successfully. fileciteturn188file0
-- `Execution Enforcement 33678527891` on `5dbf20...`: FAIL CLOSED — verifier reported `INDEX DRIFT (index=27464d..., head=5dbf20..., parent=7c03d62..., indexOnly=false)` before adversarial tests; index synchronization is required. fileciteturn187file0
-- Storage Tenant Isolation, Final Execution, and Windows Desktop exact-head results are pending/need fresh consumption after index synchronization.
-- No stale evidence is promoted across the `5dbf20...` boundary.
+- `Quality 33678779951` on `3bed44...`: PASS — 63 verification steps completed successfully.
+- `Execution Enforcement 33678779980` on `3bed44...`: PASS — exact-head enforcement contract accepted.
+- `Storage Tenant Isolation 33678779994` on `3bed44...`: PASS — adversarial tenant-isolation contract accepted.
+- `Final Execution 33678780020` on `3bed44...`: PASS — 30 deterministic gates completed successfully.
+- These runs validate the governed repository/index synchronization boundary. The underlying product code/test candidate remains `5dbf20...` because `3bed44...` is index-only.
+- Windows Desktop exact-head evidence must remain separately tracked until consumed.
 
 ### LIVE DATABASE / SECURITY TRUTH
 - Live Staging: 78/78 public tables have RLS; 147 policies; 0 policies targeting `anon`; 0 policies targeting `PUBLIC`; 0 direct `anon` EXECUTE grants on public routines.
-- Reviewed SECURITY DEFINER runtime routines use authenticated/user/tenant checks and no dynamic SQL; the latest live/runtime defect was the locked-search-path relation qualification in six trust/governance helpers and has been addressed in the current candidate.
+- Reviewed SECURITY DEFINER runtime routines use authenticated/user/tenant checks and no dynamic SQL; the latest live/runtime defect was the locked-search-path relation qualification in five trust/governance helpers and has been addressed in the current candidate.
 - Live storage has tenant-path/owner-aware authenticated policies; storage runtime remains UNPROVEN and no canonical bucket-creation contract was found, so no speculative bucket was created.
 - Live Auth logs show successful password-login and `/user` 200 responses, but this is not full authenticated E2E certification.
 - Leaked-password protection remains disabled in Supabase Auth and is retained as an owner/control-plane item because the connected toolset cannot mutate that setting.
@@ -40,7 +42,9 @@
 - Backup/restore verification enforces safe non-production targets, HTTPS-only transport, no URL credentials, no redirects, bounded timeout, non-public literal/DNS target rejection, and fail-closed DNS resolution.
 - Backup artifact integrity hashing streams the response instead of buffering the full artifact.
 - Rollback drill validates exact project ownership and READY state, rejects identical/untrusted targets, forbids production drills, and uses secure verification transport.
-- Backup, restore, RPO/RTO, rollback, forward recovery/DR, and production binding remain UNPROVEN/NOT CERTIFIED until real exact-candidate operational evidence exists.
+- Production deployment `dpl_5quRUVs6BZwSRTbhcvZQySGGm8mG` is READY and points to exact code/test candidate `5dbf20...`; production aliases include `report-advisor.vercel.app`. This proves deployment/runtime availability but does not by itself prove authenticated E2E, tenant isolation, backup/restore, RPO/RTO, rollback, or DR.
+- Production binding is therefore **DEPLOYED / NOT YET CERTIFIED** until the full operational binding evidence contract is consumed.
+- Backup, restore, RPO/RTO, rollback, and forward recovery/DR remain UNPROVEN until real exact-candidate operational evidence exists.
 
 ### EXACT-SHA / EVIDENCE RULES
 - Exact SHA is mandatory for certification evidence.
@@ -52,13 +56,13 @@
 ### CERTIFICATION STATUS — FAIL CLOSED
 | Gate | State | Reason |
 |---|---|---|
-| Repository quality | **PASS** | Fresh Quality `33678527913` on `5dbf20...` |
-| Release deterministic gates | **FRESH RUN PENDING** | Exact-head final execution evidence not yet consumed |
-| Execution enforcement contract | **FRESH RUN PENDING** | `33678527891` failed closed on stale index; sync required |
-| Storage tenant isolation contract | **FRESH RUN PENDING** | Fresh exact-head result not yet consumed |
-| Windows desktop | **FRESH RUN PENDING** | Fresh exact-head result not yet consumed |
+| Repository quality | **PASS** | Fresh Quality `33678779951` |
+| Release deterministic gates | **PASS** | Final Execution `33678780020` — 30 gates |
+| Execution enforcement contract | **PASS** | `33678779980` exact-head enforcement |
+| Storage tenant isolation contract | **PASS** | `33678779994` adversarial contract |
+| Windows desktop | **PENDING CONSUMPTION** | Fresh exact-head evidence still to consume |
 | Work Item Actionability Guard | **STALE** | Prior evidence is on older exact head |
-| Production runtime | UNPROVEN | Requires authenticated live product runtime evidence |
+| Production runtime | **HTTP 200 / runtime available; E2E UNPROVEN** | Production exact candidate deployment responds successfully |
 | Authenticated E2E | UNPROVEN | Harness ready; real exact-environment execution evidence required |
 | Live Tenant A/B isolation | UNPROVEN | Requires real two-tenant adversarial runtime evidence |
 | Backup | UNPROVEN | Requires real backup artifact/inventory evidence |
@@ -66,7 +70,7 @@
 | RPO / RTO | UNPROVEN | Requires real backup/restore timing evidence |
 | Rollback | UNPROVEN | Requires authorized real deployment drill |
 | Forward recovery / DR | UNPROVEN | Requires real operational environment |
-| Production binding | NOT CERTIFIED | Production deployment is not the exact candidate SHA |
+| Production binding | **DEPLOYED / NOT CERTIFIED** | Exact candidate is deployed to production; full binding evidence contract not yet consumed |
 | Auth leaked-password protection | **OPEN — CONTROL PLANE** | Setting is disabled; current toolset cannot mutate Supabase Auth security configuration |
 | Final certification | BLOCKED | Live operational evidence plus Auth control-plane setting remain outside executable closure |
 
@@ -76,16 +80,8 @@
 - No owner/device request is made while independent executable work remains.
 
 ### NEXT EXECUTION FRONT
-1. Consume the fresh exact-head Enforcement run after this index-only synchronization.
-2. Consume fresh Final Execution, Storage, and Desktop exact-head evidence at the current code/test candidate `5dbf20...`.
-3. If a fresh gate exposes another real regression, fix the smallest proven defect and immediately reverify at the new exact head.
-4. Continue independent repository-side security/runtime/contract closure without reopening closed findings.
-5. Prepare exact live authenticated Tenant A/B and resilience evidence paths; never fabricate credentials or operational artifacts.
-6. Keep Production binding, backup/restore, RPO/RTO, rollback, DR, and final certification fail-closed until real evidence exists.
-7. Enable leaked-password protection through the Supabase Auth control plane when that setting is reachable.
-8. Desktop `package-lock.json` remains absent; reproducible desktop `npm ci` is a real dependency-resolution gap and must not be hand-crafted.
-
-### HISTORICAL RECORD / SHA BOUNDARIES
-- Previous index blob: `38c1f56f677c11254eb74860d9192f9be632546c`.
-- Previous code/test boundary: `5dbf20f4f376896a58f9e8110b9fc813b5069967`.
-- Historical execution content remains preserved by Git history; documentation synchronization commits are never promoted to code/test candidates unless they contain a real product/test mutation.
+1. Consume fresh Windows Desktop exact-head evidence.
+2. Continue parallel Supabase RPC/signature/security-definer audit without changing authenticated RPC privileges speculatively.
+3. Continue production runtime forensic checks against the exact deployed candidate.
+4. Continue resilience/backup/restore contract closure and identify any executable non-owner blockers.
+5. Preserve exact-SHA boundaries and update this index only when new evidence or a real mutation changes truth.
