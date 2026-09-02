@@ -2,50 +2,15 @@ import fs from 'node:fs';
 import { execFileSync } from 'node:child_process';
 
 export const REQUIRED_RULES = [
-  'E-01 — Parallelism before reporting', 'E-02 — NEXT+1 / NEXT+2 consumption', 'E-03 — Blocker isolation',
-  'E-04 — Discovery is not closure', 'E-05 — Gate integrity', 'E-06 — Exact-SHA evidence boundary',
-  'E-07 — Runtime truth separation', 'E-08 — Test-of-test requirement', 'E-09 — Remaining-work accounting',
-  'E-10 — Index governance', 'E-11 — True-stop gate', 'E-12 — Automatic protocol evolution',
-  'E-13 — Behavioral enforcement matrix', 'E-14 — Execution Debt zero-gate', 'E-15 — Release Velocity truth metric',
-  'E-TIME — Waiting-Time Parallelization', 'E-MAX — Maximum Safe Parallelism', 'E-SCHED — Dependency-Aware Scheduling',
-  'E-INDEX-HEAD — Current-Head Index Gate', 'E-DEBT — Actionable vs External Debt', 'E-UTIL — Execution Utilization',
-  'E-EVOLVE — Automatic Protocol Evolution',
+  'E-01 — Parallelism before reporting', 'E-02 — NEXT+1 / NEXT+2 consumption', 'E-03 — Blocker isolation', 'E-04 — Discovery is not closure', 'E-05 — Gate integrity', 'E-06 — Exact-SHA evidence boundary', 'E-07 — Runtime truth separation', 'E-08 — Test-of-test requirement', 'E-09 — Remaining-work accounting', 'E-10 — Index governance', 'E-11 — True-stop gate', 'E-12 — Automatic protocol evolution', 'E-13 — Behavioral enforcement matrix', 'E-14 — Execution Debt zero-gate', 'E-15 — Release Velocity truth metric', 'E-TIME — Waiting-Time Parallelization', 'E-MAX — Maximum Safe Parallelism', 'E-SCHED — Dependency-Aware Scheduling', 'E-INDEX-HEAD — Current-Head Index Gate', 'E-DEBT — Actionable vs External Debt', 'E-UTIL — Execution Utilization', 'E-EVOLVE — Automatic Protocol Evolution',
 ];
 const REQUIRED_BEHAVIORAL_CASES = ['CASE A:', 'CASE B:', 'CASE C:', 'CASE D:', 'CASE E:', 'CASE F:', 'CASE G:', 'CASE H:'];
-const REQUIRED_CONTRACT_ANCHORS = [
-  'EXECUTION DEBT', 'EXECUTION DEBT = 0', 'ACTIONABLE DEBT', 'EXTERNAL DEBT', 'RELEASE VELOCITY',
-  'EXECUTION UTILIZATION', 'WAITING-TIME PARALLELIZATION', 'MAXIMUM SAFE PARALLELISM', 'DEPENDENCY-AWARE SCHEDULING',
-  'INDEX DRIFT', 'Built', 'Integrated', 'Verified', 'Runtime Proven', 'Production Certified', 'MUST NOT stop',
-  'MUST NOT be promoted', 'NEXT+1', 'NEXT+2', 'READY + INDEPENDENT = EXECUTE NOW',
-  'Layer precedence', 'v4.0 governance binding',
-];
+const REQUIRED_CONTRACT_ANCHORS = ['EXECUTION DEBT', 'EXECUTION DEBT = 0', 'ACTIONABLE DEBT', 'EXTERNAL DEBT', 'RELEASE VELOCITY', 'EXECUTION UTILIZATION', 'WAITING-TIME PARALLELIZATION', 'MAXIMUM SAFE PARALLELISM', 'DEPENDENCY-AWARE SCHEDULING', 'INDEX DRIFT', 'Built', 'Integrated', 'Verified', 'Runtime Proven', 'Production Certified', 'MUST NOT stop', 'MUST NOT be promoted', 'NEXT+1', 'NEXT+2', 'READY + INDEPENDENT = EXECUTE NOW', 'Layer precedence', 'v4.0 governance binding'];
 const GOVERNANCE_FILE = 'docs/ADAPTIVE_EXECUTION_GOVERNANCE.md';
-const REQUIRED_GOVERNANCE_ANCHORS = [
-  'LAYER 1', 'LAYER 2', 'LAYER 3', 'P0 — Safety / Security / Evidence Integrity',
-  'P1 — Exact-SHA / Truth / Certification Integrity', 'P2 — Current Master Execution Index',
-  'P3 — Adaptive Execution Governance', 'P4 — Programmer Execution Protocol',
-  'EXECUTION PERFORMANCE LEDGER', 'EXECUTION EFFECTIVENESS', 'UNDER-EXECUTION EVENT',
-  'LOW-VALUE EXECUTION', 'COMMAND QUALITY FEEDBACK', 'STRATEGY MEMORY', 'BASELINE', 'RESULT',
-  'SMART FRONT PRIORITIZATION', 'OBSERVATION → EVIDENCE → RCA → PROPOSED RULE → CONFLICT CHECK → TEST → ADVERSARIAL → ACCEPT → VERSION → INDEX UPDATE',
-  'REAL MEASURED DATA > ESTIMATE > NO CLAIM', 'HIGH | MEDIUM | LOW | UNPROVEN',
-  'Protocol changes must never be silently introduced.', 'ONE-OFF INCIDENT → RECORD',
-  'REPEATED PATTERN → CANDIDATE STRATEGY/RULE', 'PROVEN SYSTEMIC FAILURE → MANDATORY ENFORCEMENT RULE',
-];
-const FORBIDDEN_WEAKENING_PATTERNS = [
-  /historical\s+pass[\s\S]{0,120}\btransfer(?:s|red)?\b\s+automatically/i,
-  /unproven[\s\S]{0,120}\b(?:be\s+)?(?:promoted|converted)\s+to\s+pass/i,
-  /blocker[\s\S]{0,120}\b(?:may|can|could|should)\s+stop\s+unrelated/i,
-  /next\s*\+\s*1[\s\S]{0,80}\b(?:is\s+)?optional\b/i,
-  /next\s*\+\s*2[\s\S]{0,80}\b(?:is\s+)?optional\b/i,
-  /execution\s+debt[\s\S]{0,100}\b(?:may|can|could|should)\s+be\s+ignored/i,
-  /index\s+update[\s\S]{0,100}\bcounts\s+as\s+(?:execution\s+)?closure/i,
-  /true\s*stop[\s\S]{0,80}\bis\s+allowed\s+before/i,
-  /waiting\s+(?:for|on)\s+(?:ci|test|deployment|workflow)[\s\S]{0,120}\b(?:may|can|could|should)\s+(?:stop|return|report)\b/i,
-  /parallel\s+work[\s\S]{0,100}\b(?:optional|unnecessary|may\s+be\s+skipped)\b/i,
-  /external\s+blocker[\s\S]{0,120}\b(?:may|can|could|should)\s+(?:clear|erase|satisfy)\s+execution\s+debt/i,
-];
-const stripComments = (value) => value.replace(/<!--[\s\S]*?-->/g, '').replace(/(^|\n)\s*\/\/.*(?=\n|$)/g, '$1');
-const normalize = (value) => value.replaceAll('\r\n', '\n').replace(/[ \t]+/g, ' ').trim().toLowerCase();
+const REQUIRED_GOVERNANCE_ANCHORS = ['LAYER 1', 'LAYER 2', 'LAYER 3', 'P0 — Safety / Security / Evidence Integrity', 'P1 — Exact-SHA / Truth / Certification Integrity', 'P2 — Current Master Execution Index', 'P3 — Adaptive Execution Governance', 'P4 — Programmer Execution Protocol', 'EXECUTION PERFORMANCE LEDGER', 'EXECUTION EFFECTIVENESS', 'UNDER-EXECUTION EVENT', 'LOW-VALUE EXECUTION', 'COMMAND QUALITY FEEDBACK', 'STRATEGY MEMORY', 'BASELINE', 'RESULT', 'SMART FRONT PRIORITIZATION', 'OBSERVATION → EVIDENCE → RCA → PROPOSED RULE → CONFLICT CHECK → TEST → ADVERSARIAL → ACCEPT → VERSION → INDEX UPDATE', 'REAL MEASURED DATA > ESTIMATE > NO CLAIM', 'HIGH | MEDIUM | LOW | UNPROVEN', 'Protocol changes must never be silently introduced.', 'ONE-OFF INCIDENT → RECORD', 'REPEATED PATTERN → CANDIDATE STRATEGY/RULE', 'PROVEN SYSTEMIC FAILURE → MANDATORY ENFORCEMENT RULE', 'DISCOVERY ≠ CLOSURE', 'EVIDENCE IS EXACT-SHA BOUND', 'UNPROVEN ≠ PASS', 'EXTERNAL BLOCKER ≠ LOCAL STOP', 'INDEX-ONLY BOUNDARY', 'INDEX UPDATE ≠ CAPABILITY CLOSURE'];
+const FORBIDDEN_WEAKENING_PATTERNS = [/historical\s+pass[\s\S]{0,120}\btransfer(?:s|red)?\b\s+automatically/i, /unproven[\s\S]{0,120}\b(?:be\s+)?(?:promoted|converted)\s+to\s+pass/i, /blocker[\s\S]{0,120}\b(?:may|can|could|should)\s+stop\s+unrelated/i, /next\s*\+\s*1[\s\S]{0,80}\b(?:is\s+)?optional\b/i, /next\s*\+\s*2[\s\S]{0,80}\b(?:is\s+)?optional\b/i, /execution\s+debt[\s\S]{0,100}\b(?:may|can|could|should)\s+be\s+ignored/i, /index\s+update[\s\S]{0,100}\bcounts\s+as\s+(?:execution\s+)?closure/i, /true\s*stop[\s\S]{0,80}\bis\s+allowed\s+before/i, /waiting\s+(?:for|on)\s+(?:ci|test|deployment|workflow)[\s\S]{0,120}\b(?:may|can|could|should)\s+(?:stop|return|report)\b/i, /parallel\s+work[\s\S]{0,100}\b(?:optional|unnecessary|may\s+be\s+skipped)\b/i, /external\s+blocker[\s\S]{0,120}\b(?:may|can|could|should)\s+(?:clear|erase|satisfy)\s+execution\s+debt/i];
+const stripComments = value => value.replace(/<!--[\s\S]*?-->/g, '').replace(/(^|\n)\s*\/\/.*(?=\n|$)/g, '$1');
+const normalize = value => value.replaceAll('\r\n', '\n').replace(/[ \t]+/g, ' ').trim().toLowerCase();
 
 export function validateExecutionEnforcementProtocol(protocol) {
   if (typeof protocol !== 'string' || protocol.trim().length === 0) throw new Error('Execution enforcement protocol rejected: empty/non-string contract');
@@ -89,9 +54,7 @@ export function validateCurrentHeadIndex(index, currentHead, parentHead = '', ch
 }
 
 const debtLedger = fs.readFileSync('docs/EXECUTION_DEBT_AND_RELEASE_VELOCITY.md', 'utf8');
-for (const anchor of ['EXECUTION DEBT', 'ACTIONABLE DEBT', 'EXTERNAL DEBT', 'RELEASE VELOCITY', 'EXECUTION UTILIZATION', 'TRUE STOP', 'Built', 'Integrated', 'Verified', 'Runtime Proven', 'Production Certified']) {
-  if (!normalize(stripComments(debtLedger)).includes(normalize(anchor))) throw new Error(`Execution enforcement protocol rejected: debt/velocity ledger missing ${anchor}`);
-}
+for (const anchor of ['EXECUTION DEBT', 'ACTIONABLE DEBT', 'EXTERNAL DEBT', 'RELEASE VELOCITY', 'EXECUTION UTILIZATION', 'TRUE STOP', 'Built', 'Integrated', 'Verified', 'Runtime Proven', 'Production Certified']) if (!normalize(stripComments(debtLedger)).includes(normalize(anchor))) throw new Error(`Execution enforcement protocol rejected: debt/velocity ledger missing ${anchor}`);
 
 const adaptiveGovernance = fs.readFileSync(GOVERNANCE_FILE, 'utf8');
 validateAdaptiveGovernance(adaptiveGovernance);
@@ -101,31 +64,14 @@ if (process.argv[1] && process.argv[1].endsWith('check-execution-enforcement-pro
   validateExecutionEnforcementProtocol(protocol);
   if (process.env.ENFORCE_INDEX_HEAD_GATE === '1') {
     const index = fs.readFileSync('docs/MASTER_EXECUTION_INDEX.md', 'utf8');
-    let currentHead = '';
-    let parentHead = '';
-    try {
-      currentHead = execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
-      parentHead = execFileSync('git', ['rev-parse', 'HEAD^'], { encoding: 'utf8' }).trim();
-    } catch {
-      currentHead = process.env.GITHUB_SHA?.trim() ?? '';
-      parentHead = process.env.GITHUB_PARENT_SHA?.trim() ?? '';
-    }
-    try {
-      validateCurrentHeadIndex(index, currentHead, parentHead);
-    } catch (error) {
+    let currentHead = ''; let parentHead = '';
+    try { currentHead = execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(); parentHead = execFileSync('git', ['rev-parse', 'HEAD^'], { encoding: 'utf8' }).trim(); } catch { currentHead = process.env.GITHUB_SHA?.trim() ?? ''; parentHead = process.env.GITHUB_PARENT_SHA?.trim() ?? ''; }
+    try { validateCurrentHeadIndex(index, currentHead, parentHead); }
+    catch (error) {
       const normalizedIndex = normalize(stripComments(index));
-      const match = index.match(/CURRENT PROJECT STATE[\s\S]{0,1200}?Exact code\/test head[^`]*`([0-9a-f]{40})`/i);
-      const indexedHead = match?.[1]?.toLowerCase();
-      if (!indexedHead) throw error;
-      let ancestryVerified = false;
-      let changedFiles = [];
-      try {
-        execFileSync('git', ['merge-base', '--is-ancestor', indexedHead, currentHead]);
-        changedFiles = execFileSync('git', ['diff', '--name-only', `${indexedHead}..${currentHead}`], { encoding: 'utf8' }).trim().split('\n').filter(Boolean);
-        ancestryVerified = changedFiles.length > 0 && changedFiles.every(file => file === 'docs/MASTER_EXECUTION_INDEX.md');
-      } catch {
-        ancestryVerified = false;
-      }
+      const match = index.match(/CURRENT PROJECT STATE[\s\S]{0,1200}?Exact code\/test head[^`]*`([0-9a-f]{40})`/i); const indexedHead = match?.[1]?.toLowerCase(); if (!indexedHead) throw error;
+      let ancestryVerified = false; let changedFiles = [];
+      try { execFileSync('git', ['merge-base', '--is-ancestor', indexedHead, currentHead]); changedFiles = execFileSync('git', ['diff', '--name-only', `${indexedHead}..${currentHead}`], { encoding: 'utf8' }).trim().split('\n').filter(Boolean); ancestryVerified = changedFiles.length > 0 && changedFiles.every(file => file === 'docs/MASTER_EXECUTION_INDEX.md'); } catch { ancestryVerified = false; }
       if (!ancestryVerified || !normalizedIndex.includes('index drift')) throw error;
       validateCurrentHeadIndex(index, currentHead, indexedHead, changedFiles);
       console.log(`PASS index-head gate: current HEAD ${currentHead} differs from indexed code/test head ${indexedHead} only through verified index-only commits`);
