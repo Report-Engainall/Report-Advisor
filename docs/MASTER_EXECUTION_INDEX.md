@@ -6,10 +6,10 @@
 
 ### CURRENT PROJECT STATE
 - Repository: `Report-Engainall/Report-Advisor`.
-- Latest repository synchronization commit before this documentation sync: `24d853d958c3d05979864883a9f9e77d431841c6` (CI execution wiring; current code/test candidate).
-- Current repository head: `fae9abadbc5b3e56ba98cf5779d273e09d6a9bcd`.
-- Current code/test head: `fae9abadbc5b3e56ba98cf5779d273e09d6a9bcd`.
-- Current exact code/test candidate: `fae9abadbc5b3e56ba98cf5779d273e09d6a9bcd` (documentation-only index synchronization boundary; no product/test mutation in this commit).
+- Latest repository synchronization commit before this documentation sync: `822b1657a8c3bb629a1d987f2a3835167a2df85e` (deterministic index-only boundary verifier hardening; current code/test candidate).
+- Current repository head: `822b1657a8c3bb629a1d987f2a3835167a2df85e`.
+- Current code/test head: `822b1657a8c3bb629a1d987f2a3835167a2df85e`.
+- Current exact code/test candidate: `822b1657a8c3bb629a1d987f2a3835167a2df85e` (enforcement verifier hardening; no product runtime mutation).
 - Previous exact-head Quality run `33662117870` and Final Execution Batch `33662117840` passed on `ab1cf0d9`; all later code/test/CI mutations are outside those evidence boundaries.
 - Current candidate requires fresh exact-head repository verification before certification claims are renewed.
 
@@ -20,7 +20,7 @@
 - Replaced full-response `arrayBuffer()` buffering in the backup artifact SHA-256 path with incremental Web Stream hashing, removing an avoidable whole-artifact memory spike while preserving byte count and digest output.
 - Added adversarial regression coverage for private IPv4/IPv6 targets, IPv4-mapped IPv6, public-address acceptance, and streaming hash behavior.
 - Wired `scripts/resilience-runtime.test.mjs` into the existing Operational Resilience certification step so this security regression suite is executed by Quality rather than merely existing as an uncalled test file.
-- Commits: `a6ec26e3297636196c00cc0e5795e2cb82586a93` (SSRF/DNS + streaming implementation), `24ed4e33ca5066d5647d620db75b0c3850498958` (adversarial/streaming tests), `24d853d958c3d05979864883a9f9e77d431841c6` (Quality execution wiring/current code/test candidate).
+- Commits: `a6ec26e3297636196c00cc0e5795e2cb82586a93` (SSRF/DNS + streaming implementation), `24ed4e33ca5066d5647d620db75b0c3850498958` (adversarial/streaming tests), `24d853d958c3d05979864883a9f9e77d431841c6` (Quality execution wiring), `822b1657a8c3bb629a1d987f2a3835167a2df85e` (deterministic index-only boundary verifier hardening).
 - No production alias mutation, rollback, restore, or fabricated operational evidence was performed.
 
 ### LIVE DATABASE / SECURITY TRUTH
@@ -49,8 +49,8 @@
 ### CERTIFICATION STATUS — FAIL CLOSED
 | Gate | State | Reason |
 |---|---|---|
-| Repository quality | **STALE — reverify @ fae9abad** | Last PASS was `33662117870` @ `ab1cf0d9`, before current resilience/CI mutation |
-| Release deterministic gates | **STALE — reverify @ fae9abad** | Last PASS was `33662117840` @ `ab1cf0d9`, before current resilience/CI mutation |
+| Repository quality | **STALE — reverify @ 822b1657** | Last PASS was `33662117870` @ `ab1cf0d9`, before current resilience/CI mutation |
+| Release deterministic gates | **STALE — reverify @ 822b1657** | Last PASS was `33662117840` @ `ab1cf0d9`, before current resilience/CI mutation |
 | Storage tenant isolation contract | STALE | Prior evidence is on older exact head; runtime still unproven |
 | Work Item Actionability Guard | STALE | Prior evidence is on older exact head |
 | Production runtime | UNPROVEN | Requires authenticated live product runtime evidence |
@@ -71,7 +71,7 @@
 - No owner/device request is made while independent executable work remains.
 
 ### NEXT EXECUTION FRONT
-1. Obtain fresh exact-head Quality and deterministic release-gate verification for `fae9abadbc5b3e56ba98cf5779d273e09d6a9bcd`.
+1. Obtain fresh exact-head Quality and deterministic release-gate verification for `822b1657a8c3bb629a1d987f2a3835167a2df85e`.
 2. If Quality exposes a real regression, fix the smallest proven defect and reverify; otherwise continue independent resilience/runtime/security closure.
 3. Prepare exact live authenticated Tenant A/B and resilience evidence paths; never fabricate credentials or operational artifacts.
 4. Keep Production binding, backup/restore, RPO/RTO, rollback, DR, and final certification fail-closed until real evidence exists.
@@ -79,6 +79,6 @@
 6. Desktop Windows certification remains backed by native smoke workflow; `desktop/package-lock.json` is absent, so reproducible desktop `npm ci` remains a real dependency-resolution gap rather than something to handcraft.
 
 ### HISTORICAL RECORD / SHA BOUNDARIES
-- Previous index blob: `19ef71494cf187faed089e27d88efe5367dcd1c6`.
+- Previous index blob: `360ae59c17c204160ff9091b6da2dfda9690635c`.
 - Previous certified code/test boundary: `ab1cf0d9c16864f9bda07acd33973954c2dc1b7a`.
 - Historical execution content remains preserved by Git history; documentation synchronization commits are never promoted to code/test candidates unless they contain a real product/test mutation.
