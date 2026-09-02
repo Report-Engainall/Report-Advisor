@@ -1,16 +1,29 @@
 # Report Advisor — Master Execution & Truth Index
 
-## CURRENT RESUME EXECUTION MAP — 2026-09-02 — v4.0 ADAPTIVE EXECUTION GOVERNANCE
+## CURRENT RESUME EXECUTION MAP — 2026-09-02 — v4.1 COMPACT EVIDENCE + PROJECT IDENTITY
 
 ### CURRENT PROJECT STATE
-- Current repository exact HEAD: `356a86bd14296554374df7d18a6b0395d65099fd`.
-- Current code/test head: `f29cdbc3fead457e3f31c2b86fbd458f9bd9c80c`.
-- The current HEAD delta after the code/test head is documentation-only: `docs/GOVERNANCE_SELF_AUDIT_V4_2026-09-02.md`.
+- Current repository exact HEAD before this index synchronization: `291991d9863204f839781574ae16e787715b5691`.
+- Current code/test head: `291991d9863204f839781574ae16e787715b5691` (v4.1 protocol/checker/adversarial changes; fresh exact-head CI required).
+- The current documentation synchronization will be the next index-only boundary; no prior evidence is promoted across the new code/test SHA.
 - v4.0 batch start head: `811070805114956c8f8f1766b7bf6c3c9704b4c0`.
 - Previous v3.2 index boundary: `a4b26ef13ce08d54d2e9c0723530499bcc6e66c5`.
 - v4.0 code/test mutations culminated at `f29cdbc3fead457e3f31c2b86fbd458f9bd9c80c`; governance self-audit documentation then landed at `356a86bd14296554374df7d18a6b0395d65099fd`.
 - No historical evidence transfers across a new exact-SHA boundary. Fresh CI must be consumed for any new code/test candidate SHA before certification claims.
 - Operational runtime/recovery proof remains UNPROVEN.
+
+
+
+### v4.1 GOVERNANCE UPDATE — COMPACT EVIDENCE / PROJECT IDENTITY
+- Canonical Layer 1 protocol now requires compact evidence storage, minimum lineage `DATE → EXACT HEAD → ACTION → RESULT → BLOCKER → NEXT`, preservation of certification-critical history, certification configuration provenance, Production safety boundaries, and protocol-first execution order.
+- Enforcement checker now requires the v4.1 protocol anchors and validates current frontend identity surfaces (`index.html`, `package.json`, `README.md`, `src/`, `public/`) against legacy branding **العامري** while requiring **الأغبري** in `index.html`.
+- Adversarial enforcement coverage now rejects removal of the v4.1 compact-evidence, project-identity, certification-provenance, Production-safety, and protocol-first rules.
+- Branding audit at this boundary found no legacy **العامري** occurrence in the inspected current frontend surfaces; `index.html` explicitly contains **الأغبري**. No frontend repair was necessary.
+- Compact-evidence application: historical certification/security/change/failure evidence remains retained. No certification-critical evidence was deleted or rewritten. Existing repetitive ledgers remain historical where deletion would weaken auditability; the canonical Master Index now carries the current compact state.
+- Phase E remains blocked by the already-established missing owner configuration; no certification endpoint, bucket, object, target, or secret was fabricated.
+- Dashboard remains CLOSED / PROVEN and untouched.
+- Production binding remains STOPPED; no Production mutation was performed.
+- Exact-SHA boundary: the v4.1 checker/test mutations are not certification-proven until fresh CI runs on `291991d9863204f839781574ae16e787715b5691`.
 
 ### LAYERED EXECUTION ARCHITECTURE
 - **LAYER 1 — Programmer Execution Protocol:** `docs/EXECUTION_ENFORCEMENT_PROTOCOL.md`; mandatory execution behavior.
