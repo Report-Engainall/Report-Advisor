@@ -51,55 +51,58 @@ If one front is blocked, continue all independent fronts.
 
 ## Current Truth — 2026-09-02
 
-- Current canonical `main` / exact HEAD: `70dbef5156c2e51d01acf7b261fb0f35717b796d` at the start of this Quality cycle; this cycle's first failing gate is recorded below.
-- Quality #3421 / Run `33577939879`: **FAIL** on exact HEAD `70dbef5156c2e51d01acf7b261fb0f35717b796d`.
-- First failing gate on #3421: `Phase 10 backup/restore contract`.
-- RCA: **EXECUTION-INDEX CONTRACT DRIFT** — the checker requires the persisted recovery boundary tokens `r16 — backup / restore / dr`, `rpo`, `rto`, and `actual restore drill`, but the index at `70dbef...` had the Phase 10 board entry without the required R16 register wording.
-- No product/runtime/security contract was weakened. No expected values, fixtures, thresholds, or certification criteria were changed.
-- `quality.yml`: canonical comprehensive quality/release gate.
-- Merge: only after applicable exact-head gates pass.
-- Release: only after production evidence is complete.
-- Certification: **NOT CERTIFIED** until every required certification condition is actually proven.
+- Current canonical `main` / exact HEAD: **`ac964ae3b2dd3f05a0710489afa25eac4497ad13`**.
+- Previous candidate `1fe28c4081c997bb6379e0c9b4fc3df3a2af3f2b` received fresh exact-SHA verification through Final Execution Batch `#32 / Run 33578283657`.
+- That run checked **exactly** `1fe28c4081c997bb6379e0c9b4fc3df3a2af3f2b`; release-manifest generation passed and then the deterministic batch exposed the first J-runtime failure plus additional independent contract gaps.
+- `0f91336e55b307ebd3e3d707e2a633cc428c8eff` remains historical evidence only: **Phase 10 BACKUP/RESTORE CONTRACT = PASS (source-level)**. It does not transfer to later SHAs.
+- Backup/Restore operational truth remains: `RPO = UNPROVEN`, `RTO = UNPROVEN`, `RESTORE = UNPROVEN`, `DR = UNPROVEN`.
+- Vercel remains `BLOCKED — External Deployment Rate Limit`; no substitute production/runtime evidence is accepted.
+- Merge: **STOPPED**.
+- Release: **STOPPED**.
+- Certification: **STOPPED / NOT CERTIFIED** until required operational evidence is proven on one exact release SHA.
 
-## Latest Executed Cycle — Quality #3421 / Phase 10 Contract Failure — 2026-09-02
+## Latest Executed Cycle — Fresh Exact-SHA Verification of `1fe28c...` — 2026-09-02
 
-### Exact-head evidence
+### Evidence / RCA
 
-Quality `#3421 / Run 33577939879` checked repository HEAD exactly as fetched by Actions: `70dbef5156c2e51d01acf7b261fb0f35717b796d`.
+Final Execution Batch `#32 / Run 33578283657` fetched and checked repository HEAD `1fe28c4081c997bb6379e0c9b4fc3df3a2af3f2b` exactly. The manifest-generation step passed and emitted `sourceSha=1fe28c...`, dependency fingerprint, migration fingerprint, and package version. The deterministic gate then failed on real runtime/contract gaps; no historical result was promoted.
 
-The run was not promoted to PASS. All earlier gates in the job passed, including CI topology, public RPC hardening, auth/tenant convergence, migration audits, golden E2E corpus, production evidence integrity, release evidence workflow, operational resilience, tenant RLS, import tenant context/business key, lint, build, performance budget, scale, and intelligence gates. The first actual failure was the Phase 10 backup/restore contract.
+First failure:
 
-Failure:
+`FAIL check-j-runtime-chain.mjs`
 
-`Error: Remaining-work register lost recovery boundary: r16 — backup / restore / dr`
+`Error: J runtime invariant missing: dead-letter`
 
-### RCA
+Additional failures exposed in the same fresh run included incomplete recovery-contract scripts, missing N→S package gates/evidence paths, missing Phase-F workflow invariant, missing K→S `advanceLifecycle`, release-evidence completeness token drift, performance budget running before a build artifact existed, and folder-batch import contract drift. These remain independently actionable and were not hidden behind the first failure.
 
-`RCA = EXECUTION-INDEX CONTRACT DRIFT`
+### Mutation — J runtime dead-letter closure
 
-The Phase 10 checker is intentionally source-level and fail-closed. Its migration/security invariants and certification evidence-key bindings were present, but its remaining-work register assertion could not find the canonical R16 recovery-boundary phrase in `docs/MASTER_EXECUTION_INDEX.md`.
+`RCA = REAL J-RUNTIME CAPABILITY GAP`
 
-This was a documentation/index contract mismatch, not evidence that backup/restore had been executed. Runtime restore/RPO/RTO remain unproven until actual drills are performed.
+The J runtime checker required a dead-letter boundary, while the canonical runtime files had checkpoint/resume/idempotency semantics but no actual dead-letter representation or runtime test. This was a product/runtime contract gap, not a stale checker assertion.
 
-### Mutation
+`MUTATION = MINIMAL RUNTIME IMPLEMENTATION + TEST`
 
-`MUTATION = MINIMAL EXECUTION-INDEX RECONCILIATION`
-
-- OLD EXACT HEAD: `70dbef5156c2e51d01acf7b261fb0f35717b796d`
-- NEW EXACT HEAD: **created by this index-only correction**
-- COMMIT MESSAGE: `docs: restore Phase 10 recovery boundary in execution index`
-- FILES CHANGED: `docs/MASTER_EXECUTION_INDEX.md` only.
-- CHANGE: restored explicit `R16 — backup / restore / DR` recovery-boundary wording and made the exact RPO/RTO/actual-restore-drill state explicit.
+- OLD EXACT HEAD: `1fe28c4081c997bb6379e0c9b4fc3df3a2af3f2b`
+- NEW EXACT HEAD: **`ac964ae3b2dd3f05a0710489afa25eac4497ad13`**
+- COMMIT MESSAGE: `feat: close J runtime dead-letter contract`
+- FILES CHANGED:
+  - `src/lib/report-execution/dead-letter.ts`
+  - `src/lib/phase-kl-runtime.ts`
+  - `scripts/dead-letter-runtime.test.ts`
+  - `scripts/check-j-runtime-chain.mjs`
+- Implementation: validated immutable dead-letter records, duplicate-safe queue insertion, queue listing, runtime exports, and a deterministic runtime test covering valid enqueue, duplicate rejection, and invalid-attempt rejection.
+- The J checker now executes the dead-letter runtime test rather than merely checking for a keyword.
 - EXPECTED VALUES: **UNCHANGED**.
 - FIXTURES: **UNCHANGED**.
 - THRESHOLDS: **UNCHANGED**.
 - SECURITY: **UNCHANGED**.
 - WORKFLOW TOPOLOGY: **UNCHANGED**.
-- RELEASE/CERTIFICATION CRITERIA: **UNCHANGED**.
+- BACKUP/RESTORE CERTIFICATION: **UNCHANGED / UNPROVEN operationally**.
 
-### Verification rule
+### Verification requirement
 
-The mutation must be verified by a fresh Quality run on the resulting exact SHA. The historical failure on `70dbef...` remains historical and is not promoted.
+`ac964ae...` is a **candidate only** until a fresh exact-SHA Actions run proves the mutation and the remaining gates. No PASS from `1fe28c...` is transferred to `ac964ae...`.
 
 ## Historical Integrity
 
