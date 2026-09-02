@@ -29,12 +29,19 @@ if (!/company_id\s*=\s*public\.current_company_id\(\)/i.test(migration)) throw n
 if (!/SET search_path\s*=\s*public/i.test(migration)) throw new Error('Certification SECURITY DEFINER function must pin search_path');
 if (!/status\s*=\s*'passed'/i.test(migration)) throw new Error('Certification release gate must require passed status');
 if (!/PRODUCTION_CERTIFICATION_EVIDENCE_KEYS/.test(contract)) throw new Error('Certification contract must expose canonical evidence keys');
-if (!/complete|missing|failed|duplicate|unrelated/.test(runtimeTest)) throw new Error('Certification runtime harness must exercise adversarial evidence states');
+for (const token of [
+  'complete', 'missing', 'failed', 'duplicate', 'unrelated',
+  "passed: 'false'", "severity: 'PASS'", 'key: \'\'', 'certifyProduction(null)',
+]) {
+  if (!runtimeTest.includes(token)) throw new Error(`Certification runtime harness lost adversarial coverage: ${token}`);
+}
 for (const key of ['tenant','backup','rollback','artifact','security']) {
   if (!new RegExp(`['\\\"]${key}['\\\"]`).test(certification)) throw new Error(`Certification source lost mandatory evidence key: ${key}`);
 }
 if (!certification.includes('MISSING_EVIDENCE:')) throw new Error('Certification must reject missing mandatory evidence');
 if (!certification.includes('FAILED_EVIDENCE:')) throw new Error('Certification must reject failed mandatory evidence');
+if (!certification.includes('MALFORMED_CERTIFICATION_CHECK')) throw new Error('Certification must reject malformed evidence checks');
+if (!certification.includes('duplicateMandatoryEvidence')) throw new Error('Certification must reject duplicate mandatory evidence');
 
 execFileSync(process.execPath, ['--experimental-strip-types', 'scripts/production-certification-runtime.test.mjs'], { stdio: 'inherit' });
 console.log('PRODUCTION_CERTIFICATION_EVIDENCE_INTEGRITY_PASS');
