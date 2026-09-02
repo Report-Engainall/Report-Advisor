@@ -41,6 +41,10 @@ const FORBIDDEN_WEAKENING_PATTERNS = [
   /true\s*stop[\s\S]{0,80}\bis\s+allowed\s+before/i,
 ];
 
+const stripComments = (value) => value
+  .replace(/<!--[\s\S]*?-->/g, '')
+  .replace(/(^|\n)\s*\/\/.*(?=\n|$)/g, '$1');
+
 const normalize = (value) => value
   .replaceAll('\r\n', '\n')
   .replace(/[ \t]+/g, ' ')
@@ -52,7 +56,7 @@ export function validateExecutionEnforcementProtocol(protocol) {
     throw new Error('Execution enforcement protocol rejected: empty/non-string contract');
   }
 
-  const normalized = normalize(protocol);
+  const normalized = normalize(stripComments(protocol));
   const missingRules = REQUIRED_RULES.filter(rule => !normalized.includes(normalize(rule)));
   if (missingRules.length) {
     throw new Error(`Execution enforcement protocol rejected: missing rules: ${missingRules.join(', ')}`);
@@ -69,7 +73,7 @@ export function validateExecutionEnforcementProtocol(protocol) {
   }
 
   for (const pattern of FORBIDDEN_WEAKENING_PATTERNS) {
-    if (pattern.test(protocol)) {
+    if (pattern.test(normalized)) {
       throw new Error(`Execution enforcement protocol rejected: weakening pattern: ${pattern}`);
     }
   }
