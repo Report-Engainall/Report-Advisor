@@ -4,6 +4,7 @@ on:
     paths:
       - 'docs/EXECUTION_ENFORCEMENT_PROTOCOL.md'
       - 'docs/EXECUTION_DEBT_AND_RELEASE_VELOCITY.md'
+      - 'docs/MASTER_EXECUTION_INDEX.md'
       - 'scripts/check-execution-enforcement-protocol.mjs'
       - 'scripts/execution-enforcement-adversarial.test.mjs'
       - '.github/workflows/execution-enforcement-contract.yml'
@@ -11,6 +12,7 @@ on:
     paths:
       - 'docs/EXECUTION_ENFORCEMENT_PROTOCOL.md'
       - 'docs/EXECUTION_DEBT_AND_RELEASE_VELOCITY.md'
+      - 'docs/MASTER_EXECUTION_INDEX.md'
       - 'scripts/check-execution-enforcement-protocol.mjs'
       - 'scripts/execution-enforcement-adversarial.test.mjs'
       - '.github/workflows/execution-enforcement-contract.yml'
@@ -19,6 +21,8 @@ on:
 jobs:
   enforcement-contract:
     runs-on: ubuntu-latest
+    env:
+      ENFORCE_INDEX_HEAD_GATE: '1'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
