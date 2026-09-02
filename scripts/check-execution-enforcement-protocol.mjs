@@ -87,8 +87,16 @@ export function validateExecutionEnforcementProtocol(protocol) {
   return true;
 }
 
+const debtLedgerPath = 'docs/EXECUTION_DEBT_AND_RELEASE_VELOCITY.md';
+const debtLedger = fs.readFileSync(debtLedgerPath, 'utf8');
+for (const anchor of ['EXECUTION DEBT', 'RELEASE VELOCITY', 'TRUE STOP', 'Built', 'Integrated', 'Verified', 'Runtime Proven', 'Production Certified']) {
+  if (!normalize(stripComments(debtLedger)).includes(normalize(anchor))) {
+    throw new Error(`Execution enforcement protocol rejected: debt/velocity ledger missing ${anchor}`);
+  }
+}
+
 if (process.argv[1] && process.argv[1].endsWith('check-execution-enforcement-protocol.mjs')) {
   const protocol = fs.readFileSync('docs/EXECUTION_ENFORCEMENT_PROTOCOL.md', 'utf8');
   validateExecutionEnforcementProtocol(protocol);
-  console.log(`PASS execution enforcement protocol: ${REQUIRED_RULES.length} mandatory rules, behavioral cases, debt/velocity anchors, and weakening rejection active`);
+  console.log(`PASS execution enforcement protocol: ${REQUIRED_RULES.length} mandatory rules, behavioral cases, debt/velocity ledger, and weakening rejection active`);
 }
