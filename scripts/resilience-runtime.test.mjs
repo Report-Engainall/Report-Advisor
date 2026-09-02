@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { timingSafeEqual } from 'node:crypto';
 import rollbackHandler, { deploymentReady } from '../api/rollback-drill.mjs';
-import { isProductionEnv, parseSecureOutboundUrl, secureOutboundFetch } from '../src/server/resilience-runtime.mjs';
+import { isDisallowedOutboundAddress, isProductionEnv, parseSecureOutboundUrl, secureOutboundFetch, sha256ResponseBody } from '../src/server/resilience-runtime.mjs';
 
 const files = [
   'api/health.mjs',
@@ -23,9 +23,21 @@ assert.equal(parseSecureOutboundUrl('https://backup.example.test/artifact').prot
 assert.throws(() => parseSecureOutboundUrl('http://backup.example.test/artifact', 'backup_artifact_url'), /insecure_backup_artifact_url/);
 assert.throws(() => parseSecureOutboundUrl('https://user:pass@backup.example.test/artifact', 'backup_artifact_url'), /credentialed_backup_artifact_url/);
 assert.throws(() => parseSecureOutboundUrl('not-a-url', 'restore_verifier_url'), /invalid_restore_verifier_url/);
+for (const address of ['127.0.0.1', '10.0.0.1', '169.254.169.254', '172.16.0.1', '192.168.1.1', '100.64.0.1', '::1', 'fc00::1', 'fe80::1', '::ffff:127.0.0.1']) {
+  assert.equal(isDisallowedOutboundAddress(address), true, `private address must be rejected: ${address}`);
+  const host = address.includes(':') ? `[${address}]` : address;
+  assert.throws(() => parseSecureOutboundUrl(`https://${host}/`, 'backup_artifact_url'), /private_backup_artifact_url/);
+}
+assert.equal(isDisallowedOutboundAddress('8.8.8.8'), false);
+assert.equal(isDisallowedOutboundAddress('2606:4700:4700::1111'), false);
 process.env.RESILIENCE_OUTBOUND_TIMEOUT_MS = '999';
 await assert.rejects(() => secureOutboundFetch('https://backup.example.test/artifact', 'backup_artifact_url'), /invalid_resilience_outbound_timeout_ms/);
 process.env.RESILIENCE_OUTBOUND_TIMEOUT_MS = '15000';
+
+const streamed = new Response(new Blob(['resilience-', 'streamed-', 'body']));
+const streamedDigest = await sha256ResponseBody(streamed);
+assert.equal(streamedDigest.bytes, Buffer.byteLength('resilience-streamed-body'));
+assert.equal(streamedDigest.sha256.length, 64);
 
 const original = Object.fromEntries([
   'VERCEL_PROJECT_ID', 'VERCEL_TOKEN', 'RESILIENCE_TARGET_ENV', 'RESILIENCE_COMPANY_ID',
