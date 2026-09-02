@@ -1,24 +1,26 @@
 # Report Advisor — Master Execution & Truth Index
 
-## CURRENT RESUME EXECUTION MAP — 2026-09-02 — v4.6 / RESILIENCE OUTBOUND HARDENED
+## CURRENT RESUME EXECUTION MAP — 2026-09-02 — v4.7 / RESILIENCE SSRF + STREAMING HARDENED
 
 > This file is the authoritative current execution index. Historical execution records remain preserved in Git history and dated execution/evidence documents. No evidence crosses an exact-SHA boundary.
 
 ### CURRENT PROJECT STATE
 - Repository: `Report-Engainall/Report-Advisor`.
 - Latest repository synchronization commit before this documentation sync: `d4731152bda8970503929ca459c16baf50d92c64` (documentation-only synchronization; stable historical pointer).
-- Current code/test head: `6150bd185bf827278780a6300f197489ceeedfd5`.
-- Current exact code/test candidate: `6150bd185bf827278780a6300f197489ceeedfd5`.
-- Previous exact-head Quality run `33662117870` and Final Execution Batch `33662117840` passed on `ab1cf0d9`; after the current resilience code/test mutation, those results are historical and do not certify `6150bd18`.
-- Current code/test candidate must receive fresh exact-head repository verification before certification claims are renewed.
+- Current repository head: `24d853d958c3d05979864883a9f9e77d431841c6`.
+- Current code/test head: `24ed4e33ca5066d5647d620db75b0c3850498958`.
+- Current exact code/test candidate: `24d853d958c3d05979864883a9f9e77d431841c6` (includes the CI wiring that executes the new resilience regression suite).
+- Previous exact-head Quality run `33662117870` and Final Execution Batch `33662117840` passed on `ab1cf0d9`; all later code/test/CI mutations are outside those evidence boundaries.
+- Current candidate requires fresh exact-head repository verification before certification claims are renewed.
 
-### 2026-09-02 RESILIENCE SECURITY CLOSURE WAVE — 6150bd18
-- Found and fixed a real outbound transport boundary defect in backup/restore verification: configured artifact/verifier URLs were fetched directly with no protocol restriction, redirect suppression, or bounded request lifetime.
-- Added `parseSecureOutboundUrl()` and `secureOutboundFetch()` to enforce HTTPS-only URLs, reject embedded URL credentials, reject invalid URLs, disable automatic redirects, and enforce a bounded 1–60 second outbound timeout.
-- Routed backup artifact download and restore verifier calls through the hardened transport boundary.
-- Routed rollback drill verification probes through the same hardened transport boundary; Vercel API calls remain fixed to the trusted `https://api.vercel.com` origin.
-- Added adversarial regression coverage for insecure HTTP URLs, credential-bearing URLs, malformed URLs, and invalid timeout configuration while preserving the existing rollback project/READY/production guards.
-- Commits: `8ba1ffc3416a9e42fe56f62a453a5c4aa2c694fc` (transport primitive), `dbfa3aff20331951c443da196423db8f7764a3ee` (backup/restore integration), `7ba3bf8b52af45c5cfea761ebce899ea60442558` (regression tests), `6150bd185bf827278780a6300f197489ceeedfd5` (rollback integration/current code-test boundary).
+### 2026-09-02 RESILIENCE SECURITY CLOSURE WAVE — CURRENT CANDIDATE 24d853d9
+- Closed a real SSRF target-class defect in the resilience outbound transport: configured HTTPS URLs are now rejected when their literal or resolved addresses are loopback, private, link-local, carrier-grade NAT, documentation/reserved, multicast, or otherwise non-public ranges covered by the guard.
+- Added IPv4 and IPv6 range classification, including IPv4-mapped IPv6 handling, and normalized bracketed IPv6 URL hosts before validation.
+- Added DNS resolution for hostname targets with all returned addresses inspected; any failed lookup or non-public resolution fails closed before the outbound request.
+- Replaced full-response `arrayBuffer()` buffering in the backup artifact SHA-256 path with incremental Web Stream hashing, removing an avoidable whole-artifact memory spike while preserving byte count and digest output.
+- Added adversarial regression coverage for private IPv4/IPv6 targets, IPv4-mapped IPv6, public-address acceptance, and streaming hash behavior.
+- Wired `scripts/resilience-runtime.test.mjs` into the existing Operational Resilience certification step so this security regression suite is executed by Quality rather than merely existing as an uncalled test file.
+- Commits: `a6ec26e3297636196c00cc0e5795e2cb82586a93` (SSRF/DNS + streaming implementation), `24ed4e33ca5066d5647d620db75b0c3850498958` (adversarial/streaming tests), `24d853d958c3d05979864883a9f9e77d431841c6` (Quality execution wiring/current repository candidate).
 - No production alias mutation, rollback, restore, or fabricated operational evidence was performed.
 
 ### LIVE DATABASE / SECURITY TRUTH
@@ -30,10 +32,11 @@
 - Leaked-password protection remains disabled in Supabase Auth and is retained as an owner/control-plane item because the connected toolset cannot mutate that setting.
 
 ### RESILIENCE / DEPLOYMENT TRUTH
-- Backup/restore verification requires a safe non-production target allowlist and now also enforces secure outbound transport with HTTPS-only, no credentials in URLs, no redirects, and bounded timeout.
-- Rollback drill validates deployment IDs for exact project ownership and READY state, rejects identical/untrusted targets, forbids production drills, and now uses the same secure verification transport. No production alias mutation was performed.
-- Current latest Vercel READY production deployment observed is `dpl_4AtoUj1MecV6K8hkMkVUBLWd7X22` on SHA `8ba1ffc3416a9e42fe56f62a453a5c4aa2c694fc`; it is not the current exact candidate `6150bd18` and is therefore not release certification evidence.
-- Vercel reports a build-rate-limit failure/pending status for the current main push; this remains a platform/deployment-capacity condition, not a product-code failure.
+- Backup/restore verification requires a safe non-production target allowlist and enforces secure outbound transport with HTTPS-only, no credentials in URLs, no redirects, bounded timeout, non-public literal/DNS target rejection, and fail-closed DNS resolution.
+- Backup artifact integrity hashing now streams the response instead of buffering the full artifact in memory.
+- Rollback drill validates deployment IDs for exact project ownership and READY state, rejects identical/untrusted targets, forbids production drills, and uses the same secure verification transport. No production alias mutation was performed.
+- Current Vercel production deployment is not certified as the exact current candidate; deployment/platform state must be reverified after the candidate's CI gates pass.
+- Vercel build-rate-limit remains a platform/deployment-capacity condition when encountered, not a product-code failure.
 - Backup, restore, RPO/RTO, rollback, forward recovery/DR, and production binding remain UNPROVEN/NOT CERTIFIED until real operational evidence is captured at the exact candidate boundary.
 
 ### EXACT-SHA / EVIDENCE RULES
@@ -46,8 +49,8 @@
 ### CERTIFICATION STATUS — FAIL CLOSED
 | Gate | State | Reason |
 |---|---|---|
-| Repository quality | **STALE — reverify @ 6150bd18** | Last PASS was `33662117870` @ `ab1cf0d9`, before current resilience mutation |
-| Release deterministic gates | **STALE — reverify @ 6150bd18** | Last PASS was `33662117840` @ `ab1cf0d9`, before current resilience mutation |
+| Repository quality | **STALE — reverify @ 24d853d9** | Last PASS was `33662117870` @ `ab1cf0d9`, before current resilience/CI mutation |
+| Release deterministic gates | **STALE — reverify @ 24d853d9** | Last PASS was `33662117840` @ `ab1cf0d9`, before current resilience/CI mutation |
 | Storage tenant isolation contract | STALE | Prior evidence is on older exact head; runtime still unproven |
 | Work Item Actionability Guard | STALE | Prior evidence is on older exact head |
 | Production runtime | UNPROVEN | Requires authenticated live product runtime evidence |
@@ -68,14 +71,14 @@
 - No owner/device request is made while independent executable work remains.
 
 ### NEXT EXECUTION FRONT
-1. Obtain fresh exact-head Quality and deterministic release-gate verification for `6150bd185bf827278780a6300f197489ceeedfd5`.
-2. Continue independent security/resilience audits without reopening closed work.
+1. Obtain fresh exact-head Quality and deterministic release-gate verification for `24d853d958c3d05979864883a9f9e77d431841c6`.
+2. If Quality exposes a real regression, fix the smallest proven defect and reverify; otherwise continue independent resilience/runtime/security closure.
 3. Prepare exact live authenticated Tenant A/B and resilience evidence paths; never fabricate credentials or operational artifacts.
 4. Keep Production binding, backup/restore, RPO/RTO, rollback, DR, and final certification fail-closed until real evidence exists.
 5. Enable leaked-password protection through the Supabase Auth control plane when that setting is reachable.
 6. Desktop Windows certification remains backed by native smoke workflow; `desktop/package-lock.json` is absent, so reproducible desktop `npm ci` remains a real dependency-resolution gap rather than something to handcraft.
 
 ### HISTORICAL RECORD / SHA BOUNDARIES
-- Previous index blob: `88d1ee59b1259ae658f5bc4ffae028167b054f85`.
+- Previous index blob: `7ba0458349a760096a2cc73282ce79cf7948c938`.
 - Previous certified code/test boundary: `ab1cf0d9c16864f9bda07acd33973954c2dc1b7a`.
 - Historical execution content remains preserved by Git history; documentation synchronization commits are never promoted to code/test candidates unless they contain a real product/test mutation.
