@@ -12,6 +12,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: npm
+      - name: Install
+        run: npm ci --no-audit --no-fund
+      - name: Build release artifact
+        run: npm run build
       - name: Generate exact-head release manifest
         run: node scripts/generate-release-manifest.mjs
       - name: Execute 30 deterministic gates
