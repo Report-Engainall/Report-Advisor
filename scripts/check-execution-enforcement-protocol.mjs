@@ -10,7 +10,7 @@ const GOVERNANCE_FILE = 'docs/ADAPTIVE_EXECUTION_GOVERNANCE.md';
 const REQUIRED_GOVERNANCE_ANCHORS = ['LAYER 1', 'LAYER 2', 'LAYER 3', 'P0 — Safety / Security / Evidence Integrity', 'P1 — Exact-SHA / Truth / Certification Integrity', 'P2 — Current Master Execution Index', 'P3 — Adaptive Execution Governance', 'P4 — Programmer Execution Protocol', 'EXECUTION PERFORMANCE LEDGER', 'EXECUTION EFFECTIVENESS', 'UNDER-EXECUTION EVENT', 'LOW-VALUE EXECUTION', 'COMMAND QUALITY FEEDBACK', 'STRATEGY MEMORY', 'BASELINE', 'RESULT', 'SMART FRONT PRIORITIZATION', 'OBSERVATION → EVIDENCE → RCA → PROPOSED RULE → CONFLICT CHECK → TEST → ADVERSARIAL → ACCEPT → VERSION → INDEX UPDATE', 'REAL MEASURED DATA > ESTIMATE > NO CLAIM', 'HIGH | MEDIUM | LOW | UNPROVEN', 'Protocol changes must never be silently introduced.', 'ONE-OFF INCIDENT → RECORD', 'REPEATED PATTERN → CANDIDATE STRATEGY/RULE', 'PROVEN SYSTEMIC FAILURE → MANDATORY ENFORCEMENT RULE', 'DISCOVERY ≠ CLOSURE', 'EVIDENCE IS EXACT-SHA BOUND', 'UNPROVEN ≠ PASS', 'EXTERNAL BLOCKER ≠ LOCAL STOP', 'INDEX-ONLY BOUNDARY', 'INDEX UPDATE ≠ CAPABILITY CLOSURE'];
 const FORBIDDEN_WEAKENING_PATTERNS = [/historical\s+pass[\s\S]{0,120}\btransfer(?:s|red)?\b\s+automatically/i, /unproven[\s\S]{0,120}\b(?:be\s+)?(?:promoted|converted)\s+to\s+pass/i, /blocker[\s\S]{0,120}\b(?:may|can|could|should)\s+stop\s+unrelated/i, /next\s*\+\s*1[\s\S]{0,80}\b(?:is\s+)?optional\b/i, /next\s*\+\s*2[\s\S]{0,80}\b(?:is\s+)?optional\b/i, /execution\s+debt[\s\S]{0,100}\b(?:may|can|could|should)\s+be\s+ignored/i, /index\s+update[\s\S]{0,100}\bcounts\s+as\s+(?:execution\s+)?closure/i, /true\s*stop[\s\S]{0,80}\bis\s+allowed\s+before/i, /waiting\s+(?:for|on)\s+(?:ci|test|deployment|workflow)[\s\S]{0,120}\b(?:may|can|could|should)\s+(?:stop|return|report)\b/i, /parallel\s+work[\s\S]{0,100}\b(?:optional|unnecessary|may\s+be\s+skipped)\b/i, /external\s+blocker[\s\S]{0,120}\b(?:may|can|could|should)\s+(?:clear|erase|satisfy)\s+execution\s+debt/i];
 const stripComments = value => value.replace(/<!--[\s\S]*?-->/g, '').replace(/(^|\n)\s*\/\/.*(?=\n|$)/g, '$1');
-const normalize = value => value.replaceAll('\r\n', '\n').replace(/[ \t]+/g, ' ').trim().toLowerCase();
+const normalize = value => value.replaceAll('\r\n', '\n').replace(/[`]/g, '').replace(/[ \t]+/g, ' ').trim().toLowerCase();
 
 export function validateExecutionEnforcementProtocol(protocol) {
   if (typeof protocol !== 'string' || protocol.trim().length === 0) throw new Error('Execution enforcement protocol rejected: empty/non-string contract');
@@ -38,20 +38,7 @@ export function validateAdaptiveGovernance(governance) {
   if (!normalized.includes('one-off incident') || !normalized.includes('repeated pattern') || !normalized.includes('proven systemic failure')) throw new Error('Adaptive governance rejected: evolution threshold is incomplete');
   if (!normalized.includes('commits, lines changed, report size, index size, and test count are not progress metrics')) throw new Error('Adaptive governance rejected: activity/progress separation missing');
   if (!normalized.includes('lower-priority instruction must not override a higher-priority')) throw new Error('Adaptive governance rejected: precedence binding missing');
-  const requiredSections = [
-    '## execution performance ledger',
-    '## execution effectiveness',
-    '## under-execution detection',
-    '## over-execution / low-value execution',
-    '## command quality feedback',
-    '## adaptive strategy rules',
-    '## controlled protocol evolution',
-    '## strategy memory',
-    '## baseline / result',
-    '## smart front prioritization',
-    '## release-relevant progress',
-    '## governance truth invariants',
-  ];
+  const requiredSections = ['## execution performance ledger', '## execution effectiveness', '## under-execution detection', '## over-execution / low-value execution', '## command quality feedback', '## adaptive strategy rules', '## controlled protocol evolution', '## strategy memory', '## baseline / result', '## smart front prioritization', '## release-relevant progress', '## governance truth invariants'];
   const missingSections = requiredSections.filter(section => !normalized.includes(section));
   if (missingSections.length) throw new Error(`Adaptive governance rejected: missing structural sections: ${missingSections.join(', ')}`);
   const underSection = normalized.indexOf('## under-execution detection');
@@ -60,14 +47,7 @@ export function validateAdaptiveGovernance(governance) {
   if (underSection === -1 || overSection === -1 || underEvent < underSection || underEvent > overSection) throw new Error('Adaptive governance rejected: UNDER-EXECUTION DETECTION section is missing or structurally incomplete');
   const lowValue = normalized.indexOf('low-value execution');
   if (lowValue < overSection) throw new Error('Adaptive governance rejected: LOW-VALUE EXECUTION anchor is not inside its required section');
-  const requiredTruthInvariants = [
-    'discovery ≠ closure: an executable fix must be executed and verified before closure is claimed.',
-    'evidence is exact-sha bound: evidence from an older sha must not be transferred to a newer sha.',
-    'unproven ≠ pass: missing runtime/operational proof remains unproven.',
-    'external blocker ≠ local stop: external blockers isolate only dependent work; independent actionable work must continue.',
-    'index-only boundary: a current head may differ from the indexed code/test head only when ancestry is verified and every changed path is exactly `docs/master_execution_index.md`; otherwise it is index drift.',
-    'index update ≠ capability closure: documentation/history synchronization never counts as product capability progress by itself.',
-  ];
+  const requiredTruthInvariants = ['discovery ≠ closure: an executable fix must be executed and verified before closure is claimed.', 'evidence is exact-sha bound: evidence from an older sha must not be transferred to a newer sha.', 'unproven ≠ pass: missing runtime/operational proof remains unproven.', 'external blocker ≠ local stop: external blockers isolate only dependent work; independent actionable work must continue.', 'index-only boundary: a current head may differ from the indexed code/test head only when ancestry is verified and every changed path is exactly docs/master_execution_index.md; otherwise it is index drift.', 'index update ≠ capability closure: documentation/history synchronization never counts as product capability progress by itself.'];
   const missingTruthInvariants = requiredTruthInvariants.filter(invariant => !normalized.includes(invariant));
   if (missingTruthInvariants.length) throw new Error(`Adaptive governance rejected: governance truth invariant weakened: ${missingTruthInvariants.join(' | ')}`);
   return true;
@@ -81,11 +61,7 @@ export function validateCurrentHeadIndex(index, currentHead, parentHead = '', ch
   const exactMatch = indexedHead === head;
   let computedIndexOnlyBoundary = false;
   if (!exactMatch && indexedHead) {
-    try {
-      execFileSync('git', ['merge-base', '--is-ancestor', indexedHead, head], { stdio: 'ignore' });
-      const files = execFileSync('git', ['diff', '--name-only', indexedHead, head], { encoding: 'utf8' }).trim().split('\n').filter(Boolean);
-      computedIndexOnlyBoundary = files.length > 0 && files.every(file => file === 'docs/MASTER_EXECUTION_INDEX.md');
-    } catch { computedIndexOnlyBoundary = false; }
+    try { execFileSync('git', ['merge-base', '--is-ancestor', indexedHead, head], { stdio: 'ignore' }); const files = execFileSync('git', ['diff', '--name-only', indexedHead, head], { encoding: 'utf8' }).trim().split('\n').filter(Boolean); computedIndexOnlyBoundary = files.length > 0 && files.every(file => file === 'docs/MASTER_EXECUTION_INDEX.md'); } catch { computedIndexOnlyBoundary = false; }
   }
   const suppliedIndexOnlyBoundary = indexedHead && normalize(parentHead) === indexedHead && Array.isArray(changedFiles) && changedFiles.length > 0 && changedFiles.every(file => file === 'docs/MASTER_EXECUTION_INDEX.md');
   const indexOnlyBoundary = computedIndexOnlyBoundary || suppliedIndexOnlyBoundary;
@@ -116,7 +92,7 @@ if (process.argv[1] && process.argv[1].endsWith('check-execution-enforcement-pro
   if (process.env.ENFORCE_INDEX_HEAD_GATE === '1') {
     const index = fs.readFileSync('docs/MASTER_EXECUTION_INDEX.md', 'utf8');
     let currentHead = ''; let parentHead = '';
-    try { currentHead = execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(); parentHead = execFileSync('git', ['rev-parse', 'HEAD^',], { encoding: 'utf8' }).trim(); } catch { currentHead = process.env.GITHUB_SHA?.trim() ?? ''; parentHead = process.env.GITHUB_PARENT_SHA?.trim() ?? ''; }
+    try { currentHead = execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(); parentHead = execFileSync('git', ['rev-parse', 'HEAD^'], { encoding: 'utf8' }).trim(); } catch { currentHead = process.env.GITHUB_SHA?.trim() ?? ''; parentHead = process.env.GITHUB_PARENT_SHA?.trim() ?? ''; }
     validateCurrentHeadIndex(index, currentHead, parentHead);
     console.log(`PASS index-head gate: current HEAD ${currentHead} is exactly indexed or differs from the indexed code/test head only through the governed execution-index path`);
   }
