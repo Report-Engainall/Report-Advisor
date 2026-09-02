@@ -90,7 +90,7 @@ jobs:
       - name: Release evidence consumption workflow
         run: npm run test:release-evidence-consumption-workflow
       - name: Operational resilience certification
-        run: npm run test:operational-resilience && npm run test:release-resilience-manifest && node scripts/check-release-evidence-contract.mjs && node scripts/check-release-workflow-contract.mjs
+        run: npm run test:operational-resilience && npm run test:release-resilience-manifest && node scripts/resilience-runtime.test.mjs && node scripts/check-release-evidence-contract.mjs && node scripts/check-release-workflow-contract.mjs
       - name: Continuous trust certification
         run: npm run test:continuous-trust
       - name: Autonomous governance certification
