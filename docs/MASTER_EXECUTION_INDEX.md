@@ -3,7 +3,7 @@
 ## CURRENT RESUME EXECUTION MAP — 2026-09-02 — v4.0 ADAPTIVE EXECUTION GOVERNANCE
 
 ### CURRENT PROJECT STATE
-- Current exact repository code/test head after the v4.0 governance mutation batch: `d54c3e4b5f5092656e0f6ee0a724d7c64c291da9`.
+- Exact code/test head entering this sweep: `d54c3e4b5f5092656e0f6ee0a724d7c64c291da9`.
 - v4.0 batch start head: `811070805114956c8f7f1766b7bf6c3c9704b4c0`.
 - Previous v3.2 index boundary: `a4b26ef13ce08d54d2e9c0723530499bcc6e66c5`.
 - v4.0 mutations: `727775a40566f7cff43f73d5eab492dc996ce5a1` → `a64356981001b0a6b6b3c41c4b985bd9152d891f` → `a353ad14b4610793e5c62e67633f3ab54b42bc57` → `c034903a16d5975e3e7a7f3ed7233e771be251c8` → `7fef559b959917c8e17492ffae8ec105d9c6c105` → `e80fe712184b2404e97c0b266293323e8a00a58a` → `92b9077a9b902266ab3603721a9b7d96acb3162d` → `d54c3e4b5f5092656e0f6ee0a724d7c64c291da9`.
