@@ -34,6 +34,7 @@ export function validateAdaptiveGovernance(governance) {
   const normalized = normalize(stripComments(governance));
   const missing = REQUIRED_GOVERNANCE_ANCHORS.filter(anchor => !normalized.includes(normalize(anchor)));
   if (missing.length) throw new Error(`Adaptive governance rejected: missing anchors: ${missing.join(', ')}`);
+  if (!/^.*layer 1.*programmer execution protocol.*$/mi.test(normalized) || !/^.*layer 2.*master execution index.*$/mi.test(normalized) || !/^.*layer 3.*adaptive execution governance.*$/mi.test(normalized)) throw new Error('Adaptive governance rejected: explicit layer separation is missing or malformed');
   if (!normalized.includes('one-off incident') || !normalized.includes('repeated pattern') || !normalized.includes('proven systemic failure')) throw new Error('Adaptive governance rejected: evolution threshold is incomplete');
   if (!normalized.includes('commits, lines changed, report size, index size, and test count are not progress metrics')) throw new Error('Adaptive governance rejected: activity/progress separation missing');
   if (!normalized.includes('lower-priority instruction must not override a higher-priority')) throw new Error('Adaptive governance rejected: precedence binding missing');
@@ -56,19 +57,10 @@ export function validateCurrentHeadIndex(index, currentHead, parentHead = '', ch
 const debtLedger = fs.readFileSync('docs/EXECUTION_DEBT_AND_RELEASE_VELOCITY.md', 'utf8');
 for (const anchor of ['EXECUTION DEBT', 'ACTIONABLE DEBT', 'EXTERNAL DEBT', 'RELEASE VELOCITY', 'EXECUTION UTILIZATION', 'TRUE STOP', 'Built', 'Integrated', 'Verified', 'Runtime Proven', 'Production Certified']) if (!normalize(stripComments(debtLedger)).includes(normalize(anchor))) throw new Error(`Execution enforcement protocol rejected: debt/velocity ledger missing ${anchor}`);
 
-
 export function validateProjectIdentity() {
   const tracked = execFileSync('git', ['ls-files'], { encoding: 'utf8' }).trim().split('\n').filter(Boolean);
-  const surfaces = tracked.filter(file =>
-    file === 'index.html' ||
-    file === 'package.json' ||
-    file === 'README.md' ||
-    file.startsWith('src/') ||
-    file.startsWith('public/')
-  );
-  const legacy = surfaces.filter(file => {
-    try { return fs.readFileSync(file, 'utf8').includes('العامري'); } catch { return false; }
-  });
+  const surfaces = tracked.filter(file => file === 'index.html' || file === 'package.json' || file === 'README.md' || file.startsWith('src/') || file.startsWith('public/'));
+  const legacy = surfaces.filter(file => { try { return fs.readFileSync(file, 'utf8').includes('العامري'); } catch { return false; } });
   if (legacy.length) throw new Error(`Project identity rejected: legacy branding found in current frontend surface(s): ${legacy.join(', ')}`);
   const indexHtml = fs.readFileSync('index.html', 'utf8');
   if (!indexHtml.includes('الأغبري')) throw new Error('Project identity rejected: canonical frontend identity الأغبري missing from index.html');
