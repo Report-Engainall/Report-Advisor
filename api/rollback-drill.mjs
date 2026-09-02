@@ -11,10 +11,15 @@ async function vercelRequest(path, options = {}) {
   });
 }
 
-async function deploymentReady(id) {
-  const response = await vercelRequest(`/v13/deployments/${encodeURIComponent(id)}`);
+export async function deploymentReady(id) {
+  const projectId = process.env.VERCEL_PROJECT_ID?.trim();
+  if (!projectId) throw new Error('vercel_project_id_required');
+  if (!id?.trim()) throw new Error('deployment_id_required');
+
+  const response = await vercelRequest(`/v13/deployments/${encodeURIComponent(id.trim())}`);
   if (!response.ok) throw new Error(`deployment_lookup_failed:${response.status}`);
   const data = await response.json();
+  if (data.projectId !== projectId) throw new Error('deployment_project_mismatch');
   if (data.readyState !== 'READY') throw new Error(`deployment_not_ready:${data.readyState || 'unknown'}`);
   return data;
 }
@@ -63,14 +68,14 @@ export default async function handler(req, res) {
     if (!before.ok) return json(res, 503, { status: 'blocked', error: `forward_baseline_failed:${before.status}` });
 
     const rollbackStarted = Date.now();
-    await assignAlias(from, domain);
+    await assignAlias(fromDeployment.id, domain);
     const rollbackProbe = await verify(verifyUrl);
     if (!rollbackProbe.ok) {
-      await assignAlias(forward, domain);
+      await assignAlias(forwardDeployment.id, domain);
       throw new Error(`rollback_probe_failed:${rollbackProbe.status}`);
     }
 
-    await assignAlias(forward, domain);
+    await assignAlias(forwardDeployment.id, domain);
     const forwardProbe = await verify(verifyUrl);
     const rtoSeconds = (Date.now() - rollbackStarted) / 1000;
     if (!forwardProbe.ok) throw new Error(`forward_fix_probe_failed:${forwardProbe.status}`);
