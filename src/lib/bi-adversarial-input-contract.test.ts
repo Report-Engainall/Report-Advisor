@@ -7,7 +7,7 @@ describe('BI adversarial input contract', () => {
     expect(() => decideReplenishment({ onHand: 1, avgDailyDemand: 2, leadTimeDays: -3 })).toThrow('BI_NEGATIVE_VALUE:leadTimeDays');
   });
   it('rejects overflowing replenishment target arithmetic', () => {
-    expect(() => decideReplenishment({ onHand: 1, avgDailyDemand: 1, leadTimeDays: Number.MAX_VALUE, safetyDays: Number.MAX_VALUE })).toThrow('BI_RESULT_OVERFLOW:replenishment.targetDays');
+    expect(() => decideReplenishment({ onHand: 1, avgDailyDemand: 1, leadTimeDays: Number.MAX_VALUE, safetyDays: Number.MAX_VALUE, maxStockDays: 100 })).toThrow('BI_RESULT_OVERFLOW:replenishment.targetDays');
   });
   it('rejects negative customer financial inputs', () => {
     expect(() => scoreCustomer({ recencyDays: -1, orders: 2, revenue: 10 })).toThrow('BI_NEGATIVE_VALUE:recencyDays');
