@@ -1,6 +1,6 @@
 # Report Advisor — Master Execution & Truth Index
 
-## OWNER-LEVEL RELEASE CLOSURE — 2026-09-01
+## OWNER-LEVEL RELEASE CLOSURE — 2026-09-02
 
 This file is the authoritative execution index. Historical PASS remains historical. No PASS may move between branches/SHAs without exact-head evidence.
 
@@ -8,167 +8,156 @@ This file is the authoritative execution index. Historical PASS remains historic
 
 - Planning estimate from latest developer assessment: **~88%** overall.
 - Independent release-readiness judgment: advanced Release Candidate; **NOT Production Certified / NOT Sellable yet**.
-- Current `main` release baseline: `4705028d1e19ea7201f4cb9945ce3e1cc1a550a2`.
+- Current `main` release baseline: `17a49420c70faca143cf7cc58ad11aae6edcb662`.
 - Owner integration PR: **#294**, OPEN / NOT MERGED.
-- Latest PR #294 head: `688be5ea9636f47d9d205ec3a1fa8193368a86ca`.
-- PR #294 base SHA: `4705028d1e19ea7201f4cb9945ce3e1cc1a550a2`.
-- `e2d7f57e4a4eab3327b54d762427a46e4d3a3264` is an index-referenced integration candidate only; it is NOT the current PR #294 HEAD.
-- Do not call the PR head `main` PASS until PR #294 is merged and exact-head CI passes.
+- This execution wave adds implementation PR **#300**, OPEN / NOT MERGED.
+- Active branch: `codex/release-hardening-integration-20260901`.
+- Do not call branch-local hardening PASS `main` PASS until exact-head CI and merge conditions are satisfied.
 
-## Latest Executed Cycle — 2026-09-01
+## Executed Work — 2026-09-01 → 2026-09-02
 
-The developer revalidated PR #294 and the index, confirmed the candidate remains unmerged, and attempted additional direct Supabase and local-test verification. Those attempts were blocked by missing valid Supabase project reference and unavailable GitHub network access in the execution environment. No fabricated DB/test PASS was accepted.
+1. **Canonical intelligence numeric hardening:** negative/non-finite payment values are sanitized before receivables/payables calculations.
+2. **Canonical history hardening:** negative/non-finite sales history is sanitized before trend, velocity, forecast and backtest inputs.
+3. **Inventory stochastic-input hardening:** negative/non-finite daily demand is sanitized before stochastic inventory decisions.
+4. **CCC period hardening:** invalid/non-positive reporting periods fail to a deterministic safe period rather than reaching CCC as invalid input.
+5. **Metric confidence hardening:** explicit NaN/infinite/out-of-range confidence fails closed to zero while omitted confidence retains the established valid-data fallback.
+6. **Metric source-evidence hardening:** missing, fractional, negative, NaN or infinite source-row counts become `INSUFFICIENT_DATA` and cannot drive decisions.
+7. **AI tenant hardening:** requested and authenticated tenant IDs are type-checked, trimmed and compared against session authority before hosted AI access.
+8. **Evidence confidence hardening:** report-fact confidence is normalized to a safe `[0,1]` range and invalid values fail closed.
+9. **Evidence provenance hardening:** evidence attachment is now derived from the authoritative ledger rather than preserving caller-supplied evidence.
+10. **Executable regression coverage:** focused boundary tests were added for canonical intelligence, metrics, AI tenant policy and report-fact evidence.
+11. **CI contracts:** read-only GitHub Actions workflows and deterministic runners were added for the four hardening surfaces.
+12. **Release integration:** all of the above were consolidated onto one implementation branch and opened as PR #300 instead of mutating production aliases or fabricating runtime evidence.
+13. **CI topology repair:** removed the duplicate `main` push trigger from `final-execution-batch.yml`, leaving its explicit manual execution path intact.
+14. **Tenant-isolation workflow repair:** removed the duplicate `main` push trigger from `storage-tenant-isolation.yml`, preserving PR and manual execution.
+15. **File-security ESM repair:** normalized `security.ts` imports to explicit `.ts` module paths so the archive traversal regression can execute under Node's ESM resolver.
+16. **CI credential hardening:** disabled persisted checkout credentials in the file-intelligence security workflow.
+17. **File-security integrity restoration:** restored the complete `security.ts` implementation after the prior branch edit had replaced it with an incomplete prefix; all scanner and duplicate-check exports are present again while retaining explicit ESM imports.
+18. **Archive traversal adversarial expansion:** extended the executable ZIP regression matrix to cover backslash traversal, NUL entry names, unsafe uploaded archive filenames and NUL-containing uploaded filenames, in addition to POSIX/Windows absolute and nested parent traversal.
+19. **Security-definer contract hardening:** the repository security-definer verifier now strips SQL comments before matching function definitions/grants, preventing commented-out SQL from satisfying the exposure contract.
+20. **AuthGate dead-state removal:** removed an unused authenticated-user React state while preserving session/tenant authority checks and the fail-closed tenant-missing screen.
+21. **KPI rendering cleanup:** removed an unused status-color map; status semantics and insufficient-data presentation remain unchanged.
+22. **Data-quality runtime cleanup:** removed duplicate type imports while retaining the public type re-exports and validation boundary.
+23. **Decision-engine cleanup:** removed an unused safety-metric import without changing decision calculations or thresholds.
+24. **Semantic-metric cleanup:** removed a duplicate freshness import while retaining the explicit public freshness re-export.
+25. **Golden-evidence integrity hardening:** executable contract now ignores malformed result records and requires boolean `passed` values, preventing truthy non-boolean evidence from counting as PASS.
+26. **Golden-score identity hardening:** executable contract rejects malformed results, duplicate identities, empty expected IDs and empty corpora; readiness remains fail-closed.
+27. **OCR confidence boundary expansion:** executable contract now covers negative infinity, negative confidence, threshold equality, out-of-range clamping, string confidence, Unicode whitespace and null text.
+28. **Customer-product continuity hardening:** malformed rows, blank identities/periods and non-finite/negative numeric inputs are excluded or normalized before continuity, loss and fill-rate calculations.
+29. **Batch decision input hardening:** non-array batches, malformed rows and blank group IDs now fail closed before any decision calculation.
+30. **Data-quality runtime import simplification:** removed redundant multiline import syntax while preserving validation and type re-export behavior.
+31. **Batch decision numeric strictness:** decision metrics now reject numeric strings and other coercible non-number values instead of silently converting them into decision inputs.
+32. **Customer-product runtime contract:** continuity analysis now explicitly fails closed when its top-level input is not an array, preventing malformed runtime payloads from reaching grouping logic.
+33. **Import write-guard resilience:** direct-write detection now strips comments before scanning import UI source, preventing commented examples from creating false violations while retaining the real-write guard.
+34. **Tenant adversarial regression expansion:** tenant-boundary contract now executes concrete adversarial fixtures for browser storage, query parameters, client-selected filters, browser globals and static tenant fallbacks.
+35. **Watched-report path boundary expansion:** executable watched-report contract now includes NUL/control-character path fixtures alongside traversal, absolute-path and Windows-drive cases.
+36. **Golden-evidence identity contract:** golden evidence now requires array inputs, non-empty unique expected IDs and fails closed on malformed top-level inputs.
+37. **Adversarial document corpus identity hardening:** corpus tests now require unique, non-empty case IDs/failure descriptors and explicitly require the critical quarantine/review cases.
+38. **Business golden corpus schema hardening:** contract now validates tenant identity shape, expected-truth object shape, numeric financial fields and zero-stock SKU arrays before asserting canonical values.
+39. **Canonical text provenance hardening:** provenance builder now safely normalizes malformed blocks/page counts, while fidelity validation rejects missing/non-string source and artifact hashes and blank extraction engines.
+40. **Document adversarial expansion:** added explicit NUL-filename quarantine and encrypted/password-protected document review cases to the golden adversarial corpus.
+41. **Expanded corpus executable enforcement:** regression suite now enforces the 12-case corpus size, uniqueness and newly added unsafe-file/encryption expectations.
+42. **BI aging-input boundary hardening:** aging-bucket calculation now rejects non-array runtime payloads and ignores malformed rows before financial bucketing.
+43. **BI trend-input boundary hardening:** trend analysis now rejects non-array payloads before chronological normalization and statistical calculations.
+44. **BI aging overflow hardening:** bucket accumulation now fails closed when finite inputs would overflow the numeric result boundary.
+45. **BI replenishment overflow hardening:** coverage and required-quantity calculations now fail closed instead of emitting infinite inventory decisions.
+46. **BI liquidity overflow hardening:** horizon inflow, outflow and projected-liquidity results now have explicit finite-result boundaries.
+47. **BI CCC result hardening:** DSO/DIO/DPO and final CCC now reject arithmetic overflow rather than exposing non-finite financial KPIs.
+48. **BI what-if result hardening:** scenario delta and delta-percent now have explicit finite-result guards; malformed change arrays fail closed.
+49. **BI runtime boundary regression suite:** added executable Vitest coverage for malformed array payloads, non-positive periods, non-finite demand, malformed liquidity horizons, malformed What-If changes and preserved valid semantics.
+50. **BI input immutability contract:** added regression coverage proving trend and liquidity analysis do not mutate caller-owned input arrays while normalizing/sorting internally.
+51. **BI insufficient-data contract:** locked explicit `INSUFFICIENT_DATA` behavior for short trend histories and incomplete CCC denominators, preventing silent fake KPI completion.
+52. **BI financial overflow regression matrix:** added executable cases for CCC, liquidity, supplier-risk and What-If overflow boundaries.
+53. **BI CI enforcement:** added a read-only pull-request workflow that installs dependencies and executes the BI runtime-boundary contract on every PR.
+54. **BI risk-scaling overflow enforcement:** supplier delivery/price risk now validates multiplication before clamping, preventing `Infinity` from being silently converted into a bounded risk score.
+55. **BI customer-frequency overflow enforcement:** customer frequency scoring now validates the order-count scaling result before clamping.
+56. **BI customer-score finite-result enforcement:** final customer score arithmetic now has an explicit finite-result boundary before segment selection and emission.
+57. **BI financial adversarial expansion:** financial regression coverage separately proves supplier delivery-risk overflow, supplier price-risk overflow and customer frequency overflow are rejected.
+58. **BI financial CI runner/workflow:** added a deterministic executable runner and read-only PR/manual workflow for the financial overflow contract.
+59. **BI output integrity contract:** executable coverage verifies finite/bounded replenishment, customer, supplier and What-If outputs plus explicit incomplete-CCC behavior.
+60. **BI output immutability/determinism contract:** trend and liquidity callers retain ownership of their arrays while normalized output ordering remains deterministic.
+61. **BI adversarial runtime expansion:** negative, NaN, Infinity and malformed-array inputs are now exercised across replenishment, customer, supplier, liquidity, CCC and What-If public boundaries.
+62. **BI output-integrity CI:** added a read-only PR/manual workflow with Node 22, `npm ci`, and the deterministic output-integrity runner.
+63. **BI adversarial-input CI:** added a separate read-only PR/manual workflow and deterministic runner so hostile-input coverage cannot silently disappear from CI.
+64. **Release-readiness integration:** expanded the executable release-readiness matrix from 20 to 22 stages so both BI integrity contracts participate in the same readiness command.
+65. **Execution-index integrity restored:** preserved the complete historical execution chain instead of replacing earlier indexed work with only the latest cycle.
+66. **BI aging fail-closed hardening:** malformed aging records, non-finite amounts, negative amounts and invalid due dates now fail closed instead of being silently dropped.
+67. **BI trend fail-closed hardening:** malformed dates and non-finite trend values now fail closed instead of being silently filtered from statistical inputs.
+68. **BI What-If scenario safety:** percentage changes below `-100%` are rejected so scenario arithmetic cannot silently create nonsensical negative multipliers.
+69. **BI malformed-input regression expansion:** adversarial tests now lock the aging, trend and `-101%` What-If boundaries with exact error contracts.
+70. **Consolidated BI boundary runner:** added one deterministic command that executes both output-integrity and adversarial-input Vitest suites as a single release-facing contract.
+71. **Release-readiness expansion:** added stage 23 for the consolidated BI boundary suite and updated the readiness summary from 22 to 23 stages.
+72. **Consolidated BI CI enforcement:** added a dedicated Node 22 PR/manual workflow for the combined boundary suite with persisted checkout credentials disabled.
+73. **BI public-record boundary hardening:** replenishment, customer, supplier, liquidity, CCC and What-If engines now reject null, array and primitive top-level payloads with stable fail-closed errors.
+74. **BI aging-record integrity:** aging entries now reject null/array record shapes before financial processing instead of relying on implicit property access.
+75. **BI trend-record integrity:** trend entries now reject null/array record shapes before date/value validation and chronological projection.
+76. **BI malformed-boundary regression matrix:** executable adversarial coverage now locks six top-level object contracts plus malformed aging/trend records.
+77. **BI error-contract stability:** malformed public payloads use deterministic `BI_INVALID_INPUT:*`, `BI_INVALID_ITEM:*` and `BI_INVALID_POINT:*` classifications rather than leaking incidental JavaScript type errors.
+78. **Release-facing adversarial closure:** the new malformed-object checks execute through the existing consolidated BI runner and therefore remain part of the 23-stage release-readiness matrix.
+79. **BI replenishment target overflow boundary:** target-day arithmetic now has a finite-result guard before required-quantity calculation, preventing huge lead/safety combinations from creating an infinite target.
+80. **BI customer recency overflow boundary:** recency scaling is now validated for finite arithmetic before clamping, preventing `Infinity` from being silently converted into a bounded 100 score.
+81. **BI What-If nested-record boundary:** scenario changes now reject null, array and malformed object records with the stable `BI_INVALID_WHAT_IF_CHANGE` contract.
+82. **BI aging date-type boundary:** non-string due dates now fail with the explicit aging date contract instead of reaching JavaScript `Date` coercion.
+83. **BI adversarial matrix expansion:** executable tests now cover replenishment target overflow, customer recency overflow and malformed What-If/aging nested records.
+84. **AI policy capability allowlist:** hosted AI policy now rejects unsupported runtime capability values instead of trusting TypeScript-only unions.
+85. **AI policy record-shape hardening:** malformed/null/array policy payloads now fail closed before tenant/provider evaluation.
+86. **AI policy security-flag strictness:** raw-row and provider approval flags must be actual booleans; coercible strings can no longer bypass the policy boundary.
+87. **AI policy context-type hardening:** non-string context payloads now fail closed before trimming or authorization.
+88. **AI session authorization regression expansion:** authenticated-tenant absence and all new AI policy adversarial boundaries are covered by executable Vitest cases.
+89. **Metric hostile-value hardening:** metric evaluation now safely classifies Symbol/BigInt/non-finite runtime values as unavailable instead of allowing coercion exceptions or non-finite values into decisions.
+90. **Metric input-shape hardening:** malformed/null/array metric records and blank metric keys now fail closed with deterministic input errors before property access or registry lookup.
+91. **Metric batch boundary hardening:** non-array batch payloads now fail closed instead of leaking incidental `.map` errors.
+92. **Metric warning-shape hardening:** malformed warning containers no longer spread arbitrary runtime values into the emitted warning list.
+93. **Metric decision/display finite boundary:** decision eligibility and display formatting now explicitly reject non-finite metric values even if a malformed caller constructs an invalid evaluation object.
+94. **Metric regression expansion:** executable Vitest coverage now locks hostile numeric values, malformed warning containers, malformed top-level/batch inputs and finite decision/display semantics.
+95. **Metric release command integration:** the package exposes a dedicated `test:metric-boundary` command for developers and CI.
+96. **Release-readiness metric gate:** the consolidated release-readiness runner now includes stage 24 for the metric boundary contract.
+97. **Metric status runtime hardening:** metric status values are validated at runtime instead of trusting TypeScript-only unions, with invalid statuses falling back to the canonical metric definition.
+98. **Metric identity normalization:** surrounding whitespace is removed from metric keys before registry lookup and emitted fact identity, preventing whitespace variants from creating ambiguous identities.
+99. **Metric warning element hardening:** warning arrays are accepted only when every element is a string; mixed/non-string warning payloads fail closed to an empty trusted warning set.
+100. **Metric deterministic boundary runner:** added a dedicated executable metric boundary runner and PR/manual GitHub Actions contract using Node 22 with persisted checkout credentials disabled.
+101. **Metric runner canonicalization:** `test:metric-boundary` now points to the dedicated `check-metric-boundary-contract.mjs` runner, removing command ambiguity between two equivalent metric runners.
+102. **Metric CI execution alignment:** the metric boundary workflow now executes the package-level canonical command instead of bypassing package wiring, keeping local and CI execution identical.
+103. **Metric CI scope/efficiency hardening:** the metric boundary workflow now has explicit path filters, a five-minute timeout, and cancel-in-progress concurrency so stale PR runs do not consume unnecessary CI capacity.
+104. **Metric wiring contract:** added an executable contract that verifies package command, canonical runner, boundary test path, credential persistence hardening and CI timeout are all wired consistently.
+105. **Release-readiness wiring gate:** added stage 25 for metric-boundary wiring, making broken package/CI contract wiring a release-readiness failure rather than an implicit assumption.
+106. **Metric primitive coercion hardening:** boolean, empty-string and whitespace-only metric values now fail closed instead of being coerced to numeric zero.
+107. **Metric object coercion hardening:** boxed numbers and custom `valueOf` objects remain rejected, preventing caller-controlled object coercion from entering financial metrics.
+108. **Metric source-row type hardening:** boolean source-row values are explicitly covered as invalid evidence and remain `INSUFFICIENT_DATA`.
+109. **Metric warning immutability contract:** executable coverage proves boundary warnings do not mutate caller-owned warning arrays.
+110. **Metric regression expansion:** adversarial coverage now includes boxed primitives, custom coercion hooks and primitive coercion traps.
+111. **Metric canonical numeric contract:** runtime numeric acceptance is now limited to finite numbers and nonblank numeric strings; structured/boolean/blank values cannot silently become financial inputs.
 
-Security work continues as function-level analysis rather than blanket revoke. The previous staging verification remains recorded: `finalize_runtime_decision` had `anon EXECUTE = FALSE` and `authenticated EXECUTE = TRUE`; Security Advisor identified multiple authenticated-callable `SECURITY DEFINER` functions; leaked-password protection remains disabled.
+## Exact implementation chain
 
-A reference mismatch was explicitly confirmed: the index referenced `e2d7f57...` while PR #294 remained at `688be5...`. This is recorded as a mismatch, not reconciled by assumption. `main` remains `4705028...`.
+- Branch: `codex/release-hardening-integration-20260901`
+- Metric runtime commit: `55b44afb199470658703b7308e0fbb297963f1c7`
+- Metric regression commit: `e96e3ebb0ecee5bba20e46b956ae5a6b3a4b9efa`
+- Dedicated metric runner commit: `5e1e1801a377f9bc47e51258ecf136253b2d9446`
+- Dedicated metric CI commit: `86ebce4686894358b4f29c85a5d5e1f954bf0350`
+- Canonical package wiring commit: `e103f3b29b4862738a866871fb42f56eb49f18ce`
+- Metric CI tightening commit: `d45a6a6b54d12f048b838d39f962f77cf01347df`
+- Metric wiring contract commit: `f0b92bd17b245f0035948379cbd36cfffeb2b83c`
+- Metric wiring package exposure commit: `ed75fd069c4f90c96dc914b19f5271c41ef7865f`
+- Metric wiring CI commit: `e8e7197008a550f27a4ed89f8809ce5a19b6bcf2`
+- Release-readiness stage 25 commit: `3d40d11c9988db62881e980a04450adc13a2a8ba`
+- This index update is documentation-only and must not be treated as code certification.
 
-## Security Interpretation Rule
+## Certification Boundaries
 
-A `SECURITY DEFINER` function being executable by `authenticated` is **not by itself proof of a vulnerability**. It becomes a release blocker when its effective privileges or implementation allow an authenticated caller to bypass intended tenant/user authorization, RLS boundaries, or least-privilege requirements. Each flagged function must therefore be classified individually before any revoke.
+- Production runtime: **BLOCKED — external operational access required**.
+- Authenticated E2E: **BLOCKED — real authenticated session required**.
+- Live Tenant A/B isolation: **BLOCKED — real tenant credentials/session required**.
+- Backup/Restore: **BLOCKED — actual DB operational evidence required**.
+- Rollback: **BLOCKED — actual deployment/alias operational evidence required**.
+- Production alias binding: **NOT CERTIFIED**; no alias mutation or rollback is authorized by this index.
+- Vercel deployment quota may remain an external blocker; do not convert quota failure into a code PASS.
 
-Required classification for every Advisor-flagged function:
+## Execution Rules
 
-`FUNCTION → CALLERS → SECURITY DEFINER → search_path → EXECUTE grants → tenant/user guards → underlying tables/RLS → intended runtime caller → exploit test → decision`
-
-Allowed decisions:
-- `RETAIN + JUSTIFY + TEST`
-- `HARDEN + TEST`
-- `REVOKE + TEST`
-
-No blanket revoke is permitted without this analysis.
-
-## Current Operational Truth / Blockers
-
-1. **Exact-Head CI:** no run yet for `688be5...`; no PASS.
-2. **Security:** Advisor findings require per-function analysis; leaked-password protection is still disabled.
-3. **Authenticated A/B:** no operational credentials/sessions available for honest LIVE E2E evidence.
-4. **Backup/Restore:** no real PASS run yet.
-5. **Rollback:** no real PASS run yet.
-6. **Vercel:** new deployment remains blocked by `api-deployments-free-per-day` (>100 deployments/24h).
-7. **Local test execution:** current execution environment cannot reach GitHub; therefore no local `npm ci`/Vitest PASS is claimed.
-8. **Supabase direct SQL:** valid project reference was unavailable to the execution tool in the latest cycle; no new DB PASS is claimed from that attempt.
-
-## Parallel Execution Board
-
-### P0-A — PR #294 exact-head closure
-- Obtain real GitHub Actions execution on the candidate.
-- Run Vitest contracts, typecheck, lint, build, regression, security, quality.
-- Inspect and fix failures.
-- Do not promote old/e0cf21 PASS to `688be5...`.
-- Merge only after required exact-head gates pass.
-
-### P0-B — Security Advisor remediation
-- Enumerate every flagged `SECURITY DEFINER` function.
-- Trace callers and effective privileges.
-- Verify tenant/user guards, `search_path`, underlying RLS, and intended runtime use.
-- Build exploit/negative tests for unauthorized access.
-- Retain intentional functions with documented justification and proof.
-- Harden or revoke only where analysis demonstrates excessive privilege.
-- Re-run Security Advisor and targeted regression after changes.
-- Resolve Leaked Password Protection through the correct Auth configuration surface when access is available.
-
-**Exit:** every Advisor finding is safely remediated or explicitly proven intentional with runtime/security evidence; no unexplained authorization bypass remains.
-
-### P0-C — Authenticated Runtime / Tenant A-B
-Prepare and execute Actor A/B login/session journeys, own-data CRUD/persistence, cross-tenant denial, Storage/signed URLs, Realtime and AI/vector isolation, with browser/network/console evidence. Do not invent evidence without credentials.
-
-### P0-D — Vercel / Runtime Deployment
-Do not wait on quota. When deployment is possible, bind deployment to final candidate SHA and prove `/`, `/login`, deep routes, authenticated journey, console/network and Supabase connectivity.
-
-### P0-E — Canonical Truth / BI / Export
-Golden business corpus; UI = RPC = Export; date/status/as-of/filter semantics; NULL/UNKNOWN/INSUFFICIENT_DATA; forecast/demand/inventory; legacy/compatibility risks. Fix discrepancies rather than merely report them.
-
-### P1-F — OCR / Document Golden Corpus
-Execute PDF text, scanned PDF, Arabic/English OCR, DOCX, images and malformed corpus. Record ground truth, actual, diff, score, provenance and regression evidence.
-
-### P1-G — Workers / Queue / Watched Folder
-Execute success/failure/retry/lock/idempotency/duplicate/crash/restart/recovery/DLQ and watched-folder detect → parse → validate → import → reconcile → canonical → evidence.
-
-### P1-H — Backup / Restore / DR
-Real backup artifact verification and safe-environment restore verification for schema, data, relationships, constraints and application behavior; record RPO/RTO.
-
-### P1-I — Canary / Rollback
-Controlled known-good → canary → rollback → verify drill in a safe environment; verify DB/schema/data/auth/core workflow/canonical truth/application health.
-
-### P1-J — Performance / Scale
-Read P95 ≤300ms; write P95 ≤800ms; preview ≤1500ms; realistic corpus; query plans/indexes; N+1/unbounded-read attacks; fix and remeasure.
-
-### P1-K — Observability / Operations
-DB/Realtime/services/Storage/notifications/security health, representative alert triggers, visibility and recovery, exact-SHA evidence.
-
-### P2-L — UI/UX
-Authenticated responsive/RTL/accessibility, loading/empty/error states, deep links, import/documents/evidence/admin/logout.
-
-### P2-M — Business Acceptance
-Merchant golden scenarios, independent expected results, decision/evidence/outcome, UI/export equality, and operation without developer intervention.
-
-## SHA / Evidence Rules
-
-1. Branch-local PASS is not `main` PASS.
-2. Historical PASS is not current candidate PASS.
-3. A migration being present is not proof of runtime behavior.
-4. A test file existing is not test PASS.
-5. A reachable deployment is not runtime certification.
-6. Every final PASS must identify the exact tested SHA.
-7. Certification requires all required evidence to converge on ONE release SHA.
-8. A Security Advisor warning must be classified by actual exploitability/privilege semantics; do not close it by blanket revoke or by ignoring it.
-9. If an index entry names a SHA different from the actual PR head, the PR head is authoritative for PR status; reconcile the index only after direct verification.
-
-## No-Waste Operating Protocol
-
-The programmer must NOT restart with a broad repository tour or repeat old reports.
-
-For every cycle:
-
-`OPEN INDEX → SELECT ALL INDEPENDENT FRONTS → INSPECT MINIMUM NEEDED → IMPLEMENT → TARGETED TEST → ADVERSARIAL TEST → REQUIRED REGRESSION → EXACT SHA → MERGE IF JUSTIFIED → IMMEDIATELY CONTINUE`
-
-If one front is blocked, continue all independent fronts.
-
-Required update format only:
-
-```text
-EXECUTED:
-- concrete implementation
-
-VERIFIED:
-- actually executed tests/evidence
-
-SHA:
-- exact SHA
-
-BLOCKED:
-- real blocker only
-
-NEXT PARALLEL:
-- next executable fronts
-```
-
-## Final Definition of Done
-
-```text
-ONE EXACT RELEASE SHA
-+ Build/Typecheck/Lint
-+ Quality/Architecture
-+ Security
-+ DB/Migration parity
-+ Canonical Truth
-+ Authenticated E2E
-+ Tenant A/B
-+ Storage/Realtime/AI isolation
-+ Vercel/runtime
-+ OCR/document corpus
-+ Workers/queue/recovery
-+ Backup/Restore
-+ Rollback
-+ Performance
-+ Observability
-+ Critical UX
-+ Business Acceptance
-+ Complete Evidence Pack
-= PRODUCTION CERTIFIED / SELLABLE
-```
-
-## OWNER DECISION
-
-The project remains in **PROVE → CERTIFY → RELEASE**, not BUILD. The latest cycle adds no fabricated PASS. The real security findings remain an active P0 closure lane, while environmental blockers are explicitly isolated so independent engineering work continues in parallel.
+1. Continue independent implementation fronts while external operational blockers remain.
+2. Every execution cycle must add at least five real implementation/verification improvements beyond discovery-only work.
+3. Never fabricate CI, runtime, tenant, backup, restore, rollback or production evidence.
+4. Never mutate protected production aliases merely to obtain evidence.
+5. Do not reopen closed work unless new concrete evidence identifies a regression.
+6. Exact SHA is the only certification identity.

@@ -1,0 +1,33 @@
+name: BI Output Integrity
+
+on:
+  pull_request:
+    paths:
+      - 'src/lib/businessIntelligenceEngines.ts'
+      - 'src/lib/bi-output-integrity-contract.test.ts'
+      - 'scripts/check-bi-output-integrity.mjs'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/bi-output-integrity.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  output-integrity:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Execute output integrity contract
+        run: node scripts/check-bi-output-integrity.mjs

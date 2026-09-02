@@ -8,5 +8,7 @@ export const adversarialCorpus=[
 {id:'hidden-rows',failure:'hidden_rows',expected:'REVIEW'},
 {id:'formula-values',failure:'formula_cells',expected:'PASS'},
 {id:'wrong-extension',failure:'content_extension_mismatch',expected:'FALLBACK_OR_REVIEW'},
-{id:'binary-garbage',failure:'unreadable_binary',expected:'QUARANTINE'}
+{id:'binary-garbage',failure:'unreadable_binary',expected:'QUARANTINE'},
+{id:'nul-filename',failure:'unsafe_nul_filename',expected:'QUARANTINE'},
+{id:'encrypted-document',failure:'encrypted_or_password_protected',expected:'REVIEW'}
 ];
