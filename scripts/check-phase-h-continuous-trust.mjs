@@ -1,0 +1,10 @@
+import fs from 'node:fs';
+import path from 'node:path';
+const root=process.cwd();
+const migration=fs.readFileSync(path.join(root,'supabase/migrations/20260825090000_continuous_trust_autonomous_operations.sql'),'utf8');
+const required=['trust_canary_runs','remediation_actions','intelligence_safety_controls','service_liveness_probes','trust_regression_links','is_continuous_trust_healthy','approve_remediation','company_id = public.current_company_id()','REVOKE ALL ON TABLE','status=\'valid\'','expires_at>now()'];
+const missing=required.filter(x=>!migration.includes(x));
+if(missing.length) throw new Error(`Phase H blockers:\n${missing.join('\n')}`);
+const workflow=fs.readFileSync(path.join(root,'.github/workflows/quality.yml'),'utf8');
+if(!workflow.includes('test:continuous-trust')) throw new Error('Quality workflow is missing Phase H gate');
+console.log('Phase H continuous trust contract: PASS');

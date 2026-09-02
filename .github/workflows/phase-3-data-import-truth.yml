@@ -1,0 +1,41 @@
+name: Phase 3 data import truth
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  phase-3-data-import-truth:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    steps:
+      - name: Checkout exact commit
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Verify exact HEAD
+        shell: bash
+        run: test "$(git rev-parse HEAD)" = "${GITHUB_SHA}"
+      - name: Install
+        run: npm ci --no-audit --no-fund
+      - name: Phase 3 data and import truth closure
+        run: node scripts/check-phase3-data-import-truth-closure.mjs
+      - name: Canonical import mapping regression
+        run: npm run test:canonical-import-mapping
+      - name: Import business-key regression
+        run: npm run test:import-business-key
+      - name: Import transaction regression
+        run: npm run test:import-transaction-contract
+      - name: Import runtime governance regression
+        run: npm run test:import-runtime-governance
+      - name: Import state regression
+        run: npm run test:import-state-contract

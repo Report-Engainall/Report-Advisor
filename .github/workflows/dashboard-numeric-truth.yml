@@ -1,0 +1,36 @@
+name: dashboard-numeric-truth
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'src/lib/dashboard-canonical.ts'
+      - 'scripts/check-dashboard-numeric-truth.mjs'
+      - '.github/workflows/dashboard-numeric-truth.yml'
+  workflow_dispatch:
+permissions: {contents: read}
+concurrency:
+  group: dashboard-numeric-truth-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  verify:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with: {node-version: 22}
+      - name: Exact-head binding
+        if: ${{ github.event_name == 'pull_request' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          expected_head="$(node -e "const fs=require('fs'); const e=JSON.parse(fs.readFileSync(process.env.GITHUB_EVENT_PATH,'utf8')); process.stdout.write(e.pull_request.head.sha)")"
+          test "$(git rev-parse HEAD)" = "$expected_head"
+          actual_head="$(git ls-remote origin "refs/heads/${GITHUB_HEAD_REF}" | awk '{print $1}')"
+          test "$actual_head" = "$expected_head"
+      - name: Dashboard numeric truth
+        run: node scripts/check-dashboard-numeric-truth.mjs

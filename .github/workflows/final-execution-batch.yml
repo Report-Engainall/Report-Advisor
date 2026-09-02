@@ -1,0 +1,23 @@
+name: Final Execution Batch
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  final-execution-batch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install
+        run: npm ci --no-audit --no-fund
+      - name: Build release artifact
+        run: npm run build
+      - name: Generate exact-head release manifest
+        run: node scripts/generate-release-manifest.mjs
+      - name: Execute 30 deterministic gates
+        run: node scripts/check-final-execution-batch.mjs

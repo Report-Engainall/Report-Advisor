@@ -1,0 +1,22 @@
+name: release-manifest-integrity
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: node scripts/build-release-manifest.mjs
+      - run: node scripts/check-release-manifest-integrity.mjs
+      - run: node scripts/check-release-artifact-integrity.mjs
+      - run: node scripts/check-rollback-decision-contract.mjs

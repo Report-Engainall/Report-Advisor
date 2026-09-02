@@ -1,0 +1,25 @@
+name: dashboard-null-truth
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'src/lib/dashboard-canonical.ts'
+      - 'scripts/check-dashboard-null-truth.mjs'
+      - '.github/workflows/dashboard-null-truth.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Verify null-versus-zero dashboard truth
+        run: node scripts/check-dashboard-null-truth.mjs

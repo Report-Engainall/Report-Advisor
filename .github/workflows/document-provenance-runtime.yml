@@ -1,0 +1,35 @@
+name: document-provenance-runtime
+
+on:
+  pull_request:
+    paths:
+      - 'src/lib/documentIntelligenceGateway.ts'
+      - 'src/lib/free-toolbox/evidence-ledger.ts'
+      - 'src/lib/free-toolbox/data-lineage.ts'
+      - 'scripts/document-provenance-runtime.test.ts'
+      - '.github/workflows/document-provenance-runtime.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'src/lib/documentIntelligenceGateway.ts'
+      - 'src/lib/free-toolbox/evidence-ledger.ts'
+      - 'src/lib/free-toolbox/data-lineage.ts'
+      - 'scripts/document-provenance-runtime.test.ts'
+      - '.github/workflows/document-provenance-runtime.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  runtime-regression:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Document provenance runtime regression
+        run: node --experimental-strip-types scripts/document-provenance-runtime.test.ts

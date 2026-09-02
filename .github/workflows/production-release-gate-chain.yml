@@ -1,0 +1,27 @@
+name: production-release-gate-chain
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  release-gate-chain:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: node scripts/build-release-manifest.mjs
+      - run: node scripts/check-release-gate-completeness.mjs
+      - run: node scripts/check-release-manifest-integrity.mjs
+      - run: node scripts/check-release-drift.mjs
+      - run: node scripts/check-evidence-freshness.mjs
+      - run: node scripts/check-release-artifact-integrity.mjs
+      - run: node scripts/check-rollback-decision-contract.mjs
+      - run: node scripts/check-security-provenance-certification.mjs
+      - run: node scripts/check-production-certification-boundary.mjs

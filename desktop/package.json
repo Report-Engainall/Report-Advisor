@@ -1,0 +1,9 @@
+{
+  "name":"report-advisor-desktop",
+  "version":"0.1.0",
+  "private":true,
+  "main":"main.cjs",
+  "scripts":{"start":"electron .","package:win":"electron-builder --win nsis --x64","smoke:native":"set REPORT_ADVISOR_NATIVE_SMOKE=1&& electron ."},
+  "devDependencies":{"electron":"^37.4.0","electron-builder":"^26.0.12"},
+  "build":{"appId":"com.reportadvisor.desktop","productName":"Report-Advisor","directories":{"output":"release"},"files":["main.cjs","preload.cjs","../dist/**/*"],"win":{"target":"nsis","artifactName":"Report-Advisor-Setup-${version}.${ext}"},"nsis":{"oneClick":false,"perMachine":false,"allowToChangeInstallationDirectory":true,"createDesktopShortcut":true,"createStartMenuShortcut":true}}
+}

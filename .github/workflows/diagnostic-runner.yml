@@ -1,0 +1,63 @@
+name: diagnostic-runner
+
+on:
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: 'Reason for runner/bootstrap diagnosis'
+        required: false
+        default: 'Investigate pre-step workflow failures'
+
+permissions:
+  contents: read
+
+jobs:
+  bootstrap:
+    name: Runner bootstrap diagnostic
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Report runner context
+        run: |
+          set -eu
+          echo "diagnostic_reason=${{ inputs.reason }}"
+          echo "runner_os=${RUNNER_OS}"
+          echo "runner_arch=${RUNNER_ARCH}"
+          echo "runner_name=${RUNNER_NAME}"
+          echo "runner_temp=${RUNNER_TEMP}"
+          echo "workspace=${GITHUB_WORKSPACE}"
+          echo "sha=${GITHUB_SHA}"
+          echo "ref=${GITHUB_REF}"
+          node --version
+          npm --version
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Verify checkout
+        run: |
+          set -eu
+          test -f package.json
+          test -f docs/CI_EXECUTION_MODE.md
+          git status --short
+          git rev-parse HEAD
+
+      - name: Produce diagnostic artifact
+        run: |
+          set -eu
+          mkdir -p diagnostic
+          {
+            echo "sha=$GITHUB_SHA"
+            echo "ref=$GITHUB_REF"
+            echo "runner_os=$RUNNER_OS"
+            echo "runner_arch=$RUNNER_ARCH"
+            echo "node=$(node --version)"
+            echo "npm=$(npm --version)"
+          } > diagnostic/runner-context.txt
+
+      - name: Upload diagnostic artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: runner-bootstrap-diagnostic-${{ github.run_id }}
+          path: diagnostic/runner-context.txt
+          if-no-files-found: error

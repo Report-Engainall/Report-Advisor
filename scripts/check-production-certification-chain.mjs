@@ -1,0 +1,10 @@
+import fs from 'node:fs';
+import path from 'node:path';
+const root=process.cwd();
+const files=['scripts/check-production-certification-contract.mjs','scripts/check-production-release-blockers.mjs','scripts/check-phase-m-certification-contract.mjs','supabase/migrations/20260825150000_phase_m_certification_bundle.sql'];
+for(const f of files) if(!fs.existsSync(path.join(root,f))) throw new Error(`Missing certification component: ${f}`);
+const text=files.map(f=>fs.readFileSync(path.join(root,f),'utf8')).join('\n');
+for(const t of ['tenant','storage','realtime','retrieval','backup','migration','artifact','rollback','security','continuous_trust']) if(!text.toLowerCase().includes(t)) throw new Error(`Certification chain missing: ${t}`);
+for(const t of ['fail-closed','blocker','production']) if(!text.toLowerCase().includes(t)) throw new Error(`Certification fail-closed invariant missing: ${t}`);
+if(/GRANT\s+ALL\s+TO\s+anon/i.test(text)) throw new Error('Unsafe anonymous certification grant detected');
+console.log('Production certification chain: PASS');
