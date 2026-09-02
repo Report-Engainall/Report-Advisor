@@ -3,10 +3,10 @@
 ## CURRENT RESUME EXECUTION MAP — 2026-09-02 — v4.1 COMPACT EVIDENCE + PROJECT IDENTITY
 
 ### CURRENT PROJECT STATE
-- Current repository exact HEAD: `3fa9e9c839b1ef3d7d71c06f93b7a29c76de43d4`.
-- Current code/test head: `3fa9e9c839b1ef3d7d71c06f93b7a29c76de43d4` (current main candidate; fresh exact-head CI remains required).
-- `51267cc0cdfa074ce61d257e06f8333bb3a9364d` is the prior code/test boundary; its evidence is not transferred to `3fa9e9c839b1ef3d7d71c06f93b7a29c76de43d4`.
-- `c78c881d0b773caa7fe6fc1a2915fc08424f302a` is the prior documentation/index synchronization boundary; this update creates a new index-only boundary on current main.
+- Current repository exact HEAD: `3374e16f0cd4180067742fcd59069f28a1bb87de`.
+- Current code/test head: `3374e16f0cd4180067742fcd59069f28a1bb87de` (current main candidate; fresh exact-head CI remains required).
+- `3fa9e9c839b1ef3d7d71c06f93b7a29c76de43d4` is the immediate prior code/test boundary; its evidence is not transferred to `3374e16f0cd4180067742fcd59069f28a1bb87de`.
+- `cad13f43c1ea5012373422af3b83e1d5fc80e156` was the prior Master Index blob boundary; this update creates a new index-only boundary on current main.
 - No prior evidence is promoted across the new code/test SHA.
 - No historical evidence is promoted across the current index-only synchronization boundary.
 - v4.0 batch start head: `811070805114956c8f7f1766b7bf6c3c9704b4c0`.
@@ -15,14 +15,15 @@
 - No historical evidence transfers across a new exact-SHA boundary. Fresh CI must be consumed for any new code/test candidate SHA before certification claims.
 - Operational runtime/recovery proof remains UNPROVEN.
 
-### 2026-09-02 CURRENT-HEAD CLOSURE WAVE — 3fa9e9c
-- `DATE → EXACT HEAD → ACTION → RESULT → BLOCKER → NEXT`: `2026-09-02 → 3fa9e9c839b1ef3d7d71c06f93b7a29c76de43d4 → synchronized this Master Index to the actual main HEAD after the residual-anon-grant migration landed; queried Supabase directly → 78/78 public tables have RLS enabled, 0 anon SELECT grants remain, 30 public SECURITY DEFINER functions have 0 anon and 0 PUBLIC EXECUTE, and migration `20260828182158_revoke_residual_anon_table_grants` is applied → fresh exact-head CI still required; Supabase security advisor continues to warn on intentionally authenticated business SECURITY DEFINER RPCs and leaked-password protection → continue exact-head CI/rescan and local actionable closure; do not transfer older CI or runtime evidence`.
-- Runtime authentication evidence in the current Supabase window includes successful password login and `/user` 200 responses. One refresh-token 400 was observed during session churn, followed by successful authentication; this does not establish an application-wide auth failure.
-- `current_company_id`, business RPC authorization paths, and selected SECURITY DEFINER functions were inspected directly. The sampled business functions fail closed when `auth.uid()` or tenant context is absent and bind data operations to `current_company_id()`.
-- The Supabase security advisor still reports authenticated execution of business SECURITY DEFINER RPCs. This is not treated as an automatic defect because these RPCs are intentionally exposed business entry points and their bodies were verified for authenticated user + tenant context; blanket revocation would risk breaking the canonical application path.
-- Supabase leaked-password protection remains an external Auth configuration item; no fabricated configuration or synthetic certification evidence is allowed.
-- The current main commit `3fa9e9c...` is the exact code boundary for the residual-anon-grant migration. The migration is applied in the inspected Supabase project and the resulting privilege boundary was re-queried after application.
-- The closure branch `closure/current-head-3fa9e9c` remains six documentation/evidence commits ahead of `3fa9e9c...`; those evidence-only commits are not silently promoted to main.
+### 2026-09-02 CURRENT-HEAD CLOSURE WAVE — 3374e16f
+- `DATE → EXACT HEAD → ACTION → RESULT → BLOCKER → NEXT`: `2026-09-02 → 3374e16f0cd4180067742fcd59069f28a1bb87de → restored five applied Supabase hardening migrations into repository lineage and synchronized this Master Index to the actual main HEAD; queried Supabase directly → current public security boundary remains hardened, including 78/78 public tables with RLS, 0 anon table grants, 0 PUBLIC/anon routine execution, and the five latest hardening migrations present in both applied migration history and repository → fresh exact-head CI remains required; Vercel is externally rate-limited → continue exact-head CI consumption and independent actionable closure; do not transfer older CI or runtime evidence`.
+- Applied/repository migration lineage restored at this exact boundary: `20260902141029`, `20260902141112`, `20260902142028`, `20260902142940`, `20260902144254`.
+- `revoke_authenticated_public_truncate_privileges` appears twice in the applied history under distinct migration versions; the duplicate semantic operation is preserved rather than rewritten because migration identity is version-based and historical lineage must not be rewritten.
+- Security verification at this boundary confirmed no public table RLS gaps, no anon table grants, no PUBLIC/anon routine execution, no SECURITY DEFINER function lacking explicit search_path, and no anon execution on SECURITY DEFINER functions.
+- Sensitive runtime tables retain authenticated SELECT-only boundaries where appropriate; direct authenticated DML was revoked from `artifact_verification_runs` and `tenant_isolation_canary_runs`.
+- Postgres-owned future public defaults were hardened for anon/authenticated; `supabase_admin` managed-role defaults remain an external/managed-role limitation and were not force-mutated.
+- Worker lifecycle contract review found the durable `failed + attempts >= max_attempts` behavior is consistent with the canonical DLQ listing model; no unsafe conversion to `dead_letter` status was introduced. Live worker crash/recovery evidence remains UNPROVEN.
+- Current `main` is six commits ahead of `3fa9e9c...`: five migration restorations plus this index synchronization commit. No unrelated code/test mutation is included in this boundary.
 - No Production binding, restore, rollback, DR exercise, or certification claim was performed.
 
 ### 2026-09-02 CURRENT EXACT-SHA ADVERSARIAL FIX UPDATE
@@ -112,7 +113,7 @@ A lower-priority instruction MUST NOT override a higher-priority constraint.
 ### WAITING WINDOWS — EXECUTION WINDOW LEDGER
 | Async operation | State | Parallel window | Independent work executed in window | Consumption rule |
 |---|---|---|---|---|
-| Exact-head CI | fresh run required for current `3fa9e9c...` | OPEN | Supabase security/RLS/grants verification, RPC security inspection, migration application verification, current runtime auth log consumption | consume exact result immediately |
+| Exact-head CI | fresh run required for current `3374e16f...` | OPEN | Supabase security/RLS/grants verification, RPC security inspection, migration lineage/parity verification, worker lifecycle review, index synchronization | consume exact result immediately |
 | Vercel deployment | external pending/rate-limited | OPEN | all local/static/security/database preparation continues; no live certification inferred | consume status immediately |
 
 A waiting window closes only when `result received AND result consumed AND new work evaluated`.
@@ -120,11 +121,11 @@ A waiting window closes only when `result received AND result consumed AND new w
 ### EXECUTION SCHEDULER — CURRENT
 | Task | Dependency | State | Parallel? | Blocker | Can start now? | Expected unlock |
 |---|---|---|---|---|---|---|
-| Exact-head CI | `3fa9e9c...` | ACTIONABLE | YES | no workflow run currently attached to exact SHA | YES if trigger becomes available | deterministic verification |
-| Security/DB/RPC/evidence rescan | repository + Supabase | VERIFIED/CONTINUE | YES | none for static/DB inspection | YES | local defect closure |
+| Exact-head CI | `3374e16f...` | ACTIONABLE | YES | no fresh workflow PASS attached to exact SHA | YES if trigger becomes available | deterministic verification |
+| Security/DB/RPC/evidence rescan | repository + Supabase | VERIFIED / CONTINUE | YES | none for static/DB inspection | YES | local defect closure |
 | Import/reconciliation audit | repository | READY | YES | none | YES | data correctness confidence |
 | OCR/golden corpus audit | repository | READY | YES | none | YES | document confidence |
-| E1 deployment preparation | deployment contract | PREPARED | YES | Vercel live access | YES prep / NO live | runtime handoff |
+| E1 deployment preparation | deployment contract | PREPARED | YES | Vercel live access/rate-limit | YES prep / NO live | runtime handoff |
 | E2 authenticated harness | E1 | PREPARED | YES | live deployment + credentials | YES prep / NO live | E2 readiness |
 | E3 Tenant A/B harness | E2 | PREPARED | YES | live auth/runtime | YES prep / NO live | tenant proof |
 | E4 backup evidence | operational backup | PREPARED | YES | real backup service | YES prep / NO live | backup proof |
@@ -134,7 +135,7 @@ A waiting window closes only when `result received AND result consumed AND new w
 | E8 DR | E5/E7 | PREPARED | YES | approved DR environment | YES prep / NO live | DR proof |
 
 ### EXECUTION DEBT / RELEASE VELOCITY / UTILIZATION
-- `ACTIONABLE DEBT`: fresh CI for code/test candidate `3fa9e9c...`; local import/reconciliation/OCR/evidence rescan; E1–E8 local preparation; exact-head index-only boundary verification.
+- `ACTIONABLE DEBT`: fresh CI for code/test candidate `3374e16f...`; exact 123-migration repository parity proof; local import/reconciliation/OCR/evidence rescan; E1–E8 local preparation; final index-only boundary verification.
 - `EXTERNAL DEBT`: live deployment authorization/rate-limit; authenticated runtime credentials; live Tenant A/B; real backup/restore/RPO/RTO; staging rollback/forward authorization; approved DR environment; leaked-password protection configuration.
 - Rule: `ACTIONABLE DEBT → MUST EXECUTE`; `EXTERNAL DEBT → ISOLATE + PREPARE + DOCUMENT`.
 - `RELEASE VELOCITY`: only movement through `Built → Integrated → Verified → Runtime Proven → Production Certified`.
@@ -152,10 +153,12 @@ A waiting window closes only when `result received AND result consumed AND new w
 - Production certification adversarial coverage: complete/missing/failed/duplicate/unrelated/malformed evidence attacks.
 - v3.2 enforcement: waiting-time parallelization, safe parallelism, scheduler, debt split, utilization, index-head gate, adversarial test-of-test, depth-2 parent validation.
 - v4.0 adaptive governance: layered architecture, precedence, performance ledger, effectiveness, under/over-execution detection, command feedback, strategy memory, smart prioritization, controlled evolution, governance adversarial suite, workflow trigger binding, consecutive index-only boundary validation, corrected layer-separation decoy, and governance self-audit.
-- Current-head security/database truth: 78/78 public tables RLS enabled; 0 anon SELECT grants; 30 public SECURITY DEFINER functions with 0 anon and 0 PUBLIC EXECUTE; residual-anon-grant migration applied and verified.
+- Current-head security/database truth: 78/78 public tables RLS enabled; 0 anon SELECT grants; 30 public SECURITY DEFINER functions with 0 anon and 0 PUBLIC EXECUTE; latest five applied hardening migrations restored into repository lineage and verified.
+- Worker lifecycle contract: idempotency, lease fencing, tenant binding, retry ceiling, and failed-at-max-attempts DLQ listing model verified; live crash/recovery remains UNPROVEN.
 
 ### IN-PROGRESS
-- Fresh exact-head CI consumption for code/test candidate `3fa9e9c...`.
+- Fresh exact-head CI consumption for code/test candidate `3374e16f...`.
+- Exact repository↔Supabase migration parity proof for all 123 applied versions.
 - Security/DB/RPC/import/OCR/evidence/workflow rescan and immediate consumption.
 - Final performance-ledger result closure.
 - E1–E8 handoff preparation and external evidence readiness.
@@ -194,6 +197,7 @@ A waiting window closes only when `result received AND result consumed AND new w
 - CI result processing.
 - Release manifest/readiness preparation.
 - v4 governance/adversarial/test-of-test validation.
+- Worker lifecycle/DLQ/idempotency contract verification.
 
 ### SEQUENTIAL TASKS
 1. Exact-head CI → first failure RCA → minimal fix → targeted → adversarial → regression → rescan → fresh CI.
@@ -211,12 +215,12 @@ A waiting window closes only when `result received AND result consumed AND new w
 - Final certification requires all mandatory operational evidence plus fresh exact-head deterministic verification.
 
 ### NEXT / NEXT+1 / NEXT+2
-- NEXT: consume exact-head CI for `3fa9e9c...`; execute first failure RCA/fix chain if needed; concurrently continue independent rescan and E1–E8 preparation.
+- NEXT: consume exact-head CI for `3374e16f...`; execute first failure RCA/fix chain if needed; concurrently continue exact migration parity and independent rescan/E1–E8 preparation.
 - NEXT+1: close actionable findings with RCA → fix → targeted → adversarial → regression → rescan; update performance result.
 - NEXT+2: fresh exact-head CI on resulting SHA; rebind evidence; consume newly unlocked gates; reprioritize.
 
 ### EXTERNAL BLOCKERS — NOT PROJECT STOPS
-- Vercel deployment/access remains externally constrained; current exact-head production/live deployment is not certified.
+- Vercel deployment/access remains externally constrained by current build-rate-limit; current exact-head production/live deployment is not certified.
 - Authenticated Supabase runtime requires approved tenant/user access.
 - Real backup/restore and DR environments are unavailable to this execution context.
 - Staging rollback requires an approved non-production deployment pair and authorization.
@@ -320,7 +324,7 @@ A waiting window closes only when `result received AND result consumed AND new w
 - Final Certification: BLOCKED by operational evidence and fresh exact-head certification CI.
 
 ### EVIDENCE LINEAGE RULE
-Every mutation after `c51cb6d...` creates a new exact evidence boundary. The current code/test mutation boundary is `3fa9e9c...`; any future code/test mutation requires fresh CI/evidence rebinding. The current synchronization is index-only and must be verified as such before treating it as a valid index-only boundary.
+Every mutation after `c51cb6d...` creates a new exact evidence boundary. The current code/test mutation boundary is `3374e16f...`; any future code/test mutation requires fresh CI/evidence rebinding. The current synchronization is index-only and must be verified as such before treating it as a valid index-only boundary.
 
 ---
 
