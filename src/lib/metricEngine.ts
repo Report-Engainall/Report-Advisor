@@ -36,7 +36,7 @@ const safeNumericValue = (value: unknown): number | null => {
   return Number.isFinite(numeric) ? numeric : null;
 };
 const validStatus = (value: unknown): value is MetricStatus =>
-  value === 'AVAILABLE' || value === 'UNAVAILABLE' || value === 'INSUFFICIENT_DATA' || value === 'FORECAST' || value === 'ESTIMATED';
+  value === 'CONFIRMED' || value === 'CALCULATED' || value === 'INSUFFICIENT_DATA' || value === 'UNAVAILABLE' || value === 'FORECAST' || value === 'ESTIMATED';
 
 export function evaluateMetric(input: MetricInput): MetricEvaluation {
   if (!input || typeof input !== 'object' || Array.isArray(input)) throw new Error('Metric input is required');
