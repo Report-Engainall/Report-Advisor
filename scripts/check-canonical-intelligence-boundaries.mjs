@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 const finite = (v) => typeof v === 'number' && Number.isFinite(v);
 const nonNegative = (v) => finite(v) ? Math.max(0, v) : 0;
 const paid = nonNegative;
-const history = (xs) => xs.map(nonNegative);
+const history = (xs) => xs.filter(finite).map(nonNegative);
 const total = (rows, key) => rows.reduce((s, r) => s + nonNegative(r[key]), 0);
 const outstanding = (totalValue, paidValue) => Math.max(0, nonNegative(totalValue) - paid(paidValue));
 assert.equal(nonNegative(-1), 0);
