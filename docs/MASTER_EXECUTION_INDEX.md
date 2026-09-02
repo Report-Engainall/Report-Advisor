@@ -1,29 +1,30 @@
 # Report Advisor — Master Execution & Truth Index
 
-## CURRENT RESUME EXECUTION MAP — 2026-09-02 — v4.2 / CURRENT-HEAD SYNCHRONIZED
+## CURRENT RESUME EXECUTION MAP — 2026-09-02 — v4.3 / CURRENT-HEAD SYNCHRONIZED
 
 > This file is the authoritative current execution index. Historical execution records remain preserved in Git history and dated execution/evidence documents. No evidence crosses an exact-SHA boundary.
 
 ### CURRENT PROJECT STATE
 - Repository: `Report-Engainall/Report-Advisor`.
-- Current exact repository HEAD: `ab1cf0d9c16864f9bda07acd33973954c2dc1b7a`.
+- Current exact repository HEAD: `630f382e1eb3eb4095e5b4030ada96644b2436bf`.
 - Current code/test head: `ab1cf0d9c16864f9bda07acd33973954c2dc1b7a`.
 - Current exact code/test candidate: `ab1cf0d9c16864f9bda07acd33973954c2dc1b7a`.
-- Fresh Quality run `33662117870` on this exact code/test SHA: **PASS**, all 63 substantive verification steps completed successfully.
-- Final Execution Batch `33662117840` on this exact code/test SHA: **PASS**, release artifact/manifest generation and 30 deterministic gates completed successfully.
-- These passes establish repository/release-contract closure for the exact code/test SHA; they do not promote live operational evidence.
+- Fresh Quality run `33662117870` on the exact code/test SHA: **PASS**, all 63 substantive verification steps completed successfully.
+- Final Execution Batch `33662117840` on the exact code/test SHA: **PASS**, release artifact/manifest generation and 30 deterministic gates completed successfully.
+- Index synchronization commit `630f382e1eb3eb4095e5b4030ada96644b2436bf` contains documentation/state synchronization only; it does not change product code/test behavior.
 
 ### 2026-09-02 CURRENT-HEAD CLOSURE WAVE — ab1cf0d9
 - Authenticated Tenant A/B E2E harness was hardened to require canonical tenant IDs and anon key, use `company_memberships`, verify A/B membership resolution, and perform adversarial cross-tenant exposure checks in both directions.
-- Exact-head Quality and Final Execution Batch now pass after that harness mutation.
+- Exact-head Quality and Final Execution Batch pass after that harness mutation.
 - Live Staging security truth: 78/78 public tables have RLS; 147 policies; 0 policies targeting `anon`; 0 policies targeting `PUBLIC`; 0 `anon` EXECUTE grants on public routines.
-- Observed public SECURITY DEFINER routines use `search_path=pg_catalog`. The authenticated-executable SECURITY DEFINER routines are intentional authenticated RPC API boundaries; their tenant/user checks remain enforced. Supabase advisor WARN `authenticated_security_definer_function_executable` is therefore retained as a reviewed design warning, not “fixed” by breaking the supported RPC surface.
+- Observed public SECURITY DEFINER routines use `search_path=pg_catalog`. The authenticated-executable SECURITY DEFINER routines are intentional authenticated RPC API boundaries; their tenant/user checks remain enforced. Supabase advisor warning `authenticated_security_definer_function_executable` is retained as a reviewed design warning, not “fixed” by breaking the supported RPC surface.
 - Supabase Auth live logs show successful password-login requests and `/user` 200 responses for authenticated users; this is supporting operational evidence, not full product E2E certification.
 - A single live Auth security configuration warning remains: leaked-password protection is disabled. The connected database/project toolset does not expose the Auth security-setting mutation required to enable it, so this is explicitly retained as an owner/control-plane last-mile item rather than silently claimed closed.
 - Live storage boundary has tenant-path/owner-aware authenticated policies, but storage runtime remains UNPROVEN and no canonical bucket-creation contract was found; no speculative bucket was created.
 - Backup/restore verification is hardened to require a safe non-production target environment allowlist; production/unknown restore targets fail closed.
 - Rollback drill validates deployment IDs for exact project ownership and READY state and rejects identical/untrusted targets; no Production alias mutation was performed.
 - Current Vercel Production deployment is on an older SHA and is not exact-head certification evidence; no alias mutation or production rollback was performed.
+- Vercel currently reports a build-rate-limit failure/pending deployment status for the documentation synchronization commit; this is a platform/deployment-capacity condition and is not treated as a product-code failure.
 
 ### EXACT-SHA / EVIDENCE RULES
 - Exact SHA is mandatory for certification evidence.
@@ -61,8 +62,9 @@
 2. Prepare exact live authenticated Tenant A/B and resilience evidence paths; never fabricate credentials or operational artifacts.
 3. Keep Production binding, backup/restore, RPO/RTO, rollback, DR, and final certification fail-closed until real evidence exists.
 4. Enable leaked-password protection through the Supabase Auth control plane when that setting is reachable; do not fake or substitute it with unrelated DB mutations.
+5. Re-run exact-head repository verification after any future code/test mutation; documentation-only synchronization must not be mistaken for a new code candidate.
 
 ### HISTORICAL RECORD / SHA BOUNDARIES
-- Previous index blob: `3066b301f8dbc19e126fb77243e7daf92c7f26ca`.
+- Previous index blob: `3cf46af821ad116c1a72a75d7c22a3f4cd9dc27c`.
 - Historical execution content remains preserved by Git history.
 - Previous code/test boundaries include `ae3f50aec381eae99b29489ef8c6965e325dc31a`, `99f2f3bd0784b79b518c2088ebecf30f4e66913b`, and current `ab1cf0d9c16864f9bda07acd33973954c2dc1b7a`.
