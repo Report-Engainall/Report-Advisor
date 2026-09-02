@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { timingSafeEqual } from 'node:crypto';
 import rollbackHandler, { deploymentReady } from '../api/rollback-drill.mjs';
-import { isProductionEnv } from '../src/server/resilience-runtime.mjs';
+import { isProductionEnv, parseSecureOutboundUrl, secureOutboundFetch } from '../src/server/resilience-runtime.mjs';
 
 const files = [
   'api/health.mjs',
@@ -19,11 +19,19 @@ process.env.RESILIENCE_TARGET_ENV = 'production';
 assert.equal(isProductionEnv(), true);
 delete process.env.RESILIENCE_TARGET_ENV;
 
+assert.equal(parseSecureOutboundUrl('https://backup.example.test/artifact').protocol, 'https:');
+assert.throws(() => parseSecureOutboundUrl('http://backup.example.test/artifact', 'backup_artifact_url'), /insecure_backup_artifact_url/);
+assert.throws(() => parseSecureOutboundUrl('https://user:pass@backup.example.test/artifact', 'backup_artifact_url'), /credentialed_backup_artifact_url/);
+assert.throws(() => parseSecureOutboundUrl('not-a-url', 'restore_verifier_url'), /invalid_restore_verifier_url/);
+process.env.RESILIENCE_OUTBOUND_TIMEOUT_MS = '999';
+await assert.rejects(() => secureOutboundFetch('https://backup.example.test/artifact', 'backup_artifact_url'), /invalid_resilience_outbound_timeout_ms/);
+process.env.RESILIENCE_OUTBOUND_TIMEOUT_MS = '15000';
+
 const original = Object.fromEntries([
   'VERCEL_PROJECT_ID', 'VERCEL_TOKEN', 'RESILIENCE_TARGET_ENV', 'RESILIENCE_COMPANY_ID',
   'RESILIENCE_ROLLBACK_DRILL_DOMAIN', 'RESILIENCE_PRODUCTION_DOMAIN',
   'RESILIENCE_ROLLBACK_FROM_DEPLOYMENT', 'RESILIENCE_ROLLBACK_FORWARD_DEPLOYMENT',
-  'RESILIENCE_ROLLBACK_VERIFY_URL', 'RESILIENCE_OPERATIONAL_TOKEN',
+  'RESILIENCE_ROLLBACK_VERIFY_URL', 'RESILIENCE_OPERATIONAL_TOKEN', 'RESILIENCE_OUTBOUND_TIMEOUT_MS',
 ].map((key) => [key, process.env[key]]));
 process.env.VERCEL_PROJECT_ID = 'project-good';
 process.env.VERCEL_TOKEN = 'test-token';
