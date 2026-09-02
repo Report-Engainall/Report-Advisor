@@ -2,17 +2,16 @@
 
 ## Current Truth — 2026-09-02
 
-- Current canonical `main` / exact HEAD: **`afe4b8497afa72527011fac28705f7f14195877f`**.
-- Actual parent of current exact HEAD: `4ca82e5f5e9f12f86ebbb2a569301fe6e998b86c`.
+- Current canonical `main` / exact HEAD before this documentation mutation: **`b5b0e727f59390798b7b9783a7a69ea1ab9caad4`**.
+- Actual parent: `ce3252150385fdbdef08acef13d7898990af3e58`.
 - Previous candidate HEAD at start of this audit: `84ae478671e74de550e501ee29b33b119fe2d19c`.
 - Previous starting HEAD for the ancestry audit: `0bc5700ef14409eaef873e81b7d9fb54e04250af`.
 - Ancestry result: `0bc5700...` is an ancestor of `84ae478...`; GitHub compare reports `ahead_by=4`, `behind_by=0`, `merge_base=0bc5700...`.
-- Current `main` ref resolves exactly to `84ae478...` before the latest security mutation, with actual parent `9de410...`; the latest security mutation advanced `main` to `4ca82e5...`, and the adversarial-test mutation advanced it to `afe4b849...`.
-- The lineage is linear across the audited segment; no merge/rebase/cherry-pick is indicated by the current parent chain. The four commits after `0bc5700...` are `82d33b8...` → `16bda78...` → `9de410b...` → `84ae478...`.
-- Security hardening lineage before this rescan: `a5bdfa8...` → `cfe23fb...` → `3230a45...` → `175b74b...` → `0bc5700...` → `82d33b8...` → `16bda78...` → `9de410b...` → `84ae478...`.
+- The audited lineage is linear: `0bc5700...` → `82d33b8...` → `16bda78...` → `9de410b...` → `84ae478...` → `4ca82e5...` → `afe4b849...` → `ce325215...` → `b5b0e727...`.
+- No merge/rebase/cherry-pick topology is indicated by the actual single-parent commit objects in this segment. `9de410...` is the actual parent of `84ae478...` because that commit was the immediate predecessor on `main`; it is not a merge artifact.
+- Security hardening lineage before the current rescan remains preserved: `a5bdfa8...` → `cfe23fb...` → `3230a45...` → `175b74b...` → `0bc5700...` → `82d33b8...` → `16bda78...` → `9de410b...` → `84ae478...`.
 - Earlier operational-layer boundary `76baf8b1b5e7f2b812bb1e4e17057a7d5ee7f126` is historical only and is not evidence for current verification.
 - Fresh Final Execution Batch `#33578760739` and Fresh Quality `#33578760766` remain historical evidence for `1eede4439b1cc32a597c81158a0d93ad07138923`; they do not transfer to this exact HEAD.
-- J runtime remains historically PASS on `1eede443...` and was not mutated in this resilience cycle.
 - Backup/Restore operational truth remains: `RPO = UNPROVEN`, `RTO = UNPROVEN`, `RESTORE = UNPROVEN`, `DR = UNPROVEN`.
 - Vercel remains externally blocked by deployment rate limiting; no substitute runtime evidence is accepted.
 - MERGE / RELEASE / CERTIFICATION = **STOPPED**.
@@ -20,17 +19,17 @@
 ## Rescan — rollback recovery-path isolation
 
 ### RCA
-The full rescan found a real second-order security defect in `api/rollback-drill.mjs`: the catch-path recovery used the raw configured `RESILIENCE_ROLLBACK_FORWARD_DEPLOYMENT` identifier directly. If deployment validation failed before both deployments were validated (for example, FROM failed while FORWARD was foreign-project), the catch block could attempt an alias mutation against an unvalidated deployment ID. This bypassed the newly established project-ownership boundary.
+The full rescan found a real second-order security defect in `api/rollback-drill.mjs`: the catch-path recovery used the raw configured `RESILIENCE_ROLLBACK_FORWARD_DEPLOYMENT` identifier directly. If deployment validation failed before both deployments were validated, the catch block could attempt an alias mutation against an unvalidated deployment ID. This bypassed the project-ownership boundary.
 
 ### Minimal Safe Fix
 - `api/rollback-drill.mjs`: retain `validatedForwardDeployment` only after both `deploymentReady()` calls succeed; recovery aliasing now occurs only when that validated metadata object exists, and uses its validated `id`.
 - No production target is permitted; no production rollback is automatic.
 
 ### Adversarial Regression
-`scripts/resilience-runtime.test.mjs` was extended to assert that a validation failure involving an invalid/foreign FORWARD target produces failure without any alias call. Existing coverage remains for same-project, foreign-project, mixed pair, nonexistent, not-ready, API/network failure, missing project, missing deployment ID, identical targets, production environment, and production-domain guards.
+`scripts/resilience-runtime.test.mjs` now asserts that a validation failure involving an invalid/foreign FORWARD target produces failure without any alias call. Existing coverage remains for same-project, foreign-project, mixed pair, nonexistent, not-ready, API/network failure, missing project, missing deployment ID, identical targets, production environment, and production-domain guards.
 
 ### Executed Focused Verification
-A Node 22 focused harness was executed against the current fetched rollback/runtime implementation. Result: **PASS** for the executable core security assertions, including the new no-unvalidated-recovery-alias invariant. The full repository test file was not claimed as a full-repository PASS because the execution container still has no mounted repository checkout; four non-core syntax targets were represented by syntax-equivalent stubs in the local harness.
+A Node 22 focused harness was executed against the current fetched rollback/runtime implementation. Result: **PASS** for the executable core security assertions, including the no-unvalidated-recovery-alias invariant. The full repository test file was not claimed as a full-repository PASS because the execution container has no mounted repository checkout; four non-core syntax targets were represented by syntax-equivalent stubs in the local harness.
 
 ## Security Hardening Cycle — ROLLBACK TARGET ISOLATION
 
@@ -42,7 +41,7 @@ Use server-side Vercel deployment metadata as the ownership boundary. Both deplo
 
 ### Implemented
 - `api/rollback-drill.mjs`: requires `VERCEL_PROJECT_ID`; rejects missing deployment IDs; fetches deployment metadata; requires exact `deployment.projectId === VERCEL_PROJECT_ID`; validates both FROM and FORWARD before alias mutation; rejects identical FROM/FORWARD IDs; preserves production and READY guards; uses validated metadata IDs for alias operations.
-- `scripts/resilience-runtime.test.mjs`: adversarial coverage for same-project, foreign-project, mixed pair, nonexistent, not-ready, API/network failure, missing project, missing deployment ID, identical rollback targets, production environment, and production-domain guards.
+- `scripts/resilience-runtime.test.mjs`: adversarial coverage for same-project, foreign-project, mixed pair, nonexistent, not-ready, API/network failure, missing project, missing deployment ID, identical rollback targets, production environment, production-domain guards, and unvalidated recovery-alias prevention.
 
 ### Exact-SHA Mutations
 - `cfe23fbb9968d8c1f019aa1b359f595e25ebdbcf` — security enforcement of deployment project ownership.
@@ -54,6 +53,24 @@ Use server-side Vercel deployment metadata as the ownership boundary. Both deplo
 - `9de410b537292f247d3ece7ab05a8328dab84a85` — expanded adversarial test coverage for identical target, production target, and production domain.
 - `4ca82e5f5e9f12f86ebbb2a569301fe6e998b86c` — prevented unvalidated rollback recovery aliasing.
 - `afe4b8497afa72527011fac28705f7f14195877f` — added adversarial regression proving no alias on unvalidated recovery path.
+- `b5b0e727f59390798b7b9783a7a69ea1ab9caad4` — replaced stale historical recovery checker logic with canonical Phase-F checker execution.
+
+## Recovery Checker Drift Audit
+
+### RCA
+`scripts/check-recovery-contract.mjs` was stale: it only looked for three historical script names and failed with `found 0/3`, while the implemented architecture had moved to canonical Phase-F operational resilience contracts.
+
+### Fix
+The checker now executes, fail-closed, all four canonical contracts:
+- `check-phase-f-runtime-closure.mjs`
+- `check-operational-resilience-contract.mjs`
+- `check-release-resilience-manifest.mjs`
+- `check-continuous-trust-contract.mjs`
+
+No compatibility wrappers were created. No gate was weakened. Missing or failing canonical checks propagate as failure. This removes the stale false-fail without creating a false-pass path.
+
+### Checker Regression
+A local executable orchestration harness verified both conditions: all four canonical check processes present → PASS; one canonical check missing → non-zero failure. This was a focused checker-orchestration test, not a full repository CI run.
 
 ## Runtime / Recovery Truth
 
@@ -68,21 +85,12 @@ Use server-side Vercel deployment metadata as the ownership boundary. Both deplo
 
 Required operational proof remains: real artifact + SHA-256, safe non-production restore, actual restore, `restored=true`, `integrity_verified=true`, measured RPO/RTO, persisted evidence, timestamp/run identity, exact source/environment identity, and staging rollback → verification → forward recovery → measured RTO.
 
-## Recovery Checker Drift Audit
-
-- `scripts/check-recovery-contract.mjs` was inspected and remains intentionally unchanged.
-- It still checks only the historical candidate filenames `scripts/check-backup-integrity.mjs`, `scripts/check-restore-integrity.mjs`, and `scripts/check-disaster-recovery.mjs`, requiring at least two plus the text tokens `backup`, `restore`, and `rollback`.
-- Current repository architecture instead exposes canonical Phase-F recovery/runtime contracts through `check-operational-resilience-contract.mjs`, `check-phase-f-runtime-closure.mjs`, `check-release-resilience-manifest.mjs`, `check-continuous-trust-contract.mjs`, the live resilience probes, the operational endpoints, and the resilience migrations.
-- The historical checker therefore remains a stale/legacy naming checker and is the source of the prior `found 0/3` failure. It is not evidence that the canonical operational resilience capability is absent.
-- No compatibility wrappers were created and no gate was weakened. A future checker repair must consume canonical contracts directly and preserve fail-closed behavior; this cycle does not mutate it because the user-directed condition for repair requires canonical capability proof and a dedicated checker mutation can be performed without obscuring the current operational truth.
-
 ## CI / Deployment Truth
 
 - Fresh Final Execution Batch for the current exact HEAD: **NOT RUN**; no Run ID invented.
 - Fresh Quality for the current exact HEAD: **NOT RUN**; no Run ID invented.
-- Current Vercel status remains an external deployment-rate-limit failure; old deployments are not used as current evidence.
+- Current GitHub combined status on the latest exact HEAD is Vercel `failure` with deployment-rate-limit target, plus Vercel Deployments `pending`; this is an external environment blocker, not substituted with an old deployment.
 - Live Health / Tenant Canary / Backup / Restore / Rollback / DR remain **UNPROVEN** until an exact-HEAD deployment and real operational evidence exist.
-- `check-recovery-contract.mjs` remains untouched; no synthetic compatibility scripts were created.
 
 ## Historical Integrity Rules
 
