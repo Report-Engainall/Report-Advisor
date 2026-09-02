@@ -6,10 +6,11 @@
 
 ### CURRENT PROJECT STATE
 - Repository: `Report-Engainall/Report-Advisor`.
-- Current exact repository HEAD: `ae3f50aec381eae99b29489ef8c6965e325dc31a`.
+- Current exact repository HEAD: `1f99f334b9929437fbf0074a786a04aabcf157a7` (index-only synchronization boundary).
+- Current code/test head: `ae3f50aec381eae99b29489ef8c6965e325dc31a`.
 - Current exact code/test candidate: `ae3f50aec381eae99b29489ef8c6965e325dc31a`.
-- Latest Quality run consumed on this exact SHA: `33658410079` — PASS, 63/63 substantive steps successful.
-- Verified companion gates on the same exact SHA include storage tenant-isolation and Work Item Actionability Guard PASS.
+- Latest Quality run consumed on this exact code/test SHA: `33658410079` — PASS, 63/63 substantive steps successful.
+- Verified companion gates on the same exact code/test SHA include storage tenant-isolation and Work Item Actionability Guard PASS.
 - No evidence from older SHAs is transferred to the current candidate.
 - Operational runtime/recovery certification remains UNPROVEN.
 
@@ -47,9 +48,9 @@
 ### CERTIFICATION STATUS — FAIL CLOSED
 | Gate | State | Reason |
 |---|---|---|
-| Repository quality | PASS | Exact-head Quality `33658410079`, 63/63 steps |
-| Storage tenant isolation contract | PASS | Exact-head companion gate consumed |
-| Work Item Actionability Guard | PASS | Exact-head companion gate consumed |
+| Repository quality | PASS | Exact code/test-head Quality `33658410079`, 63/63 steps |
+| Storage tenant isolation contract | PASS | Exact code/test-head companion gate consumed |
+| Work Item Actionability Guard | PASS | Exact code/test-head companion gate consumed |
 | Production runtime | UNPROVEN | Requires authenticated live runtime evidence |
 | Authenticated E2E | UNPROVEN | Requires real authenticated session |
 | Live Tenant A/B isolation | UNPROVEN | Requires real cross-tenant adversarial runtime |
@@ -76,4 +77,4 @@
 - Previous Master Index blob: `9107ff2aba8bcb033cb3ec907cb90643cc12aeae`.
 - Historical index content is preserved by Git history; this update intentionally creates a new current-truth boundary rather than rewriting historical claims.
 - Important prior boundaries remain historical only, including `3374e16f...`, `51267cc...`, `e96a894...`, `1ff7f2b...`, and earlier release candidates.
-- Current exact-head evidence begins at `ae3f50aec381eae99b29489ef8c6965e325dc31a`; no older evidence is silently promoted.
+- Current exact code/test evidence begins at `ae3f50aec381eae99b29489ef8c6965e325dc31a`; the repository HEAD is currently an index-only boundary above it.
