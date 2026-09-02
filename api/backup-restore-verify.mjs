@@ -13,6 +13,15 @@ export default async function handler(req, res) {
     'RESILIENCE_RESTORE_VERIFIER_URL',
   ])) return;
 
+  const maxRpoSeconds = Number(process.env.RESILIENCE_MAX_RPO_SECONDS);
+  const expectedArtifactSha256 = process.env.RESILIENCE_BACKUP_ARTIFACT_SHA256.trim().toLowerCase();
+  if (!Number.isFinite(maxRpoSeconds) || maxRpoSeconds < 0) {
+    return json(res, 503, { status: 'blocked', error: 'invalid_max_rpo_seconds' });
+  }
+  if (!/^[a-f0-9]{64}$/.test(expectedArtifactSha256)) {
+    return json(res, 503, { status: 'blocked', error: 'invalid_backup_artifact_sha256' });
+  }
+
   const startedAt = Date.now();
   try {
     const backupsResponse = await managementRequest(`/projects/${encodeURIComponent(process.env.SUPABASE_PROJECT_REF.trim())}/database/backups`);
@@ -20,14 +29,19 @@ export default async function handler(req, res) {
     const inventory = await backupsResponse.json();
     const backups = Array.isArray(inventory.backups) ? inventory.backups : [];
     const completed = backups
-      .filter((backup) => String(backup.status).toUpperCase() === 'COMPLETED' && backup.inserted_at)
+      .filter((backup) => {
+        const insertedAt = Date.parse(backup?.inserted_at || '');
+        return String(backup?.status).toUpperCase() === 'COMPLETED'
+          && Boolean(String(backup?.id || '').trim())
+          && Number.isFinite(insertedAt);
+      })
       .sort((a, b) => Date.parse(b.inserted_at) - Date.parse(a.inserted_at));
     const latest = completed[0];
     if (!latest) return json(res, 503, { status: 'blocked', error: 'no_completed_backup_available' });
 
     const backupCompletedAt = new Date(latest.inserted_at);
     const rpoSeconds = Math.max(0, (Date.now() - backupCompletedAt.getTime()) / 1000);
-    if (rpoSeconds > Number(process.env.RESILIENCE_MAX_RPO_SECONDS)) {
+    if (!Number.isFinite(rpoSeconds) || rpoSeconds > maxRpoSeconds) {
       await persistBackupEvidence(process.env.RESILIENCE_COMPANY_ID.trim(), {
         backup_ref: String(latest.id),
         status: 'failed',
@@ -41,7 +55,7 @@ export default async function handler(req, res) {
     const artifactResponse = await fetch(process.env.RESILIENCE_BACKUP_ARTIFACT_URL.trim(), { headers: { Accept: 'application/octet-stream' } });
     if (!artifactResponse.ok) return json(res, 503, { status: 'blocked', error: `backup_artifact_fetch_failed:${artifactResponse.status}` });
     const { sha256, bytes } = await sha256ResponseBody(artifactResponse);
-    if (sha256 !== process.env.RESILIENCE_BACKUP_ARTIFACT_SHA256.trim().toLowerCase()) {
+    if (sha256 !== expectedArtifactSha256) {
       await persistBackupEvidence(process.env.RESILIENCE_COMPANY_ID.trim(), {
         backup_ref: String(latest.id),
         status: 'failed',
@@ -82,7 +96,8 @@ export default async function handler(req, res) {
     try { restoreEvidence = JSON.parse(restoreText); } catch { restoreEvidence = { response: restoreText.slice(0, 500) }; }
     const restoreCompletedAt = Date.now();
     const measuredRto = (restoreCompletedAt - restoreStartedAt) / 1000;
-    const rtoSeconds = Number.isFinite(Number(restoreEvidence.rto_seconds)) ? Number(restoreEvidence.rto_seconds) : measuredRto;
+    const reportedRto = Number(restoreEvidence.rto_seconds);
+    const rtoSeconds = measuredRto;
     if (restoreEvidence.restored !== true || restoreEvidence.integrity_verified !== true) {
       await persistBackupEvidence(process.env.RESILIENCE_COMPANY_ID.trim(), {
         backup_ref: String(latest.id),
@@ -93,7 +108,7 @@ export default async function handler(req, res) {
         rpo_seconds: rpoSeconds,
         rto_seconds: rtoSeconds,
         integrity_hash: sha256,
-        evidence: { reason: 'restore_verifier_did_not_prove_restore', restore: restoreEvidence },
+        evidence: { reason: 'restore_verifier_did_not_prove_restore', restore: restoreEvidence, reported_rto_seconds: Number.isFinite(reportedRto) ? reportedRto : null },
       });
       return json(res, 503, { status: 'failed', error: 'restore_verification_not_proven' });
     }
@@ -107,7 +122,7 @@ export default async function handler(req, res) {
       rpo_seconds: rpoSeconds,
       rto_seconds: rtoSeconds,
       integrity_hash: sha256,
-      evidence: { bytes, backup_status: latest.status, restore: restoreEvidence, total_elapsed_seconds: (Date.now() - startedAt) / 1000 },
+      evidence: { bytes, backup_status: latest.status, restore: restoreEvidence, reported_rto_seconds: Number.isFinite(reportedRto) ? reportedRto : null, total_elapsed_seconds: (Date.now() - startedAt) / 1000 },
     });
     return json(res, 200, { status: 'passed', backup_ref: String(latest.id), integrity_verified: true, restored: true, rpo_seconds: rpoSeconds, rto_seconds: rtoSeconds });
   } catch (error) {
