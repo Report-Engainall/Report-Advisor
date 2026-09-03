@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-export function validateAutonomySafetyChain({ runtime, supabase, cockpit, closure, repair, cert }) {
+export function validateAutonomySafetyChain({ runtime, supabase, cockpit, closure, repair, executeLockdown, cert }) {
   const requiredRuntime = ['trustHealthy', 'evidenceQuality', 'confidence', 'riskBudgetValid', 'criticalDrift', 'rollbackVerified', 'isolationVerified'];
   for (const token of requiredRuntime) if (!runtime.includes(token)) throw new Error(`Autonomy gate missing: ${token}`);
 
@@ -39,6 +39,15 @@ export function validateAutonomySafetyChain({ runtime, supabase, cockpit, closur
     'CREATE OR REPLACE FUNCTION public.autonomy_runtime_gate',
   ]) if (!repair.includes(token)) throw new Error(`Autonomy runtime reconciliation missing: ${token}`);
 
+  for (const fn of [
+    'public.compute_control_plane_health()',
+    'public.can_enter_phase_l_autonomy(text)',
+    'public.autonomy_runtime_gate(text)',
+  ]) {
+    if (!executeLockdown.includes(`REVOKE ALL ON FUNCTION ${fn} FROM PUBLIC`)) throw new Error(`Autonomy execute lockdown missing: ${fn}`);
+    if (!executeLockdown.includes(`GRANT EXECUTE ON FUNCTION ${fn} TO authenticated`)) throw new Error(`Autonomy authenticated execute grant missing: ${fn}`);
+  }
+
   for (const token of ['can_release_production_certification', 'rollback_passed', 'security_audit_passed', 'artifact_integrity_passed']) {
     if (!cert.includes(token)) throw new Error(`Production certification safety link missing: ${token}`);
   }
@@ -52,6 +61,7 @@ validateAutonomySafetyChain({
   cockpit: fs.readFileSync(path.join(root, 'supabase/migrations/20260825140000_phase_l_runtime_cockpit.sql'), 'utf8'),
   closure: fs.readFileSync(path.join(root, 'supabase/migrations/20260825142000_phase_kl_runtime_closure.sql'), 'utf8'),
   repair: fs.readFileSync(path.join(root, 'supabase/migrations/20260903033000_reconcile_phase_l_autonomy_runtime_boundary.sql'), 'utf8'),
+  executeLockdown: fs.readFileSync(path.join(root, 'supabase/migrations/20260903034000_lockdown_autonomy_runtime_execute.sql'), 'utf8'),
   cert: fs.readFileSync(path.join(root, 'supabase/migrations/20260825150000_phase_m_certification_bundle.sql'), 'utf8'),
 });
 
