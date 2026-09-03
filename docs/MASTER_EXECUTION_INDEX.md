@@ -434,3 +434,13 @@ This score is deliberately split so implementation is not confused with certific
 ## 14. STOP CONDITION
 Do not declare completion because the list becomes short, CI turns green, or a report is written. Stop only after all currently executable high-value work is exhausted and every remaining item is genuinely external/owner-protected or explicitly out of release scope.
 
+
+## ACTIVE EXECUTION SESSION — 2026-09-04
+
+- Owner directive received: **EXECUTE / continue closure**.
+- Fresh exact-head CI discovery: commit `0fa2e697...` currently has only Vercel status contexts; GitHub workflow-run lookup returned no PR-triggered workflow runs. Therefore Quality remains **NOT CERTIFIED**, and no CI PASS is fabricated.
+- Fresh Supabase Security Advisor inspection confirms the existing authenticated SECURITY DEFINER warnings are real and current. A deeper function-definition query confirms `decide_approval(uuid,boolean,text)` is SECURITY DEFINER + authenticated-executable and currently enforces tenant context and self-approval prohibition, but **does not itself enforce a business-role/approver authority predicate**. This remains a P0 authority-contract finding.
+- No blanket revoke was executed: these RPCs are product mutation surfaces and revoking execution without a canonical authority model could break intended product behavior.
+- Active parallel closure work remains: RPC consumer parity, authority audit, import/document/worker/report/performance contract sweeps, and evidence preparation. Protected owner-only operations remain gated.
+- Stop condition for this session: never convert missing runtime evidence into PASS; never inherit evidence from an older SHA; never perform speculative production/DR mutation.
+
