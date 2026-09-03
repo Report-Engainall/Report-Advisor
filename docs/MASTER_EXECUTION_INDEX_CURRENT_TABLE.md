@@ -1,24 +1,24 @@
 # Report Advisor — Current Execution Table
 
-> **Updated:** 2026-09-04 02:48 +03. This is the compact current-state surface. Authoritative historical execution remains `docs/MASTER_EXECUTION_INDEX.md`; detailed 30h evidence is recorded in `docs/EVIDENCE/2026-09-04_DEEP_FORENSIC_RESCAN_30H.md`. Exact-SHA evidence never crosses a candidate boundary.
+> **Updated:** 2026-09-04 02:49 +03. This is the compact current-state surface. Authoritative historical execution remains `docs/MASTER_EXECUTION_INDEX.md`; detailed 30h evidence is recorded in `docs/EVIDENCE/2026-09-04_DEEP_FORENSIC_RESCAN_30H.md`. Exact-SHA evidence never crosses a candidate boundary.
 
-**Current repository HEAD:** `c2824cc8dac9677bb3859617d1298c7a38c72351`  
+**Current repository HEAD:** `cc10c0eb153c48abcfcff2c22983543e96ee3e76`  
 **Latest product-code/test HEAD:** `0fa2e6970c5203ca6a36dd7e076162d48a0488c5`  
-**Previous product mutation:** `e6f27cf5885acc6bb1e29e4cd977e274bad08f16`  
+**Latest product mutation:** `e6f27cf5885acc6bb1e29e4cd977e274bad08f16`  
 **Status:** **NOT 100% CERTIFIED — FAIL CLOSED**  
 **Engineering/product implementation:** **~92%**  
 **Operational/runtime evidence:** **~76%**  
 **Production certification readiness:** **~58%**  
 **Overall honest closure readiness:** **~83%**
 
-| ✓/◐/✗ | ID | Phase / area | What is completed | What remains | Mode | Owner device |
+| ✓/◐/✗ | ID | Phase / area | Completed / proven | Remaining | Mode | Owner device |
 |---|---|---|---|---|---|---|
 | ✓ | P0-01 | Foundation / architecture | App shell, routing, canonical/compat boundaries, error boundary, Vite production structure | Fresh current-head Quality/typecheck/build consumption | Parallel | No |
 | ◐ | P0-02 | Authentication | Supabase Auth, persistent session, AuthGate, fail-closed tenant resolution | Current deployed-head authenticated browser proof; leaked-password protection | Sequential after deploy | Yes |
 | ✓/◐ | P0-03 | Tenant isolation | DB/RLS adversarial boundary proven; 81/81 public tables with RLS in last live audit | Current deployed-head Tenant A/B browser denial + persisted evidence | After deployment | Yes |
-| ◐ | P0-04 | RBAC / authority | Membership and active/default membership; self-approval and active-assignee guards | Canonical business-role authority contract for approval/mutations | Parallel | Product decision may be required |
+| ◐ | P0-04 | RBAC / authority | Membership + active/default membership; self-approval + active-assignee guards | Canonical business-role authority contract for approval/mutations | Parallel | Product decision may be required |
 | ◐ | P0-05 | SECURITY DEFINER | 33 public SD functions audited; locked `pg_catalog` paths; no anonymous/public policy exposure in recorded audit | Least-privilege EXECUTE decision/proof for 19 authenticated-executable routines | Parallel | Only authority decision if needed |
-| ◐ | P0-06 | Canonical data truth | Dashboard/report canonical RPCs, tenant scoping, null/unknown semantics and bounded reads | Fresh exact-head integration + real data E2E | Parallel | No |
+| ◐ | P0-06 | Canonical data truth | Dashboard/report canonical RPCs, tenant scoping, null/unknown semantics, bounded reads | Fresh exact-head integration + real data E2E | Parallel | No |
 | ✓/◐ | P1-01 | Import | Reconciliation, transactional lifecycle, monotonic progress, terminal replay protection, bounded canonical + compat history read | Golden Excel/Onyx authenticated E2E + large-file/scale proof | Parallel | No |
 | ◐ | P1-02 | Document/OCR | Routing, extraction envelope, provenance/lineage, OCR contracts, golden fixtures | Arabic Golden Corpus runtime + accuracy/confidence/error evidence | Parallel | Corpus only if local-only |
 | ✓/◐ | P1-03 | Decision/Evidence/Outcome | One-to-one linkage, provenance, outcome validation, work-item terminal/assignee guards | Authenticated end-to-end lifecycle + authority/RBAC proof | Parallel | Real session for final proof |
@@ -32,116 +32,114 @@
 | ◐ | P1-11 | Backup/restore/DR | Safety contracts: non-prod targets, HTTPS/no URL creds, bounded timeout, private-target rejection, fail-closed DNS | Real backup + isolated restore + integrity + RPO/RTO | Sequential | Yes |
 | ◐ | P1-12 | Rollback/forward recovery | Ownership/READY safeguards and protected drill contract | Authorized real rollback + forward recovery evidence | Sequential | Yes |
 | ◐ | P2-01 | UI/UX | RTL screens, dashboard/report/intelligence surfaces, loading/error/empty states; Arabic visual system refined | Full mobile/desktop/RTL browser acceptance | After runtime | Yes |
-| ◐ | P2-02 | Desktop/Windows | Electron watcher/native smoke logic | Exact-head Windows evidence; Electron 44 remediation branch still open | Parallel | Conditional |
+| ◐ | P2-02 | Desktop/Windows | Electron watcher/native smoke logic | Exact-head Windows evidence; PR #207 Electron 44 remediation remains open | Parallel | Conditional |
 | ✓/◐ | P2-03 | Observability/governance | Execution enforcement, adaptive governance, evidence lineage, exact-SHA rules | Fresh current-head CI + live operational signal proof | Parallel | No |
 | ✗ | P2-04 | Release/certification | Certification schema/manifests/gates exist | Fresh exact-head Quality, current deployment, runtime, A/B, DR, rollback, final evidence bundle | Final sequential | Yes for protected steps |
 
-## Last ~30h — closure ledger summary
+## Last ~30h — completed work families
 
-| ✓ | Closure family | Result |
+| ✓ | Family | Concrete closure |
 |---|---|---|
-| ✓ | SECURITY DEFINER search-path closure | Real relation-qualification defect fixed; autonomy helpers hardened |
-| ✓ | Resilience outbound target security | IPv6 + IPv4-mapped IPv6 private-target rejection hardened |
-| ✓ | Governance/enforcement | Index-only boundary made deterministic; adversarial/test-of-test coverage strengthened |
-| ✓ | Worker lifecycle | Durable dead-letter transition restored and DB branches live-proven |
-| ✓ | Import lifecycle | Monotonic progress + terminal resurrection protection + test-of-test |
-| ✓ | Decision↔Recommendation | One-to-one uniqueness + locking + overwrite/reassignment denial |
-| ✓ | Approval lifecycle | `CANCELLED` reconciled as terminal with provenance + reopen protection |
-| ✓ | Active assignee | Inactive tenant members rejected by decision work-item creation |
-| ✓ | Recommendation outcome provenance | Decision provenance required on formerly open paths |
-| ✓ | Data truth / report / export | Canonical sources, bounded reads, null/unknown semantics maintained |
-| ✓ | Compatibility query boundary | `fetchImportRecords()` bounded to 500 with exact count and explicit overflow failure |
-| ✓ | UI Arabic refinement | RTL dashboard visual system refined |
-| ✓ | Live forensic discipline | No old runtime/production evidence promoted to newer SHA |
-| ✓ | Migration lineage | Remote migration-history reconciliation recorded; no replay DDL in lineage-only files |
-| ✓ | Production forensic inspection | Prior READY deployment identity verified; current candidate remains a separate evidence boundary |
+| ✓ | SECURITY DEFINER | Qualified application relations under locked `pg_catalog`; autonomy helper paths hardened |
+| ✓ | Resilience | IPv6 and IPv4-mapped IPv6 private target rejection; hardened outbound transport |
+| ✓ | Governance | Index-only boundary uses real Git ancestry/diff; under-execution and decoy/test-of-test cases strengthened |
+| ✓ | Worker | Durable `dead_letter` terminal transition restored; DB rollback-safe branches verified |
+| ✓ | Import | Monotonic progress; terminal resurrection blocked; compatibility history read bounded to 500 |
+| ✓ | Decision/Recommendation | One-to-one partial uniqueness, locking, atomic linkage and overwrite rejection |
+| ✓ | Approval | `CANCELLED` terminal consistency + provenance + reopen guard |
+| ✓ | Assignee authority | Inactive tenant members rejected by work-item creation |
+| ✓ | Recommendation outcomes | Decision provenance required and linkage consistency hardened |
+| ✓ | Data truth / export | Canonical sources, null/unknown semantics and bounded report/export paths retained |
+| ✓ | UI | Arabic/RTL dashboard visual system refined |
+| ✓ | Evidence discipline | Historical evidence remains exact-SHA bound; no stale runtime promotion |
+| ✓ | Migration lineage | Remote migration-history reconciliation aliases recorded without replay DDL |
+| ✓ | Production forensics | Prior READY deployment identity inspected; current candidate kept as a new evidence boundary |
 
 ## Current open release-critical work
 
 | Priority | Task | State | Dependency | Next operation |
 |---|---|---|---|---|
-| P0 | Fresh Quality for `0fa2e697...` | OPEN | None | Run/consume exact-head Quality; investigate any first failure and repair |
-| P0 | Integrate PR #305 security/product hardening | OPEN | Current main rebase | Rebase/retarget; resolve conflicts; exact-head CI |
-| P0 | Integrate PR #307 test-of-test repair | OPEN | #305 | Land #305 first or fold equivalent repair, then rebase #307 and rerun CI |
-| P0 | Integrate PR #308 autonomy/exact-head certification hardening | OPEN / DRAFT | #305/#307 overlap | Rebase/retarget after accepted baseline; resolve final-cert/autonomy checker overlaps; rerun all gates |
-| P0 | Current deployment + authenticated runtime | UNPROVEN | Fresh Quality + merged candidate | Establish current deployment, then authenticated browser proof |
-| P0 | Tenant A/B live certification | UNPROVEN | Authenticated runtime | Execute A/B denial matrix and persist exact-head evidence |
-| P1 | Approval/RBAC authority contract | PARTIAL | Business role semantics | Define canonical authority; implement only if required; adversarial test |
-| P1 | SECURITY DEFINER least privilege | PARTIAL | Authority contract | Classify 19 authenticated-executable functions and justify/restrict only where contract allows |
-| P1 | OCR Golden Corpus | PARTIAL | Corpus + runtime | Execute Arabic corpus; capture accuracy/confidence/error evidence |
-| P1 | Worker real runtime recovery | PARTIAL | Runtime environment | Crash/lease-expiry/retry/fencing/DLQ/recovery test |
-| P1 | Watched folder E2E | PARTIAL | Windows/runtime | File event→watcher→ingestion→worker→result proof |
-| P1 | Storage runtime | UNPROVEN | Bucket decision | Establish canonical bucket contract then authenticated upload/read/delete proof |
-| P1 | Realtime | REQUIREMENT OPEN | Product scope | Decide whether required; if yes implement tenant-safe channel and reconnect proof |
-| P1 | AI/vector | UNPROVEN | Release scope/model environment | Tenant/provenance runtime proof if required |
+| P0 | Fresh Quality for `0fa2e697...` | OPEN | None | Execute/consume exact-head Quality and repair first real failure |
+| P0 | PR #305 | OPEN / DRAFT / non-mergeable | Rebase to current main | Integrate security/product boundary only after exact diff review |
+| P0 | PR #307 | OPEN / DRAFT / non-mergeable | #305 | Rebase/retarget after #305 and consume test-of-test repair |
+| P0 | PR #308 | OPEN / DRAFT / non-mergeable | #305/#307 overlap | Rebase/retarget; resolve final-cert/autonomy overlap; rerun required CI |
+| P0 | Current deployment/runtime | UNPROVEN | Current accepted product candidate | Deploy exact current candidate; authenticated browser proof |
+| P0 | Tenant A/B certification | UNPROVEN | Authenticated runtime | Run adversarial A/B matrix and persist evidence |
+| P1 | Approval/RBAC authority | PARTIAL | Business role semantics | Define canonical authority; implement only if required; adversarial verify |
+| P1 | SECURITY DEFINER least privilege | PARTIAL | Authority contract | Classify 19 authenticated-executable functions and restrict only where justified |
+| P1 | OCR Golden Corpus | PARTIAL | Corpus/runtime | Execute Arabic corpus and capture accuracy/confidence/error evidence |
+| P1 | Worker recovery runtime | PARTIAL | Runtime environment | Crash/expiry/retry/fencing/DLQ/recovery proof |
+| P1 | Watched-folder E2E | PARTIAL | Windows/runtime | File event→ingestion→worker→result proof |
+| P1 | Storage runtime | UNPROVEN | Bucket contract | Establish canonical bucket only if in scope, then authenticated CRUD proof |
+| P1 | Realtime | REQUIREMENT OPEN | Product scope | Explicitly keep or remove from release scope; prove if kept |
+| P1 | AI/vector | UNPROVEN | Scope/model environment | Tenant/provenance runtime proof if required |
 | P1 | Performance/scale | PARTIAL | Representative data | EXPLAIN + concurrency + large-tenant benchmark |
 | P1 | Backup/restore/RPO/RTO | UNPROVEN | Protected recovery access | Backup→isolated restore→integrity→timings |
 | P1 | Rollback/forward recovery | UNPROVEN | Protected deployment access | Authorized drill + forward recovery |
-| P2 | Desktop Electron 44 | OPEN | PR #207 rebase | Rebase exact head and consume Windows/native evidence |
-| P2 | Final certification bundle | BLOCKED | All P0/P1 evidence | Assemble only current exact-SHA evidence; final gate last |
+| P2 | Desktop Electron 44 | OPEN | PR #207 | Rebase; exact-head desktop CI/Windows evidence; merge if clean |
+| P2 | Final certification bundle | BLOCKED | All required evidence | Assemble current exact-SHA bundle and run final gate last |
 
 ## Open PR disposition
 
-| PR | Current assessment | Required action |
-|---|---|---|
-| #308 | **ACTIVE CRITICAL** — autonomy runtime reconciliation + exact-head/final-cert hardening; DRAFT/non-mergeable | Rebase after #305/#307 accepted; do not merge as-is |
-| #307 | **ACTIVE CRITICAL** — execution-enforcement test-of-test repair; DRAFT/non-mergeable | Depends on #305; rebase and rerun |
-| #305 | **ACTIVE CRITICAL** — watched-report direct-DML boundary, terminal approval guard, file-security/security hardening | Fresh Quality previously failed on its candidate; incorporate #307-equivalent repair before merge |
-| #304 | **STALE / REVIEW REQUIRED** — migration lineage restoration | Compare against current 239-file lineage; no blind merge |
-| #303 | **LIKELY SUPERSEDED** — dashboard adapter hardening from older baseline | Verify current main; close/supersede if already present |
-| #302 | **LIKELY SUPERSEDED** — profitability RPC closure from older baseline | Verify current main; close/supersede if present |
-| #301 | **LIKELY SUPERSEDED** — BI overflow regression from older baseline | Verify current main; close/supersede if present |
-| #300 | **SUPERSEDED CANDIDATE** — broad old-baseline hardening integration | Do not merge wholesale |
-| #294 | **SUPERSEDED CANDIDATE** — old P0 integration branch | Do not merge wholesale |
-| #207 | **ACTIVE SECURITY/DESKTOP** — Electron 44.0.0 | Rebase, exact-head CI/Windows evidence, then merge if clean |
-
-## Assistant parallel execution matrix
-
-| Workstream | Can run now? | Sequence dependency | Assistant action |
+| PR | Status | Truth | Action |
 |---|---|---|---|
-| RPC signature/consumer sweep | ✓ | None | Scan canonical + compat consumers and RPC contracts |
-| SECURITY DEFINER audit | ✓ | None | Re-audit search_path, qualification, EXECUTE and authority |
-| UI truth/RTL sweep | ✓ | None | Check loading/error/empty/unknown/zero and cross-surface equivalence |
-| Import/report/export bounds | ✓ | None | Check limits, counts, pagination, deterministic ordering, N+1 |
-| Worker lifecycle | ✓ | None | Adversarial state-machine audit + runtime harness preparation |
-| OCR/document | ✓ | None | Audit contracts/fixtures and prepare corpus evidence |
-| Storage/Realtime/AI | ✓ | Scope decisions only block implementation, not audit/preparation | Audit and prepare required proof |
-| Performance/scale | ✓ | None | EXPLAIN/benchmark plan and query-risk audit |
-| Certification manifest | ✓ | None | Prepare exact-SHA evidence collector and bundle |
-| PR disposition | ✓ | None | Compare open PRs against current main; avoid stale merges |
-| Supabase live mutation | ✗ | Permission currently unavailable in connected session | Owner/tool-access boundary; no unsafe workaround |
-| Authenticated browser | ✗ | Real credentials/session | Owner device |
-| Backup/restore | ✗ | Protected recovery control plane | Owner device |
-| Rollback/forward recovery | ✗ | Protected deployment authorization | Owner device |
-| Windows native smoke | Conditional | Local Windows boundary | Owner device only if CI cannot provide exact-head evidence |
+| #308 | OPEN / DRAFT / non-mergeable | **ACTIVE CRITICAL** — autonomy runtime reconciliation + exact-head/final-cert hardening | Rebase after accepted #305/#307 baseline; no blind merge |
+| #307 | OPEN / DRAFT / non-mergeable | **ACTIVE CRITICAL** — test-of-test repair on #305 candidate | Depends on #305; rebase and rerun |
+| #305 | OPEN / DRAFT / non-mergeable | **ACTIVE CRITICAL** — watched-report DML boundary, terminal approval guard, file-security/security hardening | Current branch had Quality test-of-test failure; incorporate repair before merge |
+| #304 | OPEN / DRAFT / non-mergeable | **STALE / REVIEW REQUIRED** — migration lineage restoration | Compare current 239-file lineage; no blind merge |
+| #303 | OPEN / non-mergeable | **LIKELY SUPERSEDED** — dashboard adapter hardening | Verify current main then close/supersede if present |
+| #302 | OPEN / DRAFT / non-mergeable | **LIKELY SUPERSEDED** — profitability RPC closure | Verify current main then close/supersede if present |
+| #301 | OPEN / non-mergeable | **LIKELY SUPERSEDED** — BI overflow regression | Verify current main then close/supersede if present |
+| #300 | OPEN / non-mergeable | **SUPERSEDED CANDIDATE** — old broad hardening integration | Do not merge wholesale |
+| #294 | OPEN / non-mergeable | **SUPERSEDED CANDIDATE** — old P0 integration branch | Do not merge wholesale |
+| #207 | OPEN / non-mergeable | **ACTIVE SECURITY/DESKTOP** — Electron 44.0.0 | Rebase and consume exact-head Windows/CI evidence |
+
+## Assistant parallel queue
+
+| Workstream | Start now | Sequence | Owner? |
+|---|---|---|---|
+| RPC/consumer parity | ✓ | None | No |
+| SECURITY DEFINER authority | ✓ | None | No, except business-role decision |
+| UI truth/RTL | ✓ | None | No |
+| Import/report/export bounds | ✓ | None | No |
+| Worker adversarial/recovery prep | ✓ | None | No initially |
+| OCR/document | ✓ | None | No |
+| Storage/Realtime/AI audit | ✓ | Requirement only for implementation | No |
+| Performance/scale | ✓ | None | No |
+| Certification manifest/evidence packaging | ✓ | None | No |
+| PR disposition/rebase planning | ✓ | Integration fronts must remain sequential | No |
+| Authenticated browser | ✗ | After current deployment | **Yes** |
+| Supabase Auth control-plane setting | ✗ | Independent but protected | **Yes** |
+| Backup/restore | ✗ | Sequential recovery chain | **Yes** |
+| Rollback/forward recovery | ✗ | After backup/restore evidence | **Yes** |
+| Windows native smoke | Conditional | If CI evidence unavailable | **Yes** |
+| Protected production authorization | ✗ | Final protected boundary | **Yes** |
 
 ## Mandatory sequential chain
 
-`CURRENT PRODUCT/TEST HEAD → #305/#307/#308 integration and conflict resolution → FRESH QUALITY → CURRENT DEPLOYMENT → AUTHENTICATED E2E → TENANT A/B → LIVE CERTIFICATION EVIDENCE → BACKUP/RESTORE/RPO/RTO → AUTHORIZED ROLLBACK → FORWARD RECOVERY → FINAL CERTIFICATION`
+`CURRENT PRODUCT/TEST HEAD → ACCEPT #305 → ACCEPT #307 → ACCEPT #308 → FRESH QUALITY → CURRENT DEPLOYMENT → AUTHENTICATED E2E → TENANT A/B → LIVE CERTIFICATION EVIDENCE → BACKUP/RESTORE/RPO/RTO → AUTHORIZED ROLLBACK → FORWARD RECOVERY → FINAL CERTIFICATION`
 
-Independent audits/preparation remain parallel throughout. Protected production/recovery actions remain sequential and owner-controlled.
+Independent audits, evidence preparation and non-conflicting read-only work remain parallel throughout.
 
 ## Owner-only minimum workload
 
 | ID | Exact action | Why owner/device | Return evidence |
 |---|---|---|---|
-| OWNER-AUTH-01 | Login with real Tenant A and Tenant B accounts in isolated browser sessions | Real credentials + interactive browser | Run/evidence IDs, timestamps, exact deployed SHA |
-| OWNER-AUTH-02 | Enable Supabase leaked-password protection | Auth control-plane setting unavailable to connected tools | Non-secret enabled state |
+| OWNER-AUTH-01 | Login with real Tenant A and Tenant B accounts in isolated browser sessions | Real credentials + interactive browser | Run IDs, timestamps, exact deployed SHA, A/B denial evidence |
+| OWNER-AUTH-02 | Enable Supabase leaked-password protection | Auth control-plane boundary unavailable to connected tooling | Non-secret enabled state |
 | OWNER-RUN-01 | Execute authenticated E2E + A/B adversarial matrix | Real browser/session | Exact-head runtime artifact |
-| OWNER-DR-01 | Create approved backup and isolated non-production restore | Protected recovery operation | Backup/restore IDs, hashes, timings, integrity, RPO/RTO |
-| OWNER-DR-02 | Execute approved rollback + forward recovery drill | Protected deployment authorization | Deployment IDs, health, timestamps, recovery result |
-| OWNER-WIN-01 | Run exact-head Windows watcher smoke if CI evidence unavailable | Local Windows filesystem/device | Exact SHA + logs/artifact |
-| OWNER-PROD-01 | Perform unavoidable protected production authorization | Credential/approval boundary | Non-secret operation result |
+| OWNER-DR-01 | Approved backup + isolated non-production restore | Protected recovery control plane | Backup/restore IDs, hashes, timings, integrity, RPO/RTO |
+| OWNER-DR-02 | Approved rollback + forward recovery drill | Protected deployment authorization | Deployment IDs, health, timestamps, recovery result |
+| OWNER-WIN-01 | Windows native watcher smoke if CI cannot provide exact-head evidence | Local Windows boundary | Exact SHA + logs/artifact |
+| OWNER-PROD-01 | Any unavoidable protected production authorization | Production credential/approval boundary | Non-secret result only |
 
-## 100% release definition
+## 100% definition
 
-All boxes below must be true simultaneously:
-
-- [ ] Fresh current-head required CI/Quality passes.
-- [ ] Current deployed SHA exactly matches the certified candidate.
+- [ ] Fresh exact-head required Quality/CI passes.
+- [ ] Current deployed SHA exactly matches the certified product/test candidate.
 - [ ] Authenticated browser E2E passes.
 - [ ] Tenant A/B adversarial isolation is live-proven and persisted.
-- [ ] Approval/mutation authority contract is canonical and proven.
+- [ ] Canonical approval/mutation authority is defined and proven.
 - [ ] SECURITY DEFINER EXECUTE exposure is least-privilege and justified.
 - [ ] Import + worker + document/OCR + report/export are proven with representative real data.
 - [ ] Arabic OCR evidence is complete if in release scope.
@@ -149,7 +147,7 @@ All boxes below must be true simultaneously:
 - [ ] Storage is proven if in scope.
 - [ ] Realtime is proven or explicitly removed from scope.
 - [ ] AI/vector is proven if in scope.
-- [ ] Performance/scale targets are met with real benchmark/plan evidence.
+- [ ] Performance/scale targets are met with real benchmark evidence.
 - [ ] Backup/restore/integrity/RPO/RTO evidence exists.
 - [ ] Rollback/forward recovery evidence exists.
 - [ ] Production binding is current and exact-SHA bound.
