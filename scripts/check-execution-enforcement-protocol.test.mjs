@@ -46,4 +46,24 @@ assert.throws(
   /INDEX DRIFT/,
 );
 
-console.log('PASS v3.3 enforcement adversarial test-of-test');
+const enforcementOnlyBoundary = `## CURRENT PROJECT STATE\n- Exact code/test head entering this sweep: \`aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\`.`;
+assert.equal(
+  validateCurrentHeadIndex(
+    enforcementOnlyBoundary,
+    'cccccccccccccccccccccccccccccccccccccccc',
+    'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+    ['scripts/check-execution-enforcement-protocol.mjs', 'scripts/check-execution-enforcement-protocol.test.mjs'],
+  ),
+  true,
+);
+assert.throws(
+  () => validateCurrentHeadIndex(
+    enforcementOnlyBoundary,
+    'cccccccccccccccccccccccccccccccccccccccc',
+    'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+    ['scripts/check-execution-enforcement-protocol.mjs', 'src/app.tsx'],
+  ),
+  /INDEX DRIFT/,
+);
+
+console.log('PASS v3.4 enforcement adversarial test-of-test');
