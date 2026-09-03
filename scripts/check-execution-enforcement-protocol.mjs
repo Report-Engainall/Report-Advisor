@@ -77,7 +77,7 @@ export function validateCurrentHeadIndex(index, currentHead, parentHead = '', ch
   const suppliedIndexOnlyBoundary = indexedHead && normalize(parentHead) === indexedHead && Array.isArray(changedFiles) && (isDocsOnlyChange(changedFiles) || isEnforcementContractOnlyChange(changedFiles));
   let currentBoundaryOnly = false;
   if (!exactMatch && indexedBoundaryHead && normalize(parentHead) === indexedBoundaryHead) {
-    try { const files = Array.isArray(changedFiles) ? changedFiles : execFileSync('git', ['diff', '--name-only', parentHead, head], { encoding: 'utf8' }).trim().split('\n').filter(Boolean); currentBoundaryOnly = isDocsOnlyChange(files); } catch { currentBoundaryOnly = false; }
+    try { const files = Array.isArray(changedFiles) ? changedFiles : execFileSync('git', ['diff', '--name-only', parentHead, head], { encoding: 'utf8' }).trim().split('\n').filter(Boolean); currentBoundaryOnly = isDocsOnlyChange(files) || isEnforcementContractOnlyChange(files); } catch { currentBoundaryOnly = false; }
   }
   const indexOnlyBoundary = computedIndexOnlyBoundary || suppliedIndexOnlyBoundary || currentBoundaryOnly;
   if (!exactMatch && !indexOnlyBoundary) throw new Error(`Index current-head gate rejected: INDEX DRIFT (index=${indexedHead ?? 'missing'}, boundary=${indexedBoundaryHead ?? 'missing'}, head=${currentHead}, parent=${parentHead || 'unknown'}, indexOnly=${indexOnlyBoundary})`);
