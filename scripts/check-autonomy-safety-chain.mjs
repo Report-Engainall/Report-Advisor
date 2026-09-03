@@ -1,5 +1,65 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import * as ts from 'typescript';
+
+function assertCanonicalRuntimeAdapter(source) {
+  const file = ts.createSourceFile('phase-kl-supabase-runtime.ts', source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
+  let runtimeClass = null;
+  file.forEachChild((node) => {
+    if (ts.isClassDeclaration(node) && node.name?.text === 'PhaseKLSupabaseRuntime') runtimeClass = node;
+  });
+  if (!runtimeClass) throw new Error('Canonical autonomy runtime adapter class missing: PhaseKLSupabaseRuntime');
+
+  const method = runtimeClass.members.find((member) =>
+    ts.isMethodDeclaration(member) && member.name && ts.isIdentifier(member.name) && member.name.text === 'autonomyGate',
+  );
+  if (!method || !ts.isMethodDeclaration(method)) throw new Error('Canonical autonomy runtime adapter method missing: autonomyGate');
+  if (method.parameters.length !== 1) throw new Error('Canonical autonomyGate signature mismatch');
+
+  const parameter = method.parameters[0];
+  if (!ts.isIdentifier(parameter.name) || parameter.name.text !== 'domainKey') {
+    throw new Error('Canonical autonomyGate parameter mismatch: domainKey');
+  }
+  if (!parameter.type || parameter.type.kind !== ts.SyntaxKind.StringKeyword) {
+    throw new Error('Canonical autonomyGate parameter type mismatch: string');
+  }
+
+  let canonicalRpcCall = false;
+  const visit = (node) => {
+    if (ts.isCallExpression(node) && ts.isPropertyAccessExpression(node.expression) && node.expression.name.text === 'rpc') {
+      const receiver = node.expression.expression;
+      const receiverIsClient = ts.isPropertyAccessExpression(receiver) && receiver.name.text === 'client'
+        && ts.isThis(receiver.expression);
+      const [rpcName, rpcArgs] = node.arguments;
+      if (receiverIsClient && rpcName && ts.isStringLiteral(rpcName) && rpcName.text === 'autonomy_runtime_gate' && rpcArgs && ts.isObjectLiteralExpression(rpcArgs)) {
+        const domainProperty = rpcArgs.properties.some((property) => {
+          if (!ts.isPropertyAssignment(property) || !ts.isIdentifier(property.name) || property.name.text !== 'p_domain_key') return false;
+          return ts.isIdentifier(property.initializer) && property.initializer.text === 'domainKey';
+        });
+        canonicalRpcCall = domainProperty;
+      }
+    }
+    ts.forEachChild(node, visit);
+  };
+  if (method.body) visit(method.body);
+  if (!canonicalRpcCall) throw new Error("Canonical autonomyGate must call rpc('autonomy_runtime_gate', { p_domain_key: domainKey })");
+}
+
+function extractFunctionBody(sql, functionName) {
+  const escaped = functionName.replaceAll('.', '\\.');
+  const match = sql.match(new RegExp(`CREATE OR REPLACE FUNCTION ${escaped}\\([\\s\\S]*?\\)\\s+RETURNS[\\s\\S]*?AS \\\\$\\\\$([\\s\\S]*?)\\$\\\\$;`, 'm'));
+  if (!match) throw new Error(`Canonical function definition missing: ${functionName}`);
+  return match[1];
+}
+
+function assertOrdered(body, tokens, message) {
+  let offset = 0;
+  for (const token of tokens) {
+    const index = body.indexOf(token, offset);
+    if (index < 0) throw new Error(`${message}: ${token}`);
+    offset = index + token.length;
+  }
+}
 
 export function validateAutonomySafetyChain({ runtime, supabase, cockpit, closure, repair, executeLockdown, cert }) {
   const requiredRuntime = ['trustHealthy', 'evidenceQuality', 'confidence', 'riskBudgetValid', 'criticalDrift', 'rollbackVerified', 'isolationVerified'];
@@ -10,30 +70,24 @@ export function validateAutonomySafetyChain({ runtime, supabase, cockpit, closur
     if (allSources.includes(stale)) throw new Error(`Stale non-canonical autonomy gate reference: ${stale}`);
   }
 
-  if (!supabase.includes("rpc('autonomy_runtime_gate'")) throw new Error('Autonomy runtime adapter missing: autonomy_runtime_gate');
-  if (!supabase.includes('autonomyGate(domainKey)')) throw new Error('Autonomy runtime adapter missing: autonomyGate');
+  assertCanonicalRuntimeAdapter(supabase);
 
-  for (const token of [
-    'CREATE OR REPLACE FUNCTION public.can_enter_phase_l_autonomy',
+  const cockpitGate = extractFunctionBody(cockpit, 'public.can_enter_phase_l_autonomy');
+  assertOrdered(cockpitGate, [
     'public.can_certify_autonomous_domain(p_domain_key)',
     'public.compute_control_plane_health() >= .9',
-    'current_company_id()',
-  ]) if (!cockpit.includes(token)) throw new Error(`Canonical autonomy gate missing: ${token}`);
-
-  if (!/CREATE OR REPLACE FUNCTION public\.can_enter_phase_l_autonomy[\s\S]*?SELECT public\.can_certify_autonomous_domain\(p_domain_key\)[\s\S]*?public\.compute_control_plane_health\(\) >= \.9[\s\S]*?current_company_id\(\)/.test(cockpit)) {
-    throw new Error('Canonical autonomy gate relation is not intact');
+    'public.current_company_id()',
+  ], 'Canonical autonomy gate relation is not intact');
+  if (!cockpitGate.includes("severity IN ('high','critical')") || !cockpitGate.includes("status IN ('open','blocked')")) {
+    throw new Error('Canonical autonomy gate critical-drift guard is not intact');
   }
 
-  for (const token of [
-    'CREATE OR REPLACE FUNCTION public.autonomy_runtime_gate',
+  const runtimeGate = extractFunctionBody(closure, 'public.autonomy_runtime_gate');
+  assertOrdered(runtimeGate, [
     'public.can_enter_phase_l_autonomy(p_domain_key)',
     "public.is_continuous_trust_healthy('production')",
     'critical_drift',
-  ]) if (!closure.includes(token)) throw new Error(`Autonomy runtime closure missing: ${token}`);
-
-  if (!/CREATE OR REPLACE FUNCTION public\.autonomy_runtime_gate[\s\S]*?public\.can_enter_phase_l_autonomy\(p_domain_key\)[\s\S]*?public\.is_continuous_trust_healthy\('production'\)/.test(closure)) {
-    throw new Error('Autonomy runtime closure relation is not intact');
-  }
+  ], 'Autonomy runtime closure relation is not intact');
 
   for (const token of [
     'CREATE TABLE IF NOT EXISTS public.control_plane_health_snapshots',
