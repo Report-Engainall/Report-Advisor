@@ -15,7 +15,13 @@ if (missing.length) {
   process.exit(1);
 }
 
-// progress is a percentage; it must be converted against persisted total_rows.
+const terminalResurrectionFix = fs.readFileSync(path.join(dir, '20260903202500_harden_import_progress_terminal_resurrection.sql'), 'utf8');
+for (const token of ['v_current_status', 'IMPORT_JOB_ALREADY_TERMINAL', "status in ('queued','processing')", 'for update']) {
+  if (!terminalResurrectionFix.toLowerCase().includes(token.toLowerCase())) {
+    throw new Error(`Import terminal resurrection hardening missing: ${token}`);
+  }
+}
+
 const appInvariants = [
   'async function readImportJob',
   'current.total_rows * progress / 100',
@@ -50,16 +56,22 @@ if (regressions.length) {
   process.exit(1);
 }
 
-// Test-of-test: if the row conversion is removed, the contract must fail.
 const tampered = queriesSource.replace('current.total_rows * progress / 100', 'progress');
 let tamperRejected = false;
 try { assertAppContract(tampered); } catch { tamperRejected = true; }
 if (!tamperRejected) throw new Error('Import state test-of-test failed: weakened progress conversion was not detected');
 
-// Test-of-test: removing the incomplete-state fail-closed guard must be detected.
 const weakenedNullGuard = queriesSource.replaceAll('IMPORT_STATE_INSUFFICIENT_DATA', '');
 let nullGuardRejected = false;
 try { assertAppContract(weakenedNullGuard); } catch { nullGuardRejected = true; }
 if (!nullGuardRejected) throw new Error('Import NULL-state test-of-test failed: weakened unknown-state handling was not detected');
 
-console.log('Import lifecycle contract PASS (DB lifecycle + percentage-to-row truth + NULL preservation + regression guard)');
+const weakenedTerminalGuard = terminalResurrectionFix.replace("if v_current_status in ('completed','partial','failed','cancelled') then raise exception 'IMPORT_JOB_ALREADY_TERMINAL'; end if;", '');
+if (!weakenedTerminalGuard.includes("status in ('queued','processing')")) {
+  throw new Error('Import terminal-state test-of-test failed: weakened state gate was not detected');
+}
+if (weakenedTerminalGuard.includes('IMPORT_JOB_ALREADY_TERMINAL')) {
+  throw new Error('Import terminal-state test-of-test failed: terminal guard remained unexpectedly');
+}
+
+console.log('Import lifecycle contract PASS (DB lifecycle + percentage-to-row truth + NULL preservation + terminal-resurrection guard + regression guard)');
