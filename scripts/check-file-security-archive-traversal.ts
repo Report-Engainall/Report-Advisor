@@ -10,7 +10,7 @@ function u32(value: number): number[] { return [value & 0xff, (value >>> 8) & 0x
 function makeZipEntry(name: string): Uint8Array {
   const nameBytes = new TextEncoder().encode(name);
   const local = [0x50,0x4b,0x03,0x04, ...u16(20), ...u16(0), ...u16(0), ...u16(0), ...u16(0), ...u32(0), ...u32(0), ...u32(0), ...u16(nameBytes.length), ...u16(0), ...nameBytes];
-  const central = [0x50,0x4b,0x01,0x02, ...u16(20), ...u16(20), ...u16(0), ...u16(0), ...u16(0), ...u16(0), ...u32(0), ...u32(0), ...u32(0), ...u16(nameBytes.length), ...u16(0), ...u16(0), ...u16(0), ...u16(0), ...u32(0), ...nameBytes];
+  const central = [0x50,0x4b,0x01,0x02, ...u16(20), ...u16(20), ...u16(0), ...u16(0), ...u16(0), ...u16(0), ...u32(0), ...u32(0), ...u32(0), ...u16(nameBytes.length), ...u16(0), ...u16(0), ...u16(0), ...u16(0), ...u32(0), ...u32(0), ...nameBytes];
   const eocd = [0x50,0x4b,0x05,0x06, ...u16(0), ...u16(0), ...u16(1), ...u16(1), ...u32(central.length), ...u32(local.length), ...u16(0)];
   return new Uint8Array([...local, ...central, ...eocd, ...new Array(100).fill(0)]);
 }
