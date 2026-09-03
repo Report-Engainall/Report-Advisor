@@ -18,17 +18,22 @@ const files = {
 };
 
 for (const [relative, content] of Object.entries(files)) fs.writeFileSync(path.join(temp, relative), content);
-
 execFileSync(process.execPath, [checker], { cwd: temp, stdio: 'pipe' });
 
 const cockpitPath = path.join(temp, 'supabase/migrations/20260825140000_phase_l_runtime_cockpit.sql');
-const cockpit = fs.readFileSync(cockpitPath, 'utf8').replace('public.can_certify_autonomous_domain(p_domain_key)', 'public.unrelated_gate(p_domain_key)');
+const cockpit = fs.readFileSync(cockpitPath, 'utf8').replace(
+  'public.can_certify_autonomous_domain(p_domain_key) AND public.compute_control_plane_health() >= .9',
+  'public.compute_control_plane_health() >= .9 AND public.can_certify_autonomous_domain(p_domain_key)',
+);
 fs.writeFileSync(cockpitPath, cockpit);
 assert.throws(() => execFileSync(process.execPath, [checker], { cwd: temp, stdio: 'pipe' }), /Canonical autonomy gate relation is not intact/);
 
 fs.writeFileSync(cockpitPath, files['supabase/migrations/20260825140000_phase_l_runtime_cockpit.sql']);
 const closurePath = path.join(temp, 'supabase/migrations/20260825142000_phase_kl_runtime_closure.sql');
-const closure = fs.readFileSync(closurePath, 'utf8').replace('public.can_enter_phase_l_autonomy(p_domain_key)', 'public.unrelated_gate(p_domain_key)');
+const closure = fs.readFileSync(closurePath, 'utf8').replace(
+  "public.can_enter_phase_l_autonomy(p_domain_key), public.is_continuous_trust_healthy('production')",
+  "public.is_continuous_trust_healthy('production'), public.can_enter_phase_l_autonomy(p_domain_key)",
+);
 fs.writeFileSync(closurePath, closure);
 assert.throws(() => execFileSync(process.execPath, [checker], { cwd: temp, stdio: 'pipe' }), /Autonomy runtime closure relation is not intact/);
 
