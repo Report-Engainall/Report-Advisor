@@ -70,7 +70,9 @@ assert.doesNotThrow(() => validateCurrentHeadIndex(currentIndex, 'aaaaaaaaaaaaaa
 assert.throws(() => validateCurrentHeadIndex(exactIndex, 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'), /INDEX DRIFT/);
 assert.throws(() => validateCurrentHeadIndex(exactIndex, 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb', 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'), /INDEX DRIFT/);
 assert.doesNotThrow(() => validateCurrentHeadIndex(exactIndex, 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb', 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', ['docs/MASTER_EXECUTION_INDEX.md']));
+assert.doesNotThrow(() => validateCurrentHeadIndex(exactIndex, 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb', 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', ['.github/workflows/final-certification-gate.yml']));
+assert.doesNotThrow(() => validateCurrentHeadIndex(exactIndex, 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb', 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', ['scripts/final-certification-provenance.test.mjs']));
 assert.throws(() => validateCurrentHeadIndex(exactIndex, 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb', 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', ['src/app.tsx']), /INDEX DRIFT/);
 assert.throws(() => validateCurrentHeadIndex(exactIndex, 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb', 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', []), /INDEX DRIFT/);
 
-console.log('PASS v4 governance adversarial suite: protocol integrity, layer separation, precedence, performance ledger, under/over-execution, strategy memory, controlled evolution, discovery/evidence truth, canonical index wording, and exact-SHA/index-only boundary attacks rejected.');
+console.log('PASS v4 governance adversarial suite: protocol integrity, layer separation, precedence, performance ledger, under/over-execution, strategy memory, controlled evolution, discovery/evidence truth, canonical index wording, governed certification-contract boundary, metadata-only bypass rejection, and exact-SHA/index-only boundary attacks rejected.');
