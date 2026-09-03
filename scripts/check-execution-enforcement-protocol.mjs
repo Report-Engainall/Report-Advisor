@@ -8,7 +8,7 @@ const REQUIRED_BEHAVIORAL_CASES = ['CASE A:', 'CASE B:', 'CASE C:', 'CASE D:', '
 const REQUIRED_CONTRACT_ANCHORS = ['EXECUTION DEBT', 'EXECUTION DEBT = 0', 'ACTIONABLE DEBT', 'EXTERNAL DEBT', 'RELEASE VELOCITY', 'EXECUTION UTILIZATION', 'WAITING-TIME PARALLELIZATION', 'MAXIMUM SAFE PARALLELISM', 'DEPENDENCY-AWARE SCHEDULING', 'INDEX DRIFT', 'Built', 'Integrated', 'Verified', 'Runtime Proven', 'Production Certified', 'MUST NOT stop', 'MUST NOT be promoted', 'NEXT+1', 'NEXT+2', 'READY + INDEPENDENT = EXECUTE NOW', 'Layer precedence', 'v4.0 governance binding', 'Compact Evidence', 'minimum lineage', 'Project Identity', 'الأغبري', 'العامري', 'OWNER INPUT REQUIRED', 'Production Safety Boundary', 'Protocol-first execution order'];
 const GOVERNANCE_FILE = 'docs/ADAPTIVE_EXECUTION_GOVERNANCE.md';
 const REQUIRED_GOVERNANCE_ANCHORS = ['LAYER 1', 'LAYER 2', 'LAYER 3', 'P0 — Safety / Security / Evidence Integrity', 'P1 — Exact-SHA / Truth / Certification Integrity', 'P2 — Current Master Execution Index', 'P3 — Adaptive Execution Governance', 'P4 — Programmer Execution Protocol', 'EXECUTION PERFORMANCE LEDGER', 'EXECUTION EFFECTIVENESS', 'UNDER-EXECUTION EVENT', 'LOW-VALUE EXECUTION', 'COMMAND QUALITY FEEDBACK', 'STRATEGY MEMORY', 'BASELINE', 'RESULT', 'SMART FRONT PRIORITIZATION', 'OBSERVATION → EVIDENCE → RCA → PROPOSED RULE → CONFLICT CHECK → TEST → ADVERSARIAL → ACCEPT → VERSION → INDEX UPDATE', 'REAL MEASURED DATA > ESTIMATE > NO CLAIM', 'HIGH | MEDIUM | LOW | UNPROVEN', 'Protocol changes must never be silently introduced.', 'ONE-OFF INCIDENT → RECORD', 'REPEATED PATTERN → CANDIDATE STRATEGY/RULE', 'PROVEN SYSTEMIC FAILURE → MANDATORY ENFORCEMENT RULE', 'DISCOVERY ≠ CLOSURE', 'EVIDENCE IS EXACT-SHA BOUND', 'UNPROVEN ≠ PASS', 'EXTERNAL BLOCKER ≠ LOCAL STOP', 'INDEX-ONLY BOUNDARY', 'INDEX UPDATE ≠ CAPABILITY CLOSURE'];
-const FORBIDDEN_WEAKENING_PATTERNS = [/historical\s+pass[\s\S]{0,120}\btransfer(?:s|red)?\b\s+automatically/i, /unproven[\s\S]{0,120}\b(?:be\s+)?(?:promoted|converted)\s+to\s+pass/i, /blocker[\s\S]{0,120}\b(?:may|can|could|should)\s+stop\s+unrelated/i, /next\s*\+\s*1[\s\S]{0,80}\b(?:is\s+)?optional\b/i, /next\s*\+\s*2[\s\S]{0,80}\b(?:is\s+)?optional\b/i, /execution\s+debt[\s\S]{0,100}\b(?:may|can|could|should)\s+be\s+ignored/i, /index\s+update[\s\S]{0,100}\bcounts\s+as\s+(?:execution\s+)?closure/i, /true\s*stop[\s\S]{0,80}\bis\s+allowed\s+before/i, /waiting\s+(?:for|on)\s+(?:ci|test|deployment|workflow)[\s\S]{0,120}\b(?:may|can|could|should)\s+(?:stop|return|report)\b/i, /parallel\s+work[\s\S]{0,100}\b(?:optional|unnecessary|may\s+be\s+skipped)\b/i, /external\s+blocker[\s\S]{0,120}\b(?:may|can|could|should)\s+(?:clear|erase|satisfy)\s+execution\s+debt/i];
+const FORBIDDEN_WEAKENING_PATTERNS = [/historical\s+pass[\s\S]{0,120}\btransfer(?:s|red)?\b\s+automatically/i, /unproven[\s\S]{0,120}\b(?:be\s+)?(?:promoted|converted)\s+to\s+pass/i, /blocker[\s\S]{0,120}\b(?:may|can|could|should)\s+stop\s+unrelated/i, /next\s*\+\s*1[\s\S]{0,80}\b(?:is\s+)?optional\b/i, /next\s*\+\s*2[\s\S]{0,80}\b(?:is\s+)?optional\b/i, /execution\s+debt[\s\S]{0,100}\b(?:may|can|could|should)\s+be\s+ignored/i, /index\s+update[\s\S]{0,100}\bcounts\s+as\s+(?:execution\s+)?closure/i, /true\s*stop[\s\S]{0,80}\bis\s+allowed before/i, /waiting\s+(?:for|on)\s+(?:ci|test|deployment|workflow)[\s\S]{0,120}\b(?:may|can|could|should)\s+(?:stop|return|report)\b/i, /parallel\s+work[\s\S]{0,100}\b(?:optional|unnecessary|may\s+be\s+skipped)\b/i, /external\s+blocker[\s\S]{0,120}\b(?:may|can|could|should)\s+(?:clear|erase|satisfy)\s+execution\s+debt/i];
 const stripComments = value => value.replace(/<!--[\s\S]*?-->/g, '').replace(/(^|\n)\s*\/\/.*(?=\n|$)/g, '$1');
 const normalize = value => value.replaceAll('\r\n', '\n').replace(/[`]/g, '').replace(/[ \t]+/g, ' ').trim().toLowerCase();
 
@@ -62,11 +62,16 @@ export function validateCurrentHeadIndex(index, currentHead, parentHead = '', ch
   const indexedBoundaryHead = boundaryMatch?.[1]?.toLowerCase();
   if (!indexedHead) throw new Error('Index current-head gate rejected: indexed code/test head missing');
 
-  // Canonical B lifecycle: the Index is a frozen historical/governance boundary until
-  // deployment/runtime evidence is complete. It therefore need not equal the candidate.
-  // The safety property is ancestry: the indexed boundary must be an ancestor of the
-  // candidate. Metadata alone cannot satisfy this check.
+  // Canonical B lifecycle: a newer candidate may pass the frozen Index boundary only
+  // when the indexed head is a real ancestor. If the caller supplies a changed-file
+  // manifest, an index-only delta is additionally required; this prevents metadata-only
+  // ancestry from silently authorizing source changes.
   if (indexedHead === head) return true;
+  if (changedFiles !== null) {
+    if (!Array.isArray(changedFiles) || changedFiles.length === 0 || changedFiles.some(file => file !== 'docs/MASTER_EXECUTION_INDEX.md')) {
+      throw new Error(`Index current-head gate rejected: INDEX BOUNDARY NOT ANCESTOR (index=${indexedHead}, boundary=${indexedBoundaryHead ?? 'missing'}, head=${currentHead}, parent=${parentHead || 'unknown'})`);
+    }
+  }
   try {
     execFileSync('git', ['merge-base', '--is-ancestor', indexedHead, head], { stdio: 'ignore' });
     return true;
