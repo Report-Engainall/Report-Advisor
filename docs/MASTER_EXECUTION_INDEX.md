@@ -444,3 +444,11 @@ Do not declare completion because the list becomes short, CI turns green, or a r
 - Active parallel closure work remains: RPC consumer parity, authority audit, import/document/worker/report/performance contract sweeps, and evidence preparation. Protected owner-only operations remain gated.
 - Stop condition for this session: never convert missing runtime evidence into PASS; never inherit evidence from an older SHA; never perform speculative production/DR mutation.
 
+## EXECUTION UPDATE — 2026-09-04
+
+- Deep RBAC/approval forensic pass completed against live Staging schema and canonical migration.
+- `company_memberships` currently has 2 active memberships, both role=`member`; no separate permission/approver table exists. Therefore introducing manager-only approval semantics now would be an invented policy and could break the product. **No speculative mutation made.**
+- `decide_approval()` already enforces authenticated tenant context through `current_company_id()`, requires PENDING state, and blocks self-approval by requiring `requested_by <> auth.uid()`. The authority contract has now been explicitly encoded in `scripts/check-decision-runtime-authorization.mjs` and committed at `8ce2a7f841669f9dca8beacd352c50b290040983`.
+- This closes the previously ambiguous RBAC finding at the contract level; live two-user approval E2E remains owner/runtime evidence, not a code blocker.
+- Next parallel fronts: fresh CI, RPC parity sweep, security-definer surface, document/OCR golden, worker recovery, report/export, and performance. Protected DR/rollback/authenticated-browser gates remain owner-only.
+
