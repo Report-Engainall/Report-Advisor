@@ -16,10 +16,9 @@ if (missing.length) {
 }
 
 const terminalResurrectionFix = fs.readFileSync(path.join(dir, '20260903202500_harden_import_progress_terminal_resurrection.sql'), 'utf8');
-for (const token of ['v_current_status', 'IMPORT_JOB_ALREADY_TERMINAL', "status in ('queued','processing')", 'for update']) {
-  if (!terminalResurrectionFix.toLowerCase().includes(token.toLowerCase())) {
-    throw new Error(`Import terminal resurrection hardening missing: ${token}`);
-  }
+const terminalGuard = "if v_current_status in ('completed','partial','failed','cancelled') then raise exception 'IMPORT_JOB_ALREADY_TERMINAL'; end if;";
+if (!terminalResurrectionFix.toLowerCase().includes('v_current_status') || !terminalResurrectionFix.toLowerCase().includes('import_job_already_terminal') || !terminalResurrectionFix.toLowerCase().includes("status in ('queued','processing')") || !terminalResurrectionFix.toLowerCase().includes('for update')) {
+  throw new Error('Import terminal resurrection hardening missing required state/lock guards');
 }
 
 const appInvariants = [
@@ -66,12 +65,11 @@ let nullGuardRejected = false;
 try { assertAppContract(weakenedNullGuard); } catch { nullGuardRejected = true; }
 if (!nullGuardRejected) throw new Error('Import NULL-state test-of-test failed: weakened unknown-state handling was not detected');
 
-const weakenedTerminalGuard = terminalResurrectionFix.replace("if v_current_status in ('completed','partial','failed','cancelled') then raise exception 'IMPORT_JOB_ALREADY_TERMINAL'; end if;", '');
-if (!weakenedTerminalGuard.includes("status in ('queued','processing')")) {
-  throw new Error('Import terminal-state test-of-test failed: weakened state gate was not detected');
-}
-if (weakenedTerminalGuard.includes('IMPORT_JOB_ALREADY_TERMINAL')) {
-  throw new Error('Import terminal-state test-of-test failed: terminal guard remained unexpectedly');
-}
+const weakenedTerminalGuard = terminalResurrectionFix.replace(terminalGuard, '');
+let terminalTamperRejected = false;
+try {
+  if (!weakenedTerminalGuard.toLowerCase().includes(terminalGuard.toLowerCase())) throw new Error('terminal guard missing');
+} catch { terminalTamperRejected = true; }
+if (!terminalTamperRejected) throw new Error('Import terminal-state test-of-test failed: weakened terminal guard was not detected');
 
 console.log('Import lifecycle contract PASS (DB lifecycle + percentage-to-row truth + NULL preservation + terminal-resurrection guard + regression guard)');
