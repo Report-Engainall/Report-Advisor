@@ -8,6 +8,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -28,6 +32,13 @@ jobs:
         run: |
           set -euo pipefail
           test -n "${GITHUB_SHA}"
-          echo "CERTIFICATION_EXACT_SHA=${GITHUB_SHA}" >> "$GITHUB_STEP_SUMMARY"
+          if [ "${GITHUB_EVENT_NAME}" = "pull_request" ]; then
+            expected_head="$(node -e "const fs=require('fs'); const e=JSON.parse(fs.readFileSync(process.env.GITHUB_EVENT_PATH,'utf8')); process.stdout.write(e.pull_request.head.sha)")"
+            test "$(git rev-parse HEAD)" = "$expected_head"
+            echo "CERTIFICATION_EXACT_SHA=$expected_head" >> "$GITHUB_STEP_SUMMARY"
+          else
+            test "$(git rev-parse HEAD)" = "${GITHUB_SHA}"
+            echo "CERTIFICATION_EXACT_SHA=${GITHUB_SHA}" >> "$GITHUB_STEP_SUMMARY"
+          fi
           echo "Repository certification contracts: PASS" >> "$GITHUB_STEP_SUMMARY"
           echo "Live/production certification remains dependent on external runtime evidence." >> "$GITHUB_STEP_SUMMARY"
