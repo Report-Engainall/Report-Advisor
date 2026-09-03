@@ -20,8 +20,11 @@ for (const file of migrationFiles) {
     if (!/SECURITY\s+DEFINER/i.test(block)) continue;
     const fn = block.match(/CREATE\s+(?:OR\s+REPLACE\s+)?FUNCTION\s+([^\s(]+)/i)?.[1] ?? '<unknown>';
 
-    if (!/SET\s+search_path\s*(?:=|TO)\s*'?public'?/i.test(block)) {
-      failures.push(`${file}: ${fn} missing fixed public search_path`);
+    // A fixed search_path is required. Both public and the more restrictive
+    // pg_catalog-only form are valid; application relations under pg_catalog
+    // must be schema-qualified by the migration itself.
+    if (!/SET\s+search_path\s*(?:=|TO)\s*'?((?:public)|(?:pg_catalog))'?/i.test(block)) {
+      failures.push(`${file}: ${fn} missing fixed search_path (public or pg_catalog)`);
     }
     if (!/current_company_id\s*\(\)|auth\.uid\s*\(\)/i.test(block)) {
       failures.push(`${file}: ${fn} missing authenticated tenant/user binding`);
