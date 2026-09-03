@@ -1,5 +1,6 @@
--- Require explicit decision provenance when the outcome key resolves directly to a decision.
--- This closes the remaining path where a decision-key outcome could be recorded with NULL decision_id.
+-- Require explicit decision provenance when the outcome key resolves directly to a decision,
+-- and when a recommendation already has a decision link.
+-- This closes both NULL-provenance paths without forcing unrelated standalone recommendations to invent a decision.
 CREATE OR REPLACE FUNCTION public.record_recommendation_outcome(
   p_recommendation_key text,
   p_observed_at timestamp with time zone,
@@ -38,6 +39,10 @@ BEGIN
   END IF;
 
   IF v_recommendation_id IS NULL AND p_decision_id IS NULL THEN
+    RAISE EXCEPTION 'DECISION_PROVENANCE_REQUIRED';
+  END IF;
+
+  IF v_recommendation_id IS NOT NULL AND v_decision_from_key IS NOT NULL AND p_decision_id IS NULL THEN
     RAISE EXCEPTION 'DECISION_PROVENANCE_REQUIRED';
   END IF;
 
