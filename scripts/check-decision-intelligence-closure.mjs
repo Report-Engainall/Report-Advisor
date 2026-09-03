@@ -39,6 +39,12 @@ const cancelledFix = fs.readFileSync('supabase/migrations/20260903201500_reconci
 if (!cancelledFix.includes("status = any (array['APPROVED'::text, 'REJECTED'::text, 'CANCELLED'::text])")) throw new Error('CANCELLED is not treated as a terminal approval state');
 if (!cancelledFix.includes('decided_at is not null') || !cancelledFix.includes('decided_by is not null')) throw new Error('terminal approval provenance is not enforced');
 
+const reopenFix = fs.readFileSync('supabase/migrations/20260903204500_block_terminal_approval_reopen.sql','utf8');
+for (const token of ["for update", "v_existing_status in ('APPROVED','REJECTED','CANCELLED')", 'APPROVAL_TERMINAL_NOT_REOPENABLE']) {
+  if (!reopenFix.includes(token)) throw new Error(`terminal approval reopen guard missing: ${token}`);
+}
+if (!reopenFix.includes("and d.status='PROPOSED'")) throw new Error('reopen guard lost decision-state requirement');
+
 console.log('decision/intelligence/runtime vertical slice closure contract: PASS');
 console.log('- approval lifecycle is deterministic');
 console.log('- work lifecycle is deterministic');
@@ -51,3 +57,4 @@ console.log('- authenticated actor identity is recorded on approval transitions'
 console.log('- client work-item creation uses canonical approval-gated RPC');
 console.log('- Decision <-> Recommendation link is tenant-scoped, one-to-one, atomic, and overwrite-resistant');
 console.log('- CANCELLED approval is a valid terminal state with provenance consistency');
+console.log('- terminal approval cannot be reopened by a new request');
