@@ -10,9 +10,8 @@ const cert=fs.readFileSync(path.join(root,'supabase/migrations/20260825150000_ph
 for(const token of ['trustHealthy','evidenceQuality','confidence','riskBudgetValid','criticalDrift','rollbackVerified','isolationVerified']) {
   if(!runtime.includes(token)) throw new Error(`Autonomy gate missing: ${token}`);
 }
-for(const token of ['autonomy_runtime_gate','autonomyGate']) {
-  if(!supabase.includes(token)) throw new Error(`Autonomy runtime client link missing: ${token}`);
-}
+const hasCanonicalClientLink = (source) => source.includes('autonomy_runtime_gate') && source.includes('autonomyGate');
+if(!hasCanonicalClientLink(supabase)) throw new Error('Autonomy runtime client link missing: canonical autonomy_runtime_gate/autonomyGate');
 for(const token of ['is_continuous_trust_healthy','current_company_id()','critical_drift','can_enter_phase_l_autonomy']) {
   if(!sql.includes(token)) throw new Error(`Autonomy SQL safety link missing: ${token}`);
 }
@@ -21,16 +20,8 @@ for(const token of ['can_release_production_certification','rollback_passed','se
 }
 if(cert.includes('GRANT ALL TO anon')) throw new Error('Unsafe certification grant detected');
 
-// Test-of-test: the checker must fail if the canonical runtime gate link is weakened.
-const weakenedClient = supabase.replace('autonomy_runtime_gate', 'missing_runtime_gate');
-if(weakenedClient.includes('autonomy_runtime_gate')) throw new Error('Autonomy test-of-test setup failed');
-let weakenedRejected = false;
-try {
-  if(!weakenedClient.includes('autonomyGate')) throw new Error('autonomyGate link missing');
-  if(weakenedClient.includes('autonomy_runtime_gate')) throw new Error('runtime gate token unexpectedly present');
-} catch {
-  weakenedRejected = true;
-}
-if(!weakenedRejected) throw new Error('Autonomy test-of-test failed: weakened runtime gate link was not rejected');
+// Test-of-test: a weakened client contract must be rejected.
+const weakenedClient = supabase.replaceAll('autonomy_runtime_gate', 'missing_runtime_gate');
+if(hasCanonicalClientLink(weakenedClient)) throw new Error('Autonomy test-of-test failed: weakened runtime gate was accepted');
 
 console.log('Autonomy safety chain: PASS');
