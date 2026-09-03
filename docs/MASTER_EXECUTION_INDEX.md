@@ -8,7 +8,7 @@
 
 ### CURRENT PROJECT STATE
 - Repository: `Report-Engainall/Report-Advisor`.
-- Current repository index boundary head: `ab4f25c63f4f8c63504f9692927a701192a49349` (documentation/evidence-only commit after the worker fix).
+- Current repository index boundary head: `addadd47968d8801d810c12ec577243206833534` (documentation/evidence-only commit after the worker fix).
 - Current code/test candidate: `0d0ad3d07a62132c4ee411894869c743c3fceafa`.
 - The repository may advance through governed documentation/evidence-only synchronization commits; product code/test candidate remains `0d0ad3...` unless a later real code/test mutation is proven.
 - Prior security defect: five SECURITY DEFINER trust/governance helpers used `SET search_path TO 'pg_catalog'` while referencing application relations without schema qualification, producing runtime `42P01 relation-not-found` failures. Fixed in `5dbf20...`.
