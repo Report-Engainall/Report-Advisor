@@ -16,10 +16,11 @@ if (missing.length) {
 }
 
 const terminalResurrectionFix = fs.readFileSync(path.join(dir, '20260903202500_harden_import_progress_terminal_resurrection.sql'), 'utf8');
-const terminalGuard = "if v_current_status in ('completed','partial','failed','cancelled') then raise exception 'IMPORT_JOB_ALREADY_TERMINAL'; end if;";
-if (!terminalResurrectionFix.toLowerCase().includes('v_current_status') || !terminalResurrectionFix.toLowerCase().includes('import_job_already_terminal') || !terminalResurrectionFix.toLowerCase().includes("status in ('queued','processing')") || !terminalResurrectionFix.toLowerCase().includes('for update')) {
+const terminalGuardPattern = /if\s+v_current_status\s+in\s*\('completed','partial','failed','cancelled'\)\s+then\s+raise\s+exception\s+'IMPORT_JOB_ALREADY_TERMINAL';\s+end\s+if;/i;
+if (!terminalResurrectionFix.includes('v_current_status') || !terminalResurrectionFix.toLowerCase().includes('import_job_already_terminal') || !terminalResurrectionFix.toLowerCase().includes("status in ('queued','processing')") || !terminalResurrectionFix.toLowerCase().includes('for update')) {
   throw new Error('Import terminal resurrection hardening missing required state/lock guards');
 }
+if (!terminalGuardPattern.test(terminalResurrectionFix)) throw new Error('Import terminal resurrection hardening: terminal guard shape missing');
 
 const appInvariants = [
   'async function readImportJob',
@@ -65,10 +66,11 @@ let nullGuardRejected = false;
 try { assertAppContract(weakenedNullGuard); } catch { nullGuardRejected = true; }
 if (!nullGuardRejected) throw new Error('Import NULL-state test-of-test failed: weakened unknown-state handling was not detected');
 
-const weakenedTerminalGuard = terminalResurrectionFix.replace(terminalGuard, '');
+const weakenedTerminalGuard = terminalResurrectionFix.replace(terminalGuardPattern, '');
+if (terminalGuardPattern.test(weakenedTerminalGuard)) throw new Error('Import terminal-state test-of-test failed: weakened terminal guard was not actually removed');
 let terminalTamperRejected = false;
 try {
-  if (!weakenedTerminalGuard.toLowerCase().includes(terminalGuard.toLowerCase())) throw new Error('terminal guard missing');
+  if (!terminalGuardPattern.test(weakenedTerminalGuard)) throw new Error('terminal guard missing');
 } catch { terminalTamperRejected = true; }
 if (!terminalTamperRejected) throw new Error('Import terminal-state test-of-test failed: weakened terminal guard was not detected');
 
