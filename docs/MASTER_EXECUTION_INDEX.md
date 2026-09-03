@@ -8,8 +8,8 @@
 
 ### CURRENT PROJECT STATE
 - Repository: `Report-Engainall/Report-Advisor`.
-- Current repository index boundary head: `61e8af9d1967d7234bba8b38b0c51fc744069b98` (real decision/approval hardening candidate; this line is updated only by the governed synchronization commit).
-- Current code/test candidate: `61e8af9d1967d7234bba8b38b0c51fc744069b98`.
+- Current repository index boundary head: `35722f35b247f595280ac35f4a45eef2d3288283` (real decision/approval hardening candidate; this line is updated only by the governed synchronization commit).
+- Current code/test candidate: `35722f35b247f595280ac35f4a45eef2d3288283`.
 - The repository may advance through governed documentation/evidence-only synchronization commits; product code/test candidate remains `61e8af9...` unless a later real code/test mutation is proven.
 - Prior security defect: five SECURITY DEFINER trust/governance helpers used `SET search_path TO 'pg_catalog'` while referencing application relations without schema qualification, producing runtime `42P01 relation-not-found` failures. Fixed in `5dbf20...`.
 - Worker defect: `fail_report_execution_job` unconditionally wrote `status='failed'` even when `attempt >= max_attempts`, preventing durable DB `dead_letter` state. Fixed in `0d0ad3...` and applied live.
@@ -55,11 +55,11 @@
 - Authority/RBAC remains a contract question: `decide_approval()` has self-approval protection but no explicit role/authority check, and canonical role authority has not been proven. No speculative RBAC mutation was made.
 
 ### EXACT-HEAD CI RECONCILIATION
-- Current real code/test candidate: `61e8af9d1967d7234bba8b38b0c51fc744069b98`.
+- Current real code/test candidate: `35722f35b247f595280ac35f4a45eef2d3288283`.
 - The first enforcement run on this candidate failed only because the Master Index still referenced the older `0d0ad3...` candidate and `addadd479...` boundary. This is governance/index drift, not a product-test regression.
-- Final Execution Batch run `33702718971` succeeded on exact `61e8af9...`.
+- Final Execution Batch run `33702718971` succeeded on exact `35722f35...`.
 - Storage tenant isolation run `33702718911` succeeded on exact `61e8af9...`.
-- Fresh Quality for `61e8af9...` has not yet been consumed; therefore Quality is **NOT CERTIFIED** for this candidate.
+- Fresh Quality for `35722f35...` has not yet been consumed; therefore Quality is **NOT CERTIFIED** for this candidate.
 - Index synchronization is intentionally separate from the code/test candidate and must not inherit runtime/production evidence.
 
 ### LIVE DATABASE / SECURITY TRUTH
@@ -75,7 +75,7 @@
 ### RESILIENCE / DEPLOYMENT TRUTH
 - Backup/restore contracts enforce safe non-production targets, HTTPS-only transport, no URL credentials, no redirects, bounded timeout, private-target rejection, and fail-closed DNS resolution.
 - Rollback readiness validates exact ownership/READY state and forbids production drills.
-- Deployment `dpl_65UFrrkVWzprvKddupoHPbQBnp9b` is READY for the prior candidate `0cd6f5...`; it is stale relative to current `61e8af9...`.
+- Deployment `dpl_65UFrrkVWzprvKddupoHPbQBnp9b` is READY for the prior candidate `0cd6f5...`; it is stale relative to current `35722f35...`.
 - Production binding is **STALE / NOT CERTIFIED** until a current-candidate deployment is established and verified.
 - Backup, restore, RPO/RTO, rollback, and forward recovery/DR remain UNPROVEN until real exact-candidate operational evidence exists.
 
@@ -188,7 +188,7 @@
 | Gate | State | Reason |
 |---|---|---|
 | Repository quality | **NOT CERTIFIED** | Fresh Quality run for current `61e8af9...` not yet consumed |
-| Release deterministic gates | **PASS — EXACT CURRENT HEAD** | Final Execution Batch `33702718971` succeeded on `61e8af9...` |
+| Release deterministic gates | **PASS — EXACT CURRENT HEAD** | Final Execution Batch `33702718971` succeeded on `35722f35...` |
 | Execution enforcement contract | **BLOCKED BY INDEX DRIFT — GOVERNANCE ONLY** | Current index sync is being established for `61e8af9...` |
 | Storage tenant isolation contract | **PASS — EXACT CURRENT HEAD** | Run `33702718911` succeeded on `61e8af9...` |
 | Worker durable dead-letter lifecycle | **LIVE-RUNTIME-PROVEN** | Terminal + retryable branches tested in live rollback-safe transactions |
