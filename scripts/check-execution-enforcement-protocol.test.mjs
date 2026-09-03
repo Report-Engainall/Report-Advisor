@@ -26,4 +26,24 @@ const validIndex = `## CURRENT PROJECT STATE\n- Exact code/test head entering th
 assert.equal(validateCurrentHeadIndex(validIndex, 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'), true);
 assert.throws(() => validateCurrentHeadIndex(validIndex, 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'), /INDEX DRIFT/);
 
-console.log('PASS v3.2 enforcement adversarial test-of-test');
+const indexOnlyBoundary = `## CURRENT PROJECT STATE\n- Current repository index boundary head: \`aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\`.\n- Current code/test candidate: \`bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\`.`;
+assert.equal(
+  validateCurrentHeadIndex(
+    indexOnlyBoundary,
+    'cccccccccccccccccccccccccccccccccccccccc',
+    'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+    ['docs/MASTER_EXECUTION_INDEX.md'],
+  ),
+  true,
+);
+assert.throws(
+  () => validateCurrentHeadIndex(
+    indexOnlyBoundary,
+    'cccccccccccccccccccccccccccccccccccccccc',
+    'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+    ['docs/MASTER_EXECUTION_INDEX.md', 'src/app.tsx'],
+  ),
+  /INDEX DRIFT/,
+);
+
+console.log('PASS v3.3 enforcement adversarial test-of-test');
