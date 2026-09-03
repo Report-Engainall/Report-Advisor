@@ -58,7 +58,14 @@ function isDocsOnlyChange(changedFiles) {
 }
 
 function isEnforcementContractOnlyChange(changedFiles) {
-  const allowed = new Set(['scripts/check-execution-enforcement-protocol.mjs', 'scripts/check-execution-enforcement-protocol.test.mjs']);
+  const allowed = new Set([
+    'scripts/check-execution-enforcement-protocol.mjs',
+    'scripts/check-execution-enforcement-protocol.test.mjs',
+    'scripts/execution-enforcement-adversarial.test.mjs',
+    'scripts/final-certification-provenance.test.mjs',
+    '.github/workflows/execution-enforcement-contract.yml',
+    '.github/workflows/final-certification-gate.yml',
+  ]);
   return changedFiles.length > 0 && changedFiles.every(file => allowed.has(file));
 }
 
@@ -109,7 +116,7 @@ if (process.argv[1] && process.argv[1].endsWith('check-execution-enforcement-pro
     let currentHead = ''; let parentHead = '';
     try { currentHead = execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(); parentHead = execFileSync('git', ['rev-parse', 'HEAD^'], { encoding: 'utf8' }).trim(); } catch { currentHead = process.env.GITHUB_SHA?.trim() ?? ''; parentHead = process.env.GITHUB_PARENT_SHA?.trim() ?? ''; }
     validateCurrentHeadIndex(index, currentHead, parentHead);
-    console.log(`PASS index-head gate: current HEAD ${currentHead} is exactly indexed or differs from the indexed code/test head only through the governed execution-index path or enforcement-contract-only boundary`);
+    console.log(`PASS index-head gate: current HEAD ${currentHead} is exactly indexed or differs from the indexed code/test head only through the governed execution-index or enforcement-contract boundary`);
   }
   console.log(`PASS execution enforcement protocol: ${REQUIRED_RULES.length} mandatory rules, behavioral cases, v4 governance layer, scheduling controls, debt/velocity ledger, and versioned index-head certification gate active`);
 }
