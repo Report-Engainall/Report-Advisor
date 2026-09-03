@@ -53,6 +53,15 @@ export function validateAdaptiveGovernance(governance) {
   return true;
 }
 
+function isDocsOnlyChange(changedFiles) {
+  return changedFiles.length > 0 && changedFiles.every(file => file === 'docs/MASTER_EXECUTION_INDEX.md');
+}
+
+function isEnforcementContractOnlyChange(changedFiles) {
+  const allowed = new Set(['scripts/check-execution-enforcement-protocol.mjs', 'scripts/check-execution-enforcement-protocol.test.mjs']);
+  return changedFiles.length > 0 && changedFiles.every(file => allowed.has(file));
+}
+
 export function validateCurrentHeadIndex(index, currentHead, parentHead = '', changedFiles = null) {
   const head = normalize(currentHead);
   if (!head || !/^[0-9a-f]{40}$/.test(head)) throw new Error('Index current-head gate rejected: invalid repository HEAD');
@@ -60,14 +69,19 @@ export function validateCurrentHeadIndex(index, currentHead, parentHead = '', ch
   const indexedHead = currentStateMatch?.[1]?.toLowerCase();
   const indexBoundaryMatch = index.match(/CURRENT PROJECT STATE[\s\S]{0,1200}?Current repository index boundary head[^`]*`([0-9a-f]{40})`/i);
   const indexedBoundaryHead = indexBoundaryMatch?.[1]?.toLowerCase();
-  if (!indexedHead) throw new Error('Index current-head gate rejected: indexed code/test head missing');
-  if (indexedHead === head) return true;
-  try {
-    execFileSync('git', ['merge-base', '--is-ancestor', indexedHead, head], { stdio: 'ignore' });
-    return true;
-  } catch {
-    throw new Error(`Index current-head gate rejected: INDEX BOUNDARY NOT ANCESTOR (index=${indexedHead}, boundary=${indexedBoundaryHead ?? 'missing'}, head=${currentHead}, parent=${parentHead || 'unknown'})`);
+  const exactMatch = indexedHead === head;
+  let computedIndexOnlyBoundary = false;
+  if (!exactMatch && indexedHead) {
+    try { execFileSync('git', ['merge-base', '--is-ancestor', indexedHead, head], { stdio: 'ignore' }); const files = execFileSync('git', ['diff', '--name-only', indexedHead, head], { encoding: 'utf8' }).trim().split('\n').filter(Boolean); computedIndexOnlyBoundary = isDocsOnlyChange(files) || isEnforcementContractOnlyChange(files); } catch { computedIndexOnlyBoundary = false; }
   }
+  const suppliedIndexOnlyBoundary = indexedHead && normalize(parentHead) === indexedHead && Array.isArray(changedFiles) && (isDocsOnlyChange(changedFiles) || isEnforcementContractOnlyChange(changedFiles));
+  let currentBoundaryOnly = false;
+  if (!exactMatch && indexedBoundaryHead && normalize(parentHead) === indexedBoundaryHead) {
+    try { const files = Array.isArray(changedFiles) ? changedFiles : execFileSync('git', ['diff', '--name-only', parentHead, head], { encoding: 'utf8' }).trim().split('\n').filter(Boolean); currentBoundaryOnly = isDocsOnlyChange(files) || isEnforcementContractOnlyChange(files); } catch { currentBoundaryOnly = false; }
+  }
+  const indexOnlyBoundary = computedIndexOnlyBoundary || suppliedIndexOnlyBoundary || currentBoundaryOnly;
+  if (!exactMatch && !indexOnlyBoundary) throw new Error(`Index current-head gate rejected: INDEX DRIFT (index=${indexedHead ?? 'missing'}, boundary=${indexedBoundaryHead ?? 'missing'}, head=${currentHead}, parent=${parentHead || 'unknown'}, indexOnly=${indexOnlyBoundary})`);
+  return true;
 }
 
 const debtLedger = fs.readFileSync('docs/EXECUTION_DEBT_AND_RELEASE_VELOCITY.md', 'utf8');
@@ -95,7 +109,7 @@ if (process.argv[1] && process.argv[1].endsWith('check-execution-enforcement-pro
     let currentHead = ''; let parentHead = '';
     try { currentHead = execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(); parentHead = execFileSync('git', ['rev-parse', 'HEAD^'], { encoding: 'utf8' }).trim(); } catch { currentHead = process.env.GITHUB_SHA?.trim() ?? ''; parentHead = process.env.GITHUB_PARENT_SHA?.trim() ?? ''; }
     validateCurrentHeadIndex(index, currentHead, parentHead);
-    console.log(`PASS index-head gate: frozen Index boundary is valid for current HEAD ${currentHead}; equality is not required before deployment/runtime certification`);
+    console.log(`PASS index-head gate: current HEAD ${currentHead} is exactly indexed or differs from the indexed code/test head only through the governed execution-index path or enforcement-contract-only boundary`);
   }
   console.log(`PASS execution enforcement protocol: ${REQUIRED_RULES.length} mandatory rules, behavioral cases, v4 governance layer, scheduling controls, debt/velocity ledger, and versioned index-head certification gate active`);
 }
