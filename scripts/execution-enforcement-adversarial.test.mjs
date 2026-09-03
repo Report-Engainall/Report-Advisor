@@ -67,10 +67,9 @@ const exactIndex = `## CURRENT PROJECT STATE\n- Exact code/test head entering th
 assert.doesNotThrow(() => validateCurrentHeadIndex(exactIndex, 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'));
 const currentIndex = `## CURRENT PROJECT STATE\n- Current code/test head: \`aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\`.\n- E-INDEX-HEAD: INDEX DRIFT is forbidden before TRUE STOP.`;
 assert.doesNotThrow(() => validateCurrentHeadIndex(currentIndex, 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'));
-assert.throws(() => validateCurrentHeadIndex(exactIndex, 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'), /INDEX DRIFT/);
-assert.throws(() => validateCurrentHeadIndex(exactIndex, 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb', 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'), /INDEX DRIFT/);
-assert.doesNotThrow(() => validateCurrentHeadIndex(exactIndex, 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb', 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', ['docs/MASTER_EXECUTION_INDEX.md']));
-assert.throws(() => validateCurrentHeadIndex(exactIndex, 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb', 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', ['src/app.tsx']), /INDEX DRIFT/);
-assert.throws(() => validateCurrentHeadIndex(exactIndex, 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb', 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', []), /INDEX DRIFT/);
+assert.throws(() => validateCurrentHeadIndex(exactIndex, 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'), /INDEX BOUNDARY NOT ANCESTOR/);
+assert.throws(() => validateCurrentHeadIndex(exactIndex, 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb', 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', ['docs/MASTER_EXECUTION_INDEX.md']), /INDEX BOUNDARY NOT ANCESTOR/);
+assert.throws(() => validateCurrentHeadIndex(exactIndex, 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb', 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', ['src/app.tsx']), /INDEX BOUNDARY NOT ANCESTOR/);
+assert.throws(() => validateCurrentHeadIndex(exactIndex, 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb', 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', []), /INDEX BOUNDARY NOT ANCESTOR/);
 
-console.log('PASS v4 governance adversarial suite: protocol integrity, layer separation, precedence, performance ledger, under/over-execution, strategy memory, controlled evolution, discovery/evidence truth, canonical index wording, and exact-SHA/index-only boundary attacks rejected.');
+console.log('PASS v4 governance adversarial suite: protocol integrity, layer separation, precedence, performance ledger, under/over-execution, strategy memory, controlled evolution, discovery/evidence truth, canonical frozen-index lifecycle, metadata-only bypass rejection, and exact-SHA/index-boundary attacks rejected.');
