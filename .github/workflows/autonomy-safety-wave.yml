@@ -29,3 +29,5 @@ jobs:
           node scripts/check-production-certification-chain.mjs
           node scripts/check-autonomy-safety-chain.mjs
           node scripts/check-final-safety-invariants.mjs
+      - name: Autonomy safety chain adversarial test-of-test
+        run: node scripts/check-autonomy-safety-chain.test.mjs
