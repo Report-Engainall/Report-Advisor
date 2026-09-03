@@ -46,8 +46,8 @@ function assertCanonicalRuntimeAdapter(source) {
 }
 
 function extractFunctionBody(sql, functionName) {
-  const escaped = functionName.replaceAll('.', '\\.');
-  const match = sql.match(new RegExp(`CREATE OR REPLACE FUNCTION ${escaped}\\([\\s\\S]*?\\)\\s+RETURNS[\\s\\S]*?AS \\\\$\\\\$([\\s\\S]*?)\\$\\\\$;`, 'm'));
+  const escaped = functionName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const match = sql.match(new RegExp(`CREATE OR REPLACE FUNCTION ${escaped}\\([\\s\\S]*?\\)\\s+RETURNS[\\s\\S]*?\\$\\$([\\s\\S]*?)\\$\\$;`, 'm'));
   if (!match) throw new Error(`Canonical function definition missing: ${functionName}`);
   return match[1];
 }
