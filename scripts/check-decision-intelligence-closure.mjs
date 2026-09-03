@@ -28,6 +28,20 @@ for (const token of ["d.status = 'APPROVED'", 'DECISION_NOT_APPROVED', 'WORK_ITE
 if (!runtime.includes("supabase.rpc('create_decision_work_item'")) throw new Error('work-item creation must use canonical approval-gated RPC');
 if (/from\(['"]decision_work_items['"]\)\.insert/.test(runtime)) throw new Error('direct client work-item insert bypasses approval gate');
 
+const linkHardening = fs.readFileSync('supabase/migrations/20260903200500_harden_decision_recommendation_one_to_one_atomic_link.sql','utf8');
+for (const token of [
+  'recommendations_company_decision_unique_idx',
+  'decisions_company_recommendation_unique_idx',
+  'for update',
+  'RECOMMENDATION_ALREADY_LINKED',
+  'DECISION_ALREADY_LINKED',
+  'TENANT_CONTEXT_REQUIRED',
+]) {
+  if (!linkHardening.toLowerCase().includes(token.toLowerCase())) throw new Error(`decision/recommendation link hardening missing: ${token}`);
+}
+if (!linkHardening.includes('set decision_id = p_decision_id')) throw new Error('recommendation link is not persisted');
+if (!linkHardening.includes('set recommendation_id = p_recommendation_id')) throw new Error('decision link is not persisted');
+
 console.log('decision/intelligence/runtime vertical slice closure contract: PASS');
 console.log('- approval lifecycle is deterministic');
 console.log('- work lifecycle is deterministic');
@@ -38,3 +52,4 @@ console.log('- completion rejects unapproved/stale work items');
 console.log('- duplicate completion fails closed');
 console.log('- authenticated actor identity is recorded on approval transitions');
 console.log('- client work-item creation uses canonical approval-gated RPC');
+console.log('- Decision <-> Recommendation link is tenant-scoped, one-to-one, atomic, and overwrite-resistant');
