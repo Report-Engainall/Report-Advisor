@@ -29,18 +29,15 @@ if (!runtime.includes("supabase.rpc('create_decision_work_item'")) throw new Err
 if (/from\(['"]decision_work_items['"]\)\.insert/.test(runtime)) throw new Error('direct client work-item insert bypasses approval gate');
 
 const linkHardening = fs.readFileSync('supabase/migrations/20260903200500_harden_decision_recommendation_one_to_one_atomic_link.sql','utf8');
-for (const token of [
-  'recommendations_company_decision_unique_idx',
-  'decisions_company_recommendation_unique_idx',
-  'for update',
-  'RECOMMENDATION_ALREADY_LINKED',
-  'DECISION_ALREADY_LINKED',
-  'TENANT_CONTEXT_REQUIRED',
-]) {
+for (const token of ['recommendations_company_decision_unique_idx','decisions_company_recommendation_unique_idx','for update','RECOMMENDATION_ALREADY_LINKED','DECISION_ALREADY_LINKED','TENANT_CONTEXT_REQUIRED']) {
   if (!linkHardening.toLowerCase().includes(token.toLowerCase())) throw new Error(`decision/recommendation link hardening missing: ${token}`);
 }
 if (!linkHardening.includes('set decision_id = p_decision_id')) throw new Error('recommendation link is not persisted');
 if (!linkHardening.includes('set recommendation_id = p_recommendation_id')) throw new Error('decision link is not persisted');
+
+const cancelledFix = fs.readFileSync('supabase/migrations/20260903201500_reconcile_decision_approval_cancelled_consistency.sql','utf8');
+if (!cancelledFix.includes("status = any (array['APPROVED'::text, 'REJECTED'::text, 'CANCELLED'::text])")) throw new Error('CANCELLED is not treated as a terminal approval state');
+if (!cancelledFix.includes('decided_at is not null') || !cancelledFix.includes('decided_by is not null')) throw new Error('terminal approval provenance is not enforced');
 
 console.log('decision/intelligence/runtime vertical slice closure contract: PASS');
 console.log('- approval lifecycle is deterministic');
@@ -53,3 +50,4 @@ console.log('- duplicate completion fails closed');
 console.log('- authenticated actor identity is recorded on approval transitions');
 console.log('- client work-item creation uses canonical approval-gated RPC');
 console.log('- Decision <-> Recommendation link is tenant-scoped, one-to-one, atomic, and overwrite-resistant');
+console.log('- CANCELLED approval is a valid terminal state with provenance consistency');
