@@ -15,6 +15,10 @@ const required = [
   /status\s*=\s*'APPROVED'/i,
   /REVOKE ALL ON FUNCTION public\.decide_approval/i,
   /REVOKE ALL ON FUNCTION public\.complete_decision_work_item/i,
+  // Approver authority contract: current_company_id() proves an active tenant membership;
+  // approval additionally requires a distinct actor from requested_by.
+  /v_company\s*:=\s*public\.current_company_id\(\)/i,
+  /IF\s+p_approve\s+AND\s+v_requested_by\s*=\s*v_user/i,
 ];
 for (const pattern of required) if (!pattern.test(migration)) throw new Error(`Decision runtime authorization contract missing: ${pattern}`);
 
@@ -39,3 +43,5 @@ if (/IF\s+p_approve\s+AND\s+v_requested_by\s*=\s*v_user\s+THEN\s+RAISE\s+EXCEPTI
 }
 
 console.log('Decision runtime authorization hardening: PASS');
+console.log('- approver authority is bounded to authenticated active tenant membership');
+console.log('- approval actor must differ from requested_by (no self-approval)');
