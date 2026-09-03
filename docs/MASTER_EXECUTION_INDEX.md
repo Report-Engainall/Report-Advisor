@@ -1,6 +1,6 @@
 # Report Advisor — Master Execution & Truth Index
 
-## CURRENT RESUME EXECUTION MAP — 2026-09-03 — v4.25 / OWNER-LAST-MILE EXECUTION MATRIX
+## CURRENT RESUME EXECUTION MAP — 2026-09-03 — v4.26 / PARALLEL CLOSURE EXECUTION
 
 > This file is the authoritative current execution index. Historical execution records remain preserved in Git history and dated execution/evidence documents. No evidence crosses an exact-SHA boundary.
 >
@@ -8,11 +8,14 @@
 
 ### CURRENT PROJECT STATE
 - Repository: `Report-Engainall/Report-Advisor`.
-- Current repository index boundary head: `addadd47968d8801d810c12ec577243206833534` (documentation/evidence-only commit after the worker fix).
-- Current code/test candidate: `0d0ad3d07a62132c4ee411894869c743c3fceafa`.
-- The repository may advance through governed documentation/evidence-only synchronization commits; product code/test candidate remains `0d0ad3...` unless a later real code/test mutation is proven.
+- Current repository index boundary head: `61e8af9d1967d7234bba8b38b0c51fc744069b98` (real decision/approval hardening candidate; this line is updated only by the governed synchronization commit).
+- Current code/test candidate: `61e8af9d1967d7234bba8b38b0c51fc744069b98`.
+- The repository may advance through governed documentation/evidence-only synchronization commits; product code/test candidate remains `61e8af9...` unless a later real code/test mutation is proven.
 - Prior security defect: five SECURITY DEFINER trust/governance helpers used `SET search_path TO 'pg_catalog'` while referencing application relations without schema qualification, producing runtime `42P01 relation-not-found` failures. Fixed in `5dbf20...`.
-- Current worker defect: `fail_report_execution_job` unconditionally wrote `status='failed'` even when `attempt >= max_attempts`, preventing durable DB `dead_letter` state. Fixed in `0d0ad3...` and applied live.
+- Worker defect: `fail_report_execution_job` unconditionally wrote `status='failed'` even when `attempt >= max_attempts`, preventing durable DB `dead_letter` state. Fixed in `0d0ad3...` and applied live.
+- Import defect: progress counters could regress under stale/replayed worker updates. Fixed by monotonic `GREATEST` semantics in `20260903190000_harden_import_progress_monotonicity.sql` and verified by rollback-safe regression testing.
+- Decision/Recommendation defect: singular bidirectional links lacked one-to-one DB enforcement and overwrite/race guards. Fixed in `20260903200500_harden_decision_recommendation_one_to_one_atomic_link.sql` and applied live.
+- Approval defect: `CANCELLED` was in the status domain but excluded by `approval_status_consistency`, making the declared terminal state impossible to represent. Fixed in `20260903201500_reconcile_decision_approval_cancelled_consistency.sql` and applied live.
 - Exact-head CI must be consumed only for the current code/test candidate or a verified index-only boundary.
 
 ### 2026-09-02 SECURITY DEFINER SEARCH-PATH CLOSURE WAVE
@@ -20,7 +23,7 @@
 - Applied migration: `supabase/migrations/20260902231600_reconcile_security_definer_search_path_qualification.sql`.
 - Commit: `5dbf20f4f376896a58f9e8110b9fc813b5069967`.
 - Historical exact-candidate Quality `33678527913` passed; repository/index synchronization runs `33678779951`, `33678779980`, `33678779994`, `33678780020` passed on the then-governed boundary.
-- These older runs do not certify the current worker-fix candidate.
+- These older runs do not certify the current candidate.
 
 ### 2026-09-03 WORKER DURABLE DEAD-LETTER CLOSURE
 - Live `public.report_execution_jobs` contains explicit `dead_letter` status support, `attempt`/`max_attempts` checks, tenant FK, unique `(company_id, job_key)`, and a ready-job index.
@@ -34,18 +37,37 @@
 - Existing in-memory adversarial regression covers idempotency, lease exclusivity, fencing, expiry, token rotation, retry counts, and dead-letter non-reclaimability.
 - Evidence: `docs/EVIDENCE/2026-09-03_WORKER_LIFECYCLE_CLOSURE_BATCH.md`.
 
+### 2026-09-03 DECISION / RECOMMENDATION CARDINALITY CLOSURE
+- Canonical schema shape is singular on both sides: `recommendations.decision_id` and `business_intelligence_decisions.recommendation_id`, with same-tenant composite foreign keys and a bidirectional link RPC.
+- Pre-fix live audit found no unique constraint on either nullable link and demonstrated that the RPC could overwrite an existing recommendation→decision relationship.
+- Live duplicate scan was clean before hardening: 0 duplicate `(company_id,decision_id)` groups and 0 duplicate `(company_id,recommendation_id)` groups.
+- Forward fix: `supabase/migrations/20260903200500_harden_decision_recommendation_one_to_one_atomic_link.sql`.
+- Fix adds partial unique indexes on both nullable link columns, locks both target rows, rejects conflicting existing links, preserves tenant scoping, and updates both directions atomically.
+- Live transactional adversarial probe: same-pair replay succeeds idempotently; attempting to move an already-linked recommendation to a different decision is rejected with `RECOMMENDATION_ALREADY_LINKED` and the transaction is rolled back.
+- No persistent synthetic fixture remains.
+
+### 2026-09-03 APPROVAL CANCELLED CONSISTENCY CLOSURE
+- Live status domain explicitly contained `PENDING|APPROVED|REJECTED|CANCELLED` while the consistency check only permitted `PENDING|APPROVED|REJECTED`.
+- No public cancellation RPC exists; therefore no new cancellation authority was invented.
+- Forward fix: `supabase/migrations/20260903201500_reconcile_decision_approval_cancelled_consistency.sql`.
+- `CANCELLED` is now treated as terminal and requires `decided_at` + `decided_by`, matching terminal provenance semantics.
+- Live rollback-safe probe successfully represented the existing Tenant B approval as `CANCELLED` with provenance, then rolled back with no persistent mutation.
+- Authority/RBAC remains a contract question: `decide_approval()` has self-approval protection but no explicit role/authority check, and canonical role authority has not been proven. No speculative RBAC mutation was made.
+
 ### EXACT-HEAD CI RECONCILIATION
-- Worker-fix code/test head: `0d0ad3d07a62132c4ee411894869c743c3fceafa`.
-- Enforcement run `33695209255` checked out exact worker-fix head but failed only because the index still referenced `5dbf20...`; this was index drift, not a product regression.
-- Evidence synchronization commit `9959aa...` followed the worker fix; the index then tracked that repository boundary while preserving the code/test candidate `0d0ad3...`.
-- Fresh index-only boundary CI on `ab4f25c63f4f8c63504f9692927a701192a49349`: Quality run `33695341291` **SUCCESS**; Final Execution Batch run `33695341243` **SUCCESS**.
-- Quality verification completed all release-readiness, worker lifecycle, production certification evidence-integrity, operational resilience, typecheck, regressions, lint, build, performance-budget, scale, and intelligence/production contract steps successfully at the governed index boundary.
-- The successful CI boundary does not upgrade live authenticated runtime, production binding, backup/restore, rollback, or DR evidence.
-- Windows Desktop exact-head evidence remains separately tracked.
+- Current real code/test candidate: `61e8af9d1967d7234bba8b38b0c51fc744069b98`.
+- The first enforcement run on this candidate failed only because the Master Index still referenced the older `0d0ad3...` candidate and `addadd479...` boundary. This is governance/index drift, not a product-test regression.
+- Final Execution Batch run `33702718971` succeeded on exact `61e8af9...`.
+- Storage tenant isolation run `33702718911` succeeded on exact `61e8af9...`.
+- Fresh Quality for `61e8af9...` has not yet been consumed; therefore Quality is **NOT CERTIFIED** for this candidate.
+- Index synchronization is intentionally separate from the code/test candidate and must not inherit runtime/production evidence.
 
 ### LIVE DATABASE / SECURITY TRUTH
 - Live Staging: 78/78 public tables have RLS; 147 policies; 0 policies targeting `anon`; 0 policies targeting `PUBLIC`; no broad anonymous EXECUTE exposure in the audited SECURITY DEFINER surface.
-- Live worker terminal failure lifecycle is now runtime-proven at the DB boundary.
+- Live worker terminal failure lifecycle is runtime-proven at the DB boundary.
+- Import progress is monotonic and row-locked; terminal finish is row-locked and rejects terminal replay.
+- Decision/Recommendation link uniqueness and overwrite protection are now live.
+- Approval `CANCELLED` consistency is now live.
 - Storage has tenant-path/owner-aware authenticated policies; runtime remains UNPROVEN and no canonical bucket contract was found, so no speculative bucket was created.
 - Prior Auth evidence does not equal authenticated E2E certification.
 - Leaked-password protection remains an owner/control-plane item because connected tooling cannot mutate that setting.
@@ -53,8 +75,8 @@
 ### RESILIENCE / DEPLOYMENT TRUTH
 - Backup/restore contracts enforce safe non-production targets, HTTPS-only transport, no URL credentials, no redirects, bounded timeout, private-target rejection, and fail-closed DNS resolution.
 - Rollback readiness validates exact ownership/READY state and forbids production drills.
-- Previous production deployment `dpl_5quRUVs6BZwSRTbhcvZQySGGm8mG` was READY on old candidate `5dbf20...`; it is now stale relative to `0d0ad3...`.
-- Production binding is **STALE / NOT CERTIFIED** until current-candidate deployment evidence is established.
+- Deployment `dpl_65UFrrkVWzprvKddupoHPbQBnp9b` is READY for the prior candidate `0cd6f5...`; it is stale relative to current `61e8af9...`.
+- Production binding is **STALE / NOT CERTIFIED** until a current-candidate deployment is established and verified.
 - Backup, restore, RPO/RTO, rollback, and forward recovery/DR remain UNPROVEN until real exact-candidate operational evidence exists.
 
 ### EXACT-SHA / EVIDENCE RULES
@@ -68,8 +90,8 @@
 # OWNER-LAST-MILE EXECUTION MATRIX — MANDATORY HANDOFF
 
 ## A. Rule: assistant does everything executable first
-1. Repository/code inspection, sibling-consumer sweeps, root-cause analysis, safe fixes, tests, regressions, migrations, evidence preparation.
-2. GitHub branch/PR/CI inspection, exact-head comparisons, workflow/log/artifact consumption, governed index synchronization.
+1. Repository/code inspection, sibling-consumer sweeps, root-cause analysis, safe fixes, tests, regressions, migrations, evidence preparation, CI, and governed index synchronization.
+2. GitHub branch/PR/CI inspection, exact-head comparisons, workflow/log/artifact consumption.
 3. Supabase schema/RPC/RLS/security-definer/storage/database inspection and safe mutations.
 4. Vercel deployment/configuration/log/runtime inspection and safe authorized mutations.
 5. Runtime plans, scripts, datasets, evidence collectors, exact-SHA packaging.
@@ -136,10 +158,10 @@
 | OWNER-PROD-01 | Unavoidable protected production authorization | Platform permission boundary | Exact safe operation identified | Non-secret result | **OWNER REQUIRED / CONDITIONAL** |
 
 ## G. CURRENT ASSISTANT-FIRST QUEUE
-1. Consume fresh exact-head CI for `0d0ad3...` after index synchronization.
+1. Consume fresh exact-head Quality/CI for `61e8af9...` after governed index synchronization.
 2. Consume/locate fresh Windows Desktop evidence.
 3. Continue RPC/signature/security-definer/sibling-consumer audit.
-4. Continue production runtime forensic checks and stale deployment evidence handling.
+4. Continue production runtime forensic checks and current-candidate deployment evidence.
 5. Continue Authenticated E2E and Tenant A/B evidence preparation.
 6. Continue storage/realtime/AI-vector executable tests.
 7. Continue worker/queue recovery closure.
@@ -165,15 +187,16 @@
 ## CERTIFICATION STATUS — FAIL CLOSED
 | Gate | State | Reason |
 |---|---|---|
-| Repository quality | **PASS — EXACT INDEX BOUNDARY** | Quality run `33695341291` succeeded on `ab4f25...` |
-| Release deterministic gates | **PASS — EXACT INDEX BOUNDARY** | Final Execution Batch `33695341243` succeeded on `ab4f25...` |
-| Execution enforcement contract | **PASS — EXACT INDEX BOUNDARY** | Fresh Quality run succeeded after index synchronization |
-| Storage tenant isolation contract | **PASS — EXACT INDEX BOUNDARY** | Covered by fresh Quality run |
+| Repository quality | **NOT CERTIFIED** | Fresh Quality run for current `61e8af9...` not yet consumed |
+| Release deterministic gates | **PASS — EXACT CURRENT HEAD** | Final Execution Batch `33702718971` succeeded on `61e8af9...` |
+| Execution enforcement contract | **BLOCKED BY INDEX DRIFT — GOVERNANCE ONLY** | Current index sync is being established for `61e8af9...` |
+| Storage tenant isolation contract | **PASS — EXACT CURRENT HEAD** | Run `33702718911` succeeded on `61e8af9...` |
 | Worker durable dead-letter lifecycle | **LIVE-RUNTIME-PROVEN** | Terminal + retryable branches tested in live rollback-safe transactions |
+| Decision/Recommendation one-to-one link | **LIVE-RUNTIME-PROVEN** | Unique indexes live; conflicting reassignment rejected in transactional adversarial probe |
+| Approval CANCELLED consistency | **LIVE-RUNTIME-PROVEN** | Terminal state with provenance accepted in rollback-safe probe |
 | Windows desktop | **PENDING CONSUMPTION** | Exact-head evidence not consumed |
-| Work Item Actionability Guard | **PASS — EXACT INDEX BOUNDARY** | Fresh Quality run succeeded |
-| Production runtime | **STALE / REQUIRES CURRENT-CANDIDATE DEPLOYMENT** | Old deployment is `5dbf20...` |
-| Authenticated E2E | **UNPROVEN / OWNER REQUIRED** | Real browser evidence required |
+| Production runtime | **STALE / REQUIRES CURRENT-CANDIDATE DEPLOYMENT** | Current READY deployment is `0cd6f5...` |
+| Authenticated E2E | **UNPROVEN / OWNER REQUIRED** | Real browser evidence required at current deployed SHA |
 | Live Tenant A/B isolation | **UNPROVEN / OWNER REQUIRED** | Real two-tenant runtime evidence required |
 | Backup | **UNPROVEN / OWNER REQUIRED-CONDITIONAL** | Real artifact required |
 | Restore | **UNPROVEN / OWNER REQUIRED-CONDITIONAL** | Real non-production restore required |
@@ -182,7 +205,7 @@
 | Forward recovery / DR | **UNPROVEN / OWNER REQUIRED-CONDITIONAL** | Real operational environment required |
 | Production binding | **STALE / NOT CERTIFIED** | Current candidate differs from prior deployment |
 | Auth leaked-password protection | **OPEN — OWNER REQUIRED / PRO PLAN** | Control-plane setting unavailable; user verified Pro requirement |
-| Final certification | **BLOCKED** | Live operational evidence and protected owner actions remain |
+| Final certification | **BLOCKED** | Live operational evidence, fresh current-head quality, and protected owner actions remain |
 
 ## I. EXECUTION PROTOCOL — ALWAYS ROTATE
 `READ PROTOCOL → READ INDEX → READ CURRENT EXACT STATE → RESCAN → FIND → CLASSIFY → ROOT CAUSE → FIX → TEST → REGRESSION → EXACT-HEAD CI → RUNTIME → LIVE EVIDENCE → INDEX UPDATE → RESCAN`
@@ -195,9 +218,9 @@
 - Work first, report last.
 
 ### NEXT EXECUTION FRONT
-1. Consume/verify Windows Desktop evidence where accessible.
+1. Consume fresh exact-head Quality and enforcement evidence after the index boundary synchronization.
 2. Continue Supabase RPC/security-definer and sibling-consumer audit.
-3. Continue current-candidate production/runtime readiness.
+3. Continue current-candidate production/runtime readiness without alias mutation.
 4. Continue Authenticated E2E/Tenant A-B owner prerequisite hardening.
 5. Continue storage/realtime/AI-vector executable checks.
 6. Continue resilience, OCR, UI/export, semantic truth, performance/scale, and product acceptance fronts.
