@@ -5,6 +5,11 @@ export function validateAutonomySafetyChain({ runtime, supabase, cockpit, closur
   const requiredRuntime = ['trustHealthy', 'evidenceQuality', 'confidence', 'riskBudgetValid', 'criticalDrift', 'rollbackVerified', 'isolationVerified'];
   for (const token of requiredRuntime) if (!runtime.includes(token)) throw new Error(`Autonomy gate missing: ${token}`);
 
+  const allSources = [runtime, supabase, cockpit, closure, repair, executeLockdown, cert].join('\n');
+  for (const stale of ['canAutonomouslyExecute', 'can_run_phase_l_autonomy']) {
+    if (allSources.includes(stale)) throw new Error(`Stale non-canonical autonomy gate reference: ${stale}`);
+  }
+
   if (!supabase.includes("rpc('autonomy_runtime_gate'")) throw new Error('Autonomy runtime adapter missing: autonomy_runtime_gate');
   if (!supabase.includes('autonomyGate(domainKey)')) throw new Error('Autonomy runtime adapter missing: autonomyGate');
 
