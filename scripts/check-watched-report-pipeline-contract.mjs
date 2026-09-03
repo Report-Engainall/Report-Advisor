@@ -22,9 +22,16 @@ if(!fs.existsSync(path.join(root,roadmapPath)))throw new Error(`Missing master r
 const roadmap=read(roadmapPath);
 for(const token of ['Automatic watched-folder synchronization','Revised reports are fingerprinted','First-stage text-first extraction/reconstruction','Extraction is a quality layer, not a single point of failure','Canonical report reconstruction must preserve','parse-once cache and report-version lineage'])if(!roadmap.includes(token))throw new Error(`Master requirement missing: ${token}`);
 
-// Test-of-test: a weakened boundary must not be accepted as canonical.
-const weakened=boundarySql.replace('REVOKE INSERT, UPDATE, DELETE ON TABLE public.watched_report_files FROM authenticated','-- revoked');
-if(weakened.includes('REVOKE INSERT, UPDATE, DELETE ON TABLE public.watched_report_files FROM authenticated'))throw new Error('Watched boundary test-of-test setup failed');
-if(weakened.includes('GRANT EXECUTE ON FUNCTION public.record_watched_report_file') && !weakened.includes('REVOKE INSERT, UPDATE, DELETE'))throw new Error('Watched boundary test-of-test failed: direct DML weakening was not detected');
+// Test-of-test: the checker must reject a deliberately weakened boundary.
+const revokeDirectDml = 'REVOKE INSERT, UPDATE, DELETE ON TABLE public.watched_report_files FROM authenticated';
+const grantDirectDml = 'GRANT INSERT, UPDATE, DELETE ON TABLE public.watched_report_files FROM authenticated';
+const validateBoundary = (candidate) => {
+  if (!candidate.includes(revokeDirectDml)) throw new Error('Watched boundary check: direct DML revoke missing');
+  if (!candidate.includes('GRANT EXECUTE ON FUNCTION public.record_watched_report_file')) throw new Error('Watched boundary check: canonical RPC grant missing');
+};
+validateBoundary(boundarySql);
+const weakened = boundarySql.replace(revokeDirectDml, grantDirectDml);
+assert.equal(weakened.includes(grantDirectDml), true);
+assert.throws(() => validateBoundary(weakened), /direct DML revoke missing/);
 
 console.log('Watched reports + text-first fallback + canonical direct-write boundary + master-plan contract: PASS');
