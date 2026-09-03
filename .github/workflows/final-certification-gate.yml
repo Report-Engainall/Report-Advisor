@@ -1,16 +1,36 @@
 name: Final Certification Gate
+
 on:
+  push:
   pull_request:
   workflow_dispatch:
+    inputs:
+      candidate_sha:
+        description: Exact commit SHA to certify
+        required: true
+        type: string
+
+permissions:
+  contents: read
 
 jobs:
   certification-contracts:
     runs-on: ubuntu-latest
+    env:
+      CERTIFICATION_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.event_name == 'workflow_dispatch' && inputs.candidate_sha || github.sha }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.CERTIFICATION_SHA }}
+          fetch-depth: 0
+          persist-credentials: false
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: npm
+      - name: Install locked dependencies
+        shell: bash
+        run: npm ci --include=dev --no-audit --no-fund
       - name: Run certification contract tests
         shell: bash
         run: |
@@ -19,11 +39,39 @@ jobs:
             echo "Running $f"
             node "$f"
           done
+      - name: Verify certification provenance
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "${CERTIFICATION_SHA}"
+          actual_sha="$(git rev-parse HEAD)"
+          test "$actual_sha" = "${CERTIFICATION_SHA}"
+          if [ "${GITHUB_EVENT_NAME}" = "pull_request" ]; then
+            expected_head="$(node -e "const fs=require('fs'); const e=JSON.parse(fs.readFileSync(process.env.GITHUB_EVENT_PATH,'utf8')); process.stdout.write(e.pull_request.head.sha)")"
+            test "$expected_head" = "${CERTIFICATION_SHA}"
+            test "$actual_sha" = "$expected_head"
+            if [ -n "${GITHUB_SHA:-}" ] && [ "${GITHUB_SHA}" != "${CERTIFICATION_SHA}" ]; then
+              echo "Synthetic PR merge SHA ${GITHUB_SHA} is explicitly rejected as certification evidence."
+            fi
+          elif [ "${GITHUB_EVENT_NAME}" = "push" ]; then
+            test "${CERTIFICATION_SHA}" = "${GITHUB_SHA}"
+          elif [ "${GITHUB_EVENT_NAME}" = "workflow_dispatch" ]; then
+            test -n "${{ inputs.candidate_sha }}"
+            test "${CERTIFICATION_SHA}" = "${{ inputs.candidate_sha }}"
+          else
+            echo "Unsupported certification trigger: ${GITHUB_EVENT_NAME}" >&2
+            exit 1
+          fi
+          echo "CERTIFICATION_EXACT_SHA=${CERTIFICATION_SHA}" >> "$GITHUB_STEP_SUMMARY"
+          echo "CERTIFICATION_CHECKOUT_HEAD=${actual_sha}" >> "$GITHUB_STEP_SUMMARY"
+          echo "CERTIFICATION_PROVENANCE=checkout=HEAD=tested=evidence" >> "$GITHUB_STEP_SUMMARY"
+      - name: Run certification provenance adversarial test-of-test
+        shell: bash
+        run: node scripts/final-certification-provenance.test.mjs
       - name: Enforce exact commit evidence
         shell: bash
         run: |
           set -euo pipefail
-          test -n "${GITHUB_SHA}"
-          echo "CERTIFICATION_EXACT_SHA=${GITHUB_SHA}" >> "$GITHUB_STEP_SUMMARY"
+          test "$(git rev-parse HEAD)" = "${CERTIFICATION_SHA}"
           echo "Repository certification contracts: PASS" >> "$GITHUB_STEP_SUMMARY"
           echo "Live/production certification remains dependent on external runtime evidence." >> "$GITHUB_STEP_SUMMARY"
