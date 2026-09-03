@@ -25,6 +25,7 @@ for(const token of ['Automatic watched-folder synchronization','Revised reports 
 // Test-of-test: a weakened boundary must not be accepted as canonical.
 const weakened=boundarySql.replace('REVOKE INSERT, UPDATE, DELETE ON TABLE public.watched_report_files FROM authenticated','-- revoked');
 if(weakened.includes('REVOKE INSERT, UPDATE, DELETE ON TABLE public.watched_report_files FROM authenticated'))throw new Error('Watched boundary test-of-test setup failed');
-if(weakened.includes('GRANT EXECUTE ON FUNCTION public.record_watched_report_file') && !weakened.includes('REVOKE INSERT, UPDATE, DELETE'))throw new Error('Watched boundary test-of-test failed: direct DML weakening was not detected');
+if(!weakened.includes('-- revoked') || weakened.includes('REVOKE INSERT, UPDATE, DELETE ON TABLE public.watched_report_files FROM authenticated'))throw new Error('Watched boundary test-of-test setup failed: direct DML weakening was not represented');
+if(weakened.includes('GRANT EXECUTE ON FUNCTION public.record_watched_report_file') && weakened.includes('GRANT INSERT, UPDATE, DELETE ON TABLE public.watched_report_files FROM authenticated'))throw new Error('Watched boundary test-of-test failed: direct DML weakening was not detected');
 
 console.log('Watched reports + text-first fallback + canonical direct-write boundary + master-plan contract: PASS');
