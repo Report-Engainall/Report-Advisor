@@ -10,8 +10,8 @@ for (const dir of ['src/lib', 'supabase/migrations']) fs.mkdirSync(path.join(tem
 
 const runtime = 'trustHealthy evidenceQuality confidence riskBudgetValid criticalDrift rollbackVerified isolationVerified';
 const canonicalAdapter = `import type { SupabaseClient } from '@supabase/supabase-js';\nexport class PhaseKLSupabaseRuntime {\n  constructor(private readonly client: SupabaseClient) {}\n  async autonomyGate(domainKey: string) {\n    const { data, error } = await this.client.rpc('autonomy_runtime_gate', { p_domain_key: domainKey });\n    if (error) throw error;\n    return data;\n  }\n}`;
-const cockpit = `CREATE OR REPLACE FUNCTION public.can_enter_phase_l_autonomy(p_domain_key text)\nRETURNS boolean LANGUAGE sql SECURITY DEFINER AS $$\nSELECT public.can_certify_autonomous_domain(p_domain_key)\n  AND public.compute_control_plane_health() >= .9\n  AND public.current_company_id() IS NOT NULL\n  AND NOT EXISTS (SELECT 1 FROM control_plane_drift_events WHERE severity IN ('high','critical') AND status IN ('open','blocked'));\n$$;`;
-const closure = `CREATE OR REPLACE FUNCTION public.autonomy_runtime_gate(p_domain_key text)\nRETURNS jsonb LANGUAGE sql SECURITY DEFINER AS $$\nSELECT jsonb_build_object('eligible', public.can_enter_phase_l_autonomy(p_domain_key), 'trust_healthy', public.is_continuous_trust_healthy('production'), 'critical_drift', EXISTS (SELECT 1 FROM control_plane_drift_events));\n$$;`;
+const cockpit = `CREATE OR REPLACE FUNCTION public.can_enter_phase_l_autonomy(p_domain_key text)\nRETURNS boolean LANGUAGE sql AS $$\nSELECT public.can_certify_autonomous_domain(p_domain_key)\n  AND public.compute_control_plane_health() >= .9\n  AND public.current_company_id() IS NOT NULL\n  AND NOT EXISTS (SELECT 1 FROM control_plane_drift_events WHERE severity IN ('high','critical') AND status IN ('open','blocked'));\n$$;`;
+const closure = `CREATE OR REPLACE FUNCTION public.autonomy_runtime_gate(p_domain_key text)\nRETURNS jsonb LANGUAGE sql AS $$\nSELECT jsonb_build_object('eligible', public.can_enter_phase_l_autonomy(p_domain_key), 'trust_healthy', public.is_continuous_trust_healthy('production'), 'critical_drift', EXISTS (SELECT 1 FROM control_plane_drift_events));\n$$;`;
 const repair = `CREATE TABLE IF NOT EXISTS public.control_plane_health_snapshots;\nCREATE TABLE IF NOT EXISTS public.executive_evidence_graph;\nCREATE TABLE IF NOT EXISTS public.autonomy_certification_evidence;\nCREATE OR REPLACE FUNCTION public.compute_control_plane_health;\nCREATE OR REPLACE FUNCTION public.can_enter_phase_l_autonomy;\nCREATE OR REPLACE FUNCTION public.autonomy_runtime_gate;`;
 const lockdown = `REVOKE ALL ON FUNCTION public.compute_control_plane_health() FROM PUBLIC;\nGRANT EXECUTE ON FUNCTION public.compute_control_plane_health() TO authenticated;\nREVOKE ALL ON FUNCTION public.can_enter_phase_l_autonomy(text) FROM PUBLIC;\nGRANT EXECUTE ON FUNCTION public.can_enter_phase_l_autonomy(text) TO authenticated;\nREVOKE ALL ON FUNCTION public.autonomy_runtime_gate(text) FROM PUBLIC;\nGRANT EXECUTE ON FUNCTION public.autonomy_runtime_gate(text) TO authenticated;`;
 const cert = 'can_release_production_certification rollback_passed security_audit_passed artifact_integrity_passed';
@@ -27,25 +27,22 @@ const files = {
 };
 
 for (const [relative, content] of Object.entries(files)) fs.writeFileSync(path.join(temp, relative), content);
-
 const runChecker = () => execFileSync(process.execPath, [checker], { cwd: temp, stdio: 'pipe' });
+
+// Canonical signature: PASS.
 runChecker();
 
-// Canonical signature is accepted.
-fs.writeFileSync(path.join(temp, 'src/lib/phase-kl-supabase-runtime.ts'), canonicalAdapter.replace('autonomyGate(domainKey: string)', 'autonomyGate(domainKey: string)'));
-runChecker();
-
-// Adapter method removed: must fail.
+// Adapter method removed: FAIL.
 fs.writeFileSync(path.join(temp, 'src/lib/phase-kl-supabase-runtime.ts'), canonicalAdapter.replace(/async autonomyGate[\s\S]*?\n  }\n}/, '}'));
 assert.throws(runChecker, /Canonical autonomy runtime adapter method missing: autonomyGate/);
 fs.writeFileSync(path.join(temp, 'src/lib/phase-kl-supabase-runtime.ts'), canonicalAdapter);
 
-// RPC changed to a non-canonical alias: must fail.
-fs.writeFileSync(path.join(temp, 'src/lib/phase-kl-supabase-runtime.ts'), canonicalAdapter.replace("rpc('autonomy_runtime_gate'", "rpc('can_run_phase_l_autonomy'"));
+// RPC changed to a non-canonical name: FAIL.
+fs.writeFileSync(path.join(temp, 'src/lib/phase-kl-supabase-runtime.ts'), canonicalAdapter.replace("rpc('autonomy_runtime_gate'", "rpc('autonomy_runtime_gate_alias'"));
 assert.throws(runChecker, /Canonical autonomyGate must call rpc\('autonomy_runtime_gate'/);
 fs.writeFileSync(path.join(temp, 'src/lib/phase-kl-supabase-runtime.ts'), canonicalAdapter);
 
-// DB chain broken: can_enter no longer delegates to can_certify first.
+// DB chain broken: FAIL.
 fs.writeFileSync(
   path.join(temp, 'supabase/migrations/20260825140000_phase_l_runtime_cockpit.sql'),
   cockpit.replace('SELECT public.can_certify_autonomous_domain(p_domain_key)', 'SELECT public.compute_control_plane_health() >= .9'),
@@ -53,7 +50,7 @@ fs.writeFileSync(
 assert.throws(runChecker, /Canonical autonomy gate relation is not intact/);
 fs.writeFileSync(path.join(temp, 'supabase/migrations/20260825140000_phase_l_runtime_cockpit.sql'), cockpit);
 
-// Execute lockdown removed: must fail.
+// Execute lockdown removed: FAIL.
 fs.writeFileSync(
   path.join(temp, 'supabase/migrations/20260903034000_lockdown_autonomy_runtime_execute.sql'),
   lockdown.replace('REVOKE ALL ON FUNCTION public.autonomy_runtime_gate(text) FROM PUBLIC;', '-- weakened lockdown'),
@@ -61,7 +58,7 @@ fs.writeFileSync(
 assert.throws(runChecker, /Autonomy execute lockdown missing: public\.autonomy_runtime_gate\(text\)/);
 fs.writeFileSync(path.join(temp, 'supabase/migrations/20260903034000_lockdown_autonomy_runtime_execute.sql'), lockdown);
 
-// Stale alias introduced without changing the canonical adapter: must fail.
+// Stale alias introduced without changing the canonical adapter: FAIL.
 fs.writeFileSync(
   path.join(temp, 'src/lib/phase-kl-supabase-runtime.ts'),
   `${canonicalAdapter}\n// stale alias: canAutonomouslyExecute`,
