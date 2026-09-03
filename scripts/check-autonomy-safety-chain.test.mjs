@@ -44,5 +44,10 @@ const lockdown = fs.readFileSync(lockdownPath, 'utf8').replace('REVOKE ALL ON FU
 fs.writeFileSync(lockdownPath, lockdown);
 assert.throws(() => execFileSync(process.execPath, [checker], { cwd: temp, stdio: 'pipe' }), /Autonomy execute lockdown missing: public\.autonomy_runtime_gate\(text\)/);
 
+fs.writeFileSync(lockdownPath, files['supabase/migrations/20260903034000_lockdown_autonomy_runtime_execute.sql']);
+const runtimePath = path.join(temp, 'src/lib/production-intelligence.ts');
+fs.writeFileSync(runtimePath, `${fs.readFileSync(runtimePath, 'utf8')}\n// stale alias mutation: canAutonomouslyExecute`);
+assert.throws(() => execFileSync(process.execPath, [checker], { cwd: temp, stdio: 'pipe' }), /Stale non-canonical autonomy gate reference: canAutonomouslyExecute/);
+
 fs.rmSync(temp, { recursive: true, force: true });
 console.log('Autonomy safety chain Test-of-Test: PASS');
