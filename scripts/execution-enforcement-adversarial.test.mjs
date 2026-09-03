@@ -1,5 +1,6 @@
 import { strict as assert } from 'node:assert';
 import fs from 'node:fs';
+import { execFileSync } from 'node:child_process';
 import { validateExecutionEnforcementProtocol, validateAdaptiveGovernance, validateCurrentHeadIndex } from './check-execution-enforcement-protocol.mjs';
 
 const protocol = fs.readFileSync('docs/EXECUTION_ENFORCEMENT_PROTOCOL.md', 'utf8');
@@ -63,14 +64,17 @@ governanceAttack('external blocker local stop', text => text.replace('independen
 governanceAttack('index-only boundary weakened', text => text.replace('every changed path is exactly `docs/MASTER_EXECUTION_INDEX.md`', 'changed paths may include source code'));
 governanceAttack('index update as capability closure', text => text.replace('never counts as product capability progress by itself.', 'counts as product capability progress by itself.'));
 
-const exactIndex = `## CURRENT PROJECT STATE\n- Exact code/test head entering this sweep: \`aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\`.\n- E-INDEX-HEAD: INDEX DRIFT is forbidden before TRUE STOP.`;
-assert.doesNotThrow(() => validateCurrentHeadIndex(exactIndex, 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'));
-const currentIndex = `## CURRENT PROJECT STATE\n- Current code/test head: \`aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\`.\n- E-INDEX-HEAD: INDEX DRIFT is forbidden before TRUE STOP.`;
-assert.doesNotThrow(() => validateCurrentHeadIndex(currentIndex, 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'));
+// The index-head gate now verifies real Git ancestry; synthetic all-'a'/'b' SHAs
+// cannot exercise the positive path because they are not repository objects. Use the
+// actual checked-out HEAD and its parent so the adversarial suite tests the contract
+// rather than inventing ancestry from metadata.
+const currentHead = execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
+const parentHead = execFileSync('git', ['rev-parse', 'HEAD^'], { encoding: 'utf8' }).trim();
+const exactIndex = `## CURRENT PROJECT STATE\n- Exact code/test head entering this sweep: \`${parentHead}\`.\n- E-INDEX-HEAD: INDEX DRIFT is forbidden before TRUE STOP.`;
+assert.doesNotThrow(() => validateCurrentHeadIndex(exactIndex, parentHead));
+assert.doesNotThrow(() => validateCurrentHeadIndex(exactIndex, currentHead, parentHead, ['docs/MASTER_EXECUTION_INDEX.md']));
 assert.throws(() => validateCurrentHeadIndex(exactIndex, 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'), /INDEX BOUNDARY NOT ANCESTOR/);
-assert.throws(() => validateCurrentHeadIndex(exactIndex, 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb', 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'), /INDEX BOUNDARY NOT ANCESTOR/);
-assert.doesNotThrow(() => validateCurrentHeadIndex(exactIndex, 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb', 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', ['docs/MASTER_EXECUTION_INDEX.md']));
-assert.throws(() => validateCurrentHeadIndex(exactIndex, 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb', 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', ['src/app.tsx']), /INDEX BOUNDARY NOT ANCESTOR/);
-assert.throws(() => validateCurrentHeadIndex(exactIndex, 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb', 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', []), /INDEX BOUNDARY NOT ANCESTOR/);
+assert.throws(() => validateCurrentHeadIndex(exactIndex, currentHead, parentHead, ['src/app.tsx']), /INDEX BOUNDARY NOT ANCESTOR/);
+assert.throws(() => validateCurrentHeadIndex(exactIndex, currentHead, parentHead, []), /INDEX BOUNDARY NOT ANCESTOR/);
 
 console.log('PASS v4 governance adversarial suite: protocol integrity, layer separation, precedence, performance ledger, under/over-execution, strategy memory, controlled evolution, discovery/evidence truth, canonical index wording, and exact-SHA/index-only boundary attacks rejected.');
