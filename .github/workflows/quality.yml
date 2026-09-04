@@ -91,6 +91,10 @@ jobs:
         run: npm run test:production-certification-contract
       - name: Release evidence consumption workflow
         run: npm run test:release-evidence-consumption-workflow
+      - name: Release certification fail-closed test-of-test
+        run: node scripts/check-release-certification-failclosed.mjs
+      - name: Truth matrix test-of-test
+        run: node scripts/real-report-truth-matrix.test-of-test.mjs
       - name: Operational resilience certification
         run: npm run test:operational-resilience && npm run test:release-resilience-manifest && node scripts/resilience-runtime.test.mjs && node scripts/check-release-evidence-contract.mjs && node scripts/check-release-workflow-contract.mjs
       - name: Continuous trust certification
