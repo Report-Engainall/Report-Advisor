@@ -15,12 +15,14 @@ try {
   ];
   const normalize = (value) => value.replaceAll('\\\\', '/');
   const isInside = (r, target) => { const rel = path.relative(r, target); return rel !== '' && !rel.startsWith('..') && !path.isAbsolute(rel); };
+  const isLexicallySafe = (value) => !value.startsWith('/') && !/^[A-Za-z]:\//.test(value) && !value.split('/').some((segment) => segment === '..');
   for (const input of cases) {
     const normalized = normalize(input);
     const resolved = path.resolve(root, normalized);
-    const accepted = isInside(root, resolved);
-    const expected = !normalized.startsWith('/') && !/^[A-Za-z]:\//.test(normalized) && !normalized.split('/').some((segment) => segment === '..');
-    assert(accepted === expected, `deterministic path case ${input}`);
+    const physicallyInside = isInside(root, resolved);
+    const lexicallySafe = isLexicallySafe(normalized);
+    const accepted = physicallyInside && lexicallySafe;
+    assert(accepted === lexicallySafe, `deterministic path case ${input}`);
   }
 
   await fsp.mkdir(path.join(root, 'nested', 'عربي'), { recursive: true });
