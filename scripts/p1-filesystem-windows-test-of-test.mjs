@@ -12,7 +12,7 @@ const runtimeGuard = (source) => ({
   duplicateGuard: source.includes('known.get(filePath)===key'),
   pendingGuard: source.includes('pending.has(filePath)'),
   handleOpen: /(?<![A-Za-z0-9_$])fs\.promises\.open(?![A-Za-z0-9_$])/.test(source) && /(?<![A-Za-z0-9_$])handle\.stat(?![A-Za-z0-9_$])/.test(source) && /(?<![A-Za-z0-9_$])handle\.readFile(?![A-Za-z0-9_$])/.test(source),
-  noFollow: /(?<![A-Za-z0-9_$])fs\.constants\.O_NOFOLLOW(?![A-Za-z0-9_$])/ .test(source),
+  noFollow: /(?<![A-Za-z0-9_$])fs\.constants\.O_NOFOLLOW(?![A-Za-z0-9_$])/.test(source),
 });
 const securityGuard = (source) => ({
   parentSegment: source.includes("segment === '..'"),
@@ -21,14 +21,20 @@ const securityGuard = (source) => ({
 });
 const securityIntegration = fs.readFileSync('src/lib/file-engine/security.ts', 'utf8');
 const integrationGuard = (source) => ({
-  archivePathGuard: source.includes('isUnsafeArchivePath'),
-  archiveEntryGuard: source.includes('hasZipEntryTraversal'),
+  archivePathGuard: /(?<![A-Za-z0-9_$])isUnsafeArchivePath(?![A-Za-z0-9_$])/.test(source),
+  archiveEntryGuard: /(?<![A-Za-z0-9_$])hasZipEntryTraversal(?![A-Za-z0-9_$])/.test(source),
 });
 
 const expected = runtimeGuard(main); const secExpected = securityGuard(security); const integrationExpected = integrationGuard(securityIntegration);
 for (const [name, value] of Object.entries(expected)) assert(value, `baseline guard missing: ${name}`);
 for (const [name, value] of Object.entries(secExpected)) assert(value, `baseline archive guard missing: ${name}`);
 for (const [name, value] of Object.entries(integrationExpected)) assert(value, `archive integration missing: ${name}`);
+
+const noFollowToken = 'fs.constants.O_NOFOLLOW';
+const noFollowExactPattern = /(?<![A-Za-z0-9_$])fs\.constants\.O_NOFOLLOW(?![A-Za-z0-9_$])/g;
+const noFollowCount = (source) => (source.match(noFollowExactPattern) || []).length;
+const baselineNoFollowOccurrences = noFollowCount(main);
+assert(baselineNoFollowOccurrences === 2, `no-follow target occurrence count changed: expected 2, got ${baselineNoFollowOccurrences}`);
 
 const mutations = [
   ['traversal predicate', (s) => s.replace('path.relative(root,filePath)', 'path.resolve(root,filePath)')],
@@ -38,10 +44,15 @@ const mutations = [
   ['duplicate event guard', (s) => s.replace('known.get(filePath)===key', 'known.get(filePath)!==key')],
   ['pending duplicate guard', (s) => s.replace('pending.has(filePath)', 'pending.has(filePathRemoved)')],
   ['TOCTOU handle guard', (s) => s.replaceAll('fs.promises.open', 'fs.promises.openRemoved').replaceAll('handle.stat', 'handle.statRemoved').replaceAll('handle.readFile', 'handle.readFileRemoved')],
-  ['no-follow guard', (s) => s.replace('fs.constants.O_NOFOLLOW', 'fs.constants.O_NOFOLLOW_REMOVED')],
+  ['no-follow guard', (s) => s.replaceAll(noFollowToken, `${noFollowToken}_REMOVED`)],
 ];
 for (const [name, mutate] of mutations) {
-  const mutated = runtimeGuard(mutate(main));
+  const mutatedSource = mutate(main);
+  if (name === 'no-follow guard') {
+    const mutatedOccurrences = noFollowCount(mutatedSource);
+    assert(mutatedOccurrences === 0, `no-follow mutation incomplete: expected 0 occurrences, got ${mutatedOccurrences}`);
+  }
+  const mutated = runtimeGuard(mutatedSource);
   const changed = Object.entries(expected).some(([key, value]) => value && !mutated[key]);
   assert(changed, `mutation was not detected: ${name}`);
 }
@@ -67,4 +78,4 @@ for (const [name, mutate] of integrationMutations) {
   assert(changed, `mutation was not detected: ${name}`);
 }
 
-console.log(JSON.stringify({ testOfTest: 'PASS', runtimeMutationsDetected: mutations.length, archiveMutationsDetected: archiveMutations.length, integrationMutationsDetected: integrationMutations.length, falseGreenGuard: true }));
+console.log(JSON.stringify({ testOfTest: 'PASS', runtimeMutationsDetected: mutations.length, archiveMutationsDetected: archiveMutations.length, integrationMutationsDetected: integrationMutations.length, noFollowBaselineOccurrences: baselineNoFollowOccurrences, noFollowMutationCoverage: true, falseGreenGuard: true }));
