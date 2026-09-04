@@ -25,4 +25,7 @@ jobs:
       - name: File Intelligence security contract
         run: npm run test:file-intelligence-security
       - name: ZIP archive traversal regression
+        env:
+          VITE_SUPABASE_URL: https://example.invalid
+          VITE_SUPABASE_ANON_KEY: ci-file-security-placeholder
         run: npm run test:file-security-archive-traversal
