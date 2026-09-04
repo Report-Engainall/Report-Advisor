@@ -48,11 +48,16 @@ for (const file of files) {
   }
 }
 
-const highConfidence = findings.filter(x => x.code === 'EMPTY_ONCLICK' || x.code === 'EMPTY_ONSUBMIT');
-console.log(JSON.stringify({ files_scanned: files.length, findings: findings.length, high_confidence_failures: highConfidence.length, findings }, null, 2));
-if (highConfidence.length) {
-  console.error(`FRONTEND ACTION COMPLETENESS FAILED: ${highConfidence.length} empty event handlers found.`);
+const blockingCodes = new Set(['EMPTY_ONCLICK','EMPTY_ONSUBMIT','UNIMPLEMENTED_MARKER','MOCK_MARKER','UNWIRED_BUTTON']);
+const blockers = findings.filter(x => blockingCodes.has(x.code));
+console.log(JSON.stringify({ files_scanned: files.length, findings: findings.length, blocking_findings: blockers.length, findings }, null, 2));
+
+if (blockers.length) {
+  const counts = blockers.reduce((map, finding) => map.set(finding.code, (map.get(finding.code) ?? 0) + 1), new Map());
+  console.error(`FRONTEND ACTION COMPLETENESS FAILED: ${blockers.length} blocking findings found.`);
+  console.error(JSON.stringify(Object.fromEntries(counts), null, 2));
+  console.error('Every blocking finding must be implemented or removed; intentional exceptions require an explicit allowlist with justification before this gate can pass.');
   process.exitCode = 1;
 } else {
-  console.log('PASS no empty onClick/onSubmit handlers detected. Review UNWIRED_BUTTON and marker findings as forensic leads.');
+  console.log('PASS no blocking frontend action completeness findings detected.');
 }
