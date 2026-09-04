@@ -27,14 +27,27 @@ if (result.status !== 0) {
   process.exit(1);
 }
 
-fs.writeFileSync(path.join(root, 'src/pages/Unsafe.tsx'), `
+const unsafeFixtures = [
+  `
 const selectedCompanyId = browserSelectedCompany;
-supabase.from('items').select('*').eq('company_id', selectedCompanyId);
-`);
-result = spawnSync(process.execPath, [checker], { cwd: root, encoding: 'utf8' });
-if (result.status === 0) {
-  console.error('FAIL: client-selected tenant filter was not detected.');
-  process.exit(1);
+const aliasOne = selectedCompanyId;
+const aliasTwo = aliasOne;
+supabase.from('items').select('*').eq('company_id', aliasTwo);
+`,
+  `
+const metadataCompanyId = user?.user_metadata?.company_id;
+const alias = metadataCompanyId;
+supabase.from('items').select('*').eq('company_id', alias);
+`,
+];
+
+for (const [index, unsafe] of unsafeFixtures.entries()) {
+  fs.writeFileSync(path.join(root, `src/pages/Unsafe${index}.tsx`), unsafe);
+  result = spawnSync(process.execPath, [checker], { cwd: root, encoding: 'utf8' });
+  if (result.status === 0) {
+    console.error(`FAIL: client-selected tenant alias fixture ${index} was not detected.`);
+    process.exit(1);
+  }
 }
 
-console.log('PASS: tenant legacy consumer regression protects canonical RPC payloads and still rejects client-selected tenant filters.');
+console.log('PASS: tenant legacy consumer regression protects canonical RPC payloads and rejects direct, multi-hop, and metadata-derived client-selected tenant filters.');
