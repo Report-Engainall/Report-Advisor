@@ -80,3 +80,4 @@ jobs:
           echo "Live/production certification remains dependent on external runtime evidence." >> "$GITHUB_STEP_SUMMARY"
 # Exact-candidate revalidation note: workflow_dispatch remains available for governed candidate reruns.
 # Revalidation trigger retained as governance-only; no certification rule is weakened.
+# Candidate b44a823 test-of-test repair requires fresh exact-head certification.
