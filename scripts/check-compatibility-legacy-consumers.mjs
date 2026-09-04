@@ -42,7 +42,7 @@ if (!compatibility.includes('p_max_rows: 10000')) failures.push('export rows mus
 if (!compatibility.includes("if (!companyId) throw new Error('TENANT_REQUIRED')")) failures.push('compatibility boundary must require a tenant context');
 if ((compatibility.match(/if \(error\) throw error/g) ?? []).length < 5) failures.push('compatibility boundary appears to have lost explicit error propagation');
 
-const forbiddenLegacyWrites = /supabase\\.(from|schema)\\([^)]*\\)\\.(insert|update|upsert|delete)\\(/;
+const forbiddenLegacyWrites = /supabase\.(from|schema)\([^)]*\)\.(insert|update|upsert|delete)\(/;
 if (forbiddenLegacyWrites.test(compatibility)) failures.push('legacy compatibility boundary must not perform direct table writes');
 
 if (failures.length) {
