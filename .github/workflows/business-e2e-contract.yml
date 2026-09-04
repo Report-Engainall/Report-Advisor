@@ -15,3 +15,4 @@ jobs:
       - run: npm ci
       - run: node scripts/business-e2e-catalog.test.mjs
       - run: node scripts/real-report-truth-matrix.mjs
+      - run: node scripts/recommendation-outcome-lifecycle-contract.test.mjs
