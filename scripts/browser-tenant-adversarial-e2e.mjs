@@ -27,14 +27,17 @@ assert.notEqual(tenantA,tenantB,'A/B must resolve to distinct tenants');
 const tables=['products','customers','recommendations','business_intelligence_decisions','decision_work_items','decision_outcomes','decision_approvals','kpi_evidence_snapshots','business_state_snapshots','import_snapshots'];
 const cases=[];
 for(const table of tables){
-  const b=await select(B.p,B.token,table,'select=id&limit=1');
-  if(b.x>=400){ cases.push({table,case:'B source lookup',status:'NOT_PROVEN',detail:b}); continue; }
-  let rows=[]; try{rows=JSON.parse(b.b||'[]');}catch{}
-  if(!rows.length){ cases.push({table,case:'B source lookup',status:'NO_FIXTURE'}); continue; }
-  const id=rows[0].id;
-  const a=await select(A.p,A.token,table,`select=id&id=eq.${encodeURIComponent(id)}`);
-  let arows=[]; try{arows=JSON.parse(a.b||'[]');}catch{}
-  cases.push({table,case:'A reads B child/root by ID',status: arows.length===0?'REJECTED':'OPEN',http:a.x,visible_rows:arows.length});
+  const aSource=await select(A.p,A.token,table,'select=id&limit=1');
+  const bSource=await select(B.p,B.token,table,'select=id&limit=1');
+  for (const [sourceName,source,otherName,other] of [['A',aSource,'B',B],['B',bSource,'A',A]]) {
+    if(source.x>=400){ cases.push({table,case:`${sourceName} source lookup`,status:'NOT_PROVEN',detail:source}); continue; }
+    let rows=[]; try{rows=JSON.parse(source.b||'[]');}catch{}
+    if(!rows.length){ cases.push({table,case:`${sourceName} source lookup`,status:'NO_FIXTURE'}); continue; }
+    const id=rows[0].id;
+    const otherRead=await select(other.p,other.token,table,`select=id&id=eq.${encodeURIComponent(id)}`);
+    let visible=[]; try{visible=JSON.parse(otherRead.b||'[]');}catch{}
+    cases.push({table,case:`${otherName} reads ${sourceName} record by ID`,status:visible.length===0?'REJECTED':'OPEN',http:otherRead.x,visible_rows:visible.length});
+  }
 }
 const forged=await A.p.evaluate(async ({url,key,token,tenant})=>{const x=await fetch(`${url.replace(/\/$/,'')}/rest/v1/products`,{method:'POST',headers:{apikey:key,Authorization:`Bearer ${token}`,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify({company_id:tenant,sku:`FORGED-${Date.now()}`,name:'forged browser tenant product',unit:'قطعة',cost_price:1,selling_price:2,min_stock:0,reorder_point:0,is_active:true})});return{x:x.status,b:await x.text()};},{url:supabaseURL,key:anonKey,token:A.token,tenant:tenantB});
 cases.push({table:'products',case:'A forged company_id=B insert',status:[400,401,403].includes(forged.x)?'REJECTED':'OPEN',http:forged.x});
@@ -42,7 +45,8 @@ cases.push({table:'products',case:'A forged company_id=B insert',status:[400,401
 const incomplete = cases.filter(x => ['NO_FIXTURE','NOT_PROVEN'].includes(x.status));
 const open = cases.filter(x => x.status === 'OPEN');
 const rejected = cases.filter(x => x.status === 'REJECTED');
-const status = open.length ? 'FAIL' : incomplete.length ? 'BLOCKED' : rejected.length === 0 ? 'BLOCKED' : 'PASS';
-console.log(JSON.stringify({status,tenantA,tenantB,coverage:{total:cases.length,required:tables.length+1,rejected:rejected.length,incomplete:incomplete.length,open:open.length},cases},null,2));
+const requiredCrossTenantCases = tables.length * 2;
+const status = open.length ? 'FAIL' : incomplete.length ? 'BLOCKED' : rejected.length < requiredCrossTenantCases + 1 ? 'BLOCKED' : 'PASS';
+console.log(JSON.stringify({status,tenantA,tenantB,coverage:{total:cases.length,required:requiredCrossTenantCases+1,rejected:rejected.length,incomplete:incomplete.length,open:open.length},cases},null,2));
 await Promise.all(contexts.map(c=>c.close())); await browser.close();
 if(status !== 'PASS') process.exitCode = 1;
