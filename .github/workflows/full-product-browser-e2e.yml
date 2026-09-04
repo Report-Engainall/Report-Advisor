@@ -7,6 +7,7 @@ on:
       - 'scripts/run-full-product-browser-e2e.mjs'
       - 'scripts/full-product-browser-e2e-harness-contract.test.mjs'
       - 'scripts/browser-tenant-adversarial-e2e.mjs'
+      - 'scripts/browser-tenant-adversarial-matrix-contract.test.mjs'
       - '.github/workflows/full-product-browser-e2e.yml'
       - 'docs/MASTER_EXECUTION_INDEX.md'
       - 'E2E_FAILURE_LEDGER.md'
@@ -45,6 +46,8 @@ jobs:
         run: npm ci --include=dev --no-audit --no-fund
       - name: Assert browser harness integrity
         run: node scripts/full-product-browser-e2e-harness-contract.test.mjs
+      - name: Assert tenant adversarial matrix contract
+        run: node scripts/browser-tenant-adversarial-matrix-contract.test.mjs
       - name: Install pinned browser E2E runner
         run: npm install --no-save --ignore-scripts playwright@1.55.0
       - name: Restore pinned Playwright browser cache
