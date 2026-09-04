@@ -38,7 +38,7 @@ jobs:
           git rev-parse HEAD
           test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
       - name: Preflight contracts
-        run: npm run typecheck && npm run lint && npm run build && npm run test:production-release-blockers && npm run test:production-readiness && npm run test:operational-resilience && npm run test:release-resilience-manifest && node scripts/check-release-evidence-contract.mjs && node scripts/check-release-evidence-completeness.mjs && node scripts/check-production-certification-contract.mjs && node scripts/certification-consumer-antiforgery.test.mjs
+        run: npm run typecheck && npm run lint && npm run build && npm run test:production-release-blockers && npm run test:production-readiness && npm run test:operational-resilience && npm run test:release-resilience-manifest && node scripts/check-release-evidence-contract.mjs && node scripts/check-release-evidence-completeness.mjs && node scripts/check-production-certification-contract.mjs && node scripts/certification-consumer-antiforgery.test.mjs && node scripts/canonical-certification-decision.test.mjs
       - name: Create reproducible release evidence and fail-closed certification decision
         shell: bash
         env:
@@ -101,15 +101,6 @@ jobs:
             blockers,
             decided_at: generated_at,
           };
-
-          function acceptsReleaseDecision(decision, expectedSourceSha, requiredKeys) {
-            if (decision?.certification_result !== 'passed') return false;
-            if (decision?.blocker_state !== 'clear' || decision?.blocker_count !== 0) return false;
-            if (decision?.consumed_source_sha !== expectedSourceSha) return false;
-            return requiredKeys.every(key => decision?.required_contracts?.[key] === 'validated');
-          }
-          const forgedPass = {...certification, certification_result: 'passed', blocker_count: 0, blocker_state: 'clear'};
-          if (acceptsReleaseDecision(forgedPass, source_sha, required)) throw new Error('CERTIFICATION_TEST_OF_TEST_FAILED: forged PASS was accepted with missing mandatory evidence');
 
           fs.writeFileSync('release-evidence/manifest.json', JSON.stringify(manifest, null, 2) + '\n');
           fs.writeFileSync('release-evidence/certification-decision.json', JSON.stringify(certification, null, 2) + '\n');
