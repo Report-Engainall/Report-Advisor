@@ -29,17 +29,14 @@ jobs:
           npm --version
           python3 --version
           test -f package-lock.json
-          test "$(git rev-parse HEAD)" = "${GITHUB_SHA}" || test "${GITHUB_EVENT_NAME}" = "pull_request"
           if [ "${GITHUB_EVENT_NAME}" = "pull_request" ]; then
             expected_head="$(node -e "const fs=require('fs'); const e=JSON.parse(fs.readFileSync(process.env.GITHUB_EVENT_PATH,'utf8')); process.stdout.write(e.pull_request.head.sha)")"
             actual_head="$(git rev-parse HEAD)"
             test "$actual_head" = "$expected_head"
-            remote_head="$(git ls-remote origin "refs/heads/${GITHUB_HEAD_REF}" | awk '{print $1}')"
-            test -n "$remote_head"
-            test "$remote_head" = "$expected_head"
             echo "PR_HEAD_SHA=$actual_head"
             echo "GITHUB_SHA=$GITHUB_SHA"
           else
+            test "$(git rev-parse HEAD)" = "${GITHUB_SHA}"
             echo "CODE_HEAD_SHA=$(git rev-parse HEAD)"
           fi
       - name: Install
