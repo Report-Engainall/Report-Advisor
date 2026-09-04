@@ -1,8 +1,9 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import assert from 'node:assert/strict';
 const root=process.cwd();
 export function validateTrustRuntimePersistence(sql) {
-  for(const t of ['is_continuous_trust_healthy','tenant_isolation_canary_runs','billing_liveness_probes','artifact_verification_runs','incident_regressions','intelligence_safety_adjustments']) if(!sql.includes(t)) throw new Error(`Trust persistence missing: ${t}`);
+  for(const t of ['is_continuous_trust_healthy','tenant_isolation_canary_runs','billing_liveness_probes','artifact_verification_runs','incident_regression_links','intelligence_safety_adjustments']) if(!sql.includes(t)) throw new Error(`Trust persistence missing: ${t}`);
   return true;
 }
 const files=['supabase/migrations/20260825090000_continuous_trust_autonomous_ops.sql','src/lib/production-intelligence.ts','src/lib/phase-kl-supabase-runtime.ts','scripts/check-continuous-trust-contract.mjs'];
@@ -14,4 +15,10 @@ validateTrustRuntimePersistence(sql);
 for(const t of ['trustHealthy','criticalDrift','rollbackVerified','isolationVerified']) if(!intelligence.includes(t)) throw new Error(`Decision trust invariant missing: ${t}`);
 for(const t of ['is_continuous_trust_healthy','autonomy_runtime_gate']) if(!runtime.includes(t)) throw new Error(`Runtime trust link missing: ${t}`);
 if(/GRANT\s+ALL\s+TO\s+anon/i.test(sql)) throw new Error('Unsafe anonymous privilege detected');
-console.log('Continuous trust runtime chain: PASS');
+
+// Test-of-test: the checker must reject a stale/incorrect persistence identifier,
+// not merely pass because another expected token happens to exist.
+const staleIdentifier = sql.replaceAll('incident_regression_links', 'incident_regressions');
+assert.throws(() => validateTrustRuntimePersistence(staleIdentifier), /Trust persistence missing: incident_regression_links/);
+
+console.log('Continuous trust runtime chain: PASS (canonical persistence identifiers + adversarial stale-identifier test-of-test)');
