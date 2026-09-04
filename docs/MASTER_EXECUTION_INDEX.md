@@ -7,7 +7,7 @@
 ### CURRENT REPAIR CANDIDATE
 - Repair branch: `repair/currency-analytics-truth-46156969`.
 - Base boundary: `46156969f506d7fb6c3c75fde419c6de76f6e14d`.
-- Current exact candidate after certification-consumer anti-forgery hardening: `ba8fea36925fbac60a053b9067fbae2976444d2c`.
+- Current exact candidate before this index commit: `ba8fea36925fbac60a053b9067fbae2976444d2c`.
 - PR #316: OPEN / DRAFT / NOT MERGED.
 - Certification: NOT CERTIFIED.
 - Historical evidence is never promoted to the subsequent exact HEAD.
@@ -17,48 +17,26 @@
 - Historical evidence is valid only for its recorded SHA.
 - No deployment, test, DB result, or prior RC is reused across a changed exact head.
 - Browser E2E uses real Chromium, real Supabase authentication when credentials exist, and browser-held access tokens; service-role and mocked sessions are prohibited.
-- The browser workflow uses scoped path triggers and `workflow_dispatch`; broad push triggers are prohibited by the CI topology contract.
 - PASS requires correct behavior + correct data + correct security + persistence + evidence + exact HEAD.
 - QUEUED/PENDING/RUNNING is never PASS.
 
 ### CERTIFICATION ANTI-FORGERY WAVE
-- `scripts/certification-consumer-validation.mjs` now enforces the mandatory evidence contract as executable semantic input rather than a string/status declaration.
-- Mandatory contracts are exactly: `tenant`, `backup`, `rollback`, `artifact`, `security`.
-- Each contract must be an object with `status=validated`, exact source SHA, manifest ID, certification run ID, artifact fingerprint, evidence reference, evidence SHA-256 fingerprint, proof type, and non-stale verification timestamp.
+- `scripts/certification-consumer-validation.mjs` now enforces mandatory evidence as executable semantic input rather than a string/status declaration.
+- Mandatory contracts are exactly `tenant`, `backup`, `rollback`, `artifact`, `security`.
+- Each contract requires `status=validated`, exact source SHA, manifest ID, certification run ID, artifact fingerprint, evidence reference, evidence SHA-256 fingerprint, proof type, and a fresh verification timestamp.
 - Evidence references are constrained beneath the consumer evidence root and their actual bytes are re-hashed before acceptance.
 - `scripts/check-live-production-evidence-boundary.mjs` now invokes the executable mandatory-evidence validator before emitting consumption proof.
-- `scripts/certification-consumer-antiforgery.test.mjs` provides an executable adversarial suite covering missing, empty, null, wrong-type, stale, wrong-SHA, wrong-manifest, wrong-run, wrong-artifact-fingerprint, wrong-evidence-fingerprint, unknown/duplicate contract, and tampered-artifact mutations.
-- Release certification workflow now runs the anti-forgery suite before evidence generation.
-- These changes are structural hardening only until fresh exact-head CI executes them; they do not create runtime tenant/backup/rollback/artifact/security evidence.
-- Certification consumer remains `NOT PROVEN` until fresh exact-head CI proves the suite and the real mandatory runtime evidence contracts are independently produced and consumed.
-
-### CURRENT E2E STATUS
-| Area | Status | Required evidence |
-|---|---|---|
-| Real Chromium | BUILT / current-head CI pending | exact-head CI |
-| Authenticated browser login | BLOCKED / NOT PROVEN | current-head run with real credentials |
-| Tenant A | NOT PROVEN | real browser session + `current_company_id()` |
-| Tenant B | NOT PROVEN | real browser session + B credential |
-| A/B isolation | PARTIAL / NOT PROVEN IN BROWSER | browser cross-tenant read/mutate attempts |
-| 29 route discovery | NOT PROVEN on current head | browser run |
-| CRUD persistence | NOT PROVEN on current head | browser action + DB truth |
-| Import | NOT PROVEN on current head | upload/preview/commit + DB truth |
-| OCR/document | NOT PROVEN | real corpus runtime |
-| Evidence/decision | NOT PROVEN | authenticated browser flow |
-| Reporting/export | PARTIAL | live export RPC grants repaired; browser output unproven |
-| Realtime/workers | NOT PROVEN | runtime lifecycle evidence |
-| Recovery | NOT PROVEN | backup/restore/rollback drill |
-| Negative security | PARTIAL | DB RLS adversarial evidence; browser A/B pending |
-
-### CERTIFICATION RULE
-No HTTP 200, UI success message, fixture PASS, simulated DB JWT, historical deployment, queued workflow, or old SHA may certify the current candidate. Final certification requires exact-head evidence for every required product surface and zero unresolved local actionable debt.
+- `scripts/certification-consumer-antiforgery.test.mjs` executes adversarial mutations for missing, empty, null, wrong-type, stale, wrong-SHA, wrong-manifest, wrong-run, wrong-artifact-fingerprint, wrong-evidence-fingerprint, unknown/duplicate contract, and tampered-artifact cases.
+- Release certification workflow runs the anti-forgery suite before evidence generation.
+- Structural hardening does not create runtime tenant/backup/rollback/artifact/security evidence.
+- Consumer certification remains `NOT PROVEN` until fresh exact-head CI proves the suite and real mandatory runtime evidence is independently produced and consumed.
 
 ### CURRENT DISPOSITION
 | Domain | Status |
 |---|---|
 | Certification consumer semantic validation | NOT PROVEN — fresh CI required |
 | Certification anti-forgery test-of-test | NOT PROVEN — fresh CI required |
-| Canonical certification path | INTERNAL GAP — consumer now consumes executable evidence validation, but canonical producer/evaluator unification remains to be proven |
+| Canonical certification path | INTERNAL GAP — canonical producer/evaluator unification remains unproven |
 | Real mandatory runtime evidence | NOT PROVEN |
 | Authenticated Browser E2E | NOT PROVEN / BLOCKED — EXTERNAL credentials |
 | Golden binary corpus | NOT PROVEN where real artifacts are absent |
