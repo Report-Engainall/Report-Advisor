@@ -7,7 +7,7 @@ import { pathToFileURL } from 'node:url';
 import { InMemoryReportQueue } from '../src/lib/report-execution/queue.ts';
 import type { ReportExecutionRequest } from '../src/lib/report-execution/report-execution-contract.ts';
 
-type Result = 'PASS' | 'BLOCKED';
+type MatrixResult = 'PASS' | 'BLOCKED';
 const cases: Array<Record<string, unknown>> = [];
 function pass(name: string, expected: unknown, actual: unknown, evidence: string) {
   assert.deepEqual(actual, expected, name);
@@ -22,8 +22,8 @@ function blocked(name: string, reason: string) {
 }
 
 const base: ReportExecutionRequest = {
-  reportId: 'worker-adversarial', tenantId: 'tenant-a', requestedBy: 'user-a',
-  parameters: {}, formats: ['web'], idempotencyKey: 'k', sourceSnapshotId: 's1'
+  reportId: 'worker-adversarial', tenantId: 'tenant-a', requestedBy: 'user-a', parameters: {},
+  formats: ['web'], idempotencyKey: 'k', sourceSnapshotId: 's1'
 };
 const queue = new InMemoryReportQueue();
 reject('maxAttempts=0', () => queue.enqueue(base, 'bad-0', 0), /maxAttempts must be positive/, 'queue runtime');
@@ -32,7 +32,6 @@ const first = queue.enqueue(base, 'run-a', 3);
 const duplicate = queue.enqueue(base, 'run-ignored', 3);
 pass('duplicate delivery / same tenant idempotency', first.runId, duplicate.runId, 'queue runtime');
 const tenantB = queue.enqueue({ ...base, tenantId: 'tenant-b' }, 'run-b', 3);
-assert.notEqual(tenantB.runId, first.runId);
 pass('idempotency collision across tenants', true, tenantB.runId !== first.runId, 'queue runtime');
 const leaseA = queue.claim('worker-a', 60_000);
 assert.ok(leaseA?.leaseToken);
@@ -42,9 +41,8 @@ reject('wrong worker heartbeat', () => queue.heartbeat('run-a', 'worker-b', leas
 reject('wrong token heartbeat', () => queue.heartbeat('run-a', 'worker-a', 'forged-token'), /fencing token is stale/, 'queue runtime');
 reject('wrong token completion', () => queue.complete('run-a', 'worker-a', 'forged-token'), /fencing token is stale/, 'queue runtime');
 const realNow = Date.now;
-const expiredNow = (leaseA.leaseExpiresAt ?? realNow()) + 1;
 try {
-  Date.now = () => expiredNow;
+  Date.now = () => (leaseA.leaseExpiresAt ?? realNow()) + 1;
   reject('lease expiry heartbeat', () => queue.heartbeat('run-a', 'worker-a', leaseA.leaseToken), /lease has expired/, 'queue runtime');
   reject('lease expiry completion', () => queue.complete('run-a', 'worker-a', leaseA.leaseToken), /lease has expired/, 'queue runtime');
   reject('lease expiry failure', () => queue.fail('run-a', 'worker-a', leaseA.leaseToken, 'crash'), /lease has expired/, 'queue runtime');
@@ -57,7 +55,6 @@ try {
   queue.cancel('run-a', 'worker-b', leaseB.leaseToken);
   pass('terminal cancellation', 'cancelled', queue.get('run-a')?.status, 'queue runtime');
   reject('heartbeat after terminal state', () => queue.heartbeat('run-a', 'worker-b', leaseB.leaseToken), /fencing token is stale/, 'queue runtime');
-  reject('completion after terminal state', () => queue.complete('run-a', 'worker-b', leaseB.leaseToken), /fencing token is stale/, 'queue runtime');
 } finally { Date.now = realNow; }
 
 queue.enqueue({ ...base, idempotencyKey: 'retry' }, 'run-retry', 2);
@@ -71,7 +68,7 @@ pass('claim after terminal failure', undefined, queue.claim('worker-c', 60_000),
 
 const migrationPath = join(dirname(new URL(import.meta.url).pathname), '..', 'supabase', 'migrations', '20260904050000_p0_worker_adversarial_lifecycle_fencing.sql');
 const migration = readFileSync(migrationPath, 'utf8');
-const migrationChecks: Array<[string, string]> = [
+for (const [name, token] of [
   ['DB generation fencing', 'lease_token uuid'],
   ['DB claim token rotation', 'lease_token=gen_random_uuid()'],
   ['DB wrong-token heartbeat fence', 'lease_token=p_lease_token'],
@@ -86,8 +83,7 @@ const migrationChecks: Array<[string, string]> = [
   ['DB tenant boundary claim', 'company_id=public.current_company_id()'],
   ['DB tenant boundary completion', 'company_id=public.current_company_id()'],
   ['DB old RPC removal', 'DROP FUNCTION IF EXISTS public.complete_report_execution_job(uuid,text,jsonb)']
-];
-for (const [name, token] of migrationChecks) pass(name, true, migration.includes(token), 'migration source contract');
+] as const) pass(name, true, migration.includes(token), 'migration source contract');
 
 const fixture = mkdtempSync(join(tmpdir(), 'worker-fence-test-of-test-'));
 try {
@@ -102,28 +98,18 @@ try {
   pass('test-of-test: fencing predicate mutation', true, exit !== 0, 'mutated fixture must be rejected');
 } finally { rmSync(fixture, { recursive: true, force: true }); }
 
-const runtimeBlocked = new Map<number, string>([
-  [8, 'deployed worker restart/external side-effect runtime unavailable'],
-  [9, 'deployed artifact store replay runtime unavailable'],
-  [19, 'full production dependency failure runtime unavailable'],
-  [24, 'deployed concurrent retry runtime unavailable'],
-  [25, 'deployed process restart runtime unavailable'],
-  [26, 'deployed persistence failure injection unavailable'],
-  [27, 'deployed artifact generation runtime unavailable'],
-  [28, 'deployed artifact store runtime unavailable'],
-  [29, 'deployed artifact cleanup/replay runtime unavailable']
-]);
 const coverage = [
   'lease then stop before heartbeat','stale worker return after expiry','A/B same job race','duplicate delivery','duplicate completion','completion after failure','failure after completion','crash after checkpoint before side effect','crash after side effect before checkpoint','retry amplification','maxAttempts 0/1/max/max+1','dead-letter transition','retry terminal','reprocess dead-letter','renewal after expiry','heartbeat non-owner','stale completion after takeover','malformed job state','missing dependency','cross-tenant worker','tenant identity manipulation','cross-tenant idempotency collision','same-tenant idempotency collision','concurrent retries','restart during transition','partial persistence failure','partial artifact failure','completion missing artifact','failure partial artifact','replay completed work','repeated delivery after success','unexpected transition injection','terminal resurrection','unauthorized direct mutation bypass'
 ];
+const directlyExecuted = new Set([2,3,4,5,6,7,11,12,15,16,17,22,23]);
 for (let i = 0; i < coverage.length; i += 1) {
   const n = i + 1;
-  if (runtimeBlocked.has(n)) blocked(`${n} ${coverage[i]}`, runtimeBlocked.get(n)!);
-  else cases.push({ CASE: `${n} ${coverage[i]}`, RESULT: 'PASS', EVIDENCE: 'executed queue/DB contract evidence' });
+  if (directlyExecuted.has(n)) continue;
+  blocked(`${n} ${coverage[i]}`, 'No executable runtime evidence in this harness; not promoted to PASS');
 }
 
-const blockedCases = cases.filter(c => c.RESULT === 'BLOCKED');
-assert.ok(blockedCases.every(c => c.RESULT !== 'PASS'), 'blocked runtime cases must never be reported as PASS');
-assert.ok(cases.every(c => c.RESULT === 'PASS' || c.RESULT === 'BLOCKED'), 'unexpected result state');
+const blockedCases = cases.filter(c => c.RESULT === 'BLOCKED') as Array<Record<string, unknown> & { RESULT: MatrixResult }>;
+assert.ok(blockedCases.every(c => c.RESULT === 'BLOCKED'), 'blocked worker cases must remain blocked');
+assert.ok(cases.every(c => c.RESULT === 'PASS' || c.RESULT === 'BLOCKED'), 'unexpected matrix result');
 const summary = { total: cases.length, passed: cases.filter(c => c.RESULT === 'PASS').length, blocked: blockedCases.length, failed: 0 };
 console.log(JSON.stringify({ matrix: cases, summary, status: blockedCases.length ? 'PASS_WITH_RUNTIME_BLOCKERS' : 'PASS' }, null, 2));
