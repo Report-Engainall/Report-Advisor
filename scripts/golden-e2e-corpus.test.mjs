@@ -15,7 +15,17 @@ assert.equal(new Set(c.map(x=>x.id)).size,c.length,'golden corpus IDs must be un
 // Deterministic + expected-disposition checks are executable invariants, not marker-only claims.
 const deterministic = JSON.stringify(getCorpus()) === JSON.stringify(c);
 assert.ok(deterministic,'golden corpus must be deterministic across repeated reads');
-const expected = { 'exchange-arabic':'PASS','exchange-ocr':'REVIEW','unknown-layout':'REVIEW','corrupt-extraction':'QUARANTINE','arithmetic-mismatch':'QUARANTINE','reconciliation-mismatch':'QUARANTINE' };
+const expected = {
+  'exchange-arabic':'PASS',
+  'exchange-ocr':'REVIEW',
+  'inventory-excel':'PASS',
+  'unknown-layout':'REVIEW',
+  'corrupt-extraction':'QUARANTINE',
+  'arithmetic-mismatch':'QUARANTINE',
+  'reconciliation-mismatch':'QUARANTINE'
+};
+
+assert.equal(Object.keys(expected).length,c.length,'every golden corpus case must have an explicit expected disposition');
 
 for(const x of c){
   assert.ok(allowed.has(x.expect),`invalid corpus disposition: ${x.id}`);
@@ -24,6 +34,7 @@ for(const x of c){
 }
 
 const byId=Object.fromEntries(c.map(x=>[x.id,x]));
+assert.deepEqual(new Set(Object.keys(expected)),new Set(c.map(x=>x.id)),'expected disposition map must cover exactly every corpus case');
 for(const [id,expect] of Object.entries(expected)) assert.equal(byId[id].expect,expect,`expected disposition drift: ${id}`);
 
 for(const x of c.filter(x=>x.expect==='QUARANTINE')){
@@ -32,4 +43,4 @@ for(const x of c.filter(x=>x.expect==='QUARANTINE')){
   assert.ok(signals.every(signal=>x.features.includes(signal)),`quarantine fixture lost its explicit hard-failure signal: ${x.id}`);
 }
 
-console.log('Golden E2E corpus tests PASS (identity + deterministic + expected-disposition + gate-chain + quarantine-signal invariants).');
+console.log('Golden E2E corpus tests PASS (identity + deterministic + complete expected-disposition coverage + gate-chain + quarantine-signal invariants).');
