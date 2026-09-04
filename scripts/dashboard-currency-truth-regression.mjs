@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 
-const sql=fs.readFileSync('supabase/migrations/20260904063000_reconcile_dashboard_currency_truth.sql','utf8');
+const sql=fs.readFileSync('supabase/migrations/20260904063122_reconcile_dashboard_currency_truth.sql','utf8');
 
 function assertCurrencyGate(source){
   assert.match(source,/sales_currency_mismatch_rows/);
