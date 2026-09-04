@@ -1,3 +1,4 @@
+# Exact-head P1 filesystem/windows hardening gate; no certification state is implied.
 name: p1-filesystem-windows-deep-hardening
 on:
   pull_request:
