@@ -1,0 +1,27 @@
+# E2E Product Gap Ledger
+
+Evidence is exact-HEAD bound. This ledger records missing/incomplete proof and product gaps discovered during full-product execution, independent of whether the browser suite has finished.
+
+| ID | Exact HEAD | Area | Flow | Severity | Expected | Actual | Evidence | Root Cause | Status | Owner Track | Fix | Fix SHA | Retest | Final Result |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| GAP-E2E-001 | `dcbcbdbcc621cce23786d945e82005af94bcd05f` | Browser E2E | Authenticated runtime | P0 | Fresh exact-head browser run proves real auth | Runtime proof depends on Actions secrets; browser run is not yet complete | Run `33843075245` was still in progress on prior exact head; current-head rerun triggered by E2E changes | External credential availability | BLOCKED / NOT PROVEN | A/E | No auth bypass; rerun with real credentials | — | Pending | Not certifiable until proven |
+| GAP-E2E-002 | `dcbcbdbcc621cce23786d945e82005af94bcd05f` | Browser E2E | Tenant A/B | P0 | Two real actors resolve to distinct tenants and cross-tenant access is denied | A/B browser proof not yet available | Current staging DB has two active tenant memberships; DB-level RLS adversarial probes passed | Browser credentials/runtime not yet proven | NOT PROVEN | A/B | Run real A/B CRUD + direct-request adversarial browser flow | — | Pending | Certification blocker |
+| GAP-E2E-003 | `dcbcbdbcc621cce23786d945e82005af94bcd05f` | Real reports | report -> parse -> DB -> analytics -> output | P0 | Source/parsed/DB/RPC/analytics/UI/output truth agree | No complete browser-backed real-report execution has yet been proven | Golden corpus is contract-level; no fresh full product report evidence yet | Missing authenticated runtime execution | NOT PROVEN | A/D | Execute representative production-shaped reports end-to-end | — | Pending | Certification blocker |
+| GAP-E2E-004 | `dcbcbdbcc621cce23786d945e82005af94bcd05f` | Golden corpus | 7-case corpus | P1 | Every case has input, expected, actual, assertion, evidence, disposition | Contract coverage repaired; actual full runtime evidence still pending | `inventory-excel` expected disposition is now enforced; runtime execution not yet proven | Test contract previously omitted one case | INCOMPLETE PROOF | D/E | Execute all 7 against real pipeline | — | Pending | Not certifiable yet |
+| GAP-E2E-005 | `dcbcbdbcc621cce23786d945e82005af94bcd05f` | Security | public SECURITY DEFINER helpers | P1 | Public privileged functions are only executable where exposure is intentional and guarded | Supabase advisor reports 17 authenticated-callable SECURITY DEFINER functions; bodies inspected and tenant/auth guards exist for mutation helpers | Supabase security advisor at 2026-09-04T06:11:09Z; function bodies use `current_company_id()` / `auth.uid()` where required | Exposure is broader than strict least-privilege recommendation | OPEN / HARDENING CANDIDATE | B | Review call graph before any revoke; do not blindly break runtime | — | Pending | No exploit proven |
+| GAP-E2E-006 | `dcbcbdbcc621cce23786d945e82005af94bcd05f` | Auth security | leaked password protection | P1 | Auth rejects known compromised passwords | Supabase Auth advisor reports leaked-password protection disabled | Supabase security advisor at 2026-09-04T06:11:09Z | Project Auth configuration | BLOCKED / EXTERNAL CONFIG | E | Enable through Auth security configuration | — | Pending | Security hardening remains open |
+| GAP-E2E-007 | `dcbcbdbcc621cce23786d945e82005af94bcd05f` | CI governance | browser E2E trigger | P1 | Browser workflow obeys execution-topology guard | Original workflow used broad `push` and failed the topology contract | Run `33843075238` failed `check-ci-execution-topology` because `full-product-browser-e2e.yml` was broad | Workflow trigger contract mismatch | FIXED | E | Scoped workflow trigger | `95cf68908f5fb57de5712c90dd6ed297cfd5f65a` | Current-head CI pending | Pending current-head confirmation |
+| GAP-E2E-008 | `dcbcbdbcc621cce23786d945e82005af94bcd05f` | Browser evidence | route verification depth | P1 | Route test identifies actionable UI, requests, console failures, persistence | Original harness only checked navigation/body; deeper inspection was added | Current harness records buttons, inputs, links, route requests, console failures and refresh persistence | Harness was too weak for product forensic discovery | FIXED | A/E | Deeper browser inspection and fail-closed exit | `dcbcbdbcc621cce23786d945e82005af94bcd05f` | Pending current-head E2E | Pending |
+
+## Live DB Verification Notes
+
+- Staging project `fnqbvfuwbdpwvhcgzksl` is `ACTIVE_HEALTHY`.
+- All public tables currently have RLS enabled.
+- Authenticated tenant policies are present across core business tables and use `current_company_id()`; child tables such as sale/purchase/import rows use parent-company predicates.
+- No `anon` table grants were found for the core business tables checked.
+- DB-level adversarial RLS probes were executed inside rolled-back transactions: tenant A saw only A products; tenant B saw only B products; cross-tenant UPDATE returned zero rows; cross-tenant company reassignment was rejected by RLS.
+- These DB probes are supplemental security evidence only and do **not** replace real browser A/B proof.
+
+## Governance Rule
+
+A page loading, HTTP 200, API 200, fixture PASS, or DB-level simulated JWT probe cannot certify a real browser product flow. Certification requires exact-head evidence from the actual execution surface being certified.
