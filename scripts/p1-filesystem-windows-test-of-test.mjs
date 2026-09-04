@@ -17,7 +17,7 @@ const runtimeGuard = (source) => ({
 const securityGuard = (source) => ({
   parentSegment: source.includes("segment === '..'"),
   absolute: source.includes("normalized.startsWith('/')"),
-  driveLetter: source.includes("/^[A-Za-z]:\\//.test(normalized)"),
+  driveLetter: source.includes('A-Za-z]:') && source.includes('test(normalized)'),
 });
 const securityIntegration = fs.readFileSync('src/lib/file-engine/security.ts', 'utf8');
 const integrationGuard = (source) => ({ archivePathGuard: source.includes('isUnsafeArchivePath'), archiveEntryGuard: source.includes('hasZipEntryTraversal') });
@@ -46,7 +46,7 @@ for (const [name, mutate] of mutations) {
 const archiveMutations = [
   ['archive parent traversal', (s) => s.replace("segment === '..'", "segment === '__removed__'")],
   ['archive absolute path', (s) => s.replace("normalized.startsWith('/')", "normalized.startsWith('__removed__')")],
-  ['archive drive path', (s) => s.replace('/^[A-Za-z]:\\//.test(normalized)', '/^__removed__$/.test(normalized)')],
+  ['archive drive path', (s) => s.replace("/^[A-Za-z]:\\\\\\\\//.test(normalized)", "/^__removed__$/.test(normalized)")],
 ];
 for (const [name, mutate] of archiveMutations) {
   const mutated = securityGuard(mutate(security));
