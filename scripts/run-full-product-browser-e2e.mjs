@@ -71,6 +71,30 @@ async function authenticatedTenantId(targetPage) {
   }, { url: supabaseURL, anonKey: supabaseAnonKey });
 }
 
+async function authenticatedRest(targetPage, path, init = {}) {
+  if (!supabaseURL || !supabaseAnonKey) throw new Error('SUPABASE_RUNTIME_ENV_MISSING');
+  return targetPage.evaluate(async ({ url, anonKey, requestPath, requestInit }) => {
+    const entry = Object.entries(localStorage).find(([key]) => key.endsWith('-auth-token'))?.[1];
+    if (!entry) throw new Error('BROWSER_SESSION_NOT_FOUND');
+    const session = JSON.parse(entry);
+    const accessToken = session?.access_token;
+    if (!accessToken) throw new Error('BROWSER_ACCESS_TOKEN_NOT_FOUND');
+    const response = await fetch(`${url.replace(/\/$/, '')}/rest/v1/${requestPath}`, {
+      ...requestInit,
+      headers: {
+        apikey: anonKey,
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+        ...(requestInit.headers || {}),
+      },
+    });
+    const body = await response.text();
+    let parsed = null;
+    try { parsed = body ? JSON.parse(body) : null; } catch { parsed = body; }
+    return { status: response.status, ok: response.ok, body: parsed };
+  }, { url: supabaseURL, anonKey: supabaseAnonKey, requestPath: path, requestInit: init });
+}
+
 async function inspectPage(targetPage) {
   return targetPage.evaluate(() => {
     const text = document.body?.innerText?.trim() || '';
@@ -150,6 +174,49 @@ try {
             result.tenantA === result.tenantB
               ? 'Tenant A and Tenant B browser actors resolved to the same tenant.'
               : 'Tenant A and Tenant B browser actors resolved to distinct tenant contexts.');
+
+          if (result.tenantA !== result.tenantB) {
+            const actorAProducts = await authenticatedRest(page, 'products?select=id,name&limit=1', { method: 'GET' });
+            if (!actorAProducts.ok) {
+              addFinding('E2E-TENANT-006', 'FAIL', 'P0',
+                `Tenant A product seed query failed with HTTP ${actorAProducts.status}.`, { response: actorAProducts.body });
+            } else if (!Array.isArray(actorAProducts.body) || !actorAProducts.body.length) {
+              addFinding('E2E-TENANT-006', 'NOT_PROVEN', 'P0',
+                'No Tenant A product exists, so a safe cross-tenant browser probe cannot be executed.');
+            } else {
+              const targetProduct = actorAProducts.body[0];
+              const targetId = encodeURIComponent(targetProduct.id);
+              const crossRead = await authenticatedRest(pageB, `products?id=eq.${targetId}&select=id,name`, { method: 'GET' });
+              if (!crossRead.ok) {
+                addFinding('E2E-TENANT-007', 'FAIL', 'P0',
+                  `Tenant B cross-tenant read probe failed with HTTP ${crossRead.status}.`, { response: crossRead.body });
+              } else if (Array.isArray(crossRead.body) && crossRead.body.length === 0) {
+                addFinding('E2E-TENANT-007', 'PASS', 'P0',
+                  'Tenant B could not read a Tenant A product through the authenticated browser session.');
+              } else {
+                addFinding('E2E-TENANT-007', 'FAIL', 'P0',
+                  'Tenant B browser session returned a Tenant A product during the cross-tenant read probe.', { response: crossRead.body });
+              }
+
+              // Safe write probe: PATCH the Tenant A product with its existing name.
+              // A correctly isolated tenant returns zero affected rows; no product value is changed.
+              const crossWrite = await authenticatedRest(pageB, `products?id=eq.${targetId}`, {
+                method: 'PATCH',
+                headers: { Prefer: 'return=representation' },
+                body: JSON.stringify({ name: targetProduct.name }),
+              });
+              if (!crossWrite.ok) {
+                addFinding('E2E-TENANT-008', 'FAIL', 'P0',
+                  `Tenant B cross-tenant write probe failed with HTTP ${crossWrite.status}.`, { response: crossWrite.body });
+              } else if (Array.isArray(crossWrite.body) && crossWrite.body.length === 0) {
+                addFinding('E2E-TENANT-008', 'PASS', 'P0',
+                  'Tenant B could not affect a Tenant A product; the idempotent write probe returned zero rows.');
+              } else {
+                addFinding('E2E-TENANT-008', 'FAIL', 'P0',
+                  'Tenant B browser session affected a Tenant A product during the cross-tenant write probe.', { response: crossWrite.body });
+              }
+            }
+          }
         } catch (error) {
           addFinding('E2E-TENANT-004', 'BLOCKED', 'P0', error instanceof Error ? error.message : String(error));
         } finally { await pageB.close(); await contextB.close(); }
