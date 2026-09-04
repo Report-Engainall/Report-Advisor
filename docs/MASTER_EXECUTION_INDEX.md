@@ -141,5 +141,12 @@
 - This hardening is structural until fresh exact-head CI executes it; it does not create missing runtime evidence.
 - Current consumer certification disposition: `NOT PROVEN`.
 
+### CANONICAL DECISION PATH HARDENING — 2026-09-04
+- Added `scripts/canonical-certification-decision.mjs` as the single executable decision evaluator for a release certification decision.
+- Added `scripts/canonical-certification-decision.test.mjs` with forged-result, blocker, SHA, manifest, run, contract-set, unvalidated-contract, and identity-lie mutations; every mutation must be rejected.
+- `scripts/check-live-production-evidence-boundary.mjs` now routes the consumed decision through the canonical evaluator after semantic evidence validation.
+- `.github/workflows/release-certification.yml` no longer carries an independent workflow-local `acceptsReleaseDecision` oracle; canonical decision anti-forgery is executed from the shared test suite in preflight.
+- This boundary is still `NOT PROVEN` until fresh exact-head CI executes the new code. Certification remains `NOT CERTIFIED` because runtime tenant/backup/rollback/artifact/security evidence is still absent.
+
 ### CERTIFICATION RULE
 No HTTP 200, UI success message, fixture PASS, simulated DB JWT, historical deployment, queued workflow, or old SHA may certify the current candidate. Final certification requires exact-head evidence for every required product surface and zero unresolved local actionable debt.
