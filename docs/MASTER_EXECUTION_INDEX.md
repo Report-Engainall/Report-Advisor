@@ -8,14 +8,14 @@
 - **Repository:** `Report-Engainall/Report-Advisor`
 - **Current execution branch:** `execution/owner-level-compatibility-hardening-main`
 - **Current main:** `b44a823b22653aded1408d36c6e5a109e4df4c3d`
-- **Current code/test candidate:** `a8ad38589b26c8bda437deaab7d57a878bea40d4`
+- **Current code/test candidate:** `0811629e0205367ccfb58a2a57a866f64e9a92c2`
 - Previous executable candidate: `393308f235b816e9610bb426813e6fefc9f7c6b9`.
 - `b9597ac...` was governance/index-only and did not replace the executable candidate.
 - Execution scope: P0 certification/test integrity; P0 security/database/RPC/RLS/tenant isolation; P0 worker adversarial lifecycle; P1 compatibility/legacy; worker/filesystem/OCR/documents; P2 reports/export/performance; PR/desktop reconciliation; final evidence/certification.
 - Independent fronts run in parallel; Owner intervention is deferred until locally actionable work is exhausted.
 
 ### EXACT CANDIDATE
-- **CURRENT CODE/TEST CANDIDATE:** `a8ad38589b26c8bda437deaab7d57a878bea40d4`
+- **CURRENT CODE/TEST CANDIDATE:** `0811629e0205367ccfb58a2a57a866f64e9a92c2`
 - `a1e1426...` is the index-preservation/candidate-binding commit after worker mutation; worker implementation mutation is `ec2c6babef8176044ba63892e6638f23904db1d2` in its ancestry.
 - `b44a823...` strengthens the continuous-trust test-of-test from single replacement to `replaceAll`, proving partial stale persistence identifiers cannot survive the adversarial test.
 - `393308f...` corrected the decision-approval lock-order checker and keeps adversarial lock-removal testing fail-closed.
