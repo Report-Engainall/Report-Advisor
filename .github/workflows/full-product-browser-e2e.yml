@@ -1,10 +1,11 @@
 name: Full Product Browser E2E
 
-# Exact-head browser discovery gate. Broad push triggers are intentionally prohibited by the CI topology contract.
+# Exact-head browser product gate. Broad push triggers are intentionally prohibited by the CI topology contract.
 on:
   push:
     paths:
       - 'scripts/run-full-product-browser-e2e.mjs'
+      - 'scripts/full-product-browser-e2e-harness-contract.test.mjs'
       - '.github/workflows/full-product-browser-e2e.yml'
       - 'docs/MASTER_EXECUTION_INDEX.md'
       - 'E2E_FAILURE_LEDGER.md'
@@ -41,6 +42,8 @@ jobs:
           cache: npm
       - name: Install locked dependencies
         run: npm ci --include=dev --no-audit --no-fund
+      - name: Assert browser harness integrity
+        run: node scripts/full-product-browser-e2e-harness-contract.test.mjs
       - name: Install pinned browser E2E runner
         run: npm install --no-save --ignore-scripts playwright@1.55.0
       - name: Restore pinned Playwright browser cache
@@ -84,12 +87,7 @@ jobs:
           set -euo pipefail
           missing=0
           for name in SUPABASE_URL SUPABASE_ANON_KEY USER_A_EMAIL USER_A_PASSWORD USER_B_EMAIL USER_B_PASSWORD; do
-            if [ -n "${!name:-}" ]; then
-              echo "$name=SET"
-            else
-              echo "$name=MISSING"
-              missing=1
-            fi
+            if [ -n "${!name:-}" ]; then echo "$name=SET"; else echo "$name=MISSING"; missing=1; fi
           done
           if [ "$missing" -ne 0 ]; then
             echo "AUTHENTICATED_E2E_BLOCKED: required test-only runtime secrets are not provisioned."
@@ -106,6 +104,7 @@ jobs:
           TEST_USER_A_PASSWORD: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_PASSWORD }}
           TEST_USER_B_EMAIL: ${{ secrets.REPORT_ADVISOR_E2E_USER_B_EMAIL }}
           TEST_USER_B_PASSWORD: ${{ secrets.REPORT_ADVISOR_E2E_USER_B_PASSWORD }}
+          E2E_GOLDEN_FIXTURE: ${{ github.workspace }}/e2e-fixtures/golden/exchange-arabic.pdf
         run: node scripts/run-full-product-browser-e2e.mjs
       - name: Upload browser E2E evidence
         if: always()
