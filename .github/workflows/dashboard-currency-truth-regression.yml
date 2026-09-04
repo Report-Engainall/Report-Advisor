@@ -1,0 +1,28 @@
+name: Dashboard Currency Truth Regression
+on:
+  push:
+    paths:
+      - 'scripts/dashboard-currency-truth-regression.mjs'
+      - 'supabase/migrations/20260904063000_reconcile_dashboard_currency_truth.sql'
+  pull_request:
+    paths:
+      - 'scripts/dashboard-currency-truth-regression.mjs'
+      - 'supabase/migrations/20260904063000_reconcile_dashboard_currency_truth.sql'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  regression:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Exact-head checkout
+        run: test "$(git rev-parse HEAD)" = "${GITHUB_SHA}"
+      - name: Dashboard currency truth regression
+        run: node scripts/dashboard-currency-truth-regression.mjs
