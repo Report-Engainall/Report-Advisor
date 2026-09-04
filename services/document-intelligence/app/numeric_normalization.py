@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import math
 import re
 from decimal import Decimal, InvalidOperation
 
@@ -77,4 +76,4 @@ def normalize_numeric_text(value: object) -> Decimal | None:
         number = Decimal(f"{sign}{normalized}")
     except InvalidOperation:
         return None
-    return number if number.is_finite() and math.isfinite(float(number)) else None
+    return number if number.is_finite() else None
