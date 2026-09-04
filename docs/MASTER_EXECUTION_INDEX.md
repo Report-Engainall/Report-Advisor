@@ -7,28 +7,29 @@
 ### EXECUTION SCOPE / BRANCH
 - **Repository:** `Report-Engainall/Report-Advisor`
 - **Current execution branch:** `main`
-- **Current main:** `43d56fb27ee117aff8cc9f3eefe4dd5208f9e722`
-- **Current code/test candidate:** `d362b2294ca9797cc1a36171173538af881fb18a`
-- `43d56fb...` is governance/index-only after the executable candidate and does not replace the candidate.
-- Previous candidate: `24b7579a85dfe8154f096fa514fd8ce676944107`.
+- **Current main:** `da1d44719662f62c61c4fb484f5218a9a26a43d6`
+- **Current code/test candidate:** `da1d44719662f62c61c4fb484f5218a9a26a43d6`
+- Previous executable candidate: `d362b2294ca9797cc1a36171173538af881fb18a`.
+- `43d56fb...` was governance/index-only after the previous executable candidate and did not replace it.
 - Execution scope: P0 certification/test integrity; P0 security/database/RPC/RLS/tenant isolation; P1 compatibility/legacy; worker/filesystem/OCR/documents; P2 reports/export/performance; PR/desktop reconciliation; final evidence/certification.
 - Independent fronts run in parallel; Owner intervention is deferred until locally actionable work is exhausted.
 
 ### EXACT CANDIDATE
-- **CURRENT CODE/TEST CANDIDATE:** `d362b2294ca9797cc1a36171173538af881fb18a`
-- `d362b229...` adds the decision-approval TOCTOU contract/test-of-test after a live DB hardening of `request_decision_approval()`.
+- **CURRENT CODE/TEST CANDIDATE:** `da1d44719662f62c61c4fb484f5218a9a26a43d6`
+- `da1d447...` hardens the continuous-trust test-of-test to validate the canonical SQL bridge across migration lineage.
+- `d362b229...` added the decision-approval TOCTOU contract/test-of-test after live DB hardening of `request_decision_approval()`.
 - `18b634c...` repaired the continuous-trust checker so SQL bridge validation follows migration lineage instead of requiring a production literal in the base migration.
 - `24b7579...` was the prior executable candidate and added continuous-trust persistence/RPC/SQL-bridge adversarial coverage.
 - Certification evidence is valid only for this exact candidate or an explicitly governed ancestry of it.
 
 ### BATCH 1 — CERTIFICATION / TEST INTEGRITY
-- Fresh Final Execution Batch on `18b634c...`: PASS, 30 deterministic gates.
-- Fresh Quality on `18b634c...`: PASS, all 63 workflow steps.
-- Final Certification on `18b634c...`: correctly failed because index candidate was still `24b7579...`; no stale evidence promoted.
-- Fresh Final Certification on `d362b229...`: correctly failed because its checkout predated the subsequent index-only candidate update; no stale evidence promoted.
-- Continuous-trust checker RCA: prior checker required `public.is_continuous_trust_healthy('production')` inside the base persistence migration, but the canonical call is in `autonomy_runtime_gate`; fixed to validate the actual runtime RPC plus migration-lineage SQL bridge.
-- Decision-approval RCA: `request_decision_approval()` had a request/decision TOCTOU window; fixed live by locking the decision row before checking `PROPOSED`, then locking the approval row and preserving terminal-state guards.
-- **CURRENT:** fresh CI on the governance descendant `43d56fb...` must prove the indexed candidate `d362b229...` through the governed ancestry boundary.
+- Quality `#3854` on `18b634c...`: PASS, all 63 workflow steps.
+- Final Execution Batch `#430` on `18b634c...`: PASS, 30 deterministic gates.
+- Final Certification `#665` on `d362b229...`: boundary passed only after index governance, then certification contracts failed because the old test-of-test still expected the SQL bridge in the base migration; failure was consumed and RCA completed.
+- Continuous-trust checker RCA: canonical runtime bridge is `autonomy_runtime_gate` calling `is_continuous_trust_healthy('production')`; checker now validates runtime RPC + migration-lineage SQL instead of a wrong base-file literal assumption.
+- Continuous-trust test-of-test RCA: old test supplied only the base migration to the strengthened checker; fixed to aggregate migration lineage and adversarially remove the canonical trust-health call.
+- Decision-approval RCA: `request_decision_approval()` had a request/decision TOCTOU window; fixed live and persisted in migration by locking the decision row before checking `PROPOSED`.
+- Fresh exact-candidate CI for `da1d447...` is required before Batch 1 closure.
 
 ### CERTIFICATION BOUNDARY
 - Exact candidate checkout + HEAD equality required for candidate execution.
@@ -40,8 +41,9 @@
 - Live Staging: `autonomy_runtime_gate(text)` is SECURITY DEFINER, authenticated-executable, anon-denied; it calls `is_continuous_trust_healthy('production')` and evaluates critical drift.
 - `is_continuous_trust_healthy(text)` is SECURITY DEFINER with `search_path=pg_catalog`; anon and authenticated direct EXECUTE are denied; privileged runtime call remains controlled through the definer gate.
 - `decide_approval()` is tenant-scoped, row-locking, PENDING-only, rejects self-approval, and updates only the same-tenant PROPOSED decision.
-- `request_decision_approval()` is now tenant-scoped and decision-lock-before-check, with terminal APPROVED/REJECTED/CANCELLED fail-closed behavior and conflict-path protection.
-- Live public SECURITY DEFINER inventory remains 33; 19 authenticated-executable, 0 anon-executable; no blanket revoke.
+- `request_decision_approval()` is tenant-scoped and decision-lock-before-check, with terminal APPROVED/REJECTED/CANCELLED fail-closed behavior and conflict-path protection.
+- Live public SECURITY DEFINER inventory remains 33; 19 authenticated-executable, 0 anon-executable; all 33 have explicit search_path; no dynamic SQL detected by current semantic sweep.
+- Approval and decision tables have RLS enabled; authenticated direct INSERT/UPDATE/DELETE is denied; tenant policies scope by `current_company_id()`.
 - Approver authority remains **PRODUCT DECISION REQUIRED** only if a distinct business authority class is intended.
 
 ### BATCH 3 — COMPATIBILITY / LEGACY
