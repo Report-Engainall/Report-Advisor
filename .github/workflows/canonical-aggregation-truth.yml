@@ -17,3 +17,4 @@ jobs:
       - run: node scripts/dashboard-truth-adversarial-regression.mjs
       - run: node scripts/canonical-currency-truth-adversarial-regression.mjs
       - run: node scripts/import-lifecycle-truth-adversarial-regression.mjs
+      - run: node scripts/rpc-frontend-migration-parity.mjs
