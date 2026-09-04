@@ -25,13 +25,14 @@ def test_arabic_and_western_numeric_forms_are_deterministic() -> None:
         assert normalize_numeric_text(raw) == Decimal(expected), raw
 
 
-def test_empty_malformed_nonfinite_and_ambiguous_values_fail_closed() -> None:
+def test_empty_malformed_and_ambiguous_values_fail_closed() -> None:
     for raw in (None, "", "   ", "not-a-number", "١٢٣٤x", "NaN", "Infinity", "1,23,456", "1..2", "1,234,56"):
         assert normalize_numeric_text(raw) is None, raw
 
 
-def test_zero_negative_and_large_finite_values_are_preserved() -> None:
+def test_zero_negative_and_very_large_finite_values_are_preserved() -> None:
     assert normalize_numeric_text("0") == Decimal("0")
     assert normalize_numeric_text("-0") == Decimal("0")
     assert normalize_numeric_text("-١٢٣") == Decimal("-123")
     assert normalize_numeric_text("999999999999999999999999.99") == Decimal("999999999999999999999999.99")
+    assert normalize_numeric_text("9" * 400) == Decimal("9" * 400)
