@@ -5,6 +5,8 @@ const input = process.argv[2];
 const requiredLayers = ['source_truth','parsed_truth','normalized_truth','db_truth','rpc_truth','analytics_truth','ui_truth','export_truth'];
 const canonicalKeys = ['sales','purchases','inventory','receivables','profitability','dashboard','rfm','abc','aging','reconciliation','currency'];
 const allowedStatuses = new Set(['PASS', 'CALCULATED', 'VALID', 'PROVEN', 'INSUFFICIENT_DATA', 'BLOCKED', 'NOT_PROVEN']);
+const valueBearingStatuses = new Set(['PASS', 'CALCULATED', 'VALID', 'PROVEN']);
+const isMissingCanonicalValue = (value) => value === undefined || value === null || (typeof value === 'string' && value.trim() === '');
 
 if (!input) {
   console.log('READY: provide a JSON file containing runtime report evidence records to execute the truth comparison.');
@@ -55,6 +57,10 @@ for (const record of records) {
     for (const key of canonicalKeys) {
       if (!Object.prototype.hasOwnProperty.call(value, key)) {
         caseFailures.push(`MISSING_CANONICAL_KEY:${layer}:${key}`);
+        continue;
+      }
+      if (valueBearingStatuses.has(value.status) && isMissingCanonicalValue(value[key])) {
+        caseFailures.push(`MISSING_CANONICAL_VALUE:${layer}:${key}`);
       }
     }
   }
@@ -63,6 +69,8 @@ for (const record of records) {
     caseFailures.push('MISSING_MISMATCH_LIST');
   } else if (!Array.isArray(record.mismatch_list)) {
     caseFailures.push('INVALID_MISMATCH_LIST_TYPE');
+  } else if (record.mismatch_list.some(item => typeof item !== 'string' || item.trim() === '')) {
+    caseFailures.push('INVALID_MISMATCH_LIST_ENTRY');
   }
 
   const mismatches = Array.isArray(record.mismatch_list) ? [...record.mismatch_list] : [];
