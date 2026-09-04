@@ -24,15 +24,18 @@
 - Export RPC execution repair: `5ee6e8b10fcf311ab876855360e9a503f7690313`
 - Live row-bound source reconciliation: `94b446cc83be12caab477af4b93252dab32b927e`
 - Workflow migration-trigger repair: `699c557a5615f71a957b4877bf2c1f9d6b5e8426`
+- Current-wave dashboard currency truth repair: `5be528826ac7e7aa1638e1b70784e9c22473506b`.
+- Current-wave dashboard regression/test-of-test: `9c2a4077cd4107757df40e7189018286d3f81ca8`.
+- Current-wave browser exact-checkout hardening: `0d2d3931b687fdf1daa41ceb56c9341fd7667430`.
 
 ### CURRENT E2E STATUS
 | Area | Status | Required evidence |
 |---|---|---|
-| Real Chromium | BUILT | exact-head CI |
-| Authenticated browser login | NOT PROVEN | current-head run with real credentials |
+| Real Chromium | BUILT / CURRENT-HEAD RUNNING | exact-head CI |
+| Authenticated browser login | BLOCKED / NOT PROVEN | current-head run with real credentials |
 | Tenant A | NOT PROVEN | real browser session + `current_company_id()` |
 | Tenant B | NOT PROVEN | real browser session + B credential |
-| A/B isolation | NOT PROVEN | browser cross-tenant read/mutate attempts |
+| A/B isolation | PARTIAL / NOT PROVEN IN BROWSER | browser cross-tenant read/mutate attempts |
 | 29 route discovery | NOT PROVEN on current head | browser run |
 | CRUD persistence | NOT PROVEN on current head | browser action + DB truth |
 | Import | NOT PROVEN on current head | upload/preview/commit + DB truth |
@@ -54,6 +57,9 @@
 8. Post-repair authenticated sales/purchase/inventory export calls execute successfully. Invalid row limits and tenant-mismatch calls are rejected as designed.
 9. The live staging migration history contains `p1_fail_closed_export_row_bounds`; its implementation was recovered from the security-hardening branch and reconciled into main rather than silently treating live-only state as source truth.
 10. Supabase security advisor still reports several authenticated-callable SECURITY DEFINER helpers and leaked-password protection disabled. Major mutation helpers inspected include tenant/auth checks and secure search path; no exploit proven, so no blind revoke performed.
+11. **Current-wave data-truth defect discovered:** staging companies use `SAR` while source sales/purchase invoices contain `YER`; profitability correctly marks financial truth insufficient, but dashboard previously reported calculated financial KPIs. Dashboard snapshot was repaired to gate financial KPIs/breakdowns on currency consistency while preserving non-financial counts/inventory value.
+12. Live dashboard retest for both authenticated tenant contexts now returns `INSUFFICIENT_DATA` with invalid financial KPIs null and financial breakdown arrays empty under the mismatch condition.
+13. Supabase migration history records the dashboard repair as `20260904063122_reconcile_dashboard_currency_truth`; source migration filename was reconciled to that exact live version to eliminate the Preview migration-lineage failure.
 
 ### GOLDEN CORPUS
 Required cases: `exchange-arabic`, `exchange-ocr`, `inventory-excel`, `unknown-layout`, `corrupt-extraction`, `arithmetic-mismatch`, `reconciliation-mismatch`.
@@ -72,9 +78,9 @@ All seven have explicit expected-disposition contract coverage. Runtime sourceâ†
 - Final certification evidence.
 
 ### EXTERNAL / OWNER BLOCKERS
-- Real authenticated browser credentials for Tenant A/B.
+- Real authenticated browser credentials for Tenant A/B are not provisioned in GitHub Actions.
+- Current-head Vercel deployment is blocked by the platform deployment rate limit (`Deployment rate limited â€” retry in 24 hours`); no older deployment is accepted as current-head evidence.
 - Auth control-plane leaked-password protection.
-- Protected production deployment/current alias access.
 - Backup/restore and rollback drill access.
 - Native Windows runtime where Linux CI is insufficient.
 
