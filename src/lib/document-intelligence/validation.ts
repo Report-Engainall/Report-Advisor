@@ -48,7 +48,7 @@ export function validateLineMath(row: Record<string, unknown>): ValidationIssue[
   const p = strictNumber(row.unit_price);
   const subtotal = strictNumber(row.subtotal ?? row.net_amount);
   const missing = [q == null ? 'quantity' : '', p == null ? 'unit_price' : '', subtotal == null ? 'subtotal' : ''].filter(Boolean);
-  if (missing.length) return missingValidation('subtotal', missing);
+  if (q == null || p == null || subtotal == null) return missingValidation('subtotal', missing);
   const result = reconcileNumbers(q * p, subtotal, 0.02, 0.0005);
   return result.passed ? [] : result.issues.map(i => ({ ...i, code: 'LINE_MATH_MISMATCH', field: 'subtotal', criticality: 'HIGH' as const }));
 }
@@ -60,7 +60,7 @@ export function validateInvoiceTotals(row: Record<string, unknown>): ValidationI
   const shipping = row.shipping == null ? 0 : strictNumber(row.shipping);
   const total = strictNumber(row.total_amount ?? row.total);
   const missing = [subtotal == null ? 'subtotal' : '', tax == null ? 'tax' : '', discount == null ? 'discount' : '', shipping == null ? 'shipping' : '', total == null ? 'total_amount' : ''].filter(Boolean);
-  if (missing.length) return missingValidation('total_amount', missing);
+  if (subtotal == null || tax == null || discount == null || shipping == null || total == null) return missingValidation('total_amount', missing);
   const expected = subtotal + tax - discount + shipping;
   const result = reconcileNumbers(total, expected, 0.02, 0.0005);
   return result.passed ? [] : result.issues.map(i => ({ ...i, code: 'INVOICE_TOTAL_MISMATCH', field: 'total_amount', criticality: 'CRITICAL' as const }));
