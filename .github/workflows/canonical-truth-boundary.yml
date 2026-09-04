@@ -14,3 +14,4 @@ jobs:
           cache: npm
       - run: npm ci
       - run: node --experimental-strip-types scripts/canonical-truth-boundary.test.ts
+      - run: node scripts/real-report-truth-matrix.test.mjs
