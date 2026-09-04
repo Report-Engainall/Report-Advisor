@@ -58,10 +58,10 @@ export function validateCurrentHeadIndex(index, currentHead, parentHead = '', ch
   if (!head || !/^[0-9a-f]{40}$/.test(head)) throw new Error('Index current-head gate rejected: invalid repository HEAD');
   const currentState = index.match(/(?:CURRENT PROJECT STATE|CURRENT EXECUTION BOUNDARY)[\s\S]{0,2500}/i)?.[0] ?? index;
   const candidatePatterns = [
-    /CURRENT CODE\/TEST CANDIDATE\s*:?\s*`([0-9a-f]{40})`/i,
-    /Exact candidate\s*:?\s*`([0-9a-f]{40})`/i,
-    /Exact code\/test head\s*:?\s*`([0-9a-f]{40})`/i,
-    /Current (?:code\/test )?(?:head|candidate)\s*:?\s*`([0-9a-f]{40})`/i,
+    /\*{0,2}CURRENT CODE\/TEST CANDIDATE\*{0,2}\s*:?\s*`([0-9a-f]{40})`/i,
+    /\*{0,2}Exact candidate\*{0,2}\s*:?\s*`([0-9a-f]{40})`/i,
+    /\*{0,2}Exact code\/test head\*{0,2}\s*:?\s*`([0-9a-f]{40})`/i,
+    /\*{0,2}Current (?:code\/test )?(?:head|candidate)\*{0,2}\s*:?\s*`([0-9a-f]{40})`/i,
   ];
   const indexedHead = candidatePatterns.map(pattern => currentState.match(pattern)?.[1]).find(Boolean)?.toLowerCase();
   const boundaryMatch = index.match(/Current repository index boundary head[^`]*`([0-9a-f]{40})`/i);
