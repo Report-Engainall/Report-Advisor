@@ -18,3 +18,4 @@ jobs:
       - run: node scripts/recommendation-outcome-lifecycle-contract.test.mjs
       - run: node scripts/recommendation-status-state-machine-contract.test.mjs
       - run: node scripts/financial-currency-consumer-contract.test.mjs
+      - run: node scripts/decision-state-machine-writer-contract.test.mjs
