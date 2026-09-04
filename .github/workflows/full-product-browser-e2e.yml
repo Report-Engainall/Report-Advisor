@@ -6,6 +6,9 @@ on:
     paths:
       - 'scripts/run-full-product-browser-e2e.mjs'
       - '.github/workflows/full-product-browser-e2e.yml'
+      - 'docs/MASTER_EXECUTION_INDEX.md'
+      - 'E2E_FAILURE_LEDGER.md'
+      - 'E2E_PRODUCT_GAP_LEDGER.md'
       - 'package.json'
       - 'package-lock.json'
   workflow_dispatch:
