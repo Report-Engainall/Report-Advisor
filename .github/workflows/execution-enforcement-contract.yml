@@ -16,7 +16,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+      - name: Verify certification boundary integrity
+        run: node scripts/check-certification-boundary-integrity.mjs
       - name: Verify execution enforcement contract
         run: node scripts/check-execution-enforcement-protocol.mjs
       - name: Run enforcement adversarial test-of-test suite
         run: node scripts/execution-enforcement-adversarial.test.mjs
+      - name: Run certification boundary test-of-test suite
+        run: node scripts/check-certification-boundary-integrity.test.mjs
