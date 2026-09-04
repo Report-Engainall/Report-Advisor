@@ -25,4 +25,10 @@ jobs:
       - name: File Intelligence security contract
         run: npm run test:file-intelligence-security
       - name: ZIP archive traversal regression
+        env:
+          # This regression exercises pure archive/file-security behavior. The
+          # imported browser Supabase client only needs syntactically valid
+          # placeholders; no network/database access is permitted or required.
+          VITE_SUPABASE_URL: https://example.invalid
+          VITE_SUPABASE_ANON_KEY: ci-file-security-placeholder
         run: npm run test:file-security-archive-traversal
