@@ -6,7 +6,7 @@ import crypto from 'node:crypto';
 import { REQUIRED_CERTIFICATION_EVIDENCE_KEYS, validateMandatoryEvidence } from './certification-consumer-validation.mjs';
 
 const sha = (value) => crypto.createHash('sha256').update(value).digest('hex');
-const sourceSha = 'a'.repeat(64);
+const sourceSha = 'a'.repeat(40);
 const manifestId = 'manifest-test-001';
 const runId = 'run-test-001';
 const artifactFingerprint = sha('dist-artifact');
@@ -41,7 +41,7 @@ const attacks = {
   REPLACE_WITH_NULL: () => ({...valid, tenant: null}),
   REPLACE_WITH_WRONG_TYPE: () => ({...valid, tenant: 'validated'}),
   STALE_EVIDENCE: () => ({...valid, tenant: {...valid.tenant, verified_at: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString()}}),
-  WRONG_SHA: () => ({...valid, tenant: {...valid.tenant, source_sha: 'b'.repeat(64)}}),
+  WRONG_SHA: () => ({...valid, tenant: {...valid.tenant, source_sha: 'b'.repeat(40)}}),
   WRONG_MANIFEST: () => ({...valid, tenant: {...valid.tenant, manifest_id: 'forged-manifest'}}),
   WRONG_RUN: () => ({...valid, tenant: {...valid.tenant, certification_run_id: 'forged-run'}}),
   WRONG_ARTIFACT_FINGERPRINT: () => ({...valid, tenant: {...valid.tenant, artifact_fingerprint: sha('other')}}),
