@@ -8,15 +8,15 @@
 - **Repository:** `Report-Engainall/Report-Advisor`
 - **Current execution branch:** `execution/owner-level-compatibility-hardening-main`
 - **Current main:** `b44a823b22653aded1408d36c6e5a109e4df4c3d`
-- **Current code/test candidate:** `17f6e8f9f4f0f8c6f8b8a6c2f4a0b5f8c8d7e6a5`
+- **Current code/test candidate:** `a1e1426eebe56b14e5271e504918a3d96be22a03`
 - Previous executable candidate: `393308f235b816e9610bb426813e6fefc9f7c6b9`.
 - `b9597ac...` was governance/index-only and did not replace the executable candidate.
 - Execution scope: P0 certification/test integrity; P0 security/database/RPC/RLS/tenant isolation; P0 worker adversarial lifecycle; P1 compatibility/legacy; worker/filesystem/OCR/documents; P2 reports/export/performance; PR/desktop reconciliation; final evidence/certification.
 - Independent fronts run in parallel; Owner intervention is deferred until locally actionable work is exhausted.
 
 ### EXACT CANDIDATE
-- **CURRENT CODE/TEST CANDIDATE:** `17f6e8f9f4f0f8c6f8b8a6c2f4a0b5f8c8d7e6a5`
-- This exact SHA is the post-index-preservation head and supersedes the placeholder worker mutation pointer below once created; worker mutation ancestry is `ec2c6babef8176044ba63892e6638f23904db1d2`.
+- **CURRENT CODE/TEST CANDIDATE:** `a1e1426eebe56b14e5271e504918a3d96be22a03`
+- `a1e1426...` is the index-preservation/candidate-binding commit after worker mutation; worker implementation mutation is `ec2c6babef8176044ba63892e6638f23904db1d2` in its ancestry.
 - `b44a823...` strengthens the continuous-trust test-of-test from single replacement to `replaceAll`, proving partial stale persistence identifiers cannot survive the adversarial test.
 - `393308f...` corrected the decision-approval lock-order checker and keeps adversarial lock-removal testing fail-closed.
 - `2460a5c...` hardened `decide_approval()` to use the same decision → approval lock order as `request_decision_approval()`.
@@ -29,7 +29,7 @@
 - Quality `#3854` on `18b634c...`: PASS, all 63 workflow steps.
 - Final Execution Batch `#430` on `18b634c...`: PASS, 30 deterministic gates.
 - Final Certification `#665` on `d362b229...`: boundary passed, then certification contracts failed on stale continuous-trust test-of-test; RCA and repair completed.
-- Final Certification `#666` on `43d56fb...`: boundary passed, then the same stale test-of-test failed; consumed as actionable checker/test defect.
+- Final Certification `#666` on `43d56fb...`: boundary passed, then the same stale continuous-trust test-of-test failed; consumed as actionable checker/test defect.
 - Final Certification run on `b9597ac...`: boundary passed; continuous-trust test-of-test failed on a partial replacement that did not remove all stale occurrences. This failure was consumed and repaired at `b44a823...`.
 - Continuous-trust checker RCA: canonical runtime bridge is `autonomy_runtime_gate` calling `is_continuous_trust_healthy('production')`; checker now validates runtime RPC + migration-lineage SQL.
 - Continuous-trust test-of-test RCA: tests now mutate every matching persistence identifier and every SQL bridge call before expecting rejection.
@@ -77,7 +77,7 @@
 - Mutation branch: `execution/owner-level-compatibility-hardening-main`
 - PR: `#310` — OPEN / NOT MERGED
 - Worker mutation commit: `ec2c6babef8176044ba63892e6638f23904db1d2`
-- Index-preservation/binding commit: pending this correction commit.
+- Index-preservation/candidate-binding commit: `a1e1426eebe56b14e5271e504918a3d96be22a03`
 
 **SURFACE DISCOVERY**
 - Queue fixture: `src/lib/report-execution/queue.ts`
