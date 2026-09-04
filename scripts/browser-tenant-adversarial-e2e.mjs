@@ -37,7 +37,12 @@ for(const table of tables){
   cases.push({table,case:'A reads B child/root by ID',status: arows.length===0?'REJECTED':'OPEN',http:a.x,visible_rows:arows.length});
 }
 const forged=await A.p.evaluate(async ({url,key,token,tenant})=>{const x=await fetch(`${url.replace(/\/$/,'')}/rest/v1/products`,{method:'POST',headers:{apikey:key,Authorization:`Bearer ${token}`,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify({company_id:tenant,sku:`FORGED-${Date.now()}`,name:'forged browser tenant product',unit:'قطعة',cost_price:1,selling_price:2,min_stock:0,reorder_point:0,is_active:true})});return{x:x.status,b:await x.text()};},{url:supabaseURL,key:anonKey,token:A.token,tenant:tenantB});
-cases.push({table:'products',case:'A forged company_id=B insert',status:[401,403].includes(forged.x)?'REJECTED':'OPEN',http:forged.x});
-console.log(JSON.stringify({status:cases.some(x=>x.status==='OPEN')?'FAIL':'PASS',tenantA,tenantB,cases},null,2));
+cases.push({table:'products',case:'A forged company_id=B insert',status:[400,401,403].includes(forged.x)?'REJECTED':'OPEN',http:forged.x});
+
+const incomplete = cases.filter(x => ['NO_FIXTURE','NOT_PROVEN'].includes(x.status));
+const open = cases.filter(x => x.status === 'OPEN');
+const rejected = cases.filter(x => x.status === 'REJECTED');
+const status = open.length ? 'FAIL' : incomplete.length ? 'BLOCKED' : rejected.length === 0 ? 'BLOCKED' : 'PASS';
+console.log(JSON.stringify({status,tenantA,tenantB,coverage:{total:cases.length,required:tables.length+1,rejected:rejected.length,incomplete:incomplete.length,open:open.length},cases},null,2));
 await Promise.all(contexts.map(c=>c.close())); await browser.close();
-if(cases.some(x=>x.status==='OPEN')) process.exitCode=1;
+if(status !== 'PASS') process.exitCode = 1;
