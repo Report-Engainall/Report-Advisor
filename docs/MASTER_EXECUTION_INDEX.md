@@ -5,11 +5,12 @@
 > Authoritative execution index. Historical records remain in Git history and dated evidence. Evidence never crosses an exact-SHA boundary.
 
 ### EXACT CANDIDATE
-- **CURRENT CODE/TEST CANDIDATE:** `bac68777cc7014c1558e4b05cc8b98f3215e7cb3`
-- `205f0bfaa15e13be23aff71619ea4f6bd3487c65` was the prior executable candidate.
+- **CURRENT CODE/TEST CANDIDATE:** `69f14e75597f5a710bb415d0d905f0d0c18854f7`
+- `bac68777cc7014c1558e4b05cc8b98f3215e7cb3` was the prior executable candidate.
 - Terminal approval concurrency hardening is canonical and live; its adversarial test-of-test is wired into Quality.
 - `6dff142...` corrected continuous-trust checker/schema drift (`incident_regression_links` vs stale `incident_regressions`).
-- `d956eb7...` / `205f0bf...` corrected and regression-tested Markdown candidate parsing in execution enforcement. The first parser fix still missed the colon-inside-bold form (`**CURRENT CODE/TEST CANDIDATE:**`); `bac6877...` corrected that exact grammar.
+- `d956eb7...` / `205f0bf...` / `bac68777...` corrected execution-enforcement candidate parsing. The exact failure sequence was consumed fail-closed; no stale evidence was promoted.
+- `837a177...` and `838f965...` split the oversized enforcement adversarial suite into bounded protocol and governance/index modules; `69f14e...` restores the canonical entrypoint wrapper. The wrapper now executes both bounded suites, including canonical Markdown candidate parsing and exact-SHA/index-only adversarial checks.
 - Main may receive governance/index descendants after the candidate; certification must resolve the candidate from this index and enforce ancestry/allowlisted-path rules.
 
 ### CERTIFICATION BOUNDARY
@@ -17,16 +18,17 @@
 - Governance-only descendants require ancestry and explicit allowlisted paths.
 - Provenance must bind push/PR/manual trigger to the tested SHA; synthetic PR merge SHAs are rejected.
 - `final-certification-gate.yml` and `execution-enforcement-contract.yml` enforce the boundary.
-- Fresh Quality and Certification are mandatory for `bac68777...`.
+- Fresh Quality and Certification are mandatory for `69f14e...`.
 
 ### FRESH FAILURE-DRIVEN REPAIR CHAIN
 - Quality `33822486064` on `6dff142...` = **SUCCESS** across all 63 workflow steps.
 - Quality `33822505850` on governance `52b077...` = **SUCCESS** across all 63 steps.
 - Final Execution Batch `33822505852` on governance `52b077...` = **SUCCESS** with 30 deterministic gates.
-- Final Certification `33822505843` failed correctly on a stale execution-enforcement parser assumption; no evidence was promoted.
-- Execution Enforcement `33822639380` on `205f0bf...` failed because the candidate index at that exact SHA still pointed to `6dff142...`; boundary itself passed and correctly rejected stale candidate state.
-- Execution Enforcement `33822656409` on governance `5439c7...` failed because the parser did not recognize the colon inside Markdown emphasis; `bac6877...` repairs this exact parser defect.
-- Fresh runs are required again on `bac68777...` and its index-only descendants.
+- Final Certification `33822505843` failed correctly on stale execution-enforcement parser assumptions; no evidence was promoted.
+- Execution Enforcement `33822639380` on `205f0bf...` failed because that exact SHA still indexed `6dff142...`; correct fail-closed.
+- Execution Enforcement `33822656409` on governance `5439c7...` failed because the parser did not recognize the colon inside Markdown emphasis; `bac68777...` repaired this exact grammar.
+- Execution Enforcement `33822761438` on `a9d6c929...` passed boundary + enforcement contract but its adversarial harness exposed a stale synthetic fixture (`Exact code/test head entering this sweep`). That fixture is now replaced by the canonical candidate wording and split bounded suites.
+- The latest main-side enforcement run before the split therefore remains **superseded**, not PASS. Fresh exact-candidate evidence is mandatory.
 
 ### APPROVAL / AUTHORITY
 - Live memberships: 2 active, both `role=member`; no canonical approver/permission authority table found.
@@ -114,7 +116,7 @@
 | Storage | YES/policies | NO contract | Policy | NO | NO |
 | Realtime | Client capability | NO publication | NO | NO | NO |
 | AI/vector | Architecture | PARTIAL | Architecture | NO | NO |
-| Certification provenance | YES | YES | **PENDING fresh `bac68777...`** | N/A | NO |
+| Certification provenance | YES | YES | **PENDING fresh `69f14e...`** | N/A | NO |
 
 ### EXECUTION DEBT
 `LOCAL ACTIONABLE EXECUTION DEBT = NOT ZERO`.
