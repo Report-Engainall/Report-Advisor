@@ -52,7 +52,7 @@ try {
   function zip(name) {
     const nb = new TextEncoder().encode(name);
     const local = [0x50, 0x4b, 3, 4, ...u16(20), 0, 0, 0, 0, 0, 0, 0, 0, ...u32(0), ...u32(0), ...u32(0), ...u16(nb.length), 0, 0, ...nb];
-    const central = [0x50, 0x4b, 1, 2, ...u16(20), ...u16(20), 0, 0, 0, 0, 0, 0, 0, 0, ...u32(0), ...u32(0), ...u32(0), ...u16(nb.length), 0, 0, 0, 0, 0, 0, 0, 0, ...u32(0), ...u32(0), ...nb];
+    const central = [0x50, 0x4b, 1, 2, ...u16(20), ...u16(20), 0, 0, 0, 0, 0, 0, 0, 0, ...u32(0), ...u32(0), ...u32(0), ...u16(nb.length), 0, 0, 0, 0, 0, 0, 0, 0, ...u32(0), ...u32(0), ...u32(0), ...nb];
     const eocd = [0x50, 0x4b, 5, 6, 0, 0, 0, 0, ...u16(1), ...u16(1), ...u32(central.length), ...u32(local.length), 0, 0];
     return new Uint8Array([...local, ...central, ...eocd, ...new Array(100).fill(0)]);
   }
