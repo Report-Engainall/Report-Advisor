@@ -24,7 +24,7 @@
 ### E2E WAVE
 - Baseline: `083225068f1e2d390f6e1d50e8b178a1e8e1bacb`
 - Browser harness: `396086781a4723c23a90a8486b8b4cf81936bec9`
-- Browser CI: `aa155ffdfce7a0addd17b337677e4b5c3039376d`
+- Browser CI: `aa155ffdfce7a0addd17b337677e4b5c3039376d`.
 - Golden corpus contract repair: `38394120323da4f73bd2765b1f754b27e100111b`
 - Failure ledger: `262fda100fcad7429ddd4928af96c8c3e14e05ff`
 - Tenant-context verification: `4f34d33a8a3724fde55355763c4174639b42274e`
@@ -158,6 +158,15 @@
 - `scripts/check-live-production-evidence-boundary.mjs` now routes the consumed decision through the canonical evaluator after semantic evidence validation.
 - `.github/workflows/release-certification.yml` no longer carries an independent workflow-local `acceptsReleaseDecision` oracle; canonical decision anti-forgery is executed from the shared test suite in preflight.
 - This boundary is still `NOT PROVEN` until fresh exact-head CI executes the new code. Certification remains `NOT CERTIFIED` because runtime tenant/backup/rollback/artifact/security evidence is still absent.
+
+### ONE-HOUR EXECUTION LEDGER — 2026-09-04
+- Authoritative detailed ledger: `docs/EVIDENCE/2026-09-04_ONE-HOUR_EXECUTION_LEDGER.md`.
+- Ledger start head: `03992a6c6e867e6e6b4ae702aef00507fcf55043`.
+- Certification consumer/artifact repair: `1b3d3e38a16ece536101516dfd7812b8a1f46af6`.
+- Independent completed-run consumer contract: `2b042a4a8ea6537aa0447d8aae9c9565259a99b5`.
+- Exact-head checker scope/test-of-test repair: `f5ba53606276b54c9529dda25e5ea1ed856dc2b4`.
+- Ledger records live read-only DB verification, Track-A non-reexecution, P0 certification repairs, CI topology analysis, exact-head provenance, test-of-test scope, bypass findings, external blockers, and every final non-claim.
+- The ledger itself is documentary evidence only; its presence does not certify runtime or release readiness.
 
 ### CERTIFICATION RULE
 No HTTP 200, UI success message, fixture PASS, simulated DB JWT, historical deployment, queued workflow, or old SHA may certify the current candidate. Final certification requires exact-head evidence for every required product surface and zero unresolved local actionable debt.
