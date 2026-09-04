@@ -78,3 +78,4 @@ jobs:
           test "$(git rev-parse HEAD)" = "${CERTIFICATION_SHA}"
           echo "Repository certification contracts: PASS" >> "$GITHUB_STEP_SUMMARY"
           echo "Live/production certification remains dependent on external runtime evidence." >> "$GITHUB_STEP_SUMMARY"
+# Exact-candidate revalidation note: workflow_dispatch remains available for governed candidate reruns.
