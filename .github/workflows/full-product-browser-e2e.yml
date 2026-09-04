@@ -94,6 +94,17 @@ jobs:
             echo "No browser PASS may be claimed until this contract is satisfied."
             exit 2
           fi
+      - name: Locate primary golden report fixture
+        shell: bash
+        run: |
+          set -euo pipefail
+          fixture="$(find . -type f \( -iname '*exchange-arabic*.pdf' -o -iname '*exchange*arabic*.PDF' \) -print -quit)"
+          if [ -z "$fixture" ]; then
+            echo "GOLDEN_FIXTURE_MISSING: repository does not contain the primary exchange-arabic PDF fixture."
+            exit 1
+          fi
+          echo "E2E_GOLDEN_FIXTURE=$GITHUB_WORKSPACE/$fixture" >> "$GITHUB_ENV"
+          echo "E2E_GOLDEN_FIXTURE=$fixture"
       - name: Run full product browser E2E
         env:
           EXACT_HEAD: ${{ github.sha }}
@@ -104,7 +115,6 @@ jobs:
           TEST_USER_A_PASSWORD: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_PASSWORD }}
           TEST_USER_B_EMAIL: ${{ secrets.REPORT_ADVISOR_E2E_USER_B_EMAIL }}
           TEST_USER_B_PASSWORD: ${{ secrets.REPORT_ADVISOR_E2E_USER_B_PASSWORD }}
-          E2E_GOLDEN_FIXTURE: ${{ github.workspace }}/e2e-fixtures/golden/exchange-arabic.pdf
         run: node scripts/run-full-product-browser-e2e.mjs
       - name: Upload browser E2E evidence
         if: always()
