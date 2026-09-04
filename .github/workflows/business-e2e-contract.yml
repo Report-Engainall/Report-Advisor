@@ -15,6 +15,8 @@ jobs:
       - run: npm ci
       - run: node scripts/business-e2e-catalog.test.mjs
       - run: node scripts/real-report-truth-matrix.mjs
+      - run: node scripts/real-report-business-wrapper.test.mjs
+      - run: node scripts/semantic-business-report-browser-e2e-contract.test.mjs
       - run: node scripts/recommendation-outcome-lifecycle-contract.test.mjs
       - run: node scripts/recommendation-status-state-machine-contract.test.mjs
       - run: node scripts/financial-currency-consumer-contract.test.mjs
