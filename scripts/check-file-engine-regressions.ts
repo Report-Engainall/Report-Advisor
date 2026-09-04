@@ -30,30 +30,19 @@ assert(cleanValue('١٢٫٥', 'decimal') === 12.5, 'decimal cleaning must preser
 assert(cleanValue('١٢٣', 'integer') === 123, 'integer cleaning must normalize Arabic digits');
 
 function zipWithEntries(entries: Array<{ name: string; compressed: number; expanded: number }>): ArrayBuffer {
-  const enc = new TextEncoder();
-  const parts: Uint8Array[] = [];
-  const central: Uint8Array[] = [];
-  let offset = 0;
+  const enc = new TextEncoder(); const parts: Uint8Array[] = []; const central: Uint8Array[] = []; let offset = 0;
   for (const entry of entries) {
-    const name = enc.encode(entry.name);
-    const local = new Uint8Array(30 + name.length);
-    const lv = new DataView(local.buffer);
-    lv.setUint32(0, 0x04034b50, true); lv.setUint16(4, 20, true); lv.setUint16(18, 0, true);
-    lv.setUint32(22, entry.compressed, true); lv.setUint32(26, entry.expanded, true); lv.setUint16(26, name.length, true);
-    local.set(name, 30); parts.push(local);
-    const c = new Uint8Array(46 + name.length); const cv = new DataView(c.buffer);
-    cv.setUint32(0, 0x02014b50, true); cv.setUint16(4, 20, true); cv.setUint16(6, 20, true);
-    cv.setUint32(20, entry.compressed, true); cv.setUint32(24, entry.expanded, true); cv.setUint16(28, name.length, true); cv.setUint32(42, offset, true); c.set(name, 46); central.push(c);
-    offset += local.length;
+    const name = enc.encode(entry.name); const local = new Uint8Array(30 + name.length); const lv = new DataView(local.buffer);
+    lv.setUint32(0, 0x04034b50, true); lv.setUint16(4, 20, true); lv.setUint32(18, entry.compressed, true); lv.setUint32(22, entry.expanded, true); lv.setUint16(26, name.length, true); local.set(name, 30); parts.push(local);
+    const c = new Uint8Array(46 + name.length); const cv = new DataView(c.buffer); cv.setUint32(0, 0x02014b50, true); cv.setUint16(4, 20, true); cv.setUint16(6, 20, true); cv.setUint32(20, entry.compressed, true); cv.setUint32(24, entry.expanded, true); cv.setUint16(28, name.length, true); cv.setUint32(42, offset, true); c.set(name, 46); central.push(c); offset += local.length;
   }
-  const centralOffset = offset; const centralSize = central.reduce((n, x) => n + x.length, 0);
-  const eocd = new Uint8Array(22); const ev = new DataView(eocd.buffer);
+  const centralOffset = offset; const centralSize = central.reduce((n, x) => n + x.length, 0); const eocd = new Uint8Array(22); const ev = new DataView(eocd.buffer);
   ev.setUint32(0, 0x06054b50, true); ev.setUint16(8, entries.length, true); ev.setUint16(10, entries.length, true); ev.setUint32(12, centralSize, true); ev.setUint32(16, centralOffset, true);
   const out = new Uint8Array(offset + centralSize + 22); let p = 0; for (const part of parts) { out.set(part, p); p += part.length; } for (const part of central) { out.set(part, p); p += part.length; } out.set(eocd, p); return out.buffer;
 }
 
 const normal = zipWithEntries([{ name: 'word/document.xml', compressed: 100, expanded: 1000 }]);
-assert(() => assertSafeZipResources(normal, 'docx'), 'normal DOCX archive should be accepted');
+assertSafeZipResources(normal, 'docx');
 assert(isUnsafeArchivePath('../evil.xml'), 'archive traversal path must be detected');
 const ratioBomb = zipWithEntries([{ name: 'word/document.xml', compressed: 1, expanded: ARCHIVE_RESOURCE_LIMITS.maxCompressionRatio + 1 }]);
 try { assertSafeZipResources(ratioBomb, 'docx'); throw new Error('compression-ratio bomb was accepted'); } catch (error) { assert(String(error).includes('COMPRESSION_RATIO_EXCEEDED'), 'compression-ratio bomb must fail closed'); }
