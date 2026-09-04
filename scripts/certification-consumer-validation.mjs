@@ -3,6 +3,7 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 
 export const REQUIRED_CERTIFICATION_EVIDENCE_KEYS = Object.freeze(['tenant', 'backup', 'rollback', 'artifact', 'security']);
+const GIT_SHA = /^[a-f0-9]{40}$/;
 const SHA256 = /^[a-f0-9]{64}$/;
 const ISO = /^\d{4}-\d{2}-\d{2}T/;
 
@@ -14,16 +15,20 @@ const exact = (v, expected, name) => {
   requiredString(v, name);
   if (v !== expected) reject(`MISMATCH_${name}`);
 };
-const sha = (v, name) => {
+const requireGitSha = (v, name) => {
+  requiredString(v, name);
+  if (!GIT_SHA.test(v)) reject(`INVALID_${name}`);
+};
+const requireSha256 = (v, name) => {
   requiredString(v, name);
   if (!SHA256.test(v)) reject(`INVALID_${name}`);
 };
 
 export function validateMandatoryEvidence({ evidenceContracts, expectedSourceSha, manifestId, certificationRunId, artifactFingerprint, evidenceRoot = process.cwd(), now = Date.now(), maxAgeMs = 24 * 60 * 60 * 1000 }) {
-  sha(expectedSourceSha, 'SOURCE_SHA');
+  requireGitSha(expectedSourceSha, 'SOURCE_SHA');
   requiredString(manifestId, 'MANIFEST_ID');
   requiredString(certificationRunId, 'CERTIFICATION_RUN_ID');
-  sha(artifactFingerprint, 'ARTIFACT_FINGERPRINT');
+  requireSha256(artifactFingerprint, 'ARTIFACT_FINGERPRINT');
   if (!evidenceContracts || typeof evidenceContracts !== 'object' || Array.isArray(evidenceContracts)) reject('MISSING_EVIDENCE_CONTRACTS');
 
   const actual = Object.keys(evidenceContracts).sort();
@@ -39,7 +44,7 @@ export function validateMandatoryEvidence({ evidenceContracts, expectedSourceSha
     exact(evidence.certification_run_id, certificationRunId, `${key}_CERTIFICATION_RUN_ID`);
     exact(evidence.artifact_fingerprint, artifactFingerprint, `${key}_ARTIFACT_FINGERPRINT`);
     requiredString(evidence.evidence_ref, `${key}_EVIDENCE_REF`);
-    sha(evidence.evidence_fingerprint, `${key}_EVIDENCE_FINGERPRINT`);
+    requireSha256(evidence.evidence_fingerprint, `${key}_EVIDENCE_FINGERPRINT`);
     requiredString(evidence.proof_type, `${key}_PROOF_TYPE`);
     requiredString(evidence.verified_at, `${key}_VERIFIED_AT`);
     if (!ISO.test(evidence.verified_at)) reject(`INVALID_VERIFIED_AT:${key}`);
