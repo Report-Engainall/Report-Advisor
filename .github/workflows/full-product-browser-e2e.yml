@@ -41,10 +41,17 @@ jobs:
           cache: npm
       - name: Install locked dependencies
         run: npm ci --include=dev --no-audit --no-fund
-      - name: Install browser E2E runner
+      - name: Install pinned browser E2E runner
         run: npm install --no-save --ignore-scripts playwright@1.55.0
+      - name: Restore pinned Playwright browser cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-1.55.0-chromium-ubuntu-22.04-${{ runner.arch }}
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
+      - name: Assert pinned Playwright version
+        run: test "$(node -p "require('playwright/package.json').version")" = "1.55.0"
       - name: Build exact HEAD
         env:
           VITE_SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
