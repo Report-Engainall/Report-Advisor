@@ -71,10 +71,11 @@ for (const file of names) {
   if (!hasBranchRestriction && !hasPathRestriction && !hasTagRestriction) broadPushWorkflows.push(file);
 }
 if (!canonicalMainPushWorkflows.includes('quality.yml')) throw new Error(`Expected quality.yml to be a canonical main push workflow, found: ${canonicalMainPushWorkflows.join(', ') || 'none'}`);
-const governanceBroad = new Set(['execution-enforcement-contract.yml']);
+const governanceBroad = new Set(['execution-enforcement-contract.yml', 'final-certification-gate.yml']);
 const nonCanonicalBroad = broadPushWorkflows.filter((file) => file !== 'quality.yml' && !governanceBroad.has(file));
 if (nonCanonicalBroad.length) throw new Error(`Non-canonical broad push workflows are not allowed: ${nonCanonicalBroad.join(', ')}`);
 if (!broadPushWorkflows.includes('execution-enforcement-contract.yml')) throw new Error('Execution enforcement contract must remain broad-push to cover every repository mutation');
+if (!broadPushWorkflows.includes('final-certification-gate.yml')) throw new Error('Final certification gate must remain broad-push to bind every candidate push to exact SHA provenance');
 
 console.log(JSON.stringify({
   contract: 'ci-execution-topology',
@@ -83,6 +84,6 @@ console.log(JSON.stringify({
   canonicalMainPushWorkflows,
   productionEvidenceBoundary: 'release-certification -> workflow_run -> exact artifact -> consumption proof',
   scopedPushWorkflows,
-  governanceBroadPushWorkflows: ['execution-enforcement-contract.yml'],
+  governanceBroadPushWorkflows: ['execution-enforcement-contract.yml', 'final-certification-gate.yml'],
   manualWaves: ['j-k-l-runtime-wave.yml', 'autonomy-safety-wave.yml', 'phase-f-live-resilience.yml'],
 }));
