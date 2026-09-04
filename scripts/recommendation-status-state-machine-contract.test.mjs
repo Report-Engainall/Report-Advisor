@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 
-const migration = readFileSync('supabase/migrations/20260904201500_reconcile_recommendation_status_contract.sql', 'utf8');
+const migration = readFileSync('supabase/migrations/20260904213000_harden_recommendation_status_state_machine.sql', 'utf8');
 const required = [
   "for update",
   "RECOMMENDATION_APPROVAL_REQUIRES_APPROVED_DECISION",
