@@ -6,6 +6,7 @@ on:
       - 'desktop/**'
       - 'src/lib/file-engine/**'
       - 'scripts/p1-filesystem-windows-deep-hardening.mjs'
+      - 'scripts/p1-filesystem-windows-test-of-test.mjs'
       - '.github/workflows/p1-filesystem-windows-deep-hardening.yml'
   push:
     branches:
@@ -14,6 +15,7 @@ on:
       - 'desktop/**'
       - 'src/lib/file-engine/**'
       - 'scripts/p1-filesystem-windows-deep-hardening.mjs'
+      - 'scripts/p1-filesystem-windows-test-of-test.mjs'
       - '.github/workflows/p1-filesystem-windows-deep-hardening.yml'
 permissions:
   contents: read
@@ -40,6 +42,8 @@ jobs:
         run: npm run test:file-security-archive-traversal
       - name: Filesystem/windows deep hardening harness
         run: node --experimental-strip-types scripts/p1-filesystem-windows-deep-hardening.mjs
+      - name: Filesystem guard test-of-test
+        run: node scripts/p1-filesystem-windows-test-of-test.mjs
   windows-filesystem-native:
     runs-on: windows-latest
     steps:
@@ -71,6 +75,8 @@ jobs:
       - name: Windows filesystem primitive matrix
         shell: pwsh
         run: node --experimental-strip-types scripts/p1-filesystem-windows-deep-hardening.mjs
+      - name: Filesystem guard test-of-test
+        run: node scripts/p1-filesystem-windows-test-of-test.mjs
       - name: Upload native diagnostics
         if: always()
         uses: actions/upload-artifact@v4
