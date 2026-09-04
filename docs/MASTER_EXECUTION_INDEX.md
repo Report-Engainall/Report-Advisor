@@ -4,6 +4,8 @@
 
 > Authoritative execution manifest. Because embedding this file's own commit SHA would make the SHA self-invalidating, the exact current candidate is always the Git `HEAD` of `main` at the same checkout. Pair this manifest with `git rev-parse HEAD` for every evidence batch.
 
+- Current code/test candidate: `98119b5f2960724d5e3efdb7347b25dde5790920`.
+
 ### BOUNDARY / GOVERNANCE
 - Branch: `main`.
 - Historical evidence is valid only for its recorded SHA.
@@ -17,7 +19,7 @@
 - Browser CI: `aa155ffdfce7a0addd17b337677e4b5c3039376d`
 - Golden corpus contract repair: `38394120323da4f73bd2765b1f754b27e100111b`
 - Failure ledger: `262fda100fcad7429ddd4928af96c8c3e14e05ff`
-- Tenant-context verification: `4f34d33a8a3724fde55355763c4174639b42274b`
+- Tenant-context verification: `4f34d33a8a3724fde55355763c4174639b42274e`
 - CI topology repair: `95cf68908f5fb57de5712c90dd6ed297cfd5f65a`
 - Browser forensic-depth repair: `dcbcbdbcc621cce23786d945e82005af94bcd05f`
 - Product gap ledger: `1c0011188346f1543353fdc8d517a1021bc25743`
