@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import { validateMandatoryEvidence } from './certification-consumer-validation.mjs';
+import { evaluateCanonicalCertificationDecision } from './canonical-certification-decision.mjs';
 
 const root = process.cwd();
 const manifestPath = process.env.RELEASE_EVIDENCE_MANIFEST_PATH || 'release-evidence/manifest.json';
@@ -37,8 +38,6 @@ if (manifest.certification_run_id !== certificationRunId) throw new Error('Manif
 if (certification.consumed_source_sha !== expectedSourceSha) throw new Error('Certification decision source SHA mismatch');
 if (certification.certification_run_id !== certificationRunId) throw new Error('Certification decision run identity mismatch');
 if (certification.consumed_release_manifest_id !== manifest.manifest_id) throw new Error('Certification decision is not bound to consumed manifest');
-if (certification.certification_result !== 'passed') throw new Error('Certification decision is not passed');
-if (certification.blocker_count !== 0 || certification.blocker_state !== 'clear') throw new Error('Certification decision contains unresolved blockers');
 if (manifest.stabilization_seconds < 0 || !Number.isInteger(manifest.stabilization_seconds)) throw new Error('Invalid stabilization window in release manifest');
 
 const payload = {
@@ -56,9 +55,6 @@ const payload = {
 const expectedManifestId = crypto.createHash('sha256').update(JSON.stringify(payload)).digest('hex');
 if (manifest.manifest_id !== expectedManifestId) throw new Error('Release manifest fingerprint mismatch');
 if (JSON.stringify(certification.required_contracts) !== JSON.stringify(manifest.evidence_contracts)) throw new Error('Certification contract set does not match release manifest');
-if (certification.identity.source_sha_matches_manifest !== true) throw new Error('Certification identity does not confirm source binding');
-if (certification.identity.manifest_id_matches_payload !== true) throw new Error('Certification identity does not confirm manifest integrity');
-if (certification.identity.certification_run_id_matches_manifest !== true) throw new Error('Certification identity does not confirm run binding');
 
 validateMandatoryEvidence({
   evidenceContracts: certification.required_contracts,
@@ -67,6 +63,13 @@ validateMandatoryEvidence({
   certificationRunId,
   artifactFingerprint: manifest.artifact_fingerprint,
   evidenceRoot: root,
+});
+
+evaluateCanonicalCertificationDecision({
+  decision: certification,
+  expectedSourceSha,
+  expectedManifestId: manifest.manifest_id,
+  expectedCertificationRunId: certificationRunId,
 });
 
 const proof = {
