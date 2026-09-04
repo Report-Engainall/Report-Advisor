@@ -2,6 +2,11 @@ name: Full Product Browser E2E
 
 on:
   push:
+    paths:
+      - 'scripts/run-full-product-browser-e2e.mjs'
+      - '.github/workflows/full-product-browser-e2e.yml'
+      - 'package.json'
+      - 'package-lock.json'
   workflow_dispatch:
 
 permissions:
@@ -60,6 +65,8 @@ jobs:
           REPORT_ADVISOR_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
           TEST_USER_A_EMAIL: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_EMAIL }}
           TEST_USER_A_PASSWORD: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_PASSWORD }}
+          TEST_USER_B_EMAIL: ${{ secrets.REPORT_ADVISOR_E2E_USER_B_EMAIL }}
+          TEST_USER_B_PASSWORD: ${{ secrets.REPORT_ADVISOR_E2E_USER_B_PASSWORD }}
         run: node scripts/run-full-product-browser-e2e.mjs
       - name: Upload browser E2E evidence
         if: always()
