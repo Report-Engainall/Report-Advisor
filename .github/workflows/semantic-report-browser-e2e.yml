@@ -1,0 +1,110 @@
+name: Semantic Report Browser E2E
+
+on:
+  push:
+    paths:
+      - 'scripts/semantic-business-report-browser-e2e.mjs'
+      - 'scripts/run-full-product-browser-e2e.mjs'
+      - 'src/pages/DashboardPage.tsx'
+      - 'src/pages/ReportsPage.tsx'
+      - 'src/pages/ReceivablesReportCanonicalPage.tsx'
+      - 'src/pages/AnalyticsPage.tsx'
+      - 'src/lib/dashboard-canonical.ts'
+      - 'src/lib/queries.ts'
+      - 'src/lib/format.ts'
+      - '.github/workflows/semantic-report-browser-e2e.yml'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'supabase/migrations/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  semantic-report-browser-e2e:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Verify exact checkout
+        shell: bash
+        run: |
+          set -euo pipefail
+          actual="$(git rev-parse HEAD)"
+          test "$actual" = "${GITHUB_SHA}"
+          test -z "$(git status --porcelain)"
+          echo "EXACT_HEAD=$actual"
+          echo "WORKTREE=CLEAN"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci --include=dev --no-audit --no-fund
+      - name: Install pinned Playwright
+        run: npm install --no-save --ignore-scripts playwright@1.55.0
+      - name: Restore Playwright browser cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-1.55.0-chromium-ubuntu-22.04-${{ runner.arch }}
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Assert pinned Playwright
+        run: test "$(node -p "require('playwright/package.json').version")" = "1.55.0"
+      - name: Build exact HEAD
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
+        run: npm run build
+      - name: Start exact-head preview
+        shell: bash
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
+        run: |
+          set -euo pipefail
+          nohup npm run preview -- --host 127.0.0.1 --port 4173 > /tmp/report-advisor-semantic-preview.log 2>&1 &
+          for i in {1..60}; do
+            if curl -fsS http://127.0.0.1:4173/ >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/report-advisor-semantic-preview.log
+          exit 1
+      - name: Verify authenticated runtime contract
+        shell: bash
+        env:
+          SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
+          USER_A_EMAIL: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_EMAIL }}
+          USER_A_PASSWORD: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_PASSWORD }}
+        run: |
+          set -euo pipefail
+          missing=0
+          for name in SUPABASE_URL SUPABASE_ANON_KEY USER_A_EMAIL USER_A_PASSWORD; do
+            if [ -n "${!name:-}" ]; then echo "$name=SET"; else echo "$name=MISSING"; missing=1; fi
+          done
+          if [ "$missing" -ne 0 ]; then
+            echo "SEMANTIC_E2E_BLOCKED: required authenticated runtime secrets are not provisioned."
+            exit 2
+          fi
+      - name: Run semantic business report browser E2E
+        env:
+          EXACT_HEAD: ${{ github.sha }}
+          E2E_BASE_URL: http://127.0.0.1:4173
+          REPORT_ADVISOR_SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
+          REPORT_ADVISOR_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
+          TEST_USER_A_EMAIL: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_EMAIL }}
+          TEST_USER_A_PASSWORD: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_PASSWORD }}
+        run: node scripts/semantic-business-report-browser-e2e.mjs
+      - name: Upload semantic evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: semantic-report-browser-e2e-${{ github.sha }}
+          path: artifacts/e2e
+          if-no-files-found: warn
