@@ -10,10 +10,6 @@ function latestBody(name) {
   let m, start = -1;
   while ((m = re.exec(sql))) start = m.index;
   if (start < 0) throw new Error(`missing ${name}`);
-
-  // Parse the actual PL/pgSQL function body rather than relying on a
-  // case-sensitive next-function delimiter. Migration SQL is intentionally
-  // allowed to use either CREATE or create casing.
   const bodyStart = sql.indexOf('as $$', start);
   if (bodyStart < 0) throw new Error(`missing ${name} body delimiter`);
   const bodyEnd = sql.indexOf('$$;', bodyStart + 5);
@@ -38,7 +34,6 @@ const decGate = pos(decide, "v_decision_status is distinct from 'PROPOSED'");
 const decApproval = pos(decide, 'from public.decision_approvals', decResolve + 1);
 if (!(decResolve >= 0 && decDecision > decResolve && decDecisionLock > decDecision && decGate > decDecisionLock && decApproval > decDecisionLock)) throw new Error('decide_approval does not follow decision -> approval lock order');
 
-// Test-of-test: remove either lock; the contract must fail closed.
 const weakenedRequest = request.replace(/for update/i, '');
 assert.throws(() => {
   const a = pos(weakenedRequest, 'from public.business_intelligence_decisions');
