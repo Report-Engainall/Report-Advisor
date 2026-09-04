@@ -62,6 +62,31 @@ jobs:
           done
           cat /tmp/report-advisor-preview.log
           exit 1
+      - name: Verify authenticated E2E secret contract
+        shell: bash
+        env:
+          SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
+          USER_A_EMAIL: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_EMAIL }}
+          USER_A_PASSWORD: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_PASSWORD }}
+          USER_B_EMAIL: ${{ secrets.REPORT_ADVISOR_E2E_USER_B_EMAIL }}
+          USER_B_PASSWORD: ${{ secrets.REPORT_ADVISOR_E2E_USER_B_PASSWORD }}
+        run: |
+          set -euo pipefail
+          missing=0
+          for name in SUPABASE_URL SUPABASE_ANON_KEY USER_A_EMAIL USER_A_PASSWORD USER_B_EMAIL USER_B_PASSWORD; do
+            if [ -n "${!name:-}" ]; then
+              echo "$name=SET"
+            else
+              echo "$name=MISSING"
+              missing=1
+            fi
+          done
+          if [ "$missing" -ne 0 ]; then
+            echo "AUTHENTICATED_E2E_BLOCKED: required test-only runtime secrets are not provisioned."
+            echo "No browser PASS may be claimed until this contract is satisfied."
+            exit 2
+          fi
       - name: Run full product browser E2E
         env:
           EXACT_HEAD: ${{ github.sha }}
