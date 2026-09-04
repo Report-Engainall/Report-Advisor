@@ -55,7 +55,9 @@ export const FORMAT_LABELS: Record<FileFormat, string> = {
   zip: 'ZIP', tar: 'TAR', gzip: 'GZIP', unknown: 'غير معروف',
 };
 
-export const SUPPORTED_FORMATS: FileFormat[] = ['xlsx', 'xls', 'xlsm', 'csv', 'tsv', 'ods', 'json', 'jsonl', 'xml', 'txt', 'markdown', 'pdf', 'docx', 'rtf', 'jpg', 'jpeg', 'png', 'webp', 'tiff', 'bmp', 'zip'];
+// Keep the advertised upload contract exactly aligned with parseFile().
+// Detection may recognize more formats, but unsupported formats must not be advertised as importable.
+export const SUPPORTED_FORMATS: FileFormat[] = ['xlsx', 'xls', 'xlsm', 'csv', 'tsv', 'ods', 'json', 'jsonl', 'txt', 'markdown', 'pdf', 'docx', 'jpg', 'jpeg', 'png', 'webp', 'tiff', 'bmp'];
 export const MAX_FILE_SIZE = 100 * 1024 * 1024;
 export const MAX_ROWS = 500000;
 export const MAX_COLUMNS = 200;
