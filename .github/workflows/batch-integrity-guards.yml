@@ -33,5 +33,7 @@ jobs:
         run: node scripts/check-queries-compat-consumers.mjs
       - name: Worker lease fencing regression
         run: node --experimental-strip-types scripts/report-execution-lease-fencing.test.ts
+      - name: Worker adversarial lifecycle matrix
+        run: node --experimental-strip-types scripts/worker-adversarial-lifecycle.test.ts
       - name: Golden business corpus truth
         run: node scripts/business-golden-corpus-contract.mjs

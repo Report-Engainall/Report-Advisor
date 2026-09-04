@@ -22,6 +22,8 @@ export async function runDurableProductionLifecycle<T>(input: DurableProductionR
   const leaseSeconds = input.leaseSeconds ?? 300;
   const heartbeatIntervalMs = input.heartbeatIntervalMs ?? Math.max(30_000, Math.floor((leaseSeconds * 1000) / 3));
   const job = await store.claim(input.jobId, input.workerId, leaseSeconds);
+  if (!job.leaseToken) throw new Error('Claimed durable execution job is missing a fencing token');
+  const leaseToken = job.leaseToken;
   let heartbeatTimer: ReturnType<typeof setInterval> | undefined;
 
   try {
@@ -31,7 +33,7 @@ export async function runDurableProductionLifecycle<T>(input: DurableProductionR
 
     let heartbeatFailure: unknown = null;
     heartbeatTimer = setInterval(() => {
-      void store.heartbeat(input.jobId, input.workerId, leaseSeconds).catch((error) => { heartbeatFailure ??= error; });
+      void store.heartbeat(input.jobId, input.workerId, leaseToken, leaseSeconds).catch((error) => { heartbeatFailure ??= error; });
     }, heartbeatIntervalMs);
 
     const checkpoint = (stage: ReportExecutionStage): ReportExecutionCheckpoint => ({ ...job.checkpoint, sourceHash: input.sourceHash, stage, updatedAt: Date.now() });
@@ -42,7 +44,7 @@ export async function runDurableProductionLifecycle<T>(input: DurableProductionR
       if (!following) throw new Error(`Cannot advance production lifecycle from ${stage}`);
       if (input.executeStage) await input.executeStage(following, { request: input.request, rows: input.rows });
       if (heartbeatFailure) throw heartbeatFailure;
-      await store.saveCheckpoint(input.jobId, checkpoint(following), input.workerId);
+      await store.saveCheckpoint(input.jobId, checkpoint(following), input.workerId, leaseToken);
       stage = following;
     }
 
@@ -53,7 +55,7 @@ export async function runDurableProductionLifecycle<T>(input: DurableProductionR
       sourceHash: input.sourceHash,
       currentRows: input.lifecycle.currentRows,
     });
-    await store.complete(input.jobId, input.workerId, {
+    await store.complete(input.jobId, input.workerId, leaseToken, {
       sourceHash: input.sourceHash,
       lineageCount: lifecycle.lineage.length,
       scenario: lifecycle.scenario,
@@ -63,7 +65,7 @@ export async function runDurableProductionLifecycle<T>(input: DurableProductionR
     return lifecycle;
   } catch (error) {
     try {
-      await store.fail(input.jobId, input.workerId, { message: error instanceof Error ? error.message : String(error) });
+      await store.fail(input.jobId, input.workerId, leaseToken, { message: error instanceof Error ? error.message : String(error) });
       if (job.attempt < job.maxAttempts) await store.retry(input.jobId);
     } catch (failureError) {
       throw new AggregateError([error, failureError], 'Durable execution failed and failure/recovery state could not be persisted');
