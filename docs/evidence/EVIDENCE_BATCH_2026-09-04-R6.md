@@ -3,7 +3,7 @@
 ## Exact-head binding
 - Base boundary: `46156969f506d7fb6c3c75fde419c6de76f6e14d`
 - Branch: `repair/currency-analytics-truth-46156969`
-- **Exact HEAD for this batch: `eed54413cd511baef2f4495f4745e055f16518e0`**
+- Exact candidate HEAD is the Git HEAD of this branch; this file deliberately does not embed its own commit SHA.
 - PR #316: OPEN / DRAFT / NOT MERGED
 - Certification: **NOT CERTIFIED**
 
@@ -17,6 +17,7 @@
 | Wrong tenant entity mutation | RLS company guard | LIVE DB REJECTED |
 | Viewer-role entity mutation | role-aware RLS | LIVE DB REJECTED |
 | Refresh persistence | reload-after-save implemented | RUNTIME E2E REQUIRED |
+| Recommendation outcome bypass | legacy writer could reach outcome before approved/completed work | **FIXED IN SOURCE + LIVE FUNCTION REPLACED; runtime positive chain still NOT PROVEN** |
 
 The known `عميل جديد` / `منتج جديد` dead actions are no longer open findings. The UI now has real handlers, mutation functions, error surfacing and reload. Backend policies enforce tenant + active membership role. Legacy `wholesale` customer segment is preserved.
 
@@ -24,7 +25,7 @@ The known `عميل جديد` / `منتج جديد` dead actions are no longer o
 - Added `scripts/frontend-action-completeness-scan.mjs`.
 - Added `frontend-action-completeness` PR workflow.
 - Scanner checks empty handlers, unimplemented/mock markers and unwired button heuristics.
-- The new exact-head workflow run was observed as queued before this evidence cut; therefore its result is **NOT PROVEN** until completed. No queued state is promoted to PASS.
+- Exact-head workflow result is not promoted until completion; queued/pending is never PASS.
 
 ## Business flow catalog
 - **20 business flows BF-001..BF-020** are defined with complete oracle fields: input/action, expected UI, RPC/API, DB effect, business result, security, persistence, expected failure.
@@ -36,14 +37,14 @@ The known `عميل جديد` / `منتج جديد` dead actions are no longer o
 - New business wrapper manifest: **14 scenarios**.
 - Required pipeline: `SOURCE -> UPLOAD -> PROCESS -> DB -> RECONCILIATION -> ANALYTICS -> UI -> EXPORT/EVIDENCE`.
 - Required truth envelope: source, parsed, normalized, DB, RPC, analytics, UI, export, mismatches, security, persistence, evidence refs, exact HEAD.
-- Automated truth comparator is ready; without a runtime evidence JSON input it reports READY rather than PASS.
-- Therefore report runtime execution count remains **0 EXECUTED / 0 CERTIFIED PASS** in this batch.
+- Automated truth comparator is ready; without runtime evidence JSON it reports READY rather than PASS.
+- Runtime report execution remains **0 EXECUTED / 0 CERTIFIED PASS**.
 
 ## Currency / truth parity
 - Financial source storage hardened: sales/purchase invoice currency is required, defaults to SAR, and must be normalized 3-letter uppercase.
 - Live malformed/null storage probes rejected.
 - Receivables RPC now fails closed on company/transaction currency mismatch.
-- Existing analytics consumers remain fail-closed for mismatch: profitability, purchase summary, secondary sales metrics, RFM, ABC, aging, dashboard.
+- Analytics consumers fail closed for mismatch: profitability, purchase summary, secondary sales metrics, RFM, ABC, aging, dashboard.
 - ABC schema drift is repaired to derive tenant scope through sales invoices.
 - Mismatch and positive-path tests were executed in rolled-back transactions; no test fixture mutation persisted.
 
@@ -52,7 +53,8 @@ The known `عميل جديد` / `منتج جديد` dead actions are no longer o
 - Live public functions: **65**.
 - Authenticated-executable public functions: **44**.
 - Public anon EXECUTE: **0**.
-- SECURITY DEFINER: **33 total**; **20** are authenticated-executable with structural auth/tenant identity + secure search-path evidence; **13** are not authenticated-executable; **0** have anon EXECUTE.
+- SECURITY DEFINER: **33 total**; **20** authenticated-executable; **13** not authenticated-executable; **0** anon-executable.
+- Live signatures and grants were re-audited; critical authenticated callable helpers inspected for auth/tenant/search-path/state guards.
 - This is DB/static evidence, not authenticated browser certification.
 
 ## RLS attack matrix
@@ -63,6 +65,7 @@ The known `عميل جديد` / `منتج جديد` dead actions are no longer o
 - Forged company_id on product insert: **REJECTED**.
 - Viewer-role product mutation: **REJECTED**.
 - Cross-tenant export invocation: **REJECTED with TENANT_CONTEXT_MISMATCH**.
+- `anon` SELECT privilege over public base tables: **0 / 81**.
 
 ## Import concurrency / retry readiness
 - Progress counters reject null/negative/out-of-range values.
@@ -76,26 +79,44 @@ The known `عميل جديد` / `منتج جديد` dead actions are no longer o
 - Approval rejects self-approval and locks decision/approval state.
 - Work creation requires an APPROVED decision and active tenant assignee.
 - Work completion requires IN_PROGRESS, correct assignee and tenant-owned evidence.
-- Outcome recording requires approved decision + completed work + tenant-owned evidence and rejects duplicate observation identity.
-- Live staging integrity scan found **1 legacy seeded recommendation without evidence** and **1 legacy seeded orphan decision outcome**. These are retained as explicit fixture debt; they are not converted into a false production PASS.
+- A deeper audit found the legacy `record_recommendation_outcome` writer could record an outcome based on provenance/evidence without enforcing APPROVED decision + COMPLETED work. This was an internal integrity bypass.
+- **Repair:** `20260904210000_harden_recommendation_outcome_lifecycle.sql` now requires tenant/auth context, an APPROVED decision, a COMPLETED work item, and tenant-owned evidence before writing a recommendation outcome; anon EXECUTE is revoked and authenticated EXECUTE retained.
+- Added `scripts/recommendation-outcome-lifecycle-contract.test.mjs` and attached it to `business-e2e-contract` CI.
+- Live function replacement was applied successfully.
+- Attempted simulated-auth direct invocation could not establish `auth.uid()`/tenant context through the SQL execution channel and therefore returned `TENANT_CONTEXT_REQUIRED`; this is classified **NOT PROVEN**, not PASS. The actual runtime chain remains blocked on authenticated browser credentials.
+- Live staging integrity scan still has **1 legacy seeded recommendation without evidence** and **1 legacy seeded orphan decision outcome**. These remain explicit fixture debt and are not converted into a false production PASS.
 
-## CI at the latest exact boundary
-The latest code/test commit changed the exact HEAD to `eed54413cd511baef2f4495f4745e055f16518e0`. Prior fresh CI wave on `71f13e6151e36833694e606fd70aa527b7615846` had these observed states: contract workflows queued, Windows desktop in progress, some Windows/decision jobs pending. Those results do **not** certify the new exact HEAD.
+## Security-definer audit
+- 33 SECURITY DEFINER functions inventoried.
+- 20 authenticated-executable; 13 not authenticated-executable; 0 anon-executable.
+- All authenticated-callable functions have `search_path=pg_catalog` in the current inventory.
+- Critical decision/recommendation/work/outcome writers reviewed for auth/tenant/state/evidence constraints.
+- No cross-tenant exploit was proven; browser adversarial proof remains pending.
 
-Fresh CI for the final exact HEAD must be observed separately. PASS from an older SHA is invalidated by the later commits.
+## Current CI boundary
+- Exact candidate changed after the original R6 cut because the Master Index, recommendation-outcome migration, contract test, and workflow enforcement were committed.
+- Therefore all prior CI PASS results are historical to their recorded SHAs.
+- Current candidate CI must be observed independently. At the last poll immediately after the index commit, the new commit had not yet acquired PR workflow runs; the preceding exact head had a broad wave of queued/pending workflows. No queued/pending result is promoted.
 
 ## Browser / deployment
 - Authenticated browser remains **BLOCKED / NOT PROVEN** because the required A/B runtime credentials are unavailable to the workflow.
 - Current-head Vercel remains blocked by deployment rate limiting.
 - Backup/restore and rollback drills require external operational access.
-- Native Windows certification is external/in progress and cannot be inferred from Linux CI.
+- Native Windows certification cannot be inferred from Linux CI.
 
-## Definition-of-done boundary
-**Internal executable work completed in this wave:** CRUD repair, domain/RLS hardening, frontend action scanner, business-flow oracle, report wrapper manifest, truth comparator, financial currency storage hardening, receivables currency gate, static RPC parity, import lock/retry readiness, recommendation/decision invariant review, and evidence integrity scan.
+## Internal exhaustion boundary
+**Completed/repairable work executed in this wave:** customer/product CRUD wiring, domain/RLS hardening, frontend action scan, 20-flow business oracle, 14-scenario report wrappers, truth comparator, financial currency hardening, analytics fail-closed semantics, static RPC parity, import lifecycle guards, recommendation status contract, recommendation/decision/evidence state-machine hardening, SECURITY DEFINER review, RLS adversarial probes, and Master Index lineage reconciliation.
 
-**Still not proven:** fresh CI on the final exact HEAD, real authenticated A/B browser execution, real report upload/OCR/import through the product UI, full evidence→decision→work→outcome runtime chain, realtime/recovery/logout-relogin browser evidence, current-head deployment, backup/restore/rollback drill, and native Windows certification.
+**Still NOT PROVEN internally or requiring runtime/ops evidence:** full frontend action runtime persistence, full RPC live signature parity against every frontend call, complete critical-resource browser attack matrix, two-worker import crash/retry/idempotency drill, realtime event-loss/reconnect drill, full report upload/OCR/import journey, evidence→decision→work→outcome runtime chain, current-head Vercel runtime, backup/restore/rollback, and Windows-native certification.
+
+## External blockers
+- GitHub Actions A/B runtime credentials: the workflow requires `REPORT_ADVISOR_SUPABASE_URL`, `REPORT_ADVISOR_SUPABASE_ANON_KEY`, `REPORT_ADVISOR_E2E_USER_A_EMAIL`, `REPORT_ADVISOR_E2E_USER_A_PASSWORD`, `REPORT_ADVISOR_E2E_USER_B_EMAIL`, and `REPORT_ADVISOR_E2E_USER_B_PASSWORD`; secret values are not written to source/evidence.
+- Current-head Vercel deployment rate limit.
+- Auth control-plane leaked-password protection.
+- Backup/restore and rollback operational access.
+- Native Windows runtime/certification environment.
 
 ## Certification impact
 **NOT CERTIFIED.**
 
-The project has moved from a known internal P1 dead-action gap to a substantially prebuilt business-E2E boundary. The next available runtime must start directly at real authenticated business execution; no new smoke-test design phase is required.
+The internal P1 surface has been pushed further: a genuine legacy outcome-integrity bypass was found and hardened. No PASS is claimed for the full runtime chain until real authenticated execution supplies browser, DB, network, persistence, and exact-head evidence.
