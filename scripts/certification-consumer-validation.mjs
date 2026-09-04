@@ -24,11 +24,24 @@ const requireSha256 = (v, name) => {
   if (!SHA256.test(v)) reject(`INVALID_${name}`);
 };
 
-export function validateMandatoryEvidence({ evidenceContracts, expectedSourceSha, manifestId, certificationRunId, artifactFingerprint, evidenceRoot = process.cwd(), now = Date.now(), maxAgeMs = 24 * 60 * 60 * 1000 }) {
+export function sha256File(filePath) {
+  if (!fs.existsSync(filePath) || !fs.statSync(filePath).isFile()) reject(`MISSING_ARTIFACT_BYTES:${filePath}`);
+  return crypto.createHash('sha256').update(fs.readFileSync(filePath)).digest('hex');
+}
+
+export function validateMandatoryEvidence({ evidenceContracts, expectedSourceSha, manifestId, certificationRunId, artifactFingerprint, artifactPath, evidenceRoot = process.cwd(), now = Date.now(), maxAgeMs = 24 * 60 * 60 * 1000 }) {
   requireGitSha(expectedSourceSha, 'SOURCE_SHA');
   requiredString(manifestId, 'MANIFEST_ID');
   requiredString(certificationRunId, 'CERTIFICATION_RUN_ID');
   requireSha256(artifactFingerprint, 'ARTIFACT_FINGERPRINT');
+  requiredString(artifactPath, 'ARTIFACT_PATH');
+
+  const resolvedArtifact = path.resolve(artifactPath);
+  const root = path.resolve(evidenceRoot);
+  if (resolvedArtifact !== root && !resolvedArtifact.startsWith(`${root}${path.sep}`)) reject('ARTIFACT_REF_OUTSIDE_ROOT');
+  const actualArtifactFingerprint = sha256File(resolvedArtifact);
+  if (actualArtifactFingerprint !== artifactFingerprint) reject(`ARTIFACT_FINGERPRINT_MISMATCH:${actualArtifactFingerprint}:${artifactFingerprint}`);
+
   if (!evidenceContracts || typeof evidenceContracts !== 'object' || Array.isArray(evidenceContracts)) reject('MISSING_EVIDENCE_CONTRACTS');
 
   const actual = Object.keys(evidenceContracts).sort();
@@ -52,7 +65,6 @@ export function validateMandatoryEvidence({ evidenceContracts, expectedSourceSha
     if (!Number.isFinite(verifiedAt) || verifiedAt > now || now - verifiedAt > maxAgeMs) reject(`STALE_OR_INVALID_EVIDENCE:${key}`);
 
     const resolved = path.resolve(evidenceRoot, evidence.evidence_ref);
-    const root = path.resolve(evidenceRoot);
     if (resolved !== root && !resolved.startsWith(`${root}${path.sep}`)) reject(`EVIDENCE_REF_OUTSIDE_ROOT:${key}`);
     if (!fs.existsSync(resolved) || !fs.statSync(resolved).isFile()) reject(`MISSING_EVIDENCE_ARTIFACT:${key}`);
     const fingerprint = crypto.createHash('sha256').update(fs.readFileSync(resolved)).digest('hex');

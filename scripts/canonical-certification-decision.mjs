@@ -1,9 +1,12 @@
 import { REQUIRED_CERTIFICATION_EVIDENCE_KEYS } from './certification-consumer-validation.mjs';
 
-const reject = (reason) => { throw new Error(`CANONICAL_CERTIFICATION_REJECTED:${reason}`); };
+const reject = reason => { throw new Error(`CANONICAL_CERTIFICATION_REJECTED:${reason}`); };
 
-export function evaluateCanonicalCertificationDecision({ decision, expectedSourceSha, expectedManifestId, expectedCertificationRunId }) {
+export function evaluateCanonicalCertificationDecision({ decision, manifest, expectedSourceSha, expectedManifestId, expectedCertificationRunId }) {
   if (!decision || typeof decision !== 'object' || Array.isArray(decision)) reject('MISSING_DECISION');
+  if (manifest && (manifest.source_sha !== expectedSourceSha || manifest.manifest_id !== expectedManifestId || manifest.certification_run_id !== expectedCertificationRunId)) {
+    reject('MANIFEST_PROVENANCE_MISMATCH');
+  }
   if (decision.certification_result !== 'passed') reject('RESULT_NOT_PASSED');
   if (decision.blocker_state !== 'clear' || decision.blocker_count !== 0) reject('UNRESOLVED_BLOCKERS');
   if (decision.consumed_source_sha !== expectedSourceSha) reject('SOURCE_SHA_MISMATCH');
@@ -16,8 +19,8 @@ export function evaluateCanonicalCertificationDecision({ decision, expectedSourc
   for (const key of REQUIRED_CERTIFICATION_EVIDENCE_KEYS) {
     if (decision.required_contracts[key] !== 'validated') reject(`CONTRACT_NOT_VALIDATED:${key}`);
   }
-  if (decision.identity?.source_sha_matches_manifest !== true) reject('SOURCE_IDENTITY_NOT_PROVEN');
-  if (decision.identity?.manifest_id_matches_payload !== true) reject('MANIFEST_IDENTITY_NOT_PROVEN');
-  if (decision.identity?.certification_run_id_matches_manifest !== true) reject('RUN_IDENTITY_NOT_PROVEN');
+  // Identity booleans inside producer payloads are claims, not proof. The consumer
+  // derives provenance from the actual manifest/run/checkout/artifact before calling
+  // this evaluator; therefore these fields are intentionally ignored here.
   return true;
 }

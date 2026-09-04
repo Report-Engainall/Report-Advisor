@@ -35,8 +35,8 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          git rev-parse HEAD
-          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          actual="$(git rev-parse HEAD)"
+          test "$actual" = "$GITHUB_SHA"
       - name: Preflight contracts
         run: npm run typecheck && npm run lint && npm run build && npm run test:production-release-blockers && npm run test:production-readiness && npm run test:operational-resilience && npm run test:release-resilience-manifest && node scripts/check-release-evidence-contract.mjs && node scripts/check-release-evidence-completeness.mjs && node scripts/check-production-certification-contract.mjs && node scripts/certification-consumer-antiforgery.test.mjs && node scripts/canonical-certification-decision.test.mjs
       - name: Create reproducible release evidence and fail-closed certification decision
@@ -47,6 +47,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p release-evidence
+          tar --sort=name --mtime='UTC 1970-01-01' --owner=0 --group=0 --numeric-owner -cf release-evidence/release-dist.tar dist
           node <<'NODE'
           const fs = require('node:fs');
           const crypto = require('node:crypto');
@@ -61,7 +62,7 @@ jobs:
           if (!Number.isInteger(stabilization_seconds) || stabilization_seconds < 0) throw new Error('Invalid stabilization window');
           const migrations_fingerprint = execFileSync('bash', ['-lc', "find supabase/migrations -type f -name '*.sql' -print0 | sort -z | xargs -0 sha256sum | sha256sum | cut -d' ' -f1"], {encoding: 'utf8'}).trim();
           const dependency_lock_fingerprint = execFileSync('sha256sum', ['package-lock.json'], {encoding: 'utf8'}).trim().split(/\s+/)[0];
-          const artifact_fingerprint = execFileSync('bash', ['-lc', "find dist -type f -print0 | sort -z | xargs -0 sha256sum | sha256sum | cut -d' ' -f1"], {encoding: 'utf8'}).trim();
+          const artifact_fingerprint = crypto.createHash('sha256').update(fs.readFileSync('release-evidence/release-dist.tar')).digest('hex');
 
           const required = ['tenant','backup','rollback','artifact','security'];
           const blockers = required.map(key => `MISSING_RUNTIME_EVIDENCE:${key}`);

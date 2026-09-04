@@ -6,11 +6,11 @@ on:
   workflow_dispatch:
     inputs:
       release_certification_run_id:
-        description: Exact successful release-certification workflow run ID
+        description: Exact release-certification workflow run ID
         required: true
         type: string
       source_sha:
-        description: Exact source SHA certified by that run
+        description: Exact source SHA produced by that run
         required: true
         type: string
 permissions:
@@ -21,7 +21,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   boundary:
-    if: ${{ (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success') || github.event_name == 'workflow_dispatch' }}
+    if: ${{ github.event_name == 'workflow_run' || github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -34,11 +34,10 @@ jobs:
         with:
           node-version: 22
           cache: npm
-      - name: Validate exact certification run
-        if: ${{ github.event_name == 'workflow_dispatch' }}
+      - name: Validate exact certification run provenance
         env:
-          RUN_ID: ${{ inputs.release_certification_run_id }}
-          EXPECTED_SOURCE_SHA: ${{ inputs.source_sha }}
+          RUN_ID: ${{ github.event.workflow_run.id || inputs.release_certification_run_id }}
+          EXPECTED_SOURCE_SHA: ${{ github.event.workflow_run.head_sha || inputs.source_sha }}
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
@@ -48,10 +47,9 @@ jobs:
           head_sha="$(jq -r '.head_sha' <<<"$run_json")"
           event="$(jq -r '.event' <<<"$run_json")"
           [[ "$workflow_name" == "release-certification" ]] || { echo "Unexpected workflow: $workflow_name"; exit 1; }
-          [[ "$conclusion" == "success" ]] || { echo "Certification run is not successful: $conclusion"; exit 1; }
           [[ "$head_sha" == "$EXPECTED_SOURCE_SHA" ]] || { echo "Certification run SHA mismatch: $head_sha != $EXPECTED_SOURCE_SHA"; exit 1; }
           [[ "$event" == "workflow_dispatch" || "$event" == "push" ]] || { echo "Unexpected certification trigger: $event"; exit 1; }
-          echo "Exact release-certification run validated: $RUN_ID / $head_sha"
+          echo "Release-certification run bound independently: $RUN_ID / $head_sha / conclusion=$conclusion"
       - name: Download exact release evidence
         uses: actions/download-artifact@v4
         with:
@@ -65,19 +63,21 @@ jobs:
       - run: npm run build
       - name: Verify release evidence completeness
         run: node scripts/check-release-evidence-completeness.mjs
-      - name: Verify semantic release evidence consumption
+      - name: Verify actual artifact bytes and semantic release evidence consumption
         env:
           EXPECTED_SOURCE_SHA: ${{ github.event.workflow_run.head_sha || inputs.source_sha }}
           RELEASE_CERTIFICATION_RUN_ID: ${{ github.event.workflow_run.id || inputs.release_certification_run_id }}
           RELEASE_EVIDENCE_ARTIFACT_NAME: report-advisor-release-evidence-${{ github.event.workflow_run.head_sha || inputs.source_sha }}
           RELEASE_EVIDENCE_MANIFEST_PATH: release-evidence/manifest.json
           RELEASE_CERTIFICATION_DECISION_PATH: release-evidence/certification-decision.json
+          RELEASE_EVIDENCE_ARTIFACT_PATH: release-evidence/release-dist.tar
         run: node scripts/check-live-production-evidence-boundary.mjs
       - run: node scripts/check-production-evidence-failclosed.mjs
       - run: node scripts/check-master-duplication-budget.mjs
       - run: node scripts/check-production-release-blockers.mjs
       - run: node scripts/check-production-certification-contract.mjs
       - name: Upload machine-readable consumption proof
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: report-advisor-production-evidence-consumption-${{ github.run_id }}

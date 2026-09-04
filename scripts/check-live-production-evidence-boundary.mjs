@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
+import { execFileSync } from 'node:child_process';
 import { validateMandatoryEvidence } from './certification-consumer-validation.mjs';
 import { evaluateCanonicalCertificationDecision } from './canonical-certification-decision.mjs';
 
@@ -10,7 +11,8 @@ const certificationPath = process.env.RELEASE_CERTIFICATION_DECISION_PATH || 're
 const expectedSourceSha = process.env.EXPECTED_SOURCE_SHA || process.env.GITHUB_SHA || '';
 const certificationRunId = process.env.RELEASE_CERTIFICATION_RUN_ID || '';
 const artifactName = process.env.RELEASE_EVIDENCE_ARTIFACT_NAME || '';
-const resolve = (value) => path.isAbsolute(value) ? value : path.join(root, value);
+const artifactPath = process.env.RELEASE_EVIDENCE_ARTIFACT_PATH || path.join(path.dirname(manifestPath), 'release-dist.tar');
+const resolve = value => path.isAbsolute(value) ? value : path.join(root, value);
 const proofPath = resolve(process.env.RELEASE_CONSUMPTION_PROOF_PATH || path.join(path.dirname(manifestPath), 'consumption-proof.json'));
 
 if (!expectedSourceSha) throw new Error('Missing expected source SHA for release evidence boundary');
@@ -18,10 +20,15 @@ if (!certificationRunId) throw new Error('Missing release certification workflow
 if (!artifactName) throw new Error('Missing release evidence artifact identity');
 if (artifactName !== `report-advisor-release-evidence-${expectedSourceSha}`) throw new Error('Release evidence artifact is not bound to expected source SHA');
 
+const actualHead = execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
+if (actualHead !== expectedSourceSha) throw new Error(`CHECKOUT_HEAD_MISMATCH:${actualHead}:${expectedSourceSha}`);
+
 const manifestFile = resolve(manifestPath);
 const certificationFile = resolve(certificationPath);
+const actualArtifactFile = resolve(artifactPath);
 if (!fs.existsSync(manifestFile)) throw new Error(`Missing release evidence manifest: ${manifestPath}`);
 if (!fs.existsSync(certificationFile)) throw new Error(`Missing certification decision: ${certificationPath}`);
+if (!fs.existsSync(actualArtifactFile)) throw new Error(`Missing release artifact bytes: ${artifactPath}`);
 
 const manifest = JSON.parse(fs.readFileSync(manifestFile, 'utf8'));
 const certification = JSON.parse(fs.readFileSync(certificationFile, 'utf8'));
@@ -62,11 +69,13 @@ validateMandatoryEvidence({
   manifestId: manifest.manifest_id,
   certificationRunId,
   artifactFingerprint: manifest.artifact_fingerprint,
+  artifactPath: actualArtifactFile,
   evidenceRoot: root,
 });
 
 evaluateCanonicalCertificationDecision({
   decision: certification,
+  manifest,
   expectedSourceSha,
   expectedManifestId: manifest.manifest_id,
   expectedCertificationRunId: certificationRunId,
@@ -79,6 +88,8 @@ const proof = {
   consumed_source_sha: manifest.source_sha,
   certification_run_id: certificationRunId,
   artifact_name: artifactName,
+  artifact_fingerprint: manifest.artifact_fingerprint,
+  artifact_bytes_verified: true,
   certification_decision_id: certification.certification_decision_id,
   result: 'consumed-and-verified',
   verified_at: new Date().toISOString(),
@@ -88,4 +99,5 @@ fs.writeFileSync(proofPath, JSON.stringify(proof, null, 2) + '\n');
 console.log('Live production evidence boundary: PASS');
 console.log(`consumed source SHA: ${manifest.source_sha}`);
 console.log(`consumed certification run: ${certificationRunId}`);
+console.log(`artifact bytes verified: ${manifest.artifact_fingerprint}`);
 console.log(`consumption proof: ${proofPath}`);
