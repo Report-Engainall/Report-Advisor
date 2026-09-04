@@ -5,11 +5,11 @@
 > Authoritative execution index. Historical records remain in Git history and dated evidence. Evidence never crosses an exact-SHA boundary.
 
 ### EXACT CANDIDATE
-- **CURRENT CODE/TEST CANDIDATE:** `6dff14241e16a8d845b568ac6e3f6db82136fa7a`
-- `58cafcc2ca4bbad3996f47183f5b11e294d53aa0` was the prior executable candidate.
+- **CURRENT CODE/TEST CANDIDATE:** `205f0bfaa15e13be23aff71619ea4f6bd3487c65`
+- `6dff14241e16a8d845b568ac6e3f6db82136fa7a` was the prior executable candidate.
 - `9308e5c4...` added the live + canonical terminal-approval concurrency guard; `f106f047...` added its adversarial test-of-test; `58cafcc...` wired that regression into Quality.
-- `e83dc8b...` corrected execution-enforcement checker drift against the canonical candidate wording.
-- `6dff142...` corrected a real continuous-trust checker/schema drift: the canonical migration defines `incident_regression_links`, while the checker incorrectly searched for stale `incident_regressions`. It now validates the canonical identifier and rejects a deliberately stale identifier in test-of-test.
+- `6dff142...` corrected continuous-trust checker/schema drift: canonical migration uses `incident_regression_links`, not stale `incident_regressions`, and the checker now rejects the stale identifier in test-of-test.
+- `d956eb7...` corrected a second execution-enforcement parser drift: the index's canonical candidate label is Markdown-emphasized (`**CURRENT CODE/TEST CANDIDATE:**`), which the parser previously failed to recognize. `205f0bf...` adds an explicit parser regression test for the emphasized form.
 - Main may receive governance/index descendants after the candidate; certification must resolve the candidate from this index and enforce ancestry/allowlisted-path rules.
 
 ### CERTIFICATION BOUNDARY
@@ -17,14 +17,14 @@
 - Governance-only descendants require ancestry and explicit allowlisted paths.
 - Provenance must bind push/PR/manual trigger to the tested SHA; synthetic PR merge SHAs are rejected.
 - `final-certification-gate.yml` and `execution-enforcement-contract.yml` enforce the boundary.
-- Fresh Quality and Certification are mandatory for `6dff142...`.
+- Fresh Quality and Certification are mandatory for `205f0bf...`.
 
 ### FRESH FAILURE-DRIVEN REPAIR CHAIN
-- Final Execution Batch `33822348808` on `58cafcc...` = **SUCCESS**, with all 30 deterministic gates passing.
-- Final Certification `33822348727` on `58cafcc...` failed correctly because the index still pointed to `e560f651...`; this was stale-index fail-closed behavior, not a product failure. The subsequent governance index reconciliation moved the candidate to `58cafcc...`.
-- Final Certification `33822372502` on governance HEAD `4437ab...` passed its boundary check but then failed in certification-contract sweep because `check-continuous-trust-runtime-chain.mjs` used stale `incident_regressions`; the canonical migration uses `incident_regression_links`.
-- `6dff142...` repairs that checker and adds adversarial stale-identifier test-of-test. Fresh certification is required again.
-- Quality `33822372660` on `4437ab...` is the fresh post-index run; it reached the 20-stage gate and broad checker sweep, then correctly failed at the stale continuous-trust checker. It is superseded by `6dff142...` repair.
+- Final Execution Batch `33822505852` on governance HEAD `52b077...` = **SUCCESS**; 30 deterministic gates passed. This is not production certification.
+- Quality `33822486064` on candidate `6dff142...` = **SUCCESS** across all 63 workflow steps.
+- Quality `33822505850` on governance HEAD `52b077...` = **SUCCESS** across all 63 workflow steps; it validates the governance descendant but does not transfer runtime/production evidence across SHA.
+- Final Certification `33822505843` / prior run on governance HEAD failed correctly at execution enforcement because the parser did not recognize the Markdown-emphasized candidate label. `d956eb7...` fixes parser handling and `205f0bf...` adds the regression.
+- Fresh certification is required again on the new candidate.
 
 ### APPROVAL / AUTHORITY
 - Live memberships: 2 active, both `role=member`; no canonical approver/permission authority table found.
@@ -70,9 +70,9 @@
 - **EXECUTING:** tenant/period leakage, stale truth, duplicates, NULL/unknown semantics, pagination/bounds, aggregate drift, PDF/RTL, Excel, CSV and artifact-integrity adversarial evidence.
 
 ### STORAGE / REALTIME / AI
-- Storage policies are tenant/owner-aware; live application bucket count is 0. Requirement status must be classified, not inferred as PASS.
-- Realtime has no published application tables and no repository consumer found; requirement status must be classified, not inferred as PASS.
-- AI/vector architecture exists but runtime retrieval authorization, tenant isolation and provenance remain unproven.
+- Live Staging storage bucket inventory is empty; storage policies are tenant/owner-aware. Requirement status remains classification-dependent, not PASS.
+- Realtime has no published application tables and no repository consumer found; requirement status remains classification-dependent, not PASS.
+- AI/vector architecture exists but live database has no vector/embedding/semantic table surfaced; runtime retrieval authorization, tenant isolation and provenance remain unproven.
 - **EXECUTING:** formal required/out-of-scope classification and close any locally actionable contract gaps.
 
 ### PERFORMANCE
@@ -112,7 +112,7 @@
 | Storage | YES/policies | NO contract | Policy | NO | NO |
 | Realtime | Client capability | NO publication | NO | NO | NO |
 | AI/vector | Architecture | PARTIAL | Architecture | NO | NO |
-| Certification provenance | YES | YES | **PENDING fresh `6dff142...`** | N/A | NO |
+| Certification provenance | YES | YES | **PENDING fresh `205f0bf...`** | N/A | NO |
 
 ### EXECUTION DEBT
 `LOCAL ACTIONABLE EXECUTION DEBT = NOT ZERO`.
