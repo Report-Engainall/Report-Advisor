@@ -10,9 +10,13 @@ function latestBody(name) {
   let m, start = -1;
   while ((m = re.exec(sql))) start = m.index;
   if (start < 0) throw new Error(`missing ${name}`);
-  const next = sql.indexOf('\nCREATE OR REPLACE FUNCTION', start + 1);
-  return sql.slice(start, next < 0 ? sql.length : next);
+  const bodyStart = sql.indexOf('as $$', start);
+  if (bodyStart < 0) throw new Error(`missing ${name} body delimiter`);
+  const bodyEnd = sql.indexOf('$$;', bodyStart + 5);
+  if (bodyEnd < 0) throw new Error(`unterminated ${name} body`);
+  return sql.slice(start, bodyEnd + 3);
 }
+
 const pos = (body, needle, from = 0) => body.indexOf(needle, from);
 
 const request = latestBody('request_decision_approval');
@@ -30,7 +34,6 @@ const decGate = pos(decide, "v_decision_status is distinct from 'PROPOSED'");
 const decApproval = pos(decide, 'from public.decision_approvals', decResolve + 1);
 if (!(decResolve >= 0 && decDecision > decResolve && decDecisionLock > decDecision && decGate > decDecisionLock && decApproval > decDecisionLock)) throw new Error('decide_approval does not follow decision -> approval lock order');
 
-// Test-of-test: remove either lock; the contract must fail closed.
 const weakenedRequest = request.replace(/for update/i, '');
 assert.throws(() => {
   const a = pos(weakenedRequest, 'from public.business_intelligence_decisions');
