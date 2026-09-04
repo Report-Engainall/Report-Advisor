@@ -31,7 +31,8 @@ for (const [name, value] of Object.entries(secExpected)) assert(value, `baseline
 for (const [name, value] of Object.entries(integrationExpected)) assert(value, `archive integration missing: ${name}`);
 
 const noFollowToken = 'fs.constants.O_NOFOLLOW';
-const noFollowCount = (source) => source.split(noFollowToken).length - 1;
+const noFollowExactPattern = /(?<![A-Za-z0-9_$])fs\.constants\.O_NOFOLLOW(?![A-Za-z0-9_$])/g;
+const noFollowCount = (source) => (source.match(noFollowExactPattern) || []).length;
 const baselineNoFollowOccurrences = noFollowCount(main);
 assert(baselineNoFollowOccurrences === 2, `no-follow target occurrence count changed: expected 2, got ${baselineNoFollowOccurrences}`);
 
