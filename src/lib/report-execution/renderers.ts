@@ -5,11 +5,22 @@ export interface ReportRow { [key: string]: unknown }
 export interface RenderInput { reportId: string; title: string; columns: string[]; rows: ReportRow[]; generatedAt: string; }
 export interface RenderedArtifact { format: ReportOutputFormat; mimeType: string; fileName: string; contentBase64: string; }
 
+export const MAX_EXPORT_ROWS = 10_000;
+
+function assertRenderInput(input: RenderInput): void {
+  if (!input.reportId || !input.title || !Array.isArray(input.columns) || input.columns.length === 0) throw new Error('Invalid report render input');
+  if (!Array.isArray(input.rows)) throw new Error('Report rows must be an array');
+  if (input.rows.length > MAX_EXPORT_ROWS) throw new Error(`REPORT_EXPORT_ROW_LIMIT_EXCEEDED: maximum ${MAX_EXPORT_ROWS} rows`);
+  if (input.columns.some(column => typeof column !== 'string' || !column.trim())) throw new Error('Report columns must be non-empty strings');
+  if (input.rows.some(row => !row || typeof row !== 'object' || Array.isArray(row))) throw new Error('Report row has an invalid shape');
+}
+
 function escapeHtml(value: unknown): string { return String(value ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\"/g, '&quot;'); }
 function bytesToBase64(bytes: Uint8Array): string { let binary = ''; const chunk = 0x8000; for (let i = 0; i < bytes.length; i += chunk) binary += String.fromCharCode(...bytes.subarray(i, i + chunk)); return btoa(binary); }
 function textToBase64(text: string): string { return bytesToBase64(new TextEncoder().encode(text)); }
 
 export function renderWeb(input: RenderInput): RenderedArtifact {
+  assertRenderInput(input);
   const head = input.columns.map(c => `<th>${escapeHtml(c)}</th>`).join('');
   const body = input.rows.map(row => `<tr>${input.columns.map(c => `<td>${escapeHtml(row[c])}</td>`).join('')}</tr>`).join('');
   const html = `<!doctype html><html dir="rtl"><meta charset="utf-8"><title>${escapeHtml(input.title)}</title><body><h1>${escapeHtml(input.title)}</h1><p>${escapeHtml(input.generatedAt)}</p><table><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table></body></html>`;
@@ -17,6 +28,7 @@ export function renderWeb(input: RenderInput): RenderedArtifact {
 }
 
 export function renderXlsx(input: RenderInput): RenderedArtifact {
+  assertRenderInput(input);
   const rows = input.rows.map(row => Object.fromEntries(input.columns.map(c => [c, row[c] ?? ''])));
   const sheet = XLSX.utils.json_to_sheet(rows, { header: input.columns });
   const book = XLSX.utils.book_new();
@@ -28,6 +40,7 @@ export function renderXlsx(input: RenderInput): RenderedArtifact {
 function pdfEscape(value: string): string { return value.replace(/\\/g, '\\\\').replace(/\(/g, '\\(').replace(/\)/g, '\\)').replace(/[\r\n]+/g, ' '); }
 
 export function renderPdf(input: RenderInput): RenderedArtifact {
+  assertRenderInput(input);
   const rowLines = input.rows.map(row => input.columns.map(c => `${c}: ${row[c] ?? ''}`).join(' | '));
   const pageLines = 42;
   const chunks: string[][] = [];
@@ -52,6 +65,7 @@ export function renderPdf(input: RenderInput): RenderedArtifact {
 }
 
 export function renderArtifact(format: ReportOutputFormat, input: RenderInput): RenderedArtifact {
+  assertRenderInput(input);
   if (format === 'web') return renderWeb(input);
   if (format === 'xlsx') return renderXlsx(input);
   return renderPdf(input);
