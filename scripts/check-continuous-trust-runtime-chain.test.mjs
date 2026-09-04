@@ -9,7 +9,7 @@ const migrationSql = fs.readdirSync(path.join('supabase','migrations')).filter(f
 assert.doesNotThrow(() => validateTrustRuntimePersistence(sql));
 assert.doesNotThrow(() => validateTrustRuntimeBridge(runtime, migrationSql));
 
-const weakenedPersistence = sql.replace('tenant_isolation_canary_runs', 'tenant_isolation_canary_missing');
+const weakenedPersistence = sql.replaceAll('tenant_isolation_canary_runs', 'tenant_isolation_canary_missing');
 assert.throws(() => validateTrustRuntimePersistence(weakenedPersistence), /Trust persistence missing/);
 
 const weakenedBridge = runtime.replace("rpc('autonomy_runtime_gate'", "rpc('autonomy_runtime_gate_missing'");
