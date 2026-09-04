@@ -20,6 +20,9 @@ on:
       - '.github/workflows/p1-filesystem-windows-deep-hardening.yml'
 permissions:
   contents: read
+concurrency:
+  group: report-advisor-exclusive-certification
+  cancel-in-progress: false
 jobs:
   linux-filesystem-hardening:
     runs-on: ubuntu-latest
