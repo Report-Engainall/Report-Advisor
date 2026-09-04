@@ -31,6 +31,9 @@ jobs:
       - name: Run deterministic scale/concurrency harness
         run: node --expose-gc scripts/p1-scale-performance-closure.mjs
 
+      - name: Run scale test-of-test mutations
+        run: node scripts/p1-scale-performance-test-of-test.mjs
+
       - name: Run existing production scale contract
         run: npm run test:production-scale
 
