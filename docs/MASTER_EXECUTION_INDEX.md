@@ -57,6 +57,10 @@
 - Import history bounded to 500 with deterministic ordering/overflow rejection.
 - Export adapters tenant-scoped and bounded to 10,000.
 - Repository-wide caller/legacy/RPC/response/null/error parity sweep remains active; actionable mismatches must be fixed and rescanned.
+- **2026-09-04 owner execution:** added `scripts/check-compatibility-legacy-consumers.mjs` to assert canonical delegation, tenant gating, RPC-only writes, explicit error propagation, import-history bound/overflow rejection, and export bounds.
+- **2026-09-04 security hardening:** extended `check-tenant-legacy-consumers.mjs` with multi-hop taint tracking for client-selected tenant identifiers and metadata-derived aliases; extended its regression fixture with direct, two-hop, and user-metadata bypass attempts.
+- **2026-09-04 cleanup:** removed a redundant error branch in `src/lib/queries-compat.ts` without changing business behavior.
+- Exact execution candidate for this batch: `5408ec5c1bacd90c9393f7af6f845790c6c0e57e`; fresh CI/runtime verification is still required before certification closure.
 
 ### BATCH 4 — WORKER / FILESYSTEM / OCR / DOCUMENTS
 - Worker DB lifecycle/dead-letter/lease/fence contracts are verified; full deployed runtime worker proof remains unproven.
@@ -100,7 +104,7 @@
 | Approval/RBAC | YES | YES | DB + concurrency regression | NO | NO |
 | Worker | YES | YES | DB + regression | NO full runtime | NO |
 | Tenant isolation | YES | YES | DB adversarial | NO current A/B browser | NO |
-| Import/compat | YES | YES | Partial | NO | NO |
+| Import/compat | YES | YES | Partial + compatibility contract added | NO | NO |
 | OCR | YES/architecture | PARTIAL | Partial | NO | NO |
 | Reports/export | YES | PARTIAL | Partial | NO | NO |
 | Storage | YES/policies | NO contract | Policy | NO | NO |
