@@ -31,6 +31,8 @@ jobs:
       - name: Install locked dependencies
         shell: bash
         run: npm ci --include=dev --no-audit --no-fund
+      - name: Verify certification boundary integrity
+        run: node scripts/check-certification-boundary-integrity.mjs
       - name: Run certification contract tests
         shell: bash
         run: |
@@ -66,8 +68,9 @@ jobs:
           echo "CERTIFICATION_CHECKOUT_HEAD=${actual_sha}" >> "$GITHUB_STEP_SUMMARY"
           echo "CERTIFICATION_PROVENANCE=checkout=HEAD=tested=evidence" >> "$GITHUB_STEP_SUMMARY"
       - name: Run certification provenance adversarial test-of-test
-        shell: bash
         run: node scripts/final-certification-provenance.test.mjs
+      - name: Run certification boundary test-of-test
+        run: node scripts/check-certification-boundary-integrity.test.mjs
       - name: Enforce exact commit evidence
         shell: bash
         run: |
