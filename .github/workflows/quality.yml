@@ -55,6 +55,8 @@ jobs:
         run: node scripts/check-ci-execution-topology.mjs && node scripts/check-production-recovery-gate.mjs
       - name: PR workflow exact-head provenance
         run: node scripts/check-pr-workflow-exact-heads.mjs
+      - name: PR workflow exact-head checker test-of-test
+        run: node scripts/check-pr-workflow-exact-heads.test.mjs
       - name: Cross-surface capability traceability
         run: node scripts/check-cross-surface-traceability.mjs
       - name: Public RPC advisor hardening

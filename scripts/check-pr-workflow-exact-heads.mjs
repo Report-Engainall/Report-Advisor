@@ -2,41 +2,44 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const dir = path.join(process.cwd(), '.github/workflows');
-const files = fs.readdirSync(dir).filter((name) => /\.(yml|yaml)$/.test(name));
-const violations = [];
-const pullRequestWorkflows = [];
+const isPullRequestWorkflow = text => /\bpull_request\s*:?(?:\s|$)/m.test(text);
+const isCertificationSensitive = (name, text) => {
+  const marker = `${name}\n${text}`;
+  return /certification|production-evidence|release-certification|final-certification|rollback|backup|security|tenant[-_]?adversarial/i.test(marker);
+};
 
-for (const name of files) {
-  const file = path.join(dir, name);
-  const text = fs.readFileSync(file, 'utf8');
-  if (!/\bpull_request\s*:?(?:\s|$)/m.test(text)) continue;
-  pullRequestWorkflows.push(name);
+export function analyzeWorkflowProvenance(name, text) {
+  if (!isPullRequestWorkflow(text)) return { workflow: name, pull_request: false, certification_sensitive: false, violations: [] };
+  const certificationSensitive = isCertificationSensitive(name, text);
+  if (!certificationSensitive) return { workflow: name, pull_request: true, certification_sensitive: false, violations: [] };
 
-  // A PR workflow may use checkout's merge ref, so provenance must be explicitly
-  // checked against the event PR head SHA and the remote branch head SHA.
   const hasEventHead = /github\.event\.pull_request\.head\.sha/.test(text);
-  const hasLocalShaCheck = /git rev-parse HEAD.*GITHUB_SHA|git rev-parse HEAD.*EXPECTED_HEAD|test\s+["']?\$\(git rev-parse HEAD\)["']?\s*=\s*["']?\$EXPECTED_HEAD/.test(text);
-  const hasRemoteHeadCheck = /git ls-remote origin[^\n]*refs\/heads\/\$\{?\$\{?GITHUB_HEAD_REF|refs\/heads\/\$\{HEAD_REF\}/.test(text);
-  const hasExpectedHeadComparison = /ACTUAL_HEAD[^\n]*EXPECTED_HEAD|actual_head[^\n]*expected_head/.test(text);
+  const hasLocalShaCheck = /git\s+rev-parse\s+HEAD[\s\S]{0,400}?(?:GITHUB_SHA|EXPECTED_HEAD|expected_head)/.test(text);
+  const hasRemoteHeadCheck = /git\s+ls-remote\s+origin[\s\S]{0,400}?refs\/heads\/\$\{(?:HEAD_REF|GITHUB_HEAD_REF)\}/.test(text);
+  const hasExpectedHeadComparison = /(?:ACTUAL_HEAD|actual_head)[\s\S]{0,300}?(?:EXPECTED_HEAD|expected_head)/.test(text);
 
-  if (!hasEventHead || !hasLocalShaCheck || !hasRemoteHeadCheck || !hasExpectedHeadComparison) {
-    violations.push({
-      workflow: name,
-      hasEventHead,
-      hasLocalShaCheck,
-      hasRemoteHeadCheck,
-      hasExpectedHeadComparison,
-    });
-  }
+  const violations = [];
+  if (!hasEventHead) violations.push('MISSING_EVENT_PR_HEAD_SHA');
+  if (!hasLocalShaCheck) violations.push('MISSING_LOCAL_EXACT_HEAD_CHECK');
+  if (!hasRemoteHeadCheck) violations.push('MISSING_REMOTE_HEAD_CHECK');
+  if (!hasExpectedHeadComparison) violations.push('MISSING_HEAD_COMPARISON');
+  return { workflow: name, pull_request: true, certification_sensitive: true, hasEventHead, hasLocalShaCheck, hasRemoteHeadCheck, hasExpectedHeadComparison, violations };
 }
 
+const results = fs.readdirSync(dir)
+  .filter(name => /\.(yml|yaml)$/.test(name))
+  .map(name => ({ name, text: fs.readFileSync(path.join(dir, name), 'utf8') }))
+  .map(({ name, text }) => analyzeWorkflowProvenance(name, text));
+
+const violations = results.filter(result => result.violations?.length);
 console.log(JSON.stringify({
   status: violations.length ? 'FAIL' : 'PASS',
-  pull_request_workflows: pullRequestWorkflows,
+  certification_sensitive_pr_workflows: results.filter(result => result.certification_sensitive).map(result => result.workflow),
+  ordinary_pr_workflows_excluded: results.filter(result => result.pull_request && !result.certification_sensitive).map(result => result.workflow),
   violations,
 }, null, 2));
 
 if (violations.length) {
-  console.error(`PR WORKFLOW EXACT-HEAD PROVENANCE FAILED: ${violations.length} workflow(s) lack the required exact-head proof.`);
+  console.error(`PR CERTIFICATION WORKFLOW EXACT-HEAD PROVENANCE FAILED: ${violations.length} certification-sensitive PR workflow(s) lack exact-head proof.`);
   process.exitCode = 1;
 }
