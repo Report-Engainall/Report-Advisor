@@ -70,7 +70,7 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Windows filesystem primitive matrix
         shell: pwsh
-        run: node scripts/p1-filesystem-windows-deep-hardening.mjs
+        run: node --experimental-strip-types scripts/p1-filesystem-windows-deep-hardening.mjs
       - name: Upload native diagnostics
         if: always()
         uses: actions/upload-artifact@v4
