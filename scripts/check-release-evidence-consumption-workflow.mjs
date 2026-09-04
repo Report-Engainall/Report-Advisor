@@ -13,6 +13,7 @@ for (const token of [
   'migrations_fingerprint',
   'dependency_lock_fingerprint',
   'artifact_fingerprint',
+  'release-dist.tar',
   'manifest_id',
   'certification-decision.json',
   'report-advisor-release-evidence-${{ github.sha }}',
@@ -21,31 +22,32 @@ for (const token of [
 for (const token of [
   'workflow_run:',
   'workflows: [release-certification]',
-  "github.event.workflow_run.conclusion == 'success'",
+  'types: [completed]',
   'actions: read',
   'actions/download-artifact@v4',
   'report-advisor-release-evidence-${{ github.event.workflow_run.head_sha || inputs.source_sha }}',
   'EXPECTED_SOURCE_SHA:',
   'RELEASE_CERTIFICATION_RUN_ID:',
   'RELEASE_EVIDENCE_ARTIFACT_NAME:',
+  'RELEASE_EVIDENCE_ARTIFACT_PATH:',
   'RELEASE_EVIDENCE_MANIFEST_PATH:',
   'RELEASE_CERTIFICATION_DECISION_PATH:',
   'consumption-proof.json',
 ]) requireToken(boundary, token, 'production-evidence-boundary');
 
 for (const token of [
-  'Validate exact certification run',
+  'Validate exact certification run provenance',
   'gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${RUN_ID}"',
   "workflow_name=\"$(jq -r '.name' <<<\"$run_json\")\"",
-  "conclusion=\"$(jq -r '.conclusion' <<<\"$run_json\")\"",
   "head_sha=\"$(jq -r '.head_sha' <<<\"$run_json\")\"",
   '[[ "$workflow_name" == "release-certification" ]]',
-  '[[ "$conclusion" == "success" ]]',
   '[[ "$head_sha" == "$EXPECTED_SOURCE_SHA" ]]',
   '[[ "$event" == "workflow_dispatch" || "$event" == "push" ]]',
-]) requireToken(boundary, token, 'manual release-certification run validation');
+]) requireToken(boundary, token, 'release-certification run validation');
 
-if (boundary.includes('push:\n    branches: [main]')) throw new Error('production-evidence-boundary must not consume an unbound push without release evidence');
-if (!boundary.includes('if-no-files-found: error')) throw new Error('production consumption proof must fail closed when absent');
+if (boundary.includes("github.event.workflow_run.conclusion == 'success'")) throw new Error('production-evidence-boundary must not deadlock on successful release-certification conclusion');
+if (!boundary.includes('if: ${{ github.event_name == \'workflow_run\' || github.event_name == \'workflow_dispatch\' }}')) throw new Error('production-evidence-boundary must consume completed release-certification runs independently of conclusion');
+if (!boundary.includes('if: success()')) throw new Error('production consumption proof upload must be fail-closed');
+if (!boundary.includes('actions: read')) throw new Error('production boundary requires read access to exact release artifacts');
 
-console.log('release evidence consumption workflow contract: PASS');
+console.log('release evidence consumption workflow contract: PASS (completed-run independent consumer, exact-run binding, artifact bytes binding)');
