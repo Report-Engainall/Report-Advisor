@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
+import { validateMandatoryEvidence } from './certification-consumer-validation.mjs';
 
 const root = process.cwd();
 const manifestPath = process.env.RELEASE_EVIDENCE_MANIFEST_PATH || 'release-evidence/manifest.json';
@@ -59,8 +60,17 @@ if (certification.identity.source_sha_matches_manifest !== true) throw new Error
 if (certification.identity.manifest_id_matches_payload !== true) throw new Error('Certification identity does not confirm manifest integrity');
 if (certification.identity.certification_run_id_matches_manifest !== true) throw new Error('Certification identity does not confirm run binding');
 
+validateMandatoryEvidence({
+  evidenceContracts: certification.required_contracts,
+  expectedSourceSha,
+  manifestId: manifest.manifest_id,
+  certificationRunId,
+  artifactFingerprint: manifest.artifact_fingerprint,
+  evidenceRoot: root,
+});
+
 const proof = {
-  schema_version: 1,
+  schema_version: 2,
   proof_type: 'production-release-evidence-consumption',
   consumed_manifest_id: manifest.manifest_id,
   consumed_source_sha: manifest.source_sha,
