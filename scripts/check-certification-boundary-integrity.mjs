@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import { execFileSync } from 'node:child_process';
 
 const normalize = value => String(value ?? '').replaceAll('\r\n', '\n').trim();
-const candidateFromIndex = index => normalize(index).match(/CURRENT PROJECT STATE[\s\S]{0,1200}?(?:Current code\/test candidate|Exact code\/test head entering this sweep)[^`]*`([0-9a-f]{40})`/i)?.[1]?.toLowerCase();
+const candidateFromIndex = index => normalize(index).match(/(?:CURRENT PROJECT STATE|CURRENT EXECUTION BOUNDARY)[\s\S]{0,1600}?(?:CURRENT_CODE_TEST_CANDIDATE|Current code\/test candidate|Current Code\/Test Candidate|Exact code\/test head entering this sweep)[^`]*`([0-9a-f]{40})`/i)?.[1]?.toLowerCase();
 
 export function validateCertificationBoundary({ index, head, parent, changedFiles }) {
   const indexed = candidateFromIndex(index);
@@ -13,6 +13,7 @@ export function validateCertificationBoundary({ index, head, parent, changedFile
   const allowedGovernanceOnly = new Set([
     'docs/MASTER_EXECUTION_INDEX.md',
     'docs/EVIDENCE/2026-09-04_RBAC_APPROVAL_AUTHORITY_FORENSIC.md',
+    'docs/EVIDENCE/2026-09-04_CANDIDATE_RECONCILIATION_c346-to-f89.md',
     'scripts/check-certification-boundary-integrity.mjs',
     'scripts/check-certification-boundary-integrity.test.mjs',
     'scripts/final-certification-provenance.test.mjs',
