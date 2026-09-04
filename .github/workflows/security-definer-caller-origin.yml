@@ -1,0 +1,15 @@
+name: security-definer-caller-origin
+on:
+  push:
+    branches:
+      - 'repair/p0-wave-02-security-runtime'
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+jobs:
+  caller-origin:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build exact caller-origin matrix
+        run: node scripts/check-security-definer-caller-origin.mjs
