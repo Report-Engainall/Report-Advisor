@@ -27,11 +27,14 @@
 - Current-wave dashboard currency truth repair: `5be528826ac7e7aa1638e1b70784e9c22473506b`.
 - Current-wave dashboard regression/test-of-test: `9c2a4077cd4107757df40e7189018286d3f81ca8`.
 - Current-wave browser exact-checkout hardening: `0d2d3931b687fdf1daa41ceb56c9341fd7667430`.
+- Current-wave analytics currency fail-closed repair: `05678e4d9b134a1a3bfa5014b2724c03e6269356`.
+- Current-wave analytics adversarial regression: `11038f53552df6876fd31ffc33808638d8a5a109`.
+- Current-wave CI enforcement update: `cf6efda9a63742d4e18fac9769f90f3d7e7dcf11`.
 
 ### CURRENT E2E STATUS
 | Area | Status | Required evidence |
 |---|---|---|
-| Real Chromium | BUILT / CURRENT-HEAD RUNNING | exact-head CI |
+| Real Chromium | BUILT / CURRENT-HEAD RUN 33845264769 BLOCKED | exact-head CI |
 | Authenticated browser login | BLOCKED / NOT PROVEN | current-head run with real credentials |
 | Tenant A | NOT PROVEN | real browser session + `current_company_id()` |
 | Tenant B | NOT PROVEN | real browser session + B credential |
@@ -48,7 +51,7 @@
 
 ### LIVE DB FORENSICS / REPAIR
 1. Staging `fnqbvfuwbdpwvhcgzksl` is `ACTIVE_HEALTHY`.
-2. Public tables checked have RLS enabled; no core `anon` table grants were found.
+2. Public base tables currently have RLS enabled; current catalog count is 81 public tables with RLS enabled. No core `anon` table grants were found.
 3. Rolled-back DB adversarial probes passed: Tenant A saw only its own products; Tenant B saw only its own products; cross-tenant UPDATE affected zero rows; malicious company reassignment was rejected.
 4. **Real defect discovered:** authenticated users could not execute `get_sales_export_rows`, `get_purchase_export_rows`, `get_inventory_export_rows`, or `get_receivables_export_rows`, while the authenticated Reports UI consumes export RPCs.
 5. **Live repair applied:** authenticated EXECUTE restored for all four; anon EXECUTE explicitly denied.
@@ -57,9 +60,36 @@
 8. Post-repair authenticated sales/purchase/inventory export calls execute successfully. Invalid row limits and tenant-mismatch calls are rejected as designed.
 9. The live staging migration history contains `p1_fail_closed_export_row_bounds`; its implementation was recovered from the security-hardening branch and reconciled into main rather than silently treating live-only state as source truth.
 10. Supabase security advisor still reports several authenticated-callable SECURITY DEFINER helpers and leaked-password protection disabled. Major mutation helpers inspected include tenant/auth checks and secure search path; no exploit proven, so no blind revoke performed.
-11. **Current-wave data-truth defect discovered:** staging companies use `SAR` while source sales/purchase invoices contain `YER`; profitability correctly marks financial truth insufficient, but dashboard previously reported calculated financial KPIs. Dashboard snapshot was repaired to gate financial KPIs/breakdowns on currency consistency while preserving non-financial counts/inventory value.
-12. Live dashboard retest for both authenticated tenant contexts now returns `INSUFFICIENT_DATA` with invalid financial KPIs null and financial breakdown arrays empty under the mismatch condition.
-13. Supabase migration history records the dashboard repair as `20260904063122_reconcile_dashboard_currency_truth`; source migration filename was reconciled to that exact live version to eliminate the Preview migration-lineage failure.
+11. **Current-wave dashboard truth defect:** staging companies use `SAR` while source sales/purchase invoices contain `YER`; dashboard was repaired to gate financial KPIs/breakdowns on currency consistency while preserving non-financial counts/inventory value.
+12. Live dashboard retest for authenticated tenant contexts returns `INSUFFICIENT_DATA` with invalid financial KPIs null and financial breakdown arrays empty under the mismatch condition.
+13. Supabase migration history records the dashboard repair as `20260904063122_reconcile_dashboard_currency_truth`.
+14. **New analytics truth defect:** `get_sales_secondary_metrics` returned monetary analytics across the SAR/YER mismatch; `get_profitability_snapshot` exposed numeric revenue/cost/profit while status was insufficient; purchase summary, RFM and aging had no currency fail-closed gate.
+15. **New runtime contract defect:** `get_abc_snapshot` referenced nonexistent `sale_items.company_id` and failed at runtime. Actual tenant scope is derived through `sales_invoices.company_id`.
+16. **Live analytics repair applied:** affected monetary analytics now return `INSUFFICIENT_DATA` with null/empty monetary outputs when transaction currency disagrees with company currency. ABC no longer references the nonexistent column.
+17. Live mismatch verification: profitability, purchase summary, secondary metrics, RFM, ABC, and aging all returned `INSUFFICIENT_DATA`; monetary outputs were suppressed.
+18. Positive-path test: inside a rolled-back transaction, aligning transaction currencies to the company currency caused all six affected analytics to return `CALCULATED`. No fixture data remained mutated.
+19. Cross-tenant export probe remains rejected by tenant-context guard.
+20. Source reconciliation for this live repair is on PR #316, based exactly on `46156969f506d7fb6c3c75fde419c6de76f6e14d`; current branch head is `cf6efda9a63742d4e18fac9769f90f3d7e7dcf11`.
+
+### SECURITY-DEFINER AUDIT
+- Full public `SECURITY DEFINER` inventory was reviewed for owner, `search_path`, grants, tenant/auth validation, and touched domains.
+- Authenticated-callable helpers were not blindly revoked because inspected helpers have tenant/auth guards and secure `search_path` where privilege elevation would otherwise be possible.
+- Cross-tenant export invocation under an authenticated database role was rejected by `TENANT_CONTEXT_MISMATCH`.
+- Dedicated CI `security-definer-exposure-contract` is running on the repair head; no exploit is certified by this static/DB pass alone.
+
+### CANONICAL TRUTH MATRIX — CURRENT PASS/FAIL BOUNDARY
+| Domain | Canonical server source | Current finding | State |
+|---|---|---|---|
+| Sales | dashboard/profitability/secondary RPCs | currency mismatch now fail-closed | REPAIRED / RETESTED |
+| Purchases | purchase summary/dashboard | currency mismatch now fail-closed | REPAIRED / RETESTED |
+| Inventory | inventory valuation/report snapshot | tenant + null-value guards present | PARTIAL / NEEDS REAL E2E |
+| Receivables | authoritative page/dashboard/aging | tenant authority present; monetary analytics now currency-gated | PARTIAL / NEEDS REAL E2E |
+| Dashboard | `get_dashboard_snapshot` | mismatch already gated; aligned with analytics repair | REPAIRED |
+| Profitability | `get_profitability_snapshot` | numeric financial outputs now suppressed on mismatch | REPAIRED / RETESTED |
+| RFM | `get_rfm_snapshot` | monetary scoring now fail-closed on mismatch | REPAIRED / RETESTED |
+| ABC | `get_abc_snapshot` | fixed schema drift + currency gate | REPAIRED / RETESTED |
+| Reconciliation | import/report/runtime reconciliation | runtime browser proof still absent | BLOCKED BY E2E |
+| Evidence | evidence snapshots / decision chain | provenance contracts exist; runtime proof absent | BLOCKED BY E2E |
 
 ### GOLDEN CORPUS
 Required cases: `exchange-arabic`, `exchange-ocr`, `inventory-excel`, `unknown-layout`, `corrupt-extraction`, `arithmetic-mismatch`, `reconciliation-mismatch`.
@@ -79,7 +109,7 @@ All seven have explicit expected-disposition contract coverage. Runtime source�
 
 ### EXTERNAL / OWNER BLOCKERS
 - Real authenticated browser credentials for Tenant A/B are not provisioned in GitHub Actions.
-- Current-head Vercel deployment is blocked by the platform deployment rate limit (`Deployment rate limited — retry in 24 hours`); no older deployment is accepted as current-head evidence.
+- Current-head Vercel deployment is blocked by the platform deployment rate limit; no older deployment is accepted as current-head evidence.
 - Auth control-plane leaked-password protection.
 - Backup/restore and rollback drill access.
 - Native Windows runtime where Linux CI is insufficient.
