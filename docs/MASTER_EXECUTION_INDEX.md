@@ -2,14 +2,24 @@
 
 ## CURRENT EXECUTION BOUNDARY — 2026-09-04
 
-> Authoritative execution manifest. Because embedding this file's own commit SHA would make the SHA self-invalidating, the exact current candidate is always the Git `HEAD` of `main` at the same checkout. Pair this manifest with `git rev-parse HEAD` for every evidence batch.
+> Authoritative execution manifest. Because embedding this file's own commit SHA would make the SHA self-invalidating, the exact current candidate is always the Git `HEAD` of the relevant checkout/ref. Pair this manifest with `git rev-parse HEAD` for every evidence batch.
+
+### CURRENT REPAIR CANDIDATE
+- Repair branch: `repair/currency-analytics-truth-46156969`.
+- Base boundary: `46156969f506d7fb6c3c75fde419c6de76f6e14d`.
+- Repair lineage recorded in this wave: `461569...` → `c78b7c7cf9efb8404f312f95e7315213547be21b` → `31bbc941a4857cb5f0b270a5c92944111814fd02` → subsequent HEAD created by this index update.
+- PR #316: OPEN / DRAFT / NOT MERGED.
+- Certification: NOT CERTIFIED.
+- Historical evidence is never promoted to the subsequent exact HEAD.
 
 ### BOUNDARY / GOVERNANCE
-- Branch: `main`.
+- Main release boundary remains separate from this repair candidate until review/merge.
 - Historical evidence is valid only for its recorded SHA.
 - No deployment, test, DB result, or prior RC is reused across a changed exact head.
 - Browser E2E uses real Chromium, real Supabase authentication when credentials exist, and browser-held access tokens; service-role and mocked sessions are prohibited.
 - The browser workflow uses scoped path triggers and `workflow_dispatch`; broad push triggers are prohibited by the CI topology contract.
+- PASS requires correct behavior + correct data + correct security + persistence + evidence + exact HEAD.
+- QUEUED/PENDING/RUNNING is never PASS.
 
 ### E2E WAVE
 - Baseline: `083225068f1e2d390f6e1d50e8b178a1e8e1bacb`
@@ -36,7 +46,7 @@
 ### CURRENT E2E STATUS
 | Area | Status | Required evidence |
 |---|---|---|
-| Real Chromium | BUILT / CURRENT-HEAD RUN 33845264769 BLOCKED | exact-head CI |
+| Real Chromium | BUILT / current-head CI pending | exact-head CI |
 | Authenticated browser login | BLOCKED / NOT PROVEN | current-head run with real credentials |
 | Tenant A | NOT PROVEN | real browser session + `current_company_id()` |
 | Tenant B | NOT PROVEN | real browser session + B credential |
@@ -51,72 +61,75 @@
 | Recovery | NOT PROVEN | backup/restore/rollback drill |
 | Negative security | PARTIAL | DB RLS adversarial evidence; browser A/B pending |
 
+### INTERNAL P1 CLOSURE / BUSINESS E2E PREBUILD
+- Customer and Product create/edit/delete actions are wired to real tenant-scoped persistence with validation, error surfacing, reload persistence, and DB role/RLS enforcement.
+- Duplicate customer code and invalid entity values are rejected by DB constraints.
+- Frontend action completeness scanner is active; its result is exact-head CI evidence, not a static claim.
+- Business catalog BF-001..BF-020 is defined with UI/backend/DB/security/persistence/failure oracles.
+- Real-report business wrappers cover 14 production-shaped scenarios and are runnable once authenticated runtime is available.
+- Truth comparator spans source → parsed → normalized → DB → RPC → analytics → UI → export/evidence.
+
 ### LIVE DB FORENSICS / REPAIR
 1. Staging `fnqbvfuwbdpwvhcgzksl` is `ACTIVE_HEALTHY`.
 2. Public base tables currently have RLS enabled; current catalog count is 81 public tables with RLS enabled. No core `anon` table grants were found.
 3. Rolled-back DB adversarial probes passed: Tenant A saw only its own products; Tenant B saw only its own products; cross-tenant UPDATE affected zero rows; malicious company reassignment was rejected.
-4. **Real defect discovered:** authenticated users could not execute `get_sales_export_rows`, `get_purchase_export_rows`, `get_inventory_export_rows`, or `get_receivables_export_rows`, while the authenticated Reports UI consumes export RPCs.
-5. **Live repair applied:** authenticated EXECUTE restored for all four; anon EXECUTE explicitly denied.
-6. **Source repair:** `supabase/migrations/20260904190000_restore_authenticated_export_rpc_execute.sql`.
-7. **Migration-lineage repair:** live fail-closed export row-bound implementation is represented by `supabase/migrations/20260904191000_reconcile_export_row_bounds_and_execute.sql`.
-8. Post-repair authenticated sales/purchase/inventory export calls execute successfully. Invalid row limits and tenant-mismatch calls are rejected as designed.
-9. The live staging migration history contains `p1_fail_closed_export_row_bounds`; its implementation was recovered from the security-hardening branch and reconciled into main rather than silently treating live-only state as source truth.
-10. Supabase security advisor still reports several authenticated-callable SECURITY DEFINER helpers and leaked-password protection disabled. Major mutation helpers inspected include tenant/auth checks and secure search path; no exploit proven, so no blind revoke performed.
-11. **Current-wave dashboard truth defect:** staging companies use `SAR` while source sales/purchase invoices contain `YER`; dashboard was repaired to gate financial KPIs/breakdowns on currency consistency while preserving non-financial counts/inventory value.
-12. Live dashboard retest for authenticated tenant contexts returns `INSUFFICIENT_DATA` with invalid financial KPIs null and financial breakdown arrays empty under the mismatch condition.
-13. Supabase migration history records the dashboard repair as `20260904063122_reconcile_dashboard_currency_truth`.
-14. **New analytics truth defect:** `get_sales_secondary_metrics` returned monetary analytics across the SAR/YER mismatch; `get_profitability_snapshot` exposed numeric revenue/cost/profit while status was insufficient; purchase summary, RFM and aging had no currency fail-closed gate.
-15. **New runtime contract defect:** `get_abc_snapshot` referenced nonexistent `sale_items.company_id` and failed at runtime. Actual tenant scope is derived through `sales_invoices.company_id`.
-16. **Live analytics repair applied:** affected monetary analytics now return `INSUFFICIENT_DATA` with null/empty monetary outputs when transaction currency disagrees with company currency. ABC no longer references the nonexistent column.
-17. Live mismatch verification: profitability, purchase summary, secondary metrics, RFM, ABC, and aging all returned `INSUFFICIENT_DATA`; monetary outputs were suppressed.
-18. Positive-path test: inside a rolled-back transaction, aligning transaction currencies to the company currency caused all six affected analytics to return `CALCULATED`. No fixture data remained mutated.
-19. Cross-tenant export probe remains rejected by tenant-context guard.
-20. Source reconciliation for this live repair is on PR #316, based exactly on `46156969f506d7fb6c3c75fde419c6de76f6e14d`; latest repair-branch head is `8e9dc64a411d6772b01b58066e185a25e3ded93b`.
-21. Browser bottleneck forensic: the blocked run spent ~59s installing the pinned Playwright package and then downloaded ~280 MiB of Chromium/FFMPEG/headless-shell payloads; the workflow already had npm cache hit. Browser cache keyed to Playwright 1.55.0 + Chromium + Ubuntu 22.04 is now added, with an explicit version assertion. No dependency version was changed.
-22. CI browser startup failure was not an app build failure: the exact-head build completed successfully; preview process started, then the run reached the explicit authentication-secret gate and exited `2` because all six runtime secret inputs were missing.
+4. Authenticated execution was restored for the four Reports export RPCs; anon execution remains denied.
+5. Source repair/migration lineage for export row bounds and execution was reconciled into source control.
+6. Dashboard currency truth was repaired to fail closed when company currency and invoice currency disagree.
+7. Analytics currency truth was extended to profitability, purchases, secondary sales metrics, RFM, ABC, and aging; mismatch suppresses monetary outputs.
+8. `get_abc_snapshot` schema drift referencing nonexistent `sale_items.company_id` was repaired; tenant scope derives through sales invoices.
+9. Mismatch verification returned `INSUFFICIENT_DATA` across affected analytics; positive aligned-currency tests returned `CALCULATED` inside rolled-back transactions.
+10. Financial invoice currency storage is required, normalized to uppercase 3-letter form, with default SAR; malformed/null probes were rejected.
+11. Import lifecycle guards reject null/negative/out-of-range counters and premature completion; row locking and normalized SKU race handling are present.
+12. Recommendation aliases `accepted -> approved` and `done -> completed`; authenticated execution is tenant-scoped.
+13. Approval rejects self-approval; work creation requires APPROVED; work completion requires correct state/assignee/evidence; outcome requires completed work and tenant-owned evidence.
+14. One legacy seeded recommendation without evidence and one legacy seeded orphan decision outcome remain explicit fixture debt; they are not promoted to production PASS.
 
 ### SECURITY-DEFINER AUDIT
 - Full public `SECURITY DEFINER` inventory was reviewed for owner, `search_path`, grants, tenant/auth validation, and touched domains.
+- Current inventory: 33 total; 20 authenticated-executable; 13 not authenticated-executable; 0 anon-executable.
 - Authenticated-callable helpers were not blindly revoked because inspected helpers have tenant/auth guards and secure `search_path` where privilege elevation would otherwise be possible.
 - Cross-tenant export invocation under an authenticated database role was rejected by `TENANT_CONTEXT_MISMATCH`.
-- Dedicated CI `security-definer-exposure-contract` is running on the repair head; no exploit is certified by this static/DB pass alone.
+- Dedicated CI remains required before any certification claim.
 
-### CANONICAL TRUTH MATRIX — CURRENT PASS/FAIL BOUNDARY
-| Domain | Canonical server source | Current finding | State |
-|---|---|---|---|
-| Sales | dashboard/profitability/secondary RPCs | currency mismatch now fail-closed | REPAIRED / RETESTED |
-| Purchases | purchase summary/dashboard | currency mismatch now fail-closed | REPAIRED / RETESTED |
-| Inventory | inventory valuation/report snapshot | tenant + null-value guards present | PARTIAL / NEEDS REAL E2E |
-| Receivables | authoritative page/dashboard/aging | tenant authority present; monetary analytics now currency-gated | PARTIAL / NEEDS REAL E2E |
-| Dashboard | `get_dashboard_snapshot` | mismatch already gated; aligned with analytics repair | REPAIRED |
-| Profitability | `get_profitability_snapshot` | numeric financial outputs now suppressed on mismatch | REPAIRED / RETESTED |
-| RFM | `get_rfm_snapshot` | monetary scoring now fail-closed on mismatch | REPAIRED / RETESTED |
-| ABC | `get_abc_snapshot` | fixed schema drift + currency gate | REPAIRED / RETESTED |
-| Reconciliation | import/report/runtime reconciliation | runtime browser proof still absent | BLOCKED BY E2E |
-| Evidence | evidence snapshots / decision chain | provenance contracts exist; runtime proof absent | BLOCKED BY E2E |
+### CANONICAL TRUTH MATRIX
+| Domain | Current state |
+|---|---|
+| Sales | REPAIRED / RETESTED — currency mismatch fail-closed |
+| Purchases | REPAIRED / RETESTED — currency mismatch fail-closed |
+| Inventory | PARTIAL — tenant/null guards; real E2E required |
+| Receivables | PARTIAL — tenant authority + currency gate; real E2E required |
+| Dashboard | REPAIRED — financial mismatch gated |
+| Profitability | REPAIRED / RETESTED |
+| RFM | REPAIRED / RETESTED |
+| ABC | REPAIRED / RETESTED — schema drift fixed |
+| Aging | REPAIRED / RETESTED |
+| Reconciliation | BLOCKED BY AUTHENTICATED E2E |
+| Evidence | BLOCKED BY AUTHENTICATED E2E |
+| Export | PARTIAL — DB grant/guard proven; browser output unproven |
 
-### GOLDEN CORPUS
-Required cases: `exchange-arabic`, `exchange-ocr`, `inventory-excel`, `unknown-layout`, `corrupt-extraction`, `arithmetic-mismatch`, `reconciliation-mismatch`.
+### GOLDEN CORPUS / REAL REPORTS
+- Core deterministic corpus: 7 cases: `exchange-arabic`, `exchange-ocr`, `inventory-excel`, `unknown-layout`, `corrupt-extraction`, `arithmetic-mismatch`, `reconciliation-mismatch`.
+- Business wrapper manifest: 14 scenarios, including sales, purchases, receivables, mixed format, duplicate, partial, and empty report cases.
+- Runtime execution: 0. Certified runtime PASS: 0.
+- Every runtime scenario requires source/upload/process/DB/reconciliation/analytics/UI/export-or-evidence assertions plus cleanup and exact-head evidence.
 
-All seven have explicit expected-disposition contract coverage. Runtime source→parse→normalize→DB→reconcile→analytics→evidence→decision→output proof remains NOT PROVEN.
+### IMPORT / RETRY / RECOVERY
+- Proven now: counter integrity, premature-completion guard, row locking, normalized SKU uniqueness/race handling.
+- Not proven without runtime: concurrent two-worker retry, same-file concurrency, browser refresh during import, network interruption, crash recovery, full idempotency drill.
 
-### ACTIVE LOCAL EXECUTION
-- Current-head browser E2E and real report/data execution.
-- A/B browser adversarial CRUD/direct-request checks.
-- RPC caller/signature/migration parity and migration-lineage reconciliation.
-- OCR/document golden runtime corpus.
-- Worker/queue retry/idempotency/recovery.
-- Realtime/storage/AI authorization and provenance.
-- Report/export value truth and adversarial output cases.
-- Performance scale, Electron/native Windows, SECURITY DEFINER least-privilege review.
-- Final certification evidence.
+### FRONTEND / RPC / ACTION AUDIT
+- Frontend action completeness scanner is committed and attached to PR CI.
+- Static RPC frontend→migration parity is committed and attached to CI.
+- Runtime/live signature/grant/tenant parity remains a certification-grade audit surface; no dynamic RPC is promoted without explicit verification.
+- Customers/Products dead actions are closed at source level; runtime persistence remains NOT PROVEN until authenticated browser execution.
 
 ### EXTERNAL / OWNER BLOCKERS
-- Real authenticated browser credentials for Tenant A/B are not provisioned in GitHub Actions.
-- Current-head Vercel deployment is blocked by the platform deployment rate limit; no older deployment is accepted as current-head evidence.
-- Auth control-plane leaked-password protection.
-- Backup/restore and rollback drill access.
-- Native Windows runtime where Linux CI is insufficient.
+- Real authenticated browser credentials for Tenant A/B are not provisioned in GitHub Actions. Required variable names are documented by the browser workflow; secret values are never written to source/evidence.
+- Current-head Vercel deployment is blocked by platform deployment rate limiting; no older deployment is accepted as current-head evidence.
+- Auth control-plane leaked-password protection requires owner/provider access.
+- Backup/restore and rollback drills require operational access.
+- Native Windows runtime remains required where Linux CI cannot prove desktop behavior.
 
 ### CERTIFICATION RULE
-No HTTP 200, UI success message, fixture PASS, simulated DB JWT, historical deployment, or old SHA may certify the current candidate. Final certification requires exact-head evidence for every required product surface and zero unresolved local actionable debt.
+No HTTP 200, UI success message, fixture PASS, simulated DB JWT, historical deployment, queued workflow, or old SHA may certify the current candidate. Final certification requires exact-head evidence for every required product surface and zero unresolved local actionable debt.
