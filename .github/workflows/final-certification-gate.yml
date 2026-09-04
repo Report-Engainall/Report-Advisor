@@ -79,3 +79,4 @@ jobs:
           echo "Repository certification contracts: PASS" >> "$GITHUB_STEP_SUMMARY"
           echo "Live/production certification remains dependent on external runtime evidence." >> "$GITHUB_STEP_SUMMARY"
 # Exact-candidate revalidation note: workflow_dispatch remains available for governed candidate reruns.
+# Revalidation trigger retained as governance-only; no certification rule is weakened.
