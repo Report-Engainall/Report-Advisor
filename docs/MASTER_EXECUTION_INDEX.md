@@ -7,40 +7,48 @@
 ### EXECUTION SCOPE / BRANCH
 - **Repository:** `Report-Engainall/Report-Advisor`
 - **Current execution branch:** `main`
-- **Current main:** `b44a823b22653aded1408d36c6e5a109e4df4c3d`
-- **Current code/test candidate:** `b44a823b22653aded1408d36c6e5a109e4df4c3d`
-- Previous executable candidate: `393308f235b816e9610bb426813e6fefc9f7c6b9`.
-- `b9597ac...` was governance/index-only and did not replace the executable candidate.
+- **Current main:** `262fda100fcad7429ddd4928af96c8c3e14e05ff`
+- **Current code/test candidate:** `262fda100fcad7429ddd4928af96c8c3e14e05ff`
+- Previous executable candidate: `b44a823b22653aded1408d36c6e5a109e4df4c3d`.
+- Previous governance/test additions in this wave: `396086781a4723c23a90a8486b8b4cf81936bec9`, `aa155ffdfce7a0addd17b337677e4b5c3039376d`, `38394120323da4f73bd2765b1f754b27e100111b`.
 - Execution scope: P0 certification/test integrity; P0 security/database/RPC/RLS/tenant isolation; P1 compatibility/legacy; worker/filesystem/OCR/documents; P2 reports/export/performance; PR/desktop reconciliation; final evidence/certification.
 - Independent fronts run in parallel; Owner intervention is deferred until locally actionable work is exhausted.
 
 ### EXACT CANDIDATE
-- **CURRENT CODE/TEST CANDIDATE:** `b44a823b22653aded1408d36c6e5a109e4df4c3d`
-- `b44a823...` strengthens the continuous-trust test-of-test from single replacement to `replaceAll`, proving partial stale persistence identifiers cannot survive the adversarial test.
-- `393308f...` corrected the decision-approval lock-order checker and keeps adversarial lock-removal testing fail-closed.
-- `2460a5c...` hardened `decide_approval()` to use the same decision → approval lock order as `request_decision_approval()`.
-- `da1d447...` hardened the continuous-trust test-of-test to validate the canonical SQL bridge across migration lineage.
-- `d362b229...` added the decision-approval TOCTOU contract/test-of-test after live DB hardening.
-- `18b634c...` repaired the continuous-trust checker so SQL bridge validation follows migration lineage.
+- **CURRENT CODE/TEST CANDIDATE:** `262fda100fcad7429ddd4928af96c8c3e14e05ff`
+- This wave added an exact-head Browser E2E harness and CI workflow; it does not treat the existing API/RPC E2E as browser proof.
+- The Golden E2E corpus contract now explicitly enforces an expected disposition for all 7 corpus cases, including `inventory-excel`.
 - Certification evidence is valid only for this exact candidate or an explicitly governed ancestry of it.
 
-### BATCH 1 — CERTIFICATION / TEST INTEGRITY
-- Quality `#3854` on `18b634c...`: PASS, all 63 workflow steps.
-- Final Execution Batch `#430` on `18b634c...`: PASS, 30 deterministic gates.
-- Final Certification `#665` on `d362b229...`: boundary passed, then certification contracts failed on stale continuous-trust test-of-test; RCA and repair completed.
-- Final Certification `#666` on `43d56fb...`: boundary passed, then the same stale test-of-test failed; consumed as actionable checker/test defect.
-- Final Certification run on `b9597ac...`: boundary passed; continuous-trust test-of-test failed on a partial replacement that did not remove all stale occurrences. This failure was consumed and repaired at `b44a823...`.
-- Continuous-trust checker RCA: canonical runtime bridge is `autonomy_runtime_gate` calling `is_continuous_trust_healthy('production')`; checker now validates runtime RPC + migration-lineage SQL.
-- Continuous-trust test-of-test RCA: tests now mutate every matching persistence identifier and every SQL bridge call before expecting rejection.
-- Approval TOCTOU RCA: request path could race a decision transition; fixed by decision-row lock before status check.
-- Approval lock-order RCA: request path locked decision then approval while `decide_approval()` locked approval then decision; fixed to a single decision → approval order and guarded by an adversarial checker.
-- Fresh exact-candidate CI for `b44a823...` is required before Batch 1 closure.
+### E2E WAVE — FULL PRODUCT BROWSER DISCOVERY
+- Baseline before mutation: `083225068f1e2d390f6e1d50e8b178a1e8e1bacb`.
+- Browser harness: `scripts/run-full-product-browser-e2e.mjs` introduced at `396086781a4723c23a90a8486b8b4cf81936bec9`.
+- Browser CI: `.github/workflows/full-product-browser-e2e.yml` introduced at `aa155ffdfce7a0addd17b337677e4b5c3039376d`.
+- Golden corpus expected-disposition coverage repaired at `38394120323da4f73bd2765b1f754b27e100111b`.
+- Evidence ledger: `E2E_FAILURE_LEDGER.md` introduced at `262fda100fcad7429ddd4928af96c8c3e14e05ff`.
+- The browser harness builds the exact checked-out commit, starts that build locally in CI, launches real Chromium, captures screenshots/console/request failures, attempts real Supabase password authentication, traverses application routes after authentication, and verifies logout state.
+- Browser harness does not mock authentication and does not use service-role credentials.
+- Fresh runtime result on the current head is **PENDING** until the GitHub Actions workflow executes with its real secrets.
 
-### CERTIFICATION BOUNDARY
-- Exact candidate checkout + HEAD equality required for candidate execution.
-- Governance-only descendants require ancestry and explicit allowlisted paths.
-- Provenance binds the trigger to the tested SHA; synthetic PR merge SHAs are rejected.
-- `final-certification-gate.yml` and `execution-enforcement-contract.yml` enforce the boundary.
+### E2E DISCOVERY STATUS
+| Area | Status | Evidence boundary |
+|---|---|---|
+| Browser framework | BUILT | Real Chromium harness at current candidate |
+| App exact-head runtime | BUILT/CI-EXECUTABLE | CI builds checked-out exact SHA |
+| Authenticated Browser Login | NOT PROVEN | Requires real E2E credentials at CI runtime |
+| Tenant A/B Browser isolation | NOT PROVEN | Requires two authenticated tenant actors and current runtime |
+| Core route reachability | NOT PROVEN | Awaiting authenticated browser run |
+| CRUD persistence | NOT PROVEN | Route harness is diagnostic; business CRUD assertions still require implementation/runtime evidence |
+| Import browser flow | NOT PROVEN | Requires real import fixture execution |
+| OCR/document browser flow | NOT PROVEN | Requires real runtime corpus execution |
+| Evidence/decision browser flow | NOT PROVEN | Existing API E2E is not browser proof |
+| Realtime/worker recovery | NOT PROVEN | Requires executable runtime evidence |
+| Negative/adversarial browser flow | PARTIAL | Existing API-level adversarial coverage exists; browser layer remains pending |
+
+### BATCH 1 — CERTIFICATION / TEST INTEGRITY
+- Historical certification repairs through `b44a823...` remain recorded in Git history.
+- Fresh exact-candidate certification is required for the current candidate after this E2E wave.
+- Golden corpus now has a complete explicit expected-disposition map covering all 7 cases; this is a test-contract repair, not a runtime PASS.
 
 ### BATCH 2 — SECURITY / DATABASE / RPC / RLS
 - Live Staging: `autonomy_runtime_gate(text)` is SECURITY DEFINER, authenticated-executable, anon-denied; it calls `is_continuous_trust_healthy('production')` and evaluates critical drift.
@@ -88,7 +96,7 @@
 ### OWNER UNBLOCK QUEUE
 | ID | Operation | Real blocker | Prepared | Evidence required | Status |
 |---|---|---|---|---|---|
-| OWNER-AUTH-01 | Authenticated Tenant A/B E2E | Interactive authenticated browser session | Matrix + exact candidate | A/B authenticated E2E + adversarial isolation | OWNER REQUIRED |
+| OWNER-AUTH-01 | Authenticated Tenant A/B E2E | Interactive authenticated browser session | Browser harness + exact candidate | A/B authenticated E2E + adversarial isolation | OWNER REQUIRED |
 | OWNER-AUTH-02 | Leaked-password protection | Auth control plane | Setting identified | Non-secret enabled state | CONDITIONAL |
 | OWNER-DR-01 | Backup + isolated restore | Protected recovery access | Safety/validation contract | Backup/restore/hash/timing/RPO/RTO | CONDITIONAL |
 | OWNER-DR-02 | Rollback + forward recovery | Protected deployment access | Drill/evidence contract | Deployment/health/recovery proof | CONDITIONAL |
@@ -111,7 +119,7 @@
 ### EXECUTION DEBT
 `LOCAL ACTIONABLE EXECUTION DEBT = NOT ZERO`.
 
-Active local execution: Batch 1 fresh exact-candidate certification/test integrity; repository-wide compatibility consumer sweep; watched filesystem proof; OCR corpus; report/export adversarial evidence; performance scale; Electron exact-head verification; PR reconciliation; migration lineage; SECURITY DEFINER semantic review; worker adversarial lifecycle; storage/realtime/AI scope classification.
+Active local execution: fresh exact-candidate certification/test integrity; full authenticated browser E2E; repository-wide compatibility consumer sweep; watched filesystem proof; OCR corpus; report/export adversarial evidence; performance scale; Electron exact-head verification; PR reconciliation; migration lineage; SECURITY DEFINER semantic review; worker adversarial lifecycle; storage/realtime/AI scope classification.
 
 Owner-only: authenticated browser sessions, protected Auth/recovery/deployment controls, and unavoidable native Windows operations.
 
