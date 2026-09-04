@@ -5,9 +5,10 @@
 > Authoritative execution index. Historical records remain in Git history and dated evidence. Evidence never crosses an exact-SHA boundary.
 
 ### EXACT CANDIDATE
-- **CURRENT CODE/TEST CANDIDATE:** `294b43f19e637b4639474f8c1db14d2ba7be1a81`
-- `a8e58002df1667ed7fa90f452e61f18c249b6592` was the previous executable checker candidate; Quality run `33821408442` passed on that exact SHA.
-- `294b43f...` is a newer executable DB-lineage repair: it restores the canonical migration for the terminal approval reopen boundary already present in live Staging.
+- **CURRENT CODE/TEST CANDIDATE:** `e560f651864b99dad71cf1f39bcebc99f6e5038a`
+- `294b43f19e637b4639474f8c1db14d2ba7be1a81` was the prior executable DB-lineage candidate.
+- `e560f651...` adds a genuine watched direct-DML test-of-test: the contract validates the revoke + recorder grant and rejects a deliberately weakened migration.
+- `c515c998...` corrected a genuine canonical-intelligence test fixture defect (`history()` cardinality) discovered by forensic comparison with PR #307.
 - Main may receive governance/index descendants after the candidate; certification must resolve the candidate from this index and enforce ancestry/allowlisted-path rules.
 
 ### CERTIFICATION BOUNDARY
@@ -15,19 +16,19 @@
 - Governance-only descendants require ancestry and explicit allowlisted paths.
 - Provenance must bind push/PR/manual trigger to the tested SHA; synthetic PR merge SHAs are rejected.
 - `final-certification-gate.yml` and `execution-enforcement-contract.yml` enforce the boundary.
-- Fresh Quality and Certification are mandatory for `294b43f...`.
+- Fresh Quality and Certification are mandatory for `e560f651...`.
 
 ### FRESH FAILURE-DRIVEN REPAIR CHAIN
 - Quality `33821408442` on `a8e580...` = **SUCCESS**.
 - The autonomy checker was repaired because it was stale against canonical `autonomyGate()` / `autonomy_runtime_gate`; weakened-bridge test-of-test was added.
-- Live forensic reconciliation then found a migration-lineage gap: `request_decision_approval()` was hardened in live Staging, but the canonical migration was absent from current main.
-- PR #305 contained the historical equivalent, but its branch diverged. No wholesale merge was performed.
-- The behavior was selectively reconciled into migration `20260904003000_close_terminal_approval_reopen_boundary.sql`, applied to live Staging, and committed at `294b43f...`.
+- Live forensic reconciliation found a migration-lineage gap: `request_decision_approval()` was hardened in live Staging, but the canonical migration was absent from current main.
+- The behavior was selectively reconciled into `20260904003000_close_terminal_approval_reopen_boundary.sql`, applied to live Staging, and committed at `294b43f...`.
+- PR #307 forensic comparison then exposed a test-fixture defect and a weak watched-boundary test-of-test. Both were repaired without wholesale PR merge; the latest executable candidate is `e560f651...`.
 
 ### APPROVAL / AUTHORITY
 - Live memberships: 2 active, both `role=member`; no canonical approver/permission authority table found.
 - `decide_approval()` is tenant-scoped, row-locking, PENDING-only, rejects self-approval, and updates only the same-tenant proposed decision.
-- `request_decision_approval()` now has canonical terminal-state lineage: APPROVED/REJECTED/CANCELLED cannot reopen to PENDING.
+- `request_decision_approval()` has canonical terminal-state lineage: APPROVED/REJECTED/CANCELLED cannot reopen to PENDING.
 - Direct authenticated DML on audited approval mutation surfaces is not granted.
 - Distinct business approver authority remains **PRODUCT DECISION REQUIRED** only if a separate authority class is intended; no business rule is invented.
 
@@ -35,7 +36,7 @@
 - Live public SECURITY DEFINER inventory: 30 functions; 18 executable by `authenticated`, 12 restricted; no `anon` execution found in the audited surface.
 - Audited definitions use locked `pg_catalog` search paths and schema-qualified application relations.
 - Worker mutation RPCs remain privileged-only; authenticated RPCs have tenant/auth or controlled ownership/read semantics.
-- Advisor WARNs remain classified `REQUIRED / EXCESS / UNKNOWN`; no blanket revoke.
+- Advisor WARNs remain `REQUIRED / EXCESS / UNKNOWN`; no blanket revoke.
 
 ### WORKER / QUEUE
 - State domain: `queued|leased|processing|completed|blocked|failed|dead_letter`.
@@ -51,6 +52,7 @@
 ### WATCHED FILE ENGINE
 - Recorder validates tenant context, folder ownership, identity, non-negative size and state domain with tenant-scoped upsert identity.
 - Canonical direct-DML migration is applied to live Staging: authenticated INSERT/UPDATE/DELETE on `watched_report_files` are false; recorder RPC EXECUTE is true.
+- Latest test hardening at `e560f651...` rejects a weakened direct-DML boundary.
 - **EXECUTING:** filesystem normalization/containment proof including traversal, symlink, rename/delete, duplicate/concurrent and restart/rescan behavior.
 
 ### OCR / DOCUMENTS
@@ -67,16 +69,16 @@
 - AI/vector architecture exists but runtime retrieval authorization, tenant isolation and provenance remain unproven.
 
 ### PERFORMANCE
-- 43 unused-index INFO notices are classified `NON-BLOCKING / OPTIMIZATION` pending workload evidence.
+- 43 unused-index INFO notices are `NON-BLOCKING / OPTIMIZATION` pending workload evidence.
 - Tiny-data EXPLAIN samples are not production-scale proof.
 - **EXECUTING:** scale, bounds, pagination, contention, timeout and concurrency evidence.
 
 ### DESKTOP / PR RECONCILIATION
 - Electron evidence must use the exact current candidate.
-- PR #305 is open and diverged; its terminal-approval migration was selectively reconciled, with no wholesale merge.
-- PR #307 watched-boundary changes remain selective candidates.
-- PR #308 autonomy changes remain separate until canonical reconciliation.
-- **EXECUTING:** forensic unique-delta decisions and migration-lineage sweep.
+- PR #305 is open/diverged; terminal-approval migration was selectively reconciled; no wholesale merge.
+- PR #307 is open/diverged; its unique test improvements were reviewed and selectively reproduced where correct; no blind merge.
+- PR #308 is open/draft/diverged; autonomy changes remain separate until canonical reconciliation.
+- **EXECUTING:** remaining unique-delta and migration-lineage decisions.
 
 ### LIVE / RESILIENCE
 - Historical READY deployment `dpl_d7dkae3DeHwfJjyrjXyc7GrYTHQs` at `bc1218ed...` is not the current candidate and is not production certification.
@@ -103,12 +105,12 @@
 | Storage | YES/policies | NO contract | Policy | NO | NO |
 | Realtime | Client capability | NO publication | NO | NO | NO |
 | AI/vector | Architecture | PARTIAL | Architecture | NO | NO |
-| Certification provenance | YES | YES | **PENDING fresh `294b43f...`** | N/A | NO |
+| Certification provenance | YES | YES | **PENDING fresh `e560f651...`** | N/A | NO |
 
 ### EXECUTION DEBT
 `LOCAL ACTIONABLE EXECUTION DEBT = NOT ZERO`.
 
-Active local execution: compatibility sweep; watched filesystem proof; OCR corpus; reports/export adversarial evidence; performance scale; Electron exact-head verification; PR forensic reconciliation; migration lineage; and fresh exact-candidate certification evidence.
+Active local execution: compatibility caller/legacy sweep; watched filesystem proof; OCR corpus; report/export adversarial evidence; performance scale; Electron exact-head verification; PR forensic reconciliation; migration lineage; and fresh exact-candidate Quality/Certification evidence.
 
 Owner-only: authenticated browser sessions, protected Auth/recovery/deployment controls, and unavoidable native Windows operations.
 
