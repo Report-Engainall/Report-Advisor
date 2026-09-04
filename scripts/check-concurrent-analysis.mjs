@@ -110,4 +110,22 @@ const olderAfter = await registry.run({
 assert.equal(olderAfter.accepted, false);
 assert.equal(olderAfter.reason, 'superseded');
 
-console.log('concurrent analysis fixtures: PASS (coalescing, supersession, revision isolation)');
+// Tenant isolation must hold even when the business key and revision are identical.
+const t1 = registry.run({
+  revision: { tenantId: 't1', key: 'group:B', revision: 7 },
+  compute: async () => {
+    await delay(10);
+    return 'tenant-a';
+  },
+});
+const t2 = registry.run({
+  revision: { tenantId: 't2', key: 'group:B', revision: 7 },
+  compute: async () => 'tenant-b',
+});
+const [t1Result, t2Result] = await Promise.all([t1, t2]);
+assert.equal(t1Result.accepted, true);
+assert.equal(t1Result.value, 'tenant-a');
+assert.equal(t2Result.accepted, true);
+assert.equal(t2Result.value, 'tenant-b');
+
+console.log('concurrent analysis fixtures: PASS (coalescing, supersession, revision isolation, tenant isolation)');
