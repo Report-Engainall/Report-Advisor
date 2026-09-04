@@ -16,3 +16,4 @@ jobs:
       - run: node scripts/canonical-profitability-null-truth.test.mjs
       - run: node scripts/dashboard-truth-adversarial-regression.mjs
       - run: node scripts/canonical-currency-truth-adversarial-regression.mjs
+      - run: node scripts/import-lifecycle-truth-adversarial-regression.mjs
