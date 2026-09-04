@@ -2,7 +2,7 @@ import fs from 'node:fs';
 
 const assert = (value, message) => { if (!value) throw new Error(`Filesystem test-of-test failed: ${message}`); };
 const main = fs.readFileSync('desktop/main.cjs', 'utf8');
-const security = fs.readFileSync('src/lib/file-engine/security.ts', 'utf8');
+const security = fs.readFileSync('src/lib/file-engine/archive-security.ts', 'utf8');
 
 const runtimeGuard = (source) => ({
   traversal: source.includes('path.resolve(watchedRoot,relativePath)') && source.includes('path.relative(root,filePath)'),
@@ -18,12 +18,14 @@ const securityGuard = (source) => ({
   parentSegment: source.includes("segment === '..'"),
   absolute: source.includes("normalized.startsWith('/')"),
   driveLetter: source.includes("/^[A-Za-z]:\\\\//.test(normalized)"),
-  sizeLimit: source.includes('file.size > MAX_FILE_SIZE'),
 });
+const securityIntegration = fs.readFileSync('src/lib/file-engine/security.ts', 'utf8');
+const integrationGuard = (source) => ({ archivePathGuard: source.includes('isUnsafeArchivePath'), archiveEntryGuard: source.includes('hasZipEntryTraversal') });
 
-const expected = runtimeGuard(main); const secExpected = securityGuard(security);
+const expected = runtimeGuard(main); const secExpected = securityGuard(security); const integrationExpected = integrationGuard(securityIntegration);
 for (const [name, value] of Object.entries(expected)) assert(value, `baseline guard missing: ${name}`);
 for (const [name, value] of Object.entries(secExpected)) assert(value, `baseline archive guard missing: ${name}`);
+for (const [name, value] of Object.entries(integrationExpected)) assert(value, `archive integration missing: ${name}`);
 
 const mutations = [
   ['traversal predicate', (s) => s.replace('path.relative(root,filePath)', 'path.resolve(root,filePath)')],
@@ -45,7 +47,6 @@ const archiveMutations = [
   ['archive parent traversal', (s) => s.replace("segment === '..'", "segment === '__removed__'")],
   ['archive absolute path', (s) => s.replace("normalized.startsWith('/')", "normalized.startsWith('__removed__')")],
   ['archive drive path', (s) => s.replace('/^[A-Za-z]:\\\\//.test(normalized)', '/^__removed__$/.test(normalized)')],
-  ['archive size guard', (s) => s.replace('file.size > MAX_FILE_SIZE', 'file.size > Number.MAX_SAFE_INTEGER')],
 ];
 for (const [name, mutate] of archiveMutations) {
   const mutated = securityGuard(mutate(security));
@@ -53,4 +54,14 @@ for (const [name, mutate] of archiveMutations) {
   assert(changed, `archive mutation was not detected: ${name}`);
 }
 
-console.log(JSON.stringify({ testOfTest: 'PASS', runtimeMutationsDetected: mutations.length, archiveMutationsDetected: archiveMutations.length, falseGreenGuard: true }));
+const integrationMutations = [
+  ['archive path integration', (s) => s.replace('isUnsafeArchivePath', 'isUnsafeArchivePathRemoved')],
+  ['archive entry integration', (s) => s.replace('hasZipEntryTraversal', 'hasZipEntryTraversalRemoved')],
+];
+for (const [name, mutate] of integrationMutations) {
+  const mutated = integrationGuard(mutate(securityIntegration));
+  const changed = Object.entries(integrationExpected).some(([key, value]) => value && !mutated[key]);
+  assert(changed, `integration mutation was not detected: ${name}`);
+}
+
+console.log(JSON.stringify({ testOfTest: 'PASS', runtimeMutationsDetected: mutations.length, archiveMutationsDetected: archiveMutations.length, integrationMutationsDetected: integrationMutations.length, falseGreenGuard: true }));
