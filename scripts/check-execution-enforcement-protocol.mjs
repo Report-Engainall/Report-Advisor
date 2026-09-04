@@ -56,16 +56,17 @@ export function validateAdaptiveGovernance(governance) {
 export function validateCurrentHeadIndex(index, currentHead, parentHead = '', changedFiles = null) {
   const head = normalize(currentHead);
   if (!head || !/^[0-9a-f]{40}$/.test(head)) throw new Error('Index current-head gate rejected: invalid repository HEAD');
-  const currentStateMatch = index.match(/CURRENT PROJECT STATE[\s\S]{0,1200}?(?:Exact |Current )code\/test (?:head|candidate)[^`]*`([0-9a-f]{40})`/i);
-  const indexedHead = currentStateMatch?.[1]?.toLowerCase();
-  const boundaryMatch = index.match(/CURRENT PROJECT STATE[\s\S]{0,1200}?Current repository index boundary head[^`]*`([0-9a-f]{40})`/i);
+  const currentState = index.match(/(?:CURRENT PROJECT STATE|CURRENT EXECUTION BOUNDARY)[\s\S]{0,2500}/i)?.[0] ?? index;
+  const candidatePatterns = [
+    /CURRENT CODE\/TEST CANDIDATE\s*:?\s*`([0-9a-f]{40})`/i,
+    /Exact candidate\s*:?\s*`([0-9a-f]{40})`/i,
+    /Exact code\/test head\s*:?\s*`([0-9a-f]{40})`/i,
+    /Current (?:code\/test )?(?:head|candidate)\s*:?\s*`([0-9a-f]{40})`/i,
+  ];
+  const indexedHead = candidatePatterns.map(pattern => currentState.match(pattern)?.[1]).find(Boolean)?.toLowerCase();
+  const boundaryMatch = index.match(/Current repository index boundary head[^`]*`([0-9a-f]{40})`/i);
   const indexedBoundaryHead = boundaryMatch?.[1]?.toLowerCase();
-  if (!indexedHead) throw new Error('Index current-head gate rejected: indexed code/test head missing');
-
-  // Canonical B lifecycle: a newer candidate may pass the frozen Index boundary only
-  // when the indexed head is a real ancestor. If the caller supplies a changed-file
-  // manifest, an index-only delta is additionally required; this prevents metadata-only
-  // ancestry from silently authorizing source changes.
+  if (!indexedHead) throw new Error('Index current-head gate rejected: indexed code/test candidate missing');
   if (indexedHead === head) return true;
   if (changedFiles !== null) {
     if (!Array.isArray(changedFiles) || changedFiles.length === 0 || changedFiles.some(file => file !== 'docs/MASTER_EXECUTION_INDEX.md')) {
