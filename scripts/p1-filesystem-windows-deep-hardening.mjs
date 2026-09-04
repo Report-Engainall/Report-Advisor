@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import fsp from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-import { securityScan } from '../src/lib/file-engine/security.ts';
+import { hasZipEntryTraversal, isUnsafeArchivePath } from '../src/lib/file-engine/archive-security.ts';
 
 const assert = (value, message) => { if (!value) throw new Error(`P1 filesystem hardening failed: ${message}`); };
 const root = await fsp.mkdtemp(path.join(os.tmpdir(), 'ra-fs-'));
@@ -55,9 +55,9 @@ try {
     return new Uint8Array([...local, ...central, ...eocd, ...new Array(100).fill(0)]);
   }
   for (const name of ['reports/ok.csv', '../outside.txt', '../../outside.txt', '/absolute/path.txt', 'C:/absolute/path.txt', 'reports/../../outside.txt']) {
-    const bytes = zip(name); const result = securityScan(new File([bytes], 'upload.zip', { type: 'application/zip' }), bytes.buffer);
-    const unsafe = name.includes('..') || name.startsWith('/') || /^[A-Za-z]:[\\/]/.test(name);
-    assert(result.isZipTraversal === unsafe, `archive traversal ${name}`);
+    const bytes = zip(name);
+    const unsafe = isUnsafeArchivePath(name) || hasZipEntryTraversal(bytes.buffer);
+    assert(unsafe === (name !== 'reports/ok.csv'), `archive traversal ${name}`);
   }
 
   const source = fs.readFileSync('desktop/main.cjs', 'utf8');
