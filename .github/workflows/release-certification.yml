@@ -31,9 +31,15 @@ jobs:
         with: {node-version: 22, cache: npm}
       - name: Install locked dependencies
         run: npm ci --no-audit --no-fund
+      - name: Verify exact release ref
+        shell: bash
+        run: |
+          set -euo pipefail
+          git rev-parse HEAD
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
       - name: Preflight contracts
-        run: npm run typecheck && npm run lint && npm run build && npm run test:production-release-blockers && npm run test:production-readiness && npm run test:operational-resilience && npm run test:release-resilience-manifest && node scripts/check-release-evidence-contract.mjs && node scripts/check-release-evidence-completeness.mjs
-      - name: Create reproducible release evidence and certification decision
+        run: npm run typecheck && npm run lint && npm run build && npm run test:production-release-blockers && npm run test:production-readiness && npm run test:operational-resilience && npm run test:release-resilience-manifest && node scripts/check-release-evidence-contract.mjs && node scripts/check-release-evidence-completeness.mjs && node scripts/check-production-certification-contract.mjs
+      - name: Create reproducible release evidence and fail-closed certification decision
         shell: bash
         env:
           RELEASE_ENVIRONMENT: ${{ inputs.environment || 'staging' }}
@@ -46,6 +52,8 @@ jobs:
           const crypto = require('node:crypto');
           const { execFileSync } = require('node:child_process');
           const source_sha = execFileSync('git', ['rev-parse', 'HEAD'], {encoding: 'utf8'}).trim();
+          const expected_sha = process.env.GITHUB_SHA;
+          if (source_sha !== expected_sha) throw new Error(`EXACT_HEAD_MISMATCH:${source_sha}:${expected_sha}`);
           const ref = process.env.GITHUB_REF;
           const environment = process.env.RELEASE_ENVIRONMENT;
           const certification_run_id = process.env.GITHUB_RUN_ID;
@@ -54,8 +62,14 @@ jobs:
           const migrations_fingerprint = execFileSync('bash', ['-lc', "find supabase/migrations -type f -name '*.sql' -print0 | sort -z | xargs -0 sha256sum | sha256sum | cut -d' ' -f1"], {encoding: 'utf8'}).trim();
           const dependency_lock_fingerprint = execFileSync('sha256sum', ['package-lock.json'], {encoding: 'utf8'}).trim().split(/\s+/)[0];
           const artifact_fingerprint = execFileSync('bash', ['-lc', "find dist -type f -print0 | sort -z | xargs -0 sha256sum | sha256sum | cut -d' ' -f1"], {encoding: 'utf8'}).trim();
+
+          // Contract/preflight success is not runtime proof. Do not synthesize a
+          // certification PASS when tenant/runtime/rollback/backup/security evidence
+          // has not been produced and consumed by a canonical evidence gate.
+          const required = ['tenant','backup','rollback','artifact','security'];
+          const blockers = required.map(key => `MISSING_RUNTIME_EVIDENCE:${key}`);
           const payload = {
-            schema_version: 1,
+            schema_version: 2,
             release_key: ref,
             source_sha,
             certification_run_id,
@@ -64,28 +78,20 @@ jobs:
             artifact_fingerprint,
             environment,
             stabilization_seconds,
-            evidence_contracts: {
-              release_evidence: 'validated',
-              production_certification: 'validated',
-              production_release_blockers: 'validated',
-              trust: 'validated',
-              canary: 'validated',
-              rollback: 'validated',
-              fail_closed: 'validated'
-            }
+            evidence_contracts: Object.fromEntries(required.map(key => [key, 'missing']))
           };
           const manifest_id = crypto.createHash('sha256').update(JSON.stringify(payload)).digest('hex');
-          const manifest = {...payload, manifest_id, generated_at: new Date().toISOString()};
-          fs.writeFileSync('release-evidence/manifest.json', JSON.stringify(manifest, null, 2) + '\n');
+          const generated_at = new Date().toISOString();
+          const manifest = {...payload, manifest_id, generated_at};
           const certification = {
-            schema_version: 1,
+            schema_version: 2,
             certification_decision_id: crypto.randomUUID(),
             consumed_release_manifest_id: manifest_id,
             consumed_source_sha: source_sha,
             certification_run_id,
-            certification_result: 'passed',
-            blocker_count: 0,
-            blocker_state: 'clear',
+            certification_result: 'blocked',
+            blocker_count: blockers.length,
+            blocker_state: 'blocked',
             identity: {
               source_sha_matches_manifest: true,
               manifest_id_matches_payload: true,
@@ -94,8 +100,14 @@ jobs:
               environment
             },
             required_contracts: manifest.evidence_contracts,
-            decided_at: new Date().toISOString()
+            blockers,
+            decided_at: generated_at
           };
+          const testOfTest = {...certification, certification_result: 'passed', blocker_count: 0, blocker_state: 'clear'};
+          if (testOfTest.certification_result === 'passed') {
+            throw new Error('CERTIFICATION_TEST_OF_TEST_FAILED: synthetic PASS construction must remain impossible');
+          }
+          fs.writeFileSync('release-evidence/manifest.json', JSON.stringify(manifest, null, 2) + '\n');
           fs.writeFileSync('release-evidence/certification-decision.json', JSON.stringify(certification, null, 2) + '\n');
           fs.writeFileSync('release-evidence/manifest.env', [
             `manifest_id=${manifest_id}`,
@@ -106,12 +118,19 @@ jobs:
             `migrations_fingerprint=${migrations_fingerprint}`,
             `dependency_lock_fingerprint=${dependency_lock_fingerprint}`,
             `artifact_fingerprint=${artifact_fingerprint}`,
-            `generated_at=${manifest.generated_at}`
+            `generated_at=${generated_at}`,
+            `certification_result=blocked`,
+            `blocker_count=${blockers.length}`
           ].join('\n') + '\n');
           NODE
           cat release-evidence/manifest.json
           cat release-evidence/certification-decision.json
+      - name: Reject release certification until canonical runtime evidence is consumed
+        run: |
+          echo 'PRODUCTION CERTIFICATION: BLOCKED — runtime tenant/backup/rollback/artifact/security evidence is not yet consumed by this workflow.'
+          exit 1
       - name: Upload release evidence
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: report-advisor-release-evidence-${{ github.sha }}
