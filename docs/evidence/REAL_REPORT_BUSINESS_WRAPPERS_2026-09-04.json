@@ -1,0 +1,20 @@
+{
+  "contract": "SOURCE->UPLOAD->PROCESS->DB->RECONCILIATION->ANALYTICS->UI->EXPORT/EVIDENCE",
+  "status_policy": {"READY":"scenario exists","EXECUTED":"real authenticated runtime evidence exists","PASS":"all truth layers and security/persistence evidence agree","BLOCKED":"external prerequisite unavailable"},
+  "cases": [
+    {"id":"exchange-arabic","source":"pdf","expected":"PASS","business_flows":["BF-006","BF-013","BF-011","BF-014"],"truth_domains":["reconciliation","currency"]},
+    {"id":"exchange-ocr","source":"scanned_pdf","expected":"REVIEW","business_flows":["BF-006","BF-013","BF-014"],"truth_domains":["ocr","reconciliation"]},
+    {"id":"inventory-excel","source":"xlsx","expected":"PASS","business_flows":["BF-006","BF-007","BF-011","BF-012"],"truth_domains":["inventory","reconciliation"]},
+    {"id":"unknown-layout","source":"pdf","expected":"REVIEW","business_flows":["BF-006","BF-013","BF-014"],"truth_domains":["semantic","evidence"]},
+    {"id":"corrupt-extraction","source":"binary","expected":"QUARANTINE","business_flows":["BF-006","BF-013","BF-014"],"truth_domains":["extraction","evidence"]},
+    {"id":"arithmetic-mismatch","source":"xlsx","expected":"QUARANTINE","business_flows":["BF-006","BF-007","BF-008"],"truth_domains":["sales","arithmetic"]},
+    {"id":"reconciliation-mismatch","source":"pdf","expected":"QUARANTINE","business_flows":["BF-006","BF-007","BF-014"],"truth_domains":["reconciliation","evidence"]},
+    {"id":"sales-basic","source":"xlsx","expected":"PASS","business_flows":["BF-006","BF-008","BF-011","BF-012"],"truth_domains":["sales","dashboard","export"]},
+    {"id":"purchases-basic","source":"xlsx","expected":"PASS","business_flows":["BF-006","BF-009","BF-011","BF-012"],"truth_domains":["purchases","dashboard","export"]},
+    {"id":"receivables-basic","source":"xlsx","expected":"PASS","business_flows":["BF-006","BF-010","BF-012"],"truth_domains":["receivables","export"]},
+    {"id":"mixed-format","source":"pdf+xlsx","expected":"REVIEW","business_flows":["BF-006","BF-007","BF-013","BF-014"],"truth_domains":["mixed","reconciliation"]},
+    {"id":"duplicate-report","source":"pdf","expected":"REVIEW","business_flows":["BF-006","BF-018","BF-019"],"truth_domains":["idempotency","evidence"]},
+    {"id":"partial-report","source":"xlsx","expected":"REVIEW","business_flows":["BF-006","BF-007","BF-019"],"truth_domains":["partial","reconciliation"]},
+    {"id":"empty-report","source":"pdf","expected":"REVIEW","business_flows":["BF-006","BF-013","BF-014"],"truth_domains":["empty","evidence"]}
+  ]
+}
