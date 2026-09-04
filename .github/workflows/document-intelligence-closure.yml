@@ -1,6 +1,12 @@
 name: document-intelligence-closure
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - execution/owner-level-compatibility-hardening-main
+  pull_request:
+    branches:
+      - main
 permissions:
   contents: read
 jobs:
@@ -10,7 +16,11 @@ jobs:
     steps:
       - uses: actions/checkout@v5
         with:
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
+      - name: Assert exact head provenance
+        shell: bash
+        run: test "$(git rev-parse HEAD)" = "${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}"
       - uses: actions/setup-node@v5
         with:
           node-version: 22
@@ -20,4 +30,6 @@ jobs:
           python-version: '3.12'
       - run: npm ci --no-audit --no-fund
       - run: npm run test:document-intelligence-closure
+      - run: node scripts/document-intelligence-golden-corpus.test.mjs
+      - run: node --experimental-strip-types src/lib/document-intelligence/validation.adversarial.test.ts
       - run: python -m unittest discover -s services/document-intelligence/tests -p 'test_*.py'
