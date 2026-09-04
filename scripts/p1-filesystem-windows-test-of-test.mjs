@@ -11,7 +11,7 @@ const runtimeGuard = (source) => ({
   generationFence: /(?<![A-Za-z0-9_$])watchGeneration(?![A-Za-z0-9_$])/.test(source),
   duplicateGuard: source.includes('known.get(filePath)===key'),
   pendingGuard: source.includes('pending.has(filePath)'),
-  handleOpen: source.includes('fs.promises.open') && source.includes('handle.stat') && source.includes('handle.readFile'),
+  handleOpen: /(?<![A-Za-z0-9_$])fs\.promises\.open(?![A-Za-z0-9_$])/.test(source) && /(?<![A-Za-z0-9_$])handle\.stat(?![A-Za-z0-9_$])/.test(source) && /(?<![A-Za-z0-9_$])handle\.readFile(?![A-Za-z0-9_$])/.test(source),
   noFollow: source.includes('fs.constants.O_NOFOLLOW'),
 });
 const securityGuard = (source) => ({
@@ -61,7 +61,7 @@ const integrationMutations = [
 for (const [name, mutate] of integrationMutations) {
   const mutated = integrationGuard(mutate(securityIntegration));
   const changed = Object.entries(integrationExpected).some(([key, value]) => value && !mutated[key]);
-  assert(changed, `integration mutation was not detected: ${name}`);
+  assert(changed, `mutation was not detected: ${name}`);
 }
 
 console.log(JSON.stringify({ testOfTest: 'PASS', runtimeMutationsDetected: mutations.length, archiveMutationsDetected: archiveMutations.length, integrationMutationsDetected: integrationMutations.length, falseGreenGuard: true }));
