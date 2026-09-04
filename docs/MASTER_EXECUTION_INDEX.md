@@ -7,7 +7,7 @@
 ### CURRENT REPAIR CANDIDATE
 - Repair branch: `repair/currency-analytics-truth-46156969`.
 - Base boundary: `46156969f506d7fb6c3c75fde419c6de76f6e14d`.
-- Current exact candidate is the Git HEAD of this branch; the anti-forgery implementation lineage currently includes `ba8fea36925fbac60a053b9067fbae2976444d2c` before the index synchronization commits.
+- Current exact candidate is the Git HEAD of this branch; the latest tenant adversarial matrix hardening is part of the current candidate lineage.
 - PR #316: OPEN / DRAFT / NOT MERGED.
 - Certification: NOT CERTIFIED.
 - Historical evidence is never promoted to the subsequent exact HEAD.
@@ -42,6 +42,7 @@
 - Current-wave CI enforcement update: `cf6efda9a63742d4e18fac9769f90f3d7e7dcf11`.
 - Current-wave dashboard regression stale-contract correction: `13a9d2ec71399dedaebd03f04a0a1c9e6fe2e9ba`.
 - Current-wave browser cache/pinned-runner optimization: `8e9dc64a411d6772b01b58066e185a25e3ded93b`.
+- Tenant adversarial matrix hardening: `2a5a16f281cbe97709887d97ade9393413d2bfea`, followed by matrix contract/test-of-test `b4f12bab59e2196bfc8a00339d816307294af8c3`, and browser workflow wiring `6aaa3bc2c0798c091611eeb1df9e59197ba476e0`.
 
 ### CURRENT E2E STATUS
 | Area | Status | Required evidence |
@@ -50,7 +51,7 @@
 | Authenticated browser login | BLOCKED / NOT PROVEN | current-head run with real credentials |
 | Tenant A | NOT PROVEN | real browser session + `current_company_id()` |
 | Tenant B | NOT PROVEN | real browser session + B credential |
-| A/B isolation | PARTIAL / NOT PROVEN IN BROWSER | browser cross-tenant read/mutate attempts |
+| A/B isolation | PARTIAL / NOT PROVEN IN BROWSER | full SELECT/INSERT/UPDATE/DELETE/EXPORT/RPC matrix + DB state oracle |
 | 29 route discovery | NOT PROVEN on current head | browser run |
 | CRUD persistence | NOT PROVEN on current head | browser action + DB truth |
 | Import | NOT PROVEN on current head | upload/preview/commit + DB truth |
@@ -60,6 +61,16 @@
 | Realtime/workers | NOT PROVEN | runtime lifecycle evidence |
 | Recovery | NOT PROVEN | backup/restore/rollback drill |
 | Negative security | PARTIAL | DB RLS adversarial evidence; browser A/B pending |
+
+### TENANT ADVERSARIAL MATRIX — CURRENT CONTRACT
+- Required operations are explicitly enumerated: `SELECT`, `INSERT`, `UPDATE`, `DELETE`, `EXPORT`, `RPC`.
+- Required directions are A→A ALLOW, B→B ALLOW, A→B DENY, B→A DENY for every operation: 24 matrix cases.
+- Browser harness now contains an executable DB-state oracle (`dbRows` + `assertDbStateUnchanged`) for cross-tenant probes; HTTP status alone is not accepted as the state oracle.
+- Products have a concrete same-tenant disposable-fixture path for INSERT/UPDATE/DELETE and cross-tenant forged-company/update/delete probes.
+- Forged context cases are explicitly named: forged company_id, forged actor, wrong authenticated identity, wrong tenant context, cross-tenant record ID, cross-tenant foreign key.
+- EXPORT and RPC are intentionally retained as `NOT_PROVEN` until their concrete product entry points are bound to real runtime execution; no generic invented endpoint is treated as proof.
+- The matrix contract has its own test-of-test that deliberately removes the DB oracle, collapses the matrix, or removes a forged-context attack and expects contract rejection.
+- Runtime A/B isolation remains `NOT PROVEN` until real authenticated credentials execute the matrix at the exact current HEAD.
 
 ### INTERNAL P1 CLOSURE / BUSINESS E2E PREBUILD
 - Customer and Product create/edit/delete actions are wired to real tenant-scoped persistence with validation, error surfacing, reload persistence, and DB role/RLS enforcement.
