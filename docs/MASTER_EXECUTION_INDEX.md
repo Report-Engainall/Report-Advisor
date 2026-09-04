@@ -7,32 +7,34 @@
 ### EXECUTION SCOPE / BRANCH
 - **Repository:** `Report-Engainall/Report-Advisor`
 - **Current execution branch:** `main`
-- **Current main:** `393308f235b816e9610bb426813e6fefc9f7c6b9`
-- **Current code/test candidate:** `393308f235b816e9610bb426813e6fefc9f7c6b9`
-- Previous executable candidate: `da1d44719662f62c61c4fb484f5218a9a26a43d6`.
-- `b46bdc...` was governance/index-only and did not replace the executable candidate.
+- **Current main:** `b44a823b22653aded1408d36c6e5a109e4df4c3d`
+- **Current code/test candidate:** `b44a823b22653aded1408d36c6e5a109e4df4c3d`
+- Previous executable candidate: `393308f235b816e9610bb426813e6fefc9f7c6b9`.
+- `b9597ac...` was governance/index-only and did not replace the executable candidate.
 - Execution scope: P0 certification/test integrity; P0 security/database/RPC/RLS/tenant isolation; P1 compatibility/legacy; worker/filesystem/OCR/documents; P2 reports/export/performance; PR/desktop reconciliation; final evidence/certification.
 - Independent fronts run in parallel; Owner intervention is deferred until locally actionable work is exhausted.
 
 ### EXACT CANDIDATE
-- **CURRENT CODE/TEST CANDIDATE:** `393308f235b816e9610bb426813e6fefc9f7c6b9`
-- `393308f...` corrects the decision-approval lock-order checker and keeps adversarial lock-removal testing fail-closed.
-- `2460a5c...` hardened `decide_approval()` to use the same decision → approval lock order as `request_decision_approval()`, eliminating the cross-function lock-order inversion.
+- **CURRENT CODE/TEST CANDIDATE:** `b44a823b22653aded1408d36c6e5a109e4df4c3d`
+- `b44a823...` strengthens the continuous-trust test-of-test from single replacement to `replaceAll`, proving partial stale persistence identifiers cannot survive the adversarial test.
+- `393308f...` corrected the decision-approval lock-order checker and keeps adversarial lock-removal testing fail-closed.
+- `2460a5c...` hardened `decide_approval()` to use the same decision → approval lock order as `request_decision_approval()`.
 - `da1d447...` hardened the continuous-trust test-of-test to validate the canonical SQL bridge across migration lineage.
-- `d362b229...` added the decision-approval TOCTOU contract/test-of-test after live DB hardening of `request_decision_approval()`.
-- `18b634c...` repaired the continuous-trust checker so SQL bridge validation follows migration lineage instead of requiring a production literal in the base migration.
+- `d362b229...` added the decision-approval TOCTOU contract/test-of-test after live DB hardening.
+- `18b634c...` repaired the continuous-trust checker so SQL bridge validation follows migration lineage.
 - Certification evidence is valid only for this exact candidate or an explicitly governed ancestry of it.
 
 ### BATCH 1 — CERTIFICATION / TEST INTEGRITY
 - Quality `#3854` on `18b634c...`: PASS, all 63 workflow steps.
 - Final Execution Batch `#430` on `18b634c...`: PASS, 30 deterministic gates.
-- Final Certification `#665` on `d362b229...`: boundary passed, then certification contracts failed on the stale continuous-trust test-of-test; RCA and repair completed.
+- Final Certification `#665` on `d362b229...`: boundary passed, then certification contracts failed on stale continuous-trust test-of-test; RCA and repair completed.
 - Final Certification `#666` on `43d56fb...`: boundary passed, then the same stale test-of-test failed; consumed as actionable checker/test defect.
+- Final Certification run on `b9597ac...`: boundary passed; continuous-trust test-of-test failed on a partial replacement that did not remove all stale occurrences. This failure was consumed and repaired at `b44a823...`.
 - Continuous-trust checker RCA: canonical runtime bridge is `autonomy_runtime_gate` calling `is_continuous_trust_healthy('production')`; checker now validates runtime RPC + migration-lineage SQL.
-- Continuous-trust test-of-test RCA: old test supplied only the base migration to the strengthened checker; fixed to aggregate migration lineage and adversarially remove the canonical trust-health call.
+- Continuous-trust test-of-test RCA: tests now mutate every matching persistence identifier and every SQL bridge call before expecting rejection.
 - Approval TOCTOU RCA: request path could race a decision transition; fixed by decision-row lock before status check.
-- Approval lock-order RCA: request path locked decision then approval while `decide_approval()` locked approval then decision; fixed `decide_approval()` to the same decision → approval order and added a dedicated repository checker with adversarial lock-removal test-of-test.
-- Fresh exact-candidate CI for `393308f...` is required before Batch 1 closure.
+- Approval lock-order RCA: request path locked decision then approval while `decide_approval()` locked approval then decision; fixed to a single decision → approval order and guarded by an adversarial checker.
+- Fresh exact-candidate CI for `b44a823...` is required before Batch 1 closure.
 
 ### CERTIFICATION BOUNDARY
 - Exact candidate checkout + HEAD equality required for candidate execution.
@@ -42,11 +44,12 @@
 
 ### BATCH 2 — SECURITY / DATABASE / RPC / RLS
 - Live Staging: `autonomy_runtime_gate(text)` is SECURITY DEFINER, authenticated-executable, anon-denied; it calls `is_continuous_trust_healthy('production')` and evaluates critical drift.
-- `is_continuous_trust_healthy(text)` is SECURITY DEFINER with `search_path=pg_catalog`; anon and authenticated direct EXECUTE are denied; privileged runtime call remains controlled through the definer gate.
+- `is_continuous_trust_healthy(text)` is SECURITY DEFINER with `search_path=pg_catalog`; anon and authenticated direct EXECUTE are denied.
 - `decide_approval()` is tenant-scoped, decision-lock-before-approval, PENDING-only, rejects self-approval, and updates only the same-tenant PROPOSED decision.
 - `request_decision_approval()` is tenant-scoped and decision-lock-before-check, with terminal APPROVED/REJECTED/CANCELLED fail-closed behavior and conflict-path protection.
 - Live public SECURITY DEFINER inventory remains 33; 19 authenticated-executable, 0 anon-executable; all 33 have explicit search_path; no dynamic SQL detected by current semantic sweep.
 - Approval and decision tables have RLS enabled; authenticated direct INSERT/UPDATE/DELETE is denied; tenant policies scope by `current_company_id()`.
+- Live adversarial rollback tests: self-approval rejected; cross-tenant approval rejected; terminal approval resurrection rejected; request-on-proposed decision succeeds transactionally and rolls back in smoke.
 - Approver authority remains **PRODUCT DECISION REQUIRED** only if a distinct business authority class is intended.
 
 ### BATCH 3 — COMPATIBILITY / LEGACY
