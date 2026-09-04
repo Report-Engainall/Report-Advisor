@@ -19,7 +19,7 @@ try {
     const normalized = normalize(input);
     const resolved = path.resolve(root, normalized);
     const accepted = isInside(root, resolved);
-    const expected = !normalized.startsWith('/') && !/^[A-Za-z]:\\//.test(normalized) && !normalized.split('/').some((segment) => segment === '..');
+    const expected = !normalized.startsWith('/') && !/^[A-Za-z]:\//.test(normalized) && !normalized.split('/').some((segment) => segment === '..');
     assert(accepted === expected, `deterministic path case ${input}`);
   }
 
