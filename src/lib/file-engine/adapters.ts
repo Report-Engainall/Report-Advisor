@@ -4,6 +4,7 @@ import { normalizeRows, normalizeColumnName, parseNumber } from './normalizer';
 import { detectColumnDataType, cleanValue } from './data-types';
 import { mapColumns } from './synonyms';
 import { detectHeaderRow, rowsFromDetectedHeader } from './header-detection';
+import { assertSafeZipResources } from './archive-security';
 
 type Row = Record<string, unknown>;
 
@@ -107,13 +108,12 @@ async function parseScannedPdfWithOcr(pdf: PdfDocument, fileName: string): Promi
   }
   if (!pages.length) throw new Error('PDF_SCANNED_OCR_EMPTY: OCR produced no readable text; no business data was fabricated.');
   const minimumConfidence = confidences.length ? Math.min(...confidences) : 0;
-  const warning = minimumConfidence < OCR_CONFIDENCE_THRESHOLD
-    ? `OCR_LOW_CONFIDENCE:${Math.round(minimumConfidence)}%`
-    : `OCR_CONFIDENCE_MIN:${Math.round(minimumConfidence)}%`;
+  const warning = minimumConfidence < OCR_CONFIDENCE_THRESHOLD ? `OCR_LOW_CONFIDENCE:${Math.round(minimumConfidence)}%` : `OCR_CONFIDENCE_MIN:${Math.round(minimumConfidence)}%`;
   return buildTextDataset(pages.join('\n\n'), fileName, 'pdf-ocr', warning);
 }
 
 async function parseDocxText(buffer: ArrayBuffer, fileName: string): Promise<Dataset[]> {
+  assertSafeZipResources(buffer, 'docx');
   const mammoth = await import('mammoth'); const result = await mammoth.extractRawText({ arrayBuffer: buffer });
   return buildTextDataset(result.value, fileName, 'docx', result.messages.length ? `DOCX_EXTRACTION_WARNINGS:${result.messages.length}` : undefined);
 }
@@ -124,7 +124,8 @@ async function parseImageText(buffer: ArrayBuffer, fileName: string): Promise<Da
   finally { await worker.terminate(); }
 }
 
-export async function parseSpreadsheet(buffer: ArrayBuffer, fileName: string, _format: FileFormat): Promise<Dataset[]> {
+export async function parseSpreadsheet(buffer: ArrayBuffer, fileName: string, format: FileFormat): Promise<Dataset[]> {
+  if (format === 'xlsx' || format === 'xlsm' || format === 'ods') assertSafeZipResources(buffer, format);
   const wb = XLSX.read(buffer, { type: 'array', cellDates: true }); const datasets: Dataset[] = [];
   for (const sheetName of wb.SheetNames) { const matrix = XLSX.utils.sheet_to_json<unknown[]>(wb.Sheets[sheetName], { header: 1, defval: '', raw: true }); const candidate = detectHeaderRow(matrix); if (!candidate) continue; const rows = rowsFromDetectedHeader(matrix, candidate) as Row[]; if (rows.length) datasets.push(await buildDataset(rows, `${fileName} — ${sheetName}`, fileName, sheetName)); }
   return datasets;
