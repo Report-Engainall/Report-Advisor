@@ -63,11 +63,9 @@ jobs:
           const dependency_lock_fingerprint = execFileSync('sha256sum', ['package-lock.json'], {encoding: 'utf8'}).trim().split(/\s+/)[0];
           const artifact_fingerprint = execFileSync('bash', ['-lc', "find dist -type f -print0 | sort -z | xargs -0 sha256sum | sha256sum | cut -d' ' -f1"], {encoding: 'utf8'}).trim();
 
-          // Contract/preflight success is not runtime proof. Do not synthesize a
-          // certification PASS when tenant/runtime/rollback/backup/security evidence
-          // has not been produced and consumed by a canonical evidence gate.
           const required = ['tenant','backup','rollback','artifact','security'];
           const blockers = required.map(key => `MISSING_RUNTIME_EVIDENCE:${key}`);
+          const evidence_contracts = Object.fromEntries(required.map(key => [key, 'missing']));
           const payload = {
             schema_version: 2,
             release_key: ref,
@@ -78,7 +76,7 @@ jobs:
             artifact_fingerprint,
             environment,
             stabilization_seconds,
-            evidence_contracts: Object.fromEntries(required.map(key => [key, 'missing']))
+            evidence_contracts,
           };
           const manifest_id = crypto.createHash('sha256').update(JSON.stringify(payload)).digest('hex');
           const generated_at = new Date().toISOString();
@@ -97,16 +95,31 @@ jobs:
               manifest_id_matches_payload: true,
               certification_run_id_matches_manifest: true,
               ref,
-              environment
+              environment,
             },
-            required_contracts: manifest.evidence_contracts,
+            required_contracts: evidence_contracts,
             blockers,
-            decided_at: generated_at
+            decided_at: generated_at,
           };
-          const testOfTest = {...certification, certification_result: 'passed', blocker_count: 0, blocker_state: 'clear'};
-          if (testOfTest.certification_result === 'passed') {
-            throw new Error('CERTIFICATION_TEST_OF_TEST_FAILED: synthetic PASS construction must remain impossible');
+
+          // Test-of-test: a forged PASS decision must be rejected whenever any
+          // mandatory runtime evidence is missing, stale, or blocked.
+          function acceptsReleaseDecision(decision, expectedSourceSha, requiredKeys) {
+            if (decision?.certification_result !== 'passed') return false;
+            if (decision?.blocker_state !== 'clear' || decision?.blocker_count !== 0) return false;
+            if (decision?.consumed_source_sha !== expectedSourceSha) return false;
+            return requiredKeys.every(key => decision?.required_contracts?.[key] === 'validated');
           }
+          const forgedPass = {
+            ...certification,
+            certification_result: 'passed',
+            blocker_count: 0,
+            blocker_state: 'clear',
+          };
+          if (acceptsReleaseDecision(forgedPass, source_sha, required)) {
+            throw new Error('CERTIFICATION_TEST_OF_TEST_FAILED: forged PASS was accepted with missing mandatory evidence');
+          }
+
           fs.writeFileSync('release-evidence/manifest.json', JSON.stringify(manifest, null, 2) + '\n');
           fs.writeFileSync('release-evidence/certification-decision.json', JSON.stringify(certification, null, 2) + '\n');
           fs.writeFileSync('release-evidence/manifest.env', [
@@ -120,7 +133,7 @@ jobs:
             `artifact_fingerprint=${artifact_fingerprint}`,
             `generated_at=${generated_at}`,
             `certification_result=blocked`,
-            `blocker_count=${blockers.length}`
+            `blocker_count=${blockers.length}`,
           ].join('\n') + '\n');
           NODE
           cat release-evidence/manifest.json
