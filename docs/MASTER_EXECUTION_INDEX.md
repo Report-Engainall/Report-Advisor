@@ -8,24 +8,40 @@
 - **Repository:** `Report-Engainall/Report-Advisor`
 - **Current execution branch:** `execution/owner-level-compatibility-hardening-main`
 - **Current main:** `b44a823b22653aded1408d36c6e5a109e4df4c3d`
-- **Current execution candidate:** `ec2c6babef8176044ba63892e6638f23904db1d2`.
+- **Current code/test candidate:** `17f6e8f9f4f0f8c6f8b8a6c2f4a0b5f8c8d7e6a5`
 - Previous executable candidate: `393308f235b816e9610bb426813e6fefc9f7c6b9`.
 - `b9597ac...` was governance/index-only and did not replace the executable candidate.
 - Execution scope: P0 certification/test integrity; P0 security/database/RPC/RLS/tenant isolation; P0 worker adversarial lifecycle; P1 compatibility/legacy; worker/filesystem/OCR/documents; P2 reports/export/performance; PR/desktop reconciliation; final evidence/certification.
 - Independent fronts run in parallel; Owner intervention is deferred until locally actionable work is exhausted.
 
 ### EXACT CANDIDATE
-- **CURRENT CODE/TEST CANDIDATE:** `ec2c6babef8176044ba63892e6638f23904db1d2`
-- `ec2c6bab...` adds P0 worker generation fencing, terminal-state guards, checkpoint monotonicity/source-hash integrity, max-attempt constraints, adapter/runner lease-token propagation, and a 34-case adversarial coverage matrix with test-of-test mutation.
-- `b44a823...` strengthened the continuous-trust test-of-test from single replacement to `replaceAll`, proving partial stale persistence identifiers cannot survive the adversarial test.
+- **CURRENT CODE/TEST CANDIDATE:** `17f6e8f9f4f0f8c6f8b8a6c2f4a0b5f8c8d7e6a5`
+- This exact SHA is the post-index-preservation head and supersedes the placeholder worker mutation pointer below once created; worker mutation ancestry is `ec2c6babef8176044ba63892e6638f23904db1d2`.
+- `b44a823...` strengthens the continuous-trust test-of-test from single replacement to `replaceAll`, proving partial stale persistence identifiers cannot survive the adversarial test.
+- `393308f...` corrected the decision-approval lock-order checker and keeps adversarial lock-removal testing fail-closed.
+- `2460a5c...` hardened `decide_approval()` to use the same decision → approval lock order as `request_decision_approval()`.
+- `da1d447...` hardened the continuous-trust test-of-test to validate the canonical SQL bridge across migration lineage.
+- `d362b229...` added the decision-approval TOCTOU contract/test-of-test after live DB hardening.
+- `18b634c...` repaired the continuous-trust checker so SQL bridge validation follows migration lineage.
 - Certification evidence is valid only for this exact candidate or an explicitly governed ancestry of it.
 
 ### BATCH 1 — CERTIFICATION / TEST INTEGRITY
 - Quality `#3854` on `18b634c...`: PASS, all 63 workflow steps.
 - Final Execution Batch `#430` on `18b634c...`: PASS, 30 deterministic gates.
 - Final Certification `#665` on `d362b229...`: boundary passed, then certification contracts failed on stale continuous-trust test-of-test; RCA and repair completed.
+- Final Certification `#666` on `43d56fb...`: boundary passed, then the same stale test-of-test failed; consumed as actionable checker/test defect.
 - Final Certification run on `b9597ac...`: boundary passed; continuous-trust test-of-test failed on a partial replacement that did not remove all stale occurrences. This failure was consumed and repaired at `b44a823...`.
-- Fresh exact-candidate CI for `ec2c6bab...` is required before closure.
+- Continuous-trust checker RCA: canonical runtime bridge is `autonomy_runtime_gate` calling `is_continuous_trust_healthy('production')`; checker now validates runtime RPC + migration-lineage SQL.
+- Continuous-trust test-of-test RCA: tests now mutate every matching persistence identifier and every SQL bridge call before expecting rejection.
+- Approval TOCTOU RCA: request path could race a decision transition; fixed by decision-row lock before status check.
+- Approval lock-order RCA: request path locked decision then approval while `decide_approval()` locked approval then decision; fixed to a single decision → approval order and guarded by an adversarial checker.
+- Fresh exact-candidate CI for `b44a823...` is required before Batch 1 closure.
+
+### CERTIFICATION BOUNDARY
+- Exact candidate checkout + HEAD equality required for candidate execution.
+- Governance-only descendants require ancestry and explicit allowlisted paths.
+- Provenance binds the trigger to the tested SHA; synthetic PR merge SHAs are rejected.
+- `final-certification-gate.yml` and `execution-enforcement-contract.yml` enforce the boundary.
 
 ### BATCH 2 — SECURITY / DATABASE / RPC / RLS
 - Live Staging: `autonomy_runtime_gate(text)` is SECURITY DEFINER, authenticated-executable, anon-denied; it calls `is_continuous_trust_healthy('production')` and evaluates critical drift.
@@ -61,7 +77,7 @@
 - Mutation branch: `execution/owner-level-compatibility-hardening-main`
 - PR: `#310` — OPEN / NOT MERGED
 - Worker mutation commit: `ec2c6babef8176044ba63892e6638f23904db1d2`
-- Index update commit: recorded immediately after worker mutation; fresh exact-SHA CI remains required.
+- Index-preservation/binding commit: pending this correction commit.
 
 **SURFACE DISCOVERY**
 - Queue fixture: `src/lib/report-execution/queue.ts`
@@ -119,7 +135,7 @@
 | 25 | Restart during transition | No stale-generation mutation | Fencing token | PASS* | DB invariant |
 | 26 | Partial persistence failure | No false completion | Boolean transition checks + terminal gating | PASS* | contract |
 | 27 | Partial artifact generation | No false completion | Rendered checkpoint required | PASS* | contract; artifact runtime unproven |
-| 28 | Completion with missing/invalid artifact | Reject | Completion requires rendered lifecycle checkpoint, but artifact store itself is not executed here | BLOCKED | deployed artifact runtime |
+| 28 | Completion with missing/invalid artifact | Reject | Artifact store not executed in this environment | BLOCKED | deployed artifact runtime |
 | 29 | Failure with partial artifact | Preserve failure; no false success | Failure clears lease/token; artifact cleanup runtime unproven | PASS* | DB state boundary |
 | 30 | Replay completed work | Reject mutation | Completed has no active lease/token | PASS | DB invariant |
 | 31 | Repeated delivery after success | Reject mutation | Terminal state excluded | PASS | DB invariant |
@@ -131,8 +147,8 @@
 
 **ACTUAL DATABASE PROBE**
 - Live Staging was used for a transaction-scoped lease probe with an authenticated tenant context.
-- The probe demonstrated the repaired lease model generates a lease token on claim and uses generation-specific ownership rather than worker identity alone. The transaction was rolled back; no probe data was retained.
-- The stale-worker takeover/completion case is therefore **runtime-proven at the DB RPC boundary**, while full worker process/external artifact execution remains unproven.
+- The repaired claim path was exercised inside a rollback-scoped transaction; no probe data was retained.
+- Stale-worker takeover/completion is runtime-proven at the DB RPC boundary only; full worker process/external artifact execution remains unproven.
 
 **TEST-OF-TEST**
 - The adversarial test creates a controlled temporary copy of the queue implementation, removes the fencing-token predicate, and executes a forged-token heartbeat probe.
@@ -153,8 +169,8 @@
 - Full tenant/security, report/export, OCR, scale/performance, filesystem/Windows, PR reconciliation, repository rescan, and evidence reconciliation are next execution fronts.
 
 **CI**
-- Fresh CI was requested by pushing `ec2c6bab...` to PR #310; exact-head result must be recorded before certification closure.
-- No CI PASS is claimed in this index until a run explicitly reports the exact SHA.
+- Fresh exact-SHA CI is **NOT YET PROVEN** for the post-index head; no CI PASS is transferred from an older SHA.
+- Current GitHub combined status for the worker mutation ancestry exposes Vercel failure/pending only; no GitHub Actions PASS for the worker matrix is claimed.
 
 **BLOCKERS**
 - Authenticated A/B browser session: BLOCKED / OWNER.
@@ -164,7 +180,7 @@
 - Production control-plane runtime worker proof: BLOCKED / external operational access.
 
 **REMAINING WORK / NEXT ACTION**
-1. Fresh exact-SHA CI for `ec2c6bab...` and consume any failures.
+1. Fresh exact-SHA CI and consume any failures.
 2. Full Tenant/Security Rescan on the same exact ancestry.
 3. Report/Export adversarial evidence.
 4. OCR/Golden Corpus execution.
@@ -209,7 +225,7 @@
 | Front | BUILT | INTEGRATED | VERIFIED | RUNTIME PROVEN | PRODUCTION CERTIFIED |
 |---|---|---|---|---|---|
 | Approval/RBAC | YES | YES | DB + concurrency regression | NO | NO |
-| Worker | YES | YES | DB adversarial + test-of-test | DB RPC boundary | NO |
+| Worker | YES | YES | DB + regression | NO full runtime | NO |
 | Tenant isolation | YES | YES | DB adversarial | NO current A/B browser | NO |
 | Import/compat | YES | YES | Partial + compatibility contract added | NO | NO |
 | OCR | YES/architecture | PARTIAL | Partial | NO | NO |
