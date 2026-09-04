@@ -35,3 +35,5 @@ jobs:
         run: node --experimental-strip-types scripts/report-execution-lease-fencing.test.ts
       - name: Golden business corpus truth
         run: node scripts/business-golden-corpus-contract.mjs
+      - name: Canonical certification decision
+        run: node scripts/check-canonical-certification-decision.mjs
