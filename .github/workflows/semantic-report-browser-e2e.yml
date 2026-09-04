@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - 'scripts/semantic-business-report-browser-e2e.mjs'
+      - 'scripts/semantic-business-report-browser-e2e-contract.test.mjs'
       - 'scripts/run-full-product-browser-e2e.mjs'
       - 'src/pages/DashboardPage.tsx'
       - 'src/pages/ReportsPage.tsx'
@@ -45,6 +46,8 @@ jobs:
           cache: npm
       - name: Install locked dependencies
         run: npm ci --include=dev --no-audit --no-fund
+      - name: Assert semantic browser oracle integrity
+        run: node scripts/semantic-business-report-browser-e2e-contract.test.mjs
       - name: Install pinned Playwright
         run: npm install --no-save --ignore-scripts playwright@1.55.0
       - name: Restore Playwright browser cache
