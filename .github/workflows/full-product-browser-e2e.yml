@@ -1,5 +1,6 @@
 name: Full Product Browser E2E
 
+# Exact-head browser discovery gate. Broad push triggers are intentionally prohibited by the CI topology contract.
 on:
   push:
     paths:
