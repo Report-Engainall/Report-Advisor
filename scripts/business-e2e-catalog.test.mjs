@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const catalog = fs.readFileSync(path.join(process.cwd(), 'docs/evidence/BUSINESS_E2E_CATALOG_2026-09-04.md'), 'utf8');
-const required = ['INPUT / Action','Expected UI','Expected RPC/API','Expected DB effect','Business result','Security','Persistence','Expected failure'];
+const required = ['Input / Action','Expected UI','Expected RPC/API','Expected DB effect','Business result','Security','Persistence','Expected failure'];
 const ids = [...catalog.matchAll(/\| (BF-\d{3}) \|/g)].map(m => m[1]);
 assert.equal(ids.length, 20, 'business flow catalog must contain exactly 20 required flows');
 assert.equal(new Set(ids).size, 20, 'business flow IDs must be unique');
