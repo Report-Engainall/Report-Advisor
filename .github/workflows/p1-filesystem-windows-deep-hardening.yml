@@ -1,0 +1,80 @@
+name: p1-filesystem-windows-deep-hardening
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'desktop/**'
+      - 'src/lib/file-engine/**'
+      - 'scripts/p1-filesystem-windows-deep-hardening.mjs'
+      - '.github/workflows/p1-filesystem-windows-deep-hardening.yml'
+  push:
+    branches:
+      - execution/owner-level-compatibility-hardening-main
+    paths:
+      - 'desktop/**'
+      - 'src/lib/file-engine/**'
+      - 'scripts/p1-filesystem-windows-deep-hardening.mjs'
+      - '.github/workflows/p1-filesystem-windows-deep-hardening.yml'
+permissions:
+  contents: read
+jobs:
+  linux-filesystem-hardening:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: Assert exact HEAD
+        shell: bash
+        env:
+          EXPECTED_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+        run: test "$(git rev-parse HEAD)" = "$EXPECTED_SHA"
+      - name: File engine archive security regression
+        run: npm run test:file-security-archive-traversal
+      - name: Filesystem/windows deep hardening harness
+        run: node --experimental-strip-types scripts/p1-filesystem-windows-deep-hardening.mjs
+  windows-filesystem-native:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: Assert exact HEAD
+        shell: pwsh
+        env:
+          EXPECTED_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+        run: if ((git rev-parse HEAD) -ne $env:EXPECTED_SHA) { exit 1 }
+      - name: Install desktop dependencies
+        working-directory: desktop
+        run: npm install --no-audit --no-fund
+      - name: Native watcher contract
+        run: node scripts/check-windows-desktop-folder-watch-contract.mjs
+      - name: Existing native watcher smoke
+        shell: pwsh
+        run: |
+          npm --prefix desktop run smoke:native *>&1 | Tee-Object desktop/native-smoke-deep.log
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Windows filesystem primitive matrix
+        shell: pwsh
+        run: node scripts/p1-filesystem-windows-deep-hardening.mjs
+      - name: Upload native diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: p1-filesystem-windows-deep-hardening-diagnostics
+          path: desktop/native-smoke-deep.log
+          if-no-files-found: warn
