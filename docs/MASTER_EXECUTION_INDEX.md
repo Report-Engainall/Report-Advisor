@@ -7,38 +7,42 @@
 ### EXECUTION SCOPE / BRANCH
 - **Repository:** `Report-Engainall/Report-Advisor`
 - **Current execution branch:** `main`
-- **Current main:** `262fda100fcad7429ddd4928af96c8c3e14e05ff`
-- **Current code/test candidate:** `262fda100fcad7429ddd4928af96c8c3e14e05ff`
+- **Current main:** `4f34d33a8a3724fde55355763c4174639b42274b`
+- **Current code/test candidate:** `4f34d33a8a3724fde55355763c4174639b42274b`
 - Previous executable candidate: `b44a823b22653aded1408d36c6e5a109e4df4c3d`.
-- Previous governance/test additions in this wave: `396086781a4723c23a90a8486b8b4cf81936bec9`, `aa155ffdfce7a0addd17b337677e4b5c3039376d`, `38394120323da4f73bd2765b1f754b27e100111b`.
+- Previous governance/test additions in this wave: `396086781a4723c23a90a8486b8b4cf81936bec9`, `aa155ffdfce7a0addd17b337677e4b5c3039376d`, `38394120323da4f73bd2765b1f754b27e100111b`, `262fda100fcad7429ddd4928af96c8c3e14e05ff`, `4f34d33a8a3724fde55355763c4174639b42274b`.
 - Execution scope: P0 certification/test integrity; P0 security/database/RPC/RLS/tenant isolation; P1 compatibility/legacy; worker/filesystem/OCR/documents; P2 reports/export/performance; PR/desktop reconciliation; final evidence/certification.
 - Independent fronts run in parallel; Owner intervention is deferred until locally actionable work is exhausted.
 
 ### EXACT CANDIDATE
-- **CURRENT CODE/TEST CANDIDATE:** `262fda100fcad7429ddd4928af96c8c3e14e05ff`
-- This wave added an exact-head Browser E2E harness and CI workflow; it does not treat the existing API/RPC E2E as browser proof.
-- The Golden E2E corpus contract now explicitly enforces an expected disposition for all 7 corpus cases, including `inventory-excel`.
+- **CURRENT CODE/TEST CANDIDATE:** `4f34d33a8a3724fde55355763c4174639b42274b`
+- Browser E2E now verifies the browser-held Supabase session and calls the canonical `current_company_id` RPC through the real authenticated browser context; it does not use service-role credentials.
+- The Golden E2E corpus contract explicitly enforces an expected disposition for all 7 corpus cases, including `inventory-excel`.
 - Certification evidence is valid only for this exact candidate or an explicitly governed ancestry of it.
 
 ### E2E WAVE — FULL PRODUCT BROWSER DISCOVERY
 - Baseline before mutation: `083225068f1e2d390f6e1d50e8b178a1e8e1bacb`.
-- Browser harness: `scripts/run-full-product-browser-e2e.mjs` introduced at `396086781a4723c23a90a8486b8b4cf81936bec9`.
-- Browser CI: `.github/workflows/full-product-browser-e2e.yml` introduced at `aa155ffdfce7a0addd17b337677e4b5c3039376d`.
+- Browser harness initial implementation: `396086781a4723c23a90a8486b8b4cf81936bec9`.
+- Browser CI workflow: `aa155ffdfce7a0addd17b337677e4b5c3039376d`.
 - Golden corpus expected-disposition coverage repaired at `38394120323da4f73bd2765b1f754b27e100111b`.
-- Evidence ledger: `E2E_FAILURE_LEDGER.md` introduced at `262fda100fcad7429ddd4928af96c8c3e14e05ff`.
-- The browser harness builds the exact checked-out commit, starts that build locally in CI, launches real Chromium, captures screenshots/console/request failures, attempts real Supabase password authentication, traverses application routes after authentication, and verifies logout state.
+- Evidence ledger: `262fda100fcad7429ddd4928af96c8c3e14e05ff`.
+- Browser tenant-context verification: `4f34d33a8a3724fde55355763c4174639b42274b`.
+- The browser harness builds the exact checked-out commit, starts that build locally in CI, launches real Chromium, captures screenshots/console/request failures, attempts real Supabase password authentication, verifies a browser-held session token exists, calls the canonical tenant resolver with that browser session, attempts a second authenticated tenant context when credentials exist, traverses application routes, and verifies logout state.
 - Browser harness does not mock authentication and does not use service-role credentials.
-- Fresh runtime result on the current head is **PENDING** until the GitHub Actions workflow executes with its real secrets.
+- Fresh runtime result on the current head is **PENDING** until the latest GitHub Actions workflow executes against this exact head.
 
 ### E2E DISCOVERY STATUS
 | Area | Status | Evidence boundary |
 |---|---|---|
-| Browser framework | BUILT | Real Chromium harness at current candidate |
+| Browser framework | BUILT | Real Chromium harness |
 | App exact-head runtime | BUILT/CI-EXECUTABLE | CI builds checked-out exact SHA |
-| Authenticated Browser Login | NOT PROVEN | Requires real E2E credentials at CI runtime |
-| Tenant A/B Browser isolation | NOT PROVEN | Requires two authenticated tenant actors and current runtime |
-| Core route reachability | NOT PROVEN | Awaiting authenticated browser run |
-| CRUD persistence | NOT PROVEN | Route harness is diagnostic; business CRUD assertions still require implementation/runtime evidence |
+| Authenticated Browser Login | NOT PROVEN | Fresh run pending |
+| Browser session existence | NOT PROVEN | Fresh run pending |
+| Tenant A context | NOT PROVEN | Fresh run pending |
+| Tenant B context | NOT PROVEN | Fresh run pending; requires B credentials |
+| Tenant A/B Browser isolation | NOT PROVEN | Requires two authenticated tenant actors plus cross-record adversarial operations |
+| Core route reachability | NOT PROVEN | Fresh authenticated browser run pending |
+| CRUD persistence | NOT PROVEN | Business CRUD assertions still require implementation/runtime evidence |
 | Import browser flow | NOT PROVEN | Requires real import fixture execution |
 | OCR/document browser flow | NOT PROVEN | Requires real runtime corpus execution |
 | Evidence/decision browser flow | NOT PROVEN | Existing API E2E is not browser proof |
@@ -49,6 +53,7 @@
 - Historical certification repairs through `b44a823...` remain recorded in Git history.
 - Fresh exact-candidate certification is required for the current candidate after this E2E wave.
 - Golden corpus now has a complete explicit expected-disposition map covering all 7 cases; this is a test-contract repair, not a runtime PASS.
+- A previous exact-head enforcement run failed because the index still referenced `b44a823...` while the checked-out head had advanced; the index has now been reconciled to the current execution head.
 
 ### BATCH 2 — SECURITY / DATABASE / RPC / RLS
 - Live Staging: `autonomy_runtime_gate(text)` is SECURITY DEFINER, authenticated-executable, anon-denied; it calls `is_continuous_trust_healthy('production')` and evaluates critical drift.
