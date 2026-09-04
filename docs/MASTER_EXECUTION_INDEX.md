@@ -7,10 +7,10 @@
 ### EXECUTION SCOPE / BRANCH
 - **Repository:** `Report-Engainall/Report-Advisor`
 - **Current execution branch:** `main`
-- **Current main:** `d362b2294ca9797cc1a36171173538af881fb18a`
+- **Current main:** `43d56fb27ee117aff8cc9f3eefe4dd5208f9e722`
 - **Current code/test candidate:** `d362b2294ca9797cc1a36171173538af881fb18a`
+- `43d56fb...` is governance/index-only after the executable candidate and does not replace the candidate.
 - Previous candidate: `24b7579a85dfe8154f096fa514fd8ce676944107`.
-- `20be853...` was governance/index-only and was not promoted as candidate.
 - Execution scope: P0 certification/test integrity; P0 security/database/RPC/RLS/tenant isolation; P1 compatibility/legacy; worker/filesystem/OCR/documents; P2 reports/export/performance; PR/desktop reconciliation; final evidence/certification.
 - Independent fronts run in parallel; Owner intervention is deferred until locally actionable work is exhausted.
 
@@ -25,9 +25,10 @@
 - Fresh Final Execution Batch on `18b634c...`: PASS, 30 deterministic gates.
 - Fresh Quality on `18b634c...`: PASS, all 63 workflow steps.
 - Final Certification on `18b634c...`: correctly failed because index candidate was still `24b7579...`; no stale evidence promoted.
+- Fresh Final Certification on `d362b229...`: correctly failed because its checkout predated the subsequent index-only candidate update; no stale evidence promoted.
 - Continuous-trust checker RCA: prior checker required `public.is_continuous_trust_healthy('production')` inside the base persistence migration, but the canonical call is in `autonomy_runtime_gate`; fixed to validate the actual runtime RPC plus migration-lineage SQL bridge.
 - Decision-approval RCA: `request_decision_approval()` had a request/decision TOCTOU window; fixed live by locking the decision row before checking `PROPOSED`, then locking the approval row and preserving terminal-state guards.
-- **CURRENT:** fresh CI on `d362b229...` must consume the new checker and approval contract.
+- **CURRENT:** fresh CI on the governance descendant `43d56fb...` must prove the indexed candidate `d362b229...` through the governed ancestry boundary.
 
 ### CERTIFICATION BOUNDARY
 - Exact candidate checkout + HEAD equality required for candidate execution.
