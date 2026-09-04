@@ -5,10 +5,11 @@
 > Authoritative execution index. Historical records remain in Git history and dated evidence. Evidence never crosses an exact-SHA boundary.
 
 ### EXACT CANDIDATE
-- **CURRENT CODE/TEST CANDIDATE:** `58cafcc2ca4bbad3996f47183f5b11e294d53aa0`
-- `e560f651864b99dad71cf1f39bcebc99f6e5038a` was the prior executable candidate.
-- `9308e5c4...` added the live + canonical terminal-approval concurrency guard; `f106f047...` added its adversarial test-of-test; `58cafcc...` wired that regression into the canonical Quality workflow.
-- `e83dc8b...` corrected a real execution-enforcement checker drift: the current index uses `CURRENT CODE/TEST CANDIDATE`, while the checker only recognized obsolete wording.
+- **CURRENT CODE/TEST CANDIDATE:** `6dff14241e16a8d845b568ac6e3f6db82136fa7a`
+- `58cafcc2ca4bbad3996f47183f5b11e294d53aa0` was the prior executable candidate.
+- `9308e5c4...` added the live + canonical terminal-approval concurrency guard; `f106f047...` added its adversarial test-of-test; `58cafcc...` wired that regression into Quality.
+- `e83dc8b...` corrected execution-enforcement checker drift against the canonical candidate wording.
+- `6dff142...` corrected a real continuous-trust checker/schema drift: the canonical migration defines `incident_regression_links`, while the checker incorrectly searched for stale `incident_regressions`. It now validates the canonical identifier and rejects a deliberately stale identifier in test-of-test.
 - Main may receive governance/index descendants after the candidate; certification must resolve the candidate from this index and enforce ancestry/allowlisted-path rules.
 
 ### CERTIFICATION BOUNDARY
@@ -16,16 +17,14 @@
 - Governance-only descendants require ancestry and explicit allowlisted paths.
 - Provenance must bind push/PR/manual trigger to the tested SHA; synthetic PR merge SHAs are rejected.
 - `final-certification-gate.yml` and `execution-enforcement-contract.yml` enforce the boundary.
-- Fresh Quality and Certification are mandatory for `58cafcc...`.
+- Fresh Quality and Certification are mandatory for `6dff142...`.
 
 ### FRESH FAILURE-DRIVEN REPAIR CHAIN
-- Quality `33821408442` on `a8e580...` = SUCCESS.
-- The autonomy checker was repaired because it was stale against canonical `autonomyGate()` / `autonomy_runtime_gate`; weakened-bridge test-of-test was added.
-- Live forensic reconciliation found a migration-lineage gap: `request_decision_approval()` was hardened in live Staging, but the canonical migration was absent from current main. The terminal lifecycle migration was added at `294b43f...`.
-- A deeper concurrency review found the preflight lock was insufficient when no approval row existed: a waiting `ON CONFLICT DO UPDATE` could otherwise reopen a terminal row. The live canonical fix is `20260904004000_harden_terminal_approval_concurrency.sql`, applied to Staging.
-- `f106f047...` adds test-of-test for that conflict-path guard; `58cafcc...` makes Quality execute it.
-- PR #307 forensic comparison exposed the canonical-intelligence test fixture defect and watched-boundary test weakness; both were repaired without wholesale PR merge.
-- Execution-enforcement run `33822124077` correctly FAIL CLOSED because its index parser was stale; `e83dc8b...` repaired the checker to recognize the canonical candidate wording.
+- Final Execution Batch `33822348808` on `58cafcc...` = **SUCCESS**, with all 30 deterministic gates passing.
+- Final Certification `33822348727` on `58cafcc...` failed correctly because the index still pointed to `e560f651...`; this was stale-index fail-closed behavior, not a product failure. The subsequent governance index reconciliation moved the candidate to `58cafcc...`.
+- Final Certification `33822372502` on governance HEAD `4437ab...` passed its boundary check but then failed in certification-contract sweep because `check-continuous-trust-runtime-chain.mjs` used stale `incident_regressions`; the canonical migration uses `incident_regression_links`.
+- `6dff142...` repairs that checker and adds adversarial stale-identifier test-of-test. Fresh certification is required again.
+- Quality `33822372660` on `4437ab...` is the fresh post-index run; it reached the 20-stage gate and broad checker sweep, then correctly failed at the stale continuous-trust checker. It is superseded by `6dff142...` repair.
 
 ### APPROVAL / AUTHORITY
 - Live memberships: 2 active, both `role=member`; no canonical approver/permission authority table found.
@@ -35,17 +34,18 @@
 - Distinct business approver authority remains **PRODUCT DECISION REQUIRED** only if a separate authority class is intended; no business rule is invented.
 
 ### SECURITY DEFINER
-- Live public SECURITY DEFINER inventory: 30 functions; 18 executable by `authenticated`, 12 restricted; no `anon` execution found in the audited surface.
-- Audited definitions use locked `pg_catalog` search paths and schema-qualified application relations.
-- Worker mutation RPCs remain privileged-only; authenticated RPCs have tenant/auth or controlled ownership/read semantics.
+- Fresh live inventory: 33 public SECURITY DEFINER functions; 19 executable by `authenticated`, 0 by `anon`.
+- No audited dynamic SQL and no missing `SET search_path` marker were found.
+- Authenticated callable functions consistently resolve company context through `current_company_id()` or controlled user context.
 - Advisor WARNs remain `REQUIRED / EXCESS / UNKNOWN`; no blanket revoke.
-- **EXECUTING:** continue function-by-function semantic classification and adversarial input/authority review.
+- `auth_leaked_password_protection` remains an external Auth control-plane requirement.
+- **EXECUTING:** continue semantic authority review; no security PASS is inferred solely from linter status.
 
 ### WORKER / QUEUE
 - State domain: `queued|leased|processing|completed|blocked|failed|dead_letter`.
 - Claim/heartbeat/checkpoint/complete/fail/retry are tenant/lease/fence guarded and privileged-only.
 - DB lifecycle and dead-letter behavior are verified; full deployed runtime worker proof remains unproven.
-- **EXECUTING:** stale-worker, expiry, duplicate worker, replay, crash and concurrency contract/test sweep.
+- `scripts/report-execution-runtime.test.ts` covers checkpoint monotonicity, source-hash binding, tenant/idempotency identity and lease/dead-letter SQL invariants, but deployed worker execution is still not proven.
 
 ### IMPORT / COMPATIBILITY
 - `queries-compat.ts` delegates legacy reads to canonical query paths.
@@ -57,8 +57,8 @@
 - Recorder validates tenant context, folder ownership, identity, non-negative size and state domain with tenant-scoped upsert identity.
 - Canonical direct-DML migration is applied to live Staging: authenticated INSERT/UPDATE/DELETE on `watched_report_files` are false; recorder RPC EXECUTE is true.
 - Test-of-test rejects a deliberately weakened direct-DML boundary.
-- Browser watcher derives relative paths from the selected directory; native Electron path reads resolve + realpath + containment and stable-file checks.
-- **EXECUTING:** filesystem adversarial proof including traversal, encoded paths, symlink, rename/delete, duplicate/concurrent events, partial writes, restart/rescan and exact-head native evidence.
+- Browser watcher derives relative paths from the selected directory; native Electron path reads resolve + realpath + containment and stable-file checks. Native smoke contract includes persistence, event, dedupe, changed-file, partial-file stabilization, rapid files, traversal rejection, deletion, recursive scan and concurrent rescan checks.
+- **EXECUTING:** exact-head native evidence and any remaining environment-only filesystem proof.
 
 ### OCR / DOCUMENTS
 - Golden scope: Arabic/RTL, mixed Arabic-English, scanned/rotated/low-quality pages, tables, malformed/empty OCR, partial extraction, timeout, duplicate fingerprint, confidence/provenance and page/line references.
@@ -66,6 +66,7 @@
 
 ### REPORTS / EXPORT
 - Required chain: canonical truth → calculation → report → artifact → SHA-256 → provenance → export.
+- Report execution E2E contract already adversarially tests source-snapshot and quarantine guard removal; durable adapter requires claim/heartbeat/checkpoint/complete/fail/retry RPCs.
 - **EXECUTING:** tenant/period leakage, stale truth, duplicates, NULL/unknown semantics, pagination/bounds, aggregate drift, PDF/RTL, Excel, CSV and artifact-integrity adversarial evidence.
 
 ### STORAGE / REALTIME / AI
@@ -84,7 +85,7 @@
 - PR #305 is open/diverged; terminal-approval fixes were selectively reconciled; no wholesale merge.
 - PR #307 is open/diverged; its unique test improvements were reviewed and selectively reproduced where correct; no blind merge.
 - PR #308 is open/draft/diverged; autonomy changes remain separate until canonical reconciliation.
-- **EXECUTING:** remaining unique-delta and migration-lineage decisions.
+- **EXECUTING:** remaining unique-delta decisions only where they contain behavior absent from main.
 
 ### LIVE / RESILIENCE
 - Historical READY deployment `dpl_d7dkae3DeHwfJjyrjXyc7GrYTHQs` at `bc1218ed...` is not the current candidate and is not production certification.
@@ -111,12 +112,12 @@
 | Storage | YES/policies | NO contract | Policy | NO | NO |
 | Realtime | Client capability | NO publication | NO | NO | NO |
 | AI/vector | Architecture | PARTIAL | Architecture | NO | NO |
-| Certification provenance | YES | YES | **PENDING fresh `58cafcc...`** | N/A | NO |
+| Certification provenance | YES | YES | **PENDING fresh `6dff142...`** | N/A | NO |
 
 ### EXECUTION DEBT
 `LOCAL ACTIONABLE EXECUTION DEBT = NOT ZERO`.
 
-Active local execution: compatibility caller/legacy sweep; watched filesystem proof; OCR corpus; report/export adversarial evidence; performance scale; Electron exact-head verification; PR forensic reconciliation; migration lineage; SECURITY DEFINER semantic review; worker adversarial lifecycle; and fresh exact-candidate Quality/Certification evidence.
+Active local execution remains: compatibility caller/legacy sweep; watched filesystem exact-head proof; OCR corpus; report/export adversarial evidence; performance scale; Electron exact-head verification; PR unique-delta reconciliation; migration lineage; SECURITY DEFINER semantic review; worker adversarial lifecycle; storage/realtime/AI scope classification; and fresh exact-candidate Quality/Certification evidence.
 
 Owner-only: authenticated browser sessions, protected Auth/recovery/deployment controls, and unavoidable native Windows operations.
 
