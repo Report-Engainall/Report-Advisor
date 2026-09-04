@@ -11,9 +11,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+      - name: Assert exact head provenance
+        shell: bash
+        run: |
+          test "$(git rev-parse HEAD)" = "${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}"
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
       - run: npm ci
       - run: node scripts/report-export-adversarial.test.mjs
+      - run: node --experimental-strip-types scripts/worker-adversarial-lifecycle.test.ts
+      - run: node --experimental-strip-types src/lib/document-intelligence/validation.adversarial.test.ts
