@@ -17,7 +17,7 @@ on:
     tags: ['v*']
 permissions: {contents: read}
 concurrency:
-  group: release-certification-${{ github.ref }}
+  group: report-advisor-exclusive-certification
   cancel-in-progress: false
 jobs:
   certify:

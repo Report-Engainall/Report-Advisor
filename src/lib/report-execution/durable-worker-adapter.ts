@@ -10,6 +10,7 @@ export interface DurableExecutionJob {
   attempt: number;
   maxAttempts: number;
   leaseOwner: string | null;
+  leaseToken: string | null;
   leaseExpiresAt: string | null;
 }
 
@@ -27,29 +28,28 @@ export class SupabaseReportExecutionStore {
     return this.require(jobId);
   }
 
-  async heartbeat(jobId: string, workerId: string, leaseSeconds = 300): Promise<void> {
-    const { data, error } = await this.client.rpc('heartbeat_report_execution_job', { p_job_id: jobId, p_worker_id: workerId, p_lease_seconds: leaseSeconds });
+  async heartbeat(jobId: string, workerId: string, leaseToken: string, leaseSeconds = 300): Promise<void> {
+    const { data, error } = await this.client.rpc('heartbeat_report_execution_job', { p_job_id: jobId, p_worker_id: workerId, p_lease_token: leaseToken, p_lease_seconds: leaseSeconds });
     if (error) throw error;
     if (data !== true) throw new Error('Heartbeat rejected: active worker lease is missing, expired, or no longer owns the job');
   }
 
-  async saveCheckpoint(jobId: string, checkpoint: ReportExecutionCheckpoint, workerId?: string): Promise<void> {
-    if (!workerId) throw new Error('Checkpoint persistence requires the active worker lease owner');
-    const { data, error } = await this.client.rpc('advance_report_execution_checkpoint', { p_job_id: jobId, p_worker_id: workerId, p_checkpoint: checkpoint });
+  async saveCheckpoint(jobId: string, checkpoint: ReportExecutionCheckpoint, workerId: string, leaseToken: string): Promise<void> {
+    const { data, error } = await this.client.rpc('advance_report_execution_checkpoint', { p_job_id: jobId, p_worker_id: workerId, p_lease_token: leaseToken, p_checkpoint: checkpoint });
     if (error) throw error;
     if (data !== true) throw new Error('Checkpoint rejected: lease is missing, expired, or no longer owns the job');
   }
 
-  async complete(jobId: string, workerId: string, evidence: Record<string, unknown> = {}): Promise<void> {
-    const { data, error } = await this.client.rpc('complete_report_execution_job', { p_job_id: jobId, p_worker_id: workerId, p_evidence: evidence });
+  async complete(jobId: string, workerId: string, leaseToken: string, evidence: Record<string, unknown> = {}): Promise<void> {
+    const { data, error } = await this.client.rpc('complete_report_execution_job', { p_job_id: jobId, p_worker_id: workerId, p_lease_token: leaseToken, p_evidence: evidence });
     if (error) throw error;
-    if (data !== true) throw new Error('Completion rejected: active worker lease is missing or expired');
+    if (data !== true) throw new Error('Completion rejected: active worker lease is missing, expired, fenced, or not rendered');
   }
 
-  async fail(jobId: string, workerId: string, errorPayload: Record<string, unknown>): Promise<void> {
-    const { data, error } = await this.client.rpc('fail_report_execution_job', { p_job_id: jobId, p_worker_id: workerId, p_error: errorPayload });
+  async fail(jobId: string, workerId: string, leaseToken: string, errorPayload: Record<string, unknown>): Promise<void> {
+    const { data, error } = await this.client.rpc('fail_report_execution_job', { p_job_id: jobId, p_worker_id: workerId, p_lease_token: leaseToken, p_error: errorPayload });
     if (error) throw error;
-    if (data !== true) throw new Error('Failure update rejected: active worker lease is missing');
+    if (data !== true) throw new Error('Failure update rejected: active worker lease is missing, expired, or fenced');
   }
 
   async retry(jobId: string): Promise<void> {
@@ -59,9 +59,9 @@ export class SupabaseReportExecutionStore {
   }
 
   async require(jobId: string): Promise<DurableExecutionJob> {
-    const { data, error } = await this.client.from('report_execution_jobs').select('id,company_id,status,checkpoint,attempt,max_attempts,lease_owner,lease_expires_at').eq('id', jobId).single();
+    const { data, error } = await this.client.from('report_execution_jobs').select('id,company_id,status,checkpoint,attempt,max_attempts,lease_owner,lease_token,lease_expires_at').eq('id', jobId).single();
     if (error) throw error;
-    return { id: data.id, tenantId: data.company_id, status: data.status, checkpoint: data.checkpoint, attempt: data.attempt, maxAttempts: data.max_attempts, leaseOwner: data.lease_owner, leaseExpiresAt: data.lease_expires_at };
+    return { id: data.id, tenantId: data.company_id, status: data.status, checkpoint: data.checkpoint, attempt: data.attempt, maxAttempts: data.max_attempts, leaseOwner: data.lease_owner, leaseToken: data.lease_token, leaseExpiresAt: data.lease_expires_at };
   }
 
   static requestIdentity(request: ReportExecutionRequest): string {

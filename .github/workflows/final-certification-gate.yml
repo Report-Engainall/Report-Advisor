@@ -13,6 +13,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: report-advisor-exclusive-certification
+  cancel-in-progress: false
+
 jobs:
   certification-contracts:
     runs-on: ubuntu-latest
