@@ -30,6 +30,8 @@
 - Current-wave analytics currency fail-closed repair: `05678e4d9b134a1a3bfa5014b2724c03e6269356`.
 - Current-wave analytics adversarial regression: `11038f53552df6876fd31ffc33808638d8a5a109`.
 - Current-wave CI enforcement update: `cf6efda9a63742d4e18fac9769f90f3d7e7dcf11`.
+- Current-wave dashboard regression stale-contract correction: `13a9d2ec71399dedaebd03f04a0a1c9e6fe2e9ba`.
+- Current-wave browser cache/pinned-runner optimization: `8e9dc64a411d6772b01b58066e185a25e3ded93b`.
 
 ### CURRENT E2E STATUS
 | Area | Status | Required evidence |
@@ -69,7 +71,9 @@
 17. Live mismatch verification: profitability, purchase summary, secondary metrics, RFM, ABC, and aging all returned `INSUFFICIENT_DATA`; monetary outputs were suppressed.
 18. Positive-path test: inside a rolled-back transaction, aligning transaction currencies to the company currency caused all six affected analytics to return `CALCULATED`. No fixture data remained mutated.
 19. Cross-tenant export probe remains rejected by tenant-context guard.
-20. Source reconciliation for this live repair is on PR #316, based exactly on `46156969f506d7fb6c3c75fde419c6de76f6e14d`; current branch head is `cf6efda9a63742d4e18fac9769f90f3d7e7dcf11`.
+20. Source reconciliation for this live repair is on PR #316, based exactly on `46156969f506d7fb6c3c75fde419c6de76f6e14d`; latest repair-branch head is `8e9dc64a411d6772b01b58066e185a25e3ded93b`.
+21. Browser bottleneck forensic: the blocked run spent ~59s installing the pinned Playwright package and then downloaded ~280 MiB of Chromium/FFMPEG/headless-shell payloads; the workflow already had npm cache hit. Browser cache keyed to Playwright 1.55.0 + Chromium + Ubuntu 22.04 is now added, with an explicit version assertion. No dependency version was changed.
+22. CI browser startup failure was not an app build failure: the exact-head build completed successfully; preview process started, then the run reached the explicit authentication-secret gate and exited `2` because all six runtime secret inputs were missing.
 
 ### SECURITY-DEFINER AUDIT
 - Full public `SECURITY DEFINER` inventory was reviewed for owner, `search_path`, grants, tenant/auth validation, and touched domains.
