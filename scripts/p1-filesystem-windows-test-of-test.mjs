@@ -12,7 +12,7 @@ const runtimeGuard = (source) => ({
   duplicateGuard: source.includes('known.get(filePath)===key'),
   pendingGuard: source.includes('pending.has(filePath)'),
   handleOpen: /(?<![A-Za-z0-9_$])fs\.promises\.open(?![A-Za-z0-9_$])/.test(source) && /(?<![A-Za-z0-9_$])handle\.stat(?![A-Za-z0-9_$])/.test(source) && /(?<![A-Za-z0-9_$])handle\.readFile(?![A-Za-z0-9_$])/.test(source),
-  noFollow: source.includes('fs.constants.O_NOFOLLOW'),
+  noFollow: /(?<![A-Za-z0-9_$])fs\.constants\.O_NOFOLLOW(?![A-Za-z0-9_$])/.test(source),
 });
 const securityGuard = (source) => ({
   parentSegment: source.includes("segment === '..'"),
