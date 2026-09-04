@@ -20,7 +20,10 @@ const securityGuard = (source) => ({
   driveLetter: source.includes("/^[A-Za-z]:\\//.test(normalized)"),
 });
 const securityIntegration = fs.readFileSync('src/lib/file-engine/security.ts', 'utf8');
-const integrationGuard = (source) => ({ archivePathGuard: source.includes('isUnsafeArchivePath'), archiveEntryGuard: source.includes('hasZipEntryTraversal') });
+const integrationGuard = (source) => ({
+  archivePathGuard: /(?<![A-Za-z0-9_$])isUnsafeArchivePath(?![A-Za-z0-9_$])/.test(source),
+  archiveEntryGuard: /(?<![A-Za-z0-9_$])hasZipEntryTraversal(?![A-Za-z0-9_$])/.test(source),
+});
 
 const expected = runtimeGuard(main); const secExpected = securityGuard(security); const integrationExpected = integrationGuard(securityIntegration);
 for (const [name, value] of Object.entries(expected)) assert(value, `baseline guard missing: ${name}`);
