@@ -8,7 +8,7 @@ const runtimeGuard = (source) => ({
   traversal: source.includes('path.resolve(watchedRoot,relativePath)') && source.includes('path.relative(root,filePath)'),
   canonicalRealpath: source.includes('fs.promises.realpath'),
   stableFile: source.includes('waitForStableFile'),
-  generationFence: source.includes('watchGeneration'),
+  generationFence: /(?<![A-Za-z0-9_$])watchGeneration(?![A-Za-z0-9_$])/.test(source),
   duplicateGuard: source.includes('known.get(filePath)===key'),
   pendingGuard: source.includes('pending.has(filePath)'),
   handleOpen: source.includes('fs.promises.open') && source.includes('handle.stat') && source.includes('handle.readFile'),
