@@ -1,0 +1,17 @@
+name: business-e2e-contract
+
+on:
+  pull_request:
+
+jobs:
+  business-e2e-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: node scripts/business-e2e-catalog.test.mjs
+      - run: node scripts/real-report-truth-matrix.mjs
