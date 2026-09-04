@@ -36,7 +36,8 @@ async function runPool(total, limit) {
     const t0 = performance.now();
     active++;
     maxActive = Math.max(maxActive, active);
-    // Deterministic CPU work: no network or wall-clock dependency.
+    // Yield before deterministic CPU work so concurrent runners can overlap.
+    await new Promise((resolve) => setImmediate(resolve));
     let checksum = 0;
     for (let i = 0; i < 250; i++) checksum = (checksum + i * 31) % 1_000_003;
     void checksum;
@@ -66,7 +67,6 @@ async function runPool(total, limit) {
 
 const results = [];
 for (const rows of workloads) {
-  // Materialize only up to 100K to exercise allocation/copy pressure deterministically.
   const before = process.memoryUsage().heapUsed;
   const data = buildRows(rows);
   const after = process.memoryUsage().heapUsed;
@@ -76,16 +76,14 @@ for (const rows of workloads) {
   for (const concurrency of concurrencyLevels) {
     const result = await runPool(rows, concurrency);
     assert.equal(result.completed, rows);
-    assert.ok(result.maxActive <= concurrency);
+    assert.ok(result.maxActive >= 1 && result.maxActive <= concurrency);
     results.push({ rows, concurrency, ...result, heapDeltaMB: (after - before) / 1024 / 1024 });
   }
 
-  // Release the large array before the next workload; the harness must not retain it.
   data.length = 0;
   if (global.gc) global.gc();
 }
 
-// Global invariants: no workload may duplicate/drop work and concurrency must never exceed admission.
 assert.equal(results.length, workloads.length * concurrencyLevels.length);
 for (const row of results) {
   assert.equal(row.completed, row.rows);
