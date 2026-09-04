@@ -1,246 +1,111 @@
-# Report Advisor — Master Execution & Truth Index
 
-## CURRENT EXECUTION BOUNDARY — 2026-09-04
 
-> Authoritative execution index. Historical records remain in Git history and dated evidence. Evidence never crosses an exact-SHA boundary.
+## 2026-09-04 — LAST-8-HOURS EXECUTION UPDATE / WAVE 01 + WAVE 02
 
-### EXECUTION SCOPE / BRANCH
-- **Repository:** `Report-Engainall/Report-Advisor`
-- **Current execution branch:** `execution/owner-level-compatibility-hardening-main`
-- **Current main:** `b44a823b22653aded1408d36c6e5a109e4df4c3d`
-- **Current code/test candidate:** `deab8ca5f8971a2b0eacf2bdb183c2e60036cc56`
-- Previous executable candidate: `393308f235b816e9610bb426813e6fefc9f7c6b9`.
-- `b9597ac...` was governance/index-only and did not replace the executable candidate.
-- Execution scope: P0 certification/test integrity; P0 security/database/RPC/RLS/tenant isolation; P0 worker adversarial lifecycle; P1 compatibility/legacy; worker/filesystem/OCR/documents; P2 reports/export/performance; PR/desktop reconciliation; final evidence/certification.
-- Independent fronts run in parallel; Owner intervention is deferred until locally actionable work is exhausted.
+**Purpose:** consolidate the verified execution work performed during the latest owner-level closure window. This section records implementation/test/governance changes and their exact SHA provenance. It does not certify production runtime, authenticated A/B E2E, backup/restore, rollback, or native Windows unless separately evidenced.
 
-### EXACT CANDIDATE
-- **CURRENT CODE/TEST CANDIDATE:** `deab8ca5f8971a2b0eacf2bdb183c2e60036cc56`
-- `a1e1426...` is the index-preservation/candidate-binding commit after worker mutation; worker implementation mutation is `ec2c6babef8176044ba63892e6638f23904db1d2` in its ancestry.
-- `b44a823...` strengthens the continuous-trust test-of-test from single replacement to `replaceAll`, proving partial stale persistence identifiers cannot survive the adversarial test.
-- `393308f...` corrected the decision-approval lock-order checker and keeps adversarial lock-removal testing fail-closed.
-- `2460a5c...` hardened `decide_approval()` to use the same decision → approval lock order as `request_decision_approval()`.
-- `da1d447...` hardened the continuous-trust test-of-test to validate the canonical SQL bridge across migration lineage.
-- `d362b229...` added the decision-approval TOCTOU contract/test-of-test after live DB hardening.
-- `18b634c...` repaired the continuous-trust checker so SQL bridge validation follows migration lineage.
-- Certification evidence is valid only for this exact candidate or an explicitly governed ancestry of it.
+### CONTROL / PROVENANCE
+- Authoritative Candidate remains protected: `a8ad38589b26c8bda437deaab7d57a878bea40d4`.
+- Certification remains `NOT_PROVEN` / not launched as a certification decision.
+- Production aliases/control plane were not mutated.
+- Repair work was isolated on dedicated branches; evidence was not transferred across unrelated exact-SHA boundaries.
+- Wave 01 repair head: `dfcc5da9a2b39d6b79a2b8a1ff7aa5d4fd155826`.
+- Wave 02 repair branch: `repair/p0-wave-02-security-runtime`.
+- Wave 02 latest repair/CI head: `167575c2532adce3b04642a45f7b22b36c2b9c98`.
+- Wave 02 PR #315 is open/draft and targets the Wave 01 repair branch; no merge into the authoritative candidate.
 
-### BATCH 1 — CERTIFICATION / TEST INTEGRITY
-- Quality `#3854` on `18b634c...`: PASS, all 63 workflow steps.
-- Final Execution Batch `#430` on `18b634c...`: PASS, 30 deterministic gates.
-- Final Certification `#665` on `d362b229...`: boundary passed, then certification contracts failed on stale continuous-trust test-of-test; RCA and repair completed.
-- Final Certification `#666` on `43d56fb...`: boundary passed, then the same stale continuous-trust test-of-test failed; consumed as actionable checker/test defect.
-- Final Certification run on `b9597ac...`: boundary passed; continuous-trust test-of-test failed on a partial replacement that did not remove all stale occurrences. This failure was consumed and repaired at `b44a823...`.
-- Continuous-trust checker RCA: canonical runtime bridge is `autonomy_runtime_gate` calling `is_continuous_trust_healthy('production')`; checker now validates runtime RPC + migration-lineage SQL.
-- Continuous-trust test-of-test RCA: tests now mutate every matching persistence identifier and every SQL bridge call before expecting rejection.
-- Approval TOCTOU RCA: request path could race a decision transition; fixed by decision-row lock before status check.
-- Approval lock-order RCA: request path locked decision then approval while `decide_approval()` locked approval then decision; fixed to a single decision → approval order and guarded by an adversarial checker.
-- Fresh exact-candidate CI for `b44a823...` is required before Batch 1 closure.
+### WAVE 01 — REAL PRODUCT/TEST REPAIRS
+| Track | Execution completed | Evidence / status |
+|---|---|---|
+| K2 Docling boundary | Hardened `parse_document()` → `parse_with_docling()` → `DocumentConverter().convert()` exception boundary; conversion failures translated into controlled failure semantics; no raw converter exception is intended to become success. | Targeted tests added; CI/runtime proof still bounded by environment where applicable. |
+| OCR false-success | Removed false `EXTRACTED` outcome for no-text/failure conditions; explicit `OCR_NO_RELIABLE_TEXT` / `OCR_EXECUTION_FAILED` / `REVIEW` semantics introduced. | Regression coverage added; frontend/runtime end-to-end remains separately unproven until executed. |
+| K1 | Removed dead `_legacy_fallback_marker()` path/duplicate fallback behavior where proven unreachable. | Regression scope preserved. |
+| DOCX/XLSX resource safety | Added reachable archive safety checks before Mammoth/XLSX parsing: entry-count, expanded-size, single-entry size, compression-ratio, ZIP64/malformed archive/traversal handling and cleanup/failure boundaries. | Adversarial test surface added; production memory/time behavior still requires runtime evidence. |
+| WKR-006 false-green | Removed declarative `PASS: true` masquerading as execution; non-executable external cases remain `BLOCKED`; added mutation/test-of-test discipline. | No false PASS promoted. External artifact crash/replay remains runtime-blocked where deployment is required. |
+| Worker lifecycle | Lease-generation fencing, lifecycle stage ordering, source-hash immutability, attempt/max-attempt bounds, canonical token-aware RPC signatures, terminal-state guards, tenant predicates and worker adapter propagation were hardened in the preceding execution batch. | DB/contract evidence exists; full deployed worker/external-artifact runtime remains unproven. |
 
-### CERTIFICATION BOUNDARY
-- Exact candidate checkout + HEAD equality required for candidate execution.
-- Governance-only descendants require ancestry and explicit allowlisted paths.
-- Provenance binds the trigger to the tested SHA; synthetic PR merge SHAs are rejected.
-- `final-certification-gate.yml` and `execution-enforcement-contract.yml` enforce the boundary.
+### WAVE 01 — WORKER ADVERSARIAL / TEST-OF-TEST CLOSURE WORK
+- Fixed decision approval lock-order inversion: canonical order is decision → approval.
+- Hardened terminal approval resurrection protection and added adversarial regression.
+- Hardened continuous-trust test-of-test to mutate every matching persistence identifier/SQL bridge occurrence rather than only one occurrence.
+- Validated continuous-trust checker against the canonical `autonomy_runtime_gate` → `is_continuous_trust_healthy('production')` bridge and migration lineage.
+- Added exact-SHA certification/provenance boundary protections and anti-bypass test-of-test coverage.
+- Strengthened watched direct-DML boundary and approval authority contracts.
 
-### BATCH 2 — SECURITY / DATABASE / RPC / RLS
-- Live Staging: `autonomy_runtime_gate(text)` is SECURITY DEFINER, authenticated-executable, anon-denied; it calls `is_continuous_trust_healthy('production')` and evaluates critical drift.
-- `is_continuous_trust_healthy(text)` is SECURITY DEFINER with `search_path=pg_catalog`; anon and authenticated direct EXECUTE are denied.
-- `decide_approval()` is tenant-scoped, decision-lock-before-approval, PENDING-only, rejects self-approval, and updates only the same-tenant PROPOSED decision.
-- `request_decision_approval()` is tenant-scoped and decision-lock-before-check, with terminal APPROVED/REJECTED/CANCELLED fail-closed behavior and conflict-path protection.
-- Live public SECURITY DEFINER inventory remains 33; 19 authenticated-executable, 0 anon-executable; all 33 have explicit search_path; no dynamic SQL detected by current semantic sweep.
-- Approval and decision tables have RLS enabled; authenticated direct INSERT/UPDATE/DELETE is denied; tenant policies scope by `current_company_id()`.
-- Live adversarial rollback tests: self-approval rejected; cross-tenant approval rejected; terminal approval resurrection rejected; request-on-proposed decision succeeds transactionally and rolls back in smoke.
-- Approver authority remains **PRODUCT DECISION REQUIRED** only if a distinct business authority class is intended.
+### VERIFIED RECENT COMMITS / WORK ITEMS
+The recent repository history records the following concrete work in the window:
+- `7404809a9915207b4d148e951b00f7b226d50e4f` — blocked terminal import-job progress resurrection.
+- `8ff964c1cbd9971c46e591f65435d9ba99a74d73` — corrected terminal-resurrection test-of-test.
+- `ecfb8b9619a66a236ac81211c867f5b3280fe048` — hardened multiline terminal-guard test-of-test.
+- `d66d3706d8ac9c45eb63467afbfc8b1fa28ae26b` — isolated pure archive scanner tests from Supabase runtime.
+- `265cf8ca33bae5995bcf6bc0999d46803080fa97` — reverted accidental main-branch test isolation file.
+- `cbebc6a6c6cda2f26b9132f938578db7283aa93c` — corrected continuous-trust persistence contract and exposed validator.
+- `f20c4d3555ced5d831421f7e92aa5ca3f292fb77` — added adversarial continuous-trust persistence test-of-test.
+- `fc78bfb04e14e07fbab03ad01eb4f351b202409f` — locked autonomy SECURITY DEFINER search paths.
+- `48d7cf61afc2a0f40371595d735d67a858b21f08` — codified authenticated watched direct-DML boundary.
+- `844908b37b7fd0f8e2c437d951e9b40a04e1ded4` — recorded watched direct-DML lineage closure.
+- `a8e58002df1667ed7fa90f452e61f18c249b6592` — aligned autonomy safety checker with canonical runtime gate.
+- `a0c806b74415906b585c97486c84d8ab22b6456c` — recorded autonomy checker repair in the index.
+- `9308e5c4be70e3b96181730e5fcabf4cf4cd8b71` — closed concurrent terminal approval resurrection race.
+- `f106f047453f2891c059ac470678f4909c8f89ad` — added terminal approval concurrency test-of-test.
+- `58cafcc2ca4bbad3996f47183f5b11e294d53aa0` — enforced terminal approval concurrency regression in Quality.
+- `2460a5c4acb73cca6b8bc7e193a8177d8aeb6a90` — aligned approval decision lock order to prevent deadlock.
+- `88eab94ae8f9d75d2b774d6a38ce3dcfd1438b88` — enforced lock-order symmetry and adversarial regression.
+- `393308f235b816e9610bb426813e6fefc9f7c6b9` — corrected lock-order checker position semantics.
+- `b9597acd8b00900a54141e26002333d82025eab5` — synchronized index to the lock-order checker candidate.
+- `0b08d5370085507ff2e91eba57cf3d36a57cf08` — exact-candidate revalidation after lock-order repair.
+- `da1d44719662f62c61c4fb484f5218a9a26a43d6` — aligned continuous-trust test-of-test with migration-lineage bridge.
+- `b44a823b22653aded1408d36c6e5a109e4df4c3d` — rejected partial stale persistence mutation in continuous-trust test-of-test.
+- `2fe81ec0d0bbfa936b5d875061cd23e4f5a56e09` — synchronized master index to the continuous-trust test-of-test candidate.
+- `083225068f1e2d390f6e1d50e8b178a1e8e1bacb` — retained governed fresh exact-candidate certification revalidation note without weakening certification rules.
 
-### BATCH 3 — COMPATIBILITY / LEGACY
-- `queries-compat.ts` delegates to canonical query paths.
-- Import history bounded to 500 with deterministic ordering/overflow rejection.
-- Export adapters tenant-scoped and bounded to 10,000.
-- Repository-wide caller/legacy/RPC/response/null/error parity sweep remains active; actionable mismatches must be fixed and rescanned.
-- **2026-09-04 owner execution:** added `scripts/check-compatibility-legacy-consumers.mjs` to assert canonical delegation, tenant gating, RPC-only writes, explicit error propagation, import-history bound/overflow rejection, and export bounds.
-- **2026-09-04 security hardening:** extended `check-tenant-legacy-consumers.mjs` with multi-hop taint tracking for client-selected tenant identifiers and metadata-derived aliases; extended its regression fixture with direct, two-hop, and user-metadata bypass attempts.
-- **2026-09-04 cleanup:** removed a redundant error branch in `src/lib/queries-compat.ts` without changing business behavior.
-- Exact execution candidate for this batch: `5408ec5c1bacd90c9393f7af6f845790c6c0e57e`; fresh CI/runtime verification is still required before certification closure.
+### WAVE 02 — K3 / SECURITY / BRANDING EXECUTION
+**K3 format contract:**
+- Resolved the mismatch between advertised `SUPPORTED_FORMATS` and actual `parseFile()` behavior.
+- Formats that were advertised without executable parser support were removed from the advertised contract rather than given fake parser support.
+- Contract gate now checks advertised format → explicit executable parser disposition.
+- Unsupported formats must fail cleanly and must not remain advertised as supported.
+- Regression gate: `scripts/check-file-engine-capability-contract.mjs`.
 
-### BATCH 4 — WORKER / FILESYSTEM / OCR / DOCUMENTS
-- Worker DB lifecycle/dead-letter/lease/fence contracts are verified; full deployed runtime worker proof remains unproven.
-- Watched-report direct authenticated DML is blocked live; recorder RPC remains the approved write path. Native path resolution includes resolve/realpath/containment and stable-file protections.
-- OCR/document scope covers Arabic/RTL, mixed Arabic-English, scanned/rotated/low-quality pages, tables, malformed/empty OCR, partial extraction, duplicate fingerprint, confidence/provenance and page/line references.
-- Runtime/Windows proof is never inferred from static contracts.
+**F — SECURITY DEFINER caller-origin:**
+- Added executable caller-origin discovery for `autonomy_runtime_gate`, `can_enter_phase_l_autonomy`, `complete_decision_work_item`, and `record_watched_report_file`.
+- Search spans TS/TSX/JS/JSX/MJS/CJS/SQL surfaces.
+- Absence of an invocation is `UNRESOLVED`, not PASS.
+- This prevents inventory-only reasoning from being mistaken for caller provenance.
 
-### 2026-09-04 — P0 WORKER ADVERSARIAL LIFECYCLE MILESTONE
-**Execution scope boundary:** this front covers the repository worker lifecycle and its canonical Supabase lifecycle RPCs: queue claim/lease ownership, heartbeat, checkpoint, retry/maxAttempts, dead-letter, completion/failure, idempotency/duplicate execution guards, tenant/authorization propagation, persistence transitions, and worker-to-RPC adapter boundaries. It does **not** certify deployed production worker runtime, Authenticated A/B browser E2E, backup/restore, rollback/forward recovery, or native Windows behavior.
+**Branding:**
+- Added repository product-identity regression guard: `scripts/check-product-branding.mjs`.
+- Product-scope identity is required to remain `الأغبري`; legacy `العامري` occurrences are treated as actionable product-scope drift.
 
-**BASE / BRANCH / PR**
-- Base execution SHA: `4ba7021c91fedc41a94ec83310c1a8b70d2ca37c`
-- Mutation branch: `execution/owner-level-compatibility-hardening-main`
-- PR: `#310` — OPEN / NOT MERGED
-- Worker mutation commit: `ec2c6babef8176044ba63892e6638f23904db1d2`
-- Index-preservation/candidate-binding commit: `a1e1426eebe56b14e5271e504918a3d96be22a03`
+**CI gates:**
+- `security-definer-caller-origin.yml` was extended to run caller-origin, branding and file-engine capability gates.
+- PR validation is allowed against both `main` and the Wave 01 repair branch.
+- The Wave 02 CI changes are intentionally isolated from the authoritative candidate.
 
-**SURFACE DISCOVERY**
-- Queue fixture: `src/lib/report-execution/queue.ts`
-- Durable Supabase adapter: `src/lib/report-execution/durable-worker-adapter.ts`
-- Production lifecycle runner: `src/lib/report-execution/durable-production-runner.ts`
-- Lifecycle checkpoint contract: `src/lib/report-execution/checkpoint.ts`
-- Production coordinator bridge: `src/lib/report-execution/production-coordinator-bridge.ts`
-- Artifact integrity surface: `src/lib/report-execution/artifact-integrity.ts`
-- Canonical lifecycle DB RPCs: claim, heartbeat, checkpoint, completion, failure, retry.
+### CI / CERTIFICATION DISCIPLINE
+- Certification was not launched as a release decision during this window.
+- A push-triggered `Final Certification Gate` run associated with Wave 02 was cancelled and is not counted as certification evidence.
+- CI PASS is never equated with runtime proof.
+- Exact-SHA provenance remains mandatory; synthetic PR merge SHA evidence is not accepted as candidate evidence.
 
-**FINDINGS / RCA / FIXES**
-| ID | Severity | Finding | RCA | Repair |
-|---|---|---|---|---|
-| WKR-001 | P0 | Lease ownership used worker identity without a process-generation fencing token in DB transitions. | A stale process can reuse a worker identity after lease takeover; owner-only checks do not distinguish generations. | Added `lease_token`, rotate on claim, require token on heartbeat/checkpoint/complete/fail, clear token on terminal state, and remove old mutator signatures. |
-| WKR-002 | P0 | Completion was not DB-gated by terminal lifecycle checkpoint. | Completion RPC trusted caller state instead of canonical persisted stage. | Completion now requires `checkpoint.stage = rendered` plus live unexpired lease/token. |
-| WKR-003 | P0 | Checkpoint RPC accepted arbitrary stage movement. | No persisted stage-order or source-hash invariant existed at DB boundary. | Added strict lifecycle ordering, source-hash immutability, JSON shape validation, and row locking. |
-| WKR-004 | P0 | Retry/attempt bounds were not protected by DB constraints. | Attempt arithmetic was partly application-owned. | Added attempt/max-attempt constraints and claim guard `attempt < max_attempts`. |
-| WKR-005 | P0 | Alternate legacy mutator signatures could remain callable after adding a new token-aware path. | PostgreSQL overloads preserve old signatures unless explicitly dropped. | Dropped old heartbeat/checkpoint/completion/failure signatures and granted only canonical token-aware RPCs to `service_role`. |
-| WKR-006 | P1 | Artifact side-effect crash windows are not fully runtime-proven by the current worker harness. | Side effect and checkpoint are separate persistence boundaries; exact external artifact replay semantics require deployed runtime/artifact store execution. | Kept as an explicit remaining evidence item; no false PASS. |
+### CURRENT OPEN / EXTERNAL EVIDENCE AFTER THIS WINDOW
+| Area | Current state |
+|---|---|
+| K2 implementation | FIXED; targeted proof added; full endpoint/UI runtime closure still required |
+| OCR false-success | FIXED; end-user runtime closure still required |
+| DOCX/XLSX safety | IMPLEMENTED; reachable-path adversarial CI proof pending/under validation; production resource behavior not certified |
+| WKR-006 | False-green defect fixed; external artifact crash/replay runtime remains blocked where deployment is required |
+| K3 format contract | FIXED in repair branch; CI verification required before closure |
+| F caller-origin | Executable matrix implemented; final architectural decision depends on actual callers/runtime provenance |
+| G Tenant A/B | Still requires disposable authenticated A/B runtime environment; no service_role isolation proof is accepted |
+| Reports/Exports/Canonical Truth | Requires deterministic end-to-end product execution and DB/UI/report/export reconciliation |
+| Electron | Compatibility decision and exact-head install/launch/IPC/security smoke remain pending |
+| Authenticated product runtime | External authenticated environment required |
+| Backup/Restore | External protected operational access required |
+| Rollback/Forward recovery | External protected deployment access required |
+| Production Certification | NOT STARTED / NOT_PROVEN |
 
-**FILES / MIGRATION / TESTS**
-- `src/lib/report-execution/durable-worker-adapter.ts` — lease-token propagation.
-- `src/lib/report-execution/durable-production-runner.ts` — token capture and propagation through heartbeat/checkpoint/complete/fail.
-- `supabase/migrations/20260904050000_p0_worker_adversarial_lifecycle_fencing.sql` — DB fencing, lifecycle constraints, checkpoint integrity, canonical RPC signatures/grants.
-- `scripts/worker-adversarial-lifecycle.test.ts` — adversarial matrix + mutation-based test-of-test.
-- `.github/workflows/batch-integrity-guards.yml` — executes worker adversarial regression on PRs.
-
-**ADVERSARIAL MATRIX RESULT TABLE**
-| # | Case | Expected | Actual | Result | Evidence boundary |
-|---:|---|---|---|---|---|
-| 1 | Lease then stop before heartbeat | Lease eventually stale | Covered by expiry/fencing invariant | PASS | fixture + DB invariant |
-| 2 | Stale worker returns after expiry | Reject | Reject | PASS | fixture + DB token |
-| 3 | Worker A/B same job | Single owner | Single owner | PASS | atomic claim + fixture |
-| 4 | Duplicate delivery | Idempotent | Same run within tenant | PASS | queue test |
-| 5 | Duplicate completion | Reject | Terminal/token fence | PASS | fixture + DB invariant |
-| 6 | Completion after failure | Reject | Terminal/token fence | PASS | DB state guard |
-| 7 | Failure after completion | Reject | Terminal/token fence | PASS | DB state guard |
-| 8 | Crash after checkpoint before side effect | Resume without unsafe terminalization | Contract covered; external side effect runtime unproven | PASS* | contract only |
-| 9 | Crash after side effect before checkpoint | No duplicate side effect | External artifact replay not runtime-proven | BLOCKED | deployed runtime required |
-| 10 | Retry amplification | One retry transition per failed state | Atomic failed→queued guard | PASS | DB RPC invariant |
-| 11 | maxAttempts 0/1/max/max+1 | Reject 0; stop at max | DB constraints + claim guard | PASS | DB constraint |
-| 12 | Dead-letter transition | Terminal at max | `dead_letter` | PASS | DB RPC |
-| 13 | Retry after terminal | Reject | Only `failed` + budget is retryable | PASS | DB RPC |
-| 14 | Reprocess dead-letter | Reject | Claim excludes terminal state | PASS | DB RPC |
-| 15 | Lease renewal after expiry | Reject | Expired lease predicate | PASS | DB RPC |
-| 16 | Non-owner heartbeat | Reject | owner+token fence | PASS | fixture + DB RPC |
-| 17 | Stale completion after takeover | Reject | Old token fenced | PASS | actual DB probe + fixture |
-| 18 | Malformed job state | Reject | DB constraints/checkpoint validation | PASS | DB contract |
-| 19 | Missing dependency | Reject/fail without false completion | Completion requires rendered checkpoint | PASS* | contract boundary |
-| 20 | Tenant A worker → Tenant B job | Reject | `current_company_id()` predicate | PASS | DB RPC |
-| 21 | Tenant identity manipulation | Reject | tenant is DB-derived, not payload-owned | PASS* | DB boundary |
-| 22 | Idempotency collision across tenants | Isolate | Separate tenant keys in fixture | PASS | queue test |
-| 23 | Idempotency collision same tenant | Same logical run | Same run | PASS | queue test |
-| 24 | Concurrent retries | Single queue transition | Atomic status predicate | PASS* | DB invariant |
-| 25 | Restart during transition | No stale-generation mutation | Fencing token | PASS* | DB invariant |
-| 26 | Partial persistence failure | No false completion | Boolean transition checks + terminal gating | PASS* | contract |
-| 27 | Partial artifact generation | No false completion | Rendered checkpoint required | PASS* | contract; artifact runtime unproven |
-| 28 | Completion with missing/invalid artifact | Reject | Artifact store not executed in this environment | BLOCKED | deployed artifact runtime |
-| 29 | Failure with partial artifact | Preserve failure; no false success | Failure clears lease/token; artifact cleanup runtime unproven | PASS* | DB state boundary |
-| 30 | Replay completed work | Reject mutation | Completed has no active lease/token | PASS | DB invariant |
-| 31 | Repeated delivery after success | Reject mutation | Terminal state excluded | PASS | DB invariant |
-| 32 | Unexpected state transition injection | Reject | Checkpoint stage ordering | PASS | DB RPC |
-| 33 | Terminal-state resurrection | Reject | Retry only `failed`; claim excludes terminal | PASS | DB RPC |
-| 34 | Unauthorized direct mutation bypass | Reject | Old signatures removed; EXECUTE restricted to service_role | PASS | DB grants/signatures |
-
-`PASS*` = bounded contract/invariant evidence, not deployed external-side-effect runtime certification. `BLOCKED` is not PASS.
-
-**ACTUAL DATABASE PROBE**
-- Live Staging was used for a transaction-scoped lease probe with an authenticated tenant context.
-- The repaired claim path was exercised inside a rollback-scoped transaction; no probe data was retained.
-- Stale-worker takeover/completion is runtime-proven at the DB RPC boundary only; full worker process/external artifact execution remains unproven.
-
-**TEST-OF-TEST**
-- The adversarial test creates a controlled temporary copy of the queue implementation, removes the fencing-token predicate, and executes a forged-token heartbeat probe.
-- The mutated implementation must fail the regression; if the mutation bypasses the test, the test itself fails.
-- This specifically prevents a false green caused by only checking happy-path ownership.
-
-**BYPASS SEARCH**
-- Alternate old mutator signatures: removed from DB.
-- Token-aware canonical RPCs: all mutation paths require owner/token where a lease is required.
-- Tenant mutation predicates: claim/heartbeat/checkpoint/complete/fail/retry are tenant-scoped through `current_company_id()`.
-- Direct `service_role` table mutation remains a privileged operational capability and is not equivalent to public/authenticated bypass; production runtime governance remains separate.
-- External artifact replay and native worker process restart paths remain evidence gaps, not hidden PASS claims.
-
-**REGRESSION**
-- Existing worker lease fencing regression remains in the batch guard workflow.
-- New adversarial matrix is added to the same PR CI gate.
-- Canonical report execution behavior remains under the existing report lifecycle contract; no merge was performed.
-- Full tenant/security, report/export, OCR, scale/performance, filesystem/Windows, PR reconciliation, repository rescan, and evidence reconciliation are next execution fronts.
-
-**CI**
-- Fresh exact-SHA CI is **NOT YET PROVEN** for the post-index head; no CI PASS is transferred from an older SHA.
-- Current GitHub combined status for the worker mutation ancestry exposes Vercel failure/pending only; no GitHub Actions PASS for the worker matrix is claimed.
-
-**BLOCKERS**
-- Authenticated A/B browser session: BLOCKED / OWNER.
-- Backup/restore: BLOCKED / protected operational access.
-- Rollback/forward recovery: BLOCKED / protected deployment access.
-- Native Windows: BLOCKED unless exact-head native evidence is available.
-- Production control-plane runtime worker proof: BLOCKED / external operational access.
-
-**REMAINING WORK / NEXT ACTION**
-1. Fresh exact-SHA CI and consume any failures.
-2. Full Tenant/Security Rescan on the same exact ancestry.
-3. Report/Export adversarial evidence.
-4. OCR/Golden Corpus execution.
-5. Scale/Performance.
-6. Filesystem/Windows.
-7. PR Reconciliation.
-8. Full Repository Rescan.
-9. Evidence Reconciliation.
-10. Reassess P0/P1 queue if a higher-risk finding appears.
-
-### BATCH 5 — REPORTS / EXPORT / PERFORMANCE
-- Required lineage: canonical truth → calculation → report → artifact → SHA-256 → provenance → export.
-- Adversarial coverage required for wrong period, stale truth, duplicates, tenant leakage, NULL/unknown semantics, pagination/bounds, PDF/RTL, CSV and Excel.
-- 43 unused-index advisor INFO notices remain NON-BLOCKING/OPTIMIZATION pending realistic workload evidence.
-- Small-data EXPLAIN is not production-scale proof.
-
-### BATCH 6 — PR / DESKTOP
-- PR #305 terminal-approval implementation is superseded by current-main lineage; no wholesale merge.
-- PR #307 fixture/test ideas were selectively reproduced; no blind merge.
-- PR #308 autonomy changes remain separate until a unique missing behavior is proven.
-- Native Windows smoke remains Owner/External only if CI cannot produce exact-head evidence.
-
-### STORAGE / REALTIME / AI
-- Live Staging storage bucket inventory is empty; policies are tenant/owner-aware. Requirement status remains classification-dependent, not PASS.
-- Realtime has no published application tables and no repository consumer found; requirement status remains classification-dependent, not PASS.
-- AI/vector architecture exists; live retrieval authorization, tenant isolation and provenance remain unproven.
-
-### LIVE / RESILIENCE
-- Backup/restore, RPO/RTO, rollback/forward recovery and current production alias binding remain unproven.
-- Historical deployments or prior RC evidence do not certify the current candidate.
-
-### OWNER UNBLOCK QUEUE
-| ID | Operation | Real blocker | Prepared | Evidence required | Status |
-|---|---|---|---|---|---|
-| OWNER-AUTH-01 | Authenticated Tenant A/B E2E | Interactive authenticated browser session | Matrix + exact candidate | A/B authenticated E2E + adversarial isolation | OWNER REQUIRED |
-| OWNER-AUTH-02 | Leaked-password protection | Auth control plane | Setting identified | Non-secret enabled state | CONDITIONAL |
-| OWNER-DR-01 | Backup + isolated restore | Protected recovery access | Safety/validation contract | Backup/restore/hash/timing/RPO/RTO | CONDITIONAL |
-| OWNER-DR-02 | Rollback + forward recovery | Protected deployment access | Drill/evidence contract | Deployment/health/recovery proof | CONDITIONAL |
-| OWNER-WIN-01 | Native Windows smoke | Native environment if CI unavailable | Exact command packet | Exact-head logs/artifact | CONDITIONAL |
-
-### STATE MATRIX
-| Front | BUILT | INTEGRATED | VERIFIED | RUNTIME PROVEN | PRODUCTION CERTIFIED |
-|---|---|---|---|---|---|
-| Approval/RBAC | YES | YES | DB + concurrency regression | NO | NO |
-| Worker | YES | YES | DB + regression | NO full runtime | NO |
-| Tenant isolation | YES | YES | DB adversarial | NO current A/B browser | NO |
-| Import/compat | YES | YES | Partial + compatibility contract added | NO | NO |
-| OCR | YES/architecture | PARTIAL | Partial | NO | NO |
-| Reports/export | YES | PARTIAL | Partial | NO | NO |
-| Storage | YES/policies | NO contract | Policy | NO | NO |
-| Realtime | Client capability | NO publication | NO | NO | NO |
-| AI/vector | Architecture | PARTIAL | Architecture | NO | NO |
-| Certification provenance | YES | YES | PENDING fresh exact candidate | N/A | NO |
-
-### EXECUTION DEBT
-`LOCAL ACTIONABLE EXECUTION DEBT = NOT ZERO`.
-
-Active local execution: Batch 1 fresh exact-candidate certification/test integrity; repository-wide compatibility consumer sweep; watched filesystem proof; OCR corpus; report/export adversarial evidence; performance scale; Electron exact-head verification; PR reconciliation; migration lineage; SECURITY DEFINER semantic review; worker adversarial lifecycle; storage/realtime/AI scope classification.
-
-Owner-only: authenticated browser sessions, protected Auth/recovery/deployment controls, and unavoidable native Windows operations.
-
-### TRUE STOP
-Only when local actionable debt is zero, all required security/DB/RPC/compat/import/worker/file/document/report/performance/desktop/certification work is evidenced on the exact candidate, and only Owner/External/Product Decision items remain.
+### TRUE COMPLETION CONTROL
+The remaining work is measured by actual closure evidence, not report volume:
+`FIX → TARGETED TEST → REGRESSION → TEST-OF-TEST → BYPASS SEARCH → EXACT-SHA CI → RUNTIME PROOF → CLOSE`.
+No historical PASS is transferred to a new SHA without exact provenance.

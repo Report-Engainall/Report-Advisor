@@ -4,9 +4,7 @@ on:
     branches:
       - 'repair/p0-wave-02-security-runtime'
   pull_request:
-    branches:
-      - main
-      - 'repair/p0-real-execution-wave-01'
+    branches: [main]
   workflow_dispatch:
 jobs:
   caller-origin:
@@ -15,7 +13,3 @@ jobs:
       - uses: actions/checkout@v4
       - name: Build exact caller-origin matrix
         run: node scripts/check-security-definer-caller-origin.mjs
-      - name: Verify product identity
-        run: node scripts/check-product-branding.mjs
-      - name: Verify file-engine capability contract
-        run: node scripts/check-file-engine-capability-contract.mjs

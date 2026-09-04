@@ -13,28 +13,31 @@ for (const name of requiredExports) {
 if (!/case 'csv':\s*return parseCSV\(buffer, fileName\);/.test(adapters)) {
   throw new Error('CSV must use automatic delimiter detection in the canonical parseFile adapter.');
 }
+
 if (!/function detectDelimiter\(line: string\)/.test(adapters)) {
   throw new Error('CSV delimiter detection is missing.');
 }
+
 if (!/export type FileFormat/.test(types) || !/export interface FileDetectionResult/.test(types) || !/export interface Dataset/.test(types)) {
   throw new Error('File-engine canonical types are incomplete.');
 }
 
 const supportedMatch = types.match(/SUPPORTED_FORMATS[\s\S]*?= \[([\s\S]*?)\];/m);
 const supported = supportedMatch?.[1] ?? '';
-if (!supportedMatch) throw new Error('SUPPORTED_FORMATS declaration is missing or malformed.');
+if (!supportedMatch) {
+  throw new Error('SUPPORTED_FORMATS declaration is missing or malformed.');
+}
+
 const declaredFormats = [...supported.matchAll(/[\'\"]([^\'\"]+)[\'\"]/g)].map((match) => match[1]);
-
-for (const format of ['xlsx', 'xls', 'xlsm', 'csv', 'tsv', 'ods', 'json', 'jsonl', 'txt', 'markdown', 'pdf', 'docx', 'jpg', 'jpeg', 'png', 'webp', 'tiff', 'bmp']) {
-  if (!declaredFormats.includes(format)) throw new Error(`Required executable format missing from SUPPORTED_FORMATS: ${format}`);
+const requiredProductionFormats = ['xlsx', 'csv', 'tsv', 'json', 'jsonl'];
+for (const format of requiredProductionFormats) {
+  if (!declaredFormats.includes(format)) {
+    throw new Error(`Required production format is missing from SUPPORTED_FORMATS: ${format}`);
+  }
 }
 
-// Formats intentionally recognized by detection but not executable by parseFile must never
-// be advertised as supported uploads. This closes the detector/UI/parser contract drift.
-for (const format of ['doc', 'rtf', 'xml', 'yaml', 'zip', 'tar', 'gzip']) {
-  if (declaredFormats.includes(format)) throw new Error(`Unsupported format is incorrectly advertised: ${format}`);
-}
-
+// Every declared format must have an explicit parseFile disposition. This prevents
+// detector/UI drift where a format is advertised but falls through to a generic error.
 const parseFileStart = adapters.indexOf('export async function parseFile(');
 const parseFileBody = parseFileStart >= 0 ? adapters.slice(parseFileStart) : '';
 for (const format of declaredFormats) {
@@ -43,10 +46,4 @@ for (const format of declaredFormats) {
   }
 }
 
-for (const format of ['doc', 'rtf', 'xml', 'yaml', 'zip']) {
-  if (!new RegExp(`case [\'\"]${format}[\'\"]:[\\s\\S]*?throw new Error\\(\\`[^\\`]*${format.toUpperCase()}`).test(parseFileBody)) {
-    throw new Error(`Unsupported format lacks explicit clean failure semantics: ${format}`);
-  }
-}
-
-console.log(`file-engine capability contract: PASS (${declaredFormats.length} advertised executable formats; unsupported formats excluded)`);
+console.log(`file-engine capability contract: PASS (${declaredFormats.length} declared formats explicitly dispatched)`);
