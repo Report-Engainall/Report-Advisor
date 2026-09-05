@@ -5,7 +5,7 @@ function assert(condition: unknown, message: string): asserts condition {
 }
 
 function u16(value: number): number[] { return [value & 0xff, (value >>> 8) & 0xff]; }
-function u32(value: number): number[] { return [value & 0xff, (value >>> 8) & 0xff, (value >>> 24) & 0xff]; }
+function u32(value: number): number[] { return [value & 0xff, (value >>> 8) & 0xff, (value >>> 16) & 0xff, (value >>> 24) & 0xff]; }
 
 function makeZipEntry(name: string): Uint8Array {
   const nameBytes = new TextEncoder().encode(name);
