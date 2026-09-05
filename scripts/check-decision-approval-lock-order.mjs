@@ -14,7 +14,7 @@ function latestBody(name) {
   return sql.slice(start, next < 0 ? sql.length : next);
 }
 const pos = (body, needle, from = 0) => body.indexOf(needle, from);
-const lockCount = (body) => (body.match(/\bfor\s+update\b/gi) ?? []).length;
+const lockCount = (body) => (body.replace(/--[^\n]*|\/\*[\s\S]*?\*\//g, '').match(/\bfor\s+update\b/gi) ?? []).length;
 
 const request = latestBody('request_decision_approval');
 const decide = latestBody('decide_approval');
