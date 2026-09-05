@@ -39,11 +39,10 @@ validateDecisionApprovalToctou(sql);
 
 // Test-of-test: adversarial mutations must target the latest canonical function body.
 function replaceLatestFunctionBody(source, name, mutate) {
-  const re = new RegExp(`CREATE\\\\s+OR\\\\s+REPLACE\\\\s+FUNCTION\\\\s+public\\\\.${name}\\\\s*\\\\(`, 'gi');
-  let match; let start = -1;
-  while ((match = re.exec(source))) start = match.index;
+  const marker = `CREATE OR REPLACE FUNCTION public.${name}(`;
+  const start = source.lastIndexOf(marker);
   if (start < 0) throw new Error(`Missing canonical function: ${name}`);
-  const next = source.indexOf('\\nCREATE OR REPLACE FUNCTION', start + 1);
+  const next = source.indexOf('\\nCREATE OR REPLACE FUNCTION', start + marker.length);
   const end = next < 0 ? source.length : next;
   const body = source.slice(start, end);
   return source.slice(0, start) + mutate(body) + source.slice(end);
