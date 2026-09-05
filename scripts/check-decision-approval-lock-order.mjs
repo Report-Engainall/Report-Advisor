@@ -32,13 +32,13 @@ const decGate = pos(decide, "v_decision_status is distinct from 'PROPOSED'");
 const decApproval = pos(decide, 'from public.decision_approvals', decResolve + 1);
 if (!(decResolve >= 0 && decDecision > decResolve && decDecisionLock > decDecision && decGate > decDecisionLock && decApproval > decDecisionLock)) throw new Error('decide_approval does not follow decision -> approval lock order');
 
-// Test-of-test: each required lock must be independently detected.
-// The old test removed only the first lock, which was insufficient because
-// request_decision_approval legitimately contains two FOR UPDATE clauses.
-assert.equal(lockCount(request), 2);
-assert.equal(lockCount(decide), 1);
+// Test-of-test: each required SQL lock is anchored to its semantic query, not
+// counted globally (comments/documentation may legitimately contain the phrase).
+const reqApprovalLock = pos(request, 'for update', reqApproval + 1);
+assert.ok(reqDecisionLock >= 0 && reqApprovalLock > reqDecisionLock);
+assert.equal(pos(decide, 'for update', decDecision), decDecisionLock);
 
-const weakenedRequestDecision = request.replace(/for update/i, '');
+const weakenedRequestDecision = request.slice(0, reqDecisionLock) + request.slice(reqDecisionLock + 'for update'.length);
 assert.throws(() => {
   const body = weakenedRequestDecision;
   const a = pos(body, 'from public.business_intelligence_decisions');
@@ -46,10 +46,11 @@ assert.throws(() => {
   if (!(a >= 0 && b > a)) throw new Error('request decision lock missing');
 }, /request decision lock missing/);
 
-const weakenedRequestApproval = request.replace(/for update/i, '').replace(/for update/i, '');
+const weakenedRequestApproval = request.slice(0, reqApprovalLock) + request.slice(reqApprovalLock + 'for update'.length);
 assert.throws(() => {
   const body = weakenedRequestApproval;
-  if (lockCount(body) !== 2) throw new Error('request approval lock missing');
+  const approvalLock = pos(body, 'for update', reqApproval + 1);
+  if (approvalLock < 0) throw new Error('request approval lock missing');
 }, /request approval lock missing/);
 
 const weakenedDecide = decide.replace(/for update/i, '');
