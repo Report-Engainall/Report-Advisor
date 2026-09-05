@@ -7,6 +7,7 @@
 ### CURRENT EXACT HEAD
 - Current `main` HEAD before this index-only synchronization: `cb1a6091b0860979957ae60005fd5c017bdc525d`.
 - This synchronization is documentation-only and changes the exact HEAD; therefore all runtime/release evidence must be re-established against the new HEAD after the index commit.
+- **Current Code/Test Candidate:** `cb1a6091b0860979957ae60005fd5c017bdc525d`.
 - Latest functional commit: `cb1a6091b0860979957ae60005fd5c017bdc525d` — `certification: add canonical decision evaluator`.
 
 ### BOUNDARY / GOVERNANCE
@@ -70,6 +71,11 @@
 11. **Current-wave data-truth defect discovered:** staging companies use `SAR` while source sales/purchase invoices contain `YER`; profitability correctly marks financial truth insufficient, but dashboard previously reported calculated financial KPIs. Dashboard snapshot was repaired to gate financial KPIs/breakdowns on currency consistency while preserving non-financial counts/inventory value.
 12. Live dashboard retest for both authenticated tenant contexts now returns `INSUFFICIENT_DATA` with invalid financial KPIs null and financial breakdown arrays empty under the mismatch condition.
 13. Supabase migration history records the dashboard repair as `20260904063122_reconcile_dashboard_currency_truth`; source migration filename was reconciled to that exact live version to eliminate the Preview migration-lineage failure.
+
+### RECOVERY / BACKUP / RESTORE BOUNDARY
+- Recovery remains **UNPROVEN** at runtime until a real backup/restore/rollback drill produces exact-head operational evidence.
+- Required recovery concepts are explicitly tracked as **backup/restore**, **RPO**, **RTO**, and **DR**.
+- Current state is **UNPROVEN**, not a certification pass; measured RPO/RTO and restore-integrity evidence must come from the operational environment.
 
 ### CERTIFICATION DECISION CONTRACT
 - The canonical evaluator added in `cb1a6091b0860979957ae60005fd5c017bdc525d` is fail-closed.
