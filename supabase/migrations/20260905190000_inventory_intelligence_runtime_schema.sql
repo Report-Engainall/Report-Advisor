@@ -50,8 +50,24 @@ create policy "tenant_delete" on public.alternative_item_groups
 create policy "tenant_select" on public.alternative_item_group_members
   for select using (company_id = current_company_id());
 create policy "tenant_insert" on public.alternative_item_group_members
-  for insert with check (company_id = current_company_id());
+  for insert with check (
+    company_id = current_company_id()
+    and exists (
+      select 1
+      from public.alternative_item_groups g
+      where g.id = alternative_item_group_members.group_id
+        and g.company_id = current_company_id()
+    )
+  );
 create policy "tenant_update" on public.alternative_item_group_members
-  for update using (company_id = current_company_id()) with check (company_id = current_company_id());
+  for update using (company_id = current_company_id()) with check (
+    company_id = current_company_id()
+    and exists (
+      select 1
+      from public.alternative_item_groups g
+      where g.id = alternative_item_group_members.group_id
+        and g.company_id = current_company_id()
+    )
+  );
 create policy "tenant_delete" on public.alternative_item_group_members
   for delete using (company_id = current_company_id());
