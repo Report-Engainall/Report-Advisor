@@ -196,7 +196,6 @@ try {
           `${route}: browser emitted ${routeErrors.length} console/page error(s).`, { errors: routeErrors });
       }
 
-      // Persistence: refresh must preserve the same authenticated tenant context.
       try {
         await page.goto(`${baseURL}/`, { waitUntil: 'networkidle', timeout: 30000 });
         const beforeRefreshTenant = result.tenantA;
@@ -232,10 +231,12 @@ try {
 const counts = [...result.routes, ...result.findings].reduce((acc, x) => { acc[x.status] = (acc[x.status] || 0) + 1; return acc; }, {});
 const blocked = result.findings.filter(x => x.status === 'BLOCKED').length;
 const failed = result.findings.filter(x => x.status === 'FAIL').length;
+const notProven = result.findings.filter(x => x.status === 'NOT_PROVEN').length;
 console.log(JSON.stringify({ exactHead: result.exactHead, auth: result.auth, tenant: result.tenant,
   routesExecuted: result.routes.length, routesPassed: result.routes.filter(x => x.status === 'PASS').length,
-  routesFailed: result.routes.filter(x => x.status === 'FAIL').length, counts, blocked, failed,
+  routesFailed: result.routes.filter(x => x.status === 'FAIL').length, counts, blocked, failed, notProven,
   findings: result.findings }, null, 2));
 
-// No unresolved FAIL or critical external BLOCKED state may be reported as a green E2E run.
-process.exitCode = failed ? 1 : (blocked ? 2 : 0);
+// Fail closed: unresolved FAIL or NOT_PROVEN findings are never a green E2E run.
+// BLOCKED remains exit 2 so environment/access blockers are distinguishable from test failures.
+process.exitCode = failed || notProven ? 1 : (blocked ? 2 : 0);
