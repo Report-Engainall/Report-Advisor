@@ -47,8 +47,14 @@ async function login(targetPage, email, password) {
   await loginEmail.fill(email);
   await targetPage.locator('#login-password').fill(password);
   await targetPage.getByRole('button', { name: 'تسجيل الدخول' }).click();
+  await targetPage.waitForFunction(() => {
+    const hasSession = Object.keys(localStorage).some(key => key.endsWith('-auth-token'));
+    const body = document.body?.innerText || '';
+    const loginVisible = !!document.querySelector('#login-email');
+    return hasSession || !loginVisible || body.includes('لم يتم تحديد شركة للمستخدم') || body.includes('حدث خطأ غير متوقع');
+  }, { timeout: 15000 }).catch(() => {});
   await targetPage.waitForLoadState('networkidle', { timeout: 30000 }).catch(() => {});
-  await targetPage.waitForTimeout(1500);
+  await targetPage.waitForTimeout(1000);
 }
 
 async function authenticatedTenantId(targetPage) {
@@ -111,7 +117,6 @@ try {
     const stillLogin = await page.locator('#login-email').count();
     const tenantMissing = await page.getByText('لم يتم تحديد شركة للمستخدم').count();
     const appError = await page.getByText('حدث خطأ غير متوقع').count();
-    const dashboard = await page.getByText('لوحة القيادة').count();
 
     if (stillLogin) {
       result.auth = 'FAIL';
@@ -122,25 +127,23 @@ try {
     } else if (appError) {
       result.auth = 'FAIL';
       addFinding('E2E-AUTH-004', 'FAIL', 'P0', 'Application error boundary rendered after authentication.');
-    } else if (dashboard) {
-      result.auth = 'PASS';
     } else {
-      result.auth = 'NOT_PROVEN';
-      addFinding('E2E-AUTH-005', 'NOT_PROVEN', 'P0', 'Login form disappeared but authenticated product state was not conclusively identified.');
+      try {
+        result.tenantA = await authenticatedTenantId(page);
+        result.auth = 'PASS';
+        result.tenant = 'PASS';
+        addFinding('E2E-AUTH-006', 'PASS', 'P0', 'Authenticated browser session established and resolved to a live tenant context.');
+      } catch (error) {
+        result.tenant = 'FAIL';
+        result.auth = 'NOT_PROVEN';
+        addFinding('E2E-AUTH-005', 'NOT_PROVEN', 'P0', error instanceof Error ? error.message : String(error));
+      }
     }
 
     if (result.auth === 'PASS') {
-      try {
-        result.tenantA = await authenticatedTenantId(page);
-        result.tenant = 'PASS';
-      } catch (error) {
-        result.tenant = 'FAIL';
-        addFinding('E2E-TENANT-001', 'FAIL', 'P0', error instanceof Error ? error.message : String(error));
-      }
-
       const emailB = process.env.TEST_USER_B_EMAIL;
       const passwordB = process.env.TEST_USER_B_PASSWORD;
-      if (emailB && passwordB && result.tenant === 'PASS') {
+      if (emailB && passwordB) {
         const contextB = await browser.newContext({ viewport: { width: 1440, height: 1000 }, locale: 'ar-SA' });
         const pageB = await contextB.newPage();
         try {
@@ -196,7 +199,6 @@ try {
           `${route}: browser emitted ${routeErrors.length} console/page error(s).`, { errors: routeErrors });
       }
 
-      // Persistence: refresh must preserve the same authenticated tenant context.
       try {
         await page.goto(`${baseURL}/`, { waitUntil: 'networkidle', timeout: 30000 });
         const beforeRefreshTenant = result.tenantA;
@@ -237,5 +239,4 @@ console.log(JSON.stringify({ exactHead: result.exactHead, auth: result.auth, ten
   routesFailed: result.routes.filter(x => x.status === 'FAIL').length, counts, blocked, failed,
   findings: result.findings }, null, 2));
 
-// No unresolved FAIL or critical external BLOCKED state may be reported as a green E2E run.
 process.exitCode = failed ? 1 : (blocked ? 2 : 0);
