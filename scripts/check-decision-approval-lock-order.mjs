@@ -14,9 +14,11 @@ function latestBody(name) {
   return sql.slice(start, next < 0 ? sql.length : next);
 }
 const pos = (body, needle, from = 0) => body.indexOf(needle, from);
+const lockCount = (body) => (body.match(/\\bfor\\s+update\\b/gi) ?? []).length;
 
 const request = latestBody('request_decision_approval');
 const decide = latestBody('decide_approval');
+
 const reqDecision = pos(request, 'from public.business_intelligence_decisions');
 const reqDecisionLock = pos(request, 'for update', reqDecision);
 const reqGate = pos(request, "v_decision_status is distinct from 'PROPOSED'");
@@ -30,18 +32,31 @@ const decGate = pos(decide, "v_decision_status is distinct from 'PROPOSED'");
 const decApproval = pos(decide, 'from public.decision_approvals', decResolve + 1);
 if (!(decResolve >= 0 && decDecision > decResolve && decDecisionLock > decDecision && decGate > decDecisionLock && decApproval > decDecisionLock)) throw new Error('decide_approval does not follow decision -> approval lock order');
 
-// Test-of-test: remove either lock; the contract must fail closed.
-const weakenedRequest = request.replace(/for update/i, '');
+// Test-of-test: each required lock must be independently detected.
+// The old test removed only the first lock, which was insufficient because
+// request_decision_approval legitimately contains two FOR UPDATE clauses.
+assert.equal(lockCount(request), 2);
+assert.equal(lockCount(decide), 1);
+
+const weakenedRequestDecision = request.replace(/for update/i, '');
 assert.throws(() => {
-  const a = pos(weakenedRequest, 'from public.business_intelligence_decisions');
-  const b = pos(weakenedRequest, 'for update', a);
-  if (!(a >= 0 && b > a)) throw new Error('request lock missing');
-}, /request lock missing/);
+  const body = weakenedRequestDecision;
+  const a = pos(body, 'from public.business_intelligence_decisions');
+  const b = pos(body, 'for update', a);
+  if (!(a >= 0 && b > a)) throw new Error('request decision lock missing');
+}, /request decision lock missing/);
+
+const weakenedRequestApproval = request.replace(/for update/i, '').replace(/for update/i, '');
+assert.throws(() => {
+  const body = weakenedRequestApproval;
+  if (lockCount(body) !== 2) throw new Error('request approval lock missing');
+}, /request approval lock missing/);
+
 const weakenedDecide = decide.replace(/for update/i, '');
 assert.throws(() => {
   const a = pos(weakenedDecide, 'from public.business_intelligence_decisions');
   const b = pos(weakenedDecide, 'for update', a);
-  if (!(a >= 0 && b > a)) throw new Error('decide lock missing');
-}, /decide lock missing/);
+  if (!(a >= 0 && b > a)) throw new Error('decide decision lock missing');
+}, /decide decision lock missing/);
 
-console.log('Decision approval lock order: PASS (both RPCs use decision -> approval order; weakened-lock test-of-test fails closed).');
+console.log('Decision approval lock order: PASS (required locks present; each weakened-lock test fails closed).');
