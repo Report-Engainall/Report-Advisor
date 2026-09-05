@@ -111,9 +111,24 @@ try {
     const stillLogin = await page.locator('#login-email').count();
     const tenantMissing = await page.getByText('لم يتم تحديد شركة للمستخدم').count();
     const appError = await page.getByText('حدث خطأ غير متوقع').count();
-    const dashboard = await page.getByText('لوحة القيادة').count();
+    let authenticatedTenant = null;
 
-    if (stillLogin) {
+    // Authoritative auth proof: a browser-held Supabase access token accepted by the
+    // tenant-resolution RPC. Do not require a particular dashboard label.
+    if (!stillLogin && !tenantMissing && !appError) {
+      try {
+        authenticatedTenant = await authenticatedTenantId(page);
+        result.tenantA = authenticatedTenant;
+        result.auth = 'PASS';
+        result.tenant = 'PASS';
+        addFinding('E2E-AUTH-006', 'PASS', 'P0', 'Browser session established and current tenant resolved through authenticated runtime RPC.', { tenantId: authenticatedTenant });
+      } catch (error) {
+        result.auth = 'NOT_PROVEN';
+        addFinding('E2E-AUTH-005', 'NOT_PROVEN', 'P0', 'Login form disappeared but browser session/tenant could not be conclusively resolved.', {
+          reasonDetail: error instanceof Error ? error.message : String(error),
+        });
+      }
+    } else if (stillLogin) {
       result.auth = 'FAIL';
       addFinding('E2E-AUTH-002', 'FAIL', 'P0', 'Login did not establish an authenticated UI session.');
     } else if (tenantMissing) {
@@ -122,21 +137,11 @@ try {
     } else if (appError) {
       result.auth = 'FAIL';
       addFinding('E2E-AUTH-004', 'FAIL', 'P0', 'Application error boundary rendered after authentication.');
-    } else if (dashboard) {
-      result.auth = 'PASS';
-    } else {
-      result.auth = 'NOT_PROVEN';
-      addFinding('E2E-AUTH-005', 'NOT_PROVEN', 'P0', 'Login form disappeared but authenticated product state was not conclusively identified.');
     }
 
     if (result.auth === 'PASS') {
-      try {
-        result.tenantA = await authenticatedTenantId(page);
-        result.tenant = 'PASS';
-      } catch (error) {
-        result.tenant = 'FAIL';
-        addFinding('E2E-TENANT-001', 'FAIL', 'P0', error instanceof Error ? error.message : String(error));
-      }
+      const dashboard = await page.getByText('لوحة القيادة').count();
+      if (!dashboard) addFinding('E2E-AUTH-012', 'NOT_PROVEN', 'P1', 'Authenticated session is proven, but the expected dashboard label was not present immediately after login.');
 
       const emailB = process.env.TEST_USER_B_EMAIL;
       const passwordB = process.env.TEST_USER_B_PASSWORD;
@@ -213,8 +218,8 @@ try {
       if (await logout.count()) {
         await logout.click(); await page.waitForTimeout(1000);
         if (!(await page.locator('#login-email').count())) addFinding('E2E-AUTH-007', 'FAIL', 'P1', 'Logout did not return the browser to the unauthenticated login state.');
-        else addFinding('E2E-AUTH-006', 'PASS', 'P1', 'Logout returned the browser to the unauthenticated login state.');
-      } else addFinding('E2E-AUTH-008', 'NOT_PROVEN', 'P1', 'Logout control was not available in authenticated UI.');
+        else addFinding('E2E-AUTH-008', 'PASS', 'P1', 'Logout returned the browser to the unauthenticated login state.');
+      } else addFinding('E2E-AUTH-009', 'NOT_PROVEN', 'P1', 'Logout control was not available in authenticated UI.');
     }
   }
 } catch (error) {
@@ -237,6 +242,6 @@ console.log(JSON.stringify({ exactHead: result.exactHead, auth: result.auth, ten
   routesFailed: result.routes.filter(x => x.status === 'FAIL').length, counts, blocked, failed, notProven,
   findings: result.findings }, null, 2));
 
-// Fail closed: unresolved FAIL or NOT_PROVEN findings are never a green E2E run.
+// Fail closed: unresolved FAIL or NOT_PROVEN findings are never green.
 // BLOCKED remains exit 2 so environment/access blockers are distinguishable from test failures.
 process.exitCode = failed || notProven ? 1 : (blocked ? 2 : 0);
