@@ -5,10 +5,10 @@
 > Authoritative execution manifest. Because embedding this file's own commit SHA would make the SHA self-invalidating, the exact current candidate is always the Git `HEAD` of `main` at the same checkout. Pair this manifest with `git rev-parse HEAD` for every evidence batch.
 
 ### CURRENT EXACT HEAD
-- Latest functional candidate before this governance synchronization: `78ed20e156bba45a56f6b6e0957c2a0ad31bdc7b` — `fix: reconcile duplicate approval migration lock order`.
+- Latest functional candidate before this governance synchronization: `b52b943858b156ecda44506156b6aca99f9dd9e5` — `fix: restore authenticated alternative-group read grants`.
 - This synchronization is documentation-only and changes the exact HEAD; therefore all runtime/release evidence must be re-established against the new HEAD after the index commit.
-- **Current Code/Test Candidate:** `78ed20e156bba45a56f6b6e0957c2a0ad31bdc7b`.
-- Latest functional commit: `78ed20e156bba45a56f6b6e0957c2a0ad31bdc7b`.
+- **Current Code/Test Candidate:** `b52b943858b156ecda44506156b6aca99f9dd9e5`.
+- Latest functional commit: `b52b943858b156ecda44506156b6aca99f9dd9e5`.
 
 ### BOUNDARY / GOVERNANCE
 - Branch: `main`.
@@ -20,12 +20,12 @@
 - Work continues in parallel on independent fronts; external owner/device blockers do not justify idle time on analysis, source reconciliation, test design, or evidence preparation.
 - Certification remains fail-closed: no HTTP 200, UI success message, fixture PASS, simulated DB JWT, historical deployment, or old SHA may certify the current candidate.
 
-### LOCK-ORDER RECONCILIATION
-- Source migration lineage had duplicate `20260904004000_*` definitions for `request_decision_approval` with conflicting lock-order semantics.
-- `78ed20e156bba45a56f6b6e0957c2a0ad31bdc7b` reconciles the source definition so Decision → Approval locking is preserved in the migration lineage.
-- Live staging DB was already verified with the correct lock order; no blind live DB mutation was used for this source reconciliation.
-- The storage tenant-isolation workflow on `78ed20e156bba45a56f6b6e0957c2a0ad31bdc7b` passed.
-- Execution Enforcement subsequently stopped on the stale candidate identity in this index; this synchronization repairs that governance mismatch without weakening the enforcement gate.
+### LATEST FUNCTIONAL REPAIR
+- `b52b943858b156ecda44506156b6aca99f9dd9e5` restores authenticated `SELECT` privileges for `alternative_item_groups` and `alternative_item_group_members`.
+- The repair was driven by a live authenticated browser 403 where RLS policies existed but the tables had no authenticated table privileges.
+- Anonymous access remains explicitly denied; tenant isolation continues to be enforced by RLS.
+- Supabase staging migration history records the live repair as `restore_authenticated_alternative_group_read_grants`.
+- The remaining `/reports/inventory-intelligence` 403 is not yet classified as a privilege defect; it must be traced to its exact failing request before any further DB mutation.
 
 ### E2E WAVE
 - Baseline: `083225068f1e2d390f6e1d50e8b178a1e8e1bacb`
@@ -45,16 +45,18 @@
 - Current-wave browser exact-checkout hardening: `0d2d3931b687fdf1daa41ceb56c9341fd7667430`.
 - Authenticated-runtime fail-closed secret gate: `f1f9a3d7426128aadbdadcf9e4c62361b7c247a6`.
 - Canonical certification decision evaluator: `cb1a6091b0860979957ae60005fd5c017bdc525d`.
+- Browser auth proof repair: `cff0886152795286c5422b07a247b966d3ae5c92`.
+- Alternative-group authenticated read-grant repair: `b52b943858b156ecda44506156b6aca99f9dd9e5`.
 
 ### CURRENT E2E STATUS
 | Area | Status | Required evidence |
 |---|---|---|
 | Real Chromium | BUILT / EXACT-HEAD EXECUTION READY | exact-head CI |
-| Authenticated browser login | BLOCKED / NOT PROVEN | current-head run with real credentials |
-| Tenant A | NOT PROVEN | real browser session + `current_company_id()` |
-| Tenant B | NOT PROVEN | real browser session + B credential |
-| A/B isolation | PARTIAL / NOT PROVEN IN BROWSER | browser cross-tenant read/mutate attempts |
-| 29 route discovery | NOT PROVEN on current head | browser run |
+| Authenticated browser login | PASS on prior functional head; current-head rerun required | current-head run with real credentials |
+| Tenant A | PASS on prior functional head; current-head rerun required | real browser session + `current_company_id()` |
+| Tenant B | PASS on prior functional head; current-head rerun required | real browser session + B credential |
+| A/B isolation | PASS in DB; browser current-head proof pending | browser cross-tenant read/mutate attempts |
+| 28 route discovery | PASS on prior functional head; current-head rerun required | browser run |
 | CRUD persistence | NOT PROVEN on current head | browser action + DB truth |
 | Import | NOT PROVEN on current head | upload/preview/commit + DB truth |
 | OCR/document | NOT PROVEN | real corpus runtime |
@@ -68,16 +70,18 @@
 1. Staging `fnqbvfuwbdpwvhcgzksl` is `ACTIVE_HEALTHY`.
 2. Public tables checked have RLS enabled; no core `anon` table grants were found.
 3. Rolled-back DB adversarial probes passed: Tenant A saw only its own products; Tenant B saw only its own products; cross-tenant UPDATE affected zero rows; malicious company reassignment was rejected.
-4. **Real defect discovered:** authenticated users could not execute `get_sales_export_rows`, `get_purchase_export_rows`, `get_inventory_export_rows`, or `get_receivables_export_rows`, while the authenticated Reports UI consumes export RPCs.
-5. **Live repair applied:** authenticated EXECUTE restored for all four; anon EXECUTE explicitly denied.
-6. **Source repair:** `supabase/migrations/20260904190000_restore_authenticated_export_rpc_execute.sql`.
-7. **Migration-lineage repair:** live fail-closed export row-bound implementation is represented by `supabase/migrations/20260904191000_reconcile_export_row_bounds_and_execute.sql`.
+4. Real defect discovered: authenticated users could not execute `get_sales_export_rows`, `get_purchase_export_rows`, `get_inventory_export_rows`, or `get_receivables_export_rows`, while the authenticated Reports UI consumes export RPCs.
+5. Live repair applied: authenticated EXECUTE restored for all four; anon EXECUTE explicitly denied.
+6. Source repair: `supabase/migrations/20260904190000_restore_authenticated_export_rpc_execute.sql`.
+7. Migration-lineage repair: live fail-closed export row-bound implementation is represented by `supabase/migrations/20260904191000_reconcile_export_row_bounds_and_execute.sql`.
 8. Post-repair authenticated sales/purchase/inventory export calls execute successfully. Invalid row limits and tenant-mismatch calls are rejected as designed.
 9. The live staging migration history contains `p1_fail_closed_export_row_bounds`; its implementation was recovered from the security-hardening branch and reconciled into main rather than silently treating live-only state as source truth.
 10. Supabase security advisor still reports several authenticated-callable SECURITY DEFINER helpers and leaked-password protection disabled. Major mutation helpers inspected include tenant/auth checks and secure search path; no exploit proven, so no blind revoke performed.
-11. **Current-wave data-truth defect discovered:** staging companies use `SAR` while source sales/purchase invoices contain `YER`; profitability correctly marks financial truth insufficient, but dashboard previously reported calculated financial KPIs. Dashboard snapshot was repaired to gate financial KPIs/breakdowns on currency consistency while preserving non-financial counts/inventory value.
+11. Current-wave data-truth defect discovered: staging companies use `SAR` while source sales/purchase invoices contain `YER`; profitability correctly marks financial truth insufficient, but dashboard previously reported calculated financial KPIs. Dashboard snapshot was repaired to gate financial KPIs/breakdowns on currency consistency while preserving non-financial counts/inventory value.
 12. Live dashboard retest for both authenticated tenant contexts now returns `INSUFFICIENT_DATA` with invalid financial KPIs null and financial breakdown arrays empty under the mismatch condition.
 13. Supabase migration history records the dashboard repair as `20260904063122_reconcile_dashboard_currency_truth`; source migration filename was reconciled to that exact live version to eliminate the Preview migration-lineage failure.
+14. Current-wave live 403 forensic: `alternative_item_groups` and `alternative_item_group_members` had RLS policies but no authenticated table privileges. The least-privilege repair grants only `SELECT` to `authenticated` and revokes all privileges from `anon`.
+15. `inventory_balances`, `products`, `sale_items`, and `sales_invoices` already had authenticated `SELECT`; therefore the remaining inventory-intelligence 403 is intentionally left unmutated pending exact request tracing.
 
 ### RECOVERY / BACKUP / RESTORE BOUNDARY
 - Recovery remains **UNPROVEN** at runtime until a real backup/restore/rollback drill produces exact-head operational evidence.
@@ -118,22 +122,5 @@ All seven have explicit expected-disposition contract coverage. Runtime source�
 - Real authenticated browser credentials for Tenant A/B are not provisioned in GitHub Actions.
 - Auth control-plane leaked-password protection.
 - Backup/restore and rollback drill access.
-- Native Windows runtime where Linux CI is insufficient.
-- Immediate local browser execution is temporarily blocked by device unavailability.
-
-### RELEASE / RC GOVERNANCE
-- Historical protected candidate and exact RC references remain historical evidence only and must not be reused as current-head certification after subsequent commits.
-- Production alias binding is NOT CERTIFIED unless an exact-head deployment/alias relationship is independently proven.
-- No alias mutation, rollback, reset, rebase, merge, or unrelated release action is justified merely to clear an evidence blocker.
-
-### CERTIFICATION RULE
-No HTTP 200, UI success message, fixture PASS, simulated DB JWT, historical deployment, or old SHA may certify the current candidate. Final certification requires exact-head evidence for every required product surface and zero unresolved local actionable debt.
-
-### NEXT EXECUTION ORDER
-1. Re-establish exact `main` HEAD after this documentation synchronization.
-2. Run the authenticated browser gate with real Chromium and real A/B Supabase credentials when the device/runtime is available.
-3. Capture Tenant A/B identity, `current_company_id()`, cross-tenant negative tests, CRUD persistence, import, reporting/export, and evidence/decision flows against that exact HEAD.
-4. Execute the golden corpus runtime proof and worker/realtime/recovery tracks in parallel where environment permits.
-5. Close backup/restore/rollback and native-Windows evidence through the required operational environment.
-6. Run the canonical certification decision evaluator only after all required evidence is tied to the same exact source SHA, manifest identity, and certification run.
-7. Certify only when all mandatory contracts are present, blocker count is zero, and no local actionable debt remains.
+- Production exact-head deployment/alias binding.
+- Current-head golden OCR/document runtime evidence.
