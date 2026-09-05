@@ -1,8 +1,13 @@
 # Report Advisor — Master Execution & Truth Index
 
-## CURRENT EXECUTION BOUNDARY — 2026-09-04
+## CURRENT EXECUTION BOUNDARY — 2026-09-05
 
 > Authoritative execution manifest. Because embedding this file's own commit SHA would make the SHA self-invalidating, the exact current candidate is always the Git `HEAD` of `main` at the same checkout. Pair this manifest with `git rev-parse HEAD` for every evidence batch.
+
+### CURRENT EXACT HEAD
+- Current `main` HEAD before this index-only synchronization: `cb1a6091b0860979957ae60005fd5c017bdc525d`.
+- This synchronization is documentation-only and changes the exact HEAD; therefore all runtime/release evidence must be re-established against the new HEAD after the index commit.
+- Latest functional commit: `cb1a6091b0860979957ae60005fd5c017bdc525d` — `certification: add canonical decision evaluator`.
 
 ### BOUNDARY / GOVERNANCE
 - Branch: `main`.
@@ -10,6 +15,9 @@
 - No deployment, test, DB result, or prior RC is reused across a changed exact head.
 - Browser E2E uses real Chromium, real Supabase authentication when credentials exist, and browser-held access tokens; service-role and mocked sessions are prohibited.
 - The browser workflow uses scoped path triggers and `workflow_dispatch`; broad push triggers are prohibited by the CI topology contract.
+- No rebuild from scratch; no reopening closed work without new evidence.
+- Work continues in parallel on independent fronts; external owner/device blockers do not justify idle time on analysis, source reconciliation, test design, or evidence preparation.
+- Certification remains fail-closed: no HTTP 200, UI success message, fixture PASS, simulated DB JWT, historical deployment, or old SHA may certify the current candidate.
 
 ### E2E WAVE
 - Baseline: `083225068f1e2d390f6e1d50e8b178a1e8e1bacb`
@@ -24,14 +32,16 @@
 - Export RPC execution repair: `5ee6e8b10fcf311ab876855360e9a503f7690313`
 - Live row-bound source reconciliation: `94b446cc83be12caab477af4b93252dab32b927e`
 - Workflow migration-trigger repair: `699c557a5615f71a957b4877bf2c1f9d6b5e8426`
-- Current-wave dashboard currency truth repair: `5be528826ac7e7aa1638e1b70784e9c22473506b`.
+- Current-wave dashboard currency-truth repair: `5be528826ac7e7aa1638e1b70784e9c22473506b`.
 - Current-wave dashboard regression/test-of-test: `9c2a4077cd4107757df40e7189018286d3f81ca8`.
 - Current-wave browser exact-checkout hardening: `0d2d3931b687fdf1daa41ceb56c9341fd7667430`.
+- Authenticated-runtime fail-closed secret gate: `f1f9a3d7426128aadbdadcf9e4c62361b7c247a6`.
+- Canonical certification decision evaluator: `cb1a6091b0860979957ae60005fd5c017bdc525d`.
 
 ### CURRENT E2E STATUS
 | Area | Status | Required evidence |
 |---|---|---|
-| Real Chromium | BUILT / CURRENT-HEAD RUNNING | exact-head CI |
+| Real Chromium | BUILT / EXACT-HEAD EXECUTION READY | exact-head CI |
 | Authenticated browser login | BLOCKED / NOT PROVEN | current-head run with real credentials |
 | Tenant A | NOT PROVEN | real browser session + `current_company_id()` |
 | Tenant B | NOT PROVEN | real browser session + B credential |
@@ -41,7 +51,7 @@
 | Import | NOT PROVEN on current head | upload/preview/commit + DB truth |
 | OCR/document | NOT PROVEN | real corpus runtime |
 | Evidence/decision | NOT PROVEN | authenticated browser flow |
-| Reporting/export | PARTIAL | live export RPC grants repaired; browser output unproven |
+| Reporting/export | PARTIAL | live export RPC grants and row bounds repaired; browser output unproven |
 | Realtime/workers | NOT PROVEN | runtime lifecycle evidence |
 | Recovery | NOT PROVEN | backup/restore/rollback drill |
 | Negative security | PARTIAL | DB RLS adversarial evidence; browser A/B pending |
@@ -61,13 +71,19 @@
 12. Live dashboard retest for both authenticated tenant contexts now returns `INSUFFICIENT_DATA` with invalid financial KPIs null and financial breakdown arrays empty under the mismatch condition.
 13. Supabase migration history records the dashboard repair as `20260904063122_reconcile_dashboard_currency_truth`; source migration filename was reconciled to that exact live version to eliminate the Preview migration-lineage failure.
 
+### CERTIFICATION DECISION CONTRACT
+- The canonical evaluator added in `cb1a6091b0860979957ae60005fd5c017bdc525d` is fail-closed.
+- It rejects certification unless the decision is an object, `certification_result=passed`, `blocker_state=clear`, `blocker_count=0`, source SHA matches, release manifest ID matches, certification run ID matches, and the mandatory evidence-contract set matches exactly.
+- It additionally requires all three identity assertions to be explicitly true: source SHA ↔ manifest, manifest ID ↔ payload, and certification run ID ↔ manifest.
+- This evaluator does not create operational evidence; it only prevents an invalid/incomplete decision payload from being accepted as certification.
+
 ### GOLDEN CORPUS
 Required cases: `exchange-arabic`, `exchange-ocr`, `inventory-excel`, `unknown-layout`, `corrupt-extraction`, `arithmetic-mismatch`, `reconciliation-mismatch`.
 
 All seven have explicit expected-disposition contract coverage. Runtime source→parse→normalize→DB→reconcile→analytics→evidence→decision→output proof remains NOT PROVEN.
 
-### ACTIVE LOCAL EXECUTION
-- Current-head browser E2E and real report/data execution.
+### ACTIVE LOCAL / INDEPENDENT EXECUTION
+- Current-head authenticated browser E2E and real report/data execution preparation.
 - A/B browser adversarial CRUD/direct-request checks.
 - RPC caller/signature/migration parity and migration-lineage reconciliation.
 - OCR/document golden runtime corpus.
@@ -75,7 +91,15 @@ All seven have explicit expected-disposition contract coverage. Runtime source�
 - Realtime/storage/AI authorization and provenance.
 - Report/export value truth and adversarial output cases.
 - Performance scale, Electron/native Windows, SECURITY DEFINER least-privilege review.
-- Final certification evidence.
+- Canonical certification decision validation.
+- Final certification evidence assembly.
+
+### LATEST OPERATIONAL HANDOFF STATE — 2026-09-05
+- Authenticated E2E remains the primary P0 operational gate.
+- The authenticated runtime script has been made fail-closed when required environment values are absent; required inputs include authenticated E2E base URL, Supabase URL/anon key, distinct Tenant A/B context, and A/B credentials.
+- The local machine/device needed for browser execution is currently unavailable for approximately 9 hours. This is an owner/device availability blocker, not evidence that the implementation is broken.
+- No credential values are recorded in this index. Secrets must remain outside source control and evidence manifests.
+- While the device is unavailable, independent work can continue on source/test/evidence analysis, migration parity, certification contracts, and blocker reconciliation; final browser proof must wait for an actual real-browser environment.
 
 ### EXTERNAL / OWNER BLOCKERS
 - Real authenticated browser credentials for Tenant A/B are not provisioned in GitHub Actions.
@@ -83,6 +107,21 @@ All seven have explicit expected-disposition contract coverage. Runtime source�
 - Auth control-plane leaked-password protection.
 - Backup/restore and rollback drill access.
 - Native Windows runtime where Linux CI is insufficient.
+- Immediate local browser execution is temporarily blocked by device unavailability.
+
+### RELEASE / RC GOVERNANCE
+- Historical protected candidate and exact RC references remain historical evidence only and must not be reused as current-head certification after subsequent commits.
+- Production alias binding is NOT CERTIFIED unless an exact-head deployment/alias relationship is independently proven.
+- No alias mutation, rollback, reset, rebase, merge, or unrelated release action is justified merely to clear an evidence blocker.
 
 ### CERTIFICATION RULE
 No HTTP 200, UI success message, fixture PASS, simulated DB JWT, historical deployment, or old SHA may certify the current candidate. Final certification requires exact-head evidence for every required product surface and zero unresolved local actionable debt.
+
+### NEXT EXECUTION ORDER
+1. Re-establish exact `main` HEAD after this documentation synchronization.
+2. Run the authenticated browser gate with real Chromium and real A/B Supabase credentials when the device/runtime is available.
+3. Capture Tenant A/B identity, `current_company_id()`, cross-tenant negative tests, CRUD persistence, import, reporting/export, and evidence/decision flows against that exact HEAD.
+4. Execute the golden corpus runtime proof and worker/realtime/recovery tracks in parallel where environment permits.
+5. Close backup/restore/rollback and native-Windows evidence through the required operational environment.
+6. Run the canonical certification decision evaluator only after all required evidence is tied to the same exact source SHA, manifest identity, and certification run.
+7. Certify only when all mandatory contracts are present, blocker count is zero, and no local actionable debt remains.
