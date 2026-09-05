@@ -20,8 +20,8 @@ for (const file of migrationFiles) {
     if (!/SECURITY\s+DEFINER/i.test(block)) continue;
     const fn = block.match(/CREATE\s+(?:OR\s+REPLACE\s+)?FUNCTION\s+([^\s(]+)/i)?.[1] ?? '<unknown>';
 
-    if (!/SET\s+search_path\s*(?:=|TO)\s*'?public'?/i.test(block)) {
-      failures.push(`${file}: ${fn} missing fixed public search_path`);
+    if (!/SET\s+search_path\s*(?:=|TO)\s*'?(?:public|pg_catalog)'?/i.test(block)) {
+      failures.push(`${file}: ${fn} missing fixed public or pg_catalog search_path`);
     }
     if (!/current_company_id\s*\(\)|auth\.uid\s*\(\)/i.test(block)) {
       failures.push(`${file}: ${fn} missing authenticated tenant/user binding`);
