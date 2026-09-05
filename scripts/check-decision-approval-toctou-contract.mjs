@@ -37,11 +37,29 @@ export function validateDecisionApprovalToctou(source) {
 
 validateDecisionApprovalToctou(sql);
 
-// Test-of-test: remove the decision lock, then move the decision status gate ahead
-// of the lock. Both weakened variants must fail closed.
-const noDecisionLock = sql.replace(/from public\.business_intelligence_decisions([\s\S]*?)for update/i, 'from public.business_intelligence_decisions$1');
+// Test-of-test: adversarial mutations must target the latest canonical function body.
+function replaceLatestFunctionBody(source, name, mutate) {
+  const re = new RegExp(`CREATE\\\\s+OR\\\\s+REPLACE\\\\s+FUNCTION\\\\s+public\\\\.${name}\\\\s*\\\\(`, 'gi');
+  let match; let start = -1;
+  while ((match = re.exec(source))) start = match.index;
+  if (start < 0) throw new Error(`Missing canonical function: ${name}`);
+  const next = source.indexOf('\\nCREATE OR REPLACE FUNCTION', start + 1);
+  const end = next < 0 ? source.length : next;
+  const body = source.slice(start, end);
+  return source.slice(0, start) + mutate(body) + source.slice(end);
+}
+const canonicalBody = latestFunctionBody(sql, 'request_decision_approval');
+const canonicalDecisionSelect = canonicalBody.indexOf('from public.business_intelligence_decisions');
+const canonicalDecisionLock = canonicalBody.indexOf('for update', canonicalDecisionSelect);
+const canonicalGate = canonicalBody.indexOf("v_decision_status is distinct from 'PROPOSED'");
+const noDecisionLock = replaceLatestFunctionBody(sql, 'request_decision_approval', body =>
+  body.slice(0, canonicalDecisionLock) + body.slice(canonicalDecisionLock + 'for update'.length)
+);
 assert.throws(() => validateDecisionApprovalToctou(noDecisionLock), /Decision row is not locked/);
-const gateBeforeLock = sql.replace(/for update\n\s*if \(v_decision_status is distinct from 'PROPOSED'\)/i, "if (v_decision_status is distinct from 'PROPOSED')\n    for update");
+const gateBeforeLock = replaceLatestFunctionBody(sql, 'request_decision_approval', body => {
+  const withoutLock = body.slice(0, canonicalDecisionLock) + body.slice(canonicalDecisionLock + 'for update'.length);
+  const gateInWeak = withoutLock.indexOf("v_decision_status is distinct from 'PROPOSED'");
+  return withoutLock.slice(0, gateInWeak) + 'for update\\n    ' + withoutLock.slice(gateInWeak);
+});
 assert.throws(() => validateDecisionApprovalToctou(gateBeforeLock), /Approvaibility check is not performed after decision lock/);
-
 console.log('Decision approval TOCTOU contract: PASS (decision lock-before-check + terminal guard + adversarial weakened-lock/gate test-of-test)');
