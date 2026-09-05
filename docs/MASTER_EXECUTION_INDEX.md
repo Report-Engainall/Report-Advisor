@@ -5,10 +5,10 @@
 > Authoritative execution manifest. Because embedding this file's own commit SHA would make the SHA self-invalidating, the exact current candidate is always the Git `HEAD` of `main` at the same checkout. Pair this manifest with `git rev-parse HEAD` for every evidence batch.
 
 ### CURRENT EXACT HEAD
-- Latest functional candidate before this governance synchronization: `b52b943858b156ecda44506156b6aca99f9dd9e5` — `fix: restore authenticated alternative-group read grants`.
+- Latest functional candidate before this governance synchronization: `010192dbc6505444dacc9f46a41ccb34a4c5c2eb` — `test: make decision lock-order test-of-test precise` + migration-lineage reconciliation.
 - This synchronization is documentation-only and changes the exact HEAD; therefore all runtime/release evidence must be re-established against the new HEAD after the index commit.
-- **Current Code/Test Candidate:** `b52b943858b156ecda44506156b6aca99f9dd9e5`.
-- Latest functional commit: `b52b943858b156ecda44506156b6aca99f9dd9e5`.
+- **Current Code/Test Candidate:** `010192dbc6505444dacc9f46a41ccb34a4c5c2eb`.
+- Latest functional commit: `010192dbc6505444dacc9f46a41ccb34a4c5c2eb`.
 
 ### BOUNDARY / GOVERNANCE
 - Branch: `main`.
@@ -25,7 +25,7 @@
 - The repair was driven by a live authenticated browser 403 where RLS policies existed but the tables had no authenticated table privileges.
 - Anonymous access remains explicitly denied; tenant isolation continues to be enforced by RLS.
 - Supabase staging migration history records the live repair as `restore_authenticated_alternative_group_read_grants`.
-- The remaining `/reports/inventory-intelligence` 403 is not yet classified as a privilege defect; it must be traced to its exact failing request before any further DB mutation.
+- The inventory-intelligence authenticated read boundary is source/live aligned; remaining closure requires current-head request-level browser evidence.
 
 ### E2E WAVE
 - Baseline: `083225068f1e2d390f6e1d50e8b178a1e8e1bacb`
@@ -46,7 +46,7 @@
 - Authenticated-runtime fail-closed secret gate: `f1f9a3d7426128aadbdadcf9e4c62361b7c247a6`.
 - Canonical certification decision evaluator: `cb1a6091b0860979957ae60005fd5c017bdc525d`.
 - Browser auth proof repair: `cff0886152795286c5422b07a247b966d3ae5c92`.
-- Alternative-group authenticated read-grant repair: `b52b943858b156ecda44506156b6aca99f9dd9e5`.
+- Alternative-group authenticated read-grant repair: `010192dbc6505444dacc9f46a41ccb34a4c5c2eb` (migration lineage reconciled; exact live version is `20260905173336`).
 
 ### CURRENT E2E STATUS
 | Area | Status | Required evidence |
