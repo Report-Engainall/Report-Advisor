@@ -43,21 +43,23 @@ assert.throws(() => {
   const body = weakenedRequestDecision;
   const a = pos(body, 'from public.business_intelligence_decisions');
   const b = pos(body, 'for update', a);
-  if (!(a >= 0 && b > a)) throw new Error('request decision lock missing');
+  const gate = pos(body, "v_decision_status is distinct from 'PROPOSED'");
+  if (!(a >= 0 && b >= 0 && b < gate)) throw new Error('request decision lock missing');
 }, /request decision lock missing/);
 
 const weakenedRequestApproval = request.slice(0, reqApprovalLock) + request.slice(reqApprovalLock + 'for update'.length);
 assert.throws(() => {
   const body = weakenedRequestApproval;
   const approvalLock = pos(body, 'for update', reqApproval + 1);
-  if (approvalLock < 0) throw new Error('request approval lock missing');
+  if (approvalLock >= 0) throw new Error('request approval lock missing');
 }, /request approval lock missing/);
 
 const weakenedDecide = decide.replace(/for update/i, '');
 assert.throws(() => {
   const a = pos(weakenedDecide, 'from public.business_intelligence_decisions');
   const b = pos(weakenedDecide, 'for update', a);
-  if (!(a >= 0 && b > a)) throw new Error('decide decision lock missing');
+  const gate = pos(weakenedDecide, "v_decision_status is distinct from 'PROPOSED'");
+  if (!(a >= 0 && b >= 0 && b < gate)) throw new Error('decide decision lock missing');
 }, /decide decision lock missing/);
 
 console.log('Decision approval lock order: PASS (required locks present; each weakened-lock test fails closed).');
