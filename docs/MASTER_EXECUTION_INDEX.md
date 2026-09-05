@@ -5,10 +5,10 @@
 > Authoritative execution manifest. Because embedding this file's own commit SHA would make the SHA self-invalidating, the exact current candidate is always the Git `HEAD` of `main` at the same checkout. Pair this manifest with `git rev-parse HEAD` for every evidence batch.
 
 ### CURRENT EXACT HEAD
-- Latest functional candidate before this governance synchronization: `010192dbc6505444dacc9f46a41ccb34a4c5c2eb` — `test: make decision lock-order test-of-test precise` + migration-lineage reconciliation.
+- Latest functional candidate before this governance synchronization: `dccc654ee27a014fa7efc9028407c65886ca9e7a` — corrected decision lock-order test-of-test regex.
 - This synchronization is documentation-only and changes the exact HEAD; therefore all runtime/release evidence must be re-established against the new HEAD after the index commit.
-- **Current Code/Test Candidate:** `010192dbc6505444dacc9f46a41ccb34a4c5c2eb`.
-- Latest functional commit: `010192dbc6505444dacc9f46a41ccb34a4c5c2eb`.
+- **Current Code/Test Candidate:** `dccc654ee27a014fa7efc9028407c65886ca9e7a`.
+- Latest functional commit: `dccc654ee27a014fa7efc9028407c65886ca9e7a`.
 
 ### BOUNDARY / GOVERNANCE
 - Branch: `main`.
