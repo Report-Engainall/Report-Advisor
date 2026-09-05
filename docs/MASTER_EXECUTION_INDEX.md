@@ -66,6 +66,13 @@ Required cases: `exchange-arabic`, `exchange-ocr`, `inventory-excel`, `unknown-l
 
 All seven have explicit expected-disposition contract coverage. Runtime source→parse→normalize→DB→reconcile→analytics→evidence→decision→output proof remains NOT PROVEN.
 
+### RECOVERY BOUNDARY
+- Backup/restore runtime drill: **UNPROVEN**.
+- Rollback runtime drill: **UNPROVEN**.
+- RPO: **UNPROVEN** until a real backup/restore drill records achieved recovery point.
+- RTO: **UNPROVEN** until a real restore/rollback drill records achieved recovery time.
+- DR operational evidence: **UNPROVEN**; source contracts must not be treated as runtime proof.
+
 ### ACTIVE LOCAL EXECUTION
 - Current-head browser E2E and real report/data execution.
 - A/B browser adversarial CRUD/direct-request checks.
