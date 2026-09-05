@@ -5,10 +5,10 @@
 > Authoritative execution manifest. Because embedding this file's own commit SHA would make the SHA self-invalidating, the exact current candidate is always the Git `HEAD` of `main` at the same checkout. Pair this manifest with `git rev-parse HEAD` for every evidence batch.
 
 ### CURRENT EXACT HEAD
-- Current `main` HEAD before this index-only synchronization: `cb1a6091b0860979957ae60005fd5c017bdc525d`.
+- Latest functional candidate before this governance synchronization: `78ed20e156bba45a56f6b6e0957c2a0ad31bdc7b` — `fix: reconcile duplicate approval migration lock order`.
 - This synchronization is documentation-only and changes the exact HEAD; therefore all runtime/release evidence must be re-established against the new HEAD after the index commit.
-- **Current Code/Test Candidate:** `cb1a6091b0860979957ae60005fd5c017bdc525d`.
-- Latest functional commit: `cb1a6091b0860979957ae60005fd5c017bdc525d` — `certification: add canonical decision evaluator`.
+- **Current Code/Test Candidate:** `78ed20e156bba45a56f6b6e0957c2a0ad31bdc7b`.
+- Latest functional commit: `78ed20e156bba45a56f6b6e0957c2a0ad31bdc7b`.
 
 ### BOUNDARY / GOVERNANCE
 - Branch: `main`.
@@ -19,6 +19,13 @@
 - No rebuild from scratch; no reopening closed work without new evidence.
 - Work continues in parallel on independent fronts; external owner/device blockers do not justify idle time on analysis, source reconciliation, test design, or evidence preparation.
 - Certification remains fail-closed: no HTTP 200, UI success message, fixture PASS, simulated DB JWT, historical deployment, or old SHA may certify the current candidate.
+
+### LOCK-ORDER RECONCILIATION
+- Source migration lineage had duplicate `20260904004000_*` definitions for `request_decision_approval` with conflicting lock-order semantics.
+- `78ed20e156bba45a56f6b6e0957c2a0ad31bdc7b` reconciles the source definition so Decision → Approval locking is preserved in the migration lineage.
+- Live staging DB was already verified with the correct lock order; no blind live DB mutation was used for this source reconciliation.
+- The storage tenant-isolation workflow on `78ed20e156bba45a56f6b6e0957c2a0ad31bdc7b` passed.
+- Execution Enforcement subsequently stopped on the stale candidate identity in this index; this synchronization repairs that governance mismatch without weakening the enforcement gate.
 
 ### E2E WAVE
 - Baseline: `083225068f1e2d390f6e1d50e8b178a1e8e1bacb`
@@ -31,7 +38,7 @@
 - Browser forensic-depth repair: `dcbcbdbcc621cce23786d945e82005af94bcd05f`
 - Product gap ledger: `1c0011188346f1543353fdc8d517a1021bc25743`
 - Export RPC execution repair: `5ee6e8b10fcf311ab876855360e9a503f7690313`
-- Live row-bound source reconciliation: `94b446cc83be12caab477af4b93252dab32b927e`
+- Live row-bound source reconciliation: `94b446cc83be12caab4774af4b93252dab32b927e`
 - Workflow migration-trigger repair: `699c557a5615f71a957b4877bf2c1f9d6b5e8426`
 - Current-wave dashboard currency-truth repair: `5be528826ac7e7aa1638e1b70784e9c22473506b`.
 - Current-wave dashboard regression/test-of-test: `9c2a4077cd4107757df40e7189018286d3f81ca8`.
@@ -109,7 +116,6 @@ All seven have explicit expected-disposition contract coverage. Runtime source�
 
 ### EXTERNAL / OWNER BLOCKERS
 - Real authenticated browser credentials for Tenant A/B are not provisioned in GitHub Actions.
-- Current-head Vercel deployment is blocked by the platform deployment rate limit (`Deployment rate limited — retry in 24 hours`); no older deployment is accepted as current-head evidence.
 - Auth control-plane leaked-password protection.
 - Backup/restore and rollback drill access.
 - Native Windows runtime where Linux CI is insufficient.
