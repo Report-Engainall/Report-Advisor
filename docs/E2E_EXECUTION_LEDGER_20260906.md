@@ -6,7 +6,7 @@
 - Base branch: `main`
 - Baseline `main` HEAD at execution start: `a0fd4a4ea4b9fb8a9a4e81ab2be5924f3b94b987`
 - Execution branch: `e2e/real-import-persistence-closure-20260906`
-- Current execution branch HEAD: `4200cb49d133e0b5265c5f606d1fe59a86a6f0`
+- Current execution branch HEAD: `01d50318fb4a43dc0680c0a2e89255392f64cd02`
 
 ## Implemented in this execution wave
 
@@ -31,10 +31,11 @@ The flow covers:
 14. Real Tenant B login in an isolated browser context.
 15. Authoritative Tenant B resolution and distinct-tenant assertion.
 16. Tenant B REST read probes for Tenant A customer/product/invoice, which must return zero rows.
-17. Tenant B UI probes for Tenant A customer/product, which must return zero matches.
-18. Real logout and return to the unauthenticated login state.
-19. Browser console/page/network failures are collected and prevent PASS.
-20. Exact execution SHA is recorded in the evidence artifact.
+17. Tenant B direct REST mutation probes against Tenant A records, which must return zero affected rows.
+18. Tenant B UI probes for Tenant A customer/product, which must return zero matches.
+19. Real logout and return to the unauthenticated login state.
+20. Browser console/page/network failures are collected and prevent PASS.
+21. Exact execution SHA is recorded in the evidence artifact.
 
 ### Exact-head CI vehicle
 Added `.github/workflows/real-business-e2e.yml`.
@@ -58,9 +59,15 @@ Added `public/favicon.svg` and linked it from `index.html` so the production doc
 
 ## Evidence boundary
 
-This wave **does not claim PASS** merely because the code and workflow exist. The E2E gate becomes `PASS` only after GitHub Actions executes this exact branch head with real authenticated runtime credentials and the resulting artifact proves the complete flow.
+This wave **does not claim PASS** merely because the code and workflow exist. The E2E gate becomes `PASS` only after GitHub Actions executes the exact branch head with real authenticated runtime credentials and the resulting artifact proves the complete flow.
 
 If required runtime secrets are absent, the workflow exits with a distinct `BLOCKED` status. No synthetic credentials, mock session, service-role token, or fabricated success is accepted.
+
+## Execution evidence
+
+- The first automatic run of the new workflow executed against an earlier branch head and failed closed; the available workflow-job log endpoint returned no readable log payload, so no unverified root cause is being invented from that run.
+- The branch was then strengthened with Tenant B adversarial mutation checks and the favicon production fix.
+- Current branch head must be re-executed before any E2E PASS is promoted.
 
 ## External blocker currently encountered
 
@@ -68,7 +75,7 @@ The connected Supabase tool currently denies execution permission for the stagin
 
 ## Next priority
 
-1. Execute the new real business E2E on the exact branch head with real Tenant A/B credentials.
+1. Re-run the real business E2E on the latest exact branch head with real Tenant A/B credentials.
 2. Consume the resulting artifact and classify every failure by root cause.
-3. Add adversarial A↔B mutation attempts once the authenticated runtime execution channel is available.
+3. Add adversarial A↔B Storage/Realtime/RPC mutation probes where those interfaces are actually used.
 4. Continue independent migration parity, worker/recovery, OCR, backup/restore, rollback, performance, observability, Windows, and security work without reopening already closed work.
