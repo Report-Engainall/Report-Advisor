@@ -136,8 +136,23 @@ export function RecommendationsPage() {
   useEffect(() => { load(); }, [load]);
 
   const handleAction = async (id: string, status: string) => {
-    await updateRecommendationStatus(id, status);
-    setRecommendations(prev => prev.map(r => r.id === id ? { ...r, status } : r));
+    const recommendation = recommendations.find(r => r.id === id);
+    if (!recommendation) return;
+
+    // UI states must follow the durable recommendation/decision lifecycle.
+    // The backend accepts OPEN -> approved/rejected; execution completion is
+    // represented by the linked work-item lifecycle, not a local "done" status.
+    const durableStatus = status === 'accepted' ? 'approved' : status;
+    if (!['approved', 'rejected'].includes(durableStatus)) return;
+
+    try {
+      await updateRecommendationStatus(id, durableStatus);
+      setRecommendations(prev => prev.map(r =>
+        r.id === id ? { ...r, status: durableStatus } : r
+      ));
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'تعذر تحديث حالة التوصية');
+    }
   };
 
   if (loading) return <LoadingState />;
@@ -152,9 +167,8 @@ export function RecommendationsPage() {
         {[
           { v: 'all', l: 'الكل' },
           { v: 'new', l: 'جديدة' },
-          { v: 'accepted', l: 'مقبولة' },
+          { v: 'approved', l: 'معتمدة' },
           { v: 'in_progress', l: 'قيد التنفيذ' },
-          { v: 'done', l: 'تم التنفيذ' },
           { v: 'rejected', l: 'مرفوضة' },
         ].map(f => (
           <button
@@ -203,7 +217,7 @@ export function RecommendationsPage() {
 
                 {rec.status === 'new' && (
                   <div className="flex gap-2">
-                    <button onClick={() => handleAction(rec.id, 'accepted')} className="btn-primary text-xs">
+                    <button onClick={() => handleAction(rec.id, 'approved')} className="btn-primary text-xs">
                       <CheckCircle2 size={14} /> قبول
                     </button>
                     <button onClick={() => handleAction(rec.id, 'rejected')} className="btn-secondary text-xs">
@@ -211,12 +225,7 @@ export function RecommendationsPage() {
                     </button>
                   </div>
                 )}
-                {rec.status === 'accepted' && (
-                  <button onClick={() => handleAction(rec.id, 'done')} className="btn-primary text-xs">
-                    <CheckCircle2 size={14} /> تم التنفيذ
-                  </button>
-                )}
-                {rec.status === 'done' && rec.impact_result && (
+                {rec.status === 'approved' && rec.impact_result && (
                   <div className="p-2 rounded-lg bg-success-50 text-success-700 text-xs">
                     <Zap size={12} className="inline ml-1" /> النتيجة: {rec.impact_result}
                   </div>
