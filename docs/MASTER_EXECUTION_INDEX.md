@@ -141,10 +141,10 @@ Issue #205 records an exact historical RC `d846821...` with successful Quality a
 
 ## NEW VERIFIED GAPS — 2026-09-06
 
-- #349 — Recommendations UI exposes a transition flow that does not match the durable decision/recommendation state machine.
-- #350 — Customer/Product create buttons are presentation-only and have no mutation handler.
-- #351 — Canonical import can persist earlier chunks if a later chunk fails unless the lifecycle is made atomic or durably resumable.
-- #352 — Import preview validation is weaker than canonical commit requirements.
+- #349 — Source remediation landed: Recommendations UI now maps acceptance to durable `approved` and no longer exposes a local `done` transition; regression contract check added. Authenticated runtime evidence remains required.
+- #350 — CLOSED: Customer/Product create controls were remediated; retain authenticated runtime proof as part of final acceptance.
+- #351 — Source remediation landed: later-batch failure is recorded as `partial` after committed batches; authenticated adversarial recovery evidence remains required.
+- #352 — Source remediation landed: preview now declares and validates the canonical invoice customer identity alternative (`customer_id` OR `customer_name`); regression contract check added. Runtime proof remains required.
 - #353 — Missing Staging `import_commit_batch` was a concrete source/live runtime break; forward reconciliation has now restored it.
 - #354 — Supabase Auth leaked-password protection remains disabled.
 
