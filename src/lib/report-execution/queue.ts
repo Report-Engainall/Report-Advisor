@@ -44,11 +44,12 @@ export class InMemoryReportQueue {
     for (const job of this.jobs.values()) {
       const leaseExpired = !job.leaseExpiresAt || job.leaseExpiresAt <= now;
 
-      // A worker can crash after taking its final attempt. Without this
-      // transition the expired job would remain "running" forever because
-      // claim() correctly refuses to exceed maxAttempts.
+      // A worker can crash after taking its final attempt. The durable
+      // contract represents this terminal state as dead_letter, so the
+      // in-memory implementation must expose the same state rather than
+      // leaving the job in a merely dead-letter-eligible failed state.
       if (job.status === 'running' && leaseExpired && job.attempts >= job.maxAttempts) {
-        job.status = 'failed';
+        job.status = 'dead_letter';
         job.leaseOwner = undefined;
         job.leaseToken = undefined;
         job.leaseExpiresAt = undefined;
@@ -89,13 +90,13 @@ export class InMemoryReportQueue {
     job.leaseOwner = undefined;
     job.leaseToken = undefined;
     job.leaseExpiresAt = undefined;
-    job.status = job.attempts < job.maxAttempts ? 'queued' : 'failed';
+    job.status = job.attempts < job.maxAttempts ? 'queued' : 'dead_letter';
     job.updatedAt = Date.now();
     return cloneJob(job);
   }
 
   get(runId: string): ReportQueueJob | undefined { const job = this.jobs.get(runId); return job ? cloneJob(job) : undefined; }
-  listDeadLetters(): ReportQueueJob[] { return [...this.jobs.values()].filter(job => job.status === 'failed' && job.attempts >= job.maxAttempts).map(cloneJob); }
+  listDeadLetters(): ReportQueueJob[] { return [...this.jobs.values()].filter(job => job.status === 'dead_letter').map(cloneJob); }
   private require(runId: string): ReportQueueJob { const job = this.jobs.get(runId); if (!job) throw new Error(`Report job not found: ${runId}`); return job; }
   private assertLease(job: ReportQueueJob, workerId: string, leaseToken: string): void {
     if (job.status !== 'running' || job.leaseOwner !== workerId || !leaseToken || job.leaseToken !== leaseToken) throw new Error('Report job lease is not owned by worker or fencing token is stale');
