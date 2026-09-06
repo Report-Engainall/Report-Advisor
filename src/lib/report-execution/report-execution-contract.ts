@@ -1,5 +1,5 @@
 export type ReportOutputFormat = 'web' | 'pdf' | 'xlsx';
-export type ReportJobStatus = 'queued' | 'running' | 'succeeded' | 'failed' | 'cancelled';
+export type ReportJobStatus = 'queued' | 'running' | 'succeeded' | 'failed' | 'dead_letter' | 'cancelled';
 
 export interface ReportExecutionRequest {
   reportId: string;
