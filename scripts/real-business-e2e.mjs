@@ -47,7 +47,15 @@ attachRuntimeCapture(pageA);
 
 async function accessToken(page) {
   return page.evaluate(() => {
-    const raw = Object.entries(localStorage).find(([key]) => key.endsWith('-auth-token'))?.[1];
+    const candidates = Object.entries(localStorage).filter(([key]) => key.endsWith('-auth-token'));
+    const raw = candidates.find(([_, value]) => {
+      try {
+        const parsed = JSON.parse(value);
+        return Boolean(parsed?.access_token);
+      } catch {
+        return false;
+      }
+    })?.[1];
     if (!raw) throw new Error('BROWSER_SESSION_NOT_FOUND');
     const session = JSON.parse(raw);
     if (!session?.access_token) throw new Error('BROWSER_ACCESS_TOKEN_NOT_FOUND');
