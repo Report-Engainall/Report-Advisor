@@ -23,7 +23,7 @@ export class SupabaseReportExecutionStore {
 
   async claim(jobId: string, workerId: string, leaseSeconds = 300, tenantId?: string): Promise<DurableExecutionJob> {
     const tenant = tenantId ?? (await this.require(jobId)).tenantId;
-    const { data, error } = await this.client.rpc('claim_report_execution_job', { p_job_id: jobId, p_company_id: tenant, p_lease_owner: workerId, p_lease_seconds: leaseSeconds });
+    const { data, error } = await this.client.rpc('claim_report_execution_job', { p_job_id: jobId, p_lease_owner: workerId, p_lease_seconds: leaseSeconds });
     if (error) throw error;
     if (data !== true) throw new Error('Report execution job could not be claimed');
     return this.require(jobId);
@@ -34,7 +34,7 @@ export class SupabaseReportExecutionStore {
     const job = await this.require(jobId);
     if (job.tenantId !== tenant) throw new Error('Worker tenant context does not match the durable job tenant');
     if (!job.leaseToken) throw new Error('Worker lease token is missing');
-    const { data, error } = await this.client.rpc('heartbeat_report_execution_job', { p_job_id: jobId, p_company_id: tenant, p_worker_id: workerId, p_lease_token: job.leaseToken, p_lease_seconds: leaseSeconds });
+    const { data, error } = await this.client.rpc('heartbeat_report_execution_job', { p_job_id: jobId, p_worker_id: workerId, p_lease_token: job.leaseToken, p_lease_seconds: leaseSeconds });
     if (error) throw error;
     if (data !== true) throw new Error('Heartbeat rejected: active worker lease is missing, expired, or no longer owns the job');
   }
@@ -45,7 +45,7 @@ export class SupabaseReportExecutionStore {
     const job = await this.require(jobId);
     if (job.tenantId !== tenant) throw new Error('Worker tenant context does not match the durable job tenant');
     if (!job.leaseToken) throw new Error('Worker lease token is missing');
-    const { data, error } = await this.client.rpc('advance_report_execution_checkpoint', { p_job_id: jobId, p_company_id: tenant, p_worker_id: workerId, p_lease_token: job.leaseToken, p_checkpoint: checkpoint });
+    const { data, error } = await this.client.rpc('advance_report_execution_checkpoint', { p_job_id: jobId, p_worker_id: workerId, p_lease_token: job.leaseToken, p_checkpoint: checkpoint });
     if (error) throw error;
     if (data !== true) throw new Error('Checkpoint rejected: lease is missing, expired, or no longer owns the job');
   }
@@ -55,7 +55,7 @@ export class SupabaseReportExecutionStore {
     const job = await this.require(jobId);
     if (job.tenantId !== tenant) throw new Error('Worker tenant context does not match the durable job tenant');
     if (!job.leaseToken) throw new Error('Worker lease token is missing');
-    const { data, error } = await this.client.rpc('complete_report_execution_job', { p_job_id: jobId, p_company_id: tenant, p_worker_id: workerId, p_lease_token: job.leaseToken, p_evidence: evidence });
+    const { data, error } = await this.client.rpc('complete_report_execution_job', { p_job_id: jobId, p_worker_id: workerId, p_lease_token: job.leaseToken, p_evidence: evidence });
     if (error) throw error;
     if (data !== true) throw new Error('Completion rejected: active worker lease is missing or expired');
   }
@@ -65,7 +65,7 @@ export class SupabaseReportExecutionStore {
     const job = await this.require(jobId);
     if (job.tenantId !== tenant) throw new Error('Worker tenant context does not match the durable job tenant');
     if (!job.leaseToken) throw new Error('Worker lease token is missing');
-    const { data, error } = await this.client.rpc('fail_report_execution_job', { p_job_id: jobId, p_company_id: tenant, p_worker_id: workerId, p_lease_token: job.leaseToken, p_error: errorPayload });
+    const { data, error } = await this.client.rpc('fail_report_execution_job', { p_job_id: jobId, p_worker_id: workerId, p_lease_token: job.leaseToken, p_error: errorPayload });
     if (error) throw error;
     if (data !== true) throw new Error('Failure update rejected: active worker lease is missing');
   }
@@ -74,7 +74,7 @@ export class SupabaseReportExecutionStore {
     const tenant = tenantId ?? (await this.require(jobId)).tenantId;
     const job = await this.require(jobId);
     if (job.tenantId !== tenant) throw new Error('Worker tenant context does not match the durable job tenant');
-    const { data, error } = await this.client.rpc('retry_report_execution_job', { p_job_id: jobId, p_company_id: tenant });
+    const { data, error } = await this.client.rpc('retry_report_execution_job', { p_job_id: jobId });
     if (error) throw error;
     if (data !== true) throw new Error('Retry rejected: job is not failed, belongs to another tenant, or has exhausted its retry budget');
   }
