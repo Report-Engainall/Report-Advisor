@@ -7,7 +7,7 @@
 ### ACTIVE REMEDIATION CANDIDATE
 - Branch: `fix/runtime-provenance-20260906`
 - PR: #348 — `fix: reconcile runtime migration provenance and worker contract`
-- Latest verified active remediation HEAD: `ed69ab5c15b8122d281d07cfe0da415b6e4ac9d7`
+- Latest verified active remediation HEAD: `e4fc2e153823a8fa21b6e73d53373a7b31e5f6b3`
 - Frozen historical RCs and Production aliases remain untouched.
 
 ## NO-MORE-88%-RULE
@@ -115,7 +115,7 @@ RLS performance work materially improved the policy shape. Fresh security review
 
 ## CI / RELEASE TRUTH
 
-- Current PR head is `ed69ab5c15b8122d281d07cfe0da415b6e4ac9d7`.
+- Current PR head is `e4fc2e153823a8fa21b6e73d53373a7b31e5f6b3`.
 - PR #348 currently resolves as open and mergeable; no merge has been performed.
 - Current GitHub Actions records on this head still expose completed `failure` jobs with **zero workflow steps** and no downloadable job log blob. Example: Quality #4205 job `101535899227` reports `steps=[]`; direct log retrieval returns GitHub `BlobNotFound`.
 - This is not proof of a product/test failure because no executable test step is present in the returned job record.
