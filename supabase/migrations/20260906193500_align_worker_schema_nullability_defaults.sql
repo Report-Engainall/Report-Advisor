@@ -7,6 +7,3 @@ alter table public.report_execution_jobs
   alter column max_attempts set default 5,
   alter column last_error set not null,
   alter column evidence set not null;
-
-alter table public.report_execution_jobs
-  alter column max_attempts set default 5;
