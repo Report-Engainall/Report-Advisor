@@ -52,6 +52,15 @@ async function restSelect(targetPage, table, filters, select) {
   assert.equal(response.ok, true, `${table} read HTTP ${response.status}: ${body}`);
   return body ? JSON.parse(body) : [];
 }
+async function restAttemptUpdate(targetPage, table, id, payload) {
+  const token = await accessToken(targetPage);
+  const url = new URL(`${supabaseURL}/rest/v1/${table}`);
+  url.searchParams.set('id', `eq.${id}`);
+  const response = await fetch(url, { method: 'PATCH', headers: { apikey: anonKey, Authorization: `Bearer ${token}`, 'Content-Type': 'application/json', Prefer: 'return=representation' }, body: JSON.stringify(payload) });
+  const body = await response.text();
+  assert.equal(response.ok, true, `${table} cross-tenant update HTTP ${response.status}: ${body}`);
+  return body ? JSON.parse(body) : [];
+}
 async function login(targetPage, targetEmail, targetPassword) {
   await targetPage.goto(`${baseURL}/`, { waitUntil: 'networkidle', timeout: 30000 });
   await targetPage.locator('#login-email').fill(targetEmail);
@@ -141,6 +150,14 @@ try {
     assert.equal(productSeenByB.length, 0, 'Tenant B must not read Tenant A product');
     assert.equal(invoiceSeenByB.length, 0, 'Tenant B must not read Tenant A invoice');
     evidence.steps.push({ step: 'tenant-isolation-A-to-B-read', status: 'PASS' });
+
+    const customerMutation = await restAttemptUpdate(pageB, 'customers', customers[0].id, { name: customerName });
+    const productMutation = await restAttemptUpdate(pageB, 'products', products[0].id, { name: productName });
+    const invoiceMutation = await restAttemptUpdate(pageB, 'sales_invoices', invoices[0].id, { status: invoices[0].status });
+    assert.equal(customerMutation.length, 0, 'Tenant B must not update Tenant A customer');
+    assert.equal(productMutation.length, 0, 'Tenant B must not update Tenant A product');
+    assert.equal(invoiceMutation.length, 0, 'Tenant B must not update Tenant A invoice');
+    evidence.steps.push({ step: 'tenant-isolation-B-to-A-mutation', status: 'PASS' });
 
     await pageB.goto(`${baseURL}/customers`, { waitUntil: 'networkidle', timeout: 30000 });
     await pageB.getByPlaceholder('بحث عن عميل...').fill(customerCode);
