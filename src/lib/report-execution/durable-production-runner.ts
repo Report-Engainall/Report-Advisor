@@ -27,7 +27,10 @@ export async function runDurableProductionLifecycle<T>(input: DurableProductionR
     throw new Error('Durable worker heartbeat interval must be positive and shorter than the lease duration');
   }
 
-  const job = await store.claim(input.jobId, input.workerId, leaseSeconds);
+  // Bind the claim itself to the request tenant. Checking tenantId only after
+  // claim would temporarily lease a foreign-tenant job and could leave it
+  // stranded when the subsequent mismatch handling correctly refuses to fail it.
+  const job = await store.claim(input.jobId, input.workerId, leaseSeconds, input.request.tenantId);
   let heartbeatTimer: ReturnType<typeof setInterval> | undefined;
 
   try {
@@ -37,7 +40,7 @@ export async function runDurableProductionLifecycle<T>(input: DurableProductionR
 
     let heartbeatFailure: unknown = null;
     heartbeatTimer = setInterval(() => {
-      void store.heartbeat(input.jobId, input.workerId, leaseSeconds).catch((error) => { heartbeatFailure ??= error; });
+      void store.heartbeat(input.jobId, input.workerId, leaseSeconds, input.request.tenantId).catch((error) => { heartbeatFailure ??= error; });
     }, heartbeatIntervalMs);
 
     const checkpoint = (stage: ReportExecutionStage): ReportExecutionCheckpoint => ({ ...job.checkpoint, sourceHash: input.sourceHash, stage, updatedAt: Date.now() });
@@ -48,7 +51,7 @@ export async function runDurableProductionLifecycle<T>(input: DurableProductionR
       if (!following) throw new Error(`Cannot advance production lifecycle from ${stage}`);
       if (input.executeStage) await input.executeStage(following, { request: input.request, rows: input.rows });
       if (heartbeatFailure) throw heartbeatFailure;
-      await store.saveCheckpoint(input.jobId, checkpoint(following), input.workerId);
+      await store.saveCheckpoint(input.jobId, checkpoint(following), input.workerId, input.request.tenantId);
       stage = following;
     }
 
@@ -65,12 +68,12 @@ export async function runDurableProductionLifecycle<T>(input: DurableProductionR
       scenario: lifecycle.scenario,
       portfolio: lifecycle.portfolio,
       autonomy: lifecycle.autonomy,
-    });
+    }, input.request.tenantId);
     return lifecycle;
   } catch (error) {
     try {
-      await store.fail(input.jobId, input.workerId, { message: error instanceof Error ? error.message : String(error) });
-      if (job.attempt < job.maxAttempts) await store.retry(input.jobId);
+      await store.fail(input.jobId, input.workerId, { message: error instanceof Error ? error.message : String(error) }, input.request.tenantId);
+      if (job.attempt < job.maxAttempts) await store.retry(input.jobId, input.request.tenantId);
     } catch (failureError) {
       throw new AggregateError([error, failureError], 'Durable execution failed and failure/recovery state could not be persisted');
     }
