@@ -142,6 +142,7 @@ Issue #205 records an exact historical RC `d846821...` with successful Quality a
 ## NEW VERIFIED GAPS — 2026-09-06
 
 - #349 — Source remediation landed: Recommendations UI now maps acceptance to durable `approved` and no longer exposes a local `done` transition; regression contract check added. Authenticated runtime evidence remains required.
+- Report-execution contract deepened: regression guard now checks both explicit tenant binding and lease-token fencing in the durable worker adapter.
 - #350 — CLOSED: Customer/Product create controls were remediated; retain authenticated runtime proof as part of final acceptance.
 - #351 — Source remediation landed: later-batch failure is recorded as `partial` after committed batches; authenticated adversarial recovery evidence remains required.
 - #352 — Source remediation landed: preview now declares and validates the canonical invoice customer identity alternative (`customer_id` OR `customer_name`); regression contract check added. Runtime proof remains required.
