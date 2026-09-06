@@ -18,9 +18,9 @@ From this point forward, the project is scored against **sellable, production-ce
 
 ### Honest current score
 
-**Overall sellable / production-certified readiness: ~55%**
+**Overall sellable / production-certified readiness: ~46%**
 
-This is a weighted assessment, not a claim that exactly 55% of source code exists.
+This is a weighted assessment, not a claim that exactly 46% of source code exists.
 
 | Gate | Weight | Current evidence-based completion | Weighted contribution |
 |---|---:|---:|---:|
@@ -36,11 +36,11 @@ This is a weighted assessment, not a claim that exactly 55% of source code exist
 | UX/business acceptance/reporting | 10% | ~45% | 4.5 |
 | **Total** | **100%** | | **46.0** |
 
-Because several foundational areas are materially implemented beyond their operational evidence, a separate **implementation maturity** view is approximately **80%+**. However, the release decision must use the lower operational score. Therefore the practical readiness band is **~50–55%, not 88%**.
+A separate **implementation maturity** view is approximately **80%+**, because much of the architecture, contracts, UI, migrations, and test scaffolding is already implemented. That number must never be used as the release-readiness percentage.
 
 ### What this means
 - **Codebase maturity:** high (~80%+).
-- **Operational/production certification:** ~46–55% depending on whether partially demonstrated foundations receive implementation credit.
+- **Operational/production certification:** **46% by the explicit weighted gate model above**.
 - **Sellable with full production confidence:** **NO, not yet**.
 - The remaining work is not cosmetic. Several release-critical paths still lack real-world evidence.
 
