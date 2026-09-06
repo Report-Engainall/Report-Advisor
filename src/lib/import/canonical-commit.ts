@@ -32,6 +32,66 @@ function requiredBoolean(value: unknown, field: string, rowNumber: number): bool
   throw new Error(`${field} must be a boolean for import row ${rowNumber}`);
 }
 
+function normalizeCustomerName(value: unknown): string | null {
+  const v = text(value);
+  return v ? v.replace(/\s+/g, ' ').toLocaleLowerCase() : null;
+}
+
+async function resolveInvoiceCustomerIds(
+  rows: CanonicalImportRow[],
+  companyId: string,
+): Promise<CanonicalImportRow[]> {
+  const needsResolution = rows.filter((row) => !text(row.data.customer_id));
+  if (!needsResolution.length) return rows;
+
+  const customerNames = new Set(
+    needsResolution
+      .map((row) => normalizeCustomerName(row.data.customer_name))
+      .filter((name): name is string => Boolean(name)),
+  );
+
+  if (customerNames.size === 0) {
+    throw new Error('CUSTOMER_ID_OR_EXACT_CUSTOMER_NAME_REQUIRED');
+  }
+
+  const { data, error } = await supabase
+    .from('customers')
+    .select('id,name')
+    .eq('company_id', companyId);
+  if (error) throw error;
+
+  const matches = new Map<string, string[]>();
+  for (const customer of data ?? []) {
+    const normalized = normalizeCustomerName(customer.name);
+    if (!normalized || !customerNames.has(normalized)) continue;
+    const ids = matches.get(normalized) ?? [];
+    ids.push(String(customer.id));
+    matches.set(normalized, ids);
+  }
+
+  return rows.map((row) => {
+    if (text(row.data.customer_id)) return row;
+
+    const normalizedName = normalizeCustomerName(row.data.customer_name);
+    if (!normalizedName) {
+      throw new Error(`CUSTOMER_ID_OR_EXACT_CUSTOMER_NAME_REQUIRED_FOR_ROW_${row.rowNumber}`);
+    }
+
+    const ids = matches.get(normalizedName) ?? [];
+    if (ids.length === 0) {
+      throw new Error(`CUSTOMER_NAME_NOT_FOUND_FOR_ROW_${row.rowNumber}`);
+    }
+    if (ids.length > 1) {
+      throw new Error(`CUSTOMER_NAME_AMBIGUOUS_FOR_ROW_${row.rowNumber}`);
+    }
+
+    return {
+      ...row,
+      data: { ...row.data, customer_id: ids[0] },
+    };
+  });
+}
+
 function canonicalizeRow(entityType: 'products' | 'customers' | 'sales_invoices', row: CanonicalImportRow): Record<string, unknown> {
   const d = row.data;
   if (entityType === 'products') {
@@ -80,7 +140,10 @@ export async function commitImportBatch(
 
   // The canonical boundary is intentionally runtime-enforced, not merely a TypeScript type.
   rows.forEach((row) => assertCanonicalBoundary(row, companyId));
-  const payload = rows.map((row) => canonicalizeRow(entityType, { data: row.data, rowNumber: row.rowNumber }));
+  const resolvedRows = entityType === 'sales_invoices'
+    ? await resolveInvoiceCustomerIds(rows, companyId)
+    : rows;
+  const payload = resolvedRows.map((row) => canonicalizeRow(entityType, { data: row.data, rowNumber: row.rowNumber }));
   const { data, error } = await supabase.rpc('import_commit_batch', {
     p_company_id: companyId,
     p_entity_type: entityType,
