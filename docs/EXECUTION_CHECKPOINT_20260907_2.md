@@ -1,40 +1,34 @@
-# Execution Checkpoint — 2026-09-07 / Batch 2
+# Execution Checkpoint — 2026-09-07 / Batch 2 — Correction
 
 ## Protocol
-`1` resumed from the prior GitHub checkpoint. No closed work was restarted. This batch expanded the Worker/report-execution regression boundary with multiple independent controls and registered them as executable package scripts.
+`1` resumed from the latest GitHub state. No closed work was restarted. This batch materially expanded the Worker/report-execution regression boundary and wired it into Quality.
 
 ## Changes pushed
 1. `scripts/check-report-execution-security-definer-boundary.mjs`
    - audits Worker + Recovery migrations;
-   - requires explicit `p_company_id`;
-   - requires tenant predicate;
-   - requires hardened `SECURITY DEFINER` search path.
-2. `scripts/check-report-execution-lease-state-machine.mjs`
-   - checks admission states and attempt increment;
-   - lease-token creation and fencing;
-   - row locking for checkpoint transition;
-   - strict sequential checkpoint progression;
-   - rendered prerequisite for completion;
-   - dead-letter convergence at attempt exhaustion;
-   - bounded retry state.
-3. `package.json`
-   - registers five executable report-execution regression commands: runtime admission, evidence boundary, tenant isolation, security-definer boundary, and lease/state-machine boundary.
+   - enumerates all six canonical Worker lifecycle RPCs;
+   - requires explicit `p_company_id` and tenant predicates;
+   - requires hardened `SECURITY DEFINER` + `search_path to 'pg_catalog'`;
+   - checks attempt increment, fresh lease token, owner/token fencing, row locking, source-hash immutability, sequential checkpoints, rendered completion, dead-letter convergence, bounded retry;
+   - checks explicit removal of legacy signatures;
+   - checks end-user revocation and `service_role` execute grants.
+2. `.github/workflows/quality.yml`
+   - adds a dedicated `Report execution security and lease boundary` gate executing the two Worker regression contracts already registered in `package.json`.
 
 ## Source verification
-The active Worker migration explicitly uses tenant-bound `p_company_id`, tenant predicates, `SECURITY DEFINER` with `search_path to 'pg_catalog'`, lease owner/token fencing, `FOR UPDATE` checkpoint admission, rendered completion, exhausted-attempt dead-lettering, and service-role-only execution. These facts were inspected at the exact active candidate. fileciteturn62file0
+The exact active Worker migration contains explicit `p_company_id` tenant predicates, `SECURITY DEFINER` with `search_path to 'pg_catalog'`, lease owner/token fencing, `FOR UPDATE` checkpoint admission, source-hash immutability, rendered-only completion, exhausted-attempt dead-lettering, bounded retry, legacy-signature drops, and service-role-only grants.
 
-The runtime-admission and evidence-boundary regression files are present at the active candidate and contain the expected assertion sets. fileciteturn59file0 fileciteturn60file0
+## CI evidence boundary
+The immediately preceding HEAD `36b27eb657bcd8c6506ca1715ea57275fb1c9a73` produced a broad set of completed workflow failures. The available GitHub job payloads exposed no steps/logs (for example `ci-bootstrap-smoke` job `101576704062`), so the connector cannot establish a failing command or code defect from those runs. No PASS is inferred from missing logs, and no operational certification is claimed.
 
-## Evidence boundary
-- Static/source verification: PASS for the inspected contracts.
-- Executable CI result for the newest post-change HEAD: **PENDING / not yet observed**.
-- No operational certification claim is made from source inspection.
-
-## Current branch
+## Current exact state
 - Branch: `fix/runtime-provenance-20260906`
-- Current HEAD after this checkpoint: `4e9d58ebd00c6d376f46dbb04bb39eb79d10006f`
+- Current HEAD after this correction: `071782a2661f15d59f774d12be701c1c99e9ad02`
 - PR #348 remains open and mergeable; not merged.
-- Frozen RC and Production aliases remain untouched.
+- Frozen RCs and Production aliases remain untouched.
 
-## Next `1`
-Resume from `4e9d58ebd00c6d376f46dbb04bb39eb79d10006f`. First obtain executable CI status for the exact HEAD; then move to the next independent high-value release gate (authenticated current-head E2E/A-B isolation, migration parity, OCR golden runtime, or import/reconciliation runtime) without repeating these Worker contract checks unless evidence changes.
+## Open production gates
+Authenticated current-head E2E; live Tenant A/B isolation; production runtime; backup/restore; rollback; OCR/document golden-corpus runtime; live worker crash/retry/DLQ/recovery.
+
+## Next execution point
+Resume from `071782a2661f15d59f774d12be701c1c99e9ad02`. Prefer the next independent high-value release boundary; do not repeat these Worker checks unless source or evidence changes.
