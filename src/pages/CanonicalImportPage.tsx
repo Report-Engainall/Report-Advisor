@@ -19,9 +19,9 @@ type EntityType = 'sales_invoices' | 'products' | 'customers';
 interface Row { rowNumber: number; data: Record<string, any>; valid: boolean; error?: string }
 
 const ENTITIES: Array<{ value: EntityType; label: string; required: string[] }> = [
-  { value: 'sales_invoices', label: 'فواتير المبيعات', required: ['invoice_number', 'invoice_date', 'customer_name', 'total'] },
-  { value: 'products', label: 'المنتجات', required: ['sku', 'name', 'cost_price', 'selling_price'] },
-  { value: 'customers', label: 'العملاء', required: ['name'] },
+  { value: 'sales_invoices', label: 'فواتير المبيعات', required: ['invoice_number', 'invoice_date', 'subtotal', 'tax_amount', 'total', 'paid_amount', 'status'] },
+  { value: 'products', label: 'المنتجات', required: ['sku', 'name', 'unit', 'cost_price', 'selling_price', 'min_stock', 'reorder_point', 'is_active'] },
+  { value: 'customers', label: 'العملاء', required: ['name', 'segment', 'credit_limit', 'payment_terms_days'] },
 ];
 
 function icon(format: FileFormat) {
@@ -88,7 +88,14 @@ export function CanonicalImportPage() {
           const value = key ? data[key] : undefined;
           return value == null || String(value).trim() === '';
         });
-        return { rowNumber: i + 1, data, valid: missing.length === 0, error: missing.length ? `حقول مطلوبة ناقصة: ${missing.join(', ')}` : undefined };
+        const invoiceCustomerIdentityMissing = entityType === 'sales_invoices'
+          && !['customer_id', 'customer_name'].some(field => {
+            const key = Object.keys(data).find(k => k === field) ?? Object.keys(data).find(k => k.toLowerCase().includes(field));
+            const value = key ? data[key] : undefined;
+            return value != null && String(value).trim() !== '';
+          });
+        const allMissing = invoiceCustomerIdentityMissing ? [...missing, 'customer_id أو customer_name'] : missing;
+        return { rowNumber: i + 1, data, valid: allMissing.length === 0, error: allMissing.length ? `حقول مطلوبة ناقصة: ${allMissing.join(', ')}` : undefined };
       }));
       setStep('preview');
     } catch (e: any) {
