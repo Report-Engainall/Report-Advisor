@@ -90,8 +90,13 @@ async function restUpdate(page, table, id, payload) {
     body: JSON.stringify(payload),
   });
   const body = await response.text();
+  if (response.status === 401 || response.status === 403) {
+    return { rows: [], status: response.status, body, denied: true };
+  }
   assert.equal(response.ok, true, `${table} cross-tenant update HTTP ${response.status}: ${body}`);
-  return body ? JSON.parse(body) : [];
+  const rows = body ? JSON.parse(body) : [];
+  assert.equal(Array.isArray(rows), true, `${table} cross-tenant update must return a row array`);
+  return { rows, status: response.status, body, denied: false };
 }
 
 async function login(page, email, password) {
@@ -227,8 +232,9 @@ try {
       ['products', products[0].id, { name: productName }, 'product'],
       ['sales_invoices', invoices[0].id, { status: invoices[0].status }, 'invoice'],
     ]) {
-      const rows = await restUpdate(pageB, table, id, payload);
-      assert.equal(rows.length, 0, `Tenant B must not mutate Tenant A ${label}`);
+      const result = await restUpdate(pageB, table, id, payload);
+      assert.equal(result.rows.length, 0, `Tenant B must not mutate Tenant A ${label}`);
+      evidence.steps.push({ step: `cross-tenant-update:${label}`, status: 'PASS', httpStatus: result.status, denied: result.denied });
     }
     evidence.steps.push({ step: 'B-to-A-rest-mutation-isolation', status: 'PASS' });
 
@@ -257,7 +263,6 @@ try {
   await logoutA.click();
   await pageA.locator('#login-email').waitFor({ state: 'visible', timeout: 10000 });
   evidence.steps.push({ step: 'logout-A', status: 'PASS' });
-
   if (evidence.failures.length) throw new Error(`BROWSER_RUNTIME_ERRORS:${evidence.failures.join(' | ')}`);
   evidence.status = 'PASS';
 } catch (error) {
