@@ -2,16 +2,17 @@ import { strict as assert } from 'node:assert';
 import fs from 'node:fs';
 import { advanceCheckpoint, canAdvanceCheckpoint, createInitialCheckpoint, resumeFromCheckpoint, type ReportExecutionCheckpoint } from '../src/lib/report-execution/checkpoint.ts';
 import { SupabaseReportExecutionStore } from '../src/lib/report-execution/durable-worker-adapter.ts';
-import type { ReportExecutionRequest } from '../src/lib/report-execution/report-execution-contract.ts';
+import { assertEvidenceTenant, assertExecutionRequest, type ReportExecutionRequest } from '../src/lib/report-execution/report-execution-contract.ts';
 
 // Ordered checkpoint state machine: forward-only, no skipping, no regression.
 const stages = ['queued','fingerprinted','extracted','canonicalized','validated','analyzed','decisioned','committed','rendered'] as const;
 for (let i = 0; i < stages.length - 1; i += 1) {
   assert.equal(canAdvanceCheckpoint(stages[i], stages[i + 1]), true, `expected forward transition ${stages[i]} -> ${stages[i + 1]}`);
-  if (i > 0) assert.equal(canAdvanceCheckpoint(stages[i], stages[i - 1]), false, `regression must be rejected ${stages[i]} -> ${stages[i - 1]}`);
+  assert.equal(canAdvanceCheckpoint(stages[i + 1], stages[i]), false, `regression must be rejected ${stages[i + 1]} -> ${stages[i]}`);
 }
 assert.equal(canAdvanceCheckpoint('queued','analyzed'), false);
 assert.equal(canAdvanceCheckpoint('rendered','queued'), false);
+assert.equal(canAdvanceCheckpoint('rendered','rendered'), false);
 
 // Initial checkpoint admission and evidence normalization.
 const initial = createInitialCheckpoint('sha-a', ['z:evidence', 'a:evidence', 'z:evidence']);
@@ -38,8 +39,25 @@ assert.throws(() => resumeFromCheckpoint({ ...validCheckpoint, evidenceKeys: nul
 assert.throws(() => resumeFromCheckpoint({ ...validCheckpoint, updatedAt:Number.NaN }), /timestamp/);
 assert.throws(() => resumeFromCheckpoint({ ...validCheckpoint, stage:'unknown' as never }), /unknown checkpoint stage/);
 
-// Tenant + idempotency identity must remain part of the durable execution key.
+// Execution request contract: identity, idempotency, formats, and duplicate rejection.
 const request: ReportExecutionRequest = { reportId:'r', tenantId:'t', requestedBy:'u', parameters:{}, formats:['web'], idempotencyKey:'k' };
+assert.doesNotThrow(() => assertExecutionRequest(request));
+for (const invalid of [
+  { ...request, reportId:'' },
+  { ...request, tenantId:'' },
+  { ...request, requestedBy:'' },
+  { ...request, idempotencyKey:'' },
+]) assert.throws(() => assertExecutionRequest(invalid), /identity|idempotency/);
+assert.throws(() => assertExecutionRequest({ ...request, formats:[] }), /at least one output format/);
+assert.throws(() => assertExecutionRequest({ ...request, formats:['web','web'] }), /Duplicate output formats/);
+assert.throws(() => assertExecutionRequest({ ...request, formats:['csv' as never] }), /Unsupported report output format/);
+
+// Evidence must never cross tenant boundaries.
+const evidence = { runId:'run', reportId:'r', tenantId:'t', status:'succeeded' as const, rowCount:1, outputFormats:['web'] as const, artifactRefs:['a'], inputFingerprint:'fp', engineVersion:'v1' };
+assert.doesNotThrow(() => assertEvidenceTenant(evidence, 't'));
+assert.throws(() => assertEvidenceTenant(evidence, 'other-tenant'), /tenant mismatch/);
+
+// Tenant + idempotency identity must remain part of the durable execution key.
 assert.equal(SupabaseReportExecutionStore.requestIdentity(request), 't:k:latest');
 assert.equal(SupabaseReportExecutionStore.requestIdentity({ ...request, sourceSnapshotId:'snapshot-1' }), 't:k:snapshot-1');
 assert.throws(() => SupabaseReportExecutionStore.requestIdentity({ ...request, tenantId:'' }), /tenant and idempotency context/);
@@ -76,4 +94,4 @@ for (const token of ['p_company_id uuid', 'p_lease_token text', "status = 'queue
   assert.ok(workerMigration.includes(token), `missing worker contract invariant: ${token}`);
 }
 
-console.log('Report execution runtime: PASS (forward-only checkpoints + malformed-resume rejection + tenant/idempotency identity + lease/dead-letter + explicit tenant/lease-token contract)');
+console.log('Report execution runtime: PASS (forward-only checkpoints + malformed-resume rejection + request/evidence tenant contract + tenant/idempotency identity + lease/dead-letter + explicit tenant/lease-token contract)');
