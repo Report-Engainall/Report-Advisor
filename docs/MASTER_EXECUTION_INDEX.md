@@ -7,7 +7,7 @@
 ### ACTIVE REMEDIATION CANDIDATE
 - Branch: `fix/runtime-provenance-20260906`
 - PR: #348 — `fix: reconcile runtime migration provenance and worker contract`
-- Exact active remediation HEAD before this documentation commit: `8b56439495d2586c64e6cb194a4e1e335bb82692`
+- Latest verified active remediation HEAD: `1cd3df094eb1c4c5a3fdf371ad5758b15ebe91ae`
 - Frozen historical RCs and Production aliases remain untouched.
 
 ## NO-MORE-88%-RULE
@@ -91,7 +91,7 @@ Still open:
 - Customer and sales-invoice canonical upsert RPCs were restored to Staging and then hardened to `SECURITY INVOKER`, leaving RLS as an independent enforcement layer.
 - Four unauthenticated negative import security checks passed against Staging.
 - Full authenticated business-corpus runtime remains open.
-- Import UI has additional real gaps tracked in issues #351 and #352: failure after an earlier successful batch can leave partial state, and preview-required fields do not match canonical commit requirements.
+- Source remediation for #351/#352 is landed; authenticated adversarial recovery and business-corpus runtime evidence remain required.
 
 ## P1 — ARABIC OCR / DOCUMENT INTELLIGENCE
 **Status: NOT CERTIFIED**
@@ -111,14 +111,16 @@ Contract and platform checks exist, but actual Windows filesystem lifecycle evid
 ## P2 — PERFORMANCE / OBSERVABILITY / GOVERNANCE / UX
 **Status: PARTIAL**
 
-RLS performance work materially improved the policy shape. Fresh security review still reports authenticated SECURITY DEFINER functions and leaked-password protection disabled. Recommendation UI lifecycle and presentation-only customer/product create controls are now tracked as real UX/runtime gaps (#349, #350).
+RLS performance work materially improved the policy shape. Fresh security review still reports authenticated SECURITY DEFINER functions and leaked-password protection disabled. Recommendation UI lifecycle remediation is landed; authenticated runtime evidence remains required.
 
 ## CI / RELEASE TRUTH
 
-- Latest PR-head Vercel deployment for the current documentation commit reached `READY`; build completed successfully with warnings only.
-- Current GitHub Actions records on the remediation head still expose completed `failure` jobs with `steps=null`; this is not proof of test-step execution.
+- Current PR head is `1cd3df094eb1c4c5a3fdf371ad5758b15ebe91ae`.
+- PR #348 currently resolves as open and mergeable; no merge has been performed.
+- Current GitHub Actions records on this head still expose completed `failure` jobs with **zero workflow steps** and no downloadable job log blob. Example: Quality #4205 job `101535899227` reports `steps=[]`; direct log retrieval returns GitHub `BlobNotFound`.
+- This is not proof of a product/test failure because no executable test step is present in the returned job record.
 - Therefore no CI PASS is being fabricated or inferred.
-- PR #348 remains unmerged until executable CI evidence and the required operational gates exist.
+- The next useful CI recovery action is to obtain a real executable run/log or runner diagnostics rather than changing product code to satisfy an unobserved failure.
 
 ## HISTORICAL EVIDENCE BOUNDARY
 
@@ -148,6 +150,7 @@ Issue #205 records an exact historical RC `d846821...` with successful Quality a
 - #352 — Source remediation landed: preview now declares and validates the canonical invoice customer identity alternative (`customer_id` OR `customer_name`); regression contract check added. Runtime proof remains required.
 - #353 — Missing Staging `import_commit_batch` was a concrete source/live runtime break; forward reconciliation has now restored it.
 - #354 — Supabase Auth leaked-password protection remains disabled.
+- CI forensic boundary — repeated current-head jobs across Quality, Bootstrap, OCR and other gates return `failure` with zero steps and unavailable log blobs; this remains an infrastructure/evidence blocker, not a proven product defect.
 
 ## GOVERNANCE RULE
 
