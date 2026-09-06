@@ -26,4 +26,25 @@ for (const file of files) {
   if (forbidden.test(body) && !allowedMarkers.test(body)) violations.push(file);
 }
 if (violations.length) throw new Error(`Runtime import governance violation:\n${violations.join('\n')}`);
-console.log(`Import runtime governance: PASS (${files.length} source files scanned)`);
+
+const previewPath = path.join(root, 'src/pages/CanonicalImportPage.tsx');
+const preview = fs.readFileSync(previewPath, 'utf8');
+const requiredContracts = [
+  ['sales_invoices', ['invoice_number', 'invoice_date', 'subtotal', 'tax_amount', 'total', 'paid_amount', 'status']],
+  ['products', ['sku', 'name', 'unit', 'cost_price', 'selling_price', 'min_stock', 'reorder_point', 'is_active']],
+  ['customers', ['name', 'segment', 'credit_limit', 'payment_terms_days']],
+];
+for (const [entity, fields] of requiredContracts) {
+  for (const field of fields) {
+    if (!preview.includes(`'${field}'`)) {
+      throw new Error(`Import preview contract missing ${entity}.${field}`);
+    }
+  }
+}
+if (!preview.includes("['customer_id', 'customer_name']")) {
+  throw new Error('Import preview contract must allow customer_id OR customer_name for sales invoices');
+}
+if (!preview.includes('invoiceCustomerIdentityMissing')) {
+  throw new Error('Import preview must reject sales invoices without customer identity');
+}
+console.log(`Import runtime governance: PASS (${files.length} source files scanned; canonical preview contract verified)`);
