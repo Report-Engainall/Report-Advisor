@@ -66,4 +66,21 @@ assert.equal(queue.listDeadLetters().length, 1);
 assert.equal(queue.get('run-2')?.leaseToken, undefined);
 assert.equal(queue.claim('worker-c', 60_000), undefined, 'dead-lettered job must not be claimed again');
 
+// Crash recovery regression: when the final lease expires without a fail()
+// callback, the next poll must finalize the exhausted job instead of leaving
+// it stranded in running state forever.
+queue.enqueue({ ...request, idempotencyKey: 'lease-expired-final-attempt' }, 'run-3', 1);
+const finalAttempt = queue.claim('worker-a', 60_000);
+assert.ok(finalAttempt?.leaseToken);
+try {
+  Date.now = () => (finalAttempt.leaseExpiresAt ?? realNow()) + 1;
+  assert.equal(queue.claim('worker-b', 60_000), undefined, 'expired final attempt must not be reclaimed');
+} finally {
+  Date.now = realNow;
+}
+assert.equal(queue.get('run-3')?.status, 'failed', 'expired final attempt must be dead-letter eligible');
+assert.equal(queue.get('run-3')?.leaseToken, undefined);
+assert.equal(queue.get('run-3')?.leaseOwner, undefined);
+assert.equal(queue.listDeadLetters().length, 2);
+
 console.log('report-execution lease fencing adversarial regression: PASS');
