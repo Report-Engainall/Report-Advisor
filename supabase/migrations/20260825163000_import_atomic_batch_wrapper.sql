@@ -61,7 +61,6 @@ BEGIN
         v_row->>'invoice_number',
         NULLIF(v_row->>'invoice_date','')::date,
         NULLIF(v_row->>'customer_id','')::uuid,
-        v_row->>'customer_name',
         NULLIF(v_row->>'subtotal','')::numeric,
         NULLIF(v_row->>'tax_amount','')::numeric,
         NULLIF(v_row->>'total','')::numeric,
