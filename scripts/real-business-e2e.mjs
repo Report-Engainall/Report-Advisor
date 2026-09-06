@@ -21,6 +21,12 @@ await fs.mkdir(reportDir, { recursive: true });
 const evidence = {
   exactHead,
   baseURL,
+  contract: {
+    tenantScopedReadIsolation: true,
+    crossTenantMutationDenied: true,
+    refreshTenantPersistence: true,
+    logoutLifecycle: true,
+  },
   browser: 'Chromium',
   startedAt: new Date().toISOString(),
   status: 'NOT_PROVEN',
