@@ -20,7 +20,13 @@ export interface DurableProductionRunInput<T = unknown> {
 
 export async function runDurableProductionLifecycle<T>(input: DurableProductionRunInput<T>, store: SupabaseReportExecutionStore) {
   const leaseSeconds = input.leaseSeconds ?? 300;
-  const heartbeatIntervalMs = input.heartbeatIntervalMs ?? Math.max(30_000, Math.floor((leaseSeconds * 1000) / 3));
+  if (!Number.isInteger(leaseSeconds) || leaseSeconds < 30) throw new Error('Durable worker lease must be an integer of at least 30 seconds');
+
+  const heartbeatIntervalMs = input.heartbeatIntervalMs ?? Math.max(5_000, Math.floor((leaseSeconds * 1000) / 3));
+  if (!Number.isInteger(heartbeatIntervalMs) || heartbeatIntervalMs <= 0 || heartbeatIntervalMs >= leaseSeconds * 1000) {
+    throw new Error('Durable worker heartbeat interval must be positive and shorter than the lease duration');
+  }
+
   const job = await store.claim(input.jobId, input.workerId, leaseSeconds);
   let heartbeatTimer: ReturnType<typeof setInterval> | undefined;
 
