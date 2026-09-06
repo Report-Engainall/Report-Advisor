@@ -12,3 +12,8 @@ for (const [path, tokens] of Object.entries(files)) {
   for (const token of tokens) if (!source.includes(token)) throw new Error(`Report execution foundation missing ${token} in ${path}`);
 }
 console.log('Report execution foundation contract: PASS');
+
+const canonical = readFileSync(new URL('../src/lib/report-execution/durable-worker-adapter.ts', import.meta.url), 'utf8');
+if (!canonical.includes('leaseToken')) throw new Error('Lease fencing contract missing');
+if (!canonical.includes('p_company_id')) throw new Error('Explicit tenant contract missing');
+console.log('Report execution foundation: tenant + lease fencing verified');
