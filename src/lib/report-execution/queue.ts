@@ -43,6 +43,20 @@ export class InMemoryReportQueue {
     const now = Date.now();
     for (const job of this.jobs.values()) {
       const leaseExpired = !job.leaseExpiresAt || job.leaseExpiresAt <= now;
+
+      // A worker can crash after taking its final attempt. Without this
+      // transition the expired job would remain "running" forever because
+      // claim() correctly refuses to exceed maxAttempts.
+      if (job.status === 'running' && leaseExpired && job.attempts >= job.maxAttempts) {
+        job.status = 'failed';
+        job.leaseOwner = undefined;
+        job.leaseToken = undefined;
+        job.leaseExpiresAt = undefined;
+        job.lastError ??= 'Worker lease expired after final attempt';
+        job.updatedAt = now;
+        continue;
+      }
+
       if ((job.status === 'queued' || (job.status === 'running' && leaseExpired)) && job.attempts < job.maxAttempts) {
         job.status = 'running';
         job.attempts += 1;
