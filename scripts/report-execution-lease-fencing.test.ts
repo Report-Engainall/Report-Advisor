@@ -61,7 +61,7 @@ assert.ok(failureSecond?.leaseToken);
 assert.notEqual(failureSecond.leaseToken, failureFirst.leaseToken);
 assert.equal(failureSecond.attempts, 2);
 queue.fail('run-2', 'worker-b', failureSecond.leaseToken, 'terminal crash');
-assert.equal(queue.get('run-2')?.status, 'failed');
+assert.equal(queue.get('run-2')?.status, 'dead_letter');
 assert.equal(queue.listDeadLetters().length, 1);
 assert.equal(queue.get('run-2')?.leaseToken, undefined);
 assert.equal(queue.claim('worker-c', 60_000), undefined, 'dead-lettered job must not be claimed again');
@@ -78,7 +78,7 @@ try {
 } finally {
   Date.now = realNow;
 }
-assert.equal(queue.get('run-3')?.status, 'failed', 'expired final attempt must be dead-letter eligible');
+assert.equal(queue.get('run-3')?.status, 'dead_letter', 'expired final attempt must enter the dead-letter state');
 assert.equal(queue.get('run-3')?.leaseToken, undefined);
 assert.equal(queue.get('run-3')?.leaseOwner, undefined);
 assert.equal(queue.listDeadLetters().length, 2);
