@@ -2,12 +2,12 @@
 
 ## CURRENT EXECUTION BOUNDARY — 2026-09-06
 
-> Authoritative execution manifest. This index is not a release certificate. Every certification claim must be tied to the exact Git SHA under test and to fresh operational evidence.
+> Authoritative execution manifest. This index is not a release certificate. Every certification claim must be tied to the exact Git SHA under test and to fresh operational evidence. Because embedding this file's own commit SHA would self-invalidate the reference, the exact candidate is always the Git `HEAD` of the active remediation branch at the evidence checkout.
 
 ### ACTIVE REMEDIATION CANDIDATE
 - Branch: `fix/runtime-provenance-20260906`
 - PR: #348 — `fix: reconcile runtime migration provenance and worker contract`
-- Latest verified active remediation HEAD: `e4fc2e153823a8fa21b6e73d53373a7b31e5f6b3`
+- Exact candidate reference: **Git `HEAD` of the active remediation branch**; pair this index with `git rev-parse HEAD` for every evidence batch.
 - Frozen historical RCs and Production aliases remain untouched.
 
 ## NO-MORE-88%-RULE
@@ -115,10 +115,9 @@ RLS performance work materially improved the policy shape. Fresh security review
 
 ## CI / RELEASE TRUTH
 
-- Current PR head is `e4fc2e153823a8fa21b6e73d53373a7b31e5f6b3`.
-- PR #348 currently resolves as open and mergeable; no merge has been performed.
-- Current GitHub Actions records on this head still expose completed `failure` jobs with **zero workflow steps** and no downloadable job log blob. Example: Quality #4205 job `101535899227` reports `steps=[]`; direct log retrieval returns GitHub `BlobNotFound`.
-- This is not proof of a product/test failure because no executable test step is present in the returned job record.
+- The exact active candidate is the Git `HEAD` of `fix/runtime-provenance-20260906` at the time of each evidence batch; this avoids self-invalidating the index by embedding its own commit SHA.
+- PR #348 remains open and mergeable; no merge has been performed.
+- Current GitHub Actions records expose completed `failure` jobs with zero workflow steps and unavailable log blobs in the observed failure pattern. This is not proof of a product/test failure because no executable test step is present in those job records.
 - Therefore no CI PASS is being fabricated or inferred.
 - The next useful CI recovery action is to obtain a real executable run/log or runner diagnostics rather than changing product code to satisfy an unobserved failure.
 
