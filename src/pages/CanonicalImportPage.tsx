@@ -100,10 +100,13 @@ export function CanonicalImportPage() {
     const valid = rows.filter(r => r.valid);
     if (!valid.length || !file || !fileHash) return;
     setStep('committing'); setProgress(0); setError(null);
+    let importRecordId: string | null = null;
+    let committed = 0;
     try {
       const companyId = await resolveCurrentCompanyId();
       if (!companyId) throw new Error('TENANT_CONTEXT_REQUIRED');
       const rec = await createImportRecord({ file_name: file.name, file_size: file.size, source_type: file.format, status: 'processing', total_rows: rows.length, valid_rows: valid.length, invalid_rows: rows.length - valid.length, quarantined_rows: rows.length - valid.length, entity_type: entityType, progress: 0 });
+      importRecordId = rec.id;
       const reconciled = reconcileForCanonical(
         entityType,
         companyId,
@@ -116,18 +119,39 @@ export function CanonicalImportPage() {
       if (reconciled.rejected.length > 0) {
         throw new Error(`CANONICAL_RECONCILIATION_REJECTED:${reconciled.rejected.map(r => `${r.rowNumber}:${r.reason}`).join(',')}`);
       }
-      const batchSize = 50; let committed = 0;
+      const batchSize = 50;
       for (let i = 0; i < reconciled.rows.length; i += batchSize) {
         const batch = reconciled.rows.slice(i, i + batchSize);
         await commitImportBatch(entityType, batch);
         committed += batch.length;
         setProgress(Math.round((committed / reconciled.rows.length) * 100));
+        await updateImportRecord(importRecordId, { progress: Math.round((committed / reconciled.rows.length) * 100) });
       }
-      await updateImportRecord(rec.id, { status: 'completed', progress: 100, completed_at: new Date().toISOString() });
-      setResult({ total: rows.length, valid: valid.length, invalid: rows.length - valid.length, importId: rec.id });
+      await updateImportRecord(importRecordId, { status: 'completed', progress: 100, completed_at: new Date().toISOString() });
+      setResult({ total: rows.length, valid: valid.length, invalid: rows.length - valid.length, importId: importRecordId });
       setStep('done'); await loadHistory();
     } catch (e: any) {
-      setError(`فشل الاستيراد: ${e?.message || 'خطأ غير معروف'}`); setStep('preview');
+      const message = e?.message || 'خطأ غير معروف';
+      if (importRecordId) {
+        try {
+          await updateImportRecord(importRecordId, {
+            status: committed > 0 ? 'partial' : 'failed',
+            progress: reconciledProgress(rows, valid, committed),
+            error_message: committed > 0
+              ? `تم حفظ ${committed} صفًا ثم توقف الاستيراد: ${message}`
+              : `لم يتم حفظ أي صف: ${message}`,
+          });
+        } catch (stateError: any) {
+          setError(`فشل الاستيراد، وتعذر تحديث حالة سجل العملية: ${stateError?.message || 'خطأ غير معروف'}`);
+          setStep('preview');
+          return;
+        }
+      }
+      setError(committed > 0
+        ? `توقف الاستيراد بعد حفظ ${committed} صفًا. حالة العملية سُجلت كاستيراد جزئي. ${message}`
+        : `فشل الاستيراد: ${message}`);
+      setStep('preview');
+      await loadHistory();
     }
   }, [rows, file, fileHash, entityType, loadHistory]);
 
@@ -155,4 +179,9 @@ export function CanonicalImportPage() {
     {step === 'done' && result && <Card><CardBody><div className="flex flex-col items-center py-8 gap-4"><CheckCircle2 className="text-success-500" size={48}/><h3 className="text-lg font-semibold">تم الاستيراد بنجاح</h3><p className="text-sm text-ink-500">{formatNumber(result.valid)} صف صالح من أصل {formatNumber(result.total)}</p><button onClick={reset} className="btn-primary">استيراد ملف آخر</button></div></CardBody></Card>}
     <Card><CardHeader title="سجل الاستيرادات" subtitle="آخر العمليات"/>{loadingHistory?<LoadingState message="جارٍ تحميل السجل..."/>:history.length===0?<EmptyState icon={<Database size={32}/>} title="لا توجد استيرادات سابقة" message="ابدأ باستيراد ملفك الأول"/>:<DataTable columns={[{key:'file_name',label:'الملف'},{key:'entity_type',label:'النوع'},{key:'total_rows',label:'الصفوف',align:'center'},{key:'valid_rows',label:'صالح',align:'center'},{key:'invalid_rows',label:'مرفوض',align:'center'},{key:'status',label:'الحالة',align:'center',render:(r:any)=><StatusBadge status={r.status}/>},{key:'created_at',label:'التاريخ',render:(r:any)=>formatDateTime(r.created_at)}]} data={history} emptyMessage="لا توجد استيرادات"/>}</Card>
   </div>;
+}
+
+function reconciledProgress(rows: Row[], valid: Row[], committed: number): number {
+  if (!valid.length) return 0;
+  return Math.min(100, Math.max(0, Math.round((committed / valid.length) * 100)));
 }
