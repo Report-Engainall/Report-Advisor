@@ -5,6 +5,7 @@ on:
   push:
     paths:
       - 'scripts/run-full-product-browser-e2e.mjs'
+      - 'scripts/real-business-e2e.mjs'
       - '.github/workflows/full-product-browser-e2e.yml'
       - 'docs/MASTER_EXECUTION_INDEX.md'
       - 'E2E_FAILURE_LEDGER.md'
@@ -100,10 +101,28 @@ jobs:
           TEST_USER_B_EMAIL: ${{ secrets.REPORT_ADVISOR_E2E_USER_B_EMAIL }}
           TEST_USER_B_PASSWORD: ${{ secrets.REPORT_ADVISOR_E2E_USER_B_PASSWORD }}
         run: node scripts/run-full-product-browser-e2e.mjs
+      - name: Run real business persistence E2E
+        env:
+          EXACT_HEAD: ${{ github.sha }}
+          E2E_BASE_URL: http://127.0.0.1:4173
+          REPORT_ADVISOR_SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
+          REPORT_ADVISOR_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
+          TEST_USER_A_EMAIL: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_EMAIL }}
+          TEST_USER_A_PASSWORD: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_PASSWORD }}
+          TEST_USER_B_EMAIL: ${{ secrets.REPORT_ADVISOR_E2E_USER_B_EMAIL }}
+          TEST_USER_B_PASSWORD: ${{ secrets.REPORT_ADVISOR_E2E_USER_B_PASSWORD }}
+        run: node scripts/real-business-e2e.mjs
       - name: Upload browser E2E evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: full-product-browser-e2e-${{ github.sha }}
           path: artifacts/e2e
+          if-no-files-found: warn
+      - name: Upload real business E2E evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: real-business-e2e-${{ github.sha }}
+          path: artifacts/e2e-business
           if-no-files-found: warn
