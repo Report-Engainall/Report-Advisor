@@ -72,14 +72,16 @@ jobs:
           SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
           USER_A_EMAIL: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_EMAIL }}
           USER_A_PASSWORD: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_PASSWORD }}
+          USER_B_EMAIL: ${{ secrets.REPORT_ADVISOR_E2E_USER_B_EMAIL }}
+          USER_B_PASSWORD: ${{ secrets.REPORT_ADVISOR_E2E_USER_B_PASSWORD }}
         run: |
           set -euo pipefail
           missing=0
-          for name in SUPABASE_URL SUPABASE_ANON_KEY USER_A_EMAIL USER_A_PASSWORD; do
+          for name in SUPABASE_URL SUPABASE_ANON_KEY USER_A_EMAIL USER_A_PASSWORD USER_B_EMAIL USER_B_PASSWORD; do
             if [ -n "${!name:-}" ]; then echo "$name=SET"; else echo "$name=MISSING"; missing=1; fi
           done
           if [ "$missing" -ne 0 ]; then
-            echo "REAL_BUSINESS_E2E_BLOCKED: real authenticated credentials/environment are not provisioned."
+            echo "REAL_BUSINESS_E2E_BLOCKED: real authenticated Tenant A/B credentials and runtime configuration are not provisioned."
             exit 2
           fi
       - name: Run real business E2E
@@ -90,6 +92,8 @@ jobs:
           REPORT_ADVISOR_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
           TEST_USER_A_EMAIL: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_EMAIL }}
           TEST_USER_A_PASSWORD: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_PASSWORD }}
+          TEST_USER_B_EMAIL: ${{ secrets.REPORT_ADVISOR_E2E_USER_B_EMAIL }}
+          TEST_USER_B_PASSWORD: ${{ secrets.REPORT_ADVISOR_E2E_USER_B_PASSWORD }}
         run: node scripts/real-business-e2e.mjs
       - name: Upload real business E2E evidence
         if: always()
