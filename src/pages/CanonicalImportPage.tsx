@@ -18,8 +18,8 @@ type Step = 'upload' | 'scanning' | 'preview' | 'committing' | 'done';
 type EntityType = 'sales_invoices' | 'products' | 'customers';
 interface Row { rowNumber: number; data: Record<string, any>; valid: boolean; error?: string }
 
-const ENTITIES: Array<{ value: EntityType; label: string; required: string[] }> = [
-  { value: 'sales_invoices', label: 'فواتير المبيعات', required: ['invoice_number', 'invoice_date', 'subtotal', 'tax_amount', 'total', 'paid_amount', 'status'] },
+const ENTITIES: Array<{ value: EntityType; label: string; required: string[]; alternatives?: string[][] }> = [
+  { value: 'sales_invoices', label: 'فواتير المبيعات', required: ['invoice_number', 'invoice_date', 'subtotal', 'tax_amount', 'total', 'paid_amount', 'status'], alternatives: [['customer_id', 'customer_name']] },
   { value: 'products', label: 'المنتجات', required: ['sku', 'name', 'unit', 'cost_price', 'selling_price', 'min_stock', 'reorder_point', 'is_active'] },
   { value: 'customers', label: 'العملاء', required: ['name', 'segment', 'credit_limit', 'payment_terms_days'] },
 ];
@@ -88,13 +88,14 @@ export function CanonicalImportPage() {
           const value = key ? data[key] : undefined;
           return value == null || String(value).trim() === '';
         });
-        const invoiceCustomerIdentityMissing = entityType === 'sales_invoices'
-          && !['customer_id', 'customer_name'].some(field => {
-            const key = Object.keys(data).find(k => k === field) ?? Object.keys(data).find(k => k.toLowerCase().includes(field));
+        const alternativeMissing = (config.alternatives ?? [])
+          .filter(group => !group.some(field => {
+            const key = Object.keys(data).find(k => k === field) ?? Object.keys(data).find(k => k.toLowerCase().includes(field.toLowerCase()));
             const value = key ? data[key] : undefined;
             return value != null && String(value).trim() !== '';
-          });
-        const allMissing = invoiceCustomerIdentityMissing ? [...missing, 'customer_id أو customer_name'] : missing;
+          }))
+          .map(group => group.join(' أو '));
+        const allMissing = [...missing, ...alternativeMissing];
         return { rowNumber: i + 1, data, valid: allMissing.length === 0, error: allMissing.length ? `حقول مطلوبة ناقصة: ${allMissing.join(', ')}` : undefined };
       }));
       setStep('preview');
