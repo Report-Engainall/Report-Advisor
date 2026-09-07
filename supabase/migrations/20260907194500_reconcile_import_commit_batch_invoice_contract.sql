@@ -22,7 +22,7 @@ DECLARE
 BEGIN
   IF v_company_id IS NULL THEN RAISE EXCEPTION 'TENANT_CONTEXT_REQUIRED'; END IF;
   IF p_company_id IS DISTINCT FROM v_company_id THEN RAISE EXCEPTION 'TENANT_CONTEXT_MISMATCH'; END IF;
-  IF p_entity_type NOT IN ('products', 'customers', 'sales_invoices') THEN RAISE EXCEPTION 'IMPORT_ENTITY_TYPE_UNSUPPORTED'; END IF;
+  IF p_entity_type IS NULL OR p_entity_type NOT IN ('products', 'customers', 'sales_invoices') THEN RAISE EXCEPTION 'IMPORT_ENTITY_TYPE_UNSUPPORTED'; END IF;
   IF jsonb_typeof(p_rows) IS DISTINCT FROM 'array' THEN RAISE EXCEPTION 'IMPORT_ROWS_MUST_BE_ARRAY'; END IF;
   IF jsonb_array_length(p_rows) = 0 THEN
     RETURN jsonb_build_object('committed', 0, 'ids', '[]'::jsonb);
