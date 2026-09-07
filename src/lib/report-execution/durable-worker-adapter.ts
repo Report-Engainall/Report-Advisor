@@ -25,14 +25,22 @@ export class SupabaseReportExecutionStore {
     const tenant = tenantId ?? (await this.require(jobId)).tenantId;
     const { data, error } = await this.client.rpc('claim_report_execution_job', { p_job_id: jobId, p_company_id: tenant, p_lease_owner: workerId, p_lease_seconds: leaseSeconds });
     if (error) throw error;
-    if (typeof data !== 'string' || data.length === 0) throw new Error('Report execution job could not be claimed');
-    const job = await this.require(jobId);
-    if (job.tenantId !== tenant) throw new Error('Worker tenant context does not match the durable job tenant');
-    if (job.leaseOwner !== workerId) throw new Error('Claimed durable job is not owned by the requested worker');
-    if (job.leaseToken !== data) throw new Error('Claimed durable job lease token does not match the RPC result');
-    // The token returned by the atomic claim is the fencing authority for this run.
-    // Do not re-read/reload it from the database after the claim.
-    return job;
+    if (!data || typeof data !== 'object' || Array.isArray(data)) throw new Error('Report execution job could not be claimed');
+    const row = data as Record<string, unknown>;
+    const leaseToken = typeof row.lease_token === 'string' ? row.lease_token : null;
+    if (!leaseToken) throw new Error('Durable worker claim did not return a fencing lease token');
+    if (row.company_id !== tenant || row.lease_owner !== workerId) throw new Error('Claimed durable job does not match the requested tenant or worker');
+    return {
+      id: String(row.id),
+      tenantId: String(row.company_id),
+      status: String(row.status),
+      checkpoint: row.checkpoint as ReportExecutionCheckpoint,
+      attempt: Number(row.attempt),
+      maxAttempts: Number(row.max_attempts),
+      leaseOwner: row.lease_owner as string | null,
+      leaseToken,
+      leaseExpiresAt: row.lease_expires_at as string | null,
+    };
   }
 
   async heartbeat(jobId: string, workerId: string, leaseSeconds = 300, tenantId?: string): Promise<void> {
