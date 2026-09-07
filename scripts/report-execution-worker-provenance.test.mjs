@@ -17,6 +17,10 @@ const checkpointReplay = fs.readFileSync(
   'supabase/migrations/20260907193200_make_report_execution_checkpoint_replayable.sql',
   'utf8',
 );
+const batchImport = fs.readFileSync(
+  'supabase/migrations/20260907194500_reconcile_import_commit_batch_invoice_contract.sql',
+  'utf8',
+);
 const adapter = fs.readFileSync('src/lib/report-execution/durable-worker-adapter.ts', 'utf8');
 
 for (const signature of [
@@ -82,5 +86,11 @@ assert.match(checkpointReplay, /new_pos = old_pos and \(p_checkpoint - 'updatedA
 assert.match(checkpointReplay, /return true/);
 assert.match(checkpointReplay, /new_pos <> old_pos \+ 1/);
 assert.match(checkpointReplay, /p_lease_token uuid/);
+
+assert.match(batchImport, /p_entity_type IS NULL OR p_entity_type NOT IN/);
+assert.match(batchImport, /v_row->>'customer_name'/);
+assert.match(batchImport, /import_upsert_sales_invoice\(/);
+assert.match(batchImport, /REVOKE ALL ON FUNCTION public\.import_commit_batch\(uuid, text, jsonb, text\) FROM PUBLIC, anon/);
+assert.match(batchImport, /GRANT EXECUTE ON FUNCTION public\.import_commit_batch\(uuid, text, jsonb, text\) TO authenticated/);
 
 console.log('Report execution worker provenance: PASS');
