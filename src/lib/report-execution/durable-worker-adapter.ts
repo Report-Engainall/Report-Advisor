@@ -14,11 +14,42 @@ export interface DurableExecutionJob {
   leaseExpiresAt: string | null;
 }
 
+export interface DurableEnqueueInput {
+  tenantId: string;
+  jobKey: string;
+  sourcePath: string;
+  sourceHash: string;
+  evidenceKeys?: string[];
+  maxAttempts?: number;
+}
+
 export class SupabaseReportExecutionStore {
   private readonly client: SupabaseClient;
 
   constructor(client: SupabaseClient) {
     this.client = client;
+  }
+
+  async enqueue(input: DurableEnqueueInput): Promise<DurableExecutionJob> {
+    const tenant = input.tenantId?.trim();
+    const jobKey = input.jobKey?.trim();
+    const sourcePath = input.sourcePath?.trim();
+    const sourceHash = input.sourceHash?.trim();
+    if (!tenant || !jobKey || !sourcePath || !sourceHash) throw new Error('Durable enqueue requires tenant, job key, source path and source hash');
+    const maxAttempts = input.maxAttempts ?? 5;
+    if (!Number.isInteger(maxAttempts) || maxAttempts < 1 || maxAttempts > 100) throw new Error('Durable enqueue maxAttempts must be an integer between 1 and 100');
+    const evidenceKeys = [...new Set(input.evidenceKeys ?? [])].filter((key) => key.trim()).sort();
+    const { data, error } = await this.client.rpc('enqueue_report_execution_job', {
+      p_company_id: tenant,
+      p_job_key: jobKey,
+      p_source_path: sourcePath,
+      p_source_hash: sourceHash,
+      p_evidence_keys: evidenceKeys,
+      p_max_attempts: maxAttempts,
+    });
+    if (error) throw error;
+    if (!data || typeof data !== 'object' || Array.isArray(data)) throw new Error('Durable enqueue did not return a job');
+    return this.mapJob(data as Record<string, unknown>, tenant);
   }
 
   async claim(jobId: string, workerId: string, leaseSeconds = 300, tenantId?: string): Promise<DurableExecutionJob> {
@@ -30,17 +61,7 @@ export class SupabaseReportExecutionStore {
     const leaseToken = typeof row.lease_token === 'string' ? row.lease_token : null;
     if (!leaseToken) throw new Error('Durable worker claim did not return a fencing lease token');
     if (row.company_id !== tenant || row.lease_owner !== workerId) throw new Error('Claimed durable job does not match the requested tenant or worker');
-    return {
-      id: String(row.id),
-      tenantId: String(row.company_id),
-      status: String(row.status),
-      checkpoint: row.checkpoint as ReportExecutionCheckpoint,
-      attempt: Number(row.attempt),
-      maxAttempts: Number(row.max_attempts),
-      leaseOwner: row.lease_owner as string | null,
-      leaseToken,
-      leaseExpiresAt: row.lease_expires_at as string | null,
-    };
+    return this.mapJob(row, tenant, leaseToken);
   }
 
   async heartbeat(jobId: string, workerId: string, leaseSeconds = 300, tenantId?: string): Promise<void> {
@@ -96,11 +117,27 @@ export class SupabaseReportExecutionStore {
   async require(jobId: string): Promise<DurableExecutionJob> {
     const { data, error } = await this.client.from('report_execution_jobs').select('id,company_id,status,checkpoint,attempt,max_attempts,lease_owner,lease_token,lease_expires_at').eq('id', jobId).single();
     if (error) throw error;
-    return { id: data.id, tenantId: data.company_id, status: data.status, checkpoint: data.checkpoint, attempt: data.attempt, maxAttempts: data.max_attempts, leaseOwner: data.lease_owner, leaseToken: data.lease_token, leaseExpiresAt: data.lease_expires_at };
+    return this.mapJob(data as Record<string, unknown>, String(data.company_id));
   }
 
   static requestIdentity(request: ReportExecutionRequest): string {
     if (!request.tenantId || !request.idempotencyKey) throw new Error('Durable execution requires tenant and idempotency context');
     return `${request.tenantId}:${request.idempotencyKey}:${request.sourceSnapshotId ?? 'latest'}`;
+  }
+
+  private mapJob(row: Record<string, unknown>, tenant: string, leaseToken?: string): DurableExecutionJob {
+    const returnedTenant = String(row.company_id ?? tenant);
+    if (returnedTenant !== tenant) throw new Error('Durable job tenant mismatch');
+    return {
+      id: String(row.id),
+      tenantId: returnedTenant,
+      status: String(row.status),
+      checkpoint: row.checkpoint as ReportExecutionCheckpoint,
+      attempt: Number(row.attempt),
+      maxAttempts: Number(row.max_attempts),
+      leaseOwner: row.lease_owner as string | null,
+      leaseToken: leaseToken ?? (row.lease_token as string | null),
+      leaseExpiresAt: row.lease_expires_at as string | null,
+    };
   }
 }
