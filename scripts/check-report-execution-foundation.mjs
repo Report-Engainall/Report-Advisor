@@ -17,5 +17,6 @@ console.log('Report execution foundation contract: PASS');
 const canonical = readFileSync(new URL('../src/lib/report-execution/durable-worker-adapter.ts', import.meta.url), 'utf8');
 if (!canonical.includes('leaseToken')) throw new Error('Lease fencing contract missing');
 if (!canonical.includes('p_company_id')) throw new Error('Explicit tenant contract missing');
-if (!canonical.includes('lease_token === data')) throw new Error('Atomic claim token must be consumed from the claim RPC result');
+if (!canonical.includes('const leaseToken = typeof row.lease_token')) throw new Error('Atomic claim token must be consumed from the claim RPC result');
+if (!canonical.includes('leaseToken,\n      leaseExpiresAt')) throw new Error('Claimed lease token must be retained in the durable job identity');
 console.log('Report execution foundation: tenant + lease fencing + atomic claim token verified');
