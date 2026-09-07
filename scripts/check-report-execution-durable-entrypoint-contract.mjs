@@ -33,29 +33,28 @@ assertContract(source);
 // Test-of-test: deleting the actual gate invocation must make the checker fail.
 const gateInvocation = 'assertReportExecutionReady({ request: input.request, routePlan: input.routePlan, sourceSnapshotId: input.sourceSnapshotId });';
 if (!source.includes(gateInvocation)) throw new Error('Expected canonical gate invocation was not found');
-const tampered = source.replace(gateInvocation, '');
-let rejected = false;
+const gateRemoved = source.replace(gateInvocation, '');
+let gateRemovalRejected = false;
 try {
-  assertContract(tampered);
+  assertContract(gateRemoved);
 } catch {
-  rejected = true;
+  gateRemovalRejected = true;
 }
-if (!rejected) throw new Error('Test-of-test failed: removal of the execution gate was not detected');
+if (!gateRemovalRejected) throw new Error('Test-of-test failed: removal of the execution gate was not detected');
 
-// Test-of-test: moving the enqueue side effect ahead of the gate must also fail.
-const reordered = source.replace(
-  `${gateInvocation}\n`,
-  '',
-).replace(
-  '  return new SupabaseReportExecutionStore(client).enqueue({',
-  `  ${gateInvocation}\n  return new SupabaseReportExecutionStore(client).enqueue({`,
-);
+// Test-of-test: moving the gate invocation after the enqueue side effect must fail.
+const enqueueStatement = '  return new SupabaseReportExecutionStore(client).enqueue({';
+const gateBeforeBody = `${gateInvocation}\n`;
+if (!source.includes(enqueueStatement) || !source.includes(gateBeforeBody)) throw new Error('Canonical gate/enqueue ordering markers were not found');
+const movedAfterEnqueue = source
+  .replace(gateBeforeBody, '')
+  .replace(enqueueStatement, `${enqueueStatement}\n${gateBeforeBody}`);
 let orderRejected = false;
 try {
-  assertContract(reordered);
+  assertContract(movedAfterEnqueue);
 } catch {
   orderRejected = true;
 }
-if (!orderRejected) throw new Error('Test-of-test failed: enqueue-before-gate reordering was not detected');
+if (!orderRejected) throw new Error('Test-of-test failed: moving the execution gate after enqueue was not detected');
 
-console.log('Durable report execution entrypoint contract: PASS (including gate-removal and ordering adversarial tests)');
+console.log('Durable report execution entrypoint contract: PASS (including gate-removal and gate-order adversarial tests)');
