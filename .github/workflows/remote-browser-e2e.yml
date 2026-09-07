@@ -1,0 +1,123 @@
+name: Remote Browser E2E
+
+# Vercel-first browser gate: exercises a hosted exact deployment from GitHub Actions.
+# This deliberately does not promote aliases or mutate production bindings.
+on:
+  workflow_dispatch:
+    inputs:
+      deployment_url:
+        description: 'Exact Vercel deployment URL to test (https://...vercel.app)'
+        required: true
+        type: string
+      expected_head:
+        description: 'Exact Git SHA expected by the test run'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  remote-browser-e2e:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Verify harness checkout
+        shell: bash
+        run: |
+          set -euo pipefail
+          actual="$(git rev-parse HEAD)"
+          echo "HARNESS_HEAD=$actual"
+          test -z "$(git status --porcelain)"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install locked dependencies
+        run: npm ci --include=dev --no-audit --no-fund
+
+      - name: Install browser E2E runner
+        run: npm install --no-save --ignore-scripts playwright@1.55.0
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Verify remote E2E secret contract
+        shell: bash
+        env:
+          SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
+          USER_A_EMAIL: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_EMAIL }}
+          USER_A_PASSWORD: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_PASSWORD }}
+          USER_B_EMAIL: ${{ secrets.REPORT_ADVISOR_E2E_USER_B_EMAIL }}
+          USER_B_PASSWORD: ${{ secrets.REPORT_ADVISOR_E2E_USER_B_PASSWORD }}
+        run: |
+          set -euo pipefail
+          missing=0
+          for name in SUPABASE_URL SUPABASE_ANON_KEY USER_A_EMAIL USER_A_PASSWORD USER_B_EMAIL USER_B_PASSWORD; do
+            if [ -n "${!name:-}" ]; then echo "$name=SET"; else echo "$name=MISSING"; missing=1; fi
+          done
+          if [ "$missing" -ne 0 ]; then
+            echo "REMOTE_AUTHENTICATED_E2E_BLOCKED: required test-only runtime secrets are not provisioned."
+            exit 2
+          fi
+
+      - name: Verify hosted deployment is reachable
+        shell: bash
+        env:
+          DEPLOYMENT_URL: ${{ inputs.deployment_url }}
+        run: |
+          set -euo pipefail
+          case "$DEPLOYMENT_URL" in https://*.vercel.app) ;; *) echo "INVALID_DEPLOYMENT_URL"; exit 1;; esac
+          curl --fail --silent --show-error --location --max-time 30 "$DEPLOYMENT_URL/" -o /tmp/remote-home.html
+          test -s /tmp/remote-home.html
+          echo "HOSTED_DEPLOYMENT_REACHABLE=YES"
+
+      - name: Run authenticated browser E2E against hosted deployment
+        env:
+          EXACT_HEAD: ${{ inputs.expected_head }}
+          E2E_BASE_URL: ${{ inputs.deployment_url }}
+          REPORT_ADVISOR_SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
+          REPORT_ADVISOR_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
+          TEST_USER_A_EMAIL: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_EMAIL }}
+          TEST_USER_A_PASSWORD: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_PASSWORD }}
+          TEST_USER_B_EMAIL: ${{ secrets.REPORT_ADVISOR_E2E_USER_B_EMAIL }}
+          TEST_USER_B_PASSWORD: ${{ secrets.REPORT_ADVISOR_E2E_USER_B_PASSWORD }}
+          E2E_REPORT_DIR: artifacts/remote-browser-e2e
+        run: node scripts/run-full-product-browser-e2e.mjs
+
+      - name: Run real business persistence E2E against hosted deployment
+        env:
+          EXACT_HEAD: ${{ inputs.expected_head }}
+          E2E_BASE_URL: ${{ inputs.deployment_url }}
+          REPORT_ADVISOR_SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
+          REPORT_ADVISOR_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
+          TEST_USER_A_EMAIL: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_EMAIL }}
+          TEST_USER_A_PASSWORD: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_PASSWORD }}
+          TEST_USER_B_EMAIL: ${{ secrets.REPORT_ADVISOR_E2E_USER_B_EMAIL }}
+          TEST_USER_B_PASSWORD: ${{ secrets.REPORT_ADVISOR_E2E_USER_B_PASSWORD }}
+          E2E_REPORT_DIR: artifacts/remote-business-e2e
+        run: node scripts/real-business-e2e.mjs
+
+      - name: Upload remote E2E evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: remote-browser-e2e-${{ github.sha }}
+          path: artifacts/remote-browser-e2e
+          if-no-files-found: warn
+
+      - name: Upload remote business evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: remote-business-e2e-${{ github.sha }}
+          path: artifacts/remote-business-e2e
+          if-no-files-found: warn
