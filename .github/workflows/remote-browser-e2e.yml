@@ -26,14 +26,19 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: false
+          ref: ${{ inputs.expected_head }}
 
-      - name: Verify harness checkout
+      - name: Verify exact harness checkout
         shell: bash
+        env:
+          EXPECTED_HEAD: ${{ inputs.expected_head }}
         run: |
           set -euo pipefail
           actual="$(git rev-parse HEAD)"
           echo "HARNESS_HEAD=$actual"
+          echo "EXPECTED_HEAD=$EXPECTED_HEAD"
           test -z "$(git status --porcelain)"
+          test "$actual" = "$EXPECTED_HEAD"
 
       - uses: actions/setup-node@v4
         with:
