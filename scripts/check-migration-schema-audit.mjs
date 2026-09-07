@@ -14,6 +14,7 @@ if (files.length === 0) throw new Error('No SQL migrations found');
 const seenObjects = new Map();
 const duplicateObjects = [];
 const findings = [];
+const migrationVersions = new Map();
 
 function record(kind, name, file, safeReplacement) {
   const key = `${kind}:${name}`;
@@ -35,6 +36,17 @@ function triggerIsReplacement(text, name) {
 }
 
 for (const file of files) {
+  const versionMatch = file.match(/^(\d{14})_/);
+  if (versionMatch) {
+    const version = versionMatch[1];
+    const previous = migrationVersions.get(version);
+    if (previous) {
+      findings.push(`duplicate migration version ${version}: ${previous} and ${file}`);
+    } else {
+      migrationVersions.set(version, file);
+    }
+  }
+
   const text = fs.readFileSync(path.join(dir, file), 'utf8');
   const statements = text.split(';').map((statement) => statement.trim()).filter(Boolean);
 
@@ -78,6 +90,8 @@ for (const file of files) {
 
 const summary = {
   migrationCount: files.length,
+  uniqueMigrationVersions: migrationVersions.size,
+  duplicateMigrationVersions: files.length - migrationVersions.size,
   tables: [...seenObjects.entries()].filter(([k]) => k.startsWith('table:')).length,
   indexes: [...seenObjects.entries()].filter(([k]) => k.startsWith('index:')).length,
   policies: [...seenObjects.entries()].filter(([k]) => k.startsWith('policy:')).length,
