@@ -1,0 +1,24 @@
+name: Canonical Text Provenance Index Contract
+
+on:
+  pull_request:
+    paths:
+      - 'supabase/migrations/20260907200000_add_canonical_text_provenance_tenant_fk_indexes.sql'
+      - 'scripts/check-canonical-text-provenance-index-contract.mjs'
+      - '.github/workflows/canonical-text-provenance-index-contract.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Verify contract
+        run: node scripts/check-canonical-text-provenance-index-contract.mjs
