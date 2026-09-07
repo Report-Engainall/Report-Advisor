@@ -1,0 +1,18 @@
+name: Report Execution Input Contract
+
+on:
+  pull_request:
+    paths:
+      - 'src/lib/report-execution/report-execution-contract.ts'
+      - 'scripts/report-execution-input-contract.test.mjs'
+      - '.github/workflows/report-execution-input-contract.yml'
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node --experimental-strip-types scripts/report-execution-input-contract.test.mjs
