@@ -26,6 +26,7 @@ At the next `1`, read the **latest GitHub-documented checkpoint first** and cont
 - Before materially consuming DB, Storage, bandwidth/egress, CI, or disk/WAL resources, measure current footprint and expected impact.
 - Keep test fixtures minimal, bounded, tenant-scoped, and cleanup-capable; never manufacture data merely to obtain an evidence label.
 - Distinguish product defects from infrastructure/evidence failures; do not patch code merely to silence non-diagnostic failures.
+- **Before creating any tracking issue, search existing open issues and PRs for the same gate, defect, or evidence boundary. Update/comment on the canonical existing tracker when one exists; create a new issue only for a genuinely distinct gate, defect, or evidence boundary.**
 - When a recurring lesson appears, strengthen this protocol or the autonomous expert standard instead of documenting only a one-off workaround.
 
 ## Automatic improvement loop
