@@ -34,10 +34,12 @@ export interface ReportExecutionResult {
   evidence: ReportExecutionEvidence;
 }
 
+/** Reject values that are not non-empty strings after trimming. */
 function requireNonBlank(value: unknown, field: string): asserts value is string {
   if (typeof value !== 'string' || value.trim().length === 0) throw new Error(`Invalid report execution ${field}`);
 }
 
+/** Validate the complete report execution request before it enters the execution pipeline. */
 export function assertExecutionRequest(request: ReportExecutionRequest): void {
   if (!request || typeof request !== 'object') throw new Error('Invalid report execution request');
   requireNonBlank(request.reportId, 'report identity');
@@ -51,6 +53,7 @@ export function assertExecutionRequest(request: ReportExecutionRequest): void {
   if (request.formats.some((format) => !['web', 'pdf', 'xlsx'].includes(format))) throw new Error('Unsupported report output format');
 }
 
+/** Ensure execution evidence is bound to the caller's expected tenant. */
 export function assertEvidenceTenant(evidence: ReportExecutionEvidence, tenantId: string): void {
   requireNonBlank(tenantId, 'tenant identity');
   if (!evidence || evidence.tenantId !== tenantId) throw new Error('Report evidence tenant mismatch');
