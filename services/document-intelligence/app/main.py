@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import io
+import math
 import os
 import tempfile
 from typing import Any
@@ -94,6 +95,7 @@ def parse_with_ocr(data: bytes, filename: str, mime: str) -> dict[str, Any] | No
         envelope = _envelope(data, filename, mime, "paddleocr", [])
         text_parts: list[str] = []
         confidence_scores: list[float] = []
+        invalid_confidence = False
         for page_result in result:
             payload = getattr(page_result, "json", None)
             payload = payload() if callable(payload) else payload
@@ -106,11 +108,18 @@ def parse_with_ocr(data: bytes, filename: str, mime: str) -> dict[str, Any] | No
                 if not isinstance(text, str) or not text.strip():
                     continue
                 text_parts.append(text.strip())
-                if index < len(scores) and isinstance(scores[index], (int, float)):
-                    confidence_scores.append(float(scores[index]))
+                score = scores[index] if index < len(scores) else None
+                if isinstance(score, bool) or not isinstance(score, (int, float)):
+                    invalid_confidence = True
+                    continue
+                numeric_score = float(score)
+                if not math.isfinite(numeric_score) or not 0.0 <= numeric_score <= 1.0:
+                    invalid_confidence = True
+                    continue
+                confidence_scores.append(numeric_score)
 
         if text_parts:
-            confidence = min(confidence_scores) if confidence_scores else 0.0
+            confidence = min(confidence_scores) if confidence_scores and not invalid_confidence else 0.0
             envelope.pages.append(
                 Page(
                     number=1,
