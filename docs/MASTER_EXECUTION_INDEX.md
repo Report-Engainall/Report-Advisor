@@ -7,8 +7,8 @@
 ### ACTIVE REMEDIATION CANDIDATE
 - Branch: `fix/runtime-provenance-20260906`
 - PR: #348 — `fix: reconcile runtime migration provenance and worker contract`
-- Current exact candidate before this documentation commit: `a04a65f783f7fb6ef356f708ae153c0c71ff8d06`.
-- Latest checkpoint: `docs/EXECUTION_CHECKPOINT_20260907_37.md` at commit `a04a65f783f7fb6ef356f708ae153c0c71ff8d06`.
+- Current exact candidate after Batch 39 implementation: `b18eecf517666a2a4e7d19018a753512bffe1661`.
+- Batch 39 added a fail-closed migration-version collision detector to `scripts/check-migration-schema-audit.mjs`.
 - Frozen historical RCs and Production aliases remain untouched.
 
 ## NO-MORE-88%-RULE
@@ -82,7 +82,7 @@ Still open:
 ## P1 — MIGRATION / SCHEMA PROVENANCE
 **Status: SUBSTANTIALLY RECONCILED — ACTIVE CLAIM/ENQUEUE CONTRACT APPLIED — FULL PARITY NOT YET CLOSED**
 
-Fresh Staging ledger verification on 2026-09-07 established the post-2026-09-06 execution tail as follows:
+Fresh Staging ledger verification on 2026-09-07 established 185 tracked migrations, with the current tail explicitly provenance-mapped:
 
 | Repository source migration | Source blob SHA | Live migration version | Live migration name |
 |---|---|---|---|
@@ -92,7 +92,16 @@ Fresh Staging ledger verification on 2026-09-07 established the post-2026-09-06 
 
 Important: the first two live versions are execution timestamps and therefore are **not** filename-timestamp matches. The mapping above is based on authoritative migration content/name provenance, not filename inference.
 
-Remaining requirement: authoritative source-to-live schema comparison proving exact parity for the active candidate across the complete migration history, including historical migration naming/history reconciliation. The post-2026-09-06 execution tail is now explicitly mapped but this does not certify full historical parity.
+### Newly verified replay-safety blocker — Batch 39
+The repository contains two historical source migrations with the same Supabase version prefix `20260819210000`:
+- `20260819210000_executive_metrics.sql`
+- `20260819210000_inventory_demand_liquidity.sql`
+
+The two files contain distinct SQL and were not rewritten or renamed. Supabase migration history identifies migrations by timestamp/version and its current documentation requires unique migration timestamps. This is therefore a genuine fresh-replay risk, not a cosmetic naming issue. The migration audit now fails closed on duplicate version prefixes so the hazard cannot silently pass a release gate.
+
+**Policy response:** no historical rewrite was performed. Closure requires a provenance-safe resolution consistent with the existing no-history-rewrite rule, followed by a fresh replay/schema integrity check and complete source↔live reconciliation.
+
+Remaining requirement: authoritative source-to-live schema comparison proving exact parity for the active candidate across the complete migration history, including historical migration naming/history reconciliation.
 
 ## P1 — IMPORT / RECONCILIATION
 **Status: IMPLEMENTED — LIVE CONTRACT RE-AUDITED — RUNTIME OPEN**
@@ -148,7 +157,7 @@ Issue #205 records an exact historical RC `d846821...` with successful Quality a
 2. Authenticated Chromium E2E for Actors A and B.
 3. Browser-level A/B adversarial tenant isolation.
 4. Production runtime and real business data-path proof.
-5. Fresh migration source ↔ replay/live parity for the complete migration history.
+5. Fresh migration source ↔ replay/live parity for the complete migration history, including resolution of duplicate source migration version `20260819210000`.
 6. Arabic OCR/document golden runtime corpus.
 7. Import/reconciliation adversarial golden business corpus.
 8. Real worker claim/heartbeat/checkpoint/complete/fail/retry lifecycle and production crash/recovery.
@@ -182,4 +191,5 @@ Use the following existing GitHub issues as the primary trackers. Do not create 
 - Never mutate frozen RCs or Production aliases to manufacture evidence.
 - Prefer forward-only migrations when a historical migration has already been applied.
 - Search existing open issues/PRs before creating a new tracking issue; update the canonical item when it already represents the same gate.
+- Treat duplicate migration version prefixes as a release-blocking replay-safety finding unless provenance proves a safe, supported resolution.
 - Update this index only when the evidence boundary or actual state changes.
