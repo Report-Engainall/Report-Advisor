@@ -41,7 +41,7 @@ function requireNonBlank(value: unknown, field: string): asserts value is string
 
 /** Validate the complete report execution request before it enters the execution pipeline. */
 export function assertExecutionRequest(request: ReportExecutionRequest): void {
-  if (!request || typeof request !== 'object') throw new Error('Invalid report execution request');
+  if (!request || typeof request !== 'object' || Array.isArray(request)) throw new Error('Invalid report execution request');
   requireNonBlank(request.reportId, 'report identity');
   requireNonBlank(request.tenantId, 'tenant identity');
   requireNonBlank(request.requestedBy, 'requester identity');
