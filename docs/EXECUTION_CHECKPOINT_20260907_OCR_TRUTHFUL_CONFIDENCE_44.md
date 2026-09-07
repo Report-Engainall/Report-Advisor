@@ -13,7 +13,7 @@ The existing Arabic OCR adapter produced OCR text but hard-coded every OCR block
 7. Removed the unreachable duplicated fallback implementation and its no-op legacy marker.
 8. Replaced the source-only runtime checker with a behavioral Python suite that stubs PaddleOCR and exercises minimum confidence, low-confidence warning, invalid/missing score handling, empty results, and execution failure.
 9. Extended `.github/workflows/ocr-confidence-contract.yml` to run the behavioral suite with the existing confidence contract.
-10. Opened PR #397 for review; current branch head is `daadf2633721a369ec3167585303283050bd3c2f`.
+10. Opened PR #397 for review; exact current branch head is `ec176838d4ff321dbc91c0a02830ff986d51dbca`.
 
 ## Review hardening
 CodeRabbit identified three concrete improvements. All three were addressed:
