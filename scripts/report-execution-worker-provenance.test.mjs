@@ -5,8 +5,16 @@ const migration = fs.readFileSync(
   'supabase/migrations/20260907193000_reconcile_report_execution_worker_provenance.sql',
   'utf8',
 );
+const enqueueGuard = fs.readFileSync(
+  'supabase/migrations/20260907193050_harden_report_execution_enqueue_provenance.sql',
+  'utf8',
+);
 const parityMigration = fs.readFileSync(
   'supabase/migrations/20260907193100_harden_report_execution_worker_schema_parity.sql',
+  'utf8',
+);
+const checkpointReplay = fs.readFileSync(
+  'supabase/migrations/20260907193200_make_report_execution_checkpoint_replayable.sql',
   'utf8',
 );
 const adapter = fs.readFileSync('src/lib/report-execution/durable-worker-adapter.ts', 'utf8');
@@ -61,9 +69,16 @@ assert.match(migration, /lease_token is not null/);
 assert.match(migration, /sourceHash/);
 assert.match(migration, /worker_attempts_exhausted_after_lease_expiry/);
 
-assert.match(parityMigration, /source_path IS NULL OR source_hash IS NULL/);
+assert.match(enqueueGuard, /source_path IS NULL OR source_hash IS NULL/);
+assert.match(enqueueGuard, /missing source identity/);
+assert.match(enqueueGuard, /refusing provenance-unsafe enqueue/);
 assert.match(parityMigration, /ALTER COLUMN source_path SET NOT NULL/);
 assert.match(parityMigration, /ALTER COLUMN source_hash SET NOT NULL/);
 assert.match(parityMigration, /ALTER COLUMN max_attempts SET DEFAULT 5/);
+
+assert.match(checkpointReplay, /new_pos = old_pos and p_checkpoint = old_checkpoint/);
+assert.match(checkpointReplay, /return true/);
+assert.match(checkpointReplay, /new_pos <> old_pos \+ 1/);
+assert.match(checkpointReplay, /p_lease_token uuid/);
 
 console.log('Report execution worker provenance: PASS');
