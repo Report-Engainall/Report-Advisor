@@ -11,31 +11,37 @@ const required = (value, tokens, label) => {
   for (const token of tokens) if (!value.includes(token)) throw new Error(`${label} missing ${token}`);
 };
 
-required(sql, [
-  'create or replace function public.enqueue_report_execution_job',
-  'p_company_id uuid',
-  'p_job_key text',
-  'p_source_path text',
-  'p_source_hash text',
-  'on conflict (company_id, job_key) do nothing',
-  'Durable job key already exists with different source identity',
-  'revoke all on function public.enqueue_report_execution_job',
-  'grant execute on function public.enqueue_report_execution_job',
-  "to service_role",
-], 'Durable enqueue migration');
+const assertContract = (sqlText, adapterText) => {
+  required(sqlText, [
+    'create or replace function public.enqueue_report_execution_job',
+    'p_company_id uuid',
+    'p_job_key text',
+    'p_source_path text',
+    'p_source_hash text',
+    'on conflict (company_id, job_key) do nothing',
+    'Durable job key already exists with different source identity',
+    'revoke all on function public.enqueue_report_execution_job',
+    'grant execute on function public.enqueue_report_execution_job',
+    'to service_role',
+  ], 'Durable enqueue migration');
+  required(adapterText, [
+    'export interface DurableEnqueueInput',
+    'async enqueue(input: DurableEnqueueInput)',
+    "rpc('enqueue_report_execution_job'",
+    'p_company_id: tenant',
+    'p_job_key: jobKey',
+    'p_source_path: sourcePath',
+    'p_source_hash: sourceHash',
+  ], 'Durable enqueue adapter');
+};
 
-required(source, [
-  'export interface DurableEnqueueInput',
-  'async enqueue(input: DurableEnqueueInput)',
-  "rpc('enqueue_report_execution_job'",
-  'p_company_id: tenant',
-  'p_job_key: jobKey',
-  'p_source_path: sourcePath',
-  'p_source_hash: sourceHash',
-], 'Durable enqueue adapter');
+assertContract(sql, source);
 
-// Test-of-test: removing the conflict identity guard must be rejected.
+// Test-of-test: the contract checker itself must reject removal of the
+// source-identity conflict guard.
 const tampered = sql.replace("if existing.source_hash <> btrim(p_source_hash) or existing.source_path <> btrim(p_source_path) then\n      raise exception 'Durable job key already exists with different source identity';\n    end if;", '');
-if (tampered.includes('Durable job key already exists with different source identity')) throw new Error('Test-of-test could not remove source identity guard');
+let rejected = false;
+try { assertContract(tampered, source); } catch { rejected = true; }
+if (!rejected) throw new Error('Test-of-test failed: source identity guard removal was not detected');
 
-console.log('Durable report enqueue contract: PASS');
+console.log('Durable report enqueue contract: PASS (including adversarial guard-removal test)');
