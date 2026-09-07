@@ -18,7 +18,6 @@ security definer
 set search_path to 'pg_catalog'
 as $function$
 declare
-  claimed_token uuid;
   claimed_row jsonb;
 begin
   if p_company_id is null then
@@ -63,28 +62,17 @@ begin
      and status in ('queued', 'leased', 'processing')
      and (lease_expires_at is null or lease_expires_at <= now())
      and attempt < max_attempts
-   returning lease_token into claimed_token;
-
-  if claimed_token is null then
-    return null;
-  end if;
-
-  select jsonb_build_object(
-    'id', id,
-    'company_id', company_id,
-    'status', status,
-    'checkpoint', checkpoint,
-    'attempt', attempt,
-    'max_attempts', max_attempts,
-    'lease_owner', lease_owner,
-    'lease_token', lease_token,
-    'lease_expires_at', lease_expires_at
-  )
-    into claimed_row
-    from public.report_execution_jobs
-   where id = p_job_id
-     and company_id = p_company_id
-     and lease_token = claimed_token;
+   returning jsonb_build_object(
+     'id', id,
+     'company_id', company_id,
+     'status', status,
+     'checkpoint', checkpoint,
+     'attempt', attempt,
+     'max_attempts', max_attempts,
+     'lease_owner', lease_owner,
+     'lease_token', lease_token,
+     'lease_expires_at', lease_expires_at
+   ) into claimed_row;
 
   return claimed_row;
 end;
