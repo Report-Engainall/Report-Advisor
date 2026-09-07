@@ -7,11 +7,16 @@ on:
       - 'scripts/report-execution-input-contract.test.mjs'
       - '.github/workflows/report-execution-input-contract.yml'
 
+permissions:
+  contents: read
+
 jobs:
   contract:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@v4
         with:
           node-version: 22
