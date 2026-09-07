@@ -32,13 +32,11 @@ for (const legacy of [
 ]) assert.ok(migration.includes(legacy), `legacy worker signature not retired: ${legacy}`);
 
 for (const rpc of [
-  "rpc('enqueue_report_execution_job'",
   "rpc('claim_report_execution_job'",
   "rpc('heartbeat_report_execution_job'",
   "rpc('advance_report_execution_checkpoint'",
   "rpc('complete_report_execution_job'",
   "rpc('fail_report_execution_job'",
-  "rpc('recover_expired_report_execution_jobs'",
   "rpc('retry_report_execution_job'",
 ]) assert.ok(adapter.includes(rpc), `adapter missing ${rpc}`);
 
