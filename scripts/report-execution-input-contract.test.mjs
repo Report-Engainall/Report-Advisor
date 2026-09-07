@@ -8,17 +8,24 @@ const valid = () => ({
 
 assert.doesNotThrow(() => assertExecutionRequest(valid()));
 for (const field of ['reportId', 'tenantId', 'requestedBy', 'idempotencyKey']) {
-  const request = valid(); request[field] = '   ';
-  assert.throws(() => assertExecutionRequest(request), /Invalid report execution/);
+  for (const value of ['', '   ', null, 42]) {
+    const request = valid(); request[field] = value;
+    assert.throws(() => assertExecutionRequest(request), /Invalid report execution/);
+  }
 }
-for (const sourceSnapshotId of ['', '   ']) {
+for (const sourceSnapshotId of ['', '   ', null, 42]) {
   assert.throws(() => assertExecutionRequest({ ...valid(), sourceSnapshotId }), /source snapshot identity/);
 }
-assert.throws(() => assertExecutionRequest({ ...valid(), parameters: [] }), /Invalid report execution parameters/);
+for (const parameters of [[], null, 'not-an-object', 42]) {
+  assert.throws(() => assertExecutionRequest({ ...valid(), parameters }), /Invalid report execution parameters/);
+}
+assert.throws(() => assertExecutionRequest([]), /Invalid report execution request/);
+assert.throws(() => assertExecutionRequest(null), /Invalid report execution request/);
+assert.throws(() => assertExecutionRequest(undefined), /Invalid report execution request/);
+assert.throws(() => assertExecutionRequest({}), /Invalid report execution/);
 assert.throws(() => assertExecutionRequest({ ...valid(), formats: [] }), /at least one output format/);
 assert.throws(() => assertExecutionRequest({ ...valid(), formats: ['web', 'web'] }), /Duplicate output formats/);
 assert.throws(() => assertExecutionRequest({ ...valid(), formats: ['docx'] }), /Unsupported report output format/);
-assert.throws(() => assertExecutionRequest(null), /Invalid report execution request/);
 assert.doesNotThrow(() => assertEvidenceTenant({ tenantId: 'tenant-a' }, 'tenant-a'));
 assert.throws(() => assertEvidenceTenant({ tenantId: 'tenant-b' }, 'tenant-a'), /tenant mismatch/);
 assert.throws(() => assertEvidenceTenant({ tenantId: 'tenant-a' }, '   '), /tenant identity/);
