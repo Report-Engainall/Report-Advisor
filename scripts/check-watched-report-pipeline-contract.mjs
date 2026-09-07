@@ -12,9 +12,9 @@ for(const token of ['normalizeExtractedText','canonical_text','structured_source
 const incremental=read(files[3]);
 for(const token of ['process_changed','skip_unchanged','deletedRows','reconcileRows'])if(!incremental.includes(token))throw new Error(`Incremental reconciliation contract missing: ${token}`);
 const tenantBinding=read(files[6]);
-for(const token of ['UNIQUE (company_id, id)','FOREIGN KEY (company_id, folder_id)','FOLDER_TENANT_MISMATCH','search_path = public, pg_catalog'])if(!tenantBinding.includes(token))throw new Error(`Tenant-bound folder/file contract missing: ${token}`);
+for(const token of ['UNIQUE (company_id, id)','FOREIGN KEY (company_id, folder_id)','TENANT_CONTEXT_REQUIRED','FOLDER_ID_REQUIRED','FOLDER_TENANT_MISMATCH','search_path = public, pg_catalog'])if(!tenantBinding.includes(token))throw new Error(`Tenant-bound folder/file contract missing: ${token}`);
 const inputInvariants=read(files[7]);
-for(const token of ['relative_path_nonblank_check','content_hash_nonblank_check','size_bytes_nonnegative_check','source_version_positive_check','RELATIVE_PATH_REQUIRED','CONTENT_HASH_REQUIRED','SIZE_BYTES_INVALID','STATE_INVALID'])if(!inputInvariants.includes(token))throw new Error(`Watched-file input invariant missing: ${token}`);
+for(const token of ['relative_path_nonblank_check','content_hash_nonblank_check','size_bytes_nonnegative_check','source_version_positive_check','RELATIVE_PATH_REQUIRED','CONTENT_HASH_REQUIRED','SIZE_BYTES_INVALID','STATE_INVALID',"~ '[^[:space:]]'"])if(!inputInvariants.includes(token))throw new Error(`Watched-file input invariant missing: ${token}`);
 const provenanceBinding=read(files[8]);
 for(const token of ['watched_report_files_company_id_id_key','canonical_text_provenance_folder_company_fkey','canonical_text_provenance_file_company_fkey','FOREIGN KEY (company_id, folder_id)','FOREIGN KEY (company_id, file_id)'])if(!provenanceBinding.includes(token))throw new Error(`Canonical provenance tenant binding missing: ${token}`);
 const dmlBoundary=read(files[5]);
