@@ -1,39 +1,37 @@
 # Execution Checkpoint — Import Runtime Parity — Batch 42 — 2026-09-07
 
 ## Scope
-This checkpoint records a read-only comparison between the current Staging import RPC contract and the replayable `main` migration chain. It does not mutate Staging and does not certify runtime behavior.
+This checkpoint records the Import source/runtime contract audit and the subsequent forward repairs. It does not certify authenticated E2E behavior.
 
 ## Verified findings
-1. Staging exposes `import_create_job(p_company_id uuid, p_entity_type text, p_total_rows integer)`.
-2. Staging exposes `import_update_job_progress(p_job_id uuid, p_processed_rows integer, p_valid_rows integer, p_invalid_rows integer, p_duplicate_rows integer, p_status text)`.
-3. Staging exposes `import_finish_job(p_job_id uuid, p_status text, p_result_summary jsonb, p_error_message text)`.
-4. Staging exposes `import_upsert_product` with the current 10-argument contract.
-5. Staging exposes `import_upsert_customer` with the current 9-argument contract.
-6. Staging exposes `import_upsert_sales_invoice` with the current 10-argument contract.
-7. All six import RPCs are `SECURITY INVOKER` rather than `SECURITY DEFINER`.
-8. All six grant EXECUTE to `authenticated`.
-9. None grant EXECUTE to `anon`.
-10. `import_create_job` binds `p_company_id` to `current_company_id()`.
-11. `import_update_job_progress` derives tenant context from `current_company_id()` and locks the tenant-owned job row.
-12. `import_finish_job` derives tenant context from `current_company_id()` and locks the job before terminal transition.
-13. Product import is fail-closed for required insert fields and rejects fabricated business defaults.
-14. Customer import in the live Staging definition still uses `coalesce(p_segment,'regular')`, `coalesce(p_credit_limit,0)`, and `coalesce(p_payment_terms_days,30)` for inserts.
-15. Sales-invoice import in the live Staging definition still uses `coalesce(p_status,'confirmed')` and zero defaults for monetary insert fields.
-16. The replayable `main` source already contains `supabase/migrations/20260825161500_import_entity_rpc_truth.sql` with fail-closed customer/invoice insert contracts.
-17. That canonical source migration requires customer segment, credit limit, and payment terms on insert.
-18. It requires invoice subtotal, tax, total, paid amount, and status on insert.
-19. It adds invoice customer-name resolution and a tenant check for the resolved customer.
-20. The current Staging migration ledger does not contain the original `20260825161500` version; the baseline was replayed under a later migration timestamp, so provenance cannot be inferred from the original timestamp alone.
-21. Later Staging migrations include `reconcile_missing_import_customer_invoice_rpcs`, confirming that the import entity RPC surface was independently reconciled in the Staging lineage.
-22. The live function definitions were therefore treated as authoritative for runtime truth, and the source migration as authoritative for replay truth; they currently do not match on customer/invoice fail-closed semantics.
+1. Staging exposes the import job lifecycle RPCs `import_create_job`, `import_update_job_progress`, and `import_finish_job`.
+2. Staging exposes the batch wrapper `import_commit_batch(uuid,text,jsonb,text)`.
+3. Staging exposes tenant-bound `import_upsert_product` with the current 10-argument contract.
+4. Staging exposes tenant-bound `import_upsert_customer` with the current 9-argument contract.
+5. Staging now exposes tenant-bound `import_upsert_sales_invoice` with the canonical 11-argument contract including `p_customer_name`.
+6. The canonical main migration `supabase/migrations/20260825161500_import_entity_rpc_truth.sql` defines the same 11-argument invoice contract and fail-closed insert requirements.
+7. `import_commit_batch` originally called `import_upsert_sales_invoice` using the obsolete 10-argument order, omitting `customer_name`; this was a real runtime contract defect.
+8. The first forward repair updated `import_commit_batch` to pass `v_row->>'customer_name'` and the canonical invoice argument order.
+9. A second live-contract check exposed a deeper parity defect: Staging's invoice RPC still had only the legacy 10-argument signature, so the repaired wrapper would have failed at runtime.
+10. Staging was repaired forward-only to the canonical 11-argument invoice RPC, including tenant-bound customer resolution and fail-closed financial/status requirements.
+11. The repaired invoice RPC is `SECURITY INVOKER`, denies `anon` EXECUTE, and grants EXECUTE to `authenticated`.
+12. Supabase Security Advisor then exposed one independent hardening issue on that RPC: mutable function `search_path`.
+13. The invoice RPC search path was pinned to `public, pg_catalog`; Advisor no longer reports the `function_search_path_mutable` warning for that function.
+14. All inspected import RPCs now have `anon` EXECUTE disabled; the invoice RPC has an explicit pinned search path.
+15. No import data fixture was fabricated and no authenticated runtime certification was claimed.
 
-## Decision
-This is a real **source/runtime parity finding**, not a reason to mutate Staging manually. The existing canonical source migration must be traced against the later Staging reconciliation migration before any new forward migration is authored. No duplicate repair was created in this batch.
+## Source/replay repair
+- Added `supabase/migrations/20260907194500_reconcile_import_commit_batch_invoice_contract.sql` to the worker provenance PR.
+- Added `supabase/migrations/20260907165000_harden_import_sales_invoice_search_path.sql` to preserve the live security hardening in replayable source.
+- Extended `scripts/report-execution-worker-provenance.test.mjs` to assert the invoice search-path hardening and grants.
+
+## Staging evidence
+- The three forward repairs were applied successfully to Staging.
+- Staging migration ledger records the invoice wrapper repair, canonical invoice contract repair, and search-path hardening as later-versioned migrations.
+- Current invoice signature and privileges were re-read after each repair.
 
 ## Safety boundary
-- Staging was read-only.
-- No import job, customer, invoice, or product fixture was inserted.
-- No migration was applied to Staging.
 - No historical migration was rewritten.
-- No production alias or frozen RC was changed.
-- The Worker provenance PR remains isolated from this Import parity finding.
+- No frozen RC or Production alias was changed.
+- No synthetic customer, invoice, product, import job, or worker job was inserted.
+- Runtime E2E remains un-certified until authenticated execution produces actual persistence/readback and Tenant A/B isolation evidence.
