@@ -1,5 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { assertNoQuarantine, assertReportExecutionReady, type ExecutionGateInput } from './execution-gate';
+import { assertReportExecutionReady, type ExecutionGateInput } from './execution-gate';
 import type { ReportExecutionRequest } from './report-execution-contract';
 import { SupabaseReportExecutionStore, type DurableExecutionJob } from './durable-worker-adapter';
 
@@ -23,7 +23,6 @@ export async function enqueueDurableReportExecution(
   client: SupabaseClient,
 ): Promise<DurableExecutionJob> {
   assertReportExecutionReady({ request: input.request, routePlan: input.routePlan, sourceSnapshotId: input.sourceSnapshotId });
-  assertNoQuarantine(input.routePlan);
   if (input.request.sourceSnapshotId && input.request.sourceSnapshotId !== input.sourceSnapshotId) {
     throw new Error('Report execution source snapshot does not match the requested snapshot');
   }
