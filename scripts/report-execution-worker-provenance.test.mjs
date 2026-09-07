@@ -70,13 +70,15 @@ assert.match(migration, /sourceHash/);
 assert.match(migration, /worker_attempts_exhausted_after_lease_expiry/);
 
 assert.match(enqueueGuard, /source_path IS NULL OR source_hash IS NULL/);
+assert.match(enqueueGuard, /p_max_attempts is null or p_max_attempts < 1 or p_max_attempts > 100/);
+assert.match(enqueueGuard, /Durable job conflict was not found; refusing ambiguous enqueue result/);
 assert.match(enqueueGuard, /missing source identity/);
 assert.match(enqueueGuard, /refusing provenance-unsafe enqueue/);
 assert.match(parityMigration, /ALTER COLUMN source_path SET NOT NULL/);
 assert.match(parityMigration, /ALTER COLUMN source_hash SET NOT NULL/);
 assert.match(parityMigration, /ALTER COLUMN max_attempts SET DEFAULT 5/);
 
-assert.match(checkpointReplay, /new_pos = old_pos and p_checkpoint = old_checkpoint/);
+assert.match(checkpointReplay, /new_pos = old_pos and \(p_checkpoint - 'updatedAt'\) = \(old_checkpoint - 'updatedAt'\)/);
 assert.match(checkpointReplay, /return true/);
 assert.match(checkpointReplay, /new_pos <> old_pos \+ 1/);
 assert.match(checkpointReplay, /p_lease_token uuid/);
