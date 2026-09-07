@@ -64,6 +64,18 @@ for (const grant of [
   'grant execute on function public.retry_report_execution_job',
 ]) assert.ok(migration.includes(grant), `missing service_role grant: ${grant}`);
 
+for (const grant of [
+  'grant execute on function public.enqueue_report_execution_job',
+  'grant execute on function public.claim_report_execution_job',
+  'grant execute on function public.heartbeat_report_execution_job',
+  'grant execute on function public.advance_report_execution_checkpoint',
+  'grant execute on function public.complete_report_execution_job',
+  'grant execute on function public.fail_report_execution_job',
+  'grant execute on function public.recover_expired_report_execution_jobs',
+  'grant execute on function public.retry_report_execution_job',
+]) assert.doesNotMatch(migration, new RegExp(`${grant}[^\\n]*to authenticated`, 'i'), `worker RPC must not grant authenticated EXECUTE: ${grant}`);
+
+assert.equal((migration.match(/set search_path to 'pg_catalog'/g) ?? []).length, 8, 'all eight worker SECURITY DEFINER RPCs must pin search_path');
 assert.match(migration, /alter table public\.report_execution_jobs enable row level security/);
 assert.match(migration, /using \(company_id = public\.current_company_id\(\)\)/);
 assert.match(migration, /with check \(company_id = public\.current_company_id\(\)\)/);
