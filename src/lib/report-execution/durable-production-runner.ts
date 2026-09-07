@@ -21,17 +21,19 @@ export interface DurableProductionRunInput<T = unknown> {
 export async function runDurableProductionLifecycle<T>(input: DurableProductionRunInput<T>, store: SupabaseReportExecutionStore) {
   const leaseSeconds = input.leaseSeconds ?? 300;
   const heartbeatIntervalMs = input.heartbeatIntervalMs ?? Math.max(30_000, Math.floor((leaseSeconds * 1000) / 3));
-  const job = await store.claim(input.jobId, input.workerId, leaseSeconds);
+  const tenantId = input.request.tenantId;
+  if (!tenantId) throw new Error('Durable production execution requires a tenant context');
+  const job = await store.claim(input.jobId, input.workerId, leaseSeconds, tenantId);
   let heartbeatTimer: ReturnType<typeof setInterval> | undefined;
 
   try {
-    if (job.tenantId !== input.request.tenantId) throw new Error('Tenant mismatch for durable production execution');
+    if (job.tenantId !== tenantId) throw new Error('Tenant mismatch for durable production execution');
     if (job.checkpoint.sourceHash && job.checkpoint.sourceHash !== input.sourceHash) throw new Error('Source hash changed during resumable execution');
     assertProductionCheckpoint(job.checkpoint);
 
     let heartbeatFailure: unknown = null;
     heartbeatTimer = setInterval(() => {
-      void store.heartbeat(input.jobId, input.workerId, leaseSeconds).catch((error) => { heartbeatFailure ??= error; });
+      void store.heartbeat(input.jobId, input.workerId, leaseSeconds, tenantId).catch((error) => { heartbeatFailure ??= error; });
     }, heartbeatIntervalMs);
 
     const checkpoint = (stage: ReportExecutionStage): ReportExecutionCheckpoint => ({ ...job.checkpoint, sourceHash: input.sourceHash, stage, updatedAt: Date.now() });
@@ -42,14 +44,14 @@ export async function runDurableProductionLifecycle<T>(input: DurableProductionR
       if (!following) throw new Error(`Cannot advance production lifecycle from ${stage}`);
       if (input.executeStage) await input.executeStage(following, { request: input.request, rows: input.rows });
       if (heartbeatFailure) throw heartbeatFailure;
-      await store.saveCheckpoint(input.jobId, checkpoint(following), input.workerId);
+      await store.saveCheckpoint(input.jobId, checkpoint(following), input.workerId, tenantId);
       stage = following;
     }
 
     const lifecycle = runProductionLifecycle({
       ...input.lifecycle,
       jobId: input.jobId,
-      companyId: input.request.tenantId,
+      companyId: tenantId,
       sourceHash: input.sourceHash,
       currentRows: input.lifecycle.currentRows,
     });
@@ -59,12 +61,12 @@ export async function runDurableProductionLifecycle<T>(input: DurableProductionR
       scenario: lifecycle.scenario,
       portfolio: lifecycle.portfolio,
       autonomy: lifecycle.autonomy,
-    });
+    }, tenantId);
     return lifecycle;
   } catch (error) {
     try {
-      await store.fail(input.jobId, input.workerId, { message: error instanceof Error ? error.message : String(error) });
-      if (job.attempt < job.maxAttempts) await store.retry(input.jobId);
+      await store.fail(input.jobId, input.workerId, { message: error instanceof Error ? error.message : String(error) }, tenantId);
+      if (job.attempt < job.maxAttempts) await store.retry(input.jobId, tenantId);
     } catch (failureError) {
       throw new AggregateError([error, failureError], 'Durable execution failed and failure/recovery state could not be persisted');
     }
