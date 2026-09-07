@@ -36,7 +36,7 @@ begin
   if p_job_key is null or btrim(p_job_key) = '' then raise exception 'job_key is required'; end if;
   if p_source_path is null or btrim(p_source_path) = '' then raise exception 'source_path is required'; end if;
   if p_source_hash is null or btrim(p_source_hash) = '' then raise exception 'source_hash is required'; end if;
-  if p_max_attempts < 1 or p_max_attempts > 100 then raise exception 'max_attempts must be between 1 and 100'; end if;
+  if p_max_attempts is null or p_max_attempts < 1 or p_max_attempts > 100 then raise exception 'max_attempts must be between 1 and 100'; end if;
 
   initial_checkpoint := jsonb_build_object(
     'stage', 'queued',
@@ -59,6 +59,9 @@ begin
     where company_id = p_company_id and job_key = btrim(p_job_key)
     for update;
 
+    if not found then
+      raise exception 'Durable job conflict was not found; refusing ambiguous enqueue result';
+    end if;
     if existing.source_path is null or existing.source_hash is null then
       raise exception 'Existing durable job is missing source identity; refusing provenance-unsafe enqueue';
     end if;
