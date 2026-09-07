@@ -34,14 +34,24 @@ export interface ReportExecutionResult {
   evidence: ReportExecutionEvidence;
 }
 
+function requireNonBlank(value: unknown, field: string): asserts value is string {
+  if (typeof value !== 'string' || value.trim().length === 0) throw new Error(`Invalid report execution ${field}`);
+}
+
 export function assertExecutionRequest(request: ReportExecutionRequest): void {
-  if (!request || !request.reportId || !request.tenantId || !request.requestedBy) throw new Error('Invalid report execution identity');
-  if (!request.idempotencyKey) throw new Error('Report execution requires an idempotency key');
+  if (!request || typeof request !== 'object') throw new Error('Invalid report execution request');
+  requireNonBlank(request.reportId, 'report identity');
+  requireNonBlank(request.tenantId, 'tenant identity');
+  requireNonBlank(request.requestedBy, 'requester identity');
+  requireNonBlank(request.idempotencyKey, 'idempotency key');
+  if (request.sourceSnapshotId !== undefined) requireNonBlank(request.sourceSnapshotId, 'source snapshot identity');
+  if (!request.parameters || typeof request.parameters !== 'object' || Array.isArray(request.parameters)) throw new Error('Invalid report execution parameters');
   if (!Array.isArray(request.formats) || request.formats.length === 0) throw new Error('Report execution requires at least one output format');
   if (new Set(request.formats).size !== request.formats.length) throw new Error('Duplicate output formats are not allowed');
   if (request.formats.some((format) => !['web', 'pdf', 'xlsx'].includes(format))) throw new Error('Unsupported report output format');
 }
 
 export function assertEvidenceTenant(evidence: ReportExecutionEvidence, tenantId: string): void {
+  requireNonBlank(tenantId, 'tenant identity');
   if (!evidence || evidence.tenantId !== tenantId) throw new Error('Report evidence tenant mismatch');
 }
