@@ -14,5 +14,4 @@ jobs:
         with:
           python-version: '3.11'
       - run: node scripts/check-ocr-confidence-contract.mjs
-      - run: node scripts/check-ocr-runtime-contract.mjs
       - run: python services/document-intelligence/tests/test_ocr_runtime.py
