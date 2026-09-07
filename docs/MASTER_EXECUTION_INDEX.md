@@ -1,6 +1,6 @@
 # Report Advisor — Master Execution & Truth Index
 
-## CURRENT EXECUTION BOUNDARY — 2026-09-06
+## CURRENT EXECUTION BOUNDARY — 2026-09-07
 
 > Authoritative execution manifest. This index is not a release certificate. Every certification claim must be tied to the exact Git SHA under test and to fresh operational evidence. Because embedding this file's own commit SHA would self-invalidate the reference, the exact candidate is always the Git `HEAD` of the active remediation branch at the evidence checkout.
 
@@ -18,15 +18,15 @@ From this point forward, the project is scored against **sellable, production-ce
 
 ### Honest current score
 
-**Overall sellable / production-certified readiness: ~46%**
+**Overall sellable / production-certified readiness: ~47%**
 
-This is a weighted assessment, not a claim that exactly 46% of source code exists. Recent staging remediation closed prerequisites in the import and worker contracts, but authenticated end-to-end and production evidence remain absent, so the operational score is not increased merely for source/DB fixes.
+This is a weighted assessment, not a claim that exactly 47% of source code exists. The live Staging durable-worker claim contract is now applied and privilege-verified, but authenticated end-to-end, sustained worker lifecycle, and production evidence remain absent.
 
 | Gate | Weight | Current evidence-based completion | Weighted contribution |
 |---|---:|---:|---:|
 | P0 authenticated runtime + tenant/browser security | 20% | ~45% | 9.0 |
-| Worker/report execution | 10% | ~70% | 7.0 |
-| Migration/schema provenance parity | 10% | ~75% | 7.5 |
+| Worker/report execution | 10% | ~75% | 7.5 |
+| Migration/schema provenance parity | 10% | ~76% | 7.6 |
 | Import/reconciliation business runtime | 10% | ~60% | 6.0 |
 | Arabic OCR/document golden runtime | 10% | ~30% | 3.0 |
 | Backup/restore/rollback | 10% | ~20% | 2.0 |
@@ -34,13 +34,13 @@ This is a weighted assessment, not a claim that exactly 46% of source code exist
 | Performance/observability/governance | 5% | ~60% | 3.0 |
 | CI/release evidence | 10% | ~30% | 3.0 |
 | UX/business acceptance/reporting | 10% | ~45% | 4.5 |
-| **Total** | **100%** | | **46.5** |
+| **Total** | **100%** | | **47.1** |
 
 Because several foundational areas are materially implemented beyond their operational evidence, a separate **implementation maturity** view remains approximately **80%+**. The release decision uses the lower operational score.
 
 ### What this means
 - **Codebase maturity:** high (~80%+).
-- **Operational/production certification:** ~46%.
+- **Operational/production certification:** ~47%.
 - **Sellable with full production confidence:** **NO, not yet**.
 - The remaining work is release-critical, not cosmetic.
 
@@ -56,7 +56,7 @@ Because several foundational areas are materially implemented beyond their opera
 - Cross-tenant business mutation harness exists, but current-head authenticated runtime evidence is not complete.
 
 ## P0/P1 — WORKER / REPORT EXECUTION
-**Status: HARDENED — PARTIALLY CERTIFIED**
+**Status: HARDENED — LIVE CONTRACT VERIFIED — LIFECYCLE NOT CERTIFIED**
 
 Verified source/live facts:
 - explicit tenant/company context;
@@ -66,22 +66,22 @@ Verified source/live facts:
 - `evidenceKeys` must be an array;
 - exhausted final attempts converge to `dead_letter`;
 - worker RPC execution restricted to `service_role`;
-- live Staging RPC signatures match the explicit-tenant contract.
-
-The forward-only checkpoint migration was applied to Staging and the canonical function definition was re-read successfully. This closes the previously identified source-vs-live checkpoint-admission gap.
+- live Staging claim RPC now returns `jsonb` containing the claimed row and exact generated `lease_token`;
+- live Staging claim RPC has `service_role_execute=true` and `authenticated_execute=false`;
+- live canonical function definition was re-read after application and matches the hardened claim contract.
 
 Still open:
+- real queued-job claim/heartbeat/checkpoint/complete/fail/retry lifecycle;
 - sustained production worker lifecycle;
 - production crash/retry/recovery;
 - production queue observability and failure injection.
 
 ## P1 — MIGRATION / SCHEMA PROVENANCE
-**Status: SUBSTANTIALLY RECONCILED — PARITY NOT YET CLOSED**
+**Status: SUBSTANTIALLY RECONCILED — ACTIVE CLAIM CONTRACT APPLIED — FULL PARITY NOT YET CLOSED**
 
 - The live Staging ledger contains the worker/reconciliation migration chain, including execution-timestamped applications.
-- A live source/runtime gap was found in the canonical import chain: `import_commit_batch` and the customer/invoice upsert RPCs were absent from Staging even though their source migrations exist.
-- Forward-only Staging reconciliation restored those missing import RPCs without rewriting historical migration records.
-- Remaining requirement: fresh replay or authoritative source-to-live schema comparison proving exact parity for the active candidate.
+- The durable claim hardening was applied forward-only to live Staging under migration record `20260907000717 / harden_report_execution_claim_token_20260907`.
+- Remaining requirement: authoritative source-to-live schema comparison proving exact parity for the active candidate, including migration naming/history reconciliation.
 
 ## P1 — IMPORT / RECONCILIATION
 **Status: IMPLEMENTED — RUNTIME OPEN**
@@ -115,11 +115,11 @@ RLS performance work materially improved the policy shape. Fresh security review
 
 ## CI / RELEASE TRUTH
 
-- The exact active candidate is the Git `HEAD` of `fix/runtime-provenance-20260906` at the time of each evidence batch; this avoids self-invalidating the index by embedding its own commit SHA.
-- PR #348 remains open and mergeable; no merge has been performed.
-- Current GitHub Actions records expose completed `failure` jobs with zero workflow steps and unavailable log blobs in the observed failure pattern. This is not proof of a product/test failure because no executable test step is present in those job records.
-- Therefore no CI PASS is being fabricated or inferred.
-- The next useful CI recovery action is to obtain a real executable run/log or runner diagnostics rather than changing product code to satisfy an unobserved failure.
+- The exact active candidate is the Git `HEAD` of `fix/runtime-provenance-20260906` at the time of each evidence batch.
+- PR #348 remains open; no merge has been performed.
+- Current-head workflow fan-out for `7ed8b1dc...` failed across many workflows, but the Quality representative job exposed `steps=[]`, `runner_id=0`, empty runner name, and no executable command output. This remains non-diagnostic and is not being treated as a product/test assertion failure.
+- Vercel deployment `dpl_4NzGUFKuFua2FLQCYkjX1jxe6z8D` is `READY` and exactly bound to `7ed8b1dc...`; build logs show Vite production build completed successfully in 12.00s and deployment completed.
+- The later source commits after `7ed8b1dc...` are not promoted to that deployment evidence.
 
 ## HISTORICAL EVIDENCE BOUNDARY
 
@@ -134,22 +134,19 @@ Issue #205 records an exact historical RC `d846821...` with successful Quality a
 5. Fresh migration source ↔ replay/live parity.
 6. Arabic OCR/document golden runtime corpus.
 7. Import/reconciliation adversarial golden business corpus.
-8. Production worker crash/retry/dead-letter/recovery lifecycle.
+8. Real worker claim/heartbeat/checkpoint/complete/fail/retry lifecycle and production crash/recovery.
 9. Backup/restore with measured RPO/RTO.
 10. Windows watched-folder lifecycle.
 11. Observability/failure-injection proof.
-12. Final UX/business acceptance and release certification.
+12. Supabase Auth leaked-password protection control-plane remediation.
+13. Final UX/business acceptance and release certification.
 
-## NEW VERIFIED GAPS — 2026-09-06
+## NEW VERIFIED GAPS — 2026-09-07
 
-- #349 — Source remediation landed: Recommendations UI now maps acceptance to durable `approved` and no longer exposes a local `done` transition; regression contract check added. Authenticated runtime evidence remains required.
-- Report-execution contract deepened: regression guard now checks both explicit tenant binding and lease-token fencing in the durable worker adapter.
-- #350 — CLOSED: Customer/Product create controls were remediated; retain authenticated runtime proof as part of final acceptance.
-- #351 — Source remediation landed: later-batch failure is recorded as `partial` after committed batches; authenticated adversarial recovery evidence remains required.
-- #352 — Source remediation landed: preview now declares and validates the canonical invoice customer identity alternative (`customer_id` OR `customer_name`); regression contract check added. Runtime proof remains required.
-- #353 — Missing Staging `import_commit_batch` was a concrete source/live runtime break; forward reconciliation has now restored it.
+- Durable claim contract — CLOSED at source and **live Staging contract verified**: `claim_report_execution_job(uuid,uuid,text,integer)` now returns `jsonb`, exact lease token, tenant/worker identity, and is executable only by `service_role`.
+- Real worker lifecycle — OPEN: Staging currently has zero `report_execution_jobs`, so no legitimate queued-job lifecycle was fabricated or inferred.
+- CI forensic boundary — OPEN: current-head fan-out still fails with non-executable job records; no code defect inferred.
 - #354 — Supabase Auth leaked-password protection remains disabled.
-- CI forensic boundary — repeated current-head jobs across Quality, Bootstrap, OCR and other gates return `failure` with zero steps and unavailable log blobs; this remains an infrastructure/evidence blocker, not a proven product defect.
 
 ## GOVERNANCE RULE
 
