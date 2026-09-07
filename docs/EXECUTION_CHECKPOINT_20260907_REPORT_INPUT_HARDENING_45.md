@@ -13,18 +13,10 @@ Independent hardening of the in-memory report execution contract, starting from 
 - Apply the same non-blank tenant guard to evidence tenant assertions.
 
 ## Regression coverage
-Added `scripts/report-execution-input-contract.test.mjs` covering:
-- valid request acceptance;
-- blank report/tenant/requester/idempotency identities;
-- blank source snapshot identity;
-- array parameters;
-- empty formats;
-- duplicate formats;
-- unsupported formats;
-- null request;
-- matching evidence tenant;
-- mismatched evidence tenant;
-- blank evidence tenant argument.
+Added `scripts/report-execution-input-contract.test.mjs` covering valid acceptance, blank identities, blank source snapshot identity, array parameters, empty formats, duplicate formats, unsupported formats, null requests, matching evidence tenant, mismatched evidence tenant, and blank evidence tenant input.
+
+## CI
+Added a focused GitHub Actions workflow that executes the behavioral contract test with Node 22 and `--experimental-strip-types`.
 
 ## Safety boundary
 No Staging mutation, production mutation, frozen RC mutation, migration history rewrite, or alias change. This is a focused contract hardening change and is not runtime certification.
