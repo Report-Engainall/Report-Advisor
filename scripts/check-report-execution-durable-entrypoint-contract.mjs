@@ -15,15 +15,47 @@ const required = [
   'const jobKey = `${input.request.tenantId}:${input.request.idempotencyKey}:${input.sourceSnapshotId}`',
   'return new SupabaseReportExecutionStore(client).enqueue',
 ];
-for (const token of required) if (!source.includes(token)) throw new Error(`Durable entrypoint missing ${token}`);
 
-const gateIndex = source.indexOf('assertReportExecutionReady(');
-const enqueueIndex = source.indexOf('new SupabaseReportExecutionStore(client).enqueue(');
-if (gateIndex < 0 || enqueueIndex < 0 || gateIndex > enqueueIndex) throw new Error('Durable enqueue side effect is not behind the execution gate');
+function assertContract(value) {
+  for (const token of required) {
+    if (!value.includes(token)) throw new Error(`Durable entrypoint missing ${token}`);
+  }
 
-const tampered = source.replace('assertReportExecutionReady({ request: input.request, routePlan: input.routePlan, sourceSnapshotId: input.sourceSnapshotId });', '');
-if (tampered.includes('new SupabaseReportExecutionStore(client).enqueue(') && !tampered.includes('assertReportExecutionReady(')) {
-  console.log('Adversarial gate-removal test: correctly detects missing gate by construction');
+  const gateIndex = value.indexOf('assertReportExecutionReady(');
+  const enqueueIndex = value.indexOf('new SupabaseReportExecutionStore(client).enqueue(');
+  if (gateIndex < 0 || enqueueIndex < 0 || gateIndex > enqueueIndex) {
+    throw new Error('Durable enqueue side effect is not behind the execution gate');
+  }
 }
 
-console.log('Durable report execution entrypoint contract: PASS');
+assertContract(source);
+
+// Test-of-test: deleting the actual gate invocation must make the checker fail.
+const gateInvocation = 'assertReportExecutionReady({ request: input.request, routePlan: input.routePlan, sourceSnapshotId: input.sourceSnapshotId });';
+if (!source.includes(gateInvocation)) throw new Error('Expected canonical gate invocation was not found');
+const tampered = source.replace(gateInvocation, '');
+let rejected = false;
+try {
+  assertContract(tampered);
+} catch {
+  rejected = true;
+}
+if (!rejected) throw new Error('Test-of-test failed: removal of the execution gate was not detected');
+
+// Test-of-test: moving the enqueue side effect ahead of the gate must also fail.
+const reordered = source.replace(
+  `${gateInvocation}\n`,
+  '',
+).replace(
+  '  return new SupabaseReportExecutionStore(client).enqueue({',
+  `  ${gateInvocation}\n  return new SupabaseReportExecutionStore(client).enqueue({`,
+);
+let orderRejected = false;
+try {
+  assertContract(reordered);
+} catch {
+  orderRejected = true;
+}
+if (!orderRejected) throw new Error('Test-of-test failed: enqueue-before-gate reordering was not detected');
+
+console.log('Durable report execution entrypoint contract: PASS (including gate-removal and ordering adversarial tests)');
