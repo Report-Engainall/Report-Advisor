@@ -21,6 +21,10 @@ const batchImport = fs.readFileSync(
   'supabase/migrations/20260907194500_reconcile_import_commit_batch_invoice_contract.sql',
   'utf8',
 );
+const invoiceSearchPath = fs.readFileSync(
+  'supabase/migrations/20260907165000_harden_import_sales_invoice_search_path.sql',
+  'utf8',
+);
 const adapter = fs.readFileSync('src/lib/report-execution/durable-worker-adapter.ts', 'utf8');
 
 for (const signature of [
@@ -92,5 +96,9 @@ assert.match(batchImport, /v_row->>'customer_name'/);
 assert.match(batchImport, /import_upsert_sales_invoice\(/);
 assert.match(batchImport, /REVOKE ALL ON FUNCTION public\.import_commit_batch\(uuid, text, jsonb, text\) FROM PUBLIC, anon/);
 assert.match(batchImport, /GRANT EXECUTE ON FUNCTION public\.import_commit_batch\(uuid, text, jsonb, text\) TO authenticated/);
+
+assert.match(invoiceSearchPath, /SET search_path = public, pg_catalog/);
+assert.match(invoiceSearchPath, /REVOKE ALL ON FUNCTION public\.import_upsert_sales_invoice/);
+assert.match(invoiceSearchPath, /GRANT EXECUTE ON FUNCTION public\.import_upsert_sales_invoice/);
 
 console.log('Report execution worker provenance: PASS');
