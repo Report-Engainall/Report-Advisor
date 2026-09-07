@@ -1,6 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { assertNoQuarantine, assertReportExecutionReady, type ExecutionGateInput } from './execution-gate';
-import { fingerprintRequest } from './idempotency';
 import type { ReportExecutionRequest } from './report-execution-contract';
 import { SupabaseReportExecutionStore, type DurableExecutionJob } from './durable-worker-adapter';
 
@@ -33,7 +32,6 @@ export async function enqueueDurableReportExecution(
   if (!sourcePath || !sourceHash) throw new Error('Durable report execution requires source path and source hash');
 
   const jobKey = `${input.request.tenantId}:${input.request.idempotencyKey}:${input.sourceSnapshotId}`;
-  const sourceIdentity = fingerprintRequest({ sourceSnapshotId: input.sourceSnapshotId, sourcePath, sourceHash });
   return new SupabaseReportExecutionStore(client).enqueue({
     tenantId: input.request.tenantId,
     jobKey,
