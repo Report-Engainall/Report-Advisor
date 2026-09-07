@@ -8,5 +8,7 @@ const text=files.map(f=>fs.readFileSync(path.join(dir,f),'utf8')).join('\n');
 const required=['quality.yml','production-evidence-boundary.yml'];
 for(const f of required) if(!files.includes(f)) throw new Error(`Critical workflow missing: ${f}`);
 for(const token of ['pull_request','push','workflow_dispatch']) if(!text.includes(token)) throw new Error(`Workflow trigger coverage missing: ${token}`);
-for(const token of ['permissions: {contents: read}','persist-credentials: false']) if(!text.includes(token)) throw new Error(`Workflow hardening missing: ${token}`);
+const hasReadOnlyContentsPermissions=/permissions:\s*(?:\{\s*contents:\s*read\s*\}|\n\s+contents:\s*read\b)/m.test(text);
+if(!hasReadOnlyContentsPermissions) throw new Error('Workflow hardening missing: contents: read permission');
+if(!text.includes('persist-credentials: false')) throw new Error('Workflow hardening missing: persist-credentials: false');
 console.log(`Workflow trigger integrity: PASS (${files.length} workflows)`);
