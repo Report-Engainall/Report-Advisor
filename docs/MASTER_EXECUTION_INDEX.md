@@ -152,6 +152,22 @@ Issue #205 records an exact historical RC `d846821...` with successful Quality a
 12. Supabase Auth leaked-password protection control-plane remediation.
 13. Final UX/business acceptance and release certification.
 
+## CANONICAL TRACKING MAP — 2026-09-07 BATCH 35
+
+Use the following existing GitHub issues as the primary trackers. Do not create another issue for the same gate unless a genuinely distinct defect or evidence boundary appears:
+
+- CI observable runner execution → #355.
+- Authenticated Tenant A/B runtime → #295.
+- Migration/source-live provenance reconciliation → #96.
+- Durable worker recovery/lifecycle → #299.
+- Arabic OCR + import/reconciliation corpus → #297 (with authenticated import runtime tracked by #358 where specifically applicable).
+- Backup/restore/rollback → #296.
+- Windows watched-folder → #102.
+- Supabase Auth leaked-password protection → #354.
+- Overall exact-head/live certification → #62.
+- Historical RC evidence ledger → #205 (reference only; never promoted).
+- Real report-generation durable caller → #372 (new architectural gap; not duplicated elsewhere).
+
 ## NEW VERIFIED GAPS — 2026-09-07
 
 - Durable claim contract — CLOSED at source and **live Staging contract verified**.
@@ -168,4 +184,5 @@ Issue #205 records an exact historical RC `d846821...` with successful Quality a
 - Never call implementation proof operational proof.
 - Never mutate frozen RCs or Production aliases to manufacture evidence.
 - Prefer forward-only migrations when a historical migration has already been applied.
+- Search existing open issues/PRs before creating a new tracking issue; update the canonical item when it already represents the same gate.
 - Update this index only when the evidence boundary or actual state changes.
