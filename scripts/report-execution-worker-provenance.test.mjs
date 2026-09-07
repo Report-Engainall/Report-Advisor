@@ -5,6 +5,10 @@ const migration = fs.readFileSync(
   'supabase/migrations/20260907193000_reconcile_report_execution_worker_provenance.sql',
   'utf8',
 );
+const parityMigration = fs.readFileSync(
+  'supabase/migrations/20260907193100_harden_report_execution_worker_schema_parity.sql',
+  'utf8',
+);
 const adapter = fs.readFileSync('src/lib/report-execution/durable-worker-adapter.ts', 'utf8');
 
 for (const signature of [
@@ -40,7 +44,6 @@ for (const rpc of [
 
 assert.match(adapter, /p_company_id: tenant/);
 assert.match(adapter, /p_lease_token: job\.leaseToken/);
-assert.match(adapter, /p_company_id: tenant/);
 
 for (const grant of [
   'grant execute on function public.enqueue_report_execution_job',
@@ -59,5 +62,10 @@ assert.match(migration, /with check \(company_id = public\.current_company_id\(\
 assert.match(migration, /lease_token is not null/);
 assert.match(migration, /sourceHash/);
 assert.match(migration, /worker_attempts_exhausted_after_lease_expiry/);
+
+assert.match(parityMigration, /source_path IS NULL OR source_hash IS NULL/);
+assert.match(parityMigration, /ALTER COLUMN source_path SET NOT NULL/);
+assert.match(parityMigration, /ALTER COLUMN source_hash SET NOT NULL/);
+assert.match(parityMigration, /ALTER COLUMN max_attempts SET DEFAULT 5/);
 
 console.log('Report execution worker provenance: PASS');
