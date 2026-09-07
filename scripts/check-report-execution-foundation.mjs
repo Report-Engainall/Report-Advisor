@@ -19,4 +19,8 @@ if (!canonical.includes('leaseToken')) throw new Error('Lease fencing contract m
 if (!canonical.includes('p_company_id')) throw new Error('Explicit tenant contract missing');
 if (!canonical.includes('const leaseToken = typeof row.lease_token')) throw new Error('Atomic claim token must be consumed from the claim RPC result');
 if (!canonical.includes('leaseToken,\n      leaseExpiresAt')) throw new Error('Claimed lease token must be retained in the durable job identity');
+const claimMethod = canonical.slice(canonical.indexOf('async claim('), canonical.indexOf('async heartbeat('));
+if (!claimMethod.includes("rpc('claim_report_execution_job'")) throw new Error('Claim method must call the canonical durable claim RPC');
+if (claimMethod.includes("from('report_execution_jobs')")) throw new Error('Claim method must not re-read report_execution_jobs after ownership acquisition to obtain the fencing token');
+if (!claimMethod.includes('row.company_id !== tenant') || !claimMethod.includes('row.lease_owner !== workerId')) throw new Error('Claim method must validate returned tenant and worker ownership');
 console.log('Report execution foundation: tenant + lease fencing + atomic claim token verified');
