@@ -1,31 +1,14 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 
-const migration = fs.readFileSync(
-  'supabase/migrations/20260907193000_reconcile_report_execution_worker_provenance.sql',
-  'utf8',
-);
-const enqueueGuard = fs.readFileSync(
-  'supabase/migrations/20260907193050_harden_report_execution_enqueue_provenance.sql',
-  'utf8',
-);
-const parityMigration = fs.readFileSync(
-  'supabase/migrations/20260907193100_harden_report_execution_worker_schema_parity.sql',
-  'utf8',
-);
-const checkpointReplay = fs.readFileSync(
-  'supabase/migrations/20260907193200_make_report_execution_checkpoint_replayable.sql',
-  'utf8',
-);
-const batchImport = fs.readFileSync(
-  'supabase/migrations/20260907194500_reconcile_import_commit_batch_invoice_contract.sql',
-  'utf8',
-);
-const invoiceSearchPath = fs.readFileSync(
-  'supabase/migrations/20260907165000_harden_import_sales_invoice_search_path.sql',
-  'utf8',
-);
+const migration = fs.readFileSync('supabase/migrations/20260907193000_reconcile_report_execution_worker_provenance.sql', 'utf8');
+const enqueueGuard = fs.readFileSync('supabase/migrations/20260907193050_harden_report_execution_enqueue_provenance.sql', 'utf8');
+const parityMigration = fs.readFileSync('supabase/migrations/20260907193100_harden_report_execution_worker_schema_parity.sql', 'utf8');
+const checkpointReplay = fs.readFileSync('supabase/migrations/20260907193200_make_report_execution_checkpoint_replayable.sql', 'utf8');
+const batchImport = fs.readFileSync('supabase/migrations/20260907194500_reconcile_import_commit_batch_invoice_contract.sql', 'utf8');
+const invoiceSearchPath = fs.readFileSync('supabase/migrations/20260907165000_harden_import_sales_invoice_search_path.sql', 'utf8');
 const adapter = fs.readFileSync('src/lib/report-execution/durable-worker-adapter.ts', 'utf8');
+const runner = fs.readFileSync('src/lib/report-execution/durable-production-runner.ts', 'utf8');
 
 for (const signature of [
   /enqueue_report_execution_job\(p_company_id uuid,p_job_key text,p_source_path text,p_source_hash text,p_evidence_keys text\[\] default '\{\}',p_max_attempts integer default 5\)/,
@@ -56,8 +39,19 @@ for (const rpc of [
   "rpc('retry_report_execution_job'",
 ]) assert.ok(adapter.includes(rpc), `adapter missing ${rpc}`);
 
-assert.match(adapter, /p_company_id: tenant/);
+assert.match(adapter, /tenantId: string/);
+assert.doesNotMatch(adapter, /tenantId\?: string/);
+assert.doesNotMatch(adapter, /tenantId \?\? \(await this\.require\(jobId\)\)\.tenantId/);
+assert.match(adapter, /workerId: string, tenantId: string/);
+assert.match(adapter, /p_company_id: tenantId/);
 assert.match(adapter, /p_lease_token: job\.leaseToken/);
+assert.match(runner, /const tenantId = input\.request\.tenantId/);
+assert.match(runner, /store\.claim\(input\.jobId, input\.workerId, leaseSeconds, tenantId\)/);
+assert.match(runner, /store\.heartbeat\(input\.jobId, input\.workerId, leaseSeconds, tenantId\)/);
+assert.match(runner, /store\.saveCheckpoint\(input\.jobId, checkpoint\(following\), input\.workerId, tenantId\)/);
+assert.match(runner, /store\.complete\(input\.jobId, input\.workerId, [\s\S]*tenantId\)/);
+assert.match(runner, /store\.fail\(input\.jobId, input\.workerId, [\s\S]*tenantId\)/);
+assert.match(runner, /store\.retry\(input\.jobId, tenantId\)/);
 
 for (const grant of [
   'grant execute on function public.enqueue_report_execution_job',
@@ -82,9 +76,16 @@ assert.match(enqueueGuard, /p_max_attempts is null or p_max_attempts < 1 or p_ma
 assert.match(enqueueGuard, /Durable job conflict was not found; refusing ambiguous enqueue result/);
 assert.match(enqueueGuard, /missing source identity/);
 assert.match(enqueueGuard, /refusing provenance-unsafe enqueue/);
+assert.match(parityMigration, /ALTER TABLE public\.report_execution_jobs[\s\S]*UPDATE public\.report_execution_jobs/);
+assert.match(parityMigration, /VALIDATE CONSTRAINT report_execution_jobs_source_path_not_null_check/);
+assert.match(parityMigration, /VALIDATE CONSTRAINT report_execution_jobs_source_hash_not_null_check/);
+assert.match(parityMigration, /VALIDATE CONSTRAINT report_execution_jobs_max_attempts_not_null_check/);
 assert.match(parityMigration, /ALTER COLUMN source_path SET NOT NULL/);
 assert.match(parityMigration, /ALTER COLUMN source_hash SET NOT NULL/);
 assert.match(parityMigration, /ALTER COLUMN max_attempts SET DEFAULT 5/);
+assert.match(parityMigration, /ALTER COLUMN max_attempts SET NOT NULL/);
+assert.match(parityMigration, /ADD CONSTRAINT report_execution_jobs_company_id_fkey[\s\S]*NOT VALID/);
+assert.match(parityMigration, /VALIDATE CONSTRAINT report_execution_jobs_company_id_fkey/);
 
 assert.match(checkpointReplay, /new_pos = old_pos and \(p_checkpoint - 'updatedAt'\) = \(old_checkpoint - 'updatedAt'\)/);
 assert.match(checkpointReplay, /return true/);
