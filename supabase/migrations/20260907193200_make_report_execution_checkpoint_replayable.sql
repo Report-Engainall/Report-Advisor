@@ -54,7 +54,7 @@ begin
     if old_pos is null or new_pos is null then raise exception 'Invalid checkpoint position'; end if;
 
     -- Network/retry replay of the exact committed checkpoint is idempotent.
-    if new_pos = old_pos and p_checkpoint = old_checkpoint then
+    if new_pos = old_pos and (p_checkpoint - 'updatedAt') = (old_checkpoint - 'updatedAt') then
       return true;
     end if;
     if new_pos <> old_pos + 1 then
