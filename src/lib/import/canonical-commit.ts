@@ -1,13 +1,11 @@
 import { supabase, resolveCurrentCompanyId } from '@/lib/supabase';
 import { assertCanonicalBoundary, type ReconciledCanonicalImportRow } from '@/lib/import/canonical-truth-boundary';
-import { rowFingerprint } from '@/lib/file-engine/universal-intelligence';
 import type { RowResolution } from '@/lib/file-engine/universal-intelligence';
 
 export interface CanonicalImportRow { data: Record<string, unknown>; rowNumber: number }
 export interface CanonicalCommitResult { committed: number; ids: string[] }
 
 type EntityType = 'products' | 'customers' | 'sales_invoices';
-
 type GovernedResolution = RowResolution & { action: 'write_new'; allowedToWrite: true };
 
 function text(value: unknown): string | null {
@@ -74,18 +72,19 @@ function sameSourceDocument(rows: ReconciledCanonicalImportRow[]): string | null
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id) ? id : null;
 }
 
-function governedResolutions(rows: ReconciledCanonicalImportRow[], payload: Record<string, unknown>[]): GovernedResolution[] {
-  return rows.map((row, index) => ({
-    fingerprint: rowFingerprint(payload[index], Object.keys(payload[index]).map((name) => ({
-      name,
-      mappedField: name,
-      mappingConfidence: 100,
-      mappingEvidence: ['canonical commit'],
-      dataType: 'string',
-      nullCount: 0,
-      uniqueCount: 0,
-      uniqueRatio: 0,
-    })) as never),
+function fingerprint(row: Record<string, unknown>): string {
+  const ordered = Object.keys(row).sort().map((key) => `${key}=${String(row[key] ?? '').trim().toLowerCase()}`).join('|');
+  let hash = 2166136261;
+  for (let index = 0; index < ordered.length; index += 1) {
+    hash ^= ordered.charCodeAt(index);
+    hash = Math.imul(hash, 16777619);
+  }
+  return (hash >>> 0).toString(16).padStart(8, '0');
+}
+
+function governedResolutions(payload: Record<string, unknown>[]): GovernedResolution[] {
+  return payload.map((row) => ({
+    fingerprint: fingerprint(row),
     outcome: 'new',
     matchedRowIndex: null,
     differingFields: [],
@@ -105,10 +104,7 @@ export async function commitImportBatch(
 
   rows.forEach((row) => assertCanonicalBoundary(row, companyId));
   const payload = rows.map((row) => canonicalizeRow(entityType, { data: row.data, rowNumber: row.rowNumber }));
-  const resolutions = governedResolutions(rows, payload);
-
-  // Canonical writes are intentionally forced through the database resolution gate.
-  // The gate rejects any non-new or non-authorized resolution before durable writes.
+  const resolutions = governedResolutions(payload);
   const lineageJobId = options?.jobId ?? sameSourceDocument(rows);
   const sourceRows = rows.map((row) => ({
     job_id: lineageJobId,
