@@ -32,9 +32,9 @@ export function ImportResolutionReviewPanel({ resolutions, decisions = {}, onDec
     {blocked > 0 && <div className="relative mt-4 space-y-3">
       <div className="rounded-2xl border border-amber-200 bg-amber-50 p-3.5 text-xs leading-6 text-amber-900">الصفوف غير الجديدة لا يمكن تحويلها إلى كتابة. احسم كل صف باستبعاده صراحةً؛ القرار هنا لا يمنح صلاحية الكتابة، والحارس الخادمي يظل صاحب القرار النهائي.</div>
       <div className="space-y-2">
-        {resolutions.filter(row => row.outcome !== 'new').map((row, index) => {
-          const originalIndex = resolutions.findIndex((candidate, candidateIndex) => candidateIndex >= index && candidate === row);
-          const key = decisionKey(row, originalIndex < 0 ? index : originalIndex);
+        {resolutions.map((row, index) => {
+          if (row.outcome === 'new') return null;
+          const key = decisionKey(row, index);
           const decision = decisions[key];
           const label = row.outcome === 'skip_exact' ? 'مطابق' : row.outcome === 'candidate_duplicate' ? 'تكرار محتمل' : 'تعارض';
           return <div key={key} className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-ink-100 bg-white/80 p-3">
