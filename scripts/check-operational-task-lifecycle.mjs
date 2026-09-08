@@ -6,6 +6,7 @@ const required = [
   'supabase/migrations/20260908220000_operational_task_proposal_decision_conversion.sql',
   'supabase/migrations/20260908140631_operational_daily_plan_read_model.sql',
   'src/lib/role-task-persistence.ts',
+  'src/lib/roleTaskEngine.ts',
   'src/pages/IntelligenceTaskCenterPage.tsx',
 ];
 for (const file of required) {
@@ -15,6 +16,7 @@ for (const file of required) {
 const conversion = readFileSync('supabase/migrations/20260908220000_operational_task_proposal_decision_conversion.sql', 'utf8');
 const dailyPlan = readFileSync('supabase/migrations/20260908140631_operational_daily_plan_read_model.sql', 'utf8');
 const persistence = readFileSync('src/lib/role-task-persistence.ts', 'utf8');
+const taskEngine = readFileSync('src/lib/roleTaskEngine.ts', 'utf8');
 const taskCenter = readFileSync('src/pages/IntelligenceTaskCenterPage.tsx', 'utf8');
 
 const assertions = [
@@ -27,7 +29,10 @@ const assertions = [
   [dailyPlan, 'evidence_missing', 'daily_plan_tracks_evidence'],
   [persistence, "rpc('convert_operational_task_proposal'", 'client_uses_approval_gate_rpc'],
   [persistence, "rpc('get_operational_daily_plan'", 'client_uses_durable_daily_plan'],
+  [taskEngine, 'sourceSnapshots', 'task_engine_consumes_source_analysis'],
+  [taskEngine, 'source_analysis_snapshot', 'source_tasks_require_source_evidence'],
   [taskCenter, 'fetchOperationalDailyPlan', 'ui_reads_durable_plan'],
+  [taskCenter, 'fetchSourceAnalysisSnapshots', 'ui_loads_source_analysis'],
   [taskCenter, 'يحتاج دليلًا', 'ui_surfaces_evidence_state'],
 ];
 
