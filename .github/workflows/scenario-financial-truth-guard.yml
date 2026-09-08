@@ -1,0 +1,28 @@
+name: scenario-financial-truth-guard
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'src/App.tsx'
+      - 'src/pages/IntelligencePage.tsx'
+      - 'src/pages/ScenarioTruthGuardPage.tsx'
+      - 'src/lib/dashboard-canonical.ts'
+      - 'scripts/check-scenario-financial-truth-guard.mjs'
+      - '.github/workflows/scenario-financial-truth-guard.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Verify scenario financial truth guard
+        run: node scripts/check-scenario-financial-truth-guard.mjs
