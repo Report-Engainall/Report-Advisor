@@ -44,6 +44,9 @@ This ledger and `docs/WORK_PLAN.md` are the durable execution memory for the act
 | 19 | Execution plan synchronization | WORK_PLAN updated with correction and remaining certification gates | `70d9afd57a5ec748f7bcb2c1ff1f00bf2308561e` | Implemented |
 | 20 | Forecast governance | provenance/numeric validation + horizon + uncertainty interval + governed forecast UI | `54c26a3a706541652473f077d299dc9bb17243f8` / `1ccf6566aa67865d83fc07450a10cc35e4320651` / `2f86e8d9cc5f1e4953a1cda58593a39ff6a7748a` | Implemented; statistical accuracy/E2E not claimed |
 | 21 | Forecast evidence | durable governance evidence and plan synchronization | `12893583b716a51a9f145b1e6ed2a3158c69432c` / `8a8f80f6137048542f89033cf89bb75d2beb24ef` | Evidence recorded |
+| 22 | Universal import intelligence | deterministic report classification + safe general/document fallback + relation candidates + row resolution + universal quality summary | `ade372ada46c75d4426c4ed533029e81d0653b17` | Implemented source-level; UI wiring and live E2E remain |
+| 22-E | Universal import evidence | scope, boundaries, exact SHA, preservation and next closure | `baade6dde3b78a4d07874864b928a1456a393fd8` | Evidence recorded |
+| 22-P | Plan synchronization | I-02/I-04/D-02/Q-01/R-01 advanced with explicit remaining gates | `faba9c79794c179a30f4c7d3006b302fa7849db1` | Implemented |
 
 ## Staging evidence boundary
 
@@ -81,7 +84,11 @@ Canonical migration:
 - Folder processing is per-file/per-dataset rather than fixed to one entity.
 - Unknown/unmapped data remains available through analysis paths.
 - Exact file duplicates are skipped by fingerprint; low-confidence specialization falls back to analysis.
-- Remaining: deeper report-type semantics, row/entity conflict workflow, relation graph, and quality closure.
+- Added deterministic report classification with explicit confidence/evidence and safe `general_report`/`document_analysis` fallback.
+- Added relation candidates from identifier-like canonical fields with confidence/evidence.
+- Added deterministic row comparison outcomes (`new`, `skip_exact`, `candidate_duplicate`, `conflict`) without automatic destructive merge.
+- Added universal quality summary for completeness/mapping/type coverage/duplicates/conflicts.
+- Remaining: wire these results into Source Analysis Workspace, persist a governed resolution decision when writing, and prove the full flow with authenticated/live E2E.
 
 ### D — Forecast / AI / operations
 - Forecast governance now validates provenance-related payload fields and exposes horizon/uncertainty to the UI.
@@ -90,9 +97,11 @@ Canonical migration:
 
 ## Verification state
 
-Latest documentation synchronization head: `8a8f80f6137048542f89033cf89bb75d2beb24ef`.
+Latest documentation synchronization head: `faba9c79794c179a30f4c7d3006b302fa7849db1`.
 
 Forecast governance is source-level/read-model implementation. It is not statistical model accuracy certification and has not been browser E2E certified.
+
+Universal import intelligence batch 22 is source-level/read-model implementation. No live browser, production, or authenticated tenant E2E claim is made from these commits.
 
 The Vercel status observed on the preceding implementation head remains an external project-access failure: Git author `Report-Engainall` must have access to the Injaz Vercel project to create deployments. No browser PASS is inferred.
 
