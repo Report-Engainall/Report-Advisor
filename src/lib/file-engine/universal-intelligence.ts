@@ -165,10 +165,11 @@ function identityFields(dataset: Dataset): ColumnProfile[] {
 
   // Identity fields are ordered fallbacks, not a composite key. For customers,
   // code is authoritative when present; name is only the fallback when code is absent.
-  for (const preferredField of preferred) {
-    const field = dataset.columns.find((column) => normalized(column.mappedField) === preferredField);
-    if (field) return [field];
-  }
+  // Return every available preferred field so identityKey() can actually fall back.
+  const fields = preferred
+    .map((preferredField) => dataset.columns.find((column) => normalized(column.mappedField) === preferredField))
+    .filter((field): field is ColumnProfile => Boolean(field));
+  if (fields.length) return fields;
 
   return dataset.columns.filter((column) => {
     const field = normalized(column.mappedField);
@@ -177,10 +178,13 @@ function identityFields(dataset: Dataset): ColumnProfile[] {
 }
 
 function identityKey(row: Record<string, unknown>, fields: ColumnProfile[]): string | null {
-  const field = fields[0];
-  if (!field) return null;
-  const value = normalized(valueForColumn(row, field));
-  return value ? value : null;
+  // Fields are ordered fallbacks. This is especially important for customers:
+  // a coded customer is identified by code, while an uncoded customer falls back to name.
+  for (const field of fields) {
+    const value = normalized(valueForColumn(row, field));
+    if (value) return value;
+  }
+  return null;
 }
 
 function differingFieldsFor(row: Record<string, unknown>, candidate: Record<string, unknown>, columns: ColumnProfile[]): string[] {
