@@ -9,6 +9,11 @@
 - Recording an outcome is likewise blocked when no persisted Evidence Snapshot is selected.
 - Initial recommendation/proposal/decision selection is normalized against the freshly loaded datasets to reduce stale URL/state selection.
 
+## Correction found during contract review
+
+- `RuntimeDecision` now exposes the persisted `policy_key` that the Decision Experience renders, eliminating a TypeScript contract mismatch.
+- Outcome attribution now sends the persisted `business_intelligence_decisions.id` as `decisionFingerprint`. This matches the canonical executive decision read model, which resolves `decision_outcomes` against `d.id::text`; the UI no longer writes a decision key that the executive read model would fail to attribute.
+
 ## Boundaries
 
 - This is a source/UI implementation change; it is not authenticated browser E2E certification.
@@ -16,6 +21,8 @@
 - No alternative is written, deleted, or silently promoted by the bridge.
 - No evidence, impact, availability, demand, margin, or outcome values are invented.
 
-## Exact implementation SHA
+## Exact implementation SHAs
 
-`8cf449006c7dfa63f956cde69414678534fa6d6d`
+- Decision context integration: `8cf449006c7dfa63f956cde69414678534fa6d6d`
+- Runtime contract + attribution correction: `f020fab43e0133f47e7d38bcbfd4277779c30920`
+- Decision Experience attribution fix: `1a4357822c3cf5a9d229383af45e107366d42a1f`
