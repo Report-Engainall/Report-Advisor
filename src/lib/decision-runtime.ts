@@ -3,6 +3,7 @@ import { supabase, resolveCurrentCompanyId } from './supabase';
 export type RuntimeDecision = {
   id: string;
   decision_key: string;
+  policy_key: string | null;
   decision_type: string;
   status: string;
   confidence: number | null;
@@ -43,7 +44,7 @@ export async function fetchApprovedDecisions(limit = 100): Promise<RuntimeDecisi
   const companyId = await tenantId();
   if (!Number.isInteger(limit) || limit < 1 || limit > 200) throw new Error('DECISION_QUERY_INVALID_LIMIT');
   const { data, error } = await supabase.from('business_intelligence_decisions')
-    .select('id,decision_key,decision_type,status,confidence,expected_impact,recommendation_id,approved_by,approved_at')
+    .select('id,decision_key,policy_key,decision_type,status,confidence,expected_impact,recommendation_id,approved_by,approved_at')
     .eq('company_id', companyId).eq('status', 'APPROVED').order('approved_at', { ascending: false }).limit(limit);
   if (error) throw error;
   return (data ?? []) as RuntimeDecision[];
