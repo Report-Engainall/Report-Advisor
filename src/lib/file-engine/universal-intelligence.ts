@@ -153,6 +153,33 @@ export function rowFingerprint(row: Record<string, unknown>, columns: ColumnProf
   return hashText(ordered);
 }
 
+function identityFields(dataset: Dataset): ColumnProfile[] {
+  const type = normalized(dataset.name);
+  const preferred = type.includes('invoice')
+    ? ['invoice_number']
+    : type.includes('customer')
+      ? ['code', 'name']
+      : type.includes('product')
+        ? ['sku']
+        : ['sku', 'code', 'invoice_number', 'id'];
+  const fields = dataset.columns.filter((column) => preferred.includes(normalized(column.mappedField)));
+  return fields.length ? fields : dataset.columns.filter((column) => {
+    const field = normalized(column.mappedField);
+    return ['sku', 'code', 'invoice_number', 'id'].includes(field);
+  });
+}
+
+function identityKey(row: Record<string, unknown>, fields: ColumnProfile[]): string | null {
+  const values = fields.map((field) => normalized(valueForColumn(row, field))).filter(Boolean);
+  return values.length ? values.join('|') : null;
+}
+
+function differingFieldsFor(row: Record<string, unknown>, candidate: Record<string, unknown>, columns: ColumnProfile[]): string[] {
+  return columns
+    .filter((column) => normalized(valueForColumn(row, column)) !== normalized(valueForColumn(candidate, column)))
+    .map((column) => column.mappedField || column.name);
+}
+
 export function resolveRows(dataset: Dataset, existingRows: Array<Record<string, unknown>> = []): RowResolution[] {
   const fingerprints = new Map<string, Array<{ index: number; row: Record<string, unknown> }>>();
   existingRows.forEach((row, index) => {
@@ -161,38 +188,82 @@ export function resolveRows(dataset: Dataset, existingRows: Array<Record<string,
     bucket.push({ index, row });
     fingerprints.set(fingerprint, bucket);
   });
-  return dataset.rows.map((row) => {
+
+  const identities = identityFields(dataset);
+  const existingByIdentity = new Map<string, Array<{ index: number; row: Record<string, unknown> }>>();
+  existingRows.forEach((row, index) => {
+    const key = identityKey(row, identities);
+    if (!key) return;
+    const bucket = existingByIdentity.get(key) ?? [];
+    bucket.push({ index, row });
+    existingByIdentity.set(key, bucket);
+  });
+
+  const seenIncoming = new Map<string, { index: number; row: Record<string, unknown>; fingerprint: string }>();
+
+  return dataset.rows.map((row, index) => {
     const fingerprint = rowFingerprint(row, dataset.columns);
     const exact = fingerprints.get(fingerprint)?.[0];
     if (exact) return { fingerprint, outcome: 'skip_exact', matchedRowIndex: exact.index, differingFields: [] };
 
-    const candidates = existingRows.map((candidate, index) => {
-      const shared = dataset.columns
-        .map((column) => column)
-        .filter((column) => {
-          const incoming = normalized(valueForColumn(row, column));
-          const current = normalized(valueForColumn(candidate, column));
-          return incoming && current && incoming === current;
-        });
+    const incomingKey = identityKey(row, identities);
+    if (incomingKey) {
+      const prior = seenIncoming.get(incomingKey);
+      if (prior) {
+        const differingFields = differingFieldsFor(row, prior.row, dataset.columns);
+        return {
+          fingerprint,
+          outcome: differingFields.length ? 'conflict' : 'candidate_duplicate',
+          matchedRowIndex: prior.index,
+          differingFields,
+        };
+      }
+    }
+
+    const identityCandidates = incomingKey ? existingByIdentity.get(incomingKey) ?? [] : [];
+    if (identityCandidates.length) {
+      const candidate = identityCandidates[0];
+      const differingFields = differingFieldsFor(row, candidate.row, dataset.columns);
+      if (!differingFields.length) {
+        return { fingerprint, outcome: 'skip_exact', matchedRowIndex: candidate.index, differingFields: [] };
+      }
       return {
-        index,
+        fingerprint,
+        outcome: 'conflict',
+        matchedRowIndex: candidate.index,
+        differingFields,
+      };
+    }
+
+    const candidates = existingRows.map((candidate, candidateIndex) => {
+      const shared = dataset.columns.filter((column) => {
+        const incoming = normalized(valueForColumn(row, column));
+        const current = normalized(valueForColumn(candidate, column));
+        return incoming && current && incoming === current;
+      });
+      return {
+        index: candidateIndex,
         score: shared.length,
-        differingFields: dataset.columns
-          .filter((column) => normalized(valueForColumn(row, column)) !== normalized(valueForColumn(candidate, column)))
-          .map((column) => column.mappedField || column.name),
+        differingFields: differingFieldsFor(row, candidate, dataset.columns),
       };
     }).filter((candidate) => candidate.score > 0).sort((a, b) => b.score - a.score);
 
     const candidate = candidates[0];
-    if (!candidate) return { fingerprint, outcome: 'new', matchedRowIndex: null, differingFields: [] };
+    if (!candidate) {
+      if (incomingKey) seenIncoming.set(incomingKey, { index, row, fingerprint });
+      return { fingerprint, outcome: 'new', matchedRowIndex: null, differingFields: [] };
+    }
+
     const comparable = dataset.columns.filter((column) => normalized(valueForColumn(row, column)) || normalized(valueForColumn(existingRows[candidate.index], column)));
     const differenceRatio = comparable.length ? candidate.differingFields.length / comparable.length : 1;
-    return {
+    const resolution = {
       fingerprint,
-      outcome: differenceRatio > 0.5 ? 'conflict' : 'candidate_duplicate',
+      outcome: differenceRatio > 0.5 ? 'conflict' as const : 'candidate_duplicate' as const,
       matchedRowIndex: candidate.index,
       differingFields: candidate.differingFields,
     };
+    if (incomingKey) seenIncoming.set(incomingKey, { index, row, fingerprint });
+    return resolution;
   });
 }
 
