@@ -26,22 +26,7 @@ BEGIN
  RETURN v_result;
 END; $$;
 
-CREATE OR REPLACE FUNCTION public.get_sales_secondary_metrics(p_company_id uuid,p_months integer DEFAULT 6,p_limit integer DEFAULT 5,p_from date DEFAULT NULL,p_to date DEFAULT NULL)
-RETURNS jsonb LANGUAGE plpgsql STABLE SECURITY INVOKER SET search_path TO 'public' AS $$
-DECLARE v_company_id uuid:=public.current_company_id(); v_currency text; v_mismatch bigint; v_as_of date:=coalesce(p_to,current_date); v_months integer:=greatest(1,least(coalesce(p_months,6),24)); v_limit integer:=greatest(1,least(coalesce(p_limit,5),100));
-BEGIN
- IF v_company_id IS NULL THEN RAISE EXCEPTION 'TENANT_CONTEXT_REQUIRED'; END IF;
- IF p_company_id IS DISTINCT FROM v_company_id THEN RAISE EXCEPTION 'TENANT_CONTEXT_MISMATCH'; END IF;
- IF p_from IS NOT NULL AND p_to IS NOT NULL AND p_from>p_to THEN RAISE EXCEPTION 'REPORT_DATE_RANGE_INVALID'; END IF;
- SELECT c.currency INTO v_currency FROM public.companies c WHERE c.id=v_company_id;
- SELECT count(*) FILTER(WHERE s.currency IS NOT NULL AND v_currency IS NOT NULL AND s.currency<>v_currency) INTO v_mismatch FROM public.sales_invoices s WHERE s.company_id=v_company_id AND s.status NOT IN ('cancelled','void') AND (p_from IS NULL OR s.invoice_date>=p_from) AND (p_to IS NULL OR s.invoice_date<=p_to);
- IF v_mismatch>0 THEN RETURN jsonb_build_object('as_of',v_as_of,'months',v_months,'limit',v_limit,'monthly_trend','[]'::jsonb,'top_customers','[]'::jsonb,'top_products','[]'::jsonb,'category_breakdown','[]'::jsonb,'aging_buckets','[]'::jsonb,'status','INSUFFICIENT_DATA','currency',v_currency,'currency_status','INSUFFICIENT_DATA','currency_mismatch_rows',v_mismatch); END IF;
- RETURN jsonb_build_object('as_of',v_as_of,'months',v_months,'limit',v_limit,'monthly_trend','[]'::jsonb,'top_customers','[]'::jsonb,'top_products','[]'::jsonb,'category_breakdown','[]'::jsonb,'aging_buckets','[]'::jsonb,'status','CALCULATED','currency',v_currency,'currency_status','CONSISTENT','currency_mismatch_rows',0);
-END; $$;
-
 REVOKE ALL ON FUNCTION public.get_profitability_snapshot(date) FROM PUBLIC;
 REVOKE ALL ON FUNCTION public.get_purchase_summary(uuid,date,date) FROM PUBLIC;
-REVOKE ALL ON FUNCTION public.get_sales_secondary_metrics(uuid,integer,integer,date,date) FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION public.get_profitability_snapshot(date) TO authenticated;
 GRANT EXECUTE ON FUNCTION public.get_purchase_summary(uuid,date,date) TO authenticated;
-GRANT EXECUTE ON FUNCTION public.get_sales_secondary_metrics(uuid,integer,integer,date,date) TO authenticated;
