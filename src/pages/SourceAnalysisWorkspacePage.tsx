@@ -1,0 +1,76 @@
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { ArrowLeft, BrainCircuit, FileSearch, Image as ImageIcon, RefreshCw, ShieldCheck, Table2 } from 'lucide-react';
+import { Link, useSearchParams } from 'react-router-dom';
+import { fetchSourceAnalysisSnapshot, fetchSourceAnalysisSnapshots, type SourceAnalysisSnapshot } from '@/lib/queries';
+import { Badge } from '@/components/ui/Badge';
+
+function statusLabel(status: SourceAnalysisSnapshot['analysis_status']) {
+  if (status === 'completed') return 'تم توجيهه للكيان الصحيح';
+  if (status === 'analyzed') return 'محلل — يحتاج تعيين/مراجعة';
+  if (status === 'skipped') return 'مكرر — لم يُكتب';
+  return 'فشل حقيقي';
+}
+
+function entityLabel(entity: string) {
+  return ({ sales_invoices: 'المبيعات والفواتير', products: 'المنتجات', customers: 'العملاء', document_analysis: 'تحليل المستند' } as Record<string, string>)[entity] ?? entity;
+}
+
+export function SourceAnalysisWorkspacePage() {
+  const [params] = useSearchParams();
+  const selectedId = params.get('id');
+  const [items, setItems] = useState<SourceAnalysisSnapshot[]>([]);
+  const [selected, setSelected] = useState<SourceAnalysisSnapshot | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const load = useCallback(async () => {
+    setLoading(true); setError(null);
+    try {
+      const list = await fetchSourceAnalysisSnapshots(100);
+      setItems(list);
+      if (selectedId) setSelected(await fetchSourceAnalysisSnapshot(selectedId));
+      else setSelected(list[0] ?? null);
+    } catch (e) { setError(e instanceof Error ? e.message : 'تعذر تحميل مساحة تحليل المصادر'); }
+    finally { setLoading(false); }
+  }, [selectedId]);
+  useEffect(() => { void load(); }, [load]);
+
+  const columns = useMemo(() => {
+    const first = selected?.datasets?.[0] as Record<string, unknown> | undefined;
+    return Array.isArray(first?.columns) ? first.columns as Array<Record<string, unknown>> : [];
+  }, [selected]);
+
+  return <div dir="rtl" className="space-y-5 pb-10">
+    <header className="rounded-3xl bg-ink-950 p-6 text-white lg:p-8">
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div><div className="flex items-center gap-2 text-sm text-primary-300"><BrainCircuit size={18}/> Universal Source Intelligence</div><h1 className="mt-2 text-2xl font-bold lg:text-3xl">مساحة تحليل التقرير</h1><p className="mt-2 max-w-4xl text-sm leading-7 text-ink-300">كل تقرير يمر من المصدر الخام إلى البصمة والأمان والاستخراج وOCR وتحليل الحقول والتصنيف ثم يُوجّه للواجهة المناسبة. المستند الذي لا يطابق كيانًا تجاريًا لا يُرمى؛ يبقى هنا كتحليل مصدر قابل للمراجعة.</p></div>
+        <button type="button" onClick={() => void load()} className="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2.5 text-sm font-semibold text-ink-900"><RefreshCw size={16}/> تحديث</button>
+      </div>
+    </header>
+
+    {error && <div role="alert" className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">{error}</div>}
+    {loading ? <div className="rounded-2xl border bg-white p-10 text-center text-sm text-ink-500">جارٍ قراءة المصادر المحفوظة…</div> : <div className="grid gap-5 xl:grid-cols-[360px_1fr]">
+      <aside className="rounded-2xl border bg-white p-3 space-y-2">
+        <div className="px-2 py-2 text-sm font-bold">المصادر ({items.length})</div>
+        {items.length === 0 ? <div className="rounded-xl border border-dashed p-5 text-sm text-ink-500">لا توجد مصادر محفوظة بعد. شغّل تحليل مجلد أو ارفع تقريرًا من مركز الاستيراد.</div> : items.map(item => <button key={item.id} type="button" onClick={() => setSelected(item)} className={`w-full rounded-xl border p-3 text-right transition ${selected?.id === item.id ? 'border-primary-400 bg-primary-50' : 'border-ink-100 hover:bg-ink-50'}`}><div className="flex items-start justify-between gap-2"><span className="truncate text-sm font-semibold">{item.source_path}</span><Badge variant={item.analysis_status === 'failed' ? 'danger' : item.analysis_status === 'completed' ? 'success' : 'warning'}>{item.analysis_status}</Badge></div><div className="mt-1 text-xs text-ink-400">{item.source_format} · {item.row_count} صف · {item.quality_score ?? 0}%</div><div className="mt-2 text-xs font-medium text-primary-700">{entityLabel(item.entity_type)}</div></button>)}
+      </aside>
+
+      <main className="space-y-4">
+        {!selected ? <div className="rounded-2xl border bg-white p-10 text-center text-sm text-ink-500">اختر مصدرًا لعرض تفاصيله.</div> : <>
+          <section className="rounded-2xl border bg-white p-5">
+            <div className="flex flex-wrap items-start justify-between gap-4"><div><div className="text-xs text-ink-400">المصدر</div><h2 className="mt-1 text-xl font-bold break-all">{selected.source_path}</h2><div className="mt-2 flex flex-wrap gap-2"><Badge variant="neutral">SHA-256: {selected.source_hash.slice(0, 16)}…</Badge><Badge variant="neutral">{selected.source_format}</Badge><Badge variant="success">{selected.quality_score ?? 0}% جودة</Badge><Badge variant="neutral">{entityLabel(selected.entity_type)}</Badge></div></div><div className="text-left text-xs text-ink-400">{statusLabel(selected.analysis_status)}</div></div>
+            <div className="mt-5 grid grid-cols-2 lg:grid-cols-4 gap-3"><div className="rounded-xl bg-ink-50 p-4"><div className="text-xs text-ink-500">الصفوف</div><b className="text-xl">{selected.row_count}</b></div><div className="rounded-xl bg-ink-50 p-4"><div className="text-xs text-ink-500">الأعمدة</div><b className="text-xl">{selected.column_count}</b></div><div className="rounded-xl bg-ink-50 p-4"><div className="text-xs text-ink-500">المجموعات</div><b className="text-xl">{selected.datasets.length}</b></div><div className="rounded-xl bg-ink-50 p-4"><div className="text-xs text-ink-500">العناصر البصرية/OCR</div><b className="text-xl">{selected.visual_assets.length}</b></div></div>
+          </section>
+
+          <section className="rounded-2xl border bg-white p-5"><div className="flex items-center gap-2"><Table2 size={18}/><h2 className="font-bold">الحقول وكيف فهمها المحرك</h2></div><div className="mt-4 overflow-auto"><table className="w-full min-w-[720px] text-sm"><thead><tr className="border-b text-right text-xs text-ink-500"><th className="p-2">الحقل</th><th className="p-2">النوع</th><th className="p-2">التعيين</th><th className="p-2">الثقة</th><th className="p-2">القيم الفارغة</th><th className="p-2">الحالة</th></tr></thead><tbody>{columns.map((column, index) => <tr key={`${String(column.name)}-${index}`} className="border-b border-ink-100"><td className="p-2 font-medium">{String(column.name ?? '')}</td><td className="p-2">{String(column.dataType ?? 'غير معروف')}</td><td className="p-2">{String(column.mappedField ?? 'غير معيّن')}</td><td className="p-2">{String(column.mappingConfidence ?? 0)}%</td><td className="p-2">{String(column.nullCount ?? 0)}</td><td className="p-2">{column.requiresReview ? <Badge variant="warning">مراجعة</Badge> : <Badge variant="success">مفهوم</Badge>}</td></tr>)}</tbody></table></div></section>
+
+          <section className="rounded-2xl border bg-white p-5"><div className="flex items-center gap-2"><FileSearch size={18}/><h2 className="font-bold">معاينة المصدر الخام بعد التطبيع</h2></div><div className="mt-4 space-y-3">{selected.datasets.map((raw, datasetIndex) => { const dataset = raw as Record<string, unknown>; const rows = Array.isArray(dataset.preview) ? dataset.preview as Array<Record<string, unknown>> : []; return <div key={String(dataset.id ?? datasetIndex)} className="rounded-xl border p-4"><div className="font-semibold">{String(dataset.name ?? `مجموعة ${datasetIndex + 1}`)}</div><div className="mt-3 overflow-auto"><table className="w-full min-w-[700px] text-xs"><tbody>{rows.slice(0, 8).map((row, rowIndex) => <tr key={rowIndex} className="border-b border-ink-100"><td className="p-2 text-ink-400">#{rowIndex + 1}</td>{Object.entries(row).slice(0, 12).map(([key, value]) => <td key={key} className="p-2 align-top"><div className="text-ink-400">{key}</div><div className="font-medium break-all">{String(value ?? '')}</div></td>)}</tr>)}</tbody></table></div></div>; })}</div></section>
+
+          <section className="grid gap-4 lg:grid-cols-2"><div className="rounded-2xl border bg-white p-5"><div className="flex items-center gap-2"><ImageIcon size={18}/><h2 className="font-bold">الصور وOCR</h2></div><div className="mt-3 space-y-2">{selected.visual_assets.map((asset, index) => <div key={index} className="rounded-xl bg-ink-50 p-3 text-sm"><div className="font-semibold">{String(asset.name ?? 'عنصر بصري')}</div><div className="mt-1 text-xs text-ink-500">{asset.ocr ? 'تم تشغيل OCR عربي + English' : 'محتوى منظم'} · {String(asset.kind ?? '')}</div></div>)}{selected.visual_assets.length === 0 && <p className="text-sm text-ink-500">لا توجد عناصر بصرية مسجلة لهذا المصدر.</p>}</div></div><div className="rounded-2xl border bg-white p-5"><div className="flex items-center gap-2"><ShieldCheck size={18}/><h2 className="font-bold">الأدلة والتنبيهات</h2></div><div className="mt-3 space-y-2">{selected.warnings.length ? selected.warnings.map((warning, index) => <div key={index} className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">{warning}</div>) : <div className="rounded-xl bg-ink-50 p-3 text-sm">لا توجد تحذيرات مسجلة.</div>}</div></div></section>
+
+          <div className="flex flex-wrap gap-2"><Link to="/import" className="inline-flex items-center gap-2 rounded-xl bg-ink-950 px-4 py-2.5 text-sm font-semibold text-white"><ArrowLeft size={16}/> العودة إلى مركز الاستيراد</Link>{selected.entity_type === 'sales_invoices' && <Link to="/reports/sales" className="inline-flex items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold">فتح تقرير المبيعات</Link>}{selected.entity_type === 'products' && <Link to="/products" className="inline-flex items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold">فتح المنتجات</Link>}{selected.entity_type === 'customers' && <Link to="/customers" className="inline-flex items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold">فتح العملاء</Link>}</div>
+        </>}
+      </main>
+    </div>}
+  </div>;
+}
