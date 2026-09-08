@@ -13,7 +13,7 @@
 | I-07 | تقرير عام | مساحة مستقلة لأي مصدر لا يطابق كيانًا | تقرير عام قابل للتصفح والتحليل دون اختراع بيانات | منفذ جزئيًا |
 | D-01 | لوحة القيادة الذكية | KPIs حقيقية + freshness + quality + change detection | كل رقم له مصدر/وقت/tenant | قيد التنفيذ |
 | D-02 | تحليل التقرير | profiling + relations + anomalies + schema drift | تقرير تفصيلي قابل للتنقل | منفذ جزئيًا |
-| D-03 | التقارير الذكية | توليد تقرير من البيانات الفعلية | findings + evidence + drilldown | قيد التنفيذ |
+| D-03 | التقارير الذكية | توليد تقرير من البيانات الفعلية | findings + evidence + drilldown | منفذ جزئيًا: أضيف Executive Decision Report Read Model وربط دورة القرار المحفوظة؛ ما زال findings/evidence drilldown/PDF/E2E مطلوبًا |
 | A-01 | التوصيات | تحويل findings إلى actions | recommendation + impact + evidence + status | منفذ جزئيًا: outcomes attribution + governed learning ranking؛ adaptive policy write-back غير تلقائي |
 | F-01 | التنبؤات | forecasts مع confidence وإظهار البيانات المستخدمة | forecast + horizon + uncertainty + provenance | قيد التنفيذ |
 | AI-01 | المساعد الذكي | سؤال طبيعي على البيانات والأدلة | tenant-safe + grounded + citations | قيد التنفيذ |
@@ -45,6 +45,7 @@
 12. **خطة التشغيل لا تستبدل مصدر الحقيقة.** العدادات اليومية read-model مشتقة من proposals/work items، ولا تسمح بتنفيذ أو تجاوز approval/evidence gates.
 13. **التعلم لا يغيّر السياسات بصمت.** نتائج القرارات تحفظ وتُقاس أولًا؛ أي adaptive write-back لاحقًا يجب أن يمر بحوكمة وعتبات وأدلة.
 14. **الترتيب التعلمي محكوم.** لا يؤثر outcome على ترتيب التوصيات إلا بعد حد أدنى 3 ملاحظات، وبحد أقصى ±15%، مع إبقاء الإشارة وسببها وحجم عينتها قابلة للتتبع.
+15. **التقرير التنفيذي لا يعيد بناء دورة القرار.** يقرأ decision/approval/work/evidence/outcome/learning من read model واحد؛ Print/PDF لا ينشئ مصدر حقيقة موازيًا.
 
 ## ترتيب التنفيذ
 
