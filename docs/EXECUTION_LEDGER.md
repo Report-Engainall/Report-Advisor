@@ -49,6 +49,7 @@ This ledger and `docs/WORK_PLAN.md` are the durable execution memory for the act
 | 22-P | Plan synchronization | I-02/I-04/D-02/Q-01/R-01 advanced with explicit remaining gates | `faba9c79794c179a30f4c7d3006b302fa7849db1` | Implemented |
 | 23 | Universal intelligence contract | regression contract covering classification, deterministic fingerprints, exact duplicate resolution and quality aggregation | `ef64723acfc16d3a78d1d6505d3590908956863b` | Test added; execution environment not claimed |
 | 23-F | Forecast hardening | preserved forecast governance contract after source review | `76553948d06b090831e330aebe0fff50397a8f58` | Implemented; compile/E2E not claimed |
+| 24 | Source Analysis Workspace integration | live UI panel now consumes classification, relation candidates, duplicate/conflict resolution and quality summary from universal intelligence | `e7f2e9054a1d628796c3c302a9400a7171b25fa8` / `816e913e7e41c0f6ccc2aa7168e94b85c64a9e6a` | Implemented source/UI integration; browser E2E not claimed |
 
 ## Staging evidence boundary
 
@@ -67,21 +68,6 @@ Canonical migration:
 
 ## Current active batch targets
 
-### A — Executive report closure
-- Page and lifecycle panel now have one narrative boundary.
-- Evidence/lineage references are surfaced only when already persisted.
-- Freshness uses generated/as-of timestamps with invalid timestamp hardening.
-- Remaining: findings-level drilldown, actual PDF artifact verification, authenticated E2E.
-
-### B — Decision alternatives / outcome
-- Alternative groups have a tenant-safe read model and deterministic ranking.
-- Learning adjustment is bounded and only active after the minimum sample threshold.
-- Decision context surfaces persisted alternatives and saved evidence snapshots.
-- Completion/outcome UI refuses to proceed without a persisted evidence snapshot.
-- Runtime contract exposes `policy_key` consumed by the page.
-- Outcome attribution uses the canonical decision row id expected by the executive read model.
-- Remaining: governed adaptive write-back design and authenticated E2E.
-
 ### C — Universal import intelligence
 - Folder processing is per-file/per-dataset rather than fixed to one entity.
 - Unknown/unmapped data remains available through analysis paths.
@@ -91,7 +77,8 @@ Canonical migration:
 - Added deterministic row comparison outcomes (`new`, `skip_exact`, `candidate_duplicate`, `conflict`) without automatic destructive merge.
 - Added universal quality summary for completeness/mapping/type coverage/duplicates/conflicts.
 - Added regression contract for classification/fingerprint/duplicate/quality behavior.
-- Remaining: wire these results into Source Analysis Workspace, persist a governed resolution decision when writing, and prove the full flow with authenticated/live E2E.
+- **Integrated these results into Source Analysis Workspace** so the operator can see classification, relations, quality, and duplicate/conflict signals in the same source-analysis surface.
+- Remaining: persist a governed resolution decision when writing, connect exact entity-level write policy, and prove the full flow with authenticated/live E2E.
 
 ### D — Forecast / AI / operations
 - Forecast governance now validates provenance-related payload fields and exposes horizon/uncertainty to the UI.
@@ -101,11 +88,15 @@ Canonical migration:
 
 ## Verification state
 
-Latest documentation synchronization head: `faba9c79794c179a30f4c7d3006b302fa7849db1`.
+Latest integration commits:
+- `e7f2e9054a1d628796c3c302a9400a7171b25fa8` — UniversalIntelligencePanel
+- `816e913e7e41c0f6ccc2aa7168e94b85c64a9e6a` — SourceAnalysisWorkspacePage integration
+- `ef64723acfc16d3a78d1d6505d3590908956863b` — universal intelligence regression contract
+- `76553948d06b090831e330aebe0fff50397a8f58` — forecast governance hardening
 
-Forecast governance is source-level/read-model implementation. It is not statistical model accuracy certification and has not been browser E2E certified.
+Source Analysis Workspace now consumes the universal intelligence layer directly. This is an implementation claim, not a browser E2E certification.
 
-Universal import intelligence batch 22/23 is source-level/read-model implementation. Regression test source is committed, but its execution is not claimed here.
+Universal import intelligence regression test source is committed, but its execution is not claimed here.
 
 The Vercel status observed on the preceding implementation head remains an external project-access failure: Git author `Report-Engainall` must have access to the Injaz Vercel project to create deployments. No browser PASS is inferred.
 
