@@ -50,6 +50,12 @@ This ledger and `docs/WORK_PLAN.md` are the durable execution memory for the act
 | 23 | Universal intelligence contract | regression contract covering classification, deterministic fingerprints, exact duplicate resolution and quality aggregation | `ef64723acfc16d3a78d1d6505d3590908956863b` | Test added; execution environment not claimed |
 | 23-F | Forecast hardening | preserved forecast governance contract after source review | `76553948d06b090831e330aebe0fff50397a8f58` | Implemented; compile/E2E not claimed |
 | 24 | Source Analysis Workspace integration | live UI panel now consumes classification, relation candidates, duplicate/conflict resolution and quality summary from universal intelligence | `e7f2e9054a1d628796c3c302a9400a7171b25fa8` / `816e913e7e41c0f6ccc2aa7168e94b85c64a9e6a` | Implemented source/UI integration; browser E2E not claimed |
+| 25 | Governed canonical writer | canonical writer now asserts tenant/provenance and routes writes through `import_commit_batch_governed`; exact result-count/id-count guard added | `18cf3cf1bce882c00307c7c7c3b3cdd2cd3a5408` | Implemented; interactive duplicate/conflict action path remains |
+| 25-Q | Writer regression contract | regression guard added for governed writer boundary | `3bb62673abf6ec9862892d73554d2805ff46c737` | Added; execution not claimed |
+| 26 | Global visual design system | gradient canvas, reusable gradient surfaces/borders/glow, primary gradient actions, active navigation treatment | `1c9fad7a5faa9b75e5a78b5c64ae3e3a34dfd952` | Implemented source-level; browser visual PASS not claimed |
+| 27 | Source Analysis visual upgrade | executive hero, richer source cards, metric surfaces, safer status hierarchy and responsive polish | `6cc4020e44a5a8253cfe1268f2c858ca841d6ad5` | Implemented source-level |
+| 28 | Universal Intelligence visual upgrade | gradient intelligence surface, grouped relation/quality/evidence cards and visual hierarchy | `53b7ebc4869fcec013060255d16cad7e9a3b2ea4` | Implemented source-level |
+| 29 | Dashboard visual upgrade | executive gradient hero, interactive period controls, elevated cards and gradient quick actions | `872b524164426a894a12fc8593b8f34fae50f386` | Implemented source-level |
 
 ## Staging evidence boundary
 
@@ -77,8 +83,9 @@ Canonical migration:
 - Added deterministic row comparison outcomes (`new`, `skip_exact`, `candidate_duplicate`, `conflict`) without automatic destructive merge.
 - Added universal quality summary for completeness/mapping/type coverage/duplicates/conflicts.
 - Added regression contract for classification/fingerprint/duplicate/quality behavior.
-- **Integrated these results into Source Analysis Workspace** so the operator can see classification, relations, quality, and duplicate/conflict signals in the same source-analysis surface.
-- Remaining: persist a governed resolution decision when writing, connect exact entity-level write policy, and prove the full flow with authenticated/live E2E.
+- Integrated these results into Source Analysis Workspace so the operator can see classification, relations, quality, and duplicate/conflict signals in the same source-analysis surface.
+- Canonical writer now routes through governed DB resolution gate with tenant/provenance assertions.
+- Remaining: interactive duplicate/conflict review action path and authenticated/live E2E.
 
 ### D — Forecast / AI / operations
 - Forecast governance now validates provenance-related payload fields and exposes horizon/uncertainty to the UI.
@@ -86,19 +93,22 @@ Canonical migration:
 - AI and operational queue work continue behind provenance/confidence/tenant-safety rules.
 - Durable worker E2E remains unclaimed.
 
+### UX / visual quality
+- A global gradient design language is now available across the application through reusable CSS utilities and button/navigation primitives.
+- Dashboard, Source Analysis Workspace, and Universal Intelligence have been upgraded to use the same visual system.
+- Remaining visual work should focus on consistency in individual dense tables/forms and browser-level visual verification rather than rebuilding the design system.
+
 ## Verification state
 
-Latest integration commits:
-- `e7f2e9054a1d628796c3c302a9400a7171b25fa8` — UniversalIntelligencePanel
-- `816e913e7e41c0f6ccc2aa7168e94b85c64a9e6a` — SourceAnalysisWorkspacePage integration
-- `ef64723acfc16d3a78d1d6505d3590908956863b` — universal intelligence regression contract
-- `76553948d06b090831e330aebe0fff50397a8f58` — forecast governance hardening
-
-Source Analysis Workspace now consumes the universal intelligence layer directly. This is an implementation claim, not a browser E2E certification.
-
-Universal import intelligence regression test source is committed, but its execution is not claimed here.
-
-The Vercel status observed on the preceding implementation head remains an external project-access failure: Git author `Report-Engainall` must have access to the Injaz Vercel project to create deployments. No browser PASS is inferred.
+Latest implementation commits for this batch:
+- `18cf3cf1bce882c00307c7c7c3b3cdd2cd3a5408` — governed canonical writer
+- `3bb62673abf6ec9862892d73554d2805ff46c737` — writer regression contract
+- `1c9fad7a5faa9b75e5a78b5c64ae3e3a34dfd952` — global visual system
+- `6cc4020e44a5a8253cfe1268f2c858ca841d6ad5` — Source Analysis Workspace visual upgrade
+- `53b7ebc4869fcec013060255d16cad7e9a3b2ea4` — Universal Intelligence visual upgrade
+- `872b524164426a894a12fc8593b8f34fae50f386` — Dashboard visual upgrade
+- `ab3f4febc4889896fb3a908c9d8ac10cb0f58870` — durable evidence note
+- this ledger update records the batch; no browser/production certification is inferred.
 
 ## Non-claims / certification boundary
 
@@ -110,7 +120,8 @@ The following remain **not certified** unless fresh live evidence is produced:
 - backup/restore;
 - rollback;
 - Production alias binding;
-- durable worker execution E2E.
+- durable worker execution E2E;
+- browser-level visual PASS.
 
 A direct SQL call without an authenticated tenant is not an E2E failure; it is an expected `TENANT_REQUIRED` boundary.
 
