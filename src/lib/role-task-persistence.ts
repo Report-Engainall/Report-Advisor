@@ -7,6 +7,11 @@ export interface PersistedTaskProposal extends IntelligenceTask {
   createdAt: string;
 }
 
+function taskKey(companyId: string, task: IntelligenceTask): string {
+  const sourceId = task.sourceId ?? '';
+  return [companyId, task.role, task.horizon, task.sourceType, sourceId, task.title.trim().toLowerCase()].join('|');
+}
+
 export async function fetchTaskProposals(limit = 200): Promise<PersistedTaskProposal[]> {
   const companyId = await resolveCurrentCompanyId();
   if (!companyId) throw new Error('TENANT_REQUIRED');
@@ -28,8 +33,23 @@ export async function persistTaskProposals(tasks: IntelligenceTask[]): Promise<n
   const companyId = await resolveCurrentCompanyId();
   if (!companyId) throw new Error('TENANT_REQUIRED');
   if (tasks.length === 0) return 0;
-  const rows = tasks.slice(0, 500).map((task) => ({ company_id: companyId, role: task.role, horizon: task.horizon, priority: task.priority, title: task.title, reason: task.reason, source_type: task.sourceType, source_id: task.sourceId, expected_outcome: task.expectedOutcome, evidence_required: task.evidenceRequired, status: 'proposed' }));
-  const { data, error } = await supabase.from('operational_task_proposals').insert(rows).select('id');
+  const rows = tasks.slice(0, 500).map((task) => ({
+    company_id: companyId,
+    task_key: taskKey(companyId, task),
+    role: task.role,
+    horizon: task.horizon,
+    priority: task.priority,
+    title: task.title,
+    reason: task.reason,
+    source_type: task.sourceType,
+    source_id: task.sourceId,
+    expected_outcome: task.expectedOutcome,
+    evidence_required: task.evidenceRequired,
+    status: 'proposed',
+  }));
+  const { data, error } = await supabase.from('operational_task_proposals')
+    .insert(rows, { onConflict: 'company_id,task_key', ignoreDuplicates: true })
+    .select('id');
   if (error) throw error;
   return data?.length ?? 0;
 }
