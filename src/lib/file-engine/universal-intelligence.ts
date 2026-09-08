@@ -165,7 +165,6 @@ function identityFields(dataset: Dataset): ColumnProfile[] {
 
   // Identity fields are ordered fallbacks, not a composite key. For customers,
   // code is authoritative when present; name is only the fallback when code is absent.
-  // Return every available preferred field so identityKey() can actually fall back.
   const fields = preferred
     .map((preferredField) => dataset.columns.find((column) => normalized(column.mappedField) === preferredField))
     .filter((field): field is ColumnProfile => Boolean(field));
@@ -248,6 +247,14 @@ export function resolveRows(dataset: Dataset, existingRows: Array<Record<string,
       };
     }
 
+    // Once a deterministic identity exists, absence of an identity match means NEW.
+    // Do not downgrade authoritative keys (SKU/code/invoice_number) into fuzzy/name
+    // matching; that would create false duplicate/conflict decisions.
+    if (incomingKey) {
+      seenIncoming.set(incomingKey, { index, row, fingerprint });
+      return { fingerprint, outcome: 'new', matchedRowIndex: null, differingFields: [] };
+    }
+
     const candidates = existingRows.map((candidate, candidateIndex) => {
       const shared = dataset.columns.filter((column) => {
         const incoming = normalized(valueForColumn(row, column));
@@ -263,20 +270,17 @@ export function resolveRows(dataset: Dataset, existingRows: Array<Record<string,
 
     const candidate = candidates[0];
     if (!candidate) {
-      if (incomingKey) seenIncoming.set(incomingKey, { index, row, fingerprint });
       return { fingerprint, outcome: 'new', matchedRowIndex: null, differingFields: [] };
     }
 
     const comparable = dataset.columns.filter((column) => normalized(valueForColumn(row, column)) || normalized(valueForColumn(existingRows[candidate.index], column)));
     const differenceRatio = comparable.length ? candidate.differingFields.length / comparable.length : 1;
-    const resolution = {
+    return {
       fingerprint,
-      outcome: differenceRatio > 0.5 ? 'conflict' as const : 'candidate_duplicate' as const,
+      outcome: differenceRatio > 0.5 ? 'conflict' : 'candidate_duplicate',
       matchedRowIndex: candidate.index,
       differingFields: candidate.differingFields,
     };
-    if (incomingKey) seenIncoming.set(incomingKey, { index, row, fingerprint });
-    return resolution;
   });
 }
 
