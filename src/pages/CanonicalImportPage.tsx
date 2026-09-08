@@ -14,6 +14,7 @@ import { FORMAT_LABELS, MAX_FILE_SIZE, type FileFormat, type Dataset } from '@/l
 import { resolveRows, type RowResolution } from '@/lib/file-engine/universal-intelligence';
 import { commitImportBatch } from '@/lib/import/canonical-commit';
 import { reconcileForCanonical } from '@/lib/import/canonical-truth-boundary';
+import { validateMappedRow } from '@/lib/import/canonical-validation';
 import { ImportResolutionReviewPanel } from '@/components/ImportResolutionReviewPanel';
 
 type Step = 'upload' | 'scanning' | 'preview' | 'committing' | 'done';
@@ -21,9 +22,9 @@ type EntityType = 'sales_invoices' | 'products' | 'customers';
 interface Row { rowNumber: number; data: Record<string, any>; valid: boolean; error?: string }
 
 const ENTITIES: Array<{ value: EntityType; label: string; required: string[] }> = [
-  { value: 'sales_invoices', label: 'فواتير المبيعات', required: ['invoice_number', 'invoice_date', 'customer_name', 'total'] },
-  { value: 'products', label: 'المنتجات', required: ['sku', 'name', 'cost_price', 'selling_price'] },
-  { value: 'customers', label: 'العملاء', required: ['name'] },
+  { value: 'sales_invoices', label: 'فواتير المبيعات', required: ['invoice_number'] },
+  { value: 'products', label: 'المنتجات', required: ['sku', 'name'] },
+  { value: 'customers', label: 'العملاء', required: ['code|name'] },
 ];
 
 function icon(format: FileFormat) {
@@ -85,14 +86,14 @@ export function CanonicalImportPage() {
       setMappings(dataset.columns.map(c => ({ name: c.name, mappedField: c.mappedField, confidence: c.mappingConfidence })));
       const hdrs = dataset.columns.map(c => c.name);
       setHeaders(hdrs);
-      const config = ENTITIES.find(e => e.value === entityType)!;
       const parsedRows = dataset.rows.map((data, i) => {
-        const missing = config.required.filter(field => {
-          const key = Object.keys(data).find(k => k === field) ?? Object.keys(data).find(k => k.toLowerCase().includes(field.toLowerCase()));
-          const value = key ? data[key] : undefined;
-          return value == null || String(value).trim() === '';
-        });
-        return { rowNumber: i + 1, data, valid: missing.length === 0, error: missing.length ? `حقول مطلوبة ناقصة: ${missing.join(', ')}` : undefined };
+        const validation = validateMappedRow(entityType, data, dataset.columns);
+        return {
+          rowNumber: i + 1,
+          data,
+          valid: validation.valid,
+          error: validation.valid ? undefined : `حقول الهوية المطلوبة ناقصة: ${validation.missing.join(', ')}`,
+        };
       });
       setRows(parsedRows);
       const validData = parsedRows.filter(row => row.valid).map(row => row.data);
@@ -118,10 +119,12 @@ export function CanonicalImportPage() {
     if (!valid.length || !file || !fileHash) return;
     if (resolving || resolutions.some(r => r.outcome !== 'new')) return;
     setStep('committing'); setProgress(0); setError(null);
+    let importId: string | null = null;
     try {
       const companyId = await resolveCurrentCompanyId();
       if (!companyId) throw new Error('TENANT_CONTEXT_REQUIRED');
       const rec = await createImportRecord({ file_name: file.name, file_size: file.size, source_type: file.format, status: 'processing', total_rows: rows.length, valid_rows: valid.length, invalid_rows: rows.length - valid.length, quarantined_rows: rows.length - valid.length, entity_type: entityType, progress: 0 });
+      importId = rec.id;
       const reconciled = reconcileForCanonical(entityType, companyId, file.name, fileHash, rec.id, (data, rowNumber) => `${fileHash}:${rowNumber}:${JSON.stringify(data)}`, valid.map(r => ({ rowNumber: r.rowNumber, data: r.data })));
       if (reconciled.rejected.length > 0) throw new Error(`CANONICAL_RECONCILIATION_REJECTED:${reconciled.rejected.map(r => `${r.rowNumber}:${r.reason}`).join(',')}`);
       const batchSize = 50; let committed = 0;
@@ -131,13 +134,30 @@ export function CanonicalImportPage() {
         committed += batch.length;
         setProgress(Math.round((committed / reconciled.rows.length) * 100));
       }
-      await updateImportRecord(rec.id, { status: 'completed', progress: 100, completed_at: new Date().toISOString() });
+      await supabase.rpc('import_finish_job', {
+        p_job_id: rec.id,
+        p_status: 'completed',
+        p_result_summary: { total: rows.length, valid: valid.length, invalid: rows.length - valid.length, committed },
+        p_error_message: null,
+      });
       setResult({ total: rows.length, valid: valid.length, invalid: rows.length - valid.length, importId: rec.id });
       setStep('done'); await loadHistory();
     } catch (e: any) {
-      setError(`فشل الاستيراد: ${e?.message || 'خطأ غير معروف'}`); setStep('preview');
+      const message = e?.message || 'خطأ غير معروف';
+      if (importId) {
+        const { error: finishError } = await supabase.rpc('import_finish_job', {
+          p_job_id: importId,
+          p_status: 'failed',
+          p_result_summary: { total: rows.length, valid: valid.length, progress },
+          p_error_message: message,
+        });
+        if (finishError) {
+          console.error('import_finish_job failed while finalizing import failure', finishError);
+        }
+      }
+      setError(`فشل الاستيراد: ${message}`); setStep('preview'); await loadHistory();
     }
-  }, [rows, file, fileHash, entityType, loadHistory, resolving, resolutions]);
+  }, [rows, file, fileHash, entityType, loadHistory, resolving, resolutions, progress]);
 
   const reset = () => { setStep('upload'); setFile(null); setFileHash(null); setRows([]); setHeaders([]); setQuality(0); setMappings([]); setWarnings([]); setError(null); setDuplicate(false); setResult(null); setProgress(0); setResolutions([]); setResolving(false); };
   const valid = rows.filter(r => r.valid).length;
@@ -147,7 +167,7 @@ export function CanonicalImportPage() {
   return <div className="space-y-6 animate-fade-in">
     <PageHeader title="مركز الاستيراد" subtitle="استيراد آمن مع فحص الملف واكتشاف الصيغة والمعاينة قبل الكتابة" />
     {step === 'upload' && <Card><CardBody>
-      <div className="mb-5"><label className="block text-sm font-medium text-ink-700 mb-2">نوع البيانات</label><div className="grid grid-cols-1 sm:grid-cols-3 gap-3">{ENTITIES.map(e => <button key={e.value} onClick={() => setEntityType(e.value)} className={`p-4 rounded-lg border-2 text-right ${entityType === e.value ? 'border-primary-500 bg-primary-50/50' : 'border-ink-100'}`}><Database size={18}/><div className="text-sm font-medium mt-2">{e.label}</div><div className="text-[11px] text-ink-400">{e.required.length} حقول مطلوبة</div></button>)}</div></div>
+      <div className="mb-5"><label className="block text-sm font-medium text-ink-700 mb-2">نوع البيانات</label><div className="grid grid-cols-1 sm:grid-cols-3 gap-3">{ENTITIES.map(e => <button key={e.value} onClick={() => setEntityType(e.value)} className={`p-4 rounded-lg border-2 text-right ${entityType === e.value ? 'border-primary-500 bg-primary-50/50' : 'border-ink-100'}`}><Database size={18}/><div className="text-sm font-medium mt-2">{e.label}</div><div className="text-[11px] text-ink-400">هوية: {e.required.join(' أو ')}</div></button>)}</div></div>
       <div onClick={() => inputRef.current?.click()} className="border-2 border-dashed rounded-xl p-10 text-center cursor-pointer hover:border-primary-400 transition-colors"><input ref={inputRef} type="file" className="hidden" accept=".xlsx,.xls,.xlsm,.csv,.tsv,.ods,.json,.jsonl,.xml,.txt,.md,.pdf,.docx,.jpg,.jpeg,.png,.webp,.tiff,.bmp" onChange={e => { const f=e.target.files?.[0]; if(f) void handleFile(f); }} /><Upload className="mx-auto text-primary-500 mb-3" size={28}/><h3 className="font-semibold">اختر ملفًا للاستيراد</h3><p className="text-sm text-ink-500 mt-1">Excel، CSV، JSON، PDF، Word والصور</p><p className="text-xs text-ink-300 mt-3">الحد الأقصى: {MAX_FILE_SIZE / 1024 / 1024} MB</p></div>
       {error && <div className="mt-4 p-3 rounded-lg bg-danger-50 text-danger-700 text-sm flex gap-2"><AlertCircle size={16}/>{error}</div>}
     </CardBody></Card>}
