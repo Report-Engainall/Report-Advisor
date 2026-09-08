@@ -6,9 +6,10 @@ import { formatCurrency } from '@/lib/format';
 type CanonicalScenarioPageProps = {
   baseRevenue: number;
   baseCost: number;
+  currency: string;
 };
 
-export function CanonicalScenarioPage({ baseRevenue, baseCost }: CanonicalScenarioPageProps) {
+export function CanonicalScenarioPage({ baseRevenue, baseCost, currency }: CanonicalScenarioPageProps) {
   const [priceChange, setPriceChange] = useState(5);
   const [volumeChange, setVolumeChange] = useState(10);
   const [costChange, setCostChange] = useState(0);
@@ -59,24 +60,30 @@ export function CanonicalScenarioPage({ baseRevenue, baseCost }: CanonicalScenar
               <div className="grid grid-cols-2 gap-3">
                 <div className="p-3 rounded-lg bg-ink-50">
                   <div className="text-xs text-ink-500">الإيرادات الحالية</div>
-                  <div className="text-lg font-bold text-ink-800">{formatCurrency(baseRevenue)}</div>
+                  <div className="text-lg font-bold text-ink-800">{formatCurrency(baseRevenue, currency)}</div>
                 </div>
                 <div className="p-3 rounded-lg bg-primary-50">
                   <div className="text-xs text-primary-600">الإيرادات الجديدة</div>
-                  <div className="text-lg font-bold text-primary-700">{formatCurrency(newRevenue)}</div>
+                  <div className="text-lg font-bold text-primary-700">{formatCurrency(newRevenue, currency)}</div>
                 </div>
                 <div className="p-3 rounded-lg bg-ink-50">
                   <div className="text-xs text-ink-500">التكلفة الحالية</div>
-                  <div className="text-lg font-bold text-ink-800">{formatCurrency(baseCost)}</div>
+                  <div className="text-lg font-bold text-ink-800">{formatCurrency(baseCost, currency)}</div>
                 </div>
                 <div className="p-3 rounded-lg bg-warning-50">
                   <div className="text-xs text-warning-600">التكلفة الجديدة</div>
-                  <div className="text-lg font-bold text-warning-700">{formatCurrency(newCost)}</div>
+                  <div className="text-lg font-bold text-warning-700">{formatCurrency(newCost, currency)}</div>
                 </div>
               </div>
               <div className={`p-4 rounded-lg ${profitChange === null || profitChange >= 0 ? 'bg-success-50' : 'bg-danger-50'}`}>
                 {profitChange === null ? (
-                  <div className="text-sm text-ink-600">لا يمكن حساب نسبة تغير الربح عندما يكون الربح الأساسي صفراً.</div>
+                  <div>
+                    <div className="text-sm text-ink-600">لا يمكن حساب نسبة تغير الربح عندما يكون الربح الأساسي صفراً.</div>
+                    <div className="mt-2 text-left">
+                      <div className="text-xs text-ink-500">الربح الجديد</div>
+                      <div className="text-lg font-bold text-ink-800">{formatCurrency(newProfit, currency)}</div>
+                    </div>
+                  </div>
                 ) : (
                   <div className="flex items-center justify-between">
                     <div>
@@ -85,7 +92,7 @@ export function CanonicalScenarioPage({ baseRevenue, baseCost }: CanonicalScenar
                     </div>
                     <div className="text-left">
                       <div className="text-xs text-ink-500">الربح الجديد</div>
-                      <div className="text-lg font-bold text-ink-800">{formatCurrency(newProfit)}</div>
+                      <div className="text-lg font-bold text-ink-800">{formatCurrency(newProfit, currency)}</div>
                     </div>
                   </div>
                 )}
