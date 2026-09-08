@@ -8,15 +8,20 @@ import { CanonicalScenarioPage } from '@/pages/CanonicalScenarioPage';
 export function ScenarioTruthGuardPage() {
   const [state, setState] = useState<'loading' | 'ready' | 'blocked'>('loading');
   const [reason, setReason] = useState<string | null>(null);
-  const [financials, setFinancials] = useState<{ revenue: number; cost: number } | null>(null);
+  const [financials, setFinancials] = useState<{ revenue: number; cost: number; currency: string } | null>(null);
 
   useEffect(() => {
     let active = true;
     void fetchProfitabilitySnapshot()
       .then(snapshot => {
         if (!active) return;
-        if (snapshot.status === 'CALCULATED' && snapshot.revenue !== null && snapshot.cost !== null) {
-          setFinancials({ revenue: snapshot.revenue, cost: snapshot.cost });
+        if (
+          snapshot.status === 'CALCULATED' &&
+          snapshot.revenue !== null &&
+          snapshot.cost !== null &&
+          snapshot.currency !== null
+        ) {
+          setFinancials({ revenue: snapshot.revenue, cost: snapshot.cost, currency: snapshot.currency });
           setState('ready');
           return;
         }
@@ -33,7 +38,13 @@ export function ScenarioTruthGuardPage() {
 
   if (state === 'loading') return <LoadingState message="جارٍ التحقق من الحقيقة المالية قبل تشغيل المحاكاة..." />;
   if (state === 'ready' && financials) {
-    return <CanonicalScenarioPage baseRevenue={financials.revenue} baseCost={financials.cost} />;
+    return (
+      <CanonicalScenarioPage
+        baseRevenue={financials.revenue}
+        baseCost={financials.cost}
+        currency={financials.currency}
+      />
+    );
   }
 
   return (
