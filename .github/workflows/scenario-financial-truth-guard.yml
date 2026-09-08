@@ -6,6 +6,7 @@ on:
       - 'src/App.tsx'
       - 'src/pages/IntelligencePage.tsx'
       - 'src/pages/ScenarioTruthGuardPage.tsx'
+      - 'src/pages/CanonicalScenarioPage.tsx'
       - 'src/lib/dashboard-canonical.ts'
       - 'scripts/check-scenario-financial-truth-guard.mjs'
       - '.github/workflows/scenario-financial-truth-guard.yml'
