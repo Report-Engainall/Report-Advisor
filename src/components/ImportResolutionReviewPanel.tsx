@@ -7,13 +7,15 @@ type Decision = 'include' | 'exclude';
 interface Props {
   resolutions: RowResolution[];
   decisions?: Record<string, Decision>;
-  onDecision?: (fingerprint: string, decision: Decision) => void;
+  onDecision?: (decisionKey: string, decision: Decision) => void;
 }
+
+const decisionKey = (row: RowResolution, index: number) => `${row.fingerprint}:${index}`;
 
 export function ImportResolutionReviewPanel({ resolutions, decisions = {}, onDecision }: Props) {
   const counts = resolutions.reduce((acc, row) => { acc[row.outcome] += 1; return acc; }, { new: 0, skip_exact: 0, candidate_duplicate: 0, conflict: 0 } as Record<RowResolution['outcome'], number>);
   const blocked = counts.skip_exact + counts.candidate_duplicate + counts.conflict;
-  const unresolved = resolutions.filter(row => row.outcome !== 'new' && !decisions[row.fingerprint]).length;
+  const unresolved = resolutions.reduce((count, row, index) => count + (row.outcome !== 'new' && !decisions[decisionKey(row, index)] ? 1 : 0), 0);
   if (!resolutions.length) return null;
   return <section className="relative overflow-hidden rounded-3xl border border-slate-200 bg-white/90 p-5 shadow-card-hover backdrop-blur-sm lg:p-6" dir="rtl">
     <div className="pointer-events-none absolute -left-10 -top-12 h-36 w-36 rounded-full bg-cyan-300/15 blur-3xl" />
@@ -30,12 +32,14 @@ export function ImportResolutionReviewPanel({ resolutions, decisions = {}, onDec
     {blocked > 0 && <div className="relative mt-4 space-y-3">
       <div className="rounded-2xl border border-amber-200 bg-amber-50 p-3.5 text-xs leading-6 text-amber-900">الصفوف غير الجديدة لا يمكن تحويلها إلى كتابة. احسم كل صف باستبعاده صراحةً؛ القرار هنا لا يمنح صلاحية الكتابة، والحارس الخادمي يظل صاحب القرار النهائي.</div>
       <div className="space-y-2">
-        {resolutions.filter(row => row.outcome !== 'new').map(row => {
-          const decision = decisions[row.fingerprint];
+        {resolutions.filter(row => row.outcome !== 'new').map((row, index) => {
+          const originalIndex = resolutions.findIndex((candidate, candidateIndex) => candidateIndex >= index && candidate === row);
+          const key = decisionKey(row, originalIndex < 0 ? index : originalIndex);
+          const decision = decisions[key];
           const label = row.outcome === 'skip_exact' ? 'مطابق' : row.outcome === 'candidate_duplicate' ? 'تكرار محتمل' : 'تعارض';
-          return <div key={row.fingerprint} className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-ink-100 bg-white/80 p-3">
+          return <div key={key} className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-ink-100 bg-white/80 p-3">
             <div className="min-w-0"><div className="flex items-center gap-2"><Badge variant={row.outcome === 'conflict' ? 'danger' : row.outcome === 'candidate_duplicate' ? 'warning' : 'neutral'}>{label}</Badge><span className="truncate font-mono text-[10px] text-ink-400">{row.fingerprint.slice(0, 18)}</span></div><div className="mt-1 text-xs text-ink-500">هذا الصف لن يُكتب ما لم يكن قرار الاستبعاد مسجلًا.</div></div>
-            <button type="button" onClick={() => onDecision?.(row.fingerprint, 'exclude')} disabled={!onDecision || decision === 'exclude'} className="inline-flex items-center gap-1 rounded-xl border border-ink-200 bg-white px-3 py-2 text-xs font-bold text-ink-700 disabled:cursor-default disabled:opacity-60"><XCircle size={14}/>{decision === 'exclude' ? 'تم الاستبعاد' : 'استبعاد الصف'}</button>
+            <button type="button" onClick={() => onDecision?.(key, 'exclude')} disabled={!onDecision || decision === 'exclude'} className="inline-flex items-center gap-1 rounded-xl border border-ink-200 bg-white px-3 py-2 text-xs font-bold text-ink-700 disabled:cursor-default disabled:opacity-60"><XCircle size={14}/>{decision === 'exclude' ? 'تم الاستبعاد' : 'استبعاد الصف'}</button>
           </div>;
         })}
       </div>
