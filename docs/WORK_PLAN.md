@@ -20,7 +20,7 @@
 | T-01 | مهام الأدوار | توليد مهام اليوم/الغد حسب المدير والموظف والمبيعات والمخازن والمحاسب والمشتريات | task proposal مرتبط بمصدر + سبب + أولوية + نتيجة + دليل | منفذ جزئيًا |
 | T-02 | استدامة خطة العمل | حفظ المقترحات واستئنافها عبر الجلسات | tenant-safe + lifecycle + dedupe وعدم تكرار الخطة عند الحفظ | منفذ |
 | T-03 | القرار ← المهمة | تحويل المقترح المقبول إلى work item بعد القرار المعتمد | لا تنفيذ قبل APPROVED decision؛ assignee tenant member | منفذ: RPC + persistence + approval gate + واجهة التحويل والتنفيذ مرتبطة بالدورة |
-| T-04 | المهمة ← الدليل ← النتيجة | ربط work item بالتنفيذ والدليل والنتيجة والتعلم | start→evidence→complete→outcome→learning دون تجاوز approval | منفذ جزئيًا: start/complete/outcome gates + واجهة التشغيل + source-analysis evidence + learning read model + governed recommendation ranking؛ ما زال adaptive learning write-back مطلوبًا |
+| T-04 | المهمة ← الدليل ← النتيجة | ربط work item بالتنفيذ والدليل والنتيجة والتعلم | start→evidence→complete→outcome→learning دون تجاوز approval | منفذ جزئيًا: start/complete/outcome gates + واجهة التشغيل + source-analysis evidence + learning read model + governed recommendation ranking + إصلاح attribution ليستخدم decision.id المتوافق مع read model؛ ما زال adaptive learning write-back وE2E مطلوبين |
 | T-05 | خطة التشغيل اليومية | read model دائم لحالة اليوم/الغد حسب الدور | proposed/accepted/open/in-progress/completed/overdue/evidence-missing مع tenant isolation | منفذ |
 | Q-01 | جودة البيانات | duplicates/missing/outliers/conflicts | severity + resolution workflow | قيد التنفيذ |
 | R-01 | العلاقات | اكتشاف مفاتيح وعلاقات بين datasets | relation graph + confidence | قيد التنفيذ |
