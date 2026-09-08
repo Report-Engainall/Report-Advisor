@@ -33,7 +33,9 @@ fail('sidebar links missing a registered route', missingRoutesForSidebar);
 const knownEntryOrLegacyFiles = new Set([
   'LoginPage.tsx',
   'CanonicalImportPage.tsx',
+  'CanonicalScenarioPage.tsx',
   'ReceivablesReportPageCanonical.tsx',
+  'ReceivablesReportCanonicalPage.tsx',
 ]);
 const unexpectedOrphans = unreferencedPageFiles.filter((file) => !knownEntryOrLegacyFiles.has(file));
 fail('page components neither imported nor explicitly allowlisted as entry/legacy', unexpectedOrphans);
