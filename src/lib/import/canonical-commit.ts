@@ -45,7 +45,7 @@ function columnProfile(name: string): ColumnProfile {
   return { name, mappedField: name, mappingConfidence: 100, dataType: 'text', nullCount: 0, uniqueCount: 0, uniqueRatio: 0, sampleValues: [], statistics: { count: 0 }, qualityIssues: [] };
 }
 
-function buildResolutionDataset(rows: Record<string, unknown>[], rowNumbers: number[]): Dataset {
+function buildResolutionDataset(rows: Record<string, unknown>[]): Dataset {
   const names = [...new Set(rows.flatMap((row) => Object.keys(row)))];
   const columns = names.map(columnProfile);
   return { id: 'canonical-import', name: 'canonical-import', source: 'canonical-import', rowCount: rows.length, columnCount: columns.length, columns, rows, preview: rows.slice(0, 50), qualityScore: 100 };
@@ -57,12 +57,28 @@ async function fetchExistingRows(entityType: EntityType, companyId: string, payl
   const names = entityType === 'customers' ? payload.map((row) => text(row.name)).filter((value): value is string => Boolean(value)) : [];
   if (!keys.length && !names.length) return [] as Record<string, unknown>[];
 
-  let query = supabase.from(entityType).select('*').eq('company_id', companyId).limit(5000);
-  if (keys.length) query = query.in(keyColumn, keys);
-  else if (entityType === 'customers') query = query.in('name', names);
-  const { data, error } = await query;
-  if (error) throw error;
-  return (data ?? []) as Record<string, unknown>[];
+  const queries = [];
+  if (keys.length) {
+    queries.push(supabase.from(entityType).select('*').eq('company_id', companyId).in(keyColumn, keys).limit(5000));
+  }
+  // Customer identity is code-first with name fallback. A mixed batch may contain
+  // coded and uncoded customers, so both lookup sets must be queried independently.
+  if (entityType === 'customers' && names.length) {
+    queries.push(supabase.from('customers').select('*').eq('company_id', companyId).in('name', names).limit(5000));
+  }
+  const results = await Promise.all(queries);
+  const rows: Record<string, unknown>[] = [];
+  const seen = new Set<string>();
+  for (const result of results) {
+    if (result.error) throw result.error;
+    for (const row of (result.data ?? []) as Record<string, unknown>[]) {
+      const stable = String(row.id ?? `${row.code ?? ''}|${row.name ?? ''}`);
+      if (seen.has(stable)) continue;
+      seen.add(stable);
+      rows.push(row);
+    }
+  }
+  return rows;
 }
 
 function assertNewResolutions(resolutions: RowResolution[]) {
@@ -78,7 +94,7 @@ export async function commitImportBatch(entityType: EntityType, rows: Reconciled
 
   const payload = rows.map((row) => canonicalizeRow(entityType, { data: row.data, rowNumber: row.rowNumber }));
   const existingRows = await fetchExistingRows(entityType, companyId, payload);
-  const dataset = buildResolutionDataset(payload, rows.map((row) => row.rowNumber));
+  const dataset = buildResolutionDataset(payload);
   const resolutions = resolveRows(dataset, existingRows);
   assertNewResolutions(resolutions);
 
