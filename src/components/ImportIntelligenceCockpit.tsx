@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Activity, AlertTriangle, CheckCircle2, Database, Gauge, History, Sparkles } from 'lucide-react';
+import { Activity, AlertTriangle, CheckCircle2, Database, Gauge, History, Sparkles, FileSearch } from 'lucide-react';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { fetchDashboardSnapshot, type DashboardKPIs } from '@/lib/dashboard-canonical';
 import { fetchDataQualitySnapshot, type DataQualitySnapshot } from '@/lib/data-quality-snapshot';
 import { fetchImportRecords } from '@/lib/queries';
 import { formatNumber } from '@/lib/format';
+import { Link } from 'react-router-dom';
 
 export function ImportIntelligenceCockpit() {
   const [kpis, setKpis] = useState<DashboardKPIs | null>(null);
@@ -19,9 +20,8 @@ export function ImportIntelligenceCockpit() {
       setError(null);
       const [snapshot, dq, history] = await Promise.all([fetchDashboardSnapshot(3), fetchDataQualitySnapshot(), fetchImportRecords()]);
       setKpis(snapshot.kpis); setQuality(dq); setImports(history.slice(0, 5));
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'تعذر تحميل لوحة ذكاء الاستيراد');
-    } finally { if (initial) setLoading(false); }
+    } catch (e) { setError(e instanceof Error ? e.message : 'تعذر تحميل لوحة ذكاء الاستيراد'); }
+    finally { if (initial) setLoading(false); }
   }, []);
   useEffect(() => {
     void load(true);
@@ -46,6 +46,7 @@ export function ImportIntelligenceCockpit() {
         <div className="rounded-xl bg-ink-50 p-4"><Activity size={17}/><div className="mt-2 text-xs text-ink-500">المبيعات 3 أشهر</div><b className="text-sm">{kpis?.totalSales == null ? 'غير متاح' : formatNumber(kpis.totalSales)}</b></div>
         <div className="rounded-xl bg-ink-50 p-4"><History size={17}/><div className="mt-2 text-xs text-ink-500">عمليات الاستيراد</div><b className="text-lg">{formatNumber(imports.length)}</b></div>
       </div>
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-primary-100 bg-primary-50 p-4"><div className="flex items-center gap-3"><div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-primary-700"><FileSearch size={18}/></div><div><div className="text-sm font-bold">مساحة تحليل التقارير</div><div className="text-xs text-ink-500">اعرض كل تقرير، OCR، الحقول، التعيين، البصمة، والبيانات التي ستذهب إلى الواجهة الصحيحة.</div></div></div><Link to="/source-analysis" className="rounded-xl bg-ink-950 px-4 py-2.5 text-xs font-bold text-white">فتح مساحة التحليل</Link></div>
       <div className="grid gap-4 lg:grid-cols-[1.2fr_.8fr]">
         <div><div className="flex items-center gap-2 mb-3"><Sparkles size={17}/><h3 className="font-semibold text-sm">ماذا يعني هذا؟</h3></div><div className="space-y-2">{entities.length === 0 ? <div className="rounded-xl border border-dashed p-4 text-sm text-ink-500">لا توجد بيانات تجارية بعد. يمكنك البدء بملف خارجي دون افتراض نموذج مسبق.</div> : entities.map(e => <div key={e.name} className="flex items-center gap-3 rounded-xl border border-ink-100 p-3"><div className="w-9 h-9 rounded-lg bg-primary-50 text-primary-600 flex items-center justify-center"><CheckCircle2 size={16}/></div><div className="flex-1"><div className="text-sm font-medium">{e.name}</div><div className="text-xs text-ink-400">{formatNumber(e.total)} سجل · {formatNumber(e.issues)} مشكلة</div></div><Badge variant={e.score >= 90 ? 'success' : e.score >= 70 ? 'warning' : 'danger'}>{e.score}%</Badge></div>)}</div></div>
         <div><div className="flex items-center gap-2 mb-3"><History size={17}/><h3 className="font-semibold text-sm">آخر الاستيرادات</h3></div><div className="space-y-2">{imports.length === 0 ? <div className="rounded-xl border border-dashed p-4 text-sm text-ink-500">لا توجد عمليات سابقة.</div> : imports.map(item => <div key={item.id} className="rounded-xl border border-ink-100 p-3"><div className="flex items-center justify-between gap-2"><span className="text-sm font-medium truncate">{item.file_name}</span><Badge variant={item.status === 'completed' ? 'success' : item.status === 'failed' ? 'danger' : 'warning'}>{item.status}</Badge></div><div className="mt-1 text-xs text-ink-400">{formatNumber(item.total_rows ?? 0)} صف · {formatNumber(item.valid_rows ?? 0)} صالح</div></div>)}</div></div>
