@@ -1,0 +1,18 @@
+import { useCallback, useEffect, useState } from 'react';
+import { BookOpen, Plus, RefreshCw, Trash2 } from 'lucide-react';
+import { Card, CardBody, CardHeader } from '@/components/ui/Card';
+import { Badge } from '@/components/ui/Badge';
+import { fetchAllSynonyms, addSynonym, deleteSynonym, type SynonymEntry } from '@/lib/file-engine/synonyms';
+
+export function ImportMappingDictionaryPanel() {
+  const [items, setItems] = useState<SynonymEntry[]>([]); const [canonical, setCanonical] = useState(''); const [synonym, setSynonym] = useState(''); const [loading, setLoading] = useState(true); const [saving, setSaving] = useState(false); const [error, setError] = useState<string | null>(null);
+  const load = useCallback(async () => { try { setLoading(true); setError(null); setItems(await fetchAllSynonyms()); } catch (e) { setError(e instanceof Error ? e.message : 'تعذر تحميل قاموس التعيين'); } finally { setLoading(false); } }, []);
+  useEffect(() => { void load(); }, [load]);
+  async function save() { if (!canonical.trim() || !synonym.trim()) return; try { setSaving(true); setError(null); await addSynonym(canonical.trim(), synonym.trim()); setCanonical(''); setSynonym(''); await load(); } catch (e) { setError(e instanceof Error ? e.message : 'تعذر حفظ التعيين'); } finally { setSaving(false); } }
+  async function remove(id: string) { try { setError(null); await deleteSynonym(id); setItems(prev => prev.filter(item => item.id !== id)); } catch (e) { setError(e instanceof Error ? e.message : 'تعذر حذف التعيين'); } }
+  return <Card><CardHeader title="قاموس التعيين الذكي" subtitle="علّم النظام أسماء الحقول المحلية ليحسن المطابقة في الملفات القادمة" action={<button type="button" onClick={()=>void load()} className="btn-secondary text-xs inline-flex items-center gap-1"><RefreshCw size={13}/> تحديث</button>}/><CardBody className="space-y-4">
+    <div className="rounded-xl bg-ink-50 p-4"><div className="flex items-center gap-2 mb-3"><BookOpen size={17}/><span className="text-sm font-semibold">إضافة مرادف جديد</span></div><div className="grid gap-2 sm:grid-cols-[1fr_1fr_auto]"><input value={canonical} onChange={e=>setCanonical(e.target.value)} placeholder="الحقل القياسي: selling_price" className="rounded-lg border border-ink-200 bg-white px-3 py-2 text-sm"/><input value={synonym} onChange={e=>setSynonym(e.target.value)} placeholder="اسم الحقل في ملفك: سعر الجملة" className="rounded-lg border border-ink-200 bg-white px-3 py-2 text-sm"/><button type="button" onClick={()=>void save()} disabled={saving||!canonical.trim()||!synonym.trim()} className="btn-primary inline-flex items-center justify-center gap-1"><Plus size={14}/>{saving?'حفظ...':'إضافة'}</button></div></div>
+    {error&&<div role="alert" className="rounded-lg bg-danger-50 p-3 text-sm text-danger-700">{error}</div>}
+    {loading?<div className="py-6 text-center text-sm text-ink-500">جارٍ تحميل القاموس…</div>:items.length===0?<div className="py-6 text-center text-sm text-ink-500">لا توجد تعيينات مخصصة بعد.</div>:<div className="grid gap-2 md:grid-cols-2">{items.map(item=><div key={item.id} className="flex items-center gap-3 rounded-xl border border-ink-100 p-3"><div className="flex-1 min-w-0"><div className="flex items-center gap-2"><Badge variant="primary">{item.canonical_field}</Badge><span className="text-xs text-ink-400">←</span><span className="text-sm truncate">{item.synonym}</span></div><div className="mt-1 text-[11px] text-ink-400">{item.language} · ثقة {item.confidence}%</div></div><button type="button" onClick={()=>void remove(item.id)} className="rounded-lg p-2 text-ink-400 hover:bg-danger-50 hover:text-danger-600" aria-label={`حذف ${item.synonym}`}><Trash2 size={15}/></button></div>)}</div>}
+  </CardBody></Card>;
+}
