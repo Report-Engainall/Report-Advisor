@@ -1,0 +1,1 @@
+Forward-only reconciliation prepared against `d0ddda19a21a341bc77931d14c2358545c6fd328` after comparing live Staging migration provenance with the repository migration path. The live `current_company_id()` authenticated EXECUTE boundary is now represented in a new migration on the reconciliation branch.
