@@ -23,20 +23,22 @@ This ledger and `docs/WORK_PLAN.md` are the durable execution memory for the act
 
 | Batch | Area | Evidence / implementation | Exact SHA | Status |
 |---|---|---|---|---|
-| 01 | Universal external-file analysis | `src/lib/file-engine/adapters.ts`, external analysis UI, security/fingerprint/format/schema/preview boundary | `3c2372b9d8ae4e5008c46641625fe05bdc56ee1` | Implemented; no DB write claim |
-| 02 | Folder sync durability | folder session persistence, universal per-file inference, source-analysis snapshots, incident evidence | `7c15dbc07a8e142e31e049df806ea61c7e188fd7` | Implemented; operational E2E still blocked |
-| 03 | Decision/task lifecycle | role tasks, durable proposals, dedupe, decision conversion, start/complete/outcome gates | `3789430953c3ef6b5c8e4234a1c11d23dd4ce9f` | Implemented partially across lifecycle |
+| 01 | Universal external-file analysis | external analysis UI + security/fingerprint/format/schema/preview boundary | `3c2372b9d8ae4e5008c46641625fe05bdc56ee1` | Implemented; no DB write claim |
+| 02 | Folder sync durability | folder session persistence + universal per-file inference + source-analysis snapshots | `7c15dbc07a8e142e31e049df806ea61c7e188fd7` | Implemented; operational E2E still blocked |
+| 03 | Decision/task lifecycle | proposals + dedupe + approved conversion + start/complete/outcome gates | `3789430953c3ef6b5c8e4234a1c11d23dd4ce9f` | Implemented partially across lifecycle |
 | 04 | Decision learning | learning read model + governed recommendation ranking | `f6b0317377b65b3207e20b9e54377cddb4322315` | Implemented; adaptive write-back intentionally not automatic |
-| 05 | Alternative bridge | alternative read model, deterministic + learning-aware ranking, decision bridge | `9b68920515df72c8a2a27f838b3b6d0c67a463b2` | Implemented read-only bridge |
-| 06 | Executive report closure | executive decision report library/UI/read model, freshness/quality contracts | `a1c499f432b69f2f97617b05cdcad07a692b9f3b` | Implemented on feature workstream; current branch verification continues |
-| 07 | Global product chain | canonical chain and Sales/Inventory/Purchasing vertical-slice evidence | `dd62e197cca3d94484572c75cd170122a6627080` / `ea22a70995815fdb57326f7707db98780956efe5` | Architecture/evidence locked |
-| 08 | Durable execution memory | this ledger + current WORK_PLAN discipline | `2e4c1314736a662e7f5cc3f1e6faa0439f145d4a` | Implemented |
+| 05 | Alternative bridge | alternative read model + deterministic/learning-aware ranking + decision bridge | `9b68920515df72c8a2a27f838b3b6d0c67a463b2` | Implemented read-only bridge |
+| 06 | Executive report | executive decision report library/UI + read model + freshness/quality contracts | `a1c499f432b69f2f97617b05cdcad07a692b9f3b` | Feature integration exists; branch verification continued |
+| 07 | Global product chain | canonical chain + Sales/Inventory/Purchasing vertical slice | `dd62e197cca3d94484572c75cd170122a6627080` / `ea22a70995815fdb57326f7707db98780956efe5` | Architecture/evidence locked |
+| 08 | Durable execution memory | `docs/EXECUTION_LEDGER.md` + WORK_PLAN rule | `2e4c1314736a662e7f5cc3f1e6faa0439f145d4a` | Implemented |
+| 09 | Executive read-model persistence | canonical Staging migration for `get_executive_decision_report(integer)` | `2e4c1314736a662e7f5cc3f1e6faa0439f145d4a` | GitHub persisted; applied to Staging |
+| 10 | Executive freshness/quality UX | generated/as-of timestamps + live/empty state + lifecycle completeness summary | `3d3445b1fb5629d67f2d6fa43adba89eff37f063` | Implemented; browser E2E not claimed |
 
 ## Staging evidence boundary
 
 Staging Supabase project: `fnqbvfuwbdpwvhcgzksl`.
 
-Known verified properties for `get_executive_decision_report(integer)`:
+Known verified properties for `get_executive_decision_report(integer)` after migration application:
 
 - `SECURITY INVOKER` / `prosecdef=false`;
 - `anon_exec=false`;
@@ -44,11 +46,8 @@ Known verified properties for `get_executive_decision_report(integer)`:
 - tenant-bound through `current_company_id()`;
 - unauthenticated direct invocation returns `TENANT_REQUIRED`.
 
-The canonical migration is now persisted in GitHub at:
-
+Canonical migration:
 `supabase/migrations/20260908234000_executive_decision_report_read_model.sql`
-
-Commit: `2e4c1314736a662e7f5cc3f1e6faa0439f145d4a`.
 
 ## Non-claims / certification boundary
 
@@ -66,7 +65,7 @@ A direct SQL call without an authenticated tenant is not an E2E failure; it is a
 
 ## Current open fronts
 
-1. Executive report: evidence/findings drilldown and freshness/as-of presentation.
+1. Executive report: evidence/findings drilldown and richer source context.
 2. Decision context: richer alternative/evidence selection without inventing data.
 3. Outcome/learning: governed adaptive write-back design, with explicit thresholds and auditability.
 4. Print/PDF: print-safe executive layout and verification; do not claim generated PDF unless an actual PDF artifact is produced.
@@ -82,22 +81,21 @@ A direct SQL call without an authenticated tenant is not an E2E failure; it is a
 - No invented evidence, KPI, outcome, or provenance.
 - Keep tenant boundary in the server read model.
 
-### Batch N+2 — Executive freshness + quality integration
-- Display generated-at and latest observed-at/as-of values.
-- Compute report completeness from persisted lifecycle fields only.
-- Distinguish empty, unavailable, and live-read-model states.
-- Preserve print-safe layout.
-
-### Batch N+3 — Decision alternatives + outcome closure
+### Batch N+2 — Decision alternatives + outcome closure
 - Show ranked alternatives in decision context.
 - Selection remains a decision operation, never a silent master-data mutation.
-- Outcome capture must retain expected/actual/impact/evidence when available.
+- Outcome capture retains expected/actual/impact/evidence when available.
 - Learning remains bounded and auditable.
 
-### Batch N+4 — Import intelligence closure
+### Batch N+3 — Import intelligence closure
 - Close report-type classification, duplicate/conflict policy, relation graph, and quality workflow for supported formats.
 - Unknown fields remain preserved.
 - No specialized write at low confidence.
+
+### Batch N+4 — Forecast/read-model closure
+- Forecasts expose horizon, uncertainty, confidence, and provenance.
+- Dashboard/reports consume one canonical read model.
+- No forecast number without source evidence.
 
 ## Evidence discipline
 
