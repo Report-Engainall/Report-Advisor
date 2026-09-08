@@ -11,8 +11,10 @@ import { detectFormat } from '@/lib/file-engine/detector';
 import { securityScan, computeSHA256, checkDuplicate } from '@/lib/file-engine/security';
 import { parseFile } from '@/lib/file-engine/adapters';
 import { FORMAT_LABELS, MAX_FILE_SIZE, type FileFormat, type Dataset } from '@/lib/file-engine/types';
+import { resolveRows, type RowResolution } from '@/lib/file-engine/universal-intelligence';
 import { commitImportBatch } from '@/lib/import/canonical-commit';
 import { reconcileForCanonical } from '@/lib/import/canonical-truth-boundary';
+import { ImportResolutionReviewPanel } from '@/components/ImportResolutionReviewPanel';
 
 type Step = 'upload' | 'scanning' | 'preview' | 'committing' | 'done';
 type EntityType = 'sales_invoices' | 'products' | 'customers';
@@ -48,6 +50,8 @@ export function CanonicalImportPage() {
   const [result, setResult] = useState<any>(null);
   const [history, setHistory] = useState<any[]>([]);
   const [loadingHistory, setLoadingHistory] = useState(true);
+  const [resolutions, setResolutions] = useState<RowResolution[]>([]);
+  const [resolving, setResolving] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const loadHistory = useCallback(async () => {
@@ -57,7 +61,7 @@ export function CanonicalImportPage() {
   useEffect(() => { loadHistory(); }, [loadHistory]);
 
   const handleFile = useCallback(async (selected: File) => {
-    setError(null); setWarnings([]); setDuplicate(false); setStep('scanning');
+    setError(null); setWarnings([]); setDuplicate(false); setResolutions([]); setStep('scanning');
     try {
       const buffer = await selected.arrayBuffer();
       const scan = securityScan(selected, buffer);
@@ -82,14 +86,27 @@ export function CanonicalImportPage() {
       const hdrs = dataset.columns.map(c => c.name);
       setHeaders(hdrs);
       const config = ENTITIES.find(e => e.value === entityType)!;
-      setRows(dataset.rows.map((data, i) => {
+      const parsedRows = dataset.rows.map((data, i) => {
         const missing = config.required.filter(field => {
           const key = Object.keys(data).find(k => k === field) ?? Object.keys(data).find(k => k.toLowerCase().includes(field.toLowerCase()));
           const value = key ? data[key] : undefined;
           return value == null || String(value).trim() === '';
         });
         return { rowNumber: i + 1, data, valid: missing.length === 0, error: missing.length ? `حقول مطلوبة ناقصة: ${missing.join(', ')}` : undefined };
-      }));
+      });
+      setRows(parsedRows);
+      const validData = parsedRows.filter(row => row.valid).map(row => row.data);
+      if (validData.length) {
+        setResolving(true);
+        try {
+          const { data: existing, error: resolutionError } = await supabase.rpc('import_resolution_preview', { p_entity_type: entityType, p_rows: validData });
+          if (resolutionError) throw resolutionError;
+          const existingRows = Array.isArray(existing) ? existing as Array<Record<string, unknown>> : [];
+          setResolutions(resolveRows({ ...dataset, rows: validData, rowCount: validData.length }, existingRows));
+        } finally {
+          setResolving(false);
+        }
+      }
       setStep('preview');
     } catch (e: any) {
       setError(e?.message || 'فشل قراءة الملف'); setStep('upload');
@@ -99,6 +116,7 @@ export function CanonicalImportPage() {
   const commit = useCallback(async () => {
     const valid = rows.filter(r => r.valid);
     if (!valid.length || !file || !fileHash) return;
+    if (resolving || resolutions.some(r => r.outcome !== 'new')) return;
     setStep('committing'); setProgress(0); setError(null);
     try {
       const companyId = await resolveCurrentCompanyId();
@@ -119,11 +137,12 @@ export function CanonicalImportPage() {
     } catch (e: any) {
       setError(`فشل الاستيراد: ${e?.message || 'خطأ غير معروف'}`); setStep('preview');
     }
-  }, [rows, file, fileHash, entityType, loadHistory]);
+  }, [rows, file, fileHash, entityType, loadHistory, resolving, resolutions]);
 
-  const reset = () => { setStep('upload'); setFile(null); setFileHash(null); setRows([]); setHeaders([]); setQuality(0); setMappings([]); setWarnings([]); setError(null); setDuplicate(false); setResult(null); setProgress(0); };
+  const reset = () => { setStep('upload'); setFile(null); setFileHash(null); setRows([]); setHeaders([]); setQuality(0); setMappings([]); setWarnings([]); setError(null); setDuplicate(false); setResult(null); setProgress(0); setResolutions([]); setResolving(false); };
   const valid = rows.filter(r => r.valid).length;
   const invalid = rows.length - valid;
+  const blocked = resolutions.filter(r => r.outcome !== 'new').length;
 
   return <div className="space-y-6 animate-fade-in">
     <PageHeader title="مركز الاستيراد" subtitle="استيراد آمن مع فحص الملف واكتشاف الصيغة والمعاينة قبل الكتابة" />
@@ -134,11 +153,12 @@ export function CanonicalImportPage() {
     </CardBody></Card>}
     {step === 'scanning' && <Card><CardBody><div className="flex flex-col items-center py-10 gap-3"><Loader2 className="animate-spin text-primary-500" size={32}/><b>جارٍ فحص وتحليل الملف...</b>{file && <span className="text-sm text-ink-500">{file.name}</span>}</div></CardBody></Card>}
     {step === 'preview' && file && <div className="space-y-4">
-      <Card><CardBody><div className="flex flex-wrap items-center justify-between gap-3"><div className="flex items-center gap-3">{icon(file.format)}<div><b>{file.name}</b><div className="text-xs text-ink-400">{FORMAT_LABELS[file.format]} — {formatNumber(file.size)} بايت</div></div></div><div className="flex gap-2 flex-wrap"><Badge variant="success"><CheckCircle2 size={12}/> {valid} صالح</Badge>{invalid>0&&<Badge variant="danger"><XCircle size={12}/> {invalid} مرفوض</Badge>}<Badge variant="neutral">{rows.length} إجمالي</Badge>{quality>0&&<Badge variant={quality>=80?'success':quality>=60?'warning':'danger'}>جودة: {quality}%</Badge>}</div></div></CardBody></Card>
+      <Card><CardBody><div className="flex flex-wrap items-center justify-between gap-3"><div className="flex items-center gap-3">{icon(file.format)}<div><b>{file.name}</b><div className="text-xs text-ink-400">{FORMAT_LABELS[file.format]} — {formatNumber(file.size)} بايت</div></div></div><div className="flex gap-2 flex-wrap"><Badge variant="success"><CheckCircle2 size={12}/> {valid} صالح</Badge>{invalid>0&&<Badge variant="danger"><XCircle size={12}/> {invalid} مرفوض</Badge>}<Badge variant="neutral">{rows.length} إجمالي</Badge>{quality>0&&<Badge variant={quality>=80?'success':quality>=60?'warning':'danger'}>جودة: {quality}%</Badge></div></div></CardBody></Card>
       {(warnings.length>0||duplicate)&&<div className="space-y-2">{warnings.map((w,i)=><div key={i} className="p-3 rounded-lg bg-warning-50 text-warning-700 text-sm flex gap-2"><AlertTriangle size={16}/>{w}</div>)}</div>}
       {securityPassed&&warnings.length===0&&<div className="p-3 rounded-lg bg-success-50 text-success-700 text-sm flex gap-2"><ShieldCheck size={16}/> اجتاز الملف الفحص الأمني</div>}
       {mappings.length>0&&<Card><CardHeader title="تعيين الأعمدة" subtitle="الربط المكتشف من محرك الملفات"/><DataTable columns={[{key:'name',label:'عمود الملف'},{key:'mappedField',label:'الحقل المقابل',render:(r:any)=>r.mappedField||'غير معين'},{key:'confidence',label:'الثقة',align:'center',render:(r:any)=><Badge variant={r.confidence>=80?'success':r.confidence>=50?'warning':'danger'}>{r.mappedField?r.confidence+'%':'—'}</Badge>}]} data={mappings} emptyMessage="لا توجد أعمدة"/></Card>}
-      <Card><CardHeader title="معاينة البيانات" subtitle={`أول 10 صفوف — ${headers.length} حقلًا مكتشفًا`} action={<div className="flex gap-2"><button onClick={reset} className="btn-secondary text-xs">إلغاء</button><button onClick={() => void commit()} className="btn-primary text-xs" disabled={!valid}>تأكيد الاستيراد ({valid})</button></div>}/><div className="overflow-x-auto"><DataTable columns={[{key:'rowNumber',label:'#',align:'center' as const}, ...headers.map(h=>({key:h,label:h,render:(r:Row)=>String(r.data[h]??'')})), {key:'status',label:'الحالة',align:'center' as const,render:(r:Row)=>r.valid?<Badge variant="success">صالح</Badge>:<Badge variant="danger">خطأ</Badge>}]} data={rows.slice(0,10)} emptyMessage="لا توجد بيانات"/></div></Card>
+      {resolving ? <Card><CardBody><div className="flex items-center gap-2 text-sm text-ink-500"><Loader2 size={16} className="animate-spin"/> جارٍ مطابقة الصفوف مع بيانات المستأجر الحالية...</div></CardBody></Card> : <ImportResolutionReviewPanel resolutions={resolutions} />}
+      <Card><CardHeader title="معاينة البيانات" subtitle={`أول 10 صفوف — ${headers.length} حقلًا مكتشفًا`} action={<div className="flex gap-2"><button onClick={reset} className="btn-secondary text-xs">إلغاء</button><button onClick={() => void commit()} className="btn-primary text-xs" disabled={!valid || resolving || blocked > 0}>تأكيد الاستيراد ({valid})</button></div>}/><div className="overflow-x-auto"><DataTable columns={[{key:'rowNumber',label:'#',align:'center' as const}, ...headers.map(h=>({key:h,label:h,render:(r:Row)=>String(r.data[h]??'')})), {key:'status',label:'الحالة',align:'center' as const,render:(r:Row)=>r.valid?<Badge variant="success">صالح</Badge>:<Badge variant="danger">خطأ</Badge>}]} data={rows.slice(0,10)} emptyMessage="لا توجد بيانات"/></div></Card>
       {error&&<div className="p-3 rounded-lg bg-danger-50 text-danger-700 text-sm">{error}</div>}
     </div>}
     {step === 'committing' && <Card><CardBody><div className="flex flex-col items-center py-10 gap-4"><Loader2 className="animate-spin text-primary-500" size={32}/><b>جارٍ تنفيذ الاستيراد المركزي...</b><span>{progress}%</span><div className="w-full max-w-md h-2 bg-ink-100 rounded-full"><div className="h-full bg-primary-500 rounded-full" style={{width:`${progress}%`}}/></div></div></CardBody></Card>}
