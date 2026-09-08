@@ -1,6 +1,8 @@
 import type { ReportExecutionRequest, ReportJobStatus } from './report-execution-contract.ts';
 import { assertExecutionRequest } from './report-execution-contract.ts';
 
+const MIN_LEASE_MS = 30_000;
+
 export interface ReportQueueJob {
   runId: string;
   request: ReportExecutionRequest;
@@ -19,6 +21,7 @@ export class InMemoryReportQueue {
   private readonly jobs = new Map<string, ReportQueueJob>();
   private readonly idempotency = new Map<string, string>();
 
+  /** Enqueue a validated report request with a bounded retry budget. */
   enqueue(request: ReportExecutionRequest, runId: string, maxAttempts = 3): ReportQueueJob {
     assertExecutionRequest(request);
     requireNonBlank(runId, 'runId');
@@ -38,9 +41,10 @@ export class InMemoryReportQueue {
     return cloneJob(job);
   }
 
-  claim(workerId: string, leaseMs = 60_000): ReportQueueJob | undefined {
+  /** Claim the next eligible report job for a worker using a non-expiring lease floor. */
+  claim(workerId: string, leaseMs = MIN_LEASE_MS): ReportQueueJob | undefined {
     requireNonBlank(workerId, 'workerId');
-    requirePositiveFinite(leaseMs, 'leaseMs');
+    requireLeaseDuration(leaseMs, 'leaseMs');
     const now = Date.now();
     for (const job of this.jobs.values()) {
       const leaseExpired = !job.leaseExpiresAt || job.leaseExpiresAt <= now;
@@ -57,18 +61,22 @@ export class InMemoryReportQueue {
     return undefined;
   }
 
-  heartbeat(runId: string, workerId: string, leaseToken: string, leaseMs = 60_000): void {
+  /** Extend an owned lease while preserving the same fencing token. */
+  heartbeat(runId: string, workerId: string, leaseToken: string, leaseMs = MIN_LEASE_MS): void {
     const job = this.require(runId);
     this.assertLease(job, workerId, leaseToken);
-    requirePositiveFinite(leaseMs, 'leaseMs');
+    requireLeaseDuration(leaseMs, 'leaseMs');
     const now = Date.now();
     job.leaseExpiresAt = now + leaseMs;
     job.updatedAt = now;
   }
 
+  /** Complete an actively leased report job. */
   complete(runId: string, workerId: string, leaseToken: string): void { this.transition(runId, workerId, leaseToken, 'succeeded'); }
+  /** Cancel an actively leased report job. */
   cancel(runId: string, workerId: string, leaseToken: string): void { this.transition(runId, workerId, leaseToken, 'cancelled'); }
 
+  /** Fail an actively leased job and return it to retry or terminal state. */
   fail(runId: string, workerId: string, leaseToken: string, error: string): ReportQueueJob {
     const job = this.require(runId);
     this.assertLease(job, workerId, leaseToken);
@@ -81,7 +89,9 @@ export class InMemoryReportQueue {
     return cloneJob(job);
   }
 
+  /** Read a defensive copy of a report job by run ID. */
   get(runId: string): ReportQueueJob | undefined { const job = this.jobs.get(runId); return job ? cloneJob(job) : undefined; }
+  /** List terminal failed jobs that exhausted their retry budget. */
   listDeadLetters(): ReportQueueJob[] { return [...this.jobs.values()].filter(job => job.status === 'failed' && job.attempts >= job.maxAttempts).map(cloneJob); }
   private require(runId: string): ReportQueueJob { const job = this.jobs.get(runId); if (!job) throw new Error(`Report job not found: ${runId}`); return job; }
   private assertLease(job: ReportQueueJob, workerId: string, leaseToken: string): void {
@@ -107,8 +117,8 @@ function requireNonBlank(value: string, field: string): void {
 function requirePositiveInteger(value: number, field: string): void {
   if (!Number.isInteger(value) || value < 1) throw new Error(`${field} must be a positive integer`);
 }
-function requirePositiveFinite(value: number, field: string): void {
-  if (!Number.isFinite(value) || value <= 0) throw new Error(`${field} must be positive and finite`);
+function requireLeaseDuration(value: number, field: string): void {
+  if (!Number.isFinite(value) || value < MIN_LEASE_MS) throw new Error(`${field} must be at least ${MIN_LEASE_MS}ms and finite`);
 }
 function cloneRequest(request: ReportExecutionRequest): ReportExecutionRequest {
   return { ...request, parameters: structuredClone(request.parameters), formats: [...request.formats] };
