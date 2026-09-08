@@ -21,7 +21,8 @@ export class InMemoryReportQueue {
 
   enqueue(request: ReportExecutionRequest, runId: string, maxAttempts = 3): ReportQueueJob {
     assertExecutionRequest(request);
-    if (maxAttempts < 1) throw new Error('maxAttempts must be positive');
+    requireNonBlank(runId, 'runId');
+    requirePositiveInteger(maxAttempts, 'maxAttempts');
     const key = `${request.tenantId}:${request.idempotencyKey}`;
     const existingRunId = this.idempotency.get(key);
     if (existingRunId) {
@@ -38,8 +39,8 @@ export class InMemoryReportQueue {
   }
 
   claim(workerId: string, leaseMs = 60_000): ReportQueueJob | undefined {
-    if (!workerId) throw new Error('workerId is required');
-    if (leaseMs <= 0) throw new Error('leaseMs must be positive');
+    requireNonBlank(workerId, 'workerId');
+    requirePositiveFinite(leaseMs, 'leaseMs');
     const now = Date.now();
     for (const job of this.jobs.values()) {
       const leaseExpired = !job.leaseExpiresAt || job.leaseExpiresAt <= now;
@@ -59,7 +60,7 @@ export class InMemoryReportQueue {
   heartbeat(runId: string, workerId: string, leaseToken: string, leaseMs = 60_000): void {
     const job = this.require(runId);
     this.assertLease(job, workerId, leaseToken);
-    if (leaseMs <= 0) throw new Error('leaseMs must be positive');
+    requirePositiveFinite(leaseMs, 'leaseMs');
     const now = Date.now();
     job.leaseExpiresAt = now + leaseMs;
     job.updatedAt = now;
@@ -84,7 +85,9 @@ export class InMemoryReportQueue {
   listDeadLetters(): ReportQueueJob[] { return [...this.jobs.values()].filter(job => job.status === 'failed' && job.attempts >= job.maxAttempts).map(cloneJob); }
   private require(runId: string): ReportQueueJob { const job = this.jobs.get(runId); if (!job) throw new Error(`Report job not found: ${runId}`); return job; }
   private assertLease(job: ReportQueueJob, workerId: string, leaseToken: string): void {
-    if (job.status !== 'running' || job.leaseOwner !== workerId || !leaseToken || job.leaseToken !== leaseToken) throw new Error('Report job lease is not owned by worker or fencing token is stale');
+    requireNonBlank(workerId, 'workerId');
+    requireNonBlank(leaseToken, 'leaseToken');
+    if (job.status !== 'running' || job.leaseOwner !== workerId || job.leaseToken !== leaseToken) throw new Error('Report job lease is not owned by worker or fencing token is stale');
     if (!job.leaseExpiresAt || job.leaseExpiresAt <= Date.now()) throw new Error('Report job lease has expired');
   }
   private transition(runId: string, workerId: string, leaseToken: string, status: ReportJobStatus): void {
@@ -98,6 +101,15 @@ export class InMemoryReportQueue {
   }
 }
 
+function requireNonBlank(value: string, field: string): void {
+  if (typeof value !== 'string' || value.trim().length === 0) throw new Error(`${field} is required`);
+}
+function requirePositiveInteger(value: number, field: string): void {
+  if (!Number.isInteger(value) || value < 1) throw new Error(`${field} must be a positive integer`);
+}
+function requirePositiveFinite(value: number, field: string): void {
+  if (!Number.isFinite(value) || value <= 0) throw new Error(`${field} must be positive and finite`);
+}
 function cloneRequest(request: ReportExecutionRequest): ReportExecutionRequest {
   return { ...request, parameters: structuredClone(request.parameters), formats: [...request.formats] };
 }
