@@ -35,8 +35,10 @@ This ledger and `docs/WORK_PLAN.md` are the durable execution memory for the act
 | 10 | Executive freshness/quality UX | generated/as-of timestamps + live/empty state + lifecycle completeness summary | `3d3445b1fb5629d67f2d6fa43adba89eff37f063` | Implemented; browser E2E not claimed |
 | 11 | Executive evidence references | existing evidence/lineage refs surfaced without invention; print-safe | `bb9b29fe88dd073dd5143ccb18f5979c27161ed0` | Implemented on dedicated front; ready for integration |
 | 12 | Executive timestamp hardening | invalid timestamp normalization/fallback for freshness | `7cd486b84eac123bf931bf565ebe1862d482e7f1` | Implemented on dedicated front |
-| 13 | Executive page consistency | removed stale `RUNTIME_REQUIRED` / `Awaiting` / `Not yet verified` sections; page now delegates lifecycle truth to canonical decision panel | `aed0cce985bd011074f0980767a56d43cb521694` | Implemented on integration branch; browser E2E not claimed |
+| 13 | Executive page consistency | removed stale runtime-required/awaiting/not-verified narrative; page delegates lifecycle truth to canonical decision panel | `aed0cce985bd011074f0980767a56d43cb521694` | Implemented on integration branch; browser E2E not claimed |
 | 14 | Parallel execution matrix | 20+ independent work fronts opened from current integration point | `02383078a66fb1a2daa35a5e21b31da219ef1003` | Matrix/evidence recorded; individual fronts remain isolated until verified |
+| 15 | Decision context | alternative read model + ranked alternatives + persisted source-analysis snapshot selector + evidence gate | `8cf449006c7dfa63f956cde69414678534fa6d6d` | Implemented; authenticated E2E not claimed |
+| 16 | Decision context evidence | durable evidence note for alternatives/snapshot gating and boundaries | `ea6a9292d1aef5fb6b3ea359471273f13906d9c4` | Evidence recorded |
 
 ## Staging evidence boundary
 
@@ -64,8 +66,9 @@ Canonical migration:
 ### B — Decision alternatives / outcome
 - Alternative groups have a tenant-safe read model and deterministic ranking.
 - Learning adjustment is bounded and only active after the minimum sample threshold.
-- Decision selection must remain separate from master-data mutation and approval.
-- Remaining: richer evidence selection and explicit outcome/recommendation linkage where source fields exist.
+- Decision context now surfaces persisted alternatives and saved evidence snapshots.
+- Completion/outcome UI refuses to proceed without a persisted evidence snapshot.
+- Remaining: richer recommendation/outcome attribution and governed adaptive write-back design.
 
 ### C — Universal import intelligence
 - Folder processing is per-file/per-dataset rather than fixed to one entity.
