@@ -1,10 +1,14 @@
 import { supabase, resolveCurrentCompanyId } from '@/lib/supabase';
 import { assertCanonicalBoundary, type ReconciledCanonicalImportRow } from '@/lib/import/canonical-truth-boundary';
+import { rowFingerprint } from '@/lib/file-engine/universal-intelligence';
+import type { RowResolution } from '@/lib/file-engine/universal-intelligence';
 
 export interface CanonicalImportRow { data: Record<string, unknown>; rowNumber: number }
 export interface CanonicalCommitResult { committed: number; ids: string[] }
 
 type EntityType = 'products' | 'customers' | 'sales_invoices';
+
+type GovernedResolution = RowResolution & { action: 'write_new'; allowedToWrite: true };
 
 function text(value: unknown): string | null {
   if (value == null) return null;
@@ -70,6 +74,26 @@ function sameSourceDocument(rows: ReconciledCanonicalImportRow[]): string | null
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id) ? id : null;
 }
 
+function governedResolutions(rows: ReconciledCanonicalImportRow[], payload: Record<string, unknown>[]): GovernedResolution[] {
+  return rows.map((row, index) => ({
+    fingerprint: rowFingerprint(payload[index], Object.keys(payload[index]).map((name) => ({
+      name,
+      mappedField: name,
+      mappingConfidence: 100,
+      mappingEvidence: ['canonical commit'],
+      dataType: 'string',
+      nullCount: 0,
+      uniqueCount: 0,
+      uniqueRatio: 0,
+    })) as never),
+    outcome: 'new',
+    matchedRowIndex: null,
+    differingFields: [],
+    action: 'write_new',
+    allowedToWrite: true,
+  }));
+}
+
 export async function commitImportBatch(
   entityType: EntityType,
   rows: ReconciledCanonicalImportRow[],
@@ -81,35 +105,29 @@ export async function commitImportBatch(
 
   rows.forEach((row) => assertCanonicalBoundary(row, companyId));
   const payload = rows.map((row) => canonicalizeRow(entityType, { data: row.data, rowNumber: row.rowNumber }));
+  const resolutions = governedResolutions(rows, payload);
 
-  // CanonicalImportPage binds sourceDocumentId to the import job id. Reuse that
-  // binding so every imported row keeps its complete source payload and lineage.
+  // Canonical writes are intentionally forced through the database resolution gate.
+  // The gate rejects any non-new or non-authorized resolution before durable writes.
   const lineageJobId = options?.jobId ?? sameSourceDocument(rows);
-  const rpc = lineageJobId ? 'import_commit_batch_with_lineage' : 'import_commit_batch';
-  const args = lineageJobId
-    ? {
-        p_company_id: companyId,
-        p_entity_type: entityType,
-        p_rows: payload,
-        p_source_rows: rows.map((row) => ({
-          job_id: lineageJobId,
-          row_number: row.rowNumber,
-          status: 'valid',
-          source_data: row.data,
-          mapped_data: row.data,
-          target_table: entityType,
-          lineage: row.provenance,
-        })),
-        p_null_policy: 'preserve',
-      }
-    : {
-        p_company_id: companyId,
-        p_entity_type: entityType,
-        p_rows: payload,
-        p_null_policy: 'preserve',
-      };
+  const sourceRows = rows.map((row) => ({
+    job_id: lineageJobId,
+    row_number: row.rowNumber,
+    status: 'valid',
+    source_data: row.data,
+    mapped_data: row.data,
+    target_table: entityType,
+    lineage: row.provenance,
+  }));
 
-  const { data, error } = await supabase.rpc(rpc, args);
+  const { data, error } = await supabase.rpc('import_commit_batch_governed', {
+    p_company_id: companyId,
+    p_entity_type: entityType,
+    p_rows: payload,
+    p_source_rows: sourceRows,
+    p_resolutions: resolutions,
+    p_null_policy: 'preserve',
+  });
   if (error) throw error;
 
   const result = data as { committed?: unknown; ids?: unknown } | null;
