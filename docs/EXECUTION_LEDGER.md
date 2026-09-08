@@ -39,6 +39,9 @@ This ledger and `docs/WORK_PLAN.md` are the durable execution memory for the act
 | 14 | Parallel execution matrix | 20+ independent work fronts opened from current integration point | `02383078a66fb1a2daa35a5e21b31da219ef1003` | Matrix/evidence recorded; individual fronts remain isolated until verified |
 | 15 | Decision context | alternative read model + ranked alternatives + persisted source-analysis snapshot selector + evidence gate | `8cf449006c7dfa63f956cde69414678534fa6d6d` | Implemented; authenticated E2E not claimed |
 | 16 | Decision context evidence | durable evidence note for alternatives/snapshot gating and boundaries | `ea6a9292d1aef5fb6b3ea359471273f13906d9c4` | Evidence recorded |
+| 17 | Decision contract correction | runtime `policy_key` contract + outcome attribution aligned to canonical decision id | `f020fab43e0133f47e7d38bcbfd4277779c30920` / `1a4357822c3cf5a9d229383af45e107366d42a1f` | Implemented; operational E2E not claimed |
+| 18 | Decision correction evidence | recorded contract mismatch and decision-outcome attribution correction | `fb5bbc8b8d133fae1941b75948e72756e1f81d25` | Evidence recorded |
+| 19 | Execution plan synchronization | WORK_PLAN updated with correction and remaining certification gates | `70d9afd57a5ec748f7bcb2c1ff1f00bf2308561e` | Implemented |
 
 ## Staging evidence boundary
 
@@ -66,9 +69,11 @@ Canonical migration:
 ### B — Decision alternatives / outcome
 - Alternative groups have a tenant-safe read model and deterministic ranking.
 - Learning adjustment is bounded and only active after the minimum sample threshold.
-- Decision context now surfaces persisted alternatives and saved evidence snapshots.
+- Decision context surfaces persisted alternatives and saved evidence snapshots.
 - Completion/outcome UI refuses to proceed without a persisted evidence snapshot.
-- Remaining: richer recommendation/outcome attribution and governed adaptive write-back design.
+- Runtime contract now exposes `policy_key` consumed by the page.
+- Outcome attribution uses the canonical decision row id expected by the executive read model.
+- Remaining: governed adaptive write-back design and authenticated E2E.
 
 ### C — Universal import intelligence
 - Folder processing is per-file/per-dataset rather than fixed to one entity.
@@ -79,6 +84,12 @@ Canonical migration:
 ### D — Forecast / AI / operations
 - Forecast and AI work continues behind provenance/confidence/tenant-safety rules.
 - Operational queue/progress persistence continues without claiming durable worker E2E.
+
+## Verification state
+
+Latest branch head after this batch: `70d9afd57a5ec748f7bcb2c1ff1f00bf2308561e`.
+
+The GitHub status for the preceding implementation head `1a4357822c3cf5a9d229383af45e107366d42a1f` is `failure` only because Vercel reports: Git author `Report-Engainall` must have access to the Injaz Vercel project to create deployments. This is an external project-access gate, not evidence of a source-code failure. No browser PASS is inferred from this status.
 
 ## Non-claims / certification boundary
 
