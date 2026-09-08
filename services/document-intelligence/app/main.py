@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import hashlib
+import io
+import math
 import os
 import tempfile
 from typing import Any
@@ -82,36 +84,77 @@ def parse_with_ocr(data: bytes, filename: str, mime: str) -> dict[str, Any] | No
 
     try:
         from PIL import Image
-        import io
+
         image = Image.open(io.BytesIO(data))
-        result = PaddleOCR(use_doc_orientation_classify=True, use_doc_unwarping=False, use_textline_orientation=True, lang="arabic").predict(image)
+        result = PaddleOCR(
+            use_doc_orientation_classify=True,
+            use_doc_unwarping=False,
+            use_textline_orientation=True,
+            lang="arabic",
+        ).predict(image)
         envelope = _envelope(data, filename, mime, "paddleocr", [])
         text_parts: list[str] = []
+        confidence_scores: list[float] = []
+        invalid_confidence = False
         for page_result in result:
             payload = getattr(page_result, "json", None)
             payload = payload() if callable(payload) else payload
-            if isinstance(payload, dict):
-                for text in payload.get("res", {}).get("rec_texts", []) or []:
-                    if isinstance(text, str) and text.strip():
-                        text_parts.append(text.strip())
+            if not isinstance(payload, dict):
+                continue
+            response = payload.get("res", {})
+            texts = response.get("rec_texts", []) or []
+            scores = response.get("rec_scores", []) or []
+            for index, text in enumerate(texts):
+                if not isinstance(text, str) or not text.strip():
+                    continue
+                text_parts.append(text.strip())
+                score = scores[index] if index < len(scores) else None
+                if isinstance(score, bool) or not isinstance(score, (int, float)):
+                    invalid_confidence = True
+                    continue
+                numeric_score = float(score)
+                if not math.isfinite(numeric_score) or not 0.0 <= numeric_score <= 1.0:
+                    invalid_confidence = True
+                    continue
+                confidence_scores.append(numeric_score)
+
         if text_parts:
-            envelope.pages.append(Page(number=1, blocks=[Block(
-                type="ocr_text",
-                text="\\n".join(text_parts),
-                confidence=0.0,
-                provenance=Provenance(
-                    source_file=filename,
-                    source_sha256=envelope.source_sha256,
-                    page=1,
-                    parser="paddleocr",
-                ),
-            )]))
+            confidence = min(confidence_scores) if confidence_scores and not invalid_confidence else 0.0
+            envelope.pages.append(
+                Page(
+                    number=1,
+                    blocks=[
+                        Block(
+                            type="ocr_text",
+                            text="\n".join(text_parts),
+                            confidence=confidence,
+                            provenance=Provenance(
+                                source_file=filename,
+                                source_sha256=envelope.source_sha256,
+                                page=1,
+                                parser="paddleocr",
+                            ),
+                        )
+                    ],
+                )
+            )
+            if confidence < 0.7:
+                envelope.warnings.append("OCR confidence is below the usable threshold; document requires review.")
         else:
             envelope.warnings.append("OCR backend returned no reliable text; document requires review.")
         return {"document": envelope.to_dict(), "engine": "paddleocr", "warnings": envelope.warnings}
     except Exception as exc:
-        return {"document": _envelope(data, filename, mime, "paddleocr", [f"OCR execution failed: {type(exc).__name__}"]).to_dict(),
-                "engine": "paddleocr", "warnings": ["OCR execution failed; document is not considered successfully extracted."]}
+        return {
+            "document": _envelope(
+                data,
+                filename,
+                mime,
+                "paddleocr",
+                [f"OCR execution failed: {type(exc).__name__}"],
+            ).to_dict(),
+            "engine": "paddleocr",
+            "warnings": ["OCR execution failed; document is not considered successfully extracted."],
+        }
 
 
 def parse_fallback(data: bytes, filename: str, mime: str, *, ocr_required: bool = False) -> dict[str, Any]:
@@ -120,27 +163,6 @@ def parse_fallback(data: bytes, filename: str, mime: str, *, ocr_required: bool 
     if ocr_required:
         warnings = ["OCR is required for this document but no OCR backend is available; extraction is incomplete and requires review."]
     envelope = _envelope(data, filename, mime, "fallback", warnings)
-    if text:
-        envelope.pages.append(Page(number=1, blocks=[Block(
-            type="text",
-            text=text,
-            provenance=Provenance(source_file=filename, source_sha256=envelope.source_sha256, page=1, parser="fallback"),
-        )]))
-    return {"document": envelope.to_dict(), "engine": "fallback", "warnings": envelope.warnings}
-
-
-def _legacy_fallback_marker():
-    pass
-
-
-    text = data.decode("utf-8", errors="replace") if mime.startswith("text/") else ""
-    envelope = _envelope(
-        data,
-        filename,
-        mime,
-        "fallback",
-        ["No optional structured document backend was available."],
-    )
     if text:
         envelope.pages.append(
             Page(
