@@ -42,6 +42,8 @@ assert.ok(claimed?.leaseToken);
 assert.throws(() => queue.heartbeat('run-1', 'worker-1', claimed.leaseToken!, 1), /at least 30000ms and finite/);
 assert.throws(() => queue.heartbeat('run-1', 'worker-1', claimed.leaseToken!, Number.NaN), /at least 30000ms and finite/);
 assert.throws(() => queue.complete('run-1', 'worker-2', claimed.leaseToken!), /lease is not owned/);
+assert.throws(() => queue.complete('run-1', 'worker-1', ''), /leaseToken is required/);
+assert.throws(() => queue.complete('run-1', 'worker-1', 'stale-token'), /lease is not owned/);
 queue.complete('run-1', 'worker-1', claimed.leaseToken!);
 assert.equal(queue.get('run-1')?.status, 'succeeded');
 
