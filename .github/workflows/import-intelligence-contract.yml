@@ -32,4 +32,4 @@ jobs:
       - name: Install
         run: npm ci --no-audit --no-fund
       - name: In-batch resolution contract
-        run: node scripts/check-universal-intelligence-inbatch-resolution.mjs
+        run: node --experimental-strip-types scripts/check-universal-intelligence-inbatch-resolution.mjs
