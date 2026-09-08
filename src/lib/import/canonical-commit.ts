@@ -12,8 +12,8 @@ function text(value: unknown): string | null {
   return v || null;
 }
 
-function requiredNumber(value: unknown, field: string, rowNumber: number): number {
-  if (value == null || value === '') throw new Error(`${field} is required for import row ${rowNumber}`);
+function optionalNumber(value: unknown, field: string, rowNumber: number): number | null {
+  if (value == null || value === '') return null;
   const n = Number(value);
   if (!Number.isFinite(n)) throw new Error(`${field} must be a finite number for import row ${rowNumber}`);
   return n;
@@ -25,27 +25,18 @@ function requiredText(value: unknown, field: string, rowNumber: number): string 
   return v;
 }
 
-function requiredBoolean(value: unknown, field: string, rowNumber: number): boolean {
-  if (value == null || value === '') throw new Error(`${field} is required for import row ${rowNumber}`);
-  if (typeof value === 'boolean') return value;
-  const normalized = String(value).trim().toLowerCase();
-  if (['true', '1', 'yes', 'y', 'نعم', 'نشط'].includes(normalized)) return true;
-  if (['false', '0', 'no', 'n', 'لا', 'غير نشط'].includes(normalized)) return false;
-  throw new Error(`${field} must be a boolean for import row ${rowNumber}`);
-}
-
 function canonicalizeRow(entityType: EntityType, row: CanonicalImportRow): Record<string, unknown> {
   const d = row.data;
   if (entityType === 'products') {
     return {
       sku: requiredText(d.sku, 'sku', row.rowNumber),
       name: requiredText(d.name, 'name', row.rowNumber),
-      unit: requiredText(d.unit, 'unit', row.rowNumber),
-      cost_price: requiredNumber(d.cost_price, 'cost_price', row.rowNumber),
-      selling_price: requiredNumber(d.selling_price, 'selling_price', row.rowNumber),
-      min_stock: requiredNumber(d.min_stock, 'min_stock', row.rowNumber),
-      reorder_point: requiredNumber(d.reorder_point, 'reorder_point', row.rowNumber),
-      is_active: requiredBoolean(d.is_active, 'is_active', row.rowNumber),
+      unit: text(d.unit),
+      cost_price: optionalNumber(d.cost_price, 'cost_price', row.rowNumber),
+      selling_price: optionalNumber(d.selling_price, 'selling_price', row.rowNumber),
+      min_stock: optionalNumber(d.min_stock, 'min_stock', row.rowNumber),
+      reorder_point: optionalNumber(d.reorder_point, 'reorder_point', row.rowNumber),
+      is_active: d.is_active == null || d.is_active === '' ? null : Boolean(d.is_active),
     };
   }
   if (entityType === 'customers') {
@@ -54,9 +45,9 @@ function canonicalizeRow(entityType: EntityType, row: CanonicalImportRow): Recor
       code: text(d.code),
       phone: text(d.phone),
       email: text(d.email),
-      segment: requiredText(d.segment, 'segment', row.rowNumber),
-      credit_limit: requiredNumber(d.credit_limit, 'credit_limit', row.rowNumber),
-      payment_terms_days: Math.trunc(requiredNumber(d.payment_terms_days, 'payment_terms_days', row.rowNumber)),
+      segment: text(d.segment),
+      credit_limit: optionalNumber(d.credit_limit, 'credit_limit', row.rowNumber),
+      payment_terms_days: optionalNumber(d.payment_terms_days, 'payment_terms_days', row.rowNumber),
     };
   }
   return {
@@ -64,11 +55,11 @@ function canonicalizeRow(entityType: EntityType, row: CanonicalImportRow): Recor
     invoice_date: requiredText(d.invoice_date, 'invoice_date', row.rowNumber),
     customer_id: text(d.customer_id),
     customer_name: text(d.customer_name),
-    subtotal: requiredNumber(d.subtotal, 'subtotal', row.rowNumber),
-    tax_amount: requiredNumber(d.tax_amount, 'tax_amount', row.rowNumber),
-    total: requiredNumber(d.total, 'total', row.rowNumber),
-    paid_amount: requiredNumber(d.paid_amount, 'paid_amount', row.rowNumber),
-    status: requiredText(d.status, 'status', row.rowNumber),
+    subtotal: optionalNumber(d.subtotal, 'subtotal', row.rowNumber),
+    tax_amount: optionalNumber(d.tax_amount, 'tax_amount', row.rowNumber),
+    total: optionalNumber(d.total, 'total', row.rowNumber),
+    paid_amount: optionalNumber(d.paid_amount, 'paid_amount', row.rowNumber),
+    status: text(d.status),
   };
 }
 
@@ -88,13 +79,11 @@ export async function commitImportBatch(
   const companyId = await resolveCurrentCompanyId();
   if (!companyId) throw new Error('No authenticated tenant context is available for canonical import');
 
-  // The canonical boundary is intentionally runtime-enforced, not merely a TypeScript type.
   rows.forEach((row) => assertCanonicalBoundary(row, companyId));
   const payload = rows.map((row) => canonicalizeRow(entityType, { data: row.data, rowNumber: row.rowNumber }));
 
-  // CanonicalImportPage already binds sourceDocumentId to the import job id.
-  // Reuse that binding so every canonical import retains the complete source row,
-  // including fields that are not represented by the normalized business schema.
+  // CanonicalImportPage binds sourceDocumentId to the import job id. Reuse that
+  // binding so every imported row keeps its complete source payload and lineage.
   const lineageJobId = options?.jobId ?? sameSourceDocument(rows);
   const rpc = lineageJobId ? 'import_commit_batch_with_lineage' : 'import_commit_batch';
   const args = lineageJobId
