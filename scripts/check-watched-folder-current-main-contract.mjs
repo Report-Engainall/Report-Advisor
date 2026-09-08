@@ -17,8 +17,8 @@ for (const token of [
   'with check (company_id = public.current_company_id())',
   'record_watched_report_file',
   'FOLDER_TENANT_MISMATCH',
-  'REVOKE ALL ON FUNCTION public.record_watched_report_file',
-  'GRANT EXECUTE ON FUNCTION public.record_watched_report_file',
+  'revoke all on function public.record_watched_report_file',
+  'grant execute on function public.record_watched_report_file',
 ]) assert.ok(migration.includes(token), `missing watched-folder contract invariant: ${token}`);
 
 console.log('Watched-folder current-main contract: PASS');
