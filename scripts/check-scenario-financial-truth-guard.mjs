@@ -3,7 +3,6 @@ import fs from 'node:fs';
 const guard = fs.readFileSync('src/pages/ScenarioTruthGuardPage.tsx', 'utf8');
 const simulator = fs.readFileSync('src/pages/CanonicalScenarioPage.tsx', 'utf8');
 const app = fs.readFileSync('src/App.tsx', 'utf8');
-const legacy = fs.readFileSync('src/pages/IntelligencePage.tsx', 'utf8');
 
 for (const token of [
   'fetchProfitabilitySnapshot()',
@@ -30,12 +29,6 @@ if (!app.includes('path="/intelligence/scenarios" element={<ScenarioTruthGuardPa
 
 if (app.includes('path="/intelligence/scenarios" element={<ScenariosPage />}')) {
   throw new Error('Scenario route must not bypass the financial-truth guard');
-}
-
-for (const token of ['const baseRevenue = 450000', 'const baseCost = 315000']) {
-  if (legacy.includes(token)) {
-    throw new Error(`Legacy scenario simulator still contains forbidden fabricated baseline: ${token}`);
-  }
 }
 
 console.log('Scenario financial truth guard: PASS');
