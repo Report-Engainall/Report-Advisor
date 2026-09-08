@@ -4,6 +4,8 @@ import { assertCanonicalBoundary, type ReconciledCanonicalImportRow } from '@/li
 export interface CanonicalImportRow { data: Record<string, unknown>; rowNumber: number }
 export interface CanonicalCommitResult { committed: number; ids: string[] }
 
+type EntityType = 'products' | 'customers' | 'sales_invoices';
+
 function text(value: unknown): string | null {
   if (value == null) return null;
   const v = String(value).trim();
@@ -32,7 +34,7 @@ function requiredBoolean(value: unknown, field: string, rowNumber: number): bool
   throw new Error(`${field} must be a boolean for import row ${rowNumber}`);
 }
 
-function canonicalizeRow(entityType: 'products' | 'customers' | 'sales_invoices', row: CanonicalImportRow): Record<string, unknown> {
+function canonicalizeRow(entityType: EntityType, row: CanonicalImportRow): Record<string, unknown> {
   const d = row.data;
   if (entityType === 'products') {
     return {
@@ -71,8 +73,9 @@ function canonicalizeRow(entityType: 'products' | 'customers' | 'sales_invoices'
 }
 
 export async function commitImportBatch(
-  entityType: 'products' | 'customers' | 'sales_invoices',
+  entityType: EntityType,
   rows: ReconciledCanonicalImportRow[],
+  options?: { jobId?: string },
 ): Promise<CanonicalCommitResult> {
   if (!rows.length) return { committed: 0, ids: [] };
   const companyId = await resolveCurrentCompanyId();
@@ -81,12 +84,32 @@ export async function commitImportBatch(
   // The canonical boundary is intentionally runtime-enforced, not merely a TypeScript type.
   rows.forEach((row) => assertCanonicalBoundary(row, companyId));
   const payload = rows.map((row) => canonicalizeRow(entityType, { data: row.data, rowNumber: row.rowNumber }));
-  const { data, error } = await supabase.rpc('import_commit_batch', {
-    p_company_id: companyId,
-    p_entity_type: entityType,
-    p_rows: payload,
-    p_null_policy: 'preserve',
-  });
+
+  const rpc = options?.jobId ? 'import_commit_batch_with_lineage' : 'import_commit_batch';
+  const args = options?.jobId
+    ? {
+        p_company_id: companyId,
+        p_entity_type: entityType,
+        p_rows: payload,
+        p_source_rows: rows.map((row) => ({
+          job_id: options.jobId,
+          row_number: row.rowNumber,
+          status: 'valid',
+          source_data: row.data,
+          mapped_data: row.data,
+          target_table: entityType,
+          lineage: row.lineage,
+        })),
+        p_null_policy: 'preserve',
+      }
+    : {
+        p_company_id: companyId,
+        p_entity_type: entityType,
+        p_rows: payload,
+        p_null_policy: 'preserve',
+      };
+
+  const { data, error } = await supabase.rpc(rpc, args);
   if (error) throw error;
 
   const result = data as { committed?: unknown; ids?: unknown } | null;
