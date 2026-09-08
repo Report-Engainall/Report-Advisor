@@ -72,6 +72,13 @@ function canonicalizeRow(entityType: EntityType, row: CanonicalImportRow): Recor
   };
 }
 
+function sameSourceDocument(rows: ReconciledCanonicalImportRow[]): string | null {
+  const ids = new Set(rows.map((row) => row.provenance.sourceDocumentId));
+  if (ids.size !== 1) return null;
+  const id = [...ids][0];
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id) ? id : null;
+}
+
 export async function commitImportBatch(
   entityType: EntityType,
   rows: ReconciledCanonicalImportRow[],
@@ -85,20 +92,24 @@ export async function commitImportBatch(
   rows.forEach((row) => assertCanonicalBoundary(row, companyId));
   const payload = rows.map((row) => canonicalizeRow(entityType, { data: row.data, rowNumber: row.rowNumber }));
 
-  const rpc = options?.jobId ? 'import_commit_batch_with_lineage' : 'import_commit_batch';
-  const args = options?.jobId
+  // CanonicalImportPage already binds sourceDocumentId to the import job id.
+  // Reuse that binding so every canonical import retains the complete source row,
+  // including fields that are not represented by the normalized business schema.
+  const lineageJobId = options?.jobId ?? sameSourceDocument(rows);
+  const rpc = lineageJobId ? 'import_commit_batch_with_lineage' : 'import_commit_batch';
+  const args = lineageJobId
     ? {
         p_company_id: companyId,
         p_entity_type: entityType,
         p_rows: payload,
         p_source_rows: rows.map((row) => ({
-          job_id: options.jobId,
+          job_id: lineageJobId,
           row_number: row.rowNumber,
           status: 'valid',
           source_data: row.data,
           mapped_data: row.data,
           target_table: entityType,
-          lineage: row.lineage,
+          lineage: row.provenance,
         })),
         p_null_policy: 'preserve',
       }
