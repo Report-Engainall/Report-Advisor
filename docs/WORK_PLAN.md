@@ -15,7 +15,7 @@
 | D-02 | تحليل التقرير | profiling + relations + anomalies + schema drift | تقرير تفصيلي قابل للتنقل | منفذ جزئيًا |
 | D-03 | التقارير الذكية | توليد تقرير من البيانات الفعلية | findings + evidence + drilldown | منفذ جزئيًا: Executive Decision Report read model + freshness/as-of + lifecycle quality + evidence/lineage refs + print-safe page؛ ما زال PDF artifact verification وE2E مطلوبًا |
 | A-01 | التوصيات | تحويل findings إلى actions | recommendation + impact + evidence + status | منفذ جزئيًا: outcomes attribution + governed learning ranking؛ adaptive policy write-back غير تلقائي |
-| F-01 | التنبؤات | forecasts مع confidence وإظهار البيانات المستخدمة | forecast + horizon + uncertainty + provenance | قيد التنفيذ |
+| F-01 | التنبؤات | forecasts مع confidence وإظهار البيانات المستخدمة | forecast + horizon + uncertainty + provenance | منفذ جزئيًا: governance layer للتحقق من القيمة/النطاق/النموذج/عدد النقاط/quality، وحساب horizon وinterval ratio، واستبعاد payload غير الصالح من الرسم؛ ما زال تحقق دقة النموذج التشغيلي وE2E مطلوبين |
 | AI-01 | المساعد الذكي | سؤال طبيعي على البيانات والأدلة | tenant-safe + grounded + citations | قيد التنفيذ |
 | T-01 | مهام الأدوار | توليد مهام اليوم/الغد حسب المدير والموظف والمبيعات والمخازن والمحاسب والمشتريات | task proposal مرتبط بمصدر + سبب + أولوية + نتيجة + دليل | منفذ جزئيًا |
 | T-02 | استدامة خطة العمل | حفظ المقترحات واستئنافها عبر الجلسات | tenant-safe + lifecycle + dedupe وعدم تكرار الخطة عند الحفظ | منفذ |
