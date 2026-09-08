@@ -40,6 +40,10 @@ for (const name of files) {
   }
 }
 
+const decision = fs.readFileSync(path.join(root, 'DecisionExperiencePage.tsx'), 'utf8');
+if (!/LoadingState/.test(decision) || !/loading&&/.test(decision)) findings.push('DecisionExperiencePage.tsx: initial async loading state is not explicitly surfaced');
+if (!/role="alert"/.test(decision) || !/onRetry/.test(decision) && !/void load\(\)/.test(decision)) findings.push('DecisionExperiencePage.tsx: failure state lacks an explicit retryable error surface');
+
 const unique = [...new Set(findings)];
 if (unique.length) {
   console.error('UI async state contract: FAIL');
