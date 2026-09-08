@@ -17,6 +17,9 @@
 | A-01 | التوصيات | تحويل findings إلى actions | recommendation + impact + evidence + status | قيد التنفيذ |
 | F-01 | التنبؤات | forecasts مع confidence وإظهار البيانات المستخدمة | forecast + horizon + uncertainty + provenance | قيد التنفيذ |
 | AI-01 | المساعد الذكي | سؤال طبيعي على البيانات والأدلة | tenant-safe + grounded + citations | قيد التنفيذ |
+| T-01 | مهام الأدوار | توليد مهام اليوم/الغد حسب المدير والموظف والمبيعات والمخازن والمحاسب والمشتريات | task proposal مرتبط بمصدر + سبب + أولوية + نتيجة + دليل | منفذ جزئيًا |
+| T-02 | استدامة خطة العمل | حفظ المقترحات واستئنافها عبر الجلسات | tenant-safe + lifecycle + dedupe وعدم تكرار الخطة عند الحفظ | منفذ |
+| T-03 | القرار ← المهمة | تحويل المقترح المقبول إلى work item بعد القرار المعتمد | لا تنفيذ قبل APPROVED decision؛ assignee tenant member | قيد التنفيذ |
 | Q-01 | جودة البيانات | duplicates/missing/outliers/conflicts | severity + resolution workflow | قيد التنفيذ |
 | R-01 | العلاقات | اكتشاف مفاتيح وعلاقات بين datasets | relation graph + confidence | قيد التنفيذ |
 | O-01 | التشغيل | queue/resume/progress/observability | لا تختفي العملية عند التنقل | منفذ جزئيًا |
@@ -34,15 +37,17 @@
 6. **كل شاشة تقرأ من نفس read-models.** لا توجد أرقام مستقلة مخترعة لكل صفحة.
 7. **الصورة تعامل كمصدر بيانات.** OCR عند الإمكان، وVision عند توفر backend موثوق، مع confidence وreview عند الحاجة.
 8. **كل مسار يجب أن يكون قابلاً للاستئناف.** checkpoint + fingerprint + durable state.
+9. **المهام ليست تنفيذًا تلقائيًا.** المقترح ينتظر دورة القرار والموافقة؛ التنفيذ والنتيجة يحتاجان أدلة حقيقية.
+10. **الحفظ Idempotent.** إعادة بناء الخطة لا تنشئ نسخًا مكررة لنفس الدور/الأفق/المصدر/المهمة.
 
 ## ترتيب التنفيذ
 
 **Wave A — Foundation:** I-01..I-07 + D-02 + Q-01 + R-01.
 
-**Wave B — Intelligence:** D-01 + D-03 + A-01 + F-01.
+**Wave B — Intelligence:** D-01 + D-03 + A-01 + F-01 + T-01 + T-02.
 
 **Wave C — AI:** AI-01 + semantic report interpretation + visual understanding boundary.
 
-**Wave D — Product closure:** E2E + observability + performance + backup/restore/rollback + certification.
+**Wave D — Product closure:** T-03 + E2E + observability + performance + backup/restore/rollback + certification.
 
 لا يُعتبر المنتج نهائيًا للبيع قبل إغلاق Wave D بالأدلة المطلوبة.
