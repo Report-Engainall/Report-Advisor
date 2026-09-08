@@ -6,10 +6,9 @@ export type ExecutiveReportFreshness = {
 };
 
 export function buildExecutiveReportFreshness(generatedAt: string, asOf: string, hasRows: boolean): ExecutiveReportFreshness {
-  return {
-    generatedAt,
-    asOf,
-    source: 'executive_decision_read_model',
-    status: hasRows ? 'LIVE_READ_MODEL' : 'EMPTY',
-  };
+  const generatedMs = Date.parse(generatedAt);
+  const asOfMs = Date.parse(asOf);
+  const normalizedGenerated = Number.isFinite(generatedMs) ? generatedAt : new Date().toISOString();
+  const normalizedAsOf = Number.isFinite(asOfMs) ? asOf : normalizedGenerated;
+  return { generatedAt: normalizedGenerated, asOf: normalizedAsOf, source: 'executive_decision_read_model', status: hasRows ? 'LIVE_READ_MODEL' : 'EMPTY' };
 }
