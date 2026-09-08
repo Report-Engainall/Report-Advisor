@@ -1,6 +1,7 @@
 import { strict as assert } from 'node:assert';
 import fs from 'node:fs';
 import { advanceCheckpoint, canAdvanceCheckpoint, type ReportExecutionCheckpoint } from '../src/lib/report-execution/checkpoint.ts';
+import { InMemoryReportQueue } from '../src/lib/report-execution/queue.ts';
 import { SupabaseReportExecutionStore } from '../src/lib/report-execution/durable-worker-adapter.ts';
 import type { ReportExecutionRequest } from '../src/lib/report-execution/report-execution-contract.ts';
 
@@ -22,6 +23,30 @@ assert.notEqual(
   SupabaseReportExecutionStore.requestIdentity(request),
 );
 
+const queue = new InMemoryReportQueue();
+assert.throws(() => queue.enqueue(request, 'run-1', 0), /positive integer/);
+assert.throws(() => queue.enqueue(request, 'run-1', Number.NaN), /positive integer/);
+assert.throws(() => queue.enqueue(request, 'run-1', Number.POSITIVE_INFINITY), /positive integer/);
+assert.throws(() => queue.enqueue(request, '   '), /runId is required/);
+const queued = queue.enqueue(request, 'run-1', 2);
+assert.equal(queued.status, 'queued');
+assert.throws(() => queue.claim('   '), /workerId is required/);
+assert.throws(() => queue.claim('worker-1', 0), /at least 30000ms and finite/);
+assert.throws(() => queue.claim('worker-1', 1), /at least 30000ms and finite/);
+assert.throws(() => queue.claim('worker-1', Number.NaN), /at least 30000ms and finite/);
+assert.throws(() => queue.claim('worker-1', Number.POSITIVE_INFINITY), /at least 30000ms and finite/);
+const claimed = queue.claim('worker-1', 60_000);
+assert.equal(claimed?.status, 'running');
+assert.equal(claimed?.attempts, 1);
+assert.ok(claimed?.leaseToken);
+assert.throws(() => queue.heartbeat('run-1', 'worker-1', claimed.leaseToken!, 1), /at least 30000ms and finite/);
+assert.throws(() => queue.heartbeat('run-1', 'worker-1', claimed.leaseToken!, Number.NaN), /at least 30000ms and finite/);
+assert.throws(() => queue.complete('run-1', 'worker-2', claimed.leaseToken!), /lease is not owned/);
+assert.throws(() => queue.complete('run-1', 'worker-1', ''), /leaseToken is required/);
+assert.throws(() => queue.complete('run-1', 'worker-1', 'stale-token'), /lease is not owned/);
+queue.complete('run-1', 'worker-1', claimed.leaseToken!);
+assert.equal(queue.get('run-1')?.status, 'succeeded');
+
 const leaseFailureSql = fs.readFileSync('supabase/migrations/20260825153000_runtime_lease_hardening.sql', 'utf8');
 for (const token of [
   'attempt >= max_attempts',
@@ -42,4 +67,4 @@ for (const rpc of [
   assert.ok(adapter.includes(rpc), `missing durable worker RPC: ${rpc}`);
 }
 
-console.log('Report execution runtime: PASS (checkpoint monotonicity + lease/failure/dead-letter + tenant/idempotency recovery invariants)');
+console.log('Report execution runtime: PASS (checkpoint monotonicity + lease/failure/dead-letter + queue scalar boundaries + tenant/idempotency recovery invariants)');
