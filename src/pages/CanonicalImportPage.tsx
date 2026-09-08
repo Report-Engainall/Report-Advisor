@@ -11,7 +11,7 @@ import { detectFormat } from '@/lib/file-engine/detector';
 import { securityScan, computeSHA256, checkDuplicate } from '@/lib/file-engine/security';
 import { parseFile } from '@/lib/file-engine/adapters';
 import { FORMAT_LABELS, MAX_FILE_SIZE, type FileFormat, type Dataset } from '@/lib/file-engine/types';
-import { fingerprint, resolveRows, type RowResolution } from '@/lib/file-engine/universal-intelligence';
+import { resolveRows, type RowResolution } from '@/lib/file-engine/universal-intelligence';
 import { commitImportBatch } from '@/lib/import/canonical-commit';
 import { reconcileForCanonical } from '@/lib/import/canonical-truth-boundary';
 import { validateMappedRow } from '@/lib/import/canonical-validation';
@@ -125,8 +125,7 @@ export function CanonicalImportPage() {
     }
     const unresolved = resolutions.filter(r => r.outcome !== 'new' && decisions[r.fingerprint] !== 'exclude');
     if (unresolved.length) return;
-    const writableFingerprints = new Set(resolutions.filter(r => r.outcome === 'new').map(r => r.fingerprint));
-    const writable = valid.filter(r => writableFingerprints.has(fingerprint(r.data)));
+    const writable = valid.filter((_, index) => resolutions[index]?.outcome === 'new');
     const excluded = valid.length - writable.length;
     setStep('committing'); setProgress(0); setError(null);
     let importId: string | null = null;
