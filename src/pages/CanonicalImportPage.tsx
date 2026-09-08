@@ -4,14 +4,14 @@ import { Card, CardHeader, CardBody } from '@/components/ui/Card';
 import { Badge, StatusBadge } from '@/components/ui/Badge';
 import { PageHeader, LoadingState, EmptyState } from '@/components/ui/States';
 import { DataTable } from '@/components/ui/DataTable';
-import { fetchImportRecords, createImportRecord, updateImportRecord } from '@/lib/queries';
+import { fetchImportRecords, createImportRecord } from '@/lib/queries';
 import { supabase, resolveCurrentCompanyId } from '@/lib/supabase';
 import { formatDateTime, formatNumber } from '@/lib/format';
 import { detectFormat } from '@/lib/file-engine/detector';
 import { securityScan, computeSHA256, checkDuplicate } from '@/lib/file-engine/security';
 import { parseFile } from '@/lib/file-engine/adapters';
 import { FORMAT_LABELS, MAX_FILE_SIZE, type FileFormat, type Dataset } from '@/lib/file-engine/types';
-import { resolveRows, type RowResolution } from '@/lib/file-engine/universal-intelligence';
+import { fingerprint, resolveRows, type RowResolution } from '@/lib/file-engine/universal-intelligence';
 import { commitImportBatch } from '@/lib/import/canonical-commit';
 import { reconcileForCanonical } from '@/lib/import/canonical-truth-boundary';
 import { validateMappedRow } from '@/lib/import/canonical-validation';
@@ -19,6 +19,7 @@ import { ImportResolutionReviewPanel } from '@/components/ImportResolutionReview
 
 type Step = 'upload' | 'scanning' | 'preview' | 'committing' | 'done';
 type EntityType = 'sales_invoices' | 'products' | 'customers';
+type Decision = 'include' | 'exclude';
 interface Row { rowNumber: number; data: Record<string, any>; valid: boolean; error?: string }
 
 const ENTITIES: Array<{ value: EntityType; label: string; required: string[] }> = [
@@ -52,6 +53,7 @@ export function CanonicalImportPage() {
   const [history, setHistory] = useState<any[]>([]);
   const [loadingHistory, setLoadingHistory] = useState(true);
   const [resolutions, setResolutions] = useState<RowResolution[]>([]);
+  const [decisions, setDecisions] = useState<Record<string, Decision>>({});
   const [resolving, setResolving] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -62,7 +64,7 @@ export function CanonicalImportPage() {
   useEffect(() => { loadHistory(); }, [loadHistory]);
 
   const handleFile = useCallback(async (selected: File) => {
-    setError(null); setWarnings([]); setDuplicate(false); setResolutions([]); setStep('scanning');
+    setError(null); setWarnings([]); setDuplicate(false); setResolutions([]); setDecisions({}); setStep('scanning');
     try {
       const buffer = await selected.arrayBuffer();
       const scan = securityScan(selected, buffer);
@@ -88,12 +90,7 @@ export function CanonicalImportPage() {
       setHeaders(hdrs);
       const parsedRows = dataset.rows.map((data, i) => {
         const validation = validateMappedRow(entityType, data, dataset.columns);
-        return {
-          rowNumber: i + 1,
-          data,
-          valid: validation.valid,
-          error: validation.valid ? undefined : `حقول الهوية المطلوبة ناقصة: ${validation.missing.join(', ')}`,
-        };
+        return { rowNumber: i + 1, data, valid: validation.valid, error: validation.valid ? undefined : `حقول الهوية المطلوبة ناقصة: ${validation.missing.join(', ')}` };
       });
       setRows(parsedRows);
       const validData = parsedRows.filter(row => row.valid).map(row => row.data);
@@ -114,55 +111,64 @@ export function CanonicalImportPage() {
     }
   }, [entityType]);
 
+  const setDecision = useCallback((rowFingerprint: string, decision: Decision) => {
+    setDecisions(prev => ({ ...prev, [rowFingerprint]: decision }));
+  }, []);
+
   const commit = useCallback(async () => {
     const valid = rows.filter(r => r.valid);
     if (!valid.length || !file || !fileHash) return;
-    if (resolving || resolutions.some(r => r.outcome !== 'new')) return;
+    if (resolving) return;
+    if (resolutions.length !== valid.length) {
+      setError('لم تكتمل مطابقة كل الصفوف مع بيانات المستأجر؛ لن يتم السماح بالكتابة قبل اكتمال القرار.');
+      return;
+    }
+    const unresolved = resolutions.filter(r => r.outcome !== 'new' && decisions[r.fingerprint] !== 'exclude');
+    if (unresolved.length) return;
+    const writableFingerprints = new Set(resolutions.filter(r => r.outcome === 'new').map(r => r.fingerprint));
+    const writable = valid.filter(r => writableFingerprints.has(fingerprint(r.data)));
+    const excluded = valid.length - writable.length;
     setStep('committing'); setProgress(0); setError(null);
     let importId: string | null = null;
+    let committed = 0;
     try {
       const companyId = await resolveCurrentCompanyId();
       if (!companyId) throw new Error('TENANT_CONTEXT_REQUIRED');
       const rec = await createImportRecord({ file_name: file.name, file_size: file.size, source_type: file.format, status: 'processing', total_rows: rows.length, valid_rows: valid.length, invalid_rows: rows.length - valid.length, quarantined_rows: rows.length - valid.length, entity_type: entityType, progress: 0 });
       importId = rec.id;
-      const reconciled = reconcileForCanonical(entityType, companyId, file.name, fileHash, rec.id, (data, rowNumber) => `${fileHash}:${rowNumber}:${JSON.stringify(data)}`, valid.map(r => ({ rowNumber: r.rowNumber, data: r.data })));
+      if (writable.length === 0) {
+        await supabase.rpc('import_finish_job', { p_job_id: rec.id, p_status: 'completed', p_result_summary: { total: rows.length, valid: valid.length, invalid: rows.length - valid.length, committed: 0, excluded }, p_error_message: null });
+        setResult({ total: rows.length, valid: valid.length, invalid: rows.length - valid.length, committed: 0, excluded, importId: rec.id });
+        setStep('done'); await loadHistory();
+        return;
+      }
+      const reconciled = reconcileForCanonical(entityType, companyId, file.name, fileHash, rec.id, (data, rowNumber) => `${fileHash}:${rowNumber}:${JSON.stringify(data)}`, writable.map(r => ({ rowNumber: r.rowNumber, data: r.data })));
       if (reconciled.rejected.length > 0) throw new Error(`CANONICAL_RECONCILIATION_REJECTED:${reconciled.rejected.map(r => `${r.rowNumber}:${r.reason}`).join(',')}`);
-      const batchSize = 50; let committed = 0;
+      const batchSize = 50;
       for (let i = 0; i < reconciled.rows.length; i += batchSize) {
         const batch = reconciled.rows.slice(i, i + batchSize);
         await commitImportBatch(entityType, batch, { jobId: rec.id });
         committed += batch.length;
         setProgress(Math.round((committed / reconciled.rows.length) * 100));
       }
-      await supabase.rpc('import_finish_job', {
-        p_job_id: rec.id,
-        p_status: 'completed',
-        p_result_summary: { total: rows.length, valid: valid.length, invalid: rows.length - valid.length, committed },
-        p_error_message: null,
-      });
-      setResult({ total: rows.length, valid: valid.length, invalid: rows.length - valid.length, importId: rec.id });
+      await supabase.rpc('import_finish_job', { p_job_id: rec.id, p_status: 'completed', p_result_summary: { total: rows.length, valid: valid.length, invalid: rows.length - valid.length, committed, excluded }, p_error_message: null });
+      setResult({ total: rows.length, valid: valid.length, invalid: rows.length - valid.length, committed, excluded, importId: rec.id });
       setStep('done'); await loadHistory();
     } catch (e: any) {
       const message = e?.message || 'خطأ غير معروف';
       if (importId) {
-        const { error: finishError } = await supabase.rpc('import_finish_job', {
-          p_job_id: importId,
-          p_status: 'failed',
-          p_result_summary: { total: rows.length, valid: valid.length, progress },
-          p_error_message: message,
-        });
-        if (finishError) {
-          console.error('import_finish_job failed while finalizing import failure', finishError);
-        }
+        const { error: finishError } = await supabase.rpc('import_finish_job', { p_job_id: importId, p_status: committed > 0 ? 'partial' : 'failed', p_result_summary: { total: rows.length, valid: valid.length, committed, excluded, progress }, p_error_message: message });
+        if (finishError) console.error('import_finish_job failed while finalizing import failure', finishError);
       }
       setError(`فشل الاستيراد: ${message}`); setStep('preview'); await loadHistory();
     }
-  }, [rows, file, fileHash, entityType, loadHistory, resolving, resolutions, progress]);
+  }, [rows, file, fileHash, entityType, loadHistory, resolving, resolutions, decisions]);
 
-  const reset = () => { setStep('upload'); setFile(null); setFileHash(null); setRows([]); setHeaders([]); setQuality(0); setMappings([]); setWarnings([]); setError(null); setDuplicate(false); setResult(null); setProgress(0); setResolutions([]); setResolving(false); };
+  const reset = () => { setStep('upload'); setFile(null); setFileHash(null); setRows([]); setHeaders([]); setQuality(0); setMappings([]); setWarnings([]); setError(null); setDuplicate(false); setResult(null); setProgress(0); setResolutions([]); setDecisions({}); setResolving(false); };
   const valid = rows.filter(r => r.valid).length;
   const invalid = rows.length - valid;
-  const blocked = resolutions.filter(r => r.outcome !== 'new').length;
+  const unresolved = resolutions.filter(r => r.outcome !== 'new' && decisions[r.fingerprint] !== 'exclude').length;
+  const writableCount = resolutions.length ? resolutions.filter(r => r.outcome === 'new').length : valid;
 
   return <div className="space-y-6 animate-fade-in">
     <PageHeader title="مركز الاستيراد" subtitle="استيراد آمن مع فحص الملف واكتشاف الصيغة والمعاينة قبل الكتابة" />
@@ -177,12 +183,12 @@ export function CanonicalImportPage() {
       {(warnings.length>0||duplicate)&&<div className="space-y-2">{warnings.map((w,i)=><div key={i} className="p-3 rounded-lg bg-warning-50 text-warning-700 text-sm flex gap-2"><AlertTriangle size={16}/>{w}</div>)}</div>}
       {securityPassed&&warnings.length===0&&<div className="p-3 rounded-lg bg-success-50 text-success-700 text-sm flex gap-2"><ShieldCheck size={16}/> اجتاز الملف الفحص الأمني</div>}
       {mappings.length>0&&<Card><CardHeader title="تعيين الأعمدة" subtitle="الربط المكتشف من محرك الملفات"/><DataTable columns={[{key:'name',label:'عمود الملف'},{key:'mappedField',label:'الحقل المقابل',render:(r:any)=>r.mappedField||'غير معين'},{key:'confidence',label:'الثقة',align:'center',render:(r:any)=><Badge variant={r.confidence>=80?'success':r.confidence>=50?'warning':'danger'}>{r.mappedField?r.confidence+'%':'—'}</Badge>}]} data={mappings} emptyMessage="لا توجد أعمدة"/></Card>}
-      {resolving ? <Card><CardBody><div className="flex items-center gap-2 text-sm text-ink-500"><Loader2 size={16} className="animate-spin"/> جارٍ مطابقة الصفوف مع بيانات المستأجر الحالية...</div></CardBody></Card> : <ImportResolutionReviewPanel resolutions={resolutions} />}
-      <Card><CardHeader title="معاينة البيانات" subtitle={`أول 10 صفوف — ${headers.length} حقلًا مكتشفًا`} action={<div className="flex gap-2"><button onClick={reset} className="btn-secondary text-xs">إلغاء</button><button onClick={() => void commit()} className="btn-primary text-xs" disabled={!valid || resolving || blocked > 0}>تأكيد الاستيراد ({valid})</button></div>}/><div className="overflow-x-auto"><DataTable columns={[{key:'rowNumber',label:'#',align:'center' as const}, ...headers.map(h=>({key:h,label:h,render:(r:Row)=>String(r.data[h]??'')})), {key:'status',label:'الحالة',align:'center' as const,render:(r:Row)=>r.valid?<Badge variant="success">صالح</Badge>:<Badge variant="danger">خطأ</Badge>}]} data={rows.slice(0,10)} emptyMessage="لا توجد بيانات"/></div></Card>
+      {resolving ? <Card><CardBody><div className="flex items-center gap-2 text-sm text-ink-500"><Loader2 size={16} className="animate-spin"/> جارٍ مطابقة الصفوف مع بيانات المستأجر الحالية...</div></CardBody></Card> : <ImportResolutionReviewPanel resolutions={resolutions} decisions={decisions} onDecision={setDecision} />}
+      <Card><CardHeader title="معاينة البيانات" subtitle={`أول 10 صفوف — ${headers.length} حقلًا مكتشفًا`} action={<div className="flex gap-2"><button onClick={reset} className="btn-secondary text-xs">إلغاء</button><button onClick={() => void commit()} className="btn-primary text-xs" disabled={!valid || resolving || unresolved > 0}>{unresolved ? `احسم ${unresolved} صف` : `تأكيد الاستيراد (${writableCount})`}</button></div>}/><div className="overflow-x-auto"><DataTable columns={[{key:'rowNumber',label:'#',align:'center' as const}, ...headers.map(h=>({key:h,label:h,render:(r:Row)=>String(r.data[h]??'')})), {key:'status',label:'الحالة',align:'center' as const,render:(r:Row)=>r.valid?<Badge variant="success">صالح</Badge>:<Badge variant="danger">خطأ</Badge>}]} data={rows.slice(0,10)} emptyMessage="لا توجد بيانات"/></div></Card>
       {error&&<div className="p-3 rounded-lg bg-danger-50 text-danger-700 text-sm">{error}</div>}
     </div>}
     {step === 'committing' && <Card><CardBody><div className="flex flex-col items-center py-10 gap-4"><Loader2 className="animate-spin text-primary-500" size={32}/><b>جارٍ تنفيذ الاستيراد المركزي...</b><span>{progress}%</span><div className="w-full max-w-md h-2 bg-ink-100 rounded-full"><div className="h-full bg-primary-500 rounded-full" style={{width:`${progress}%`}}/></div></div></CardBody></Card>}
-    {step === 'done' && result && <Card><CardBody><div className="flex flex-col items-center py-8 gap-4"><CheckCircle2 className="text-success-500" size={48}/><h3 className="text-lg font-semibold">تم الاستيراد بنجاح</h3><p className="text-sm text-ink-500">{formatNumber(result.valid)} صف صالح من أصل {formatNumber(result.total)}</p><button onClick={reset} className="btn-primary">استيراد ملف آخر</button></div></CardBody></Card>}
+    {step === 'done' && result && <Card><CardBody><div className="flex flex-col items-center py-8 gap-4"><CheckCircle2 className="text-success-500" size={48}/><h3 className="text-lg font-semibold">تم الاستيراد بنجاح</h3><p className="text-sm text-ink-500">{formatNumber(result.committed ?? result.valid)} صف كُتب من أصل {formatNumber(result.total)} — تم استبعاد {formatNumber(result.excluded ?? 0)} صف</p><button onClick={reset} className="btn-primary">استيراد ملف آخر</button></div></CardBody></Card>}
     <Card><CardHeader title="سجل الاستيرادات" subtitle="آخر العمليات"/>{loadingHistory?<LoadingState message="جارٍ تحميل السجل..."/>:history.length===0?<EmptyState icon={<Database size={32}/>} title="لا توجد استيرادات سابقة" message="ابدأ باستيراد ملفك الأول"/>:<DataTable columns={[{key:'file_name',label:'الملف'},{key:'entity_type',label:'النوع'},{key:'total_rows',label:'الصفوف',align:'center'},{key:'valid_rows',label:'صالح',align:'center'},{key:'invalid_rows',label:'مرفوض',align:'center'},{key:'status',label:'الحالة',align:'center',render:(r:any)=><StatusBadge status={r.status}/>},{key:'created_at',label:'التاريخ',render:(r:any)=>formatDateTime(r.created_at)}]} data={history} emptyMessage="لا توجد استيرادات"/>}</Card>
   </div>;
 }
