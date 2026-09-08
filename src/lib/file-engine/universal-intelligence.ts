@@ -162,16 +162,25 @@ function identityFields(dataset: Dataset): ColumnProfile[] {
       : type.includes('product')
         ? ['sku']
         : ['sku', 'code', 'invoice_number', 'id'];
-  const fields = dataset.columns.filter((column) => preferred.includes(normalized(column.mappedField)));
-  return fields.length ? fields : dataset.columns.filter((column) => {
+
+  // Identity fields are ordered fallbacks, not a composite key. For customers,
+  // code is authoritative when present; name is only the fallback when code is absent.
+  for (const preferredField of preferred) {
+    const field = dataset.columns.find((column) => normalized(column.mappedField) === preferredField);
+    if (field) return [field];
+  }
+
+  return dataset.columns.filter((column) => {
     const field = normalized(column.mappedField);
     return ['sku', 'code', 'invoice_number', 'id'].includes(field);
-  });
+  }).slice(0, 1);
 }
 
 function identityKey(row: Record<string, unknown>, fields: ColumnProfile[]): string | null {
-  const values = fields.map((field) => normalized(valueForColumn(row, field))).filter(Boolean);
-  return values.length ? values.join('|') : null;
+  const field = fields[0];
+  if (!field) return null;
+  const value = normalized(valueForColumn(row, field));
+  return value ? value : null;
 }
 
 function differingFieldsFor(row: Record<string, unknown>, candidate: Record<string, unknown>, columns: ColumnProfile[]): string[] {
