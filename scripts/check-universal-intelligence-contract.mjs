@@ -15,11 +15,23 @@ const customers = { ...products, id: 'customers', name: 'Customers', columns: [{
 const relations = detectRelations([products, customers]);
 assert.equal(relations.length, 0);
 
-const existing = [{ SKU: 'A-1', Name: 'Sugar' }, { SKU: 'B-2', Name: 'Tea' }];
-const resolutions = resolveRows(products, existing);
-assert.equal(resolutions.every(r => r.outcome === 'skip_exact'), true);
-assert.equal(rowFingerprint(products.rows[0], products.columns), rowFingerprint(products.rows[0], products.columns));
-const quality = summarizeUniversalQuality(products, resolutions);
+const sourceNamedExisting = [{ SKU: 'A-1', Name: 'Sugar' }, { SKU: 'B-2', Name: 'Tea' }];
+const sourceNamedResolutions = resolveRows(products, sourceNamedExisting);
+assert.equal(sourceNamedResolutions.every(r => r.outcome === 'skip_exact'), true);
+
+// DB rows normally use canonical column names rather than source headers.
+// This must resolve against mappedField, otherwise the tenant preview can falsely report rows as new.
+const canonicalExisting = [{ sku: 'A-1', name: 'Sugar' }, { sku: 'B-2', name: 'Tea' }];
+const canonicalResolutions = resolveRows(products, canonicalExisting);
+assert.equal(canonicalResolutions.every(r => r.outcome === 'skip_exact'), true);
+assert.equal(rowFingerprint(products.rows[0], products.columns), rowFingerprint(canonicalExisting[0], products.columns));
+
+const conflictDataset = { ...products, rows: [{ SKU: 'A-1', Name: 'Brown Sugar' }] };
+const conflictResolutions = resolveRows(conflictDataset, canonicalExisting);
+assert.equal(conflictResolutions[0]?.outcome, 'candidate_duplicate');
+assert.deepEqual(conflictResolutions[0]?.differingFields, ['name']);
+
+const quality = summarizeUniversalQuality(products, canonicalResolutions);
 assert.equal(quality.duplicateCount, 2);
 assert.equal(quality.conflictCount, 0);
 assert.ok(quality.score >= 0 && quality.score <= 100);
