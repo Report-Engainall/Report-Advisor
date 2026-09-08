@@ -42,6 +42,8 @@ This ledger and `docs/WORK_PLAN.md` are the durable execution memory for the act
 | 17 | Decision contract correction | runtime `policy_key` contract + outcome attribution aligned to canonical decision id | `f020fab43e0133f47e7d38bcbfd4277779c30920` / `1a4357822c3cf5a9d229383af45e107366d42a1f` | Implemented; operational E2E not claimed |
 | 18 | Decision correction evidence | recorded contract mismatch and decision-outcome attribution correction | `fb5bbc8b8d133fae1941b75948e72756e1f81d25` | Evidence recorded |
 | 19 | Execution plan synchronization | WORK_PLAN updated with correction and remaining certification gates | `70d9afd57a5ec748f7bcb2c1ff1f00bf2308561e` | Implemented |
+| 20 | Forecast governance | provenance/numeric validation + horizon + uncertainty interval + governed forecast UI | `54c26a3a706541652473f077d299dc9bb17243f8` / `1ccf6566aa67865d83fc07450a10cc35e4320651` / `2f86e8d9cc5f1e4953a1cda58593a39ff6a7748a` | Implemented; statistical accuracy/E2E not claimed |
+| 21 | Forecast evidence | durable governance evidence and plan synchronization | `12893583b716a51a9f145b1e6ed2a3158c69432c` / `8a8f80f6137048542f89033cf89bb75d2beb24ef` | Evidence recorded |
 
 ## Staging evidence boundary
 
@@ -71,7 +73,7 @@ Canonical migration:
 - Learning adjustment is bounded and only active after the minimum sample threshold.
 - Decision context surfaces persisted alternatives and saved evidence snapshots.
 - Completion/outcome UI refuses to proceed without a persisted evidence snapshot.
-- Runtime contract now exposes `policy_key` consumed by the page.
+- Runtime contract exposes `policy_key` consumed by the page.
 - Outcome attribution uses the canonical decision row id expected by the executive read model.
 - Remaining: governed adaptive write-back design and authenticated E2E.
 
@@ -82,14 +84,17 @@ Canonical migration:
 - Remaining: deeper report-type semantics, row/entity conflict workflow, relation graph, and quality closure.
 
 ### D — Forecast / AI / operations
-- Forecast and AI work continues behind provenance/confidence/tenant-safety rules.
-- Operational queue/progress persistence continues without claiming durable worker E2E.
+- Forecast governance now validates provenance-related payload fields and exposes horizon/uncertainty to the UI.
+- AI and operational queue work continue behind provenance/confidence/tenant-safety rules.
+- Durable worker E2E remains unclaimed.
 
 ## Verification state
 
-Latest branch head after this batch: `70d9afd57a5ec748f7bcb2c1ff1f00bf2308561e`.
+Latest documentation synchronization head: `8a8f80f6137048542f89033cf89bb75d2beb24ef`.
 
-The GitHub status for the preceding implementation head `1a4357822c3cf5a9d229383af45e107366d42a1f` is `failure` only because Vercel reports: Git author `Report-Engainall` must have access to the Injaz Vercel project to create deployments. This is an external project-access gate, not evidence of a source-code failure. No browser PASS is inferred from this status.
+Forecast governance is source-level/read-model implementation. It is not statistical model accuracy certification and has not been browser E2E certified.
+
+The Vercel status observed on the preceding implementation head remains an external project-access failure: Git author `Report-Engainall` must have access to the Injaz Vercel project to create deployments. No browser PASS is inferred.
 
 ## Non-claims / certification boundary
 
