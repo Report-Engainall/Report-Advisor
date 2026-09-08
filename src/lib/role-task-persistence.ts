@@ -1,5 +1,5 @@
 import { supabase, resolveCurrentCompanyId } from './supabase';
-import type { IntelligenceTask } from './roleTaskEngine';
+import type { IntelligenceTask, TaskHorizon, TaskRole } from './roleTaskEngine';
 
 export interface PersistedTaskProposal extends IntelligenceTask {
   id: string;
@@ -7,6 +7,19 @@ export interface PersistedTaskProposal extends IntelligenceTask {
   createdAt: string;
   decisionId: string | null;
   convertedWorkItemId: string | null;
+}
+
+export interface OperationalDailyPlanRow {
+  role: TaskRole;
+  horizon: TaskHorizon;
+  proposed: number;
+  accepted: number;
+  awaitingApproval: number;
+  openWork: number;
+  inProgress: number;
+  completed: number;
+  overdue: number;
+  evidenceMissing: number;
 }
 
 function taskKey(companyId: string, task: IntelligenceTask): string {
@@ -30,6 +43,28 @@ export async function fetchTaskProposals(limit = 200): Promise<PersistedTaskProp
     status: row.status as PersistedTaskProposal['status'], createdAt: String(row.created_at),
     decisionId: row.decision_id ? String(row.decision_id) : null,
     convertedWorkItemId: row.converted_work_item_id ? String(row.converted_work_item_id) : null,
+  }));
+}
+
+export async function fetchOperationalDailyPlan(role?: TaskRole | null, horizon?: TaskHorizon | null): Promise<OperationalDailyPlanRow[]> {
+  const companyId = await resolveCurrentCompanyId();
+  if (!companyId) throw new Error('TENANT_REQUIRED');
+  const { data, error } = await supabase.rpc('get_operational_daily_plan', {
+    p_role: role ?? null,
+    p_horizon: horizon ?? null,
+  });
+  if (error) throw error;
+  return (data ?? []).map((row) => ({
+    role: row.role as TaskRole,
+    horizon: row.horizon as TaskHorizon,
+    proposed: Number(row.proposed ?? 0),
+    accepted: Number(row.accepted ?? 0),
+    awaitingApproval: Number(row.awaiting_approval ?? 0),
+    openWork: Number(row.open_work ?? 0),
+    inProgress: Number(row.in_progress ?? 0),
+    completed: Number(row.completed ?? 0),
+    overdue: Number(row.overdue ?? 0),
+    evidenceMissing: Number(row.evidence_missing ?? 0),
   }));
 }
 
