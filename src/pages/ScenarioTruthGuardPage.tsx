@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react';
 import { AlertTriangle } from 'lucide-react';
 import { Card, CardBody } from '@/components/ui/Card';
-import { LoadingState, ErrorState, PageHeader } from '@/components/ui/States';
+import { LoadingState, PageHeader } from '@/components/ui/States';
 import { fetchProfitabilitySnapshot } from '@/lib/dashboard-canonical';
-import { ScenariosPage } from '@/pages/IntelligencePage';
+import { CanonicalScenarioPage } from '@/pages/CanonicalScenarioPage';
 
 export function ScenarioTruthGuardPage() {
   const [state, setState] = useState<'loading' | 'ready' | 'blocked'>('loading');
   const [reason, setReason] = useState<string | null>(null);
+  const [financials, setFinancials] = useState<{ revenue: number; cost: number } | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -15,6 +16,7 @@ export function ScenarioTruthGuardPage() {
       .then(snapshot => {
         if (!active) return;
         if (snapshot.status === 'CALCULATED' && snapshot.revenue !== null && snapshot.cost !== null) {
+          setFinancials({ revenue: snapshot.revenue, cost: snapshot.cost });
           setState('ready');
           return;
         }
@@ -30,7 +32,9 @@ export function ScenarioTruthGuardPage() {
   }, []);
 
   if (state === 'loading') return <LoadingState message="جارٍ التحقق من الحقيقة المالية قبل تشغيل المحاكاة..." />;
-  if (state === 'ready') return <ScenariosPage />;
+  if (state === 'ready' && financials) {
+    return <CanonicalScenarioPage baseRevenue={financials.revenue} baseCost={financials.cost} />;
+  }
 
   return (
     <div className="space-y-6 animate-fade-in">
