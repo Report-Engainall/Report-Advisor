@@ -1,14 +1,16 @@
 import type { ReportExecutionCheckpoint, ReportExecutionStage } from './checkpoint';
 import type { ReportExecutionRequest } from './report-execution-contract';
+import type { RowVersion } from '../production-intelligence';
 import { SupabaseReportExecutionStore } from './durable-worker-adapter';
 import { runProductionLifecycle, assertProductionCheckpoint, type ProductionLifecycleInput } from './production-coordinator-bridge';
 
 const ORDER: ReportExecutionStage[] = ['queued', 'fingerprinted', 'extracted', 'canonicalized', 'validated', 'analyzed', 'decisioned', 'committed', 'rendered'];
 const next = (s: ReportExecutionStage): ReportExecutionStage | null => { const i = ORDER.indexOf(s); return i >= 0 && i < ORDER.length - 1 ? ORDER[i + 1] : null; };
 
-export interface DurableSourceSnapshot {
+export interface DurableSourceSnapshot<T = unknown> {
   sourceHash: string;
   rows: Array<Record<string, unknown>>;
+  currentRows: RowVersion<T>[];
 }
 
 export interface DurableProductionRunInput<T = unknown> {
@@ -19,7 +21,7 @@ export interface DurableProductionRunInput<T = unknown> {
   rows: Array<Record<string, unknown>>;
   lifecycle: Omit<ProductionLifecycleInput<T>, 'jobId' | 'companyId' | 'sourceHash' | 'currentRows'> & { currentRows: ProductionLifecycleInput<T>['currentRows'] };
   executeStage?: (stage: ReportExecutionStage, input: { request: ReportExecutionRequest; rows: Array<Record<string, unknown>> }) => Promise<void>;
-  loadSourceSnapshot?: (input: { request: ReportExecutionRequest; expectedSourceHash: string }) => Promise<DurableSourceSnapshot>;
+  loadSourceSnapshot?: (input: { request: ReportExecutionRequest; expectedSourceHash: string }) => Promise<DurableSourceSnapshot<T>>;
   leaseSeconds?: number;
   heartbeatIntervalMs?: number;
 }
@@ -38,9 +40,10 @@ export async function runDurableProductionLifecycle<T>(input: DurableProductionR
 
     const source = input.loadSourceSnapshot
       ? await input.loadSourceSnapshot({ request: input.request, expectedSourceHash: input.sourceHash })
-      : { sourceHash: input.sourceHash, rows: input.rows };
+      : { sourceHash: input.sourceHash, rows: input.rows, currentRows: input.lifecycle.currentRows };
     if (!source.sourceHash.trim()) throw new Error('Source snapshot loader returned an empty source hash');
     if (source.sourceHash !== input.sourceHash) throw new Error('Loaded source snapshot hash does not match the durable job');
+    if (!source.currentRows.length) throw new Error('Loaded source snapshot contains no authoritative current rows');
     const sourceRows = source.rows;
 
     let heartbeatFailure: unknown = null;
@@ -65,11 +68,12 @@ export async function runDurableProductionLifecycle<T>(input: DurableProductionR
       jobId: input.jobId,
       companyId: input.request.tenantId,
       sourceHash: input.sourceHash,
-      currentRows: input.lifecycle.currentRows,
+      currentRows: source.currentRows,
     });
     await store.complete(input.jobId, input.workerId, {
       sourceHash: input.sourceHash,
       sourceRowCount: sourceRows.length,
+      authoritativeCurrentRowCount: source.currentRows.length,
       lineageCount: lifecycle.lineage.length,
       scenario: lifecycle.scenario,
       portfolio: lifecycle.portfolio,
