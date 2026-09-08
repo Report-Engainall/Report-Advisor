@@ -27,6 +27,10 @@ export function downloadReportArtifact(
   const anchor = document.createElement('a');
   anchor.href = url;
   anchor.download = artifact.fileName;
+  anchor.style.display = 'none';
+  document.body.appendChild(anchor);
   anchor.click();
-  URL.revokeObjectURL(url);
+  anchor.remove();
+  // Keep the object URL alive through the browser's download dispatch.
+  window.setTimeout(() => URL.revokeObjectURL(url), 0);
 }
