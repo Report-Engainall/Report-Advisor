@@ -5,14 +5,14 @@
 | المسار | سياسة/قدرة | المطلوب | معيار الإغلاق | الحالة |
 |---|---|---|---|---|
 | I-01 | الاستيراد الموحد | ملف واحد، مجلد، رفع يدوي، مصدر خارجي عبر نفس pipeline | نفس مراحل security→fingerprint→detect→parse→profile→map→dedupe→quality→route | قيد التنفيذ |
-| I-02 | كشف نوع التقرير | اكتشاف تلقائي بالحقول + القيم + البنية + النص/OCR | معروف→كيان متخصص؛ غير معروف→تقرير عام | قيد التنفيذ |
+| I-02 | كشف نوع التقرير | اكتشاف تلقائي بالحقول + القيم + البنية + النص/OCR | معروف→كيان متخصص؛ غير معروف→تقرير عام | منفذ جزئيًا: classifier حتمي بالحقول والثقة + fallback عام؛ ما زال دمج القيم/النص/OCR والتشغيل E2E مطلوبًا |
 | I-03 | كشف الأعمدة | header detection + synonym dictionary + fuzzy/semantic mapping | كل عمود ظاهر، confidence، evidence، unknown preserved | قيد التنفيذ |
-| I-04 | سياسة التكرار | SHA للملف + row/entity fingerprints + duplicate candidates | skip exact duplicate؛ تحديث/تعارض بمراجعة؛ لا حذف صامت | قيد التنفيذ |
+| I-04 | سياسة التكرار | SHA للملف + row/entity fingerprints + duplicate candidates | skip exact duplicate؛ تحديث/تعارض بمراجعة؛ لا حذف صامت | منفذ جزئيًا: deterministic row fingerprint + new/skip_exact/candidate_duplicate/conflict؛ ما زال الربط التشغيلي بالكتابة والتحقق E2E مطلوبًا |
 | I-05 | سياسة الحقول | raw source محفوظ + canonical projection + lineage | لا يسقط أي حقل غير معروف | منفذ جزئيًا |
 | I-06 | الصور/OCR | image/PDF OCR + confidence + visual asset tracking | النص/الجداول تستمر للتحليل؛ confidence evidence | منفذ جزئيًا |
 | I-07 | تقرير عام | مساحة مستقلة لأي مصدر لا يطابق كيانًا | تقرير عام قابل للتصفح والتحليل دون اختراع بيانات | منفذ جزئيًا |
 | D-01 | لوحة القيادة الذكية | KPIs حقيقية + freshness + quality + change detection | كل رقم له مصدر/وقت/tenant | قيد التنفيذ |
-| D-02 | تحليل التقرير | profiling + relations + anomalies + schema drift | تقرير تفصيلي قابل للتنقل | منفذ جزئيًا |
+| D-02 | تحليل التقرير | profiling + relations + anomalies + schema drift | تقرير تفصيلي قابل للتنقل | منفذ جزئيًا: relation candidate engine + confidence/evidence أضيفا؛ anomaly/schema-drift والتشغيل E2E ما زالا مطلوبين |
 | D-03 | التقارير الذكية | توليد تقرير من البيانات الفعلية | findings + evidence + drilldown | منفذ جزئيًا: Executive Decision Report read model + freshness/as-of + lifecycle quality + evidence/lineage refs + print-safe page؛ ما زال PDF artifact verification وE2E مطلوبًا |
 | A-01 | التوصيات | تحويل findings إلى actions | recommendation + impact + evidence + status | منفذ جزئيًا: outcomes attribution + governed learning ranking؛ adaptive policy write-back غير تلقائي |
 | F-01 | التنبؤات | forecasts مع confidence وإظهار البيانات المستخدمة | forecast + horizon + uncertainty + provenance | منفذ جزئيًا: governance layer للتحقق من القيمة/النطاق/النموذج/عدد النقاط/quality، وحساب horizon وinterval ratio، واستبعاد payload غير الصالح من الرسم؛ ما زال تحقق دقة النموذج التشغيلي وE2E مطلوبين |
@@ -22,8 +22,8 @@
 | T-03 | القرار ← المهمة | تحويل المقترح المقبول إلى work item بعد القرار المعتمد | لا تنفيذ قبل APPROVED decision؛ assignee tenant member | منفذ: RPC + persistence + approval gate + واجهة التحويل والتنفيذ مرتبطة بالدورة |
 | T-04 | المهمة ← الدليل ← النتيجة | ربط work item بالتنفيذ والدليل والنتيجة والتعلم | start→evidence→complete→outcome→learning دون تجاوز approval | منفذ جزئيًا: start/complete/outcome gates + واجهة التشغيل + source-analysis evidence + learning read model + governed recommendation ranking + إصلاح attribution ليستخدم decision.id المتوافق مع read model؛ ما زال adaptive learning write-back وE2E مطلوبين |
 | T-05 | خطة التشغيل اليومية | read model دائم لحالة اليوم/الغد حسب الدور | proposed/accepted/open/in-progress/completed/overdue/evidence-missing مع tenant isolation | منفذ |
-| Q-01 | جودة البيانات | duplicates/missing/outliers/conflicts | severity + resolution workflow | قيد التنفيذ |
-| R-01 | العلاقات | اكتشاف مفاتيح وعلاقات بين datasets | relation graph + confidence | قيد التنفيذ |
+| Q-01 | جودة البيانات | duplicates/missing/outliers/conflicts | severity + resolution workflow | منفذ جزئيًا: universal quality summary + explicit duplicate/conflict outcomes؛ ما زال severity/resolution UI وE2E مطلوبين |
+| R-01 | العلاقات | اكتشاف مفاتيح وعلاقات بين datasets | relation graph + confidence | منفذ جزئيًا: cross-dataset relation candidates + confidence/evidence؛ ما زال graph UI والتحقق التشغيلي مطلوبين |
 | O-01 | التشغيل | queue/resume/progress/observability | لا تختفي العملية عند التنقل | منفذ جزئيًا |
 | G-01 | الحوكمة | RLS + lineage + audit + evidence | كل عملية قابلة للتتبع | منفذ جزئيًا |
 | E2E-01 | E2E | browser authenticated + tenant A/B | PASS بأدلة حية | محجوب تشغيليًا |
