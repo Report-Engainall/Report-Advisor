@@ -1,0 +1,35 @@
+name: import-intelligence-contract
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: import-intelligence-contract-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  inbatch-resolution:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install
+        run: npm ci --no-audit --no-fund
+      - name: In-batch resolution contract
+        run: node scripts/check-universal-intelligence-inbatch-resolution.mjs
