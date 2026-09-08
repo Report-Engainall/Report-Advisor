@@ -6,6 +6,11 @@ import { runProductionLifecycle, assertProductionCheckpoint, type ProductionLife
 const ORDER: ReportExecutionStage[] = ['queued', 'fingerprinted', 'extracted', 'canonicalized', 'validated', 'analyzed', 'decisioned', 'committed', 'rendered'];
 const next = (s: ReportExecutionStage): ReportExecutionStage | null => { const i = ORDER.indexOf(s); return i >= 0 && i < ORDER.length - 1 ? ORDER[i + 1] : null; };
 
+export interface DurableSourceSnapshot {
+  sourceHash: string;
+  rows: Array<Record<string, unknown>>;
+}
+
 export interface DurableProductionRunInput<T = unknown> {
   jobId: string;
   request: ReportExecutionRequest;
@@ -14,6 +19,7 @@ export interface DurableProductionRunInput<T = unknown> {
   rows: Array<Record<string, unknown>>;
   lifecycle: Omit<ProductionLifecycleInput<T>, 'jobId' | 'companyId' | 'sourceHash' | 'currentRows'> & { currentRows: ProductionLifecycleInput<T>['currentRows'] };
   executeStage?: (stage: ReportExecutionStage, input: { request: ReportExecutionRequest; rows: Array<Record<string, unknown>> }) => Promise<void>;
+  loadSourceSnapshot?: (input: { request: ReportExecutionRequest; expectedSourceHash: string }) => Promise<DurableSourceSnapshot>;
   leaseSeconds?: number;
   heartbeatIntervalMs?: number;
 }
@@ -26,8 +32,16 @@ export async function runDurableProductionLifecycle<T>(input: DurableProductionR
 
   try {
     if (job.tenantId !== input.request.tenantId) throw new Error('Tenant mismatch for durable production execution');
+    if (!input.sourceHash.trim()) throw new Error('Durable production execution requires a non-empty source hash');
     if (job.checkpoint.sourceHash && job.checkpoint.sourceHash !== input.sourceHash) throw new Error('Source hash changed during resumable execution');
     assertProductionCheckpoint(job.checkpoint);
+
+    const source = input.loadSourceSnapshot
+      ? await input.loadSourceSnapshot({ request: input.request, expectedSourceHash: input.sourceHash })
+      : { sourceHash: input.sourceHash, rows: input.rows };
+    if (!source.sourceHash.trim()) throw new Error('Source snapshot loader returned an empty source hash');
+    if (source.sourceHash !== input.sourceHash) throw new Error('Loaded source snapshot hash does not match the durable job');
+    const sourceRows = source.rows;
 
     let heartbeatFailure: unknown = null;
     heartbeatTimer = setInterval(() => {
@@ -40,7 +54,7 @@ export async function runDurableProductionLifecycle<T>(input: DurableProductionR
       if (heartbeatFailure) throw heartbeatFailure;
       const following = next(stage);
       if (!following) throw new Error(`Cannot advance production lifecycle from ${stage}`);
-      if (input.executeStage) await input.executeStage(following, { request: input.request, rows: input.rows });
+      if (input.executeStage) await input.executeStage(following, { request: input.request, rows: sourceRows });
       if (heartbeatFailure) throw heartbeatFailure;
       await store.saveCheckpoint(input.jobId, checkpoint(following), input.workerId);
       stage = following;
@@ -55,6 +69,7 @@ export async function runDurableProductionLifecycle<T>(input: DurableProductionR
     });
     await store.complete(input.jobId, input.workerId, {
       sourceHash: input.sourceHash,
+      sourceRowCount: sourceRows.length,
       lineageCount: lifecycle.lineage.length,
       scenario: lifecycle.scenario,
       portfolio: lifecycle.portfolio,
