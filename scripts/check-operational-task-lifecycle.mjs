@@ -28,7 +28,7 @@ const assertions = [
   [persistence, "rpc('convert_operational_task_proposal'", 'client_uses_approval_gate_rpc'],
   [persistence, "rpc('get_operational_daily_plan'", 'client_uses_durable_daily_plan'],
   [taskCenter, 'fetchOperationalDailyPlan', 'ui_reads_durable_plan'],
-  [taskCenter, 'needs evidence', 'ui_surfaces_evidence_state'],
+  [taskCenter, 'يحتاج دليلًا', 'ui_surfaces_evidence_state'],
 ];
 
 for (const [content, needle, label] of assertions) {
