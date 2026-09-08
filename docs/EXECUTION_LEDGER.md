@@ -47,6 +47,8 @@ This ledger and `docs/WORK_PLAN.md` are the durable execution memory for the act
 | 22 | Universal import intelligence | deterministic report classification + safe general/document fallback + relation candidates + row resolution + universal quality summary | `ade372ada46c75d4426c4ed533029e81d0653b17` | Implemented source-level; UI wiring and live E2E remain |
 | 22-E | Universal import evidence | scope, boundaries, exact SHA, preservation and next closure | `baade6dde3b78a4d07874864b928a1456a393fd8` | Evidence recorded |
 | 22-P | Plan synchronization | I-02/I-04/D-02/Q-01/R-01 advanced with explicit remaining gates | `faba9c79794c179a30f4c7d3006b302fa7849db1` | Implemented |
+| 23 | Universal intelligence contract | regression contract covering classification, deterministic fingerprints, exact duplicate resolution and quality aggregation | `ef64723acfc16d3a78d1d6505d3590908956863b` | Test added; execution environment not claimed |
+| 23-F | Forecast hardening | preserved forecast governance contract after source review | `76553948d06b090831e330aebe0fff50397a8f58` | Implemented; compile/E2E not claimed |
 
 ## Staging evidence boundary
 
@@ -88,10 +90,12 @@ Canonical migration:
 - Added relation candidates from identifier-like canonical fields with confidence/evidence.
 - Added deterministic row comparison outcomes (`new`, `skip_exact`, `candidate_duplicate`, `conflict`) without automatic destructive merge.
 - Added universal quality summary for completeness/mapping/type coverage/duplicates/conflicts.
+- Added regression contract for classification/fingerprint/duplicate/quality behavior.
 - Remaining: wire these results into Source Analysis Workspace, persist a governed resolution decision when writing, and prove the full flow with authenticated/live E2E.
 
 ### D — Forecast / AI / operations
 - Forecast governance now validates provenance-related payload fields and exposes horizon/uncertainty to the UI.
+- Forecast source review confirmed the fields match the canonical `Forecast` type.
 - AI and operational queue work continue behind provenance/confidence/tenant-safety rules.
 - Durable worker E2E remains unclaimed.
 
@@ -101,7 +105,7 @@ Latest documentation synchronization head: `faba9c79794c179a30f4c7d3006b302fa784
 
 Forecast governance is source-level/read-model implementation. It is not statistical model accuracy certification and has not been browser E2E certified.
 
-Universal import intelligence batch 22 is source-level/read-model implementation. No live browser, production, or authenticated tenant E2E claim is made from these commits.
+Universal import intelligence batch 22/23 is source-level/read-model implementation. Regression test source is committed, but its execution is not claimed here.
 
 The Vercel status observed on the preceding implementation head remains an external project-access failure: Git author `Report-Engainall` must have access to the Injaz Vercel project to create deployments. No browser PASS is inferred.
 
