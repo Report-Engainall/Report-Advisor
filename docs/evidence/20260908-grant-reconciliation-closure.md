@@ -1,0 +1,1 @@
+Closure tracking: see GitHub issue #410. Migration is forward-only and targets fresh-environment parity for the live `current_company_id()` authenticated EXECUTE boundary.
