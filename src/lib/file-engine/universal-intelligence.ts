@@ -140,8 +140,16 @@ function hashText(value: string): string {
   return (hash >>> 0).toString(16).padStart(8, '0');
 }
 
+function valueForColumn(row: Record<string, unknown>, column: ColumnProfile): unknown {
+  if (Object.prototype.hasOwnProperty.call(row, column.name)) return row[column.name];
+  if (column.mappedField && Object.prototype.hasOwnProperty.call(row, column.mappedField)) return row[column.mappedField];
+  return undefined;
+}
+
 export function rowFingerprint(row: Record<string, unknown>, columns: ColumnProfile[]): string {
-  const ordered = columns.map((column) => `${normalized(column.mappedField || column.name)}=${normalized(row[column.name])}`).join('|');
+  const ordered = columns
+    .map((column) => `${normalized(column.mappedField || column.name)}=${normalized(valueForColumn(row, column))}`)
+    .join('|');
   return hashText(ordered);
 }
 
@@ -157,13 +165,27 @@ export function resolveRows(dataset: Dataset, existingRows: Array<Record<string,
     const fingerprint = rowFingerprint(row, dataset.columns);
     const exact = fingerprints.get(fingerprint)?.[0];
     if (exact) return { fingerprint, outcome: 'skip_exact', matchedRowIndex: exact.index, differingFields: [] };
+
     const candidates = existingRows.map((candidate, index) => {
-      const shared = dataset.columns.map((column) => column.name).filter((key) => normalized(row[key]) && normalized(row[key]) === normalized(candidate[key]));
-      return { index, score: shared.length, differingFields: dataset.columns.map((column) => column.name).filter((key) => normalized(row[key]) !== normalized(candidate[key])) };
+      const shared = dataset.columns
+        .map((column) => column)
+        .filter((column) => {
+          const incoming = normalized(valueForColumn(row, column));
+          const current = normalized(valueForColumn(candidate, column));
+          return incoming && current && incoming === current;
+        });
+      return {
+        index,
+        score: shared.length,
+        differingFields: dataset.columns
+          .filter((column) => normalized(valueForColumn(row, column)) !== normalized(valueForColumn(candidate, column)))
+          .map((column) => column.mappedField || column.name),
+      };
     }).filter((candidate) => candidate.score > 0).sort((a, b) => b.score - a.score);
+
     const candidate = candidates[0];
     if (!candidate) return { fingerprint, outcome: 'new', matchedRowIndex: null, differingFields: [] };
-    const comparable = dataset.columns.filter((column) => normalized(row[column.name]) || normalized(existingRows[candidate.index][column.name]));
+    const comparable = dataset.columns.filter((column) => normalized(valueForColumn(row, column)) || normalized(valueForColumn(existingRows[candidate.index], column)));
     const differenceRatio = comparable.length ? candidate.differingFields.length / comparable.length : 1;
     return {
       fingerprint,
