@@ -13,15 +13,23 @@ export function ImportIntelligenceCockpit() {
   const [imports, setImports] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const load = useCallback(async () => {
+  const load = useCallback(async (initial = false) => {
     try {
-      setLoading(true); setError(null);
+      if (initial) setLoading(true);
+      setError(null);
       const [snapshot, dq, history] = await Promise.all([fetchDashboardSnapshot(3), fetchDataQualitySnapshot(), fetchImportRecords()]);
       setKpis(snapshot.kpis); setQuality(dq); setImports(history.slice(0, 5));
-    } catch (e) { setError(e instanceof Error ? e.message : 'تعذر تحميل لوحة ذكاء الاستيراد'); }
-    finally { setLoading(false); }
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'تعذر تحميل لوحة ذكاء الاستيراد');
+    } finally { if (initial) setLoading(false); }
   }, []);
-  useEffect(() => { void load(); }, [load]);
+  useEffect(() => {
+    void load(true);
+    const timer = window.setInterval(() => { if (document.visibilityState === 'visible') void load(false); }, 10000);
+    const onVisible = () => { if (document.visibilityState === 'visible') void load(false); };
+    document.addEventListener('visibilitychange', onVisible);
+    return () => { window.clearInterval(timer); document.removeEventListener('visibilitychange', onVisible); };
+  }, [load]);
   if (loading) return <Card><CardBody><div className="py-8 text-center text-sm text-ink-500">جارٍ بناء صورة البيانات…</div></CardBody></Card>;
   if (error) return <Card><CardBody><div role="alert" className="flex items-center gap-2 text-sm text-warning-700"><AlertTriangle size={17}/>{error}</div></CardBody></Card>;
   const entities = quality?.entities ?? [];
@@ -29,7 +37,7 @@ export function ImportIntelligenceCockpit() {
   const issues = entities.reduce((s, e) => s + e.issues, 0);
   const health = records ? Math.max(0, Math.min(100, Math.round(((records - issues) / records) * 100))) : 0;
   const kpiStatus = kpis?.status === 'INSUFFICIENT_DATA' ? 'بيانات ناقصة' : 'مصدر محسوب';
-  return <Card className="overflow-hidden"><CardHeader title="مركز ذكاء البيانات والاستيراد" subtitle="قبل أن تستورد أو تحلل: اعرف صحة البيانات الحالية، تغطيتها، وآخر عمليات الإدخال" action={<Badge variant={health >= 90 ? 'success' : health >= 70 ? 'warning' : 'danger'}>{health}% صحة البيانات</Badge>} />
+  return <Card className="overflow-hidden"><CardHeader title="مركز ذكاء البيانات والاستيراد" subtitle="صورة حية لصحة البيانات وآخر عمليات الإدخال، مع تحديث تلقائي دون الحاجة لإعادة تحميل الشاشة" action={<Badge variant={health >= 90 ? 'success' : health >= 70 ? 'warning' : 'danger'}>{health}% صحة البيانات</Badge>} />
     <CardBody className="space-y-5">
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
         <div className="rounded-xl bg-ink-50 p-4"><Database size={17}/><div className="mt-2 text-xs text-ink-500">السجلات الحالية</div><b className="text-lg">{formatNumber(records)}</b></div>
