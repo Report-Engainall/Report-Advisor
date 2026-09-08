@@ -33,6 +33,10 @@ This ledger and `docs/WORK_PLAN.md` are the durable execution memory for the act
 | 08 | Durable execution memory | `docs/EXECUTION_LEDGER.md` + WORK_PLAN rule | `2e4c1314736a662e7f5cc3f1e6faa0439f145d4a` | Implemented |
 | 09 | Executive read-model persistence | canonical Staging migration for `get_executive_decision_report(integer)` | `2e4c1314736a662e7f5cc3f1e6faa0439f145d4a` | GitHub persisted; applied to Staging |
 | 10 | Executive freshness/quality UX | generated/as-of timestamps + live/empty state + lifecycle completeness summary | `3d3445b1fb5629d67f2d6fa43adba89eff37f063` | Implemented; browser E2E not claimed |
+| 11 | Executive evidence references | existing evidence/lineage refs surfaced without invention; print-safe | `bb9b29fe88dd073dd5143ccb18f5979c27161ed0` | Implemented on dedicated front; ready for integration |
+| 12 | Executive timestamp hardening | invalid timestamp normalization/fallback for freshness | `7cd486b84eac123bf931bf565ebe1862d482e7f1` | Implemented on dedicated front |
+| 13 | Executive page consistency | removed stale `RUNTIME_REQUIRED` / `Awaiting` / `Not yet verified` sections; page now delegates lifecycle truth to canonical decision panel | `aed0cce985bd011074f0980767a56d43cb521694` | Implemented on integration branch; browser E2E not claimed |
+| 14 | Parallel execution matrix | 20+ independent work fronts opened from current integration point | `02383078a66fb1a2daa35a5e21b31da219ef1003` | Matrix/evidence recorded; individual fronts remain isolated until verified |
 
 ## Staging evidence boundary
 
@@ -49,6 +53,30 @@ Known verified properties for `get_executive_decision_report(integer)` after mig
 Canonical migration:
 `supabase/migrations/20260908234000_executive_decision_report_read_model.sql`
 
+## Current active batch targets
+
+### A — Executive report closure
+- Page and lifecycle panel now have one narrative boundary.
+- Evidence/lineage references are surfaced only when already persisted.
+- Freshness uses generated/as-of timestamps with invalid timestamp hardening.
+- Remaining: findings-level drilldown, actual PDF artifact verification, authenticated E2E.
+
+### B — Decision alternatives / outcome
+- Alternative groups have a tenant-safe read model and deterministic ranking.
+- Learning adjustment is bounded and only active after the minimum sample threshold.
+- Decision selection must remain separate from master-data mutation and approval.
+- Remaining: richer evidence selection and explicit outcome/recommendation linkage where source fields exist.
+
+### C — Universal import intelligence
+- Folder processing is per-file/per-dataset rather than fixed to one entity.
+- Unknown/unmapped data remains available through analysis paths.
+- Exact file duplicates are skipped by fingerprint; low-confidence specialization falls back to analysis.
+- Remaining: deeper report-type semantics, row/entity conflict workflow, relation graph, and quality closure.
+
+### D — Forecast / AI / operations
+- Forecast and AI work continues behind provenance/confidence/tenant-safety rules.
+- Operational queue/progress persistence continues without claiming durable worker E2E.
+
 ## Non-claims / certification boundary
 
 The following remain **not certified** unless fresh live evidence is produced:
@@ -62,40 +90,6 @@ The following remain **not certified** unless fresh live evidence is produced:
 - durable worker execution E2E.
 
 A direct SQL call without an authenticated tenant is not an E2E failure; it is an expected `TENANT_REQUIRED` boundary.
-
-## Current open fronts
-
-1. Executive report: evidence/findings drilldown and richer source context.
-2. Decision context: richer alternative/evidence selection without inventing data.
-3. Outcome/learning: governed adaptive write-back design, with explicit thresholds and auditability.
-4. Print/PDF: print-safe executive layout and verification; do not claim generated PDF unless an actual PDF artifact is produced.
-5. Universal import: report-type semantics, duplicate/conflict policy, relations, quality workflow, and general-report closure.
-6. Forecasting: confidence, horizon, uncertainty, provenance, and source read-model linkage.
-7. Authenticated E2E / production evidence: operationally blocked until access is available.
-
-## Next execution batches and acceptance criteria
-
-### Batch N+1 — Executive evidence drilldown
-- Use only existing decision/recommendation/work/outcome evidence fields.
-- Surface source/evidence IDs and observed/as-of timestamps where present.
-- No invented evidence, KPI, outcome, or provenance.
-- Keep tenant boundary in the server read model.
-
-### Batch N+2 — Decision alternatives + outcome closure
-- Show ranked alternatives in decision context.
-- Selection remains a decision operation, never a silent master-data mutation.
-- Outcome capture retains expected/actual/impact/evidence when available.
-- Learning remains bounded and auditable.
-
-### Batch N+3 — Import intelligence closure
-- Close report-type classification, duplicate/conflict policy, relation graph, and quality workflow for supported formats.
-- Unknown fields remain preserved.
-- No specialized write at low confidence.
-
-### Batch N+4 — Forecast/read-model closure
-- Forecasts expose horizon, uncertainty, confidence, and provenance.
-- Dashboard/reports consume one canonical read model.
-- No forecast number without source evidence.
 
 ## Evidence discipline
 
