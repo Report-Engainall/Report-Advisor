@@ -20,8 +20,11 @@ for (const file of migrationFiles) {
     if (!/SECURITY\s+DEFINER/i.test(block)) continue;
     const fn = block.match(/CREATE\s+(?:OR\s+REPLACE\s+)?FUNCTION\s+([^\s(]+)/i)?.[1] ?? '<unknown>';
 
-    if (!/SET\s+search_path\s*(?:=|TO)\s*'?public'?/i.test(block)) {
-      failures.push(`${file}: ${fn} missing fixed public search_path`);
+    // A fixed SECURITY DEFINER path may be the historical `public` contract or
+    // the hardened `pg_catalog` contract. Do not reject the stricter catalog-only
+    // path used by the current staging hardening migration.
+    if (!/SET\s+search_path\s*(?:=|TO)\s*'?(?:pg_catalog(?:\s*,\s*public)?|public)'?/i.test(block)) {
+      failures.push(`${file}: ${fn} missing fixed search_path`);
     }
     if (!/current_company_id\s*\(\)|auth\.uid\s*\(\)/i.test(block)) {
       failures.push(`${file}: ${fn} missing authenticated tenant/user binding`);
