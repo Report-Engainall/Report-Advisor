@@ -20,7 +20,6 @@ const sourceNamedResolutions = resolveRows(products, sourceNamedExisting);
 assert.equal(sourceNamedResolutions.every(r => r.outcome === 'skip_exact'), true);
 
 // DB rows normally use canonical column names rather than source headers.
-// This must resolve against mappedField, otherwise the tenant preview can falsely report rows as new.
 const canonicalExisting = [{ sku: 'A-1', name: 'Sugar' }, { sku: 'B-2', name: 'Tea' }];
 const canonicalResolutions = resolveRows(products, canonicalExisting);
 assert.equal(canonicalResolutions.every(r => r.outcome === 'skip_exact'), true);
@@ -39,21 +38,13 @@ const customerColumns = [
   { name: 'Phone', mappedField: 'phone', mappingConfidence: 90, dataType: 'text', nullCount: 0, uniqueCount: 3, uniqueRatio: 1, sampleValues: [], statistics: { count: 3 }, qualityIssues: [] },
 ];
 const customerDataset = {
-  id: 'customers',
-  name: 'Customers',
-  source: 'test',
-  rowCount: 3,
-  columnCount: 3,
-  columns: customerColumns,
+  id: 'customers', name: 'Customers', source: 'test', rowCount: 3, columnCount: 3, columns: customerColumns,
   rows: [
     { Code: 'C-001', Name: 'Ahmed', Phone: '111' },
     { Code: '', Name: 'No Code Customer', Phone: '222' },
     { Code: '', Name: 'Exact No Code', Phone: '333' },
-  ],
-  preview: [],
-  qualityScore: 100,
+  ], preview: [], qualityScore: 100,
 };
-
 const customerExisting = [
   { code: 'C-001', name: 'Ahmed Old Name', phone: '999' },
   { code: null, name: 'No Code Customer', phone: '000' },
@@ -68,20 +59,20 @@ assert.equal(customerResolutions[1]?.outcome, 'conflict');
 assert.ok(customerResolutions[1]?.differingFields.includes('phone'));
 assert.equal(customerResolutions[2]?.outcome, 'skip_exact');
 
-// A coded customer must not silently match another coded customer by shared name.
-const codedDifferentCustomer = {
-  ...customerDataset,
-  rows: [{ Code: 'C-002', Name: 'Ahmed', Phone: '777' }],
-};
+// A coded customer must match by code, not by a shared name.
+const codedDifferentCustomer = { ...customerDataset, rows: [{ Code: 'C-002', Name: 'Ahmed', Phone: '777' }] };
 const codedDifferentResolution = resolveRows(codedDifferentCustomer, customerExisting);
 assert.equal(codedDifferentResolution[0]?.outcome, 'conflict');
 assert.equal(codedDifferentResolution[0]?.matchedRowIndex, 3);
 
+// A new coded customer with an existing customer's name must remain NEW.
+const codedNewSameName = { ...customerDataset, rows: [{ Code: 'C-003', Name: 'Ahmed', Phone: '888' }] };
+const codedNewSameNameResolution = resolveRows(codedNewSameName, customerExisting);
+assert.equal(codedNewSameNameResolution[0]?.outcome, 'new');
+assert.equal(codedNewSameNameResolution[0]?.matchedRowIndex, null);
+
 // An uncoded customer uses name as the deterministic fallback identity.
-const uncodedFallback = {
-  ...customerDataset,
-  rows: [{ Code: '', Name: 'No Code Customer', Phone: '222' }],
-};
+const uncodedFallback = { ...customerDataset, rows: [{ Code: '', Name: 'No Code Customer', Phone: '222' }] };
 const uncodedFallbackResolution = resolveRows(uncodedFallback, customerExisting);
 assert.equal(uncodedFallbackResolution[0]?.outcome, 'conflict');
 assert.equal(uncodedFallbackResolution[0]?.matchedRowIndex, 1);
