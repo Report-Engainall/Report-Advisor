@@ -6,13 +6,16 @@ const pages = fs.readdirSync('src/pages').filter((name) => name.endsWith('Page.t
 
 const routePaths = [...app.matchAll(/<Route\s+path="([^"]+)"/g)].map((m) => m[1]);
 const sidebarPaths = [...sidebar.matchAll(/path:'([^']+)'/g)].map((m) => m[1]);
-const pageImports = [...app.matchAll(/import\([^)]*['"]@\/pages\/([^'"]+)['"]/g)].map((m) => m[1]);
+const pageImports = [
+  ...app.matchAll(/from\s+['"]@\/pages\/([^'"]+)['"]/g),
+  ...app.matchAll(/import\([^)]*['"]@\/pages\/([^'"]+)['"]/g),
+].map((m) => m[1]);
 
 const unique = (items) => [...new Set(items)];
 const missingFromSidebar = routePaths.filter((path) => path !== '*' && !sidebarPaths.includes(path));
 const missingRoutesForSidebar = sidebarPaths.filter((path) => !routePaths.includes(path));
-const routedPageFiles = unique(pageImports);
-const unreferencedPageFiles = pages.filter((file) => !routedPageFiles.includes(file));
+const importedPageFiles = unique(pageImports);
+const unreferencedPageFiles = pages.filter((file) => !importedPageFiles.includes(file));
 
 const fail = (label, values) => {
   if (!values.length) return;
@@ -27,12 +30,13 @@ console.log(`Page component files: ${pages.length}`);
 fail('routes missing from sidebar navigation', missingFromSidebar);
 fail('sidebar links missing a registered route', missingRoutesForSidebar);
 
-const knownLegacyFiles = new Set([
+const knownEntryOrLegacyFiles = new Set([
+  'LoginPage.tsx',
   'CanonicalImportPage.tsx',
   'ReceivablesReportPageCanonical.tsx',
 ]);
-const unexpectedOrphans = unreferencedPageFiles.filter((file) => !knownLegacyFiles.has(file));
-fail('page components neither routed nor explicitly allowlisted as legacy', unexpectedOrphans);
+const unexpectedOrphans = unreferencedPageFiles.filter((file) => !knownEntryOrLegacyFiles.has(file));
+fail('page components neither imported nor explicitly allowlisted as entry/legacy', unexpectedOrphans);
 
 if (process.exitCode) {
   console.error('UI route/navigation completeness: FAIL');
