@@ -21,7 +21,7 @@ export interface DurableProductionRunInput<T = unknown> {
   rows: Array<Record<string, unknown>>;
   lifecycle: Omit<ProductionLifecycleInput<T>, 'jobId' | 'companyId' | 'sourceHash' | 'currentRows'> & { currentRows: ProductionLifecycleInput<T>['currentRows'] };
   executeStage?: (stage: ReportExecutionStage, input: { request: ReportExecutionRequest; rows: Array<Record<string, unknown>> }) => Promise<void>;
-  loadSourceSnapshot?: (input: { request: ReportExecutionRequest; expectedSourceHash: string }) => Promise<DurableSourceSnapshot<T>>;
+  loadSourceSnapshot?: (input: { request: ReportExecutionRequest; expectedSourceHash: string; sourceSnapshotId: string }) => Promise<DurableSourceSnapshot<T>>;
   leaseSeconds?: number;
   heartbeatIntervalMs?: number;
 }
@@ -38,8 +38,9 @@ export async function runDurableProductionLifecycle<T>(input: DurableProductionR
     if (job.checkpoint.sourceHash && job.checkpoint.sourceHash !== input.sourceHash) throw new Error('Source hash changed during resumable execution');
     assertProductionCheckpoint(job.checkpoint);
 
+    if (input.loadSourceSnapshot && !input.request.sourceSnapshotId?.trim()) throw new Error('Source snapshot loader requires sourceSnapshotId');
     const source = input.loadSourceSnapshot
-      ? await input.loadSourceSnapshot({ request: input.request, expectedSourceHash: input.sourceHash })
+      ? await input.loadSourceSnapshot({ request: input.request, expectedSourceHash: input.sourceHash, sourceSnapshotId: input.request.sourceSnapshotId! })
       : { sourceHash: input.sourceHash, rows: input.rows, currentRows: input.lifecycle.currentRows };
     if (!source.sourceHash.trim()) throw new Error('Source snapshot loader returned an empty source hash');
     if (source.sourceHash !== input.sourceHash) throw new Error('Loaded source snapshot hash does not match the durable job');
@@ -72,6 +73,7 @@ export async function runDurableProductionLifecycle<T>(input: DurableProductionR
     });
     await store.complete(input.jobId, input.workerId, {
       sourceHash: input.sourceHash,
+      sourceSnapshotId: input.request.sourceSnapshotId ?? null,
       sourceRowCount: sourceRows.length,
       authoritativeCurrentRowCount: source.currentRows.length,
       lineageCount: lifecycle.lineage.length,
