@@ -14,13 +14,13 @@
 | D-01 | لوحة القيادة الذكية | KPIs حقيقية + freshness + quality + change detection | كل رقم له مصدر/وقت/tenant | قيد التنفيذ |
 | D-02 | تحليل التقرير | profiling + relations + anomalies + schema drift | تقرير تفصيلي قابل للتنقل | منفذ جزئيًا |
 | D-03 | التقارير الذكية | توليد تقرير من البيانات الفعلية | findings + evidence + drilldown | قيد التنفيذ |
-| A-01 | التوصيات | تحويل findings إلى actions | recommendation + impact + evidence + status | قيد التنفيذ |
+| A-01 | التوصيات | تحويل findings إلى actions | recommendation + impact + evidence + status | منفذ جزئيًا: outcomes attribution + governed learning ranking؛ adaptive policy write-back غير تلقائي |
 | F-01 | التنبؤات | forecasts مع confidence وإظهار البيانات المستخدمة | forecast + horizon + uncertainty + provenance | قيد التنفيذ |
 | AI-01 | المساعد الذكي | سؤال طبيعي على البيانات والأدلة | tenant-safe + grounded + citations | قيد التنفيذ |
 | T-01 | مهام الأدوار | توليد مهام اليوم/الغد حسب المدير والموظف والمبيعات والمخازن والمحاسب والمشتريات | task proposal مرتبط بمصدر + سبب + أولوية + نتيجة + دليل | منفذ جزئيًا |
 | T-02 | استدامة خطة العمل | حفظ المقترحات واستئنافها عبر الجلسات | tenant-safe + lifecycle + dedupe وعدم تكرار الخطة عند الحفظ | منفذ |
 | T-03 | القرار ← المهمة | تحويل المقترح المقبول إلى work item بعد القرار المعتمد | لا تنفيذ قبل APPROVED decision؛ assignee tenant member | منفذ: RPC + persistence + approval gate + واجهة التحويل والتنفيذ مرتبطة بالدورة |
-| T-04 | المهمة ← الدليل ← النتيجة | ربط work item بالتنفيذ والدليل والنتيجة والتعلم | start→evidence→complete→outcome→learning دون تجاوز approval | منفذ جزئيًا: start/complete/outcome gates + واجهة التشغيل + source-analysis evidence + learning read model؛ ما زال adaptive learning write-back مطلوبًا |
+| T-04 | المهمة ← الدليل ← النتيجة | ربط work item بالتنفيذ والدليل والنتيجة والتعلم | start→evidence→complete→outcome→learning دون تجاوز approval | منفذ جزئيًا: start/complete/outcome gates + واجهة التشغيل + source-analysis evidence + learning read model + governed recommendation ranking؛ ما زال adaptive learning write-back مطلوبًا |
 | T-05 | خطة التشغيل اليومية | read model دائم لحالة اليوم/الغد حسب الدور | proposed/accepted/open/in-progress/completed/overdue/evidence-missing مع tenant isolation | منفذ |
 | Q-01 | جودة البيانات | duplicates/missing/outliers/conflicts | severity + resolution workflow | قيد التنفيذ |
 | R-01 | العلاقات | اكتشاف مفاتيح وعلاقات بين datasets | relation graph + confidence | قيد التنفيذ |
@@ -44,6 +44,7 @@
 11. **لا تحويل بلا قرار معتمد.** تحويل task proposal إلى work item يتم فقط عبر tenant-safe RPC يتحقق من `APPROVED`، ويرفض assignee غير العضو النشط، ويحافظ على ارتباط recommendation→decision عندما يكون المصدر توصية.
 12. **خطة التشغيل لا تستبدل مصدر الحقيقة.** العدادات اليومية read-model مشتقة من proposals/work items، ولا تسمح بتنفيذ أو تجاوز approval/evidence gates.
 13. **التعلم لا يغيّر السياسات بصمت.** نتائج القرارات تحفظ وتُقاس أولًا؛ أي adaptive write-back لاحقًا يجب أن يمر بحوكمة وعتبات وأدلة.
+14. **الترتيب التعلمي محكوم.** لا يؤثر outcome على ترتيب التوصيات إلا بعد حد أدنى 3 ملاحظات، وبحد أقصى ±15%، مع إبقاء الإشارة وسببها وحجم عينتها قابلة للتتبع.
 
 ## ترتيب التنفيذ
 
