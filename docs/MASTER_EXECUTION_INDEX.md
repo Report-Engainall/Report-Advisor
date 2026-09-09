@@ -1,15 +1,14 @@
 # Report Advisor — Master Execution & Truth Index
 
-## CURRENT EXECUTION BOUNDARY — 2026-09-07
+## CURRENT EXECUTION BOUNDARY — 2026-09-10
 
 > Authoritative execution manifest. This document never promotes historical evidence across an exact-HEAD boundary. Pair every evidence batch with the exact Git `HEAD` of `main` and the exact environment/commit used.
 
 ### CURRENT EXACT HEAD
-- Current code/test candidate: `3484bd1b033914a4a87300ffb4b3ec926c4f8b80`.
-- Current functional baseline before this documentation refresh: `5b083100d463aae4a4cf22ebbbff7e1470749b1f`.
-- `main` is unchanged relative to that baseline at the time of the deep audit; no hidden drift was found.
-- Documentation refreshes create a new exact-head boundary and do not promote runtime evidence from the previous SHA.
-- Frozen release candidates remain untouched: protected candidate `14cc7cefc0fad622436b4845a0e4b46a8888e8a9`, exact RC reference `d846821b8d969aaa384ab85487a0dcf264a65aca`.
+- Current code/test candidate: `2017ae5a4962afb2e66902d69975cc2a2b90be4b`.
+- This candidate contains the bounded PR #462 build-blocker repairs and is the exact candidate under fresh certification.
+- Historical evidence from earlier SHAs remains historical and is not promoted automatically.
+- This index update is governance-only; it does not certify runtime, browser, tenant A/B, import, OCR, recovery, backup/restore, performance, or LIVE state.
 
 ### BOUNDARY / GOVERNANCE
 - No rebuild from scratch.
@@ -179,12 +178,12 @@ This is not a rebuild situation. The remaining work is concentrated closure: exe
 - CI remains an external billing/execution constraint and is not converted into a product PASS.
 - Next mandatory evidence fronts remain authenticated A/B browser runtime, real import lifecycle, Arabic golden-corpus runtime, worker recovery, watched-folder lifecycle, backup/restore/rollback, performance, and final exact-head certification.
 
-## GOVERNANCE LOG — 2026-09-10 — EXACT-HEAD RECONCILIATION
-- Verified current `main` HEAD: `4db373e61e03c030bab1628864c647b2d5bb97f6`.
-- The intervening commit `4db373e61e03c030bab1628864c647b2d5bb97f6` is `test(import): guard job lifecycle counter invariants` and changes only `src/lib/import/batch-folder.lifecycle.test.ts` (29 additions, 0 deletions).
-- No current-head source/test evidence was found showing a new Decision/Work/Outcome tenant-isolation defect. Existing contract coverage explicitly rejects tenant-mismatched Decision execution, Work Item completion, Outcome creation, and finalize access; therefore no speculative tenant code change is authorized from stale evidence.
-- Final Certification run `34393536163` failed closed at `Verify certification boundary integrity` because the Master Index still named `0eabfd739bc75fef2e51be1b051d9da95abde072` while the actual current `main` HEAD was `4db373e61e03c030bab1628864c647b2d5bb97f6`.
-- This is classified as an exact-head governance/index mismatch, not a product tenant-isolation failure. The certification boundary is behaving correctly by refusing to certify an unindexed candidate.
-- A workflow-run lookup for the exact `4db373e61e03c030bab1628864c647b2d5bb97f6` returned no associated pull-request workflow runs; no CI PASS is inferred from absence of runs.
-- This index refresh intentionally records `4db373e61e03c030bab1628864c647b2d5bb97f6` as the current candidate and preserves all historical evidence as historical. The resulting documentation commit creates the next exact-head boundary and must itself be subjected to the full CI/certification chain.
-- Release state remains **NOT CERTIFIED**. No tenant bypass, certification bypass, historical-SHA promotion, or fake PASS was introduced.
+
+
+## GOVERNANCE LOG — 2026-09-10 — CANDIDATE #462 BOUNDARY
+- Exact candidate under certification: `2017ae5a4962afb2e66902d69975cc2a2b90be4b`.
+- PR #462 bounded build repairs are the only code changes being carried forward in this candidate closure.
+- The previous Final Certification failure was a governance mismatch: the indexed candidate did not match this exact candidate.
+- This entry intentionally binds the Master Index to the candidate; it does not promote any historical runtime evidence.
+- Required next proof remains: fresh exact-head certification, authenticated Actor A/B browser runtime, real import lifecycle, crash/resume/recovery, document/OCR corpus, KPI evidence lineage, backup/restore/rollback, and final LIVE certification.
+- Release state: **NOT CERTIFIED** until fresh operational evidence is produced on the resulting exact candidate.
