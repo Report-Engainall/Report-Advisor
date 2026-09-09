@@ -14,7 +14,6 @@ function latestBody(name) {
   return sql.slice(start, next < 0 ? sql.length : next);
 }
 const pos = (body, needle, from = 0) => body.indexOf(needle, from);
-const lockCount = (body) => (body.replace(/--[^\n]*|\/\*[\s\S]*?\*\//g, '').match(/\bfor\s+update\b/gi) ?? []).length;
 
 const request = latestBody('request_decision_approval');
 const decide = latestBody('decide_approval');
@@ -50,8 +49,11 @@ assert.throws(() => {
 const weakenedRequestApproval = request.slice(0, reqApprovalLock) + request.slice(reqApprovalLock + 'for update'.length);
 assert.throws(() => {
   const body = weakenedRequestApproval;
-  const approvalLock = pos(body, 'for update', reqApproval + 1);
-  if (approvalLock >= 0) throw new Error('request approval lock missing');
+  const approvalQuery = pos(body, 'from public.decision_approvals');
+  const approvalLock = pos(body, 'for update', approvalQuery);
+  const decisionQuery = pos(body, 'from public.business_intelligence_decisions');
+  const decisionLock = pos(body, 'for update', decisionQuery);
+  if (!(approvalLock >= 0 && approvalLock > decisionLock)) throw new Error('request approval lock missing');
 }, /request approval lock missing/);
 
 const weakenedDecide = decide.replace(/for update/i, '');

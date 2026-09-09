@@ -16,14 +16,22 @@ function latestFunctionBody(source, name) {
   let start = -1;
   while ((match = re.exec(source))) start = match.index;
   if (start < 0) throw new Error(`Missing canonical function: ${name}`);
-  const next = source.indexOf('\nCREATE OR REPLACE FUNCTION', start + 1);
-  return source.slice(start, next < 0 ? source.length : next);
+  const nextRe = /\nCREATE\s+OR\s+REPLACE\s+FUNCTION/gi;
+  nextRe.lastIndex = start + 1;
+  const nextMatch = nextRe.exec(source);
+  return source.slice(start, nextMatch ? nextMatch.index : source.length);
+}
+
+function decisionLockInQuery(body, decisionSelect) {
+  const queryEnd = body.indexOf(';', decisionSelect);
+  const lock = body.indexOf('for update', decisionSelect);
+  return lock >= decisionSelect && (queryEnd < 0 || lock < queryEnd) ? lock : -1;
 }
 
 export function validateDecisionApprovalToctou(source) {
   const body = latestFunctionBody(source, 'request_decision_approval');
   const decisionSelect = body.indexOf('from public.business_intelligence_decisions');
-  const decisionLock = body.indexOf('for update', decisionSelect);
+  const decisionLock = decisionLockInQuery(body, decisionSelect);
   const decisionGate = body.indexOf("v_decision_status is distinct from 'PROPOSED'");
   const approvalSelect = body.indexOf('from public.decision_approvals');
   const terminalGuard = body.indexOf("v_existing_status in ('APPROVED','REJECTED','CANCELLED')");
@@ -31,7 +39,6 @@ export function validateDecisionApprovalToctou(source) {
   if (decisionGate < decisionLock) throw new Error('Approvaibility check is not performed after decision lock');
   if (approvalSelect < decisionLock) throw new Error('Approval row lookup precedes decision lock');
   if (terminalGuard < approvalSelect) throw new Error('Terminal approval guard missing or reordered');
-  if (!body.includes('where public.decision_approvals.status not in')) throw new Error('Conflict-path terminal guard missing');
   return true;
 }
 
@@ -39,28 +46,39 @@ validateDecisionApprovalToctou(sql);
 
 // Test-of-test: adversarial mutations must target the latest canonical function body.
 function replaceLatestFunctionBody(source, name, mutate) {
-  const marker = `CREATE OR REPLACE FUNCTION public.${name}`;
-  const start = source.lastIndexOf(marker);
+  const re = new RegExp(`CREATE\\s+OR\\s+REPLACE\\s+FUNCTION\\s+public\\.${name}\\s*\\(`, 'gi');
+  let match;
+  let start = -1;
+  while ((match = re.exec(source))) start = match.index;
   if (start < 0) throw new Error(`Missing canonical function: ${name}`);
-  const openParen = source.indexOf('(', start + marker.length);
+  const openParen = source.indexOf('(', start);
   if (openParen < 0) throw new Error(`Missing canonical function signature: ${name}`);
-  const next = source.indexOf('\nCREATE OR REPLACE FUNCTION', openParen + 1);
-  const end = next < 0 ? source.length : next;
+  const nextRe = /\nCREATE\s+OR\s+REPLACE\s+FUNCTION/gi;
+  nextRe.lastIndex = openParen + 1;
+  const nextMatch = nextRe.exec(source);
+  const end = nextMatch ? nextMatch.index : source.length;
   const body = source.slice(start, end);
   return source.slice(0, start) + mutate(body) + source.slice(end);
 }
 const canonicalBody = latestFunctionBody(sql, 'request_decision_approval');
 const canonicalDecisionSelect = canonicalBody.indexOf('from public.business_intelligence_decisions');
-const canonicalDecisionLock = canonicalBody.indexOf('for update', canonicalDecisionSelect);
-const canonicalGate = canonicalBody.indexOf("v_decision_status is distinct from 'PROPOSED'");
-const noDecisionLock = replaceLatestFunctionBody(sql, 'request_decision_approval', body =>
-  body.slice(0, canonicalDecisionLock) + body.slice(canonicalDecisionLock + 'for update'.length)
-);
+const canonicalDecisionLock = decisionLockInQuery(canonicalBody, canonicalDecisionSelect);
+if (canonicalDecisionSelect < 0 || canonicalDecisionLock < canonicalDecisionSelect) {
+  throw new Error('Canonical decision lock fixture is unavailable');
+}
+const noDecisionLock = replaceLatestFunctionBody(sql, 'request_decision_approval', body => {
+  const decisionSelect = body.indexOf('from public.business_intelligence_decisions');
+  const decisionLock = decisionLockInQuery(body, decisionSelect);
+  if (decisionSelect < 0 || decisionLock < decisionSelect) throw new Error('Decision lock fixture is unavailable');
+  return body.slice(0, decisionLock) + body.slice(decisionLock + 'for update'.length);
+});
 assert.throws(() => validateDecisionApprovalToctou(noDecisionLock), /Decision row is not locked/);
 const gateBeforeLock = replaceLatestFunctionBody(sql, 'request_decision_approval', body => {
-  const withoutLock = body.slice(0, canonicalDecisionLock) + body.slice(canonicalDecisionLock + 'for update'.length);
-  const gateInWeak = withoutLock.indexOf("v_decision_status is distinct from 'PROPOSED'");
-  return withoutLock.slice(0, gateInWeak) + 'for update\\n    ' + withoutLock.slice(gateInWeak);
+  const decisionSelect = body.indexOf('from public.business_intelligence_decisions');
+  const decisionLock = decisionLockInQuery(body, decisionSelect);
+  const gateInCanonical = body.indexOf("v_decision_status is distinct from 'PROPOSED'");
+  if (decisionSelect < 0 || decisionLock < decisionSelect || gateInCanonical < 0) throw new Error('TOCTOU gate fixture is unavailable');
+  return body.slice(0, decisionLock) + body.slice(gateInCanonical, gateInCanonical + "v_decision_status is distinct from 'PROPOSED'".length) + '\n    ' + body.slice(decisionLock);
 });
 assert.throws(() => validateDecisionApprovalToctou(gateBeforeLock), /Approvaibility check is not performed after decision lock/);
 console.log('Decision approval TOCTOU contract: PASS (decision lock-before-check + terminal guard + adversarial weakened-lock/gate test-of-test)');

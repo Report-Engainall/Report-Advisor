@@ -14,7 +14,7 @@ const pageImports = [
 const unique = (items) => [...new Set(items)];
 const missingFromSidebar = routePaths.filter((path) => path !== '*' && !sidebarPaths.includes(path));
 const missingRoutesForSidebar = sidebarPaths.filter((path) => !routePaths.includes(path));
-const importedPageFiles = unique(pageImports);
+const importedPageFiles = unique(pageImports.map((file) => file.endsWith('.tsx') ? file : `${file}.tsx`));
 const unreferencedPageFiles = pages.filter((file) => !importedPageFiles.includes(file));
 
 const fail = (label, values) => {
