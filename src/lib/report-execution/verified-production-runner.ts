@@ -4,7 +4,7 @@ import { runDurableProductionLifecycle, type DurableProductionRunInput, type Dur
 
 export interface VerifiedProductionRunInput<T = unknown> extends Omit<DurableProductionRunInput<T>, 'request' | 'loadSourceSnapshot'> {
   request: ReportExecutionRequest & { sourceSnapshotId: string };
-  loadSourceSnapshot: (input: { request: ReportExecutionRequest & { sourceSnapshotId: string }; expectedSourceHash: string; sourceSnapshotId: string }) => Promise<DurableSourceSnapshot<T>>;
+  loadSourceSnapshot: (input: { request: ReportExecutionRequest; expectedSourceHash: string; sourceSnapshotId: string }) => Promise<DurableSourceSnapshot<T>>;
 }
 
 /** Production-only entry point: execution requires an explicit source snapshot identity and loader. */
