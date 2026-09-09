@@ -17,17 +17,13 @@ const required = [
   /REVOKE ALL ON FUNCTION public\.complete_decision_work_item/i,
   // Approver authority contract: current_company_id() proves an active tenant membership;
   // approval additionally requires a distinct actor from requested_by.
-  /v_company\s*[:=]\s*public\.current_company_id\(\)/i,
+  /v_company\s+(?:uuid\s+)?[:=]\s*public\.current_company_id\(\)/i,
   /IF\s+p_approve\s+AND\s+v_requested_by\s*=\s*v_user/i,
 ];
 for (const pattern of required) if (!pattern.test(migration)) throw new Error(`Decision runtime authorization contract missing: ${pattern}`);
 
-const forbidden = [
-  { name: 'self approval bypass', pattern: /IF\s+p_approve\s+AND\s+v_requested_by\s*=\s*v_user/i },
-  { name: 'unrestricted completion', pattern: /IF\s+v_status\s*<>\s*'IN_PROGRESS'/i },
-  { name: 'assignee bypass', pattern: /v_assignee\s+IS\s+NOT\s+NULL\s+AND\s+v_assignee\s+<>\s+v_user/i },
-];
-for (const check of forbidden) if (check.pattern.test(migration)) throw new Error(`Decision runtime authorization regression: ${check.name}`);
+// The canonical guards above are required invariants, not forbidden patterns.
+// Keep the contract fail-closed by testing their presence and weakening behavior below.
 
 // Test-of-test: remove the complete self-approval guard using whitespace-tolerant matching.
 const weakened = migration.replace(
