@@ -5,12 +5,12 @@
 > Authoritative execution manifest. This document never promotes historical evidence across an exact-HEAD boundary. Pair every evidence batch with the exact Git `HEAD` of `main` and the exact environment/commit used.
 
 ### CURRENT PROJECT STATE
-- Current code/test candidate entering this certification sweep: `a3437237d87a8f3abd0e7e74c2efabc679565788`.
+- Current code/test candidate entering this certification sweep: `c0905728c94c4a9c740bdf9c88d702fb6d51fcfd`.
 - This candidate is the exact code/test head of PR #461 (`fix/final-certification-boundary-20260909`) and is the candidate under fresh exact-head CI certification.
 - Certification remains fail-closed: no historical evidence, UI shell, simulated session, old SHA, or CI run on another SHA can certify this candidate.
 
 ### CURRENT EXACT HEAD
-- Current candidate: `a3437237d87a8f3abd0e7e74c2efabc679565788`.
+- Current candidate: `c0905728c94c4a9c740bdf9c88d702fb6d51fcfd`.
 - Previous main baseline before this bounded certification repair: `4db373e61e03c030bab1628864c647b2d5bb97f6`.
 - Documentation refreshes create a new exact-head boundary and do not promote runtime evidence from a previous SHA.
 - Frozen release candidates remain untouched: protected candidate `14cc7cefc0fad622436b4845a0e4b46a8888e8a`, exact RC reference `d846821b8d969aaa384ab85487a0dcf264a65aca`.
@@ -109,7 +109,7 @@
 
 ### CI / Execution Infrastructure
 - Fresh exact-head workflow execution must produce real steps, runner identity, logs, and green checks before CI gates can be called PASS.
-- PR #461 is the current bounded certification-repair candidate; exact candidate binding is now `a3437237d87a8f3abd0e7e74c2efabc679565788` after the certification-boundary allowlist was expanded to recognize the decision TOCTOU contract test as governance-only.
+- PR #461 is the current bounded certification-repair candidate; exact candidate binding is now `c0905728c94c4a9c740bdf9c88d702fb6d51fcfd` after a surgical repair to the decision TOCTOU test harness so its adversarial mutation targets the latest canonical function definition regardless of SQL keyword casing.
 - Certification remains fail-closed if any required indicator is red, skipped, missing, or bound to a different SHA.
 
 ## ACTIVE EXECUTION FRONTS
@@ -123,7 +123,7 @@
 - PR #397 — truthful Arabic OCR confidence.
 - PR #398 — report execution input validation; one previously valid review finding has now been explicitly repaired by rejecting array-shaped requests.
 - PR #405 — report execution queue scalar boundary hardening.
-- PR #461 — bounded final certification boundary repair; current exact candidate binding is `a3437237d87a8f3abd0e7e74c2efabc679565788`.
+- PR #461 — bounded final certification boundary repair; current exact candidate binding is `c0905728c94c4a9c740bdf9c88d702fb6d51fcfd`.
 
 ### LATEST CERTIFICATION SWEEP UPDATE
 - Previous exact candidate `2143d6a809c9dbbc187ba4ba3238a11374164c4a` produced green Truth/Data, Intelligence/OCR, Quality and most security/contract checks, but `Execution Enforcement Contract` and `Final Certification Gate` failed because the synthetic PR merge exposed a candidate-side boundary condition.
@@ -137,5 +137,7 @@
 - Surgical correction applied in `58ec17eb818adea4558dce468198507750324cad`: removed the obsolete literal requirement and retained the structural terminal-state guard requirement anchored after the approval-row lookup. No production SQL was changed.
 - The `05cf7c5f...` certification run `34404195488` failed when its contract sweep reached `scripts/check-decision-approval-toctou-contract.mjs`; the log showed the earlier 20-stage release-readiness suite at `TOTAL=20 PASS=20 FAIL=0`, and the canonical decision lock-order check itself passed. This confirms the narrow failure boundary.
 - A subsequent run on `58ec17...` was stale/misaligned because its synthetic candidate side was created before this index binding; it is not evidence for the current candidate.
-- The certification-boundary guard has now been updated to classify `scripts/check-decision-approval-toctou-contract.mjs` as governance-only, preventing the repaired contract test itself from being rejected by the synthetic candidate-side boundary.
-- The Master Index is now rebound to exact candidate `a3437237d87a8f3abd0e7e74c2efabc679565788` after that guard repair. Fresh exact-head CI is required now; no PASS is inferred from this source update.
+- The certification-boundary guard was then updated to classify `scripts/check-decision-approval-toctou-contract.mjs` as governance-only, preventing the repaired contract test itself from being rejected by the synthetic candidate-side boundary.
+- The Master Index was rebound to `a3437237d87a8f3abd0e7e74c2efabc679565788`, then the fresh sweep exposed a new narrow test-harness defect on `edc88542efe178b69414270974fe7e3dee792443`: `replaceLatestFunctionBody()` used a case-sensitive literal marker, so it mutated an older uppercase definition instead of the latest lowercase migration definition. The canonical SQL itself was correct and the lock-order gate passed; only the adversarial TOCTOU harness failed.
+- Surgical correction applied in `c0905728c94c4a9c740bdf9c88d702fb6d51fcfd`: `replaceLatestFunctionBody()` now locates the latest function case-insensitively and slices to the next CREATE FUNCTION marker case-insensitively. No production SQL was changed.
+- The Master Index is now bound to `c0905728c94c4a9c740bdf9c88d702fb6d51fcfd`. A fresh exact-head CI sweep is required; no PASS or certification is inferred from this repair.
