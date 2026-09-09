@@ -12,7 +12,7 @@ const navSections:NavSection[]=[
  {title:'الفهم',items:[{path:'/reports',label:'مركز التقارير',icon:<FileBarChart size={18}/>,exact:true},{path:'/analytics',label:'مركز التحليلات',icon:<BarChart3 size={18}/>} ]},
  {title:'الذكاء والقرار',items:[{path:'/intelligence',label:'مركز الذكاء',icon:<Brain size={18}/>,exact:true},{path:'/decision-experience',label:'مساحة القرار',icon:<Scale size={18}/>} ]},
  {title:'التشغيل',items:[{path:'/customers',label:'العملاء',icon:<Users size={18}/>},{path:'/products',label:'المنتجات',icon:<Package size={18}/>},{path:'/inventory',label:'المخزون',icon:<Warehouse size={18}/>} ]},
- {title:'النظام',items:[{path:'/settings',label:'الإعدادات',icon:<Settings size={18/>} ]},
+ {title:'النظام',items:[{path:'/settings',label:'الإعدادات',icon:<Settings size={18}/>} ]},
 ];
 export function Sidebar({alertCount=0,onNavigate,user}:{alertCount?:number;onNavigate?:()=>void;user?:User|null}){
  const location=useLocation(); const handleSignOut=async()=>{await supabase.auth.signOut();onNavigate?.()};
