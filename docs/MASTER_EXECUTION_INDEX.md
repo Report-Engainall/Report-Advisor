@@ -1,13 +1,18 @@
 # Report Advisor — Master Execution & Truth Index
 
-## CURRENT EXECUTION BOUNDARY — 2026-09-07
+## CURRENT EXECUTION BOUNDARY — 2026-09-09
 
 > Authoritative execution manifest. This document never promotes historical evidence across an exact-HEAD boundary. Pair every evidence batch with the exact Git `HEAD` of `main` and the exact environment/commit used.
 
+### CURRENT PROJECT STATE
+- Current code/test candidate entering this certification sweep: `678b4b7b8c6622663785d62051406eff7372578d`.
+- This candidate is the exact head of PR #461 (`fix/final-certification-boundary-20260909`) and is the candidate under fresh exact-head CI certification.
+- Certification remains fail-closed: no historical evidence, UI shell, simulated session, old SHA, or CI run on another SHA can certify this candidate.
+
 ### CURRENT EXACT HEAD
-- Current functional baseline before this documentation refresh: `5b083100d463aae4a4cf22ebbbff7e1470749b1f`.
-- `main` is unchanged relative to that baseline at the time of the deep audit; no hidden drift was found.
-- Documentation refreshes create a new exact-head boundary and do not promote runtime evidence from the previous SHA.
+- Current candidate: `678b4b7b8c6622663785d62051406eff7372578d`.
+- Previous main baseline before this bounded certification repair: `4db373e61e03c030bab1628864c647b2d5bb97f6`.
+- Documentation refreshes create a new exact-head boundary and do not promote runtime evidence from a previous SHA.
 - Frozen release candidates remain untouched: protected candidate `14cc7cefc0fad622436b4845a0e4b46a8888e8a9`, exact RC reference `d846821b8d969aaa384ab85487a0dcf264a65aca`.
 
 ### BOUNDARY / GOVERNANCE
@@ -18,6 +23,7 @@
 - No HTTP 200, UI shell, CI-created run, fixture assertion, simulated JWT, historical deployment, or old SHA can certify the current candidate.
 - External operational blockers do not justify idle work on source reconciliation, contract hardening, test design, or evidence preparation.
 - Browser E2E must use real Chromium, real Supabase authentication, and browser-held sessions; service-role or mocked sessions are prohibited for certification.
+- Certification checkout must retain full Git history (`fetch-depth: 0`) so ancestry and merge-base checks are meaningful.
 
 ## DEEP AUDIT — 2026-09-07
 
@@ -96,11 +102,9 @@
 - This is an operational gate, not a reason to fabricate a PASS from source inspection.
 
 ### CI / Execution Infrastructure
-- Fresh exact-head workflow runs across the repository continue to fail at the execution layer with jobs reporting `steps=[]`, `runner_id=0`, and empty runner name.
-- Example current PR #398 run `101824133529` for `Report Execution Input Contract` completed as failure with no executed steps and no runner identity.
-- The same pattern is present across quality, OCR, security, import, certification, Windows, and other workflows.
-- This is currently classified as CI execution infrastructure failure, not as evidence that the underlying product tests failed.
-- Workflows are not weakened with bypasses to turn infrastructure failure into PASS.
+- Fresh exact-head workflow execution must produce real steps, runner identity, logs, and green checks before CI gates can be called PASS.
+- PR #461 is the current bounded certification-repair candidate; its exact SHA must be re-exercised after this index binding update.
+- Certification remains fail-closed if any required indicator is red, skipped, missing, or bound to a different SHA.
 
 ## ACTIVE EXECUTION FRONTS
 - #399 — fresh migration replay and schema parity certification.
@@ -113,12 +117,14 @@
 - PR #397 — truthful Arabic OCR confidence.
 - PR #398 — report execution input validation; one previously valid review finding has now been explicitly repaired by rejecting array-shaped requests.
 - PR #405 — report execution queue scalar boundary hardening.
+- PR #461 — bounded final certification boundary repair; current exact candidate binding is `678b4b7b8c6622663785d62051406eff7372578d`.
 
 ## CURRENT PR / REVIEW STATE
 - PR #396: OPEN, mergeable, not merged.
 - PR #397: OPEN, mergeable, not merged.
 - PR #398: OPEN, mergeable, not merged; CodeRabbit's current array-shape finding was verified and repaired.
 - PR #405: OPEN, currently non-mergeable until its fresh review/CI evidence is available.
+- PR #461: OPEN, mergeable, not merged; current certification candidate is `678b4b7b8c6622663785d62051406eff7372578d`.
 - No PR is treated as merged merely because a connector exposes a `merge_commit_sha`; explicit `merged=false` is authoritative.
 
 ## REAL RELEASE ASSESSMENT — 2026-09-07
@@ -177,3 +183,10 @@ This is not a rebuild situation. The remaining work is concentrated closure: exe
 - Therefore no live import lifecycle, Arabic OCR corpus lifecycle, or KPI evidence-lineage runtime PASS is claimed from this inspection alone.
 - CI remains an external billing/execution constraint and is not converted into a product PASS.
 - Next mandatory evidence fronts remain authenticated A/B browser runtime, real import lifecycle, Arabic golden-corpus runtime, worker recovery, watched-folder lifecycle, backup/restore/rollback, performance, and final exact-head certification.
+
+## GOVERNANCE LOG — 2026-09-09 — CERTIFICATION BOUNDARY REPAIR
+- Certification candidate before index binding repair: `678b4b7b8c6622663785d62051406eff7372578d`.
+- PR #461 contains the bounded Scenario Financial Truth multiline guard repair, server-only `advance_report_execution_checkpoint` SECURITY DEFINER authorization hardening, and full-history certification checkout/provenance assertions.
+- Final Certification Gate previously failed because the current code/test candidate was absent from this Master Index. This index update binds the exact candidate explicitly as `CURRENT_CODE_TEST_CANDIDATE` / `Current code/test candidate` within the guard's discovery window.
+- No ancestry rule, exact-SHA rule, or certification bypass is weakened.
+- Fresh CI must now run on the new HEAD produced by this documentation binding commit. That new HEAD becomes the next exact certification boundary; the previous candidate remains historical until re-bound by the resulting commit.
