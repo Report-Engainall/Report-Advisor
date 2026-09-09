@@ -34,15 +34,22 @@ class OcrRuntimeTests(unittest.TestCase):
                 return predict(image)
 
         fake_module.PaddleOCR = FakePaddleOCR
-        with patch.dict(sys.modules, {"paddleocr": fake_module}):
-            sys.modules.pop("main", None)
-            if "services.document-intelligence.app.main" in sys.modules:
-                sys.modules.pop("services.document-intelligence.app.main")
-            sys.path.insert(0, "services/document-intelligence/app")
-            try:
-                return importlib.import_module("main")
-            finally:
-                sys.path.pop(0)
+        # The production adapter imports PaddleOCR when parse_with_ocr() is called,
+        # not when main is imported. Keep the fake module installed for the full
+        # lifetime of this test case instead of restoring sys.modules immediately
+        # after import.
+        self._paddleocr_patch = patch.dict(sys.modules, {"paddleocr": fake_module})
+        self._paddleocr_patch.start()
+        self.addCleanup(self._paddleocr_patch.stop)
+
+        sys.modules.pop("main", None)
+        if "services.document-intelligence.app.main" in sys.modules:
+            sys.modules.pop("services.document-intelligence.app.main")
+        sys.path.insert(0, "services/document-intelligence/app")
+        try:
+            return importlib.import_module("main")
+        finally:
+            sys.path.pop(0)
 
     def test_uses_minimum_finite_score(self):
         main = self.load_main(
@@ -98,7 +105,7 @@ class OcrRuntimeTests(unittest.TestCase):
         result = main.parse_with_ocr(image_bytes(), "invoice.png", "image/png")
         self.assertEqual(result["engine"], "paddleocr")
         self.assertIn("OCR execution failed; document is not considered successfully extracted", result["warnings"][0])
-        self.assertEqual(result["document"]["status"], "EXTRACTED")
+        self.assertEqual(result["document"]["status"], "FAILED")
         self.assertEqual(result["document"]["pages"], [])
 
 
