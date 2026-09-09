@@ -5,15 +5,15 @@
 > Authoritative execution manifest. This document never promotes historical evidence across an exact-HEAD boundary. Pair every evidence batch with the exact Git `HEAD` of `main` and the exact environment/commit used.
 
 ### CURRENT PROJECT STATE
-- Current code/test candidate entering this certification sweep: `07dba60a0f7c089b576d0240b59022ce9a66f77d`.
+- Current code/test candidate entering this certification sweep: `d12972181f6a8848a4e314a341157289184d7160`.
 - This candidate is the exact code/test head of PR #461 (`fix/final-certification-boundary-20260909`) and is the candidate under fresh exact-head CI certification.
 - Certification remains fail-closed: no historical evidence, UI shell, simulated session, old SHA, or CI run on another SHA can certify this candidate.
 
 ### CURRENT EXACT HEAD
-- Current candidate: `07dba60a0f7c089b576d0240b59022ce9a66f77d`.
+- Current candidate: `d12972181f6a8848a4e314a341157289184d7160`.
 - Previous main baseline before this bounded certification repair: `4db373e61e03c030bab1628864c647b2d5bb97f6`.
 - Documentation refreshes create a new exact-head boundary and do not promote runtime evidence from a previous SHA.
-- Frozen release candidates remain untouched: protected candidate `14cc7cefc0fad622436b4845a0e4b46a8888e8a9`, exact RC reference `d846821b8d969aaa384ab85487a0dcf264a65aca`.
+- Frozen release candidates remain untouched: protected candidate `14cc7cefc0fad622436b4845a0e4b46a8888e8a`, exact RC reference `d846821b8d969aaa384ab85487a0dcf264a65aca`.
 
 ### BOUNDARY / GOVERNANCE
 - No rebuild from scratch.
@@ -117,4 +117,4 @@
 - PR #397 — truthful Arabic OCR confidence.
 - PR #398 — report execution input validation; one previously valid review finding has now been explicitly repaired by rejecting array-shaped requests.
 - PR #405 — report execution queue scalar boundary hardening.
-- PR #461 — bounded final certification boundary repair; current exact candidate binding is `07dba60a0f7c089b576d0240b59022ce9a66f77d`.
+- PR #461 — bounded final certification boundary repair; current exact candidate binding is `d12972181f6a8848a4e314a341157289184d7160`.
