@@ -17,7 +17,7 @@ const required = [
   /REVOKE ALL ON FUNCTION public\.complete_decision_work_item/i,
   // Approver authority contract: current_company_id() proves an active tenant membership;
   // approval additionally requires a distinct actor from requested_by.
-  /v_company\s+(?:uuid\s+)?[:=]\s*public\.current_company_id\(\)/i,
+  /v_company\s+(?:uuid\s+)?(?::=|=)\s*public\.current_company_id\(\)/i,
   /IF\s+p_approve\s+AND\s+v_requested_by\s*=\s*v_user/i,
 ];
 for (const pattern of required) if (!pattern.test(migration)) throw new Error(`Decision runtime authorization contract missing: ${pattern}`);
