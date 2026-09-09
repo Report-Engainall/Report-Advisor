@@ -5,12 +5,12 @@
 > Authoritative execution manifest. This document never promotes historical evidence across an exact-HEAD boundary. Pair every evidence batch with the exact Git `HEAD` of `main` and the exact environment/commit used.
 
 ### CURRENT PROJECT STATE
-- Current code/test candidate entering this certification sweep: `b82acf32ca46d63fd76ce59c3bf82f10c27896ad`.
+- Current code/test candidate entering this certification sweep: `a0bd55ee4e1da9de7eea503351e98e23ed81707a`.
 - This candidate is the exact code/test head of PR #461 (`fix/final-certification-boundary-20260909`) and is the candidate under fresh exact-head CI certification.
 - Certification remains fail-closed: no historical evidence, UI shell, simulated session, old SHA, or CI run on another SHA can certify this candidate.
 
 ### CURRENT EXACT HEAD
-- Current candidate: `b82acf32ca46d63fd76ce59c3bf82f10c27896ad`.
+- Current candidate: `a0bd55ee4e1da9de7eea503351e98e23ed81707a`.
 - Previous main baseline before this bounded certification repair: `4db373e61e03c030bab1628864c647b2d5bb97f6`.
 - Documentation refreshes create a new exact-head boundary and do not promote runtime evidence from a previous SHA.
 - Frozen release candidates remain untouched: protected candidate `14cc7cefc0fad622436b4845a0e4b46a8888e8a`, exact RC reference `d846821b8d969aaa384ab85487a0dcf264a65aca`.
@@ -80,7 +80,7 @@
 
 ### CI / Execution Infrastructure
 - Fresh exact-head workflow execution must produce real steps, runner identity, logs, and green checks before CI gates can be called PASS.
-- PR #461 is the current bounded certification-repair candidate; exact candidate binding is now `b82acf32ca46d63fd76ce59c3bf82f10c27896ad` after a surgical repair to the decision TOCTOU adversarial missing-lock mutation.
+- PR #461 is the current bounded certification-repair candidate; exact candidate binding is now `a0bd55ee4e1da9de7eea503351e98e23ed81707a` after a surgical repair to the decision TOCTOU validator and adversarial mutation contract.
 - Certification remains fail-closed if any required indicator is red, skipped, missing, or bound to a different SHA.
 
 ## ACTIVE EXECUTION FRONTS
@@ -90,12 +90,14 @@
 - #402 — observability failure-injection and alert-path proof.
 - #403 — production-scale performance evidence refresh.
 - #404 — P0 authenticated Tenant A/B adversarial runtime closure; currently browser/device constrained.
-- PR #461 — bounded final certification boundary repair; current exact candidate binding is `b82acf32ca46d63fd76ce59c3bf82f10c27896ad`.
+- PR #461 — bounded final certification boundary repair; current exact candidate binding is `a0bd55ee4e1da9de7eea503351e98e23ed81707a`.
 
 ### LATEST CERTIFICATION SWEEP UPDATE
 - Exact-head `58d40250a92fe9b024f6761d119bcc91711e7425` launched 37 workflow runs. 35 completed green, `desktop-windows` was still in progress at observation time, and `Final Certification Gate` failed inside its contract sweep.
 - The failure was isolated to `scripts/check-decision-approval-toctou-contract.mjs`. The production lock-order contract passed, the 20-stage release-readiness suite reported `TOTAL=20 PASS=20 FAIL=0`, and the failure occurred in the adversarial `noDecisionLock` assertion: its mutation used a stale canonical relative offset and caused the validator to report the gate-order error instead of the intended missing-lock error.
 - This is a test-of-test construction defect, not a production SQL defect. The failing job was `certification-contracts` in Final Certification Gate run `34405820740` on exact HEAD `58d40250...`.
 - Surgical correction applied in `b82acf32ca46d63fd76ce59c3bf82f10c27896ad`: the `noDecisionLock` mutation now locates the latest canonical decision SELECT and its following `FOR UPDATE` inside the function body before removing the lock, ensuring the adversarial fixture actually represents a missing decision lock. The `gateBeforeLock` mutation was retained as the separate ordering adversary. No production SQL was changed.
-- The Master Index is now rebound to `b82acf32ca46d63fd76ce59c3bf82f10c27896ad`.
-- Fresh exact-head CI on `b82acf32...` is now mandatory. No PASS, CI closure, release certification, or LIVE certification is inferred from the previous run.
+- Fresh exact-head CI on `4455828411f2f41f04a958228cbbabdff6e89182` then exposed a second test-harness issue: after removing the decision lock, the validator could treat the later approval-row `FOR UPDATE` as the decision lock and emit the gate-order failure. The canonical SQL and decision lock-order gate passed.
+- Surgical correction applied in `a0bd55ee4e1da9de7eea503351e98e23ed81707a`: the validator now requires the decision lock to occur after the decision SELECT and before the approvability gate, preventing a later approval lock from masquerading as the decision lock. No production SQL was changed.
+- The Master Index is now rebound to `a0bd55ee4e1da9de7eea503351e98e23ed81707a`.
+- Fresh exact-head CI is mandatory now. No PASS, CI closure, release certification, or LIVE certification is inferred from prior SHAs.
