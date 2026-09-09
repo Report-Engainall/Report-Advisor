@@ -9,7 +9,7 @@ const sidebarPaths = [...sidebar.matchAll(/path:'([^']+)'/g)].map((m) => m[1]);
 const pageImports = [
   ...app.matchAll(/from\s+['"]@\/pages\/([^'"]+)['"]/g),
   ...app.matchAll(/import\([^)]*['"]@\/pages\/([^'"]+)['"]/g),
-].map((m) => m[1]);
+].map((m) => m[1].endsWith('.tsx') ? m[1] : `${m[1]}.tsx`);
 
 const unique = (items) => [...new Set(items)];
 const missingFromSidebar = routePaths.filter((path) => path !== '*' && !sidebarPaths.includes(path));
