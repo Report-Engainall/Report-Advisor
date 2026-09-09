@@ -55,4 +55,4 @@ for (const invariant of ['loadSourceSnapshot', 'sourceSnapshotId', 'source.sourc
 const snapshotGuard = fs.readFileSync('scripts/check-report-execution-source-snapshot-identity.mjs', 'utf8');
 assert.match(snapshotGuard, /sourceSnapshotId/);
 
-console.log('Report execution runtime: PASS (checkpoint + lease/dead-letter + tenant/idempotency + verified source snapshot lifecycle invariants)');
+console.log('Report execution repository contract: PASS (checkpoint + lease/dead-letter + tenant/idempotency + verified source snapshot lifecycle invariants; not live runtime evidence)');
