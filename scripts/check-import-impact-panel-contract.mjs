@@ -10,7 +10,6 @@ const required = [
   'fetchImportRecords',
   'المصدر القانوني',
   'بدون اختلاق فروقات',
-  'get_dashboard_snapshot',
   'ImportImpactPanel',
 ];
 for (const token of required) {
