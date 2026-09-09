@@ -5,12 +5,12 @@
 > Authoritative execution manifest. This document never promotes historical evidence across an exact-HEAD boundary. Pair every evidence batch with the exact Git `HEAD` of `main` and the exact environment/commit used.
 
 ### CURRENT PROJECT STATE
-- Current code/test candidate entering this certification sweep: `c0905728c94c4a9c740bdf9c88d702fb6d51fcfd`.
+- Current code/test candidate entering this certification sweep: `00d2f1e9fc571641ee96e3485eaa43d7c2729c38`.
 - This candidate is the exact code/test head of PR #461 (`fix/final-certification-boundary-20260909`) and is the candidate under fresh exact-head CI certification.
 - Certification remains fail-closed: no historical evidence, UI shell, simulated session, old SHA, or CI run on another SHA can certify this candidate.
 
 ### CURRENT EXACT HEAD
-- Current candidate: `c0905728c94c4a9c740bdf9c88d702fb6d51fcfd`.
+- Current candidate: `00d2f1e9fc571641ee96e3485eaa43d7c2729c38`.
 - Previous main baseline before this bounded certification repair: `4db373e61e03c030bab1628864c647b2d5bb97f6`.
 - Documentation refreshes create a new exact-head boundary and do not promote runtime evidence from a previous SHA.
 - Frozen release candidates remain untouched: protected candidate `14cc7cefc0fad622436b4845a0e4b46a8888e8a`, exact RC reference `d846821b8d969aaa384ab85487a0dcf264a65aca`.
@@ -109,7 +109,7 @@
 
 ### CI / Execution Infrastructure
 - Fresh exact-head workflow execution must produce real steps, runner identity, logs, and green checks before CI gates can be called PASS.
-- PR #461 is the current bounded certification-repair candidate; exact candidate binding is now `c0905728c94c4a9c740bdf9c88d702fb6d51fcfd` after a surgical repair to the decision TOCTOU test harness so its adversarial mutation targets the latest canonical function definition regardless of SQL keyword casing.
+- PR #461 is the current bounded certification-repair candidate; exact candidate binding is now `00d2f1e9fc571641ee96e3485eaa43d7c2729c38` after a surgical repair to the decision TOCTOU adversarial gate-before-lock mutation.
 - Certification remains fail-closed if any required indicator is red, skipped, missing, or bound to a different SHA.
 
 ## ACTIVE EXECUTION FRONTS
@@ -123,12 +123,12 @@
 - PR #397 — truthful Arabic OCR confidence.
 - PR #398 — report execution input validation; one previously valid review finding has now been explicitly repaired by rejecting array-shaped requests.
 - PR #405 — report execution queue scalar boundary hardening.
-- PR #461 — bounded final certification boundary repair; current exact candidate binding is `c0905728c94c4a9c740bdf9c88d702fb6d51fcfd`.
+- PR #461 — bounded final certification boundary repair; current exact candidate binding is `00d2f1e9fc571641ee96e3485eaa43d7c2729c38`.
 
 ### LATEST CERTIFICATION SWEEP UPDATE
 - Previous exact candidate `2143d6a809c9dbbc187ba4ba3238a11374164c4a` produced green Truth/Data, Intelligence/OCR, Quality and most security/contract checks, but `Execution Enforcement Contract` and `Final Certification Gate` failed because the synthetic PR merge exposed a candidate-side boundary condition.
 - `d0339f030b807481fe13817201cc192bd7ebb66f` contained the minimal boundary correction: a synthetic PR candidate side is evaluated against the indexed candidate lineage while still enforcing ancestry and rejecting non-governance changes where applicable.
-- `43f670c9fbba85f57953c835ccaa40942190436a` then bound `d0339f...` in the index and triggered the exact-head sweep.
+- `43f670c9fbba85f57953c835ccaa40942190436` then bound `d0339f...` in the index and triggered the exact-head sweep.
 - The exact-head `43f670c9...` Final Certification Gate was stopped by a precise regression in the latest `request_decision_approval` definition from `20260909220000_block_terminal_approval_reopen.sql`: it redefined the RPC with an approval-row lock but without first locking/revalidating the decision, reversing the canonical decision → approval lock order. The failing log was `Final Certification Gate` run `34403144811`, job `102639642147`; the same contract was also executed by the certification contract sweep.
 - Surgical correction applied in `40fd3910db7df72d52ff93a92bb4acf17dd0af4a`: the latest `request_decision_approval` definition now locks the tenant-scoped decision `FOR UPDATE`, validates `PROPOSED`, then locks/checks the approval row before mutation. No unrelated product surface was changed.
 - On exact-head `c96e8f0cc0e9fd88f67b75a65e0d13c8fc1c4a44`, the `Final Certification Gate` again failed inside `scripts/check-decision-approval-lock-order.mjs`: the weakened-approval test removed the approval lock but then searched for any later `FOR UPDATE`, incorrectly finding the required decision lock and raising no exception. This was a test-of-test defect, not a product lock-order regression.
@@ -138,6 +138,8 @@
 - The `05cf7c5f...` certification run `34404195488` failed when its contract sweep reached `scripts/check-decision-approval-toctou-contract.mjs`; the log showed the earlier 20-stage release-readiness suite at `TOTAL=20 PASS=20 FAIL=0`, and the canonical decision lock-order check itself passed. This confirms the narrow failure boundary.
 - A subsequent run on `58ec17...` was stale/misaligned because its synthetic candidate side was created before this index binding; it is not evidence for the current candidate.
 - The certification-boundary guard was then updated to classify `scripts/check-decision-approval-toctou-contract.mjs` as governance-only, preventing the repaired contract test itself from being rejected by the synthetic candidate-side boundary.
-- The Master Index was rebound to `a3437237d87a8f3abd0e7e74c2efabc679565788`, then the fresh sweep exposed a new narrow test-harness defect on `edc88542efe178b69414270974fe7e3dee792443`: `replaceLatestFunctionBody()` used a case-sensitive literal marker, so it mutated an older uppercase definition instead of the latest lowercase migration definition. The canonical SQL itself was correct and the lock-order gate passed; only the adversarial TOCTOU harness failed.
+- The Master Index was rebound to `a3437237d87a8f3abd0e7e74c2efabc679565788`, then the fresh sweep exposed a narrow test-harness defect on `edc88542efe178b69414270974fe7e3dee792443`: `replaceLatestFunctionBody()` used a case-sensitive literal marker, so it mutated an older uppercase definition instead of the latest lowercase migration definition. The canonical SQL itself was correct and the lock-order gate passed; only the adversarial TOCTOU harness failed.
 - Surgical correction applied in `c0905728c94c4a9c740bdf9c88d702fb6d51fcfd`: `replaceLatestFunctionBody()` now locates the latest function case-insensitively and slices to the next CREATE FUNCTION marker case-insensitively. No production SQL was changed.
-- The Master Index is now bound to `c0905728c94c4a9c740bdf9c88d702fb6d51fcfd`. A fresh exact-head CI sweep is required; no PASS or certification is inferred from this repair.
+- The `9e2fd53...` exact-head certification run `34405597178` then isolated the next narrow defect in `scripts/check-decision-approval-toctou-contract.mjs`: the `gateBeforeLock` mutation removed the canonical decision lock and inserted a new `FOR UPDATE` immediately before the approvability gate, so the validator correctly reached the gate-order error instead of the expected missing-lock error. The production SQL and canonical lock-order gate both passed; this was purely an adversarial test mutation construction defect.
+- Surgical correction applied in `00d2f1e9fc571641ee96e3485eaa43d7c2729c38`: the `gateBeforeLock` adversarial mutation now moves the approvability gate before the existing decision lock instead of deleting the lock and inserting a replacement. This directly tests the intended TOCTOU ordering failure without creating a second synthetic lock. No production SQL was changed.
+- The Master Index is now bound to `00d2f1e9fc571641ee96e3485eaa43d7c2729c38`. Fresh exact-head CI is required now; no PASS or certification is inferred from this repair.
