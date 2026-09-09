@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { missingRequiredFields } from './batch-folder';
+import { missingRequiredFields } from './batch-validation';
 
 describe('batch import required-field contract', () => {
   it('requires a customer id or customer name for sales invoices', () => {
