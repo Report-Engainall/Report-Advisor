@@ -56,6 +56,21 @@ async function tenantId(page) {
   return id.replaceAll('"', '');
 }
 
+async function assertAuthenticatedRoute(page, route) {
+  await page.goto(`${baseURL}${route}`, { waitUntil: 'networkidle', timeout: 30000 });
+  const currentPath = new URL(page.url()).pathname;
+  const bodyText = await page.locator('body').innerText();
+  const loginFormVisible = await page.locator('#login-email').isVisible().catch(() => false);
+  const hasContent = bodyText.trim().length > 0;
+  const pathPreserved = currentPath === route || currentPath.startsWith(`${route}/`);
+  const status = !loginFormVisible && hasContent && pathPreserved ? 'PASS' : 'FAIL';
+  return {
+    id: `route:${route}`,
+    status,
+    evidence: { currentPath, hasContent, loginFormVisible, pathPreserved },
+  };
+}
+
 requireEnv();
 const browser = await chromium.launch({ headless: true });
 const contexts = [];
@@ -89,11 +104,7 @@ try {
   }
 
   const routes = ['/import', '/import/analyze', '/decision-experience', '/metrics', '/reports/executive'];
-  for (const route of routes) {
-    await pageA.goto(`${baseURL}${route}`, { waitUntil: 'networkidle', timeout: 30000 });
-    const status = await pageA.locator('body').innerText().then(t => t.trim() ? 'PASS' : 'FAIL');
-    evidence.probes.push({ id: `route:${route}`, status });
-  }
+  for (const route of routes) evidence.probes.push(await assertAuthenticatedRoute(pageA, route));
   const failures = evidence.probes.filter(p => p.status === 'FAIL');
   const unresolved = evidence.probes.filter(p => p.status === 'NOT_PROVEN');
   evidence.finishedAt = new Date().toISOString();
