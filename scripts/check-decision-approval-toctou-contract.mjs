@@ -29,12 +29,7 @@ export function validateDecisionApprovalToctou(source) {
   const decisionGate = body.indexOf("v_decision_status is distinct from 'PROPOSED'");
   const approvalSelect = body.indexOf('from public.decision_approvals');
   const terminalGuard = body.indexOf("v_existing_status in ('APPROVED','REJECTED','CANCELLED')");
-  if (
-    decisionSelect < 0 ||
-    decisionLock < decisionSelect ||
-    decisionGate < 0 ||
-    decisionLock > decisionGate
-  ) throw new Error('Decision row is not locked before approvability check');
+  if (decisionSelect < 0 || decisionLock < decisionSelect) throw new Error('Decision row is not locked before approvability check');
   if (decisionGate < decisionLock) throw new Error('Approvaibility check is not performed after decision lock');
   if (approvalSelect < decisionLock) throw new Error('Approval row lookup precedes decision lock');
   if (terminalGuard < approvalSelect) throw new Error('Terminal approval guard missing or reordered');
