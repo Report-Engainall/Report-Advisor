@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Upload, FileBarChart, BarChart3, Brain, Users, Package, Warehouse, Settings, AlertCircle, Layers3, Gauge, Activity, Crosshair, LogOut, UserCircle, Scale, ClipboardCheck, Target, ScanSearch } from 'lucide-react';
+import { LayoutDashboard, Upload, FileBarChart, BarChart3, Brain, Users, Package, Warehouse, Settings, AlertCircle, Layers3, Gauge, Activity, Crosshair, LogOut, UserCircle, Scale, ClipboardCheck, Target, ScanSearch, Sparkles } from 'lucide-react';
 import type { User } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
 import { getDisplayEmail, getDisplayName } from '@/lib/profile-display';
@@ -18,27 +18,20 @@ const navSections:NavSection[]=[
 ];
 
 export function Sidebar({alertCount=0,onNavigate,user}:{alertCount?:number;onNavigate?:()=>void;user?:User|null}){
-  const location=useLocation();
-  const handleSignOut = async () => { await supabase.auth.signOut(); onNavigate?.(); };
-  return <aside className="w-64 bg-white/95 border-l border-ink-100 flex flex-col h-screen sticky top-0 overflow-y-auto shadow-sidebar backdrop-blur-sm">
-    <div className="px-4 py-4 border-b border-ink-100 sticky top-0 bg-white/95 backdrop-blur-sm z-10">
-      <Link to="/" onClick={onNavigate} className="group flex items-center gap-3 rounded-2xl p-2 transition hover:bg-ink-50" aria-label="العودة إلى لوحة القيادة">
-        <div className="relative w-11 h-11 shrink-0 rounded-2xl bg-gradient-to-br from-primary-600 via-primary-700 to-accent-500 flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-primary-600/20">ع</div>
-        <div className="min-w-0"><div className="font-bold text-ink-900 text-base tracking-tight">الأغبري</div><div className="text-[11px] text-ink-400 truncate">منصة ذكاء الأعمال والقرار</div></div>
-      </Link>
-    </div>
-    <nav className="flex-1 px-3 py-4 space-y-6" aria-label="التنقل الرئيسي">
-      {navSections.map(section=><div key={section.title}>
-        <div className="flex items-center gap-2 px-3 mb-2 text-[10px] font-bold text-ink-400 tracking-wide"><span>{section.title}</span><span className="h-px flex-1 bg-ink-100" /></div>
-        <div className="space-y-1">{section.items.map(item=>{const active=location.pathname===item.path||(item.path!=='/'&&location.pathname.startsWith(item.path));return <Link key={item.path} to={item.path} onClick={onNavigate} aria-current={active?'page':undefined} className={`nav-item ${active?'nav-item-active':'nav-item-inactive'}`}><span className="shrink-0">{item.icon}</span><span className="flex-1 truncate">{item.label}</span>{item.path==='/intelligence'&&alertCount>0&&<span className="badge-danger text-[10px] px-1.5 py-0.5">{alertCount}</span>}</Link>})}</div>
-      </div>)}
-    </nav>
-    <div className="px-4 py-4 border-t border-ink-100 bg-ink-50/30">
-      <div className="flex items-center gap-3 rounded-2xl border border-ink-100 bg-white p-3 shadow-sm">
-        <div className="w-9 h-9 shrink-0 rounded-xl bg-primary-100 flex items-center justify-center text-primary-700 font-semibold text-sm">م</div>
-        <div className="flex-1 min-w-0"><div className="text-sm font-semibold text-ink-800 truncate">{getDisplayName(user ?? null)}</div><div className="text-[11px] text-ink-400 truncate" dir="ltr">{getDisplayEmail(user ?? null)}</div></div>
-      </div>
-      <button type="button" onClick={() => void handleSignOut()} className="mt-2.5 flex w-full items-center justify-center gap-2 rounded-xl border border-ink-200 bg-white px-3 py-2.5 text-xs font-semibold text-ink-600 transition hover:border-danger-200 hover:bg-danger-50 hover:text-danger-600" aria-label="تسجيل الخروج"><LogOut size={15}/> تسجيل الخروج</button>
-    </div>
-  </aside>;
+ const location=useLocation();
+ const handleSignOut=async()=>{await supabase.auth.signOut();onNavigate?.();};
+ return <aside className="flex h-screen w-[290px] shrink-0 flex-col overflow-y-auto border-l border-emerald-950/10 bg-[#fbfcf8]/95 shadow-[0_0_60px_rgba(6,78,59,.07)] backdrop-blur-xl" dir="rtl">
+  <div className="sticky top-0 z-20 border-b border-ink-100/70 bg-[#fbfcf8]/90 px-4 py-5 backdrop-blur-xl">
+   <Link to="/" onClick={onNavigate} className="group block rounded-[1.35rem] p-2 transition-all hover:bg-white hover:shadow-md" aria-label="العودة إلى لوحة القيادة">
+    <div className="flex items-center gap-3"><div className="relative flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-950 via-emerald-800 to-amber-700 text-xl font-black text-white shadow-lg shadow-emerald-900/20"><span className="relative z-10">ع</span><span className="absolute -left-2 -top-2 h-8 w-8 rounded-full bg-emerald-300/20 blur-md"/></div><div className="min-w-0"><div className="flex items-center gap-1.5"><span className="text-base font-black tracking-tight text-ink-950">الأغبري</span><Sparkles size={13} className="text-amber-600"/></div><div className="mt-0.5 truncate text-[10px] font-medium text-ink-400">ذكاء الأعمال • القرار • الأداء</div></div></div>
+   </Link>
+  </div>
+  <nav className="flex-1 space-y-7 px-3 py-5" aria-label="التنقل الرئيسي">
+   {navSections.map(section=><div key={section.title}><div className="mb-2.5 flex items-center gap-2 px-3 text-[9px] font-black uppercase tracking-[.16em] text-ink-400"><span>{section.title}</span><span className="h-px flex-1 bg-gradient-to-l from-ink-100 to-transparent"/></div><div className="space-y-1">{section.items.map(item=>{const active=location.pathname===item.path||(item.path!=='/'&&location.pathname.startsWith(item.path));return <Link key={item.path} to={item.path} onClick={onNavigate} aria-current={active?'page':undefined} className={`group flex min-h-11 items-center gap-3 rounded-xl px-3.5 py-2.5 text-[13px] font-semibold transition-all duration-200 ${active?'nav-item-active shadow-sm':'text-ink-600 hover:bg-white hover:text-emerald-800 hover:shadow-sm'}`}><span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-all ${active?'bg-emerald-700 text-white shadow-md shadow-emerald-800/15':'bg-ink-50 text-ink-400 group-hover:bg-emerald-50 group-hover:text-emerald-700'}`}>{item.icon}</span><span className="min-w-0 flex-1 truncate">{item.label}</span>{item.path==='/intelligence'&&alertCount>0&&<span className="rounded-full bg-rose-50 px-1.5 py-0.5 text-[10px] font-black text-rose-600">{alertCount}</span>}</Link>})}</div></div>)}
+  </nav>
+  <div className="border-t border-ink-100/70 bg-gradient-to-t from-emerald-50/60 to-transparent px-4 py-4">
+   <div className="rounded-2xl border border-emerald-100/80 bg-white p-3.5 shadow-sm"><div className="flex items-center gap-3"><div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-800 to-teal-700 text-sm font-black text-white">م</div><div className="min-w-0 flex-1"><div className="truncate text-sm font-bold text-ink-900">{getDisplayName(user??null)}</div><div className="truncate text-[10px] text-ink-400" dir="ltr">{getDisplayEmail(user??null)}</div></div></div></div>
+   <button type="button" onClick={()=>void handleSignOut()} className="mt-2.5 flex w-full items-center justify-center gap-2 rounded-xl border border-ink-200 bg-white px-3 py-2.5 text-xs font-bold text-ink-600 transition hover:border-rose-200 hover:bg-rose-50 hover:text-rose-600" aria-label="تسجيل الخروج"><LogOut size={15}/> تسجيل الخروج</button>
+  </div>
+ </aside>;
 }
