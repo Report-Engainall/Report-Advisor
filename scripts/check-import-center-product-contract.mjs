@@ -9,11 +9,11 @@ const required = [
   'checkDuplicate',
   'reconcileForCanonical',
   'commitImportBatch',
-  'اجتاز الملف الفحص الأمني',
+  'أمان: ناجح',
   'الكتابة متوقفة لحماية البيانات',
   'اعتماد وكتابة',
   'سجل الاستيرادات',
-  'لا يتم السماح بكتابة مكررة',
+  'لن يتم السماح بكتابة مكررة',
 ];
 
 const missing = required.filter(token => !file.includes(token));
