@@ -1,6 +1,7 @@
 -- Terminal approval states are not reopenable.
 -- A CANCELLED approval must remain terminal even while its decision is still PROPOSED.
--- This preserves the approval lifecycle contract and prevents terminal resurrection.
+-- Lock the decision before inspecting the approval row so request_decision_approval
+-- preserves the canonical decision -> approval lock order.
 create or replace function public.request_decision_approval(p_decision_id uuid, p_reason text default null)
 returns uuid
 language plpgsql
@@ -12,12 +13,18 @@ declare
   v_id uuid;
   v_user uuid := auth.uid();
   v_existing_status text;
+  v_decision_status text;
 begin
   if v_company is null or v_user is null then raise exception 'TENANT_CONTEXT_REQUIRED'; end if;
-  if not exists (
-    select 1 from public.business_intelligence_decisions d
-    where d.id=p_decision_id and d.company_id=v_company and d.status='PROPOSED'
-  ) then raise exception 'DECISION_NOT_APPROVABLE'; end if;
+
+  select d.status into v_decision_status
+  from public.business_intelligence_decisions d
+  where d.id=p_decision_id and d.company_id=v_company
+  for update;
+
+  if v_decision_status is distinct from 'PROPOSED' then
+    raise exception 'DECISION_NOT_APPROVABLE';
+  end if;
 
   select a.status into v_existing_status
   from public.decision_approvals a
