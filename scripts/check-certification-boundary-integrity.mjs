@@ -28,9 +28,23 @@ export function validateCertificationBoundary({ index, head, parent, changedFile
   }
   try { execFileSync('git', ['merge-base', '--is-ancestor', indexed, head], { stdio: 'ignore' }); }
   catch { throw new Error(`CERTIFICATION BOUNDARY FAIL: indexed candidate ${indexed} is not an ancestor of HEAD ${head}`); }
+
+  // A pull-request checkout may be GitHub's synthetic merge commit. In that shape
+  // HEAD^ is the target/base branch and HEAD^2 is the actual PR candidate lineage.
+  // The exact indexed candidate must be on that candidate side; requiring it to be
+  // an ancestor of HEAD^ would incorrectly reject a valid PR merge checkout.
   if (parent && parent !== indexed) {
-    try { execFileSync('git', ['merge-base', '--is-ancestor', indexed, parent], { stdio: 'ignore' }); }
-    catch { throw new Error(`CERTIFICATION BOUNDARY FAIL: indexed candidate ${indexed} is not an ancestor of parent ${parent}`); }
+    let candidateIsSecondParent = false;
+    try {
+      const secondParent = execFileSync('git', ['rev-parse', 'HEAD^2'], { encoding: 'utf8' }).trim().toLowerCase();
+      candidateIsSecondParent = secondParent === indexed;
+    } catch {
+      candidateIsSecondParent = false;
+    }
+    if (!candidateIsSecondParent) {
+      try { execFileSync('git', ['merge-base', '--is-ancestor', indexed, parent], { stdio: 'ignore' }); }
+      catch { throw new Error(`CERTIFICATION BOUNDARY FAIL: indexed candidate ${indexed} is not an ancestor of parent ${parent}`); }
+    }
   }
   return true;
 }
