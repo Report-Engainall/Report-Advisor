@@ -25,5 +25,7 @@ describe('deriveImportCounters', () => {
   it('rejects inconsistent counters instead of manufacturing progress', () => {
     expect(() => deriveImportCounters(100, 101, 0)).toThrow('IMPORT_COUNTER_INVALID');
     expect(() => deriveImportCounters(100, 10, -1)).toThrow('IMPORT_COUNTER_INVALID');
+    expect(() => deriveImportCounters(100, 10, 95)).toThrow('IMPORT_COUNTER_INVALID');
+    expect(() => deriveImportCounters(100, 10, 80, 15)).toThrow('IMPORT_COUNTER_INVALID');
   });
 });
