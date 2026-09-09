@@ -14,6 +14,15 @@ interface KPICardProps {
   hint?: string;
 }
 
+const statusMeta: Record<string, { label: string; className: string }> = {
+  CONFIRMED: { label: 'مؤكد', className: 'bg-success-50 text-success-700 ring-success-100' },
+  CALCULATED: { label: 'محسوب', className: 'bg-primary-50 text-primary-700 ring-primary-100' },
+  ESTIMATED: { label: 'تقديري', className: 'bg-warning-50 text-warning-700 ring-warning-100' },
+  FORECAST: { label: 'تنبؤ', className: 'bg-accent-50 text-accent-700 ring-accent-100' },
+  INSUFFICIENT_DATA: { label: 'بانتظار البيانات', className: 'bg-ink-50 text-ink-500 ring-ink-100' },
+  UNAVAILABLE: { label: 'غير متاح', className: 'bg-ink-50 text-ink-500 ring-ink-100' },
+};
+
 export function KPICard({ label, value, format, change, changeLabel, icon, status = 'CALCULATED', hint }: KPICardProps) {
   const formatted = value === null
     ? '—'
@@ -25,42 +34,38 @@ export function KPICard({ label, value, format, change, changeLabel, icon, statu
   const isPositive = change !== undefined && change > 0;
   const isNegative = change !== undefined && change < 0;
   const isNeutral = change === 0;
-
-  const statusColors: Record<string, string> = {
-    CONFIRMED: 'text-success-600',
-    CALCULATED: 'text-primary-600',
-    ESTIMATED: 'text-warning-600',
-    FORECAST: 'text-accent-600',
-    INSUFFICIENT_DATA: 'text-ink-400',
-    UNAVAILABLE: 'text-ink-400',
-  };
+  const meta = statusMeta[status] ?? statusMeta.CALCULATED;
 
   return (
-    <div className="card card-hover p-5 group">
-      <div className="flex items-start justify-between mb-3">
-        <div className="flex items-center gap-2">
-          {icon && <div className="text-ink-400 group-hover:text-primary-500 transition-colors">{icon}</div>}
-          <span className="text-sm font-medium text-ink-500">{label}</span>
+    <article className="card card-hover group relative overflow-hidden p-5" aria-label={label}>
+      <div className="absolute inset-x-0 top-0 h-0.5 bg-primary-500/0 transition-colors group-hover:bg-primary-500/40" />
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex min-w-0 items-center gap-2.5">
+          {icon && <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-ink-50 text-ink-500 transition-colors group-hover:bg-primary-50 group-hover:text-primary-600">{icon}</span>}
+          <span className="truncate text-sm font-medium text-ink-500">{label}</span>
         </div>
-        {status === 'INSUFFICIENT_DATA' && (
-          <span className="badge-neutral text-[10px]">بيانات غير كافية</span>
-        )}
+        <span title={`حالة المؤشر: ${meta.label}`} className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-2 py-1 text-[10px] font-semibold ring-1 ${meta.className}`}>
+          <span className="h-1.5 w-1.5 rounded-full bg-current" aria-hidden="true" />
+          {meta.label}
+        </span>
       </div>
-      <div className="text-2xl font-bold text-ink-900 tabular-nums tracking-tight">{formatted}</div>
-      <div className="flex items-center gap-2 mt-2">
+      <div className="mt-5 flex items-end justify-between gap-3">
+        <div className="text-[1.7rem] font-bold leading-none tracking-tight text-ink-950 tabular-nums">{formatted}</div>
         {change !== undefined && (
-          <span className={`flex items-center gap-1 text-xs font-medium ${
-            isPositive ? 'text-success-600' : isNegative ? 'text-danger-600' : 'text-ink-400'
+          <span className={`flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-semibold ${
+            isPositive ? 'bg-success-50 text-success-700' : isNegative ? 'bg-danger-50 text-danger-700' : 'bg-ink-50 text-ink-500'
           }`}>
-            {isPositive && <TrendingUp size={14} />}
-            {isNegative && <TrendingDown size={14} />}
-            {isNeutral && <Minus size={14} />}
+            {isPositive && <TrendingUp size={13} />}
+            {isNegative && <TrendingDown size={13} />}
+            {isNeutral && <Minus size={13} />}
             {formatPercent(change)}
           </span>
         )}
-        {changeLabel && <span className="text-xs text-ink-400">{changeLabel}</span>}
       </div>
-      {hint && <p className="text-[11px] text-ink-400 mt-2">{hint}</p>}
-    </div>
+      {(hint || changeLabel) && <div className="mt-3 flex items-center justify-between gap-2 text-[11px] text-ink-400">
+        <span className="truncate">{hint ?? changeLabel}</span>
+        {hint && changeLabel && <span className="shrink-0">{changeLabel}</span>}
+      </div>}
+    </article>
   );
 }
