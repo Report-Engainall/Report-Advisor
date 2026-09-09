@@ -164,3 +164,16 @@ This is not a rebuild situation. The remaining work is concentrated closure: exe
 - PR #405: queue scalar boundary hardening; latest head `7086e681654c9dead29934ba2e98b5c4bf2442f9`.
 - Issues #399–#404 are confirmed open independent execution fronts.
 - No Production/RC mutation was performed in this deep audit.
+
+
+## GOVERNANCE LOG — 2026-09-09 — CURRENT EXACT HEAD
+- Current exact main HEAD after verified forward merges: `0eabfd739bc75fef2e51be1b051d9da95abde072`.
+- PR #450 (executive dashboard UI) merged as `c6101b8c9dc2a201e1b4b1ac1567e15403a37546`.
+- PR #452 (canonical Import Center productization) merged as `e69c48684481530115a2bb12dca53b77c4c73db7`.
+- PR #451 (executive report) was re-integrated safely after its original merge conflict and merged through PR #458 as `0eabfd739bc75fef2e51be1b051d9da95abde072`.
+- The unsafe whole-tree integration attempt PR #457 was detected from its unexpected 1,454-file / 58,496-deletion diff and was closed without merge. No destructive change was retained.
+- Current live Staging function inventory confirms the real import/dashboard functions; no Edge Functions are currently deployed through the connected Supabase project.
+- Live Staging row check at this boundary: `import_jobs=0`, `file_records=0`, `sales_invoices=3`, `inventory_movements=0`, `kpi_evidence_snapshots=0`, `executive_kpi_lineage=0`.
+- Therefore no live import lifecycle, Arabic OCR corpus lifecycle, or KPI evidence-lineage runtime PASS is claimed from this inspection alone.
+- CI remains an external billing/execution constraint and is not converted into a product PASS.
+- Next mandatory evidence fronts remain authenticated A/B browser runtime, real import lifecycle, Arabic golden-corpus runtime, worker recovery, watched-folder lifecycle, backup/restore/rollback, performance, and final exact-head certification.
