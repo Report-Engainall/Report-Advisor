@@ -1,5 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
 import { ArrowLeft, BookOpen, FileSearch, FileInput, Lightbulb, Route, ShieldCheck, Target, type LucideIcon } from 'lucide-react';
+
 type JourneyStep={path:string;label:string;description:string;icon:LucideIcon;stage?:string};
 const steps:JourneyStep[]=[
  {path:'/command-center',label:'المعلومة والأولوية',description:'Business Health → Critical Insights',icon:Lightbulb},
@@ -11,4 +12,16 @@ const steps:JourneyStep[]=[
  {path:'/reports/executive',label:'القصة التنفيذية',description:'Decision Story → Executive Report',icon:Route},
 ];
 function buildJourneyHref(path:string,search:string,stage?:string){const params=new URLSearchParams(search);if(path==='/decision-experience'){if(stage)params.set('stage',stage);return params.toString()?`${path}?${params.toString()}`:path;}return params.get('recommendationId')?`${path}?recommendationId=${encodeURIComponent(params.get('recommendationId')!)}`:path;}
-export function ProductJourneyNav(){const location=useLocation();const currentParams=new URLSearchParams(location.search);return <nav aria-label="دورة قيمة Report-Advisor" className="mb-5 overflow-x-auto rounded-2xl border border-ink-200 bg-white p-2 shadow-sm"><div className="flex min-w-max items-stretch gap-2">{steps.map(({path,label,description,icon:Icon,stage},index)=>{const active=(location.pathname===path&&(!stage||currentParams.get('stage')===stage))||(path==='/decision-experience'&&location.pathname.startsWith('/decision-experience')&&stage===currentParams.get('stage'));const href=buildJourneyHref(path,location.search,stage);return <Link key={`${path}-${label}`} to={href} aria-current={active?'step':undefined} className={`group flex min-w-[180px] items-center gap-3 rounded-xl px-3 py-2.5 text-right transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 ${active?'bg-primary-50 text-primary-950':'text-ink-700 hover:bg-ink-50'}`}><span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${active?'bg-primary-100 text-primary-700':'bg-ink-100 text-ink-500 group-hover:bg-white'}`}><Icon size={17} aria-hidden="true"/></span><span className="min-w-0"><span className="flex items-center gap-1 text-xs font-bold"><span className="text-[10px] text-ink-400">{String(index+1).padStart(2,'0')}</span>{label}</span><span className="mt-0.5 block truncate text-[10px] text-ink-500">{description}</span></span>{index<steps.length-1&&<ArrowLeft size={14} className="mr-auto shrink-0 text-ink-300" aria-hidden="true"/>}</Link>;})}</div></nav>;}
+export function ProductJourneyNav(){
+ const location=useLocation(); const currentParams=new URLSearchParams(location.search);
+ return <nav aria-label="دورة قيمة Report-Advisor" className="journey-nav mb-5 overflow-x-auto rounded-2xl border border-ink-200/80 bg-white/90 p-1.5 shadow-sm backdrop-blur-sm">
+   <div className="flex min-w-max items-stretch gap-1.5">
+    {steps.map(({path,label,description,icon:Icon,stage},index)=>{const active=(location.pathname===path&&(!stage||currentParams.get('stage')===stage))||(path==='/decision-experience'&&location.pathname.startsWith('/decision-experience')&&stage===currentParams.get('stage'));const href=buildJourneyHref(path,location.search,stage);return <Link key={`${path}-${label}`} to={href} aria-current={active?'step':undefined} className={`group relative flex min-w-[172px] items-center gap-2.5 rounded-xl px-3 py-2.5 text-right transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 ${active?'bg-primary-50 text-primary-950 shadow-sm':'text-ink-700 hover:bg-ink-50'}`}>
+      {active&&<span className="absolute inset-y-2 right-0 w-0.5 rounded-full bg-primary-600" aria-hidden="true"/>}
+      <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${active?'bg-primary-100 text-primary-700':'bg-ink-100 text-ink-500 group-hover:bg-white'}`}><Icon size={16} aria-hidden="true"/></span>
+      <span className="min-w-0"><span className="flex items-center gap-1.5 text-[11px] font-bold"><span className="text-[10px] text-ink-400">{String(index+1).padStart(2,'0')}</span>{label}</span><span className="mt-0.5 block truncate text-[9px] text-ink-500">{description}</span></span>
+      {index<steps.length-1&&<ArrowLeft size={13} className="mr-auto shrink-0 text-ink-300" aria-hidden="true"/>}
+    </Link>})}
+   </div>
+ </nav>;
+}
