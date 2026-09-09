@@ -1,5 +1,5 @@
 import { FormEvent, useState } from 'react';
-import { AlertCircle, LogIn, Loader2 } from 'lucide-react';
+import { AlertCircle, ArrowLeft, CheckCircle2, LogIn, Loader2, ShieldCheck, Sparkles, TrendingUp } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 
 export function LoginPage() {
@@ -26,64 +26,110 @@ export function LoginPage() {
   }
 
   return (
-    <main dir="rtl" className="min-h-screen bg-ink-50 flex items-center justify-center p-5">
-      <section className="w-full max-w-md rounded-3xl border border-ink-100 bg-white p-7 sm:p-9 shadow-elevated">
-        <div className="text-center">
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary-600 to-accent-500 text-2xl font-black text-white">ع</div>
-          <h1 className="mt-5 text-2xl font-bold text-ink-900">تسجيل الدخول</h1>
-          <p className="mt-2 text-sm leading-6 text-ink-500">سجّل الدخول للوصول إلى منصة الأغبري لذكاء الأعمال والقرار.</p>
-        </div>
+    <main dir="rtl" className="relative min-h-screen overflow-hidden bg-[#f7faf8] text-ink-900">
+      <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
+        <div className="absolute -right-32 -top-32 h-[32rem] w-[32rem] rounded-full bg-emerald-300/20 blur-3xl" />
+        <div className="absolute -left-32 bottom-0 h-[28rem] w-[28rem] rounded-full bg-amber-200/25 blur-3xl" />
+        <div className="absolute right-1/3 top-1/3 h-72 w-72 rounded-full bg-teal-200/15 blur-3xl" />
+      </div>
 
-        <form onSubmit={handleSubmit} className="mt-7 space-y-5">
+      <div className="relative mx-auto grid min-h-screen w-full max-w-7xl items-center gap-10 px-5 py-8 lg:grid-cols-[1.05fr_.95fr] lg:px-10">
+        <section className="hidden min-h-[720px] overflow-hidden rounded-[2.75rem] bg-gradient-to-br from-emerald-950 via-emerald-900 to-[#5a4710] p-10 text-white shadow-[0_30px_100px_rgba(2,44,34,.24)] lg:flex lg:flex-col lg:justify-between">
           <div>
-            <label htmlFor="login-email" className="mb-2 block text-sm font-medium text-ink-700">البريد الإلكتروني</label>
-            <input
-              id="login-email"
-              type="email"
-              autoComplete="username"
-              required
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              className="w-full rounded-xl border border-ink-200 bg-white px-4 py-3 text-sm text-ink-900 outline-none transition focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
-              placeholder="أدخل بريدك الإلكتروني"
-              dir="ltr"
-            />
-          </div>
-
-          <div>
-            <label htmlFor="login-password" className="mb-2 block text-sm font-medium text-ink-700">كلمة المرور</label>
-            <input
-              id="login-password"
-              type="password"
-              autoComplete="current-password"
-              required
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              className="w-full rounded-xl border border-ink-200 bg-white px-4 py-3 text-sm text-ink-900 outline-none transition focus:border-primary-500 focus:ring-2 focus:ring-primary-100"
-              placeholder="أدخل كلمة المرور"
-              dir="ltr"
-            />
-          </div>
-
-          {error && (
-            <div role="alert" className="flex items-start gap-2 rounded-xl border border-danger-100 bg-danger-50 px-3 py-3 text-sm text-danger-700">
-              <AlertCircle size={18} className="mt-0.5 shrink-0" />
-              <span>{error}</span>
+            <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-sm font-semibold backdrop-blur-md">
+              <Sparkles size={16} className="text-amber-300" /> منصة ذكاء الأعمال والقرار
             </div>
-          )}
+            <h2 className="mt-10 max-w-xl text-5xl font-black leading-[1.12] tracking-tight xl:text-6xl">
+              من الأرقام إلى
+              <span className="block bg-gradient-to-l from-amber-200 via-amber-100 to-white bg-clip-text text-transparent">قرارات أوضح.</span>
+            </h2>
+            <p className="mt-6 max-w-lg text-base leading-8 text-emerald-50/75">
+              مساحة تنفيذية واحدة لفهم الأداء، اكتشاف الفرص، متابعة المخاطر، وتحويل البيانات إلى قرارات قابلة للتنفيذ.
+            </p>
+          </div>
 
-          <button
-            type="submit"
-            disabled={submitting}
-            className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-primary-700 disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            {submitting ? <Loader2 size={18} className="animate-spin" /> : <LogIn size={18} />}
-            {submitting ? 'جارٍ تسجيل الدخول...' : 'تسجيل الدخول'}
-          </button>
-        </form>
+          <div className="grid gap-4 sm:grid-cols-3">
+            <div className="rounded-3xl border border-white/10 bg-white/[.08] p-5 backdrop-blur-xl">
+              <TrendingUp size={22} className="text-amber-300" />
+              <div className="mt-5 text-lg font-bold">رؤية أعمق</div>
+              <div className="mt-1 text-xs leading-5 text-white/60">مؤشرات وذكاء تشغيلي في مكان واحد</div>
+            </div>
+            <div className="rounded-3xl border border-white/10 bg-white/[.08] p-5 backdrop-blur-xl">
+              <ShieldCheck size={22} className="text-emerald-300" />
+              <div className="mt-5 text-lg font-bold">عزل آمن</div>
+              <div className="mt-1 text-xs leading-5 text-white/60">هوية وصلاحيات وبيانات محمية</div>
+            </div>
+            <div className="rounded-3xl border border-white/10 bg-white/[.08] p-5 backdrop-blur-xl">
+              <CheckCircle2 size={22} className="text-amber-200" />
+              <div className="mt-5 text-lg font-bold">قرار موثوق</div>
+              <div className="mt-1 text-xs leading-5 text-white/60">أدلة واضحة قبل اتخاذ القرار</div>
+            </div>
+          </div>
+        </section>
 
-        <p className="mt-6 text-center text-xs leading-5 text-ink-400">لا يوجد حساب تجريبي افتراضي. يتم تحديد الهوية والصلاحيات من حسابك الفعلي.</p>
-      </section>
+        <section className="mx-auto w-full max-w-xl rounded-[2.5rem] border border-white/80 bg-white/90 p-6 shadow-[0_30px_90px_rgba(15,23,42,.12)] backdrop-blur-xl sm:p-10 lg:p-12">
+          <div className="mb-8 flex items-center justify-between">
+            <div className="flex h-16 w-16 items-center justify-center rounded-[1.4rem] bg-gradient-to-br from-emerald-700 via-emerald-600 to-amber-500 text-2xl font-black text-white shadow-lg shadow-emerald-900/20">ع</div>
+            <div className="rounded-full border border-emerald-100 bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-700">دخول آمن</div>
+          </div>
+
+          <div>
+            <p className="text-sm font-semibold text-emerald-700">مرحباً بعودتك</p>
+            <h1 className="mt-2 text-3xl font-black tracking-tight text-ink-950 sm:text-4xl">تسجيل الدخول</h1>
+            <p className="mt-3 max-w-md text-sm leading-7 text-ink-500">ادخل إلى منصة الأغبري لذكاء الأعمال والقرار وواصل العمل من حيث توقفت.</p>
+          </div>
+
+          <form onSubmit={handleSubmit} className="mt-9 space-y-5">
+            <div>
+              <label htmlFor="login-email" className="mb-2.5 block text-sm font-bold text-ink-700">البريد الإلكتروني</label>
+              <input
+                id="login-email"
+                type="email"
+                autoComplete="username"
+                required
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                className="input h-14 rounded-2xl px-5 text-base"
+                placeholder="أدخل بريدك الإلكتروني"
+                dir="ltr"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="login-password" className="mb-2.5 block text-sm font-bold text-ink-700">كلمة المرور</label>
+              <input
+                id="login-password"
+                type="password"
+                autoComplete="current-password"
+                required
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+                className="input h-14 rounded-2xl px-5 text-base"
+                placeholder="أدخل كلمة المرور"
+                dir="ltr"
+              />
+            </div>
+
+            {error && (
+              <div role="alert" className="flex items-start gap-2 rounded-2xl border border-danger-100 bg-danger-50 px-4 py-3.5 text-sm text-danger-700">
+                <AlertCircle size={18} className="mt-0.5 shrink-0" />
+                <span>{error}</span>
+              </div>
+            )}
+
+            <button type="submit" disabled={submitting} className="btn-primary h-14 w-full rounded-2xl text-base font-bold">
+              {submitting ? <Loader2 size={19} className="animate-spin" /> : <LogIn size={19} />}
+              {submitting ? 'جارٍ تسجيل الدخول...' : 'دخول إلى المنصة'}
+              {!submitting && <ArrowLeft size={18} className="mr-1" />}
+            </button>
+          </form>
+
+          <div className="mt-8 flex items-center gap-3 rounded-2xl border border-ink-100 bg-ink-50/70 p-4">
+            <ShieldCheck size={19} className="shrink-0 text-emerald-700" />
+            <p className="text-xs leading-5 text-ink-500">يتم تحديد الهوية والصلاحيات من حسابك الفعلي، ولا يوجد حساب تجريبي افتراضي.</p>
+          </div>
+        </section>
+      </div>
     </main>
   );
 }
