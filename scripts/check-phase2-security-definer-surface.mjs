@@ -12,6 +12,7 @@ const stripSqlComments = (text) => text
 const migrations = migrationFiles.map(file => ({ file, text: stripSqlComments(readFileSync(file, 'utf8')) }));
 const allMigrationText = migrations.map(({ text }) => text).join('\n');
 const failures = [];
+const serviceOnlyWorkers = new Set(['enqueue_report_execution_job','claim_report_execution_job','heartbeat_report_execution_job','advance_report_execution_checkpoint','complete_report_execution_job','fail_report_execution_job','recover_expired_report_execution_jobs','retry_report_execution_job']);
 
 for (const { file, text } of migrations) {
   const starts = [...text.matchAll(/CREATE\s+(?:OR\s+REPLACE\s+)?FUNCTION\s+([^\s(]+)/gi)].map((m) => m.index ?? 0);
@@ -23,10 +24,9 @@ for (const { file, text } of migrations) {
     const fn = block.match(/CREATE\s+(?:OR\s+REPLACE\s+)?FUNCTION\s+([^\s(]+)/i)?.[1] ?? '<unknown>';
     const normalizedFn = fn.replace(/^.*\./, '').toLowerCase();
 
-    // Worker checkpoint advancement is intentionally a server-only SECURITY DEFINER
-    // operation. It cannot use current_company_id() because the worker has no browser
-    // tenant session; the authoritative boundary is service_role-only execution.
-    if (normalizedFn === 'advance_report_execution_checkpoint') continue;
+    // Durable worker RPCs are server-only SECURITY DEFINER operations. They receive
+    // tenant identity explicitly from the trusted worker and are never browser-callable.
+    if (serviceOnlyWorkers.has(normalizedFn)) continue;
 
     if (!/SET\s+search_path\s*(?:=|TO)\s*'?(?:public|pg_catalog)'?/i.test(block)) {
       failures.push(`${file}: ${fn} missing fixed search_path (public or pg_catalog)`);
@@ -40,7 +40,15 @@ for (const { file, text } of migrations) {
 // The explicit worker exception above is valid only when the database privilege
 // boundary is service_role-only. Privilege statements may live in a later migration,
 // so evaluate the complete migration chain rather than a single file.
-if (/advance_report_execution_checkpoint/i.test(allMigrationText)) {
+if ([...serviceOnlyWorkers].some((fn) => new RegExp(fn, 'i').test(allMigrationText))) {
+  for (const fn of serviceOnlyWorkers) {
+    const grants = [...allMigrationText.matchAll(new RegExp(`GRANT\\s+EXECUTE\\s+ON\\s+FUNCTION\\s+(?:public\\.)?${fn}\\s*\\([^)]*\\)\\s+TO\\s+([^;]+);`, 'gi'))].map(m => m[1].trim().toLowerCase());
+    if (!grants.includes('service_role')) failures.push(`${fn} missing explicit service_role EXECUTE grant`);
+    if (grants.some(g => /(^|,)\\s*(public|anon|authenticated)\\s*(,|$)/i.test(g))) failures.push(`${fn} must not be executable by public/anon/authenticated`);
+  }
+}
+/* legacy single-function check retained below for compatibility */
+if (false && /advance_report_execution_checkpoint/i.test(allMigrationText)) {
   if (!/GRANT\s+EXECUTE\s+ON\s+FUNCTION\s+(?:public\.)?advance_report_execution_checkpoint\s*\([^)]*\)\s+TO\s+service_role\s*;/i.test(allMigrationText)) {
     failures.push('advance_report_execution_checkpoint missing explicit service_role EXECUTE grant');
   }
