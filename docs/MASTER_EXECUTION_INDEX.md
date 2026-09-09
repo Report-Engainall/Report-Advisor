@@ -177,3 +177,13 @@ This is not a rebuild situation. The remaining work is concentrated closure: exe
 - Therefore no live import lifecycle, Arabic OCR corpus lifecycle, or KPI evidence-lineage runtime PASS is claimed from this inspection alone.
 - CI remains an external billing/execution constraint and is not converted into a product PASS.
 - Next mandatory evidence fronts remain authenticated A/B browser runtime, real import lifecycle, Arabic golden-corpus runtime, worker recovery, watched-folder lifecycle, backup/restore/rollback, performance, and final exact-head certification.
+
+## GOVERNANCE LOG — 2026-09-10 — EXACT-HEAD RECONCILIATION
+- Verified current `main` HEAD: `4db373e61e03c030bab1628864c647b2d5bb97f6`.
+- The intervening commit `4db373e61e03c030bab1628864c647b2d5bb97f6` is `test(import): guard job lifecycle counter invariants` and changes only `src/lib/import/batch-folder.lifecycle.test.ts` (29 additions, 0 deletions).
+- No current-head source/test evidence was found showing a new Decision/Work/Outcome tenant-isolation defect. Existing contract coverage explicitly rejects tenant-mismatched Decision execution, Work Item completion, Outcome creation, and finalize access; therefore no speculative tenant code change is authorized from stale evidence.
+- Final Certification run `34393536163` failed closed at `Verify certification boundary integrity` because the Master Index still named `0eabfd739bc75fef2e51be1b051d9da95abde072` while the actual current `main` HEAD was `4db373e61e03c030bab1628864c647b2d5bb97f6`.
+- This is classified as an exact-head governance/index mismatch, not a product tenant-isolation failure. The certification boundary is behaving correctly by refusing to certify an unindexed candidate.
+- A workflow-run lookup for the exact `4db373e61e03c030bab1628864c647b2d5bb97f6` returned no associated pull-request workflow runs; no CI PASS is inferred from absence of runs.
+- This index refresh intentionally records `4db373e61e03c030bab1628864c647b2d5bb97f6` as the current candidate and preserves all historical evidence as historical. The resulting documentation commit creates the next exact-head boundary and must itself be subjected to the full CI/certification chain.
+- Release state remains **NOT CERTIFIED**. No tenant bypass, certification bypass, historical-SHA promotion, or fake PASS was introduced.
