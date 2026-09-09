@@ -34,14 +34,9 @@ export function validateCertificationBoundary({ index, head, parent, changedFile
   // The exact indexed candidate must be on that candidate side; requiring it to be
   // an ancestor of HEAD^ would incorrectly reject a valid PR merge checkout.
   if (parent && parent !== indexed) {
-    let candidateIsSecondParent = false;
-    try {
-      const secondParent = execFileSync('git', ['rev-parse', 'HEAD^2'], { encoding: 'utf8' }).trim().toLowerCase();
-      candidateIsSecondParent = secondParent === indexed;
-    } catch {
-      candidateIsSecondParent = false;
-    }
-    if (!candidateIsSecondParent) {
+    let secondParent = '';
+    try { secondParent = execFileSync('git', ['rev-parse', 'HEAD^2'], { encoding: 'utf8' }).trim().toLowerCase(); } catch {}
+    if (secondParent !== indexed) {
       try { execFileSync('git', ['merge-base', '--is-ancestor', indexed, parent], { stdio: 'ignore' }); }
       catch { throw new Error(`CERTIFICATION BOUNDARY FAIL: indexed candidate ${indexed} is not an ancestor of parent ${parent}`); }
     }
