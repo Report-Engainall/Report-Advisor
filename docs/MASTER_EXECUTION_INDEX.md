@@ -3,15 +3,15 @@
 ## CURRENT EXECUTION BOUNDARY — 2026-09-09
 
 ### CURRENT PROJECT STATE
-- Current code/test candidate: `fc0c270c07199e5fa88618e679882b4c35454a7d`.
+- Current code/test candidate: `2c503288369e12e4e47b9e15ae163593ec868181`.
 - Fresh exact-head CI is mandatory; no historical SHA certifies the candidate.
 
 ### CI / EXECUTION INFRASTRUCTURE
 - Certification remains fail-closed if any required indicator is red, skipped, missing, or bound to a different SHA.
 - PR #461 is the bounded final-certification repair candidate.
-- Exact-head `34f630748...` Final Certification Gate and `decision-runtime-authorization` failed because `check-decision-runtime-authorization.mjs` rejected the canonical inline declaration `v_company uuid := public.current_company_id()` and incorrectly classified required authorization guards as forbidden.
-- Surgical correction in `fc0c270c...` accepts the canonical typed declaration and treats the authorization guards as required invariants; no production SQL changed.
-- All other observed exact-head gates on `34f630748...` were green except the isolated decision runtime authorization failure and still-running jobs at observation time.
+- Exact-head `a5c16aad...` Final Certification Gate and `decision-runtime-authorization` failed because `check-decision-runtime-authorization.mjs` used a declaration regex that did not accept PostgreSQL `:=` after the inline typed variable declaration `v_company uuid := public.current_company_id()`.
+- Surgical correction in `2c503288...` accepts both typed `:=` and untyped `=` declaration forms; no production SQL changed.
+- The same exact-head run had 20-stage release readiness at `TOTAL=20 PASS=20 FAIL=0`; the isolated failing contract was the decision runtime authorization script.
 
 ### UNPROVEN OPERATIONAL GATES
 Runtime evidence status: **not proven**.
@@ -25,4 +25,4 @@ Runtime evidence status: **not proven**.
 
 ### CERTIFICATION RULE
 - No PASS, CI closure, release certification, or LIVE certification is inferred from prior SHAs.
-- The next certification decision must use fresh CI on the exact current HEAD `fc0c270c07199e5fa88618e679882b4c35454a7d`.
+- The next certification decision must use fresh CI on the exact current HEAD `2c503288369e12e4e47b9e15ae163593ec868181`.
