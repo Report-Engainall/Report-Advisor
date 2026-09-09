@@ -5,12 +5,12 @@
 > Authoritative execution manifest. This document never promotes historical evidence across an exact-HEAD boundary. Pair every evidence batch with the exact Git `HEAD` of `main` and the exact environment/commit used.
 
 ### CURRENT PROJECT STATE
-- Current code/test candidate entering this certification sweep: `40fd3910db7df72d52ff93a92bb4acf17dd0af4a`.
+- Current code/test candidate entering this certification sweep: `750f47ef13370740a726b7720e69cdeb6afbd3fa`.
 - This candidate is the exact code/test head of PR #461 (`fix/final-certification-boundary-20260909`) and is the candidate under fresh exact-head CI certification.
 - Certification remains fail-closed: no historical evidence, UI shell, simulated session, old SHA, or CI run on another SHA can certify this candidate.
 
 ### CURRENT EXACT HEAD
-- Current candidate: `40fd3910db7df72d52ff93a92bb4acf17dd0af4a`.
+- Current candidate: `750f47ef13370740a726b7720e69cdeb6afbd3fa`.
 - Previous main baseline before this bounded certification repair: `4db373e61e03c030bab1628864c647b2d5bb97f6`.
 - Documentation refreshes create a new exact-head boundary and do not promote runtime evidence from a previous SHA.
 - Frozen release candidates remain untouched: protected candidate `14cc7cefc0fad622436b4845a0e4b46a8888e8a`, exact RC reference `d846821b8d969aaa384ab85487a0dcf264a65aca`.
@@ -109,7 +109,7 @@
 
 ### CI / Execution Infrastructure
 - Fresh exact-head workflow execution must produce real steps, runner identity, logs, and green checks before CI gates can be called PASS.
-- PR #461 is the current bounded certification-repair candidate; exact candidate binding is now `40fd3910db7df72d52ff93a92bb4acf17dd0af4a` after the certification-boundary, OCR test, and decision approval lock-order corrections.
+- PR #461 is the current bounded certification-repair candidate; exact candidate binding is now `750f47ef13370740a726b7720e69cdeb6afbd3fa` after the certification-boundary, OCR test, decision approval lock-order, and lock-order contract-test corrections.
 - Certification remains fail-closed if any required indicator is red, skipped, missing, or bound to a different SHA.
 
 ## ACTIVE EXECUTION FRONTS
@@ -123,7 +123,7 @@
 - PR #397 — truthful Arabic OCR confidence.
 - PR #398 — report execution input validation; one previously valid review finding has now been explicitly repaired by rejecting array-shaped requests.
 - PR #405 — report execution queue scalar boundary hardening.
-- PR #461 — bounded final certification boundary repair; current exact candidate binding is `40fd3910db7df72d52ff93a92bb4acf17dd0af4a`.
+- PR #461 — bounded final certification boundary repair; current exact candidate binding is `750f47ef13370740a726b7720e69cdeb6afbd3fa`.
 
 ### LATEST CERTIFICATION SWEEP UPDATE
 - Previous exact candidate `2143d6a809c9dbbc187ba4ba3238a11374164c4a` produced green Truth/Data, Intelligence/OCR, Quality and most security/contract checks, but `Execution Enforcement Contract` and `Final Certification Gate` failed because the synthetic PR merge exposed a candidate-side boundary condition.
@@ -131,4 +131,7 @@
 - `43f670c9fbba85f57953c835ccaa40942190436a` then bound `d0339f...` in the index and triggered the exact-head sweep.
 - The exact-head `43f670c9...` Final Certification Gate was stopped by a precise regression in the latest `request_decision_approval` definition from `20260909220000_block_terminal_approval_reopen.sql`: it redefined the RPC with an approval-row lock but without first locking/revalidating the decision, reversing the canonical decision → approval lock order. The failing log was `Final Certification Gate` run `34403144811`, job `102639642147`; the same contract was also executed by the certification contract sweep.
 - Surgical correction applied in `40fd3910db7df72d52ff93a92bb4acf17dd0af4a`: the latest `request_decision_approval` definition now locks the tenant-scoped decision `FOR UPDATE`, validates `PROPOSED`, then locks/checks the approval row before mutation. No unrelated product surface was changed.
-- Next required action: fresh exact-head CI on `40fd3910db7df72d52ff93a92bb4acf17dd0af4a`, followed by the full 37-gate all-green check. No PASS is inferred from this document update.
+- On exact-head `c96e8f0cc0e9fd88f67b75a65e0d13c8fc1c4a44`, the `Final Certification Gate` again failed inside `scripts/check-decision-approval-lock-order.mjs`: the weakened-approval test removed the approval lock but then searched for any later `FOR UPDATE`, incorrectly finding the required decision lock and raising no exception. This was a test-of-test defect, not a product lock-order regression.
+- Surgical correction applied in `750f47ef13370740a726b7720e69cdeb6afbd3fa`: the weakened-approval adversarial assertion now anchors the search to the approval query itself and requires that approval lock to occur after the decision lock. No production SQL or unrelated surface was changed.
+- The exact-head `c96e8f0...` sweep had all observed domain/security/OCR/quality checks green except `Final Certification Gate` at the captured point; `desktop-windows`, `quality`, and `batch-integrity-guards` were still in progress then. A fresh exact-head sweep on `750f47ef...` is required; no PASS is inferred from the source fix or index update.
+- Next required action: fresh exact-head CI on `750f47ef13370740a726b7720e69cdeb6afbd3fa`, followed by the full 37-gate all-green check. No PASS is inferred from this document update.
