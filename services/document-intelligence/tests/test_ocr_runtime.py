@@ -34,15 +34,17 @@ class OcrRuntimeTests(unittest.TestCase):
                 return predict(image)
 
         fake_module.PaddleOCR = FakePaddleOCR
-        with patch.dict(sys.modules, {"paddleocr": fake_module}):
-            sys.modules.pop("main", None)
-            if "services.document-intelligence.app.main" in sys.modules:
-                sys.modules.pop("services.document-intelligence.app.main")
-            sys.path.insert(0, "services/document-intelligence/app")
-            try:
-                return importlib.import_module("main")
-            finally:
-                sys.path.pop(0)
+        self.ocr_patch = patch.dict(sys.modules, {"paddleocr": fake_module})
+        self.ocr_patch.start()
+        self.addCleanup(self.ocr_patch.stop)
+        sys.modules.pop("main", None)
+        if "services.document-intelligence.app.main" in sys.modules:
+            sys.modules.pop("services.document-intelligence.app.main")
+        sys.path.insert(0, "services/document-intelligence/app")
+        try:
+            return importlib.import_module("main")
+        finally:
+            sys.path.pop(0)
 
     def test_uses_minimum_finite_score(self):
         main = self.load_main(
