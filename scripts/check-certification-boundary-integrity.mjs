@@ -31,12 +31,14 @@ export function validateCertificationBoundary({ index, head, parent, changedFile
 
   // A pull-request checkout may be GitHub's synthetic merge commit. In that shape
   // HEAD^ is the target/base branch and HEAD^2 is the actual PR candidate lineage.
-  // The exact indexed candidate must be on that candidate side; requiring it to be
-  // an ancestor of HEAD^ would incorrectly reject a valid PR merge checkout.
+  // Validate the indexed candidate against that candidate-side parent, not the base.
   if (parent && parent !== indexed) {
     let secondParent = '';
     try { secondParent = execFileSync('git', ['rev-parse', 'HEAD^2'], { encoding: 'utf8' }).trim().toLowerCase(); } catch {}
-    if (secondParent !== indexed) {
+    if (secondParent) {
+      try { execFileSync('git', ['merge-base', '--is-ancestor', indexed, secondParent], { stdio: 'ignore' }); }
+      catch { throw new Error(`CERTIFICATION BOUNDARY FAIL: indexed candidate ${indexed} is not an ancestor of PR candidate lineage ${secondParent}`); }
+    } else {
       try { execFileSync('git', ['merge-base', '--is-ancestor', indexed, parent], { stdio: 'ignore' }); }
       catch { throw new Error(`CERTIFICATION BOUNDARY FAIL: indexed candidate ${indexed} is not an ancestor of parent ${parent}`); }
     }
