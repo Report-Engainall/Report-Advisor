@@ -25,5 +25,3 @@ export function IntelligenceCenterPage() {
     <Card><CardBody><div className="flex items-center gap-3"><Target size={18} className="text-primary-600"/><div><div className="font-semibold">قاعدة الثقة</div><p className="text-xs text-ink-500 mt-1">التنبؤ Forecast، والتوصية Recommendation، والتنبيه Alert تبقى موسومة بطبيعتها. النتيجة الفعلية لا تُسجل إلا من outcome runtime موثق.</p></div><Zap size={18} className="mr-auto text-accent-600"/></div></CardBody></Card>
   </div>;
 }
-
-export { RecommendationsPage, ForecastsPage } from '@/pages/IntelligencePages';

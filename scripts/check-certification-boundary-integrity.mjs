@@ -38,7 +38,12 @@ export function validateCertificationBoundary({ index, head, parent, changedFile
 if (process.argv[1]?.endsWith('check-certification-boundary-integrity.mjs')) {
   const index = fs.readFileSync('docs/MASTER_EXECUTION_INDEX.md', 'utf8');
   const head = execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
-  const parent = execFileSync('git', ['rev-parse', 'HEAD^'], { encoding: 'utf8' }).trim();
+  let parent = execFileSync('git', ['rev-parse', 'HEAD^'], { encoding: 'utf8' }).trim();
+  try {
+    parent = execFileSync('git', ['rev-parse', 'HEAD^2'], { encoding: 'utf8' }).trim();
+  } catch {
+    // Non-merge commits have only one parent; retain HEAD^ as the branch parent.
+  }
   const indexed = candidateFromIndex(index);
   const changedFiles = indexed ? execFileSync('git', ['diff', '--name-only', indexed, head], { encoding: 'utf8' }).trim().split('\n').filter(Boolean) : [];
   validateCertificationBoundary({ index, head, parent, changedFiles });
