@@ -1,61 +1,9 @@
 import { type ReactNode } from 'react';
-import { Loader2 } from 'lucide-react';
+import { AlertTriangle, Inbox, Loader2, RefreshCw, Sparkles } from 'lucide-react';
 
-export function Spinner({ className = '' }: { className?: string }) {
-  return <Loader2 className={`animate-spin ${className}`} size={20} />;
-}
-
-export function LoadingState({ message = 'جارٍ التحميل...' }: { message?: string }) {
-  return (
-    <div className="flex flex-col items-center justify-center py-20 gap-3">
-      <Spinner className="text-primary-500" />
-      <p className="text-sm text-ink-500">{message}</p>
-    </div>
-  );
-}
-
-export function EmptyState({ icon, title, message, action }: { icon?: ReactNode; title: string; message?: string; action?: ReactNode }) {
-  return (
-    <div className="flex flex-col items-center justify-center py-16 gap-3 text-center">
-      {icon && <div className="text-ink-300">{icon}</div>}
-      <h3 className="text-base font-semibold text-ink-700">{title}</h3>
-      {message && <p className="text-sm text-ink-400 max-w-sm">{message}</p>}
-      {action}
-    </div>
-  );
-}
-
-export function ErrorState({ message, onRetry }: { message: string; onRetry?: () => void }) {
-  return (
-    <div className="flex flex-col items-center justify-center py-16 gap-3 text-center">
-      <div className="w-12 h-12 rounded-full bg-danger-50 flex items-center justify-center text-danger-500">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 9v4M12 17h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"/></svg>
-      </div>
-      <h3 className="text-base font-semibold text-ink-700">حدث خطأ</h3>
-      <p className="text-sm text-ink-400 max-w-sm">{message}</p>
-      {onRetry && <button onClick={onRetry} className="btn-secondary mt-2">إعادة المحاولة</button>}
-    </div>
-  );
-}
-
-export function PageHeader({ title, subtitle, actions }: { title: string; subtitle?: string; actions?: ReactNode }) {
-  return (
-    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-      <div>
-        <h1 className="text-2xl font-bold text-ink-900">{title}</h1>
-        {subtitle && <p className="text-sm text-ink-500 mt-1">{subtitle}</p>}
-      </div>
-      {actions && <div className="flex items-center gap-2">{actions}</div>}
-    </div>
-  );
-}
-
-export function SkeletonCard() {
-  return (
-    <div className="card p-5">
-      <div className="skeleton h-4 w-24 mb-3" />
-      <div className="skeleton h-8 w-32 mb-2" />
-      <div className="skeleton h-3 w-20" />
-    </div>
-  );
-}
+export function Spinner({ className = '' }: { className?: string }) { return <Loader2 className={`animate-spin ${className}`} size={20} />; }
+export function LoadingState({ message = 'جارٍ التحميل...' }: { message?: string }) { return <div className="relative overflow-hidden rounded-[1.5rem] border border-ink-100 bg-white p-8 shadow-[0_10px_35px_rgba(6,95,70,.055)]" role="status" aria-live="polite"><div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-emerald-700 via-teal-500 to-amber-400"/><div className="flex min-h-52 flex-col items-center justify-center gap-4"><span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100"><Spinner/></span><div className="text-center"><p className="text-sm font-bold text-ink-700">{message}</p><p className="mt-1 text-xs text-ink-400">جارٍ تجهيز مساحة العمل من المصدر الموثوق</p></div><div className="flex gap-1" aria-hidden="true"><span className="h-1.5 w-1.5 rounded-full bg-emerald-300 animate-pulse"/><span className="h-1.5 w-1.5 rounded-full bg-teal-300 animate-pulse [animation-delay:120ms]"/><span className="h-1.5 w-1.5 rounded-full bg-amber-300 animate-pulse [animation-delay:240ms]"/></div></div></div>; }
+export function EmptyState({ icon, title, message, action }: { icon?: ReactNode; title: string; message?: string; action?: ReactNode }) { return <div className="relative overflow-hidden rounded-[1.5rem] border border-ink-100 bg-white p-8 text-center shadow-[0_10px_35px_rgba(6,95,70,.045)]"><div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-emerald-700 via-teal-500 to-amber-400 opacity-30"/><div className="flex min-h-52 flex-col items-center justify-center gap-3"><div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-ink-50 text-ink-300">{icon || <Inbox size={23}/>}</div><h3 className="text-base font-black text-ink-900">{title}</h3>{message&&<p className="max-w-sm text-sm leading-6 text-ink-400">{message}</p>}{action&&<div className="mt-1">{action}</div>}</div></div>; }
+export function ErrorState({ message, onRetry }: { message: string; onRetry?: () => void }) { return <div className="relative overflow-hidden rounded-[1.5rem] border border-danger-100 bg-white p-8 text-center shadow-[0_10px_35px_rgba(6,95,70,.045)]" role="alert"><div className="absolute inset-x-0 top-0 h-1 bg-danger-400"/><div className="flex min-h-52 flex-col items-center justify-center gap-3"><div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-danger-50 text-danger-500"><AlertTriangle size={23}/></div><h3 className="text-base font-black text-ink-900">تعذر تحميل البيانات</h3><p className="max-w-lg text-sm leading-6 text-ink-500">{message}</p>{onRetry&&<button type="button" onClick={onRetry} className="btn-secondary mt-1"><RefreshCw size={15}/> إعادة المحاولة</button>}</div></div>; }
+export function PageHeader({ title, subtitle, actions }: { title: string; subtitle?: string; actions?: ReactNode }) { return <div className="page-header mb-7 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between"><div className="min-w-0"><div className="mb-2 inline-flex items-center gap-1.5 text-[10px] font-black tracking-[.16em] text-emerald-700"><Sparkles size={12}/> WORKSPACE</div><h1 className="text-2xl font-black tracking-tight text-ink-950 text-balance sm:text-3xl lg:text-4xl">{title}</h1>{subtitle&&<p className="mt-2 max-w-3xl text-sm leading-7 text-ink-500">{subtitle}</p>}</div>{actions&&<div className="flex flex-wrap items-center gap-2 shrink-0">{actions}</div>}</div>; }
+export function SkeletonCard(){return <div className="rounded-[1.35rem] border border-ink-100 bg-white p-5 shadow-sm"><div className="skeleton h-4 w-24 mb-3"/><div className="skeleton h-8 w-32 mb-2"/><div className="skeleton h-3 w-20"/></div>; }

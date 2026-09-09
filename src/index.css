@@ -4,42 +4,105 @@
 
 @layer base {
   * { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
-  html { background: #f8fafc; }
-  body {
-    font-family: 'IBM Plex Sans Arabic', 'Inter', system-ui, sans-serif;
-    background: radial-gradient(circle at 100% 0%, rgb(219 234 254 / .55), transparent 28rem), radial-gradient(circle at 0% 20%, rgb(207 250 254 / .42), transparent 24rem), #f8fafc;
-    color: #0f172a; direction: rtl;
-  }
-  ::selection { background: rgb(37 99 235 / .16); color: #172554; }
+  html { background: #f5f6f0; scroll-behavior: smooth; }
+  body { font-family: 'IBM Plex Sans Arabic', 'Inter', system-ui, sans-serif; background: radial-gradient(circle at 92% -8%, rgb(16 185 129 / .15), transparent 30rem), radial-gradient(circle at 8% 18%, rgb(245 158 11 / .11), transparent 27rem), radial-gradient(circle at 50% 100%, rgb(20 184 166 / .09), transparent 34rem), #f5f6f0; color: #14251f; direction: rtl; }
+  ::selection { background: rgb(16 185 129 / .22); color: #064e3b; }
   ::-webkit-scrollbar { width: 8px; height: 8px; }
   ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 999px; }
-  ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+  ::-webkit-scrollbar-thumb { background: #c8d1cc; border-radius: 999px; }
+  ::-webkit-scrollbar-thumb:hover { background: #93a39b; }
+  button, a, input, select, textarea { -webkit-tap-highlight-color: transparent; }
 }
 
 @layer components {
-  .card { @apply bg-white/95 rounded-2xl shadow-card border border-ink-100/80 backdrop-blur-sm; }
-  .card-hover { @apply transition-all duration-200 hover:-translate-y-0.5 hover:shadow-card-hover hover:border-primary-200; }
-  .btn { @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-medium text-sm transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed; }
-  .btn-primary { @apply btn bg-primary-600 text-white hover:bg-primary-700 active:bg-primary-800 shadow-sm shadow-primary-600/20; }
-  .btn-secondary { @apply btn bg-white text-ink-700 border border-ink-200 hover:bg-primary-50/60 hover:text-primary-700 hover:border-primary-200 active:bg-primary-100; }
-  .btn-ghost { @apply btn text-ink-600 hover:bg-ink-100/80 hover:text-ink-800; }
-  .btn-danger { @apply btn bg-danger-600 text-white hover:bg-danger-700 active:bg-danger-800 shadow-sm shadow-danger-600/20; }
-  .input { @apply w-full px-3.5 py-2.5 rounded-xl border border-ink-200 bg-white text-ink-800 placeholder-ink-400 focus:outline-none focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500 transition-all text-sm shadow-sm shadow-ink-950/5; }
-  .badge { @apply inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium; }
-  .badge-primary { @apply badge bg-primary-50 text-primary-700 ring-1 ring-inset ring-primary-100; }
-  .badge-success { @apply badge bg-success-50 text-success-700 ring-1 ring-inset ring-success-100; }
-  .badge-warning { @apply badge bg-warning-50 text-warning-700 ring-1 ring-inset ring-warning-100; }
-  .badge-danger { @apply badge bg-danger-50 text-danger-700 ring-1 ring-inset ring-danger-100; }
-  .badge-neutral { @apply badge bg-ink-100 text-ink-600 ring-1 ring-inset ring-ink-200; }
-  .skeleton { @apply bg-gradient-to-r from-ink-100 via-ink-50 to-ink-100 bg-[length:200%_100%] animate-shimmer rounded; }
-  .nav-item { @apply flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 cursor-pointer; }
-  .nav-item-active { @apply bg-gradient-to-l from-primary-50 to-white text-primary-700 shadow-sm ring-1 ring-inset ring-primary-100; }
-  .nav-item-inactive { @apply text-ink-500 hover:bg-white/80 hover:text-ink-800 hover:shadow-sm; }
+  .card { @apply relative overflow-hidden bg-white/95 rounded-[1.5rem] shadow-card border border-ink-100/80 backdrop-blur-sm transition-all duration-300; box-shadow: 0 10px 34px rgb(20 37 31 / .055), 0 2px 8px rgb(20 37 31 / .035); }
+  .card::before { content: ''; position: absolute; inset: 0 0 auto 0; height: 1px; background: linear-gradient(90deg, transparent, rgb(16 185 129 / .34), rgb(212 167 44 / .30), transparent); pointer-events: none; }
+  .card-hover { @apply transition-all duration-300 hover:-translate-y-1 hover:shadow-card-hover; }
+  .btn { @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-medium text-sm transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed; }
+  .btn-primary { @apply btn text-white shadow-lg; background: linear-gradient(135deg, #065f46 0%, #059669 45%, #b8891c 135%); box-shadow: 0 10px 26px rgb(5 150 105 / .24); }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 16px 36px rgb(5 150 105 / .30); filter: saturate(1.08); }
+  .btn-secondary { @apply btn bg-white text-ink-700 border border-ink-200 hover:bg-emerald-50/70 hover:text-emerald-800 hover:border-emerald-200; }
+  .btn-ghost { @apply btn text-ink-600 hover:bg-emerald-50 hover:text-emerald-800; }
+  .btn-danger { @apply btn bg-danger-600 text-white hover:bg-danger-700 active:bg-danger-800 shadow-lg shadow-danger-600/20; }
+  .input { @apply w-full px-3.5 py-2.5 rounded-xl border border-ink-200 bg-white text-ink-800 placeholder-ink-400 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all text-sm shadow-sm shadow-ink-950/5; }
+  .badge-primary { @apply badge bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-100; }
+  .badge-success { @apply badge bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-100; }
+  .badge-warning { @apply badge bg-amber-50 text-amber-700 ring-1 ring-inset ring-amber-100; }
+  .nav-item-active { @apply text-emerald-800 shadow-sm ring-1 ring-inset ring-emerald-100; background: linear-gradient(90deg, rgb(236 253 245), rgb(255 251 235), white); }
+  .experience-hero { @apply relative overflow-hidden rounded-[2rem] border border-white/10 p-7 text-white shadow-elevated sm:p-10; background: radial-gradient(circle at 82% 18%, rgb(52 211 153 / .27), transparent 20rem), radial-gradient(circle at 12% 85%, rgb(245 158 11 / .22), transparent 22rem), linear-gradient(135deg, #022c22 0%, #064e3b 45%, #59400b 150%); }
+  .experience-hero::before { content: ''; position: absolute; inset: -30% -8% auto auto; width: 34rem; height: 34rem; border-radius: 999px; background: radial-gradient(circle, rgb(52 211 153 / .22), transparent 68%); pointer-events: none; animation: ambient-float 9s ease-in-out infinite; }
+  .experience-hero::after { content: ''; position: absolute; inset: auto auto -50% -12%; width: 30rem; height: 30rem; border-radius: 999px; background: radial-gradient(circle, rgb(251 191 36 / .17), transparent 68%); pointer-events: none; animation: ambient-float 11s ease-in-out infinite reverse; }
+  .experience-kpi { @apply relative rounded-2xl border border-white/10 bg-white/[.09] p-5 backdrop-blur-md shadow-lg shadow-black/10; }
+  .experience-section { @apply rounded-[1.75rem] border border-ink-100 bg-white/95 p-6 shadow-card backdrop-blur-sm sm:p-7; box-shadow: 0 14px 42px rgb(20 37 31 / .065), 0 2px 10px rgb(20 37 31 / .03); }
+  .experience-section-title { @apply text-base font-bold tracking-tight text-ink-900 sm:text-xl; }
+  .experience-section-subtitle { @apply text-xs leading-6 text-ink-500 sm:text-sm; }
+  .experience-metric { @apply rounded-2xl border border-ink-100 bg-gradient-to-br from-white via-white to-emerald-50/60 p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-emerald-200 hover:shadow-card-hover; }
+  .experience-metric-value { @apply mt-2 text-2xl font-black tracking-tight text-ink-950 tabular-nums sm:text-3xl; }
+  .experience-metric-label { @apply text-xs font-medium text-ink-500; }
+  .experience-chip { @apply inline-flex items-center gap-1.5 rounded-full border border-ink-200 bg-white px-3 py-1.5 text-xs font-semibold text-ink-600 shadow-sm transition-all hover:-translate-y-0.5 hover:border-emerald-200 hover:text-emerald-700; }
+  .experience-table { @apply overflow-hidden rounded-2xl border border-ink-100 bg-white shadow-sm; }
+  .experience-table thead { @apply bg-gradient-to-l from-emerald-50/80 to-amber-50/70; }
+  .experience-table th { @apply px-4 py-3 text-right text-[11px] font-bold text-ink-500; }
+  .experience-table td { @apply border-t border-ink-100 px-4 py-3 text-sm text-ink-700; }
+  .experience-table tbody tr { @apply transition-colors hover:bg-emerald-50/40; }
+  .premium-gradient { background: linear-gradient(135deg, #065f46 0%, #059669 45%, #b8891c 135%); }
+  .premium-gradient-soft { background: linear-gradient(135deg, rgb(236 253 245 / .97), rgb(255 251 235 / .97), rgb(240 253 250 / .93)); }
+  .glass-panel { @apply border border-white/60 bg-white/75 backdrop-blur-xl shadow-lg; }
+  .page-glow { position: relative; }
+  .page-glow::before { content: ''; position: absolute; width: 24rem; height: 24rem; top: -10rem; left: -8rem; border-radius: 999px; background: radial-gradient(circle, rgb(212 167 44 / .11), transparent 68%); pointer-events: none; }
+  .workspace-grid { @apply grid gap-5 lg:grid-cols-12; }
+  .workspace-panel { @apply rounded-[1.75rem] border border-ink-100/80 bg-white/95 shadow-card backdrop-blur-sm; box-shadow: 0 18px 52px rgb(20 37 31 / .065), 0 3px 12px rgb(20 37 31 / .035); }
+  .workspace-panel-dark { @apply relative overflow-hidden rounded-[1.75rem] border border-white/10 text-white shadow-elevated; background: linear-gradient(145deg,#022c22,#064e3b 58%,#59400b); }
+  .workspace-label { @apply text-[10px] font-black uppercase tracking-[.18em] text-emerald-700; }
+  .workspace-title { @apply text-xl font-black tracking-tight text-ink-950 sm:text-2xl; }
+  .workspace-copy { @apply mt-1 text-xs leading-6 text-ink-500 sm:text-sm; }
+  .workspace-action { @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-xs font-bold transition-all duration-200; }
+  .workspace-action-primary { @apply workspace-action text-white shadow-lg; background: linear-gradient(135deg,#065f46,#059669 55%,#b8891c); box-shadow: 0 10px 28px rgb(5 150 105 / .2); }
+  .workspace-action-primary:hover { @apply -translate-y-0.5; box-shadow: 0 16px 34px rgb(5 150 105 / .26); }
+  .workspace-action-soft { @apply workspace-action border border-emerald-100 bg-emerald-50/70 text-emerald-800 hover:-translate-y-0.5 hover:bg-emerald-50; }
+  .workspace-divider { @apply h-px bg-gradient-to-l from-transparent via-ink-100 to-transparent; }
+  .workspace-stat { @apply rounded-2xl border border-ink-100 bg-gradient-to-br from-white to-emerald-50/45 p-4 shadow-sm; }
+  .workspace-stat-value { @apply text-2xl font-black tracking-tight text-ink-950 tabular-nums; }
+  .workspace-stat-label { @apply mt-1 text-[11px] font-semibold text-ink-400; }
+  .workspace-list-item { @apply flex items-start gap-3 rounded-2xl border border-ink-100 bg-white p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-emerald-200 hover:shadow-sm; }
+  .workspace-icon { @apply flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-100; }
+  .workspace-empty { @apply flex min-h-44 flex-col items-center justify-center rounded-2xl border border-dashed border-ink-200 bg-ink-50/40 px-6 text-center; }
+  .command-surface { @apply relative overflow-hidden rounded-[2rem] border border-ink-100/80 bg-white/95 shadow-elevated; }
+  .command-surface::after { content:''; position:absolute; inset:0; pointer-events:none; background:linear-gradient(135deg,transparent 55%,rgb(16 185 129 / .035)); }
+  .command-card { @apply relative rounded-[1.5rem] border border-ink-100 bg-white p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-emerald-200 hover:shadow-elevated; }
+  .command-card-featured { @apply command-card text-white border-transparent; background:linear-gradient(145deg,#022c22,#065f46 62%,#7a5a0b); }
+  .command-number { @apply flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-50 text-xs font-black text-emerald-700; }
+  .command-card-featured .command-number { @apply bg-white/10 text-amber-100; }
+  .decision-rail { @apply flex gap-2 overflow-x-auto pb-1; scrollbar-width:none; }
+  .decision-rail::-webkit-scrollbar { display:none; }
+  .decision-step { @apply flex min-w-[150px] items-center gap-3 rounded-2xl border border-ink-100 bg-white px-4 py-3 text-right shadow-sm transition-all; }
+  .decision-step-active { @apply border-emerald-300 bg-emerald-50 text-emerald-900 shadow-md; }
+  .decision-step-number { @apply flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-ink-100 text-xs font-black text-ink-500; }
+  .decision-step-active .decision-step-number { @apply bg-emerald-700 text-white; }
+  .mobile-safe-bottom { padding-bottom: max(1rem, env(safe-area-inset-bottom)); }
 }
 
 @layer utilities {
-  .text-balance { text-wrap: balance; }
-  .tabular-nums { font-variant-numeric: tabular-nums; }
-  .gradient-text { @apply bg-clip-text text-transparent bg-gradient-to-r from-primary-600 via-primary-700 to-accent-600; }
+  .gradient-text { @apply bg-clip-text text-transparent bg-gradient-to-r from-emerald-700 via-teal-700 to-amber-600; }
+  .shadow-elevated { box-shadow: 0 28px 80px rgb(20 37 31 / .14), 0 8px 24px rgb(20 37 31 / .07); }
+}
+@keyframes ambient-float { 0%,100% { transform: translate3d(0,0,0) scale(1); } 50% { transform: translate3d(-12px,10px,0) scale(1.04); } }
+@media (max-width:640px) { .experience-hero { border-radius:1.5rem; padding:1.35rem; } .experience-section { border-radius:1.35rem; padding:1.15rem; } .experience-metric { padding:1rem; } .workspace-panel,.workspace-panel-dark { border-radius:1.35rem; } .workspace-stat { padding:.85rem; } .command-card { border-radius:1.25rem; padding:1rem; } }
+
+@media print {
+  @page { size: A4 portrait; margin: 12mm; }
+  html, body { background: #fff !important; color: #111 !important; }
+  body { font-size: 11pt; }
+  .print\:hidden, nav, aside, header, button, input, select, textarea { display: none !important; }
+  .print\:bg-white { background: #fff !important; }
+  .print\:border-0 { border: 0 !important; }
+  .print\:shadow-none { box-shadow: none !important; }
+  .experience-hero { background: #064e3b !important; color: #fff !important; break-inside: avoid; box-shadow: none !important; }
+  .experience-hero::before, .experience-hero::after, .card::before { display: none !important; }
+  .card, .experience-kpi, .experience-table { box-shadow: none !important; break-inside: avoid; }
+  .experience-table { width: 100% !important; border: 1px solid #d1d5db !important; }
+  .experience-table thead { background: #f3f4f6 !important; }
+  .experience-table th, .experience-table td { border-color: #d1d5db !important; color: #111 !important; }
+  .experience-table tbody tr { break-inside: avoid; }
+  .page-glow::before { display: none !important; }
 }

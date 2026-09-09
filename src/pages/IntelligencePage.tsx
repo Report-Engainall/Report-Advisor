@@ -1,385 +1,44 @@
-import { useEffect, useState, useCallback } from 'react';
-import {
-  Brain, Lightbulb, TrendingUp, AlertTriangle, CheckCircle2,
-  Clock, XCircle, ArrowRight, Sparkles, Target, Zap,
-} from 'lucide-react';
+import { useEffect, useState, useCallback, type ReactNode } from 'react';
+import { Link } from 'react-router-dom';
+import { Brain, Lightbulb, TrendingUp, AlertTriangle, CheckCircle2, XCircle, Target, Zap, Database, Sparkles, ArrowUpLeft, Crosshair, SlidersHorizontal } from 'lucide-react';
 import { Card, CardHeader, CardBody } from '@/components/ui/Card';
 import { Badge, SeverityBadge, PriorityBadge, ConfidenceBadge, StatusBadge } from '@/components/ui/Badge';
-import { PageHeader, LoadingState, ErrorState, EmptyState } from '@/components/ui/States';
+import { LoadingState, ErrorState, EmptyState } from '@/components/ui/States';
 import { ForecastChart } from '@/components/ui/Charts';
-import {
-  fetchRecommendations, fetchAlerts, fetchForecasts,
-  updateRecommendationStatus, markAlertRead,
-} from '@/lib/queries';
-import { formatCurrency, formatNumber, relativeTime, formatDate } from '@/lib/format';
+import { fetchRecommendations, fetchAlerts, fetchForecasts, updateRecommendationStatus } from '@/lib/queries';
+import { formatCurrency, relativeTime, formatDate } from '@/lib/format';
 import type { Recommendation, Alert, Forecast } from '@/lib/types';
 
+const monthLabels = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+
+function IntelligenceHero({ title, subtitle, label = 'INTELLIGENCE COMMAND', children }: { title: string; subtitle: string; label?: string; children?: ReactNode }) {
+  return <section className="experience-hero overflow-hidden"><div className="relative z-10 flex flex-col gap-7 xl:flex-row xl:items-end xl:justify-between"><div className="max-w-4xl"><div className="experience-chip border-white/10 bg-white/10 text-white"><Sparkles size={14}/>{label}</div><h1 className="mt-5 text-4xl font-black tracking-tight sm:text-5xl lg:text-6xl">{title}</h1><p className="mt-4 max-w-3xl text-sm leading-8 text-white/70 sm:text-base">{subtitle}</p></div>{children}</div></section>;
+}
+function IntelligenceLink({ to, icon: Icon, title, description }: { to: string; icon: typeof Brain; title: string; description: string }) { return <Link to={to} className="command-card group"><div className="flex items-center justify-between"><span className="workspace-icon"><Icon size={18}/></span><ArrowUpLeft size={17} className="text-ink-300 transition group-hover:-translate-y-1 group-hover:text-emerald-700"/></div><h3 className="mt-4 text-sm font-black text-ink-900">{title}</h3><p className="mt-1 text-xs leading-6 text-ink-500">{description}</p></Link>; }
+
 export function IntelligenceCenterPage() {
-  const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
-  const [alerts, setAlerts] = useState<Alert[]>([]);
-  const [forecasts, setForecasts] = useState<Forecast[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const load = useCallback(async () => {
-    try {
-      setLoading(true);
-      const [recs, alts, fc] = await Promise.all([fetchRecommendations(), fetchAlerts(), fetchForecasts()]);
-      setRecommendations(recs); setAlerts(alts); setForecasts(fc);
-    } catch (e: any) { setError(e.message); } finally { setLoading(false); }
-  }, []);
-
-  useEffect(() => { load(); }, [load]);
-
-  if (loading) return <LoadingState />;
-  if (error) return <ErrorState message={error} onRetry={load} />;
-
-  const newRecs = recommendations.filter(r => r.status === 'new').length;
-  const criticalAlerts = alerts.filter(a => a.severity === 'critical' && !a.is_read).length;
-  const companyForecasts = forecasts.filter(f => f.entity_type === 'company');
-
-  const forecastChartData = companyForecasts.map(f => {
-    const d = new Date(f.period);
-    const labels = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-    return { label: labels[d.getMonth()], forecast_value: f.forecast_value, upper_bound: f.upper_bound, lower_bound: f.lower_bound };
-  });
-
-  return (
-    <div className="space-y-6 animate-fade-in">
-      <PageHeader title="مركز الذكاء" subtitle="توصيات وتنبؤات ومحاكاة السيناريوهات" />
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <Card className="bg-gradient-to-br from-primary-600 to-primary-800 text-white">
-          <CardBody>
-            <Brain size={24} className="mb-3 text-primary-200" />
-            <div className="text-3xl font-bold">{newRecs}</div>
-            <div className="text-sm text-primary-200 mt-1">توصيات جديدة</div>
-          </CardBody>
-        </Card>
-        <Card className="bg-gradient-to-br from-danger-500 to-danger-700 text-white">
-          <CardBody>
-            <AlertTriangle size={24} className="mb-3 text-danger-200" />
-            <div className="text-3xl font-bold">{criticalAlerts}</div>
-            <div className="text-sm text-danger-200 mt-1">تنبيهات حرجة</div>
-          </CardBody>
-        </Card>
-        <Card className="bg-gradient-to-br from-accent-500 to-accent-700 text-white">
-          <CardBody>
-            <TrendingUp size={24} className="mb-3 text-accent-200" />
-            <div className="text-3xl font-bold">{forecasts.length}</div>
-            <div className="text-sm text-accent-200 mt-1">تنبؤات نشطة</div>
-          </CardBody>
-        </Card>
-      </div>
-
-      <Card>
-        <CardHeader title="تنبؤ المبيعات" subtitle="توقعات آخر 6 أشهر" action={<ConfidenceBadge confidence="FORECAST" />} />
-        <CardBody><ForecastChart data={forecastChartData} /></CardBody>
-      </Card>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <Card>
-          <CardHeader title="أحدث التنبيهات" />
-          <CardBody>
-            <div className="space-y-3">
-              {alerts.slice(0, 5).map(alert => (
-                <div key={alert.id} className="flex items-start gap-3 p-3 rounded-lg bg-ink-50/50">
-                  <SeverityBadge severity={alert.severity} />
-                  <div className="flex-1 min-w-0">
-                    <div className="text-sm font-medium text-ink-800">{alert.title}</div>
-                    {alert.description && <div className="text-xs text-ink-500 mt-0.5">{alert.description}</div>}
-                  </div>
-                  <span className="text-[11px] text-ink-400">{relativeTime(alert.created_at)}</span>
-                </div>
-              ))}
-              {alerts.length === 0 && <EmptyState title="لا توجد تنبيهات" />}
-            </div>
-          </CardBody>
-        </Card>
-
-        <Card>
-          <CardHeader title="التوصيات النشطة" />
-          <CardBody>
-            <div className="space-y-3">
-              {recommendations.filter(r => r.status === 'new').slice(0, 5).map(rec => (
-                <div key={rec.id} className="flex items-start gap-3 p-3 rounded-lg bg-ink-50/50">
-                  <div className="w-8 h-8 rounded-lg bg-accent-50 text-accent-600 flex items-center justify-center flex-shrink-0">
-                    <Lightbulb size={16} />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="text-sm font-medium text-ink-800">{rec.title}</div>
-                    {rec.expected_impact && <div className="text-xs text-success-600 mt-0.5">الأثر: {formatCurrency(rec.expected_impact)}</div>}
-                  </div>
-                  <PriorityBadge priority={rec.priority} />
-                </div>
-              ))}
-              {recommendations.length === 0 && <EmptyState title="لا توجد توصيات" />}
-            </div>
-          </CardBody>
-        </Card>
-      </div>
-    </div>
-  );
+  const [recommendations, setRecommendations] = useState<Recommendation[]>([]); const [alerts, setAlerts] = useState<Alert[]>([]); const [forecasts, setForecasts] = useState<Forecast[]>([]); const [loading, setLoading] = useState(true); const [error, setError] = useState<string | null>(null);
+  const load = useCallback(async () => { try { setLoading(true); setError(null); const [recs, alts, fc] = await Promise.all([fetchRecommendations(), fetchAlerts(), fetchForecasts()]); setRecommendations(recs); setAlerts(alts); setForecasts(fc); } catch (e: unknown) { setError(e instanceof Error ? e.message : 'تعذر تحميل مركز الذكاء'); } finally { setLoading(false); } }, []);
+  useEffect(() => { void load(); }, [load]);
+  if (loading) return <LoadingState message="جارٍ تجهيز مركز الذكاء..." />; if (error) return <ErrorState message={error} onRetry={() => void load()} />;
+  const newRecs = recommendations.filter(r => r.status === 'new').length; const criticalAlerts = alerts.filter(a => a.severity === 'critical' && !a.is_read).length; const unreadAlerts = alerts.filter(a => !a.is_read).length; const companyForecasts = forecasts.filter(f => f.entity_type === 'company');
+  const forecastChartData = companyForecasts.map(f => { const d = new Date(f.period); return { label: monthLabels[d.getMonth()], forecast_value: f.forecast_value, upper_bound: f.upper_bound, lower_bound: f.lower_bound }; });
+  return <div dir="rtl" className="space-y-7 pb-10 animate-fade-in">
+    <IntelligenceHero title="مركز الذكاء" subtitle="من الإشارة إلى الإجراء: اقرأ ما يحدث، راجع الدليل المتاح، ثم انتقل إلى التوصية أو التنبؤ أو القرار دون إخفاء حدود البيانات."><div className="grid grid-cols-3 gap-2 xl:min-w-[390px]"><div className="experience-kpi"><div className="text-3xl font-black tabular-nums">{newRecs}</div><div className="mt-1 text-[10px] text-white/55">توصيات جديدة</div></div><div className="experience-kpi"><div className="text-3xl font-black tabular-nums">{criticalAlerts}</div><div className="mt-1 text-[10px] text-white/55">حرجة</div></div><div className="experience-kpi"><div className="text-3xl font-black tabular-nums">{forecasts.length}</div><div className="mt-1 text-[10px] text-white/55">تنبؤات</div></div></div></IntelligenceHero>
+    <section className="grid gap-4 md:grid-cols-3"><IntelligenceLink to="/intelligence/recommendations" icon={Lightbulb} title="التوصيات" description="راجع الاقتراحات وقم بتغيير حالتها عبر المسار الفعلي."/><IntelligenceLink to="/intelligence/forecasts" icon={TrendingUp} title="التنبؤات" description="افصل التوقع المستقبلي عن النتائج الفعلية ونطاقاتها."/><IntelligenceLink to="/intelligence/scenarios" icon={SlidersHorizontal} title="مختبر السيناريوهات" description="اختبر أثر الافتراضات عندما تتوفر قاعدة مالية موثوقة."/></section>
+    <section className="grid gap-5 xl:grid-cols-[1.55fr_.75fr]"><Card className="overflow-hidden rounded-[1.75rem] border-0 shadow-elevated"><CardHeader title="إشارة المبيعات المستقبلية" subtitle="القيمة المتوقعة مع نطاقات الحد الأدنى والأعلى" action={<ConfidenceBadge confidence="FORECAST"/>}/><CardBody><div className="experience-table min-h-[330px] p-2">{forecastChartData.length ? <ForecastChart data={forecastChartData}/> : <div className="flex min-h-[300px] flex-col items-center justify-center text-center"><TrendingUp size={30} className="text-ink-200"/><div className="mt-3 text-sm font-bold text-ink-500">لا توجد تنبؤات شركة متاحة حاليًا</div><div className="mt-1 text-xs text-ink-400">لن يتم إنشاء خط تنبؤ افتراضي.</div></div>}</div></CardBody></Card><div className="workspace-panel-dark p-6"><div className="relative z-10"><div className="flex items-center gap-2 text-emerald-100/70"><Database size={17}/><span className="text-[10px] font-black tracking-[.16em]">INTELLIGENCE STATUS</span></div><h2 className="mt-4 text-2xl font-black">ما يحتاج انتباهك</h2><div className="mt-6 space-y-3"><div className="rounded-2xl border border-white/10 bg-white/10 p-4"><div className="text-[10px] text-white/50">توصيات جديدة</div><div className="mt-1 text-3xl font-black">{newRecs}</div></div><div className="rounded-2xl border border-white/10 bg-white/10 p-4"><div className="text-[10px] text-white/50">تنبيهات غير مقروءة</div><div className="mt-1 text-3xl font-black">{unreadAlerts}</div></div><div className="rounded-2xl border border-white/10 bg-white/10 p-4"><div className="text-[10px] text-white/50">الحالة</div><div className="mt-2"><Badge variant={forecasts.length ? 'primary' : 'neutral'}>{forecasts.length ? 'إشارات متاحة' : 'بانتظار البيانات'}</Badge></div></div></div></div></div></section>
+    <section className="grid gap-5 xl:grid-cols-2"><Card><CardHeader title="رادار التنبيهات" subtitle="الإشارات الأحدث التي تستحق المراجعة"/><CardBody><div className="space-y-2">{alerts.slice(0,6).map(alert => <div key={alert.id} className="workspace-list-item"><SeverityBadge severity={alert.severity}/><div className="min-w-0 flex-1"><div className="text-sm font-bold text-ink-800">{alert.title}</div>{alert.description&&<div className="mt-1 text-xs leading-5 text-ink-500">{alert.description}</div>}</div><span className="shrink-0 text-[10px] text-ink-400">{relativeTime(alert.created_at)}</span></div>)}{alerts.length===0&&<EmptyState title="لا توجد تنبيهات" message="لا توجد إشارات تحتاج إجراءً حاليًا."/>}</div></CardBody></Card><Card><CardHeader title="التوصيات النشطة" subtitle="اقتراحات يمكن تحويلها إلى إجراء"/><CardBody><div className="space-y-2">{recommendations.filter(r=>r.status==='new').slice(0,6).map(rec=><div key={rec.id} className="workspace-list-item"><span className="workspace-icon"><Lightbulb size={17}/></span><div className="min-w-0 flex-1"><div className="flex flex-wrap items-center gap-2"><span className="text-sm font-bold text-ink-800">{rec.title}</span><PriorityBadge priority={rec.priority}/></div>{rec.expected_impact&&<div className="mt-1 text-xs font-semibold text-success-600">الأثر المتوقع: {formatCurrency(rec.expected_impact)}</div>}</div></div>)}{recommendations.length===0&&<EmptyState title="لا توجد توصيات" message="ستظهر التوصيات بعد توفر بيانات قابلة للتحليل."/>}</div></CardBody></Card></section>
+    <section className="grid gap-4 md:grid-cols-3"><Link to="/command-center" className="workspace-action-primary justify-between rounded-2xl px-5 py-4"><span className="flex items-center gap-2"><Crosshair size={17}/> مركز القيادة</span><ArrowUpLeft size={16}/></Link><Link to="/decision-experience" className="workspace-action-soft justify-between rounded-2xl px-5 py-4"><span className="flex items-center gap-2"><Target size={17}/> مساحة القرار</span><ArrowUpLeft size={16}/></Link><Link to="/data-quality" className="workspace-action-soft justify-between rounded-2xl px-5 py-4"><span className="flex items-center gap-2"><CheckCircle2 size={17}/> ثقة البيانات</span><ArrowUpLeft size={16}/></Link></section>
+  </div>;
 }
 
 export function RecommendationsPage() {
-  const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<string>('all');
-
-  const load = useCallback(async () => {
-    const data = await fetchRecommendations();
-    setRecommendations(data);
-    setLoading(false);
-  }, []);
-
-  useEffect(() => { load(); }, [load]);
-
-  const handleAction = async (id: string, status: string) => {
-    await updateRecommendationStatus(id, status);
-    setRecommendations(prev => prev.map(r => r.id === id ? { ...r, status } : r));
-  };
-
-  if (loading) return <LoadingState />;
-
-  const filtered = filter === 'all' ? recommendations : recommendations.filter(r => r.status === filter);
-
-  return (
-    <div className="space-y-6 animate-fade-in">
-      <PageHeader title="التوصيات" subtitle="إجراءات مقترحة لتحسين الأداء" />
-
-      <div className="flex gap-2 flex-wrap">
-        {[
-          { v: 'all', l: 'الكل' },
-          { v: 'new', l: 'جديدة' },
-          { v: 'accepted', l: 'مقبولة' },
-          { v: 'in_progress', l: 'قيد التنفيذ' },
-          { v: 'done', l: 'تم التنفيذ' },
-          { v: 'rejected', l: 'مرفوضة' },
-        ].map(f => (
-          <button
-            key={f.v}
-            onClick={() => setFilter(f.v)}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-              filter === f.v ? 'bg-primary-600 text-white' : 'bg-white text-ink-600 border border-ink-200 hover:bg-ink-50'
-            }`}
-          >
-            {f.l}
-            <span className="mr-1 opacity-60">({f.v === 'all' ? recommendations.length : recommendations.filter(r => r.status === f.v).length})</span>
-          </button>
-        ))}
-      </div>
-
-      <div className="space-y-3">
-        {filtered.map(rec => (
-          <Card key={rec.id}>
-            <CardBody>
-              <div className="flex flex-col gap-3">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-accent-50 text-accent-600 flex items-center justify-center flex-shrink-0">
-                      <Lightbulb size={18} />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-ink-800 text-sm">{rec.title}</h3>
-                      {rec.description && <p className="text-xs text-ink-500 mt-1">{rec.description}</p>}
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2 flex-shrink-0">
-                    <PriorityBadge priority={rec.priority} />
-                    <ConfidenceBadge confidence={rec.confidence} />
-                    <StatusBadge status={rec.status} />
-                  </div>
-                </div>
-
-                {rec.expected_impact && (
-                  <div className="flex items-center gap-2 text-sm">
-                    <Target size={14} className="text-success-500" />
-                    <span className="text-ink-600">الأثر المتوقع: <span className="font-semibold text-success-600">{formatCurrency(rec.expected_impact)}</span></span>
-                    <span className="text-ink-400">•</span>
-                    <span className="text-ink-500">{relativeTime(rec.created_at)}</span>
-                  </div>
-                )}
-
-                {rec.status === 'new' && (
-                  <div className="flex gap-2">
-                    <button onClick={() => handleAction(rec.id, 'accepted')} className="btn-primary text-xs">
-                      <CheckCircle2 size={14} /> قبول
-                    </button>
-                    <button onClick={() => handleAction(rec.id, 'rejected')} className="btn-secondary text-xs">
-                      <XCircle size={14} /> رفض
-                    </button>
-                  </div>
-                )}
-                {rec.status === 'accepted' && (
-                  <button onClick={() => handleAction(rec.id, 'done')} className="btn-primary text-xs">
-                    <CheckCircle2 size={14} /> تم التنفيذ
-                  </button>
-                )}
-                {rec.status === 'done' && rec.impact_result && (
-                  <div className="p-2 rounded-lg bg-success-50 text-success-700 text-xs">
-                    <Zap size={12} className="inline ml-1" /> النتيجة: {rec.impact_result}
-                  </div>
-                )}
-              </div>
-            </CardBody>
-          </Card>
-        ))}
-        {filtered.length === 0 && <EmptyState icon={<Lightbulb size={32} />} title="لا توجد توصيات" message="لا توجد توصيات في هذه الفئة" />}
-      </div>
-    </div>
-  );
+  const [recommendations,setRecommendations]=useState<Recommendation[]>([]); const [loading,setLoading]=useState(true); const [filter,setFilter]=useState('all'); const load=useCallback(async()=>{try{setRecommendations(await fetchRecommendations());}catch{setRecommendations([]);}finally{setLoading(false);}},[]); useEffect(()=>{void load();},[load]);
+  const handleAction=async(id:string,status:string)=>{await updateRecommendationStatus(id,status);setRecommendations(prev=>prev.map(r=>r.id===id?{...r,status}:r));}; if(loading)return <LoadingState message="جارٍ تحميل التوصيات..."/>;
+  const filtered=filter==='all'?recommendations:recommendations.filter(r=>r.status===filter); const filters=[['all','الكل'],['new','جديدة'],['accepted','مقبولة'],['in_progress','قيد التنفيذ'],['done','تم التنفيذ'],['rejected','مرفوضة']];
+  return <div dir="rtl" className="space-y-7 pb-10 animate-fade-in"><IntelligenceHero title="التوصيات" subtitle="مساحة متابعة حقيقية للتوصيات: الحالة، الأولوية، الثقة، والأثر المتوقع دون تحويل الاقتراح إلى حقيقة." label="RECOMMENDATION WORKSPACE"><div className="hidden xl:block w-[220px]"/></IntelligenceHero><div className="decision-rail">{filters.map(([v,l])=><button key={v} type="button" onClick={()=>setFilter(v)} className={`decision-step ${filter===v?'decision-step-active':''}`}><span className="decision-step-number">{v==='all'?recommendations.length:recommendations.filter(r=>r.status===v).length}</span><span className="text-xs font-bold">{l}</span></button>)}</div><div className="space-y-3">{filtered.map(rec=><Card key={rec.id}><CardBody><div className="flex flex-col gap-4"><div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between"><div className="flex min-w-0 items-start gap-3"><span className="workspace-icon"><Lightbulb size={19}/></span><div className="min-w-0"><h3 className="text-base font-black text-ink-900">{rec.title}</h3>{rec.description&&<p className="mt-1 text-sm leading-6 text-ink-500">{rec.description}</p>}</div></div><div className="flex flex-wrap gap-1.5"><PriorityBadge priority={rec.priority}/><ConfidenceBadge confidence={rec.confidence}/><StatusBadge status={rec.status}/></div></div>{rec.expected_impact&&<div className="flex flex-wrap items-center gap-2 rounded-2xl bg-emerald-50/60 px-4 py-3 text-xs"><Target size={14} className="text-success-600"/><span className="text-ink-600">الأثر المتوقع: <b className="text-success-700">{formatCurrency(rec.expected_impact)}</b></span><span className="text-ink-300">•</span><span className="text-ink-400">{relativeTime(rec.created_at)}</span></div>}{rec.status==='new'&&<div className="flex flex-wrap gap-2"><button type="button" onClick={()=>void handleAction(rec.id,'accepted')} className="btn-primary text-xs"><CheckCircle2 size={14}/> قبول التوصية</button><button type="button" onClick={()=>void handleAction(rec.id,'rejected')} className="btn-secondary text-xs"><XCircle size={14}/> رفض</button></div>}{rec.status==='accepted'&&<button type="button" onClick={()=>void handleAction(rec.id,'done')} className="btn-primary text-xs w-fit"><CheckCircle2 size={14}/> تسجيل التنفيذ</button>}{rec.status==='done'&&rec.impact_result&&<div className="rounded-2xl bg-success-50 px-4 py-3 text-xs font-medium text-success-700"><Zap size={13} className="inline ml-1"/> النتيجة: {rec.impact_result}</div>}</div></CardBody></Card>)}{filtered.length===0&&<EmptyState icon={<Lightbulb size={28}/>} title="لا توجد توصيات" message="لا توجد توصيات في هذه الفئة."/>}</div></div>;
 }
 
-export function ForecastsPage() {
-  const [forecasts, setForecasts] = useState<Forecast[]>([]);
-  const [loading, setLoading] = useState(true);
+export function ForecastsPage() { const [forecasts,setForecasts]=useState<Forecast[]>([]); const [loading,setLoading]=useState(true); useEffect(()=>{fetchForecasts().then(data=>{setForecasts(data);setLoading(false);}).catch(()=>setLoading(false));},[]); if(loading)return <LoadingState message="جارٍ تجهيز التنبؤات..."/>; const companyForecasts=forecasts.filter(f=>f.entity_type==='company'); const chartData=companyForecasts.map(f=>({label:monthLabels[new Date(f.period).getMonth()],forecast_value:f.forecast_value,upper_bound:f.upper_bound,lower_bound:f.lower_bound})); return <div dir="rtl" className="space-y-7 pb-10 animate-fade-in"><IntelligenceHero title="التنبؤات" subtitle="توقعات مستقبلية منفصلة بوضوح عن النتائج الفعلية، مع عرض النطاقات وجودة النموذج." label="FORECAST WORKSPACE"><ConfidenceBadge confidence="FORECAST"/></IntelligenceHero><Card className="overflow-hidden"><CardHeader title="تنبؤ المبيعات الشهري" subtitle="القيمة المتوقعة مع الحدين الأدنى والأعلى"/><CardBody><div className="experience-table min-h-[320px] p-2">{chartData.length?<ForecastChart data={chartData}/>:<div className="flex min-h-[300px] items-center justify-center text-sm text-ink-400">لا توجد تنبؤات شركة متاحة.</div>}</div></CardBody></Card><Card className="overflow-hidden"><CardHeader title="سجل التنبؤات" subtitle={`${forecasts.length} سجل من المصدر الحالي`}/><div className="experience-table overflow-x-auto border-0 shadow-none rounded-none"><table><thead><tr><th>الكيان</th><th>الفترة</th><th>القيمة المتوقعة</th><th>الحد الأدنى</th><th>الحد الأعلى</th><th className="text-center">النموذج</th><th className="text-center">الدقة</th></tr></thead><tbody>{forecasts.map(f=><tr key={f.id}><td className="font-semibold">{f.entity_name}</td><td>{formatDate(f.period)}</td><td className="font-bold tabular-nums">{formatCurrency(f.forecast_value)}</td><td className="text-warning-600 tabular-nums">{formatCurrency(f.lower_bound)}</td><td className="text-success-600 tabular-nums">{formatCurrency(f.upper_bound)}</td><td className="text-center"><Badge variant="neutral">{f.model_name}</Badge></td><td className="text-center tabular-nums">{f.quality_score?`${(f.quality_score*100).toFixed(0)}%`:'—'}</td></tr>)}</tbody></table></div></Card></div>; }
 
-  useEffect(() => {
-    fetchForecasts().then(data => { setForecasts(data); setLoading(false); });
-  }, []);
-
-  if (loading) return <LoadingState />;
-
-  const companyForecasts = forecasts.filter(f => f.entity_type === 'company');
-  const labels = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-  const chartData = companyForecasts.map(f => ({
-    label: labels[new Date(f.period).getMonth()],
-    forecast_value: f.forecast_value,
-    upper_bound: f.upper_bound,
-    lower_bound: f.lower_bound,
-  }));
-
-  return (
-    <div className="space-y-6 animate-fade-in">
-      <PageHeader title="التنبؤات" subtitle="توقعات الأداء المستقبلي" />
-
-      <Card>
-        <CardHeader title="تنبؤ المبيعات الشهري" subtitle="مع نطاق الثقة" action={<ConfidenceBadge confidence="FORECAST" />} />
-        <CardBody><ForecastChart data={chartData} /></CardBody>
-      </Card>
-
-      <Card>
-        <CardHeader title="تفاصيل التنبؤات" />
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-ink-100 bg-ink-50/50">
-                <th className="px-4 py-3 text-xs font-semibold text-ink-500 text-right">الكيان</th>
-                <th className="px-4 py-3 text-xs font-semibold text-ink-500 text-right">الفترة</th>
-                <th className="px-4 py-3 text-xs font-semibold text-ink-500 text-right">القيمة المتوقعة</th>
-                <th className="px-4 py-3 text-xs font-semibold text-ink-500 text-right">الحد الأدنى</th>
-                <th className="px-4 py-3 text-xs font-semibold text-ink-500 text-right">الحد الأعلى</th>
-                <th className="px-4 py-3 text-xs font-semibold text-ink-500 text-center">النموذج</th>
-                <th className="px-4 py-3 text-xs font-semibold text-ink-500 text-center">الدقة</th>
-              </tr>
-            </thead>
-            <tbody>
-              {forecasts.map(f => (
-                <tr key={f.id} className="border-b border-ink-50">
-                  <td className="px-4 py-3 text-sm text-ink-700">{f.entity_name}</td>
-                  <td className="px-4 py-3 text-sm text-ink-500">{formatDate(f.period)}</td>
-                  <td className="px-4 py-3 text-sm font-semibold text-ink-800">{formatCurrency(f.forecast_value)}</td>
-                  <td className="px-4 py-3 text-sm text-warning-600">{formatCurrency(f.lower_bound)}</td>
-                  <td className="px-4 py-3 text-sm text-success-600">{formatCurrency(f.upper_bound)}</td>
-                  <td className="px-4 py-3 text-center"><Badge variant="neutral">{f.model_name}</Badge></td>
-                  <td className="px-4 py-3 text-center text-sm text-ink-600">{f.quality_score ? `${(f.quality_score * 100).toFixed(0)}%` : '—'}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </Card>
-    </div>
-  );
-}
-
-export function ScenariosPage() {
-  const [priceChange, setPriceChange] = useState(5);
-  const [volumeChange, setVolumeChange] = useState(10);
-  const [costChange, setCostChange] = useState(0);
-
-  const baseRevenue = 450000;
-  const baseCost = 315000;
-  const baseProfit = baseRevenue - baseCost;
-
-  const newRevenue = baseRevenue * (1 + volumeChange / 100) * (1 + priceChange / 100);
-  const newCost = baseCost * (1 + costChange / 100) * (1 + volumeChange / 100);
-  const newProfit = newRevenue - newCost;
-  const profitChange = ((newProfit - baseProfit) / baseProfit) * 100;
-
-  return (
-    <div className="space-y-6 animate-fade-in">
-      <PageHeader title="محاكاة السيناريوهات" subtitle="اختبر تأثير التغييرات على الأداء المالي" />
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <Card>
-          <CardHeader title="محددات السيناريو" />
-          <CardBody>
-            <div className="space-y-5">
-              <div>
-                <label className="text-sm font-medium text-ink-700 mb-2 flex items-center justify-between">
-                  <span>تغيير السعر</span>
-                  <span className={`font-bold ${priceChange >= 0 ? 'text-success-600' : 'text-danger-600'}`}>{priceChange > 0 ? '+' : ''}{priceChange}%</span>
-                </label>
-                <input type="range" min="-20" max="20" value={priceChange} onChange={e => setPriceChange(Number(e.target.value))} className="w-full accent-primary-600" />
-              </div>
-              <div>
-                <label className="text-sm font-medium text-ink-700 mb-2 flex items-center justify-between">
-                  <span>تغيير حجم المبيعات</span>
-                  <span className={`font-bold ${volumeChange >= 0 ? 'text-success-600' : 'text-danger-600'}`}>{volumeChange > 0 ? '+' : ''}{volumeChange}%</span>
-                </label>
-                <input type="range" min="-30" max="30" value={volumeChange} onChange={e => setVolumeChange(Number(e.target.value))} className="w-full accent-primary-600" />
-              </div>
-              <div>
-                <label className="text-sm font-medium text-ink-700 mb-2 flex items-center justify-between">
-                  <span>تغيير التكلفة</span>
-                  <span className={`font-bold ${costChange >= 0 ? 'text-danger-600' : 'text-success-600'}`}>{costChange > 0 ? '+' : ''}{costChange}%</span>
-                </label>
-                <input type="range" min="-15" max="15" value={costChange} onChange={e => setCostChange(Number(e.target.value))} className="w-full accent-primary-600" />
-              </div>
-            </div>
-          </CardBody>
-        </Card>
-
-        <Card>
-          <CardHeader title="النتائج المتوقعة" />
-          <CardBody>
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-3">
-                <div className="p-3 rounded-lg bg-ink-50">
-                  <div className="text-xs text-ink-500">الإيرادات الحالية</div>
-                  <div className="text-lg font-bold text-ink-800">{formatCurrency(baseRevenue)}</div>
-                </div>
-                <div className="p-3 rounded-lg bg-primary-50">
-                  <div className="text-xs text-primary-600">الإيرادات الجديدة</div>
-                  <div className="text-lg font-bold text-primary-700">{formatCurrency(newRevenue)}</div>
-                </div>
-                <div className="p-3 rounded-lg bg-ink-50">
-                  <div className="text-xs text-ink-500">التكلفة الحالية</div>
-                  <div className="text-lg font-bold text-ink-800">{formatCurrency(baseCost)}</div>
-                </div>
-                <div className="p-3 rounded-lg bg-warning-50">
-                  <div className="text-xs text-warning-600">التكلفة الجديدة</div>
-                  <div className="text-lg font-bold text-warning-700">{formatCurrency(newCost)}</div>
-                </div>
-              </div>
-              <div className={`p-4 rounded-lg ${profitChange >= 0 ? 'bg-success-50' : 'bg-danger-50'}`}>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className={`text-xs ${profitChange >= 0 ? 'text-success-600' : 'text-danger-600'}`}>تغيير الربح</div>
-                    <div className={`text-2xl font-bold ${profitChange >= 0 ? 'text-success-700' : 'text-danger-700'}`}>{profitChange > 0 ? '+' : ''}{profitChange.toFixed(1)}%</div>
-                  </div>
-                  <div className="text-left">
-                    <div className="text-xs text-ink-500">الربح الجديد</div>
-                    <div className="text-lg font-bold text-ink-800">{formatCurrency(newProfit)}</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </CardBody>
-        </Card>
-      </div>
-    </div>
-  );
-}
+export function ScenariosPage() { return <div dir="rtl" className="space-y-7 pb-10"><IntelligenceHero title="مختبر السيناريوهات" subtitle="هذه المساحة تستخدم المسار المالي المعتمد فقط. إذا لم تتوفر قاعدة مالية موثوقة، تُوقف المحاكاة بدل اختراع خط أساس." label="STRATEGY / SIMULATION"><SlidersHorizontal size={24}/></IntelligenceHero><Card><CardBody><div className="flex items-start gap-3 rounded-2xl border border-amber-100 bg-amber-50/70 p-5 text-sm leading-7 text-amber-900"><AlertTriangle size={20} className="mt-0.5 shrink-0"/><span>المسار التشغيلي للسيناريوهات موجود في شاشة الحارس المالي، ولا تُستخدم أرقام ثابتة داخل الواجهة.</span></div></CardBody></Card></div>; }
