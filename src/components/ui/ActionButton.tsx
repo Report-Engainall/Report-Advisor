@@ -1,4 +1,5 @@
 import type { ButtonHTMLAttributes, ReactNode } from 'react';
+import { Link } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
 
 export type ActionButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'soft';
@@ -27,25 +28,9 @@ interface ActionButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   children: ReactNode;
 }
 
-export function ActionButton({
-  variant = 'primary',
-  size = 'md',
-  icon,
-  loading = false,
-  loadingLabel = 'جارٍ التنفيذ…',
-  disabled,
-  className = '',
-  children,
-  ...props
-}: ActionButtonProps) {
+export function ActionButton({ variant = 'primary', size = 'md', icon, loading = false, loadingLabel = 'جارٍ التنفيذ…', disabled, className = '', children, ...props }: ActionButtonProps) {
   return (
-    <button
-      type="button"
-      disabled={disabled || loading}
-      aria-busy={loading || undefined}
-      className={`inline-flex items-center justify-center rounded-2xl font-bold transition disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0 ${variantClasses[variant]} ${sizeClasses[size]} ${className}`}
-      {...props}
-    >
+    <button type="button" disabled={disabled || loading} aria-busy={loading || undefined} className={`inline-flex items-center justify-center rounded-2xl font-bold transition disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0 ${variantClasses[variant]} ${sizeClasses[size]} ${className}`} {...props}>
       {loading ? <Loader2 size={16} className="animate-spin" /> : icon}
       <span>{loading ? loadingLabel : children}</span>
     </button>
@@ -63,14 +48,5 @@ interface ActionLinkProps {
 }
 
 export function ActionLink({ to, children, icon, variant = 'primary', size = 'md', className = '', title }: ActionLinkProps) {
-  return (
-    <a
-      href={to}
-      title={title}
-      className={`inline-flex items-center justify-center rounded-2xl font-bold transition ${variantClasses[variant]} ${sizeClasses[size]} ${className}`}
-    >
-      {icon}
-      <span>{children}</span>
-    </a>
-  );
+  return <Link to={to} title={title} className={`inline-flex items-center justify-center rounded-2xl font-bold transition ${variantClasses[variant]} ${sizeClasses[size]} ${className}`}>{icon}<span>{children}</span></Link>;
 }
