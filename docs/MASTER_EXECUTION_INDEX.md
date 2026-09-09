@@ -5,6 +5,7 @@
 > Authoritative execution manifest. This document never promotes historical evidence across an exact-HEAD boundary. Pair every evidence batch with the exact Git `HEAD` of `main` and the exact environment/commit used.
 
 ### CURRENT EXACT HEAD
+- Current code/test candidate: `3484bd1b033914a4a87300ffb4b3ec926c4f8b80`.
 - Current functional baseline before this documentation refresh: `5b083100d463aae4a4cf22ebbbff7e1470749b1f`.
 - `main` is unchanged relative to that baseline at the time of the deep audit; no hidden drift was found.
 - Documentation refreshes create a new exact-head boundary and do not promote runtime evidence from the previous SHA.
