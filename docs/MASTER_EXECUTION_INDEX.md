@@ -5,8 +5,8 @@
 > Authoritative execution manifest. This document never promotes historical evidence across an exact-HEAD boundary. Pair every evidence batch with the exact Git `HEAD` and exact environment/commit used.
 
 ### CURRENT PROJECT STATE
-- Current code/test candidate: `2472e5e08ac5c99ecda969e3281d282b4941a656`.
-- Targeted repair: intelligence recommendation/forecast routes now resolve the restored `IntelligencePages` module; OCR CI already installs FastAPI, Pillow, and python-multipart.
+- Current code/test candidate: `2ee86be6c4ce32dce2d81faedfb581371039bb33`.
+- Targeted repair: dashboard adversarial regression now guards the canonical `get_dashboard_snapshot` contract and no longer requires the retired `get_dashboard_top_entities` RPC.
 - Exact-head GitHub Actions verification is required; this candidate is **NOT CERTIFIED** until required workflows are green.
 - Frozen release candidates remain untouched: protected candidate `14cc7cefc0fad622436b4845a0e4b46a8888e8a9`, exact RC reference `d846821b8d969aaa384ab85487a0dcf264a65aca`.
 
@@ -14,6 +14,7 @@
 - Restored `RecommendationsPage` and `ForecastsPage` exports required by the intelligence route and corrected `App.tsx` to import them from `IntelligencePages`.
 - UI route completeness checker normalizes extensionless lazy imports to `.tsx` before orphan detection.
 - OCR confidence workflow installs FastAPI, Pillow, and python-multipart required by the executable OCR test.
+- Dashboard adversarial regression now verifies the canonical dashboard snapshot adapter, including `get_dashboard_snapshot`, `topCustomers`, and `topProducts`, instead of asserting the retired top-entities RPC.
 - Master Index is bound to the exact code candidate entering this certification sweep.
 - Certification boundary checker remains unchanged and fail-closed.
 
@@ -41,10 +42,9 @@
 - Tenant/security fail-closed behavior must not be weakened to satisfy CI.
 
 ### COMMIT / CI / TEST / UPDATE
-- Exact code candidate: `2472e5e08ac5c99ecda969e3281d282b4941a656`.
-- Predecessor `581fabfff64c4291f095c49987abb8523c06c8da` had a real TypeScript failure in `App.tsx`: it imported `RecommendationsPage` and `ForecastsPage` from `IntelligencePage`, where those exports do not exist.
-- Corrective code commit `2472e5e08ac5c99ecda969e3281d282b4941a656` points both routes to `IntelligencePages`.
-- OCR dependency repair remains present from `581fabfff64c4291f095c49987abb8523c06c8da`.
+- Exact code candidate: `2ee86be6c4ce32dce2d81faedfb581371039bb33`.
+- Predecessor `519439fd76016eb39cdddbc815c472741ad5341a` exposed a real stale test assertion: `dashboard-truth-adversarial-regression.mjs` required `get_dashboard_top_entities` in the adapter even though the canonical adapter now calls `get_dashboard_snapshot` and reads `topCustomers/topProducts`.
+- Corrective code commit `2ee86be6c4ce32dce2d81faedfb581371039bb33` updates only that adversarial guard to assert the current canonical contract and explicitly reject the retired RPC in the adapter.
 - This index-only successor records the new exact code candidate for the certification boundary; it does not alter certification logic or promote runtime evidence.
 
 ## BOUNDARY / GOVERNANCE
