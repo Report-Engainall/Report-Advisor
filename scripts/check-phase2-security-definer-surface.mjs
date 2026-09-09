@@ -9,9 +9,11 @@ const stripSqlComments = (text) => text
   .replace(/\/\*[\s\S]*?\*\//g, '')
   .replace(/--[^\n\r]*/g, '');
 
+const migrations = migrationFiles.map(file => ({ file, text: stripSqlComments(readFileSync(file, 'utf8')) }));
+const allMigrationText = migrations.map(({ text }) => text).join('\n');
 const failures = [];
-for (const file of migrationFiles) {
-  const text = stripSqlComments(readFileSync(file, 'utf8'));
+
+for (const { file, text } of migrations) {
   const starts = [...text.matchAll(/CREATE\s+(?:OR\s+REPLACE\s+)?FUNCTION\s+([^\s(]+)/gi)].map((m) => m.index ?? 0);
   for (let i = 0; i < starts.length; i += 1) {
     const start = starts[i];
@@ -33,16 +35,17 @@ for (const file of migrationFiles) {
       failures.push(`${file}: ${fn} missing authenticated tenant/user binding`);
     }
   }
+}
 
-  // The explicit worker exception above is valid only when the database privilege
-  // boundary is service_role-only. Reject any client execution grant for that RPC.
-  if (/advance_report_execution_checkpoint/i.test(text)) {
-    if (!/GRANT\s+EXECUTE\s+ON\s+FUNCTION\s+(?:public\.)?advance_report_execution_checkpoint\s*\([^)]*\)\s+TO\s+service_role\s*;/i.test(text)) {
-      failures.push(`${file}: advance_report_execution_checkpoint missing explicit service_role EXECUTE grant`);
-    }
-    if (/GRANT\s+EXECUTE\s+ON\s+FUNCTION\s+(?:public\.)?advance_report_execution_checkpoint\s*\([^)]*\)\s+TO\s+(?:public|anon|authenticated)\s*;/i.test(text)) {
-      failures.push(`${file}: advance_report_execution_checkpoint must not be executable by public/anon/authenticated`);
-    }
+// The explicit worker exception above is valid only when the database privilege
+// boundary is service_role-only. Privilege statements may live in a later migration,
+// so evaluate the complete migration chain rather than a single file.
+if (/advance_report_execution_checkpoint/i.test(allMigrationText)) {
+  if (!/GRANT\s+EXECUTE\s+ON\s+FUNCTION\s+(?:public\.)?advance_report_execution_checkpoint\s*\([^)]*\)\s+TO\s+service_role\s*;/i.test(allMigrationText)) {
+    failures.push('advance_report_execution_checkpoint missing explicit service_role EXECUTE grant');
+  }
+  if (/GRANT\s+EXECUTE\s+ON\s+FUNCTION\s+(?:public\.)?advance_report_execution_checkpoint\s*\([^)]*\)\s+TO\s+(?:public|anon|authenticated)\s*;/i.test(allMigrationText)) {
+    failures.push('advance_report_execution_checkpoint must not be executable by public/anon/authenticated');
   }
 }
 
