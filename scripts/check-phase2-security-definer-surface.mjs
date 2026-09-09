@@ -5,36 +5,38 @@ const grep = execFileSync('git', ['grep', '-l', '-i', 'SECURITY DEFINER', '--', 
 const migrationFiles = grep.split('\n').filter(Boolean);
 if (migrationFiles.length === 0) throw new Error('No migration surface found for SECURITY DEFINER audit');
 
-const stripSqlComments = (text) => text
+const stripSqlComments = (value) => value
   .replace(/\/\*[\s\S]*?\*\//g, '')
   .replace(/--[^\n\r]*/g, '');
 
 const failures = [];
 for (const file of migrationFiles) {
-  const text = stripSqlComments(readFileSync(file, 'utf8'));
-  const starts = [...text.matchAll(/CREATE\s+(?:OR\s+REPLACE\s+)?FUNCTION\s+([^\s(]+)/gi)].map((m) => m.index ?? 0);
+  const sql = stripSqlComments(readFileSync(file, 'utf8'));
+  const starts = [...sql.matchAll(/CREATE\s+(?:OR\s+REPLACE\s+)?FUNCTION\s+([^\s(]+)/gi)]
+    .map((match) => match.index ?? 0);
+
   for (let i = 0; i < starts.length; i += 1) {
     const start = starts[i];
-    const end = starts[i + 1] ?? text.length;
-    const block = text.slice(start, end);
+    const end = starts[i + 1] ?? sql.length;
+    const block = sql.slice(start, end);
     if (!/SECURITY\s+DEFINER/i.test(block)) continue;
-    const fn = block.match(/CREATE\s+(?:OR\s+REPLACE\s+)?FUNCTION\s+([^\s(]+)/i)?.[1] ?? '<unknown>';
 
+    const fn = block.match(/CREATE\s+(?:OR\s+REPLACE\s+)?FUNCTION\s+([^\s(]+)/i)?.[1] ?? '<unknown>';
     if (!/SET\s+search_path\s*(?:=|TO)\s*'?(?:public|pg_catalog)'?/i.test(block)) {
       failures.push(`${file}: ${fn} missing fixed search_path (public or pg_catalog)`);
     }
-    if (!/current_company_id\s*\(\)|auth\.uid\s*\(\)/i.test(block)) {
-      const normalizedFn = fn.replace(/^public\./i, '');
-      const migrationHasServiceRoleOnlyBoundary = new RegExp(
-        `revoke\\s+all\\s+on\\s+function\\s+public\\.${normalizedFn.replace(/[.*+?^${}()|[\\]\\]/g, '\\\\    if (!/current_company_id\s*\(\)|auth\.uid\s*\(\)/i.test(block)) {
+
+    if (/current_company_id\s*\(\)|auth\.uid\s*\(\)/i.test(block)) continue;
+
+    const normalizedFn = fn.replace(/^public\./i, '');
+    const escapedFn = normalizedFn.replace(/[.*+?^\${}()|[\]\\]/g, '\\$&');
+    const serviceRoleOnly = new RegExp(
+      `revoke\\\\s+all\\\\s+on\\\\s+function\\\\s+public\\\\.${escapedFn}[^;]*from\\\\s+public,anon,authenticated\\\\s*;[\\\\s\\\\S]*grant\\\\s+execute\\\\s+on\\\\s+function\\\\s+public\\\\.${escapedFn}[^;]*to\\\\s+service_role\\\\s*;`,
+      'i',
+    ).test(sql);
+
+    if (!serviceRoleOnly) {
       failures.push(`${file}: ${fn} missing authenticated tenant/user binding`);
-    }')}[^;]*\\s+from\\s+public,anon,authenticated\\s*;[\\s\\S]*grant\\s+execute\\s+on\\s+function\\s+public\\.${normalizedFn.replace(/[.*+?^${}()|[\\]\\]/g, '\\\\    if (!/current_company_id\s*\(\)|auth\.uid\s*\(\)/i.test(block)) {
-      failures.push(`${file}: ${fn} missing authenticated tenant/user binding`);
-    }')}[^;]*\\s+to\\s+service_role\\s*;`, 'i'
-      ).test(sql);
-      if (!migrationHasServiceRoleOnlyBoundary) {
-        failures.push(`${file}: ${fn} missing authenticated tenant/user binding`);
-      }
     }
   }
 }
