@@ -16,8 +16,10 @@ function latestFunctionBody(source, name) {
   let start = -1;
   while ((match = re.exec(source))) start = match.index;
   if (start < 0) throw new Error(`Missing canonical function: ${name}`);
-  const next = source.indexOf('\nCREATE OR REPLACE FUNCTION', start + 1);
-  return source.slice(start, next < 0 ? source.length : next);
+  const nextRe = /\nCREATE\s+OR\s+REPLACE\s+FUNCTION/gi;
+  nextRe.lastIndex = start + 1;
+  const nextMatch = nextRe.exec(source);
+  return source.slice(start, nextMatch ? nextMatch.index : source.length);
 }
 
 export function validateDecisionApprovalToctou(source) {
@@ -38,13 +40,17 @@ validateDecisionApprovalToctou(sql);
 
 // Test-of-test: adversarial mutations must target the latest canonical function body.
 function replaceLatestFunctionBody(source, name, mutate) {
-  const marker = `CREATE OR REPLACE FUNCTION public.${name}`;
-  const start = source.lastIndexOf(marker);
+  const re = new RegExp(`CREATE\\s+OR\\s+REPLACE\\s+FUNCTION\\s+public\\.${name}\\s*\\(`, 'gi');
+  let match;
+  let start = -1;
+  while ((match = re.exec(source))) start = match.index;
   if (start < 0) throw new Error(`Missing canonical function: ${name}`);
-  const openParen = source.indexOf('(', start + marker.length);
+  const openParen = source.indexOf('(', start);
   if (openParen < 0) throw new Error(`Missing canonical function signature: ${name}`);
-  const next = source.indexOf('\nCREATE OR REPLACE FUNCTION', openParen + 1);
-  const end = next < 0 ? source.length : next;
+  const nextRe = /\nCREATE\s+OR\s+REPLACE\s+FUNCTION/gi;
+  nextRe.lastIndex = openParen + 1;
+  const nextMatch = nextRe.exec(source);
+  const end = nextMatch ? nextMatch.index : source.length;
   const body = source.slice(start, end);
   return source.slice(0, start) + mutate(body) + source.slice(end);
 }
