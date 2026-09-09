@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { Search, Bell, Upload, Brain, Menu, CheckCircle2, Command, AlertTriangle, WifiOff, Sparkles, ChevronLeft } from 'lucide-react';
 import type { Alert } from '@/lib/types';
 import { SeverityBadge } from './ui/Badge';
@@ -12,7 +12,9 @@ interface HeaderProps { alerts: Alert[]; onMarkAlertRead: (id: string) => void; 
 export function Header({ alerts, onMarkAlertRead, onMenuClick, onOpenCommandPalette }: HeaderProps) {
   const [showAlerts, setShowAlerts] = useState(false);
   const [health, setHealth] = useState<HealthState>('checking');
+  const location = useLocation();
   const unreadAlerts = alerts.filter(a => !a.is_read);
+  useEffect(() => { setShowAlerts(false); }, [location.pathname]);
   useEffect(() => {
     let mounted = true;
     const checkHealth = async () => {
@@ -28,6 +30,11 @@ export function Header({ alerts, onMarkAlertRead, onMenuClick, onOpenCommandPale
     void checkHealth();
     const timer = window.setInterval(checkHealth, 60_000);
     return () => { mounted = false; window.clearInterval(timer); };
+  }, []);
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => { if (event.key === 'Escape') setShowAlerts(false); };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
   }, []);
   const healthLabel = { checking: 'جارٍ التحقق', healthy: 'النظام يعمل', degraded: 'الخدمة متأثرة', offline: 'غير متصل' }[health];
   const HealthIcon = health === 'healthy' ? CheckCircle2 : health === 'offline' ? WifiOff : AlertTriangle;
@@ -47,13 +54,13 @@ export function Header({ alerts, onMarkAlertRead, onMenuClick, onOpenCommandPale
         <Link to="/intelligence" className="hidden md:inline-flex btn-ghost !rounded-2xl !p-3" title="المساعد الذكي" aria-label="المساعد الذكي"><Brain size={18} /></Link>
         <Link to="/command-center" className="hidden lg:inline-flex items-center gap-2 rounded-2xl bg-emerald-950 px-3.5 py-2.5 text-xs font-bold text-white shadow-md transition hover:-translate-y-0.5 hover:shadow-lg" title="مركز القيادة"><Sparkles size={16} /> القيادة</Link>
         <div className="relative">
-          <button type="button" onClick={() => setShowAlerts(value => !value)} className="btn-ghost !rounded-2xl !p-3 relative" aria-label={`التنبيهات، ${unreadAlerts.length} غير مقروء`} aria-expanded={showAlerts}>
+          <button type="button" onClick={() => setShowAlerts(value => !value)} className="btn-ghost !rounded-2xl !p-3 relative" aria-label={`التنبيهات، ${unreadAlerts.length} غير مقروء`} aria-expanded={showAlerts} aria-controls="global-alerts-panel">
             <Bell size={18} />
             {unreadAlerts.length > 0 && <span className="absolute top-1 left-1 min-w-4 h-4 px-1 bg-danger-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center ring-2 ring-[#f7f8f3]">{unreadAlerts.length}</span>}
           </button>
-          {showAlerts && <><div className="fixed inset-0 z-40" onClick={() => setShowAlerts(false)} /><div className="absolute left-0 mt-2 w-[calc(100vw-1.5rem)] max-w-sm bg-white rounded-3xl shadow-elevated border border-ink-100 z-50 max-h-[min(28rem,70vh)] overflow-y-auto animate-slide-up">
+          {showAlerts && <><div className="fixed inset-0 z-40" onClick={() => setShowAlerts(false)} aria-hidden="true" /><div id="global-alerts-panel" role="dialog" aria-label="مركز التنبيهات" className="absolute left-0 mt-2 w-[calc(100vw-1.5rem)] max-w-sm bg-white rounded-3xl shadow-elevated border border-ink-100 z-50 max-h-[min(28rem,70vh)] overflow-y-auto animate-slide-up">
             <div className="p-5 border-b border-ink-100 flex items-center justify-between"><div><div className="font-black text-sm text-ink-900">مركز التنبيهات</div><div className="text-[11px] text-ink-400 mt-1">الإشارات التي تستحق انتباهك الآن</div></div><span className="badge-neutral">{unreadAlerts.length} جديد</span></div>
-            {alerts.length === 0 ? <div className="p-10 text-center"><Bell size={24} className="mx-auto text-ink-300" /><div className="mt-3 text-sm font-bold text-ink-600">كل شيء هادئ</div><div className="mt-1 text-xs text-ink-400">لا توجد تنبيهات تحتاج إلى إجراء.</div></div> : <div className="divide-y divide-ink-50">{alerts.slice(0,10).map(alert => <div key={alert.id} onClick={() => onMarkAlertRead(alert.id)} className={`p-4 hover:bg-ink-50 cursor-pointer transition ${!alert.is_read?'bg-primary-50/30':''}`}><div className="flex items-center gap-2 mb-1.5"><SeverityBadge severity={alert.severity} /><span className="text-[11px] text-ink-400 mr-auto">{relativeTime(alert.created_at)}</span></div><div className="text-sm font-semibold text-ink-800">{alert.title}</div>{alert.description&&<div className="text-xs leading-5 text-ink-500 mt-1">{alert.description}</div>}</div>)}</div>}
+            {alerts.length === 0 ? <div className="p-10 text-center"><Bell size={24} className="mx-auto text-ink-300" /><div className="mt-3 text-sm font-bold text-ink-600">كل شيء هادئ</div><div className="mt-1 text-xs text-ink-400">لا توجد تنبيهات تحتاج إلى إجراء.</div></div> : <div className="divide-y divide-ink-50">{alerts.slice(0,10).map(alert => <button type="button" key={alert.id} onClick={() => onMarkAlertRead(alert.id)} className={`block w-full p-4 text-right hover:bg-ink-50 cursor-pointer transition ${!alert.is_read?'bg-primary-50/30':''}`}><div className="flex items-center gap-2 mb-1.5"><SeverityBadge severity={alert.severity} /><span className="text-[11px] text-ink-400 mr-auto">{relativeTime(alert.created_at)}</span></div><div className="text-sm font-semibold text-ink-800">{alert.title}</div>{alert.description&&<div className="text-xs leading-5 text-ink-500 mt-1">{alert.description}</div>}</button>)}</div>}
             <Link to="/intelligence" onClick={() => setShowAlerts(false)} className="flex items-center justify-between px-5 py-3.5 border-t border-ink-100 text-xs font-bold text-primary-700 hover:bg-ink-50"><span>فتح مركز الذكاء</span><ChevronLeft size={15}/></Link>
           </div></>}
         </div>
