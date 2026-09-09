@@ -24,7 +24,17 @@ for (const file of migrationFiles) {
       failures.push(`${file}: ${fn} missing fixed search_path (public or pg_catalog)`);
     }
     if (!/current_company_id\s*\(\)|auth\.uid\s*\(\)/i.test(block)) {
+      const normalizedFn = fn.replace(/^public\./i, '');
+      const migrationHasServiceRoleOnlyBoundary = new RegExp(
+        `revoke\\s+all\\s+on\\s+function\\s+public\\.${normalizedFn.replace(/[.*+?^${}()|[\\]\\]/g, '\\\\    if (!/current_company_id\s*\(\)|auth\.uid\s*\(\)/i.test(block)) {
       failures.push(`${file}: ${fn} missing authenticated tenant/user binding`);
+    }')}[^;]*\\s+from\\s+public,anon,authenticated\\s*;[\\s\\S]*grant\\s+execute\\s+on\\s+function\\s+public\\.${normalizedFn.replace(/[.*+?^${}()|[\\]\\]/g, '\\\\    if (!/current_company_id\s*\(\)|auth\.uid\s*\(\)/i.test(block)) {
+      failures.push(`${file}: ${fn} missing authenticated tenant/user binding`);
+    }')}[^;]*\\s+to\\s+service_role\\s*;`, 'i'
+      ).test(sql);
+      if (!migrationHasServiceRoleOnlyBoundary) {
+        failures.push(`${file}: ${fn} missing authenticated tenant/user binding`);
+      }
     }
   }
 }
