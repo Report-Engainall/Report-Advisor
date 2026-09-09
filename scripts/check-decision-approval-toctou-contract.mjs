@@ -62,9 +62,8 @@ const noDecisionLock = replaceLatestFunctionBody(sql, 'request_decision_approval
 );
 assert.throws(() => validateDecisionApprovalToctou(noDecisionLock), /Decision row is not locked/);
 const gateBeforeLock = replaceLatestFunctionBody(sql, 'request_decision_approval', body => {
-  const withoutLock = body.slice(0, canonicalDecisionLock) + body.slice(canonicalDecisionLock + 'for update'.length);
-  const gateInWeak = withoutLock.indexOf("v_decision_status is distinct from 'PROPOSED'");
-  return withoutLock.slice(0, gateInWeak) + 'for update\\n    ' + withoutLock.slice(gateInWeak);
+  const gateInCanonical = body.indexOf("v_decision_status is distinct from 'PROPOSED'");
+  return body.slice(0, canonicalDecisionLock) + body.slice(gateInCanonical, gateInCanonical + "v_decision_status is distinct from 'PROPOSED'".length) + '\n    ' + body.slice(canonicalDecisionLock);
 });
 assert.throws(() => validateDecisionApprovalToctou(gateBeforeLock), /Approvaibility check is not performed after decision lock/);
 console.log('Decision approval TOCTOU contract: PASS (decision lock-before-check + terminal guard + adversarial weakened-lock/gate test-of-test)');
