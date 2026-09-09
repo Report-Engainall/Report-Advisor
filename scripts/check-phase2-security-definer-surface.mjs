@@ -9,10 +9,24 @@ const stripSqlComments = (value) => value
   .replace(/\/\*[\s\S]*?\*\//g, '')
   .replace(/--[^\n\r]*/g, '');
 
+const functionName = (fn) => fn.replace(/^public\./i, '').replace(/"/g, '');
+const hasServiceRoleOnlyGrant = (sql, fn) => {
+  const name = functionName(fn).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const revoke = new RegExp(
+    `REVOKE\\s+ALL\\s+ON\\s+FUNCTION\\s+public\\.${name}\\s*\\([^;]*?\\)\\s+FROM\\s+(?:PUBLIC|public)\\s*,\\s*anon\\s*,\\s*authenticated\\s*;`,
+    'i',
+  );
+  const grant = new RegExp(
+    `GRANT\\s+EXECUTE\\s+ON\\s+FUNCTION\\s+public\\.${name}\\s*\\([^;]*?\\)\\s+TO\\s+service_role\\s*;`,
+    'i',
+  );
+  return revoke.test(sql) && grant.test(sql);
+};
+
 const failures = [];
 for (const file of migrationFiles) {
   const sql = stripSqlComments(readFileSync(file, 'utf8'));
-  const starts = [...sql.matchAll(/CREATE\s+(?:OR\s+REPLACE\s+)?FUNCTION\s+([^\s(]+)/gi)]
+  const starts = [...sql.matchAll(/CREATE\s+(?:OR\s+REPLACE\s+)?FUNCTION\s+([^\s(]+)\s*\([^)]*\)/gi)]
     .map((match) => match.index ?? 0);
 
   for (let i = 0; i < starts.length; i += 1) {
@@ -21,22 +35,15 @@ for (const file of migrationFiles) {
     const block = sql.slice(start, end);
     if (!/SECURITY\s+DEFINER/i.test(block)) continue;
 
-    const fn = block.match(/CREATE\s+(?:OR\s+REPLACE\s+)?FUNCTION\s+([^\s(]+)/i)?.[1] ?? '<unknown>';
+    const fn = block.match(/CREATE\s+(?:OR\s+REPLACE\s+)?FUNCTION\s+([^\s(]+)\s*\(/i)?.[1] ?? '<unknown>';
     if (!/SET\s+search_path\s*(?:=|TO)\s*'?(?:public|pg_catalog)'?/i.test(block)) {
       failures.push(`${file}: ${fn} missing fixed search_path (public or pg_catalog)`);
     }
 
     if (/current_company_id\s*\(\)|auth\.uid\s*\(\)/i.test(block)) continue;
 
-    const normalizedFn = fn.replace(/^public\./i, '');
-    const escapedFn = normalizedFn.replace(/[.*+?^\${}()|[\]\\]/g, '\\$&');
-    const serviceRoleOnly = new RegExp(
-      `revoke\\\\s+all\\\\s+on\\\\s+function\\\\s+public\\\\.${escapedFn}[^;]*from\\\\s+public,anon,authenticated\\\\s*;[\\\\s\\\\S]*grant\\\\s+execute\\\\s+on\\\\s+function\\\\s+public\\\\.${escapedFn}[^;]*to\\\\s+service_role\\\\s*;`,
-      'i',
-    ).test(sql);
-
-    if (!serviceRoleOnly) {
-      failures.push(`${file}: ${fn} missing authenticated tenant/user binding`);
+    if (!hasServiceRoleOnlyGrant(sql, fn)) {
+      failures.push(`${file}: ${fn} missing authenticated tenant/user binding or explicit service_role-only boundary`);
     }
   }
 }
