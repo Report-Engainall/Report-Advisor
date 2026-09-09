@@ -88,3 +88,21 @@
 }
 @keyframes ambient-float { 0%,100% { transform: translate3d(0,0,0) scale(1); } 50% { transform: translate3d(-12px,10px,0) scale(1.04); } }
 @media (max-width:640px) { .experience-hero { border-radius:1.5rem; padding:1.35rem; } .experience-section { border-radius:1.35rem; padding:1.15rem; } .experience-metric { padding:1rem; } .workspace-panel,.workspace-panel-dark { border-radius:1.35rem; } .workspace-stat { padding:.85rem; } .command-card { border-radius:1.25rem; padding:1rem; } }
+
+@media print {
+  @page { size: A4 portrait; margin: 12mm; }
+  html, body { background: #fff !important; color: #111 !important; }
+  body { font-size: 11pt; }
+  .print\:hidden, nav, aside, header, button, input, select, textarea { display: none !important; }
+  .print\:bg-white { background: #fff !important; }
+  .print\:border-0 { border: 0 !important; }
+  .print\:shadow-none { box-shadow: none !important; }
+  .experience-hero { background: #064e3b !important; color: #fff !important; break-inside: avoid; box-shadow: none !important; }
+  .experience-hero::before, .experience-hero::after, .card::before { display: none !important; }
+  .card, .experience-kpi, .experience-table { box-shadow: none !important; break-inside: avoid; }
+  .experience-table { width: 100% !important; border: 1px solid #d1d5db !important; }
+  .experience-table thead { background: #f3f4f6 !important; }
+  .experience-table th, .experience-table td { border-color: #d1d5db !important; color: #111 !important; }
+  .experience-table tbody tr { break-inside: avoid; }
+  .page-glow::before { display: none !important; }
+}
