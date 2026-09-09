@@ -4,7 +4,7 @@ function requiredFields(entityType: BatchEntityType): string[] {
   return entityType === 'products'
     ? ['sku', 'name', 'cost_price', 'selling_price', 'unit', 'min_stock', 'reorder_point', 'is_active']
     : entityType === 'customers'
-      ? ['name', 'segment', 'credit_limit', 'payment_terms_days']
+      ? ['name', 'code', 'segment', 'credit_limit', 'payment_terms_days']
       : ['invoice_number', 'invoice_date', 'total', 'subtotal', 'tax_amount', 'paid_amount', 'status'];
 }
 
