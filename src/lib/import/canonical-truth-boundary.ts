@@ -32,13 +32,23 @@ function stableValue(value: unknown): string {
   return JSON.stringify(value);
 }
 
+// Mirrors public.normalize_import_key(): lower-case, trim, then remove all whitespace.
+// Keeping the pre-write reconciliation key aligned with the DB key prevents two rows
+// in one batch from resolving to the same canonical record under different spellings.
+function normalizeImportKey(value: unknown): string | null {
+  if (value == null) return null;
+  const normalized = String(value).trim().toLowerCase().replace(/\s+/g, '');
+  return normalized || null;
+}
+
 function rowIdentity(entityType: string, row: Record<string, unknown>): string {
-  const key = entityType === 'products'
+  const rawKey = entityType === 'products'
     ? row.sku
     : entityType === 'customers'
       ? (row.code ?? row.name)
       : row.invoice_number;
-  return `${entityType}:${stableValue(key)}`;
+  const normalizedKey = normalizeImportKey(rawKey);
+  return `${entityType}:${stableValue(normalizedKey)}`;
 }
 
 function criticalPayload(entityType: string, row: Record<string, unknown>): string {
