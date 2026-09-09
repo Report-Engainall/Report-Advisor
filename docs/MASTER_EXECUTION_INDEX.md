@@ -5,16 +5,16 @@
 > Authoritative execution manifest. This document never promotes historical evidence across an exact-HEAD boundary. Pair every evidence batch with the exact Git `HEAD` and exact environment/commit used.
 
 ### CURRENT PROJECT STATE
-- Current code/test candidate: `581fabfff64c4291f095c49987abb8523c06c8da`.
-- Targeted repair: OCR confidence CI now installs FastAPI, Pillow, and python-multipart required by the executable runtime test.
+- Current code/test candidate: `2472e5e08ac5c99ecda969e3281d282b4941a656`.
+- Targeted repair: intelligence recommendation/forecast routes now resolve the restored `IntelligencePages` module; OCR CI already installs FastAPI, Pillow, and python-multipart.
 - Exact-head GitHub Actions verification is required; this candidate is **NOT CERTIFIED** until required workflows are green.
 - Frozen release candidates remain untouched: protected candidate `14cc7cefc0fad622436b4845a0e4b46a8888e8a9`, exact RC reference `d846821b8d969aaa384ab85487a0dcf264a65aca`.
 
 ### IMPLEMENTED / GATED / INTEGRATED
-- Restored `RecommendationsPage` and `ForecastsPage` exports required by the intelligence route.
+- Restored `RecommendationsPage` and `ForecastsPage` exports required by the intelligence route and corrected `App.tsx` to import them from `IntelligencePages`.
 - UI route completeness checker normalizes extensionless lazy imports to `.tsx` before orphan detection.
-- OCR confidence workflow installs the runtime dependencies required by the executable OCR test.
-- Master Index is bound to the exact candidate entering this certification sweep.
+- OCR confidence workflow installs FastAPI, Pillow, and python-multipart required by the executable OCR test.
+- Master Index is bound to the exact code candidate entering this certification sweep.
 - Certification boundary checker remains unchanged and fail-closed.
 
 ### RUNTIME / PRODUCTION EVIDENCE
@@ -41,11 +41,11 @@
 - Tenant/security fail-closed behavior must not be weakened to satisfy CI.
 
 ### COMMIT / CI / TEST / UPDATE
-- Exact candidate: `581fabfff64c4291f095c49987abb8523c06c8da`.
-- Predecessor `2c3d7b10809c147696fe854533105828e10c71d5` had a real OCR runtime failure: FastAPI loaded, but `python-multipart` was missing.
-- Corrective code commit `581fabfff64c4291f095c49987abb8523c06c8da` adds that missing runtime dependency to the OCR workflow.
-- This index-only successor intentionally records the exact code candidate for the certification boundary; it does not alter certification logic or promote runtime evidence.
-- UI Route Completeness previously completed PASS on `2c3d7b10809c147696fe854533105828e10c71d5`; the new candidate must be re-executed because exact-head evidence is required.
+- Exact code candidate: `2472e5e08ac5c99ecda969e3281d282b4941a656`.
+- Predecessor `581fabfff64c4291f095c49987abb8523c06c8da` had a real TypeScript failure in `App.tsx`: it imported `RecommendationsPage` and `ForecastsPage` from `IntelligencePage`, where those exports do not exist.
+- Corrective code commit `2472e5e08ac5c99ecda969e3281d282b4941a656` points both routes to `IntelligencePages`.
+- OCR dependency repair remains present from `581fabfff64c4291f095c49987abb8523c06c8da`.
+- This index-only successor records the new exact code candidate for the certification boundary; it does not alter certification logic or promote runtime evidence.
 
 ## BOUNDARY / GOVERNANCE
 - No rebuild from scratch.
@@ -69,7 +69,7 @@
 - Current exact-head browser/device certification remains NOT PROVEN.
 
 ### P1 — DOCUMENT / OCR / IMPORT
-- OCR confidence handling is fail-closed and executable tests exist; the current workflow dependency repair is awaiting exact-head CI evidence.
+- OCR confidence handling is fail-closed and executable tests exist; current workflow dependency repair is integrated but requires exact-head execution.
 - Import RPC tenant context, canonical business keys, required-field validation, and job lifecycle counter invariants are covered by repository contracts.
 - Real authenticated upload → preview → commit → DB read-back → UI read-back → Tenant B denial remains NOT PROVEN on the current candidate.
 
@@ -82,7 +82,7 @@
 - Current authenticated browser lifecycle evidence remains NOT PROVEN.
 
 ### P2 — UI / PERFORMANCE / OBSERVABILITY / RECOVERY
-- UI route contract passed on the predecessor candidate; current exact-head revalidation is required.
+- UI route contract passed on predecessor candidates; current exact-head revalidation is required.
 - Performance, observability, backup/restore, rollback and production smoke remain operational gates and are not promoted from source-only evidence.
 
 ## CI EXECUTION POLICY
