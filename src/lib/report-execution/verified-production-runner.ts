@@ -11,5 +11,13 @@ export interface VerifiedProductionRunInput<T = unknown> extends Omit<DurablePro
 export async function runVerifiedDurableProductionLifecycle<T>(input: VerifiedProductionRunInput<T>, store: SupabaseReportExecutionStore) {
   if (!input.request.sourceSnapshotId.trim()) throw new Error('Verified production execution requires sourceSnapshotId');
   if (input.request.tenantId.trim() === '') throw new Error('Verified production execution requires tenantId');
-  return runDurableProductionLifecycle({ ...input, loadSourceSnapshot: input.loadSourceSnapshot }, store);
+  const loadSourceSnapshot: DurableProductionRunInput<T>['loadSourceSnapshot'] = async ({ request, expectedSourceHash, sourceSnapshotId }) => {
+    if (!request.sourceSnapshotId?.trim()) throw new Error('Verified production execution requires sourceSnapshotId');
+    return input.loadSourceSnapshot({
+      request: request as ReportExecutionRequest & { sourceSnapshotId: string },
+      expectedSourceHash,
+      sourceSnapshotId,
+    });
+  };
+  return runDurableProductionLifecycle({ ...input, loadSourceSnapshot }, store);
 }
