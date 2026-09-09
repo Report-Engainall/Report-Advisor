@@ -22,10 +22,16 @@ function latestFunctionBody(source, name) {
   return source.slice(start, nextMatch ? nextMatch.index : source.length);
 }
 
+function decisionLockInQuery(body, decisionSelect) {
+  const queryEnd = body.indexOf(';', decisionSelect);
+  const lock = body.indexOf('for update', decisionSelect);
+  return lock >= decisionSelect && (queryEnd < 0 || lock < queryEnd) ? lock : -1;
+}
+
 export function validateDecisionApprovalToctou(source) {
   const body = latestFunctionBody(source, 'request_decision_approval');
   const decisionSelect = body.indexOf('from public.business_intelligence_decisions');
-  const decisionLock = body.indexOf('for update', decisionSelect);
+  const decisionLock = decisionLockInQuery(body, decisionSelect);
   const decisionGate = body.indexOf("v_decision_status is distinct from 'PROPOSED'");
   const approvalSelect = body.indexOf('from public.decision_approvals');
   const terminalGuard = body.indexOf("v_existing_status in ('APPROVED','REJECTED','CANCELLED')");
@@ -56,20 +62,20 @@ function replaceLatestFunctionBody(source, name, mutate) {
 }
 const canonicalBody = latestFunctionBody(sql, 'request_decision_approval');
 const canonicalDecisionSelect = canonicalBody.indexOf('from public.business_intelligence_decisions');
-const canonicalDecisionLock = canonicalBody.indexOf('for update', canonicalDecisionSelect);
+const canonicalDecisionLock = decisionLockInQuery(canonicalBody, canonicalDecisionSelect);
 if (canonicalDecisionSelect < 0 || canonicalDecisionLock < canonicalDecisionSelect) {
   throw new Error('Canonical decision lock fixture is unavailable');
 }
 const noDecisionLock = replaceLatestFunctionBody(sql, 'request_decision_approval', body => {
   const decisionSelect = body.indexOf('from public.business_intelligence_decisions');
-  const decisionLock = body.indexOf('for update', decisionSelect);
+  const decisionLock = decisionLockInQuery(body, decisionSelect);
   if (decisionSelect < 0 || decisionLock < decisionSelect) throw new Error('Decision lock fixture is unavailable');
   return body.slice(0, decisionLock) + body.slice(decisionLock + 'for update'.length);
 });
 assert.throws(() => validateDecisionApprovalToctou(noDecisionLock), /Decision row is not locked/);
 const gateBeforeLock = replaceLatestFunctionBody(sql, 'request_decision_approval', body => {
   const decisionSelect = body.indexOf('from public.business_intelligence_decisions');
-  const decisionLock = body.indexOf('for update', decisionSelect);
+  const decisionLock = decisionLockInQuery(body, decisionSelect);
   const gateInCanonical = body.indexOf("v_decision_status is distinct from 'PROPOSED'");
   if (decisionSelect < 0 || decisionLock < decisionSelect || gateInCanonical < 0) throw new Error('TOCTOU gate fixture is unavailable');
   return body.slice(0, decisionLock) + body.slice(gateInCanonical, gateInCanonical + "v_decision_status is distinct from 'PROPOSED'".length) + '\n    ' + body.slice(decisionLock);
