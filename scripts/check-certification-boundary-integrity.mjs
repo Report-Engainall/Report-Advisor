@@ -29,6 +29,7 @@ export function validateCertificationBoundary({ index, head, parent, changedFile
     'scripts/check-execution-enforcement-protocol.mjs',
     'scripts/check-execution-enforcement-protocol.test.mjs',
     'scripts/execution-enforcement-adversarial.test.mjs',
+    'scripts/check-decision-approval-toctou-contract.mjs',
     '.github/workflows/execution-enforcement-contract.yml',
     '.github/workflows/final-certification-gate.yml',
   ]);
