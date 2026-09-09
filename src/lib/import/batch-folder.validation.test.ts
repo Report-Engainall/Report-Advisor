@@ -30,4 +30,27 @@ describe('batch import required-field contract', () => {
 
     expect(missing).not.toContain('customer_id_or_customer_name');
   });
+
+  it('rejects a customer without a canonical code before canonical write', () => {
+    const missing = missingRequiredFields('customers', {
+      name: 'Customer Without Code',
+      segment: 'regular',
+      credit_limit: 0,
+      payment_terms_days: 30,
+    });
+
+    expect(missing).toContain('code');
+  });
+
+  it('accepts a customer when a canonical code is supplied', () => {
+    const missing = missingRequiredFields('customers', {
+      name: 'Customer 1',
+      code: 'C-001',
+      segment: 'regular',
+      credit_limit: 0,
+      payment_terms_days: 30,
+    });
+
+    expect(missing).not.toContain('code');
+  });
 });
