@@ -1,179 +1,96 @@
 # Report Advisor — Master Execution & Truth Index
 
-## CURRENT EXECUTION BOUNDARY — 2026-09-07
+## CURRENT EXECUTION BOUNDARY — 2026-09-09
 
-> Authoritative execution manifest. This document never promotes historical evidence across an exact-HEAD boundary. Pair every evidence batch with the exact Git `HEAD` of `main` and the exact environment/commit used.
+> Authoritative execution manifest. This document never promotes historical evidence across an exact-HEAD boundary. Pair every evidence batch with the exact Git `HEAD` and exact environment/commit used.
 
-### CURRENT EXACT HEAD
-- Current functional baseline before this documentation refresh: `5b083100d463aae4a4cf22ebbbff7e1470749b1f`.
-- `main` is unchanged relative to that baseline at the time of the deep audit; no hidden drift was found.
-- Documentation refreshes create a new exact-head boundary and do not promote runtime evidence from the previous SHA.
+### CURRENT PROJECT STATE
+- Current code/test candidate: `2c3d7b10809c147696fe854533105828e10c71d5`.
+- This candidate contains only targeted CI/product contract repairs: restored intelligence route page exports, UI route import normalization, and OCR workflow runtime dependencies.
+- The candidate is undergoing exact-HEAD GitHub Actions verification. It is **NOT CERTIFIED** until the required workflows are green.
 - Frozen release candidates remain untouched: protected candidate `14cc7cefc0fad622436b4845a0e4b46a8888e8a9`, exact RC reference `d846821b8d969aaa384ab85487a0dcf264a65aca`.
 
-### BOUNDARY / GOVERNANCE
+### IMPLEMENTED / GATED / INTEGRATED
+- Implemented: `RecommendationsPage` and `ForecastsPage` exports required by the intelligence route.
+- Implemented: UI route completeness checker now normalizes extensionless lazy imports to `.tsx` before orphan detection.
+- Implemented: OCR confidence workflow installs the runtime dependencies actually imported by its executable test (`FastAPI` and `Pillow`).
+- Integrated: all three repairs are present in the exact candidate above and are being evaluated by the repository CI matrix.
+- Gated: certification-boundary integrity requires this exact candidate to be recorded here and rejects non-governance drift.
+
+### RUNTIME / PRODUCTION EVIDENCE
+- Current exact-head authenticated browser A/B tenant isolation: NOT PROVEN.
+- Current exact-head production runtime: NOT PROVEN.
+- Backup/restore and rollback drill: NOT PROVEN.
+- Real Arabic document end-to-end Golden Corpus runtime: NOT PROVEN.
+- These states are preserved intentionally; CI green does not manufacture missing operational evidence.
+
+### REMAINING / BLOCKERS
+- Complete the current exact-head CI matrix and repair any real failures found by executed jobs.
+- Certification boundary must pass against the exact successor commit containing this index update.
+- LIVE runtime certification remains a separate operational gate after CI closure.
+
+### LIVE REQUIRED
+- Real Chromium authenticated Tenant A/B E2E on the exact release candidate.
+- Production runtime evidence and release smoke.
+- Backup/restore integrity and isolated restore verification.
+- Measured recovery/performance evidence where release policy requires it.
+
+### RISKS
+- CI infrastructure delays may leave jobs queued; queued is not PASS.
+- Historical evidence cannot be promoted to the current candidate.
+- Tenant/security fail-closed behavior must not be weakened to satisfy a test.
+
+### COMMIT / CI / TEST / UPDATE
+- Candidate entering this sweep: `2c3d7b10809c147696fe854533105828e10c71d5`.
+- CI runs triggered for this candidate include Quality `34396384774`, OCR Confidence Contract `34396384730`, UI Route Completeness `34396384813`, and Final Certification Gate `34396384720`.
+- UI Route Completeness has completed PASS on the candidate.
+- OCR Confidence Contract was executing its real OCR runtime step at the last observation.
+- Quality was still executing at the last observation.
+- Final Certification Gate correctly rejected the candidate before this index update because the Master Index did not yet bind the exact candidate; this is a governance-boundary failure being corrected by this index-only successor commit.
+- This update intentionally changes only the Master Index; it does not weaken the certification checker or promote runtime evidence.
+
+## BOUNDARY / GOVERNANCE
 - No rebuild from scratch.
 - No historical migration rewrite.
 - No Production alias mutation or rollback action as part of source reconciliation.
 - No Staging data fixture is treated as certification unless an actual lifecycle is observed.
 - No HTTP 200, UI shell, CI-created run, fixture assertion, simulated JWT, historical deployment, or old SHA can certify the current candidate.
-- External operational blockers do not justify idle work on source reconciliation, contract hardening, test design, or evidence preparation.
 - Browser E2E must use real Chromium, real Supabase authentication, and browser-held sessions; service-role or mocked sessions are prohibited for certification.
 
-## DEEP AUDIT — 2026-09-07
+## PRODUCT / SECURITY BASELINE
+- Staging Supabase project `fnqbvfuwbdpwvhcgzksl` remains the database verification environment.
+- Tenant isolation, `current_company_id()`, RLS, and fail-closed `TENANT_CONTEXT_MISMATCH` behavior remain protected boundaries.
+- Canonical import remains the supported business mutation path.
+- Import normalization mirrors the database normalization contract.
+- Import lifecycle counters are persisted and validated against the live job contract.
+- Dashboard top-entity consumption uses the canonical dashboard snapshot rather than a nonexistent RPC.
 
-### Database / Security baseline
-- Staging Supabase project `fnqbvfuwbdpwvhcgzksl` is ACTIVE_HEALTHY.
-- Critical-table RLS verification: 9/9 checked tables protected.
-- Critical-table anonymous-policy verification: 9/9 checked tables have no anon policies.
-- Security-definer authenticated surface: 16/16 authenticated-executable SECURITY DEFINER functions are bound to `current_company_id()`; 13/16 also use `auth.uid()`; 16/16 pin `search_path`.
-- Critical tenant FK audit: 16 tenant-bound FKs verified.
-- Critical index audit: 48 relevant indexes verified.
-- Worker RPC surface: exactly eight durable worker RPCs; all are SECURITY DEFINER but have authenticated EXECUTE=false and anon EXECUTE=false, leaving execution to service_role.
-- Import RPC surface: canonical import RPCs exist with authenticated execution and anon execution denied.
-- Current canonical invoice import signature is exactly `import_upsert_sales_invoice(uuid,text,date,uuid,text,numeric,numeric,numeric,numeric,text,text)`.
-- `import_commit_batch(uuid,text,jsonb,text)` is invoker-bound, tenant-checked, authenticated-only, and passes `customer_name` to the canonical invoice RPC.
-- No runtime fixture rows currently exist in `report_execution_jobs`, `watched_report_files`, or `import_jobs`; therefore lifecycle runtime PASS is not claimed from schema-only inspection.
+## DEEP AUDIT STATUS
 
 ### P0 — AUTHENTICATED E2E / TENANT A-B
-- Dedicated Actor A/B authenticated users exist and are mapped one-to-one to Tenant A/B.
-- Existing real business runner covers authenticated tenant resolution, customer/product/invoice import, DB read-back, UI read-back, refresh continuity, Tenant B isolation, cross-tenant REST denial, cross-tenant UI denial, and logout.
-- Current browser certification remains NOT PROVEN because the current exact-head browser/device run has not produced the required operational evidence.
-- Database-level tenant probes are a baseline only; they do not replace browser-held authenticated A/B evidence.
-- Transactional customer/product “new” buttons remain presentation-only; no unsupported CRUD claim is made.
-- There is no dedicated invoice-entry route; canonical import remains the supported invoice mutation surface.
+- Dedicated authenticated Tenant A/B coverage exists in the repository.
+- Current exact-head browser/device certification remains NOT PROVEN.
 
-### P1 — MIGRATION / SCHEMA PARITY
-- Live Staging contains a later Worker/Import contract lineage than the current replayable main chain.
-- Worker provenance was reconciled on PR #396 through a forward-only migration strategy, tenant-bound RPC signatures, lease-token fencing, schema parity checks, and replayable checkpoint logic.
-- Import provenance was separately audited. A real live defect was found where `import_commit_batch` called the canonical invoice RPC using the legacy argument order; the wrapper was repaired to pass `customer_name`.
-- A second live contract mismatch was found: Staging had only the older 10-argument invoice RPC. Staging was repaired forward-only to the canonical 11-argument tenant-bound contract.
-- No historical migration record was rewritten.
-- Fresh disposable replay parity is still required before certification; PR/branch evidence is not equivalent to a fresh replay PASS.
+### P1 — DOCUMENT / OCR / IMPORT
+- OCR confidence handling is fail-closed and covered by executable tests; current workflow dependency repair is under exact-head CI verification.
+- Import RPC tenant context, canonical business keys, required-field validation, and job lifecycle counter invariants are covered by repository contracts.
+- Real authenticated upload → preview → commit → DB read-back → UI read-back → Tenant B denial remains NOT PROVEN on the current candidate.
 
-### Worker / Reliability
-- Durable worker contract has explicit tenant identity, lease ownership, lease-token fencing, checkpoint monotonicity, retry budget, dead-letter handling, source provenance, and service_role-only execution.
-- Worker runtime crash/retry/recovery is UNPROVEN until an actual disposable job is executed through enqueue → claim → heartbeat/checkpoint → forced expiry → recovery → retry/DLQ.
-- A new queue-boundary hardening PR #405 was opened after a deep source review found malformed scalar inputs could pass the in-memory queue boundary: whitespace worker/run IDs, non-finite lease durations, and non-integer/non-finite retry limits. Behavioral coverage was added; PR remains unmerged pending evidence.
+### P1 — WORKER / QUEUE / WATCHED FOLDER
+- Contracts exist for tenant binding, lease fencing, retry/dead-letter and watched-folder lifecycle.
+- Actual crash/recovery and watched-folder operational drills remain NOT PROVEN.
 
-### OCR / Document Intelligence
-- A real OCR correctness defect was fixed on PR #397: PaddleOCR recognition scores were being discarded and every OCR block was emitted with confidence 0.0.
-- The adapter now preserves recognition confidence using the minimum valid observed score, warns below the existing 0.7 usable threshold, and fails closed on malformed score metadata or unavailable/no-text OCR.
-- Repository-native behavioral Python coverage now exercises valid confidence, low confidence, missing/boolean/non-finite/out-of-range scores, empty results, and OCR execution failure.
-- Real Arabic golden-corpus runtime remains NOT PROVEN until an actual document passes through source → OCR → normalization → DB → reconciliation → analytics → evidence/decision → output.
+### P1 — DECISION / EVIDENCE / OUTCOME
+- Tenant/provenance/state boundaries are contractually guarded.
+- Current authenticated browser lifecycle evidence remains NOT PROVEN.
 
-### Import / Reconciliation
-- Canonical import remains the supported business mutation path.
-- Import RPC tenant context, direct-write guards, transaction lifecycle, state contracts, business-key behavior, and runtime governance are already represented by repository checks.
-- Live invoice wrapper/signature mismatch was repaired as a concrete runtime contract defect.
-- Import runtime with real authenticated tenant data remains NOT PROVEN until current-head E2E evidence records upload/preview/commit/read-back and A/B denial.
+### P2 — UI / PERFORMANCE / OBSERVABILITY / RECOVERY
+- UI route contract is green for the candidate in run `34396384813`.
+- Performance, observability, backup/restore, rollback and production smoke remain operational gates and are not promoted from source-only evidence.
 
-### Watched Folder
-- Native watched-folder contract exists and is covered by repository checks.
-- End-to-end discovery, hash/fingerprint, duplicate handling, tenant binding, processing handoff, terminal state, and retry remain operationally UNPROVEN.
-- Issue #400 is the active disposable lifecycle front.
-
-### Decision / Evidence / Outcomes
-- Decision SECURITY DEFINER functions were reviewed individually rather than blanket-revoked.
-- Sensitive decision mutations use tenant context and user identity checks; anonymous execution is denied.
-- Decision work-item RLS is tenant-scoped.
-- Outcome/evidence paths enforce tenant/provenance/state boundaries.
-- Authenticated browser decision/evidence lifecycle remains NOT PROVEN.
-
-### Observability / Failure Injection
-- Structured error/evidence contracts exist across worker/import/document paths.
-- Actual operator-facing failure/alert path is not certified.
-- Issue #402 tracks disposable failure injection and observability proof without manufacturing telemetry.
-
-### Performance / Scale
-- Source-level performance budgets and bounded batch logic exist.
-- Historical targets remain P95 read 300ms, write 800ms, preview 1500ms; dataset load bounded at 5000 rows and batch processing previously exercised up to 50k rows.
-- Current exact-head environment measurements are not certified.
-- Issue #403 tracks measurable current-candidate refresh with P95/P99, dataset/batch sizes and resource/error observations.
-
-### Recovery / Backup / Restore / Rollback
-- Recovery contracts and evidence-boundary checks exist.
-- Actual backup creation, integrity validation, isolated restore, tenant-isolation verification after restore, authenticated smoke, measured RPO/RTO, and rollback drill remain UNPROVEN.
-- This is an operational gate, not a reason to fabricate a PASS from source inspection.
-
-### CI / Execution Infrastructure
-- Fresh exact-head workflow runs across the repository continue to fail at the execution layer with jobs reporting `steps=[]`, `runner_id=0`, and empty runner name.
-- Example current PR #398 run `101824133529` for `Report Execution Input Contract` completed as failure with no executed steps and no runner identity.
-- The same pattern is present across quality, OCR, security, import, certification, Windows, and other workflows.
-- This is currently classified as CI execution infrastructure failure, not as evidence that the underlying product tests failed.
-- Workflows are not weakened with bypasses to turn infrastructure failure into PASS.
-
-## ACTIVE EXECUTION FRONTS
-- #399 — fresh migration replay and schema parity certification.
-- #400 — watched-folder lifecycle and duplicate-ingestion proof.
-- #401 — worker crash/retry/dead-letter/recovery drill.
-- #402 — observability failure-injection and alert-path proof.
-- #403 — production-scale performance evidence refresh.
-- #404 — P0 authenticated Tenant A/B adversarial runtime closure; currently browser/device constrained.
-- PR #396 — tenant-bound durable worker provenance/replay contract.
-- PR #397 — truthful Arabic OCR confidence.
-- PR #398 — report execution input validation; one previously valid review finding has now been explicitly repaired by rejecting array-shaped requests.
-- PR #405 — report execution queue scalar boundary hardening.
-
-## CURRENT PR / REVIEW STATE
-- PR #396: OPEN, mergeable, not merged.
-- PR #397: OPEN, mergeable, not merged.
-- PR #398: OPEN, mergeable, not merged; CodeRabbit's current array-shape finding was verified and repaired.
-- PR #405: OPEN, currently non-mergeable until its fresh review/CI evidence is available.
-- No PR is treated as merged merely because a connector exposes a `merge_commit_sha`; explicit `merged=false` is authoritative.
-
-## REAL RELEASE ASSESSMENT — 2026-09-07
-
-### What is genuinely strong
-- Tenant/RLS/security architecture: STRONG by source and live DB inspection.
-- Import contract integrity: STRONG after closing the live invoice signature/wrapper mismatch.
-- Durable worker contract: STRONG structurally; runtime lifecycle still unproven.
-- OCR confidence truthfulness: IMPROVED and behaviorally covered; real corpus runtime still unproven.
-- Report execution input/queue boundaries: materially hardened.
-- Certification governance: FAIL-CLOSED and appropriately refuses to promote unobserved runtime evidence.
-
-### What prevents declaring the app complete/sellable today
-1. Current-head authenticated browser E2E with real Actor A/B sessions.
-2. Current-head adversarial Tenant A/B browser proof including reads, writes, import, report/evidence, REST/RPC/storage denial and zero leakage.
-3. Fresh migration replay/schema parity proof.
-4. Real watched-folder lifecycle proof.
-5. Real worker crash/recovery/retry/DLQ lifecycle proof.
-6. Real Arabic document/OCR golden-corpus runtime proof.
-7. Real backup/restore/rollback operational drill.
-8. Current-head measurable performance evidence.
-9. CI execution infrastructure must produce actual steps/logs before CI gates can be called PASS.
-10. Final exact-head certification after all above evidence is bound to the same candidate.
-
-### HONEST COMPLETION SCORE
-- **Engineering/source readiness: ~94%** — strong contracts, security, import/worker architecture, regression coverage and governance; remaining source-level defects are being closed through bounded PRs.
-- **Operational/certification readiness: ~72%** — substantial DB and contract evidence exists, but several required live lifecycle proofs are still missing.
-- **Overall product completion for first sale: ~86%**.
-
-> The overall score is intentionally lower than source readiness because the release standard is not “the code looks complete”; it is “the exact candidate has been exercised and evidenced in the real runtime, tenant boundary, recovery, and production-readiness gates.”
-
-### RELEASE DECISION
-**NOT READY FOR FIRST SALE YET.**
-
-This is not a rebuild situation. The remaining work is concentrated closure: execute the real operational proofs, repair only newly demonstrated defects, bind all evidence to one exact candidate, then run the final certification boundary. No known blocker justifies returning to the beginning.
-
-## GOVERNANCE LOG — 2026-09-07
-- Main baseline: `5b083100d463aae4a4cf22ebbbff7e1470749b1f`.
-- `6a59b6a67e87620f35590a02828b6ffd5ec709ba`: execution checkpoint for import/RPC call-site audit.
-- PR #396: worker provenance/replay contract reconciliation and import wrapper contract repair.
-- PR #397: OCR truthful confidence repair and behavioral test coverage.
-- PR #398: report execution input identity/shape hardening; latest explicit array-shape repair is commit `037aa4f1dcf7130643d96e34cc97a7a0e82abc84`.
-- PR #405: queue scalar boundary hardening; latest head `7086e681654c9dead29934ba2e98b5c4bf2442f9`.
-- Issues #399–#404 are confirmed open independent execution fronts.
-- No Production/RC mutation was performed in this deep audit.
-
-
-## GOVERNANCE LOG — 2026-09-09 — CURRENT EXACT HEAD
-- Current exact main HEAD after verified forward merges: `0eabfd739bc75fef2e51be1b051d9da95abde072`.
-- PR #450 (executive dashboard UI) merged as `c6101b8c9dc2a201e1b4b1ac1567e15403a37546`.
-- PR #452 (canonical Import Center productization) merged as `e69c48684481530115a2bb12dca53b77c4c73db7`.
-- PR #451 (executive report) was re-integrated safely after its original merge conflict and merged through PR #458 as `0eabfd739bc75fef2e51be1b051d9da95abde072`.
-- The unsafe whole-tree integration attempt PR #457 was detected from its unexpected 1,454-file / 58,496-deletion diff and was closed without merge. No destructive change was retained.
-- Current live Staging function inventory confirms the real import/dashboard functions; no Edge Functions are currently deployed through the connected Supabase project.
-- Live Staging row check at this boundary: `import_jobs=0`, `file_records=0`, `sales_invoices=3`, `inventory_movements=0`, `kpi_evidence_snapshots=0`, `executive_kpi_lineage=0`.
-- Therefore no live import lifecycle, Arabic OCR corpus lifecycle, or KPI evidence-lineage runtime PASS is claimed from this inspection alone.
-- CI remains an external billing/execution constraint and is not converted into a product PASS.
-- Next mandatory evidence fronts remain authenticated A/B browser runtime, real import lifecycle, Arabic golden-corpus runtime, worker recovery, watched-folder lifecycle, backup/restore/rollback, performance, and final exact-head certification.
+## CI EXECUTION POLICY
+- GitHub Actions is the execution authority for repository CI.
+- A queued or in-progress job is not PASS.
+- A failed job is a real finding until its logs establish otherwise.
+- No workflow bypass, skip, mocked runtime, or weakened security contract may be used to manufacture green status.
+- Final certification requires exact-HEAD evidence and the Master Index boundary to agree.
