@@ -5,12 +5,12 @@
 > Authoritative execution manifest. This document never promotes historical evidence across an exact-HEAD boundary. Pair every evidence batch with the exact Git `HEAD` of `main` and the exact environment/commit used.
 
 ### CURRENT PROJECT STATE
-- Current code/test candidate entering this certification sweep: `d12972181f6a8848a4e314a341157289184d7160`.
+- Current code/test candidate entering this certification sweep: `2143d6a809c9dbbc187ba4ba3238a11374164c4a`.
 - This candidate is the exact code/test head of PR #461 (`fix/final-certification-boundary-20260909`) and is the candidate under fresh exact-head CI certification.
 - Certification remains fail-closed: no historical evidence, UI shell, simulated session, old SHA, or CI run on another SHA can certify this candidate.
 
 ### CURRENT EXACT HEAD
-- Current candidate: `d12972181f6a8848a4e314a341157289184d7160`.
+- Current candidate: `2143d6a809c9dbbc187ba4ba3238a11374164c4a`.
 - Previous main baseline before this bounded certification repair: `4db373e61e03c030bab1628864c647b2d5bb97f6`.
 - Documentation refreshes create a new exact-head boundary and do not promote runtime evidence from a previous SHA.
 - Frozen release candidates remain untouched: protected candidate `14cc7cefc0fad622436b4845a0e4b46a8888e8a`, exact RC reference `d846821b8d969aaa384ab85487a0dcf264a65aca`.
@@ -101,6 +101,12 @@
 - Actual backup creation, integrity validation, isolated restore, tenant-isolation verification after restore, authenticated smoke, measured RPO/RTO, and rollback drill remain UNPROVEN.
 - This is an operational gate, not a reason to fabricate a PASS from source inspection.
 
+### Remaining-work register
+- backup/restore: NOT PROVEN until an actual isolated backup/restore drill is executed and evidenced.
+- rollback: NOT PROVEN until an actual rollback drill is executed and evidenced.
+- recovery: NOT PROVEN until worker/import recovery lifecycle is executed and evidenced.
+- authenticated browser runtime: NOT PROVEN at the current exact head.
+
 ### CI / Execution Infrastructure
 - Fresh exact-head workflow execution must produce real steps, runner identity, logs, and green checks before CI gates can be called PASS.
 - PR #461 is the current bounded certification-repair candidate; its exact SHA must be re-exercised after this index binding update.
@@ -117,4 +123,4 @@
 - PR #397 — truthful Arabic OCR confidence.
 - PR #398 — report execution input validation; one previously valid review finding has now been explicitly repaired by rejecting array-shaped requests.
 - PR #405 — report execution queue scalar boundary hardening.
-- PR #461 — bounded final certification boundary repair; current exact candidate binding is `d12972181f6a8848a4e314a341157289184d7160`.
+- PR #461 — bounded final certification boundary repair; current exact candidate binding is `2143d6a809c9dbbc187ba4ba3238a11374164c4a`.
