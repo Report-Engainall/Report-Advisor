@@ -17,7 +17,7 @@ for (const pattern of requiredGuardPatterns) {
   if (!pattern.test(guard)) throw new Error(`Scenario truth guard missing required boundary: ${pattern}`);
 }
 
-for (const token of ['baseRevenue: number', 'baseCost: number', 'formatCurrency(baseRevenue)', 'formatCurrency(baseCost)']) {
+for (const token of ['baseRevenue: number', 'baseCost: number', 'formatCurrency(baseRevenue, currency)', 'formatCurrency(baseCost, currency)']) {
   if (!simulator.includes(token)) throw new Error(`Canonical scenario simulator missing required input boundary: ${token}`);
 }
 
