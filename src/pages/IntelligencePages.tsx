@@ -41,7 +41,7 @@ export function ForecastsPage() {
   const chartData = items.filter(item => item.entity_type === 'company').map(item => { const d = new Date(item.period); const labels = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر']; return { label: labels[d.getMonth()], forecast_value: item.forecast_value, upper_bound: item.upper_bound, lower_bound: item.lower_bound }; });
   return <div dir="rtl" className="space-y-6"><PageHeader title="التنبؤات" subtitle="تنبؤات مصدرية مع حدود الثقة، دون تحويل الغياب إلى أرقام" />
     <Card><CardHeader title="منحنى التنبؤ" subtitle="بيانات الشركة المتاحة من المصدر" action={<ConfidenceBadge confidence="FORECAST"/>}/><CardBody>{chartData.length ? <ForecastChart data={chartData}/> : <EmptyState title="لا توجد تنبؤات مصدرية" message="لن يتم إنشاء منحنى تقديري دون بيانات موثقة."/>}</CardBody></Card>
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">{items.slice(0,10).map(item => <Card key={item.id}><CardBody><div className="flex items-center gap-2"><b>{item.entity_name ?? item.entity_type}</b><SeverityBadge severity={item.status === 'confirmed' ? 'low' : 'medium'} /></div><div className="mt-2 text-sm">الفترة: {item.period}</div><div className="mt-1 text-sm">القيمة: {item.forecast_value}</div></CardBody></Card>)}</div>
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">{items.slice(0,10).map(item => <Card key={item.id}><CardBody><div className="flex items-center gap-2"><b>{item.entity_name ?? item.entity_type}</b></div><div className="mt-2 text-sm">الفترة: {item.period}</div><div className="mt-1 text-sm">القيمة: {item.forecast_value}</div></CardBody></Card>)}</div>
   </div>;
 }
 
