@@ -32,9 +32,16 @@ export function validateCertificationBoundary({ index, head, parent, changedFile
     '.github/workflows/execution-enforcement-contract.yml',
     '.github/workflows/final-certification-gate.yml',
   ]);
-  if (!Array.isArray(changedFiles) || changedFiles.length === 0 || changedFiles.some(file => !allowedGovernanceOnly.has(file))) {
+
+  const syntheticCandidateSide = Boolean(secondParent && isAncestor(indexed, secondParent));
+  if (syntheticCandidateSide) {
+    if (changedFiles.some(file => !allowedGovernanceOnly.has(file))) {
+      throw new Error(`CERTIFICATION BOUNDARY FAIL: synthetic PR candidate side contains non-governance changes after indexed candidate ${indexed}`);
+    }
+  } else if (!Array.isArray(changedFiles) || changedFiles.length === 0 || changedFiles.some(file => !allowedGovernanceOnly.has(file))) {
     throw new Error(`CERTIFICATION BOUNDARY FAIL: HEAD ${head} differs from indexed candidate ${indexed} with non-governance changes`);
   }
+
   if (!isAncestor(indexed, head)) {
     throw new Error(`CERTIFICATION BOUNDARY FAIL: indexed candidate ${indexed} is not an ancestor of HEAD ${head}`);
   }
@@ -42,7 +49,7 @@ export function validateCertificationBoundary({ index, head, parent, changedFile
   // GitHub PR workflows commonly execute against a synthetic merge commit.
   // HEAD^1 is the target/base branch while HEAD^2 is the PR candidate side.
   // The indexed candidate must be an ancestor of the candidate side, not of the unrelated base.
-  if (secondParent && isAncestor(indexed, secondParent)) return true;
+  if (syntheticCandidateSide) return true;
   if (parent && parent !== indexed && !isAncestor(indexed, parent)) {
     throw new Error(`CERTIFICATION BOUNDARY FAIL: indexed candidate ${indexed} is not an ancestor of the checked parent ${parent}`);
   }
