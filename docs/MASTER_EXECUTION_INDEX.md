@@ -5,12 +5,12 @@
 > Authoritative execution manifest. This document never promotes historical evidence across an exact-HEAD boundary. Pair every evidence batch with the exact Git `HEAD` of `main` and the exact environment/commit used.
 
 ### CURRENT PROJECT STATE
-- Current code/test candidate entering this certification sweep: `2143d6a809c9dbbc187ba4ba3238a11374164c4a`.
+- Current code/test candidate entering this certification sweep: `d0339f030b807481fe13817201cc192bd7ebb66f`.
 - This candidate is the exact code/test head of PR #461 (`fix/final-certification-boundary-20260909`) and is the candidate under fresh exact-head CI certification.
 - Certification remains fail-closed: no historical evidence, UI shell, simulated session, old SHA, or CI run on another SHA can certify this candidate.
 
 ### CURRENT EXACT HEAD
-- Current candidate: `2143d6a809c9dbbc187ba4ba3238a11374164c4a`.
+- Current candidate: `d0339f030b807481fe13817201cc192bd7ebb66f`.
 - Previous main baseline before this bounded certification repair: `4db373e61e03c030bab1628864c647b2d5bb97f6`.
 - Documentation refreshes create a new exact-head boundary and do not promote runtime evidence from a previous SHA.
 - Frozen release candidates remain untouched: protected candidate `14cc7cefc0fad622436b4845a0e4b46a8888e8a`, exact RC reference `d846821b8d969aaa384ab85487a0dcf264a65aca`.
@@ -109,7 +109,7 @@
 
 ### CI / Execution Infrastructure
 - Fresh exact-head workflow execution must produce real steps, runner identity, logs, and green checks before CI gates can be called PASS.
-- PR #461 is the current bounded certification-repair candidate; its exact SHA must be re-exercised after this index binding update.
+- PR #461 is the current bounded certification-repair candidate; exact candidate binding is now `d0339f030b807481fe13817201cc192bd7ebb66f` after the certification-boundary and OCR test corrections.
 - Certification remains fail-closed if any required indicator is red, skipped, missing, or bound to a different SHA.
 
 ## ACTIVE EXECUTION FRONTS
@@ -123,4 +123,10 @@
 - PR #397 — truthful Arabic OCR confidence.
 - PR #398 — report execution input validation; one previously valid review finding has now been explicitly repaired by rejecting array-shaped requests.
 - PR #405 — report execution queue scalar boundary hardening.
-- PR #461 — bounded final certification boundary repair; current exact candidate binding is `2143d6a809c9dbbc187ba4ba3238a11374164c4a`.
+- PR #461 — bounded final certification boundary repair; current exact candidate binding is `d0339f030b807481fe13817201cc192bd7ebb66f`.
+
+### LATEST CERTIFICATION SWEEP UPDATE
+- Previous exact candidate `2143d6a809c9dbbc187ba4ba3238a11374164c4a` produced green Truth/Data, Intelligence/OCR, Quality and most security/contract checks, but `Execution Enforcement Contract` and `Final Certification Gate` failed because the synthetic PR merge exposed a candidate-side boundary condition.
+- `d0339f030b807481fe13817201cc192bd7ebb66f` contains the minimal boundary correction: a synthetic PR candidate side is evaluated against the indexed candidate lineage while still enforcing ancestry and rejecting non-governance changes where applicable.
+- The certification workflow observed synthetic merge `52e7d8e27df9e5bf1402f3a1eb466b2e2c1b8738` for this candidate. The boundary guard still failed because the candidate-side delta after the indexed `2143d6a...` contained the OCR test correction; this is a governance/index binding issue, not evidence of a product-security regression.
+- Next required action: bind this exact candidate `d0339f030b807481fe13817201cc192bd7ebb66f` in this index, then rerun the complete certification sweep. No PASS is inferred from this document update.
