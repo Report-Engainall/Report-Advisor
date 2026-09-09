@@ -1,9 +1,5 @@
+import { DatabaseZap, ShieldCheck, Sparkles } from 'lucide-react';
 import { CanonicalImportPage } from '@/pages/CanonicalImportPage';
 import { FolderBatchImportPanel } from '@/components/FolderBatchImportPanel';
 
-export function ImportPage() {
-  return <div className="space-y-6">
-    <CanonicalImportPage />
-    <FolderBatchImportPanel />
-  </div>;
-}
+export function ImportPage(){return <div dir="rtl" className="space-y-7 pb-10 animate-fade-in"><section className="experience-hero"><div className="relative z-10 flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between"><div><div className="experience-chip"><DatabaseZap size={14}/> Data Operations</div><h1 className="mt-4 text-3xl font-black tracking-tight sm:text-4xl lg:text-5xl">مركز إدخال البيانات</h1><p className="mt-3 max-w-2xl text-sm leading-7 text-white/70">مسار آمن من الملف الخام إلى البيانات القابلة للاستخدام، مع فحص ومراجعة واستيراد مركزي دون تجاوز حدود الحقيقة.</p></div><div className="flex flex-wrap gap-2 text-xs font-bold text-white"><span className="rounded-xl bg-white/10 px-3 py-2 ring-1 ring-white/10"><ShieldCheck size={14} className="inline ml-1"/> Tenant-safe</span><span className="rounded-xl bg-white/10 px-3 py-2 ring-1 ring-white/10"><Sparkles size={14} className="inline ml-1"/> Canonical pipeline</span></div></div></section><CanonicalImportPage/><FolderBatchImportPanel/></div>}
