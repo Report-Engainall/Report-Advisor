@@ -5,12 +5,12 @@
 > Authoritative execution manifest. This document never promotes historical evidence across an exact-HEAD boundary. Pair every evidence batch with the exact Git `HEAD` of `main` and the exact environment/commit used.
 
 ### CURRENT PROJECT STATE
-- Current code/test candidate entering this certification sweep: `678b4b7b8c6622663785d62051406eff7372578d`.
-- This candidate is the exact head of PR #461 (`fix/final-certification-boundary-20260909`) and is the candidate under fresh exact-head CI certification.
+- Current code/test candidate entering this certification sweep: `07dba60a0f7c089b576d0240b59022ce9a66f77d`.
+- This candidate is the exact code/test head of PR #461 (`fix/final-certification-boundary-20260909`) and is the candidate under fresh exact-head CI certification.
 - Certification remains fail-closed: no historical evidence, UI shell, simulated session, old SHA, or CI run on another SHA can certify this candidate.
 
 ### CURRENT EXACT HEAD
-- Current candidate: `678b4b7b8c6622663785d62051406eff7372578d`.
+- Current candidate: `07dba60a0f7c089b576d0240b59022ce9a66f77d`.
 - Previous main baseline before this bounded certification repair: `4db373e61e03c030bab1628864c647b2d5bb97f6`.
 - Documentation refreshes create a new exact-head boundary and do not promote runtime evidence from a previous SHA.
 - Frozen release candidates remain untouched: protected candidate `14cc7cefc0fad622436b4845a0e4b46a8888e8a9`, exact RC reference `d846821b8d969aaa384ab85487a0dcf264a65aca`.
@@ -117,76 +117,4 @@
 - PR #397 — truthful Arabic OCR confidence.
 - PR #398 — report execution input validation; one previously valid review finding has now been explicitly repaired by rejecting array-shaped requests.
 - PR #405 — report execution queue scalar boundary hardening.
-- PR #461 — bounded final certification boundary repair; current exact candidate binding is `678b4b7b8c6622663785d62051406eff7372578d`.
-
-## CURRENT PR / REVIEW STATE
-- PR #396: OPEN, mergeable, not merged.
-- PR #397: OPEN, mergeable, not merged.
-- PR #398: OPEN, mergeable, not merged; CodeRabbit's current array-shape finding was verified and repaired.
-- PR #405: OPEN, currently non-mergeable until its fresh review/CI evidence is available.
-- PR #461: OPEN, mergeable, not merged; current certification candidate is `678b4b7b8c6622663785d62051406eff7372578d`.
-- No PR is treated as merged merely because a connector exposes a `merge_commit_sha`; explicit `merged=false` is authoritative.
-
-## REAL RELEASE ASSESSMENT — 2026-09-07
-
-### What is genuinely strong
-- Tenant/RLS/security architecture: STRONG by source and live DB inspection.
-- Import contract integrity: STRONG after closing the live invoice signature/wrapper mismatch.
-- Durable worker contract: STRONG structurally; runtime lifecycle still unproven.
-- OCR confidence truthfulness: IMPROVED and behaviorally covered; real corpus runtime still unproven.
-- Report execution input/queue boundaries: materially hardened.
-- Certification governance: FAIL-CLOSED and appropriately refuses to promote unobserved runtime evidence.
-
-### What prevents declaring the app complete/sellable today
-1. Current-head authenticated browser E2E with real Actor A/B sessions.
-2. Current-head adversarial Tenant A/B browser proof including reads, writes, import, report/evidence, REST/RPC/storage denial and zero leakage.
-3. Fresh migration replay/schema parity proof.
-4. Real watched-folder lifecycle proof.
-5. Real worker crash/recovery/retry/DLQ lifecycle proof.
-6. Real Arabic document/OCR golden-corpus runtime proof.
-7. Real backup/restore/rollback operational drill.
-8. Current-head measurable performance evidence.
-9. CI execution infrastructure must produce actual steps/logs before CI gates can be called PASS.
-10. Final exact-head certification after all above evidence is bound to the same candidate.
-
-### HONEST COMPLETION SCORE
-- **Engineering/source readiness: ~94%** — strong contracts, security, import/worker architecture, regression coverage and governance; remaining source-level defects are being closed through bounded PRs.
-- **Operational/certification readiness: ~72%** — substantial DB and contract evidence exists, but several required live lifecycle proofs are still missing.
-- **Overall product completion for first sale: ~86%**.
-
-> The overall score is intentionally lower than source readiness because the release standard is not “the code looks complete”; it is “the exact candidate has been exercised and evidenced in the real runtime, tenant boundary, recovery, and production-readiness gates.”
-
-### RELEASE DECISION
-**NOT READY FOR FIRST SALE YET.**
-
-This is not a rebuild situation. The remaining work is concentrated closure: execute the real operational proofs, repair only newly demonstrated defects, bind all evidence to one exact candidate, then run the final certification boundary. No known blocker justifies returning to the beginning.
-
-## GOVERNANCE LOG — 2026-09-07
-- Main baseline: `5b083100d463aae4a4cf22ebbbff7e1470749b1f`.
-- `6a59b6a67e87620f35590a02828b6ffd5ec709ba`: execution checkpoint for import/RPC call-site audit.
-- PR #396: worker provenance/replay contract reconciliation and import wrapper contract repair.
-- PR #397: OCR truthful confidence repair and behavioral test coverage.
-- PR #398: report execution input identity/shape hardening; latest explicit array-shape repair is commit `037aa4f1dcf7130643d96e34cc97a7a0e82abc84`.
-- PR #405: queue scalar boundary hardening; latest head `7086e681654c9dead29934ba2e98b5c4bf2442f9`.
-- Issues #399–#404 are confirmed open independent execution fronts.
-- No Production/RC mutation was performed in this deep audit.
-
-
-## GOVERNANCE LOG — 2026-09-09 — CURRENT EXACT HEAD
-- Current exact main HEAD after verified forward merges: `0eabfd739bc75fef2e51be1b051d9da95abde072`.
-- PR #450 (executive dashboard UI) merged as `c6101b8c9dc2a201e1b4b1ac1567e15403a37546`.
-- PR #452 (canonical Import Center productization) merged as `e69c48684481530115a2bb12dca53b77c4c73db7`.
-- PR #451 (executive report) was re-integrated safely after its original merge conflict and merged through PR #458 as `0eabfd739bc75fef2e51be1b051d9da95abde072`.
-- The unsafe whole-tree integration attempt PR #457 was detected from its unexpected 1,454-file / 58,496-deletion diff and was closed without merge. No destructive change was retained.
-- Current live Staging function inventory confirms the real import/dashboard functions; no Edge Functions are currently deployed through the connected Supabase project.
-- Live Staging row check at this boundary: `import_jobs=0`, `file_records=0`, `sales_invoices=3`, `inventory_movements=0`, `kpi_evidence_snapshots=0`, `executive_kpi_lineage=0`.
-- Therefore no live import lifecycle, Arabic OCR corpus lifecycle, or KPI evidence-lineage runtime PASS is claimed from this inspection alone.
-- CI remains an external billing/execution constraint and is not converted into a product PASS.
-- Next mandatory evidence fronts remain authenticated A/B browser runtime, real import lifecycle, Arabic golden-corpus runtime, worker recovery, watched-folder lifecycle, backup/restore/rollback, performance, and final exact-head certification.
-
-## GOVERNANCE LOG — 2026-09-09 — CERTIFICATION BOUNDARY REPAIR
-- Certification candidate before index binding repair: `678b4b7b8c6622663785d62051406eff7372578d`.
-- PR #461 contains the bounded Scenario Financial Truth multiline guard repair, server-only `advance_report_execution_checkpoint` SECURITY DEFINER authorization hardening, and full-history certification checkout/provenance assertions.
-- Final Certification Gate previously failed because the current code/test candidate was absent from this Master Index. This index update binds the exact candidate explicitly as `CURRENT_CODE_TEST_CANDIDATE` / `Current code/test candidate` within the guard's discovery window.
-- No ancestry rule, exact-SHA rule, or certification bypass is weakened.
-- Fresh CI must now run on the new HEAD produced by this documentation binding commit. That new HEAD becomes the next exact certification boundary; the previous candidate remains historical until re-bound by the resulting commit.
+- PR #461 — bounded final certification boundary repair; current exact candidate binding is `07dba60a0f7c089b576d0240b59022ce9a66f77d`.
