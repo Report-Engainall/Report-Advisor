@@ -10,7 +10,6 @@ permissions:
 
 jobs:
   rebind:
-    if: github.sha == 'a6e3a30c814dee9f1425fa9e204528a5bd49542a'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
