@@ -9,7 +9,7 @@ permissions:
 
 jobs:
   rebind:
-    if: github.event.pull_request.number == 463 && github.event.pull_request.head.sha == '24c10124f7fad9f19c1b76ff387156a450a0fccd'
+    if: github.event.pull_request.number == 463
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
