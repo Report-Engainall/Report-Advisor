@@ -1,15 +1,15 @@
 name: Rebind Master Index (one-time)
 
 on:
-  push:
-    branches:
-      - parallel/report-scope-tracing-20260910
+  pull_request:
+    types: [reopened]
 
 permissions:
   contents: write
 
 jobs:
   rebind:
+    if: github.event.pull_request.number == 463 && github.event.pull_request.head.sha == '24c10124f7fad9f19c1b76ff387156a450a0fccd'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
