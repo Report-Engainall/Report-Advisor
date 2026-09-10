@@ -5,8 +5,8 @@
 > Authoritative execution manifest. This document never promotes historical evidence across an exact Git `HEAD` boundary. Pair every evidence batch with the exact Git `HEAD` of `main` and the exact environment/commit used.
 
 ### CURRENT EXACT HEAD
-- Current code/test candidate: `7e662931d41e7d42607a7c7bf0fbf254cef8a5cc`.
-- This candidate is the exact PR #463 head (`feat: wire sales source into durable snapshot runtime`).
+- Current code/test candidate: `a4bef11c7eea2ca2a5a453782d4671b93cf76a15`.
+- This candidate is the exact PR #463 head (`feat: wire sales source into durable snapshot runtime`) before this governance rebind.
 - PR #463 adds the bounded sales source runtime binding on top of the existing durable execution contract: it resolves the execution scope, reads authoritative sales data through the Supabase adapter, binds `sourceSnapshotId` to `report_source_versions`, validates tenant identity/source hash/full scope, and fails closed if the authoritative source changes between registration and execution.
 - Historical evidence from earlier SHAs remains historical and is not promoted automatically.
 - This index update is governance-only; it does not certify runtime, browser, tenant A/B, import, OCR, recovery, backup/restore, performance, or LIVE state.
@@ -123,7 +123,7 @@
 - PR #397: OPEN, mergeable, not merged.
 - PR #398: OPEN, mergeable, not merged; CodeRabbit's current array-shape finding was verified and repaired.
 - PR #405: OPEN, currently non-mergeable until its fresh review/CI evidence is available.
-- PR #463: OPEN, draft, mergeable; current head `7e662931d41e7d42607a7c7bf0fbf254cef8a5cc`.
+- PR #463: OPEN, draft, mergeable; current head `a4bef11c7eea2ca2a5a453782d4671b93cf76a15`.
 - No PR is treated as merged merely because a connector exposes a `merge_commit_sha`; explicit `merged=false` is authoritative.
 
 ## REAL RELEASE ASSESSMENT — 2026-09-07
@@ -251,7 +251,7 @@ This is not a rebuild situation. The remaining work is concentrated closure: exe
 ## GOVERNANCE LOG — 2026-09-10 — CANDIDATE #462 TERMINAL-ASSERTION TEST REPAIR
 - Exact candidate: `15ce48f7fa21567ace2ab99abbd121ff2284d2e8`.
 - The bounded test-only repair in `scripts/check-decision-work-outcome-terminal.mjs` changes the assertion for executing an already-terminal `EXECUTED` decision from `/TERMINAL/` to `/APPROVAL_REQUIRED/`, matching the existing fail-closed production guard order.
-- The production decision guard, Certification Boundary guard, tenant/RLS logic, and runtime implementation were not changed by this repair.
+- The production decision guard, Certification Boundary guard, tenant/RLS logic, and runtime implementation were not changed by the repair.
 - This update binds the Master Index to the exact current candidate and promotes no historical CI or runtime evidence.
 - The immediately preceding exact-head Certification cycle reached the terminal decision test and exposed this assertion mismatch; it was a test expectation defect, not a production guard failure.
 - Required next action: fresh exact-head CI/Certification on `15ce48f7...`; if a new independent failure appears, classify it separately as Finding → Root Cause → Fix → Fresh SHA → Close. Do not reopen previously closed fronts without regression evidence.
@@ -282,3 +282,11 @@ This is not a rebuild situation. The remaining work is concentrated closure: exe
 - The Master Index is now rebound to `7e662931...` on the PR #463 operations branch only. No production/main mutation was performed.
 - This rebind promotes no runtime certification evidence. It only closes the governance-boundary mismatch so the next exact-head Certification run can reach the actual contract/provenance tests.
 - Required next action: rerun the Final Certification Gate on the new governance commit; if Boundary PASS, continue to the direct Tenant B → Snapshot A runtime denial, automated Business-Triggered Report Execution lifecycle, and real Chromium + real Supabase Auth A/B E2E. Release remains **NOT CERTIFIED / NOT LIVE**.
+
+## GOVERNANCE LOG — 2026-09-10 — PR #463 PROVENANCE CHECK REPAIR
+- Exact candidate under the next certification boundary: `a4bef11c7eea2ca2a5a453782d4671b93cf76a15`.
+- The bounded repair in `scripts/check-evidence-provenance-chain.mjs` removes a stale dependency on the nonexistent historical migration `20260825110000_autonomous_governance_bi.sql` while preserving the seven required evidence/provenance invariants: `evidence`, `source`, `lineage`, `canonical`, `provenance`, `confidence`, and `materiality`.
+- This is certification-infrastructure repair only; it does not create a fake migration, weaken a product invariant, or promote runtime evidence.
+- The exact-head Final Certification Gate run `2943` checked out `a4bef11...`, successfully built the release manifest, then failed closed at `Verify certification boundary integrity` because the Master Index still indexed `7e662931...`. The downstream certification suites were therefore correctly not executed.
+- Required next action: this governance rebind must produce a fresh exact-head Certification Gate. Only after Boundary PASS may the actual provenance/enforcement suites be used as evidence.
+- Release remains **NOT CERTIFIED / NOT LIVE**.
