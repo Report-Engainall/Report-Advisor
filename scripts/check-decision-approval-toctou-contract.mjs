@@ -16,9 +16,11 @@ function latestFunctionBody(source, name) {
   let start = -1;
   while ((match = re.exec(source))) start = match.index;
   if (start < 0) throw new Error(`Missing canonical function: ${name}`);
-  const next = source.search(new RegExp('\\nCREATE\\s+OR\\s+REPLACE\\s+FUNCTION', 'i',));
-  const nextFromStart = next >= 0 && next > start ? next : -1;
-  return source.slice(start, nextFromStart < 0 ? source.length : nextFromStart);
+  const nextRe = /\nCREATE\s+OR\s+REPLACE\s+FUNCTION/gi;
+  nextRe.lastIndex = start + 1;
+  const nextMatch = nextRe.exec(source);
+  const end = nextMatch ? nextMatch.index : source.length;
+  return source.slice(start, end);
 }
 
 export function validateDecisionApprovalToctou(source) {
