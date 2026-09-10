@@ -5,7 +5,7 @@
 > Authoritative execution manifest. This document never promotes historical evidence across an exact Git `HEAD` boundary. Pair every evidence batch with the exact Git `HEAD` of `main` and the exact environment/commit used.
 
 ### CURRENT EXACT HEAD
-- Current code/test candidate: `3ee326557e4d8c6a8c4e0c3b464cd4d486e8dd6d`.
+- Current code/test candidate: `010d07be3280f09b3c541b949a2b19839623b64b`.
 - This candidate contains the bounded decision-approval TOCTOU fixture repair only; production SQL and Certification Boundary guard are unchanged.
 - Historical evidence from earlier SHAs remains historical and is not promoted automatically.
 - This index update is governance-only; it does not certify runtime, browser, tenant A/B, import, OCR, recovery, backup/restore, performance, or LIVE state.
@@ -233,5 +233,14 @@ This is not a rebuild situation. The remaining work is concentrated closure: exe
 - The repair is test-only: the adversarial mutation now targets the direct local authoritative function body used by the validator, eliminating the prior mismatch between a canonical lock match captured from one representation and replacement against another body representation.
 - No production SQL, Certification Boundary guard, tenant/RLS logic, runtime worker logic, OCR production logic, or unrelated application surface was changed by this repair.
 - The immediately preceding certification on `67e60e1d...` demonstrated Boundary PASS, Release Readiness 20/20 PASS, and lock-order PASS, then failed only when the TOCTOU adversarial mutation could not be applied. Therefore **no TOCTOU PASS is promoted by this rebind**.
+- Required next action: fresh exact-head Certification from this governance boundary, with explicit evidence for `Decision approval TOCTOU contract: PASS`, the adversarial Test-of-Test, provenance, and exact-commit evidence before any Final Certification or LIVE claim.
+- Release remains **NOT CERTIFIED / NOT LIVE**.
+
+## GOVERNANCE LOG — 2026-09-10 — CANDIDATE #462 FUNCTION-MATCHING FIXTURE REPAIR
+- Exact candidate under the next certification boundary: `010d07be3280f09b3c541b949a2b19839623b64b`.
+- This governance-only update binds the Master Index to the latest bounded TOCTOU fixture repair.
+- The repair is test-only: the adversarial fixture now resolves the latest `request_decision_approval` function case-insensitively, matching the production migration's lowercase `create or replace function` form, so the mutation cannot silently target an older function definition.
+- No production SQL, Certification Boundary guard, tenant/RLS logic, runtime worker logic, OCR production logic, or unrelated application surface was changed by this repair.
+- The immediately preceding certification on `67e60e1d...` demonstrated Boundary PASS, Release Readiness 20/20 PASS, and lock-order PASS, then failed only because the TOCTOU adversarial mutation did not apply. Therefore **no TOCTOU PASS is promoted by this rebind**.
 - Required next action: fresh exact-head Certification from this governance boundary, with explicit evidence for `Decision approval TOCTOU contract: PASS`, the adversarial Test-of-Test, provenance, and exact-commit evidence before any Final Certification or LIVE claim.
 - Release remains **NOT CERTIFIED / NOT LIVE**.
