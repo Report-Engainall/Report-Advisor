@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import { execFileSync } from 'node:child_process';
 import { validateExecutionEnforcementProtocol, validateCurrentHeadIndex } from './check-execution-enforcement-protocol.mjs';
 
 const protocol = fs.readFileSync('docs/EXECUTION_ENFORCEMENT_PROTOCOL.md', 'utf8');
@@ -31,12 +32,15 @@ assert.throws(() => validateCurrentHeadIndex(validIndex, 'bbbbbbbbbbbbbbbbbbbbbb
 const boldCandidateIndex = `## CURRENT EXECUTION BOUNDARY\n- **CURRENT CODE/TEST CANDIDATE:** \`aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\`.`;
 assert.equal(validateCurrentHeadIndex(boldCandidateIndex, 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'), true);
 
-const indexOnlyBoundary = `## CURRENT PROJECT STATE\n- Current repository index boundary head: \`aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\`.\n- Current code/test candidate: \`bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\`.`;
-assert.equal(validateCurrentHeadIndex(indexOnlyBoundary, 'cccccccccccccccccccccccccccccccccccccccc', 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', ['docs/MASTER_EXECUTION_INDEX.md']), true);
-assert.throws(() => validateCurrentHeadIndex(indexOnlyBoundary, 'cccccccccccccccccccccccccccccccccccccccc', 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', ['docs/MASTER_EXECUTION_INDEX.md', 'src/app.tsx']), indexBoundaryError);
+const currentHead = execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
+const parentHead = execFileSync('git', ['rev-parse', 'HEAD^'], { encoding: 'utf8' }).trim();
 
-const enforcementOnlyBoundary = `## CURRENT PROJECT STATE\n- Exact code/test head entering this sweep: \`aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\`.`;
-assert.equal(validateCurrentHeadIndex(enforcementOnlyBoundary, 'cccccccccccccccccccccccccccccccccccccccc', 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', ['scripts/check-execution-enforcement-protocol.mjs', 'scripts/check-execution-enforcement-protocol.test.mjs']), true);
-assert.throws(() => validateCurrentHeadIndex(enforcementOnlyBoundary, 'cccccccccccccccccccccccccccccccccccccccc', 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', ['scripts/check-execution-enforcement-protocol.mjs', 'src/app.tsx']), indexBoundaryError);
+const indexOnlyBoundary = `## CURRENT PROJECT STATE\n- Current repository index boundary head: \`${parentHead}\`.\n- Current code/test candidate: \`${parentHead}\`.`;
+assert.equal(validateCurrentHeadIndex(indexOnlyBoundary, currentHead, parentHead, ['docs/MASTER_EXECUTION_INDEX.md']), true);
+assert.throws(() => validateCurrentHeadIndex(indexOnlyBoundary, currentHead, parentHead, ['docs/MASTER_EXECUTION_INDEX.md', 'src/app.tsx']), indexBoundaryError);
 
-console.log('PASS v3.5 enforcement adversarial test-of-test (explicit index-boundary rejection contract)');
+const enforcementOnlyBoundary = `## CURRENT PROJECT STATE\n- Exact code/test head entering this sweep: \`${parentHead}\`.`;
+assert.equal(validateCurrentHeadIndex(enforcementOnlyBoundary, currentHead, parentHead, ['scripts/check-execution-enforcement-protocol.mjs', 'scripts/check-execution-enforcement-protocol.test.mjs']), true);
+assert.throws(() => validateCurrentHeadIndex(enforcementOnlyBoundary, currentHead, parentHead, ['scripts/check-execution-enforcement-protocol.mjs', 'src/app.tsx']), indexBoundaryError);
+
+console.log('PASS v3.6 enforcement adversarial test-of-test (real ancestry for governed special boundaries)');
