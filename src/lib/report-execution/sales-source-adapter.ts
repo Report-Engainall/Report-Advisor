@@ -1,5 +1,5 @@
 import type { ReportExecutionScope } from './report-scope';
-import { fingerprintReportSource } from './source-fingerprint';
+import { fingerprintReportRow, fingerprintReportSource } from './source-fingerprint';
 import type { RowVersion } from '../production-intelligence';
 
 export interface SalesSourceRow {
@@ -46,6 +46,7 @@ function finite(value: number, field: string): number {
 function normalizeRow(row: SalesSourceRow): SalesSourceRow {
   if (!row.invoice_number.trim()) throw new Error('SALES_SOURCE_INVOICE_NUMBER_REQUIRED');
   if (!row.invoice_date.trim()) throw new Error('SALES_SOURCE_INVOICE_DATE_REQUIRED');
+  if (!row.status.trim()) throw new Error('SALES_SOURCE_STATUS_REQUIRED');
   if (!Number.isInteger(row.line_number) || row.line_number < 0) throw new Error('SALES_SOURCE_LINE_NUMBER_INVALID');
   return {
     ...row,
@@ -99,7 +100,7 @@ export async function loadSalesSourceSnapshot(scope: ReportExecutionScope, query
   const currentRows = await Promise.all(
     normalized.map(async (row) => ({
       key: businessKey(row),
-      hash: await fingerprintReportSource(scope, [{ ...row } as Record<string, unknown>]),
+      hash: await fingerprintReportRow({ ...row } as Record<string, unknown>),
       value: row,
     })),
   );
