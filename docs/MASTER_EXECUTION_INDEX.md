@@ -5,9 +5,9 @@
 > Authoritative execution manifest. This document never promotes historical evidence across an exact Git `HEAD` boundary. Pair every evidence batch with the exact Git `HEAD` of `main` and the exact environment/commit used.
 
 ### CURRENT EXACT HEAD
-- Current code/test candidate: `9bcbff347bd141f62486802106306f8edddde126`.
-- This candidate is the verified merge commit for PR #462 (`fix: close current-head build blockers for live closure`).
-- The merge contains the bounded current-head build/OCR test repairs and workflow checkout/release-manifest corrections; no certification or runtime PASS is implied by the merge itself.
+- Current code/test candidate: `7e662931d41e7d42607a7c7bf0fbf254cef8a5cc`.
+- This candidate is the exact PR #463 head (`feat: wire sales source into durable snapshot runtime`).
+- PR #463 adds the bounded sales source runtime binding on top of the existing durable execution contract: it resolves the execution scope, reads authoritative sales data through the Supabase adapter, binds `sourceSnapshotId` to `report_source_versions`, validates tenant identity/source hash/full scope, and fails closed if the authoritative source changes between registration and execution.
 - Historical evidence from earlier SHAs remains historical and is not promoted automatically.
 - This index update is governance-only; it does not certify runtime, browser, tenant A/B, import, OCR, recovery, backup/restore, performance, or LIVE state.
 
@@ -101,11 +101,12 @@
 ### CI / Execution Infrastructure
 - Historical CI infrastructure failures with `steps=[]`, `runner_id=0`, and empty runner identity are retained as historical evidence only; they are no longer the sole current CI state.
 - On the merged candidate `9bcbff347bd141f62486802106306f8edddde126`, the Windows desktop workflow executed 23 real steps including checkout, Node setup, `npm ci`, web build, native watcher contract, native runtime smoke, Windows installer build, and installer upload.
-- Final Certification Gate run `2912` executed real checkout/Node/npm/release-manifest steps but failed closed at `Verify certification boundary integrity` because the Master Index still indexed the older candidate `a84a190e5501b4498b56c395a346e8b7e6b61a7b` while `main` was `9bcbff347bd141f62486802106306f8edddde126`.
+- Final Certification Gate run `2935` on PR #463 checked out exact candidate `7e662931d41e7d42607a7c7bf0fbf254cef8a5cc`, built the release manifest successfully, then failed closed at `Verify certification boundary integrity` because the Master Index still indexed `9bcbff347bd141f62486802106306f8edddde126`.
 - That failure is an exact-head governance mismatch, not a product-test failure; no downstream certification suites were allowed to execute.
 - Workflows are not weakened with bypasses to turn infrastructure or boundary failure into PASS.
 
 ## ACTIVE EXECUTION FRONTS
+- PR #463 — durable sales source/snapshot binding; current candidate under governance rebind.
 - #399 — fresh migration replay and schema parity certification.
 - #400 — watched-folder lifecycle and duplicate-ingestion proof.
 - #401 — worker crash/retry/dead-letter/recovery drill.
@@ -122,6 +123,7 @@
 - PR #397: OPEN, mergeable, not merged.
 - PR #398: OPEN, mergeable, not merged; CodeRabbit's current array-shape finding was verified and repaired.
 - PR #405: OPEN, currently non-mergeable until its fresh review/CI evidence is available.
+- PR #463: OPEN, draft, mergeable; current head `7e662931d41e7d42607a7c7bf0fbf254cef8a5cc`.
 - No PR is treated as merged merely because a connector exposes a `merge_commit_sha`; explicit `merged=false` is authoritative.
 
 ## REAL RELEASE ASSESSMENT — 2026-09-07
@@ -272,3 +274,11 @@ This is not a rebuild situation. The remaining work is concentrated closure: exe
 - Because this commit changes only `docs/MASTER_EXECUTION_INDEX.md`, the certification boundary permits the indexed `9bcbff...` candidate to remain the certification target while this governance commit becomes the actual `main` HEAD.
 - Required next action: fresh exact-head Certification Gate on this governance commit, which must prove boundary PASS and then execute the actual certification suites; separately continue P0 authenticated Actor A/B browser proof and P1 real import/report-trigger/recovery evidence.
 - Release remains **NOT CERTIFIED / NOT LIVE**.
+
+## GOVERNANCE LOG — 2026-09-10 — PR #463 EXACT-CANDIDATE REBIND
+- Main branch remains untouched at the safe baseline `999f93e91f657357d849f15a87a001cb389d8ff9`.
+- PR #463 exact code/test candidate before this governance commit is `7e662931d41e7d42607a7c7bf0fbf254cef8a5cc`.
+- Final Certification Gate run `2935` verified checkout of `7e662931...` and successful release-manifest generation, then stopped at the fail-closed certification boundary because the Master Index still indexed `9bcbff...` while the candidate contained non-governance changes.
+- The Master Index is now rebound to `7e662931...` on the PR #463 operations branch only. No production/main mutation was performed.
+- This rebind promotes no runtime certification evidence. It only closes the governance-boundary mismatch so the next exact-head Certification run can reach the actual contract/provenance tests.
+- Required next action: rerun the Final Certification Gate on the new governance commit; if Boundary PASS, continue to the direct Tenant B → Snapshot A runtime denial, automated Business-Triggered Report Execution lifecycle, and real Chromium + real Supabase Auth A/B E2E. Release remains **NOT CERTIFIED / NOT LIVE**.
