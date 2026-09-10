@@ -5,9 +5,10 @@
 > Authoritative execution manifest. This document never promotes historical evidence across an exact Git `HEAD` boundary. Pair every evidence batch with the exact Git `HEAD` of `main` and the exact environment/commit used.
 
 ### CURRENT EXACT HEAD
-- Current code/test candidate: `da39ec0ea0e3e8e4e874ab20d9b66707fd117ae1`.
-- This candidate is the exact PR #463 head containing the bounded sales source/snapshot runtime binding plus the bounded `phase-kl-runtime.ts` autonomy-link micro-fix (`riskBudgetValid` / `trustHealthy`).
+- Current code/test candidate: `099dc3876bdf34abf8afe7061be37822d5fa7936`.
+- This candidate is the exact PR #463 head containing the bounded sales source/snapshot runtime binding, the bounded `phase-kl-runtime.ts` autonomy-link micro-fix (`riskBudgetValid` / `trustHealthy`), and the import source-field preservation/lineage closure.
 - PR #463 retains the bounded sales source runtime binding on top of the existing durable execution contract: it resolves the execution scope, reads authoritative sales data through the Supabase adapter, binds `sourceSnapshotId` to `report_source_versions`, validates tenant identity/source hash/full scope, and fails closed if the authoritative source changes between registration and execution.
+- The import lineage closure adds a tenant-bound `import_job_rows` persistence surface and a transactional `import_commit_batch_with_lineage` wrapper while keeping `import_commit_batch` as the canonical normalized business write.
 - The governance-runtime-chain checker discovers the actual governance migration lineage present in `supabase/migrations` rather than depending on stale historical migration filenames.
 - Historical evidence from earlier SHAs remains historical and is not promoted automatically.
 - This index update is governance-only; it does not certify runtime, browser, tenant A/B, import, OCR, recovery, backup/restore, performance, or LIVE state.
@@ -67,6 +68,7 @@
 - Canonical import remains the supported business mutation path.
 - Import RPC tenant context, direct-write guards, transaction lifecycle, state contracts, business-key behavior, and runtime governance are already represented by repository checks.
 - Live invoice wrapper/signature mismatch was repaired as a concrete runtime contract defect.
+- Current candidate additionally preserves complete source rows and provenance in tenant-bound `import_job_rows` through the transactional `import_commit_batch_with_lineage` wrapper when a real import job context is supplied; normalized business writes remain delegated to the canonical `import_commit_batch` path.
 - Import runtime with real authenticated tenant data remains NOT PROVEN until current-head E2E evidence records upload/preview/commit/read-back and A/B denial.
 
 ### Watched Folder
@@ -124,7 +126,7 @@
 - PR #397: OPEN, mergeable, not merged.
 - PR #398: OPEN, mergeable, not merged; CodeRabbit's current array-shape finding was verified and repaired.
 - PR #405: OPEN, currently non-mergeable until its fresh review/CI evidence is available.
-- PR #463: OPEN, draft, unmerged; exact operational HEAD `da39ec0ea0e3e8e4e874ab20d9b66707fd117ae1`.
+- PR #463: OPEN, draft, unmerged; exact operational HEAD `099dc3876bdf34abf8afe7061be37822d5fa7936`.
 - Main remains protected at `999f93e91f657357d849f15a87a001cb389d8ff9` and is not touched by this governance rebind.
 - No PR is treated as merged merely because a connector exposes a `merge_commit_sha`; explicit `merged=false` is authoritative.
 
@@ -218,7 +220,7 @@ This is not a rebuild situation. The remaining work is concentrated closure: exe
 ## GOVERNANCE LOG — 2026-09-10 — CANDIDATE #462 TOCTOU TEST-OF-TEST REPAIR
 - Exact candidate under the next certification boundary: `bacd51c78a491d5fc0cdc24117ecec25c75cecad`.
 - This governance update binds the Master Index to the exact candidate containing the bounded TOCTOU Test-of-Test repair; the validator now binds the decision `FOR UPDATE` specifically to the authoritative decision query and includes adversarial removal/reordering checks.
-- No production SQL or Certification Boundary guard was changed by this repair.
+- No production SQL or Certification Boundary guard was changed by this governance rebind.
 - The preceding exact-head cycle stopped at the stale-index Boundary by design; therefore no TOCTOU PASS is promoted by this governance rebind.
 - Fresh exact-head Certification is mandatory to prove the TOCTOU contract itself and then the complete Certification chain.
 - Release remains **NOT CERTIFIED / NOT LIVE** until the exact-head contract evidence and all separate operational/runtime evidence are satisfied.
@@ -227,7 +229,7 @@ This is not a rebuild situation. The remaining work is concentrated closure: exe
 - Exact candidate under the next certification boundary: `14f9e6e8ae179a87b38ad036ab25f936bea1dd52`.
 - This governance-only update binds the Master Index to the latest bounded TOCTOU fixture correction.
 - The correction is test-only: it targets the latest canonical `request_decision_approval` body and removes/reorders the decision-row `FOR UPDATE` lock in adversarial fixtures so the validator must detect the intended TOCTOU weakness rather than being masked by a later approval-row lock.
-- No production SQL, Certification Boundary guard, or unrelated production surface was changed by this correction.
+- No production SQL, Certification Boundary guard, tenant/RLS logic, runtime worker logic, OCR production logic, or unrelated application surface was changed by this correction.
 - The preceding exact-head Certification cycle on `14f9e6e...` stopped at the stale-index Boundary before executing the TOCTOU contract; therefore **no TOCTOU PASS is promoted by this rebind**.
 - Required next action: fresh exact-head Certification from this governance boundary, with explicit evidence of `Decision approval TOCTOU contract: PASS` and its adversarial Test-of-Test before any certification claim.
 - Release remains **NOT CERTIFIED / NOT LIVE** until the fresh exact-head certification chain and all separate operational/runtime evidence are satisfied.
@@ -236,7 +238,7 @@ This is not a rebuild situation. The remaining work is concentrated closure: exe
 - Exact candidate under the next certification boundary: `3ee326557e4d8c6a8c4e0c3b464cd4d486e8dd6d`.
 - This governance-only update binds the Master Index to the latest bounded Test-of-Test fixture repair.
 - The repair is test-only: the adversarial mutation now targets the direct local authoritative function body used by the validator, eliminating the prior mismatch between a canonical lock match captured from one representation and replacement against another body representation.
-- No production SQL, Certification Boundary guard, tenant/RLS logic, runtime worker logic, OCR production logic, or unrelated application surface was changed by this repair.
+- No production SQL, Certification Boundary guard, tenant/RLS logic, runtime worker logic, OCR production logic, or unrelated application surface was changed by this correction.
 - The immediately preceding certification on `67e60e1d...` demonstrated Boundary PASS, Release Readiness 20/20 PASS, and lock-order PASS, then failed only when the TOCTOU adversarial mutation could not be applied. Therefore **no TOCTOU PASS is promoted by this rebind**.
 - Required next action: fresh exact-head Certification from this governance boundary, with explicit evidence for `Decision approval TOCTOU contract: PASS`, the adversarial Test-of-Test, provenance, and exact-commit evidence before any Final Certification or LIVE claim.
 - Release remains **NOT CERTIFIED / NOT LIVE**.
@@ -246,7 +248,7 @@ This is not a rebuild situation. The remaining work is concentrated closure: exe
 - This governance-only update binds the Master Index to the latest bounded TOCTOU fixture repair.
 - The repair is test-only: the adversarial fixture now resolves the latest `request_decision_approval` function case-insensitively, matching the production migration's lowercase `create or replace function` form, so the mutation cannot silently target an older function definition.
 - No production SQL, Certification Boundary guard, tenant/RLS logic, runtime worker logic, OCR production logic, or unrelated application surface was changed by this correction.
-- The immediately preceding certification on `67e60e1d...` demonstrated Boundary PASS, Release Readiness 20/20 PASS, and lock-order PASS, then failed only because the TOCTOU adversarial mutation did not apply. Therefore **no TOCTOU PASS is promoted by this rebind**.
+- The immediately preceding certification on `67e60e1d...` demonstrated Boundary PASS, Release Readiness 20/20 PASS, and lock-order PASS, then failed only because the TOCTOU adversarial mutation did not apply. Therefore **no TOCTOU PASS is promoted by this correction**.
 - Required next action: fresh exact-head Certification from this governance boundary, with explicit evidence for `Decision approval TOCTOU contract: PASS`, the adversarial Test-of-Test, provenance, and exact-commit evidence before any Final Certification or LIVE claim.
 - Release remains **NOT CERTIFIED / NOT LIVE**.
 
@@ -257,7 +259,6 @@ This is not a rebuild situation. The remaining work is concentrated closure: exe
 - This update binds the Master Index to the exact current candidate and promotes no historical CI or runtime evidence.
 - The immediately preceding exact-head Certification cycle reached the terminal decision test and exposed this assertion mismatch; it was a test expectation defect, not a production guard failure.
 - Required next action: fresh exact-head CI/Certification on `15ce48f7...`; if a new independent failure appears, classify it separately as Finding → Root Cause → Fix → Fresh SHA → Close. Do not reopen previously closed fronts without regression evidence.
-- Release remains **NOT CERTIFIED / NOT LIVE** until the fresh exact-head Final Certification Gate passes and all separate operational/runtime evidence requirements are satisfied.
 
 ## GOVERNANCE LOG — 2026-09-10 — CANDIDATE #462 TERMINAL TENANT ASSERTION REPAIR
 - Exact candidate: `a84a190e5501b4498b56c395a346e8b7e6b61a7b`.
@@ -330,3 +331,13 @@ This is not a rebuild situation. The remaining work is concentrated closure: exe
 - This governance rebind changes no certification standard and does not create a PASS from the broad technical CI results. The exact-head certification cycle must be rerun after this governance commit.
 - Main remains untouched at `999f93e91f657357d849f15a87a001cb389d8ff9`; PR #463 remains Draft / Unmerged.
 - Release remains **NOT CERTIFIED / NOT LIVE**.
+
+## GOVERNANCE LOG — 2026-09-10 — PR #463 IMPORT SOURCE-LINEAGE CLOSURE
+- Exact code/test candidate before this governance commit: `099dc3876bdf34abf8afe7061be37822d5fa7936`.
+- A fresh exact-head Certification cycle on the prior governance commit `76bdf959...` passed the certification boundary and executed the full 20-stage Release Readiness suite with `TOTAL=20 PASS=20 FAIL=0`.
+- The same exact-head contract sweep then exposed a real repository defect: `scripts/check-import-source-field-preservation.mjs` referenced `supabase/migrations/20260908150000_import_source_lineage.sql`, but that migration was absent from the candidate, causing an `ENOENT` failure. This was correctly treated as a finding, not bypassed.
+- The surgical product closure adds `supabase/migrations/20260908150000_import_source_lineage.sql`, creating tenant-bound `import_job_rows` persistence and a transactional `import_commit_batch_with_lineage` wrapper that delegates the normalized business write to the existing canonical `import_commit_batch` and preserves complete source payload/provenance.
+- `src/lib/import/canonical-commit.ts` now uses the lineage RPC only when a real `jobId` is supplied, preserving the existing canonical path otherwise. `sameSourceDocument` is used as a consistency check so a document UUID is never silently treated as an import-job UUID.
+- The migration uses SECURITY INVOKER, pins `search_path`, rejects missing/mismatched tenant/job context, denies anon execution, grants authenticated execution, and applies tenant RLS to the new lineage table.
+- Main remains untouched at `999f93e91f657357d849f15a87a001cb389d8ff9`; PR #463 remains Draft / Unmerged.
+- Fresh CI for `099dc387...` is required now. No PASS is promoted from the previous candidate, and release remains **NOT CERTIFIED / NOT LIVE** until the exact candidate completes the certification chain and separate runtime evidence requirements.
