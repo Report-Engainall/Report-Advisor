@@ -31,6 +31,9 @@ jobs:
       - name: Install locked dependencies
         shell: bash
         run: npm ci --include=dev --no-audit --no-fund
+      - name: Build exact-candidate release evidence manifest
+        shell: bash
+        run: CERTIFICATION_SHA="${CERTIFICATION_SHA}" node scripts/build-release-manifest.mjs
       - name: Verify certification boundary integrity
         run: node scripts/check-certification-boundary-integrity.mjs
       - name: Run certification contract tests

@@ -34,25 +34,32 @@ class OcrRuntimeTests(unittest.TestCase):
                 return predict(image)
 
         fake_module.PaddleOCR = FakePaddleOCR
-        with patch.dict(sys.modules, {"paddleocr": fake_module}):
-            sys.modules.pop("main", None)
-            if "services.document-intelligence.app.main" in sys.modules:
-                sys.modules.pop("services.document-intelligence.app.main")
-            sys.path.insert(0, "services/document-intelligence/app")
-            try:
-                return importlib.import_module("main")
-            finally:
-                sys.path.pop(0)
+        # The production adapter imports PaddleOCR when parse_with_ocr() is called,
+        # not when main is imported. Keep the fake module installed for the full
+        # lifetime of this test case instead of restoring sys.modules immediately
+        # after import.
+        self._paddleocr_patch = patch.dict(sys.modules, {"paddleocr": fake_module})
+        self._paddleocr_patch.start()
+        self.addCleanup(self._paddleocr_patch.stop)
 
-    def test_uses_minimum_finite_score(self):
+        sys.modules.pop("main", None)
+        if "services.document-intelligence.app.main" in sys.modules:
+            sys.modules.pop("services.document-intelligence.app.main")
+        sys.path.insert(0, "services/document-intelligence/app")
+        try:
+            return importlib.import_module("main")
+        finally:
+            sys.path.pop(0)
+
+    def test_uses_first_finite_score_without_mutating_valid_confidence(self):
         main = self.load_main(
             lambda image: [
                 FakePageResult({"res": {"rec_texts": ["فاتورة", "123"], "rec_scores": [0.91, 0.74]}})
             ]
         )
         result = main.parse_with_ocr(image_bytes(), "invoice.png", "image/png")
-        block = result["document"]["pages"][0]["blocks"][0]
-        self.assertEqual(block["confidence"], 0.74)
+        blocks = result["document"]["pages"][0]["blocks"]
+        self.assertEqual([block["confidence"] for block in blocks], [0.91, 0.74])
         self.assertEqual(result["warnings"], [])
 
     def test_low_score_warns(self):
@@ -72,6 +79,7 @@ class OcrRuntimeTests(unittest.TestCase):
             [1.1],
             [-0.1],
         ]
+        expected_warning = "OCR confidence contains invalid or missing values; affected blocks are fail-closed and require review."
         for scores in cases:
             with self.subTest(scores=scores):
                 main = self.load_main(
@@ -80,9 +88,9 @@ class OcrRuntimeTests(unittest.TestCase):
                     ]
                 )
                 result = main.parse_with_ocr(image_bytes(), "invoice.png", "image/png")
-                block = result["document"]["pages"][0]["blocks"][0]
-                self.assertEqual(block["confidence"], 0.0)
-                self.assertIn("OCR confidence is below the usable threshold", result["warnings"][0])
+                blocks = result["document"]["pages"][0]["blocks"]
+                self.assertEqual(blocks[-1]["confidence"], 0.0)
+                self.assertEqual(result["warnings"][0], expected_warning)
 
     def test_empty_result_is_incomplete(self):
         main = self.load_main(lambda image: [FakePageResult({"res": {"rec_texts": [], "rec_scores": []}})])
@@ -98,7 +106,7 @@ class OcrRuntimeTests(unittest.TestCase):
         result = main.parse_with_ocr(image_bytes(), "invoice.png", "image/png")
         self.assertEqual(result["engine"], "paddleocr")
         self.assertIn("OCR execution failed; document is not considered successfully extracted", result["warnings"][0])
-        self.assertEqual(result["document"]["status"], "EXTRACTED")
+        self.assertEqual(result["document"]["status"], "FAILED")
         self.assertEqual(result["document"]["pages"], [])
 
 

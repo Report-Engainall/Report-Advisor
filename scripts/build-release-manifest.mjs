@@ -9,7 +9,7 @@ const lock=read('package-lock.json');
 const migrationDir=path.join(root,'supabase/migrations');
 const migrations=fs.readdirSync(migrationDir).filter(x=>x.endsWith('.sql')).sort();
 const migrationFingerprint=sha256(Buffer.concat(migrations.flatMap(f=>[Buffer.from(`${f}\n`),read(`supabase/migrations/${f}`)])));
-const manifest={schemaVersion:1,sourceSha:process.env.GITHUB_SHA||'local',packageVersion:pkg.version,dependencyFingerprint:sha256(lock),migrationFingerprint,generatedAt:new Date().toISOString()};
+const manifest={schemaVersion:1,sourceSha:process.env.CERTIFICATION_SHA||process.env.GITHUB_SHA||'local',packageVersion:pkg.version,dependencyFingerprint:sha256(lock),migrationFingerprint,generatedAt:new Date().toISOString()};
 const out=path.join(root,'release-manifest.json');
 fs.writeFileSync(out,JSON.stringify(manifest,null,2)+'\n');
 console.log(JSON.stringify(manifest));

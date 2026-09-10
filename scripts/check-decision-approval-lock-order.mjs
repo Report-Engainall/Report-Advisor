@@ -51,7 +51,7 @@ const weakenedRequestApproval = request.slice(0, reqApprovalLock) + request.slic
 assert.throws(() => {
   const body = weakenedRequestApproval;
   const approvalLock = pos(body, 'for update', reqApproval + 1);
-  if (approvalLock >= 0) throw new Error('request approval lock missing');
+  if (approvalLock < 0) throw new Error('request approval lock missing');
 }, /request approval lock missing/);
 
 const weakenedDecide = decide.replace(/for update/i, '');
