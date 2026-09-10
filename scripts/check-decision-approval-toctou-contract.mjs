@@ -61,16 +61,19 @@ const canonicalDecisionLockMatch = canonicalBody
   .match(/and d\.company_id = v_company\s+for update/i);
 if (!canonicalDecisionLockMatch) throw new Error('Missing canonical decision lock fixture target');
 const noDecisionLock = replaceLatestFunctionBody(sql, 'request_decision_approval', body => {
-  const weakened = body.replace(canonicalDecisionLockMatch[0], canonicalDecisionLockMatch[0].replace(/\s+for update$/i, ''));
+  const lockMatch = body.match(/and d\.company_id = v_company\s+for update/i);
+  if (!lockMatch) throw new Error('Adversarial decision-lock mutation target missing in local body');
+  const weakened = body.slice(0, lockMatch.index) + lockMatch[0].replace(/\s+for update$/i, '') + body.slice(lockMatch.index + lockMatch[0].length);
   if (weakened === body) throw new Error('Adversarial decision-lock mutation did not apply');
   return weakened;
 });
 assert.throws(() => validateDecisionApprovalToctou(noDecisionLock), /Decision row is not locked/);
-const canonicalGate = canonicalBody.indexOf("v_decision_status is distinct from 'PROPOSED'");
 const gateBeforeLock = replaceLatestFunctionBody(sql, 'request_decision_approval', body => {
-  const decisionLock = body.indexOf('for update', canonicalDecisionSelect);
-  if (decisionLock < 0 || canonicalGate < 0) throw new Error('Missing canonical gate/lock fixture targets');
-  const withoutLock = body.slice(0, decisionLock) + body.slice(decisionLock + 'for update'.length);
+  const lockMatch = body.match(/and d\.company_id = v_company\s+for update/i);
+  const gateIndex = body.indexOf("v_decision_status is distinct from 'PROPOSED'");
+  if (!lockMatch || gateIndex < 0) throw new Error('Missing canonical gate/lock fixture targets');
+  const decisionLockStart = lockMatch.index + lockMatch[0].length - 'for update'.length;
+  const withoutLock = body.slice(0, decisionLockStart) + body.slice(decisionLockStart + 'for update'.length);
   const gateInWeak = withoutLock.indexOf("v_decision_status is distinct from 'PROPOSED'");
   return withoutLock.slice(0, gateInWeak) + 'for update\n    ' + withoutLock.slice(gateInWeak);
 });
