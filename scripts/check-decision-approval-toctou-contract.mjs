@@ -27,8 +27,9 @@ export function validateDecisionApprovalToctou(source) {
   // Bind the lock specifically to the authoritative decision SELECT. Searching
   // for any later FOR UPDATE would let the approval-row lock mask a missing
   // decision lock in the adversarial fixture.
-  const decisionLockClause = 'and d.company_id = v_company\\n  for update';
-  const decisionLock = body.indexOf(decisionLockClause, decisionSelect);
+  const decisionQuery = body.slice(decisionSelect, decisionGate < 0 ? body.length : decisionGate);
+  const decisionLockMatch = decisionQuery.match(/and d\.company_id = v_company\s+for update/i);
+  const decisionLock = decisionLockMatch ? decisionSelect + decisionQuery.indexOf(decisionLockMatch[0]) : -1;
   const approvalSelect = body.indexOf('from public.decision_approvals');
   const terminalGuard = body.indexOf("v_existing_status in ('APPROVED','REJECTED','CANCELLED')");
   if (decisionSelect < 0 || decisionLock < decisionSelect) throw new Error('Decision row is not locked before approvability check');
