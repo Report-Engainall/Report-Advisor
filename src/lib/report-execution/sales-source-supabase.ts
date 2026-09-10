@@ -1,5 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { SalesSourceQuery, SalesSourceRow } from './sales-source-adapter';
+import { resolveCurrentCompanyId } from '../supabase';
 
 interface InvoiceRecord {
   id: string;
@@ -48,10 +49,18 @@ function businessSortKey(item: SaleItemRecord): string {
 /** Supabase-backed source reader; RLS remains the database authorization boundary. */
 export function createSupabaseSalesSourceQuery(client: SupabaseClient): SalesSourceQuery {
   return async ({ tenantId, from, to, excludedStatuses }) => {
+    const authoritativeCompanyId = await resolveCurrentCompanyId();
+    if (!authoritativeCompanyId) {
+      throw new Error('SALES_SOURCE_TENANT_CONTEXT_UNRESOLVED');
+    }
+    if (tenantId !== authoritativeCompanyId) {
+      throw new Error('SALES_SOURCE_TENANT_CONTEXT_MISMATCH');
+    }
+
     const invoiceQuery = client
       .from('sales_invoices')
       .select('id,invoice_number,invoice_date,status,currency,customer_id')
-      .eq('company_id', tenantId)
+      .eq('company_id', authoritativeCompanyId)
       .gte('invoice_date', from)
       .lte('invoice_date', to);
 
@@ -69,7 +78,7 @@ export function createSupabaseSalesSourceQuery(client: SupabaseClient): SalesSou
     const { data: items, error: itemError } = await client
       .from('sale_items')
       .select('id,invoice_id,product_id,description,quantity,unit_price,discount_amount,tax_amount,line_total,cost_price')
-      .eq('company_id', tenantId)
+      .eq('company_id', authoritativeCompanyId)
       .in('invoice_id', invoiceIds);
     if (itemError) throw new Error(`SALES_SOURCE_ITEMS_QUERY_FAILED:${itemError.message}`);
 
@@ -78,10 +87,10 @@ export function createSupabaseSalesSourceQuery(client: SupabaseClient): SalesSou
 
     const [customerResult, productResult] = await Promise.all([
       customerIds.length
-        ? client.from('customers').select('id,code,name').eq('company_id', tenantId).in('id', customerIds)
+        ? client.from('customers').select('id,code,name').eq('company_id', authoritativeCompanyId).in('id', customerIds)
         : Promise.resolve({ data: [], error: null }),
       productIds.length
-        ? client.from('products').select('id,sku,name').eq('company_id', tenantId).in('id', productIds)
+        ? client.from('products').select('id,sku,name').eq('company_id', authoritativeCompanyId).in('id', productIds)
         : Promise.resolve({ data: [], error: null }),
     ]);
     if (customerResult.error) throw new Error(`SALES_SOURCE_CUSTOMERS_QUERY_FAILED:${customerResult.error.message}`);
