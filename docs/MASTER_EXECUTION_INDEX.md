@@ -5,9 +5,9 @@
 > Authoritative execution manifest. This document never promotes historical evidence across an exact Git `HEAD` boundary. Pair every evidence batch with the exact Git `HEAD` of `main` and the exact environment/commit used.
 
 ### CURRENT EXACT HEAD
-- Current code/test candidate: `a84a190e5501b4498b56c395a346e8b7e6b61a7b`.
-- This candidate contains the bounded test-only correction in `scripts/check-decision-work-outcome-terminal.mjs`, adding an explicit `TENANT` diagnostic assertion message so the adversarial test verifies the intended cross-tenant denial path.
-- The correction does not weaken or alter Production SQL, tenant/RLS logic, Certification Boundary guard, or runtime implementation.
+- Current code/test candidate: `9bcbff347bd141f62486802106306f8edddde126`.
+- This candidate is the verified merge commit for PR #462 (`fix: close current-head build blockers for live closure`).
+- The merge contains the bounded current-head build/OCR test repairs and workflow checkout/release-manifest corrections; no certification or runtime PASS is implied by the merge itself.
 - Historical evidence from earlier SHAs remains historical and is not promoted automatically.
 - This index update is governance-only; it does not certify runtime, browser, tenant A/B, import, OCR, recovery, backup/restore, performance, or LIVE state.
 
@@ -99,11 +99,11 @@
 - This is an operational gate, not a reason to fabricate a PASS from source inspection.
 
 ### CI / Execution Infrastructure
-- Fresh exact-head workflow runs across the repository continue to fail at the execution layer with jobs reporting `steps=[]`, `runner_id=0`, and empty runner name.
-- Example current PR #398 run `101824133529` for `Report Execution Input Contract` completed as failure with no executed steps and no runner identity.
-- The same pattern is present across quality, OCR, security, import, certification, Windows, and other workflows.
-- This is currently classified as CI execution infrastructure failure, not as evidence that the underlying product tests failed.
-- Workflows are not weakened with bypasses to turn infrastructure failure into PASS.
+- Historical CI infrastructure failures with `steps=[]`, `runner_id=0`, and empty runner identity are retained as historical evidence only; they are no longer the sole current CI state.
+- On the merged candidate `9bcbff347bd141f62486802106306f8edddde126`, the Windows desktop workflow executed 23 real steps including checkout, Node setup, `npm ci`, web build, native watcher contract, native runtime smoke, Windows installer build, and installer upload.
+- Final Certification Gate run `2912` executed real checkout/Node/npm/release-manifest steps but failed closed at `Verify certification boundary integrity` because the Master Index still indexed the older candidate `a84a190e5501b4498b56c395a346e8b7e6b61a7b` while `main` was `9bcbff347bd141f62486802106306f8edddde126`.
+- That failure is an exact-head governance mismatch, not a product-test failure; no downstream certification suites were allowed to execute.
+- Workflows are not weakened with bypasses to turn infrastructure or boundary failure into PASS.
 
 ## ACTIVE EXECUTION FRONTS
 - #399 — fresh migration replay and schema parity certification.
@@ -143,18 +143,18 @@
 6. Real Arabic document/OCR golden-corpus runtime proof.
 7. Real backup/restore/rollback operational drill.
 8. Current-head measurable performance evidence.
-9. CI execution infrastructure must produce actual steps/logs before CI gates can be called PASS.
+9. Fresh exact-head CI/certification must execute the actual certification suites and finish green before CI gates can be called PASS.
 10. Final exact-head certification after all above evidence is bound to the same candidate.
 
 ### HONEST COMPLETION SCORE
-- **Engineering/source readiness: ~94%** — strong contracts, security, import/worker architecture, regression coverage and governance; remaining source-level defects are being closed through bounded PRs.
-- **Operational/certification readiness: ~72%** — substantial DB and contract evidence exists, but several required live lifecycle proofs are still missing.
-- **Overall product completion for first sale: ~86%**.
+- **Engineering/source readiness: ~95%** — strong contracts, security, import/worker architecture, regression coverage and governance; the current-head build/OCR blockers are merged, while several runtime proofs remain open.
+- **Operational/certification readiness: ~75%** — DB and contract evidence is substantial and CI execution mechanics are now partly proven, but required live lifecycle proofs are still missing.
+- **Overall product completion for first sale: ~87–88%**.
 
 > The overall score is intentionally lower than source readiness because the release standard is not “the code looks complete”; it is “the exact candidate has been exercised and evidenced in the real runtime, tenant boundary, recovery, and production-readiness gates.”
 
 ### RELEASE DECISION
-**NOT READY FOR FIRST SALE YET.**
+**NOT CERTIFIED / NOT READY FOR FIRST SALE YET.**
 
 This is not a rebuild situation. The remaining work is concentrated closure: execute the real operational proofs, repair only newly demonstrated defects, bind all evidence to one exact candidate, then run the final certification boundary. No known blocker justifies returning to the beginning.
 
@@ -215,7 +215,7 @@ This is not a rebuild situation. The remaining work is concentrated closure: exe
 - Exact candidate under the next certification boundary: `bacd51c78a491d5fc0cdc24117ecec25c75cecad`.
 - This governance update binds the Master Index to the exact candidate containing the bounded TOCTOU Test-of-Test repair; the validator now binds the decision `FOR UPDATE` specifically to the authoritative decision query and includes adversarial removal/reordering checks.
 - No production SQL or Certification Boundary guard was changed by this repair.
-- The preceding exact-head cycle stopped at the stale-index Boundary by design; therefore no TOCTOU PASS is promoted by this governance update.
+- The preceding exact-head cycle stopped at the stale-index Boundary by design; therefore no TOCTOU PASS is promoted by this governance rebind.
 - Fresh exact-head Certification is mandatory to prove the TOCTOU contract itself and then the complete Certification chain.
 - Release remains **NOT CERTIFIED / NOT LIVE** until the exact-head contract evidence and all separate operational/runtime evidence are satisfied.
 
@@ -223,7 +223,7 @@ This is not a rebuild situation. The remaining work is concentrated closure: exe
 - Exact candidate under the next certification boundary: `14f9e6e8ae179a87b38ad036ab25f936bea1dd52`.
 - This governance-only update binds the Master Index to the latest bounded TOCTOU fixture correction.
 - The correction is test-only: it targets the latest canonical `request_decision_approval` body and removes/reorders the decision-row `FOR UPDATE` lock in adversarial fixtures so the validator must detect the intended TOCTOU weakness rather than being masked by a later approval-row lock.
-- No production SQL, Certification Boundary guard, or unrelated runtime surface was changed by this correction.
+- No production SQL, Certification Boundary guard, or unrelated production surface was changed by this correction.
 - The preceding exact-head Certification cycle on `14f9e6e...` stopped at the stale-index Boundary before executing the TOCTOU contract; therefore **no TOCTOU PASS is promoted by this rebind**.
 - Required next action: fresh exact-head Certification from this governance boundary, with explicit evidence of `Decision approval TOCTOU contract: PASS` and its adversarial Test-of-Test before any certification claim.
 - Release remains **NOT CERTIFIED / NOT LIVE** until the fresh exact-head certification chain and all separate operational/runtime evidence are satisfied.
@@ -262,4 +262,13 @@ This is not a rebuild situation. The remaining work is concentrated closure: exe
 - The preceding exact-head Certification cycle reached the terminal tenant assertion and exposed a test-of-test diagnostic mismatch; no Tenant Isolation regression is inferred or promoted.
 - This governance update binds the Master Index to the exact current candidate and promotes no historical CI/runtime evidence.
 - Required next action: fresh exact-head Certification from this governance boundary.
+- Release remains **NOT CERTIFIED / NOT LIVE**.
+
+## GOVERNANCE LOG — 2026-09-10 — MERGED PR #462 REBIND
+- Verified `main` exact HEAD before this governance-only commit: `9bcbff347bd141f62486802106306f8edddde126`.
+- PR #462 was merged into `main` as `9bcbff347bd141f62486802106306f8edddde126`; its merge parents are `a30d4f84e2828dd83979d0a22b9218712613b5bc` and `f57800283a8c730dc38f7ba29db2edecb2f48ee2`.
+- The Master Index was previously stale at `a84a190e5501b4498b56c395a346e8b7e6b61a7b`, causing Final Certification Gate run `2912` to fail closed at the boundary. This update corrects the source-of-truth binding without weakening the boundary.
+- Fresh Windows CI evidence on `9bcbff...` executed real workflow steps; this disproves the earlier blanket characterization that current workflows universally have zero executed steps. It does not by itself certify all CI gates.
+- Because this commit changes only `docs/MASTER_EXECUTION_INDEX.md`, the certification boundary permits the indexed `9bcbff...` candidate to remain the certification target while this governance commit becomes the actual `main` HEAD.
+- Required next action: fresh exact-head Certification Gate on this governance commit, which must prove boundary PASS and then execute the actual certification suites; separately continue P0 authenticated Actor A/B browser proof and P1 real import/report-trigger/recovery evidence.
 - Release remains **NOT CERTIFIED / NOT LIVE**.
