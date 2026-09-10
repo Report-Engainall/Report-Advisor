@@ -21,6 +21,12 @@ function hex(buffer: ArrayBuffer): string {
   return [...new Uint8Array(buffer)].map((value) => value.toString(16).padStart(2, '0')).join('');
 }
 
+async function digest(value: unknown): Promise<string> {
+  const payload = JSON.stringify(canonicalize(value));
+  const hash = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(payload));
+  return `sha256:${hex(hash)}`;
+}
+
 /** SHA-256 over scope identity plus deterministically ordered authoritative rows. */
 export async function fingerprintReportSource(scope: ReportExecutionScope, rows: Array<Record<string, unknown>>): Promise<string> {
   if (!scope.tenantId || !scope.dataset || !scope.from || !scope.to || !scope.asOf || !scope.statusPolicy) {
@@ -28,7 +34,11 @@ export async function fingerprintReportSource(scope: ReportExecutionScope, rows:
   }
   if (!Array.isArray(rows)) throw new Error('REPORT_SOURCE_ROWS_INVALID');
   const canonicalRows = rows.map(canonicalize).sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b)));
-  const payload = JSON.stringify(canonicalize({ scope, rows: canonicalRows }));
-  const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(payload));
-  return `sha256:${hex(digest)}`;
+  return digest({ scope, rows: canonicalRows });
+}
+
+/** Stable row fingerprint for RowVersion hashing; intentionally independent of report scope. */
+export async function fingerprintReportRow(row: Record<string, unknown>): Promise<string> {
+  if (!row || typeof row !== 'object' || Array.isArray(row)) throw new Error('REPORT_SOURCE_ROW_INVALID');
+  return digest(row);
 }
