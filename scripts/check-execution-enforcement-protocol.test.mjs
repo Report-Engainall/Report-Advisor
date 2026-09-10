@@ -18,21 +18,25 @@ const mustReject = [
   ['index closure decoy', `${protocol}\nindex update counts as execution closure`],
 ];
 
-for (const [name, candidate] of mustReject) assert.throws(() => validateExecutionEnforcementProtocol(candidate), undefined, name);
+for (const [name, candidate] of mustReject) {
+  assert.throws(() => validateExecutionEnforcementProtocol(candidate), name);
+}
+
+const indexBoundaryError = /INDEX (?:DRIFT|BOUNDARY NOT ANCESTOR)/;
 
 const validIndex = `## CURRENT PROJECT STATE\n- Exact code/test head entering this sweep: \`aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\`.\n- E-INDEX-HEAD: INDEX DRIFT is forbidden before TRUE STOP.`;
 assert.equal(validateCurrentHeadIndex(validIndex, 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'), true);
-assert.throws(() => validateCurrentHeadIndex(validIndex, 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'), /INDEX (?:DRIFT|BOUNDARY NOT ANCESTOR)/);
+assert.throws(() => validateCurrentHeadIndex(validIndex, 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'), indexBoundaryError);
 
 const boldCandidateIndex = `## CURRENT EXECUTION BOUNDARY\n- **CURRENT CODE/TEST CANDIDATE:** \`aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\`.`;
 assert.equal(validateCurrentHeadIndex(boldCandidateIndex, 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'), true);
 
 const indexOnlyBoundary = `## CURRENT PROJECT STATE\n- Current repository index boundary head: \`aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\`.\n- Current code/test candidate: \`bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\`.`;
 assert.equal(validateCurrentHeadIndex(indexOnlyBoundary, 'cccccccccccccccccccccccccccccccccccccccc', 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', ['docs/MASTER_EXECUTION_INDEX.md']), true);
-assert.throws(() => validateCurrentHeadIndex(indexOnlyBoundary, 'cccccccccccccccccccccccccccccccccccccccc', 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', ['docs/MASTER_EXECUTION_INDEX.md', 'src/app.tsx']), /INDEX (?:DRIFT|BOUNDARY NOT ANCESTOR)/);
+assert.throws(() => validateCurrentHeadIndex(indexOnlyBoundary, 'cccccccccccccccccccccccccccccccccccccccc', 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', ['docs/MASTER_EXECUTION_INDEX.md', 'src/app.tsx']), indexBoundaryError);
 
 const enforcementOnlyBoundary = `## CURRENT PROJECT STATE\n- Exact code/test head entering this sweep: \`aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\`.`;
 assert.equal(validateCurrentHeadIndex(enforcementOnlyBoundary, 'cccccccccccccccccccccccccccccccccccccccc', 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', ['scripts/check-execution-enforcement-protocol.mjs', 'scripts/check-execution-enforcement-protocol.test.mjs']), true);
-assert.throws(() => validateCurrentHeadIndex(enforcementOnlyBoundary, 'cccccccccccccccccccccccccccccccccccccccc', 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', ['scripts/check-execution-enforcement-protocol.mjs', 'src/app.tsx']), /INDEX (?:DRIFT|BOUNDARY NOT ANCESTOR)/);
+assert.throws(() => validateCurrentHeadIndex(enforcementOnlyBoundary, 'cccccccccccccccccccccccccccccccccccccccc', 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', ['scripts/check-execution-enforcement-protocol.mjs', 'src/app.tsx']), indexBoundaryError);
 
-console.log('PASS v3.4 enforcement adversarial test-of-test (including markdown-emphasized candidate parsing)');
+console.log('PASS v3.5 enforcement adversarial test-of-test (explicit index-boundary rejection contract)');
