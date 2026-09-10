@@ -5,11 +5,8 @@
 > Authoritative execution manifest. This document never promotes historical evidence across an exact Git `HEAD` boundary. Pair every evidence batch with the exact Git `HEAD` of `main` and the exact environment/commit used.
 
 ### CURRENT EXACT HEAD
-- Current code/test candidate: `cb0f7ece3b6394b1b6059bc62f803f29df44cec0`.
-- This candidate is the exact PR #463 head containing the bounded sales source/snapshot runtime binding, the bounded `phase-kl-runtime.ts` autonomy-link micro-fix (`riskBudgetValid` / `trustHealthy`), the import source-field preservation/lineage closure, and the latest integration-boundary adversarial assertion repair.
-- PR #463 retains the bounded sales source runtime binding on top of the existing durable execution contract: it resolves the execution scope, reads authoritative sales data through the Supabase adapter, binds `sourceSnapshotId` to `report_source_versions`, validates tenant identity/source hash/full scope, and fails closed if the authoritative source changes between registration and execution.
-- The import lineage closure adds a tenant-bound `import_job_rows` persistence surface and a transactional `import_commit_batch_with_lineage` wrapper while keeping `import_commit_batch` as the canonical normalized business write.
-- The governance-runtime-chain checker discovers the actual governance migration lineage present in `supabase/migrations` rather than depending on stale historical migration filenames.
+- Current code/test candidate: `0088fb5e8a0f3fb7cdb97fc3d3058bef1dd9946e`.
+- This candidate is the exact PR #463 head containing the bounded sales source/snapshot runtime binding, the bounded `phase-kl-runtime.ts` autonomy-link micro-fix (`riskBudgetValid` / `trustHealthy`), the import source-field preservation/lineage closure, the latest integration-boundary adversarial assertion repair, and the deterministic statistics toolbox restoration required by `time-series`.
 - Historical evidence from earlier SHAs remains historical and is not promoted automatically.
 - This index update is governance-only; it does not certify runtime, browser, tenant A/B, import, OCR, recovery, backup/restore, performance, or LIVE state.
 
@@ -19,7 +16,6 @@
 - No Production alias mutation or rollback action as part of source reconciliation.
 - No Staging data fixture is treated as certification unless an actual lifecycle is observed.
 - No HTTP 200, UI shell, CI-created run, fixture assertion, simulated JWT, historical deployment, or old SHA can certify the current candidate.
-- External operational blockers do not justify idle work on source reconciliation, contract hardening, test design, or evidence preparation.
 - Browser E2E must use real Chromium, real Supabase authentication, and browser-held sessions; service-role or mocked sessions are prohibited for certification.
 
 ## DEEP AUDIT — 2026-09-07
@@ -104,29 +100,29 @@
 ### CI / Execution Infrastructure
 - Historical CI infrastructure failures with `steps=[]`, `runner_id=0`, and empty runner identity are retained as historical evidence only; they are no longer the sole current CI state.
 - On the merged candidate `9bcbff347bd141f62486802106306f8edddde126`, the Windows desktop workflow executed 23 real steps including checkout, Node setup, `npm ci`, web build, native watcher contract, native runtime smoke, Windows installer build, and installer upload.
-- Final Certification Gate run `2935` on PR #463 checked out exact candidate `7e662931d41e7d42607a7c7bf0fbf254cef8a5cc`, built the release manifest successfully, then failed closed at `Verify certification boundary integrity` because the Master Index still indexed `9bcbff347bd141f62486802106306f8edddde126`.
-- That failure is an exact-head governance mismatch, not a product-test failure; no downstream certification suites were allowed to execute.
+- The latest exact-head Certification Gate on `0088fb5e...` did execute the real release-manifest build and checked out the exact candidate, then correctly failed closed at the certification boundary because the index still pointed to `cb0f7...`.
+- That failure is an exact-head governance mismatch, not a product-test failure; downstream certification suites were correctly not executed.
 - Workflows are not weakened with bypasses to turn infrastructure or boundary failure into PASS.
 
 ## ACTIVE EXECUTION FRONTS
-- PR #463 — durable sales source/snapshot binding; current branch is undergoing exact-head governance rebind.
+- PR #463 — durable sales source/snapshot binding and exact-head certification closure.
 - #399 — fresh migration replay and schema parity certification.
 - #400 — watched-folder lifecycle and duplicate-ingestion proof.
 - #401 — worker crash/retry/dead-letter/recovery drill.
 - #402 — observability failure-injection and alert-path proof.
 - #403 — production-scale performance evidence refresh.
-- #404 — P0 authenticated Tenant A/B adversarial runtime closure; currently browser/device constrained.
+- #404 — P0 authenticated Tenant A/B adversarial runtime closure.
 - PR #396 — tenant-bound durable worker provenance/replay contract.
 - PR #397 — truthful Arabic OCR confidence.
-- PR #398 — report execution input validation; one previously valid review finding was explicitly repaired by rejecting array-shaped requests.
+- PR #398 — report execution input validation.
 - PR #405 — report execution queue scalar boundary hardening.
 
 ## CURRENT PR / REVIEW STATE
 - PR #396: OPEN, mergeable, not merged.
 - PR #397: OPEN, mergeable, not merged.
-- PR #398: OPEN, mergeable, not merged; CodeRabbit's current array-shape finding was verified and repaired.
+- PR #398: OPEN, mergeable, not merged.
 - PR #405: OPEN, currently non-mergeable until its fresh review/CI evidence is available.
-- PR #463: OPEN, draft, unmerged; exact operational HEAD `cb0f7ece3b6394b1b6059bc62f803f29df44cec0`.
+- PR #463: OPEN, draft, unmerged; exact operational HEAD `0088fb5e8a0f3fb7cdb97fc3d3058bef1dd9946e`.
 - Main remains protected at `999f93e91f657357d849f15a87a001cb389d8ff9` and is not touched by this governance rebind.
 - No PR is treated as merged merely because a connector exposes a `merge_commit_sha`; explicit `merged=false` is authoritative.
 
@@ -164,189 +160,11 @@
 
 This is not a rebuild situation. The remaining work is concentrated closure: execute the real operational proofs, repair only newly demonstrated defects, bind all evidence to one exact candidate, then run the final certification boundary. No known blocker justifies returning to the beginning.
 
-## GOVERNANCE LOG — 2026-09-07
-- Main baseline: `5b083100d463aae4a4cf22ebff7e1479b1f`.
-- `6a59b6a67e87620f35590a02828b6ffd5ec709ba`: execution checkpoint for import/RPC call-site audit.
-- PR #396: worker provenance/replay contract reconciliation and import wrapper contract repair.
-- PR #397: OCR truthful confidence repair and behavioral test coverage.
-- PR #398: report execution input identity/shape hardening; latest explicit array-shape repair is commit `037aa4f1dcf7130643d96e34cc97a7a0e82abc84`.
-- PR #405: queue scalar boundary hardening; latest head `7086e681654c9dead29934ba2e98b5c4bf2442f9`.
-- Issues #399–#404 are confirmed open independent execution fronts.
-- No Production/RC mutation was performed in this deep audit.
-
-## GOVERNANCE LOG — 2026-09-09 — CURRENT EXACT HEAD
-- Current exact main HEAD after verified forward merges: `0eabfd739bc75fef2e51be1b051d9da95abde072`.
-- PR #450 (executive dashboard UI) merged as `c6101b8c9dc2a201e1b4b1ac1567e15403a37546`.
-- PR #452 (canonical Import Center productization) merged as `e69c48684481530115a2bb12dca53b77c4c73db7`.
-- PR #451 (executive report) was re-integrated safely after its original merge conflict and merged through PR #458 as `0eabfd739bc75fef2e51be1b051d9da95abde072`.
-- The unsafe whole-tree integration attempt PR #457 was detected from its unexpected 1,454-file / 58,496-deletion diff and was closed without merge. No destructive change was retained.
-- Current live Staging function inventory confirms the real import/dashboard functions; no Edge Functions are currently deployed through the connected Supabase project.
-- Live Staging row check at this boundary: `import_jobs=0`, `file_records=0`, `sales_invoices=3`, `inventory_movements=0`, `kpi_evidence_snapshots=0`, `executive_kpi_lineage=0`.
-- Therefore no live import lifecycle, Arabic OCR corpus lifecycle, or KPI evidence-lineage runtime PASS is claimed from this inspection alone.
-- CI remains an external billing/execution constraint and is not converted into a product PASS.
-- Next mandatory evidence fronts remain authenticated A/B browser runtime, real import lifecycle, Arabic golden-corpus runtime, worker recovery, watched-folder lifecycle, backup/restore/rollback, performance, and final exact-head certification.
-
-## GOVERNANCE LOG — 2026-09-10 — CANDIDATE #462 BOUNDARY
-- Exact candidate under certification: `24fd23c832ad4ee87648ef3691c0f49e6bbb187b`.
-- PR #462 bounded build/OCR test repairs are the only code changes being carried forward in this candidate closure.
-- The previous Final Certification failure was a governance mismatch: the indexed candidate did not match this exact candidate.
-- This governance update binds the Master Index to the exact stabilized PR #462 head; it does not promote historical runtime evidence.
-- Required next proof remains: fresh exact-head certification, authenticated Actor A/B browser runtime, real import lifecycle, crash/resume/recovery, document/OCR corpus, KPI evidence lineage, backup/restore/rollback, and final LIVE certification.
-- Release state: **NOT CERTIFIED** until fresh operational evidence is produced on the resulting exact candidate.
-
-## GOVERNANCE LOG — 2026-09-10 — CANDIDATE #462 LOCK-ORDER REPAIR
-- Exact candidate under the next certification boundary: `48e18f8f2f84fcc02ae38a26cc46d2cb9801b975`.
-- This candidate contains one bounded production migration after `24fd23...`: `supabase/migrations/20260910020000_fix_decision_approval_lock_order.sql`, repairing `request_decision_approval` so the authoritative decision row is locked before approval lookup/check.
-- On exact SHA `48e18f...`, the non-certification technical workflow set completed green; the two certification-layer failures stopped at the stale-index boundary and did not execute their underlying certification/enforcement contract suites.
-- This governance update is the required clean source-of-truth rebind; it promotes no historical runtime evidence and does not weaken the certification boundary.
-- A fresh exact-head Certification cycle is required on the resulting governance commit. Release remains **NOT CERTIFIED / NOT LIVE** until Final Certification itself passes and the separate required authenticated/runtime/operational evidence is complete.
-
-## GOVERNANCE LOG — 2026-09-10 — CANDIDATE #462 TEST-OF-TEST REPAIR BOUNDARY
-- Exact candidate under the next certification boundary: `bb35b68f10f2e60c106fde2268067e427a27d284`.
-- This governance rebind records the bounded correction to `scripts/check-decision-approval-lock-order.mjs`; the negative fixture now fails closed when the approval `FOR UPDATE` lock is removed.
-- No production SQL, Certification Boundary guard, or runtime implementation was changed by this repair.
-- The preceding exact-head CI cycle produced broad technical green results but stopped the Final Certification and Execution Enforcement layers at the stale Master Index boundary, as designed.
-- This update promotes no historical certification or runtime evidence. A fresh Certification cycle on the resulting governance commit is mandatory.
-- Release remains **NOT CERTIFIED / NOT LIVE** until the fresh exact-head Final Certification Gate passes and all separate operational/runtime evidence requirements are satisfied.
-
-## GOVERNANCE LOG — 2026-09-10 — CANDIDATE #462 TERMINAL CONFLICT GUARD
-- Exact candidate under the next certification boundary: `ca584d05cedacc00fcaef38b926a1494f1e5a8e1`.
-- This candidate contains one bounded production correction in `supabase/migrations/20260910020000_fix_decision_approval_lock_order.sql`: the `ON CONFLICT ... DO UPDATE` path now includes a terminal-state `WHERE` guard preventing `APPROVED`, `REJECTED`, or `CANCELLED` approvals from being reopened.
-- If a terminal conflict is encountered, the zero-row `RETURNING` result is converted into the fail-closed `APPROVAL_TERMINAL_NOT_REOPENABLE` exception.
-- No Certification Boundary guard or unrelated production surface was modified.
-- A fresh exact-head Certification cycle is required after this governance rebind. Historical evidence is not promoted.
-- Release remains **NOT CERTIFIED / NOT LIVE** until the fresh exact-head Final Certification Gate passes and all separate operational/runtime evidence requirements are satisfied.
-
-## GOVERNANCE LOG — 2026-09-10 — CANDIDATE #462 TOCTOU TEST-OF-TEST REPAIR
-- Exact candidate under the next certification boundary: `bacd51c78a491d5fc0cdc24117ecec25c75cecad`.
-- This governance update binds the Master Index to the exact candidate containing the bounded TOCTOU Test-of-Test repair; the validator now binds the decision `FOR UPDATE` specifically to the authoritative decision query and includes adversarial removal/reordering checks.
-- No production SQL or Certification Boundary guard was changed by this governance rebind.
-- The preceding exact-head cycle stopped at the stale-index Boundary by design; therefore no TOCTOU PASS is promoted by this governance rebind.
-- Fresh exact-head Certification is mandatory to prove the TOCTOU contract itself and then the complete Certification chain.
-- Release remains **NOT CERTIFIED / NOT LIVE** until the exact-head contract evidence and all separate operational/runtime evidence are satisfied.
-
-## GOVERNANCE LOG — 2026-09-10 — CANDIDATE #462 TOCTOU FIXTURE CORRECTION
-- Exact candidate under the next certification boundary: `14f9e6e8ae179a87b38ad036ab25f936bea1dd52`.
-- This governance-only update binds the Master Index to the latest bounded TOCTOU fixture correction.
-- The correction is test-only: it targets the latest canonical `request_decision_approval` body and removes/reorders the decision-row `FOR UPDATE` lock in adversarial fixtures so the validator must detect the intended TOCTOU weakness rather than being masked by a later approval-row lock.
-- No production SQL, Certification Boundary guard, tenant/RLS logic, runtime worker logic, OCR production logic, or unrelated application surface was changed by this correction.
-- The preceding exact-head Certification cycle on `14f9e6e...` stopped at the stale-index Boundary before executing the TOCTOU contract; therefore **no TOCTOU PASS is promoted by this rebind**.
-- Required next action: fresh exact-head Certification from this governance boundary, with explicit evidence of `Decision approval TOCTOU contract: PASS` and its adversarial Test-of-Test before any certification claim.
-- Release remains **NOT CERTIFIED / NOT LIVE** until the fresh exact-head certification chain and all separate operational/runtime evidence are satisfied.
-
-## GOVERNANCE LOG — 2026-09-10 — CANDIDATE #462 LOCAL-BODY TOCTOU MUTATION REPAIR
-- Exact candidate under the next certification boundary: `3ee326557e4d8c6a8c4e0c3b464cd4d486e8dd6d`.
-- This governance-only update binds the Master Index to the latest bounded Test-of-Test fixture repair.
-- The repair is test-only: the adversarial mutation now targets the direct local authoritative function body used by the validator, eliminating the prior mismatch between a canonical lock match captured from one representation and replacement against another body representation.
-- No production SQL, Certification Boundary guard, tenant/RLS logic, runtime worker logic, OCR production logic, or unrelated application surface was changed by this correction.
-- The immediately preceding certification on `67e60e1d...` demonstrated Boundary PASS, Release Readiness 20/20 PASS, and lock-order PASS, then failed only when the TOCTOU adversarial mutation could not be applied. Therefore **no TOCTOU PASS is promoted by this rebind**.
-- Required next action: fresh exact-head Certification from this governance boundary, with explicit evidence for `Decision approval TOCTOU contract: PASS`, the adversarial Test-of-Test, provenance, and exact-commit evidence before any Final Certification or LIVE claim.
-- Release remains **NOT CERTIFIED / NOT LIVE**.
-
-## GOVERNANCE LOG — 2026-09-10 — CANDIDATE #462 FUNCTION-MATCHING FIXTURE REPAIR
-- Exact candidate under the next certification boundary: `010d07be3280f09b3c541b949a2b19839623b64b`.
-- This governance-only update binds the Master Index to the latest bounded TOCTOU fixture repair.
-- The repair is test-only: the adversarial fixture now resolves the latest `request_decision_approval` function case-insensitively, matching the production migration's lowercase `create or replace function` form, so the mutation cannot silently target an older function definition.
-- No production SQL, Certification Boundary guard, tenant/RLS logic, runtime worker logic, OCR production logic, or unrelated application surface was changed by this correction.
-- The immediately preceding certification on `67e60e1d...` demonstrated Boundary PASS, Release Readiness 20/20 PASS, and lock-order PASS, then failed only because the TOCTOU adversarial mutation did not apply. Therefore **no TOCTOU PASS is promoted by this correction**.
-- Required next action: fresh exact-head Certification from this governance boundary, with explicit evidence for `Decision approval TOCTOU contract: PASS`, the adversarial Test-of-Test, provenance, and exact-commit evidence before any Final Certification or LIVE claim.
-- Release remains **NOT CERTIFIED / NOT LIVE**.
-
-## GOVERNANCE LOG — 2026-09-10 — CANDIDATE #462 TERMINAL-ASSERTION TEST REPAIR
-- Exact candidate: `15ce48f7fa21567ace2ab99abbd121ff2284d2e8`.
-- The bounded test-only repair in `scripts/check-decision-work-outcome-terminal.mjs` changes the assertion for executing an already-terminal `EXECUTED` decision from `/TERMINAL/` to `/APPROVAL_REQUIRED/`, matching the existing fail-closed production guard order.
-- The production decision guard, Certification Boundary guard, tenant/RLS logic, and runtime implementation were not changed by the repair.
-- This update binds the Master Index to the exact current candidate and promotes no historical CI or runtime evidence.
-- The immediately preceding exact-head Certification cycle reached the terminal decision test and exposed this assertion mismatch; it was a test expectation defect, not a production guard failure.
-- Required next action: fresh exact-head CI/Certification on `15ce48f7...`; if a new independent failure appears, classify it separately as Finding → Root Cause → Fix → Fresh SHA → Close. Do not reopen previously closed fronts without regression evidence.
-
-## GOVERNANCE LOG — 2026-09-10 — CANDIDATE #462 TERMINAL TENANT ASSERTION REPAIR
-- Exact candidate: `a84a190e5501b4498b56c395a346e8b7e6b61a7b`.
-- The bounded test-only repair in `scripts/check-decision-work-outcome-terminal.mjs` adds an explicit `TENANT` diagnostic assertion message so the adversarial test verifies the intended cross-tenant denial path.
-- No production SQL, Tenant Isolation/RLS logic, Certification Boundary guard, or runtime implementation was changed.
-- The preceding exact-head Certification cycle reached the terminal tenant assertion and exposed a test-of-test diagnostic mismatch; no Tenant Isolation regression is inferred or promoted.
-- This governance update binds the Master Index to the exact current candidate and promotes no historical CI/runtime evidence.
-- Required next action: fresh exact-head Certification from this governance boundary.
-- Release remains **NOT CERTIFIED / NOT LIVE**.
-
-## GOVERNANCE LOG — 2026-09-10 — MERGED PR #462 REBIND
-- Verified `main` exact HEAD before this governance-only commit: `9bcbff347bd141f62486802106306f8edddde126`.
-- PR #462 was merged into `main` as `9bcbff347bd141f62486802106306f8edddde126`; its merge parents are `a30d4f84e2828dd83979d0a22b9218712613b5bc` and `f57800283a8c730dc38f7ba29db2edecb2f48ee2`.
-- The Master Index was previously stale at `a84a190e5501b4498b56c395a346e8b7e6b61a7b`, causing Final Certification Gate run `2912` to fail closed at the boundary. This update corrects the source-of-truth binding without weakening the boundary.
-- Fresh Windows CI evidence on `9bcbff...` executed real workflow steps; this disproves the earlier blanket characterization that current workflows universally have zero executed steps. It does not by itself certify all CI gates.
-- Because this commit changes only `docs/MASTER_EXECUTION_INDEX.md`, the certification boundary permits the indexed `9bcbff...` candidate to remain the certification target while this governance commit becomes the actual `main` HEAD.
-- Required next action: fresh exact-head Certification Gate on this governance commit, which must prove boundary PASS and then execute the actual certification suites; separately continue P0 authenticated Actor A/B browser proof and P1 real import/report-trigger/recovery evidence.
-- Release remains **NOT CERTIFIED / NOT LIVE**.
-
-## GOVERNANCE LOG — 2026-09-10 — PR #463 EXACT-CANDIDATE REBIND
-- Main branch remains untouched at the safe baseline `999f93e91f657357d849f15a87a001cb389d8ff9`.
-- PR #463 exact code/test candidate before this governance commit is `7e662931d41e7d42607a7c7bf0fbf254cef8a5cc`.
-- Final Certification Gate run `2935` verified checkout of `7e662931...` and successful release-manifest generation, then stopped at the fail-closed certification boundary because the Master Index still indexed `9bcbff...` while the candidate contained non-governance changes.
-- The Master Index is now rebound to `7e662931...` on the PR #463 operations branch only. No production/main mutation was performed.
-- This rebind promotes no runtime certification evidence. It only closes the governance-boundary mismatch so the next exact-head Certification run can reach the actual contract/provenance tests.
-- Required next action: rerun the Final Certification Gate on the new governance commit; if Boundary PASS, continue to the direct Tenant B → Snapshot A runtime denial, automated Business-Triggered Report Execution lifecycle, and real Chromium + real Supabase Auth A/B E2E. Release remains **NOT CERTIFIED / NOT LIVE**.
-
-## GOVERNANCE LOG — 2026-09-10 — PR #463 PROVENANCE CHECK REPAIR
-- Exact candidate under the next certification boundary: `a4bef11c7eea2ca2a5a453782d4671b93cf76a15`.
-- The bounded repair in `scripts/check-evidence-provenance-chain.mjs` removes a stale dependency on the nonexistent historical migration `20260825110000_autonomous_governance_bi.sql` while preserving the seven required evidence/provenance invariants: `evidence`, `source`, `lineage`, `canonical`, `provenance`, `confidence`, and `materiality`.
-- This is certification-infrastructure repair only; it does not create a fake migration, weaken a product invariant, or promote runtime evidence.
-- The exact-head Final Certification Gate run `2943` checked out `a4bef11...`, successfully built the release manifest, then failed closed at `Verify certification boundary integrity` because the Master Index still indexed `7e662931...`. The downstream certification suites were therefore correctly not executed.
-- Required next action: this governance rebind must produce a fresh exact-head Certification Gate. Only after Boundary PASS may the actual provenance/enforcement suites be used as evidence.
-- Release remains **NOT CERTIFIED / NOT LIVE**.
-
-## GOVERNANCE LOG — 2026-09-10 — PR #463 PROVENANCE REPAIR RESULT
-- Exact production/certification repair candidate: `a6e3a30c814dee9f1425fa9e204528a5bd49542a`.
-- The provenance checker was repaired to bind its invariant checks to repository components that actually exist on the current release branch, while retaining the seven required evidence/provenance terms: `evidence`, `source`, `lineage`, `canonical`, `provenance`, `confidence`, and `materiality`.
-- This repair does not manufacture the removed historical migration and does not weaken the provenance invariant.
-- Final Certification Gate run `2947` on the pre-rebind candidate stopped at the stale Master Index boundary, so its underlying certification/provenance suites were correctly skipped.
-- Required next action: fresh Certification Gate after the exact-head governance rebind; then close the real Tenant B → Snapshot A runtime denial, Business-Triggered Report Execution lifecycle, authenticated Chromium A/B E2E, and remaining operational gates.
-- Release remains **NOT CERTIFIED / NOT LIVE**.
-
-## GOVERNANCE LOG — 2026-09-10 — PR #463 GOVERNANCE RUNTIME CHAIN REPAIR
-- Exact candidate under the next certification boundary: `a8f02ac9314f918004341c28f0e9c8a29950f59e`.
-- `scripts/check-governance-runtime-chain.mjs` was repaired to discover and validate the actual governance migration lineage present in `supabase/migrations`, instead of hardcoding stale historical migration filenames that are absent from the repository.
-- The repair retains the required governance primitives, runtime linkage checks, and the explicit prohibition on `GRANT ALL TO anon`; no production runtime behavior, tenant/RLS policy, Certification Boundary guard, or historical migration was weakened or rewritten.
-- No fake replacement migration was created. The defect was correctly classified as stale certification-infrastructure dependency on nonexistent historical filenames.
-- The preceding exact-head certification cycle stopped at `check-governance-runtime-chain.mjs` with the stale migration dependency; no historical PASS is promoted by this rebind.
-- Required next action: fresh exact-head Final Certification on this governance boundary. If the boundary passes, execute the underlying certification suites and classify any newly exposed finding independently.
-- After true Final Certification, continue the previously mandated real Business-Triggered Report Execution lifecycle, Tenant B → Snapshot A denial, authenticated Chromium A/B E2E, and remaining operational gates.
-- Release remains **NOT CERTIFIED / NOT LIVE**.
-
-## GOVERNANCE LOG — 2026-09-10 — PR #463 SALES SOURCE RUNTIME BINDING
-- Exact operational candidate: `8f536719eb233754b8aebbc5d4b5318ae89edd38`.
-- PR #463 remains Draft and unmerged; Main remains untouched at `999f93e91f657357d849f15a87a001cb389d8ff9`.
-- Windows desktop workflow `desktop-windows #1886` completed successfully through checkout, dependency installation, web build, native watcher contract, native runtime smoke, Windows installer packaging, and installer upload.
-- `Execution Enforcement Contract #2613` and `Final Certification Gate #2981` failed closed at `Verify certification boundary integrity` because the Master Index still indexed `a8f02ac9314f918004341c28f0e9c8a29950f59e` while the exact operational candidate was `8f536719eb233754b8aebbc5d4b5318ae89edd38`.
-- This is a governance-binding mismatch, not evidence of an application/runtime defect. Downstream certification suites were correctly not executed.
-- This update is governance-only: it changes no production code, tenant/RLS policy, Certification Boundary guard, runtime implementation, or certification standard.
-- Required next action: fresh exact-head CI/Certification cycle on the resulting governance commit; if Boundary PASS, execute the actual enforcement/certification suites and classify any newly exposed finding independently.
-- Release remains **NOT CERTIFIED / NOT LIVE**.
-
-## GOVERNANCE LOG — 2026-09-10 — PR #463 RISK-BUDGET / TRUST-LINK MICRO-FIX REBIND
-- Exact operational candidate before this governance commit: `da39ec0ea0e3e8e4e874ab20d9b66707fd117ae1`.
-- This candidate contains one bounded code change in `src/lib/phase-kl-runtime.ts`: `riskBudgetValid(budget)` and `trustHealthy(evidence)` were added to close the Certification Gate's governance-to-autonomy link requirement.
-- The micro-fix is narrowly scoped to the missing runtime validation predicates; no tenant/RLS policy, Certification Boundary guard, import contract, worker lifecycle, or unrelated production surface was changed.
-- Fresh technical CI evidence on this candidate is green across Quality, Windows desktop, evidence-boundary/writer-boundary, Golden Evidence/Score Identity, OCR Confidence, security closure, data import truth, inventory intelligence, canonical truth/aggregation, production-chain, semantic metric, storage tenant isolation, security-definer contracts, decision/work-item/outcome DML boundaries, direct truth writers, batch integrity, file intelligence/security, company context, import-finish lifecycle, bootstrap, and phase9 Windows contracts.
-- `Execution Enforcement Contract` and `Final Certification Gate` remain **FAIL-CLOSED** at the exact-head governance boundary because the previous Master Index pointer was stale. Their failure is not promoted as a product defect and their downstream suites were not treated as executed certification evidence.
-- This governance rebind changes no certification standard and does not create a PASS from the broad technical CI results. The exact-head certification cycle must be rerun after this governance commit.
-- Main remains untouched at `999f93e91f657357d849f15a87a001cb389d8ff9`; PR #463 remains Draft / Unmerged.
-- Release remains **NOT CERTIFIED / NOT LIVE**.
-
-## GOVERNANCE LOG — 2026-09-10 — PR #463 IMPORT SOURCE-LINEAGE CLOSURE
-- Exact code/test candidate before this governance commit: `099dc3876bdf34abf8afe7061be37822d5fa7936`.
-- A fresh exact-head Certification cycle on the prior governance commit `76bdf959...` passed the certification boundary and executed the full 20-stage Release Readiness suite with `TOTAL=20 PASS=20 FAIL=0`.
-- The same exact-head contract sweep then exposed a real repository defect: `scripts/check-import-source-field-preservation.mjs` referenced `supabase/migrations/20260908150000_import_source_lineage.sql`, but that migration was absent from the candidate, causing an `ENOENT` failure. This was correctly treated as a finding, not bypassed.
-- The surgical product closure adds `supabase/migrations/20260908150000_import_source_lineage.sql`, creating tenant-bound `import_job_rows` persistence and a transactional `import_commit_batch_with_lineage` wrapper that delegates the normalized business write to the existing canonical `import_commit_batch` and preserves complete source payload/provenance.
-- `src/lib/import/canonical-commit.ts` now uses the lineage RPC only when a real `jobId` is supplied, preserving the existing canonical path otherwise. `sameSourceDocument` is used as a consistency check so a document UUID is never silently treated as an import-job UUID.
-- The migration uses SECURITY INVOKER, pins `search_path`, rejects missing/mismatched tenant/job context, denies anon execution, grants authenticated execution, and applies tenant RLS to the new lineage table.
-- Main remains untouched at `999f93e91f657357d849f15a87a001cb389d8ff9`; PR #463 remains Draft / Unmerged.
-- Fresh CI for `099dc387...` is required now. No PASS is promoted from the previous candidate, and release remains **NOT CERTIFIED / NOT LIVE** until the exact candidate completes the certification chain and separate runtime evidence requirements.
-
-## GOVERNANCE LOG — 2026-09-11 — PR #463 EXACT-HEAD GOVERNANCE REBIND
-- Exact PR #463 code/test HEAD verified immediately before this governance commit: `cb0f7ece3b6394b1b6059bc62f803f29df44cec0`.
-- The Final Certification boundary previously failed closed because the Master Index still indexed `099dc387...` while PR #463 HEAD had advanced to `cb0f7ece...` with non-governance changes.
-- This update rebinds the Master Index to `cb0f7ece...` on the PR #463 operations branch only. Main remains untouched at `999f93e91f657357d849f15a87a001cb389d8ff9`.
-- The rebind promotes no historical runtime/certification evidence and does not weaken, bypass, or alter the Certification Boundary.
-- Required next action: launch a fresh exact-head Certification/Execution Enforcement cycle. Boundary PASS is the first required result; only then may downstream certification suites execute and any newly exposed finding be classified independently.
-- After Boundary PASS, continue the direct Tenant B → Snapshot A denial, Business-Triggered Report Execution lifecycle, authenticated Chromium + real Supabase Auth A/B E2E, and remaining operational gates.
+## GOVERNANCE LOG — 2026-09-11 — PR #463 EXACT-HEAD REPAIR REBIND
+- Exact PR #463 code/test HEAD before this governance commit: `0088fb5e8a0f3fb7cdb97fc3d3058bef1dd9946e`.
+- Fresh Certification Gate run `2999` and Execution Enforcement run `2631` both checked out `0088fb5e...` exactly and built the release manifest successfully.
+- Both correctly failed at the certification-boundary integrity check because the Master Index still indexed `cb0f7ece...`; no downstream certification suite was executed or falsely promoted.
+- The candidate `0088fb5e...` is the bounded deterministic statistics restoration required by `time-series`; no certification guard was weakened.
+- This governance-only update now binds the Master Index to `0088fb5e...` on PR #463 only. Main remains untouched at `999f93e91f657357d849f15a87a001cb389d8ff9`.
+- Required next action: fresh exact-head Certification/Execution Enforcement cycle; Boundary PASS must precede downstream certification evidence.
 - Release remains **NOT CERTIFIED / NOT LIVE**.
