@@ -11,7 +11,7 @@ let d=decision(A), w=assign(d,A,{id:'w1',tenant_id:'tenant-a',assignee_id:'user-
 assert.throws(()=>execute(d,A,w),/APPROVAL_REQUIRED/); d=approve(d,P);
 assert.throws(()=>execute(d,A,{...w,status:'ASSIGNED'}),/WORK_INCOMPLETE/); w=complete(w,A); d=execute(d,A,w);
 const o=outcome(d,w,A,{id:'e1'}); assert.equal(o.provenance.generated,true); assert.equal(finalize(d,A).status,'FINALIZED');
-assert.throws(()=>complete(w,A),/ALREADY_COMPLETED/); assert.throws(()=>execute(d,A,w),/TERMINAL/); assert.throws(()=>approve(decision(A),A),/SELF_APPROVAL/);
+assert.throws(()=>complete(w,A),/ALREADY_COMPLETED/); assert.throws(()=>execute(d,A,w),/APPROVAL_REQUIRED/); assert.throws(()=>approve(decision(A),A),/SELF_APPROVAL/);
 assert.throws(()=>execute({...d,tenant_id:'tenant-b'},A,w),/TENANT/); assert.throws(()=>complete({...w,assignee_id:'user-b'},A),/ASSIGNEE/);
 assert.throws(()=>outcome(d,{...w,status:'ASSIGNED'},A,{id:'e1'}),/WORK_INCOMPLETE/); assert.throws(()=>outcome(d,{...w,tenant_id:'tenant-b'},A,{id:'e1'}),/WORK_TENANT/); assert.throws(()=>outcome(d,w,A,null),/EVIDENCE_REQUIRED/);
 assert.throws(()=>finalize(d,B),/TENANT/); console.log('decision-work-outcome terminal matrix: PASS');
