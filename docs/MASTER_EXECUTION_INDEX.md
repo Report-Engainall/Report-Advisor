@@ -5,8 +5,8 @@
 > Authoritative execution manifest. This document never promotes historical evidence across an exact-HEAD boundary. Pair every evidence batch with the exact Git `HEAD` of `main` and the exact environment/commit used.
 
 ### CURRENT EXACT HEAD
-- Current code/test candidate: `2017ae5a4962afb2e66902d69975cc2a2b90be4b`.
-- This candidate contains the bounded PR #462 build-blocker repairs and is the exact candidate under fresh certification.
+- Current code/test candidate: `24fd23c832ad4ee87648ef3691c0f49e6bbb187b`.
+- This candidate is the stabilized PR #462 head after the bounded build/OCR test repairs and associated contract hardening already verified by exact-head CI.
 - Historical evidence from earlier SHAs remains historical and is not promoted automatically.
 - This index update is governance-only; it does not certify runtime, browser, tenant A/B, import, OCR, recovery, backup/restore, performance, or LIVE state.
 
@@ -181,9 +181,9 @@ This is not a rebuild situation. The remaining work is concentrated closure: exe
 
 
 ## GOVERNANCE LOG — 2026-09-10 — CANDIDATE #462 BOUNDARY
-- Exact candidate under certification: `2017ae5a4962afb2e66902d69975cc2a2b90be4b`.
-- PR #462 bounded build repairs are the only code changes being carried forward in this candidate closure.
+- Exact candidate under certification: `24fd23c832ad4ee87648ef3691c0f49e6bbb187b`.
+- PR #462 bounded build/OCR test repairs are the only code changes being carried forward in this candidate closure.
 - The previous Final Certification failure was a governance mismatch: the indexed candidate did not match this exact candidate.
-- This entry intentionally binds the Master Index to the candidate; it does not promote any historical runtime evidence.
+- This governance update binds the Master Index to the exact stabilized PR #462 head; it does not promote historical runtime evidence.
 - Required next proof remains: fresh exact-head certification, authenticated Actor A/B browser runtime, real import lifecycle, crash/resume/recovery, document/OCR corpus, KPI evidence lineage, backup/restore/rollback, and final LIVE certification.
 - Release state: **NOT CERTIFIED** until fresh operational evidence is produced on the resulting exact candidate.
