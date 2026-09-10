@@ -1,12 +1,12 @@
 # Report Advisor — Master Execution & Truth Index
 
-## CURRENT EXECUTION BOUNDARY — 2026-09-10
+## CURRENT EXECUTION BOUNDARY — 2026-09-11
 
 > Authoritative execution manifest. This document never promotes historical evidence across an exact Git `HEAD` boundary. Pair every evidence batch with the exact Git `HEAD` of `main` and the exact environment/commit used.
 
 ### CURRENT EXACT HEAD
-- Current code/test candidate: `099dc3876bdf34abf8afe7061be37822d5fa7936`.
-- This candidate is the exact PR #463 head containing the bounded sales source/snapshot runtime binding, the bounded `phase-kl-runtime.ts` autonomy-link micro-fix (`riskBudgetValid` / `trustHealthy`), and the import source-field preservation/lineage closure.
+- Current code/test candidate: `cb0f7ece3b6394b1b6059bc62f803f29df44cec0`.
+- This candidate is the exact PR #463 head containing the bounded sales source/snapshot runtime binding, the bounded `phase-kl-runtime.ts` autonomy-link micro-fix (`riskBudgetValid` / `trustHealthy`), the import source-field preservation/lineage closure, and the latest integration-boundary adversarial assertion repair.
 - PR #463 retains the bounded sales source runtime binding on top of the existing durable execution contract: it resolves the execution scope, reads authoritative sales data through the Supabase adapter, binds `sourceSnapshotId` to `report_source_versions`, validates tenant identity/source hash/full scope, and fails closed if the authoritative source changes between registration and execution.
 - The import lineage closure adds a tenant-bound `import_job_rows` persistence surface and a transactional `import_commit_batch_with_lineage` wrapper while keeping `import_commit_batch` as the canonical normalized business write.
 - The governance-runtime-chain checker discovers the actual governance migration lineage present in `supabase/migrations` rather than depending on stale historical migration filenames.
@@ -126,7 +126,7 @@
 - PR #397: OPEN, mergeable, not merged.
 - PR #398: OPEN, mergeable, not merged; CodeRabbit's current array-shape finding was verified and repaired.
 - PR #405: OPEN, currently non-mergeable until its fresh review/CI evidence is available.
-- PR #463: OPEN, draft, unmerged; exact operational HEAD `099dc3876bdf34abf8afe7061be37822d5fa7936`.
+- PR #463: OPEN, draft, unmerged; exact operational HEAD `cb0f7ece3b6394b1b6059bc62f803f29df44cec0`.
 - Main remains protected at `999f93e91f657357d849f15a87a001cb389d8ff9` and is not touched by this governance rebind.
 - No PR is treated as merged merely because a connector exposes a `merge_commit_sha`; explicit `merged=false` is authoritative.
 
@@ -341,3 +341,12 @@ This is not a rebuild situation. The remaining work is concentrated closure: exe
 - The migration uses SECURITY INVOKER, pins `search_path`, rejects missing/mismatched tenant/job context, denies anon execution, grants authenticated execution, and applies tenant RLS to the new lineage table.
 - Main remains untouched at `999f93e91f657357d849f15a87a001cb389d8ff9`; PR #463 remains Draft / Unmerged.
 - Fresh CI for `099dc387...` is required now. No PASS is promoted from the previous candidate, and release remains **NOT CERTIFIED / NOT LIVE** until the exact candidate completes the certification chain and separate runtime evidence requirements.
+
+## GOVERNANCE LOG — 2026-09-11 — PR #463 EXACT-HEAD GOVERNANCE REBIND
+- Exact PR #463 code/test HEAD verified immediately before this governance commit: `cb0f7ece3b6394b1b6059bc62f803f29df44cec0`.
+- The Final Certification boundary previously failed closed because the Master Index still indexed `099dc387...` while PR #463 HEAD had advanced to `cb0f7ece...` with non-governance changes.
+- This update rebinds the Master Index to `cb0f7ece...` on the PR #463 operations branch only. Main remains untouched at `999f93e91f657357d849f15a87a001cb389d8ff9`.
+- The rebind promotes no historical runtime/certification evidence and does not weaken, bypass, or alter the Certification Boundary.
+- Required next action: launch a fresh exact-head Certification/Execution Enforcement cycle. Boundary PASS is the first required result; only then may downstream certification suites execute and any newly exposed finding be classified independently.
+- After Boundary PASS, continue the direct Tenant B → Snapshot A denial, Business-Triggered Report Execution lifecycle, authenticated Chromium + real Supabase Auth A/B E2E, and remaining operational gates.
+- Release remains **NOT CERTIFIED / NOT LIVE**.
