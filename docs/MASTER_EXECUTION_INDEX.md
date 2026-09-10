@@ -5,8 +5,8 @@
 > Authoritative execution manifest. This document never promotes historical evidence across an exact Git `HEAD` boundary. Pair every evidence batch with the exact Git `HEAD` of `main` and the exact environment/commit used.
 
 ### CURRENT EXACT HEAD
-- Current code/test candidate: `8f536719eb233754b8aebbc5d4b5318ae89edd38`.
-- This candidate is the exact PR #463 head containing the bounded sales source/snapshot runtime binding.
+- Current code/test candidate: `da39ec0ea0e3e8e4e874ab20d9b66707fd117ae1`.
+- This candidate is the exact PR #463 head containing the bounded sales source/snapshot runtime binding plus the bounded `phase-kl-runtime.ts` autonomy-link micro-fix (`riskBudgetValid` / `trustHealthy`).
 - PR #463 retains the bounded sales source runtime binding on top of the existing durable execution contract: it resolves the execution scope, reads authoritative sales data through the Supabase adapter, binds `sourceSnapshotId` to `report_source_versions`, validates tenant identity/source hash/full scope, and fails closed if the authoritative source changes between registration and execution.
 - The governance-runtime-chain checker discovers the actual governance migration lineage present in `supabase/migrations` rather than depending on stale historical migration filenames.
 - Historical evidence from earlier SHAs remains historical and is not promoted automatically.
@@ -124,7 +124,7 @@
 - PR #397: OPEN, mergeable, not merged.
 - PR #398: OPEN, mergeable, not merged; CodeRabbit's current array-shape finding was verified and repaired.
 - PR #405: OPEN, currently non-mergeable until its fresh review/CI evidence is available.
-- PR #463: OPEN, draft, unmerged; exact operational HEAD `8f536719eb233754b8aebbc5d4b5318ae89edd38`.
+- PR #463: OPEN, draft, unmerged; exact operational HEAD `da39ec0ea0e3e8e4e874ab20d9b66707fd117ae1`.
 - Main remains protected at `999f93e91f657357d849f15a87a001cb389d8ff9` and is not touched by this governance rebind.
 - No PR is treated as merged merely because a connector exposes a `merge_commit_sha`; explicit `merged=false` is authoritative.
 
@@ -245,7 +245,7 @@ This is not a rebuild situation. The remaining work is concentrated closure: exe
 - Exact candidate under the next certification boundary: `010d07be3280f09b3c541b949a2b19839623b64b`.
 - This governance-only update binds the Master Index to the latest bounded TOCTOU fixture repair.
 - The repair is test-only: the adversarial fixture now resolves the latest `request_decision_approval` function case-insensitively, matching the production migration's lowercase `create or replace function` form, so the mutation cannot silently target an older function definition.
-- No production SQL, Certification Boundary guard, tenant/RLS logic, runtime worker logic, OCR production logic, or unrelated application surface was changed by this repair.
+- No production SQL, Certification Boundary guard, tenant/RLS logic, runtime worker logic, OCR production logic, or unrelated application surface was changed by this correction.
 - The immediately preceding certification on `67e60e1d...` demonstrated Boundary PASS, Release Readiness 20/20 PASS, and lock-order PASS, then failed only because the TOCTOU adversarial mutation did not apply. Therefore **no TOCTOU PASS is promoted by this rebind**.
 - Required next action: fresh exact-head Certification from this governance boundary, with explicit evidence for `Decision approval TOCTOU contract: PASS`, the adversarial Test-of-Test, provenance, and exact-commit evidence before any Final Certification or LIVE claim.
 - Release remains **NOT CERTIFIED / NOT LIVE**.
@@ -319,4 +319,14 @@ This is not a rebuild situation. The remaining work is concentrated closure: exe
 - This is a governance-binding mismatch, not evidence of an application/runtime defect. Downstream certification suites were correctly not executed.
 - This update is governance-only: it changes no production code, tenant/RLS policy, Certification Boundary guard, runtime implementation, or certification standard.
 - Required next action: fresh exact-head CI/Certification cycle on the resulting governance commit; if Boundary PASS, execute the actual enforcement/certification suites and classify any newly exposed finding independently.
+- Release remains **NOT CERTIFIED / NOT LIVE**.
+
+## GOVERNANCE LOG — 2026-09-10 — PR #463 RISK-BUDGET / TRUST-LINK MICRO-FIX REBIND
+- Exact operational candidate before this governance commit: `da39ec0ea0e3e8e4e874ab20d9b66707fd117ae1`.
+- This candidate contains one bounded code change in `src/lib/phase-kl-runtime.ts`: `riskBudgetValid(budget)` and `trustHealthy(evidence)` were added to close the Certification Gate's governance-to-autonomy link requirement.
+- The micro-fix is narrowly scoped to the missing runtime validation predicates; no tenant/RLS policy, Certification Boundary guard, import contract, worker lifecycle, or unrelated production surface was changed.
+- Fresh technical CI evidence on this candidate is green across Quality, Windows desktop, evidence-boundary/writer-boundary, Golden Evidence/Score Identity, OCR Confidence, security closure, data import truth, inventory intelligence, canonical truth/aggregation, production-chain, semantic metric, storage tenant isolation, security-definer contracts, decision/work-item/outcome DML boundaries, direct truth writers, batch integrity, file intelligence/security, company context, import-finish lifecycle, bootstrap, and phase9 Windows contracts.
+- `Execution Enforcement Contract` and `Final Certification Gate` remain **FAIL-CLOSED** at the exact-head governance boundary because the previous Master Index pointer was stale. Their failure is not promoted as a product defect and their downstream suites were not treated as executed certification evidence.
+- This governance rebind changes no certification standard and does not create a PASS from the broad technical CI results. The exact-head certification cycle must be rerun after this governance commit.
+- Main remains untouched at `999f93e91f657357d849f15a87a001cb389d8ff9`; PR #463 remains Draft / Unmerged.
 - Release remains **NOT CERTIFIED / NOT LIVE**.
