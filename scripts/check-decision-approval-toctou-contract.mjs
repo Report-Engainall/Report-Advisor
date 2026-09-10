@@ -91,5 +91,5 @@ const gateBeforeLock = replaceLatestFunctionBody(sql, 'request_decision_approval
   const gateInWeak = withoutLock.indexOf("v_decision_status is distinct from 'PROPOSED'");
   return withoutLock.slice(0, gateInWeak) + 'for update\n    ' + withoutLock.slice(gateInWeak);
 });
-assert.throws(() => validateDecisionApprovalToctou(gateBeforeLock), /Approvaibility check is not performed after decision lock/);
+assert.throws(() => validateDecisionApprovalToctou(gateBeforeLock), /Decision row is not locked before approvability check/);
 console.log('Decision approval TOCTOU contract: PASS (decision lock-before-check + terminal guard + adversarial weakened-lock/gate test-of-test)');
