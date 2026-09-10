@@ -13,9 +13,13 @@ const sql = migrations.join('\n');
 function latestFunctionBody(source, name) {
   const re = new RegExp(`CREATE\\s+OR\\s+REPLACE\\s+FUNCTION\\s+public\\.${name}\\s*\\(`, 'gi');
   let match;
+  let lastMatch = null;
   let start = -1;
-  while ((match = re.exec(source))) start = match.index;
-  if (start < 0) throw new Error(`Missing canonical function: ${name}`);
+  while ((match = re.exec(source))) {
+    lastMatch = match;
+    start = match.index;
+  }
+  if (start < 0 || !lastMatch) throw new Error(`Missing canonical function: ${name}`);
   const nextRe = /\nCREATE\s+OR\s+REPLACE\s+FUNCTION/gi;
   nextRe.lastIndex = start + 1;
   const nextMatch = nextRe.exec(source);
@@ -52,14 +56,17 @@ function replaceLatestFunctionBody(source, name, mutate) {
   let start = -1;
   while ((match = re.exec(source))) start = match.index;
   if (start < 0) throw new Error(`Missing canonical function: ${name}`);
-  const openParen = source.indexOf('(', start + match[0].length - 1);
+  const openParen = source.indexOf('(', start);
   if (openParen < 0) throw new Error(`Missing canonical function signature: ${name}`);
   const nextRe = /\nCREATE\s+OR\s+REPLACE\s+FUNCTION/gi;
   nextRe.lastIndex = openParen + 1;
   const nextMatch = nextRe.exec(source);
   const end = nextMatch ? nextMatch.index : source.length;
   const body = source.slice(start, end);
-  return source.slice(0, start) + mutate(body) + source.slice(end);
+  assert.notEqual(body.length, 0, `Missing canonical function body: ${name}`);
+  const mutated = mutate(body);
+  assert.notEqual(mutated, body, `Adversarial mutation did not change canonical function: ${name}`);
+  return source.slice(0, start) + mutated + source.slice(end);
 }
 const canonicalBody = latestFunctionBody(sql, 'request_decision_approval');
 const canonicalDecisionSelect = canonicalBody.indexOf('from public.business_intelligence_decisions');
