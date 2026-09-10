@@ -23,8 +23,12 @@ function latestFunctionBody(source, name) {
 export function validateDecisionApprovalToctou(source) {
   const body = latestFunctionBody(source, 'request_decision_approval');
   const decisionSelect = body.indexOf('from public.business_intelligence_decisions');
-  const decisionLock = body.indexOf('for update', decisionSelect);
   const decisionGate = body.indexOf("v_decision_status is distinct from 'PROPOSED'");
+  // Bind the lock specifically to the authoritative decision SELECT. Searching
+  // for any later FOR UPDATE would let the approval-row lock mask a missing
+  // decision lock in the adversarial fixture.
+  const decisionLockClause = 'and d.company_id = v_company\\n  for update';
+  const decisionLock = body.indexOf(decisionLockClause, decisionSelect);
   const approvalSelect = body.indexOf('from public.decision_approvals');
   const terminalGuard = body.indexOf("v_existing_status in ('APPROVED','REJECTED','CANCELLED')");
   if (decisionSelect < 0 || decisionLock < decisionSelect) throw new Error('Decision row is not locked before approvability check');
