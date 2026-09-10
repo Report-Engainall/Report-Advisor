@@ -32,6 +32,19 @@ function asNumber(value: number | string | null, field: string): number {
   return result;
 }
 
+function businessSortKey(item: SaleItemRecord): string {
+  return [
+    item.product_id ?? '',
+    item.description ?? '',
+    String(item.quantity),
+    String(item.unit_price),
+    String(item.discount_amount),
+    String(item.tax_amount),
+    String(item.line_total),
+    String(item.cost_price),
+  ].join('|');
+}
+
 /** Supabase-backed source reader; RLS remains the database authorization boundary. */
 export function createSupabaseSalesSourceQuery(client: SupabaseClient): SalesSourceQuery {
   return async ({ tenantId, from, to, excludedStatuses }) => {
@@ -43,7 +56,7 @@ export function createSupabaseSalesSourceQuery(client: SupabaseClient): SalesSou
       .lte('invoice_date', to);
 
     const { data: invoices, error: invoiceError } = excludedStatuses.length
-      ? await invoiceQuery.not('status', 'in', `(${excludedStatuses.map((status) => `"${status}"`).join(',')})`)
+      ? await invoiceQuery.not('status', 'in', `(${excludedStatuses.map((status) => `\"${status}\"`).join(',')})`)
       : await invoiceQuery;
     if (invoiceError) throw new Error(`SALES_SOURCE_INVOICES_QUERY_FAILED:${invoiceError.message}`);
 
@@ -76,17 +89,12 @@ export function createSupabaseSalesSourceQuery(client: SupabaseClient): SalesSou
 
     const customers = new Map(((customerResult.data ?? []) as CustomerRecord[]).map((row) => [row.id, row]));
     const products = new Map(((productResult.data ?? []) as ProductRecord[]).map((row) => [row.id, row]));
-    const invoiceMap = new Map(typedInvoices.map((invoice) => [invoice.id, invoice]));
     const grouped = new Map<string, SaleItemRecord[]>();
     for (const item of typedItems) grouped.set(item.invoice_id, [...(grouped.get(item.invoice_id) ?? []), item]);
 
     const rows: SalesSourceRow[] = [];
     for (const invoice of typedInvoices) {
-      const invoiceItems = [...(grouped.get(invoice.id) ?? [])].sort((a, b) =>
-        [a.product_id ?? '', a.description ?? '', String(a.quantity), String(a.unit_price), a.id]
-          .join('|')
-          .localeCompare([b.product_id ?? '', b.description ?? '', String(b.quantity), String(b.unit_price), b.id].join('|')),
-      );
+      const invoiceItems = [...(grouped.get(invoice.id) ?? [])].sort((a, b) => businessSortKey(a).localeCompare(businessSortKey(b)));
       invoiceItems.forEach((item, index) => {
         const customer = invoice.customer_id ? customers.get(invoice.customer_id) : undefined;
         const product = item.product_id ? products.get(item.product_id) : undefined;
@@ -110,9 +118,6 @@ export function createSupabaseSalesSourceQuery(client: SupabaseClient): SalesSou
       });
     }
 
-    // Keep this read path intentionally explicit: invoice IDs are transport-only and
-    // never become report business keys or cross-report merge keys.
-    void invoiceMap;
     return rows;
   };
 }
