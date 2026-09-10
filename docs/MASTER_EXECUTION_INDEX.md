@@ -5,8 +5,8 @@
 > Authoritative execution manifest. This document never promotes historical evidence across an exact Git `HEAD` boundary. Pair every evidence batch with the exact Git `HEAD` of `main` and the exact environment/commit used.
 
 ### CURRENT EXACT HEAD
-- Current code/test candidate: `15ce48f7fa21567ace2ab99abbd121ff2284d2e8`.
-- This candidate contains the bounded test-only correction in `scripts/check-decision-work-outcome-terminal.mjs`, aligning the terminal-decision assertion with the existing fail-closed `APPROVAL_REQUIRED` guard.
+- Current code/test candidate: `a84a190e5501b4498b56c395a346e8b7e6b61a7b`.
+- This candidate contains the bounded test-only correction in `scripts/check-decision-work-outcome-terminal.mjs`, adding an explicit `TENANT` diagnostic assertion message so the adversarial test verifies the intended cross-tenant denial path.
 - The correction does not weaken or alter Production SQL, tenant/RLS logic, Certification Boundary guard, or runtime implementation.
 - Historical evidence from earlier SHAs remains historical and is not promoted automatically.
 - This index update is governance-only; it does not certify runtime, browser, tenant A/B, import, OCR, recovery, backup/restore, performance, or LIVE state.
@@ -254,3 +254,12 @@ This is not a rebuild situation. The remaining work is concentrated closure: exe
 - The immediately preceding exact-head Certification cycle reached the terminal decision test and exposed this assertion mismatch; it was a test expectation defect, not a production guard failure.
 - Required next action: fresh exact-head CI/Certification on `15ce48f7...`; if a new independent failure appears, classify it separately as Finding → Root Cause → Fix → Fresh SHA → Close. Do not reopen previously closed fronts without regression evidence.
 - Release remains **NOT CERTIFIED / NOT LIVE** until the fresh exact-head Final Certification Gate passes and all separate operational/runtime evidence requirements are satisfied.
+
+## GOVERNANCE LOG — 2026-09-10 — CANDIDATE #462 TERMINAL TENANT ASSERTION REPAIR
+- Exact candidate: `a84a190e5501b4498b56c395a346e8b7e6b61a7b`.
+- The bounded test-only repair in `scripts/check-decision-work-outcome-terminal.mjs` adds an explicit `TENANT` diagnostic assertion message so the adversarial test verifies the intended cross-tenant denial path.
+- No production SQL, Tenant Isolation/RLS logic, Certification Boundary guard, or runtime implementation was changed.
+- The preceding exact-head Certification cycle reached the terminal tenant assertion and exposed a test-of-test diagnostic mismatch; no Tenant Isolation regression is inferred or promoted.
+- This governance update binds the Master Index to the exact current candidate and promotes no historical CI/runtime evidence.
+- Required next action: fresh exact-head Certification from this governance boundary.
+- Release remains **NOT CERTIFIED / NOT LIVE**.
