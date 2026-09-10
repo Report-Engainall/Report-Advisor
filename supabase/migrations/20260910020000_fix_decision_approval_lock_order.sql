@@ -51,7 +51,12 @@ begin
         requested_at = now(),
         decided_at = null,
         decided_by = null
+    where public.decision_approvals.status not in ('APPROVED','REJECTED','CANCELLED')
   returning id into v_id;
+
+  if v_id is null then
+    raise exception 'APPROVAL_TERMINAL_NOT_REOPENABLE';
+  end if;
 
   return v_id;
 end;
