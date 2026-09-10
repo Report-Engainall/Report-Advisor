@@ -5,8 +5,8 @@
 > Authoritative execution manifest. This document never promotes historical evidence across an exact-HEAD boundary. Pair every evidence batch with the exact Git `HEAD` of `main` and the exact environment/commit used.
 
 ### CURRENT EXACT HEAD
-- Current code/test candidate: `24fd23c832ad4ee87648ef3691c0f49e6bbb187b`.
-- This candidate is the stabilized PR #462 head after the bounded build/OCR test repairs and associated contract hardening already verified by exact-head CI.
+- Current code/test candidate: `48e18f8f2f84fcc02ae38a26cc46d2cb9801b975`.
+- This candidate is the stabilized PR #462 head plus the bounded decision-approval lock-order repair; the repair locks the authoritative decision row before reading/checking approval state.
 - Historical evidence from earlier SHAs remains historical and is not promoted automatically.
 - This index update is governance-only; it does not certify runtime, browser, tenant A/B, import, OCR, recovery, backup/restore, performance, or LIVE state.
 
@@ -78,6 +78,7 @@
 - Decision work-item RLS is tenant-scoped.
 - Outcome/evidence paths enforce tenant/provenance/state boundaries.
 - Authenticated browser decision/evidence lifecycle remains NOT PROVEN.
+- The exact current candidate includes a bounded repair to `request_decision_approval`: the authoritative decision row is locked before approval-state lookup/check, preserving the fail-closed lock-order contract.
 
 ### Observability / Failure Injection
 - Structured error/evidence contracts exist across worker/import/document paths.
@@ -187,3 +188,10 @@ This is not a rebuild situation. The remaining work is concentrated closure: exe
 - This governance update binds the Master Index to the exact stabilized PR #462 head; it does not promote historical runtime evidence.
 - Required next proof remains: fresh exact-head certification, authenticated Actor A/B browser runtime, real import lifecycle, crash/resume/recovery, document/OCR corpus, KPI evidence lineage, backup/restore/rollback, and final LIVE certification.
 - Release state: **NOT CERTIFIED** until fresh operational evidence is produced on the resulting exact candidate.
+
+## GOVERNANCE LOG — 2026-09-10 — CANDIDATE #462 LOCK-ORDER REPAIR
+- Exact candidate under the next certification boundary: `48e18f8f2f84fcc02ae38a26cc46d2cb9801b975`.
+- This candidate contains one bounded production migration after `24fd23...`: `supabase/migrations/20260910020000_fix_decision_approval_lock_order.sql`, repairing `request_decision_approval` so the authoritative decision row is locked before approval lookup/check.
+- On exact SHA `48e18f8...`, the non-certification technical workflow set completed green; the two certification-layer failures stopped at the stale-index boundary and did not execute their underlying certification/enforcement contract suites.
+- This governance update is the required clean source-of-truth rebind; it promotes no historical runtime evidence and does not weaken the certification boundary.
+- A fresh exact-head Certification cycle is required on the resulting governance commit. Release remains **NOT CERTIFIED / NOT LIVE** until Final Certification itself passes and the separate required authenticated/runtime/operational evidence is complete.
