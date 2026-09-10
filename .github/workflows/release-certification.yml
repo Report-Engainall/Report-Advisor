@@ -26,7 +26,23 @@ jobs:
     environment: ${{ inputs.environment || 'staging' }}
     steps:
       - uses: actions/checkout@v5
-        with: {fetch-depth: 1, persist-credentials: false}
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+          ref: ${{ github.sha }}
+
+      - name: Verify Exact SHA Guard
+        run: |
+          set -euo pipefail
+          actual_sha="$(git rev-parse HEAD)"
+          echo "Actual SHA: $actual_sha"
+          echo "Expected SHA (GITHUB_SHA): $GITHUB_SHA"
+          if [ "$actual_sha" != "$GITHUB_SHA" ]; then
+            echo "❌ ERROR: SHA mismatch! Aborting certification."
+            exit 1
+          fi
+          echo "✅ SHA verified successfully."
+
       - uses: actions/setup-node@v5
         with: {node-version: 22, cache: npm}
       - name: Install locked dependencies
