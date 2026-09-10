@@ -5,8 +5,8 @@
 > Authoritative execution manifest. This document never promotes historical evidence across an exact Git `HEAD` boundary. Pair every evidence batch with the exact Git `HEAD` of `main` and the exact environment/commit used.
 
 ### CURRENT EXACT HEAD
-- Current code/test candidate: `a4bef11c7eea2ca2a5a453782d4671b93cf76a15`.
-- This candidate is the exact PR #463 head (`feat: wire sales source into durable snapshot runtime`) before this governance rebind.
+- Current code/test candidate: `a6e3a30c814dee9f1425fa9e204528a5bd49542a`.
+- This candidate is the exact PR #463 head containing the bounded provenance certification-infrastructure repair.
 - PR #463 adds the bounded sales source runtime binding on top of the existing durable execution contract: it resolves the execution scope, reads authoritative sales data through the Supabase adapter, binds `sourceSnapshotId` to `report_source_versions`, validates tenant identity/source hash/full scope, and fails closed if the authoritative source changes between registration and execution.
 - Historical evidence from earlier SHAs remains historical and is not promoted automatically.
 - This index update is governance-only; it does not certify runtime, browser, tenant A/B, import, OCR, recovery, backup/restore, performance, or LIVE state.
@@ -123,7 +123,7 @@
 - PR #397: OPEN, mergeable, not merged.
 - PR #398: OPEN, mergeable, not merged; CodeRabbit's current array-shape finding was verified and repaired.
 - PR #405: OPEN, currently non-mergeable until its fresh review/CI evidence is available.
-- PR #463: OPEN, draft, mergeable; current head `a4bef11c7eea2ca2a5a453782d4671b93cf76a15`.
+- PR #463: OPEN, draft; current branch is undergoing exact-head governance rebind; current candidate `a6e3a30c814dee9f1425fa9e204528a5bd49542a`.
 - No PR is treated as merged merely because a connector exposes a `merge_commit_sha`; explicit `merged=false` is authoritative.
 
 ## REAL RELEASE ASSESSMENT — 2026-09-07
@@ -289,4 +289,12 @@ This is not a rebuild situation. The remaining work is concentrated closure: exe
 - This is certification-infrastructure repair only; it does not create a fake migration, weaken a product invariant, or promote runtime evidence.
 - The exact-head Final Certification Gate run `2943` checked out `a4bef11...`, successfully built the release manifest, then failed closed at `Verify certification boundary integrity` because the Master Index still indexed `7e662931...`. The downstream certification suites were therefore correctly not executed.
 - Required next action: this governance rebind must produce a fresh exact-head Certification Gate. Only after Boundary PASS may the actual provenance/enforcement suites be used as evidence.
+- Release remains **NOT CERTIFIED / NOT LIVE**.
+
+## GOVERNANCE LOG — 2026-09-10 — PR #463 PROVENANCE REPAIR RESULT
+- Exact production/certification repair candidate: `a6e3a30c814dee9f1425fa9e204528a5bd49542a`.
+- The provenance checker was repaired to bind its invariant checks to repository components that actually exist on the current release branch, while retaining the seven required evidence/provenance terms: `evidence`, `source`, `lineage`, `canonical`, `provenance`, `confidence`, and `materiality`.
+- This repair does not manufacture the removed historical migration and does not weaken the provenance invariant.
+- Final Certification Gate run `2947` on the pre-rebind candidate stopped at the stale Master Index boundary, so its underlying certification/provenance suites were correctly skipped.
+- Required next action: fresh Certification Gate after the exact-head governance rebind; then close the real Tenant B → Snapshot A runtime denial, Business-Triggered Report Execution lifecycle, authenticated Chromium A/B E2E, and remaining operational gates.
 - Release remains **NOT CERTIFIED / NOT LIVE**.
