@@ -5,10 +5,10 @@
 > Authoritative execution manifest. This document never promotes historical evidence across an exact Git `HEAD` boundary. Pair every evidence batch with the exact Git `HEAD` of `main` and the exact environment/commit used.
 
 ### CURRENT EXACT HEAD
-- Current code/test candidate: `a8f02ac9314f918004341c28f0e9c8a29950f59e`.
-- This candidate is the exact PR #463 head containing the bounded governance-runtime-chain certification repair.
+- Current code/test candidate: `8f536719eb233754b8aebbc5d4b5318ae89edd38`.
+- This candidate is the exact PR #463 head containing the bounded sales source/snapshot runtime binding.
 - PR #463 retains the bounded sales source runtime binding on top of the existing durable execution contract: it resolves the execution scope, reads authoritative sales data through the Supabase adapter, binds `sourceSnapshotId` to `report_source_versions`, validates tenant identity/source hash/full scope, and fails closed if the authoritative source changes between registration and execution.
-- The governance-runtime-chain checker now discovers the actual governance migration lineage present in `supabase/migrations` rather than depending on stale historical migration filenames.
+- The governance-runtime-chain checker discovers the actual governance migration lineage present in `supabase/migrations` rather than depending on stale historical migration filenames.
 - Historical evidence from earlier SHAs remains historical and is not promoted automatically.
 - This index update is governance-only; it does not certify runtime, browser, tenant A/B, import, OCR, recovery, backup/restore, performance, or LIVE state.
 
@@ -107,7 +107,7 @@
 - Workflows are not weakened with bypasses to turn infrastructure or boundary failure into PASS.
 
 ## ACTIVE EXECUTION FRONTS
-- PR #463 — durable sales source/snapshot binding; current candidate under governance rebind.
+- PR #463 — durable sales source/snapshot binding; current branch is undergoing exact-head governance rebind.
 - #399 — fresh migration replay and schema parity certification.
 - #400 — watched-folder lifecycle and duplicate-ingestion proof.
 - #401 — worker crash/retry/dead-letter/recovery drill.
@@ -116,7 +116,7 @@
 - #404 — P0 authenticated Tenant A/B adversarial runtime closure; currently browser/device constrained.
 - PR #396 — tenant-bound durable worker provenance/replay contract.
 - PR #397 — truthful Arabic OCR confidence.
-- PR #398 — report execution input validation; one previously valid review finding has now been explicitly repaired by rejecting array-shaped requests.
+- PR #398 — report execution input validation; one previously valid review finding was explicitly repaired by rejecting array-shaped requests.
 - PR #405 — report execution queue scalar boundary hardening.
 
 ## CURRENT PR / REVIEW STATE
@@ -124,7 +124,8 @@
 - PR #397: OPEN, mergeable, not merged.
 - PR #398: OPEN, mergeable, not merged; CodeRabbit's current array-shape finding was verified and repaired.
 - PR #405: OPEN, currently non-mergeable until its fresh review/CI evidence is available.
-- PR #463: OPEN, draft; current branch is undergoing exact-head governance rebind; current candidate `a8f02ac9314f918004341c28f0e9c8a29950f59e`.
+- PR #463: OPEN, draft, unmerged; exact operational HEAD `8f536719eb233754b8aebbc5d4b5318ae89edd38`.
+- Main remains protected at `999f93e91f657357d849f15a87a001cb389d8ff9` and is not touched by this governance rebind.
 - No PR is treated as merged merely because a connector exposes a `merge_commit_sha`; explicit `merged=false` is authoritative.
 
 ## REAL RELEASE ASSESSMENT — 2026-09-07
@@ -308,4 +309,14 @@ This is not a rebuild situation. The remaining work is concentrated closure: exe
 - The preceding exact-head certification cycle stopped at `check-governance-runtime-chain.mjs` with the stale migration dependency; no historical PASS is promoted by this rebind.
 - Required next action: fresh exact-head Final Certification on this governance boundary. If the boundary passes, execute the underlying certification suites and classify any newly exposed finding independently.
 - After true Final Certification, continue the previously mandated real Business-Triggered Report Execution lifecycle, Tenant B → Snapshot A denial, authenticated Chromium A/B E2E, and remaining operational gates.
+- Release remains **NOT CERTIFIED / NOT LIVE**.
+
+## GOVERNANCE LOG — 2026-09-10 — PR #463 SALES SOURCE RUNTIME BINDING
+- Exact operational candidate: `8f536719eb233754b8aebbc5d4b5318ae89edd38`.
+- PR #463 remains Draft and unmerged; Main remains untouched at `999f93e91f657357d849f15a87a001cb389d8ff9`.
+- Windows desktop workflow `desktop-windows #1886` completed successfully through checkout, dependency installation, web build, native watcher contract, native runtime smoke, Windows installer packaging, and installer upload.
+- `Execution Enforcement Contract #2613` and `Final Certification Gate #2981` failed closed at `Verify certification boundary integrity` because the Master Index still indexed `a8f02ac9314f918004341c28f0e9c8a29950f59e` while the exact operational candidate was `8f536719eb233754b8aebbc5d4b5318ae89edd38`.
+- This is a governance-binding mismatch, not evidence of an application/runtime defect. Downstream certification suites were correctly not executed.
+- This update is governance-only: it changes no production code, tenant/RLS policy, Certification Boundary guard, runtime implementation, or certification standard.
+- Required next action: fresh exact-head CI/Certification cycle on the resulting governance commit; if Boundary PASS, execute the actual enforcement/certification suites and classify any newly exposed finding independently.
 - Release remains **NOT CERTIFIED / NOT LIVE**.
