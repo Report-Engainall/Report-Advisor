@@ -5,8 +5,8 @@
 > Authoritative execution manifest. This document never promotes historical evidence across an exact Git `HEAD` boundary. Pair every evidence batch with the exact Git `HEAD` of `main` and the exact environment/commit used.
 
 ### CURRENT EXACT HEAD
-- Current code/test candidate: `ca584d05cedacc00fcaef38b926a1494f1e5a8e1`.
-- This candidate contains the bounded decision-approval lock-order repair, its corrected fail-closed Test-of-Test contract, and the terminal-state conflict-path guard on the `ON CONFLICT ... DO UPDATE` path.
+- Current code/test candidate: `bacd51c78a491d5fc0cdc24117ecec25c75cecad`.
+- This candidate contains the bounded decision-approval lock-order repair, its corrected fail-closed Test-of-Test contracts, and the terminal-state conflict-path guard on the `ON CONFLICT ... DO UPDATE` path.
 - Historical evidence from earlier SHAs remains historical and is not promoted automatically.
 - This index update is governance-only; it does not certify runtime, browser, tenant A/B, import, OCR, recovery, backup/restore, performance, or LIVE state.
 
@@ -209,3 +209,11 @@ This is not a rebuild situation. The remaining work is concentrated closure: exe
 - No Certification Boundary guard or unrelated production surface was modified.
 - A fresh exact-head Certification cycle is required after this governance rebind. Historical evidence is not promoted.
 - Release remains **NOT CERTIFIED / NOT LIVE** until the fresh exact-head Final Certification Gate passes and all separate operational/runtime evidence requirements are satisfied.
+
+## GOVERNANCE LOG — 2026-09-10 — CANDIDATE #462 TOCTOU TEST-OF-TEST REPAIR
+- Exact candidate under the next certification boundary: `bacd51c78a491d5fc0cdc24117ecec25c75cecad`.
+- This governance update binds the Master Index to the exact candidate containing the bounded TOCTOU Test-of-Test repair; the validator now binds the decision `FOR UPDATE` specifically to the authoritative decision query and includes adversarial removal/reordering checks.
+- No production SQL or Certification Boundary guard was changed by this repair.
+- The preceding exact-head cycle stopped at the stale-index Boundary by design; therefore no TOCTOU PASS is promoted by this governance update.
+- Fresh exact-head Certification is mandatory to prove the TOCTOU contract itself and then the complete Certification chain.
+- Release remains **NOT CERTIFIED / NOT LIVE** until the exact-head contract evidence and all separate operational/runtime evidence are satisfied.
