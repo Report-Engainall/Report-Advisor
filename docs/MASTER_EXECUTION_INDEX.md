@@ -2,11 +2,11 @@
 
 ## CURRENT EXECUTION BOUNDARY — 2026-09-10
 
-> Authoritative execution manifest. This document never promotes historical evidence across an exact-HEAD boundary. Pair every evidence batch with the exact Git `HEAD` of `main` and the exact environment/commit used.
+> Authoritative execution manifest. This document never promotes historical evidence across an exact Git `HEAD` boundary. Pair every evidence batch with the exact Git `HEAD` of `main` and the exact environment/commit used.
 
 ### CURRENT EXACT HEAD
-- Current code/test candidate: `bb35b68f10f2e60c106fde2268067e427a27d284`.
-- This candidate contains the bounded decision-approval lock-order repair and its corrected fail-closed Test-of-Test contract.
+- Current code/test candidate: `ca584d05cedacc00fcaef38b926a1494f1e5a8e1`.
+- This candidate contains the bounded decision-approval lock-order repair, its corrected fail-closed Test-of-Test contract, and the terminal-state conflict-path guard on the `ON CONFLICT ... DO UPDATE` path.
 - Historical evidence from earlier SHAs remains historical and is not promoted automatically.
 - This index update is governance-only; it does not certify runtime, browser, tenant A/B, import, OCR, recovery, backup/restore, performance, or LIVE state.
 
@@ -79,6 +79,7 @@
 - Outcome/evidence paths enforce tenant/provenance/state boundaries.
 - Authenticated browser decision/evidence lifecycle remains NOT PROVEN.
 - The exact current candidate includes a bounded repair to `request_decision_approval`: the authoritative decision row is locked before approval-state lookup/check, preserving the fail-closed lock-order contract.
+- The current candidate additionally guards the `ON CONFLICT ... DO UPDATE` path so terminal approval states cannot be reopened; a zero-row conflict update is converted into the same terminal-state failure.
 
 ### Observability / Failure Injection
 - Structured error/evidence contracts exist across worker/import/document paths.
@@ -166,7 +167,6 @@ This is not a rebuild situation. The remaining work is concentrated closure: exe
 - Issues #399–#404 are confirmed open independent execution fronts.
 - No Production/RC mutation was performed in this deep audit.
 
-
 ## GOVERNANCE LOG — 2026-09-09 — CURRENT EXACT HEAD
 - Current exact main HEAD after verified forward merges: `0eabfd739bc75fef2e51be1b051d9da95abde072`.
 - PR #450 (executive dashboard UI) merged as `c6101b8c9dc2a201e1b4b1ac1567e15403a37546`.
@@ -178,8 +178,6 @@ This is not a rebuild situation. The remaining work is concentrated closure: exe
 - Therefore no live import lifecycle, Arabic OCR corpus lifecycle, or KPI evidence-lineage runtime PASS is claimed from this inspection alone.
 - CI remains an external billing/execution constraint and is not converted into a product PASS.
 - Next mandatory evidence fronts remain authenticated A/B browser runtime, real import lifecycle, Arabic golden-corpus runtime, worker recovery, watched-folder lifecycle, backup/restore/rollback, performance, and final exact-head certification.
-
-
 
 ## GOVERNANCE LOG — 2026-09-10 — CANDIDATE #462 BOUNDARY
 - Exact candidate under certification: `24fd23c832ad4ee87648ef3691c0f49e6bbb187b`.
@@ -202,4 +200,12 @@ This is not a rebuild situation. The remaining work is concentrated closure: exe
 - No production SQL, Certification Boundary guard, or runtime implementation was changed by this repair.
 - The preceding exact-head CI cycle produced broad technical green results but stopped the Final Certification and Execution Enforcement layers at the stale Master Index boundary, as designed.
 - This update promotes no historical certification or runtime evidence. A fresh Certification cycle on the resulting governance commit is mandatory.
+- Release remains **NOT CERTIFIED / NOT LIVE** until the fresh exact-head Final Certification Gate passes and all separate operational/runtime evidence requirements are satisfied.
+
+## GOVERNANCE LOG — 2026-09-10 — CANDIDATE #462 TERMINAL CONFLICT GUARD
+- Exact candidate under the next certification boundary: `ca584d05cedacc00fcaef38b926a1494f1e5a8e1`.
+- This candidate contains one bounded production correction in `supabase/migrations/20260910020000_fix_decision_approval_lock_order.sql`: the `ON CONFLICT ... DO UPDATE` path now includes a terminal-state `WHERE` guard preventing `APPROVED`, `REJECTED`, or `CANCELLED` approvals from being reopened.
+- If a terminal conflict is encountered, the zero-row `RETURNING` result is converted into the fail-closed `APPROVAL_TERMINAL_NOT_REOPENABLE` exception.
+- No Certification Boundary guard or unrelated production surface was modified.
+- A fresh exact-head Certification cycle is required after this governance rebind. Historical evidence is not promoted.
 - Release remains **NOT CERTIFIED / NOT LIVE** until the fresh exact-head Final Certification Gate passes and all separate operational/runtime evidence requirements are satisfied.
