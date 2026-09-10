@@ -5,9 +5,10 @@
 > Authoritative execution manifest. This document never promotes historical evidence across an exact Git `HEAD` boundary. Pair every evidence batch with the exact Git `HEAD` of `main` and the exact environment/commit used.
 
 ### CURRENT EXACT HEAD
-- Current code/test candidate: `a6e3a30c814dee9f1425fa9e204528a5bd49542a`.
-- This candidate is the exact PR #463 head containing the bounded provenance certification-infrastructure repair.
-- PR #463 adds the bounded sales source runtime binding on top of the existing durable execution contract: it resolves the execution scope, reads authoritative sales data through the Supabase adapter, binds `sourceSnapshotId` to `report_source_versions`, validates tenant identity/source hash/full scope, and fails closed if the authoritative source changes between registration and execution.
+- Current code/test candidate: `a8f02ac9314f918004341c28f0e9c8a29950f59e`.
+- This candidate is the exact PR #463 head containing the bounded governance-runtime-chain certification repair.
+- PR #463 retains the bounded sales source runtime binding on top of the existing durable execution contract: it resolves the execution scope, reads authoritative sales data through the Supabase adapter, binds `sourceSnapshotId` to `report_source_versions`, validates tenant identity/source hash/full scope, and fails closed if the authoritative source changes between registration and execution.
+- The governance-runtime-chain checker now discovers the actual governance migration lineage present in `supabase/migrations` rather than depending on stale historical migration filenames.
 - Historical evidence from earlier SHAs remains historical and is not promoted automatically.
 - This index update is governance-only; it does not certify runtime, browser, tenant A/B, import, OCR, recovery, backup/restore, performance, or LIVE state.
 
@@ -123,7 +124,7 @@
 - PR #397: OPEN, mergeable, not merged.
 - PR #398: OPEN, mergeable, not merged; CodeRabbit's current array-shape finding was verified and repaired.
 - PR #405: OPEN, currently non-mergeable until its fresh review/CI evidence is available.
-- PR #463: OPEN, draft; current branch is undergoing exact-head governance rebind; current candidate `a6e3a30c814dee9f1425fa9e204528a5bd49542a`.
+- PR #463: OPEN, draft; current branch is undergoing exact-head governance rebind; current candidate `a8f02ac9314f918004341c28f0e9c8a29950f59e`.
 - No PR is treated as merged merely because a connector exposes a `merge_commit_sha`; explicit `merged=false` is authoritative.
 
 ## REAL RELEASE ASSESSMENT — 2026-09-07
@@ -161,7 +162,7 @@
 This is not a rebuild situation. The remaining work is concentrated closure: execute the real operational proofs, repair only newly demonstrated defects, bind all evidence to one exact candidate, then run the final certification boundary. No known blocker justifies returning to the beginning.
 
 ## GOVERNANCE LOG — 2026-09-07
-- Main baseline: `5b083100d463aae4a4cf22ebbbff7e1470749b1f`.
+- Main baseline: `5b083100d463aae4a4cf22ebff7e1479b1f`.
 - `6a59b6a67e87620f35590a02828b6ffd5ec709ba`: execution checkpoint for import/RPC call-site audit.
 - PR #396: worker provenance/replay contract reconciliation and import wrapper contract repair.
 - PR #397: OCR truthful confidence repair and behavioral test coverage.
@@ -297,4 +298,14 @@ This is not a rebuild situation. The remaining work is concentrated closure: exe
 - This repair does not manufacture the removed historical migration and does not weaken the provenance invariant.
 - Final Certification Gate run `2947` on the pre-rebind candidate stopped at the stale Master Index boundary, so its underlying certification/provenance suites were correctly skipped.
 - Required next action: fresh Certification Gate after the exact-head governance rebind; then close the real Tenant B → Snapshot A runtime denial, Business-Triggered Report Execution lifecycle, authenticated Chromium A/B E2E, and remaining operational gates.
+- Release remains **NOT CERTIFIED / NOT LIVE**.
+
+## GOVERNANCE LOG — 2026-09-10 — PR #463 GOVERNANCE RUNTIME CHAIN REPAIR
+- Exact candidate under the next certification boundary: `a8f02ac9314f918004341c28f0e9c8a29950f59e`.
+- `scripts/check-governance-runtime-chain.mjs` was repaired to discover and validate the actual governance migration lineage present in `supabase/migrations`, instead of hardcoding stale historical migration filenames that are absent from the repository.
+- The repair retains the required governance primitives, runtime linkage checks, and the explicit prohibition on `GRANT ALL TO anon`; no production runtime behavior, tenant/RLS policy, Certification Boundary guard, or historical migration was weakened or rewritten.
+- No fake replacement migration was created. The defect was correctly classified as stale certification-infrastructure dependency on nonexistent historical filenames.
+- The preceding exact-head certification cycle stopped at `check-governance-runtime-chain.mjs` with the stale migration dependency; no historical PASS is promoted by this rebind.
+- Required next action: fresh exact-head Final Certification on this governance boundary. If the boundary passes, execute the underlying certification suites and classify any newly exposed finding independently.
+- After true Final Certification, continue the previously mandated real Business-Triggered Report Execution lifecycle, Tenant B → Snapshot A denial, authenticated Chromium A/B E2E, and remaining operational gates.
 - Release remains **NOT CERTIFIED / NOT LIVE**.
