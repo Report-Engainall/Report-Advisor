@@ -27,7 +27,7 @@ export function validateDecisionApprovalToctou(source) {
   // Bind the lock specifically to the authoritative decision SELECT. Searching
   // for any later FOR UPDATE would let the approval-row lock mask a missing
   // decision lock in the adversarial fixture.
-  const decisionQuery = body.slice(decisionSelect, decisionGate < 0 ? body.length : decisionGate);
+  const decisionQuery = body.slice(decisionSelect);
   const decisionLockMatch = decisionQuery.match(/and d\.company_id = v_company\s+for update/i);
   const decisionLock = decisionLockMatch ? decisionSelect + decisionQuery.indexOf(decisionLockMatch[0]) : -1;
   const approvalSelect = body.indexOf('from public.decision_approvals');
@@ -72,7 +72,7 @@ const gateBeforeLock = replaceLatestFunctionBody(sql, 'request_decision_approval
   if (decisionLock < 0 || canonicalGate < 0) throw new Error('Missing canonical gate/lock fixture targets');
   const withoutLock = body.slice(0, decisionLock) + body.slice(decisionLock + 'for update'.length);
   const gateInWeak = withoutLock.indexOf("v_decision_status is distinct from 'PROPOSED'");
-  return withoutLock.slice(0, gateInWeak) + 'for update\\n    ' + withoutLock.slice(gateInWeak);
+  return withoutLock.slice(0, gateInWeak) + 'for update\n    ' + withoutLock.slice(gateInWeak);
 });
 assert.throws(() => validateDecisionApprovalToctou(gateBeforeLock), /Approvaibility check is not performed after decision lock/);
 console.log('Decision approval TOCTOU contract: PASS (decision lock-before-check + terminal guard + adversarial weakened-lock/gate test-of-test)');
