@@ -7,10 +7,16 @@ for (const token of [
   'resolveReportExecutionScope',
   'loadSalesSourceSnapshot',
   'createSupabaseSalesSourceQuery',
-  'sourceSnapshotId',
+  'report_source_versions',
+  "eq('id', input.sourceSnapshotId)",
+  "eq('company_id', input.request.tenantId)",
   'SALES_DURABLE_TENANT_MISMATCH',
   'SALES_DURABLE_SNAPSHOT_ID_MISMATCH',
   'SALES_DURABLE_SOURCE_HASH_MISMATCH',
+  'SALES_DURABLE_SNAPSHOT_NOT_FOUND',
+  'SALES_DURABLE_PERSISTED_SOURCE_HASH_MISMATCH',
+  'SALES_DURABLE_PERSISTED_SCOPE_MISMATCH',
+  'SALES_DURABLE_PERSISTED_SOURCE_CHANGED',
 ]) {
   if (!runtime.includes(token)) throw new Error(`runtime binding missing ${token}`);
 }
