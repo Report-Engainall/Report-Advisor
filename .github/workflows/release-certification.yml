@@ -49,6 +49,12 @@ jobs:
         run: npm ci --no-audit --no-fund
       - name: Preflight contracts
         run: npm run typecheck && npm run lint && npm run build && npm run test:production-release-blockers && npm run test:production-readiness && npm run test:operational-resilience && npm run test:release-resilience-manifest && node scripts/check-release-evidence-contract.mjs && node scripts/check-release-evidence-completeness.mjs
+      - name: Validate production regression evidence input
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s release-evidence/production-regression-results.json
+          node -e "const fs=require('node:fs'); const p='release-evidence/production-regression-results.json'; const x=JSON.parse(fs.readFileSync(p,'utf8')); if(!x || Array.isArray(x) || typeof x!=='object') throw new Error('production regression evidence must be an object keyed by scenario id');"
       - name: Create reproducible release evidence and certification decision
         shell: bash
         env:
@@ -93,19 +99,28 @@ jobs:
           const manifest_id = crypto.createHash('sha256').update(JSON.stringify(payload)).digest('hex');
           const manifest = {...payload, manifest_id, generated_at: new Date().toISOString()};
           fs.writeFileSync('release-evidence/manifest.json', JSON.stringify(manifest, null, 2) + '\n');
+
+          const { spawnSync } = require('node:child_process');
+          const decisionRun = spawnSync(process.execPath, ['scripts/production-release-decision.mjs', 'release-evidence/production-regression-results.json'], {encoding: 'utf8'});
+          if (decisionRun.error) throw decisionRun.error;
+          if (!decisionRun.stdout.trim()) throw new Error('evaluateRelease produced no decision JSON');
+          const decision = JSON.parse(decisionRun.stdout.trim().split('\n').at(-1));
+          if (!['approved', 'blocked'].includes(decision.release)) throw new Error(`Invalid release decision: ${decision.release}`);
+          const blocker_count = decision.failures.length;
           const certification = {
             schema_version: 1,
             certification_decision_id: crypto.randomUUID(),
             consumed_release_manifest_id: manifest_id,
             consumed_source_sha: source_sha,
             certification_run_id,
-            certification_result: 'passed',
-            blocker_count: 0,
-            blocker_state: 'clear',
+            certification_result: decision.release === 'approved' ? 'passed' : 'blocked',
+            blocker_count,
+            blocker_state: blocker_count === 0 ? 'clear' : 'blocked',
+            release_decision: decision,
             identity: {
-              source_sha_matches_manifest: true,
-              manifest_id_matches_payload: true,
-              certification_run_id_matches_manifest: true,
+              source_sha_matches_manifest: source_sha === manifest.source_sha,
+              manifest_id_matches_payload: manifest_id === manifest.manifest_id,
+              certification_run_id_matches_manifest: certification_run_id === manifest.certification_run_id,
               ref,
               environment
             },
@@ -124,6 +139,8 @@ jobs:
             `artifact_fingerprint=${artifact_fingerprint}`,
             `generated_at=${manifest.generated_at}`
           ].join('\n') + '\n');
+          console.log(JSON.stringify({release: decision.release, blocker_count, failures: decision.failures}));
+          if (decision.release !== 'approved') process.exit(1);
           NODE
           cat release-evidence/manifest.json
           cat release-evidence/certification-decision.json
