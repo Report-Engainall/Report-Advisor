@@ -13,14 +13,13 @@ test('authenticated CanonicalImportPage imports canonical sales invoices', async
   const anonKey = process.env.E2E_SUPABASE_ANON_KEY;
   const expectedTenantId = process.env.E2E_EXPECTED_TENANT_ID;
 
-  test.skip(
-    !baseUrl || !email || !password || !supabaseUrl || !anonKey || !expectedTenantId,
-    'Missing authenticated certification environment; refusing partial certification',
-  );
+  if (!baseUrl || !email || !password || !supabaseUrl || !anonKey || !expectedTenantId) {
+    throw new Error('AUTHENTICATED_CERTIFICATION_ENV_MISSING');
+  }
 
   const fixture = path.resolve(process.cwd(), 'tests/fixtures/canonical_sales_invoices_2026.csv');
   const importPath = process.env.E2E_IMPORT_PATH ?? '/import';
-  const apiBase = supabaseUrl!.replace(/\/$/, '');
+  const apiBase = supabaseUrl.replace(/\/$/, '');
 
   async function authenticatedRest(pathname: string, init: RequestInit = {}) {
     return page.evaluate(async ({ apiBase, anonKey, pathname, init }) => {
@@ -42,9 +41,9 @@ test('authenticated CanonicalImportPage imports canonical sales invoices', async
     }, { apiBase, anonKey, pathname, init });
   }
 
-  await page.goto(new URL('/login', baseUrl!).toString(), { waitUntil: 'networkidle' });
-  await page.getByLabel(/email/i).fill(email!);
-  await page.getByLabel(/password/i).fill(password!);
+  await page.goto(new URL('/login', baseUrl).toString(), { waitUntil: 'networkidle' });
+  await page.getByLabel(/email/i).fill(email);
+  await page.getByLabel(/password/i).fill(password);
   await page.getByRole('button', { name: /sign in|login|دخول|تسجيل/i }).click();
   await page.waitForLoadState('networkidle');
 
@@ -58,7 +57,7 @@ test('authenticated CanonicalImportPage imports canonical sales invoices', async
   expect(beforeImports).toHaveLength(0);
   const beforeInvoiceCount = beforeInvoices.length;
 
-  await page.goto(new URL(importPath, baseUrl!).toString(), { waitUntil: 'networkidle' });
+  await page.goto(new URL(importPath, baseUrl).toString(), { waitUntil: 'networkidle' });
   await expect(page).toHaveURL(new RegExp(importPath.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
 
   const fileInput = page.locator('input[type="file"]');
@@ -87,14 +86,13 @@ test('authenticated CanonicalImportPage imports canonical sales invoices', async
 
   const afterInvoices = await authenticatedRest('/rest/v1/sales_invoices?select=id,invoice_number,company_id');
   expect(afterInvoices.length).toBe(beforeInvoiceCount + 4);
-  const importedInvoiceNumbers = ['INV-2026-001', 'INV-2026-002', 'INV-2026-003', 'INV-2026-004'];
-  for (const invoiceNumber of importedInvoiceNumbers) {
+  for (const invoiceNumber of ['INV-2026-001', 'INV-2026-002', 'INV-2026-003', 'INV-2026-004']) {
     const rows = afterInvoices.filter((row: { invoice_number: string; company_id: string }) => row.invoice_number === invoiceNumber);
     expect(rows).toHaveLength(1);
     expect(rows[0].company_id).toBe(expectedTenantId);
   }
 
-  await page.goto(new URL('/', baseUrl!).toString(), { waitUntil: 'networkidle' });
+  await page.goto(new URL('/', baseUrl).toString(), { waitUntil: 'networkidle' });
   await expect(page.getByRole('heading', { name: 'لوحة القيادة' })).toBeVisible();
   await expect(page.getByText('إجمالي المبيعات')).toBeVisible();
   await expect(page.getByText('عدد الفواتير')).toBeVisible();
