@@ -9,8 +9,9 @@ import { supabase, resolveCurrentCompanyId } from '@/lib/supabase';
 import { formatDateTime, formatNumber } from '@/lib/format';
 import { detectFormat } from '@/lib/file-engine/detector';
 import { securityScan, computeSHA256, checkDuplicate } from '@/lib/file-engine/security';
-import { parseFile } from '@/lib/file-engine/adapters';
-import { FORMAT_LABELS, MAX_FILE_SIZE, type FileFormat, type Dataset } from '@/lib/file-engine/types';
+import { FORMAT_LABELS, MAX_FILE_SIZE, type FileFormat } from '@/lib/file-engine/types';
+import { buildOperationalPreview } from '@/lib/file-engine/operational-pipeline';
+import { ReportExecutionCoordinator } from '@/lib/report-execution/execution-ledger';
 import { commitImportBatch, type CanonicalImportRow } from '@/lib/import/canonical-commit';
 
 type Step = 'upload' | 'scanning' | 'preview' | 'committing' | 'done';
@@ -28,6 +29,15 @@ function icon(format: FileFormat) {
   if (['pdf', 'docx', 'doc', 'rtf'].includes(format)) return <FileText size={16} />;
   if (['jpg', 'jpeg', 'png', 'webp', 'tiff', 'bmp'].includes(format)) return <FileImage size={16} />;
   return <FileType size={16} />;
+}
+
+function stableRowValue(row: Record<string, unknown>): string {
+  return JSON.stringify(Object.keys(row).sort().map((key) => [key, row[key]]));
+}
+
+async function sha256Text(value: string): Promise<string> {
+  const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(value));
+  return [...new Uint8Array(digest)].map((byte) => byte.toString(16).padStart(2, '0')).join('');
 }
 
 export function CanonicalImportPage() {
@@ -71,8 +81,107 @@ export function CanonicalImportPage() {
       const dup = await checkDuplicate(hash, companyId, supabase);
       setDuplicate(dup.isDuplicate);
       if (dup.isDuplicate) setWarnings(prev => [...prev, 'تم استيراد هذا الملف من قبل']);
-      const datasets: Dataset[] = await parseFile(buffer, selected.name, detection.format);
-      const dataset = datasets[0];
+
+      const coordinator = new ReportExecutionCoordinator();
+      const execution = await coordinator.runFilePipeline<Record<string, unknown>>({
+        bytes: buffer,
+        fileName: selected.name,
+        format: detection.format,
+        stopAfter: 'decisioned',
+        dependencies: {
+          canonicalize: (datasets) => datasets.flatMap((dataset) => dataset.rows as Record<string, unknown>[]),
+          validate: (canonicalRows) => {
+            const config = ENTITIES.find((entity) => entity.value === entityType)!;
+            let validCount = 0;
+            let invalidCount = 0;
+            for (const row of canonicalRows) {
+              const missing = config.required.filter((field) => {
+                const key = Object.keys(row).find((candidate) => candidate === field) ?? Object.keys(row).find((candidate) => candidate.toLowerCase().includes(field.toLowerCase()));
+                const value = key ? row[key] : undefined;
+                return value == null || String(value).trim() === '';
+              });
+              if (missing.length) invalidCount += 1;
+              else validCount += 1;
+            }
+            return {
+              ok: validCount > 0,
+              evidenceKeys: [
+                `validation.rows:${canonicalRows.length}`,
+                `validation.valid:${validCount}`,
+                `validation.invalid:${invalidCount}`,
+              ],
+              errorCode: validCount > 0 ? undefined : 'NO_VALID_ROWS',
+              errorMessage: validCount > 0 ? undefined : 'لم توجد صفوف صالحة بعد التحقق من الحقول المطلوبة',
+            };
+          },
+          reconcile: (canonicalRows) => {
+            const preview = buildOperationalPreview(
+              [...new Set(canonicalRows.flatMap((row) => Object.keys(row)))],
+              canonicalRows,
+              [],
+            );
+            return {
+              evidenceKeys: [
+                `reconciliation.fingerprint:${preview.fingerprint}`,
+                `reconciliation.new:${preview.counts.new}`,
+                `reconciliation.updated:${preview.counts.updated}`,
+                `reconciliation.unchanged:${preview.counts.unchanged}`,
+                `reconciliation.conflict:${preview.counts.conflict}`,
+                `reconciliation.error:${preview.counts.error}`,
+              ],
+            };
+          },
+          buildLifecycleInput: async ({ sourceHash, rows: canonicalRows, reconciliation }) => {
+            const config = ENTITIES.find((entity) => entity.value === entityType)!;
+            const validRows = canonicalRows.filter((row) => config.required.every((field) => {
+              const key = Object.keys(row).find((candidate) => candidate === field) ?? Object.keys(row).find((candidate) => candidate.toLowerCase().includes(field.toLowerCase()));
+              const value = key ? row[key] : undefined;
+              return value != null && String(value).trim() !== '';
+            }));
+            const currentRows = await Promise.all(validRows.map(async (row, index) => {
+              const hash = await sha256Text(stableRowValue(row));
+              const key = String(row.invoice_number ?? row.sku ?? row.customer_id ?? `row-${index + 1}`);
+              return { key, hash, value: row };
+            }));
+            const observedAt = new Date().toISOString();
+            const sourceCandidates = currentRows.map((row) => ({
+              businessKey: row.key,
+              sourceId: `${selected.name}:${row.hash}`,
+              precedence: 0,
+              observedAt,
+              value: row.value,
+            }));
+            return {
+              jobId: `file:${sourceHash}`,
+              companyId,
+              sourceHash,
+              previousRows: [],
+              currentRows,
+              sourceCandidates,
+              scenarioOptions: [],
+              riskBudget: { maxRisk: 0, protectedLiquidity: 0, minimumServiceLevel: 0 },
+              portfolioCandidates: [],
+              autonomy: {
+                trustHealthy: false,
+                evidenceQuality: 1,
+                confidence: 1,
+                riskBudgetValid: true,
+                criticalDrift: false,
+                rollbackVerified: false,
+                isolationVerified: false,
+              },
+              evidence: [
+                { key: `runtime.source:${sourceHash}`, source: `file:${selected.name}`, observedAt, quality: 1 },
+                { key: `runtime.tenant:${companyId}`, source: 'authenticated-tenant-context', observedAt, quality: 1 },
+                { key: `runtime.rows:${currentRows.length}`, source: 'file-engine.canonical-dataset', observedAt, quality: currentRows.length ? 1 : 0 },
+                ...reconciliation.evidenceKeys.map((key) => ({ key, source: 'file-engine.operational-preview', observedAt, quality: 1 })),
+              ],
+            };
+          },
+        },
+      });
+
+      const dataset = execution.datasets[0];
       if (!dataset || dataset.rowCount === 0) throw new Error('الملف فارغ أو لا يحتوي على بيانات قابلة للقراءة');
       setQuality(dataset.qualityScore);
       setMappings(dataset.columns.map(c => ({ name: c.name, mappedField: c.mappedField, confidence: c.mappingConfidence })));
@@ -87,6 +196,7 @@ export function CanonicalImportPage() {
         });
         return { rowNumber: i + 1, data, valid: missing.length === 0, error: missing.length ? `حقول مطلوبة ناقصة: ${missing.join(', ')}` : undefined };
       }));
+      setWarnings(prev => [...prev, `Runtime checkpoints: ${execution.executedStages.join(' → ')}`]);
       setStep('preview');
     } catch (e: any) {
       setError(e?.message || 'فشل قراءة الملف'); setStep('upload');
