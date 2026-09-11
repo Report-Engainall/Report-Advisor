@@ -99,13 +99,11 @@ export function CanonicalImportPage() {
     setStep('committing'); setProgress(0); setError(null);
     try {
       const rec = await createImportRecord({ file_name: file.name, file_size: file.size, source_type: file.format, status: 'processing', total_rows: rows.length, valid_rows: valid.length, invalid_rows: rows.length - valid.length, quarantined_rows: rows.length - valid.length, entity_type: entityType, progress: 0 });
-      const batchSize = 50; let committed = 0;
-      for (let i = 0; i < valid.length; i += batchSize) {
-        const batch: CanonicalImportRow[] = valid.slice(i, i + batchSize).map(r => ({ rowNumber: r.rowNumber, data: r.data }));
-        await commitImportBatch(entityType, batch);
-        committed += batch.length;
-        setProgress(Math.round((committed / valid.length) * 100));
-      }
+      // File-level atomic boundary: one RPC call carries the complete canonical payload.
+      // The DB RPC owns the transaction, so any row failure rolls back the whole file instead of leaving earlier batches committed.
+      const batch: CanonicalImportRow[] = valid.map(r => ({ rowNumber: r.rowNumber, data: r.data }));
+      await commitImportBatch(entityType, batch);
+      setProgress(100);
       await updateImportRecord(rec.id, { status: 'completed', progress: 100, completed_at: new Date().toISOString() });
       setResult({ total: rows.length, valid: valid.length, invalid: rows.length - valid.length, importId: rec.id });
       setStep('done'); await loadHistory();
