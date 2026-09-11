@@ -18,9 +18,9 @@ type EntityType = 'sales_invoices' | 'products' | 'customers';
 interface Row { rowNumber: number; data: Record<string, any>; valid: boolean; error?: string }
 
 const ENTITIES: Array<{ value: EntityType; label: string; required: string[] }> = [
-  { value: 'sales_invoices', label: 'فواتير المبيعات', required: ['invoice_number', 'invoice_date', 'customer_name', 'total'] },
-  { value: 'products', label: 'المنتجات', required: ['sku', 'name', 'cost_price', 'selling_price'] },
-  { value: 'customers', label: 'العملاء', required: ['name'] },
+  { value: 'sales_invoices', label: 'فواتير المبيعات', required: ['invoice_number', 'invoice_date', 'subtotal', 'tax_amount', 'total', 'paid_amount', 'status'] },
+  { value: 'products', label: 'المنتجات', required: ['sku', 'name', 'unit', 'cost_price', 'selling_price', 'min_stock', 'reorder_point', 'is_active'] },
+  { value: 'customers', label: 'العملاء', required: ['name', 'segment', 'credit_limit', 'payment_terms_days'] },
 ];
 
 function icon(format: FileFormat) {
