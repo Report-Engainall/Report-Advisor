@@ -1,10 +1,14 @@
 import type { ReportExecutionCheckpoint, ReportExecutionStage } from './checkpoint';
+import { advanceCheckpoint, assertValidTransition } from './checkpoint';
 import type { ReportExecutionRequest } from './report-execution-contract';
 import { SupabaseReportExecutionStore } from './durable-worker-adapter';
 import { runProductionLifecycle, assertProductionCheckpoint, type ProductionLifecycleInput } from './production-coordinator-bridge';
 
 const ORDER: ReportExecutionStage[] = ['queued', 'fingerprinted', 'extracted', 'canonicalized', 'validated', 'analyzed', 'decisioned', 'committed', 'rendered'];
-const next = (s: ReportExecutionStage): ReportExecutionStage | null => { const i = ORDER.indexOf(s); return i >= 0 && i < ORDER.length - 1 ? ORDER[i + 1] : null; };
+const next = (s: ReportExecutionStage): ReportExecutionStage | null => {
+  const i = ORDER.indexOf(s);
+  return i >= 0 && i < ORDER.length - 1 ? ORDER[i + 1] : null;
+};
 
 export interface DurableProductionRunInput<T = unknown> {
   jobId: string;
@@ -34,31 +38,66 @@ export async function runDurableProductionLifecycle<T>(input: DurableProductionR
       void store.heartbeat(input.jobId, input.workerId, leaseSeconds).catch((error) => { heartbeatFailure ??= error; });
     }, heartbeatIntervalMs);
 
-    const checkpoint = (stage: ReportExecutionStage): ReportExecutionCheckpoint => ({ ...job.checkpoint, sourceHash: input.sourceHash, stage, updatedAt: Date.now() });
-    let stage = job.checkpoint.stage;
-    while (stage !== 'rendered') {
+    let checkpoint = job.checkpoint;
+    let lifecycle: ReturnType<typeof runProductionLifecycle<T>> | undefined;
+    const observedCheckpointHistory: ReportExecutionCheckpoint[] = [checkpoint];
+
+    while (checkpoint.stage !== 'rendered') {
       if (heartbeatFailure) throw heartbeatFailure;
-      const following = next(stage);
-      if (!following) throw new Error(`Cannot advance production lifecycle from ${stage}`);
-      if (input.executeStage) await input.executeStage(following, { request: input.request, rows: input.rows });
+      const following = next(checkpoint.stage);
+      if (!following) throw new Error(`Cannot advance production lifecycle from ${checkpoint.stage}`);
+      assertValidTransition(checkpoint.stage, following);
+
+      if (input.executeStage) {
+        await input.executeStage(following, { request: input.request, rows: input.rows });
+      }
+
+      if (following === 'decisioned') {
+        lifecycle = runProductionLifecycle({
+          ...input.lifecycle,
+          jobId: input.jobId,
+          companyId: input.request.tenantId,
+          sourceHash: input.sourceHash,
+          currentRows: input.lifecycle.currentRows,
+        });
+      }
+
+      const evidenceKeys = following === 'decisioned' && lifecycle
+        ? [
+            `decision.scenario:${lifecycle.scenario?.key ?? 'none'}`,
+            `decision.portfolio:${lifecycle.portfolio.length}`,
+            `decision.autonomy:${lifecycle.autonomy.eligible ? 'eligible' : 'blocked'}`,
+          ]
+        : [];
+      checkpoint = advanceCheckpoint(checkpoint, {
+        stage: following,
+        sourceHash: input.sourceHash,
+        rowCount: input.rows.length,
+        evidenceKeys,
+      });
+      observedCheckpointHistory.push(checkpoint);
       if (heartbeatFailure) throw heartbeatFailure;
-      await store.saveCheckpoint(input.jobId, checkpoint(following), input.workerId);
-      stage = following;
+      await store.saveCheckpoint(input.jobId, checkpoint, input.workerId);
     }
 
-    const lifecycle = runProductionLifecycle({
-      ...input.lifecycle,
-      jobId: input.jobId,
-      companyId: input.request.tenantId,
-      sourceHash: input.sourceHash,
-      currentRows: input.lifecycle.currentRows,
-    });
+    if (!lifecycle) {
+      lifecycle = runProductionLifecycle({
+        ...input.lifecycle,
+        jobId: input.jobId,
+        companyId: input.request.tenantId,
+        sourceHash: input.sourceHash,
+        currentRows: input.lifecycle.currentRows,
+      });
+    }
+
     await store.complete(input.jobId, input.workerId, {
       sourceHash: input.sourceHash,
       lineageCount: lifecycle.lineage.length,
       scenario: lifecycle.scenario,
       portfolio: lifecycle.portfolio,
       autonomy: lifecycle.autonomy,
+      observedCheckpointHistory,
+      executedStages: observedCheckpointHistory.map((entry) => entry.stage),
     });
     return lifecycle;
   } catch (error) {
