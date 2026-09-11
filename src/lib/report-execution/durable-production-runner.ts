@@ -13,7 +13,12 @@ export interface DurableProductionRunInput<T = unknown> {
   sourceHash: string;
   rows: Array<Record<string, unknown>>;
   lifecycle: Omit<ProductionLifecycleInput<T>, 'jobId' | 'companyId' | 'sourceHash' | 'currentRows'> & { currentRows: ProductionLifecycleInput<T>['currentRows'] };
-  executeStage?: (stage: ReportExecutionStage, input: { request: ReportExecutionRequest; rows: Array<Record<string, unknown>> }) => Promise<void>;
+  /**
+   * Executes exactly one lifecycle stage before its durable checkpoint is advanced.
+   * The implementation must be idempotent for (jobId, stage, sourceHash), because a
+   * crash after the side effect and before checkpoint persistence causes a retry.
+   */
+  executeStage: (stage: ReportExecutionStage, input: { jobId: string; request: ReportExecutionRequest; rows: Array<Record<string, unknown>>; sourceHash: string }) => Promise<void>;
   leaseSeconds?: number;
   heartbeatIntervalMs?: number;
 }
@@ -34,14 +39,32 @@ export async function runDurableProductionLifecycle<T>(input: DurableProductionR
       void store.heartbeat(input.jobId, input.workerId, leaseSeconds).catch((error) => { heartbeatFailure ??= error; });
     }, heartbeatIntervalMs);
 
-    const checkpoint = (stage: ReportExecutionStage): ReportExecutionCheckpoint => ({ ...job.checkpoint, sourceHash: input.sourceHash, stage, updatedAt: Date.now() });
+    const checkpoint = (stage: ReportExecutionStage): ReportExecutionCheckpoint => ({
+      ...job.checkpoint,
+      sourceHash: input.sourceHash,
+      stage,
+      updatedAt: Date.now(),
+    });
+
     let stage = job.checkpoint.stage;
     while (stage !== 'rendered') {
       if (heartbeatFailure) throw heartbeatFailure;
+
       const following = next(stage);
       if (!following) throw new Error(`Cannot advance production lifecycle from ${stage}`);
-      if (input.executeStage) await input.executeStage(following, { request: input.request, rows: input.rows });
+
+      await input.executeStage(following, {
+        jobId: input.jobId,
+        request: input.request,
+        rows: input.rows,
+        sourceHash: input.sourceHash,
+      });
+
       if (heartbeatFailure) throw heartbeatFailure;
+
+      // The durable checkpoint is intentionally advanced only after the stage
+      // executor succeeds. The canonical "committed" executor must perform its
+      // data mutation atomically and idempotently under (tenant, jobId, sourceHash).
       await store.saveCheckpoint(input.jobId, checkpoint(following), input.workerId);
       stage = following;
     }
@@ -53,6 +76,7 @@ export async function runDurableProductionLifecycle<T>(input: DurableProductionR
       sourceHash: input.sourceHash,
       currentRows: input.lifecycle.currentRows,
     });
+
     await store.complete(input.jobId, input.workerId, {
       sourceHash: input.sourceHash,
       lineageCount: lifecycle.lineage.length,
@@ -60,6 +84,7 @@ export async function runDurableProductionLifecycle<T>(input: DurableProductionR
       portfolio: lifecycle.portfolio,
       autonomy: lifecycle.autonomy,
     });
+
     return lifecycle;
   } catch (error) {
     try {
