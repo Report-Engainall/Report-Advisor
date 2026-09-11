@@ -30,6 +30,7 @@ export interface FilePipelineInput<T = unknown> {
   format: FileFormat;
   dependencies: FilePipelineDependencies<T>;
   initialEvidenceKeys?: string[];
+  stopAfter?: 'decisioned' | 'rendered';
 }
 
 export interface FilePipelineResult<T = unknown> {
@@ -109,6 +110,10 @@ export class ReportExecutionCoordinator {
       ],
     });
     observedCheckpointHistory.push(checkpoint);
+
+    if (input.stopAfter === 'decisioned') {
+      return { sourceHash, datasets, rows, reconciliation, lifecycle, observedCheckpointHistory, executedStages: observedCheckpointHistory.map(c => c.stage) };
+    }
 
     checkpoint = advanceCheckpoint(checkpoint, { stage: 'committed', sourceHash, rowCount: rows.length, evidenceKeys: [`lifecycle.job:${lifecycle.jobId}`, `lifecycle.tenant:${lifecycle.companyId}`] });
     observedCheckpointHistory.push(checkpoint);
