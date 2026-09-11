@@ -2,7 +2,7 @@ import type { ReportExecutionCheckpoint, ReportExecutionStage } from './checkpoi
 import { advanceCheckpoint, assertValidTransition } from './checkpoint';
 import type { ReportExecutionRequest } from './report-execution-contract';
 import { SupabaseReportExecutionStore } from './durable-worker-adapter';
-import { runProductionLifecycle, assertProductionCheckpoint, type ProductionLifecycleInput } from './production-coordinator-bridge';
+import { runProductionLifecycle, assertProductionCheckpoint, type ProductionLifecycleInput, type ProductionLifecycleResult } from './production-coordinator-bridge';
 
 const ORDER: ReportExecutionStage[] = ['queued', 'fingerprinted', 'extracted', 'canonicalized', 'validated', 'analyzed', 'decisioned', 'committed', 'rendered'];
 const next = (s: ReportExecutionStage): ReportExecutionStage | null => {
@@ -39,7 +39,7 @@ export async function runDurableProductionLifecycle<T>(input: DurableProductionR
     }, heartbeatIntervalMs);
 
     let checkpoint = job.checkpoint;
-    let lifecycle: ReturnType<typeof runProductionLifecycle<T>> | undefined;
+    let lifecycle: ProductionLifecycleResult<T> | undefined;
     const observedCheckpointHistory: ReportExecutionCheckpoint[] = [checkpoint];
 
     while (checkpoint.stage !== 'rendered') {
