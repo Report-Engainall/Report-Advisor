@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { scenarios } from './production-scenario-matrix.mjs';
-import { baseline, compareScenarioResult } from './production-regression-baseline.mjs';
+import { compareScenarioResult } from './production-regression-baseline.mjs';
 
 function fail(message) { throw new Error(`Production evidence producer: ${message}`); }
 
