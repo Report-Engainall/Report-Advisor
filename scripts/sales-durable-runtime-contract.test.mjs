@@ -20,7 +20,17 @@ for (const token of [
 ]) {
   if (!runtime.includes(token)) throw new Error(`runtime binding missing ${token}`);
 }
-for (const token of ['CREATE OR REPLACE FUNCTION get_executive_metrics', 's.company_id=p_company_id', "s.status NOT IN ('cancelled','void')"]) {
+for (const token of [
+  'CREATE OR REPLACE FUNCTION get_executive_metrics',
+  'SECURITY INVOKER',
+  'public.current_company_id()',
+  'EXECUTIVE_METRICS_TENANT_CONTEXT_REQUIRED',
+  'REVOKE ALL ON FUNCTION public.get_executive_metrics(uuid,date,date) FROM PUBLIC',
+  'REVOKE ALL ON FUNCTION public.get_executive_metrics(uuid,date,date) FROM anon',
+  'GRANT EXECUTE ON FUNCTION public.get_executive_metrics(uuid,date,date) TO authenticated',
+  's.company_id=p_company_id',
+  "s.status NOT IN ('cancelled','void')",
+]) {
   if (!migration.includes(token)) throw new Error(`runtime reconciliation missing ${token}`);
 }
 console.log('SALES_DURABLE_RUNTIME_CONTRACT PASS');
