@@ -30,13 +30,14 @@ const results = {};
 for (let index = 0; index < scenarios.length; index += 1) {
   const scenario = scenarios[index];
   const id = scenarioId(scenario, index);
+  const expected = String(scenario.expect ?? '');
   const input = inputDir ? resolve(inputDir, id) : null;
   const startedAt = new Date().toISOString();
   const started = Date.now();
 
   if (inputDir && !existsSync(input)) {
     results[id] = {
-      expected: null,
+      expected,
       stages: [],
       status: 'BLOCKED',
       reason: 'REAL_SCENARIO_INPUT_MISSING',
@@ -69,7 +70,7 @@ for (let index = 0; index < scenarios.length; index += 1) {
 
   if (run.error) {
     results[id] = {
-      expected: null,
+      expected,
       stages: [],
       status: 'FAIL',
       reason: 'SCENARIO_EXECUTION_ERROR',
@@ -85,7 +86,7 @@ for (let index = 0; index < scenarios.length; index += 1) {
 
   if (!observed || typeof observed !== 'object' || Array.isArray(observed)) {
     results[id] = {
-      expected: null,
+      expected,
       stages: [],
       status: 'FAIL',
       reason: 'SCENARIO_EVIDENCE_INVALID_JSON',
@@ -98,9 +99,44 @@ for (let index = 0; index < scenarios.length; index += 1) {
     continue;
   }
 
+  const observedExpected = observed.expected == null ? '' : String(observed.expected);
+  if (observedExpected !== expected) {
+    results[id] = {
+      expected,
+      stages: Array.isArray(observed.stages) ? observed.stages : [],
+      status: 'FAIL',
+      reason: 'SCENARIO_EXPECTATION_MISMATCH',
+      observedExpected,
+      exitCode: run.status,
+      startedAt,
+      finishedAt,
+      durationMs: Date.now() - started,
+      stderr: stderr || undefined,
+    };
+    continue;
+  }
+
+  const observedStatus = String(observed.status ?? '');
+  if (!['PASS', 'FAIL', 'BLOCKED'].includes(observedStatus)) {
+    results[id] = {
+      expected,
+      stages: Array.isArray(observed.stages) ? observed.stages : [],
+      status: 'FAIL',
+      reason: 'SCENARIO_STATUS_INVALID',
+      observedStatus,
+      exitCode: run.status,
+      startedAt,
+      finishedAt,
+      durationMs: Date.now() - started,
+      stderr: stderr || undefined,
+    };
+    continue;
+  }
+
   results[id] = {
     ...observed,
-    status: run.status === 0 && observed.status === 'PASS' ? 'PASS' : 'FAIL',
+    expected,
+    status: run.status === 0 && observedStatus === 'PASS' ? 'PASS' : observedStatus === 'BLOCKED' ? 'BLOCKED' : 'FAIL',
     exitCode: run.status,
     startedAt,
     finishedAt,
