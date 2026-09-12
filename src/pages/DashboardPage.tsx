@@ -63,6 +63,7 @@ export function DashboardPage() {
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <KPICard label="إجمالي المبيعات" value={kpis.totalSales} format="currency" icon={<DollarSign size={16} />} status={kpis.status} />
+        <KPICard label="إجمالي المشتريات" value={kpis.totalPurchases} format="currency" icon={<ShoppingCart size={16} />} status={kpis.status} />
         <KPICard label="إجمالي الربح" value={kpis.grossProfit} format="currency" icon={<TrendingUp size={16} />} status={kpis.status} hint={kpis.grossMargin === null ? undefined : `هامش: ${kpis.grossMargin.toFixed(1)}%`} />
         <KPICard label="الذمم المدينة" value={kpis.totalReceivables} format="currency" icon={<Receipt size={16} />} status={kpis.status} hint={kpis.overdueReceivables === null ? undefined : `متأخرة: ${formatCurrency(kpis.overdueReceivables)}`} />
         <KPICard label="قيمة المخزون" value={kpis.inventoryValue} format="currency" icon={<Package size={16} />} status={kpis.status} />
