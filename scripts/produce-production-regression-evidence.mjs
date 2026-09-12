@@ -1,0 +1,80 @@
+#!/usr/bin/env node
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
+import { spawnSync } from 'node:child_process';
+
+const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+const matrixPath = resolve(root, 'scripts/production-scenario-matrix.mjs');
+const outputPath = resolve(root, 'release-evidence/production-regression-results.json');
+const executor = process.env.PRODUCTION_SCENARIO_EXECUTOR;
+const inputDir = process.env.PRODUCTION_SCENARIO_INPUT_DIR ? resolve(process.env.PRODUCTION_SCENARIO_INPUT_DIR) : null;
+
+if (!existsSync(matrixPath)) throw new Error(`SCENARIO_MATRIX_MISSING:${matrixPath}`);
+if (!executor) throw new Error('PRODUCTION_SCENARIO_EXECUTOR_REQUIRED');
+const executorPath = resolve(root, executor);
+if (!existsSync(executorPath)) throw new Error(`PRODUCTION_SCENARIO_EXECUTOR_MISSING:${executorPath}`);
+if (inputDir && !existsSync(inputDir)) throw new Error(`PRODUCTION_SCENARIO_INPUT_DIR_MISSING:${inputDir}`);
+
+const matrixModule = await import(pathToFileURL(matrixPath).href);
+const scenarios = matrixModule.default ?? matrixModule.PRODUCTION_SCENARIOS ?? matrixModule.scenarios ?? matrixModule.SCENARIO_MATRIX;
+if (!Array.isArray(scenarios) || scenarios.length !== 12) throw new Error(`PRODUCTION_SCENARIO_MATRIX_INVALID:${Array.isArray(scenarios) ? scenarios.length : 'not-array'}`);
+
+function scenarioId(scenario, index) {
+  return String(scenario.id ?? scenario.key ?? scenario.name ?? `scenario-${index + 1}`);
+}
+
+const results = [];
+for (let index = 0; index < scenarios.length; index += 1) {
+  const scenario = scenarios[index];
+  const id = scenarioId(scenario, index);
+  const input = inputDir ? resolve(inputDir, id) : null;
+  if (inputDir && !existsSync(input)) throw new Error(`REAL_SCENARIO_INPUT_MISSING:${id}:${input}`);
+
+  const startedAt = new Date().toISOString();
+  const started = Date.now();
+  const args = [executorPath, id, JSON.stringify(scenario)];
+  if (input) args.push(input);
+  const run = spawnSync(process.execPath, args, { cwd: root, encoding: 'utf8', env: process.env, maxBuffer: 10 * 1024 * 1024 });
+  const finishedAt = new Date().toISOString();
+  const stdout = String(run.stdout ?? '').trim();
+  const stderr = String(run.stderr ?? '').trim();
+
+  let observed;
+  try {
+    observed = stdout ? JSON.parse(stdout) : null;
+  } catch {
+    observed = null;
+  }
+
+  if (run.error) throw new Error(`SCENARIO_EXECUTION_ERROR:${id}:${run.error.message}`);
+  if (!observed || typeof observed !== 'object') {
+    throw new Error(`SCENARIO_EVIDENCE_INVALID_JSON:${id}`);
+  }
+
+  results.push({
+    id,
+    status: run.status === 0 && observed.status === 'PASS' ? 'PASS' : 'FAIL',
+    exitCode: run.status,
+    startedAt,
+    finishedAt,
+    durationMs: Date.now() - started,
+    observed,
+    stderr: stderr || undefined,
+  });
+}
+
+const output = {
+  generatedAt: new Date().toISOString(),
+  candidateSha: process.env.GITHUB_SHA ?? process.env.RELEASE_CANDIDATE_SHA ?? null,
+  producer: 'scripts/produce-production-regression-evidence.mjs',
+  source: 'real-scenario-execution',
+  scenarioCount: results.length,
+  passed: results.filter((result) => result.status === 'PASS').length,
+  failed: results.filter((result) => result.status !== 'PASS').length,
+  scenarios: results,
+};
+
+mkdirSync(dirname(outputPath), { recursive: true });
+writeFileSync(outputPath, `${JSON.stringify(output, null, 2)}\n`, 'utf8');
+console.log(JSON.stringify({ outputPath, candidateSha: output.candidateSha, passed: output.passed, failed: output.failed, scenarioCount: output.scenarioCount }));
