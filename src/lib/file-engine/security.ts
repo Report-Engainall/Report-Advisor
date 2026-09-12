@@ -21,30 +21,25 @@ export function securityScan(file: File, buffer: ArrayBuffer): SecurityScanResul
 
 export async function checkDuplicate(hash: string, _legacyCompanyId?: string, _legacySupabase?: typeof supabase): Promise<{ isDuplicate: boolean; existing: FileRecord | null }> {
   const companyId = await resolveCurrentCompanyId(); if (!companyId) throw new Error('TENANT_CONTEXT_REQUIRED');
-  const { data, error } = await supabase.from('file_records').select('id,company_id,file_name,file_hash,created_at,status').eq('company_id', companyId).eq('file_hash', hash).in('status', ['uploaded', 'processing', 'completed', 'partial']).order('created_at', { ascending: false }).limit(1).maybeSingle();
-  if (error) throw error; if (!data) return { isDuplicate: false, existing: null }; return { isDuplicate: true, existing: data as FileRecord };
+  const { data, error } = await supabase.from('file_records').select('id,company_id,file_name,file_hash,created_at,status').eq('company_id', companyId).eq('file_hash', hash).order('created_at', { ascending: false }).limit(1).maybeSingle();
+  if (error) throw error;
+  if (!data) return { isDuplicate: false, existing: null };
+  const existing = data as FileRecord;
+  return { isDuplicate: existing.status === 'completed' || existing.status === 'partial', existing };
 }
 
 export async function registerFileRecord(input: { fileName: string; fileSize: number; fileHash: string; fileExtension?: string | null; fileMime?: string | null; detectedFormat?: string | null }): Promise<FileRecord> {
   const companyId = await resolveCurrentCompanyId(); if (!companyId) throw new Error('TENANT_CONTEXT_REQUIRED');
-  const { data, error } = await supabase.from('file_records').insert({
-    company_id: companyId,
-    file_name: input.fileName,
-    file_size: input.fileSize,
-    file_hash: input.fileHash,
-    file_extension: input.fileExtension ?? null,
-    file_mime: input.fileMime ?? null,
-    detected_format: input.detectedFormat ?? null,
-    security_status: 'passed',
-    is_duplicate: false,
-    status: 'processing',
-  }).select('id,company_id,file_name,file_hash,created_at,status').single();
-  if (error) {
-    if (error.code === '23505') throw new Error('IMPORT_SOURCE_ALREADY_REGISTERED');
-    throw error;
+  const { data, error } = await supabase.from('file_records').insert({ company_id: companyId, file_name: input.fileName, file_size: input.fileSize, file_hash: input.fileHash, file_extension: input.fileExtension ?? null, file_mime: input.fileMime ?? null, detected_format: input.detectedFormat ?? null, security_status: 'passed', is_duplicate: false, status: 'processing' }).select('id,company_id,file_name,file_hash,created_at,status').single();
+  if (!error && data) return data as FileRecord;
+  if (error?.code === '23505') {
+    const existing = await supabase.from('file_records').select('id,company_id,file_name,file_hash,created_at,status').eq('company_id', companyId).eq('file_hash', input.fileHash).maybeSingle();
+    if (existing.error) throw existing.error;
+    if (existing.data && ['processing', 'failed', 'cancelled'].includes(existing.data.status)) return existing.data as FileRecord;
+    throw new Error('IMPORT_SOURCE_ALREADY_REGISTERED');
   }
-  if (!data) throw new Error('IMPORT_SOURCE_RECORD_NOT_CREATED');
-  return data as FileRecord;
+  if (error) throw error;
+  throw new Error('IMPORT_SOURCE_RECORD_NOT_CREATED');
 }
 
 export async function updateFileRecordStatus(fileRecordId: string, status: 'processing' | 'completed' | 'partial' | 'failed' | 'cancelled'): Promise<void> {
