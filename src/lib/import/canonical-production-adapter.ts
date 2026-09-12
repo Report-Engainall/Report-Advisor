@@ -10,6 +10,7 @@ export interface DurableCanonicalImportInput {
   sourceHash: string;
   entityType: 'products' | 'customers' | 'sales_invoices';
   rows: CanonicalImportRow[];
+  qualityScore: number;
 }
 
 function rowKey(entityType: DurableCanonicalImportInput['entityType'], row: CanonicalImportRow): string {
@@ -19,14 +20,10 @@ function rowKey(entityType: DurableCanonicalImportInput['entityType'], row: Cano
   return `${entityType}:${key}`;
 }
 
-/**
- * Adapter only: the durable runner remains the execution engine and the canonical
- * commit RPC remains the sole write boundary. This adapter owns UI-job creation and
- * maps already-observed import facts onto the existing lifecycle.
- */
 export async function runCanonicalImportThroughDurableRunner(input: DurableCanonicalImportInput) {
   if (!input.rows.length) throw new Error('CANONICAL_IMPORT_REQUIRES_ROWS');
   if (!input.sourceHash.trim()) throw new Error('CANONICAL_IMPORT_REQUIRES_SOURCE_HASH');
+  if (!Number.isFinite(input.qualityScore) || input.qualityScore < 0 || input.qualityScore > 100) throw new Error('CANONICAL_IMPORT_INVALID_QUALITY');
 
   const companyId = await resolveCurrentCompanyId();
   if (!companyId) throw new Error('TENANT_CONTEXT_REQUIRED');
@@ -38,11 +35,7 @@ export async function runCanonicalImportThroughDurableRunner(input: DurableCanon
   const jobId = crypto.randomUUID();
   const workerId = `canonical-import-ui:${jobId}`;
   const now = Date.now();
-  const evidenceKeys = [
-    `import:${input.importId}`,
-    `source:${input.sourceHash}`,
-    `rows:${input.rows.length}`,
-  ];
+  const evidenceKeys = [`import:${input.importId}`, `source:${input.sourceHash}`, `rows:${input.rows.length}`];
 
   const { error: createError } = await supabase.from('report_execution_jobs').insert({
     id: jobId,
@@ -71,27 +64,27 @@ export async function runCanonicalImportThroughDurableRunner(input: DurableCanon
     value: row.value,
   }));
 
+  const quality = input.qualityScore / 100;
   const lifecycle = {
     previousRows: [],
     currentRows,
     sourceCandidates,
-    scenarioOptions: [{ key: `canonical-import:${input.importId}`, expectedImpact: input.rows.length, risk: 0, liquidityRequired: 0, serviceLevel: 1 }],
+    scenarioOptions: [{ key: `canonical-import:${input.importId}`, expectedImpact: input.rows.length, risk: 1, liquidityRequired: 0, serviceLevel: 1 }],
     riskBudget: { maxRisk: 1, protectedLiquidity: input.rows.length, minimumServiceLevel: 0 },
-    portfolioCandidates: [{ key: `canonical-import:${input.importId}`, materiality: 0.5, confidence: 1, urgency: 0.5, risk: 0 }],
+    portfolioCandidates: [{ key: `canonical-import:${input.importId}`, materiality: 0.5, confidence: quality, urgency: 0.5, risk: 1 }],
     autonomy: {
-      trustHealthy: true,
-      evidenceQuality: 1,
-      confidence: 1,
+      trustHealthy: false,
+      evidenceQuality: quality,
+      confidence: quality,
       riskBudgetValid: true,
       criticalDrift: false,
-      rollbackVerified: true,
-      // Browser tenant isolation remains a separate E2E gate; do not claim it here.
+      rollbackVerified: false,
       isolationVerified: false,
     },
     evidence: [
-      { key: `import:${input.importId}`, source: 'canonical-import-ui', observedAt, quality: 1 },
-      { key: `source:${input.sourceHash}`, source: 'canonical-import-ui', observedAt, quality: 1 },
-      { key: `rows:${input.rows.length}`, source: 'canonical-import-ui', observedAt, quality: 1 },
+      { key: `import:${input.importId}`, source: 'canonical-import-ui', observedAt, quality },
+      { key: `source:${input.sourceHash}`, source: 'canonical-import-ui', observedAt, quality },
+      { key: `rows:${input.rows.length}`, source: 'canonical-import-ui', observedAt, quality },
     ],
   };
 
@@ -117,11 +110,7 @@ export async function runCanonicalImportThroughDurableRunner(input: DurableCanon
       if (stage === 'validated' && input.rows.some((row) => row.rowNumber < 1)) throw new Error('IMPORT_VALIDATION_INVALID_ROW_NUMBER');
       if (stage === 'analyzed' && !input.rows.length) throw new Error('IMPORT_ANALYSIS_EMPTY');
       if (stage === 'decisioned' && !input.rows.length) throw new Error('IMPORT_DECISION_EMPTY');
-      if (stage === 'committed') {
-        // The existing canonical RPC is the only mutation. The durable checkpoint
-        // advances only after this call returns successfully.
-        await commitImportBatch(input.entityType, input.rows);
-      }
+      if (stage === 'committed') await commitImportBatch(input.entityType, input.rows);
       if (stage === 'rendered') return;
     },
   }, store);
