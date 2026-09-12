@@ -105,7 +105,7 @@ export function CanonicalImportPage() {
       const rec = await createImportRecord({ file_name: file.name, file_size: file.size, source_type: file.format, status: 'processing', total_rows: rows.length, valid_rows: valid.length, invalid_rows: rows.length - valid.length, quarantined_rows: rows.length - valid.length, entity_type: entityType, progress: 0 });
       const batch: CanonicalImportRow[] = valid.map(r => ({ rowNumber: r.rowNumber, data: r.data }));
       setProgress(10);
-      await runCanonicalImportThroughDurableRunner({ importId: rec.id, fileName: file.name, sourceHash, entityType, rows: batch });
+      await runCanonicalImportThroughDurableRunner({ importId: rec.id, fileName: file.name, sourceHash, entityType, rows: batch, qualityScore: quality });
       setProgress(100);
       await updateImportRecord(rec.id, { status: 'completed', progress: 100, completed_at: new Date().toISOString() });
       setResult({ total: rows.length, valid: valid.length, invalid: rows.length - valid.length, importId: rec.id });
@@ -113,7 +113,7 @@ export function CanonicalImportPage() {
     } catch (e: any) {
       setError(`فشل الاستيراد: ${e?.message || 'خطأ غير معروف'}`); setStep('preview');
     }
-  }, [rows, file, sourceHash, entityType, loadHistory]);
+  }, [rows, file, sourceHash, quality, entityType, loadHistory]);
 
   const reset = () => { setStep('upload'); setFile(null); setSourceHash(null); setRows([]); setHeaders([]); setQuality(0); setMappings([]); setWarnings([]); setError(null); setDuplicate(false); setResult(null); setProgress(0); };
   const valid = rows.filter(r => r.valid).length;
