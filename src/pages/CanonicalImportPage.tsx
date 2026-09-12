@@ -104,8 +104,9 @@ export function CanonicalImportPage() {
     if (quality < 50) { setError('جودة الملف أقل من 50% ولا يمكن استيراده'); return; }
     if (quality < 75 && !qualityApproved) { setError('جودة الملف بين 50% و74% وتتطلب موافقة صريحة قبل الاستيراد'); return; }
     setStep('committing'); setProgress(0); setError(null);
+    let rec: Awaited<ReturnType<typeof createImportRecord>> | null = null;
     try {
-      const rec = await createImportRecord({ file_name: file.name, file_size: file.size, source_type: file.format, status: 'processing', total_rows: rows.length, valid_rows: valid.length, invalid_rows: rows.length - valid.length, quarantined_rows: rows.length - valid.length, entity_type: entityType, progress: 0 });
+      rec = await createImportRecord({ file_name: file.name, file_size: file.size, source_type: file.format, status: 'processing', total_rows: rows.length, valid_rows: valid.length, invalid_rows: rows.length - valid.length, quarantined_rows: rows.length - valid.length, entity_type: entityType, progress: 0 });
       const batch: CanonicalImportRow[] = valid.map(r => ({ rowNumber: r.rowNumber, data: r.data }));
       setProgress(10);
       await runCanonicalImportThroughDurableRunner({ importId: rec.id, fileName: file.name, sourceHash, entityType, rows: batch, qualityScore: quality, qualityApproved });
@@ -114,6 +115,9 @@ export function CanonicalImportPage() {
       setResult({ total: rows.length, valid: valid.length, invalid: rows.length - valid.length, importId: rec.id });
       setStep('done'); await loadHistory();
     } catch (e: any) {
+      if (rec?.id) {
+        try { await updateImportRecord(rec.id, { status: 'failed', progress: 0 }); } catch { /* preserve original import failure */ }
+      }
       setError(`فشل الاستيراد: ${e?.message || 'خطأ غير معروف'}`); setStep('preview');
     }
   }, [rows, file, sourceHash, quality, qualityApproved, duplicate, entityType, loadHistory]);
@@ -121,7 +125,7 @@ export function CanonicalImportPage() {
   const reset = () => { setStep('upload'); setFile(null); setSourceHash(null); setRows([]); setHeaders([]); setQuality(0); setQualityApproved(false); setMappings([]); setWarnings([]); setError(null); setDuplicate(false); setResult(null); setProgress(0); };
   const valid = rows.filter(r => r.valid).length;
   const invalid = rows.length - valid;
-  const canCommit = Boolean(valid && file && sourceHash && !duplicate && quality >= 75 || valid && file && sourceHash && !duplicate && quality >= 50 && quality < 75 && qualityApproved);
+  const canCommit = Boolean((valid && file && sourceHash && !duplicate && quality >= 75) || (valid && file && sourceHash && !duplicate && quality >= 50 && quality < 75 && qualityApproved));
 
   return <div className="space-y-6 animate-fade-in">
     <PageHeader title="مركز الاستيراد" subtitle="استيراد آمن مع فحص الملف واكتشاف الصيغة والمعاينة قبل الكتابة" />
