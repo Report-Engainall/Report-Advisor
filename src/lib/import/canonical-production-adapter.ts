@@ -3,6 +3,7 @@ import { SupabaseReportExecutionStore } from '@/lib/report-execution/durable-wor
 import type { ReportExecutionStage } from '@/lib/report-execution/checkpoint';
 import { commitImportBatch, type CanonicalImportRow } from './canonical-commit';
 import { runDurableProductionLifecycle } from '@/lib/report-execution/durable-production-runner';
+import { registerFileRecord, updateFileRecordStatus } from '@/lib/file-engine/security';
 
 export interface DurableCanonicalImportInput {
   importId: string;
@@ -51,56 +52,54 @@ export async function runCanonicalImportThroughDurableRunner(input: DurableCanon
   const requestedBy = userData.user?.id;
   if (!requestedBy) throw new Error('AUTHENTICATED_USER_REQUIRED');
 
+  const fileRecord = await registerFileRecord({ fileName: input.fileName, fileSize: 0, fileHash: input.sourceHash, detectedFormat: 'canonical-import' });
   const workerId = `canonical-import-ui:${crypto.randomUUID()}`;
   const now = Date.now();
   const observedAt = new Date(now).toISOString();
   const quality = input.qualityScore / 100;
   const evidenceKeys = [`source:${input.sourceHash}`, `import:${input.importId}`, `entity:${input.entityType}`, `rows:${input.rows.length}`];
 
-  const store = new SupabaseReportExecutionStore(supabase);
-  const job = await store.enqueue(companyId, durableJobKey(input.entityType, input.sourceHash), input.fileName, input.sourceHash, evidenceKeys, 3);
+  try {
+    const store = new SupabaseReportExecutionStore(supabase);
+    const job = await store.enqueue(companyId, durableJobKey(input.entityType, input.sourceHash), input.fileName, input.sourceHash, evidenceKeys, 3);
 
-  if (job.status === 'completed') throw new Error('IMPORT_ALREADY_COMMITTED_FOR_SOURCE');
-  if (job.status === 'dead_letter') throw new Error('IMPORT_DURABLE_JOB_DEAD_LETTER');
-  if (job.status === 'failed') await store.retry(job.id);
+    if (job.status === 'completed') throw new Error('IMPORT_ALREADY_COMMITTED_FOR_SOURCE');
+    if (job.status === 'dead_letter') throw new Error('IMPORT_DURABLE_JOB_DEAD_LETTER');
+    if (job.status === 'failed') await store.retry(job.id);
 
-  const currentRows = input.rows.map((row) => ({ key: rowKey(input.entityType, row), hash: `${input.sourceHash}:${row.rowNumber}`, value: row.data }));
-  const sourceCandidates = currentRows.map((row) => ({ businessKey: row.key, sourceId: input.sourceHash, precedence: 0, observedAt, value: row.value }));
+    const currentRows = input.rows.map((row) => ({ key: rowKey(input.entityType, row), hash: `${input.sourceHash}:${row.rowNumber}`, value: row.data }));
+    const sourceCandidates = currentRows.map((row) => ({ businessKey: row.key, sourceId: input.sourceHash, precedence: 0, observedAt, value: row.value }));
 
-  const lifecycle = {
-    previousRows: [],
-    currentRows,
-    sourceCandidates,
-    scenarioOptions: [{ key: durableJobKey(input.entityType, input.sourceHash), expectedImpact: input.rows.length, risk: 1, liquidityRequired: 0, serviceLevel: 1 }],
-    riskBudget: { maxRisk: 1, protectedLiquidity: input.rows.length, minimumServiceLevel: 0 },
-    portfolioCandidates: [{ key: durableJobKey(input.entityType, input.sourceHash), materiality: 0.5, confidence: quality, urgency: 0.5, risk: 1 }],
-    autonomy: { trustHealthy: false, evidenceQuality: quality, confidence: quality, riskBudgetValid: true, criticalDrift: false, rollbackVerified: false, isolationVerified: false },
-    evidence: currentRows.map((row) => ({ key: row.key, source: 'canonical-import-source', sourceHash: input.sourceHash, observedAt, quality, value: row.value })),
-  };
+    const lifecycle = {
+      previousRows: [], currentRows, sourceCandidates,
+      scenarioOptions: [{ key: durableJobKey(input.entityType, input.sourceHash), expectedImpact: input.rows.length, risk: 1, liquidityRequired: 0, serviceLevel: 1 }],
+      riskBudget: { maxRisk: 1, protectedLiquidity: input.rows.length, minimumServiceLevel: 0 },
+      portfolioCandidates: [{ key: durableJobKey(input.entityType, input.sourceHash), materiality: 0.5, confidence: quality, urgency: 0.5, risk: 1 }],
+      autonomy: { trustHealthy: false, evidenceQuality: quality, confidence: quality, riskBudgetValid: true, criticalDrift: false, rollbackVerified: false, isolationVerified: false },
+      evidence: currentRows.map((row) => ({ key: row.key, source: 'canonical-import-source', sourceHash: input.sourceHash, observedAt, quality, value: row.value })),
+    };
 
-  return runDurableProductionLifecycle({
-    jobId: job.id,
-    workerId,
-    sourceHash: input.sourceHash,
-    rows: input.rows.map((row) => row.data),
-    request: {
-      reportId: durableJobKey(input.entityType, input.sourceHash),
-      tenantId: companyId,
-      requestedBy,
-      parameters: { entityType: input.entityType, importId: input.importId, rowCount: input.rows.length },
-      formats: ['web'],
-      idempotencyKey: durableJobKey(input.entityType, input.sourceHash),
-    },
-    lifecycle,
-    executeStage: async (stage: ReportExecutionStage) => {
-      if (stage === 'fingerprinted' && !input.sourceHash.startsWith('sha256:')) throw new Error('IMPORT_SOURCE_HASH_NOT_SHA256');
-      if (stage === 'extracted' && input.rows.length === 0) throw new Error('IMPORT_EXTRACTION_EMPTY');
-      if (stage === 'canonicalized' && input.rows.some((row) => !row.data || typeof row.data !== 'object')) throw new Error('IMPORT_CANONICALIZATION_INVALID_ROW');
-      if (stage === 'validated' && input.rows.some((row) => row.rowNumber < 1)) throw new Error('IMPORT_VALIDATION_INVALID_ROW_NUMBER');
-      if (stage === 'analyzed' && !input.rows.length) throw new Error('IMPORT_ANALYSIS_EMPTY');
-      if (stage === 'decisioned' && !input.rows.length) throw new Error('IMPORT_DECISION_EMPTY');
-      if (stage === 'committed') await commitImportBatch(input.entityType, input.rows, input.sourceHash);
-      if (stage === 'rendered') return;
-    },
-  }, store);
+    const result = await runDurableProductionLifecycle({
+      jobId: job.id, workerId, sourceHash: input.sourceHash,
+      rows: input.rows.map((row) => row.data),
+      request: { reportId: durableJobKey(input.entityType, input.sourceHash), tenantId: companyId, requestedBy, parameters: { entityType: input.entityType, importId: input.importId, rowCount: input.rows.length }, formats: ['web'], idempotencyKey: durableJobKey(input.entityType, input.sourceHash) },
+      lifecycle,
+      executeStage: async (stage: ReportExecutionStage) => {
+        if (stage === 'fingerprinted' && !input.sourceHash.startsWith('sha256:')) throw new Error('IMPORT_SOURCE_HASH_NOT_SHA256');
+        if (stage === 'extracted' && input.rows.length === 0) throw new Error('IMPORT_EXTRACTION_EMPTY');
+        if (stage === 'canonicalized' && input.rows.some((row) => !row.data || typeof row.data !== 'object')) throw new Error('IMPORT_CANONICALIZATION_INVALID_ROW');
+        if (stage === 'validated' && input.rows.some((row) => row.rowNumber < 1)) throw new Error('IMPORT_VALIDATION_INVALID_ROW_NUMBER');
+        if (stage === 'analyzed' && !input.rows.length) throw new Error('IMPORT_ANALYSIS_EMPTY');
+        if (stage === 'decisioned' && !input.rows.length) throw new Error('IMPORT_DECISION_EMPTY');
+        if (stage === 'committed') await commitImportBatch(input.entityType, input.rows, input.sourceHash);
+        if (stage === 'rendered') return;
+      },
+    }, store);
+
+    await updateFileRecordStatus(fileRecord.id, 'completed');
+    return result;
+  } catch (error) {
+    try { await updateFileRecordStatus(fileRecord.id, 'failed'); } catch { /* preserve original failure */ }
+    throw error;
+  }
 }
