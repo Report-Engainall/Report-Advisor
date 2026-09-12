@@ -8,6 +8,9 @@ import { registerFileRecord, updateFileRecordStatus } from '@/lib/file-engine/se
 export interface DurableCanonicalImportInput {
   importId: string;
   fileName: string;
+  fileSize?: number;
+  fileMime?: string | null;
+  fileExtension?: string | null;
   sourceHash: string;
   entityType: 'products' | 'customers' | 'sales_invoices';
   rows: CanonicalImportRow[];
@@ -42,6 +45,7 @@ export async function runCanonicalImportThroughDurableRunner(input: DurableCanon
   if (!Number.isFinite(input.qualityScore) || input.qualityScore < 0 || input.qualityScore > 100) throw new Error('CANONICAL_IMPORT_INVALID_QUALITY');
   if (input.qualityScore < 50) throw new Error('IMPORT_QUALITY_REJECTED_BELOW_50');
   if (input.qualityScore < 75 && input.qualityApproved !== true) throw new Error('IMPORT_QUALITY_APPROVAL_REQUIRED_50_74');
+  if (input.fileSize != null && (!Number.isInteger(input.fileSize) || input.fileSize <= 0)) throw new Error('CANONICAL_IMPORT_INVALID_FILE_SIZE');
 
   assertUniqueBusinessKeys(input.entityType, input.rows);
 
@@ -52,7 +56,14 @@ export async function runCanonicalImportThroughDurableRunner(input: DurableCanon
   const requestedBy = userData.user?.id;
   if (!requestedBy) throw new Error('AUTHENTICATED_USER_REQUIRED');
 
-  const fileRecord = await registerFileRecord({ fileName: input.fileName, fileSize: 0, fileHash: input.sourceHash, detectedFormat: 'canonical-import' });
+  const fileRecord = await registerFileRecord({
+    fileName: input.fileName,
+    fileSize: input.fileSize ?? 0,
+    fileHash: input.sourceHash,
+    fileExtension: input.fileExtension ?? null,
+    fileMime: input.fileMime ?? null,
+    detectedFormat: 'canonical-import',
+  });
   const workerId = `canonical-import-ui:${crypto.randomUUID()}`;
   const now = Date.now();
   const observedAt = new Date(now).toISOString();
