@@ -7,6 +7,7 @@ const required = {
   'src/lib/analytics/outcome-feedback.ts': ['DecisionOutcome','recordOutcome','persistOutcome','loadPersistedOutcomes','recommendation_outcomes','OUTCOME_TENANT_CONTEXT_MISMATCH'],
   'src/lib/analytics/intelligence-gate.ts': ['evaluateIntelligenceGate','FORECAST_BELOW_BASELINE','OUTCOME_ACCURACY_LOW'],
   'src/lib/decision-automation/vertical-slice-runtime.ts': ['createRuntimeRecommendation','createRuntimeDecision','requestRuntimeApproval','decideRuntimeApproval','createRuntimeWorkItem','notifyWorkItem','completeRuntimeWorkItem','loadRuntimeOutcome','resolveCurrentCompanyId'],
+  'src/lib/decisionEvidence.ts': ['evidenceMatchesClaim','claimsBacked','decisionEvidence.status === \'verified\'','filterActionableDecisions'],
   'supabase/migrations/20260828170000_decision_action_outcome_runtime.sql': ['decision_approvals','decision_work_items','decision_action_receipts','request_decision_approval','decide_approval','complete_decision_work_item','recommendation_outcomes','current_company_id()','outcome_delta'],
   'supabase/migrations/20260828171000_decision_runtime_audit.sql': ['audit_decision_runtime_change','decision_approvals','decision_work_items','decision_action_receipts','audit_logs','current_company_id()','auth.uid()'],
 };
@@ -28,6 +29,12 @@ for (const token of ["d.status = 'APPROVED'", 'DECISION_NOT_APPROVED', 'WORK_ITE
 if (!runtime.includes("supabase.rpc('create_decision_work_item'")) throw new Error('work-item creation must use canonical approval-gated RPC');
 if (/from\(['"]decision_work_items['"]\)\.insert/.test(runtime)) throw new Error('direct client work-item insert bypasses approval gate');
 
+const decisionEvidence = fs.readFileSync('src/lib/decisionEvidence.ts','utf8');
+if (decisionEvidence.includes("status === 'verified' || decisionEvidence.status === 'partial'")) throw new Error('partial evidence must never authorize a decision');
+if (!decisionEvidence.includes('decision.evidence.every')) throw new Error('decision claims are not all required to be evidence-backed');
+if (!decisionEvidence.includes('evidence.sourceId !== claim.source')) throw new Error('decision provenance does not bind evidence to source');
+if (!decisionEvidence.includes('evidence.normalized - claim.value')) throw new Error('decision provenance does not bind evidence to value');
+
 console.log('decision/intelligence/runtime vertical slice closure contract: PASS');
 console.log('- approval lifecycle is deterministic');
 console.log('- work lifecycle is deterministic');
@@ -38,3 +45,5 @@ console.log('- completion rejects unapproved/stale work items');
 console.log('- duplicate completion fails closed');
 console.log('- authenticated actor identity is recorded on approval transitions');
 console.log('- client work-item creation uses canonical approval-gated RPC');
+console.log('- every decision claim must match tenant evidence by source and value');
+console.log('- partial/unverified evidence cannot authorize a decision');
