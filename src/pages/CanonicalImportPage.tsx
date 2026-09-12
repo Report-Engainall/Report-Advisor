@@ -115,10 +115,11 @@ export function CanonicalImportPage() {
       setResult({ total: rows.length, valid: valid.length, invalid: rows.length - valid.length, importId: rec.id });
       setStep('done'); await loadHistory();
     } catch (e: any) {
+      const failureMessage = e?.message || 'خطأ غير معروف';
       if (rec?.id) {
-        try { await updateImportRecord(rec.id, { status: 'failed', progress: 0 }); } catch { /* preserve original import failure */ }
+        try { await updateImportRecord(rec.id, { status: 'failed', progress: 0, error_message: failureMessage }); } catch { /* preserve original import failure */ }
       }
-      setError(`فشل الاستيراد: ${e?.message || 'خطأ غير معروف'}`); setStep('preview');
+      setError(`فشل الاستيراد: ${failureMessage}`); setStep('preview');
     }
   }, [rows, file, sourceHash, quality, qualityApproved, duplicate, entityType, loadHistory]);
 
