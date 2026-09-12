@@ -1,5 +1,9 @@
 import type { ReportExecutionScope } from './report-scope';
 
+function canonicalKeyCompare(a: string, b: string): number {
+  return a < b ? -1 : a > b ? 1 : 0;
+}
+
 function canonicalize(value: unknown): unknown {
   if (typeof value === 'number') {
     if (!Number.isFinite(value)) throw new Error('REPORT_SOURCE_NON_FINITE_NUMBER');
@@ -10,7 +14,7 @@ function canonicalize(value: unknown): unknown {
     return Object.fromEntries(
       Object.entries(value as Record<string, unknown>)
         .filter(([, item]) => item !== undefined)
-        .sort(([a], [b]) => a.localeCompare(b))
+        .sort(([a], [b]) => canonicalKeyCompare(a, b))
         .map(([key, item]) => [key, canonicalize(item)]),
     );
   }
@@ -33,7 +37,9 @@ export async function fingerprintReportSource(scope: ReportExecutionScope, rows:
     throw new Error('REPORT_SOURCE_SCOPE_INCOMPLETE');
   }
   if (!Array.isArray(rows)) throw new Error('REPORT_SOURCE_ROWS_INVALID');
-  const canonicalRows = rows.map(canonicalize).sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b)));
+  const canonicalRows = rows
+    .map(canonicalize)
+    .sort((a, b) => canonicalKeyCompare(JSON.stringify(a), JSON.stringify(b)));
   return digest({ scope, rows: canonicalRows });
 }
 
