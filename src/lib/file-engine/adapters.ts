@@ -1,5 +1,5 @@
 import * as XLSX from 'xlsx';
-import type { FileFormat, Dataset, ColumnProfile, ColumnStatistics } from './types';
+import type { FileFormat, Dataset, ColumnProfile, ColumnStatistics, ExtractionEvidence, ExtractionMethod, ExtractionDisposition } from './types';
 import { normalizeRows, normalizeColumnName, parseNumber } from './normalizer';
 import { detectColumnDataType, cleanValue } from './data-types';
 import { mapColumns } from './synonyms';
@@ -10,7 +10,7 @@ type Row = Record<string, unknown>;
 function generateId(): string { return Math.random().toString(36).substring(2, 9); }
 function isRecord(value: unknown): value is Row { return typeof value === 'object' && value !== null && !Array.isArray(value); }
 
-type PdfDocument = Awaited<ReturnType<typeof import('pdfjs-dist').getDocument>['promise']>;
+type PdfDocument = Awaited<ReturnType<typeof import('pdfjs-dist').getDocument>['promise'];
 
 function buildColumnProfiles(rows: Row[], columns: string[], mappings: Awaited<ReturnType<typeof mapColumns>>): ColumnProfile[] {
   return columns.map((col, idx) => {
@@ -45,21 +45,45 @@ function materializeCanonicalFields(rows: Row[], columns: ColumnProfile[]): Row[
   return rows.map((row) => { const next: Row = { ...row }; for (const [field, column] of canonicalOwners) { if (Object.prototype.hasOwnProperty.call(next, field) && next[field] !== '' && next[field] != null) continue; const value = row[column.name]; if (value !== '' && value !== null && value !== undefined) next[field] = value; } return next; });
 }
 
-async function buildDataset(rows: Row[], name: string, source: string, sheet?: string): Promise<Dataset> {
+function extractionDisposition(confidence: number): ExtractionDisposition {
+  if (confidence >= 75) return 'trusted';
+  if (confidence >= 50) return 'review';
+  return 'rejected';
+}
+
+function buildFieldProvenance(columns: ColumnProfile[], source: string, method: ExtractionMethod, confidence: number): ExtractionEvidence[] {
+  return columns
+    .filter((column) => Boolean(column.mappedField))
+    .map((column) => ({
+      source,
+      method,
+      confidence: Math.min(confidence, column.mappingConfidence),
+      disposition: extractionDisposition(Math.min(confidence, column.mappingConfidence)),
+      sourceField: column.name,
+      canonicalField: column.mappedField ?? undefined,
+    }));
+}
+
+async function buildDataset(rows: Row[], name: string, source: string, sheet?: string, extraction?: Pick<ExtractionEvidence, 'method' | 'confidence' | 'page'>): Promise<Dataset> {
   const normalized = normalizeRows(rows);
-  if (!normalized.length) return { id: generateId(), name, source, sheet, rowCount: 0, columnCount: 0, columns: [], rows: [], preview: [], qualityScore: 0 };
+  if (!normalized.length) return { id: generateId(), name, source, sheet, rowCount: 0, columnCount: 0, columns: [], rows: [], preview: [], qualityScore: 0, extractionEvidence: extraction ? [{ source, method: extraction.method, confidence: extraction.confidence, disposition: extractionDisposition(extraction.confidence), page: extraction.page }] : [] };
   const columns = Object.keys(normalized[0]); const mappings = await mapColumns(columns); const columnProfiles = buildColumnProfiles(normalized, columns, mappings);
   for (const col of columnProfiles) { if (col.nullCount > normalized.length * 0.5) col.qualityIssues.push('أكثر من 50% من القيم فارغة'); if (col.mappingConfidence < 80 && col.mappedField) col.qualityIssues.push('تعيين منخفض الثقة — يحتاج مراجعة'); if (!col.mappedField) col.qualityIssues.push('لم يتم تعريف العمود'); }
   const cleanedRows = normalized.map((row) => Object.fromEntries(columnProfiles.map((col) => [col.name, cleanValue(row[col.name], col.dataType)])) as Row);
   const canonicalRows = materializeCanonicalFields(cleanedRows, columnProfiles);
-  const qualityScore = columnProfiles.length ? Math.round(columnProfiles.reduce((s, c) => s + c.mappingConfidence, 0) / columnProfiles.length) : 0;
-  return { id: generateId(), name, source, sheet, rowCount: canonicalRows.length, columnCount: columns.length, columns: columnProfiles, rows: canonicalRows, preview: canonicalRows.slice(0, 50), qualityScore };
+  const mappingScore = columnProfiles.length ? Math.round(columnProfiles.reduce((s, c) => s + c.mappingConfidence, 0) / columnProfiles.length) : 0;
+  const qualityScore = extraction ? Math.min(mappingScore, Math.round(extraction.confidence)) : mappingScore;
+  const extractionEvidence: ExtractionEvidence[] = extraction ? [{ source, method: extraction.method, confidence: extraction.confidence, disposition: extractionDisposition(extraction.confidence), page: extraction.page }] : [];
+  return { id: generateId(), name, source, sheet, rowCount: canonicalRows.length, columnCount: columns.length, columns: columnProfiles, rows: canonicalRows, preview: canonicalRows.slice(0, 50), qualityScore, extractionEvidence, fieldProvenance: buildFieldProvenance(columnProfiles, source, extraction?.method ?? 'structured', extraction?.confidence ?? 100) };
 }
 
-async function buildTextDataset(text: string, fileName: string, sourceType: string, warning?: string): Promise<Dataset[]> {
+async function buildTextDataset(text: string, fileName: string, sourceType: string, warning?: string, extractionConfidence = 100, extractionMethod: ExtractionMethod = 'native-text'): Promise<Dataset[]> {
   const normalized = text.replace(/\uFEFF/g, '').replace(/\r\n?/g, '\n').replace(/[ \t]+$/gm, '').trim(); if (!normalized) return [];
   const rows: Row[] = normalized.split('\n').map((line) => line.trim()).filter(Boolean).map((line, index) => ({ line_number: index + 1, text: line }));
-  const dataset = await buildDataset(rows, fileName, sourceType); for (const column of dataset.columns) column.qualityIssues.push('وثيقة نصية: لم يتم اختراع حقل أعمال؛ يلزم التعيين الدلالي قبل الكتابة'); if (warning) dataset.columns[1]?.qualityIssues.push(warning); return [dataset];
+  const dataset = await buildDataset(rows, fileName, sourceType, undefined, { method: extractionMethod, confidence: extractionConfidence });
+  for (const column of dataset.columns) column.qualityIssues.push('وثيقة نصية: لم يتم اختراع حقل أعمال؛ يلزم التعيين الدلالي قبل الكتابة');
+  if (warning) dataset.columns[1]?.qualityIssues.push(warning);
+  return [dataset];
 }
 
 const PDF_OCR_MAX_PAGES = 20;
@@ -72,7 +96,7 @@ async function parsePdfText(buffer: ArrayBuffer, fileName: string): Promise<Data
   pdfjs.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.mjs', import.meta.url).toString();
   const pdf: PdfDocument = await pdfjs.getDocument({ data: new Uint8Array(buffer) }).promise; const pages: string[] = [];
   for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) { const page = await pdf.getPage(pageNumber); const content = await page.getTextContent(); const text = content.items.map((item) => 'str' in item && typeof item.str === 'string' ? item.str : '').filter(Boolean).join(' '); if (text.trim()) pages.push(`PAGE ${pageNumber}\n${text}`); }
-  if (pages.length) return buildTextDataset(pages.join('\n\n'), fileName, 'pdf');
+  if (pages.length) return buildTextDataset(pages.join('\n\n'), fileName, 'pdf', undefined, 100, 'native-text');
   return parseScannedPdfWithOcr(pdf, fileName);
 }
 
@@ -110,35 +134,35 @@ async function parseScannedPdfWithOcr(pdf: PdfDocument, fileName: string): Promi
   const warning = minimumConfidence < OCR_CONFIDENCE_THRESHOLD
     ? `OCR_LOW_CONFIDENCE:${Math.round(minimumConfidence)}%`
     : `OCR_CONFIDENCE_MIN:${Math.round(minimumConfidence)}%`;
-  return buildTextDataset(pages.join('\n\n'), fileName, 'pdf-ocr', warning);
+  return buildTextDataset(pages.join('\n\n'), fileName, 'pdf-ocr', warning, minimumConfidence, 'ocr');
 }
 
 async function parseDocxText(buffer: ArrayBuffer, fileName: string): Promise<Dataset[]> {
   const mammoth = await import('mammoth'); const result = await mammoth.extractRawText({ arrayBuffer: buffer });
-  return buildTextDataset(result.value, fileName, 'docx', result.messages.length ? `DOCX_EXTRACTION_WARNINGS:${result.messages.length}` : undefined);
+  return buildTextDataset(result.value, fileName, 'docx', result.messages.length ? `DOCX_EXTRACTION_WARNINGS:${result.messages.length}` : undefined, 100, 'native-text');
 }
 
 async function parseImageText(buffer: ArrayBuffer, fileName: string): Promise<Dataset[]> {
   const tesseract: any = await import('tesseract.js'); const worker = await tesseract.createWorker('ara+eng');
-  try { const image = new Blob([buffer], { type: 'application/octet-stream' }); const { data } = await worker.recognize(image); return buildTextDataset(data.text, fileName, 'image', data.confidence < 70 ? `OCR_LOW_CONFIDENCE:${Math.round(data.confidence)}%` : `OCR_CONFIDENCE:${Math.round(data.confidence)}%`); }
+  try { const image = new Blob([buffer], { type: 'application/octet-stream' }); const { data } = await worker.recognize(image); return buildTextDataset(data.text, fileName, 'image', data.confidence < 70 ? `OCR_LOW_CONFIDENCE:${Math.round(data.confidence)}%` : `OCR_CONFIDENCE:${Math.round(data.confidence)}%`, Number(data.confidence ?? 0), 'ocr'); }
   finally { await worker.terminate(); }
 }
 
 export async function parseSpreadsheet(buffer: ArrayBuffer, fileName: string, _format: FileFormat): Promise<Dataset[]> {
   const wb = XLSX.read(buffer, { type: 'array', cellDates: true }); const datasets: Dataset[] = [];
-  for (const sheetName of wb.SheetNames) { const matrix = XLSX.utils.sheet_to_json<unknown[]>(wb.Sheets[sheetName], { header: 1, defval: '', raw: true }); const candidate = detectHeaderRow(matrix); if (!candidate) continue; const rows = rowsFromDetectedHeader(matrix, candidate) as Row[]; if (rows.length) datasets.push(await buildDataset(rows, `${fileName} — ${sheetName}`, fileName, sheetName)); }
+  for (const sheetName of wb.SheetNames) { const matrix = XLSX.utils.sheet_to_json<unknown[]>(wb.Sheets[sheetName], { header: 1, defval: '', raw: true }); const candidate = detectHeaderRow(matrix); if (!candidate) continue; const rows = rowsFromDetectedHeader(matrix, candidate) as Row[]; if (rows.length) datasets.push(await buildDataset(rows, `${fileName} — ${sheetName}`, fileName, sheetName, { method: 'table', confidence: 100 })); }
   return datasets;
 }
 
-export async function parseCSV(buffer: ArrayBuffer, fileName: string, delimiter?: string): Promise<Dataset[]> { const rows = parseCSVText(decodeBuffer(buffer), delimiter); return rows.length ? [await buildDataset(rows, fileName, fileName)] : []; }
+export async function parseCSV(buffer: ArrayBuffer, fileName: string, delimiter?: string): Promise<Dataset[]> { const rows = parseCSVText(decodeBuffer(buffer), delimiter); return rows.length ? [await buildDataset(rows, fileName, fileName, undefined, { method: 'structured', confidence: 100 })] : []; }
 function decodeBuffer(buffer: ArrayBuffer): string { const bytes = new Uint8Array(buffer); const start = bytes[0] === 0xef && bytes[1] === 0xbb && bytes[2] === 0xbf ? 3 : 0; return new TextDecoder('utf-8').decode(bytes.slice(start)); }
-function parseCSVText(text: string, delimiter?: string): Row[] { const lines = text.split(/\r?\n/).filter((line) => line.trim()); if (!lines.length) return []; const delim = delimiter ?? detectDelimiter(lines[0]); const matrix = lines.map((line) => parseCSVLine(line, delim)); const candidate = detectHeaderRow(matrix); if (!candidate) return []; return rowsFromDetectedHeader(matrix, candidate) as Row[]; }
+function parseCSVText(text: string, delimiter: string | undefined): Row[] { const lines = text.split(/\r?\n/).filter((line) => line.trim()); if (!lines.length) return []; const delim = delimiter ?? detectDelimiter(lines[0]); const matrix = lines.map((line) => parseCSVLine(line, delim)); const candidate = detectHeaderRow(matrix); if (!candidate) return []; return rowsFromDetectedHeader(matrix, candidate) as Row[]; }
 function detectDelimiter(line: string): string { const candidates = [',', ';', '\t', '|']; const scored = candidates.map((delimiter) => ({ delimiter, fields: parseCSVLine(line, delimiter).length })).sort((a, b) => b.fields - a.fields); return scored[0]?.fields && scored[0].fields > 1 ? scored[0].delimiter : ','; }
 function parseCSVLine(line: string, delimiter: string): string[] { const result: string[] = []; let current = ''; let quoted = false; for (let i = 0; i < line.length; i += 1) { const ch = line[i]; if (ch === '"') { if (quoted && line[i + 1] === '"') { current += '"'; i += 1; } else quoted = !quoted; } else if (ch === delimiter && !quoted) { result.push(current.trim()); current = ''; } else current += ch; } result.push(current.trim()); return result; }
 
 export async function parseJSON(buffer: ArrayBuffer, fileName: string): Promise<Dataset[]> { return parseJSONData(JSON.parse(decodeBuffer(buffer)), fileName); }
-export async function parseJSONL(buffer: ArrayBuffer, fileName: string): Promise<Dataset[]> { const rows = decodeBuffer(buffer).split(/\r?\n/).filter(Boolean).map((line) => { const value: unknown = JSON.parse(line); if (!isRecord(value)) throw new Error('JSONL contains a non-object row'); return value; }); return rows.length ? [await buildDataset(rows, fileName, fileName)] : []; }
-async function parseJSONData(data: unknown, fileName: string, path = ''): Promise<Dataset[]> { if (Array.isArray(data)) { if (!data.length) return []; if (!data.every(isRecord)) throw new Error('JSON dataset contains non-object rows'); return [await buildDataset(data, path || fileName, fileName)]; } if (!isRecord(data)) return []; const datasets: Dataset[] = []; for (const [key, value] of Object.entries(data)) { if (Array.isArray(value) && value.length) { if (!value.every(isRecord)) throw new Error(`JSON dataset ${key} contains non-object rows`); datasets.push(await buildDataset(value, path ? `${path} → ${key}` : key, fileName, key)); } } return datasets.length ? datasets : [await buildDataset([data], path || fileName, fileName)]; }
+export async function parseJSONL(buffer: ArrayBuffer, fileName: string): Promise<Dataset[]> { const rows = decodeBuffer(buffer).split(/\r?\n/).filter(Boolean).map((line) => { const value: unknown = JSON.parse(line); if (!isRecord(value)) throw new Error('JSONL contains a non-object row'); return value; }); return rows.length ? [await buildDataset(rows, fileName, fileName, undefined, { method: 'structured', confidence: 100 })] : []; }
+async function parseJSONData(data: unknown, fileName: string, path = ''): Promise<Dataset[]> { if (Array.isArray(data)) { if (!data.length) return []; if (!data.every(isRecord)) throw new Error('JSON dataset contains non-object rows'); return [await buildDataset(data, path || fileName, fileName, undefined, { method: 'structured', confidence: 100 })]; } if (!isRecord(data)) return []; const datasets: Dataset[] = []; for (const [key, value] of Object.entries(data)) { if (Array.isArray(value) && value.length) { if (!value.every(isRecord)) throw new Error(`JSON dataset ${key} contains non-object rows`); datasets.push(await buildDataset(value, path ? `${path} → ${key}` : key, fileName, key, { method: 'structured', confidence: 100 })); } } return datasets.length ? datasets : [await buildDataset([data], path || fileName, fileName, undefined, { method: 'structured', confidence: 100 })]; }
 
 export async function parseFile(buffer: ArrayBuffer, fileName: string, format: FileFormat): Promise<Dataset[]> {
   switch (format) {
