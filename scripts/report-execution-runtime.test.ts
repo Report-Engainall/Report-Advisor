@@ -42,4 +42,19 @@ for (const rpc of [
   assert.ok(adapter.includes(rpc), `missing durable worker RPC: ${rpc}`);
 }
 
-console.log('Report execution runtime: PASS (checkpoint monotonicity + lease/failure/dead-letter + tenant/idempotency recovery invariants)');
+const commitLedger = fs.readFileSync('supabase/migrations/20260912183000_import_commit_idempotency_ledger.sql', 'utf8');
+for (const token of [
+  'canonical_import_commits',
+  'UNIQUE (company_id, entity_type, source_hash)',
+  'idempotent_replay',
+  'ON CONFLICT (company_id, entity_type, source_hash)',
+]) {
+  assert.ok(commitLedger.includes(token), `missing atomic commit retry invariant: ${token}`);
+}
+
+const canonicalAdapter = fs.readFileSync('src/lib/import/canonical-production-adapter.ts', 'utf8');
+assert.ok(canonicalAdapter.includes('await commitImportBatch(input.entityType, input.rows, input.sourceHash)'), 'canonical import must commit through the existing atomic boundary');
+assert.ok(canonicalAdapter.includes("updateFileRecordStatus(fileRecord.id, 'failed')"), 'import failure must mark the source file record failed');
+assert.ok(canonicalAdapter.includes("updateFileRecordStatus(fileRecord.id, 'completed')"), 'import success must mark the source file record completed');
+
+console.log('Report execution runtime: PASS (checkpoint monotonicity + lease/failure/dead-letter + tenant/idempotency + canonical commit crash-retry invariants)');
