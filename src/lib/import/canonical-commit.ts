@@ -94,12 +94,14 @@ export async function commitImportBatch(
         p_company_id: companyId,
         p_entity_type: entityType,
         p_rows: payload,
-        p_source_rows: rows.map((row) => ({
+        p_source_rows: rows.map((row, index) => ({
           job_id: lineageJobId,
           row_number: row.rowNumber,
           status: 'valid',
           source_data: row.data,
-          mapped_data: row.data,
+          // mapped_data is the exact canonical payload written by import_commit_batch,
+          // not the pre-canonical source row. This keeps lineage auditable and replayable.
+          mapped_data: payload[index],
           target_table: entityType,
           lineage: row.provenance,
         })),
