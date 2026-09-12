@@ -39,6 +39,7 @@ export function CanonicalImportPage() {
   const [rows, setRows] = useState<Row[]>([]);
   const [headers, setHeaders] = useState<string[]>([]);
   const [quality, setQuality] = useState(0);
+  const [qualityApproved, setQualityApproved] = useState(false);
   const [mappings, setMappings] = useState<Array<{ name: string; mappedField: string | null; confidence: number }>>([]);
   const [warnings, setWarnings] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -57,7 +58,7 @@ export function CanonicalImportPage() {
   useEffect(() => { loadHistory(); }, [loadHistory]);
 
   const handleFile = useCallback(async (selected: File) => {
-    setError(null); setWarnings([]); setDuplicate(false); setStep('scanning');
+    setError(null); setWarnings([]); setDuplicate(false); setQualityApproved(false); setStep('scanning');
     try {
       const buffer = await selected.arrayBuffer();
       const scan = securityScan(selected, buffer);
@@ -74,7 +75,7 @@ export function CanonicalImportPage() {
       if (!companyId) throw new Error('TENANT_CONTEXT_REQUIRED');
       const dup = await checkDuplicate(hash, companyId, supabase);
       setDuplicate(dup.isDuplicate);
-      if (dup.isDuplicate) setWarnings(prev => [...prev, 'تم استيراد هذا الملف من قبل']);
+      if (dup.isDuplicate) setWarnings(prev => [...prev, 'تم استيراد هذا الملف من قبل؛ يجب اختيار ملف جديد']);
       const datasets: Dataset[] = await parseFile(buffer, selected.name, detection.format);
       const dataset = datasets[0];
       if (!dataset || dataset.rowCount === 0) throw new Error('الملف فارغ أو لا يحتوي على بيانات قابلة للقراءة');
@@ -99,13 +100,15 @@ export function CanonicalImportPage() {
 
   const commit = useCallback(async () => {
     const valid = rows.filter(r => r.valid);
-    if (!valid.length || !file || !sourceHash) return;
+    if (!valid.length || !file || !sourceHash || duplicate) return;
+    if (quality < 50) { setError('جودة الملف أقل من 50% ولا يمكن استيراده'); return; }
+    if (quality < 75 && !qualityApproved) { setError('جودة الملف بين 50% و74% وتتطلب موافقة صريحة قبل الاستيراد'); return; }
     setStep('committing'); setProgress(0); setError(null);
     try {
       const rec = await createImportRecord({ file_name: file.name, file_size: file.size, source_type: file.format, status: 'processing', total_rows: rows.length, valid_rows: valid.length, invalid_rows: rows.length - valid.length, quarantined_rows: rows.length - valid.length, entity_type: entityType, progress: 0 });
       const batch: CanonicalImportRow[] = valid.map(r => ({ rowNumber: r.rowNumber, data: r.data }));
       setProgress(10);
-      await runCanonicalImportThroughDurableRunner({ importId: rec.id, fileName: file.name, sourceHash, entityType, rows: batch, qualityScore: quality });
+      await runCanonicalImportThroughDurableRunner({ importId: rec.id, fileName: file.name, sourceHash, entityType, rows: batch, qualityScore: quality, qualityApproved });
       setProgress(100);
       await updateImportRecord(rec.id, { status: 'completed', progress: 100, completed_at: new Date().toISOString() });
       setResult({ total: rows.length, valid: valid.length, invalid: rows.length - valid.length, importId: rec.id });
@@ -113,11 +116,12 @@ export function CanonicalImportPage() {
     } catch (e: any) {
       setError(`فشل الاستيراد: ${e?.message || 'خطأ غير معروف'}`); setStep('preview');
     }
-  }, [rows, file, sourceHash, quality, entityType, loadHistory]);
+  }, [rows, file, sourceHash, quality, qualityApproved, duplicate, entityType, loadHistory]);
 
-  const reset = () => { setStep('upload'); setFile(null); setSourceHash(null); setRows([]); setHeaders([]); setQuality(0); setMappings([]); setWarnings([]); setError(null); setDuplicate(false); setResult(null); setProgress(0); };
+  const reset = () => { setStep('upload'); setFile(null); setSourceHash(null); setRows([]); setHeaders([]); setQuality(0); setQualityApproved(false); setMappings([]); setWarnings([]); setError(null); setDuplicate(false); setResult(null); setProgress(0); };
   const valid = rows.filter(r => r.valid).length;
   const invalid = rows.length - valid;
+  const canCommit = Boolean(valid && file && sourceHash && !duplicate && quality >= 75 || valid && file && sourceHash && !duplicate && quality >= 50 && quality < 75 && qualityApproved);
 
   return <div className="space-y-6 animate-fade-in">
     <PageHeader title="مركز الاستيراد" subtitle="استيراد آمن مع فحص الملف واكتشاف الصيغة والمعاينة قبل الكتابة" />
@@ -128,11 +132,14 @@ export function CanonicalImportPage() {
     </CardBody></Card>}
     {step === 'scanning' && <Card><CardBody><div className="flex flex-col items-center py-10 gap-3"><Loader2 className="animate-spin text-primary-500" size={32}/><b>جارٍ فحص وتحليل الملف...</b>{file && <span className="text-sm text-ink-500">{file.name}</span>}</div></CardBody></Card>}
     {step === 'preview' && file && <div className="space-y-4">
-      <Card><CardBody><div className="flex flex-wrap items-center justify-between gap-3"><div className="flex items-center gap-3">{icon(file.format)}<div><b>{file.name}</b><div className="text-xs text-ink-400">{FORMAT_LABELS[file.format]} — {formatNumber(file.size)} بايت</div></div></div><div className="flex gap-2 flex-wrap"><Badge variant="success"><CheckCircle2 size={12}/> {valid} صالح</Badge>{invalid>0&&<Badge variant="danger"><XCircle size={12}/> {invalid} مرفوض</Badge>}<Badge variant="neutral">{rows.length} إجمالي</Badge>{quality>0&&<Badge variant={quality>=80?'success':quality>=60?'warning':'danger'}>جودة: {quality}%</Badge>}</div></div></CardBody></Card>
-      {(warnings.length>0||duplicate)&&<div className="space-y-2">{warnings.map((w,i)=><div key={i} className="p-3 rounded-lg bg-warning-50 text-warning-700 text-sm flex gap-2"><AlertTriangle size={16}/>{w}</div>)}</div>}
-      {securityPassed&&warnings.length===0&&<div className="p-3 rounded-lg bg-success-50 text-success-700 text-sm flex gap-2"><ShieldCheck size={16}/> اجتاز الملف الفحص الأمني</div>}
+      <Card><CardBody><div className="flex flex-wrap items-center justify-between gap-3"><div className="flex items-center gap-3">{icon(file.format)}<div><b>{file.name}</b><div className="text-xs text-ink-400">{FORMAT_LABELS[file.format]} — {formatNumber(file.size)} بايت</div></div></div><div className="flex gap-2 flex-wrap"><Badge variant="success"><CheckCircle2 size={12}/> {valid} صالح</Badge>{invalid>0&&<Badge variant="danger"><XCircle size={12}/> {invalid} مرفوض</Badge>}<Badge variant="neutral">{rows.length} إجمالي</Badge>{quality>0&&<Badge variant={quality>=80?'success':quality>=50?'warning':'danger'}>جودة: {quality}%</Badge>}</div></div></CardBody></Card>
+      {(warnings.length>0||duplicate)&&<div className="space-y-2">{warnings.map((w,i)=><div key={i} className={`p-3 rounded-lg text-sm flex gap-2 ${duplicate ? 'bg-danger-50 text-danger-700' : 'bg-warning-50 text-warning-700'}`}><AlertTriangle size={16}/>{w}</div>)}</div>}
+      {quality < 50 && <div className="p-3 rounded-lg bg-danger-50 text-danger-700 text-sm flex gap-2"><XCircle size={16}/> جودة البيانات أقل من 50% — الاستيراد مرفوض.</div>}
+      {quality >= 50 && quality < 75 && !duplicate && <label className="p-3 rounded-lg bg-warning-50 text-warning-800 text-sm flex items-start gap-2 cursor-pointer"><input type="checkbox" checked={qualityApproved} onChange={e => setQualityApproved(e.target.checked)} className="mt-1"/><span><b>موافقة جودة صريحة:</b> أقرّ بمتابعة استيراد بيانات جودتها {quality}% رغم كونها ضمن نطاق المراجعة (50–74%).</span></label>}
+      {quality >= 75 && !duplicate && <div className="p-3 rounded-lg bg-success-50 text-success-700 text-sm flex gap-2"><ShieldCheck size={16}/> جودة البيانات ضمن نطاق القبول التلقائي.</div>}
+      {securityPassed&&warnings.length===0&&!duplicate&&<div className="p-3 rounded-lg bg-success-50 text-success-700 text-sm flex gap-2"><ShieldCheck size={16}/> اجتاز الملف الفحص الأمني</div>}
       {mappings.length>0&&<Card><CardHeader title="تعيين الأعمدة" subtitle="الربط المكتشف من محرك الملفات"/><DataTable columns={[{key:'name',label:'عمود الملف'},{key:'mappedField',label:'الحقل المقابل',render:(r:any)=>r.mappedField||'غير معين'},{key:'confidence',label:'الثقة',align:'center',render:(r:any)=><Badge variant={r.confidence>=80?'success':r.confidence>=50?'warning':'danger'}>{r.mappedField?r.confidence+'%':'—'}</Badge>}]} data={mappings} emptyMessage="لا توجد أعمدة"/></Card>}
-      <Card><CardHeader title="معاينة البيانات" subtitle="أول 10 صفوف" action={<div className="flex gap-2"><button onClick={reset} className="btn-secondary text-xs">إلغاء</button><button onClick={() => void commit()} className="btn-primary text-xs" disabled={!valid}>تأكيد الاستيراد ({valid})</button></div>}/><DataTable columns={[{key:'rowNumber',label:'#',align:'center' as const}, ...headers.slice(0,6).map(h=>({key:h,label:h,render:(r:Row)=>String(r.data[h]??'')})), {key:'status',label:'الحالة',align:'center' as const,render:(r:Row)=>r.valid?<Badge variant="success">صالح</Badge>:<Badge variant="danger">خطأ</Badge>}]} data={rows.slice(0,10)} emptyMessage="لا توجد بيانات"/></Card>
+      <Card><CardHeader title="معاينة البيانات" subtitle="أول 10 صفوف" action={<div className="flex gap-2"><button onClick={reset} className="btn-secondary text-xs">إلغاء</button><button onClick={() => void commit()} className="btn-primary text-xs" disabled={!canCommit}>تأكيد الاستيراد ({valid})</button></div>}/><DataTable columns={[{key:'rowNumber',label:'#',align:'center' as const}, ...headers.slice(0,6).map(h=>({key:h,label:h,render:(r:Row)=>String(r.data[h]??'')})), {key:'status',label:'الحالة',align:'center' as const,render:(r:Row)=>r.valid?<Badge variant="success">صالح</Badge>:<Badge variant="danger">خطأ</Badge>}]} data={rows.slice(0,10)} emptyMessage="لا توجد بيانات"/></Card>
       {error&&<div className="p-3 rounded-lg bg-danger-50 text-danger-700 text-sm">{error}</div>}
     </div>}
     {step === 'committing' && <Card><CardBody><div className="flex flex-col items-center py-10 gap-4"><Loader2 className="animate-spin text-primary-500" size={32}/><b>جارٍ تنفيذ الاستيراد المركزي...</b><span>{progress}%</span><div className="w-full max-w-md h-2 bg-ink-100 rounded-full"><div className="h-full bg-primary-500 rounded-full" style={{width:`${progress}%`}}/></div></div></CardBody></Card>}
