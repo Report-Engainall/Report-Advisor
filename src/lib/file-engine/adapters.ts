@@ -10,7 +10,7 @@ type Row = Record<string, unknown>;
 function generateId(): string { return Math.random().toString(36).substring(2, 9); }
 function isRecord(value: unknown): value is Row { return typeof value === 'object' && value !== null && !Array.isArray(value); }
 
-type PdfDocument = Awaited<ReturnType<typeof import('pdfjs-dist').getDocument>['promise'];
+type PdfDocument = Awaited<ReturnType<typeof import('pdfjs-dist').getDocument>['promise']>;
 
 function buildColumnProfiles(rows: Row[], columns: string[], mappings: Awaited<ReturnType<typeof mapColumns>>): ColumnProfile[] {
   return columns.map((col, idx) => {
