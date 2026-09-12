@@ -11,6 +11,7 @@ export interface DurableCanonicalImportInput {
   entityType: 'products' | 'customers' | 'sales_invoices';
   rows: CanonicalImportRow[];
   qualityScore: number;
+  qualityApproved?: boolean;
 }
 
 function rowKey(entityType: DurableCanonicalImportInput['entityType'], row: CanonicalImportRow): string {
@@ -24,6 +25,8 @@ export async function runCanonicalImportThroughDurableRunner(input: DurableCanon
   if (!input.rows.length) throw new Error('CANONICAL_IMPORT_REQUIRES_ROWS');
   if (!input.sourceHash.trim()) throw new Error('CANONICAL_IMPORT_REQUIRES_SOURCE_HASH');
   if (!Number.isFinite(input.qualityScore) || input.qualityScore < 0 || input.qualityScore > 100) throw new Error('CANONICAL_IMPORT_INVALID_QUALITY');
+  if (input.qualityScore < 50) throw new Error('IMPORT_QUALITY_REJECTED_BELOW_50');
+  if (input.qualityScore < 75 && input.qualityApproved !== true) throw new Error('IMPORT_QUALITY_APPROVAL_REQUIRED_50_74');
 
   const companyId = await resolveCurrentCompanyId();
   if (!companyId) throw new Error('TENANT_CONTEXT_REQUIRED');
@@ -35,7 +38,7 @@ export async function runCanonicalImportThroughDurableRunner(input: DurableCanon
   const jobId = crypto.randomUUID();
   const workerId = `canonical-import-ui:${jobId}`;
   const now = Date.now();
-  const evidenceKeys = [`import:${input.importId}`, `source:${input.sourceHash}`, `rows:${input.rows.length}`];
+  const evidenceKeys = [`import:${input.importId}`, `source:${input.sourceHash}`, `rows:${input.rows.length}`, `quality:${input.qualityScore}`];
 
   const { error: createError } = await supabase.from('report_execution_jobs').insert({
     id: jobId,
