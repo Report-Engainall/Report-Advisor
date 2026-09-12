@@ -1,9 +1,9 @@
 import { useEffect, useState, useCallback } from 'react';
-import { DollarSign, ShoppingCart, TrendingUp, Users, Package, AlertTriangle, Brain, ArrowLeftRight, Wallet, Receipt, Lightbulb, RefreshCw, CalendarRange, CheckCircle2 } from 'lucide-react';
+import { DollarSign, ShoppingCart, TrendingUp, Users, Package, AlertTriangle, Brain, ArrowLeftRight, Wallet, Receipt, Lightbulb, RefreshCw, CalendarRange, CheckCircle2, Database } from 'lucide-react';
 import { KPICard } from '@/components/ui/KPICard';
 import { Card, CardHeader, CardBody } from '@/components/ui/Card';
 import { Badge, SeverityBadge, PriorityBadge } from '@/components/ui/Badge';
-import { LoadingState, ErrorState } from '@/components/ui/States';
+import { LoadingState, ErrorState, EmptyState } from '@/components/ui/States';
 import { TrendChart, CategoryPieChart, HorizontalBarChart } from '@/components/ui/Charts';
 import { fetchDashboardSnapshot, fetchDashboardIntelligence } from '@/lib/dashboard-canonical';
 import { formatCurrency, relativeTime } from '@/lib/format';
@@ -49,7 +49,7 @@ export function DashboardPage() {
 
   if (loading) return <LoadingState message="جارٍ تحميل لوحة القيادة..." />;
   if (error) return <ErrorState message={error} onRetry={() => void load()} />;
-  if (!kpis) return null;
+  if (!kpis) return <EmptyState icon={<Database size={28} />} title="لا توجد بيانات لوحة قيادة متاحة" message="لم تصل لقطة KPI موثوقة من المصدر الحالي. لن يتم عرض أرقام افتراضية أو قديمة." action={<button type="button" onClick={() => void load()} className="btn-secondary">إعادة المحاولة</button>} />;
 
   const totalAging = aging.reduce((sum, bucket) => sum + bucket.amount, 0);
   const dataStatusLabel = kpis.status === 'INSUFFICIENT_DATA' ? 'بيانات غير كافية' : 'بيانات محسوبة من المصدر';
@@ -67,8 +67,8 @@ export function DashboardPage() {
         <KPICard label="إجمالي الربح" value={kpis.grossProfit} format="currency" icon={<TrendingUp size={16} />} status={kpis.status} hint={kpis.grossMargin === null ? undefined : `هامش: ${kpis.grossMargin.toFixed(1)}%`} />
         <KPICard label="الذمم المدينة" value={kpis.totalReceivables} format="currency" icon={<Receipt size={16} />} status={kpis.status} hint={kpis.overdueReceivables === null ? undefined : `متأخرة: ${formatCurrency(kpis.overdueReceivables)}`} />
         <KPICard label="قيمة المخزون" value={kpis.inventoryValue} format="currency" icon={<Package size={16} />} status={kpis.status} />
-        <KPICard label="عدد العملاء" value={kpis.totalCustomers} format="number" icon={<Users size={16} />} status="CONFIRMED" />
-        <KPICard label="عدد المنتجات" value={kpis.totalProducts} format="number" icon={<Package size={16} />} status="CONFIRMED" />
+        <KPICard label="عدد العملاء" value={kpis.totalCustomers} format="number" icon={<Users size={16} />} status={kpis.status} />
+        <KPICard label="عدد المنتجات" value={kpis.totalProducts} format="number" icon={<Package size={16} />} status={kpis.status} />
         <KPICard label="عدد الفواتير" value={kpis.invoiceCount} format="number" icon={<ShoppingCart size={16} />} status={kpis.status} />
         <KPICard label="معدل التحصيل" value={kpis.collectionRate} format="percent" icon={<Wallet size={16} />} status={kpis.status} />
       </div>
