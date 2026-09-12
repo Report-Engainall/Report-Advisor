@@ -1,40 +1,40 @@
-HEAD: pending-after-this-commit
-LAST_GOOD: 51ee40d (dashboard data wiring); ea239ac (decision evidence guard)
+HEAD: 694d6cc3c0b05676e0951b01f808e156f8ac0be2
+LAST_GOOD: 694d6cc (Dashboard UI + Purchases KPI); ea239ac (Decision Evidence Guard)
 MAIN_FREEZE: 999f93e91f657357d849f15a87a001cb389d8ff9
 ACTIVE_BRANCH: desktop/remediation-electron44-electron
 
 CLOSED:
-- DQS → accepted prior closure
-- DUPLICATE_IMPORT → accepted prior closure
-- FAILURE_RECOVERY → accepted prior closure
-- INVENTORY_LIQUIDITY → accepted prior closure
-- INVALID_INVOICE_DATE → 591d322 / d38cdd5 (recorded prior)
-- PURCHASES_DATA_WIRING → 51ee40d
+- DQS → prior accepted closure
+- DUPLICATE_IMPORT → prior accepted closure
+- FAILURE_RECOVERY → prior accepted closure
+- INVENTORY_LIQUIDITY → prior accepted closure
+- INVALID_INVOICE_DATE → 591d322 / d38cdd5
+- PURCHASES_KPI_DATA → 51ee40d
+- PURCHASES_KPI_UI → 694d6cc
 - DECISION_EVIDENCE_GUARD → ea239ac
 - AUTOMATION_APPROVAL_GUARD → 1e640ff
 
 ACTIVE:
-- DASHBOARD_UI → add Purchases KPI to current DashboardPage without overwriting concurrent changes
-- IMPORT_INTEGRITY → targeted source/contract inspection
-- DECISION_STATE → targeted transition inspection
-- SECURITY → targeted RPC/RLS inspection
+- IMPORT_INTEGRITY → fingerprint/resume/idempotency/retention targeted inspection
+- DECISION_STATE → transition bypass targeted inspection
+- SECURITY → RPC/RLS targeted inspection
+- METRICS → semantic source/formula/provenance targeted inspection
 
 RUNTIME_QUEUE:
-- real-import → no real business file/browser runtime in current session
-- tenant-A-B-e2e → runtime credentials/browser unavailable
-- 12-scenarios → real execution unavailable; do not generate evidence JSON
-- exact-head-certification → blocked on real runtime evidence
+- real-import → no real business file/browser runtime
+- tenant-A-B-e2e → browser/credentials unavailable
+- 12-scenarios → real execution unavailable; evidence JSON must remain ungenerated
+- exact-head-certification → waiting for real runtime evidence
 
 DO_NOT_REPEAT:
-- main freeze → 999f93e91f657357d849f15a87a001cb389d8ff9
-- import_commit_batch tenant/rollback proof → prior staging evidence; revisit only on dependency change
-- dashboard staging snapshot/intelligence → prior staging evidence; revisit only on dependency change
+- MAIN freeze → 999f93e91f657357d849f15a87a001cb389d8ff9
+- import_commit_batch tenant/rollback proof → prior staging evidence
+- dashboard staging snapshot/intelligence → prior staging evidence
 - release decision source contract → production-regression-results.json is authoritative
 - Evidence Producer contract → infrastructure ready; no fake results
 
 NEXT:
-- finish Dashboard UI wiring
-- dependency-directed import/decision/security checks
-- semantic metric gaps only where concrete
+- targeted import/decision/security/metric contracts
 - operational/commercial blockers only where concrete
-- cleanup and compact-state refresh after each real batch
+- full build only at integration milestone
+- compact-state refresh after real batch
