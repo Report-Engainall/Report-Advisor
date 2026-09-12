@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { resolveReportExecutionScope } from './report-scope';
+import { fingerprintReportSource } from './source-fingerprint';
 
 describe('report execution scope boundary', () => {
   const base = {
@@ -31,5 +32,18 @@ describe('report execution scope boundary', () => {
 
   it('rejects impossible calendar dates', () => {
     expect(() => resolveReportExecutionScope({ ...base, parameters: { ...base.parameters, to: '2026-02-30' } })).toThrow('REPORT_SCOPE_TO_INVALID');
+  });
+
+  it('fingerprints the same authoritative rows identically regardless of object or row order', async () => {
+    const scope = resolveReportExecutionScope(base);
+    const first = await fingerprintReportSource(scope, [
+      { invoice: 'B', amount: 20, customer: { z: 2, a: 1 } },
+      { invoice: 'A', amount: 10, customer: { a: 1, z: 2 } },
+    ]);
+    const reordered = await fingerprintReportSource(scope, [
+      { customer: { z: 2, a: 1 }, amount: 10, invoice: 'A' },
+      { amount: 20, invoice: 'B', customer: { a: 1, z: 2 } },
+    ]);
+    expect(reordered).toBe(first);
   });
 });
