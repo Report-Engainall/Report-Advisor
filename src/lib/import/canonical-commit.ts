@@ -2,7 +2,7 @@ import { supabase, resolveCurrentCompanyId } from '@/lib/supabase';
 import { parseDate } from '@/lib/file-engine/normalizer';
 
 export interface CanonicalImportRow { data: Record<string, unknown>; rowNumber: number }
-export interface CanonicalCommitResult { committed: number; ids: string[] }
+export interface CanonicalCommitResult { committed: number; ids: string[]; idempotentReplay: boolean }
 
 function text(value: unknown): string | null {
   if (value == null) return null;
@@ -73,8 +73,13 @@ function canonicalizeRow(entityType: 'products' | 'customers' | 'sales_invoices'
   };
 }
 
-export async function commitImportBatch(entityType: 'products' | 'customers' | 'sales_invoices', rows: CanonicalImportRow[]): Promise<CanonicalCommitResult> {
-  if (!rows.length) return { committed: 0, ids: [] };
+export async function commitImportBatch(
+  entityType: 'products' | 'customers' | 'sales_invoices',
+  rows: CanonicalImportRow[],
+  sourceHash: string,
+): Promise<CanonicalCommitResult> {
+  if (!rows.length) return { committed: 0, ids: [], idempotentReplay: false };
+  if (!/^sha256:[0-9a-fA-F]{64}$/.test(sourceHash)) throw new Error('IMPORT_SOURCE_HASH_INVALID');
   const companyId = await resolveCurrentCompanyId();
   if (!companyId) throw new Error('No authenticated tenant context is available for canonical import');
 
@@ -85,14 +90,16 @@ export async function commitImportBatch(entityType: 'products' | 'customers' | '
     p_entity_type: entityType,
     p_rows: payload,
     p_null_policy: 'preserve',
+    p_source_hash: sourceHash,
   });
   if (error) throw error;
 
-  const result = data as { committed?: unknown; ids?: unknown } | null;
+  const result = data as { committed?: unknown; ids?: unknown; idempotent_replay?: unknown } | null;
   const committed = Number(result?.committed);
   const ids = Array.isArray(result?.ids) ? result.ids.map(String) : [];
+  const idempotentReplay = result?.idempotent_replay === true;
   if (!Number.isInteger(committed) || committed !== rows.length || ids.length !== rows.length) {
     throw new Error('IMPORT_COMMIT_RESULT_MISMATCH');
   }
-  return { committed, ids };
+  return { committed, ids, idempotentReplay };
 }
