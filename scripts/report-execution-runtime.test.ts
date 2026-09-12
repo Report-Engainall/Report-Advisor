@@ -45,9 +45,9 @@ for (const rpc of [
 const commitLedger = fs.readFileSync('supabase/migrations/20260912183000_import_commit_idempotency_ledger.sql', 'utf8');
 for (const token of [
   'canonical_import_commits',
-  'UNIQUE (company_id, entity_type, source_hash)',
+  'UNIQUE(company_id, entity_type, source_hash)',
   'idempotent_replay',
-  'ON CONFLICT (company_id, entity_type, source_hash)',
+  'FOR UPDATE',
 ]) {
   assert.ok(commitLedger.includes(token), `missing atomic commit retry invariant: ${token}`);
 }
@@ -57,4 +57,37 @@ assert.ok(canonicalAdapter.includes('await commitImportBatch(input.entityType, i
 assert.ok(canonicalAdapter.includes("updateFileRecordStatus(fileRecord.id, 'failed')"), 'import failure must mark the source file record failed');
 assert.ok(canonicalAdapter.includes("updateFileRecordStatus(fileRecord.id, 'completed')"), 'import success must mark the source file record completed');
 
-console.log('Report execution runtime: PASS (checkpoint monotonicity + lease/failure/dead-letter + tenant/idempotency + canonical commit crash-retry invariants)');
+const decisionEvidence = fs.readFileSync('supabase/migrations/20260912150000_decision_evidence_guard.sql', 'utf8');
+for (const token of [
+  'p_evidence IS NULL',
+  "jsonb_typeof(p_evidence) <> 'object'",
+  "p_evidence = '{}'::jsonb",
+  "'DECISION_EVIDENCE_REQUIRED'",
+  "'PROPOSED'",
+]) {
+  assert.ok(decisionEvidence.includes(token), `missing decision evidence guard: ${token}`);
+}
+
+const decisionWorkflow = fs.readFileSync('supabase/migrations/20260912160555_harden_decision_workflow_mutation_authorization.sql', 'utf8');
+for (const token of [
+  "d.status='APPROVED'",
+  "'RECOMMENDATION_NOT_FOUND_OR_NOT_LINKED'",
+  "'WORK_ITEM_EVIDENCE_REQUIRED'",
+  "w.status='COMPLETED'",
+  "'OUTCOME_EVIDENCE_NOT_FOUND_OR_FORBIDDEN'",
+  "'OUTCOME_ALREADY_RECORDED'",
+]) {
+  assert.ok(decisionWorkflow.includes(token), `missing decision lifecycle guard: ${token}`);
+}
+
+const automation = fs.readFileSync('src/lib/decision/automationExecutor.ts', 'utf8');
+for (const token of [
+  'certification.certified',
+  "action.status !== 'READY'",
+  'requiresApproval && !action.approved',
+  "sideEffect === 'EXTERNAL' && !action.approved",
+]) {
+  assert.ok(automation.includes(token), `missing automation approval guard: ${token}`);
+}
+
+console.log('Report execution runtime: PASS (checkpoint + durable commit + decision evidence/approval/work-item/outcome guards)');
