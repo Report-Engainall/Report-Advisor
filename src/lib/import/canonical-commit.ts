@@ -1,4 +1,5 @@
 import { supabase, resolveCurrentCompanyId } from '@/lib/supabase';
+import { parseDate } from '@/lib/file-engine/normalizer';
 
 export interface CanonicalImportRow { data: Record<string, unknown>; rowNumber: number }
 export interface CanonicalCommitResult { committed: number; ids: string[] }
@@ -56,9 +57,12 @@ function canonicalizeRow(entityType: 'products' | 'customers' | 'sales_invoices'
       payment_terms_days: Math.trunc(requiredNumber(d.payment_terms_days, 'payment_terms_days', row.rowNumber)),
     };
   }
+  const rawDate = requiredText(d.invoice_date, 'invoice_date', row.rowNumber);
+  const invoiceDate = parseDate(rawDate);
+  if (!invoiceDate) throw new Error(`invoice_date must be a valid date for import row ${row.rowNumber}`);
   return {
     invoice_number: requiredText(d.invoice_number, 'invoice_number', row.rowNumber),
-    invoice_date: requiredText(d.invoice_date, 'invoice_date', row.rowNumber),
+    invoice_date: invoiceDate,
     customer_id: text(d.customer_id),
     customer_name: text(d.customer_name),
     subtotal: requiredNumber(d.subtotal, 'subtotal', row.rowNumber),
