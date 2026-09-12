@@ -4,6 +4,8 @@ const files = {
   schema: fs.readFileSync('src/lib/document-intelligence/schema-discovery.ts', 'utf8'),
   validation: fs.readFileSync('src/lib/document-intelligence/validation.ts', 'utf8'),
   routing: fs.readFileSync('src/lib/document-intelligence/routing.ts', 'utf8'),
+  types: fs.readFileSync('src/lib/file-engine/types.ts', 'utf8'),
+  adapters: fs.readFileSync('src/lib/file-engine/adapters.ts', 'utf8'),
 };
 
 const checks = [
@@ -20,11 +22,17 @@ const checks = [
   ['duplicate canonical routes are grouped', files.routing.includes('new Map<string, RoutingDecision[]>')],
   ['duplicate canonical routes quarantine every candidate', files.routing.includes("decision.action = 'QUARANTINE'")],
   ['duplicate canonical routes cap confidence', files.routing.includes('Math.min(decision.confidence, 0.69)')],
+  ['dataset exposes extraction evidence', files.types.includes('extractionEvidence?: ExtractionEvidence[]')],
+  ['dataset exposes canonical field provenance', files.types.includes('fieldProvenance?: ExtractionEvidence[]')],
+  ['OCR extraction has explicit method and disposition', files.types.includes("ExtractionMethod = 'structured' | 'native-text' | 'ocr' | 'table'") && files.types.includes("ExtractionDisposition = 'trusted' | 'review' | 'rejected'")],
+  ['OCR confidence caps dataset quality', files.adapters.includes('Math.min(mappingScore, Math.round(extraction.confidence))')],
+  ['OCR confidence is preserved on scanned PDFs', files.adapters.includes("buildTextDataset(pages.join('\\n\\n'), fileName, 'pdf-ocr', warning, minimumConfidence, 'ocr')")],
+  ['image OCR confidence is preserved', files.adapters.includes("Number(data.confidence ?? 0), 'ocr'")],
+  ['field provenance is derived only from mapped fields', files.adapters.includes(".filter((column) => Boolean(column.mappedField))")],
+  ['low extraction confidence is not auto-trusted', files.adapters.includes('if (confidence >= 75) return \'trusted\';') && files.adapters.includes('if (confidence >= 50) return \'review\';')],
 ];
 
 const behavioralChecks = [
-  // Structural contract: header normalization and numeric parsing must remain
-  // separate; numeric parsing must operate over the complete values collection.
   ['schema normalizes headers independently from numeric parsing',
     files.schema.includes('normalizeHeader(header ??') &&
     files.schema.includes('function normalizeNumericText') &&
