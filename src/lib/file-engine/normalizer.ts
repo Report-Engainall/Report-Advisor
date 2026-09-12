@@ -110,18 +110,22 @@ export function parseCurrency(value: unknown): number | null {
 
 export function parseDate(value: unknown): string | null {
   if (value === null || value === undefined || value === '') return null;
-  if (value instanceof Date) return value.toISOString().split('T')[0];
-  const normalized = normalizeArabicDigits(String(value)).trim();
-
-  const isoMatch = normalized.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
-  if (isoMatch) return `${isoMatch[1]}-${isoMatch[2].padStart(2, '0')}-${isoMatch[3].padStart(2, '0')}`;
-
-  const slashMatch = normalized.match(/^(\d{1,2})[\/.](\d{1,2})[\/.](\d{2,4})$/);
-  if (slashMatch) {
-    let [, day, month, year] = slashMatch;
-    if (year.length === 2) year = `20${year}`;
-    return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+  if (value instanceof Date) {
+    if (!Number.isFinite(value.getTime())) return null;
+    return value.toISOString().split('T')[0];
   }
-
-  return null;
+  const normalized = normalizeArabicDigits(String(value)).trim();
+  let year: number; let month: number; let day: number;
+  const isoMatch = normalized.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+  if (isoMatch) {
+    year = Number(isoMatch[1]); month = Number(isoMatch[2]); day = Number(isoMatch[3]);
+  } else {
+    const slashMatch = normalized.match(/^(\d{1,2})[\/.](\d{1,2})[\/.](\d{2,4})$/);
+    if (!slashMatch) return null;
+    day = Number(slashMatch[1]); month = Number(slashMatch[2]); year = Number(slashMatch[3]);
+    if (year < 100) year += 2000;
+  }
+  const candidate = new Date(Date.UTC(year, month - 1, day));
+  if (!Number.isFinite(candidate.getTime()) || candidate.getUTCFullYear() !== year || candidate.getUTCMonth() !== month - 1 || candidate.getUTCDate() !== day) return null;
+  return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
 }
