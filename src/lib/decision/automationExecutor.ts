@@ -20,7 +20,7 @@ export function prepareAutomationAction(
     certification.certified &&
     Boolean(input.tenantId && input.decisionFingerprint && input.evidenceSnapshotId && input.idempotencyKey) &&
     (!input.requiresApproval || input.approved) &&
-    (!input.sideEffect || input.sideEffect === 'NONE' || input.approved);
+    (input.sideEffect === 'NONE' || input.approved);
 
   return { ...input, status: safe ? 'READY' : 'BLOCKED' };
 }
