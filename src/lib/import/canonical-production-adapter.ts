@@ -1,8 +1,8 @@
 import { supabase, resolveCurrentCompanyId } from '@/lib/supabase';
-import { commitImportBatch, type CanonicalImportRow } from './canonical-commit';
 import { SupabaseReportExecutionStore } from '@/lib/report-execution/durable-worker-adapter';
-import { runDurableProductionLifecycle } from '@/lib/report-execution/durable-production-runner';
 import type { ReportExecutionStage } from '@/lib/report-execution/checkpoint';
+import { commitImportBatch, type CanonicalImportRow } from './canonical-commit';
+import { runDurableProductionLifecycle } from '@/lib/report-execution/durable-production-runner';
 
 export interface DurableCanonicalImportInput {
   importId: string;
@@ -18,15 +18,31 @@ function rowKey(entityType: DurableCanonicalImportInput['entityType'], row: Cano
   const value = row.data[entityType === 'products' ? 'sku' : entityType === 'sales_invoices' ? 'invoice_number' : 'name'];
   const key = String(value ?? '').trim();
   if (!key) throw new Error(`IMPORT_ROW_BUSINESS_KEY_REQUIRED:${row.rowNumber}`);
-  return `${entityType}:${key}`;
+  return `${entityType}:${key.toLowerCase()}`;
+}
+
+function assertUniqueBusinessKeys(entityType: DurableCanonicalImportInput['entityType'], rows: CanonicalImportRow[]): void {
+  const seen = new Set<string>();
+  for (const row of rows) {
+    const key = rowKey(entityType, row);
+    if (seen.has(key)) throw new Error(`IMPORT_DUPLICATE_BUSINESS_KEY:${key}`);
+    seen.add(key);
+  }
+}
+
+function durableJobKey(entityType: DurableCanonicalImportInput['entityType'], sourceHash: string): string {
+  return `canonical-import:${entityType}:${sourceHash}`;
 }
 
 export async function runCanonicalImportThroughDurableRunner(input: DurableCanonicalImportInput) {
   if (!input.rows.length) throw new Error('CANONICAL_IMPORT_REQUIRES_ROWS');
   if (!input.sourceHash.trim()) throw new Error('CANONICAL_IMPORT_REQUIRES_SOURCE_HASH');
+  if (!input.sourceHash.startsWith('sha256:')) throw new Error('IMPORT_SOURCE_HASH_NOT_SHA256');
   if (!Number.isFinite(input.qualityScore) || input.qualityScore < 0 || input.qualityScore > 100) throw new Error('CANONICAL_IMPORT_INVALID_QUALITY');
   if (input.qualityScore < 50) throw new Error('IMPORT_QUALITY_REJECTED_BELOW_50');
   if (input.qualityScore < 75 && input.qualityApproved !== true) throw new Error('IMPORT_QUALITY_APPROVAL_REQUIRED_50_74');
+
+  assertUniqueBusinessKeys(input.entityType, input.rows);
 
   const companyId = await resolveCurrentCompanyId();
   if (!companyId) throw new Error('TENANT_CONTEXT_REQUIRED');
@@ -35,30 +51,36 @@ export async function runCanonicalImportThroughDurableRunner(input: DurableCanon
   const requestedBy = userData.user?.id;
   if (!requestedBy) throw new Error('AUTHENTICATED_USER_REQUIRED');
 
-  const jobId = crypto.randomUUID();
-  const workerId = `canonical-import-ui:${jobId}`;
+  const workerId = `canonical-import-ui:${crypto.randomUUID()}`;
   const now = Date.now();
-  const evidenceKeys = [`import:${input.importId}`, `source:${input.sourceHash}`, `rows:${input.rows.length}`, `quality:${input.qualityScore}`];
+  const observedAt = new Date(now).toISOString();
+  const quality = input.qualityScore / 100;
+  const evidenceKeys = [
+    `source:${input.sourceHash}`,
+    `import:${input.importId}`,
+    `entity:${input.entityType}`,
+    `rows:${input.rows.length}`,
+  ];
 
-  const { error: createError } = await supabase.from('report_execution_jobs').insert({
-    id: jobId,
-    company_id: companyId,
-    job_key: `canonical-import:${input.importId}`,
-    source_path: input.fileName,
-    source_hash: input.sourceHash,
-    status: 'queued',
-    checkpoint: { stage: 'queued', sourceHash: input.sourceHash, evidenceKeys, updatedAt: now },
-    attempt: 0,
-    max_attempts: 3,
-  });
-  if (createError) throw createError;
+  const store = new SupabaseReportExecutionStore(supabase);
+  const job = await store.enqueue(
+    companyId,
+    durableJobKey(input.entityType, input.sourceHash),
+    input.fileName,
+    input.sourceHash,
+    evidenceKeys,
+    3,
+  );
+
+  if (job.status === 'completed') throw new Error('IMPORT_ALREADY_COMMITTED_FOR_SOURCE');
+  if (job.status === 'dead_letter') throw new Error('IMPORT_DURABLE_JOB_DEAD_LETTER');
+  if (job.status === 'failed') await store.retry(job.id);
 
   const currentRows = input.rows.map((row) => ({
     key: rowKey(input.entityType, row),
     hash: `${input.sourceHash}:${row.rowNumber}`,
     value: row.data,
   }));
-  const observedAt = new Date(now).toISOString();
   const sourceCandidates = currentRows.map((row) => ({
     businessKey: row.key,
     sourceId: input.sourceHash,
@@ -67,14 +89,25 @@ export async function runCanonicalImportThroughDurableRunner(input: DurableCanon
     value: row.value,
   }));
 
-  const quality = input.qualityScore / 100;
   const lifecycle = {
     previousRows: [],
     currentRows,
     sourceCandidates,
-    scenarioOptions: [{ key: `canonical-import:${input.importId}`, expectedImpact: input.rows.length, risk: 1, liquidityRequired: 0, serviceLevel: 1 }],
+    scenarioOptions: [{
+      key: durableJobKey(input.entityType, input.sourceHash),
+      expectedImpact: input.rows.length,
+      risk: 1,
+      liquidityRequired: 0,
+      serviceLevel: 1,
+    }],
     riskBudget: { maxRisk: 1, protectedLiquidity: input.rows.length, minimumServiceLevel: 0 },
-    portfolioCandidates: [{ key: `canonical-import:${input.importId}`, materiality: 0.5, confidence: quality, urgency: 0.5, risk: 1 }],
+    portfolioCandidates: [{
+      key: durableJobKey(input.entityType, input.sourceHash),
+      materiality: 0.5,
+      confidence: quality,
+      urgency: 0.5,
+      risk: 1,
+    }],
     autonomy: {
       trustHealthy: false,
       evidenceQuality: quality,
@@ -84,26 +117,28 @@ export async function runCanonicalImportThroughDurableRunner(input: DurableCanon
       rollbackVerified: false,
       isolationVerified: false,
     },
-    evidence: [
-      { key: `import:${input.importId}`, source: 'canonical-import-ui', observedAt, quality },
-      { key: `source:${input.sourceHash}`, source: 'canonical-import-ui', observedAt, quality },
-      { key: `rows:${input.rows.length}`, source: 'canonical-import-ui', observedAt, quality },
-    ],
+    evidence: currentRows.map((row) => ({
+      key: row.key,
+      source: 'canonical-import-source',
+      sourceHash: input.sourceHash,
+      observedAt,
+      quality,
+      value: row.value,
+    })),
   };
 
-  const store = new SupabaseReportExecutionStore(supabase);
   return runDurableProductionLifecycle({
-    jobId,
+    jobId: job.id,
     workerId,
     sourceHash: input.sourceHash,
     rows: input.rows.map((row) => row.data),
     request: {
-      reportId: `canonical-import:${input.importId}`,
+      reportId: durableJobKey(input.entityType, input.sourceHash),
       tenantId: companyId,
       requestedBy,
       parameters: { entityType: input.entityType, importId: input.importId, rowCount: input.rows.length },
       formats: ['web'],
-      idempotencyKey: `canonical-import:${input.importId}:${input.sourceHash}`,
+      idempotencyKey: durableJobKey(input.entityType, input.sourceHash),
     },
     lifecycle,
     executeStage: async (stage: ReportExecutionStage) => {
