@@ -27,7 +27,10 @@ export const BUSINESS_METRICS:MetricDefinition[]=[
  {key:'cash_position',label:'المركز النقدي',description:'صافي التدفقات النقدية المسجلة ضمن نطاق التحليل.',formula:'SUM(inflows) - SUM(outflows)',source:['payments'],status:'CALCULATED',unit:'currency',dimensions:['company','period'],dependencies:['payments']},
 ];
 
-export function getMetricDefinition(key:string){return BUSINESS_METRICS.find(metric=>metric.key===key);}
+export function getMetricDefinition(key:string){
+ const canonicalKey=key.startsWith('metric.')?key.slice('metric.'.length):key;
+ return BUSINESS_METRICS.find(metric=>metric.key===canonicalKey);
+}
 export function getMetricsByDependency(dependency:string){return BUSINESS_METRICS.filter(metric=>metric.dependencies?.includes(dependency));}
 export function metricStatusLabel(status:MetricStatus){return ({CONFIRMED:'مؤكد',CALCULATED:'محسوب',ESTIMATED:'تقديري',FORECAST:'تنبؤي',INSUFFICIENT_DATA:'بيانات غير كافية',UNAVAILABLE:'غير متوفر'} as Record<MetricStatus,string>)[status];}
 export function freshnessLabel(updatedAt?:string|null){if(!updatedAt)return{label:'غير متوفر',tone:'neutral' as const};const parsed=Date.parse(updatedAt);if(!Number.isFinite(parsed))return{label:'غير متوفر',tone:'neutral' as const};const ageMinutes=Math.max(0,(Date.now()-parsed)/60000);if(ageMinutes<=15)return{label:'محدث الآن',tone:'good' as const};if(ageMinutes<=120)return{label:`محدث منذ ${Math.round(ageMinutes)} دقيقة`,tone:'good' as const};if(ageMinutes<=1440)return{label:`محدث منذ ${Math.round(ageMinutes/60)} ساعة`,tone:'warning' as const};return{label:'بيانات قديمة',tone:'danger' as const};}
