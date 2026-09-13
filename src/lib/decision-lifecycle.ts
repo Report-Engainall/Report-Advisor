@@ -134,6 +134,13 @@ export async function createDecisionWorkItem(input: {
   if (error) throw error;
   const id = requireUuid(data, 'WORK_ITEM_ID_NOT_RETURNED');
   await requirePersistedRow('decision_work_items', id, { decision_id: input.decisionId, recommendation_id: input.recommendationId, status: 'OPEN' }, 'WORK_ITEM_PERSISTENCE_NOT_CONFIRMED');
+
+  // Creation is deliberately followed by the existing canonical start transition.
+  // complete_decision_work_item requires IN_PROGRESS; never bypass that terminal guard.
+  const { data: started, error: startError } = await supabase.rpc('start_decision_work_item', { p_work_item_id: id });
+  if (startError) throw startError;
+  if (started !== true) throw new Error('WORK_ITEM_START_NOT_CONFIRMED');
+  await requirePersistedRow('decision_work_items', id, { status: 'IN_PROGRESS' }, 'WORK_ITEM_START_NOT_PERSISTED');
   return id;
 }
 
