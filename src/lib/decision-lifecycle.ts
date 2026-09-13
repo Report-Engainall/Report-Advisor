@@ -36,6 +36,18 @@ function requireUuid(value: unknown, code: string): string {
   return value;
 }
 
+async function requirePersistedRow(table: string, id: string, expected: Record<string, unknown>, code: string) {
+  const companyId = await resolveCurrentCompanyId();
+  if (!companyId) throw new Error('TENANT_REQUIRED');
+  const { data, error } = await supabase.from(table).select('*').eq('id', id).eq('company_id', companyId).maybeSingle();
+  if (error) throw error;
+  if (!data) throw new Error(code);
+  for (const [key, value] of Object.entries(expected)) {
+    if (value !== undefined && data[key] !== value) throw new Error(code);
+  }
+  return data;
+}
+
 export async function createRuntimeDecision(input: {
   decisionKey: string;
   decisionType: string;
@@ -51,7 +63,9 @@ export async function createRuntimeDecision(input: {
     p_evidence: input.evidence,
   });
   if (error) throw error;
-  return requireUuid(data, 'DECISION_ID_NOT_RETURNED');
+  const id = requireUuid(data, 'DECISION_ID_NOT_RETURNED');
+  await requirePersistedRow('business_intelligence_decisions', id, { status: 'PROPOSED', decision_key: input.decisionKey }, 'DECISION_PERSISTENCE_NOT_CONFIRMED');
+  return id;
 }
 
 export async function linkRecommendationToDecision(recommendationId: string, decisionId: string): Promise<void> {
@@ -60,6 +74,8 @@ export async function linkRecommendationToDecision(recommendationId: string, dec
     p_decision_id: decisionId,
   });
   if (error) throw error;
+  await requirePersistedRow('business_intelligence_decisions', decisionId, { recommendation_id: recommendationId }, 'DECISION_RECOMMENDATION_LINK_NOT_PERSISTED');
+  await requirePersistedRow('recommendations', recommendationId, { decision_id: decisionId }, 'RECOMMENDATION_DECISION_LINK_NOT_PERSISTED');
 }
 
 export async function requestDecisionApproval(decisionId: string, reason?: string | null): Promise<string> {
@@ -68,7 +84,9 @@ export async function requestDecisionApproval(decisionId: string, reason?: strin
     p_reason: reason ?? null,
   });
   if (error) throw error;
-  return requireUuid(data, 'APPROVAL_ID_NOT_RETURNED');
+  const id = requireUuid(data, 'APPROVAL_ID_NOT_RETURNED');
+  await requirePersistedRow('decision_approvals', id, { decision_id: decisionId, status: 'PENDING' }, 'APPROVAL_PERSISTENCE_NOT_CONFIRMED');
+  return id;
 }
 
 export async function decideApproval(approvalId: string, approve: boolean, reason?: string | null): Promise<void> {
@@ -79,6 +97,12 @@ export async function decideApproval(approvalId: string, approve: boolean, reaso
   });
   if (error) throw error;
   if (data !== true) throw new Error('APPROVAL_DECISION_NOT_CONFIRMED');
+  const expectedStatus = approve ? 'APPROVED' : 'REJECTED';
+  await requirePersistedRow('decision_approvals', approvalId, { status: expectedStatus }, 'APPROVAL_PERSISTENCE_NOT_CONFIRMED');
+  const { data: approval, error: approvalError } = await supabase.from('decision_approvals').select('decision_id').eq('id', approvalId).maybeSingle();
+  if (approvalError) throw approvalError;
+  const decisionId = requireUuid(approval?.decision_id, 'APPROVAL_DECISION_ID_NOT_RETURNED');
+  await requirePersistedRow('business_intelligence_decisions', decisionId, { status: expectedStatus }, 'DECISION_PERSISTENCE_NOT_CONFIRMED');
 }
 
 export async function createDecisionWorkItem(input: {
@@ -108,7 +132,9 @@ export async function createDecisionWorkItem(input: {
     p_evidence_refs: input.evidenceRefs,
   });
   if (error) throw error;
-  return requireUuid(data, 'WORK_ITEM_ID_NOT_RETURNED');
+  const id = requireUuid(data, 'WORK_ITEM_ID_NOT_RETURNED');
+  await requirePersistedRow('decision_work_items', id, { decision_id: input.decisionId, recommendation_id: input.recommendationId, status: 'OPEN' }, 'WORK_ITEM_PERSISTENCE_NOT_CONFIRMED');
+  return id;
 }
 
 export async function completeDecisionWorkItem(workItemId: string, actualImpact: number | null, evidence: Record<string, unknown>): Promise<void> {
@@ -119,4 +145,5 @@ export async function completeDecisionWorkItem(workItemId: string, actualImpact:
   });
   if (error) throw error;
   if (data !== true) throw new Error('WORK_ITEM_COMPLETION_NOT_CONFIRMED');
+  await requirePersistedRow('decision_work_items', workItemId, { status: 'COMPLETED' }, 'WORK_ITEM_COMPLETION_NOT_PERSISTED');
 }
