@@ -134,12 +134,16 @@ export async function runCanonicalProductionImport(input: CanonicalProductionImp
     }, store);
     return { jobId, sourceHash, committed: input.rows.length, lifecycle };
   } catch (error) {
-    await supabase.rpc('import_finish_job', {
-      p_job_id: input.importJobId,
-      p_status: 'failed',
-      p_result_summary: { sourceHash, durableExecutionJobId: jobId },
-      p_error_message: error instanceof Error ? error.message : String(error),
-    }).catch(() => undefined);
+    try {
+      await supabase.rpc('import_finish_job', {
+        p_job_id: input.importJobId,
+        p_status: 'failed',
+        p_result_summary: { sourceHash, durableExecutionJobId: jobId },
+        p_error_message: error instanceof Error ? error.message : String(error),
+      });
+    } catch {
+      // Preserve the primary lifecycle failure; finalization is best effort only.
+    }
     throw error;
   }
 }
