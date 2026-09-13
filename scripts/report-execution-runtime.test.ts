@@ -57,6 +57,20 @@ assert.ok(canonicalAdapter.includes('await commitImportBatch(input.entityType, i
 assert.ok(canonicalAdapter.includes("updateFileRecordStatus(fileRecord.id, 'failed')"), 'import failure must mark the source file record failed');
 assert.ok(canonicalAdapter.includes("updateFileRecordStatus(fileRecord.id, 'completed')"), 'import success must mark the source file record completed');
 
+const canonicalCommit = fs.readFileSync('src/lib/import/canonical-commit.ts', 'utf8');
+assert.ok(canonicalCommit.includes("supabase.rpc('import_commit_batch'"), 'canonical commit must use the governed import_commit_batch RPC');
+assert.ok(canonicalCommit.includes("p_null_policy: 'preserve'"), 'canonical commit must preserve explicit NULL semantics');
+assert.ok(canonicalCommit.includes("if (error) throw error"), 'canonical commit must fail closed on RPC error');
+assert.ok(canonicalCommit.includes("committed !== rows.length"), 'canonical commit must reject partial/mismatched commit results');
+
+const durableRunner = fs.readFileSync('src/lib/report-execution/durable-production-runner.ts', 'utf8');
+const commitStage = durableRunner.indexOf("following === 'committed'");
+const checkpointSave = durableRunner.indexOf('await store.saveCheckpoint');
+assert.ok(checkpointSave > 0, 'durable runner must persist checkpoints');
+assert.ok(durableRunner.includes('await input.executeStage(following'), 'durable runner must execute the stage before checkpoint persistence');
+assert.ok(durableRunner.includes('The durable checkpoint is intentionally advanced only after the stage executor succeeds'), 'committed stage must not be checkpointed before its side effect succeeds');
+assert.ok(commitStage === -1 || commitStage < checkpointSave, 'any committed-stage guard must precede checkpoint persistence');
+
 const decisionEvidence = fs.readFileSync('supabase/migrations/20260912150000_decision_evidence_guard.sql', 'utf8');
 for (const token of [
   'p_evidence IS NULL',
