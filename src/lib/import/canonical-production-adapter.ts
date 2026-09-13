@@ -144,7 +144,7 @@ export async function runCanonicalProductionImport(input: CanonicalProductionImp
         durableExecutionJobId: jobId,
         committed: input.rows.length,
         invalidRows,
-        lifecycleStatus: lifecycle.status,
+        lifecycleCompleted: true,
       },
       p_error_message: null,
     });
