@@ -13,15 +13,14 @@ const required = [
   /(?:rollback|failed|cancel(?:led|lled)?)/i,
   /FOR\s+UPDATE|advisory|lock/i,
   /import_commit_batch/i,
-  /any row failure rolls back the whole chunk/i,
 ];
 for (const pattern of required) {
   if (!pattern.test(text)) throw new Error(`Import transaction contract missing: ${pattern}`);
 }
 
 // Include every migration that can define or harden the import lifecycle.
-// The previous selector missed terminal-state/lifecycle filenames such as
-// 20260825210000_import_finish_terminal_state.sql and allowed a false negative.
+// The selector must include terminal-state/lifecycle migrations, regardless of
+// historical filename conventions.
 const lifecycleMigration = files
   .filter((f) => /import.*(?:job|engine|finish|lifecycle)|security.*import/i.test(f))
   .map((f) => fs.readFileSync(path.join(migrationDir, f), 'utf8'))
@@ -59,12 +58,15 @@ if (fs.existsSync(canonicalCommitPath)) {
 const batchFolderPath = path.join(root, 'src', 'lib', 'import', 'batch-folder.ts');
 if (fs.existsSync(batchFolderPath)) {
   const batch = fs.readFileSync(batchFolderPath, 'utf8');
-  if (!/offset\+=500/.test(batch)) throw new Error('Folder import must use bounded atomic chunks');
+  if (!/computeSHA256\(buffer\)/.test(batch)) throw new Error('Folder import must bind the commit to the exact source SHA-256');
+  if (!/commitImportBatch\(entityType,canonicalRows,hash\)/.test(batch)) {
+    throw new Error('Folder import must commit the complete canonical source through one atomic RPC call');
+  }
+  if (/offset\s*\+=\s*500/.test(batch) || /for\s*\([^)]*offset[^)]*500/.test(batch)) {
+    throw new Error('Folder import must not reintroduce chunked partial commits');
+  }
   if (!/status:'failed'|status\s*:\s*'failed'/.test(batch) || !/updateImportRecord\(importRecordId,\{status:'failed'/.test(batch)) {
     throw new Error('Failed folder imports must persist a terminal failed state');
-  }
-  if (!/committed\s*,\s*error:message/.test(batch) || !/committed\s*,\s*error\??:message/.test(batch)) {
-    throw new Error('Failed folder imports must preserve committed progress and error detail');
   }
 }
 
