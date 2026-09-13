@@ -7,8 +7,7 @@ test('authenticated CanonicalImportPage imports canonical sales invoices', async
   const password = process.env.E2E_PASSWORD;
   const supabaseUrl = process.env.E2E_SUPABASE_URL;
   const anonKey = process.env.E2E_SUPABASE_ANON_KEY;
-  const expectedTenantId = process.env.E2E_EXPECTED_TENANT_ID;
-  if (!baseUrl || !email || !password || !supabaseUrl || !anonKey || !expectedTenantId) throw new Error('AUTHENTICATED_CERTIFICATION_ENV_MISSING');
+  if (!baseUrl || !email || !password || !supabaseUrl || !anonKey) throw new Error('AUTHENTICATED_CERTIFICATION_ENV_MISSING');
 
   const fixture = path.resolve(process.cwd(), 'tests/fixtures/canonical_sales_invoices_2026.csv');
   const importPath = process.env.E2E_IMPORT_PATH ?? '/import';
@@ -35,8 +34,16 @@ test('authenticated CanonicalImportPage imports canonical sales invoices', async
   await page.getByRole('button', { name: /sign in|login|دخول|تسجيل/i }).click();
   await page.waitForFunction(() => Object.keys(localStorage).some((key) => key.includes('-auth-token')), undefined, { timeout: 15_000 });
 
+  const authenticatedUser = await authenticatedRest('/auth/v1/user');
+  const userId = String(authenticatedUser?.id ?? '');
+  if (!userId) throw new Error('AUTHENTICATED_USER_ID_MISSING');
+  const memberships = await authenticatedRest(`/rest/v1/company_memberships?select=company_id,user_id&user_id=eq.${encodeURIComponent(userId)}`);
+  expect(memberships).toHaveLength(1);
+  expect(String(memberships[0].user_id)).toBe(userId);
   const tenant = await authenticatedRest('/rest/v1/rpc/current_company_id', { method: 'POST' });
-  expect(String(tenant)).toBe(expectedTenantId);
+  const tenantId = String(tenant);
+  expect(tenantId).toBe(String(memberships[0].company_id));
+
   const beforeImports = await authenticatedRest('/rest/v1/imports?select=id,company_id,file_name,status&file_name=eq.canonical_sales_invoices_2026.csv');
   const beforeInvoices = await authenticatedRest('/rest/v1/sales_invoices?select=id');
   expect(beforeImports).toHaveLength(0);
@@ -56,7 +63,7 @@ test('authenticated CanonicalImportPage imports canonical sales invoices', async
 
   const afterImports = await authenticatedRest('/rest/v1/imports?select=id,company_id,file_name,status,total_rows,valid_rows,invalid_rows,entity_type&file_name=eq.canonical_sales_invoices_2026.csv');
   expect(afterImports).toHaveLength(1);
-  expect(afterImports[0].company_id).toBe(expectedTenantId);
+  expect(afterImports[0].company_id).toBe(tenantId);
   expect(afterImports[0].status).toBe('completed');
   expect(afterImports[0].total_rows).toBe(4);
   expect(afterImports[0].valid_rows).toBe(4);
@@ -68,7 +75,7 @@ test('authenticated CanonicalImportPage imports canonical sales invoices', async
   for (const invoiceNumber of ['INV-2026-001', 'INV-2026-002', 'INV-2026-003', 'INV-2026-004']) {
     const rows = afterInvoices.filter((row: { invoice_number: string; company_id: string }) => row.invoice_number === invoiceNumber);
     expect(rows).toHaveLength(1);
-    expect(rows[0].company_id).toBe(expectedTenantId);
+    expect(rows[0].company_id).toBe(tenantId);
   }
 
   const evidence = await authenticatedRest('/rest/v1/rpc/capture_kpi_evidence_snapshot', {
@@ -76,15 +83,15 @@ test('authenticated CanonicalImportPage imports canonical sales invoices', async
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ p_kpi_key: 'dashboard.total_sales', p_as_of: '2026-09-13', p_months: 6 }),
   });
-  expect(evidence.company_id).toBe(expectedTenantId);
+  expect(evidence.company_id).toBe(tenantId);
   expect(evidence.kpi_key).toBe('dashboard.total_sales');
   expect(Number(evidence.value)).toBeGreaterThanOrEqual(0);
   expect(evidence.source_evidence.source_rpc).toBe('get_dashboard_snapshot');
-  expect(evidence.source_evidence.company_id).toBe(expectedTenantId);
+  expect(evidence.source_evidence.company_id).toBe(tenantId);
 
   const evidenceRows = await authenticatedRest(`/rest/v1/kpi_evidence_snapshots?select=id,company_id,kpi_key,value,quality&id=eq.${encodeURIComponent(evidence.id)}`);
   expect(evidenceRows).toHaveLength(1);
-  expect(evidenceRows[0].company_id).toBe(expectedTenantId);
+  expect(evidenceRows[0].company_id).toBe(tenantId);
   expect(evidenceRows[0].kpi_key).toBe('dashboard.total_sales');
 
   await page.goto(deploymentUrl('/'), { waitUntil: 'networkidle' });
