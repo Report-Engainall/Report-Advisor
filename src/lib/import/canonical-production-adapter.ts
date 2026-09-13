@@ -132,6 +132,21 @@ export async function runCanonicalProductionImport(input: CanonicalProductionImp
         }
       },
     }, store);
+
+    const { error: finishError } = await supabase.rpc('import_finish_job', {
+      p_job_id: input.importJobId,
+      p_status: 'completed',
+      p_result_summary: {
+        sourceHash,
+        durableExecutionJobId: jobId,
+        committed: input.rows.length,
+        invalidRows,
+        lifecycleStatus: lifecycle.status,
+      },
+      p_error_message: null,
+    });
+    if (finishError) throw finishError;
+
     return { jobId, sourceHash, committed: input.rows.length, lifecycle };
   } catch (error) {
     try {
