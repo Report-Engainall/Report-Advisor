@@ -79,10 +79,9 @@ export async function checkDuplicate(hash: string, _legacyCompanyId?: string, _l
   const sourceHash = `sha256:${hash.trim().toLowerCase().replace(/^sha256:/, '')}`;
   const { data: canonicalCommit, error: canonicalError } = await supabase
     .from('canonical_import_commits')
-    .select('id,company_id,entity_type,source_hash,created_at')
+    .select('id,company_id,entity_type,source_hash')
     .eq('company_id', companyId)
     .eq('source_hash', sourceHash)
-    .order('created_at', { ascending: false })
     .limit(1)
     .maybeSingle();
   if (canonicalError) throw canonicalError;
@@ -94,7 +93,7 @@ export async function checkDuplicate(hash: string, _legacyCompanyId?: string, _l
         company_id: String(canonicalCommit.company_id),
         file_name: `canonical:${String(canonicalCommit.entity_type)}`,
         file_hash: String(canonicalCommit.source_hash).replace(/^sha256:/, ''),
-        created_at: String(canonicalCommit.created_at),
+        created_at: '',
         status: 'committed',
       },
     };
