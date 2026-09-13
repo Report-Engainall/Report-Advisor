@@ -119,6 +119,7 @@ jobs:
           name: full-product-browser-e2e-${{ github.sha }}
           path: artifacts/e2e
           if-no-files-found: warn
+          retention-days: 3
       - name: Upload real business E2E evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -126,3 +127,4 @@ jobs:
           name: real-business-e2e-${{ github.sha }}
           path: artifacts/e2e-business
           if-no-files-found: warn
+          retention-days: 3
