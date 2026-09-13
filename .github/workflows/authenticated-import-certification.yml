@@ -25,7 +25,7 @@ jobs:
 
       - name: Validate certification environment before heavyweight setup
         env:
-          E2E_BASE_URL: https://report-advisor-git-desktop-remediation-electron44-aaf686-injaz2.vercel.app
+          E2E_BASE_URL: https://report-advisor.vercel.app
           E2E_EMAIL: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_EMAIL }}
           E2E_PASSWORD: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_PASSWORD }}
           E2E_SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
@@ -61,7 +61,7 @@ jobs:
 
       - name: Run authenticated canonical import
         env:
-          E2E_BASE_URL: https://report-advisor-git-desktop-remediation-electron44-aaf686-injaz2.vercel.app
+          E2E_BASE_URL: https://report-advisor.vercel.app
           E2E_EMAIL: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_EMAIL }}
           E2E_PASSWORD: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_PASSWORD }}
           E2E_IMPORT_PATH: /import
