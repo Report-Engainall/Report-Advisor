@@ -49,7 +49,7 @@ end;
 $function$;
 
 create or replace function public.update_recommendation_status(p_recommendation_id uuid, p_status text)
-returns void language plpgsql security definer set search_path to '' as $function$
+returns void language plpgsql security definer set search_path to 'public', 'pg_catalog' as $function$
 declare v_company_id uuid:=public.current_company_id(); v_user uuid:=auth.uid(); v_requested text:=lower(trim(coalesce(p_status,''))); v_next text; v_current text; v_decision uuid;
 begin
   if v_company_id is null or v_user is null then raise exception 'TENANT_CONTEXT_REQUIRED'; end if;
@@ -79,7 +79,7 @@ end;
 $function$;
 
 create or replace function public.record_recommendation_outcome(p_recommendation_key text, p_observed_at timestamptz, p_expected_impact numeric default null, p_actual_impact numeric default null, p_outcome_quality numeric default null, p_status text default 'insufficient', p_decision_id uuid default null, p_evidence jsonb default '{}'::jsonb)
-returns uuid language plpgsql security definer set search_path to '' as $function$
+returns uuid language plpgsql security definer set search_path to 'public', 'pg_catalog' as $function$
 declare v_company uuid:=public.current_company_id(); v_user uuid:=auth.uid(); v_id uuid; v_recommendation_id uuid; v_recommendation_decision uuid; v_decision_id uuid; v_evidence_snapshot_id text:=nullif(btrim(coalesce(p_evidence->>'evidence_snapshot_id','')),'');
 begin
   if v_company is null or v_user is null then raise exception 'TENANT_CONTEXT_REQUIRED'; end if;
