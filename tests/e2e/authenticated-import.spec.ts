@@ -20,6 +20,15 @@ test('authenticated CanonicalImportPage imports canonical sales invoices', async
   const fixture = path.resolve(process.cwd(), 'tests/fixtures/canonical_sales_invoices_2026.csv');
   const importPath = process.env.E2E_IMPORT_PATH ?? '/import';
   const apiBase = supabaseUrl.replace(/\/$/, '');
+  const deploymentBase = new URL(baseUrl);
+
+  function deploymentUrl(pathname: string): string {
+    const target = new URL(pathname, deploymentBase);
+    // Preserve a temporary Vercel protection-bypass query when the certification
+    // deployment is protected. Never store credentials or sessions in source.
+    target.search = deploymentBase.search;
+    return target.toString();
+  }
 
   async function authenticatedRest(pathname: string, init: RequestInit = {}) {
     return page.evaluate(async ({ apiBase, anonKey, pathname, init }) => {
@@ -41,7 +50,7 @@ test('authenticated CanonicalImportPage imports canonical sales invoices', async
     }, { apiBase, anonKey, pathname, init });
   }
 
-  await page.goto(new URL('/login', baseUrl).toString(), { waitUntil: 'networkidle' });
+  await page.goto(deploymentUrl('/login'), { waitUntil: 'networkidle' });
   await page.getByLabel(/email|البريد الإلكتروني/i).fill(email);
   await page.getByLabel(/password|كلمة المرور/i).fill(password);
   await page.getByRole('button', { name: /sign in|login|دخول|تسجيل/i }).click();
@@ -57,7 +66,7 @@ test('authenticated CanonicalImportPage imports canonical sales invoices', async
   expect(beforeImports).toHaveLength(0);
   const beforeInvoiceCount = beforeInvoices.length;
 
-  await page.goto(new URL(importPath, baseUrl).toString(), { waitUntil: 'networkidle' });
+  await page.goto(deploymentUrl(importPath), { waitUntil: 'networkidle' });
   await expect(page).toHaveURL(new RegExp(importPath.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
 
   const fileInput = page.locator('input[type="file"]');
@@ -92,7 +101,7 @@ test('authenticated CanonicalImportPage imports canonical sales invoices', async
     expect(rows[0].company_id).toBe(expectedTenantId);
   }
 
-  await page.goto(new URL('/', baseUrl).toString(), { waitUntil: 'networkidle' });
+  await page.goto(deploymentUrl('/'), { waitUntil: 'networkidle' });
   await expect(page.getByRole('heading', { name: 'لوحة القيادة' })).toBeVisible();
   await expect(page.getByText('إجمالي المبيعات')).toBeVisible();
   await expect(page.getByText('عدد الفواتير')).toBeVisible();
