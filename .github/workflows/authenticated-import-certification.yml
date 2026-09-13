@@ -25,18 +25,18 @@ jobs:
 
       - name: Validate certification environment before heavyweight setup
         env:
-          E2E_BASE_URL: ${{ secrets.E2E_BASE_URL }}
-          E2E_EMAIL: ${{ secrets.E2E_EMAIL }}
-          E2E_PASSWORD: ${{ secrets.E2E_PASSWORD }}
-          E2E_SUPABASE_URL: ${{ secrets.E2E_SUPABASE_URL }}
-          E2E_SUPABASE_ANON_KEY: ${{ secrets.E2E_SUPABASE_ANON_KEY }}
-          E2E_EXPECTED_TENANT_ID: ${{ secrets.E2E_EXPECTED_TENANT_ID }}
+          E2E_BASE_URL: https://report-advisor-git-desktop-remediation-electron44-aaf686-injaz2.vercel.app
+          E2E_EMAIL: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_EMAIL }}
+          E2E_PASSWORD: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_PASSWORD }}
+          E2E_SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
+          E2E_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
+          E2E_EXPECTED_TENANT_ID: ${{ secrets.CERT_TENANT_A_ID }}
         run: |
           set -euo pipefail
           missing=0
           for name in E2E_BASE_URL E2E_EMAIL E2E_PASSWORD E2E_SUPABASE_URL E2E_SUPABASE_ANON_KEY E2E_EXPECTED_TENANT_ID; do
             if [ -z "${!name:-}" ]; then
-              echo "Missing required Actions secret: $name"
+              echo "Missing required certification environment: $name"
               missing=1
             fi
           done
@@ -61,13 +61,13 @@ jobs:
 
       - name: Run authenticated canonical import
         env:
-          E2E_BASE_URL: ${{ secrets.E2E_BASE_URL }}
-          E2E_EMAIL: ${{ secrets.E2E_EMAIL }}
-          E2E_PASSWORD: ${{ secrets.E2E_PASSWORD }}
+          E2E_BASE_URL: https://report-advisor-git-desktop-remediation-electron44-aaf686-injaz2.vercel.app
+          E2E_EMAIL: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_EMAIL }}
+          E2E_PASSWORD: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_PASSWORD }}
           E2E_IMPORT_PATH: /import
-          E2E_SUPABASE_URL: ${{ secrets.E2E_SUPABASE_URL }}
-          E2E_SUPABASE_ANON_KEY: ${{ secrets.E2E_SUPABASE_ANON_KEY }}
-          E2E_EXPECTED_TENANT_ID: ${{ secrets.E2E_EXPECTED_TENANT_ID }}
+          E2E_SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
+          E2E_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
+          E2E_EXPECTED_TENANT_ID: ${{ secrets.CERT_TENANT_A_ID }}
         run: npx playwright test tests/e2e/authenticated-import.spec.ts --reporter=line
 
       - name: Preserve Playwright evidence
