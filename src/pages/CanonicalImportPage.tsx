@@ -4,7 +4,7 @@ import { Card, CardHeader, CardBody } from '@/components/ui/Card';
 import { Badge, StatusBadge } from '@/components/ui/Badge';
 import { PageHeader, LoadingState, EmptyState } from '@/components/ui/States';
 import { DataTable } from '@/components/ui/DataTable';
-import { fetchImportRecords, createImportRecord, updateImportRecord } from '@/lib/queries';
+import { fetchImportRecords, createImportRecord } from '@/lib/queries';
 import { supabase, resolveCurrentCompanyId } from '@/lib/supabase';
 import { formatDateTime, formatNumber } from '@/lib/format';
 import { detectFormat } from '@/lib/file-engine/detector';
@@ -131,7 +131,6 @@ export function CanonicalImportPage() {
       setProgress(25);
       const execution = await runCanonicalProductionImport({ importJobId: rec.id, entityType, companyId, fileName: file.name, sourceHash, rows: reconciled.rows });
       setProgress(100);
-      await updateImportRecord(rec.id, { status: 'completed', progress: 100, completed_at: new Date().toISOString() });
       setResult({ total: rows.length, valid: validRows.length, invalid: rows.length - validRows.length, importId: rec.id, executionJobId: execution.jobId });
       setStep('done'); await loadHistory();
     } catch (e: any) {
