@@ -1,0 +1,1 @@
+-- Dashboard KPI hardening: restore active customer count from the existing sales source.
