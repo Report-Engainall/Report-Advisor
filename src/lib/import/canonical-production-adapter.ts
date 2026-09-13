@@ -16,6 +16,8 @@ export interface CanonicalProductionImportInput {
   fileName: string;
   sourceHash: string;
   rows: ReconciledCanonicalImportRow[];
+  totalRows: number;
+  invalidRows: number;
 }
 
 function normalizeSourceHash(value: string): string {
@@ -24,9 +26,7 @@ function normalizeSourceHash(value: string): string {
   return `sha256:${raw}`;
 }
 
-function rowKey(row: ReconciledCanonicalImportRow): string {
-  return row.provenance.lineageId;
-}
+function rowKey(row: ReconciledCanonicalImportRow): string { return row.provenance.lineageId; }
 
 function rowVersions(rows: ReconciledCanonicalImportRow[], sourceHash: string): RowVersion<Record<string, unknown>>[] {
   return rows.map((row) => ({ key: rowKey(row), hash: `${sourceHash}:${row.rowNumber}`, value: row.data }));
@@ -50,6 +50,8 @@ export async function runCanonicalProductionImport(input: CanonicalProductionImp
   if (!companyId || companyId !== input.companyId) throw new Error('TENANT_CONTEXT_MISMATCH');
   if (!input.importJobId.trim()) throw new Error('IMPORT_JOB_ID_REQUIRED');
   if (!input.rows.length) throw new Error('IMPORT_ROWS_REQUIRED');
+  if (!Number.isInteger(input.totalRows) || input.totalRows < input.rows.length) throw new Error('IMPORT_TOTAL_ROWS_INVALID');
+  if (!Number.isInteger(input.invalidRows) || input.invalidRows < 0 || input.rows.length + input.invalidRows !== input.totalRows) throw new Error('IMPORT_ROW_COUNTER_MISMATCH');
 
   const sourceHash = normalizeSourceHash(input.sourceHash);
   input.rows.forEach((row) => assertCanonicalBoundary(row, companyId));
@@ -109,9 +111,9 @@ export async function runCanonicalProductionImport(input: CanonicalProductionImp
           if (result.committed !== input.rows.length || result.ids.length !== input.rows.length) throw new Error('IMPORT_COMMIT_RESULT_MISMATCH');
           const { error } = await supabase.rpc('import_update_job_progress', {
             p_job_id: input.importJobId,
-            p_processed_rows: input.rows.length,
+            p_processed_rows: input.totalRows,
             p_valid_rows: input.rows.length,
-            p_invalid_rows: 0,
+            p_invalid_rows: input.invalidRows,
             p_duplicate_rows: 0,
             p_status: 'processing',
           });
