@@ -8,13 +8,13 @@ import { getDisplayEmail, getDisplayName } from '@/lib/profile-display';
 interface NavItem { path:string; label:string; icon:ReactNode }
 interface NavSection { title:string; items:NavItem[] }
 const navSections:NavSection[] = [
-  { title:'العمل', items:[
-    {path:'/',label:'مركز العمل',icon:<BriefcaseBusiness size={18}/>},
+  { title:'المنتج', items:[
+    {path:'/',label:'لوحة التحكم',icon:<BarChart3 size={18}/>},
+    {path:'/work-center',label:'مركز العمل',icon:<BriefcaseBusiness size={18}/>},
     {path:'/import',label:'استيراد متقدم',icon:<BriefcaseBusiness size={18}/>},
     {path:'/data-quality',label:'جودة البيانات',icon:<AlertCircle size={18}/>},
   ]},
   { title:'النتائج', items:[
-    {path:'/dashboard',label:'التحليل والـKPI',icon:<BarChart3 size={18}/>},
     {path:'/reports',label:'التقارير',icon:<FileBarChart size={18}/>},
     {path:'/reports/inventory',label:'المخزون والسيولة',icon:<Gauge size={18}/>},
     {path:'/reports/demand-velocity',label:'الطلب والحركة',icon:<Activity size={18}/>},
