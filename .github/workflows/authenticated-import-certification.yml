@@ -30,10 +30,11 @@ jobs:
           E2E_PASSWORD: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_PASSWORD }}
           E2E_SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
           E2E_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
+          VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
         run: |
           set -euo pipefail
           missing=0
-          for name in E2E_BASE_URL E2E_EMAIL E2E_PASSWORD E2E_SUPABASE_URL E2E_SUPABASE_ANON_KEY; do
+          for name in E2E_BASE_URL E2E_EMAIL E2E_PASSWORD E2E_SUPABASE_URL E2E_SUPABASE_ANON_KEY VERCEL_AUTOMATION_BYPASS_SECRET; do
             if [ -z "${!name:-}" ]; then
               echo "Missing required certification environment: $name"
               missing=1
@@ -66,6 +67,7 @@ jobs:
           E2E_IMPORT_PATH: /import
           E2E_SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
           E2E_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
+          VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
         run: npx playwright test tests/e2e/authenticated-import.spec.ts --reporter=line
 
       - name: Preserve Playwright evidence
