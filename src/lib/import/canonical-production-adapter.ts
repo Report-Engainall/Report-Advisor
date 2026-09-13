@@ -128,7 +128,10 @@ export async function runCanonicalProductionImport(input: CanonicalProductionImp
             p_duplicate_rows: 0,
             p_status: 'processing',
           });
-          if (error) throw error;
+          if (error) {
+            // Progress is telemetry only after the canonical transaction succeeds.
+            // Terminal completion below is authoritative and rehydrates counters atomically.
+          }
         }
       },
     }, store);
