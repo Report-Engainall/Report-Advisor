@@ -7,6 +7,7 @@ on:
       - 'scripts/run-full-product-browser-e2e.mjs'
       - 'scripts/real-business-e2e.mjs'
       - 'scripts/financial-dashboard-readback-e2e.mjs'
+      - 'src/lib/file-engine/security.ts'
       - '.github/workflows/full-product-browser-e2e.yml'
       - 'docs/MASTER_EXECUTION_INDEX.md'
       - 'E2E_FAILURE_LEDGER.md'
