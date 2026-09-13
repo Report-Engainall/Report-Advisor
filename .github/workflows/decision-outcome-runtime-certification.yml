@@ -55,6 +55,14 @@ jobs:
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
 
+      - name: Trace metric registry source at exact HEAD
+        run: |
+          set -euo pipefail
+          echo '=== canonical metric registry ==='
+          git grep -n -E 'SEMANTIC_METRIC_REGISTRY|getSemanticMetric|metric\.cash' -- src scripts supabase || true
+          echo '=== persisted-metric diagnostic ==='
+          git grep -n -E 'Persisted metric has no canonical definition|no canonical definition' -- src scripts supabase || true
+
       - name: Run real Evidence to Outcome lifecycle
         env:
           E2E_BASE_URL: https://report-advisor-git-desktop-remediation-electron44-aaf686-injaz2.vercel.app
