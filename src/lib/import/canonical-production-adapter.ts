@@ -1,5 +1,5 @@
 import { supabase, resolveCurrentCompanyId } from '@/lib/supabase';
-import { reconcileForCanonical, assertCanonicalBoundary, type ReconciledCanonicalImportRow } from './canonical-truth-boundary';
+import { assertCanonicalBoundary, type ReconciledCanonicalImportRow } from './canonical-truth-boundary';
 import { commitImportBatch } from './canonical-commit';
 import { SupabaseReportExecutionStore } from '@/lib/report-execution/durable-worker-adapter';
 import { runDurableProductionLifecycle } from '@/lib/report-execution/durable-production-runner';
@@ -29,41 +29,19 @@ function rowKey(row: ReconciledCanonicalImportRow): string {
 }
 
 function rowVersions(rows: ReconciledCanonicalImportRow[], sourceHash: string): RowVersion<Record<string, unknown>>[] {
-  return rows.map((row) => ({
-    key: rowKey(row),
-    hash: `${sourceHash}:${row.rowNumber}`,
-    value: row.data,
-  }));
+  return rows.map((row) => ({ key: rowKey(row), hash: `${sourceHash}:${row.rowNumber}`, value: row.data }));
 }
 
 function sourceCandidates(rows: ReconciledCanonicalImportRow[]): SourceCandidate<Record<string, unknown>>[] {
   const observedAt = new Date().toISOString();
-  return rows.map((row) => ({
-    businessKey: rowKey(row),
-    sourceId: row.provenance.sourceId,
-    precedence: 0,
-    observedAt,
-    value: row.data,
-  }));
+  return rows.map((row) => ({ businessKey: rowKey(row), sourceId: row.provenance.sourceId, precedence: 0, observedAt, value: row.data }));
 }
 
 function evidence(rows: ReconciledCanonicalImportRow[], sourceHash: string): RuntimeEvidence[] {
   const observedAt = new Date().toISOString();
   return [
-    {
-      key: `canonical-import:${sourceHash}:source`,
-      source: 'CanonicalImportPage/file-engine',
-      observedAt,
-      quality: 1,
-      details: { rowCount: rows.length, sourceHash },
-    },
-    {
-      key: `canonical-import:${sourceHash}:reconciliation`,
-      source: 'canonical-truth-boundary.reconcileForCanonical',
-      observedAt,
-      quality: 1,
-      details: { rowCount: rows.length, reconciled: true },
-    },
+    { key: `canonical-import:${sourceHash}:source`, source: 'CanonicalImportPage/file-engine', observedAt, quality: 1, details: { rowCount: rows.length, sourceHash } },
+    { key: `canonical-import:${sourceHash}:reconciliation`, source: 'canonical-truth-boundary.reconcileForCanonical', observedAt, quality: 1, details: { rowCount: rows.length, reconciled: true } },
   ];
 }
 
@@ -103,8 +81,8 @@ export async function runCanonicalProductionImport(input: CanonicalProductionImp
   const currentRows = rowVersions(input.rows, sourceHash);
   const runtimeEvidence = evidence(input.rows, sourceHash);
   const candidates = sourceCandidates(input.rows);
-
   const store = new SupabaseReportExecutionStore(supabase);
+
   try {
     const lifecycle = await runDurableProductionLifecycle({
       jobId,
@@ -119,15 +97,7 @@ export async function runCanonicalProductionImport(input: CanonicalProductionImp
         scenarioOptions: [],
         riskBudget: { maxRisk: 0, protectedLiquidity: 0, minimumServiceLevel: 0 },
         portfolioCandidates: [],
-        autonomy: {
-          trustHealthy: false,
-          evidenceQuality: 1,
-          confidence: 0,
-          riskBudgetValid: true,
-          criticalDrift: false,
-          rollbackVerified: false,
-          isolationVerified: true,
-        },
+        autonomy: { trustHealthy: false, evidenceQuality: 1, confidence: 0, riskBudgetValid: true, criticalDrift: false, rollbackVerified: false, isolationVerified: true },
         evidence: runtimeEvidence,
       },
       executeStage: async (stage, stageInput) => {
@@ -149,15 +119,6 @@ export async function runCanonicalProductionImport(input: CanonicalProductionImp
         }
       },
     }, store);
-
-    const { error: finishError } = await supabase.rpc('import_finish_job', {
-      p_job_id: input.importJobId,
-      p_status: 'completed',
-      p_result_summary: { sourceHash, committed: input.rows.length, durableExecutionJobId: jobId },
-      p_error_message: null,
-    });
-    if (finishError) throw finishError;
-
     return { jobId, sourceHash, committed: input.rows.length, lifecycle };
   } catch (error) {
     await supabase.rpc('import_finish_job', {
@@ -169,5 +130,3 @@ export async function runCanonicalProductionImport(input: CanonicalProductionImp
     throw error;
   }
 }
-
-export { reconcileForCanonical };
