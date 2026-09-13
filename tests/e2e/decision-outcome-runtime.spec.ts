@@ -63,7 +63,7 @@ test('real Evidence -> Recommendation -> Decision -> Approval -> Work -> Outcome
   await login(a, process.env.E2E_EMAIL, process.env.E2E_PASSWORD);
   const actorA = await currentTenant(a);
 
-  const evidenceRows = await rest(a, `/rest/v1/kpi_evidence_snapshots?select=id,company_id,kpi_key,value,quality,source_evidence,created_at&company_id=eq.${actorA.tenantId}&kpi_key=eq.dashboard.total_sales&order=created_at.desc&limit=1`);
+  const evidenceRows = await rest(a, `/rest/v1/kpi_evidence_snapshots?select=id,company_id,kpi_key,value,quality,source_evidence,observed_at&company_id=eq.${actorA.tenantId}&kpi_key=eq.dashboard.total_sales&order=observed_at.desc&limit=1`);
   expect(evidenceRows).toHaveLength(1);
   const evidence = evidenceRows[0];
   expect(evidence.company_id).toBe(actorA.tenantId);
@@ -93,21 +93,16 @@ test('real Evidence -> Recommendation -> Decision -> Approval -> Work -> Outcome
   });
   expect(decisionId).toBeTruthy();
 
-  const link = await rest(a, `/rest/v1/recommendations?id=eq.${encodeURIComponent(recommendationId)}&company_id=eq.${actorA.tenantId}`, {
-    method: 'PATCH', headers: { 'Content-Type': 'application/json', Prefer: 'return=representation' },
-    body: JSON.stringify({ decision_id: decisionId }),
-  });
-  expect(link).toHaveLength(1);
-  expect(link[0].decision_id).toBe(decisionId);
+  await rpc(a, 'link_recommendation_to_decision', { p_recommendation_id: recommendationId, p_decision_id: decisionId });
 
   const decisionRows = await rest(a, `/rest/v1/business_intelligence_decisions?select=id,company_id,decision_key,status,recommendation_id&company_id=eq.${actorA.tenantId}&id=eq.${encodeURIComponent(decisionId)}`);
   expect(decisionRows).toHaveLength(1);
   expect(decisionRows[0].status).toBe('PROPOSED');
+  expect(decisionRows[0].recommendation_id).toBe(recommendationId);
 
   const approvalId = await rpc(a, 'request_decision_approval', { p_decision_id: decisionId, p_reason: 'runtime certification' });
   expect(approvalId).toBeTruthy();
 
-  // The policy guard must reject the requester attempting to approve their own decision.
   const selfApproval = await a.evaluate(async ({ apiBase, anonKey, approvalId }) => {
     const authEntry = Object.entries(localStorage).find(([key]) => key.includes('-auth-token'))?.[1];
     const session = JSON.parse(String(authEntry));
@@ -124,8 +119,6 @@ test('real Evidence -> Recommendation -> Decision -> Approval -> Work -> Outcome
   await login(b, process.env.E2E_APPROVER_EMAIL, process.env.E2E_APPROVER_PASSWORD);
   const actorB = await currentTenant(b);
   expect(actorB.userId).not.toBe(actorA.userId);
-  // Approval is tenant-scoped; do not bypass that boundary. If B is not a member of A's tenant,
-  // the runtime must fail closed rather than mutating cross-tenant state.
   expect(actorB.tenantId).toBe(actorA.tenantId);
 
   expect(await rpc(b, 'decide_approval', { p_approval_id: approvalId, p_approve: true, p_reason: 'Independent authenticated approval' })).toBe(true);
@@ -153,10 +146,8 @@ test('real Evidence -> Recommendation -> Decision -> Approval -> Work -> Outcome
   expect(open[0].status).toBe('OPEN');
   expect(open[0].assignee_id).toBe(actorA.userId);
 
-  const started = await rest(a, `/rest/v1/decision_work_items?id=eq.${encodeURIComponent(workItemId)}&company_id=eq.${actorA.tenantId}`, {
-    method: 'PATCH', headers: { 'Content-Type': 'application/json', Prefer: 'return=representation' },
-    body: JSON.stringify({ status: 'IN_PROGRESS', started_at: new Date().toISOString(), updated_at: new Date().toISOString() }),
-  });
+  expect(await rpc(a, 'start_decision_work_item', { p_work_item_id: workItemId })).toBe(true);
+  const started = await rest(a, `/rest/v1/decision_work_items?select=id,company_id,status&company_id=eq.${actorA.tenantId}&id=eq.${encodeURIComponent(workItemId)}`);
   expect(started).toHaveLength(1);
   expect(started[0].status).toBe('IN_PROGRESS');
 
