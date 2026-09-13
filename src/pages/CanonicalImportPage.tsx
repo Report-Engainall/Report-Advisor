@@ -11,7 +11,7 @@ import { detectFormat } from '@/lib/file-engine/detector';
 import { securityScan, computeSHA256, checkDuplicate } from '@/lib/file-engine/security';
 import { parseFile } from '@/lib/file-engine/adapters';
 import { FORMAT_LABELS, MAX_FILE_SIZE, type FileFormat, type Dataset } from '@/lib/file-engine/types';
-import { commitImportBatch } from '@/lib/import/canonical-commit';
+import { runCanonicalProductionImport } from '@/lib/import/canonical-production-adapter';
 import { reconcileForCanonical } from '@/lib/import/canonical-truth-boundary';
 
 type Step = 'upload' | 'scanning' | 'preview' | 'committing' | 'done';
@@ -120,22 +120,19 @@ export function CanonicalImportPage() {
   const commit = useCallback(async () => {
     const validRows = rows.filter(r => r.valid);
     if (!validRows.length || !file || !fileHash || duplicate || !securityPassed) return;
-    setStep('committing'); setProgress(0); setError(null);
+    setStep('committing'); setProgress(10); setError(null);
     try {
       const companyId = await resolveCurrentCompanyId();
       if (!companyId) throw new Error('TENANT_CONTEXT_REQUIRED');
       const rec = await createImportRecord({ file_name: file.name, file_size: file.size, source_type: file.format, status: 'processing', total_rows: rows.length, valid_rows: validRows.length, invalid_rows: rows.length - validRows.length, quarantined_rows: rows.length - validRows.length, entity_type: entityType, progress: 0 });
-      const reconciled = reconcileForCanonical(entityType, companyId, file.name, fileHash, rec.id, (data, rowNumber) => `${fileHash}:${rowNumber}:${JSON.stringify(data)}`, validRows.map(r => ({ rowNumber: r.rowNumber, data: r.data })));
+      const sourceHash = `sha256:${fileHash}`;
+      const reconciled = reconcileForCanonical(entityType, companyId, file.name, sourceHash, rec.id, (data, rowNumber) => `${fileHash}:${rowNumber}:${JSON.stringify(data)}`, validRows.map(r => ({ rowNumber: r.rowNumber, data: r.data })));
       if (reconciled.rejected.length > 0) throw new Error(`CANONICAL_RECONCILIATION_REJECTED:${reconciled.rejected.map(r => `${r.rowNumber}:${r.reason}`).join(',')}`);
-      const batchSize = 50; let committed = 0;
-      for (let i = 0; i < reconciled.rows.length; i += batchSize) {
-        const batch = reconciled.rows.slice(i, i + batchSize);
-        await commitImportBatch(entityType, batch);
-        committed += batch.length;
-        setProgress(Math.round((committed / reconciled.rows.length) * 100));
-      }
+      setProgress(25);
+      const execution = await runCanonicalProductionImport({ importJobId: rec.id, entityType, companyId, fileName: file.name, sourceHash, rows: reconciled.rows });
+      setProgress(100);
       await updateImportRecord(rec.id, { status: 'completed', progress: 100, completed_at: new Date().toISOString() });
-      setResult({ total: rows.length, valid: validRows.length, invalid: rows.length - validRows.length, importId: rec.id });
+      setResult({ total: rows.length, valid: validRows.length, invalid: rows.length - validRows.length, importId: rec.id, executionJobId: execution.jobId });
       setStep('done'); await loadHistory();
     } catch (e: any) {
       setError(`فشل الاستيراد: ${e?.message || 'خطأ غير معروف'}`); setStep('preview');
@@ -176,9 +173,9 @@ export function CanonicalImportPage() {
       {error&&<div className="p-3 rounded-lg bg-danger-50 text-danger-700 text-sm flex gap-2"><AlertCircle size={16}/>{error}</div>}
     </div>}
 
-    {step === 'committing' && <Card><CardBody><div className="flex flex-col items-center py-12 gap-4"><Loader2 className="animate-spin text-primary-500" size={34}/><b>جارٍ تنفيذ الكتابة المركزية...</b><span className="text-lg font-semibold">{progress}%</span><div className="w-full max-w-xl h-2 bg-ink-100 rounded-full overflow-hidden"><div className="h-full bg-primary-500 rounded-full transition-all" style={{width:`${progress}%`}}/></div><p className="text-xs text-ink-400">يتم إرسال الدفعات بعد اجتياز سياق الحساب والمصالحة القانونية.</p></div></CardBody></Card>}
+    {step === 'committing' && <Card><CardBody><div className="flex flex-col items-center py-12 gap-4"><Loader2 className="animate-spin text-primary-500" size={34}/><b>جارٍ تنفيذ الكتابة المركزية...</b><span className="text-lg font-semibold">{progress}%</span><div className="w-full max-w-xl h-2 bg-ink-100 rounded-full overflow-hidden"><div className="h-full bg-primary-500 rounded-full transition-all" style={{width:`${progress}%`}}/></div><p className="text-xs text-ink-400">يتم تشغيل دورة التنفيذ المتينة، ثم تنفيذ الكتابة الذرية في مرحلة committed.</p></div></CardBody></Card>}
 
-    {step === 'done' && result && <Card><CardBody><div className="flex flex-col items-center py-10 gap-4"><CheckCircle2 className="text-success-500" size={52}/><h3 className="text-xl font-semibold">اكتملت عملية الاستيراد</h3><div className="grid grid-cols-3 gap-3 w-full max-w-lg text-center"><div className="p-3 rounded-lg bg-ink-50"><div className="text-xs text-ink-400">الإجمالي</div><b>{formatNumber(result.total)}</b></div><div className="p-3 rounded-lg bg-success-50"><div className="text-xs text-success-700">تمت الكتابة</div><b>{formatNumber(result.valid)}</b></div><div className="p-3 rounded-lg bg-danger-50"><div className="text-xs text-danger-700">مرفوض</div><b>{formatNumber(result.invalid)}</b></div></div><p className="text-xs text-ink-400">معرّف العملية: {result.importId}</p><button type="button" onClick={reset} className="btn-primary"><Upload size={14}/> استيراد ملف آخر</button></div></CardBody></Card>}
+    {step === 'done' && result && <Card><CardBody><div className="flex flex-col items-center py-10 gap-4"><CheckCircle2 className="text-success-500" size={52}/><h3 className="text-xl font-semibold">اكتملت عملية الاستيراد</h3><div className="grid grid-cols-3 gap-3 w-full max-w-lg text-center"><div className="p-3 rounded-lg bg-ink-50"><div className="text-xs text-ink-400">الإجمالي</div><b>{formatNumber(result.total)}</b></div><div className="p-3 rounded-lg bg-success-50"><div className="text-xs text-success-700">تمت الكتابة</div><b>{formatNumber(result.valid)}</b></div><div className="p-3 rounded-lg bg-danger-50"><div className="text-xs text-danger-700">مرفوض</div><b>{formatNumber(result.invalid)}</b></div></div><p className="text-xs text-ink-400">معرّف العملية: {result.importId}</p><p className="text-xs text-ink-400">معرّف التنفيذ المتين: {result.executionJobId}</p><button type="button" onClick={reset} className="btn-primary"><Upload size={14}/> استيراد ملف آخر</button></div></CardBody></Card>}
 
     <Card><CardHeader title="سجل الاستيرادات" subtitle="تاريخ العمليات المرتبطة بحسابك" action={<button type="button" onClick={() => void loadHistory()} className="btn-secondary text-xs"><RefreshCw size={13}/> تحديث</button>}/>{loadingHistory?<LoadingState message="جارٍ تحميل السجل..."/>:history.length===0?<EmptyState icon={<Database size={32}/>} title="لا توجد استيرادات سابقة" message="ابدأ باستيراد ملفك الأول"/>:<DataTable columns={[{key:'file_name',label:'الملف'},{key:'entity_type',label:'النوع'},{key:'total_rows',label:'الصفوف',align:'center'},{key:'valid_rows',label:'صالح',align:'center'},{key:'invalid_rows',label:'مرفوض',align:'center'},{key:'status',label:'الحالة',align:'center',render:(r:any)=><StatusBadge status={r.status}/>},{key:'created_at',label:'التاريخ',render:(r:any)=>formatDateTime(r.created_at)}]} data={history} emptyMessage="لا توجد استيرادات"/>}</Card>
   </div>;
