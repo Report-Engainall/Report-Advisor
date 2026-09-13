@@ -18,10 +18,3 @@ export async function resolve(specifier, context, nextResolve) {
     throw error;
   }
 }
-
-export async function load(url, context, nextLoad) {
-  if (url.endsWith('.ts') || url.endsWith('.tsx')) {
-    return nextLoad(url, { ...context, format: 'module' });
-  }
-  return nextLoad(url, context);
-}
