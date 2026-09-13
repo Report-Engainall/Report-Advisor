@@ -59,7 +59,9 @@ const batchFolderPath = path.join(root, 'src', 'lib', 'import', 'batch-folder.ts
 if (fs.existsSync(batchFolderPath)) {
   const batch = fs.readFileSync(batchFolderPath, 'utf8');
   if (!/computeSHA256\(buffer\)/.test(batch)) throw new Error('Folder import must bind the commit to the exact source SHA-256');
-  if (!/commitImportBatch\(entityType,canonicalRows,hash\)/.test(batch)) {
+  if (!/const sourceHash=`sha256:\$\{hash\}`/.test(batch)) throw new Error('Folder import must normalize the source SHA-256 before reconciliation and commit');
+  if (!/reconcileForCanonical\([^\n]*sourceHash,sourceHash/.test(batch)) throw new Error('Folder import must preserve the same normalized source hash through canonical reconciliation');
+  if (!/commitImportBatch\(entityType,canonicalRows,sourceHash\)/.test(batch)) {
     throw new Error('Folder import must commit the complete canonical source through one atomic RPC call');
   }
   if (/offset\s*\+=\s*500/.test(batch) || /for\s*\([^)]*offset[^)]*500/.test(batch)) {
