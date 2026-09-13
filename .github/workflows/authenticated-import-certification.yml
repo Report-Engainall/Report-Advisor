@@ -2,6 +2,9 @@ name: authenticated-import-certification
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - desktop/remediation-electron44-electron
 
 permissions:
   contents: read
