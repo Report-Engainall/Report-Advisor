@@ -42,8 +42,8 @@ test('authenticated CanonicalImportPage imports canonical sales invoices', async
   }
 
   await page.goto(new URL('/login', baseUrl).toString(), { waitUntil: 'networkidle' });
-  await page.getByLabel(/email/i).fill(email);
-  await page.getByLabel(/password/i).fill(password);
+  await page.getByLabel(/email|البريد الإلكتروني/i).fill(email);
+  await page.getByLabel(/password|كلمة المرور/i).fill(password);
   await page.getByRole('button', { name: /sign in|login|دخول|تسجيل/i }).click();
   await page.waitForLoadState('networkidle');
 
