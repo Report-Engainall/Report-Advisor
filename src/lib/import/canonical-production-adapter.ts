@@ -16,8 +16,8 @@ export interface CanonicalProductionImportInput {
   fileName: string;
   sourceHash: string;
   rows: ReconciledCanonicalImportRow[];
-  totalRows: number;
-  invalidRows: number;
+  totalRows?: number;
+  invalidRows?: number;
 }
 
 function normalizeSourceHash(value: string): string {
@@ -50,8 +50,18 @@ export async function runCanonicalProductionImport(input: CanonicalProductionImp
   if (!companyId || companyId !== input.companyId) throw new Error('TENANT_CONTEXT_MISMATCH');
   if (!input.importJobId.trim()) throw new Error('IMPORT_JOB_ID_REQUIRED');
   if (!input.rows.length) throw new Error('IMPORT_ROWS_REQUIRED');
-  if (!Number.isInteger(input.totalRows) || input.totalRows < input.rows.length) throw new Error('IMPORT_TOTAL_ROWS_INVALID');
-  if (!Number.isInteger(input.invalidRows) || input.invalidRows < 0 || input.rows.length + input.invalidRows !== input.totalRows) throw new Error('IMPORT_ROW_COUNTER_MISMATCH');
+
+  const { data: importJob, error: importJobError } = await supabase
+    .from('import_jobs')
+    .select('total_rows,invalid_rows')
+    .eq('id', input.importJobId)
+    .eq('company_id', companyId)
+    .single();
+  if (importJobError) throw importJobError;
+  const totalRows = Number(input.totalRows ?? importJob.total_rows ?? 0);
+  const invalidRows = Number(input.invalidRows ?? importJob.invalid_rows ?? 0);
+  if (!Number.isInteger(totalRows) || totalRows < input.rows.length) throw new Error('IMPORT_TOTAL_ROWS_INVALID');
+  if (!Number.isInteger(invalidRows) || invalidRows < 0 || input.rows.length + invalidRows !== totalRows) throw new Error('IMPORT_ROW_COUNTER_MISMATCH');
 
   const sourceHash = normalizeSourceHash(input.sourceHash);
   input.rows.forEach((row) => assertCanonicalBoundary(row, companyId));
@@ -111,9 +121,9 @@ export async function runCanonicalProductionImport(input: CanonicalProductionImp
           if (result.committed !== input.rows.length || result.ids.length !== input.rows.length) throw new Error('IMPORT_COMMIT_RESULT_MISMATCH');
           const { error } = await supabase.rpc('import_update_job_progress', {
             p_job_id: input.importJobId,
-            p_processed_rows: input.totalRows,
+            p_processed_rows: totalRows,
             p_valid_rows: input.rows.length,
-            p_invalid_rows: input.invalidRows,
+            p_invalid_rows: invalidRows,
             p_duplicate_rows: 0,
             p_status: 'processing',
           });
