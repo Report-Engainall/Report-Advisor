@@ -59,7 +59,8 @@ export async function runCanonicalProductionImport(input: CanonicalProductionImp
     .single();
   if (importJobError) throw importJobError;
   const totalRows = Number(input.totalRows ?? importJob.total_rows ?? 0);
-  const invalidRows = Number(input.invalidRows ?? importJob.invalid_rows ?? 0);
+  const persistedInvalidRows = Number(importJob.invalid_rows ?? 0);
+  const invalidRows = Number(input.invalidRows ?? (persistedInvalidRows > 0 ? persistedInvalidRows : Math.max(0, totalRows - input.rows.length)));
   if (!Number.isInteger(totalRows) || totalRows < input.rows.length) throw new Error('IMPORT_TOTAL_ROWS_INVALID');
   if (!Number.isInteger(invalidRows) || invalidRows < 0 || input.rows.length + invalidRows !== totalRows) throw new Error('IMPORT_ROW_COUNTER_MISMATCH');
 
