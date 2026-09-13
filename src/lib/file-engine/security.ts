@@ -21,7 +21,8 @@ export function securityScan(file: File, buffer: ArrayBuffer): SecurityScanResul
 
 export async function checkDuplicate(hash: string, _legacyCompanyId?: string, _legacySupabase?: typeof supabase): Promise<{ isDuplicate: boolean; existing: FileRecord | null }> {
   const companyId = await resolveCurrentCompanyId(); if (!companyId) throw new Error('TENANT_CONTEXT_REQUIRED');
-  const { data, error } = await supabase.from('file_records').select('id,company_id,file_name,file_hash,created_at,status').eq('company_id', companyId).eq('file_hash', hash).order('created_at', { ascending: false }).limit(1).maybeSingle();
+  const canonicalHash = hash.startsWith('sha256:') ? hash : `sha256:${hash}`;
+  const { data, error } = await supabase.from('file_records').select('id,company_id,file_name,file_hash,created_at,status').eq('company_id', companyId).eq('file_hash', canonicalHash).order('created_at', { ascending: false }).limit(1).maybeSingle();
   if (error) throw error;
   if (!data) return { isDuplicate: false, existing: null };
   const existing = data as FileRecord;
@@ -30,10 +31,11 @@ export async function checkDuplicate(hash: string, _legacyCompanyId?: string, _l
 
 export async function registerFileRecord(input: { fileName: string; fileSize: number; fileHash: string; fileExtension?: string | null; fileMime?: string | null; detectedFormat?: string | null }): Promise<FileRecord> {
   const companyId = await resolveCurrentCompanyId(); if (!companyId) throw new Error('TENANT_CONTEXT_REQUIRED');
-  const { data, error } = await supabase.from('file_records').insert({ company_id: companyId, file_name: input.fileName, file_size: input.fileSize, file_hash: input.fileHash, file_extension: input.fileExtension ?? null, file_mime: input.fileMime ?? null, detected_format: input.detectedFormat ?? null, security_status: 'passed', is_duplicate: false, status: 'processing' }).select('id,company_id,file_name,file_hash,created_at,status').single();
+  const canonicalHash = input.fileHash.startsWith('sha256:') ? input.fileHash : `sha256:${input.fileHash}`;
+  const { data, error } = await supabase.from('file_records').insert({ company_id: companyId, file_name: input.fileName, file_size: input.fileSize, file_hash: canonicalHash, file_extension: input.fileExtension ?? null, file_mime: input.fileMime ?? null, detected_format: input.detectedFormat ?? null, security_status: 'passed', is_duplicate: false, status: 'processing' }).select('id,company_id,file_name,file_hash,created_at,status').single();
   if (!error && data) return data as FileRecord;
   if (error?.code === '23505') {
-    const existing = await supabase.from('file_records').select('id,company_id,file_name,file_hash,created_at,status').eq('company_id', companyId).eq('file_hash', input.fileHash).maybeSingle();
+    const existing = await supabase.from('file_records').select('id,company_id,file_name,file_hash,created_at,status').eq('company_id', companyId).eq('file_hash', canonicalHash).maybeSingle();
     if (existing.error) throw existing.error;
     if (existing.data && ['processing', 'failed', 'cancelled'].includes(existing.data.status)) return existing.data as FileRecord;
     throw new Error('IMPORT_SOURCE_ALREADY_REGISTERED');
