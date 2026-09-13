@@ -62,7 +62,43 @@ export function securityScan(file: File, buffer: ArrayBuffer): SecurityScanResul
 
 export async function checkDuplicate(hash: string, _legacyCompanyId?: string, _legacySupabase?: SupabaseClient): Promise<{ isDuplicate: boolean; existing: FileRecord | null }> {
   const { resolveCurrentCompanyId, supabase } = await import('../supabase.ts');
-  const companyId = await resolveCurrentCompanyId(); if (!companyId) throw new Error('TENANT_CONTEXT_REQUIRED');
-  const { data, error } = await supabase.from('file_records').select('id,company_id,file_name,file_hash,created_at,status').eq('company_id', companyId).eq('file_hash', hash).order('created_at', { ascending: false }).limit(1).maybeSingle();
-  if (error) throw error; if (!data) return { isDuplicate: false, existing: null }; return { isDuplicate: true, existing: data as FileRecord };
+  const companyId = await resolveCurrentCompanyId();
+  if (!companyId) throw new Error('TENANT_CONTEXT_REQUIRED');
+
+  const { data: fileRecord, error: fileError } = await supabase
+    .from('file_records')
+    .select('id,company_id,file_name,file_hash,created_at,status')
+    .eq('company_id', companyId)
+    .eq('file_hash', hash)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (fileError) throw fileError;
+  if (fileRecord) return { isDuplicate: true, existing: fileRecord as FileRecord };
+
+  const sourceHash = `sha256:${hash.trim().toLowerCase().replace(/^sha256:/, '')}`;
+  const { data: canonicalCommit, error: canonicalError } = await supabase
+    .from('canonical_import_commits')
+    .select('id,company_id,entity_type,source_hash,created_at')
+    .eq('company_id', companyId)
+    .eq('source_hash', sourceHash)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (canonicalError) throw canonicalError;
+  if (canonicalCommit) {
+    return {
+      isDuplicate: true,
+      existing: {
+        id: String(canonicalCommit.id),
+        company_id: String(canonicalCommit.company_id),
+        file_name: `canonical:${String(canonicalCommit.entity_type)}`,
+        file_hash: String(canonicalCommit.source_hash).replace(/^sha256:/, ''),
+        created_at: String(canonicalCommit.created_at),
+        status: 'committed',
+      },
+    };
+  }
+
+  return { isDuplicate: false, existing: null };
 }
