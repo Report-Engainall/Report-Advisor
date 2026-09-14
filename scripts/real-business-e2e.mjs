@@ -117,6 +117,7 @@ async function importOne(page, entity, fields, marker) {
   await page.locator('input[type="file"]').first().setInputFiles({ name: `${marker}.csv`, mimeType: 'text/csv', buffer: csvBuffer(fields) });
   await page.getByText('المراجعة', { exact: true }).waitFor({ state: 'visible', timeout: 30000 });
   const commit = page.getByRole('button', { name: /اعتماد وكتابة/ });
+  await commit.waitFor({ state: 'visible', timeout: 30000 });
   assert.equal(await commit.count(), 1, `${entity} import commit control must exist at review stage`);
   assert.equal(await commit.isEnabled(), true, `${entity} valid import must be enabled`);
   await commit.click();
@@ -237,7 +238,7 @@ try {
     await pageB.getByPlaceholder('بحث عن عميل...').fill(customerCode);
     assert.equal(await pageB.getByText(customerCode, { exact: true }).count(), 0, 'Tenant B UI must not show Tenant A customer');
     await pageB.goto(`${baseURL}/products`, { waitUntil: 'networkidle', timeout: 30000 });
-    await pageB.getByPlaceholder('بحث عن منتج...').fill(sku);
+    await pageB.getByPlaceholder('بحث عن منتج...',).fill(sku);
     assert.equal(await pageB.getByText(sku, { exact: true }).count(), 0, 'Tenant B UI must not show Tenant A product');
     evidence.steps.push({ step: 'A-to-B-ui-isolation', status: 'PASS' });
 
