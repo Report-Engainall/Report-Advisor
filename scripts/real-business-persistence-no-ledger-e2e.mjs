@@ -20,7 +20,7 @@ page.on('pageerror', e => evidence.failures.push(`pageerror:${e.message}`));
 page.on('requestfailed', r => { const e = r.failure()?.errorText || 'unknown'; if (e !== 'net::ERR_ABORTED') evidence.failures.push(`request:${r.method()} ${r.url()} ${e}`); });
 async function token() { return page.evaluate(() => { const raw = Object.entries(localStorage).find(([k]) => k.endsWith('-auth-token'))?.[1]; if (!raw) throw new Error('BROWSER_SESSION_NOT_FOUND'); const s = JSON.parse(raw); if (!s?.access_token) throw new Error('BROWSER_ACCESS_TOKEN_NOT_FOUND'); return s.access_token; }); }
 async function rest(table, fields, filters = {}) { const u = new URL(`${supabaseURL}/rest/v1/${table}`); u.searchParams.set('select', fields); for (const [k, v] of Object.entries(filters)) u.searchParams.set(k, `eq.${v}`); const r = await fetch(u, { headers: { apikey: anonKey, Authorization: `Bearer ${await token()}` } }); const b = await r.text(); assert.equal(r.ok, true, `${table} read HTTP ${r.status}: ${b}`); return b ? JSON.parse(b) : []; }
-async function tenant() { const r = await fetch(`${supabaseURL}/rest/v1/rpc/current_company_id`, { method: 'POST', headers: { apikey: anonKey, Authorization: `Bearer ${await token()}`, 'Content-Type': 'application/json' }, body: '{}' }); const b = await r.text(); assert.equal(r.ok, true, `current_company_id HTTP ${r.status}: ${b}`); return b.replaceAll('"', '').trim(); }
+async function tenant() { const r = await fetch(`${supabaseURL}/rest/v1/rpc/current_company_id`, { method: 'POST', headers: { apikey: anonKey, Authorization: `Bearer ${await token()}`, 'Content-Type': 'application/json' }, body: '{}' }); const b = await r.text(); assert.equal(r.ok, true, `current_company_id HTTP ${r.status}: ${b}`); return b.replaceAll('\"', '').trim(); }
 function csv(fields) { return Buffer.from(`\ufeff${Object.keys(fields).join(',')}\n${Object.values(fields).map(v => String(v).replaceAll(',', ' ')).join(',')}\n`, 'utf8'); }
 async function login() { await page.goto(baseURL, { waitUntil: 'networkidle', timeout: 30000 }); await page.locator('#login-email').fill(email); await page.locator('#login-password').fill(password); await page.getByRole('button', { name: 'تسجيل الدخول' }).click(); await page.waitForTimeout(1000); assert.equal(await page.locator('#login-email').count(), 0); }
 async function importOne(entity, fields, marker) {
@@ -57,14 +57,16 @@ async function assertJob(jobId, entity) {
   }
   assert.equal(jobs.length, 1, `report_execution_jobs row missing for ${jobId}`);
   const job = jobs[0];
-  assert.equal(job.status, 'completed', `durable execution ${jobId} ended ${job.status}: ${job.last_error || 'no error'}`);
+  assert.equal(job.status, 'completed', `durable execution ${jobId} ended ${job.status}: ${JSON.stringify(job.last_error)}`);
   assert.equal(job.checkpoint?.stage, 'rendered');
-  assert.equal(job.last_error, null);
+  assert.ok(job.last_error !== null, 'last_error contract must not be interpreted through null-equivalence');
+  assert.equal(typeof job.last_error, 'object', 'completed durable job last_error must be a JSON object');
+  assert.deepEqual(job.last_error, {}, 'completed durable job must retain the database contract: empty JSON error object');
   assert.equal(job.checkpoint?.sourceHash, job.source_hash);
   assert.ok(Array.isArray(job.checkpoint?.evidenceKeys));
   assert.ok(job.checkpoint.evidenceKeys.includes(`canonical-import:${job.source_hash}:source`));
   assert.ok(job.checkpoint.evidenceKeys.includes(`canonical-import:${job.source_hash}:reconciliation`));
-  evidence.steps.push({ step: `job:${entity}`, status: 'PASS', jobId, sourceHash: job.source_hash, checkpoint: job.checkpoint });
+  evidence.steps.push({ step: `job:${entity}`, status: 'PASS', jobId, sourceHash: job.source_hash, checkpoint: job.checkpoint, lastErrorContract: job.last_error });
   return job.source_hash;
 }
 try {
