@@ -42,8 +42,8 @@ const legacyCash = getSemanticMetric('metric.cash');
 if (!legacyCash || legacyCash.metricId !== 'metric.cash_position') {
   errors.push('Persisted metric.cash must resolve to canonical metric.cash_position.');
 }
-if (getPersistedSemanticMetricId('metric.cash') !== 'metric.cash') {
-  errors.push('Legacy metric.cash must retain its persisted governance lookup ID.');
+if (getPersistedSemanticMetricId('metric.cash') !== 'metric.cash_position') {
+  errors.push('Persisted metric.cash must be rebound to canonical metric.cash_position.');
 }
 
 if (errors.length > 0) {
