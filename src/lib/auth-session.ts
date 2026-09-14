@@ -27,14 +27,15 @@ export async function hasAuthenticatedSession(): Promise<boolean> {
 }
 
 /**
- * Subscribe to auth changes without allowing INITIAL_SESSION to race the
- * canonical bootstrap. AuthGate owns the single initial hydration call; this
- * listener only applies subsequent auth changes.
+ * Subscribe only to subsequent auth changes. AuthGate owns the single
+ * canonical initial getSession() hydration and passes that result here,
+ * avoiding duplicate bootstrap RPCs and INITIAL_SESSION races.
  */
 export function onAuthStateChange(
   callback: (user: User | null) => void,
+  initialUser?: User | null,
 ): () => void {
-  let initialResolved = false;
+  let initialResolved = initialUser !== undefined;
   let queuedUser: User | null | undefined;
 
   const { data } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -46,18 +47,22 @@ export function onAuthStateChange(
     callback(nextUser);
   });
 
-  void getAuthenticatedUser().then((initialUser) => {
-    if (initialResolved) return;
-    initialResolved = true;
+  if (initialUser !== undefined) {
     callback(initialUser);
+  } else {
+    void getAuthenticatedUser().then((user) => {
+      if (initialResolved) return;
+      initialResolved = true;
+      callback(user);
 
-    if (queuedUser !== undefined) {
-      const initialId = initialUser?.id ?? null;
-      const queuedId = queuedUser?.id ?? null;
-      if (initialId !== queuedId) callback(queuedUser);
-      queuedUser = undefined;
-    }
-  });
+      if (queuedUser !== undefined) {
+        const initialId = user?.id ?? null;
+        const queuedId = queuedUser?.id ?? null;
+        if (initialId !== queuedId) callback(queuedUser);
+        queuedUser = undefined;
+      }
+    });
+  }
 
   return () => data.subscription.unsubscribe();
 }
