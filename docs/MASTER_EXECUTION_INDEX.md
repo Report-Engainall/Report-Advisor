@@ -5,9 +5,9 @@
 > Authoritative execution manifest. This document never promotes historical evidence across an exact Git `HEAD` boundary. Pair every evidence batch with the exact Git `HEAD` of `main` and the exact environment/commit used.
 
 ### CURRENT EXACT HEAD
-- Current code/test candidate: `9bcbff347bd141f62486802106306f8edddde126`.
-- This candidate is the verified merge commit for PR #462 (`fix: close current-head build blockers for live closure`).
-- The merge contains the bounded current-head build/OCR test repairs and workflow checkout/release-manifest corrections; no certification or runtime PASS is implied by the merge itself.
+- Current code/test candidate: `a2b94a2b7ff951567c83b056ded1bb5a7431a9c9`.
+- This candidate is the current exact PR #467 head under active closure; its product/runtime evidence must be freshly bound to the resulting governance commit before certification.
+- The governance rebind is authoritative bookkeeping only; it does not promote historical evidence and does not certify runtime, browser, tenant A/B, import, OCR, recovery, backup/restore, performance, or LIVE state.
 - Historical evidence from earlier SHAs remains historical and is not promoted automatically.
 - This index update is governance-only; it does not certify runtime, browser, tenant A/B, import, OCR, recovery, backup/restore, performance, or LIVE state.
 
@@ -234,7 +234,7 @@ This is not a rebuild situation. The remaining work is concentrated closure: exe
 - The repair is test-only: the adversarial mutation now targets the direct local authoritative function body used by the validator, eliminating the prior mismatch between a canonical lock match captured from one representation and replacement against another body representation.
 - No production SQL, Certification Boundary guard, tenant/RLS logic, runtime worker logic, OCR production logic, or unrelated application surface was changed by this repair.
 - The immediately preceding certification on `67e60e1d...` demonstrated Boundary PASS, Release Readiness 20/20 PASS, and lock-order PASS, then failed only when the TOCTOU adversarial mutation could not be applied. Therefore **no TOCTOU PASS is promoted by this rebind**.
-- Required next action: fresh exact-head Certification from this governance boundary, with explicit evidence for `Decision approval TOCTOU contract: PASS`, the adversarial Test-of-Test, provenance, and exact-commit evidence before any Final Certification or LIVE claim.
+- Required next action: fresh exact-head Certification from this governance boundary, with explicit evidence for `Decision approval TOCTOU contract: PASS`, the adversarial Test-of-Test, provenance, and exact-commit evidence before any certification claim.
 - Release remains **NOT CERTIFIED / NOT LIVE**.
 
 ## GOVERNANCE LOG — 2026-09-10 — CANDIDATE #462 FUNCTION-MATCHING FIXTURE REPAIR
@@ -272,3 +272,10 @@ This is not a rebuild situation. The remaining work is concentrated closure: exe
 - Because this commit changes only `docs/MASTER_EXECUTION_INDEX.md`, the certification boundary permits the indexed `9bcbff...` candidate to remain the certification target while this governance commit becomes the actual `main` HEAD.
 - Required next action: fresh exact-head Certification Gate on this governance commit, which must prove boundary PASS and then execute the actual certification suites; separately continue P0 authenticated Actor A/B browser proof and P1 real import/report-trigger/recovery evidence.
 - Release remains **NOT CERTIFIED / NOT LIVE**.
+
+## GOVERNANCE LOG — 2026-09-14 — PR #467 EXACT-HEAD AUTHORITY REBIND
+- Previous exact candidate: `a2b94a2b7ff951567c83b056ded1bb5a7431a9c9`.
+- This is a governance-only authority rebind required by the repository's Certification Boundary mechanism: the boundary explicitly permits `docs/MASTER_EXECUTION_INDEX.md` as an allowed governance-only change when the indexed candidate is an ancestor of the tested HEAD.
+- No runtime/product evidence is promoted by this rebind. All prior evidence remains bound to its original exact SHA; fresh certification evidence is required for the resulting governance commit.
+- PR #467 remains the candidate vehicle; protected `main` is untouched.
+- Release remains **NOT CERTIFIED** pending fresh exact-head Production Closure and Final Certification.
