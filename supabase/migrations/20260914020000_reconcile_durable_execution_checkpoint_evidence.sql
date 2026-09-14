@@ -5,7 +5,7 @@ create or replace function public.enqueue_report_execution_job(
   p_evidence_keys text[] default '{}', p_max_attempts integer default 3
 )
 returns jsonb
-language plpgsql security definer set search_path to ''
+language plpgsql security definer set search_path = public, pg_catalog
 as $function$
 declare v_company_id uuid := public.current_company_id(); v_job public.report_execution_jobs%rowtype;
 begin
@@ -39,7 +39,7 @@ create or replace function public.advance_report_execution_checkpoint(
   p_job_id uuid,p_company_id uuid,p_worker_id text,p_lease_token uuid,p_checkpoint jsonb
 )
 returns boolean
-language plpgsql security definer set search_path to ''
+language plpgsql security definer set search_path = public, pg_catalog
 as $function$
 declare affected integer; old_stage text; new_stage text; old_hash text; new_hash text; old_pos integer; new_pos integer;
 begin
