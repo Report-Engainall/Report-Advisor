@@ -41,7 +41,10 @@ export function resolveSemanticMetricId(metricId: string): string {
   }
 
   const requested = metricId.trim();
-  const canonicalMetricId = SEMANTIC_METRIC_ALIASES[requested] ?? requested;
+  const aliased = SEMANTIC_METRIC_ALIASES[requested] ?? requested;
+  const canonicalMetricId = aliased.startsWith('metric.')
+    ? aliased
+    : `metric.${aliased}`;
   const canonical = SEMANTIC_METRIC_REGISTRY.find(metric => metric.metricId === canonicalMetricId);
   if (!canonical) throw new Error(`Unknown metric: ${requested}`);
   return canonical.metricId;
