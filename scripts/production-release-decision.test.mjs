@@ -1,9 +1,44 @@
-import {strict as assert} from 'node:assert';
-import {baseline} from './production-regression-baseline.mjs';
-import {evaluateRelease} from './production-release-decision.mjs';
-const good=Object.fromEntries(Object.entries(baseline).map(([id,b])=>[id,{expected:b.expected,stages:b.stages}]));
-assert.equal(evaluateRelease(good).release,'approved');
-const broken={...good};const id=Object.keys(broken)[0];broken[id]={expected:'broken',stages:[]};
-const blocked=evaluateRelease(broken);assert.equal(blocked.release,'blocked');assert.ok(blocked.failures.length>=1);
-const incomplete={...good};delete incomplete[Object.keys(incomplete)[1]];assert.equal(evaluateRelease(incomplete).release,'blocked');
-console.log('Production release decision tests PASS.');
+import { strict as assert } from 'node:assert';
+import { scenarios } from './production-scenario-matrix.mjs';
+import { evaluateRelease } from './production-release-decision.mjs';
+
+const exactHead = '950e0882c5557211a621be09a82a53f578af9713';
+const tenant = 'f68a7e91-3c7e-46fb-97a8-e339bec04e13';
+const artifact = {
+  exact_head: exactHead,
+  authenticated_runtime: true,
+  tenant,
+  scenario_count: scenarios.length,
+  runtime_results: scenarios.map((scenario, index) => ({
+    scenario_id: scenario.id,
+    exact_head: exactHead,
+    authenticated_context: true,
+    tenant,
+    input_fingerprint: `${String(index + 1).padStart(2, '0')}${'a'.repeat(62)}`,
+    execution_start: '2026-09-15T00:00:00.000Z',
+    execution_end: '2026-09-15T00:01:00.000Z',
+    actual_status: 'committed_and_rendered',
+    expected_status: scenario.expect,
+    actual_observed_result: { canCommit: true },
+    evidence_references: [`report_execution_jobs:${'11111111-1111-4111-8111-111111111111'}`],
+    job_id: '11111111-1111-4111-8111-111111111111',
+    persistence_readback: { status: 'completed', checkpoint: { stage: 'rendered' } },
+    failure: null,
+  })),
+  duplicate_followup: {
+    scenario_id: 'duplicate-transactions:second-run',
+    exact_head: exactHead,
+    authenticated_context: true,
+    tenant,
+    input_fingerprint: `${'11'.padStart(2, '0')}${'a'.repeat(62)}`,
+    actual_status: 'rejected_or_reviewed',
+  },
+};
+
+assert.equal(evaluateRelease(artifact, exactHead).release, 'approved');
+assert.equal(evaluateRelease({ ...artifact, exact_head: '4'.repeat(40) }, exactHead).release, 'blocked');
+assert.equal(evaluateRelease({ ...artifact, runtime_results: artifact.runtime_results.slice(0, 11) }, exactHead).release, 'blocked');
+assert.equal(evaluateRelease({ ...artifact, runtime_results: artifact.runtime_results.map((r, i) => i === 0 ? { ...r, actual_status: 'ready-for-runtime' } : r) }, exactHead).release, 'blocked');
+assert.equal(evaluateRelease({ ...artifact, runtime_results: artifact.runtime_results.map((r, i) => i === 0 ? { ...r, evidence_references: [] } : r) }, exactHead).release, 'blocked');
+assert.equal(evaluateRelease({ ...artifact, duplicate_followup: null }, exactHead).release, 'blocked');
+console.log('Production release decision tests PASS: runtime artifact is fail-closed.');
