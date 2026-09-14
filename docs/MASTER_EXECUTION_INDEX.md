@@ -5,11 +5,11 @@
 > Authoritative execution manifest. This document never promotes historical evidence across an exact Git `HEAD` boundary. Pair every evidence batch with the exact Git `HEAD` of `main` and the exact environment/commit used.
 
 ### CURRENT EXACT HEAD
-- Current code/test candidate: `ad9dc97169704b3c7055cd767d5b5b2bc6223fec`.
+- Current code/test candidate: `e360489a8e169acee37ef09c21243a4e4dd176bd`.
 - PR #467 remains the active candidate vehicle; protected `main` remains untouched.
 - The indexed candidate is the exact current tested PR head immediately before this governance-only rebind; the governance commit itself is permitted by the Certification Boundary as the source-of-truth bookkeeping commit.
 - No historical evidence is promoted automatically. Every runtime PASS remains bound to its original exact SHA.
-- The current candidate contains the bounded Browser E2E repair, exact-head index-parser hardening, metric-identity workflow concurrency-scope repair, governance-chain migration scan repair, explicit governance-chain evidence output, and the latest bounded governance-runtime contract repair. Index-boundary test fixtures now fail closed when stale ancestry cannot be proven, preserving the documented index-only rule.
+- The current candidate contains the bounded Browser E2E repair, exact-head index-parser hardening, metric-identity workflow concurrency-scope repair, governance-chain migration scan repair, explicit governance-chain evidence output, the bounded governance-runtime contract repair, and the Import Center contract correction that binds the UI to the canonical production adapter and existing durable runner.
 
 ### BOUNDARY / GOVERNANCE
 - No rebuild from scratch.
@@ -122,7 +122,7 @@
 - PR #397: OPEN, mergeable, not merged.
 - PR #398: OPEN, mergeable, not merged; CodeRabbit's current array-shape finding was verified and repaired.
 - PR #405: OPEN, currently non-mergeable until its fresh review/CI evidence is available.
-- PR #467: OPEN, DRAFT, mergeable; current head `ad9dc97169704b3c7055cd767d5b5b2bc6223fec`.
+- PR #467: OPEN, DRAFT, mergeable; current head `e360489a8e169acee37ef09c21243a4e4dd176bd`.
 - No PR is treated as merged merely because a connector exposes a `merge_commit_sha`; explicit `merged=false` is authoritative.
 
 ## REAL RELEASE ASSESSMENT — 2026-09-14
@@ -328,6 +328,14 @@ This is not a rebuild situation. The remaining work is concentrated closure: exe
 - The bounded repair now validates the canonical `phase-kl-runtime.ts` exports and the real `production-intelligence.ts` autonomy contract (`RiskBudget`, bounded scenario selection, `AutonomyGateInput`, trust/evidence/risk/rollback/isolation gates, and `evaluateAutonomyGate`). It does not weaken the gate or add a duplicate runtime path.
 - No production SQL, Certification Boundary guard, RLS/Auth control, or durable runner was changed.
 - No historical PASS is promoted. Fresh exact-head Certification is mandatory on the resulting governance rebind.
+- Protected `main` remains untouched. Release remains **NOT CERTIFIED / NOT LIVE** until fresh Certification, independent runtime evidence, 12-scenario evidence, Release Decision, and official Production Closure pass.
+
+## GOVERNANCE LOG — 2026-09-14 — PR #467 IMPORT CENTER CONTRACT REPAIR
+- Exact code/test candidate: `e360489a8e169acee37ef09c21243a4e4dd176bd`.
+- Fresh exact-head Final Certification on the preceding governance boundary passed the Certification Boundary, all 20 Release Readiness stages, the governance runtime chain, and the broader repository contract batch until it exposed one genuine Import Center contract mismatch: the checker required `commitImportBatch` directly in `CanonicalImportPage.tsx`, while the current productized UI correctly delegates to `runCanonicalProductionImport`.
+- The bounded test-only repair now verifies the real UI → `runCanonicalProductionImport` → existing `runDurableProductionLifecycle` → `commitImportBatch` → `import_finish_job` chain across the page and canonical production adapter.
+- No production runtime, durable runner, Certification Boundary guard, RLS/Auth control, or import transaction implementation was changed.
+- No historical PASS is promoted. A fresh exact-head Certification cycle is mandatory on the resulting governance rebind.
 - Protected `main` remains untouched. Release remains **NOT CERTIFIED / NOT LIVE** until fresh Certification, independent runtime evidence, 12-scenario evidence, Release Decision, and official Production Closure pass.
 
 ## FINAL NON-NEGOTIABLES
