@@ -5,11 +5,11 @@
 > Authoritative execution manifest. This document never promotes historical evidence across an exact Git `HEAD` boundary. Pair every evidence batch with the exact Git `HEAD` of `main` and the exact environment/commit used.
 
 ### CURRENT EXACT HEAD
-- Current code/test candidate: `baf8fbca42c55d8410bb2b8d7d2c80f1650efd1b`.
+- Current code/test candidate: `a1be91d49f91476ae3d12a84caae9634c8049906`.
 - PR #467 remains the active candidate vehicle; protected `main` remains untouched.
 - The indexed candidate is the exact current tested PR head immediately before this governance-only rebind; the governance commit itself is permitted by the Certification Boundary as the source-of-truth bookkeeping commit.
 - No historical evidence is promoted automatically. Every runtime PASS remains bound to its original exact SHA.
-- The current candidate contains the bounded Browser E2E repair, exact-head index-parser hardening, metric-identity workflow concurrency-scope repair, and governance-chain migration scan repair. Index-boundary test fixtures now fail closed when stale ancestry cannot be proven, preserving the documented index-only rule.
+- The current candidate contains the bounded Browser E2E repair, exact-head index-parser hardening, metric-identity workflow concurrency-scope repair, governance-chain migration scan repair, and explicit governance-chain evidence output. Index-boundary test fixtures now fail closed when stale ancestry cannot be proven, preserving the documented index-only rule.
 
 ### BOUNDARY / GOVERNANCE
 - No rebuild from scratch.
@@ -122,7 +122,7 @@
 - PR #397: OPEN, mergeable, not merged.
 - PR #398: OPEN, mergeable, not merged; CodeRabbit's current array-shape finding was verified and repaired.
 - PR #405: OPEN, currently non-mergeable until its fresh review/CI evidence is available.
-- PR #467: OPEN, DRAFT, mergeable; current head `baf8fbca42c55d8410bb2b8d7d2c80f1650efd1b`.
+- PR #467: OPEN, DRAFT, mergeable; current head `a1be91d49f91476ae3d12a84caae9634c8049906`.
 - No PR is treated as merged merely because a connector exposes a `merge_commit_sha`; explicit `merged=false` is authoritative.
 
 ## REAL RELEASE ASSESSMENT — 2026-09-14
@@ -303,6 +303,13 @@ This is not a rebuild situation. The remaining work is concentrated closure: exe
 - Exact code/test candidate before this governance-only rebind: `baf8fbca42c55d8410bb2b8d7d2c80f1650efd1b`.
 - The fresh exact-head certification cycle exposed a genuine test contract defect in `scripts/check-governance-runtime-chain.mjs`: it hard-coded two historical migration filenames that are not present in the current migration lineage.
 - The bounded repair removes filename dependence and scans the complete `supabase/migrations/*.sql` chain for the required governance primitives, while retaining the runtime-link assertions and anonymous-grant fail-closed check.
+- No production SQL, Certification Boundary guard, RLS/Auth control, or runtime implementation was changed.
+- No historical PASS is promoted. A fresh exact-head Certification cycle is mandatory on the resulting governance commit.
+- Protected `main` remains untouched. Release remains **NOT CERTIFIED / NOT LIVE** until fresh Certification, independent runtime evidence, and official Production Closure pass.
+
+## GOVERNANCE LOG — 2026-09-14 — PR #467 GOVERNANCE CHAIN EVIDENCE REFINEMENT
+- Exact code/test candidate before this governance-only rebind: `a1be91d49f91476ae3d12a84caae9634c8049906`.
+- The governance-chain contract now reports the exact migration count, required primitive count, and autonomy-link count on PASS, making the observed scan evidence explicit without changing the governed runtime contract.
 - No production SQL, Certification Boundary guard, RLS/Auth control, or runtime implementation was changed.
 - No historical PASS is promoted. A fresh exact-head Certification cycle is mandatory on the resulting governance commit.
 - Protected `main` remains untouched. Release remains **NOT CERTIFIED / NOT LIVE** until fresh Certification, independent runtime evidence, and official Production Closure pass.
