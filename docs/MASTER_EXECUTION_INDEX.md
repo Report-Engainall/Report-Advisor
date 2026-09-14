@@ -5,11 +5,11 @@
 > Authoritative execution manifest. This document never promotes historical evidence across an exact Git `HEAD` boundary. Pair every evidence batch with the exact Git `HEAD` of `main` and the exact environment/commit used.
 
 ### CURRENT EXACT HEAD
-- Current code/test candidate: `15cb5e9bd437c1f0714f2054a7a428c6455089be`.
+- Current code/test candidate: `88cf3a5dda26941a93b703e551ef1ea7e0faaff3`.
 - PR #467 remains the active candidate vehicle; protected `main` remains untouched.
 - The indexed candidate is the exact current tested PR head immediately before this governance-only rebind; the governance commit itself is permitted by the Certification Boundary as the source-of-truth bookkeeping commit.
 - No historical evidence is promoted automatically. Every runtime PASS remains bound to its original exact SHA.
-- The current candidate contains the bounded Browser E2E repair and exact-head index-parser hardening. Index-boundary test fixtures now fail closed when stale index ancestry cannot be proven, preserving the documented index-only rule.
+- The current candidate contains the bounded Browser E2E repair, exact-head index-parser hardening, and the metric-identity workflow concurrency-scope repair. Index-boundary test fixtures now fail closed when stale index ancestry cannot be proven, preserving the documented index-only rule.
 
 ### BOUNDARY / GOVERNANCE
 - No rebuild from scratch.
@@ -122,7 +122,7 @@
 - PR #397: OPEN, mergeable, not merged.
 - PR #398: OPEN, mergeable, not merged; CodeRabbit's current array-shape finding was verified and repaired.
 - PR #405: OPEN, currently non-mergeable until its fresh review/CI evidence is available.
-- PR #467: OPEN, DRAFT, mergeable; current head `15cb5e9bd437c1f0714f2054a7a428c6455089be`.
+- PR #467: OPEN, DRAFT, mergeable; current head `88cf3a5dda26941a93b703e551ef1ea7e0faaff3`.
 - No PR is treated as merged merely because a connector exposes a `merge_commit_sha`; explicit `merged=false` is authoritative.
 
 ## REAL RELEASE ASSESSMENT — 2026-09-14
@@ -291,6 +291,13 @@ This is not a rebuild situation. The remaining work is concentrated closure: exe
 - No historical PASS is promoted by this rebind. The prior PASS results remain bound to their exact originating SHA; the resulting governance commit requires a fresh exact-head Certification cycle.
 - Protected `main` remains untouched. PR #467 remains the active candidate vehicle.
 - Required next action: run fresh Certification Boundary → Execution Enforcement → all dependent certification suites on the resulting governance commit, while continuing independent operational evidence fronts. Release remains **NOT CERTIFIED / NOT LIVE** until all required evidence and official Production Closure pass.
+
+## GOVERNANCE LOG — 2026-09-14 — PR #467 WORKFLOW INTEGRITY REPAIR
+- Exact code/test candidate before this governance-only rebind: `88cf3a5dda26941a93b703e551ef1ea7e0faaff3`.
+- A fresh exact-head Final Certification run on `793d9896076757b46935511addb8c8dba39bdf54` passed the Certification Boundary and the full 20-stage Release Readiness suite, then exposed one genuine workflow-batch integrity defect: `.github/workflows/metric-identity-regression.yml` used a concurrency group that was not workflow-scoped under the repository's enforcement contract.
+- The bounded CI-only repair changes only that concurrency group to include the workflow-specific `metric-identity-regression` scope; no production runtime, gate weakening, evidence substitution, or bypass was introduced.
+- This governance rebind promotes no historical PASS. A fresh exact-head Certification cycle is mandatory on the resulting governance commit.
+- Protected `main` remains untouched. Release remains **NOT CERTIFIED / NOT LIVE** until fresh Certification and all separate operational/runtime/production-closure evidence pass.
 
 ## FINAL NON-NEGOTIABLES
 - No main mutation.
