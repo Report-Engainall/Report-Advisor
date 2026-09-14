@@ -152,9 +152,6 @@ try {
     code: customerCode,
     phone: '777000000',
     email: `e2e-${suffix}@example.invalid`,
-    segment: 'regular',
-    credit_limit: 100000,
-    payment_terms_days: 30,
   }, `customer-${suffix}`);
   const customers = await restSelect(pageA, 'customers', { company_id: evidence.tenantA, code: customerCode }, 'id,name,code,company_id');
   assert.equal(customers.length, 1, 'customer persistence must produce exactly one row');
@@ -166,11 +163,9 @@ try {
     sku,
     name: productName,
     unit: 'قطعة',
+    barcode: `E2E-BAR-${suffix}`,
     cost_price: 10,
     selling_price: 15,
-    min_stock: 1,
-    reorder_point: 2,
-    is_active: true,
   }, `product-${suffix}`);
   const products = await restSelect(pageA, 'products', { company_id: evidence.tenantA, sku }, 'id,name,sku,company_id,selling_price');
   assert.equal(products.length, 1, 'product persistence must produce exactly one row');
@@ -184,10 +179,7 @@ try {
     invoice_date: invoiceDate,
     customer_id: customers[0].id,
     customer_name: customerName,
-    subtotal: 15,
-    tax_amount: 0,
     total: 15,
-    paid_amount: 0,
     status: 'posted',
   }, `invoice-${suffix}`);
   const invoices = await restSelect(pageA, 'sales_invoices', { company_id: evidence.tenantA, invoice_number: invoiceNumber }, 'id,company_id,invoice_number,customer_id,total,status');
@@ -238,7 +230,7 @@ try {
     await pageB.getByPlaceholder('بحث عن عميل...').fill(customerCode);
     assert.equal(await pageB.getByText(customerCode, { exact: true }).count(), 0, 'Tenant B UI must not show Tenant A customer');
     await pageB.goto(`${baseURL}/products`, { waitUntil: 'networkidle', timeout: 30000 });
-    await pageB.getByPlaceholder('بحث عن منتج...',).fill(sku);
+    await pageB.getByPlaceholder('بحث عن منتج...').fill(sku);
     assert.equal(await pageB.getByText(sku, { exact: true }).count(), 0, 'Tenant B UI must not show Tenant A product');
     evidence.steps.push({ step: 'A-to-B-ui-isolation', status: 'PASS' });
 
