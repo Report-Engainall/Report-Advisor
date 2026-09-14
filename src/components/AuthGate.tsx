@@ -1,6 +1,6 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import type { User } from '@supabase/supabase-js';
-import { getAuthenticatedUser, onAuthStateChange } from '@/lib/auth-session';
+import { onAuthStateChange } from '@/lib/auth-session';
 import { resolveCurrentCompanyId, supabase } from '@/lib/supabase';
 import { LoginPage } from '@/pages/LoginPage';
 
@@ -16,23 +16,23 @@ export function AuthGate({ children }: AuthGateProps) {
 
   useEffect(() => {
     let mounted = true;
+    let syncVersion = 0;
 
     const sync = async (authenticatedUser: User | null) => {
+      const version = ++syncVersion;
+      if (!mounted) return;
+
       if (!authenticatedUser) {
-        if (mounted) {
-          setUser(null);
-          setState('unauthenticated');
-        }
+        setUser(null);
+        setState('unauthenticated');
         return;
       }
 
-      if (mounted) {
-        setUser(authenticatedUser);
-        setState('checking');
-      }
+      setUser(authenticatedUser);
+      setState('checking');
 
       const companyId = await resolveCurrentCompanyId();
-      if (!mounted) return;
+      if (!mounted || version !== syncVersion) return;
 
       if (!companyId) {
         setState('tenant-missing');
@@ -42,7 +42,8 @@ export function AuthGate({ children }: AuthGateProps) {
       setState('ready');
     };
 
-    void getAuthenticatedUser().then(sync);
+    // This is the single canonical initial-session hydration path. It also
+    // serializes INITIAL_SESSION against the persisted getSession() result.
     const unsubscribe = onAuthStateChange((nextUser) => { void sync(nextUser); });
 
     return () => {
