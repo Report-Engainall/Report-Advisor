@@ -2,6 +2,7 @@ import { SEMANTIC_METRIC_REGISTRY, requireSemanticMetric } from './semantic-metr
 import type { MetricDefinition } from './semanticMetrics.ts';
 
 export interface MetricContract extends MetricDefinition {
+  metricId: string;
   version: number;
   owner: 'core-data' | 'finance' | 'inventory' | 'sales' | 'forecast' | 'decision';
   decisionSafe: boolean;
@@ -10,6 +11,7 @@ export interface MetricContract extends MetricDefinition {
 
 export const METRIC_CONTRACTS: MetricContract[] = SEMANTIC_METRIC_REGISTRY.map(metric => ({
   ...metric,
+  metricId: metric.metricId,
   version: metric.version,
   owner: metric.owner as MetricContract['owner'],
   decisionSafe: metric.status !== 'UNAVAILABLE' && metric.status !== 'INSUFFICIENT_DATA',
