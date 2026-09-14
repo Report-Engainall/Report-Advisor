@@ -26,11 +26,10 @@ const rows = normalizeRows([
   { ' كود ': ' ١٢٣ ', ' اسم ': '  منتج   أَ ' },
   { ' كود ': 'ABC-1', ' اسم ': 'زيت' },
 ]);
-assert.equal(rows[0]['كود'], undefined); // key spacing is normalized but intentionally not Arabic-semantic beyond whitespace
-assert.equal(rows[0]['كود'], undefined);
-assert.equal(rows[0]['كود'], undefined);
-assert.equal(rows[0][' كود '], undefined);
-assert.equal(rows[1]['كود'], undefined);
+assert.equal(rows[0]['كود'], '١٢٣');
+assert.equal(rows[0]['اسم'], 'منتج   أَ');
+assert.equal(rows[1]['كود'], 'ABC-1');
+assert.equal(rows[1]['اسم'], 'زيت');
 assert.equal(rows.length, 2);
 
 console.log('canonical normalization regression: PASS');
