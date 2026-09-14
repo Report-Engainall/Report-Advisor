@@ -1,19 +1,11 @@
 import { chromium } from 'playwright';
 import fs from 'node:fs/promises';
 const baseURL=(process.env.E2E_BASE_URL||'http://127.0.0.1:4173').replace(/\/$/,'');
-const supabaseURL=(process.env.REPORT_ADVISOR_SUPABASE_URL||'').replace(/\/$/,'');
-const email=process.env.TEST_USER_A_EMAIL?.trim(),password=process.env.TEST_USER_A_PASSWORD,anonKey=process.env.REPORT_ADVISOR_SUPABASE_ANON_KEY?.trim();
+const email=process.env.TEST_USER_A_EMAIL?.trim(),password=process.env.TEST_USER_A_PASSWORD;
 const exactHead=process.env.EXACT_HEAD||'UNKNOWN',dir=process.env.E2E_REPORT_DIR||'artifacts/e2e-business';
 await fs.mkdir(dir,{recursive:true});
 const evidence={exactHead,status:'NOT_PROVEN',responses:[],console:[],pageErrors:[]};
 const browser=await chromium.launch({headless:true});const context=await browser.newContext({locale:'ar-SA'});const page=await context.newPage();
 page.on('response',r=>{if(r.status()>=400)evidence.responses.push({status:r.status(),method:r.request().method(),url:r.url()});});
 page.on('console',m=>{if(m.type()==='error')evidence.console.push(m.text());});page.on('pageerror',e=>evidence.pageErrors.push(e.message));
-try{
- await page.goto(baseURL,{waitUntil:'networkidle',timeout:30000});await page.locator('#login-email').fill(email);await page.locator('#login-password').fill(password);await page.getByRole('button',{name:'تسجيل الدخول'}).click();await page.waitForTimeout(1000);
- await page.goto(`${baseURL}/import`,{waitUntil:'networkidle',timeout:30000});await page.getByRole('button',{name:/العملاء/}).click();
- const suffix=`${Date.now()}-${process.pid}`;const csv=Buffer.from(`\ufeffname,code,phone,email,segment,credit_limit,payment_terms_days\nE2E Diagnose ${suffix},E2E-D-${suffix},777000000,e2e-${suffix}@example.invalid,retail,0,0\n`,'utf8');
- await page.locator('input[type="file"]').first().setInputFiles({name:`diagnostic-${suffix}.csv`,mimeType:'text/csv',buffer:csv});await page.getByText('المراجعة',{exact:true}).waitFor({state:'visible',timeout:30000});const commit=page.getByRole('button',{name:/اعتماد وكتابة/});await commit.waitFor({state:'visible',timeout:30000});await commit.click();
- await page.waitForTimeout(35000);evidence.status='CAPTURED';
-}catch(e){evidence.status='FAIL';evidence.error=e instanceof Error?e.stack||e.message:String(e);throw e}
-finally{evidence.finishedAt=new Date().toISOString();await fs.writeFile(`${dir}/real-business-persistence-diagnostic.json`,JSON.stringify(evidence,null,2));await page.close();await context.close();await browser.close();}
+try{await page.goto(baseURL,{waitUntil:'networkidle',timeout:30000});await page.locator('#login-email').fill(email);await page.locator('#login-password').fill(password);await page.getByRole('button',{name:'تسجيل الدخول'}).click();await page.waitForTimeout(1000);await page.goto(`${baseURL}/import`,{waitUntil:'networkidle',timeout:30000});await page.getByRole('button',{name:/العملاء/}).click();const suffix=`${Date.now()}-${process.pid}`;const csv=Buffer.from(`\ufeffname,code,phone,email,segment,credit_limit,payment_terms_days\nE2E Diagnose ${suffix},E2E-D-${suffix},777000000,e2e-${suffix}@example.invalid,retail,0,0\n`,'utf8');await page.locator('input[type="file"]').first().setInputFiles({name:`diagnostic-${suffix}.csv`,mimeType:'text/csv',buffer:csv});await page.getByText('المراجعة',{exact:true}).waitFor({state:'visible',timeout:30000});const commit=page.getByRole('button',{name:/اعتماد وكتابة/});await commit.waitFor({state:'visible',timeout:30000});await commit.click();await page.waitForTimeout(35000);evidence.status='CAPTURED';}catch(e){evidence.status='FAIL';evidence.error=e instanceof Error?e.stack||e.message:String(e);throw e}finally{evidence.finishedAt=new Date().toISOString();await fs.writeFile(`${dir}/real-business-persistence-diagnostic.json`,JSON.stringify(evidence,null,2));await page.close();await context.close();await browser.close();}
