@@ -1,5 +1,5 @@
-import { BUSINESS_METRICS, type MetricDefinition, type MetricStatus } from './semanticMetrics';
-import { resolveSemanticMetricId } from './semantic-metric-registry';
+import { BUSINESS_METRICS, type MetricDefinition, type MetricStatus } from './semanticMetrics.ts';
+import { resolveSemanticMetricId } from './semantic-metric-registry.ts';
 import type { ReportFact } from './free-toolbox/report-facts';
 
 export interface MetricEvaluation {
