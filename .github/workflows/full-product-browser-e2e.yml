@@ -104,6 +104,7 @@ jobs:
           TEST_USER_B_PASSWORD: ${{ secrets.REPORT_ADVISOR_E2E_USER_B_PASSWORD }}
         run: node scripts/run-full-product-browser-e2e.mjs
       - name: Run real business persistence E2E
+        if: ${{ always() }}
         env:
           EXACT_HEAD: ${{ github.sha }}
           E2E_BASE_URL: http://127.0.0.1:4173
