@@ -29,22 +29,42 @@ export const SEMANTIC_METRIC_REGISTRY: SemanticMetricRegistryEntry[] = BUSINESS_
   evidence: metric.source,
 }));
 
-/**
- * Persisted governance contains a legacy cash identifier. It maps to the existing
- * canonical cash_position SSOT; it does not introduce a second formula or metric.
- */
-const SEMANTIC_METRIC_ALIASES: Record<string, string> = {
+/** Explicit persisted legacy aliases. Unknown identifiers are never inferred or generated. */
+export const SEMANTIC_METRIC_ALIASES: Readonly<Record<string, string>> = Object.freeze({
   'metric.cash': 'metric.cash_position',
   cash: 'metric.cash_position',
-};
+});
 
-export function getSemanticMetric(metricId: string): SemanticMetricRegistryEntry | undefined {
-  const canonicalMetricId = SEMANTIC_METRIC_ALIASES[metricId] ?? metricId;
-  return SEMANTIC_METRIC_REGISTRY.find(metric => metric.metricId === canonicalMetricId || metric.key === canonicalMetricId);
+export function resolveSemanticMetricId(metricId: string): string {
+  if (typeof metricId !== 'string' || metricId.trim() === '') {
+    throw new Error('Unknown metric: empty metric ID');
+  }
+
+  const requested = metricId.trim();
+  const canonicalMetricId = SEMANTIC_METRIC_ALIASES[requested] ?? requested;
+  const canonical = SEMANTIC_METRIC_REGISTRY.find(metric => metric.metricId === canonicalMetricId);
+  if (!canonical) throw new Error(`Unknown metric: ${requested}`);
+  return canonical.metricId;
 }
 
+export function getSemanticMetric(metricId: string): SemanticMetricRegistryEntry | undefined {
+  try {
+    return SEMANTIC_METRIC_REGISTRY.find(metric => metric.metricId === resolveSemanticMetricId(metricId));
+  } catch {
+    return undefined;
+  }
+}
+
+export function requireSemanticMetric(metricId: string): SemanticMetricRegistryEntry {
+  const canonicalMetricId = resolveSemanticMetricId(metricId);
+  const metric = SEMANTIC_METRIC_REGISTRY.find(entry => entry.metricId === canonicalMetricId);
+  if (!metric) throw new Error(`Unknown metric: ${metricId}`);
+  return metric;
+}
+
+/** Returns the canonical persisted identifier; never returns an unresolved legacy identifier. */
 export function getPersistedSemanticMetricId(metricId: string): string {
-  return SEMANTIC_METRIC_ALIASES[metricId] ? metricId : getSemanticMetric(metricId)?.metricId ?? metricId;
+  return resolveSemanticMetricId(metricId);
 }
 
 export function validateSemanticMetricRegistry(): string[] {
@@ -59,5 +79,11 @@ export function validateSemanticMetricRegistry(): string[] {
     if (metric.consumers.length === 0) errors.push(`Missing consumers: ${metric.metricId}`);
     if (metric.tests.length === 0) errors.push(`Missing tests: ${metric.metricId}`);
   }
+
+  for (const [legacyId, canonicalId] of Object.entries(SEMANTIC_METRIC_ALIASES)) {
+    if (legacyId === canonicalId) errors.push(`Legacy alias points to itself: ${legacyId}`);
+    if (!ids.has(canonicalId)) errors.push(`Legacy alias points to unknown canonical metric: ${legacyId} -> ${canonicalId}`);
+  }
+
   return errors;
 }
