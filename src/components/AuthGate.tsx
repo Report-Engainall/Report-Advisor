@@ -17,6 +17,7 @@ export function AuthGate({ children }: AuthGateProps) {
   useEffect(() => {
     let mounted = true;
     let syncVersion = 0;
+    let unsubscribe: (() => void) | undefined;
 
     const sync = async (authenticatedUser: User | null) => {
       const version = ++syncVersion;
@@ -42,14 +43,6 @@ export function AuthGate({ children }: AuthGateProps) {
       setState('ready');
     };
 
-    // The initial persisted session is hydrated explicitly here; subsequent
-    // auth changes are handled by the listener without a duplicate bootstrap.
-    void getAuthenticatedUser().then((initialUser) => {
-      if (!mounted) return;
-      onAuthStateChange((nextUser) => { void sync(nextUser); }, initialUser);
-    });
-
-    let unsubscribe: (() => void) | undefined;
     const bootstrap = async () => {
       const initialUser = await getAuthenticatedUser();
       if (!mounted) return;
