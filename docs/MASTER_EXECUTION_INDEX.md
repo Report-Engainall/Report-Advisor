@@ -5,7 +5,7 @@
 > Authoritative execution manifest. This document never promotes historical evidence across an exact Git `HEAD` boundary. Pair every evidence batch with the exact Git `HEAD` of `main` and the exact environment/commit used.
 
 ### CURRENT EXACT HEAD
-- Current code/test candidate: `2c486ee1d3c3eb46423fe75e8d7bf09f8d83a4b5`.
+- Current code/test candidate: `15cb5e9bd437c1f0714f2054a7a428c6455089be`.
 - PR #467 remains the active candidate vehicle; protected `main` remains untouched.
 - The indexed candidate is the exact current tested PR head immediately before this governance-only rebind; the governance commit itself is permitted by the Certification Boundary as the source-of-truth bookkeeping commit.
 - No historical evidence is promoted automatically. Every runtime PASS remains bound to its original exact SHA.
@@ -122,7 +122,7 @@
 - PR #397: OPEN, mergeable, not merged.
 - PR #398: OPEN, mergeable, not merged; CodeRabbit's current array-shape finding was verified and repaired.
 - PR #405: OPEN, currently non-mergeable until its fresh review/CI evidence is available.
-- PR #467: OPEN, DRAFT, mergeable; current head `2c486ee1d3c3eb46423fe75e8d7bf09f8d83a4b5`.
+- PR #467: OPEN, DRAFT, mergeable; current head `15cb5e9bd437c1f0714f2054a7a428c6455089be`.
 - No PR is treated as merged merely because a connector exposes a `merge_commit_sha`; explicit `merged=false` is authoritative.
 
 ## REAL RELEASE ASSESSMENT — 2026-09-14
@@ -283,6 +283,14 @@ This is not a rebuild situation. The remaining work is concentrated closure: exe
 - No historical PASS is promoted by this entry. All evidence must be fresh or explicitly bound to its original SHA.
 - Protected `main` remains untouched.
 - Official Production Closure remains required and must not be fabricated or substituted.
+
+## GOVERNANCE LOG — 2026-09-14 — PR #467 CERTIFICATION AUTHORITY REBIND
+- Exact code/test candidate before this governance-only commit: `15cb5e9bd437c1f0714f2054a7a428c6455089be`.
+- This is the official Certification Boundary source-of-truth rebind requested after the boundary identified stale authority at `2c486ee1d3c3eb46423fe75e8d7bf09f8d83a4b5`.
+- This commit changes only the Master Execution & Truth Index; it does not alter production code, certification guards, test assertions, runtime behavior, or evidence contents.
+- No historical PASS is promoted by this rebind. The prior PASS results remain bound to their exact originating SHA; the resulting governance commit requires a fresh exact-head Certification cycle.
+- Protected `main` remains untouched. PR #467 remains the active candidate vehicle.
+- Required next action: run fresh Certification Boundary → Execution Enforcement → all dependent certification suites on the resulting governance commit, while continuing independent operational evidence fronts. Release remains **NOT CERTIFIED / NOT LIVE** until all required evidence and official Production Closure pass.
 
 ## FINAL NON-NEGOTIABLES
 - No main mutation.
