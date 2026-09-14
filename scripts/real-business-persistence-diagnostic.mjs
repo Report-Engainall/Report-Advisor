@@ -1,5 +1,6 @@
 import { chromium } from 'playwright';
 import fs from 'node:fs/promises';
+import { spawn } from 'node:child_process';
 
 const baseURL = (process.env.E2E_BASE_URL || 'http://127.0.0.1:4173').replace(/\/$/, '');
 const email = process.env.TEST_USER_A_EMAIL?.trim();
@@ -21,6 +22,7 @@ const evidence = {
 const browser = await chromium.launch({ headless: true });
 const context = await browser.newContext({ locale: 'ar-SA' });
 const page = await context.newPage();
+let diagnosticError = null;
 
 page.on('response', async (response) => {
   const url = response.url();
@@ -74,9 +76,9 @@ try {
   evidence.lifecycle.push({ stage: 'ui-settled-or-timeout', at: new Date().toISOString(), ui: evidence.ui });
   evidence.status = 'CAPTURED';
 } catch (error) {
+  diagnosticError = error instanceof Error ? error : new Error(String(error));
   evidence.status = 'FAIL';
-  evidence.error = error instanceof Error ? error.stack || error.message : String(error);
-  throw error;
+  evidence.error = diagnosticError.stack || diagnosticError.message;
 } finally {
   evidence.finishedAt = new Date().toISOString();
   await fs.writeFile(`${dir}/real-business-persistence-diagnostic.json`, JSON.stringify(evidence, null, 2));
@@ -84,3 +86,11 @@ try {
   await context.close();
   await browser.close();
 }
+
+const scenario = await new Promise((resolve, reject) => {
+  const child = spawn(process.execPath, ['scripts/production-scenario-runtime-entry.mjs'], { stdio: 'inherit', env: process.env });
+  child.on('error', reject);
+  child.on('exit', code => resolve(code ?? 1));
+});
+if (scenario !== 0) throw new Error(`PRODUCTION_SCENARIO_RUNTIME_FAILED:${scenario}`);
+if (diagnosticError) throw diagnosticError;
