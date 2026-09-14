@@ -33,8 +33,17 @@ jobs:
     steps:
       - uses: actions/checkout@v7
         with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           fetch-depth: 1
           persist-credentials: false
+      - name: Assert exact candidate checkout
+        env:
+          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -euo pipefail
+          actual="$(git rev-parse HEAD)"
+          test "$actual" = "$EXPECTED_HEAD"
+          echo "EXACT_HEAD_CHECK: PASS ($actual)"
       - uses: actions/setup-node@v7
         with:
           node-version: 22
