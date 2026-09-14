@@ -86,6 +86,24 @@ try {
   evidence.checks.push({ name: 'canonical-dashboard-rpc', status: 'PASS' });
   evidence.checks.push({ name: 'canonical-dashboard-quality', status: 'PASS', quality: snapshot.quality });
 
+  const accessToken = await token();
+  const tenantResponse = await fetch(`${supabaseURL}/rest/v1/rpc/current_company_id`, {
+    method: 'POST', headers: { apikey: anonKey, Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' }, body: '{}',
+  });
+  assert.equal(tenantResponse.ok, true, 'current_company_id must resolve for financial readback');
+  const tenantId = (await tenantResponse.text()).replaceAll('"', '').trim();
+  assert.ok(tenantId, 'tenant id must be resolved');
+  evidence.tenantId = tenantId;
+
+  const intelligence = await rpc('get_dashboard_intelligence', { p_limit: 100 });
+  assert.ok(intelligence && typeof intelligence === 'object', 'dashboard intelligence must be an object');
+  assert.ok(Array.isArray(intelligence.recommendations), 'dashboard intelligence recommendations must be an array');
+  assert.ok(Array.isArray(intelligence.alerts), 'dashboard intelligence alerts must be an array');
+  assert.ok(intelligence.recommendations.every(item => item?.company_id === tenantId), 'recommendations must be tenant-scoped');
+  assert.ok(intelligence.alerts.every(item => item?.company_id === tenantId), 'alerts must be tenant-scoped');
+  evidence.intelligence = { recommendationCount: intelligence.recommendations.length, alertCount: intelligence.alerts.length, limit: intelligence.limit };
+  evidence.checks.push({ name: 'dashboard-intelligence-tenant-scope', status: 'PASS', tenantId });
+
   const sales = await kpiCard('إجمالي المبيعات');
   assert.equal(sales.value, snapshot.totalSales, `UI sales ${sales.value} must equal canonical snapshot ${snapshot.totalSales}`);
   evidence.checks.push({ name: 'ui-sales-equals-canonical', status: 'PASS', ui: sales.value, canonical: snapshot.totalSales });
@@ -94,13 +112,6 @@ try {
   assert.equal(invoices.value, snapshot.invoiceCount, `UI invoice count ${invoices.value} must equal canonical snapshot ${snapshot.invoiceCount}`);
   evidence.checks.push({ name: 'ui-invoice-count-equals-canonical', status: 'PASS', ui: invoices.value, canonical: snapshot.invoiceCount });
 
-  const accessToken = await token();
-  const tenantResponse = await fetch(`${supabaseURL}/rest/v1/rpc/current_company_id`, {
-    method: 'POST', headers: { apikey: anonKey, Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' }, body: '{}',
-  });
-  assert.equal(tenantResponse.ok, true, 'current_company_id must resolve for financial readback');
-  const tenantId = (await tenantResponse.text()).replaceAll('"', '').trim();
-  assert.ok(tenantId, 'tenant id must be resolved');
   const invoiceResponse = await fetch(`${supabaseURL}/rest/v1/sales_invoices?select=id&company_id=eq.${encodeURIComponent(tenantId)}&limit=1`, {
     headers: { apikey: anonKey, Authorization: `Bearer ${accessToken}`, Prefer: 'count=exact' },
   });
