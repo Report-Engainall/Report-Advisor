@@ -5,13 +5,14 @@ import { supabase } from './supabase';
  * Canonical frontend authentication helpers.
  *
  * Security boundary: database RLS/current_company_id() remains authoritative.
- * These helpers prevent UI code from treating a demo company or hard-coded
- * identity as an authenticated tenant context.
+ * The browser session is used only to establish UI state; tenant authority is
+ * revalidated through the authenticated current_company_id() RPC before the
+ * application becomes ready.
  */
 export async function getAuthenticatedUser(): Promise<User | null> {
-  const { data, error } = await supabase.auth.getUser();
+  const { data, error } = await supabase.auth.getSession();
   if (error) return null;
-  return data.user ?? null;
+  return data.session?.user ?? null;
 }
 
 export async function requireAuthenticatedUser(): Promise<User> {
