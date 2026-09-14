@@ -20,7 +20,7 @@ const sql = migrationFiles
   .join('\n');
 const runtime = fs.readFileSync(runtimePath, 'utf8');
 
-for (const t of [
+const governancePrimitives = [
   'governance_policies',
   'bi_decisions',
   'governance_alerts',
@@ -30,11 +30,13 @@ for (const t of [
   'human_overrides',
   'intelligence_quality_scores',
   'governed_scenarios',
-]) {
+];
+for (const t of governancePrimitives) {
   if (!sql.includes(t)) throw new Error(`Governance primitive missing: ${t}`);
 }
 
-for (const t of ['riskBudgetValid', 'trustHealthy', 'evidenceQuality', 'canAutonomouslyExecute']) {
+const autonomyLinks = ['riskBudgetValid', 'trustHealthy', 'evidenceQuality', 'canAutonomouslyExecute'];
+for (const t of autonomyLinks) {
   if (!runtime.includes(t)) throw new Error(`Governance-to-autonomy link missing: ${t}`);
 }
 
@@ -42,4 +44,4 @@ if (/GRANT\s+ALL\s+TO\s+anon/i.test(sql)) {
   throw new Error('Unsafe anonymous governance grant detected');
 }
 
-console.log(`Governance runtime chain: PASS (${migrationFiles.length} migrations scanned)`);
+console.log(`Governance runtime chain: PASS (migrations=${migrationFiles.length}, primitives=${governancePrimitives.length}, autonomyLinks=${autonomyLinks.length})`);
