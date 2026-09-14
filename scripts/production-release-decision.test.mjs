@@ -2,7 +2,7 @@ import { strict as assert } from 'node:assert';
 import { scenarios } from './production-scenario-matrix.mjs';
 import { evaluateRelease } from './production-release-decision.mjs';
 
-const exactHead = '950e0882c5557211a621be09a82a53f578af9713';
+const exactHead = 'a'.repeat(40);
 const tenant = 'f68a7e91-3c7e-46fb-97a8-e339bec04e13';
 const duplicateFingerprint = `${String(scenarios.findIndex(s => s.id === 'duplicate-transactions') + 1).padStart(2, '0')}${'a'.repeat(62)}`;
 const artifact = {
