@@ -1,4 +1,5 @@
 import { BUSINESS_METRICS, type MetricDefinition, type MetricStatus } from './semanticMetrics';
+import { resolveSemanticMetricId } from './semantic-metric-registry';
 import type { ReportFact } from './free-toolbox/report-facts';
 
 export interface MetricEvaluation {
@@ -24,7 +25,9 @@ export interface MetricInput {
 }
 
 export function evaluateMetric(input: MetricInput): MetricEvaluation {
-  const definition = BUSINESS_METRICS.find(metric => metric.key === input.key);
+  const canonicalMetricId = resolveSemanticMetricId(input.key);
+  const canonicalKey = canonicalMetricId.slice('metric.'.length);
+  const definition = BUSINESS_METRICS.find(metric => metric.key === canonicalKey);
   if (!definition) throw new Error(`Unknown metric: ${input.key}`);
 
   const warnings = [...(input.warnings ?? [])];
@@ -45,14 +48,14 @@ export function evaluateMetric(input: MetricInput): MetricEvaluation {
   }
 
   const fact: ReportFact = {
-    key: input.key,
+    key: canonicalKey,
     value: numeric,
     unit: definition.unit,
     confidence,
     source: status === 'FORECAST' ? 'forecast' : status === 'ESTIMATED' ? 'derived' : 'derived',
   };
 
-  return { key: input.key, definition, value: numeric, status, confidence, updatedAt: input.updatedAt, sourceRows: input.sourceRows, warnings, fact };
+  return { key: canonicalKey, definition, value: numeric, status, confidence, updatedAt: input.updatedAt, sourceRows: input.sourceRows, warnings, fact };
 }
 
 export function evaluateMetricBatch(inputs: MetricInput[]): MetricEvaluation[] {
