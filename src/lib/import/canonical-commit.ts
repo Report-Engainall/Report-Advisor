@@ -70,22 +70,33 @@ function canonicalizeRow(entityType: 'products' | 'customers' | 'sales_invoices'
   };
 }
 
+function normalizeSourceHash(value: string): string {
+  const raw = value.trim().toLowerCase().replace(/^sha256:/, '');
+  if (!/^[0-9a-f]{64}$/.test(raw)) throw new Error('IMPORT_SOURCE_HASH_INVALID');
+  return `sha256:${raw}`;
+}
+
 export async function commitImportBatch(
   entityType: 'products' | 'customers' | 'sales_invoices',
   rows: ReconciledCanonicalImportRow[],
+  sourceHash: string,
 ): Promise<CanonicalCommitResult> {
   if (!rows.length) return { committed: 0, ids: [] };
   const companyId = await resolveCurrentCompanyId();
   if (!companyId) throw new Error('No authenticated tenant context is available for canonical import');
+  const normalizedSourceHash = normalizeSourceHash(sourceHash);
 
-  // The canonical boundary is intentionally runtime-enforced, not merely a TypeScript type.
   rows.forEach((row) => assertCanonicalBoundary(row, companyId));
+  rows.forEach((row) => {
+    if (row.provenance.sourceHash !== normalizedSourceHash) throw new Error('CANONICAL_SOURCE_HASH_MISMATCH');
+  });
   const payload = rows.map((row) => canonicalizeRow(entityType, { data: row.data, rowNumber: row.rowNumber }));
   const { data, error } = await supabase.rpc('import_commit_batch', {
     p_company_id: companyId,
     p_entity_type: entityType,
     p_rows: payload,
     p_null_policy: 'preserve',
+    p_source_hash: normalizedSourceHash,
   });
   if (error) throw error;
 
