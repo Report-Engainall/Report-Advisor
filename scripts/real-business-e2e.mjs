@@ -115,7 +115,7 @@ async function importOne(page, entity, fields, marker) {
   const label = entity === 'customers' ? 'العملاء' : entity === 'products' ? 'المنتجات' : 'فواتير المبيعات';
   await page.getByRole('button', { name: new RegExp(label) }).click();
   await page.locator('input[type="file"]').first().setInputFiles({ name: `${marker}.csv`, mimeType: 'text/csv', buffer: csvBuffer(fields) });
-  await page.getByText('معاينة البيانات').waitFor({ state: 'visible', timeout: 30000 });
+  await page.getByText('المراجعة', { exact: true }).waitFor({ state: 'visible', timeout: 30000 });
   const commit = page.getByRole('button', { name: /تأكيد الاستيراد/ });
   assert.equal(await commit.isEnabled(), true, `${entity} valid import must be enabled`);
   await commit.click();
