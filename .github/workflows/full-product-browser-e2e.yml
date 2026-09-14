@@ -1,6 +1,7 @@
 name: Full Product Browser E2E
 
 # Exact-head browser discovery gate. Broad push triggers are intentionally prohibited by the CI topology contract.
+# Business E2E is intentionally triggered by its watched script so real import/RLS/readback evidence runs on every test-contract change.
 on:
   push:
     paths:
