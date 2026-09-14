@@ -7,6 +7,7 @@
 - **Repository:** `Report-Engainall/Report-Advisor`
 - **Protected main:** `999f93e91f657357d849f15a87a001cb389d8ff5` — MUST NOT be mutated.
 - **PR candidate:** `#467`
+- **Current code/test candidate:** `8f862951f602e7d625880eee714b9167ed3dffe9`
 - **Exact tested candidate:** `8f862951f602e7d625880eee714b9167ed3dffe9`
 - **Indexed authority:** `8f862951f602e7d625880eee714b9167ed3dffe9`
 - **Rule:** indexed authority and tested candidate are exact-match bound; no historical PASS transfer is permitted.
