@@ -1,6 +1,6 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import type { User } from '@supabase/supabase-js';
-import { onAuthStateChange } from '@/lib/auth-session';
+import { getAuthenticatedUser, onAuthStateChange } from '@/lib/auth-session';
 import { resolveCurrentCompanyId, supabase } from '@/lib/supabase';
 import { LoginPage } from '@/pages/LoginPage';
 
@@ -42,13 +42,24 @@ export function AuthGate({ children }: AuthGateProps) {
       setState('ready');
     };
 
-    // This is the single canonical initial-session hydration path. It also
-    // serializes INITIAL_SESSION against the persisted getSession() result.
-    const unsubscribe = onAuthStateChange((nextUser) => { void sync(nextUser); });
+    // The initial persisted session is hydrated explicitly here; subsequent
+    // auth changes are handled by the listener without a duplicate bootstrap.
+    void getAuthenticatedUser().then((initialUser) => {
+      if (!mounted) return;
+      onAuthStateChange((nextUser) => { void sync(nextUser); }, initialUser);
+    });
+
+    let unsubscribe: (() => void) | undefined;
+    const bootstrap = async () => {
+      const initialUser = await getAuthenticatedUser();
+      if (!mounted) return;
+      unsubscribe = onAuthStateChange((nextUser) => { void sync(nextUser); }, initialUser);
+    };
+    void bootstrap();
 
     return () => {
       mounted = false;
-      unsubscribe();
+      unsubscribe?.();
     };
   }, []);
 
