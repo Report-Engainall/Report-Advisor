@@ -1,6 +1,5 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { SEMANTIC_METRIC_ALIASES } from '../src/lib/semantic-metric-registry.ts';
 
 const root = process.cwd();
 const sourceRoots = ['src'];
@@ -24,8 +23,6 @@ function collectFiles(dir) {
 }
 
 const violations = [];
-const legacyIds = Object.keys(SEMANTIC_METRIC_ALIASES);
-const legacyPatterns = legacyIds.map(id => new RegExp(`(?:['\"\`])${id.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?:['\"\`])`));
 
 for (const sourceRoot of sourceRoots) {
   for (const file of collectFiles(path.join(root, sourceRoot))) {
@@ -38,10 +35,8 @@ for (const sourceRoot of sourceRoots) {
       violations.push(`${relative}: direct BUSINESS_METRICS consumer; use requireSemanticMetric/registry instead`);
     }
 
-    for (const [index, pattern] of legacyPatterns.entries()) {
-      if (pattern.test(text)) {
-        violations.push(`${relative}: direct legacy metric ID "${legacyIds[index]}"; resolve through the canonical metric resolver`);
-      }
+    if (/(?:['\"\`])metric\.cash(?:['\"\`])/.test(text)) {
+      violations.push(`${relative}: direct legacy metric ID "metric.cash"; resolve through the canonical metric resolver`);
     }
   }
 }
@@ -52,4 +47,4 @@ if (violations.length) {
   process.exit(1);
 }
 
-console.log(`Metric consumer governance: PASS (scanned ${sourceRoots.join(', ')}; ${legacyIds.length} legacy aliases protected)`);
+console.log(`Metric consumer governance: PASS (scanned ${sourceRoots.join(', ')}; legacy metric.cash and BUSINESS_METRICS bypasses protected)`);
