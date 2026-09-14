@@ -13,7 +13,7 @@ const exactHead = process.env.EXACT_HEAD || 'UNKNOWN';
 const reportDir = process.env.E2E_REPORT_DIR || 'artifacts/e2e-business';
 for (const [name, value] of Object.entries({ supabaseURL, anonKey, emailA, passwordA, emailB, passwordB })) if (!value) throw new Error(`BUSINESS_E2E_ENV_MISSING:${name}`);
 await fs.mkdir(reportDir, { recursive: true });
-const evidence = { exactHead, baseURL, browser: 'Chromium', startedAt: new Date().toISOString(), status: 'NOT_PROVEN', tenantA: null, tenantB: null, persisted: {}, steps: [], failures: [] };
+const evidence = { exactHead, baseURL, browser: 'Chromium', startedAt: new Date().toISOString(), status: 'NOT_PROVEN', tenantA: null, tenantB: null, persisted: {}, execution: {}, steps: [], failures: [] };
 const browser = await chromium.launch({ headless: true });
 const contextA = await browser.newContext({ viewport: { width: 1440, height: 1000 }, locale: 'ar-SA' });
 const pageA = await contextA.newPage();
@@ -45,17 +45,50 @@ async function importOne(page, entity, fields, marker) {
   await resultStep.waitFor({ state: 'visible', timeout: 30000 });
   await page.waitForFunction(() => { const el = [...document.querySelectorAll('[aria-label="مراحل الاستيراد"] div')].find(e => e.textContent?.trim() === 'النتيجة'); return !!el?.parentElement?.className.includes('border-success-200'); });
   assert.equal(await page.getByText(/فشل الاستيراد:/).count(), 0, `${entity} import must not return to failure state`);
-  evidence.steps.push({ step: `import:${entity}`, status: 'PASS' });
+  const executionLine = await page.getByText(/معرّف التنفيذ المتين:/).textContent();
+  const executionJobId = executionLine?.split(':').slice(1).join(':').trim() || '';
+  assert.match(executionJobId, /^[0-9a-f-]{36}$/i, `${entity} must expose a durable execution job id`);
+  evidence.steps.push({ step: `import:${entity}`, status: 'PASS', executionJobId });
+  return executionJobId;
+}
+async function assertExecutionEvidence(page, entityType, executionJobId, sourceHash, expectedCount) {
+  const jobs = await select(page, 'report_execution_jobs', { id: executionJobId, company_id: evidence.tenantA }, 'id,company_id,source_hash,status,checkpoint,evidence,last_error');
+  assert.equal(jobs.length, 1, `${entityType} durable execution job must persist exactly once`);
+  const job = jobs[0];
+  assert.equal(job.company_id, evidence.tenantA);
+  assert.equal(job.source_hash, sourceHash);
+  assert.equal(job.status, 'completed');
+  assert.equal(job.checkpoint?.stage, 'rendered', `${entityType} lifecycle must finish at rendered after committed`);
+  assert.equal(job.checkpoint?.sourceHash, sourceHash);
+  assert.ok(Array.isArray(job.checkpoint?.evidenceKeys), `${entityType} checkpoint evidenceKeys must be persisted`);
+  assert.ok(job.checkpoint.evidenceKeys.includes(`canonical-import:${sourceHash}:source`));
+  assert.ok(job.checkpoint.evidenceKeys.includes(`canonical-import:${sourceHash}:reconciliation`));
+  assert.equal(job.last_error, null, `${entityType} completed execution must have no last_error`);
+  const commits = await select(page, 'canonical_import_commits', { company_id: evidence.tenantA, entity_type: entityType, source_hash: sourceHash }, 'id,company_id,entity_type,source_hash,committed_ids,committed_count,committed_at');
+  assert.equal(commits.length, 1, `${entityType} must persist one canonical commit record for the source hash`);
+  const commit = commits[0];
+  assert.equal(commit.company_id, evidence.tenantA);
+  assert.equal(commit.source_hash, sourceHash);
+  assert.equal(Number(commit.committed_count), expectedCount);
+  assert.ok(Array.isArray(commit.committed_ids), `${entityType} committed_ids must be an array`);
+  assert.equal(commit.committed_ids.length, expectedCount);
+  assert.ok(commit.committed_ids.every(id => /^[0-9a-f-]{36}$/i.test(String(id))), `${entityType} committed IDs must be real UUIDs`);
+  evidence.execution[entityType] = { jobId: executionJobId, sourceHash, checkpoint: job.checkpoint, evidenceKeys: job.checkpoint.evidenceKeys, committedCount: commit.committed_count, committedIds: commit.committed_ids };
+  evidence.steps.push({ step: `execution-evidence:${entityType}`, status: 'PASS', jobId: executionJobId, committedCount: commit.committed_count });
 }
 async function searchUI(page, route, placeholder, value, step) { await page.goto(`${baseURL}${route}`, { waitUntil: 'networkidle', timeout: 30000 }); await page.getByPlaceholder(placeholder).fill(value); await page.waitForTimeout(300); await page.getByText(value, { exact: true }).first().waitFor({ state: 'visible', timeout: 10000 }); evidence.steps.push({ step, status: 'PASS', value }); }
 try {
   await login(pageA, emailA, passwordA); evidence.tenantA = await tenant(pageA); evidence.steps.push({ step: 'tenant-A-resolution', status: 'PASS', tenantId: evidence.tenantA });
   const suffix = `${Date.now()}-${process.pid}`, customerCode = `E2E-C-${suffix}`, customerName = `E2E عميل ${suffix}`, sku = `E2E-SKU-${suffix}`, productName = `E2E منتج ${suffix}`, invoiceNumber = `E2E-INV-${suffix}`, invoiceDate = new Date().toISOString().slice(0, 10);
-  await importOne(pageA, 'customers', { name: customerName, code: customerCode, phone: '777000000', email: `e2e-${suffix}@example.invalid`, segment: 'retail', credit_limit: 0, payment_terms_days: 0 }, `customer-${suffix}`);
+  const customerJobId = await importOne(pageA, 'customers', { name: customerName, code: customerCode, phone: '777000000', email: `e2e-${suffix}@example.invalid`, segment: 'retail', credit_limit: 0, payment_terms_days: 0 }, `customer-${suffix}`);
+  const customerSourceHash = evidence.execution.customers?.sourceHash;
   const customers = await select(pageA, 'customers', { company_id: evidence.tenantA, code: customerCode }, 'id,name,code,company_id'); assert.equal(customers.length, 1, 'customer persistence must produce exactly one row'); assert.equal(customers[0].company_id, evidence.tenantA); evidence.persisted.customer = customers[0]; await searchUI(pageA, '/customers', 'بحث عن عميل...', customerCode, 'customer-ui-readback');
+  const customerJob = await select(pageA, 'report_execution_jobs', { id: customerJobId, company_id: evidence.tenantA }, 'source_hash'); assert.equal(customerJob.length, 1); await assertExecutionEvidence(pageA, 'customers', customerJobId, customerJob[0].source_hash, 1);
   await importOne(pageA, 'products', { sku, name: productName, unit: 'قطعة', barcode: `E2E-BAR-${suffix}`, cost_price: 10, selling_price: 15, min_stock: 0, reorder_point: 0, is_active: true }, `product-${suffix}`);
+  const productJobId = evidence.steps.find(s => s.step === 'import:products')?.executionJobId; const productJob = await select(pageA, 'report_execution_jobs', { id: productJobId, company_id: evidence.tenantA }, 'source_hash'); assert.equal(productJob.length, 1); await assertExecutionEvidence(pageA, 'products', productJobId, productJob[0].source_hash, 1);
   const products = await select(pageA, 'products', { company_id: evidence.tenantA, sku }, 'id,name,sku,company_id,selling_price'); assert.equal(products.length, 1, 'product persistence must produce exactly one row'); assert.equal(products[0].company_id, evidence.tenantA); assert.equal(Number(products[0].selling_price), 15); evidence.persisted.product = products[0]; await searchUI(pageA, '/products', 'بحث عن منتج...', sku, 'product-ui-readback');
-  await importOne(pageA, 'sales_invoices', { invoice_number: invoiceNumber, invoice_date: invoiceDate, customer_id: customers[0].id, customer_name: customerName, subtotal: 15, tax_amount: 0, total: 15, paid_amount: 15, status: 'posted' }, `invoice-${suffix}`);
+  const invoiceJobId = await importOne(pageA, 'sales_invoices', { invoice_number: invoiceNumber, invoice_date: invoiceDate, customer_id: customers[0].id, customer_name: customerName, subtotal: 15, tax_amount: 0, total: 15, paid_amount: 15, status: 'posted' }, `invoice-${suffix}`);
+  const invoiceJob = await select(pageA, 'report_execution_jobs', { id: invoiceJobId, company_id: evidence.tenantA }, 'source_hash'); assert.equal(invoiceJob.length, 1); await assertExecutionEvidence(pageA, 'sales_invoices', invoiceJobId, invoiceJob[0].source_hash, 1);
   const invoices = await select(pageA, 'sales_invoices', { company_id: evidence.tenantA, invoice_number: invoiceNumber }, 'id,company_id,invoice_number,customer_id,total,status'); assert.equal(invoices.length, 1, 'invoice persistence must produce exactly one row'); assert.equal(invoices[0].company_id, evidence.tenantA); assert.equal(invoices[0].customer_id, customers[0].id); assert.equal(Number(invoices[0].total), 15); evidence.persisted.invoice = invoices[0]; await pageA.goto(`${baseURL}/reports/sales`, { waitUntil: 'networkidle', timeout: 30000 }); await pageA.getByText(invoiceNumber, { exact: true }).first().waitFor({ state: 'visible', timeout: 10000 }); evidence.steps.push({ step: 'sales-report-readback', status: 'PASS' });
   const before = await tenant(pageA); await pageA.reload({ waitUntil: 'networkidle', timeout: 30000 }); assert.equal(await tenant(pageA), before); evidence.steps.push({ step: 'refresh-session-tenant', status: 'PASS' });
   const contextB = await browser.newContext({ viewport: { width: 1440, height: 1000 }, locale: 'ar-SA' }), pageB = await contextB.newPage(); capture(pageB);
