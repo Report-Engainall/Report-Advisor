@@ -47,7 +47,6 @@ function pdf(text) {
 }
 function corrupt() { return crypto.randomBytes(256); }
 function imagePdf() {
-  // Deliberately image-only PDF: this is a real scanned-document input and is expected to exercise OCR/review handling.
   const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=', 'base64');
   const objects = [
     '<< /Type /Catalog /Pages 2 0 R >>',
@@ -109,6 +108,19 @@ async function rest(table, fields, filters = {}) {
   const r = await fetch(u, { headers: { apikey: anonKey, Authorization: `Bearer ${accessToken}` } });
   const b = await r.text(); assert.equal(r.ok, true, `${table} HTTP ${r.status}: ${b}`); return b ? JSON.parse(b) : [];
 }
+async function waitForImportOutcome() {
+  const deadline = Date.now() + 60000;
+  while (Date.now() < deadline) {
+    const body = await page.locator('body').innerText();
+    const previewVisible = await page.getByText('المراجعة', { exact: true }).isVisible().catch(() => false);
+    const uploadVisible = await page.getByText('اختر ملفًا أو اسحبه إلى هنا', { exact: false }).isVisible().catch(() => false);
+    const doneVisible = await page.getByText('النتيجة', { exact: true }).isVisible().catch(() => false);
+    const hasError = /فشل الاستيراد|فشل قراءة الملف|تعذر تحديد صيغة الملف|الملف فارغ|TENANT_CONTEXT_REQUIRED|هذا الملف موجود/.test(body);
+    if (previewVisible || doneVisible || hasError || (uploadVisible && !body.includes('جارٍ فحص وتحليل الملف'))) return { body, previewVisible, doneVisible, hasError };
+    await page.waitForTimeout(500);
+  }
+  return { body: await page.locator('body').innerText(), previewVisible: false, doneVisible: false, hasError: false };
+}
 async function runOne(scenario, input) {
   const started = new Date().toISOString();
   const inputFingerprint = crypto.createHash('sha256').update(input.bytes).digest('hex');
@@ -120,16 +132,15 @@ async function runOne(scenario, input) {
     const errors = [];
     page.once('pageerror', e => errors.push(e.message));
     await page.locator('input[type="file"]').first().setInputFiles({ name: input.name, mimeType: input.name.endsWith('.pdf') ? 'application/pdf' : input.name.endsWith('.xlsx') ? 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' : 'text/csv', buffer: input.bytes });
-    const preview = page.getByText('المراجعة', { exact: true });
-    try { await preview.waitFor({ state: 'visible', timeout: 30000 }); } catch { /* rejection is a real observable result */ }
-    const pageText = await page.locator('body').innerText();
+    const outcome = await waitForImportOutcome();
+    const pageText = outcome.body;
     const commit = page.getByRole('button', { name: /اعتماد وكتابة/ });
-    const canCommit = await commit.count() > 0 && await commit.isVisible().catch(() => false) && await commit.isEnabled().catch(() => false);
-    result.actual_observed_result = { page_text_excerpt: pageText.slice(0, 1200), page_errors: errors, can_commit: canCommit };
+    const canCommit = outcome.previewVisible && await commit.count() > 0 && await commit.isVisible().catch(() => false) && await commit.isEnabled().catch(() => false);
+    result.actual_observed_result = { page_text_excerpt: pageText.slice(0, 1600), page_errors: errors, can_commit: canCommit, outcome: { previewVisible: outcome.previewVisible, doneVisible: outcome.doneVisible, hasError: outcome.hasError } };
     if (!canCommit) {
-      result.actual_status = /فشل|تعذر|خطأ|مرفوض|ناقص|فارغ|غير صالح/i.test(pageText) ? 'rejected_or_reviewed' : 'reviewed';
+      result.actual_status = outcome.hasError ? 'rejected_or_reviewed' : 'reviewed';
       result.assertions.push('real UI ingestion reached a non-commit terminal/review state');
-      if (scenario.id === 'excel-missing-columns' || scenario.id === 'corrupt-data' || scenario.id === 'unknown-report') result.assertions.push('expected safety/review scenario did not write to canonical DB');
+      if (scenario.id === 'excel-missing-columns' || scenario.id === 'corrupt-data' || scenario.id === 'unknown-report') result.assertions.push('expected safety/review scenario did not expose a commit control');
       return result;
     }
     const enqueueResponse = page.waitForResponse(r => r.url().endsWith('/rest/v1/rpc/enqueue_report_execution_job') && r.request().method() === 'POST', { timeout: 30000 });
@@ -166,11 +177,9 @@ async function runOne(scenario, input) {
 
 try {
   await login();
-  // Sequential execution is intentional: the staging import path has shared canonical state; unique fingerprints still provide per-scenario identity.
   for (const scenario of scenarios) {
     const input = inputs.get(scenario.id); if (!input) throw new Error(`SCENARIO_INPUT_MISSING:${scenario.id}`);
     const r = await runOne(scenario, input); results.push(r);
-    // Duplicate scenario is explicitly executed twice through the real UI so duplicate detection is runtime-proven.
     if (scenario.id === 'duplicate-transactions' && r.actual_status === 'committed_and_rendered') {
       const second = await runOne({ ...scenario, id: `${scenario.id}:second-run` }, input);
       results.push(second);
