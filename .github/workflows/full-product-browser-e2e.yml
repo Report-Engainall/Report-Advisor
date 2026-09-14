@@ -1,9 +1,23 @@
 name: Full Product Browser E2E
 
 # Exact-head browser discovery gate. Broad push triggers are intentionally prohibited by the CI topology contract.
-# Business E2E is intentionally triggered by its watched script so real import/RLS/readback evidence runs on every test-contract change.
+# Business E2E is path-scoped on both push and PR synchronization so a real test-contract commit cannot leave the exact-head gate idle.
 on:
   push:
+    paths:
+      - 'scripts/run-full-product-browser-e2e.mjs'
+      - 'scripts/real-business-e2e.mjs'
+      - 'scripts/financial-dashboard-readback-e2e.mjs'
+      - 'src/lib/file-engine/security.ts'
+      - '.github/workflows/full-product-browser-e2e.yml'
+      - 'docs/MASTER_EXECUTION_INDEX.md'
+      - 'E2E_FAILURE_LEDGER.md'
+      - 'E2E_PRODUCT_GAP_LEDGER.md'
+      - 'supabase/migrations/**'
+      - 'package.json'
+      - 'package-lock.json'
+  pull_request:
+    types: [opened, synchronize, reopened]
     paths:
       - 'scripts/run-full-product-browser-e2e.mjs'
       - 'scripts/real-business-e2e.mjs'
