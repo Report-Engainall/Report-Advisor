@@ -4,6 +4,7 @@ import { evaluateRelease } from './production-release-decision.mjs';
 
 const exactHead = '950e0882c5557211a621be09a82a53f578af9713';
 const tenant = 'f68a7e91-3c7e-46fb-97a8-e339bec04e13';
+const duplicateFingerprint = `${String(scenarios.findIndex(s => s.id === 'duplicate-transactions') + 1).padStart(2, '0')}${'a'.repeat(62)}`;
 const artifact = {
   exact_head: exactHead,
   authenticated_runtime: true,
@@ -30,7 +31,7 @@ const artifact = {
     exact_head: exactHead,
     authenticated_context: true,
     tenant,
-    input_fingerprint: `${'11'.padStart(2, '0')}${'a'.repeat(62)}`,
+    input_fingerprint: duplicateFingerprint,
     actual_status: 'rejected_or_reviewed',
   },
 };
