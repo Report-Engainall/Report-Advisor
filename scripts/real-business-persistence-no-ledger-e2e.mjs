@@ -23,8 +23,50 @@ async function rest(table, fields, filters = {}) { const u = new URL(`${supabase
 async function tenant() { const r = await fetch(`${supabaseURL}/rest/v1/rpc/current_company_id`, { method: 'POST', headers: { apikey: anonKey, Authorization: `Bearer ${await token()}`, 'Content-Type': 'application/json' }, body: '{}' }); const b = await r.text(); assert.equal(r.ok, true, `current_company_id HTTP ${r.status}: ${b}`); return b.replaceAll('"', '').trim(); }
 function csv(fields) { return Buffer.from(`\ufeff${Object.keys(fields).join(',')}\n${Object.values(fields).map(v => String(v).replaceAll(',', ' ')).join(',')}\n`, 'utf8'); }
 async function login() { await page.goto(baseURL, { waitUntil: 'networkidle', timeout: 30000 }); await page.locator('#login-email').fill(email); await page.locator('#login-password').fill(password); await page.getByRole('button', { name: 'تسجيل الدخول' }).click(); await page.waitForTimeout(1000); assert.equal(await page.locator('#login-email').count(), 0); }
-async function importOne(entity, fields, marker) { const buffer = csv(fields); await page.goto(`${baseURL}/import`, { waitUntil: 'networkidle', timeout: 30000 }); const label = entity === 'customers' ? 'العملاء' : entity === 'products' ? 'المنتجات' : 'فواتير المبيعات'; await page.getByRole('button', { name: new RegExp(label) }).click(); await page.locator('input[type="file"]').first().setInputFiles({ name: `${marker}.csv`, mimeType: 'text/csv', buffer }); await page.getByText('المراجعة', { exact: true }).waitFor({ state: 'visible', timeout: 30000 }); const commit = page.getByRole('button', { name: /اعتماد وكتابة/ }); await commit.waitFor({ state: 'visible', timeout: 30000 }); assert.equal(await commit.isEnabled(), true); await commit.click(); await page.getByText(/معرّف التنفيذ المتين:/).waitFor({ state: 'visible', timeout: 30000 }); assert.equal(await page.getByText(/فشل الاستيراد:/).count(), 0); const line = await page.getByText(/معرّف التنفيذ المتين:/).textContent(); const jobId = line?.split(':').slice(1).join(':').trim() || ''; assert.match(jobId, /^[0-9a-f-]{36}$/i); return { jobId, buffer }; }
-async function assertJob(jobId, entity) { const jobs = await rest('report_execution_jobs', 'id,company_id,source_hash,status,checkpoint,last_error', { id: jobId, company_id: evidence.tenant }); assert.equal(jobs.length, 1); const job = jobs[0]; assert.equal(job.status, 'completed'); assert.equal(job.checkpoint?.stage, 'rendered'); assert.equal(job.last_error, null); assert.equal(job.checkpoint?.sourceHash, job.source_hash); assert.ok(Array.isArray(job.checkpoint?.evidenceKeys)); assert.ok(job.checkpoint.evidenceKeys.includes(`canonical-import:${job.source_hash}:source`)); assert.ok(job.checkpoint.evidenceKeys.includes(`canonical-import:${job.source_hash}:reconciliation`)); evidence.steps.push({ step: `job:${entity}`, status: 'PASS', jobId, sourceHash: job.source_hash, checkpoint: job.checkpoint }); return job.source_hash; }
+async function importOne(entity, fields, marker) {
+  const buffer = csv(fields);
+  await page.goto(`${baseURL}/import`, { waitUntil: 'networkidle', timeout: 30000 });
+  const label = entity === 'customers' ? 'العملاء' : entity === 'products' ? 'المنتجات' : 'فواتير المبيعات';
+  await page.getByRole('button', { name: new RegExp(label) }).click();
+  await page.locator('input[type="file"]').first().setInputFiles({ name: `${marker}.csv`, mimeType: 'text/csv', buffer });
+  await page.getByText('المراجعة', { exact: true }).waitFor({ state: 'visible', timeout: 30000 });
+  const commit = page.getByRole('button', { name: /اعتماد وكتابة/ });
+  await commit.waitFor({ state: 'visible', timeout: 30000 });
+  assert.equal(await commit.isEnabled(), true);
+  const enqueueResponse = page.waitForResponse(
+    response => response.url().endsWith('/rest/v1/rpc/enqueue_report_execution_job') && response.request().method() === 'POST',
+    { timeout: 30000 },
+  );
+  await commit.click();
+  const response = await enqueueResponse;
+  const body = await response.text();
+  assert.equal(response.ok(), true, `enqueue_report_execution_job HTTP ${response.status()}: ${body}`);
+  const payload = body ? JSON.parse(body) : null;
+  const jobId = String(payload?.id ?? payload?.[0]?.id ?? '');
+  assert.match(jobId, /^[0-9a-f-]{36}$/i);
+  evidence.steps.push({ step: `enqueue:${entity}`, status: 'PASS', jobId });
+  return { jobId, buffer };
+}
+async function assertJob(jobId, entity) {
+  const deadline = Date.now() + 120000;
+  let jobs = [];
+  while (Date.now() < deadline) {
+    jobs = await rest('report_execution_jobs', 'id,company_id,source_hash,status,checkpoint,last_error', { id: jobId, company_id: evidence.tenant });
+    if (jobs.length === 1 && (jobs[0].status === 'completed' || jobs[0].status === 'failed')) break;
+    await new Promise(resolve => setTimeout(resolve, 1500));
+  }
+  assert.equal(jobs.length, 1, `report_execution_jobs row missing for ${jobId}`);
+  const job = jobs[0];
+  assert.equal(job.status, 'completed', `durable execution ${jobId} ended ${job.status}: ${job.last_error || 'no error'}`);
+  assert.equal(job.checkpoint?.stage, 'rendered');
+  assert.equal(job.last_error, null);
+  assert.equal(job.checkpoint?.sourceHash, job.source_hash);
+  assert.ok(Array.isArray(job.checkpoint?.evidenceKeys));
+  assert.ok(job.checkpoint.evidenceKeys.includes(`canonical-import:${job.source_hash}:source`));
+  assert.ok(job.checkpoint.evidenceKeys.includes(`canonical-import:${job.source_hash}:reconciliation`));
+  evidence.steps.push({ step: `job:${entity}`, status: 'PASS', jobId, sourceHash: job.source_hash, checkpoint: job.checkpoint });
+  return job.source_hash;
+}
 try {
   await login();
   evidence.tenant = await tenant();
