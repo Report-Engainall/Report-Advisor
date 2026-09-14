@@ -5,11 +5,11 @@
 > Authoritative execution manifest. This document never promotes historical evidence across an exact Git `HEAD` boundary. Pair every evidence batch with the exact Git `HEAD` of `main` and the exact environment/commit used.
 
 ### CURRENT EXACT HEAD
-- Current code/test candidate: `375449cf113bd3a86a9761e083fe635081fac83a`.
+- Current code/test candidate: `2c486ee1d3c3eb46423fe75e8d7bf09f8d83a4b5`.
 - PR #467 remains the active candidate vehicle; protected `main` remains untouched.
 - The indexed candidate is the exact current tested PR head immediately before this governance-only rebind; the governance commit itself is permitted by the Certification Boundary as the source-of-truth bookkeeping commit.
 - No historical evidence is promoted automatically. Every runtime PASS remains bound to its original exact SHA.
-- The current candidate contains the bounded Browser E2E repair and the exact-head index-parser hardening. The parser accepts the documented candidate forms, preserves ancestry and changed-file enforcement, and emits the required INDEX DRIFT diagnostic when the boundary is invalid.
+- The current candidate contains the bounded Browser E2E repair and exact-head index-parser hardening. Index-boundary test fixtures now fail closed when stale index ancestry cannot be proven, preserving the documented index-only rule.
 
 ### BOUNDARY / GOVERNANCE
 - No rebuild from scratch.
@@ -122,7 +122,7 @@
 - PR #397: OPEN, mergeable, not merged.
 - PR #398: OPEN, mergeable, not merged; CodeRabbit's current array-shape finding was verified and repaired.
 - PR #405: OPEN, currently non-mergeable until its fresh review/CI evidence is available.
-- PR #467: OPEN, DRAFT, mergeable; current head `375449cf113bd3a86a9761e083fe635081fac83a`.
+- PR #467: OPEN, DRAFT, mergeable; current head `2c486ee1d3c3eb46423fe75e8d7bf09f8d83a4b5`.
 - No PR is treated as merged merely because a connector exposes a `merge_commit_sha`; explicit `merged=false` is authoritative.
 
 ## REAL RELEASE ASSESSMENT — 2026-09-14
@@ -259,7 +259,7 @@ This is not a rebuild situation. The remaining work is concentrated closure: exe
 
 ## GOVERNANCE LOG — 2026-09-10 — CANDIDATE #462 TERMINAL TENANT ASSERTION REPAIR
 - Exact candidate: `a84a190e5501b4498b56c395a346e8b7e6b61a7b`.
-- The bounded test-only repair in `scripts/check-decision-work-outcome-terminal.mjs` adds an explicit `TENANT` diagnostic assertion message so the adversarial test verifies the intended cross-tenant denial path.
+- The bounded test-only repair in `scripts/check-decision-work-outcome-terminal.mjs` adds an explicit `TENANT` diagnostic message so the adversarial test verifies the intended cross-tenant denial path.
 - No production SQL, Tenant Isolation/RLS logic, Certification Boundary guard, or runtime implementation was changed.
 - The preceding exact-head Certification cycle reached the terminal tenant assertion and exposed a test-of-test diagnostic mismatch; no Tenant Isolation regression is inferred or promoted.
 - This governance update binds the Master Index to the exact current candidate and promotes no historical CI/runtime evidence.
@@ -277,9 +277,9 @@ This is not a rebuild situation. The remaining work is concentrated closure: exe
 
 ## GOVERNANCE LOG — 2026-09-14 — PR #467 EXACT-HEAD REBIND CHAIN
 - Previous authority recorded in the prior index: `5c53fe3fc5ef1c0d9d1643583589a4d642d49d2d`.
-- Exact PR #467 code lineage subsequently advanced through the bounded evidence-provenance repair `7cca8ac00d51b699c94f1d17ad2b413b0ab3f96d`, Browser E2E repair `e8fadb7992513789dabbad45bd0df1810c069e1e`, and exact-head index-parser hardening through `375449cf113bd3a86a9761e083fe635081fac83a`.
+- Exact PR #467 code lineage subsequently advanced through the bounded evidence-provenance repair `7cca8ac00d51b699c94f1d17ad2b413b0ab3f96d`, Browser E2E repair `e8fadb7992513789dabbad45bd0df1810c069e1e`, and exact-head index-parser hardening through `2c486ee1d3c3eb46423fe75e8d7bf09f8d83a4b5`.
 - The Browser E2E repair removes only a contradictory dashboard-label `NOT_PROVEN` assertion. It does not remove the authoritative authenticated-session, tenant-resolution, route, refresh, tenant-separation, or logout checks.
-- The index-parser repair accepts the repository's documented exact-head fixture syntax while retaining exact SHA validation, ancestry verification, the index-only changed-file restriction, and the expected `INDEX DRIFT` diagnostic.
+- The index-parser repair accepts the documented exact-head fixture syntax and the test suite now explicitly verifies fail-closed behavior when stale ancestry cannot be proven.
 - No historical PASS is promoted by this entry. All evidence must be fresh or explicitly bound to its original SHA.
 - Protected `main` remains untouched.
 - Official Production Closure remains required and must not be fabricated or substituted.
