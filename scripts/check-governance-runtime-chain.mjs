@@ -27,7 +27,7 @@ const governancePrimitives = [
   'risk_budgets',
   'decision_graph',
   'anomaly_correlations',
-  'human_overrides',
+  'human_override_feedback',
   'intelligence_quality_scores',
   'governed_scenarios',
 ];
