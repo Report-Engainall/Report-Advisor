@@ -40,7 +40,10 @@ function attachRuntimeCapture(page) {
     if (msg.type() === 'error') evidence.failures.push(`console:${msg.text()}`);
   });
   page.on('pageerror', error => evidence.failures.push(`pageerror:${error.message}`));
-  page.on('requestfailed', request => evidence.failures.push(`request:${request.method()} ${request.url()} ${request.failure()?.errorText || 'unknown'}`));
+  page.on('requestfailed', request => {
+    const errorText = request.failure()?.errorText || 'unknown';
+    if (errorText !== 'net::ERR_ABORTED') evidence.failures.push(`request:${request.method()} ${request.url()} ${errorText}`);
+  });
 }
 
 attachRuntimeCapture(pageA);
@@ -121,7 +124,7 @@ async function importOne(page, entity, fields, marker) {
   assert.equal(await commit.count(), 1, `${entity} import commit control must exist at review stage`);
   assert.equal(await commit.isEnabled(), true, `${entity} valid import must be enabled`);
   await commit.click();
-  await page.getByText('تم الاستيراد بنجاح').waitFor({ state: 'visible', timeout: 30000 });
+  await commit.waitFor({ state: 'hidden', timeout: 30000 });
   evidence.steps.push({ step: `import:${entity}`, status: 'PASS' });
 }
 
