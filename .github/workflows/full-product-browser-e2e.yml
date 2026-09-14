@@ -7,6 +7,7 @@ on:
     paths:
       - 'scripts/run-full-product-browser-e2e.mjs'
       - 'scripts/real-business-e2e.mjs'
+      - 'scripts/real-business-persistence-no-ledger-e2e.mjs'
       - 'scripts/financial-dashboard-readback-e2e.mjs'
       - 'src/components/AuthGate.tsx'
       - 'src/lib/auth-session.ts'
@@ -25,6 +26,7 @@ on:
     paths:
       - 'scripts/run-full-product-browser-e2e.mjs'
       - 'scripts/real-business-e2e.mjs'
+      - 'scripts/real-business-persistence-no-ledger-e2e.mjs'
       - 'scripts/financial-dashboard-readback-e2e.mjs'
       - 'src/components/AuthGate.tsx'
       - 'src/lib/auth-session.ts'
@@ -138,9 +140,7 @@ jobs:
           REPORT_ADVISOR_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
           TEST_USER_A_EMAIL: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_EMAIL }}
           TEST_USER_A_PASSWORD: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_PASSWORD }}
-          TEST_USER_B_EMAIL: ${{ secrets.REPORT_ADVISOR_E2E_USER_B_EMAIL }}
-          TEST_USER_B_PASSWORD: ${{ secrets.REPORT_ADVISOR_E2E_USER_B_PASSWORD }}
-        run: node scripts/real-business-e2e.mjs
+        run: node scripts/real-business-persistence-no-ledger-e2e.mjs
       - name: Run dashboard financial readback E2E
         env:
           EXACT_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
