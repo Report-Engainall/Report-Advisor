@@ -5,11 +5,11 @@
 > Authoritative execution manifest. This document never promotes historical evidence across an exact Git `HEAD` boundary. Pair every evidence batch with the exact Git `HEAD` of `main` and the exact environment/commit used.
 
 ### CURRENT EXACT HEAD
-- Current code/test candidate: `4c42bfe78456af9a8bdd290eb5430bb77168f176`.
+- Current code/test candidate: `ad9dc97169704b3c7055cd767d5b5b2bc6223fec`.
 - PR #467 remains the active candidate vehicle; protected `main` remains untouched.
 - The indexed candidate is the exact current tested PR head immediately before this governance-only rebind; the governance commit itself is permitted by the Certification Boundary as the source-of-truth bookkeeping commit.
 - No historical evidence is promoted automatically. Every runtime PASS remains bound to its original exact SHA.
-- The current candidate contains the bounded Browser E2E repair, exact-head index-parser hardening, metric-identity workflow concurrency-scope repair, governance-chain migration scan repair, and explicit governance-chain evidence output. Index-boundary test fixtures now fail closed when stale ancestry cannot be proven, preserving the documented index-only rule.
+- The current candidate contains the bounded Browser E2E repair, exact-head index-parser hardening, metric-identity workflow concurrency-scope repair, governance-chain migration scan repair, explicit governance-chain evidence output, and the latest bounded governance-runtime contract repair. Index-boundary test fixtures now fail closed when stale ancestry cannot be proven, preserving the documented index-only rule.
 
 ### BOUNDARY / GOVERNANCE
 - No rebuild from scratch.
@@ -122,7 +122,7 @@
 - PR #397: OPEN, mergeable, not merged.
 - PR #398: OPEN, mergeable, not merged; CodeRabbit's current array-shape finding was verified and repaired.
 - PR #405: OPEN, currently non-mergeable until its fresh review/CI evidence is available.
-- PR #467: OPEN, DRAFT, mergeable; current head `4c42bfe78456af9a8bdd290eb5430bb77168f176`.
+- PR #467: OPEN, DRAFT, mergeable; current head `ad9dc97169704b3c7055cd767d5b5b2bc6223fec`.
 - No PR is treated as merged merely because a connector exposes a `merge_commit_sha`; explicit `merged=false` is authoritative.
 
 ## REAL RELEASE ASSESSMENT — 2026-09-14
@@ -321,6 +321,14 @@ This is not a rebuild situation. The remaining work is concentrated closure: exe
 - The fresh Browser E2E workflow completed the real authenticated product E2E, real business persistence E2E, real import API-boundary diagnostic, dashboard financial readback, and evidence uploads successfully.
 - Certification Boundary and Execution Enforcement remain pending a fresh run after this governance commit; their prior stale-index failures are not promoted as PASS.
 - Protected `main` remains untouched. Release remains **NOT CERTIFIED / NOT LIVE** until the resulting exact-head certification chain and all separate operational/runtime/production-closure evidence pass.
+
+## GOVERNANCE LOG — 2026-09-14 — PR #467 GOVERNANCE RUNTIME CONTRACT REPAIR
+- Exact code/test candidate: `ad9dc97169704b3c7055cd767d5b5b2bc6223fec`.
+- Fresh exact-head certification on the preceding governance commit exposed a real contract mismatch: `check-governance-runtime-chain.mjs` still required historical standalone `riskBudgetValid`/`trustHealthy` runtime helpers that no longer exist as exports.
+- The bounded repair now validates the canonical `phase-kl-runtime.ts` exports and the real `production-intelligence.ts` autonomy contract (`RiskBudget`, bounded scenario selection, `AutonomyGateInput`, trust/evidence/risk/rollback/isolation gates, and `evaluateAutonomyGate`). It does not weaken the gate or add a duplicate runtime path.
+- No production SQL, Certification Boundary guard, RLS/Auth control, or durable runner was changed.
+- No historical PASS is promoted. Fresh exact-head Certification is mandatory on the resulting governance rebind.
+- Protected `main` remains untouched. Release remains **NOT CERTIFIED / NOT LIVE** until fresh Certification, independent runtime evidence, 12-scenario evidence, Release Decision, and official Production Closure pass.
 
 ## FINAL NON-NEGOTIABLES
 - No main mutation.
