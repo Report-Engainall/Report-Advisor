@@ -68,11 +68,23 @@ try {
     p_as_of: new Date().toISOString().slice(0, 10),
   });
   assert.ok(snapshot && typeof snapshot === 'object', 'dashboard snapshot must be an object');
-  assert.equal(snapshot.status, 'CONFIRMED', `dashboard snapshot status must be CONFIRMED, got ${snapshot.status}`);
+  assert.equal(snapshot.status, 'CALCULATED', `dashboard snapshot status must be CALCULATED, got ${snapshot.status}`);
   assert.equal(typeof snapshot.totalSales, 'number', 'dashboard totalSales must be numeric');
   assert.equal(typeof snapshot.invoiceCount, 'number', 'dashboard invoiceCount must be numeric');
-  evidence.snapshot = { totalSales: snapshot.totalSales, invoiceCount: snapshot.invoiceCount, status: snapshot.status };
+  assert.ok(snapshot.quality && typeof snapshot.quality === 'object', 'dashboard quality must be present');
+  for (const [key, value] of Object.entries(snapshot.quality)) {
+    assert.equal(value, 0, `dashboard quality ${key} must be zero, got ${value}`);
+  }
+  evidence.snapshot = {
+    totalSales: snapshot.totalSales,
+    invoiceCount: snapshot.invoiceCount,
+    status: snapshot.status,
+    asOf: snapshot.asOf,
+    months: snapshot.months,
+    quality: snapshot.quality,
+  };
   evidence.checks.push({ name: 'canonical-dashboard-rpc', status: 'PASS' });
+  evidence.checks.push({ name: 'canonical-dashboard-quality', status: 'PASS', quality: snapshot.quality });
 
   const sales = await kpiCard('إجمالي المبيعات');
   assert.equal(sales.value, snapshot.totalSales, `UI sales ${sales.value} must equal canonical snapshot ${snapshot.totalSales}`);
