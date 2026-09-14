@@ -65,9 +65,9 @@ export async function checkDuplicate(hash: string, _legacyCompanyId?: string, _l
   const companyId = await resolveCurrentCompanyId();
   if (!companyId) throw new Error('TENANT_CONTEXT_REQUIRED');
 
-  // Canonical import idempotency is authoritative at import_commit_batch/import_commit_batch's
-  // server transaction. The browser must not read the canonical commit ledger directly during
-  // preflight because that would duplicate server truth and unnecessarily widen the UI RLS read surface.
+  // Canonical import idempotency is authoritative at import_commit_batch's server transaction.
+  // The browser must not read the canonical commit ledger directly during preflight because
+  // that would duplicate server truth and unnecessarily widen the UI RLS read surface.
   const { data: fileRecord, error: fileError } = await supabase
     .from('file_records')
     .select('id,company_id,file_name,file_hash,created_at,status')
