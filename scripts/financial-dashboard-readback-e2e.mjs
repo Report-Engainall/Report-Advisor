@@ -47,13 +47,43 @@ function numericText(text) {
 }
 
 async function kpiCard(label) {
-  const labelNode = page.getByText(label, { exact: true }).first();
-  await labelNode.waitFor({ state: 'visible', timeout: 15000 });
-  const card = labelNode.locator('..').locator('..');
-  const text = await card.innerText();
-  const value = numericText(text.replace(label, ''));
-  assert.notEqual(value, null, `${label} must render a numeric KPI, got: ${text}`);
-  return { text, value };
+  const read = () => page.evaluate((target) => {
+    const candidates = [...document.querySelectorAll('*')]
+      .filter(node => node.childElementCount === 0 && node.textContent?.trim() === target)
+      .filter(node => {
+        const style = window.getComputedStyle(node);
+        return style.visibility !== 'hidden' && style.display !== 'none';
+      });
+
+    for (const node of candidates) {
+      let current = node.parentElement;
+      for (let depth = 0; current && depth < 6; depth += 1, current = current.parentElement) {
+        const text = current.innerText?.trim() || '';
+        const valueText = text.replace(target, '').trim();
+        const match = valueText.replace(/[^0-9.-]/g, ' ').match(/-?\d+(?:\.\d+)?/);
+        if (match) return { text, value: Number(match[0]) };
+      }
+    }
+    return null;
+  }, label);
+
+  await page.waitForFunction((target) => {
+    const candidates = [...document.querySelectorAll('*')]
+      .filter(node => node.childElementCount === 0 && node.textContent?.trim() === target);
+    return candidates.some(node => {
+      let current = node.parentElement;
+      for (let depth = 0; current && depth < 6; depth += 1, current = current.parentElement) {
+        const valueText = (current.innerText || '').replace(target, '').trim();
+        if (/\d/.test(valueText)) return true;
+      }
+      return false;
+    });
+  }, label, { timeout: 15000 });
+
+  const result = await read();
+  assert.ok(result, `${label} must resolve to a visible KPI container with a numeric value`);
+  assert.notEqual(result.value, null, `${label} must render a numeric KPI, got: ${result.text}`);
+  return result;
 }
 
 try {
