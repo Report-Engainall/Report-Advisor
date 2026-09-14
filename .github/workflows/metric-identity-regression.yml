@@ -19,7 +19,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: metric-identity-${{ github.ref }}-${{ github.run_id }}
+  group: metric-identity-regression-${{ github.ref }}-${{ github.run_id }}
   cancel-in-progress: false
 
 jobs:
