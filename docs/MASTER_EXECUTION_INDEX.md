@@ -5,11 +5,11 @@
 > Authoritative execution manifest. This document never promotes historical evidence across an exact Git `HEAD` boundary. Pair every evidence batch with the exact Git `HEAD` of `main` and the exact environment/commit used.
 
 ### CURRENT EXACT HEAD
-- Current code/test candidate: `88cf3a5dda26941a93b703e551ef1ea7e0faaff3`.
+- Current code/test candidate: `baf8fbca42c55d8410bb2b8d7d2c80f1650efd1b`.
 - PR #467 remains the active candidate vehicle; protected `main` remains untouched.
 - The indexed candidate is the exact current tested PR head immediately before this governance-only rebind; the governance commit itself is permitted by the Certification Boundary as the source-of-truth bookkeeping commit.
 - No historical evidence is promoted automatically. Every runtime PASS remains bound to its original exact SHA.
-- The current candidate contains the bounded Browser E2E repair, exact-head index-parser hardening, and the metric-identity workflow concurrency-scope repair. Index-boundary test fixtures now fail closed when stale index ancestry cannot be proven, preserving the documented index-only rule.
+- The current candidate contains the bounded Browser E2E repair, exact-head index-parser hardening, metric-identity workflow concurrency-scope repair, and governance-chain migration scan repair. Index-boundary test fixtures now fail closed when stale ancestry cannot be proven, preserving the documented index-only rule.
 
 ### BOUNDARY / GOVERNANCE
 - No rebuild from scratch.
@@ -122,7 +122,7 @@
 - PR #397: OPEN, mergeable, not merged.
 - PR #398: OPEN, mergeable, not merged; CodeRabbit's current array-shape finding was verified and repaired.
 - PR #405: OPEN, currently non-mergeable until its fresh review/CI evidence is available.
-- PR #467: OPEN, DRAFT, mergeable; current head `88cf3a5dda26941a93b703e551ef1ea7e0faaff3`.
+- PR #467: OPEN, DRAFT, mergeable; current head `baf8fbca42c55d8410bb2b8d7d2c80f1650efd1b`.
 - No PR is treated as merged merely because a connector exposes a `merge_commit_sha`; explicit `merged=false` is authoritative.
 
 ## REAL RELEASE ASSESSMENT — 2026-09-14
@@ -298,6 +298,14 @@ This is not a rebuild situation. The remaining work is concentrated closure: exe
 - The bounded CI-only repair changes only that concurrency group to include the workflow-specific `metric-identity-regression` scope; no production runtime, gate weakening, evidence substitution, or bypass was introduced.
 - This governance rebind promotes no historical PASS. A fresh exact-head Certification cycle is mandatory on the resulting governance commit.
 - Protected `main` remains untouched. Release remains **NOT CERTIFIED / NOT LIVE** until fresh Certification and all separate operational/runtime/production-closure evidence pass.
+
+## GOVERNANCE LOG — 2026-09-14 — PR #467 GOVERNANCE CHAIN SCAN REPAIR
+- Exact code/test candidate before this governance-only rebind: `baf8fbca42c55d8410bb2b8d7d2c80f1650efd1b`.
+- The fresh exact-head certification cycle exposed a genuine test contract defect in `scripts/check-governance-runtime-chain.mjs`: it hard-coded two historical migration filenames that are not present in the current migration lineage.
+- The bounded repair removes filename dependence and scans the complete `supabase/migrations/*.sql` chain for the required governance primitives, while retaining the runtime-link assertions and anonymous-grant fail-closed check.
+- No production SQL, Certification Boundary guard, RLS/Auth control, or runtime implementation was changed.
+- No historical PASS is promoted. A fresh exact-head Certification cycle is mandatory on the resulting governance commit.
+- Protected `main` remains untouched. Release remains **NOT CERTIFIED / NOT LIVE** until fresh Certification, independent runtime evidence, and official Production Closure pass.
 
 ## FINAL NON-NEGOTIABLES
 - No main mutation.
