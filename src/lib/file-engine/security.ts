@@ -65,6 +65,9 @@ export async function checkDuplicate(hash: string, _legacyCompanyId?: string, _l
   const companyId = await resolveCurrentCompanyId();
   if (!companyId) throw new Error('TENANT_CONTEXT_REQUIRED');
 
+  // Canonical import idempotency is authoritative at import_commit_batch/import_commit_batch's
+  // server transaction. The browser must not read the canonical commit ledger directly during
+  // preflight because that would duplicate server truth and unnecessarily widen the UI RLS read surface.
   const { data: fileRecord, error: fileError } = await supabase
     .from('file_records')
     .select('id,company_id,file_name,file_hash,created_at,status')
@@ -75,29 +78,6 @@ export async function checkDuplicate(hash: string, _legacyCompanyId?: string, _l
     .maybeSingle();
   if (fileError) throw fileError;
   if (fileRecord) return { isDuplicate: true, existing: fileRecord as FileRecord };
-
-  const sourceHash = `sha256:${hash.trim().toLowerCase().replace(/^sha256:/, '')}`;
-  const { data: canonicalCommit, error: canonicalError } = await supabase
-    .from('canonical_import_commits')
-    .select('id,company_id,entity_type,source_hash')
-    .eq('company_id', companyId)
-    .eq('source_hash', sourceHash)
-    .limit(1)
-    .maybeSingle();
-  if (canonicalError) throw canonicalError;
-  if (canonicalCommit) {
-    return {
-      isDuplicate: true,
-      existing: {
-        id: String(canonicalCommit.id),
-        company_id: String(canonicalCommit.company_id),
-        file_name: `canonical:${String(canonicalCommit.entity_type)}`,
-        file_hash: String(canonicalCommit.source_hash).replace(/^sha256:/, ''),
-        created_at: '',
-        status: 'committed',
-      },
-    };
-  }
 
   return { isDuplicate: false, existing: null };
 }
