@@ -2,6 +2,7 @@ import { BUSINESS_METRICS } from '../src/lib/semanticMetrics.ts';
 import {
   SEMANTIC_METRIC_REGISTRY,
   getSemanticMetric,
+  getPersistedSemanticMetricId,
   validateSemanticMetricRegistry,
 } from '../src/lib/semantic-metric-registry.ts';
 
@@ -35,6 +36,14 @@ for (const metric of BUSINESS_METRICS) {
   if (entry.source.length === 0 || entry.evidence.length === 0) {
     errors.push(`Lineage/evidence missing for metric: ${metric.key}`);
   }
+}
+
+const legacyCash = getSemanticMetric('metric.cash');
+if (!legacyCash || legacyCash.metricId !== 'metric.cash_position') {
+  errors.push('Persisted metric.cash must resolve to canonical metric.cash_position.');
+}
+if (getPersistedSemanticMetricId('metric.cash') !== 'metric.cash') {
+  errors.push('Legacy metric.cash must retain its persisted governance lookup ID.');
 }
 
 if (errors.length > 0) {
