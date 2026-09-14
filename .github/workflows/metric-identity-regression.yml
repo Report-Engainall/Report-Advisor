@@ -7,6 +7,8 @@ on:
       - 'src/lib/semantic-metric-registry.ts'
       - 'src/lib/metricEngine.ts'
       - 'scripts/check-metric-identity-resolver.mjs'
+      - 'scripts/check-semantic-metric-registry.mjs'
+      - 'scripts/check-metric-consumer-governance.mjs'
   push:
     branches: [main]
     paths:
@@ -14,6 +16,8 @@ on:
       - 'src/lib/semantic-metric-registry.ts'
       - 'src/lib/metricEngine.ts'
       - 'scripts/check-metric-identity-resolver.mjs'
+      - 'scripts/check-semantic-metric-registry.mjs'
+      - 'scripts/check-metric-consumer-governance.mjs'
 
 permissions:
   contents: read
@@ -41,5 +45,7 @@ jobs:
         run: node scripts/check-metric-identity-resolver.mjs
       - name: Semantic metric registry
         run: node scripts/check-semantic-metric-registry.mjs
+      - name: Metric consumer governance
+        run: node scripts/check-metric-consumer-governance.mjs
       - name: Typecheck
         run: npm run typecheck
