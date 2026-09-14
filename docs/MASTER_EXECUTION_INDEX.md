@@ -5,8 +5,8 @@
 > Authoritative execution manifest. This document never promotes historical evidence across an exact Git `HEAD` boundary. Pair every evidence batch with the exact Git `HEAD` of `main` and the exact environment/commit used.
 
 ### CURRENT EXACT HEAD
-- Current code/test candidate: `a2b94a2b7ff951567c83b056ded1bb5a7431a9c9`.
-- This candidate is the current exact PR #467 head under active closure; its product/runtime evidence must be freshly bound to the resulting governance commit before certification.
+- Current code/test candidate: `5c53fe3fc5ef1c0d9d1643583589a4d642d49d2d`.
+- This candidate is the current exact PR #467 head under active closure; its product/runtime evidence must be freshly bound to this exact governance commit before certification.
 - The governance rebind is authoritative bookkeeping only; it does not promote historical evidence and does not certify runtime, browser, tenant A/B, import, OCR, recovery, backup/restore, performance, or LIVE state.
 - Historical evidence from earlier SHAs remains historical and is not promoted automatically.
 - This index update is governance-only; it does not certify runtime, browser, tenant A/B, import, OCR, recovery, backup/restore, performance, or LIVE state.
@@ -275,7 +275,8 @@ This is not a rebuild situation. The remaining work is concentrated closure: exe
 
 ## GOVERNANCE LOG — 2026-09-14 — PR #467 EXACT-HEAD AUTHORITY REBIND
 - Previous exact candidate: `a2b94a2b7ff951567c83b056ded1bb5a7431a9c9`.
-- This is a governance-only authority rebind required by the repository's Certification Boundary mechanism: the boundary explicitly permits `docs/MASTER_EXECUTION_INDEX.md` as an allowed governance-only change when the indexed candidate is an ancestor of the tested HEAD.
-- No runtime/product evidence is promoted by this rebind. All prior evidence remains bound to its original exact SHA; fresh certification evidence is required for the resulting governance commit.
+- Bounded code repair applied on PR #467 at `5c53fe3fc5ef1c0d9d1643583589a4d642d49d2d`: the decision lock-order checker now terminates the latest function body case-insensitively, matching the canonical migration's lowercase `create or replace function` form. No production SQL was changed.
+- This governance rebind is required by the repository's Certification Boundary mechanism: the boundary explicitly permits `docs/MASTER_EXECUTION_INDEX.md` as an allowed governance-only change when the indexed candidate is an ancestor of the tested HEAD.
+- No runtime/product evidence is promoted by this rebind. All prior evidence remains bound to its original exact SHA; fresh certification evidence is required for `5c53fe3fc5ef1c0d9d1643583589a4d642d49d2d`.
 - PR #467 remains the candidate vehicle; protected `main` is untouched.
 - Release remains **NOT CERTIFIED** pending fresh exact-head Production Closure and Final Certification.
