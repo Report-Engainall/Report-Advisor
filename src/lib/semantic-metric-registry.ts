@@ -29,8 +29,22 @@ export const SEMANTIC_METRIC_REGISTRY: SemanticMetricRegistryEntry[] = BUSINESS_
   evidence: metric.source,
 }));
 
+/**
+ * Persisted governance contains a legacy cash identifier. It maps to the existing
+ * canonical cash_position SSOT; it does not introduce a second formula or metric.
+ */
+const SEMANTIC_METRIC_ALIASES: Record<string, string> = {
+  'metric.cash': 'metric.cash_position',
+  cash: 'metric.cash_position',
+};
+
 export function getSemanticMetric(metricId: string): SemanticMetricRegistryEntry | undefined {
-  return SEMANTIC_METRIC_REGISTRY.find(metric => metric.metricId === metricId || metric.key === metricId);
+  const canonicalMetricId = SEMANTIC_METRIC_ALIASES[metricId] ?? metricId;
+  return SEMANTIC_METRIC_REGISTRY.find(metric => metric.metricId === canonicalMetricId || metric.key === canonicalMetricId);
+}
+
+export function getPersistedSemanticMetricId(metricId: string): string {
+  return SEMANTIC_METRIC_ALIASES[metricId] ? metricId : getSemanticMetric(metricId)?.metricId ?? metricId;
 }
 
 export function validateSemanticMetricRegistry(): string[] {
