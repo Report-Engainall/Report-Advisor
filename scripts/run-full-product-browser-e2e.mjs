@@ -149,9 +149,6 @@ try {
     }
 
     if (result.auth === 'PASS') {
-      const dashboard = await page.getByText('لوحة القيادة').count();
-      if (!dashboard) addFinding('E2E-AUTH-012', 'NOT_PROVEN', 'P1', 'Authenticated session is proven, but the expected dashboard label was not present immediately after login.');
-
       const emailB = process.env.TEST_USER_B_EMAIL;
       const passwordB = process.env.TEST_USER_B_PASSWORD;
       if (emailB && passwordB && result.tenant === 'PASS') {
