@@ -1,5 +1,5 @@
-import { BUSINESS_METRICS, type MetricDefinition, type MetricStatus } from './semanticMetrics.ts';
-import { resolveSemanticMetricId } from './semantic-metric-registry.ts';
+import { type MetricDefinition, type MetricStatus } from './semanticMetrics.ts';
+import { requireSemanticMetric } from './semantic-metric-registry.ts';
 import type { ReportFact } from './free-toolbox/report-facts';
 
 export interface MetricEvaluation {
@@ -25,10 +25,8 @@ export interface MetricInput {
 }
 
 export function evaluateMetric(input: MetricInput): MetricEvaluation {
-  const canonicalMetricId = resolveSemanticMetricId(input.key);
-  const canonicalKey = canonicalMetricId.slice('metric.'.length);
-  const definition = BUSINESS_METRICS.find(metric => metric.key === canonicalKey);
-  if (!definition) throw new Error(`Unknown metric: ${input.key}`);
+  const definition = requireSemanticMetric(input.key);
+  const canonicalKey = definition.metricId.slice('metric.'.length);
 
   const warnings = [...(input.warnings ?? [])];
   const numeric = input.value != null && Number.isFinite(Number(input.value)) ? Number(input.value) : null;
