@@ -10,6 +10,7 @@ on:
       - 'scripts/real-business-persistence-diagnostic.mjs'
       - 'scripts/financial-dashboard-readback-e2e.mjs'
       - 'scripts/production-scenario-runtime-e2e.mjs'
+      - 'scripts/production-scenario-runtime-e2e-harness.mjs'
       - 'scripts/production-scenario-contract.mjs'
       - 'scripts/production-scenario-matrix.mjs'
       - 'scripts/check-production-scenario-contract.mjs'
@@ -34,6 +35,7 @@ on:
       - 'scripts/real-business-persistence-diagnostic.mjs'
       - 'scripts/financial-dashboard-readback-e2e.mjs'
       - 'scripts/production-scenario-runtime-e2e.mjs'
+      - 'scripts/production-scenario-runtime-e2e-harness.mjs'
       - 'scripts/production-scenario-contract.mjs'
       - 'scripts/production-scenario-matrix.mjs'
       - 'scripts/check-production-scenario-contract.mjs'
@@ -170,7 +172,7 @@ jobs:
           REPORT_ADVISOR_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
           TEST_USER_A_EMAIL: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_EMAIL }}
           TEST_USER_A_PASSWORD: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_PASSWORD }}
-        run: node scripts/production-scenario-runtime-e2e.mjs
+        run: node scripts/production-scenario-runtime-e2e-harness.mjs
       - name: Validate compact scenario contract artifact
         if: ${{ always() }}
         run: node scripts/check-production-scenario-contract.mjs
