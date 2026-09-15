@@ -47,7 +47,9 @@ async function login() {
 try {
   await login();
   await page.goto(`${baseURL}/import`, { waitUntil: 'networkidle', timeout: 30000 });
-  await page.getByRole('button', { name: /العملاء/ }).click();
+  const customerButton = page.getByRole('button', { name: /(?:العملاء|Customers)/i }).first();
+  await customerButton.waitFor({ state: 'visible', timeout: 30000 });
+  await customerButton.click();
   const suffix = `${Date.now()}-${process.pid}`;
   const csv = Buffer.from(`\ufeffname,code,phone,email,segment,credit_limit,payment_terms_days\nE2E Diagnose ${suffix},E2E-D-${suffix},777000000,e2e-${suffix}@example.invalid,retail,0,0\n`, 'utf8');
   await page.locator('input[type="file"]').first().setInputFiles({ name: `diagnostic-${suffix}.csv`, mimeType: 'text/csv', buffer: csv });
