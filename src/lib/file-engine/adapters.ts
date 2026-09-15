@@ -114,7 +114,7 @@ const PDF_OCR_MAX_PAGES = 20; const PDF_OCR_MAX_DIMENSION = 2200; const PDF_OCR_
 async function parsePdfText(buffer: ArrayBuffer, fileName: string): Promise<Dataset[]> {
   const pdfjs = typeof document === 'undefined' ? await import('pdfjs-dist/legacy/build/pdf.mjs') : await import('pdfjs-dist');
   pdfjs.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.mjs', import.meta.url).toString();
-  const pdf: PdfDocument = await pdfjs.getDocument({ data: new Uint8Array(buffer) }).promise; const pages: string[] = [];
+  const pdf: PdfDocument = await pdfjs.getDocument({ data: new Uint8Array(buffer), ...(typeof document === 'undefined' ? { useSystemFonts: true } : {}) }).promise; const pages: string[] = [];
   for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) { const page = await pdf.getPage(pageNumber); const content = await page.getTextContent(); const text = content.items.map((item) => 'str' in item && typeof item.str === 'string' ? item.str : '').filter(Boolean).join(' '); if (text.trim()) pages.push(`PAGE ${pageNumber}\n${text}`); }
   if (pages.length) return buildTextDataset(pages.join('\n\n'), fileName, 'pdf'); return parseScannedPdfWithOcr(pdf, fileName);
 }
