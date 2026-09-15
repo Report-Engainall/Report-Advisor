@@ -79,6 +79,14 @@ The compact artifact was produced but is invalid for certification because the s
 
 Certification Boundary remains FAIL-CLOSED because the master index records candidate `f8bc54c166078906a55b613a8ba3b4b964a95fa3`, not `35c262...`. `MASTER_EXECUTION_INDEX.md` was not modified.
 
+### Follow-up on successor `1f5e995f0b276a63481d07f2216ccc1ed401ab1f`
+
+Fresh CI was triggered by the ledger/code successor. `Full Product Browser E2E` run `34922743051` is **IN PROGRESS**. The independent `Import Query Bounds` gate failed first with:
+
+`import query bound contract missing: { count: 'exact' }`
+
+Root cause: the first pagination fix removed the exact-count option required by the existing bounded-query contract. This is a contract mismatch, not a reason to weaken the validator. The corrective change restores `{ count: 'exact' }` while retaining the bounded range and no longer using a missing `count` value as a runtime failure condition. The resulting successor must receive fresh verification; no PASS from `35c262...` or `1f5e995f...` is transferred.
+
 ## Discovery Notes
 - Existing `scripts/run-decision-runtime-e2e.mjs` is API/RPC-level authenticated runtime testing, not browser E2E.
 - Browser harness is intentionally separate and uses a real Chromium browser against the exact-head built application.
