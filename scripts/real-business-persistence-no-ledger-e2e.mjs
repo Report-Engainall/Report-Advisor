@@ -13,7 +13,7 @@ const replacement = `await commit.waitFor({ state: 'visible', timeout: 30000 });
     await page.reload({ waitUntil: 'networkidle', timeout: 30000 });
     const label = entity === 'customers' ? 'العملاء' : entity === 'products' ? 'المنتجات' : 'فواتير المبيعات';
     await page.getByRole('button', { name: new RegExp(label) }).click();
-    await page.locator('input[type="file"]').first().setInputFiles({ name: \`${'${marker}'}.csv\`, mimeType: 'text/csv', buffer: csv(fields) });
+    await page.locator('input[type="file"]').first().setInputFiles({ name: marker + '.csv', mimeType: 'text/csv', buffer: csv(fields) });
     await page.getByText('المراجعة', { exact: true }).waitFor({ state: 'visible', timeout: 30000 });
     await commit.waitFor({ state: 'visible', timeout: 30000 });
   }
