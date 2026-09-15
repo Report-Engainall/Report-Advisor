@@ -1,0 +1,31 @@
+name: one-shot-pdfjs-lock-refresh
+on:
+  push:
+    branches:
+      - fix/pdf-date-delimiter-exact-53a
+permissions:
+  contents: write
+jobs:
+  refresh:
+    if: github.sha == '8e4f26870ea792a5841ca213c1312f00269924e4'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Refresh only pdfjs-dist lock entry
+        run: npm install --package-lock-only --ignore-scripts --no-save pdfjs-dist@6.3.289
+      - name: Commit lockfile and remove one-shot workflow
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git rm .github/workflows/_one-shot-pdfjs-lock-refresh.yml
+          git add package-lock.json
+          git diff --cached --check
+          git diff --cached -- package-lock.json
+          git commit -m 'fix: update pdfjs-dist lock for node text extraction'
+          git push origin HEAD:${GITHUB_REF_NAME}
