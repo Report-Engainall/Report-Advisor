@@ -13,9 +13,17 @@ on:
         required: true
         default: '60'
         type: string
+      production_runtime_run_id:
+        description: Exact GitHub Actions run ID that produced the authenticated production-regression artifact
+        required: true
+        type: string
+      source_sha:
+        description: Exact candidate SHA certified by that runtime evidence
+        required: true
+        type: string
   push:
     tags: ['v*']
-permissions: {contents: read}
+permissions: {contents: read, actions: read}
 concurrency:
   group: release-certification-${{ github.ref }}
   cancel-in-progress: false
@@ -26,19 +34,41 @@ jobs:
     environment: ${{ inputs.environment || 'staging' }}
     steps:
       - uses: actions/checkout@v5
-        with: {fetch-depth: 1, persist-credentials: false}
+        with:
+          ref: ${{ inputs.source_sha || github.sha }}
+          fetch-depth: 1
+          persist-credentials: false
       - uses: actions/setup-node@v5
-        with: {node-version: 22, cache: npm}
+        with:
+          node-version: 22
+          cache: npm
       - name: Install locked dependencies
         run: npm ci --no-audit --no-fund
       - name: Preflight contracts
         run: npm run typecheck && npm run lint && npm run build && npm run test:production-release-blockers && npm run test:production-readiness && npm run test:operational-resilience && npm run test:release-resilience-manifest && node scripts/check-release-evidence-contract.mjs && node scripts/check-release-evidence-completeness.mjs
-      - name: Require real production regression evidence
+      - name: Download exact authenticated runtime evidence
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        uses: actions/download-artifact@v4
+        with:
+          name: real-business-e2e-${{ inputs.source_sha }}
+          path: release-evidence
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: ${{ github.repository }}
+          run-id: ${{ inputs.production_runtime_run_id }}
+      - name: Require exact production regression evidence
         shell: bash
+        env:
+          EXPECTED_SOURCE_SHA: ${{ inputs.source_sha || github.sha }}
+          RUNTIME_RUN_ID: ${{ inputs.production_runtime_run_id || '' }}
         run: |
           set -euo pipefail
+          test -n "$EXPECTED_SOURCE_SHA"
           test -s release-evidence/production-regression-results.json
-          node scripts/production-release-decision.mjs release-evidence/production-regression-results.json
+          if [[ -n "$RUNTIME_RUN_ID" ]]; then
+            test -s release-evidence/production-regression-results.json
+          fi
+          EXACT_HEAD="$EXPECTED_SOURCE_SHA" node scripts/validate-production-regression-artifact.mjs release-evidence/production-regression-results.json
+          EXACT_HEAD="$EXPECTED_SOURCE_SHA" node scripts/production-release-decision.mjs release-evidence/production-regression-results.json
       - name: Create reproducible release manifest and evidence-bound certification decision
         shell: bash
         env:
@@ -62,6 +92,7 @@ jobs:
           const artifact_fingerprint = execFileSync('bash', ['-lc', "find dist -type f -print0 | sort -z | xargs -0 sha256sum | sha256sum | cut -d' ' -f1"], {encoding: 'utf8'}).trim();
           const regression = JSON.parse(fs.readFileSync('release-evidence/certification-decision.json','utf8'));
           if (regression.release !== 'approved') throw new Error('Certification blocked by production regression decision');
+          if (regression.exactHead !== source_sha) throw new Error(`Certification source SHA mismatch: ${regression.exactHead} != ${source_sha}`);
           const results_sha = crypto.createHash('sha256').update(fs.readFileSync('release-evidence/production-regression-results.json')).digest('hex');
           const payload = {
             schema_version: 2,

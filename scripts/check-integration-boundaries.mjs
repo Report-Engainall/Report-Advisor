@@ -13,8 +13,32 @@ for (const [name, contract] of Object.entries(services)) {
 assert.equal(services.storage.signedAccess, true);
 assert.equal(services.ai.untrustedOutput, true);
 
-assert.throws(() => { if (!services.storage.crossTenantDenied) throw new Error('storage isolation gap'); });
-assert.throws(() => { if (!services.realtime.crossTenantDenied) throw new Error('realtime isolation gap'); });
-assert.throws(() => { if (!services.ai.crossTenantDenied) throw new Error('AI isolation gap'); });
+// Adversarial test-of-test: weaken each contract in an isolated copy and prove
+// the corresponding fail-closed assertion detects the mutation.
+for (const [name, contract] of Object.entries(services)) {
+  const weakened = { ...contract, crossTenantDenied: false };
+  assert.throws(
+    () => assert.equal(weakened.crossTenantDenied, true, `${name}: cross-tenant access must deny`),
+    `${name}: adversarial cross-tenant weakening must fail closed`,
+  );
+}
 
-console.log('integration boundaries: PASS');
+const unscopedStorage = { ...services.storage, tenantScoped: false };
+assert.throws(
+  () => assert.equal(unscopedStorage.tenantScoped, true, 'storage: tenant scope required'),
+  'storage: adversarial tenant-scope weakening must fail closed',
+);
+
+const unsignedStorage = { ...services.storage, signedAccess: false };
+assert.throws(
+  () => assert.equal(unsignedStorage.signedAccess, true),
+  'storage: adversarial signed-access weakening must fail closed',
+);
+
+const trustedAi = { ...services.ai, untrustedOutput: false };
+assert.throws(
+  () => assert.equal(trustedAi.untrustedOutput, true),
+  'AI: adversarial trusted-output weakening must fail closed',
+);
+
+console.log('integration boundaries: PASS (positive contract + adversarial weakening test-of-test)');

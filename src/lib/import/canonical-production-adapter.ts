@@ -79,10 +79,13 @@ export async function runCanonicalProductionImport(input: CanonicalProductionImp
     idempotencyKey: `canonical-import:${input.entityType}:${sourceHash}`,
   };
 
+  // Idempotency is content-based. The uploaded filename remains provenance metadata,
+  // while the durable execution source identity must remain stable for identical content.
+  const durableSourceIdentity = request.idempotencyKey;
   const { data: enqueueData, error: enqueueError } = await supabase.rpc('enqueue_report_execution_job', {
     p_company_id: companyId,
     p_job_key: request.idempotencyKey,
-    p_source_path: input.fileName,
+    p_source_path: durableSourceIdentity,
     p_source_hash: sourceHash,
     p_evidence_keys: evidence(input.rows, sourceHash).map((item) => item.key),
     p_max_attempts: 3,
