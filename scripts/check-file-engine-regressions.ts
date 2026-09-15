@@ -15,6 +15,27 @@ if (!('DOMMatrix' in globalThis)) {
     value: class DOMMatrix {},
   });
 }
+
+type PromiseConstructorWithTry = PromiseConstructor & {
+  try?: (fn: (...args: unknown[]) => unknown, ...args: unknown[]) => Promise<unknown>;
+};
+
+const promiseConstructor = Promise as PromiseConstructorWithTry;
+if (typeof promiseConstructor.try !== 'function') {
+  Object.defineProperty(promiseConstructor, 'try', {
+    configurable: true,
+    writable: true,
+    value: (fn: (...args: unknown[]) => unknown, ...args: unknown[]) =>
+      new Promise((resolve, reject) => {
+        try {
+          resolve(fn(...args));
+        } catch (error) {
+          reject(error);
+        }
+      }),
+  });
+}
+
 const { parseFile } = await import('../src/lib/file-engine/adapters.ts');
 
 function assert(condition: unknown, message: string): asserts condition {
