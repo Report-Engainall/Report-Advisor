@@ -87,6 +87,14 @@ Fresh CI was triggered by the ledger/code successor. `Full Product Browser E2E` 
 
 Root cause: the first pagination fix removed the exact-count option required by the existing bounded-query contract. This is a contract mismatch, not a reason to weaken the validator. The corrective change restores `{ count: 'exact' }` while retaining the bounded range and no longer using a missing `count` value as a runtime failure condition. The resulting successor must receive fresh verification; no PASS from `35c262...` or `1f5e995f...` is transferred.
 
+### Exact-HEAD corrective fix on `9547134838afd17e97b221ebff29b774b3cf5dc8`
+
+The corrective successor retained `{ count: 'exact' }` but fresh review identified an off-by-one range in `fetchImportRecords()`: `.range(0, MAX_IMPORT_RECORD_ROWS)` requests `MAX_IMPORT_RECORD_ROWS + 1` rows while the implementation simultaneously treated returned rows above the maximum as a runtime pagination error. This made the bounded query itself capable of reproducing the false `REPORT_QUERY_LIMIT_EXCEEDED` condition when exactly 501 rows were returned.
+
+Minimal fix: change the upper bound to `MAX_IMPORT_RECORD_ROWS - 1`. The exact-count contract remains intact, and missing/null count remains non-fatal. No fallback can remove the bounded range. Code fix commit: `a56570613e0769a5775c9c5421aab81e2872c2f7`.
+
+This fix is **FIX only**. Fresh verification is mandatory on `a56570613e0769a5775c9c5421aab81e2872c2f7`; no PASS is transferred from `954713...` or any earlier SHA. This ledger update is part of the same follow-up chain and `MASTER_EXECUTION_INDEX.md` remains untouched.
+
 ## Discovery Notes
 - Existing `scripts/run-decision-runtime-e2e.mjs` is API/RPC-level authenticated runtime testing, not browser E2E.
 - Browser harness is intentionally separate and uses a real Chromium browser against the exact-head built application.
