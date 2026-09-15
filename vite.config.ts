@@ -8,8 +8,6 @@ export default defineConfig({
   resolve: {
     alias: [
       { find: '@/lib/queries', replacement: fileURLToPath(new URL('./src/lib/queries-compat.ts', import.meta.url)) },
-      { find: 'pdfjs-dist/build/pdf.worker.mjs', replacement: 'pdfjs-dist/legacy/build/pdf.worker.mjs' },
-      { find: 'pdfjs-dist', replacement: 'pdfjs-dist/legacy/build/pdf.mjs' },
       { find: '@', replacement: fileURLToPath(new URL('./src', import.meta.url)) },
     ],
   },
