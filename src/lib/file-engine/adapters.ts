@@ -88,9 +88,9 @@ function tryParseStructuredPdfText(text: string): Row[] | null {
   const normalized = normalizeArabicDigits(compact.replace(/\s+/g, ' ').trim());
   const match = (pattern: RegExp): string | null => normalized.match(pattern)?.[1]?.trim() ?? null;
   const row: Row = {
-    invoice_number: match(/(?:رقم\s*(?:الفاتورة|فاتورة)?|invoice(?:\s+number)?)\s*[:#]?\s*([^\s]+(?:\s+[^\s]+)*?)\s+(?=(?:التاريخ|date)(?:\s*[:：]?\s|$))/i),
+    invoice_number: match(/(?:رقم\s*(?:الفاتورة|فاتورة)?|invoice(?:\s+number)?)\s*[:#]?\s*([^\s]+(?:\s+[^\s]+)*?)(?=\s*(?:التاريخ|date)(?:\s*[:：]?\s|$))/i),
     invoice_date: match(/(?:التاريخ|date)\s*[:：]?\s*(\d{4}[-/]\d{1,2}[-/]\d{1,2})/i),
-    customer_name: match(/(?:العميل|اسم\s*العميل|customer(?:\s+name)?)\s*[:：]?\s*(.+?)\s+(?=(?:المجموع|الإجمالي|subtotal|total)(?:\s|$))/i),
+    customer_name: match(/(?:العميل|اسم\s*العميل|customer(?:\s+name)?)\s*[:：]?\s*(.+?)(?=\s*(?:المجموع|الإجمالي|subtotal|total)(?:\s|$))/i),
     subtotal: normalizeStructuredDocumentValue(match(/(?:المجموع الفرعي|المجموع|subtotal)\s*[:：]?\s*([\d٠-٩٬،.,]+)/i) ?? ''),
     tax_amount: normalizeStructuredDocumentValue(match(/(?:الضريبة|ضريبة|tax)\s*[:：]?\s*([\d٠-٩٬،.,]+)/i) ?? ''),
     total: normalizeStructuredDocumentValue(match(/(?:الإجمالي|الاجمالي|total)\s*[:：]?\s*([\d٠-٩٬،.,]+)/i) ?? ''),
