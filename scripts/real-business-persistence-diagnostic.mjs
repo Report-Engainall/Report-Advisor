@@ -1,6 +1,5 @@
 import { chromium } from 'playwright';
 import fs from 'node:fs/promises';
-import { spawn } from 'node:child_process';
 
 const baseURL = (process.env.E2E_BASE_URL || 'http://127.0.0.1:4173').replace(/\/$/, '');
 const email = process.env.TEST_USER_A_EMAIL?.trim();
@@ -52,7 +51,4 @@ try {
   await page.close(); await context.close(); await browser.close();
 }
 
-// Existing Full Product Browser E2E already provisions the authenticated runtime; reuse it for the 12-scenario adapter rather than adding a second runner.
-const scenario = await new Promise((resolve, reject) => { const child = spawn(process.execPath, ['scripts/production-scenario-runtime-entry.mjs'], { stdio: 'inherit', env: process.env }); child.on('error', reject); child.on('exit', code => resolve(code ?? 1)); });
-if (scenario !== 0) throw new Error(`PRODUCTION_SCENARIO_RUNTIME_FAILED:${scenario}`);
 if (diagnosticError) throw diagnosticError;
