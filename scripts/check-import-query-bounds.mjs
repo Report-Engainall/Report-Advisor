@@ -8,16 +8,19 @@ if (start < 0 || end < 0) throw new Error('fetchImportRecords boundary not found
 const fn = source.slice(start, end);
 for (const token of [
   "{ count: 'exact' }",
-  '.range(0, MAX_IMPORT_RECORD_ROWS)',
-  'REPORT_QUERY_LIMIT_EXCEEDED: imports require explicit pagination',
-  'const observedTotal = count ?? rows.length',
-  'if (observedTotal > MAX_IMPORT_RECORD_ROWS) throw new Error',
-]) if (!fn.includes(token)) throw new Error(`import query bound contract missing: ${token}`);
+  'const pageSize = MAX_IMPORT_RECORD_ROWS',
+  'const from = page * pageSize',
+  '.range(from, to)',
+  'if (rows.length < pageSize || allRows.length >= total) break',
+]) if (!fn.includes(token)) throw new Error(`import pagination contract missing: ${token}`);
+if (fn.includes('REPORT_QUERY_LIMIT_EXCEEDED: imports require explicit pagination')) throw new Error('import history still rejects datasets above the page bound');
+if (fn.includes('if (observedTotal > MAX_IMPORT_RECORD_ROWS) throw new Error')) throw new Error('import history still rejects datasets above the page bound');
 if (fn.includes('if (count == null) throw new Error')) throw new Error('import query bound contract still rejects missing count');
 if (!/select\([^)]*result_summary/.test(fn)) throw new Error('import history projection missing');
-const importRead = fn.match(/\.from\('import_jobs'\)[^;]+;/)?.[0] ?? '';
-if (importRead && !/\.range\s*\(\s*0\s*,\s*MAX_IMPORT_RECORD_ROWS\s*\)/.test(importRead)) throw new Error('import history query still has an unbounded tenant read');
-console.log('Import query bounds regression: PASS');
+const importRead = fn.match(/\.from\('import_jobs'\)[\s\S]*?\.range\(from, to\)/)?.[0] ?? '';
+if (!importRead) throw new Error('import history query missing bounded paginated range');
+if (!importRead.includes(".eq('company_id', companyId)")) throw new Error('import history query missing tenant filter');
+console.log('Import query pagination regression: PASS');
 
 const compat = readFileSync('src/lib/queries-compat.ts', 'utf8');
 const compatStart = compat.indexOf('export async function fetchImportRecords');
