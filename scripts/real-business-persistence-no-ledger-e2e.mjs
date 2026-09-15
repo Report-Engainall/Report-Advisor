@@ -23,7 +23,10 @@ const replacement = [
 if (!original.includes(needle)) throw new Error('PERSISTENCE_E2E_PATCH_ANCHOR_MISSING');
 const patched = original.replace(needle, replacement);
 const terminalNeedle = "assert.equal(job.last_error && typeof job.last_error, 'object', `${entity} completed job must retain JSON error contract`);\n  assert.deepEqual(job.last_error, {}, `${entity} completed job must retain the empty JSON error object contract`);";
-const terminalReplacement = "assert.equal(job.last_error, null, entity + ' completed job must retain the canonical null error contract');";
+const terminalReplacement = [
+  "assert.equal(job.last_error && typeof job.last_error, 'object', entity + ' completed job must retain JSON error contract');",
+  "assert.deepEqual(job.last_error, {}, entity + ' completed job must retain the empty JSON error object contract');",
+].join('\n');
 if (!patched.includes(terminalNeedle)) throw new Error('PERSISTENCE_E2E_TERMINAL_ERROR_CONTRACT_ANCHOR_MISSING');
 const hardened = patched.replace(terminalNeedle, terminalReplacement);
 const tempPath = new URL('./.real-business-persistence-readiness-fixed.mjs', import.meta.url);
