@@ -112,15 +112,15 @@ The fix normalizes the SHA-256 identity, resolves the current tenant, checks `ca
 
 PR: `#469`.
 
-### Fresh successor runtime on `5b4bc8ed...`
+### Successor runtime and independent compilation blocker
 
-Fresh GitHub workflows were triggered for the new exact SHA. Successful independent results include security/contract/UI/golden evidence workflows; this does **not** constitute candidate certification.
+Fresh workflows on `5b4bc8ed...` showed the focused `import-finish-lifecycle` contract itself **PASS 4/4**, but `npm run typecheck` failed at `src/components/AuthGate.tsx(65,81)` with `TS2554 Expected 1 arguments, but got 2`. This is an independent pre-release compilation blocker and not a duplicate-idempotency result.
 
-`import-finish-lifecycle-security` run `34957041156`: **FAIL** at TypeScript compilation after its focused lifecycle contract itself passed `4/4` tests. Error: `AuthGate.tsx(65,81): TS2554 Expected 1 arguments, but got 2`. This is an independent compilation regression; it is not a duplicate-idempotency result.
+An intermediate corrective commit `5dfeacfde7e1162a31696cd944249aff691c54cd` was used to remove the unsupported second `onAuthStateChange` argument, but that commit accidentally reduced the existing `AuthGate` UI to a simplified rendering. It is therefore not treated as a candidate fix or certification SHA.
 
-`Execution Enforcement Contract` run `34957041117`: **FAIL**; `data-quality-runtime` run `34957041198`: **FAIL**; `Final Certification Gate` run `34957041167`: **FAIL**. These failures remain open and block certification on this successor.
+The UI was immediately restored to the exact pre-change structure from `5b4bc8ed...`, retaining only the supported auth bootstrap call, producing successor SHA `b836c1070bb83dce96411714a0cf7eb0c8c89a0d`. No PASS from the intermediate SHA is promoted. Fresh runtime for `b836c107...` is required.
 
-The successful lifecycle contract and other workflow passes are retained as exact-SHA evidence only and are not transferred to a later SHA.
+`Execution Enforcement Contract` run `34957041117`: **FAIL**; `data-quality-runtime` run `34957041198`: **FAIL**; `Final Certification Gate` run `34957041167`: **FAIL** on the predecessor and must be re-evaluated only on the current exact candidate.
 
 ## Next Execution Rule
 
