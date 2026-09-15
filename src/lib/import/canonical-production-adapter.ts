@@ -67,6 +67,23 @@ export async function runCanonicalProductionImport(input: CanonicalProductionImp
   const sourceHash = normalizeSourceHash(input.sourceHash);
   input.rows.forEach((row) => assertCanonicalBoundary(row, companyId));
 
+  const { data: company, error: companyError } = await supabase
+    .from('companies')
+    .select('currency')
+    .eq('id', companyId)
+    .single();
+  if (companyError) throw companyError;
+  const companyCurrency = String(company?.currency ?? '').trim().toUpperCase();
+  if (!companyCurrency) throw new Error('COMPANY_CURRENCY_REQUIRED');
+  if (input.entityType === 'sales_invoices') {
+    for (const row of input.rows) {
+      const rowCurrency = String(row.data.currency ?? '').trim().toUpperCase();
+      if (rowCurrency && rowCurrency !== companyCurrency) {
+        throw new Error(`IMPORT_CURRENCY_MISMATCH:${rowCurrency}:${companyCurrency}`);
+      }
+    }
+  }
+
   const { data: userData, error: userError } = await supabase.auth.getUser();
   if (userError || !userData.user) throw new Error('AUTHENTICATED_USER_REQUIRED');
 
@@ -79,8 +96,6 @@ export async function runCanonicalProductionImport(input: CanonicalProductionImp
     idempotencyKey: `canonical-import:${input.entityType}:${sourceHash}`,
   };
 
-  // Idempotency is content-based. The uploaded filename remains provenance metadata,
-  // while the durable execution source identity must remain stable for identical content.
   const durableSourceIdentity = request.idempotencyKey;
   const { data: enqueueData, error: enqueueError } = await supabase.rpc('enqueue_report_execution_job', {
     p_company_id: companyId,
@@ -133,7 +148,6 @@ export async function runCanonicalProductionImport(input: CanonicalProductionImp
           });
           if (error) {
             // Progress is telemetry only after the canonical transaction succeeds.
-            // Terminal completion below is authoritative and rehydrates counters atomically.
           }
         }
       },
