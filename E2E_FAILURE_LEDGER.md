@@ -110,6 +110,18 @@ Minimal correction committed as `c7085c5d9d842eaff69e5563736d862f07310d99`:
 
 This is **FIX only**. The current branch must receive fresh CI/browser/scenario verification on the successor that includes the ledger update. No PASS is transferred from `35c262...`, `1f5e995f...`, `954713...`, or `a565706...`.
 
+### Exact-HEAD contract correction on `79e03c10ebdfca69aafab579ee8d1e94d8650521`
+
+Import Query Bounds workflow `34923275499` failed on the existing regression script, before exercising runtime behavior. The failure was:
+
+`import query bound contract missing: .range(0, MAX_IMPORT_RECORD_ROWS - 1)`
+
+Root cause: the regression script was stale relative to the already-reviewed bounded `MAX + 1` probe implementation on `5eb8110...`. The implementation intentionally uses `.range(0, MAX_IMPORT_RECORD_ROWS)`, retains `{ count: 'exact' }`, derives `observedTotal = count ?? rows.length`, and rejects only when the observed total exceeds the maximum. The script also still required `if (count == null) throw new Error`, which contradicts the intended null-count-tolerant runtime contract.
+
+Minimal fix committed as `79e03c10ebdfca69aafab579ee8d1e94d8650521` on `candidate/950e-scenario-hardening`: align the regression contract with the actual bounded overflow-probe semantics; assert `{ count: 'exact' }`, bounded `.range(0, MAX_IMPORT_RECORD_ROWS)`, observed-total overflow detection, and explicit absence of the old null-count failure assertion. Compatibility query checks remain unchanged.
+
+This is **FIX only**. Fresh Import Query Bounds verification and all affected runtime verification are required on `79e03c...`; no PASS is transferred from `5eb8110...` or any earlier SHA.
+
 ## Discovery Notes
 - Existing `scripts/run-decision-runtime-e2e.mjs` is API/RPC-level authenticated runtime testing, not browser E2E.
 - Browser harness is intentionally separate and uses a real Chromium browser against the exact-head built application.
