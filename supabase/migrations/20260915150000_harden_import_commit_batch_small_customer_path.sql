@@ -83,7 +83,7 @@ BEGIN
         email=CASE WHEN p_null_policy='preserve' AND t.email IS NULL THEN c.email ELSE coalesce(t.email,c.email) END,
         segment=CASE WHEN p_null_policy='preserve' AND t.segment IS NULL THEN c.segment ELSE coalesce(t.segment,c.segment) END,
         credit_limit=CASE WHEN p_null_policy='preserve' AND t.credit_limit IS NULL THEN c.credit_limit ELSE coalesce(t.credit_limit,c.credit_limit) END,
-        payment_terms_days=CASE WHEN p_null_policy='preserve' AND t.payment_terms_days IS NULL THEN t.payment_terms_days ELSE coalesce(t.payment_terms_days,c.payment_terms_days) END
+        payment_terms_days=CASE WHEN p_null_policy='preserve' AND t.payment_terms_days IS NULL THEN c.payment_terms_days ELSE coalesce(t.payment_terms_days,c.payment_terms_days) END
     FROM tmp_import_customers t
     WHERE t.norm_code IS NOT NULL
       AND c.company_id=v_company_id
