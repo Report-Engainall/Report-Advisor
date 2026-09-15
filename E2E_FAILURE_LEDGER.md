@@ -95,6 +95,21 @@ Minimal fix: change the upper bound to `MAX_IMPORT_RECORD_ROWS - 1`. The exact-c
 
 This fix is **FIX only**. Fresh verification is mandatory on `a56570613e0769a5775c9c5421aab81e2872c2f7`; no PASS is transferred from `954713...` or any earlier SHA. This ledger update is part of the same follow-up chain and `MASTER_EXECUTION_INDEX.md` remains untouched.
 
+### Follow-up correction — exact-count-aware bounded probe
+
+Fresh code review of the `a56570613e0769a5775c9c5421aab81e2872c2f7` successor found that the previous `MAX_IMPORT_RECORD_ROWS - 1` change removed the ability to detect an over-limit result from the returned row count. That would silently truncate a history larger than the UI contract rather than fail closed.
+
+Minimal correction committed as `c7085c5d9d842eaff69e5563736d862f07310d99`:
+- retain `count: 'exact'` required by the existing contract;
+- use `.range(0, MAX_IMPORT_RECORD_ROWS)` as a bounded `MAX + 1` probe;
+- derive the observed total from exact `count` when available, otherwise from returned rows;
+- reject only when the observed total actually exceeds `MAX_IMPORT_RECORD_ROWS`;
+- retain the bounded range on every path;
+- do not convert a missing/null count into a false failure;
+- do not silently fall back to an unbounded query.
+
+This is **FIX only**. The current branch must receive fresh CI/browser/scenario verification on the successor that includes the ledger update. No PASS is transferred from `35c262...`, `1f5e995f...`, `954713...`, or `a565706...`.
+
 ## Discovery Notes
 - Existing `scripts/run-decision-runtime-e2e.mjs` is API/RPC-level authenticated runtime testing, not browser E2E.
 - Browser harness is intentionally separate and uses a real Chromium browser against the exact-head built application.
