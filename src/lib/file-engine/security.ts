@@ -1,57 +1,35 @@
+import { MAX_FILE_SIZE, ALLOWED_MIME_TYPES, MAX_ARCHIVE_ENTRIES, MAX_ARCHIVE_UNCOMPRESSED_BYTES, MAX_ARCHIVE_COMPRESSION_RATIO, MAX_IMPORT_ROW_COUNT, MAX_IMPORT_COLUMNS, MAX_TEXT_BYTES, validateFileType } from './constants';
 import type { SupabaseClient } from '@supabase/supabase-js';
-import type { SecurityScanResult } from './types.ts';
-import { MAX_FILE_SIZE } from './types.ts';
-import { computeSHA256 } from './file-identity-core.ts';
-export { computeSHA256 } from './file-identity-core.ts';
 
-interface FileRecord { id: string; company_id: string; file_name: string; file_hash: string; created_at: string; status: string; }
-
-function isUnsafeArchivePath(name: string): boolean {
-  const normalized = name.replaceAll('\\', '/');
-  return normalized.includes('\0')
-    || normalized.startsWith('/')
-    || /^[A-Za-z]:\//.test(normalized)
-    || normalized.split('/').some(segment => segment === '..');
+export interface FileRecord {
+  id: string;
+  company_id: string;
+  file_name: string;
+  file_hash: string;
+  created_at: string;
+  status: string;
 }
 
-function hasZipEntryTraversal(buffer: ArrayBuffer): boolean {
-  const bytes = new Uint8Array(buffer);
-  const view = new DataView(buffer);
-  const minEocd = 22;
-  const maxComment = 0xffff;
-  const start = Math.max(0, bytes.length - minEocd - maxComment);
-  let eocd = -1;
-  for (let i = bytes.length - minEocd; i >= start; i -= 1) {
-    if (i >= 0 && view.getUint32(i, true) === 0x06054b50) { eocd = i; break; }
-  }
-  if (eocd < 0) return false;
-
-  const entryCount = view.getUint16(eocd + 10, true);
-  const centralDirectorySize = view.getUint32(eocd + 12, true);
-  const centralDirectoryOffset = view.getUint32(eocd + 16, true);
-  if (centralDirectoryOffset + centralDirectorySize > bytes.length) return true;
-
-  let offset = centralDirectoryOffset;
-  for (let i = 0; i < entryCount; i += 1) {
-    if (offset + 46 > bytes.length || view.getUint32(offset, true) !== 0x02014b50) return true;
-    const nameLength = view.getUint16(offset + 28, true);
-    const extraLength = view.getUint16(offset + 30, true);
-    const commentLength = view.getUint16(offset + 32, true);
-    const end = offset + 46 + nameLength + extraLength + commentLength;
-    if (end > bytes.length) return true;
-    const nameBytes = bytes.slice(offset + 46, offset + 46 + nameLength);
-    const name = new TextDecoder().decode(nameBytes);
-    if (isUnsafeArchivePath(name)) return true;
-    offset = end;
-  }
-  return false;
+function isUnsafeArchivePath(path: string): boolean {
+  const normalized = path.replaceAll('\\', '/').trim();
+  return normalized.startsWith('/') || normalized.includes('../') || normalized.includes('/..') || /^[a-zA-Z]:\//.test(normalized);
 }
 
-export function securityScan(file: File, buffer: ArrayBuffer): SecurityScanResult {
-  const issues: string[] = []; let isArchiveBomb = false; let isZipTraversal = false;
-  if (file.size > MAX_FILE_SIZE) issues.push(`حجم الملف (${(file.size / 1024 / 1024).toFixed(1)} ميجابايت) يتجاوز الحد الأقصى المسموح (${MAX_FILE_SIZE / 1024 / 1024} ميجابايت)`);
-  const bytes = new Uint8Array(buffer); const isZip = bytes[0] === 0x50 && bytes[1] === 0x4B;
-  if (isZip) {
+function hasZipEntryTraversal(buffer: Buffer): boolean {
+  const text = buffer.toString('latin1');
+  const names = [...text.matchAll(/(?:\u0000|\n)([^\u0000\n]{1,512})/g)].map(match => match[1]);
+  return names.some(name => isUnsafeArchivePath(name));
+}
+
+export function validateFileSecurity(file: { name: string; size: number; type?: string }, buffer: Buffer = Buffer.alloc(0)) {
+  const issues: string[] = [];
+  let isArchiveBomb = false;
+  let isZipTraversal = false;
+  if (file.size > MAX_FILE_SIZE) issues.push(`الملف يتجاوز الحد الأقصى للحجم (${Math.round(MAX_FILE_SIZE / 1024 / 1024)} ميجابايت)`);
+  if (file.type && !ALLOWED_MIME_TYPES.has(file.type)) issues.push(`نوع الملف غير مسموح: ${file.type}`);
+  if (file.name.length > 255) issues.push('اسم الملف طويل جداً');
+  const lower = file.name.toLowerCase();
+  if (lower.endsWith('.zip') || lower.endsWith('.jar') || lower.endsWith('.apk')) {
     if (file.size < 100 && file.name.match(/\.(zip|jar|apk)$/i)) { isArchiveBomb = true; issues.push('تحذير: قد يكون الملف قنبلة مضغوطة (حجم صغير جداً لملف مضغوط)'); }
     const decompressedEstimate = file.size * 100; if (decompressedEstimate > 500 * 1024 * 1024) issues.push(`تحذير: قد يستهلك الملف بعد فك الضغط مساحة كبيرة (~${(decompressedEstimate / 1024 / 1024).toFixed(0)} ميجابايت)`);
     if (isUnsafeArchivePath(file.name) || hasZipEntryTraversal(buffer)) { isZipTraversal = true; issues.push('تحذير: اسم الملف أو أحد إدخالات الأرشيف يحتوي على مسار غير آمن (path traversal)'); }
