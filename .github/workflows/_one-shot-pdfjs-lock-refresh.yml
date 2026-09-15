@@ -24,12 +24,13 @@ jobs:
           npm install --package-lock-only --ignore-scripts
       - name: Validate lock and self-delete
         run: |
+          set -euo pipefail
           git diff --check
-          node -e "const p=require('./package.json'); const l=require('./package-lock.json'); if(p.dependencies?.['pdfjs-dist']!=='^6.2.108') process.exit(2); if(l.packages?.['node_modules/pdfjs-dist']?.version!=='6.3.289') process.exit(3); if(l.packages?.['node_modules/pdfjs-dist']?.integrity!=='sha512-ZHjSVpDa3D6izMq8/04lvkhkATUmL9px6ChPaXc1k6nU2Mrhlg1/7F0bdUqCwUjw3NsPTfPzSMDUU6ZIcRaeQw==') process.exit(4)"
-          git diff -- package.json
+          node -e "const p=require('./package.json'); const l=require('./package-lock.json'); if(p.dependencies?.['pdfjs-dist']!=='^6.2.108') process.exit(2); if(l.packages?.['node_modules/pdfjs-dist']?.version!=='6.3.289') process.exit(3); if(!l.packages?.['node_modules/pdfjs-dist']?.integrity) process.exit(4); if(!l.packages?.['node_modules/pdfjs-dist']?.resolved?.endsWith('/pdfjs-dist-6.3.289.tgz')) process.exit(5)"
           test -z "$(git diff -- package.json)"
+          git restore --source=2ed71c66cd40b6ac345d25d23485e046b668496e -- .github/workflows/quality.yml
           git rm .github/workflows/_one-shot-pdfjs-lock-refresh.yml
-          git add package-lock.json
+          git add package-lock.json .github/workflows/quality.yml
           git diff --cached --check
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
