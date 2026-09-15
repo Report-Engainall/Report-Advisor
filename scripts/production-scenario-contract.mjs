@@ -1,0 +1,125 @@
+import assert from 'node:assert/strict';
+
+export const ZERO_MUTATION_TABLES = ['import_jobs','sales_invoices','inventory_movements','kpi_evidence_snapshots'];
+
+export function compactAggregate(rows, { idFields = [], totalFields = [] } = {}) {
+  const ids = rows.map(row => Object.fromEntries(idFields.map(key => [key, row?.[key]])));
+  const totals = Object.fromEntries(totalFields.map(key => [key, rows.reduce((sum, row) => sum + (Number(row?.[key]) || 0), 0)]));
+  return { count: rows.length, ids, totals };
+}
+
+export function snapshotBusinessState({ importJobs = [], invoices = [], movements = [], evidence = [], dashboard = null }) {
+  return {
+    import_jobs: compactAggregate(importJobs, { idFields: ['id','status','source_hash'] }),
+    invoices: compactAggregate(invoices, { idFields: ['id','invoice_number','company_id','currency'], totalFields: ['total','amount'] }),
+    movements: compactAggregate(movements, { idFields: ['id','product_id','movement_type','company_id'], totalFields: ['quantity','total'] }),
+    evidence: compactAggregate(evidence, { idFields: ['id','metric_key','company_id','as_of'] }),
+    dashboard: dashboard ? compactDashboard(dashboard) : null,
+  };
+}
+
+export function compactDashboard(snapshot) {
+  const root = Array.isArray(snapshot) ? snapshot[0] : snapshot;
+  assert.ok(root && typeof root === 'object', 'DASHBOARD_READBACK_MISSING');
+  return {
+    tenant: root.company_id ?? root.tenant_id ?? root.companyId ?? null,
+    asOf: root.as_of ?? root.asOf ?? null,
+    freshness: root.freshness ?? null,
+    currency: root.currency ?? root.base_currency ?? null,
+    sales: Number(root.sales ?? root.total_sales ?? root.revenue ?? 0),
+    invoiceCount: Number(root.invoice_count ?? root.invoiceCount ?? 0),
+    movementCount: Number(root.movement_count ?? root.movementCount ?? 0),
+  };
+}
+
+export function assertZeroUnintendedMutation(before, after, allowed = {}) {
+  for (const table of ZERO_MUTATION_TABLES) {
+    const b = before?.[table]; const a = after?.[table];
+    const allow = allowed?.[table] ?? { ids: [], countDelta: 0, totalDelta: {} };
+    assert.ok(b && a, `BASELINE_AFTER_MISSING:${table}`);
+    const allowedIds = new Set(allow.ids || []);
+    const beforeIds = new Set((b.ids || []).map(x => x.id).filter(Boolean));
+    const afterIds = new Set((a.ids || []).map(x => x.id).filter(Boolean));
+    for (const id of afterIds) assert.ok(beforeIds.has(id) || allowedIds.has(id), `UNEXPECTED_${table}_MUTATION:${id}`);
+    assert.equal(a.count - b.count, allow.countDelta ?? 0, `UNEXPECTED_${table}_COUNT_DELTA`);
+    for (const [field, delta] of Object.entries(allow.totalDelta || {})) assert.equal((a.totals?.[field] ?? 0) - (b.totals?.[field] ?? 0), delta, `UNEXPECTED_${table}_${field}_DELTA`);
+  }
+}
+
+export function assertTenantPeriodCurrency({ dashboard, tenant, expectedCurrency, expectedPeriod }) {
+  assert.equal(dashboard.tenant, tenant, 'DASHBOARD_TENANT_MISMATCH');
+  if (expectedCurrency) assert.equal(dashboard.currency, expectedCurrency, 'DASHBOARD_CURRENCY_MISMATCH');
+  if (expectedPeriod) assert.ok(String(dashboard.asOf ?? '').startsWith(String(expectedPeriod)), 'DASHBOARD_PERIOD_MISMATCH');
+}
+
+export function assertRenderedJob(job, tenant) {
+  assert.equal(job.company_id, tenant, 'JOB_TENANT_MISMATCH');
+  assert.equal(job.status, 'completed', 'JOB_NOT_COMPLETED');
+  assert.equal(job.checkpoint?.stage, 'rendered', 'JOB_NOT_RENDERED');
+}
+
+export function assertEvidenceProvenance(job, { tenant, requireEvidence = true } = {}) {
+  if (!requireEvidence) return;
+  const evidence = job?.evidence;
+  assert.ok(evidence && typeof evidence === 'object', 'EVIDENCE_MISSING');
+  for (const key of ['source','formula','period','tenant','asOf','freshness']) assert.ok(evidence[key] != null && evidence[key] !== '', `EVIDENCE_${key.toUpperCase()}_MISSING`);
+  assert.equal(String(evidence.tenant), String(tenant), 'EVIDENCE_TENANT_MISMATCH');
+}
+
+export function assertNoFalseCommit({ status, checkpoint, canCommit }) {
+  if (canCommit === false) {
+    assert.notEqual(status, 'completed', 'FALSE_COMMIT_AFTER_NON_COMMIT_UI');
+    assert.notEqual(checkpoint?.stage, 'rendered', 'FALSE_RENDER_AFTER_NON_COMMIT_UI');
+  }
+}
+
+export function assertDuplicateIdempotency(first, second, { expectedNewRows = 0 } = {}) {
+  assert.ok(first && second, 'DUPLICATE_RUN_READBACK_MISSING');
+  assert.equal(second.newCanonicalRows ?? 0, expectedNewRows, 'DUPLICATE_CANONICAL_ROW_DELTA');
+  assert.equal(second.newInvoiceRows ?? 0, expectedNewRows, 'DUPLICATE_INVOICE_ROW_DELTA');
+  assert.ok(['reviewed','rejected','completed'].includes(second.status), 'DUPLICATE_NON_TERMINAL');
+}
+
+export function scenarioAssertionPlan(id) {
+  const common = ['tenant','terminal_state','negative_mutation'];
+  const plans = {
+    'excel-standard': [...common,'rows','totals','period','currency','dashboard'],
+    'excel-aliases': [...common,'alias_canonicalization','semantic_equivalence','no_duplicate'],
+    'excel-missing-columns': [...common,'rejected_or_reviewed','zero_business_mutation','zero_kpi_mutation'],
+    'csv-reordered': [...common,'column_name_mapping','no_positional_corruption','semantic_equivalence'],
+    'pdf-text': [...common,'extraction','normalization','validation','provenance','dashboard'],
+    'pdf-ocr-ar': [...common,'rtl','digit_normalization','decimal_normalization','confidence','dqs'],
+    'unknown-report': [...common,'no_guessing','no_canonical_commit','zero_kpi_mutation'],
+    'exchange-statement': [...common,'opening','movement','closing','reconciliation','not_sales_invoice'],
+    'multi-currency': [...common,'currency_detection','policy','no_silent_default','no_mixed_aggregation'],
+    'duplicate-transactions': [...common,'first_commit','second_idempotent','invoice_count','inventory','dashboard','import_jobs'],
+    'large-file': [...common,'supported_size','row_integrity','no_duplicate','atomicity','cleanup'],
+    'corrupt-data': [...common,'corruption_detected','no_commit','failure_classification','retry','no_duplicate_mutation'],
+  };
+  assert.ok(plans[id], `SCENARIO_ASSERTION_PLAN_MISSING:${id}`);
+  return plans[id];
+}
+
+export function buildCompactEvidence({ scenario, sha, runId, status, terminalState, before, after, assertions, evidenceRefs, artifactHash }) {
+  return {
+    scenario, sha, run_id: runId ?? null, status, terminal_state: terminalState ?? null,
+    before_counts: Object.fromEntries(Object.entries(before ?? {}).map(([k,v]) => [k, v?.count ?? null])),
+    after_counts: Object.fromEntries(Object.entries(after ?? {}).map(([k,v]) => [k, v?.count ?? null])),
+    business_assertions: assertions?.business ?? [], negative_assertions: assertions?.negative ?? [],
+    evidence_refs: evidenceRefs ?? [], artifact_hash: artifactHash ?? null,
+  };
+}
+
+export function validateCompactArtifact(artifact, exactHead, expectedCount = 12) {
+  assert.equal(artifact.exact_head, exactHead, 'ARTIFACT_SHA_MISMATCH');
+  assert.equal(artifact.scenario_count, expectedCount, 'ARTIFACT_SCENARIO_COUNT_MISMATCH');
+  assert.ok(Array.isArray(artifact.results), 'ARTIFACT_RESULTS_MISSING');
+  assert.equal(artifact.results.filter(r => r?.scenario_id).length, expectedCount, 'ARTIFACT_SCENARIO_ROWS_MISSING');
+  for (const r of artifact.results) {
+    assert.equal(r.exact_head, exactHead, `SCENARIO_SHA_MISMATCH:${r.scenario_id}`);
+    assert.ok(r.tenant, `SCENARIO_TENANT_MISSING:${r.scenario_id}`);
+    assert.ok(r.execution_start && r.execution_end, `SCENARIO_TIMING_MISSING:${r.scenario_id}`);
+    assert.ok(Array.isArray(r.assertions), `SCENARIO_ASSERTIONS_MISSING:${r.scenario_id}`);
+  }
+  return true;
+}
