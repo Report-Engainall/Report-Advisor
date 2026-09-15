@@ -62,58 +62,15 @@ const pdf = text => {
 };
 
 const suffix = `${Date.now()}-${process.pid}`;
-const customer = n => ({
-  name: `Scenario Customer ${suffix}-${n}`,
-  code: `SC-${suffix}-${n}`,
-  phone: '777000000',
-  email: `scenario-${suffix}-${n}@example.invalid`,
-  segment: 'retail',
-  credit_limit: 0,
-  payment_terms_days: 0,
-});
-const product = n => ({
-  sku: `SC-SKU-${suffix}-${n}`,
-  name: `Scenario Product ${suffix}-${n}`,
-  unit: 'piece',
-  cost_price: 10,
-  selling_price: 15,
-  min_stock: 0,
-  reorder_point: 0,
-  is_active: true,
-});
-const invoice = (n, currency = 'SAR') => ({
-  invoice_number: `SC-INV-${suffix}-${n}`,
-  invoice_date: new Date().toISOString().slice(0, 10),
-  customer_name: `Scenario Customer ${suffix}-${n}`,
-  subtotal: 15,
-  tax_amount: 0,
-  total: 15,
-  paid_amount: 0,
-  status: 'posted',
-  currency,
-});
+const customer = n => ({ name: `Scenario Customer ${suffix}-${n}`, code: `SC-${suffix}-${n}`, phone: '777000000', email: `scenario-${suffix}-${n}@example.invalid`, segment: 'retail', credit_limit: 0, payment_terms_days: 0 });
+const product = n => ({ sku: `SC-SKU-${suffix}-${n}`, name: `Scenario Product ${suffix}-${n}`, unit: 'piece', cost_price: 10, selling_price: 15, min_stock: 0, reorder_point: 0, is_active: true });
+const invoice = (n, currency = 'SAR') => ({ invoice_number: `SC-INV-${suffix}-${n}`, invoice_date: new Date().toISOString().slice(0, 10), customer_name: `Scenario Customer ${suffix}-${n}`, subtotal: 15, tax_amount: 0, total: 15, paid_amount: 0, status: 'posted', currency });
 
 const inputs = new Map([
   ['excel-standard', { entity: 'products', name: `excel-standard-${suffix}.xlsx`, bytes: xlsx([product(1)]) }],
-  ['excel-aliases', { entity: 'customers', name: `excel-aliases-${suffix}.xlsx`, bytes: xlsx([{
-    'Customer Name': customer(2).name,
-    Code: customer(2).code,
-    Phone: customer(2).phone,
-    Email: customer(2).email,
-    Segment: customer(2).segment,
-    'Credit Limit': customer(2).credit_limit,
-    'Payment Terms Days': customer(2).payment_terms_days,
-  }]) }],
+  ['excel-aliases', { entity: 'customers', name: `excel-aliases-${suffix}.xlsx`, bytes: xlsx([{ 'Customer Name': customer(2).name, Code: customer(2).code, Phone: customer(2).phone, Email: customer(2).email, Segment: customer(2).segment, 'Credit Limit': customer(2).credit_limit, 'Payment Terms Days': customer(2).payment_terms_days }]) }],
   ['excel-missing-columns', { entity: 'products', name: `excel-missing-columns-${suffix}.xlsx`, bytes: xlsx([{ sku: `SC-MISSING-${suffix}`, name: 'Missing price', unit: 'piece' }]) }],
-  ['csv-reordered', { entity: 'customers', name: `csv-reordered-${suffix}.csv`, bytes: csv([{
-    payment_terms_days: customer(4).payment_terms_days,
-    email: customer(4).email,
-    segment: customer(4).segment,
-    name: customer(4).name,
-    credit_limit: customer(4).credit_limit,
-    phone: customer(4).phone,
-    code: customer(4).code,
-  }]) }],
+  ['csv-reordered', { entity: 'customers', name: `csv-reordered-${suffix}.csv`, bytes: csv([{ payment_terms_days: customer(4).payment_terms_days, email: customer(4).email, segment: customer(4).segment, name: customer(4).name, credit_limit: customer(4).credit_limit, phone: customer(4).phone, code: customer(4).code }]) }],
   ['pdf-text', { entity: 'sales_invoices', name: `pdf-text-${suffix}.pdf`, bytes: pdf(JSON.stringify(invoice(5))) }],
   ['pdf-ocr-ar', { entity: 'sales_invoices', name: `pdf-ocr-ar-${suffix}.pdf`, bytes: pdf(`فاتورة مبيعات invoice_number SC-OCR-${suffix} invoice_date ${new Date().toISOString().slice(0, 10)} customer_name عميل اختبار subtotal 15 tax_amount 0 total 15 paid_amount 0 status posted currency SAR اختبار عربي`) }],
   ['unknown-report', { entity: 'sales_invoices', name: `unknown-report-${suffix}.pdf`, bytes: pdf('Quarterly narrative memorandum without a canonical financial schema') }],
@@ -134,11 +91,7 @@ const results = [];
 
 async function readToken() {
   for (let i = 0; i < 20; i += 1) {
-    const token = await page.evaluate(() => {
-      const raw = Object.entries(localStorage).find(([key]) => key.endsWith('-auth-token'))?.[1];
-      if (!raw) return null;
-      try { return JSON.parse(raw)?.access_token || null; } catch { return null; }
-    });
+    const token = await page.evaluate(() => { const raw = Object.entries(localStorage).find(([key]) => key.endsWith('-auth-token'))?.[1]; if (!raw) return null; try { return JSON.parse(raw)?.access_token || null; } catch { return null; } });
     if (token) return token;
     await page.waitForTimeout(500);
   }
@@ -154,11 +107,7 @@ async function login() {
   await page.waitForLoadState('networkidle', { timeout: 30000 }).catch(() => {});
   await page.waitForTimeout(1500);
   accessToken = await readToken();
-  const response = await fetch(`${supabaseURL}/rest/v1/rpc/current_company_id`, {
-    method: 'POST',
-    headers: { apikey: anonKey, Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
-    body: '{}',
-  });
+  const response = await fetch(`${supabaseURL}/rest/v1/rpc/current_company_id`, { method: 'POST', headers: { apikey: anonKey, Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' }, body: '{}' });
   const body = await response.text();
   assert.equal(response.ok, true, `current_company_id HTTP ${response.status}: ${body}`);
   tenantId = body.replaceAll('"', '').trim();
@@ -176,11 +125,7 @@ async function rest(table, select, filters = {}) {
 }
 
 async function rpc(name, body = {}) {
-  const response = await fetch(`${supabaseURL}/rest/v1/rpc/${name}`, {
-    method: 'POST',
-    headers: { apikey: anonKey, Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-  });
+  const response = await fetch(`${supabaseURL}/rest/v1/rpc/${name}`, { method: 'POST', headers: { apikey: anonKey, Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
   const text = await response.text();
   assert.equal(response.ok, true, `${name} HTTP ${response.status}: ${text}`);
   return text ? JSON.parse(text) : null;
@@ -208,57 +153,22 @@ async function terminalJob(jobId) {
 }
 
 async function runOne(scenario, input) {
-  const result = {
-    scenario_id: scenario.id,
-    exact_head: exactHead,
-    tenant: tenantId,
-    input_fingerprint: crypto.createHash('sha256').update(input.bytes).digest('hex'),
-    job_id: null,
-    execution_start: new Date().toISOString(),
-    execution_end: null,
-    actual_status: 'NOT_PROVEN',
-    terminal_state: null,
-    expected_status: scenario.expect,
-    assertions: scenarioAssertionPlan(scenario.id.split(':')[0]),
-    business_assertions: [],
-    negative_assertions: [],
-    before_state: null,
-    after_state: null,
-    dashboard: null,
-    persistence_readback: null,
-    evidence_references: [],
-    failure: null,
-  };
+  const result = { scenario_id: scenario.id, exact_head: exactHead, tenant: tenantId, input_fingerprint: crypto.createHash('sha256').update(input.bytes).digest('hex'), job_id: null, execution_start: new Date().toISOString(), execution_end: null, actual_status: 'NOT_PROVEN', terminal_state: null, expected_status: scenario.expect, assertions: scenarioAssertionPlan(scenario.id.split(':')[0]), business_assertions: [], negative_assertions: [], before_state: null, after_state: null, dashboard: null, persistence_readback: null, evidence_references: [], failure: null };
   try {
     result.before_state = await snapshot();
     await page.goto(`${baseURL}/import`, { waitUntil: 'networkidle', timeout: 30000 });
     const label = input.entity === 'customers' ? 'العملاء' : input.entity === 'products' ? 'المنتجات' : 'فواتير المبيعات';
     await page.getByRole('button', { name: new RegExp(label) }).click();
     await page.waitForTimeout(350);
-    await page.locator('input[type="file"]').first().setInputFiles({
-      name: input.name,
-      mimeType: input.name.endsWith('.pdf') ? 'application/pdf' : input.name.endsWith('.xlsx') ? 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' : 'text/csv',
-      buffer: input.bytes,
-    });
+    await page.locator('input[type="file"]').first().setInputFiles({ name: input.name, mimeType: input.name.endsWith('.pdf') ? 'application/pdf' : input.name.endsWith('.xlsx') ? 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' : 'text/csv', buffer: input.bytes });
     const previewHeading = page.getByText('مراجعة قبل الكتابة', { exact: true });
     const importError = page.locator('.bg-danger-50').first();
-    await Promise.race([
-      previewHeading.waitFor({ state: 'visible', timeout: 30000 }),
-      importError.waitFor({ state: 'visible', timeout: 30000 }),
-    ]).catch(() => {});
+    await Promise.race([previewHeading.waitFor({ state: 'visible', timeout: 30000 }), importError.waitFor({ state: 'visible', timeout: 30000 })]).catch(() => {});
     const body = await page.locator('body').innerText();
     const commit = page.getByRole('button', { name: /اعتماد وكتابة/ });
     const canCommit = await commit.count() > 0 && await commit.isVisible().catch(() => false) && await commit.isEnabled().catch(() => false);
     const errorText = await page.locator('.bg-danger-50').allTextContents().catch(() => []);
-    const previewVisible = await previewHeading.isVisible().catch(() => false);
-    result.observed = {
-      can_commit: canCommit,
-      preview_visible: previewVisible,
-      quality_text: (body.match(/جودة:\s*\d+%/) || [])[0] || null,
-      ready_message: body.includes('الاعتماد متوقف حتى تتوفر بيانات صالحة'),
-      errors: errorText.slice(-3),
-      page_text_excerpt: body.slice(-1800),
-    };
+    result.observed = { can_commit: canCommit, preview_visible: await previewHeading.isVisible().catch(() => false), quality_text: (body.match(/جودة:\s*\d+%/) || [])[0] || null, ready_message: body.includes('الاعتماد متوقف حتى تتوفر بيانات صالحة'), errors: errorText.slice(-3), page_text_excerpt: body.slice(-1800) };
 
     if (nonCommitExpectations.has(scenario.expect) || scenario.id === 'duplicate-transactions:second-run') {
       if (canCommit) throw new Error(`NEGATIVE_POLICY_COMMIT_ENABLED:${scenario.id}`);
@@ -271,12 +181,39 @@ async function runOne(scenario, input) {
       return result;
     }
 
-    if (!canCommit) throw new Error(`POSITIVE_POLICY_COMMIT_UNAVAILABLE:${scenario.id}`);
+    if (scenario.expect === 'currency-isolation') {
+      if (!canCommit) {
+        result.actual_status = 'rejected_or_reviewed';
+        result.terminal_state = 'rejected_or_reviewed';
+        result.after_state = await snapshot();
+        assertNoFalseCommit({ status: null, checkpoint: null, canCommit: false });
+        assertZeroUnintendedMutation(result.before_state, result.after_state);
+        result.negative_assertions.push('currency mismatch rejected before commit', 'zero unintended mutation', 'no silent currency default');
+        return result;
+      }
+      const currencyEnqueue = page.waitForResponse(response => response.url().endsWith('/rest/v1/rpc/enqueue_report_execution_job') && response.request().method() === 'POST', { timeout: 30000 });
+      await commit.click();
+      const currencyEnqueueResponse = await currencyEnqueue;
+      const currencyEnqueueBody = await currencyEnqueueResponse.text();
+      assert.equal(currencyEnqueueResponse.ok(), true, `enqueue HTTP ${currencyEnqueueResponse.status()}: ${currencyEnqueueBody}`);
+      const currencyEnqueuePayload = JSON.parse(currencyEnqueueBody);
+      result.job_id = String(currencyEnqueuePayload?.id ?? currencyEnqueuePayload?.[0]?.id ?? '');
+      assert.match(result.job_id, /^[0-9a-f-]{36}$/i);
+      const currencyJob = await terminalJob(result.job_id);
+      assert.equal(currencyJob.status, 'failed', 'CURRENCY_MISMATCH_MUST_FAIL_CLOSED');
+      assert.notEqual(currencyJob.checkpoint?.stage, 'committed', 'CURRENCY_MISMATCH_MUST_NOT_COMMIT');
+      assert.notEqual(currencyJob.checkpoint?.stage, 'rendered', 'CURRENCY_MISMATCH_MUST_NOT_RENDER');
+      result.persistence_readback = { status: currencyJob.status, checkpoint: currencyJob.checkpoint, last_error: currencyJob.last_error };
+      result.actual_status = 'rejected_or_reviewed';
+      result.terminal_state = 'failed';
+      result.after_state = await snapshot();
+      assertZeroUnintendedMutation(result.before_state, result.after_state);
+      result.negative_assertions.push('currency mismatch durable failure', 'zero business mutation', 'no silent currency default', 'no rendered job');
+      return result;
+    }
 
-    const enqueue = page.waitForResponse(
-      response => response.url().endsWith('/rest/v1/rpc/enqueue_report_execution_job') && response.request().method() === 'POST',
-      { timeout: 30000 },
-    );
+    if (!canCommit) throw new Error(`POSITIVE_POLICY_COMMIT_UNAVAILABLE:${scenario.id}`);
+    const enqueue = page.waitForResponse(response => response.url().endsWith('/rest/v1/rpc/enqueue_report_execution_job') && response.request().method() === 'POST', { timeout: 30000 });
     await commit.click();
     const enqueueResponse = await enqueue;
     const enqueueBody = await enqueueResponse.text();
@@ -335,36 +272,9 @@ try {
 
 const primary = results.filter(item => !item.scenario_id.endsWith(':second-run'));
 assert.equal(primary.length, 12, `SCENARIO_COUNT_MISMATCH:${primary.length}/12`);
-const compact = primary.map(item => buildCompactEvidence({
-  scenario: item.scenario_id,
-  sha: exactHead,
-  runId: item.job_id,
-  status: item.actual_status,
-  terminalState: item.terminal_state,
-  before: item.before_state,
-  after: item.after_state,
-  assertions: { business: item.business_assertions, negative: item.negative_assertions },
-  evidenceRefs: item.evidence_references,
-}));
-const artifact = {
-  exact_head: exactHead,
-  generated_at: new Date().toISOString(),
-  authenticated_runtime: true,
-  tenant: tenantId,
-  scenario_count: 12,
-  results: primary,
-  compact_evidence: compact,
-  duplicate_followup: results.find(item => item.scenario_id === 'duplicate-transactions:second-run') || null,
-};
+const compact = primary.map(item => buildCompactEvidence({ scenario: item.scenario_id, sha: exactHead, runId: item.job_id, status: item.actual_status, terminalState: item.terminal_state, before: item.before_state, after: item.after_state, assertions: { business: item.business_assertions, negative: item.negative_assertions }, evidenceRefs: item.evidence_references }));
+const artifact = { exact_head: exactHead, generated_at: new Date().toISOString(), authenticated_runtime: true, tenant: tenantId, scenario_count: 12, results: primary, compact_evidence: compact, duplicate_followup: results.find(item => item.scenario_id === 'duplicate-transactions:second-run') || null };
 artifact.artifact_hash = crypto.createHash('sha256').update(JSON.stringify(artifact)).digest('hex');
 await fs.writeFile(out, JSON.stringify(artifact, null, 2));
-console.log(JSON.stringify({
-  exact_head: exactHead,
-  executed: primary.length,
-  rendered: primary.filter(item => item.actual_status === 'committed_and_rendered').length,
-  rejected_or_reviewed: primary.filter(item => ['reviewed', 'rejected_or_reviewed'].includes(item.actual_status)).length,
-  failed: primary.filter(item => item.actual_status === 'failed').length,
-  failures: primary.filter(item => item.actual_status === 'failed').map(item => ({ scenario: item.scenario_id, failure: item.failure })),
-  artifact_hash: artifact.artifact_hash,
-}, null, 2));
+console.log(JSON.stringify({ exact_head: exactHead, executed: primary.length, rendered: primary.filter(item => item.actual_status === 'committed_and_rendered').length, rejected_or_reviewed: primary.filter(item => ['reviewed', 'rejected_or_reviewed'].includes(item.actual_status)).length, failed: primary.filter(item => item.actual_status === 'failed').length, failures: primary.filter(item => item.actual_status === 'failed').map(item => ({ scenario: item.scenario_id, failure: item.failure })), artifact_hash: artifact.artifact_hash }, null, 2));
 validateCompactArtifact(artifact, exactHead, 12);
