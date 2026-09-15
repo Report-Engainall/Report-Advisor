@@ -2,7 +2,7 @@ import { supabase, resolveCurrentCompanyId } from '@/lib/supabase';
 import { assertCanonicalBoundary, type ReconciledCanonicalImportRow } from '@/lib/import/canonical-truth-boundary';
 
 export interface CanonicalImportRow { data: Record<string, unknown>; rowNumber: number }
-export interface CanonicalCommitResult { committed: number; ids: string[] }
+export interface CanonicalCommitResult { committed: number; ids: string[]; idempotentReplay: boolean }
 
 function text(value: unknown): string | null {
   if (value == null) return null;
@@ -81,7 +81,7 @@ export async function commitImportBatch(
   rows: ReconciledCanonicalImportRow[],
   sourceHash: string,
 ): Promise<CanonicalCommitResult> {
-  if (!rows.length) return { committed: 0, ids: [] };
+  if (!rows.length) return { committed: 0, ids: [], idempotentReplay: false };
   const companyId = await resolveCurrentCompanyId();
   if (!companyId) throw new Error('No authenticated tenant context is available for canonical import');
   const normalizedSourceHash = normalizeSourceHash(sourceHash);
@@ -100,11 +100,12 @@ export async function commitImportBatch(
   });
   if (error) throw error;
 
-  const result = data as { committed?: unknown; ids?: unknown } | null;
+  const result = data as { committed?: unknown; ids?: unknown; idempotent_replay?: unknown } | null;
   const committed = Number(result?.committed);
   const ids = Array.isArray(result?.ids) ? result.ids.map(String) : [];
+  const idempotentReplay = result?.idempotent_replay === true;
   if (!Number.isInteger(committed) || committed !== rows.length || ids.length !== rows.length) {
     throw new Error('IMPORT_COMMIT_RESULT_MISMATCH');
   }
-  return { committed, ids };
+  return { committed, ids, idempotentReplay };
 }
