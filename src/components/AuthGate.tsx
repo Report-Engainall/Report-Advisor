@@ -62,7 +62,8 @@ export function AuthGate({ children }: AuthGateProps) {
       try {
         const initialUser = await getAuthenticatedUser();
         if (!mounted) return;
-        unsubscribe = onAuthStateChange((nextUser) => { void sync(nextUser); }, initialUser);
+        unsubscribe = onAuthStateChange((nextUser) => { void sync(nextUser); });
+        void sync(initialUser);
       } catch (error) {
         fail(error);
       }
