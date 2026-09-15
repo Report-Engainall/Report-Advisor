@@ -1,6 +1,8 @@
 import fs from 'node:fs';
+import { scenarios } from './production-scenario-matrix.mjs';
 
-const EXPECTED_IDS=new Set(['excel-standard','excel-aliases','excel-missing-columns','csv-reordered','pdf-text','pdf-ocr-ar','unknown-report','exchange-statement','multi-currency','duplicate-transactions','large-file','corrupt-data']);
+const EXPECTED_IDS=new Set(scenarios.map(({id})=>id));
+const EXPECTED_SCENARIO_COUNT=scenarios.length;
 const TERMINAL_STATUSES=new Set(['committed_and_rendered','reviewed','rejected_or_reviewed']);
 const SHA_RE=/^[0-9a-f]{40}$/i;
 const NONEMPTY_OBJECT=value=>value && typeof value==='object' && !Array.isArray(value) && Object.keys(value).length>0;
@@ -30,9 +32,9 @@ export function evaluateRelease(raw,{currentExactHead}={}){
     if(!String(result?.job_id??'').trim()) failures.push({id,reason:'missing-job-id'});
     if(!NONEMPTY_ARRAY(result?.evidence_references)) failures.push({id,reason:'missing-evidence-references'});
   }
-  if(results.length!==EXPECTED_IDS.size) failures.push({id:'__artifact__',reason:`scenario-count:${results.length}/${EXPECTED_IDS.size}`});
+  if(results.length!==EXPECTED_SCENARIO_COUNT) failures.push({id:'__artifact__',reason:`scenario-count:${results.length}/${EXPECTED_SCENARIO_COUNT}`});
   for(const id of EXPECTED_IDS) if(!seen.has(id)) failures.push({id,reason:'missing-result'});
-  return {release:failures.length===0?'approved':'blocked',failures,scenarioCount:EXPECTED_IDS.size,observedScenarioCount:results.length,exact_head:actualHead||null};
+  return {release:failures.length===0?'approved':'blocked',failures,scenarioCount:EXPECTED_SCENARIO_COUNT,observedScenarioCount:results.length,exact_head:actualHead||null};
 }
 
 if(process.argv[1]?.endsWith('production-release-decision.mjs')){
