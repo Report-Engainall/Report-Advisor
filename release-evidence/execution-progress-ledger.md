@@ -1,41 +1,45 @@
 # Execution Progress Ledger
 
 AUTHORITY
-- Baseline: `950e0882c5557211a621be09a82a53f578af9713`
-- Candidate: `3fa034cc5df53b2f065eddd9e007f0f5a3c44e15` plus ledger update pending
-- Branch: `candidate/950e-scenario-hardening`
+- Base: `950e0882c5557211a621be09a82a53f578af9713`
+- Candidate branch: `candidate/950e-scenario-hardening`
+- Current exact candidate: `f9b6a8f68102587d328cc67777fb63ac7641fe40`
 - No `main` mutation.
 - No Evidence transfer from `ff56cf0` or any other SHA.
+- `MASTER_EXECUTION_INDEX.md` untouched.
 
 CLOSED
-- Isolated candidate branch created from exact 950e.
-- Added compact scenario-contract assertion module: 12 scenario plans, baseline/after aggregation, zero-unintended-mutation checks, tenant/period/currency checks, rendered-job checks, provenance checks, duplicate-idempotency checks, compact artifact exact-SHA binding.
-- Added deterministic contract test covering all 12 plans, zero-mutation behavior, and exact-SHA artifact binding.
+- Existing Playwright runtime harness now directly imports `production-scenario-contract.mjs`.
+- Per-scenario real DB baseline and after-state capture added for import_jobs, sales_invoices, inventory_movements, kpi_evidence_snapshots, and get_dashboard_snapshot.
+- Non-commit path now performs fail-closed zero-unintended-mutation and false-commit assertions.
+- Commit path now requires completed/rendered durable job, tenant binding, provenance/evidence, DB readback, and dashboard readback.
+- Duplicate path executes the same input twice and asserts zero second-run invoice/movement business-row delta.
+- Compact exact-SHA evidence is produced only after real runtime execution; no runtime PASS has been claimed.
 
 OPEN
-- Integrate these assertions into the existing Playwright scenario harness.
-- Execute real 12-scenario staging runtime on candidate.
-- Produce genuine compact production-regression evidence only from runtime.
+- Execute the integrated runtime against real staging and obtain genuine 12-scenario results.
+- Resolve any schema/runtime defects surfaced by the new baseline/readback assertions.
 - Human Override authorized/unauthorized browser proof.
-- Certification gates remain closed until prerequisites are genuine.
+- Artifact validation → Release Decision → Certification Boundary → Execution Enforcement → Final Certification remain fail-closed.
 
 EXTERNAL ACTION REQUIRED
-- Human Override runtime needs an executable authenticated browser/workflow channel with real authorized and unauthorized staging actors. No service-role/fake-session bypass.
+- Human Override still needs an executable authenticated runtime channel containing real authorized and unauthorized staging actors. No service-role/fake-session bypass.
 
 READY
-- Scenario-specific assertion plans: 12/12 implemented.
-- Compact baseline/readback contract: implemented.
-- Artifact exact-SHA binding: implemented.
-- Candidate ready for harness integration.
+- Contract integration is committed at `f9b6a8f...`.
+- Compact evidence schema and exact-SHA validator are wired into runtime.
+- Existing GitHub Actions runner is confirmed operational for candidate pushes.
 
 LAST VERIFIED
-- Base source: `950e0882c5557211a621be09a82a53f578af9713`.
-- Scenario contract commit: `3fa034cc5df53b2f065eddd9e007f0f5a3c44e15`.
-- Ledger update follows the contract commit on the same candidate branch.
+- Runtime integration commit: `f9b6a8f68102587d328cc67777fb63ac7641fe40`.
+- Final Certification Gate run `34913686544` reached the certification boundary step and failed there; contract execution was skipped, so this is not a scenario test result.
+- Execution Enforcement run `34913686530` failed at the same boundary and skipped downstream enforcement tests.
 
 EVIDENCE BINDINGS
-- Code changes are candidate-only.
-- No runtime PASS is claimed.
+- Code integration: `f9b6a8f68102587d328cc67777fb63ac7641fe40` only.
+- Gate evidence: runs `34913686544` and `34913686530`, exact candidate `f9b6a8f68102587d328cc67777fb63ac7641fe40`.
+- No 12/12 runtime evidence exists yet for this SHA.
 
 NEXT
-- Execute the deterministic contract test, then wire assertions into the existing runtime harness and execute staging evidence.
+- Obtain a real runtime execution for `f9b6a8f...`; then fix only defects demonstrated by that execution.
+- Certification boundary remains blocked because the Master Index cannot be mutated under the current execution constraint and the boundary validator rejects non-governance candidate changes when the indexed candidate differs.
