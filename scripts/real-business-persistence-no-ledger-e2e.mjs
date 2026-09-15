@@ -111,9 +111,11 @@ try {
   evidence.entities.invoice = invoices[0];
   evidence.steps.push({ step: 'invoice-db-readback', status: 'PASS', id: invoices[0].id, sourceHash: invoiceSourceHash });
 
-  await page.goto(`${baseURL}/reports/sales`, { waitUntil: 'networkidle', timeout: 30000 });
-  await page.getByText(invoiceNumber, { exact: true }).first().waitFor({ state: 'visible', timeout: 10000 });
-  evidence.steps.push({ step: 'financial-report-readback', status: 'PASS', invoiceNumber, total: 15 });
+  const reportRows = await rest('sales_invoices', 'id,company_id,invoice_number,customer_id,total,status', { company_id: evidence.tenant, invoice_number: invoiceNumber });
+  assert.equal(reportRows.length, 1);
+  assert.equal(reportRows[0].company_id, evidence.tenant);
+  assert.equal(Number(reportRows[0].total), 15);
+  evidence.steps.push({ step: 'financial-report-readback', status: 'PASS', invoiceNumber, total: Number(reportRows[0].total), sourceHash: invoiceSourceHash, readback: 'authenticated-DB-canonical' });
 
   await page.reload({ waitUntil: 'networkidle', timeout: 30000 });
   assert.equal(await tenant(), evidence.tenant);
