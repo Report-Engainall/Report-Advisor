@@ -8,7 +8,7 @@ import { detectHeaderRow, rowsFromDetectedHeader } from './header-detection';
 type Row = Record<string, unknown>;
 function generateId(): string { return Math.random().toString(36).substring(2, 9); }
 function isRecord(value: unknown): value is Row { return typeof value === 'object' && value !== null && !Array.isArray(value); }
-type PdfDocument = Awaited<ReturnType<typeof import('pdfjs-dist/legacy/build/pdf.mjs').getDocument>['promise'];
+type PdfDocument = Awaited<ReturnType<typeof import('pdfjs-dist').getDocument>['promise'];
 
 function buildColumnProfiles(rows: Row[], columns: string[], mappings: Awaited<ReturnType<typeof mapColumns>>): ColumnProfile[] {
   return columns.map((col, idx) => {
@@ -127,7 +127,7 @@ async function parsePdfText(buffer: ArrayBuffer, fileName: string): Promise<Data
       }
     : { data: new Uint8Array(buffer) };
   const pdf: PdfDocument = await pdfjs.getDocument(documentOptions).promise; const pages: string[] = [];
-  for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) { const page = await pdf.getPage(pageNumber); const content = await page.getTextContent(); const text = content.items.map((item) => 'str' in item && typeof item.str === 'string' ? item.str : '').filter(Boolean).join(' '); if (text.trim()) pages.push(`PAGE ${pageNumber}\n${text}`); }
+  for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) { const page = await pdfjs.getDocument ? await pdf.getPage(pageNumber) : null; const content = page ? await page.getTextContent() : null; const text = content?.items.map((item) => 'str' in item && typeof item.str === 'string' ? item.str : '').filter(Boolean).join(' ') ?? ''; if (text.trim()) pages.push(`PAGE ${pageNumber}\n${text}`); }
   if (pages.length) return buildTextDataset(pages.join('\n\n'), fileName, 'pdf'); return parseScannedPdfWithOcr(pdf, fileName);
 }
 
