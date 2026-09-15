@@ -25,6 +25,18 @@ console.log('Import query pagination regression: PASS');
 const compat = readFileSync('src/lib/queries-compat.ts', 'utf8');
 const compatStart = compat.indexOf('export async function fetchImportRecords');
 if (compatStart < 0) throw new Error('compat fetchImportRecords boundary not found');
-const compatFn = compat.slice(compatStart, compat.indexOf('export interface PurchaseSummary', compatStart));
-for (const token of ["{ count: 'exact' }", '.range(0, MAX_IMPORT_RECORD_ROWS - 1)', 'REPORT_QUERY_LIMIT_EXCEEDED: imports require explicit pagination']) if (!compatFn.includes(token)) throw new Error(`compat import query bound contract missing: ${token}`);
-console.log('Compatibility import query bounds regression: PASS');
+const compatEnd = compat.indexOf('export interface PurchaseSummary', compatStart);
+if (compatEnd < 0) throw new Error('compat fetchImportRecords end boundary not found');
+const compatFn = compat.slice(compatStart, compatEnd);
+for (const token of [
+  "{ count: 'exact' }",
+  'const allRows: ImportRecord[] = []',
+  'let page = 0',
+  'const from = page * MAX_IMPORT_RECORD_ROWS',
+  'const to = from + MAX_IMPORT_RECORD_ROWS - 1',
+  '.range(from, to)',
+  'total ??= count ?? 0',
+  'if (rows.length < MAX_IMPORT_RECORD_ROWS || allRows.length >= total) break',
+]) if (!compatFn.includes(token)) throw new Error(`compat import pagination contract missing: ${token}`);
+if (compatFn.includes('REPORT_QUERY_LIMIT_EXCEEDED: imports require explicit pagination')) throw new Error('compat import history still rejects datasets above the page bound');
+console.log('Compatibility import query pagination regression: PASS');
