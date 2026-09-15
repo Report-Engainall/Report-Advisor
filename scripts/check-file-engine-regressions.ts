@@ -8,7 +8,14 @@ import {
   parseNumber,
 } from '../src/lib/file-engine/normalizer.ts';
 import { cleanValue, detectColumnDataType } from '../src/lib/file-engine/data-types.ts';
-import { parseFile } from '../src/lib/file-engine/adapters.ts';
+
+if (!('DOMMatrix' in globalThis)) {
+  Object.defineProperty(globalThis, 'DOMMatrix', {
+    configurable: true,
+    value: class DOMMatrix {},
+  });
+}
+const { parseFile } = await import('../src/lib/file-engine/adapters.ts');
 
 function assert(condition: unknown, message: string): asserts condition {
   if (!condition) throw new Error(`File-engine regression failed: ${message}`);
