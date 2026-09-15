@@ -77,12 +77,11 @@ export function Sidebar({alertCount=0,onNavigate,user}:{alertCount?:number;onNav
   const location=useLocation();
   const activeSection=useMemo(()=>navSections.find(section=>section.items.some(item=>location.pathname===item.path||(item.path!=='/'&&location.pathname.startsWith(item.path))))?.title ?? 'مركز الأعمال',[location.pathname]);
   const [collapsed,setCollapsed]=useState<Record<string,boolean>>({});
+  const [signOutError,setSignOutError]=useState(false);
   useEffect(()=>{setCollapsed(prev=>({...prev,[activeSection]:false}));},[activeSection]);
 
   const handleSignOut = async () => {
-    // Local scope guarantees that a browser logout clears the persisted
-    // session even when remote global-signout/revocation is unavailable.
-    // AuthGate remains the authoritative UI transition via onAuthStateChange.
+    setSignOutError(false);
     const { error } = await supabase.auth.signOut({ scope: 'local' });
     if (error) throw error;
     onNavigate?.();
@@ -117,7 +116,8 @@ export function Sidebar({alertCount=0,onNavigate,user}:{alertCount?:number;onNav
     </nav>
     <div className="px-4 py-4 border-t border-ink-100">
       <div className="flex items-center gap-3"><div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary-100 text-sm font-semibold text-primary-700">م</div><div className="flex-1 min-w-0"><div className="text-sm font-medium text-ink-800 truncate">{getDisplayName(user ?? null)}</div><div className="text-[11px] text-ink-400 truncate" dir="ltr">{getDisplayEmail(user ?? null)}</div></div></div>
-      <button type="button" onClick={() => void handleSignOut()} className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-ink-200 px-3 py-2 text-xs font-medium text-ink-600 transition hover:bg-ink-50 hover:text-danger-600" aria-label="تسجيل الخروج"><LogOut size={15}/> تسجيل الخروج</button>
+      {signOutError&&<div role="alert" className="mt-3 rounded-xl border border-danger-200 bg-danger-50 px-3 py-2 text-[11px] leading-5 text-danger-700">تعذر تسجيل الخروج. لم يتم تغيير الجلسة، أعد المحاولة.</div>}
+      <button type="button" onClick={()=>void handleSignOut().catch(()=>setSignOutError(true))} className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-ink-200 px-3 py-2 text-xs font-medium text-ink-600 transition hover:bg-ink-50 hover:text-danger-600" aria-label="تسجيل الخروج"><LogOut size={15}/> تسجيل الخروج</button>
     </div>
   </aside>;
 }
