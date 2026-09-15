@@ -8,7 +8,7 @@ import { detectHeaderRow, rowsFromDetectedHeader } from './header-detection';
 type Row = Record<string, unknown>;
 function generateId(): string { return Math.random().toString(36).substring(2, 9); }
 function isRecord(value: unknown): value is Row { return typeof value === 'object' && value !== null && !Array.isArray(value); }
-type PdfDocument = Awaited<ReturnType<typeof import('pdfjs-dist').getDocument>['promise'];
+type PdfDocument = Awaited<ReturnType<typeof import('pdfjs-dist').getDocument>['promise']>;
 
 function buildColumnProfiles(rows: Row[], columns: string[], mappings: Awaited<ReturnType<typeof mapColumns>>): ColumnProfile[] {
   return columns.map((col, idx) => {
@@ -121,8 +121,8 @@ async function parsePdfText(buffer: ArrayBuffer, fileName: string): Promise<Data
   const documentOptions = typeof window === 'undefined'
     ? {
         data: new Uint8Array(buffer),
-        standardFontDataUrl: import.meta.resolve('pdfjs-dist/standard_fonts/'),
-        cMapUrl: import.meta.resolve('pdfjs-dist/cmaps/'),
+        standardFontDataUrl: new URL(import.meta.resolve('pdfjs-dist/standard_fonts/')).pathname,
+        cMapUrl: new URL(import.meta.resolve('pdfjs-dist/cmaps/')).pathname,
         cMapPacked: true,
         useSystemFonts: true,
         disableFontFace: true,
