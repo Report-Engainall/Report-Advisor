@@ -1,0 +1,60 @@
+name: metric-identity-regression
+
+on:
+  pull_request:
+    paths:
+      - 'src/lib/semanticMetrics.ts'
+      - 'src/lib/semantic-metric-registry.ts'
+      - 'src/lib/metricEngine.ts'
+      - 'scripts/check-metric-identity-resolver.mjs'
+      - 'scripts/check-semantic-metric-registry.mjs'
+      - 'scripts/check-metric-consumer-governance.mjs'
+  push:
+    branches: [main]
+    paths:
+      - 'src/lib/semanticMetrics.ts'
+      - 'src/lib/semantic-metric-registry.ts'
+      - 'src/lib/metricEngine.ts'
+      - 'scripts/check-metric-identity-resolver.mjs'
+      - 'scripts/check-semantic-metric-registry.mjs'
+      - 'scripts/check-metric-consumer-governance.mjs'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: metric-identity-regression-${{ github.ref }}-${{ github.run_id }}
+  cancel-in-progress: false
+
+jobs:
+  regression:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Assert exact candidate checkout
+        env:
+          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -euo pipefail
+          actual="$(git rev-parse HEAD)"
+          test "$actual" = "$EXPECTED_HEAD"
+          echo "EXACT_HEAD_CHECK: PASS ($actual)"
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install
+        run: npm ci --no-audit --no-fund
+      - name: Metric identity resolver
+        run: node scripts/check-metric-identity-resolver.mjs
+      - name: Semantic metric registry
+        run: node scripts/check-semantic-metric-registry.mjs
+      - name: Metric consumer governance
+        run: node scripts/check-metric-consumer-governance.mjs
+      - name: Typecheck
+        run: npm run typecheck

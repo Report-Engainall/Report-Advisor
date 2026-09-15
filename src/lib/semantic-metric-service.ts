@@ -1,5 +1,5 @@
 import { supabase } from './supabase';
-import { getSemanticMetric, type SemanticMetricRegistryEntry } from './semantic-metric-registry.ts';
+import { getPersistedSemanticMetricId, getSemanticMetric, type SemanticMetricRegistryEntry } from './semantic-metric-registry.ts';
 import { semanticMetricIsFresh } from './semantic-metric-freshness.ts';
 
 export interface MetricGovernanceSnapshot {
@@ -24,7 +24,8 @@ function mapGovernance(row: Record<string, unknown>): MetricGovernanceSnapshot {
 }
 export async function getSemanticMetricContract(metricId:string):Promise<SemanticMetricContract>{
   const definition=getSemanticMetric(metricId); if(!definition) throw new Error(`Unknown semantic metric: ${metricId}`);
-  const {data,error}=await supabase.from('metric_governance').select('*').eq('metric_id',definition.metricId).order('version',{ascending:false}).limit(1).maybeSingle();
+  const persistedMetricId=getPersistedSemanticMetricId(metricId);
+  const {data,error}=await supabase.from('metric_governance').select('*').eq('metric_id',persistedMetricId).order('version',{ascending:false}).limit(1).maybeSingle();
   if(error) throw new Error(`Metric governance unavailable: ${error.message}`); return {definition,governance:data?mapGovernance(data as Record<string,unknown>):null};
 }
 export async function listSemanticMetricContracts():Promise<SemanticMetricContract[]>{

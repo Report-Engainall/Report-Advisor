@@ -1,11 +1,53 @@
 name: Full Product Browser E2E
 
-# Exact-head browser discovery gate. Broad push triggers are intentionally prohibited by the CI topology contract.
+# Exact-head browser discovery gate. Business E2E is path-scoped so a real runtime-contract change cannot leave the gate idle.
 on:
   push:
     paths:
       - 'scripts/run-full-product-browser-e2e.mjs'
       - 'scripts/real-business-e2e.mjs'
+      - 'scripts/real-business-persistence-no-ledger-e2e.mjs'
+      - 'scripts/real-business-persistence-diagnostic.mjs'
+      - 'scripts/financial-dashboard-readback-e2e.mjs'
+      - 'scripts/production-scenario-runtime-e2e.mjs'
+      - 'scripts/production-scenario-runtime-e2e-harness.mjs'
+      - 'scripts/production-scenario-contract.mjs'
+      - 'scripts/production-scenario-matrix.mjs'
+      - 'scripts/check-production-scenario-contract.mjs'
+      - 'src/components/AuthGate.tsx'
+      - 'src/lib/auth-session.ts'
+      - 'src/lib/supabase.ts'
+      - 'src/pages/ProfileSettingsPage.tsx'
+      - 'src/lib/file-engine/security.ts'
+      - 'src/lib/file-engine/synonyms.ts'
+      - 'src/lib/file-engine/adapters.ts'
+      - '.github/workflows/full-product-browser-e2e.yml'
+      - 'docs/MASTER_EXECUTION_INDEX.md'
+      - 'E2E_FAILURE_LEDGER.md'
+      - 'E2E_PRODUCT_GAP_LEDGER.md'
+      - 'supabase/migrations/**'
+      - 'package.json'
+      - 'package-lock.json'
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - 'scripts/run-full-product-browser-e2e.mjs'
+      - 'scripts/real-business-e2e.mjs'
+      - 'scripts/real-business-persistence-no-ledger-e2e.mjs'
+      - 'scripts/real-business-persistence-diagnostic.mjs'
+      - 'scripts/financial-dashboard-readback-e2e.mjs'
+      - 'scripts/production-scenario-runtime-e2e.mjs'
+      - 'scripts/production-scenario-runtime-e2e-harness.mjs'
+      - 'scripts/production-scenario-contract.mjs'
+      - 'scripts/production-scenario-matrix.mjs'
+      - 'scripts/check-production-scenario-contract.mjs'
+      - 'src/components/AuthGate.tsx'
+      - 'src/lib/auth-session.ts'
+      - 'src/lib/supabase.ts'
+      - 'src/pages/ProfileSettingsPage.tsx'
+      - 'src/lib/file-engine/security.ts'
+      - 'src/lib/file-engine/synonyms.ts'
+      - 'src/lib/file-engine/adapters.ts'
       - '.github/workflows/full-product-browser-e2e.yml'
       - 'docs/MASTER_EXECUTION_INDEX.md'
       - 'E2E_FAILURE_LEDGER.md'
@@ -27,12 +69,15 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
       - name: Verify exact checkout
         shell: bash
+        env:
+          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
         run: |
           set -euo pipefail
           actual="$(git rev-parse HEAD)"
-          test "$actual" = "${GITHUB_SHA}"
+          test "$actual" = "$EXPECTED_HEAD"
           test -z "$(git status --porcelain)"
           echo "EXACT_HEAD=$actual"
           echo "WORKTREE=CLEAN"
@@ -78,21 +123,12 @@ jobs:
           set -euo pipefail
           missing=0
           for name in SUPABASE_URL SUPABASE_ANON_KEY USER_A_EMAIL USER_A_PASSWORD USER_B_EMAIL USER_B_PASSWORD; do
-            if [ -n "${!name:-}" ]; then
-              echo "$name=SET"
-            else
-              echo "$name=MISSING"
-              missing=1
-            fi
+            if [ -n "${!name:-}" ]; then echo "$name=SET"; else echo "$name=MISSING"; missing=1; fi
           done
-          if [ "$missing" -ne 0 ]; then
-            echo "AUTHENTICATED_E2E_BLOCKED: required test-only runtime secrets are not provisioned."
-            echo "No browser PASS may be claimed until this contract is satisfied."
-            exit 2
-          fi
+          if [ "$missing" -ne 0 ]; then echo "AUTHENTICATED_E2E_BLOCKED: required test-only runtime secrets are not provisioned."; exit 2; fi
       - name: Run full product browser E2E
         env:
-          EXACT_HEAD: ${{ github.sha }}
+          EXACT_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
           E2E_BASE_URL: http://127.0.0.1:4173
           REPORT_ADVISOR_SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
           REPORT_ADVISOR_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
@@ -102,27 +138,69 @@ jobs:
           TEST_USER_B_PASSWORD: ${{ secrets.REPORT_ADVISOR_E2E_USER_B_PASSWORD }}
         run: node scripts/run-full-product-browser-e2e.mjs
       - name: Run real business persistence E2E
+        if: ${{ always() }}
         env:
-          EXACT_HEAD: ${{ github.sha }}
+          EXACT_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
           E2E_BASE_URL: http://127.0.0.1:4173
           REPORT_ADVISOR_SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
           REPORT_ADVISOR_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
           TEST_USER_A_EMAIL: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_EMAIL }}
           TEST_USER_A_PASSWORD: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_PASSWORD }}
-          TEST_USER_B_EMAIL: ${{ secrets.REPORT_ADVISOR_E2E_USER_B_EMAIL }}
-          TEST_USER_B_PASSWORD: ${{ secrets.REPORT_ADVISOR_E2E_USER_B_PASSWORD }}
-        run: node scripts/real-business-e2e.mjs
+        run: node scripts/real-business-persistence-no-ledger-e2e.mjs
+      - name: Diagnose real import API boundary
+        if: ${{ always() }}
+        env:
+          EXACT_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+          E2E_BASE_URL: http://127.0.0.1:4173
+          REPORT_ADVISOR_SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
+          REPORT_ADVISOR_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
+          TEST_USER_A_EMAIL: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_EMAIL }}
+          TEST_USER_A_PASSWORD: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_PASSWORD }}
+        run: node scripts/real-business-persistence-diagnostic.mjs
+      - name: Run dashboard financial readback E2E
+        if: ${{ always() }}
+        env:
+          EXACT_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+          E2E_BASE_URL: http://127.0.0.1:4173
+          REPORT_ADVISOR_SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
+          REPORT_ADVISOR_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
+          TEST_USER_A_EMAIL: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_EMAIL }}
+          TEST_USER_A_PASSWORD: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_PASSWORD }}
+        run: node scripts/financial-dashboard-readback-e2e.mjs
+      - name: Run real 12-scenario runtime contract
+        if: ${{ always() }}
+        env:
+          EXACT_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+          E2E_BASE_URL: http://127.0.0.1:4173
+          REPORT_ADVISOR_SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
+          REPORT_ADVISOR_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
+          TEST_USER_A_EMAIL: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_EMAIL }}
+          TEST_USER_A_PASSWORD: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_PASSWORD }}
+        run: node scripts/production-scenario-runtime-e2e-harness.mjs
+      - name: Validate compact scenario contract artifact
+        if: ${{ always() }}
+        run: node scripts/check-production-scenario-contract.mjs
       - name: Upload browser E2E evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: full-product-browser-e2e-${{ github.sha }}
+          name: full-product-browser-e2e-${{ github.event.pull_request.head.sha || github.sha }}
           path: artifacts/e2e
           if-no-files-found: warn
+          retention-days: 1
       - name: Upload real business E2E evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: real-business-e2e-${{ github.sha }}
+          name: real-business-e2e-${{ github.event.pull_request.head.sha || github.sha }}
           path: artifacts/e2e-business
           if-no-files-found: warn
+          retention-days: 1
+      - name: Upload compact 12-scenario evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: production-regression-${{ github.event.pull_request.head.sha || github.sha }}
+          path: release-evidence/production-regression-results.json
+          if-no-files-found: warn
+          retention-days: 1

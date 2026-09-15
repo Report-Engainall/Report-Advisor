@@ -25,12 +25,30 @@ export async function hasAuthenticatedSession(): Promise<boolean> {
   return Boolean(data.session?.user);
 }
 
+/**
+ * Subscribe to auth changes without starting async Supabase work inside the
+ * onAuthStateChange callback. Supabase documents a client deadlock when an
+ * async Supabase call is made from that callback. Defer the consumer until
+ * the auth callback has returned so tenant/RPC reads cannot deadlock the
+ * shared browser client.
+ */
 export function onAuthStateChange(
   callback: (user: User | null) => void,
 ): () => void {
+  let active = true;
+  const timers = new Set<ReturnType<typeof setTimeout>>();
   const { data } = supabase.auth.onAuthStateChange((_event, session) => {
-    callback(session?.user ?? null);
+    const timer = setTimeout(() => {
+      timers.delete(timer);
+      if (active) callback(session?.user ?? null);
+    }, 0);
+    timers.add(timer);
   });
 
-  return () => data.subscription.unsubscribe();
+  return () => {
+    active = false;
+    for (const timer of timers) clearTimeout(timer);
+    timers.clear();
+    data.subscription.unsubscribe();
+  };
 }
