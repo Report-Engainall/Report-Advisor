@@ -22,7 +22,10 @@ page.on('response', async (response) => {
 });
 page.on('requestfailed', (request) => {
   const url = request.url();
-  if (/\/auth\/v1\//.test(url) || /\/rest\/v1\//.test(url)) evidence.responses.push({ status: 0, method: request.method(), url, body: `REQUEST_FAILED:${request.failure()?.errorText || 'unknown'}` });
+  const errorText = request.failure()?.errorText || 'unknown';
+  if ((/\/auth\/v1\//.test(url) || /\/rest\/v1\//.test(url)) && errorText !== 'net::ERR_ABORTED') {
+    evidence.responses.push({ status: 0, method: request.method(), url, body: `REQUEST_FAILED:${errorText}` });
+  }
 });
 page.on('console', (message) => { if (message.type() === 'error') evidence.console.push(message.text()); });
 page.on('pageerror', (error) => evidence.pageErrors.push(error.message));
@@ -33,7 +36,8 @@ async function login() {
       await page.goto(baseURL, { waitUntil: 'networkidle', timeout: 30000 });
       await page.locator('#login-email').fill(email); await page.locator('#login-password').fill(password);
       await page.getByRole('button', { name: 'تسجيل الدخول' }).click();
-      await page.waitForURL(url => !url.pathname.includes('/login'), { timeout: 30000 });
+      await page.waitForTimeout(1200);
+      await page.locator('#login-email').waitFor({ state: 'detached', timeout: 15000 });
       return;
     } catch (error) {
       lastError = error;
