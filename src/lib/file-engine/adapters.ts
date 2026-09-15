@@ -117,7 +117,7 @@ async function parsePdfText(buffer: ArrayBuffer, fileName: string): Promise<Data
   pdfjs.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.mjs', import.meta.url).toString();
   const pdf: PdfDocument = await pdfjs.getDocument({
     data: new Uint8Array(buffer),
-    ...(isNodeRuntime ? { standardFontDataUrl: './node_modules/pdfjs-dist/standard_fonts/', useSystemFonts: false } : {}),
+    ...(isNodeRuntime ? { standardFontDataUrl: new URL('../../../node_modules/pdfjs-dist/standard_fonts/', import.meta.url).toString(), useSystemFonts: false } : {}),
   }).promise;
   const pages: string[] = [];
   for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) { const page = await pdf.getPage(pageNumber); const content = await page.getTextContent(); const text = content.items.map((item) => 'str' in item && typeof item.str === 'string' ? item.str : '').filter(Boolean).join(' '); if (text.trim()) pages.push(`PAGE ${pageNumber}\n${text}`); }
