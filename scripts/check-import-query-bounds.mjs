@@ -25,9 +25,10 @@ console.log('Import query pagination regression: PASS');
 const compat = readFileSync('src/lib/queries-compat.ts', 'utf8');
 const compatStart = compat.indexOf('export async function fetchImportRecords');
 if (compatStart < 0) throw new Error('compat fetchImportRecords boundary not found');
-const compatEnd = compat.indexOf('export interface PurchaseSummary', compatStart);
-if (compatEnd < 0) throw new Error('compat fetchImportRecords end boundary not found');
-const compatFn = compat.slice(compatStart, compatEnd);
+const compatTail = compat.slice(compatStart);
+const compatEndMatch = compatTail.match(/export (?:interface|type) PurchaseSummary/);
+if (!compatEndMatch || compatEndMatch.index == null) throw new Error('compat fetchImportRecords end boundary not found');
+const compatFn = compatTail.slice(0, compatEndMatch.index);
 for (const token of [
   "{ count: 'exact' }",
   'const allRows: ImportRecord[] = []',
