@@ -112,9 +112,9 @@ async function buildTextDataset(text: string, fileName: string, sourceType: stri
 
 const PDF_OCR_MAX_PAGES = 20; const PDF_OCR_MAX_DIMENSION = 2200; const PDF_OCR_SCALE = 1.5; const OCR_CONFIDENCE_THRESHOLD = 70;
 async function parsePdfText(buffer: ArrayBuffer, fileName: string): Promise<Dataset[]> {
-  const pdfjs = await import('pdfjs-dist');
+  const pdfjs = typeof window === 'undefined' ? await import('pdfjs-dist/legacy/build/pdf.mjs') : await import('pdfjs-dist');
   if (typeof window === 'undefined') {
-    pdfjs.GlobalWorkerOptions.workerSrc = import.meta.resolve('pdfjs-dist/build/pdf.worker.mjs');
+    pdfjs.GlobalWorkerOptions.workerSrc = import.meta.resolve('pdfjs-dist/legacy/build/pdf.worker.mjs');
   } else {
     pdfjs.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.mjs', import.meta.url).toString();
   }
