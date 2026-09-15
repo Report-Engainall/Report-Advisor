@@ -89,6 +89,8 @@ export async function runDurableProductionLifecycle<T>(input: DurableProductionR
       sourceHash: input.sourceHash,
       currentRows: source.currentRows,
     });
+    const primaryEvidence = input.lifecycle.evidence[0];
+    const evidenceDetails = primaryEvidence?.details ?? {};
     await store.complete(input.jobId, input.workerId, {
       sourceHash: input.sourceHash,
       sourceSnapshotId: input.request.sourceSnapshotId ?? null,
@@ -98,6 +100,16 @@ export async function runDurableProductionLifecycle<T>(input: DurableProductionR
       scenario: lifecycle.scenario,
       portfolio: lifecycle.portfolio,
       autonomy: lifecycle.autonomy,
+      evidence: {
+        source: primaryEvidence?.source ?? null,
+        formula: evidenceDetails.formula ?? 'canonical_import_identity_preservation',
+        period: evidenceDetails.period ?? 'as_of_observation',
+        tenant: tenantId,
+        asOf: evidenceDetails.asOf ?? primaryEvidence?.observedAt ?? null,
+        freshness: evidenceDetails.freshness ?? primaryEvidence?.observedAt ?? null,
+        sourceHash: input.sourceHash,
+        evidenceKeys: input.lifecycle.evidence.map(item => item.key),
+      },
     }, tenantId);
     return lifecycle;
   } catch (error) {
