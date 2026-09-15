@@ -1,7 +1,6 @@
 name: Full Product Browser E2E
 
-# Exact-head browser discovery gate. Broad push triggers are intentionally prohibited by the CI topology contract.
-# Business E2E is path-scoped on both push and PR synchronization so a real test-contract commit cannot leave the exact-head gate idle.
+# Exact-head browser discovery gate. Business E2E is path-scoped so a real runtime-contract change cannot leave the gate idle.
 on:
   push:
     paths:
@@ -10,6 +9,10 @@ on:
       - 'scripts/real-business-persistence-no-ledger-e2e.mjs'
       - 'scripts/real-business-persistence-diagnostic.mjs'
       - 'scripts/financial-dashboard-readback-e2e.mjs'
+      - 'scripts/production-scenario-runtime-e2e.mjs'
+      - 'scripts/production-scenario-contract.mjs'
+      - 'scripts/production-scenario-matrix.mjs'
+      - 'scripts/check-production-scenario-contract.mjs'
       - 'src/components/AuthGate.tsx'
       - 'src/lib/auth-session.ts'
       - 'src/lib/supabase.ts'
@@ -30,6 +33,10 @@ on:
       - 'scripts/real-business-persistence-no-ledger-e2e.mjs'
       - 'scripts/real-business-persistence-diagnostic.mjs'
       - 'scripts/financial-dashboard-readback-e2e.mjs'
+      - 'scripts/production-scenario-runtime-e2e.mjs'
+      - 'scripts/production-scenario-contract.mjs'
+      - 'scripts/production-scenario-matrix.mjs'
+      - 'scripts/check-production-scenario-contract.mjs'
       - 'src/components/AuthGate.tsx'
       - 'src/lib/auth-session.ts'
       - 'src/lib/supabase.ts'
@@ -50,7 +57,7 @@ permissions:
 jobs:
   browser-e2e:
     runs-on: ubuntu-22.04
-    timeout-minutes: 40
+    timeout-minutes: 50
     steps:
       - uses: actions/checkout@v4
         with:
@@ -153,6 +160,19 @@ jobs:
           TEST_USER_A_EMAIL: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_EMAIL }}
           TEST_USER_A_PASSWORD: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_PASSWORD }}
         run: node scripts/financial-dashboard-readback-e2e.mjs
+      - name: Run real 12-scenario runtime contract
+        if: ${{ always() }}
+        env:
+          EXACT_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+          E2E_BASE_URL: http://127.0.0.1:4173
+          REPORT_ADVISOR_SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
+          REPORT_ADVISOR_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
+          TEST_USER_A_EMAIL: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_EMAIL }}
+          TEST_USER_A_PASSWORD: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_PASSWORD }}
+        run: node scripts/production-scenario-runtime-e2e.mjs
+      - name: Validate compact scenario contract artifact
+        if: ${{ always() }}
+        run: node scripts/check-production-scenario-contract.mjs
       - name: Upload browser E2E evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -167,5 +187,13 @@ jobs:
         with:
           name: real-business-e2e-${{ github.event.pull_request.head.sha || github.sha }}
           path: artifacts/e2e-business
+          if-no-files-found: warn
+          retention-days: 1
+      - name: Upload compact 12-scenario evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: production-regression-${{ github.event.pull_request.head.sha || github.sha }}
+          path: release-evidence/production-regression-results.json
           if-no-files-found: warn
           retention-days: 1
