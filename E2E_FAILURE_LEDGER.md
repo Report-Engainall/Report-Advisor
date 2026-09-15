@@ -93,7 +93,7 @@ The corrective successor retained `{ count: 'exact' }` but fresh review identifi
 
 Minimal fix: change the upper bound to `MAX_IMPORT_RECORD_ROWS - 1`. The exact-count contract remains intact, and missing/null count remains non-fatal. No fallback can remove the bounded range. Code fix commit: `a56570613e0769a5775c9c5421aab81e2872c2f7`.
 
-This fix is **FIX only**. Fresh verification is mandatory on `a56570613e0769a5775c9c5421aab81e2872c2f7`; no PASS is transferred from `954713...` or any earlier SHA. This ledger update is part of the same follow-up chain and `MASTER_EXECUTION_INDEX.md` remains untouched.
+This fix is **FIX only**. Fresh verification is mandatory on `a56570613e0769a5775c9c5421aab81e2872c2f7`; no PASS is transferred from `954713...` or any earlier SHA.
 
 ### Follow-up correction — exact-count-aware bounded probe
 
@@ -121,6 +121,14 @@ Root cause: the regression script was stale relative to the already-reviewed bou
 Minimal fix committed as `79e03c10ebdfca69aafab579ee8d1e94d8650521` on `candidate/950e-scenario-hardening`: align the regression contract with the actual bounded overflow-probe semantics; assert `{ count: 'exact' }`, bounded `.range(0, MAX_IMPORT_RECORD_ROWS)`, observed-total overflow detection, and explicit absence of the old null-count failure assertion. Compatibility query checks remain unchanged.
 
 This is **FIX only**. Fresh Import Query Bounds verification and all affected runtime verification are required on `79e03c...`; no PASS is transferred from `5eb8110...` or any earlier SHA.
+
+### Exact-HEAD compatibility-path regression on `7149b9e6cf40bb730f6aca1a6599ee80fe273e23`
+
+Fresh CI exposed a second import-history path: the compatibility module `src/lib/queries-compat.ts` was still enforcing the old `REPORT_QUERY_LIMIT_EXCEEDED` behavior. This was a real UI-path defect because the `/import` route can resolve through the compatibility boundary. The implementation was corrected to paginate `import_jobs` with the same bounded 500-row pages, exact count, deterministic ordering, tenant filter, and termination condition as the canonical query path. Fix commit: `7149b9e6cf40bb730f6aca1a6599ee80fe273e23`.
+
+The next `Import Query Bounds` run then failed only because `scripts/check-import-query-bounds.mjs` still asserted the obsolete compatibility hard-failure tokens. That is a stale regression contract, not a reason to restore the defect. Contract correction commit: `f5ca2bead2c718a8194154b854465be1ef30d842`.
+
+Both changes are **FIX only** pending fresh exact-SHA verification. No PASS is transferred from `7149b9...` or `f5ca2b...` until the updated contract and browser/import path execute successfully.
 
 ## Discovery Notes
 - Existing `scripts/run-decision-runtime-e2e.mjs` is API/RPC-level authenticated runtime testing, not browser E2E.
