@@ -115,9 +115,17 @@ async function parsePdfText(buffer: ArrayBuffer, fileName: string): Promise<Data
   const isNodeRuntime = typeof document === 'undefined';
   const pdfjs = isNodeRuntime ? await import('pdfjs-dist/legacy/build/pdf.mjs') : await import('pdfjs-dist');
   pdfjs.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.mjs', import.meta.url).toString();
+  const standardFontDataUrl = isNodeRuntime
+    ? (() => {
+        const nodeProcess = (globalThis as typeof globalThis & { process?: { cwd?: () => string } }).process;
+        const cwd = nodeProcess?.cwd?.();
+        if (!cwd) throw new Error('PDF_NODE_RUNTIME_PATH_UNAVAILABLE');
+        return `${cwd}/node_modules/pdfjs-dist/standard_fonts/`;
+      })()
+    : undefined;
   const pdf: PdfDocument = await pdfjs.getDocument({
     data: new Uint8Array(buffer),
-    ...(isNodeRuntime ? { standardFontDataUrl: new URL('../../../node_modules/pdfjs-dist/standard_fonts/', import.meta.url).toString(), useSystemFonts: false } : {}),
+    ...(isNodeRuntime ? { standardFontDataUrl, useSystemFonts: false } : {}),
   }).promise;
   const pages: string[] = [];
   for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) { const page = await pdf.getPage(pageNumber); const content = await page.getTextContent(); const text = content.items.map((item) => 'str' in item && typeof item.str === 'string' ? item.str : '').filter(Boolean).join(' '); if (text.trim()) pages.push(`PAGE ${pageNumber}\n${text}`); }
