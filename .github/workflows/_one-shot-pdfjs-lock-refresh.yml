@@ -16,12 +16,18 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Refresh pdfjs-dist lock entry only
-        run: npm install --package-lock-only --ignore-scripts --no-save pdfjs-dist@6.3.289
-      - name: Validate and self-delete
+      - name: Refresh pdfjs-dist lock entry
+        run: |
+          cp package.json /tmp/report-advisor-package.json
+          npm install --package-lock-only --ignore-scripts pdfjs-dist@6.3.289
+          cp /tmp/report-advisor-package.json package.json
+          npm install --package-lock-only --ignore-scripts
+      - name: Validate lock and self-delete
         run: |
           git diff --check
-          node -e "const l=require('./package-lock.json'); if(l.packages?.['node_modules/pdfjs-dist']?.version!=='6.3.289') process.exit(1)"
+          node -e "const p=require('./package.json'); const l=require('./package-lock.json'); if(p.dependencies?.['pdfjs-dist']!=='^6.2.108') process.exit(2); if(l.packages?.['node_modules/pdfjs-dist']?.version!=='6.3.289') process.exit(3); if(l.packages?.['node_modules/pdfjs-dist']?.integrity!=='sha512-ZHjSVpDa3D6izMq8/04lvkhkATUmL9px6ChPaXc1k6nU2Mrhlg1/7F0bdUqCwUjw3NsPTfPzSMDUU6ZIcRaeQw==') process.exit(4)"
+          git diff -- package.json
+          test -z "$(git diff -- package.json)"
           git rm .github/workflows/_one-shot-pdfjs-lock-refresh.yml
           git add package-lock.json
           git diff --cached --check
