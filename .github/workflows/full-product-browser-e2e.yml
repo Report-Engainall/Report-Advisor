@@ -57,7 +57,7 @@ permissions:
 jobs:
   browser-e2e:
     runs-on: ubuntu-22.04
-    timeout-minutes: 50
+    timeout-minutes: 40
     steps:
       - uses: actions/checkout@v4
         with:
@@ -152,6 +152,7 @@ jobs:
           TEST_USER_A_PASSWORD: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_PASSWORD }}
         run: node scripts/real-business-persistence-diagnostic.mjs
       - name: Run dashboard financial readback E2E
+        if: ${{ always() }}
         env:
           EXACT_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
           E2E_BASE_URL: http://127.0.0.1:4173
