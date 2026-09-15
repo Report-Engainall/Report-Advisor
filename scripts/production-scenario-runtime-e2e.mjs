@@ -61,6 +61,7 @@ const pdf = text => {
   return Buffer.from(result, 'binary');
 };
 const scannedImagePdf = (jpeg, width = 1200, height = 300) => {
+  const stream = `q ${width} 0 0 ${height} 0 0 cm /Im1 Do Q\n`;
   const imageObject = Buffer.concat([
     Buffer.from(`4 0 obj\n<< /Type /XObject /Subtype /Image /Width ${width} /Height ${height} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${jpeg.length} >>\nstream\n`),
     jpeg,
@@ -71,7 +72,7 @@ const scannedImagePdf = (jpeg, width = 1200, height = 300) => {
     Buffer.from('2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n'),
     Buffer.from(`3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${width} ${height}] /Resources << /XObject << /Im1 4 0 R >> >> /Contents 5 0 R >>\nendobj\n`),
     imageObject,
-    Buffer.from(`5 0 obj\n<< /Length 33 >>\nstream\nq ${width} 0 0 ${height} 0 0 cm /Im1 Do Q\nendstream\nendobj\n`),
+    Buffer.from(`5 0 obj\n<< /Length ${Buffer.byteLength(stream)} >>\nstream\n${stream}endstream\nendobj\n`),
   ];
   const header = Buffer.from('%PDF-1.4\n%\xff\xff\xff\xff\n');
   let offset = header.length;
