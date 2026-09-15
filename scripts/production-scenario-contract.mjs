@@ -9,10 +9,14 @@ export function compactAggregate(rows, { idFields = [], totalFields = [] } = {})
 }
 
 export function snapshotBusinessState({ importJobs = [], invoices = [], movements = [], evidence = [], dashboard = null }) {
+  const invoiceAggregate = compactAggregate(invoices, { idFields: ['id','invoice_number','company_id','currency'], totalFields: ['total','amount'] });
   return {
     import_jobs: compactAggregate(importJobs, { idFields: ['id','status','source_hash'] }),
-    invoices: compactAggregate(invoices, { idFields: ['id','invoice_number','company_id','currency'], totalFields: ['total','amount'] }),
+    sales_invoices: invoiceAggregate,
+    invoices: invoiceAggregate,
+    inventory_movements: compactAggregate(movements, { idFields: ['id','product_id','movement_type','company_id'], totalFields: ['quantity','total'] }),
     movements: compactAggregate(movements, { idFields: ['id','product_id','movement_type','company_id'], totalFields: ['quantity','total'] }),
+    kpi_evidence_snapshots: compactAggregate(evidence, { idFields: ['id','metric_key','company_id','as_of'] }),
     evidence: compactAggregate(evidence, { idFields: ['id','metric_key','company_id','as_of'] }),
     dashboard: dashboard ? compactDashboard(dashboard) : null,
   };
