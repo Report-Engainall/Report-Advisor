@@ -22,7 +22,7 @@ type PromiseConstructorWithTry = PromiseConstructor & {
 
 const promiseConstructor = Promise as PromiseConstructorWithTry;
 if (typeof promiseConstructor.try !== 'function') {
-  Object.defineProperty(promiseConstructor, 'try', {
+  Object.defineProperty(Promise, 'try', {
     configurable: true,
     writable: true,
     value: (fn: (...args: unknown[]) => unknown, ...args: unknown[]) =>
@@ -71,7 +71,7 @@ function pdfWithText(text: string): ArrayBuffer {
     '<< /Type /Catalog /Pages 2 0 R >>',
     '<< /Type /Pages /Kids [3 0 R] /Count 1 >>',
     '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>',
-    '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>',
+    '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>',
     `<< /Length ${stream.length} >>\nstream\n${stream}\nendstream`,
   ];
   const header = '%PDF-1.4\n';
