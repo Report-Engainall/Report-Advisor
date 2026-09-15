@@ -85,6 +85,7 @@ export function Sidebar({alertCount=0,onNavigate,user}:{alertCount?:number;onNav
     const { error } = await supabase.auth.signOut({ scope: 'local' });
     if (error) throw error;
     onNavigate?.();
+    window.location.assign('/');
   };
 
   return <aside className="w-64 bg-white/95 border-l border-ink-100 flex flex-col h-screen sticky top-0 overflow-y-auto backdrop-blur-sm">
