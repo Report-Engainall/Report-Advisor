@@ -193,9 +193,8 @@ async function runOne(scenario, input) {
     await page.getByRole('button', { name: new RegExp(label) }).click();
     await page.waitForTimeout(350);
     await page.locator('input[type="file"]').first().setInputFiles({ name: input.name, mimeType: input.name.endsWith('.pdf') ? 'application/pdf' : input.name.endsWith('.xlsx') ? 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' : 'text/csv', buffer: input.bytes });
-    const previewHeading = page.getByText('مراجعة قبل الكتابة', { exact: true });
-    const importError = page.locator('.bg-danger-50').first();
-    await Promise.race([previewHeading.waitFor({ state: 'visible', timeout: 30000 }), importError.waitFor({ state: 'visible', timeout: 30000 })]).catch(() => {});
+    const previewHeading = page.getByText('المراجعة', { exact: true });
+    await previewHeading.waitFor({ state: 'visible', timeout: 30000 }).catch(() => {});
     const body = await page.locator('body').innerText();
     const commit = page.getByRole('button', { name: /اعتماد وكتابة/ });
     const canCommit = await commit.count() > 0 && await commit.isVisible().catch(() => false) && await commit.isEnabled().catch(() => false);
