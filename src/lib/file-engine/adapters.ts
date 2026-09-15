@@ -88,9 +88,9 @@ function tryParseStructuredPdfText(text: string): Row[] | null {
   const normalized = normalizeArabicDigits(compact.replace(/\s+/g, ' ').trim());
   const match = (pattern: RegExp): string | null => normalized.match(pattern)?.[1]?.trim() ?? null;
   const row: Row = {
-    invoice_number: match(/(?:رقم\s*(?:الفاتورة|فاتورة)?|invoice(?:\s+number)?)\s*[:#]?\s*([^\s]+(?:\s+[^\s]+)*?)(?=\s*(?:التاريخ|date)(?:\s*[:：]?\s|$))/i),
+    invoice_number: match(/(?:رقم\s*(?:الفاتورة|فاتورة)?|invoice(?:\s+number)?)\s*[:#]?\s*([^\s]+(?:\s+[^\s]+)*?)\s+(?=(?:التاريخ|date)(?:\s*[:：]?\s|$))/i),
     invoice_date: match(/(?:التاريخ|date)\s*[:：]?\s*(\d{4}[-/]\d{1,2}[-/]\d{1,2})/i),
-    customer_name: match(/(?:العميل|اسم\s*العميل|customer(?:\s+name)?)\s*[:：]?\s*(.+?)(?=\s*(?:المجموع|الإجمالي|subtotal|total)(?:\s*[:：]?\s|$))/i),
+    customer_name: match(/(?:العميل|اسم\s*العميل|customer(?:\s+name)?)\s*[:：]?\s*(.+?)\s+(?=(?:المجموع|الإجمالي|subtotal|total)(?:\s|$))/i),
     subtotal: normalizeStructuredDocumentValue(match(/(?:المجموع الفرعي|المجموع|subtotal)\s*[:：]?\s*([\d٠-٩٬،.,]+)/i) ?? ''),
     tax_amount: normalizeStructuredDocumentValue(match(/(?:الضريبة|ضريبة|tax)\s*[:：]?\s*([\d٠-٩٬،.,]+)/i) ?? ''),
     total: normalizeStructuredDocumentValue(match(/(?:الإجمالي|الاجمالي|total)\s*[:：]?\s*([\d٠-٩٬،.,]+)/i) ?? ''),
@@ -112,27 +112,8 @@ async function buildTextDataset(text: string, fileName: string, sourceType: stri
 
 const PDF_OCR_MAX_PAGES = 20; const PDF_OCR_MAX_DIMENSION = 2200; const PDF_OCR_SCALE = 1.5; const OCR_CONFIDENCE_THRESHOLD = 70;
 async function parsePdfText(buffer: ArrayBuffer, fileName: string): Promise<Dataset[]> {
-  const pdfjs = await import('pdfjs-dist/legacy/build/pdf.mjs');
-  pdfjs.GlobalWorkerOptions.workerSrc = typeof window === 'undefined'
-    ? import.meta.resolve('pdfjs-dist/legacy/build/pdf.worker.mjs')
-    : new URL('pdfjs-dist/legacy/build/pdf.worker.mjs', import.meta.url).toString();
-  const documentOptions = typeof window === 'undefined'
-    ? {
-        data: new Uint8Array(buffer),
-        standardFontDataUrl: new URL(import.meta.resolve('pdfjs-dist/standard_fonts/')).pathname,
-        cMapUrl: new URL(import.meta.resolve('pdfjs-dist/cmaps/')).pathname,
-        cMapPacked: true,
-        useSystemFonts: true,
-        disableFontFace: true,
-      }
-    : {
-        data: new Uint8Array(buffer),
-        standardFontDataUrl: new URL('pdfjs-dist/standard_fonts/', import.meta.url).toString(),
-        cMapUrl: new URL('pdfjs-dist/cmaps/', import.meta.url).toString(),
-        cMapPacked: true,
-        useSystemFonts: true,
-      };
-  const pdf: PdfDocument = await pdfjs.getDocument(documentOptions).promise; const pages: string[] = [];
+  const pdfjs = await import('pdfjs-dist'); pdfjs.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.mjs', import.meta.url).toString();
+  const pdf: PdfDocument = await pdfjs.getDocument({ data: new Uint8Array(buffer) }).promise; const pages: string[] = [];
   for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) { const page = await pdf.getPage(pageNumber); const content = await page.getTextContent(); const text = content.items.map((item) => 'str' in item && typeof item.str === 'string' ? item.str : '').filter(Boolean).join(' '); if (text.trim()) pages.push(`PAGE ${pageNumber}\n${text}`); }
   if (pages.length) return buildTextDataset(pages.join('\n\n'), fileName, 'pdf'); return parseScannedPdfWithOcr(pdf, fileName);
 }
