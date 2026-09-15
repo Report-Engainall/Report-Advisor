@@ -60,6 +60,32 @@ const pdf = text => {
   result += `trailer\n<< /Size ${objects.length + 1} /Root 1 0 R >>\nstartxref\n${startxref}\n%%EOF\n`;
   return Buffer.from(result, 'binary');
 };
+const scannedImagePdf = (jpeg, width = 1200, height = 300) => {
+  const imageObject = Buffer.concat([
+    Buffer.from(`4 0 obj\n<< /Type /XObject /Subtype /Image /Width ${width} /Height ${height} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${jpeg.length} >>\nstream\n`),
+    jpeg,
+    Buffer.from('\nendstream\nendobj\n'),
+  ]);
+  const objects = [
+    Buffer.from('1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n'),
+    Buffer.from('2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n'),
+    Buffer.from(`3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${width} ${height}] /Resources << /XObject << /Im1 4 0 R >> >> /Contents 5 0 R >>\nendobj\n`),
+    imageObject,
+    Buffer.from(`5 0 obj\n<< /Length 33 >>\nstream\nq ${width} 0 0 ${height} 0 0 cm /Im1 Do Q\nendstream\nendobj\n`),
+  ];
+  const header = Buffer.from('%PDF-1.4\n%\xff\xff\xff\xff\n');
+  let offset = header.length;
+  const offsets = [0];
+  for (const object of objects) {
+    offsets.push(offset);
+    offset += object.length;
+  }
+  const xrefOffset = offset;
+  let xref = `xref\n0 ${objects.length + 1}\n0000000000 65535 f \n`;
+  for (let i = 1; i < offsets.length; i += 1) xref += `${String(offsets[i]).padStart(10, '0')} 00000 n \n`;
+  xref += `trailer\n<< /Size ${objects.length + 1} /Root 1 0 R >>\nstartxref\n${xrefOffset}\n%%EOF\n`;
+  return Buffer.concat([header, ...objects, Buffer.from(xref)]);
+};
 
 const suffix = `${Date.now()}-${process.pid}`;
 const customer = n => ({ name: `Scenario Customer ${suffix}-${n}`, code: `SC-${suffix}-${n}`, phone: '777000000', email: `scenario-${suffix}-${n}@example.invalid`, segment: 'retail', credit_limit: 0, payment_terms_days: 0 });
@@ -72,7 +98,7 @@ const inputs = new Map([
   ['excel-missing-columns', { entity: 'products', name: `excel-missing-columns-${suffix}.xlsx`, bytes: xlsx([{ sku: `SC-MISSING-${suffix}`, name: 'Missing price', unit: 'piece' }]) }],
   ['csv-reordered', { entity: 'customers', name: `csv-reordered-${suffix}.csv`, bytes: csv([{ payment_terms_days: customer(4).payment_terms_days, email: customer(4).email, segment: customer(4).segment, name: customer(4).name, credit_limit: customer(4).credit_limit, phone: customer(4).phone, code: customer(4).code }]) }],
   ['pdf-text', { entity: 'sales_invoices', name: `pdf-text-${suffix}.pdf`, bytes: pdf(JSON.stringify(invoice(5))) }],
-  ['pdf-ocr-ar', { entity: 'sales_invoices', name: `pdf-ocr-ar-${suffix}.pdf`, bytes: pdf(`فاتورة مبيعات invoice_number SC-OCR-${suffix} invoice_date ${new Date().toISOString().slice(0, 10)} customer_name عميل اختبار subtotal 15 tax_amount 0 total 15 paid_amount 0 status posted currency SAR اختبار عربي`) }],
+  ['pdf-ocr-ar', { entity: 'sales_invoices', name: `pdf-ocr-ar-${suffix}.pdf`, bytes: Buffer.alloc(0) }],
   ['unknown-report', { entity: 'sales_invoices', name: `unknown-report-${suffix}.pdf`, bytes: pdf('Quarterly narrative memorandum without a canonical financial schema') }],
   ['exchange-statement', { entity: 'sales_invoices', name: `exchange-statement-${suffix}.pdf`, bytes: pdf('Debit 100 Credit 40 Opening Balance 60 Closing Balance 60 Currency SAR') }],
   ['multi-currency', { entity: 'sales_invoices', name: `multi-currency-${suffix}.csv`, bytes: csv([invoice(9, 'EUR')]) }],
@@ -83,8 +109,13 @@ const inputs = new Map([
 
 const nonCommitExpectations = new Set(['review', 'semantic-discovery', 'reconciliation', 'safe-rejection']);
 const browser = await chromium.launch({ headless: true });
-const context = await browser.newContext({ viewport: { width: 1440, height: 1000 }, locale: 'ar-SA' });
+const context = await browser.newContext({ viewport: { width: 1440, height: 1000 }, locale: 'ar-SA', deviceScaleFactor: 1 });
 const page = await context.newPage();
+const ocrFixturePage = await context.newPage();
+await ocrFixturePage.setContent(`<html dir="rtl"><body style="margin:0;width:1200px;height:300px;display:flex;align-items:center;justify-content:center;background:white;color:black;font-family:Arial,sans-serif;font-size:30px"><div>فاتورة مبيعات رقم SC-OCR-${suffix} التاريخ ${new Date().toISOString().slice(0, 10)} العميل عميل اختبار المجموع 15 الضريبة 0 الإجمالي 15 المدفوع 0 العملة SAR</div></body></html>`);
+const ocrJpeg = await ocrFixturePage.screenshot({ type: 'jpeg', quality: 92, clip: { x: 0, y: 0, width: 1200, height: 300 } });
+inputs.get('pdf-ocr-ar').bytes = scannedImagePdf(ocrJpeg);
+await ocrFixturePage.close();
 let accessToken = null;
 let tenantId = null;
 const results = [];
