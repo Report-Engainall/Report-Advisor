@@ -41,13 +41,24 @@ async function rpc(name, body) {
   return text ? JSON.parse(text) : null;
 }
 
+function normalizeNumericText(text) {
+  return String(text)
+    .replace(/[٬,\s]/g, '')
+    .replace(/٫/g, '.')
+    .replace(/[٠-٩]/g, digit => String('٠١٢٣٤٥٦٧٨٩'.indexOf(digit)));
+}
+
 function numericText(text) {
-  const match = text.replace(/[^0-9.-]/g, ' ').match(/-?\d+(?:\.\d+)?/);
+  const match = normalizeNumericText(text).match(/-?\d+(?:\.\d+)?/);
   return match ? Number(match[0]) : null;
 }
 
 async function kpiCard(label) {
   const read = () => page.evaluate((target) => {
+    const normalize = text => String(text)
+      .replace(/[٬,\s]/g, '')
+      .replace(/٫/g, '.')
+      .replace(/[٠-٩]/g, digit => String('٠١٢٣٤٥٦٧٨٩'.indexOf(digit)));
     const candidates = [...document.querySelectorAll('*')]
       .filter(node => node.childElementCount === 0 && node.textContent?.trim() === target)
       .filter(node => {
@@ -60,7 +71,7 @@ async function kpiCard(label) {
       for (let depth = 0; current && depth < 6; depth += 1, current = current.parentElement) {
         const text = current.innerText?.trim() || '';
         const valueText = text.replace(target, '').trim();
-        const match = valueText.replace(/[^0-9.-]/g, ' ').match(/-?\d+(?:\.\d+)?/);
+        const match = normalize(valueText).match(/-?\d+(?:\.\d+)?/);
         if (match) return { text, value: Number(match[0]) };
       }
     }
@@ -68,13 +79,17 @@ async function kpiCard(label) {
   }, label);
 
   await page.waitForFunction((target) => {
+    const normalize = text => String(text)
+      .replace(/[٬,\s]/g, '')
+      .replace(/٫/g, '.')
+      .replace(/[٠-٩]/g, digit => String('٠١٢٣٤٥٦٧٨٩'.indexOf(digit)));
     const candidates = [...document.querySelectorAll('*')]
       .filter(node => node.childElementCount === 0 && node.textContent?.trim() === target);
     return candidates.some(node => {
       let current = node.parentElement;
       for (let depth = 0; current && depth < 6; depth += 1, current = current.parentElement) {
         const valueText = (current.innerText || '').replace(target, '').trim();
-        if (/\d/.test(valueText)) return true;
+        if (/\d/.test(normalize(valueText))) return true;
       }
       return false;
     });
