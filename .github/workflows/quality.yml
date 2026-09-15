@@ -32,8 +32,14 @@ jobs:
             actual_head="$(git ls-remote origin "refs/heads/${GITHUB_HEAD_REF}" | awk '{print $1}')"
             test -n "$actual_head"
             test "$actual_head" = "$expected_head"
-            echo "PR_HEAD_SHA=$actual_head"
+            git fetch --no-tags --prune origin "+refs/heads/${GITHUB_HEAD_REF}:refs/remotes/origin/${GITHUB_HEAD_REF}"
+            fetched_head="$(git rev-parse "refs/remotes/origin/${GITHUB_HEAD_REF}")"
+            test "$fetched_head" = "$expected_head"
+            git checkout --detach "$expected_head"
+            test "$(git rev-parse HEAD)" = "$expected_head"
+            echo "PR_HEAD_SHA=$expected_head"
             echo "MERGE_REF_SHA=$GITHUB_SHA"
+            echo "TESTED_HEAD_SHA=$(git rev-parse HEAD)"
           else
             echo "CODE_HEAD_SHA=$(git rev-parse HEAD)"
           fi
