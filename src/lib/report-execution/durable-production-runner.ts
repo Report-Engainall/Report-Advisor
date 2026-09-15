@@ -7,6 +7,16 @@ import { runProductionLifecycle, assertProductionCheckpoint, type ProductionLife
 const ORDER: ReportExecutionStage[] = ['queued', 'fingerprinted', 'extracted', 'canonicalized', 'validated', 'analyzed', 'decisioned', 'committed', 'rendered'];
 const next = (s: ReportExecutionStage): ReportExecutionStage | null => { const i = ORDER.indexOf(s); return i >= 0 && i < ORDER.length - 1 ? ORDER[i + 1] : null; };
 
+function errorMessage(error: unknown): string {
+  if (error instanceof Error) return error.message;
+  if (error && typeof error === 'object') {
+    const candidate = error as { message?: unknown; code?: unknown; details?: unknown; hint?: unknown };
+    if (typeof candidate.message === 'string' && candidate.message.trim()) return candidate.message;
+    try { return JSON.stringify(error); } catch { return Object.prototype.toString.call(error); }
+  }
+  return String(error);
+}
+
 export interface DurableSourceSnapshot<T = unknown> {
   sourceHash: string;
   rows: Array<Record<string, unknown>>;
@@ -60,7 +70,13 @@ export async function runDurableProductionLifecycle<T>(input: DurableProductionR
       if (heartbeatFailure) throw heartbeatFailure;
       const following = next(stage);
       if (!following) throw new Error(`Cannot advance production lifecycle from ${stage}`);
-      if (input.executeStage) await input.executeStage(following, { request: input.request, rows: sourceRows });
+      if (input.executeStage) {
+        try {
+          await input.executeStage(following, { request: input.request, rows: sourceRows });
+        } catch (error) {
+          throw new Error(`PRODUCTION_STAGE_FAILED:${following}:${errorMessage(error)}`);
+        }
+      }
       if (heartbeatFailure) throw heartbeatFailure;
       await store.saveCheckpoint(input.jobId, checkpoint(following), input.workerId, tenantId);
       stage = following;
@@ -73,8 +89,17 @@ export async function runDurableProductionLifecycle<T>(input: DurableProductionR
       sourceHash: input.sourceHash,
       currentRows: source.currentRows,
     });
+    const primaryEvidence = input.lifecycle.evidence[0];
+    const evidenceDetails = primaryEvidence?.details ?? {};
     await store.complete(input.jobId, input.workerId, {
+      source: primaryEvidence?.source ?? null,
+      formula: evidenceDetails.formula ?? 'canonical_import_identity_preservation',
+      period: evidenceDetails.period ?? 'as_of_observation',
+      tenant: tenantId,
+      asOf: evidenceDetails.asOf ?? primaryEvidence?.observedAt ?? null,
+      freshness: evidenceDetails.freshness ?? primaryEvidence?.observedAt ?? null,
       sourceHash: input.sourceHash,
+      evidenceKeys: input.lifecycle.evidence.map(item => item.key),
       sourceSnapshotId: input.request.sourceSnapshotId ?? null,
       sourceRowCount: sourceRows.length,
       authoritativeCurrentRowCount: source.currentRows.length,
@@ -86,7 +111,7 @@ export async function runDurableProductionLifecycle<T>(input: DurableProductionR
     return lifecycle;
   } catch (error) {
     try {
-      await store.fail(input.jobId, input.workerId, { message: error instanceof Error ? error.message : String(error) }, tenantId);
+      await store.fail(input.jobId, input.workerId, { message: errorMessage(error) }, tenantId);
       if (job.attempt < job.maxAttempts) await store.retry(input.jobId, tenantId);
     } catch (failureError) {
       throw new AggregateError([error, failureError], 'Durable execution failed and failure/recovery state could not be persisted');

@@ -2,7 +2,7 @@ import { supabase, resolveCurrentCompanyId } from '@/lib/supabase';
 import { assertCanonicalBoundary, type ReconciledCanonicalImportRow } from '@/lib/import/canonical-truth-boundary';
 
 export interface CanonicalImportRow { data: Record<string, unknown>; rowNumber: number }
-export interface CanonicalCommitResult { committed: number; ids: string[] }
+export interface CanonicalCommitResult { committed: number; ids: string[]; idempotentReplay: boolean }
 
 function text(value: unknown): string | null {
   if (value == null) return null;
@@ -70,30 +70,42 @@ function canonicalizeRow(entityType: 'products' | 'customers' | 'sales_invoices'
   };
 }
 
+function normalizeSourceHash(value: string): string {
+  const raw = value.trim().toLowerCase().replace(/^sha256:/, '');
+  if (!/^[0-9a-f]{64}$/.test(raw)) throw new Error('IMPORT_SOURCE_HASH_INVALID');
+  return `sha256:${raw}`;
+}
+
 export async function commitImportBatch(
   entityType: 'products' | 'customers' | 'sales_invoices',
   rows: ReconciledCanonicalImportRow[],
+  sourceHash: string,
 ): Promise<CanonicalCommitResult> {
-  if (!rows.length) return { committed: 0, ids: [] };
+  if (!rows.length) return { committed: 0, ids: [], idempotentReplay: false };
   const companyId = await resolveCurrentCompanyId();
   if (!companyId) throw new Error('No authenticated tenant context is available for canonical import');
+  const normalizedSourceHash = normalizeSourceHash(sourceHash);
 
-  // The canonical boundary is intentionally runtime-enforced, not merely a TypeScript type.
   rows.forEach((row) => assertCanonicalBoundary(row, companyId));
+  rows.forEach((row) => {
+    if (row.provenance.sourceHash !== normalizedSourceHash) throw new Error('CANONICAL_SOURCE_HASH_MISMATCH');
+  });
   const payload = rows.map((row) => canonicalizeRow(entityType, { data: row.data, rowNumber: row.rowNumber }));
   const { data, error } = await supabase.rpc('import_commit_batch', {
     p_company_id: companyId,
     p_entity_type: entityType,
     p_rows: payload,
     p_null_policy: 'preserve',
+    p_source_hash: normalizedSourceHash,
   });
   if (error) throw error;
 
-  const result = data as { committed?: unknown; ids?: unknown } | null;
+  const result = data as { committed?: unknown; ids?: unknown; idempotent_replay?: unknown } | null;
   const committed = Number(result?.committed);
   const ids = Array.isArray(result?.ids) ? result.ids.map(String) : [];
+  const idempotentReplay = result?.idempotent_replay === true;
   if (!Number.isInteger(committed) || committed !== rows.length || ids.length !== rows.length) {
     throw new Error('IMPORT_COMMIT_RESULT_MISMATCH');
   }
-  return { committed, ids };
+  return { committed, ids, idempotentReplay };
 }
