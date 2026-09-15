@@ -7,11 +7,14 @@ let synonymCache: Map<string, { canonical: string; confidence: number }> | null 
 const BUILTIN_SYNONYMS: Array<[string, string, number]> = [
   ['sku', 'sku', 96], ['item code', 'sku', 96], ['product code', 'sku', 96], ['item id', 'sku', 92], ['رقم الصنف', 'sku', 98], ['كود الصنف', 'sku', 98], ['رمز الصنف', 'sku', 96],
   ['الباركود', 'barcode', 96], ['barcode', 'barcode', 96], ['باركود', 'barcode', 96], ['name', 'name', 96], ['item name', 'name', 98], ['product name', 'name', 98], ['اسم الصنف', 'name', 98], ['اسم المنتج', 'name', 98],
-  ['description', 'description', 94], ['الوصف', 'description', 96], ['price', 'price', 96], ['sale price', 'price', 96], ['selling price', 'price', 96], ['السعر', 'price', 98], ['سعر البيع', 'price', 98],
-  ['cost', 'cost', 94], ['التكلفة', 'cost', 96], ['quantity', 'quantity', 96], ['qty', 'quantity', 96], ['stock', 'quantity', 94], ['available quantity', 'quantity', 96], ['الكمية', 'quantity', 98], ['المخزون', 'quantity', 96],
+  ['description', 'description', 94], ['الوصف', 'description', 96], ['price', 'price', 96], ['sale price', 'price', 96], ['selling price', 'price', 98], ['selling_price', 'selling_price', 98], ['السعر', 'price', 98], ['سعر البيع', 'price', 98],
+  ['cost', 'cost', 94], ['cost_price', 'cost_price', 98], ['cost price', 'cost_price', 98], ['التكلفة', 'cost', 96], ['quantity', 'quantity', 96], ['qty', 'quantity', 96], ['stock', 'quantity', 94], ['available quantity', 'quantity', 96], ['الكمية', 'quantity', 98], ['المخزون', 'quantity', 96],
   ['unit', 'unit', 96], ['الوحدة', 'unit', 98], ['category', 'category', 94], ['الفئة', 'category', 96], ['التصنيف', 'category', 96], ['status', 'status', 94], ['الحالة', 'status', 96],
+  ['min_stock', 'min_stock', 98], ['min stock', 'min_stock', 98], ['reorder_point', 'reorder_point', 98], ['reorder point', 'reorder_point', 98], ['is_active', 'is_active', 98], ['is active', 'is_active', 98],
   ['customer number', 'customer_number', 98], ['customer id', 'customer_number', 96], ['رقم العميل', 'customer_number', 98], ['customer name', 'customer_name', 98], ['اسم العميل', 'customer_name', 98], ['phone', 'phone', 96], ['mobile', 'phone', 96], ['هاتف', 'phone', 96], ['جوال', 'phone', 96],
+  ['code', 'code', 98], ['customer code', 'code', 98], ['segment', 'segment', 98], ['credit_limit', 'credit_limit', 98], ['credit limit', 'credit_limit', 98], ['payment_terms_days', 'payment_terms_days', 98], ['payment terms days', 'payment_terms_days', 98],
   ['email', 'email', 96], ['البريد الإلكتروني', 'email', 98], ['date', 'date', 94], ['التاريخ', 'date', 96], ['total', 'total', 94], ['الإجمالي', 'total', 96],
+  ['invoice_number', 'invoice_number', 98], ['invoice number', 'invoice_number', 98], ['invoice_date', 'invoice_date', 98], ['invoice date', 'invoice_date', 98], ['customer_id', 'customer_id', 98], ['customer_id', 'customer_id', 98], ['subtotal', 'subtotal', 98], ['tax_amount', 'tax_amount', 98], ['tax amount', 'tax_amount', 98], ['paid_amount', 'paid_amount', 98], ['paid amount', 'paid_amount', 98],
 ];
 
 function createBuiltinMap(): Map<string, { canonical: string; confidence: number }> { const map = new Map<string, { canonical: string; confidence: number }>(); for (const [synonym, canonical, confidence] of BUILTIN_SYNONYMS) map.set(normalizeColumnName(synonym), { canonical, confidence }); return map; }

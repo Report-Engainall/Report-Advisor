@@ -1,22 +1,30 @@
-import { BUSINESS_METRICS, type MetricDefinition } from './semanticMetrics';
+import { SEMANTIC_METRIC_REGISTRY, requireSemanticMetric } from './semantic-metric-registry.ts';
+import type { MetricDefinition } from './semanticMetrics.ts';
 
 export interface MetricContract extends MetricDefinition {
+  metricId: string;
   version: number;
   owner: 'core-data' | 'finance' | 'inventory' | 'sales' | 'forecast' | 'decision';
   decisionSafe: boolean;
   requiredEvidence: string[];
 }
 
-export const METRIC_CONTRACTS: MetricContract[] = BUSINESS_METRICS.map(metric => ({
+export const METRIC_CONTRACTS: MetricContract[] = SEMANTIC_METRIC_REGISTRY.map(metric => ({
   ...metric,
-  version: 1,
-  owner: metric.key.includes('inventory') || metric.key.includes('stock') ? 'inventory' : metric.key.includes('cash') || metric.key.includes('receivable') || metric.key.includes('payable') ? 'finance' : metric.key.includes('forecast') ? 'forecast' : 'core-data',
+  metricId: metric.metricId,
+  version: metric.version,
+  owner: metric.owner as MetricContract['owner'],
   decisionSafe: metric.status !== 'UNAVAILABLE' && metric.status !== 'INSUFFICIENT_DATA',
-  requiredEvidence: metric.source,
+  requiredEvidence: metric.evidence,
 }));
 
 export function getMetricContract(key: string): MetricContract | undefined {
-  return METRIC_CONTRACTS.find(metric => metric.key === key);
+  try {
+    const canonical = requireSemanticMetric(key).metricId;
+    return METRIC_CONTRACTS.find(metric => metric.metricId === canonical);
+  } catch {
+    return undefined;
+  }
 }
 
 export function metricDependencyClosure(key: string): string[] {
@@ -28,10 +36,10 @@ export function metricDependencyClosure(key: string): string[] {
     seen.add(name);
     for (const dependency of getMetricContract(name)?.dependencies ?? []) {
       const depMetric = getMetricContract(dependency);
-      if (depMetric) walk(depMetric.key);
+      if (depMetric) walk(depMetric.metricId);
     }
   };
-  walk(key);
+  walk(root.metricId);
   return [...seen];
 }
 

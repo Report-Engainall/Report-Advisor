@@ -28,11 +28,11 @@ const boldCandidateIndex = `## CURRENT EXECUTION BOUNDARY\n- **CURRENT CODE/TEST
 assert.equal(validateCurrentHeadIndex(boldCandidateIndex, 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'), true);
 
 const indexOnlyBoundary = `## CURRENT PROJECT STATE\n- Current repository index boundary head: \`aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\`.\n- Current code/test candidate: \`bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\`.`;
-assert.equal(validateCurrentHeadIndex(indexOnlyBoundary, 'cccccccccccccccccccccccccccccccccccccccc', 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', ['docs/MASTER_EXECUTION_INDEX.md']), true);
+assert.throws(() => validateCurrentHeadIndex(indexOnlyBoundary, 'cccccccccccccccccccccccccccccccccccccccc', 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', ['docs/MASTER_EXECUTION_INDEX.md']), /INDEX DRIFT/);
 assert.throws(() => validateCurrentHeadIndex(indexOnlyBoundary, 'cccccccccccccccccccccccccccccccccccccccc', 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', ['docs/MASTER_EXECUTION_INDEX.md', 'src/app.tsx']), /INDEX DRIFT/);
 
 const enforcementOnlyBoundary = `## CURRENT PROJECT STATE\n- Exact code/test head entering this sweep: \`aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\`.`;
-assert.equal(validateCurrentHeadIndex(enforcementOnlyBoundary, 'cccccccccccccccccccccccccccccccccccccccc', 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', ['scripts/check-execution-enforcement-protocol.mjs', 'scripts/check-execution-enforcement-protocol.test.mjs']), true);
+assert.throws(() => validateCurrentHeadIndex(enforcementOnlyBoundary, 'cccccccccccccccccccccccccccccccccccccccc', 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', ['scripts/check-execution-enforcement-protocol.mjs', 'scripts/check-execution-enforcement-protocol.test.mjs']), /INDEX DRIFT/);
 assert.throws(() => validateCurrentHeadIndex(enforcementOnlyBoundary, 'cccccccccccccccccccccccccccccccccccccccc', 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', ['scripts/check-execution-enforcement-protocol.mjs', 'src/app.tsx']), /INDEX DRIFT/);
 
-console.log('PASS v3.4 enforcement adversarial test-of-test (including markdown-emphasized candidate parsing)');
+console.log('PASS v3.4 enforcement adversarial test-of-test (including markdown-emphasized candidate parsing and fail-closed index-drift boundaries)');

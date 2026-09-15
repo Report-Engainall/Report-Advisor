@@ -9,13 +9,23 @@ for (const token of [
   "snapshot.status === 'CALCULATED'",
   'snapshot.revenue !== null',
   'snapshot.cost !== null',
-  'setFinancials({ revenue: snapshot.revenue, cost: snapshot.cost })',
-  '<CanonicalScenarioPage baseRevenue={financials.revenue} baseCost={financials.cost} />',
+  'snapshot.currency !== null',
+  'setFinancials({ revenue: snapshot.revenue, cost: snapshot.cost, currency: snapshot.currency })',
+  '<CanonicalScenarioPage\n        baseRevenue={financials.revenue}\n        baseCost={financials.cost}\n        currency={financials.currency}\n      />',
 ]) {
   if (!guard.includes(token)) throw new Error(`Scenario truth guard missing required boundary: ${token}`);
 }
 
-for (const token of ['baseRevenue: number', 'baseCost: number', 'formatCurrency(baseRevenue)', 'formatCurrency(baseCost)']) {
+for (const token of [
+  'baseRevenue: number',
+  'baseCost: number',
+  'currency: string',
+  'formatCurrency(baseRevenue, currency)',
+  'formatCurrency(baseCost, currency)',
+  'formatCurrency(newRevenue, currency)',
+  'formatCurrency(newCost, currency)',
+  'formatCurrency(newProfit, currency)',
+]) {
   if (!simulator.includes(token)) throw new Error(`Canonical scenario simulator missing required input boundary: ${token}`);
 }
 

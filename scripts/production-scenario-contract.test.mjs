@@ -1,0 +1,28 @@
+import assert from 'node:assert/strict';
+import { scenarios } from './production-scenario-matrix.mjs';
+import { scenarioAssertionPlan, snapshotBusinessState, assertZeroUnintendedMutation, validateCompactArtifact } from './production-scenario-contract.mjs';
+
+for (const scenario of scenarios) assert.ok(scenarioAssertionPlan(scenario.id).length >= 4, `PLAN_TOO_SMALL:${scenario.id}`);
+assert.equal(scenarios.length, 12);
+
+const before = snapshotBusinessState({
+  importJobs: [{ id: 'job-1', status: 'completed', source_hash: 'h1' }],
+  invoices: [{ id: 'inv-1', invoice_number: 'I-1', company_id: 'tenant-a', currency: 'SAR', total: 15 }],
+  movements: [{ id: 'mov-1', product_id: 'p1', movement_type: 'sale', company_id: 'tenant-a', quantity: 1 }],
+  evidence: [{ id: 'ev-1', metric_key: 'sales', company_id: 'tenant-a', as_of: '2026-09-15' }],
+});
+const after = snapshotBusinessState({
+  importJobs: [{ id: 'job-1', status: 'completed', source_hash: 'h1' }],
+  invoices: [{ id: 'inv-1', invoice_number: 'I-1', company_id: 'tenant-a', currency: 'SAR', total: 15 }],
+  movements: [{ id: 'mov-1', product_id: 'p1', movement_type: 'sale', company_id: 'tenant-a', quantity: 1 }],
+  evidence: [{ id: 'ev-1', metric_key: 'sales', company_id: 'tenant-a', as_of: '2026-09-15' }],
+});
+assertZeroUnintendedMutation(before, after);
+
+validateCompactArtifact({
+  exact_head: '950e0882c5557211a621be09a82a53f578af9713',
+  scenario_count: 12,
+  results: scenarios.map((s, i) => ({ scenario_id: s.id, exact_head: '950e0882c5557211a621be09a82a53f578af9713', tenant: 'tenant-a', execution_start: '2026-09-15T00:00:00Z', execution_end: '2026-09-15T00:00:01Z', assertions: [] })),
+}, '950e0882c5557211a621be09a82a53f578af9713');
+
+console.log('Production scenario contract assertions PASS: 12 plans + zero-mutation + artifact binding.');
