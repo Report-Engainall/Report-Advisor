@@ -2,29 +2,33 @@
 
 ## Current candidate
 - Branch: `candidate/950e-scenario-hardening`
-- Current Exact HEAD: `bc90d9381717142d53ae8a1b6ec825baeca8a4e3`
-- Previous failed runtime SHA: `475780325e0148a998125ae0dc9b50e8317350c5` — never rerun.
-- Earlier failed SHA: `92acae52581c0fef9e901e3537cf035bd8c3` — never rerun.
+- Current Exact HEAD: `67ea6dc76ebe228b95ae0b94a9aabd8409085547`
+- Previous failed runtime: `34951477634` / job `104323214175` on `475780325e0148a998125ae0dc9b50e8317350c5` — never rerun.
+- Earlier failed SHA `92acae52581c0fef9e901e3537cf035bd8c3` — never rerun.
 
-## Duplicate RCA
-Runtime `34951477634` on `475780...` proved the second identical import reaches a terminal failed `import_jobs` state in staging. The remaining failure was the scenario harness readback race: `terminalImport(sourceHash)` could return the first-run `completed` job before the second-run terminal job was observed.
+## Duplicate RCA / fixes
+- `475780...` established that the second identical import reaches terminal failed `import_jobs` in staging; the remaining failure was harness readback racing against the first-run `completed` row.
+- `b0b79f...` bound duplicate acceptance to a new failed second-run DB row and `+1` import-job count delta.
+- `c30c9...` rejected generic `completed` / `committed_and_rendered` as duplicate closure and added `job_type` to snapshot identity.
+- `bc90d...` isolated the second-run terminal evidence predicate.
+- `67ea6d...` centralized the allowed duplicate terminal policy in `DUPLICATE_TERMINAL_STATUSES`.
 
-## Surgical fixes
-- `b0b79f0683898e7b805d14282257e6d6b47a7c6b`: bind duplicate acceptance to new second-run DB evidence.
-- `c30c9aafd7db47c7f976522207037834964c7769`: reject generic `completed` / `committed_and_rendered` as duplicate closure and include `job_type` in import-job snapshot identity.
-- `bc90d9381717142d53ae8a1b6ec825baeca8a4e3`: isolate the second-run terminal DB evidence predicate into `assertDuplicateSecondRunTerminal()`; same fail-closed semantics, clearer provenance boundary.
+## Fresh runtime
+No fresh runtime for `67ea...` is exposed by the available GitHub connector. The existing workflow is configured for `pull_request.synchronize` and includes the changed scenario-contract path, but the connector exposes inspection/rerun only and no workflow-dispatch action. No synthetic/no-op commit was used just to manufacture evidence.
 
-## Runtime status
-The Full Product Browser E2E workflow is configured for `pull_request.synchronize` and includes the modified scenario-contract path. The available GitHub connector currently exposes workflow inspection/rerun but not `workflow_dispatch`; no synthetic/no-op commit was created solely to manufacture evidence. Therefore **no PASS/12-of-12 claim** is made for `bc90...`.
+Therefore:
+- `67ea...` is **NOT PASS**.
+- `67ea...` is **NOT declared FAILED** without runtime evidence.
+- No `production-regression-results.json` final artifact exists.
+- No 12/12 claim exists.
+- Certification remains FAIL-CLOSED.
 
-## Release / certification
-Final `production-regression-results.json` remains uncreated until a fresh 12/12 exact-SHA runtime. Release Decision and Certification Boundary remain fail-closed.
+## Independent validation
+`production-release-decision.mjs` passed negative preflight checks: invalid/missing artifact, zero results, and failed scenarios all return `blocked`; no static success path was found.
 
 ## Governance
 - `main` unchanged.
 - `docs/MASTER_EXECUTION_INDEX.md` unchanged.
-- No historical evidence transfer.
-- No fake session/JWT/fixtures.
-- No RLS/service-role bypass.
-- No validator weakening.
+- Historical PASS/evidence not transferred.
+- No validator/RLS/auth bypass.
 - No duplicate durable runner.
