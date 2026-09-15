@@ -64,20 +64,45 @@ export async function checkDuplicate(hash: string, _legacyCompanyId?: string, _l
   const { resolveCurrentCompanyId, supabase } = await import('../supabase.ts');
   const companyId = await resolveCurrentCompanyId();
   if (!companyId) throw new Error('TENANT_CONTEXT_REQUIRED');
+  const normalizedHash = hash.startsWith('sha256:') ? hash : `sha256:${hash}`;
 
-  // Canonical import idempotency is authoritative at import_commit_batch's server transaction.
-  // The browser must not read the canonical commit ledger directly during preflight because
-  // that would duplicate server truth and unnecessarily widen the UI RLS read surface.
+  // Keep the preflight read on tenant-scoped import metadata. The authoritative canonical
+  // idempotency decision remains import_commit_batch on the server transaction.
   const { data: fileRecord, error: fileError } = await supabase
     .from('file_records')
     .select('id,company_id,file_name,file_hash,created_at,status')
     .eq('company_id', companyId)
-    .eq('file_hash', hash)
+    .eq('file_hash', hash.replace(/^sha256:/, ''))
     .order('created_at', { ascending: false })
     .limit(1)
     .maybeSingle();
   if (fileError) throw fileError;
   if (fileRecord) return { isDuplicate: true, existing: fileRecord as FileRecord };
+
+  const { data: importJob, error: importError } = await supabase
+    .from('import_jobs')
+    .select('id,company_id,job_type,status,result_summary,created_at')
+    .eq('company_id', companyId)
+    .eq('result_summary->>sourceHash', normalizedHash)
+    .in('status', ['completed', 'processing'])
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (importError) throw importError;
+  if (importJob) {
+    const summary = (importJob.result_summary ?? {}) as Record<string, unknown>;
+    return {
+      isDuplicate: true,
+      existing: {
+        id: String(importJob.id),
+        company_id: String(importJob.company_id),
+        file_name: String(summary.file_name ?? importJob.job_type ?? 'import'),
+        file_hash: normalizedHash,
+        created_at: String(importJob.created_at),
+        status: String(importJob.status),
+      },
+    };
+  }
 
   return { isDuplicate: false, existing: null };
 }
