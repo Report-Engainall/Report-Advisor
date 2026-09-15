@@ -66,7 +66,7 @@ function canonicalizeRow(entityType: 'products' | 'customers' | 'sales_invoices'
     tax_amount: requiredNumber(d.tax_amount, 'tax_amount', row.rowNumber),
     total: requiredNumber(d.total, 'total', row.rowNumber),
     paid_amount: requiredNumber(d.paid_amount, 'paid_amount', row.rowNumber),
-    status: requiredText(d.status, 'status', row.rowNumber),
+    status: text(d.status) ?? 'posted',
   };
 }
 
