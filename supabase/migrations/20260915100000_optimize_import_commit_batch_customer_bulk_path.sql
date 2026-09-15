@@ -21,13 +21,9 @@ BEGIN
   IF p_entity_type NOT IN ('products','customers','sales_invoices') THEN RAISE EXCEPTION 'IMPORT_ENTITY_TYPE_UNSUPPORTED'; END IF;
   IF jsonb_typeof(p_rows) IS DISTINCT FROM 'array' THEN RAISE EXCEPTION 'IMPORT_ROWS_MUST_BE_ARRAY'; END IF;
 
-  SELECT * INTO v_existing
-  FROM public.canonical_import_commits c
-  WHERE c.company_id=v_company_id AND c.entity_type=p_entity_type AND c.source_hash=p_source_hash
-  FOR UPDATE;
-  IF FOUND THEN
-    RETURN jsonb_build_object('committed',v_existing.committed_count,'ids',v_existing.committed_ids,'idempotent_replay',true);
-  END IF;
+  SELECT * INTO v_existing FROM public.canonical_import_commits c
+  WHERE c.company_id=v_company_id AND c.entity_type=p_entity_type AND c.source_hash=p_source_hash FOR UPDATE;
+  IF FOUND THEN RETURN jsonb_build_object('committed',v_existing.committed_count,'ids',v_existing.committed_ids,'idempotent_replay',true); END IF;
 
   IF jsonb_array_length(p_rows)=0 THEN
     INSERT INTO public.canonical_import_commits(company_id,entity_type,source_hash,committed_ids,committed_count)
@@ -38,20 +34,18 @@ BEGIN
   IF p_entity_type='customers' THEN
     CREATE TEMP TABLE tmp_import_customers ON COMMIT DROP AS
     SELECT ord::bigint AS ord,
-      btrim(value->>'name') AS name,
+      NULLIF(btrim(value->>'name'),'') AS name,
       NULLIF(btrim(value->>'code'),'') AS code,
       NULLIF(btrim(value->>'phone'),'') AS phone,
       NULLIF(btrim(value->>'email'),'') AS email,
-      coalesce(NULLIF(btrim(value->>'segment'),''),'regular') AS segment,
-      coalesce(NULLIF(value->>'credit_limit','')::numeric,0) AS credit_limit,
-      coalesce(NULLIF(value->>'payment_terms_days','')::integer,30) AS payment_terms_days,
+      NULLIF(btrim(value->>'segment'),'') AS segment,
+      NULLIF(value->>'credit_limit','')::numeric AS credit_limit,
+      NULLIF(value->>'payment_terms_days','')::integer AS payment_terms_days,
       public.normalize_import_key(NULLIF(btrim(value->>'code'),'')) AS norm_code,
       NULL::uuid AS target_id
     FROM jsonb_array_elements(p_rows) WITH ORDINALITY AS x(value,ord);
 
-    IF EXISTS (SELECT 1 FROM tmp_import_customers WHERE name IS NULL OR name='') THEN
-      RAISE EXCEPTION 'customer name is required';
-    END IF;
+    IF EXISTS (SELECT 1 FROM tmp_import_customers WHERE name IS NULL OR name='') THEN RAISE EXCEPTION 'customer name is required'; END IF;
 
     UPDATE public.customers c
     SET name=CASE WHEN p_null_policy='preserve' AND t.name IS NULL THEN c.name ELSE coalesce(t.name,c.name) END,
@@ -61,37 +55,28 @@ BEGIN
         credit_limit=CASE WHEN p_null_policy='preserve' AND t.credit_limit IS NULL THEN c.credit_limit ELSE coalesce(t.credit_limit,c.credit_limit) END,
         payment_terms_days=CASE WHEN p_null_policy='preserve' AND t.payment_terms_days IS NULL THEN c.payment_terms_days ELSE coalesce(t.payment_terms_days,c.payment_terms_days) END
     FROM tmp_import_customers t
-    WHERE t.norm_code IS NOT NULL
-      AND c.company_id=v_company_id
-      AND public.normalize_import_key(c.code)=t.norm_code;
+    WHERE t.norm_code IS NOT NULL AND c.company_id=v_company_id AND public.normalize_import_key(c.code)=t.norm_code;
 
     INSERT INTO public.customers(company_id,name,code,phone,email,segment,credit_limit,payment_terms_days)
-    SELECT v_company_id,t.name,t.code,t.phone,t.email,t.segment,t.credit_limit,t.payment_terms_days
+    SELECT v_company_id,t.name,t.code,t.phone,t.email,coalesce(t.segment,'regular'),coalesce(t.credit_limit,0),coalesce(t.payment_terms_days,30)
     FROM tmp_import_customers t
-    WHERE t.norm_code IS NOT NULL
-      AND NOT EXISTS (
-        SELECT 1 FROM public.customers c
-        WHERE c.company_id=v_company_id AND public.normalize_import_key(c.code)=t.norm_code
-      )
+    WHERE t.norm_code IS NOT NULL AND NOT EXISTS (
+      SELECT 1 FROM public.customers c WHERE c.company_id=v_company_id AND public.normalize_import_key(c.code)=t.norm_code
+    )
     ON CONFLICT DO NOTHING;
 
-    UPDATE tmp_import_customers t
-    SET target_id=c.id
+    UPDATE tmp_import_customers t SET target_id=c.id
     FROM public.customers c
-    WHERE t.norm_code IS NOT NULL
-      AND c.company_id=v_company_id
-      AND public.normalize_import_key(c.code)=t.norm_code;
+    WHERE t.norm_code IS NOT NULL AND c.company_id=v_company_id AND public.normalize_import_key(c.code)=t.norm_code;
 
     FOR v_row IN SELECT to_jsonb(t) FROM tmp_import_customers t WHERE t.norm_code IS NULL ORDER BY t.ord LOOP
-      SELECT target_id INTO v_id
-      FROM public.import_upsert_customer(v_company_id,v_row->>'name',NULL,v_row->>'phone',v_row->>'email',v_row->>'segment',NULLIF(v_row->>'credit_limit','')::numeric,NULLIF(v_row->>'payment_terms_days','')::integer,p_null_policy);
+      SELECT target_id INTO v_id FROM public.import_upsert_customer(v_company_id,v_row->>'name',NULL,v_row->>'phone',v_row->>'email',v_row->>'segment',NULLIF(v_row->>'credit_limit','')::numeric,NULLIF(v_row->>'payment_terms_days','')::integer,p_null_policy);
       IF v_id IS NULL THEN RAISE EXCEPTION 'IMPORT_TARGET_ID_MISSING'; END IF;
       UPDATE tmp_import_customers SET target_id=v_id WHERE ord=(v_row->>'ord')::bigint;
     END LOOP;
 
     IF EXISTS (SELECT 1 FROM tmp_import_customers WHERE target_id IS NULL) THEN RAISE EXCEPTION 'IMPORT_TARGET_ID_MISSING'; END IF;
-    SELECT count(*)::integer, coalesce(jsonb_agg(target_id ORDER BY ord),'[]'::jsonb)
-      INTO v_count,v_ids FROM tmp_import_customers;
+    SELECT count(*)::integer, coalesce(jsonb_agg(target_id ORDER BY ord),'[]'::jsonb) INTO v_count,v_ids FROM tmp_import_customers;
   ELSE
     FOR v_row IN SELECT value FROM jsonb_array_elements(p_rows) LOOP
       IF p_entity_type='products' THEN
@@ -100,8 +85,7 @@ BEGIN
         SELECT target_id INTO v_id FROM public.import_upsert_sales_invoice(v_company_id,v_row->>'invoice_number',NULLIF(v_row->>'invoice_date','')::date,NULLIF(v_row->>'customer_id','')::uuid,v_row->>'customer_name',NULLIF(v_row->>'subtotal','')::numeric,NULLIF(v_row->>'tax_amount','')::numeric,NULLIF(v_row->>'total','')::numeric,NULLIF(v_row->>'paid_amount','')::numeric,v_row->>'status',p_null_policy);
       END IF;
       IF v_id IS NULL THEN RAISE EXCEPTION 'IMPORT_TARGET_ID_MISSING'; END IF;
-      v_count:=v_count+1;
-      v_ids:=v_ids||jsonb_build_array(v_id);
+      v_count:=v_count+1; v_ids:=v_ids||jsonb_build_array(v_id);
     END LOOP;
   END IF;
 
