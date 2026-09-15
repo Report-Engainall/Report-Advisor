@@ -118,7 +118,10 @@ async function parsePdfText(buffer: ArrayBuffer, fileName: string): Promise<Data
   } else {
     pdfjs.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.mjs', import.meta.url).toString();
   }
-  const pdf: PdfDocument = await pdfjs.getDocument({ data: new Uint8Array(buffer) }).promise; const pages: string[] = [];
+  const documentOptions = typeof window === 'undefined'
+    ? { data: new Uint8Array(buffer), standardFontDataUrl: import.meta.resolve('pdfjs-dist/standard_fonts/'), useSystemFonts: true }
+    : { data: new Uint8Array(buffer) };
+  const pdf: PdfDocument = await pdfjs.getDocument(documentOptions).promise; const pages: string[] = [];
   for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) { const page = await pdf.getPage(pageNumber); const content = await page.getTextContent(); const text = content.items.map((item) => 'str' in item && typeof item.str === 'string' ? item.str : '').filter(Boolean).join(' '); if (text.trim()) pages.push(`PAGE ${pageNumber}\n${text}`); }
   if (pages.length) return buildTextDataset(pages.join('\n\n'), fileName, 'pdf'); return parseScannedPdfWithOcr(pdf, fileName);
 }
