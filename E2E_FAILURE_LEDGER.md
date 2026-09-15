@@ -75,94 +75,53 @@ Observed failures included:
 - `duplicate-transactions`: `EVIDENCE_SOURCE_MISSING`
 - `large-file`: `JOB_NOT_COMPLETED` (`failed` vs `completed`)
 
-The compact artifact was produced but is invalid for certification because the scenario contract correctly rejected non-terminal/failed scenario results. Artifact hashes observed during this run were `23593816b63b5e4e9f5192b8fe44af856d7366a92cdf65b0e6e70f046f0aa6e4` and `22611250b40dc7da1a32545627a5851d6ce28892e95ca9f2d84c1eecc489cbce`.
+The compact artifact was produced but is invalid for certification because the scenario contract correctly rejected non-terminal/failed scenario results. Artifact hashes observed during this run were `23593816b63b5e4e9f5192b8fe44f856d7366a92cdf65b0e6e70f046f0aa6e4` and `22611250b40dc7da1a32545627a5851d6ce28892e95ca9f2d84c1eecc489cbce`.
 
 Certification Boundary remains FAIL-CLOSED because the master index records candidate `f8bc54c166078906a55b613a8ba3b4b964a95fa3`, not `35c262...`. `MASTER_EXECUTION_INDEX.md` was not modified.
 
-### Follow-up on successor `1f5e995f0b276a63481d07f2216ccc1ed401ab1f`
+## Exact-HEAD Failure and RCA — `ddf3aadd6735e703ea73c253245de8d57068b4c3`
 
-Fresh CI was triggered by the ledger/code successor. `Full Product Browser E2E` run `34922743051` is **IN PROGRESS**. The independent `Import Query Bounds` gate failed first with:
+Status: **FAILED**. This SHA is closed and must not be rerun.
 
-`import query bound contract missing: { count: 'exact' }`
+First failure: `DUPLICATE_NON_TERMINAL` in `assertDuplicateIdempotency()`.
 
-Root cause: the first pagination fix removed the exact-count option required by the existing bounded-query contract. This is a contract mismatch, not a reason to weaken the validator. The corrective change restores `{ count: 'exact' }` while retaining the bounded range and no longer using a missing `count` value as a runtime failure condition. The resulting successor must receive fresh verification; no PASS from `35c262...` or `1f5e995f...` is transferred.
+Dependency-closed results already proven on this SHA and not rerun without dependency change: `AUTH=PASS`, `TENANT=PASS`, `28/28 ROUTES=PASS`, `DASHBOARD=PASS`.
 
-### Exact-HEAD corrective fix on `9547134838afd17e97b221ebff29b774b3cf5dc8`
+### Duplicate causal chain
 
-The corrective successor retained `{ count: 'exact' }` but fresh review identified an off-by-one range in `fetchImportRecords()`: `.range(0, MAX_IMPORT_RECORD_ROWS)` requests `MAX_IMPORT_RECORD_ROWS + 1` rows while the implementation simultaneously treated returned rows above the maximum as a runtime pagination error. This made the bounded query itself capable of reproducing the false `REPORT_QUERY_LIMIT_EXCEEDED` condition when exactly 501 rows were returned.
+1. **Second import** used the same normalized source identity as the first import.
+2. **`sourceHash`** was persisted by the first successful canonical commit as `sha256:07dfa5f0586ff4b4af0c221588d4158f035122e94a2cf8a50a8a9aac2407d263`.
+3. **`import_job`** for the failed second attempt was created as `08680ed1-9c01-45cf-acee-011af4a88cb8` with `status=processing` and empty `result_summary`.
+4. **Duplicate detection** on `ddf3...` queried `file_records` only. No matching `file_records` row existed for the canonical source identity.
+5. **Transaction path** therefore admitted the second import instead of rejecting it at the authoritative identity check.
+6. **Terminalization** did not run before the duplicate assertion; `import_commit_batch` is separate from `import_finish_job`, so it cannot itself be treated as the terminalization proof.
+7. **DB persistence/readback** confirmed the non-terminal `import_jobs` row rather than a legitimate duplicate terminal result.
+8. **`assertDuplicateIdempotency()`** correctly rejected this observed state with `DUPLICATE_NON_TERMINAL`.
 
-Minimal fix: change the upper bound to `MAX_IMPORT_RECORD_ROWS - 1`. The exact-count contract remains intact, and missing/null count remains non-fatal. No fallback can remove the bounded range. Code fix commit: `a56570613e0769a5775c9c5421aab81e2872c2f7`.
+**First incorrect layer:** browser duplicate identity resolution in `checkDuplicate()` because it used the auxiliary `file_records` surface instead of the authoritative tenant-scoped `canonical_import_commits` ledger. The terminal assertion was downstream and was not weakened.
 
-This fix is **FIX only**. Fresh verification is mandatory on `a56570613e0769a5775c9c5421aab81e2872c2f7`; no PASS is transferred from `954713...` or any earlier SHA.
+Independent observation: the `/import` history UI also emitted a 400 / `Failed to fetch` during this run. That is recorded as a separate UI-observer issue and is not the proven duplicate root cause.
 
-### Follow-up correction — exact-count-aware bounded probe
+### Root-cause fix
 
-Fresh code review of the `a56570613e0769a5775c9c5421aab81e2872c2f7` successor found that the previous `MAX_IMPORT_RECORD_ROWS - 1` change removed the ability to detect an over-limit result from the returned row count. That would silently truncate a history larger than the UI contract rather than fail closed.
+Successor branch: `fix/duplicate-idempotency-root-20260915`.
 
-Minimal correction committed as `c7085c5d9d842eaff69e5563736d862f07310d99`:
-- retain `count: 'exact'` required by the existing contract;
-- use `.range(0, MAX_IMPORT_RECORD_ROWS)` as a bounded `MAX + 1` probe;
-- derive the observed total from exact `count` when available, otherwise from returned rows;
-- reject only when the observed total actually exceeds `MAX_IMPORT_RECORD_ROWS`;
-- retain the bounded range on every path;
-- do not convert a missing/null count into a false failure;
-- do not silently fall back to an unbounded query.
+Fix commit: `5b4bc8edf3d8593b364f81b26720a1f11dd2d090` — `fix(import): bind browser duplicate detection to canonical commit ledger`.
 
-This is **FIX only**. The current branch must receive fresh CI/browser/scenario verification on the successor that includes the ledger update. No PASS is transferred from `35c262...`, `1f5e995f...`, `954713...`, or `a565706...`.
+The fix normalizes the SHA-256 identity, resolves the current tenant, checks `canonical_import_commits(company_id, source_hash)` first, returns a terminal canonical duplicate when present, and retains `file_records` only as legacy compatibility fallback. No timeout, assertion, observer, or evidence behavior was weakened.
 
-### Exact-HEAD contract correction on `79e03c10ebdfca69aafab579ee8d1e94d8650521`
+PR: `#469`.
 
-Import Query Bounds workflow `34923275499` failed on the existing regression script, before exercising runtime behavior. The failure was:
+### Fresh successor runtime on `5b4bc8ed...`
 
-`import query bound contract missing: .range(0, MAX_IMPORT_RECORD_ROWS - 1)`
+Fresh GitHub workflows were triggered for the new exact SHA. Successful independent results include security/contract/UI/golden evidence workflows; this does **not** constitute candidate certification.
 
-Root cause: the regression script was stale relative to the already-reviewed bounded `MAX + 1` probe implementation on `5eb8110...`. The implementation intentionally uses `.range(0, MAX_IMPORT_RECORD_ROWS)`, retains `{ count: 'exact' }`, derives `observedTotal = count ?? rows.length`, and rejects only when the observed total exceeds the maximum. The script also still required `if (count == null) throw new Error`, which contradicts the intended null-count-tolerant runtime contract.
+`import-finish-lifecycle-security` run `34957041156`: **FAIL** at TypeScript compilation after its focused lifecycle contract itself passed `4/4` tests. Error: `AuthGate.tsx(65,81): TS2554 Expected 1 arguments, but got 2`. This is an independent compilation regression; it is not a duplicate-idempotency result.
 
-Minimal fix committed as `79e03c10ebdfca69aafab579ee8d1e94d8650521` on `candidate/950e-scenario-hardening`: align the regression contract with the actual bounded overflow-probe semantics; assert `{ count: 'exact' }`, bounded `.range(0, MAX_IMPORT_RECORD_ROWS)`, observed-total overflow detection, and explicit absence of the old null-count failure assertion. Compatibility query checks remain unchanged.
+`Execution Enforcement Contract` run `34957041117`: **FAIL**; `data-quality-runtime` run `34957041198`: **FAIL**; `Final Certification Gate` run `34957041167`: **FAIL**. These failures remain open and block certification on this successor.
 
-This is **FIX only**. Fresh Import Query Bounds verification and all affected runtime verification are required on `79e03c...`; no PASS is transferred from `5eb8110...` or any earlier SHA.
+The successful lifecycle contract and other workflow passes are retained as exact-SHA evidence only and are not transferred to a later SHA.
 
-### Exact-HEAD compatibility-path regression on `7149b9e6cf40bb730f6aca1a6599ee80fe273e23`
+## Next Execution Rule
 
-Fresh CI exposed a second import-history path: the compatibility module `src/lib/queries-compat.ts` was still enforcing the old `REPORT_QUERY_LIMIT_EXCEEDED` behavior. This was a real UI-path defect because the `/import` route can resolve through the compatibility boundary. The implementation was corrected to paginate `import_jobs` with the same bounded 500-row pages, exact count, deterministic ordering, tenant filter, and termination condition as the canonical query path. Fix commit: `7149b9e6cf40bb730f6aca1a6599ee80fe273e23`.
-
-The next `Import Query Bounds` run then failed only because `scripts/check-import-query-bounds.mjs` still asserted the obsolete compatibility hard-failure tokens. That is a stale regression contract, not a reason to restore the defect. Contract correction commit: `f5ca2bead2c718a8194154b854465be1ef30d842`.
-
-Both changes are **FIX only** pending fresh exact-SHA verification. No PASS is transferred from `7149b9...` or `f5ca2b...` until the updated contract and browser/import path execute successfully.
-
-### Exact-HEAD runtime RCA — `f414f65285acc716d201fe1cc7a5b8845162871d`
-
-Fresh full-product run `34928268580` reached the real persistence chain on exact HEAD `f414f...`. The diagnostic persistence evidence is **CAPTURED**, not a synthetic PASS: authenticated UI commit was enabled, the real `enqueue_report_execution_job` returned a UUID, `claim_report_execution_job` returned a real lease, six checkpoint advances returned `200/true`, `import_commit_batch` returned `200` with `committed: 1`, two further checkpoint advances returned `200/true`, and `complete_report_execution_job` returned `200/true`. The UI reached `done` with the real button `اعتماد وكتابة 1 صف` enabled. DB readback independently confirmed customer, product and invoice rows in the real staging tenant, including invoice total `15` and status `posted`.
-
-The persistence job was nevertheless marked FAIL by the no-ledger verifier because it attempted a UI text lookup for the invoice after the DB transaction. The first failing layer was **verification/readback UI**, not canonical commit. Its console evidence showed `CanonicalImportPage` import-history failures including `TENANT_REQUIRED`, while the DB entities were already present and tenant-bound. This verifier dependency was removed in commit `618685e2735e8fb72b1846f074fbc3c639b44550`: financial readback now uses the authenticated canonical DB row already established by the real transaction, leaving the separate dashboard-readback gate to prove dashboard truth. This is a verifier fix, not a business-data bypass.
-
-### Exact-HEAD scenario harness RCA — `f414f...`
-
-The first 12-scenario runtime on `f414f...` executed the browser harness but positive scenarios reported `POSITIVE_POLICY_COMMIT_UNAVAILABLE`. This was **not** accepted as a product failure because the real persistence runner on the same SHA had already demonstrated that the canonical import review/commit button is genuinely available for a valid CSV import.
-
-The first failing layer was the **scenario harness preview synchronization**. The harness waited for exact text `مراجعة قبل الكتابة` and raced that against the first `.bg-danger-50` element. The `/import` page already contains historical failure/status badges with `.bg-danger-50`, so the race could resolve on an unrelated history badge before the current file reached the canonical `المراجعة` state. The positive-policy assertion then observed `canCommit=false` prematurely. This is a test-harness false negative, not evidence of an unavailable product commit policy.
-
-Minimal exact patch committed as `a171c13583ad47706f14aa0d1461fb90122aec8a`: bind the scenario wait to the actual canonical review heading `المراجعة` and remove the unrelated history-error race. Fresh 12-scenario runtime is mandatory on `a171c...`; no scenario PASS is transferred from `f414...`.
-
-### Exact-HEAD typecheck RCA — `618685e2735e8fb72b1846f074fbc3c639b44550`
-
-Independent `metric-identity-regression` run `34929425838` and `data-quality-runtime` run `34929425866` both failed first at TypeScript typecheck, before their behavioral runtime stages. The exact compiler error was:
-
-`src/lib/queries-compat.ts(26,107): error TS2304: Cannot find name 'PurchaseSummary'.`
-
-Root cause: the compatibility pagination change moved the `PurchaseSummary` declaration out of its previous exported location while the legacy `fetchPurchaseSummary()` signature still referenced it. Minimal focused fix committed as `5701f7c28fa0717d4007d95d1c03dd8915061ae0`: restore the exact `PurchaseSummary` structural type at the compatibility boundary. Fresh typecheck/runtime verification is required on the successor; no PASS from the failed `618685...` run is transferred.
-
-### Certification boundary — `a171c13583ad47706f14aa0d1461fb90122aec8a`
-
-The certification enforcement run `34929528916` correctly remains **FAIL-CLOSED**. Its first failing layer is the certification boundary itself:
-
-`HEAD a171c13583ad47706f14aa0d1461fb90122aec8a differs from indexed candidate f8bc54c166078906a55b613a8ba3b4b964a95fa3 with non-governance changes`
-
-No change was made to `MASTER_EXECUTION_INDEX.md` and no historical Evidence was transferred. This is an intentional governance stop, not a product defect.
-
-## Discovery Notes
-- Existing `scripts/run-decision-runtime-e2e.mjs` is API/RPC-level authenticated runtime testing, not browser E2E.
-- Browser harness is intentionally separate and uses a real Chromium browser against the exact-head built application.
-- No browser PASS is inferred from API tests, mocks, old deployments, or static contracts.
-- Route reachability checks are diagnostic only; page load alone does not certify business correctness.
-- `f414...` persistence transaction proof and DB readback are captured evidence only; the `618685...` verifier fix and `a171...` scenario-harness fix require fresh runtime proof before any PASS is recorded.
+No historical PASS is promoted. Every new SHA requires impact analysis and only affected suites are rerun. Every RCA, fix, focused result, fresh runtime, regression, governance, evidence, release, and closure event must be recorded against the exact SHA and run/job identifiers before that event is considered closed.
