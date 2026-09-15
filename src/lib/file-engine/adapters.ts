@@ -114,7 +114,7 @@ const PDF_OCR_MAX_PAGES = 20; const PDF_OCR_MAX_DIMENSION = 2200; const PDF_OCR_
 async function parsePdfText(buffer: ArrayBuffer, fileName: string): Promise<Dataset[]> {
   const isNodeRuntime = typeof document === 'undefined';
   const pdfjs = isNodeRuntime ? await import('pdfjs-dist/legacy/build/pdf.mjs') : await import('pdfjs-dist');
-  pdfjs.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.mjs', import.meta.url).toString();
+  pdfjs.GlobalWorkerOptions.workerSrc = new URL(isNodeRuntime ? 'pdfjs-dist/legacy/build/pdf.worker.mjs' : 'pdfjs-dist/build/pdf.worker.mjs', import.meta.url).toString();
   const standardFontDataUrl = isNodeRuntime
     ? (() => {
         const nodeProcess = (globalThis as typeof globalThis & { process?: { cwd?: () => string } }).process;
