@@ -311,7 +311,7 @@ This is not a rebuild situation. The remaining work is concentrated closure: exe
 - Exact code/test candidate before this governance-only rebind: `a1be91d49f91476ae3d12a84caae9634c8049906`.
 - The governance-chain contract now reports the exact migration count, required primitive count, and autonomy-link count on PASS, making the observed scan evidence explicit without changing the governed runtime contract.
 - No production SQL, Certification Boundary guard, RLS/Auth control, or runtime implementation was changed.
-- No historical PASS is promoted. A fresh exact-head Certification cycle is mandatory on the resulting governance rebind.
+- No historical PASS is promoted. A fresh exact-head Certification cycle is mandatory on the resulting governance commit.
 - Protected `main` remains untouched. Release remains **NOT CERTIFIED / NOT LIVE** until fresh Certification, independent runtime evidence, and official Production Closure pass.
 
 ## GOVERNANCE LOG — 2026-09-14 — PR #467 PERSISTENCE E2E EXACT-HEAD REBIND
