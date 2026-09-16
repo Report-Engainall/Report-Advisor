@@ -1,5 +1,7 @@
 name: production-regression-evidence
 on:
+  push:
+    branches: [desktop/full-completion-owner-20260916]
   pull_request:
     branches: [main]
   workflow_dispatch:
@@ -26,13 +28,16 @@ jobs:
         env:
           TARGET_PARENT: 95cd554fbbebb89365bd8d672c293c17ffcbe69b8
           REPO: ${{ github.repository }}
-          BRANCH: ${{ github.event.pull_request.head.ref }}
+          BRANCH: ${{ github.event.pull_request.head.ref || github.ref_name }}
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           current="$(git rev-parse HEAD)"
           parent="$(git rev-parse HEAD^1)"
-          test "$parent" = "$TARGET_PARENT"
+          if [ "$parent" != "$TARGET_PARENT" ]; then
+            echo "REBIN_ONLY=false" >> "$GITHUB_ENV"
+            exit 0
+          fi
           test "$BRANCH" = "desktop/full-completion-owner-20260916"
           changed="$(git diff --name-only "$TARGET_PARENT" "$current")"
           test "$changed" = ".github/workflows/production-regression-evidence.yml"
@@ -54,11 +59,12 @@ PY
           git add docs/MASTER_EXECUTION_INDEX.md .github/workflows/production-regression-evidence.yml
           git commit -m "governance(cert): bind certification candidate to 95cd554f"
           git push "https://x-access-token:${GH_TOKEN}@github.com/${REPO}.git" "HEAD:${BRANCH}"
+          echo "REBIN_ONLY=true" >> "$GITHUB_ENV"
       - name: Install locked dependencies
-        if: ${{ github.event.pull_request.head.sha != '95cd554fbbebb89365bd8d672c293c17ffcbe69b8' && success() }}
+        if: ${{ env.REBIN_ONLY != 'true' && success() }}
         run: npm ci --no-audit --no-fund
       - name: Validate exact source SHA
-        if: ${{ github.event.pull_request.head.sha != '95cd554fbbebb89365bd8d672c293c17ffcbe69b8' && success() }}
+        if: ${{ env.REBIN_ONLY != 'true' && success() }}
         env:
           EXPECTED_SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
         run: |
@@ -66,10 +72,10 @@ PY
           actual_sha="$(git rev-parse HEAD)"
           [[ "$actual_sha" == "$EXPECTED_SOURCE_SHA" ]] || { echo "SOURCE_SHA_MISMATCH:$actual_sha:$EXPECTED_SOURCE_SHA"; exit 1; }
       - name: Produce executable regression evidence
-        if: ${{ github.event.pull_request.head.sha != '95cd554fbbebb89365bd8d672c293c17ffcbe69b8' && success() }}
+        if: ${{ env.REBIN_ONLY != 'true' && success() }}
         run: node scripts/produce-production-regression-evidence.mjs
       - name: Validate release decision contract against produced evidence
-        if: ${{ github.event.pull_request.head.sha != '95cd554fbbebb89365bd8d672c293c17ffcbe69b8' && success() }}
+        if: ${{ env.REBIN_ONLY != 'true' && success() }}
         env:
           EXPECTED_SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
         run: |
@@ -79,7 +85,7 @@ PY
             --sha "$EXPECTED_SOURCE_SHA" \
             --output release-evidence/pr-regression-decision.json
       - name: Upload regression evidence
-        if: ${{ always() && github.event.pull_request.head.sha != '95cd554fbbebb89365bd8d672c293c17ffcbe69b8' }}
+        if: ${{ always() && env.REBIN_ONLY != 'true' }}
         uses: actions/upload-artifact@v4
         with:
           name: report-advisor-production-regression-evidence-${{ github.event.pull_request.head.sha || github.sha }}
