@@ -16,10 +16,25 @@ for (const f of files) {
 }
 
 const text = files.map((f) => fs.readFileSync(path.join(root, f), 'utf8')).join('\n');
+const normalized = text.toLowerCase();
 
-for (const term of ['evidence', 'source', 'lineage', 'canonical', 'provenance', 'confidence', 'materiality']) {
-  if (!text.toLowerCase().includes(term)) {
+for (const term of ['evidence', 'source', 'lineage', 'canonical', 'confidence', 'materiality']) {
+  if (!normalized.includes(term)) {
     throw new Error(`Evidence provenance invariant missing: ${term}`);
+  }
+}
+
+const concreteProvenanceInvariants = [
+  'sourcehash',
+  'observedat',
+  'sourceversionkey',
+  'record_executive_evidence_edge',
+  "'derived_from'",
+];
+
+for (const invariant of concreteProvenanceInvariants) {
+  if (!normalized.includes(invariant)) {
+    throw new Error(`Evidence provenance invariant missing: ${invariant}`);
   }
 }
 
