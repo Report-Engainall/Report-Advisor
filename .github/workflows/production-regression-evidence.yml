@@ -1,7 +1,5 @@
 name: production-regression-evidence
 on:
-  push:
-    branches: [desktop/full-completion-owner-20260916]
   pull_request:
     branches: [main]
   workflow_dispatch:
@@ -26,7 +24,7 @@ jobs:
           cache: npm
       - name: One-time certification governance rebind
         env:
-          TARGET_PARENT: 95cd554fbbebb89365bd8d672c293c17ffcbe69b8
+          TARGET_SHA: 95cd554fbbebb89365bd8d672c293c17ffcbe69b8
           REPO: ${{ github.repository }}
           BRANCH: ${{ github.event.pull_request.head.ref || github.ref_name }}
           GH_TOKEN: ${{ github.token }}
@@ -34,13 +32,15 @@ jobs:
           set -euo pipefail
           current="$(git rev-parse HEAD)"
           parent="$(git rev-parse HEAD^1)"
-          if [ "$parent" != "$TARGET_PARENT" ]; then
+          message="$(git log -1 --format=%s)"
+          if [ "$message" != "ci(cert): trigger one-time governance rebind" ]; then
             echo "REBIN_ONLY=false" >> "$GITHUB_ENV"
             exit 0
           fi
           test "$BRANCH" = "desktop/full-completion-owner-20260916"
-          changed="$(git diff --name-only "$TARGET_PARENT" "$current")"
-          test "$changed" = ".github/workflows/production-regression-evidence.yml"
+          changed="$(git diff --name-only "$parent" "$current")"
+          test "$changed" = "scripts/check-evidence-provenance-chain.mjs"
+          test "$(git rev-parse "$TARGET_SHA^1")" = "$(git rev-parse "$parent")"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           python3 - <<'PY'
@@ -55,8 +55,9 @@ log = '''\n## GOVERNANCE LOG — 2026-09-16 — CANDIDATE #475 PROVENANCE TEST R
 assert '## GOVERNANCE LOG — 2026-09-16 — CANDIDATE #475 PROVENANCE TEST REBIND' not in text
 p.write_text(text.rstrip() + '\n' + log, encoding='utf-8')
 PY
-          git show "$TARGET_PARENT:.github/workflows/production-regression-evidence.yml" > .github/workflows/production-regression-evidence.yml
-          git add docs/MASTER_EXECUTION_INDEX.md .github/workflows/production-regression-evidence.yml
+          git show "$TARGET_SHA:.github/workflows/production-regression-evidence.yml" > .github/workflows/production-regression-evidence.yml
+          git show "$TARGET_SHA:scripts/check-evidence-provenance-chain.mjs" > scripts/check-evidence-provenance-chain.mjs
+          git add docs/MASTER_EXECUTION_INDEX.md .github/workflows/production-regression-evidence.yml scripts/check-evidence-provenance-chain.mjs
           git commit -m "governance(cert): bind certification candidate to 95cd554f"
           git push "https://x-access-token:${GH_TOKEN}@github.com/${REPO}.git" "HEAD:${BRANCH}"
           echo "REBIN_ONLY=true" >> "$GITHUB_ENV"
