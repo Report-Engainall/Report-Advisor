@@ -87,12 +87,8 @@ export async function runCanonicalImportThroughDurableRunner(input: DurableCanon
   if (!job.id || job.company_id !== companyId) throw new Error('REPORT_EXECUTION_JOB_TENANT_MISMATCH');
   if (job.status === 'succeeded') throw new Error('IMPORT_ALREADY_COMPLETED_FOR_SOURCE');
   if (job.status === 'cancelled') throw new Error('IMPORT_DURABLE_JOB_CANCELLED');
-
-  const store = new SupabaseReportExecutionStore(supabase);
-  if (job.status === 'failed') {
-    const retried = await store.retry(job.id, companyId);
-    if (!retried) throw new Error('IMPORT_DURABLE_JOB_RETRY_REJECTED');
-  }
+  if (job.status === 'running') throw new Error('IMPORT_DURABLE_JOB_ALREADY_RUNNING');
+  if (job.status === 'failed') await storeRetry(job.id, companyId);
 
   const observedAt = new Date().toISOString();
   const quality = input.qualityScore / 100;
@@ -118,11 +114,7 @@ export async function runCanonicalImportThroughDurableRunner(input: DurableCanon
       reportId: jobKey,
       tenantId: companyId,
       requestedBy,
-      parameters: {
-        entityType: input.entityType,
-        importId: input.importId,
-        rowCount: input.rows.length,
-      },
+      parameters: { entityType: input.entityType, importId: input.importId, rowCount: input.rows.length },
       formats: ['web'],
       idempotencyKey: jobKey,
     },
@@ -133,15 +125,7 @@ export async function runCanonicalImportThroughDurableRunner(input: DurableCanon
       scenarioOptions: [{ key: jobKey, expectedImpact: input.rows.length, risk: 1, liquidityRequired: 0, serviceLevel: 1 }],
       riskBudget: { maxRisk: 1, protectedLiquidity: input.rows.length, minimumServiceLevel: 0 },
       portfolioCandidates: [{ key: jobKey, materiality: 0.5, confidence: quality, urgency: 0.5, risk: 1 }],
-      autonomy: {
-        trustHealthy: false,
-        evidenceQuality: quality,
-        confidence: quality,
-        riskBudgetValid: true,
-        criticalDrift: false,
-        rollbackVerified: false,
-        isolationVerified: false,
-      },
+      autonomy: { trustHealthy: false, evidenceQuality: quality, confidence: quality, riskBudgetValid: true, criticalDrift: false, rollbackVerified: false, isolationVerified: false },
       evidence: input.rows.map((row) => ({
         key: row.provenance.evidenceId,
         source: row.provenance.sourceId,
@@ -168,9 +152,19 @@ export async function runCanonicalImportThroughDurableRunner(input: DurableCanon
       if (stage === 'analyzed' && !currentRows.length) throw new Error('IMPORT_ANALYSIS_EMPTY');
       if (stage === 'decisioned' && !input.rows.length) throw new Error('IMPORT_DECISION_EMPTY');
       if (stage === 'committed') await commitImportBatch(input.entityType, input.rows, input.sourceHash);
-      // rendered is a durable lifecycle checkpoint; rendering is delegated to the existing runner completion path.
     },
-  }, store);
+  }, await getStore());
 
   return { ...result, jobId: job.id, importId: input.importId };
+}
+
+let storePromise: Promise<SupabaseReportExecutionStore> | null = null;
+async function getStore(): Promise<SupabaseReportExecutionStore> {
+  if (!storePromise) storePromise = Promise.resolve(new SupabaseReportExecutionStore(supabase));
+  return storePromise;
+}
+
+async function storeRetry(jobId: string, companyId: string): Promise<void> {
+  const store = await getStore();
+  await store.retry(jobId, companyId);
 }
