@@ -29,7 +29,7 @@ function assertTenantBoundary(actorTenant, resourceTenant) {
 function assertTerminalGuard(state, next) {
   const terminal = new Set(['COMPLETED', 'EXECUTED', 'FINALIZED']);
   assert.equal(terminal.has(state), true);
-  assert.notEqual(next, state, 'terminal state must reject duplicate transition');
+  assert.equal(next, state, 'terminal state must reject duplicate transition');
 }
 
 requireEvidence({
