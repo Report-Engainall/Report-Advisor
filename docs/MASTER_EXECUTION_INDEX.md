@@ -5,7 +5,7 @@
 > Authoritative execution manifest. This document never promotes historical evidence across an exact Git `HEAD` boundary. Pair every evidence batch with the exact Git `HEAD` of `main` and the exact environment/commit used.
 
 ### CURRENT EXACT HEAD
-- Current code/test candidate: `95cd554fbbebb89365bd8d672c293c17ffcbe69b8`.
+- Current code/test candidate: `95cd554fbbebb89365bd8d672c293c17ffcbe69b`.
 - This candidate is the current executable certification candidate on PR #475 (`fix: close canonical import durable production path`).
 - The candidate contains bounded authentication/session-convergence test hardening and the production lifecycle fixes already verified by the current regression evidence.
 - Historical evidence from earlier SHAs remains historical and is not promoted automatically.
@@ -102,7 +102,7 @@
 - Historical CI infrastructure failures with `steps=[]`, `runner_id=0`, and empty runner identity are retained as historical evidence only; they are no longer the sole current CI state.
 - On the merged candidate `9bcbff347bd141f62486802106306f8edddde126`, the Windows desktop workflow executed 23 real steps including checkout, Node setup, `npm ci`, web build, native watcher contract, native runtime smoke, Windows installer build, and installer upload.
 - The prior Final Certification failures at stale candidates are retained as historical governance evidence only.
-- The current certification target is `95cd554fbbebb89365bd8d672c293c17ffcbe69b8`; its production regression and release-decision evidence are current to that candidate and are not transferred from older SHAs.
+- The current certification target is `95cd554fbbebb89365bd8d672c293c17ffcbe69b`; its production regression and release-decision evidence are current to that candidate and are not transferred from older SHAs.
 - Workflows are not weakened with bypasses to turn infrastructure or boundary failure into PASS.
 
 ## ACTIVE EXECUTION FRONTS
@@ -122,7 +122,7 @@
 - PR #397: OPEN, mergeable, not merged.
 - PR #398: OPEN, mergeable, not merged; CodeRabbit's current array-shape finding was verified and repaired.
 - PR #405: OPEN, currently non-mergeable until its fresh review/CI evidence is available.
-- PR #475: OPEN, mergeable; current head `95cd554fbbebb89365bd8d672c293c17ffcbe69b8` is the active certification candidate.
+- PR #475: OPEN, mergeable; current head `95cd554fbbebb89365bd8d672c293c17ffcbe69b` is the active certification candidate.
 - No PR is treated as merged merely because a connector exposes a `merge_commit_sha`; explicit `merged=false` is authoritative.
 
 ## REAL RELEASE ASSESSMENT — 2026-09-07
@@ -283,10 +283,18 @@ This is not a rebuild situation. The remaining work is concentrated closure: exe
 - Required next action: complete the fresh Browser/Auth gate, Real Business Persistence/read-back, certification contracts, and final exact-head certification chain on the resulting governance boundary.
 - Release remains **NOT CERTIFIED / NOT LIVE**.
 
-## GOVERNANCE LOG — 2026-09-16 — CANDIDATE #475 PROVENANCE TEST REBIND
-- Exact executable certification candidate: `95cd554fbbebb89365bd8d672c293c17ffcbe69b8`.
+### GOVERNANCE LOG — 2026-09-16 — CANDIDATE #475 PROVENANCE TEST REBIND
+- Exact executable certification candidate: `95cd554fbbebb89365bd8d672c293c17ffcbe69b`.
 - This governance-only rebind records the test-only correction in `scripts/check-evidence-provenance-chain.mjs`.
 - The correction points the certification check to the canonical existing `supabase/migrations/20260825100000_autonomous_governance_business_intelligence.sql` migration instead of a nonexistent migration filename; no production SQL, runtime, RLS, tenant policy, runner, or RPC behavior changed.
+- No historical runtime or certification evidence is promoted by this entry.
+- Fresh exact-head Browser/Auth, Business Persistence/read-back, Production Regression, certification contracts, Execution Enforcement, and Final Certification remain mandatory.
+- Release remains **NOT CERTIFIED / NOT LIVE**.
+
+### GOVERNANCE LOG — 2026-09-16 — CANDIDATE #475 PROVENANCE SHA NORMALIZATION
+- Exact executable certification candidate: `95cd554fbbebb89365bd8d672c293c17ffcbe69b`.
+- This is a governance-only correction to the candidate identifier in the Master Index; the previous entry contained a malformed 41-character identifier.
+- The underlying executable candidate and production implementation are unchanged.
 - No historical runtime or certification evidence is promoted by this entry.
 - Fresh exact-head Browser/Auth, Business Persistence/read-back, Production Regression, certification contracts, Execution Enforcement, and Final Certification remain mandatory.
 - Release remains **NOT CERTIFIED / NOT LIVE**.
