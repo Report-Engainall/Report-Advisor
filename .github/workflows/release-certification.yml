@@ -33,6 +33,14 @@ jobs:
         run: npm ci --no-audit --no-fund
       - name: Preflight contracts
         run: npm run typecheck && npm run lint && npm run build && npm run test:production-release-blockers && npm run test:production-readiness && npm run test:operational-resilience && npm run test:release-resilience-manifest && node scripts/check-release-evidence-contract.mjs && node scripts/check-release-evidence-completeness.mjs
+      - name: Produce executable production regression evidence
+        env:
+          EXPECTED_SOURCE_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          actual_sha="$(git rev-parse HEAD)"
+          [[ "$actual_sha" == "$EXPECTED_SOURCE_SHA" ]] || { echo "SOURCE_SHA_MISMATCH:$actual_sha:$EXPECTED_SOURCE_SHA"; exit 1; }
+          node scripts/produce-production-regression-evidence.mjs
       - name: Require real production regression evidence
         shell: bash
         env:
