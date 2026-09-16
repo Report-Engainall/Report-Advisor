@@ -41,9 +41,8 @@ function runCommand(key) {
     const script = key.slice(4);
     result = spawnSync('npm', ['run', script], { encoding: 'utf8' });
   } else if (key.startsWith('node:')) {
-    const command = key.slice(5);
-    const [bin, ...args] = command.split(' ');
-    result = spawnSync(bin, args, { encoding: 'utf8' });
+    const args = key.slice(5).trim().split(/\s+/);
+    result = spawnSync('node', args, { encoding: 'utf8' });
   } else {
     result = { status: 1, stdout: '', stderr: `UNSUPPORTED_HARNESS_COMMAND:${key}` };
   }
