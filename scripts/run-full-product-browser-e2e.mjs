@@ -24,13 +24,14 @@ const result = {
   exactHead, baseURL, browser: 'Chromium',
   startedAt: new Date().toISOString(),
   auth: 'NOT_PROVEN', tenant: 'NOT_PROVEN',
-  routes: [], findings: [], actions: [], requests: [],
+  routes: [], findings: [], actions: [], requests: [], failedResponses: [],
 };
 const browser = await chromium.launch({ headless: true });
 const context = await browser.newContext({ viewport: { width: 1440, height: 1000 }, locale: 'ar-SA' });
 const page = await context.newPage();
 const consoleErrors = [];
 const failedRequests = [];
+const failedResponses = [];
 const requests = [];
 
 page.on('console', msg => { if (msg.type() === 'error') consoleErrors.push(msg.text()); });
@@ -38,6 +39,14 @@ page.on('pageerror', error => consoleErrors.push(`[pageerror] ${error.message}`)
 page.on('requestfailed', request => failedRequests.push({
   method: request.method(), url: request.url(), error: request.failure()?.errorText || 'unknown'
 }));
+page.on('response', async response => {
+  if (response.status() < 400) return;
+  const url = response.url();
+  const relevant = !supabaseURL || url.startsWith(supabaseURL) || url.includes('/rest/v1/') || url.includes('/auth/v1/');
+  if (!relevant) return;
+  const body = await response.text().catch(() => '');
+  failedResponses.push({ method: response.request().method(), status: response.status(), url, body: body.slice(0, 2000) });
+});
 page.on('request', request => requests.push({ method: request.method(), url: request.url() }));
 
 async function login(targetPage, email, password) {
@@ -53,22 +62,31 @@ async function login(targetPage, email, password) {
 
 async function authenticatedTenantId(targetPage) {
   if (!supabaseURL || !supabaseAnonKey) throw new Error('SUPABASE_RUNTIME_ENV_MISSING');
-  return targetPage.evaluate(async ({ url, anonKey }) => {
-    const entry = Object.entries(localStorage).find(([key]) => key.endsWith('-auth-token'))?.[1];
-    if (!entry) throw new Error('BROWSER_SESSION_NOT_FOUND');
-    const session = JSON.parse(entry);
-    const accessToken = session?.access_token;
-    if (!accessToken) throw new Error('BROWSER_ACCESS_TOKEN_NOT_FOUND');
-    const response = await fetch(`${url.replace(/\/$/, '')}/rest/v1/rpc/current_company_id`, {
-      method: 'POST',
-      headers: { apikey: anonKey, Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
-      body: '{}',
-    });
-    const body = await response.text();
-    if (!response.ok) throw new Error(`CURRENT_COMPANY_ID_HTTP_${response.status}:${body}`);
-    if (!body || body === 'null') throw new Error('CURRENT_COMPANY_ID_EMPTY');
-    return body.replaceAll('"', '');
-  }, { url: supabaseURL, anonKey: supabaseAnonKey });
+  let lastError = null;
+  for (let attempt = 1; attempt <= 10; attempt += 1) {
+    try {
+      return await targetPage.evaluate(async ({ url, anonKey }) => {
+        const entry = Object.entries(localStorage).find(([key]) => key.endsWith('-auth-token'))?.[1];
+        if (!entry) throw new Error('BROWSER_SESSION_NOT_FOUND');
+        const session = JSON.parse(entry);
+        const accessToken = session?.access_token;
+        if (!accessToken) throw new Error('BROWSER_ACCESS_TOKEN_NOT_FOUND');
+        const response = await fetch(`${url.replace(/\/$/, '')}/rest/v1/rpc/current_company_id`, {
+          method: 'POST',
+          headers: { apikey: anonKey, Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+          body: '{}',
+        });
+        const body = await response.text();
+        if (!response.ok) throw new Error(`CURRENT_COMPANY_ID_HTTP_${response.status}:${body}`);
+        if (!body || body === 'null') throw new Error('CURRENT_COMPANY_ID_EMPTY');
+        return body.replaceAll('"', '');
+      }, { url: supabaseURL, anonKey: supabaseAnonKey });
+    } catch (error) {
+      lastError = error;
+      if (attempt < 10) await new Promise(resolve => setTimeout(resolve, 400));
+    }
+  }
+  throw lastError || new Error('BROWSER_SESSION_CONVERGENCE_FAILED');
 }
 
 async function inspectPage(targetPage) {
@@ -113,8 +131,6 @@ try {
     const appError = await page.getByText('حدث خطأ غير متوقع').count();
     let authenticatedTenant = null;
 
-    // Authoritative auth proof: a browser-held Supabase access token accepted by the
-    // tenant-resolution RPC. Do not require a particular dashboard label.
     if (!stillLogin && !tenantMissing && !appError) {
       try {
         authenticatedTenant = await authenticatedTenantId(page);
@@ -166,6 +182,7 @@ try {
         const route = routes[i];
         const beforeErrors = consoleErrors.length;
         const beforeFailed = failedRequests.length;
+        const beforeFailedResponses = failedResponses.length;
         const beforeRequests = requests.length;
         const started = Date.now();
         let status = 'PASS'; let reason = '';
@@ -190,13 +207,16 @@ try {
         const routeRequests = requests.slice(beforeRequests).map(x => ({ method: x.method, url: x.url }));
         const routeErrors = consoleErrors.slice(beforeErrors);
         const routeFailed = failedRequests.slice(beforeFailed);
+        const routeFailedResponses = failedResponses.slice(beforeFailedResponses);
         result.routes.push({ route, status, reason, durationMs: Date.now() - started, screenshot,
-          consoleErrors: routeErrors, failedRequests: routeFailed, requests: routeRequests, interaction: inspection });
+          consoleErrors: routeErrors, failedRequests: routeFailed, failedResponses: routeFailedResponses, requests: routeRequests, interaction: inspection });
         result.actions.push({ route, buttonCount: inspection?.buttonCount ?? 0, buttons: inspection?.buttons ?? [],
           inputCount: inspection?.inputCount ?? 0, linkCount: inspection?.linkCount ?? 0 });
         if (status === 'FAIL') addFinding(`E2E-ROUTE-${String(i + 1).padStart(3, '0')}`, 'FAIL', 'P1', `${route}: ${reason}`);
         if (routeFailed.length) addFinding(`E2E-NET-${String(i + 1).padStart(3, '0')}`, 'FAIL', 'P1',
           `${route}: ${routeFailed.length} browser network request(s) failed.`, { requests: routeFailed });
+        if (routeFailedResponses.length) addFinding(`E2E-HTTP-${String(i + 1).padStart(3, '0')}`, 'FAIL', 'P1',
+          `${route}: ${routeFailedResponses.length} relevant HTTP response(s) returned 4xx/5xx.`, { responses: routeFailedResponses });
         if (routeErrors.length) addFinding(`E2E-CONSOLE-${String(i + 1).padStart(3, '0')}`, 'FAIL', 'P1',
           `${route}: browser emitted ${routeErrors.length} console/page error(s).`, { errors: routeErrors });
       }
@@ -228,6 +248,7 @@ try {
   result.finishedAt = new Date().toISOString();
   result.consoleErrors = consoleErrors;
   result.failedRequests = failedRequests;
+  result.failedResponses = failedResponses;
   result.requests = requests;
   await fs.writeFile(`${reportDir}/result.json`, JSON.stringify(result, null, 2));
   await browser.close();
