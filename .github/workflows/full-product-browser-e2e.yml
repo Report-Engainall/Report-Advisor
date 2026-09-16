@@ -6,6 +6,7 @@ on:
     paths:
       - 'scripts/run-full-product-browser-e2e.mjs'
       - 'scripts/real-business-e2e.mjs'
+      - 'scripts/verify-live-business-evidence.mjs'
       - '.github/workflows/full-product-browser-e2e.yml'
       - 'docs/MASTER_EXECUTION_INDEX.md'
       - 'E2E_FAILURE_LEDGER.md'
@@ -18,6 +19,7 @@ on:
     paths:
       - 'scripts/run-full-product-browser-e2e.mjs'
       - 'scripts/real-business-e2e.mjs'
+      - 'scripts/verify-live-business-evidence.mjs'
       - '.github/workflows/full-product-browser-e2e.yml'
       - 'E2E_FAILURE_LEDGER.md'
       - 'E2E_PRODUCT_GAP_LEDGER.md'
@@ -127,6 +129,13 @@ jobs:
           TEST_USER_B_EMAIL: ${{ secrets.REPORT_ADVISOR_E2E_USER_B_EMAIL }}
           TEST_USER_B_PASSWORD: ${{ secrets.REPORT_ADVISOR_E2E_USER_B_PASSWORD }}
         run: node scripts/real-business-e2e.mjs
+      - name: Verify live business evidence boundary
+        env:
+          REPORT_ADVISOR_SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
+          REPORT_ADVISOR_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
+          TEST_USER_A_EMAIL: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_EMAIL }}
+          TEST_USER_A_PASSWORD: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_PASSWORD }}
+        run: node scripts/verify-live-business-evidence.mjs
       - name: Upload browser E2E evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -140,4 +149,11 @@ jobs:
         with:
           name: real-business-e2e-${{ env.EXACT_HEAD }}
           path: artifacts/e2e-business
+          if-no-files-found: warn
+      - name: Upload live business evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: live-business-evidence-${{ env.EXACT_HEAD }}
+          path: artifacts/live-production-evidence
           if-no-files-found: warn
