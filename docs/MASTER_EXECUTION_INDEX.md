@@ -7,7 +7,7 @@
 ### CURRENT EXACT HEAD
 - Current code/test candidate: `a667aca67b235b0c5b552bb38409b1e266b7c5ff`.
 - This candidate is the current executable certification candidate on PR #476 (`fix(e2e): close real customer persistence on canonical fixture`).
-- The candidate contains the bounded authentication/session-convergence test hardening, the production lifecycle fixes, the minimal current-head UI contract fixes, the corrected K/L evidence-chain contract coverage, and the deterministic Phase-H migration contract resolution now under fresh exact-SHA certification.
+- The candidate contains the bounded authentication/session-convergence test hardening, the production lifecycle fixes, the minimal current-head UI contract fixes, the corrected K/L evidence-chain contract coverage, and the minimal CSV header-parser compatibility fix now under fresh exact-SHA certification.
 - Historical evidence from earlier SHAs remains historical and is not promoted automatically.
 - This index update is governance-only; it does not certify runtime, browser, tenant A/B, import, OCR, recovery, backup/restore, performance, or LIVE state.
 
