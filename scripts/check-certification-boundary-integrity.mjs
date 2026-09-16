@@ -25,6 +25,7 @@ export function validateCertificationBoundary({ index, head, parent, changedFile
     'scripts/check-decision-approval-toctou-contract.mjs',
     'scripts/check-decision-runtime-authorization.mjs',
     'scripts/check-governance-runtime-chain.mjs',
+    'scripts/check-import-center-product-contract.mjs',
     '.github/workflows/execution-enforcement-contract.yml',
     '.github/workflows/final-certification-gate.yml',
   ]);
