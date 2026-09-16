@@ -24,5 +24,3 @@ for (const term of ['evidence', 'source', 'lineage', 'canonical', 'provenance', 
 }
 
 console.log('Evidence provenance chain: PASS');
-
-// Temporary certification trigger; restored automatically by the governance rebind job.
