@@ -35,7 +35,7 @@ function assertEvidence(evidence: RuntimeEvidence[]): void {
 
 export function advanceRuntime<T>(state: RuntimeState<T>, stage: ReportCheckpointStage, evidence: RuntimeEvidence[], metadata: Omit<ReportExecutionCheckpoint, 'stage'|'updatedAt'|'sourceHash'|'evidenceKeys'> = {}): RuntimeState<T> {
   assertEvidence(evidence);
-  if (!state.sourceHash.trim()) throw new Error('Runtime advancement requires sourceHash');
+  if (!state.sourceHash.trim()) throw new Error('Runtime control-plane advancement requires sourceHash');
   const next = advanceCheckpoint(state.checkpoint, {
     stage,
     sourceHash: state.sourceHash,
