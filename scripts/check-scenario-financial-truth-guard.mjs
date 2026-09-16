@@ -16,8 +16,13 @@ for (const pattern of requiredPatterns) {
   if (!pattern.test(guard)) throw new Error(`Scenario truth guard missing required boundary: ${pattern}`);
 }
 
-for (const token of ['baseRevenue: number', 'baseCost: number', 'formatCurrency(baseRevenue)', 'formatCurrency(baseCost)']) {
-  if (!simulator.includes(token)) throw new Error(`Canonical scenario simulator missing required input boundary: ${token}`);
+for (const pattern of [
+  /baseRevenue:\s*number/,
+  /baseCost:\s*number/,
+  /formatCurrency\(baseRevenue,\s*currency\)/,
+  /formatCurrency\(baseCost,\s*currency\)/,
+]) {
+  if (!pattern.test(simulator)) throw new Error(`Canonical scenario simulator missing required input boundary: ${pattern}`);
 }
 
 if (!simulator.includes('baseProfit === 0 ? null')) {
