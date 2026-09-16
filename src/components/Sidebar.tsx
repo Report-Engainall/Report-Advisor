@@ -23,14 +23,11 @@ export function Sidebar({alertCount=0,onNavigate,user}:{alertCount?:number;onNav
   const [collapsed,setCollapsed]=useState<Record<string,boolean>>({});
   useEffect(()=>{setCollapsed(prev=>({...prev,[activeSection]:false}));},[activeSection]);
   const handleSignOut = async () => {
-    const { error } = await supabase.auth.signOut({ scope: 'global' });
-    if (error) {
-      const authErrorText = `${error.name ?? ''} ${error.message ?? ''}`.toLowerCase();
-      const isSessionNotFound = authErrorText.includes('session_not_found') || authErrorText.includes('session not found');
-      if (!isSessionNotFound) throw error;
-      const { error: localError } = await supabase.auth.signOut({ scope: 'local' });
-      if (localError) throw localError;
-    }
+    // Local sign-out is the authoritative browser-session transition. Global
+    // revocation is not required for the UI security boundary and can delay
+    // convergence while the persisted local session is still present.
+    const { error } = await supabase.auth.signOut({ scope: 'local' });
+    if (error) throw error;
     onNavigate?.();
   };
   return <aside className="w-64 bg-white/95 border-l border-ink-100 flex flex-col h-screen sticky top-0 overflow-y-auto backdrop-blur-sm">
