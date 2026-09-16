@@ -5,7 +5,7 @@
 > Authoritative execution manifest. This document never promotes historical evidence across an exact Git `HEAD` boundary. Pair every evidence batch with the exact Git `HEAD` of `main` and the exact environment/commit used.
 
 ### CURRENT EXACT HEAD
-- Current code/test candidate: `95cd554fbbebb89365bd8d672c293c17ffcbe69b`.
+- Current code/test candidate: `1232611da89c8ccb1b4fa227f546d977d0435b05`.
 - This candidate is the current executable certification candidate on PR #475 (`fix: close canonical import durable production path`).
 - The candidate contains bounded authentication/session-convergence test hardening and the production lifecycle fixes already verified by the current regression evidence.
 - Historical evidence from earlier SHAs remains historical and is not promoted automatically.
@@ -102,7 +102,7 @@
 - Historical CI infrastructure failures with `steps=[]`, `runner_id=0`, and empty runner identity are retained as historical evidence only; they are no longer the sole current CI state.
 - On the merged candidate `9bcbff347bd141f62486802106306f8edddde126`, the Windows desktop workflow executed 23 real steps including checkout, Node setup, `npm ci`, web build, native watcher contract, native runtime smoke, Windows installer build, and installer upload.
 - The prior Final Certification failures at stale candidates are retained as historical governance evidence only.
-- The current certification target is `95cd554fbbebb89365bd8d672c293c17ffcbe69b`; its production regression and release-decision evidence are current to that candidate and are not transferred from older SHAs.
+- The current certification target is `1232611da89c8ccb1b4fa227f546d977d0435b05`; its production regression must be freshly executed on this candidate and historical evidence from `95cd...` or any earlier SHA is not promoted.
 - Workflows are not weakened with bypasses to turn infrastructure or boundary failure into PASS.
 
 ## ACTIVE EXECUTION FRONTS
@@ -122,7 +122,7 @@
 - PR #397: OPEN, mergeable, not merged.
 - PR #398: OPEN, mergeable, not merged; CodeRabbit's current array-shape finding was verified and repaired.
 - PR #405: OPEN, currently non-mergeable until its fresh review/CI evidence is available.
-- PR #475: OPEN, mergeable; current head `95cd554fbbebb89365bd8d672c293c17ffcbe69b` is the active certification candidate.
+- PR #475: OPEN, mergeable; current head `1232611da89c8ccb1b4fa227f546d977d0435b05` is the active certification candidate.
 - No PR is treated as merged merely because a connector exposes a `merge_commit_sha`; explicit `merged=false` is authoritative.
 
 ## REAL RELEASE ASSESSMENT — 2026-09-07
@@ -177,7 +177,7 @@ This is not a rebuild situation. The remaining work is concentrated closure: exe
 - The unsafe whole-tree integration attempt PR #457 was detected from its unexpected 1,454-file / 58,496-deletion diff and was closed without merge. No destructive change was retained.
 - Current live Staging function inventory confirms the real import/dashboard functions; no Edge Functions are currently deployed through the connected Supabase project.
 - Live Staging row check at this boundary: `import_jobs=0`, `file_records=0`, `sales_invoices=3`, `inventory_movements=0`, `kpi_evidence_snapshots=0`, `executive_kpi_lineage=0`.
-- Therefore no live import lifecycle, Arabic OCR corpus lifecycle, or KPI evidence-lineage runtime PASS is claimed from this inspection alone.
+- Therefore no live import lifecycle, Arabic OCR corpus, or KPI evidence-lineage runtime PASS is claimed from this inspection alone.
 - CI remains an external billing/execution constraint and is not converted into a product PASS.
 - Next mandatory evidence fronts remain authenticated A/B browser runtime, real import lifecycle, Arabic golden-corpus runtime, worker recovery, watched-folder lifecycle, backup/restore/rollback, performance, and final exact-head certification.
 
@@ -297,4 +297,13 @@ This is not a rebuild situation. The remaining work is concentrated closure: exe
 - The underlying executable candidate and production implementation are unchanged.
 - No historical runtime or certification evidence is promoted by this entry.
 - Fresh exact-head Browser/Auth, Business Persistence/read-back, Production Regression, certification contracts, Execution Enforcement, and Final Certification remain mandatory.
+- Release remains **NOT CERTIFIED / NOT LIVE**.
+
+### GOVERNANCE LOG — 2026-09-16 — CANDIDATE #475 AUTH PROFILE SESSION FIX
+- Exact current certification candidate: `1232611da89c8ccb1b4fa227f546d977d0435b05`.
+- Root cause: `src/pages/ProfileSettingsPage.tsx` directly called `supabase.auth.getUser()`, causing a browser-held session to revalidate through `/auth/v1/user` and produce `session_not_found` 403s after route navigation.
+- Bounded fix: profile display now uses the canonical local-session helper `getAuthenticatedUser()`. The `updateUser()` mutation remains unchanged, so authenticated write semantics are not weakened.
+- This is a real production/UI fix, not a test bypass. No RLS, tenant policy, RPC, runner, or production import logic changed.
+- All evidence from `95cd...` and earlier SHAs remains historical and is not promoted to this candidate.
+- Fresh Production Regression, Full Product Browser E2E, Real Business Persistence/read-back, certification contracts, and Final Certification are mandatory on `1232611...`.
 - Release remains **NOT CERTIFIED / NOT LIVE**.
