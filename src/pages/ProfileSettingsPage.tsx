@@ -4,6 +4,7 @@ import { CheckCircle2, Save, UserCircle } from 'lucide-react';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { PageHeader } from '@/components/ui/States';
 import { supabase } from '@/lib/supabase';
+import { getAuthenticatedUser } from '@/lib/auth-session';
 
 export function ProfileSettingsPage() {
   const [user, setUser] = useState<User | null>(null);
@@ -15,10 +16,9 @@ export function ProfileSettingsPage() {
 
   useEffect(() => {
     let mounted = true;
-    void supabase.auth.getUser().then(({ data, error: userError }) => {
+    void getAuthenticatedUser().then(currentUser => {
       if (!mounted) return;
-      if (userError) setError(userError.message);
-      const currentUser = data.user ?? null;
+      if (!currentUser) setError('تعذر قراءة جلسة المصادقة الحالية.');
       setUser(currentUser);
       setDisplayName(typeof currentUser?.user_metadata?.full_name === 'string' ? currentUser.user_metadata.full_name : '');
       setLoading(false);
