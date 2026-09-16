@@ -1,11 +1,11 @@
 # Report Advisor — Master Execution & Truth Index
 
-## CURRENT EXECUTION BOUNDARY — 2026-09-16
+## CURRENT EXECUTION BOUNDARY — 2026-09-17
 
 > Authoritative execution manifest. This document never promotes historical evidence across an exact Git `HEAD` boundary. Pair every evidence batch with the exact Git `HEAD` of `main` and the exact environment/commit used.
 
 ### CURRENT EXACT HEAD
-- Current code/test candidate: `530a2e4a4e102d3cc7b593ea16024c2a02777503`.
+- Current code/test candidate: `9a6a19ce2c74d37e1d604eed6ac33a1cae505789`.
 - This candidate is the current executable certification candidate on PR #476 (`fix(e2e): close real customer persistence on canonical fixture`).
 - The candidate contains the bounded authentication/session-convergence test hardening, the production lifecycle fixes, the minimal current-head UI contract fixes, the corrected K/L evidence-chain contract coverage, and the minimal CSV header-parser compatibility fix now under fresh exact-SHA certification.
 - Historical evidence from earlier SHAs remains historical and is not promoted automatically.
@@ -78,4 +78,4 @@
 - Sensitive decision mutations use tenant context and user identity checks; anonymous execution is denied.
 - Decision work-item RLS is tenant-scoped.
 - Outcome/evidence paths enforce tenant/provenance/state boundaries.
-- Certification consumer contract fix is now governed against candidate `530a2e4a4e102d3cc7b593ea16024c2a02777503`; this note is governance-only and does not transfer runtime evidence.
+- Certification consumer contract fix is now governed against candidate `9a6a19ce2c74d37e1d604eed6ac33a1cae505789`; this note is governance-only and does not transfer runtime evidence.
