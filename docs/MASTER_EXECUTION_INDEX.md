@@ -5,8 +5,8 @@
 > Authoritative execution manifest. This document never promotes historical evidence across an exact Git `HEAD` boundary. Pair every evidence batch with the exact Git `HEAD` of `main` and the exact environment/commit used.
 
 ### CURRENT EXACT HEAD
-- Current code/test candidate: `483c1794303b1c226384b8e1a93cc29c92e2f55f`.
-- This candidate is the current executable certification candidate on PR #475 (`fix: close canonical import durable production path`).
+- Current code/test candidate: `81fe2b72e15c5848c559fadc6b0b7f15a6d872ec`.
+- This candidate is the current executable certification candidate on PR #476 (`fix(e2e): close real customer persistence on canonical fixture`).
 - The candidate contains the bounded authentication/session-convergence test hardening, the production lifecycle fixes, the minimal current-head UI contract fixes, and the corrected K/L evidence-chain contract coverage now under fresh exact-SHA certification.
 - Historical evidence from earlier SHAs remains historical and is not promoted automatically.
 - This index update is governance-only; it does not certify runtime, browser, tenant A/B, import, OCR, recovery, backup/restore, performance, or LIVE state.
@@ -78,4 +78,4 @@
 - Sensitive decision mutations use tenant context and user identity checks; anonymous execution is denied.
 - Decision work-item RLS is tenant-scoped.
 - Outcome/evidence paths enforce tenant/provenance/state boundaries.
-- Certification consumer contract fix is bound to candidate `483c1794303b1c226384b8e1a93cc29c92e2f55f`; this note is governance-only and does not transfer runtime evidence.
+- Certification consumer contract fix is bound to candidate `81fe2b72e15c5848c559fadc6b0b7f15a6d872ec`; this note is governance-only and does not transfer runtime evidence.
