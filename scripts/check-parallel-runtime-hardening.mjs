@@ -39,7 +39,7 @@ requireEvidence({
 });
 
 assertTenantBoundary('tenant-a', 'tenant-a');
-assertTenantBoundary('tenant-a', 'tenant-b');
+assert.equal(tenantScoped('tenant-a', 'tenant-b'), false);
 assertTerminalGuard('COMPLETED', 'COMPLETED');
 
 console.log('parallel runtime hardening: PASS');
