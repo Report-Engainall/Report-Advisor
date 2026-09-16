@@ -5,9 +5,9 @@
 > Authoritative execution manifest. This document never promotes historical evidence across an exact Git `HEAD` boundary. Pair every evidence batch with the exact Git `HEAD` of `main` and the exact environment/commit used.
 
 ### CURRENT EXACT HEAD
-- Current code/test candidate: `9a6a19ce2c74d37e1d604eed6ac33a1cae505789`.
+- Current code/test candidate: `a667aca67b235b0c5b552bb38409b1e266b7c5ff`.
 - This candidate is the current executable certification candidate on PR #476 (`fix(e2e): close real customer persistence on canonical fixture`).
-- The candidate contains the bounded authentication/session-convergence test hardening, the production lifecycle fixes, the minimal current-head UI contract fixes, the corrected K/L evidence-chain contract coverage, and the minimal CSV header-parser compatibility fix now under fresh exact-SHA certification.
+- The candidate contains the bounded authentication/session-convergence test hardening, the production lifecycle fixes, the minimal current-head UI contract fixes, the corrected K/L evidence-chain contract coverage, and the deterministic Phase-H migration contract resolution now under fresh exact-SHA certification.
 - Historical evidence from earlier SHAs remains historical and is not promoted automatically.
 - This index update is governance-only; it does not certify runtime, browser, tenant A/B, import, OCR, recovery, backup/restore, performance, or LIVE state.
 
@@ -78,4 +78,4 @@
 - Sensitive decision mutations use tenant context and user identity checks; anonymous execution is denied.
 - Decision work-item RLS is tenant-scoped.
 - Outcome/evidence paths enforce tenant/provenance/state boundaries.
-- Certification consumer contract fix is now governed against candidate `9a6a19ce2c74d37e1d604eed6ac33a1cae505789`; this note is governance-only and does not transfer runtime evidence.
+- Certification consumer contract fix is now governed against candidate `a667aca67b235b0c5b552bb38409b1e266b7c5ff`; this note is governance-only and does not transfer runtime evidence.
