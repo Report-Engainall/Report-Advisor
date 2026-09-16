@@ -244,9 +244,15 @@ try {
       await page.goto(`${baseURL}/`, { waitUntil: 'networkidle', timeout: 30000 });
       const logout = page.getByRole('button', { name: 'تسجيل الخروج' });
       if (await logout.count()) {
-        await logout.click(); await page.waitForTimeout(1000);
-        if (!(await page.locator('#login-email').count())) addFinding('E2E-AUTH-007', 'FAIL', 'P1', 'Logout did not return the browser to the unauthenticated login state.');
-        else addFinding('E2E-AUTH-008', 'PASS', 'P1', 'Logout returned the browser to the unauthenticated login state.');
+        await logout.click();
+        try {
+          await page.locator('#login-email').waitFor({ state: 'visible', timeout: 10000 });
+          const residualAuthToken = await page.evaluate(() => Object.keys(localStorage).some(key => key.endsWith('-auth-token')));
+          if (residualAuthToken) addFinding('E2E-AUTH-007', 'FAIL', 'P1', 'Logout UI reached login state but an auth token remained in browser storage.');
+          else addFinding('E2E-AUTH-008', 'PASS', 'P1', 'Logout returned the browser to the unauthenticated login state and cleared the persisted auth token.');
+        } catch {
+          addFinding('E2E-AUTH-007', 'FAIL', 'P1', 'Logout did not return the browser to the unauthenticated login state within the bounded convergence window.');
+        }
       } else addFinding('E2E-AUTH-009', 'NOT_PROVEN', 'P1', 'Logout control was not available in authenticated UI.');
     }
   }
