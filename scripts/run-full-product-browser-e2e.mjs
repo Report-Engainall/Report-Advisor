@@ -138,6 +138,14 @@ try {
         result.auth = 'PASS';
         result.tenant = 'PASS';
         addFinding('E2E-AUTH-006', 'PASS', 'P0', 'Browser session established and current tenant resolved through authenticated runtime RPC.', { tenantId: authenticatedTenant });
+
+        await page.reload({ waitUntil: 'networkidle', timeout: 30000 });
+        const refreshedTenant = await authenticatedTenantId(page);
+        addFinding('E2E-AUTH-013', refreshedTenant === authenticatedTenant ? 'PASS' : 'FAIL', 'P0',
+          refreshedTenant === authenticatedTenant
+            ? 'Authenticated browser session and tenant survived an immediate full-page refresh.'
+            : `Tenant changed after immediate full-page refresh: ${authenticatedTenant} -> ${refreshedTenant}.`,
+          { tenantId: refreshedTenant });
       } catch (error) {
         result.auth = 'NOT_PROVEN';
         addFinding('E2E-AUTH-005', 'NOT_PROVEN', 'P0', 'Login form disappeared but browser session/tenant could not be conclusively resolved.', {
