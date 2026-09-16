@@ -29,7 +29,6 @@ const harnesses = {
   'corrupt-data': ['npm:test:file-intelligence-security', 'npm:test:document-resilience'],
 };
 
-const scenarioById = new Map(scenarios.map((scenario) => [scenario.id, scenario]));
 const commandCache = new Map();
 
 function runCommand(key) {
@@ -40,7 +39,7 @@ function runCommand(key) {
   const started = Date.now();
   if (key.startsWith('npm:')) {
     const script = key.slice(4);
-    result = spawnSync('npm', ['run', script, '--if-present=false'], { encoding: 'utf8' });
+    result = spawnSync('npm', ['run', script], { encoding: 'utf8' });
   } else if (key.startsWith('node:')) {
     const command = key.slice(5);
     const [bin, ...args] = command.split(' ');
