@@ -33,7 +33,9 @@ LANGUAGE sql
 SECURITY DEFINER
 SET search_path = public
 AS $$
-  SELECT public.can_enter_phase_l_autonomy(p_domain_key)
+  SELECT auth.uid() IS NOT NULL
+    AND public.current_company_id() IS NOT NULL
+    AND public.can_enter_phase_l_autonomy(p_domain_key)
     AND public.is_continuous_trust_healthy('production');
 $$;
 
@@ -52,7 +54,9 @@ AS $$
     'tenant', public.current_company_id(),
     'trust_healthy', public.is_continuous_trust_healthy('production')
   )
-  FROM (SELECT 'production'::text AS p_domain_key) s;
+  FROM (SELECT 'production'::text AS p_domain_key) s
+  WHERE auth.uid() IS NOT NULL
+    AND public.current_company_id() IS NOT NULL;
 $$;
 
 REVOKE ALL ON FUNCTION public.phase_l_production_autonomy_health() FROM PUBLIC;
