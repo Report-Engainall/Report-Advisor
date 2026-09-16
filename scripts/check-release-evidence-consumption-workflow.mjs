@@ -49,14 +49,14 @@ for (const token of [
 
 for (const token of [
   'loadProductionRegressionResults',
-  'evaluateRelease(payload, expectedSha)',
+  'evaluateRelease(results, expectedSha',
   'PRODUCTION_REGRESSION_RESULTS_MISSING',
   'source-sha-mismatch',
   'scenario-count-mismatch',
   'missing-evidence-id',
   'missing-evidence-path',
   'non-pass-status:',
-  "status !== TERMINAL_PASS",
+  'status !== TERMINAL_PASS',
 ]) requireToken(decision, token, 'production-release-decision');
 
 if (/certification_result:\s*'passed'/.test(release)) throw new Error('release-certification contains a static passed result');
