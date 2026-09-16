@@ -1,16 +1,19 @@
 import assert from 'node:assert/strict';
-import { calculateGroupDemand, aggregateAlternativeGroup } from '../src/lib/intelligence/groupDemand.ts';
+import { aggregateAlternativeGroup } from '../src/lib/intelligence/groupDemand.ts';
 import { calculateInventoryDecision } from '../src/lib/intelligence/inventoryEngine.ts';
 import { forecastNaive, forecastMovingAverage, forecastEma, forecastLinear, selectBestForecast } from '../src/lib/free-toolbox/time-series.ts';
 import { buildExecutiveScorecard } from '../src/lib/free-toolbox/executive-scorecard.ts';
 
-const group = calculateGroupDemand('g1', [
-  { sku: 'A', dailyUnits: 100, stock: 500, factor: 1 },
-  { sku: 'B', dailyUnits: 50, stock: 200, factor: 2 },
-]);
-assert.equal(group.normalizedDailyDemand, 200);
+const group = aggregateAlternativeGroup({ id: 'g1', name: 'زيت 20 لتر', members: [
+  { sku: 'A', dailyDemand: 100, stock: 500, factor: 1 },
+  { sku: 'B', dailyDemand: 50, stock: 200, factor: 2 },
+] });
+assert.deepEqual(group.memberSkus, ['A', 'B']);
+assert.equal(group.normalizedDemand, 200);
 assert.equal(group.normalizedStock, 900);
-assert.equal(group.daysOfCover, 4.5);
+assert.equal(group.coverageDays, 4.5);
+assert.equal(group.stockoutRisk, 'critical');
+assert.equal(group.recommendedOrder, 5100);
 
 const alternative = aggregateAlternativeGroup({ id: 'g1', name: 'زيت 20 لتر', members: [
   { sku: 'A', dailyDemand: 100, stock: 500, factor: 1, netSales: 1000 },
@@ -36,4 +39,4 @@ const score = buildExecutiveScorecard({ revenueGrowth: 10, grossMargin: .3, cash
 assert.ok(score.overall >= 0 && score.overall <= 100);
 assert.ok(['A','B','C','D','F'].includes(score.grade));
 
-console.log('intelligence foundation fixtures: PASS');
+console.log('intelligence foundation canonical contract: PASS');
