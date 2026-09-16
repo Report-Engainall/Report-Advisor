@@ -41,6 +41,10 @@ jobs:
         run: |
           set -euo pipefail
           for f in scripts/check-*.mjs; do
+            if [ "$(basename "$f")" = "check-live-production-evidence-boundary.mjs" ]; then
+              echo "Deferring $f to release-certification workflow where its required run/artifact identities are produced."
+              continue
+            fi
             echo "Running $f"
             node "$f"
           done
