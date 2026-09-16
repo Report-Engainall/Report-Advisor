@@ -78,3 +78,4 @@
 - Sensitive decision mutations use tenant context and user identity checks; anonymous execution is denied.
 - Decision work-item RLS is tenant-scoped.
 - Outcome/evidence paths enforce tenant/provenance/state boundaries.
+- Certification consumer contract fix is bound to candidate `fdf4338c4f1d9aeab618ecd2c0c35e0a964a116c`; this note is governance-only and does not transfer runtime evidence.
