@@ -28,6 +28,7 @@ export function validateCertificationBoundary({ index, head, parent, changedFile
     'scripts/check-import-center-product-contract.mjs',
     'scripts/check-import-source-field-preservation.mjs',
     'scripts/real-business-e2e.mjs',
+    'scripts/run-full-product-browser-e2e.mjs',
     '.github/workflows/execution-enforcement-contract.yml',
     '.github/workflows/final-certification-gate.yml',
   ]);
