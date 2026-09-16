@@ -5,9 +5,9 @@
 > Authoritative execution manifest. This document never promotes historical evidence across an exact Git `HEAD` boundary. Pair every evidence batch with the exact Git `HEAD` of `main` and the exact environment/commit used.
 
 ### CURRENT EXACT HEAD
-- Current code/test candidate: `9bcbff347bd141f62486802106306f8edddde126`.
-- This candidate is the verified merge commit for PR #462 (`fix: close current-head build blockers for live closure`).
-- The merge contains the bounded current-head build/OCR test repairs and workflow checkout/release-manifest corrections; no certification or runtime PASS is implied by the merge itself.
+- Current code/test candidate: `353cae5c433ea5c95e24b5f1e4ab1b00529572fe`.
+- This candidate is the current executable certification candidate on PR #475 (`fix: close canonical import durable production path`).
+- The candidate contains bounded authentication/session-convergence test hardening and the production lifecycle fixes already verified by the current regression evidence.
 - Historical evidence from earlier SHAs remains historical and is not promoted automatically.
 - This index update is governance-only; it does not certify runtime, browser, tenant A/B, import, OCR, recovery, backup/restore, performance, or LIVE state.
 
@@ -38,7 +38,7 @@
 ### P0 — AUTHENTICATED E2E / TENANT A-B
 - Dedicated Actor A/B authenticated users exist and are mapped one-to-one to Tenant A/B.
 - Existing real business runner covers authenticated tenant resolution, customer/product/invoice import, DB read-back, UI read-back, refresh continuity, Tenant B isolation, cross-tenant REST denial, cross-tenant UI denial, and logout.
-- Current browser certification remains NOT PROVEN because the current exact-head browser/device run has not produced the required operational evidence.
+- Current browser certification remains NOT PROVEN until the fresh exact-head browser run produces the required operational evidence.
 - Database-level tenant probes are a baseline only; they do not replace browser-held authenticated A/B evidence.
 - Transactional customer/product “new” buttons remain presentation-only; no unsupported CRUD claim is made.
 - There is no dedicated invoice-entry route; canonical import remains the supported invoice mutation surface.
@@ -101,8 +101,8 @@
 ### CI / Execution Infrastructure
 - Historical CI infrastructure failures with `steps=[]`, `runner_id=0`, and empty runner identity are retained as historical evidence only; they are no longer the sole current CI state.
 - On the merged candidate `9bcbff347bd141f62486802106306f8edddde126`, the Windows desktop workflow executed 23 real steps including checkout, Node setup, `npm ci`, web build, native watcher contract, native runtime smoke, Windows installer build, and installer upload.
-- Final Certification Gate run `2912` executed real checkout/Node/npm/release-manifest steps but failed closed at `Verify certification boundary integrity` because the Master Index still indexed the older candidate `a84a190e5501b4498b56c395a346e8b7e6b61a7b` while `main` was `9bcbff347bd141f62486802106306f8edddde126`.
-- That failure is an exact-head governance mismatch, not a product-test failure; no downstream certification suites were allowed to execute.
+- The prior Final Certification failures at stale candidates are retained as historical governance evidence only.
+- The current certification target is `353cae5c433ea5c95e24b5f1e4ab1b00529572fe`; its production regression and release-decision evidence are current to that candidate and are not transferred from older SHAs.
 - Workflows are not weakened with bypasses to turn infrastructure or boundary failure into PASS.
 
 ## ACTIVE EXECUTION FRONTS
@@ -111,7 +111,7 @@
 - #401 — worker crash/retry/dead-letter/recovery drill.
 - #402 — observability failure-injection and alert-path proof.
 - #403 — production-scale performance evidence refresh.
-- #404 — P0 authenticated Tenant A/B adversarial runtime closure; currently browser/device constrained.
+- #404 — P0 authenticated Tenant A/B adversarial runtime closure; current browser execution is active.
 - PR #396 — tenant-bound durable worker provenance/replay contract.
 - PR #397 — truthful Arabic OCR confidence.
 - PR #398 — report execution input validation; one previously valid review finding has now been explicitly repaired by rejecting array-shaped requests.
@@ -122,6 +122,7 @@
 - PR #397: OPEN, mergeable, not merged.
 - PR #398: OPEN, mergeable, not merged; CodeRabbit's current array-shape finding was verified and repaired.
 - PR #405: OPEN, currently non-mergeable until its fresh review/CI evidence is available.
+- PR #475: OPEN, mergeable; current head `353cae5c433ea5c95e24b5f1e4ab1b00529572fe` is the active certification candidate.
 - No PR is treated as merged merely because a connector exposes a `merge_commit_sha`; explicit `merged=false` is authoritative.
 
 ## REAL RELEASE ASSESSMENT — 2026-09-07
@@ -271,4 +272,13 @@ This is not a rebuild situation. The remaining work is concentrated closure: exe
 - Fresh Windows CI evidence on `9bcbff...` executed real workflow steps; this disproves the earlier blanket characterization that current workflows universally have zero executed steps. It does not by itself certify all CI gates.
 - Because this commit changes only `docs/MASTER_EXECUTION_INDEX.md`, the certification boundary permits the indexed `9bcbff...` candidate to remain the certification target while this governance commit becomes the actual `main` HEAD.
 - Required next action: fresh exact-head Certification Gate on this governance commit, which must prove boundary PASS and then execute the actual certification suites; separately continue P0 authenticated Actor A/B browser proof and P1 real import/report-trigger/recovery evidence.
+- Release remains **NOT CERTIFIED / NOT LIVE**.
+
+## GOVERNANCE LOG — 2026-09-16 — PR #475 CERTIFICATION CANDIDATE BIND
+- Exact executable certification candidate: `353cae5c433ea5c95e24b5f1e4ab1b00529572fe`.
+- This governance-only rebind updates the Master Index from the stale `9bcbff...` candidate to the current PR #475 executable candidate.
+- Current candidate evidence is independently bound to `353cae5...`: Production Regression is 12/12 PASS with release decision `approved`; historical evidence from other SHAs is not promoted by this entry.
+- Browser E2E and Business Persistence remain subject to fresh exact-head execution; no persistence PASS or Final Certification PASS is implied by this rebind.
+- The only purpose of this commit is source-of-truth certification binding. No production implementation, RLS, tenant policy, validation rule, runner, RPC, or bypass was changed by this update.
+- Required next action: complete the fresh Browser/Auth gate, Real Business Persistence/read-back, certification contracts, and final exact-head certification chain on the resulting governance boundary.
 - Release remains **NOT CERTIFIED / NOT LIVE**.
