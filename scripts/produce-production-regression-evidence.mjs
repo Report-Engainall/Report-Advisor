@@ -25,7 +25,7 @@ const harnesses = {
   'exchange-statement': ['npm:test:report-truth', 'node:scripts/business-golden-corpus-contract.mjs'],
   'multi-currency': ['npm:test:safe-metrics', 'npm:test:consolidated-intelligence'],
   'duplicate-transactions': ['npm:test:incremental-import-ledger', 'npm:test:import-business-key'],
-  'large-file': ['npm:test:production-scale', 'npm:perf:budget'],
+  'large-file': ['npm:test:production-scale', 'npm:build', 'npm:perf:budget'],
   'corrupt-data': ['npm:test:file-intelligence-security', 'npm:test:document-resilience'],
 };
 
@@ -54,6 +54,7 @@ function runCommand(key) {
     duration_ms: Date.now() - started,
     exit_code: typeof result.status === 'number' ? result.status : 1,
     signal: result.signal ?? null,
+    spawn_error: result.error ? String(result.error) : null,
     stdout: String(result.stdout ?? '').slice(-12000),
     stderr: String(result.stderr ?? '').slice(-12000),
   };
@@ -74,6 +75,7 @@ for (const scenario of scenarios) {
     command: command.command,
     exit_code: command.exit_code,
     signal: command.signal,
+    spawn_error: command.spawn_error,
   }));
 
   const evidencePayload = {
@@ -123,11 +125,12 @@ const failed = Object.entries(results).filter(([, result]) => result.status !== 
 console.log(`Production regression evidence: ${scenarios.length - failed.length}/${scenarios.length} scenarios PASS on ${sourceSha}.`);
 if (failed.length) {
   for (const [scenarioId, result] of failed) {
-    console.error(`BLOCKED ${result.exact_sha} ${result.evidence_path}: ${result.failures.map((failure) => `${failure.command} (exit ${failure.exit_code}${failure.signal ? `, signal ${failure.signal}` : ''})`).join(', ') || 'missing harness'}`);
+    console.error(`BLOCKED ${result.exact_sha} ${result.evidence_path}: ${result.failures.map((failure) => `${failure.command} (exit ${failure.exit_code}${failure.signal ? `, signal ${failure.signal}` : ''}${failure.spawn_error ? `, spawn_error ${failure.spawn_error}` : ''})`).join(', ') || 'missing harness'}`);
     const evidence = JSON.parse(fs.readFileSync(path.resolve(result.evidence_path), 'utf8'));
     for (const command of evidence.harness ?? []) {
       if (command.exit_code !== 0) {
         console.error(`--- ${scenarioId} :: ${command.command} :: exit ${command.exit_code} ---`);
+        if (command.spawn_error) console.error(`spawn_error:\n${command.spawn_error}`);
         if (command.stdout) console.error(`stdout:\n${command.stdout}`);
         if (command.stderr) console.error(`stderr:\n${command.stderr}`);
       }
