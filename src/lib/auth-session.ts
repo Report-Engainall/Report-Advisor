@@ -35,7 +35,10 @@ export function onAuthStateChange(
   callback: (user: User | null) => void,
 ): () => void {
   const { data } = supabase.auth.onAuthStateChange((_event, session) => {
-    callback(session?.user ?? null);
+    // Supabase invokes this callback while its auth state transition is being
+    // processed. Defer application work so tenant RPC/session reads cannot
+    // contend with the auth lock and stall post-login UI convergence.
+    queueMicrotask(() => callback(session?.user ?? null));
   });
 
   return () => data.subscription.unsubscribe();
