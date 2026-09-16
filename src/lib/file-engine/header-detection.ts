@@ -32,13 +32,18 @@ export function detectHeaderRow(rows: unknown[][], maxRows = Math.min(rows.lengt
 
   for (let rowIndex = 0; rowIndex < maxRows; rowIndex++) {
     const headers = nonEmpty(rows[rowIndex] ?? []);
-    if (headers.length < 2) continue;
+    if (!headers.length) continue;
 
     const normalized = headers.map(normalizeColumnName);
+    const next = rows[rowIndex + 1] ? nonEmpty(rows[rowIndex + 1]) : [];
+    const isSingleKnownHeader = headers.length === 1
+      && next.length >= 1
+      && HEADER_HINTS.some(hint => normalized[0]?.includes(normalizeColumnName(hint)));
+    if (headers.length === 1 && !isSingleKnownHeader) continue;
+
     const textLike = headers.filter(v => /[^\d.,%\-+\s]/u.test(v)).length / headers.length;
     const unique = uniqueRatio(headers);
     const hints = normalized.filter(h => HEADER_HINTS.some(x => h.includes(normalizeColumnName(x)))).length;
-    const next = rows[rowIndex + 1] ? nonEmpty(rows[rowIndex + 1]) : [];
     const nextWidth = next.length;
 
     let score = 0;
@@ -47,7 +52,9 @@ export function detectHeaderRow(rows: unknown[][], maxRows = Math.min(rows.lengt
     if (textLike >= 0.6) { score += 15; reasons.push('text-like headers'); }
     if (unique >= 0.8) { score += 15; reasons.push('unique headers'); }
     if (hints) { score += Math.min(hints * 8, 24); reasons.push('canonical field hints'); }
-    if (nextWidth >= Math.max(2, Math.floor(headers.length * 0.7))) { score += 20; reasons.push('next row matches width'); }
+    const minimumNextWidth = headers.length === 1 ? 1 : Math.max(2, Math.floor(headers.length * 0.7));
+    if (nextWidth >= minimumNextWidth) { score += 20; reasons.push('next row matches width'); }
+    if (headers.length === 1) { score += 5; reasons.push('single-field canonical header'); }
     if (rowIndex === 0) score += 5;
     if (rowIndex > 0) score -= Math.min(rowIndex, 10);
 
