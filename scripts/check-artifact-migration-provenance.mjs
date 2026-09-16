@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
+import { execFileSync } from 'node:child_process';
 const root = process.cwd();
 const pkg = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));
 const lock = fs.readFileSync(path.join(root, 'package-lock.json'), 'utf8');
@@ -12,7 +13,7 @@ const sha256 = x => crypto.createHash('sha256').update(x).digest('hex');
 const lockHash = sha256(lock);
 const migrationHash = sha256(migrations.map(f => `${f}\n${fs.readFileSync(path.join(migrationsDir, f), 'utf8')}`).join('\n'));
 if (!pkg.version) throw new Error('Package version missing from release provenance');
-const headSha = require('node:child_process').execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
+const headSha = execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
 const sourceSha = process.env.CERTIFICATION_SHA || headSha;
 if (process.env.CI && !process.env.CERTIFICATION_SHA) throw new Error('CI release provenance requires CERTIFICATION_SHA');
 if (sourceSha !== headSha) throw new Error(`CERTIFICATION_SHA_MISMATCH:${sourceSha}:${headSha}`);
