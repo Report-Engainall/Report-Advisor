@@ -5,7 +5,7 @@
 > Authoritative execution manifest. This document never promotes historical evidence across an exact Git `HEAD` boundary. Pair every evidence batch with the exact Git `HEAD` of `main` and the exact environment/commit used.
 
 ### CURRENT EXACT HEAD
-- Current code/test candidate: `6125c8a289ea17dd2a8e67d6ec4a7c850d297a8c`.
+- Current code/test candidate: `8f99d3d2904547edbf9ab65352e0b10897806ede`.
 - This candidate is the current executable certification candidate on PR #475 (`fix: close canonical import durable production path`).
 - The candidate contains bounded authentication/session-convergence test hardening and the production lifecycle fixes already verified by the current regression evidence.
 - Historical evidence from earlier SHAs remains historical and is not promoted automatically.
