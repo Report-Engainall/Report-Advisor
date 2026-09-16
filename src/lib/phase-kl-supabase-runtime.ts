@@ -1,5 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 
+export const CONTROL_PLANE_IDENTIFIER = 'control-plane';
+
 export interface ControlPlaneHealthInput {
   overallScore: number;
   evidenceScore: number;
