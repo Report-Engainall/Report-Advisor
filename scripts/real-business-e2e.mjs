@@ -117,6 +117,11 @@ async function importOne(page, entity, fields, marker) {
   await page.locator('input[type="file"]').first().setInputFiles({ name: `${marker}.csv`, mimeType: 'text/csv', buffer: csvBuffer(fields) });
   await page.getByText('المراجعة', { exact: true }).waitFor({ state: 'visible', timeout: 30000 });
   const commit = page.getByRole('button', { name: /تأكيد الاستيراد/ });
+  const qualityApproval = page.locator('label:has-text("موافقة جودة صريحة:") input[type="checkbox"]');
+  if (await qualityApproval.count() === 1 && await qualityApproval.isVisible()) {
+    await qualityApproval.check();
+    evidence.steps.push({ step: `import-quality-approval:${entity}`, status: 'PASS' });
+  }
   assert.equal(await commit.isEnabled(), true, `${entity} valid import must be enabled`);
   await commit.click();
   await page.getByText('تم الاستيراد بنجاح').waitFor({ state: 'visible', timeout: 30000 });
