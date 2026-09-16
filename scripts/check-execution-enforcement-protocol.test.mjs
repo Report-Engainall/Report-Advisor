@@ -43,10 +43,10 @@ assert.throws(
 );
 
 const enforcementOnlyBoundary = `## CURRENT PROJECT STATE\n- Exact code/test head entering this sweep: \`${parentHead}\`.`;
-assert.equal(validateCurrentHeadIndex(enforcementOnlyBoundary, currentHead, parentHead, governanceOnlyFiles), true);
+assert.equal(validateCurrentHeadIndex(enforcementOnlyBoundary, currentHead, parentHead), true);
 assert.throws(
   () => validateCurrentHeadIndex(enforcementOnlyBoundary, currentHead, parentHead, [...governanceOnlyFiles, 'src/app.tsx']),
   /(INDEX DRIFT|INDEX BOUNDARY NOT ANCESTOR)/,
 );
 
-console.log('PASS v3.5 enforcement adversarial test-of-test (real git ancestry + governance-only boundary)');
+console.log('PASS v3.6 enforcement adversarial test-of-test (real git ancestry + governance-only boundary)');
