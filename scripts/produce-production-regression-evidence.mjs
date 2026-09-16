@@ -119,15 +119,15 @@ const payload = {
 
 fs.writeFileSync(outputPath, JSON.stringify(payload, null, 2) + '\n');
 
-const failed = Object.values(results).filter((result) => result.status !== 'PASS');
+const failed = Object.entries(results).filter(([, result]) => result.status !== 'PASS');
 console.log(`Production regression evidence: ${scenarios.length - failed.length}/${scenarios.length} scenarios PASS on ${sourceSha}.`);
 if (failed.length) {
-  for (const result of failed) {
+  for (const [scenarioId, result] of failed) {
     console.error(`BLOCKED ${result.exact_sha} ${result.evidence_path}: ${result.failures.map((failure) => `${failure.command} (exit ${failure.exit_code}${failure.signal ? `, signal ${failure.signal}` : ''})`).join(', ') || 'missing harness'}`);
     const evidence = JSON.parse(fs.readFileSync(path.resolve(result.evidence_path), 'utf8'));
     for (const command of evidence.harness ?? []) {
       if (command.exit_code !== 0) {
-        console.error(`--- ${result.scenario_id ?? result.evidence_path} :: ${command.command} :: exit ${command.exit_code} ---`);
+        console.error(`--- ${scenarioId} :: ${command.command} :: exit ${command.exit_code} ---`);
         if (command.stdout) console.error(`stdout:\n${command.stdout}`);
         if (command.stderr) console.error(`stderr:\n${command.stderr}`);
       }
