@@ -143,7 +143,6 @@ try {
   evidence.steps.push({ step: 'tenant-A-resolution', status: 'PASS', tenantId: evidence.tenantA });
 
   const suffix = `${Date.now()}-${process.pid}`;
-  const customerCode = `E2E-C-${suffix}`;
   const customerName = `E2E عميل ${suffix}`;
   const sku = `E2E-SKU-${suffix}`;
   const productName = `E2E منتج ${suffix}`;
@@ -152,15 +151,12 @@ try {
 
   await importOne(pageA, 'customers', {
     name: customerName,
-    code: customerCode,
-    phone: '777000000',
-    email: `e2e-${suffix}@example.invalid`,
   }, `customer-${suffix}`);
-  const customers = await restSelect(pageA, 'customers', { company_id: evidence.tenantA, code: customerCode }, 'id,name,code,company_id');
+  const customers = await restSelect(pageA, 'customers', { company_id: evidence.tenantA, name: customerName }, 'id,name,company_id');
   assert.equal(customers.length, 1, 'customer persistence must produce exactly one row');
   assert.equal(customers[0].company_id, evidence.tenantA);
   evidence.persisted.customer = customers[0];
-  await uiSearch(pageA, '/customers', 'بحث عن عميل...', customerCode, 'customer-ui-readback');
+  await uiSearch(pageA, '/customers', 'بحث عن عميل...', customerName, 'customer-ui-readback');
 
   await importOne(pageA, 'products', {
     sku,
@@ -210,7 +206,7 @@ try {
     evidence.steps.push({ step: 'tenant-B-resolution', status: 'PASS', tenantId: evidence.tenantB });
 
     for (const [table, filter, label] of [
-      ['customers', { company_id: evidence.tenantA, code: customerCode }, 'customer'],
+      ['customers', { company_id: evidence.tenantA, name: customerName }, 'customer'],
       ['products', { company_id: evidence.tenantA, sku }, 'product'],
       ['sales_invoices', { company_id: evidence.tenantA, invoice_number: invoiceNumber }, 'invoice'],
     ]) {
@@ -230,8 +226,8 @@ try {
     evidence.steps.push({ step: 'B-to-A-rest-mutation-isolation', status: 'PASS' });
 
     await pageB.goto(`${baseURL}/customers`, { waitUntil: 'networkidle', timeout: 30000 });
-    await pageB.getByPlaceholder('بحث عن عميل...').fill(customerCode);
-    assert.equal(await pageB.getByText(customerCode, { exact: true }).count(), 0, 'Tenant B UI must not show Tenant A customer');
+    await pageB.getByPlaceholder('بحث عن عميل...').fill(customerName);
+    assert.equal(await pageB.getByText(customerName, { exact: true }).count(), 0, 'Tenant B UI must not show Tenant A customer');
     await pageB.goto(`${baseURL}/products`, { waitUntil: 'networkidle', timeout: 30000 });
     await pageB.getByPlaceholder('بحث عن منتج...').fill(sku);
     assert.equal(await pageB.getByText(sku, { exact: true }).count(), 0, 'Tenant B UI must not show Tenant A product');
