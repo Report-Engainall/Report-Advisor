@@ -94,6 +94,18 @@ async function restUpdate(page, table, id, payload) {
   return body ? JSON.parse(body) : [];
 }
 
+async function restRpc(page, fn, payload) {
+  const token = await accessToken(page);
+  const response = await fetch(`${supabaseURL}/rest/v1/rpc/${fn}`, {
+    method: 'POST',
+    headers: { apikey: anonKey, Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  const body = await response.text();
+  assert.equal(response.ok, true, `${fn} HTTP ${response.status}: ${body}`);
+  return body ? JSON.parse(body) : null;
+}
+
 async function login(page, email, password) {
   await page.goto(baseURL, { waitUntil: 'networkidle', timeout: 30000 });
   await page.locator('#login-email').fill(email);
@@ -143,6 +155,7 @@ try {
   const sku = `E2E-SKU-${suffix}`;
   const productName = `E2E منتج ${suffix}`;
   const invoiceNumber = `E2E-INV-${suffix}`;
+  const invoiceFileName = `invoice-${suffix}.csv`;
   const invoiceDate = new Date().toISOString().slice(0, 10);
 
   await importOne(pageA, 'customers', {
@@ -187,7 +200,7 @@ try {
     total: 15,
     paid_amount: 0,
     status: 'posted',
-  }, `invoice-${suffix}`);
+  }, invoiceFileName.replace(/\.csv$/, ''));
   const invoices = await restSelect(pageA, 'sales_invoices', { company_id: evidence.tenantA, invoice_number: invoiceNumber }, 'id,company_id,invoice_number,customer_id,total,status');
   assert.equal(invoices.length, 1, 'invoice persistence must produce exactly one row');
   assert.equal(invoices[0].company_id, evidence.tenantA);
@@ -197,6 +210,43 @@ try {
   await pageA.goto(`${baseURL}/reports/sales`, { waitUntil: 'networkidle', timeout: 30000 });
   await pageA.getByText(invoiceNumber, { exact: true }).first().waitFor({ state: 'visible', timeout: 10000 });
   evidence.steps.push({ step: 'sales-report-readback', status: 'PASS' });
+
+  const durableJobs = await restSelect(pageA, 'report_execution_jobs', { company_id: evidence.tenantA, source_path: invoiceFileName }, 'id,company_id,job_key,source_path,source_hash,status,checkpoint,evidence,completed_at');
+  assert.equal(durableJobs.length, 1, 'durable import must create exactly one report execution job');
+  assert.equal(durableJobs[0].company_id, evidence.tenantA);
+  assert.equal(durableJobs[0].source_path, invoiceFileName);
+  assert.match(durableJobs[0].source_hash, /^sha256:[0-9a-f]{64}$/);
+  assert.equal(durableJobs[0].status, 'completed');
+  assert.equal(durableJobs[0].checkpoint?.stage, 'rendered');
+  assert.equal(durableJobs[0].checkpoint?.sourceHash, durableJobs[0].source_hash);
+  assert.ok(durableJobs[0].completed_at, 'durable execution must have completed_at');
+  evidence.persisted.durableJob = durableJobs[0];
+  evidence.steps.push({ step: 'durable-lifecycle-rendered-completed', status: 'PASS', jobId: durableJobs[0].id, sourceHash: durableJobs[0].source_hash });
+
+  const dashboardSnapshot = await restRpc(pageA, 'get_dashboard_snapshot', { p_months: 6, p_as_of: invoiceDate });
+  assert.ok(dashboardSnapshot && typeof dashboardSnapshot === 'object', 'dashboard snapshot must be returned');
+  assert.ok(['CONFIRMED', 'CALCULATED', 'INSUFFICIENT_DATA'].includes(dashboardSnapshot.status), 'dashboard status must be canonical');
+  if (dashboardSnapshot.status === 'CONFIRMED') assert.ok(dashboardSnapshot.evidence !== null && dashboardSnapshot.evidence !== undefined, 'CONFIRMED dashboard state requires evidence');
+  if (dashboardSnapshot.status === 'INSUFFICIENT_DATA') assert.equal(dashboardSnapshot.totalSales, null, 'insufficient dashboard truth must not fabricate total sales');
+  evidence.persisted.dashboardSnapshot = { status: dashboardSnapshot.status, totalSales: dashboardSnapshot.totalSales, grossProfit: dashboardSnapshot.grossProfit, evidence: dashboardSnapshot.evidence ?? null };
+  evidence.steps.push({ step: 'dashboard-kpi-evidence-readback', status: 'PASS', statusValue: dashboardSnapshot.status });
+
+  const profitabilitySnapshot = await restRpc(pageA, 'get_profitability_snapshot', { p_as_of: invoiceDate });
+  assert.ok(profitabilitySnapshot && typeof profitabilitySnapshot === 'object', 'profitability snapshot must be returned');
+  assert.ok(['CALCULATED', 'INSUFFICIENT_DATA'].includes(profitabilitySnapshot.status), 'profitability status must be canonical');
+  if (profitabilitySnapshot.status === 'INSUFFICIENT_DATA') {
+    assert.equal(profitabilitySnapshot.revenue, null, 'insufficient profitability truth must not fabricate revenue');
+    assert.equal(profitabilitySnapshot.cost, null, 'insufficient profitability truth must not fabricate cost');
+    assert.equal(profitabilitySnapshot.gross_profit, null, 'insufficient profitability truth must not fabricate gross profit');
+    assert.ok(Array.isArray(profitabilitySnapshot.reasons) && profitabilitySnapshot.reasons.length > 0, 'insufficient profitability truth must explain why');
+  }
+  evidence.persisted.profitabilitySnapshot = profitabilitySnapshot;
+  evidence.steps.push({ step: 'financial-truth-readback', status: 'PASS', statusValue: profitabilitySnapshot.status, reasons: profitabilitySnapshot.reasons });
+
+  await pageA.goto(baseURL, { waitUntil: 'networkidle', timeout: 30000 });
+  await pageA.getByText('إجمالي المبيعات').waitFor({ state: 'visible', timeout: 10000 });
+  await pageA.getByText('إجمالي الربح').waitFor({ state: 'visible', timeout: 10000 });
+  evidence.steps.push({ step: 'dashboard-ui-readback', status: 'PASS' });
 
   const tenantBeforeRefresh = await currentTenant(pageA);
   await pageA.reload({ waitUntil: 'networkidle', timeout: 30000 });
@@ -216,8 +266,9 @@ try {
       ['customers', { company_id: evidence.tenantA, code: customerCode }, 'customer'],
       ['products', { company_id: evidence.tenantA, sku }, 'product'],
       ['sales_invoices', { company_id: evidence.tenantA, invoice_number: invoiceNumber }, 'invoice'],
+      ['report_execution_jobs', { company_id: evidence.tenantA, source_path: invoiceFileName }, 'durable job'],
     ]) {
-      const rows = await restSelect(pageB, table, filter, table === 'sales_invoices' ? 'id,company_id,invoice_number' : 'id,company_id');
+      const rows = await restSelect(pageB, table, filter, table === 'sales_invoices' ? 'id,company_id,invoice_number' : table === 'report_execution_jobs' ? 'id,company_id,source_path,source_hash' : 'id,company_id');
       assert.equal(rows.length, 0, `Tenant B must not read Tenant A ${label}`);
     }
     evidence.steps.push({ step: 'A-to-B-rest-read-isolation', status: 'PASS' });
