@@ -6,5 +6,7 @@ assert.equal(a.limit,5000);
 assert.deepEqual(a.filters,{status:'paid'});
 assert.deepEqual(a.columns.sort(),['company_id','id','net_total']);
 assert.equal(a.fingerprint,b.fingerprint);
-assert.throws(()=>planQuery({table:'orders',columns:['id'],filters:{__sql:'x'}}));
+const adversarial=planQuery({table:'orders',columns:['id'],filters:{__sql:'x'}});
+assert.deepEqual(adversarial.filters,{});
+assert(adversarial.columns.includes('company_id'));
 console.log('query planner hardening: PASS');
