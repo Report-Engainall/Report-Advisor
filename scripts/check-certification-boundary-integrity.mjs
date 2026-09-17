@@ -35,6 +35,7 @@ export function validateCertificationBoundary({ index, head, parent, changedFile
     'scripts/check-runtime-closure-integrity.mjs',
     'scripts/check-runtime-lifecycle-hardening.mjs',
     'scripts/check-tenant-resolver-lineage.mjs',
+    'scripts/check-unified-evidence-action-learning.mjs',
     'scripts/real-business-e2e.mjs',
     'scripts/run-full-product-browser-e2e.mjs',
     '.github/workflows/execution-enforcement-contract.yml',
