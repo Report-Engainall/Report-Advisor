@@ -9,14 +9,15 @@ const mustContain = [
   ['canonical action receipt RPC', 'create_decision_action_receipt'],
   ['approval guard for work', "d.status='APPROVED'"],
   ['approval guard for action', "w.status='IN_PROGRESS'"],
-  ['idempotency uniqueness', 'UNIQUE(company_id, idempotency_key)'],
+  ['idempotency uniqueness', /UNIQUE\s*\(\s*company_id\s*,\s*idempotency_key\s*\)/i],
   ['actor enforcement', 'auth.uid() IS NULL'],
   ['evidence audit IDs', 'auditIds'],
   ['deterministic outcome delta', 'return actual - expected'],
 ];
+const haystack = [migration, runtime, evidence].join('\n');
 for (const [label, token] of mustContain) {
-  const haystack = [migration, runtime, evidence].join('\n');
-  if (!haystack.includes(token)) throw new Error(`${label}: missing ${token}`);
+  const matched = token instanceof RegExp ? token.test(haystack) : haystack.includes(token);
+  if (!matched) throw new Error(`${label}: missing ${token}`);
 }
 if (!/ON CONFLICT\(company_id,idempotency_key\) DO NOTHING/.test(migration)) throw new Error('action receipt is not idempotent');
 if (!/IF v_status <> 'OPEN'/.test(migration)) throw new Error('work lifecycle OPEN guard missing');
