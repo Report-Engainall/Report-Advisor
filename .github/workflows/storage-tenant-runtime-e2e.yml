@@ -1,0 +1,100 @@
+name: Storage Tenant Runtime E2E
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/storage-tenant-runtime-e2e.mjs'
+      - '.github/workflows/storage-tenant-runtime-e2e.yml'
+      - 'src/**'
+      - 'supabase/migrations/**'
+      - 'package.json'
+      - 'package-lock.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  storage-runtime:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 30
+    env:
+      EXACT_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Verify exact checkout
+        shell: bash
+        run: |
+          set -euo pipefail
+          actual="$(git rev-parse HEAD)"
+          test "$actual" = "$EXACT_HEAD"
+          test -z "$(git status --porcelain)"
+          echo "EXACT_HEAD=$actual"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci --include=dev --no-audit --no-fund
+      - name: Install browser runner
+        run: npm install --no-save --ignore-scripts playwright@1.55.0
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Build exact HEAD
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
+        run: npm run build
+      - name: Start exact-head preview
+        shell: bash
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
+        run: |
+          set -euo pipefail
+          nohup npm run preview -- --host 127.0.0.1 --port 4173 > /tmp/report-advisor-storage.log 2>&1 &
+          for i in {1..60}; do
+            if curl -fsS http://127.0.0.1:4173/ >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/report-advisor-storage.log
+          exit 1
+      - name: Report authenticated storage E2E configuration
+        shell: bash
+        env:
+          SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
+          USER_A_EMAIL: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_EMAIL }}
+          USER_A_PASSWORD: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_PASSWORD }}
+          USER_B_EMAIL: ${{ secrets.REPORT_ADVISOR_E2E_USER_B_EMAIL }}
+          USER_B_PASSWORD: ${{ secrets.REPORT_ADVISOR_E2E_USER_B_PASSWORD }}
+          STORAGE_BUCKET: ${{ secrets.REPORT_ADVISOR_STORAGE_BUCKET }}
+        run: |
+          set -u
+          for name in SUPABASE_URL SUPABASE_ANON_KEY USER_A_EMAIL USER_A_PASSWORD USER_B_EMAIL USER_B_PASSWORD STORAGE_BUCKET; do
+            if [ -z "${!name:-}" ]; then echo "$name=BLOCKED_EXTERNAL"; else echo "$name=PRESENT"; fi
+          done
+      - name: Run real storage tenant isolation E2E
+        env:
+          E2E_BASE_URL: http://127.0.0.1:4173
+          EXACT_HEAD: ${{ env.EXACT_HEAD }}
+          E2E_REPORT_DIR: artifacts/storage-tenant-runtime
+          REPORT_ADVISOR_SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
+          REPORT_ADVISOR_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
+          REPORT_ADVISOR_STORAGE_BUCKET: ${{ secrets.REPORT_ADVISOR_STORAGE_BUCKET }}
+          TEST_USER_A_EMAIL: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_EMAIL }}
+          TEST_USER_A_PASSWORD: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_PASSWORD }}
+          TEST_USER_B_EMAIL: ${{ secrets.REPORT_ADVISOR_E2E_USER_B_EMAIL }}
+          TEST_USER_B_PASSWORD: ${{ secrets.REPORT_ADVISOR_E2E_USER_B_PASSWORD }}
+        run: node scripts/storage-tenant-runtime-e2e.mjs
+      - name: Upload storage runtime evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: storage-tenant-runtime-${{ env.EXACT_HEAD }}
+          path: artifacts/storage-tenant-runtime
+          if-no-files-found: warn
