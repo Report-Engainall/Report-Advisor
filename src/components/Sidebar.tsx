@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Upload, FileBarChart, BarChart3, Brain, Users, Package, Warehouse, Settings, AlertCircle, Layers3, Gauge, Activity, Crosshair, LogOut, UserCircle, Scale, ClipboardCheck, Target, ScanSearch, ChevronDown } from 'lucide-react';
+import { LayoutDashboard, Upload, FileBarChart, BarChart3, Brain, Users, Package, Warehouse, Settings, AlertCircle, Layers3, Gauge, Activity, Crosshair, LogOut, UserCircle, Scale, ClipboardCheck, Target, ScanSearch, ChevronDown, Languages } from 'lucide-react';
 import type { User } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
 import { getDisplayEmail, getDisplayName } from '@/lib/profile-display';
+import { useLanguage } from '@/lib/i18n';
 
 interface NavItem { path:string; label:string; icon:ReactNode }
 interface NavSection { title:string; items:NavItem[] }
@@ -19,13 +20,11 @@ const navSections:NavSection[]=[
 
 export function Sidebar({alertCount=0,onNavigate,user}:{alertCount?:number;onNavigate?:()=>void;user?:User|null}){
   const location=useLocation();
+  const { language, toggleLanguage } = useLanguage();
   const activeSection=useMemo(()=>navSections.find(section=>section.items.some(item=>location.pathname===item.path||(item.path!=='/'&&location.pathname.startsWith(item.path))))?.title ?? 'الرئيسية',[location.pathname]);
   const [collapsed,setCollapsed]=useState<Record<string,boolean>>({});
   useEffect(()=>{setCollapsed(prev=>({...prev,[activeSection]:false}));},[activeSection]);
   const handleSignOut = async () => {
-    // Local sign-out is the authoritative browser-session transition. Global
-    // revocation is not required for the UI security boundary and can delay
-    // convergence while the persisted local session is still present.
     const { error } = await supabase.auth.signOut({ scope: 'local' });
     if (error) throw error;
     onNavigate?.();
@@ -33,6 +32,12 @@ export function Sidebar({alertCount=0,onNavigate,user}:{alertCount?:number;onNav
   return <aside className="w-64 bg-white/95 border-l border-ink-100 flex flex-col h-screen sticky top-0 overflow-y-auto backdrop-blur-sm">
     <div className="px-5 py-5 border-b border-ink-100"><Link to="/" onClick={onNavigate} className="flex items-center gap-3"><div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary-600 to-accent-500 text-lg font-bold text-white shadow-sm">ع</div><div><div className="font-bold text-ink-900 text-base">الأغبري</div><div className="text-[11px] text-ink-400">منصة ذكاء الأعمال والقرار</div></div></Link></div>
     <nav className="flex-1 px-3 py-4 space-y-3" aria-label="التنقل الرئيسي">{navSections.map(section=>{const isOpen=!collapsed[section.title];const isActive=activeSection===section.title;return <section key={section.title} className="rounded-2xl"><button type="button" onClick={()=>setCollapsed(prev=>({...prev,[section.title]:!isOpen}))} className={`flex w-full items-center gap-2 rounded-xl px-3 py-2 text-right transition ${isActive?'text-primary-700':'text-ink-400 hover:bg-ink-50 hover:text-ink-700'}`} aria-expanded={isOpen}><span className="flex-1 text-[11px] font-bold tracking-wide">{section.title}</span><ChevronDown size={14} className={`transition-transform ${isOpen?'':'-rotate-90'}`}/></button>{isOpen&&<div className="mt-1 space-y-0.5">{section.items.map(item=>{const active=location.pathname===item.path||(item.path!=='/'&&location.pathname.startsWith(item.path));return <Link key={item.path} to={item.path} onClick={onNavigate} className={`nav-item ${active?'nav-item-active':'nav-item-inactive'}`}>{item.icon}<span className="flex-1">{item.label}</span>{item.path==='/intelligence'&&alertCount>0&&<span className="badge-danger text-[10px] px-1.5 py-0.5">{alertCount}</span>}</Link>})}</div>}</section>})}</nav>
-    <div className="px-4 py-4 border-t border-ink-100"><div className="flex items-center gap-3"><div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary-100 text-sm font-semibold text-primary-700">م</div><div className="flex-1 min-w-0"><div className="text-sm font-medium text-ink-800 truncate">{getDisplayName(user ?? null)}</div><div className="text-[11px] text-ink-400 truncate" dir="ltr">{getDisplayEmail(user ?? null)}</div></div></div><button type="button" onClick={() => void handleSignOut()} className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-ink-200 px-3 py-2 text-xs font-medium text-ink-600 transition hover:bg-ink-50 hover:text-danger-600" aria-label="تسجيل الخروج"><LogOut size={15}/> تسجيل الخروج</button></div>
+    <div className="px-4 py-4 border-t border-ink-100 space-y-2">
+      <button type="button" onClick={toggleLanguage} className="flex w-full items-center justify-between rounded-xl border border-ink-200 bg-ink-50/60 px-3 py-2 text-xs font-medium text-ink-600 transition hover:border-primary-200 hover:bg-primary-50/60 hover:text-primary-700" aria-label="تغيير لغة الواجهة">
+        <span className="flex items-center gap-2"><Languages size={15}/> اللغة</span><span className="font-bold" dir="ltr">{language === 'ar' ? 'AR' : 'EN'}</span>
+      </button>
+      <div className="flex items-center gap-3"><div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary-100 text-sm font-semibold text-primary-700">م</div><div className="flex-1 min-w-0"><div className="text-sm font-medium text-ink-800 truncate">{getDisplayName(user ?? null)}</div><div className="text-[11px] text-ink-400 truncate" dir="ltr">{getDisplayEmail(user ?? null)}</div></div></div>
+      <button type="button" onClick={() => void handleSignOut()} className="flex w-full items-center justify-center gap-2 rounded-xl border border-ink-200 px-3 py-2 text-xs font-medium text-ink-600 transition hover:bg-ink-50 hover:text-danger-600" aria-label="تسجيل الخروج"><LogOut size={15}/> تسجيل الخروج</button>
+    </div>
   </aside>;
 }
