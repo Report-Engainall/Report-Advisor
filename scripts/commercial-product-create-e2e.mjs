@@ -1,0 +1,69 @@
+import { chromium } from 'playwright';
+import assert from 'node:assert/strict';
+import fs from 'node:fs/promises';
+
+const baseURL = (process.env.E2E_BASE_URL || 'http://127.0.0.1:4173').replace(/\/$/, '');
+const supabaseURL = (process.env.REPORT_ADVISOR_SUPABASE_URL || '').replace(/\/$/, '');
+const anonKey = process.env.REPORT_ADVISOR_SUPABASE_ANON_KEY?.trim();
+const email = process.env.TEST_USER_A_EMAIL?.trim();
+const password = process.env.TEST_USER_A_PASSWORD;
+const exactHead = process.env.EXACT_HEAD || 'UNKNOWN';
+const reportDir = process.env.E2E_REPORT_DIR || 'artifacts/commercial-product-create';
+for (const [name, value] of Object.entries({ supabaseURL, anonKey, email, password })) if (!value) throw new Error(`COMMERCIAL_PRODUCT_E2E_ENV_MISSING:${name}`);
+await fs.mkdir(reportDir, { recursive: true });
+const browser = await chromium.launch({ headless: true });
+const context = await browser.newContext({ viewport: { width: 1440, height: 1000 }, locale: 'ar-SA' });
+const page = await context.newPage();
+const evidence = { exactHead, baseURL, startedAt: new Date().toISOString(), status: 'NOT_PROVEN', failures: [] };
+
+function accessToken() { return page.evaluate(() => { const raw = Object.entries(localStorage).find(([key]) => key.endsWith('-auth-token'))?.[1]; if (!raw) throw new Error('BROWSER_SESSION_NOT_FOUND'); const session = JSON.parse(raw); if (!session?.access_token) throw new Error('BROWSER_ACCESS_TOKEN_NOT_FOUND'); return session.access_token; }); }
+async function rest(path, init = {}) { const token = await accessToken(); const response = await fetch(`${supabaseURL}/rest/v1/${path}`, { ...init, headers: { apikey: anonKey, Authorization: `Bearer ${token}`, ...(init.headers || {}) } }); const body = await response.text(); if (!response.ok) throw new Error(`REST_${response.status}:${body}`); return body ? JSON.parse(body) : []; }
+async function currentTenant() { const token = await accessToken(); const response = await fetch(`${supabaseURL}/rest/v1/rpc/current_company_id`, { method: 'POST', headers: { apikey: anonKey, Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }, body: '{}' }); const body = await response.text(); assert.equal(response.ok, true, `current_company_id HTTP ${response.status}: ${body}`); const tenant = body.replaceAll('"', '').trim(); assert.ok(tenant, 'tenant must resolve'); return tenant; }
+
+try {
+  page.on('console', msg => { if (msg.type() === 'error') evidence.failures.push(`console:${msg.text()}`); });
+  page.on('pageerror', error => evidence.failures.push(`pageerror:${error.message}`));
+  page.on('requestfailed', request => { const reason = request.failure()?.errorText || 'unknown'; if (reason !== 'net::ERR_ABORTED') evidence.failures.push(`request:${request.method()} ${request.url()} ${reason}`); });
+  await page.goto(baseURL, { waitUntil: 'networkidle', timeout: 30000 });
+  await page.locator('#login-email').fill(email);
+  await page.locator('#login-password').fill(password);
+  await page.getByRole('button', { name: 'تسجيل الدخول' }).click();
+  await page.waitForTimeout(1200);
+  assert.equal(await page.locator('#login-email').count(), 0, 'login form must disappear');
+  evidence.tenant = await currentTenant();
+  await page.goto(`${baseURL}/products`, { waitUntil: 'networkidle', timeout: 30000 });
+  const sku = `E2E-PRODUCT-${Date.now()}-${process.pid}`;
+  const name = `E2E منتج ${Date.now()}-${process.pid}`;
+  await page.getByRole('button', { name: 'منتج جديد' }).click();
+  await page.locator('#product-create-sku').fill(sku);
+  await page.locator('#product-create-name').fill(name);
+  await page.locator('#product-create-unit').fill('قطعة');
+  await page.locator('#product-create-cost').fill('10');
+  await page.locator('#product-create-selling').fill('15');
+  await page.locator('#product-create-min-stock').fill('2');
+  await page.locator('#product-create-reorder').fill('3');
+  await page.getByRole('button', { name: 'حفظ المنتج' }).click();
+  await page.getByRole('dialog').waitFor({ state: 'hidden', timeout: 30000 });
+  await page.waitForTimeout(500);
+  const persisted = await rest(`products?select=id,company_id,sku,name,unit,cost_price,selling_price,min_stock,reorder_point&company_id=eq.${evidence.tenant}&sku=eq.${encodeURIComponent(sku)}`);
+  assert.equal(persisted.length, 1, 'exactly one persisted product expected');
+  assert.equal(persisted[0].company_id, evidence.tenant, 'persisted product must belong to current tenant');
+  assert.equal(String(persisted[0].sku), sku);
+  assert.equal(String(persisted[0].name), name);
+  assert.equal(Number(persisted[0].cost_price), 10);
+  assert.equal(Number(persisted[0].selling_price), 15);
+  await page.locator('input[placeholder="بحث عن منتج..."]').fill(sku);
+  await page.getByText(sku, { exact: true }).waitFor({ state: 'visible', timeout: 10000 });
+  evidence.persisted = persisted[0];
+  evidence.status = 'PASS';
+} catch (error) {
+  evidence.status = 'FAIL';
+  evidence.error = error instanceof Error ? error.message : String(error);
+  await page.screenshot({ path: `${reportDir}/failure.png`, fullPage: true }).catch(() => {});
+  process.exitCode = 1;
+} finally {
+  evidence.finishedAt = new Date().toISOString();
+  await fs.writeFile(`${reportDir}/result.json`, JSON.stringify(evidence, null, 2));
+  await browser.close();
+}
+console.log(JSON.stringify(evidence, null, 2));
