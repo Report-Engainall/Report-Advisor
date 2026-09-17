@@ -5,7 +5,7 @@
 > Authoritative execution manifest. This document never promotes historical evidence across an exact Git `HEAD` boundary. Pair every evidence batch with the exact Git `HEAD` of `main` and the exact environment/commit used.
 
 ### CURRENT EXACT HEAD
-- Current code/test candidate: `62c494ef8310da272e6519a007ac76617f2cac1d`.
+- Current code/test candidate: `c5949eeec87dbff03e1eb4de9d76168844c89613`.
 - This exact `main` SHA is the current governance candidate entering fresh certification. No runtime/browser evidence from an earlier SHA is promoted by this binding.
 - The certification binding itself is governance-only and does not certify runtime/product code; runtime certification still requires fresh exact-HEAD evidence.
 - Historical evidence from earlier SHAs remains historical and is not promoted automatically.
