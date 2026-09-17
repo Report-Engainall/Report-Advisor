@@ -1,0 +1,46 @@
+name: Billing Runtime Contract
+
+on:
+  pull_request:
+    paths:
+      - 'supabase/migrations/20260917160000_billing_runtime.sql'
+      - 'scripts/check-entitlements-billing-contract.mjs'
+      - '.github/workflows/billing-runtime-contract.yml'
+      - 'src/lib/entitlements/**'
+      - 'src/lib/report-execution/worker-adapter.ts'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  billing-contract:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 20
+    env:
+      EXACT_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Verify exact checkout
+        run: |
+          set -euo pipefail
+          actual="$(git rev-parse HEAD)"
+          test "$actual" = "$EXACT_HEAD"
+          test -z "$(git status --porcelain)"
+          echo "EXACT_HEAD=$actual"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: Validate billing runtime contract
+        run: node scripts/check-entitlements-billing-contract.mjs
+      - name: Build exact head
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
+        run: npm run build
