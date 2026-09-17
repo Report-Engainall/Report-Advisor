@@ -4,7 +4,7 @@ const root=process.cwd();
 const checks={
   'src/lib/production-intelligence.ts':['diffRows','consolidateByPrecedence','selectBoundedScenario','rankPortfolio','calibrateConfidence','evaluateAutonomyGate'],
   'src/lib/phase-kl-runtime.ts':['advanceRuntime','buildLineage','consolidateRuntime','chooseScenario','prioritizeDecisions','evidenceQuality','canAutonomouslyExecute'],
-  'src/lib/phase-kl-supabase-runtime.ts':['recordControlPlaneHealth','recordEvidenceEdge','autonomyGate'],
+  'src/lib/phase-kl-supabase-runtime.ts':['recordHealth','recordEvidenceEdge','autonomyGate'],
   'supabase/migrations/20260825142000_phase_kl_runtime_closure.sql':['advance_report_execution_checkpoint','complete_report_execution_job','fail_report_execution_job','record_control_plane_health','record_executive_evidence_edge','autonomy_runtime_gate'],
   'supabase/migrations/20260825140000_phase_l_runtime_cockpit.sql':['control_plane_health_snapshots','executive_evidence_graph','autonomy_certification_evidence'],
   'supabase/migrations/20260825153000_runtime_lease_hardening.sql':['p_error IS NULL','jsonb_typeof(p_error)','dead_letter','lease_expires_at > now()'],
