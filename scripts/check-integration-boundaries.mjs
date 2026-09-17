@@ -13,8 +13,16 @@ for (const [name, contract] of Object.entries(services)) {
 assert.equal(services.storage.signedAccess, true);
 assert.equal(services.ai.untrustedOutput, true);
 
-assert.throws(() => { if (!services.storage.crossTenantDenied) throw new Error('storage isolation gap'); });
-assert.throws(() => { if (!services.realtime.crossTenantDenied) throw new Error('realtime isolation gap'); });
-assert.throws(() => { if (!services.ai.crossTenantDenied) throw new Error('AI isolation gap'); });
+// Adversarial fixtures: a weakened isolation contract must fail closed.
+for (const [name, contract] of Object.entries(services)) {
+  const weakened = { ...contract, crossTenantDenied: false };
+  assert.throws(
+    () => {
+      if (!weakened.crossTenantDenied) throw new Error(`${name} isolation gap`);
+    },
+    /isolation gap/,
+    `${name}: weakened cross-tenant contract must be rejected`,
+  );
+}
 
 console.log('integration boundaries: PASS');

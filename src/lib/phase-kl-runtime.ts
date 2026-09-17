@@ -66,6 +66,14 @@ export function evidenceQuality(evidence: RuntimeEvidence[]) {
   return evidence.reduce((sum, item) => sum + item.quality, 0) / evidence.length;
 }
 
+export function riskBudgetValid(budget: RiskBudget) {
+  return [budget.maxRisk, budget.protectedLiquidity, budget.minimumServiceLevel].every(Number.isFinite);
+}
+
+export function trustHealthy(evidence: RuntimeEvidence[]) {
+  return evidence.length > 0 && evidence.every((item) => item.source.trim().length > 0 && Number.isFinite(Date.parse(item.observedAt)) && Number.isFinite(item.quality) && item.quality >= 0 && item.quality <= 1);
+}
+
 export function canAutonomouslyExecute(input: Parameters<typeof evaluateAutonomyGate>[0]) {
   return evaluateAutonomyGate(input);
 }
