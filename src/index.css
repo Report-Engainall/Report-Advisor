@@ -7,9 +7,11 @@
   html { background: #f8fafc; }
   body {
     font-family: 'IBM Plex Sans Arabic', 'Inter', system-ui, sans-serif;
-    background: radial-gradient(circle at 100% 0%, rgb(219 234 254 / .55), transparent 28rem), radial-gradient(circle at 0% 20%, rgb(207 250 254 / .42), transparent 24rem), #f8fafc;
+    background: radial-gradient(circle at 100% 0%, rgb(219 234 254 / .55), transparent 28rem), radial-gradient(circle at 0% 20%, rgb(207 250 250 / .42), transparent 24rem), #f8fafc;
     color: #0f172a; direction: rtl;
   }
+  html[data-direction='ltr'] body { direction: ltr; }
+  html[data-language='en'] body { font-family: Inter, 'IBM Plex Sans Arabic', system-ui, sans-serif; }
   ::selection { background: rgb(37 99 235 / .16); color: #172554; }
   ::-webkit-scrollbar { width: 8px; height: 8px; }
   ::-webkit-scrollbar-track { background: transparent; }
@@ -42,4 +44,5 @@
   .text-balance { text-wrap: balance; }
   .tabular-nums { font-variant-numeric: tabular-nums; }
   .gradient-text { @apply bg-clip-text text-transparent bg-gradient-to-r from-primary-600 via-primary-700 to-accent-600; }
+  [dir='ltr'] .nav-item-active { background-image: linear-gradient(to right, rgb(239 246 255), white); }
 }
