@@ -13,6 +13,7 @@ const COMMANDS: CommandItem[] = [
   { label: 'لوحة القيادة', description: 'النظرة التنفيذية الرئيسية', path: '/', keywords: ['dashboard', 'home', 'لوحة', 'رئيسية'] },
   { label: 'مركز القيادة', description: 'الأولويات والقرارات العاجلة', path: '/command-center', keywords: ['command', 'decision', 'قيادة', 'قرارات'] },
   { label: 'استيراد البيانات', description: 'رفع ومعاينة واعتماد الملفات', path: '/import', keywords: ['import', 'upload', 'excel', 'csv', 'pdf', 'استيراد', 'رفع'] },
+  { label: 'مركز العمليات', description: 'حالات الاستيراد والمراجعة والاستثناءات', path: '/work-center', keywords: ['work center', 'operations', 'jobs', 'imports', 'مركز العمليات', 'عمليات', 'وظائف'] },
   { label: 'جودة البيانات', description: 'الفجوات والأخطاء والتغطية', path: '/data-quality', keywords: ['quality', 'dq', 'جودة', 'بيانات'] },
   { label: 'التقارير', description: 'مركز التقارير والتصدير', path: '/reports', keywords: ['reports', 'report', 'تقارير'] },
   { label: 'التحليلات', description: 'RFM وABC والأعمار والتحليلات', path: '/analytics', keywords: ['analytics', 'rfm', 'abc', 'aging', 'تحليلات'] },
