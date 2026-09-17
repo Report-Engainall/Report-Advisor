@@ -99,8 +99,9 @@ async function login(page, email, password) {
   await page.locator('#login-email').fill(email);
   await page.locator('#login-password').fill(password);
   await page.getByRole('button', { name: 'تسجيل الدخول' }).click();
-  await page.waitForTimeout(1200);
-  assert.equal(await page.locator('#login-email').count(), 0, 'login form must disappear after auth');
+  await page.waitForURL(url => !url.pathname.includes('/login'), { timeout: 30000 });
+  await page.locator('#login-email').waitFor({ state: 'detached', timeout: 10000 });
+  await page.locator('body').waitFor({ state: 'visible', timeout: 5000 });
   assert.equal(await page.getByText('حدث خطأ غير متوقع').count(), 0, 'application error boundary must not render');
 }
 
@@ -144,7 +145,7 @@ try {
 
   const suffix = `${Date.now()}-${process.pid}`;
   const customerName = `E2E عميل ${suffix}`;
-  const customerNumber = `E2E-CUST-${suffix}`;
+  const customerCode = `E2E-CUST-${suffix}`;
   const customerPhone = `+967770${String(Date.now()).slice(-6)}`;
   const customerEmail = `e2e-${suffix}@example.invalid`;
   const sku = `E2E-SKU-${suffix}`;
@@ -154,10 +155,12 @@ try {
 
   await importOne(pageA, 'customers', {
     name: customerName,
-    customer_number: customerNumber,
+    code: customerCode,
     phone: customerPhone,
     email: customerEmail,
-    status: 'active',
+    segment: 'retail',
+    credit_limit: 100000,
+    payment_terms_days: 30,
   }, `customer-${suffix}`);
   const customers = await restSelect(pageA, 'customers', { company_id: evidence.tenantA, name: customerName }, 'id,name,company_id');
   assert.equal(customers.length, 1, 'customer persistence must produce exactly one row');
@@ -169,9 +172,11 @@ try {
     sku,
     name: productName,
     unit: 'قطعة',
-    barcode: `E2E-BAR-${suffix}`,
     cost_price: 10,
     selling_price: 15,
+    min_stock: 0,
+    reorder_point: 0,
+    is_active: true,
   }, `product-${suffix}`);
   const products = await restSelect(pageA, 'products', { company_id: evidence.tenantA, sku }, 'id,name,sku,company_id,selling_price');
   assert.equal(products.length, 1, 'product persistence must produce exactly one row');
@@ -185,7 +190,10 @@ try {
     invoice_date: invoiceDate,
     customer_id: customers[0].id,
     customer_name: customerName,
+    subtotal: 15,
+    tax_amount: 0,
     total: 15,
+    paid_amount: 0,
     status: 'posted',
   }, `invoice-${suffix}`);
   const invoices = await restSelect(pageA, 'sales_invoices', { company_id: evidence.tenantA, invoice_number: invoiceNumber }, 'id,company_id,invoice_number,customer_id,total,status');
