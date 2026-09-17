@@ -65,26 +65,27 @@ const invoiceRows = await restGet('sales_invoices', {
 assert.equal(invoiceRows.length, 1, 'persisted invoice must remain queryable in the live tenant');
 assert.equal(invoiceRows[0].company_id, tenantA);
 assert.equal(Number(invoiceRows[0].total), Number(evidenceRun.persisted.invoice.total));
+assert.match(invoiceRows[0].invoice_number, /^E2E-INV-[A-Za-z0-9-]+$/);
 
+const expectedSourcePath = `invoice-${invoiceRows[0].invoice_number.slice('E2E-INV-'.length)}.csv`;
 const startedAt = new Date(evidenceRun.startedAt).getTime();
 const finishedAt = new Date(evidenceRun.finishedAt || Date.now()).getTime();
 const jobs = await restGet('report_execution_jobs', {
   select: 'id,company_id,job_key,source_path,source_hash,status,checkpoint,evidence,completed_at,updated_at',
   company_id: `eq.${tenantA}`,
+  source_path: `eq.${expectedSourcePath}`,
   status: 'eq.completed',
   order: 'updated_at.desc',
   limit: '100',
 });
 const matchingJobs = jobs.filter(job => {
   const updated = new Date(job.updated_at || 0).getTime();
-  return typeof job.source_path === 'string'
-    && job.source_path.startsWith('invoice-')
-    && updated >= startedAt
-    && updated <= finishedAt + 120000;
+  return updated >= startedAt && updated <= finishedAt + 120000;
 });
-assert.equal(matchingJobs.length, 1, `expected exactly one completed invoice durable job in the live E2E window, found ${matchingJobs.length}`);
+assert.equal(matchingJobs.length, 1, `expected exactly one completed durable job for ${expectedSourcePath} in the live E2E window, found ${matchingJobs.length}`);
 const job = matchingJobs[0];
 assert.equal(job.company_id, tenantA);
+assert.equal(job.source_path, expectedSourcePath);
 assert.match(job.source_hash, /^sha256:[0-9a-f]{64}$/);
 assert.equal(job.checkpoint?.stage, 'rendered');
 assert.equal(job.checkpoint?.sourceHash, job.source_hash);
