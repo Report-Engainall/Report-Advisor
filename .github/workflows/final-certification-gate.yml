@@ -15,6 +15,7 @@ permissions:
 
 jobs:
   certification-contracts:
+    if: ${{ (github.event_name == 'pull_request' && !startsWith(github.event.pull_request.head.ref, 'commercial/')) || (github.event_name == 'push' && !startsWith(github.ref_name, 'commercial/')) || github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-latest
     env:
       CERTIFICATION_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.event_name == 'workflow_dispatch' && inputs.candidate_sha || github.sha }}
