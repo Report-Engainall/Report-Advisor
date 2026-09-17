@@ -1,0 +1,14 @@
+ALTER FUNCTION public.complete_decision_work_item(uuid, numeric, jsonb) SET search_path = public, pg_catalog;
+ALTER FUNCTION public.create_decision_work_item(uuid, uuid, text, uuid, text, text, text, text, timestamptz, numeric, jsonb) SET search_path = public, pg_catalog;
+ALTER FUNCTION public.create_runtime_decision(text, text, numeric, numeric, jsonb) SET search_path = public, pg_catalog;
+ALTER FUNCTION public.create_runtime_recommendation(text, text, text, text, jsonb, numeric, uuid, jsonb) SET search_path = public, pg_catalog;
+ALTER FUNCTION public.current_company_id() SET search_path = public, pg_catalog;
+ALTER FUNCTION public.decide_approval(uuid, boolean, text) SET search_path = public, pg_catalog;
+ALTER FUNCTION public.link_recommendation_to_decision(uuid, uuid) SET search_path = public, pg_catalog;
+ALTER FUNCTION public.mark_alert_read(uuid) SET search_path = public, pg_catalog;
+ALTER FUNCTION public.notify_decision_work_item(uuid, text, text) SET search_path = public, pg_catalog;
+ALTER FUNCTION public.record_decision_outcome(text, text, text, timestamptz, text, numeric, numeric, numeric, text) SET search_path = public, pg_catalog;
+ALTER FUNCTION public.record_recommendation_outcome(text, timestamptz, numeric, numeric, numeric, text, uuid, jsonb) SET search_path = public, pg_catalog;
+ALTER FUNCTION public.request_decision_approval(uuid, text) SET search_path = public, pg_catalog;
+ALTER FUNCTION public.fail_report_execution_job(uuid, uuid, text, uuid, jsonb) SET search_path = public, pg_catalog;
+ALTER FUNCTION public.retry_report_execution_job(uuid, uuid) SET search_path = public, pg_catalog;

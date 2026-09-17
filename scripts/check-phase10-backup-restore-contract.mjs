@@ -7,6 +7,7 @@ const migration = read('supabase/migrations/20260829023000_restore_import_lifecy
 const evidence = read('scripts/check-production-certification-evidence-integrity.mjs');
 const contract = read('scripts/check-production-certification-contract.mjs');
 const index = read('docs/MASTER_EXECUTION_INDEX.md');
+const recoveryRegister = read('docs/RECOVERY_REMAINING_WORK.md');
 
 const stripSqlComments = (sql) => sql
   .replace(/\/\*[\s\S]*?\*\//g, '')
@@ -38,11 +39,12 @@ for (const token of [
   }
 }
 
-// Bind the remaining-work register to recovery concepts explicitly present in
-// the authoritative index. Runtime recovery proof remains a separate gate.
-const indexLower = index.toLowerCase();
+// Keep the recovery evidence boundary explicit without overloading the master
+// execution index with transient remaining-work wording. The companion register
+// is required and remains fail-closed until runtime recovery evidence exists.
+const recoveryBoundary = `${index}\n${recoveryRegister}`.toLowerCase();
 for (const token of ['backup/restore', 'rollback', 'recovery', 'not proven']) {
-  if (!indexLower.includes(token)) throw new Error(`Remaining-work register lost recovery boundary: ${token}`);
+  if (!recoveryBoundary.includes(token)) throw new Error(`Recovery remaining-work register lost boundary: ${token}`);
 }
 
 const decoy = `-- CREATE OR REPLACE FUNCTION public.import_create_job\n-- current_company_id()\n-- TENANT_CONTEXT_MISMATCH`;

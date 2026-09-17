@@ -1,0 +1,48 @@
+name: PDF structured parser regression
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - 'src/lib/file-engine/adapters.ts'
+      - 'src/lib/file-engine/normalizer.ts'
+      - 'src/lib/file-engine/data-types.ts'
+      - 'src/lib/file-engine/synonyms.ts'
+      - 'scripts/check-file-engine-regressions.ts'
+      - 'scripts/check-pdf-structured-regression.ts'
+      - 'scripts/node-esm-ts-extension-loader.mjs'
+      - '.github/workflows/pdf-structured-regression.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  regression:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 15
+    env:
+      EXACT_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Verify exact checkout
+        shell: bash
+        run: |
+          set -euo pipefail
+          actual="$(git rev-parse HEAD)"
+          test "$actual" = "$EXACT_HEAD"
+          test -z "$(git status --porcelain)"
+          echo "EXACT_HEAD=$actual"
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: Run existing file-engine regressions
+        run: npm run test:file-engine-regressions
+      - name: Run structured PDF regression
+        run: node --experimental-strip-types --experimental-loader=./scripts/node-esm-ts-extension-loader.mjs scripts/check-pdf-structured-regression.ts

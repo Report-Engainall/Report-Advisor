@@ -12,9 +12,6 @@ const intendedAuthenticatedSecurityDefiners = [
   'record_decision_outcome', 'record_recommendation_outcome', 'request_decision_approval',
 ];
 
-// Live-only functions are not asserted as repository definitions here. Their
-// existence in Staging is a migration-parity concern, not a reason to make a
-// static repository contract invent a source definition.
 const liveOnlyExpectedSecurityDefiners = ['capture_kpi_evidence_snapshot'];
 
 const criticalOperationalSecurityDefiners = [
@@ -25,7 +22,7 @@ const criticalOperationalSecurityDefiners = [
 
 const failures = [];
 
-function getFunctionWindow(name) {
+function getLatestCreateWindow(name) {
   const definitionPattern = new RegExp(`CREATE\\s+(?:OR\\s+REPLACE\\s+)?FUNCTION\\s+(?:public\\.)?${name}\\s*\\(`, 'gi');
   let lastIndex = -1;
   let match;
@@ -34,7 +31,17 @@ function getFunctionWindow(name) {
   const nextFunction = /CREATE\s+(?:OR\s+REPLACE\s+)?FUNCTION\s+(?:public\.)?/gi;
   nextFunction.lastIndex = lastIndex + 1;
   const next = nextFunction.exec(sql);
-  return sql.slice(lastIndex, next ? next.index : sql.length);
+  return { start: lastIndex, window: sql.slice(lastIndex, next ? next.index : sql.length) };
+}
+
+function getFinalSearchPathAlter(name, createStart) {
+  const alterPattern = new RegExp(`ALTER\\s+FUNCTION\\s+(?:public\\.)?${name}\\s*\\([^;]*?\\)\\s+SET\\s+search_path\\s*(?:TO|=)\\s*([^;]+)\\s*;`, 'gi');
+  let final = null;
+  let match;
+  while ((match = alterPattern.exec(sql)) !== null) {
+    if (match.index > createStart) final = match;
+  }
+  return final;
 }
 
 function normalizeSearchPath(window) {
@@ -58,21 +65,25 @@ function assertAuthenticatedOnly(name) {
 }
 
 for (const name of intendedAuthenticatedSecurityDefiners) {
-  const window = getFunctionWindow(name);
-  if (!window) { failures.push(`${name}: latest repository definition not found`); continue; }
-  if (!/SECURITY\s+DEFINER/i.test(window)) failures.push(`${name}: SECURITY DEFINER missing in latest repository definition`);
-  if (!hasSafeSearchPath(window, 'EMPTY_OR_SAFE')) failures.push(`${name}: explicit safe search_path missing in latest repository definition`);
-  if (name !== 'current_company_id' && !/(auth\.uid\s*\(\)|current_company_id\s*\(\))/i.test(window)) failures.push(`${name}: caller/tenant binding missing in latest repository definition`);
-  if (name === 'current_company_id' && !/auth\.uid\s*\(\)/i.test(window)) failures.push('current_company_id: auth.uid() binding missing in latest repository definition');
+  const create = getLatestCreateWindow(name);
+  if (!create) { failures.push(`${name}: latest repository definition not found`); continue; }
+  const finalAlter = getFinalSearchPathAlter(name, create.start);
+  const effectiveWindow = finalAlter ? `${create.window}\nSET search_path = ${finalAlter[1]};` : create.window;
+  if (!/SECURITY\s+DEFINER/i.test(create.window)) failures.push(`${name}: SECURITY DEFINER missing in latest repository definition`);
+  if (!hasSafeSearchPath(effectiveWindow, 'EMPTY_OR_SAFE')) failures.push(`${name}: explicit safe search_path missing in latest repository definition or final ALTER`);
+  if (name !== 'current_company_id' && !/(auth\.uid\s*\(\)|current_company_id\s*\(\))/i.test(create.window)) failures.push(`${name}: caller/tenant binding missing in latest repository definition`);
+  if (name === 'current_company_id' && !/auth\.uid\s*\(\)/i.test(create.window)) failures.push('current_company_id: auth.uid() binding missing in latest repository definition');
   assertAuthenticatedOnly(name);
 }
 
 for (const check of criticalOperationalSecurityDefiners) {
-  const window = getFunctionWindow(check.name);
-  if (!window) { failures.push(`${check.name}: critical operational definition not found`); continue; }
-  if (!/SECURITY\s+DEFINER/i.test(window)) failures.push(`${check.name}: SECURITY DEFINER missing`);
-  if (!hasSafeSearchPath(window, check.searchPath)) failures.push(`${check.name}: safe explicit search_path missing`);
-  for (const token of check.requiredTokens) if (!token.test(window)) failures.push(`${check.name}: required security/runtime invariant missing: ${token}`);
+  const create = getLatestCreateWindow(check.name);
+  if (!create) { failures.push(`${check.name}: critical operational definition not found`); continue; }
+  const finalAlter = getFinalSearchPathAlter(check.name, create.start);
+  const effectiveWindow = finalAlter ? `${create.window}\nSET search_path = ${finalAlter[1]};` : create.window;
+  if (!/SECURITY\s+DEFINER/i.test(create.window)) failures.push(`${check.name}: SECURITY DEFINER missing`);
+  if (!hasSafeSearchPath(effectiveWindow, check.searchPath)) failures.push(`${check.name}: safe explicit search_path missing in latest definition or final ALTER`);
+  for (const token of check.requiredTokens) if (!token.test(create.window)) failures.push(`${check.name}: required security/runtime invariant missing: ${token}`);
   assertAuthenticatedOnly(check.name);
 }
 

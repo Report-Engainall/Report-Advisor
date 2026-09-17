@@ -1,6 +1,6 @@
 import * as XLSX from 'xlsx';
 import type { FileFormat, Dataset, ColumnProfile, ColumnStatistics } from './types';
-import { normalizeRows, normalizeColumnName, parseNumber } from './normalizer';
+import { normalizeRows, normalizeColumnName, normalizeArabicDigits, parseNumber } from './normalizer';
 import { detectColumnDataType, cleanValue } from './data-types';
 import { mapColumns } from './synonyms';
 import { detectHeaderRow, rowsFromDetectedHeader } from './header-detection';
@@ -56,8 +56,77 @@ async function buildDataset(rows: Row[], name: string, source: string, sheet?: s
   return { id: generateId(), name, source, sheet, rowCount: canonicalRows.length, columnCount: columns.length, columns: columnProfiles, rows: canonicalRows, preview: canonicalRows.slice(0, 50), qualityScore };
 }
 
+function normalizeStructuredDocumentValue(value: string): string | number {
+  const cleaned = normalizeArabicDigits(value.replace(/[٬،]/g, ',').replace(/٫/g, '.').replace(/\s+/g, ' ')).trim();
+  const numeric = parseNumber(cleaned);
+  return numeric === null ? cleaned : numeric;
+}
+
+function extractEmbeddedJson(text: string): unknown | null {
+  const starts = ['{', '['];
+  for (const startToken of starts) {
+    const start = text.indexOf(startToken);
+    if (start < 0) continue;
+    let depth = 0;
+    let inString = false;
+    let escaped = false;
+    for (let i = start; i < text.length; i += 1) {
+      const ch = text[i];
+      if (inString) {
+        if (escaped) { escaped = false; continue; }
+        if (ch === '\\') { escaped = true; continue; }
+        if (ch === '"') inString = false;
+        continue;
+      }
+      if (ch === '"') { inString = true; continue; }
+      if (ch === startToken || (startToken === '{' && ch === '}') || (startToken === '[' && ch === ']')) {
+        if (ch === startToken) depth += 1;
+        else depth -= 1;
+        if (depth === 0) {
+          const candidate = text.slice(start, i + 1);
+          try { return JSON.parse(candidate); } catch { break; }
+        }
+      }
+    }
+  }
+  return null;
+}
+
+function tryParseStructuredPdfText(text: string): Row[] | null {
+  const compact = text.replace(/^PAGE\s+\d+\s*/i, '').trim();
+  const parsedCandidates: unknown[] = [];
+  try { parsedCandidates.push(JSON.parse(compact)); } catch { /* continue with embedded JSON and label extraction */ }
+  const embedded = extractEmbeddedJson(compact);
+  if (embedded !== null) parsedCandidates.push(embedded);
+  for (const parsed of parsedCandidates) {
+    if (isRecord(parsed)) return [parsed];
+    if (Array.isArray(parsed) && parsed.length && parsed.every(isRecord)) return parsed;
+  }
+  const normalized = normalizeArabicDigits(compact.replace(/\s+/g, ' ').trim());
+  const match = (pattern: RegExp): string | null => normalized.match(pattern)?.[1]?.trim() ?? null;
+  const row: Row = {
+    invoice_number: match(/(?:رقم\s*(?:الفاتورة|فاتورة)?|invoice(?:\s+number)?)\s*[:#]?\s*([^\s]+(?:\s+[^\s]+)*?)\s+(?=(?:التاريخ|date)\b)/i),
+    invoice_date: match(/(?:التاريخ|date)\s*[:：]?\s*(\d{4}[-/]\d{1,2}[-/]\d{1,2})/i),
+    customer_name: match(/(?:العميل|اسم\s*العميل|customer(?:\s+name)?)\s*[:：]?\s*(.+?)\s+(?=(?:المجموع|الإجمالي|subtotal|total)\b)/i),
+    subtotal: normalizeStructuredDocumentValue(match(/(?:المجموع الفرعي|المجموع|subtotal)\s*[:：]?\s*([\d٠-٩٬،.,]+)/i) ?? ''),
+    tax_amount: normalizeStructuredDocumentValue(match(/(?:الضريبة|ضريبة|tax)\s*[:：]?\s*([\d٠-٩٬،.,]+)/i) ?? ''),
+    total: normalizeStructuredDocumentValue(match(/(?:الإجمالي|الاجمالي|total)\s*[:：]?\s*([\d٠-٩٬،.,]+)/i) ?? ''),
+    paid_amount: normalizeStructuredDocumentValue(match(/(?:المدفوع|المبلغ\s*المدفوع|paid)\s*[:：]?\s*([\d٠-٩٬،.,]+)/i) ?? ''),
+    currency: match(/(?:العملة|عمله|currency)\s*[:：]?\s*([A-Za-z]{3}|[A-Za-z]+)\b/i),
+  };
+  const required = ['invoice_number', 'invoice_date', 'customer_name', 'total'];
+  if (required.some((key) => row[key] === null || row[key] === '')) return null;
+  return [row];
+}
+
 async function buildTextDataset(text: string, fileName: string, sourceType: string, warning?: string): Promise<Dataset[]> {
-  const normalized = text.replace(/\uFEFF/g, '').replace(/\r\n?/g, '\n').replace(/[ \t]+$/gm, '').trim(); if (!normalized) return [];
+  const normalized = normalizeArabicDigits(text.replace(/\uFEFF/g, '').replace(/\r\n?/g, '\n').replace(/[ \t]+$/gm, '').trim()); if (!normalized) return [];
+  const structured = sourceType.startsWith('pdf') ? tryParseStructuredPdfText(normalized) : null;
+  if (structured) {
+    const dataset = await buildDataset(structured, fileName, sourceType);
+    if (warning) dataset.columns.forEach((column) => column.qualityIssues.push(warning));
+    return [dataset];
+  }
   const rows: Row[] = normalized.split('\n').map((line) => line.trim()).filter(Boolean).map((line, index) => ({ line_number: index + 1, text: line }));
   const dataset = await buildDataset(rows, fileName, sourceType); for (const column of dataset.columns) column.qualityIssues.push('وثيقة نصية: لم يتم اختراع حقل أعمال؛ يلزم التعيين الدلالي قبل الكتابة'); if (warning) dataset.columns[1]?.qualityIssues.push(warning); return [dataset];
 }
