@@ -45,7 +45,7 @@ function getFinalSearchPathAlter(name, createStart) {
 }
 
 function normalizeSearchPath(window) {
-  const raw = window.match(/SET\s+search_path\s+(?:TO|=)\s*([^\n;]+)/i)?.[1];
+  const raw = window.match(/SET\s+search_path\s+(?:TO|=)\s*([^;\n]+?)(?=\s+AS\b|;|\n|$)/i)?.[1];
   if (!raw) return null;
   return raw.trim().toLowerCase().replaceAll('"', '').replaceAll("'", '').replace(/\s+/g, '');
 }
