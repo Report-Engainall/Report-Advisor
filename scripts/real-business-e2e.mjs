@@ -154,7 +154,7 @@ try {
 
   await importOne(pageA, 'customers', {
     name: customerName,
-    customer_number: customerNumber,
+    "customer number": customerNumber,
     phone: customerPhone,
     email: customerEmail,
   }, `customer-${suffix}`);
