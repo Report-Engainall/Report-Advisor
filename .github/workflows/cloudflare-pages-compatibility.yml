@@ -1,0 +1,46 @@
+name: Cloudflare Pages Compatibility
+
+on:
+  pull_request:
+    paths:
+      - 'package.json'
+      - 'package-lock.json'
+      - 'vite.config.ts'
+      - 'src/**'
+      - 'public/**'
+      - 'scripts/check-cloudflare-pages-compatibility.mjs'
+      - '.github/workflows/cloudflare-pages-compatibility.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  compatibility:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 20
+    env:
+      EXACT_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Verify exact checkout
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$EXACT_HEAD"
+          test -z "$(git status --porcelain)"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - name: Build exact Vite artifact
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
+        run: npm run build
+      - name: Validate Cloudflare Pages compatibility
+        run: node scripts/check-cloudflare-pages-compatibility.mjs
