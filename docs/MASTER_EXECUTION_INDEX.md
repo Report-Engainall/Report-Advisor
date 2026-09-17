@@ -5,11 +5,11 @@
 > Authoritative execution manifest. This document never promotes historical evidence across an exact Git `HEAD` boundary. Pair every evidence batch with the exact Git `HEAD` of `main` and the exact environment/commit used.
 
 ### CURRENT EXACT HEAD
-- Current code/test candidate: `86378b6f163f8f3748e236fafd83d56d932e73b5`.
-- This candidate is the current executable certification candidate on PR #476 (`fix(e2e): close real customer persistence on canonical fixture`).
-- The candidate contains the bounded authentication/session-convergence test hardening, the production lifecycle fixes, the minimal current-head UI contract fixes, the corrected K/L evidence-chain contract coverage, the minimal CSV header-parser compatibility fix, the canonical Phase-H continuous-trust contract binding, the canonical Phase-K runtime closure contract binding, the canonical Phase-L autonomy runtime migration and production runtime compatibility contract restored under fresh exact-SHA certification, explicit authenticated tenant/user binding for the Phase-L SECURITY DEFINER compatibility surface, the minimal production-readiness manifest contract restoration required by final certification, the certification-chain guard alignment with the canonical production evidence contract, the concrete fail-closed marker alignment in the certification-chain guard, the guard self-match correction for the anonymous-grant invariant, the canonical customer-segment business E2E fixture correction, the canonical production-gate runtime invocation correction, the query-planner checker alignment with the current tenant-bound query contract, and the current fail-safe negative-path assertion for disallowed query filters.
+- Current code/test candidate: `2313dc50d5de6a8f53ca6aae447a97de7a69e17b`.
+- This candidate is the certification authority for the current governance-only certification lane.
+- The lane remains governance-only relative to this authority; runtime/product code is not certified by this binding alone.
 - Historical evidence from earlier SHAs remains historical and is not promoted automatically.
-- This index update is a governance repair required to bind the current real fixed candidate; it does not certify runtime, browser, tenant A/B, import, OCR, recovery, backup/restore, performance, or LIVE state.
+- This index update is a governance binding repair required to identify the certification authority; it does not certify runtime, browser, tenant A/B, import, OCR, recovery, backup/restore, performance, or LIVE state.
 
 ### BOUNDARY / GOVERNANCE
 - No rebuild from scratch.
@@ -78,4 +78,4 @@
 - Sensitive decision mutations use tenant context and user identity checks; anonymous execution is denied.
 - Decision work-item RLS is tenant-scoped.
 - Outcome/evidence paths enforce tenant/provenance/state boundaries.
-- Certification consumer contract fix is now governed against candidate `86378b6f163f8f3748e236fafd83d56d932e73b5`; this note is governance-only and does not transfer runtime evidence.
+- Certification consumer contract binding is governance-only and remains fail-closed until fresh exact-SHA runtime evidence is produced.
