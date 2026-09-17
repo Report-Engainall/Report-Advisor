@@ -144,6 +144,9 @@ try {
 
   const suffix = `${Date.now()}-${process.pid}`;
   const customerName = `E2E عميل ${suffix}`;
+  const customerNumber = `E2E-CUST-${suffix}`;
+  const customerPhone = `+967770${String(Date.now()).slice(-6)}`;
+  const customerEmail = `e2e-${suffix}@example.invalid`;
   const sku = `E2E-SKU-${suffix}`;
   const productName = `E2E منتج ${suffix}`;
   const invoiceNumber = `E2E-INV-${suffix}`;
@@ -151,7 +154,10 @@ try {
 
   await importOne(pageA, 'customers', {
     name: customerName,
-    segment: 'retail',
+    customer_number: customerNumber,
+    phone: customerPhone,
+    email: customerEmail,
+    status: 'active',
   }, `customer-${suffix}`);
   const customers = await restSelect(pageA, 'customers', { company_id: evidence.tenantA, name: customerName }, 'id,name,company_id');
   assert.equal(customers.length, 1, 'customer persistence must produce exactly one row');
