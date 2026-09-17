@@ -4,6 +4,7 @@ import { LayoutDashboard, Upload, FileBarChart, BarChart3, Brain, Users, Package
 import type { User } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
 import { getDisplayEmail, getDisplayName } from '@/lib/profile-display';
+
 interface NavItem { path:string; label:string; icon:ReactNode }
 interface NavSection { title:string; items:NavItem[] }
 const navSections:NavSection[]=[
@@ -15,12 +16,16 @@ const navSections:NavSection[]=[
  {title:'الكيانات',items:[{path:'/customers',label:'العملاء',icon:<Users size={18}/>},{path:'/products',label:'المنتجات',icon:<Package size={18}/>},{path:'/inventory',label:'المخزون',icon:<Warehouse size={18}/>},{path:'/alternative-groups',label:'مجموعات البدائل',icon:<Layers3 size={18}/>} ]},
  {title:'النظام',items:[{path:'/settings',label:'الإعدادات',icon:<Settings size={18}/>},{path:'/settings/profile',label:'الملف الشخصي',icon:<UserCircle size={18}/>} ]},
 ];
+
 export function Sidebar({alertCount=0,onNavigate,user}:{alertCount?:number;onNavigate?:()=>void;user?:User|null}){
   const location=useLocation();
   const activeSection=useMemo(()=>navSections.find(section=>section.items.some(item=>location.pathname===item.path||(item.path!=='/'&&location.pathname.startsWith(item.path))))?.title ?? 'الرئيسية',[location.pathname]);
   const [collapsed,setCollapsed]=useState<Record<string,boolean>>({});
   useEffect(()=>{setCollapsed(prev=>({...prev,[activeSection]:false}));},[activeSection]);
   const handleSignOut = async () => {
+    // Local sign-out is the authoritative browser-session transition. Global
+    // revocation is not required for the UI security boundary and can delay
+    // convergence while the persisted local session is still present.
     const { error } = await supabase.auth.signOut({ scope: 'local' });
     if (error) throw error;
     onNavigate?.();
