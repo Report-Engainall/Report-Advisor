@@ -34,7 +34,7 @@ assert.throws(() => transition({...s,stage:'DOCUMENT'}, undefined), /ACTOR_REQUI
 assertTransitionError('invalid-stage-from-learning', {...s,stage:'DOCUMENT'}, 'DOCUMENT', actor, /INVALID_STAGE/);
 assertTransitionError('tenant-boundary', {...s,stage:'DOCUMENT',tenant_id:'tenant-b'}, 'DOCUMENT', actor, /TENANT_BOUNDARY/);
 assertTransitionError('missing-source-ref', {...s,stage:'DOCUMENT',source_ref:''}, 'EVIDENCE', actor, /INVALID_STAGE|PROVENANCE_REQUIRED/);
-assertTransitionError('missing-evidence-id', {...s,stage:'DOCUMENT',evidence_id:''}, 'EVIDENCE', actor, /INVALID_STAGE|PROVENANCE_REQUIRED/);
+assertTransitionError('missing-content-hash', {...s,stage:'DOCUMENT',content_hash:''}, 'EVIDENCE', actor, /INVALID_STAGE|PROVENANCE_REQUIRED/);
 assertTransitionError('recommendation-link', {...s,stage:'RECOMMENDATION',recommendation_id:'other'}, 'DECISION', approver, /RECOMMENDATION_LINK_REQUIRED/);
 assertTransitionError('decision-approval', {...s,stage:'DECISION',decision_status:'DRAFT'}, 'WORK_ITEM', actor, /APPROVAL_REQUIRED/);
 assertTransitionError('work-complete', {...s,stage:'WORK_ITEM',work_status:'ASSIGNED'}, 'OUTCOME', actor, /WORK_INCOMPLETE/);
