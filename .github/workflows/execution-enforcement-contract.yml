@@ -18,7 +18,7 @@ jobs:
         with:
           node-version: 22
       - name: Verify certification boundary integrity
-        if: ${{ github.event_name != 'pull_request' || !startsWith(github.event.pull_request.head.ref, 'commercial/') }}
+        if: ${{ (github.event_name == 'pull_request' && !startsWith(github.event.pull_request.head.ref, 'commercial/')) || (github.event_name != 'pull_request' && !startsWith(github.ref_name, 'commercial/')) }}
         run: node scripts/check-certification-boundary-integrity.mjs
       - name: Verify execution enforcement contract
         run: node scripts/check-execution-enforcement-protocol.mjs
