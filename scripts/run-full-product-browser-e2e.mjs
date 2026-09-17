@@ -10,7 +10,7 @@ const reportDir = process.env.E2E_REPORT_DIR || 'artifacts/e2e';
 await fs.mkdir(reportDir, { recursive: true });
 
 const routes = [
-  '/', '/command-center', '/decision-experience', '/metrics', '/reports',
+  '/', '/command-center', '/onboarding', '/decision-experience', '/metrics', '/reports',
   '/reports/sales', '/reports/purchases', '/reports/inventory',
   '/reports/inventory-intelligence', '/reports/demand-velocity',
   '/reports/receivables', '/reports/profitability', '/import', '/data-quality',
