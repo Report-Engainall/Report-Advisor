@@ -1,1 +1,0 @@
-This branch aligns the observability migration filename with the remote Supabase migration version `20260917184216`. No SQL or runtime behavior is changed.
