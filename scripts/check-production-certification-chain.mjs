@@ -6,6 +6,10 @@ for(const f of files) if(!fs.existsSync(path.join(root,f))) throw new Error(`Mis
 const text=files.map(f=>fs.readFileSync(path.join(root,f),'utf8')).join('\n');
 // Retrieval is represented by sourceSnapshotId in the canonical production release-blocker contract; it is not a standalone certification evidence key.
 for(const t of ['tenant','storage','realtime','backup','migration','artifact','rollback','security','continuous_trust']) if(!text.toLowerCase().includes(t)) throw new Error(`Certification chain missing: ${t}`);
-for(const t of ['fail-closed','blocker','production']) if(!text.toLowerCase().includes(t)) throw new Error(`Certification fail-closed invariant missing: ${t}`);
+// Require concrete fail-closed implementation markers rather than a prose label.
+for(const t of ['blocked','blocker','production','NOT EXISTS']) if(!text.toLowerCase().includes(t.toLowerCase())) throw new Error(`Certification fail-closed invariant missing: ${t}`);
+if(!/GRANT\s+ALL\s+TO\s+anon/i.test(text)) {
+  console.log('Anonymous certification grant guard: PASS');
+}
 if(/GRANT\s+ALL\s+TO\s+anon/i.test(text)) throw new Error('Unsafe anonymous certification grant detected');
 console.log('Production certification chain: PASS');
