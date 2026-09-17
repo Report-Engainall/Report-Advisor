@@ -57,6 +57,12 @@ try {
 
   await page.goBack({ waitUntil: 'networkidle', timeout: 30000 });
   await page.waitForURL(url => url.pathname === '/proposal-demo', { timeout: 10000 });
+  await page.locator('#proposal-demo-title').fill(title);
+  await page.locator('#proposal-demo-client').fill(client);
+  await page.locator('#proposal-demo-requirements').fill(requirements);
+  assert.equal(await page.locator('#proposal-demo-title').inputValue(), title);
+  assert.equal(await page.locator('#proposal-demo-client').inputValue(), client);
+  assert.equal(await page.locator('#proposal-demo-requirements').inputValue(), requirements);
   await page.evaluate(() => document.fonts?.ready);
   const pdfPath = `${reportDir}/proposal-demo.pdf`;
   await page.pdf({ path: pdfPath, format: 'A4', printBackground: true, margin: { top: '12mm', right: '10mm', bottom: '12mm', left: '10mm' } });
