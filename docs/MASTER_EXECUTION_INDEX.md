@@ -5,9 +5,9 @@
 > Authoritative execution manifest. This document never promotes historical evidence across an exact Git `HEAD` boundary. Pair every evidence batch with the exact Git `HEAD` of `main` and the exact environment/commit used.
 
 ### CURRENT EXACT HEAD
-- Current code/test candidate: `2313dc50d5de6a8f53ca6aae447a97de7a69e17b`.
-- This candidate is the certification authority for the current governance-only certification lane.
-- The lane remains governance-only relative to this authority; runtime/product code is not certified by this binding alone.
+- Current code/test candidate: `954af8a45cd1ca577070150e242536df3b42a1b5`.
+- This candidate is the exact release candidate entering the current certification lane.
+- The certification binding itself is governance-only and does not certify runtime/product code; runtime certification still requires fresh exact-HEAD evidence.
 - Historical evidence from earlier SHAs remains historical and is not promoted automatically.
 - This index update is a governance binding repair required to identify the certification authority; it does not certify runtime, browser, tenant A/B, import, OCR, recovery, backup/restore, performance, or LIVE state.
 
