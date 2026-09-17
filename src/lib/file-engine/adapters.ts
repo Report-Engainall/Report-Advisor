@@ -126,6 +126,11 @@ async function buildTextDataset(text: string, fileName: string, sourceType: stri
   const structured = sourceType.startsWith('pdf') ? tryParseStructuredPdfText(normalized) : null;
   if (structured) {
     const dataset = await buildDataset(structured, fileName, sourceType);
+    const requiredStructuredFields = ['invoice_number', 'invoice_date', 'customer_name', 'total'];
+    const structurallyVerified = requiredStructuredFields.every((field) =>
+      structured[0]?.[field] !== null && structured[0]?.[field] !== '',
+    );
+    if (structurallyVerified) dataset.qualityScore = Math.max(dataset.qualityScore, 95);
     if (warning) dataset.columns.forEach((column) => column.qualityIssues.push(warning));
     return [dataset];
   }
