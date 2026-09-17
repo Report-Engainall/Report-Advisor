@@ -66,7 +66,7 @@ A front is not complete merely because code exists. It is complete only when imp
 
 ## Current operating correction
 
-Current exact-SHA browser evidence is allowed to expose real blockers. A browser/runtime failure must be fixed at the actual source of failure; it must not be weakened or bypassed. The programmer should synchronize canonical test fixtures with the authoritative business-import requirements already proven in the product lane when those requirements are the actual cause of the failure.
+Current exact-SHA browser evidence is allowed to expose real blockers. A browser/runtime failure must be fixed at the actual source of failure; it must not be weakened or bypassed. When the failing fixture is stale relative to authoritative business-import requirements, synchronize the test fixture with those canonical requirements rather than weakening the business gate.
 
 ## Core rule
 
