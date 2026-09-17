@@ -122,8 +122,21 @@ export async function fetchAgingSnapshot(): Promise<AgingSnapshot> {
   if (error) throw error; if (!data || typeof data !== 'object') throw new Error('REPORT_DATA_UNAVAILABLE: aging snapshot missing');
   const row = data as Record<string, unknown>; return { rows: requiredArray<AgingSnapshotRow>(row.rows), asOf: typeof row.asOf==='string'?row.asOf:asOfDate(), unknownRows: finiteOrNull(row.unknownRows), status: row.status === 'CALCULATED' ? 'CALCULATED' : row.status === 'NO_DATA' ? 'NO_DATA' : 'INSUFFICIENT_DATA' };
 }
+
 export async function fetchDashboardIntelligence(): Promise<{recommendations: Recommendation[]; alerts: Alert[]}> {
-  const { data, error } = await supabase.rpc('get_dashboard_intelligence', { p_limit: 100 });
-  if (error) throw error; if (!data || typeof data !== 'object') throw new Error('REPORT_DATA_UNAVAILABLE: dashboard intelligence missing');
-  const row = data as Record<string, unknown>; return { recommendations: requiredArray<Recommendation>(row.recommendations), alerts: requiredArray<Alert>(row.alerts) };
+  const maxAttempts = 3;
+  let lastError: unknown = null;
+  for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+    try {
+      const { data, error } = await supabase.rpc('get_dashboard_intelligence', { p_limit: 100 });
+      if (error) throw error;
+      if (!data || typeof data !== 'object') throw new Error('REPORT_DATA_UNAVAILABLE: dashboard intelligence missing');
+      const row = data as Record<string, unknown>;
+      return { recommendations: requiredArray<Recommendation>(row.recommendations), alerts: requiredArray<Alert>(row.alerts) };
+    } catch (error) {
+      lastError = error;
+      if (attempt < maxAttempts) await new Promise(resolve => setTimeout(resolve, 250 * attempt));
+    }
+  }
+  throw lastError instanceof Error ? lastError : new Error('REPORT_DATA_UNAVAILABLE: dashboard intelligence fetch failed');
 }
