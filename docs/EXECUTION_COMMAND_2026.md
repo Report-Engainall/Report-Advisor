@@ -64,6 +64,10 @@ A front is not complete merely because code exists. It is complete only when imp
 - Keep the GitHub status synchronized so the programmer can act from one current control record.
 - Do not silently edit programmer-owned implementation files; any ownership transfer must be explicit in GitHub before such a write.
 
+## Current operating correction
+
+Current exact-SHA browser evidence is allowed to expose real blockers. A browser/runtime failure must be fixed at the actual source of failure; it must not be weakened or bypassed. The programmer should synchronize canonical test fixtures with the authoritative business-import requirements already proven in the product lane when those requirements are the actual cause of the failure.
+
 ## Core rule
 
 **Do not stop because a result is pending. Do not wait when another real action is available. Do not claim success before evidence. Keep moving, checking, fixing, verifying, committing, and synchronizing across all independent fronts until all executable work is exhausted or a specific external dependency is genuinely required.**
