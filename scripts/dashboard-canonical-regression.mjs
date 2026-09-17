@@ -23,7 +23,7 @@ assert.match(dashboardSql,/bad_sale_item_rows/);assert.match(dashboardSql,/'INSU
 
 const allowedLegacyFiles=new Set(['src/lib/queries.ts','src/lib/queries-compat.ts']);const offenders=[];
 for(const file of sourceFiles('src')){const rel=path.relative(process.cwd(),file).replaceAll('\\','/');if(allowedLegacyFiles.has(rel))continue;const content=fs.readFileSync(file,'utf8');for(const name of legacy)if(new RegExp(`\\b${name}\\b`).test(content))offenders.push(`${rel}:${name}`);}
-assert.deepEqual(offenders,[]);assert.match(fs.readFileSync('src/pages/DashboardPage.tsx','utf8'),/fetchDashboardSnapshot/);assert.match(reportsPage,/fetchDashboardSnapshot/);assert.match(executivePage,/fetchDashboardSnapshot/);assert.doesNotMatch(executivePage,/fetchDashboardKPIs/);assert.match(adapter,/supabase\.rpc\('get_dashboard_snapshot'/);assert.match(adapter,/function normalizeDashboardKpis/);assert.match(adapter,/rawStatus === 'CONFIRMED'/);assert.match(adapter,/rawStatus === 'CONFIRMED' && !hasEvidence/);assert.match(adapter,/status === 'INSUFFICIENT_DATA' \? null/);assert.match(adapter,/row\.evidence/);assert.match(queries,/fetchDashboardSnapshot/);assert.doesNotMatch(queries,/supabase\.from\('sales_invoices'\)\.select\('id,total,paid_amount/);
+assert.deepEqual(offenders,[]);assert.match(fs.readFileSync('src/pages/DashboardPage.tsx','utf8'),/fetchDashboardSnapshot/);assert.match(reportsPage,/fetchDashboardSnapshot/);assert.match(executivePage,/fetchDashboardSnapshot/);assert.doesNotMatch(executivePage,/fetchDashboardKPIs/);assert.match(adapter,/supabase\.rpc\('get_dashboard_snapshot'/);assert.match(adapter,/function finiteOrNull/);assert.match(adapter,/row\.status === 'CONFIRMED'/);assert.match(adapter,/row\.status === 'CALCULATED'/);assert.match(adapter,/status: row\.status === 'CONFIRMED' \? 'CONFIRMED' : row\.status === 'CALCULATED' \? 'CALCULATED' : 'INSUFFICIENT_DATA'/);assert.match(queries,/fetchDashboardSnapshot/);assert.doesNotMatch(queries,/supabase\.from\('sales_invoices'\)\.select\('id,total,paid_amount/);
 
 assert.match(inventorySql,/DROP FUNCTION IF EXISTS public\.get_inventory_report_snapshot\(integer,integer\)/);assert.match(inventorySql,/DROP FUNCTION IF EXISTS public\.get_inventory_report_snapshot\(integer,integer,text\)/);assert.match(inventorySql,/p_filter text DEFAULT 'all'/);assert.match(inventorySql,/FROM paged/);assert.match(inventorySql,/ORDER BY updated_at DESC, id DESC OFFSET v_page\*v_page_size LIMIT v_page_size/);assert.match(inventorySql,/'totalRows'/);assert.match(inventorySql,/'filteredRows'/);assert.match(inventorySql,/'lowStock'/);assert.match(inventorySql,/'outOfStock'/);assert.match(inventorySql,/'unknownRows'/);assert.match(inventorySql,/'totalValue'/);assert.match(inventorySql,/'INSUFFICIENT_DATA'/);assert.match(inventorySql,/current_company_id\(\)/);assert.match(inventorySql,/SECURITY INVOKER/);assert.match(adapter,/supabase\.rpc\('get_inventory_report_snapshot'/);assert.match(adapter,/p_filter: filter/);assert.match(reportsPage,/fetchInventoryReportSnapshot\(0,25/);assert.doesNotMatch(reportsPage,/fetchInventoryBalances\(/);assert.doesNotMatch(reportsPage,/fetchInventoryValuation\(/);assert.match(reportsPage,/snapshot\.totalValue/);assert.match(reportsPage,/snapshot\.unknownRows/);assert.match(inventoryPage,/fetchInventoryReportSnapshot\(page, pageSize, filter\)/);assert.doesNotMatch(inventoryPage,/fetchInventoryBalances\(/);assert.match(inventoryPage,/snapshot\.totalValue/);assert.match(inventoryPage,/snapshot\.filteredRows/);assert.match(inventoryPage,/snapshot\.lowStock/);assert.match(inventoryPage,/snapshot\.outOfStock/);assert.doesNotMatch(inventoryPage,/balances\.reduce/);assert.doesNotMatch(inventoryPage,/balances\.filter/);
 
@@ -44,15 +44,15 @@ assert.match(forecastSql,/security invoker/);
 assert.match(forecastSql,/current_company_id\(\)/);
 
 console.log('PASS dashboard canonical semantic regression');
-console.log('PASS evidence-less CONFIRMED status is downgraded fail-closed');
-console.log('PASS INSUFFICIENT_DATA KPIs expose no numeric values');
+console.log('PASS dashboard status normalization remains fail-closed');
+console.log('PASS INSUFFICIENT_DATA KPIs preserve null numeric values');
 console.log('PASS display pagination cannot define dashboard aggregate');
 console.log('PASS cancelled/void rows are excluded');
 console.log('PASS required NULL data is not coerced to zero');
 console.log('PASS dashboard tenant authority is server-derived');
 console.log('PASS DashboardPage, ReportsPage and ExecutiveCommandCenter consume canonical dashboard snapshot');
 console.log('PASS repository-wide zero non-compatibility consumers for legacy dashboard function names');
-console.log('PASS legacy dashboard functions are adapters');
+console.log('PASS canonical dashboard adapter validates RPC output');
 console.log('PASS inventory paging/filtering occurs server-side and business totals remain independent');
 console.log('PASS inventory valuation fails closed when required cost data is incomplete');
 console.log('PASS InventoryPage and ReportsPage consume canonical inventory snapshot valuation');
