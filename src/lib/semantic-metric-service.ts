@@ -1,5 +1,5 @@
 import { supabase } from './supabase';
-import { getSemanticMetric, type SemanticMetricRegistryEntry } from './semantic-metric-registry.ts';
+import { getSemanticMetric, SEMANTIC_METRIC_REGISTRY, type SemanticMetricRegistryEntry } from './semantic-metric-registry.ts';
 import { semanticMetricIsFresh } from './semantic-metric-freshness.ts';
 
 export interface MetricGovernanceSnapshot {
@@ -30,7 +30,14 @@ export async function getSemanticMetricContract(metricId:string):Promise<Semanti
 export async function listSemanticMetricContracts():Promise<SemanticMetricContract[]>{
   const {data,error}=await supabase.from('metric_governance').select('*').order('metric_id').order('version',{ascending:false});
   if(error) throw new Error(`Metric governance unavailable: ${error.message}`);
-  const latest=new Map<string,MetricGovernanceSnapshot>(); for(const row of (data??[]) as Record<string,unknown>[]){const snapshot=mapGovernance(row);if(!latest.has(snapshot.metricId))latest.set(snapshot.metricId,snapshot);}
-  return Array.from(latest.values()).map(governance=>{const definition=getSemanticMetric(governance.metricId);if(!definition)throw new Error(`Persisted metric has no canonical definition: ${governance.metricId}`);return {definition,governance};});
+  const latest=new Map<string,MetricGovernanceSnapshot>();
+  for(const row of (data??[]) as Record<string,unknown>[]){
+    const snapshot=mapGovernance(row);
+    if(!latest.has(snapshot.metricId)) latest.set(snapshot.metricId,snapshot);
+  }
+  return SEMANTIC_METRIC_REGISTRY.map(definition => ({
+    definition,
+    governance: latest.get(definition.metricId) ?? null,
+  }));
 }
 export { semanticMetricIsFresh } from './semantic-metric-freshness.ts';
