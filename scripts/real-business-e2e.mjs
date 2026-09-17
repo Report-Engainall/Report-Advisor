@@ -124,7 +124,7 @@ async function importOne(page, entity, fields, marker) {
   }
   assert.equal(await commit.isEnabled(), true, `${entity} valid import must be enabled`);
   await commit.click();
-  await page.getByText('تم الاستيراد بنجاح').waitFor({ state: 'visible', timeout: 30000 });
+  await page.getByRole('heading', { name: 'اكتملت عملية الاستيراد' }).waitFor({ state: 'visible', timeout: 30000 });
   evidence.steps.push({ step: `import:${entity}`, status: 'PASS' });
 }
 
