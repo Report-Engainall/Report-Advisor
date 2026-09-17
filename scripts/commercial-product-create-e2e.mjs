@@ -28,8 +28,8 @@ try {
   await page.locator('#login-email').fill(email);
   await page.locator('#login-password').fill(password);
   await page.getByRole('button', { name: 'تسجيل الدخول' }).click();
-  await page.waitForTimeout(1200);
-  assert.equal(await page.locator('#login-email').count(), 0, 'login form must disappear');
+  await page.locator('#login-email').waitFor({ state: 'hidden', timeout: 30000 });
+  await page.getByRole('button', { name: 'تسجيل الخروج' }).waitFor({ state: 'visible', timeout: 30000 });
   evidence.tenant = await currentTenant();
   await page.goto(`${baseURL}/products`, { waitUntil: 'networkidle', timeout: 30000 });
   const sku = `E2E-PRODUCT-${Date.now()}-${process.pid}`;
