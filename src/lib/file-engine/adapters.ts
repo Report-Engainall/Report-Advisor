@@ -104,16 +104,18 @@ function tryParseStructuredPdfText(text: string): Row[] | null {
   }
   const normalized = normalizeArabicDigits(compact.replace(/\s+/g, ' ').trim());
   const match = (pattern: RegExp): string | null => normalized.match(pattern)?.[1]?.trim() ?? null;
-  const row: Row = {
-    invoice_number: match(/(?:رقم\s*(?:الفاتورة|فاتورة)?|invoice(?:\s+number)?)\s*[:#]?\s*([^\s]+(?:\s+[^\s]+)*?)\s+(?=(?:التاريخ|date)\b)/i),
-    invoice_date: match(/(?:التاريخ|date)\s*[:：]?\s*(\d{4}[-/]\d{1,2}[-/]\d{1,2})/i),
-    customer_name: match(/(?:العميل|اسم\s*العميل|customer(?:\s+name)?)\s*[:：]?\s*(.+?)\s+(?=(?:المجموع|الإجمالي|subtotal|total)\b)/i),
-    subtotal: normalizeStructuredDocumentValue(match(/(?:المجموع الفرعي|المجموع|subtotal)\s*[:：]?\s*([\d٠-٩٬،.,]+)/i) ?? ''),
-    tax_amount: normalizeStructuredDocumentValue(match(/(?:الضريبة|ضريبة|tax)\s*[:：]?\s*([\d٠-٩٬،.,]+)/i) ?? ''),
-    total: normalizeStructuredDocumentValue(match(/(?:الإجمالي|الاجمالي|total)\s*[:：]?\s*([\d٠-٩٬،.,]+)/i) ?? ''),
-    paid_amount: normalizeStructuredDocumentValue(match(/(?:المدفوع|المبلغ\s*المدفوع|paid)\s*[:：]?\s*([\d٠-٩٬،.,]+)/i) ?? ''),
-    currency: match(/(?:العملة|عمله|currency)\s*[:：]?\s*([A-Za-z]{3}|[A-Za-z]+)\b/i),
+  const row: Row = {};
+  const setIfPresent = (key: string, value: string | number | null): void => {
+    if (value !== null && value !== '') row[key] = value;
   };
+  setIfPresent('invoice_number', match(/(?:رقم\s*(?:الفاتورة|فاتورة)?|invoice(?:\s+number)?)\s*[:#]?\s*([^\s]+(?:\s+[^\s]+)*?)\s+(?=(?:التاريخ|date)\b)/i));
+  setIfPresent('invoice_date', match(/(?:التاريخ|date)\s*[:：]?\s*(\d{4}[-/]\d{1,2}[-/]\d{1,2})/i));
+  setIfPresent('customer_name', match(/(?:العميل|اسم\s*العميل|customer(?:\s+name)?)\s*[:：]?\s*(.+?)\s+(?=(?:المجموع|الإجمالي|subtotal|total)\b)/i));
+  setIfPresent('subtotal', normalizeStructuredDocumentValue(match(/(?:المجموع الفرعي|المجموع|subtotal)\s*[:：]?\s*([\d٠-٩٬،.,]+)/i) ?? ''));
+  setIfPresent('tax_amount', normalizeStructuredDocumentValue(match(/(?:الضريبة|ضريبة|tax)\s*[:：]?\s*([\d٠-٩٬،.,]+)/i) ?? ''));
+  setIfPresent('total', normalizeStructuredDocumentValue(match(/(?:الإجمالي|الاجمالي|total)\s*[:：]?\s*([\d٠-٩٬،.,]+)/i) ?? ''));
+  setIfPresent('paid_amount', normalizeStructuredDocumentValue(match(/(?:المدفوع|المبلغ\s*المدفوع|paid)\s*[:：]?\s*([\d٠-٩٬،.,]+)/i) ?? ''));
+  setIfPresent('currency', match(/(?:العملة|عمله|currency)\s*[:：]?\s*([A-Za-z]{3}|[A-Za-z]+)\b/i));
   const required = ['invoice_number', 'invoice_date', 'customer_name', 'total'];
   if (required.some((key) => row[key] === null || row[key] === '')) return null;
   return [row];
@@ -137,8 +139,11 @@ const PDF_OCR_SCALE = 1.5;
 const OCR_CONFIDENCE_THRESHOLD = 70;
 
 async function parsePdfText(buffer: ArrayBuffer, fileName: string): Promise<Dataset[]> {
-  if (typeof Uint8Array.prototype.toHex !== 'function') {
-    Object.defineProperty(Uint8Array.prototype, 'toHex', {
+  const uint8ArrayPrototype = Uint8Array.prototype as Uint8Array & {
+    toHex?: () => string;
+  };
+  if (typeof uint8ArrayPrototype.toHex !== 'function') {
+    Object.defineProperty(uint8ArrayPrototype, 'toHex', {
       configurable: true,
       value: function (this: Uint8Array): string {
         return Array.from(this, (byte) => byte.toString(16).padStart(2, '0')).join('');
