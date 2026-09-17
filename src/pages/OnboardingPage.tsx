@@ -46,7 +46,7 @@ export function OnboardingPage() {
       const [{ data: company }, { data: membership }, { count: canonicalCommitCount, error: canonicalCommitError }] = await Promise.all([
         supabase.from('companies').select('name').eq('id', companyId).maybeSingle(),
         supabase.from('company_memberships').select('role').eq('company_id', companyId).eq('user_id', user.id).eq('is_active', true).maybeSingle(),
-        supabase.from('canonical_import_commits').select('id', { count: 'exact', head: true }).eq('company_id', companyId),
+        supabase.from('canonical_import_commits').select('id', { count: 'exact' }).eq('company_id', companyId).limit(1),
       ]);
       if (canonicalCommitError) throw canonicalCommitError;
       const qualitySnapshot = await fetchDataQualitySnapshot();
