@@ -138,7 +138,7 @@ const OCR_CONFIDENCE_THRESHOLD = 70;
 
 async function parsePdfText(buffer: ArrayBuffer, fileName: string): Promise<Dataset[]> {
   const pdfjs = await import('pdfjs-dist');
-  pdfjs.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.mjs', import.meta.url).toString();
+  if (typeof window !== 'undefined') pdfjs.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.mjs', import.meta.url).toString();
   const pdf: PdfDocument = await pdfjs.getDocument({ data: new Uint8Array(buffer) }).promise; const pages: string[] = [];
   for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) { const page = await pdf.getPage(pageNumber); const content = await page.getTextContent(); const text = content.items.map((item) => 'str' in item && typeof item.str === 'string' ? item.str : '').filter(Boolean).join(' '); if (text.trim()) pages.push(`PAGE ${pageNumber}\n${text}`); }
   if (pages.length) return buildTextDataset(pages.join('\n\n'), fileName, 'pdf');
