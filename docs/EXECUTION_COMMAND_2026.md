@@ -14,9 +14,9 @@ When the owner states **`2026`**, apply this directive in full.
 - Material work follows **IMPLEMENT → TEST → VERIFY → EVIDENCE → COMMIT → EXACT SHA → DOCUMENT**.
 - Reuse existing canonical engines, RPCs, runners, coordinators, import/evidence paths, and semantic metric layer; do not create duplicates when the canonical path is correct.
 - Preserve Evidence-First truth, deterministic metrics, RLS, tenant isolation, fail-closed behavior, and authoritative import lifecycle closure.
-- Continuously rotate through certification, CI, runtime, browser E2E, persistence, DB/RLS, import, evidence/provenance, document/OCR, KPI truth, dashboard, data quality, reports, Work Center, decision intelligence, inventory/demand, customer/product/receivables/profitability, UX/RTL/responsive/PWA/mobile, Windows, security, performance, resilience, Vercel, documentation, and commercial readiness.
+- Rotate continuously through certification, CI, runtime, browser E2E, persistence, DB/RLS, import, evidence/provenance, document/OCR, KPI truth, dashboard, data quality, reports, Work Center, decision intelligence, inventory/demand, customer/product/receivables/profitability, UX/RTL/responsive/PWA/mobile, Windows, security, performance, resilience, Vercel, documentation, and commercial readiness.
 - If one front is externally blocked, classify the blocker and continue independent work.
-- Prefer targeted/incremental checks and avoid duplicate artifacts, deployments, reruns, stale evidence, debug files, and oversized logs.
+- Prefer targeted/incremental checks; avoid duplicate artifacts, deployments, reruns, stale evidence, debug files, and oversized logs.
 
 ## Authorities
 - Master Status: GitHub Issue #478
