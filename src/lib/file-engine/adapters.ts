@@ -137,6 +137,14 @@ const PDF_OCR_SCALE = 1.5;
 const OCR_CONFIDENCE_THRESHOLD = 70;
 
 async function parsePdfText(buffer: ArrayBuffer, fileName: string): Promise<Dataset[]> {
+  if (typeof Uint8Array.prototype.toHex !== 'function') {
+    Object.defineProperty(Uint8Array.prototype, 'toHex', {
+      configurable: true,
+      value: function (this: Uint8Array): string {
+        return Array.from(this, (byte) => byte.toString(16).padStart(2, '0')).join('');
+      },
+    });
+  }
   const pdfjs = await import('pdfjs-dist');
   if (typeof window !== 'undefined') pdfjs.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.mjs', import.meta.url).toString();
   const pdf: PdfDocument = await pdfjs.getDocument({ data: new Uint8Array(buffer) }).promise; const pages: string[] = [];
