@@ -23,6 +23,8 @@ jobs:
     timeout-minutes: 15
     env:
       EXACT_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+      VITE_SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
+      VITE_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
     steps:
       - uses: actions/checkout@v5
         with:
@@ -37,6 +39,12 @@ jobs:
           test "$actual" = "$EXACT_HEAD"
           test -z "$(git status --porcelain)"
           echo "EXACT_HEAD=$actual"
+      - name: Verify real Supabase regression configuration
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "${VITE_SUPABASE_URL:-}" || { echo 'PDF_REGRESSION_BLOCKED: REPORT_ADVISOR_SUPABASE_URL secret is missing.'; exit 2; }
+          test -n "${VITE_SUPABASE_ANON_KEY:-}" || { echo 'PDF_REGRESSION_BLOCKED: REPORT_ADVISOR_SUPABASE_ANON_KEY secret is missing.'; exit 2; }
       - uses: actions/setup-node@v5
         with:
           node-version: 22
