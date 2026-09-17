@@ -30,6 +30,7 @@ function assertTransitionError(label, state, next, transitionActor, pattern) {
   assert.throws(() => transition(state, next, transitionActor), pattern, `${label}: unexpected transition rejection`);
 }
 
+assert.throws(() => transition({...s,stage:'DOCUMENT'}, undefined), /ACTOR_REQUIRED/);
 assertTransitionError('invalid-stage-from-learning', {...s,stage:'DOCUMENT'}, 'DOCUMENT', actor, /INVALID_STAGE/);
 assertTransitionError('tenant-boundary', {...s,stage:'DOCUMENT',tenant_id:'tenant-b'}, 'DOCUMENT', actor, /TENANT_BOUNDARY/);
 assertTransitionError('missing-source-ref', {...s,stage:'DOCUMENT',source_ref:''}, 'EVIDENCE', actor, /INVALID_STAGE|PROVENANCE_REQUIRED/);
