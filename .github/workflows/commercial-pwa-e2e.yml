@@ -1,0 +1,136 @@
+name: Commercial PWA E2E
+
+on:
+  pull_request:
+    paths:
+      - 'src/**'
+      - 'public/**'
+      - '.github/workflows/commercial-pwa-e2e.yml'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'scripts/run-full-product-browser-e2e.mjs'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  EXACT_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+
+jobs:
+  pwa:
+    if: startsWith(github.event.pull_request.head.ref || github.ref_name, 'commercial/')
+    runs-on: ubuntu-22.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Verify exact checkout
+        shell: bash
+        run: |
+          set -euo pipefail
+          actual="$(git rev-parse HEAD)"
+          test "$actual" = "$EXACT_HEAD"
+          test -z "$(git status --porcelain)"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci --include=dev --no-audit --no-fund
+      - name: Install browser runner
+        run: npm install --no-save --ignore-scripts playwright@1.55.0
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Build exact HEAD
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
+        run: npm run build
+      - name: Start exact-head preview
+        shell: bash
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
+        run: |
+          set -euo pipefail
+          nohup npm run preview -- --host 127.0.0.1 --port 4173 > /tmp/report-advisor-commercial-pwa.log 2>&1 &
+          for i in {1..60}; do
+            if curl -fsS http://127.0.0.1:4173/ >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/report-advisor-commercial-pwa.log
+          exit 1
+      - name: Verify PWA contract in browser
+        env:
+          E2E_BASE_URL: http://127.0.0.1:4173
+        run: |
+          node --input-type=module <<'NODE'
+          import { chromium } from 'playwright';
+          const browser = await chromium.launch({ headless: true });
+          const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+          const page = await context.newPage();
+          const errors = [];
+          page.on('console', msg => { if (msg.type() === 'error') errors.push(msg.text()); });
+          page.on('pageerror', error => errors.push(error.message));
+          await page.goto(process.env.E2E_BASE_URL, { waitUntil: 'networkidle', timeout: 30000 });
+          await page.evaluate(() => navigator.serviceWorker.ready);
+          const firstState = await page.evaluate(async () => {
+            const registration = await navigator.serviceWorker.ready;
+            return { scope: registration.scope, state: registration.active?.state ?? null, controller: Boolean(navigator.serviceWorker.controller) };
+          });
+          await page.reload({ waitUntil: 'networkidle', timeout: 30000 });
+          await page.waitForFunction(() => Boolean(navigator.serviceWorker.controller), null, { timeout: 30000 });
+          const secondState = await page.evaluate(async () => ({
+            controller: Boolean(navigator.serviceWorker.controller),
+            caches: await caches.keys(),
+          }));
+          if (!firstState.scope.endsWith('/')) throw new Error(`Unexpected service worker scope: ${firstState.scope}`);
+          if (!['installed','activating','activated'].includes(String(firstState.state))) throw new Error(`Unexpected initial service worker state: ${firstState.state}`);
+          if (!secondState.controller) throw new Error('Service worker does not control the application after reload');
+          if (!secondState.caches.includes('aghbari-static-v1')) throw new Error('Expected static cache was not created');
+          if (errors.length) throw new Error(`Browser errors: ${errors.join(' | ')}`);
+          console.log(JSON.stringify({ firstState, secondState, errors }, null, 2));
+          await browser.close();
+          NODE
+      - name: Verify authenticated E2E secret contract
+        shell: bash
+        env:
+          SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
+          USER_A_EMAIL: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_EMAIL }}
+          USER_A_PASSWORD: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_PASSWORD }}
+          USER_B_EMAIL: ${{ secrets.REPORT_ADVISOR_E2E_USER_B_EMAIL }}
+          USER_B_PASSWORD: ${{ secrets.REPORT_ADVISOR_E2E_USER_B_PASSWORD }}
+        run: |
+          set -euo pipefail
+          missing=0
+          for name in SUPABASE_URL SUPABASE_ANON_KEY USER_A_EMAIL USER_A_PASSWORD USER_B_EMAIL USER_B_PASSWORD; do
+            if [ -n "${!name:-}" ]; then echo "$name=SET"; else echo "$name=MISSING"; missing=1; fi
+          done
+          if [ "$missing" -ne 0 ]; then
+            echo "AUTHENTICATED_E2E_BLOCKED: required test-only runtime secrets are not provisioned."
+            exit 2
+          fi
+      - name: Run authenticated Auth/Tenant/navigation E2E on PWA exact HEAD
+        env:
+          E2E_BASE_URL: http://127.0.0.1:4173
+          REPORT_ADVISOR_SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
+          REPORT_ADVISOR_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
+          TEST_USER_A_EMAIL: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_EMAIL }}
+          TEST_USER_A_PASSWORD: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_PASSWORD }}
+          TEST_USER_B_EMAIL: ${{ secrets.REPORT_ADVISOR_E2E_USER_B_EMAIL }}
+          TEST_USER_B_PASSWORD: ${{ secrets.REPORT_ADVISOR_E2E_USER_B_PASSWORD }}
+          EXACT_HEAD: ${{ env.EXACT_HEAD }}
+          E2E_REPORT_DIR: artifacts/pwa-auth-e2e
+        run: node scripts/run-full-product-browser-e2e.mjs
+      - name: Upload PWA evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: commercial-pwa-${{ env.EXACT_HEAD }}
+          path: artifacts/pwa-auth-e2e
+          if-no-files-found: warn
