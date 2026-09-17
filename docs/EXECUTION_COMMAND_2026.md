@@ -52,6 +52,18 @@ A front is not complete merely because code exists. It is complete only when imp
 - **Parallel Execution Protocol:** `docs/PARALLEL_EXECUTION_PROTOCOL_20260917.md`
 - **Certification Authority at protocol start:** `2313dc50d5de6a8f53ca6aae447a97de7a69e17b`
 
+## ChatGPT control/verification responsibilities
+
+- Maintain the master execution protocol and dependency map.
+- Continuously inspect GitHub issues, PRs, branches, commits, workflow runs, evidence, changed files, and ownership state.
+- Identify the next independent action or first real blocker and communicate it without waiting for idle cycles.
+- Verify architecture: canonical reuse, Evidence-First truth, exact-SHA binding, tenant/RLS isolation, fail-closed behavior, and no historical evidence transfer.
+- Maintain product UX/IA acceptance architecture and review product slices against the documented commercial requirements.
+- Inspect Vercel deployment identity, SHA, health, runtime and rate-limit/external blockers.
+- Detect conflicting work, stale SHA claims, duplicate effort, unproven claims, and evidence contamination.
+- Keep the GitHub status synchronized so the programmer can act from one current control record.
+- Do not silently edit programmer-owned implementation files; any ownership transfer must be explicit in GitHub before such a write.
+
 ## Core rule
 
 **Do not stop because a result is pending. Do not wait when another real action is available. Do not claim success before evidence. Keep moving, checking, fixing, verifying, committing, and synchronizing across all independent fronts until all executable work is exhausted or a specific external dependency is genuinely required.**
