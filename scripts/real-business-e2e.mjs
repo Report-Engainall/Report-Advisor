@@ -151,6 +151,7 @@ try {
 
   await importOne(pageA, 'customers', {
     name: customerName,
+    segment: 'retail',
   }, `customer-${suffix}`);
   const customers = await restSelect(pageA, 'customers', { company_id: evidence.tenantA, name: customerName }, 'id,name,company_id');
   assert.equal(customers.length, 1, 'customer persistence must produce exactly one row');
