@@ -5,8 +5,8 @@
 > Authoritative execution manifest. This document never promotes historical evidence across an exact Git `HEAD` boundary. Pair every evidence batch with the exact Git `HEAD` of `main` and the exact environment/commit used.
 
 ### CURRENT EXACT HEAD
-- Current code/test candidate: `1d0381e59e79f47f34f3444f71bcf89d7bc61ee3`.
-- This candidate is the exact release candidate entering the current certification lane.
+- Current code/test candidate: `db94c3b0b2c88ce884af7c10ec2330210be194da`.
+- This candidate is the exact release candidate entering the current certification lane after fresh browser, business persistence, and live business evidence passed on this exact SHA.
 - The certification binding itself is governance-only and does not certify runtime/product code; runtime certification still requires fresh exact-HEAD evidence.
 - Historical evidence from earlier SHAs remains historical and is not promoted automatically.
 - This index update is a governance binding repair required to identify the certification authority; it does not certify runtime, browser, tenant A/B, import, OCR, recovery, backup/restore, performance, or LIVE state.
@@ -38,7 +38,7 @@
 ### P0 — AUTHENTICATED E2E / TENANT A-B
 - Dedicated Actor A/B authenticated users exist and are mapped one-to-one to Tenant A/B.
 - Existing real business runner covers authenticated tenant resolution, customer/product/invoice import, DB read-back, UI read-back, refresh continuity, Tenant B isolation, cross-tenant REST denial, cross-tenant UI denial, and logout.
-- Current browser certification remains NOT PROVEN until the fresh exact-head browser run produces the required operational evidence.
+- Fresh exact-head browser evidence on `db94c3b0b2c88ce884af7c10ec2330210be194da` passed authentication, tenant resolution, all canonical routes, business persistence, and live business evidence boundary. Certification remains NOT FINAL until certification contracts/provenance/enforcement complete against this bound SHA.
 - Database-level tenant probes are a baseline only; they do not replace browser-held authenticated A/B evidence.
 - Transactional customer/product “new” buttons remain presentation-only; no unsupported CRUD claim is made.
 - There is no dedicated invoice-entry route; canonical import remains the supported invoice mutation surface.
