@@ -19,6 +19,7 @@ export function validateCertificationBoundary({ index, head, parent, changedFile
     'scripts/check-certification-boundary-integrity.mjs',
     'scripts/check-certification-boundary-integrity.test.mjs',
     'scripts/final-certification-provenance.test.mjs',
+    'scripts/check-release-decision-provenance.mjs',
     'scripts/check-production-gate-runtime.mjs',
     'scripts/check-execution-enforcement-protocol.mjs',
     'scripts/check-execution-enforcement-protocol.test.mjs',
