@@ -17,6 +17,7 @@ const COMMANDS: CommandItem[] = [
   { label: 'التقارير', description: 'مركز التقارير والتصدير', path: '/reports', keywords: ['reports', 'report', 'تقارير'] },
   { label: 'التحليلات', description: 'RFM وABC والأعمار والتحليلات', path: '/analytics', keywords: ['analytics', 'rfm', 'abc', 'aging', 'تحليلات'] },
   { label: 'الذكاء', description: 'التوصيات والتنبؤات والسيناريوهات', path: '/intelligence', keywords: ['ai', 'intelligence', 'forecast', 'سيناريو', 'تنبؤ'] },
+  { label: 'Upwork Demo Mode', description: 'مطابقة متطلبات الوظائف مع قدرات المنتج الحقيقية', path: '/proposal-demo', keywords: ['upwork', 'proposal', 'job fit', 'demo', 'proposal demo', 'وظيفة', 'عرض', 'ديمو'] },
   { label: 'العملاء', description: 'إدارة وتحليل العملاء', path: '/customers', keywords: ['customers', 'clients', 'عملاء'] },
   { label: 'المنتجات', description: 'المنتجات والأصناف', path: '/products', keywords: ['products', 'sku', 'منتجات', 'أصناف'] },
   { label: 'المخزون', description: 'المخزون والحركة', path: '/inventory', keywords: ['inventory', 'stock', 'مخزون'] },
