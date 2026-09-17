@@ -13,7 +13,7 @@ CREATE OR REPLACE FUNCTION public.fail_report_execution_job(
 RETURNS boolean
 LANGUAGE plpgsql
 SECURITY DEFINER
-SET search_path TO ''
+SET search_path TO public
 AS $function$
 DECLARE
   affected integer;
@@ -144,3 +144,7 @@ BEGIN
   RETURN true;
 END;
 $function$;
+
+REVOKE ALL ON FUNCTION public.fail_report_execution_job(uuid, uuid, text, uuid, jsonb) FROM PUBLIC;
+REVOKE ALL ON FUNCTION public.fail_report_execution_job(uuid, uuid, text, uuid, jsonb) FROM anon;
+GRANT EXECUTE ON FUNCTION public.fail_report_execution_job(uuid, uuid, text, uuid, jsonb) TO authenticated;
