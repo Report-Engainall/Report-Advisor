@@ -2,72 +2,68 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const root = path.resolve('supabase/migrations');
-const files = fs.readdirSync(root)
-  .filter((name) => name.endsWith('.sql'))
-  .sort()
-  .map((name) => path.join(root, name));
-const sql = files.map((file) => fs.readFileSync(file, 'utf8')).join('\n');
+const files = fs.readdirSync(root).filter(name => name.endsWith('.sql')).sort().map(name => path.join(root, name));
+const sql = files.map(file => fs.readFileSync(file, 'utf8')).join('\n');
 
 const intendedAuthenticatedSecurityDefiners = [
-  'complete_decision_work_item',
-  'create_decision_work_item',
-  'create_runtime_decision',
-  'create_runtime_recommendation',
-  'current_company_id',
-  'decide_approval',
-  'link_recommendation_to_decision',
-  'mark_alert_read',
-  'notify_decision_work_item',
-  'record_decision_outcome',
-  'record_recommendation_outcome',
-  'request_decision_approval',
+  'complete_decision_work_item', 'create_decision_work_item', 'create_runtime_decision',
+  'create_runtime_recommendation', 'current_company_id', 'decide_approval',
+  'link_recommendation_to_decision', 'mark_alert_read', 'notify_decision_work_item',
+  'record_decision_outcome', 'record_recommendation_outcome', 'request_decision_approval',
+];
+
+const criticalOperationalSecurityDefiners = [
+  { name: 'current_company_id', requiredTokens: [/auth\.uid\s*\(\)/i, /company_memberships/i, /is_active\s*=\s*true/i, /is_default\s*=\s*true/i], searchPath: 'EMPTY_OR_SAFE' },
+  { name: 'fail_report_execution_job', requiredTokens: [/auth\.uid\s*\(\)/i, /current_company_id\s*\(\)/i, /lease_token/i, /company_id\s*=\s*p_company_id/i, /UPDATE\s+public\.report_execution_jobs/i], searchPath: 'PUBLIC' },
+  { name: 'capture_kpi_evidence_snapshot', requiredTokens: [/auth\.uid\s*\(\)/i, /current_company_id\s*\(\)/i, /kpi_evidence_snapshots/i, /source_evidence/i, /as_of/i], searchPath: 'PUBLIC' },
+  { name: 'retry_report_execution_job', requiredTokens: [/auth\.uid\s*\(\)/i, /current_company_id\s*\(\)/i, /report_execution_jobs/i, /company_id\s*=\s*p_company_id/i, /status\s*=\s*\x27failed\x27/i], searchPath: 'EMPTY_OR_SAFE' },
 ];
 
 const failures = [];
-for (const name of intendedAuthenticatedSecurityDefiners) {
-  const definition = new RegExp(
-    `CREATE\\s+(?:OR\\s+REPLACE\\s+)?FUNCTION\\s+public\\.${name}\\b`,
-    'i',
-  ).exec(sql);
-  if (!definition) {
-    failures.push(`${name}: repository definition not found`);
-    continue;
-  }
 
-  const nextFunction = /CREATE\s+(?:OR\s+REPLACE\s+)?FUNCTION\s+public\./gi;
-  nextFunction.lastIndex = definition.index + definition[0].length;
+function getFunctionWindow(name) {
+  const definitionPattern = new RegExp(`CREATE\\s+(?:OR\\s+REPLACE\\s+)?FUNCTION\\s+(?:public\\.)?${name}\\s*\\(`, 'gi');
+  let lastIndex = -1;
+  let match;
+  while ((match = definitionPattern.exec(sql)) !== null) lastIndex = match.index;
+  if (lastIndex < 0) return null;
+  const nextFunction = /CREATE\s+(?:OR\s+REPLACE\s+)?FUNCTION\s+(?:public\.)?/gi;
+  nextFunction.lastIndex = lastIndex + 1;
   const next = nextFunction.exec(sql);
-  const windowEnd = next ? next.index : sql.length;
-  const window = sql.slice(definition.index, windowEnd);
+  return sql.slice(lastIndex, next ? next.index : sql.length);
+}
 
-  if (!/SECURITY\s+DEFINER/i.test(window)) {
-    failures.push(`${name}: SECURITY DEFINER not found in function definition window`);
-  }
-  if (!/SET\s+search_path\s*(?:=|TO)\s*'?public'?\b/i.test(window)) {
-    failures.push(`${name}: explicit search_path=public not found in function definition window`);
-  }
-  if (name !== 'current_company_id' && !/(auth\.uid\s*\(\)|current_company_id\s*\(\))/i.test(window)) {
-    failures.push(`${name}: explicit caller/tenant context reference not found in function definition window`);
-  }
-  if (name === 'current_company_id' && !/auth\.uid\s*\(\)/i.test(window)) {
-    failures.push('current_company_id: auth.uid() binding not found in function definition window');
-  }
+function hasSafeSearchPath(window, mode) {
+  const explicit = window.match(/SET\s+search_path\s+(?:TO|=)\s*([^\n;]+)/i)?.[1]?.trim().toLowerCase();
+  if (!explicit) return false;
+  if (mode === 'EMPTY_OR_SAFE') return explicit === "''" || explicit === 'public' || explicit === '"public"' || explicit === 'public, pg_catalog' || explicit === 'public,pg_catalog';
+  return explicit === 'public' || explicit === '"public"' || explicit === 'public, pg_catalog' || explicit === 'public,pg_catalog';
+}
 
-  const authenticatedGrant = new RegExp(
-    `GRANT\\s+EXECUTE\\s+ON\\s+FUNCTION\\s+public\\.${name}\\s*\\([^;]*?\\)\\s+TO\\s+authenticated\\s*;`,
-    'i',
-  );
-  if (!authenticatedGrant.test(sql)) {
-    failures.push(`${name}: authenticated EXECUTE grant not found`);
-  }
+function assertAuthenticatedOnly(name) {
+  const authenticatedGrant = new RegExp(`GRANT\\s+EXECUTE\\s+ON\\s+FUNCTION\\s+(?:public\\.)?${name}\\s*\\([^;]*?\\)\\s+TO\\s+authenticated\\s*;`, 'i');
+  if (!authenticatedGrant.test(sql)) failures.push(`${name}: authenticated EXECUTE grant not found`);
+  const anonGrant = new RegExp(`GRANT\\s+EXECUTE\\s+ON\\s+FUNCTION\\s+(?:public\\.)?${name}\\s*\\([^;]*?\\)\\s+TO\\s+anon\\s*;`, 'i');
+  if (anonGrant.test(sql)) failures.push(`${name}: SECURITY DEFINER function must not be executable by anon`);
+}
 
-  const anonGrant = new RegExp(
-    `GRANT\\s+EXECUTE\\s+ON\\s+FUNCTION\\s+public\\.${name}\\s*\\([^;]*?\\)\\s+TO\\s+anon\\s*;`,
-    'i',
-  );
-  if (anonGrant.test(sql)) {
-    failures.push(`${name}: SECURITY DEFINER function must not be executable by anon`);
-  }
+for (const name of intendedAuthenticatedSecurityDefiners) {
+  const window = getFunctionWindow(name);
+  if (!window) { failures.push(`${name}: latest repository definition not found`); continue; }
+  if (!/SECURITY\s+DEFINER/i.test(window)) failures.push(`${name}: SECURITY DEFINER missing in latest repository definition`);
+  if (!hasSafeSearchPath(window, name === 'current_company_id' ? 'EMPTY_OR_SAFE' : 'PUBLIC')) failures.push(`${name}: explicit safe search_path missing in latest repository definition`);
+  if (name !== 'current_company_id' && !/(auth\.uid\s*\(\)|current_company_id\s*\(\))/i.test(window)) failures.push(`${name}: caller/tenant binding missing in latest repository definition`);
+  if (name === 'current_company_id' && !/auth\.uid\s*\(\)/i.test(window)) failures.push('current_company_id: auth.uid() binding missing in latest repository definition');
+  assertAuthenticatedOnly(name);
+}
+
+for (const check of criticalOperationalSecurityDefiners) {
+  const window = getFunctionWindow(check.name);
+  if (!window) { failures.push(`${check.name}: critical operational definition not found`); continue; }
+  if (!/SECURITY\s+DEFINER/i.test(window)) failures.push(`${check.name}: SECURITY DEFINER missing`);
+  if (!hasSafeSearchPath(window, check.searchPath)) failures.push(`${check.name}: safe explicit search_path missing`);
+  for (const token of check.requiredTokens) if (!token.test(window)) failures.push(`${check.name}: required security/runtime invariant missing: ${token}`);
+  assertAuthenticatedOnly(check.name);
 }
 
 if (failures.length) {
@@ -76,6 +72,4 @@ if (failures.length) {
   process.exit(1);
 }
 
-console.log(
-  `Security-definer exposure contract: PASS (${intendedAuthenticatedSecurityDefiners.length} intentional authenticated SECURITY DEFINER functions checked)`,
-);
+console.log(`Security-definer exposure contract: PASS (${intendedAuthenticatedSecurityDefiners.length} intentional authenticated functions + ${criticalOperationalSecurityDefiners.length} critical operational functions checked against latest definitions)`);
