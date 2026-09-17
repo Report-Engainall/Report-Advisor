@@ -7,11 +7,17 @@ for (const field of ['totalCustomers', 'totalProducts', 'invoiceCount']) {
   if (!new RegExp(`${field}:number\\|null`).test(canonical)) {
     throw new Error(`${field} must preserve unknown/null state in the public KPI contract`);
   }
-  if (!new RegExp(`${field}: finiteOrNull\\(row\\.${field}\\)`).test(canonical)) {
-    throw new Error(`${field} must not coerce unknown/null to zero`);
+  if (!new RegExp(`${field}:(?: finiteOrNull|valueOrNull)\\(row\\.${field}\\)`).test(canonical)) {
+    throw new Error(`${field} must preserve unknown/null rather than coercing it to zero`);
   }
 }
 
+if (!canonical.includes("const valueOrNull = (value: unknown): number | null => status === 'INSUFFICIENT_DATA' ? null : finiteOrNull(value);")) {
+  throw new Error('Dashboard canonical adapter must explicitly null all metrics when authoritative data is insufficient');
+}
+if (!canonical.includes("rawStatus === 'CONFIRMED' && !hasEvidence")) {
+  throw new Error('Dashboard canonical adapter must not claim CONFIRMED without evidence');
+}
 if (!dashboard.includes("const metricStatus=(value:number|null):'CONFIRMED'|'INSUFFICIENT_DATA'=>value===null?'INSUFFICIENT_DATA':'CONFIRMED';")) {
   throw new Error('Dashboard must derive KPI status from each metric value, not the aggregate snapshot status');
 }

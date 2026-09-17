@@ -1,13 +1,26 @@
 name: Full Product Browser E2E
 
-# Exact-head browser discovery gate. Broad push triggers are intentionally prohibited by the CI topology contract.
+# Exact-head browser discovery gate. Push and PR triggers remain narrowly scoped to E2E/runtime surfaces.
 on:
   push:
     paths:
       - 'scripts/run-full-product-browser-e2e.mjs'
       - 'scripts/real-business-e2e.mjs'
+      - 'scripts/verify-live-business-evidence.mjs'
       - '.github/workflows/full-product-browser-e2e.yml'
       - 'docs/MASTER_EXECUTION_INDEX.md'
+      - 'E2E_FAILURE_LEDGER.md'
+      - 'E2E_PRODUCT_GAP_LEDGER.md'
+      - 'supabase/migrations/**'
+      - 'package.json'
+      - 'package-lock.json'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'scripts/run-full-product-browser-e2e.mjs'
+      - 'scripts/real-business-e2e.mjs'
+      - 'scripts/verify-live-business-evidence.mjs'
+      - '.github/workflows/full-product-browser-e2e.yml'
       - 'E2E_FAILURE_LEDGER.md'
       - 'E2E_PRODUCT_GAP_LEDGER.md'
       - 'supabase/migrations/**'
@@ -18,6 +31,9 @@ on:
 permissions:
   contents: read
 
+env:
+  EXACT_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+
 jobs:
   browser-e2e:
     runs-on: ubuntu-22.04
@@ -26,15 +42,18 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
       - name: Verify exact checkout
         shell: bash
         run: |
           set -euo pipefail
           actual="$(git rev-parse HEAD)"
-          test "$actual" = "${GITHUB_SHA}"
+          expected="${EXACT_HEAD}"
+          test "$actual" = "$expected"
           test -z "$(git status --porcelain)"
           echo "EXACT_HEAD=$actual"
+          echo "GITHUB_SHA=${GITHUB_SHA}"
           echo "WORKTREE=CLEAN"
       - uses: actions/setup-node@v4
         with:
@@ -92,7 +111,6 @@ jobs:
           fi
       - name: Run full product browser E2E
         env:
-          EXACT_HEAD: ${{ github.sha }}
           E2E_BASE_URL: http://127.0.0.1:4173
           REPORT_ADVISOR_SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
           REPORT_ADVISOR_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
@@ -103,7 +121,6 @@ jobs:
         run: node scripts/run-full-product-browser-e2e.mjs
       - name: Run real business persistence E2E
         env:
-          EXACT_HEAD: ${{ github.sha }}
           E2E_BASE_URL: http://127.0.0.1:4173
           REPORT_ADVISOR_SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
           REPORT_ADVISOR_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
@@ -112,17 +129,31 @@ jobs:
           TEST_USER_B_EMAIL: ${{ secrets.REPORT_ADVISOR_E2E_USER_B_EMAIL }}
           TEST_USER_B_PASSWORD: ${{ secrets.REPORT_ADVISOR_E2E_USER_B_PASSWORD }}
         run: node scripts/real-business-e2e.mjs
+      - name: Verify live business evidence boundary
+        env:
+          REPORT_ADVISOR_SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
+          REPORT_ADVISOR_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
+          TEST_USER_A_EMAIL: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_EMAIL }}
+          TEST_USER_A_PASSWORD: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_PASSWORD }}
+        run: node scripts/verify-live-business-evidence.mjs
       - name: Upload browser E2E evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: full-product-browser-e2e-${{ github.sha }}
+          name: full-product-browser-e2e-${{ env.EXACT_HEAD }}
           path: artifacts/e2e
           if-no-files-found: warn
       - name: Upload real business E2E evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: real-business-e2e-${{ github.sha }}
+          name: real-business-e2e-${{ env.EXACT_HEAD }}
           path: artifacts/e2e-business
+          if-no-files-found: warn
+      - name: Upload live business evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: live-business-evidence-${{ env.EXACT_HEAD }}
+          path: artifacts/live-production-evidence
           if-no-files-found: warn

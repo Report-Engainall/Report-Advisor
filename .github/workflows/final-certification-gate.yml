@@ -41,6 +41,10 @@ jobs:
         run: |
           set -euo pipefail
           for f in scripts/check-*.mjs; do
+            if [ "$(basename "$f")" = "check-live-production-evidence-boundary.mjs" ]; then
+              echo "Deferring $f to release-certification workflow where its required run/artifact identities are produced."
+              continue
+            fi
             echo "Running $f"
             node "$f"
           done
@@ -84,3 +88,4 @@ jobs:
 # Exact-candidate revalidation note: workflow_dispatch remains available for governed candidate reruns.
 # Revalidation trigger retained as governance-only; no certification rule is weakened.
 # Candidate b44a823 test-of-test repair requires fresh exact-head certification.
+# Exact-head certification trigger: governance-only comment; runtime evidence remains SHA-bound.

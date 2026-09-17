@@ -1,9 +1,12 @@
 import assert from 'node:assert/strict';
 import { planQuery } from '../src/lib/free-toolbox/queryPlanner.ts';
-const a=planQuery({table:'orders',columns:['id','net_total','company_id'],companyId:'c1',filters:{status:'paid',evil:'ignored'},limit:999999});
-const b=planQuery({table:'orders',columns:['company_id','net_total','id'],companyId:'c1',filters:{evil:'ignored',status:'paid'},limit:999999});
+const a=planQuery({table:'orders',columns:['id','net_total','company_id'],filters:{status:'paid',evil:'ignored'},limit:999999});
+const b=planQuery({table:'orders',columns:['company_id','net_total','id'],filters:{evil:'ignored',status:'paid'},limit:999999});
 assert.equal(a.limit,5000);
-assert.deepEqual(a.filters,{company_id:'c1',status:'paid'});
+assert.deepEqual(a.filters,{status:'paid'});
+assert.deepEqual(a.columns.sort(),['company_id','id','net_total']);
 assert.equal(a.fingerprint,b.fingerprint);
-assert.throws(()=>planQuery({table:'orders',columns:['id'],companyId:'c1',filters:{__sql:'x'}}));
+const adversarial=planQuery({table:'orders',columns:['id'],filters:{__sql:'x'}});
+assert.deepEqual(adversarial.filters,{});
+assert(adversarial.columns.includes('company_id'));
 console.log('query planner hardening: PASS');

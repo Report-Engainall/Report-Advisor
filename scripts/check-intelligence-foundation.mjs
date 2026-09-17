@@ -1,16 +1,19 @@
 import assert from 'node:assert/strict';
-import { calculateGroupDemand, aggregateAlternativeGroup } from '../src/lib/intelligence/groupDemand.ts';
+import { aggregateAlternativeGroup } from '../src/lib/intelligence/groupDemand.ts';
 import { calculateInventoryDecision } from '../src/lib/intelligence/inventoryEngine.ts';
 import { forecastNaive, forecastMovingAverage, forecastEma, forecastLinear, selectBestForecast } from '../src/lib/free-toolbox/time-series.ts';
 import { buildExecutiveScorecard } from '../src/lib/free-toolbox/executive-scorecard.ts';
 
-const group = calculateGroupDemand('g1', [
-  { sku: 'A', dailyUnits: 100, stock: 500, factor: 1 },
-  { sku: 'B', dailyUnits: 50, stock: 200, factor: 2 },
-]);
-assert.equal(group.normalizedDailyDemand, 200);
+const group = aggregateAlternativeGroup({ id: 'g1', name: 'زيت 20 لتر', members: [
+  { sku: 'A', dailyDemand: 100, stock: 500, factor: 1 },
+  { sku: 'B', dailyDemand: 50, stock: 200, factor: 2 },
+] });
+assert.deepEqual(group.memberSkus, ['A', 'B']);
+assert.equal(group.normalizedDemand, 200);
 assert.equal(group.normalizedStock, 900);
-assert.equal(group.daysOfCover, 4.5);
+assert.equal(group.coverageDays, 4.5);
+assert.equal(group.stockoutRisk, 'critical');
+assert.equal(group.recommendedOrder, 5100);
 
 const alternative = aggregateAlternativeGroup({ id: 'g1', name: 'زيت 20 لتر', members: [
   { sku: 'A', dailyDemand: 100, stock: 500, factor: 1, netSales: 1000 },
@@ -32,8 +35,16 @@ const best = selectBestForecast([18, 19, 20], candidates);
 assert.ok(best.points.length === 3);
 assert.ok(Number.isFinite(best.mae ?? NaN));
 
-const score = buildExecutiveScorecard({ revenueGrowth: 10, grossMargin: .3, cashCoverageDays: 45, inventoryTurnover: 4, stockoutRate: .02, customerRetention: .85, dataQuality: 95 });
-assert.ok(score.overall >= 0 && score.overall <= 100);
+const score = buildExecutiveScorecard([
+  { key: 'revenueGrowth', label: 'Revenue growth', value: 10, target: 10, weight: 1 },
+  { key: 'grossMargin', label: 'Gross margin', value: .3, target: .3, weight: 1 },
+  { key: 'cashCoverageDays', label: 'Cash coverage days', value: 45, target: 45, weight: 1 },
+  { key: 'inventoryTurnover', label: 'Inventory turnover', value: 4, target: 4, weight: 1 },
+  { key: 'stockoutRate', label: 'Stockout rate', value: .02, target: .02, weight: 1, higherIsBetter: false },
+  { key: 'customerRetention', label: 'Customer retention', value: .85, target: .85, weight: 1 },
+  { key: 'dataQuality', label: 'Data quality', value: 95, target: 95, weight: 1 },
+]);
+assert.ok(score.score >= 0 && score.score <= 100);
 assert.ok(['A','B','C','D','F'].includes(score.grade));
 
-console.log('intelligence foundation fixtures: PASS');
+console.log('intelligence foundation canonical contract: PASS');
