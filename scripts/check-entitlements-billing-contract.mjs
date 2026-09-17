@@ -15,13 +15,11 @@ for (const [file, tokens] of Object.entries(required)) {
 const migrationPath = 'supabase/migrations/20260917160000_billing_runtime.sql';
 if (!fs.existsSync(migrationPath)) throw new Error(`missing billing runtime migration: ${migrationPath}`);
 const migration = fs.readFileSync(migrationPath, 'utf8');
-
 const tables = ['billing_plans','billing_plan_capabilities','billing_subscriptions','billing_usage_events','billing_subscription_events'];
 for (const table of tables) {
   if (!new RegExp(`create table if not exists public\\.${table}\\b`, 'i').test(migration)) throw new Error(`billing migration: missing table ${table}`);
   if (!new RegExp(`alter table public\\.${table} enable row level security`, 'i').test(migration)) throw new Error(`billing migration: RLS not enabled on ${table}`);
 }
-
 for (const fn of ['billing_current_subscription','billing_check_entitlement','billing_record_usage','billing_set_subscription']) {
   const window = new RegExp(`create or replace function public\\.${fn}\\b[\\s\\S]*?\\$function\\$;`, 'i').exec(migration)?.[0];
   if (!window) throw new Error(`billing migration: missing function ${fn}`);
@@ -30,15 +28,13 @@ for (const fn of ['billing_current_subscription','billing_check_entitlement','bi
   if (!/auth\.uid\s*\(\)/i.test(window)) throw new Error(`${fn}: auth.uid binding missing`);
   if (!/current_company_id\s*\(\)/i.test(window)) throw new Error(`${fn}: tenant context binding missing`);
 }
-
-for (const grant of [
-  'billing_current_subscription\\s*\\(\\)',
-  'billing_check_entitlement\\s*\\(text,numeric\\)',
-  'billing_record_usage\\s*\\(text,numeric,text,text,jsonb\\)',
-  'billing_set_subscription\\s*\\(uuid,text,timestamptz,timestamptz,timestamptz,timestamptz,boolean\\',
-]) {
-  if (!new RegExp(`grant execute on function public\\.${grant}\\s*\\) to authenticated`, 'i').test(migration)) throw new Error(`billing migration: authenticated EXECUTE missing for ${grant}`);
-}
+const grants = [
+  /grant\s+execute\s+on\s+function\s+public\.billing_current_subscription\s*\(\)\s+to\s+authenticated\s*;/i,
+  /grant\s+execute\s+on\s+function\s+public\.billing_check_entitlement\s*\(text\s*,\s*numeric\)\s+to\s+authenticated\s*;/i,
+  /grant\s+execute\s+on\s+function\s+public\.billing_record_usage\s*\(text\s*,\s*numeric\s*,\s*text\s*,\s*text\s*,\s*jsonb\)\s+to\s+authenticated\s*;/i,
+  /grant\s+execute\s+on\s+function\s+public\.billing_set_subscription\s*\(uuid\s*,\s*text\s*,\s*timestamptz\s*,\s*timestamptz\s*,\s*timestamptz\s*,\s*timestamptz\s*,\s*boolean\)\s+to\s+authenticated\s*;/i,
+];
+for (const grant of grants) if (!grant.test(migration)) throw new Error(`billing migration: authenticated EXECUTE grant missing: ${grant}`);
 if (/grant\s+execute\s+on\s+function[\s\S]*\bto\s+anon\b/i.test(migration)) throw new Error('billing migration: anonymous EXECUTE grant is forbidden');
 if (!/unique\(company_id, period_start, idempotency_key\)/i.test(migration)) throw new Error('billing migration: usage idempotency constraint missing');
 if (!/unique\(provider, provider_event_id\)/i.test(migration)) throw new Error('billing migration: provider event idempotency constraint missing');
