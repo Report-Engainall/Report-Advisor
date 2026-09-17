@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 const root = process.cwd();
 const migration = path.join(root,'supabase/migrations/20260825050000_operational_resilience_trust.sql');
-const failureObservabilityMigration = path.join(root,'supabase/migrations/20260917190000_harden_report_execution_failure_observability.sql');
+const failureObservabilityMigration = path.join(root,'supabase/migrations/20260917184216_harden_report_execution_failure_observability_20260917190000.sql');
 if (!fs.existsSync(migration)) throw new Error('Operational resilience migration missing');
 if (!fs.existsSync(failureObservabilityMigration)) throw new Error('Report execution failure observability migration missing');
 const sql = fs.readFileSync(migration,'utf8');
