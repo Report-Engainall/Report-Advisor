@@ -16,23 +16,24 @@ export function AuthGate({ children }: AuthGateProps) {
 
   useEffect(() => {
     let mounted = true;
+    let syncVersion = 0;
+    let unsubscribe: (() => void) | undefined;
 
     const sync = async (authenticatedUser: User | null) => {
+      const version = ++syncVersion;
+      if (!mounted) return;
+
       if (!authenticatedUser) {
-        if (mounted) {
-          setUser(null);
-          setState('unauthenticated');
-        }
+        setUser(null);
+        setState('unauthenticated');
         return;
       }
 
-      if (mounted) {
-        setUser(authenticatedUser);
-        setState('checking');
-      }
+      setUser(authenticatedUser);
+      setState('checking');
 
       const companyId = await resolveCurrentCompanyId();
-      if (!mounted) return;
+      if (!mounted || version !== syncVersion) return;
 
       if (!companyId) {
         setState('tenant-missing');
@@ -42,12 +43,16 @@ export function AuthGate({ children }: AuthGateProps) {
       setState('ready');
     };
 
-    void getAuthenticatedUser().then(sync);
-    const unsubscribe = onAuthStateChange((nextUser) => { void sync(nextUser); });
+    const bootstrap = async () => {
+      const initialUser = await getAuthenticatedUser();
+      if (!mounted) return;
+      unsubscribe = onAuthStateChange((nextUser) => { void sync(nextUser); }, initialUser);
+    };
+    void bootstrap();
 
     return () => {
       mounted = false;
-      unsubscribe();
+      unsubscribe?.();
     };
   }, []);
 
