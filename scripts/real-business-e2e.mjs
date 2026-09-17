@@ -115,8 +115,13 @@ async function importOne(page, entity, fields, marker) {
   const label = entity === 'customers' ? 'العملاء' : entity === 'products' ? 'المنتجات' : 'فواتير المبيعات';
   await page.getByRole('button', { name: new RegExp(label) }).click();
   await page.locator('input[type="file"]').first().setInputFiles({ name: `${marker}.csv`, mimeType: 'text/csv', buffer: csvBuffer(fields) });
-  await page.getByText('معاينة البيانات').waitFor({ state: 'visible', timeout: 30000 });
+  await page.getByText('المراجعة', { exact: true }).waitFor({ state: 'visible', timeout: 30000 });
   const commit = page.getByRole('button', { name: /تأكيد الاستيراد/ });
+  const qualityApproval = page.locator('label:has-text("موافقة جودة صريحة:") input[type="checkbox"]');
+  if (await qualityApproval.count() === 1 && await qualityApproval.isVisible()) {
+    await qualityApproval.check();
+    evidence.steps.push({ step: `import-quality-approval:${entity}`, status: 'PASS' });
+  }
   assert.equal(await commit.isEnabled(), true, `${entity} valid import must be enabled`);
   await commit.click();
   await page.getByText('تم الاستيراد بنجاح').waitFor({ state: 'visible', timeout: 30000 });
@@ -150,9 +155,6 @@ try {
     code: customerCode,
     phone: '777000000',
     email: `e2e-${suffix}@example.invalid`,
-    segment: 'regular',
-    credit_limit: 100000,
-    payment_terms_days: 30,
   }, `customer-${suffix}`);
   const customers = await restSelect(pageA, 'customers', { company_id: evidence.tenantA, code: customerCode }, 'id,name,code,company_id');
   assert.equal(customers.length, 1, 'customer persistence must produce exactly one row');
@@ -164,11 +166,9 @@ try {
     sku,
     name: productName,
     unit: 'قطعة',
+    barcode: `E2E-BAR-${suffix}`,
     cost_price: 10,
     selling_price: 15,
-    min_stock: 1,
-    reorder_point: 2,
-    is_active: true,
   }, `product-${suffix}`);
   const products = await restSelect(pageA, 'products', { company_id: evidence.tenantA, sku }, 'id,name,sku,company_id,selling_price');
   assert.equal(products.length, 1, 'product persistence must produce exactly one row');
@@ -182,10 +182,7 @@ try {
     invoice_date: invoiceDate,
     customer_id: customers[0].id,
     customer_name: customerName,
-    subtotal: 15,
-    tax_amount: 0,
     total: 15,
-    paid_amount: 0,
     status: 'posted',
   }, `invoice-${suffix}`);
   const invoices = await restSelect(pageA, 'sales_invoices', { company_id: evidence.tenantA, invoice_number: invoiceNumber }, 'id,company_id,invoice_number,customer_id,total,status');

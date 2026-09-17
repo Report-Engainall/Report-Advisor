@@ -33,14 +33,32 @@ jobs:
         run: npm ci --no-audit --no-fund
       - name: Preflight contracts
         run: npm run typecheck && npm run lint && npm run build && npm run test:production-release-blockers && npm run test:production-readiness && npm run test:operational-resilience && npm run test:release-resilience-manifest && node scripts/check-release-evidence-contract.mjs && node scripts/check-release-evidence-completeness.mjs
-      - name: Create reproducible release evidence and certification decision
+      - name: Produce executable production regression evidence
+        env:
+          EXPECTED_SOURCE_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          actual_sha="$(git rev-parse HEAD)"
+          [[ "$actual_sha" == "$EXPECTED_SOURCE_SHA" ]] || { echo "SOURCE_SHA_MISMATCH:$actual_sha:$EXPECTED_SOURCE_SHA"; exit 1; }
+          node scripts/produce-production-regression-evidence.mjs
+      - name: Require real production regression evidence
+        shell: bash
+        env:
+          EXPECTED_SOURCE_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          test -s release-evidence/production-regression-results.json || { echo 'PRODUCTION_REGRESSION_RESULTS_MISSING'; exit 1; }
+          node scripts/production-release-decision.mjs \
+            --results release-evidence/production-regression-results.json \
+            --sha "$EXPECTED_SOURCE_SHA" \
+            --output release-evidence/certification-decision.json
+      - name: Create reproducible release manifest
         shell: bash
         env:
           RELEASE_ENVIRONMENT: ${{ inputs.environment || 'staging' }}
           RELEASE_STABILIZATION_SECONDS: ${{ inputs.stabilization_seconds || '60' }}
         run: |
           set -euo pipefail
-          mkdir -p release-evidence
           node <<'NODE'
           const fs = require('node:fs');
           const crypto = require('node:crypto');
@@ -54,8 +72,11 @@ jobs:
           const migrations_fingerprint = execFileSync('bash', ['-lc', "find supabase/migrations -type f -name '*.sql' -print0 | sort -z | xargs -0 sha256sum | sha256sum | cut -d' ' -f1"], {encoding: 'utf8'}).trim();
           const dependency_lock_fingerprint = execFileSync('sha256sum', ['package-lock.json'], {encoding: 'utf8'}).trim().split(/\s+/)[0];
           const artifact_fingerprint = execFileSync('bash', ['-lc', "find dist -type f -print0 | sort -z | xargs -0 sha256sum | sha256sum | cut -d' ' -f1"], {encoding: 'utf8'}).trim();
+          const decision = JSON.parse(fs.readFileSync('release-evidence/certification-decision.json', 'utf8'));
+          if (decision.release !== 'approved') throw new Error(`RELEASE_BLOCKED:${JSON.stringify(decision.failures)}`);
+          if (decision.source_sha !== source_sha) throw new Error(`DECISION_SOURCE_SHA_MISMATCH:${decision.source_sha}:${source_sha}`);
           const payload = {
-            schema_version: 1,
+            schema_version: 2,
             release_key: ref,
             source_sha,
             certification_run_id,
@@ -64,9 +85,13 @@ jobs:
             artifact_fingerprint,
             environment,
             stabilization_seconds,
+            regression_results_path: decision.results_path,
+            regression_scenario_count: decision.scenarioCount,
+            regression_passed_scenario_count: decision.passedScenarioCount,
             evidence_contracts: {
               release_evidence: 'validated',
               production_certification: 'validated',
+              production_regression: 'validated',
               production_release_blockers: 'validated',
               trust: 'validated',
               canary: 'validated',
@@ -77,26 +102,8 @@ jobs:
           const manifest_id = crypto.createHash('sha256').update(JSON.stringify(payload)).digest('hex');
           const manifest = {...payload, manifest_id, generated_at: new Date().toISOString()};
           fs.writeFileSync('release-evidence/manifest.json', JSON.stringify(manifest, null, 2) + '\n');
-          const certification = {
-            schema_version: 1,
-            certification_decision_id: crypto.randomUUID(),
-            consumed_release_manifest_id: manifest_id,
-            consumed_source_sha: source_sha,
-            certification_run_id,
-            certification_result: 'passed',
-            blocker_count: 0,
-            blocker_state: 'clear',
-            identity: {
-              source_sha_matches_manifest: true,
-              manifest_id_matches_payload: true,
-              certification_run_id_matches_manifest: true,
-              ref,
-              environment
-            },
-            required_contracts: manifest.evidence_contracts,
-            decided_at: new Date().toISOString()
-          };
-          fs.writeFileSync('release-evidence/certification-decision.json', JSON.stringify(certification, null, 2) + '\n');
+          const enrichedDecision = {...decision, consumed_release_manifest_id: manifest_id, certification_run_id, environment, decided_at: decision.decided_at || new Date().toISOString()};
+          fs.writeFileSync('release-evidence/certification-decision.json', JSON.stringify(enrichedDecision, null, 2) + '\n');
           fs.writeFileSync('release-evidence/manifest.env', [
             `manifest_id=${manifest_id}`,
             `source_sha=${source_sha}`,

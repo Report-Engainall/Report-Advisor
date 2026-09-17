@@ -10,6 +10,20 @@ interface AuthGateProps {
 
 type GateState = 'checking' | 'ready' | 'unauthenticated' | 'tenant-missing';
 
+const TENANT_RETRY_COUNT = 6;
+const TENANT_RETRY_DELAY_MS = 400;
+
+async function resolveTenantWithRetry(): Promise<string | null> {
+  for (let attempt = 1; attempt <= TENANT_RETRY_COUNT; attempt += 1) {
+    const companyId = await resolveCurrentCompanyId();
+    if (companyId) return companyId;
+    if (attempt < TENANT_RETRY_COUNT) {
+      await new Promise(resolve => window.setTimeout(resolve, TENANT_RETRY_DELAY_MS));
+    }
+  }
+  return null;
+}
+
 export function AuthGate({ children }: AuthGateProps) {
   const [user, setUser] = useState<User | null>(null);
   const [state, setState] = useState<GateState>('checking');
@@ -31,7 +45,7 @@ export function AuthGate({ children }: AuthGateProps) {
         setState('checking');
       }
 
-      const companyId = await resolveCurrentCompanyId();
+      const companyId = await resolveTenantWithRetry();
       if (!mounted) return;
 
       if (!companyId) {

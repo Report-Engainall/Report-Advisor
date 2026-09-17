@@ -84,3 +84,4 @@ jobs:
 # Exact-candidate revalidation note: workflow_dispatch remains available for governed candidate reruns.
 # Revalidation trigger retained as governance-only; no certification rule is weakened.
 # Candidate b44a823 test-of-test repair requires fresh exact-head certification.
+# Exact-head certification trigger: governance-only comment; runtime evidence remains SHA-bound.

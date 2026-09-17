@@ -22,7 +22,14 @@ export function Sidebar({alertCount=0,onNavigate,user}:{alertCount?:number;onNav
   const activeSection=useMemo(()=>navSections.find(section=>section.items.some(item=>location.pathname===item.path||(item.path!=='/'&&location.pathname.startsWith(item.path))))?.title ?? 'الرئيسية',[location.pathname]);
   const [collapsed,setCollapsed]=useState<Record<string,boolean>>({});
   useEffect(()=>{setCollapsed(prev=>({...prev,[activeSection]:false}));},[activeSection]);
-  const handleSignOut = async () => { await supabase.auth.signOut(); onNavigate?.(); };
+  const handleSignOut = async () => {
+    // Local sign-out is the authoritative browser-session transition. Global
+    // revocation is not required for the UI security boundary and can delay
+    // convergence while the persisted local session is still present.
+    const { error } = await supabase.auth.signOut({ scope: 'local' });
+    if (error) throw error;
+    onNavigate?.();
+  };
   return <aside className="w-64 bg-white/95 border-l border-ink-100 flex flex-col h-screen sticky top-0 overflow-y-auto backdrop-blur-sm">
     <div className="px-5 py-5 border-b border-ink-100"><Link to="/" onClick={onNavigate} className="flex items-center gap-3"><div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary-600 to-accent-500 text-lg font-bold text-white shadow-sm">ع</div><div><div className="font-bold text-ink-900 text-base">الأغبري</div><div className="text-[11px] text-ink-400">منصة ذكاء الأعمال والقرار</div></div></Link></div>
     <nav className="flex-1 px-3 py-4 space-y-3" aria-label="التنقل الرئيسي">{navSections.map(section=>{const isOpen=!collapsed[section.title];const isActive=activeSection===section.title;return <section key={section.title} className="rounded-2xl"><button type="button" onClick={()=>setCollapsed(prev=>({...prev,[section.title]:!isOpen}))} className={`flex w-full items-center gap-2 rounded-xl px-3 py-2 text-right transition ${isActive?'text-primary-700':'text-ink-400 hover:bg-ink-50 hover:text-ink-700'}`} aria-expanded={isOpen}><span className="flex-1 text-[11px] font-bold tracking-wide">{section.title}</span><ChevronDown size={14} className={`transition-transform ${isOpen?'':'-rotate-90'}`}/></button>{isOpen&&<div className="mt-1 space-y-0.5">{section.items.map(item=>{const active=location.pathname===item.path||(item.path!=='/'&&location.pathname.startsWith(item.path));return <Link key={item.path} to={item.path} onClick={onNavigate} className={`nav-item ${active?'nav-item-active':'nav-item-inactive'}`}>{item.icon}<span className="flex-1">{item.label}</span>{item.path==='/intelligence'&&alertCount>0&&<span className="badge-danger text-[10px] px-1.5 py-0.5">{alertCount}</span>}</Link>})}</div>}</section>})}</nav>
