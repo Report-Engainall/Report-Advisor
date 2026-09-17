@@ -38,12 +38,15 @@ const criticalOperationalSecurityDefiners = [
 const failures = [];
 
 function getFunctionWindow(name) {
-  const definition = new RegExp(`CREATE\\s+(?:OR\\s+REPLACE\\s+)?FUNCTION\\s+public\\.${name}\\b`, 'i').exec(sql);
-  if (!definition) return null;
+  const pattern = new RegExp(`CREATE\\s+(?:OR\\s+REPLACE\\s+)?FUNCTION\\s+public\\.${name}\\s*\\(`, 'gi');
+  let lastIndex = -1;
+  let match;
+  while ((match = pattern.exec(sql)) !== null) lastIndex = match.index;
+  if (lastIndex < 0) return null;
   const nextFunction = /CREATE\s+(?:OR\s+REPLACE\s+)?FUNCTION\s+public\./gi;
-  nextFunction.lastIndex = definition.index + definition[0].length;
+  nextFunction.lastIndex = lastIndex + 1;
   const next = nextFunction.exec(sql);
-  return sql.slice(definition.index, next ? next.index : sql.length);
+  return sql.slice(lastIndex, next ? next.index : sql.length);
 }
 
 function assertAuthenticatedOnly(name) {
@@ -56,10 +59,13 @@ function assertAuthenticatedOnly(name) {
 for (const name of intendedAuthenticatedSecurityDefiners) {
   const window = getFunctionWindow(name);
   if (!window) { failures.push(`${name}: repository definition not found`); continue; }
-  if (!/SECURITY\s+DEFINER/i.test(window)) failures.push(`${name}: SECURITY DEFINER not found in function definition window`);
-  if (!/SET\s+search_path\s*(?:=|TO)\s*'?public'?\b/i.test(window)) failures.push(`${name}: explicit search_path=public not found in function definition window`);
-  if (name !== 'current_company_id' && !/(auth\.uid\s*\(\)|current_company_id\s*\(\))/i.test(window)) failures.push(`${name}: explicit caller/tenant context reference not found in function definition window`);
-  if (name === 'current_company_id' && !/auth\.uid\s*\(\)/i.test(window)) failures.push('current_company_id: auth.uid() binding not found in function definition window');
+  if (!/SECURITY\s+DEFINER/i.test(window)) failures.push(`${name}: SECURITY DEFINER not found in latest function definition window`);
+  const searchPath = name === 'current_company_id'
+    ? /SET\s+search_path\s*(?:=|TO)\s*(?:''|\x27?public\x27?)/i
+    : /SET\s+search_path\s*(?:=|TO)\s*\x27?public\x27?/i;
+  if (!searchPath.test(window)) failures.push(`${name}: safe explicit search_path missing in latest function definition window`);
+  if (name !== 'current_company_id' && !/(auth\.uid\s*\(\)|current_company_id\s*\(\))/i.test(window)) failures.push(`${name}: explicit caller/tenant context reference not found in latest function definition window`);
+  if (name === 'current_company_id' && !/auth\.uid\s*\(\)/i.test(window)) failures.push('current_company_id: auth.uid() binding not found in latest function definition window');
   assertAuthenticatedOnly(name);
 }
 
@@ -67,7 +73,7 @@ for (const check of criticalOperationalSecurityDefiners) {
   const window = getFunctionWindow(check.name);
   if (!window) { failures.push(`${check.name}: critical operational SECURITY DEFINER definition not found`); continue; }
   if (!/SECURITY\s+DEFINER/i.test(window)) failures.push(`${check.name}: SECURITY DEFINER missing`);
-  if (!check.requiredSearchPath.test(window)) failures.push(`${check.name}: safe explicit search_path missing`);
+  if (!check.requiredSearchPath.test(window)) failures.push(`${check.name}: safe explicit search_path missing in latest definition`);
   for (const token of check.requiredTokens) if (!token.test(window)) failures.push(`${check.name}: required security/runtime invariant missing: ${token}`);
   assertAuthenticatedOnly(check.name);
 }
@@ -78,4 +84,4 @@ if (failures.length) {
   process.exit(1);
 }
 
-console.log(`Security-definer exposure contract: PASS (${intendedAuthenticatedSecurityDefiners.length} intentional authenticated functions + ${criticalOperationalSecurityDefiners.length} critical operational functions checked)`);
+console.log(`Security-definer exposure contract: PASS (${intendedAuthenticatedSecurityDefiners.length} intentional authenticated functions + ${criticalOperationalSecurityDefiners.length} critical operational functions checked against latest repository definitions)`);
