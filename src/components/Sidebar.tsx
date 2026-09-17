@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Upload, FileBarChart, BarChart3, Brain, Users, Package, Warehouse, Settings, AlertCircle, Layers3, Gauge, Activity, Crosshair, LogOut, UserCircle, Scale, ClipboardCheck, Target, ScanSearch, ChevronDown } from 'lucide-react';
+import { LayoutDashboard, Upload, FileBarChart, BarChart3, Brain, Users, Package, Warehouse, Settings, AlertCircle, Layers3, Gauge, Activity, Crosshair, LogOut, UserCircle, Scale, ClipboardCheck, Target, ScanSearch, ChevronDown, BriefcaseBusiness } from 'lucide-react';
 import type { User } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
 import { getDisplayEmail, getDisplayName } from '@/lib/profile-display';
@@ -9,6 +9,7 @@ interface NavItem { path:string; label:string; icon:ReactNode }
 interface NavSection { title:string; items:NavItem[] }
 const navSections:NavSection[]=[
  {title:'الرئيسية',items:[{path:'/',label:'لوحة القيادة',icon:<LayoutDashboard size={18}/>},{path:'/command-center',label:'مركز القيادة التنفيذية',icon:<Crosshair size={18}/>} ]},
+ {title:'العمليات',items:[{path:'/work-center',label:'مركز العمليات',icon:<BriefcaseBusiness size={18}/>} ]},
  {title:'البيانات',items:[{path:'/import',label:'مركز الاستيراد',icon:<Upload size={18}/>},{path:'/import/analyze',label:'استيراد وتحليل الملفات',icon:<ScanSearch size={18}/>},{path:'/data-quality',label:'جودة البيانات',icon:<AlertCircle size={18}/>} ]},
  {title:'التقارير',items:[{path:'/reports',label:'مركز التقارير',icon:<FileBarChart size={18}/>},{path:'/reports/executive',label:'التقرير التنفيذي',icon:<ClipboardCheck size={18}/>},{path:'/reports/sales',label:'المبيعات',icon:<FileBarChart size={18}/>},{path:'/reports/purchases',label:'المشتريات',icon:<FileBarChart size={18}/>},{path:'/reports/inventory',label:'المخزون',icon:<FileBarChart size={18}/>},{path:'/reports/inventory-intelligence',label:'ذكاء المخزون والمجموعات',icon:<Gauge size={18}/>},{path:'/reports/demand-velocity',label:'حركة الطلب',icon:<Activity size={18}/>},{path:'/reports/receivables',label:'الذمم والتحصيل',icon:<FileBarChart size={18}/>},{path:'/reports/profitability',label:'الأرباح والربحية',icon:<FileBarChart size={18}/>} ]},
  {title:'التحليلات',items:[{path:'/analytics',label:'مركز التحليلات',icon:<BarChart3 size={18}/>},{path:'/analytics/rfm',label:'تحليل RFM',icon:<BarChart3 size={18}/>},{path:'/analytics/abc',label:'تحليل ABC',icon:<BarChart3 size={18}/>},{path:'/analytics/aging',label:'تحليل الأعمار',icon:<BarChart3 size={18}/>} ]},
@@ -23,9 +24,6 @@ export function Sidebar({alertCount=0,onNavigate,user}:{alertCount?:number;onNav
   const [collapsed,setCollapsed]=useState<Record<string,boolean>>({});
   useEffect(()=>{setCollapsed(prev=>({...prev,[activeSection]:false}));},[activeSection]);
   const handleSignOut = async () => {
-    // Local sign-out is the authoritative browser-session transition. Global
-    // revocation is not required for the UI security boundary and can delay
-    // convergence while the persisted local session is still present.
     const { error } = await supabase.auth.signOut({ scope: 'local' });
     if (error) throw error;
     onNavigate?.();
