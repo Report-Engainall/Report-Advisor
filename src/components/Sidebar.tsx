@@ -4,28 +4,23 @@ import { LayoutDashboard, Upload, FileBarChart, BarChart3, Brain, Users, Package
 import type { User } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
 import { getDisplayEmail, getDisplayName } from '@/lib/profile-display';
-
 interface NavItem { path:string; label:string; icon:ReactNode }
 interface NavSection { title:string; items:NavItem[] }
 const navSections:NavSection[]=[
  {title:'الرئيسية',items:[{path:'/',label:'لوحة القيادة',icon:<LayoutDashboard size={18}/>},{path:'/command-center',label:'مركز القيادة التنفيذية',icon:<Crosshair size={18}/>},{path:'/onboarding',label:'رحلة تهيئة العميل',icon:<ListChecks size={18}/>},{path:'/proposal-demo',label:'عرض تقديمي للوظيفة',icon:<Presentation size={18}/>} ]},
- {title:'البيانات',items:[{path:'/import',label:'مركز الاستيراد',icon:<Upload size={18}/>},{path:'/import/analyze',label:'استيراد وتحليل الملفات',icon:<ScanSearch size={18}/>},{path:'/data-quality',label:'جودة البيانات',icon:<AlertCircle size={18}/>} ]},
+ {title:'البيانات',items:[{path:'/work-center',label:'مركز العمليات',icon:<Activity size={18}/>},{path:'/import',label:'مركز الاستيراد',icon:<Upload size={18}/>},{path:'/import/analyze',label:'استيراد وتحليل الملفات',icon:<ScanSearch size={18}/>},{path:'/data-quality',label:'جودة البيانات',icon:<AlertCircle size={18}/>} ]},
  {title:'التقارير',items:[{path:'/reports',label:'مركز التقارير',icon:<FileBarChart size={18}/>},{path:'/reports/executive',label:'التقرير التنفيذي',icon:<ClipboardCheck size={18}/>},{path:'/reports/sales',label:'المبيعات',icon:<FileBarChart size={18}/>},{path:'/reports/purchases',label:'المشتريات',icon:<FileBarChart size={18}/>},{path:'/reports/inventory',label:'المخزون',icon:<FileBarChart size={18}/>},{path:'/reports/inventory-intelligence',label:'ذكاء المخزون والمجموعات',icon:<Gauge size={18}/>},{path:'/reports/demand-velocity',label:'حركة الطلب',icon:<Activity size={18}/>},{path:'/reports/receivables',label:'الذمم والتحصيل',icon:<FileBarChart size={18}/>},{path:'/reports/profitability',label:'الأرباح والربحية',icon:<FileBarChart size={18}/>} ]},
  {title:'التحليلات',items:[{path:'/analytics',label:'مركز التحليلات',icon:<BarChart3 size={18}/>},{path:'/analytics/rfm',label:'تحليل RFM',icon:<BarChart3 size={18}/>},{path:'/analytics/abc',label:'تحليل ABC',icon:<BarChart3 size={18}/>},{path:'/analytics/aging',label:'تحليل الأعمار',icon:<BarChart3 size={18}/>} ]},
  {title:'الذكاء والقرار',items:[{path:'/intelligence',label:'مركز الذكاء',icon:<Brain size={18}/>},{path:'/intelligence/recommendations',label:'التوصيات',icon:<Brain size={18}/>},{path:'/intelligence/forecasts',label:'التنبؤات',icon:<Brain size={18}/>},{path:'/intelligence/scenarios',label:'محاكاة السيناريوهات',icon:<Brain size={18}/>},{path:'/decision-experience',label:'تجربة القرار',icon:<Scale size={18}/>},{path:'/metrics',label:'فحص المقاييس',icon:<Target size={18}/>} ]},
  {title:'الكيانات',items:[{path:'/customers',label:'العملاء',icon:<Users size={18}/>},{path:'/products',label:'المنتجات',icon:<Package size={18}/>},{path:'/inventory',label:'المخزون',icon:<Warehouse size={18}/>},{path:'/alternative-groups',label:'مجموعات البدائل',icon:<Layers3 size={18}/>} ]},
  {title:'النظام',items:[{path:'/settings',label:'الإعدادات',icon:<Settings size={18}/>},{path:'/settings/profile',label:'الملف الشخصي',icon:<UserCircle size={18}/>} ]},
 ];
-
 export function Sidebar({alertCount=0,onNavigate,user}:{alertCount?:number;onNavigate?:()=>void;user?:User|null}){
   const location=useLocation();
   const activeSection=useMemo(()=>navSections.find(section=>section.items.some(item=>location.pathname===item.path||(item.path!=='/'&&location.pathname.startsWith(item.path))))?.title ?? 'الرئيسية',[location.pathname]);
   const [collapsed,setCollapsed]=useState<Record<string,boolean>>({});
   useEffect(()=>{setCollapsed(prev=>({...prev,[activeSection]:false}));},[activeSection]);
   const handleSignOut = async () => {
-    // Local sign-out is the authoritative browser-session transition. Global
-    // revocation is not required for the UI security boundary and can delay
-    // convergence while the persisted local session is still present.
     const { error } = await supabase.auth.signOut({ scope: 'local' });
     if (error) throw error;
     onNavigate?.();
