@@ -12,6 +12,7 @@ export interface DurableCanonicalImportInput {
   entityType: 'products' | 'customers' | 'sales_invoices';
   rows: ReconciledCanonicalImportRow[];
   qualityScore: number;
+  companyId?: string;
 }
 
 interface EnqueuedJob {
@@ -56,7 +57,7 @@ export async function runCanonicalImportThroughDurableRunner(input: DurableCanon
   if (!input.fileName.trim()) throw new Error('CANONICAL_IMPORT_REQUIRES_SOURCE_PATH');
   if (!Number.isFinite(input.qualityScore) || input.qualityScore < 0 || input.qualityScore > 100) throw new Error('CANONICAL_IMPORT_INVALID_QUALITY');
 
-  const companyId = await resolveCurrentCompanyId();
+  const companyId = input.companyId?.trim() || await resolveCurrentCompanyId();
   if (!companyId) throw new Error('TENANT_CONTEXT_REQUIRED');
   assertSourceHash(input.rows, input.sourceHash);
   assertUniqueBusinessKeys(input.entityType, input.rows);
