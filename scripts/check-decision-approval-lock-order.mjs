@@ -10,7 +10,9 @@ function latestBody(name) {
   let m, start = -1;
   while ((m = re.exec(sql))) start = m.index;
   if (start < 0) throw new Error(`missing ${name}`);
-  const next = sql.indexOf('\nCREATE OR REPLACE FUNCTION', start + 1);
+  const tail = sql.slice(start + 1);
+  const nextMatch = /\nCREATE\s+OR\s+REPLACE\s+FUNCTION\b/i.exec(tail);
+  const next = nextMatch ? start + 1 + nextMatch.index : -1;
   return sql.slice(start, next < 0 ? sql.length : next);
 }
 const pos = (body, needle, from = 0) => body.indexOf(needle, from);

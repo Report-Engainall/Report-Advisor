@@ -62,7 +62,46 @@ export function securityScan(file: File, buffer: ArrayBuffer): SecurityScanResul
 
 export async function checkDuplicate(hash: string, _legacyCompanyId?: string, _legacySupabase?: SupabaseClient): Promise<{ isDuplicate: boolean; existing: FileRecord | null }> {
   const { resolveCurrentCompanyId, supabase } = await import('../supabase.ts');
-  const companyId = await resolveCurrentCompanyId(); if (!companyId) throw new Error('TENANT_CONTEXT_REQUIRED');
-  const { data, error } = await supabase.from('file_records').select('id,company_id,file_name,file_hash,created_at,status').eq('company_id', companyId).eq('file_hash', hash).order('created_at', { ascending: false }).limit(1).maybeSingle();
-  if (error) throw error; if (!data) return { isDuplicate: false, existing: null }; return { isDuplicate: true, existing: data as FileRecord };
+  const companyId = await resolveCurrentCompanyId();
+  if (!companyId) throw new Error('TENANT_CONTEXT_REQUIRED');
+
+  const { data: fileRecord, error: fileError } = await supabase
+    .from('file_records')
+    .select('id,company_id,file_name,file_hash,created_at,status')
+    .eq('company_id', companyId)
+    .eq('file_hash', hash)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (fileError) throw fileError;
+  if (fileRecord) return { isDuplicate: true, existing: fileRecord as FileRecord };
+
+  // Canonical imports persist the authoritative source identity on the import job result.
+  // Check this durable import history before allowing a new UI commit. This prevents
+  // a known canonical replay from creating a new processing job that can never produce
+  // a second durable execution because the report-execution idempotency key already exists.
+  const { data: importRecord, error: importError } = await supabase
+    .from('import_jobs')
+    .select('id, company_id, job_type, created_at, status, result_summary')
+    .eq('company_id', companyId)
+    .eq('result_summary->>sourceHash', `sha256:${hash.replace(/^sha256:/, '')}`)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (importError) throw importError;
+  if (importRecord) {
+    return {
+      isDuplicate: true,
+      existing: {
+        id: String(importRecord.id),
+        company_id: String(importRecord.company_id),
+        file_name: String((importRecord.result_summary as Record<string, unknown> | null)?.file_name ?? importRecord.job_type ?? 'import'),
+        file_hash: hash,
+        created_at: String(importRecord.created_at),
+        status: String(importRecord.status),
+      },
+    };
+  }
+
+  return { isDuplicate: false, existing: null };
 }
