@@ -5,7 +5,7 @@
 > Authoritative execution manifest. This document never promotes historical evidence across an exact Git `HEAD` boundary. Pair every evidence batch with the exact Git `HEAD` of `main` and the exact environment/commit used.
 
 ### CURRENT EXACT HEAD
-- Current code/test candidate: `c5949eeec87dbff03e1eb4de9d76168844c89613`.
+- Current code/test candidate: `7e718c9e29df5ffd8c734d261462c94b2d3e958c`.
 - This exact `main` SHA is the current governance candidate entering fresh certification. No runtime/browser evidence from an earlier SHA is promoted by this binding.
 - The certification binding itself is governance-only and does not certify runtime/product code; runtime certification still requires fresh exact-HEAD evidence.
 - Historical evidence from earlier SHAs remains historical and is not promoted automatically.
@@ -38,7 +38,7 @@
 ### P0 — AUTHENTICATED E2E / TENANT A-B
 - Dedicated Actor A/B authenticated users exist and are mapped one-to-one to Tenant A/B.
 - Existing real business runner covers authenticated tenant resolution, customer/product/invoice import, DB read-back, UI read-back, refresh continuity, Tenant B isolation, cross-tenant REST denial, cross-tenant UI denial, and logout.
-- Historical fresh exact-head browser evidence on `db94c3b0b2c88ce884af7c10ec2330210be194da` passed authentication, tenant resolution, all canonical routes, business persistence, and live business evidence boundary. This evidence remains historical and is not bound to `62c494ef8310da272e6519a007ac76617f2cac1d`.
+- Historical fresh exact-head browser evidence on `db94c3b0b2c88ce884af7c10ec2330210be194da` passed authentication, tenant resolution, all canonical routes, business persistence, and live business evidence boundary. This evidence remains historical and is not bound to `7e718c9e29df5ffd8c734d261462c94b2d3e958c`.
 - Database-level tenant probes are a baseline only; they do not replace browser-held authenticated A/B evidence.
 - Transactional customer/product “new” buttons remain presentation-only; no unsupported CRUD claim is made.
 - There is no dedicated invoice-entry route; canonical import remains the supported invoice mutation surface.
