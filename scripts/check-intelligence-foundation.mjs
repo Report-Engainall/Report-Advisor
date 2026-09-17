@@ -1,16 +1,8 @@
 import assert from 'node:assert/strict';
-import { calculateGroupDemand, aggregateAlternativeGroup } from '../src/lib/intelligence/groupDemand.ts';
+import { aggregateAlternativeGroup } from '../src/lib/intelligence/groupDemand.ts';
 import { calculateInventoryDecision } from '../src/lib/intelligence/inventoryEngine.ts';
 import { forecastNaive, forecastMovingAverage, forecastEma, forecastLinear, selectBestForecast } from '../src/lib/free-toolbox/time-series.ts';
 import { buildExecutiveScorecard } from '../src/lib/free-toolbox/executive-scorecard.ts';
-
-const group = calculateGroupDemand('g1', [
-  { sku: 'A', dailyUnits: 100, stock: 500, factor: 1 },
-  { sku: 'B', dailyUnits: 50, stock: 200, factor: 2 },
-]);
-assert.equal(group.normalizedDailyDemand, 200);
-assert.equal(group.normalizedStock, 900);
-assert.equal(group.daysOfCover, 4.5);
 
 const alternative = aggregateAlternativeGroup({ id: 'g1', name: 'زيت 20 لتر', members: [
   { sku: 'A', dailyDemand: 100, stock: 500, factor: 1, netSales: 1000 },
@@ -20,6 +12,9 @@ const alternative = aggregateAlternativeGroup({ id: 'g1', name: 'زيت 20 لت�
 assert.equal(alternative.memberSkus.length, 2);
 assert.equal(alternative.normalizedDemand, 200);
 assert.equal(alternative.normalizedStock, 900);
+assert.equal(alternative.coverageDays, 4.5);
+assert.equal(alternative.recommendedOrder, 5100);
+assert.equal(alternative.stockoutRisk, 'critical');
 
 const inv = calculateInventoryDecision({ sku: 'A', stock: 20, dailySales: [10, 12, 9, 11, 14, 13, 12], leadTimeDays: 7 });
 assert.ok(inv.reorderPoint > 0);

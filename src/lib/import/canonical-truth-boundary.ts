@@ -83,8 +83,17 @@ export function reconcileForCanonical(
   const document = requiredText(sourceDocumentId, 'SOURCE_DOCUMENT');
 
   for (const row of rows) {
-    const identity = rowIdentity(entityType, row.data);
-    const payload = criticalPayload(entityType, row.data);
+    // Customer files legitimately use "Customer Name" as a source synonym.
+    // The file engine maps that header to customer_name because sales invoices
+    // use the same source spelling. At the customer canonical boundary the
+    // business field is name, so materialize that deterministic entity-specific
+    // alias instead of letting a valid alias fail at the DB write layer.
+    const canonicalData = { ...row.data };
+    if (entityType === 'customers' && !canonicalData.name && typeof canonicalData.customer_name === 'string' && canonicalData.customer_name.trim()) {
+      canonicalData.name = canonicalData.customer_name.trim();
+    }
+    const identity = rowIdentity(entityType, canonicalData);
+    const payload = criticalPayload(entityType, canonicalData);
     const previous = seen.get(identity);
     if (previous !== undefined && previous !== payload) {
       rejected.push({ rowNumber: row.rowNumber, reason: 'CONFLICTING_EVIDENCE_FOR_SAME_CANONICAL_IDENTITY' });
@@ -94,7 +103,7 @@ export function reconcileForCanonical(
 
     let evidenceId: string;
     try {
-      evidenceId = requiredText(evidenceIdForRow(row.data, row.rowNumber), 'EVIDENCE_ID');
+      evidenceId = requiredText(evidenceIdForRow(canonicalData, row.rowNumber), 'EVIDENCE_ID');
     } catch (error) {
       rejected.push({ rowNumber: row.rowNumber, reason: error instanceof Error ? error.message : 'EVIDENCE_ID_REQUIRED' });
       continue;
@@ -102,7 +111,7 @@ export function reconcileForCanonical(
     const lineageId = `${tenant}:${document}:${row.rowNumber}`;
     output.push({
       rowNumber: row.rowNumber,
-      data: { ...row.data },
+      data: canonicalData,
       provenance: {
         tenantId: tenant,
         sourceId: source,

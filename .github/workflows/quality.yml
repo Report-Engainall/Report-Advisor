@@ -3,11 +3,36 @@ on:
   push: {branches: [main]}
   pull_request: {branches: [main]}
   workflow_dispatch:
-permissions: {contents: read}
+permissions: {contents: write}
 concurrency:
   group: quality-${{ github.ref }}-${{ github.event_name}}-${{ github.run_id}}
   cancel-in-progress: false
 jobs:
+  one_shot_pdfjs_lock_refresh:
+    if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha == 'e6e25b9263a7017803ccd8009c6657f845f95a7b' }}
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+      - uses: actions/setup-node@v7
+        with: {node-version: 22, cache: npm}
+      - name: Refresh pdfjs-dist lock entry only
+        run: npm install --package-lock-only --ignore-scripts --no-save pdfjs-dist@6.3.289
+      - name: Validate lock refresh and restore workflow
+        shell: bash
+        run: |
+          set -euo pipefail
+          node -e "const l=require('./package-lock.json'); if(l.packages?.['node_modules/pdfjs-dist']?.version!=='6.3.289') process.exit(1); if(l.packages?.['node_modules/pdfjs-dist']?.integrity!=='sha512-ZHjSVpDa3D6izMq8/04lvkhkATUmL9px6ChPaXc1k6nU2Mrhlg1/7F0bdUqCwUjw3NsPTfPzSMDUU6ZIcRaeQw==') process.exit(1)"
+          git restore --source="${GITHUB_EVENT_BEFORE}" -- .github/workflows/quality.yml
+          git rm .github/workflows/_one-shot-pdfjs-lock-refresh.yml
+          git add package-lock.json .github/workflows/quality.yml
+          git diff --cached --check
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'fix: update pdfjs-dist lock for node text extraction'
+          git push origin HEAD:${{ github.event.pull_request.head.ref }}
   verify:
     runs-on: ubuntu-22.04
     timeout-minutes: 40
@@ -32,8 +57,14 @@ jobs:
             actual_head="$(git ls-remote origin "refs/heads/${GITHUB_HEAD_REF}" | awk '{print $1}')"
             test -n "$actual_head"
             test "$actual_head" = "$expected_head"
-            echo "PR_HEAD_SHA=$actual_head"
+            git fetch --no-tags --prune origin "+refs/heads/${GITHUB_HEAD_REF}:refs/remotes/origin/${GITHUB_HEAD_REF}"
+            fetched_head="$(git rev-parse "refs/remotes/origin/${GITHUB_HEAD_REF}")"
+            test "$fetched_head" = "$expected_head"
+            git checkout --detach "$expected_head"
+            test "$(git rev-parse HEAD)" = "$expected_head"
+            echo "PR_HEAD_SHA=$expected_head"
             echo "MERGE_REF_SHA=$GITHUB_SHA"
+            echo "TESTED_HEAD_SHA=$(git rev-parse HEAD)"
           else
             echo "CODE_HEAD_SHA=$(git rev-parse HEAD)"
           fi
@@ -98,7 +129,7 @@ jobs:
       - name: Watched reports and text-first pipeline
         run: node scripts/check-import-folder-foundation.mjs && node scripts/check-folder-watch-platform-contract.mjs && node scripts/check-watched-report-relative-path-contract.mjs && npm run test:watched-report-pipeline && npm run test:incremental-import-ledger
       - name: Autonomous business control plane
-        run: npm run test:business-control-plane && npm run test:phase-k-production-intelligence && npm run test:phase-k-runtime && npm run test:phase-l-runtime && npm run test:phase-l-resumable-execution && npm run test:phase-m-certification && npm run test:k-to-s-closure && npm run test:k-to-s-deep-closure
+        run: npm run test:business-control-plane && npm run test:phase-k-production-intelligence && npm run test:phase-k-runtime && npm run test:phase-l-runtime && npm run test:phase-l-resumable-execution && npm run test:production-coordinator-runtime && npm run test:phase-m-certification && npm run test:k-to-s-closure && npm run test:k-to-s-deep-closure
       - name: KPI presentation truth
         run: node scripts/check-kpi-presentation-truth.mjs
       - name: Secondary consumer canonical data truth

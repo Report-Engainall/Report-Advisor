@@ -1,15 +1,13 @@
 import * as XLSX from 'xlsx';
 import type { FileFormat, Dataset, ColumnProfile, ColumnStatistics } from './types';
-import { normalizeRows, normalizeColumnName, parseNumber } from './normalizer';
+import { normalizeRows, normalizeColumnName, normalizeArabicDigits, parseNumber } from './normalizer';
 import { detectColumnDataType, cleanValue } from './data-types';
 import { mapColumns } from './synonyms';
 import { detectHeaderRow, rowsFromDetectedHeader } from './header-detection';
 
 type Row = Record<string, unknown>;
-
 function generateId(): string { return Math.random().toString(36).substring(2, 9); }
 function isRecord(value: unknown): value is Row { return typeof value === 'object' && value !== null && !Array.isArray(value); }
-
 type PdfDocument = Awaited<ReturnType<typeof import('pdfjs-dist').getDocument>['promise']>;
 
 function buildColumnProfiles(rows: Row[], columns: string[], mappings: Awaited<ReturnType<typeof mapColumns>>): ColumnProfile[] {
@@ -56,80 +54,109 @@ async function buildDataset(rows: Row[], name: string, source: string, sheet?: s
   return { id: generateId(), name, source, sheet, rowCount: canonicalRows.length, columnCount: columns.length, columns: columnProfiles, rows: canonicalRows, preview: canonicalRows.slice(0, 50), qualityScore };
 }
 
+function normalizeStructuredDocumentValue(value: string): string | number {
+  const cleaned = normalizeArabicDigits(value.replace(/[٬،]/g, ',').replace(/٫/g, '.').replace(/\s+/g, ' ')).trim();
+  const numeric = parseNumber(cleaned);
+  return numeric === null ? cleaned : numeric;
+}
+
+function extractEmbeddedJson(text: string): unknown | null {
+  const starts = ['{', '['];
+  for (const startToken of starts) {
+    const start = text.indexOf(startToken);
+    if (start < 0) continue;
+    let depth = 0; let inString = false; let escaped = false;
+    for (let i = start; i < text.length; i += 1) {
+      const ch = text[i];
+      if (inString) { if (escaped) { escaped = false; continue; } if (ch === '\\') { escaped = true; continue; } if (ch === '"') inString = false; continue; }
+      if (ch === '"') { inString = true; continue; }
+      if (ch === startToken || (startToken === '{' && ch === '}') || (startToken === '[' && ch === ']')) {
+        if (ch === startToken) depth += 1; else depth -= 1;
+        if (depth === 0) { const candidate = text.slice(start, i + 1); try { return JSON.parse(candidate); } catch { break; } }
+      }
+    }
+  }
+  return null;
+}
+
+function tryParseStructuredPdfText(text: string): Row[] | null {
+  const compact = text.replace(/^PAGE\s+\d+\s*/i, '').trim();
+  const parsedCandidates: unknown[] = [];
+  try { parsedCandidates.push(JSON.parse(compact)); } catch { /* continue with embedded JSON and label extraction */ }
+  const embedded = extractEmbeddedJson(compact); if (embedded !== null) parsedCandidates.push(embedded);
+  for (const parsed of parsedCandidates) { if (isRecord(parsed)) return [parsed]; if (Array.isArray(parsed) && parsed.length && parsed.every(isRecord)) return parsed; }
+  const normalized = normalizeArabicDigits(compact.replace(/\s+/g, ' ').trim());
+  const match = (pattern: RegExp): string | null => normalized.match(pattern)?.[1]?.trim() ?? null;
+  const row: Row = {
+    invoice_number: match(/(?:رقم\s*(?:الفاتورة|فاتورة)?|invoice(?:\s+number)?)\s*[:#]?\s*([^\s]+(?:\s+[^\s]+)*?)\s+(?=(?:التاريخ|date)(?:\s*[:：]?\s|$))/i),
+    invoice_date: match(/(?:التاريخ|date)\s*[:：]?\s*(\d{4}[-/]\d{1,2}[-/]\d{1,2})/i),
+    customer_name: match(/(?:العميل|اسم\s*العميل|customer(?:\s+name)?)\s*[:：]?\s*(.+?)\s+(?=(?:المجموع|الإجمالي|subtotal|total)(?:\s|$))/i),
+    subtotal: normalizeStructuredDocumentValue(match(/(?:المجموع الفرعي|المجموع|subtotal)\s*[:：]?\s*([\d٠-٩٬،.,]+)/i) ?? ''),
+    tax_amount: normalizeStructuredDocumentValue(match(/(?:الضريبة|ضريبة|tax)\s*[:：]?\s*([\d٠-٩٬،.,]+)/i) ?? ''),
+    total: normalizeStructuredDocumentValue(match(/(?:الإجمالي|الاجمالي|total)\s*[:：]?\s*([\d٠-٩٬،.,]+)/i) ?? ''),
+    paid_amount: normalizeStructuredDocumentValue(match(/(?:المدفوع|المبلغ\s*المدفوع|paid)\s*[:：]?\s*([\d٠-٩٬،.,]+)/i) ?? ''),
+    currency: match(/(?:العملة|عمله|currency)\s*[:：]?\s*([A-Za-z]{3}|[A-Za-z]+)(?=\s|$)/i),
+  };
+  const required = ['invoice_number', 'invoice_date', 'customer_name', 'total'];
+  if (required.some((key) => row[key] === null || row[key] === '')) return null;
+  return [row];
+}
+
 async function buildTextDataset(text: string, fileName: string, sourceType: string, warning?: string): Promise<Dataset[]> {
-  const normalized = text.replace(/\uFEFF/g, '').replace(/\r\n?/g, '\n').replace(/[ \t]+$/gm, '').trim(); if (!normalized) return [];
+  const normalized = normalizeArabicDigits(text.replace(/\uFEFF/g, '').replace(/\r\n?/g, '\n').replace(/[ \t]+$/gm, '').trim()); if (!normalized) return [];
+  const structured = sourceType.startsWith('pdf') ? tryParseStructuredPdfText(normalized) : null;
+  if (structured) { const dataset = await buildDataset(structured, fileName, sourceType); if (warning) dataset.columns.forEach((column) => column.qualityIssues.push(warning)); return [dataset]; }
   const rows: Row[] = normalized.split('\n').map((line) => line.trim()).filter(Boolean).map((line, index) => ({ line_number: index + 1, text: line }));
   const dataset = await buildDataset(rows, fileName, sourceType); for (const column of dataset.columns) column.qualityIssues.push('وثيقة نصية: لم يتم اختراع حقل أعمال؛ يلزم التعيين الدلالي قبل الكتابة'); if (warning) dataset.columns[1]?.qualityIssues.push(warning); return [dataset];
 }
 
-const PDF_OCR_MAX_PAGES = 20;
-const PDF_OCR_MAX_DIMENSION = 2200;
-const PDF_OCR_SCALE = 1.5;
-const OCR_CONFIDENCE_THRESHOLD = 70;
-
+const PDF_OCR_MAX_PAGES = 20; const PDF_OCR_MAX_DIMENSION = 2200; const PDF_OCR_SCALE = 1.5; const OCR_CONFIDENCE_THRESHOLD = 70;
 async function parsePdfText(buffer: ArrayBuffer, fileName: string): Promise<Dataset[]> {
-  const pdfjs = await import('pdfjs-dist');
-  pdfjs.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.mjs', import.meta.url).toString();
-  const pdf: PdfDocument = await pdfjs.getDocument({ data: new Uint8Array(buffer) }).promise; const pages: string[] = [];
+  const isNodeRuntime = typeof document === 'undefined';
+  const pdfjs = isNodeRuntime ? await import('pdfjs-dist/legacy/build/pdf.mjs') : await import('pdfjs-dist');
+  pdfjs.GlobalWorkerOptions.workerSrc = new URL(isNodeRuntime ? 'pdfjs-dist/legacy/build/pdf.worker.mjs' : 'pdfjs-dist/build/pdf.worker.mjs', import.meta.url).toString();
+  const standardFontDataUrl = isNodeRuntime
+    ? (() => {
+        const nodeProcess = (globalThis as typeof globalThis & { process?: { cwd?: () => string } }).process;
+        const cwd = nodeProcess?.cwd?.();
+        if (!cwd) throw new Error('PDF_NODE_RUNTIME_PATH_UNAVAILABLE');
+        return `${cwd}/node_modules/pdfjs-dist/standard_fonts/`;
+      })()
+    : undefined;
+  const pdf: PdfDocument = await pdfjs.getDocument({
+    data: new Uint8Array(buffer),
+    ...(isNodeRuntime ? { standardFontDataUrl, useSystemFonts: false } : {}),
+  }).promise;
+  const pages: string[] = [];
   for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) { const page = await pdf.getPage(pageNumber); const content = await page.getTextContent(); const text = content.items.map((item) => 'str' in item && typeof item.str === 'string' ? item.str : '').filter(Boolean).join(' '); if (text.trim()) pages.push(`PAGE ${pageNumber}\n${text}`); }
-  if (pages.length) return buildTextDataset(pages.join('\n\n'), fileName, 'pdf');
-  return parseScannedPdfWithOcr(pdf, fileName);
+  if (pages.length) return buildTextDataset(pages.join('\n\n'), fileName, 'pdf'); return parseScannedPdfWithOcr(pdf, fileName);
 }
 
 async function parseScannedPdfWithOcr(pdf: PdfDocument, fileName: string): Promise<Dataset[]> {
   if (typeof document === 'undefined') throw new Error('PDF_SCANNED_IMAGE_ONLY: OCR requires a browser runtime; no business data was fabricated.');
   if (pdf.numPages > PDF_OCR_MAX_PAGES) throw new Error(`PDF_OCR_PAGE_LIMIT_EXCEEDED: ${pdf.numPages} pages exceeds the safe OCR limit of ${PDF_OCR_MAX_PAGES}. Split the document before analysis.`);
-  const tesseract = await import('tesseract.js');
-  const worker = await tesseract.createWorker('ara+eng');
-  const pages: string[] = [];
-  const confidences: number[] = [];
+  const tesseract = await import('tesseract.js'); const worker = await tesseract.createWorker('ara+eng'); const pages: string[] = []; const confidences: number[] = [];
   try {
     for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) {
-      const page = await pdf.getPage(pageNumber);
-      const baseViewport = page.getViewport({ scale: PDF_OCR_SCALE });
-      const scale = Math.min(1, PDF_OCR_MAX_DIMENSION / Math.max(baseViewport.width, baseViewport.height));
-      const viewport = scale < 1 ? page.getViewport({ scale: PDF_OCR_SCALE * scale }) : baseViewport;
-      const canvas = document.createElement('canvas');
-      canvas.width = Math.max(1, Math.ceil(viewport.width));
-      canvas.height = Math.max(1, Math.ceil(viewport.height));
-      const context = canvas.getContext('2d');
-      if (!context) throw new Error(`PDF_OCR_CANVAS_UNAVAILABLE: page ${pageNumber}`);
-      await page.render({ canvasContext: context, viewport, canvas }).promise;
-      const result = await worker.recognize(canvas);
-      const text = typeof result?.data?.text === 'string' ? result.data.text.trim() : '';
-      const confidence = Number(result?.data?.confidence ?? 0);
-      confidences.push(confidence);
-      if (text) pages.push(`PAGE ${pageNumber}\n${text}`);
-      canvas.width = 1; canvas.height = 1;
+      const page = await pdf.getPage(pageNumber); const baseViewport = page.getViewport({ scale: PDF_OCR_SCALE }); const scale = Math.min(1, PDF_OCR_MAX_DIMENSION / Math.max(baseViewport.width, baseViewport.height)); const viewport = scale < 1 ? page.getViewport({ scale: PDF_OCR_SCALE * scale }) : baseViewport;
+      const canvas = document.createElement('canvas'); canvas.width = Math.max(1, Math.ceil(viewport.width)); canvas.height = Math.max(1, Math.ceil(viewport.height)); const context = canvas.getContext('2d');
+      if (!context) throw new Error(`PDF_OCR_CANVAS_UNAVAILABLE: page ${pageNumber}`); await page.render({ canvasContext: context, viewport, canvas }).promise;
+      const result = await worker.recognize(canvas); const text = typeof result?.data?.text === 'string' ? result.data.text.trim() : ''; const confidence = Number(result?.data?.confidence ?? 0); confidences.push(confidence); if (text) pages.push(`PAGE ${pageNumber}\n${text}`); canvas.width = 1; canvas.height = 1;
     }
-  } finally {
-    await worker.terminate();
-  }
+  } finally { await worker.terminate(); }
   if (!pages.length) throw new Error('PDF_SCANNED_OCR_EMPTY: OCR produced no readable text; no business data was fabricated.');
-  const minimumConfidence = confidences.length ? Math.min(...confidences) : 0;
-  const warning = minimumConfidence < OCR_CONFIDENCE_THRESHOLD
-    ? `OCR_LOW_CONFIDENCE:${Math.round(minimumConfidence)}%`
-    : `OCR_CONFIDENCE_MIN:${Math.round(minimumConfidence)}%`;
+  const minimumConfidence = confidences.length ? Math.min(...confidences) : 0; const warning = minimumConfidence < OCR_CONFIDENCE_THRESHOLD ? `OCR_LOW_CONFIDENCE:${Math.round(minimumConfidence)}%` : `OCR_CONFIDENCE_MIN:${Math.round(minimumConfidence)}%`;
   return buildTextDataset(pages.join('\n\n'), fileName, 'pdf-ocr', warning);
 }
 
-async function parseDocxText(buffer: ArrayBuffer, fileName: string): Promise<Dataset[]> {
-  const mammoth = await import('mammoth'); const result = await mammoth.extractRawText({ arrayBuffer: buffer });
-  return buildTextDataset(result.value, fileName, 'docx', result.messages.length ? `DOCX_EXTRACTION_WARNINGS:${result.messages.length}` : undefined);
-}
-
-async function parseImageText(buffer: ArrayBuffer, fileName: string): Promise<Dataset[]> {
-  const tesseract: any = await import('tesseract.js'); const worker = await tesseract.createWorker('ara+eng');
-  try { const image = new Blob([buffer], { type: 'application/octet-stream' }); const { data } = await worker.recognize(image); return buildTextDataset(data.text, fileName, 'image', data.confidence < 70 ? `OCR_LOW_CONFIDENCE:${Math.round(data.confidence)}%` : `OCR_CONFIDENCE:${Math.round(data.confidence)}%`); }
-  finally { await worker.terminate(); }
-}
+async function parseDocxText(buffer: ArrayBuffer, fileName: string): Promise<Dataset[]> { const mammoth = await import('mammoth'); const result = await mammoth.extractRawText({ arrayBuffer: buffer }); return buildTextDataset(result.value, fileName, 'docx', result.messages.length ? `DOCX_EXTRACTION_WARNINGS:${result.messages.length}` : undefined); }
+async function parseImageText(buffer: ArrayBuffer, fileName: string): Promise<Dataset[]> { const tesseract: any = await import('tesseract.js'); const worker = await tesseract.createWorker('ara+eng'); try { const image = new Blob([buffer], { type: 'application/octet-stream' }); const { data } = await worker.recognize(image); return buildTextDataset(data.text, fileName, 'image', data.confidence < 70 ? `OCR_LOW_CONFIDENCE:${Math.round(data.confidence)}%` : `OCR_CONFIDENCE:${Math.round(data.confidence)}%`); } finally { await worker.terminate(); } }
 
 export async function parseSpreadsheet(buffer: ArrayBuffer, fileName: string, _format: FileFormat): Promise<Dataset[]> {
   const wb = XLSX.read(buffer, { type: 'array', cellDates: true }); const datasets: Dataset[] = [];
   for (const sheetName of wb.SheetNames) { const matrix = XLSX.utils.sheet_to_json<unknown[]>(wb.Sheets[sheetName], { header: 1, defval: '', raw: true }); const candidate = detectHeaderRow(matrix); if (!candidate) continue; const rows = rowsFromDetectedHeader(matrix, candidate) as Row[]; if (rows.length) datasets.push(await buildDataset(rows, `${fileName} — ${sheetName}`, fileName, sheetName)); }
   return datasets;
 }
-
 export async function parseCSV(buffer: ArrayBuffer, fileName: string, delimiter?: string): Promise<Dataset[]> { const rows = parseCSVText(decodeBuffer(buffer), delimiter); return rows.length ? [await buildDataset(rows, fileName, fileName)] : []; }
 function decodeBuffer(buffer: ArrayBuffer): string { const bytes = new Uint8Array(buffer); const start = bytes[0] === 0xef && bytes[1] === 0xbb && bytes[2] === 0xbf ? 3 : 0; return new TextDecoder('utf-8').decode(bytes.slice(start)); }
 function parseCSVText(text: string, delimiter?: string): Row[] { const lines = text.split(/\r?\n/).filter((line) => line.trim()); if (!lines.length) return []; const delim = delimiter ?? detectDelimiter(lines[0]); const matrix = lines.map((line) => parseCSVLine(line, delim)); const candidate = detectHeaderRow(matrix); if (!candidate) return []; return rowsFromDetectedHeader(matrix, candidate) as Row[]; }
@@ -139,7 +166,6 @@ function parseCSVLine(line: string, delimiter: string): string[] { const result:
 export async function parseJSON(buffer: ArrayBuffer, fileName: string): Promise<Dataset[]> { return parseJSONData(JSON.parse(decodeBuffer(buffer)), fileName); }
 export async function parseJSONL(buffer: ArrayBuffer, fileName: string): Promise<Dataset[]> { const rows = decodeBuffer(buffer).split(/\r?\n/).filter(Boolean).map((line) => { const value: unknown = JSON.parse(line); if (!isRecord(value)) throw new Error('JSONL contains a non-object row'); return value; }); return rows.length ? [await buildDataset(rows, fileName, fileName)] : []; }
 async function parseJSONData(data: unknown, fileName: string, path = ''): Promise<Dataset[]> { if (Array.isArray(data)) { if (!data.length) return []; if (!data.every(isRecord)) throw new Error('JSON dataset contains non-object rows'); return [await buildDataset(data, path || fileName, fileName)]; } if (!isRecord(data)) return []; const datasets: Dataset[] = []; for (const [key, value] of Object.entries(data)) { if (Array.isArray(value) && value.length) { if (!value.every(isRecord)) throw new Error(`JSON dataset ${key} contains non-object rows`); datasets.push(await buildDataset(value, path ? `${path} → ${key}` : key, fileName, key)); } } return datasets.length ? datasets : [await buildDataset([data], path || fileName, fileName)]; }
-
 export async function parseFile(buffer: ArrayBuffer, fileName: string, format: FileFormat): Promise<Dataset[]> {
   switch (format) {
     case 'xlsx': case 'xls': case 'xlsm': case 'ods': return parseSpreadsheet(buffer, fileName, format);
