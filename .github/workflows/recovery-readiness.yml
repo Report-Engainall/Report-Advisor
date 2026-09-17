@@ -1,5 +1,7 @@
 name: recovery-readiness
 on:
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 permissions:
   contents: read
@@ -7,10 +9,22 @@ jobs:
   verify:
     runs-on: ubuntu-22.04
     timeout-minutes: 20
+    env:
+      EXACT_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
     steps:
       - uses: actions/checkout@v5
         with:
           persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Verify exact head
+        shell: bash
+        run: |
+          set -euo pipefail
+          actual="$(git rev-parse HEAD)"
+          expected="${{ github.event.pull_request.head.sha || github.sha }}"
+          test "$actual" = "$expected"
+          test -z "$(git status --porcelain)"
+          echo "EXACT_HEAD=$actual"
       - uses: actions/setup-node@v5
         with:
           node-version: 22
