@@ -1,5 +1,5 @@
 /** Free/local time-series primitives. No external API or paid model required. */
-import { mean, stddev } from './statistics';
+import { mean, stddev } from './statistics.ts';
 export interface ForecastPoint { horizon:number; value:number; lower:number; upper:number; }
 export interface ForecastResult { method:'naive'|'moving-average'|'ema'|'trend'; points:ForecastPoint[]; mae?:number; mape?:number; }
 export function movingAverage(values:number[],window=7){return mean(values.slice(-Math.max(1,window)));}

@@ -5,7 +5,7 @@ export const productionReadiness={
   finance:['reconciliation','currency-isolation','debit-credit','balance-integrity'],
   safety:['import-governance','business-key','tenant-isolation','rls','report-truth'],
   performance:['bounded-processing','cache-policy','concurrency','production-scale'],
-  release:['scenario-matrix','regression-baseline','release-decision','failure-classification']
+  release:['scenario-matrix','regression-baseline','release-decision','failure-classification','evidence']
 };
 export function readinessDomains(){return Object.entries(productionReadiness).map(([domain,checks])=>({domain,checks,count:checks.length}));}
 if(process.argv[1]?.endsWith('production-readiness-manifest.mjs'))console.log(`Production readiness manifest PASS: ${Object.keys(productionReadiness).length} domains.`);

@@ -13,5 +13,6 @@ const migrationHash=sha256(Buffer.concat(files.flatMap(f=>[Buffer.from(`${f}\n`)
 const dependencyHash=sha256(lock);
 if(m.dependencyFingerprint!==dependencyHash) throw new Error('RELEASE STALE: dependency fingerprint drift detected');
 if(m.migrationFingerprint!==migrationHash) throw new Error('RELEASE STALE: migration fingerprint drift detected');
-if(process.env.CI&&m.sourceSha!==process.env.GITHUB_SHA) throw new Error('RELEASE STALE: source SHA drift detected');
+const expectedSourceSha=process.env.CERTIFICATION_SHA||process.env.GITHUB_SHA;
+if(process.env.CI&&m.sourceSha!==expectedSourceSha) throw new Error(`RELEASE STALE: source SHA drift detected (manifest=${m.sourceSha}, expected=${expectedSourceSha})`);
 console.log('RELEASE DRIFT CHECK: PASS');

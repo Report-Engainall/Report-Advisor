@@ -24,12 +24,19 @@ s=transition(s,'DECISION',approver); s.work_status='COMPLETED'; s.outcome_status
 s=transition(s,'WORK_ITEM',actor); s=transition(s,'OUTCOME',actor); s=transition(s,'LEARNING',actor);
 assert.equal(s.stage,'LEARNING');
 assert.ok(TYPES.has('SYNTHETIC RUNTIME'));
-assert.throws(()=>transition({...s,stage:'DOCUMENT'},actor),/INVALID_STAGE/);
-assert.throws(()=>transition({...s,stage:'DOCUMENT',tenant_id:'tenant-b'},actor),/TENANT_BOUNDARY/);
-assert.throws(()=>transition({...s,stage:'DOCUMENT',source_ref:''},actor),/PROVENANCE_REQUIRED/);
-assert.throws(()=>transition({...s,stage:'DOCUMENT',evidence_id:''},actor),/PROVENANCE_REQUIRED/);
-assert.throws(()=>transition({...s,stage:'RECOMMENDATION',recommendation_id:'other'},approver),/RECOMMENDATION_LINK_REQUIRED/);
-assert.throws(()=>transition({...s,stage:'DOCUMENT',id:'x',created_by:'owner-a'},actor),/INVALID_STAGE/);
-assert.throws(()=>transition({...s,stage:'DECISION',decision_status:'DRAFT'},actor),/APPROVAL_REQUIRED/);
-assert.throws(()=>transition({...s,stage:'WORK_ITEM',work_status:'ASSIGNED'},actor),/WORK_INCOMPLETE/);
+
+function assertTransitionError(label, state, next, transitionActor, pattern) {
+  assert.ok(transitionActor?.tenant_id && transitionActor.user_id, `${label}: TEST_ACTOR_REQUIRED`);
+  assert.throws(() => transition(state, next, transitionActor), pattern, `${label}: unexpected transition rejection`);
+}
+
+assert.throws(() => transition({...s,stage:'DOCUMENT'}, undefined), /ACTOR_REQUIRED/);
+assertTransitionError('invalid-stage-from-learning', {...s,stage:'DOCUMENT'}, 'DOCUMENT', actor, /INVALID_STAGE/);
+assertTransitionError('tenant-boundary', {...s,stage:'DOCUMENT',tenant_id:'tenant-b'}, 'DOCUMENT', actor, /TENANT_BOUNDARY/);
+assertTransitionError('missing-source-ref', {...s,stage:'DOCUMENT',source_ref:''}, 'EVIDENCE', actor, /INVALID_STAGE|PROVENANCE_REQUIRED/);
+assertTransitionError('missing-content-hash', {...s,stage:'DOCUMENT',content_hash:''}, 'EVIDENCE', actor, /INVALID_STAGE|PROVENANCE_REQUIRED/);
+assertTransitionError('recommendation-link', {...s,stage:'RECOMMENDATION',recommendation_id:'other'}, 'DECISION', approver, /RECOMMENDATION_LINK_REQUIRED/);
+assertTransitionError('decision-approval', {...s,stage:'DECISION',decision_status:'DRAFT'}, 'WORK_ITEM', actor, /APPROVAL_REQUIRED/);
+assertTransitionError('work-complete', {...s,stage:'WORK_ITEM',work_status:'ASSIGNED'}, 'OUTCOME', actor, /WORK_INCOMPLETE/);
+
 console.log('unified evidence action learning chain: PASS');

@@ -15,14 +15,16 @@ function Metric({ label, value, hint }: { label: string; value: string; hint: st
 
 function TrendStrip({ trend }: { trend: MonthlyTrend[] }) {
   const points = trend.slice(-6);
-  const max = Math.max(...points.map(p => Number(p.sales) || 0), 1);
+  const values = points.map((point) => typeof point.sales === 'number' && Number.isFinite(point.sales) ? point.sales : null);
+  const finiteSales = values.filter((value): value is number => value !== null);
+  const max = Math.max(...finiteSales, 1);
   return <div className="grid grid-cols-3 gap-3 sm:grid-cols-6">
     {points.map((point, index) => {
-      const sales = Number(point.sales) || 0;
-      const height = Math.max(10, Math.round((sales / max) * 100));
+      const sales = values[index];
+      const height = sales == null ? 0 : Math.max(10, Math.round((sales / max) * 100));
       return <div key={`${point.month}-${index}`} className="min-w-0">
         <div className="flex h-24 items-end rounded-xl bg-ink-50 p-2">
-          <div className="w-full rounded-lg bg-primary-500/80" style={{ height: `${height}%` }} title={formatCurrency(sales)} />
+          <div className="w-full rounded-lg bg-primary-500/80" style={{ height: `${height}%` }} title={sales == null ? undefined : formatCurrency(sales)} />
         </div>
         <p className="mt-2 truncate text-center text-[11px] text-ink-500">{point.month}</p>
       </div>;

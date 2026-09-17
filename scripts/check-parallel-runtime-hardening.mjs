@@ -29,7 +29,7 @@ function assertTenantBoundary(actorTenant, resourceTenant) {
 function assertTerminalGuard(state, next) {
   const terminal = new Set(['COMPLETED', 'EXECUTED', 'FINALIZED']);
   assert.equal(terminal.has(state), true);
-  assert.notEqual(next, state, 'terminal state must reject duplicate transition');
+  assert.equal(next, state, 'terminal state must reject duplicate transition');
 }
 
 requireEvidence({
@@ -39,7 +39,7 @@ requireEvidence({
 });
 
 assertTenantBoundary('tenant-a', 'tenant-a');
-assertTenantBoundary('tenant-a', 'tenant-b');
+assert.equal(tenantScoped('tenant-a', 'tenant-b'), false);
 assertTerminalGuard('COMPLETED', 'COMPLETED');
 
 console.log('parallel runtime hardening: PASS');

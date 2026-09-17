@@ -1,0 +1,53 @@
+name: production-regression-evidence
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: production-regression-evidence-${{ github.event.pull_request.head.sha || github.sha }}
+  cancel-in-progress: true
+jobs:
+  regression-evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Validate exact source SHA
+        env:
+          EXPECTED_SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -euo pipefail
+          actual_sha="$(git rev-parse HEAD)"
+          [[ "$actual_sha" == "$EXPECTED_SOURCE_SHA" ]] || { echo "SOURCE_SHA_MISMATCH:$actual_sha:$EXPECTED_SOURCE_SHA"; exit 1; }
+      - name: Produce executable regression evidence
+        run: node scripts/produce-production-regression-evidence.mjs
+      - name: Validate release decision contract against produced evidence
+        if: ${{ success() }}
+        env:
+          EXPECTED_SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -euo pipefail
+          node scripts/production-release-decision.mjs \
+            --results release-evidence/production-regression-results.json \
+            --sha "$EXPECTED_SOURCE_SHA" \
+            --output release-evidence/pr-regression-decision.json
+      - name: Upload regression evidence
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: report-advisor-production-regression-evidence-${{ github.event.pull_request.head.sha || github.sha }}
+          path: release-evidence/
+          if-no-files-found: error
+          retention-days: 14

@@ -1,7 +1,15 @@
 import {spawnSync} from 'node:child_process';
 import process from 'node:process';
-const gates=['test:production-gate-integrity','typecheck','build'];
-const failed=[];
-for(const script of gates){const r=spawnSync('npm',['run',script,'--silent'],{stdio:'inherit',shell:process.platform==='win32'});if(r.status!==0){failed.push(script);break;}}
-if(failed.length){console.error(`Production gate runtime BLOCKED at: ${failed.join(', ')}`);process.exit(1);}
+const gates=[
+  {label:'production-gate-integrity', command:process.execPath, args:['scripts/check-production-gate-integrity.mjs']},
+  {label:'typecheck', command:'npm', args:['run','typecheck','--silent']},
+  {label:'build', command:'npm', args:['run','build','--silent']},
+];
+for(const gate of gates){
+  const r=spawnSync(gate.command,gate.args,{stdio:'inherit',shell:process.platform==='win32'});
+  if(r.status!==0){
+    console.error(`Production gate runtime BLOCKED at: ${gate.label}`);
+    process.exit(1);
+  }
+}
 console.log('Production gate runtime PASS: integrity, typecheck and build completed.');

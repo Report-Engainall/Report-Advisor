@@ -19,9 +19,6 @@ for (const pattern of required) {
   if (!pattern.test(text)) throw new Error(`Import transaction contract missing: ${pattern}`);
 }
 
-// Include every migration that can define or harden the import lifecycle.
-// The previous selector missed terminal-state/lifecycle filenames such as
-// 20260825210000_import_finish_terminal_state.sql and allowed a false negative.
 const lifecycleMigration = files
   .filter((f) => /import.*(?:job|engine|finish|lifecycle)|security.*import/i.test(f))
   .map((f) => fs.readFileSync(path.join(migrationDir, f), 'utf8'))
@@ -51,8 +48,57 @@ if (fs.existsSync(canonicalCommitPath)) {
   if (!/resolveCurrentCompanyId\(\)/.test(canonical) || !/import_commit_batch/.test(canonical)) {
     throw new Error('Canonical import must resolve authoritative tenant and commit through the atomic RPC wrapper');
   }
+  if (!/p_source_hash\s*:\s*sourceHash/.test(canonical)) {
+    throw new Error('Canonical import commit must bind the atomic RPC to the exact source hash');
+  }
+  if (!/CANONICAL_SOURCE_HASH_MISMATCH/.test(canonical)) {
+    throw new Error('Canonical import must reject provenance rows whose source hash differs from the durable source hash');
+  }
   if (!/IMPORT_COMMIT_RESULT_MISMATCH/.test(canonical)) {
     throw new Error('Canonical import must verify the durable batch result count and IDs');
+  }
+}
+
+const adapterPath = path.join(root, 'src', 'lib', 'import', 'canonical-production-adapter.ts');
+if (!fs.existsSync(adapterPath)) throw new Error('Canonical durable import adapter is missing');
+const adapter = fs.readFileSync(adapterPath, 'utf8');
+if (!/runDurableProductionLifecycle/.test(adapter) || !/SupabaseReportExecutionStore/.test(adapter)) {
+  throw new Error('Canonical import must use the existing durable production runner/store');
+}
+if (!/stage === 'committed'\)\s*await commitImportBatch/.test(adapter)) {
+  throw new Error('Canonical commit must execute only at the durable committed lifecycle stage');
+}
+if (/batchSize|for \(let i = 0; i < reconciled\.rows\.length/.test(adapter)) {
+  throw new Error('Canonical durable adapter must not reintroduce UI-level batch splitting');
+}
+if (!/enqueue_report_execution_job/.test(adapter) || !/p_source_hash:\s*input\.sourceHash/.test(adapter)) {
+  throw new Error('Canonical durable adapter must enqueue a source-bound durable job');
+}
+if (!/IMPORT_DURABLE_JOB_ALREADY_RUNNING/.test(adapter)) {
+  throw new Error('Canonical durable adapter must fail closed when the same durable import is already running');
+}
+
+const pagePath = path.join(root, 'src', 'pages', 'CanonicalImportPage.tsx');
+if (fs.existsSync(pagePath)) {
+  const page = fs.readFileSync(pagePath, 'utf8');
+  if (!/runCanonicalImportThroughDurableRunner/.test(page) || /import \{[^}]*commitImportBatch/.test(page)) {
+    throw new Error('Canonical import UI must route through the durable adapter and not invoke the batch RPC wrapper directly');
+  }
+  if (!/const durableSourceHash = `sha256:\$\{fileHash\}`/.test(page)) {
+    throw new Error('Canonical import UI must bind the computed file hash to the durable SHA-256 source identity');
+  }
+  if (!/quality < 50/.test(page) || !/quality < 75 && !qualityApproved/.test(page)) {
+    throw new Error('Canonical import UI must enforce the 50% rejection and 50–74% explicit approval gates');
+  }
+}
+
+const runnerPath = path.join(root, 'src', 'lib', 'report-execution', 'durable-production-runner.ts');
+if (fs.existsSync(runnerPath)) {
+  const runner = fs.readFileSync(runnerPath, 'utf8');
+  const executeIndex = runner.indexOf('await input.executeStage(following');
+  const checkpointIndex = runner.indexOf('await store.saveCheckpoint(input.jobId, checkpoint');
+  if (executeIndex < 0 || checkpointIndex < 0 || executeIndex > checkpointIndex) {
+    throw new Error('Durable runner must persist a checkpoint only after the stage executor succeeds');
   }
 }
 
