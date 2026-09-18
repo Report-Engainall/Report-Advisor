@@ -48,6 +48,7 @@ export function Header({
       ['/intelligence/forecasts', 'التنبؤات'],
       ['/intelligence/scenarios', 'السيناريوهات'],
       ['/intelligence', 'مركز الذكاء'],
+      ['/metrics', 'مفتش المؤشرات'],
       ['/decision-experience', 'تجربة القرار'],
       ['/alternative-groups', 'مجموعات البدائل'],
       ['/customers', 'العملاء'],
