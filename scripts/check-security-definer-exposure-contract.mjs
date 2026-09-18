@@ -19,10 +19,17 @@ const liveOnlyExpectedSecurityDefiners = ['capture_kpi_evidence_snapshot'];
 
 const criticalOperationalSecurityDefiners = [
   { name: 'current_company_id', requiredTokens: [/auth\.uid\s*\(\)/i, /company_memberships/i, /is_active\s*=\s*true/i, /is_default\s*=\s*true/i], searchPath: 'EMPTY_OR_SAFE' },
-  { name: 'fail_report_execution_job', requiredTokens: [/auth\.uid\s*\(\)/i, /current_company_id\s*\(\)/i, /lease_token/i, /company_id\s*=\s*p_company_id/i, /UPDATE\s+public\.report_execution_jobs/i], searchPath: 'PUBLIC' },
   { name: 'retry_report_execution_job', requiredTokens: [/auth\.uid\s*\(\)/i, /current_company_id\s*\(\)/i, /report_execution_jobs/i, /company_id\s*=\s*p_company_id/i, /status\s*=\s*\x27failed\x27/i], searchPath: 'EMPTY_OR_SAFE' },
 ];
 
+const serviceOnlyReportWorkerSecurityDefiners = [
+  { name: 'enqueue_report_execution_job', args: 'uuid, text, text, text, text[], integer', requiredTokens: [/current_company_id\s*\(\)/i, /source_hash/i] },
+  { name: 'claim_report_execution_job', args: 'uuid, uuid, text, integer', requiredTokens: [/current_company_id\s*\(\)/i, /lease_owner/i, /lease_token/i] },
+  { name: 'heartbeat_report_execution_job', args: 'uuid, uuid, text, uuid, integer', requiredTokens: [/current_company_id\s*\(\)/i, /lease_token/i, /lease_expires_at/i] },
+  { name: 'advance_report_execution_checkpoint', args: 'uuid, uuid, text, uuid, jsonb', requiredTokens: [/current_company_id\s*\(\)/i, /lease_token/i, /checkpoint/i] },
+  { name: 'complete_report_execution_job', args: 'uuid, uuid, text, uuid, jsonb', requiredTokens: [/current_company_id\s*\(\)/i, /lease_token/i, /UPDATE\s+public\.report_execution_jobs/i] },
+  { name: 'fail_report_execution_job', args: 'uuid, uuid, text, uuid, jsonb', requiredTokens: [/auth\.uid\s*\(\)/i, /current_company_id\s*\(\)/i, /lease_token/i, /UPDATE\s+public\.report_execution_jobs/i] },
+];
 const failures = [];
 
 function getFunctionWindow(name) {
@@ -80,9 +87,11 @@ function assertServiceOnly(name, args) {
 for (const worker of serviceOnlyReportWorkerSecurityDefiners) {
   const window = getFunctionWindow(worker.name);
   if (!window) { failures.push(`${worker.name}: latest repository definition not found`); continue; }
-  if (!/SECURITY\\s+DEFINER/i.test(window)) failures.push(`${worker.name}: SECURITY DEFINER missing`);
+  if (!/SECURITY\s+DEFINER/i.test(window)) failures.push(`${worker.name}: SECURITY DEFINER missing`);
   if (!hasSafeSearchPath(window, 'PUBLIC')) failures.push(`${worker.name}: safe explicit search_path missing`);
+  for (const token of worker.requiredTokens) if (!token.test(window)) failures.push(`${worker.name}: required worker runtime invariant missing: ${token}`);
   assertServiceOnly(worker.name, worker.args);
+}
 }
 
 for (const check of criticalOperationalSecurityDefiners) {
