@@ -1,3 +1,4 @@
+import type { SupabaseClient } from '@supabase/supabase-js';
 import { supabase, resolveCurrentCompanyId } from '@/lib/supabase';
 import { assertCanonicalBoundary, type ReconciledCanonicalImportRow } from '@/lib/import/canonical-truth-boundary';
 
@@ -74,10 +75,12 @@ export async function commitImportBatch(
   entityType: 'products' | 'customers' | 'sales_invoices',
   rows: ReconciledCanonicalImportRow[],
   sourceHash: string,
+  context: { client?: SupabaseClient; companyId?: string } = {},
 ): Promise<CanonicalCommitResult> {
   if (!rows.length) return { committed: 0, ids: [], idempotentReplay: false };
   if (!/^sha256:[0-9a-fA-F]{64}$/.test(sourceHash)) throw new Error('IMPORT_SOURCE_HASH_INVALID');
-  const companyId = await resolveCurrentCompanyId();
+  const client = context.client ?? supabase;
+  const companyId = context.companyId ?? await resolveCurrentCompanyId();
   if (!companyId) throw new Error('No authenticated tenant context is available for canonical import');
 
   rows.forEach((row) => assertCanonicalBoundary(row, companyId));
@@ -86,7 +89,7 @@ export async function commitImportBatch(
   }
 
   const payload = rows.map((row) => canonicalizeRow(entityType, { data: row.data, rowNumber: row.rowNumber }));
-  const { data, error } = await supabase.rpc('import_commit_batch', {
+  const { data, error } = await client.rpc('import_commit_batch', {
     p_company_id: companyId,
     p_entity_type: entityType,
     p_rows: payload,
