@@ -500,7 +500,7 @@ BEGIN
     AND d.company_id = v_company
   FOR UPDATE;
 
-  IF v_decision_status IS DISTINCT FROM 'PROPOSED' THEN
+  IF v_decision_status is distinct from 'PROPOSED' THEN
     RAISE EXCEPTION 'DECISION_NOT_APPROVABLE';
   END IF;
 
