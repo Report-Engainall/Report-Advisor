@@ -8,6 +8,8 @@ const read = (file) => fs.readFileSync(path.join(root, file), 'utf8');
 const recommendations = read('src/pages/IntelligencePages.tsx');
 const scenario = read('src/pages/CanonicalScenarioPage.tsx');
 const files = read('src/pages/ExternalFileAnalysisPage.tsx');
+const companySettings = read('src/pages/CompanySettingsPage.tsx');
+const profile = read('src/pages/ProfileSettingsPage.tsx');
 
 const checks = [
   [recommendations.includes('إشارات مصدرية تنتظر قرارًا بشريًا'), 'Recommendations must state human decision ownership.'],
@@ -18,6 +20,10 @@ const checks = [
   [files.includes('focus-visible:ring-2 focus-visible:ring-primary-500'), 'File drop zone must be keyboard accessible.'],
   [files.includes('05 · جاهزية التحليل'), 'File analysis must expose staged progression.'],
   [files.includes('بصمة SHA-256'), 'File analysis must preserve source fingerprint visibility.'],
+  [companySettings.includes("aria-pressed={workspaceMode === 'essential'}"), 'Workspace mode must expose pressed state.'],
+  [companySettings.includes("aria-pressed={workspaceMode === 'advanced'}"), 'Advanced workspace mode must expose pressed state.'],
+  [companySettings.includes("aria-pressed={workspaceMode === 'expert'}"), 'Expert workspace mode must expose pressed state.'],
+  [profile.includes('<LoadingState message="جارٍ تحميل بيانات الحساب..." />'), 'Profile settings must use the shared loading state.'],
 ];
 
 const failed = checks.filter(([ok]) => !ok);
