@@ -6,7 +6,7 @@
 
 ### CURRENT EXACT HEAD
 - Governed Main: `9bd7243c8864ca5bcf431b14a7c2eb35c698de7c`.
-- Current code/test candidate: `f13aebbde65628f1ef7d1cec8c6101223cf34d24`.
+- Current code/test candidate: `0b44e35c5f22de7cc0b8bf4c3ed558756a711c80`.
 - The current candidate also carries the corrected worker-boundary contract assertion for the authenticated anon-key canonical import client.
 - The current candidate additionally closes the canonical import job as `failed` when the authenticated server boundary itself fails, preserving terminal ownership at the canonical finish path while rethrowing the primary boundary error, and guards that server boundary against service-role dependency.
 - The exact-head browser runtime uses Vercel Dev for `/api/*` serverless boundaries, while the canonical import server boundary uses the authenticated user JWT with the public anon key under tenant RLS; no service-role secret is required for this path.
