@@ -18,5 +18,7 @@ jobs:
       - run: npm ci --no-audit --no-fund
       - name: Import terminal lifecycle contract
         run: npx vitest run src/lib/import-finish-lifecycle.contract.test.ts
+      - name: Import finish UI summary contract
+        run: npx vitest run src/lib/import-finish-ui-summary.contract.test.ts
       - name: Typecheck
         run: npm run typecheck
