@@ -35,6 +35,10 @@ on:
       - 'src/lib/semanticMetrics.ts'
       - 'src/pages/MetricInspectorPage.tsx'
       - 'src/lib/queries.ts'
+      - 'src/lib/import/**'
+      - 'src/server/**'
+      - 'api/**'
+      - 'vercel.json'
       - 'E2E_FAILURE_LEDGER.md'
       - 'E2E_PRODUCT_GAP_LEDGER.md'
       - 'supabase/migrations/**'
@@ -84,19 +88,35 @@ jobs:
           VITE_SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
         run: npm run build
-      - name: Start exact-head application
+      - name: Start exact-head Vercel runtime
         shell: bash
         env:
           VITE_SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
+          SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_SERVICE_ROLE_KEY || secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: |
           set -euo pipefail
-          nohup npm run preview -- --host 127.0.0.1 --port 4173 > /tmp/report-advisor-preview.log 2>&1 &
-          for i in {1..60}; do
-            if curl -fsS http://127.0.0.1:4173/ >/dev/null; then exit 0; fi
+          test -n "${SUPABASE_SERVICE_ROLE_KEY}" || { echo "SERVER_RUNTIME_BLOCKED: SUPABASE_SERVICE_ROLE_KEY secret is not provisioned"; exit 2; }
+          mkdir -p .vercel
+          cat > .vercel/project.json <<'JSON'
+          {
+            "orgId": "team_7BSJnGvDzIC6bXMakIOeAYle",
+            "projectId": "prj_jcqgz6UKGd6tPgHZlttgFXaXvyvo"
+          }
+          JSON
+          npm install --no-save --ignore-scripts vercel@50.5.1
+          nohup npx --no-install vercel dev --listen 127.0.0.1:4173 > /tmp/report-advisor-vercel-dev.log 2>&1 &
+          for i in {1..90}; do
+            if curl -fsS http://127.0.0.1:4173/ >/dev/null; then
+              code="$(curl -sS -o /dev/null -w '%{http_code}' http://127.0.0.1:4173/api/health || true)"
+              echo "API_HEALTH_HTTP=${code}"
+              exit 0
+            fi
             sleep 1
           done
-          cat /tmp/report-advisor-preview.log
+          cat /tmp/report-advisor-vercel-dev.log
           exit 1
       - name: Verify authenticated E2E secret contract
         env:
