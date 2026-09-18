@@ -1,3 +1,12 @@
+### LIVE EXECUTION UPDATE — 2026-09-18T12:35Z
+- **PR #595 Exact HEAD:** `46fd602a6038a6b2b7b4b45bf79e97e1de881adc`.
+- **Fresh PC01 exact-head verification:** typecheck PASS; production build PASS; performance budget **887.7KB / 900KB** and largest JS 487.8KB; UI route/sidebar parity PASS (35/34); executive dashboard UI PASS.
+- **Fresh exact-head release contracts:** 20/20 release readiness PASS; P0 13/13 PASS; P1 8/8 PASS; production-certification evidence integrity PASS; production-certification contract PASS; operational-resilience contract PASS; release-resilience manifest PASS.
+- **CI state:** current authenticated browser/storage/worker/recovery/regression workflows are still QUEUED; no runtime PASS is transferred from another SHA.
+- **Runtime truth:** local device has no E2E/Phase-F secret values. Direct staging attempt correctly fails closed without authenticated context; no credential/evidence bypass was used.
+- **Still open:** authenticated business/persistence + tenant A/B runtime, storage signed-URL runtime, real worker lease/expiry/recovery/retry/DLQ runtime, measured backup/restore RPO/RTO, Phase-F live resilience, deployed-SHA parity, final certification.
+- This update supersedes older exact-head pointers in this document; historical evidence remains bound to its original SHA.
+
 ### LIVE EXECUTION UPDATE — 2026-09-18T12:20Z
 - **PR #595 Exact HEAD:** `cb49e15e0f892c81d233a50b773d709a5d7687cb`.
 - **PC01 exact-head local verification on cb49e15e:** typecheck PASS; production build PASS; performance budget PASS at **885.3KB / 900KB**, largest JS 487.8KB; UI route/sidebar parity PASS (35 routes / 34 sidebar links); executive dashboard UI contract PASS.
