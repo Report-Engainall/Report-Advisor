@@ -22,7 +22,7 @@ export function useSavedView<T extends Record<string, JsonValue>>(scope: string,
     return () => { mounted = false; };
   }, [scope]);
   const names = useMemo(() => Object.keys(saved).sort((a,b) => a.localeCompare(b,'ar')), [saved]);
-  const persist = useCallback((next: SavedViewMap<T>) => { setSaved(next); if (!storageKey) return; try { window.localStorage.setItem(storageKey, JSON.stringify(next)); } catch { } }, [storageKey]);
+  const persist = useCallback((next: SavedViewMap<T>) => { setSaved(next); if (!storageKey) return; try { window.localStorage.setItem(storageKey, JSON.stringify(next)); } catch { return; } }, [storageKey]);
   const save = useCallback((name: string, value: T) => { const clean = name.trim(); if (!clean) return false; persist({ ...saved, [clean]: value }); setActiveName(clean); return true; }, [persist, saved]);
   const remove = useCallback((name: string) => { const next = { ...saved }; delete next[name]; persist(next); setActiveName(current => current === name ? null : current); }, [persist, saved]);
   const load = useCallback((name: string): T | null => { const value = saved[name] ?? null; if (value) setActiveName(name); return value; }, [saved]);
