@@ -134,7 +134,7 @@ export function CanonicalImportPage() {
       if (reconciled.rejected.length > 0) throw new Error(`CANONICAL_RECONCILIATION_REJECTED:${reconciled.rejected.map(r => `${r.rowNumber}:${r.reason}`).join(',')}`);
       const execution = await runCanonicalImportThroughDurableRunner({ importId: rec.id, fileName: file.name, sourceHash: durableSourceHash, entityType, rows: reconciled.rows, qualityScore: quality });
       setProgress(100);
-      const { error: finishError } = await supabase.rpc('import_finish_job', { p_job_id: rec.id, p_status: 'completed', p_result_summary: { total_rows: rows.length, valid_rows: validRows.length, invalid_rows: rows.length - validRows.length, jobId: execution.jobId, sourceHash: durableSourceHash } });
+      const { error: finishError } = await supabase.rpc('import_finish_job', { p_job_id: rec.id, p_status: 'completed', p_result_summary: { total_rows: rows.length, committed: validRows.length, invalidRows: rows.length - validRows.length, jobId: execution.jobId, sourceHash: durableSourceHash } });
       if (finishError) throw finishError;
       setResult({ total: rows.length, valid: validRows.length, invalid: rows.length - validRows.length, importId: rec.id, jobId: execution.jobId });
       setStep('done'); await loadHistory();
