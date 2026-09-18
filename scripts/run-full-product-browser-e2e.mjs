@@ -272,7 +272,9 @@ try {
     }
 
     if (result.auth === 'PASS') {
-      const primaryNav = await page.getByRole('navigation', { name: /^(تنقل نظام الأعمال|التنقل التجاري الرئيسي)$/ }).count();
+      const primaryNavLocator = page.getByRole('navigation', { name: /^(تنقل نظام الأعمال|التنقل التجاري الرئيسي)$/ });
+      await primaryNavLocator.waitFor({ state: 'visible', timeout: 15000 }).catch(() => {});
+      const primaryNav = await primaryNavLocator.count();
       addFinding(
         'E2E-AUTH-012',
         primaryNav ? 'PASS' : 'NOT_PROVEN',
