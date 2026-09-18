@@ -80,7 +80,7 @@ const navSections: NavSection[] = [
 
 const sectionIcon = (id: string) => {
   if (id === 'today') return <LayoutDashboard size={18}/>;
-  if (id === 'operations') return <BriefcaseBusiness size={18}/>;
+  if (id === 'operations') return <Activity size={18}/>;
   if (id === 'money') return <FileBarChart size={18}/>;
   if (id === 'customers-products') return <Package size={18}/>;
   if (id === 'intelligence') return <Brain size={18}/>;
