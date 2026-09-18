@@ -13,22 +13,22 @@ type Capability = {
 };
 
 const CAPABILITIES: Capability[] = [
-  { id: 'dashboard', title: 'Command Center & KPI Dashboard', description: 'Executive sales, cash, receivables, customers, products and business health.', path: '/', keywords: ['dashboard', 'kpi', 'executive', 'sales', 'cash', 'receivables', 'business health'] },
-  { id: 'import', title: 'Evidence-First Data Import', description: 'Import, validation, reconciliation and governed persistence.', path: '/import', keywords: ['import', 'excel', 'csv', 'upload', 'validation', 'reconciliation', 'etl'] },
-  { id: 'data-quality', title: 'Data Quality & Review', description: 'Review data gaps, validation issues and blocked records before acceptance.', path: '/data-quality', keywords: ['quality', 'review', 'duplicates', 'validation', 'quarantine'] },
-  { id: 'reports', title: 'Business Reporting', description: 'Sales, inventory, receivables, profitability and executive reporting.', path: '/reports', keywords: ['report', 'reporting', 'sales report', 'inventory report', 'finance'] },
-  { id: 'receivables', title: 'Receivables & Aging', description: 'Outstanding balances, aging buckets and collection-focused views.', path: '/reports/receivables', keywords: ['receivables', 'aging', 'collections', 'ar', 'debtor'] },
-  { id: 'profitability', title: 'Profitability Intelligence', description: 'Canonical sales, cost and gross-profit reporting with evidence context.', path: '/reports/profitability', keywords: ['profitability', 'margin', 'gross profit', 'cost', 'finance'] },
-  { id: 'inventory', title: 'Inventory Intelligence', description: 'Stock position, movement, low-stock and availability analysis.', path: '/reports/inventory-intelligence', keywords: ['inventory', 'stock', 'warehouse', 'availability', 'slow movers'] },
-  { id: 'demand', title: 'Demand & Forecasting', description: 'Demand velocity, forecasts and constrained planning views.', path: '/reports/demand-velocity', keywords: ['demand', 'forecast', 'forecasting', 'planning', 'seasonality'] },
-  { id: 'analytics', title: 'Customer & Portfolio Analytics', description: 'RFM, ABC and aging analysis for segmentation and prioritization.', path: '/analytics', keywords: ['analytics', 'rfm', 'abc', 'segmentation', 'customer value'] },
-  { id: 'intelligence', title: 'Decision Intelligence', description: 'Recommendations, forecasts and evidence-bound decision support.', path: '/intelligence', keywords: ['recommendations', 'decision', 'ai', 'decision intelligence'] },
-  { id: 'scenarios', title: 'Scenarios & What-If Analysis', description: 'Governed scenario views with explicit data/evidence boundaries.', path: '/intelligence/scenarios', keywords: ['scenario', 'what if', 'simulation', 'optimization'] },
-  { id: 'metrics', title: 'Metric Governance & Evidence', description: 'Metric definitions, canonical resolution and evidence lineage.', path: '/metrics', keywords: ['metrics', 'governance', 'evidence', 'provenance', 'definitions'] },
-  { id: 'customers', title: 'Customer Operations', description: 'Tenant-scoped customer search, pagination and creation.', path: '/customers', keywords: ['customers', 'crm', 'client', 'customer management'] },
-  { id: 'products', title: 'Product Operations', description: 'Tenant-scoped products, SKU search and governed creation.', path: '/products', keywords: ['products', 'sku', 'catalog', 'items'] },
-  { id: 'inventory-page', title: 'Operational Inventory', description: 'Operational stock table with availability and reorder states.', path: '/inventory', keywords: ['inventory operations', 'reorder', 'stock table'] },
-  { id: 'decision', title: 'Decision Experience', description: 'Evidence-led decision workflow and governed action surface.', path: '/decision-experience', keywords: ['decision experience', 'actions', 'approvals', 'workflow'] },
+  { id: 'dashboard', title: 'مركز القيادة ولوحة المؤشرات', description: 'المبيعات والسيولة والذمم والعملاء والمنتجات وصحة الأعمال في صورة تنفيذية واحدة.', path: '/', keywords: ['dashboard', 'kpi', 'executive', 'sales', 'cash', 'receivables', 'business health'] },
+  { id: 'import', title: 'استيراد بيانات قائم على الدليل', description: 'استيراد وتحقق ومطابقة وحفظ منضبط عبر المسار المعتمد.', path: '/import', keywords: ['import', 'excel', 'csv', 'upload', 'validation', 'reconciliation', 'etl'] },
+  { id: 'data-quality', title: 'جودة البيانات والمراجعة', description: 'مراجعة فجوات البيانات ومشكلات التحقق والسجلات المحجوبة قبل الاعتماد.', path: '/data-quality', keywords: ['quality', 'review', 'duplicates', 'validation', 'quarantine'] },
+  { id: 'reports', title: 'التقارير التجارية', description: 'تقارير المبيعات والمخزون والذمم والربحية والتقرير التنفيذي.', path: '/reports', keywords: ['report', 'reporting', 'sales report', 'inventory report', 'finance'] },
+  { id: 'receivables', title: 'الذمم والأعمار', description: 'الأرصدة المستحقة وتصنيف الأعمار وواجهات تركز على التحصيل.', path: '/reports/receivables', keywords: ['receivables', 'aging', 'collections', 'ar', 'debtor'] },
+  { id: 'profitability', title: 'ذكاء الربحية', description: 'تقارير المبيعات والتكلفة والربح الإجمالي من المصدر الكانوني مع سياق الدليل.', path: '/reports/profitability', keywords: ['profitability', 'margin', 'gross profit', 'cost', 'finance'] },
+  { id: 'inventory', title: 'ذكاء المخزون', description: 'موقف المخزون والحركة والأصناف منخفضة الرصيد وتحليل الإتاحة.', path: '/reports/inventory-intelligence', keywords: ['inventory', 'stock', 'warehouse', 'availability', 'slow movers'] },
+  { id: 'demand', title: 'الطلب والتنبؤ', description: 'سرعة الطلب والتنبؤات وواجهات التخطيط المقيدة بالبيانات.', path: '/reports/demand-velocity', keywords: ['demand', 'forecast', 'forecasting', 'planning', 'seasonality'] },
+  { id: 'analytics', title: 'تحليلات العملاء والمحفظة', description: 'تحليل RFM وABC والأعمار للتقسيم وتحديد الأولويات.', path: '/analytics', keywords: ['analytics', 'rfm', 'abc', 'segmentation', 'customer value'] },
+  { id: 'intelligence', title: 'ذكاء القرار', description: 'توصيات وتنبؤات ودعم قرار مرتبط بالدليل.', path: '/intelligence', keywords: ['recommendations', 'decision', 'ai', 'decision intelligence'] },
+  { id: 'scenarios', title: 'السيناريوهات وتحليل ماذا لو', description: 'واجهات سيناريو منضبطة مع حدود واضحة للبيانات والدليل.', path: '/intelligence/scenarios', keywords: ['scenario', 'what if', 'simulation', 'optimization'] },
+  { id: 'metrics', title: 'حوكمة المؤشرات والأدلة', description: 'تعريفات المؤشرات والحل الكانوني وسلسلة الدليل.', path: '/metrics', keywords: ['metrics', 'governance', 'evidence', 'provenance', 'definitions'] },
+  { id: 'customers', title: 'تشغيل العملاء', description: 'بحث العملاء وصفحاتهم وإنشاؤهم ضمن نطاق الشركة الحالية.', path: '/customers', keywords: ['customers', 'crm', 'client', 'customer management'] },
+  { id: 'products', title: 'تشغيل المنتجات', description: 'المنتجات والبحث برقم الصنف والإنشاء المنضبط ضمن نطاق الشركة.', path: '/products', keywords: ['products', 'sku', 'catalog', 'items'] },
+  { id: 'inventory-page', title: 'المخزون التشغيلي', description: 'جدول المخزون التشغيلي مع حالة الإتاحة وإعادة الطلب.', path: '/inventory', keywords: ['inventory operations', 'reorder', 'stock table'] },
+  { id: 'decision', title: 'تجربة القرار', description: 'مسار قرار قائم على الدليل وواجهة إجراءات منضبطة.', path: '/decision-experience', keywords: ['decision experience', 'actions', 'approvals', 'workflow'] },
 ];
 
 function scoreCapability(requirement: string, capability: Capability): number {
@@ -42,7 +42,7 @@ function scoreCapability(requirement: string, capability: Capability): number {
 }
 
 export function ProposalDemoPage() {
-  const [jobTitle, setالوظيفةTitle] = useState('Business Intelligence / Data Analytics Project');
+  const [jobTitle, setJobTitle] = useState('Business Intelligence / Data Analytics Project');
   const [client, setClient] = useState('Prospective Client');
   const [requirements, setRequirements] = useState('Dashboard with sales and financial KPIs\nExcel/CSV import and validation\nReceivables and aging analysis\nInventory and demand forecasting\nRecommendations and decision support');
 
@@ -70,7 +70,7 @@ export function ProposalDemoPage() {
         <Card>
           <CardHeader title="سياق الوظيفة" subtitle="اكتب المتطلبات الفعلية، ثم اعرض المطابقة قبل فتح العرض الحي." />
           <CardBody className="space-y-4">
-            <div><label htmlFor="proposal-demo-title" className="mb-1 block text-xs font-medium text-ink-700">عنوان الوظيفة</label><input id="proposal-demo-title" value={jobTitle} onChange={event => setالوظيفةTitle(event.target.value)} className="input w-full" /></div>
+            <div><label htmlFor="proposal-demo-title" className="mb-1 block text-xs font-medium text-ink-700">عنوان الوظيفة</label><input id="proposal-demo-title" value={jobTitle} onChange={event => setJobTitle(event.target.value)} className="input w-full" /></div>
             <div><label htmlFor="proposal-demo-client" className="mb-1 block text-xs font-medium text-ink-700">اسم العميل / السياق</label><input id="proposal-demo-client" value={client} onChange={event => setClient(event.target.value)} className="input w-full" /></div>
             <div><label htmlFor="proposal-demo-requirements" className="mb-1 block text-xs font-medium text-ink-700">متطلبات الوظيفة — سطر لكل مطلب</label><textarea id="proposal-demo-requirements" value={requirements} onChange={event => setRequirements(event.target.value)} className="input min-h-64 w-full resize-y" /></div>
           </CardBody>
