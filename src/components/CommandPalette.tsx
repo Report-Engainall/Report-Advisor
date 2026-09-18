@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { ArrowRight, Command, Search } from 'lucide-react';
 
 type CommandItem = {
@@ -54,16 +54,54 @@ const RECENT_LIMIT = 5;
 
 export function CommandPalette({ open, onClose }: CommandPaletteProps) {
   const navigate = useNavigate();
+  const location = useLocation();
   const inputRef = useRef<HTMLInputElement>(null);
   const [query, setQuery] = useState('');
   const [active, setActive] = useState(0);
   const [recentPaths, setRecentPaths] = useState<string[]>([]);
-  const recentCommands = useMemo(() => recentPaths.map(path => COMMANDS.find(item => item.path === path)).filter((item): item is CommandItem => Boolean(item)), [recentPaths]);
+
+  const recentCommands = useMemo(
+    () => recentPaths.map(path => COMMANDS.find(item => item.path === path)).filter((item): item is CommandItem => Boolean(item)),
+    [recentPaths],
+  );
+
+  const contextScore = useCallback((path: string) => {
+    const current = location.pathname;
+    if (path === current) return 100;
+    if (path !== '/' && current.startsWith(path)) return 80;
+    const currentRoot = current.split('/').filter(Boolean)[0];
+    const itemRoot = path.split('/').filter(Boolean)[0];
+    if (currentRoot && currentRoot === itemRoot) return 45;
+    return 0;
+  }, [location.pathname]);
+
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return [...recentCommands, ...COMMANDS.filter(item => !recentPaths.includes(item.path))];
-    return COMMANDS.filter(item => [item.label, item.description, ...item.keywords].join(' ').toLowerCase().includes(q));
-  }, [query, recentCommands, recentPaths]);
+
+    const matches = COMMANDS.filter(item =>
+      !q || [item.label, item.description, ...item.keywords].join(' ').toLowerCase().includes(q),
+    );
+
+    return [...matches].sort((a, b) => {
+      if (!q) {
+        const recentDelta = Number(recentPaths.includes(b.path)) - Number(recentPaths.includes(a.path));
+        if (recentDelta !== 0) return recentDelta;
+      }
+
+      const contextDelta = contextScore(b.path) - contextScore(a.path);
+      if (contextDelta !== 0) return contextDelta;
+
+      if (q) {
+        const aLabel = a.label.toLowerCase();
+        const bLabel = b.label.toLowerCase();
+        const aPrefix = Number(aLabel.startsWith(q));
+        const bPrefix = Number(bLabel.startsWith(q));
+        if (aPrefix !== bPrefix) return bPrefix - aPrefix;
+      }
+
+      return a.label.localeCompare(b.label, 'ar');
+    });
+  }, [contextScore, query, recentPaths]);
   const openCommand = useCallback((item: CommandItem) => {
     const next = [item.path, ...recentPaths.filter(path => path !== item.path)].slice(0, RECENT_LIMIT);
     setRecentPaths(next);
@@ -99,7 +137,52 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
       <button className="absolute inset-0 cursor-default" aria-label="إغلاق" onClick={onClose} />
       <div className="relative w-full max-w-2xl overflow-hidden rounded-2xl border border-ink-200 bg-white shadow-2xl" dir="rtl">
         <div className="flex items-center gap-3 border-b border-ink-100 px-4 py-3"><Search size={19} className="text-ink-400" /><input ref={inputRef} value={query} onChange={event => { setQuery(event.target.value); setActive(0); }} placeholder="ابحث عن صفحة أو إجراء..." className="min-w-0 flex-1 bg-transparent text-sm text-ink-900 outline-none placeholder:text-ink-400" /><kbd className="hidden rounded-md border border-ink-200 bg-ink-50 px-2 py-1 text-[10px] text-ink-400 sm:inline-flex">Esc</kbd></div>
-        <div className="max-h-[55vh] overflow-y-auto p-2">{!query.trim() && recentCommands.length > 0 && <div className="px-3 pb-2 pt-1 text-[10px] font-bold uppercase tracking-wide text-ink-400">الوصول السريع</div>}{filtered.length === 0 ? <div className="px-4 py-10 text-center text-sm text-ink-400">لا توجد نتائج مطابقة</div> : filtered.map((item, index) => <button key={item.path} type="button" onMouseEnter={() => setActive(index)} onClick={() => openCommand(item)} className={`flex w-full items-center gap-3 rounded-xl px-3 py-3 text-right transition ${index === active ? 'bg-primary-50 text-primary-900' : 'hover:bg-ink-50'}`}><span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${index === active ? 'bg-primary-100 text-primary-700' : 'bg-ink-100 text-ink-500'}`}><Command size={17} /></span><span className="min-w-0 flex-1"><span className="block text-sm font-semibold">{item.label}</span><span className="block truncate text-xs text-ink-400">{item.description}</span></span>{index === active && <ArrowRight size={16} className="shrink-0 text-primary-500" />}</button>)}</div>
+        <div className="max-h-[55vh] overflow-y-auto p-2">
+          {!query.trim() && recentCommands.length > 0 && (
+            <div className="mb-2">
+              <div className="px-3 pb-2 pt-1 text-[10px] font-bold uppercase tracking-wide text-ink-400">الوصول السريع</div>
+              <div className="rounded-xl border border-primary-100 bg-primary-50/50 p-1">
+                {recentCommands.map((item) => {
+                  const index = filtered.findIndex(row => row.path === item.path);
+                  return (
+                    <button key={item.path} type="button" onMouseEnter={() => setActive(Math.max(index, 0))} onClick={() => openCommand(item)}
+                      className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-right text-primary-900 transition hover:bg-white">
+                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white text-primary-700"><Command size={15}/></span>
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate text-sm font-semibold">{item.label}</span>
+                        <span className="block truncate text-[11px] text-primary-700/65">{item.description}</span>
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+          {!query.trim() && (
+            <div className="px-3 pb-2 pt-2 text-[10px] font-bold uppercase tracking-wide text-ink-400">مرتبط بما تعمل عليه الآن</div>
+          )}
+          {filtered.length === 0 ? (
+            <div className="px-4 py-10 text-center text-sm text-ink-400">لا توجد نتائج مطابقة</div>
+          ) : (
+            filtered.map((item, index) => {
+              const isCurrent = contextScore(item.path) >= 45;
+              return (
+                <button key={item.path} type="button" onMouseEnter={() => setActive(index)} onClick={() => openCommand(item)}
+                  className={`flex w-full items-center gap-3 rounded-xl px-3 py-3 text-right transition ${index === active ? 'bg-primary-50 text-primary-900' : 'hover:bg-ink-50'}`}>
+                  <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${index === active ? 'bg-primary-100 text-primary-700' : 'bg-ink-100 text-ink-500'}`}><Command size={17}/></span>
+                  <span className="min-w-0 flex-1">
+                    <span className="flex items-center gap-2">
+                      <span className="block truncate text-sm font-semibold">{item.label}</span>
+                      {!query.trim() && isCurrent && <span className="rounded-full bg-primary-50 px-2 py-0.5 text-[9px] font-bold text-primary-700">في هذه المساحة</span>}
+                    </span>
+                    <span className="block truncate text-xs text-ink-400">{item.description}</span>
+                  </span>
+                  {index === active && <ArrowRight size={16} className="shrink-0 text-primary-500" />}
+                </button>
+              );
+            })
+          )}
+        </div>
         <div className="flex flex-wrap items-center gap-3 border-t border-ink-100 bg-ink-50/70 px-4 py-2 text-[11px] text-ink-400"><span>↑↓ للتنقل</span><span>Enter للفتح</span><span>Esc للإغلاق</span></div>
       </div>
     </div>
