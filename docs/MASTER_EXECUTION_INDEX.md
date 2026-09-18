@@ -5,7 +5,7 @@
 > هذا القسم هو حالة العمل الحالية فقط. السجل التاريخي محفوظ أدناه ولا يُعاد منه اعتماد أي Evidence عبر حدود Exact HEAD. لا يوجد تنفيذ برمجي جديد ضمن هذه المزامنة؛ هذه الموجة توثيق/تقسيم ملكية فقط.
 
 ### CURRENT EXACT HEAD / DEPLOYED STATE
-- **Current code/test HEAD:** `c11c084d161cceb4595f8552b6c49c3f610f0ec2` (last code change).
+- **Current code/test candidate:** `2d9808ae876c31ba790da5df5ae1d52edb660b1e` (latest UI code/test head; this documentation sync is governance-only).
 - **Current repository HEAD:** `913de96f068cbcc4cc59de7a4368313fe12dcd23` (documentation-only sync; no product/runtime code mutation).
 - **Netlify Production:** `ready` ومربوط بنفس الـHEAD؛ Build `npm run build` نجح، وSPA redirect نجح.
 - **Completed UI wave:** Application Shell + RTL visual system + Dashboard + Login + Work Center + Import framing + Reports Center. هذه الأسطح تُعامل الآن كـ**منجزة مصدرًا** ولا تُعاد كمهام تصميمية أساسية.
