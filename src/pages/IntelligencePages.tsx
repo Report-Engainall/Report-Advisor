@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { ArrowLeft, Brain, CheckCircle2, RefreshCw, TrendingUp, XCircle } from 'lucide-react';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { EmptyState, ErrorState, LoadingState } from '@/components/ui/States';
@@ -50,7 +51,7 @@ export function RecommendationsPage() {
           <button type="button" onClick={() => setFilter('all')} className={`rounded-xl px-3 py-2 text-xs font-semibold ${filter === 'all' ? 'bg-white text-ink-900' : 'border border-ink-700 text-ink-200'}`}>الكل ({items.length})</button>
           <button type="button" onClick={() => setFilter('new')} className={`rounded-xl px-3 py-2 text-xs font-semibold ${filter === 'new' ? 'bg-white text-ink-900' : 'border border-ink-700 text-ink-200'}`}>جديدة ({items.filter(item => item.status === 'new').length})</button>
           <button type="button" onClick={() => setFilter('accepted')} className={`rounded-xl px-3 py-2 text-xs font-semibold ${filter === 'accepted' ? 'bg-white text-ink-900' : 'border border-ink-700 text-ink-200'}`}>مقبولة ({items.filter(item => item.status === 'accepted').length})</button>
-          <button type="button" onClick={() => setFilter('rejected')} className={`rounded-xl px-3 py-2 text-xs font-semibold ${filter === 'rejected' ? 'bg-white text-ink-900' : 'border border-ink-700 text-ink-200'}`}>مرفوضة ({items.filter(item => item.status === 'rejected' ? true : false).length})</button>
+          <button type="button" onClick={() => setFilter('rejected')} className={`rounded-xl px-3 py-2 text-xs font-semibold ${filter === 'rejected' ? 'bg-white text-ink-900' : 'border border-ink-700 text-ink-200'}`}>مرفوضة ({items.filter(item => item.status === 'rejected').length})</button>
           <button type="button" onClick={() => void load()} className="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2 text-sm font-semibold text-ink-900"><RefreshCw size={16}/> تحديث</button>
         </div>
       </div>
