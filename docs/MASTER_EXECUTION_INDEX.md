@@ -38,6 +38,17 @@
 - Exact-head UI verification on PC01: typecheck PASS, production build PASS, performance budget PASS (critical 890.7KB/900KB; largest JS 488KB/600KB), route/sidebar parity PASS (34 routes/33 sidebar links), executive dashboard UI contract PASS, inventory intelligence UI contract PASS, demand velocity contract PASS, lint PASS with 0 errors / 62 existing warnings.
 - Browser visual/console E2E is not claimed from this environment; TinyFish live automation remains externally blocked. Runtime certification remains owned by Engineering and fail-closed.
 
+### COMMERCIAL / MARKET LEADERSHIP GOVERNANCE — 2026-09-18
+- Added `docs/COMPETITIVE-ADVANTAGE-OPERATING-SYSTEM-20260918.md` as the governing commercial/product strategy layer.
+- Added `docs/UPWORK-MARKET-REQUIREMENTS-20260918.md` with 45 market-to-product requirements.
+- Added `docs/UPWORK-BID-ENGINE-20260918.md` defining the Evidence-First commercial control plane: DISCOVER → SCREEN → FIT-MAP → PROOF-MAP → GAP-MAP → OFFER → DEMO → PROPOSAL → FOLLOW-UP → INTERVIEW → DELIVERY → OUTCOME → PORTFOLIO → LEARNING.
+- Competitive product completion is now governed by five planes: Trust, Decision, Operations, Commercial, Learning.
+- Added Product Value Gate, Evidence Passport, Client Proof Room, Commercial Proof Packs, Vertical Playbooks, Outcome Ledger, competitive moat rules, and anti-noise rules.
+- Market signal does not automatically become a feature. Repeated/high-value gaps must pass Product Value Gate and preserve architecture/evidence discipline.
+- `/proposal-demo` was upgraded from simple capability keyword matching to Proof-to-Proposal: proof-state labeling, commercial angles, Proof Gaps, proposal coverage, claim-safe draft generation, and clipboard export. This is a product surface, not certification evidence.
+- Added exact executable UI contract: `test:proposal-demo-commercial-proof`. Documentation does not advance certification.
+- Commercial claims remain fail-closed: PROVEN / DEMO / PARTIAL / BLOCKED; no proposal may exceed the latest verified Evidence Passport state.
+
 ### LATEST PRODUCT REQUIREMENTS EVOLUTION — 2026-09-18
 - The canonical master product reference now defines Report Advisor as an Evidence-First Decision Operating System rather than a dashboard-first product.
 - New strategic requirement families: Evidence Passport, Data Trust Center, What Changed, Decision Control Tower, Counterfactual/Scenario Lab, Outcome & ROI Ledger, Semantic Metric Studio, Agent Control Room, Commercial Playbooks, Profit Leak Radar, Supplier Risk Cockpit, Assortment & Cash Simulator, Merchant Memory, Continuous Reconciliation, Data Contract Autopilot, Embedded Intelligence, Proposal Demo Mode and Product Value Gate.
