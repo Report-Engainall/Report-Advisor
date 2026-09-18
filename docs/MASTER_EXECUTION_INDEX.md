@@ -12,6 +12,14 @@
 - Fresh exact-head CI/runtime evidence is required after the new worker-authority migration and terminal-writer correction. Any queued/pending workflow execution is evidence preparation only, not PASS.
 - Vercel reports the current Main deployment path as externally blocked by the provider build-rate limit; no production deployment is claimed from that status.
 
+### VERIFIED STAGING DEPLOYMENT STATE — 2026-09-18
+- Forward-only worker service-authority migration is now applied to Staging as database migration `20260918043413_reconcile_report_execution_worker_service_authority`.
+- Transaction-only probe had already proven `service_role` can claim and advance a real stuck durable job; the persistent migration preserves the same tenant/job/lease fencing.
+- Vercel Preview deployment `dpl_6ST8hwy3wEXwqgLdEzXCcugT7Htd` is READY for PR #542 at server-boundary commit `b55fd48106fbda2fc14facd67756961f3307b20c`. It is preview-only and is not production evidence/certification.
+- Browser automation against that preview was blocked at the Vercel authentication portal because no Vercel browser session was available; no credentials, JWT, or bypass was fabricated.
+- Current exact candidate `6e678c462aa871b8483887092fc00c6ded820a60` still requires fresh exact-head runtime evidence.
+- External Vercel status remains `build-rate-limit`; this is tracked as an external provider blocker, not a code PASS.
+
 ### ACTIVE RUNTIME FINDINGS — 2026-09-18
 - Staging real-data observation: canonical import jobs with lease owner `canonical-import-ui:*` reached `decisioned`; corresponding `canonical_import_commits` rows prove real DB commit (`committed_count=1`).
 - Staging worker RPC definitions required `auth.uid()` even though the intended current server execution boundary uses `service_role`; this creates an authority mismatch for service-side checkpoint/failure transitions.
