@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import {
   AlertTriangle,
   Camera,
@@ -9,7 +10,7 @@ import {
   ShieldCheck,
 } from 'lucide-react';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
-import { EmptyState, ErrorState, LoadingState, PageHeader } from '@/components/ui/States';
+import { EmptyState, ErrorState, LoadingState, PageHeader, TruthRail } from '@/components/ui/States';
 import {
   listSemanticMetricContracts,
   semanticMetricIsFresh,
@@ -43,6 +44,8 @@ export function MetricInspectorPage() {
   const [selected, setSelected] = useState<SemanticMetricContract | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [params] = useSearchParams();
+  const requestedMetric = params.get('metric');
   const [capture, setCapture] = useState<KpiEvidenceSnapshot | null>(null);
   const [captureError, setCaptureError] = useState<string | null>(null);
   const [capturing, setCapturing] = useState(false);
@@ -54,6 +57,8 @@ export function MetricInspectorPage() {
       const result = await listSemanticMetricContracts();
       setItems(result);
       setSelected((current) => {
+        const requested = requestedMetric ? result.find(item => item.definition.metricId === requestedMetric || item.definition.key === requestedMetric) : null;
+        if (requested) return requested;
         if (!current) return result[0] ?? null;
         return result.find((item) => item.definition.metricId === current.definition.metricId) ?? result[0] ?? null;
       });
@@ -62,7 +67,7 @@ export function MetricInspectorPage() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [requestedMetric]);
 
   useEffect(() => {
     void load();
@@ -108,6 +113,7 @@ export function MetricInspectorPage() {
         title="حوكمة المؤشرات"
         subtitle="تعريف المؤشر، نسخته، مصدره، الأدلة، والجهات المستهلكة من عقد موحد"
       />
+      <TruthRail status={freshness === 'FRESH' ? 'live' : freshness === 'STALE' ? 'review' : 'limited'} period={selected ? `المؤشر المحدد · ${selected.definition.metricId}` : `${items.length} مؤشرات`} />
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[320px_1fr]">
         <Card>

@@ -84,3 +84,48 @@ TRUE STOP additionally requires no high-value actionable work, no safe parallel 
 | VERSION | DATE | TRIGGER | RCA | NEW RULE / CHANGE | OLD LIMITATION | TEST | RESULT |
 |---|---|---|---|---|---|---|---|
 | v4.0 | 2026-09-02 | v3.2 improved throughput but lacked explicit strategy-performance feedback and controlled layer separation | Execution could improve without measuring why; activity could be mistaken for progress | Add performance ledger, effectiveness, under/over-execution detection, command feedback, precedence, strategy memory, smart prioritization, controlled evolution, and governance truth invariants | v3.2 enforced execution behavior but did not formally govern strategy quality or explicitly bind all governance truth invariants | Governance contract + adversarial anchor tests + exact-SHA/index-only boundary attacks | IN-PROGRESS until fresh exact-head CI is consumed |
+
+
+---
+
+## Product Value Governance Extension — 2026-09-18
+
+Execution quality is not sufficient when the resulting feature is technically correct but commercially weak.
+
+Add Product Value to release-relevant progress:
+VERIFIED CLOSURE + EVIDENCE + CERTIFICATION UNLOCK + CUSTOMER VALUE + COMMERCIAL PROOF.
+
+Record a PRODUCT UNDER-EXECUTION event when:
+- a decision-critical workflow is reduced to presentation-only UI;
+- a product surface has no path to evidence/action/outcome;
+- a premium capability lacks a customer-value proof path;
+- a known high-value adjacent capability is skipped while cosmetic work continues.
+
+Record a PRODUCT LOW-VALUE event when:
+- work adds screens/components without changing a customer outcome;
+- duplicated dashboard/report variants are created without a new decision capability;
+- visual polish is repeated after the current acceptance gate already passes.
+
+### Product Value Gate
+
+Before declaring a major product wave complete:
+1. identify the customer problem;
+2. identify the business outcome;
+3. prove the canonical data boundary;
+4. define the action/decision boundary;
+5. define the evidence boundary;
+6. define the outcome boundary;
+7. implement the user path;
+8. test it;
+9. prove exact-head evidence;
+10. record commercial demonstration readiness.
+
+### Strategic prioritization
+
+Prefer HIGH CUSTOMER VALUE + HIGH DIFFERENTIATION + LOW DEPENDENCY + VERIFIABLE EVIDENCE.
+
+Defer HIGH COMPLEXITY + LOW DIFFERENTIATION + LOW OUTCOME VALUE.
+
+### Evolution loop
+
+MARKET SIGNAL → PRODUCT HYPOTHESIS → REQUIREMENT → IMPLEMENTATION → EXACT-HEAD VERIFICATION → CUSTOMER DEMO PROOF → ACCEPT/DEFER → MEMORY.

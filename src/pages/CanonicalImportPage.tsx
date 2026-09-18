@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Upload, FileSpreadsheet, FileText, FileImage, FileType, Database, CheckCircle2, XCircle, AlertCircle, AlertTriangle, ShieldCheck, Loader2, ArrowLeft, LockKeyhole, FileCheck2, RefreshCw } from 'lucide-react';
 import { Card, CardHeader, CardBody } from '@/components/ui/Card';
 import { Badge, StatusBadge } from '@/components/ui/Badge';
-import { PageHeader, LoadingState, EmptyState } from '@/components/ui/States';
+import { PageHeader, LoadingState, EmptyState, TruthRail } from '@/components/ui/States';
 import { DataTable } from '@/components/ui/DataTable';
 import { fetchImportRecords, createImportRecord } from '@/lib/queries';
 import { supabase, resolveCurrentCompanyId } from '@/lib/supabase';
@@ -186,8 +186,9 @@ export function CanonicalImportPage() {
   const qualityVariant = quality >= 75 ? 'success' : quality >= 50 ? 'warning' : 'danger';
   const ready = Boolean(file && fileHash && securityPassed && !duplicate && valid > 0 && (quality >= 75 || (quality >= 50 && quality < 75 && qualityApproved)));
 
-  return <div className="space-y-5 animate-fade-in">
+  return <div dir="rtl" className="space-y-5 animate-fade-in">
     <PageHeader title="مركز الاستيراد" subtitle="مسار موحد: فحص أمني → تحليل → مطابقة → مراجعة → كتابة قانونية في البيانات الأساسية" />
+    <TruthRail status={step === 'done' ? 'live' : error ? 'review' : step === 'upload' ? 'limited' : 'review'} period={file ? `المصدر الحالي · ${file.name}` : 'بانتظار المصدر'} />
     <Stepper step={step} />
 
     {step === 'upload' && <Card><CardBody>
@@ -196,7 +197,7 @@ export function CanonicalImportPage() {
         <Badge variant="neutral"><LockKeyhole size={13}/> عزل الحساب مفعل</Badge>
       </div>
       <div className="mb-5"><label className="block text-sm font-medium text-ink-700 mb-2">ما الذي ستستورده؟</label><div className="grid grid-cols-1 md:grid-cols-3 gap-3">{ENTITIES.map(e => <button type="button" key={e.value} onClick={() => setEntityType(e.value)} className={`p-4 rounded-xl border-2 text-right transition-all ${entityType === e.value ? 'border-primary-500 bg-primary-50/60 shadow-sm' : 'border-ink-100 hover:border-ink-200'}`}><div className="flex items-center justify-between"><Database size={18}/>{entityType === e.value && <CheckCircle2 size={17}/>}</div><div className="text-sm font-semibold mt-3">{e.label}</div><div className="text-xs text-ink-400 mt-1">{e.description}</div></button>)}</div></div>
-      <div onClick={() => inputRef.current?.click()} className="border-2 border-dashed rounded-2xl p-10 text-center cursor-pointer hover:border-primary-400 hover:bg-primary-50/20 transition-colors"><input ref={inputRef} type="file" className="hidden" accept=".xlsx,.xls,.xlsm,.csv,.tsv,.ods,.json,.jsonl,.xml,.txt,.md,.pdf,.docx,.jpg,.jpeg,.png,.webp,.tiff,.bmp" onChange={e => { const f=e.target.files?.[0]; if(f) void handleFile(f); }} /><Upload className="mx-auto text-primary-500 mb-3" size={30}/><h3 className="font-semibold">اختر ملفًا أو اسحبه إلى هنا</h3><p className="text-sm text-ink-500 mt-1">Excel، CSV، JSON، PDF، Word والصور</p><p className="text-xs text-ink-300 mt-3">الحد الأقصى: {MAX_FILE_SIZE / 1024 / 1024} MB</p></div>
+      <div role="button" tabIndex={0} aria-label="اختيار ملف للاستيراد" onKeyDown={e => { if ((e.key === 'Enter' || e.key === ' ') && !loadingHistory) { e.preventDefault(); inputRef.current?.click(); } }} onClick={() => inputRef.current?.click()} className="border-2 border-dashed rounded-2xl p-10 text-center cursor-pointer hover:border-primary-400 hover:bg-primary-50/20 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"><input ref={inputRef} type="file" className="hidden" accept=".xlsx,.xls,.xlsm,.csv,.tsv,.ods,.json,.jsonl,.xml,.txt,.md,.pdf,.docx,.jpg,.jpeg,.png,.webp,.tiff,.bmp" onChange={e => { const f=e.target.files?.[0]; if(f) void handleFile(f); }} /><Upload className="mx-auto text-primary-500 mb-3" size={30}/><h3 className="font-semibold">اختر ملفًا أو اسحبه إلى هنا</h3><p className="text-sm text-ink-500 mt-1">Excel، CSV، JSON، PDF، Word والصور</p><p className="text-xs text-ink-300 mt-3">الحد الأقصى: {MAX_FILE_SIZE / 1024 / 1024} MB</p></div>
       {error && <div className="mt-4 p-3 rounded-lg bg-danger-50 text-danger-700 text-sm flex gap-2"><AlertCircle size={16}/>{error}</div>}
     </CardBody></Card>}
 

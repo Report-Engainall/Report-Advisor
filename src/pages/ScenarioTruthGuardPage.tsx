@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { AlertTriangle } from 'lucide-react';
 import { Card, CardBody } from '@/components/ui/Card';
-import { LoadingState, PageHeader } from '@/components/ui/States';
+import { LoadingState, PageHeader, TruthRail } from '@/components/ui/States';
 import { fetchProfitabilitySnapshot } from '@/lib/dashboard-canonical';
 import { CanonicalScenarioPage } from '@/pages/CanonicalScenarioPage';
 
@@ -48,8 +48,9 @@ export function ScenarioTruthGuardPage() {
   }
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div dir="rtl" className="space-y-6 animate-fade-in">
       <PageHeader title="محاكاة السيناريوهات" subtitle="تم إيقاف المحاكاة مؤقتًا لحماية الحقيقة المالية" />
+      <TruthRail status="limited" period="FINANCIAL_TRUTH_INSUFFICIENT_DATA" />
       <Card>
         <CardBody>
           <div className="flex items-start gap-4 rounded-xl border border-warning-200 bg-warning-50 p-5" role="alert">

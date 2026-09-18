@@ -3,6 +3,7 @@
 > تحديث تنفيذي بعد أمر المالك «انطلق». هذا القسم يصف الحالة المثبتة من الأدوات فقط. لا يتم نقل Evidence بين SHAs، ولا تُعد الحالة PASS إلا بدليل Exact-HEAD.
 
 ### CURRENT EXACT HEAD / DEPLOYED STATE
+- **Current code/test candidate:** `449e81d5` (`feat(ui): add selective competitive track lens to proposal demo` + commercial-proof contract extension). This is the latest verified code/test head; any subsequent documentation commit is governance-only.
 - **Reference product/runtime code HEAD:** `c11c084d161cceb4595f8552b6c49c3f610f0ec2`; current `main` also carries the forward-only security/source-parity migrations merged afterward.
 - **Current main:** `7d6bca3c02416c9b6c877e82115eb9961f635a47`; this includes the forward-only security/source-parity merge `64c870426...` plus the closure-ledger docs sync. Product feature code remains anchored to the earlier runtime code reference until PR #587 is accepted.
 - **Netlify Production:** latest verified production deploy `6aacfe23cc817a00089dce5c` = `ready`, branch `main`, but still points to commit `ad12e9e564f85ffde8bb29daa6e41e73ca969b92`, which predates current `main`. Public access remains verified without Netlify SSO/password. Connector-side redeploy requires a source/repo execution environment.
@@ -28,6 +29,69 @@
 - Verified `import_field_lineage` authenticated policy is explicit restrictive deny; Security Advisor targeted findings remain clear.
 - PR #590 source migrations are merged into `main` at `64c870426b75de7726e0f60321d580074bb76fa9`; staging verification is clean for import-row integrity and worker RPC authority.
 - Product development PR #587 type error is repaired at `dfdc662...`; a fresh shared-harness login regression was then fixed at `182f0983...` and `3c4bb990...`. Fresh workflows on `3c4bb990...` remain authoritative and pending.
+
+### LATEST UI / PRODUCT-EXPERIENCE UPDATE — 2026-09-18
+- UI code/test head: `ce9885eb153dd6a1f1d02e2aa48c114d383f0182`.
+- Implemented tenant/user-scoped browser Saved Views for customers, products, inventory, demand velocity, and inventory intelligence using existing tenant resolution only; no backend contract added.
+- Dashboard KPI drill-down now exposes separate operational and metric-evidence links; recommendations open Decision Experience directly at the selected Evidence stage using the existing recommendation identifier.
+- Added shared accessibility hardening for header/sidebar/command palette/loading/error states, keyboard-accessible file selection, and responsive creation dialogs.
+- Exact-head UI verification on PC01: typecheck PASS, production build PASS, performance budget PASS (critical 890.7KB/900KB; largest JS 488KB/600KB), route/sidebar parity PASS (34 routes/33 sidebar links), executive dashboard UI contract PASS, inventory intelligence UI contract PASS, demand velocity contract PASS, lint PASS with 0 errors / 62 existing warnings.
+- Browser visual/console E2E is not claimed from this environment; TinyFish live automation remains externally blocked. Runtime certification remains owned by Engineering and fail-closed.
+
+### COMMERCIAL / MARKET LEADERSHIP GOVERNANCE — 2026-09-18
+- **Exact commercial UI code proof:** `df39810a8a172cb7c66377d2fed84a0edeb081ff` verified on PC01: typecheck PASS; Proposal Demo commercial-proof contract PASS (16 capabilities); production build PASS; performance budget PASS (critical 890.9KB/900KB, largest JS 488KB/600KB); lint PASS with 0 errors / 62 warnings.
+- **Market validation snapshot (external, current):** recent Upwork listings show live demand for Supabase/RLS tenant-isolation reviews, SQL/BI dashboards, Excel/CSV→PostgreSQL import automation, and Arabic RTL SaaS work. These are validation signals for the selective tracks, not evidence that the product must add those features. 
+- Added `docs/COMPETITIVE-ADVANTAGE-OPERATING-SYSTEM-20260918.md` as the governing commercial/product strategy layer.
+- Added `docs/UPWORK-MARKET-REQUIREMENTS-20260918.md` with 45 market-to-product requirements.
+- Added `docs/UPWORK-BID-ENGINE-20260918.md` defining the Evidence-First commercial control plane: DISCOVER → SCREEN → FIT-MAP → PROOF-MAP → GAP-MAP → OFFER → DEMO → PROPOSAL → FOLLOW-UP → INTERVIEW → DELIVERY → OUTCOME → PORTFOLIO → LEARNING.
+- Competitive product completion is now governed by five planes: Trust, Decision, Operations, Commercial, Learning.
+- Added Product Value Gate, Evidence Passport, Client Proof Room, Commercial Proof Packs, Vertical Playbooks, Outcome Ledger, competitive moat rules, and anti-noise rules.
+- Market signal does not automatically become a feature. Repeated/high-value gaps must pass Product Value Gate and preserve architecture/evidence discipline.
+- `/proposal-demo` was upgraded from simple capability keyword matching to Proof-to-Proposal: proof-state labeling, commercial angles, Proof Gaps, proposal coverage, claim-safe draft generation, and clipboard export. This is a product surface, not certification evidence.
+- Added exact executable UI contract: `test:proposal-demo-commercial-proof`. Documentation does not advance certification.
+- Commercial claims remain fail-closed: PROVEN / DEMO / PARTIAL / BLOCKED; no proposal may exceed the latest verified Evidence Passport state.
+
+### STRATEGIC PRODUCT / MARKET POSITIONING — 2026-09-18
+- Report-Advisor remains an Evidence-First Decision Operating System; dashboard/UI polish is subordinate to truth, decision value, and operational proof.
+- The market/Upwork material is **reference intelligence, not a Core Product Backlog**.
+- The approved competitive focus is five selective tracks documented in `docs/SELECTIVE-COMPETITIVE-TRACKS-20260918.md`: Evidence-First BI / Executive Reporting; Supabase Multi-Tenant Security / RLS Remediation; Excel/CSV → Governed Data Pipeline; Arabic RTL B2B Operations UX; Inventory / Receivables Decision Workspace.
+- `docs/UPWORK-MARKET-REQUIREMENTS-20260918.md` contains external-market signals only. It must not be interpreted as 45 mandatory features.
+- `docs/UPWORK-BID-ENGINE-20260918.md` is a commercial operating procedure, not product architecture.
+- Product expansion rule: market signal → candidate → Product Value Gate → approved product work. No feature is added merely because an Upwork listing mentions it.
+- Commercial competition is won through narrow specialization, current proof, fast demo-to-result, disciplined scope, and claim-safe delivery—not by maximizing feature count.
+- Existing completion states remain TECHNICALLY_COMPLETE → PRODUCT_COMPLETE → COMMERCIAL_READY → CERTIFIED. Documentation does not advance capability state.
+- Runtime/certification blockers remain higher priority than speculative commercial expansion.
+- **Canonical unified requirements register:** `docs/MASTER_REQUIREMENTS_CATALOG.md` is now the single consolidated requirements view. It merges legacy/current execution tables, UI/product requirements, runtime/certification requirements, historical hardening requirements, commercial governance, and MARKET_SIGNAL entries without deleting the original source/archive documents or transferring evidence.
+### OWNER-APPROVED COMPETITIVE PRODUCT WEDGE — 2026-09-18
+- **Owner decision:** اعتمد المالك استراتيجية «الميزات الضيقة القوية» كقاعدة دائمة لتموضع Report-Advisor التجاري والتطويري.
+- Report-Advisor لا يطارد حجم المنصات الكبرى ولا يسعى إلى جمع أكبر عدد من الميزات؛ التنافس يكون داخل وظائف محددة يمكن إثباتها بعمق وبـ Exact Evidence وUX قوي وتسليم منضبط.
+- **Core positioning:** Evidence-First Decision Operating System — تحويل البيانات والملفات إلى حقيقة أعمال قابلة للتتبع، ثم إلى قرار تشغيلي قابل للإثبات.
+- **Approved selective wedges (5 فقط كمسارات تنافسية):**
+  1. Evidence-First BI / Executive Reporting — KPI وتقارير قابلة لتتبع المصدر والصيغة والفترة والـtenant والـas-of والـfreshness والدليل.
+  2. Supabase Multi-Tenant Security / RLS Remediation — عزل المستأجرين وRLS/Auth/Grants/Storage مع إثبات عملي، وليس scanner أمنيًا عامًا.
+  3. Excel/CSV → Governed Data Pipeline — Source → Extraction/Normalization → Validation → Canonical Data → KPI/Report، وليس منصة ETL عامة.
+  4. Arabic RTL B2B Operations UX — Arabic-first + RTL + mobile + low-bandwidth + accessibility داخل workflows حقيقية، وليس design system منفصلًا.
+  5. Inventory / Receivables Decision Workspace — signal → explanation → evidence → decision داخل المخزون/الطلب/الذمم، وليس ERP أو منصة forecasting عامة.
+- هذه المسارات **عروض تنافسية وحدود تركيز** وليست قائمة ميزات إلزامية. لا تُنشأ وحدة جديدة لمجرد ظهورها في سوق/Upwork.
+- **Expansion gate:** market signal → candidate → Product Value Gate → approved scoped work → implementation → exact evidence → commercial proof. لا تنتقل أي إشارة سوقية مباشرة إلى Core Product.
+- **Anti-noise:** لا ERP عام، لا Power BI بديل عام، لا ETL/connectors marketplace، لا vulnerability scanner عام، لا AI platform عملاق، ولا feature-count race.
+- **Commercial advantage:** التخصص الضيق + عمق المسار + Evidence حديث + Demo سريع إلى النتيجة + UX احترافي + claim-safe delivery.
+- **Decision criterion for every addition:** يجب أن تزيد الميزة واحدًا أو أكثر من Proof / Differentiation / Revenue، مع عدم كسر truth chain أو certification boundaries أو resource economy.
+- **Evidence rule:** لا يتم الادعاء بقدرة لم تُثبت على Exact HEAD؛ PROVEN/DEMO/PARTIAL/BLOCKED تبقى الحالات التجارية الحاكمة.
+- هذا القرار **مرتبط بهوية Report-Advisor فقط**. لا يتم خلطه مع «بوابة الأغبري للمواد الغذائية» أو أي منتج منفصل.
+- Upwork والبحوث السوقية تبقى **مصادر إشارة وتحقق من الطلب**، وليست مواصفات المنتج بحد ذاتها.
+- يبقى كل ما سبق من truth chain، fail-closed certification، tenant isolation، canonical import، existing RPCs/runners، وعدم نقل مسؤولية commit إلى الواجهة ساريًا دون تغيير.
+
+### LATEST EXECUTION BINDING — 2026-09-18
+- **Latest verified UI/Product code + test SHA:** `449e81d5`.
+- Added a five-track **Competitive Track Lens** to `/proposal-demo`: Evidence-First BI; Supabase Tenant Security; Governed Excel/CSV; Arabic RTL B2B UX; Inventory/Receivables Decisions.
+- The lens is deliberately claim-safe: the Supabase security track has **no fabricated live surface** and remains a proof/runtime gap until exact evidence exists.
+- Track selection now seeds scoped requirements, boosts only capabilities belonging to the selected track, and limits the live demo sequence to the active wedge when a proven surface exists.
+- Added automated contract coverage requiring exactly the five approved selective tracks.
+- Exact-head verification on PC01 for `449e81d5`: typecheck PASS; proposal-demo commercial proof PASS (16 capabilities + 5 track contract); performance budget PASS (critical 891.1KB/900KB, largest JS 488.0KB/600KB); lint PASS with 0 errors / 61 warnings.
+- Full production build PASS immediately before final documentation binding; Vite built 2802 modules successfully.
+- No backend/RPC/DB/Runner mutation was introduced by this UI wave.
+- Runtime/final certification remains FAIL-CLOSED.
 
 ### EXECUTION STATE
 - **Done:** Netlify administrative access blocker removed; PR #590 security/source-parity migrations merged; staging import-row integrity is 0/0/0 and all 8 worker RPCs are service_role-only with pinned search_path.
@@ -78,11 +142,14 @@
 - لا rebuild من الصفر، لا duplicate runner/RPC، ولا fake fixtures في مسارات الاعتماد.
 - الأولوية في توفير المساحة: تقليل تكرار builds/assets/dependencies ورفع الكفاءة قبل إضافة موارد جديدة، مع إبقاء المنتج كاملًا.
 
-### READY STATE FOR NEXT COMMAND
-- **Status:** تخطيط وتقسيم ملكية فقط — **NO EXECUTION STARTED**.
-- **Next owner command:** `انطلق`.
-- عند وصول `انطلق`: ChatGPT يبدأ موجة UI الشاملة، والمبرمج يبدأ كل الأعمال الهندسية/التشغيلية/الشهادات المتبقية أعلاه بالتوازي.
-- لا حاجة لإعادة إرسال هذه التعليمات بعد أمر «انطلق».
+### CURRENT EXECUTION STATE — OWNER COMMAND RECEIVED
+- **Status:** **EXECUTION ACTIVE** منذ أمر المالك «انطلق».
+- ChatGPT: يقود UI/Product Experience والموجة التجارية التنافسية داخل المسارات الخمسة المعتمدة.
+- Programmer: ينفذ جميع fronts الهندسية/runtime/release/certification غير التابعة للواجهة بالتوازي، حسب أمر PR #594 التنفيذي.
+- Latest verified UI/Product code/test SHA: `449e81d5`.
+- Branch governance/documentation head: `5b5302644803a7d36aba015276ac08c0a4506e25`.
+- Final certification remains FAIL-CLOSED.
+- لا حاجة لإعادة إرسال التعليمات الأساسية؛ كل دفعة تغلق ما تستطيع ثم تنتقل تلقائيًا للجبهة التالية.
  
 ## DEEP AUDIT — 2026-09-07
 

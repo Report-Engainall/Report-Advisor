@@ -55,3 +55,22 @@
     background-size: 28px 28px;
   }
 }
+
+@layer base {
+  :focus-visible { outline: 3px solid rgb(13 148 136 / .42); outline-offset: 2px; }
+  button, a, [role="button"] { -webkit-tap-highlight-color: transparent; }
+  input::placeholder, textarea::placeholder { color: #94a39a; opacity: 1; }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
+  }
+}
+@layer components {
+  .shell-glass { @apply border border-white/10 bg-white/75 backdrop-blur-xl; }
+  .truth-strip { @apply flex flex-wrap items-center gap-2 rounded-2xl border border-ink-200/70 bg-white px-3 py-2 shadow-card; }
+  .truth-dot { @apply inline-flex h-2 w-2 rounded-full bg-success-500; }
+}
+@layer utilities {
+  .safe-bottom { padding-bottom: max(1rem, env(safe-area-inset-bottom)); }
+  .safe-top { padding-top: max(.5rem, env(safe-area-inset-top)); }
+  .content-auto { content-visibility: auto; contain-intrinsic-size: 1px 320px; }
+}

@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
-import { PageHeader, LoadingState, ErrorState } from '@/components/ui/States';
+import { PageHeader, LoadingState, ErrorState, TruthRail } from '@/components/ui/States';
 import { supabase, resolveCurrentCompanyId } from '@/lib/supabase';
 
 interface CompanySettings {
@@ -53,8 +53,10 @@ export function CompanySettingsPage() {
   const field = (value: string | null) => value?.trim() || 'غير متوفر';
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div dir="rtl" className="space-y-6 animate-fade-in">
+      <div className="rounded-2xl border border-primary-100 bg-primary-50/50 px-4 py-3 text-xs leading-6 text-primary-900">إعدادات الشركة هنا للعرض من المصدر الحالي. أي تغيير مستقبلي يجب أن يمر عبر مسار الإعداد المصرح، ولا يعتمد العرض المحلي كحقيقة مستقلة.</div>
       <PageHeader title="الإعدادات" subtitle="إعدادات الشركة الحالية من المصدر الموثوق" />
+      <TruthRail status="live" period={`الشركة الحالية · ${company.currency ?? 'عملة غير محددة'}`} />
       <Card>
         <CardHeader title="معلومات الشركة" />
         <CardBody>

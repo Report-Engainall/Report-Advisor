@@ -2,7 +2,7 @@
 
 > **AUTHORITATIVE SINGLE REFERENCE.** This is the permanent registry for the comprehensive product requirements, architecture guardrails, product inspiration, open-source projects, licenses, integration decisions, acceptance rules, implementation mapping, reliability rules, and release gates used while evolving Report Advisor.
 >
-> **Last reviewed:** 2026-08-21
+> **Last reviewed:** 2026-09-18
 >
 > This file supersedes scattered requirement/inspiration notes as the operational reference. New requirements, sources and implementation decisions are appended here rather than creating competing master lists.
 
@@ -713,3 +713,398 @@ Development proceeds in large batches without requiring user prompts between eve
 - report only after a meaningful batch or a blocking failure.
 
 Never trade correctness for apparent progress percentage.
+
+---
+# 34. PRODUCT EVOLUTION 2026-09-18 — DECISION OPERATING SYSTEM
+
+## 34.1 Strategic repositioning
+Report Advisor is not allowed to compete primarily as another dashboard builder.
+
+Target category:
+Decision Operating System for SMB / wholesale / distribution businesses.
+
+Commercial promise:
+From source to decision to measurable outcome — with proof at every step.
+
+The product must make a customer feel that the system:
+1. understands the business context;
+2. distinguishes observed fact from estimate, forecast and unavailable data;
+3. explains why an issue matters;
+4. proposes constrained actions;
+5. gets the human approval required for consequential actions;
+6. records what was actually done;
+7. measures the outcome;
+8. learns from verified outcomes without rewriting historical truth.
+
+Dashboards, AI chat, OCR and charts are delivery mechanisms, not the category itself.
+
+## 34.2 Five permanent competitive moats
+
+### MOAT-1 — Proof Moat
+Material KPI, recommendation, scenario, decision and report outputs should expose an Evidence Passport containing where applicable:
+- tenant/company
+- source identifier
+- source snapshot
+- source hash/fingerprint
+- as-of timestamp
+- freshness
+- formula/semantic metric
+- included/excluded records
+- data-quality state
+- assumptions
+- confidence
+- algorithm/model version
+- decision/recommendation fingerprint
+- approval identity
+- outcome reference
+
+Navigation must support:
+Answer → Why → Evidence → Calculation → Source → Snapshot.
+
+### MOAT-2 — Decision Moat
+Build a Decision Control Tower rather than an alert wall.
+
+Decision flow:
+Signal → Business impact → Evidence → Alternatives → Recommendation → Constraints → Approval → Work → Expected outcome → Actual outcome → Learning.
+
+Where data permits, expose both:
+- expected impact if action is taken;
+- expected impact if no action is taken.
+
+Inaction is a scenario estimate, never a historical fact.
+
+### MOAT-3 — Commercial Constraint Moat
+Recommendations must account for applicable:
+- cash budget and protected operating reserve;
+- supplier lead time and reliability;
+- MOQ and pack size;
+- unit conversion;
+- shelf-life/expiry;
+- current/projected demand;
+- substitute coverage;
+- customer priority;
+- margin;
+- stockout opportunity;
+- pending orders;
+- operating capacity.
+
+Canonical action classes:
+BUY NOW | BUY SOON | MONITOR | REDUCE | DO NOT BUY | INVESTIGATE DATA.
+
+### MOAT-4 — Outcome Moat
+Introduce an Outcome & ROI Ledger:
+Expected → Approved → Executed → Actual → Delta → Quality → Feedback → Learning.
+
+Track where evidence exists:
+- expected vs actual revenue impact;
+- expected vs actual cash impact;
+- expected vs actual stockout avoidance;
+- predicted vs actual demand;
+- recommendation acceptance;
+- time-to-execution;
+- decision effectiveness.
+
+Historical source truth is immutable.
+
+### MOAT-5 — Experience Moat
+Required experience:
+- Arabic RTL first;
+- English/LTR support;
+- mobile-first;
+- low-bandwidth;
+- installable PWA;
+- role-aware;
+- progressive evidence disclosure;
+- keyboard-first desktop;
+- touch-first mobile;
+- no dead-end screens;
+- no false success states;
+- consistent product shell.
+
+## 34.3 Flagship product surfaces
+These are canonical surfaces, not separate applications.
+
+A. Evidence Passport
+Reusable inspector for KPI/report/decision/recommendation/source provenance.
+
+B. What Changed
+Compare current state to a verified prior snapshot and explain:
+- what changed;
+- magnitude;
+- affected entities;
+- supported contributors;
+- business-vs-data-quality status;
+- recommended action.
+
+C. Decision Control Tower
+One prioritized queue for high-value risks, opportunities, purchasing, collections, cash constraints, customer/supplier risks, data-quality blockers, approvals and overdue actions.
+
+D. Counterfactual / Scenario Lab
+Simulate demand changes, supplier delays, price changes, cash budgets, stockouts, substitutes, liquidation and assortment changes.
+Every result is explicitly a scenario output.
+
+E. Outcome & ROI Ledger
+Persist expected vs actual results.
+
+F. Data Trust Center
+Expose freshness, coverage, source health, reconciliation health, import health, OCR/review queue, metric certification and runtime trust signals according to role.
+
+G. Semantic Metric Studio
+Govern metric identity, formula, required fields, dimensions, periods, owner, consumers, evidence, version and certification state.
+Changes use the existing contract-change governance.
+
+H. Agent Control Room
+Every AI run exposes:
+- agent role;
+- task;
+- scope;
+- tools;
+- data scope;
+- evidence used;
+- deterministic calculations invoked;
+- confidence/data sufficiency;
+- approval requirement;
+- status;
+- cancel/retry;
+- resulting recommendation.
+
+Hidden model chain-of-thought is never exposed.
+
+I. Commercial Playbooks
+Reusable governed workflows for:
+- cash recovery;
+- slow-stock liquidation;
+- reorder protection;
+- customer recovery;
+- supplier escalation;
+- margin-leak remediation;
+- data-quality remediation.
+
+J. Executive / Board Pack
+Governed assembly of executive summary, changes, risks, opportunities, cash, sales, inventory, receivables, decisions, actions, evidence gaps and expected-vs-actual outcomes.
+
+## 34.4 Additional high-value intelligence
+### Profit Leak Radar
+Detect evidence-backed margin/cash leakage from cost changes, discounts, returns, invalid stock, price anomalies, slow-moving capital and collection delays.
+
+### Customer Recovery Playbook
+Compare normal cadence, SKU mix, stockout effects and receivable friction before recommending recovery actions.
+
+### Supplier Risk Cockpit
+Unify lead time, reliability, price trend, shortages, dependency and affected products.
+
+### Assortment & Cash Simulator
+Model assortment changes under service, cash, margin, customer-coverage and supplier constraints.
+
+### Merchant Memory
+Persist historical business snapshots and decisions so the system can answer:
+what we knew, what we decided, why, and what happened.
+Historical source truth is never rewritten.
+
+### Continuous Reconciliation
+Where technically supported, continuously compare:
+SOURCE → CANONICAL DATA → DERIVED METRICS → REPORT → DECISION.
+Surface drift before it becomes a management problem.
+
+### Signal-to-Noise Controller
+Allow role-specific thresholds, evidence thresholds, notification windows and snooze policies.
+Prefer fewer high-quality actions over alert volume.
+
+## 34.5 AI product policy
+AI may explain, summarize, classify, assist document interpretation, propose investigation paths and rank evidence-backed options.
+
+AI may not:
+- invent numeric facts;
+- override deterministic calculations;
+- change canonical data without approved command paths;
+- approve financial actions automatically;
+- bypass tenant/security boundaries;
+- fabricate confidence;
+- conceal uncertainty.
+
+Premium AI remains optional. The deterministic core remains useful without AI.
+
+## 34.6 Data Contract Autopilot
+When source schema changes, the system may propose field mappings, unit/date/currency interpretation and duplicate identity rules.
+
+Ambiguous mappings must follow:
+PROPOSED → REVIEW REQUIRED → APPROVED.
+
+Uncertain mappings never silently alter authoritative history.
+
+## 34.7 Embedded intelligence direction
+Build toward one canonical embeddable contract:
+Canonical Metrics + Evidence → API/Embed Adapter → Governed Experience.
+
+Do not duplicate calculation engines for embedded experiences.
+
+## 34.8 White-label / Proposal Demo Mode
+The product must support sales and marketplace demonstrations.
+
+Given an authorized client/job context:
+1. identify business goals;
+2. map goals to capabilities;
+3. create a governed demo workspace;
+4. use realistic anonymized or approved sample data;
+5. rename presentation context only where permitted;
+6. highlight the client-specific journey;
+7. show evidence, not screenshots alone;
+8. generate an executive demo presentation;
+9. generate a proposal-ready capability matrix;
+10. preserve product and licensing boundaries.
+
+Never present synthetic results as real client evidence.
+
+## 34.9 Three-layer commercial proof
+A sale-ready capability needs:
+1. Visual proof — immediate understanding.
+2. Functional proof — real product workflow.
+3. Trust proof — evidence and exact business data.
+
+Layer 1 alone is a mockup, not a premium feature.
+
+## 34.10 Value instrumentation
+Measure business value, with tenant/privacy controls:
+- time to first useful result;
+- time to first trusted insight;
+- time to first decision;
+- decision acceptance rate;
+- time from decision to execution;
+- expected vs actual outcome;
+- percentage of recommendations with sufficient evidence;
+- unresolved data-quality debt;
+- manual reporting effort avoided where measurable;
+- recurring use of high-value playbooks.
+
+Usage telemetry never replaces business evidence.
+
+## 34.11 Premium acceptance gate
+A high-value feature is FULLY IMPLEMENTED only when applicable:
+1. REQ-ID exists;
+2. roles/permissions are defined;
+3. canonical data source exists;
+4. deterministic boundary is defined;
+5. evidence contract exists;
+6. loading/empty/error/offline/blocked states exist;
+7. mobile/desktop UX exists;
+8. keyboard/touch accessibility exists;
+9. authenticated E2E exists;
+10. security/tenant boundaries are tested;
+11. performance budget is met;
+12. side effect/outcome is persisted when the feature acts;
+13. regression test exists;
+14. exact-head evidence exists;
+15. customer-facing explanation exists.
+
+## 34.12 Product value gate
+Add a product gate beside engineering certification:
+TRUST + DECISION VALUE + OUTCOME VALUE + UX QUALITY + PERFORMANCE + COMMERCIAL PROOF.
+
+Do not conflate:
+TECHNICALLY_COMPLETE
+PRODUCT_COMPLETE
+COMMERCIAL_READY
+CERTIFIED.
+
+## 34.13 Competitive design rule
+Do not try to beat Power BI, Tableau or ThoughtSpot on every dimension.
+
+Strategic differentiation:
+Arabic-first + wholesale intelligence + evidence-first governance + constraint-aware decisions + outcome tracking + low-bandwidth operation + fast client-specific deployment.
+
+## 34.14 Market-facing packages
+Do not sell dashboard pages.
+
+Package outcomes:
+- Decision Starter — data intake + executive truth + top risks/opportunities.
+- Inventory Command — stockout protection + reorder + slow-stock/cash intelligence.
+- Cash Recovery — receivables + liquidity + collection/payment priorities.
+- Commercial Control Tower — recommendations + approvals + work + outcome ledger.
+- Enterprise Decision OS — RBAC + governance + integrations + API/embed + audit + custom intelligence.
+
+Pricing is server-configurable and must be validated by real customer demand.
+
+## 34.15 Future moat candidates
+Investigate only after the core decision loop is proven:
+- privacy-safe merchant benchmarking;
+- vertical intelligence packs;
+- reseller/white-label;
+- private deployments;
+- SSO/SCIM;
+- API/webhooks marketplace;
+- industry agent marketplace;
+- multilingual report narratives;
+- mobile field-agent workflows;
+- approved external-system write-back;
+- measured decision ROI.
+
+## 34.16 Market signal policy
+2026 market evidence shows BI vendors moving toward AI-first/agentic analytics, governed semantic context, proactive insights and embedded analytics rather than static dashboards alone. Current marketplace listings also show heavy commoditization of basic Excel/Power BI dashboard services, while higher-priced offerings emphasize executive modeling, documentation, decision support and maintainability.
+
+This is a positioning signal, not a product requirement copied from any vendor.
+
+## 34.17 Requirement lifecycle
+Every strategic requirement follows:
+DISCOVERED → SPECIFIED → IMPLEMENTED → VERIFIED → PRODUCT_COMPLETE → COMMERCIAL_READY → CERTIFIED.
+
+No state is inferred from appearance or code existence.
+
+## 34.18 Feature selection formula
+NET_VALUE =
+customer value
++ trust gain
++ decision speed
++ outcome value
++ differentiation
+- complexity
+- runtime cost
+- maintenance
+- security risk
+- licensing risk
+- vendor lock-in.
+
+Reject or defer negative-net-value ideas or anything violating a non-negotiable invariant.
+
+
+## 34.19 2026 execution portfolio
+
+Execute the new requirements through three coordinated value tracks rather than creating a large parallel feature backlog:
+
+### Track A — Trust Core
+- Evidence Passport
+- Data Trust Center
+- What Changed
+- Semantic Metric Studio
+- Continuous Reconciliation
+
+### Track B — Decision Value
+- Decision Control Tower
+- Counterfactual / Scenario Lab
+- Outcome & ROI Ledger
+- Profit Leak Radar
+- Customer Recovery Playbook
+- Supplier Risk Cockpit
+- Assortment & Cash Simulator
+- Merchant Memory
+
+### Track C — Commercial Scale
+- Proposal Demo Mode
+- Commercial Playbooks
+- Executive / Board Pack
+- Embedded Intelligence contract
+- enterprise governance/integrations
+- vertical intelligence packs
+
+Track A should create the trust primitives used by Tracks B and C. Track B should prove customer value before Track C expands packaging or integrations.
+
+### 34.20 Product investment rule
+Do not start a new flagship surface when an existing surface can be upgraded into a measurable decision loop with lower complexity.
+
+Prefer complete loops over module count:
+signal → evidence → recommendation → approval → action → outcome.
+
+### 34.21 Competitive non-goals
+Do not chase feature parity with every generic BI vendor. Do not add generic chart types, decorative AI chat, arbitrary marketplace connectors or expensive infrastructure unless a validated customer problem requires them.
+
+### 34.22 Saleability rule
+Every flagship workflow must have a 3-minute customer demonstration path, a real evidence path, and a clear business outcome statement before it is marketed as premium.

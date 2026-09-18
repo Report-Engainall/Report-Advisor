@@ -64,13 +64,13 @@ export function ProductCreateDialog({ onClose, onCreated }: ProductCreateDialogP
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" role="dialog" aria-modal="true" aria-labelledby="product-create-title">
-      <div className="w-full max-w-lg rounded-2xl bg-white shadow-xl" dir="rtl">
+    <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/40 p-3 sm:items-center sm:p-4 safe-bottom" role="dialog" aria-modal="true" aria-labelledby="product-create-title">
+      <div className="my-3 w-full max-w-lg overflow-hidden rounded-2xl bg-white shadow-xl sm:my-8" dir="rtl">
         <div className="flex items-center justify-between border-b border-ink-100 px-5 py-4">
           <h2 id="product-create-title" className="text-lg font-bold text-ink-900">منتج جديد</h2>
           <button type="button" onClick={onClose} aria-label="إغلاق" className="rounded-lg p-2 text-ink-500 hover:bg-ink-50"><X size={18} /></button>
         </div>
-        <form onSubmit={submit} className="space-y-4 p-5">
+        <form onSubmit={submit} className="max-h-[calc(100dvh-7rem)] space-y-4 overflow-y-auto p-5">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div><label htmlFor="product-create-sku" className="mb-1 block text-xs font-medium text-ink-700">SKU *</label><input id="product-create-sku" value={sku} onChange={event => setSku(event.target.value)} className="input w-full" required /></div>
             <div><label htmlFor="product-create-name" className="mb-1 block text-xs font-medium text-ink-700">اسم المنتج *</label><input id="product-create-name" autoFocus value={name} onChange={event => setName(event.target.value)} className="input w-full" required /></div>

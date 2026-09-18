@@ -198,3 +198,56 @@ P1: billing provider adapter + invoices + coupons + plan management + transactio
 P2: reseller/affiliate + white-label + enterprise licensing + private deployment activation.
 
 Never couple the product to a single payment provider. Use a billing adapter so providers can be changed later.
+
+
+---
+
+## 12. High-Value Commercialization Standard
+
+The market should not be approached with a generic dashboard-development offer.
+
+The productized service sells an outcome loop:
+DATA ASSESSMENT → TRUST BASELINE → EXECUTIVE INSIGHT → DECISION QUEUE → ACTION PLAN → OUTCOME MEASUREMENT.
+
+### Premium offer structure
+
+1. Decision Starter — governed dataset + executive cockpit + top changes/risks/opportunities + Evidence Passport.
+2. Inventory Command — stockout protection + reorder intelligence + slow/dead-stock and cash exposure + supplier context + scenario simulation.
+3. Cash Recovery — receivables + liquidity + collection priorities + supplier payment priorities + protected operating reserve.
+4. Commercial Control Tower — recommendations + approvals + work queue + outcome/ROI ledger + executive reporting.
+5. Enterprise Decision OS — RBAC + audit/evidence + integrations + API/embed + custom intelligence + private deployment options.
+
+### Product-qualified proof
+
+A sales demo must prove:
+- the workflow works;
+- data lineage is visible;
+- uncertainty is honest;
+- actions are governed;
+- outcomes can be measured.
+
+### Marketplace positioning
+
+Basic dashboard delivery is commoditized. Current marketplace listings include very low-cost dashboard services and some documented executive BI packages reaching substantially higher tiers. Report Advisor should therefore sell the governed decision system and measurable outcome rather than competing on dashboard page count.
+
+### Proposal Demo Mode
+
+brief → requirements map → governed demo workspace → evidence-backed walkthrough → capability matrix → proposal pack.
+
+Client context may be renamed only when authorized. Never fabricate customer results.
+
+### Value-based sales proof
+
+For each sales engagement capture:
+- business problem;
+- baseline;
+- measurable improvement target;
+- evidence;
+- expected value;
+- actual value after delivery.
+
+Do not promise ROI percentages before customer evidence supports them.
+
+### Commercial anti-patterns
+
+Reject screenshot-only portfolios, fake before/after metrics, invented AI accuracy, fake customer names/results, feature-count marketing without value, fake countdowns, hidden recurring charges and mandatory paid AI usage.

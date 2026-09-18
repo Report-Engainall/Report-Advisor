@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import type { User } from '@supabase/supabase-js';
 import { CheckCircle2, Save, UserCircle } from 'lucide-react';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
-import { PageHeader } from '@/components/ui/States';
+import { PageHeader, TruthRail } from '@/components/ui/States';
 import { supabase } from '@/lib/supabase';
 import { getAuthenticatedUser } from '@/lib/auth-session';
 
@@ -48,7 +48,8 @@ export function ProfileSettingsPage() {
 
   return (
     <div dir="rtl" className="space-y-6 animate-fade-in">
-      <PageHeader title="الملف الشخصي" subtitle="تحكم في اسم العرض والهوية الظاهرة داخل التطبيق" />
+      <TruthRail status="live" period="هوية المستخدم من جلسة المصادقة الحالية" />
+    <PageHeader title="الملف الشخصي" subtitle="تحكم في اسم العرض والهوية الظاهرة داخل التطبيق" />
 
       <Card>
         <CardHeader title="هوية المستخدم" />

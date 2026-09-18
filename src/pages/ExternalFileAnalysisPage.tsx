@@ -3,7 +3,7 @@ import { AlertCircle, BarChart3, CheckCircle2, Download, FileImage, FileSpreadsh
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { DataTable } from '@/components/ui/DataTable';
-import { PageHeader } from '@/components/ui/States';
+import { PageHeader, TruthRail } from '@/components/ui/States';
 import { detectFormat } from '@/lib/file-engine/detector';
 import { securityScan, computeSHA256 } from '@/lib/file-engine/security';
 import { parseFile } from '@/lib/file-engine/adapters';
@@ -67,13 +67,14 @@ export function ExternalFileAnalysisPage() {
 
   return <div className="space-y-6" dir="rtl">
     <PageHeader title="مختبر الملفات والبيانات" subtitle="حلّل أي ملف خارجي دون إجباره على نموذج أعمال مسبق، مع إبقاء الحقول الأصلية متاحة للمراجعة." />
+    <TruthRail status={error ? 'review' : file ? 'live' : 'limited'} period={file ? `فحص محلي · ${file.name}` : 'لم يتم تحميل ملف'} />
     <Card><CardBody>
       <div className="grid gap-5 lg:grid-cols-[1fr_auto] items-center">
         <div><div className="flex items-center gap-2"><Sparkles size={18}/><h2 className="font-semibold">Universal File Intelligence</h2></div><p className="mt-2 text-sm leading-6 text-ink-500">فحص أمني → كشف الصيغة → استخراج → profiling → mapping → جودة → جاهزية للتحليل. هذا المسار تحليلي ولا يكتب سجلات الأعمال تلقائيًا.</p><div className="mt-3 flex flex-wrap gap-2"><Badge variant="neutral">كل الأعمدة</Badge><Badge variant="neutral">أنواع البيانات</Badge><Badge variant="neutral">Mapping Evidence</Badge><Badge variant="neutral">Quality Signals</Badge><Badge variant="neutral">OCR عربي + English</Badge><Badge variant="neutral">SHA-256</Badge></div></div>
         <button type="button" onClick={() => inputRef.current?.click()} disabled={loading} className="btn-primary inline-flex items-center justify-center gap-2 min-w-52"><Upload size={18}/>{loading ? 'جارٍ التحليل...' : 'تحليل أي ملف خارجي'}</button>
       </div>
       <input ref={inputRef} type="file" className="hidden" accept=".xlsx,.xls,.xlsm,.csv,.tsv,.ods,.json,.jsonl,.xml,.txt,.md,.markdown,.pdf,.docx,.doc,.rtf,.jpg,.jpeg,.png,.webp,.tiff,.bmp" onChange={e => { const f=e.target.files?.[0]; if(f) void analyze(f); e.currentTarget.value=''; }}/>
-      <div onClick={() => inputRef.current?.click()} className="mt-5 cursor-pointer rounded-2xl border-2 border-dashed border-ink-200 p-8 text-center hover:border-primary-400 transition-colors"><Upload className="mx-auto mb-2 text-primary-500" size={30}/><b>اسحب الملف هنا أو اضغط للاختيار</b><p className="mt-1 text-xs text-ink-400">الحد الآمن {Math.round(MAX_FILE_SIZE / 1024 / 1024)} MB · لا توجد كتابة تلقائية لبيانات الأعمال</p></div>
+      <div role="button" tabIndex={0} aria-label="اختيار ملف للتحليل" onKeyDown={e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); inputRef.current?.click(); } }} onClick={() => inputRef.current?.click()} className="mt-5 cursor-pointer rounded-2xl border-2 border-dashed border-ink-200 p-8 text-center hover:border-primary-400 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"><Upload className="mx-auto mb-2 text-primary-500" size={30}/><b>اسحب الملف هنا أو اضغط للاختيار</b><p className="mt-1 text-xs text-ink-400">الحد الآمن {Math.round(MAX_FILE_SIZE / 1024 / 1024)} MB · لا توجد كتابة تلقائية لبيانات الأعمال</p></div>
       {error && <div className="mt-4 rounded-xl bg-danger-50 p-3 text-sm text-danger-700 flex gap-2"><AlertCircle size={17}/>{error}</div>}
     </CardBody></Card>
     {file && <Card><CardBody><div className="flex flex-wrap items-center justify-between gap-3"><div className="flex items-center gap-3">{fileIcon(file.format)}<div><b>{file.name}</b><div className="text-xs text-ink-400">{FORMAT_LABELS[file.format]} · {file.size.toLocaleString()} بايت · SHA-256: {file.hash.slice(0,16)}…</div></div></div><Badge variant="success"><ShieldCheck size={13}/> اجتاز الفحص الأمني</Badge></div></CardBody></Card>}

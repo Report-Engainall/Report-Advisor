@@ -27,6 +27,9 @@ const navSections: NavSection[] = [
   ]},
   { title: 'التحليل التجاري', items: [
     { path: '/reports', label: 'مركز التقارير', icon: <FileBarChart size={18}/> },
+    { path: '/reports/sales', label: 'تقرير المبيعات', icon: <FileBarChart size={18}/> },
+    { path: '/reports/purchases', label: 'تقرير المشتريات', icon: <FileBarChart size={18}/> },
+    { path: '/reports/inventory', label: 'تقرير المخزون', icon: <Package size={18}/> },
     { path: '/analytics', label: 'التحليلات', icon: <BarChart3 size={18}/> },
     { path: '/reports/inventory-intelligence', label: 'ذكاء المخزون', icon: <Gauge size={18}/> },
     { path: '/reports/demand-velocity', label: 'الطلب والحركة', icon: <Activity size={18}/> },
@@ -64,15 +67,21 @@ export function Sidebar({ alertCount = 0, onNavigate, user }: { alertCount?: num
     [location.pathname],
   );
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
+  const [signOutError, setSignOutError] = useState<string | null>(null);
 
   useEffect(() => {
     setCollapsed(prev => ({ ...prev, [activeSection]: false }));
   }, [activeSection]);
 
   const signOut = async () => {
-    const { error } = await supabase.auth.signOut({ scope: 'local' });
-    if (error) throw error;
-    onNavigate?.();
+    setSignOutError(null);
+    try {
+      const { error } = await supabase.auth.signOut({ scope: 'local' });
+      if (error) throw error;
+      onNavigate?.();
+    } catch (cause) {
+      setSignOutError(cause instanceof Error ? cause.message : 'تعذر تسجيل الخروج');
+    }
   };
 
   return (
@@ -114,7 +123,7 @@ export function Sidebar({ alertCount = 0, onNavigate, user }: { alertCount?: num
                   {section.items.map(item => {
                     const active = location.pathname === item.path || (item.path !== '/' && location.pathname.startsWith(item.path));
                     return (
-                      <Link key={item.path} to={item.path} onClick={onNavigate} className={'nav-item ' + (active ? 'nav-item-active' : 'nav-item-inactive')}>
+                      <Link key={item.path} to={item.path} onClick={onNavigate} aria-current={active ? "page" : undefined} className={'nav-item ' + (active ? 'nav-item-active' : 'nav-item-inactive')}>
                         <span className={'flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ' + (active ? 'bg-primary-500/15 text-primary-200' : 'bg-white/5 text-slate-400')}>{item.icon}</span>
                         <span className="min-w-0 flex-1">
                           <span className="block truncate">{item.label}</span>
@@ -139,6 +148,7 @@ export function Sidebar({ alertCount = 0, onNavigate, user }: { alertCount?: num
             <div className="truncate text-[10px] text-slate-500" dir="ltr">{getDisplayEmail(user ?? null)}</div>
           </div>
         </div>
+        {signOutError && <div role="alert" className="mb-2 rounded-xl border border-danger-500/20 bg-danger-500/10 px-3 py-2 text-[11px] leading-5 text-red-200">{signOutError}</div>}
         <button type="button" onClick={() => void signOut()} className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold text-slate-300 transition hover:bg-white/10 hover:text-white" aria-label="تسجيل الخروج"><LogOut size={15}/> تسجيل الخروج</button>
       </div>
     </aside>

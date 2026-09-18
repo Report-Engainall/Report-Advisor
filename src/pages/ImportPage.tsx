@@ -1,9 +1,11 @@
 import { Card, CardBody } from '@/components/ui/Card';
+import { TruthRail } from '@/components/ui/States';
 import { CanonicalImportPage } from '@/pages/CanonicalImportPage';
 import { FolderBatchImportPanel } from '@/components/FolderBatchImportPanel';
 
 export function ImportPage() {
   return <div dir="rtl" className="space-y-5 animate-fade-in">
+    <TruthRail status="limited" period="الاستيراد يثبت الحالة من المسار الحاكم فقط" />
     <Card className="overflow-hidden border-0 bg-ink-950 text-white">
       <CardBody>
         <div className="grid gap-5 lg:grid-cols-[1.35fr_.65fr] items-center">

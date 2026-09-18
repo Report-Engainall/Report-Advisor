@@ -4,7 +4,7 @@ const app = await readFile(new URL('../src/App.tsx', import.meta.url), 'utf8');
 const sidebar = await readFile(new URL('../src/components/Sidebar.tsx', import.meta.url), 'utf8');
 
 const routePaths = [...app.matchAll(/<Route\s+path="([^"]+)"/g)].map((m) => m[1]);
-const sidebarPaths = [...sidebar.matchAll(/path:'([^']+)'/g)].map((m) => m[1]);
+const sidebarPaths = [...sidebar.matchAll(/path\s*:\s*['"]([^'"]+)['"]/g)].map((m) => m[1]);
 
 const routeSet = new Set(routePaths);
 const sidebarSet = new Set(sidebarPaths);
