@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Activity, AlertTriangle, CheckCircle2, Filter, RefreshCw, XCircle } from 'lucide-react';
+import { Activity, AlertTriangle, CheckCircle2, Clock3, Filter, RefreshCw, ShieldCheck, XCircle } from 'lucide-react';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { DataTable } from '@/components/ui/DataTable';
 import { EmptyState, ErrorState, LoadingState, PageHeader } from '@/components/ui/States';
@@ -10,7 +10,13 @@ import { formatNumber } from '@/lib/format';
 type FilterKey = 'all' | 'active' | 'review' | 'completed' | 'failed';
 const statusLabel = (s: string | null) => ({ queued: 'بالانتظار', processing: 'قيد التنفيذ', completed: 'مكتمل', partial: 'مكتمل جزئيًا', failed: 'فشل', cancelled: 'ملغى' }[s ?? ''] ?? 'غير معروف');
 const statusClass = (s: string | null) => s === 'completed' ? 'bg-success-50 text-success-700' : s === 'failed' ? 'bg-danger-50 text-danger-700' : s === 'partial' ? 'bg-warning-50 text-warning-700' : s === 'processing' ? 'bg-primary-50 text-primary-700' : 'bg-ink-50 text-ink-600';
-function matches(row: ImportRecord, filter: FilterKey) { if (filter === 'all') return true; if (filter === 'active') return row.status === 'queued' || row.status === 'processing'; if (filter === 'review') return row.status === 'partial' || (row.invalid_rows ?? 0) > 0 || (row.quarantined_rows ?? 0) > 0; if (filter === 'completed') return row.status === 'completed'; return row.status === 'failed' || row.status === 'cancelled'; }
+function matches(row: ImportRecord, filter: FilterKey) {
+  if (filter === 'all') return true;
+  if (filter === 'active') return row.status === 'queued' || row.status === 'processing';
+  if (filter === 'review') return row.status === 'partial' || (row.invalid_rows ?? 0) > 0 || (row.quarantined_rows ?? 0) > 0;
+  if (filter === 'completed') return row.status === 'completed';
+  return row.status === 'failed' || row.status === 'cancelled';
+}
 
 export function WorkCenterPage() {
   const [rows, setRows] = useState<ImportRecord[]>([]);
@@ -43,14 +49,92 @@ export function WorkCenterPage() {
   if (loading) return <LoadingState message="جارٍ تحميل حالة العمليات..." />;
   if (error) return <ErrorState message={error} onRetry={load} />;
 
-  return <div dir="rtl" className="space-y-6 animate-fade-in">
-    <PageHeader title="مركز العمليات" subtitle="الاستيراد والتحليل والتحقق والاستثناءات، من الحالات الحقيقية للمستأجر الحالي." actions={<button type="button" onClick={() => void load()} className="inline-flex items-center gap-2 rounded-xl border border-ink-200 bg-white px-3.5 py-2.5 text-sm font-medium text-ink-700 hover:bg-ink-50"><RefreshCw size={16}/> تحديث</button>} />
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-      {([['active','نشطة الآن',Activity,'bg-primary-50 text-primary-600'],['review','تحتاج مراجعة',AlertTriangle,'bg-warning-50 text-warning-600'],['completed','مكتملة',CheckCircle2,'bg-success-50 text-success-600'],['failed','فشل / ملغى',XCircle,'bg-danger-50 text-danger-600']] as const).map(([key,label,Icon,bg]) => <button key={key} type="button" onClick={() => setFilter(key)} className="text-right"><Card className="transition hover:-translate-y-0.5 hover:shadow-md"><CardBody><div className="flex items-center gap-3"><div className={`flex h-10 w-10 items-center justify-center rounded-xl ${bg}`}><Icon size={18}/></div><div><div className="text-xs text-ink-500">{label}</div><div className="mt-1 text-2xl font-bold text-ink-900">{formatNumber(counts[key])}</div></div></div></CardBody></Card></button>)}
-    </div>
-    <Card><CardHeader title="حالة التنفيذ" subtitle="لا تُنشئ الصفحة حالة جديدة؛ القراءة تمر عبر مسار الاستيراد المعتمد."/><CardBody>
-      <div className="mb-5 flex flex-wrap items-center gap-2" role="toolbar" aria-label="تصفية العمليات"><Filter size={16} className="text-ink-400"/>{(['all','active','review','completed','failed'] as FilterKey[]).map(k => <button key={k} type="button" onClick={() => setFilter(k)} className={`rounded-full px-3 py-1.5 text-xs font-medium ${filter === k ? 'bg-primary-600 text-white' : 'bg-ink-50 text-ink-600 hover:bg-ink-100'}`}>{k === 'all' ? 'الكل' : k === 'active' ? 'النشطة' : k === 'review' ? 'المراجعة' : k === 'completed' ? 'المكتملة' : 'الفاشلة'}</button>)}</div>
-      {filtered.length === 0 ? <EmptyState title="لا توجد عمليات مطابقة" message={rows.length === 0 ? 'لا توجد عمليات استيراد مسجلة لهذا المستأجر حتى الآن.' : 'غيّر عامل التصفية لرؤية عمليات أخرى.'}/> : <DataTable data={filtered} emptyMessage="لا توجد عمليات" columns={[{key:'file',label:'المصدر',render:(r:ImportRecord)=><div><div className="font-medium text-ink-800">{r.file_name}</div><div className="text-xs text-ink-400">{r.entity_type ?? 'import'}</div></div>},{key:'status',label:'الحالة',align:'center',render:(r:ImportRecord)=><span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${statusClass(r.status)}`}>{statusLabel(r.status)}</span>},{key:'progress',label:'التقدم',align:'center',render:(r:ImportRecord)=><span className="font-semibold text-ink-800">{r.progress == null ? '—' : `${Math.max(0, Math.min(100, r.progress))}%`}</span>},{key:'valid',label:'السجلات الصالحة',align:'center',render:(r:ImportRecord)=>r.valid_rows == null ? 'غير متاح' : formatNumber(r.valid_rows)},{key:'updated',label:'آخر تحديث',align:'center',render:(r:ImportRecord)=>new Date(r.completed_at ?? r.created_at).toLocaleString('ar-YE')}]} />}
-    </CardBody></Card>
+  return <div dir="rtl" className="space-y-6 animate-fade-in pb-10">
+    <PageHeader
+      title="مركز العمليات"
+      subtitle="منطقة العمل التشغيلية: ما دخل النظام، أين وصل، وما الذي يحتاج تدخلًا."
+      actions={<button type="button" onClick={() => void load()} className="btn-secondary inline-flex items-center gap-2"><RefreshCw size={16}/> تحديث</button>}
+    />
+
+    <section className="grid gap-4 lg:grid-cols-[1.5fr_1fr]">
+      <Card className="overflow-hidden border-0 bg-ink-950 text-white">
+        <CardBody>
+          <div className="flex flex-wrap items-start justify-between gap-5">
+            <div>
+              <div className="flex items-center gap-2 text-xs font-semibold text-primary-300"><Activity size={15}/> الحقيقة التشغيلية</div>
+              <h2 className="mt-2 text-xl font-bold">كل عملية مرتبطة بمصدر وحالة فعلية</h2>
+              <p className="mt-2 max-w-2xl text-sm leading-6 text-ink-300">هذه الصفحة تقرأ حالة الاستيراد المعتمدة فقط؛ لا تنشئ حالة بديلة ولا تعتبر العرض المحلي دليلًا على نجاح قاعدة البيانات.</p>
+            </div>
+            <div className="rounded-2xl border border-ink-700 bg-white/5 px-4 py-3 text-xs text-ink-200">
+              <div className="flex items-center gap-2"><ShieldCheck size={15} className="text-primary-300"/> مصدر الحالة</div>
+              <div className="mt-1 font-semibold text-white">Canonical import read path</div>
+            </div>
+          </div>
+          <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
+            {[
+              ['النشطة', counts.active, Activity, 'primary'],
+              ['المراجعة', counts.review, AlertTriangle, 'warning'],
+              ['المكتملة', counts.completed, CheckCircle2, 'success'],
+              ['الفشل / الإلغاء', counts.failed, XCircle, 'danger'],
+            ] as const).map(([label, value, Icon, tone]) => (
+              <button key={label} type="button" onClick={() => setFilter(label === 'النشطة' ? 'active' : label === 'المراجعة' ? 'review' : label === 'المكتملة' ? 'completed' : 'failed')} className="rounded-2xl border border-ink-800 bg-white/5 p-3 text-right transition hover:bg-white/10">
+                <Icon size={16} className="mb-2 text-primary-300"/>
+                <div className="text-2xl font-bold">{formatNumber(value)}</div>
+                <div className="mt-1 text-[11px] text-ink-300">{label}</div>
+              </button>
+            ))}
+          </div>
+        </CardBody>
+      </Card>
+
+      <Card>
+        <CardHeader title="منطق الحالة" subtitle="قراءة فقط؛ لا يوجد مسار موازٍ للحالة."/>
+        <CardBody>
+          <div className="space-y-3">
+            {[
+              ['المصدر', 'الملف/العملية الأصلية', 'text-primary-600'],
+              ['المعالجة', 'queued → processing', 'text-accent-600'],
+              ['التحقق', 'صالح / مراجعة / مرفوض', 'text-warning-600'],
+              ['النتيجة', 'اكتمل فقط عند وجود حالة نهائية مصدرية', 'text-success-600'],
+            ].map(([label, detail, tone]) => (
+              <div key={label} className="flex items-start gap-3 rounded-xl border border-ink-100 bg-ink-50/60 p-3">
+                <span className={`mt-0.5 h-2 w-2 rounded-full bg-current ${tone}`}/>
+                <div><div className="text-xs font-bold text-ink-800">{label}</div><div className="mt-1 text-xs text-ink-500">{detail}</div></div>
+              </div>
+            ))}
+          </div>
+        </CardBody>
+      </Card>
+    </section>
+
+    <Card>
+      <CardHeader title="سجل العمليات" subtitle="فلترة حسب الحالة دون تغيير البيانات المصدرية."/>
+      <CardBody>
+        <div className="mb-5 flex flex-wrap items-center gap-2" role="toolbar" aria-label="تصفية العمليات">
+          <Filter size={16} className="text-ink-400"/>
+          {(['all','active','review','completed','failed'] as FilterKey[]).map(k => (
+            <button key={k} type="button" onClick={() => setFilter(k)} className={`rounded-full px-3 py-1.5 text-xs font-semibold ${filter === k ? 'bg-ink-950 text-white' : 'bg-ink-50 text-ink-600 hover:bg-ink-100'}`}>
+              {k === 'all' ? 'الكل' : k === 'active' ? 'النشطة' : k === 'review' ? 'المراجعة' : k === 'completed' ? 'المكتملة' : 'الفاشلة'}
+            </button>
+          ))}
+        </div>
+        {filtered.length === 0 ? (
+          <EmptyState title="لا توجد عمليات مطابقة" message={rows.length === 0 ? 'لا توجد عمليات استيراد مسجلة لهذا المستأجر حتى الآن.' : 'غيّر عامل التصفية لرؤية عمليات أخرى.'}/>
+        ) : (
+          <DataTable
+            data={filtered}
+            emptyMessage="لا توجد عمليات"
+            columns={[
+              { key: 'file', label: 'المصدر', render: (r: ImportRecord) => <div><div className="font-semibold text-ink-800">{r.file_name}</div><div className="mt-1 text-[11px] text-ink-400">{r.entity_type ?? 'import'}</div></div> },
+              { key: 'status', label: 'الحالة', align: 'center', render: (r: ImportRecord) => <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${statusClass(r.status)}`}>{statusLabel(r.status)}</span> },
+              { key: 'progress', label: 'التقدم', align: 'center', render: (r: ImportRecord) => r.progress == null ? '—' : <div className="min-w-24"><div className="text-xs font-bold">{Math.max(0, Math.min(100, r.progress))}%</div><div className="mt-1 h-1.5 overflow-hidden rounded-full bg-ink-100"><div className="h-full rounded-full bg-primary-500" style={{ width: `${Math.max(0, Math.min(100, r.progress))}%` }}/></div></div> },
+              { key: 'valid', label: 'السجلات الصالحة', align: 'center', render: (r: ImportRecord) => r.valid_rows == null ? 'غير متاح' : formatNumber(r.valid_rows) },
+              { key: 'exceptions', label: 'الاستثناءات', align: 'center', render: (r: ImportRecord) => <span className={(r.invalid_rows ?? 0) + (r.quarantined_rows ?? 0) > 0 ? 'font-semibold text-warning-700' : 'text-ink-500'}>{formatNumber((r.invalid_rows ?? 0) + (r.quarantined_rows ?? 0))}</span> },
+              { key: 'updated', label: 'آخر تحديث', align: 'center', render: (r: ImportRecord) => <span className="inline-flex items-center gap-1 text-xs text-ink-500"><Clock3 size={13}/>{new Date(r.completed_at ?? r.created_at).toLocaleString('ar-YE')}</span> },
+            ]}
+          />
+        )}
+      </CardBody>
+    </Card>
   </div>;
 }
