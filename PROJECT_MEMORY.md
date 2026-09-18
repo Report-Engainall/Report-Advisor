@@ -817,3 +817,18 @@ PC01 device cleanup remains IN_PROGRESS / BLOCKED_EXTERNAL_CHANNEL after the rem
 - Staging contains later migration ledger entries including the worker/security reconciliation tail not present on `main`.
 - PR #542 includes forward-only source reconciliation migrations for the verified live worker search_path state.
 - The historically missing ledger record `20260918024152` remains an explicit provenance gap; no synthetic source file or historical migration rewrite is permitted.
+
+
+## 35. Device Cleanup Closure — 2026-09-18
+
+- Device: PC01, Windows, Desktop Commander 0.2.51, device id e4088840-5dc3-49fe-bb4f-b331a167703b.
+- Reconnection succeeded with persisted session restored; live ping returned pong and Desktop Commander reported the device online.
+- The previously reported duplicate Desktop Commander PIDs from the earlier blocked channel were not present after reconnection. The live active Desktop Commander chain was inspected and retained: node PIDs 13640 -> 22424/10808 -> 20616 as the current npx/bridge/server process chain.
+- Remaining stale automation processes identified before cleanup: winget PIDs 11348 and 16760, both installing MikeFarah.yq; actionlint PIDs 3176 and 7508 against Report-Advisor worktrees. Their combined working-set memory was approximately 91.97 MB.
+- Termination evidence: PIDs 11348, 16760, 3176, and 7508 were each successfully terminated by Remote Desktop Commander.
+- Post-cleanup verification: no winget or actionlint processes remained; no active Desktop Commander terminal sessions remained; current Desktop Commander node chain remained online.
+- yq installation was verified independently after cleanup: MikeFarah.yq 4.53.6 listed by winget.
+- Post-cleanup machine observation: CPU load 11%; available physical memory 19,657.9 MB at the observation instant.
+- Current Desktop Commander node working sets were approximately 67.9 MB, 110.2 MB, and 108.3 MB for PIDs 13640, 10808, and 20616 respectively.
+- No reboot, shutdown, destructive disk/system operation, or user-application termination was performed.
+- Issue #545 device-operations acceptance criteria are now satisfied for the verified cleanup scope; issue closure should reference this exact evidence and must not imply broader performance optimization beyond the measured process cleanup.
