@@ -34,6 +34,15 @@ export function WorkCenterPage() {
   useEffect(() => { void load(); }, [load]);
 
   const filtered = useMemo(() => rows.filter(r => matches(r, filter)), [rows, filter]);
+  const priorityRow = useMemo(() => {
+    const failed = rows.find(r => r.status === 'failed' || r.status === 'cancelled');
+    if (failed) return { row: failed, kind: 'failed' as const, label: 'يتطلب معالجة فورية', hint: 'ابدأ بسبب الفشل قبل متابعة بقية الطابور.' };
+    const review = rows.find(r => r.status === 'partial' || (r.invalid_rows ?? 0) > 0 || (r.quarantined_rows ?? 0) > 0);
+    if (review) return { row: review, kind: 'review' as const, label: 'يتطلب مراجعة', hint: 'ابدأ من الاستثناءات قبل اعتماد النتيجة.' };
+    const active = rows.find(r => r.status === 'queued' || r.status === 'processing');
+    if (active) return { row: active, kind: 'active' as const, label: 'قيد التنفيذ', hint: 'تابع التقدم ولا تكرر الاستيراد ما دام المسار نشطًا.' };
+    return null;
+  }, [rows]);
   const counts = useMemo(() => ({
     active: rows.filter(r => r.status === 'queued' || r.status === 'processing').length,
     review: rows.filter(r => r.status === 'partial' || (r.invalid_rows ?? 0) > 0 || (r.quarantined_rows ?? 0) > 0).length,
@@ -94,6 +103,7 @@ export function WorkCenterPage() {
       <Card><CardHeader title="كيف يعمل مركز العمل؟" subtitle="التشغيل يتبع الحقيقة المصدرية"/><CardBody><div className="space-y-3">{[['المصدر','الملف والعملية الأصلية','text-primary-600'],['المعالجة','queued → processing','text-accent-600'],['التحقق','صالح / مراجعة / فشل','text-warning-600'],['النتيجة','الحالة النهائية المصدرية فقط','text-success-600']].map(([label,detail,tone]) => <div key={label} className="flex items-start gap-3 rounded-xl border border-ink-100 bg-ink-50/60 p-3"><span className={'mt-0.5 h-2 w-2 rounded-full bg-current ' + tone}/><div><div className="text-xs font-bold text-ink-800">{label}</div><div className="mt-1 text-xs text-ink-500">{detail}</div></div></div>)}</div></CardBody></Card>
     </section>
 
+    {priorityRow && <Card className="border-primary-200 bg-primary-50/30"><CardBody><div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"><div><div className="flex items-center gap-2 text-xs font-black text-primary-800"><Activity size={15}/> نقطة القرار الأولى</div><div className="mt-1 text-lg font-black text-ink-950">{priorityRow.row.file_name}</div><div className="mt-1 text-xs text-ink-500">{priorityRow.label} · {priorityRow.hint}</div></div><button type="button" onClick={() => inspect(priorityRow.row)} className="btn-primary inline-flex items-center gap-2 text-xs">افتح الحالة <ArrowUpLeft size={14}/></button></div></CardBody></Card>}
     <Card><CardHeader title="طابور العمل" subtitle="الفلترة لا تغيّر المصدر؛ النقر يفتح سياق العملية."/><CardBody><div className="mb-5 flex flex-wrap items-center gap-2" role="toolbar" aria-label="تصفية العمليات"><Filter size={16} className="text-ink-400"/>{(['all','active','review','completed','failed'] as FilterKey[]).map(k => <button key={k} type="button" onClick={() => setFilter(k)} className={'rounded-full px-3 py-1.5 text-xs font-semibold ' + (filter === k ? 'bg-ink-950 text-white' : 'bg-ink-50 text-ink-600 hover:bg-ink-100')}>{k === 'all' ? 'الكل' : k === 'active' ? 'النشطة' : k === 'review' ? 'المراجعة' : k === 'completed' ? 'المكتملة' : 'الفاشلة'}</button>)}</div>{filtered.length === 0 ? <EmptyState title="لا توجد عمليات مطابقة" message={rows.length === 0 ? 'لا توجد عمليات استيراد مسجلة لهذا المستأجر حتى الآن.' : 'غيّر عامل التصفية لرؤية عمليات أخرى.'}/> : <DataTable data={filtered} emptyMessage="لا توجد عمليات" columns={[
       { key: 'file', label: 'المصدر', render: (r: ImportRecord) => <button type="button" onClick={() => inspect(r)} className="text-right"><span className="font-semibold text-primary-800 hover:underline">{r.file_name}</span><span className="mt-1 block text-[11px] text-ink-400">{r.entity_type ?? 'import'} · افتح السياق</span></button> },
       { key: 'status', label: 'الحالة', align: 'center', render: (r: ImportRecord) => <button type="button" onClick={() => inspect(r)} className={'inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ' + statusClass(r.status)}>{statusLabel(r.status)}</button> },
