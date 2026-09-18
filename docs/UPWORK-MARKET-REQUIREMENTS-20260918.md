@@ -1,9 +1,9 @@
-# Upwork / Market Requirements — Aghbari Commercial Requirements
+# Market Signal Library — Upwork / External Market Intelligence
 ## 2026-09-18
 
-هذه الوثيقة ليست قائمة features. إنها ترجمة لإشارات السوق إلى متطلبات قابلة للاختبار من داخل الأغبري.
+هذه الوثيقة **ليست Product Requirements ولا Core Backlog**. إنها مكتبة إشارات سوقية وتجارية نستخدمها لاكتشاف الفرص، صياغة العروض، واكتشاف Proof Gaps. أي بند فيها لا يُنفذ كميزة تلقائيًا؛ يجب أن يمر عبر Product Value Gate ومسار التخصص التنافسي قبل أن يصبح Product Work.
 
-## MKT-01 — Evidence-led proposals
+## MARKET SIGNALS — Evidence-led proposals
 كل عرض يجب أن يربط مطلب العميل بدليل من المنتج أو يصرح بأنه Proof Gap.
 
 ## MKT-02 — Multi-tenant security proof
@@ -137,3 +137,19 @@ Track expected effort, delivery risk, proof coverage and commercial upside befor
 
 ## MKT-45 — Learning priority
 A market signal only changes core roadmap after repeated evidence or strategic importance passes Product Value Gate.
+
+
+## NON-PRODUCT STATUS
+MKT-01..MKT-45 = market/commercial signals and operating expectations.
+They are not implementation commitments.
+
+Promotion rules:
+- Signal → observed market pattern.
+- Candidate → repeated/high-value pattern with clear product fit.
+- Product requirement → only after Product Value Gate.
+- Core product feature → only after exact owner decision and architecture/evidence review.
+
+The project should prefer the selective tracks in:
+`docs/SELECTIVE-COMPETITIVE-TRACKS-20260918.md`
+
+A market requirement that does not strengthen one of those tracks remains proposal/delivery guidance, not product scope.
