@@ -81,3 +81,36 @@ REFERENCE MAIN HEAD: 1568e43889d27b5d850e64c0b99d03a994fd3bbe
 REFERENCE UI HEAD: bce816945d6a12a17d14aaaa9034b81cd183f9af
 REFERENCE INTEGRATION HEAD: 0eab10cd94da5705345be129da663a440a98db7e
 STATUS: EXECUTION_STARTED
+
+## 2026-09-18 — Certification Gate Root-Cause Fix
+EXECUTED:
+- Exact target: integration/certification-candidate-20260918@0eab10cd94da5705345be129da663a440a98db7e
+- Root cause: final-certification-gate.yml invoked every scripts/check-*.mjs without arguments; check-head-identity.mjs requires --branch, --sha, --role, --base, --candidate and therefore failed with HEAD IDENTITY FAIL.
+- Change: added explicit governed HEAD identity step using CERTIFICATION_SHA, branch, merge-base origin/main, Owner 2 role, candidate YES; excluded that script from the generic contract loop so it cannot be invoked without context.
+- Main unchanged.
+
+VERIFIED:
+- Base exact candidate: 0eab10cd94da5705345be129da663a440a98db7e
+- HEAD IDENTITY PASS for integration/certification-candidate-20260918; SHA=0eab10cd94da5705345be129da663a440a98db7e; Base=fe5661060462ffa21d6aa31505f80c2021c4170a; Candidate=YES.
+- final-certification-provenance.test.mjs PASS.
+- check-certification-boundary-integrity.test.mjs PASS.
+- git diff --check PASS.
+- Fix commit: 2308e0f246074f08ca942450b37b6565843c10fd.
+- Owner2 branch cherry-pick: e027a8398770b1c7907192e12fef1c98bf810490.
+
+OPEN:
+- Fresh exact-head Final Certification Gate has not yet rerun after the fix.
+- Runtime browser/storage/product E2E still blocked by exact-head AUTH_TOKEN_HTTP_504.
+- Phase F live resilience remains 0/4 due external endpoint responses (404/405/fetch failure).
+- Backup/restore live evidence remains absent.
+- Exact deployed-SHA parity remains unproven; Vercel is externally rate-limited.
+
+BLOCKED:
+- External Supabase Auth gateway instability remains the common blocker for authenticated E2E; endpoint itself is reachable from PC01 but password-grant returned 504 in GitHub Actions at exact candidate.
+- Phase F target endpoints are externally invalid/unavailable; no code bypass permitted.
+
+NEXT HANDOFF:
+- Target branch: integration/certification-candidate-20260918
+- Expected action: merge/pick e027a839 into integration, producing a NEW exact SHA; rerun Final Certification Gate on that new SHA.
+- Then continue live runtime/backup/restore/release gates independently.
+- Evidence from 0eab10cd is not transferred to the new SHA.
