@@ -25,6 +25,13 @@ type CertificationStatus = 'DRAFT' | 'REVIEWED' | 'CERTIFIED' | 'DEPRECATED';
 
 type FreshnessState = 'FRESH' | 'STALE' | 'UNKNOWN';
 
+function freshnessDetail(freshness: Record<string, unknown>): string {
+  const maxAge = Number(freshness.maxAgeMinutes);
+  return Number.isFinite(maxAge) && maxAge >= 0
+    ? `الحد الأقصى للحداثة: ${maxAge.toLocaleString()} دقيقة`
+    : 'سياسة الحداثة غير مكتملة';
+}
+
 const statusClass = (status: CertificationStatus) => {
   if (status === 'CERTIFIED') return 'bg-success-50 text-success-700';
   if (status === 'REVIEWED') return 'bg-primary-50 text-primary-700';
@@ -189,7 +196,7 @@ export function MetricInspectorPage() {
                     <div className="mt-1 text-xs">
                       {capture.kpi_key} · {capture.value} · {capture.quality} · {capture.observed_at}
                     </div>
-                    <div className="mt-1 text-xs">Snapshot: {capture.id}</div>
+                    <div className="mt-1 text-xs">لقطة الدليل: {capture.id}</div>
                   </div>
                 )}
 
@@ -297,7 +304,7 @@ export function MetricInspectorPage() {
                       سياسة الحداثة
                     </div>
                     <div className="mt-2 text-xs text-ink-500">
-                      {governance ? JSON.stringify(governance.freshness) : 'غير محفوظة'}
+                      {governance ? freshnessDetail(governance.freshness) : 'غير محفوظة'}
                     </div>
                   </div>
                   <div className="rounded-xl bg-ink-50 p-4">
