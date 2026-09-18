@@ -77,6 +77,9 @@ if (/batchSize|for \(let i = 0; i < input\.rows\.length/.test(adapter)) {
 const serverPath = path.join(root, 'api', 'canonical-import-run.ts');
 if (!fs.existsSync(serverPath)) throw new Error('Canonical server lifecycle boundary is missing');
 const server = fs.readFileSync(serverPath, 'utf8');
+if (/SUPABASE_SERVICE_ROLE_KEY|serviceClient\s*\(/.test(server)) {
+  throw new Error('Canonical import server boundary must not depend on a service-role secret; use the authenticated tenant client');
+}
 if (!/runDurableProductionLifecycle/.test(server) || !/SupabaseReportExecutionStore/.test(server)) {
   throw new Error('Canonical server boundary must use the existing durable production runner/store');
 }
