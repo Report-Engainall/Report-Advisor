@@ -1,0 +1,11 @@
+import fs from 'node:fs';
+import path from 'node:path';
+const root=process.cwd();
+const engine=fs.readFileSync(path.join(root,'src/lib/commercial-opportunity-radar.ts'),'utf8');
+const component=fs.readFileSync(path.join(root,'src/components/CommercialOpportunityRadar.tsx'),'utf8');
+const dashboard=fs.readFileSync(path.join(root,'src/pages/DashboardPage.tsx'),'utf8');
+for(const token of ['collection-pressure','customer-concentration','product-concentration','sales-momentum','margin-opportunity','inventory-capital'])if(!engine.includes(token))throw new Error('RADAR_MISSING_SIGNAL:'+token);
+for(const token of ['source:','evidence:','actionPath:','return out.sort'])if(!engine.includes(token))throw new Error('RADAR_MISSING_TRUTH_GUARD:'+token);
+for(const token of ['الرادار التجاري','لا تتحول الإشارة إلى قرار تلقائي','دليل اللقطة'])if(!component.includes(token))throw new Error('RADAR_UI_MISSING:'+token);
+if(!dashboard.includes('CommercialOpportunityRadar')||!dashboard.includes('buildCommercialOpportunityRadar'))throw new Error('RADAR_NOT_WIRED_TO_DASHBOARD');
+console.log('COMMERCIAL_OPPORTUNITY_RADAR_CONTRACT: PASS');

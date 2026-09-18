@@ -11,6 +11,8 @@ const TrendChart = lazy(() => import('@/components/ui/Charts').then(module => ({
 const CategoryPieChart = lazy(() => import('@/components/ui/Charts').then(module => ({ default: module.CategoryPieChart })));
 const HorizontalBarChart = lazy(() => import('@/components/ui/Charts').then(module => ({ default: module.HorizontalBarChart })));
 import { fetchDashboardSnapshot, fetchDashboardIntelligence } from '@/lib/dashboard-canonical';
+import { buildCommercialOpportunityRadar } from '@/lib/commercial-opportunity-radar';
+import { CommercialOpportunityRadar } from '@/components/CommercialOpportunityRadar';
 import { formatCurrency, relativeTime } from '@/lib/format';
 import type { Recommendation, Alert } from '@/lib/types';
 import type { DashboardKPIs, MonthlyTrend, TopEntity, CategoryBreakdown, AgingDashboard } from '@/lib/dashboard-canonical';
@@ -72,6 +74,7 @@ export function DashboardPage() {
   const coverage = Math.round((confirmed / 8) * 100);
   const liveRecommendations = recommendations.filter(row => row.status === 'new' || row.status === 'accepted').slice(0, 4);
   const liveAlerts = alerts.slice(0, 4);
+  const commercialSignals = buildCommercialOpportunityRadar({ kpis, trend, topCustomers, topProducts, categories, aging, months: trendMonths });
 
   const openKpi = (label: string, value: number | null, format: 'currency' | 'number' | 'percent', actions: InvestigationTarget['actions']) => {
     setInvestigation({
@@ -199,6 +202,8 @@ export function DashboardPage() {
         <KPICard label="الذمم المدينة" value={kpis.totalReceivables} format="currency" icon={<Receipt size={16}/>} status={metricStatus(kpis.totalReceivables,kpis.status)} onClick={() => openKpi('الذمم المدينة', kpis.totalReceivables, 'currency', [{ label: 'افتح التحصيل', path: '/reports/receivables', hint: 'افحص الأعمار والتحصيل والحالات المستثناة.' }, { label: 'افتح مركز العمل', path: '/work-center', hint: 'تحويل الحالات المثبتة إلى إجراءات.' }])} interactiveLabel="افتح تحقيق الذمم المدينة"/>
         <KPICard label="قيمة المخزون" value={kpis.inventoryValue} format="currency" icon={<Package size={16}/>} status={metricStatus(kpis.inventoryValue,kpis.status)} onClick={() => openKpi('قيمة المخزون', kpis.inventoryValue, 'currency', [{ label: 'افتح ذكاء المخزون', path: '/reports/inventory-intelligence', hint: 'افحص الطلب والتغطية والحالات المثبتة فقط.' }, { label: 'افتح المخزون', path: '/inventory', hint: 'راجع الرصيد والقيمة من المصدر.' }])} interactiveLabel="افتح تحقيق قيمة المخزون"/>
       </section>
+
+      <CommercialOpportunityRadar signals={commercialSignals} />
 
       <section className="grid grid-cols-2 gap-px overflow-hidden rounded-[10px] border border-ink-200 bg-ink-200 sm:grid-cols-4">
         {[['العملاء',kpis.totalCustomers],['المنتجات',kpis.totalProducts],['الفواتير',kpis.invoiceCount],['معدل التحصيل',kpis.collectionRate]].map(([label,value]) => <button key={label} type="button" onClick={() => openKpi(String(label), value as number | null, label === 'معدل التحصيل' ? 'percent' : 'number', [{ label: 'افتح مركز القيادة', path: '/command-center', hint: 'ضع المؤشر داخل سياق الصورة التجارية.' }, { label: 'افتح مركز الذكاء', path: '/intelligence', hint: 'استكشف ما إذا كان المؤشر يستدعي تحليلًا أعمق.' }])} className="bg-white px-3.5 py-3 text-right transition hover:bg-ink-50"><div className="text-[10px] font-semibold text-ink-400">{label}</div><div className="mt-1 text-[15px] font-black tabular-nums text-ink-900">{value===null?'غير متاح':String(value)+(label==='معدل التحصيل'?'%':'')}</div></button>)}
