@@ -5,7 +5,7 @@
 > Authoritative execution manifest. This document never promotes historical evidence across an exact Git `HEAD` boundary. Pair every evidence batch with the exact Git `HEAD` of `main` and the exact environment/commit used.
 
 ### CURRENT EXACT HEAD
-- Current code/test candidate: `f860490641d3a9650ca75d56d3f3207e6c3ee0db`.
+- Current code/test candidate: `11f21f57a424a5d4f29dc466851d2ff45881e9aa`.
 - This is the exact remediation candidate created directly from current `main` `54b6b95bae9fd3737c70c126bf727cac21aec143`, preserving current-main governance files and reapplying the PDF/OCR + import runtime remediation.
 - The autonomous operating protocol is now repository-resident at `docs/PROGRAMMER_AUTONOMOUS_OPERATING_PROTOCOL.md`.
 - PC01 native desktop verification is recorded at `docs/evidence/DEVICE_PC01_VERIFICATION_20260918.md`; its native smoke is PASS and its evidence is bound to the documented local source SHA/environment.
@@ -15,8 +15,10 @@
 - Current-head workflow execution is not yet evidenced on this SHA by the repository Actions run feed; absence of runs is not PASS and does not transfer historical evidence.
 - Current `main` is `54b6b95bae9fd3737c70c126bf727cac21aec143`.
 - PR #552 is the active remediation path; stale PR #542 is closed and its evidence is not promoted.
+- The first exact-head Vercel build at `d62e8894dfbeb06f2c9924ed82ff54e8bd8605f7` failed deterministically because `finishCanonicalImportFailure` was imported but not exported by `src/lib/import/canonical-production-adapter.ts`.
+- This was corrected minimally on candidate `11f21f57a424a5d4f29dc466851d2ff45881e9aa`; the next exact-head build is required before treating build/runtime as green.
 - Staging worker service-authority migration `20260918043413_reconcile_report_execution_worker_service_authority` is applied and preserved by this candidate.
-- Vercel remains externally blocked by the provider build-rate limit for the candidate; no deployment/runtime PASS is claimed from that status.
+- Vercel deployment proof remains pending for candidate `11f21f57a424a5d4f29dc466851d2ff45881e9aa`; no deployment/runtime PASS is claimed until the new build completes.
 
 ### CURRENT EXECUTION CONTROL — 2026-09-18
 - PR #533 adds the mandatory continuous two-owner execution/resume protocol. It is governance-only and does not itself certify runtime.
@@ -24,6 +26,17 @@
 - Coordinator-owned verification fronts: fresh exact-head CI/runtime evidence, Supabase staging truth/security, production/deployment verification, resilience/evidence control, and commercial-gap control.
 - Rule: do not restart closed work. Resume IN_PROGRESS fronts from their last verified checkpoint. Do not mix evidence across SHA boundaries.
 - Rule: independent fronts must run in parallel; a queued CI workflow or external provider blocker must not idle unrelated work.
+
+### VERIFIED STAGING WORKER AUTHORITY — 2026-09-18
+- Real Staging transaction probe against job `e9b13f2d-1ad0-474f-b5b8-98322ce1e573` succeeded under trusted `service_role`: claim and `decisioned → committed` checkpoint transition both returned success.
+- The transaction was rolled back; the real job returned to `queued` with no lease, so the probe did not mutate durable Staging state.
+- Function execute privileges are now `service_role=true`, `authenticated=false`, `anon=false` for claim, advance, heartbeat, complete, fail, and retry worker RPCs.
+- This closes the previously diagnosed worker authority mismatch at the RPC boundary. Full end-to-end lifecycle/runtime certification is still separate and remains unproven until a real exact-head production lifecycle is observed.
+
+### ACTIVE EXACT-HEAD EVIDENCE — 2026-09-18
+- GitHub Actions has begun the exact-head run matrix for candidate `11f21f57...`; many required workflows are queued, with `desktop-windows` in progress and no certification conclusion yet.
+- Vercel stale-head deployment `dpl_BLhvgu345Srr8G4Ra5VSLuqHs5Bh` for `d62e889...` failed at `npm run build` on the missing export described above; no PASS is transferred.
+- The correct next gate is the new candidate build plus the exact-head regression/certification workflows.
 
 ### CURRENT MAIN — MATERIAL FRONT CLOSURE
 - PR #525 — security exposure checker bound to repository truth — merged.
