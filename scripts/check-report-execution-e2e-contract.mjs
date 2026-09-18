@@ -46,14 +46,14 @@ assertGateImplementation(gate);
 // Test-of-test: prove the gate checker detects removal of the two critical
 // fail-closed preconditions instead of merely checking that their names exist.
 const tamperedWithoutSnapshot = gate.replace(
-  "  if (!input.sourceSnapshotId) throw new Error('Report execution requires a source snapshot');\n",
+  /^  if \(!input\.sourceSnapshotId\) throw new Error\('Report execution requires a source snapshot'\);\r?\n/m,
   '',
 );
 let snapshotTamperRejected = false;
 try { assertGateImplementation(tamperedWithoutSnapshot); } catch { snapshotTamperRejected = true; }
 if (!snapshotTamperRejected) throw new Error('Test-of-test failed: source snapshot guard removal was not detected');
 
-const tamperedWithoutQuarantine = gate.replace('  assertNoQuarantine(input.routePlan);\n', '');
+const tamperedWithoutQuarantine = gate.replace(/^  assertNoQuarantine\(input\.routePlan\);\r?\n/m, '');
 let quarantineTamperRejected = false;
 try { assertGateImplementation(tamperedWithoutQuarantine); } catch { quarantineTamperRejected = true; }
 if (!quarantineTamperRejected) throw new Error('Test-of-test failed: quarantine gate removal was not detected');
