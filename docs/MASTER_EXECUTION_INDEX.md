@@ -61,6 +61,7 @@
 - Commercial competition is won through narrow specialization, current proof, fast demo-to-result, disciplined scope, and claim-safe delivery—not by maximizing feature count.
 - Existing completion states remain TECHNICALLY_COMPLETE → PRODUCT_COMPLETE → COMMERCIAL_READY → CERTIFIED. Documentation does not advance capability state.
 - Runtime/certification blockers remain higher priority than speculative commercial expansion.
+- **Canonical unified requirements register:** `docs/MASTER_REQUIREMENTS_CATALOG.md` is now the single consolidated requirements view. It merges legacy/current execution tables, UI/product requirements, runtime/certification requirements, historical hardening requirements, commercial governance, and MARKET_SIGNAL entries without deleting the original source/archive documents or transferring evidence.
 ### OWNER-APPROVED COMPETITIVE PRODUCT WEDGE — 2026-09-18
 - **Owner decision:** اعتمد المالك استراتيجية «الميزات الضيقة القوية» كقاعدة دائمة لتموضع Report-Advisor التجاري والتطويري.
 - Report-Advisor لا يطارد حجم المنصات الكبرى ولا يسعى إلى جمع أكبر عدد من الميزات؛ التنافس يكون داخل وظائف محددة يمكن إثباتها بعمق وبـ Exact Evidence وUX قوي وتسليم منضبط.
