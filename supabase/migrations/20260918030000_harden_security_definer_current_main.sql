@@ -163,7 +163,7 @@ BEGIN
   FROM public.business_intelligence_decisions
   WHERE id = v_decision
     AND company_id = v_company
-  FOR UPDATE;
+  for update;
 
   IF v_decision_status is distinct from 'PROPOSED' THEN
     RAISE EXCEPTION 'DECISION_STATE_CHANGED';
@@ -174,7 +174,7 @@ BEGIN
   FROM public.decision_approvals
   WHERE id = p_approval_id
     AND company_id = v_company
-  FOR UPDATE;
+  for update;
 
   IF v_status <> 'PENDING' THEN
     RAISE EXCEPTION 'APPROVAL_NOT_PENDING';
@@ -239,7 +239,7 @@ BEGIN
   FROM public.recommendations
   WHERE id = p_recommendation_id
     AND company_id = v_company_id
-  FOR UPDATE;
+  for update;
 
   IF NOT FOUND THEN
     RAISE EXCEPTION 'RECOMMENDATION_NOT_FOUND_OR_FORBIDDEN';
@@ -250,7 +250,7 @@ BEGIN
   FROM public.business_intelligence_decisions
   WHERE id = p_decision_id
     AND company_id = v_company_id
-  FOR UPDATE;
+  for update;
 
   IF NOT FOUND THEN
     RAISE EXCEPTION 'DECISION_NOT_FOUND_OR_FORBIDDEN';
@@ -498,7 +498,7 @@ BEGIN
   FROM public.business_intelligence_decisions d
   WHERE d.id = p_decision_id
     AND d.company_id = v_company
-  FOR UPDATE;
+  for update;
 
   IF v_decision_status is distinct from 'PROPOSED' THEN
     RAISE EXCEPTION 'DECISION_NOT_APPROVABLE';
@@ -509,7 +509,7 @@ BEGIN
   FROM public.decision_approvals a
   WHERE a.company_id = v_company
     AND a.decision_id = p_decision_id
-  FOR UPDATE;
+  for update;
 
   IF v_existing_status IN ('APPROVED','REJECTED','CANCELLED') THEN
     RAISE EXCEPTION 'APPROVAL_TERMINAL_NOT_REOPENABLE';
