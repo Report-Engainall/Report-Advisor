@@ -5,10 +5,10 @@
 > Authoritative execution manifest. This document never promotes historical evidence across an exact Git `HEAD` boundary. Pair every evidence batch with the exact Git `HEAD` of `main` and the exact environment/commit used.
 
 ### CURRENT EXACT HEAD
-- Current code/test candidate: `b554af0eb9d9c35dc7279344fe095fdc48e36b84`.
-- Current Main product/test candidate is `b554af0eb9d9c35dc7279344fe095fdc48e36b84`; later changes after this candidate are governance-only index/document updates. PR #550 structured PDF/file-engine repair and PR #556 production-coordinator runtime test-loader restoration are included in the candidate lineage.
+- Current code/test candidate: `1ed603e1b8fee7488fd43e9c00f65ff5dd13f9ce`.
+- Current Main product/test candidate is `1ed603e1b8fee7488fd43e9c00f65ff5dd13f9ce`. PR #550 structured PDF/file-engine repair, PR #556 coordinator runtime-loader restoration, and PR #564 Windows-safe readiness/lint fixes are included in the candidate lineage.
 - The autonomous operating protocol is now repository-resident at `docs/PROGRAMMER_AUTONOMOUS_OPERATING_PROTOCOL.md`.
-- PC01 native desktop verification is recorded at `docs/evidence/DEVICE_PC01_VERIFICATION_20260918.md`; a fresh Exact-Main native smoke PASS at predecessor candidate `c466666cef65d082383aca4fd3384261e9f64690` is historical because PR #556 changed only test/runtime tooling. No native smoke failure is known on the current candidate.
+- PC01 exact-main runtime evidence is recorded in `docs/evidence/EXACT_MAIN_RUNTIME_20260918.md`; current-head native/installer evidence remains pending a workflow run against `1ed603e1...`.
 - No runtime/browser/production evidence from an earlier SHA is promoted by this binding.
 - The certification binding itself is governance-only and does not certify runtime/product code; fresh exact-HEAD runtime evidence is still required.
 - Historical evidence from earlier SHAs remains historical and is not promoted automatically.
@@ -20,8 +20,8 @@
 ### CURRENT EXECUTION CONTROL — 2026-09-18
 - PR #533 adds the mandatory continuous two-owner execution/resume protocol. It is governance-only and does not itself certify runtime.
 - Structured PDF/file-engine runtime front is CLOSED through PR #550. Fresh PC01 Exact-Main proof at predecessor code candidate `c466666cef65d082383aca4fd3384261e9f64690`: file-engine contract PASS, structured PDF/OCR behavioral regression PASS, production build PASS, native desktop smoke PASS. Windows NSIS packaging was attempted on that candidate but exceeded the safe execution window; no exact-main packaging PASS is claimed.
-- Production-coordinator runtime front is CLOSED through PR #556. Candidate `326bb98ea7648dfaff25e8120f8c759e7a98ff6d` has PC01 PASS for `test:production-coordinator-runtime` and `test:production-coordinator-integration`; `test:phase-l-resumable-execution`, operational-resilience contracts, and production-release-blocker contract also passed. Durable evidence: `docs/evidence/PRODUCTION_COORDINATOR_RUNTIME_20260918.md`.
-- Coordinator-owned remaining fronts: current exact-head evidence binding, Supabase staging truth/security, authenticated business E2E, production/deployment verification, resilience runtime proof, and commercial-gap control.
+- Production-coordinator runtime front is CLOSED through PR #556. Current exact candidate `1ed603e1...` was freshly verified on PC01 for `test:production-coordinator-runtime` and `test:production-coordinator-integration`; the 20-stage suite and file-engine regressions/contracts also pass. Durable evidence: `docs/evidence/EXACT_MAIN_RUNTIME_20260918.md`.
+- Coordinator-owned remaining fronts: authenticated business E2E, current-head Browser/Certification workflow evidence, current-head Windows workflow evidence, production/deployment verification, live resilience proof, and commercial-gap control.
 - Rule: do not restart closed work. Resume IN_PROGRESS fronts from their last verified checkpoint. Do not mix evidence across SHA boundaries.
 - Rule: independent fronts must run in parallel; a queued CI workflow or external provider blocker must not idle unrelated work.
 
