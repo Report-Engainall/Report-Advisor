@@ -51,7 +51,8 @@ try {
   assert.equal(reviewCount, 0, 'known requirements must not be reported as unmatched');
 
   await page.screenshot({ path: `${reportDir}/proposal-demo.png`, fullPage: true });
-  const demoLink = page.locator('a').filter({ hasText: 'Live Demo' }).first();
+  const demoLink = page.getByRole('link', { name: 'العرض الحي' }).first();
+  if (await demoLink.count() !== 1) throw new Error('LIVE_DEMO_LINK_NOT_FOUND');
   await demoLink.click();
   await page.waitForURL(url => url.pathname === '/', { timeout: 10000 });
   await page.getByRole('heading', { name: /مركز القيادة|لوحة القيادة/ }).waitFor({ state: 'visible', timeout: 15000 }).catch(() => {});
@@ -74,7 +75,7 @@ try {
   assert.match(pdfText, /Senior Business Intelligence Analyst/);
   assert.match(pdfText, /Evidence-First Retail Client/);
   assert.match(pdfText, /Capability Mapping/);
-  assert.match(pdfText, /Live Demo Sequence/);
+  assert.match(pdfText, /تسلسل العرض الحي/);
   evidence.status = 'PASS';
   evidence.matchedCount = matchedCount;
   evidence.pdf = { verified: true, path: pdfPath };
