@@ -100,15 +100,16 @@ async function browserSession(user) {
     const raw = Object.entries(localStorage).find(([key]) => key.endsWith('-auth-token'))?.[1];
     const session = JSON.parse(raw);
     let last = null;
-    for (let attempt = 1; attempt <= 5; attempt += 1) {
+    const retryable = new Set([429, 502, 503, 504, 520, 544]);
+    for (let attempt = 1; attempt <= 8; attempt += 1) {
       const response = await fetch(`${url}/rest/v1/rpc/current_company_id`, {
         method: 'POST', headers: { apikey: anon, Authorization: `Bearer ${session.access_token}`, 'Content-Type': 'application/json' }, body: '{}',
       });
       const body = await response.text();
       if (response.ok) return { ok: true, status: response.status, body };
       last = { ok: false, status: response.status, body };
-      if (![502, 503, 504, 544].includes(response.status) || attempt === 5) return last;
-      await new Promise(resolve => setTimeout(resolve, 1500 * attempt));
+      if (!retryable.has(response.status) || attempt === 8) return last;
+      await new Promise(resolve => setTimeout(resolve, Math.min(1000 * 2 ** (attempt - 1), 8000)));
     }
     return last || { ok: false, status: 599, body: 'tenant resolution exhausted' };
   }, { url: supabaseURL, anon: anonKey });
@@ -118,9 +119,9 @@ async function browserSession(user) {
   return { context, page, token, tenant };
 }
 async function storageRequest(token, method, path, body, headers = {}) {
-  const transientStatuses = new Set([502, 503, 504, 544]);
+  const transientStatuses = new Set([429, 502, 503, 504, 520, 544]);
   let last = null;
-  for (let attempt = 1; attempt <= 3; attempt += 1) {
+  for (let attempt = 1; attempt <= 5; attempt += 1) {
     const response = await fetch(`${supabaseURL}/storage/v1/${path}`, {
       method,
       headers: { apikey: anonKey, Authorization: `Bearer ${token}`, ...headers },
@@ -129,8 +130,8 @@ async function storageRequest(token, method, path, body, headers = {}) {
     const text = await response.text();
     let payload = text; try { payload = JSON.parse(text); } catch {}
     last = { ok: response.ok, status: response.status, payload, attempts: attempt };
-    if (response.ok || !transientStatuses.has(response.status) || attempt === 3) return last;
-    await new Promise(resolve => setTimeout(resolve, 750 * attempt));
+    if (response.ok || !transientStatuses.has(response.status) || attempt === 5) return last;
+    await new Promise(resolve => setTimeout(resolve, Math.min(750 * 2 ** (attempt - 1), 6000)));
   }
   return last;
 }
