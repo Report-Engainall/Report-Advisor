@@ -57,6 +57,7 @@ jobs:
   browser-e2e:
     runs-on: ubuntu-22.04
     timeout-minutes: 60
+    environment: staging
     steps:
       - uses: actions/checkout@v4
         with:
