@@ -15,52 +15,28 @@ interface KPICardProps {
 }
 
 export function KPICard({ label, value, format, change, changeLabel, icon, status = 'CALCULATED', hint }: KPICardProps) {
-  const formatted = value === null
-    ? '—'
-    : format === 'currency' ? formatCurrency(value)
-      : format === 'percent' ? `${value.toFixed(1)}%`
-      : format === 'compact' ? formatCompact(value)
-      : formatNumber(value);
-
-  const isPositive = change !== undefined && change > 0;
-  const isNegative = change !== undefined && change < 0;
-  const isNeutral = change === 0;
-
-  const statusColors: Record<string, string> = {
-    CONFIRMED: 'text-success-600',
-    CALCULATED: 'text-primary-600',
-    ESTIMATED: 'text-warning-600',
-    FORECAST: 'text-accent-600',
-    INSUFFICIENT_DATA: 'text-ink-400',
-    UNAVAILABLE: 'text-ink-400',
-  };
+  const formatted = value === null ? '—' : format === 'currency' ? formatCurrency(value) : format === 'percent' ? formatPercent(value) : format === 'compact' ? formatCompact(value) : formatNumber(value);
+  const positive = change !== undefined && change > 0;
+  const negative = change !== undefined && change < 0;
+  const statusLabel = status === 'INSUFFICIENT_DATA' ? 'غير مكتمل' : status === 'FORECAST' ? 'تنبؤ' : status === 'ESTIMATED' ? 'تقديري' : 'محسوب';
 
   return (
-    <div className="card card-hover p-5 group">
-      <div className="flex items-start justify-between mb-3">
-        <div className="flex items-center gap-2">
-          {icon && <div className="text-ink-400 group-hover:text-primary-500 transition-colors">{icon}</div>}
-          <span className="text-sm font-medium text-ink-500">{label}</span>
+    <div className="card card-hover group relative overflow-hidden p-5">
+      <div className="absolute right-0 top-0 h-20 w-20 rounded-full bg-primary-50 blur-2xl opacity-70" aria-hidden="true"/>
+      <div className="relative flex items-start justify-between gap-3">
+        <div className="flex items-center gap-2.5">
+          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-ink-50 text-ink-500 transition group-hover:bg-primary-50 group-hover:text-primary-700">{icon}</span>
+          <span className="text-[11px] font-bold text-ink-500">{label}</span>
         </div>
-        {status === 'INSUFFICIENT_DATA' && (
-          <span className="badge-neutral text-[10px]">بيانات غير كافية</span>
-        )}
+        <span className="text-[9px] font-black uppercase tracking-wide text-ink-400">{statusLabel}</span>
       </div>
-      <div className="text-2xl font-bold text-ink-900 tabular-nums tracking-tight">{formatted}</div>
-      <div className="flex items-center gap-2 mt-2">
-        {change !== undefined && (
-          <span className={`flex items-center gap-1 text-xs font-medium ${
-            isPositive ? 'text-success-600' : isNegative ? 'text-danger-600' : 'text-ink-400'
-          }`}>
-            {isPositive && <TrendingUp size={14} />}
-            {isNegative && <TrendingDown size={14} />}
-            {isNeutral && <Minus size={14} />}
-            {formatPercent(change)}
-          </span>
-        )}
-        {changeLabel && <span className="text-xs text-ink-400">{changeLabel}</span>}
+      <div className="relative mt-5 metric-value">{formatted}</div>
+      <div className="relative mt-2 flex min-h-4 items-center gap-2">
+        {change !== undefined && <span className={'flex items-center gap-1 text-xs font-bold ' + (positive ? 'text-success-600' : negative ? 'text-danger-600' : 'text-ink-400')}>{positive ? <TrendingUp size={13}/> : negative ? <TrendingDown size={13}/> : <Minus size={13}/>} {formatPercent(change)}</span>}
+        {changeLabel && <span className="text-[10px] text-ink-400">{changeLabel}</span>}
+        {status === 'INSUFFICIENT_DATA' && <span className="badge-neutral text-[9px]">لا قيمة مؤكدة</span>}
       </div>
-      {hint && <p className="text-[11px] text-ink-400 mt-2">{hint}</p>}
+      {hint && <p className="relative mt-2 text-[10px] leading-4 text-ink-400">{hint}</p>}
     </div>
   );
 }
