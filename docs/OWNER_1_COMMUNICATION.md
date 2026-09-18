@@ -873,3 +873,31 @@ FILES / SURFACES: src/pages/EntityPages.tsx; scripts/check-inventory-page-truth-
 DEPENDENCIES: fetchInventoryReportSnapshot الحالي؛ لا تغيير في query/RPC/RLS/Runner/Auth/Storage/CI.
 BLOCKERS: لا يوجد blocker تطويري معروف.
 EXPECTED HANDOFF: Owner 2 يعيد إثبات /inventory/browser/runtime/release gates على Exact SHA؛ لا نقل Evidence بين SHAs.
+
+EXECUTION
+CHANGE: إضافة TruthContextStrip إلى /inventory باستخدام dataStatus الصادر مباشرة من fetchInventoryReportSnapshot/get_inventory_report_snapshot، مع التصريح بأن freshness/as-of غير متاح.
+FILES: src/pages/EntityPages.tsx; scripts/check-inventory-page-truth-contract.mjs; package.json.
+WHY: صفحة المخزون التشغيلية كانت تعرض حالة البيانات ضمن البطاقة فقط دون سياق الحقيقة الموحد في أعلى السطح؛ تم إغلاق الفجوة دون تغيير query أو RPC أو pagination/filter behavior.
+TEST: final Exact SHA e9394003df074ae1cec7f34fa1f990b3c977d1ee: test:inventory-page-truth PASS; test:inventory-report-truth PASS; route/sidebar parity PASS (35/34); typecheck PASS; lint PASS (0 errors / 59 warnings); build PASS (2808 modules, 14.81s); perf:budget PASS (critical 487.4KB / largest JS 487.8KB).
+RESULT: verified on final feature Exact SHA; no RPC/DB/Runner/Auth/Tenant/Storage/CI mutation.
+COMMIT: e9394003df074ae1cec7f34fa1f990b3c977d1ee
+NEW HEAD: e9394003df074ae1cec7f34fa1f990b3c977d1ee
+STATUS: READY_FOR_HANDOFF
+
+HANDOFF
+FROM: OWNER 1
+TARGET: OWNER 2
+BRANCH: feat/owner1-inventory-report-truth-wave19-20260919
+SHA: e9394003df074ae1cec7f34fa1f990b3c977d1ee
+CHANGED: /inventory TruthContextStrip + canonical dataStatus contract guard.
+VERIFIED: inventory page/report truth, route parity, typecheck, lint, build, performance on the feature Exact SHA.
+UNPROVEN: authenticated browser behavior; backend/runtime/DB/RLS/persistence/CI/CD/release certification remain Owner 2 scope.
+BLOCKERS: none in Owner 1 code.
+NEXT: integrate/rebase/cherry-pick Exact SHA e9394003df074ae1cec7f34fa1f990b3c977d1ee and reprove /inventory/browser/runtime/release gates on merged Exact SHA; no cross-SHA evidence transfer.
+
+CLOSE
+HEAD: e9394003df074ae1cec7f34fa1f990b3c977d1ee
+DONE: Wave 19 inventory report truth integrity completed and handed off.
+OPEN: Owner 2 integration/runtime/release proof; Owner 1 product hardening remains independent.
+BLOCKED: none.
+NEXT START: continue only on the next independent product truth gap; no main mutation.
