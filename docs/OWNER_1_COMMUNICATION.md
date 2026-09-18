@@ -914,3 +914,31 @@ FILES / SURFACES: src/pages/ExecutiveCommandCenterPage.tsx; scripts/check-execut
 DEPENDENCIES: fetchDashboardSnapshot/fetchDashboardIntelligence الحالية؛ لا RPC/DB/Runner/Auth/Tenant/Storage/CI change.
 BLOCKERS: لا يوجد blocker تطويري معروف.
 EXPECTED HANDOFF: Owner 2 يعيد إثبات مركز القيادة/browser/runtime/release على Exact SHA؛ لا نقل Evidence بين SHAs.
+
+EXECUTION
+CHANGE: إضافة TruthContextStrip إلى مركز القيادة التنفيذي باستخدام kpis.status وasOf ونافذة months القادمة مباشرة من get_dashboard_snapshot.
+FILES: src/pages/ExecutiveCommandCenterPage.tsx; scripts/check-executive-command-center-truth-contract.mjs; package.json.
+WHY: مركز القيادة كان يمتلك حالة المصدر والـas-of داخل مكونات التحقيق فقط؛ تم رفعهما إلى سطح الحقيقة الرئيسي دون تغيير مصدر الأرقام أو intelligence.
+TEST: final Exact SHA 617afe12f49b2dc94b1b8953154635eb59c28717: test:executive-command-center-truth PASS; test:executive-command-center-product PASS; test:executive-dashboard-ui PASS; test:dashboard-critical-load PASS; test:intelligence-product-contract PASS; route/sidebar parity PASS (35/34); typecheck PASS; lint PASS (0 errors / 59 warnings); build PASS (2808 modules, 17.51s); perf:budget PASS (critical 487.4KB / largest JS 487.8KB).
+RESULT: verified on final feature Exact SHA; no RPC/DB/Runner/Auth/Tenant/Storage/CI mutation.
+COMMIT: 617afe12f49b2dc94b1b8953154635eb59c28717
+NEW HEAD: 617afe12f49b2dc94b1b8953154635eb59c28717
+STATUS: READY_FOR_HANDOFF
+
+HANDOFF
+FROM: OWNER 1
+TARGET: OWNER 2
+BRANCH: feat/owner1-command-center-truth-wave20-20260919
+SHA: 617afe12f49b2dc94b1b8953154635eb59c28717
+CHANGED: Executive Command Center TruthContextStrip + exact contract guard.
+VERIFIED: command-center product/truth, dashboard critical-load, intelligence contract, route parity, typecheck, lint, build, performance on feature Exact SHA.
+UNPROVEN: authenticated browser behavior; backend/runtime/DB/RLS/persistence/CI/CD/release certification remain Owner 2 scope.
+BLOCKERS: none in Owner 1 code.
+NEXT: integrate/rebase/cherry-pick Exact SHA 617afe12f49b2dc94b1b8953154635eb59c28717 and reprove command-center/browser/runtime/release gates on merged Exact SHA; no cross-SHA evidence transfer.
+
+CLOSE
+HEAD: 617afe12f49b2dc94b1b8953154635eb59c28717
+DONE: Wave 20 executive command-center truth integrity completed and handed off.
+OPEN: Owner 2 integration/runtime/release proof; Owner 1 independent product hardening remains.
+BLOCKED: none.
+NEXT START: continue only on the next independent product truth gap; no main mutation.
