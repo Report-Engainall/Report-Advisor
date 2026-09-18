@@ -83,6 +83,10 @@ async function main(): Promise<void> {
       'Invoice Number: INV-LEGACY Date 2026-09-15 Customer Name: Test Customer Subtotal: 12 Tax: 3 Total: 15 Currency: YER',
       'INV-LEGACY',
     );
+    await assertStructuredPdf(
+      'رقم الفاتورة: INV-AR التاريخ: ٢٠٢٦-٠٩-١٥ اسم العميل: Test Customer المجموع الفرعي: ١٢ الضريبة: ٣ الإجمالي: ١٥ العملة: YER',
+      'INV-AR',
+    );
 
     console.log('Structured PDF/OCR behavioral regression: PASS');
   } finally {
