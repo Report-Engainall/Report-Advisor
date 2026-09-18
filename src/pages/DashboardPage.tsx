@@ -96,12 +96,12 @@ export function DashboardPage() {
       <TruthRail status={kpis.status === 'INSUFFICIENT_DATA' ? 'limited' : liveAlerts.length > 0 ? 'review' : 'live'} period={`نطاق التحليل · آخر ${trendMonths} أشهر`} />
 
       <section className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:gap-4">
-        <KPICard label="إجمالي المبيعات" value={kpis.totalSales} format="currency" icon={<TrendingUp size={16}/>} status={metricStatus(kpis.totalSales)} to="/reports/sales" />
-        <KPICard label="إجمالي الربح" value={kpis.grossProfit} format="currency" icon={<BarChart3 size={16}/>} status={metricStatus(kpis.grossProfit)} hint={kpis.grossMargin === null ? undefined : 'الهامش ' + kpis.grossMargin.toFixed(1) + '%'} to="/reports/profitability" />
-        <KPICard label="الذمم المدينة" value={kpis.totalReceivables} format="currency" icon={<Receipt size={16}/>} status={metricStatus(kpis.totalReceivables)} to="/reports/receivables" />
-        <KPICard label="قيمة المخزون" value={kpis.inventoryValue} format="currency" icon={<Package size={16}/>} status={metricStatus(kpis.inventoryValue)} to="/inventory" />
-        <KPICard label="العملاء" value={kpis.totalCustomers} format="number" icon={<Users size={16}/>} status={metricStatus(kpis.totalCustomers)} to="/customers" />
-        <KPICard label="المنتجات" value={kpis.totalProducts} format="number" icon={<Package size={16}/>} status={metricStatus(kpis.totalProducts)} to="/products" />
+        <KPICard label="إجمالي المبيعات" value={kpis.totalSales} format="currency" icon={<TrendingUp size={16}/>} status={metricStatus(kpis.totalSales)} to="/reports/sales" evidenceTo="/metrics?metric=metric.net_sales" />
+        <KPICard label="إجمالي الربح" value={kpis.grossProfit} format="currency" icon={<BarChart3 size={16}/>} status={metricStatus(kpis.grossProfit)} hint={kpis.grossMargin === null ? undefined : 'الهامش ' + kpis.grossMargin.toFixed(1) + '%'} to="/reports/profitability" evidenceTo="/metrics?metric=metric.gross_profit" />
+        <KPICard label="الذمم المدينة" value={kpis.totalReceivables} format="currency" icon={<Receipt size={16}/>} status={metricStatus(kpis.totalReceivables)} to="/reports/receivables" evidenceTo="/metrics?metric=metric.receivables" />
+        <KPICard label="قيمة المخزون" value={kpis.inventoryValue} format="currency" icon={<Package size={16}/>} status={metricStatus(kpis.inventoryValue)} to="/inventory" evidenceTo="/metrics?metric=metric.inventory_value" />
+        <KPICard label="العملاء" value={kpis.totalCustomers} format="number" icon={<Users size={16}/>} status={metricStatus(kpis.totalCustomers)} to="/customers" evidenceTo="/metrics?metric=metric.customer_activity" />
+        <KPICard label="المنتجات" value={kpis.totalProducts} format="number" icon={<Package size={16}/>} status={metricStatus(kpis.totalProducts)} to="/products" evidenceTo="/metrics?metric=metric.inventory_velocity" />
         <KPICard label="الفواتير" value={kpis.invoiceCount} format="number" icon={<Receipt size={16}/>} status={metricStatus(kpis.invoiceCount)} to="/reports/sales" />
         <KPICard label="معدل التحصيل" value={kpis.collectionRate} format="percent" icon={<Wallet size={16}/>} status={metricStatus(kpis.collectionRate)} to="/reports/receivables" />
       </section>
