@@ -11,6 +11,7 @@ import { fetchSalesInvoices, fetchPurchaseInvoices, fetchPurchaseSummary, fetchS
 import { formatCurrency, formatNumber, formatDate } from '@/lib/format';
 import { downloadReportArtifact } from '@/lib/report-execution/download';
 import { BusinessInvestigationDrawer, type InvestigationTarget } from '@/components/BusinessInvestigationDrawer';
+import { TruthContextStrip } from '@/components/TruthContextStrip';
 import type { SalesInvoice, PurchaseInvoice } from '@/lib/types';
 import type { CategoryBreakdown, AgingBucket, InventoryReportRow } from '@/lib/dashboard-canonical';
 
@@ -28,17 +29,23 @@ const reportCards = [
 
 export function ReportsCenterPage() {
   const [investigation, setInvestigation] = useState<InvestigationTarget | null>(null);
+  const [truth, setTruth] = useState<Awaited<ReturnType<typeof fetchDashboardSnapshot>> | null>(null);
+  const loadTruth = useCallback(async () => {
+    try { setTruth(await fetchDashboardSnapshot(6)); } catch { setTruth(null); }
+  }, []);
+  useEffect(() => { void loadTruth(); }, [loadTruth]);
   const openReport = (r: typeof reportCards[number]) => setInvestigation({
     title: r.title, eyebrow: 'مخرج قرار · ' + r.stage, severity: 'info',
     summary: 'هذا المسار مخصص لإخراج دليل أعمال قابل للمراجعة. فتحه لا يعني أن البيانات الحالية مكتملة أو أن قرارًا قد نُفذ.',
-    facts: [{ label: 'المخرج', value: r.title }, { label: 'المسار', value: r.path }, { label: 'وظيفته', value: r.desc }, { label: 'طبيعة الاستخدام', value: 'Evidence → Decision' }],
-    confirmedReasons: ['يوجد مسار تطبيق مخصص لهذا المخرج.'],
-    missingEvidence: ['حالة البيانات الحالية للفترة المطلوبة.', 'أي سبب تجاري لا تثبته السجلات نفسها.', 'نتيجة الإجراء بعد التنفيذ، إن وُجد.'],
+    facts: [{ label: 'المخرج', value: r.title }, { label: 'المسار', value: r.path }, { label: 'وظيفته', value: r.desc }, { label: 'حالة المصدر', value: truth?.kpis.status ?? 'غير متاح' }, { label: 'حتى', value: truth?.asOf ?? 'غير متاح' }, { label: 'طبيعة الاستخدام', value: 'Evidence → Decision' }],
+    confirmedReasons: [],
+    missingEvidence: ['حالة البيانات التفصيلية للمخرج لا تثبت من وجود المسار وحده.', 'أي سبب تجاري لا تثبته السجلات نفسها.', 'نتيجة الإجراء بعد التنفيذ، إن وُجد.'],
     actions: [{ label: 'افتح المخرج', path: r.path, hint: 'انتقل إلى مصدر الأرقام والتحليل الفعلي.' }, { label: 'افتح تجربة القرار', path: '/decision-experience?stage=evidence', hint: 'افحص الدليل قبل اعتماد القرار.' }],
-    evidence: { source: r.path, asOf: 'عند فتح المخرج', status: 'OUTPUT_ROUTE' },
+    evidence: { source: 'get_dashboard_snapshot', asOf: truth?.asOf ?? 'غير متاح', status: truth?.kpis.status ?? 'UNAVAILABLE', period: 'آخر 6 أشهر' },
   });
   return <div dir="rtl" className="space-y-5 animate-fade-in pb-10">
     <PageHeader title="مخرجات القرار" subtitle="من Signal إلى Evidence Brief: التقارير هنا مخرجات قرار، أما الجداول التفصيلية فهي أدلة داخل السياق."/>
+    {truth && <TruthContextStrip months={6} status={truth.kpis.status} asOf={truth.asOf}/>}\r
     <section className="rounded-[18px] border border-[#15372f] bg-[#0d2a24] p-5 text-white lg:p-6">
       <div className="section-kicker text-white/40">OUTPUTS → EVIDENCE → DECISION</div>
       <h1 className="mt-1 text-[24px] font-black tracking-tight lg:text-[30px]">ما الذي يحتاجه القرار الآن؟</h1>
