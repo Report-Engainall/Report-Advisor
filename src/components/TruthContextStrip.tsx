@@ -3,7 +3,8 @@ import { CalendarRange, CheckCircle2, Database, ShieldAlert } from 'lucide-react
 type TruthState = 'CONFIRMED' | 'CALCULATED' | 'INSUFFICIENT_DATA';
 
 interface TruthContextStripProps {
-  months: number;
+  months?: number;
+  periodLabel?: string;
   status: TruthState;
   asOf: string;
 }
@@ -28,7 +29,7 @@ export function TruthContextStrip({ months, status, asOf }: TruthContextStripPro
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-2 text-[11px]">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-ink-50 px-2.5 py-1.5 text-ink-600 ring-1 ring-inset ring-ink-100"><CalendarRange size={13} aria-hidden="true" />النطاق: آخر {months} {months === 1 ? 'شهر' : 'أشهر'}</span>
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-ink-50 px-2.5 py-1.5 text-ink-600 ring-1 ring-inset ring-ink-100"><CalendarRange size={13} aria-hidden="true" />النطاق: {periodLabel ?? `آخر ${months ?? '—'} ${months === 1 ? 'شهر' : 'أشهر'}`}</span>
           <span className="inline-flex items-center gap-1.5 rounded-full bg-ink-50 px-2.5 py-1.5 text-ink-600 ring-1 ring-inset ring-ink-100">حتى: {asOf}</span>
           <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1.5 ring-1 ring-inset ${meta.className}`}><StateIcon size={13} aria-hidden="true" />{meta.label}</span>
           <span className="inline-flex items-center gap-1.5 rounded-full bg-ink-50 px-2.5 py-1.5 text-ink-600 ring-1 ring-inset ring-ink-100">سياق المؤسسة الحالية</span>
