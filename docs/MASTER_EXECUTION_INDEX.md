@@ -1,3 +1,12 @@
+### LIVE EXECUTION UPDATE — 2026-09-18T12:20Z
+- **PR #595 Exact HEAD:** `cb49e15e0f892c81d233a50b773d709a5d7687cb`.
+- **PC01 exact-head local verification on cb49e15e:** typecheck PASS; production build PASS; performance budget PASS at **885.3KB / 900KB**, largest JS 487.8KB; UI route/sidebar parity PASS (35 routes / 34 sidebar links); executive dashboard UI contract PASS.
+- **Broader exact-head local contracts already re-proven on the current product wave before the latest navigation trim:** 20/20 release readiness PASS; P0 family 13/13 PASS; P1 family 8/8 PASS; production-readiness PASS; production-release-blocker contract PASS; operational-resilience contract PASS; release-resilience manifest PASS; production-certification evidence-integrity PASS; production-certification contract PASS; report-execution foundation PASS; report-execution E2E/adversarial guard contract PASS.
+- **UI regression fixed during this execution:** commercial Seven-Hub navigation exceeded the 900KB performance budget (904.5KB). Nonessential navigation bundle weight was trimmed, duplicate hub path `/intelligence` was removed, and the same current Exact HEAD re-proved at 885.3KB.
+- **Still fail-closed / not claimed closed:** authenticated browser/business persistence E2E; tenant A/B runtime denial; storage runtime signed-URL evidence; real worker lease/expiry/recovery/DLQ lifecycle; measured backup/restore RPO/RTO; Phase-F live resilience; exact deployed production parity; final certification.
+- **External secret state on PC01:** E2E/Phase-F runtime variables are not present locally; no credentials were fabricated. These gates remain BLOCKED_EXTERNAL/UNPROVEN until the governed runtime inputs are available.
+- This update supersedes older stale “NO EXECUTION STARTED” wording for PR #595.
+
 ### LATEST EXECUTION OVERRIDE — 2026-09-18T10:15Z
 - PR #595 UI/Product exact head: 6eb585546d0e90c88fd14dbacdcb9b7771a48215.
 - Final UI closure includes localization of the aging unknown-state user text; no new RPC/runner/data path introduced.
