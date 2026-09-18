@@ -10,7 +10,7 @@ export function ImportPage() {
           <div>
             <div className="text-xs font-semibold text-primary-300">المصدر → الدليل → البيانات</div>
             <h1 className="mt-2 text-2xl font-bold lg:text-3xl">بوابة إدخال البيانات</h1>
-            <p className="mt-2 max-w-3xl text-sm leading-7 text-ink-300">ابدأ من المصدر الأصلي، افحصه، راجعه، ثم دع مسار الاستيراد المعتمد يتولى canonicalization والتحقق والالتزام بحدود المستأجر.</p>
+            <p className="mt-2 max-w-3xl text-sm leading-7 text-ink-300">ابدأ من المصدر الأصلي، افحصه، راجعه، ثم دع مسار الاستيراد المعتمد يتولى التطبيع والتحقق والالتزام بسياق الشركة الحالية.</p>
           </div>
           <div className="rounded-2xl border border-ink-700 bg-white/5 p-4 text-xs text-ink-200">
             <div className="font-semibold text-white">قواعد الحقيقة</div>
