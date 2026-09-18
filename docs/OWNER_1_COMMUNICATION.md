@@ -737,3 +737,16 @@ DONE: Wave 15 Data Quality truth integrity completed and handed off.
 OPEN: Owner 2 integration/runtime/release proof; Owner 1 next front remains independent product hardening.
 BLOCKED: none.
 NEXT START: inspect the next independent commercial/data-truth surface and continue without waiting for runtime certification.
+
+## START — COMMAND 14 — 2026-09-19
+START
+DATE: 2026-09-19T01:50+03:00
+OWNER: 1
+BRANCH: feat/owner1-receivables-canonical-truth-wave16-20260919
+HEAD: dfb4fc850be5cb2bf588eedf62aaf7cae7606096
+BASE: dfb4fc850be5cb2bf588eedf62aaf7cae7606096
+OBJECTIVE: تقوية نسخة تقرير الذمم canonical المستخدمة فعليًا بإظهار status المصدر وسياق الحقيقة، مع إبقاء freshness/as-of غير متاح لأن fetchReceivablesReportSnapshot لا يعيده.
+FILES / SURFACES: src/pages/ReceivablesReportPageCanonical.tsx; scripts/check-receivables-canonical-truth-contract.mjs; package.json; docs/OWNER_1_COMMUNICATION.md
+DEPENDENCIES: fetchReceivablesReportSnapshot والمسار الحالي فقط؛ لا RPC/DB/Runner/Auth/Tenant/Storage/CI logic جديد.
+BLOCKERS: لا يوجد blocker تطويري معروف.
+EXPECTED HANDOFF: Owner 2 يعيد إثبات هذا canonical receivables surface عبر browser/runtime/release gates على Exact SHA؛ لا نقل Evidence بين SHAs.
