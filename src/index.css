@@ -44,3 +44,19 @@ button,input,textarea,select{font:inherit}
 }
 @layer utilities{.text-balance{text-wrap:balance}.tabular-nums{font-variant-numeric:tabular-nums}.gradient-text{color:#1d4ed8;background:none}.soft-grid{background-image:none}}
 @layer base{@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}} :focus-visible{outline:2px solid rgb(37 99 235 / .55);outline-offset:2px}}
+@layer components {
+  .report-page{color:#18181b}
+  .print-hide{}
+}
+@media print{
+  @page{size:A4;margin:12mm}
+  html,body{background:#fff!important}
+  body{print-color-adjust:exact;-webkit-print-color-adjust:exact}
+  .app-chrome,.print-hide{display:none!important}
+  .report-page{width:100%!important;max-width:none!important;padding:0!important;margin:0!important}
+  .report-page .card,.report-page section,.report-page header{box-shadow:none!important;break-inside:avoid}
+  .report-page h1,.report-page h2,.report-page h3{break-after:avoid}
+  .report-page a{color:inherit!important;text-decoration:none!important}
+  .report-page .print-break-before{break-before:page}
+}
+@media(max-width:640px){input,textarea,select{font-size:16px!important}}

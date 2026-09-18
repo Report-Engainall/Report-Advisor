@@ -59,17 +59,17 @@ export function ExecutiveReportPage() {
 
   useEffect(() => { void load(); }, [load]);
 
-  return <div dir="rtl" className="space-y-5 pb-10 print:space-y-3">
-    <header className="overflow-hidden rounded-3xl bg-ink-950 p-6 text-white shadow-sm lg:p-8 print:bg-white print:text-black print:border print:border-ink-200">
+  return <div dir="rtl" className="report-page space-y-5 pb-10 print:space-y-3">
+    <header className="overflow-hidden rounded-[14px] border border-ink-200 bg-white p-5 shadow-card lg:p-6">
       <div className="flex flex-wrap items-end justify-between gap-5">
         <div>
-          <div className="flex items-center gap-2 text-sm font-semibold text-primary-300"><FileText size={17} /> Executive Reporting</div>
-          <h1 className="mt-2 text-2xl font-black lg:text-4xl">التقرير التنفيذي</h1>
-          <p className="mt-2 max-w-3xl text-sm leading-7 text-ink-300 print:text-ink-600">من المؤشر إلى القرار: ملخص تشغيلي مبني على المصادر المعتمدة، مع إبقاء أي فجوة بيانات معلنة بدل اختلاق قيمة.</p>
+          <div className="flex items-center gap-2 text-[10px] font-black tracking-[0.14em] text-primary-700"><FileText size={15}/> EXECUTIVE REPORTING</div>
+          <h1 className="mt-1.5 text-[24px] font-black tracking-tight text-ink-950 lg:text-[30px]">التقرير التنفيذي</h1>
+          <p className="mt-2 max-w-3xl text-[11px] leading-5 text-ink-500">من المؤشر إلى القرار: ملخص تشغيلي مبني على المصادر المعتمدة، مع إبقاء أي فجوة بيانات معلنة بدل اختلاق قيمة.</p>
         </div>
-        <div className="flex gap-2 print:hidden">
-          <button type="button" onClick={() => void load()} disabled={loading} className="inline-flex items-center gap-2 rounded-xl border border-white/15 bg-white/10 px-4 py-2.5 text-sm font-semibold hover:bg-white/15 disabled:opacity-60"><RefreshCw size={16} className={loading ? 'animate-spin' : ''} /> تحديث</button>
-          <button type="button" onClick={() => window.print()} className="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2.5 text-sm font-semibold text-ink-900"><Printer size={17} /> طباعة / PDF</button>
+        <div className="print-hide flex gap-2">
+          <button type="button" onClick={() => void load()} disabled={loading} className="btn-secondary text-xs disabled:opacity-60"><RefreshCw size={16} className={loading ? 'animate-spin' : ''} /> تحديث</button>
+          <button type="button" onClick={() => window.print()} className="btn-primary text-xs"><Printer size={17} /> طباعة / PDF</button>
         </div>
       </div>
     </header>
