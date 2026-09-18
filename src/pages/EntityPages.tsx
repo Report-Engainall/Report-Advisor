@@ -74,8 +74,6 @@ export function CustomersPage() {
   }, [page, search]);
 
   useEffect(() => { void load(); }, [load]);
-  if (loading && customers.length === 0) return <LoadingState />;
-  if (error && customers.length === 0) return <ErrorState message={error} onRetry={load} />;
 
   const segmentMap: Record<string, { variant: 'success' | 'primary' | 'neutral'; label: string }> = {
     vip: { variant: 'success', label: 'VIP' },
@@ -104,7 +102,7 @@ export function CustomersPage() {
           { key: 'segment', label: 'الشريحة', align: 'center', render: (r: Customer) => { const s = segmentMap[r.segment] || { variant: 'neutral' as const, label: r.segment }; return <Badge variant={s.variant}>{s.label}</Badge>; } },
           { key: 'credit_limit', label: 'حد الائتمان', align: 'right', render: (r: Customer) => formatCurrency(r.credit_limit) },
           { key: 'payment_terms_days', label: 'شروط الدفع', align: 'center', render: (r: Customer) => `${r.payment_terms_days} يوم` },
-        ]} data={customers} emptyMessage="لا يوجد عملاء" />
+        ]} data={customers} loading={loading} emptyMessage="لا يوجد عملاء" />
       </Card>
       <div className="flex items-center justify-between gap-3">
         <span className="text-xs text-ink-500">عرض {customers.length} من {formatNumber(total)} عميل</span>
