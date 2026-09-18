@@ -5,7 +5,7 @@
 > Authoritative execution manifest. This document never promotes historical evidence across an exact Git `HEAD` boundary. Pair every evidence batch with the exact Git `HEAD` of `main` and the exact environment/commit used.
 
 ### CURRENT EXACT HEAD
-- Current code/test candidate: `ce674d937cde275f6e233e2fd4ad78589e9dafb5`.
+- Current code/test candidate: `bdea176d498347d1c6150f9eae6dc08dc79f9c8f`.
 - No runtime/browser/production evidence from `66d684...` or earlier SHAs is promoted to this candidate.
 - The candidate rebind is required because the branch now contains code/test changes; it does not certify runtime/product behavior. Fresh exact-HEAD runtime evidence is required.
 - Historical evidence from earlier SHAs remains historical and is not promoted automatically.
