@@ -24,17 +24,34 @@ async function currentTenant(page) { const token = await accessToken(page); cons
 async function restSelect(page, table, filters, select) { const token = await accessToken(page); const url = new URL(`${supabaseURL}/rest/v1/${table}`); url.searchParams.set('select', select); for (const [column, value] of Object.entries(filters)) url.searchParams.set(column, `eq.${value}`); const response = await fetch(url, { headers: { apikey: anonKey, Authorization: `Bearer ${token}` } }); const body = await response.text(); assert.equal(response.ok, true, `${table} read HTTP ${response.status}: ${body}`); return body ? JSON.parse(body) : []; }
 async function restUpdate(page, table, id, payload) { const token = await accessToken(page); const url = new URL(`${supabaseURL}/rest/v1/${table}`); url.searchParams.set('id', `eq.${id}`); const response = await fetch(url, { method: 'PATCH', headers: { apikey: anonKey, Authorization: `Bearer ${token}`, 'Content-Type': 'application/json', Prefer: 'return=representation' }, body: JSON.stringify(payload) }); const body = await response.text(); assert.equal(response.ok, true, `${table} cross-tenant update HTTP ${response.status}: ${body}`); return body ? JSON.parse(body) : []; }
 async function login(page, email, password) {
-  await page.goto(baseURL, { waitUntil: 'networkidle', timeout: 30000 });
+  await page.goto(baseURL, { waitUntil: 'domcontentloaded', timeout: 30000 });
+  await page.locator('#login-email').waitFor({ state: 'visible', timeout: 30000 });
   await page.locator('#login-email').fill(email);
   await page.locator('#login-password').fill(password);
-  const authResponsePromise = page.waitForResponse(
-    response =>
-      response.request().method() === 'POST' &&
-      response.url().includes('/auth/v1/token?grant_type=password'),
-    { timeout: 30000 },
-  ).catch(() => null);
-  await page.locator('form button[type="submit"]').click();
-  const authResponse = await authResponsePromise;
+  let authResponse = null;
+  for (let attempt = 1; attempt <= 2; attempt += 1) {
+    if (attempt > 1) {
+      await page.goto(baseURL, { waitUntil: 'domcontentloaded', timeout: 30000 });
+      await page.locator('#login-email').waitFor({ state: 'visible', timeout: 30000 });
+      await page.locator('#login-email').fill(email);
+      await page.locator('#login-password').fill(password);
+    }
+    const authResponsePromise = page.waitForResponse(
+      response =>
+        response.request().method() === 'POST' &&
+        response.url().includes('/auth/v1/token?grant_type=password'),
+      { timeout: 60000 },
+    ).catch(() => null);
+    await page.locator('form button[type="submit"]').click();
+    const candidate = await authResponsePromise;
+    if (candidate && [429, 500, 502, 503, 504].includes(candidate.status()) && attempt < 2) {
+      await page.waitForTimeout(2500);
+      continue;
+    }
+    authResponse = candidate;
+    if (authResponse || attempt === 2) break;
+    await page.waitForTimeout(2500);
+  }
   if (!authResponse) throw new Error('AUTH_TOKEN_RESPONSE_TIMEOUT');
   const authStatus = authResponse.status();
   if (authStatus >= 400) {
