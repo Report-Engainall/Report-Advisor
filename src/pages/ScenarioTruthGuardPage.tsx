@@ -4,17 +4,24 @@ import { Card, CardBody } from '@/components/ui/Card';
 import { LoadingState, PageHeader } from '@/components/ui/States';
 import { fetchProfitabilitySnapshot } from '@/lib/dashboard-canonical';
 import { CanonicalScenarioPage } from '@/pages/CanonicalScenarioPage';
+import { TruthContextStrip } from '@/components/TruthContextStrip';
 
 export function ScenarioTruthGuardPage() {
   const [state, setState] = useState<'loading' | 'ready' | 'blocked'>('loading');
   const [reason, setReason] = useState<string | null>(null);
   const [financials, setFinancials] = useState<{ revenue: number; cost: number; currency: string } | null>(null);
+  const [truth, setTruth] = useState<{ status: 'CALCULATED' | 'INSUFFICIENT_DATA'; asOf: string }>({ status: 'INSUFFICIENT_DATA', asOf: 'غير متاح' });
 
   useEffect(() => {
     let active = true;
     void fetchProfitabilitySnapshot()
       .then(snapshot => {
         if (!active) return;
+        const sourceAsOf = typeof snapshot.as_of === 'string' && snapshot.as_of ? snapshot.as_of : 'غير متاح';
+        const sourceStatus = snapshot.status === 'CALCULATED' && snapshot.revenue !== null && snapshot.cost !== null && snapshot.currency !== null
+          ? 'CALCULATED'
+          : 'INSUFFICIENT_DATA';
+        setTruth({ status: sourceStatus, asOf: sourceAsOf });
         if (
           snapshot.status === 'CALCULATED' &&
           snapshot.revenue !== null &&
@@ -39,17 +46,21 @@ export function ScenarioTruthGuardPage() {
   if (state === 'loading') return <LoadingState message="جارٍ التحقق من الحقيقة المالية قبل تشغيل المحاكاة..." />;
   if (state === 'ready' && financials) {
     return (
-      <CanonicalScenarioPage
-        baseRevenue={financials.revenue}
-        baseCost={financials.cost}
-        currency={financials.currency}
-      />
+      <div className="space-y-6 animate-fade-in">
+        <TruthContextStrip status={truth.status} asOf={truth.asOf} asOfLabel="حتى" rangeLabel="لقطة الربحية القانونية الحالية" />
+        <CanonicalScenarioPage
+          baseRevenue={financials.revenue}
+          baseCost={financials.cost}
+          currency={financials.currency}
+        />
+      </div>
     );
   }
 
   return (
     <div className="space-y-6 animate-fade-in">
       <PageHeader title="محاكاة السيناريوهات" subtitle="تم إيقاف المحاكاة مؤقتًا لحماية الحقيقة المالية" />
+      <TruthContextStrip status={truth.status} asOf={truth.asOf} asOfLabel="حتى" rangeLabel="لقطة الربحية القانونية الحالية" />
       <Card>
         <CardBody>
           <div className="flex items-start gap-4 rounded-xl border border-warning-200 bg-warning-50 p-5" role="alert">
