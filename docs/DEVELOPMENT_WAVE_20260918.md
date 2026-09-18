@@ -2,7 +2,7 @@
 
 ## Boundary
 - Base Main SHA: 4762bd0e30c51b1627401b393222178d77a91a7f
-- Current development candidate SHA: cf679b06d9f9ee20a42b916b6f2e91a8ffb77a97
+- Current development candidate SHA: 3d90a1ce60a24d9b26ac0c67c55893e3d957ae97
 - Branch: commercial/comprehensive-product-development-20260918-r2
 - Scope: product development after the certification-remediation wave
 - Certification policy: unchanged and fail-closed
