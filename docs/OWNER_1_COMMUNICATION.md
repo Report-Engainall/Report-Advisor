@@ -615,3 +615,16 @@ HEAD: ab4545c6f436823d4582b9f612f821a3befe92d5
 DONE: Wave 12 canonical report truth integrity completed and handed off.
 OPEN: Owner 2 integration/runtime/release proof; Owner 1 can continue to the next independent product surface.
 BLOCKED: none.
+
+## START — COMMAND 11 — 2026-09-19
+START
+DATE: 2026-09-19T03:45+03:00
+OWNER: 1
+BRANCH: feat/owner1-analytics-truth-wave13-20260919
+HEAD: ab4545c6f436823d4582b9f612f821a3befe92d5
+BASE: ab4545c6f436823d4582b9f612f821a3befe92d5
+OBJECTIVE: مراجعة أسطح Analytics/Intelligence ذات البيانات canonical (RFM / ABC / Aging / Inventory Intelligence / Demand Velocity) وإظهار status/as-of فقط عندما يوفرهما المصدر نفسه، مع عدم تصنيع freshness أو operational outcome.
+FILES / SURFACES: routed analytics/intelligence pages and existing canonical query types; add only targeted UI contract guards.
+DEPENDENCIES: existing canonical read paths only؛ no new RPC/DB/Runner/Auth/Tenant/Storage/CI logic.
+BLOCKERS: لا blocker معروف عند البدء.
+EXPECTED HANDOFF: Owner 2 يعيد إثبات analytics/intelligence browser/runtime/release gates على Exact SHA الجديد.
