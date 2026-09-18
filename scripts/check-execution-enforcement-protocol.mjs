@@ -26,9 +26,12 @@ const CONTROL_SIGNAL_RULES = [
     'control-plane improvement',
   ]],
 ];
-export function validateControlSignalProtocols() {
+export function validateControlSignalProtocols(overrides = {}) {
   for (const [file, rules] of CONTROL_SIGNAL_RULES) {
-    const body = normalize(stripComments(fs.readFileSync(file, 'utf8')));
+    const source = Object.prototype.hasOwnProperty.call(overrides, file)
+      ? overrides[file]
+      : fs.readFileSync(file, 'utf8');
+    const body = normalize(stripComments(source));
     const missing = rules.filter(rule => !body.includes(normalize(rule)));
     if (missing.length) throw new Error(`Control signal protocol rejected in ${file}: missing ${missing.join(', ')}`);
   }
