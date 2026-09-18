@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Activity, AlertTriangle, CheckCircle2, Clock3, Filter, RefreshCw, ShieldCheck, XCircle } from 'lucide-react';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { DataTable } from '@/components/ui/DataTable';
-import { EmptyState, ErrorState, LoadingState, PageHeader } from '@/components/ui/States';
+import { EmptyState, ErrorState, LoadingState, PageHeader, TruthRail } from '@/components/ui/States';
 import { fetchImportRecords } from '@/lib/queries';
 import type { ImportRecord } from '@/lib/types';
 import { formatNumber } from '@/lib/format';
@@ -55,6 +55,7 @@ export function WorkCenterPage() {
       subtitle="منطقة العمل التشغيلية: ما دخل النظام، أين وصل، وما الذي يحتاج تدخلًا."
       actions={<button type="button" onClick={() => void load()} className="btn-secondary inline-flex items-center gap-2"><RefreshCw size={16}/> تحديث</button>}
     />
+    <TruthRail status={counts.failed > 0 || counts.review > 0 ? 'review' : counts.active > 0 ? 'live' : 'limited'} period={`${formatNumber(rows.length)} عملية في النطاق الحالي`} />
 
     <section className="grid gap-4 lg:grid-cols-[1.5fr_1fr]">
       <Card className="overflow-hidden border-0 bg-ink-950 text-white">

@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { FileBarChart, ShoppingCart, Package, Receipt, TrendingUp } from 'lucide-react';
 import { Card, CardHeader, CardBody } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
-import { PageHeader, LoadingState, ErrorState } from '@/components/ui/States';
+import { PageHeader, LoadingState, ErrorState, TruthRail } from '@/components/ui/States';
 import { DataTable } from '@/components/ui/DataTable';
 import { TrendChart, HorizontalBarChart, CategoryPieChart } from '@/components/ui/Charts';
 import { fetchDashboardSnapshot, fetchInventoryReportSnapshot } from '@/lib/dashboard-canonical';
@@ -28,6 +28,7 @@ const reportCards = [
 export function ReportsCenterPage() {
   return <div dir="rtl" className="space-y-6 animate-fade-in pb-10">
     <PageHeader title="مركز التقارير" subtitle="منظومة التقارير التنفيذية: كل رقم يعود إلى مصدره، وكل تفسير يبقى منفصلًا عن حقيقة البيانات."/>
+    <TruthRail status="live" period="التقارير مرتبطة بالمصادر الكانونية الحالية" />
     <section className="rounded-3xl bg-ink-950 p-6 text-white lg:p-8">
       <div className="grid gap-6 lg:grid-cols-[1.4fr_.6fr] items-end">
         <div>
