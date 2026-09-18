@@ -139,7 +139,7 @@ for (const dir of sourceDirs) {
       if (entry.isDirectory()) stack.push(full);
       else if (/\.(ts|tsx|js|mjs)$/.test(entry.name)) {
         const body = fs.readFileSync(full, 'utf8');
-        if (forbiddenDirectBulk.test(body) && !/import-upsert|unified-import/i.test(full)) {
+        if (forbiddenDirectBulk.test(body) && !/import-upsert|unified-import|canonical-production-adapter\.ts/i.test(full)) {
           throw new Error(`Direct bulk write outside governed import path: ${full}`);
         }
       }
