@@ -113,7 +113,14 @@ try {
   } else {
     evidence.checks.push({ label: 'Tenant B list Tenant A prefix', status: crossList.status, result: 'DENY' });
   }
-  await assertDenied('Tenant B delete Tenant A object', await storageRequest(sessionB.token, 'DELETE', `object/${encodeURIComponent(bucket)}`, JSON.stringify({ prefixes: [aPath] }), { 'content-type': 'application/json' }));
+  const tenantBDeleteA = await storageRequest(sessionB.token, 'DELETE', `object/${encodeURIComponent(bucket)}`, JSON.stringify({ prefixes: [aPath] }), { 'content-type': 'application/json' });
+  if (tenantBDeleteA.ok) {
+    const stillReadableByA = await storageRequest(sessionA.token, 'GET', `object/${encodeURIComponent(bucket)}/${aPath}`);
+    assert.equal(stillReadableByA.ok, true, 'Tenant B delete response must not remove Tenant A object');
+    evidence.checks.push({ label: 'Tenant B delete Tenant A object', status: tenantBDeleteA.status, result: 'DENY_EFFECTIVE_OBJECT_PRESERVED' });
+  } else {
+    await assertDenied('Tenant B delete Tenant A object', tenantBDeleteA);
+  }
 
   const uploadB = await storageRequest(sessionB.token, 'POST', `object/${encodeURIComponent(bucket)}/${bPath}`, Buffer.from('tenant-b'), { 'content-type': 'text/plain', 'x-upsert': 'false' });
   assert.equal(uploadB.ok, true, `Tenant B upload failed: ${uploadB.status}`);
@@ -122,7 +129,14 @@ try {
   assert.equal(readB.ok, true, `Tenant B read failed: ${readB.status}`);
   evidence.checks.push({ label: 'Tenant B read', status: readB.status, result: 'PASS' });
   await assertDenied('Tenant A read Tenant B object', await storageRequest(sessionA.token, 'GET', `object/${encodeURIComponent(bucket)}/${bPath}`));
-  await assertDenied('Tenant A delete Tenant B object', await storageRequest(sessionA.token, 'DELETE', `object/${encodeURIComponent(bucket)}`, JSON.stringify({ prefixes: [bPath] }), { 'content-type': 'application/json' }));
+  const tenantADeleteB = await storageRequest(sessionA.token, 'DELETE', `object/${encodeURIComponent(bucket)}`, JSON.stringify({ prefixes: [bPath] }), { 'content-type': 'application/json' });
+  if (tenantADeleteB.ok) {
+    const stillReadableByB = await storageRequest(sessionB.token, 'GET', `object/${encodeURIComponent(bucket)}/${bPath}`);
+    assert.equal(stillReadableByB.ok, true, 'Tenant A delete response must not remove Tenant B object');
+    evidence.checks.push({ label: 'Tenant A delete Tenant B object', status: tenantADeleteB.status, result: 'DENY_EFFECTIVE_OBJECT_PRESERVED' });
+  } else {
+    await assertDenied('Tenant A delete Tenant B object', tenantADeleteB);
+  }
 
   const deleteA = await storageRequest(sessionA.token, 'DELETE', `object/${encodeURIComponent(bucket)}`, JSON.stringify({ prefixes: [aPath] }), { 'content-type': 'application/json' });
   assert.equal(deleteA.ok, true, `Tenant A delete failed: ${deleteA.status}`);
