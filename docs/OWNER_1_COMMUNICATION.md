@@ -448,3 +448,17 @@ HANDOFF TO OWNER 2:
 
 NEXT OWNER-1 FRONT:
 - Receivables report truth context: expose canonical snapshot status/as-of alongside aging data.
+
+## START — COMMAND 7 — 2026-09-19
+START
+DATE: 2026-09-19T02:05+03:00
+OWNER: 1
+BRANCH: feat/owner1-receivables-truth-wave9-20260919
+HEAD: c6d9b3fe3bbf757d36604a5c36230aaf50f0001b
+BASE: feat/owner1-financial-report-truth-wave8-20260919
+OBJECTIVE: إظهار الحالة المصدرية ووقت اللقطة canonical في تقرير الذمم والتحصيل alongside aging evidence.
+FILES / SURFACES: src/pages/ReportsPage.tsx; scripts/check-receivables-report-truth-contract.mjs; package.json.
+DEPENDENCIES: existing fetchDashboardSnapshot + fetchSalesInvoices only؛ no new RPC/DB/runtime.
+SUCCESS CRITERIA: receivables report shows TruthContextStrip from snapshot; no synthetic freshness; contracts/typecheck/lint/build/perf PASS.
+BLOCKERS: none known.
+EXPECTED HANDOFF: Owner 2 reprove receivables/browser/runtime/release gates on Exact SHA.
