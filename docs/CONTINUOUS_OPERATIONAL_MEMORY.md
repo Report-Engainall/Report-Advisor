@@ -63,7 +63,7 @@ A preview deployment is not production proof.
 
 # 2. LIVE EXECUTION HEADER
 
-Last material update: 2026-09-18T03:55Z
+Last material update: 2026-09-18T04:05Z
 Current Main: a32fae0fc08c1cbbcc60b6eedfb0f4bd74a21c50
 Primary environment: Supabase staging fnqbvfuwbdpwvhcgzksl
 Production URL: https://report-advisor.vercel.app
@@ -75,7 +75,7 @@ Coordinator PR head is verified directly from GitHub for every cycle; do not tre
 
 | PR | Front | Exact HEAD | State | Canonical purpose |
 |---|---|---|---|---|
-| #540 | PDF/document runtime | b7c57d047fbf75e7fadf4167dad7b618c547a1c0 | OPEN / consolidated PDF hardening; exact-head CI in progress | Consolidated PDF parser + Node 22 runtime compatibility + deterministic real-PDF regression |
+| #540 | PDF/document runtime | 073939e71f769b9beb70ad7a2951110c095b1d13 | OPEN / consolidated PDF hardening; certification rebind applied; CI active | Consolidated PDF parser + Node 22 runtime compatibility + deterministic real-PDF regression |
 | #539 | Security-definer/current-main reconciliation | 5f636860eee883037e5c0ae2f4444cd6f753aa36 | OPEN / worker lineage + security hardening; exact-head CI active | Harden current-main SECURITY DEFINER boundaries and retry auth/tenant guards |
 | #536 | Import terminal authority | 2ba3251712168ad64b14127b6583d2bc1d0162ac | OPEN / exact-head CI active; security gate depends on #539 | Route terminal import state through existing import_finish_job |
 | #534 | Master execution index | 013c4c31f8fe91f789ad13d29cb3ec6741cfc4e4 | OPEN / governance | Rebind index to Main a32fae0 |
@@ -371,3 +371,9 @@ without asking the user to reconstruct project history.
 - Exact latest #539 head: `5f636860eee883037e5c0ae2f4444cd6f753aa36`.
 - Local exact-head contracts: decision approval lock order PASS; security-definer exposure PASS; certification boundary PASS.
 - Fresh GitHub CI is active for #539 `5f636860...`; earlier runs on 76f2/f24/895/900 are historical and must not be used as current-head evidence.
+
+### 2026-09-18T04:05Z — CI dependency separation
+- #540 Certification Boundary failure on head b7c57d04 was a stale candidate binding to 18baea; coordinator rebound the index to b7c57d04, producing governance head 073939e7. Exact local certification-boundary PASS.
+- #540 PDF structured parser regression remains CI-authoritative; local invocation without real Supabase configuration correctly fail-closes. No fake/local placeholder configuration will be used for certification.
+- #540 security-definer failure and #534/#536 security-definer failures are the same current-Main baseline gap addressed by #539. No duplicate security fix is permitted in PDF/governance/import fronts.
+- #534 and #536 otherwise have broad passing evidence; their security/final-certification failures are dependency failures until #539 exact-head security reconciliation lands.
