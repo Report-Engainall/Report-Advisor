@@ -3,34 +3,34 @@
 > تحديث تنفيذي بعد أمر المالك «انطلق». هذا القسم يصف الحالة المثبتة من الأدوات فقط. لا يتم نقل Evidence بين SHAs، ولا تُعد الحالة PASS إلا بدليل Exact-HEAD.
 
 ### CURRENT EXACT HEAD / DEPLOYED STATE
-- **Reference code HEAD:** `c11c084d161cceb4595f8552b6c49c3f610f0ec2`.
-- **Current main:** `c42214361bde9be484eab622adf7c6065a37af3e`; المقارنة مع `c11c084...` تُظهر تغييرات توثيقية فقط، لذلك لا يوجد تغيير Product/Runtime بينهما.
-- **Netlify Production:** deploy `6aacfad6652a8000086bf290` = `ready`, branch `main`, commit `c422143...`; public fetch نجح، وظهر التطبيق للمستخدم غير المسجل دون جدار Netlify SSO/password.
+- **Reference product/runtime code HEAD:** `c11c084d161cceb4595f8552b6c49c3f610f0ec2`; current `main` also carries the forward-only security/source-parity migrations merged afterward.
+- **Current main:** `7d6bca3c02416c9b6c877e82115eb9961f635a47`; this includes the forward-only security/source-parity merge `64c870426...` plus the closure-ledger docs sync. Product feature code remains anchored to the earlier runtime code reference until PR #587 is accepted.
+- **Netlify Production:** latest verified production deploy `6aacfe23cc817a00089dce5c` = `ready`, branch `main`, but still points to commit `ad12e9e564f85ffde8bb29daa6e41e73ca969b92`, which predates current `main`. Public access remains verified without Netlify SSO/password. Connector-side redeploy requires a source/repo execution environment.
 - **Netlify administrative access control:** تم إزالة Team SSO/password requirement للمشروع فقط؛ لم يتم تغيير Auth التطبيق.
 - **Staging DB live counts:** companies=2, memberships=2, import_jobs=3800, canonical_import_commits=2557, kpi_evidence_snapshots=314, sales_invoices=355.
 
 ### FRESH FINDINGS — ENGINEERING / RUNTIME / RELEASE
-1. **Fresh exact-head runtime evidence:** غير مثبت على `c11c084...`; لا توجد workflow runs مرتبطة مباشرة بهذا SHA. لا يتم نقل Evidence من SHA آخر.
-2. **Current parallel UI branch evidence is not certification evidence:** PR #587 / SHA `866e39...` لديه فشل UI/typecheck في `src/pages/ReportsPage.tsx`; هذا خارج ملكية Runtime ولا يُنقل إلى `c11c084...`.
+1. **Fresh exact-head runtime evidence:** product/runtime certification remains unproven. PR #587 now has fresh exact-head candidate `3c4bb990a0e0188f9984e0cd67d941cd29c7824e`, with 48 workflows re-triggered; no new PASS evidence is yet claimed.
+2. **PR #587 exact-head harness finding:** at `dfdc662...`, Full Product Browser E2E and Storage Tenant Runtime E2E both failed at the login control before business checks because tests required the obsolete text `تسجيل الدخول` while `LoginPage` renders `الدخول إلى مساحة العمل`. The harness was corrected on the branch at `182f0983...` and `3c4bb990...` to target `form button[type="submit"]`.
 3. **Phase F live resilience:** آخر تنفيذ exact-head على SHA الموازي أثبت أن سبب الفشل خارجي: جميع متغيرات Phase F الحية غير مُهيأة في GitHub Actions. المتطلبات المحددة: `RESILIENCE_TARGET_ENV`, `RESILIENCE_OPERATIONAL_TOKEN`, `RESILIENCE_CANARY_AUTH_TOKEN`, `RESILIENCE_HEALTH_URL`, `RESILIENCE_CANARY_URL`, `RESILIENCE_BACKUP_VERIFY_URL`, `RESILIENCE_ROLLBACK_DRILL_URL`.
-4. **Migration/source parity blocker:** Staging migration ledger يحتوي على migrations تطبيقية أحدث غير موجودة في `c11...` source tree، منها: `20260918053906_reconcile_import_job_row_tenant_schema`, `20260918053540_reconcile_import_lineage_tenant_integrity`, `20260918053527_reconcile_import_lineage_idempotency`, `20260918043413_reconcile_report_execution_worker_service_authority`, `20260918024152_reconcile_report_execution_worker_search_path_completion`, `20260918023708_reconcile_report_execution_worker_search_path`. هذا **DRIFT حقيقي** ويجب إغلاقه forward-only؛ لا حذف أو إعادة كتابة للتاريخ.
+4. **Migration/source parity:** PR #590's forward-only reconciliation is merged to `main`, and staging has the matching end-state applied. The remaining work is disposable replay/verification; no historical migration rewrite is authorized. `20260918053906_reconcile_import_job_row_tenant_schema`, `20260918053540_reconcile_import_lineage_tenant_integrity`, `20260918053527_reconcile_import_lineage_idempotency`, `20260918043413_reconcile_report_execution_worker_service_authority`, `20260918024152_reconcile_report_execution_worker_search_path_completion`, `20260918023708_reconcile_report_execution_worker_search_path`. هذا **DRIFT حقيقي** ويجب إغلاقه forward-only؛ لا حذف أو إعادة كتابة للتاريخ.
 5. **Storage baseline:** bucket `documents` private، وسياسات storage الحالية authenticated + tenant-scoped. Runtime signed-URL proof ما زال غير مثبت.
 6. **Realtime:** publication `supabase_realtime` تشمل حالياً `client_ui_settings`, `customer_invitations`, `inventory_balances`, `orders`. Authorization runtime proof ما زال مطلوباً.
 7. **Worker live state:** `report_execution_jobs` حالياً يحتوي completed=2556, dead_letter=5, failed=10, leased=3, processing=15, queued=515. هذا ليس بحد ذاته resilience PASS؛ disposable enqueue→claim→heartbeat→expiry→recovery→retry/DLQ ما زال مطلوباً.
 8. **Backup/restore:** جدول `backup_verification_runs` لا يحتوي سجلات تحقق حالية؛ RPO/RTO المقاس غير مثبت.
 9. **PDF/OCR:** لا يوجد نقل للنتيجة التاريخية `10/12`; يجب إعادة إثبات السيناريوهات على Exact HEAD. Repository path يحتوي بالفعل على structured PDF/OCR hardening، لكن ذلك لا يساوي runtime certification.
-10. **Production parity:** Netlify public access مثبت؛ Vercel status على main ما زال غير صالح كدليل نشر بسبب build-rate-limit failure/pending، لذلك لا يُستخدم كـrelease proof.
+10. **Production parity:** Netlify public access is verified, but Production is still serving the older `ad12e9e...` deploy. Vercel remains externally blocked by `api-deployments-free-per-day` build-rate-limit and is not release proof.
 
 ### LATEST EXECUTION UPDATE — 2026-09-18
 - Staging forward-only parity checkpoint applied successfully: `harden_import_field_lineage_rls`, `revoke_authenticated_worker_enqueue`, `reconcile_live_source_end_state`.
 - Verified import row integrity: null company=0, orphan job=0, cross-tenant row/job mismatch=0.
 - Verified all 8 durable report-execution RPCs: authenticated EXECUTE=false, service_role EXECUTE=true; all have `search_path=public, pg_catalog`.
 - Verified `import_field_lineage` authenticated policy is explicit restrictive deny; Security Advisor targeted findings remain clear.
-- PR #590 source migrations are now merged into `main` at `64c870426b75de7726e0f60321d580074bb76fa9`; runtime changes are not considered certified until exact-head CI is fresh.
-- Product development PR #587 source error `ReportsPage.tsx:errorMessage` repaired on its branch at commit `dfdc662012a8d0be9e5ce081105c753c216d6d4a`; fresh workflow result is still required before treating the wave as build-green.
+- PR #590 source migrations are merged into `main` at `64c870426b75de7726e0f60321d580074bb76fa9`; staging verification is clean for import-row integrity and worker RPC authority.
+- Product development PR #587 type error is repaired at `dfdc662...`; a fresh shared-harness login regression was then fixed at `182f0983...` and `3c4bb990...`. Fresh workflows on `3c4bb990...` remain authoritative and pending.
 
 ### EXECUTION STATE
-- **Done:** Netlify public-access administrative blocker removed and public access verified; PR #590 security/source-parity migrations merged to `main` at `64c870426b75de7726e0f60321d580074bb76fa9`.
+- **Done:** Netlify administrative access blocker removed; PR #590 security/source-parity migrations merged; staging import-row integrity is 0/0/0 and all 8 worker RPCs are service_role-only with pinned search_path.
 - **In progress:** exact-head runtime/DB/release closure; migration parity investigation; operational certification evidence.
 - **Blocked externally:** Phase F live probes until required GitHub Actions secrets/targets are provisioned.
 - **Fail-Closed:** Final certification remains closed until fresh Exact-HEAD Browser E2E + persistence + resilience + backup/RPO/RTO + release parity evidence exists.
