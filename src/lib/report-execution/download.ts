@@ -1,5 +1,5 @@
-import { renderArtifact, type ReportRow } from './renderers';
-import type { ReportOutputFormat } from './report-execution-contract';
+import { renderArtifact, type ReportRow } from './renderers.js';
+import type { ReportOutputFormat } from './report-execution-contract.js';
 
 function base64ToBytes(value: string): Uint8Array {
   const binary = atob(value);

@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 
 const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
-const workflow = fs.readFileSync('.github/workflows/quality.yml', 'utf8');
+const workflow = fs.readFileSync('.github/workflows/quality.yml', 'utf8').replace(/\r\n/g, '\n');
 const scripts = pkg.scripts ?? {};
 const commands = [...workflow.matchAll(/run:\s*npm run ([^\s]+)/g)].map((m) => m[1]);
 
