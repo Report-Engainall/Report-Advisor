@@ -1,26 +1,7 @@
 name: Full Product Browser E2E
 
-# Exact-head browser discovery gate. Push and PR triggers remain narrowly scoped to E2E/runtime surfaces.
+# Exact-head browser discovery gate. PRs own authenticated browser proof; manual dispatch remains available.
 on:
-  push:
-    paths:
-      - 'scripts/run-full-product-browser-e2e.mjs'
-      - 'scripts/real-business-e2e.mjs'
-      - 'scripts/verify-live-business-evidence.mjs'
-      - '.github/workflows/full-product-browser-e2e.yml'
-      - 'src/lib/dashboard-canonical.ts'
-      - 'src/lib/kpi-evidence.ts'
-      - 'src/lib/semantic-metric-service.ts'
-      - 'src/lib/semantic-metric-registry.ts'
-      - 'src/lib/semanticMetrics.ts'
-      - 'src/pages/MetricInspectorPage.tsx'
-      - 'src/lib/queries.ts'
-      - 'docs/MASTER_EXECUTION_INDEX.md'
-      - 'E2E_FAILURE_LEDGER.md'
-      - 'E2E_PRODUCT_GAP_LEDGER.md'
-      - 'supabase/migrations/**'
-      - 'package.json'
-      - 'package-lock.json'
   pull_request:
     branches: [main]
     paths:
