@@ -80,6 +80,12 @@ if (!/\/api\/canonical-import-execute/.test(adapter) || !/Authorization:.*access
 if (!/serverExecution\?: boolean/.test(adapter) || !/workerClient\?: SupabaseClient/.test(adapter) || !/dataClient\?: SupabaseClient/.test(adapter)) {
   throw new Error('Canonical durable adapter must separate service-role worker client from authenticated data client');
 }
+if (/from ['"]@\/lib\//.test(adapter) || /from ['"]@\/lib\//.test(fs.readFileSync(canonicalCommitPath, 'utf8'))) {
+  throw new Error('Canonical server execution dependency graph must not require Vite-only @/lib aliases');
+}
+if (!/await import\('\.\.\/supabase'\)/.test(adapter) || !/await import\('\.\.\/supabase'\)/.test(fs.readFileSync(canonicalCommitPath, 'utf8'))) {
+  throw new Error('Browser Supabase client must remain lazy in server-importable canonical modules');
+}
 if (!/commitImportBatch\(input\.entityType, input\.rows, input\.sourceHash, \{ client: dataClient, companyId \}\)/.test(adapter)) {
   throw new Error('Canonical import commit must remain tenant-bound to the authenticated data client');
 }
