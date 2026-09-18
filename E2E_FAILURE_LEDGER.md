@@ -26,3 +26,8 @@
 - Browser harness is intentionally separate and uses a real Chromium browser against the exact-head built application.
 - No browser PASS is inferred from API tests, mocks, old deployments, or static contracts.
 - Route reachability checks are diagnostic only; page load alone does not certify business correctness.
+
+
+## Fresh Exact-HEAD Business E2E Run — 2026-09-18
+
+A governance-only touch is intentionally used to trigger the existing Full Product Browser E2E workflow on a clean Exact HEAD. The run must use the repository-provisioned real Supabase/Auth secrets and real Chromium; no local/mock session is accepted. Outcome remains **PENDING** until the Actions run completes.
