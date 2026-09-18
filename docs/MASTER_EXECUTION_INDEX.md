@@ -49,13 +49,16 @@
 - Added exact executable UI contract: `test:proposal-demo-commercial-proof`. Documentation does not advance certification.
 - Commercial claims remain fail-closed: PROVEN / DEMO / PARTIAL / BLOCKED; no proposal may exceed the latest verified Evidence Passport state.
 
-### LATEST PRODUCT REQUIREMENTS EVOLUTION — 2026-09-18
-- The canonical master product reference now defines Report Advisor as an Evidence-First Decision Operating System rather than a dashboard-first product.
-- New strategic requirement families: Evidence Passport, Data Trust Center, What Changed, Decision Control Tower, Counterfactual/Scenario Lab, Outcome & ROI Ledger, Semantic Metric Studio, Agent Control Room, Commercial Playbooks, Profit Leak Radar, Supplier Risk Cockpit, Assortment & Cash Simulator, Merchant Memory, Continuous Reconciliation, Data Contract Autopilot, Embedded Intelligence, Proposal Demo Mode and Product Value Gate.
-- New completion distinction: TECHNICALLY_COMPLETE → PRODUCT_COMPLETE → COMMERCIAL_READY → CERTIFIED. Documentation does not advance capability state.
-- New execution priority: Track A Trust Core → Track B Decision Value → Track C Commercial Scale. Existing runtime/certification blockers remain higher priority than speculative feature expansion.
-- Current requirements validation on PC01: `test:master-requirements` PASS; architecture contract PASS; master duplication budget PASS.
-- This update is requirements/governance only. It does not claim implementation or certification of the new strategic capabilities.
+### STRATEGIC PRODUCT / MARKET POSITIONING — 2026-09-18
+- Report-Advisor remains an Evidence-First Decision Operating System; dashboard/UI polish is subordinate to truth, decision value, and operational proof.
+- The market/Upwork material is **reference intelligence, not a Core Product Backlog**.
+- The approved competitive focus is five selective tracks documented in `docs/SELECTIVE-COMPETITIVE-TRACKS-20260918.md`: Evidence-First BI / Executive Reporting; Supabase Multi-Tenant Security / RLS Remediation; Excel/CSV → Governed Data Pipeline; Arabic RTL B2B Operations UX; Inventory / Receivables Decision Workspace.
+- `docs/UPWORK-MARKET-REQUIREMENTS-20260918.md` contains external-market signals only. It must not be interpreted as 45 mandatory features.
+- `docs/UPWORK-BID-ENGINE-20260918.md` is a commercial operating procedure, not product architecture.
+- Product expansion rule: market signal → candidate → Product Value Gate → approved product work. No feature is added merely because an Upwork listing mentions it.
+- Commercial competition is won through narrow specialization, current proof, fast demo-to-result, disciplined scope, and claim-safe delivery—not by maximizing feature count.
+- Existing completion states remain TECHNICALLY_COMPLETE → PRODUCT_COMPLETE → COMMERCIAL_READY → CERTIFIED. Documentation does not advance capability state.
+- Runtime/certification blockers remain higher priority than speculative commercial expansion.
 ### EXECUTION STATE
 - **Done:** Netlify administrative access blocker removed; PR #590 security/source-parity migrations merged; staging import-row integrity is 0/0/0 and all 8 worker RPCs are service_role-only with pinned search_path.
 - **In progress:** exact-head runtime/DB/release closure; migration parity investigation; operational certification evidence.
