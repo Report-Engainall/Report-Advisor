@@ -5,14 +5,14 @@
 > Authoritative execution manifest. This document never promotes historical evidence across an exact Git `HEAD` boundary. Pair every evidence batch with the exact Git `HEAD` of `main` and the exact environment/commit used.
 
 ### CURRENT EXACT HEAD
-- Current code/test candidate: `04dd76f6fdfacb3dbb528f3d3a266df1a6179d18` (merge of PR #578).
-- Current Main product/test candidate: `04dd76f6fdfacb3dbb528f3d3a266df1a6179d18` (PR #578 merged). PR #550 structured PDF/file-engine repair, PR #556 coordinator runtime-loader restoration, and PR #564 Windows-safe readiness/lint fixes are included in the current lineage.
+- Current code/test candidate: `04f46d2e47aaff5005f0b569e8282cbec66dc775` (merge of PR #582 — Aghbari UI rebuild).
+- Current Main product/test candidate: `04f46d2e47aaff5005f0b569e8282cbec66dc775` (PR #582 merged). The product shell and shared UI system now follow the agreed Arabic RTL Aghbari command-center model.
 - The autonomous operating protocol is now repository-resident at `docs/PROGRAMMER_AUTONOMOUS_OPERATING_PROTOCOL.md`.
 - PC01 predecessor runtime evidence remains historical; fresh exact-Main runtime/browser/installer evidence for `04dd76f6fdfacb3dbb528f3d3a266df1a6179d18` is required and is not promoted from earlier SHAs.
 - No runtime/browser/production evidence from an earlier SHA is promoted by this binding.
 - The certification binding itself is governance-only and does not certify runtime/product code; fresh exact-HEAD runtime evidence for this candidate is still required.
 - Historical evidence from earlier SHAs remains historical and is not promoted automatically.
-- Post-merge current-head validation for `04dd76f6fdfacb3dbb528f3d3a266df1a6179d18` is now required; no post-merge PASS is promoted until fresh exact-Main workflows/runtime evidence complete.
+- Post-merge current-head validation for `04f46d2e47aaff5005f0b569e8282cbec66dc775` is still required; UI source integration is merged, but fresh exact-Main runtime/browser evidence remains separate from source completion.
 - Live Vercel state has READY preview deployment evidence for predecessor PR #578 commits, while current-main production cutover remains unproven; no stale deployment is promoted as current production evidence.
 - Current current-head production deployment/cutover is NOT PROVEN; no production mutation or alias change was performed.
 - Vercel preview deployments currently include failures caused by the provider build-rate limit; this external blocker does not justify idling repository-side execution.
