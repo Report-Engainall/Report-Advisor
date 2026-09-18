@@ -7,6 +7,12 @@ This document is the live ownership boundary for command `2`. It is intentionall
 
 **Primary responsibility:** continue real product development in parallel with runtime certification work. Do not wait for programmer gates when an independent source/UI task is actionable.
 
+### Latest completed development in this ownership wave
+- `src/pages/ReportsPage.tsx`: Reports Center is now decision-output first and reads the canonical dashboard snapshot for current truth context.
+- `src/pages/IntelligencePage.tsx`: Intelligence now exposes the shared truth context without making it a second source of truth.
+- `src/pages/DecisionExperiencePage.tsx`: Decision Experience now carries the same evidence/time-bound context when the canonical snapshot is available.
+- The shared development remains on the isolated integration branch; `main` is not mutated by this wave.
+
 ### Active development fronts
 1. **Business Command System completion**
    - Preserve the operating model: Today → Operations → Money → Intelligence & Decisions → Outputs → Reference → Administration.
@@ -51,15 +57,16 @@ This document is the live ownership boundary for command `2`. It is intentionall
 
 **Primary responsibility:** close everything requiring governed runtime credentials, DB mutation, GitHub Actions secrets, storage configuration, production parity or certification authority.
 
-### Active runtime fronts
-1. Fresh exact-head authenticated business/browser E2E, including Actor A/B tenant isolation.
-2. Persistence/read-back root-cause closure.
-3. Positive PDF text + Arabic OCR commit path.
-4. Worker enqueue → claim → heartbeat/checkpoint → expiry/recovery → retry/DLQ.
-5. Storage signed-URL tenant runtime.
-6. Phase-F operational resilience and measured backup/restore/RPO/RTO.
-7. Exact deployed-SHA parity.
-8. Final fail-closed certification bundle.
+### Active runtime fronts (live boundary refreshed from the repository execution ledger)
+1. Fresh exact-head authenticated business/browser E2E, including Actor A/B tenant isolation, persistence/read-back and logout/refresh continuity.
+2. Re-prove the full runtime matrix on the final integrated SHA; do not transfer evidence from earlier SHAs.
+3. Phase-F live resilience: configure/repair canonical live endpoint targets after the current 0/4 live probe failures (HTTP 404 / transport failure / HTTP 405), without synthetic endpoints.
+4. Durable worker disposable lifecycle: enqueue → claim → heartbeat/checkpoint → expiry/recovery → retry/DLQ, only where fresh exact-head evidence is still absent.
+5. Backup/restore verification with measured RPO/RTO; the current ledger reports no verification rows.
+6. Exact deployed-SHA parity and release stabilization.
+7. Final fail-closed certification bundle.
+
+**Already closed in the current repository ledger and not to be reopened without a changed SHA/environment/contract:** security/source-parity closure, import-row integrity, service-role-only worker RPC authority/search_path hardening, and the immediately preceding Storage Tenant Runtime E2E PASS. PDF historical results are not certification evidence for a newer SHA; rerun only when the final integrated SHA is ready.
 
 ### Required external inputs
 - Real GitHub Actions runtime secrets/targets where absent.
