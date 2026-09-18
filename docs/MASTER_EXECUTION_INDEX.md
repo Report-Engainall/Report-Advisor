@@ -5,25 +5,23 @@
 > Authoritative execution manifest. This document never promotes historical evidence across an exact Git `HEAD` boundary. Pair every evidence batch with the exact Git `HEAD` of `main` and the exact environment/commit used.
 
 ### CURRENT EXACT HEAD
-- Current code/test candidate: `1ed603e1b8fee7488fd43e9c00f65ff5dd13f9ce`.
-- Current Main product/test candidate is `1ed603e1b8fee7488fd43e9c00f65ff5dd13f9ce`. PR #550 structured PDF/file-engine repair, PR #556 coordinator runtime-loader restoration, and PR #564 Windows-safe readiness/lint fixes are included in the candidate lineage.
-- The autonomous operating protocol is now repository-resident at `docs/PROGRAMMER_AUTONOMOUS_OPERATING_PROTOCOL.md`.
-- PC01 exact-main runtime evidence is recorded in `docs/evidence/EXACT_MAIN_RUNTIME_20260918.md`; current-head native/installer evidence remains pending a workflow run against `1ed603e1...`.
+- Governed Main: `9bd7243c8864ca5bcf431b14a7c2eb35c698de7c`.
+- Current remediation candidate after rebasing PR #560 onto current Main: `2cf7a63c5d6b814176e822c8d996c76762002975`.
+- PR #560 branch `fix/pdf-structured-runtime-final-20260918` is the active remediation path; the previous wrapper SHA `01f453bf...` is superseded by the rebased candidate and must not carry forward as certification evidence.
+- The autonomous operating protocol remains repository-resident at `docs/PROGRAMMER_AUTONOMOUS_OPERATING_PROTOCOL.md`.
+- Fresh PC01 exact-candidate proof on `2cf7a63c...`: TypeScript typecheck PASS, production build PASS, file-engine behavioral regressions PASS, and 20-stage release-readiness PASS (20/20).
+- The current Main Windows-safe readiness change was retained during rebase; the only conflict was the documentation binding, which was resolved by preserving the newer Main binding rather than transferring stale candidate memory.
 - No runtime/browser/production evidence from an earlier SHA is promoted by this binding.
-- The certification binding itself is governance-only and does not certify runtime/product code; fresh exact-HEAD runtime evidence is still required.
-- Historical evidence from earlier SHAs remains historical and is not promoted automatically.
-- Current-head workflow execution is not yet evidenced on this SHA by the repository Actions run feed; absence of runs is not PASS and does not transfer historical evidence.
-- Live Vercel state shows the most recent observed production deployment still bound to historical Main SHA `a32fae0fc08c1cbbcc60b6eedfb0f4bd74a21c50` and READY; this is stale relative to the current code/test candidate and is not promoted as current production evidence.
-- Current current-head production deployment/cutover is NOT PROVEN; no production mutation or alias change was performed.
-- Vercel preview deployments currently include failures caused by the provider build-rate limit; this external blocker does not justify idling repository-side execution.
+- Fresh exact-head GitHub runtime/certification evidence remains mandatory; queued Actions are not PASS and cannot inherit earlier evidence.
+- Current-head production deployment/cutover remains NOT PROVEN; no production mutation or alias change was performed.
 
 ### CURRENT EXECUTION CONTROL — 2026-09-18
-- PR #533 adds the mandatory continuous two-owner execution/resume protocol. It is governance-only and does not itself certify runtime.
-- Structured PDF/file-engine runtime front is CLOSED through PR #550. Fresh PC01 Exact-Main proof at predecessor code candidate `c466666cef65d082383aca4fd3384261e9f64690`: file-engine contract PASS, structured PDF/OCR behavioral regression PASS, production build PASS, native desktop smoke PASS. Windows NSIS packaging was attempted on that candidate but exceeded the safe execution window; no exact-main packaging PASS is claimed.
-- Production-coordinator runtime front is CLOSED through PR #556. Current exact candidate `1ed603e1...` was freshly verified on PC01 for `test:production-coordinator-runtime` and `test:production-coordinator-integration`; the 20-stage suite and file-engine regressions/contracts also pass. Durable evidence: `docs/evidence/EXACT_MAIN_RUNTIME_20260918.md`.
-- Coordinator-owned remaining fronts: authenticated business E2E, current-head Browser/Certification workflow evidence, current-head Windows workflow evidence, production/deployment verification, live resilience proof, and commercial-gap control.
-- Rule: do not restart closed work. Resume IN_PROGRESS fronts from their last verified checkpoint. Do not mix evidence across SHA boundaries.
-- Rule: independent fronts must run in parallel; a queued CI workflow or external provider blocker must not idle unrelated work.
+- PR #533 remains the repository-resident continuous execution/resume protocol and is governance-only.
+- Structured PDF/file-engine front is revalidated on the rebased candidate: file-engine regression PASS and build/typecheck PASS. The real Supabase-backed PDF regression still requires GitHub CI secrets; PC01 has no `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY` environment variables and no fake values were used.
+- Canonical import server-boundary remediation and worker service-role authority reconciliation remain part of the current candidate. The existing durable runner/RPC architecture was retained; the runner was not rewritten.
+- Current exact-candidate repository readiness is strong, but authenticated business E2E, fresh PDF/OCR runtime with real Supabase configuration, current-head Browser/Certification evidence, and current-head production/deployment verification remain open.
+- Rule: do not restart closed work or transfer evidence across SHA boundaries.
+- Rule: independent fronts must run in parallel; queued CI or external provider blockers must not idle repository-side execution.
 
 ### CURRENT MAIN — MATERIAL FRONT CLOSURE
 - PR #525 — security exposure checker bound to repository truth — merged.
