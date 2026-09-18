@@ -5,7 +5,7 @@
 ## Current Code / Repository Boundary
 
 - Last product code on `main`: `c11c084d161cceb4595f8552b6c49c3f610f0ec2`.
-- Last repository HEAD: `c42214361bde9be484eab622adf7c6065a37af3e` (documentation-only synchronization after the Netlify production build).
+- Last repository HEAD at this addendum checkpoint: `c220f05cb533db6dea1e2d09ba6d6c50038aa22b` (Netlify resource-economy configuration; product code remains at `c11c084...`).
 - Netlify Production deploy: `6aacf9923a7df1ba382c67d4`, state `ready`, deployed from `c11c084...`.
 - Netlify production external fetch remains `401` because the project requires team SSO; this is not treated as an application build failure.
 
@@ -47,6 +47,11 @@ Open engineering wave: **PR #587**
 5. Phase-F resilience live configuration remains externally blocked.
 6. PC01 Remote Desktop runtime is currently reported offline; no device-local PASS is inferred.
 7. Supabase security advisor currently flags 43 authenticated-callable SECURITY DEFINER functions for caller/boundary review and one RLS-enabled table (`import_field_lineage`) without policies. No blanket revoke or destructive hardening has been performed.
+
+## Resource Economy
+
+- Netlify now uses a repository-path-aware `ignore` build guard. Docs/CI-only commits are skipped after the first cached build; app source, public assets, dependency manifests, Vite/Tailwind/PostCSS configuration, HTML, or Netlify configuration changes still trigger a build.
+- This guard follows Netlify's documented `ignore` build contract: exit `1` to continue and `0` to stop. citeturn789217search0turn789217search1
 
 ## Governance
 
