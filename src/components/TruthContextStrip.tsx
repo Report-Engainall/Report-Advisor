@@ -15,7 +15,7 @@ const stateMeta: Record<TruthState, { label: string; className: string; icon: ty
   INSUFFICIENT_DATA: { label: 'بيانات غير كافية', className: 'text-warning-700 bg-warning-50 ring-warning-100', icon: ShieldAlert },
 };
 
-export function TruthContextStrip({ months, status, asOf }: TruthContextStripProps) {
+export function TruthContextStrip({ months, periodLabel, status, asOf }: TruthContextStripProps) {
   const meta = stateMeta[status];
   const StateIcon = meta.icon;
   return (
