@@ -1078,3 +1078,31 @@ FILES / SURFACES: src/pages/WorkCenterPage.tsx; scripts/check-work-center-comman
 DEPENDENCIES: fetchImportRecords الحالي، ImportRecord model، BusinessInvestigationDrawer؛ لا DB/RPC/Runner/Auth/Tenant/Storage/CI change.
 BLOCKERS: لا يوجد blocker تطويري معروف.
 EXPECTED HANDOFF: Owner 2 يعيد إثبات Work Center/browser/runtime/release على Exact SHA؛ لا نقل Evidence بين SHAs.
+
+EXECUTION
+CHANGE: إضافة نقطة قرار أولى في Work Center تعتمد فقط على ImportRecord الحالي: failed/cancelled ثم review exceptions ثم queued/processing، مع فتح نفس investigation path للسجل.
+FILES: src/pages/WorkCenterPage.tsx; scripts/check-work-center-command-contract.mjs; package.json.
+WHY: مركز العمل كان يعرض الحالة والجدول بكفاءة، لكنه يطلب من المستخدم استنتاج أول خطوة تشغيلية بنفسه. أضيف ترتيب deterministic بلا scoring اصطناعي ولا backend جديد.
+TEST: final Exact SHA 4ac0e2cb87960168b7b32bc62764ee079590f6ca: work-center-command PASS; work-center-evidence PASS; execution-enforcement 26/26 PASS; route/sidebar parity PASS (35/34); typecheck PASS; lint PASS (0 errors / 58 warnings); build PASS (2808 modules, 14.58s); perf:budget PASS (critical 488.1KB / largest JS 487.8KB).
+RESULT: verified on final feature Exact SHA; no RPC/DB/Runner/Auth/Tenant/Storage/CI mutation.
+COMMIT: 4ac0e2cb87960168b7b32bc62764ee079590f6ca
+NEW HEAD: 4ac0e2cb87960168b7b32bc62764ee079590f6ca
+STATUS: READY_FOR_HANDOFF
+
+HANDOFF
+FROM: OWNER 1
+TARGET: OWNER 2
+BRANCH: feat/owner1-work-center-command-wave24-20260919
+SHA: 4ac0e2cb87960168b7b32bc62764ee079590f6ca
+CHANGED: Work Center first-action deterministic command surface + contract guard.
+VERIFIED: work-center command/evidence, execution enforcement, route parity, typecheck, lint, build, performance on feature Exact SHA.
+UNPROVEN: authenticated browser behavior; backend/runtime/DB/RLS/persistence/CI/CD/release certification remain Owner 2 scope.
+BLOCKERS: none in Owner 1 code.
+NEXT: integrate/rebase/cherry-pick Exact SHA 4ac0e2cb87960168b7b32bc62764ee079590f6ca and reprove Work Center/browser/runtime/release gates on merged Exact SHA; no cross-SHA evidence transfer.
+
+CLOSE
+HEAD: 4ac0e2cb87960168b7b32bc62764ee079590f6ca
+DONE: Wave 24 Work Center command surface completed and handed off.
+OPEN: Owner 2 runtime/release proof; Owner 1 continues competitive product hardening.
+BLOCKED: none.
+NEXT START: continue from the next independent commercial or decision surface.
