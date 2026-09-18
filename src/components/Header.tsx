@@ -75,7 +75,7 @@ export function Header({
   return (
     <header className="sticky top-0 z-30 border-b border-ink-200/70 bg-[#f4f7f4]/90 backdrop-blur-xl safe-top" aria-label="رأس مساحة العمل">
       <div className="mx-auto flex h-[72px] w-full max-w-[1800px] items-center gap-3 px-4 lg:px-8">
-        <button onClick={onMenuClick} className="rounded-xl p-2 text-ink-500 hover:bg-white lg:hidden" aria-label="فتح القائمة"><Menu size={21}/></button>
+        <button type="button" onClick={onMenuClick} className="rounded-xl p-2 text-ink-500 hover:bg-white lg:hidden" aria-label="فتح القائمة"><Menu size={21}/></button>
 
         <div className="hidden min-w-0 items-center gap-2 text-xs text-ink-400 xl:flex" aria-label="مسار الصفحة">
           <span>الأغبري</span><ChevronLeft size={13}/><span className="font-bold text-ink-700">{currentLabel}</span>
@@ -91,13 +91,13 @@ export function Header({
           <Link to="/import" className="rounded-xl p-2.5 text-ink-500 hover:bg-white hover:text-primary-700" title="إدخال بيانات" aria-label="إدخال بيانات"><Upload size={18}/></Link>
           <Link to="/intelligence" className="rounded-xl bg-primary-700 p-2.5 text-white shadow-sm hover:bg-primary-800" title="مركز الذكاء" aria-label="مركز الذكاء"><Brain size={18}/></Link>
           <div className="relative">
-            <button onClick={() => setShowAlerts(value => !value)} className="relative rounded-xl p-2.5 text-ink-500 hover:bg-white hover:text-ink-800" aria-label={'التنبيهات، ' + unreadAlerts.length + ' غير مقروء'} aria-expanded={showAlerts}>
+            <button type="button" onClick={() => setShowAlerts(value => !value)} className="relative rounded-xl p-2.5 text-ink-500 hover:bg-white hover:text-ink-800" aria-label={'التنبيهات، ' + unreadAlerts.length + ' غير مقروء'} aria-expanded={showAlerts}>
               <Bell size={18}/>
               {unreadAlerts.length > 0 && <span className="absolute -left-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-danger-600 px-1 text-[9px] font-black text-white">{unreadAlerts.length}</span>}
             </button>
             {showAlerts && (
               <>
-                <div className="fixed inset-0 z-40" onClick={() => setShowAlerts(false)} />
+                <button type="button" aria-label="إغلاق التنبيهات" className="fixed inset-0 z-40 cursor-default" onClick={() => setShowAlerts(false)} />
                 <div className="absolute left-0 z-50 mt-2 w-80 overflow-hidden rounded-2xl border border-ink-200 bg-white shadow-elevated">
                   <div className="flex items-center justify-between border-b border-ink-100 px-4 py-3"><span className="text-sm font-black text-ink-800">الانتباه</span><span className="text-xs text-ink-400">{unreadAlerts.length} غير مقروء</span></div>
                   {alerts.length === 0 ? <div className="p-6 text-center text-sm text-ink-400">لا توجد تنبيهات</div> : (
