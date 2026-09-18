@@ -1,20 +1,22 @@
 import { CalendarRange, CheckCircle2, Database, ShieldAlert } from 'lucide-react';
 
-type TruthState = 'CONFIRMED' | 'CALCULATED' | 'INSUFFICIENT_DATA';
+type TruthState = 'CONFIRMED' | 'CALCULATED' | 'INSUFFICIENT_DATA' | 'NO_DATA';
 
 interface TruthContextStripProps {
-  months: number;
+  months?: number;
   status: TruthState;
   asOf: string;
+  rangeLabel?: string;
 }
 
 const stateMeta: Record<TruthState, { label: string; className: string; icon: typeof CheckCircle2 }> = {
   CONFIRMED: { label: 'مصدر مؤكد', className: 'text-success-700 bg-success-50 ring-success-100', icon: CheckCircle2 },
   CALCULATED: { label: 'محسوب من المصدر', className: 'text-primary-700 bg-primary-50 ring-primary-100', icon: CheckCircle2 },
   INSUFFICIENT_DATA: { label: 'بيانات غير كافية', className: 'text-warning-700 bg-warning-50 ring-warning-100', icon: ShieldAlert },
+  NO_DATA: { label: 'لا توجد بيانات', className: 'text-ink-600 bg-ink-50 ring-ink-100', icon: ShieldAlert },
 };
 
-export function TruthContextStrip({ months, status, asOf }: TruthContextStripProps) {
+export function TruthContextStrip({ months, status, asOf, rangeLabel }: TruthContextStripProps) {
   const meta = stateMeta[status];
   const StateIcon = meta.icon;
   return (
@@ -28,7 +30,7 @@ export function TruthContextStrip({ months, status, asOf }: TruthContextStripPro
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-2 text-[11px]">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-ink-50 px-2.5 py-1.5 text-ink-600 ring-1 ring-inset ring-ink-100"><CalendarRange size={13} aria-hidden="true" />النطاق: آخر {months} {months === 1 ? 'شهر' : 'أشهر'}</span>
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-ink-50 px-2.5 py-1.5 text-ink-600 ring-1 ring-inset ring-ink-100"><CalendarRange size={13} aria-hidden="true" />{rangeLabel ?? ('النطاق: آخر ' + (months ?? 6) + ' ' + ((months ?? 6) === 1 ? 'شهر' : 'أشهر'))}</span>
           <span className="inline-flex items-center gap-1.5 rounded-full bg-ink-50 px-2.5 py-1.5 text-ink-600 ring-1 ring-inset ring-ink-100">حتى: {asOf}</span>
           <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1.5 ring-1 ring-inset ${meta.className}`}><StateIcon size={13} aria-hidden="true" />{meta.label}</span>
           <span className="inline-flex items-center gap-1.5 rounded-full bg-ink-50 px-2.5 py-1.5 text-ink-600 ring-1 ring-inset ring-ink-100">سياق المؤسسة الحالية</span>
