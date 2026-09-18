@@ -25,13 +25,15 @@
 ### CURRENT PRODUCT WAVE UPDATE — PR #595
 - UI/product wave rebased directly onto current main fe5661060462ffa21d6aa31505f80c2021c4170a and opened as PR #595.
 - Superseded PR #587 is closed; no historical CI/evidence from #587 is treated as certification for #595.
-- Current PR head at latest execution sync: 4c4719b938937e46801ef5a5f2a8b8a8fcc2e353.
+- Current PR head at latest execution sync: 98917b1598c4fdb0b9ac6066e43ffa25eb85bfb6.
 - UI work included shell/header/sidebar/command palette, dashboard truth context, Intelligence assistant, decision stage UX/deep-link synchronization, Data Quality, Executive Command Center/Report, Metric Inspector, Alternatives and Work Center refinements.
 - Shared E2E login harness fixed to target the semantic form submit control instead of the obsolete localized login-label text.
 - Dashboard truth adversarial regression contract made whitespace-tolerant without weakening the intended semantic guard.
 - PR #595 is based directly on current main; fresh exact-head CI is authoritative.
 
 ### LATEST UI SURFACE UPDATE — PR #595
+- Full navigation parity verified: Router 33 non-wildcard routes ↔ Command Palette 33 paths ↔ Sidebar 33 links; Header labels cover all non-root routes.
+- PWA verification: current preview exposes service worker v2 with app-shell/offline navigation fallback; source manifest is Arabic RTL, standalone, and scoped to root.
 - Route/sidebar parity verified after the latest nav fix: 34 application routes, 33 sidebar links (wildcard excluded), no missing or duplicate paths.
 - Added canonical report links for sales, purchases, and inventory to the sidebar; hardened the parity parser for whitespace-tolerant path syntax.
 - Localized remaining visible technical English across Intelligence, Decision Experience, Executive Report, Data Quality, File Analysis, and Onboarding surfaces.
