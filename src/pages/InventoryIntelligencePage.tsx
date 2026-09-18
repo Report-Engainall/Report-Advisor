@@ -1,5 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { lazy, Suspense, useCallback, useMemo, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 import { RefreshCw, Layers3, PackageSearch, TrendingUp, AlertTriangle } from 'lucide-react';
 import { fetchInventoryIntelligenceSource } from '@/lib/free-toolbox/inventory-intelligence-canonical';
 import { applyReportMode, type DetailReportRow, type ReportMode, type GroupedReportRow } from '@/lib/free-toolbox/grouped-report';
