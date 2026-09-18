@@ -70,7 +70,7 @@ export async function fetchDashboardSnapshot(months = 6): Promise<Snapshot> {
     topCustomers: requiredArray<TopEntity>(row.topCustomers).slice(0,10),
     topProducts: requiredArray<TopEntity>(row.topProducts).slice(0,10),
     categories: requiredArray<CategoryBreakdown>(row.categories),
-    asOf: typeof row.asOf === 'string' ? row.asOf : asOfDate(),
+    asOf: typeof row.asOf === 'string' ? row.asOf : 'غير متاح',
     months: typeof row.months === 'number' && Number.isInteger(row.months) ? row.months : months,
     aging:{
       rows:requiredArray<AgingBucket>(agingRow.rows),
