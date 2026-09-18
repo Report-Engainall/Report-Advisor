@@ -15,7 +15,8 @@ This document is the live ownership boundary for command `2`. It is intentionall
 - `src/components/CommandPalette.tsx`: recent command ordering now follows actual recency rather than alphabetical tie-breaking.
 - `src/pages/InventoryIntelligencePage.tsx`: grouped inventory rows now open the existing investigation drawer with coverage, demand, missing-evidence and next-action context.
 - `src/pages/DataQualitySnapshotPage.tsx`: quality entity cards now deep-link to the relevant business context while preserving explicit EMPTY/score semantics.
-- Current code HEAD: `5151802350e8240379d0e5d8dfe414cb0c78b62f`.
+- `src/pages/AnalyticsPage.tsx`: analytics navigation styles now use explicit class names, avoiding dynamic Tailwind class construction that can disappear from production CSS extraction.
+- Current code HEAD: `b161efb697c891a456592ecfad514e6726af9914`.
 - The shared development remains on the isolated integration branch; `main` is not mutated by this wave.
 
 ### Active development fronts
