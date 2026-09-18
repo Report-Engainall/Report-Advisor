@@ -1,11 +1,13 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from 'react';
-import { Activity, AlertTriangle, CheckCircle2, Clock3, Filter, RefreshCw, ShieldCheck, XCircle, ArrowUpLeft } from 'lucide-react';
+import { Activity, AlertTriangle, CheckCircle2, Clock3, Filter, RefreshCw, Search, ShieldCheck, XCircle, ArrowUpLeft } from 'lucide-react';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { DataTable } from '@/components/ui/DataTable';
 import { EmptyState, ErrorState, LoadingState, PageHeader } from '@/components/ui/States';
 import type { InvestigationTarget } from '@/components/BusinessInvestigationDrawer';
 const BusinessInvestigationDrawer = lazy(async () => ({ default: (await import('@/components/BusinessInvestigationDrawer')).BusinessInvestigationDrawer }));
 import { fetchImportRecords } from '@/lib/queries';
+import { resolveCurrentCompanyId } from '@/lib/supabase';
+import { SavedViewMenu, type SavedViewValue } from '@/components/ui/SavedViewMenu';
 import type { ImportRecord } from '@/lib/types';
 import { formatNumber } from '@/lib/format';
 
@@ -23,6 +25,8 @@ function matches(row: ImportRecord, filter: FilterKey) {
 export function WorkCenterPage() {
   const [rows, setRows] = useState<ImportRecord[]>([]);
   const [filter, setFilter] = useState<FilterKey>('all');
+  const [search, setSearch] = useState('');
+  const [companyId, setCompanyId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [investigation, setInvestigation] = useState<InvestigationTarget | null>(null);
@@ -33,8 +37,16 @@ export function WorkCenterPage() {
     finally { setLoading(false); }
   }, []);
   useEffect(() => { void load(); }, [load]);
+  useEffect(() => { void resolveCurrentCompanyId().then(setCompanyId); }, []);
 
-  const filtered = useMemo(() => rows.filter(r => matches(r, filter)), [rows, filter]);
+  const filtered = useMemo(() => { const term = search.trim().toLocaleLowerCase('ar'); return rows.filter(r => matches(r, filter) && (!term || [r.file_name, r.entity_type, r.error_message].filter(Boolean).some(value => String(value).toLocaleLowerCase('ar').includes(term)))); }, [rows, filter, search]);
+  const savedViewKey = companyId ? 'report-advisor.saved-views.' + companyId + '.work-center' : '';
+  const applySavedView = (value: SavedViewValue) => {
+    const nextFilter = value.filter;
+    setFilter(nextFilter === 'active' || nextFilter === 'review' || nextFilter === 'completed' || nextFilter === 'failed' ? nextFilter : 'all');
+    setSearch(typeof value.search === 'string' ? value.search : '');
+  };
+  const resetView = () => { setFilter('all'); setSearch(''); };
   const counts = useMemo(() => ({
     active: rows.filter(r => r.status === 'queued' || r.status === 'processing').length,
     review: rows.filter(r => r.status === 'partial' || (r.invalid_rows ?? 0) > 0 || (r.quarantined_rows ?? 0) > 0).length,
@@ -85,7 +97,7 @@ export function WorkCenterPage() {
       <Card><CardHeader title="كيف يعمل مركز العمل؟" subtitle="التشغيل يتبع الحقيقة المصدرية"/><CardBody><div className="space-y-3">{[['المصدر','الملف والعملية الأصلية','text-primary-600'],['المعالجة','queued → processing','text-accent-600'],['التحقق','صالح / مراجعة / فشل','text-warning-600'],['النتيجة','الحالة النهائية المصدرية فقط','text-success-600']].map(([label,detail,tone]) => <div key={label} className="flex items-start gap-3 rounded-xl border border-ink-100 bg-ink-50/60 p-3"><span className={'mt-0.5 h-2 w-2 rounded-full bg-current ' + tone}/><div><div className="text-xs font-bold text-ink-800">{label}</div><div className="mt-1 text-xs text-ink-500">{detail}</div></div></div>)}</div></CardBody></Card>
     </section>
 
-    <Card><CardHeader title="طابور العمل" subtitle="الفلترة لا تغيّر المصدر؛ النقر يفتح سياق العملية."/><CardBody><div className="mb-5 flex flex-wrap items-center gap-2" role="toolbar" aria-label="تصفية العمليات"><Filter size={16} className="text-ink-400"/>{(['all','active','review','completed','failed'] as FilterKey[]).map(k => <button key={k} type="button" onClick={() => setFilter(k)} className={'rounded-full px-3 py-1.5 text-xs font-semibold ' + (filter === k ? 'bg-ink-950 text-white' : 'bg-ink-50 text-ink-600 hover:bg-ink-100')}>{k === 'all' ? 'الكل' : k === 'active' ? 'النشطة' : k === 'review' ? 'المراجعة' : k === 'completed' ? 'المكتملة' : 'الفاشلة'}</button>)}</div>{filtered.length === 0 ? <EmptyState title="لا توجد عمليات مطابقة" message={rows.length === 0 ? 'لا توجد عمليات استيراد مسجلة لهذا المستأجر حتى الآن.' : 'غيّر عامل التصفية لرؤية عمليات أخرى.'}/> : <DataTable data={filtered} emptyMessage="لا توجد عمليات" columns={[
+    <Card><CardHeader title="طابور العمل" subtitle="الفلترة والبحث محليان على السجل المقروء من المصدر؛ النقر يفتح سياق العملية."/><CardBody><div className="mb-5 space-y-3"><div className="flex flex-wrap items-center gap-2" role="toolbar" aria-label="تصفية العمليات"><Filter size={16} className="text-ink-400"/>{(['all','active','review','completed','failed'] as FilterKey[]).map(k => <button key={k} type="button" onClick={() => setFilter(k)} aria-pressed={filter === k} className={'rounded-full px-3 py-1.5 text-xs font-semibold ' + (filter === k ? 'bg-ink-950 text-white' : 'bg-ink-50 text-ink-600 hover:bg-ink-100')}>{k === 'all' ? 'الكل' : k === 'active' ? 'النشطة' : k === 'review' ? 'المراجعة' : k === 'completed' ? 'المكتملة' : 'الفاشلة'}</button>)}{savedViewKey && <SavedViewMenu storageKey={savedViewKey} value={{ filter, search }} onApply={applySavedView} onReset={resetView}/>}<button type="button" onClick={resetView} className="inline-flex items-center gap-1.5 rounded-full border border-ink-200 bg-white px-3 py-1.5 text-xs font-semibold text-ink-500 hover:border-ink-300 hover:text-ink-800">إعادة الضبط</button></div><label className="flex items-center gap-2 rounded-xl border border-ink-200 bg-white px-3 py-2.5"><Search size={15} className="shrink-0 text-ink-400"/><input value={search} onChange={event => setSearch(event.target.value)} placeholder="ابحث في اسم الملف أو الكيان أو رسالة الخطأ..." aria-label="البحث في عمليات مركز العمل" className="min-w-0 flex-1 bg-transparent text-xs text-ink-800 outline-none placeholder:text-ink-400"/>{search && <button type="button" onClick={() => setSearch('')} className="text-[11px] font-bold text-ink-400 hover:text-ink-700">مسح</button>}</label></div>{filtered.length === 0 ? <EmptyState title="لا توجد عمليات مطابقة" message={rows.length === 0 ? 'لا توجد عمليات استيراد مسجلة لهذا المستأجر حتى الآن.' : 'غيّر عامل التصفية لرؤية عمليات أخرى.'}/> : <DataTable data={filtered} emptyMessage="لا توجد عمليات" columns={[
       { key: 'file', label: 'المصدر', render: (r: ImportRecord) => <button type="button" onClick={() => inspect(r)} className="text-right"><span className="font-semibold text-primary-800 hover:underline">{r.file_name}</span><span className="mt-1 block text-[11px] text-ink-400">{r.entity_type ?? 'import'} · افتح السياق</span></button> },
       { key: 'status', label: 'الحالة', align: 'center', render: (r: ImportRecord) => <button type="button" onClick={() => inspect(r)} className={'inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ' + statusClass(r.status)}>{statusLabel(r.status)}</button> },
       { key: 'progress', label: 'التقدم', align: 'center', render: (r: ImportRecord) => r.progress == null ? '—' : <div className="min-w-24"><div className="text-xs font-bold">{Math.max(0, Math.min(100, r.progress))}%</div><div className="mt-1 h-1.5 overflow-hidden rounded-full bg-ink-100"><div className="h-full rounded-full bg-primary-500" style={{ width: String(Math.max(0, Math.min(100, r.progress))) + '%' }}/></div></div> },
