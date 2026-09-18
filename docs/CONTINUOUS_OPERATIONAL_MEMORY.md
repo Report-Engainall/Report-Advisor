@@ -63,20 +63,20 @@ A preview deployment is not production proof.
 
 # 2. LIVE EXECUTION HEADER
 
-Last material update: 2026-09-18T03:08Z
+Last material update: 2026-09-18T03:14Z
 Current Main: a32fae0fc08c1cbbcc60b6eedfb0f4bd74a21c50
 Primary environment: Supabase staging fnqbvfuwbdpwvhcgzksl
 Production URL: https://report-advisor.vercel.app
 Coordinator branch: governance/coordinator-continuous-execution-20260918
 Coordinator PR: #537
-Coordinator PR HEAD at this snapshot: d2539caef3559106068c59d4432ddf753392b6fd
+Coordinator PR HEAD at this snapshot: c7930917aa461f7bba50867f84ad8bbae27d5e98
 
 ### Open implementation fronts
 
 | PR | Front | Exact HEAD | State | Canonical purpose |
 |---|---|---|---|---|
 | #540 | PDF/document runtime | a378f55ba7e845a7c5f672ca276e36099de8bee0 | OPEN / governance rebind applied; CI pending | Consolidated PDF parser + Node 22 runtime compatibility + deterministic real-PDF regression |
-| #539 | Security-definer/current-main reconciliation | f24ddd623d9d0a72c0c3b3d0bd6724bd6dcb6c5b | OPEN / governance rebind applied; CI queued/in progress | Harden current-main SECURITY DEFINER boundaries and retry auth/tenant guards |
+| #539 | Security-definer/current-main reconciliation | f24ddd623d9d0a72c0c3b3d0bd6724bd6dcb6c5b | OPEN / governance rebind applied; CI in progress | Harden current-main SECURITY DEFINER boundaries and retry auth/tenant guards |
 | #536 | Import terminal authority | 2ba3251712168ad64b14127b6583d2bc1d0162ac | OPEN / governance rebind applied; CI pending | Route terminal import state through existing import_finish_job |
 | #534 | Master execution index | 013c4c31f8fe91f789ad13d29cb3ec6741cfc4e4 | OPEN / governance | Rebind index to Main a32fae0 |
 | #537 | Coordinator protocol | 4b230b4642dd99396cf7b779d383943d0cfcc9c6 | OPEN / governance | Continuous coordinator execution + this memory contract |
@@ -327,3 +327,11 @@ without asking the user to reconstruct project history.
 - Persistent PR comments record these coordinator-owned fixes so the programmer does not duplicate them.
 - Prior #539 exact-head results showed security-definer exposure, quality and many contract fronts passing; certification boundary, enforcement, browser/runtime and external resilience/storage remained unresolved on that superseded head and are not transferred to the new head.
 - Next executable action: use the new exact heads only, inspect newly completed failures, and advance independent read-only/evidence/governance fronts without repeating superseded audits.
+
+
+### 2026-09-18T03:14Z — Structured memory upgrade
+- Added machine-readable companion docs/CONTINUOUS_OPERATIONAL_STATE.json.
+- Updated coordinator and master execution protocols so agents must read both memory files and reconcile them when they disagree.
+- No product/runtime/database semantics changed.
+- Current coordinator PR head: c7930917aa461f7bba50867f84ad8bbae27d5e98.
+- Next action remains exact-head verification on implementation PRs plus independent lineage/evidence work; no historical result is promoted.
