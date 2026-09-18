@@ -64,7 +64,7 @@ export function SavedViewMenu({ storageKey, value, onApply, onReset, disabled = 
 
     const id = typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
       ? crypto.randomUUID()
-      : \`1789749693718-\${Math.random().toString(36).slice(2)}\`;
+      : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
     const next: SavedView[] = [
       { id, name: trimmed, value, createdAt: new Date().toISOString() },
       ...views.filter(view => JSON.stringify(view.value) !== currentFingerprint),
@@ -145,7 +145,7 @@ export function SavedViewMenu({ storageKey, value, onApply, onReset, disabled = 
                   type="button"
                   onClick={() => removeView(view.id)}
                   className="rounded-lg p-2 text-ink-300 opacity-0 transition hover:bg-danger-50 hover:text-danger-600 group-hover:opacity-100 focus:opacity-100"
-                  aria-label={\`حذف العرض \${view.name}\`}
+                  aria-label={'حذف العرض ' + view.name}
                   title="حذف العرض"
                 >
                   <Trash2 size={14} />
