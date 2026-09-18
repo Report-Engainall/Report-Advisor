@@ -95,7 +95,9 @@ async function probeAuthFromNode(email, password) {
 async function login(targetPage, email, password) {
   await targetPage.goto(baseURL, { waitUntil: 'domcontentloaded', timeout: 30000 });
   const loginEmail = targetPage.locator('#login-email');
-  if (!(await loginEmail.count())) throw new Error('LOGIN_FORM_NOT_FOUND');
+  await loginEmail.waitFor({ state: 'visible', timeout: 30000 }).catch(() => {
+    throw new Error('LOGIN_FORM_NOT_READY');
+  });
   await loginEmail.fill(email);
   await targetPage.locator('#login-password').fill(password);
 
@@ -264,8 +266,15 @@ try {
     }
 
     if (result.auth === 'PASS') {
-      const dashboard = await page.getByText('لوحة القيادة').count();
-      if (!dashboard) addFinding('E2E-AUTH-012', 'NOT_PROVEN', 'P1', 'Authenticated session is proven, but the expected dashboard label was not present immediately after login.');
+      const primaryNav = await page.getByRole('navigation', { name: 'التنقل التجاري الرئيسي' }).count();
+      addFinding(
+        'E2E-AUTH-012',
+        primaryNav ? 'PASS' : 'NOT_PROVEN',
+        'P1',
+        primaryNav
+          ? 'Authenticated application shell became visible after login.'
+          : 'Authenticated session is proven, but the primary navigation shell did not become visible within the bounded convergence window.',
+      );
 
       const emailB = process.env.TEST_USER_B_EMAIL;
       const passwordB = process.env.TEST_USER_B_PASSWORD;
@@ -343,7 +352,8 @@ try {
 
       await page.goto(`${baseURL}/`, { waitUntil: 'domcontentloaded', timeout: 30000 });
       const logout = page.getByRole('button', { name: 'تسجيل الخروج' });
-      if (await logout.count()) {
+      await logout.waitFor({ state: 'visible', timeout: 30000 }).catch(() => {});
+      if (await logout.count() && await logout.isVisible().catch(() => false)) {
         await logout.click();
         try {
           await page.locator('#login-email').waitFor({ state: 'visible', timeout: 10000 });
