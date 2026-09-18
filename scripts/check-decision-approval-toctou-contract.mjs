@@ -46,7 +46,7 @@ export function validateDecisionApprovalToctou(source) {
   if (decisionGate < decisionLock) throw new Error('Approvaibility check is not performed after decision lock');
   if (approvalSelect < decisionLock) throw new Error('Approval row lookup precedes decision lock');
   if (terminalGuard < approvalSelect) throw new Error('Terminal approval guard missing or reordered');
-  if (!body.includes('where public.decision_approvals.status not in')) throw new Error('Conflict-path terminal guard missing');
+  if (!normalizedBody.includes('where public.decision_approvals.status not in')) throw new Error('Conflict-path terminal guard missing');
   return true;
 }
 
@@ -72,7 +72,8 @@ function replaceLatestFunctionBody(source, name, mutate) {
   return source.slice(0, start) + mutated + source.slice(end);
 }
 const canonicalBody = latestFunctionBody(sql, 'request_decision_approval');
-const canonicalDecisionSelect = canonicalBody.indexOf('from public.business_intelligence_decisions');
+const canonicalNormalizedBody = canonicalBody.toLowerCase();
+const canonicalDecisionSelect = canonicalNormalizedBody.indexOf('from public.business_intelligence_decisions');
 const canonicalDecisionLockMatch = canonicalBody
   .slice(canonicalDecisionSelect)
   .match(/and d\.company_id = v_company\s+for update/i);
