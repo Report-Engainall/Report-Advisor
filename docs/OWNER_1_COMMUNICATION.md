@@ -575,3 +575,16 @@ HEAD: 29603d49ce64fdaa4b801ba7e5133720a050fa83
 DONE: Wave 11 inventory truth integrity completed and handed off.
 OPEN: Owner 2 integration/runtime/release proof; next Owner 1 front remains independent product/UI hardening.
 BLOCKED: none.
+
+## START — COMMAND 10 — 2026-09-19
+START
+DATE: 2026-09-19T03:10+03:00
+OWNER: 1
+BRANCH: feat/owner1-canonical-report-truth-wave12-20260919
+HEAD: 29603d49ce64fdaa4b801ba7e5133720a050fa83
+BASE: 29603d49ce64fdaa4b801ba7e5133720a050fa83
+OBJECTIVE: توحيد طبقة الحقيقة على أسطح التقارير canonical المستقلة (Executive / Profitability canonical / Receivables canonical) باستخدام الحقول canonical الموجودة فقط؛ لا اختلاق as-of ولا نقل evidence بين الصفحات.
+FILES / SURFACES: src/pages/ExecutiveReportPage.tsx; src/pages/ProfitabilityReportCanonicalPage.tsx; src/pages/ReceivablesReportCanonicalPage.tsx; src/pages/ReceivablesReportPageCanonical.tsx; scripts/check-canonical-report-truth-contract.mjs; package.json.
+DEPENDENCIES: existing dashboard canonical / existing report RPC results only؛ no new RPC/DB/Runner/Auth/Tenant/Storage/CI logic.
+BLOCKERS: لا blocker معروف عند البدء.
+EXPECTED HANDOFF: Owner 2 يعيد إثبات canonical-report/browser/runtime/release gates على Exact SHA الجديد.
