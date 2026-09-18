@@ -468,3 +468,74 @@ Next executable action:
 The project must remain understandable, reproducible, and provable without depending on the memory of one person, model, or conversation.
 
 The repository is where engineering truth, decisions, evidence, and operational memory converge.
+
+
+## 24. Leadership Review — 2026-09-18
+
+### Exact-head findings
+
+The AI engineering lead independently inspected PR #542 and its exact runtime evidence.
+
+#### Finding L1 — Certification checker false-negative
+
+- Failed workflow: Final Certification Gate
+- Run: 35302318549
+- Exact SHA: 66d6844830c183cd674c731c144f5058e38f905c
+- Failing check: scripts/check-decision-approval-lock-order.mjs
+- Root cause: the checker used case-sensitive string search for lowercase SQL tokens while the exact-head migration used uppercase SQL keywords such as FROM and FOR UPDATE.
+- Exact-SHA inspection confirmed the required lock order was present.
+- Corrective commit: 0b1d0c0d6d20243cefed00eaec1d2f3b72a9bb0e
+- Corrective principle: strengthen the parser rather than weaken the database guard.
+- Required verification: fresh CI on the corrected head.
+
+#### Finding L2 — Import terminal completion contract mismatch
+
+- Failed workflow: Full Product Browser E2E
+- Run: 35302318597
+- Exact SHA: 66d6844830c183cd674c731c144f5058e38f905c
+- Runtime failure: IMPORT_COMPLETION_REQUIRES_ALL_ROWS_PROCESSED
+- Root cause: CanonicalImportPage.tsx invoked import_finish_job with valid_rows and invalid_rows, while the authoritative function accepts the completion contract committed and invalidRows, or requires all processed rows otherwise.
+- Staging evidence: live public.import_finish_job definition was inspected through Supabase and matched the failure mechanism.
+- Corrective commit: 87b362eb6def5e114810ee7a8f423aef446bd0de
+- Regression guard: src/lib/import-finish-ui-summary.contract.test.ts
+- CI wiring: import-finish-lifecycle-security.yml
+- Required verification: fresh exact-head browser/persistence proof.
+
+#### Finding L3 — Storage runtime external blocker
+
+- Failed workflow: Storage Tenant Runtime E2E
+- Run: 35302318611
+- Exact SHA: 66d6844830c183cd674c731c144f5058e38f905c
+- Result: BLOCKED EXTERNAL
+- Missing configuration: REPORT_ADVISOR_STORAGE_BUCKET
+- Repository/staging evidence does not justify inventing a storage bucket or secret.
+- Action: keep fail-closed; provision real storage configuration only if and when the product capability is genuinely required.
+- No fake PASS.
+
+#### Finding L4 — Vercel provider rate limit
+
+- Exact-head PR checks on governance and runtime branches report Vercel failure with build-rate-limit.
+- This is an external provider/quota blocker, not evidence of source-code failure.
+- Action: do not bypass; continue independent GitHub/Supabase/source verification.
+
+### Evidence freshness decision
+
+Evidence from 66d is historical after code/test changes. The active PR #542 candidate was rebound to:
+
+39b90e44c91c227a02989245e3a8d9c3b9791177
+
+The subsequent 51c71124c6b90f98f4659e8d79efabf800a5cc1c commit is documentation-only; it does not itself require a code candidate rebind.
+
+Certification remains FAIL-CLOSED until fresh evidence is produced on the corrected candidate.
+
+### Leadership decision
+
+Do not weaken:
+
+- decision lock ordering,
+- import_finish_job authority,
+- tenant/security gates,
+- storage truth,
+- certification evidence boundaries.
+
+Fix the verifier when the verifier is wrong. Fix the producer/consumer contract when the runtime contract is mismatched. Preserve external blockers as blockers.
