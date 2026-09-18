@@ -6,7 +6,7 @@
 
 ### CURRENT EXACT HEAD
 - Governed Main: `9bd7243c8864ca5bcf431b14a7c2eb35c698de7c`.
-- Current code/test candidate: `fd5feca20a37c086e7b0d61d8a8fa7829c235032`.
+- Current code/test candidate: `672c17deb40fede8e272dd4f7f1e831f2fcad82a`.
 - The current candidate additionally closes the canonical import job as `failed` when the authenticated server boundary itself fails, preserving terminal ownership at the canonical finish path while rethrowing the primary boundary error.
 - The exact-head browser runtime now uses Vercel Dev for `/api/*` serverless boundaries, with the server-only Supabase service key supplied only from GitHub Secrets and never committed.
 - Storage tenant runtime proof was hardened to verify post-attempt object persistence, because a raw multi-delete HTTP success can be non-mutating under RLS; certification now requires the owner object to remain readable after every cross-tenant delete attempt.
