@@ -1,10 +1,10 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { supabase, resolveCurrentCompanyId } from '@/lib/supabase';
-import type { ReportExecutionStage } from '@/lib/report-execution/checkpoint';
-import { SupabaseReportExecutionStore } from '@/lib/report-execution/durable-worker-adapter';
-import { runDurableProductionLifecycle } from '@/lib/report-execution/durable-production-runner';
-import type { ReconciledCanonicalImportRow } from '@/lib/import/canonical-truth-boundary';
-import { commitImportBatch } from '@/lib/import/canonical-commit';
+import { supabase, resolveCurrentCompanyId } from '../supabase';
+import type { ReportExecutionStage } from '../report-execution/checkpoint';
+import { SupabaseReportExecutionStore } from '../report-execution/durable-worker-adapter';
+import { runDurableProductionLifecycle } from '../report-execution/durable-production-runner';
+import type { ReconciledCanonicalImportRow } from './canonical-truth-boundary';
+import { commitImportBatch } from './canonical-commit';
 
 export interface DurableCanonicalImportInput {
   importId: string;
