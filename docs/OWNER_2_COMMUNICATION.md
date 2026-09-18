@@ -145,3 +145,10 @@ EXPECTED HANDOFF=Fresh exact-SHA business persistence evidence.
 - OPEN: exact-head browser/business persistence must be re-proven; Phase F live resilience; exact Vercel deployment parity; backup/RPO/RTO evidence.
 - BLOCKED: no code blocker remains for enqueue path; live Phase F configuration and deployment parity are external/runtime gates.
 - NEXT HANDOFF: governed retrigger on successor SHA; accept evidence only from that exact SHA.
+
+## START | OWNER=2 | 2026-09-19T01:24+03:00
+HEAD=9ac2d08fdcce91530cf362886e6b5d6c7ec92f59
+OBJECTIVE=تصحيح تضارب enqueue_report_execution_job الأمني: authenticated EXECUTE يجب أن يبقى ممنوعًا، والـAPI يتحقق من session/tenant ثم يستدعي RPC عبر service_role. الوظيفة نفسها ستسمح فقط للـservice_role بتجاوز فحص auth.uid مع إبقاء tenant/source validation، ثم يُسجل ذلك forward-only migration بعد تحقق Staging.
+STAGING=Supabase fnqbvfuwbdpwvhcgzksl
+NO_BROWSER_WORKER_GRANT=true
+EXPECTED=Staging SQL verification ثم code/migration exact-head retrigger.
