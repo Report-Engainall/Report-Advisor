@@ -11,6 +11,8 @@ This document is the live ownership boundary for command `2`. It is intentionall
 - `src/pages/ReportsPage.tsx`: Reports Center is now decision-output first and reads the canonical dashboard snapshot for current truth context.
 - `src/pages/IntelligencePage.tsx`: Intelligence now exposes the shared truth context without making it a second source of truth.
 - `src/pages/DecisionExperiencePage.tsx`: Decision Experience now carries the same evidence/time-bound context when the canonical snapshot is available.
+- `src/pages/DemandVelocityPage.tsx`: demand rows are now investigation-first and open the existing lazy-loaded investigation drawer with explicit confirmed vs missing evidence.
+- Current development HEAD: `56ae7362b9f7b25c5ab250c295489a03e4abe5c6`.
 - The shared development remains on the isolated integration branch; `main` is not mutated by this wave.
 
 ### Active development fronts
