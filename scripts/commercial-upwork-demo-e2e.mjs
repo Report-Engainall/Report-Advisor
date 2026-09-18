@@ -24,7 +24,9 @@ try {
   await page.goto(baseURL, { waitUntil: 'networkidle', timeout: 30000 });
   await page.locator('#login-email').fill(email);
   await page.locator('#login-password').fill(password);
-  await page.getByRole('button', { name: 'تسجيل الدخول' }).click();
+  const loginSubmit = page.locator('form button[type="submit"]');
+  if (!(await loginSubmit.count())) throw new Error('LOGIN_SUBMIT_NOT_FOUND');
+  await loginSubmit.click();
   await page.locator('#login-email').waitFor({ state: 'hidden', timeout: 30000 });
   await page.getByRole('button', { name: 'تسجيل الخروج' }).waitFor({ state: 'visible', timeout: 30000 });
   await page.goto(`${baseURL}/proposal-demo`, { waitUntil: 'networkidle', timeout: 30000 });
