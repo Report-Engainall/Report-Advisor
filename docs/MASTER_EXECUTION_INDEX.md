@@ -6,7 +6,8 @@
 
 ### CURRENT EXACT HEAD
 - Governed Main: `9bd7243c8864ca5bcf431b14a7c2eb35c698de7c`.
-- Current code/test candidate: `cd7bb8374db5cda82b37664b119a69ef92c6caca`.
+- Current code/test candidate: `a988d84fbcaa62678c4fb9c6bf09a26b097ec581`.
+- Storage tenant runtime proof was hardened to verify post-attempt object persistence, because a raw multi-delete HTTP success can be non-mutating under RLS; certification now requires the owner object to remain readable after every cross-tenant delete attempt.
 - The candidate includes the canonical private Staging `documents` bucket migration (`20260918070000_canonical_private_documents_bucket.sql`) and the exact-head Storage Tenant Runtime E2E binding to that canonical bucket.
 - PR #567 is the active open certification path on branch `fix/pdf-structured-runtime-final-20260918`; PR #560 was closed during the forced branch rebind and is historical only.
 - The autonomous operating protocol remains repository-resident at `docs/PROGRAMMER_AUTONOMOUS_OPERATING_PROTOCOL.md`.
