@@ -212,9 +212,7 @@ export async function runCanonicalImportThroughDurableRunner(
       }
       if (stage === 'analyzed' && !currentRows.length) throw new Error('IMPORT_ANALYSIS_EMPTY');
       if (stage === 'decisioned' && !input.rows.length) throw new Error('IMPORT_DECISION_EMPTY');
-      if (stage === 'committed') {
-        await commitImportBatch(input.entityType, input.rows, input.sourceHash, { client: activeDataClient, companyId });
-      }
+      if (stage === 'committed') await commitImportBatch(input.entityType, input.rows, input.sourceHash, { client: activeDataClient, companyId });
     },
   }, store);
 
