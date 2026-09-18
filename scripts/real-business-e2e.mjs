@@ -29,7 +29,7 @@ async function login(page, email, password) {
   await page.locator('#login-email').fill(email);
   await page.locator('#login-password').fill(password);
   let authResponse = null;
-  for (let attempt = 1; attempt <= 2; attempt += 1) {
+  for (let attempt = 1; attempt <= 3; attempt += 1) {
     if (attempt > 1) {
       await page.goto(baseURL, { waitUntil: 'domcontentloaded', timeout: 30000 });
       await page.locator('#login-email').waitFor({ state: 'visible', timeout: 30000 });
@@ -44,13 +44,13 @@ async function login(page, email, password) {
     ).catch(() => null);
     await page.locator('form button[type="submit"]').click();
     const candidate = await authResponsePromise;
-    if (candidate && [429, 500, 502, 503, 504].includes(candidate.status()) && attempt < 2) {
-      await page.waitForTimeout(2500);
+    if (candidate && [429, 500, 502, 503, 504].includes(candidate.status()) && attempt < 3) {
+      await page.waitForTimeout(5000 * attempt);
       continue;
     }
     authResponse = candidate;
-    if (authResponse || attempt === 2) break;
-    await page.waitForTimeout(2500);
+    if (authResponse || attempt === 3) break;
+    await page.waitForTimeout(5000 * attempt);
   }
   if (!authResponse) throw new Error('AUTH_TOKEN_RESPONSE_TIMEOUT');
   const authStatus = authResponse.status();
