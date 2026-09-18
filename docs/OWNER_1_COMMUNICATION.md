@@ -211,3 +211,16 @@ HANDOFF TO OWNER 2:
 - Keep the 912.9KB performance budget failure as a separate pre-existing release concern unless the integration environment changes materially.
 - No main mutation performed by Owner 1.
 NEXT OWNER-1 FRONT: continue Evidence/Trust + Decision/Work Center product development after Owner 2 acknowledgement/integration boundary.
+
+## START — COMMAND 2 — 2026-09-19
+START
+DATE: 2026-09-19T00:30+03:00
+OWNER: 1
+BRANCH: feat/owner1-decision-trust-wave4-20260919
+HEAD: 34ce2105268acbc2348d97d4d3b04cd22c29dc30
+BASE: feat/owner1-command-center-wave3-20260919
+OBJECTIVE: تقوية Evidence/Trust داخل Decision Experience باستخدام المسار الكانوني الحالي، مع منع أي إيحاء بأن التوصية نفسها دليل تشغيلي.
+FILES / SURFACES: src/pages/DecisionExperiencePage.tsx; src/lib/dashboard-canonical.ts; src/lib/queries.ts; scripts/check-decision-dashboard.mjs
+DEPENDENCIES: get_dashboard_intelligence والمسارات الحالية فقط؛ لا RPC/DB/Runner جديد.
+BLOCKERS: لا يوجد blocker تطويري معروف.
+EXPECTED HANDOFF: Owner 2 يعيد إثبات عقد Decision/Intelligence والـruntime gates على Exact SHA الناتج.
