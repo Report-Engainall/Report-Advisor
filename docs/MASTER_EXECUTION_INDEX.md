@@ -6,19 +6,20 @@
 
 ### CURRENT EXACT HEAD
 - Governed Main: `9bd7243c8864ca5bcf431b14a7c2eb35c698de7c`.
-- Current code/test candidate: `c2b36a22121ca959d2558b11ca8b6accdf751fe4`.
+- Current code/test candidate: `cd7bb8374db5cda82b37664b119a69ef92c6caca`.
+- The candidate includes the canonical private Staging `documents` bucket migration (`20260918070000_canonical_private_documents_bucket.sql`) and the exact-head Storage Tenant Runtime E2E binding to that canonical bucket.
 - PR #567 is the active open certification path on branch `fix/pdf-structured-runtime-final-20260918`; PR #560 was closed during the forced branch rebind and is historical only.
 - The autonomous operating protocol remains repository-resident at `docs/PROGRAMMER_AUTONOMOUS_OPERATING_PROTOCOL.md`.
-- Fresh PC01 proof on predecessor `9dd3c86d...`: 20-stage release readiness PASS (20/20) and Windows-safe production-gate runtime PASS (integrity, typecheck, build). This proof is recorded as predecessor evidence and is not independently promoted as a runtime PASS for `c2b36a22...`.
-- The production-gate runtime Windows fix is part of the current remediation lineage; the previous `C:\Program` process-launch defect is closed. The current candidate also includes the source-preservation contract rebind, worker-boundary contract rebind to the authenticated Supabase helper, and security-definer exposure guard hardening to recognize effective `ALTER FUNCTION ... SET search_path` clauses.
-- Staging schema-drift reconciliation `20260918060000_reconcile_import_job_row_tenant_schema.sql` remains bound to the predecessor code candidate and is verified live on Staging (migration `20260918053906`, compound tenant FK, required indexes, zero null tenant rows). No earlier runtime/browser/production evidence is promoted by this binding.
+- Fresh PC01 proof on predecessor `9dd3c86d...`: 20-stage release readiness PASS (20/20) and Windows-safe production-gate runtime PASS (integrity, typecheck, build). This proof is recorded as predecessor evidence and is not independently promoted as a runtime PASS for `cd7bb837...`.
+- The production-gate runtime Windows fix is part of the current remediation lineage; the previous `C:\Program` process-launch defect is closed. The current candidate also includes the source-preservation contract rebind, worker-boundary contract rebind to the authenticated Supabase helper, security-definer exposure guard hardening to recognize effective `ALTER FUNCTION ... SET search_path` clauses, and the canonical private `documents` storage binding.
+- Staging schema-drift reconciliation `20260918060000_reconcile_import_job_row_tenant_schema.sql` remains verified live on Staging (migration `20260918053906`, compound tenant FK, required indexes, zero null tenant rows). The candidate additionally carries the forward-only private `documents` bucket migration; its current Staging application state must be proven by the exact-head storage E2E before certification.
 - Fresh exact-head GitHub PDF/OCR, Browser E2E, production-regression evidence, enforcement, and Final Certification remain mandatory.
 - Current-head production deployment/cutover remains NOT PROVEN; no production mutation or alias change was performed.
 
 ### CURRENT EXECUTION CONTROL — 2026-09-18
 - PR #533 remains the repository-resident continuous execution/resume protocol and is governance-only.
-- Structured PDF/file-engine regression was previously PASS on predecessor candidates, but no historical PDF/OCR PASS is promoted to `c2b36a22...`; the fresh exact-head PDF/OCR run remains GitHub-bound and must remain bound to the exact SHA.
-- Canonical import server-boundary remediation and worker service-role authority reconciliation remain part of the current candidate. The existing durable runner/RPC architecture was retained; the runner was not rewritten.
+- Structured PDF/file-engine regression was previously PASS on predecessor candidates, but no historical PDF/OCR PASS is promoted to `cd7bb837...`; the fresh exact-head PDF/OCR run remains GitHub-bound and must remain bound to the exact SHA.
+- Canonical import server-boundary remediation and worker service-role authority reconciliation remain part of the current candidate. The existing durable runner/RPC architecture was retained; the runner was not rewritten. Storage Tenant Runtime E2E is bound to the canonical private `documents` bucket.
 - The exact-candidate repository readiness suite is PASS, but authenticated business E2E, fresh exact-head PDF/OCR runtime, current-head Browser/Certification evidence, and current-head production/deployment verification remain open.
 - Rule: do not restart closed work or transfer evidence across SHA boundaries.
 - Rule: independent fronts must run in parallel; queued CI or external provider blockers must not idle repository-side execution.
