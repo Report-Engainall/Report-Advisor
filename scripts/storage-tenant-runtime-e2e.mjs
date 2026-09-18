@@ -100,15 +100,15 @@ async function browserSession(user) {
     const raw = Object.entries(localStorage).find(([key]) => key.endsWith('-auth-token'))?.[1];
     const session = JSON.parse(raw);
     let last = null;
-    for (let attempt = 1; attempt <= 5; attempt += 1) {
+    for (let attempt = 1; attempt <= 12; attempt += 1) {
       const response = await fetch(`${url}/rest/v1/rpc/current_company_id`, {
         method: 'POST', headers: { apikey: anon, Authorization: `Bearer ${session.access_token}`, 'Content-Type': 'application/json' }, body: '{}',
       });
       const body = await response.text();
       if (response.ok) return { ok: true, status: response.status, body };
       last = { ok: false, status: response.status, body };
-      if (![502, 503, 504, 544].includes(response.status) || attempt === 5) return last;
-      await new Promise(resolve => setTimeout(resolve, 1500 * attempt));
+      if (![502, 503, 504, 544].includes(response.status) || attempt === 12) return last;
+      await new Promise(resolve => setTimeout(resolve, 3000 * attempt));
     }
     return last || { ok: false, status: 599, body: 'tenant resolution exhausted' };
   }, { url: supabaseURL, anon: anonKey });
