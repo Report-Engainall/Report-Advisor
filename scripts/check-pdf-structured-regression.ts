@@ -17,28 +17,63 @@ function assert(condition: unknown, message: string): asserts condition {
 }
 
 function pdfWithText(text: string): ArrayBuffer {
-  const escaped = text.replace(/\\/g, '\\\\').replace(/\(/g, '\\(').replace(/\)/g, '\\)');
-  const stream = `BT /F1 12 Tf 40 760 Td (${escaped}) Tj ET`;
+  const uniqueUnits = [...new Set(Array.from(text).flatMap((char) => {
+    const units: number[] = [];
+    for (const unit of char.split('').map((entry) => entry.charCodeAt(0))) units.push(unit);
+    return units;
+  }))];
+
+  const cmap = [
+    '/CIDInit /ProcSet findresource begin',
+    '12 dict begin',
+    'begincmap',
+    '/CIDSystemInfo << /Registry (Adobe) /Ordering (UCS) /Supplement 0 >> def',
+    '/CMapName /Adobe-Identity-UCS def',
+    '/CMapType 2 def',
+    '1 begincodespacerange',
+    '<0000> <FFFF>',
+    'endcodespacerange',
+    `${uniqueUnits.length} beginbfchar`,
+    ...uniqueUnits.map((unit) => `<${unit.toString(16).padStart(4, '0')}> <${unit.toString(16).padStart(4, '0')}>`),
+    'endbfchar',
+    'endcmap',
+    'CMapName currentdict /CMap defineresource pop',
+    'end',
+    'end',
+  ].join('\\n');
+
+  const hex = Array.from(text)
+    .flatMap((char) => char.split('').map((unit) => unit.charCodeAt(0)))
+    .map((unit) => unit.toString(16).padStart(4, '0'))
+    .join('');
+  const stream = `BT /F1 12 Tf 40 760 Td <${hex}> Tj ET`;
+
   const objects = [
     '<< /Type /Catalog /Pages 2 0 R >>',
     '<< /Type /Pages /Kids [3 0 R] /Count 1 >>',
     '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>',
-    '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>',
-    `<< /Length ${stream.length} >>\\nstream\\n${stream}\\nendstream`,
+    '<< /Type /Font /Subtype /Type0 /BaseFont /DejaVuSans /Encoding /Identity-H /DescendantFonts [6 0 R] /ToUnicode 8 0 R >>',
+    `<< /Length ${Buffer.byteLength(stream, 'utf8')} >>\\nstream\\n${stream}\\nendstream`,
+    '<< /Type /Font /Subtype /CIDFontType2 /BaseFont /DejaVuSans /CIDSystemInfo << /Registry (Adobe) /Ordering (Identity) /Supplement 0 >> /FontDescriptor 7 0 R /DW 1000 >>',
+    '<< /Type /FontDescriptor /FontName /DejaVuSans /Flags 4 /FontBBox [0 -200 1000 900] /ItalicAngle 0 /Ascent 800 /Descent -200 /CapHeight 700 /StemV 80 >>',
+    `<< /Length ${Buffer.byteLength(cmap, 'utf8')} >>\\nstream\\n${cmap}\\nendstream`,
   ];
-  const header = '%PDF-1.4\n';
+
+  const header = '%PDF-1.4\\n';
   let body = '';
   const offsets: number[] = [0];
-  let position = header.length;
+  let position = Buffer.byteLength(header, 'utf8');
+
   objects.forEach((object, index) => {
     offsets.push(position);
-    const rendered = `${index + 1} 0 obj\n${object}\nendobj\n`;
+    const rendered = `${index + 1} 0 obj\\n${object}\\nendobj\\n`;
     body += rendered;
-    position += rendered.length;
+    position += Buffer.byteLength(rendered, 'utf8');
   });
-  const xrefOffset = header.length + body.length;
-  const xref = `xref\n0 ${objects.length + 1}\n0000000000 65535 f \n${offsets.slice(1).map((offset) => `${String(offset).padStart(10, '0')} 00000 n`).join('\n')}\n`;
-  const trailer = `trailer\n<< /Size ${objects.length + 1} /Root 1 0 R >>\nstartxref\n${xrefOffset}\n%%EOF\n`;
+
+  const xrefOffset = Buffer.byteLength(header + body, 'utf8');
+  const xref = `xref\\n0 ${objects.length + 1}\\n0000000000 65535 f \\n${offsets.slice(1).map((offset) => `${String(offset).padStart(10, '0')} 00000 n `).join('\\n')}\\n`;
+  const trailer = `trailer\\n<< /Size ${objects.length + 1} /Root 1 0 R >>\\nstartxref\\n${xrefOffset}\\n%%EOF\\n`;
   return new TextEncoder().encode(header + body + xref + trailer).buffer;
 }
 
