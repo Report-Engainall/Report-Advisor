@@ -414,3 +414,35 @@ Close only what is proven.
 Continue to the next logical front.
 
 The objective is durable, provable product progress, not activity.
+
+
+## 25. Non-Idle Execution Gate
+
+Every `1` activation must produce material execution before the cycle can be reported complete.
+
+A status check, workflow poll, or repeated report is not execution.
+
+While CI/provider/device work is blocked, continue safe independent fronts such as:
+
+- root-cause/source inspection;
+- regression protection;
+- security/RLS/advisor analysis;
+- staging read-only verification;
+- deployment/configuration verification;
+- documentation and memory corrections;
+- backlog/front discovery.
+
+### End-of-cycle self-test
+
+Before returning a report:
+
+1. What did I execute?
+2. What exact evidence changed?
+3. What new front did the re-scan reveal?
+
+If safe work remains, continue rather than waiting for another `1`.
+
+### Control-plane improvement
+
+If a recurring failure exposes a protocol or memory weakness, fix the operating document and PROJECT_MEMORY.md in the same cycle.
+
