@@ -1,3 +1,40 @@
+const CONTROL_SIGNAL_FILES = [
+  'docs/AUTONOMOUS_CONTROL_SIGNAL_PROTOCOL.md',
+  'docs/AI_ENGINEERING_LEAD_PROTOCOL.md',
+  'docs/PROGRAMMER_AUTONOMOUS_OPERATING_PROTOCOL.md',
+];
+const CONTROL_SIGNAL_RULES = [
+  ['docs/AUTONOMOUS_CONTROL_SIGNAL_PROTOCOL.md', [
+    'operator non-idle invariant',
+    'anti-idle test',
+    'queue/blocker handling',
+    'protocol evolution',
+    'execute → verify → record → re-scan',
+  ]],
+  ['docs/AI_ENGINEERING_LEAD_PROTOCOL.md', [
+    'self-execution gate',
+    'queue-is-not-a-stop rule',
+    'two-pass completion gate',
+    'self-correction gate',
+    'no-status-only output',
+    'leadership cycle contract',
+    'improve the control plane',
+  ]],
+  ['docs/PROGRAMMER_AUTONOMOUS_OPERATING_PROTOCOL.md', [
+    'non-idle execution gate',
+    'end-of-cycle self-test',
+    'control-plane improvement',
+  ]],
+];
+export function validateControlSignalProtocols() {
+  for (const [file, rules] of CONTROL_SIGNAL_RULES) {
+    const body = normalize(stripComments(fs.readFileSync(file, 'utf8')));
+    const missing = rules.filter(rule => !body.includes(normalize(rule)));
+    if (missing.length) throw new Error(`Control signal protocol rejected in ${file}: missing ${missing.join(', ')}`);
+  }
+  return true;
+}
+
 import fs from 'node:fs';
 import { execFileSync } from 'node:child_process';
 
@@ -15,4 +52,5 @@ export function validateCurrentHeadIndex(index,currentHead,parentHead='',changed
 const ledger=fs.readFileSync('docs/EXECUTION_DEBT_AND_RELEASE_VELOCITY.md','utf8');for(const a of ['EXECUTION DEBT','ACTIONABLE DEBT','EXTERNAL DEBT','RELEASE VELOCITY','EXECUTION UTILIZATION','TRUE STOP','Built','Integrated','Verified','Runtime Proven','Production Certified'])if(!normalize(stripComments(ledger)).includes(normalize(a)))throw new Error(`Execution enforcement protocol rejected: debt/velocity ledger missing ${a}`);
 export function validateProjectIdentity(){const tracked=execFileSync('git',['ls-files'],{encoding:'utf8'}).trim().split('\n').filter(Boolean);const legacy=tracked.filter(f=>(f==='index.html'||f==='package.json'||f==='README.md'||f.startsWith('src/')||f.startsWith('public/'))).filter(f=>{try{return fs.readFileSync(f,'utf8').includes('العامري')}catch{return false}});if(legacy.length)throw new Error(`Project identity rejected: legacy branding found: ${legacy.join(', ')}`);if(!fs.readFileSync('index.html','utf8').includes('الأغبري'))throw new Error('Project identity rejected: canonical frontend identity missing');return true;}
 validateAdaptiveGovernance(fs.readFileSync(GOVERNANCE_FILE,'utf8'));
+validateControlSignalProtocols();
 if(process.argv[1]?.endsWith('check-execution-enforcement-protocol.mjs')){validateExecutionEnforcementProtocol(fs.readFileSync('docs/EXECUTION_ENFORCEMENT_PROTOCOL.md','utf8'));validateProjectIdentity();if(process.env.ENFORCE_INDEX_HEAD_GATE==='1'){const index=fs.readFileSync('docs/MASTER_EXECUTION_INDEX.md','utf8');let h='',p='';try{h=execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim();p=execFileSync('git',['rev-parse','HEAD^'],{encoding:'utf8'}).trim()}catch{h=process.env.GITHUB_SHA?.trim()??'';p=process.env.GITHUB_PARENT_SHA?.trim()??''}validateCurrentHeadIndex(index,h,p);console.log(`PASS index-head gate: frozen Index boundary is valid for current HEAD ${h}; equality is not required before deployment/runtime certification`)}console.log(`PASS execution enforcement protocol: ${REQUIRED_RULES.length} mandatory rules and governance controls active`)}
