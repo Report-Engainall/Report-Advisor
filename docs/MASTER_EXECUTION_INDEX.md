@@ -6,7 +6,7 @@
 
 ### CURRENT EXACT HEAD
 - Governed Main: `9bd7243c8864ca5bcf431b14a7c2eb35c698de7c`.
-- Current code/test candidate: `f85a317cdda46833dbc6bc248c56c1de40c6b6de`.
+- Current code/test candidate: `fd5feca20a37c086e7b0d61d8a8fa7829c235032`.
 - The current candidate additionally closes the canonical import job as `failed` when the authenticated server boundary itself fails, preserving terminal ownership at the canonical finish path while rethrowing the primary boundary error.
 - The exact-head browser runtime now uses Vercel Dev for `/api/*` serverless boundaries, with the server-only Supabase service key supplied only from GitHub Secrets and never committed.
 - Storage tenant runtime proof was hardened to verify post-attempt object persistence, because a raw multi-delete HTTP success can be non-mutating under RLS; certification now requires the owner object to remain readable after every cross-tenant delete attempt.
@@ -22,7 +22,7 @@
 ### CURRENT EXECUTION CONTROL — 2026-09-18
 - PR #533 remains the repository-resident continuous execution/resume protocol and is governance-only.
 - Structured PDF/file-engine regression was previously PASS on predecessor candidates, but no historical PDF/OCR PASS is promoted to `f85a317c...`; the fresh exact-head PDF/OCR run remains GitHub-bound and must remain bound to the exact SHA.
-- Canonical import server-boundary remediation and worker service-role authority reconciliation remain part of the current candidate. The existing durable runner/RPC architecture was retained; the runner was not rewritten. Storage Tenant Runtime E2E is bound to the canonical private `documents` bucket.
+- Canonical import server-boundary remediation is part of the current candidate. The authenticated user JWT/anon-key boundary now owns the canonical server client; no service-role secret is required for this tenant-bound import path. The existing durable runner/RPC architecture was retained; the runner was not rewritten. Storage Tenant Runtime E2E is bound to the canonical private `documents` bucket.
 - The exact-candidate repository readiness suite is PASS, but authenticated business E2E, fresh exact-head PDF/OCR runtime, current-head Browser/Certification evidence, and current-head production/deployment verification remain open.
 - Rule: do not restart closed work or transfer evidence across SHA boundaries.
 - Rule: independent fronts must run in parallel; queued CI or external provider blockers must not idle repository-side execution.
