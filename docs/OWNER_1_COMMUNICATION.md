@@ -656,3 +656,16 @@ HEAD: a037a7022a54bf02860f1b98b9b8cb64693b5d64
 DONE: Wave 13 analytics truth integrity completed and handed off.
 OPEN: Owner 2 runtime/integration/release proof; Owner 1 next front remains independent product/UI hardening.
 BLOCKED: none.
+
+## START — COMMAND 12 — 2026-09-19
+START
+DATE: 2026-09-19T04:20+03:00
+OWNER: 1
+BRANCH: feat/owner1-metric-truth-wave14-20260919
+HEAD: a037a7022a54bf02860f1b98b9b8cb64693b5d64
+BASE: a037a7022a54bf02860f1b98b9b8cb64693b5d64
+OBJECTIVE: تقوية مساحة Metric Inspector/semantic metrics من جهة الحقيقة المعروضة، باستخدام metadata/status/as-of الموجودة فعليًا فقط، ومنع تحويل صلاحية المقياس أو freshness إلى ادعاءات غير مثبتة.
+FILES / SURFACES: routed Metric Inspector page + existing semantic metric source/contract only.
+DEPENDENCIES: existing semantic metric service / canonical reads; no new RPC/DB/Runner/Auth/Tenant/Storage/CI logic.
+BLOCKERS: لا blocker معروف عند البدء.
+EXPECTED HANDOFF: Owner 2 يعيد إثبات metrics browser/runtime/release gates على Exact SHA الجديد.
