@@ -4,6 +4,7 @@ import { fetchDashboardIntelligence, fetchDashboardSnapshot, type DashboardKPIs 
 import { isCompleteDashboardKPIs } from '../lib/dashboard-kpi-guards';
 import type { Alert, Recommendation } from '@/lib/types';
 import type { InvestigationTarget } from '@/components/BusinessInvestigationDrawer';
+import { TruthContextStrip } from '@/components/TruthContextStrip';
 
 const BusinessInvestigationDrawer = lazy(async () => ({ default: (await import('@/components/BusinessInvestigationDrawer')).BusinessInvestigationDrawer }));
 
@@ -161,6 +162,7 @@ export function ExecutiveCommandCenterPage() {
           </div>
         </div>
       </section>
+      {!loading && !error && kpis && <TruthContextStrip status={kpis.status} asOf={asOf} asOfLabel="حتى" rangeLabel={'آخر ' + months + (months === 1 ? ' شهر' : ' أشهر')} />}
       {loading && <div className="rounded-2xl border border-ink-200 bg-white p-6 text-sm text-ink-500">جارٍ تحميل الصورة التنفيذية من المصدر…</div>}
       {error && <div role="alert" className="rounded-2xl border border-red-200 bg-red-50 p-6 text-sm text-red-700">{error}</div>}
       {!loading && !error && kpis?.status === 'INSUFFICIENT_DATA' && <div className="rounded-2xl border border-amber-200 bg-amber-50 p-6 text-sm text-amber-800">البيانات الحالية غير كافية لإصدار جميع المؤشرات بثقة. لا يتم عرض قيم افتراضية أو أولويات مشتقة من الواجهة.</div>}
