@@ -122,3 +122,10 @@ OBJECTIVE=إغلاق مسار Full Product Browser الحقيقي بعد إثب�
 RUNTIME_ENV=Supabase staging fnqbvfuwbdpwvhcgzksl; GitHub Actions; integration candidate
 BLOCKERS=c902 rerun remained secret-missing; 4a79 requires fresh trigger after secret provisioning; Phase-F live endpoints; exact deployed-SHA parity; backup/RPO-RTO proof.
 NEXT=Retrigger exact-head Full Product on a successor of 4a79; then close independent release fronts.
+## START | OWNER=2 | DATE=2026-09-19T01:02+03:00
+BRANCH=integration/certification-candidate-20260918
+HEAD=6bfb9932e7b09230b0ffccf45ab3996805399cf2
+OBJECTIVE=إصلاح سبب فشل Business Persistence الحقيقي: API canonical-import-execute يقرأ أعمدة غير موجودة في import_jobs. المطابقة ستستخدم schema القائم job_type/result_summary مع بقاء tenant/id/status/source-hash boundaries.
+FILES=api/canonical-import-execute.ts; scripts/check-import-transaction-contract.mjs
+DB=لا migration جديدة ولا تعديل schema.
+EXPECTED HANDOFF=Exact-SHA runtime proof على successor جديد دون نقل evidence.
