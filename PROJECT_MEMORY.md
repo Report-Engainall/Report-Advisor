@@ -683,3 +683,17 @@ Historical evidence from 66d is not promoted to 51c.
 ### External state
 - Supabase staging `fnqbvfuwbdpwvhcgzksl` remains `ACTIVE_HEALTHY`.
 - Vercel remains provider-rate-limited; no bypass or forced deployment is allowed.
+
+
+## 30. Device Operations Front — 2026-09-18
+
+- Device: PC01, Windows, Remote Desktop Commander 0.2.51.
+- Device was confirmed online and pingable before cleanup attempts.
+- Live config identified current Desktop Commander server PID `4476`.
+- Live process snapshot identified duplicate Desktop Commander Node processes `14296, 21308, 20276, 9916, 7972`.
+- Two stale blocked terminal sessions were visible: `8932`, `18548`.
+- Two duplicate `winget` installations of `MikeFarah.yq` were visible: `11348`, `16760`.
+- Two `actionlint` processes were active against Report-Advisor verification worktrees.
+- Targeted cleanup was attempted only against the duplicate/stale automation processes; the remote control channel then became timeout-prone. Device cleanup is therefore **IN_PROGRESS / BLOCKED_EXTERNAL_CHANNEL**, not closed.
+- No reboot, shutdown, destructive disk operation, or user-application termination was performed.
+- Issue #545 records the exact device cleanup front and acceptance evidence.
