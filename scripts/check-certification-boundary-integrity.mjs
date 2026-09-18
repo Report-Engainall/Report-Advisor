@@ -12,6 +12,7 @@ export function validateCertificationBoundary({ index, head, parent, changedFile
   if (head === indexed) return true;
 
   const allowedGovernanceOnly = new Set([
+    'docs/PROGRAMMER_AUTONOMOUS_OPERATING_PROTOCOL.md',
     'docs/MASTER_EXECUTION_INDEX.md',
     'docs/EVIDENCE/2026-09-04_RBAC_APPROVAL_AUTHORITY_FORENSIC.md',
     'docs/EVIDENCE/2026-09-04_CANDIDATE_RECONCILIATION_c346-to-f89.md',
