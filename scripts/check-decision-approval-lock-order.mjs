@@ -50,11 +50,16 @@ assert.throws(() => {
   if (!(a >= 0 && b >= 0 && b < gate)) throw new Error('request decision lock missing');
 }, /request decision lock missing/);
 
+const reqApprovalGate = pos(request, "IF v_existing_status", reqApprovalLock);
+if (!(reqApprovalLock > reqApproval && reqApprovalGate > reqApprovalLock)) {
+  throw new Error('request approval lock is not anchored to the approval-state query');
+}
 const weakenedRequestApproval = request.slice(0, reqApprovalLock) + request.slice(reqApprovalLock + 'for update'.length);
 assert.throws(() => {
   const body = weakenedRequestApproval;
   const approvalLock = pos(body, 'for update', reqApproval + 1);
-  if (approvalLock < 0) throw new Error('request approval lock missing');
+  const approvalGate = pos(body, "IF v_existing_status");
+  if (approvalLock < 0 || approvalLock > approvalGate) throw new Error('request approval lock missing');
 }, /request approval lock missing/);
 
 const weakenedDecide = decide.replace(/for update/i, '');
