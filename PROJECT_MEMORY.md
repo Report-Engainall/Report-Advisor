@@ -842,3 +842,18 @@ PC01 device cleanup remains IN_PROGRESS / BLOCKED_EXTERNAL_CHANNEL after the rem
 - Matching `canonical_import_commits.id=2dd2865a-0784-4109-941e-5e691877bddc`, `committed_count=1`, with committed product id `517b037d-7a05-440a-be8a-92ce21a6a081`.
 - Direct readback of `public.products` confirms the committed row exists under the same company and contains the E2E SKU/name and financial fields.
 - This closes the evidence gap for this particular positive import/commit/readback path only; it does not certify browser behavior, tenant-A/B adversarial isolation, or release certification.
+
+
+## 29. Report Execution Worker Security Boundary — 2026-09-18
+
+- Fresh Staging security audit found six release-critical report execution worker RPCs executable by `authenticated`: enqueue, claim, heartbeat, checkpoint, complete, fail.
+- `anon` is already denied for those functions.
+- Function bodies use tenant/worker/lease fencing; they do not require a business-user authorization boundary. `retry_report_execution_job` is intentionally a separate authenticated tenant-scoped operator boundary and was not changed.
+- PR #546 `security/report-execution-worker-service-only-20260918` adds one forward-only migration revoking authenticated/anon/public EXECUTE from the six worker functions and granting only `service_role`, with an in-migration privilege assertion.
+- The repository contract checker for this boundary was added as `scripts/check-report-execution-worker-service-boundary.mjs`; exact-head CI is authoritative before merge.
+- Disposable Supabase branch negative-privilege verification was not run because creating a new Supabase branch requires explicit cost confirmation; no cost was incurred.
+
+### Import stale residue
+- Staging currently shows a historical residue set of `processing` import_jobs on company `f68a7e91-3c7e-46fb-97a8-e339bec04e13`, with jobs dating back to 2026-09-14/15 and zero progress.
+- New import executions on the same tenant continue to reach `completed` with `committed=1` and direct canonical readback, so this is currently classified as stale historical residue rather than an active positive-path failure.
+- No bulk status mutation was performed. There is no dedicated public recovery RPC discovered; the authoritative terminal path remains `import_finish_job`.
