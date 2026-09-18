@@ -63,21 +63,21 @@ A preview deployment is not production proof.
 
 # 2. LIVE EXECUTION HEADER
 
-Last material update: 2026-09-18T03:02Z
+Last material update: 2026-09-18T03:08Z
 Current Main: a32fae0fc08c1cbbcc60b6eedfb0f4bd74a21c50
 Primary environment: Supabase staging fnqbvfuwbdpwvhcgzksl
 Production URL: https://report-advisor.vercel.app
 Coordinator branch: governance/coordinator-continuous-execution-20260918
 Coordinator PR: #537
-Coordinator PR HEAD at this snapshot: 32f4386fbe3270ab948aacbf009418e08aea54b4
+Coordinator PR HEAD at this snapshot: d2539caef3559106068c59d4432ddf753392b6fd
 
 ### Open implementation fronts
 
 | PR | Front | Exact HEAD | State | Canonical purpose |
 |---|---|---|---|---|
-| #540 | PDF/document runtime | 18baeaed37ee01bf9b22bf6807af510927eefc73 | OPEN / exact-head CI pending | Consolidated PDF parser + Node 22 runtime compatibility + deterministic real-PDF regression |
-| #539 | Security-definer/current-main reconciliation | 76f2b5c3f02d8a99077cc90b975cea94d6b237eb | OPEN / exact-head CI in flight | Harden current-main SECURITY DEFINER boundaries and retry auth/tenant guards |
-| #536 | Import terminal authority | 2832faf20903b11a3c978e99fff7a399e36ebe86 | OPEN / evidence gates | Route terminal import state through existing import_finish_job |
+| #540 | PDF/document runtime | a378f55ba7e845a7c5f672ca276e36099de8bee0 | OPEN / governance rebind applied; CI pending | Consolidated PDF parser + Node 22 runtime compatibility + deterministic real-PDF regression |
+| #539 | Security-definer/current-main reconciliation | f24ddd623d9d0a72c0c3b3d0bd6724bd6dcb6c5b | OPEN / governance rebind applied; CI queued/in progress | Harden current-main SECURITY DEFINER boundaries and retry auth/tenant guards |
+| #536 | Import terminal authority | 2ba3251712168ad64b14127b6583d2bc1d0162ac | OPEN / governance rebind applied; CI pending | Route terminal import state through existing import_finish_job |
 | #534 | Master execution index | 013c4c31f8fe91f789ad13d29cb3ec6741cfc4e4 | OPEN / governance | Rebind index to Main a32fae0 |
 | #537 | Coordinator protocol | 4b230b4642dd99396cf7b779d383943d0cfcc9c6 | OPEN / governance | Continuous coordinator execution + this memory contract |
 
@@ -319,3 +319,11 @@ without asking the user to reconstruct project history.
 - No application, database, production alias, or runtime semantics were changed by this cycle.
 - New coordinator branch HEAD: 32f4386fbe3270ab948aacbf009418e08aea54b4.
 - Next action: inspect exact-head CI for implementation fronts and advance the first actionable independent failure without repeating closed audits.
+
+
+### 2026-09-18T03:08Z — Certification-binding reconciliation
+- Exact-head certification failure on prior #539 head 76f2b5c was traced to stale Master Index binding 684d57c; coordinator rebound the index and produced #539 head f24ddd623d9d0a72c0c3b3d0bd6724bd6dcb6c5b.
+- The same stale-index pattern was found on #540 and #536 and corrected without changing application/runtime behavior: #540 -> a378f55ba7e845a7c5f672ca276e36099de8bee0; #536 -> 2ba3251712168ad64b14127b6583d2bc1d0162ac.
+- Persistent PR comments record these coordinator-owned fixes so the programmer does not duplicate them.
+- Prior #539 exact-head results showed security-definer exposure, quality and many contract fronts passing; certification boundary, enforcement, browser/runtime and external resilience/storage remained unresolved on that superseded head and are not transferred to the new head.
+- Next executable action: use the new exact heads only, inspect newly completed failures, and advance independent read-only/evidence/governance fronts without repeating superseded audits.
