@@ -158,8 +158,6 @@ export function ProductsPage() {
   }, [page, search]);
 
   useEffect(() => { void load(); }, [load]);
-  if (loading && products.length === 0) return <LoadingState />;
-  if (error && products.length === 0) return <ErrorState message={error} onRetry={load} />;
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
   return (
@@ -183,7 +181,7 @@ export function ProductsPage() {
           { key: 'selling_price', label: 'السعر', align: 'right', render: (r: Product) => formatCurrency(r.selling_price) },
           { key: 'margin', label: 'الهامش', align: 'right', render: (r: Product) => { const m = r.selling_price > 0 ? ((r.selling_price - r.cost_price) / r.selling_price) * 100 : null; return m === null ? <Badge variant="neutral">غير متاح</Badge> : <span className={m >= 20 ? 'text-success-600 font-medium' : m >= 10 ? 'text-warning-600' : 'text-danger-600'}>{m.toFixed(1)}%</span>; } },
           { key: 'reorder_point', label: 'نقطة الطلب', align: 'center', render: (r: Product) => formatNumber(r.reorder_point) },
-        ]} data={products} emptyMessage="لا توجد منتجات" />
+        ]} data={products} loading={loading} emptyMessage="لا توجد منتجات" />
       </Card>
       <div className="flex items-center justify-between gap-3">
         <span className="text-xs text-ink-500">عرض {products.length} من {formatNumber(total)} منتج</span>
