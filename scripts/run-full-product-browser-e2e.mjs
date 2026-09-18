@@ -267,7 +267,7 @@ try {
     }
 
     if (result.auth === 'PASS') {
-      const primaryNav = page.getByRole('navigation', { name: 'التنقل التجاري الرئيسي' });
+      const primaryNav = page.getByRole('navigation', { name: 'تنقل نظام الأعمال' });
       await primaryNav.waitFor({ state: 'visible', timeout: 15000 }).catch(() => {});
       const primaryNavVisible = await primaryNav.isVisible().catch(() => false);
       addFinding(
