@@ -26,11 +26,11 @@
 - Verified import row integrity: null company=0, orphan job=0, cross-tenant row/job mismatch=0.
 - Verified all 8 durable report-execution RPCs: authenticated EXECUTE=false, service_role EXECUTE=true; all have `search_path=public, pg_catalog`.
 - Verified `import_field_lineage` authenticated policy is explicit restrictive deny; Security Advisor targeted findings remain clear.
-- PR #590 contains the corresponding source migrations; runtime changes are not considered certified until exact-head CI is fresh.
+- PR #590 source migrations are now merged into `main` at `64c870426b75de7726e0f60321d580074bb76fa9`; runtime changes are not considered certified until exact-head CI is fresh.
 - Product development PR #587 source error `ReportsPage.tsx:errorMessage` repaired on its branch at commit `dfdc662012a8d0be9e5ce081105c753c216d6d4a`; fresh workflow result is still required before treating the wave as build-green.
 
 ### EXECUTION STATE
-- **Done:** Netlify public-access administrative blocker removed and public access verified.
+- **Done:** Netlify public-access administrative blocker removed and public access verified; PR #590 security/source-parity migrations merged to `main` at `64c870426b75de7726e0f60321d580074bb76fa9`.
 - **In progress:** exact-head runtime/DB/release closure; migration parity investigation; operational certification evidence.
 - **Blocked externally:** Phase F live probes until required GitHub Actions secrets/targets are provisioned.
 - **Fail-Closed:** Final certification remains closed until fresh Exact-HEAD Browser E2E + persistence + resilience + backup/RPO/RTO + release parity evidence exists.
