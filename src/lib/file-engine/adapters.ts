@@ -91,6 +91,13 @@ function extractEmbeddedJson(text: string): unknown | null {
   return null;
 }
 
+function stripControlCharacters(value: string): string {
+  return Array.from(value, (character) => {
+    const code = character.charCodeAt(0);
+    return code <= 0x1f || code === 0x7f ? ' ' : character;
+  }).join('');
+}
+
 function tryParseStructuredPdfText(text: string): Row[] | null {
   const compact = text.replace(/^PAGE\s+\d+\s*/i, '').trim();
   const candidates: unknown[] = [];
@@ -104,9 +111,8 @@ function tryParseStructuredPdfText(text: string): Row[] | null {
   }
 
   const normalized = normalizeArabicDigits(
-    compact
+    stripControlCharacters(compact)
       .normalize('NFKC')
-      .replace(/[\u0000-\u001F\u007F]/g, ' ')
       .replace(/[\u200B-\u200F\u202A-\u202E\uFEFF]/g, ' ')
       .replace(/\s+/g, ' ')
       .trim(),
