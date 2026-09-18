@@ -4,7 +4,7 @@ import { Card, CardHeader, CardBody } from '@/components/ui/Card';
 import { Badge, StatusBadge } from '@/components/ui/Badge';
 import { PageHeader, LoadingState, EmptyState } from '@/components/ui/States';
 import { DataTable } from '@/components/ui/DataTable';
-import { fetchImportRecords, createImportRecord, updateImportRecord } from '@/lib/queries';
+import { fetchImportRecords, createImportRecord } from '@/lib/queries';
 import { supabase, resolveCurrentCompanyId } from '@/lib/supabase';
 import { formatDateTime, formatNumber } from '@/lib/format';
 import { detectFormat } from '@/lib/file-engine/detector';
@@ -37,6 +37,21 @@ function icon(format: FileFormat) {
   if (['pdf', 'docx', 'doc', 'rtf'].includes(format)) return <FileText size={18} />;
   if (['jpg', 'jpeg', 'png', 'webp', 'tiff', 'bmp'].includes(format)) return <FileImage size={18} />;
   return <FileType size={18} />;
+}
+
+async function finishImportJob(
+  importJobId: string,
+  status: 'completed' | 'partial' | 'failed' | 'cancelled',
+  resultSummary: Record<string, unknown>,
+  errorMessage?: string,
+): Promise<void> {
+  const { error } = await supabase.rpc('import_finish_job', {
+    p_job_id: importJobId,
+    p_status: status,
+    p_result_summary: resultSummary,
+    p_error_message: errorMessage ?? null,
+  });
+  if (error) throw error;
 }
 
 function Stepper({ step }: { step: Step }) {
@@ -133,14 +148,32 @@ export function CanonicalImportPage() {
       const reconciled = reconcileForCanonical(entityType, companyId, file.name, durableSourceHash, rec.id, (data, rowNumber) => `${durableSourceHash}:${rowNumber}:${JSON.stringify(data)}`, validRows.map(r => ({ rowNumber: r.rowNumber, data: r.data })));
       if (reconciled.rejected.length > 0) throw new Error(`CANONICAL_RECONCILIATION_REJECTED:${reconciled.rejected.map(r => `${r.rowNumber}:${r.reason}`).join(',')}`);
       const execution = await runCanonicalImportThroughDurableRunner({ importId: rec.id, fileName: file.name, sourceHash: durableSourceHash, entityType, rows: reconciled.rows, qualityScore: quality });
+      await finishImportJob(rec.id, 'completed', {
+        total: rows.length,
+        valid: validRows.length,
+        invalid: rows.length - validRows.length,
+        importId: rec.id,
+        jobId: execution.jobId,
+      });
       setProgress(100);
-      await updateImportRecord(rec.id, { status: 'completed', progress: 100, completed_at: new Date().toISOString() });
       setResult({ total: rows.length, valid: validRows.length, invalid: rows.length - validRows.length, importId: rec.id, jobId: execution.jobId });
       setStep('done'); await loadHistory();
     } catch (e: any) {
       const failureMessage = e?.message || 'خطأ غير معروف';
       if (rec?.id) {
-        try { await updateImportRecord(rec.id, { status: 'failed', progress: 0, error_message: failureMessage }); } catch { /* preserve original import failure */ }
+        try {
+          await finishImportJob(rec.id, 'failed', {
+            importId: rec.id,
+            entityType,
+            total: rows.length,
+            valid: validRows.length,
+            invalid: rows.length - validRows.length,
+          }, failureMessage);
+        } catch (finishError: any) {
+          setError(`فشل الاستيراد — وتعذر إغلاق سجل العملية بأمان: ${finishError?.message || 'IMPORT_FINISH_FAILED'}`);
+          setStep('preview');
+          return;
+        }
       }
       setError(`فشل الاستيراد: ${failureMessage}`); setStep('preview');
     }
