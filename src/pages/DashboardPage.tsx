@@ -1,8 +1,8 @@
-import { useCallback, useEffect, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useState } from 'react';
 import { ArrowUpLeft, BarChart3, Brain, CalendarRange, CheckCircle2, CircleAlert, Database, FileSearch, Package, Receipt, RefreshCw, TrendingUp, Upload, Wallet, Target, ShieldCheck } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { TruthContextStrip } from '@/components/TruthContextStrip';
-import { BusinessInvestigationDrawer, type InvestigationTarget } from '@/components/BusinessInvestigationDrawer';
+import type { InvestigationTarget } from '@/components/BusinessInvestigationDrawer';
 import { KPICard } from '@/components/ui/KPICard';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { Badge, PriorityBadge, SeverityBadge } from '@/components/ui/Badge';
@@ -12,6 +12,8 @@ import { fetchDashboardSnapshot, fetchDashboardIntelligence } from '@/lib/dashbo
 import { formatCurrency, relativeTime } from '@/lib/format';
 import type { Recommendation, Alert } from '@/lib/types';
 import type { DashboardKPIs, MonthlyTrend, TopEntity, CategoryBreakdown, AgingDashboard } from '@/lib/dashboard-canonical';
+
+const BusinessInvestigationDrawer = lazy(async () => ({ default: (await import('@/components/BusinessInvestigationDrawer')).BusinessInvestigationDrawer }));
 
 const TREND_RANGES = [{ value: 3, label: '3 أشهر' }, { value: 6, label: '6 أشهر' }, { value: 12, label: '12 شهرًا' }] as const;
 const metricStatus = (value: number | null, snapshotStatus: DashboardKPIs['status']): 'CONFIRMED' | 'CALCULATED' | 'INSUFFICIENT_DATA' => value === null ? 'INSUFFICIENT_DATA' : snapshotStatus === 'CONFIRMED' ? 'CONFIRMED' : 'CALCULATED';
@@ -223,7 +225,7 @@ export function DashboardPage() {
       <section><div className="mb-3"><h2 className="text-lg font-black text-ink-950">مسارات العمل</h2><p className="mt-1 text-xs text-ink-500">عندما يحتاج المستخدم إلى التنفيذ، تنتقل الواجهة من الفهم إلى مساحة عمل واضحة.</p></div><div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">{[{ path: '/work-center', label: 'مركز العمل', text: 'الحالات والاستثناءات والتنفيذ', icon: CheckCircle2 },{ path: '/import', label: 'إدخال البيانات', text: 'من المصدر إلى الدورة الحاكمة', icon: Upload },{ path: '/intelligence', label: 'مركز الذكاء', text: 'التفسير والتوصيات والتنبؤ', icon: Brain },{ path: '/reports/executive', label: 'التقرير التنفيذي', text: 'قصة القرار والأثر', icon: FileSearch }].map(action => { const Icon = action.icon; return <Link key={action.path} to={action.path} className="card card-hover flex items-center gap-3 p-4"><span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-primary-50 text-primary-700"><Icon size={19}/></span><span className="min-w-0 flex-1"><span className="block text-sm font-black text-ink-800">{action.label}</span><span className="mt-1 block text-[11px] text-ink-400">{action.text}</span></span><ArrowUpLeft size={16} className="text-ink-300"/></Link>; })}</div></section>
 
       <div className="flex items-center gap-2 rounded-2xl border border-ink-200 bg-white px-4 py-3 text-[11px] text-ink-500"><Database size={15} className="shrink-0 text-primary-600"/><span>كل نتيجة قابلة للنقر تفتح سياقها قبل القرار: <strong className="text-ink-800">النتيجة → السبب المثبت → الدليل الناقص → الإجراء المقترح → متابعة الأثر.</strong></span><Wallet size={15} className="ms-auto hidden shrink-0 text-ink-300 sm:block"/></div>
-      <BusinessInvestigationDrawer target={investigation} onClose={() => setInvestigation(null)} />
+      <Suspense fallback={null}><BusinessInvestigationDrawer target={investigation} onClose={() => setInvestigation(null)} /></Suspense>
     </div>
   );
 }
