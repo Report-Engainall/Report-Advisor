@@ -5,12 +5,19 @@
 > Authoritative execution manifest. This document never promotes historical evidence across an exact Git `HEAD` boundary. Pair every evidence batch with the exact Git `HEAD` of `main` and the exact environment/commit used.
 
 ### CURRENT EXACT HEAD
-- Current code/test candidate: `dcbd519b562f5bce2981a46cbdab409f62cb7d5f`.
+- Current code/test candidate: `0e43ac466faad12d787f3a9def9e6cb48135512d`.
 - No runtime/browser/production evidence from `66d684...` or earlier SHAs is promoted to this candidate.
-- The candidate rebind is required because the branch now contains code/test changes; it does not certify runtime/product behavior. Fresh exact-HEAD runtime evidence is required.
+- The candidate now contains the terminal-writer fix, worker service-authority reconciliation, and their regression contract; it does not certify runtime/product behavior. Fresh exact-HEAD runtime evidence is required.
 - Historical evidence from earlier SHAs remains historical and is not promoted automatically.
-- Fresh exact-head local regression execution was previously captured on the preceding code candidate; this new verifier correction requires fresh exact-head CI/runtime evidence. Any current-head workflow execution is evidence only, not PASS.
+- Fresh exact-head CI/runtime evidence is required after the new worker-authority migration and terminal-writer correction. Any queued/pending workflow execution is evidence preparation only, not PASS.
 - Vercel reports the current Main deployment path as externally blocked by the provider build-rate limit; no production deployment is claimed from that status.
+
+### ACTIVE RUNTIME FINDINGS — 2026-09-18
+- Staging real-data observation: canonical import jobs with lease owner `canonical-import-ui:*` reached `decisioned`; corresponding `canonical_import_commits` rows prove real DB commit (`committed_count=1`).
+- Staging worker RPC definitions required `auth.uid()` even though the intended current server execution boundary uses `service_role`; this creates an authority mismatch for service-side checkpoint/failure transitions.
+- PR #542 adds a forward-only worker-authority migration that accepts the trusted `service_role` JWT role for internal worker RPCs, preserves tenant/job/lease fencing, revokes authenticated/anon worker EXECUTE, and keeps user-facing `import_finish_job` authenticated.
+- PR #542 also removes duplicate terminal `import_finish_job` writes from `CanonicalImportPage.tsx`; only the canonical durable/server boundary owns terminal completion after entry.
+- These changes are corrective code/schema work only. Fresh exact-SHA runtime proof is still required; no Staging observation above is promoted as certification evidence.
 
 ### CURRENT EXECUTION CONTROL — 2026-09-18
 - PR #533 adds the mandatory continuous two-owner execution/resume protocol. It is governance-only and does not itself certify runtime.
