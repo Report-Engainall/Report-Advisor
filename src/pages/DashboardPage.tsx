@@ -4,6 +4,7 @@ import {
   FileSearch, Package, Receipt, RefreshCw, Sparkles, TrendingUp, Upload, Users, Wallet
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { TruthContextStrip } from '@/components/TruthContextStrip';
 import { KPICard } from '@/components/ui/KPICard';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { Badge, PriorityBadge, SeverityBadge } from '@/components/ui/Badge';
@@ -15,10 +16,11 @@ import type { Recommendation, Alert } from '@/lib/types';
 import type { DashboardKPIs, MonthlyTrend, TopEntity, CategoryBreakdown, AgingDashboard } from '@/lib/dashboard-canonical';
 
 const TREND_RANGES = [{ value: 3, label: '3 أشهر' }, { value: 6, label: '6 أشهر' }, { value: 12, label: '12 شهرًا' }] as const;
-const metricStatus = (value: number | null): 'CONFIRMED' | 'INSUFFICIENT_DATA' => value === null ? 'INSUFFICIENT_DATA' : 'CONFIRMED';
+const metricStatus = (value: number | null, snapshotStatus: DashboardKPIs['status']): 'CONFIRMED' | 'CALCULATED' | 'INSUFFICIENT_DATA' => value === null ? 'INSUFFICIENT_DATA' : snapshotStatus === 'CONFIRMED' ? 'CONFIRMED' : 'CALCULATED';
 
 export function DashboardPage() {
   const [kpis, setKpis] = useState<DashboardKPIs | null>(null);
+  const [snapshotAsOf, setSnapshotAsOf] = useState<string | null>(null);
   const [trend, setTrend] = useState<MonthlyTrend[]>([]);
   const [topCustomers, setTopCustomers] = useState<TopEntity[]>([]);
   const [topProducts, setTopProducts] = useState<TopEntity[]>([]);
@@ -35,9 +37,10 @@ export function DashboardPage() {
     try {
       if (silent) setRefreshing(true); else setLoading(true);
       setError(null);
-      const [{ kpis: nextKpis, trend: nextTrend, topCustomers: customers, topProducts: products, categories: nextCategories, aging: nextAging }, intelligence] =
+      const [{ kpis: nextKpis, trend: nextTrend, topCustomers: customers, topProducts: products, categories: nextCategories, aging: nextAging, asOf: nextAsOf }, intelligence] =
         await Promise.all([fetchDashboardSnapshot(trendMonths), fetchDashboardIntelligence()]);
       setKpis(nextKpis);
+      setSnapshotAsOf(nextAsOf);
       setTrend(nextTrend);
       setTopCustomers(customers.slice(0, 5));
       setTopProducts(products.slice(0, 5));
@@ -93,15 +96,17 @@ export function DashboardPage() {
         </div>
       </section>
 
+      <TruthContextStrip months={trendMonths} status={kpis.status} asOf={snapshotAsOf ?? 'غير متاح'} />
+
       <section className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:gap-4">
-        <KPICard label="إجمالي المبيعات" value={kpis.totalSales} format="currency" icon={<TrendingUp size={16}/>} status={metricStatus(kpis.totalSales)}/>
-        <KPICard label="إجمالي الربح" value={kpis.grossProfit} format="currency" icon={<BarChart3 size={16}/>} status={metricStatus(kpis.grossProfit)} hint={kpis.grossMargin === null ? undefined : 'الهامش ' + kpis.grossMargin.toFixed(1) + '%'}/>
-        <KPICard label="الذمم المدينة" value={kpis.totalReceivables} format="currency" icon={<Receipt size={16}/>} status={metricStatus(kpis.totalReceivables)}/>
-        <KPICard label="قيمة المخزون" value={kpis.inventoryValue} format="currency" icon={<Package size={16}/>} status={metricStatus(kpis.inventoryValue)}/>
-        <KPICard label="العملاء" value={kpis.totalCustomers} format="number" icon={<Users size={16}/>} status={metricStatus(kpis.totalCustomers)}/>
-        <KPICard label="المنتجات" value={kpis.totalProducts} format="number" icon={<Package size={16}/>} status={metricStatus(kpis.totalProducts)}/>
-        <KPICard label="الفواتير" value={kpis.invoiceCount} format="number" icon={<Receipt size={16}/>} status={metricStatus(kpis.invoiceCount)}/>
-        <KPICard label="معدل التحصيل" value={kpis.collectionRate} format="percent" icon={<Wallet size={16}/>} status={metricStatus(kpis.collectionRate)}/>
+        <KPICard label="إجمالي المبيعات" value={kpis.totalSales} format="currency" icon={<TrendingUp size={16}/>} status={metricStatus(kpis.totalSales, kpis.status)}/>
+        <KPICard label="إجمالي الربح" value={kpis.grossProfit} format="currency" icon={<BarChart3 size={16}/>} status={metricStatus(kpis.grossProfit, kpis.status)} hint={kpis.grossMargin === null ? undefined : 'الهامش ' + kpis.grossMargin.toFixed(1) + '%'}/>
+        <KPICard label="الذمم المدينة" value={kpis.totalReceivables} format="currency" icon={<Receipt size={16}/>} status={metricStatus(kpis.totalReceivables, kpis.status)}/>
+        <KPICard label="قيمة المخزون" value={kpis.inventoryValue} format="currency" icon={<Package size={16}/>} status={metricStatus(kpis.inventoryValue, kpis.status)}/>
+        <KPICard label="العملاء" value={kpis.totalCustomers} format="number" icon={<Users size={16}/>} status={metricStatus(kpis.totalCustomers, kpis.status)}/>
+        <KPICard label="المنتجات" value={kpis.totalProducts} format="number" icon={<Package size={16}/>} status={metricStatus(kpis.totalProducts, kpis.status)}/>
+        <KPICard label="الفواتير" value={kpis.invoiceCount} format="number" icon={<Receipt size={16}/>} status={metricStatus(kpis.invoiceCount, kpis.status)}/>
+        <KPICard label="معدل التحصيل" value={kpis.collectionRate} format="percent" icon={<Wallet size={16}/>} status={metricStatus(kpis.collectionRate, kpis.status)}/>
       </section>
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
