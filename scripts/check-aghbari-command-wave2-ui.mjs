@@ -13,6 +13,7 @@ const profile = read('src/pages/ProfileSettingsPage.tsx');
 const savedViews = read('src/components/ui/SavedViewMenu.tsx');
 const header = read('src/components/Header.tsx');
 const app = read('src/App.tsx');
+const commandPalette = read('src/components/CommandPalette.tsx');
 
 const checks = [
   [recommendations.includes('إشارات مصدرية تنتظر قرارًا بشريًا'), 'Recommendations must state human decision ownership.'],
@@ -34,6 +35,9 @@ const checks = [
   [header.includes('aria-expanded={mobileMenuOpen}') && header.includes('aria-controls="mobile-sidebar"'), 'Mobile menu trigger must expose open state.'],
   [header.includes('aria-haspopup="dialog"') && header.includes('aria-controls="alerts-popover"'), 'Alerts trigger must expose dialog relationship.'],
   [app.includes('id="mobile-sidebar"') && app.includes('role="dialog"'), 'Mobile sidebar must expose dialog semantics.'],
+  [commandPalette.includes('role="combobox"') && commandPalette.includes('aria-activedescendant={activeItemId}'), 'Command palette input must expose active result.'],
+  [commandPalette.includes('role="listbox"') && commandPalette.includes('role="option"'), 'Command palette results must expose option semantics.'],
+  [commandPalette.includes('aria-selected={index === active}'), 'Command palette active result must be announced.'],
 ];
 
 const failed = checks.filter(([ok]) => !ok);
