@@ -1106,3 +1106,16 @@ DONE: Wave 24 Work Center command surface completed and handed off.
 OPEN: Owner 2 runtime/release proof; Owner 1 continues competitive product hardening.
 BLOCKED: none.
 NEXT START: continue from the next independent commercial or decision surface.
+
+## START — COMMAND 23 — 2026-09-19
+START
+DATE: 2026-09-19T03:29+03:00
+OWNER: 1
+BRANCH: feat/owner1-decision-command-wave25-20260919
+HEAD: 46fd77c5dd75d404b3657b7432f6c3f262e9d7c1
+BASE: 46fd77c5dd75d404b3657b7432f6c3f262e9d7c1
+OBJECTIVE: تحسين Decision Experience ليحدد أول هدف قرار deterministic من إشارات get_dashboard_intelligence وفق أولوية المصدر، بدل عرض الإشارة الأولى فقط.
+FILES / SURFACES: src/pages/DecisionExperiencePage.tsx; scripts/check-decision-experience-command-contract.mjs; package.json; docs/OWNER_1_COMMUNICATION.md
+DEPENDENCIES: fetchRecommendations/fetchAlerts الحالية؛ لا RPC/DB/Runner/Auth/Tenant/Storage/CI change.
+BLOCKERS: لا يوجد blocker تطويري معروف.
+EXPECTED HANDOFF: Owner 2 يعيد إثبات Decision Experience/browser/runtime/release على Exact SHA؛ لا نقل Evidence بين SHAs.
