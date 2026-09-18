@@ -1,7 +1,7 @@
-import { useEffect, useMemo, useState, useCallback } from 'react';
+import { lazy, Suspense, useEffect, useMemo, useState, useCallback } from 'react';
 import { Lightbulb, TrendingUp, AlertTriangle, CheckCircle2, XCircle, Zap, RefreshCw, ArrowUpLeft, ShieldCheck, Radar } from 'lucide-react';
 import { DeterministicIntelligenceAssistant } from '@/components/DeterministicIntelligenceAssistant';
-import { BusinessInvestigationDrawer, type InvestigationTarget } from '@/components/BusinessInvestigationDrawer';
+import type { InvestigationTarget } from '@/components/BusinessInvestigationDrawer';
 import { Link } from 'react-router-dom';
 import { Card, CardHeader, CardBody } from '@/components/ui/Card';
 import { SeverityBadge, PriorityBadge, ConfidenceBadge, Badge } from '@/components/ui/Badge';
@@ -10,6 +10,8 @@ import { ForecastChart } from '@/components/ui/Charts';
 import { fetchRecommendations, fetchAlerts, fetchForecasts, updateRecommendationStatus } from '@/lib/queries';
 import { formatCurrency, relativeTime } from '@/lib/format';
 import type { Recommendation, Alert, Forecast } from '@/lib/types';
+
+const BusinessInvestigationDrawer = lazy(async () => ({ default: (await import('@/components/BusinessInvestigationDrawer')).BusinessInvestigationDrawer }));
 
 export function IntelligenceCenterPage() {
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
@@ -122,7 +124,7 @@ export function IntelligenceCenterPage() {
     <Card><CardHeader title="طابور القرار" subtitle="افتح التوصية لفحصها قبل القبول"/><CardBody><div className="space-y-3">{newRecs.slice(0,6).map(rec => <div key={rec.id} className="rounded-2xl border border-ink-100 p-4"><button type="button" onClick={() => openRecommendation(rec)} className="flex w-full items-start gap-3 text-right"><div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary-50 text-primary-700"><Lightbulb size={17}/></div><span className="min-w-0 flex-1"><span className="flex flex-wrap items-center gap-2"><span className="text-sm font-semibold text-ink-800">{rec.title}</span><PriorityBadge priority={rec.priority}/><ConfidenceBadge confidence={rec.confidence}/></span>{rec.description&&<span className="mt-1 block text-xs leading-5 text-ink-500">{rec.description}</span>}{rec.expected_impact!=null&&<span className="mt-2 block text-xs font-semibold text-success-700">الأثر المتوقع: {formatCurrency(rec.expected_impact)}</span>}</span><ArrowUpLeft size={15} className="mt-1 shrink-0 text-ink-300"/></button><div className="mt-3 flex flex-wrap gap-2 border-t border-ink-100 pt-3"><button type="button" onClick={async () => { await updateRecommendationStatus(rec.id,'accepted'); await load(); }} className="btn-primary text-xs"><CheckCircle2 size={13}/> قبول</button><button type="button" onClick={async () => { await updateRecommendationStatus(rec.id,'rejected'); await load(); }} className="btn-secondary text-xs"><XCircle size={13}/> رفض</button><Link to={'/decision-experience?stage=evidence&recommendationId=' + encodeURIComponent(rec.id)} className="btn-secondary text-xs">فتح مسار الدليل</Link></div></div>)}{newRecs.length===0&&<EmptyState title="لا توجد توصيات مصدرية حاليًا" message="هذه المساحة لا تخلق توصيات تجريبية."/>}</div></CardBody></Card></div>
 
     <section className="grid gap-3 lg:grid-cols-[1.2fr_.8fr]"><Card><CardBody><div className="flex items-start gap-3"><ShieldCheck size={18} className="mt-0.5 text-success-700"/><div><div className="font-black text-ink-900">حدود الثقة</div><p className="mt-1 text-xs leading-6 text-ink-500">التنبؤ والتوصية والتنبيه تبقى موسومة بطبيعتها. النتيجة الفعلية لا تُسجل إلا من مسار تشغيل موثق.</p></div><Zap size={18} className="ms-auto text-accent-600"/></div></CardBody></Card><Link to="/data-quality" className="card card-hover flex items-center gap-3 p-4"><ShieldCheck size={19} className="text-primary-600"/><span className="min-w-0 flex-1"><span className="block text-sm font-black">افحص صحة البيانات</span><span className="mt-1 block text-[11px] text-ink-400">الذكاء الجيد يبدأ من مصدر يمكن الوثوق به.</span></span><ArrowUpLeft size={16} className="text-ink-300"/></Link></section>
-    <BusinessInvestigationDrawer target={investigation} onClose={() => setInvestigation(null)} />
+    <Suspense fallback={null}><BusinessInvestigationDrawer target={investigation} onClose={() => setInvestigation(null)} /></Suspense>
   </div>;
 }
 
