@@ -370,3 +370,37 @@ DEPENDENCIES: get_dashboard_snapshot + existing report routes only؛ no new RPC/
 SUCCESS CRITERIA: as-of/status visible; false confirmed reason removed; contract/typecheck/lint/build/perf remain PASS.
 BLOCKERS: none known.
 EXPECTED HANDOFF: Owner 2 reprove report/browser/runtime/release gates on Exact SHA.
+## EXECUTION — COMMAND 5 — 2026-09-19
+OWNER: 1
+BRANCH: feat/owner1-reports-output-truth-wave7-20260919
+FINAL UI HEAD: de02f524da29cd54cb6bcd2f677581fb7da9c0ab
+
+CHANGE:
+- Reports Center now reads get_dashboard_snapshot before presenting report outputs.
+- Displays current source status and as-of via TruthContextStrip when available.
+- Investigation context no longer claims that route existence is a confirmed evidence reason.
+- Evidence source/status is explicitly tied to the canonical dashboard snapshot.
+- No new RPC/DB/runtime path.
+
+GUARD:
+- scripts/check-reports-center-truth-contract.mjs
+- package script test:reports-center-truth
+
+EXACT-HEAD TESTS — de02f524da29cd54cb6bcd2f677581fb7da9c0ab
+- test:reports-center-truth: PASS
+- typecheck: PASS
+- lint: PASS in pre-commit run — 0 errors / 59 pre-existing warnings
+- test:ui-route-sidebar-parity: PASS
+- test:executive-report-product-contract: PASS
+- test:report-execution-foundation: PASS
+- build: PASS — 2808 modules, 11.73s
+- perf:budget: PASS — critical 487.1KB / largest JS 487.8KB
+
+HANDOFF TO OWNER 2:
+- Integrate/rebase/cherry-pick Exact UI HEAD de02f524da29cd54cb6bcd2f677581fb7da9c0ab.
+- Reprove reports/browser/runtime/release gates on the merged Exact SHA.
+- Keep route existence separate from evidence confirmation.
+- No main mutation by Owner 1.
+
+NEXT OWNER-1 FRONT:
+- Financial report evidence context: surface canonical as-of/status directly inside Sales and Profitability reports.
