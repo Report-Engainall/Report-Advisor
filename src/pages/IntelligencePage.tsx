@@ -7,7 +7,7 @@ import { Link } from 'react-router-dom';
 import { Card, CardHeader, CardBody } from '@/components/ui/Card';
 import { SeverityBadge, PriorityBadge, ConfidenceBadge, Badge } from '@/components/ui/Badge';
 import { LoadingState, ErrorState, EmptyState } from '@/components/ui/States';
-import { ForecastChart } from '@/components/ui/Charts';
+const ForecastChart = lazy(async () => ({ default: (await import('@/components/ui/Charts')).ForecastChart }));
 import { fetchRecommendations, fetchAlerts, fetchForecasts, updateRecommendationStatus } from '@/lib/queries';
 import { fetchDashboardSnapshot } from '@/lib/dashboard-canonical';
 import { formatCurrency, relativeTime } from '@/lib/format';
@@ -125,7 +125,7 @@ export function IntelligenceCenterPage() {
 
     <DeterministicIntelligenceAssistant recommendationsCount={recommendations.length} activeAlertsCount={activeAlerts.length} forecastsCount={forecasts.length} />
 
-    <Card hover onClick={openForecast}><CardHeader title="نبض التنبؤ" subtitle="المستقبل كمدى واحتمال، لا كحقيقة" action={<ConfidenceBadge confidence="FORECAST"/>}/><CardBody>{forecastChartData.length ? <ForecastChart data={forecastChartData}/> : <EmptyState title="لا توجد تنبؤات مصدرية" message="لن يتم إنشاء منحنى تقديري دون بيانات موثقة."/>}</CardBody></Card>
+    <Card hover onClick={openForecast}><CardHeader title="نبض التنبؤ" subtitle="المستقبل كمدى واحتمال، لا كحقيقة" action={<ConfidenceBadge confidence="FORECAST"/>}/><CardBody>{forecastChartData.length ? <Suspense fallback={<div className="flex h-[280px] items-center justify-center text-xs text-ink-400">جارٍ تحميل الرسم...</div>}><ForecastChart data={forecastChartData}/></Suspense> : <EmptyState title="لا توجد تنبؤات مصدرية" message="لن يتم إنشاء منحنى تقديري دون بيانات موثقة."/>}</CardBody></Card>
 
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-2"><Card><CardHeader title="مركز الانتباه" subtitle="الإشارات أصبحت نقاط دخول للتحقيق"/><CardBody><div className="space-y-3">{alerts.slice(0,6).map(alert => <button key={alert.id} type="button" onClick={() => openAlert(alert)} className="flex w-full items-start gap-3 rounded-2xl border border-ink-100 bg-white p-4 text-right transition hover:border-primary-200 hover:bg-primary-50/25"><SeverityBadge severity={alert.severity}/><span className="min-w-0 flex-1"><span className="block text-sm font-semibold text-ink-800">{alert.title}</span>{alert.description&&<span className="mt-1 block text-xs leading-5 text-ink-500">{alert.description}</span>}<span className="mt-2 block text-[10px] text-ink-400">{relativeTime(alert.created_at)}</span></span><ArrowUpLeft size={15} className="mt-1 shrink-0 text-ink-300"/></button>)}{alerts.length===0&&<EmptyState title="لا توجد تنبيهات مصدرية حاليًا" message="لا يتم إنشاء إشارات بديلة عند غياب المصدر."/>}</div></CardBody></Card>
 
