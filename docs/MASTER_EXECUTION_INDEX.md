@@ -6,12 +6,12 @@
 
 ### CURRENT EXACT HEAD
 - Governed Main: `9bd7243c8864ca5bcf431b14a7c2eb35c698de7c`.
-- Current code/test candidate: `b16ea9a3fe68beaec921bfc0e07e86305f6242a2`.
+- Current code/test candidate: `60d5db6c474a6d0bfef238ed53d9ec973e96023a`.
 - PR #567 is the active open certification path on branch `fix/pdf-structured-runtime-final-20260918`; PR #560 was closed during the forced branch rebind and is historical only.
 - The autonomous operating protocol remains repository-resident at `docs/PROGRAMMER_AUTONOMOUS_OPERATING_PROTOCOL.md`.
-- Fresh PC01 proof on predecessor `9dd3c86d...`: 20-stage release readiness PASS (20/20) and Windows-safe production-gate runtime PASS (integrity, typecheck, build). This proof is recorded as predecessor evidence and is not independently promoted as a runtime PASS for `b16ea9a3...`.
+- Fresh PC01 proof on predecessor `9dd3c86d...`: 20-stage release readiness PASS (20/20) and Windows-safe production-gate runtime PASS (integrity, typecheck, build). This proof is recorded as predecessor evidence and is not independently promoted as a runtime PASS for `60d5db6c...`.
 - The production-gate runtime Windows fix is part of the current remediation lineage; the previous `C:\Program` process-launch defect is closed. The current candidate also includes the source-preservation contract rebind from wrapper to canonical commit core.
-- No runtime/browser/production evidence from an earlier SHA is promoted by this binding.
+- Staging schema-drift reconciliation `20260918060000_reconcile_import_job_row_tenant_schema.sql` is bound to this exact candidate; no earlier runtime/browser/production evidence is promoted by this binding.
 - Fresh exact-head GitHub PDF/OCR, Browser E2E, production-regression evidence, enforcement, and Final Certification remain mandatory.
 - Current-head production deployment/cutover remains NOT PROVEN; no production mutation or alias change was performed.
 
