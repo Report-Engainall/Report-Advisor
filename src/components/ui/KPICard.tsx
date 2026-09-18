@@ -15,9 +15,11 @@ interface KPICardProps {
   hint?: string;
   to?: string;
   actionLabel?: string;
+  evidenceTo?: string;
+
 }
 
-export function KPICard({ label, value, format, change, changeLabel, icon, status = 'CALCULATED', hint, to, actionLabel = 'فتح التفاصيل' }: KPICardProps) {
+export function KPICard({ label, value, format, change, changeLabel, icon, status = 'CALCULATED', hint, to, actionLabel = 'فتح التفاصيل', evidenceTo }: KPICardProps) {
   const formatted = value === null ? '—' : format === 'currency' ? formatCurrency(value) : format === 'percent' ? formatPercent(value) : format === 'compact' ? formatCompact(value) : formatNumber(value);
   const positive = change !== undefined && change > 0;
   const negative = change !== undefined && change < 0;
@@ -41,7 +43,7 @@ export function KPICard({ label, value, format, change, changeLabel, icon, statu
         {status === 'INSUFFICIENT_DATA' && <span className="badge-neutral text-[9px]">لا قيمة مؤكدة</span>}
       </div>
       {hint && <p className="relative mt-2 text-[10px] leading-4 text-ink-400">{hint}</p>}
-      {to && <span className="relative mt-3 inline-flex items-center text-[10px] font-bold text-primary-600 opacity-0 transition group-hover:opacity-100 group-focus-within:opacity-100">{actionLabel} ←</span>}
+      {(to || evidenceTo) && <div className="relative mt-3 flex flex-wrap items-center gap-3 text-[10px] font-bold opacity-0 transition group-hover:opacity-100 group-focus-within:opacity-100">{to && <span className="text-primary-600">{actionLabel} ←</span>}{evidenceTo && <Link to={evidenceTo} className="text-ink-500 hover:text-primary-600" onClick={event => event.stopPropagation()}>فحص التعريف والدليل ↗</Link>}</div>}
     </div>
   );
   return to ? <Link to={to} className="block rounded-[1.35rem] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500">{content}</Link> : content;
