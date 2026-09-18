@@ -10,6 +10,7 @@ import { formatCurrency,relativeTime } from '@/lib/format';
 import type { Recommendation,Alert } from '@/lib/types';
 import type { DashboardKPIs,MonthlyTrend,TopEntity,CategoryBreakdown,AgingDashboard } from '@/lib/dashboard-canonical';
 import { Link } from 'react-router-dom';
+import { TruthContextStrip } from '@/components/TruthContextStrip';
 
 const TREND_RANGES=[{value:3,label:'3 أشهر'},{value:6,label:'6 أشهر'},{value:12,label:'12 شهرًا'}] as const;
 const metricStatus=(value:number|null):'CONFIRMED'|'INSUFFICIENT_DATA'=>value===null?'INSUFFICIENT_DATA':'CONFIRMED';
@@ -54,6 +55,8 @@ export function DashboardPage(){
     </div>
    </div>
   </section>
+
+  <TruthContextStrip months={trendMonths} status={kpis.status} asOf={new Date().toISOString().slice(0, 10)} />
 
   <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
    <div><h2 className="text-lg font-bold text-ink-900">المؤشرات الأساسية</h2><p className="mt-0.5 text-xs text-ink-400">لقطة سريعة على صحة النشاط التجاري</p></div>
