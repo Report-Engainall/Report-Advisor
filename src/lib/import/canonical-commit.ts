@@ -1,6 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { supabase, resolveCurrentCompanyId } from '@/lib/supabase';
-import { assertCanonicalBoundary, type ReconciledCanonicalImportRow } from '@/lib/import/canonical-truth-boundary';
+import { supabase, resolveCurrentCompanyId } from '../supabase';
+import { assertCanonicalBoundary, type ReconciledCanonicalImportRow } from './canonical-truth-boundary';
 
 export interface CanonicalImportRow { data: Record<string, unknown>; rowNumber: number }
 export interface CanonicalCommitResult { committed: number; ids: string[]; idempotentReplay: boolean }
