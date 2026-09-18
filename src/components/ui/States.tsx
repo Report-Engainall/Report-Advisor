@@ -6,7 +6,7 @@ export function Spinner({ className = '' }: { className?: string }) {
 }
 
 export function LoadingState({ message = 'جارٍ التحميل...' }: { message?: string }) {
-  return <div className="flex min-h-[260px] flex-col items-center justify-center gap-3"><span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary-50 text-primary-700"><Spinner/></span><p className="text-xs font-semibold text-ink-500">{message}</p></div>;
+  return <div className="flex min-h-[260px] flex-col items-center justify-center gap-3" role="status" aria-live="polite"><span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary-50 text-primary-700"><Spinner/></span><p className="text-xs font-semibold text-ink-500">{message}</p></div>;
 }
 
 export function EmptyState({ icon, title, message, action }: { icon?: ReactNode; title: string; message?: string; action?: ReactNode }) {
@@ -14,7 +14,7 @@ export function EmptyState({ icon, title, message, action }: { icon?: ReactNode;
 }
 
 export function ErrorState({ message, onRetry }: { message: string; onRetry?: () => void }) {
-  return <div className="flex min-h-[260px] flex-col items-center justify-center gap-3 text-center"><div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-danger-50 text-danger-600"><AlertTriangle size={20}/></div><h3 className="text-sm font-black text-ink-800">تعذر عرض هذه المساحة</h3><p className="max-w-md text-xs leading-6 text-ink-400">{message}</p>{onRetry && <button onClick={onRetry} className="btn-secondary mt-2">إعادة المحاولة</button>}</div>;
+  return <div className="flex min-h-[260px] flex-col items-center justify-center gap-3 text-center"><div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-danger-50 text-danger-600"><AlertTriangle size={20}/></div><h3 className="text-sm font-black text-ink-800">تعذر عرض هذه المساحة</h3><p className="max-w-md text-xs leading-6 text-ink-400">{message}</p>{onRetry && <button type="button" onClick={onRetry} className="btn-secondary mt-2">إعادة المحاولة</button>}</div>;
 }
 
 export function PageHeader({ title, subtitle, actions }: { title: string; subtitle?: string; actions?: ReactNode }) {
