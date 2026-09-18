@@ -9,6 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       ENFORCE_INDEX_HEAD_GATE: '1'
+      CERTIFICATION_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
     steps:
       - uses: actions/checkout@v4
         with:
