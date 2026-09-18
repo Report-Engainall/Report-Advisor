@@ -304,3 +304,50 @@ SECURITY:
 OBSERVABILITY:
 - Supabase staging is reachable; PC01/auth and REST Date headers are aligned to the same UTC second.
 - Current PGRST303 evidence is consistent with the documented upstream PostgREST/Supabase JWT timing issue class; no client-side clock defect has been found.
+
+
+## START | OWNER=2 | DATE=2026-09-19T00:00+03:00
+BRANCH=ops/owner2-runtime-release-20260918
+HEAD=c9029723ef270917f7762182cfbd5b1ac12949c9
+OBJECTIVE=مواصلة الإغلاق التشغيلي المستقل على Exact HEAD مع عدم انتظار الأسرار الخارجية: فحص نتائج CI الحديثة، عزل أي سبب محلي/تكويني قابل للإصلاح، والتحقق من أن الحواجز الخارجية لا تُخفى بتعديلات التفافية.
+DEPENDENCIES=GitHub Actions secret REPORT_ADVISOR_SUPABASE_SERVICE_ROLE_KEY؛ Supabase staging PGRST303 resolution؛ exact deployment access؛ Phase-F live target configuration.
+BLOCKERS=backend service-role secret absent in Actions؛ Storage PGRST303؛ Phase-F live 0/4؛ exact deployed-SHA parity.
+NEXT=Inspect current exact-head workflow/runtime implementation, close any independent defects, run targeted local/contract proofs, then record exact-SHA handoff.
+
+
+## EXECUTED → VERIFIED → OPEN → BLOCKED → NEXT HANDOFF | 2026-09-19T00:15+03:00
+EXECUTED:
+- Continued from Exact HEAD integration/certification-candidate-20260918@c9029723ef270917f7762182cfbd5b1ac12949c9 without code/DB mutation.
+- Re-checked current GitHub workflow results and inspected the exact-head server/API/runtime path.
+- Audited migration/source drift semantically before considering any DDL; no blind migration replay was performed.
+- Audited report-execution worker invocation surface; no new Runner/RPC/Cron/Edge Function was introduced.
+
+VERIFIED:
+- Remote refs: main=1568e43889d27b5d850e64c0b99d03a994fd3bbe; integration=c9029723ef270917f7762182cfbd5b1ac12949c9.
+- Exact-head contracts on c9029723: report-execution foundation PASS; coordinator contract PASS; expired-recovery contract PASS; resumable execution runtime contract PASS; production coordinator runtime PASS; production coordinator integration PASS; worker current-main contract PASS; durable production runner PASS; runner safety PASS.
+- Live staging semantic checks: authenticated enqueue EXECUTE=false; authenticated import_field_lineage SELECT=false; restrictive lineage deny policy exists; import_job_rows job/company FK exists; company/job index exists.
+- Live recovery function is already present with service_role EXECUTE=true / authenticated EXECUTE=false and search_path public,pg_catalog; therefore applying 20260918172214 blindly is not justified merely to create duplicate semantics.
+- Live worker state: 3105 total jobs; 2556 completed; 534 queued; 0 leased; 0 processing; 5 dead_letter; 10 failed; 0 backup_verification_runs. Oldest queued job is 2026-09-10 and newest queued job is 2026-09-18. No active expired leases are present.
+- Queue composition shows 531 queued canonical-import jobs plus a small number of runtime/certification probe jobs; canonical-import has 2555 completed historically, so the existing synchronous durable runner path has executed real jobs previously.
+- Exact repo invocation audit: generic report-execution queue has enqueue API and the existing durable store/runner, but no in-repo claim/execute invoker, Vercel cron configuration, or deployed Edge Function. Supabase pg_cron is available in the project catalog but is not installed in the target database schema; no cron.job exists. Generic worker runtime therefore remains UNPROVEN unless an external worker/deployment target is supplied.
+- Supabase source/live migration counts remain 278 local SQL files vs 302 applied records; latest live tracked migration is 20260918093000 while source also contains later files. This is real lineage drift, but current critical end-state checks already exist live; no historical rewrite or unsafe replay performed.
+
+OPEN:
+- Full Product Browser / business persistence on c902 remains blocked until GitHub Actions secret REPORT_ADVISOR_SUPABASE_SERVICE_ROLE_KEY is provisioned backend-only.
+- Storage E2E remains externally blocked by Supabase PGRST303 JWT-issued-at-future.
+- Phase-F live resilience remains 0/4; current failures are live endpoint/deployment configuration dependent (404/405/fetch failure), not static contract failures.
+- Exact deployed-SHA parity and Vercel deployment access remain open.
+- Generic report-execution worker lifecycle remains UNPROVEN because this repository exact-head has no claim/execute scheduler/consumer path; do not fabricate or mass-process the queued backlog.
+- Backup/restore/RPO/RTO live evidence remains absent.
+
+BLOCKED:
+- External credential/config blockers remain exactly: REPORT_ADVISOR_SUPABASE_SERVICE_ROLE_KEY, Supabase PGRST303 resolution/trace, exact deployment access, Phase-F live target readiness.
+- No application-auth weakening, grant widening, migration-history rewrite, synthetic job processing, or evidence transfer was used.
+
+NEXT HANDOFF:
+- Wait only on the external inputs the owner is already provisioning; no duplicate request is needed.
+- Once the service-role secret is confirmed present, rerun only the affected Full Product Browser/business persistence gate on c9029723 (or newer exact candidate if code legitimately changes).
+- Once PGRST303 is resolved, rerun Storage Tenant Runtime E2E on the exact candidate.
+- Then deploy the exact candidate to the governed runtime and re-run only affected Phase-F/deployed-parity gates.
+- Separately, obtain authoritative confirmation of the production report-execution worker invoker (or an existing external worker deployment) before claiming worker lifecycle certification; do not add a duplicate production runner to compensate.
+STATUS: BLOCKED_EXTERNAL / VERIFIED_CONTRACTS / FAIL_CLOSED
