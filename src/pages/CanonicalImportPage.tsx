@@ -141,7 +141,7 @@ export function CanonicalImportPage() {
     } catch (e: any) {
       const failureMessage = e?.message || 'خطأ غير معروف';
       if (rec?.id) {
-        try { await supabase.rpc('import_finish_job', { p_job_id: rec.id, p_status: 'failed', p_result_summary: { jobId: execution?.jobId ?? null }, p_error_message: failureMessage }); } catch { /* preserve original import failure */ }
+        try { await supabase.rpc('import_finish_job', { p_job_id: rec.id, p_status: 'failed', p_result_summary: {}, p_error_message: failureMessage }); } catch { /* preserve original import failure */ }
       }
       setError(`فشل الاستيراد: ${failureMessage}`); setStep('preview');
     }
