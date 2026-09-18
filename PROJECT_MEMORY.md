@@ -654,3 +654,32 @@ Historical evidence from 66d is not promoted to 51c.
 - `scripts/check-execution-enforcement-protocol.test.mjs` now adversarially removes the new sections and requires the validator to reject the weakened protocols.
 - Corrective commits: `618114d64f676e20ef61995f540710956ac413e8`, `5ee4869d417b8a00f0c46a2b8149ccbab11987a6`, `4da5dd46ff65e9343595c52e717e72660d4855d7`, `0e70fd53a8c80f47f7e4f6bb7ab2dd03ca9c7526`.
 - CI execution for the latest governance commit is not currently surfaced in the commit workflow-run feed; therefore these new checks are implementation evidence, not a CI PASS claim.
+
+
+## 26. Regression Closure Reconciliation — 2026-09-18
+
+### Exact-head sequence
+- Code repair head: `50551116b4221e3914de52f3906b3a3af25fecab`.
+- Post-verification governance/index-only head: `4b865aa2f8b418385d2bf9b3c0b5334b3e10d4a5`.
+- The index-only head does not change application/runtime code; code regression evidence remains bound to `50551116...`.
+
+### Root causes fixed
+- Production regression evidence generator was not platform-safe on Windows. It now invokes the explicit Windows `ComSpec` with `npm.cmd`, without Node's implicit `shell:true` option.
+- Quality workflow contract checker produced a false negative because the workflow file uses CRLF while the checker regex expected LF. The checker now normalizes CRLF to LF before contract parsing.
+
+### Exact local evidence
+- `50551116...` local regression matrix: **12/12 scenarios PASS**.
+- `pdf-text`: PASS on exact `50551116...`.
+- `pdf-ocr-ar`: PASS on exact `50551116...`.
+- `excel-missing-columns`: PASS after the line-ending checker fix.
+- Quality workflow contract: PASS on exact `50551116...`.
+- Windows direct npm subprocess probe: PASS.
+
+### Evidence boundary
+- The 12/12 result is executable regression-harness evidence only. It does not prove live authenticated database commit, browser persistence, or production deployment.
+- The historical `POSITIVE_POLICY_COMMIT_UNAVAILABLE` condition is not present in the current 12-scenario harness output for `pdf-text`/ `pdf-ocr-ar`, but live positive commit/readback remains separately unproven.
+- Certification remains FAIL-CLOSED pending fresh exact-head GitHub runtime/browser evidence and any required live staging commit/readback proof.
+
+### External state
+- Supabase staging `fnqbvfuwbdpwvhcgzksl` remains `ACTIVE_HEALTHY`.
+- Vercel remains provider-rate-limited; no bypass or forced deployment is allowed.
