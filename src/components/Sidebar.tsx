@@ -92,7 +92,7 @@ export function Sidebar({ alertCount = 0, onNavigate, user }: { alertCount?: num
 
       <div className="px-4 pt-4">
         <div className="rounded-2xl border border-primary-400/15 bg-primary-500/10 px-4 py-3">
-          <div className="text-[10px] font-black tracking-[0.18em] text-primary-200">OPERATING MODEL</div>
+          <div className="text-[10px] font-black tracking-[0.18em] text-primary-200">نموذج التشغيل</div>
           <div className="mt-1 text-xs leading-5 text-slate-300">بيانات → دليل → قرار → إجراء → تعلّم</div>
         </div>
       </div>
