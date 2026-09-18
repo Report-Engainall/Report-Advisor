@@ -138,7 +138,7 @@ function tryParseStructuredPdfText(text: string): Row[] | null {
   setIfPresent('customer_name', match(/(?:العميل|اسم\s*العميل|customer\s*(?:name|customer)?)\s*[:：-]?\s*(.+?)\s+(?=(?:المجموع\s*الفرعي|المجموع|الإجمالي|subtotal|tax|total)\b)/i));
   setIfPresent('subtotal', normalizeStructuredDocumentValue(match(/(?:المجموع\s*الفرعي|subtotal)\s*[:：-]?\s*([\d٠-٩٬،.,]+)/i) ?? ''));
   setIfPresent('tax_amount', normalizeStructuredDocumentValue(match(/(?:الضريبة|ضريبة|tax)\s*[:：-]?\s*([\d٠-٩٬،.,]+)/i) ?? ''));
-  setIfPresent('total', normalizeStructuredDocumentValue(match(/(?:الإجمالي|الاجمالي|total)\s*[:：-]?\s*([\d٠-٩٬،.,]+)/i) ?? ''));
+  setIfPresent('total', normalizeStructuredDocumentValue(match(/(?:الإجمالي|الاجمالي|\btotal\b)\s*[:：-]?\s*([\d٠-٩٬،.,]+)/i) ?? ''));
   setIfPresent('paid_amount', normalizeStructuredDocumentValue(match(/(?:المدفوع|المبلغ\s*المدفوع|paid)\s*[:：-]?\s*([\d٠-٩٬،.,]+)/i) ?? ''));
   setIfPresent('currency', match(/(?:العملة|عمله|currency)\s*[:：-]?\s*([A-Za-z]{3}|[A-Za-z]+)\b/i));
 
@@ -149,7 +149,7 @@ function tryParseStructuredPdfText(text: string): Row[] | null {
     { key: 'subtotal', pattern: /(?:المجموع\s*الفرعي|subtotal)/i, numeric: true },
     { key: 'tax_amount', pattern: /(?:الضريبة|ضريبة|tax)/i, numeric: true },
     { key: 'paid_amount', pattern: /(?:المدفوع|المبلغ\s*المدفوع|paid)/i, numeric: true },
-    { key: 'total', pattern: /(?:الإجمالي|الاجمالي|total)/i, numeric: true },
+    { key: 'total', pattern: /(?:الإجمالي|الاجمالي|\btotal\b)/i, numeric: true },
     { key: 'currency', pattern: /(?:العملة|عمله|currency)/i },
   ];
 
@@ -174,7 +174,7 @@ function tryParseStructuredPdfText(text: string): Row[] | null {
       setIfPresent(current.key, current.numeric ? normalizeStructuredDocumentValue(value) : value);
     }
     if (row.total === undefined) {
-      const totalMatch = normalized.match(/(?:^|\s)(?:الإجمالي|الاجمالي|total)\s*[:：-]?\s*([\d٠-٩٬،.,]+)/i);
+      const totalMatch = normalized.match(/(?:^|\s)(?:الإجمالي|الاجمالي|\btotal\b)\s*[:：-]?\s*([\d٠-٩٬،.,]+)/i);
       setIfPresent('total', normalizeStructuredDocumentValue(totalMatch?.[1] ?? ''));
     }
   }
