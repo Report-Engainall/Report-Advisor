@@ -32,3 +32,9 @@
 - The owner has now provisioned that secret externally. Changing the secret does not rerun a historical GitHub Actions attempt, and the connected GitHub integration lacks rerun permission (403).
 - This ledger marker is governance-only and exists solely to create a new exact SHA through the existing `E2E_FAILURE_LEDGER.md` push trigger. No product/runtime behavior or evidence is changed by this marker.
 - The fresh workflow run on the new exact SHA is the only authoritative business-persistence attempt; no evidence from `c9029723` is transferred.
+
+## 2026-09-19 — Fresh exact-head retrigger after owner secret provisioning
+- Owner reports REPORT_ADVISOR_SUPABASE_SERVICE_ROLE_KEY has been added in GitHub.
+- Authoritative observation: rerun of c9029723ef270917f7762182cfbd5b1ac12949c9 still failed at the backend runtime secret contract with SUPABASE_SERVICE_ROLE_KEY=MISSING, before business execution.
+- Exact successor 4a79e23faffd39c96c3839d1e15fe543465930cf contains the governed environment: staging binding for Full Product Browser E2E.
+- No evidence is transferred from c902. The next push is a governance-only retrigger marker; the resulting successor SHA is the only authoritative runtime attempt.
