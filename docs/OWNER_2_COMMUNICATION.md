@@ -207,3 +207,52 @@ NEXT HANDOFF:
 - Verify fresh @717fea88 Final Certification, Full Product Browser E2E, Device-Independent Browser E2E, Storage Runtime, Phase-F and Windows.
 - If business persistence now reaches the function boundary, close based on real commit/read-back evidence. If it still reports 404/405, keep it BLOCKED as environment/function deployment mismatch rather than altering auth/DB semantics.
 - Deploy exact @717fea88 when authorized, then verify /api/health, /api/canonical-import-execute and Phase-F endpoints return governed function responses before release.
+
+## START | OWNER=2 | DATE=2026-09-18T23:55+03:00
+BRANCH=ops/owner2-runtime-release-20260918
+HEAD=560e6eb1671335702fe7f068b0394553691f9d74
+OBJECTIVE=إغلاق فجوة CI serverless runtime: تشغيل نفس api/*.ts الحقيقي خلف static dist أثناء Browser E2E، مع service-role backend-only، دون تغيير business semantics.
+FILES POTENTIALLY MODIFIED=scripts/local-exact-head-server.mjs; .github/workflows/full-product-browser-e2e.yml
+DEPENDENCIES=REPORT_ADVISOR_SUPABASE_SERVICE_ROLE_KEY كـGitHub Actions secret backend-only.
+BLOCKERS=إن لم يكن السر الخارجي provisioned سيبقى business persistence BLOCKED-EXTERNAL.
+NEXT=Add exact-head local runtime harness → targeted real API boundary test → use it from browser workflow → rerun business persistence on new SHA.
+
+## VERIFIED / BLOCKED | 2026-09-18T23:58+03:00
+EXECUTED:
+- CI serverless runtime harness commit: e6dfea00e7c9854840fda632c0dd9855acf16f3f.
+- Integration exact candidate now: c9029723ef270917f7762182cfbd5b1ac12949c9.
+- Harness serves exact dist and dynamically invokes real api/*.ts handlers; service-role is server-process-only.
+- Full Product Browser workflow now rejects missing backend runtime secret before browser execution and verifies /api/canonical-import-execute through the real handler with unauthenticated HTTP 401 when configured.
+
+VERIFIED:
+- Local PC01 harness test with dummy server-only configuration: root HTTP 200; POST /api/canonical-import-execute HTTP 401; handler loaded successfully.
+- Exact integration HEAD IDENTITY PASS @c9029723.
+- final-certification provenance adversarial suite PASS @c9029723.
+- certification boundary Test-of-Test PASS @c9029723.
+- release resilience manifest PASS @c9029723.
+- extended workflow command integrity PASS @c9029723.
+- Final Certification Gate/Product Creation/Storage for predecessor @717fea88 were PASS; those claims are historical and are not transferred to @c9029723.
+- Fresh Full Product Browser on @c9029723 stopped before business runtime because the backend secret contract reported:
+  SUPABASE_SERVICE_ROLE_KEY=MISSING
+  BACKEND_RUNTIME_BLOCKED.
+- Fresh Phase F on @c9029723 remains 0/4 from external live target 404/fetch-failed/405 responses.
+
+OPEN:
+- Business Persistence cannot execute in GitHub Actions until a backend-only GitHub secret exists.
+- Exact deployed-SHA parity still absent.
+- Phase-F live targets still external/unavailable.
+- Backup/restore RPO/RTO live proof still absent.
+
+BLOCKED:
+- Required external action is exact and singular:
+  Add GitHub Actions repository/Environment secret:
+  REPORT_ADVISOR_SUPABASE_SERVICE_ROLE_KEY = the Supabase staging service_role key for project fnqbvfuwbdpwvhcgzksl.
+- Scope this secret only to backend CI steps; never expose it as VITE_*, browser env, artifact, log, or client-side source.
+- Do not replace it with the anon/publishable key. Doing so would fail the durable worker authority contract.
+- No deployment/DB mutation is required to establish this secret. Once provisioned, rerun the new exact candidate @c9029723 Full Product Browser E2E; no historical evidence should be reused.
+
+NEXT HANDOFF:
+- Target: integration/certification-candidate-20260918@c9029723ef270917f7762182cfbd5b1ac12949c9.
+- Immediate external dependency: provision REPORT_ADVISOR_SUPABASE_SERVICE_ROLE_KEY.
+- Then rerun only the affected Full Product Browser/Business Persistence gate on @c9029723.
+- If that passes, continue exact-head release parity/deployment and Phase-F/backup/restore gates.
