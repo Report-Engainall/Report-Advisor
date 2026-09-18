@@ -88,11 +88,11 @@ const noDecisionLock = replaceLatestFunctionBody(sql, 'request_decision_approval
 assert.throws(() => validateDecisionApprovalToctou(noDecisionLock), /Decision row is not locked/);
 const gateBeforeLock = replaceLatestFunctionBody(sql, 'request_decision_approval', body => {
   const lockMatch = body.match(/and d\.company_id = v_company\s+for update/i);
-  const gateIndex = body.indexOf("v_decision_status is distinct from 'PROPOSED'");
+  const gateIndex = body.toLowerCase().indexOf("v_decision_status is distinct from 'proposed'");
   if (!lockMatch || gateIndex < 0) throw new Error('Missing canonical gate/lock fixture targets');
   const decisionLockStart = lockMatch.index + lockMatch[0].length - 'for update'.length;
   const withoutLock = body.slice(0, decisionLockStart) + body.slice(decisionLockStart + 'for update'.length);
-  const gateInWeak = withoutLock.indexOf("v_decision_status is distinct from 'PROPOSED'");
+  const gateInWeak = withoutLock.toLowerCase().indexOf("v_decision_status is distinct from 'proposed'");
   return withoutLock.slice(0, gateInWeak) + 'for update\n    ' + withoutLock.slice(gateInWeak);
 });
 assert.throws(() => validateDecisionApprovalToctou(gateBeforeLock), /Decision row is not locked before approvability check/);
