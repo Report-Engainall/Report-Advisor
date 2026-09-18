@@ -1,4 +1,6 @@
 # Selective Competitive Tracks — Report-Advisor
+
+> **OWNER-APPROVED 2026-09-18:** هذه المسارات الخمسة هي تركيز تنافسي انتقائي معتمد؛ ليست backlog ميزات. لا يُضاف أي نطاق جديد دون Product Value Gate والدليل المناسب.
 ## 2026-09-18
 
 > هذه الوثيقة ليست Product Backlog مشتقًا من Upwork. أمثلة السوق تستخدم فقط لاكتشاف أين يمكن لمنتجنا الحالي أن ينافس بقوة. لا تتحول أي إشارة سوقية إلى ميزة إلا بعد Product Value Gate.
