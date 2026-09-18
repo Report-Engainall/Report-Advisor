@@ -181,3 +181,21 @@ TEST=import transaction contract PASS; TypeScript typecheck PASS; production bui
 RESULT=Code root cause fixed without weakening import_finish_job or adding a new runtime path.
 STATUS=VERIFIED_LOCALLY
 NEXT=Push successor, obtain fresh exact-head business persistence evidence, then continue PDF/OCR and release resilience gates.
+
+## START | OWNER=2 | 2026-09-19T02:00+03:00
+BRANCH=integration/certification-candidate-20260918
+HEAD=0aec151efd69b3bcbb0af8bf8b4260161606001a
+OBJECTIVE=Close current Business Persistence runtime blocker without weakening UI, persistence, or tenant isolation; continue independent Phase-F, backup/RPO-RTO, deployment-parity, certification, and release fronts.
+RUNTIME_ENV=Supabase staging fnqbvfuwbdpwvhcgzksl; GitHub Actions; integration candidate; PC01 worktree
+DEPENDENCIES=existing UI/runtime contracts; GitHub Actions; Vercel provider; Phase-F target endpoints
+BLOCKERS_EXTERNAL=Vercel deployment rate-limit; Phase-F live target endpoint responses 404/405/fetch failed
+NEXT=Correct only stale Business Persistence selectors, verify, commit, push, and collect fresh exact-head evidence. No main changes and no assertion weakening.
+
+## EXECUTION | OWNER=2 | 2026-09-19T02:07+03:00
+CHANGE=Updated stale real-business E2E customer/product UI selectors to match the canonical EntityPages search fields already present on Exact HEAD.
+FILES=scripts/real-business-e2e.mjs; docs/OWNER_2_COMMUNICATION.md
+ROOT CAUSE=Fresh Exact HEAD 0aec151e browser job failed before persistence completion because the test requested legacy placeholders while EntityPages.tsx now exposes the current placeholders.
+TEST=node --check scripts/real-business-e2e.mjs PASS; selector contract PASS; git diff --check PASS.
+RESULT=No UI, DB, RLS, import lifecycle, or assertion weakening. Only test selector parity changed.
+STATUS=VERIFIED_LOCALLY
+NEXT=Commit and push successor SHA; collect fresh Exact-SHA Business Persistence evidence.
