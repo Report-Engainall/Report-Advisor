@@ -578,3 +578,16 @@ Next verification fronts after the queued runs complete:
 6. Vercel deployment verification only after the provider accepts a candidate deployment.
 
 Historical evidence from 66d is not promoted to 51c.
+
+## 26. Leadership Resume — 2026-09-18 / Exact-head verification wave
+
+- Exact active PR branch: `fix/pdf-structured-runtime-closure-20260918`
+- PR #542 branch HEAD: `51c71124c6b90f98f4659e8d79efabf800a5cc1c`
+- Governed code/test candidate remains: `39b90e44c91c227a02989245e3a8d9c3b9791177`
+- Fresh CI wave is attached to the current branch head; at inspection time Browser E2E, Final Certification, import-finish lifecycle security, PDF structured parser regression, production regression evidence, and Storage Tenant Runtime E2E were still queued.
+- Exact-head `desktop-windows` run `35303725683` completed successfully, including web build, native runtime smoke, packaging, and installer upload. This is fresh evidence for that verification front only; it does not certify the product.
+- Staging live counts observed independently: `import_jobs=3590`, `canonical_import_commits=2475`, `kpi_evidence_snapshots=156`, `sales_invoices=329`, `companies=2`. These are environment observations, not certification evidence by themselves.
+- Storage remains unconfigured at the live project level: `storage.buckets` is empty. No bucket or secret is invented to satisfy tests.
+- Vercel has no deployment for PR #542 candidate/head in the currently inspected deployment list. Production remains separate; no candidate deployment is claimed.
+- Governance-document defect observed: `docs/MASTER_EXECUTION_INDEX.md` contains an isolated `NaN` line immediately after the current candidate line. It does not currently break the case-insensitive certification-boundary parser, but it is a documentation-integrity defect and should be removed in a later governance-only correction without transferring or invalidating runtime evidence.
+- Decision: do not churn the candidate while the fresh exact-head evidence wave is pending. Continue independent verification and patch only causal failures. Do not promote queued, historical, local, or unrelated evidence.
