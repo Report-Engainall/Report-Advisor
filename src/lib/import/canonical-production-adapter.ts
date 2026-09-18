@@ -93,11 +93,21 @@ export async function runCanonicalImportThroughDurableRunner(input: DurableCanon
     }
     throw error;
   }
-  const serverResult = await runServerBoundary(input);
+  try {
+    const serverResult = await runServerBoundary(input);
 
-  return {
-    jobId: String(serverResult.jobId),
-    importId: input.importId,
-    ...serverResult,
-  };
+    return {
+      jobId: String(serverResult.jobId),
+      importId: input.importId,
+      ...serverResult,
+    };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    try {
+      await finishCanonicalImportFailure(input.importId, message);
+    } catch {
+      // Preserve the primary server-boundary failure; terminal ownership stays canonical.
+    }
+    throw error;
+  }
 }
