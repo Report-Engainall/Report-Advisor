@@ -127,7 +127,7 @@ export async function runCanonicalImportThroughDurableRunner(
   const activeWorkerClient = workerClient;
   const activeDataClient = dataClient;
   if (!activeWorkerClient || !activeDataClient) throw new Error('SUPABASE_CLIENTS_REQUIRED');
-  const { data: enqueueData, error: enqueueError } = await activeWorkerClient.rpc('enqueue_report_execution_job', {
+  const { data: enqueueData, error: enqueueError } = await activeDataClient.rpc('enqueue_report_execution_job', {
     p_company_id: companyId,
     p_job_key: jobKey,
     p_source_path: input.fileName,
@@ -140,7 +140,12 @@ export async function runCanonicalImportThroughDurableRunner(
     ],
     p_max_attempts: 3,
   });
-  if (enqueueError) throw enqueueError;
+  if (enqueueError) {
+    const detail = [enqueueError.code, enqueueError.message, enqueueError.details, enqueueError.hint]
+      .filter((value) => typeof value === 'string' && value.trim())
+      .join(':');
+    throw new Error(`REPORT_EXECUTION_JOB_ENQUEUE_FAILED:${detail || 'unknown_error'}`);
+  }
   if (!enqueueData || typeof enqueueData !== 'object') throw new Error('REPORT_EXECUTION_JOB_ENQUEUE_EMPTY');
 
   const job = enqueueData as EnqueuedJob;
