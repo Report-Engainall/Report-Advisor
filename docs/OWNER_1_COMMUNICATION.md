@@ -1024,3 +1024,16 @@ DONE: Wave 22 document analysis trust integrity completed and handed off.
 OPEN: Owner 2 integration/runtime/release proof; Owner 1 continues commercial differentiation.
 BLOCKED: none.
 NEXT START: inspect ProposalDemoPage as the product showcase / commercial proof surface.
+
+## START — COMMAND 21 — 2026-09-19
+START
+DATE: 2026-09-19T02:58+03:00
+OWNER: 1
+BRANCH: feat/owner1-proposal-showcase-wave23-20260919
+HEAD: cbb86f03d7b043a31c4a84299d04843185ef0050
+BASE: cbb86f03d7b043a31c4a84299d04843185ef0050
+OBJECTIVE: تطوير Proposal Demo إلى Commercial Proof Workspace: تغطية متطلبات قابلة للحساب، ملخص عرض deterministic، وروابط capability حقيقية، دون ادعاءات runtime أو evidence مصطنعة.
+FILES / SURFACES: src/pages/ProposalDemoPage.tsx; scripts/check-proposal-demo-commercial-contract.mjs; package.json; docs/OWNER_1_COMMUNICATION.md
+DEPENDENCIES: CAPABILITIES الداخلية والمسارات الحالية فقط؛ لا DB/RPC/Runner/Auth/Tenant/Storage/CI change.
+BLOCKERS: لا يوجد blocker تطويري معروف.
+EXPECTED HANDOFF: Owner 2 يعيد إثبات Proposal Demo/browser/build/release على Exact SHA؛ لا نقل Evidence بين SHAs.
