@@ -309,3 +309,17 @@ HANDOFF TO OWNER 2:
 
 NEXT OWNER-1 FRONT:
 - harden Work Center as a source/evidence operational surface without inventing persisted tasks or backend state.
+
+## START — COMMAND 4 — 2026-09-19
+START
+DATE: 2026-09-19T01:05+03:00
+OWNER: 1
+BRANCH: feat/owner1-work-center-evidence-wave6-20260919
+HEAD: d1c0f0cfadd54470e0c9db6653053d88d59fe39b
+BASE: feat/owner1-dashboard-critical-load-wave5-20260919
+OBJECTIVE: تقوية قابلية تدقيق Work Center من سجل الاستيراد الموجود فعليًا، دون اختراع task lifecycle أو تغيير backend.
+FILES / SURFACES: src/pages/WorkCenterPage.tsx; scripts/check-work-center-evidence-contract.mjs; package.json if guard required.
+DEPENDENCIES: existing fetchImportRecords/import_jobs read path + BusinessInvestigationDrawer only.
+SUCCESS CRITERIA: source record id + created/closed timestamps visible in investigation context; explicit close-evidence boundary; contracts/typecheck/build/pass.
+BLOCKERS: لا يوجد blocker معروف.
+EXPECTED HANDOFF: Owner 2 يعيد إثبات affected UI/browser/runtime/release gates على Exact SHA.
