@@ -418,3 +418,33 @@ DEPENDENCIES: existing fetchDashboardSnapshot only؛ لا RPC/DB/runtime جدي�
 SUCCESS CRITERIA: Sales + Profitability show TruthContextStrip from canonical snapshot; contract/typecheck/lint/build/perf PASS.
 BLOCKERS: none known.
 EXPECTED HANDOFF: Owner 2 reprove report/browser/runtime/release gates on Exact SHA.
+
+## EXECUTION — COMMAND 6 — 2026-09-19
+OWNER: 1
+BRANCH: feat/owner1-financial-report-truth-wave8-20260919
+FINAL UI HEAD: c6d9b3fe3bbf757d36604a5c36230aaf50f0001b
+
+CHANGE:
+- Sales report now surfaces TruthContextStrip using canonical dashboard snapshot status + as-of.
+- Profitability report now surfaces TruthContextStrip using canonical dashboard snapshot status + as-of.
+- Added scripts/check-financial-report-truth-contract.mjs and package script test:financial-report-truth.
+- No RPC/DB/runtime/auth/tenant/storage changes.
+
+EXACT-HEAD TESTS — c6d9b3fe3bbf757d36604a5c36230aaf50f0001b
+- test:financial-report-truth: PASS
+- typecheck: PASS
+- lint: PASS — 0 errors / 59 pre-existing warnings
+- test:ui-route-sidebar-parity: PASS — 35 routes / 34 sidebar links
+- test:executive-report-product-contract: PASS
+- test:report-execution-foundation: PASS
+- build: PASS — 2808 modules, 16.00s
+- perf:budget: PASS — critical 487.1KB / largest JS 487.8KB
+
+HANDOFF TO OWNER 2:
+- Integrate/rebase/cherry-pick Exact UI HEAD c6d9b3fe3bbf757d36604a5c36230aaf50f0001b.
+- Reprove report/browser/runtime/release gates on the merged Exact SHA.
+- Preserve canonical status/as-of semantics; do not synthesize report freshness from client time.
+- No main mutation by Owner 1.
+
+NEXT OWNER-1 FRONT:
+- Receivables report truth context: expose canonical snapshot status/as-of alongside aging data.
