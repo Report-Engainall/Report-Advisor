@@ -5,10 +5,11 @@
 > Authoritative execution manifest. This document never promotes historical evidence across an exact Git `HEAD` boundary. Pair every evidence batch with the exact Git `HEAD` of `main` and the exact environment/commit used.
 
 ### CURRENT EXACT HEAD
-- Current code/test candidate: `73e646a11cb2d95ede14ff1ca56f16f2a0c801ea`.
-- This is the exact current `main` head after the master-index rebind was merged; the previous `9375c714...` binding is superseded.
+- Current code/test candidate: `c466666cef65d082383aca4fd3384261e9f64690`.
+- Current Main contains the merged structured-PDF/file-engine repair from PR #550. This is the exact code/test candidate used for the fresh PC01 runtime/build/native verification recorded below.
+- The subsequent governance-only index/document update must not be treated as a new product code candidate.
 - The autonomous operating protocol is now repository-resident at `docs/PROGRAMMER_AUTONOMOUS_OPERATING_PROTOCOL.md`.
-- PC01 native desktop verification is recorded at `docs/evidence/DEVICE_PC01_VERIFICATION_20260918.md`; its native smoke is PASS and its evidence is bound to the documented local source SHA/environment.
+- PC01 native desktop verification is recorded at `docs/evidence/DEVICE_PC01_VERIFICATION_20260918.md`; the original native smoke evidence is preserved historically. A fresh Exact-Main native smoke PASS at code candidate `c466666cef65d082383aca4fd3384261e9f64690` is recorded in `docs/evidence/EXACT_MAIN_RUNTIME_20260918.md`.
 - No runtime/browser/production evidence from an earlier SHA is promoted by this binding.
 - The certification binding itself is governance-only and does not certify runtime/product code; fresh exact-HEAD runtime evidence is still required.
 - Historical evidence from earlier SHAs remains historical and is not promoted automatically.
@@ -19,7 +20,7 @@
 
 ### CURRENT EXECUTION CONTROL — 2026-09-18
 - PR #533 adds the mandatory continuous two-owner execution/resume protocol. It is governance-only and does not itself certify runtime.
-- Programmer-owned active runtime front: PR #531 (e334ed54be851cf6fbeb0f85753b330bc08aea47) for structured PDF invoice parsing on current Main.
+- Structured PDF/file-engine runtime front is CLOSED through PR #550. Fresh PC01 Exact-Main proof at code candidate `c466666cef65d082383aca4fd3384261e9f64690`: file-engine contract PASS, structured PDF/OCR behavioral regression PASS, production build PASS, native desktop smoke PASS. Windows NSIS packaging was attempted on Exact Main but exceeded the safe execution window and was terminated; no packaging PASS is claimed for that exact candidate.
 - Coordinator-owned verification fronts: current exact-head evidence binding, Supabase staging truth/security, production/deployment verification, resilience/evidence control, and commercial-gap control.
 - Rule: do not restart closed work. Resume IN_PROGRESS fronts from their last verified checkpoint. Do not mix evidence across SHA boundaries.
 - Rule: independent fronts must run in parallel; a queued CI workflow or external provider blocker must not idle unrelated work.
