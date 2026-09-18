@@ -12,7 +12,9 @@ This document is the live ownership boundary for command `2`. It is intentionall
 - `src/pages/IntelligencePage.tsx`: Intelligence now exposes the shared truth context without making it a second source of truth.
 - `src/pages/DecisionExperiencePage.tsx`: Decision Experience now carries the same evidence/time-bound context when the canonical snapshot is available.
 - `src/pages/DemandVelocityPage.tsx`: demand rows are now investigation-first and open the existing lazy-loaded investigation drawer with explicit confirmed vs missing evidence.
-- Current development HEAD: `56ae7362b9f7b25c5ab250c295489a03e4abe5c6`.
+- `src/components/CommandPalette.tsx`: recent command ordering now follows actual recency rather than alphabetical tie-breaking.
+- `src/pages/InventoryIntelligencePage.tsx`: grouped inventory rows now open the existing investigation drawer with coverage, demand, missing-evidence and next-action context.
+- Current code HEAD: `9a0e1185f7f47a7a5683d99de8a3929f6bdc9e91`.
 - The shared development remains on the isolated integration branch; `main` is not mutated by this wave.
 
 ### Active development fronts
