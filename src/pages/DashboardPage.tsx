@@ -72,7 +72,7 @@ export function DashboardPage() {
       <section className="command-strip -mx-3 -mt-3 mb-1 sm:-mx-4 lg:-mx-5 2xl:-mx-6">
         <div className="px-4 py-4 lg:px-5 2xl:px-6">
           <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-            <div className="min-w-0"><div className="section-kicker">اليوم</div><h1 className="mt-1 text-[22px] font-black tracking-tight text-ink-950">صورة العمل الآن</h1><p className="mt-1 max-w-2xl text-[11px] leading-5 text-ink-500">المبيعات، النقد، المخزون والتنبيهات في مسار واحد، مع إبقاء حدود الدليل واضحة.</p></div>
+            <div className="min-w-0"><div className="section-kicker">اليوم</div><h1 className="mt-1 text-[22px] font-black tracking-tight text-ink-950">صورة العمل الآن</h1><p className="mt-1 max-w-2xl text-[11px] leading-5 text-ink-500">من البيانات إلى القرار التجاري — في شاشة واحدة. المبيعات، النقد، المخزون والتنبيهات في مسار واحد، مع إبقاء حدود الدليل واضحة.</p></div>
             <div className="flex flex-wrap gap-1.5"><Link to="/import" className="btn-primary text-xs"><Upload size={14}/> استيراد</Link><Link to="/reports/executive" className="btn-secondary text-xs"><FileSearch size={14}/> التقرير التنفيذي</Link><Link to="/decision-experience" className="btn-ghost text-xs"><Brain size={14}/> قرار اليوم</Link></div>
           </div>
         </div>
