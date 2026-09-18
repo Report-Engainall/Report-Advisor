@@ -26,19 +26,19 @@ function pdfWithText(text: string): ArrayBuffer {
     '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>',
     `<< /Length ${stream.length} >>\\nstream\\n${stream}\\nendstream`,
   ];
-  const header = '%PDF-1.4\\n';
+  const header = '%PDF-1.4\n';
   let body = '';
   const offsets: number[] = [0];
   let position = header.length;
   objects.forEach((object, index) => {
     offsets.push(position);
-    const rendered = `${index + 1} 0 obj\\n${object}\\nendobj\\n`;
+    const rendered = `${index + 1} 0 obj\n${object}\nendobj\n`;
     body += rendered;
     position += rendered.length;
   });
   const xrefOffset = header.length + body.length;
-  const xref = `xref\\n0 ${objects.length + 1}\\n0000000000 65535 f \\n${offsets.slice(1).map((offset) => `${String(offset).padStart(10, '0')} 00000 n `).join('\\n')}\\n`;
-  const trailer = `trailer\\n<< /Size ${objects.length + 1} /Root 1 0 R >>\\nstartxref\\n${xrefOffset}\\n%%EOF\\n`;
+  const xref = `xref\n0 ${objects.length + 1}\n0000000000 65535 f \n${offsets.slice(1).map((offset) => `${String(offset).padStart(10, '0')} 00000 n`).join('\n')}\n`;
+  const trailer = `trailer\n<< /Size ${objects.length + 1} /Root 1 0 R >>\nstartxref\n${xrefOffset}\n%%EOF\n`;
   return new TextEncoder().encode(header + body + xref + trailer).buffer;
 }
 
