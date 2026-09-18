@@ -20,10 +20,10 @@ export function CustomerCreateDialog({ onClose, onCreated }: CustomerCreateDialo
       if (insertError) throw insertError; onCreated(); onClose();
     } catch (cause) { setError(cause instanceof Error ? cause.message : 'تعذر إنشاء العميل'); } finally { setSaving(false); }
   }
-  return <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" role="dialog" aria-modal="true" aria-labelledby="customer-create-title">
-    <div className="w-full max-w-lg rounded-2xl bg-white shadow-xl">
+  return <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/40 p-3 sm:items-center sm:p-4 safe-bottom" role="dialog" aria-modal="true" aria-labelledby="customer-create-title">
+    <div className="my-3 w-full max-w-lg overflow-hidden rounded-2xl bg-white shadow-xl sm:my-8">
       <div className="flex items-center justify-between border-b border-ink-100 px-5 py-4"><h2 id="customer-create-title" className="text-lg font-bold text-ink-900">عميل جديد</h2><button type="button" onClick={onClose} aria-label="إغلاق" className="rounded-lg p-2 text-ink-500 hover:bg-ink-50"><X size={18} /></button></div>
-      <form onSubmit={submit} className="space-y-4 p-5">
+      <form onSubmit={submit} className="max-h-[calc(100dvh-7rem)] space-y-4 overflow-y-auto p-5">
         <div><label htmlFor="customer-create-name" className="mb-1 block text-xs font-medium text-ink-700">الاسم *</label><input id="customer-create-name" autoFocus value={name} onChange={e => setName(e.target.value)} className="input w-full" required /></div>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div><label htmlFor="customer-create-code" className="mb-1 block text-xs font-medium text-ink-700">الكود</label><input id="customer-create-code" value={code} onChange={e => setCode(e.target.value)} className="input w-full" /></div>
