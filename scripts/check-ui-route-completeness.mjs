@@ -5,7 +5,7 @@ const sidebar = fs.readFileSync('src/components/Sidebar.tsx', 'utf8');
 const pages = fs.readdirSync('src/pages').filter((name) => name.endsWith('Page.tsx'));
 
 const routePaths = [...app.matchAll(/<Route\s+path="([^"]+)"/g)].map((m) => m[1]);
-const sidebarPaths = [...sidebar.matchAll(/path:'([^']+)'/g)].map((m) => m[1]);
+const sidebarPaths = [...sidebar.matchAll(/path\s*:\s*['"]([^'"]+)['"]/g)].map((m) => m[1]);
 const pageImports = [
   ...app.matchAll(/from\s+['"]@\/pages\/([^'"]+)['"]/g),
   ...app.matchAll(/import\([^)]*['"]@\/pages\/([^'"]+)['"]/g),
