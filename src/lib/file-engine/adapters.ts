@@ -103,7 +103,18 @@ function tryParseStructuredPdfText(text: string): Row[] | null {
     if (Array.isArray(parsed) && parsed.length && parsed.every(isRecord)) return parsed;
   }
 
-  const normalized = normalizeArabicDigits(compact.replace(/\s+/g, ' ').trim());
+  const normalized = normalizeArabicDigits(
+    Array.from(
+      compact.normalize('NFKC'),
+      (character) => {
+        const code = character.charCodeAt(0);
+        return code < 32 && code !== 9 && code !== 10 && code !== 13 ? ' ' : character;
+      },
+    ).join('')
+      .replace(/[\u200B-\u200F\u202A-\u202E\uFEFF]/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim(),
+  );
   const match = (pattern: RegExp): string | null => normalized.match(pattern)?.[1]?.trim() ?? null;
   const row: Row = {};
   const setIfPresent = (key: string, value: string | number | null): void => {
