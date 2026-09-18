@@ -71,7 +71,7 @@ export function WorkCenterPage() {
             </div>
           </div>
           <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
-            {[
+            {([
               ['النشطة', counts.active, Activity, 'primary'],
               ['المراجعة', counts.review, AlertTriangle, 'warning'],
               ['المكتملة', counts.completed, CheckCircle2, 'success'],
