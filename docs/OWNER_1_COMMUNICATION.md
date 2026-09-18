@@ -547,3 +547,31 @@ FILES / SURFACES: src/pages/ReportsPage.tsx; src/components/TruthContextStrip.ts
 DEPENDENCIES: existing fetchInventoryReportSnapshot only؛ no new RPC/DB/Runner/Auth/Tenant/Storage/CI logic.
 BLOCKERS: لا blocker معروف عند البدء.
 EXPECTED HANDOFF: Owner 2 يعيد إثبات inventory/browser/runtime/release gates على Exact SHA الجديد.
+
+## EXECUTION — COMMAND 9 — 2026-09-19
+EXECUTION
+CHANGE: تقوية حقيقة تقرير المخزون باستخدام dataStatus الصادر مباشرة من fetchInventoryReportSnapshot، مع توضيح صريح أن حداثة المصدر/as-of غير متاحة من المصدر الحالي بدل اختلاق تاريخ.
+FILES: src/pages/ReportsPage.tsx; src/components/TruthContextStrip.tsx; scripts/check-inventory-report-truth-contract.mjs; package.json.
+WHY: مصدر المخزون canonical يعيد dataStatus ولا يعيد asOf؛ الواجهة أصبحت تفرق بين حالة الحساب وغياب freshness بدل تصنيع timestamp.
+TEST: final Exact SHA 29603d49ce64fdaa4b801ba7e5133720a050fa83: test:inventory-report-truth PASS; test:purchases-report-truth PASS; test:financial-report-truth PASS; test:receivables-report-truth PASS; test:reports-center-truth PASS; test:executive-report-product-contract PASS; test:report-execution-foundation PASS; test:ui-route-sidebar-parity PASS (35 routes / 34 sidebar links); typecheck PASS; lint PASS (0 errors / 59 existing warnings); build PASS (2808 modules, 17.10s); perf:budget PASS (critical 487.2KB / largest JS 487.8KB).
+RESULT: verified after commit on Exact SHA; no RPC/DB/Runner/Auth/Tenant/Storage/CI mutation.
+COMMIT: 29603d49ce64fdaa4b801ba7e5133720a050fa83
+NEW HEAD: 29603d49ce64fdaa4b801ba7e5133720a050fa83
+STATUS: READY_FOR_HANDOFF
+
+HANDOFF
+FROM: OWNER 1
+TARGET: OWNER 2
+BRANCH: feat/owner1-inventory-truth-wave11-20260919
+SHA: 29603d49ce64fdaa4b801ba7e5133720a050fa83
+CHANGED: Inventory report truth context + reusable TruthContextStrip freshness-label support + regression guard.
+VERIFIED: affected product contracts, route parity, typecheck, lint, build, and performance budget PASS on final Exact SHA.
+UNPROVEN: authenticated browser behavior; backend/runtime/DB/RLS/persistence/CI/CD/release certification remain Owner 2 scope.
+BLOCKERS: لا يوجد blocker تطبيقي في هذه الجبهة.
+NEXT: integrate/rebase/cherry-pick Exact SHA 29603d49ce64fdaa4b801ba7e5133720a050fa83 and reprove inventory/browser/runtime/release gates on the merged Exact SHA; do not transfer evidence across SHAs.
+
+CLOSE
+HEAD: 29603d49ce64fdaa4b801ba7e5133720a050fa83
+DONE: Wave 11 inventory truth integrity completed and handed off.
+OPEN: Owner 2 integration/runtime/release proof; next Owner 1 front remains independent product/UI hardening.
+BLOCKED: none.
