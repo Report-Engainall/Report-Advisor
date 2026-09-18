@@ -39,6 +39,8 @@
 - Browser visual/console E2E is not claimed from this environment; TinyFish live automation remains externally blocked. Runtime certification remains owned by Engineering and fail-closed.
 
 ### COMMERCIAL / MARKET LEADERSHIP GOVERNANCE — 2026-09-18
+- **Exact commercial UI code proof:** `df39810a8a172cb7c66377d2fed84a0edeb081ff` verified on PC01: typecheck PASS; Proposal Demo commercial-proof contract PASS (16 capabilities); production build PASS; performance budget PASS (critical 890.9KB/900KB, largest JS 488KB/600KB); lint PASS with 0 errors / 62 warnings.
+- **Market validation snapshot (external, current):** recent Upwork listings show live demand for Supabase/RLS tenant-isolation reviews, SQL/BI dashboards, Excel/CSV→PostgreSQL import automation, and Arabic RTL SaaS work. These are validation signals for the selective tracks, not evidence that the product must add those features. 
 - Added `docs/COMPETITIVE-ADVANTAGE-OPERATING-SYSTEM-20260918.md` as the governing commercial/product strategy layer.
 - Added `docs/UPWORK-MARKET-REQUIREMENTS-20260918.md` with 45 market-to-product requirements.
 - Added `docs/UPWORK-BID-ENGINE-20260918.md` defining the Evidence-First commercial control plane: DISCOVER → SCREEN → FIT-MAP → PROOF-MAP → GAP-MAP → OFFER → DEMO → PROPOSAL → FOLLOW-UP → INTERVIEW → DELIVERY → OUTCOME → PORTFOLIO → LEARNING.
