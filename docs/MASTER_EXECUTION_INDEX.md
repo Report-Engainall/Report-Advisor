@@ -1,3 +1,14 @@
+### LIVE EXECUTION UPDATE — 2026-09-18T17:00Z
+- **CURRENT EXACT HEAD:** `9c2740c528b9bc45430e47275415ecd8d2dfe66f` on `feat/aghbari-business-command-system-20260918`.
+- **UI/Product batch completed on this Exact HEAD:** Work Center now has local search plus tenant-keyed Saved Views/reset; saved-view state is local-only and does not create a parallel backend state path.
+- **Performance root-cause fix:** chart runtime was split from the initial bundle through lazy loading. Exact-head performance gate dropped from the `3af00a8` baseline ~911.7KB critical to **486.3KB**, under the 900KB limit; largest JS remains 487.8KB under the 600KB limit.
+- **Exact-head verification:** typecheck PASS; production build PASS; route/sidebar parity PASS (35 routes / 34 sidebar links); executive dashboard UI contract PASS; business control plane contract PASS; Product Wow UI contract PASS; Intelligence product contract PASS; Executive Report product contract PASS; Decision/Intelligence vertical-slice closure PASS; Report Execution Foundation PASS.
+- **Build warnings only:** outdated Browserslist database and known Bluebird eval warning; no build failure.
+- **Runtime/release truth:** no certification transfer. Authenticated browser/business persistence, tenant A/B runtime, storage signed-URL runtime, worker lease/recovery/DLQ, measured backup/restore RPO/RTO, Phase-F live resilience, and production deployed-SHA parity remain governed separately and fail-closed until fresh evidence exists.
+- **Vercel:** provider build-rate-limit remains external; this batch does not treat Vercel status as product/runtime evidence.
+- **Preview path:** exact-head prebuilt Netlify deployment can be used for UI review without invoking the Vercel build service.
+- This update is append-only governance evidence; historical SHA-bound evidence is not transferred.
+
 ### LIVE EXECUTION UPDATE — 2026-09-18T12:35Z
 - **PR #595 Exact HEAD:** `46fd602a6038a6b2b7b4b45bf79e97e1de881adc`.
 - **Fresh PC01 exact-head verification:** typecheck PASS; production build PASS; performance budget **887.7KB / 900KB** and largest JS 487.8KB; UI route/sidebar parity PASS (35/34); executive dashboard UI PASS.
