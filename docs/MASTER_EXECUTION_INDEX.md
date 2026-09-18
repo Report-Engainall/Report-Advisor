@@ -6,20 +6,20 @@
 
 ### CURRENT EXACT HEAD
 - Governed Main: `9bd7243c8864ca5bcf431b14a7c2eb35c698de7c`.
-- Current remediation candidate after rebasing PR #560 onto current Main: `2cf7a63c5d6b814176e822c8d996c76762002975`.
-- PR #560 branch `fix/pdf-structured-runtime-final-20260918` is the active remediation path; the previous wrapper SHA `01f453bf...` is superseded by the rebased candidate and must not carry forward as certification evidence.
+- Current exact candidate: `9dd3c86d00e0df4cb82770e3a99399c3f747d420`.
+- PR #567 is the active open certification path on branch `fix/pdf-structured-runtime-final-20260918`; PR #560 was closed during the forced branch rebind and is historical only.
 - The autonomous operating protocol remains repository-resident at `docs/PROGRAMMER_AUTONOMOUS_OPERATING_PROTOCOL.md`.
-- Fresh PC01 exact-candidate proof on `2cf7a63c...`: TypeScript typecheck PASS, production build PASS, file-engine behavioral regressions PASS, and 20-stage release-readiness PASS (20/20).
-- The current Main Windows-safe readiness change was retained during rebase; the only conflict was the documentation binding, which was resolved by preserving the newer Main binding rather than transferring stale candidate memory.
+- Fresh PC01 exact-candidate proof on `9dd3c86d...`: 20-stage release readiness PASS (20/20) and Windows-safe production-gate runtime PASS (integrity, typecheck, build).
+- The production-gate runtime Windows fix is now part of the exact candidate; the previous `C:\Program` process-launch defect is closed.
 - No runtime/browser/production evidence from an earlier SHA is promoted by this binding.
-- Fresh exact-head GitHub runtime/certification evidence remains mandatory; queued Actions are not PASS and cannot inherit earlier evidence.
+- Fresh exact-head GitHub PDF/OCR, Browser E2E, production-regression evidence, enforcement, and Final Certification remain mandatory.
 - Current-head production deployment/cutover remains NOT PROVEN; no production mutation or alias change was performed.
 
 ### CURRENT EXECUTION CONTROL — 2026-09-18
 - PR #533 remains the repository-resident continuous execution/resume protocol and is governance-only.
-- Structured PDF/file-engine front is revalidated on the rebased candidate: file-engine regression PASS and build/typecheck PASS. The real Supabase-backed PDF regression still requires GitHub CI secrets; PC01 has no `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY` environment variables and no fake values were used.
+- Structured PDF/file-engine regression was PASS on the immediately preceding candidate before the CI-script-only patch; it is deliberately not promoted to `9dd3c86d...`. The required fresh PDF/OCR run remains GitHub-bound because PC01 cannot expose the real CI secret safely through the local command boundary.
 - Canonical import server-boundary remediation and worker service-role authority reconciliation remain part of the current candidate. The existing durable runner/RPC architecture was retained; the runner was not rewritten.
-- Current exact-candidate repository readiness is strong, but authenticated business E2E, fresh PDF/OCR runtime with real Supabase configuration, current-head Browser/Certification evidence, and current-head production/deployment verification remain open.
+- The exact-candidate repository readiness suite is PASS, but authenticated business E2E, fresh exact-head PDF/OCR runtime, current-head Browser/Certification evidence, and current-head production/deployment verification remain open.
 - Rule: do not restart closed work or transfer evidence across SHA boundaries.
 - Rule: independent fronts must run in parallel; queued CI or external provider blockers must not idle repository-side execution.
 
