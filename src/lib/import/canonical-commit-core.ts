@@ -1,5 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { assertCanonicalBoundary, type ReconciledCanonicalImportRow } from './canonical-truth-boundary';
+import { assertCanonicalBoundary, type ReconciledCanonicalImportRow } from './canonical-truth-boundary.js';
 
 export interface CanonicalCommitResult {
   committed: number;
