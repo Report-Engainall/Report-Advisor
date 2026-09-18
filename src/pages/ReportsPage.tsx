@@ -13,9 +13,51 @@ import { downloadReportArtifact } from '@/lib/report-execution/download';
 import type { SalesInvoice, PurchaseInvoice } from '@/lib/types';
 import type { DashboardKPIs, MonthlyTrend, TopEntity, CategoryBreakdown, AgingBucket, InventoryReportRow } from '@/lib/dashboard-canonical';
 
-const reportCards=[{path:'/reports/sales',title:'تقرير المبيعات',desc:'تحليل تفصيلي للمبيعات حسب الفترة والعميل والمنتج',icon:ShoppingCart,color:'primary'},{path:'/reports/purchases',title:'تقرير المشتريات',desc:'تحليل المشتريات حسب المورد والفترة',icon:FileBarChart,color:'accent'},{path:'/reports/inventory',title:'تقرير المخزون',desc:'حالة المخزون والحركات والتقييم',icon:Package,color:'success'},{path:'/reports/receivables',title:'تقرير الذمم والتحصيل',desc:'تحليل الذمم المدينة وأعمار الفواتير',icon:Receipt,color:'warning'},{path:'/reports/profitability',title:'تقرير الأرباح والربحية',desc:'تحليل الربحية حسب المنتج والعميل والفئة',icon:TrendingUp,color:'primary'}];
-function errorMessage(error:unknown):string{return error instanceof Error?error.message:'تعذر تحميل التقرير';}
-export function ReportsCenterPage(){return <div className="space-y-6 animate-fade-in"><PageHeader title="مركز التقارير" subtitle="تقارير شاملة قابلة للتصدير والتحليل"/><div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">{reportCards.map(r=><Link key={r.path} to={r.path}><Card hover className="h-full"><CardBody><div className="flex items-start gap-3"><div className={`w-11 h-11 rounded-xl bg-${r.color}-50 text-${r.color}-600 flex items-center justify-center flex-shrink-0`}><r.icon size={20}/></div><div><h3 className="font-semibold text-ink-800 text-sm">{r.title}</h3><p className="text-xs text-ink-500 mt-1">{r.desc}</p></div></div></CardBody></Card></Link>)}</div></div>;}
+const reportCards = [
+  { path:'/reports/sales', title:'المبيعات', stage:'قياس', desc:'حركة المبيعات والفواتير والعملاء والمنتجات.', icon:ShoppingCart, iconClass:'bg-primary-50 text-primary-600' },
+  { path:'/reports/purchases', title:'المشتريات', stage:'مصدر', desc:'المشتريات والموردون والتدفقات الداخلة.', icon:FileBarChart, iconClass:'bg-accent-50 text-accent-600' },
+  { path:'/reports/inventory', title:'المخزون', stage:'دليل', desc:'الكمية والتكلفة والقيمة والحالات غير المكتملة.', icon:Package, iconClass:'bg-success-50 text-success-600' },
+  { path:'/reports/receivables', title:'الذمم والتحصيل', stage:'قرار', desc:'الذمم وأعمار الاستحقاق ومتابعة التحصيل.', icon:Receipt, iconClass:'bg-warning-50 text-warning-600' },
+  { path:'/reports/profitability', title:'الربحية', stage:'قرار', desc:'هوامش الربحية حسب المنتج والعميل والفئة.', icon:TrendingUp, iconClass:'bg-primary-50 text-primary-600' },
+];
+
+export function ReportsCenterPage() {
+  return <div dir="rtl" className="space-y-6 animate-fade-in pb-10">
+    <PageHeader title="مركز التقارير" subtitle="منظومة التقارير التنفيذية: كل رقم يعود إلى مصدره، وكل تفسير يبقى منفصلًا عن حقيقة البيانات."/>
+    <section className="rounded-3xl bg-ink-950 p-6 text-white lg:p-8">
+      <div className="grid gap-6 lg:grid-cols-[1.4fr_.6fr] items-end">
+        <div>
+          <div className="text-xs font-semibold text-primary-300">بيانات → دليل → قرار</div>
+          <h1 className="mt-2 text-2xl font-bold lg:text-3xl">التقرير ليس شاشة أرقام؛ إنه حزمة أدلة قابلة للمراجعة.</h1>
+          <p className="mt-3 max-w-3xl text-sm leading-7 text-ink-300">استخدم التقارير لتفسير الحالة الحالية، مع الحفاظ على مؤشرات نقص البيانات والحالات غير القابلة للحساب بدل إخفائها.</p>
+        </div>
+        <div className="rounded-2xl border border-ink-700 bg-white/5 p-4 text-sm">
+          <div className="font-semibold">قاعدة العرض</div>
+          <div className="mt-2 text-xs leading-6 text-ink-300">مصدر واضح · حالة بيانات واضحة · لا رقم بديل عند غياب المصدر</div>
+        </div>
+      </div>
+    </section>
+    <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+      {reportCards.map((r) => <Link key={r.path} to={r.path} className="group">
+        <Card className="h-full overflow-hidden transition hover:-translate-y-1 hover:shadow-xl">
+          <CardBody>
+            <div className="flex items-start gap-4">
+              <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl ${r.iconClass}`}><r.icon size={20}/></div>
+              <div className="min-w-0 flex-1">
+                <div className="mb-2 flex items-center justify-between gap-2">
+                  <span className="rounded-full bg-ink-50 px-2.5 py-1 text-[10px] font-bold text-ink-500">{r.stage}</span>
+                  <span className="text-xs text-ink-400 group-hover:text-primary-600">فتح التقرير ←</span>
+                </div>
+                <h3 className="text-base font-bold text-ink-900">{r.title}</h3>
+                <p className="mt-1 text-xs leading-6 text-ink-500">{r.desc}</p>
+              </div>
+            </div>
+          </CardBody>
+        </Card>
+      </Link>)}
+    </div>
+  </div>;
+}
 
 export function SalesReportPage(){const [snapshot,setSnapshot]=useState<Awaited<ReturnType<typeof fetchDashboardSnapshot>>|null>(null);const [invoices,setInvoices]=useState<SalesInvoice[]>([]);const [loading,setLoading]=useState(true);const [error,setError]=useState<string|null>(null);const load=useCallback(async()=>{try{setLoading(true);const [snap,inv]=await Promise.all([fetchDashboardSnapshot(6),fetchSalesInvoices(0,20)]);setSnapshot(snap);setInvoices(inv.data);}catch(e){setError(errorMessage(e));}finally{setLoading(false);}},[]);useEffect(()=>{void load();},[load]);if(loading)return <LoadingState/>;if(error)return <ErrorState message={error} onRetry={load}/>;if(!snapshot)return null;const {kpis,trend,topCustomers,topProducts,categories}=snapshot;const exportSales=async()=>{const rows=await fetchSalesExportRows();downloadReportArtifact('sales-report','تقرير المبيعات',['رقم الفاتورة','العميل','التاريخ','الإجمالي','المدفوع','الحالة'],rows.map(r=>({'رقم الفاتورة':r.invoice_number,'العميل':r.customer,'التاريخ':r.invoice_date,'الإجمالي':r.total,'المدفوع':r.paid_amount,'الحالة':r.status})));};return <div className="space-y-6 animate-fade-in"><PageHeader title="تقرير المبيعات" subtitle="تحليل شامل لأداء المبيعات" actions={<button onClick={()=>void exportSales()} className="btn-secondary text-xs">تصدير XLSX</button>}/><div className="grid grid-cols-2 lg:grid-cols-4 gap-4"><Card><CardBody><div className="text-xs text-ink-500 mb-1">إجمالي المبيعات</div><div className="text-xl font-bold text-ink-900">{formatCurrency(kpis.totalSales)}</div></CardBody></Card><Card><CardBody><div className="text-xs text-ink-500 mb-1">عدد الفواتير</div><div className="text-xl font-bold text-ink-900">{formatNumber(kpis.invoiceCount)}</div></CardBody></Card><Card><CardBody><div className="text-xs text-ink-500 mb-1">متوسط قيمة الفاتورة</div><div className="text-xl font-bold text-ink-900">{formatCurrency(kpis.avgInvoiceValue)}</div></CardBody></Card><Card><CardBody><div className="text-xs text-ink-500 mb-1">معدل التحصيل</div><div className="text-xl font-bold text-ink-900">{kpis.collectionRate==null?'—':`${kpis.collectionRate.toFixed(1)}%`}</div></CardBody></Card></div><div className="grid grid-cols-1 lg:grid-cols-3 gap-4"><Card className="lg:col-span-2"><CardHeader title="اتجاه المبيعات" subtitle="آخر 6 أشهر"/><CardBody><TrendChart data={trend}/></CardBody></Card><Card><CardHeader title="المبيعات حسب الفئة"/><CardBody><CategoryPieChart data={categories}/></CardBody></Card></div><div className="grid grid-cols-1 lg:grid-cols-2 gap-4"><Card><CardHeader title="أفضل العملاء"/><CardBody><HorizontalBarChart data={topCustomers.slice(0,10)} dataKey="value" nameKey="name" height={300}/></CardBody></Card><Card><CardHeader title="أفضل المنتجات"/><CardBody><HorizontalBarChart data={topProducts.slice(0,10)} dataKey="value" nameKey="name" height={300}/></CardBody></Card></div><Card><CardHeader title="آخر الفواتير" subtitle="20 فاتورة الأخيرة"/><DataTable columns={[{key:'invoice_number',label:'رقم الفاتورة',render:(r:SalesInvoice)=><span className="font-medium text-primary-600">{r.invoice_number}</span>},{key:'customer',label:'العميل',render:(r:SalesInvoice)=>r.customer?.name||'—'},{key:'invoice_date',label:'التاريخ',render:(r:SalesInvoice)=>formatDate(r.invoice_date)},{key:'total',label:'الإجمالي',align:'right',render:(r:SalesInvoice)=>formatCurrency(r.total)},{key:'paid_amount',label:'المدفوع',align:'right',render:(r:SalesInvoice)=>formatCurrency(r.paid_amount)},{key:'status',label:'الحالة',align:'center',render:(r:SalesInvoice)=>{const map:Record<string,{variant:'success'|'primary'|'neutral';label:string}>={paid:{variant:'success',label:'مدفوعة'},confirmed:{variant:'primary',label:'مؤكدة'},draft:{variant:'neutral',label:'مسودة'}};const status=map[r.status]??{variant:'neutral',label:r.status};return <Badge variant={status.variant}>{status.label}</Badge>;}}]} data={invoices}/></Card></div>;}
 
