@@ -166,7 +166,8 @@ async function login(targetPage, email, password) {
 async function authenticatedTenantId(targetPage) {
   if (!supabaseURL || !supabaseAnonKey) throw new Error('SUPABASE_RUNTIME_ENV_MISSING');
   let lastError = null;
-  for (let attempt = 1; attempt <= 10; attempt += 1) {
+  const transientStatuses = new Set([429, 502, 503, 504, 520, 544]);
+  for (let attempt = 1; attempt <= 8; attempt += 1) {
     try {
       return await targetPage.evaluate(async ({ url, anonKey }) => {
         const entry = Object.entries(localStorage).find(([key]) => key.endsWith('-auth-token'))?.[1];
@@ -186,7 +187,11 @@ async function authenticatedTenantId(targetPage) {
       }, { url: supabaseURL, anonKey: supabaseAnonKey });
     } catch (error) {
       lastError = error;
-      if (attempt < 10) await new Promise(resolve => setTimeout(resolve, 400));
+      if (attempt < 8 && (String(error?.message || '').includes('CURRENT_COMPANY_ID_HTTP_') && transientStatuses.has(Number(String(error?.message || '').match(/CURRENT_COMPANY_ID_HTTP_(\d+)/)?.[1] || 0)))) {
+        await new Promise(resolve => setTimeout(resolve, Math.min(1000 * 2 ** (attempt - 1), 8000)));
+      } else if (attempt < 8) {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
     }
   }
   throw lastError || new Error('BROWSER_SESSION_CONVERGENCE_FAILED');
