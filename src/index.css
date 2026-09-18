@@ -15,6 +15,8 @@ button,input,textarea,select{font:inherit}
 @layer components{
 .card{@apply rounded-[12px] border border-ink-200 bg-white shadow-card}
 .card-hover{@apply transition-[border-color,box-shadow,transform] duration-150 hover:-translate-y-px hover:border-ink-300 hover:shadow-card-hover}
+.card > .card-body-divider{@apply border-t border-ink-100}
+.card-subtle{@apply rounded-[10px] border border-ink-100 bg-ink-50/60}
 .btn{@apply inline-flex items-center justify-center gap-2 rounded-[9px] px-3.5 py-2.5 text-sm font-semibold transition-[background-color,border-color,color,box-shadow] duration-150 disabled:cursor-not-allowed disabled:opacity-50}
 .btn-primary{@apply btn bg-primary-700 text-white shadow-sm hover:bg-primary-800 active:bg-primary-900}
 .btn-secondary{@apply btn border border-ink-200 bg-white text-ink-700 hover:border-ink-300 hover:bg-ink-50 hover:text-ink-900}
@@ -47,6 +49,29 @@ button,input,textarea,select{font:inherit}
 @layer components {
   .report-page{color:#18181b}
   .print-hide{}
+  .page-surface{@apply rounded-[12px] border border-ink-200 bg-white}
+  .hero-surface{@apply rounded-[14px] border border-ink-200 bg-white shadow-card}
+  .hero-surface-soft{@apply rounded-[14px] border border-primary-100 bg-primary-50/45}
+  .filter-toolbar{@apply flex flex-wrap items-center gap-2 rounded-[10px] border border-ink-200 bg-ink-50/70 p-1.5}
+  .filter-chip{@apply inline-flex items-center justify-center rounded-[7px] px-3 py-1.5 text-[11px] font-bold text-ink-600 transition-colors}
+  .filter-chip-active{@apply bg-white text-ink-950 shadow-sm ring-1 ring-ink-200}
+  .icon-button{@apply inline-flex h-9 w-9 items-center justify-center rounded-[8px] border border-ink-200 bg-white text-ink-500 transition-colors hover:border-ink-300 hover:bg-ink-50 hover:text-ink-950}
+  .report-meta{@apply flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-ink-100 pt-3 text-[10px] font-semibold text-ink-400}
+  .report-meta > span{@apply inline-flex items-center gap-1.5}
+  .insight-callout{@apply rounded-[10px] border border-primary-100 bg-primary-50/55 p-4}
+  .warning-callout{@apply rounded-[10px] border border-warning-200 bg-warning-50/65 p-4}
+  .danger-callout{@apply rounded-[10px] border border-danger-200 bg-danger-50/65 p-4}
+  .data-table-shell{@apply border border-ink-200 bg-white}
+  .data-table-shell:focus-within{@apply ring-4 ring-primary-500/10}
+  .stage-pill{@apply rounded-[8px] border border-ink-200 bg-white px-3 py-2 text-right transition-colors}
+  .stage-pill-active{@apply border-primary-300 bg-primary-50 text-primary-900 shadow-sm}
+  .quiet-divider{@apply h-px bg-ink-100}
+  .page-grid{@apply grid gap-4}
+  .surface-label{@apply text-[10px] font-black tracking-[0.12em] text-ink-400}
+  .display-number{@apply tabular-nums text-[1.7rem] font-black tracking-[-0.03em] text-ink-950}
+  .muted-value{@apply text-ink-400}
+  .status-line{@apply inline-flex items-center gap-1.5 text-[11px] font-semibold}
+  .status-dot{@apply h-1.5 w-1.5 rounded-full bg-current}
 }
 @media print{
   @page{size:A4;margin:12mm}

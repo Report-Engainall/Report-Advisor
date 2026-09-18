@@ -49,7 +49,7 @@ export function WorkCenterPage() {
   if (loading) return <LoadingState message="جارٍ تحميل حالة العمليات..." />;
   if (error) return <ErrorState message={error} onRetry={load} />;
 
-  return <div dir="rtl" className="space-y-6 animate-fade-in pb-10">
+  return <div dir="rtl" className="space-y-5 animate-fade-in pb-10">
     <PageHeader
       title="مركز العمليات"
       subtitle="منطقة العمل التشغيلية: ما دخل النظام، أين وصل، وما الذي يحتاج تدخلًا."
@@ -57,17 +57,17 @@ export function WorkCenterPage() {
     />
 
     <section className="grid gap-4 lg:grid-cols-[1.5fr_1fr]">
-      <Card className="overflow-hidden border-0 bg-ink-950 text-white">
+      <Card className="hero-surface overflow-hidden">
         <CardBody>
           <div className="flex flex-wrap items-start justify-between gap-5">
             <div>
-              <div className="flex items-center gap-2 text-xs font-semibold text-primary-300"><Activity size={15}/> الحقيقة التشغيلية</div>
-              <h2 className="mt-2 text-xl font-bold">كل عملية مرتبطة بمصدر وحالة فعلية</h2>
-              <p className="mt-2 max-w-2xl text-sm leading-6 text-ink-300">هذه الصفحة تقرأ حالة الاستيراد المعتمدة فقط؛ لا تنشئ حالة بديلة ولا تعتبر العرض المحلي دليلًا على نجاح قاعدة البيانات.</p>
+              <div className="flex items-center gap-2 text-xs font-semibold text-primary-700"><Activity size={15}/> الحقيقة التشغيلية</div>
+              <h2 className="mt-2 text-xl font-black tracking-tight text-ink-950">كل عملية مرتبطة بمصدر وحالة فعلية</h2>
+              <p className="mt-2 max-w-2xl text-[12px] leading-6 text-ink-500">هذه الصفحة تقرأ حالة الاستيراد المعتمدة فقط؛ لا تنشئ حالة بديلة ولا تعتبر العرض المحلي دليلًا على نجاح قاعدة البيانات.</p>
             </div>
-            <div className="rounded-2xl border border-ink-700 bg-white/5 px-4 py-3 text-xs text-ink-200">
-              <div className="flex items-center gap-2"><ShieldCheck size={15} className="text-primary-300"/> مصدر الحالة</div>
-              <div className="mt-1 font-semibold text-white">Canonical import read path</div>
+            <div className="card-subtle px-4 py-3 text-xs text-ink-600">
+              <div className="flex items-center gap-2 font-bold text-ink-800"><ShieldCheck size={15} className="text-primary-600"/> مصدر الحالة</div>
+              <div className="mt-1 font-semibold text-ink-700">Canonical import read path</div>
             </div>
           </div>
           <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -77,10 +77,10 @@ export function WorkCenterPage() {
               ['المكتملة', counts.completed, CheckCircle2, 'success'],
               ['الفشل / الإلغاء', counts.failed, XCircle, 'danger'],
             ] as const).map(([label, value, Icon]) => (
-              <button key={label} type="button" onClick={() => setFilter(label === 'النشطة' ? 'active' : label === 'المراجعة' ? 'review' : label === 'المكتملة' ? 'completed' : 'failed')} className="rounded-2xl border border-ink-800 bg-white/5 p-3 text-right transition hover:bg-white/10">
-                <Icon size={16} className="mb-2 text-primary-300"/>
-                <div className="text-2xl font-bold">{formatNumber(value)}</div>
-                <div className="mt-1 text-[11px] text-ink-300">{label}</div>
+              <button key={label} type="button" onClick={() => setFilter(label === 'النشطة' ? 'active' : label === 'المراجعة' ? 'review' : label === 'المكتملة' ? 'completed' : 'failed')} className="card-subtle p-3 text-right transition-colors hover:border-ink-300 hover:bg-white">
+                <Icon size={16} className="mb-2 text-primary-600"/>
+                <div className="display-number text-[1.45rem]">{formatNumber(value)}</div>
+                <div className="mt-1 text-[11px] font-semibold text-ink-500">{label}</div>
               </button>
             ))}
           </div>
