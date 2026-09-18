@@ -1,7 +1,7 @@
-import type { ReportExecutionEvidence, ReportExecutionRequest, ReportExecutionResult } from './report-execution-contract';
-import { fingerprintRequest, IdempotencyRegistry } from './idempotency';
-import { assertNoQuarantine, assertReportExecutionReady, type ExecutionGateInput } from './execution-gate';
-import { InMemoryReportQueue } from './queue';
+import type { ReportExecutionEvidence, ReportExecutionRequest, ReportExecutionResult } from './report-execution-contract.js';
+import { fingerprintRequest, IdempotencyRegistry } from './idempotency.js';
+import { assertNoQuarantine, assertReportExecutionReady, type ExecutionGateInput } from './execution-gate.js';
+import { InMemoryReportQueue } from './queue.js';
 
 export interface ExecutionLedgerRecord extends ReportExecutionEvidence { requestFingerprint: string; immutable: true; }
 

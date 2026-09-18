@@ -1,5 +1,5 @@
-import { assertGovernedRoute, type GovernedRoutePlan } from '../import-pipeline/governed-route-plan';
-import { assertExecutionRequest, type ReportExecutionRequest } from './report-execution-contract';
+import { assertGovernedRoute, type GovernedRoutePlan } from '../import-pipeline/governed-route-plan.js';
+import { assertExecutionRequest, type ReportExecutionRequest } from './report-execution-contract.js';
 
 export interface ExecutionGateInput { request: ReportExecutionRequest; routePlan: GovernedRoutePlan; sourceSnapshotId: string; }
 

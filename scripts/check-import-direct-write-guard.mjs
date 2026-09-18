@@ -10,6 +10,10 @@ for (const target of targets) {
   if (!fs.existsSync(file)) continue;
   const text = fs.readFileSync(file, 'utf8');
   if (forbidden.test(text)) violations.push(target);
+  if (target === 'src/pages/CanonicalImportPage.tsx') {
+    if (/\bupdateImportRecord\s*\(/.test(text)) violations.push(`${target}:updateImportRecord`);
+    if (!text.includes("supabase.rpc('import_finish_job'")) violations.push(`${target}:import_finish_job`);
+  }
 }
 
 if (violations.length) {

@@ -39,7 +39,12 @@ function runCommand(key) {
   const started = Date.now();
   if (key.startsWith('npm:')) {
     const script = key.slice(4);
-    result = spawnSync('npm', ['run', script], { encoding: 'utf8' });
+    if (process.platform === 'win32') {
+      const commandShell = process.env.ComSpec ?? 'cmd.exe';
+      result = spawnSync(commandShell, ['/d', '/s', '/c', `npm.cmd run ${script}`], { encoding: 'utf8' });
+    } else {
+      result = spawnSync('npm', ['run', script], { encoding: 'utf8' });
+    }
   } else if (key.startsWith('node:')) {
     const args = key.slice(5).trim().split(/\s+/);
     result = spawnSync('node', args, { encoding: 'utf8' });

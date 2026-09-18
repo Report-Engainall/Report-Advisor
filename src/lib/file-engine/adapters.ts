@@ -98,15 +98,31 @@ function tryParseStructuredPdfText(text: string): Row[] | null {
   const embedded = extractEmbeddedJson(compact);
   if (embedded !== null) candidates.push(embedded);
 
+  const normalizeStructuredRecord = (record: Row): Row => {
+    const normalizedRecord: Row = { ...record };
+    for (const field of ['subtotal', 'tax_amount', 'total', 'paid_amount']) {
+      const value = normalizedRecord[field];
+      if (typeof value === 'string') normalizedRecord[field] = normalizeStructuredDocumentValue(value);
+    }
+    if (typeof normalizedRecord.invoice_date === 'string') {
+      normalizedRecord.invoice_date = normalizeArabicDigits(normalizedRecord.invoice_date);
+    }
+    return normalizedRecord;
+  };
+
   for (const parsed of candidates) {
-    if (isRecord(parsed)) return [parsed];
-    if (Array.isArray(parsed) && parsed.length && parsed.every(isRecord)) return parsed;
+    if (isRecord(parsed)) return [normalizeStructuredRecord(parsed)];
+    if (Array.isArray(parsed) && parsed.length && parsed.every(isRecord)) return parsed.map(normalizeStructuredRecord);
   }
 
   const normalized = normalizeArabicDigits(
-    compact
-      .normalize('NFKC')
-      .replace(/[\u0000-\u001F\u007F]/g, ' ')
+    Array.from(
+      compact.normalize('NFKC'),
+      (character) => {
+        const code = character.charCodeAt(0);
+        return code < 32 && code !== 9 && code !== 10 && code !== 13 ? ' ' : character;
+      },
+    ).join('')
       .replace(/[\u200B-\u200F\u202A-\u202E\uFEFF]/g, ' ')
       .replace(/\s+/g, ' ')
       .trim(),
@@ -159,7 +175,7 @@ function tryParseStructuredPdfText(text: string): Row[] | null {
       setIfPresent(current.key, current.numeric ? normalizeStructuredDocumentValue(value) : value);
     }
     if (row.total === undefined) {
-      const totalMatch = normalized.match(/(?:^|\s)(?:الإجمالي|الاجمالي|total)\s*[:：-]?\s*([\d٠-٩٬،.,\s]+)/i);
+      const totalMatch = normalized.match(/(?:^|\s)(?:الإجمالي|الاجمالي|\btotal\b)\s*[:：-]?\s*([\d٠-٩٬،.,\s]+)/i);
       setIfPresent('total', normalizeStructuredDocumentValue(totalMatch?.[1] ?? ''));
     }
   }
@@ -224,12 +240,45 @@ const PDF_OCR_MAX_PAGES = 20;
 
 const PDF_OCR_MAX_DIMENSION = 2200;
 const PDF_OCR_SCALE = 1.5;
+type PromiseConstructorWithTry = PromiseConstructor & { try?: (fn: (...args: unknown[]) => unknown, ...args: unknown[]) => Promise<unknown> };
+type Uint8ArrayWithToHex = Uint8Array & { toHex?: () => string };
+
+function ensurePdfJsRuntimeCompatibility(): void {
+  const uint8ArrayPrototype = Uint8Array.prototype as Uint8ArrayWithToHex;
+  if (typeof uint8ArrayPrototype.toHex !== 'function') {
+    Object.defineProperty(Uint8Array.prototype, 'toHex', {
+      configurable: true,
+      writable: true,
+      value: function toHex(this: Uint8Array): string {
+        return Array.from(this, (byte) => byte.toString(16).padStart(2, '0')).join('');
+      },
+    });
+  }
+
+  const promiseConstructor = Promise as PromiseConstructorWithTry;
+  if (typeof promiseConstructor.try !== 'function') {
+    Object.defineProperty(Promise, 'try', {
+      configurable: true,
+      writable: true,
+      value: (fn: (...args: unknown[]) => unknown, ...args: unknown[]) =>
+        new Promise((resolve, reject) => {
+          try { resolve(fn(...args)); } catch (error) { reject(error); }
+        }),
+    });
+  }
+}
+
 async function parsePdfText(buffer: ArrayBuffer, fileName: string): Promise<Dataset[]> {
+  ensurePdfJsRuntimeCompatibility();
   const pdfjs = await import('pdfjs-dist');
   if (typeof window !== 'undefined') {
     pdfjs.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.mjs', import.meta.url).toString();
   }
-  const pdf: PdfDocument = await pdfjs.getDocument({ data: new Uint8Array(buffer) }).promise; const pages: string[] = [];
+  const pdf: PdfDocument = await pdfjs.getDocument({
+    data: new Uint8Array(buffer),
+    useSystemFonts: true,
+  }).promise;
+  const pages: string[] = [];
   for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) { const page = await pdf.getPage(pageNumber); const content = await page.getTextContent(); const text = content.items.map((item) => 'str' in item && typeof item.str === 'string' ? item.str : '').filter(Boolean).join(' '); if (text.trim()) pages.push(`PAGE ${pageNumber}\n${text}`); }
   if (pages.length) return buildTextDataset(pages.join('\n\n'), fileName, 'pdf');
   return parseScannedPdfWithOcr(pdf, fileName);
