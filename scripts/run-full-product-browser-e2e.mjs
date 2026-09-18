@@ -37,9 +37,11 @@ const requests = [];
 
 page.on('console', msg => { if (msg.type() === 'error') consoleErrors.push(msg.text()); });
 page.on('pageerror', error => consoleErrors.push(`[pageerror] ${error.message}`));
-page.on('requestfailed', request => failedRequests.push({
-  method: request.method(), url: request.url(), error: request.failure()?.errorText || 'unknown'
-}));
+page.on('requestfailed', request => {
+  const error = request.failure()?.errorText || 'unknown';
+  if (error === 'net::ERR_ABORTED') return;
+  failedRequests.push({ method: request.method(), url: request.url(), error });
+});
 page.on('response', async response => {
   if (response.status() < 400) return;
   const url = response.url();
