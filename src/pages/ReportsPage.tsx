@@ -4,6 +4,7 @@ import { FileBarChart, ShoppingCart, Package, Receipt, TrendingUp } from 'lucide
 import { Card, CardHeader, CardBody } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { PageHeader, LoadingState, ErrorState } from '@/components/ui/States';
+import { TruthContextStrip } from '@/components/TruthContextStrip';
 import { DataTable } from '@/components/ui/DataTable';
 import { TrendChart, HorizontalBarChart, CategoryPieChart } from '@/components/ui/Charts';
 import { fetchDashboardSnapshot, fetchInventoryReportSnapshot } from '@/lib/dashboard-canonical';
@@ -26,22 +27,89 @@ const reportCards = [
 ];
 
 export function ReportsCenterPage() {
+  const [snapshot, setSnapshot] = useState<Awaited<ReturnType<typeof fetchDashboardSnapshot>> | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const load = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      setSnapshot(await fetchDashboardSnapshot(6));
+    } catch (cause) {
+      setError(errorMessage(cause));
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { void load(); }, [load]);
+
+  if (loading) return <LoadingState message="جارٍ بناء مخرجات القرار من اللقطة الكانونية..." />;
+  if (error) return <ErrorState message={error} onRetry={() => void load()} />;
+  if (!snapshot) return null;
+
+  const { kpis, asOf, months } = snapshot;
+  const coverageValues = [
+    kpis.totalSales,
+    kpis.grossProfit,
+    kpis.totalReceivables,
+    kpis.inventoryValue,
+    kpis.totalCustomers,
+    kpis.totalProducts,
+    kpis.invoiceCount,
+    kpis.collectionRate,
+  ];
+  const coverage = Math.round((coverageValues.filter(value => value !== null).length / coverageValues.length) * 100);
+  const decisionCards = [
+    { label: 'المبيعات', value: kpis.totalSales, path: '/reports/sales', hint: 'الحركة التجارية والفواتير والعملاء والمنتجات.' },
+    { label: 'الربحية', value: kpis.grossProfit, path: '/reports/profitability', hint: 'الإيراد والتكلفة والهامش قبل القرار.' },
+    { label: 'الذمم', value: kpis.totalReceivables, path: '/reports/receivables', hint: 'التعرض المالي ومسار التحصيل.' },
+    { label: 'المخزون', value: kpis.inventoryValue, path: '/reports/inventory-intelligence', hint: 'القيمة والتغطية وحالات البيانات غير المكتملة.' },
+  ];
+
   return <div dir="rtl" className="space-y-5 animate-fade-in pb-10">
-    <PageHeader title="مركز التقارير" subtitle="منظومة التقارير التنفيذية: كل رقم يعود إلى مصدره، وكل تفسير يبقى منفصلًا عن حقيقة البيانات."/>
+    <PageHeader
+      title="مركز التقارير"
+      subtitle="مخرجات قرار مرتبطة باللقطة الكانونية؛ التقرير يبدأ من حالة المال والدليل ثم يفتح التفصيل."
+      actions={<button type="button" onClick={() => void load()} className="btn-secondary text-xs">تحديث الصورة</button>}
+    />
+
+    <TruthContextStrip months={months} status={kpis.status} asOf={asOf} />
+
     <section className="rounded-[14px] border border-ink-200 bg-white p-5 shadow-card lg:p-6">
-      <div className="grid gap-6 lg:grid-cols-[1.4fr_.6fr] items-end">
+      <div className="grid gap-5 lg:grid-cols-[1.25fr_.75fr]">
         <div>
-          <div className="section-kicker">بيانات → دليل → قرار</div>
-          <h1 className="mt-1 text-[22px] font-black tracking-tight text-ink-950 lg:text-[28px]">التقرير ليس شاشة أرقام؛ إنه حزمة أدلة قابلة للمراجعة.</h1>
-          <p className="mt-2 max-w-3xl text-[11px] leading-5 text-ink-500">استخدم التقارير لتفسير الحالة الحالية، مع الحفاظ على مؤشرات نقص البيانات والحالات غير القابلة للحساب بدل إخفائها.</p>
+          <div className="section-kicker">بيانات → دليل → قرار → نتيجة</div>
+          <h1 className="mt-1 text-[22px] font-black tracking-tight text-ink-950 lg:text-[28px]">ابدأ من السؤال التجاري، وليس من نوع التقرير.</h1>
+          <p className="mt-2 max-w-3xl text-[11px] leading-5 text-ink-500">
+            هذه المساحة تعكس الحالة الحالية من المصدر الكانوني، ثم تفتح المسار المختص. لا يتم تعويض الرقم المفقود بصفر ولا تُفترض سببية غير موجودة في الدليل.
+          </p>
         </div>
-        <div className="rounded-[10px] border border-ink-200 bg-ink-50 p-4 text-sm">
-          <div className="font-semibold">قاعدة العرض</div>
-          <div className="mt-2 text-[10px] leading-5 text-ink-500">مصدر واضح · حالة بيانات واضحة · لا رقم بديل عند غياب المصدر</div>
+        <div className="rounded-[12px] border border-primary-100 bg-primary-50/60 p-4">
+          <div className="text-[10px] font-black uppercase tracking-[0.12em] text-primary-700">درجة اكتمال الصورة</div>
+          <div className="mt-2 text-3xl font-black tabular-nums text-primary-900">{coverage}%</div>
+          <div className="mt-1 text-[10px] leading-5 text-primary-800/70">٨ مؤشرات أساسية جرى التحقق من وجود قيمة موثوقة لها في اللقطة الحالية.</div>
+          <a href="/data-quality" className="mt-3 inline-flex text-xs font-bold text-primary-700 hover:text-primary-900">فحص حدود الدليل ←</a>
         </div>
       </div>
     </section>
-    <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+
+    <section aria-label="مخرجات القرار الحالية" className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      {decisionCards.map(card => (
+        <Link key={card.path} to={card.path} className="group rounded-[14px] border border-ink-200 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-primary-200 hover:shadow-card">
+          <div className="flex items-center justify-between gap-3">
+            <span className="text-xs font-bold text-ink-500">{card.label}</span>
+            <span className="text-[10px] font-bold text-primary-600 transition group-hover:translate-x-0.5">فتح المسار ←</span>
+          </div>
+          <div className="mt-3 text-xl font-black tabular-nums text-ink-950">{formatCurrency(card.value)}</div>
+          <p className="mt-2 text-[10px] leading-5 text-ink-400">{card.hint}</p>
+          <div className="mt-3 border-t border-ink-100 pt-2 text-[10px] font-semibold text-ink-400">الحالة: {kpis.status === 'CONFIRMED' ? 'مصدر مؤكد' : kpis.status === 'CALCULATED' ? 'محسوب من المصدر' : 'بيانات غير كافية'}</div>
+        </Link>
+      ))}
+    </section>
+
+    <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
       {reportCards.map((r) => <Link key={r.path} to={r.path} className="group">
         <Card className="h-full overflow-hidden transition hover:-translate-y-1 hover:shadow-xl">
           <CardBody>
@@ -59,7 +127,7 @@ export function ReportsCenterPage() {
           </CardBody>
         </Card>
       </Link>)}
-    </div>
+    </section>
   </div>;
 }
 
