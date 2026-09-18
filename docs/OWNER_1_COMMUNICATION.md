@@ -791,3 +791,31 @@ FILES / SURFACES: src/pages/OnboardingPage.tsx; scripts/check-onboarding-commerc
 DEPENDENCIES: fetchDashboardSnapshot/fetchDashboardIntelligence/fetchDataQualitySnapshot الحالية؛ لا RPC/DB/Runner جديد ولا تغيير Auth/Tenant/Storage/CI.
 BLOCKERS: لا يوجد blocker تطويري معروف.
 EXPECTED HANDOFF: Owner 2 يعيد إثبات Onboarding/browser/runtime/RLS/persistence/release gates على Exact SHA؛ لا نقل Evidence بين SHAs.
+
+EXECUTION
+CHANGE: استعادة snapshot التنفيذي canonical في Onboarding من fetchDashboardSnapshot/fetchDashboardIntelligence الموجودين أصلًا، وإظهار TruthContextStrip وحالة المصدر/المجال الزمني الحقيقي، مع fallback صريح عند غياب الدليل.
+FILES: src/pages/OnboardingPage.tsx; scripts/check-onboarding-commercial-truth-contract.mjs; package.json.
+WHY: شاشة البدء كانت تعطي مسار تجهيز فقط دون صورة تجارية حية رغم توفر مصادر canonical موثوقة؛ تم ربطها بالمصدر الحقيقي دون أرقام تجريبية أو API جديد.
+TEST: final Exact SHA ec462ff220dc778bb5345f44f07a72f3a890adc4: test:onboarding-commercial-truth PASS; test:dashboard-critical-load PASS; test:executive-dashboard-ui PASS; test:intelligence-product-contract PASS; test:decision-experience-trust PASS; route/sidebar parity PASS (35/34); typecheck PASS; lint PASS (0 errors / 59 warnings); build PASS (2808 modules, 18.27s); perf:budget PASS (critical 487.4KB / largest JS 487.8KB).
+RESULT: verified on final feature Exact SHA; no new RPC/DB/Runner/Auth/Tenant/Storage/CI mutation.
+COMMIT: ec462ff220dc778bb5345f44f07a72f3a890adc4
+NEW HEAD: ec462ff220dc778bb5345f44f07a72f3a890adc4
+STATUS: READY_FOR_HANDOFF
+
+HANDOFF
+FROM: OWNER 1
+TARGET: OWNER 2
+BRANCH: feat/owner1-onboarding-commercial-truth-wave17-20260919
+SHA: ec462ff220dc778bb5345f44f07a72f3a890adc4
+CHANGED: Onboarding canonical business snapshot + alerts/recommendations + TruthContextStrip + exact contract guard.
+VERIFIED: Onboarding/Dashboard/Intelligence/Decision UI contracts, route parity, typecheck, lint, build, performance on the feature Exact SHA.
+UNPROVEN: authenticated browser behavior; backend/runtime/DB/RLS/persistence/CI/CD/release certification remain Owner 2 scope.
+BLOCKERS: none in Owner 1 code.
+NEXT: integrate/rebase/cherry-pick Exact SHA ec462ff220dc778bb5345f44f07a72f3a890adc4 and reprove Onboarding/browser/runtime/release gates on merged Exact SHA; no cross-SHA evidence transfer.
+
+CLOSE
+HEAD: ec462ff220dc778bb5345f44f07a72f3a890adc4
+DONE: Wave 17 Onboarding commercial truth integrity completed and handed off.
+OPEN: Owner 2 integration/runtime/release proof; Owner 1 next front remains independent product/UI hardening.
+BLOCKED: none.
+NEXT START: continue independent commercial/data-truth hardening.
