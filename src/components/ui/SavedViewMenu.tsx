@@ -145,7 +145,7 @@ export function SavedViewMenu({ storageKey, value, onApply, onReset, disabled = 
                   type="button"
                   onClick={() => removeView(view.id)}
                   className="rounded-lg p-2 text-ink-300 opacity-0 transition hover:bg-danger-50 hover:text-danger-600 group-hover:opacity-100 focus:opacity-100"
-                  aria-label={\`حذف العرض \${view.name}\`}
+                  aria-label={'حذف العرض ' + view.name}
                   title="حذف العرض"
                 >
                   <Trash2 size={14} />
