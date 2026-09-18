@@ -2,58 +2,64 @@
 
 ## CURRENT EXECUTION BOUNDARY — 2026-09-18
 
-> Authoritative execution manifest. This document never promotes historical evidence across an exact Git `HEAD` boundary. Pair every evidence batch with the exact Git `HEAD` of `main` and the exact environment/commit used.
+> هذا القسم هو حالة العمل الحالية فقط. السجل التاريخي محفوظ أدناه ولا يُعاد منه اعتماد أي Evidence عبر حدود Exact HEAD. لا يوجد تنفيذ برمجي جديد ضمن هذه المزامنة؛ هذه الموجة توثيق/تقسيم ملكية فقط.
 
-### CURRENT EXACT HEAD
-- Current code/test candidate: `3214b8697dcbc1b02de15df4f42439800eb5b2e3` (Netlify deployment configuration added after PR #584).
-- Current Main product/test candidate: `3214b8697dcbc1b02de15df4f42439800eb5b2e3` (PR #584 UI completion plus Netlify SPA build/routing configuration). Work Center, Import framing, and Reports Center now follow the same Arabic RTL evidence-first command-center model. The product shell and shared UI system now follow the agreed Arabic RTL Aghbari command-center model.
-- The autonomous operating protocol is now repository-resident at `docs/PROGRAMMER_AUTONOMOUS_OPERATING_PROTOCOL.md`.
-- PC01 predecessor runtime evidence remains historical; fresh exact-Main runtime/browser/installer evidence for `04dd76f6fdfacb3dbb528f3d3a266df1a6179d18` is required and is not promoted from earlier SHAs.
-- No runtime/browser/production evidence from an earlier SHA is promoted by this binding.
-- The certification binding itself is governance-only and does not certify runtime/product code; fresh exact-HEAD runtime evidence for this candidate is still required.
-- Historical evidence from earlier SHAs remains historical and is not promoted automatically.
-- Post-merge current-head validation for `3214b8697dcbc1b02de15df4f42439800eb5b2e3` is still required; UI source integration and Netlify routing config are merged, but fresh exact-Main runtime/browser evidence remains separate from source completion.
-- Live Vercel state has READY preview deployment evidence for predecessor PR #578 commits, while current-main production cutover remains unproven; no stale deployment is promoted as current production evidence.
-- Current current-head production deployment/cutover is NOT PROVEN; no production mutation or alias change was performed.
-- Vercel preview deployments currently include failures caused by the provider build-rate limit; this external blocker does not justify idling repository-side execution.
+### CURRENT EXACT HEAD / DEPLOYED STATE
+- **Current exact Main HEAD:** `c11c084d161cceb4595f8552b6c49c3f610f0ec2`.
+- **Netlify Production:** `ready` ومربوط بنفس الـHEAD؛ Build `npm run build` نجح، وSPA redirect نجح.
+- **Completed UI wave:** Application Shell + RTL visual system + Dashboard + Login + Work Center + Import framing + Reports Center. هذه الأسطح تُعامل الآن كـ**منجزة مصدرًا** ولا تُعاد كمهام تصميمية أساسية.
+- آخر إصلاح منشور: تصحيح JSX في `src/pages/WorkCenterPage.tsx` بعد خطأ Build، ولا توجد حاجة لإعادة فتح هذا العطل.
+- لا تُستخدم حالة Netlify الناجحة كدليل على Browser/Auth/Business E2E؛ Runtime certification تبقى Exact-HEAD فقط.
 
-### CURRENT EXECUTION CONTROL — 2026-09-18
-- PR #533 adds the mandatory continuous two-owner execution/resume protocol. It is governance-only and does not itself certify runtime.
-- Structured PDF/file-engine runtime front is CLOSED through PR #550. Fresh PC01 Exact-Main proof at predecessor code candidate `c466666cef65d082383aca4fd3384261e9f64690`: file-engine contract PASS, structured PDF/OCR behavioral regression PASS, production build PASS, native desktop smoke PASS. Windows NSIS packaging was attempted on that candidate but exceeded the safe execution window; no exact-main packaging PASS is claimed.
-- Production-coordinator runtime front is CLOSED through PR #556. Current exact candidate `1ed603e1...` was freshly verified on PC01 for `test:production-coordinator-runtime` and `test:production-coordinator-integration`; the 20-stage suite and file-engine regressions/contracts also pass. Durable evidence: `docs/evidence/EXACT_MAIN_RUNTIME_20260918.md`.
-- Coordinator-owned remaining fronts: post-merge exact-Main business/certification evidence, production/deployment verification, live resilience proof, recovery/backup proof, and commercial-gap control.
-- Rule: do not restart closed work. Resume IN_PROGRESS fronts from their last verified checkpoint. Do not mix evidence across SHA boundaries.
-- Rule: independent fronts must run in parallel; a queued CI workflow or external provider blocker must not idle unrelated work.
+### OWNERSHIP SPLIT — START ONLY AFTER OWNER COMMAND
 
-### CURRENT MAIN — MATERIAL FRONT CLOSURE
-- PR #575 — canonical import server-worker boundary/type/contract closure plus storage-runtime test correction — **merged** to Main at `e1c908b2abc0a46f7291c9502a6ff02a7e024c59`.
-- PR #578 — structured PDF runtime normalization/compatibility plus canonical private documents bucket remediation — **merged** to Main at `04dd76f6fdfacb3dbb528f3d3a266df1a6179d18`; fresh exact-Main certification evidence is still pending.
-- PR #584 — Aghbari operating workspace completion (Work Center, Import framing, Reports Center) — **merged** to Main at `f0bcf54fb057ab5d55dd867864fa94b9f4861b5a`; fresh exact-Main runtime/browser/build evidence remains separate from source completion.
-- Netlify deployment configuration — **merged directly to Main** at `3214b8697dcbc1b02de15df4f42439800eb5b2e3`; SPA fallback and `npm run build`/`dist` defaults added. Netlify environment variables remain deployment-time configuration.
+#### A) UI / Product Experience Owner — ChatGPT
+**الاختصاص الكامل:** تطوير الواجهات وتجربة المنتج فقط، مع الالتزام بالمصادر/Adapters/RPCs الحالية وعدم اختراع مسارات بيانات جديدة.
 
-- PR #525 — security exposure checker bound to repository truth — merged.
-- PR #520 — migration/observability parity reconciliation — merged.
-- PR #521 — Phase F readiness classification — merged.
-- PR #522 — authenticated tenant storage isolation proof — merged.
-- PR #524 — Cloudflare Pages compatibility proof — merged.
-- PR #528 — canonical import duplicate identity bound to `canonical_import_commits` before legacy `file_records` fallback — merged.
-- PR #526 — tenant-scoped billing runtime with explicit PUBLIC/anon SECURITY DEFINER revocation and authenticated-only execution — merged.
-- PR #527 — exact-PR-head recovery / Phase F CI evidence enablement — merged.
-- PR #529 — tenant-backed `/work-center` operational surface using the existing import read path — merged.
-- PR #550 — structured PDF/file-engine runtime repair — merged and fresh exact-main PDF verification is recorded.
-- PR #556 — production-coordinator runtime test loader restoration — merged and current exact-head coordinator proof is recorded.
+**المتبقي فقط:**
+1. **موجة UI الشاملة لبقية الأسطح:** Analytics، Data Quality، Intelligence/Intelligence Pages، Executive Command Center/Report، Decision Experience، Inventory Intelligence، Demand Velocity، Alternative Groups، Metric Inspector، Scenario/Scenario Truth Guard، External File Analysis، Onboarding، Company/Profile Settings، وكل الصفحات canonical/report detail غير المغلقة بصريًا.
+2. **توحيد نظام الواجهة:** typography/spacing/surfaces/buttons/forms/tables/badges/tabs/dialogs/empty-loading-error states، RTL، hierarchy، density، visual evidence states.
+3. **مسار المنتج المتكامل:** Source → Evidence → Data → Decision → Action → Outcome داخل الواجهة، مع progressive disclosure وعدم إخفاء نقص البيانات أو حالات review/reject/insufficient-data.
+4. **Command Palette / keyboard-first UX** وربطها فعليًا بالمسارات والإجراءات الموجودة دون اختراع actions backend.
+5. **Saved views / filters / grouping / reset UX** بالاعتماد على المسارات الحالية، مع الحفاظ على tenant scope.
+6. **Mobile + responsive + low-bandwidth:** progressive disclosure، جداول قابلة للاستخدام، عدم الاعتماد على صور ثقيلة، وعدم تحميل الموارد غير المطلوبة للمسار.
+7. **Performance / storage economy للواجهة:** route-level lazy loading، تقسيم chunks، إزالة التكرار والأنماط/المكونات المكررة، عدم إضافة حزم ثقيلة بلا ضرورة، وعدم إدخال assets كبيرة إلى المستودع.
+8. **Accessibility + RTL quality:** focus/keyboard/labels/contrast/reduced-motion، حالات الشاشة الصغيرة، ودعم الاستخدام الفعلي بالعربية.
+9. **Visual QA بعد كل موجة:** exact-head build + route verification + responsive sanity + no console errors في المسارات التي يتم تعديلها؛ لا يُرفع أي UI claim إلى Certification بدون Evidence حقيقي.
 
-### BOUNDARY / GOVERNANCE
-- No rebuild from scratch.
-- No historical migration rewrite.
-- No Production alias mutation or rollback action as part of source reconciliation.
-- No Staging data fixture is treated as certification unless an actual lifecycle is observed.
-- No HTTP 200, UI shell, CI-created run, fixture assertion, simulated JWT, historical deployment, or old SHA can certify the current candidate.
-- External operational blockers do not justify idle work on source reconciliation, contract hardening, test design, or evidence preparation.
-- Recovery boundary: `backup/restore` remains **NOT PROVEN** until an isolated restore drill records measured RPO/RTO, successful application readback, and exact evidence on the current candidate.
+**حدود هذا المسار:** لا تغيير في RPCs، لا Runner جديد، لا fake KPI/data، لا bypass، لا نقل مسؤولية commit إلى الواجهة.
 
-- Browser E2E must use real Chromium, real Supabase authentication, and browser-held sessions; service-role or mocked sessions are prohibited for certification.
+#### B) Engineering / Runtime / Release Owner — Programmer
+**الاختصاص الكامل:** كل ما عدا تطوير الواجهات أعلاه، مع السياسة الصارمة الحالية.
 
+**المتبقي فقط:**
+1. **Fresh exact-HEAD business/browser E2E:** real Chromium + real Supabase auth + Actor A/B + tenant isolation + import/create/read-back/refresh/logout؛ لا mocks ولا service-role browser sessions.
+2. **إغلاق Known Runtime blockers:** آخر 12-scenario runtime كان `10/12` مع فشل `pdf-text` و`pdf-ocr-ar` بسبب `POSITIVE_POLICY_COMMIT_UNAVAILABLE`، إضافة إلى فشل persistence E2E؛ يجب إعادة التحقق على `c11c084...` أو SHA أحدث وعدم نقل أي Evidence قديم.
+3. **PDF/OCR positive-policy commit path:** extraction → normalization → validation → canonical commit → render، باستخدام المسار القائم، بدون إعادة كتابة durable runner.
+4. **Persistence / business truth:** إصلاح السبب الجذري لأي فشل في commit/read-back، والتحقق من DB→UI→refresh truth.
+5. **Migration/source parity:** إغلاق أي live migration/source lineage drift بقي من السجل، بدون rewriting تاريخي.
+6. **Worker resilience:** enqueue → claim → heartbeat/checkpoint → expiry/recovery → retry/DLQ evidence.
+7. **Operational certification:** storage/signed URL، realtime authorization، AI retrieval isolation، backup/restore + measured RPO/RTO، rollback/forward-fix، observability/SLO، security/secret audit.
+8. **Production/release parity:** exact environment variables/config، signed artifact verification، staging dry-run/schema drift، release manifest/canary/stabilization، final fail-closed certification bundle.
+9. **Netlify/public-access verification:** التأكد من أن حماية Netlify الإدارية لا تمنع الوصول المقصود لتطبيق المستخدم؛ لا تغيير في Auth داخل التطبيق ولا تعطيل ضوابطه.
+10. **Resource/storage economy خارج UI:** CI/deployment hygiene، منع artifacts المكررة/الكبيرة في Git، تقليل استهلاك build/deploy حيث لا يمس وظائف المنتج أو Evidence، وعدم حذف أي مصدر أو سجل مطلوب.
+11. **Memory/governance:** بعد كل دفعة تنفيذية، تحديث exact HEAD، evidence، blockers والمالك؛ لا تعاد Audits المغلقة ما لم يتغير SHA أو البيئة أو العقد.
+
+### NON-NEGOTIABLE EXECUTION RULES
+- لا يبدأ أي مسار من هذه القائمة قبل أمر المالك **«انطلق»**.
+- بعد أمر «انطلق» تعمل المساران بالتوازي؛ لا ينتظر أحد المسارين الآخر عند وجود blocker خارجي.
+- ما هو منجز أعلاه لا يعاد كمهام جديدة إلا إذا ظهر Regression على SHA/Environment متغير.
+- كل PASS يجب أن يكون حقيقيًا، exact-HEAD، وقابلًا للتتبع؛ لا historical transfer ولا synthetic evidence.
+- Staging first لأي DB mutation؛ Production mutation ممنوع دون إثبات الهدف والبوابة المناسبة.
+- لا rebuild من الصفر، لا duplicate runner/RPC، ولا fake fixtures في مسارات الاعتماد.
+- الأولوية في توفير المساحة: تقليل تكرار builds/assets/dependencies ورفع الكفاءة قبل إضافة موارد جديدة، مع إبقاء المنتج كاملًا.
+
+### READY STATE FOR NEXT COMMAND
+- **Status:** تخطيط وتقسيم ملكية فقط — **NO EXECUTION STARTED**.
+- **Next owner command:** `انطلق`.
+- عند وصول `انطلق`: ChatGPT يبدأ موجة UI الشاملة، والمبرمج يبدأ كل الأعمال الهندسية/التشغيلية/الشهادات المتبقية أعلاه بالتوازي.
+- لا حاجة لإعادة إرسال هذه التعليمات بعد أمر «انطلق».
+ 
 ## DEEP AUDIT — 2026-09-07
 
 ### Database / Security baseline
