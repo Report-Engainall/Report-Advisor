@@ -37,7 +37,9 @@ export function validateCertificationBoundary({ index, head, parent, changedFile
     'scripts/check-tenant-resolver-lineage.mjs',
     'scripts/check-unified-evidence-action-learning.mjs',
     'scripts/real-business-e2e.mjs',
+    'scripts/local-api-test-server.mjs',
     'scripts/run-full-product-browser-e2e.mjs',
+    '.github/workflows/full-product-browser-e2e.yml',
     '.github/workflows/execution-enforcement-contract.yml',
     '.github/workflows/final-certification-gate.yml',
   ]);
