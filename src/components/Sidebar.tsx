@@ -114,7 +114,7 @@ export function Sidebar({ alertCount = 0, onNavigate, user }: { alertCount?: num
                   {section.items.map(item => {
                     const active = location.pathname === item.path || (item.path !== '/' && location.pathname.startsWith(item.path));
                     return (
-                      <Link key={item.path} to={item.path} onClick={onNavigate} className={'nav-item ' + (active ? 'nav-item-active' : 'nav-item-inactive')}>
+                      <Link key={item.path} to={item.path} onClick={onNavigate} className={'nav-item ' + (active ? 'nav-item-active' : 'nav-item-inactive')} aria-current={active ? 'page' : undefined}>
                         <span className={'flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ' + (active ? 'bg-primary-500/15 text-primary-200' : 'bg-white/5 text-slate-400')}>{item.icon}</span>
                         <span className="min-w-0 flex-1">
                           <span className="block truncate">{item.label}</span>
