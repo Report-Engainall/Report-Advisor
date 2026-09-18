@@ -392,3 +392,12 @@ NEXT HANDOFF:
 - Correct only the GitHub Actions secret scope/name: `REPORT_ADVISOR_SUPABASE_SERVICE_ROLE_KEY` containing the same staging service_role key used by the server, visible to Environment `staging`/repository Actions.
 - Then the existing push-triggered workflow on the newest exact SHA can be retriggered by a minimal governed marker if needed; no historical Evidence is reused.
 - Continue Storage, Phase-F, deployment parity, backup/RPO-RTO and final certification independently as their external blockers clear.
+
+
+## CORRECTION / FRESH EXACT-HEAD EVIDENCE | 2026-09-19T01:20+03:00
+SHA=4a79e23faffd39c96c3839d1e15fe543465930cf
+- Storage Tenant Runtime E2E @4a79e23f: PASS. The previous PGRST303 failure from c902/fad is not carried forward; fresh exact-head execution proved storage tenant isolation successfully.
+- Final Certification Gate @4a79e23f: PASS. Contract/provenance/boundary gate is green on this exact SHA, but this is not overall release certification.
+- Full Product Browser E2E @4a79e23f: FAIL-CLOSED before business runtime because GitHub Actions still injects REPORT_ADVISOR_SUPABASE_SERVICE_ROLE_KEY as empty/missing even after the job was bound to staging.
+- Phase-F live resilience @4a79e23f: FAIL; current live targets remain external/not-ready. No synthetic evidence or bypass introduced.
+- Current release remains FAIL-CLOSED: no launch/certification claim until fresh business persistence + live resilience + exact deployment parity + backup/RPO/RTO evidence close.
