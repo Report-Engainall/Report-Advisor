@@ -155,3 +155,16 @@ NEXT HANDOFF
 Target branch: integration/certification-candidate-20260918
 Expected action: integrate/reprove UI when merge window is selected; keep runtime blockers on c9029723 separately.
 SHA to verify after handoff: 493dfed2539bfa73d4f58c8d0a9a3e1b07a346e2
+
+## START — COMMAND 1 — 2026-09-19
+START
+DATE: 2026-09-19T00:13+03:00
+OWNER: 1
+BRANCH: feat/owner1-command-center-wave3-20260919
+HEAD: eceb33d3450f634286953195f62bea82f4a35a80
+BASE: main
+OBJECTIVE: استكمال Business Command Center وربط إشارات القرار بالمسارات الكانونية الفعلية، مع إزالة الحالات والأولويات المستنتجة من الواجهة فقط.
+FILES / SURFACES: src/pages/ExecutiveCommandCenterPage.tsx; scripts/check-executive-command-center-product-contract.mjs; package.json
+DEPENDENCIES: get_dashboard_snapshot + get_dashboard_intelligence والمسارات الحالية فقط؛ لا RPC/DB/Runner جديد.
+BLOCKERS: لا يوجد blocker تطويري؛ PC01 متاح للاختبار الحقيقي.
+EXPECTED HANDOFF: Owner 2 يعيد إثبات affected UI/runtime gates على Exact SHA الناتج ويقرر الدمج في integration.
