@@ -52,4 +52,4 @@ jobs:
       - name: Run existing file-engine regressions
         run: npm run test:file-engine-regressions
       - name: Run structured PDF/OCR regression
-        run: node --experimental-strip-types --experimental-loader=./scripts/node-esm-ts-extension-loader.mjs scripts/check-pdf-structured-regression.ts
+        run: node --experimental-strip-types scripts/check-pdf-structured-regression.ts
