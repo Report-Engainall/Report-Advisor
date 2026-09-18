@@ -1,15 +1,14 @@
-### LATEST EXECUTION UPDATE — 2026-09-18 / EXACT HEAD RUNTIME + CERTIFICATION CLOSURE
-- Current branch HEAD: f1db2b16e67d728eca78ba802d1d0ec45a63e6d3.
-- Indexed certification candidate: d14c0fd575d77576cbaf4d3640b01b22a8af2627; current HEAD differs only by the governance-only Master Index update.
-- Final Certification Gate #6033: PASS. The exact-head boundary accepted the governance-only delta; repository certification contracts passed.
-- Quality #5963: PASS. Golden Evidence Integrity #2534: PASS. Production Regression Evidence #848: PASS. Production Chain Guard #3474: PASS.
-- Fresh exact-head live runtime: Full Product Browser E2E #1780 = FAIL; Device-Independent Browser E2E #507 = FAIL; Storage Tenant Runtime E2E #512 = FAIL; Commercial Product Creation E2E #484 = FAIL. All four failed at the authenticated token path with AUTH_TOKEN_HTTP_504 / HTTP 504; no tenant/business mutation PASS is inferred.
-- Staging infrastructure verification: Supabase project fnqbvfuwbdpwvhcgzksl remains ACTIVE_HEALTHY. Direct SQL connectivity is intermittent. NOTIFY pgrst, 'reload schema' was executed successfully. The authenticator role has statement_timeout=8s and no manual pgrst.db_schemas override was found. PC01 direct publishable-key probe to /auth/v1/health timed out while the unauthenticated REST root returned expected HTTP 401.
-- External provider state: Supabase status currently reports API Gateway = Degraded Performance while ap-southeast-2, Auth, Database, Storage and other listed components are Operational. Current 504 runtime evidence is therefore consistent with an external API-gateway/service degradation, but the application remains uncertified until the live E2E passes are independently re-established.
-- Phase F #596: FAIL-CLOSED / BLOCKED EXTERNAL. Required live inputs are still absent: RESILIENCE_TARGET_ENV, RESILIENCE_OPERATIONAL_TOKEN, RESILIENCE_CANARY_AUTH_TOKEN, RESILIENCE_HEALTH_URL, RESILIENCE_CANARY_URL, RESILIENCE_BACKUP_VERIFY_URL, RESILIENCE_ROLLBACK_DRILL_URL.
-- Deployment: the prior exact 186bcbc2 Vercel deployment was READY, but the current governance head f1db2b16 is presently blocked by the Vercel free-tier build-rate-limit. No stale deployment is promoted as current-head evidence.
+### LATEST EXECUTION UPDATE — 2026-09-18 / EXACT HEAD TEST + RUNTIME CLOSURE
+- Current branch HEAD: 1308e66115d7309fc45c6391e85604cb4f9a5633.
+- Indexed certification candidate: 1308e66115d7309fc45c6391e85604cb4f9a5633; this candidate contains test-harness corrections relative to the prior candidate lineage.
+- Test-harness corrections bound to this candidate: authenticated-shell navigation selector aligned with the actual Sidebar aria-label; KPI persistence workflow selectors aligned with the actual Arabic login/capture/success controls; no production UI/data path was changed by these fixes.
+- Fresh exact-head results immediately before the KPI workflow correction: Device-Independent Browser E2E #510 PASS; Storage Tenant Runtime #3076 PASS; Commercial Product Creation E2E #487 PASS; Production Regression Evidence #851 PASS with 12/12 scenarios; Quality #5966 PASS; Golden Evidence Integrity #2537 PASS; Execution Enforcement #5700 PASS; Final Certification Gate #6057 PASS.
+- Full Product Browser E2E #1794/#1795 failed only at the inline KPI persistence harness because it searched for mojibake login/capture/success labels; the candidate corrects those selectors to stable form/actual Arabic labels. No application runtime failure was established by that step.
+- Phase F #599 remains FAIL-CLOSED: GitHub secrets are now present, but the Vercel runtime target returned 404/405 probe failures and the exact deployed function environment reports operational_token_not_configured. The staging operational_health_snapshots table is empty; tenant-canary therefore also lacks a real foreign-tenant health seed. No synthetic seed was inserted.
+- Vercel exact-head deployment for this candidate is externally blocked by the provider status: Deployment rate limited - retry in 24 hours. The prior d2cbcf2 deployment is not treated as current-head deployment evidence.
+- Supabase staging: project fnqbvfuwbdpwvhcgzksl remains ACTIVE_HEALTHY; no DB mutation was made during this test-harness correction wave.
 - Main: unchanged at 1568e43889d27b5d850e64c0b99d03a994fd3bbe.
-- Certification rule: no historical runtime evidence was transferred to f1db2b16; final production certification remains FAIL-CLOSED until authenticated runtime, Phase F live resilience, exact deployed parity, backup/RPO/RTO and release evidence are fresh on the certified source candidate.
+- Certification rule: no historical runtime evidence is transferred to 1308e661; final production certification remains FAIL-CLOSED until fresh Full Product E2E, live Phase F, exact deployed parity, and measured resilience/release evidence close on this candidate.
 ### LIVE EXECUTION UPDATE — 2026-09-18T12:35Z
 - **PR #595 Exact HEAD:** `46fd602a6038a6b2b7b4b45bf79e97e1de881adc`.
 - **Fresh PC01 exact-head verification:** typecheck PASS; production build PASS; performance budget **887.7KB / 900KB** and largest JS 487.8KB; UI route/sidebar parity PASS (35/34); executive dashboard UI PASS.
@@ -38,7 +37,7 @@
 ## CURRENT EXECUTION BOUNDARY — 2026-09-18
 
 > تحديث تنفيذي بعد أمر المالك «انطلق». هذا القسم يصف الحالة المثبتة من الأدوات فقط. لا يتم نقل Evidence بين SHAs، ولا تُعد الحالة PASS إلا بدليل Exact-HEAD.
-- **CURRENT CODE/TEST CANDIDATE:** `d14c0fd575d77576cbaf4d3640b01b22a8af2627` on `integration/certification-candidate-20260918`.
+- **CURRENT CODE/TEST CANDIDATE:** `1308e66115d7309fc45c6391e85604cb4f9a5633` on `integration/certification-candidate-20260918`.
 - **Fresh current-head changes:** dashboard numeric-truth guard is formatting-tolerant without weakening its semantic checks; authenticated browser E2E now records an independent Node-side auth transport result without exposing credentials or tokens.
 - **Runtime state:** browser/business/storage/PWA E2E, worker live lifecycle, backup/RPO/RTO and Phase-F live resilience remain unproven or externally blocked; no certification is claimed.
 
