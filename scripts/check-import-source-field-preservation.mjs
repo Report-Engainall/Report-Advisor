@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 
 const root = process.cwd();
-const commitPath = `${root}/src/lib/import/canonical-commit.ts`;
+const commitPath = `${root}/src/lib/import/canonical-commit-core.ts`;
 const migrationPath = `${root}/supabase/migrations/20260916152400_canonical_import_durable_commit_contract.sql`;
 
 const commit = fs.readFileSync(commitPath, 'utf8');
