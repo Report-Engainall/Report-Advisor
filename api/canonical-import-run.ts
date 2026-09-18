@@ -1,8 +1,8 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
-import { commitImportBatchWithClient } from '../src/lib/import/canonical-commit-core';
-import type { ImportEvidenceProvenance, ReconciledCanonicalImportRow } from '../src/lib/import/canonical-truth-boundary';
-import { runDurableProductionLifecycle } from '../src/lib/report-execution/durable-production-runner';
-import type { ReportExecutionStage } from '../src/lib/report-execution/checkpoint';
+import { commitImportBatchWithClient } from '../src/lib/import/canonical-commit-core.js';
+import type { ImportEvidenceProvenance, ReconciledCanonicalImportRow } from '../src/lib/import/canonical-truth-boundary.js';
+import { runDurableProductionLifecycle } from '../src/lib/report-execution/durable-production-runner.js';
+import type { ReportExecutionStage } from '../src/lib/report-execution/checkpoint.js';
 import { json, requireConfig, requireMethod, supabaseUserRequest } from '../src/server/resilience-runtime.mjs';
 
 const MAX_BODY_BYTES = 16 * 1024;
@@ -291,7 +291,7 @@ export default async function handler(req: any, res: any) {
           await commitImportBatchWithClient(client, companyId, entityType, rows, sourceHash);
         }
       },
-    }, new (await import('../src/lib/report-execution/durable-worker-adapter')).SupabaseReportExecutionStore(client));
+    }, new (await import('../src/lib/report-execution/durable-worker-adapter.js')).SupabaseReportExecutionStore(client));
 
     const summary = {
       total_rows: Number(importJob.total_rows ?? rows.length),
