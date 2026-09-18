@@ -534,3 +534,16 @@ DONE: Wave 10 purchase report truth integrity completed and handed off.
 OPEN: Owner 2 integration/runtime/release proof; next Owner 1 front remains independent product/UI truth hardening after acknowledgement.
 BLOCKED: none.
 NEXT START: inspect the next remaining commercial/report surface only after preserving the canonical source/evidence boundaries.
+
+## START — COMMAND 9 — 2026-09-19
+START
+DATE: 2026-09-19T02:50+03:00
+OWNER: 1
+BRANCH: feat/owner1-inventory-truth-wave11-20260919
+HEAD: 7cbd48182edc2563a79acdd5ca89eeab0a718136
+BASE: 7cbd48182edc2563a79acdd5ca89eeab0a718136
+OBJECTIVE: تقوية تقرير المخزون باستخدام dataStatus الصادر من المصدر canonical مع إعلان صريح أن freshness/as-of غير متاح من مصدر المخزون الحالي، دون اختلاق timestamp.
+FILES / SURFACES: src/pages/ReportsPage.tsx; src/components/TruthContextStrip.tsx; scripts/check-inventory-report-truth-contract.mjs; package.json.
+DEPENDENCIES: existing fetchInventoryReportSnapshot only؛ no new RPC/DB/Runner/Auth/Tenant/Storage/CI logic.
+BLOCKERS: لا blocker معروف عند البدء.
+EXPECTED HANDOFF: Owner 2 يعيد إثبات inventory/browser/runtime/release gates على Exact SHA الجديد.
