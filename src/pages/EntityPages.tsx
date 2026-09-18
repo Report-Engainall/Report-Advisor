@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useId, useRef, useState, useCallback } from 'react';
 import { ArrowUpLeft, Plus, Search, X } from 'lucide-react';
 import { Card, CardBody } from '@/components/ui/Card';
 import { Link } from 'react-router-dom';
@@ -20,17 +20,59 @@ function EntityContextDrawer({ title, subtitle, fields, links, onClose }: {
   links: Array<{ label: string; path: string; hint: string }>;
   onClose: () => void;
 }) {
+  const drawerRef = useRef<HTMLDivElement>(null);
+  const previousFocusRef = useRef<HTMLElement | null>(null);
+  const drawerId = `entity-context-${useId().replace(/:/g, '')}`;
+  const titleId = `${drawerId}-title`;
+
+  useEffect(() => {
+    const previousOverflow = document.body.style.overflow;
+    const activeElement = document.activeElement;
+    previousFocusRef.current = activeElement instanceof HTMLElement ? activeElement : null;
+    document.body.style.overflow = 'hidden';
+    requestAnimationFrame(() => drawerRef.current?.querySelector<HTMLElement>('button[data-entity-close="true"]')?.focus());
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        onClose();
+        return;
+      }
+      if (event.key !== 'Tab') return;
+      const drawer = drawerRef.current;
+      if (!drawer) return;
+      const focusable = Array.from(drawer.querySelectorAll<HTMLElement>('button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])')).filter(element => element.offsetParent !== null);
+      if (!focusable.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener('keydown', onKeyDown);
+      const previousFocus = previousFocusRef.current;
+      previousFocusRef.current = null;
+      if (previousFocus?.isConnected) requestAnimationFrame(() => previousFocus.focus());
+    };
+  }, [onClose]);
+
   return (
-    <div className="fixed inset-0 z-[90] flex items-end justify-center bg-ink-950/35 p-0 backdrop-blur-sm sm:items-center sm:p-6" role="dialog" aria-modal="true" aria-label={title}>
+    <div ref={drawerRef} id={drawerId} className="fixed inset-0 z-[90] flex items-end justify-center bg-ink-950/35 p-0 backdrop-blur-sm sm:items-center sm:p-6" role="dialog" aria-modal="true" aria-labelledby={titleId}>
       <button type="button" className="absolute inset-0 cursor-default" aria-label="إغلاق" onClick={onClose} />
       <aside className="relative max-h-[88vh] w-full max-w-xl overflow-y-auto rounded-t-[1.75rem] border border-ink-200 bg-white p-5 shadow-2xl sm:rounded-[1.75rem] sm:p-6" dir="rtl">
         <div className="flex items-start gap-4">
           <div className="min-w-0 flex-1">
             <div className="text-[10px] font-black uppercase tracking-[0.14em] text-primary-700">سياق الكيان</div>
-            <h2 className="mt-1 text-xl font-black text-ink-950">{title}</h2>
+            <h2 id={titleId} className="mt-1 text-xl font-black text-ink-950">{title}</h2>
             <p className="mt-1 text-xs leading-6 text-ink-500">{subtitle}</p>
           </div>
-          <button type="button" onClick={onClose} className="rounded-xl border border-ink-200 p-2 text-ink-400 hover:bg-ink-50 hover:text-ink-700" aria-label="إغلاق"><X size={17}/></button>
+          <button type="button" data-entity-close="true" onClick={onClose} className="rounded-xl border border-ink-200 p-2 text-ink-400 hover:bg-ink-50 hover:text-ink-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2" aria-label="إغلاق"><X size={17}/></button>
         </div>
         <div className="mt-5 grid grid-cols-2 gap-3">
           {fields.map(field => <div key={field.label} className="rounded-2xl border border-ink-100 bg-ink-50/60 p-4"><div className="text-[10px] font-bold text-ink-400">{field.label}</div><div className="mt-1.5 break-words text-sm font-black text-ink-900">{field.value}</div></div>)}
