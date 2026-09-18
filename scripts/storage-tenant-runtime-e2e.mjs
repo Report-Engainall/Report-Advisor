@@ -37,7 +37,8 @@ const browser = await chromium.launch({ headless: true });
 async function browserSession(user) {
   const context = await browser.newContext({ viewport: { width: 1440, height: 1000 }, locale: 'ar-SA' });
   const page = await context.newPage();
-  await page.goto(baseURL, { waitUntil: 'networkidle', timeout: 30000 });
+  await page.goto(baseURL, { waitUntil: 'domcontentloaded', timeout: 30000 });
+  await page.locator('#login-email').waitFor({ state: 'visible', timeout: 30000 });
   await page.locator('#login-email').fill(user.email);
   await page.locator('#login-password').fill(user.password);
 
@@ -83,6 +84,7 @@ async function browserSession(user) {
     const alertText = await page.getByRole('alert').first().textContent().catch(() => '');
     throw new Error('AUTH_UI_SESSION_NOT_ESTABLISHED' + (alertText?.trim() ? ':' + alertText.trim().slice(0, 180) : ''));
   }
+  await page.getByRole('navigation', { name: 'التنقل التجاري الرئيسي' }).waitFor({ state: 'visible', timeout: 30000 });
   const token = await page.evaluate(() => {
     const raw = Object.entries(localStorage).find(([key]) => key.endsWith('-auth-token'))?.[1];
     if (!raw) throw new Error('BROWSER_SESSION_NOT_FOUND');
