@@ -5,8 +5,10 @@
 > Authoritative execution manifest. This document never promotes historical evidence across an exact Git `HEAD` boundary. Pair every evidence batch with the exact Git `HEAD` of `main` and the exact environment/commit used.
 
 ### CURRENT EXACT HEAD
-- Current code/test candidate: `a32fae0fc08c1cbbcc60b6eedfb0f4bd74a21c50`.
-- This is the exact current `main` head after the latest governance protocol merge and device-independent browser-smoke work; the previous `e0503ae...` binding is superseded.
+- Current code/test candidate: `9375c71453473f09d1df97796eaf92ad125ae217`.
+- This is the exact current `main` head after the autonomous operating protocol and PC01 device-verification evidence were merged; the previous `a32fae...` binding is superseded.
+- The autonomous operating protocol is now repository-resident at `docs/PROGRAMMER_AUTONOMOUS_OPERATING_PROTOCOL.md`.
+- PC01 native desktop verification is recorded at `docs/evidence/DEVICE_PC01_VERIFICATION_20260918.md`; its native smoke is PASS and its evidence is bound to the documented local source SHA/environment.
 - No runtime/browser/production evidence from an earlier SHA is promoted by this binding.
 - The certification binding itself is governance-only and does not certify runtime/product code; fresh exact-HEAD runtime evidence is still required.
 - Historical evidence from earlier SHAs remains historical and is not promoted automatically.
