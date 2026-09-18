@@ -90,7 +90,7 @@ async function main(): Promise<void> {
       const datasets = await parseFile(pdfWithText(text), 'structured-regression.pdf', 'pdf');
       assert(datasets.length === 1, 'PDF must produce one structured dataset');
       const [dataset] = datasets;
-      assert(dataset.rows.length === 1, 'structured PDF must produce one business row');
+      assert(dataset.rows.length === 1, `structured PDF must produce one business row; extracted=${JSON.stringify(dataset.rows)}`);
       assert(dataset.rows[0]?.invoice_number === expectedInvoiceNumber, 'invoice_number must terminate before date label');
       assert(dataset.rows[0]?.invoice_date === '2026-09-15', 'date must be extracted from structured PDF');
       assert(dataset.rows[0]?.customer_name === 'Test Customer', 'customer_name must remain structured');
