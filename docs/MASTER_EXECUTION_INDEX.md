@@ -1,5 +1,5 @@
 ### LATEST EXECUTION UPDATE — 2026-09-18 / EXACT HEAD TEST + RUNTIME CLOSURE
-- Current branch HEAD: 97fb1d1fb81cc74b9489ad18b0e416de16030847; indexed certification candidate remains 1308e66115d7309fc45c6391e85604cb4f9a5633 and differs only by this governance-only Master Index update.
+- Indexed certification candidate is 1308e66115d7309fc45c6391e85604cb4f9a5633; any commits after it in this branch are governance-only Master Index updates.
 - Indexed certification candidate: 1308e66115d7309fc45c6391e85604cb4f9a5633; this candidate contains test-harness corrections relative to the prior candidate lineage.
 - Test-harness corrections bound to this candidate: authenticated-shell navigation selector aligned with the actual Sidebar aria-label; KPI persistence workflow selectors aligned with the actual Arabic login/capture/success controls; no production UI/data path was changed by these fixes.
 - Fresh exact-head results immediately before the KPI workflow correction: Device-Independent Browser E2E #510 PASS; Storage Tenant Runtime #3076 PASS; Commercial Product Creation E2E #487 PASS; Production Regression Evidence #851 PASS with 12/12 scenarios; Quality #5966 PASS; Golden Evidence Integrity #2537 PASS; Execution Enforcement #5700 PASS; Final Certification Gate #6057 PASS.
