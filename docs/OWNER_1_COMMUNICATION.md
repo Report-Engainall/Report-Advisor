@@ -224,3 +224,40 @@ FILES / SURFACES: src/pages/DecisionExperiencePage.tsx; src/lib/dashboard-canoni
 DEPENDENCIES: get_dashboard_intelligence والمسارات الحالية فقط؛ لا RPC/DB/Runner جديد.
 BLOCKERS: لا يوجد blocker تطويري معروف.
 EXPECTED HANDOFF: Owner 2 يعيد إثبات عقد Decision/Intelligence والـruntime gates على Exact SHA الناتج.
+## EXECUTION — COMMAND 2 — 2026-09-19
+OWNER: 1
+BRANCH: feat/owner1-decision-trust-wave4-20260919
+FINAL UI HEAD: dddc2ba1988b616d784780da14588be394b20597
+
+CHANGE:
+- Decision Experience now consumes canonical recommendation/alert signals and carries recommendationId / alertId context.
+- Evidence stage explicitly shows source, status/severity, priority, confidence, expected impact or metric-vs-threshold, and signal timestamp.
+- Explicitly preserves the boundary: signal/recommendation/alert != operational evidence, approval, persisted decision, execution or outcome.
+- No new RPC, DB schema, Runner, Auth/Tenant or runtime path.
+
+GUARD:
+- scripts/check-decision-experience-trust-contract.mjs
+- package script test:decision-experience-trust
+
+EXACT-HEAD TESTS — dddc2ba1988b616d784780da14588be394b20597
+- lint: PASS — 0 errors / 59 pre-existing warnings
+- typecheck: PASS
+- test:ui-route-sidebar-parity: PASS
+- test:executive-dashboard-ui: PASS
+- test:product-wow-ui: PASS
+- test:intelligence-product-contract: PASS
+- test:decision-dashboard: PASS
+- test:decision-experience-trust: PASS
+- build: PASS — 2808 modules, 16.42s
+- perf:budget: FAIL-EXISTING — critical 913.1KB > 900KB; largest JS 487.8KB <= 600KB.
+BROWSER:
+- No DOM/console PASS claimed. agent-browser unavailable on PC01; Playwright Edge tooling is available but no authenticated live Decision Experience smoke was claimed.
+
+HANDOFF TO OWNER 2:
+- Integrate/rebase/cherry-pick Exact UI HEAD dddc2ba1988b616d784780da14588be394b20597.
+- Reprove Decision/Intelligence/browser/runtime gates on the merged Exact SHA.
+- Keep performance budget as a separate pre-existing release concern.
+- No main mutation by Owner 1.
+
+NEXT OWNER-1 FRONT:
+- Continue Decision/Work Center commercial surface hardening, using only existing canonical reads and existing investigation patterns.
