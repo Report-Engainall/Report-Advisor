@@ -1,5 +1,4 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { supabase, resolveCurrentCompanyId } from '../supabase';
 import type { ReportExecutionStage } from '../report-execution/checkpoint';
 import { SupabaseReportExecutionStore } from '../report-execution/durable-worker-adapter';
 import { runDurableProductionLifecycle } from '../report-execution/durable-production-runner';
@@ -60,6 +59,7 @@ function assertSourceHash(rows: ReconciledCanonicalImportRow[], sourceHash: stri
 }
 
 async function executeThroughServerBoundary(input: DurableCanonicalImportInput): Promise<unknown> {
+  const { supabase } = await import('../supabase');
   const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
   const accessToken = sessionData.session?.access_token;
   if (sessionError || !accessToken) throw new Error('AUTHENTICATED_USER_REQUIRED');
@@ -98,9 +98,16 @@ export async function runCanonicalImportThroughDurableRunner(
     return executeThroughServerBoundary(input);
   }
 
-  const workerClient = options.workerClient ?? supabase;
-  const dataClient = options.dataClient ?? supabase;
-  const companyId = options.companyId ?? await resolveCurrentCompanyId();
+  let workerClient = options.workerClient;
+  let dataClient = options.dataClient;
+  let companyId = options.companyId;
+  if (!workerClient || !dataClient || !companyId) {
+    if (typeof window === 'undefined') throw new Error('SERVER_CLIENTS_REQUIRED');
+    const browser = await import('../supabase');
+    workerClient ??= browser.supabase;
+    dataClient ??= browser.supabase;
+    companyId ??= await browser.resolveCurrentCompanyId();
+  }
   if (!companyId) throw new Error('TENANT_CONTEXT_REQUIRED');
 
   assertSourceHash(input.rows, input.sourceHash);
@@ -115,7 +122,10 @@ export async function runCanonicalImportThroughDurableRunner(
   if (!requestedBy) throw new Error('AUTHENTICATED_USER_REQUIRED');
 
   const jobKey = `canonical-import:${input.entityType}:${input.sourceHash}`;
-  const { data: enqueueData, error: enqueueError } = await workerClient.rpc('enqueue_report_execution_job', {
+  const activeWorkerClient = workerClient;
+  const activeDataClient = dataClient;
+  if (!activeWorkerClient || !activeDataClient) throw new Error('SUPABASE_CLIENTS_REQUIRED');
+  const { data: enqueueData, error: enqueueError } = await activeWorkerClient.rpc('enqueue_report_execution_job', {
     p_company_id: companyId,
     p_job_key: jobKey,
     p_source_path: input.fileName,
@@ -136,7 +146,7 @@ export async function runCanonicalImportThroughDurableRunner(
   if (job.status === 'succeeded' || job.status === 'completed') throw new Error('IMPORT_ALREADY_COMPLETED_FOR_SOURCE');
   if (job.status === 'cancelled' || job.status === 'dead_letter') throw new Error('IMPORT_DURABLE_JOB_NOT_RETRYABLE');
   if (job.status === 'running' || job.status === 'leased' || job.status === 'processing') throw new Error('IMPORT_DURABLE_JOB_ALREADY_RUNNING');
-  const store = new SupabaseReportExecutionStore(workerClient);
+  const store = new SupabaseReportExecutionStore(activeWorkerClient);
   if (job.status === 'failed') await store.retry(job.id, companyId);
 
   const observedAt = new Date().toISOString();
@@ -201,7 +211,7 @@ export async function runCanonicalImportThroughDurableRunner(
       if (stage === 'analyzed' && !currentRows.length) throw new Error('IMPORT_ANALYSIS_EMPTY');
       if (stage === 'decisioned' && !input.rows.length) throw new Error('IMPORT_DECISION_EMPTY');
       if (stage === 'committed') {
-        await commitImportBatch(input.entityType, input.rows, input.sourceHash, { client: dataClient, companyId });
+        await commitImportBatch(input.entityType, input.rows, input.sourceHash, { client: activeDataClient, companyId });
       }
     },
   }, store);
