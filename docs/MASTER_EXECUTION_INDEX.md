@@ -6,10 +6,10 @@
 
 ### CURRENT EXACT HEAD
 - Governed Main: `9bd7243c8864ca5bcf431b14a7c2eb35c698de7c`.
-- Current exact candidate: `9dd3c86d00e0df4cb82770e3a99399c3f747d420`.
+- Current code/test candidate: `fbaef57af81bc529c4f3b4854ceb1ad5bdd44ca7`.
 - PR #567 is the active open certification path on branch `fix/pdf-structured-runtime-final-20260918`; PR #560 was closed during the forced branch rebind and is historical only.
 - The autonomous operating protocol remains repository-resident at `docs/PROGRAMMER_AUTONOMOUS_OPERATING_PROTOCOL.md`.
-- Fresh PC01 exact-candidate proof on `9dd3c86d...`: 20-stage release readiness PASS (20/20) and Windows-safe production-gate runtime PASS (integrity, typecheck, build).
+- Fresh PC01 proof on predecessor `9dd3c86d...`: 20-stage release readiness PASS (20/20) and Windows-safe production-gate runtime PASS (integrity, typecheck, build). This proof is recorded as predecessor evidence and is not independently promoted as a runtime PASS for `fbaef57a...`.
 - The production-gate runtime Windows fix is now part of the exact candidate; the previous `C:\Program` process-launch defect is closed.
 - No runtime/browser/production evidence from an earlier SHA is promoted by this binding.
 - Fresh exact-head GitHub PDF/OCR, Browser E2E, production-regression evidence, enforcement, and Final Certification remain mandatory.
