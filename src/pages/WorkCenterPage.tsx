@@ -49,15 +49,25 @@ export function WorkCenterPage() {
       severity: row.status === 'failed' ? 'critical' : exceptions > 0 || row.status === 'partial' ? 'warning' : 'info',
       summary: 'تفاصيل الحالة مبنية على سجل الاستيراد الحالي. العرض لا يكتب حالة بديلة ولا يعتبر نجاح الواجهة دليلًا على إغلاق العملية في قاعدة البيانات.',
       facts: [
-        { label: 'الحالة', value: statusLabel(row.status) },
+        { label: 'معرف سجل المصدر', value: row.id },
+        { label: 'الحالة المصدرية', value: statusLabel(row.status) },
         { label: 'التقدم', value: row.progress == null ? 'غير متاح' : String(row.progress) + '%' },
         { label: 'السجلات الصالحة', value: row.valid_rows == null ? 'غير متاح' : formatNumber(row.valid_rows) },
         { label: 'الاستثناءات', value: String(exceptions) },
         { label: 'نوع المصدر', value: row.source_type || 'غير محدد' },
         { label: 'الكيان', value: row.entity_type || 'غير محدد' },
+        { label: 'وقت الإنشاء', value: new Date(row.created_at).toLocaleString('ar-YE') },
+        { label: 'وقت الإغلاق المصدرّي', value: row.completed_at ? new Date(row.completed_at).toLocaleString('ar-YE') : 'غير مثبت' },
       ],
-      confirmedReasons: row.error_message ? [] : ['الحالة الحالية مقروءة مباشرة من سجل العملية.'],
-      missingEvidence: row.error_message ? ['سبب الفشل المصدرّي: ' + row.error_message] : ['إثبات الإغلاق النهائي يجب أن يأتي من المسار الموثق، وليس من عداد الواجهة.'],
+      confirmedReasons: [
+        'الحالة الحالية ومعرف العملية مقروءان مباشرة من سجل المصدر.',
+        ...(row.completed_at ? ['يوجد وقت إغلاق مصدرّي مسجل في السجل.'] : []),
+      ],
+      missingEvidence: [
+        ...(row.error_message ? ['سبب الفشل المصدرّي: ' + row.error_message] : []),
+        ...(row.status === 'completed' && !row.completed_at ? ['وقت الإغلاق المصدرّي غير مثبت رغم حالة المكتمل.'] : []),
+        'إثبات الإغلاق النهائي يجب أن يأتي من المسار الموثق، وليس من عداد الواجهة.',
+      ],
       actions: [
         { label: 'افتح مسار إدخال البيانات', path: '/import', hint: 'راجع دورة المصدر والمعالجة والحفظ.' },
         { label: 'افتح جودة البيانات', path: '/data-quality', hint: 'راجع الاستثناءات وأثرها على القرارات.' },
