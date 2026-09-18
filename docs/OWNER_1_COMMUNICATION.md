@@ -750,3 +750,31 @@ FILES / SURFACES: src/pages/ReceivablesReportPageCanonical.tsx; scripts/check-re
 DEPENDENCIES: fetchReceivablesReportSnapshot والمسار الحالي فقط؛ لا RPC/DB/Runner/Auth/Tenant/Storage/CI logic جديد.
 BLOCKERS: لا يوجد blocker تطويري معروف.
 EXPECTED HANDOFF: Owner 2 يعيد إثبات هذا canonical receivables surface عبر browser/runtime/release gates على Exact SHA؛ لا نقل Evidence بين SHAs.
+
+EXECUTION
+CHANGE: إضافة TruthContextStrip إلى نسخة تقرير الذمم canonical المستخدمة فعليًا، مع استهلاك snapshot.status مباشرة والتصريح بأن freshness/as-of غير متاح من المصدر.
+FILES: src/pages/ReceivablesReportPageCanonical.tsx; scripts/check-receivables-canonical-truth-contract.mjs; package.json.
+WHY: إغلاق فجوة كانت تترك status الخادمي الحقيقي خارج سطح التقرير، مع الحفاظ على pagination كطبقة عرض فقط وعدم تصنيع timestamp.
+TEST: final Exact SHA c453d780557d2d3a7828f919a8e401746d778b29: test:receivables-canonical-truth PASS; test:canonical-report-truth PASS; test:receivables-report-truth PASS; test:reports-center-truth PASS; route/sidebar parity PASS (35/34); typecheck PASS; lint PASS (0 errors / 59 warnings); build PASS (2808 modules, 16.56s); perf:budget PASS (critical 487.2KB / largest JS 487.8KB).
+RESULT: verified on final feature Exact SHA; no RPC/DB/Runner/Auth/Tenant/Storage/CI mutation.
+COMMIT: c453d780557d2d3a7828f919a8e401746d778b29
+NEW HEAD: c453d780557d2d3a7828f919a8e401746d778b29
+STATUS: READY_FOR_HANDOFF
+
+HANDOFF
+FROM: OWNER 1
+TARGET: OWNER 2
+BRANCH: feat/owner1-receivables-canonical-truth-wave16-20260919
+SHA: c453d780557d2d3a7828f919a8e401746d778b29
+CHANGED: canonical receivables TruthContextStrip + status contract guard.
+VERIFIED: canonical receivables truth, related report contracts, route parity, typecheck, lint, build and performance budget on the feature Exact SHA.
+UNPROVEN: authenticated browser behavior; backend/runtime/DB/RLS/persistence/CI/CD/release certification remain Owner 2 scope.
+BLOCKERS: none in Owner 1 code.
+NEXT: integrate/rebase/cherry-pick Exact SHA c453d780557d2d3a7828f919a8e401746d778b29 and reprove canonical receivables/browser/runtime/release gates on merged Exact SHA; no cross-SHA evidence transfer.
+
+CLOSE
+HEAD: c453d780557d2d3a7828f919a8e401746d778b29
+DONE: Wave 16 canonical receivables truth integrity completed and handed off.
+OPEN: Owner 2 integration/runtime/release proof; Owner 1 next front remains independent product/UI hardening.
+BLOCKED: none.
+NEXT START: Onboarding first-session truth context using existing canonical dashboard snapshot/intelligence only.
