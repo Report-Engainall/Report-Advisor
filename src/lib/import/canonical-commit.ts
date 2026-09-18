@@ -83,7 +83,7 @@ export async function commitImportBatch(
   if (!client || !companyId) {
     const browser = await import('../supabase');
     client ??= browser.supabase;
-    companyId ??= await browser.resolveCurrentCompanyId();
+    companyId ??= (await browser.resolveCurrentCompanyId()) ?? undefined;
   }
   if (!client || !companyId) throw new Error('No authenticated tenant context is available for canonical import');
 
