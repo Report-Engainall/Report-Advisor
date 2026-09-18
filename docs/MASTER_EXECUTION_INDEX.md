@@ -21,6 +21,14 @@
 9. **PDF/OCR:** لا يوجد نقل للنتيجة التاريخية `10/12`; يجب إعادة إثبات السيناريوهات على Exact HEAD. Repository path يحتوي بالفعل على structured PDF/OCR hardening، لكن ذلك لا يساوي runtime certification.
 10. **Production parity:** Netlify public access مثبت؛ Vercel status على main ما زال غير صالح كدليل نشر بسبب build-rate-limit failure/pending، لذلك لا يُستخدم كـrelease proof.
 
+### LATEST EXECUTION UPDATE — 2026-09-18
+- Staging forward-only parity checkpoint applied successfully: `harden_import_field_lineage_rls`, `revoke_authenticated_worker_enqueue`, `reconcile_live_source_end_state`.
+- Verified import row integrity: null company=0, orphan job=0, cross-tenant row/job mismatch=0.
+- Verified all 8 durable report-execution RPCs: authenticated EXECUTE=false, service_role EXECUTE=true; all have `search_path=public, pg_catalog`.
+- Verified `import_field_lineage` authenticated policy is explicit restrictive deny; Security Advisor targeted findings remain clear.
+- PR #590 contains the corresponding source migrations; runtime changes are not considered certified until exact-head CI is fresh.
+- Product development PR #587 source error `ReportsPage.tsx:errorMessage` repaired on its branch at commit `dfdc662012a8d0be9e5ce081105c753c216d6d4a`; fresh workflow result is still required before treating the wave as build-green.
+
 ### EXECUTION STATE
 - **Done:** Netlify public-access administrative blocker removed and public access verified.
 - **In progress:** exact-head runtime/DB/release closure; migration parity investigation; operational certification evidence.
