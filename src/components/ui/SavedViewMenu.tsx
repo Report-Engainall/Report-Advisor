@@ -54,6 +54,12 @@ export function SavedViewMenu({ storageKey, value, onApply, onReset, disabled = 
     if (!open) return;
     setViews(readViews(storageKey));
   }, [open, storageKey]);
+  useEffect(() => {
+    if (!open) return;
+    const onKeyDown = (event: KeyboardEvent) => { if (event.key === 'Escape') setOpen(false); };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [open]);
 
   const hasSavedViews = views.length > 0;
   const currentFingerprint = useMemo(() => JSON.stringify(value), [value]);
@@ -88,7 +94,8 @@ export function SavedViewMenu({ storageKey, value, onApply, onReset, disabled = 
         disabled={disabled}
         onClick={() => setOpen(current => !current)}
         aria-expanded={open}
-        aria-haspopup="dialog"
+        aria-haspopup="menu"
+        aria-controls="saved-view-menu"
         className="btn-secondary inline-flex items-center gap-2 disabled:cursor-not-allowed disabled:opacity-50"
       >
         <BookmarkPlus size={15} />
@@ -97,7 +104,7 @@ export function SavedViewMenu({ storageKey, value, onApply, onReset, disabled = 
       </button>
 
       {open && (
-        <div className="absolute right-0 top-[calc(100%+8px)] z-40 w-[min(92vw,360px)] overflow-hidden rounded-2xl border border-ink-200 bg-white shadow-2xl">
+        <div id="saved-view-menu" className="absolute right-0 top-[calc(100%+8px)] z-40 w-[min(92vw,360px)] overflow-hidden rounded-2xl border border-ink-200 bg-white shadow-2xl">
           <div className="border-b border-ink-100 bg-ink-50/75 p-3">
             <div className="text-[10px] font-black tracking-[0.12em] text-ink-400">SAVED VIEWS</div>
             <div className="mt-1 text-sm font-black text-ink-900">احفظ طريقة العمل الحالية</div>
