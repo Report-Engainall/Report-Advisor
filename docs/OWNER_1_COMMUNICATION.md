@@ -709,3 +709,31 @@ FILES / SURFACES: src/pages/DataQualitySnapshotPage.tsx; src/lib/data-quality-sn
 DEPENDENCIES: get_data_quality_snapshot والمسار canonical الحالي فقط؛ لا RPC/DB/Runner/Auth/Tenant/Storage/CI logic جديد.
 BLOCKERS: لا يوجد blocker تطويري معروف.
 EXPECTED HANDOFF: Owner 2 يعيد إثبات Data Quality/browser/runtime/release gates على Exact SHA الناتج؛ لا نقل Evidence بين SHAs.
+
+EXECUTION
+CHANGE: نقل منهجية درجة Data Quality المجمعة من صفحة الواجهة إلى pure canonical snapshot core، وإضافة TruthContextStrip يميز NO_DATA/CALCULATED ويصرح بأن as-of غير متاح من المصدر.
+FILES: src/pages/DataQualitySnapshotPage.tsx; src/lib/data-quality-snapshot-core.ts; scripts/check-data-quality-truth-contract.mjs; package.json.
+WHY: منع بقاء formula مشتقة داخل صفحة غير محكومة، ورفع Data Quality إلى نفس طبقة الحقيقة المستخدمة في التقارير والتحليلات دون اختلاق freshness.
+TEST: final Exact SHA 90a879969fdae2bf57238a75e39be62672f33077: test:data-quality-projections PASS; test:data-quality-truth PASS; route/sidebar parity PASS (35/34); executive dashboard contract PASS; intelligence product contract PASS; typecheck PASS; lint PASS (0 errors / 59 warnings); build PASS (2808 modules, 16.35s); perf:budget PASS (critical 487.2KB / largest JS 487.8KB).
+RESULT: verified on final feature Exact SHA; no RPC/DB/Runner/Auth/Tenant/Storage/CI mutation.
+COMMIT: 90a879969fdae2bf57238a75e39be62672f33077
+NEW HEAD: 90a879969fdae2bf57238a75e39be62672f33077
+STATUS: READY_FOR_HANDOFF
+
+HANDOFF
+FROM: OWNER 1
+TARGET: OWNER 2
+BRANCH: feat/owner1-data-quality-truth-wave15-20260919
+SHA: 90a879969fdae2bf57238a75e39be62672f33077
+CHANGED: Data Quality canonical truth context + centralized aggregate score + exact-head regression guard.
+VERIFIED: targeted Data Quality contracts, route parity, executive/intelligence contracts, typecheck, lint, build and performance budget on the feature Exact SHA.
+UNPROVEN: authenticated browser behavior; backend/runtime/DB/RLS/persistence/CI/CD/release certification remain Owner 2 scope.
+BLOCKERS: none in Owner 1 code.
+NEXT: integrate/rebase/cherry-pick Exact SHA 90a879969fdae2bf57238a75e39be62672f33077 and reprove Data Quality/browser/runtime/release gates on merged Exact SHA; no cross-SHA evidence transfer.
+
+CLOSE
+HEAD: 90a879969fdae2bf57238a75e39be62672f33077
+DONE: Wave 15 Data Quality truth integrity completed and handed off.
+OPEN: Owner 2 integration/runtime/release proof; Owner 1 next front remains independent product hardening.
+BLOCKED: none.
+NEXT START: inspect the next independent commercial/data-truth surface and continue without waiting for runtime certification.
