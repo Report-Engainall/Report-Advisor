@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { ArrowUpRight, CheckCircle2, FileText, Printer, Target, Wand2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
+import { AghbariMoatPanel } from '@/components/AghbariMoatPanel';
 
 type Capability = {
   id: string;
@@ -126,6 +127,8 @@ export function ProposalDemoPage() {
           </div>
         </CardBody>
       </Card>
+
+      <AghbariMoatPanel />
 
       <div className="text-xs leading-5 text-ink-400">لا تُنشئ هذه الشاشة بيانات أعمال اصطناعية ولا تنقل Evidence من SHA إلى SHA. كل رابط يفتح الوحدة الفعلية في Report-Advisor، وتبقى نتائج الأعمال والقيم الرقمية تحت مصدر الحقيقة والشركة الحالية.</div>
     </div>

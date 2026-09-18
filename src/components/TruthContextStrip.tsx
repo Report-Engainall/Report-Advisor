@@ -5,6 +5,8 @@ type TruthState = 'CONFIRMED' | 'CALCULATED' | 'INSUFFICIENT_DATA';
 interface TruthContextStripProps {
   months?: number;
   periodLabel?: string;
+  asOfLabel?: string;
+  rangeLabel?: string;
   status: TruthState;
   asOf: string;
 }
@@ -15,7 +17,7 @@ const stateMeta: Record<TruthState, { label: string; className: string; icon: ty
   INSUFFICIENT_DATA: { label: 'بيانات غير كافية', className: 'text-warning-700 bg-warning-50 ring-warning-100', icon: ShieldAlert },
 };
 
-export function TruthContextStrip({ months, periodLabel, status, asOf }: TruthContextStripProps) {
+export function TruthContextStrip({ months, periodLabel, asOfLabel, rangeLabel, status, asOf }: TruthContextStripProps) {
   const meta = stateMeta[status];
   const StateIcon = meta.icon;
   return (
@@ -29,8 +31,8 @@ export function TruthContextStrip({ months, periodLabel, status, asOf }: TruthCo
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-2 text-[11px]">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-ink-50 px-2.5 py-1.5 text-ink-600 ring-1 ring-inset ring-ink-100"><CalendarRange size={13} aria-hidden="true" />النطاق: {periodLabel ?? `آخر ${months ?? '—'} ${months === 1 ? 'شهر' : 'أشهر'}`}</span>
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-ink-50 px-2.5 py-1.5 text-ink-600 ring-1 ring-inset ring-ink-100">حتى: {asOf}</span>
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-ink-50 px-2.5 py-1.5 text-ink-600 ring-1 ring-inset ring-ink-100"><CalendarRange size={13} aria-hidden="true" />{rangeLabel ?? periodLabel ?? `آخر ${months ?? '—'} ${months === 1 ? 'شهر' : 'أشهر'}`}</span>
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-ink-50 px-2.5 py-1.5 text-ink-600 ring-1 ring-inset ring-ink-100">{asOfLabel ?? 'حتى'}: {asOf}</span>
           <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1.5 ring-1 ring-inset ${meta.className}`}><StateIcon size={13} aria-hidden="true" />{meta.label}</span>
           <span className="inline-flex items-center gap-1.5 rounded-full bg-ink-50 px-2.5 py-1.5 text-ink-600 ring-1 ring-inset ring-ink-100">سياق المؤسسة الحالية</span>
         </div>

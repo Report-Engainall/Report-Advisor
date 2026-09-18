@@ -13,6 +13,8 @@ const HorizontalBarChart = lazy(async () => ({ default: (await import('@/compone
 import { fetchDashboardSnapshot, fetchDashboardIntelligence } from '@/lib/dashboard-canonical';
 import { buildCommercialOpportunityRadar } from '@/lib/commercial-opportunity-radar';
 import { CommercialOpportunityRadar } from '@/components/CommercialOpportunityRadar';
+import { MoneyRecoveryRail } from '@/components/MoneyRecoveryRail';
+import { DecisionCoverageCard } from '@/components/DecisionCoverageCard';
 import { formatCurrency, relativeTime } from '@/lib/format';
 import type { Recommendation, Alert } from '@/lib/types';
 import type { DashboardKPIs, MonthlyTrend, TopEntity, CategoryBreakdown, AgingDashboard } from '@/lib/dashboard-canonical';
@@ -177,6 +179,9 @@ export function DashboardPage() {
       </section>
 
       <TruthContextStrip months={trendMonths} status={kpis.status} asOf={snapshotAsOf ?? 'غير متاح'} />
+
+      <MoneyRecoveryRail kpis={kpis} />
+      <DecisionCoverageCard kpis={kpis} />
 
       <section className="rounded-[18px] border border-[#15372f] bg-[#0d2a24] p-4 text-white shadow-[0_14px_40px_rgba(13,42,36,.16)] sm:p-5">
         <div className="flex flex-col gap-4 xl:flex-row xl:items-stretch">

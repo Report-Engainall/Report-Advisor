@@ -47,7 +47,7 @@ export function ScenarioTruthGuardPage() {
   if (state === 'ready' && financials) {
     return (
       <div className="space-y-6 animate-fade-in">
-        <TruthContextStrip status={truth.status} asOf={truth.asOf} asOfLabel="حتى" rangeLabel="لقطة الربحية القانونية الحالية" />
+        <TruthContextStrip status={truth.status} asOf={truth.asOf} periodLabel="حتى" />
         <CanonicalScenarioPage
           baseRevenue={financials.revenue}
           baseCost={financials.cost}
@@ -60,7 +60,7 @@ export function ScenarioTruthGuardPage() {
   return (
     <div className="space-y-6 animate-fade-in">
       <PageHeader title="محاكاة السيناريوهات" subtitle="تم إيقاف المحاكاة مؤقتًا لحماية الحقيقة المالية" />
-      <TruthContextStrip status={truth.status} asOf={truth.asOf} asOfLabel="حتى" rangeLabel="لقطة الربحية القانونية الحالية" />
+      <TruthContextStrip status={truth.status} asOf={truth.asOf} periodLabel="حتى" />
       <Card>
         <CardBody>
           <div className="flex items-start gap-4 rounded-xl border border-warning-200 bg-warning-50 p-5" role="alert">

@@ -3,6 +3,8 @@ import { AlertTriangle, Bell, FileSearch, Lightbulb, ShieldCheck, Target, Workfl
 import { useSearchParams } from 'react-router-dom';
 import { fetchAlerts, fetchRecommendations } from '@/lib/queries';
 import type { Alert, Recommendation } from '@/lib/types';
+import { EvidencePassport } from '@/components/EvidencePassport';
+import { DecisionROICard } from '@/components/DecisionROICard';
 
 type Stage = 'command' | 'evidence' | 'decision' | 'approval' | 'work' | 'outcome';
 const stages: { id: Stage; label: string; description: string }[] = [
@@ -230,5 +232,18 @@ export function DecisionExperiencePage() {
     {stage === 'work' && <section className="space-y-4"><div className="rounded-2xl border border-ink-200 bg-white p-5"><div className="flex items-center gap-2"><Target size={19}/><h2 className="font-bold">مساحة العمل الشخصية</h2></div><div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{['موافقاتي','مهامي','قيد التنفيذ','متأخر','مكتمل','متابعة النتيجة'].map(s => <div key={s} className="rounded-xl border border-ink-100 p-4"><p className="text-xs font-bold">{s}</p><p className="mt-2 text-xs text-ink-500">لا توجد بيانات تشغيلية متاحة.</p></div>)}</div></div><Blocked>لا يمكن اختلاق مهام أو حالات إنجاز. يتطلب هذا المسار جلسة موثقة وسياق الشركة.</Blocked></section>}
 
     {stage === 'outcome' && <section className="space-y-4"><div className="rounded-2xl border border-ink-200 bg-white p-5"><h2 className="font-bold">النتيجة والتعلّم</h2><div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{[['المتوقع', selected?.expected_impact == null ? 'الأثر المتوقع غير متاح' : String(selected.expected_impact)], ['الفعلي', 'النتيجة الفعلية غير متاحة بعد'], ['الفارق', 'لا يمكن حساب الفارق بعد'], ['جودة النتيجة', 'جودة النتيجة غير متاحة بعد'], ['الملاحظات', 'الملاحظات غير متاحة بعد'], ['إشارة التعلّم', 'إشارة التعلّم غير مثبتة بعد']].map(([l, v]) => <div key={l} className="rounded-xl border border-ink-100 p-4"><p className="text-xs font-bold">{l}</p><p className="mt-2 text-sm font-semibold">{v}</p></div>)}</div></div><Blocked>تعلم المستودع لا يساوي تعلّم التشغيل. لا توجد نتيجة فعلية أو ملاحظات أو أدلة تعلّم تشغيلية موثقة.</Blocked></section>}
-  </div>;
+    {selected && stage !== 'command' && <section className="space-y-4">
+      <EvidencePassport
+        source="get_dashboard_intelligence"
+        formula="توصية مصدرية — لا تساوي دليل التنفيذ"
+        period="السياق الحالي"
+        tenant="السياق الحالي"
+        asOf="غير متاح من التوصية"
+        evidenceState="INSUFFICIENT_DATA"
+        confidence={selected.confidence || null}
+        evidenceRefs={["recommendation:" + selected.id]}
+        missingEvidence={["لقطة evidence تشغيلية موثقة", "قرار اعتماد محفوظ", "نتيجة فعلية بعد التنفيذ"]}
+      />
+      <DecisionROICard expected={selected.expected_impact ?? null} actual={null} actualAvailable={false} />
+    </section>}  </div>;
 }
