@@ -645,3 +645,12 @@ Historical evidence from 66d is not promoted to 51c.
 - Applied to Report-Advisor: classify the release-critical report-runtime RPCs by actual caller intent, then prove or restrict each boundary.
 - Research supports the existing fail-closed decision to preserve legitimate authenticated business functions while independently closing worker-only exposure where proven.
 - Separate external hardening item remains open: Supabase Auth leaked-password protection (Issue #354).
+
+
+## 29. Control-Plane Enforcement — 2026-09-18
+
+- The non-idle leadership rules are now machine-checked by the existing `Execution Enforcement Contract` workflow rather than remaining documentation-only.
+- `scripts/check-execution-enforcement-protocol.mjs` now validates the control-signal protocols themselves for the non-idle/queue-is-not-stop/self-correction/cycle-contract rules.
+- `scripts/check-execution-enforcement-protocol.test.mjs` now adversarially removes the new sections and requires the validator to reject the weakened protocols.
+- Corrective commits: `618114d64f676e20ef61995f540710956ac413e8`, `5ee4869d417b8a00f0c46a2b8149ccbab11987a6`, `4da5dd46ff65e9343595c52e717e72660d4855d7`, `0e70fd53a8c80f47f7e4f6bb7ab2dd03ca9c7526`.
+- CI execution for the latest governance commit is not currently surfaced in the commit workflow-run feed; therefore these new checks are implementation evidence, not a CI PASS claim.
