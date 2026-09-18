@@ -68,15 +68,15 @@ export function Header({
   const healthClass = health === 'healthy' ? 'text-success-600' : health === 'checking' ? 'text-ink-400' : 'text-warning-600';
 
   return (
-    <header className="sticky top-0 z-30 border-b border-ink-200/70 bg-[#f4f7f4]/90 backdrop-blur-xl">
-      <div className="flex h-[72px] items-center gap-3 px-4 lg:px-8">
+    <header className="sticky top-0 z-30 border-b border-ink-200/70 bg-[#f4f7f4]/90 backdrop-blur-xl safe-top" aria-label="رأس مساحة العمل">
+      <div className="mx-auto flex h-[72px] w-full max-w-[1800px] items-center gap-3 px-4 lg:px-8">
         <button onClick={onMenuClick} className="rounded-xl p-2 text-ink-500 hover:bg-white lg:hidden" aria-label="فتح القائمة"><Menu size={21}/></button>
 
-        <div className="hidden xl:flex items-center gap-2 text-xs text-ink-400">
+        <div className="hidden min-w-0 items-center gap-2 text-xs text-ink-400 xl:flex" aria-label="مسار الصفحة">
           <span>الأغبري</span><ChevronLeft size={13}/><span className="font-bold text-ink-700">{currentLabel}</span>
         </div>
 
-        <button type="button" onClick={onOpenCommandPalette} className="mx-auto flex h-11 w-full max-w-[560px] items-center gap-3 rounded-2xl border border-ink-200/80 bg-white px-4 text-right text-sm text-ink-400 shadow-sm transition hover:border-primary-300 hover:shadow-card" aria-label="فتح البحث ولوحة الأوامر">
+        <button type="button" onClick={onOpenCommandPalette} className="mx-auto flex h-11 w-full max-w-[620px] items-center gap-3 rounded-2xl border border-ink-200/80 bg-white px-4 text-right text-sm text-ink-400 shadow-sm transition hover:border-primary-300 hover:shadow-card" aria-label="فتح البحث ولوحة الأوامر">
           <Search size={18} className="text-primary-700"/>
           <span className="flex-1 truncate">ابحث في العملاء، المنتجات، التقارير، الفواتير، المقاييس...</span>
           <kbd className="hidden items-center gap-1 rounded-lg border border-ink-200 bg-ink-50 px-2 py-1 text-[10px] font-bold text-ink-400 sm:inline-flex"><Command size={11}/> K</kbd>
@@ -110,7 +110,7 @@ export function Header({
               </>
             )}
           </div>
-          <div className="hidden lg:flex items-center gap-2 border-r border-ink-200 pr-3" role="status" aria-live="polite" title={healthLabel}><HealthIcon size={15} className={healthClass}/><span className="text-xs font-semibold text-ink-500">{healthLabel}</span></div>
+          <div className="hidden lg:flex items-center gap-2 border-r border-ink-200 pr-3" role="status" aria-live="polite" title="حالة الاتصال"><HealthIcon size={15} className={healthClass}/><span className="text-xs font-semibold text-ink-500">{healthLabel}</span></div>
         </div>
       </div>
     </header>

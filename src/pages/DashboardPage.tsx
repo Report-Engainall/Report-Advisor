@@ -7,7 +7,7 @@ import { Link } from 'react-router-dom';
 import { KPICard } from '@/components/ui/KPICard';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { Badge, PriorityBadge, SeverityBadge } from '@/components/ui/Badge';
-import { LoadingState, ErrorState } from '@/components/ui/States';
+import { LoadingState, ErrorState, TruthRail } from '@/components/ui/States';
 import { TrendChart, CategoryPieChart, HorizontalBarChart } from '@/components/ui/Charts';
 import { fetchDashboardSnapshot, fetchDashboardIntelligence } from '@/lib/dashboard-canonical';
 import { formatCurrency, relativeTime } from '@/lib/format';
@@ -92,6 +92,8 @@ export function DashboardPage() {
           </div>
         </div>
       </section>
+
+      <TruthRail status={kpis.status === 'INSUFFICIENT_DATA' ? 'limited' : liveAlerts.length > 0 ? 'review' : 'live'} period={`نطاق التحليل · آخر ${trendMonths} أشهر`} />
 
       <section className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:gap-4">
         <KPICard label="إجمالي المبيعات" value={kpis.totalSales} format="currency" icon={<TrendingUp size={16}/>} status={metricStatus(kpis.totalSales)}/>

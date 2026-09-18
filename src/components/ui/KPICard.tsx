@@ -18,7 +18,8 @@ export function KPICard({ label, value, format, change, changeLabel, icon, statu
   const formatted = value === null ? '—' : format === 'currency' ? formatCurrency(value) : format === 'percent' ? formatPercent(value) : format === 'compact' ? formatCompact(value) : formatNumber(value);
   const positive = change !== undefined && change > 0;
   const negative = change !== undefined && change < 0;
-  const statusLabel = status === 'INSUFFICIENT_DATA' ? 'غير مكتمل' : status === 'FORECAST' ? 'تنبؤ' : status === 'ESTIMATED' ? 'تقديري' : 'محسوب';
+  const statusLabel = status === 'INSUFFICIENT_DATA' ? 'بيانات محدودة' : status === 'FORECAST' ? 'تنبؤ' : status === 'ESTIMATED' ? 'تقديري' : 'محسوب';
+  const statusTone = status === 'INSUFFICIENT_DATA' ? 'badge-warning' : status === 'FORECAST' ? 'badge-primary' : status === 'ESTIMATED' ? 'badge-neutral' : 'badge-success';
 
   return (
     <div className="card card-hover group relative overflow-hidden p-5">
@@ -28,9 +29,9 @@ export function KPICard({ label, value, format, change, changeLabel, icon, statu
           <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-ink-50 text-ink-500 transition group-hover:bg-primary-50 group-hover:text-primary-700">{icon}</span>
           <span className="text-[11px] font-bold text-ink-500">{label}</span>
         </div>
-        <span className="text-[9px] font-black uppercase tracking-wide text-ink-400">{statusLabel}</span>
+        <span className={statusTone + ' text-[9px]'}>{statusLabel}</span>
       </div>
-      <div className="relative mt-5 metric-value">{formatted}</div>
+      <div className="relative mt-5 flex items-baseline gap-2"><div className="metric-value" dir="auto">{formatted}</div></div>
       <div className="relative mt-2 flex min-h-4 items-center gap-2">
         {change !== undefined && <span className={'flex items-center gap-1 text-xs font-bold ' + (positive ? 'text-success-600' : negative ? 'text-danger-600' : 'text-ink-400')}>{positive ? <TrendingUp size={13}/> : negative ? <TrendingDown size={13}/> : <Minus size={13}/>} {formatPercent(change)}</span>}
         {changeLabel && <span className="text-[10px] text-ink-400">{changeLabel}</span>}

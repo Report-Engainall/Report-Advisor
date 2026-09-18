@@ -26,8 +26,8 @@ export function ProductJourneyNav() {
   };
 
   return (
-    <nav aria-label="نموذج تشغيل الأغبري" className="mb-6">
-      <div className="flex items-center gap-2 overflow-x-auto rounded-2xl border border-ink-200/70 bg-white px-2.5 py-2 shadow-card">
+    <nav aria-label="نموذج تشغيل الأغبري" className="mb-5">
+      <div className="flex items-center gap-2 overflow-x-auto rounded-2xl border border-ink-200/70 bg-white px-2.5 py-2 shadow-card snap-x">
         <div className="hidden shrink-0 px-2 text-[10px] font-black tracking-[0.12em] text-primary-700 md:block">MODEL</div>
         {steps.map(({ path, label, description, icon: Icon, stage }, index) => {
           const active = location.pathname === path && (!stage || currentParams.get('stage') === stage);
@@ -35,7 +35,7 @@ export function ProductJourneyNav() {
             <Link
               key={path + '-' + label}
               to={hrefFor(path, stage)}
-              className={'group flex min-w-[145px] items-center gap-2 rounded-xl px-3 py-2 text-right transition ' + (active ? 'bg-ink-950 text-white' : 'text-ink-600 hover:bg-ink-50')}
+              className={'group flex min-w-[142px] snap-start items-center gap-2 rounded-xl px-3 py-2 text-right transition ' + (active ? 'bg-ink-950 text-white' : 'text-ink-600 hover:bg-ink-50')}
               aria-current={active ? 'step' : undefined}
             >
               <span className={'flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ' + (active ? 'bg-primary-600 text-white' : 'bg-ink-100 text-ink-500 group-hover:bg-primary-50 group-hover:text-primary-700')}><Icon size={15}/></span>

@@ -23,9 +23,9 @@ export function DataTable<T extends object>({ columns, data, loading, emptyMessa
   if (!data || data.length === 0) return <div className="p-12 text-center text-xs font-semibold text-ink-400">{emptyMessage}</div>;
 
   return (
-    <div className="overflow-x-auto rounded-b-[1.35rem]">
-      <table className="w-full min-w-[720px]">
-        <thead>
+    <div className="max-h-[68vh] overflow-auto rounded-b-[1.35rem]">
+      <table className="w-full min-w-[720px] border-separate border-spacing-0">
+        <thead className="sticky top-0 z-10">
           <tr className="border-b border-ink-100 bg-[#f7faf7] shadow-[inset_0_-1px_0_rgba(15,118,110,.08)]">
             {columns.map(col => <th key={col.key} className={'px-4 py-3 text-[10px] font-black tracking-wide text-ink-500 ' + (col.align === 'center' ? 'text-center' : col.align === 'left' ? 'text-left' : 'text-right')} style={{ width: col.width }}>{col.label}</th>)}
           </tr>
@@ -33,7 +33,7 @@ export function DataTable<T extends object>({ columns, data, loading, emptyMessa
         <tbody>
           {data.map((row, index) => {
             const record = row as Record<string, unknown>;
-            return <tr key={typeof record.id === 'string' || typeof record.id === 'number' ? String(record.id) : index} onClick={() => onRowClick?.(row)} className={'border-b border-ink-100/80 transition odd:bg-white even:bg-ink-50/25 ' + (onRowClick ? 'cursor-pointer hover:bg-primary-50/45' : '')}>
+            return <tr key={typeof record.id === 'string' || typeof record.id === 'number' ? String(record.id) : index} onClick={() => onRowClick?.(row)} onKeyDown={event => { if (onRowClick && (event.key === 'Enter' || event.key === ' ')) { event.preventDefault(); onRowClick(row); } }} tabIndex={onRowClick ? 0 : undefined} className={'border-b border-ink-100/80 transition odd:bg-white even:bg-ink-50/25 ' + (onRowClick ? 'cursor-pointer hover:bg-primary-50/45 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary-500/40' : '')}>
               {columns.map(col => <td key={col.key} className={'px-4 py-3 text-xs font-medium text-ink-700 ' + (col.align === 'center' ? 'text-center' : col.align === 'left' ? 'text-left' : 'text-right') + ' ' + (col.className ?? '')}>{col.render ? col.render(row) : record[col.key] as ReactNode}</td>)}
             </tr>;
           })}
