@@ -25,7 +25,7 @@
 ### CURRENT PRODUCT WAVE UPDATE — PR #595
 - UI/product wave rebased directly onto current main fe5661060462ffa21d6aa31505f80c2021c4170a and opened as PR #595.
 - Superseded PR #587 is closed; no historical CI/evidence from #587 is treated as certification for #595.
-- Last product/UI execution source head before this governance sync: `649c36c6c69e46ca0a2ccdc41d5fdd2565d519da`. This checkpoint is non-semantic documentation only; it does not change the product/runtime certification boundary.
+- Latest product/UI execution source head before this governance sync: `3230faa7d0dcd8258fcf8b1eb9d4265bb4f0eb81`. This checkpoint includes UI contract-alignment test fixes only after the completed product surface work.
 - UI work included shell/header/sidebar/command palette, dashboard truth context, Intelligence assistant, decision stage UX/deep-link synchronization, Data Quality, Executive Command Center/Report, Metric Inspector, Alternatives and Work Center refinements.
 - Shared E2E login harness fixed to target the semantic form submit control instead of the obsolete localized login-label text.
 - Dashboard truth adversarial regression contract made whitespace-tolerant without weakening the intended semantic guard.
@@ -40,8 +40,9 @@
 - Localized remaining visible technical English across Intelligence, Decision Experience, Executive Report, Data Quality, File Analysis, Onboarding, Metric Inspector, Proposal Demo, shell and contextual assistant surfaces.
 - Added semantic selection/pressed states to additional mode/tab controls.
 - Completed an additional UI polish pass: localized operating-model/context labels, translated decision lifecycle states, replaced raw freshness JSON with a user-readable freshness policy, localized metric snapshot wording, normalized the Proposal Demo setter, and localized the Proposal capability/snapshot surface.
+- Repaired dashboard UI contract drift: the guard now follows the current executive headline, work-path surface, live alert/recommendation arrays, and current coverage wording instead of obsolete identifiers/copy.
 - Current Netlify public preview renders the Arabic Aghbari shell successfully; Vercel preview is provider-authenticated. Certification remains independent of preview rendering.
-- Exact-head GitHub Actions on the current product source head were observed as queued/pending (no PASS transferred or claimed).
+- Exact-head GitHub Actions on the current product source head remain queued/pending; no PASS is transferred or claimed. Local PC01 verification on this exact SHA passed typecheck, production build, executive-dashboard UI contract, dashboard numeric-truth contract, route/sidebar parity, PostCSS toolchain and performance budget.
 ### LATEST EXECUTION UPDATE — 2026-09-18
 - Staging forward-only parity checkpoint applied successfully: `harden_import_field_lineage_rls`, `revoke_authenticated_worker_enqueue`, `reconcile_live_source_end_state`.
 - Verified import row integrity: null company=0, orphan job=0, cross-tenant row/job mismatch=0.
