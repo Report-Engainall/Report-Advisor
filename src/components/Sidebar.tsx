@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import {
   Activity, BarChart3, Brain, ChevronDown, ClipboardCheck, Crosshair, FileBarChart, Gauge,
   Layers3, LayoutDashboard, ListChecks, LogOut, Package, Presentation, Scale, ScanSearch,
-  Settings, Target, Upload, UserCircle, Users, Warehouse, AlertCircle, PlugZap
+  Settings, Target, Upload, UserCircle, Users, Warehouse, AlertCircle, PlugZap, WalletCards
 } from 'lucide-react';
 import type { User } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
@@ -77,6 +77,17 @@ const navSections: NavSection[] = [
     { path: '/proposal-demo', label: 'وضع العرض التقديمي', enLabel: 'Proposal Demo', icon: <Presentation size={18}/>, hint: 'غرفة إثبات القيمة', enHint: 'Proof room' },
   ]},
 ];
+
+const sectionIcon = (id: string) => {
+  if (id === 'today') return <LayoutDashboard size={18}/>;
+  if (id === 'operations') return <BriefcaseBusiness size={18}/>;
+  if (id === 'money') return <WalletCards size={18}/>;
+  if (id === 'customers-products') return <Package size={18}/>;
+  if (id === 'intelligence') return <Brain size={18}/>;
+  if (id === 'reports') return <FileBarChart size={18}/>;
+  return <Settings size={18}/>;
+};
+
 
 
 export function Sidebar({ alertCount = 0, onNavigate, user }: { alertCount?: number; onNavigate?: () => void; user?: User | null }) {
