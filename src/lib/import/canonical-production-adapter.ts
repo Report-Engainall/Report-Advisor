@@ -36,7 +36,7 @@ async function stageRows(input: DurableCanonicalImportInput, companyId: string):
   }
 }
 
-async function finishCanonicalImportFailure(importId: string, message: string): Promise<void> {
+export async function finishCanonicalImportFailure(importId: string, message: string): Promise<void> {
   const { error } = await supabase.rpc('import_finish_job', {
     p_job_id: importId,
     p_status: 'failed',
