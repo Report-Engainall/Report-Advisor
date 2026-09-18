@@ -12,7 +12,9 @@ function pdfWithText(text: string): ArrayBuffer {
   const chunks = text.match(/.{1,90}(?:\\s|$)/g)?.map((chunk) => chunk.trim()).filter(Boolean) ?? [text];
   const streamParts = ['BT /F1 12 Tf 40 760 Td'];
   for (let index = 0; index < chunks.length; index += 1) {
-    streamParts.push(`(${escapePdfLiteral(chunks[index])}) Tj`);
+    const bytes = Array.from(new TextEncoder().encode(chunks[index]));
+    const hex = bytes.map((byte) => byte.toString(16).padStart(2, '0')).join('');
+    streamParts.push(`<${hex}> Tj`);
     if (index < chunks.length - 1) streamParts.push('0 -18 Td');
   }
   streamParts.push('ET');
