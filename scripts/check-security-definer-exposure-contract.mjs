@@ -38,16 +38,28 @@ function getFunctionWindow(name) {
 }
 
 function normalizeSearchPath(window) {
-  const raw = window.match(/SET\s+search_path\s+(?:TO|=)\s*([^\n;]+)/i)?.[1];
-  if (!raw) return null;
+  const raw = window.match(/SET\s+search_path\s*(?:TO|=)\s*([^\n;]*?)(?=\s+AS\b|\s*;|\s*$)/i)?.[1];
+  if (raw === undefined) return null;
   return raw.trim().toLowerCase().replaceAll('"', '').replaceAll("'", '').replace(/\s+/g, '');
 }
 
 function hasSafeSearchPath(window, mode) {
   const normalized = normalizeSearchPath(window);
   if (!normalized) return false;
-  if (mode === 'EMPTY_OR_SAFE') return normalized === '' || normalized === 'public' || normalized === 'public,pg_catalog';
+  if (mode === 'EMPTY_OR_SAFE') return normalized === '' || normalized === 'public' || normalized === 'pg_catalog' || normalized === 'public,pg_catalog';
   return normalized === 'public' || normalized === 'public,pg_catalog';
+}
+
+const searchPathParserCases = [
+  ['SET search_path=public AS $', 'public'],
+  ["SET search_path TO 'pg_catalog' AS $", 'pg_catalog'],
+  ['SET search_path = public;', 'public'],
+  ["SET search_path TO '' AS $", ''],
+];
+
+for (const [sample, expected] of searchPathParserCases) {
+  const actual = normalizeSearchPath(sample);
+  if (actual !== expected) failures.push(`search_path parser regression: ${sample} -> ${actual ?? 'null'} (expected ${expected})`);
 }
 
 function assertAuthenticatedOnly(name) {
