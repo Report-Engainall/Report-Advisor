@@ -1,3 +1,10 @@
+### LATEST EXECUTION OVERRIDE — 2026-09-18T10:15Z
+- PR #595 UI/Product exact head: 6eb585546d0e90c88fd14dbacdcb9b7771a48215.
+- Final UI closure includes localization of the aging unknown-state user text; no new RPC/runner/data path introduced.
+- Exact-head PC01 evidence on 6eb58554…: typecheck PASS; executive dashboard UI contract PASS; dashboard numeric truth PASS; route/sidebar parity PASS; production build PASS; performance budget PASS; PostCSS toolchain PASS.
+- External release blockers remain outside the UI lane: GitHub Actions queue/pending state, Vercel provider deployment quota, runtime/persistence/12-scenario E2E, Phase F live resilience, backup/restore + measured RPO/RTO, and release parity.
+- This override supersedes older READY STATE wording below where it says no execution has started.
+
 ## CURRENT EXECUTION BOUNDARY — 2026-09-18
 
 > تحديث تنفيذي بعد أمر المالك «انطلق». هذا القسم يصف الحالة المثبتة من الأدوات فقط. لا يتم نقل Evidence بين SHAs، ولا تُعد الحالة PASS إلا بدليل Exact-HEAD.
@@ -39,10 +46,10 @@
 - Added canonical report links for sales, purchases, and inventory to the sidebar; hardened the parity parser for whitespace-tolerant path syntax.
 - Localized remaining visible technical English across Intelligence, Decision Experience, Executive Report, Data Quality, File Analysis, Onboarding, Metric Inspector, Proposal Demo, shell and contextual assistant surfaces.
 - Added semantic selection/pressed states to additional mode/tab controls.
-- Completed an additional UI polish pass: localized operating-model/context labels, translated decision lifecycle states, replaced raw freshness JSON with a user-readable freshness policy, localized metric snapshot wording, normalized the Proposal Demo setter, and localized the Proposal capability/snapshot surface.
+- Completed an additional UI polish pass: localized operating-model/context labels, translated decision lifecycle states, replaced raw freshness JSON with a user-readable freshness policy, localized metric snapshot wording, normalized the Proposal Demo setter, localized the Proposal capability/snapshot surface, and localized the aging-analysis unknown-state label (UNDATED → Arabic user-facing wording).
 - Repaired dashboard UI contract drift: the guard now follows the current executive headline, work-path surface, live alert/recommendation arrays, and current coverage wording instead of obsolete identifiers/copy.
 - Current Netlify public preview renders the Arabic Aghbari shell successfully; Vercel preview is provider-authenticated. Certification remains independent of preview rendering.
-- Exact-head GitHub Actions on the current product source head remain queued/pending; no PASS is transferred or claimed. Local PC01 verification on this exact SHA passed typecheck, production build, executive-dashboard UI contract, dashboard numeric-truth contract, route/sidebar parity, PostCSS toolchain and performance budget.
+- Exact-head GitHub Actions on the current product source head remain queued/pending; no PASS is transferred or claimed. Local PC01 verification on 6eb58554… passed typecheck, production build, executive-dashboard UI contract, dashboard numeric-truth contract, route/sidebar parity, PostCSS toolchain and performance budget.
 ### LATEST EXECUTION UPDATE — 2026-09-18
 - Staging forward-only parity checkpoint applied successfully: `harden_import_field_lineage_rls`, `revoke_authenticated_worker_enqueue`, `reconcile_live_source_end_state`.
 - Verified import row integrity: null company=0, orphan job=0, cross-tenant row/job mismatch=0.
