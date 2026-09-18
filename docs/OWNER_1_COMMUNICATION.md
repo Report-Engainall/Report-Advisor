@@ -628,3 +628,31 @@ FILES / SURFACES: routed analytics/intelligence pages and existing canonical que
 DEPENDENCIES: existing canonical read paths only؛ no new RPC/DB/Runner/Auth/Tenant/Storage/CI logic.
 BLOCKERS: لا blocker معروف عند البدء.
 EXPECTED HANDOFF: Owner 2 يعيد إثبات analytics/intelligence browser/runtime/release gates على Exact SHA الجديد.
+
+## EXECUTION — COMMAND 11 — 2026-09-19
+EXECUTION
+CHANGE: توحيد طبقة الحقيقة في تحليلات RFM وABC وأعمار الذمم باستخدام status/as-of من المصادر canonical نفسها.
+SURFACES: src/pages/AnalyticsPage.tsx; scripts/check-analytics-truth-contract.mjs; package.json.
+DETAILS: RFM وAging يستعملان asOf الحقيقي الصادر من fetchRFMSnapshot/fetchAgingSnapshot؛ ABC يستعمل status الحقيقي ويعلن صراحة أن freshness/as-of غير متاح من المصدر، دون تصنيع timestamp. كما تم تصحيح حارس inventory-intelligence UI المتقادم ليطابق النصوص/الاسم الظاهرين حاليًا دون تغيير سلوك المنتج.
+BOUNDARY: Inventory Intelligence وDemand Velocity لم يتم منحُهما freshness/status مصطنعًا؛ مصادرهما الحالية لا تعرضان هذه الحقول كحقيقة canonical، وتم الاكتفاء بإثبات عقودهما الحالية.
+TEST: final Exact SHA a037a7022a54bf02860f1b98b9b8cb64693b5d64: test:analytics-truth PASS; route/sidebar parity PASS (35 routes / 34 sidebar links); test:inventory-intelligence-ui PASS; test:demand-velocity PASS; test:executive-report-product-contract PASS; test:intelligence-product-contract PASS; test:report-execution-foundation PASS; typecheck PASS; lint PASS (0 errors / 59 warnings); build PASS (2808 modules, 14.16s); perf:budget PASS (critical 487.2KB / largest JS 487.8KB).
+RESULT: verified after commit on the final Exact SHA; no RPC/DB/Runner/Auth/Tenant/Storage/CI mutation.
+COMMIT: a037a7022a54bf02860f1b98b9b8cb64693b5d64
+STATUS: READY_FOR_HANDOFF
+
+HANDOFF
+FROM: OWNER 1
+TARGET: OWNER 2
+BRANCH: feat/owner1-analytics-truth-wave13-20260919
+SHA: a037a7022a54bf02860f1b98b9b8cb64693b5d64
+CHANGED: RFM/ABC/Aging canonical truth context + analytics truth regression guard + stale inventory UI contract alignment.
+VERIFIED: all targeted product contracts, route parity, typecheck, lint, build and performance budget PASS on final Exact SHA.
+UNPROVEN: authenticated browser behavior; backend/runtime/DB/RLS/persistence/CI/CD/release certification remain Owner 2 scope.
+BLOCKERS: لا يوجد blocker تطبيقي في جبهة Owner 1.
+NEXT: integrate/rebase/cherry-pick Exact SHA a037a7022a54bf02860f1b98b9b8cb64693b5d64 and reprove analytics/inventory-intelligence/demand-velocity browser/runtime/release gates on the merged Exact SHA; never transfer evidence across SHAs.
+
+CLOSE
+HEAD: a037a7022a54bf02860f1b98b9b8cb64693b5d64
+DONE: Wave 13 analytics truth integrity completed and handed off.
+OPEN: Owner 2 runtime/integration/release proof; Owner 1 next front remains independent product/UI hardening.
+BLOCKED: none.
