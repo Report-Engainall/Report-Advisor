@@ -1,6 +1,47 @@
 # REPORT-ADVISOR — PROJECT LIVING MEMORY
 ## Operational Source of Truth v2.0
 
+## 0. Autonomous Control Signals
+
+The project has two reserved operator signals:
+
+- 1 = PROGRAMMER EXECUTION
+- 2 = AI ENGINEERING LEAD EXECUTION
+
+The canonical rules are maintained in:
+docs/AUTONOMOUS_CONTROL_SIGNAL_PROTOCOL.md
+
+### Shared runtime state
+
+Maintain these fields as live operational state when material:
+
+- CONTROL_SIGNAL
+- RUN_STATE
+- EXACT_HEAD
+- BASE_MAIN
+- ACTIVE_PR
+- CURRENT_FRONT
+- NEXT_FRONT
+- COMPLETED_FRONTS
+- BLOCKED_EXTERNAL
+- BLOCKED_ENGINEERING
+- LAST_REAL_EVIDENCE
+- CERTIFICATION_STATE
+- SECURITY_STATE
+- PRODUCTION_READINESS
+- COMMERCIAL_READINESS
+- LAST_DECISION
+- LAST_MEMORY_UPDATE
+
+### Signal law
+
+1 means the programmer must execute/resume the autonomous engineering loop immediately. It must not echo the command or wait for another 1.
+
+2 means the AI engineering lead must assume/resume technical leadership immediately: inspect, verify, challenge, decide, direct/execute, improve, and continue.
+
+A report is an observation, not a stop condition.
+
+
 This file is the durable operational memory of the project. It is not a status report and it is not a substitute for evidence.
 
 ## 1. Truth hierarchy
