@@ -3,14 +3,14 @@ import fs from 'node:fs';
 
 const source = fs.readFileSync('src/pages/DashboardPage.tsx', 'utf8');
 for (const token of [
-  'قرارك التجاري يبدأ من هنا',
+  'من البيانات إلى القرار التجاري — في شاشة واحدة.',
   'مركز القيادة',
   'التقرير التنفيذي',
   'المؤشرات الأساسية',
   'تغطية المؤشرات',
   'مركز الانتباه',
-  'التوصيات النشطة',
-  'ماذا تريد أن تنجز؟',
+  'طابور القرار',
+  'مسارات العمل',
   'fetchDashboardSnapshot',
   'fetchDashboardIntelligence',
   'metricStatus',
