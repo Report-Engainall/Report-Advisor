@@ -4,6 +4,7 @@ import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { PageHeader, LoadingState, ErrorState } from '@/components/ui/States';
 import { supabase, resolveCurrentCompanyId } from '@/lib/supabase';
 import { WORKSPACE_MODE_KEY, readWorkspaceMode, type WorkspaceMode } from '@/lib/workspace-mode';
+import { SectorIntelligencePack } from '@/components/SectorIntelligencePack';
 
 
 interface CompanySettings {
@@ -81,6 +82,7 @@ export function CompanySettingsPage() {
           </div>
         </CardBody>
       </Card>
+      <SectorIntelligencePack industry={company.industry} />
       <Card>
         <CardHeader title="معلومات الشركة" />
         <CardBody>
