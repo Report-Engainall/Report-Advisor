@@ -26,18 +26,18 @@ const reportCards = [
 ];
 
 export function ReportsCenterPage() {
-  return <div dir="rtl" className="space-y-6 animate-fade-in pb-10">
+  return <div dir="rtl" className="space-y-5 animate-fade-in pb-10">
     <PageHeader title="مركز التقارير" subtitle="منظومة التقارير التنفيذية: كل رقم يعود إلى مصدره، وكل تفسير يبقى منفصلًا عن حقيقة البيانات."/>
-    <section className="rounded-3xl bg-ink-950 p-6 text-white lg:p-8">
+    <section className="rounded-[14px] border border-ink-200 bg-white p-5 shadow-card lg:p-6">
       <div className="grid gap-6 lg:grid-cols-[1.4fr_.6fr] items-end">
         <div>
-          <div className="text-xs font-semibold text-primary-300">بيانات → دليل → قرار</div>
-          <h1 className="mt-2 text-2xl font-bold lg:text-3xl">التقرير ليس شاشة أرقام؛ إنه حزمة أدلة قابلة للمراجعة.</h1>
-          <p className="mt-3 max-w-3xl text-sm leading-7 text-ink-300">استخدم التقارير لتفسير الحالة الحالية، مع الحفاظ على مؤشرات نقص البيانات والحالات غير القابلة للحساب بدل إخفائها.</p>
+          <div className="section-kicker">بيانات → دليل → قرار</div>
+          <h1 className="mt-1 text-[22px] font-black tracking-tight text-ink-950 lg:text-[28px]">التقرير ليس شاشة أرقام؛ إنه حزمة أدلة قابلة للمراجعة.</h1>
+          <p className="mt-2 max-w-3xl text-[11px] leading-5 text-ink-500">استخدم التقارير لتفسير الحالة الحالية، مع الحفاظ على مؤشرات نقص البيانات والحالات غير القابلة للحساب بدل إخفائها.</p>
         </div>
-        <div className="rounded-2xl border border-ink-700 bg-white/5 p-4 text-sm">
+        <div className="rounded-[10px] border border-ink-200 bg-ink-50 p-4 text-sm">
           <div className="font-semibold">قاعدة العرض</div>
-          <div className="mt-2 text-xs leading-6 text-ink-300">مصدر واضح · حالة بيانات واضحة · لا رقم بديل عند غياب المصدر</div>
+          <div className="mt-2 text-[10px] leading-5 text-ink-500">مصدر واضح · حالة بيانات واضحة · لا رقم بديل عند غياب المصدر</div>
         </div>
       </div>
     </section>
