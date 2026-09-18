@@ -669,3 +669,30 @@ FILES / SURFACES: routed Metric Inspector page + existing semantic metric source
 DEPENDENCIES: existing semantic metric service / canonical reads; no new RPC/DB/Runner/Auth/Tenant/Storage/CI logic.
 BLOCKERS: لا blocker معروف عند البدء.
 EXPECTED HANDOFF: Owner 2 يعيد إثبات metrics browser/runtime/release gates على Exact SHA الجديد.
+
+## EXECUTION — COMMAND 12 — 2026-09-19
+EXECUTION
+CHANGE: إصلاح دلالة Freshness في Metric Inspector: قبل وجود evidence حقيقي كانت الواجهة تستدعي semanticMetricIsFresh مع asOf=null دائمًا، وبالتالي كانت النتيجة UNKNOWN حتى بعد التقاط دليل. أصبحت freshness الآن تعتمد على capture.observed_at الحقيقي فقط عند وجود evidence فعلي.
+FILES: src/pages/MetricInspectorPage.tsx; scripts/check-metric-inspector-truth-contract.mjs; package.json.
+WHY: منع خلط سياسة freshness الخاصة بعقد المقياس مع freshness الفعلية لبيانات مرصودة؛ لا يتم تصنيع observed_at.
+TEST: final Exact SHA a93f22236ab84ab6de2462c76360ff0757623d3a: test:metric-inspector-truth PASS; test:semantic-metric-registry PASS (14 metrics); test:safe-metrics PASS; route/sidebar parity PASS (35 routes / 34 sidebar links); intelligence-product-contract PASS; typecheck PASS; lint PASS (0 errors / 59 warnings); build PASS (2808 modules, 15.25s); perf:budget PASS (critical 487.2KB / largest JS 487.8KB).
+RESULT: verified after commit on final Exact SHA; no RPC/DB/Runner/Auth/Tenant/Storage/CI mutation.
+COMMIT: a93f22236ab84ab6de2462c76360ff0757623d3a
+STATUS: READY_FOR_HANDOFF
+
+HANDOFF
+FROM: OWNER 1
+TARGET: OWNER 2
+BRANCH: feat/owner1-metric-truth-wave14-20260919
+SHA: a93f22236ab84ab6de2462c76360ff0757623d3a
+CHANGED: Metric Inspector freshness semantics + regression guard.
+VERIFIED: metric truth, registry, safe-metrics, route parity, intelligence contract, typecheck, lint, build, and performance budget PASS on final Exact SHA.
+UNPROVEN: authenticated browser behavior; backend/runtime/DB/RLS/persistence/CI/CD/release certification remain Owner 2 scope.
+BLOCKERS: لا يوجد blocker تطبيقي في جبهة Owner 1.
+NEXT: integrate/rebase/cherry-pick Exact SHA a93f22236ab84ab6de2462c76360ff0757623d3a and reprove metrics/browser/runtime/release gates on merged Exact SHA; no cross-SHA evidence transfer.
+
+CLOSE
+HEAD: a93f22236ab84ab6de2462c76360ff0757623d3a
+DONE: Wave 14 Metric Inspector truth completed and handed off.
+OPEN: Owner 2 integration/runtime/release proof; Owner 1 independent product/UI hardening remains.
+BLOCKED: none.
