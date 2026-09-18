@@ -67,6 +67,24 @@ for (const name of intendedAuthenticatedSecurityDefiners) {
   assertAuthenticatedOnly(name);
 }
 
+function assertServiceOnly(name, args) {
+  const signature = `${name}\\(${args}\\)`;
+  const authenticatedGrant = new RegExp(`GRANT\\s+EXECUTE\\s+ON\\s+FUNCTION\\s+(?:public\\.)?${signature}\\s+TO\\s+authenticated\\s*;`, 'i');
+  if (authenticatedGrant.test(sql)) failures.push(`${name}: worker SECURITY DEFINER must not be executable by authenticated`);
+  const anonGrant = new RegExp(`GRANT\\s+EXECUTE\\s+ON\\s+FUNCTION\\s+(?:public\\.)?${signature}\\s+TO\\s+anon\\s*;`, 'i');
+  if (anonGrant.test(sql)) failures.push(`${name}: worker SECURITY DEFINER must not be executable by anon`);
+  const serviceGrant = new RegExp(`GRANT\\s+EXECUTE\\s+ON\\s+FUNCTION\\s+(?:public\\.)?${signature}\\s+TO\\s+service_role\\s*;`, 'i');
+  if (!serviceGrant.test(sql)) failures.push(`${name}: service_role EXECUTE grant not found`);
+}
+
+for (const worker of serviceOnlyReportWorkerSecurityDefiners) {
+  const window = getFunctionWindow(worker.name);
+  if (!window) { failures.push(`${worker.name}: latest repository definition not found`); continue; }
+  if (!/SECURITY\\s+DEFINER/i.test(window)) failures.push(`${worker.name}: SECURITY DEFINER missing`);
+  if (!hasSafeSearchPath(window, 'PUBLIC')) failures.push(`${worker.name}: safe explicit search_path missing`);
+  assertServiceOnly(worker.name, worker.args);
+}
+
 for (const check of criticalOperationalSecurityDefiners) {
   const window = getFunctionWindow(check.name);
   if (!window) { failures.push(`${check.name}: critical operational definition not found`); continue; }
@@ -82,6 +100,6 @@ if (failures.length) {
   process.exit(1);
 }
 
-console.log(`Security-definer exposure contract: PASS (${intendedAuthenticatedSecurityDefiners.length} intentional authenticated repository functions + ${criticalOperationalSecurityDefiners.length} critical operational repository functions)`);
+console.log(`Security-definer exposure contract: PASS (${intendedAuthenticatedSecurityDefiners.length} intentional authenticated repository functions + ${criticalOperationalSecurityDefiners.length} authenticated critical operational functions + ${serviceOnlyReportWorkerSecurityDefiners.length} service-only report worker functions)`);
 console.log(`LIVE_ONLY_SECURITY_DEFINER_NOT_ASSERTED=${liveOnlyExpectedSecurityDefiners.join(',')}`);
 console.log('Migration parity for any live-only function remains a separate fail-closed gate.');
