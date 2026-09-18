@@ -25,7 +25,7 @@
 ### CURRENT PRODUCT WAVE UPDATE — PR #595
 - UI/product wave rebased directly onto current main fe5661060462ffa21d6aa31505f80c2021c4170a and opened as PR #595.
 - Superseded PR #587 is closed; no historical CI/evidence from #587 is treated as certification for #595.
-- Current PR head at latest execution sync: b983b29dcf8ed177f771d36ba82b5210b594bf26.
+- Last product/UI execution source head before this governance sync: `649c36c6c69e46ca0a2ccdc41d5fdd2565d519da`. This checkpoint is non-semantic documentation only; it does not change the product/runtime certification boundary.
 - UI work included shell/header/sidebar/command palette, dashboard truth context, Intelligence assistant, decision stage UX/deep-link synchronization, Data Quality, Executive Command Center/Report, Metric Inspector, Alternatives and Work Center refinements.
 - Shared E2E login harness fixed to target the semantic form submit control instead of the obsolete localized login-label text.
 - Dashboard truth adversarial regression contract made whitespace-tolerant without weakening the intended semantic guard.
@@ -37,9 +37,11 @@
 - PWA verification: current preview exposes service worker v2 with app-shell/offline navigation fallback; source manifest is Arabic RTL, standalone, and scoped to root.
 - Route/sidebar parity verified after the latest nav fix: 34 application routes, 33 sidebar links (wildcard excluded), no missing or duplicate paths.
 - Added canonical report links for sales, purchases, and inventory to the sidebar; hardened the parity parser for whitespace-tolerant path syntax.
-- Localized remaining visible technical English across Intelligence, Decision Experience, Executive Report, Data Quality, File Analysis, and Onboarding surfaces.
+- Localized remaining visible technical English across Intelligence, Decision Experience, Executive Report, Data Quality, File Analysis, Onboarding, Metric Inspector, Proposal Demo, shell and contextual assistant surfaces.
 - Added semantic selection/pressed states to additional mode/tab controls.
-- Current preview remains ready and public; certification remains independent of preview rendering.
+- Completed an additional UI polish pass: localized operating-model/context labels, translated decision lifecycle states, replaced raw freshness JSON with a user-readable freshness policy, localized metric snapshot wording, normalized the Proposal Demo setter, and localized the Proposal capability/snapshot surface.
+- Current Netlify public preview renders the Arabic Aghbari shell successfully; Vercel preview is provider-authenticated. Certification remains independent of preview rendering.
+- Exact-head GitHub Actions on the current product source head were observed as queued/pending (no PASS transferred or claimed).
 ### LATEST EXECUTION UPDATE — 2026-09-18
 - Staging forward-only parity checkpoint applied successfully: `harden_import_field_lineage_rls`, `revoke_authenticated_worker_enqueue`, `reconcile_live_source_end_state`.
 - Verified import row integrity: null company=0, orphan job=0, cross-tenant row/job mismatch=0.
