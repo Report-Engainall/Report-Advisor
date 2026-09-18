@@ -14,7 +14,8 @@ This document is the live ownership boundary for command `2`. It is intentionall
 - `src/pages/DemandVelocityPage.tsx`: demand rows are now investigation-first and open the existing lazy-loaded investigation drawer with explicit confirmed vs missing evidence.
 - `src/components/CommandPalette.tsx`: recent command ordering now follows actual recency rather than alphabetical tie-breaking.
 - `src/pages/InventoryIntelligencePage.tsx`: grouped inventory rows now open the existing investigation drawer with coverage, demand, missing-evidence and next-action context.
-- Current code HEAD: `9a0e1185f7f47a7a5683d99de8a3929f6bdc9e91`.
+- `src/pages/DataQualitySnapshotPage.tsx`: quality entity cards now deep-link to the relevant business context while preserving explicit EMPTY/score semantics.
+- Current code HEAD: `5151802350e8240379d0e5d8dfe414cb0c78b62f`.
 - The shared development remains on the isolated integration branch; `main` is not mutated by this wave.
 
 ### Active development fronts
