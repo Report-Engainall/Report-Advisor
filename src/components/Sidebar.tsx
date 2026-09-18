@@ -10,6 +10,7 @@ import type { User } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
 import { getDisplayEmail, getDisplayName } from '@/lib/profile-display';
 import { useLanguage } from '@/lib/language';
+import { isWorkspacePathVisible, readWorkspaceMode, type WorkspaceMode } from '@/lib/workspace-mode';
 
 interface NavItem { path: string; label: string; icon: ReactNode; hint?: string; enLabel?: string; enHint?: string }
 interface NavSection { title: string; items: NavItem[] }
