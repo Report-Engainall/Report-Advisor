@@ -1037,3 +1037,31 @@ FILES / SURFACES: src/pages/ProposalDemoPage.tsx; scripts/check-proposal-demo-co
 DEPENDENCIES: CAPABILITIES الداخلية والمسارات الحالية فقط؛ لا DB/RPC/Runner/Auth/Tenant/Storage/CI change.
 BLOCKERS: لا يوجد blocker تطويري معروف.
 EXPECTED HANDOFF: Owner 2 يعيد إثبات Proposal Demo/browser/build/release على Exact SHA؛ لا نقل Evidence بين SHAs.
+
+EXECUTION
+CHANGE: تطوير Proposal Demo إلى Commercial Proof Workspace: نسبة تغطية المتطلبات، عدد المتطلبات المرتبطة/المعلقة، وملخص عرض deterministic مبني فقط على capability mapping الحالي.
+FILES: src/pages/ProposalDemoPage.tsx; scripts/check-proposal-demo-commercial-contract.mjs; package.json.
+WHY: صفحة العرض كانت تعرض المطابقة فقط؛ أصبحت الآن أداة بيع قابلة للطباعة توضح ما يغطيه المنتج وما يحتاج مراجعة دون ادعاء جاهزية غير مثبتة.
+TEST: final Exact SHA 35d5b17f148788f0835834c1027d6b32f6065c62: proposal-demo-commercial PASS; product-wow-ui PASS; route/sidebar parity PASS (35/34); typecheck PASS; lint PASS (0 errors / 58 warnings); build PASS (2808 modules, 13.91s); perf:budget PASS (critical 488.0KB / largest JS 487.8KB).
+RESULT: verified on final feature Exact SHA; no RPC/DB/Runner/Auth/Tenant/Storage/CI mutation.
+COMMIT: 35d5b17f148788f0835834c1027d6b32f6065c62
+NEW HEAD: 35d5b17f148788f0835834c1027d6b32f6065c62
+STATUS: READY_FOR_HANDOFF
+
+HANDOFF
+FROM: OWNER 1
+TARGET: OWNER 2
+BRANCH: feat/owner1-proposal-showcase-wave23-20260919
+SHA: 35d5b17f148788f0835834c1027d6b32f6065c62
+CHANGED: Commercial Proof Workspace in Proposal Demo + deterministic coverage/summary contract.
+VERIFIED: proposal commercial contract, product-wow UI, route parity, typecheck, lint, build, performance on feature Exact SHA.
+UNPROVEN: authenticated browser behavior; backend/runtime/DB/RLS/persistence/CI/CD/release certification remain Owner 2 scope.
+BLOCKERS: none in Owner 1 code.
+NEXT: integrate/rebase/cherry-pick Exact SHA 35d5b17f148788f0835834c1027d6b32f6065c62 and reprove Proposal Demo/browser/release on merged Exact SHA; no cross-SHA evidence transfer.
+
+CLOSE
+HEAD: 35d5b17f148788f0835834c1027d6b32f6065c62
+DONE: Wave 23 commercial proposal proof completed and handed off.
+OPEN: Owner 2 runtime/release proof; Owner 1 continues competitive product hardening.
+BLOCKED: none.
+NEXT START: inspect Work Center as the operational decision surface for the next competitive wave.
