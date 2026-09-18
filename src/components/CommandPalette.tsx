@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ArrowRight, Command, Search } from 'lucide-react';
 
@@ -56,6 +56,9 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
   const navigate = useNavigate();
   const location = useLocation();
   const inputRef = useRef<HTMLInputElement>(null);
+  const paletteId = `command-palette-${useId().replace(/:/g, '')}`;
+  const inputId = `${paletteId}-input`;
+  const resultsId = `${paletteId}-results`;
   const [query, setQuery] = useState('');
   const [active, setActive] = useState(0);
   const [recentPaths, setRecentPaths] = useState<string[]>([]);
@@ -138,11 +141,16 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [active, filtered, onClose, open, openCommand]);
   if (!open) return null;
+  const activeItemId = filtered[active] ? `${resultsId}-option-${active}` : undefined;
+
   return (
-    <div className="fixed inset-0 z-[100] flex items-start justify-center bg-ink-950/45 px-4 pt-[12vh] backdrop-blur-sm" role="dialog" aria-modal="true" aria-label="لوحة الأوامر">
-      <button className="absolute inset-0 cursor-default" aria-label="إغلاق" onClick={onClose} />
+    <div id={paletteId} className="fixed inset-0 z-[100] flex items-start justify-center bg-ink-950/45 px-4 pt-[12vh] backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby={`${paletteId}-title`}>
+      <button type="button" className="absolute inset-0 cursor-default" aria-label="إغلاق" onClick={onClose} />
       <div className="relative w-full max-w-2xl overflow-hidden rounded-2xl border border-ink-200 bg-white shadow-2xl" dir="rtl">
-        <div className="flex items-center gap-3 border-b border-ink-100 px-4 py-3"><Search size={19} className="text-ink-400" /><input ref={inputRef} value={query} onChange={event => { setQuery(event.target.value); setActive(0); }} placeholder="ابحث عن صفحة أو إجراء..." className="min-w-0 flex-1 bg-transparent text-sm text-ink-900 outline-none placeholder:text-ink-400" /><kbd className="hidden rounded-md border border-ink-200 bg-ink-50 px-2 py-1 text-[10px] text-ink-400 sm:inline-flex">Esc</kbd></div>
+        <div className="border-b border-ink-100 px-4 py-3">
+          <h2 id={`${paletteId}-title`} className="sr-only">لوحة الأوامر</h2>
+          <div className="flex items-center gap-3"><Search size={19} className="text-ink-400" /><input id={inputId} ref={inputRef} value={query} onChange={event => { setQuery(event.target.value); setActive(0); }} placeholder="ابحث عن صفحة أو إجراء..." aria-label="البحث في لوحة الأوامر" aria-controls={resultsId} aria-activedescendant={activeItemId} role="combobox" aria-autocomplete="list" aria-expanded="true" className="min-w-0 flex-1 bg-transparent text-sm text-ink-900 outline-none placeholder:text-ink-400" /><kbd className="hidden rounded-md border border-ink-200 bg-ink-50 px-2 py-1 text-[10px] text-ink-400 sm:inline-flex">Esc</kbd></div>
+        </div>
         <div className="max-h-[55vh] overflow-y-auto p-2">
           {!query.trim() && recentCommands.length > 0 && (
             <div className="mb-2">
@@ -152,7 +160,7 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
                   const index = filtered.findIndex(row => row.path === item.path);
                   return (
                     <button key={item.path} type="button" onMouseEnter={() => setActive(Math.max(index, 0))} onClick={() => openCommand(item)}
-                      className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-right text-primary-900 transition hover:bg-white">
+                      className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-right text-primary-900 transition hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500">
                       <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white text-primary-700"><Command size={15}/></span>
                       <span className="min-w-0 flex-1">
                         <span className="block truncate text-sm font-semibold">{item.label}</span>
@@ -167,14 +175,15 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
           {!query.trim() && (
             <div className="px-3 pb-2 pt-2 text-[10px] font-bold uppercase tracking-wide text-ink-400">مرتبط بما تعمل عليه الآن</div>
           )}
+          <div id={resultsId} role="listbox" aria-label="نتائج لوحة الأوامر">
           {filtered.length === 0 ? (
             <div className="px-4 py-10 text-center text-sm text-ink-400">لا توجد نتائج مطابقة</div>
           ) : (
             filtered.map((item, index) => {
               const isCurrent = contextScore(item.path) >= 45;
               return (
-                <button key={item.path} type="button" onMouseEnter={() => setActive(index)} onClick={() => openCommand(item)}
-                  className={`flex w-full items-center gap-3 rounded-xl px-3 py-3 text-right transition ${index === active ? 'bg-primary-50 text-primary-900' : 'hover:bg-ink-50'}`}>
+                <button key={item.path} id={`${resultsId}-option-${index}`} role="option" aria-selected={index === active} type="button" onMouseEnter={() => setActive(index)} onClick={() => openCommand(item)}
+                  className={`flex w-full items-center gap-3 rounded-xl px-3 py-3 text-right transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 ${index === active ? 'bg-primary-50 text-primary-900' : 'hover:bg-ink-50'}`}>
                   <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${index === active ? 'bg-primary-100 text-primary-700' : 'bg-ink-100 text-ink-500'}`}><Command size={17}/></span>
                   <span className="min-w-0 flex-1">
                     <span className="flex items-center gap-2">
@@ -188,6 +197,7 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
               );
             })
           )}
+          </div>
         </div>
         <div className="flex flex-wrap items-center gap-3 border-t border-ink-100 bg-ink-50/70 px-4 py-2 text-[11px] text-ink-400"><span>↑↓ للتنقل</span><span>Enter للفتح</span><span>Esc للإغلاق</span></div>
       </div>

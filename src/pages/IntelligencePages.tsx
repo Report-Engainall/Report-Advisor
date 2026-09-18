@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, Brain, CheckCircle2, RefreshCw, TrendingUp, XCircle } from 'lucide-react';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
-import { EmptyState, ErrorState, LoadingState } from '@/components/ui/States';
+import { EmptyState, ErrorState, LoadingState, PageHeader } from '@/components/ui/States';
 import { ConfidenceBadge } from '@/components/ui/Badge';
 import { ForecastChart } from '@/components/ui/Charts';
 import { fetchForecasts, fetchRecommendations, updateRecommendationStatus } from '@/lib/queries';
@@ -41,6 +41,8 @@ export function RecommendationsPage() {
   if (error) return <ErrorState message={error} onRetry={load} />;
 
   return <div dir="rtl" className="space-y-6">
+    <PageHeader title="التوصيات" subtitle="إشارات مصدرية تنتظر قرارًا بشريًا؛ القبول أو الرفض لا يعني تنفيذًا آليًا." actions={<button type="button" onClick={() => void load()} className="btn-secondary"><RefreshCw size={15}/> تحديث</button>} />
+    <section className="hero-surface overflow-hidden p-5 lg:p-6"><div className="flex flex-wrap gap-2"><span className="badge-primary badge">مصدر → دليل → قرار</span><span className="badge-neutral">لا تنفيذ تلقائي</span><span className="badge-neutral">الثقة لا تساوي تحقق النتيجة</span></div><div className="mt-3 grid gap-2 sm:grid-cols-4 text-[10px] font-semibold"><div className="rounded-xl bg-ink-50 p-3">01 · الإشارة</div><div className="rounded-xl bg-ink-50 p-3">02 · الدليل</div><div className="rounded-xl bg-ink-50 p-3">03 · قرار المراجع</div><div className="rounded-xl bg-ink-50 p-3">04 · النتيجة الفعلية</div></div></section>
     <section className="rounded-3xl bg-ink-950 p-6 text-white">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center">
         <div className="flex items-center gap-3">
@@ -48,10 +50,10 @@ export function RecommendationsPage() {
           <div><h1 className="text-2xl font-bold">التوصيات</h1><p className="mt-1 text-sm text-ink-300">حوّل التوصية المصدرية إلى قرار قابل للمراجعة دون اختلاق حالة تنفيذ.</p></div>
         </div>
         <div className="mr-auto flex flex-wrap gap-2">
-          <button type="button" onClick={() => setFilter('all')} className={`rounded-xl px-3 py-2 text-xs font-semibold ${filter === 'all' ? 'bg-white text-ink-900' : 'border border-ink-700 text-ink-200'}`}>الكل ({items.length})</button>
-          <button type="button" onClick={() => setFilter('new')} className={`rounded-xl px-3 py-2 text-xs font-semibold ${filter === 'new' ? 'bg-white text-ink-900' : 'border border-ink-700 text-ink-200'}`}>جديدة ({items.filter(item => item.status === 'new').length})</button>
-          <button type="button" onClick={() => setFilter('accepted')} className={`rounded-xl px-3 py-2 text-xs font-semibold ${filter === 'accepted' ? 'bg-white text-ink-900' : 'border border-ink-700 text-ink-200'}`}>مقبولة ({items.filter(item => item.status === 'accepted').length})</button>
-          <button type="button" onClick={() => setFilter('rejected')} className={`rounded-xl px-3 py-2 text-xs font-semibold ${filter === 'rejected' ? 'bg-white text-ink-900' : 'border border-ink-700 text-ink-200'}`}>مرفوضة ({items.filter(item => item.status === 'rejected').length})</button>
+          <button type="button" aria-pressed={filter === 'all'} onClick={() => setFilter('all')} className={`rounded-xl px-3 py-2 text-xs font-semibold ${filter === 'all' ? 'bg-white text-ink-900' : 'border border-ink-700 text-ink-200'}`}>الكل ({items.length})</button>
+          <button type="button" aria-pressed={filter === 'new'} onClick={() => setFilter('new')} className={`rounded-xl px-3 py-2 text-xs font-semibold ${filter === 'new' ? 'bg-white text-ink-900' : 'border border-ink-700 text-ink-200'}`}>جديدة ({items.filter(item => item.status === 'new').length})</button>
+          <button type="button" aria-pressed={filter === 'accepted'} onClick={() => setFilter('accepted')} className={`rounded-xl px-3 py-2 text-xs font-semibold ${filter === 'accepted' ? 'bg-white text-ink-900' : 'border border-ink-700 text-ink-200'}`}>مقبولة ({items.filter(item => item.status === 'accepted').length})</button>
+          <button type="button" aria-pressed={filter === 'rejected'} onClick={() => setFilter('rejected')} className={`rounded-xl px-3 py-2 text-xs font-semibold ${filter === 'rejected' ? 'bg-white text-ink-900' : 'border border-ink-700 text-ink-200'}`}>مرفوضة ({items.filter(item => item.status === 'rejected').length})</button>
           <button type="button" onClick={() => void load()} className="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2 text-sm font-semibold text-ink-900"><RefreshCw size={16}/> تحديث</button>
         </div>
       </div>
