@@ -9,6 +9,19 @@
 - Main remains unchanged at `1568e43889d27b5d850e64c0b99d03a994fd3bbe`.
 - Certification remains FAIL-CLOSED until fresh Full Product E2E, live Phase F, exact deployed parity, and measured resilience/release evidence close on the current candidate.
 
+### LATEST EXECUTION UPDATE — 2026-09-18 / OWNER-1 EXACT-HEAD PROOF
+- **Exact code/test candidate:** `0e539e374353d2e8390b7dd6270731ae8180684d`.
+- **PC01 exact-head proof on this candidate:** typecheck PASS; production build PASS; performance budget PASS at critical 481.9KB / 900KB and largest JS 487.8KB / 600KB.
+- **Exact-head UI/product contracts:** route/sidebar parity PASS (35 routes / 34 sidebar links); Executive Dashboard UI PASS; Inventory Intelligence UI PASS; Demand Velocity PASS; Intelligence Product PASS; Executive Report Product PASS; Business Control Plane PASS.
+- **Exact-head truth/certification contracts:** Architecture PASS; Selective Foundation PASS; Semantic Metric Registry PASS (14 metrics); Report Truth PASS (48 report candidates / 277 migrations scanned); Production Readiness PASS (21 paths / 31 gates); Production Release Blockers PASS; Operational Resilience PASS; Backup/Restore Evidence Integrity PASS (13 invariants); Continuous Trust PASS; Production Certification Evidence Integrity PASS; Production Certification Contract PASS; Report Execution Foundation PASS; Report Execution E2E Contract PASS; Tenant Security PASS; Global Tenant RLS PASS.
+- **Exact-head Windows evidence:** Desktop Windows workflow #3011 PASS, including build, native watcher contract and native runtime smoke, with installer packaging completed successfully.
+- **Fresh UI integrity fixes included in this candidate lineage:** SavedViewMenu escaped-template syntax fixed; SavedViewMenu Escape/ARIA behavior hardened; Inventory Intelligence/TruthContextStrip JSX/type errors fixed; ABC analytics does not fabricate a source date when `get_abc_snapshot` omits `asOf`.
+- **Runtime certification remains FAIL-CLOSED:** Full Product Browser E2E, Device-Independent E2E, Storage Tenant Runtime E2E, Commercial Product Creation E2E, Production Regression Evidence, Phase-F live resilience, measured backup/RPO/RTO, and exact deployed-SHA parity are not yet PASS on this candidate.
+- **GitHub Actions current state:** required runtime/release workflows are queued; Phase-F is pending with no job started yet. No pending/queued state is treated as PASS.
+- **Vercel:** current-head deployment remains externally blocked by the provider build-rate limit; prior ready deployments are not treated as exact-current-head certification evidence.
+- **No historical Evidence was transferred. Main remains unchanged at `1568e43889d27b5d850e64c0b99d03a994fd3bbe`.**
+- **Governance rule:** commits after `0e539e374353d2e8390b7dd6270731ae8180684d` on this branch are permitted only as governance/index updates until a new code candidate is explicitly established and re-proven.
+
 ### LIVE EXECUTION UPDATE — 2026-09-18T12:35Z
 - **PR #595 Exact HEAD:** `46fd602a6038a6b2b7b4b45bf79e97e1de881adc`.
 - **Fresh PC01 exact-head verification:** typecheck PASS; production build PASS; performance budget **887.7KB / 900KB** and largest JS 487.8KB; UI route/sidebar parity PASS (35/34); executive dashboard UI PASS.
