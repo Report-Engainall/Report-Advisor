@@ -80,7 +80,7 @@ export function ProposalDemoPage() {
           <CardHeader title="Proposal Snapshot" subtitle="صياغة عرض ديمو مبنية على المنتجات والمسارات الموجودة." />
           <CardBody>
             <div className="rounded-xl border border-ink-100 bg-ink-50/60 p-4">
-              <div className="text-xs text-ink-400">Client</div><div className="mt-1 text-lg font-bold text-ink-900">{client}</div>
+              <div className="text-xs text-ink-400">العميل</div><div className="mt-1 text-lg font-bold text-ink-900">{client}</div>
               <div className="mt-4 text-xs text-ink-400">Job</div><div className="mt-1 text-base font-semibold text-ink-800">{jobTitle}</div>
             </div>
             <div className="mt-4 grid grid-cols-2 gap-3">
@@ -103,7 +103,7 @@ export function ProposalDemoPage() {
             <div key={item.requirement} className="rounded-xl border border-ink-100 p-4">
               <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                 <div className="min-w-0"><div className="text-sm font-semibold text-ink-800">{item.requirement}</div>{item.match && <div className="mt-1 text-xs text-ink-400">Mapped to: {item.match.title}</div>}</div>
-                {item.match ? <div className="flex flex-wrap items-center gap-2"><span className="inline-flex items-center gap-1.5 rounded-full bg-success-50 px-3 py-1 text-xs font-medium text-success-700"><CheckCircle2 size={14} /> قدرة موجودة</span><Link to={item.match.path} className="inline-flex items-center gap-1.5 rounded-lg border border-ink-200 px-3 py-1.5 text-xs font-medium text-ink-700 hover:bg-ink-50 print:hidden">Live Demo <ArrowUpRight size={14} /></Link></div> : <span className="inline-flex items-center gap-1.5 rounded-full bg-warning-50 px-3 py-1 text-xs font-medium text-warning-700">يحتاج مراجعة بشرية</span>}
+                {item.match ? <div className="flex flex-wrap items-center gap-2"><span className="inline-flex items-center gap-1.5 rounded-full bg-success-50 px-3 py-1 text-xs font-medium text-success-700"><CheckCircle2 size={14} /> قدرة موجودة</span><Link to={item.match.path} className="inline-flex items-center gap-1.5 rounded-lg border border-ink-200 px-3 py-1.5 text-xs font-medium text-ink-700 hover:bg-ink-50 print:hidden">العرض الحي <ArrowUpRight size={14} /></Link></div> : <span className="inline-flex items-center gap-1.5 rounded-full bg-warning-50 px-3 py-1 text-xs font-medium text-warning-700">يحتاج مراجعة بشرية</span>}
               </div>
             </div>
           ))}
@@ -111,7 +111,7 @@ export function ProposalDemoPage() {
       </Card>
 
       <Card>
-        <CardHeader title="Live Demo Sequence" subtitle="تدفق مقترح لعرض حقيقي بدون نسخ منفصلة من المنتج." />
+        <CardHeader title="تسلسل العرض الحي" subtitle="تدفق مقترح لعرض حقيقي بدون نسخ منفصلة من المنتج." />
         <CardBody>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             {matched.slice(0, 8).map((item, index) => <Link key={`${item.requirement}-${index}`} to={item.match!.path} className="rounded-xl border border-ink-100 p-4 transition hover:-translate-y-0.5 hover:border-primary-200 hover:bg-primary-50/40 print:border-ink-300"><div className="text-xs font-bold text-primary-600">0{index + 1}</div><div className="mt-2 text-sm font-semibold text-ink-800">{item.match!.title}</div><div className="mt-1 text-xs leading-5 text-ink-400">{item.match!.description}</div></Link>)}
