@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { BookmarkPlus, Check, ChevronDown, RotateCcw, Trash2 } from 'lucide-react';
 
 export type SavedViewValue = Record<string, string | number | boolean | null>;
@@ -49,20 +49,37 @@ export function SavedViewMenu({ storageKey, value, onApply, onReset, disabled = 
   const [open, setOpen] = useState(false);
   const [name, setName] = useState('');
   const [views, setViews] = useState<SavedView[]>([]);
+  const triggerRef = useRef<HTMLButtonElement | null>(null);
+  const nameInputRef = useRef<HTMLInputElement | null>(null);
+  const generatedId = useId();
+  const popupId = `saved-view-${generatedId.replace(/:/g, '')}`;
+  const titleId = `${popupId}-title`;
+  const descriptionId = `${popupId}-description`;
 
   useEffect(() => {
     if (!open) return;
     setViews(readViews(storageKey));
+    requestAnimationFrame(() => nameInputRef.current?.focus());
   }, [open, storageKey]);
   useEffect(() => {
     if (!open) return;
-    const onKeyDown = (event: KeyboardEvent) => { if (event.key === 'Escape') setOpen(false); };
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') return;
+      event.preventDefault();
+      setOpen(false);
+      requestAnimationFrame(() => triggerRef.current?.focus());
+    };
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [open]);
 
   const hasSavedViews = views.length > 0;
   const currentFingerprint = useMemo(() => JSON.stringify(value), [value]);
+
+  const close = () => {
+    setOpen(false);
+    requestAnimationFrame(() => triggerRef.current?.focus());
+  };
 
   const saveCurrent = () => {
     const trimmed = name.trim();
@@ -90,12 +107,13 @@ export function SavedViewMenu({ storageKey, value, onApply, onReset, disabled = 
   return (
     <div className="relative" dir="rtl">
       <button
+        ref={triggerRef}
         type="button"
         disabled={disabled}
         onClick={() => setOpen(current => !current)}
         aria-expanded={open}
-        aria-haspopup="menu"
-        aria-controls="saved-view-menu"
+        aria-haspopup="dialog"
+        aria-controls={popupId}
         className="btn-secondary inline-flex items-center gap-2 disabled:cursor-not-allowed disabled:opacity-50"
       >
         <BookmarkPlus size={15} />
@@ -104,19 +122,21 @@ export function SavedViewMenu({ storageKey, value, onApply, onReset, disabled = 
       </button>
 
       {open && (
-        <div id="saved-view-menu" className="absolute right-0 top-[calc(100%+8px)] z-40 w-[min(92vw,360px)] overflow-hidden rounded-2xl border border-ink-200 bg-white shadow-2xl">
+        <div id={popupId} role="dialog" aria-labelledby={titleId} aria-describedby={descriptionId} className="absolute right-0 top-[calc(100%+8px)] z-40 w-[min(92vw,360px)] overflow-hidden rounded-2xl border border-ink-200 bg-white shadow-2xl">
           <div className="border-b border-ink-100 bg-ink-50/75 p-3">
             <div className="text-[10px] font-black tracking-[0.12em] text-ink-400">SAVED VIEWS</div>
-            <div className="mt-1 text-sm font-black text-ink-900">احفظ طريقة العمل الحالية</div>
-            <p className="mt-1 text-[11px] leading-5 text-ink-500">
+            <div id={titleId} className="mt-1 text-sm font-black text-ink-900">احفظ طريقة العمل الحالية</div>
+            <p id={descriptionId} className="mt-1 text-[11px] leading-5 text-ink-500">
               محفوظ محليًا على هذا الجهاز ومعزول بمفتاح المؤسسة الحالية. لا يؤثر على حالة قاعدة البيانات.
             </p>
             <div className="mt-3 flex gap-2">
               <input
+                ref={nameInputRef}
                 value={name}
                 onChange={event => setName(event.target.value)}
                 onKeyDown={event => { if (event.key === 'Enter') saveCurrent(); }}
                 placeholder="اسم العرض، مثل: عمليات تحتاج مراجعة"
+                aria-label="اسم العرض المحفوظ"
                 className="min-w-0 flex-1 rounded-xl border border-ink-200 bg-white px-3 py-2 text-xs text-ink-900 outline-none transition focus:border-primary-300 focus:ring-2 focus:ring-primary-100"
               />
               <button
@@ -135,8 +155,8 @@ export function SavedViewMenu({ storageKey, value, onApply, onReset, disabled = 
               <div key={view.id} className="group flex items-center gap-2 rounded-xl px-2 py-2.5 hover:bg-ink-50">
                 <button
                   type="button"
-                  onClick={() => { onApply(view.value); setOpen(false); }}
-                  className="flex min-w-0 flex-1 items-start gap-2 text-right"
+                  onClick={() => { onApply(view.value); close(); }}
+                  className="flex min-w-0 flex-1 items-start gap-2 rounded-lg text-right focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
                 >
                   <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-primary-50 text-primary-700">
                     <Check size={14} />
@@ -151,7 +171,7 @@ export function SavedViewMenu({ storageKey, value, onApply, onReset, disabled = 
                 <button
                   type="button"
                   onClick={() => removeView(view.id)}
-                  className="rounded-lg p-2 text-ink-300 opacity-0 transition hover:bg-danger-50 hover:text-danger-600 group-hover:opacity-100 focus:opacity-100"
+                  className="rounded-lg p-2 text-ink-300 opacity-0 transition hover:bg-danger-50 hover:text-danger-600 group-hover:opacity-100 focus:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-danger-400"
                   aria-label={'حذف العرض ' + view.name}
                   title="حذف العرض"
                 >
@@ -166,11 +186,11 @@ export function SavedViewMenu({ storageKey, value, onApply, onReset, disabled = 
           </div>
 
           <div className="flex items-center justify-between border-t border-ink-100 bg-ink-50/60 px-3 py-2">
-            <button type="button" onClick={() => { onReset(); setOpen(false); }} className="inline-flex items-center gap-1.5 text-[11px] font-bold text-ink-500 hover:text-primary-700">
+            <button type="button" onClick={() => { onReset(); close(); }} className="inline-flex items-center gap-1.5 rounded-lg text-[11px] font-bold text-ink-500 hover:text-primary-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500">
               <RotateCcw size={13} />
               إعادة ضبط الفلاتر
             </button>
-            <button type="button" onClick={() => setOpen(false)} className="text-[11px] font-bold text-ink-400 hover:text-ink-700">
+            <button type="button" onClick={close} className="rounded-lg text-[11px] font-bold text-ink-400 hover:text-ink-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500">
               إغلاق
             </button>
           </div>
