@@ -1,6 +1,6 @@
 import * as XLSX from 'xlsx';
 import type { FileFormat, Dataset, ColumnProfile, ColumnStatistics } from './types';
-import { normalizeRows, normalizeColumnName, parseNumber } from './normalizer';
+import { normalizeRows, normalizeColumnName, normalizeArabicDigits, parseNumber } from './normalizer';
 import { detectColumnDataType, cleanValue } from './data-types';
 import { mapColumns } from './synonyms';
 import { detectHeaderRow, rowsFromDetectedHeader } from './header-detection';
@@ -56,20 +56,179 @@ async function buildDataset(rows: Row[], name: string, source: string, sheet?: s
   return { id: generateId(), name, source, sheet, rowCount: canonicalRows.length, columnCount: columns.length, columns: columnProfiles, rows: canonicalRows, preview: canonicalRows.slice(0, 50), qualityScore };
 }
 
-async function buildTextDataset(text: string, fileName: string, sourceType: string, warning?: string): Promise<Dataset[]> {
-  const normalized = text.replace(/\uFEFF/g, '').replace(/\r\n?/g, '\n').replace(/[ \t]+$/gm, '').trim(); if (!normalized) return [];
-  const rows: Row[] = normalized.split('\n').map((line) => line.trim()).filter(Boolean).map((line, index) => ({ line_number: index + 1, text: line }));
-  const dataset = await buildDataset(rows, fileName, sourceType); for (const column of dataset.columns) column.qualityIssues.push('وثيقة نصية: لم يتم اختراع حقل أعمال؛ يلزم التعيين الدلالي قبل الكتابة'); if (warning) dataset.columns[1]?.qualityIssues.push(warning); return [dataset];
+function normalizeStructuredDocumentValue(value: string): string | number {
+  const cleaned = normalizeArabicDigits(value.replace(/[٬،]/g, ',').replace(/٫/g, '.').replace(/\s+/g, ' ')).trim();
+  const numeric = parseNumber(cleaned);
+  return numeric === null ? cleaned : numeric;
+}
+
+function extractEmbeddedJson(text: string): unknown | null {
+  for (const startToken of ['{', '['] as const) {
+    const start = text.indexOf(startToken);
+    if (start < 0) continue;
+    let depth = 0;
+    let inString = false;
+    let escaped = false;
+    for (let i = start; i < text.length; i += 1) {
+      const ch = text[i];
+      if (inString) {
+        if (escaped) { escaped = false; continue; }
+        if (ch === '\\') { escaped = true; continue; }
+        if (ch === '"') inString = false;
+        continue;
+      }
+      if (ch === '"') { inString = true; continue; }
+      if (ch === startToken) depth += 1;
+      else if ((startToken === '{' && ch === '}') || (startToken === '[' && ch === ']')) {
+        depth -= 1;
+        if (depth === 0) {
+          const candidate = text.slice(start, i + 1);
+          try { return JSON.parse(candidate); } catch { break; }
+        }
+      }
+    }
+  }
+  return null;
+}
+
+function tryParseStructuredPdfText(text: string): Row[] | null {
+  const compact = text.replace(/^PAGE\s+\d+\s*/i, '').trim();
+  const candidates: unknown[] = [];
+  try { candidates.push(JSON.parse(compact)); } catch { /* continue with embedded JSON and label extraction */ }
+  const embedded = extractEmbeddedJson(compact);
+  if (embedded !== null) candidates.push(embedded);
+
+  for (const parsed of candidates) {
+    if (isRecord(parsed)) return [parsed];
+    if (Array.isArray(parsed) && parsed.length && parsed.every(isRecord)) return parsed;
+  }
+
+  const normalized = normalizeArabicDigits(
+    compact
+      .normalize('NFKC')
+      .replace(/[\u0000-\u001F\u007F]/g, ' ')
+      .replace(/[\u200B-\u200F\u202A-\u202E\uFEFF]/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim(),
+  );
+  const match = (pattern: RegExp): string | null => normalized.match(pattern)?.[1]?.trim() ?? null;
+  const row: Row = {};
+  const setIfPresent = (key: string, value: string | number | null): void => {
+    if (value !== null && value !== '') row[key] = value;
+  };
+
+  setIfPresent('invoice_number', match(/(?:رقم\s*(?:الفاتورة|فاتورة)?|invoice\s*(?:number|no\.?)?)\s*[:：#-]?\s*(.*?)\s+(?=(?:التاريخ|date)\b)/i));
+  const parsedInvoiceDate = match(/(?:التاريخ|date)\s*[:：-]?\s*(\d{4}\s*[-/]\s*\d{1,2}\s*[-/]\s*\d{1,2})/i);
+  setIfPresent('invoice_date', parsedInvoiceDate?.replace(/\s*([-/])\s*/g, '$1') ?? null);
+  setIfPresent('customer_name', match(/(?:العميل|اسم\s*العميل|customer\s*(?:name|customer)?)\s*[:：-]?\s*(.+?)\s+(?=(?:المجموع\s*الفرعي|المجموع|الإجمالي|subtotal|tax|total)\b)/i));
+  setIfPresent('subtotal', normalizeStructuredDocumentValue(match(/(?:المجموع\s*الفرعي|subtotal)\s*[:：-]?\s*([\d٠-٩٬،.,\s]+)/i) ?? ''));
+  setIfPresent('tax_amount', normalizeStructuredDocumentValue(match(/(?:الضريبة|ضريبة|tax)\s*[:：-]?\s*([\d٠-٩٬،.,\s]+)/i) ?? ''));
+  setIfPresent('total', normalizeStructuredDocumentValue(match(/(?:الإجمالي|الاجمالي|\btotal\b)\s*[:：-]?\s*([\d٠-٩٬،.,\s]+)/i) ?? ''));
+  setIfPresent('paid_amount', normalizeStructuredDocumentValue(match(/(?:المدفوع|المبلغ\s*المدفوع|paid)\s*[:：-]?\s*([\d٠-٩٬،.,\s]+)/i) ?? ''));
+  setIfPresent('currency', match(/(?:العملة|عمله|currency)\s*[:：-]?\s*([A-Za-z]{3}|[A-Za-z]+)\b/i));
+
+  const structuredLabelPatterns: Array<{ key: string; pattern: RegExp; numeric?: boolean }> = [
+    { key: 'invoice_number', pattern: /(?:رقم\s*(?:الفاتورة|فاتورة)|invoice\s*(?:number|no\.?))/i },
+    { key: 'invoice_date', pattern: /(?:التاريخ|date)/i },
+    { key: 'customer_name', pattern: /(?:اسم\s*العميل|العميل|customer\s*name)/i },
+    { key: 'subtotal', pattern: /(?:المجموع\s*الفرعي|subtotal)/i, numeric: true },
+    { key: 'tax_amount', pattern: /(?:الضريبة|ضريبة|tax)/i, numeric: true },
+    { key: 'paid_amount', pattern: /(?:المدفوع|المبلغ\s*المدفوع|paid)/i, numeric: true },
+    { key: 'total', pattern: /(?:الإجمالي|الاجمالي|\btotal\b)/i, numeric: true },
+    { key: 'currency', pattern: /(?:العملة|عمله|currency)/i },
+  ];
+
+  const missingRequired = ['invoice_number', 'invoice_date', 'customer_name', 'total']
+    .some((key) => row[key] === null || row[key] === undefined || row[key] === '');
+  if (missingRequired) {
+    const matches: Array<{ key: string; start: number; end: number; numeric?: boolean }> = [];
+    for (const definition of structuredLabelPatterns) {
+      const found = definition.pattern.exec(normalized);
+      if (found) matches.push({ key: definition.key, start: found.index, end: found.index + found[0].length, numeric: definition.numeric });
+    }
+    matches.sort((a, b) => a.start - b.start);
+    for (let index = 0; index < matches.length; index += 1) {
+      const current = matches[index];
+      const next = matches[index + 1];
+      const rawValue = normalized
+        .slice(current.end, next?.start ?? normalized.length)
+        .replace(/^[\s:：#-]+/, '')
+        .trim();
+      if (!rawValue || row[current.key] !== undefined) continue;
+      const value = current.numeric ? rawValue.split(/\s+/)[0] ?? '' : rawValue;
+      setIfPresent(current.key, current.numeric ? normalizeStructuredDocumentValue(value) : value);
+    }
+    if (row.total === undefined) {
+      const totalMatch = normalized.match(/(?:^|\s)(?:الإجمالي|الاجمالي|total)\s*[:：-]?\s*([\d٠-٩٬،.,\s]+)/i);
+      setIfPresent('total', normalizeStructuredDocumentValue(totalMatch?.[1] ?? ''));
+    }
+  }
+
+  const required = ['invoice_number', 'invoice_date', 'customer_name', 'total'];
+  if (required.some((key) => row[key] === null || row[key] === undefined || row[key] === '')) return null;
+  return [row];
+}
+
+export type OcrDisposition = 'REJECT' | 'REVIEW' | 'TRUSTED';
+export const OCR_REJECT_THRESHOLD = 50;
+export const OCR_TRUSTED_THRESHOLD = 75;
+
+export function classifyOcrConfidence(score: number): OcrDisposition {
+  if (!Number.isFinite(score) || score < OCR_REJECT_THRESHOLD) return 'REJECT';
+  if (score < OCR_TRUSTED_THRESHOLD) return 'REVIEW';
+  return 'TRUSTED';
+}
+
+async function buildTextDataset(
+  text: string,
+  fileName: string,
+  sourceType: string,
+  warning?: string,
+  confidenceFloor?: number,
+): Promise<Dataset[]> {
+  const normalized = normalizeArabicDigits(
+    text.replace(/\uFEFF/g, '').replace(/\r\n?/g, '\n').replace(/[ \t]+$/gm, '').trim(),
+  );
+  if (!normalized) return [];
+
+  const structured = sourceType.startsWith('pdf') ? tryParseStructuredPdfText(normalized) : null;
+  if (structured) {
+    const dataset = await buildDataset(structured, fileName, sourceType);
+    const requiredStructuredFields = ['invoice_number', 'invoice_date', 'customer_name', 'total'];
+    const structurallyVerified = requiredStructuredFields.every(
+      (field) => structured[0]?.[field] !== null && structured[0]?.[field] !== undefined && structured[0]?.[field] !== '',
+    );
+    // Only native PDF text is structurally trusted at extraction time. OCR retains
+    // its real confidence and can never be upgraded to trusted by the structured path.
+    if (sourceType === 'pdf' && structurallyVerified) dataset.qualityScore = Math.max(dataset.qualityScore, 95);
+    if (confidenceFloor != null) dataset.qualityScore = Math.min(dataset.qualityScore, Math.round(confidenceFloor));
+    if (warning) dataset.columns.forEach((column) => column.qualityIssues.push(warning));
+    return [dataset];
+  }
+
+  const rows: Row[] = normalized
+    .split('\n')
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line, index) => ({ line_number: index + 1, text: line }));
+  const dataset = await buildDataset(rows, fileName, sourceType);
+  for (const column of dataset.columns) {
+    column.qualityIssues.push('وثيقة نصية: لم يتم اختراع حقل أعمال؛ يلزم التعيين الدلالي قبل الكتابة');
+    if (warning) column.qualityIssues.push(warning);
+  }
+  if (confidenceFloor != null) dataset.qualityScore = Math.min(dataset.qualityScore, Math.round(confidenceFloor));
+  return [dataset];
 }
 
 const PDF_OCR_MAX_PAGES = 20;
+
 const PDF_OCR_MAX_DIMENSION = 2200;
 const PDF_OCR_SCALE = 1.5;
-const OCR_CONFIDENCE_THRESHOLD = 70;
-
 async function parsePdfText(buffer: ArrayBuffer, fileName: string): Promise<Dataset[]> {
   const pdfjs = await import('pdfjs-dist');
-  pdfjs.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.mjs', import.meta.url).toString();
+  if (typeof window !== 'undefined') {
+    pdfjs.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.mjs', import.meta.url).toString();
+  }
   const pdf: PdfDocument = await pdfjs.getDocument({ data: new Uint8Array(buffer) }).promise; const pages: string[] = [];
   for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) { const page = await pdf.getPage(pageNumber); const content = await page.getTextContent(); const text = content.items.map((item) => 'str' in item && typeof item.str === 'string' ? item.str : '').filter(Boolean).join(' '); if (text.trim()) pages.push(`PAGE ${pageNumber}\n${text}`); }
   if (pages.length) return buildTextDataset(pages.join('\n\n'), fileName, 'pdf');
@@ -107,10 +266,14 @@ async function parseScannedPdfWithOcr(pdf: PdfDocument, fileName: string): Promi
   }
   if (!pages.length) throw new Error('PDF_SCANNED_OCR_EMPTY: OCR produced no readable text; no business data was fabricated.');
   const minimumConfidence = confidences.length ? Math.min(...confidences) : 0;
-  const warning = minimumConfidence < OCR_CONFIDENCE_THRESHOLD
-    ? `OCR_LOW_CONFIDENCE:${Math.round(minimumConfidence)}%`
-    : `OCR_CONFIDENCE_MIN:${Math.round(minimumConfidence)}%`;
-  return buildTextDataset(pages.join('\n\n'), fileName, 'pdf-ocr', warning);
+  const disposition = classifyOcrConfidence(minimumConfidence);
+  if (disposition === 'REJECT') {
+    throw new Error(`PDF_OCR_LOW_CONFIDENCE_REJECT:${Math.round(minimumConfidence)}% (threshold < ${OCR_REJECT_THRESHOLD})`);
+  }
+  const warning = disposition === 'REVIEW'
+    ? `OCR_REVIEW_REQUIRED:${Math.round(minimumConfidence)}%`
+    : `OCR_TRUSTED:${Math.round(minimumConfidence)}%`;
+  return buildTextDataset(pages.join('\n\n'), fileName, 'pdf-ocr', warning, minimumConfidence);
 }
 
 async function parseDocxText(buffer: ArrayBuffer, fileName: string): Promise<Dataset[]> {
@@ -119,9 +282,23 @@ async function parseDocxText(buffer: ArrayBuffer, fileName: string): Promise<Dat
 }
 
 async function parseImageText(buffer: ArrayBuffer, fileName: string): Promise<Dataset[]> {
-  const tesseract: any = await import('tesseract.js'); const worker = await tesseract.createWorker('ara+eng');
-  try { const image = new Blob([buffer], { type: 'application/octet-stream' }); const { data } = await worker.recognize(image); return buildTextDataset(data.text, fileName, 'image', data.confidence < 70 ? `OCR_LOW_CONFIDENCE:${Math.round(data.confidence)}%` : `OCR_CONFIDENCE:${Math.round(data.confidence)}%`); }
-  finally { await worker.terminate(); }
+  const tesseract: any = await import('tesseract.js');
+  const worker = await tesseract.createWorker('ara+eng');
+  try {
+    const image = new Blob([buffer], { type: 'application/octet-stream' });
+    const { data } = await worker.recognize(image);
+    const confidence = Number(data?.confidence ?? 0);
+    const disposition = classifyOcrConfidence(confidence);
+    if (disposition === 'REJECT') {
+      throw new Error(`OCR_LOW_CONFIDENCE_REJECT:${Math.round(confidence)}% (threshold < ${OCR_REJECT_THRESHOLD})`);
+    }
+    const warning = disposition === 'REVIEW'
+      ? `OCR_REVIEW_REQUIRED:${Math.round(confidence)}%`
+      : `OCR_TRUSTED:${Math.round(confidence)}%`;
+    return buildTextDataset(data.text, fileName, 'image', warning, confidence);
+  } finally {
+    await worker.terminate();
+  }
 }
 
 export async function parseSpreadsheet(buffer: ArrayBuffer, fileName: string, _format: FileFormat): Promise<Dataset[]> {
