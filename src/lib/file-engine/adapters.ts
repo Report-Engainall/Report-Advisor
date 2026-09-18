@@ -103,21 +103,65 @@ function tryParseStructuredPdfText(text: string): Row[] | null {
     if (Array.isArray(parsed) && parsed.length && parsed.every(isRecord)) return parsed;
   }
 
-  const normalized = normalizeArabicDigits(compact.replace(/\s+/g, ' ').trim());
+  const normalized = normalizeArabicDigits(
+    compact
+      .normalize('NFKC')
+      .replace(/[\u0000-\u001F\u007F]/g, ' ')
+      .replace(/[\u200B-\u200F\u202A-\u202E\uFEFF]/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim(),
+  );
   const match = (pattern: RegExp): string | null => normalized.match(pattern)?.[1]?.trim() ?? null;
   const row: Row = {};
   const setIfPresent = (key: string, value: string | number | null): void => {
     if (value !== null && value !== '') row[key] = value;
   };
 
-  setIfPresent('invoice_number', match(/(?:رقم\s*(?:الفاتورة|فاتورة)?|invoice(?:\s+number)?)\s*[:#]?\s*([^\s]+(?:\s+[^\s]+)*?)\s+(?=(?:التاريخ|date)\b)/i));
-  setIfPresent('invoice_date', match(/(?:التاريخ|date)\s*[:：]?\s*(\d{4}[-/]\d{1,2}[-/]\d{1,2})/i));
-  setIfPresent('customer_name', match(/(?:العميل|اسم\s*العميل|customer(?:\s+name)?)\s*[:：]?\s*(.+?)\s+(?=(?:المجموع|الإجمالي|subtotal|total)\b)/i));
-  setIfPresent('subtotal', normalizeStructuredDocumentValue(match(/(?:المجموع الفرعي|المجموع|subtotal)\s*[:：]?\s*([\d٠-٩٬،.,]+)/i) ?? ''));
-  setIfPresent('tax_amount', normalizeStructuredDocumentValue(match(/(?:الضريبة|ضريبة|tax)\s*[:：]?\s*([\d٠-٩٬،.,]+)/i) ?? ''));
-  setIfPresent('total', normalizeStructuredDocumentValue(match(/(?:الإجمالي|الاجمالي|total)\s*[:：]?\s*([\d٠-٩٬،.,]+)/i) ?? ''));
-  setIfPresent('paid_amount', normalizeStructuredDocumentValue(match(/(?:المدفوع|المبلغ\s*المدفوع|paid)\s*[:：]?\s*([\d٠-٩٬،.,]+)/i) ?? ''));
-  setIfPresent('currency', match(/(?:العملة|عمله|currency)\s*[:：]?\s*([A-Za-z]{3}|[A-Za-z]+)\b/i));
+  setIfPresent('invoice_number', match(/(?:رقم\s*(?:الفاتورة|فاتورة)?|invoice\s*(?:number|no\.?)?)\s*[:：#-]?\s*(.*?)\s+(?=(?:التاريخ|date)\b)/i));
+  setIfPresent('invoice_date', match(/(?:التاريخ|date)\s*[:：-]?\s*(\d{4}[-/]\d{1,2}[-/]\d{1,2})/i));
+  setIfPresent('customer_name', match(/(?:العميل|اسم\s*العميل|customer\s*(?:name|customer)?)\s*[:：-]?\s*(.+?)\s+(?=(?:المجموع\s*الفرعي|المجموع|الإجمالي|subtotal|tax|total)\b)/i));
+  setIfPresent('subtotal', normalizeStructuredDocumentValue(match(/(?:المجموع\s*الفرعي|subtotal)\s*[:：-]?\s*([\d٠-٩٬،.,]+)/i) ?? ''));
+  setIfPresent('tax_amount', normalizeStructuredDocumentValue(match(/(?:الضريبة|ضريبة|tax)\s*[:：-]?\s*([\d٠-٩٬،.,]+)/i) ?? ''));
+  setIfPresent('total', normalizeStructuredDocumentValue(match(/(?:الإجمالي|الاجمالي|total)\s*[:：-]?\s*([\d٠-٩٬،.,]+)/i) ?? ''));
+  setIfPresent('paid_amount', normalizeStructuredDocumentValue(match(/(?:المدفوع|المبلغ\s*المدفوع|paid)\s*[:：-]?\s*([\d٠-٩٬،.,]+)/i) ?? ''));
+  setIfPresent('currency', match(/(?:العملة|عمله|currency)\s*[:：-]?\s*([A-Za-z]{3}|[A-Za-z]+)\b/i));
+
+  const structuredLabelPatterns: Array<{ key: string; pattern: RegExp; numeric?: boolean }> = [
+    { key: 'invoice_number', pattern: /(?:رقم\s*(?:الفاتورة|فاتورة)|invoice\s*(?:number|no\.?))/i },
+    { key: 'invoice_date', pattern: /(?:التاريخ|date)/i },
+    { key: 'customer_name', pattern: /(?:اسم\s*العميل|العميل|customer\s*name)/i },
+    { key: 'subtotal', pattern: /(?:المجموع\s*الفرعي|subtotal)/i, numeric: true },
+    { key: 'tax_amount', pattern: /(?:الضريبة|ضريبة|tax)/i, numeric: true },
+    { key: 'paid_amount', pattern: /(?:المدفوع|المبلغ\s*المدفوع|paid)/i, numeric: true },
+    { key: 'total', pattern: /(?:الإجمالي|الاجمالي|total)/i, numeric: true },
+    { key: 'currency', pattern: /(?:العملة|عمله|currency)/i },
+  ];
+
+  const missingRequired = ['invoice_number', 'invoice_date', 'customer_name', 'total']
+    .some((key) => row[key] === null || row[key] === undefined || row[key] === '');
+  if (missingRequired) {
+    const matches: Array<{ key: string; start: number; end: number; numeric?: boolean }> = [];
+    for (const definition of structuredLabelPatterns) {
+      const found = definition.pattern.exec(normalized);
+      if (found) matches.push({ key: definition.key, start: found.index, end: found.index + found[0].length, numeric: definition.numeric });
+    }
+    matches.sort((a, b) => a.start - b.start);
+    for (let index = 0; index < matches.length; index += 1) {
+      const current = matches[index];
+      const next = matches[index + 1];
+      const rawValue = normalized
+        .slice(current.end, next?.start ?? normalized.length)
+        .replace(/^[\s:：#-]+/, '')
+        .trim();
+      if (!rawValue || row[current.key] !== undefined) continue;
+      const value = current.numeric ? rawValue.split(/\s+/)[0] ?? '' : rawValue;
+      setIfPresent(current.key, current.numeric ? normalizeStructuredDocumentValue(value) : value);
+    }
+    if (row.total === undefined) {
+      const totalMatch = normalized.match(/(?:^|\s)(?:الإجمالي|الاجمالي|total)\s*[:：-]?\s*([\d٠-٩٬،.,]+)/i);
+      setIfPresent('total', normalizeStructuredDocumentValue(totalMatch?.[1] ?? ''));
+    }
+  }
 
   const required = ['invoice_number', 'invoice_date', 'customer_name', 'total'];
   if (required.some((key) => row[key] === null || row[key] === undefined || row[key] === '')) return null;
