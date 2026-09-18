@@ -1,7 +1,7 @@
 import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
 import { Activity, Bell, BrainCircuit, ChevronLeft, CircleAlert, Gauge, ShieldAlert, Sparkles, WalletCards } from 'lucide-react';
 import { fetchDashboardIntelligence, fetchDashboardSnapshot, type DashboardKPIs } from '../lib/dashboard-canonical';
-import { isCompleteDashboardKPIs, type CompleteDashboardKPIs } from '../lib/dashboard-kpi-guards';
+import { isCompleteDashboardKPIs } from '../lib/dashboard-kpi-guards';
 import type { Alert, Recommendation } from '@/lib/types';
 import type { InvestigationTarget } from '@/components/BusinessInvestigationDrawer';
 
