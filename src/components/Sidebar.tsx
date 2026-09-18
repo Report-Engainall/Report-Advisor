@@ -3,13 +3,14 @@ import { Link, useLocation } from 'react-router-dom';
 import {
   Activity, BarChart3, Brain, ChevronDown, ClipboardCheck, Crosshair, FileBarChart, Gauge,
   Layers3, LayoutDashboard, ListChecks, LogOut, Package, Presentation, Scale, ScanSearch,
-  Settings, Target, Upload, UserCircle, Users, Warehouse, AlertCircle
+  Settings, Target, Upload, UserCircle, Users, Warehouse, AlertCircle, PlugZap
 } from 'lucide-react';
 import type { User } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
 import { getDisplayEmail, getDisplayName } from '@/lib/profile-display';
+import { useLanguage } from '@/lib/language';
 
-interface NavItem { path: string; label: string; icon: ReactNode; hint?: string }
+interface NavItem { path: string; label: string; icon: ReactNode; hint?: string; enLabel?: string; enHint?: string }
 interface NavSection { title: string; items: NavItem[] }
 
 const navSections: NavSection[] = [
@@ -20,7 +21,8 @@ const navSections: NavSection[] = [
     { path: '/reports/executive', label: 'التقرير التنفيذي', icon: <ClipboardCheck size={18}/>, hint: 'القصة التنفيذية' },
   ]},
   { title: 'العمل والبيانات', items: [
-    { path: '/work-center', label: 'مركز العمل', icon: <Activity size={18}/>, hint: 'الحالات والاستثناءات' },
+    { path: '/work-center', label: 'مركز العمل', enLabel: 'Work Center', icon: <Activity size={18}/>, hint: 'الحالات والاستثناءات', enHint: 'Execution and exceptions' },
+    { path: '/connections', label: 'المصادر والموصلات', enLabel: 'Sources & Connections', icon: <PlugZap size={18}/>, hint: 'متاجر وملفات وأنظمة', enHint: 'Stores, files, systems' },
     { path: '/import', label: 'إدخال البيانات', icon: <Upload size={18}/>, hint: 'الاستيراد الحاكم' },
     { path: '/import/analyze', label: 'تحليل المستندات', icon: <ScanSearch size={18}/>, hint: 'استخراج وإثبات' },
     { path: '/data-quality', label: 'جودة البيانات', icon: <AlertCircle size={18}/>, hint: 'مشكلات ونواقص' },
@@ -61,6 +63,7 @@ const navSections: NavSection[] = [
 ];
 
 export function Sidebar({ alertCount = 0, onNavigate, user }: { alertCount?: number; onNavigate?: () => void; user?: User | null }) {
+  const { language } = useLanguage();
   const location = useLocation();
   const activeSection = useMemo(
     () => navSections.find(section => section.items.some(item => location.pathname === item.path || (item.path !== '/' && location.pathname.startsWith(item.path))))?.title ?? 'مركز القرار',
@@ -79,7 +82,7 @@ export function Sidebar({ alertCount = 0, onNavigate, user }: { alertCount?: num
   };
 
   return (
-    <aside className="flex h-screen w-[288px] shrink-0 flex-col overflow-y-auto border-l border-white/10 bg-[#0d1510] text-white shadow-elevated">
+    <aside dir={language === "ar" ? "rtl" : "ltr"} className={"flex h-screen w-[288px] shrink-0 flex-col overflow-y-auto bg-[#0d1510] text-white shadow-elevated " + (language === "ar" ? "border-l" : "border-r") + " border-white/10"}>
       <div className="border-b border-white/10 px-5 py-5">
         <Link to="/" onClick={onNavigate} className="flex items-center gap-3">
           <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary-600 text-lg font-black text-white shadow-lg shadow-primary-950/20">أ</div>
@@ -97,7 +100,7 @@ export function Sidebar({ alertCount = 0, onNavigate, user }: { alertCount?: num
         </div>
       </div>
 
-      <nav className="flex-1 space-y-3 px-3 py-4" aria-label="التنقل الرئيسي">
+      <nav className="flex-1 space-y-3 px-3 py-4" aria-label={language === "ar" ? "التنقل الرئيسي" : "Main navigation"}>
         {navSections.map(section => {
           const isOpen = !collapsed[section.title];
           const isActive = activeSection === section.title;
@@ -106,10 +109,10 @@ export function Sidebar({ alertCount = 0, onNavigate, user }: { alertCount?: num
               <button
                 type="button"
                 onClick={() => setCollapsed(prev => ({ ...prev, [section.title]: !isOpen }))}
-                className={'flex w-full items-center gap-2 rounded-xl px-3 py-2 text-right ' + (isActive ? 'text-primary-200' : 'text-slate-500 hover:bg-white/5 hover:text-slate-200')}
+                className={'flex w-full items-center gap-2 rounded-xl px-3 py-2 ' + (language === "ar" ? "text-right " : "text-left ") + (isActive ? 'text-primary-200' : 'text-slate-500 hover:bg-white/5 hover:text-slate-200')}
                 aria-expanded={isOpen}
               >
-                <span className="flex-1 text-[10px] font-black tracking-[0.08em]">{section.title}</span>
+                <span className="flex-1 text-[10px] font-black tracking-[0.08em]">{language === "en" ? ({ "مركز القرار": "Decision", "العمل والبيانات": "Work & Data", "التحليل التجاري": "Business Analytics", "الذكاء والاستشراف": "Intelligence", "البيانات المرجعية": "Reference Data", "الإعداد والتجهيز": "Setup & Demo" }[section.title] ?? section.title) : section.title}</span>
                 <ChevronDown size={14} className={'transition-transform ' + (isOpen ? '' : '-rotate-90')} />
               </button>
               {isOpen && (
@@ -120,8 +123,8 @@ export function Sidebar({ alertCount = 0, onNavigate, user }: { alertCount?: num
                       <Link key={item.path} to={item.path} onClick={onNavigate} className={'nav-item ' + (active ? 'nav-item-active' : 'nav-item-inactive')} aria-current={active ? 'page' : undefined}>
                         <span className={'flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ' + (active ? 'bg-primary-500/15 text-primary-200' : 'bg-white/5 text-slate-400')}>{item.icon}</span>
                         <span className="min-w-0 flex-1">
-                          <span className="block truncate">{item.label}</span>
-                          {item.hint && <span className={'mt-0.5 block truncate text-[9px] font-normal ' + (active ? 'text-primary-100/70' : 'text-slate-500')}>{item.hint}</span>}
+                          <span className="block truncate">{language === "en" ? (item.enLabel ?? item.label) : item.label}</span>
+                          {item.hint && <span className={'mt-0.5 block truncate text-[9px] font-normal ' + (active ? 'text-primary-100/70' : 'text-slate-500')}>{language === "en" ? (item.enHint ?? item.hint) : item.hint}</span>}
                         </span>
                         {item.path === '/intelligence' && alertCount > 0 && <span className="rounded-full bg-danger-500 px-1.5 py-0.5 text-[10px] font-black text-white">{alertCount}</span>}
                       </Link>
