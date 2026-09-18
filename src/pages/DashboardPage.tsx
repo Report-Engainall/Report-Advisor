@@ -79,29 +79,19 @@ export function DashboardPage() {
       </section>
       <TruthContextStrip months={trendMonths} status={kpis.status} asOf={snapshotAsOf ?? 'غير متاح'} />
 
-      <section className="overflow-hidden rounded-[1.75rem] border border-primary-200/70 bg-gradient-to-br from-primary-50 via-white to-accent-50/40 shadow-card">
-        <div className="grid gap-0 lg:grid-cols-[1.1fr_1fr_1fr]">
-          <div className="border-b border-primary-100 p-5 lg:border-b-0 lg:border-l">
-            <div className="flex items-center gap-2 text-xs font-black text-primary-700"><Brain size={15}/> ملخص القرار في دقيقة</div>
-            <div className="mt-2 text-lg font-black text-ink-950">{kpis.status === 'INSUFFICIENT_DATA' ? 'الصورة تحتاج إكمال الدليل' : 'الصورة التنفيذية قابلة للاستخدام الآن'}</div>
-            <p className="mt-1.5 text-xs leading-6 text-ink-500">يُبنى هذا الملخص من المؤشرات والتنبيهات والتوصيات الحالية فقط — دون توليد رقم جديد.</p>
+      <section className="grid gap-3 lg:grid-cols-[1.1fr_.9fr]">
+        <section className="card">
+          <div className="border-b border-ink-100 px-4 py-3"><div className="text-[12px] font-bold text-ink-900">قرار اليوم</div><div className="mt-0.5 text-[10px] text-ink-400">أهم إشارة متاحة ثم الخطوة التالية.</div></div>
+          <div className="grid gap-px bg-ink-100 sm:grid-cols-2">
+            <div className="bg-white p-4"><div className="text-[10px] font-semibold text-ink-400">أهم إشارة</div><div className="mt-1.5 text-[13px] font-bold text-ink-900">{liveAlerts[0]?.title??'لا توجد تنبيهات نشطة الآن'}</div><div className="mt-1 text-[11px] leading-5 text-ink-500">{liveAlerts[0]?.description??'لا توجد إشارة تحتاج تدخلاً في هذه اللحظة.'}</div></div>
+            <div className="bg-white p-4"><div className="text-[10px] font-semibold text-ink-400">الخطوة التالية</div><div className="mt-1.5 text-[13px] font-bold text-ink-900">{liveRecommendations[0]?.title??'راجع صحة البيانات أو افتح التقرير التنفيذي'}</div><div className="mt-2 flex flex-wrap gap-1.5"><Link to={liveRecommendations[0]?'/decision-experience':'/reports/executive'} className="btn-primary text-[11px]">فتح المسار <ArrowUpLeft size={13}/></Link><span className="inline-flex items-center rounded-[8px] bg-ink-50 px-2 py-1 text-[10px] font-bold text-ink-500">{coverage}%</span></div></div>
           </div>
-          <div className="border-b border-primary-100 p-5 lg:border-b-0 lg:border-l">
-            <div className="text-[11px] font-bold text-ink-400">أهم إشارة</div>
-            <div className="mt-2 text-sm font-black text-ink-900">{liveAlerts[0]?.title ?? 'لا توجد تنبيهات نشطة الآن'}</div>
-            <div className="mt-2 text-[11px] leading-5 text-ink-500">{liveAlerts[0]?.description ?? 'يمكن الانتقال مباشرة إلى التحليل أو إدخال مصدر جديد عندما تتغير الصورة.'}</div>
-          </div>
-          <div className="p-5">
-            <div className="text-[11px] font-bold text-ink-400">الخطوة التالية</div>
-            <div className="mt-2 text-sm font-black text-ink-900">{liveRecommendations[0]?.title ?? 'راجع صحة البيانات أو افتح التقرير التنفيذي'}</div>
-            <div className="mt-3 flex flex-wrap gap-2">
-              <Link to={liveRecommendations[0] ? '/decision-experience' : '/reports/executive'} className="btn-primary text-xs">انتقل إلى الإجراء <ArrowUpLeft size={14}/></Link>
-              <span className="inline-flex items-center rounded-lg bg-white/80 px-2.5 py-2 text-[10px] font-bold text-ink-500">تغطية {coverage}% · {snapshotAsOf ?? 'as-of غير متاح'}</span>
-            </div>
-          </div>
-        </div>
+        </section>
+        <section className="card">
+          <div className="border-b border-ink-100 px-4 py-3"><div className="text-[12px] font-bold text-ink-900">حالة الدليل</div><div className="mt-0.5 text-[10px] text-ink-400">تغطية المؤشرات وموعد اللقطة.</div></div>
+          <div className="p-4"><div className="flex items-center gap-2 text-[13px] font-bold text-ink-900">{kpis.status==='INSUFFICIENT_DATA'?<CircleAlert size={15} className="text-warning-600"/>:<CheckCircle2 size={15} className="text-success-600"/>}{kpis.status==='INSUFFICIENT_DATA'?'مراجعة مطلوبة':'الصورة صالحة للاستخدام'}</div><div className="mt-3 h-1.5 overflow-hidden rounded-full bg-ink-100"><div className="h-full rounded-full bg-primary-600" style={{width:coverage+'%'}}/></div><div className="mt-2 flex items-center justify-between text-[10px] text-ink-400"><span>تغطية المؤشرات</span><span>{snapshotAsOf??'as-of غير متاح'}</span></div></div>
+        </section>
       </section>
-
       <section className="grid gap-3 lg:grid-cols-4">
         <KPICard label="إجمالي المبيعات" value={kpis.totalSales} format="currency" icon={<TrendingUp size={16}/>} status={metricStatus(kpis.totalSales,kpis.status)}/>
         <KPICard label="إجمالي الربح" value={kpis.grossProfit} format="currency" icon={<BarChart3 size={16}/>} status={metricStatus(kpis.grossProfit,kpis.status)} hint={kpis.grossMargin===null?undefined:'الهامش '+kpis.grossMargin.toFixed(1)+'%'}/>
