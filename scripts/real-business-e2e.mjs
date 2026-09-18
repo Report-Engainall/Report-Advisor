@@ -23,7 +23,36 @@ async function accessToken(page) { return page.evaluate(() => { const raw = Obje
 async function currentTenant(page) { const token = await accessToken(page); const response = await fetch(`${supabaseURL}/rest/v1/rpc/current_company_id`, { method: 'POST', headers: { apikey: anonKey, Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }, body: '{}' }); const body = await response.text(); assert.equal(response.ok, true, `current_company_id HTTP ${response.status}: ${body}`); const tenantId = body.replaceAll('"', '').trim(); assert.ok(tenantId, 'current_company_id must resolve a tenant'); return tenantId; }
 async function restSelect(page, table, filters, select) { const token = await accessToken(page); const url = new URL(`${supabaseURL}/rest/v1/${table}`); url.searchParams.set('select', select); for (const [column, value] of Object.entries(filters)) url.searchParams.set(column, `eq.${value}`); const response = await fetch(url, { headers: { apikey: anonKey, Authorization: `Bearer ${token}` } }); const body = await response.text(); assert.equal(response.ok, true, `${table} read HTTP ${response.status}: ${body}`); return body ? JSON.parse(body) : []; }
 async function restUpdate(page, table, id, payload) { const token = await accessToken(page); const url = new URL(`${supabaseURL}/rest/v1/${table}`); url.searchParams.set('id', `eq.${id}`); const response = await fetch(url, { method: 'PATCH', headers: { apikey: anonKey, Authorization: `Bearer ${token}`, 'Content-Type': 'application/json', Prefer: 'return=representation' }, body: JSON.stringify(payload) }); const body = await response.text(); assert.equal(response.ok, true, `${table} cross-tenant update HTTP ${response.status}: ${body}`); return body ? JSON.parse(body) : []; }
-async function login(page, email, password) { await page.goto(baseURL, { waitUntil: 'networkidle', timeout: 30000 }); await page.locator('#login-email').fill(email); await page.locator('#login-password').fill(password); await page.getByRole('button', { name: 'تسجيل الدخول' }).click(); await page.waitForTimeout(1200); assert.equal(await page.locator('#login-email').count(), 0, 'login form must disappear after auth'); assert.equal(await page.getByText('حدث خطأ غير متوقع').count(), 0, 'application error boundary must not render'); }
+async function login(page, email, password) {
+  await page.goto(baseURL, { waitUntil: 'networkidle', timeout: 30000 });
+  await page.locator('#login-email').fill(email);
+  await page.locator('#login-password').fill(password);
+  const authResponsePromise = page.waitForResponse(
+    response =>
+      response.request().method() === 'POST' &&
+      response.url().includes('/auth/v1/token?grant_type=password'),
+    { timeout: 30000 },
+  ).catch(() => null);
+  await page.locator('form button[type="submit"]').click();
+  const authResponse = await authResponsePromise;
+  if (!authResponse) throw new Error('AUTH_TOKEN_RESPONSE_TIMEOUT');
+  const authStatus = authResponse.status();
+  if (authStatus >= 400) {
+    let detail = '';
+    try {
+      const body = await authResponse.json();
+      detail = body?.error_code || body?.error || body?.msg || body?.message || '';
+    } catch {}
+    throw new Error('AUTH_TOKEN_HTTP_' + authStatus + (detail ? '_' + detail : ''));
+  }
+  try {
+    await page.locator('#login-email').waitFor({ state: 'hidden', timeout: 30000 });
+  } catch {
+    const alertText = await page.getByRole('alert').first().textContent().catch(() => '');
+    throw new Error('AUTH_UI_SESSION_NOT_ESTABLISHED' + (alertText?.trim() ? ':' + alertText.trim().slice(0, 180) : ''));
+  }
+  assert.equal(await page.getByText('حدث خطأ غير متوقع').count(), 0, 'application error boundary must not render');
+}
 function csvBuffer(fields) { const headers = Object.keys(fields); const values = Object.values(fields).map(value => String(value).replaceAll(',', ' ')); return Buffer.from(`\ufeff${headers.join(',')}\n${values.join(',')}\n`, 'utf8'); }
 async function importOne(page, entity, fields, marker) { await page.goto(`${baseURL}/import`, { waitUntil: 'networkidle', timeout: 30000 }); const label = entity === 'customers' ? 'العملاء' : entity === 'products' ? 'المنتجات' : 'فواتير المبيعات'; await page.getByRole('button', { name: new RegExp(label) }).click(); await page.locator('input[type="file"]').first().setInputFiles({ name: `${marker}.csv`, mimeType: 'text/csv', buffer: csvBuffer(fields) }); await page.getByText('المراجعة', { exact: true }).waitFor({ state: 'visible', timeout: 30000 }); const commit = page.getByRole('button', { name: /تأكيد الاستيراد/ }); const qualityApproval = page.getByRole('checkbox', { name: /موافقة جودة صريحة/ }); if (await qualityApproval.count() === 1 && await qualityApproval.isVisible()) { await qualityApproval.check(); await page.waitForTimeout(100); evidence.steps.push({ step: `import-quality-approval:${entity}`, status: 'PASS' }); } assert.equal(await commit.isEnabled(), true, `${entity} valid import must be enabled`); await commit.click(); try { await page.getByRole('heading', { name: 'اكتملت عملية الاستيراد', exact: true }).waitFor({ state: 'visible', timeout: 30000 }); } catch (error) { const visibleError = await page.locator('.bg-danger-50').allTextContents().catch(() => []); throw new Error(`${error instanceof Error ? error.message : String(error)} UI_ERRORS=${visibleError.join(' | ')}`); } evidence.steps.push({ step: `import:${entity}`, status: 'PASS' }); }
 async function uiSearch(page, route, placeholder, value, step) { await page.goto(`${baseURL}${route}`, { waitUntil: 'networkidle', timeout: 30000 }); const input = page.getByPlaceholder(placeholder); await input.fill(value); await page.waitForTimeout(300); await page.getByText(value, { exact: true }).first().waitFor({ state: 'visible', timeout: 10000 }); evidence.steps.push({ step, status: 'PASS', value }); }
