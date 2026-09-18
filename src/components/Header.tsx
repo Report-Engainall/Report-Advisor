@@ -41,7 +41,12 @@ export function Header({
       '/inventory': 'المخزون',
       '/settings': 'إعدادات الشركة',
     };
-    return map[location.pathname] ?? 'واجهة الأغبري';
+    const exact = map[location.pathname];
+    if (exact) return exact;
+    const nested = Object.entries(map)
+      .filter(([path]) => path !== '/' && location.pathname.startsWith(path + '/'))
+      .sort(([a], [b]) => b.length - a.length)[0];
+    return nested ? nested[1] : 'واجهة الأغبري';
   }, [location.pathname]);
 
   useEffect(() => {
