@@ -539,3 +539,42 @@ Do not weaken:
 - certification evidence boundaries.
 
 Fix the verifier when the verifier is wrong. Fix the producer/consumer contract when the runtime contract is mismatched. Preserve external blockers as blockers.
+
+
+## 25. Leadership Resume — 2026-09-18
+
+### Current execution observation
+
+- Corrected execution branch currently reaches 51c71124c6b90f98f4659e8d79efabf800a5cc1c.
+- Fresh GitHub Actions runs were created for this head.
+- At the time of inspection, most affected workflows remained queued; desktop-windows was in progress.
+- No fresh success or failure from the corrected browser or certification runs is promoted yet.
+
+### Vercel truth
+
+- Vercel team: Injaz, plan HOBBY.
+- Production deployment remains the main deployment at exact SHA a32fae0fc08c1cbbcc60b6eedfb0f4bd74a21c50.
+- A separate ready deployment exists for governance PR #543 at SHA 787762563b3da0e6bdd2d87103dffb49354ae660.
+- The current PR #542 corrected head is not the production deployment.
+- GitHub Vercel checks on current PR work report build-rate-limit; this remains an external deployment-provider constraint.
+- Do not describe the current candidate as production-deployed.
+
+### Supabase storage truth
+
+- Live storage.buckets query returned zero buckets.
+- Therefore REPORT_ADVISOR_STORAGE_BUCKET cannot be populated from an existing real bucket.
+- Do not create a bucket solely to turn the Storage Tenant Runtime E2E green.
+- Treat Storage runtime as an external or product-readiness blocker until a real storage-backed product capability and configuration are established.
+
+### Continuation
+
+Next verification fronts after the queued runs complete:
+
+1. Import terminal contract / Full Product Browser E2E on corrected head.
+2. Final Certification Gate on corrected head.
+3. PDF/OCR runtime evidence.
+4. Tenant/persistence runtime proof.
+5. Storage decision: either a real integrated capability with real configuration, or explicit readiness backlog without fake certification.
+6. Vercel deployment verification only after the provider accepts a candidate deployment.
+
+Historical evidence from 66d is not promoted to 51c.
