@@ -69,6 +69,7 @@
 - Queue scalar boundaries are implemented in current Main: blank run/worker/lease identifiers are rejected, retry budgets require positive integers, and lease duration is finite and at least 30 seconds.
 - Worker runtime crash/retry/recovery remains UNPROVEN until an actual disposable job is executed through enqueue → claim → heartbeat/checkpoint → forced expiry → recovery → retry/DLQ.
 - Current exact-head resilience workflows are enabled for PRs and verify the checked-out SHA explicitly before execution.
+- Backup/restore runtime remains NOT PROVEN: repository evidence-integrity checks pass, but a disposable restore drill with verified RPO/RTO and exact-head evidence is still required before release certification.
 
 ### OCR / Document Intelligence
 - The historical OCR confidence defect fix remains part of the repository contract: recognition confidence is preserved, malformed metadata fails closed, and low-confidence/no-text paths are review/reject paths rather than fabricated confidence.
