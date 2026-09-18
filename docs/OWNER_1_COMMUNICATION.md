@@ -996,3 +996,31 @@ FILES / SURFACES: src/pages/ExternalFileAnalysisPage.tsx; scripts/check-external
 DEPENDENCIES: file-engine detector/security/parser الحالي؛ لا تخزين جديد ولا RPC/DB/Runner/Auth/Tenant/Storage/CI change.
 BLOCKERS: لا يوجد blocker تطويري معروف.
 EXPECTED HANDOFF: Owner 2 يعيد إثبات file analysis/browser/runtime/security/release على Exact SHA؛ لا نقل Evidence بين SHAs.
+
+EXECUTION
+CHANGE: رفع حدود الثقة في External File Analysis: إظهار security/hash/preview-only state بوضوح، وربط النتيجة بمسار الاستيراد الكانوني كخطوة منفصلة دون الادعاء بأن الملف أصبح Canonical Data.
+FILES: src/pages/ExternalFileAnalysisPage.tsx; scripts/check-external-file-analysis-trust-contract.mjs; package.json.
+WHY: صفحة التحليل كانت ممتازة تقنيًا في الفحص والاستخراج، لكنها لم تميز بصريًا بين نتيجة المعاينة وبيانات الأعمال المعتمدة.
+TEST: final Exact SHA c0bc0659f1c3e153cef78388154345337d53b7ee: external-file-analysis-trust PASS; file-engine contract PASS; 21-format capability PASS; file-intelligence security PASS; document-intelligence contract PASS; hardening 20/20 PASS; decision gate PASS; closure PASS; route/sidebar parity PASS (35/34); typecheck PASS; lint PASS (0 errors / 59 warnings); build PASS (2808 modules, 14.25s); perf:budget PASS (critical 488.0KB / largest JS 487.8KB).
+RESULT: verified on final feature Exact SHA; no RPC/DB/Runner/Auth/Tenant/Storage/CI mutation.
+COMMIT: c0bc0659f1c3e153cef78388154345337d53b7ee
+NEW HEAD: c0bc0659f1c3e153cef78388154345337d53b7ee
+STATUS: READY_FOR_HANDOFF
+
+HANDOFF
+FROM: OWNER 1
+TARGET: OWNER 2
+BRANCH: feat/owner1-document-analysis-trust-wave22-20260919
+SHA: c0bc0659f1c3e153cef78388154345337d53b7ee
+CHANGED: External File Analysis preview trust boundary + canonical import next-step CTA + contract guard.
+VERIFIED: file-engine/document-intelligence/security/closure contracts, route parity, typecheck, lint, build, performance on feature Exact SHA.
+UNPROVEN: authenticated browser behavior; backend/runtime/DB/RLS/persistence/CI/CD/release certification remain Owner 2 scope.
+BLOCKERS: none in Owner 1 code.
+NEXT: integrate/rebase/cherry-pick Exact SHA c0bc0659f1c3e153cef78388154345337d53b7ee and reprove file-analysis/browser/runtime/release gates on merged Exact SHA; no cross-SHA evidence transfer.
+
+CLOSE
+HEAD: c0bc0659f1c3e153cef78388154345337d53b7ee
+DONE: Wave 22 document analysis trust integrity completed and handed off.
+OPEN: Owner 2 integration/runtime/release proof; Owner 1 continues commercial differentiation.
+BLOCKED: none.
+NEXT START: inspect ProposalDemoPage as the product showcase / commercial proof surface.
