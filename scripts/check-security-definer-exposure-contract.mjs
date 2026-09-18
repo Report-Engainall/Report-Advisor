@@ -41,11 +41,23 @@ function getFunctionWindow(name) {
   const nextFunction = /CREATE\s+(?:OR\s+REPLACE\s+)?FUNCTION\s+(?:public\.)?/gi;
   nextFunction.lastIndex = lastIndex + 1;
   const next = nextFunction.exec(sql);
-  return sql.slice(lastIndex, next ? next.index : sql.length);
+  let window = sql.slice(lastIndex, next ? next.index : sql.length);
+  const alterPattern = new RegExp('ALTER\\s+FUNCTION\\s+(?:public\\.)?' + name + '\\s*\\(', 'gi');
+  let lastAlterIndex = -1;
+  let alterMatch;
+  while ((alterMatch = alterPattern.exec(sql)) !== null) {
+    if (alterMatch.index > lastIndex) lastAlterIndex = alterMatch.index;
+  }
+  if (lastAlterIndex > lastIndex) {
+    const semicolon = sql.indexOf(';', lastAlterIndex);
+    window += '\\n' + sql.slice(lastAlterIndex, semicolon >= 0 ? semicolon + 1 : sql.length);
+  }
+  return window;
 }
 
 function normalizeSearchPath(window) {
-  const raw = window.match(/SET\s+search_path\s+(?:TO|=)\s*([^\n;]+)/i)?.[1];
+  const matches = [...window.matchAll(/SET\s+search_path\s+(?:TO|=)\s*([\s\S]*?)(?=\r?\n\s*AS\b|;)/gi)];
+  const raw = matches.at(-1)?.[1];
   if (!raw) return null;
   return raw.trim().toLowerCase().replaceAll('"', '').replaceAll("'", '').replace(/\s+/g, '');
 }
