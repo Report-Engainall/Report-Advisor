@@ -12,17 +12,30 @@ interface KPICardProps {
   icon?: ReactNode;
   status?: DataStatus;
   hint?: string;
+  onClick?: () => void;
+  interactiveLabel?: string;
 }
 
-export function KPICard({ label, value, format, change, changeLabel, icon, status = 'CALCULATED', hint }: KPICardProps) {
+export function KPICard({ label, value, format, change, changeLabel, icon, status = 'CALCULATED', hint, onClick, interactiveLabel }: KPICardProps) {
   const formatted = value === null ? '—' : format === 'currency' ? formatCurrency(value) : format === 'percent' ? formatPercent(value) : format === 'compact' ? formatCompact(value) : formatNumber(value);
   const positive = change !== undefined && change > 0;
   const negative = change !== undefined && change < 0;
   const statusLabel = status === 'INSUFFICIENT_DATA' ? 'غير مكتمل' : status === 'FORECAST' ? 'تنبؤ' : status === 'ESTIMATED' ? 'تقديري' : 'محسوب';
 
   return (
-    <div className="card group relative overflow-hidden p-4 transition-[border-color,box-shadow] duration-150 hover:border-ink-300 hover:shadow-card-hover">
-      
+    <div
+      onClick={onClick}
+      role={onClick ? 'button' : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      onKeyDown={event => {
+        if (onClick && (event.key === 'Enter' || event.key === ' ')) {
+          event.preventDefault();
+          onClick();
+        }
+      }}
+      aria-label={interactiveLabel}
+      className={'card group relative overflow-hidden p-4 transition-[border-color,box-shadow] duration-150 hover:border-ink-300 hover:shadow-card-hover ' + (onClick ? 'cursor-pointer focus-visible:ring-4 focus-visible:ring-primary-500/10' : '')}
+    >
       <div className="relative flex items-start justify-between gap-3">
         <div className="flex items-center gap-2.5">
           <span className="flex h-8 w-8 items-center justify-center rounded-[8px] border border-ink-200 bg-white text-ink-500 transition group-hover:border-primary-200 group-hover:bg-primary-50 group-hover:text-primary-700">{icon}</span>
