@@ -89,20 +89,53 @@ jobs:
           VITE_SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
         run: npm run build
-      - name: Start exact-head application
+      - name: Verify exact-head backend runtime secret contract
         shell: bash
         env:
-          VITE_SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
+          SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_SERVICE_ROLE_KEY }}
         run: |
           set -euo pipefail
-          nohup npm run preview -- --host 127.0.0.1 --port 4173 > /tmp/report-advisor-preview.log 2>&1 &
+          missing=0
+          for name in SUPABASE_URL VITE_SUPABASE_ANON_KEY SUPABASE_SERVICE_ROLE_KEY; do
+            if [ -n "${!name:-}" ]; then
+              echo "$name=SET"
+            else
+              echo "$name=MISSING"
+              missing=1
+            fi
+          done
+          if [ "$missing" -ne 0 ]; then
+            echo "BACKEND_RUNTIME_BLOCKED: server-side execution secret is not provisioned."
+            echo "The secret must remain backend-only; it must never be exposed to browser steps."
+            exit 2
+          fi
+      - name: Start exact-head application and API runtime
+        shell: bash
+        env:
+          SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          set -euo pipefail
+          nohup node --experimental-strip-types --experimental-loader ./scripts/node-ts-extension-loader.mjs scripts/local-exact-head-server.mjs > /tmp/report-advisor-preview.log 2>&1 &
           for i in {1..60}; do
-            if curl -fsS http://127.0.0.1:4173/ >/dev/null; then exit 0; fi
+            if curl -fsS http://127.0.0.1:4173/ >/dev/null; then break; fi
             sleep 1
           done
-          cat /tmp/report-advisor-preview.log
-          exit 1
+          if ! curl -fsS http://127.0.0.1:4173/ >/dev/null; then
+            cat /tmp/report-advisor-preview.log
+            exit 1
+          fi
+          api_status="$(curl -sS -o /tmp/report-advisor-api-probe.json -w '%{http_code}' -X POST -H 'Content-Type: application/json' http://127.0.0.1:4173/api/canonical-import-execute -d '{}')"
+          if [ "$api_status" != "401" ]; then
+            echo "EXACT_HEAD_API_BOUNDARY_UNEXPECTED_HTTP=$api_status"
+            cat /tmp/report-advisor-api-probe.json
+            cat /tmp/report-advisor-preview.log
+            exit 1
+          fi
+          echo "EXACT_HEAD_API_BOUNDARY=PASS (unauthenticated request rejected by real API handler with HTTP 401)"
       - name: Verify authenticated E2E secret contract
         env:
           SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
