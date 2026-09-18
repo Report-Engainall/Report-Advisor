@@ -5,22 +5,23 @@
 > Authoritative execution manifest. This document never promotes historical evidence across an exact Git `HEAD` boundary. Pair every evidence batch with the exact Git `HEAD` of `main` and the exact environment/commit used.
 
 ### CURRENT EXACT HEAD
-- Current code/test candidate: `73e646a11cb2d95ede14ff1ca56f16f2a0c801ea`.
-- This is the exact current `main` head after the master-index rebind was merged; the previous `9375c714...` binding is superseded.
+- Current code/test candidate: `f860490641d3a9650ca75d56d3f3207e6c3ee0db`.
+- This is the exact remediation candidate created directly from current `main` `54b6b95bae9fd3737c70c126bf727cac21aec143`, preserving current-main governance files and reapplying the PDF/OCR + import runtime remediation.
 - The autonomous operating protocol is now repository-resident at `docs/PROGRAMMER_AUTONOMOUS_OPERATING_PROTOCOL.md`.
 - PC01 native desktop verification is recorded at `docs/evidence/DEVICE_PC01_VERIFICATION_20260918.md`; its native smoke is PASS and its evidence is bound to the documented local source SHA/environment.
 - No runtime/browser/production evidence from an earlier SHA is promoted by this binding.
 - The certification binding itself is governance-only and does not certify runtime/product code; fresh exact-HEAD runtime evidence is still required.
 - Historical evidence from earlier SHAs remains historical and is not promoted automatically.
 - Current-head workflow execution is not yet evidenced on this SHA by the repository Actions run feed; absence of runs is not PASS and does not transfer historical evidence.
-- The current Vercel production deployment is now READY and is SHA-matched to `a32fae0fc08c1cbbcc60b6eedfb0f4bd74a21c50`; this proves deployment binding/build readiness only, not runtime certification.
-
-- Vercel reports the current Main deployment path as externally blocked by the provider build-rate limit; no production deployment is claimed from that status.
+- Current `main` is `54b6b95bae9fd3737c70c126bf727cac21aec143`.
+- PR #552 is the active remediation path; stale PR #542 is closed and its evidence is not promoted.
+- Staging worker service-authority migration `20260918043413_reconcile_report_execution_worker_service_authority` is applied and preserved by this candidate.
+- Vercel remains externally blocked by the provider build-rate limit for the candidate; no deployment/runtime PASS is claimed from that status.
 
 ### CURRENT EXECUTION CONTROL — 2026-09-18
 - PR #533 adds the mandatory continuous two-owner execution/resume protocol. It is governance-only and does not itself certify runtime.
-- Programmer-owned active runtime front: PR #531 (e334ed54be851cf6fbeb0f85753b330bc08aea47) for structured PDF invoice parsing on current Main.
-- Coordinator-owned verification fronts: current exact-head evidence binding, Supabase staging truth/security, production/deployment verification, resilience/evidence control, and commercial-gap control.
+- Programmer-owned active runtime front: PR #552 (`f860490641d3a9650ca75d56d3f3207e6c3ee0db`) for structured PDF/OCR, canonical import terminal authority, and worker service-authority reconciliation on current Main.
+- Coordinator-owned verification fronts: fresh exact-head CI/runtime evidence, Supabase staging truth/security, production/deployment verification, resilience/evidence control, and commercial-gap control.
 - Rule: do not restart closed work. Resume IN_PROGRESS fronts from their last verified checkpoint. Do not mix evidence across SHA boundaries.
 - Rule: independent fronts must run in parallel; a queued CI workflow or external provider blocker must not idle unrelated work.
 
