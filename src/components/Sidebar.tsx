@@ -87,6 +87,16 @@ const quickActions = [
   { path: '/decision-experience', label: 'قرار اليوم', enLabel: 'Decision', icon: <Scale size={14}/> },
 ];
 
+const sectionIcon = (id: string) => {
+  if (id === 'today') return <LayoutDashboard size={18}/>;
+  if (id === 'operations') return <BriefcaseBusiness size={18}/>;
+  if (id === 'money') return <WalletCards size={18}/>;
+  if (id === 'customers-products') return <Package size={18}/>;
+  if (id === 'intelligence') return <Brain size={18}/>;
+  if (id === 'reports') return <FileBarChart size={18}/>;
+  return <Settings size={18}/>;
+};
+
 export function Sidebar({ alertCount = 0, onNavigate, user }: { alertCount?: number; onNavigate?: () => void; user?: User | null }) {
   const { language } = useLanguage();
   const location = useLocation();
@@ -102,9 +112,7 @@ export function Sidebar({ alertCount = 0, onNavigate, user }: { alertCount?: num
     () => visibleSections.find(section => section.items.some(item => location.pathname === item.path || (item.path !== '/' && location.pathname.startsWith(item.path))))?.id ?? 'today',
     [location.pathname, visibleSections],
   );
-  const [collapsed, setCollapsed] = useState<Record<string, boolean>>(() =>
-    Object.fromEntries(navSections.map(section => [section.id, true]))
-  );
+  const [expandedSection, setExpandedSection] = useState<string>(activeSection);
 
   useEffect(() => {
     const sync = () => setWorkspaceMode(readWorkspaceMode());
@@ -117,7 +125,7 @@ export function Sidebar({ alertCount = 0, onNavigate, user }: { alertCount?: num
   }, []);
 
   useEffect(() => {
-    setCollapsed(prev => ({ ...prev, [activeSection]: false }));
+    setExpandedSection(activeSection);
   }, [activeSection]);
 
   const signOut = async () => {
@@ -126,64 +134,82 @@ export function Sidebar({ alertCount = 0, onNavigate, user }: { alertCount?: num
     onNavigate?.();
   };
 
+  const currentSection = visibleSections.find(section => section.id === expandedSection) ?? visibleSections[0];
+
   return (
-    <aside dir={language === 'ar' ? 'rtl' : 'ltr'} className={'flex h-screen w-[296px] shrink-0 flex-col overflow-y-auto bg-[#0d1510] text-white shadow-elevated ' + (language === 'ar' ? 'border-l' : 'border-r') + ' border-white/10'}>
-      <div className="border-b border-white/10 px-5 py-5">
+    <aside dir={language === 'ar' ? 'rtl' : 'ltr'} className={'flex h-screen w-[272px] shrink-0 flex-col overflow-hidden bg-[#0b120e] text-white ' + (language === 'ar' ? 'border-l' : 'border-r') + ' border-white/10'}>
+      <div className="px-5 pt-5">
         <Link to="/" onClick={onNavigate} className="flex items-center gap-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary-600 text-lg font-black text-white shadow-lg shadow-primary-950/20">أ</div>
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-600 text-lg font-black text-white shadow-lg shadow-primary-950/25">أ</div>
           <div className="min-w-0">
             <div className="text-[15px] font-black tracking-tight">{language === 'ar' ? 'الأغبري' : 'Report-Advisor'}</div>
-            <div className="mt-0.5 text-[10px] font-medium text-slate-400">{language === 'ar' ? 'ذكاء الأعمال والقرار' : 'Business & Decision Intelligence'}</div>
+            <div className="mt-0.5 text-[10px] font-medium text-slate-500">{language === 'ar' ? 'ذكاء الأعمال والقرار' : 'Business & Decision Intelligence'}</div>
           </div>
         </Link>
       </div>
 
-      <div className="px-4 pt-4">
-        <div className="rounded-2xl border border-primary-400/15 bg-primary-500/10 px-4 py-3">
-          <div className="text-[10px] font-black tracking-[0.18em] text-primary-200">{language === 'ar' ? 'نموذج التشغيل' : 'OPERATING MODEL'}</div>
-          <div className="mt-1 text-xs leading-5 text-slate-300">{language === 'ar' ? 'بيانات → دليل → قرار → إجراء → تعلّم' : 'Data → evidence → decision → action → learning'}</div>
-          <div className="mt-2 text-[10px] font-semibold text-primary-100/80">{language === 'ar' ? 'المساحة: ' : 'Workspace: '}{workspaceMode === 'essential' ? (language === 'ar' ? 'أساسية' : 'Essential') : workspaceMode === 'advanced' ? (language === 'ar' ? 'متقدمة' : 'Advanced') : (language === 'ar' ? 'خبيرة' : 'Expert')}</div>
+      <div className="px-4 pt-5">
+        <div className="flex items-center justify-between rounded-2xl border border-white/8 bg-white/[0.025] px-3 py-2.5">
+          <span className="text-[10px] font-bold text-slate-500">{language === 'ar' ? 'مساحة العمل' : 'Workspace'}</span>
+          <span className="rounded-full bg-primary-500/10 px-2 py-1 text-[10px] font-bold text-primary-200">
+            {workspaceMode === 'essential' ? (language === 'ar' ? 'أساسية' : 'Essential') : workspaceMode === 'advanced' ? (language === 'ar' ? 'متقدمة' : 'Advanced') : (language === 'ar' ? 'خبيرة' : 'Expert')}
+          </span>
         </div>
       </div>
 
       <div className="px-4 pt-3">
-        <div className="grid grid-cols-5 gap-1 rounded-2xl border border-white/10 bg-white/[0.03] p-1.5">
+        <div className="grid grid-cols-5 gap-1 rounded-2xl border border-white/8 bg-white/[0.025] p-1.5">
           {quickActions.map(action => {
             const active = location.pathname === action.path || (action.path !== '/' && location.pathname.startsWith(action.path));
-            return <Link key={action.path} to={action.path} onClick={onNavigate} className={'flex min-h-14 flex-col items-center justify-center gap-1 rounded-xl px-1 text-center text-[9px] font-bold transition ' + (active ? 'bg-primary-500/15 text-primary-100' : 'text-slate-400 hover:bg-white/5 hover:text-white')}>
+            return <Link key={action.path} to={action.path} onClick={onNavigate} className={'flex min-h-12 flex-col items-center justify-center gap-1 rounded-xl px-1 text-center text-[9px] font-bold transition ' + (active ? 'bg-primary-500/15 text-primary-100' : 'text-slate-500 hover:bg-white/5 hover:text-white')}>
               {action.icon}<span className="truncate">{language === 'ar' ? action.label : action.enLabel}</span>
             </Link>;
           })}
         </div>
       </div>
 
-      <nav className="flex-1 space-y-2 px-3 py-4" aria-label={language === 'ar' ? 'التنقل التجاري الرئيسي' : 'Primary business navigation'}>
-        {visibleSections.map(section => {
-          const isOpen = !collapsed[section.id];
-          const isActive = activeSection === section.id;
-          return <section key={section.id}>
-            <button type="button" onClick={() => setCollapsed(prev => ({ ...prev, [section.id]: !isOpen }))} className={'flex w-full items-center gap-2 rounded-xl px-3 py-2 ' + (language === 'ar' ? 'text-right ' : 'text-left ') + (isActive ? 'text-primary-200 bg-primary-500/5' : 'text-slate-500 hover:bg-white/5 hover:text-slate-200')} aria-expanded={isOpen}>
-              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-white/5 text-slate-400">
-                {section.id === 'today' ? <LayoutDashboard size={15}/> : section.id === 'operations' ? <BriefcaseBusiness size={15}/> : section.id === 'money' ? <WalletCards size={15}/> : section.id === 'customers-products' ? <Package size={15}/> : section.id === 'intelligence' ? <Brain size={15}/> : section.id === 'reports' ? <FileBarChart size={15}/> : <Settings size={15}/>}
-              </span>
-              <span className="flex-1 text-[11px] font-black tracking-[0.04em]">{language === 'ar' ? section.title : section.enTitle}</span>
-              <span className="rounded-full bg-white/5 px-2 py-0.5 text-[9px] font-bold text-slate-500">{section.items.length}</span>
-              <ChevronDown size={14} className={'transition-transform ' + (isOpen ? '' : '-rotate-90')} />
-            </button>
-            {isOpen && <div className="mt-1 space-y-0.5">
-              {section.items.map(item => {
-                const active = location.pathname === item.path || (item.path !== '/' && location.pathname.startsWith(item.path));
-                return <Link key={item.path} to={item.path} onClick={onNavigate} className={'nav-item ' + (active ? 'nav-item-active' : 'nav-item-inactive')}>
-                  <span className={'flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ' + (active ? 'bg-primary-500/15 text-primary-200' : 'bg-white/5 text-slate-400')}>{item.icon}</span>
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate">{language === 'ar' ? item.label : item.enLabel}</span>
-                    {item.hint && <span className={'mt-0.5 block truncate text-[9px] font-normal ' + (active ? 'text-primary-100/70' : 'text-slate-500')}>{language === 'ar' ? item.hint : item.enHint}</span>}
+      <nav className="flex-1 overflow-y-auto px-3 py-5" aria-label={language === 'ar' ? 'التنقل التجاري الرئيسي' : 'Primary business navigation'}>
+        <div className="mb-2 px-2 text-[10px] font-black tracking-[0.14em] text-slate-600">
+          {language === 'ar' ? 'مساحات العمل' : 'WORKSPACES'}
+        </div>
+        <div className="space-y-1.5">
+          {visibleSections.map(section => {
+            const active = activeSection === section.id;
+            const open = expandedSection === section.id;
+            return (
+              <div key={section.id}>
+                <button
+                  type="button"
+                  onClick={() => setExpandedSection(open ? '' : section.id)}
+                  className={'flex w-full items-center gap-3 rounded-2xl px-3 py-3 text-right transition ' + (active ? 'bg-primary-500/10 text-primary-100' : 'text-slate-300 hover:bg-white/5 hover:text-white')}
+                  aria-expanded={open}
+                >
+                  <span className={'flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ' + (active ? 'bg-primary-500/15 text-primary-200' : 'bg-white/[0.04] text-slate-500')}>
+                    {sectionIcon(section.id)}
                   </span>
-                </Link>;
-              })}
-            </div>}
-          </section>;
-        })}
+                  <span className="min-w-0 flex-1 text-sm font-bold">{language === 'ar' ? section.title : section.enTitle}</span>
+                  <ChevronDown size={15} className={'shrink-0 text-slate-600 transition-transform ' + (open ? '' : '-rotate-90')} />
+                </button>
+                {open && currentSection?.id === section.id && (
+                  <div className="mx-2 mt-1 space-y-0.5 border-r border-white/8 pr-2">
+                    {currentSection.items.map(item => {
+                      const isActive = location.pathname === item.path || (item.path !== '/' && location.pathname.startsWith(item.path));
+                      return (
+                        <Link key={item.path} to={item.path} onClick={onNavigate} className={'nav-item ' + (isActive ? 'nav-item-active' : 'nav-item-inactive')}>
+                          <span className={'flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ' + (isActive ? 'bg-primary-500/15 text-primary-200' : 'bg-transparent text-slate-500')}>{item.icon}</span>
+                          <span className="min-w-0 flex-1">
+                            <span className="block truncate">{language === 'ar' ? item.label : item.enLabel}</span>
+                            {item.hint && <span className={'mt-0.5 block truncate text-[9px] font-normal ' + (isActive ? 'text-primary-100/70' : 'text-slate-600')}>{language === 'ar' ? item.hint : item.enHint}</span>}
+                          </span>
+                        </Link>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
       </nav>
 
       <div className="border-t border-white/10 px-4 py-4">
