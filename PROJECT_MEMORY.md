@@ -745,3 +745,32 @@ FAIL-CLOSED until fresh evidence exists on ce674... / its governance-only descen
 ### Device state
 
 PC01 device cleanup remains IN_PROGRESS / BLOCKED_EXTERNAL_CHANNEL after the remote control channel became timeout-prone while targeted duplicate-process cleanup was attempted. Exact process evidence is tracked in Issue #545.
+
+
+## 32. Fresh Candidate Wave — 2026-09-18
+
+### Exact candidate
+- Code/test candidate: ce674d937cde275f6e233e2fd4ad78589e9dafb5
+- Governance-only descendant / current candidate boundary: e5ca7443748562c97d2098e55d31d6a857cc053b
+
+### Fresh exact-head observations
+- import-finish-lifecycle-security 35305165514: SUCCESS.
+- Execution Enforcement Contract 35305165855: SUCCESS.
+- semantic-metric-runtime-contract 35305165538: SUCCESS.
+- inventory-intelligence-truth 35305165777: SUCCESS.
+- Cloudflare Pages Compatibility 35305165895: SUCCESS.
+- production-chain-guard 35305165774: SUCCESS.
+- UI route completeness 35305165802: SUCCESS.
+- canonical-truth-boundary 35305165776: SUCCESS.
+- canonical-aggregation-truth 35305166010: SUCCESS.
+- integrity-batch 35305165821: SUCCESS.
+- OCR Confidence Contract 35305165738: SUCCESS.
+- storage-tenant-isolation 35305165713: SUCCESS.
+- Golden Evidence Integrity 35305165807: SUCCESS.
+- Phase F live resilience run 35305165724: **BLOCKED EXTERNAL**. All local/static resilience checks passed. Live probe requires RESILIENCE_TARGET_ENV, RESILIENCE_OPERATIONAL_TOKEN, RESILIENCE_CANARY_AUTH_TOKEN, RESILIENCE_HEALTH_URL, RESILIENCE_CANARY_URL, RESILIENCE_BACKUP_VERIFY_URL, and RESILIENCE_ROLLBACK_DRILL_URL, all absent in the workflow environment.
+- Device-independent browser, Full Product Browser E2E, Quality, PDF regression, Production Regression, and Final Certification remain queued/in progress at this inspection; no PASS is promoted before completion.
+
+### Decision
+- Do not weaken Phase F to make it green.
+- Do not fabricate live resilience URLs/tokens.
+- Continue all unrelated exact-head fronts.
