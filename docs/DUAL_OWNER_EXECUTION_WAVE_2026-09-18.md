@@ -114,3 +114,16 @@ The project is not marked DONE until:
 - all required terminal scenarios are real and traceable;
 - certification is PASS on the governed Exact HEAD;
 - no prohibited historical/synthetic evidence is used.
+
+### Wave 8 UI + governance alignment ? 2026-09-18
+- Canonical head-identity guard aligned with Owner-2 integration branch: `scripts/check-head-identity.mjs` and `npm run check:head-identity`. UI reports use `Certification Candidate: NO`; integration reports use `YES`.
+- Removed the temporary duplicate UI-only head-coordination guard/protocol; repository governance now uses one identity contract.
+- `BusinessInvestigationDrawer.tsx` now has explicit dialog title ownership, initial focus, Escape handling, Tab focus trapping, opener-focus restoration, and visible focus states for the close/action controls.
+- UI contract extended to guard the investigation drawer accessibility semantics.
+- UI HEAD at Wave-8 start: `528257ac45438d131c55ab51af880aa1ca4f4285`. Integration HEAD observed during handoff: `514cda1674986436395f4c1aea0683232f721b24`. Main remains `1568e43889d27b5d850e64c0b99d03a994fd3bbe`.
+
+#### NEXT HANDOFF
+Target branch: `integration/certification-candidate-20260918`
+Expected action: merge the UI branch changes into the integration candidate, then rerun affected exact-head runtime/certification gates on the resulting integration SHA.
+SHA to verify after handoff: the new integration SHA produced by that merge (not `528257ac...`).
+Certification Candidate: NO for UI HEAD.

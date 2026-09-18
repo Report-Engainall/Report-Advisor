@@ -15,6 +15,7 @@ const header = read('src/components/Header.tsx');
 const app = read('src/App.tsx');
 const commandPalette = read('src/components/CommandPalette.tsx');
 const sidebar = read('src/components/Sidebar.tsx');
+const investigationDrawer = read('src/components/BusinessInvestigationDrawer.tsx');
 
 const checks = [
   [recommendations.includes('إشارات مصدرية تنتظر قرارًا بشريًا'), 'Recommendations must state human decision ownership.'],
@@ -45,6 +46,13 @@ const checks = [
   [sidebar.includes("aria-controls={section.id+'-navigation-panel'}") && sidebar.includes("id={section.id+'-navigation-panel'}"), 'Sidebar sections must expose button-to-panel relationship.'],
   [sidebar.includes('focus-visible:ring-2 focus-visible:ring-primary-500'), 'Sidebar controls need visible keyboard focus.'],
 ];
+
+checks.push(
+  [investigationDrawer.includes('role="dialog"') && investigationDrawer.includes('aria-labelledby={titleId}') && investigationDrawer.includes('id={titleId}'), 'Business investigation drawer must have an explicit accessible title.'],
+  [investigationDrawer.includes("event.key !== 'Tab'") && investigationDrawer.includes('drawer.querySelectorAll<HTMLElement>'), 'Business investigation drawer must trap keyboard focus.'],
+  [investigationDrawer.includes('previousFocusRef.current = activeElement') && investigationDrawer.includes('previousFocus?.isConnected'), 'Business investigation drawer must restore focus to the opener.'],
+  [investigationDrawer.includes('data-investigation-close="true"') && investigationDrawer.includes('focus-visible:ring-2 focus-visible:ring-primary-500'), 'Business investigation drawer close control must be keyboard-visible.'],
+);
 
 const failed = checks.filter(([ok]) => !ok);
 if (failed.length) {
