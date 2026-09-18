@@ -6,10 +6,14 @@ const pages = fs.readdirSync('src/pages').filter((name) => name.endsWith('Page.t
 
 const routePaths = [...app.matchAll(/<Route\s+path="([^"]+)"/g)].map((m) => m[1]);
 const sidebarPaths = [...sidebar.matchAll(/path\s*:\s*['"]([^'"]+)['"]/g)].map((m) => m[1]);
-const pageImports = [
-  ...app.matchAll(/from\s+['"]@\/pages\/([^'"]+)['"]/g),
-  ...app.matchAll(/import\([^)]*['"]@\/pages\/([^'"]+)['"]/g),
-].map((m) => m[1]);
+const pageSourceFiles = [
+  { file: 'src/App.tsx', source: app },
+  ...pages.map((file) => ({ file: 'src/pages/' + file, source: fs.readFileSync('src/pages/' + file, 'utf8') })),
+];
+const pageImports = pageSourceFiles.flatMap(({ source }) => [
+  ...source.matchAll(/from\s+['"]@\/pages\/([^'"]+)['"]/g),
+  ...source.matchAll(/import\([^)]*['"]@\/pages\/([^'"]+)['"]/g),
+].map((m) => m[1]));
 
 const unique = (items) => [...new Set(items)];
 const missingFromSidebar = routePaths.filter((path) => path !== '*' && !sidebarPaths.includes(path));
@@ -36,6 +40,7 @@ const knownEntryOrLegacyFiles = new Set([
   'CanonicalScenarioPage.tsx',
   'ReceivablesReportPageCanonical.tsx',
   'ReceivablesReportCanonicalPage.tsx',
+  'IntelligencePages.tsx',
 ]);
 const unexpectedOrphans = unreferencedPageFiles.filter((file) => !knownEntryOrLegacyFiles.has(file));
 fail('page components neither imported nor explicitly allowlisted as entry/legacy', unexpectedOrphans);
