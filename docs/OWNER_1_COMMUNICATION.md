@@ -168,3 +168,46 @@ FILES / SURFACES: src/pages/ExecutiveCommandCenterPage.tsx; scripts/check-execut
 DEPENDENCIES: get_dashboard_snapshot + get_dashboard_intelligence والمسارات الحالية فقط؛ لا RPC/DB/Runner جديد.
 BLOCKERS: لا يوجد blocker تطويري؛ PC01 متاح للاختبار الحقيقي.
 EXPECTED HANDOFF: Owner 2 يعيد إثبات affected UI/runtime gates على Exact SHA الناتج ويقرر الدمج في integration.
+
+## EXECUTION — COMMAND 1 — 2026-09-19
+OWNER: 1
+BRANCH: feat/owner1-command-center-wave3-20260919
+FINAL UI HEAD: 34ce2105268acbc2348d97d4d3b04cd22c29dc30
+
+FRONT A — EXECUTIVE COMMAND CENTER
+COMMITS:
+- 5f76d2a5472905db85dfbbde475d404cc279bce8 — canonical command center + product contract.
+- 34ce2105268acbc2348d97d4d3b04cd22c29dc30 — remove Owner-1 lint warning.
+CHANGE:
+- Replaced client-side good/watch/critical thresholds with canonical get_dashboard_snapshot + get_dashboard_intelligence.
+- Decision queue, alerts, priority, evidence state and investigation drawer now consume canonical records.
+- Insufficient-data state remains explicit; no invented root cause/impact/status.
+GUARD: scripts/check-executive-command-center-product-contract.mjs
+FRONT B — BUSINESS INVESTIGATION DRAWER ACCESSIBILITY
+COMMIT: 19dea3ce650a8f4ce1e00c734a246c51ef6d9af7
+CHANGE:
+- Added dialog title relationship, stable id, initial close-button focus, Escape close, Tab/Shift+Tab focus trap, body-scroll lock and opener-focus restoration.
+GUARD: scripts/check-business-investigation-accessibility-contract.mjs
+
+EXACT-HEAD TESTS — 34ce2105268acbc2348d97d4d3b04cd22c29dc30
+- typecheck: PASS
+- lint: PASS — 0 errors / 59 existing warnings
+- test:ui-route-sidebar-parity: PASS (35 routes / 34 sidebar links)
+- test:executive-dashboard-ui: PASS
+- test:product-wow-ui: PASS
+- test:executive-command-center-product: PASS
+- test:business-investigation-accessibility: PASS
+- build: PASS — 2808 modules, built in 16.75s
+- perf:budget: FAIL-EXISTING — critical 912.9KB > 900KB; baseline before Owner-1 wave was 911.7KB. No ownership transfer/invented waiver.
+BROWSER SMOKE:
+- Vite dev server served on :4174 because :4173 was occupied.
+- agent-browser is unavailable on PC01.
+- Playwright Edge screenshot capture succeeded; no DOM/console PASS claimed beyond screenshot availability.
+
+RUNTIME/DB: no RPC, DB, Runner, Auth, Tenant, Storage or CI logic changed.
+HANDOFF TO OWNER 2:
+- Integrate/rebase/cherry-pick Exact UI HEAD 34ce2105268acbc2348d97d4d3b04cd22c29dc30 as appropriate.
+- Reprove affected runtime/E2E/certification gates on the merged Exact SHA; do not transfer UI evidence across SHAs.
+- Keep the 912.9KB performance budget failure as a separate pre-existing release concern unless the integration environment changes materially.
+- No main mutation performed by Owner 1.
+NEXT OWNER-1 FRONT: continue Evidence/Trust + Decision/Work Center product development after Owner 2 acknowledgement/integration boundary.
