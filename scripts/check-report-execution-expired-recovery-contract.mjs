@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 
-const migrationPath = 'supabase/migrations/20260918171000_recover_expired_report_execution_retry_path.sql';
+const migrationPath = 'supabase/migrations/20260918172214_recover_expired_report_execution_retry_path.sql';
 const sql = fs.readFileSync(migrationPath, 'utf8');
 
 for (const token of [
