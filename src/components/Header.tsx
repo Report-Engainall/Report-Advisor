@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Bell, Brain, CheckCircle2, Command, Menu, Search, Upload, WifiOff, AlertTriangle, ChevronLeft } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
+import { LanguageToggle } from './LanguageToggle';
+import { useLanguage } from '@/lib/language';
 import type { Alert } from '@/lib/types';
 import { SeverityBadge } from './ui/Badge';
 import { relativeTime } from '@/lib/format';
@@ -19,6 +21,7 @@ export function Header({
   onMenuClick: () => void;
   onOpenCommandPalette: () => void;
 }) {
+  const { language } = useLanguage();
   const [showAlerts, setShowAlerts] = useState(false);
   const [health, setHealth] = useState<HealthState>('checking');
   const location = useLocation();
@@ -58,6 +61,7 @@ export function Header({
       ['/settings', 'إعدادات الشركة'],
       ['/onboarding', 'بدء الاستخدام'],
       ['/proposal-demo', 'وضع العرض التقديمي'],
+      ['/connections', 'المصادر والموصلات'],
     ];
     return map.find(([prefix]) => location.pathname === prefix || location.pathname.startsWith(prefix + '/'))?.[1] ?? 'واجهة الأغبري';
   }, [location.pathname]);
@@ -91,7 +95,7 @@ export function Header({
         <button onClick={onMenuClick} className="rounded-xl p-2 text-ink-500 hover:bg-white lg:hidden" aria-label="فتح القائمة"><Menu size={21}/></button>
 
         <div className="hidden xl:flex items-center gap-2 text-xs text-ink-400">
-          <span>الأغبري</span><ChevronLeft size={13}/><span className="font-bold text-ink-700">{currentLabel}</span>
+          <span>{language === "ar" ? "العربية" : "Report-Advisor"}</span><ChevronLeft size={13}/><span className="font-bold text-ink-700">{currentLabel}</span>
         </div>
 
         <button type="button" onClick={onOpenCommandPalette} className="mx-auto flex h-11 w-full max-w-[560px] items-center gap-3 rounded-2xl border border-ink-200/80 bg-white px-4 text-right text-sm text-ink-400 shadow-sm transition hover:border-primary-300 hover:shadow-card" aria-label="فتح البحث ولوحة الأوامر">
@@ -100,7 +104,7 @@ export function Header({
           <kbd className="hidden items-center gap-1 rounded-lg border border-ink-200 bg-ink-50 px-2 py-1 text-[10px] font-bold text-ink-400 sm:inline-flex"><Command size={11}/> K</kbd>
         </button>
 
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1.5"><LanguageToggle />
           <Link to="/import" className="rounded-xl p-2.5 text-ink-500 hover:bg-white hover:text-primary-700" title="إدخال بيانات" aria-label="إدخال بيانات"><Upload size={18}/></Link>
           <Link to="/intelligence" className="rounded-xl bg-primary-700 p-2.5 text-white shadow-sm hover:bg-primary-800" title="مركز الذكاء" aria-label="مركز الذكاء"><Brain size={18}/></Link>
           <div className="relative">
