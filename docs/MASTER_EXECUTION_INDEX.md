@@ -142,11 +142,14 @@
 - لا rebuild من الصفر، لا duplicate runner/RPC، ولا fake fixtures في مسارات الاعتماد.
 - الأولوية في توفير المساحة: تقليل تكرار builds/assets/dependencies ورفع الكفاءة قبل إضافة موارد جديدة، مع إبقاء المنتج كاملًا.
 
-### READY STATE FOR NEXT COMMAND
-- **Status:** تخطيط وتقسيم ملكية فقط — **NO EXECUTION STARTED**.
-- **Next owner command:** `انطلق`.
-- عند وصول `انطلق`: ChatGPT يبدأ موجة UI الشاملة، والمبرمج يبدأ كل الأعمال الهندسية/التشغيلية/الشهادات المتبقية أعلاه بالتوازي.
-- لا حاجة لإعادة إرسال هذه التعليمات بعد أمر «انطلق».
+### CURRENT EXECUTION STATE — OWNER COMMAND RECEIVED
+- **Status:** **EXECUTION ACTIVE** منذ أمر المالك «انطلق».
+- ChatGPT: يقود UI/Product Experience والموجة التجارية التنافسية داخل المسارات الخمسة المعتمدة.
+- Programmer: ينفذ جميع fronts الهندسية/runtime/release/certification غير التابعة للواجهة بالتوازي، حسب أمر PR #594 التنفيذي.
+- Latest verified UI/Product code/test SHA: `449e81d5`.
+- Branch governance/documentation head: `5b5302644803a7d36aba015276ac08c0a4506e25`.
+- Final certification remains FAIL-CLOSED.
+- لا حاجة لإعادة إرسال التعليمات الأساسية؛ كل دفعة تغلق ما تستطيع ثم تنتقل تلقائيًا للجبهة التالية.
  
 ## DEEP AUDIT — 2026-09-07
 
