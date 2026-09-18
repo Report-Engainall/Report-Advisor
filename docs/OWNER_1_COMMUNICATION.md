@@ -778,3 +778,16 @@ DONE: Wave 16 canonical receivables truth integrity completed and handed off.
 OPEN: Owner 2 integration/runtime/release proof; Owner 1 next front remains independent product/UI hardening.
 BLOCKED: none.
 NEXT START: Onboarding first-session truth context using existing canonical dashboard snapshot/intelligence only.
+
+## START — COMMAND 15 — 2026-09-19
+START
+DATE: 2026-09-19T02:00+03:00
+OWNER: 1
+BRANCH: feat/owner1-onboarding-commercial-truth-wave17-20260919
+HEAD: b63bb2064210df167fd9ed0a766db80679bd3280
+BASE: b63bb2064210df167fd9ed0a766db80679bd3280
+OBJECTIVE: استعادة التكامل التجاري canonical في شاشة Onboarding من fetchDashboardSnapshot/fetchDashboardIntelligence الموجودين أصلًا، ثم إظهار سياق الحقيقة دون اختلاق أرقام أو freshness.
+FILES / SURFACES: src/pages/OnboardingPage.tsx; scripts/check-onboarding-commercial-truth-contract.mjs; package.json; docs/OWNER_1_COMMUNICATION.md
+DEPENDENCIES: fetchDashboardSnapshot/fetchDashboardIntelligence/fetchDataQualitySnapshot الحالية؛ لا RPC/DB/Runner جديد ولا تغيير Auth/Tenant/Storage/CI.
+BLOCKERS: لا يوجد blocker تطويري معروف.
+EXPECTED HANDOFF: Owner 2 يعيد إثبات Onboarding/browser/runtime/RLS/persistence/release gates على Exact SHA؛ لا نقل Evidence بين SHAs.
