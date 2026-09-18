@@ -99,10 +99,8 @@ jobs:
           VITE_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
           SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
           SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_SERVICE_ROLE_KEY || secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: |
           set -euo pipefail
-          test -n "${SUPABASE_SERVICE_ROLE_KEY}" || { echo "SERVER_RUNTIME_BLOCKED: SUPABASE_SERVICE_ROLE_KEY secret is not provisioned"; exit 2; }
           mkdir -p .vercel
           cat > .vercel/project.json <<'JSON'
           {
