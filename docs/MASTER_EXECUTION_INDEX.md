@@ -61,6 +61,26 @@
 - Commercial competition is won through narrow specialization, current proof, fast demo-to-result, disciplined scope, and claim-safe delivery—not by maximizing feature count.
 - Existing completion states remain TECHNICALLY_COMPLETE → PRODUCT_COMPLETE → COMMERCIAL_READY → CERTIFIED. Documentation does not advance capability state.
 - Runtime/certification blockers remain higher priority than speculative commercial expansion.
+### OWNER-APPROVED COMPETITIVE PRODUCT WEDGE — 2026-09-18
+- **Owner decision:** اعتمد المالك استراتيجية «الميزات الضيقة القوية» كقاعدة دائمة لتموضع Report-Advisor التجاري والتطويري.
+- Report-Advisor لا يطارد حجم المنصات الكبرى ولا يسعى إلى جمع أكبر عدد من الميزات؛ التنافس يكون داخل وظائف محددة يمكن إثباتها بعمق وبـ Exact Evidence وUX قوي وتسليم منضبط.
+- **Core positioning:** Evidence-First Decision Operating System — تحويل البيانات والملفات إلى حقيقة أعمال قابلة للتتبع، ثم إلى قرار تشغيلي قابل للإثبات.
+- **Approved selective wedges (5 فقط كمسارات تنافسية):**
+  1. Evidence-First BI / Executive Reporting — KPI وتقارير قابلة لتتبع المصدر والصيغة والفترة والـtenant والـas-of والـfreshness والدليل.
+  2. Supabase Multi-Tenant Security / RLS Remediation — عزل المستأجرين وRLS/Auth/Grants/Storage مع إثبات عملي، وليس scanner أمنيًا عامًا.
+  3. Excel/CSV → Governed Data Pipeline — Source → Extraction/Normalization → Validation → Canonical Data → KPI/Report، وليس منصة ETL عامة.
+  4. Arabic RTL B2B Operations UX — Arabic-first + RTL + mobile + low-bandwidth + accessibility داخل workflows حقيقية، وليس design system منفصلًا.
+  5. Inventory / Receivables Decision Workspace — signal → explanation → evidence → decision داخل المخزون/الطلب/الذمم، وليس ERP أو منصة forecasting عامة.
+- هذه المسارات **عروض تنافسية وحدود تركيز** وليست قائمة ميزات إلزامية. لا تُنشأ وحدة جديدة لمجرد ظهورها في سوق/Upwork.
+- **Expansion gate:** market signal → candidate → Product Value Gate → approved scoped work → implementation → exact evidence → commercial proof. لا تنتقل أي إشارة سوقية مباشرة إلى Core Product.
+- **Anti-noise:** لا ERP عام، لا Power BI بديل عام، لا ETL/connectors marketplace، لا vulnerability scanner عام، لا AI platform عملاق، ولا feature-count race.
+- **Commercial advantage:** التخصص الضيق + عمق المسار + Evidence حديث + Demo سريع إلى النتيجة + UX احترافي + claim-safe delivery.
+- **Decision criterion for every addition:** يجب أن تزيد الميزة واحدًا أو أكثر من Proof / Differentiation / Revenue، مع عدم كسر truth chain أو certification boundaries أو resource economy.
+- **Evidence rule:** لا يتم الادعاء بقدرة لم تُثبت على Exact HEAD؛ PROVEN/DEMO/PARTIAL/BLOCKED تبقى الحالات التجارية الحاكمة.
+- هذا القرار **مرتبط بهوية Report-Advisor فقط**. لا يتم خلطه مع «بوابة الأغبري للمواد الغذائية» أو أي منتج منفصل.
+- Upwork والبحوث السوقية تبقى **مصادر إشارة وتحقق من الطلب**، وليست مواصفات المنتج بحد ذاتها.
+- يبقى كل ما سبق من truth chain، fail-closed certification، tenant isolation، canonical import، existing RPCs/runners، وعدم نقل مسؤولية commit إلى الواجهة ساريًا دون تغيير.
+
 ### EXECUTION STATE
 - **Done:** Netlify administrative access blocker removed; PR #590 security/source-parity migrations merged; staging import-row integrity is 0/0/0 and all 8 worker RPCs are service_role-only with pinned search_path.
 - **In progress:** exact-head runtime/DB/release closure; migration parity investigation; operational certification evidence.
