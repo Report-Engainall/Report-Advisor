@@ -37,8 +37,8 @@
 ## CURRENT EXECUTION BOUNDARY — 2026-09-18
 
 > تحديث تنفيذي بعد أمر المالك «انطلق». هذا القسم يصف الحالة المثبتة من الأدوات فقط. لا يتم نقل Evidence بين SHAs، ولا تُعد الحالة PASS إلا بدليل Exact-HEAD.
-- **CURRENT CODE/TEST CANDIDATE:** `1308e66115d7309fc45c6391e85604cb4f9a5633` on `integration/certification-candidate-20260918`.
-- **Fresh current-head changes:** dashboard numeric-truth guard is formatting-tolerant without weakening its semantic checks; authenticated browser E2E now records an independent Node-side auth transport result without exposing credentials or tokens.
+- **CURRENT CODE/TEST CANDIDATE:** `de49900065e141f8dab1e66b6587d57400082df3` on `integration/certification-candidate-20260918`; current branch HEAD is a governance-only binding commit after this candidate.
+- **Fresh current-head changes:** KPI persistence browser harness now matches the actual rendered Arabic evidence identifier; no production UI/data path changed.
 - **Runtime state:** browser/business/storage/PWA E2E, worker live lifecycle, backup/RPO/RTO and Phase-F live resilience remain unproven or externally blocked; no certification is claimed.
 
 ### CURRENT EXACT HEAD / DEPLOYED STATE
