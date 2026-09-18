@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import type { User } from '@supabase/supabase-js';
 import { CheckCircle2, Save, UserCircle } from 'lucide-react';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
-import { PageHeader } from '@/components/ui/States';
+import { PageHeader, LoadingState } from '@/components/ui/States';
 import { supabase } from '@/lib/supabase';
 import { getAuthenticatedUser } from '@/lib/auth-session';
 
@@ -44,7 +44,7 @@ export function ProfileSettingsPage() {
     setMessage('تم حفظ اسم العرض بنجاح. سيظهر الاسم الجديد في واجهة النظام.');
   };
 
-  if (loading) return <div dir="rtl" className="py-20 text-center text-sm text-ink-500">جارٍ تحميل بيانات الحساب...</div>;
+  if (loading) return <LoadingState message="جارٍ تحميل بيانات الحساب..." />;
 
   return (
     <div dir="rtl" className="space-y-6 animate-fade-in">
