@@ -1234,3 +1234,46 @@ DONE: Wave 27 Sector Intelligence Packs completed and handed off.
 OPEN: Owner 2 integration/runtime proof; Owner 1 continues differentiation through report storytelling, entity intelligence and sector-specific decision surfaces.
 BLOCKED: none.
 NEXT START: build the next differentiated result surface without inventing domain evidence.
+
+
+## START — COMMAND 26 — 2026-09-19
+START
+DATE: 2026-09-19T01:45+03:00
+OWNER: 1
+BRANCH: feat/owner1-executive-story-wave28-20260919
+HEAD: 34d7d311b12fc9a1bc43b494f31705407971a310
+BASE: 34d7d311b12fc9a1bc43b494f31705407971a310
+OBJECTIVE: تحويل التقرير التنفيذي من مجموعة مؤشرات إلى Executive Storyline موثقة، مع إعادة استخدام Commercial Opportunity Radar داخله وربط القصة بالـsnapshot الكانوني بدل نصوص ثابتة.
+FILES / SURFACES: src/pages/ExecutiveReportPage.tsx; scripts/check-executive-storyline-contract.mjs; package.json
+DEPENDENCIES: fetchDashboardSnapshot الحالي + commercial-opportunity-radar؛ لا RPC/DB/Runner/Auth/Tenant/Storage/CI change.
+BLOCKERS: لا يوجد blocker تطويري معروف.
+EXPECTED HANDOFF: Owner 2 يعيد إثبات browser/runtime/release على Exact SHA؛ لا نقل Evidence بين SHAs.
+
+
+EXECUTION
+CHANGE: تحويل Executive Report إلى Executive Storyline موثقة وإعادة استخدام Commercial Opportunity Radar داخله، مع حساب زخم المبيعات deterministic من أول/آخر قيمة مصدرية متاحة.
+FILES: src/pages/ExecutiveReportPage.tsx; scripts/check-executive-storyline-contract.mjs; package.json
+WHY: التقرير التنفيذي يجب أن يشرح «ماذا تقول اللقطة» ويكشف فرصة التحقيق، لا أن يطبع KPI فقط. تم فصل الوصف عن السبب الجذري، وربط الفرص بمصدرها ومسارها.
+TEST: Exact SHA c8987fd10b9289e33d8b671cc1186f4f3a023c1f — executive-storyline PASS; typecheck PASS; perf:budget PASS (critical 498.5KB / largest JS 487.8KB); lint PASS (0 errors / 58 warnings); build PASS (2811 modules, 14.38s); route/sidebar parity PASS (35/34); executive command center product PASS; executive dashboard UI PASS; intelligence product PASS.
+RESULT: verified on Exact SHA; no RPC/DB/Runner/Auth/Tenant/Storage/CI mutation.
+COMMIT: c8987fd10b9289e33d8b671cc1186f4f3a023c1f
+NEW HEAD: c8987fd10b9289e33d8b671cc1186f4f3a023c1f
+STATUS: READY_FOR_HANDOFF
+
+HANDOFF
+FROM: OWNER 1
+TARGET: OWNER 2
+BRANCH: feat/owner1-executive-story-wave28-20260919
+SHA: c8987fd10b9289e33d8b671cc1186f4f3a023c1f
+CHANGED: Executive Storyline + embedded commercial opportunity radar.
+VERIFIED: exact contract, typecheck, lint, build, performance, route parity, executive product/UI, intelligence product on feature Exact SHA.
+UNPROVEN: authenticated browser behavior; backend/runtime/DB/RLS/persistence/CI/CD/release remain Owner 2 scope.
+BLOCKERS: none in Owner 1 code.
+NEXT: integrate/rebase/cherry-pick Exact SHA c8987fd10b9289e33d8b671cc1186f4f3a023c1f and reprove merged SHA; no cross-SHA evidence transfer.
+
+CLOSE
+HEAD: c8987fd10b9289e33d8b671cc1186f4f3a023c1f
+DONE: Wave 28 Executive Storyline completed and handed off.
+OPEN: Owner 2 runtime/release proof; Owner 1 continues competitive product differentiation.
+BLOCKED: none.
+NEXT START: entity-level customer/product command intelligence and deeper sector-specific outputs.
