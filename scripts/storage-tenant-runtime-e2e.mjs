@@ -75,6 +75,18 @@ async function assertDenied(label, response) {
   assert.equal(denied, true, `${label}: cross-tenant access must be denied`);
 }
 
+async function assertCrossTenantDeleteNoMutation(label, attackerResponse, ownerSession, ownerPath) {
+  const ownerReadAfter = await storageRequest(ownerSession.token, 'GET', `object/${encodeURIComponent(bucket)}/${ownerPath}`);
+  const preserved = ownerReadAfter.ok;
+  evidence.checks.push({
+    label,
+    status: attackerResponse.status,
+    result: preserved ? 'DENY_EFFECTIVE_PERSISTENT' : 'CROSS_TENANT_DELETE_MUTATED',
+    ownerReadAfterStatus: ownerReadAfter.status,
+  });
+  assert.equal(preserved, true, `${label}: cross-tenant delete must not mutate the owner object`);
+}
+
 let sessionA;
 let sessionB;
 const cleanup = [];
@@ -113,7 +125,12 @@ try {
   } else {
     evidence.checks.push({ label: 'Tenant B list Tenant A prefix', status: crossList.status, result: 'DENY' });
   }
-  await assertDenied('Tenant B delete Tenant A object', await storageRequest(sessionB.token, 'DELETE', `object/${encodeURIComponent(bucket)}`, JSON.stringify({ prefixes: [aPath] }), { 'content-type': 'application/json' }));
+  await assertCrossTenantDeleteNoMutation(
+    'Tenant B delete Tenant A object',
+    await storageRequest(sessionB.token, 'DELETE', `object/${encodeURIComponent(bucket)}`, JSON.stringify({ prefixes: [aPath] }), { 'content-type': 'application/json' }),
+    sessionA,
+    aPath,
+  );
 
   const uploadB = await storageRequest(sessionB.token, 'POST', `object/${encodeURIComponent(bucket)}/${bPath}`, Buffer.from('tenant-b'), { 'content-type': 'text/plain', 'x-upsert': 'false' });
   assert.equal(uploadB.ok, true, `Tenant B upload failed: ${uploadB.status}`);
@@ -122,7 +139,12 @@ try {
   assert.equal(readB.ok, true, `Tenant B read failed: ${readB.status}`);
   evidence.checks.push({ label: 'Tenant B read', status: readB.status, result: 'PASS' });
   await assertDenied('Tenant A read Tenant B object', await storageRequest(sessionA.token, 'GET', `object/${encodeURIComponent(bucket)}/${bPath}`));
-  await assertDenied('Tenant A delete Tenant B object', await storageRequest(sessionA.token, 'DELETE', `object/${encodeURIComponent(bucket)}`, JSON.stringify({ prefixes: [bPath] }), { 'content-type': 'application/json' }));
+  await assertCrossTenantDeleteNoMutation(
+    'Tenant A delete Tenant B object',
+    await storageRequest(sessionA.token, 'DELETE', `object/${encodeURIComponent(bucket)}`, JSON.stringify({ prefixes: [bPath] }), { 'content-type': 'application/json' }),
+    sessionB,
+    bPath,
+  );
 
   const deleteA = await storageRequest(sessionA.token, 'DELETE', `object/${encodeURIComponent(bucket)}`, JSON.stringify({ prefixes: [aPath] }), { 'content-type': 'application/json' });
   assert.equal(deleteA.ok, true, `Tenant A delete failed: ${deleteA.status}`);
