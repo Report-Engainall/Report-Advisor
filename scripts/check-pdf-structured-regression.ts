@@ -33,11 +33,16 @@ function pdfWithText(text: string): ArrayBuffer {
     'end',
   ].join('\n');
 
-  const hex = Array.from(text)
+  const chunks = text.match(/.{1,24}(?:\\s|$)/g)?.map((chunk) => chunk.trim()).filter(Boolean) ?? [text];
+  const encodedChunks = chunks.map((chunk) => Array.from(chunk)
     .flatMap((char) => char.split('').map((unit) => unit.charCodeAt(0)))
     .map((unit) => unit.toString(16).padStart(4, '0'))
-    .join('');
-  const stream = `BT /F1 12 Tf 40 760 Td <${hex}> Tj ET`;
+    .join(''));
+  const stream = [
+    'BT /F1 12 Tf 40 760 Td',
+    ...encodedChunks.map((hex, index) => `<${hex}> Tj${index < encodedChunks.length - 1 ? ' 0 -18 Td' : ''}`),
+    'ET',
+  ].join(' ');
 
   const objects = [
     '<< /Type /Catalog /Pages 2 0 R >>',
