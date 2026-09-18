@@ -8,6 +8,8 @@ This document is the live ownership boundary for command `2`. It is intentionall
 **Primary responsibility:** continue real product development in parallel with runtime certification work. Do not wait for programmer gates when an independent source/UI task is actionable.
 
 ### Latest completed development in this ownership wave
+- `src/pages/AnalyticsPage.tsx`: ABC now exposes the canonical source-truth context; the client does not fabricate an `asOf` date when `get_abc_snapshot` does not provide one.
+- `src/lib/dashboard-canonical.ts`: ABC snapshot fallback now stays explicit `غير متاح` instead of using the browser date as fake source provenance.
 - `src/pages/ReportsPage.tsx`: Reports Center is now decision-output first and reads the canonical dashboard snapshot for current truth context.
 - `src/pages/IntelligencePage.tsx`: Intelligence now exposes the shared truth context without making it a second source of truth.
 - `src/pages/DecisionExperiencePage.tsx`: Decision Experience now carries the same evidence/time-bound context when the canonical snapshot is available.
