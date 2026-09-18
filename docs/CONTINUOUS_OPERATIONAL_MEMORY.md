@@ -63,13 +63,13 @@ A preview deployment is not production proof.
 
 # 2. LIVE EXECUTION HEADER
 
-Last material update: 2026-09-18T03:14Z
+Last material update: 2026-09-18T03:18Z
 Current Main: a32fae0fc08c1cbbcc60b6eedfb0f4bd74a21c50
 Primary environment: Supabase staging fnqbvfuwbdpwvhcgzksl
 Production URL: https://report-advisor.vercel.app
 Coordinator branch: governance/coordinator-continuous-execution-20260918
 Coordinator PR: #537
-Coordinator PR HEAD at this snapshot: c7930917aa461f7bba50867f84ad8bbae27d5e98
+Coordinator PR head is verified directly from GitHub for every cycle; do not treat a self-referential stored SHA as authoritative.
 
 ### Open implementation fronts
 
@@ -335,3 +335,9 @@ without asking the user to reconstruct project history.
 - No product/runtime/database semantics changed.
 - Current coordinator PR head: c7930917aa461f7bba50867f84ad8bbae27d5e98.
 - Next action remains exact-head verification on implementation PRs plus independent lineage/evidence work; no historical result is promoted.
+
+
+### 2026-09-18T03:18Z — Stable self-reference rule
+- Coordinator branch head is no longer stored as a self-referential value that would become stale when this file changes.
+- GitHub branch/PR metadata is authoritative for the coordinator branch head.
+- Exact implementation PR SHAs remain explicitly stored because they are release/evidence boundaries.
