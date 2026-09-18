@@ -588,3 +588,30 @@ FILES / SURFACES: src/pages/ExecutiveReportPage.tsx; src/pages/ProfitabilityRepo
 DEPENDENCIES: existing dashboard canonical / existing report RPC results only؛ no new RPC/DB/Runner/Auth/Tenant/Storage/CI logic.
 BLOCKERS: لا blocker معروف عند البدء.
 EXPECTED HANDOFF: Owner 2 يعيد إثبات canonical-report/browser/runtime/release gates على Exact SHA الجديد.
+
+## EXECUTION — COMMAND 10 — 2026-09-19
+EXECUTION
+CHANGE: توحيد TruthContext على أسطح التقارير canonical المستخدمة فعليًا في الراوتر: Executive / Profitability / Receivables.
+SURFACES: src/pages/ExecutiveReportPage.tsx; src/pages/ProfitabilityReportCanonicalPage.tsx; src/pages/ReceivablesReportCanonicalPage.tsx; scripts/check-canonical-report-truth-contract.mjs; package.json.
+DETAILS: Executive يعرض asOf الحقيقي من fetchDashboardSnapshot؛ Profitability يعرض status + as_of الحقيقي من fetchProfitabilitySnapshot؛ Receivables يعرض status الحقيقي من fetchReceivablesReportPage مع تصريح صريح أن freshness/as-of غير متاح من ذلك المصدر بدل تصنيع تاريخ.
+TEST: final Exact SHA ab4545c6f436823d4582b9f612f821a3befe92d5: test:canonical-report-truth PASS; test:executive-report-product-contract PASS; test:financial-report-truth PASS; test:receivables-report-truth PASS; test:reports-center-truth PASS; test:report-execution-foundation PASS; test:ui-route-sidebar-parity PASS (35 routes / 34 sidebar links); typecheck PASS; lint PASS (0 errors / 59 existing warnings); build PASS (2808 modules, 30.66s); perf:budget PASS (critical 487.2KB / largest JS 487.8KB).
+RESULT: verified on final Exact SHA; no RPC/DB/Runner/Auth/Tenant/Storage/CI mutation.
+COMMIT: ab4545c6f436823d4582b9f612f821a3befe92d5
+STATUS: READY_FOR_HANDOFF
+
+HANDOFF
+FROM: OWNER 1
+TARGET: OWNER 2
+BRANCH: feat/owner1-canonical-report-truth-wave12-20260919
+SHA: ab4545c6f436823d4582b9f612f821a3befe92d5
+CHANGED: canonical report truth context on the three routed canonical report surfaces + contract guard.
+VERIFIED: targeted canonical/report contracts, route parity, typecheck, lint, build, and performance budget PASS on final Exact SHA.
+UNPROVEN: authenticated browser behavior; backend/runtime/DB/RLS/persistence/CI/CD/release certification remain Owner 2 scope.
+BLOCKERS: لا يوجد blocker تطبيقي في هذه الجبهة.
+NEXT: integrate/rebase/cherry-pick Exact SHA ab4545c6f436823d4582b9f612f821a3befe92d5 and reprove canonical-report/browser/runtime/release gates on the merged Exact SHA; no cross-SHA evidence transfer.
+
+CLOSE
+HEAD: ab4545c6f436823d4582b9f612f821a3befe92d5
+DONE: Wave 12 canonical report truth integrity completed and handed off.
+OPEN: Owner 2 integration/runtime/release proof; Owner 1 can continue to the next independent product surface.
+BLOCKED: none.
