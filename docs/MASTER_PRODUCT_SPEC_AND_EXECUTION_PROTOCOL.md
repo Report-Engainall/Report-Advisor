@@ -1235,3 +1235,52 @@ Anything less is **NOT FINAL CERTIFICATION**.
 This document is intentionally a master target and control document. The current repository baseline remains the source of truth for exact filenames and implementation details. The current package manifest confirms the project is a React/Vite/Supabase-oriented application with extensive contract and closure scripts. The master execution index remains authoritative for the live evidence ledger.
 
 **Never edit this document to turn a BLOCKED item into PASS. Update status only after actual evidence exists.**
+
+
+---
+# 28. PRODUCT EVOLUTION ALIGNMENT — 2026-09-18
+
+This master specification now adopts the Decision Operating System requirements recorded in `docs/MASTER_PRODUCT_REFERENCE.md`.
+
+Product value is not measured by the number of dashboards or AI features. The product must complete:
+OBSERVE → EXPLAIN → PROVE → DECIDE → APPROVE → ACT → VERIFY → LEARN.
+
+Every premium capability must have:
+- truth boundary;
+- permission boundary;
+- canonical source;
+- evidence boundary;
+- action boundary;
+- outcome boundary;
+- performance boundary;
+- exact-head verification;
+- commercial demonstration path.
+
+New strategic product requirements include:
+- Evidence Passport;
+- What Changed;
+- Decision Control Tower;
+- Counterfactual / Scenario Lab;
+- Outcome & ROI Ledger;
+- Data Trust Center;
+- Semantic Metric Studio;
+- Agent Control Room;
+- Commercial Playbooks;
+- Executive / Board Pack;
+- Profit Leak Radar;
+- Supplier Risk Cockpit;
+- Assortment & Cash Simulator;
+- Merchant Memory;
+- Continuous Reconciliation;
+- Signal-to-Noise Controller;
+- Data Contract Autopilot;
+- Embedded Intelligence contract;
+- Proposal Demo Mode;
+- Product Value Gate.
+
+These capabilities must not create competing engines, duplicate sources of truth or fake runtime evidence. Existing canonical metrics, adapters, RPCs, durable execution paths, RLS, evidence and release gates remain authoritative.
+
+Completion states are explicitly separated:
+TECHNICALLY_COMPLETE → PRODUCT_COMPLETE → COMMERCIAL_READY → CERTIFIED.
+
+Documentation never upgrades one state into another.
