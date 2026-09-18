@@ -832,3 +832,13 @@ PC01 device cleanup remains IN_PROGRESS / BLOCKED_EXTERNAL_CHANNEL after the rem
 - Current Desktop Commander node working sets were approximately 67.9 MB, 110.2 MB, and 108.3 MB for PIDs 13640, 10808, and 20616 respectively.
 - No reboot, shutdown, destructive disk/system operation, or user-application termination was performed.
 - Issue #545 device-operations acceptance criteria are now satisfied for the verified cleanup scope; issue closure should reference this exact evidence and must not imply broader performance optimization beyond the measured process cleanup.
+
+
+## 28. Fresh Live Import Positive-Path Evidence — 2026-09-18
+
+- Staging `fnqbvfuwbdpwvhcgzksl` produced a fresh real positive import persistence chain.
+- `import_jobs.id=84b510df-d84c-4057-8b76-89d9d7d8544d` reached `completed`, progress 100, processed 1, valid 1, invalid 0, with `result_summary.committed=1`.
+- Source hash: `sha256:d35ebf6343dd840bfbbd3137fd121e3b0c40ea5e0d8d550e99697da81c9a3b7f`.
+- Matching `canonical_import_commits.id=2dd2865a-0784-4109-941e-5e691877bddc`, `committed_count=1`, with committed product id `517b037d-7a05-440a-be8a-92ce21a6a081`.
+- Direct readback of `public.products` confirms the committed row exists under the same company and contains the E2E SKU/name and financial fields.
+- This closes the evidence gap for this particular positive import/commit/readback path only; it does not certify browser behavior, tenant-A/B adversarial isolation, or release certification.
