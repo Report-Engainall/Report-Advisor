@@ -1191,3 +1191,46 @@ DONE: Wave 26 Commercial Opportunity Radar completed and handed off.
 OPEN: Owner 2 runtime/release proof; Owner 1 continues product differentiation across decision, report, customer/product, inventory and sector-specific surfaces.
 BLOCKED: none.
 NEXT START: sector-aware and cross-report decision surfaces; pharmacy/medicine outputs only when canonical batch/expiry/dispense evidence exists.
+
+
+## START — COMMAND 25 — 2026-09-19
+START
+DATE: 2026-09-19T01:20+03:00
+OWNER: 1
+BRANCH: feat/owner1-sector-packs-wave27-20260919
+HEAD: f6473a126538cc9cf6116548afa5416c28557920
+BASE: f6473a126538cc9cf6116548afa5416c28557920
+OBJECTIVE: بناء Sector Intelligence Packs مرتبطة بـ companies.industry: تحويل المنصة إلى تجربة تتكيف مع التجارة/التوزيع/الصيدليات/الخدمات، مع readiness واضح للمخرجات الدوائية (batch/expiry/FEFO/Rx) وعدم اختلاق قدرات غير موجودة في canonical evidence.
+FILES / SURFACES: src/components/SectorIntelligencePack.tsx; src/pages/CompanySettingsPage.tsx; scripts/check-sector-intelligence-pack-contract.mjs; package.json
+DEPENDENCIES: companies.industry موجود حاليًا في CompanySettingsPage؛ روابط ومسارات المنتج الحالية فقط؛ لا RPC/DB schema mutation.
+BLOCKERS: لا يوجد blocker تطويري معروف.
+EXPECTED HANDOFF: Owner 2 يعيد إثبات browser/runtime/release على Exact SHA؛ لا نقل Evidence بين SHAs.
+
+
+EXECUTION
+CHANGE: إضافة Sector Intelligence Pack يحول company.industry إلى تجربة قطاعية واضحة، مع حزمة صيدليات تميز ما هو جاهز عن batch/expiry/FEFO وRx الذي يتطلب canonical source، وحزم تجارة/توزيع/خدمات تربط المال والمخزون والعملاء والذكاء بالمسارات الحالية.
+FILES: src/components/SectorIntelligencePack.tsx; src/pages/CompanySettingsPage.tsx; scripts/check-sector-intelligence-pack-contract.mjs; package.json
+WHY: المنتج لن ينافس كـ ERP عام فقط؛ القطاع نفسه يجب أن يغير «ما الذي يهم» و«ما الذي نعرضه». في الدواء خصوصًا لا يكفي اسم Pharmacy؛ يلزم evidence فعلي للدفعات والصلاحية والصرف قبل عرض ادعاء دوائي.
+TEST: Exact SHA 5be761c134c51366fde692fe5433eb9bf1337a62 — sector pack PASS; typecheck PASS; perf:budget PASS (critical 498.4KB / largest JS 487.8KB); route/sidebar parity PASS (35/34); executive command center product PASS; build PASS (2810 modules, 16.08s); lint PASS (0 errors / 58 warnings).
+RESULT: verified on Exact SHA; no RPC/DB schema/Runner/Auth/Tenant/Storage/CI mutation.
+COMMIT: 5be761c134c51366fde692fe5433eb9bf1337a62
+NEW HEAD: 5be761c134c51366fde692fe5433eb9bf1337a62
+STATUS: READY_FOR_HANDOFF
+
+HANDOFF
+FROM: OWNER 1
+TARGET: OWNER 2
+BRANCH: feat/owner1-sector-packs-wave27-20260919
+SHA: 5be761c134c51366fde692fe5433eb9bf1337a62
+CHANGED: Industry-aware Sector Intelligence Pack + pharmacy evidence boundaries.
+VERIFIED: sector contract, typecheck, build, performance, route parity, executive command center product on feature Exact SHA.
+UNPROVEN: authenticated browser behavior and runtime/DB/RLS/persistence/release remain Owner 2 scope.
+BLOCKERS: none in Owner 1 code.
+NEXT: integrate/rebase/cherry-pick Exact SHA 5be761c134c51366fde692fe5433eb9bf1337a62 and reprove merged SHA; no cross-SHA evidence transfer.
+
+CLOSE
+HEAD: 5be761c134c51366fde692fe5433eb9bf1337a62
+DONE: Wave 27 Sector Intelligence Packs completed and handed off.
+OPEN: Owner 2 integration/runtime proof; Owner 1 continues differentiation through report storytelling, entity intelligence and sector-specific decision surfaces.
+BLOCKED: none.
+NEXT START: build the next differentiated result surface without inventing domain evidence.
