@@ -111,9 +111,8 @@ function tryParseStructuredPdfText(text: string): Row[] | null {
   }
 
   const normalized = normalizeArabicDigits(
-    compact
+    stripControlCharacters(compact)
       .normalize('NFKC')
-      .replace(stripControlCharacters, ' ')
       .replace(/[\u200B-\u200F\u202A-\u202E\uFEFF]/g, ' ')
       .replace(/\s+/g, ' ')
       .trim(),
