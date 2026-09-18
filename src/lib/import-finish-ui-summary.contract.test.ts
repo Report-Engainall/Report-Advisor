@@ -7,18 +7,18 @@ const page = fs.readFileSync(
   'utf8',
 );
 
-describe('import finish UI summary contract', () => {
-  it('sends the authoritative completion counters expected by import_finish_job', () => {
-    expect(page).toContain('committed: validRows.length');
-    expect(page).toContain('invalidRows: rows.length - validRows.length');
+describe('import finish UI terminal-writer contract', () => {
+  it('delegates terminal completion to the canonical durable boundary', () => {
+    expect(page).toContain('runCanonicalImportThroughDurableRunner');
+    expect(page).not.toContain("supabase.rpc('import_finish_job'");
   });
 
-  it('rejects the legacy non-authoritative counter names for terminal completion', () => {
-    const weakened = page
-      .replace('committed: validRows.length', 'valid_rows: validRows.length')
-      .replace('invalidRows: rows.length - validRows.length', 'invalid_rows: rows.length - validRows.length');
+  it('allows only pre-boundary reconciliation failures to use the failure helper', () => {
+    expect(page).toContain('finishCanonicalImportFailure');
+    expect(page).toContain('!canonicalBoundaryStarted');
+  });
 
-    expect(weakened).not.toContain('committed: validRows.length');
-    expect(weakened).not.toContain('invalidRows: rows.length - validRows.length');
+  it('does not restore the legacy direct import-row update writer', () => {
+    expect(page).not.toContain('updateImportRecord');
   });
 });
