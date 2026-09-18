@@ -76,7 +76,7 @@ export function WorkCenterPage() {
               ['المراجعة', counts.review, AlertTriangle, 'warning'],
               ['المكتملة', counts.completed, CheckCircle2, 'success'],
               ['الفشل / الإلغاء', counts.failed, XCircle, 'danger'],
-            ] as const).map(([label, value, Icon, tone]) => (
+            ] as const).map(([label, value, Icon]) => (
               <button key={label} type="button" onClick={() => setFilter(label === 'النشطة' ? 'active' : label === 'المراجعة' ? 'review' : label === 'المكتملة' ? 'completed' : 'failed')} className="rounded-2xl border border-ink-800 bg-white/5 p-3 text-right transition hover:bg-white/10">
                 <Icon size={16} className="mb-2 text-primary-300"/>
                 <div className="text-2xl font-bold">{formatNumber(value)}</div>
