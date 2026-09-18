@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowRight, Command, Search } from 'lucide-react';
 
@@ -53,13 +53,13 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
     if (!q) return [...recentCommands, ...COMMANDS.filter(item => !recentPaths.includes(item.path))];
     return COMMANDS.filter(item => [item.label, item.description, ...item.keywords].join(' ').toLowerCase().includes(q));
   }, [query, recentCommands, recentPaths]);
-  const openCommand = (item: CommandItem) => {
+  const openCommand = useCallback((item: CommandItem) => {
     const next = [item.path, ...recentPaths.filter(path => path !== item.path)].slice(0, RECENT_LIMIT);
     setRecentPaths(next);
     try { window.localStorage.setItem(RECENT_COMMANDS_KEY, JSON.stringify(next)); } catch { /* optional */ }
     navigate(item.path);
     onClose();
-  };
+  }, [navigate, onClose, recentPaths]);
   useEffect(() => {
     if (!open) return;
     setQuery('');
@@ -81,7 +81,7 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
     };
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [active, filtered, navigate, onClose, open]);
+  }, [active, filtered, onClose, open, openCommand]);
   if (!open) return null;
   return (
     <div className="fixed inset-0 z-[100] flex items-start justify-center bg-ink-950/45 px-4 pt-[12vh] backdrop-blur-sm" role="dialog" aria-modal="true" aria-label="لوحة الأوامر">
