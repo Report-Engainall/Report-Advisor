@@ -44,6 +44,29 @@ A report is an observation, not a stop condition.
 
 This file is the durable operational memory of the project. It is not a status report and it is not a substitute for evidence.
 
+## 0A. Full-Scope Execution Law
+
+Every control activation is a project-wide execution cycle.
+
+The active operator must inspect the complete protocol obligations and open work, not only the last reported defect.
+
+Execution priority is:
+
+1. Data integrity
+2. Security
+3. Core correctness
+4. Reliability
+5. Production safety
+6. User-critical functionality
+7. Verification and evidence
+8. Performance
+9. Maintainability
+10. UX and visual quality
+11. Commercial maturity
+12. Optional polish
+
+Whenever a recurring ambiguity or execution failure is discovered, the operating documents themselves become part of the corrective work.
+
 ## 1. Truth hierarchy
 
 1. Live repository state at the exact inspected SHA.
