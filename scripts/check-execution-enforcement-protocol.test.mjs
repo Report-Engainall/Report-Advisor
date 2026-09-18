@@ -57,18 +57,30 @@ const controlSignal = fs.readFileSync('docs/AUTONOMOUS_CONTROL_SIGNAL_PROTOCOL.m
 const leadProtocol = fs.readFileSync('docs/AI_ENGINEERING_LEAD_PROTOCOL.md', 'utf8');
 const programmerProtocol = fs.readFileSync('docs/PROGRAMMER_AUTONOMOUS_OPERATING_PROTOCOL.md', 'utf8');
 
+const invalidLeadProtocol = leadProtocol.replace(
+  /## 23\. Self-Execution Gate[\s\S]*?## 24\. Leadership Cycle Contract/,
+  '## 24. Leadership Cycle Contract',
+);
+assert.notEqual(invalidLeadProtocol, leadProtocol);
 assert.throws(
-  () => {
-    const candidate = leadProtocol.replace(/## 23\. Self-Execution Gate[\s\S]*?## 24\. Leadership Cycle Contract/, '## 24. Leadership Cycle Contract');
-    if (candidate === leadProtocol) throw new Error('test mutation did not apply');
-    fs.writeFileSync('/tmp/ai-lead-protocol.invalid.md', candidate);
-    const body = candidate.toLowerCase();
-    if (!body.includes('no-status-only output')) throw new Error('expected control rule missing');
-    // Static adversarial assertion: removing the self-execution section must violate the required anchors.
-    if (!body.includes('self-execution gate')) throw new Error('leadership self-execution rule removed');
-  },
-  undefined,
-  'AI lead non-idle guard fixture must be structurally inspectable',
+  () => validateControlSignalProtocols({
+    'docs/AI_ENGINEERING_LEAD_PROTOCOL.md': invalidLeadProtocol,
+  }),
+  /Control signal protocol rejected/,
+  'validator must reject a lead protocol with the non-idle section removed',
+);
+
+const invalidProgrammerProtocol = programmerProtocol.replace(
+  /## 25\. Non-Idle Execution Gate[\s\S]*$/,
+  '',
+);
+assert.notEqual(invalidProgrammerProtocol, programmerProtocol);
+assert.throws(
+  () => validateControlSignalProtocols({
+    'docs/PROGRAMMER_AUTONOMOUS_OPERATING_PROTOCOL.md': invalidProgrammerProtocol,
+  }),
+  /Control signal protocol rejected/,
+  'validator must reject a programmer protocol with the non-idle section removed',
 );
 
 assert.match(controlSignal, /Operator Non-Idle Invariant/i);
