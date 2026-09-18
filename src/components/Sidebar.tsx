@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Upload, FileBarChart, BarChart3, Brain, Users, Package, Warehouse, Settings, AlertCircle, Layers3, Gauge, Activity, Crosshair, LogOut, UserCircle, Scale, ClipboardCheck, Target, ScanSearch, ChevronDown, Presentation, ListChecks } from 'lucide-react';
+import { LayoutDashboard, Upload, FileBarChart, BarChart3, Brain, Users, Package, Warehouse, Settings, AlertCircle, Layers3, Gauge, Activity, Crosshair, LogOut, UserCircle, Scale, ClipboardCheck, Target, ScanSearch, ChevronDown, Presentation, ListChecks, LifeBuoy } from 'lucide-react';
 import type { User } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
 import { getDisplayEmail, getDisplayName } from '@/lib/profile-display';
@@ -14,7 +14,7 @@ const navSections:NavSection[]=[
  {title:'التحليلات',items:[{path:'/analytics',label:'مركز التحليلات',icon:<BarChart3 size={18}/>},{path:'/analytics/rfm',label:'تحليل RFM',icon:<BarChart3 size={18}/>},{path:'/analytics/abc',label:'تحليل ABC',icon:<BarChart3 size={18}/>},{path:'/analytics/aging',label:'تحليل الأعمار',icon:<BarChart3 size={18}/>} ]},
  {title:'الذكاء والقرار',items:[{path:'/intelligence',label:'مركز الذكاء',icon:<Brain size={18}/>},{path:'/intelligence/recommendations',label:'التوصيات',icon:<Brain size={18}/>},{path:'/intelligence/forecasts',label:'التنبؤات',icon:<Brain size={18}/>},{path:'/intelligence/scenarios',label:'محاكاة السيناريوهات',icon:<Brain size={18}/>},{path:'/decision-experience',label:'تجربة القرار',icon:<Scale size={18}/>},{path:'/metrics',label:'فحص المقاييس',icon:<Target size={18}/>} ]},
  {title:'الكيانات',items:[{path:'/customers',label:'العملاء',icon:<Users size={18}/>},{path:'/products',label:'المنتجات',icon:<Package size={18}/>},{path:'/inventory',label:'المخزون',icon:<Warehouse size={18}/>},{path:'/alternative-groups',label:'مجموعات البدائل',icon:<Layers3 size={18}/>} ]},
- {title:'النظام',items:[{path:'/settings',label:'الإعدادات',icon:<Settings size={18}/>},{path:'/settings/profile',label:'الملف الشخصي',icon:<UserCircle size={18}/>} ]},
+ {title:'النظام',items:[{path:'/ops-console',label:'غرفة الإنقاذ',icon:<LifeBuoy size={18}/>},{path:'/settings',label:'الإعدادات',icon:<Settings size={18}/>},{path:'/settings/profile',label:'الملف الشخصي',icon:<UserCircle size={18}/>} ]},
 ];
 
 export function Sidebar({alertCount=0,onNavigate,user}:{alertCount?:number;onNavigate?:()=>void;user?:User|null}){
@@ -23,9 +23,7 @@ export function Sidebar({alertCount=0,onNavigate,user}:{alertCount?:number;onNav
   const [collapsed,setCollapsed]=useState<Record<string,boolean>>({});
   useEffect(()=>{setCollapsed(prev=>({...prev,[activeSection]:false}));},[activeSection]);
   const handleSignOut = async () => {
-    // Local sign-out is the authoritative browser-session transition. Global
-    // revocation is not required for the UI security boundary and can delay
-    // convergence while the persisted local session is still present.
+    // Local sign-out is the authoritative browser-session transition.
     const { error } = await supabase.auth.signOut({ scope: 'local' });
     if (error) throw error;
     onNavigate?.();
