@@ -10,10 +10,13 @@ function latestBody(name) {
   let m, start = -1;
   while ((m = re.exec(sql))) start = m.index;
   if (start < 0) throw new Error(`missing ${name}`);
-  const next = sql.indexOf('\nCREATE OR REPLACE FUNCTION', start + 1);
-  return sql.slice(start, next < 0 ? sql.length : next);
+  const nextRe = /\nCREATE\\s+OR\\s+REPLACE\\s+FUNCTION/gi;
+  nextRe.lastIndex = start + 1;
+  const nextMatch = nextRe.exec(sql);
+  const next = nextMatch ? nextMatch.index : sql.length;
+  return sql.slice(start, next);
 }
-const pos = (body, needle, from = 0) => body.indexOf(needle, from);
+const pos = (body, needle, from = 0) => body.toLowerCase().indexOf(needle.toLowerCase(), from);
 const lockCount = (body) => (body.replace(/--[^\n]*|\/\*[\s\S]*?\*\//g, '').match(/\bfor\s+update\b/gi) ?? []).length;
 
 const request = latestBody('request_decision_approval');
