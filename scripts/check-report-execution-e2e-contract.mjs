@@ -36,24 +36,24 @@ required(durable, ['claim_report_execution_job', 'heartbeat_report_execution_job
 required(ledger, ['artifactRefs', 'evidence', 'tenantId', 'immutable'], 'Execution ledger');
 
 const assertGateImplementation = (source) => {
-  if (!source.includes("if (!input.sourceSnapshotId) throw new Error('Report execution requires a source snapshot');")) {
-    throw new Error('source snapshot guard missing');
-  }
-  if (!source.includes('assertNoQuarantine(input.routePlan);')) throw new Error('quarantine guard missing');
+  const snapshotGuard = /^  if \(!input\.sourceSnapshotId\) throw new Error\('Report execution requires a source snapshot'\);$/m;
+  if (!snapshotGuard.test(source)) throw new Error('source snapshot guard missing');
+  const quarantineGuard = /^  assertNoQuarantine\(input\.routePlan\);$/m;
+  if (!quarantineGuard.test(source)) throw new Error('quarantine guard missing');
 };
 assertGateImplementation(gate);
 
 // Test-of-test: prove the gate checker detects removal of the two critical
 // fail-closed preconditions instead of merely checking that their names exist.
 const tamperedWithoutSnapshot = gate.replace(
-  "  if (!input.sourceSnapshotId) throw new Error('Report execution requires a source snapshot');\n",
+  /^  if \(!input\.sourceSnapshotId\) throw new Error\('Report execution requires a source snapshot'\);\r?\n/m,
   '',
 );
 let snapshotTamperRejected = false;
 try { assertGateImplementation(tamperedWithoutSnapshot); } catch { snapshotTamperRejected = true; }
 if (!snapshotTamperRejected) throw new Error('Test-of-test failed: source snapshot guard removal was not detected');
 
-const tamperedWithoutQuarantine = gate.replace('  assertNoQuarantine(input.routePlan);\n', '');
+const tamperedWithoutQuarantine = gate.replace(/^  assertNoQuarantine\(input\.routePlan\);\r?\n/m, '');
 let quarantineTamperRejected = false;
 try { assertGateImplementation(tamperedWithoutQuarantine); } catch { quarantineTamperRejected = true; }
 if (!quarantineTamperRejected) throw new Error('Test-of-test failed: quarantine gate removal was not detected');

@@ -25,3 +25,5 @@ jobs:
           echo "EXACT_HEAD=$(git rev-parse HEAD)"
       - name: SECURITY DEFINER exposure contract
         run: node scripts/check-security-definer-exposure-contract.mjs
+      - name: Report execution worker security and browser-boundary contract
+        run: node scripts/check-report-execution-worker-current-main-contract.mjs
