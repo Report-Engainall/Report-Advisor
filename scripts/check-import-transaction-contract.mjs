@@ -108,8 +108,17 @@ for (const token of [
   "from('import_jobs')",
   ".eq('id', input.importId)",
   ".eq('company_id', companyId)",
+  ".select('id, company_id, status, job_type, result_summary')",
+  "job_type",
+  "result_summary",
 ]) {
   if (!serverAdapter.includes(token)) throw new Error(`Canonical server execution boundary missing: ${token}`);
+}
+if (serverAdapter.includes("file_name, entity_type')") || serverAdapter.includes("importJob.file_name") || serverAdapter.includes("importJob.entity_type")) {
+  throw new Error('Canonical server boundary must match the actual import_jobs schema and not reference legacy non-existent identity columns');
+}
+if (!/persistedEntityType/.test(serverAdapter) || !/importJob\.job_type/.test(serverAdapter)) {
+  throw new Error('Canonical server boundary must derive persisted entity identity from import_jobs.job_type');
 }
 if (/grant execute on function public\\.(claim|heartbeat|advance|complete|fail|retry)_report_execution_job[^\\n]*to authenticated/i.test(serverAdapter)) {
   throw new Error('Canonical server boundary must not add authenticated worker RPC grants');
