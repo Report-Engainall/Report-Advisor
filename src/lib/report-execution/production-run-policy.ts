@@ -1,5 +1,5 @@
-import type { ReportExecutionRequest } from './report-execution-contract';
-import { assertExecutionRequest } from './report-execution-contract';
+import type { ReportExecutionRequest } from './report-execution-contract.js';
+import { assertExecutionRequest } from './report-execution-contract.js';
 
 export interface ProductionRunPolicyInput {
   request: ReportExecutionRequest;
