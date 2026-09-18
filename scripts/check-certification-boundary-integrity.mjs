@@ -5,7 +5,7 @@ import { execFileSync } from 'node:child_process';
 const normalize = value => String(value ?? '').replaceAll('\r\n', '\n').trim();
 const candidateFromIndex = index => normalize(index).match(/(?:CURRENT PROJECT STATE|CURRENT EXECUTION BOUNDARY)[\s\S]{0,1600}?(?:CURRENT_CODE_TEST_CANDIDATE|Current code\/test candidate|Current Code\/Test Candidate|Exact code\/test head entering this sweep)[^`]*`([0-9a-f]{40})`/i)?.[1]?.toLowerCase();
 
-export function validateCertificationBoundary({ index, head, parent, changedFiles, branch = process.env.GITHUB_HEAD_REF || process.env.GITHUB_REF_NAME || '', certificationSha = process.env.CERTIFICATION_SHA || '', base = process.env.GITHUB_BASE_REF || 'main' }) {
+export function validateCertificationBoundary({ index, head, parent, changedFiles, branch = '', certificationSha = '', base = 'main' }) {
   if (/^integration\/certification-[^/]+$/.test(branch)) {
     if (base !== 'main') throw new Error(`CERTIFICATION BOUNDARY FAIL: integration certification branch must target main, got ${base}`);
     if (!/^[0-9a-f]{40}$/.test(certificationSha)) throw new Error('CERTIFICATION BOUNDARY FAIL: integration candidate requires an explicit 40-character CERTIFICATION_SHA');
