@@ -62,20 +62,29 @@ if (fs.existsSync(canonicalCommitPath)) {
 const adapterPath = path.join(root, 'src', 'lib', 'import', 'canonical-production-adapter.ts');
 if (!fs.existsSync(adapterPath)) throw new Error('Canonical durable import adapter is missing');
 const adapter = fs.readFileSync(adapterPath, 'utf8');
-if (!/runDurableProductionLifecycle/.test(adapter) || !/SupabaseReportExecutionStore/.test(adapter)) {
-  throw new Error('Canonical import must use the existing durable production runner/store');
+if (!/runServerBoundary\(/.test(adapter) || !/\/api\/canonical-import-run/.test(adapter)) {
+  throw new Error('Canonical import adapter must cross the authenticated server boundary for durable lifecycle execution');
 }
-if (!/stage === 'committed'\)\s*await commitImportBatch/.test(adapter)) {
-  throw new Error('Canonical commit must execute only at the durable committed lifecycle stage');
+if (/runDurableProductionLifecycle/.test(adapter) || /SupabaseReportExecutionStore/.test(adapter) || /import_commit_batch/.test(adapter)) {
+  throw new Error('Canonical browser adapter must not own the durable runner or atomic commit RPC');
 }
-if (/batchSize|for \(let i = 0; i < reconciled\.rows\.length/.test(adapter)) {
+if (/batchSize|for \(let i = 0; i < input\.rows\.length/.test(adapter)) {
   throw new Error('Canonical durable adapter must not reintroduce UI-level batch splitting');
 }
-if (!/enqueue_report_execution_job/.test(adapter) || !/p_source_hash:\s*input\.sourceHash/.test(adapter)) {
-  throw new Error('Canonical durable adapter must enqueue a source-bound durable job');
+const serverPath = path.join(root, 'api', 'canonical-import-run.ts');
+if (!fs.existsSync(serverPath)) throw new Error('Canonical server lifecycle boundary is missing');
+const server = fs.readFileSync(serverPath, 'utf8');
+if (!/runDurableProductionLifecycle/.test(server) || !/SupabaseReportExecutionStore/.test(server)) {
+  throw new Error('Canonical server boundary must use the existing durable production runner/store');
 }
-if (!/IMPORT_DURABLE_JOB_ALREADY_RUNNING/.test(adapter)) {
-  throw new Error('Canonical durable adapter must fail closed when the same durable import is already running');
+if (!/stage === 'committed'/.test(server) || !/commitImportBatchWithClient/.test(server)) {
+  throw new Error('Canonical server boundary must execute the atomic commit only at the durable committed stage');
+}
+if (!/enqueueOrLoad/.test(server) || !/p_source_hash:\s*sourceHash/.test(server)) {
+  throw new Error('Canonical server boundary must enqueue a source-bound durable job');
+}
+if (!/IMPORT_DURABLE_JOB_ALREADY_RUNNING|REPORT_EXECUTION_JOB_NOT_EXECUTABLE|REPORT_EXECUTION_JOB_DEAD_LETTER/.test(server)) {
+  throw new Error('Canonical server boundary must fail closed on invalid durable-job state');
 }
 
 const pagePath = path.join(root, 'src', 'pages', 'CanonicalImportPage.tsx');
