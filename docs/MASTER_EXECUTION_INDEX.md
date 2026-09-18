@@ -1,3 +1,10 @@
+### LIVE EXECUTION UPDATE — 2026-09-18T17:05Z
+- **CURRENT EXACT HEAD:** `2e48261e8926a42fa4520cf487b1b2625be5621f`.
+- Added reusable local/tenant-keyed Saved Views to **Work Center**, **Demand Velocity**, and **Inventory Intelligence**, with explicit reset controls; no database/RPC duplication.
+- **Exact-head verification after this extension:** typecheck PASS; performance budget PASS at **487.6KB critical / 487.8KB largest JS**; route/sidebar parity PASS (35/34); Product Wow UI contract PASS; production build PASS.
+- Lazy chart runtime remains the performance root-cause fix; the ~433KB chart vendor is no longer in the critical asset list.
+- No runtime certification or production-SHA certification transfer occurred. Vercel remains externally blocked by its build-rate limit; Netlify prebuilt preview is the independent UI review path.
+
 ### LIVE EXECUTION UPDATE — 2026-09-18T17:00Z
 - **CURRENT EXACT HEAD:** `9c2740c528b9bc45430e47275415ecd8d2dfe66f` on `feat/aghbari-business-command-system-20260918`.
 - **UI/Product batch completed on this Exact HEAD:** Work Center now has local search plus tenant-keyed Saved Views/reset; saved-view state is local-only and does not create a parallel backend state path.
