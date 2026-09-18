@@ -1147,3 +1147,47 @@ DONE: Wave 25 Decision Experience command integrity completed and handed off.
 OPEN: Owner 2 runtime/release proof; Owner 1 continues competitive product development.
 BLOCKED: none.
 NEXT START: continue the next independent product command or commercial differentiation surface.
+
+
+## START — COMMAND 24 — 2026-09-19
+START
+DATE: 2026-09-19T01:00+03:00
+OWNER: 1
+BRANCH: feat/owner1-commercial-radar-wave26-20260919
+HEAD: b36399ca17fc9f76ff386836ba27d4bf2da0b3a2
+BASE: b36399ca17fc9f76ff386836ba27d4bf2da0b3a2
+OBJECTIVE: بناء طبقة Commercial Opportunity Radar مميزة فوق snapshot الكانوني: تحويل أرقام الشركة/التاجر/الصيدلية إلى إشارات قابلة للتصرف: ضغط التحصيل، تركّز الإيراد، زخم المبيعات، تركّز المنتج، ضغط المخزون/رأس المال، وفرصة الهامش؛ مع حدود ثقة واضحة.
+FILES / SURFACES: src/lib/commercial-opportunity-radar.ts; src/lib/commercial-opportunity-radar.test.ts; src/components/CommercialOpportunityRadar.tsx; src/pages/DashboardPage.tsx; scripts/check-commercial-opportunity-radar-contract.mjs; package.json
+DEPENDENCIES: fetchDashboardSnapshot الحالي؛ لا RPC/DB/Runner/Auth/Tenant/Storage/CI change.
+COMPETITIVE BASIS: نتائج بحث 2026 تشير إلى تركيز السوق الحالي على batch/expiry/FEFO/POS/reorder، بينما قيمة التميز المقترحة هنا هي command intelligence مترابطة فوق نفس المصدر بدل مجرد KPI tiles.
+BLOCKERS: لا يوجد blocker تطويري معروف.
+EXPECTED HANDOFF: Owner 2 يعيد إثبات browser/runtime/DB/RLS/persistence/release على Exact SHA؛ لا نقل Evidence بين SHAs.
+
+
+EXECUTION
+CHANGE: إضافة Commercial Opportunity Radar كطبقة command intelligence على Dashboard، مبنية فقط على get_dashboard_snapshot: ضغط التحصيل، تركّز العميل، تركّز المنتج، زخم المبيعات، فرصة الهامش، ونسبة رأس المال المخزون إلى حركة الفترة.
+FILES: src/lib/commercial-opportunity-radar.ts; src/components/CommercialOpportunityRadar.tsx; src/pages/DashboardPage.tsx; scripts/check-commercial-opportunity-radar-contract.mjs; package.json
+WHY: نقل الأغبري من عرض KPI إلى اكتشاف ما يستحق التحقيق الآن، مع مصدر كل إشارة ودليلها ومسار الإجراء، دون اختلاق سبب أو نتيجة.
+TEST: Exact SHA 8d630b03e5fc27897324b83765dfe73da5d45d97 — commercial-opportunity-radar PASS; typecheck PASS; perf:budget PASS (critical 498.4KB / largest JS 487.8KB); dashboard-critical-load PASS; intelligence-product PASS; product-wow-ui PASS; route/sidebar parity PASS (35/34); lint PASS (0 errors / 58 warnings); build PASS (2810 modules, 15.20s).
+RESULT: feature behavior and contracts verified on Exact SHA; no RPC/DB/Runner/Auth/Tenant/Storage/CI mutation.
+COMMIT: 8d630b03e5fc27897324b83765dfe73da5d45d97
+NEW HEAD: 8d630b03e5fc27897324b83765dfe73da5d45d97
+STATUS: READY_FOR_HANDOFF
+
+HANDOFF
+FROM: OWNER 1
+TARGET: OWNER 2
+BRANCH: feat/owner1-commercial-radar-wave26-20260919
+SHA: 8d630b03e5fc27897324b83765dfe73da5d45d97
+CHANGED: Dashboard commercial opportunity radar + exact static contract guard.
+VERIFIED: radar contract, dashboard critical load, intelligence product, wow UI, route parity, typecheck, lint, build, performance on feature Exact SHA.
+UNPROVEN: authenticated browser behavior; backend/runtime/DB/RLS/persistence/CI/CD/release certification remain Owner 2 scope.
+BLOCKERS: none in Owner 1 code.
+NEXT: integrate/rebase/cherry-pick Exact SHA 8d630b03e5fc27897324b83765dfe73da5d45d97 and reprove browser/runtime/release gates on merged Exact SHA; no cross-SHA evidence transfer.
+
+CLOSE
+HEAD: 8d630b03e5fc27897324b83765dfe73da5d45d97
+DONE: Wave 26 Commercial Opportunity Radar completed and handed off.
+OPEN: Owner 2 runtime/release proof; Owner 1 continues product differentiation across decision, report, customer/product, inventory and sector-specific surfaces.
+BLOCKED: none.
+NEXT START: sector-aware and cross-report decision surfaces; pharmacy/medicine outputs only when canonical batch/expiry/dispense evidence exists.
