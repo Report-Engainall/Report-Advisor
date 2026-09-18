@@ -1,6 +1,7 @@
 import { FormEvent, useState } from 'react';
 import { AlertCircle, ArrowLeft, Brain, CheckCircle2, FileSearch, Loader2, LogIn, ShieldCheck, Sparkles, Upload } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+import { LanguageToggle } from '@/components/LanguageToggle';
 
 const principles = [
   { icon: ShieldCheck, title: 'حقيقة متعددة الطبقات', text: 'المصدر → الصيغة → الفترة → الشركة → الدليل → النتيجة.' },
@@ -33,7 +34,7 @@ export function LoginPage() {
   }
 
   return (
-    <main dir="rtl" className="min-h-screen overflow-hidden bg-[#0d1510]">
+    <main dir="auto" className="relative min-h-screen overflow-hidden bg-[#0d1510]">\n      <div className="absolute right-5 top-5 z-20"><LanguageToggle /></div>
       <div className="grid min-h-screen lg:grid-cols-[1fr_.78fr]">
         <section className="relative hidden overflow-hidden p-10 text-white lg:flex lg:flex-col lg:justify-between">
           <div className="soft-grid absolute inset-0 opacity-20"/>
