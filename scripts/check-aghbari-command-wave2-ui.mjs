@@ -10,6 +10,7 @@ const scenario = read('src/pages/CanonicalScenarioPage.tsx');
 const files = read('src/pages/ExternalFileAnalysisPage.tsx');
 const companySettings = read('src/pages/CompanySettingsPage.tsx');
 const profile = read('src/pages/ProfileSettingsPage.tsx');
+const savedViews = read('src/components/ui/SavedViewMenu.tsx');
 
 const checks = [
   [recommendations.includes('إشارات مصدرية تنتظر قرارًا بشريًا'), 'Recommendations must state human decision ownership.'],
@@ -24,6 +25,10 @@ const checks = [
   [companySettings.includes("aria-pressed={workspaceMode === 'advanced'}"), 'Advanced workspace mode must expose pressed state.'],
   [companySettings.includes("aria-pressed={workspaceMode === 'expert'}"), 'Expert workspace mode must expose pressed state.'],
   [profile.includes('<LoadingState message="جارٍ تحميل بيانات الحساب..." />'), 'Profile settings must use the shared loading state.'],
+  [savedViews.includes('const popupId = `saved-view-${generatedId.replace(/:/g, \'\')}`;'), 'Saved views must use a unique popup id.'],
+  [savedViews.includes('aria-haspopup="dialog"') && savedViews.includes('role="dialog"'), 'Saved view popover must use dialog semantics.'],
+  [savedViews.includes("event.key !== 'Escape'") && savedViews.includes('triggerRef.current?.focus()'), 'Escape must return focus to the trigger.'],
+  [savedViews.includes('focus-visible:ring-2 focus-visible:ring-primary-500'), 'Saved view actions need visible keyboard focus.'],
 ];
 
 const failed = checks.filter(([ok]) => !ok);
