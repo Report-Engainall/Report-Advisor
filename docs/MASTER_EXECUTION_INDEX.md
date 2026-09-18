@@ -1,5 +1,5 @@
 ### LATEST EXECUTION UPDATE — 2026-09-18 / EXACT HEAD TEST + RUNTIME CLOSURE
-- Current exact branch HEAD: `de49900065e141f8dab1e66b6587d57400082df3`.
+- Current code/test candidate: `de49900065e141f8dab1e66b6587d57400082df3`; this follow-up commit is governance-only and exists to refresh the exact-head Preview deployment after the Vercel Preview runtime token was provisioned.
 - Certification candidate is now `de49900065e141f8dab1e66b6587d57400082df3`; this is the first non-governance correction after the previously indexed candidate and therefore historical runtime evidence is not transferred automatically.
 - Fresh head correction: Full Product Browser E2E KPI persistence harness now extracts the rendered Arabic evidence identifier from `لقطة الدليل:` instead of the obsolete English `Snapshot:` text. No production UI/data path was changed.
 - Fresh runtime rerun before this correction: Commercial Product Creation E2E #492 PASS; Storage Tenant Runtime E2E #520 PASS; Device-Independent Browser E2E #515 was still running; Full Product Browser E2E #1805 failed only at the stale KPI snapshot-label assertion.
