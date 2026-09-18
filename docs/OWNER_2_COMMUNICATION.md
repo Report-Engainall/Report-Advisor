@@ -129,3 +129,11 @@ OBJECTIVE=إصلاح سبب فشل Business Persistence الحقيقي: API cano
 FILES=api/canonical-import-execute.ts; scripts/check-import-transaction-contract.mjs
 DB=لا migration جديدة ولا تعديل schema.
 EXPECTED HANDOFF=Exact-SHA runtime proof على successor جديد دون نقل evidence.
+
+## START | OWNER=2 | DATE=2026-09-19T01:14+03:00
+BRANCH=integration/certification-candidate-20260918
+HEAD=a92d587a7ad973e5156ebe5755a7c9791406aa20
+OBJECTIVE=إغلاق الخطأ الثاني في Business Persistence بعد إصلاح import_jobs schema: enqueue_report_execution_job يفشل لأن RPC يتطلب auth.uid() بينما الـadapter كان يستدعيه عبر service-role workerClient. الإصلاح سيجعل enqueue عبر dataClient bearer-authenticated ويُبقي workerClient service-role لتنفيذ lifecycle/commit، مع تطبيع خطأ enqueue بدل [object Object].
+FILES=src/lib/import/canonical-production-adapter.ts; scripts/check-import-transaction-contract.mjs
+DB=لا schema/migration mutation.
+EXPECTED HANDOFF=Fresh exact-SHA business persistence evidence.
