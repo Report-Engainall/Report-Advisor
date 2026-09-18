@@ -57,7 +57,31 @@ async function login(targetPage, email, password) {
   await targetPage.locator('#login-password').fill(password);
   await targetPage.getByRole('button', { name: 'تسجيل الدخول' }).click();
   await targetPage.waitForLoadState('networkidle', { timeout: 30000 }).catch(() => {});
-  await targetPage.waitForTimeout(1500);
+
+  let lastState = 'LOGIN_PENDING';
+  for (let attempt = 1; attempt <= 30; attempt += 1) {
+    const state = await targetPage.evaluate(() => {
+      const authEntry = Object.entries(localStorage).find(([key]) => key.endsWith('-auth-token'))?.[1] ?? null;
+      let authenticated = false;
+      if (authEntry) {
+        try {
+          const parsed = JSON.parse(authEntry);
+          authenticated = Boolean(parsed?.access_token && parsed?.user?.id);
+        } catch {
+          authenticated = false;
+        }
+      }
+      return {
+        authenticated,
+        loginVisible: Boolean(document.querySelector('#login-email')),
+        url: window.location.href,
+      };
+    });
+    if (state.authenticated && !state.loginVisible) return;
+    lastState = state.authenticated ? 'AUTH_TOKEN_PRESENT_LOGIN_UI_STILL_VISIBLE' : 'LOGIN_PENDING';
+    await targetPage.waitForTimeout(500);
+  }
+  throw new Error('LOGIN_SESSION_CONVERGENCE_TIMEOUT:' + lastState);
 }
 
 async function authenticatedTenantId(targetPage) {
