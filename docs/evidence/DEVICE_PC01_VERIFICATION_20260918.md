@@ -44,6 +44,20 @@ The following checks passed on the connected device:
 - `test:operational-file-pipeline`
 - `test:document-resilience`
 
+### Native Electron smoke
+
+A first smoke attempt used the normal desktop user-data profile and did not produce a terminal result because an existing Electron instance was present. That attempt was not treated as evidence.
+
+A second run used an isolated Electron user-data directory plus redirected stdout/stderr. It completed with:
+
+`{"nativeSmoke":"PASS","rootPersistence":true,"fileEvent":true,"nativeFsWatchEvents":30,"duplicateSuppressed":true,"changedFileEvent":true,"partialFileStabilized":true,"rapidFilesDetected":5,"traversalRejected":true,"deletionDetected":true,"recursiveScan":true,"relativePath":"incoming/smoke-report.csv"}`
+
+Therefore:
+
+**Native smoke = PASS**
+
+This proves on PC01 the selected-root persistence, filesystem event path, deduplication, changed-file detection, partial-write stabilization, rapid-file detection, traversal rejection, deletion detection, and recursive scanning behavior.
+
 ### Separate E2E worktree checks
 
 The connected `report-advisor-e2e` worktree is locally modified and detached; it was not reset or rewritten.
@@ -62,16 +76,6 @@ Failed / not closed:
 
 - `check-execution-enforcement-protocol.test.mjs` failed because its fixture/index did not contain the expected current-head candidate. This is a governance/index alignment failure in the detached E2E worktree, not evidence of a product runtime failure.
 
-## Native smoke status
-
-The Electron native smoke command was launched with an isolated Electron user-data directory to avoid interfering with any existing desktop instance. The process remained running without emitting the expected terminal JSON result and was terminated to avoid leaving a stale process.
-
-Therefore:
-
-**Native smoke = NOT PROVEN**
-
-No PASS is claimed.
-
 ## Working-tree safety
 
 No local changes were reset or discarded.
@@ -85,7 +89,7 @@ The separate E2E worktree also retains its pre-existing local modifications/arti
 
 ## Next execution front
 
-1. Diagnose the native smoke hang using isolated Electron diagnostics and process-level evidence.
-2. Reconcile the detached E2E worktree's current-head governance fixture without discarding its local changes.
-3. Continue exact-HEAD release/PDF/persistence fronts from repository authority.
+1. Reconcile the detached E2E worktree's current-head governance fixture without discarding its local changes.
+2. Continue exact-HEAD release/PDF/persistence fronts from repository authority.
+3. Use the proven PC01 native smoke as durable device evidence; do not rerun it unless the Electron/native-watch code or environment changes.
 4. Do not convert any NOT PROVEN state into PASS without fresh evidence.
