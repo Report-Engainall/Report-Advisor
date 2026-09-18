@@ -29,18 +29,31 @@ try {
   await page.locator('#login-email').fill(email);
   await page.locator('#login-password').fill(password);
 
-  const authResponsePromise = page.waitForResponse(
-    response =>
-      response.request().method() === 'POST' &&
-      response.url().includes('/auth/v1/token?grant_type=password'),
-    { timeout: 30000 },
-  ).catch(() => null);
-
-  const loginSubmit = page.locator('form button[type="submit"]');
-  if (!(await loginSubmit.count())) throw new Error('LOGIN_SUBMIT_NOT_FOUND');
-  await loginSubmit.click();
-
-  const authResponse = await authResponsePromise;
+  let authResponse = null;
+  for (let attempt = 1; attempt <= 2; attempt += 1) {
+    if (attempt > 1) {
+      await page.goto(baseURL, { waitUntil: 'domcontentloaded', timeout: 30000 });
+      await page.locator('#login-email').fill(email);
+      await page.locator('#login-password').fill(password);
+    }
+    const authResponsePromise = page.waitForResponse(
+      response =>
+        response.request().method() === 'POST' &&
+        response.url().includes('/auth/v1/token?grant_type=password'),
+      { timeout: 30000 },
+    ).catch(() => null);
+    const loginSubmit = page.locator('form button[type="submit"]');
+    if (!(await loginSubmit.count())) throw new Error('LOGIN_SUBMIT_NOT_FOUND');
+    await loginSubmit.click();
+    const candidate = await authResponsePromise;
+    if (candidate && [429, 500, 502, 503, 504].includes(candidate.status()) && attempt < 2) {
+      await page.waitForTimeout(2500);
+      continue;
+    }
+    authResponse = candidate;
+    if (authResponse || attempt === 2) break;
+    await page.waitForTimeout(2500);
+  }
   if (!authResponse) throw new Error('AUTH_TOKEN_RESPONSE_TIMEOUT');
   const authStatus = authResponse.status();
   if (authStatus >= 400) {
