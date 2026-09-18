@@ -901,3 +901,16 @@ DONE: Wave 19 inventory report truth integrity completed and handed off.
 OPEN: Owner 2 integration/runtime/release proof; Owner 1 product hardening remains independent.
 BLOCKED: none.
 NEXT START: continue only on the next independent product truth gap; no main mutation.
+
+## START — COMMAND 18 — 2026-09-19
+START
+DATE: 2026-09-19T02:24+03:00
+OWNER: 1
+BRANCH: feat/owner1-command-center-truth-wave20-20260919
+HEAD: 7a4351709843456eba320bfa7da0ffbed5ba2a43
+BASE: 7a4351709843456eba320bfa7da0ffbed5ba2a43
+OBJECTIVE: توحيد سياق الحقيقة في مركز القيادة التنفيذي باستخدام kpis.status + asOf من get_dashboard_snapshot، دون أي تغيير في المصدر أو طبقة الذكاء.
+FILES / SURFACES: src/pages/ExecutiveCommandCenterPage.tsx; scripts/check-executive-command-center-truth-contract.mjs; package.json; docs/OWNER_1_COMMUNICATION.md
+DEPENDENCIES: fetchDashboardSnapshot/fetchDashboardIntelligence الحالية؛ لا RPC/DB/Runner/Auth/Tenant/Storage/CI change.
+BLOCKERS: لا يوجد blocker تطويري معروف.
+EXPECTED HANDOFF: Owner 2 يعيد إثبات مركز القيادة/browser/runtime/release على Exact SHA؛ لا نقل Evidence بين SHAs.
