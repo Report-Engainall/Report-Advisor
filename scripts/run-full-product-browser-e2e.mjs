@@ -55,7 +55,9 @@ async function login(targetPage, email, password) {
   if (!(await loginEmail.count())) throw new Error('LOGIN_FORM_NOT_FOUND');
   await loginEmail.fill(email);
   await targetPage.locator('#login-password').fill(password);
-  await targetPage.getByRole('button', { name: 'تسجيل الدخول' }).click();
+  const loginSubmit = targetPage.locator('form button[type="submit"]');
+  if (!(await loginSubmit.count())) throw new Error('LOGIN_SUBMIT_NOT_FOUND');
+  await loginSubmit.click();
   await targetPage.waitForLoadState('networkidle', { timeout: 30000 }).catch(() => {});
   await targetPage.waitForTimeout(1500);
 }
