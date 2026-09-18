@@ -2,7 +2,6 @@ import { useMemo, useState } from 'react';
 import { ArrowUpRight, CheckCircle2, FileText, Printer, Target, Wand2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
-import { PageHeader } from '@/components/ui/States';
 
 type Capability = {
   id: string;
@@ -54,6 +53,13 @@ export function ProposalDemoPage() {
 
   const matched = mapped.filter(item => item.match);
   const unmatched = mapped.filter(item => !item.match);
+  const coverage = mapped.length ? Math.round((matched.length / mapped.length) * 100) : 0;
+  const proposalSummary = useMemo(() => {
+    if (!mapped.length) return `لا توجد متطلبات مدخلة بعد لعميل ${client}.`;
+    if (!matched.length) return `لم يتم ربط أي متطلب تلقائيًا. راجع المتطلبات وأعد صياغتها أو افتح قدرات المنتج يدويًا قبل اعتماد العرض.`;
+    const focus = matched.slice(0, 4).map(item => item.match!.title).join('، ');
+    return `للعميل ${client} وبناءً على موجز «${jobTitle}»، يغطي العرض ${matched.length} من ${mapped.length} متطلبًا (${coverage}%). نقاط العرض الأساسية: ${focus}. العناصر غير المطابقة تبقى معلّقة للمراجعة ولا يتم تحويلها إلى ادعاءات جاهزية.`;
+  }, [client, jobTitle, mapped, matched, coverage]);
 
   return (
     <div dir="rtl" className="space-y-6 print:bg-white print:text-black">
@@ -83,10 +89,12 @@ export function ProposalDemoPage() {
               <div className="text-xs text-ink-400">العميل</div><div className="mt-1 text-lg font-bold text-ink-900">{client}</div>
               <div className="mt-4 text-xs text-ink-400">الوظيفة</div><div className="mt-1 text-base font-semibold text-ink-800">{jobTitle}</div>
             </div>
-            <div className="mt-4 grid grid-cols-2 gap-3">
-              <div className="rounded-xl border border-success-200 bg-success-50 p-4"><div className="text-xs text-success-700">المطابق</div><div className="mt-1 text-2xl font-black text-success-800">{matched.length}</div></div>
-              <div className="rounded-xl border border-warning-200 bg-warning-50 p-4"><div className="text-xs text-warning-700">يحتاج مراجعة</div><div className="mt-1 text-2xl font-black text-warning-800">{unmatched.length}</div></div>
+            <div className="mt-4 grid grid-cols-3 gap-3">
+              <div className="rounded-xl border border-primary-200 bg-primary-50 p-4"><div className="text-xs text-primary-700">تغطية المتطلبات</div><div className="mt-1 text-2xl font-black text-primary-800">{coverage}%</div></div>
+              <div className="rounded-xl border border-success-200 bg-success-50 p-4"><div className="text-xs text-success-700">متطلبات مرتبطة</div><div className="mt-1 text-2xl font-black text-success-800">{matched.length}</div></div>
+              <div className="rounded-xl border border-warning-200 bg-warning-50 p-4"><div className="text-xs text-warning-700">تحتاج مراجعة</div><div className="mt-1 text-2xl font-black text-warning-800">{unmatched.length}</div></div>
             </div>
+            <div className="mt-4 rounded-xl border border-ink-100 bg-ink-50/60 p-4"><div className="text-xs font-black text-ink-700">ملخص العرض</div><p className="mt-2 text-sm leading-6 text-ink-600">{proposalSummary}</p></div>
             <div className="mt-4 flex flex-wrap gap-2 print:hidden">
               <Link to="/" className="btn-primary text-xs"><Target size={14} /> افتح المنتج</Link>
               <Link to="/reports/executive" className="btn-secondary text-xs"><FileText size={14} /> افتح التقرير التنفيذي</Link>
@@ -96,7 +104,7 @@ export function ProposalDemoPage() {
       </div>
 
       <Card>
-        <CardHeader title="Capability Mapping" subtitle="المطابقة حتمية ومقيدة بكتالوج مسارات المنتج الحالية." />
+        <CardHeader title="Capability Mapping" subtitle="يُظهر هذا السطح ما تم ربطه من متطلبات العميل، وما بقي غير مطابق للمراجعة قبل أي ادعاء في العرض." />
         <CardBody className="space-y-3">
           {mapped.length === 0 && <div className="rounded-xl border border-dashed border-ink-200 p-6 text-center text-sm text-ink-400">أدخل متطلبات الوظيفة للبدء.</div>}
           {mapped.map(item => (
