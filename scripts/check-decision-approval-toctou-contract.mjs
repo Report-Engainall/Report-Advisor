@@ -29,16 +29,19 @@ function latestFunctionBody(source, name) {
 
 export function validateDecisionApprovalToctou(source) {
   const body = latestFunctionBody(source, 'request_decision_approval');
-  const decisionSelect = body.indexOf('from public.business_intelligence_decisions');
-  const decisionGate = body.indexOf("v_decision_status is distinct from 'PROPOSED'");
+  // SQL is case-insensitive; the verifier must not reject canonical migrations merely because
+  // FROM / FOR UPDATE / guards are formatted in normal uppercase SQL.
+  const normalizedBody = body.toLowerCase();
+  const decisionSelect = normalizedBody.indexOf('from public.business_intelligence_decisions');
+  const decisionGate = normalizedBody.indexOf("v_decision_status is distinct from 'proposed'");
   // Bind the lock specifically to the authoritative decision SELECT. Searching
   // for any later FOR UPDATE would let the approval-row lock mask a missing
   // decision lock in the adversarial fixture.
   const decisionQuery = body.slice(decisionSelect);
   const decisionLockMatch = decisionQuery.match(/and d\.company_id = v_company\s+for update/i);
   const decisionLock = decisionLockMatch ? decisionSelect + decisionQuery.indexOf(decisionLockMatch[0]) : -1;
-  const approvalSelect = body.indexOf('from public.decision_approvals');
-  const terminalGuard = body.indexOf("v_existing_status in ('APPROVED','REJECTED','CANCELLED')");
+  const approvalSelect = normalizedBody.indexOf('from public.decision_approvals');
+  const terminalGuard = normalizedBody.indexOf("v_existing_status in ('approved','rejected','cancelled')");
   if (decisionSelect < 0 || decisionLock < decisionSelect) throw new Error('Decision row is not locked before approvability check');
   if (decisionGate < decisionLock) throw new Error('Approvaibility check is not performed after decision lock');
   if (approvalSelect < decisionLock) throw new Error('Approval row lookup precedes decision lock');
