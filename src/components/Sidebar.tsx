@@ -1,209 +1,42 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import {
-  Activity, BarChart3, Brain, ChevronDown, ClipboardCheck, Crosshair, FileBarChart, Gauge,
-  Layers3, LayoutDashboard, ListChecks, LogOut, Package, Presentation, Scale, ScanSearch,
-  Settings, Target, Upload, UserCircle, Users, Warehouse, AlertCircle, PlugZap, WalletCards
-} from 'lucide-react';
+import { Activity, BarChart3, Brain, ChevronDown, ClipboardCheck, FileBarChart, Gauge, Layers3, LayoutDashboard, ListChecks, LogOut, Package, Presentation, Scale, ScanSearch, Settings, Target, Upload, UserCircle, Users, Warehouse, AlertCircle, PlugZap } from 'lucide-react';
 import type { User } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
 import { getDisplayEmail, getDisplayName } from '@/lib/profile-display';
 import { useLanguage } from '@/lib/language';
 import { isWorkspacePathVisible, readWorkspaceMode, type WorkspaceMode } from '@/lib/workspace-mode';
 
-interface NavItem {
-  path: string;
-  label: string;
-  enLabel: string;
-  icon: ReactNode;
-  hint?: string;
-  enHint?: string;
-}
-interface NavSection {
-  id: string;
-  title: string;
-  enTitle: string;
-  items: NavItem[];
-}
+interface NavItem{path:string;label:string;enLabel:string;icon:ReactNode}
+interface NavSection{id:string;title:string;enTitle:string;items:NavItem[]}
 
-const navSections: NavSection[] = [
-  { id: 'today', title: 'اليوم', enTitle: 'Today', items: [
-    { path: '/', label: 'لوحة اليوم', enLabel: 'Today', icon: <LayoutDashboard size={18}/>, hint: 'ما يحدث الآن', enHint: 'What matters now' },
-    { path: '/command-center', label: 'مركز القيادة', enLabel: 'Command Center', icon: <Crosshair size={18}/>, hint: 'الأولويات والإجراءات', enHint: 'Priorities and actions' },
-    { path: '/decision-experience', label: 'قرار اليوم', enLabel: 'Today’s Decision', icon: <Scale size={18}/>, hint: 'دليل → قرار → إجراء', enHint: 'Evidence → decision → action' },
-    { path: '/intelligence', label: 'التنبيهات المهمة', enLabel: 'Important Alerts', icon: <AlertCircle size={18}/>, hint: 'ما يحتاج انتباهًا', enHint: 'What needs attention' },
-  ]},
-  { id: 'operations', title: 'التشغيل', enTitle: 'Operations', items: [
-    { path: '/work-center', label: 'مركز العمل', enLabel: 'Work Center', icon: <Activity size={18}/>, hint: 'الحالات والاستثناءات', enHint: 'Execution and exceptions' },
-    { path: '/import', label: 'إدخال البيانات', enLabel: 'Data Intake', icon: <Upload size={18}/>, hint: 'الاستيراد الحاكم', enHint: 'Governed ingestion' },
-    { path: '/import/analyze', label: 'تحليل المستندات', enLabel: 'Document Analysis', icon: <ScanSearch size={18}/>, hint: 'استخراج وإثبات', enHint: 'Extraction and proof' },
-    { path: '/data-quality', label: 'جودة البيانات', enLabel: 'Data Quality', icon: <AlertCircle size={18}/>, hint: 'مشكلات ونواقص', enHint: 'Issues and gaps' },
-    { path: '/connections', label: 'المصادر والموصلات', enLabel: 'Sources & Connections', icon: <PlugZap size={18}/>, hint: 'متاجر وملفات وأنظمة', enHint: 'Stores, files, systems' },
-  ]},
-  { id: 'money', title: 'المال', enTitle: 'Money', items: [
-    { path: '/reports/sales', label: 'المبيعات', enLabel: 'Sales', icon: <FileBarChart size={18}/>, hint: 'الحركة والإيراد', enHint: 'Revenue and movement' },
-    { path: '/reports/purchases', label: 'المشتريات', enLabel: 'Purchases', icon: <FileBarChart size={18}/>, hint: 'التكلفة والتوريد', enHint: 'Cost and supply' },
-    { path: '/reports/receivables', label: 'الذمم والتحصيل', enLabel: 'Receivables', icon: <FileBarChart size={18}/>, hint: 'النقد المتعثر', enHint: 'Cash at risk' },
-    { path: '/reports/profitability', label: 'الربحية', enLabel: 'Profitability', icon: <Gauge size={18}/>, hint: 'أين نصنع الهامش', enHint: 'Where margin comes from' },
-  ]},
-  { id: 'customers-products', title: 'العملاء والمنتجات', enTitle: 'Customers & Products', items: [
-    { path: '/customers', label: 'العملاء', enLabel: 'Customers', icon: <Users size={18}/>, hint: 'القيمة والسلوك', enHint: 'Value and behavior' },
-    { path: '/products', label: 'المنتجات', enLabel: 'Products', icon: <Package size={18}/>, hint: 'الأصناف والحركة', enHint: 'Items and movement' },
-    { path: '/inventory', label: 'المخزون', enLabel: 'Inventory', icon: <Warehouse size={18}/>, hint: 'توفر ورأس المال', enHint: 'Availability and capital' },
-    { path: '/alternative-groups', label: 'البدائل', enLabel: 'Alternatives', icon: <Layers3 size={18}/>, hint: 'فرص الاستبدال', enHint: 'Substitution opportunities' },
-  ]},
-  { id: 'intelligence', title: 'القرار والذكاء', enTitle: 'Decision & Intelligence', items: [
-    { path: '/intelligence/recommendations', label: 'التوصيات', enLabel: 'Recommendations', icon: <Brain size={18}/>, hint: 'ماذا نفعل بعد ذلك', enHint: 'What to do next' },
-    { path: '/intelligence/forecasts', label: 'التنبؤات', enLabel: 'Forecasts', icon: <Target size={18}/>, hint: 'ما قد يحدث', enHint: 'What may happen' },
-    { path: '/intelligence/scenarios', label: 'السيناريوهات', enLabel: 'Scenarios', icon: <Crosshair size={18}/>, hint: 'ماذا لو؟', enHint: 'What if?' },
-    { path: '/analytics/rfm', label: 'RFM', enLabel: 'RFM', icon: <BarChart3 size={18}/> },
-    { path: '/analytics/abc', label: 'ABC', enLabel: 'ABC', icon: <BarChart3 size={18}/> },
-    { path: '/analytics/aging', label: 'الأعمار', enLabel: 'Aging', icon: <BarChart3 size={18}/> },
-    { path: '/metrics', label: 'مراقب المقاييس', enLabel: 'Metric Inspector', icon: <Gauge size={18}/>, hint: 'لماذا هذا الرقم؟', enHint: 'Why this number?' },
-  ]},
-  { id: 'reports', title: 'التقارير', enTitle: 'Reports', items: [
-    { path: '/reports/executive', label: 'التقرير التنفيذي', enLabel: 'Executive Report', icon: <ClipboardCheck size={18}/>, hint: 'قصة جاهزة للإدارة', enHint: 'Board-ready story' },
-    { path: '/reports', label: 'مركز التقارير', enLabel: 'Reports Center', icon: <FileBarChart size={18}/>, hint: 'كل المخرجات', enHint: 'All deliverables' },
-    { path: '/reports/inventory', label: 'تقرير المخزون', enLabel: 'Inventory Report', icon: <Warehouse size={18}/> },
-    { path: '/reports/inventory-intelligence', label: 'ذكاء المخزون', enLabel: 'Inventory Intelligence', icon: <Gauge size={18}/> },
-    { path: '/reports/demand-velocity', label: 'الطلب والحركة', enLabel: 'Demand & Velocity', icon: <Activity size={18}/> },
-    { path: '/analytics', label: 'التحليلات', enLabel: 'Analytics', icon: <BarChart3 size={18}/>, hint: 'المساحة التحليلية', enHint: 'Analytical workspace' },
-  ]},
-  { id: 'admin', title: 'الإدارة', enTitle: 'Administration', items: [
-    { path: '/onboarding', label: 'تجهيز الشركة', enLabel: 'Company Setup', icon: <ListChecks size={18}/> },
-    { path: '/settings', label: 'إعدادات الشركة', enLabel: 'Company Settings', icon: <Settings size={18}/> },
-    { path: '/settings/profile', label: 'ملفي الشخصي', enLabel: 'My Profile', icon: <UserCircle size={18}/> },
-    { path: '/proposal-demo', label: 'وضع العرض التقديمي', enLabel: 'Proposal Demo', icon: <Presentation size={18}/>, hint: 'غرفة إثبات القيمة', enHint: 'Proof room' },
-  ]},
+const navSections:NavSection[]=[
+{id:'today',title:'اليوم',enTitle:'Today',items:[{path:'/',label:'لوحة اليوم',enLabel:'Today',icon:<LayoutDashboard size={16}/>},{path:'/command-center',label:'مركز القيادة',enLabel:'Command Center',icon:<Scale size={16}/>},{path:'/decision-experience',label:'قرار اليوم',enLabel:'Today’s Decision',icon:<ClipboardCheck size={16}/>},{path:'/intelligence',label:'الانتباه والذكاء',enLabel:'Attention & Intelligence',icon:<Brain size={16}/>} ]},
+{id:'operations',title:'التشغيل',enTitle:'Operations',items:[{path:'/work-center',label:'مركز العمل',enLabel:'Work Center',icon:<Activity size={16}/>},{path:'/import',label:'الاستيراد',enLabel:'Import',icon:<Upload size={16}/>},{path:'/import/analyze',label:'تحليل المستندات',enLabel:'Document Analysis',icon:<ScanSearch size={16}/>},{path:'/data-quality',label:'جودة البيانات',enLabel:'Data Quality',icon:<AlertCircle size={16}/>},{path:'/connections',label:'المصادر',enLabel:'Sources',icon:<PlugZap size={16}/>} ]},
+{id:'money',title:'المال',enTitle:'Money',items:[{path:'/reports/sales',label:'المبيعات',enLabel:'Sales',icon:<FileBarChart size={16}/>},{path:'/reports/purchases',label:'المشتريات',enLabel:'Purchases',icon:<FileBarChart size={16}/>},{path:'/reports/receivables',label:'الذمم والتحصيل',enLabel:'Receivables',icon:<CreditMark/>},{path:'/reports/profitability',label:'الربحية',enLabel:'Profitability',icon:<Gauge size={16}/>} ]},
+{id:'customers-products',title:'العملاء والمنتجات',enTitle:'Customers & Products',items:[{path:'/customers',label:'العملاء',enLabel:'Customers',icon:<Users size={16}/>},{path:'/products',label:'المنتجات',enLabel:'Products',icon:<Package size={16}/>},{path:'/inventory',label:'المخزون',enLabel:'Inventory',icon:<Warehouse size={16}/>},{path:'/alternative-groups',label:'البدائل',enLabel:'Alternatives',icon:<Layers3 size={16}/>} ]},
+{id:'intelligence',title:'القرار والذكاء',enTitle:'Decision & Intelligence',items:[{path:'/intelligence/recommendations',label:'التوصيات',enLabel:'Recommendations',icon:<Brain size={16}/>},{path:'/intelligence/forecasts',label:'التنبؤات',enLabel:'Forecasts',icon:<Target size={16}/>},{path:'/intelligence/scenarios',label:'السيناريوهات',enLabel:'Scenarios',icon:<ScenarioMark/>},{path:'/analytics/rfm',label:'RFM',enLabel:'RFM',icon:<BarChart3 size={16}/>},{path:'/analytics/abc',label:'ABC',enLabel:'ABC',icon:<BarChart3 size={16}/>},{path:'/analytics/aging',label:'الأعمار',enLabel:'Aging',icon:<BarChart3 size={16}/>},{path:'/metrics',label:'تفسير المقاييس',enLabel:'Metric Inspector',icon:<Gauge size={16}/>} ]},
+{id:'reports',title:'التقارير',enTitle:'Reports',items:[{path:'/reports/executive',label:'التقرير التنفيذي',enLabel:'Executive Report',icon:<ClipboardCheck size={16}/>},{path:'/reports',label:'مركز التقارير',enLabel:'Reports Center',icon:<FileBarChart size={16}/>},{path:'/reports/inventory',label:'تقرير المخزون',enLabel:'Inventory Report',icon:<Warehouse size={16}/>},{path:'/reports/inventory-intelligence',label:'ذكاء المخزون',enLabel:'Inventory Intelligence',icon:<Gauge size={16}/>},{path:'/reports/demand-velocity',label:'الطلب والحركة',enLabel:'Demand & Velocity',icon:<Activity size={16}/>},{path:'/analytics',label:'مساحة التحليلات',enLabel:'Analytics',icon:<BarChart3 size={16}/>} ]},
+{id:'admin',title:'الإدارة',enTitle:'Administration',items:[{path:'/onboarding',label:'تجهيز الشركة',enLabel:'Company Setup',icon:<ListChecks size={16}/>},{path:'/settings',label:'إعدادات الشركة',enLabel:'Company Settings',icon:<Settings size={16}/>},{path:'/settings/profile',label:'ملفي',enLabel:'Profile',icon:<UserCircle size={16}/>},{path:'/proposal-demo',label:'العرض التقديمي',enLabel:'Proposal Demo',icon:<Presentation size={16}/>} ]}
 ];
 
-const sectionIcon = (id: string) => {
-  if (id === 'today') return <LayoutDashboard size={18}/>;
-  if (id === 'operations') return <Activity size={18}/>;
-  if (id === 'money') return <FileBarChart size={18}/>;
-  if (id === 'customers-products') return <Package size={18}/>;
-  if (id === 'intelligence') return <Brain size={18}/>;
-  if (id === 'reports') return <FileBarChart size={18}/>;
-  return <Settings size={18}/>;
-};
+function CreditMark(){return <span className="text-[13px] font-black">◫</span>}
+function ScenarioMark(){return <span className="text-[12px] font-black">◎</span>}
+const sectionIcons:Record<string,ReactNode>={today:<LayoutDashboard size={17}/>,operations:<Activity size={17}/>,money:<FileBarChart size={17}/>,'customers-products':<Package size={17}/>,intelligence:<Brain size={17}/>,reports:<ClipboardCheck size={17}/>,admin:<Settings size={17}/>};
 
-
-
-export function Sidebar({ alertCount = 0, onNavigate, user }: { alertCount?: number; onNavigate?: () => void; user?: User | null }) {
-  const { language } = useLanguage();
-  const location = useLocation();
-  const [workspaceMode, setWorkspaceMode] = useState<WorkspaceMode>(readWorkspaceMode);
-  const visibleSections = useMemo(
-    () => navSections.map(section => ({
-      ...section,
-      items: section.items.filter(item => isWorkspacePathVisible(item.path, workspaceMode)),
-    })).filter(section => section.items.length > 0),
-    [workspaceMode],
-  );
-  const activeSection = useMemo(
-    () => visibleSections.find(section => section.items.some(item => location.pathname === item.path || (item.path !== '/' && location.pathname.startsWith(item.path))))?.id ?? 'today',
-    [location.pathname, visibleSections],
-  );
-  const [expandedSection, setExpandedSection] = useState<string>(activeSection);
-
-  useEffect(() => {
-    const sync = () => setWorkspaceMode(readWorkspaceMode());
-    window.addEventListener('storage', sync);
-    window.addEventListener('report-advisor:workspace-mode', sync);
-    return () => {
-      window.removeEventListener('storage', sync);
-      window.removeEventListener('report-advisor:workspace-mode', sync);
-    };
-  }, []);
-
-  useEffect(() => {
-    setExpandedSection(activeSection);
-  }, [activeSection]);
-
-  const signOut = async () => {
-    const { error } = await supabase.auth.signOut({ scope: 'local' });
-    if (error) throw error;
-    onNavigate?.();
-  };
-
-  const currentSection = visibleSections.find(section => section.id === expandedSection) ?? visibleSections[0];
-
-  return (
-    <aside dir={language === 'ar' ? 'rtl' : 'ltr'} className={'flex h-screen w-[272px] shrink-0 flex-col overflow-hidden bg-[#0b120e] text-white ' + (language === 'ar' ? 'border-l' : 'border-r') + ' border-white/10'}>
-      <div className="px-5 pt-5">
-        <Link to="/" onClick={onNavigate} className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-600 text-lg font-black text-white shadow-lg shadow-primary-950/25">أ</div>
-          <div className="min-w-0">
-            <div className="text-[15px] font-black tracking-tight">{language === 'ar' ? 'الأغبري' : 'Report-Advisor'}</div>
-            <div className="mt-0.5 text-[10px] font-medium text-slate-500">{language === 'ar' ? 'ذكاء الأعمال والقرار' : 'Business & Decision Intelligence'}</div>
-          </div>
-        </Link>
-      </div>
-
-      <div className="px-4 pt-5">
-        <div className="flex items-center justify-between rounded-2xl border border-white/8 bg-white/[0.025] px-3 py-2.5">
-          <span className="text-[10px] font-bold text-slate-500">{language === 'ar' ? 'مساحة العمل' : 'Workspace'}</span>
-          <span className="rounded-full bg-primary-500/10 px-2 py-1 text-[10px] font-bold text-primary-200">
-            {workspaceMode === 'essential' ? (language === 'ar' ? 'أساسية' : 'Essential') : workspaceMode === 'advanced' ? (language === 'ar' ? 'متقدمة' : 'Advanced') : (language === 'ar' ? 'خبيرة' : 'Expert')}
-          </span>
-        </div>
-      </div>
-
-
-      <nav className="flex-1 overflow-y-auto px-3 py-5" aria-label={language === 'ar' ? 'التنقل التجاري الرئيسي' : 'Primary business navigation'}>
-        <div className="mb-2 px-2 text-[10px] font-black tracking-[0.14em] text-slate-600">
-          {language === 'ar' ? 'مساحات العمل' : 'WORKSPACES'}
-        </div>
-        <div className="space-y-1.5">
-          {visibleSections.map(section => {
-            const active = activeSection === section.id;
-            const open = expandedSection === section.id;
-            return (
-              <div key={section.id}>
-                <button
-                  type="button"
-                  onClick={() => setExpandedSection(open ? '' : section.id)}
-                  className={'flex w-full items-center gap-3 rounded-2xl px-3 py-3 text-right transition ' + (active ? 'bg-primary-500/10 text-primary-100' : 'text-slate-300 hover:bg-white/5 hover:text-white')}
-                  aria-expanded={open}
-                >
-                  <span className={'flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ' + (active ? 'bg-primary-500/15 text-primary-200' : 'bg-white/[0.04] text-slate-500')}>
-                    {section.items[0]?.icon}
-                  </span>
-                  <span className="min-w-0 flex-1 text-sm font-bold">{language === 'ar' ? section.title : section.enTitle}</span>
-                  <ChevronDown size={15} className={'shrink-0 text-slate-600 transition-transform ' + (open ? '' : '-rotate-90')} />
-                </button>
-                {open && currentSection?.id === section.id && (
-                  <div className="mx-2 mt-1 space-y-0.5 border-r border-white/8 pr-2">
-                    {currentSection.items.map(item => {
-                      const isActive = location.pathname === item.path || (item.path !== '/' && location.pathname.startsWith(item.path));
-                      return (
-                        <Link key={item.path} to={item.path} onClick={onNavigate} className={'nav-item ' + (isActive ? 'nav-item-active' : 'nav-item-inactive')}>
-                          <span className={'flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ' + (isActive ? 'bg-primary-500/15 text-primary-200' : 'bg-transparent text-slate-500')}>{item.icon}</span>
-                          <span className="min-w-0 flex-1">
-                            <span className="block truncate">{language === 'ar' ? item.label : item.enLabel}</span>
-                            {item.hint && <span className={'mt-0.5 block truncate text-[9px] font-normal ' + (isActive ? 'text-primary-100/70' : 'text-slate-600')}>{language === 'ar' ? item.hint : item.enHint}</span>}
-                          </span>
-                        </Link>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      </nav>
-
-      <div className="border-t border-white/10 px-4 py-4">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary-500/10 text-sm font-black text-primary-200">{getDisplayName(user ?? null).slice(0, 1) || 'م'}</div>
-          <div className="min-w-0 flex-1">
-            <div className="truncate text-sm font-semibold text-white">{getDisplayName(user ?? null)}</div>
-            <div className="truncate text-[10px] text-slate-500" dir="ltr">{getDisplayEmail(user ?? null)}</div>
-          </div>
-        </div>
-        <button type="button" onClick={() => void signOut()} className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold text-slate-300 transition hover:bg-white/10 hover:text-white" aria-label={language === 'ar' ? 'تسجيل الخروج' : 'Sign out'}><LogOut size={15}/>{language === 'ar' ? 'تسجيل الخروج' : 'Sign out'}</button>
-      </div>
-    </aside>
-  );
+export function Sidebar({alertCount=0,onNavigate,user}:{alertCount?:number;onNavigate?:()=>void;user?:User|null}){
+ const{language}=useLanguage();const location=useLocation();const[workspaceMode,setWorkspaceMode]=useState<WorkspaceMode>(readWorkspaceMode);
+ const visibleSections=useMemo(()=>navSections.map(s=>({...s,items:s.items.filter(i=>isWorkspacePathVisible(i.path,workspaceMode))})).filter(s=>s.items.length),[workspaceMode]);
+ const activeSection=useMemo(()=>visibleSections.find(s=>s.items.some(i=>location.pathname===i.path||(i.path!=='/'&&location.pathname.startsWith(i.path))))?.id??'today',[location.pathname,visibleSections]);
+ const[expandedSection,setExpandedSection]=useState(activeSection);
+ useEffect(()=>{const sync=()=>setWorkspaceMode(readWorkspaceMode());window.addEventListener('storage',sync);window.addEventListener('report-advisor:workspace-mode',sync);return()=>{window.removeEventListener('storage',sync);window.removeEventListener('report-advisor:workspace-mode',sync)}},[]);
+ useEffect(()=>setExpandedSection(activeSection),[activeSection]);
+ const signOut=async()=>{const{error}=await supabase.auth.signOut({scope:'local'});if(error)throw error;onNavigate?.()};
+ return <aside dir={language==='ar'?'rtl':'ltr'} className={'flex h-screen w-[238px] shrink-0 flex-col border-l border-ink-200 bg-white text-ink-900 '+(language==='ar'?'border-l':'border-r')}>
+  <div className="border-b border-ink-200 px-4 py-3.5"><Link to="/" onClick={onNavigate} className="flex items-center gap-2.5"><div className="flex h-8 w-8 items-center justify-center rounded-[8px] bg-ink-950 text-sm font-black text-white">أ</div><div className="min-w-0"><div className="text-[14px] font-black">الأغبري</div><div className="mt-0.5 text-[10px] text-ink-400">Business Intelligence</div></div></Link></div>
+  <div className="px-3 py-3"><div className="flex items-center justify-between rounded-[9px] border border-ink-200 bg-ink-50 px-2.5 py-2"><span className="text-[10px] font-semibold text-ink-500">كثافة المساحة</span><span className="rounded-full bg-white px-2 py-0.5 text-[10px] font-bold text-ink-700 ring-1 ring-inset ring-ink-200">{workspaceMode==='essential'?'أساسية':workspaceMode==='advanced'?'متقدمة':'خبيرة'}</span></div></div>
+  <div className="px-3"><div className="section-kicker px-2 pb-2">اختصارات</div><div className="grid grid-cols-2 gap-1.5">{[['/import','استيراد',<Upload size={13}/>],['/reports/receivables','الذمم',<BarChart3 size={13}/>],['/inventory','المخزون',<Warehouse size={13}/>],['/decision-experience','قرار اليوم',<Scale size={13}/>]].map(([path,label,icon])=><Link key={String(path)} to={String(path)} onClick={onNavigate} className="flex items-center gap-1.5 rounded-[8px] border border-ink-200 bg-white px-2 py-2 text-[11px] font-semibold text-ink-600 hover:border-primary-200 hover:bg-primary-50 hover:text-primary-800">{icon}{label}</Link>)}</div></div>
+  <nav className="flex-1 overflow-y-auto px-3 py-3" aria-label={language==='ar'?'التنقل التجاري الرئيسي':'Primary business navigation'}><div className="space-y-1">{visibleSections.map(section=>{const active=activeSection===section.id,open=expandedSection===section.id;return <div key={section.id}><button type="button" onClick={()=>setExpandedSection(open?'':section.id)} className={'flex w-full items-center gap-2.5 rounded-[9px] px-2.5 py-2 text-right transition '+(active?'bg-ink-100 text-ink-950':'text-ink-600 hover:bg-ink-50 hover:text-ink-950')} aria-expanded={open}><span className={'flex h-7 w-7 shrink-0 items-center justify-center rounded-[7px] '+(active?'bg-white text-primary-700':'bg-ink-50 text-ink-400')}>{sectionIcons[section.id]}</span><span className="min-w-0 flex-1 text-[13px] font-bold">{language==='ar'?section.title:section.enTitle}</span>{section.id==='today'&&alertCount>0&&<span className="min-w-4 rounded-full bg-danger-600 px-1 text-center text-[9px] font-black text-white">{alertCount}</span>}<ChevronDown size={14} className={'shrink-0 text-ink-300 transition-transform '+(open?'':'-rotate-90')}/></button>{open&&<div className="mr-3 mt-0.5 space-y-0.5 border-r border-ink-200 pr-2">{section.items.map(item=>{const activeItem=location.pathname===item.path||(item.path!=='/'&&location.pathname.startsWith(item.path));return <Link key={item.path} to={item.path} onClick={onNavigate} className={'nav-item '+(activeItem?'nav-item-active':'nav-item-inactive')}><span className="shrink-0">{item.icon}</span><span className="min-w-0 flex-1 truncate">{language==='ar'?item.label:item.enLabel}</span></Link>})}</div>}</div>})}</div></nav>
+  <div className="border-t border-ink-200 p-3"><div className="flex items-center gap-2.5"><div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[8px] bg-ink-100 text-[11px] font-black text-ink-700">{getDisplayName(user??null).slice(0,1)||'م'}</div><div className="min-w-0 flex-1"><div className="truncate text-[12px] font-bold text-ink-800">{getDisplayName(user??null)}</div><div className="truncate text-[10px] text-ink-400" dir="ltr">{getDisplayEmail(user??null)}</div></div><button type="button" onClick={()=>void signOut()} className="rounded-[8px] p-2 text-ink-400 hover:bg-ink-100 hover:text-ink-800" aria-label={language==='ar'?'تسجيل الخروج':'Sign out'}><LogOut size={15}/></button></div></div>
+ </aside>
 }
