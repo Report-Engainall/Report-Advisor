@@ -5,13 +5,20 @@
 > Authoritative execution manifest. This document never promotes historical evidence across an exact Git `HEAD` boundary. Pair every evidence batch with the exact Git `HEAD` of `main` and the exact environment/commit used.
 
 ### CURRENT EXACT HEAD
-- Current code/test candidate: `e0503ae858f3cfeb002294a4bd3f7f95708533d4`.
-- This is the exact current `main` merge head after the latest security, migration, resilience, import-identity, billing-runtime, and Work Center fronts were merged.
+- Current code/test candidate: `ffccf08e1ce4d5595d9ac448f310d62ce5d94e95`.
+- This is the exact current `main` head after the latest governance, resilience and device-independent browser-smoke work; the previous `e0503ae...` binding is superseded.
 - No runtime/browser/production evidence from an earlier SHA is promoted by this binding.
 - The certification binding itself is governance-only and does not certify runtime/product code; fresh exact-HEAD runtime evidence is still required.
 - Historical evidence from earlier SHAs remains historical and is not promoted automatically.
-- Current GitHub certification workflows are executing against this exact Main SHA; their queued/running state is evidence of execution, not PASS.
-- Vercel deployment status remains externally blocked by the provider build-rate limit; no production deployment is claimed from that status.
+- Current-head workflow execution is not yet evidenced on this SHA by the repository Actions run feed; absence of runs is not PASS and does not transfer historical evidence.
+- Vercel reports the current Main deployment path as externally blocked by the provider build-rate limit; no production deployment is claimed from that status.
+
+### CURRENT EXECUTION CONTROL — 2026-09-18
+- PR #533 adds the mandatory continuous two-owner execution/resume protocol. It is governance-only and does not itself certify runtime.
+- Programmer-owned active runtime front: PR #531 (e334ed54be851cf6fbeb0f85753b330bc08aea47) for structured PDF invoice parsing on current Main.
+- Coordinator-owned verification fronts: current exact-head evidence binding, Supabase staging truth/security, production/deployment verification, resilience/evidence control, and commercial-gap control.
+- Rule: do not restart closed work. Resume IN_PROGRESS fronts from their last verified checkpoint. Do not mix evidence across SHA boundaries.
+- Rule: independent fronts must run in parallel; a queued CI workflow or external provider blocker must not idle unrelated work.
 
 ### CURRENT MAIN — MATERIAL FRONT CLOSURE
 - PR #525 — security exposure checker bound to repository truth — merged.
