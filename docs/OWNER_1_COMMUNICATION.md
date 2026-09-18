@@ -819,3 +819,16 @@ DONE: Wave 17 Onboarding commercial truth integrity completed and handed off.
 OPEN: Owner 2 integration/runtime/release proof; Owner 1 next front remains independent product/UI hardening.
 BLOCKED: none.
 NEXT START: continue independent commercial/data-truth hardening.
+
+## START — COMMAND 16 — 2026-09-19
+START
+DATE: 2026-09-19T02:07+03:00
+OWNER: 1
+BRANCH: feat/owner1-inventory-truth-wave18-20260919
+HEAD: 86b429c5cb3b7786b7df51428ded422e86967267
+BASE: 86b429c5cb3b7786b7df51428ded422e86967267
+OBJECTIVE: توحيد سياق الحقيقة في Inventory Intelligence اعتمادًا على المصدر الحالي دون RPC/DB جديد، مع تمييز CALCULATED/INSUFFICIENT_DATA وعدم تصنيع as-of.
+FILES / SURFACES: src/pages/InventoryIntelligencePage.tsx; scripts/check-inventory-intelligence-truth-contract.mjs; package.json; docs/OWNER_1_COMMUNICATION.md
+DEPENDENCIES: fetchInventoryIntelligenceSource الحالي + applyReportMode؛ لا تغيير في boundary أو DB/RLS/Runner/Auth/Storage/CI.
+BLOCKERS: لا يوجد blocker تطويري معروف.
+EXPECTED HANDOFF: Owner 2 يعيد إثبات Inventory Intelligence/browser/runtime/release gates على Exact SHA؛ لا نقل Evidence بين SHAs.
