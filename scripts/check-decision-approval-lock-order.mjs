@@ -13,7 +13,11 @@ function latestBody(name) {
   const next = sql.indexOf('\nCREATE OR REPLACE FUNCTION', start + 1);
   return sql.slice(start, next < 0 ? sql.length : next);
 }
-const pos = (body, needle, from = 0) => body.indexOf(needle, from);
+const pos = (body, needle, from = 0) => body.toLowerCase().indexOf(needle.toLowerCase(), from);
+
+if (pos('FROM public.business_intelligence_decisions', 'from public.business_intelligence_decisions') !== 0) {
+  throw new Error('lock-order parser must be case-insensitive for SQL keywords and relation references');
+}
 const lockCount = (body) => (body.replace(/--[^\n]*|\/\*[\s\S]*?\*\//g, '').match(/\bfor\s+update\b/gi) ?? []).length;
 
 const request = latestBody('request_decision_approval');
