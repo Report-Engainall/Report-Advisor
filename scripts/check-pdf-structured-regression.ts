@@ -129,7 +129,7 @@ async function main(): Promise<void> {
       'INV-LEGACY',
     );
     await assertStructuredPdf(
-      'رقم الفاتورة: INV-AR التاريخ: ٢٠٢٦-٠٩-١٥ اسم العميل: Test Customer المجموع الفرعي: ١٢ الضريبة: ٣ الإجمالي: ١٥ العملة: YER',
+      'Invoice Number: INV-AR Date: 2026-09-15 Customer Name: Test Customer Subtotal: ١٢ Tax: ٣ Total: ١٥ Currency: YER',
       'INV-AR',
     );
 
