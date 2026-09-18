@@ -89,6 +89,17 @@ export function DecisionExperiencePage() {
   const selected = recommendations.find(r => r.id === selectedId) ?? null;
   const selectedAlert = alerts.find(a => a.id === selectedAlertId) ?? null;
   const selectedSignal = selected || selectedAlert;
+  const primarySignal = (() => {
+    const rank = (value: string) => ({ critical: 4, high: 3, warning: 2, medium: 2, low: 1, opportunity: 1 }[value.toLowerCase()] ?? 0);
+    const alert = [...alerts].sort((a, b) => rank(b.severity) - rank(a.severity))[0];
+    const recommendation = [...recommendations].filter(r => r.status === 'new' || r.status === 'accepted').sort((a, b) => rank(b.priority) - rank(a.priority))[0] ?? [...recommendations].sort((a, b) => rank(b.priority) - rank(a.priority))[0];
+    if (!alert && !recommendation) return null;
+    if (!recommendation) return { kind: 'alert' as const, item: alert! };
+    if (!alert) return { kind: 'recommendation' as const, item: recommendation };
+    return rank(alert.severity) >= rank(recommendation.priority)
+      ? { kind: 'alert' as const, item: alert }
+      : { kind: 'recommendation' as const, item: recommendation };
+  })();
   const stageIndex = Math.max(0, stages.findIndex(s => s.id === stage));
 
   const go = (next: Stage, recommendationId = selectedId, alertId = selectedAlertId) => {
@@ -123,6 +134,10 @@ export function DecisionExperiencePage() {
       <div className="mt-4 h-1 overflow-hidden rounded-full bg-ink-100" aria-label="تقدم دورة القرار" role="progressbar" aria-valuemin={1} aria-valuemax={stages.length} aria-valuenow={stageIndex + 1}>
         <div className="h-full rounded-full bg-primary-600 transition-all duration-300" style={{ width: ((stageIndex + 1) / stages.length) * 100 + '%' }} />
       </div>
+      {primarySignal && <div className="mt-4 flex flex-col gap-3 rounded-[10px] border border-primary-200 bg-primary-50/70 p-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0"><div className="surface-label">هدف القرار الأول</div><div className="mt-1 truncate text-sm font-bold text-ink-900">{primarySignal.item.title}</div><div className="mt-1 text-[10px] text-primary-800">{primarySignal.kind === 'alert' ? priorityLabel((primarySignal.item as Alert).severity) : priorityLabel((primarySignal.item as Recommendation).priority)} · من المصدر الكانوني</div></div>
+        <button type="button" onClick={() => primarySignal.kind === 'alert' ? selectAlert(primarySignal.item.id) : selectRecommendation(primarySignal.item.id)} className="btn-primary shrink-0 text-xs">افتح الدليل</button>
+      </div>}
       {selectedSignal && <div className="mt-4 flex flex-col gap-2 rounded-[10px] border border-warning-200 bg-warning-50/60 p-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0"><div className="surface-label">{selected ? 'التوصية المحددة' : 'التنبيه المحدد'}</div><div className="mt-1 truncate text-sm font-bold text-ink-900">{selectedSignal.title}</div></div>
         <span className="shrink-0 text-[10px] font-bold text-warning-800">الإشارة المصدرية ليست بديلًا عن evidence</span>
