@@ -12,7 +12,7 @@ for (const target of targets) {
   if (forbidden.test(text)) violations.push(target);
   if (target === 'src/pages/CanonicalImportPage.tsx') {
     if (/\bupdateImportRecord\s*\(/.test(text)) violations.push(`${target}:updateImportRecord`);
-    if (!text.includes("supabase.rpc('import_finish_job'")) violations.push(`${target}:import_finish_job`);
+    if (/supabase\s*\.\s*rpc\s*\(\s*['"]import_finish_job['"]/.test(text)) violations.push(`${target}:import_finish_job_direct_rpc`);
   }
 }
 
