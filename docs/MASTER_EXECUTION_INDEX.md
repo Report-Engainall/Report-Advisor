@@ -3,7 +3,7 @@
 > تحديث تنفيذي بعد أمر المالك «انطلق». هذا القسم يصف الحالة المثبتة من الأدوات فقط. لا يتم نقل Evidence بين SHAs، ولا تُعد الحالة PASS إلا بدليل Exact-HEAD.
 
 ### CURRENT EXACT HEAD / DEPLOYED STATE
-- **Current code/test candidate:** `bf0a4ae86ab82c9e429117551d4a717993c85f4c` (current UI integration head; subsequent documentation-only binding remains governance-only).
+- **Current code/test candidate:** `00e9501fd757e04a0d74d0486850c9951c0eda17` (current UI integration head; subsequent documentation-only binding remains governance-only).
 - **Reference product/runtime code HEAD:** `c11c084d161cceb4595f8552b6c49c3f610f0ec2`; current `main` also carries the forward-only security/source-parity migrations merged afterward.
 - **Current main:** `7d6bca3c02416c9b6c877e82115eb9961f635a47`; this includes the forward-only security/source-parity merge `64c870426...` plus the closure-ledger docs sync. Product feature code remains anchored to the earlier runtime code reference until PR #587 is accepted.
 - **Netlify Production:** latest verified production deploy `6aacfe23cc817a00089dce5c` = `ready`, branch `main`, but still points to commit `ad12e9e564f85ffde8bb29daa6e41e73ca969b92`, which predates current `main`. Public access remains verified without Netlify SSO/password. Connector-side redeploy requires a source/repo execution environment.
