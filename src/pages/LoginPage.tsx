@@ -9,6 +9,14 @@ const principles = [
   { icon: CheckCircle2, title: 'العزل قبل الراحة', text: 'الهوية والصلاحيات وبيانات الشركة تُثبت قبل فتح المساحة التشغيلية.' },
 ];
 
+const competitiveProofLanes = [
+  { title: 'Evidence-First BI', text: 'مؤشر لا يُعرض وحده: تعريفه ومصدره ودليله ومسار القرار.', state: 'مسار منتج' },
+  { title: 'Governed Excel / CSV', text: 'من ملف العميل إلى بيانات كانونية بدل إدخال يدوي أو ETL عام.', state: 'مسار منتج' },
+  { title: 'Arabic RTL B2B UX', text: 'تجربة عربية أصلية، mobile وlow-bandwidth داخل workflows حقيقية.', state: 'مسار منتج' },
+  { title: 'Inventory / Receivables', text: 'من الإشارة التشغيلية إلى التفسير ثم القرار والإجراء.', state: 'مسار منتج' },
+  { title: 'Supabase Tenant Security', text: 'RLS وعزل المستأجرين مع إثبات رفض cross-tenant.', state: 'إثبات runtime مطلوب' },
+];
+
 export function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -42,6 +50,18 @@ export function LoginPage() {
               <p className="mt-5 max-w-xl text-sm leading-8 text-slate-300">من المستند والاستيراد، إلى جودة البيانات والتحليلات والذكاء والتوصية، ثم القرار والتنفيذ والتقرير التنفيذي — داخل نظام واحد وبهوية عربية أصلية.</p>
               <div className="mt-8 grid gap-3 sm:grid-cols-2">
                 {principles.map(({ icon: Icon, title, text }) => <div key={title} className="rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur"><div className="flex items-center gap-2 text-sm font-black"><Icon size={17} className="text-primary-300"/>{title}</div><p className="mt-2 text-xs leading-6 text-slate-400">{text}</p></div>)}
+              </div>
+              <div className="mt-5 rounded-2xl border border-primary-300/15 bg-primary-500/5 p-4">
+                <div className="flex items-center gap-2 text-xs font-black text-primary-100"><Sparkles size={14}/> خمس طرق محددة لمنافسة المشاريع الأكبر</div>
+                <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                  {competitiveProofLanes.map(lane => <div key={lane.title} className="rounded-xl border border-white/10 bg-white/[0.04] p-3">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="text-xs font-black text-white">{lane.title}</div>
+                      <span className="rounded-full bg-white/5 px-2 py-1 text-[9px] font-bold text-primary-200">{lane.state}</span>
+                    </div>
+                    <p className="mt-1.5 text-[11px] leading-5 text-slate-400">{lane.text}</p>
+                  </div>)}
+                </div>
               </div>
             </div>
           </div>
