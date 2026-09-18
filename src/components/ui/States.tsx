@@ -45,12 +45,12 @@ export function PageHeader({ title, subtitle, actions }: { title: string; subtit
 
 export function TruthRail({ status = 'live', period }: { status?: 'live' | 'review' | 'limited'; period?: string }) {
   const map = {
-    live: { label: 'البيانات قابلة للاستخدام', tone: 'success-600', text: 'المؤشرات تعرض من المصدر الكانوني الحالي.' },
-    review: { label: 'المراجعة مطلوبة', tone: 'warning-600', text: 'هناك حالات أو فجوات يجب مراجعتها قبل اتخاذ القرار.' },
-    limited: { label: 'بيانات محدودة', tone: 'ink-500', text: 'لن يتم تعويض النقص بقيم تقديرية غير مثبتة.' },
+    live: { label: 'البيانات قابلة للاستخدام', tone: 'text-success-600', text: 'المؤشرات تعرض من المصدر الكانوني الحالي.' },
+    review: { label: 'المراجعة مطلوبة', tone: 'text-warning-600', text: 'هناك حالات أو فجوات يجب مراجعتها قبل اتخاذ القرار.' },
+    limited: { label: 'بيانات محدودة', tone: 'text-ink-500', text: 'لن يتم تعويض النقص بقيم تقديرية غير مثبتة.' },
   } as const;
   const current = map[status];
-  return <div className="truth-strip text-xs" role="status" aria-live="polite"><span className="truth-dot" /><span className={`font-black text-${current.tone}`}>{current.label}</span><span className="text-ink-400">·</span><span className="text-ink-500">{current.text}</span>{period && <span className="mr-auto rounded-full bg-ink-100 px-2.5 py-1 text-[10px] font-bold text-ink-500">{period}</span>}</div>;
+  return <div className="truth-strip text-xs" role="status" aria-live="polite"><span className="truth-dot" /><span className={`font-black ${current.tone}`}>{current.label}</span><span className="text-ink-400">·</span><span className="text-ink-500">{current.text}</span>{period && <span className="mr-auto rounded-full bg-ink-100 px-2.5 py-1 text-[10px] font-bold text-ink-500">{period}</span>}</div>;
 }
 
 export function SkeletonCard() {
