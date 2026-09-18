@@ -6,9 +6,9 @@
 
 ### CURRENT EXACT HEAD
 - Governed Main: `9bd7243c8864ca5bcf431b14a7c2eb35c698de7c`.
-- Current code/test candidate: `672c17deb40fede8e272dd4f7f1e831f2fcad82a`.
-- The current candidate additionally closes the canonical import job as `failed` when the authenticated server boundary itself fails, preserving terminal ownership at the canonical finish path while rethrowing the primary boundary error.
-- The exact-head browser runtime now uses Vercel Dev for `/api/*` serverless boundaries, with the server-only Supabase service key supplied only from GitHub Secrets and never committed.
+- Current code/test candidate: `40946871af0a0f2c06c15b141ef9896022f5926f`.
+- The current candidate additionally closes the canonical import job as `failed` when the authenticated server boundary itself fails, preserving terminal ownership at the canonical finish path while rethrowing the primary boundary error, and guards that server boundary against service-role dependency.
+- The exact-head browser runtime uses Vercel Dev for `/api/*` serverless boundaries, while the canonical import server boundary uses the authenticated user JWT with the public anon key under tenant RLS; no service-role secret is required for this path.
 - Storage tenant runtime proof was hardened to verify post-attempt object persistence, because a raw multi-delete HTTP success can be non-mutating under RLS; certification now requires the owner object to remain readable after every cross-tenant delete attempt.
 - The candidate includes the canonical private Staging `documents` bucket migration (`20260918070000_canonical_private_documents_bucket.sql`) and the exact-head Storage Tenant Runtime E2E binding to that canonical bucket.
 - PR #567 is the active open certification path on branch `fix/pdf-structured-runtime-final-20260918`; PR #560 was closed during the forced branch rebind and is historical only.
