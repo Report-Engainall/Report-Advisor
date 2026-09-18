@@ -29,7 +29,53 @@ Completion requires:
 - operational documentation updated;
 - next unblocked front started automatically.
 
-## 3. Exact-HEAD Evidence
+## 3. Head Identity, Candidate Control, and Handoff
+
+Every execution, commit, PR, and report MUST identify the governed repository head before making a state claim.
+
+Required report header, in this exact order:
+
+`Branch:`
+`SHA:`
+`Role:`
+`Base:`
+`Certification Candidate: YES/NO`
+
+The governed names are:
+- `MAIN HEAD` — `main`; protected production; no direct mutation.
+- `UI HEAD` — `ui/*`; Owner 1 product/UI development; never a certification head.
+- `INTEGRATION HEAD` — `integration/certification-*`; Owner 2 integration/runtime/certification; the only certification candidate class.
+
+No other branch is a certification head. A developer worktree branch may exist, but it MUST be reported as non-certification and MUST NOT be used as release evidence.
+
+Before every execution that can change or report repository state, run and record:
+
+`git ls-remote origin refs/heads/main refs/heads/ui/<target> refs/heads/integration/certification-<target>`
+
+Then match the resolved remote SHA to the report SHA before proceeding. Local `git rev-parse HEAD` alone is insufficient.
+
+After every integration merge, record all three refs explicitly:
+
+`INTEGRATION HEAD=<full SHA>`
+`UI HEAD=<full SHA>`
+`MAIN HEAD=<full SHA>`
+
+A handoff MUST end with:
+
+`NEXT HANDOFF`
+`Target branch:`
+`Expected action:`
+`SHA to verify after handoff:`
+
+A UI handoff becomes a new integration candidate only after the change is actually merged into `integration/certification-*`. Runtime and certification proof then applies to the resulting integration SHA only.
+
+No report may use the phrase `CURRENT EXACT HEAD` as a standalone identity. Use `MAIN HEAD`, `UI HEAD`, or `INTEGRATION HEAD` with the full SHA instead.
+
+Evidence from an earlier SHA, a UI branch, or a previous deployment is historical unless the exact current integration SHA is independently reproven. Any code/config/migration/workflow change after a certification candidate creates `NEEDS_REPROOF` for affected gates; prior PASS is never silently retained.
+
+Do not reopen closed checks unless SHA, environment, dependency, contract, or relevant implementation changed.
+
+## 4. Exact-HEAD Evidence
 
 Evidence is valid only when it is bound to:
 - exact commit SHA;

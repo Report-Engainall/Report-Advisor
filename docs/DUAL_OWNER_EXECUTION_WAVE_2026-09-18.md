@@ -3,6 +3,46 @@
 
 This document is the live ownership boundary for command `2`. It is intentionally separate from `docs/MASTER_EXECUTION_INDEX.md` so the execution index is not churned during active remediation.
 
+## Mandatory Head Identity Protocol
+
+Every execution, commit, PR, handoff, and report follows `docs/PROGRAMMER_AUTONOMOUS_OPERATING_PROTOCOL.md` section 3.
+
+Required report header:
+
+`Branch:`
+`SHA:`
+`Role:`
+`Base:`
+`Certification Candidate: YES/NO`
+
+Governed identities:
+- `MAIN HEAD` — `main` — production/protected.
+- `UI HEAD` — `ui/*` — Owner 1 development; never certification.
+- `INTEGRATION HEAD` — `integration/certification-*` — Owner 2 integration/certification candidate.
+
+Required preflight before execution/reporting:
+
+`git ls-remote origin refs/heads/main refs/heads/ui/* refs/heads/integration/certification-*`
+
+Then run `npm run check:head-identity -- --branch <branch> --sha <full-sha> --role <role> --base <base> --candidate YES|NO` and keep the output with the execution record.
+
+### Current verified ref snapshot before this policy commit
+
+`INTEGRATION HEAD=cbe8d0b0858bc7d45ba05bb43b346943daa108c4`
+`UI HEAD=424877dc9602f8f0a7db21c1ecd21c09accfdbcc`
+`MAIN HEAD=1568e43889d27b5d850e64c0b99d03a994fd3bbe`
+
+This snapshot is historical immediately after the next commit. The resulting integration SHA becomes a new candidate and requires fresh affected-gate proof.
+
+### Mandatory handoff footer
+
+`NEXT HANDOFF`
+`Target branch:`
+`Expected action:`
+`SHA to verify after handoff:`
+
+No branch other than `main`, `ui/*`, or `integration/certification-*` may be presented as a governed certification head. Historical reports with another SHA remain historical only.
+
 ## Owner 1 — ChatGPT / Product & UI Engineering
 
 **Primary responsibility:** continue real product development in parallel with runtime certification work. Do not wait for programmer gates when an independent source/UI task is actionable.
