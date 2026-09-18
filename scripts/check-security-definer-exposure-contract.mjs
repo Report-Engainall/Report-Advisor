@@ -92,7 +92,6 @@ for (const worker of serviceOnlyReportWorkerSecurityDefiners) {
   for (const token of worker.requiredTokens) if (!token.test(window)) failures.push(`${worker.name}: required worker runtime invariant missing: ${token}`);
   assertServiceOnly(worker.name, worker.args);
 }
-}
 
 for (const check of criticalOperationalSecurityDefiners) {
   const window = getFunctionWindow(check.name);
