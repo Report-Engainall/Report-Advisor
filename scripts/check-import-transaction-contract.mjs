@@ -74,8 +74,36 @@ if (/batchSize|for \(let i = 0; i < reconciled\.rows\.length/.test(adapter)) {
 if (!/enqueue_report_execution_job/.test(adapter) || !/p_source_hash:\s*input\.sourceHash/.test(adapter)) {
   throw new Error('Canonical durable adapter must enqueue a source-bound durable job');
 }
+if (!/\/api\/canonical-import-execute/.test(adapter) || !/Authorization:.*accessToken/.test(adapter)) {
+  throw new Error('Canonical browser import must route durable worker authority through the authenticated server boundary');
+}
+if (!/serverExecution\?: boolean/.test(adapter) || !/workerClient\?: SupabaseClient/.test(adapter) || !/dataClient\?: SupabaseClient/.test(adapter)) {
+  throw new Error('Canonical durable adapter must separate service-role worker client from authenticated data client');
+}
+if (!/commitImportBatch\(input\.entityType, input\.rows, input\.sourceHash, \{ client: dataClient, companyId \}\)/.test(adapter)) {
+  throw new Error('Canonical import commit must remain tenant-bound to the authenticated data client');
+}
 if (!/IMPORT_DURABLE_JOB_ALREADY_RUNNING/.test(adapter)) {
   throw new Error('Canonical durable adapter must fail closed when the same durable import is already running');
+}
+
+const serverAdapterPath = path.join(root, 'api', 'canonical-import-execute.ts');
+if (!fs.existsSync(serverAdapterPath)) throw new Error('Canonical durable import server boundary is missing');
+const serverAdapter = fs.readFileSync(serverAdapterPath, 'utf8');
+for (const token of [
+  "requireMethod(req, res, 'POST')",
+  "requireConfig(res, ['SUPABASE_URL', 'SUPABASE_SERVICE_ROLE_KEY', 'VITE_SUPABASE_ANON_KEY'])",
+  "Authorization",
+  "current_company_id",
+  "SUPABASE_SERVICE_ROLE_KEY",
+  "serverExecution: true",
+  "workerClient",
+  "dataClient",
+]) {
+  if (!serverAdapter.includes(token)) throw new Error(`Canonical server execution boundary missing: ${token}`);
+}
+if (/grant execute on function public\\.(claim|heartbeat|advance|complete|fail|retry)_report_execution_job[^\\n]*to authenticated/i.test(serverAdapter)) {
+  throw new Error('Canonical server boundary must not add authenticated worker RPC grants');
 }
 
 const pagePath = path.join(root, 'src', 'pages', 'CanonicalImportPage.tsx');
@@ -83,6 +111,12 @@ if (fs.existsSync(pagePath)) {
   const page = fs.readFileSync(pagePath, 'utf8');
   if (!/runCanonicalImportThroughDurableRunner/.test(page) || /import \{[^}]*commitImportBatch/.test(page)) {
     throw new Error('Canonical import UI must route through the durable adapter and not invoke the batch RPC wrapper directly');
+  }
+  if (!/supabase\.rpc\('import_finish_job'/.test(page)) {
+    throw new Error('Canonical import UI must close terminal state only through import_finish_job');
+  }
+  if (/updateImportRecord\([^\n]*(status:\s*['"](?:completed|failed|partial|cancelled)['"])/.test(page)) {
+    throw new Error('Canonical import UI must not directly write terminal import status');
   }
   if (!/const durableSourceHash = `sha256:\$\{fileHash\}`/.test(page)) {
     throw new Error('Canonical import UI must bind the computed file hash to the durable SHA-256 source identity');
