@@ -32,6 +32,7 @@ on:
       - 'scripts/run-full-product-browser-e2e.mjs'
       - 'scripts/real-business-e2e.mjs'
       - 'scripts/verify-live-business-evidence.mjs'
+      - 'scripts/exact-head-browser-test-server.mjs'
       - '.github/workflows/full-product-browser-e2e.yml'
       - 'src/lib/dashboard-canonical.ts'
       - 'src/lib/kpi-evidence.ts'
