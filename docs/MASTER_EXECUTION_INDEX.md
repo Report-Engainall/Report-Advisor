@@ -25,13 +25,14 @@
 ### CURRENT PRODUCT WAVE UPDATE — PR #595
 - UI/product wave rebased directly onto current main fe5661060462ffa21d6aa31505f80c2021c4170a and opened as PR #595.
 - Superseded PR #587 is closed; no historical CI/evidence from #587 is treated as certification for #595.
-- Current PR head at latest execution sync: 98917b1598c4fdb0b9ac6066e43ffa25eb85bfb6.
+- Current PR head at latest execution sync: b983b29dcf8ed177f771d36ba82b5210b594bf26.
 - UI work included shell/header/sidebar/command palette, dashboard truth context, Intelligence assistant, decision stage UX/deep-link synchronization, Data Quality, Executive Command Center/Report, Metric Inspector, Alternatives and Work Center refinements.
 - Shared E2E login harness fixed to target the semantic form submit control instead of the obsolete localized login-label text.
 - Dashboard truth adversarial regression contract made whitespace-tolerant without weakening the intended semantic guard.
 - PR #595 is based directly on current main; fresh exact-head CI is authoritative.
 
 ### LATEST UI SURFACE UPDATE — PR #595
+- Canonical Import visible durable-job label localized; import workflow remains on the existing authoritative lifecycle and RPC path.
 - Full navigation parity verified: Router 33 non-wildcard routes ↔ Command Palette 33 paths ↔ Sidebar 33 links; Header labels cover all non-root routes.
 - PWA verification: current preview exposes service worker v2 with app-shell/offline navigation fallback; source manifest is Arabic RTL, standalone, and scoped to root.
 - Route/sidebar parity verified after the latest nav fix: 34 application routes, 33 sidebar links (wildcard excluded), no missing or duplicate paths.
