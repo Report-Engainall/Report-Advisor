@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { PageHeader, LoadingState, ErrorState } from '@/components/ui/States';
+import { TruthContextStrip } from '@/components/TruthContextStrip';
 import { DataTable } from '@/components/ui/DataTable';
 import { fetchReceivablesReportSnapshot, type ReceivablesReportRow, type ReceivablesReportSnapshot } from '@/lib/receivables-truth';
 import { formatCurrency, formatNumber, formatDate } from '@/lib/format';
@@ -33,6 +34,7 @@ export function ReceivablesReportPageCanonical() {
 
   return <div className="space-y-6 animate-fade-in">
     <PageHeader title="تقرير الذمم والتحصيل" subtitle="الإجمالي وأعمار الذمم من تجميع خادمي؛ الجدول صفحة عرض فقط" />
+    <TruthContextStrip status={snapshot.status} asOf="غير متاحة من المصدر" asOfLabel="حداثة المصدر" rangeLabel="لقطة الذمم القانونية الحالية" />
     <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
       <Card><CardBody><div className="text-xs text-ink-500 mb-1">إجمالي الذمم</div><div className="text-xl font-bold text-ink-900">{formatCurrency(snapshot.totalOutstanding)}</div></CardBody></Card>
       {bucketCards.map(([bucket, amount]) => <Card key={bucket}><CardBody><div className="text-xs text-ink-500 mb-1">{bucket} يوم</div><div className="text-lg font-bold text-ink-900">{formatCurrency(amount)}</div></CardBody></Card>)}
