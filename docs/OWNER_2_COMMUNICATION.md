@@ -114,3 +114,11 @@ NEXT HANDOFF:
 - Expected action: merge/pick e027a839 into integration, producing a NEW exact SHA; rerun Final Certification Gate on that new SHA.
 - Then continue live runtime/backup/restore/release gates independently.
 - Evidence from 0eab10cd is not transferred to the new SHA.
+
+## START | OWNER=2 | DATE=2026-09-19T00:53+03:00
+BRANCH=integration/certification-candidate-20260918
+HEAD=4a79e23faffd39c96c3839d1e15fe543465930cf
+OBJECTIVE=إغلاق مسار Full Product Browser الحقيقي بعد إثبات أن إعادة تشغيل c9029723 ما زالت ترى REPORT_ADVISOR_SUPABASE_SERVICE_ROLE_KEY=MISSING؛ نقل التنفيذ إلى الرأس 4a79 الذي يربط الوظيفة بـ GitHub Environment staging ثم متابعة التشغيل والإطلاق دون نقل Evidence.
+RUNTIME_ENV=Supabase staging fnqbvfuwbdpwvhcgzksl; GitHub Actions; integration candidate
+BLOCKERS=c902 rerun remained secret-missing; 4a79 requires fresh trigger after secret provisioning; Phase-F live endpoints; exact deployed-SHA parity; backup/RPO-RTO proof.
+NEXT=Retrigger exact-head Full Product on a successor of 4a79; then close independent release fronts.
