@@ -63,7 +63,7 @@ A preview deployment is not production proof.
 
 # 2. LIVE EXECUTION HEADER
 
-Last material update: 2026-09-18T04:25Z
+Last material update: 2026-09-18T04:35Z
 Current Main: a32fae0fc08c1cbbcc60b6eedfb0f4bd74a21c50
 Primary environment: Supabase staging fnqbvfuwbdpwvhcgzksl
 Production URL: https://report-advisor.vercel.app
@@ -387,3 +387,9 @@ without asking the user to reconstruct project history.
 - Added `docs/EXECUTION_START_HERE.md` as the single durable launchpoint for new agents.
 - The entrypoint directs every cycle to both operational-memory files, exact GitHub head verification, fail-closed execution, evidence recording, and the next independent queue item.
 - This reduces the operational role of chat/pasted reports to transport only; repository state remains authoritative.
+
+### 2026-09-18T04:35Z — Security front scope verified
+- #539 diff from Main remains scoped to governance index, security-definer/TOCTOU checkers, security migrations, and the authenticated browser login convergence fix.
+- The browser change replaces a fixed 1500ms post-login wait with bounded auth-session convergence; it is independent of PDF/parser work and does not broaden the security migration scope.
+- `git diff --check` passes on the complete #539 diff.
+- Current #539 head remains `5f636860eee883037e5c0ae2f4444cd6f753aa36`; fresh CI is still queued/active with no completed failures on this exact head.
