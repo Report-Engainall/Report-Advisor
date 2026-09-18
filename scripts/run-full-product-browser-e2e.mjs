@@ -104,18 +104,32 @@ async function login(targetPage, email, password) {
   // cannot veto a real browser session that successfully receives the password-grant response.
   result.authNetworkProbe = { status: 'NOT_RUN', reason: 'BROWSER_AUTH_AUTHORITATIVE' };
 
-  const authResponsePromise = targetPage.waitForResponse(
-    response =>
-      response.request().method() === 'POST' &&
-      response.url().includes('/auth/v1/token?grant_type=password'),
-    { timeout: 30000 },
-  ).catch(() => null);
+  let authResponse = null;
+  for (let attempt = 1; attempt <= 2; attempt += 1) {
+    if (attempt > 1) {
+      await targetPage.goto(baseURL, { waitUntil: 'domcontentloaded', timeout: 30000 });
+      await targetPage.locator('#login-email').fill(email);
+      await targetPage.locator('#login-password').fill(password);
+    }
+    const authResponsePromise = targetPage.waitForResponse(
+      response =>
+        response.request().method() === 'POST' &&
+        response.url().includes('/auth/v1/token?grant_type=password'),
+      { timeout: 30000 },
+    ).catch(() => null);
+    const loginSubmit = targetPage.locator('form button[type="submit"]');
+    if (!(await loginSubmit.count())) throw new Error('LOGIN_SUBMIT_NOT_FOUND');
+    await loginSubmit.click();
+    const candidate = await authResponsePromise;
+    if (candidate && [429, 500, 502, 503, 504].includes(candidate.status()) && attempt < 2) {
+      await targetPage.waitForTimeout(2500);
+      continue;
+    }
+    authResponse = candidate;
+    if (authResponse || attempt === 2) break;
+    await targetPage.waitForTimeout(2500);
+  }
 
-  const loginSubmit = targetPage.locator('form button[type="submit"]');
-  if (!(await loginSubmit.count())) throw new Error('LOGIN_SUBMIT_NOT_FOUND');
-  await loginSubmit.click();
-
-  const authResponse = await authResponsePromise;
   if (!authResponse) {
     throw new Error('AUTH_TOKEN_RESPONSE_TIMEOUT');
   }
