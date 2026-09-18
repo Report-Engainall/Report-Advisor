@@ -104,7 +104,8 @@ export function MetricInspectorPage() {
   }
 
   const governance = selected?.governance;
-  const freshness = semanticMetricIsFresh(governance ?? null, null);
+  const freshnessAsOf = capture?.observed_at ?? null;
+  const freshness = semanticMetricIsFresh(governance ?? null, freshnessAsOf);
   const selectedCanCapture = Boolean(
     selected?.definition.metricId && resolveKpiEvidenceKey(selected.definition.metricId),
   );
