@@ -27,10 +27,14 @@ async function resolveCurrentCompany(token: string): Promise<string | null> {
   return typeof value === 'string' && value ? value : null;
 }
 
-function parseBody(req: any): unknown {
+async function parseBody(req: any): Promise<unknown> {
   if (req.body && typeof req.body === 'object') return req.body;
   if (typeof req.body === 'string' && req.body.trim()) return JSON.parse(req.body);
-  throw new Error('request_body_required');
+
+  const chunks: Buffer[] = [];
+  for await (const chunk of req) chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
+  if (!chunks.length) throw new Error('request_body_required');
+  return JSON.parse(Buffer.concat(chunks).toString('utf8'));
 }
 
 function validateInput(value: unknown): DurableCanonicalImportInput {
@@ -69,7 +73,7 @@ export default async function handler(req: any, res: any) {
       return;
     }
 
-    const input = validateInput(parseBody(req));
+    const input = validateInput(await parseBody(req));
     const dataClient = createClient(process.env.SUPABASE_URL!.trim(), process.env.VITE_SUPABASE_ANON_KEY!.trim(), {
       auth: { autoRefreshToken: false, persistSession: false, detectSessionInUrl: false },
       global: { headers: { Authorization: `Bearer ${token}` } },
