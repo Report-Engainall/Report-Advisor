@@ -635,3 +635,13 @@ Historical evidence from 66d is not promoted to 51c.
 - PR #542 branch HEAD: `a346e68ff06cb452eff64d98a8b9980142a7daef`.
 - Governed code/test candidate: `51c71124c6b90f98f4659e8d79efabf800a5cc1c`.
 - Certification remains FAIL-CLOSED.
+
+
+## 28. Security Research Record — 2026-09-18
+
+- Question: Should the 49 authenticated-callable SECURITY DEFINER warnings be closed by blanket revocation?
+- Authoritative reference reviewed: current Supabase Database Functions / API security guidance.
+- Decision: no blanket revocation. Function EXECUTE must be granted only to roles that genuinely need the function; SECURITY DEFINER must be explicitly justified and protected by a pinned search_path and authorization checks.
+- Applied to Report-Advisor: classify the release-critical report-runtime RPCs by actual caller intent, then prove or restrict each boundary.
+- Research supports the existing fail-closed decision to preserve legitimate authenticated business functions while independently closing worker-only exposure where proven.
+- Separate external hardening item remains open: Supabase Auth leaked-password protection (Issue #354).
