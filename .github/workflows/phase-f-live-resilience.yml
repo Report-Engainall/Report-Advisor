@@ -6,7 +6,7 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: phase-f-live-resilience-${{ github.event.pull_request.number || github.ref_name }}
+  group: phase-f-live-resilience
   cancel-in-progress: true
 jobs:
   certify:
