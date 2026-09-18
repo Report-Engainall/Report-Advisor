@@ -58,7 +58,9 @@ function assertSourceHash(rows: ReconciledCanonicalImportRow[], sourceHash: stri
   }
 }
 
-interface CanonicalServerExecutionResult { jobId: string; importId: string; [key: string]: unknown }\n\nasync function executeThroughServerBoundary(input: DurableCanonicalImportInput): Promise<CanonicalServerExecutionResult> {
+interface CanonicalServerExecutionResult { jobId: string; importId: string; [key: string]: unknown }
+
+async function executeThroughServerBoundary(input: DurableCanonicalImportInput): Promise<CanonicalServerExecutionResult> {
   const { supabase } = await import('../supabase');
   const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
   const accessToken = sessionData.session?.access_token;
