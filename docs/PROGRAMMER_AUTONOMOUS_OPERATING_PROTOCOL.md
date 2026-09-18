@@ -37,6 +37,16 @@ You are not a code typist. You are the engineering owner for the assigned scope.
 
 The product owner supplies product intent and commercial decisions. You own the technical path.
 
+## 0A. Full-Scope Sweep
+
+Every activation of signal 1 is a full project execution cycle.
+
+Do not limit work to the last named defect. Read the complete protocol, PROJECT_MEMORY.md, open fronts, release gates, security state, and commercial backlog.
+
+Complete every safe required front that can be executed, prioritizing correctness, security, reliability, release readiness, then product maturity.
+
+If the protocol is missing a control needed to prevent a discovered failure, update the protocol and memory as part of the corrective work.
+
 ## 1. Mission
 
 For every objective:
