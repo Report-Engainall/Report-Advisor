@@ -6,7 +6,7 @@
 
 ### CURRENT EXACT HEAD
 - Governed Main: `9bd7243c8864ca5bcf431b14a7c2eb35c698de7c`.
-- Current code/test candidate: `40946871af0a0f2c06c15b141ef9896022f5926f`.
+- Current code/test candidate: `4d81099dabc9dfba5278afe9c5ec9e67d4daa837`.
 - The current candidate additionally closes the canonical import job as `failed` when the authenticated server boundary itself fails, preserving terminal ownership at the canonical finish path while rethrowing the primary boundary error, and guards that server boundary against service-role dependency.
 - The exact-head browser runtime uses Vercel Dev for `/api/*` serverless boundaries, while the canonical import server boundary uses the authenticated user JWT with the public anon key under tenant RLS; no service-role secret is required for this path.
 - Storage tenant runtime proof was hardened to verify post-attempt object persistence, because a raw multi-delete HTTP success can be non-mutating under RLS; certification now requires the owner object to remain readable after every cross-tenant delete attempt.
@@ -16,7 +16,7 @@
 - Fresh PC01 proof on predecessor `9dd3c86d...`: 20-stage release readiness PASS (20/20) and Windows-safe production-gate runtime PASS (integrity, typecheck, build). This proof is recorded as predecessor evidence and is not independently promoted as a runtime PASS for `f85a317c...`.
 - The production-gate runtime Windows fix is part of the current remediation lineage; the previous `C:\Program` process-launch defect is closed. The current candidate also includes the source-preservation contract rebind, worker-boundary contract rebind to the authenticated Supabase helper, security-definer exposure guard hardening to recognize effective `ALTER FUNCTION ... SET search_path` clauses, and the canonical private `documents` storage binding.
 - Staging schema-drift reconciliation `20260918060000_reconcile_import_job_row_tenant_schema.sql` remains verified live on Staging (migration `20260918053906`, compound tenant FK, required indexes, zero null tenant rows). The candidate additionally carries the forward-only private `documents` bucket migration; its current Staging application state must be proven by the exact-head storage E2E before certification.
-- Fresh exact-head GitHub PDF/OCR, Browser E2E, production-regression evidence, enforcement, and Final Certification remain mandatory.
+- Fresh exact-head GitHub PDF/OCR, Browser E2E, production-regression evidence, enforcement, and Final Certification remain mandatory. Browser E2E now uses the repository-resident HTTP test server and the actual `api/canonical-import-run.ts` handler, avoiding Vercel CLI authentication.
 - Current-head production deployment/cutover remains NOT PROVEN; no production mutation or alias change was performed.
 
 ### CURRENT EXECUTION CONTROL — 2026-09-18
