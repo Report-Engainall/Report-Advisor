@@ -163,3 +163,12 @@ NEXT HANDOFF:
 - After deployment, verify /api/canonical-import-execute returns its governed JSON auth response rather than SPA HTML/405, then rerun only the newly affected runtime gates.
 - Owner 1 target branch is now 6ef72084995b66b802a2097d55c1c22d82550d6d; do not assume previous UI SHA remains current.
 - Certification remains FAIL-CLOSED until the above runtime, backup/RPO-RTO, Phase-F, and deployed-SHA parity evidence exist on the exact release candidate.
+
+## START | OWNER=2 | DATE=2026-09-18T23:46+03:00
+BRANCH=ops/owner2-runtime-release-20260918
+HEAD=6968f70892c38d962e70c353d1ab68e798fc10b9
+OBJECTIVE=إغلاق سبب routing الذي يحجب Vercel Function /api عن business persistence، ثم إعادة إثبات runtime على Exact SHA دون نقل Evidence.
+FILES POTENTIALLY MODIFIED=vercel.json؛ scripts/tests فقط إذا أثبت الاختبار حاجة حقيقية.
+DEPENDENCIES=Vercel deployment access remains external; GitHub Actions runtime secrets remain unchanged.
+BLOCKERS=Exact deployed-SHA parity; Phase-F live endpoints; CI serverless execution path.
+NEXT=Inspect current vercel.json at exact HEAD → minimal routing fix → targeted validation → handoff with new SHA.
