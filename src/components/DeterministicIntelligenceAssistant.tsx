@@ -85,7 +85,7 @@ export function DeterministicIntelligenceAssistant({
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
               <h2 className="text-lg font-black text-ink-950">المساعد الذكي السياقي</h2>
-              <span className="inline-flex items-center gap-1 rounded-full bg-ink-50 px-2.5 py-1 text-[10px] font-bold text-ink-500"><Database size={11}/> Canonical context</span>
+              <span className="inline-flex items-center gap-1 rounded-full bg-ink-50 px-2.5 py-1 text-[10px] font-bold text-ink-500"><Database size={11}/> السياق الكانوني</span>
             </div>
             <p className="mt-1 text-xs leading-5 text-ink-500">إجابات حتمية من اللقطة الكانونية الحالية. لا يرسل بيانات الشركة إلى مزود AI خارجي ولا يخترع نتائج.</p>
           </div>
