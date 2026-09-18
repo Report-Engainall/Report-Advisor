@@ -12,7 +12,7 @@ import { securityScan, computeSHA256, checkDuplicate } from '@/lib/file-engine/s
 import { parseFile } from '@/lib/file-engine/adapters';
 import { FORMAT_LABELS, MAX_FILE_SIZE, type FileFormat, type Dataset } from '@/lib/file-engine/types';
 import { reconcileForCanonical } from '@/lib/import/canonical-truth-boundary';
-import { runCanonicalImportThroughDurableRunner } from '@/lib/import/canonical-production-adapter';
+import { finishCanonicalImportFailure, runCanonicalImportThroughDurableRunner } from '@/lib/import/canonical-production-adapter';
 
 type Step = 'upload' | 'scanning' | 'preview' | 'committing' | 'done';
 type EntityType = 'sales_invoices' | 'products' | 'customers';
@@ -125,6 +125,7 @@ export function CanonicalImportPage() {
     if (quality < 75 && !qualityApproved) { setError('جودة البيانات بين 50% و74% وتتطلب موافقة صريحة قبل الاستيراد.'); return; }
     setStep('committing'); setProgress(10); setError(null);
     let rec: Awaited<ReturnType<typeof createImportRecord>> | null = null;
+    let canonicalBoundaryStarted = false;
     try {
       const companyId = await resolveCurrentCompanyId();
       if (!companyId) throw new Error('TENANT_CONTEXT_REQUIRED');
@@ -132,16 +133,15 @@ export function CanonicalImportPage() {
       const durableSourceHash = `sha256:${fileHash}`;
       const reconciled = reconcileForCanonical(entityType, companyId, file.name, durableSourceHash, rec.id, (data, rowNumber) => `${durableSourceHash}:${rowNumber}:${JSON.stringify(data)}`, validRows.map(r => ({ rowNumber: r.rowNumber, data: r.data })));
       if (reconciled.rejected.length > 0) throw new Error(`CANONICAL_RECONCILIATION_REJECTED:${reconciled.rejected.map(r => `${r.rowNumber}:${r.reason}`).join(',')}`);
+      canonicalBoundaryStarted = true;
       const execution = await runCanonicalImportThroughDurableRunner({ importId: rec.id, fileName: file.name, sourceHash: durableSourceHash, entityType, rows: reconciled.rows, qualityScore: quality });
       setProgress(100);
-      const { error: finishError } = await supabase.rpc('import_finish_job', { p_job_id: rec.id, p_status: 'completed', p_result_summary: { total_rows: rows.length, committed: validRows.length, invalidRows: rows.length - validRows.length, jobId: execution.jobId, sourceHash: durableSourceHash } });
-      if (finishError) throw finishError;
       setResult({ total: rows.length, valid: validRows.length, invalid: rows.length - validRows.length, importId: rec.id, jobId: execution.jobId });
       setStep('done'); await loadHistory();
     } catch (e: any) {
       const failureMessage = e?.message || 'خطأ غير معروف';
-      if (rec?.id) {
-        try { await supabase.rpc('import_finish_job', { p_job_id: rec.id, p_status: 'failed', p_result_summary: {}, p_error_message: failureMessage }); } catch { /* preserve original import failure */ }
+      if (rec?.id && !canonicalBoundaryStarted) {
+        try { await finishCanonicalImportFailure(rec.id, failureMessage); } catch { /* preserve original failure */ }
       }
       setError(`فشل الاستيراد: ${failureMessage}`); setStep('preview');
     }
