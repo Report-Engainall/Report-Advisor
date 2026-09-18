@@ -15,10 +15,17 @@ for (const signature of [
   'fail_report_execution_job(p_job_id uuid,p_company_id uuid,p_worker_id text,p_lease_token uuid,p_error jsonb)',
   'recover_expired_report_execution_jobs(p_company_id uuid,p_limit integer default 100)',
   'retry_report_execution_job(p_job_id uuid,p_company_id uuid)',
-]) assert.ok(migration.includes(signature), \`missing worker signature: \${signature}\`);
+]) assert.ok(migration.includes(signature), 'missing worker signature: ' + signature);
 
-for (const rpc of ['claim_report_execution_job','heartbeat_report_execution_job','advance_report_execution_checkpoint','complete_report_execution_job','fail_report_execution_job','retry_report_execution_job']) {
-  assert.ok(adapter.includes(\`rpc('\${rpc}'\`), \`adapter missing \${rpc}\`);
+for (const rpc of [
+  'claim_report_execution_job',
+  'heartbeat_report_execution_job',
+  'advance_report_execution_checkpoint',
+  'complete_report_execution_job',
+  'fail_report_execution_job',
+  'retry_report_execution_job',
+]) {
+  assert.ok(adapter.includes("rpc('" + rpc + "'"), 'adapter missing ' + rpc);
 }
 
 assert.match(adapter, /leaseToken: string \| null/);
@@ -30,9 +37,26 @@ assert.match(runner, /store\.heartbeat\(input\.jobId, input\.workerId, leaseSeco
 assert.match(runner, /store\.saveCheckpoint\(input\.jobId, checkpoint\(following\), input\.workerId, tenantId\)/);
 assert.match(runner, /store\.retry\(input\.jobId, tenantId\)/);
 
-for (const fn of ['enqueue_report_execution_job','claim_report_execution_job','heartbeat_report_execution_job','advance_report_execution_checkpoint','complete_report_execution_job','fail_report_execution_job','recover_expired_report_execution_jobs','retry_report_execution_job']) {
-  assert.match(migration, new RegExp(\`revoke all on function public\\.\${fn}\`), \`worker RPC must revoke API-role EXECUTE: \${fn}\`);
-  assert.match(migration, new RegExp(\`grant execute on function public\\.\${fn}[^\\n]*to service_role\`, 'i'), \`worker RPC must grant service_role: \${fn}\`);
+for (const fn of [
+  'enqueue_report_execution_job',
+  'claim_report_execution_job',
+  'heartbeat_report_execution_job',
+  'advance_report_execution_checkpoint',
+  'complete_report_execution_job',
+  'fail_report_execution_job',
+  'recover_expired_report_execution_jobs',
+  'retry_report_execution_job',
+]) {
+  assert.match(
+    migration,
+    new RegExp('revoke all on function public\\.' + fn, 'i'),
+    'worker RPC must revoke API-role EXECUTE: ' + fn,
+  );
+  assert.match(
+    migration,
+    new RegExp('grant execute on function public\\.' + fn + '[^\\n]*to service_role', 'i'),
+    'worker RPC must grant service_role: ' + fn,
+  );
 }
 
 assert.equal((migration.match(/set search_path to 'pg_catalog'/g) ?? []).length, 8, 'all eight worker SECURITY DEFINER RPCs must pin search_path');
@@ -46,7 +70,11 @@ assert.match(migration, /max_attempts set not null/);
 assert.match(migration, /worker_attempts_exhausted_after_lease_expiry/);
 assert.match(migration, /drop function if exists public\.retry_report_execution_job\(uuid\)/);
 
-assert.doesNotMatch(browserAdapter, /durable-worker-adapter|runDurableProductionLifecycle|enqueue_report_execution_job|claim_report_execution_job|heartbeat_report_execution_job|advance_report_execution_checkpoint|complete_report_execution_job|fail_report_execution_job|retry_report_execution_job/, 'browser import path must not call worker-only report execution RPCs directly');
+assert.doesNotMatch(
+  browserAdapter,
+  /durable-worker-adapter|runDurableProductionLifecycle|enqueue_report_execution_job|claim_report_execution_job|heartbeat_report_execution_job|advance_report_execution_checkpoint|complete_report_execution_job|fail_report_execution_job|retry_report_execution_job/,
+  'browser import path must not call worker-only report execution RPCs directly',
+);
 assert.match(browserAdapter, /from\('import_job_rows'\)/);
 assert.match(browserAdapter, /\/api\/canonical-import-run/);
 assert.match(serverRunner, /runDurableProductionLifecycle/);
