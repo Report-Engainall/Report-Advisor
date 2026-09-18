@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { Brain, Lightbulb, TrendingUp, AlertTriangle, CheckCircle2, XCircle, Target, Zap, RefreshCw, ArrowLeft } from 'lucide-react';
+import { DeterministicIntelligenceAssistant } from '@/components/DeterministicIntelligenceAssistant';
 import { Link } from 'react-router-dom';
 import { Card, CardHeader, CardBody } from '@/components/ui/Card';
 import { SeverityBadge, PriorityBadge, ConfidenceBadge } from '@/components/ui/Badge';
