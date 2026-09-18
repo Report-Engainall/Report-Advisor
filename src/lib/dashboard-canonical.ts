@@ -117,7 +117,7 @@ export async function fetchABCSnapshot(limit = 500): Promise<ABCSnapshot> {
   if (!Number.isInteger(limit) || limit < 1 || limit > 500) throw new Error('REPORT_QUERY_INVALID_LIMIT');
   const { data, error } = await supabase.rpc('get_abc_snapshot', { p_limit: limit });
   if (error) throw error; if (!data || typeof data !== 'object') throw new Error('REPORT_DATA_UNAVAILABLE: ABC snapshot missing');
-  const row = data as Record<string, unknown>; return { rows: requiredArray<ABCSnapshotRow>(row.rows), totalRevenue: finiteOrNull(row.totalRevenue), unknownRows: finiteOrNull(row.unknownRows), status: row.status === 'CALCULATED' ? 'CALCULATED' : 'INSUFFICIENT_DATA', asOf: typeof row.asOf === 'string' ? row.asOf : asOfDate() };
+  const row = data as Record<string, unknown>; return { rows: requiredArray<ABCSnapshotRow>(row.rows), totalRevenue: finiteOrNull(row.totalRevenue), unknownRows: finiteOrNull(row.unknownRows), status: row.status === 'CALCULATED' ? 'CALCULATED' : 'INSUFFICIENT_DATA', asOf: typeof row.asOf === 'string' ? row.asOf : 'غير متاح' };
 }
 export async function fetchAgingSnapshot(): Promise<AgingSnapshot> {
   const { data, error } = await supabase.rpc('get_aging_snapshot', { p_as_of: asOfDate() });
