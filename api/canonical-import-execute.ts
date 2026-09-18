@@ -78,6 +78,26 @@ export default async function handler(req: any, res: any) {
       auth: { autoRefreshToken: false, persistSession: false, detectSessionInUrl: false },
       global: { headers: { Authorization: `Bearer ${token}` } },
     });
+
+    const { data: importJob, error: importJobError } = await dataClient
+      .from('import_jobs')
+      .select('id, company_id, status, file_name, entity_type')
+      .eq('id', input.importId)
+      .eq('company_id', companyId)
+      .single();
+    if (importJobError || !importJob) {
+      json(res, 404, { status: 'failed', error: 'import_job_not_found_or_forbidden' });
+      return;
+    }
+    if (importJob.file_name !== input.fileName || importJob.entity_type !== input.entityType) {
+      json(res, 409, { status: 'failed', error: 'import_job_source_identity_mismatch' });
+      return;
+    }
+    if (['completed', 'partial', 'failed', 'cancelled'].includes(importJob.status)) {
+      json(res, 409, { status: 'failed', error: 'import_job_already_terminal' });
+      return;
+    }
+
     const workerClient = createClient(process.env.SUPABASE_URL!.trim(), process.env.SUPABASE_SERVICE_ROLE_KEY!.trim(), {
       auth: { autoRefreshToken: false, persistSession: false, detectSessionInUrl: false },
     });
