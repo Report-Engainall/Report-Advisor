@@ -63,7 +63,7 @@ A preview deployment is not production proof.
 
 # 2. LIVE EXECUTION HEADER
 
-Last material update: 2026-09-18T04:05Z
+Last material update: 2026-09-18T04:15Z
 Current Main: a32fae0fc08c1cbbcc60b6eedfb0f4bd74a21c50
 Primary environment: Supabase staging fnqbvfuwbdpwvhcgzksl
 Production URL: https://report-advisor.vercel.app
@@ -377,3 +377,8 @@ without asking the user to reconstruct project history.
 - #540 PDF structured parser regression remains CI-authoritative; local invocation without real Supabase configuration correctly fail-closes. No fake/local placeholder configuration will be used for certification.
 - #540 security-definer failure and #534/#536 security-definer failures are the same current-Main baseline gap addressed by #539. No duplicate security fix is permitted in PDF/governance/import fronts.
 - #534 and #536 otherwise have broad passing evidence; their security/final-certification failures are dependency failures until #539 exact-head security reconciliation lands.
+
+### 2026-09-18T04:15Z — Vercel provider state refreshed
+- Connected Vercel project currently reports a READY preview deployment for #540 source commit b7c57d04.
+- This disproves the older "actively rate-limited right now" state; that historical blocker is retained only in old evidence, not as current status.
+- Production remains unproven because the observed deployment has no production target and the project is reported live=false.
