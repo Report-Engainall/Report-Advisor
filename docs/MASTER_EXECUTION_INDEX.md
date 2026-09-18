@@ -5,14 +5,14 @@
 > Authoritative execution manifest. This document never promotes historical evidence across an exact Git `HEAD` boundary. Pair every evidence batch with the exact Git `HEAD` of `main` and the exact environment/commit used.
 
 ### CURRENT EXACT HEAD
-- Current code/test candidate: `1a15f0932bf3c30b41ae634eded97bccda339c58`.
-- Current Main product/test candidate remains `1ed603e1b8fee7488fd43e9c00f65ff5dd13f9ce` until the source-parity repair is merged; this branch candidate is `a1d1d97157bef2d944002aa36dc70bf133eb1cda` (PR #570). PR #550 structured PDF/file-engine repair, PR #556 coordinator runtime-loader restoration, and PR #564 Windows-safe readiness/lint fixes are included in the candidate lineage.
+- Current code/test candidate: `e1c908b2abc0a46f7291c9502a6ff02a7e024c59` (merge of PR #575).
+- Current Main product/test candidate: `e1c908b2abc0a46f7291c9502a6ff02a7e024c59` (PR #575 merged). PR #550 structured PDF/file-engine repair, PR #556 coordinator runtime-loader restoration, and PR #564 Windows-safe readiness/lint fixes are included in the current lineage.
 - The autonomous operating protocol is now repository-resident at `docs/PROGRAMMER_AUTONOMOUS_OPERATING_PROTOCOL.md`.
 - PC01 exact-main runtime evidence is recorded in `docs/evidence/EXACT_MAIN_RUNTIME_20260918.md`; current-head native/installer evidence remains pending a workflow run against `1ed603e1...`.
 - No runtime/browser/production evidence from an earlier SHA is promoted by this binding.
 - The certification binding itself is governance-only and does not certify runtime/product code; fresh exact-HEAD runtime evidence for this candidate is still required.
 - Historical evidence from earlier SHAs remains historical and is not promoted automatically.
-- Current-head workflow execution is not yet evidenced on this SHA by the repository Actions run feed; absence of runs is not PASS and does not transfer historical evidence.
+- Post-merge current-head validation is now running from `e1c908b2abc0a46f7291c9502a6ff02a7e024c59`; no post-merge PASS is promoted until the new exact-Main workflows complete.
 - Live Vercel state shows the most recent observed production deployment still bound to historical Main SHA `a32fae0fc08c1cbbcc60b6eedfb0f4bd74a21c50` and READY; this is stale relative to the current code/test candidate and is not promoted as current production evidence.
 - Current current-head production deployment/cutover is NOT PROVEN; no production mutation or alias change was performed.
 - Vercel preview deployments currently include failures caused by the provider build-rate limit; this external blocker does not justify idling repository-side execution.
@@ -21,11 +21,13 @@
 - PR #533 adds the mandatory continuous two-owner execution/resume protocol. It is governance-only and does not itself certify runtime.
 - Structured PDF/file-engine runtime front is CLOSED through PR #550. Fresh PC01 Exact-Main proof at predecessor code candidate `c466666cef65d082383aca4fd3384261e9f64690`: file-engine contract PASS, structured PDF/OCR behavioral regression PASS, production build PASS, native desktop smoke PASS. Windows NSIS packaging was attempted on that candidate but exceeded the safe execution window; no exact-main packaging PASS is claimed.
 - Production-coordinator runtime front is CLOSED through PR #556. Current exact candidate `1ed603e1...` was freshly verified on PC01 for `test:production-coordinator-runtime` and `test:production-coordinator-integration`; the 20-stage suite and file-engine regressions/contracts also pass. Durable evidence: `docs/evidence/EXACT_MAIN_RUNTIME_20260918.md`.
-- Coordinator-owned remaining fronts: authenticated business E2E, current-head Browser/Certification workflow evidence, current-head Windows workflow evidence, production/deployment verification, live resilience proof, and commercial-gap control.
+- Coordinator-owned remaining fronts: post-merge exact-Main business/certification evidence, production/deployment verification, live resilience proof, recovery/backup proof, and commercial-gap control.
 - Rule: do not restart closed work. Resume IN_PROGRESS fronts from their last verified checkpoint. Do not mix evidence across SHA boundaries.
 - Rule: independent fronts must run in parallel; a queued CI workflow or external provider blocker must not idle unrelated work.
 
 ### CURRENT MAIN — MATERIAL FRONT CLOSURE
+- PR #575 — canonical import server-worker boundary/type/contract closure plus storage-runtime test correction — **merged** to Main at `e1c908b2abc0a46f7291c9502a6ff02a7e024c59`.
+
 - PR #525 — security exposure checker bound to repository truth — merged.
 - PR #520 — migration/observability parity reconciliation — merged.
 - PR #521 — Phase F readiness classification — merged.
