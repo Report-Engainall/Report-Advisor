@@ -1,9 +1,10 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { execFileSync } from 'node:child_process';
-import { validateExecutionEnforcementProtocol, validateCurrentHeadIndex } from './check-execution-enforcement-protocol.mjs';
+import { validateExecutionEnforcementProtocol, validateCurrentHeadIndex, validateControlSignalProtocols } from './check-execution-enforcement-protocol.mjs';
 
 const protocol = fs.readFileSync('docs/EXECUTION_ENFORCEMENT_PROTOCOL.md', 'utf8');
+assert.equal(validateControlSignalProtocols(), true);
 assert.equal(validateExecutionEnforcementProtocol(protocol), true);
 
 const commentDecoy = protocol.replace(
@@ -50,3 +51,40 @@ assert.throws(
 );
 
 console.log('PASS v3.6 enforcement adversarial test-of-test (real git ancestry + governance-only boundary)');
+
+
+const controlSignal = fs.readFileSync('docs/AUTONOMOUS_CONTROL_SIGNAL_PROTOCOL.md', 'utf8');
+const leadProtocol = fs.readFileSync('docs/AI_ENGINEERING_LEAD_PROTOCOL.md', 'utf8');
+const programmerProtocol = fs.readFileSync('docs/PROGRAMMER_AUTONOMOUS_OPERATING_PROTOCOL.md', 'utf8');
+
+const invalidLeadProtocol = leadProtocol.replace(
+  /## 23\. Self-Execution Gate[\s\S]*?## 24\. Leadership Cycle Contract/,
+  '## 24. Leadership Cycle Contract',
+);
+assert.notEqual(invalidLeadProtocol, leadProtocol);
+assert.throws(
+  () => validateControlSignalProtocols({
+    'docs/AI_ENGINEERING_LEAD_PROTOCOL.md': invalidLeadProtocol,
+  }),
+  /Control signal protocol rejected/,
+  'validator must reject a lead protocol with the non-idle section removed',
+);
+
+const invalidProgrammerProtocol = programmerProtocol.replace(
+  /## 25\. Non-Idle Execution Gate[\s\S]*$/,
+  '',
+);
+assert.notEqual(invalidProgrammerProtocol, programmerProtocol);
+assert.throws(
+  () => validateControlSignalProtocols({
+    'docs/PROGRAMMER_AUTONOMOUS_OPERATING_PROTOCOL.md': invalidProgrammerProtocol,
+  }),
+  /Control signal protocol rejected/,
+  'validator must reject a programmer protocol with the non-idle section removed',
+);
+
+assert.match(controlSignal, /Operator Non-Idle Invariant/i);
+assert.match(leadProtocol, /Queue-is-not-a-stop rule/i);
+assert.match(programmerProtocol, /Non-Idle Execution Gate/i);
+
+console.log('PASS autonomous control-signal non-idle protocol guard');
