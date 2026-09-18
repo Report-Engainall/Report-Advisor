@@ -1,3 +1,13 @@
+### LIVE EXECUTION UPDATE — 2026-09-18T20:XXZ
+- **CODE CHECKPOINT / EXACT PRODUCT HEAD:** `e2c5761fb76150218f605739a8b501e1d30396f5`.
+- **Execution started by owner command `انطلق` on the current product branch; `main` was not modified.**
+- **Current-head public preview proof:** Cloudflare Pages deployed the exact `e2c5761` successfully and the rendered Arabic Aghbari shell was fetched successfully.
+- **Public Vercel production is not treated as current-head proof:** current deployment list shows READY builds for older feature SHAs; the current branch check remains externally affected by the Vercel free-plan deployment-rate limit.
+- **Integration state:** PR #596 targets `commercial/comprehensive-product-development-20260918-rebased` and is currently 6 commits behind that base with merge conflicts/unresolved mergeability; no forced merge or bypass was performed.
+- **Release truth:** no certification transfer. Fresh authenticated browser/business persistence, tenant A/B isolation runtime, storage signed-URL runtime, PDF/OCR positive commit runtime, worker live recovery/DLQ runtime, measured backup/restore RPO/RTO, Phase-F live resilience, and exact deployed production parity remain OPEN until fresh exact-head evidence exists.
+- **Owner-side action:** no local source edit is required from the owner at this point. The remaining external gates require the governed GitHub Actions/production runtime secrets and deployment-provider capacity; credentials/evidence must not be fabricated.
+- This entry records the current state only; it does not convert historical PASS evidence into current certification.
+
 ### LIVE EXECUTION UPDATE — 2026-09-18T17:30Z
 - **CURRENT EXACT HEAD:** `4981c94c7efb882ba0c19c6f6dab8335d0e993b4`.
 - **Real staging worker recovery fix:** identified a lifecycle defect where expired `leased/processing` jobs with remaining attempt budget were never returned to `queued`; only exhausted jobs were dead-lettered.
