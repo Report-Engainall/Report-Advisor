@@ -31,6 +31,20 @@ State precedence is:
 
 Operational memory is itself fail-closed: it may record UNKNOWN, OPEN or BLOCKED, but it may not manufacture PASS.
 
+## 0. CONTINUOUS OPERATIONAL MEMORY — MANDATORY
+
+The repository, not chat, is the durable memory of execution.
+
+Before every coordinator cycle, read docs/CONTINUOUS_OPERATIONAL_MEMORY.md and verify its live execution header against GitHub current state. Do not ask the user to reconstruct prior work when the repository contains the needed state.
+
+After every material coordinator action, update the operational memory with exact Main/PR SHA, environment/provider, action/result, changed fronts, invalidated evidence, no-repeat exclusions, and next executable action.
+
+The same memory is the programmer handoff. Programmer agents must read it before implementation and update branch state when a material implementation or evidence change occurs. A pasted report is supplementary only and is never the system of record.
+
+State precedence is: current repository/GitHub state → exact workflow/runtime evidence → operational memory → chat/report narrative.
+
+Operational memory is fail-closed: it may record UNKNOWN, OPEN or BLOCKED, but it may not manufacture PASS.
+
 ## 1. CORE OPERATING RULE
 
 The coordinator must continuously convert available tool access into real progress.
