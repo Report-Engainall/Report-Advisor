@@ -58,7 +58,7 @@ function assertSourceHash(rows: ReconciledCanonicalImportRow[], sourceHash: stri
   }
 }
 
-async function executeThroughServerBoundary(input: DurableCanonicalImportInput): Promise<unknown> {
+interface CanonicalServerExecutionResult { jobId: string; importId: string; [key: string]: unknown }\n\nasync function executeThroughServerBoundary(input: DurableCanonicalImportInput): Promise<CanonicalServerExecutionResult> {
   const { supabase } = await import('../supabase');
   const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
   const accessToken = sessionData.session?.access_token;
@@ -106,7 +106,7 @@ export async function runCanonicalImportThroughDurableRunner(
     const browser = await import('../supabase');
     workerClient ??= browser.supabase;
     dataClient ??= browser.supabase;
-    companyId ??= await browser.resolveCurrentCompanyId();
+    companyId ??= (await browser.resolveCurrentCompanyId()) ?? undefined;
   }
   if (!companyId) throw new Error('TENANT_CONTEXT_REQUIRED');
 
