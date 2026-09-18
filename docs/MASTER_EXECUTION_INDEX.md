@@ -3,7 +3,7 @@
 > تحديث تنفيذي بعد أمر المالك «انطلق». هذا القسم يصف الحالة المثبتة من الأدوات فقط. لا يتم نقل Evidence بين SHAs، ولا تُعد الحالة PASS إلا بدليل Exact-HEAD.
 
 ### CURRENT EXACT HEAD / DEPLOYED STATE
-- **Current code/test candidate:** `ce9885eb153dd6a1f1d02e2aa48c114d383f0182` (latest UI code/test head; subsequent documentation-only binding remains governance-only).
+- **Current code/test candidate:** `ce9885eb153dd6a1f1d02e2aa48c114d383f0182` (latest UI implementation/test head; later commits in this wave are documentation/governance only). (latest UI code/test head; subsequent documentation-only binding remains governance-only).
 - **Reference product/runtime code HEAD:** `c11c084d161cceb4595f8552b6c49c3f610f0ec2`; current `main` also carries the forward-only security/source-parity migrations merged afterward.
 - **Current main:** `7d6bca3c02416c9b6c877e82115eb9961f635a47`; this includes the forward-only security/source-parity merge `64c870426...` plus the closure-ledger docs sync. Product feature code remains anchored to the earlier runtime code reference until PR #587 is accepted.
 - **Netlify Production:** latest verified production deploy `6aacfe23cc817a00089dce5c` = `ready`, branch `main`, but still points to commit `ad12e9e564f85ffde8bb29daa6e41e73ca969b92`, which predates current `main`. Public access remains verified without Netlify SSO/password. Connector-side redeploy requires a source/repo execution environment.
@@ -38,6 +38,13 @@
 - Exact-head UI verification on PC01: typecheck PASS, production build PASS, performance budget PASS (critical 890.7KB/900KB; largest JS 488KB/600KB), route/sidebar parity PASS (34 routes/33 sidebar links), executive dashboard UI contract PASS, inventory intelligence UI contract PASS, demand velocity contract PASS, lint PASS with 0 errors / 62 existing warnings.
 - Browser visual/console E2E is not claimed from this environment; TinyFish live automation remains externally blocked. Runtime certification remains owned by Engineering and fail-closed.
 
+### LATEST PRODUCT REQUIREMENTS EVOLUTION — 2026-09-18
+- The canonical master product reference now defines Report Advisor as an Evidence-First Decision Operating System rather than a dashboard-first product.
+- New strategic requirement families: Evidence Passport, Data Trust Center, What Changed, Decision Control Tower, Counterfactual/Scenario Lab, Outcome & ROI Ledger, Semantic Metric Studio, Agent Control Room, Commercial Playbooks, Profit Leak Radar, Supplier Risk Cockpit, Assortment & Cash Simulator, Merchant Memory, Continuous Reconciliation, Data Contract Autopilot, Embedded Intelligence, Proposal Demo Mode and Product Value Gate.
+- New completion distinction: TECHNICALLY_COMPLETE → PRODUCT_COMPLETE → COMMERCIAL_READY → CERTIFIED. Documentation does not advance capability state.
+- New execution priority: Track A Trust Core → Track B Decision Value → Track C Commercial Scale. Existing runtime/certification blockers remain higher priority than speculative feature expansion.
+- Current requirements validation on PC01: `test:master-requirements` PASS; architecture contract PASS; master duplication budget PASS.
+- This update is requirements/governance only. It does not claim implementation or certification of the new strategic capabilities.
 ### EXECUTION STATE
 - **Done:** Netlify administrative access blocker removed; PR #590 security/source-parity migrations merged; staging import-row integrity is 0/0/0 and all 8 worker RPCs are service_role-only with pinned search_path.
 - **In progress:** exact-head runtime/DB/release closure; migration parity investigation; operational certification evidence.
