@@ -7,5 +7,6 @@ for(const token of ['fetchInventoryIntelligenceSource','applyReportMode','عرض
 for(const forbidden of ["supabase.from('alternative_item_group_members')","supabase.from('inventory_balances')","supabase.from('products')","resolveCurrentCompanyId()"]){if(page.includes(forbidden))throw new Error(`page owns canonical source access: ${forbidden}`);}
 for(const token of ["supabase.from('alternative_item_group_members')","supabase.from('inventory_balances')","supabase.from('products')","resolveCurrentCompanyId()"]){if(!adapter.includes(token))throw new Error(`canonical adapter missing source boundary: ${token}`);}
 if(!app.includes('/reports/inventory-intelligence'))throw new Error('missing inventory intelligence route');
-if(!sidebar.includes('ذكاء المخزون والمجموعات'))throw new Error('missing sidebar entry');
+if(!sidebar.includes("path:'/reports/inventory-intelligence',label:'ذكاء المخزون'"))throw new Error('missing sidebar entry');
+if(!page.includes('title="ذكاء المخزون والمجموعات"'))throw new Error('missing inventory intelligence page title');
 console.log('inventory intelligence UI contract: PASS');
