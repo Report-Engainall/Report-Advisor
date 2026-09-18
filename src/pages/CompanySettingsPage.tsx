@@ -25,6 +25,13 @@ export function CompanySettingsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const [workspaceMode, setWorkspaceMode] = useState<WorkspaceMode>(() => {
+    if (typeof window === 'undefined') return 'essential';
+    const saved = window.localStorage.getItem(WORKSPACE_MODE_KEY);
+    return saved === 'advanced' || saved === 'expert' ? saved : 'essential';
+  });
+
+
   const load = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -53,12 +60,6 @@ export function CompanySettingsPage() {
   if (loading) return <LoadingState />;
   if (error) return <ErrorState message={error} onRetry={load} />;
   if (!company) return <ErrorState message="بيانات الشركة غير متاحة" onRetry={load} />;
-
-  const [workspaceMode, setWorkspaceMode] = useState<WorkspaceMode>(() => {
-    if (typeof window === 'undefined') return 'essential';
-    const saved = window.localStorage.getItem(WORKSPACE_MODE_KEY);
-    return saved === 'advanced' || saved === 'expert' ? saved : 'essential';
-  });
 
   const setMode = (mode: WorkspaceMode) => {
     setWorkspaceMode(mode);
