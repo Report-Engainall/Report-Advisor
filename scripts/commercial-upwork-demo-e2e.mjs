@@ -75,7 +75,9 @@ try {
   }));
   if (!sessionReady) throw new Error('BROWSER_ACCESS_TOKEN_NOT_FOUND_AFTER_AUTH');
   await page.goto(`${baseURL}/proposal-demo`, { waitUntil: 'domcontentloaded', timeout: 30000 });
-  await page.getByRole('heading', { name: /ط­ظˆظ‘ظ„ ظ…طھط·ظ„ط¨ط§طھ ط§ظ„ظˆط¸ظٹظپط©/ }).waitFor({ state: 'visible', timeout: 10000 });
+  await page.locator('#proposal-demo-title').waitFor({ state: 'visible', timeout: 30000 });
+  await page.locator('#proposal-demo-client').waitFor({ state: 'visible', timeout: 30000 });
+  await page.locator('#proposal-demo-requirements').waitFor({ state: 'visible', timeout: 30000 });
 
   const title = 'Senior Business Intelligence Analyst';
   const client = 'Evidence-First Retail Client';
@@ -100,7 +102,9 @@ try {
   if (await demoLink.count() !== 1) throw new Error('LIVE_DEMO_LINK_NOT_FOUND');
   await demoLink.click();
   await page.waitForURL(url => url.pathname === '/', { timeout: 10000 });
-  await page.getByRole('heading', { name: /ظ…ط±ظƒط² ط§ظ„ظ‚ظٹط§ط¯ط©|ظ„ظˆط­ط© ط§ظ„ظ‚ظٹط§ط¯ط©/ }).waitFor({ state: 'visible', timeout: 15000 }).catch(() => {});
+  await page.locator('#proposal-demo-title').waitFor({ state: 'visible', timeout: 30000 });
+  await page.locator('#proposal-demo-client').waitFor({ state: 'visible', timeout: 30000 });
+  await page.locator('#proposal-demo-requirements').waitFor({ state: 'visible', timeout: 30000 });
   await page.screenshot({ path: `${reportDir}/live-demo-route.png`, fullPage: true });
 
   await page.goBack({ waitUntil: 'networkidle', timeout: 30000 });
