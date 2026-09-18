@@ -25,11 +25,16 @@
 ### CURRENT PRODUCT WAVE UPDATE — PR #595
 - UI/product wave rebased directly onto current main fe5661060462ffa21d6aa31505f80c2021c4170a and opened as PR #595.
 - Superseded PR #587 is closed; no historical CI/evidence from #587 is treated as certification for #595.
-- Current PR head at the time of this sync: d3b622987d566ae292b6798ecbdbb73243ba4cdf.
+- Current PR head at latest execution sync: c59d5834a974f16689b972254e0ae47f6cd9ed63.
 - UI work included shell/header/sidebar/command palette, dashboard truth context, Intelligence assistant, decision stage UX/deep-link synchronization, Data Quality, Executive Command Center/Report, Metric Inspector, Alternatives and Work Center refinements.
 - Shared E2E login harness fixed to target the semantic form submit control instead of the obsolete localized login-label text.
 - Dashboard truth adversarial regression contract made whitespace-tolerant without weakening the intended semantic guard.
 - PR #595 is based directly on current main; fresh exact-head CI is authoritative.
+
+### LATEST UI SURFACE UPDATE — PR #595
+- Localized remaining visible technical English across Intelligence, Decision Experience, Executive Report, Data Quality, File Analysis, and Onboarding surfaces.
+- Added semantic selection/pressed states to additional mode/tab controls.
+- Current preview remains ready and public; certification remains independent of preview rendering.
 ### LATEST EXECUTION UPDATE — 2026-09-18
 - Staging forward-only parity checkpoint applied successfully: `harden_import_field_lineage_rls`, `revoke_authenticated_worker_enqueue`, `reconcile_live_source_end_state`.
 - Verified import row integrity: null company=0, orphan job=0, cross-tenant row/job mismatch=0.
