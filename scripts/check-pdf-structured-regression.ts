@@ -8,8 +8,7 @@ function assert(condition: unknown, message: string): asserts condition {
 }
 
 function pdfWithText(text: string): ArrayBuffer {
-  const escapePdfLiteral = (value: string): string => value.replace(/[\\()]/g, '\\\\$&');
-  const chunks = text.match(/.{1,90}(?:\\s|$)/g)?.map((chunk) => chunk.trim()).filter(Boolean) ?? [text];
+  const chunks = text.match(/.{1,90}(?:\s|$)/g)?.map((chunk) => chunk.trim()).filter(Boolean) ?? [text];
   const streamParts = ['BT /F1 12 Tf 40 760 Td'];
   for (let index = 0; index < chunks.length; index += 1) {
     const bytes = Array.from(new TextEncoder().encode(chunks[index]));
