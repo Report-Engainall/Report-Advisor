@@ -256,6 +256,7 @@
 | UI-021 | Route/sidebar parity | app routes and sidebar entries aligned | DONE at latest verified head | ChatGPT |
 | UI-022 | UI claim honesty | no PASS/healthy UI state without underlying evidence | DONE / governance | Both |
 | UI-023 | Real browser visual/console proof | only claimed when real browser evidence exists | OPEN | Programmer |
+| UI-024 | Competitive Track Lens | `/proposal-demo` exposes exactly five approved selective tracks and keeps proof/runtime gaps explicit | DONE | ChatGPT |
 
 ---
 
@@ -301,6 +302,7 @@
 | COM-012 | Five selective competitive tracks only | Evidence BI; Supabase/RLS; governed Excel/CSV; Arabic RTL B2B UX; inventory/receivables decision workspace | GOVERNANCE | Owner/Product |
 | COM-013 | Product Value Gate | market signal does not auto-promote to product | GOVERNANCE | Owner/Product |
 | COM-014 | Anti-noise boundaries | no generic ERP/BI clone/ETL marketplace/security scanner/giant AI platform | GOVERNANCE | Owner/Product |
+| COM-015 | Track-scoped Proposal Demo | selected competitive wedge drives scoped requirements and demo sequence without inventing capabilities | DONE | ChatGPT |
 
 ---
 
@@ -528,3 +530,13 @@ Promotion rule: MARKET SIGNAL → Candidate → Product Value Gate → approved 
 7. Actual code, executable tests, live evidence and protected release gates remain authoritative for factual certification state.
 
 Current posture: product scope is commercially focused around five selective wedges; final release/certification remains FAIL-CLOSED until the exact runtime/operational evidence is complete.
+
+## 24. Latest exact-head UI binding — 2026-09-18
+- Code/test SHA: `449e81d5`.
+- Typecheck: PASS.
+- Proposal commercial-proof contract: PASS; 16 capabilities and exactly five selective competitive tracks.
+- Production build: PASS; 2802 modules transformed.
+- Performance budget: PASS; critical 891.1KB/900KB and largest JS 488.0KB/600KB.
+- Lint: 0 errors / 61 warnings; warnings are pre-existing project warnings except the removed unused ProposalDemo import.
+- This wave changed UI/product-experience and its executable UI contract only; no DB/RPC/Runner/runtime authority was modified.
+- Certification remains FAIL-CLOSED until programmer-owned Exact-HEAD runtime evidence closes the remaining release requirements.
