@@ -74,7 +74,7 @@ try {
     try { return Boolean(JSON.parse(value)?.access_token); } catch { return false; }
   }));
   if (!sessionReady) throw new Error('BROWSER_ACCESS_TOKEN_NOT_FOUND_AFTER_AUTH');
-  await page.goto(`${baseURL}/proposal-demo`, { waitUntil: 'networkidle', timeout: 30000 });
+  await page.goto(`${baseURL}/proposal-demo`, { waitUntil: 'domcontentloaded', timeout: 30000 });
   await page.getByRole('heading', { name: /ط­ظˆظ‘ظ„ ظ…طھط·ظ„ط¨ط§طھ ط§ظ„ظˆط¸ظٹظپط©/ }).waitFor({ state: 'visible', timeout: 10000 });
 
   const title = 'Senior Business Intelligence Analyst';
