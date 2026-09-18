@@ -44,7 +44,7 @@ on:
 
 
 concurrency:
-  group: report-advisor-auth-e2e-${{ github.event.pull_request.number || github.ref_name }}
+  group: report-advisor-auth-e2e-staging
   cancel-in-progress: false
 
 
