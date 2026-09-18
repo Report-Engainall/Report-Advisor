@@ -30,7 +30,8 @@ if (!dashboard.includes("asOf={snapshotAsOf ?? 'غير متاح'}")) {
 }
 
 for (const field of ['totalSales', 'grossProfit', 'totalReceivables', 'inventoryValue', 'totalCustomers', 'totalProducts', 'invoiceCount', 'collectionRate']) {
-  if (!dashboard.includes(`status={metricStatus(kpis.${field}, kpis.status)}`)) {
+  const usage = new RegExp(`status\\s*=\\s*\\{metricStatus\\(kpis\\.${field},\\s*kpis\\.status\\)\\}`);
+  if (!usage.test(dashboard)) {
     throw new Error(`${field} KPI must preserve confirmed finite zero values independently`);
   }
 }
