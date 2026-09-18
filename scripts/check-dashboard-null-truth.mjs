@@ -29,10 +29,19 @@ if (!dashboard.includes("asOf={snapshotAsOf ?? 'غير متاح'}")) {
   throw new Error('Dashboard must render authoritative snapshot as-of instead of local browser date');
 }
 
-for (const field of ['totalSales', 'grossProfit', 'totalReceivables', 'inventoryValue', 'totalCustomers', 'totalProducts', 'invoiceCount', 'collectionRate']) {
+for (const field of ['totalSales', 'grossProfit', 'totalReceivables', 'inventoryValue']) {
   const usage = new RegExp(`status\\s*=\\s*\\{metricStatus\\(kpis\\.${field},\\s*kpis\\.status\\)\\}`);
   if (!usage.test(dashboard)) {
-    throw new Error(`${field} KPI must preserve confirmed finite zero values independently`);
+    throw new Error(`${field} primary KPI must preserve confirmed finite zero values independently`);
+  }
+}
+
+for (const field of ['totalCustomers', 'totalProducts', 'invoiceCount', 'collectionRate']) {
+  const usage = field === 'collectionRate'
+    ? /value===null\?'غير متاح':String\(value\)\+\(label==='معدل التحصيل'\?'%':''\)/
+    : /value===null\?'غير متاح':String\(value\)/;
+  if (!usage.test(dashboard)) {
+    throw new Error(`${field} secondary KPI presentation must preserve null while retaining confirmed zero values`);
   }
 }
 

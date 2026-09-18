@@ -169,7 +169,7 @@ export function ProductsPage() {
       <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
         <div>
           <label className="mb-1.5 block text-[11px] font-bold text-ink-500">ابحث ثم افتح السجل لفهم ما يهم هذا الصنف</label>
-          <div className="relative max-w-xl"><Search className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-400" size={18} /><input type="text" value={search} onChange={e => { setSearch(e.target.value); setPage(0); }} placeholder="بحث عن اسم أو SKU..." className="input pr-10" /></div>
+          <div className="relative max-w-xl"><Search className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-400" size={18} /><input aria-label="بحث عن منتج" type="text" value={search} onChange={e => { setSearch(e.target.value); setPage(0); }} placeholder="بحث عن اسم أو SKU..." className="input pr-10" /></div>
         </div>
         <div className="rounded-xl border border-ink-200 bg-white px-3 py-2 text-[11px] text-ink-500">سجل المنتج = السعر + التكلفة + الهامش + نقطة الطلب + مسارات المخزون والربحية</div>
       </div>

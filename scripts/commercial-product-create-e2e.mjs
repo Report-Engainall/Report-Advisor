@@ -79,7 +79,7 @@ try {
   assert.equal(String(persisted[0].name), name);
   assert.equal(Number(persisted[0].cost_price), 10);
   assert.equal(Number(persisted[0].selling_price), 15);
-  await page.locator('input[placeholder="بحث عن منتج..."]').fill(sku);
+  await page.getByRole('textbox', { name: 'بحث عن منتج' }).fill(sku);
   await page.getByText(sku, { exact: true }).waitFor({ state: 'visible', timeout: 10000 });
   evidence.persisted = persisted[0];
   evidence.status = 'PASS';
