@@ -84,6 +84,15 @@ async function login(targetPage, email, password) {
   await loginEmail.fill(email);
   await targetPage.locator('#login-password').fill(password);
 
+  // Run the direct Node auth probe before the browser submits the same credentials.
+  // This keeps the probe independent instead of creating concurrent password-grant requests
+  // that can contend on the same Auth/DB session path and distort the runtime diagnosis.
+  result.authNetworkProbe = await probeAuthFromNode(email, password);
+  if (result.authNetworkProbe.status !== 'PASS') {
+    const detail = result.authNetworkProbe.detail || result.authNetworkProbe.error || result.authNetworkProbe.reason || '';
+    throw new Error('AUTH_NODE_PROBE_' + result.authNetworkProbe.status + (detail ? ':' + detail : ''));
+  }
+
   const authResponsePromise = targetPage.waitForResponse(
     response =>
       response.request().method() === 'POST' &&
@@ -95,7 +104,6 @@ async function login(targetPage, email, password) {
   if (!(await loginSubmit.count())) throw new Error('LOGIN_SUBMIT_NOT_FOUND');
   await loginSubmit.click();
 
-  result.authNetworkProbe = await probeAuthFromNode(email, password);
   const authResponse = await authResponsePromise;
   if (!authResponse) {
     throw new Error('AUTH_TOKEN_RESPONSE_TIMEOUT');
