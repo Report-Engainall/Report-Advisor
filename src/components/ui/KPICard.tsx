@@ -43,8 +43,8 @@ export function KPICard({ label, value, format, change, changeLabel, icon, statu
         {status === 'INSUFFICIENT_DATA' && <span className="badge-neutral text-[9px]">لا قيمة مؤكدة</span>}
       </div>
       {hint && <p className="relative mt-2 text-[10px] leading-4 text-ink-400">{hint}</p>}
-      {(to || evidenceTo) && <div className="relative mt-3 flex flex-wrap items-center gap-3 text-[10px] font-bold opacity-0 transition group-hover:opacity-100 group-focus-within:opacity-100">{to && <span className="text-primary-600">{actionLabel} ←</span>}{evidenceTo && <Link to={evidenceTo} className="text-ink-500 hover:text-primary-600" onClick={event => event.stopPropagation()}>فحص التعريف والدليل ↗</Link>}</div>}
+      {(to || evidenceTo) && <div className="relative mt-3 flex flex-wrap items-center gap-3 text-[10px] font-bold opacity-100 transition">{to && <Link to={to} className="text-primary-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500">{actionLabel} ←</Link>}{evidenceTo && <Link to={evidenceTo} className="text-ink-500 hover:text-primary-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500">فحص التعريف والدليل ↗</Link>}</div>}
     </div>
   );
-  return to ? <Link to={to} className="block rounded-[1.35rem] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500">{content}</Link> : content;
+  return content;
 }
