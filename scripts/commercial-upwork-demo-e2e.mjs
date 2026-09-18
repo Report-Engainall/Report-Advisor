@@ -24,10 +24,36 @@ try {
   await page.goto(baseURL, { waitUntil: 'networkidle', timeout: 30000 });
   await page.locator('#login-email').fill(email);
   await page.locator('#login-password').fill(password);
+
+  const authResponsePromise = page.waitForResponse(
+    response =>
+      response.request().method() === 'POST' &&
+      response.url().includes('/auth/v1/token?grant_type=password'),
+    { timeout: 30000 },
+  ).catch(() => null);
+
   const loginSubmit = page.locator('form button[type="submit"]');
   if (!(await loginSubmit.count())) throw new Error('LOGIN_SUBMIT_NOT_FOUND');
   await loginSubmit.click();
-  await page.locator('#login-email').waitFor({ state: 'hidden', timeout: 30000 });
+
+  const authResponse = await authResponsePromise;
+  if (!authResponse) throw new Error('AUTH_TOKEN_RESPONSE_TIMEOUT');
+  const authStatus = authResponse.status();
+  if (authStatus >= 400) {
+    let detail = '';
+    try {
+      const body = await authResponse.json();
+      detail = body?.error_code || body?.error || body?.msg || body?.message || '';
+    } catch {}
+    throw new Error('AUTH_TOKEN_HTTP_' + authStatus + (detail ? '_' + detail : ''));
+  }
+
+  try {
+    await page.locator('#login-email').waitFor({ state: 'hidden', timeout: 30000 });
+  } catch {
+    const alertText = await page.getByRole('alert').first().textContent().catch(() => '');
+    throw new Error('AUTH_UI_SESSION_NOT_ESTABLISHED' + (alertText?.trim() ? ':' + alertText.trim().slice(0, 180) : ''));
+  }
   await page.getByRole('button', { name: 'تسجيل الخروج' }).waitFor({ state: 'visible', timeout: 30000 });
   await page.goto(`${baseURL}/proposal-demo`, { waitUntil: 'networkidle', timeout: 30000 });
   await page.getByRole('heading', { name: /حوّل متطلبات الوظيفة/ }).waitFor({ state: 'visible', timeout: 10000 });
