@@ -3,7 +3,7 @@
 > تحديث تنفيذي بعد أمر المالك «انطلق». هذا القسم يصف الحالة المثبتة من الأدوات فقط. لا يتم نقل Evidence بين SHAs، ولا تُعد الحالة PASS إلا بدليل Exact-HEAD.
 
 ### CURRENT EXACT HEAD / DEPLOYED STATE
-- **Current code/test candidate:** `df39810a8a172cb7c66377d2fed84a0edeb081ff` (latest Proposal Demo implementation + its commercial-proof contract registration; all later commits in this wave are governance/documentation only). (latest UI code/test head; subsequent documentation-only binding remains governance-only).
+- **Current code/test candidate:** `449e81d5` (`feat(ui): add selective competitive track lens to proposal demo` + commercial-proof contract extension). This is the latest verified code/test head; any subsequent documentation commit is governance-only.
 - **Reference product/runtime code HEAD:** `c11c084d161cceb4595f8552b6c49c3f610f0ec2`; current `main` also carries the forward-only security/source-parity migrations merged afterward.
 - **Current main:** `7d6bca3c02416c9b6c877e82115eb9961f635a47`; this includes the forward-only security/source-parity merge `64c870426...` plus the closure-ledger docs sync. Product feature code remains anchored to the earlier runtime code reference until PR #587 is accepted.
 - **Netlify Production:** latest verified production deploy `6aacfe23cc817a00089dce5c` = `ready`, branch `main`, but still points to commit `ad12e9e564f85ffde8bb29daa6e41e73ca969b92`, which predates current `main`. Public access remains verified without Netlify SSO/password. Connector-side redeploy requires a source/repo execution environment.
@@ -81,6 +81,17 @@
 - هذا القرار **مرتبط بهوية Report-Advisor فقط**. لا يتم خلطه مع «بوابة الأغبري للمواد الغذائية» أو أي منتج منفصل.
 - Upwork والبحوث السوقية تبقى **مصادر إشارة وتحقق من الطلب**، وليست مواصفات المنتج بحد ذاتها.
 - يبقى كل ما سبق من truth chain، fail-closed certification، tenant isolation، canonical import، existing RPCs/runners، وعدم نقل مسؤولية commit إلى الواجهة ساريًا دون تغيير.
+
+### LATEST EXECUTION BINDING — 2026-09-18
+- **Latest verified UI/Product code + test SHA:** `449e81d5`.
+- Added a five-track **Competitive Track Lens** to `/proposal-demo`: Evidence-First BI; Supabase Tenant Security; Governed Excel/CSV; Arabic RTL B2B UX; Inventory/Receivables Decisions.
+- The lens is deliberately claim-safe: the Supabase security track has **no fabricated live surface** and remains a proof/runtime gap until exact evidence exists.
+- Track selection now seeds scoped requirements, boosts only capabilities belonging to the selected track, and limits the live demo sequence to the active wedge when a proven surface exists.
+- Added automated contract coverage requiring exactly the five approved selective tracks.
+- Exact-head verification on PC01 for `449e81d5`: typecheck PASS; proposal-demo commercial proof PASS (16 capabilities + 5 track contract); performance budget PASS (critical 891.1KB/900KB, largest JS 488.0KB/600KB); lint PASS with 0 errors / 61 warnings.
+- Full production build PASS immediately before final documentation binding; Vite built 2802 modules successfully.
+- No backend/RPC/DB/Runner mutation was introduced by this UI wave.
+- Runtime/final certification remains FAIL-CLOSED.
 
 ### EXECUTION STATE
 - **Done:** Netlify administrative access blocker removed; PR #590 security/source-parity migrations merged; staging import-row integrity is 0/0/0 and all 8 worker RPCs are service_role-only with pinned search_path.
