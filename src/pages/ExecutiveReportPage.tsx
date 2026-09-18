@@ -107,8 +107,8 @@ export function ExecutiveReportPage() {
       </section>
 
       <section className="rounded-2xl border border-amber-200 bg-amber-50 p-5">
-        <div className="flex items-center gap-2 text-amber-900"><Target size={18} /><h2 className="font-black">Evidence Boundary</h2></div>
-        <p className="mt-2 text-sm leading-7 text-amber-900">المصدر والحساب والموثوقية التشغيلية تحتاج runtime evidence موثق. هذا التقرير لا يحول غياب الدليل إلى PASS ولا يدعي تنفيذ قرار أو نتيجة فعلية.</p>
+        <div className="flex items-center gap-2 text-amber-900"><Target size={18} /><h2 className="font-black">حدود الدليل</h2></div>
+        <p className="mt-2 text-sm leading-7 text-amber-900">المصدر والحساب والموثوقية التشغيلية تحتاج دليلًا تشغيليًا موثقًا. هذا التقرير لا يحول غياب الدليل إلى نجاح ولا يدعي تنفيذ قرار أو نتيجة فعلية.</p>
       </section>
 
       <section className="rounded-2xl border border-ink-200 bg-white p-5 shadow-sm">
