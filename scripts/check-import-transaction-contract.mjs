@@ -45,16 +45,19 @@ if (!/IMPORT_COMPLETED_WITH_ERROR/i.test(lifecycleMigration)) {
 const canonicalCommitPath = path.join(root, 'src', 'lib', 'import', 'canonical-commit.ts');
 if (fs.existsSync(canonicalCommitPath)) {
   const canonical = fs.readFileSync(canonicalCommitPath, 'utf8');
-  if (!/resolveCurrentCompanyId\(\)/.test(canonical) || !/import_commit_batch/.test(canonical)) {
-    throw new Error('Canonical import must resolve authoritative tenant and commit through the atomic RPC wrapper');
+  if (!/resolveCurrentCompanyId\(\)/.test(canonical) || !/commitImportBatchWithClient/.test(canonical)) {
+    throw new Error('Canonical import wrapper must resolve authoritative tenant and delegate to the atomic commit core');
   }
-  if (!/p_source_hash\s*:\s*sourceHash/.test(canonical)) {
-    throw new Error('Canonical import commit must bind the atomic RPC to the exact source hash');
+  const canonicalCorePath = path.join(root, 'src', 'lib', 'import', 'canonical-commit-core.ts');
+  if (!fs.existsSync(canonicalCorePath)) throw new Error('Canonical atomic commit core is missing');
+  const canonicalCore = fs.readFileSync(canonicalCorePath, 'utf8');
+  if (!/import_commit_batch/.test(canonicalCore) || !/p_source_hash\s*:\s*sourceHash/.test(canonicalCore)) {
+    throw new Error('Canonical import commit core must bind the atomic RPC to the exact source hash');
   }
-  if (!/CANONICAL_SOURCE_HASH_MISMATCH/.test(canonical)) {
+  if (!/CANONICAL_SOURCE_HASH_MISMATCH/.test(canonicalCore)) {
     throw new Error('Canonical import must reject provenance rows whose source hash differs from the durable source hash');
   }
-  if (!/IMPORT_COMMIT_RESULT_MISMATCH/.test(canonical)) {
+  if (!/IMPORT_COMMIT_RESULT_MISMATCH/.test(canonicalCore)) {
     throw new Error('Canonical import must verify the durable batch result count and IDs');
   }
 }
