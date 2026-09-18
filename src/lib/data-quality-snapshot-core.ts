@@ -70,3 +70,10 @@ export function validateDataQualitySnapshot(data: unknown): DataQualitySnapshot 
 
   return snapshot as unknown as DataQualitySnapshot;
 }
+
+export function calculateOverallQualityScore(entities: EntityQuality[]): number {
+  const totalRecords = entities.reduce((sum, entity) => sum + entity.total, 0);
+  const totalIssues = entities.reduce((sum, entity) => sum + entity.issues, 0);
+  if (totalRecords === 0) return 0;
+  return Math.max(0, Math.min(100, Math.round(((totalRecords - totalIssues) / totalRecords) * 100)));
+}
