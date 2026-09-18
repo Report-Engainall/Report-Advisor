@@ -323,3 +323,36 @@ DEPENDENCIES: existing fetchImportRecords/import_jobs read path + BusinessInvest
 SUCCESS CRITERIA: source record id + created/closed timestamps visible in investigation context; explicit close-evidence boundary; contracts/typecheck/build/pass.
 BLOCKERS: لا يوجد blocker معروف.
 EXPECTED HANDOFF: Owner 2 يعيد إثبات affected UI/browser/runtime/release gates على Exact SHA.
+## EXECUTION — COMMAND 4 — 2026-09-19
+OWNER: 1
+BRANCH: feat/owner1-work-center-evidence-wave6-20260919
+FINAL UI HEAD: 9860c2e02d5e8ac7537e065c2687173d0f13f1bc
+
+CHANGE:
+- Work Center investigation context now exposes source-record ID, source status, creation time and source close time.
+- Missing source close timestamp remains explicit even when UI status says completed.
+- Existing failure message remains first-class evidence context.
+- No task lifecycle, approval, DB write, RPC, worker, auth/tenant or runtime change.
+
+GUARD:
+- scripts/check-work-center-evidence-contract.mjs
+- package script test:work-center-evidence
+
+EXACT-HEAD TESTS — 9860c2e02d5e8ac7537e065c2687173d0f13f1bc
+- test:work-center-evidence: PASS
+- typecheck: PASS
+- lint: PASS in pre-commit run — 0 errors / 59 pre-existing warnings
+- test:ui-route-sidebar-parity: PASS
+- test:executive-dashboard-ui: PASS
+- test:product-wow-ui: PASS
+- build: PASS — 2808 modules
+- perf:budget: PASS — critical 487.1KB / largest JS 487.8KB
+
+HANDOFF TO OWNER 2:
+- Integrate/rebase/cherry-pick Exact UI HEAD 9860c2e02d5e8ac7537e065c2687173d0f13f1bc.
+- Reprove browser/runtime/release gates on the merged Exact SHA.
+- Preserve the explicit source-close boundary; do not convert UI status into authoritative closure.
+- No main mutation by Owner 1.
+
+NEXT OWNER-1 FRONT:
+- Reports/Outputs commercial surface hardening using current canonical report/execution read paths only.
