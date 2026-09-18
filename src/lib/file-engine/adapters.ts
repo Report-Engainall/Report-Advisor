@@ -115,7 +115,7 @@ function tryParseStructuredPdfText(text: string): Row[] | null {
   setIfPresent('customer_name', match(/(?:العميل|اسم\s*العميل|customer(?:\s+name)?)\s*[:：]?\s*(.+?)\s+(?=(?:المجموع|الإجمالي|subtotal|total)\b)/i));
   setIfPresent('subtotal', normalizeStructuredDocumentValue(match(/(?:المجموع الفرعي|المجموع|subtotal)\s*[:：]?\s*([\d٠-٩٬،.,]+)/i) ?? ''));
   setIfPresent('tax_amount', normalizeStructuredDocumentValue(match(/(?:الضريبة|ضريبة|tax)\s*[:：]?\s*([\d٠-٩٬،.,]+)/i) ?? ''));
-  setIfPresent('total', normalizeStructuredDocumentValue(match(/(?:الإجمالي|الاجمالي|total)\s*[:：]?\s*([\d٠-٩٬،.,]+)/i) ?? ''));
+  setIfPresent('total', normalizeStructuredDocumentValue(match(/(?:الإجمالي|الاجمالي|\btotal\b)\s*[:：]?\s*([\d٠-٩٬،.,]+)/i) ?? ''));
   setIfPresent('paid_amount', normalizeStructuredDocumentValue(match(/(?:المدفوع|المبلغ\s*المدفوع|paid)\s*[:：]?\s*([\d٠-٩٬،.,]+)/i) ?? ''));
   setIfPresent('currency', match(/(?:العملة|عمله|currency)\s*[:：]?\s*([A-Za-z]{3}|[A-Za-z]+)\b/i));
 
