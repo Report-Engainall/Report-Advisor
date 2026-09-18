@@ -24,7 +24,8 @@ try {
   page.on('console', msg => { if (msg.type() === 'error') evidence.failures.push(`console:${msg.text()}`); });
   page.on('pageerror', error => evidence.failures.push(`pageerror:${error.message}`));
   page.on('requestfailed', request => { const reason = request.failure()?.errorText || 'unknown'; if (reason !== 'net::ERR_ABORTED') evidence.failures.push(`request:${request.method()} ${request.url()} ${reason}`); });
-  await page.goto(baseURL, { waitUntil: 'networkidle', timeout: 30000 });
+  await page.goto(baseURL, { waitUntil: 'domcontentloaded', timeout: 30000 });
+  await page.locator('#login-email').waitFor({ state: 'visible', timeout: 30000 });
   await page.locator('#login-email').fill(email);
   await page.locator('#login-password').fill(password);
 
@@ -59,7 +60,8 @@ try {
   }
   await page.getByRole('button', { name: 'تسجيل الخروج' }).waitFor({ state: 'visible', timeout: 30000 });
   evidence.tenant = await currentTenant();
-  await page.goto(`${baseURL}/products`, { waitUntil: 'networkidle', timeout: 30000 });
+  await page.goto(`${baseURL}/products`, { waitUntil: 'domcontentloaded', timeout: 30000 });
+  await page.getByRole('button', { name: 'منتج جديد' }).waitFor({ state: 'visible', timeout: 30000 });
   const sku = `E2E-PRODUCT-${Date.now()}-${process.pid}`;
   const name = `E2E منتج ${Date.now()}-${process.pid}`;
   await page.getByRole('button', { name: 'منتج جديد' }).click();
