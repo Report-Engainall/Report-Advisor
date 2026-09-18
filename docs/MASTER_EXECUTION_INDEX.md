@@ -5,11 +5,11 @@
 > Authoritative execution manifest. This document never promotes historical evidence across an exact Git `HEAD` boundary. Pair every evidence batch with the exact Git `HEAD` of `main` and the exact environment/commit used.
 
 ### CURRENT EXACT HEAD
-- Current code/test candidate: `50551116b4221e3914de52f3906b3a3af25fecab`.
+- Current code/test candidate: `ce674d937cde275f6e233e2fd4ad78589e9dafb5`.
 - No runtime/browser/production evidence from `66d684...` or earlier SHAs is promoted to this candidate.
 - The candidate rebind is required because the branch now contains code/test changes; it does not certify runtime/product behavior. Fresh exact-HEAD runtime evidence is required.
 - Historical evidence from earlier SHAs remains historical and is not promoted automatically.
-- Fresh exact-head local regression execution exists on this code SHA; GitHub Actions for the new head are queued/running and remain execution evidence only, not PASS.
+- Fresh exact-head local regression execution was previously captured on the preceding code candidate; this new verifier correction requires fresh exact-head CI/runtime evidence. Any current-head workflow execution is evidence only, not PASS.
 - Vercel reports the current Main deployment path as externally blocked by the provider build-rate limit; no production deployment is claimed from that status.
 
 ### CURRENT EXECUTION CONTROL — 2026-09-18
