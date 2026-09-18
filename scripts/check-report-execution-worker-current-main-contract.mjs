@@ -6,6 +6,7 @@ const adapter = fs.readFileSync('src/lib/report-execution/durable-worker-adapter
 const runner = fs.readFileSync('src/lib/report-execution/durable-production-runner.ts', 'utf8');
 const browserAdapter = fs.readFileSync('src/lib/import/canonical-production-adapter.ts', 'utf8');
 const serverRunner = fs.readFileSync('api/canonical-import-run.ts', 'utf8');
+const authorityMigration = fs.readFileSync('supabase/migrations/20260918050000_reconcile_report_execution_worker_service_authority.sql', 'utf8');
 
 for (const signature of [
   'claim_report_execution_job(p_job_id uuid,p_company_id uuid,p_lease_owner text,p_lease_seconds integer default 300)',
@@ -85,3 +86,36 @@ assert.match(serverRunner, /finishImport\(token, importId/);
 assert.match(serverRunner, /Authorization:/);
 
 console.log('Report execution worker current-main contract: PASS');
+
+
+for (const fn of [
+  'claim_report_execution_job',
+  'heartbeat_report_execution_job',
+  'advance_report_execution_checkpoint',
+  'complete_report_execution_job',
+  'fail_report_execution_job',
+  'retry_report_execution_job',
+]) {
+  assert.match(
+    authorityMigration,
+    new RegExp('create or replace function public\\.' + fn, 'i'),
+    'service-authority migration must redefine worker RPC: ' + fn,
+  );
+  assert.match(
+    authorityMigration,
+    new RegExp('revoke all on function public\\.' + fn, 'i'),
+    'service-authority migration must revoke API-role EXECUTE: ' + fn,
+  );
+  assert.match(
+    authorityMigration,
+    new RegExp('grant execute on function public\\.' + fn + '[^\\n]*to service_role', 'i'),
+    'service-authority migration must grant service_role: ' + fn,
+  );
+}
+
+assert.match(authorityMigration, /v_is_service_role boolean := COALESCE\(auth\.jwt\(\)->>'role',''\) = 'service_role'/);
+assert.match(authorityMigration, /IF NOT v_is_service_role AND \(SELECT auth\.uid\(\)\) IS NULL/);
+assert.match(authorityMigration, /IF NOT v_is_service_role AND \(v_company_id IS NULL OR p_company_id IS DISTINCT FROM v_company_id\)/);
+assert.match(authorityMigration, /COALESCE\(v_user_id::text,'service_role'\)/);
+
+console.log('Report execution worker service-authority reconciliation: PASS');
