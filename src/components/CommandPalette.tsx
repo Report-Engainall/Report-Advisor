@@ -82,10 +82,16 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
       !q || [item.label, item.description, ...item.keywords].join(' ').toLowerCase().includes(q),
     );
 
+    const recentRank = new Map(recentPaths.map((path, index) => [path, index]));
     return [...matches].sort((a, b) => {
       if (!q) {
-        const recentDelta = Number(recentPaths.includes(b.path)) - Number(recentPaths.includes(a.path));
-        if (recentDelta !== 0) return recentDelta;
+        const aRecent = recentRank.get(a.path);
+        const bRecent = recentRank.get(b.path);
+        if (aRecent !== undefined || bRecent !== undefined) {
+          if (aRecent === undefined) return 1;
+          if (bRecent === undefined) return -1;
+          if (aRecent !== bRecent) return aRecent - bRecent;
+        }
       }
 
       const contextDelta = contextScore(b.path) - contextScore(a.path);
