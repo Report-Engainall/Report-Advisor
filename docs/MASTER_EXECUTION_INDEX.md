@@ -21,6 +21,15 @@
 9. **PDF/OCR:** لا يوجد نقل للنتيجة التاريخية `10/12`; يجب إعادة إثبات السيناريوهات على Exact HEAD. Repository path يحتوي بالفعل على structured PDF/OCR hardening، لكن ذلك لا يساوي runtime certification.
 10. **Production parity:** Netlify public access is verified, but Production is still serving the older `ad12e9e...` deploy. Vercel remains externally blocked by `api-deployments-free-per-day` build-rate-limit and is not release proof.
 
+
+### CURRENT PRODUCT WAVE UPDATE — PR #595
+- UI/product wave rebased directly onto current main fe5661060462ffa21d6aa31505f80c2021c4170a and opened as PR #595.
+- Superseded PR #587 is closed; no historical CI/evidence from #587 is treated as certification for #595.
+- Current PR head at the time of this sync: d3b622987d566ae292b6798ecbdbb73243ba4cdf.
+- UI work included shell/header/sidebar/command palette, dashboard truth context, Intelligence assistant, decision stage UX/deep-link synchronization, Data Quality, Executive Command Center/Report, Metric Inspector, Alternatives and Work Center refinements.
+- Shared E2E login harness fixed to target the semantic form submit control instead of the obsolete localized login-label text.
+- Dashboard truth adversarial regression contract made whitespace-tolerant without weakening the intended semantic guard.
+- PR #595 is based directly on current main; fresh exact-head CI is authoritative.
 ### LATEST EXECUTION UPDATE — 2026-09-18
 - Staging forward-only parity checkpoint applied successfully: `harden_import_field_lineage_rls`, `revoke_authenticated_worker_enqueue`, `reconcile_live_source_end_state`.
 - Verified import row integrity: null company=0, orphan job=0, cross-tenant row/job mismatch=0.
