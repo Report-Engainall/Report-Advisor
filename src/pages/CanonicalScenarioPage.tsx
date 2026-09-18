@@ -22,7 +22,8 @@ export function CanonicalScenarioPage({ baseRevenue, baseCost, currency }: Canon
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <PageHeader title="محاكاة السيناريوهات" subtitle="اختبر تأثير التغييرات على الأداء المالي" />
+      <PageHeader title="محاكاة السيناريوهات" subtitle="محاكاة مرجعية حتمية مبنية على القاعدة المالية الحالية؛ لا تُكتب أي نتيجة إلى بيانات الأعمال." />
+      <section className="rounded-2xl border border-primary-100 bg-primary-50/60 p-4"><div className="flex flex-wrap gap-2 text-[10px] font-bold text-primary-800"><span className="badge-primary badge">محاكاة محلية</span><span className="badge-neutral">الإيراد الجديد = الإيراد الأساسي × (1 + الحجم) × (1 + السعر)</span><span className="badge-neutral">التكلفة الجديدة = التكلفة الأساسية × (1 + الحجم) × (1 + التكلفة)</span></div><p className="mt-2 text-[11px] leading-5 text-primary-700">القيم المعروضة تساعد على فحص حساسية القرار فقط، وليست Forecast ولا إثباتًا لنتيجة تشغيلية.</p></section>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <Card>
           <CardHeader title="محددات السيناريو" />
