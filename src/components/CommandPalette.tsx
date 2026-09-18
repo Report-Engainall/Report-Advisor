@@ -38,20 +38,37 @@ const COMMANDS: CommandItem[] = [
 
 interface CommandPaletteProps { open: boolean; onClose: () => void; }
 
+const RECENT_COMMANDS_KEY = 'aghbari.commandPalette.recent';
+const RECENT_LIMIT = 5;
+
 export function CommandPalette({ open, onClose }: CommandPaletteProps) {
   const navigate = useNavigate();
   const inputRef = useRef<HTMLInputElement>(null);
   const [query, setQuery] = useState('');
   const [active, setActive] = useState(0);
+  const [recentPaths, setRecentPaths] = useState<string[]>([]);
+  const recentCommands = useMemo(() => recentPaths.map(path => COMMANDS.find(item => item.path === path)).filter((item): item is CommandItem => Boolean(item)), [recentPaths]);
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return COMMANDS;
+    if (!q) return [...recentCommands, ...COMMANDS.filter(item => !recentPaths.includes(item.path))];
     return COMMANDS.filter(item => [item.label, item.description, ...item.keywords].join(' ').toLowerCase().includes(q));
-  }, [query]);
+  }, [query, recentCommands, recentPaths]);
+  const openCommand = (item: CommandItem) => {
+    const next = [item.path, ...recentPaths.filter(path => path !== item.path)].slice(0, RECENT_LIMIT);
+    setRecentPaths(next);
+    try { window.localStorage.setItem(RECENT_COMMANDS_KEY, JSON.stringify(next)); } catch { /* Storage is optional. */ }
+    navigate(item.path);
+    onClose();
+  };
   useEffect(() => {
     if (!open) return;
     setQuery('');
     setActive(0);
+    try {
+      const raw = window.localStorage.getItem(RECENT_COMMANDS_KEY);
+      const parsed = raw ? JSON.parse(raw) : [];
+      if (Array.isArray(parsed)) setRecentPaths(parsed.filter((path): path is string => typeof path === 'string').slice(0, RECENT_LIMIT));
+    } catch { /* Ignore unavailable storage. */ }
     requestAnimationFrame(() => inputRef.current?.focus());
   }, [open]);
   useEffect(() => {
@@ -60,7 +77,7 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
       if (event.key === 'Escape') onClose();
       if (event.key === 'ArrowDown') { event.preventDefault(); setActive(value => Math.min(value + 1, Math.max(filtered.length - 1, 0))); }
       if (event.key === 'ArrowUp') { event.preventDefault(); setActive(value => Math.max(value - 1, 0)); }
-      if (event.key === 'Enter' && filtered[active]) { event.preventDefault(); navigate(filtered[active].path); onClose(); }
+      if (event.key === 'Enter' && filtered[active]) { event.preventDefault(); openCommand(filtered[active]); }
     };
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
@@ -71,7 +88,7 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
       <button className="absolute inset-0 cursor-default" aria-label="إغلاق" onClick={onClose} />
       <div className="relative w-full max-w-2xl overflow-hidden rounded-2xl border border-ink-200 bg-white shadow-2xl" dir="rtl">
         <div className="flex items-center gap-3 border-b border-ink-100 px-4 py-3"><Search size={19} className="text-ink-400" /><input ref={inputRef} value={query} onChange={event => { setQuery(event.target.value); setActive(0); }} placeholder="ابحث عن صفحة أو إجراء..." className="min-w-0 flex-1 bg-transparent text-sm text-ink-900 outline-none placeholder:text-ink-400" /><kbd className="hidden rounded-md border border-ink-200 bg-ink-50 px-2 py-1 text-[10px] text-ink-400 sm:inline-flex">Esc</kbd></div>
-        <div className="max-h-[55vh] overflow-y-auto p-2">{filtered.length === 0 ? <div className="px-4 py-10 text-center text-sm text-ink-400">لا توجد نتائج مطابقة</div> : filtered.map((item, index) => <button key={item.path} type="button" onMouseEnter={() => setActive(index)} onClick={() => { navigate(item.path); onClose(); }} className={`flex w-full items-center gap-3 rounded-xl px-3 py-3 text-right transition ${index === active ? 'bg-primary-50 text-primary-900' : 'hover:bg-ink-50'}`}><span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${index === active ? 'bg-primary-100 text-primary-700' : 'bg-ink-100 text-ink-500'}`}><Command size={17} /></span><span className="min-w-0 flex-1"><span className="block text-sm font-semibold">{item.label}</span><span className="block truncate text-xs text-ink-400">{item.description}</span></span>{index === active && <ArrowRight size={16} className="shrink-0 text-primary-500" />}</button>)}</div>
+        <div className="max-h-[55vh] overflow-y-auto p-2">{!query.trim() && recentCommands.length > 0 && <div className="px-3 pb-2 pt-1 text-[10px] font-bold uppercase tracking-wide text-ink-400">الوصول السريع</div>}{filtered.length === 0 ? <div className="px-4 py-10 text-center text-sm text-ink-400">لا توجد نتائج مطابقة</div> : filtered.map((item, index) => <button key={item.path} type="button" onMouseEnter={() => setActive(index)} onClick={() => openCommand(item)} className={`flex w-full items-center gap-3 rounded-xl px-3 py-3 text-right transition ${index === active ? 'bg-primary-50 text-primary-900' : 'hover:bg-ink-50'}`}><span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${index === active ? 'bg-primary-100 text-primary-700' : 'bg-ink-100 text-ink-500'}`}><Command size={17} /></span><span className="min-w-0 flex-1"><span className="block text-sm font-semibold">{item.label}</span><span className="block truncate text-xs text-ink-400">{item.description}</span></span>{index === active && <ArrowRight size={16} className="shrink-0 text-primary-500" />}</button>)}</div>
         <div className="flex flex-wrap items-center gap-3 border-t border-ink-100 bg-ink-50/70 px-4 py-2 text-[11px] text-ink-400"><span>↑↓ للتنقل</span><span>Enter للفتح</span><span>Esc للإغلاق</span></div>
       </div>
     </div>
