@@ -71,7 +71,7 @@ try {
     const alertText = await page.getByRole('alert').first().textContent().catch(() => '');
     throw new Error('AUTH_UI_SESSION_NOT_ESTABLISHED' + (alertText?.trim() ? ':' + alertText.trim().slice(0, 180) : ''));
   }
-  await page.getByRole('button', { name: 'تسجيل الخروج' }).waitFor({ state: 'visible', timeout: 30000 });
+  await page.getByRole('navigation', { name: 'التنقل التجاري الرئيسي' }).waitFor({ state: 'visible', timeout: 30000 });
   evidence.tenant = await currentTenant();
   await page.goto(`${baseURL}/products`, { waitUntil: 'domcontentloaded', timeout: 30000 });
   await page.getByRole('button', { name: 'منتج جديد' }).waitFor({ state: 'visible', timeout: 30000 });
