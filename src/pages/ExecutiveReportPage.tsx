@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { fetchDashboardIntelligence, fetchDashboardSnapshot, type DashboardKPIs, type MonthlyTrend } from '@/lib/dashboard-canonical';
 import type { Alert, Recommendation } from '@/lib/types';
 import { formatCurrency, formatNumber } from '@/lib/format';
-import { PageHeader } from '@/components/ui/States';
+import { PageHeader, TruthRail } from '@/components/ui/States';
 
 function Metric({ label, value, hint }: { label: string; value: string; hint: string }) {
   return <div className="rounded-2xl border border-ink-100 bg-ink-50/70 p-4">
@@ -58,6 +58,7 @@ export function ExecutiveReportPage() {
   useEffect(() => { void load(); }, [load]);
 
   return <div dir="rtl" className="space-y-5 pb-10 print:space-y-3">
+    <TruthRail status={loading ? "limited" : error ? "review" : "live"} period="آخر 6 أشهر · التقرير التنفيذي" />
     <PageHeader title="التقرير التنفيذي" subtitle="ملخص تشغيلي مبني على المصادر المعتمدة، مع إبقاء أي فجوة بيانات معلنة." actions={<><button type="button" onClick={() => void load()} disabled={loading} className="btn-secondary print:hidden"><RefreshCw size={16} className={loading ? 'animate-spin' : ''} /> تحديث</button><button type="button" onClick={() => window.print()} className="btn-primary print:hidden"><Printer size={17} /> طباعة / PDF</button></>} />
     <header className="overflow-hidden rounded-3xl bg-ink-950 p-6 text-white shadow-sm lg:p-8 print:bg-white print:text-black print:border print:border-ink-200">
       <div className="flex flex-wrap items-center justify-between gap-5">
