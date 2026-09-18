@@ -63,13 +63,13 @@ A preview deployment is not production proof.
 
 # 2. LIVE EXECUTION HEADER
 
-Last material update: 2026-09-18T02:55Z
+Last material update: 2026-09-18T03:02Z
 Current Main: a32fae0fc08c1cbbcc60b6eedfb0f4bd74a21c50
 Primary environment: Supabase staging fnqbvfuwbdpwvhcgzksl
 Production URL: https://report-advisor.vercel.app
 Coordinator branch: governance/coordinator-continuous-execution-20260918
 Coordinator PR: #537
-Coordinator PR HEAD at this snapshot: 4b230b4642dd99396cf7b779d383943d0cfcc9c6
+Coordinator PR HEAD at this snapshot: 32f4386fbe3270ab948aacbf009418e08aea54b4
 
 ### Open implementation fronts
 
@@ -306,3 +306,16 @@ READ MEMORY → VERIFY CURRENT HEAD → EXECUTE NEXT QUEUE ITEM
 without asking the user to reconstruct project history.
 
 **The repository must remember the work.**
+
+
+---
+
+# 14. COORDINATOR CYCLE LOG
+
+### 2026-09-18T03:02Z — Durable memory upgrade
+- Added this operational-memory document to the coordinator branch.
+- Bound the coordinator protocol to mandatory memory read/update behavior.
+- Bound the master execution protocol to the same restartable execution-state requirement.
+- No application, database, production alias, or runtime semantics were changed by this cycle.
+- New coordinator branch HEAD: 32f4386fbe3270ab948aacbf009418e08aea54b4.
+- Next action: inspect exact-head CI for implementation fronts and advance the first actionable independent failure without repeating closed audits.
