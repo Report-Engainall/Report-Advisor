@@ -1,5 +1,5 @@
-import type { ReportExecutionRequest } from './report-execution-contract';
-import { InMemoryReportQueue, type ReportQueueJob } from './queue';
+import type { ReportExecutionRequest } from './report-execution-contract.js';
+import { InMemoryReportQueue, type ReportQueueJob } from './queue.js';
 
 export interface ReportWorkerAdapter {
   claim(workerId: string): ReportQueueJob | undefined;
