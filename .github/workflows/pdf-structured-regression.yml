@@ -11,6 +11,16 @@ on:
       - 'scripts/check-file-engine-regressions.ts'
       - 'scripts/check-pdf-structured-regression.ts'
       - '.github/workflows/pdf-structured-regression.yml'
+  push:
+    paths:
+      - 'src/lib/file-engine/adapters.ts'
+      - 'src/lib/file-engine/normalizer.ts'
+      - 'src/lib/file-engine/data-types.ts'
+      - 'src/lib/file-engine/synonyms.ts'
+      - 'scripts/check-file-engine-regressions.ts'
+      - 'scripts/check-file-engine-contract.mjs'
+      - 'scripts/check-pdf-structured-regression.ts'
+      - '.github/workflows/pdf-structured-regression.yml'
   workflow_dispatch:
 
 permissions:
