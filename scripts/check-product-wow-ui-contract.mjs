@@ -3,6 +3,7 @@ import fs from 'node:fs';
 
 const login = fs.readFileSync('src/pages/LoginPage.tsx', 'utf8');
 const dashboard = fs.readFileSync('src/pages/DashboardPage.tsx', 'utf8');
+const entities = fs.readFileSync('src/pages/EntityPages.tsx', 'utf8');
 
 for (const token of [
   'competitiveProofLanes',
@@ -24,5 +25,10 @@ for (const token of [
 
 assert.ok(!login.includes('تجريبي') || login.includes('لا يوجد حساب تجريبي افتراضي'), 'login must not imply a fake demo account');
 assert.ok(!dashboard.includes('generateSynthetic'), 'decision brief must not invent synthetic business data');
+
+assert.ok(!entities.includes('if (loading && products.length === 0) return <LoadingState />;'), 'product actions must remain visible while the list is loading');
+assert.ok(!entities.includes('if (loading && customers.length === 0) return <LoadingState />;'), 'customer actions must remain visible while the list is loading');
+assert.ok(entities.includes('data={products} loading={loading}'), 'product table must own its loading state');
+assert.ok(entities.includes('data={customers} loading={loading}'), 'customer table must own its loading state');
 
 console.log('Product wow UI contract: PASS (public proof theater + deterministic decision brief)');
