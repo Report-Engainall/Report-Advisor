@@ -9,7 +9,8 @@ import { DataTable } from '@/components/ui/DataTable';
 import { CustomerCreateDialog } from '@/components/CustomerCreateDialog';
 import { ProductCreateDialog } from '@/components/ProductCreateDialog';
 import { fetchCustomersPage, fetchProductsPage } from '@/lib/queries';
-import { fetchInventoryReportSnapshot, type InventoryReportRow } from '@/lib/dashboard-canonical';
+import { fetchDashboardSnapshot, fetchInventoryReportSnapshot, type InventoryReportRow } from '@/lib/dashboard-canonical';
+import { EntityCommandContext } from '@/components/EntityCommandContext';
 import { formatCurrency, formatNumber } from '@/lib/format';
 import type { Customer, Product } from '@/lib/types';
 
@@ -59,6 +60,7 @@ export function CustomersPage() {
   const [createOpen, setCreateOpen] = useState(false);
   const [page, setPage] = useState(0);
   const [total, setTotal] = useState(0);
+  const [commandSnapshot, setCommandSnapshot] = useState<Awaited<ReturnType<typeof fetchDashboardSnapshot>> | null>(null);
 
   const load = useCallback(async () => {
     try {
@@ -75,6 +77,10 @@ export function CustomersPage() {
   }, [page, search]);
 
   useEffect(() => { void load(); }, [load]);
+  useEffect(() => { void fetchDashboardSnapshot(6).then(setCommandSnapshot).catch(() => setCommandSnapshot(null)); }, []);
+
+  const commandEntity = selectedCustomer ? commandSnapshot?.topCustomers.find(row => row.id === selectedCustomer.id) ?? null : null;
+  const commandRank = commandEntity ? (commandSnapshot?.topCustomers.findIndex(row => row.id === commandEntity.id) ?? -1) + 1 : null;
 
   const segmentMap: Record<string, { variant: 'success' | 'primary' | 'neutral'; label: string }> = {
     vip: { variant: 'success', label: 'VIP' },
@@ -109,6 +115,7 @@ export function CustomersPage() {
         <span className="text-xs text-ink-500">عرض {customers.length} من {formatNumber(total)} عميل</span>
         <div className="flex items-center gap-2"><button type="button" disabled={page===0} onClick={()=>setPage(p=>Math.max(0,p-1))} className="px-3 py-1.5 rounded-lg border border-ink-200 text-xs disabled:opacity-40">السابق</button><span className="text-xs text-ink-600">صفحة {page+1} / {totalPages}</span><button type="button" disabled={page+1>=totalPages} onClick={()=>setPage(p=>p+1)} className="px-3 py-1.5 rounded-lg border border-ink-200 text-xs disabled:opacity-40">التالي</button></div>
       </div>
+      {selectedCustomer && <EntityCommandContext kind="customer" entity={commandEntity} kpis={commandSnapshot?.kpis ?? null} rank={commandRank} />}
       {selectedCustomer && <EntityContextDrawer
         title={selectedCustomer.name}
         subtitle="ملخص سياقي مبني على السجل الحالي، مع طرق الوصول إلى مساحات التحصيل والتحليل المتاحة."
@@ -141,6 +148,7 @@ export function ProductsPage() {
   const [createOpen, setCreateOpen] = useState(false);
   const [page, setPage] = useState(0);
   const [total, setTotal] = useState(0);
+  const [commandSnapshot, setCommandSnapshot] = useState<Awaited<ReturnType<typeof fetchDashboardSnapshot>> | null>(null);
 
   const load = useCallback(async () => {
     try {
@@ -157,6 +165,9 @@ export function ProductsPage() {
   }, [page, search]);
 
   useEffect(() => { void load(); }, [load]);
+  useEffect(() => { void fetchDashboardSnapshot(6).then(setCommandSnapshot).catch(() => setCommandSnapshot(null)); }, []);
+  const commandEntity = selectedProduct ? commandSnapshot?.topProducts.find(row => row.id === selectedProduct.id) ?? null : null;
+  const commandRank = commandEntity ? (commandSnapshot?.topProducts.findIndex(row => row.id === commandEntity.id) ?? -1) + 1 : null;
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
   return (
@@ -204,6 +215,7 @@ export function ProductsPage() {
         ]}
         onClose={() => setSelectedProduct(null)}
       />}
+      {selectedProduct && <EntityCommandContext kind="product" entity={commandEntity} kpis={commandSnapshot?.kpis ?? null} rank={commandRank} />}
     </div>
   );
 }
