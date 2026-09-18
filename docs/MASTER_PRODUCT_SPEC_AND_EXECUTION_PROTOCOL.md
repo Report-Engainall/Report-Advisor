@@ -1042,7 +1042,7 @@ No green synthetic contract alone can replace a missing runtime proof.
 The implementation cycle must be restartable without conversation memory.
 
 Before implementation:
-1. Read docs/CONTINUOUS_OPERATIONAL_MEMORY.md.
+1. Read docs/CONTINUOUS_OPERATIONAL_MEMORY.md and docs/CONTINUOUS_OPERATIONAL_STATE.json.
 2. Verify current Main and relevant PR head SHAs directly in GitHub.
 3. Treat the operational-memory front matrix as the starting queue, not as proof; re-verify each material item before acting.
 4. Do not repeat an unchanged audit listed in the no-repeat index.
@@ -1054,7 +1054,7 @@ After every material implementation or evidence change:
 4. update the programmer handoff state in operational memory;
 5. continue to the next independent queue item.
 
-The operational memory is not a progress percentage and not a substitute for tests. It is the durable execution context that makes the project resumable across agents, sessions and pasted reports.
+The operational memory files are not a progress percentage and not a substitute for tests. They are the durable execution context that makes the project resumable across agents, sessions and pasted reports. It is the durable execution context that makes the project resumable across agents, sessions and pasted reports.
 
 # 24. STRICT PROGRAMMER EXECUTION ORDER
 
