@@ -14,7 +14,7 @@ for (const token of [
   'fetchDashboardSnapshot',
   'fetchDashboardIntelligence',
   'metricStatus',
-  'QUICK_ACTIONS',
+  'مسارات العمل',
 ]) assert.ok(source.includes(token), `dashboard UI contract missing: ${token}`);
 
 assert.match(source, /kpis\.totalSales/);
