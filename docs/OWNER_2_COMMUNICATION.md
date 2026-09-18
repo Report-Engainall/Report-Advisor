@@ -172,3 +172,38 @@ FILES POTENTIALLY MODIFIED=vercel.json؛ scripts/tests فقط إذا أثبت ا
 DEPENDENCIES=Vercel deployment access remains external; GitHub Actions runtime secrets remain unchanged.
 BLOCKERS=Exact deployed-SHA parity; Phase-F live endpoints; CI serverless execution path.
 NEXT=Inspect current vercel.json at exact HEAD → minimal routing fix → targeted validation → handoff with new SHA.
+
+## EXECUTED → VERIFIED → OPEN → BLOCKED → NEXT HANDOFF | 2026-09-18
+EXECUTED:
+- Root cause fixed: replaced legacy catch-all `routes` SPA configuration in `vercel.json` with a higher-level SPA `rewrites` rule so Vercel can retain automatic /api Function routing.
+- Code commit on Owner2 branch: 6cb72fc50bc6660a75d78298722d286b12aa1b78.
+- Exact integration cherry-pick: 717fea88ed02be357f333865be89688b0d7740bb.
+- No database mutation, no grant widening, no browser service-role auth, no migration rewrite.
+
+VERIFIED:
+- Exact build @717fea88: PASS, Vite 5.4.8, 2809 modules, BUILD_EXIT 0.
+- Vercel SPA/API routing contract: PASS (JSON valid, legacy routes absent, one catch-all rewrite present).
+- HEAD IDENTITY @717fea88: PASS as integration certification candidate.
+- final-certification-provenance.test.mjs: PASS.
+- check-certification-boundary-integrity.test.mjs: PASS.
+- release resilience manifest: PASS (278 migrations, 5 resilience domains).
+- workflow command integrity: PASS (81 workflows).
+- Remote refs after handoff:
+  main=1568e43889d27b5d850e64c0b99d03a994fd3bbe
+  integration/certification-candidate-20260918=717fea88ed02be357f333865be89688b0d7740bb
+  ui/aghbari-command-wave2-20260918=6ef72084995b66b802a2097d55c1c22d82550d6d
+- Fresh GitHub Actions for @717fea88 are running; no PASS from the previous SHA is being transferred.
+
+OPEN:
+- Fresh runtime Browser E2E, Product Persistence, Phase-F live probes, backup/restore/RPO/RTO and deployed-SHA parity must be re-proven on @717fea88.
+- Vercel deployment itself remains externally blocked (connector 403; PC01 Vercel auth absent). Current production cannot be used as exact-head evidence.
+- CI business persistence may still be blocked until a real server execution environment is available; the routing defect is fixed in source but exact deployed/function runtime remains unproven.
+
+BLOCKED:
+- External Vercel authorization/deployment access is still unavailable.
+- GitHub Actions still has no referenced provisioned service-role secret in current workflow definitions; the canonical import API remains backend-only and must not be downgraded to authenticated browser RPCs.
+
+NEXT HANDOFF:
+- Verify fresh @717fea88 Final Certification, Full Product Browser E2E, Device-Independent Browser E2E, Storage Runtime, Phase-F and Windows.
+- If business persistence now reaches the function boundary, close based on real commit/read-back evidence. If it still reports 404/405, keep it BLOCKED as environment/function deployment mismatch rather than altering auth/DB semantics.
+- Deploy exact @717fea88 when authorized, then verify /api/health, /api/canonical-import-execute and Phase-F endpoints return governed function responses before release.
