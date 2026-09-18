@@ -38,3 +38,10 @@
 - Authoritative observation: rerun of c9029723ef270917f7762182cfbd5b1ac12949c9 still failed at the backend runtime secret contract with SUPABASE_SERVICE_ROLE_KEY=MISSING, before business execution.
 - Exact successor 4a79e23faffd39c96c3839d1e15fe543465930cf contains the governed environment: staging binding for Full Product Browser E2E.
 - No evidence is transferred from c902. The next push is a governance-only retrigger marker; the resulting successor SHA is the only authoritative runtime attempt.
+
+## 2026-09-19 — Exact-head retrigger after canonical import schema fix
+- Code fix committed at 4e90ffac8684d0c295173a1a38143e221dca6572.
+- Static verification on the code head: diff-check PASS; import transaction contract PASS; TypeScript typecheck PASS; production build PASS.
+- Root cause fixed: canonical-import-execute no longer selects non-existent import_jobs.file_name/entity_type columns; entity identity is checked against persisted job_type/result_summary while tenant and import ID remain mandatory.
+- Retrigger marker only: no runtime/product behavior is changed by this ledger entry.
+- Evidence from 6bfb9932 is not transferred; the next exact head must re-prove browser, KPI, and business persistence.
