@@ -5,7 +5,7 @@
 > Authoritative execution manifest. This document never promotes historical evidence across an exact Git `HEAD` boundary. Pair every evidence batch with the exact Git `HEAD` of `main` and the exact environment/commit used.
 
 ### CURRENT EXACT HEAD
-- Current code/test candidate: `0ed205a4afaa607b20474226408316096be3a648`.
+- Current code/test candidate: `fe620f9ad294590a4c3b5ccac5a26b7599981264`.
 - This is the exact current `main` head after the latest governance, resilience and device-independent browser-smoke work; the previous `e0503ae...` binding is superseded.
 - No runtime/browser/production evidence from an earlier SHA is promoted by this binding.
 - The certification binding itself is governance-only and does not certify runtime/product code; fresh exact-HEAD runtime evidence is still required.
@@ -15,7 +15,7 @@
 
 ### CURRENT EXECUTION CONTROL — 2026-09-18
 - PR #533 adds the mandatory continuous two-owner execution/resume protocol. It is governance-only and does not itself certify runtime.
-- Programmer-owned active runtime front: PR #541 (`0ed205a4afaa607b20474226408316096be3a648`) for structured PDF/runtime closure on current Main.
+- Programmer-owned active runtime front: PR #542 (`fe620f9ad294590a4c3b5ccac5a26b7599981264`) for structured PDF/OCR runtime closure on current Main.
 - Coordinator-owned verification fronts: current exact-head evidence binding, Supabase staging truth/security, production/deployment verification, resilience/evidence control, and commercial-gap control.
 - Rule: do not restart closed work. Resume IN_PROGRESS fronts from their last verified checkpoint. Do not mix evidence across SHA boundaries.
 - Rule: independent fronts must run in parallel; a queued CI workflow or external provider blocker must not idle unrelated work.
