@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { fetchDashboardIntelligence, fetchDashboardSnapshot, type DashboardKPIs, type MonthlyTrend } from '@/lib/dashboard-canonical';
 import type { Alert, Recommendation } from '@/lib/types';
 import { formatCurrency, formatNumber } from '@/lib/format';
+import { PageHeader } from '@/components/ui/States';
 
 function Metric({ label, value, hint }: { label: string; value: string; hint: string }) {
   return <div className="rounded-2xl border border-ink-100 bg-ink-50/70 p-4">
@@ -57,17 +58,14 @@ export function ExecutiveReportPage() {
   useEffect(() => { void load(); }, [load]);
 
   return <div dir="rtl" className="space-y-5 pb-10 print:space-y-3">
+    <PageHeader title="التقرير التنفيذي" subtitle="ملخص تشغيلي مبني على المصادر المعتمدة، مع إبقاء أي فجوة بيانات معلنة." actions={<><button type="button" onClick={() => void load()} disabled={loading} className="btn-secondary print:hidden"><RefreshCw size={16} className={loading ? 'animate-spin' : ''} /> تحديث</button><button type="button" onClick={() => window.print()} className="btn-primary print:hidden"><Printer size={17} /> طباعة / PDF</button></>} />
     <header className="overflow-hidden rounded-3xl bg-ink-950 p-6 text-white shadow-sm lg:p-8 print:bg-white print:text-black print:border print:border-ink-200">
-      <div className="flex flex-wrap items-end justify-between gap-5">
+      <div className="flex flex-wrap items-center justify-between gap-5">
         <div>
           <div className="flex items-center gap-2 text-sm font-semibold text-primary-300"><FileText size={17} /> Executive Reporting</div>
-          <h1 className="mt-2 text-2xl font-black lg:text-4xl">التقرير التنفيذي</h1>
-          <p className="mt-2 max-w-3xl text-sm leading-7 text-ink-300 print:text-ink-600">من المؤشر إلى القرار: ملخص تشغيلي مبني على المصادر المعتمدة، مع إبقاء أي فجوة بيانات معلنة بدل اختلاق قيمة.</p>
+          <p className="mt-2 max-w-3xl text-sm leading-7 text-ink-300 print:text-ink-600">من المؤشر إلى القرار: يوضح ما يمكن إثباته، وما يحتاج runtime evidence، ولا يحول غياب الدليل إلى PASS.</p>
         </div>
-        <div className="flex gap-2 print:hidden">
-          <button type="button" onClick={() => void load()} disabled={loading} className="inline-flex items-center gap-2 rounded-xl border border-white/15 bg-white/10 px-4 py-2.5 text-sm font-semibold hover:bg-white/15 disabled:opacity-60"><RefreshCw size={16} className={loading ? 'animate-spin' : ''} /> تحديث</button>
-          <button type="button" onClick={() => window.print()} className="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2.5 text-sm font-semibold text-ink-900"><Printer size={17} /> طباعة / PDF</button>
-        </div>
+        <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-xs font-semibold text-slate-300">Canonical source · Evidence-first · Fail-closed</div>
       </div>
     </header>
 
