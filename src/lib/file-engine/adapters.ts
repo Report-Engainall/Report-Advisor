@@ -104,9 +104,13 @@ function tryParseStructuredPdfText(text: string): Row[] | null {
   }
 
   const normalized = normalizeArabicDigits(
-    compact
-      .normalize('NFKC')
-      .replace(/[\u0000-\u001F\u007F]/g, ' ')
+    Array.from(
+      compact.normalize('NFKC'),
+      (character) => {
+        const code = character.charCodeAt(0);
+        return code < 32 && code !== 9 && code !== 10 && code !== 13 ? ' ' : character;
+      },
+    ).join('')
       .replace(/[\u200B-\u200F\u202A-\u202E\uFEFF]/g, ' ')
       .replace(/\s+/g, ' ')
       .trim(),
