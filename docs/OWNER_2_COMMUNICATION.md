@@ -161,3 +161,14 @@ FILES=src/lib/import/canonical-production-adapter.ts; scripts/check-import-trans
 DEPENDENCIES=Supabase staging fnqbvfuwbdpwvhcgzksl; GitHub Actions; Vercel/provider runtime; existing durable runner/worker; no new runner/RPC.
 BLOCKERS=ﬁ»· «·≈À»«  «·‰Â«∆Ì ·« ÌÊÃœ blocker code „› —÷∫ Phase-F live endpoints/deployment parity/backup evidence ﬁœ  »ﬁÏ external gates ÊÌÃ» ≈À»« Â« √Ê  ’‰Ì›Â« »œﬁ….
 EXPECTED HANDOFF=Successor Exact-SHA with fresh Business Persistence + PDF/OCR + certification evidence; no evidence transfer.
+
+## EXECUTION | OWNER=2 | 2026-09-19T01:32+03:00
+CHANGE=Applied the forward-only enqueue service-boundary migration to Supabase staging and committed the matching runtime correction.
+FILES=src/lib/import/canonical-production-adapter.ts; scripts/check-import-transaction-contract.mjs; supabase/migrations/20260919012600_reconcile_report_execution_enqueue_service_boundary.sql
+WHY=The worker enqueue RPC is service_role-only by design; the API boundary must validate authenticated user/tenant before internal service-role enqueue. Browser/authenticated EXECUTE remains denied.
+TEST=Staging migration applied; SQL verification shows proacl {postgres=X/postgres,service_role=X/postgres}; migration 20260919012600 recorded; import transaction contract PASS; TypeScript typecheck PASS; production build PASS.
+RESULT=VERIFIED locally + staging schema. GitHub PR #598 head advanced to the exact successor SHA; fresh CI/runtime evidence is still required and no prior evidence is transferred.
+COMMIT=ef8fcb449c217bff6958d551815d5c7869b340eb
+NEW HEAD=ef8fcb449c217bff6958d551815d5c7869b340eb
+STATUS=IN_PROGRESS
+NEXT=Fresh exact-head browser/business persistence proof; then PDF/OCR positive live commit/readback; Phase-F/deployment parity; backup/restore RPO/RTO; final certification/release.
