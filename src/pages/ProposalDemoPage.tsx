@@ -2,7 +2,6 @@ import { useMemo, useState, useCallback } from 'react';
 import { ArrowUpRight, CheckCircle2, FileText, Printer, Target, Wand2, Copy, ShieldCheck, AlertTriangle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
-import { PageHeader } from '@/components/ui/States';
 
 type Capability = {
   id: string;
@@ -44,20 +43,73 @@ function scoreCapability(requirement: string, capability: Capability): number {
   return score;
 }
 
+type CompetitiveTrack = {
+  id: string;
+  title: string;
+  problem: string;
+  capabilityIds: string[];
+  suggestedRequirements: string[];
+};
+
+const COMPETITIVE_TRACKS: CompetitiveTrack[] = [
+  {
+    id: 'evidence-bi',
+    title: 'Evidence-First BI',
+    problem: 'KPI وتقارير تنفيذية يمكن تتبعها حتى المصدر والدليل.',
+    capabilityIds: ['dashboard', 'reports', 'profitability', 'metrics'],
+    suggestedRequirements: ['Executive dashboard with traceable KPIs', 'Financial reporting with definitions and evidence', 'Metric lineage and source visibility'],
+  },
+  {
+    id: 'supabase-security',
+    title: 'Supabase Tenant Security',
+    problem: 'عزل المستأجرين وRLS ورفض الوصول غير المصرح به مع إثبات حقيقي.',
+    capabilityIds: [],
+    suggestedRequirements: ['Supabase RLS and multi-tenant isolation review', 'Cross-tenant access denial evidence', 'Auth and database security hardening'],
+  },
+  {
+    id: 'governed-import',
+    title: 'Governed Excel / CSV',
+    problem: 'تحويل الملفات الفوضوية إلى بيانات أعمال محكومة بدل ETL عام.',
+    capabilityIds: ['import', 'data-quality', 'metrics'],
+    suggestedRequirements: ['Excel/CSV import with validation', 'Reconciliation and duplicate handling', 'Canonical business data with traceable metrics'],
+  },
+  {
+    id: 'arabic-rtl',
+    title: 'Arabic RTL B2B UX',
+    problem: 'SaaS عربي حقيقي يعمل على الهاتف والاتصالات الضعيفة مع accessibility.',
+    capabilityIds: ['dashboard', 'reports', 'customers', 'products'],
+    suggestedRequirements: ['Arabic-first RTL SaaS experience', 'Responsive B2B workflows for mobile', 'Accessible tables, forms and navigation'],
+  },
+  {
+    id: 'inventory-receivables',
+    title: 'Inventory / Receivables Decisions',
+    problem: 'تحويل إشارات المخزون والذمم إلى قرار تشغيلي واضح.',
+    capabilityIds: ['inventory', 'receivables', 'demand', 'decision'],
+    suggestedRequirements: ['Inventory risk and reorder decisions', 'Receivables aging and collection priorities', 'Demand velocity with evidence-bound actions'],
+  },
+];
+
 export function ProposalDemoPage() {
+  const [selectedTrackId, setSelectedTrackId] = useState('evidence-bi');
   const [jobTitle, setJobTitle] = useState('Business Intelligence / Data Analytics Project');
   const [client, setClient] = useState('Prospective Client');
-  const [requirements, setRequirements] = useState('Dashboard with sales and financial KPIs\nExcel/CSV import and validation\nReceivables and aging analysis\nInventory and demand forecasting\nRecommendations and decision support');
+  const [requirements, setRequirements] = useState(COMPETITIVE_TRACKS[0].suggestedRequirements.join('\n'));
   const [copied, setCopied] = useState(false);
+  const selectedTrack = useMemo(() => COMPETITIVE_TRACKS.find(track => track.id === selectedTrackId) ?? COMPETITIVE_TRACKS[0], [selectedTrackId]);
 
   const mapped = useMemo(() => requirements.split(/\r?\n/).map(value => value.trim()).filter(Boolean).map(requirement => {
-    const ranked = CAPABILITIES.map(capability => ({ capability, score: scoreCapability(requirement, capability) })).sort((a, b) => b.score - a.score);
+    const ranked = CAPABILITIES.map(capability => ({
+      capability,
+      score: scoreCapability(requirement, capability) + (selectedTrack.capabilityIds.includes(capability.id) ? 4 : 0),
+    })).sort((a, b) => b.score - a.score);
     const match = ranked[0];
     return { requirement, match: match && match.score > 0 ? match.capability : null };
-  }), [requirements]);
+  }), [requirements, selectedTrack]);
 
   const matched = mapped.filter(item => item.match);
   const unmatched = mapped.filter(item => !item.match);
+  const trackMatched = matched.filter(item => item.match && selectedTrack.capabilityIds.includes(item.match.id));
+  const liveDemoItems = trackMatched.length ? trackMatched : matched;
   const proofCounts = useMemo(() => mapped.reduce((acc, item) => {
     const key = item.match?.proofState ?? 'MISSING';
     acc[key] = (acc[key] ?? 0) + 1;
@@ -65,7 +117,7 @@ export function ProposalDemoPage() {
   }, {} as Record<string, number>), [mapped]);
 
   const proposalDraft = useMemo(() => {
-    const opening = `مرحبًا، راجعت نطاق ${jobTitle} من منظور المشكلة والنتيجة المطلوبة، وليس من قائمة تقنيات عامة. لدي مسارات فعلية داخل الأغبري تغطي أجزاء أساسية من هذا النطاق.\\n\\n`;
+    const opening = `مرحبًا، راجعت نطاق ${jobTitle} ضمن مسار ${selectedTrack.title} من منظور المشكلة والنتيجة المطلوبة، وليس من قائمة تقنيات عامة. لدي مسارات فعلية داخل الأغبري تغطي أجزاء أساسية من هذا النطاق.\\n\\n`;
     const matchedLines = matched.slice(0, 8).map(item => {
       const state = item.match?.proofState === 'LIVE_SURFACE' ? 'مسار عرض حي موجود' : item.match?.proofState === 'PARTIAL' ? 'مسار موجود ويحتاج تحديد حدود الدليل' : 'مسار يحتاج إثبات تشغيل قبل ادعاء الإنتاج';
       return `- ${item.requirement}: ${item.match?.commercialAngle} [${state}]`;
@@ -74,7 +126,7 @@ export function ProposalDemoPage() {
       ? `\\n\\nالمتطلبات التي لا أريد المبالغة فيها: ${unmatched.map(item => item.requirement).join('؛ ')}. أفضّل تثبيت نطاقها ومعايير القبول قبل الالتزام بها.`
       : '';
     return opening + matchedLines + gapText + `\\n\\nالخطوة التالية المقترحة: مكالمة قصيرة لتثبيت مصادر البيانات، معايير القبول، ونطاق التسليم قبل التنفيذ.`;
-  }, [jobTitle, matched, unmatched]);
+  }, [jobTitle, matched, unmatched, selectedTrack]);
 
   const copyProposal = useCallback(async () => {
     try {
@@ -97,6 +149,41 @@ export function ProposalDemoPage() {
         <div className="flex flex-wrap gap-2 print:hidden"><button type="button" onClick={() => void copyProposal()} className="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-4 py-2.5 text-sm font-semibold text-primary-900 hover:bg-primary-50"><Copy size={16} /> {copied ? "تم النسخ" : "نسخ مسودة العرض"}</button><button type="button" onClick={() => window.print()} className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/10 px-4 py-2.5 text-sm font-semibold text-white hover:bg-white/15"><Printer size={16} /> طباعة / PDF</button></div>
       </div>
 
+      <Card>
+        <CardHeader title="Competitive Track Lens" subtitle="اختر مدخل المنافسة المناسب بدل تقديم المنتج كمنصة عامة." />
+        <CardBody>
+          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
+            {COMPETITIVE_TRACKS.map(track => {
+              const active = track.id === selectedTrack.id;
+              const capabilities = track.capabilityIds.map(id => CAPABILITIES.find(capability => capability.id === id)).filter(Boolean) as Capability[];
+              const live = capabilities.filter(capability => capability.proofState === 'LIVE_SURFACE').length;
+              const runtimeGaps = capabilities.length === 0 ? 1 : capabilities.filter(capability => capability.proofState !== 'LIVE_SURFACE').length;
+              return (
+                <button
+                  key={track.id}
+                  type="button"
+                  aria-pressed={active}
+                  onClick={() => {
+                    setSelectedTrackId(track.id);
+                    setRequirements(track.suggestedRequirements.join('\n'));
+                    setJobTitle(`${track.title} — Client Project`);
+                  }}
+                  className={`rounded-2xl border p-4 text-right transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 ${active ? 'border-primary-400 bg-primary-50 shadow-sm' : 'border-ink-100 bg-white hover:border-primary-200 hover:bg-primary-50/40'}`}
+                >
+                  <div className="text-xs font-black text-primary-600">{active ? 'ACTIVE TRACK' : 'SELECT TRACK'}</div>
+                  <div className="mt-2 text-sm font-black text-ink-900">{track.title}</div>
+                  <div className="mt-1 min-h-12 text-xs leading-5 text-ink-500">{track.problem}</div>
+                  <div className="mt-3 flex flex-wrap gap-1.5 text-[10px] font-bold">
+                    <span className="rounded-full bg-success-50 px-2 py-1 text-success-700">{live} عرض حي</span>
+                    <span className="rounded-full bg-warning-50 px-2 py-1 text-warning-700">{runtimeGaps} يحتاج إثبات</span>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </CardBody>
+      </Card>
+
       <div className="grid gap-4 lg:grid-cols-[1fr_1.5fr]">
         <Card>
           <CardHeader title="سياق الوظيفة" subtitle="اكتب المتطلبات الفعلية، ثم اعرض المطابقة قبل فتح العرض الحي." />
@@ -112,6 +199,7 @@ export function ProposalDemoPage() {
           <CardBody>
             <div className="rounded-xl border border-ink-100 bg-ink-50/60 p-4">
               <div className="text-xs text-ink-400">Client</div><div className="mt-1 text-lg font-bold text-ink-900">{client}</div>
+              <div className="mt-4 text-xs text-ink-400">Competitive track</div><div className="mt-1 text-base font-black text-primary-800">{selectedTrack.title}</div>
               <div className="mt-4 text-xs text-ink-400">Job</div><div className="mt-1 text-base font-semibold text-ink-800">{jobTitle}</div>
             </div>
             <div className="mt-4 grid grid-cols-2 gap-3"><div className="rounded-xl border border-primary-200 bg-primary-50 p-4"><div className="text-xs text-primary-700">Proof coverage</div><div className="mt-1 text-2xl font-black text-primary-900">{matched.length ? Math.round((matched.length / Math.max(1, mapped.length)) * 100) : 0}%</div><div className="mt-1 text-[10px] text-primary-700">مطابقة أولية للمتطلبات</div></div><div className="rounded-xl border border-ink-200 bg-white p-4"><div className="text-xs text-ink-500">حالة الدليل</div><div className="mt-1 flex flex-wrap gap-1.5 text-[10px] font-bold text-ink-700"><span>{proofCounts.LIVE_SURFACE ?? 0} عرض حي</span><span>·</span><span>{proofCounts.PARTIAL ?? 0} جزئي</span><span>·</span><span>{proofCounts.RUNTIME_REQUIRED ?? 0} يحتاج تشغيل</span></div></div></div><div className="mt-4 grid grid-cols-2 gap-3">
@@ -153,7 +241,7 @@ export function ProposalDemoPage() {
         <CardHeader title="Live Demo Sequence" subtitle="تدفق مقترح لعرض حقيقي بدون نسخ منفصلة من المنتج." />
         <CardBody>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            {matched.slice(0, 8).map((item, index) => <Link key={`${item.requirement}-${index}`} to={item.match!.path} className="rounded-xl border border-ink-100 p-4 transition hover:-translate-y-0.5 hover:border-primary-200 hover:bg-primary-50/40 print:border-ink-300"><div className="text-xs font-bold text-primary-600">0{index + 1}</div><div className="mt-2 text-sm font-semibold text-ink-800">{item.match!.title}</div><div className="mt-1 text-xs leading-5 text-ink-400">{item.match!.description}</div></Link>)}
+            {liveDemoItems.slice(0, 8).map((item, index) => <Link key={`${item.requirement}-${index}`} to={item.match!.path} className="rounded-xl border border-ink-100 p-4 transition hover:-translate-y-0.5 hover:border-primary-200 hover:bg-primary-50/40 print:border-ink-300"><div className="text-xs font-bold text-primary-600">0{index + 1}</div><div className="mt-2 text-sm font-semibold text-ink-800">{item.match!.title}</div><div className="mt-1 text-xs leading-5 text-ink-400">{item.match!.description}</div></Link>)}
           </div>
         </CardBody>
       </Card>

@@ -17,6 +17,11 @@ const capabilityBlock = source.match(/const CAPABILITIES: Capability\[\] = \[(.*
 const capabilityCount = (capabilityBlock.match(/id: '/g) ?? []).length;
 assert.ok(capabilityCount >= 12, 'proposal demo requires a reusable capability catalog');
 
+const trackBlock = source.match(/const COMPETITIVE_TRACKS: CompetitiveTrack\[\] = \[(.*?)\];/s)?.[1] ?? '';
+const trackIds = ['evidence-bi', 'supabase-security', 'governed-import', 'arabic-rtl', 'inventory-receivables'];
+for (const trackId of trackIds) assert.ok(trackBlock.includes(`id: '${trackId}'`), `missing competitive track: ${trackId}`);
+assert.equal((trackBlock.match(/id: '/g) ?? []).length, 5, 'proposal demo must keep exactly five selective competitive tracks');
+
 for (const state of ['LIVE_SURFACE','RUNTIME_REQUIRED','PARTIAL']) {
   assert.ok(capabilityBlock.includes(`proofState: '${state}'`), `missing proof state: ${state}`);
 }
