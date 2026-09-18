@@ -275,3 +275,37 @@ DEPENDENCIES: existing chart components + Vite manualChunks only؛ لا RPC/DB/R
 SUCCESS CRITERIA: perf:budget critical <= 900KB; typecheck/lint/build + Dashboard/product contracts remain PASS.
 BLOCKERS: لا يوجد blocker معروف.
 EXPECTED HANDOFF: Owner 2 يعيد إثبات browser/runtime/release gates على Exact SHA الناتج.
+## EXECUTION — COMMAND 3 — 2026-09-19
+OWNER: 1
+BRANCH: feat/owner1-dashboard-critical-load-wave5-20260919
+FINAL UI HEAD: d1c0f0cfadd54470e0c9db6653053d88d59fe39b
+
+CHANGE:
+- Dashboard chart components moved from eager imports to React.lazy/Suspense.
+- Existing Recharts/manual chunk remains available after the initial shell; no runtime, DB, RPC, auth, tenant, storage or worker changes.
+- Added scripts/check-dashboard-critical-load-contract.mjs and npm script test:dashboard-critical-load to prevent regression.
+
+PERFORMANCE RESULT:
+- Before: critical 913.1KB > 900KB.
+- After: critical 487.1KB.
+- largest-js: 487.8KB <= 600KB.
+- perf:budget: PASS.
+
+EXACT-HEAD TESTS — d1c0f0cfadd54470e0c9db6653053d88d59fe39b
+- typecheck: PASS
+- lint: PASS — 0 errors / 59 pre-existing warnings
+- test:dashboard-critical-load: PASS
+- test:ui-route-sidebar-parity: PASS — 35 routes / 34 sidebar links
+- test:executive-dashboard-ui: PASS
+- test:product-wow-ui: PASS
+- build: PASS — 2808 modules, 15.44s
+- perf:budget: PASS — critical 487.1KB / largest JS 487.8KB
+
+HANDOFF TO OWNER 2:
+- Integrate/rebase/cherry-pick Exact UI HEAD d1c0f0cfadd54470e0c9db6653053d88d59fe39b.
+- Reprove browser/runtime/release gates on the merged Exact SHA.
+- This wave changes only initial frontend loading; preserve the lazy chart split during integration.
+- No main mutation by Owner 1.
+
+NEXT OWNER-1 FRONT:
+- harden Work Center as a source/evidence operational surface without inventing persisted tasks or backend state.
