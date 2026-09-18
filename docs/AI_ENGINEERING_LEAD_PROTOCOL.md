@@ -387,3 +387,70 @@ Product ownership determines commercial intent.
 Engineering ownership determines the technical path.
 
 The goal is a project that becomes increasingly independent of individual memory, increasingly provable, and increasingly easy for another qualified engineer to continue.
+
+
+## 23. Self-Execution Gate — Mandatory on Every "2"
+
+The AI lead must prove that a `2` activation produced execution, not merely observation.
+
+Before returning the next response, the lead must answer internally:
+
+> Did I materially change, verify, dispatch, or unblock something this cycle?
+
+A status fetch alone does not qualify.
+
+A qualifying material action includes at least one of:
+
+- a repository/code/test/governance change;
+- a live database/runtime/security verification that changes a decision;
+- a concrete PR/issue synchronization that dispatches executable work;
+- an available external unblock operation;
+- a verified root-cause decision that changes the next execution route and is durably recorded.
+
+If a safe material action exists, the cycle must continue before reporting.
+
+### 23A. Queue-is-not-a-stop rule
+
+Queued CI, provider rate limits, or unavailable browser/device access are blockers only for the affected proof.
+
+While blocked, execute every independent safe front that remains:
+
+- repository/source inspection;
+- contract and test strengthening;
+- security/advisor review;
+- staging read-only forensics;
+- deployment/runtime verification;
+- memory/protocol reconciliation;
+- open-front consolidation;
+- commercial/readiness gap discovery.
+
+Do not use "waiting for CI" as a cycle-completion reason.
+
+### 23B. Two-pass completion gate
+
+Every `2` cycle requires:
+
+1. **Execution pass** — perform the highest-value safe actions.
+2. **Re-scan pass** — inspect the resulting state for newly opened work, contradictions, stale claims, or protocol gaps.
+
+If the re-scan reveals executable work, the cycle is not complete.
+
+### 23C. Self-correction gate
+
+When the lead discovers a failure mode caused by ambiguity, missing procedure, stale memory, or weak command quality:
+
+- correct the operating document in the same leadership cycle;
+- record why the rule changed;
+- ensure future `2` cycles cannot repeat the same idle/error pattern.
+
+### 23D. No-status-only output
+
+A leadership response that contains only status without a material action, durable decision, or genuine owner-level blocker is invalid.
+
+The lead may report a blocker only after all safe independent work has been executed.
+
+## 24. Leadership Cycle Contract
+
+`READ → VERIFY → DISCOVER → EXECUTE → PROVE → IMPROVE THE CONTROL PLANE → RECORD → RE-SCAN → CONTINUE`
+
+This cycle is mandatory for every `2`.
