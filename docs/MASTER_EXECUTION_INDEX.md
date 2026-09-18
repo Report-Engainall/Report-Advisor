@@ -5,25 +5,26 @@
 > Authoritative execution manifest. This document never promotes historical evidence across an exact Git `HEAD` boundary. Pair every evidence batch with the exact Git `HEAD` of `main` and the exact environment/commit used.
 
 ### CURRENT EXACT HEAD
-- Current code/test candidate: `b554af0eb9d9c35dc7279344fe095fdc48e36b84`.
-- Current Main product/test candidate is `b554af0eb9d9c35dc7279344fe095fdc48e36b84`; later changes after this candidate are governance-only index/document updates. PR #550 structured PDF/file-engine repair and PR #556 production-coordinator runtime test-loader restoration are included in the candidate lineage.
-- The autonomous operating protocol is now repository-resident at `docs/PROGRAMMER_AUTONOMOUS_OPERATING_PROTOCOL.md`.
-- PC01 native desktop verification is recorded at `docs/evidence/DEVICE_PC01_VERIFICATION_20260918.md`; a fresh Exact-Main native smoke PASS at predecessor candidate `c466666cef65d082383aca4fd3384261e9f64690` is historical because PR #556 changed only test/runtime tooling. No native smoke failure is known on the current candidate.
-- No runtime/browser/production evidence from an earlier SHA is promoted by this binding.
-- The certification binding itself is governance-only and does not certify runtime/product code; fresh exact-HEAD runtime evidence is still required.
-- Historical evidence from earlier SHAs remains historical and is not promoted automatically.
-- Current-head workflow execution is not yet evidenced on this SHA by the repository Actions run feed; absence of runs is not PASS and does not transfer historical evidence.
-- Live Vercel state shows the most recent observed production deployment still bound to historical Main SHA `a32fae0fc08c1cbbcc60b6eedfb0f4bd74a21c50` and READY; this is stale relative to the current code/test candidate and is not promoted as current production evidence.
-- Current current-head production deployment/cutover is NOT PROVEN; no production mutation or alias change was performed.
-- Vercel preview deployments currently include failures caused by the provider build-rate limit; this external blocker does not justify idling repository-side execution.
+- Current code/test candidate: `efe572cf65d56728e0b4a3d9d42007439b20e185`.
+- This candidate is reconstructed directly on governed current Main `f37e4eee4131b521be7f69589a27832bc978761f`; the only code changes are the retained canonical import/worker remediation and the structured PDF/OCR hardening.
+- No earlier runtime PASS is promoted across this SHA boundary.
+- PC01 exact-candidate verification on `efe572cf...`: `npm ci` completed; TypeScript typecheck PASS; file-engine behavioral regression PASS; file-engine architecture contract PASS; production build PASS.
+- The production build completed with only non-blocking Browserslist/Bluebird warnings.
+- Fresh real-Staging PDF/OCR runtime evidence is still required; the predecessor `e5a31d...` failure at `invoice_date` is historical and its parser root cause has been corrected here.
+- Vercel deployment remains unproven because the provider build-rate-limit gate is external; no production mutation/cutover was performed.
 
 ### CURRENT EXECUTION CONTROL — 2026-09-18
-- PR #533 adds the mandatory continuous two-owner execution/resume protocol. It is governance-only and does not itself certify runtime.
-- Structured PDF/file-engine runtime front is CLOSED through PR #550. Fresh PC01 Exact-Main proof at predecessor code candidate `c466666cef65d082383aca4fd3384261e9f64690`: file-engine contract PASS, structured PDF/OCR behavioral regression PASS, production build PASS, native desktop smoke PASS. Windows NSIS packaging was attempted on that candidate but exceeded the safe execution window; no exact-main packaging PASS is claimed.
-- Production-coordinator runtime front is CLOSED through PR #556. Candidate `326bb98ea7648dfaff25e8120f8c759e7a98ff6d` has PC01 PASS for `test:production-coordinator-runtime` and `test:production-coordinator-integration`; `test:phase-l-resumable-execution`, operational-resilience contracts, and production-release-blocker contract also passed. Durable evidence: `docs/evidence/PRODUCTION_COORDINATOR_RUNTIME_20260918.md`.
-- Coordinator-owned remaining fronts: current exact-head evidence binding, Supabase staging truth/security, authenticated business E2E, production/deployment verification, resilience runtime proof, and commercial-gap control.
-- Rule: do not restart closed work. Resume IN_PROGRESS fronts from their last verified checkpoint. Do not mix evidence across SHA boundaries.
-- Rule: independent fronts must run in parallel; a queued CI workflow or external provider blocker must not idle unrelated work.
+- PR #560 is the authoritative active remediation path.
+- Current Main `f37e4eee...` is governance-only over product candidate `b554af...`; its change is limited to certification-index wording. The active remediation is based directly on the governed head.
+- Staging worker service-authority migration `20260918043413_reconcile_report_execution_worker_service_authority` remains applied. Prior transaction-only service-role proof is historical and is not transferred as current candidate runtime evidence.
+- Fresh exact-head CI/certification is mandatory before any release claim.
+- Independent fronts continue in parallel; Vercel external rate limiting does not block source/contract/staging work.
+
+### ACTIVE REMEDIATION RCA — 2026-09-18
+- Exact predecessor `e5a31d88...` failed real-Staging structured PDF regression at `invoice_date`.
+- Root cause: integration/rebase retained a stricter date/numeric parser than governed Main's whitespace-tolerant parser.
+- Candidate `efe572cf...` restores whitespace-tolerant date separators/numeric spacing while retaining the durable canonical-import and worker authority remediation.
+- A source-newline encoding defect was found by exact typecheck in an intermediate parser commit and corrected before this candidate.
 
 ### CURRENT MAIN — MATERIAL FRONT CLOSURE
 - PR #525 — security exposure checker bound to repository truth — merged.
