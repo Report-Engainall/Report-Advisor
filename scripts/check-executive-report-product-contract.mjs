@@ -5,10 +5,10 @@ const source = fs.readFileSync(file, 'utf8');
 const required = [
   'fetchDashboardSnapshot',
   'fetchDashboardIntelligence',
-  'Executive Summary',
-  'Evidence Boundary',
+  'الملخص التنفيذي',
+  'حدود الدليل',
   'Actual Outcome',
-  'Decision Workspace',
+  'مساحة القرار',
   'window.print()',
   'لا توجد تنبيهات مصدرية حاليًا.',
   'لا توجد توصيات مصدرية حاليًا.',

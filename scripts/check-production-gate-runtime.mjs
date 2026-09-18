@@ -6,7 +6,8 @@ const gates=[
   {label:'build', command:'npm', args:['run','build','--silent']},
 ];
 for(const gate of gates){
-  const r=spawnSync(gate.command,gate.args,{stdio:'inherit',shell:process.platform==='win32'});
+  const command = process.platform === 'win32' && gate.command === 'npm' ? 'npm.cmd' : gate.command;
+  const r=spawnSync(command,gate.args,{stdio:'inherit',shell:process.platform==='win32' && gate.command==='npm'});
   if(r.status!==0){
     console.error(`Production gate runtime BLOCKED at: ${gate.label}`);
     process.exit(1);
