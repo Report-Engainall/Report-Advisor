@@ -179,7 +179,36 @@ const PDF_OCR_MAX_PAGES = 20;
 
 const PDF_OCR_MAX_DIMENSION = 2200;
 const PDF_OCR_SCALE = 1.5;
+type PromiseConstructorWithTry = PromiseConstructor & { try?: (fn: (...args: unknown[]) => unknown, ...args: unknown[]) => Promise<unknown> };
+type Uint8ArrayWithToHex = Uint8Array & { toHex?: () => string };
+
+function ensurePdfJsRuntimeCompatibility(): void {
+  const uint8ArrayPrototype = Uint8Array.prototype as Uint8ArrayWithToHex;
+  if (typeof uint8ArrayPrototype.toHex !== 'function') {
+    Object.defineProperty(Uint8Array.prototype, 'toHex', {
+      configurable: true,
+      writable: true,
+      value: function toHex(this: Uint8Array): string {
+        return Array.from(this, (byte) => byte.toString(16).padStart(2, '0')).join('');
+      },
+    });
+  }
+
+  const promiseConstructor = Promise as PromiseConstructorWithTry;
+  if (typeof promiseConstructor.try !== 'function') {
+    Object.defineProperty(Promise, 'try', {
+      configurable: true,
+      writable: true,
+      value: (fn: (...args: unknown[]) => unknown, ...args: unknown[]) =>
+        new Promise((resolve, reject) => {
+          try { resolve(fn(...args)); } catch (error) { reject(error); }
+        }),
+    });
+  }
+}
+
 async function parsePdfText(buffer: ArrayBuffer, fileName: string): Promise<Dataset[]> {
+  ensurePdfJsRuntimeCompatibility();
   const pdfjs = await import('pdfjs-dist');
   if (typeof window !== 'undefined') {
     pdfjs.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.mjs', import.meta.url).toString();
