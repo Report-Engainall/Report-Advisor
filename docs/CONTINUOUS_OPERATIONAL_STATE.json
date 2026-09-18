@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "roleContract": "coordinator+programmer",
-  "updatedAt": "2026-09-18T03:32:00Z",
+  "updatedAt": "2026-09-18T03:45:00Z",
   "authority": {
     "mainSha": "a32fae0fc08c1cbbcc60b6eedfb0f4bd74a21c50",
     "mainIsUntouched": true,
@@ -28,12 +28,14 @@
     {
       "id": "PR-539",
       "area": "security",
-      "sha": "89507eaaf68ca227816920bf09d2c0093ec0f7e4",
+      "sha": "900c009a8a37b2cc354aa8e9f94d5893c9016be8",
       "state": "OPEN",
-      "next": "inspect fresh exact-head CI first failure",
+      "next": "inspect fresh exact-head CI; verify security/lock-order gates on 900c009a",
       "evidence": [
         "security-definer-exposure contract PASS on predecessor 76f2b5...",
-        "quality PASS on predecessor 76f2b5..."
+        "quality PASS on predecessor 76f2b5...",
+        "local exact 900c009a lock-order PASS",
+        "local exact 900c009a security-definer exposure PASS"
       ],
       "doNotRepeat": [
         "stale-index certification failure on 76f2b5..."
