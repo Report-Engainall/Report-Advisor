@@ -5,16 +5,16 @@
 > Authoritative execution manifest. This document never promotes historical evidence across an exact Git `HEAD` boundary. Pair every evidence batch with the exact Git `HEAD` of `main` and the exact environment/commit used.
 
 ### CURRENT EXACT HEAD
-- Current code/test candidate: `51c71124c6b90f98f4659e8d79efabf800a5cc1c`.
+- Current code/test candidate: `50551116b4221e3914de52f3906b3a3af25fecab`.
 - No runtime/browser/production evidence from `66d684...` or earlier SHAs is promoted to this candidate.
 - The candidate rebind is required because the branch now contains code/test changes; it does not certify runtime/product behavior. Fresh exact-HEAD runtime evidence is required.
 - Historical evidence from earlier SHAs remains historical and is not promoted automatically.
-- Fresh Actions execution exists on this exact SHA; queued/running state is execution evidence only, not PASS.
+- Fresh exact-head local regression execution exists on this code SHA; GitHub Actions for the new head are queued/running and remain execution evidence only, not PASS.
 - Vercel reports the current Main deployment path as externally blocked by the provider build-rate limit; no production deployment is claimed from that status.
 
 ### CURRENT EXECUTION CONTROL — 2026-09-18
 - PR #533 adds the mandatory continuous two-owner execution/resume protocol. It is governance-only and does not itself certify runtime.
-- Programmer-owned active runtime front: PR #542 (`51c71124c6b90f98f4659e8d79efabf800a5cc1c`) for structured PDF/OCR, import terminal-contract closure, and certification-checker correction on current Main.
+- Programmer-owned active runtime front: PR #542 (`50551116b4221e3914de52f3906b3a3af25fecab`) for structured PDF/OCR, import terminal-contract closure, and certification-checker correction on current Main.
 - Coordinator-owned verification fronts: current exact-head evidence binding, Supabase staging truth/security, production/deployment verification, resilience/evidence control, and commercial-gap control.
 - Rule: do not restart closed work. Resume IN_PROGRESS fronts from their last verified checkpoint. Do not mix evidence across SHA boundaries.
 - Rule: independent fronts must run in parallel; a queued CI workflow or external provider blocker must not idle unrelated work.
@@ -99,3 +99,10 @@
 - The release decision layer currently fail-closes on missing/invalid `source_sha`, candidate SHA mismatch, scenario count mismatch, non-PASS scenario states, per-scenario SHA mismatch, missing/invalid evidence, evidence hash mismatch, and regression mismatch.
 - Final Certification Gate checks out the exact certification SHA with full history, verifies certification-boundary integrity, verifies exact checkout provenance, and rejects synthetic PR merge SHA as certification evidence.
 - Final certification remains FAIL-CLOSED until fresh exact-head runtime/evidence and governed candidate binding are satisfied.
+
+### EXECUTION RECONCILIATION — 2026-09-18
+- Windows production-regression harness was repaired for explicit \`npm.cmd\` execution through \`ComSpec\`; no implicit shell option is used.
+- Quality workflow contract checker was made line-ending agnostic; the prior CRLF workflow caused a false-negative concurrency check.
+- Local exact-code-head regression matrix on \`50551116b4221e3914de52f3906b3a3af25fecab\`: 12/12 scenarios PASS, including \`pdf-text\` and \`pdf-ocr-ar\`.
+- This 12/12 result is executable regression evidence only. It does not prove live DB commit, browser persistence, or production runtime certification.
+- Vercel remains externally rate-limited; no bypass/forced deployment is inferred.
