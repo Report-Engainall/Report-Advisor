@@ -16,21 +16,21 @@ export default async function handler(req, res) {
   const foreign = process.env.RESILIENCE_CANARY_FOREIGN_COMPANY_ID.trim();
   const started = Date.now();
   try {
-    const foreignExists = await supabaseRequest(`/rest/v1/operational_health_snapshots?company_id=eq.${encodeURIComponent(foreign)}&select=id&limit=1`);
+    const foreignExists = await supabaseRequest(`/rest/v1/sales_invoices?company_id=eq.${encodeURIComponent(foreign)}&select=id&limit=1`);
     if (!foreignExists.ok) return json(res, 503, { status: 'blocked', error: `foreign_canary_seed_check:${foreignExists.status}` });
     const foreignRows = await foreignExists.json();
     if (!Array.isArray(foreignRows) || foreignRows.length === 0) {
       return json(res, 503, { status: 'blocked', error: 'foreign_canary_seed_missing' });
     }
 
-    const ownResponse = await supabaseUserRequest(`/rest/v1/operational_health_snapshots?company_id=eq.${encodeURIComponent(own)}&select=id&limit=1`, token);
+    const ownResponse = await supabaseUserRequest(`/rest/v1/sales_invoices?company_id=eq.${encodeURIComponent(own)}&select=id&limit=1`, token);
     if (!ownResponse.ok) return json(res, 503, { status: 'blocked', error: `own_tenant_read_failed:${ownResponse.status}` });
     const ownRows = await ownResponse.json();
     if (!Array.isArray(ownRows) || ownRows.length === 0) {
       return json(res, 503, { status: 'failed', error: 'authenticated_tenant_context_missing' });
     }
 
-    const foreignResponse = await supabaseUserRequest(`/rest/v1/operational_health_snapshots?company_id=eq.${encodeURIComponent(foreign)}&select=id&limit=1`, token);
+    const foreignResponse = await supabaseUserRequest(`/rest/v1/sales_invoices?company_id=eq.${encodeURIComponent(foreign)}&select=id&limit=1`, token);
     if (!foreignResponse.ok) return json(res, 503, { status: 'blocked', error: `foreign_tenant_probe_failed:${foreignResponse.status}` });
     const leakedRows = await foreignResponse.json();
     const isolated = Array.isArray(leakedRows) && leakedRows.length === 0;
@@ -40,6 +40,7 @@ export default async function handler(req, res) {
       foreign_rows_visible: Array.isArray(leakedRows) ? leakedRows.length : -1,
       foreign_seed_verified: true,
       source: 'vercel-function',
+      source_table: 'sales_invoices',
     });
     if (!isolated) return json(res, 500, { status: 'critical', isolated: false, error: 'cross_tenant_data_visible' });
     return json(res, 200, { status: 'healthy', isolated: true, latency_ms: latencyMs, checked_at: new Date().toISOString() });
