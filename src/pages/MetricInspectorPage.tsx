@@ -118,6 +118,7 @@ export function MetricInspectorPage() {
                 <button
                   key={item.definition.metricId}
                   type="button"
+                  aria-pressed={selected?.definition.metricId === item.definition.metricId}
                   onClick={() => {
                     setSelected(item);
                     setCapture(null);
