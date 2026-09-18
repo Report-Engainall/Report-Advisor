@@ -1,9 +1,5 @@
 import { supabase, resolveCurrentCompanyId } from '@/lib/supabase';
-import type { ReportExecutionStage } from '@/lib/report-execution/checkpoint';
-import { SupabaseReportExecutionStore } from '@/lib/report-execution/durable-worker-adapter';
-import { runDurableProductionLifecycle } from '@/lib/report-execution/durable-production-runner';
 import type { ReconciledCanonicalImportRow } from '@/lib/import/canonical-truth-boundary';
-import { commitImportBatch } from '@/lib/import/canonical-commit';
 
 export interface DurableCanonicalImportInput {
   importId: string;
@@ -14,40 +10,63 @@ export interface DurableCanonicalImportInput {
   qualityScore: number;
 }
 
-interface EnqueuedJob {
-  id: string;
-  company_id: string;
-  status: string;
-  checkpoint: unknown;
-  attempt: number;
-  max_attempts: number;
-}
+const STAGE_CHUNK_SIZE = 100;
 
-function rowKey(entityType: DurableCanonicalImportInput['entityType'], row: ReconciledCanonicalImportRow): string {
-  const value = entityType === 'products'
-    ? row.data.sku
-    : entityType === 'sales_invoices'
-      ? row.data.invoice_number
-      : (row.data.code ?? row.data.name);
-  const key = String(value ?? '').trim();
-  if (!key) throw new Error(`IMPORT_ROW_BUSINESS_KEY_REQUIRED:${row.rowNumber}`);
-  return `${entityType}:${key.toLowerCase()}`;
-}
+async function stageRows(input: DurableCanonicalImportInput, companyId: string): Promise<void> {
+  const { error: deleteError } = await supabase
+    .from('import_job_rows')
+    .delete()
+    .eq('job_id', input.importId)
+    .eq('company_id', companyId);
+  if (deleteError) throw deleteError;
 
-function assertUniqueBusinessKeys(entityType: DurableCanonicalImportInput['entityType'], rows: ReconciledCanonicalImportRow[]): void {
-  const seen = new Set<string>();
-  for (const row of rows) {
-    const key = rowKey(entityType, row);
-    if (seen.has(key)) throw new Error(`IMPORT_DUPLICATE_BUSINESS_KEY:${key}`);
-    seen.add(key);
+  for (let offset = 0; offset < input.rows.length; offset += STAGE_CHUNK_SIZE) {
+    const page = input.rows.slice(offset, offset + STAGE_CHUNK_SIZE).map((row) => ({
+      company_id: companyId,
+      job_id: input.importId,
+      row_number: row.rowNumber,
+      status: 'valid',
+      source_data: row.data,
+      mapped_data: row.data,
+      target_table: input.entityType,
+      lineage: row.provenance,
+    }));
+    const { error } = await supabase.from('import_job_rows').insert(page);
+    if (error) throw error;
   }
 }
 
-function assertSourceHash(rows: ReconciledCanonicalImportRow[], sourceHash: string): void {
-  if (!/^sha256:[0-9a-fA-F]{64}$/.test(sourceHash)) throw new Error('IMPORT_SOURCE_HASH_INVALID');
-  for (const row of rows) {
-    if (row.provenance.sourceHash !== sourceHash) throw new Error(`CANONICAL_SOURCE_HASH_MISMATCH:${row.rowNumber}`);
-  }
+export async function finishCanonicalImportFailure(importId: string, message: string): Promise<void> {
+  const { error } = await supabase.rpc('import_finish_job', {
+    p_job_id: importId,
+    p_status: 'failed',
+    p_result_summary: {},
+    p_error_message: message,
+  });
+  if (error) throw error;
+}
+
+async function runServerBoundary(input: DurableCanonicalImportInput): Promise<Record<string, unknown>> {
+  const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+  if (sessionError || !sessionData.session?.access_token) throw new Error('AUTHENTICATED_USER_REQUIRED');
+  const response = await fetch('/api/canonical-import-run', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${sessionData.session.access_token}`,
+    },
+    body: JSON.stringify({
+      importId: input.importId,
+      fileName: input.fileName,
+      sourceHash: input.sourceHash,
+      entityType: input.entityType,
+      qualityScore: input.qualityScore,
+    }),
+  });
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(typeof payload?.error === 'string' ? payload.error : `CANONICAL_IMPORT_SERVER_FAILED:${response.status}`);
+  if (!payload || payload.status !== 'completed' || typeof payload.jobId !== 'string') throw new Error('CANONICAL_IMPORT_SERVER_INCOMPLETE');
+  return payload as Record<string, unknown>;
 }
 
 export async function runCanonicalImportThroughDurableRunner(input: DurableCanonicalImportInput) {
@@ -58,113 +77,37 @@ export async function runCanonicalImportThroughDurableRunner(input: DurableCanon
 
   const companyId = await resolveCurrentCompanyId();
   if (!companyId) throw new Error('TENANT_CONTEXT_REQUIRED');
-  assertSourceHash(input.rows, input.sourceHash);
-  assertUniqueBusinessKeys(input.entityType, input.rows);
+  if (!/^sha256:[0-9a-fA-F]{64}$/.test(input.sourceHash)) throw new Error('IMPORT_SOURCE_HASH_INVALID');
+  for (const row of input.rows) {
+    if (row.provenance.tenantId !== companyId) throw new Error(`CANONICAL_TENANT_MISMATCH:${row.rowNumber}`);
+    if (row.provenance.sourceHash !== input.sourceHash) throw new Error(`CANONICAL_SOURCE_HASH_MISMATCH:${row.rowNumber}`);
+  }
+  try {
+    await stageRows(input, companyId);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    try {
+      await finishCanonicalImportFailure(input.importId, message);
+    } catch {
+      // Preserve the primary staging failure; server-side lifecycle remains fail-closed.
+    }
+    throw error;
+  }
+  try {
+    const serverResult = await runServerBoundary(input);
 
-  const { data: userData, error: userError } = await supabase.auth.getUser();
-  if (userError) throw userError;
-  const requestedBy = userData.user?.id;
-  if (!requestedBy) throw new Error('AUTHENTICATED_USER_REQUIRED');
-
-  const jobKey = `canonical-import:${input.entityType}:${input.sourceHash}`;
-  const { data: enqueueData, error: enqueueError } = await supabase.rpc('enqueue_report_execution_job', {
-    p_company_id: companyId,
-    p_job_key: jobKey,
-    p_source_path: input.fileName,
-    p_source_hash: input.sourceHash,
-    p_evidence_keys: [
-      `source:${input.sourceHash}`,
-      `import:${input.importId}`,
-      `entity:${input.entityType}`,
-      `rows:${input.rows.length}`,
-    ],
-    p_max_attempts: 3,
-  });
-  if (enqueueError) throw enqueueError;
-  if (!enqueueData || typeof enqueueData !== 'object') throw new Error('REPORT_EXECUTION_JOB_ENQUEUE_EMPTY');
-
-  const job = enqueueData as EnqueuedJob;
-  if (!job.id || job.company_id !== companyId) throw new Error('REPORT_EXECUTION_JOB_TENANT_MISMATCH');
-  if (job.status === 'succeeded') throw new Error('IMPORT_ALREADY_COMPLETED_FOR_SOURCE');
-  if (job.status === 'cancelled') throw new Error('IMPORT_DURABLE_JOB_CANCELLED');
-  if (job.status === 'running') throw new Error('IMPORT_DURABLE_JOB_ALREADY_RUNNING');
-  if (job.status === 'failed') await storeRetry(job.id, companyId);
-
-  const observedAt = new Date().toISOString();
-  const quality = input.qualityScore / 100;
-  const currentRows = input.rows.map((row) => ({
-    key: rowKey(input.entityType, row),
-    hash: `${input.sourceHash}:${row.rowNumber}`,
-    value: row.data,
-  }));
-  const sourceCandidates = currentRows.map((row) => ({
-    businessKey: row.key,
-    sourceId: input.sourceHash,
-    precedence: 0,
-    observedAt,
-    value: row.value,
-  }));
-
-  const result = await runDurableProductionLifecycle({
-    jobId: job.id,
-    workerId: `canonical-import-ui:${crypto.randomUUID()}`,
-    sourceHash: input.sourceHash,
-    rows: input.rows.map((row) => row.data),
-    request: {
-      reportId: jobKey,
-      tenantId: companyId,
-      requestedBy,
-      parameters: { entityType: input.entityType, importId: input.importId, rowCount: input.rows.length },
-      formats: ['web'],
-      idempotencyKey: jobKey,
-    },
-    lifecycle: {
-      previousRows: [],
-      currentRows,
-      sourceCandidates,
-      scenarioOptions: [{ key: jobKey, expectedImpact: input.rows.length, risk: 1, liquidityRequired: 0, serviceLevel: 1 }],
-      riskBudget: { maxRisk: 1, protectedLiquidity: input.rows.length, minimumServiceLevel: 0 },
-      portfolioCandidates: [{ key: jobKey, materiality: 0.5, confidence: quality, urgency: 0.5, risk: 1 }],
-      autonomy: { trustHealthy: false, evidenceQuality: quality, confidence: quality, riskBudgetValid: true, criticalDrift: false, rollbackVerified: false, isolationVerified: false },
-      evidence: input.rows.map((row) => ({
-        key: row.provenance.evidenceId,
-        source: row.provenance.sourceId,
-        observedAt,
-        quality,
-        details: {
-          tenantId: row.provenance.tenantId,
-          sourceHash: row.provenance.sourceHash,
-          sourceDocumentId: row.provenance.sourceDocumentId,
-          lineageId: row.provenance.lineageId,
-          rowNumber: row.rowNumber,
-        },
-      })),
-    },
-    executeStage: async (stage: ReportExecutionStage) => {
-      if (stage === 'fingerprinted' && input.sourceHash.length !== 71) throw new Error('IMPORT_SOURCE_HASH_INVALID');
-      if (stage === 'extracted' && input.rows.length === 0) throw new Error('IMPORT_EXTRACTION_EMPTY');
-      if (stage === 'canonicalized') {
-        for (const row of input.rows) if (!row.data || typeof row.data !== 'object') throw new Error(`IMPORT_CANONICALIZATION_INVALID_ROW:${row.rowNumber}`);
-      }
-      if (stage === 'validated') {
-        for (const row of input.rows) if (row.rowNumber < 1) throw new Error(`IMPORT_VALIDATION_INVALID_ROW_NUMBER:${row.rowNumber}`);
-      }
-      if (stage === 'analyzed' && !currentRows.length) throw new Error('IMPORT_ANALYSIS_EMPTY');
-      if (stage === 'decisioned' && !input.rows.length) throw new Error('IMPORT_DECISION_EMPTY');
-      if (stage === 'committed') await commitImportBatch(input.entityType, input.rows, input.sourceHash);
-    },
-  }, await getStore());
-
-  return { ...result, jobId: job.id, importId: input.importId };
-}
-
-let storePromise: Promise<SupabaseReportExecutionStore> | null = null;
-async function getStore(): Promise<SupabaseReportExecutionStore> {
-  if (!storePromise) storePromise = Promise.resolve(new SupabaseReportExecutionStore(supabase));
-  return storePromise;
-}
-
-async function storeRetry(jobId: string, companyId: string): Promise<void> {
-  const store = await getStore();
-  await store.retry(jobId, companyId);
+    return {
+      jobId: String(serverResult.jobId),
+      importId: input.importId,
+      ...serverResult,
+    };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    try {
+      await finishCanonicalImportFailure(input.importId, message);
+    } catch {
+      // Preserve the primary server-boundary failure; terminal ownership stays canonical.
+    }
+    throw error;
+  }
 }
