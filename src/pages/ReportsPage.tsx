@@ -13,6 +13,10 @@ import { downloadReportArtifact } from '@/lib/report-execution/download';
 import type { SalesInvoice, PurchaseInvoice } from '@/lib/types';
 import type { DashboardKPIs, MonthlyTrend, TopEntity, CategoryBreakdown, AgingBucket, InventoryReportRow } from '@/lib/dashboard-canonical';
 
+function errorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : 'تعذر تحميل التقرير من المصدر المعتمد';
+}
+
 const reportCards = [
   { path:'/reports/sales', title:'المبيعات', stage:'قياس', desc:'حركة المبيعات والفواتير والعملاء والمنتجات.', icon:ShoppingCart, iconClass:'bg-primary-50 text-primary-600' },
   { path:'/reports/purchases', title:'المشتريات', stage:'مصدر', desc:'المشتريات والموردون والتدفقات الداخلة.', icon:FileBarChart, iconClass:'bg-accent-50 text-accent-600' },
