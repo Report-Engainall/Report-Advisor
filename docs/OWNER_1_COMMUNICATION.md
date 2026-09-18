@@ -505,3 +505,32 @@ FILES / SURFACES: src/pages/ReportsPage.tsx; src/lib/queries.ts; relevant report
 DEPENDENCIES: existing canonical reads only؛ no new RPC/DB/Runner/Auth/Tenant/Storage/CI logic.
 BLOCKERS: لا blocker معروف عند البدء؛ browser/runtime proof تبقى ضمن Owner 2.
 EXPECTED HANDOFF: Owner 2 يعيد إثبات affected report/browser/runtime/release gates على Exact SHA الجديد، دون نقل evidence بين SHAs.
+
+## EXECUTION — COMMAND 8 — 2026-09-19
+EXECUTION
+CHANGE: إغلاق فجوة الحقيقة في تقرير المشتريات باستخدام المصدر الموجود فعليًا get_purchase_summary، مع توسيع TruthContextStrip لاستيعاب NO_DATA ونطاق غير زمني دون اختلاق freshness.
+FILES: src/pages/ReportsPage.tsx; src/components/TruthContextStrip.tsx; scripts/check-purchases-report-truth-contract.mjs; package.json.
+WHY: تقرير المشتريات كان يعرض قيم summary دون as_of/data_status رغم أن المصدر canonical يعيدهما؛ تم ربط العرض بهذين الحقلين مباشرة، مع إبقاء Inventory بلا as-of مصطنع لأن مصدره الحالي لا يعيده.
+TEST: final Exact SHA tests: test:purchases-report-truth PASS; test:financial-report-truth PASS; test:receivables-report-truth PASS; test:reports-center-truth PASS; test:executive-report-product-contract PASS; test:report-execution-foundation PASS; test:ui-route-sidebar-parity PASS (35 routes / 34 sidebar links); typecheck PASS; lint PASS (0 errors / 59 existing warnings); build PASS (2808 modules); perf:budget PASS (critical 487.2KB / largest JS 487.8KB).
+RESULT: verified on Exact SHA after commit; no RPC/DB/Runner/Auth/Tenant/Storage/CI mutation.
+COMMIT: 7cbd48182edc2563a79acdd5ca89eeab0a718136
+NEW HEAD: 7cbd48182edc2563a79acdd5ca89eeab0a718136
+STATUS: READY_FOR_HANDOFF
+
+HANDOFF
+FROM: OWNER 1
+TARGET: OWNER 2
+BRANCH: feat/owner1-report-surface-integrity-wave10-20260919
+SHA: 7cbd48182edc2563a79acdd5ca89eeab0a718136
+CHANGED: Purchases report truth context + reusable TruthContextStrip support for NO_DATA/rangeLabel + regression guard.
+VERIFIED: targeted report contracts, route parity, typecheck, lint, build, and performance budget all PASS on final Exact SHA.
+UNPROVEN: authenticated browser behavior; backend/runtime/DB/RLS/persistence/CI/CD/release certification remain Owner 2 scope.
+BLOCKERS: لا يوجد blocker تطبيقي في هذه الجبهة.
+NEXT: integrate/rebase/cherry-pick Exact SHA 7cbd48182edc2563a79acdd5ca89eeab0a718136 and reprove affected runtime/browser/release gates on the merged Exact SHA; do not transfer evidence across SHAs.
+
+CLOSE
+HEAD: 7cbd48182edc2563a79acdd5ca89eeab0a718136
+DONE: Wave 10 purchase report truth integrity completed and handed off.
+OPEN: Owner 2 integration/runtime/release proof; next Owner 1 front remains independent product/UI truth hardening after acknowledgement.
+BLOCKED: none.
+NEXT START: inspect the next remaining commercial/report surface only after preserving the canonical source/evidence boundaries.
