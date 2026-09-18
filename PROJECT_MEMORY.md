@@ -774,3 +774,15 @@ PC01 device cleanup remains IN_PROGRESS / BLOCKED_EXTERNAL_CHANNEL after the rem
 - Do not weaken Phase F to make it green.
 - Do not fabricate live resilience URLs/tokens.
 - Continue all unrelated exact-head fronts.
+
+
+## 33. TOCTOU Verifier Second-Pass Hardening — 2026-09-18
+
+- First verifier fix commit: ce674d937cde275f6e233e2fd4ad78589e9dafb5.
+- Adversarial self-review found two remaining case-sensitive assertions inside the same TOCTOU contract:
+  - terminal conflict-path guard lookup;
+  - canonical adversarial fixture decision SELECT lookup.
+- These were corrected in follow-up code/test commit: bdea176d498347d1c6150f9eae6dc08dc79f9c8f.
+- Master Index was rebound to the new code/test candidate by governance-only commit: 884362ebb7380d7db3deae1032de7099f94ae0006.
+- No SQL lock order, transaction semantics, or approval policy was weakened.
+- Fresh CI evidence for the new candidate is required; no previous certification evidence transfers.
