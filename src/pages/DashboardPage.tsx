@@ -4,6 +4,7 @@ import {
   FileSearch, Package, Receipt, RefreshCw, Sparkles, TrendingUp, Upload, Users, Wallet
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { TruthContextStrip } from '@/components/TruthContextStrip';
 import { KPICard } from '@/components/ui/KPICard';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { Badge, PriorityBadge, SeverityBadge } from '@/components/ui/Badge';
@@ -92,6 +93,8 @@ export function DashboardPage() {
           </div>
         </div>
       </section>
+
+      <TruthContextStrip months={trendMonths} status={kpis.status} asOf={new Date().toLocaleDateString('ar-YE', { dateStyle: 'medium' })} />
 
       <section className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:gap-4">
         <KPICard label="إجمالي المبيعات" value={kpis.totalSales} format="currency" icon={<TrendingUp size={16}/>} status={metricStatus(kpis.totalSales)}/>
