@@ -17,21 +17,69 @@ const page = await context.newPage();
 const evidence = { exactHead, baseURL, startedAt: new Date().toISOString(), status: 'NOT_PROVEN', failures: [] };
 
 function accessToken() { return page.evaluate(() => { const raw = Object.entries(localStorage).find(([key]) => key.endsWith('-auth-token'))?.[1]; if (!raw) throw new Error('BROWSER_SESSION_NOT_FOUND'); const session = JSON.parse(raw); if (!session?.access_token) throw new Error('BROWSER_ACCESS_TOKEN_NOT_FOUND'); return session.access_token; }); }
-async function rest(path, init = {}) { const token = await accessToken(); const response = await fetch(`${supabaseURL}/rest/v1/${path}`, { ...init, headers: { apikey: anonKey, Authorization: `Bearer ${token}`, ...(init.headers || {}) } }); const body = await response.text(); if (!response.ok) throw new Error(`REST_${response.status}:${body}`); return body ? JSON.parse(body) : []; }
-async function currentTenant() { const token = await accessToken(); const response = await fetch(`${supabaseURL}/rest/v1/rpc/current_company_id`, { method: 'POST', headers: { apikey: anonKey, Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }, body: '{}' }); const body = await response.text(); assert.equal(response.ok, true, `current_company_id HTTP ${response.status}: ${body}`); const tenant = body.replaceAll('"', '').trim(); assert.ok(tenant, 'tenant must resolve'); return tenant; }
+async function rest(path, init = {}) { const token = await accessToken(); const method = (init.method || 'GET').toUpperCase(); const retryable = method === 'GET' ? new Set([429, 502, 503, 504, 520, 544]) : new Set(); let last = null; for (let attempt = 1; attempt <= 6; attempt += 1) { const response = await fetch(`${supabaseURL}/rest/v1/${path}`, { ...init, headers: { apikey: anonKey, Authorization: `Bearer ${token}`, ...(init.headers || {}) } }); const body = await response.text(); if (response.ok) return body ? JSON.parse(body) : []; last = `REST_${response.status}:${body}`; if (!retryable.has(response.status) || attempt === 6) break; await page.waitForTimeout(Math.min(1000 * 2 ** (attempt - 1), 8000)); } throw new Error(last || 'REST_REQUEST_FAILED'); }
+async function currentTenant() { const token = await accessToken(); let last = null; const retryable = new Set([429, 502, 503, 504, 520, 544]); for (let attempt = 1; attempt <= 8; attempt += 1) { const response = await fetch(`${supabaseURL}/rest/v1/rpc/current_company_id`, { method: 'POST', headers: { apikey: anonKey, Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }, body: '{}' }); const body = await response.text(); if (response.ok) { const tenant = body.replaceAll('"', '').trim(); assert.ok(tenant, 'tenant must resolve'); return tenant; } last = `current_company_id HTTP ${response.status}: ${body}`; if (!retryable.has(response.status) || attempt === 8) break; await page.waitForTimeout(Math.min(1000 * 2 ** (attempt - 1), 8000)); } throw new Error(last || 'current_company_id failed'); }
 
 try {
   page.on('console', msg => { if (msg.type() === 'error') evidence.failures.push(`console:${msg.text()}`); });
   page.on('pageerror', error => evidence.failures.push(`pageerror:${error.message}`));
   page.on('requestfailed', request => { const reason = request.failure()?.errorText || 'unknown'; if (reason !== 'net::ERR_ABORTED') evidence.failures.push(`request:${request.method()} ${request.url()} ${reason}`); });
-  await page.goto(baseURL, { waitUntil: 'networkidle', timeout: 30000 });
+  await page.goto(baseURL, { waitUntil: 'domcontentloaded', timeout: 30000 });
+  await page.locator('#login-email').waitFor({ state: 'visible', timeout: 30000 });
   await page.locator('#login-email').fill(email);
   await page.locator('#login-password').fill(password);
-  await page.getByRole('button', { name: 'تسجيل الدخول' }).click();
-  await page.locator('#login-email').waitFor({ state: 'hidden', timeout: 30000 });
-  await page.getByRole('button', { name: 'تسجيل الخروج' }).waitFor({ state: 'visible', timeout: 30000 });
+
+  let authResponse = null;
+  for (let attempt = 1; attempt <= 3; attempt += 1) {
+    if (attempt > 1) {
+      await page.goto(baseURL, { waitUntil: 'domcontentloaded', timeout: 30000 });
+      await page.locator('#login-email').waitFor({ state: 'visible', timeout: 30000 });
+      await page.locator('#login-email').fill(email);
+      await page.locator('#login-password').fill(password);
+    }
+    const authResponsePromise = page.waitForResponse(
+      response =>
+        response.request().method() === 'POST' &&
+        response.url().includes('/auth/v1/token?grant_type=password'),
+      { timeout: 60000 },
+    ).catch(() => null);
+    const loginSubmit = page.locator('form button[type="submit"]');
+    if (!(await loginSubmit.count())) throw new Error('LOGIN_SUBMIT_NOT_FOUND');
+    await loginSubmit.click();
+    const candidate = await authResponsePromise;
+    if (candidate && [429, 500, 502, 503, 504].includes(candidate.status()) && attempt < 3) {
+      await page.waitForTimeout(5000 * attempt);
+      continue;
+    }
+    authResponse = candidate;
+    if (authResponse || attempt === 3) break;
+    await page.waitForTimeout(5000 * attempt);
+  }
+  if (!authResponse) throw new Error('AUTH_TOKEN_RESPONSE_TIMEOUT');
+  const authStatus = authResponse.status();
+  if (authStatus >= 400) {
+    let detail = '';
+    try {
+      const body = await authResponse.json();
+      detail = body?.error_code || body?.error || body?.msg || body?.message || '';
+    } catch {}
+    throw new Error('AUTH_TOKEN_HTTP_' + authStatus + (detail ? '_' + detail : ''));
+  }
+
+  try {
+    await page.locator('#login-email').waitFor({ state: 'hidden', timeout: 30000 });
+  } catch {
+    const alertText = await page.getByRole('alert').first().textContent().catch(() => '');
+    throw new Error('AUTH_UI_SESSION_NOT_ESTABLISHED' + (alertText?.trim() ? ':' + alertText.trim().slice(0, 180) : ''));
+  }
+  const sessionReady = await page.evaluate(() => Object.entries(localStorage).some(([key, value]) => {
+    if (!key.endsWith('-auth-token')) return false;
+    try { return Boolean(JSON.parse(value)?.access_token); } catch { return false; }
+  }));
+  if (!sessionReady) throw new Error('BROWSER_ACCESS_TOKEN_NOT_FOUND_AFTER_AUTH');
   evidence.tenant = await currentTenant();
-  await page.goto(`${baseURL}/products`, { waitUntil: 'networkidle', timeout: 30000 });
+  await page.goto(`${baseURL}/products`, { waitUntil: 'domcontentloaded', timeout: 30000 });
+  await page.getByRole('button', { name: 'منتج جديد' }).waitFor({ state: 'visible', timeout: 30000 });
   const sku = `E2E-PRODUCT-${Date.now()}-${process.pid}`;
   const name = `E2E منتج ${Date.now()}-${process.pid}`;
   await page.getByRole('button', { name: 'منتج جديد' }).click();
@@ -51,7 +99,7 @@ try {
   assert.equal(String(persisted[0].name), name);
   assert.equal(Number(persisted[0].cost_price), 10);
   assert.equal(Number(persisted[0].selling_price), 15);
-  await page.locator('input[placeholder="بحث عن منتج..."]').fill(sku);
+  await page.getByRole('textbox', { name: 'بحث عن منتج' }).fill(sku);
   await page.getByText(sku, { exact: true }).waitFor({ state: 'visible', timeout: 10000 });
   evidence.persisted = persisted[0];
   evidence.status = 'PASS';

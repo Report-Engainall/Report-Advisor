@@ -1,4 +1,4 @@
-name: Full Product Browser E2E
+﻿name: Full Product Browser E2E
 
 # Exact-head browser discovery gate. Push and PR triggers remain narrowly scoped to E2E/runtime surfaces.
 on:
@@ -42,6 +42,12 @@ on:
       - 'package-lock.json'
   workflow_dispatch:
 
+
+concurrency:
+  group: report-advisor-auth-e2e-staging
+  cancel-in-progress: false
+
+
 permissions:
   contents: read
 
@@ -51,7 +57,7 @@ env:
 jobs:
   browser-e2e:
     runs-on: ubuntu-22.04
-    timeout-minutes: 40
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
         with:
@@ -157,7 +163,7 @@ jobs:
           await page.goto(base, { waitUntil: 'networkidle', timeout: 30000 });
           await page.locator('#login-email').fill(email);
           await page.locator('#login-password').fill(password);
-          await page.getByRole('button', { name: 'تسجيل الدخول' }).click();
+          await page.locator('form button[type="submit"]').click();
           await page.waitForLoadState('networkidle', { timeout: 30000 }).catch(() => {});
           await page.waitForTimeout(1500);
 
@@ -203,10 +209,10 @@ jobs:
           const metricButton = page.locator('button').filter({ hasText: 'metric.net_sales' }).first();
           await metricButton.waitFor({ state: 'visible', timeout: 15000 });
           await metricButton.click();
-          const captureButton = page.getByRole('button', { name: 'التقاط دليل فعلي' });
+          const captureButton = page.getByRole('button', { name: 'ط§ظ„طھظ‚ط§ط· ط¯ظ„ظٹظ„ ظپط¹ظ„ظٹ' });
           await captureButton.waitFor({ state: 'visible', timeout: 15000 });
           await captureButton.click();
-          await page.getByText('تم حفظ دليل المؤشر فعليًا').waitFor({ state: 'visible', timeout: 30000 });
+          await page.getByText('طھظ… ط­ظپط¸ ط¯ظ„ظٹظ„ ط§ظ„ظ…ط¤ط´ط± ظپط¹ظ„ظٹظ‹ط§').waitFor({ state: 'visible', timeout: 30000 });
           const snapshotText = await page.locator('body').innerText();
           if (!snapshotText.includes('dashboard.total_sales')) throw new Error('KPI_EVIDENCE_KEY_NOT_RENDERED');
           if (!snapshotText.includes('metric.net_sales')) throw new Error('CANONICAL_METRIC_ID_NOT_RENDERED');
@@ -277,3 +283,4 @@ jobs:
           name: live-business-evidence-${{ env.EXACT_HEAD }}
           path: artifacts/live-production-evidence
           if-no-files-found: warn
+

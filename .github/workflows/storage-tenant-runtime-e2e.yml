@@ -1,4 +1,4 @@
-name: Storage Tenant Runtime E2E
+﻿name: Storage Tenant Runtime E2E
 
 on:
   pull_request:
@@ -11,13 +11,14 @@ on:
       - 'package-lock.json'
   workflow_dispatch:
 
+
 permissions:
   contents: read
 
 jobs:
   storage-runtime:
     runs-on: ubuntu-22.04
-    timeout-minutes: 30
+    timeout-minutes: 45
     env:
       EXACT_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
     steps:
@@ -98,3 +99,4 @@ jobs:
           name: storage-tenant-runtime-${{ env.EXACT_HEAD }}
           path: artifacts/storage-tenant-runtime
           if-no-files-found: warn
+

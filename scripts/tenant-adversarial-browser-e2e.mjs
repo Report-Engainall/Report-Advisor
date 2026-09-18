@@ -18,12 +18,50 @@ function requireEnv() {
 }
 
 async function login(page, user) {
-  await page.goto(baseURL, { waitUntil: 'networkidle', timeout: 30000 });
+  await page.goto(baseURL, { waitUntil: 'domcontentloaded', timeout: 30000 });
+  await page.locator('#login-email').waitFor({ state: 'visible', timeout: 30000 });
   await page.locator('#login-email').fill(user.email);
   await page.locator('#login-password').fill(user.password);
-  await page.getByRole('button', { name: 'تسجيل الدخول' }).click();
-  await page.waitForLoadState('networkidle', { timeout: 30000 }).catch(() => {});
-  await page.waitForTimeout(1000);
+  let authResponse = null;
+  for (let attempt = 1; attempt <= 2; attempt += 1) {
+    if (attempt > 1) {
+      await page.goto(baseURL, { waitUntil: 'domcontentloaded', timeout: 30000 });
+      await page.locator('#login-email').waitFor({ state: 'visible', timeout: 30000 });
+      await page.locator('#login-email').fill(user.email);
+      await page.locator('#login-password').fill(user.password);
+    }
+    const authResponsePromise = page.waitForResponse(
+      response =>
+        response.request().method() === 'POST' &&
+        response.url().includes('/auth/v1/token?grant_type=password'),
+      { timeout: 60000 },
+    ).catch(() => null);
+    await page.locator('form button[type="submit"]').click();
+    const candidate = await authResponsePromise;
+    if (candidate && [429, 500, 502, 503, 504].includes(candidate.status()) && attempt < 2) {
+      await page.waitForTimeout(2500);
+      continue;
+    }
+    authResponse = candidate;
+    if (authResponse || attempt === 2) break;
+    await page.waitForTimeout(2500);
+  }
+  if (!authResponse) throw new Error('AUTH_TOKEN_RESPONSE_TIMEOUT');
+  const authStatus = authResponse.status();
+  if (authStatus >= 400) {
+    let detail = '';
+    try {
+      const body = await authResponse.json();
+      detail = body?.error_code || body?.error || body?.msg || body?.message || '';
+    } catch {}
+    throw new Error('AUTH_TOKEN_HTTP_' + authStatus + (detail ? '_' + detail : ''));
+  }
+  try {
+    await page.locator('#login-email').waitFor({ state: 'hidden', timeout: 30000 });
+  } catch {
+    const alertText = await page.getByRole('alert').first().textContent().catch(() => '');
+    throw new Error('AUTH_UI_SESSION_NOT_ESTABLISHED' + (alertText?.trim() ? ':' + alertText.trim().slice(0, 180) : ''));
+  }
 }
 
 async function rest(page, path, init = {}) {

@@ -25,6 +25,7 @@ function run(label, script) {
     const child = spawn(process.platform === 'win32' ? 'npm.cmd' : 'npm', ['run', script, '--if-present'], {
       stdio: ['ignore', 'pipe', 'pipe'],
       env: process.env,
+      shell: process.platform === 'win32',
     });
     let stdout = '';
     let stderr = '';
