@@ -40,7 +40,9 @@ async function browserSession(user) {
   await page.goto(baseURL, { waitUntil: 'networkidle', timeout: 30000 });
   await page.locator('#login-email').fill(user.email);
   await page.locator('#login-password').fill(user.password);
-  await page.getByRole('button', { name: 'تسجيل الدخول' }).click();
+  const loginSubmit = page.locator('form button[type="submit"]');
+  if (!(await loginSubmit.count())) throw new Error('LOGIN_SUBMIT_NOT_FOUND');
+  await loginSubmit.click();
   await page.locator('#login-email').waitFor({ state: 'hidden', timeout: 30000 });
   const token = await page.evaluate(() => {
     const raw = Object.entries(localStorage).find(([key]) => key.endsWith('-auth-token'))?.[1];
