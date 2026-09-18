@@ -45,3 +45,9 @@
 - Root cause fixed: canonical-import-execute no longer selects non-existent import_jobs.file_name/entity_type columns; entity identity is checked against persisted job_type/result_summary while tenant and import ID remain mandatory.
 - Retrigger marker only: no runtime/product behavior is changed by this ledger entry.
 - Evidence from 6bfb9932 is not transferred; the next exact head must re-prove browser, KPI, and business persistence.
+
+## 2026-09-19 — Fresh exact-head retrigger after authenticated enqueue fix
+- Code fix SHA: 023f3bbd6223007e344b671cba9f79fca28312e2.
+- Static verification: diff-check, import transaction contract, typecheck, production build all PASS.
+- Root cause: enqueue_report_execution_job requires auth.uid(); the previous adapter invoked it via service-role worker client. Enqueue now uses authenticated dataClient; worker client remains service-role only for durable execution/commit.
+- No evidence is transferred from prior SHAs. Next runtime result is authoritative only for the resulting exact SHA.

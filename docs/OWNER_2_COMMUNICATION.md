@@ -137,3 +137,11 @@ OBJECTIVE=إغلاق الخطأ الثاني في Business Persistence بعد إ
 FILES=src/lib/import/canonical-production-adapter.ts; scripts/check-import-transaction-contract.mjs
 DB=لا schema/migration mutation.
 EXPECTED HANDOFF=Fresh exact-SHA business persistence evidence.
+
+## 2026-09-19 — EXECUTED / VERIFIED / OPEN / BLOCKED / NEXT HANDOFF
+- EXECUTED: fixed durable import enqueue authority; enqueue_report_execution_job now uses authenticated dataClient, while service-role workerClient remains execution authority.
+- VERIFIED: diff-check PASS; import transaction contract PASS; TypeScript typecheck PASS; Vite production build PASS.
+- EXACT CODE SHA: 023f3bbd6223007e344b671cba9f79fca28312e2
+- OPEN: exact-head browser/business persistence must be re-proven; Phase F live resilience; exact Vercel deployment parity; backup/RPO/RTO evidence.
+- BLOCKED: no code blocker remains for enqueue path; live Phase F configuration and deployment parity are external/runtime gates.
+- NEXT HANDOFF: governed retrigger on successor SHA; accept evidence only from that exact SHA.
