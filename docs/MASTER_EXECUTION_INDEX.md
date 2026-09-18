@@ -5,7 +5,7 @@
 > Authoritative execution manifest. This document never promotes historical evidence across an exact Git `HEAD` boundary. Pair every evidence batch with the exact Git `HEAD` of `main` and the exact environment/commit used.
 
 ### CURRENT EXACT HEAD
-- Current code/test candidate: `ffccf08e1ce4d5595d9ac448f310d62ce5d94e95`.
+- Current code/test candidate: `b7c57d047fbf75e7fadf4167dad7b618c547a1c0`.
 - This is the exact current `main` head after the latest governance, resilience and device-independent browser-smoke work; the previous `e0503ae...` binding is superseded.
 - No runtime/browser/production evidence from an earlier SHA is promoted by this binding.
 - The certification binding itself is governance-only and does not certify runtime/product code; fresh exact-HEAD runtime evidence is still required.
@@ -69,6 +69,7 @@
 - Queue scalar boundaries are implemented in current Main: blank run/worker/lease identifiers are rejected, retry budgets require positive integers, and lease duration is finite and at least 30 seconds.
 - Worker runtime crash/retry/recovery remains UNPROVEN until an actual disposable job is executed through enqueue → claim → heartbeat/checkpoint → forced expiry → recovery → retry/DLQ.
 - Current exact-head resilience workflows are enabled for PRs and verify the checked-out SHA explicitly before execution.
+- Backup/restore runtime remains NOT PROVEN: repository evidence-integrity checks pass, but a disposable restore drill with verified RPO/RTO and exact-head evidence is still required before release certification.
 
 ### OCR / Document Intelligence
 - The historical OCR confidence defect fix remains part of the repository contract: recognition confidence is preserved, malformed metadata fails closed, and low-confidence/no-text paths are review/reject paths rather than fabricated confidence.

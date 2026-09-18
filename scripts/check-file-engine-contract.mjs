@@ -23,7 +23,9 @@ const required = [
   ['adapters', 'PDF_OCR_MAX_PAGES = 20'],
   ['adapters', 'PDF_OCR_MAX_DIMENSION = 2200'],
   ['adapters', "parseScannedPdfWithOcr(pdf, fileName)"],
-  ['adapters', "buildTextDataset(pages.join('\\n\\n'), fileName, 'pdf-ocr', warning)"],
+  ['adapters', "async function buildTextDataset("],
+  ['adapters', "return buildTextDataset(pages.join('\\n\\n'), fileName, 'pdf-ocr', warning, minimumConfidence)"],
+  ['adapters', 'confidenceFloor?: number'],
   ['adapters', 'PDF_OCR_PAGE_LIMIT_EXCEEDED'],
   ['adapters', 'PDF_SCANNED_OCR_EMPTY'],
 ];
@@ -32,6 +34,7 @@ for (const [file, token] of required) {
   if (!files[file].includes(token)) throw new Error(`File-engine contract missing: ${file} -> ${token}`);
 }
 
+if (!files.adapters.includes('Math.min(dataset.qualityScore, Math.round(confidenceFloor))')) throw new Error('OCR confidence floor propagation is missing');
 if (/console\.log\(/.test(files.adapters)) throw new Error('File-engine adapter must not contain debug logging');
 if (!files.normalizer.includes("replace(/[\\u064B-\\u065F\\u0670]/g, '')")) throw new Error('Arabic diacritic normalization is missing');
 if (!files.normalizer.includes("replace(/[٬]/g, ',')")) throw new Error('Arabic thousands separator normalization is missing');
