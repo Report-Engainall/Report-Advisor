@@ -77,7 +77,7 @@ export function ProposalDemoPage() {
         </Card>
 
         <Card>
-          <CardHeader title="Proposal Snapshot" subtitle="صياغة عرض ديمو مبنية على المنتجات والمسارات الموجودة." />
+          <CardHeader title="ملخص العرض" subtitle="صياغة عرض ديمو مبنية على المنتجات والمسارات الموجودة." />
           <CardBody>
             <div className="rounded-xl border border-ink-100 bg-ink-50/60 p-4">
               <div className="text-xs text-ink-400">العميل</div><div className="mt-1 text-lg font-bold text-ink-900">{client}</div>
