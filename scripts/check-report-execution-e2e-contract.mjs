@@ -35,6 +35,20 @@ required(download, ['renderArtifact', 'downloadReportArtifact', 'Blob', 'anchor.
 required(durable, ['claim_report_execution_job', 'heartbeat_report_execution_job', 'advance_report_execution_checkpoint', 'complete_report_execution_job', 'fail_report_execution_job', 'retry_report_execution_job'], 'Durable worker adapter');
 required(ledger, ['artifactRefs', 'evidence', 'tenantId', 'immutable'], 'Execution ledger');
 
+const canonicalAdapter = existsSync('src/lib/import/canonical-production-adapter.ts')
+  ? read('src/lib/import/canonical-production-adapter.ts')
+  : '';
+const canonicalImportApi = existsSync('api/canonical-import-run.ts')
+  ? read('api/canonical-import-run.ts')
+  : '';
+if (!canonicalAdapter || !canonicalImportApi) throw new Error('Canonical import server boundary missing');
+required(canonicalAdapter, ['/api/canonical-import-run', 'stageRows', 'import_finish_job'], 'Canonical import client boundary');
+for (const forbidden of ['claim_report_execution_job', 'enqueue_report_execution_job', 'SupabaseReportExecutionStore', 'runDurableProductionLifecycle']) {
+  if (canonicalAdapter.includes(forbidden)) throw new Error(`Canonical import browser boundary illegally references worker primitive: ${forbidden}`);
+}
+required(canonicalImportApi, ['SUPABASE_SERVICE_ROLE_KEY', 'serviceRoleClient', 'SupabaseReportExecutionStore(workerClient)', 'commitImportBatchWithClient(client, companyId'], 'Canonical import server authority');
+if (canonicalImportApi.includes("SupabaseReportExecutionStore(client)")) throw new Error('Canonical import server boundary must not run worker RPCs with the authenticated client');
+
 const assertGateImplementation = (source) => {
   if (!source.includes("if (!input.sourceSnapshotId) throw new Error('Report execution requires a source snapshot');")) {
     throw new Error('source snapshot guard missing');
