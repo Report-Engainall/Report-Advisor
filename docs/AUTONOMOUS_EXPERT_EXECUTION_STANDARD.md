@@ -63,3 +63,46 @@ Before declaring a batch successful, ask:
 ## Evolution rule
 
 This document is itself part of the execution system. When execution reveals a stronger general rule, update this standard and the permanent execution protocol in the same documented batch. The goal is not merely to execute tasks faster; it is to make every subsequent execution safer, more rigorous, more autonomous, and more effective than the previous one.
+
+
+---
+
+## Product-Value Execution Rule — 2026-09-18
+
+Autonomous execution must continuously ask two separate questions:
+1. Is the software becoming more correct?
+2. Is the product becoming more valuable and sellable?
+
+A batch is under-executed when it improves internal polish while leaving a high-value customer workflow without evidence, action or outcome.
+
+For every new feature, identify:
+- customer problem;
+- user/role;
+- business outcome;
+- canonical source;
+- evidence path;
+- action path;
+- outcome path;
+- acceptance test;
+- commercial demonstration.
+
+### Commercial Proof Before Feature Sprawl
+
+Before adding a new module/page, check whether an existing capability can be made measurable, connected to evidence, connected to action, connected to outcome, made demo-ready or packaged as a customer solution.
+
+Feature count is not a progress metric.
+
+### Competitive learning rule
+
+External products are source material for capability discovery, not architecture/templates to copy.
+For each useful market pattern:
+- classify it;
+- identify the customer problem it solves;
+- compare against current capability;
+- choose native/adapter/reference/reject;
+- add a regression/acceptance requirement when integrated.
+
+### Premium Work Rule
+
+Any enterprise/premium feature must have:
+truth boundary + permission boundary + evidence boundary + action boundary + outcome boundary + performance boundary + exact-head evidence.
