@@ -63,7 +63,7 @@ A preview deployment is not production proof.
 
 # 2. LIVE EXECUTION HEADER
 
-Last material update: 2026-09-18T03:18Z
+Last material update: 2026-09-18T03:32Z
 Current Main: a32fae0fc08c1cbbcc60b6eedfb0f4bd74a21c50
 Primary environment: Supabase staging fnqbvfuwbdpwvhcgzksl
 Production URL: https://report-advisor.vercel.app
@@ -75,9 +75,9 @@ Coordinator PR head is verified directly from GitHub for every cycle; do not tre
 
 | PR | Front | Exact HEAD | State | Canonical purpose |
 |---|---|---|---|---|
-| #540 | PDF/document runtime | a378f55ba7e845a7c5f672ca276e36099de8bee0 | OPEN / governance rebind applied; CI pending | Consolidated PDF parser + Node 22 runtime compatibility + deterministic real-PDF regression |
-| #539 | Security-definer/current-main reconciliation | f24ddd623d9d0a72c0c3b3d0bd6724bd6dcb6c5b | OPEN / governance rebind applied; CI in progress | Harden current-main SECURITY DEFINER boundaries and retry auth/tenant guards |
-| #536 | Import terminal authority | 2ba3251712168ad64b14127b6583d2bc1d0162ac | OPEN / governance rebind applied; CI pending | Route terminal import state through existing import_finish_job |
+| #540 | PDF/document runtime | b7c57d047fbf75e7fadf4167dad7b618c547a1c0 | OPEN / consolidated PDF hardening; exact-head CI in progress | Consolidated PDF parser + Node 22 runtime compatibility + deterministic real-PDF regression |
+| #539 | Security-definer/current-main reconciliation | 89507eaaf68ca227816920bf09d2c0093ec0f7e4 | OPEN / exact-head CI queued | Harden current-main SECURITY DEFINER boundaries and retry auth/tenant guards |
+| #536 | Import terminal authority | 2ba3251712168ad64b14127b6583d2bc1d0162ac | OPEN / exact-head CI active; security gate depends on #539 | Route terminal import state through existing import_finish_job |
 | #534 | Master execution index | 013c4c31f8fe91f789ad13d29cb3ec6741cfc4e4 | OPEN / governance | Rebind index to Main a32fae0 |
 | #537 | Coordinator protocol | 4b230b4642dd99396cf7b779d383943d0cfcc9c6 | OPEN / governance | Continuous coordinator execution + this memory contract |
 
@@ -341,3 +341,18 @@ without asking the user to reconstruct project history.
 - Coordinator branch head is no longer stored as a self-referential value that would become stale when this file changes.
 - GitHub branch/PR metadata is authoritative for the coordinator branch head.
 - Exact implementation PR SHAs remain explicitly stored because they are release/evidence boundaries.
+
+
+### 2026-09-18T03:32Z — PDF consolidation + duplicate-front closure
+- PR #541 was audited against Main and #540. Its 32-commit branch contained PDF hardening plus unrelated security migrations and import/browser changes.
+- PDF-only commits after the common ancestor were selectively integrated into #540; security migrations and unrelated import/browser changes were deliberately excluded.
+- Consolidated #540 exact head: b7c57d047fbf75e7fadf4167dad7b618c547a1c0.
+- Main comparison for #540 contains only the intended PDF/runtime files plus the Master Execution Index and deterministic PDF fixtures; no #539 security migration was transferred.
+- Local connected-worktree proof on the consolidated branch:
+  - npm run test:file-engine-regressions = PASS
+  - node --experimental-strip-types scripts/check-pdf-structured-regression.ts = PASS
+  - npm run typecheck = PASS
+- #541 was closed as duplicate/superseded. Future PDF work continues only on #540.
+- #536 exact-head security-definer exposure failure was inspected and classified as a dependency on the unresolved current-Main security reconciliation in #539, not an import defect. No duplicated security implementation added to #536.
+- #539 candidate label was corrected to the checker-recognized "Current code/test candidate"; exact new head is 89507eaaf68ca227816920bf09d2c0093ec0f7e4. Fresh CI is queued; no old #539 result is promoted.
+- Issue #399 remains OPEN: live staging has later security-definer migration history not represented by current Main names; forward-only source reconciliation exists on #539, while disposable replay is still required for closure.
