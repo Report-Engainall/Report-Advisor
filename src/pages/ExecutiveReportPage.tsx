@@ -7,6 +7,8 @@ import { formatCurrency, formatNumber } from '@/lib/format';
 import { TruthContextStrip } from '@/components/TruthContextStrip';
 import { CommercialOpportunityRadar } from '@/components/CommercialOpportunityRadar';
 import { buildCommercialOpportunityRadar } from '@/lib/commercial-opportunity-radar';
+import { SectorReportLens } from '@/components/SectorReportLens';
+import { resolveCurrentCompanyId, supabase } from '@/lib/supabase';
 
 function Metric({ label, value, hint }: { label: string; value: string; hint: string }) {
   return <div className="rounded-2xl border border-ink-100 bg-ink-50/70 p-4">
@@ -43,6 +45,7 @@ export function ExecutiveReportPage() {
   const [categories, setCategories] = useState<Awaited<ReturnType<typeof fetchDashboardSnapshot>>['categories']>([]);
   const [aging, setAging] = useState<Awaited<ReturnType<typeof fetchDashboardSnapshot>>['aging']>({ rows: [], totalAmount: null, unknownRows: 0, status: 'NO_DATA' });
   const [asOf, setAsOf] = useState<string>('غير متاح');
+  const [industry, setIndustry] = useState<string | null>(null);
   const [data, setData] = useState<{ alerts: Alert[]; recommendations: Recommendation[] } | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -60,6 +63,15 @@ export function ExecutiveReportPage() {
       setAging(snapshot.aging);
       setAsOf(snapshot.asOf);
       setData(intelligence);
+      try {
+        const companyId = await resolveCurrentCompanyId();
+        if (companyId) {
+          const { data: company } = await supabase.from('companies').select('industry').eq('id', companyId).single();
+          setIndustry(typeof company?.industry === 'string' ? company.industry : null);
+        }
+      } catch {
+        setIndustry(null);
+      }
     } catch (e) {
       setError(e instanceof Error ? e.message : 'تعذر تحميل التقرير التنفيذي.');
     } finally {
@@ -97,6 +109,8 @@ export function ExecutiveReportPage() {
 
     {!loading && !error && <>
       <TruthContextStrip months={6} status={kpis?.status ?? 'INSUFFICIENT_DATA'} asOf={asOf} rangeLabel="النطاق: آخر 6 أشهر" />
+
+      <SectorReportLens industry={industry} kpis={kpis} />
 
       <section className="rounded-2xl border border-ink-200 bg-white p-5 shadow-sm">
         <div className="flex flex-wrap items-center justify-between gap-3"><div><p className="text-xs font-bold tracking-wider text-primary-600">الملخص التنفيذي</p><h2 className="mt-1 text-lg font-black">لقطة الإدارة الحالية</h2></div><span className="rounded-full border border-primary-200 bg-primary-50 px-3 py-1 text-[11px] font-bold text-primary-700">المصدر: بيانات قانونية</span></div>
