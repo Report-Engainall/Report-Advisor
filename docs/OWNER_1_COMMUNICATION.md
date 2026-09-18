@@ -102,3 +102,42 @@ VERIFIED: all listed UI gates PASS على Exact SHA.
 UNPROVEN: runtime/auth/persistence/release gates الخاصة بـOwner 2.
 BLOCKERS: لا يوجد blocker في كود هذه الجبهة.
 NEXT: اختبر/ادمج هذا SHA في مسار integration عندما يصبح مرشح الدمج مناسبًا؛ لا تنقل Evidence من bce81694.
+
+## START — COMMAND 1 — 2026-09-18 — ONBOARDING + PROPOSAL DEMO
+START
+OWNER: 1
+UI HEAD AT START: 6ef72084995b66b802a2097d55c1c22d82550d6
+BASE: main
+SCOPE: First-session Commercial Value + Proposal Demo strengthening.
+
+ONBOARDING
+CHANGE: src/pages/OnboardingPage.tsx + scripts/check-onboarding-commercial-value-contract.mjs + package script.
+RESULT: canonical dashboard snapshot/intelligence integrated into first-session onboarding; coverage/as-of/status, real alert/recommendation, truthful no-signal state, executive-report first output; snapshot failure remains non-blocking and fail-closed.
+COMMIT: d43958706daec644da6cf22458df7461dbc2f1d5
+VERIFIED EXACT SHA: typecheck PASS; build PASS; onboarding contract PASS; Wave2 PASS; dashboard contract PASS; route parity PASS; performance budget PASS.
+
+PROPOSAL DEMO
+CHANGE: src/pages/ProposalDemoPage.tsx + scripts/check-proposal-demo-product-contract.mjs + package script.
+RESULT: selectable live capability bundle, actual live-route links, reusable proposal-summary copy, real product-origin links, print/PDF preserved, no synthetic evidence.
+COMMIT: 4b22fa3e081b6240dfea897cd389313949ff3473
+VERIFIED EXACT SHA: typecheck PASS; build PASS; lint PASS (64 pre-existing warnings, 0 errors); proposal contract PASS; performance budget PASS.
+
+HANDOFF
+FROM: OWNER 1
+TARGET: OWNER 2
+UI HEAD: 4b22fa3e081b6240dfea897cd389313949ff3473
+EXPECTED ACTION: reprove affected gates on this Exact UI HEAD when integrating; do not transfer evidence from d4395870 or earlier.
+
+RUNTIME COORDINATION NOTE
+INTEGRATION HEAD: c9029723ef270917f7762182cfbd5b1ac12949c9
+Final Certification Gate: PASS.
+Remaining runtime blockers on exact integration head:
+- Full Product Browser E2E fails at exact-head backend runtime secret contract before browser steps.
+- Storage Tenant Runtime E2E fails during real tenant isolation runtime step.
+- Phase-F live probes fail closed: operational-health 404; tenant-canary fetch failed; backup-restore 405; rollback-forward-fix 405.
+GitHub PR comment attempt on PR 598 returned API 403; this note is the durable coordination record. No main changes.
+
+NEXT HANDOFF
+Target branch: integration/certification-candidate-20260918
+Expected action: Owner 2 repairs existing runtime secret/endpoint configuration only, preserves fail-closed probes, then reruns affected gates on the resulting Exact SHA.
+SHA to verify after handoff: c9029723ef270917f7762182cfbd5b1ac12949c9 or the newly produced exact SHA after a runtime fix.
