@@ -99,11 +99,18 @@ async function browserSession(user) {
   const tenantResponse = await page.evaluate(async ({ url, anon }) => {
     const raw = Object.entries(localStorage).find(([key]) => key.endsWith('-auth-token'))?.[1];
     const session = JSON.parse(raw);
-    const response = await fetch(`${url}/rest/v1/rpc/current_company_id`, {
-      method: 'POST', headers: { apikey: anon, Authorization: `Bearer ${session.access_token}`, 'Content-Type': 'application/json' }, body: '{}',
-    });
-    const body = await response.text();
-    return { ok: response.ok, status: response.status, body };
+    let last = null;
+    for (let attempt = 1; attempt <= 5; attempt += 1) {
+      const response = await fetch(`${url}/rest/v1/rpc/current_company_id`, {
+        method: 'POST', headers: { apikey: anon, Authorization: `Bearer ${session.access_token}`, 'Content-Type': 'application/json' }, body: '{}',
+      });
+      const body = await response.text();
+      if (response.ok) return { ok: true, status: response.status, body };
+      last = { ok: false, status: response.status, body };
+      if (![502, 503, 504, 544].includes(response.status) || attempt === 5) return last;
+      await new Promise(resolve => setTimeout(resolve, 1500 * attempt));
+    }
+    return last || { ok: false, status: 599, body: 'tenant resolution exhausted' };
   }, { url: supabaseURL, anon: anonKey });
   assert.equal(tenantResponse.ok, true, `current_company_id failed: ${tenantResponse.status}:${tenantResponse.body}`);
   const tenant = tenantResponse.body.replaceAll('"', '').trim();
