@@ -22,8 +22,8 @@ assert.match(source, /kpis\.grossProfit/);
 assert.match(source, /kpis\.totalReceivables/);
 assert.match(source, /kpis\.inventoryValue/);
 assert.match(source, /aging\.rows/);
-assert.match(source, /activeAlerts\.map/);
-assert.match(source, /activeRecommendations\.map/);
+assert.match(source, /liveAlerts\.map/);
+assert.match(source, /liveRecommendations\.map/);
 assert.match(source, /TREND_RANGES\.map/);
 
 console.log('Executive dashboard UI contract: PASS');
