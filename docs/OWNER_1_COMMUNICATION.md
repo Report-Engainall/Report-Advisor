@@ -261,3 +261,17 @@ HANDOFF TO OWNER 2:
 
 NEXT OWNER-1 FRONT:
 - Continue Decision/Work Center commercial surface hardening, using only existing canonical reads and existing investigation patterns.
+
+## START — COMMAND 3 — 2026-09-19
+START
+DATE: 2026-09-19T00:45+03:00
+OWNER: 1
+BRANCH: feat/owner1-dashboard-critical-load-wave5-20260919
+HEAD: dddc2ba1988b616d784780da14588be394b20597
+BASE: feat/owner1-decision-trust-wave4-20260919
+OBJECTIVE: خفض critical initial-load assets بتحويل رسوم Dashboard غير الضرورية للحمولة الأولى إلى lazy chunks، مع الحفاظ على الشاشة الوظيفية وعدم تغيير runtime/DB.
+FILES / SURFACES: src/pages/DashboardPage.tsx; package.json only if contract guard required.
+DEPENDENCIES: existing chart components + Vite manualChunks only؛ لا RPC/DB/Runner/Auth/Tenant/Storage change.
+SUCCESS CRITERIA: perf:budget critical <= 900KB; typecheck/lint/build + Dashboard/product contracts remain PASS.
+BLOCKERS: لا يوجد blocker معروف.
+EXPECTED HANDOFF: Owner 2 يعيد إثبات browser/runtime/release gates على Exact SHA الناتج.
