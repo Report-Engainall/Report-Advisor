@@ -10,8 +10,9 @@ import { fetchDashboardSnapshot, fetchInventoryReportSnapshot } from '@/lib/dash
 import { fetchSalesInvoices, fetchPurchaseInvoices, fetchPurchaseSummary, fetchSalesExportRows, fetchPurchaseExportRows, fetchInventoryExportRows, fetchReceivablesExportRows } from '@/lib/queries';
 import { formatCurrency, formatNumber, formatDate } from '@/lib/format';
 import { downloadReportArtifact } from '@/lib/report-execution/download';
+import { BusinessInvestigationDrawer, type InvestigationTarget } from '@/components/BusinessInvestigationDrawer';
 import type { SalesInvoice, PurchaseInvoice } from '@/lib/types';
-import type { DashboardKPIs, MonthlyTrend, TopEntity, CategoryBreakdown, AgingBucket, InventoryReportRow } from '@/lib/dashboard-canonical';
+import type { CategoryBreakdown, AgingBucket, InventoryReportRow } from '@/lib/dashboard-canonical';
 
 function errorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
@@ -26,40 +27,33 @@ const reportCards = [
 ];
 
 export function ReportsCenterPage() {
+  const [investigation, setInvestigation] = useState<InvestigationTarget | null>(null);
+  const openReport = (r: typeof reportCards[number]) => setInvestigation({
+    title: r.title, eyebrow: 'مخرج قرار · ' + r.stage, severity: 'info',
+    summary: 'هذا المسار مخصص لإخراج دليل أعمال قابل للمراجعة. فتحه لا يعني أن البيانات الحالية مكتملة أو أن قرارًا قد نُفذ.',
+    facts: [{ label: 'المخرج', value: r.title }, { label: 'المسار', value: r.path }, { label: 'وظيفته', value: r.desc }, { label: 'طبيعة الاستخدام', value: 'Evidence → Decision' }],
+    confirmedReasons: ['يوجد مسار تطبيق مخصص لهذا المخرج.'],
+    missingEvidence: ['حالة البيانات الحالية للفترة المطلوبة.', 'أي سبب تجاري لا تثبته السجلات نفسها.', 'نتيجة الإجراء بعد التنفيذ، إن وُجد.'],
+    actions: [{ label: 'افتح المخرج', path: r.path, hint: 'انتقل إلى مصدر الأرقام والتحليل الفعلي.' }, { label: 'افتح تجربة القرار', path: '/decision-experience?stage=evidence', hint: 'افحص الدليل قبل اعتماد القرار.' }],
+    evidence: { source: r.path, asOf: 'عند فتح المخرج', status: 'OUTPUT_ROUTE' },
+  });
   return <div dir="rtl" className="space-y-5 animate-fade-in pb-10">
-    <PageHeader title="مركز التقارير" subtitle="منظومة التقارير التنفيذية: كل رقم يعود إلى مصدره، وكل تفسير يبقى منفصلًا عن حقيقة البيانات."/>
-    <section className="rounded-[14px] border border-ink-200 bg-white p-5 shadow-card lg:p-6">
-      <div className="grid gap-6 lg:grid-cols-[1.4fr_.6fr] items-end">
-        <div>
-          <div className="section-kicker">بيانات → دليل → قرار</div>
-          <h1 className="mt-1 text-[22px] font-black tracking-tight text-ink-950 lg:text-[28px]">التقرير ليس شاشة أرقام؛ إنه حزمة أدلة قابلة للمراجعة.</h1>
-          <p className="mt-2 max-w-3xl text-[11px] leading-5 text-ink-500">استخدم التقارير لتفسير الحالة الحالية، مع الحفاظ على مؤشرات نقص البيانات والحالات غير القابلة للحساب بدل إخفائها.</p>
-        </div>
-        <div className="rounded-[10px] border border-ink-200 bg-ink-50 p-4 text-sm">
-          <div className="font-semibold">قاعدة العرض</div>
-          <div className="mt-2 text-[10px] leading-5 text-ink-500">مصدر واضح · حالة بيانات واضحة · لا رقم بديل عند غياب المصدر</div>
-        </div>
+    <PageHeader title="مخرجات القرار" subtitle="من Signal إلى Evidence Brief: التقارير هنا مخرجات قرار، أما الجداول التفصيلية فهي أدلة داخل السياق."/>
+    <section className="rounded-[18px] border border-[#15372f] bg-[#0d2a24] p-5 text-white lg:p-6">
+      <div className="section-kicker text-white/40">OUTPUTS → EVIDENCE → DECISION</div>
+      <h1 className="mt-1 text-[24px] font-black tracking-tight lg:text-[30px]">ما الذي يحتاجه القرار الآن؟</h1>
+      <p className="mt-2 max-w-3xl text-[11px] leading-6 text-white/55">ابدأ بالمخرج الذي يجيب السؤال التجاري، ثم انزل إلى التقرير التفصيلي فقط عندما تحتاج الدليل أو الصفوف المصدرية.</p>
+      <div className="mt-5 grid gap-3 md:grid-cols-3">
+        {[{path:'/reports/executive',title:'التقرير التنفيذي',desc:'لقطة الإدارة: ماذا تغيّر وما الذي يحتاج قرارًا؟'},{path:'/reports/profitability',title:'الربحية والهامش',desc:'Money Lens: ما الذي نستطيع إثباته عن الإيراد والتكلفة والهامش؟'},{path:'/reports/receivables',title:'التحصيل والنقد',desc:'Money Lens: ما حجم التعرض وما الدليل قبل التدخل؟'}].map(item=><Link key={item.path} to={item.path} className="rounded-2xl border border-white/10 bg-white/[.05] p-4 transition hover:bg-white/[.09]"><div className="text-[10px] font-black text-white/40">DECISION OUTPUT</div><div className="mt-2 text-sm font-black">{item.title}</div><div className="mt-1 text-[11px] leading-5 text-white/55">{item.desc}</div><span className="mt-3 inline-flex text-[10px] font-bold text-white/70">فتح المخرج ←</span></Link>)}
       </div>
     </section>
-    <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-      {reportCards.map((r) => <Link key={r.path} to={r.path} className="group">
-        <Card className="h-full overflow-hidden transition hover:-translate-y-1 hover:shadow-xl">
-          <CardBody>
-            <div className="flex items-start gap-4">
-              <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl ${r.iconClass}`}><r.icon size={20}/></div>
-              <div className="min-w-0 flex-1">
-                <div className="mb-2 flex items-center justify-between gap-2">
-                  <span className="rounded-full bg-ink-50 px-2.5 py-1 text-[10px] font-bold text-ink-500">{r.stage}</span>
-                  <span className="text-xs text-ink-400 group-hover:text-primary-600">فتح التقرير ←</span>
-                </div>
-                <h3 className="text-base font-bold text-ink-900">{r.title}</h3>
-                <p className="mt-1 text-xs leading-6 text-ink-500">{r.desc}</p>
-              </div>
-            </div>
-          </CardBody>
-        </Card>
-      </Link>)}
-    </div>
+    <section className="rounded-2xl border border-ink-200 bg-white p-5 shadow-card">
+      <div className="flex flex-wrap items-end justify-between gap-3"><div><div className="section-kicker">EVIDENCE SURFACES</div><h2 className="mt-1 text-lg font-black">الأدلة التفصيلية داخل سياق الأعمال</h2></div><span className="rounded-full bg-ink-50 px-3 py-1 text-[10px] font-bold text-ink-500">ليست هي نقطة البداية</span></div>
+      <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        {reportCards.map(r=><Card key={r.path} className="h-full"><CardBody><div className="flex items-start gap-4"><div className={'flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl ' + r.iconClass}><r.icon size={20}/></div><div className="min-w-0 flex-1"><div className="mb-2 flex items-center justify-between gap-2"><span className="rounded-full bg-ink-50 px-2.5 py-1 text-[10px] font-bold text-ink-500">{r.stage}</span><button type="button" onClick={()=>openReport(r)} className="text-xs font-bold text-primary-700 hover:underline">افحص المسار</button></div><h3 className="text-base font-bold text-ink-900">{r.title}</h3><p className="mt-1 text-xs leading-6 text-ink-500">{r.desc}</p><Link to={r.path} className="mt-3 inline-flex rounded-lg border border-ink-200 px-3 py-1.5 text-[11px] font-bold text-ink-700 hover:border-primary-300 hover:text-primary-700">فتح الدليل</Link></div></div></CardBody></Card>)}
+      </div>
+    </section>
+    <BusinessInvestigationDrawer target={investigation} onClose={()=>setInvestigation(null)} />
   </div>;
 }
 
