@@ -404,3 +404,17 @@ HANDOFF TO OWNER 2:
 
 NEXT OWNER-1 FRONT:
 - Financial report evidence context: surface canonical as-of/status directly inside Sales and Profitability reports.
+
+## START — COMMAND 6 — 2026-09-19
+START
+DATE: 2026-09-19T01:45+03:00
+OWNER: 1
+BRANCH: feat/owner1-financial-report-truth-wave8-20260919
+HEAD: de02f524da29cd54cb6bcd2f677581fb7da9c0ab
+BASE: feat/owner1-reports-output-truth-wave7-20260919
+OBJECTIVE: إظهار الحالة المصدرية ووقت اللقطة الكانونية داخل تقريري المبيعات والربحية بدل ترك أرقام المال بلا as-of/status.
+FILES / SURFACES: src/pages/ReportsPage.tsx; scripts/check-financial-report-truth-contract.mjs; package.json.
+DEPENDENCIES: existing fetchDashboardSnapshot only؛ لا RPC/DB/runtime جديد.
+SUCCESS CRITERIA: Sales + Profitability show TruthContextStrip from canonical snapshot; contract/typecheck/lint/build/perf PASS.
+BLOCKERS: none known.
+EXPECTED HANDOFF: Owner 2 reprove report/browser/runtime/release gates on Exact SHA.
