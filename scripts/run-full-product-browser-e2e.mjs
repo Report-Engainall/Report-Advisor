@@ -25,6 +25,7 @@ const result = {
   startedAt: new Date().toISOString(),
   auth: 'NOT_PROVEN', tenant: 'NOT_PROVEN',
   routes: [], findings: [], actions: [], requests: [], failedResponses: [],
+  authNetworkProbe: null,
 };
 const browser = await chromium.launch({ headless: true });
 const context = await browser.newContext({ viewport: { width: 1440, height: 1000 }, locale: 'ar-SA' });
@@ -49,6 +50,43 @@ page.on('response', async response => {
 });
 page.on('request', request => requests.push({ method: request.method(), url: request.url() }));
 
+async function probeAuthFromNode(email, password) {
+  if (!supabaseURL || !supabaseAnonKey) return { status: 'BLOCKED', reason: 'SUPABASE_RUNTIME_ENV_MISSING' };
+  const startedAt = Date.now();
+  try {
+    const response = await fetch(`${supabaseURL.replace(/\\/$/, '')}/auth/v1/token?grant_type=password`, {
+      method: 'POST',
+      headers: {
+        apikey: supabaseAnonKey,
+        Authorization: `Bearer ${supabaseAnonKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email, password }),
+      signal: AbortSignal.timeout(15000),
+    });
+    const bodyText = await response.text();
+    let detail = '';
+    if (!response.ok) {
+      try {
+        const body = JSON.parse(bodyText);
+        detail = body?.error_code || body?.error || body?.msg || body?.message || '';
+      } catch {}
+    }
+    return {
+      status: response.ok ? 'PASS' : 'FAIL',
+      httpStatus: response.status,
+      durationMs: Date.now() - startedAt,
+      detail: detail ? String(detail).slice(0, 180) : undefined,
+    };
+  } catch (error) {
+    return {
+      status: 'FAIL',
+      durationMs: Date.now() - startedAt,
+      error: error instanceof Error ? error.name + ':' + error.message.slice(0, 180) : String(error).slice(0, 180),
+    };
+  }
+}
+
 async function login(targetPage, email, password) {
   await targetPage.goto(baseURL, { waitUntil: 'networkidle', timeout: 30000 });
   const loginEmail = targetPage.locator('#login-email');
@@ -56,6 +94,8 @@ async function login(targetPage, email, password) {
   await loginEmail.fill(email);
   await targetPage.locator('#login-password').fill(password);
 
+  const browserAuthEvents = { requestFinished: false, requestFailed: null };
+  const authRequestPromise = targetPage.waitForEvent('request', { timeout: 5000 }).catch(() => null);
   const authResponsePromise = targetPage.waitForResponse(
     response =>
       response.request().method() === 'POST' &&
@@ -67,6 +107,8 @@ async function login(targetPage, email, password) {
   if (!(await loginSubmit.count())) throw new Error('LOGIN_SUBMIT_NOT_FOUND');
   await loginSubmit.click();
 
+  const nodeProbe = await probeAuthFromNode(email, password);
+  result.authNetworkProbe = nodeProbe;
   const authResponse = await authResponsePromise;
   if (!authResponse) {
     throw new Error('AUTH_TOKEN_RESPONSE_TIMEOUT');
