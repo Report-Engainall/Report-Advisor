@@ -3,9 +3,8 @@ import { Check, SlidersHorizontal } from 'lucide-react';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { PageHeader, LoadingState, ErrorState } from '@/components/ui/States';
 import { supabase, resolveCurrentCompanyId } from '@/lib/supabase';
+import { WORKSPACE_MODE_KEY, readWorkspaceMode, type WorkspaceMode } from '@/lib/workspace-mode';
 
-type WorkspaceMode = 'essential' | 'advanced' | 'expert';
-const WORKSPACE_MODE_KEY = 'report-advisor.workspace-mode';
 
 interface CompanySettings {
   id: string;
@@ -25,11 +24,7 @@ export function CompanySettingsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const [workspaceMode, setWorkspaceMode] = useState<WorkspaceMode>(() => {
-    if (typeof window === 'undefined') return 'essential';
-    const saved = window.localStorage.getItem(WORKSPACE_MODE_KEY);
-    return saved === 'advanced' || saved === 'expert' ? saved : 'essential';
-  });
+  const [workspaceMode, setWorkspaceMode] = useState<WorkspaceMode>(readWorkspaceMode);
 
 
   const load = useCallback(async () => {
