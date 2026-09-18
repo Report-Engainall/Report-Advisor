@@ -81,7 +81,7 @@ export function DashboardPage() {
 
       <section className="grid gap-3 lg:grid-cols-[1.1fr_.9fr]">
         <section className="card">
-          <div className="border-b border-ink-100 px-4 py-3"><div className="text-[12px] font-bold text-ink-900">قرار اليوم</div><div className="mt-0.5 text-[10px] text-ink-400">أهم إشارة متاحة ثم الخطوة التالية.</div></div>
+          <div className="border-b border-ink-100 px-4 py-3"><div className="text-[12px] font-bold text-ink-900">ملخص القرار في دقيقة · قرار اليوم</div><div className="mt-0.5 text-[10px] text-ink-400">أهم إشارة متاحة ثم الخطوة التالية.</div></div>
           <div className="grid gap-px bg-ink-100 sm:grid-cols-2">
             <div className="bg-white p-4"><div className="text-[10px] font-semibold text-ink-400">أهم إشارة</div><div className="mt-1.5 text-[13px] font-bold text-ink-900">{liveAlerts[0]?.title??'لا توجد تنبيهات نشطة الآن'}</div><div className="mt-1 text-[11px] leading-5 text-ink-500">{liveAlerts[0]?.description??'لا توجد إشارة تحتاج تدخلاً في هذه اللحظة.'}</div></div>
             <div className="bg-white p-4"><div className="text-[10px] font-semibold text-ink-400">الخطوة التالية</div><div className="mt-1.5 text-[13px] font-bold text-ink-900">{liveRecommendations[0]?.title??'راجع صحة البيانات أو افتح التقرير التنفيذي'}</div><div className="mt-2 flex flex-wrap gap-1.5"><Link to={liveRecommendations[0]?'/decision-experience':'/reports/executive'} className="btn-primary text-[11px]">فتح المسار <ArrowUpLeft size={13}/></Link><span className="inline-flex items-center rounded-[8px] bg-ink-50 px-2 py-1 text-[10px] font-bold text-ink-500">{coverage}%</span></div></div>
