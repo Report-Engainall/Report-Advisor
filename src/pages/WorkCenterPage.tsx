@@ -1,9 +1,10 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 import { Activity, AlertTriangle, CheckCircle2, Clock3, Filter, RefreshCw, ShieldCheck, XCircle, ArrowUpLeft } from 'lucide-react';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { DataTable } from '@/components/ui/DataTable';
 import { EmptyState, ErrorState, LoadingState, PageHeader } from '@/components/ui/States';
-import { BusinessInvestigationDrawer, type InvestigationTarget } from '@/components/BusinessInvestigationDrawer';
+import type { InvestigationTarget } from '@/components/BusinessInvestigationDrawer';
+const BusinessInvestigationDrawer = lazy(async () => ({ default: (await import('@/components/BusinessInvestigationDrawer')).BusinessInvestigationDrawer }));
 import { fetchImportRecords } from '@/lib/queries';
 import type { ImportRecord } from '@/lib/types';
 import { formatNumber } from '@/lib/format';
@@ -94,6 +95,6 @@ export function WorkCenterPage() {
     ]}/>}</CardBody></Card>
 
     <div className="flex items-center gap-2 rounded-2xl border border-ink-200 bg-white px-4 py-3 text-[11px] text-ink-500"><ShieldCheck size={15} className="shrink-0 text-primary-600"/><span>النجاح في هذه الصفحة يعني أن السجل يعكس حالة المصدر؛ لا يعني أن الواجهة أنشأت أو أغلقت العملية.</span><ArrowUpLeft size={15} className="ms-auto text-ink-300"/></div>
-    <BusinessInvestigationDrawer target={investigation} onClose={() => setInvestigation(null)} />
+    <Suspense fallback={null}><BusinessInvestigationDrawer target={investigation} onClose={() => setInvestigation(null)} /></Suspense>
   </div>;
 }
