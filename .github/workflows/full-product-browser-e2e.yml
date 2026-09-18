@@ -98,6 +98,26 @@ jobs:
           done
           cat /tmp/report-advisor-preview.log
           exit 1
+      - name: Start exact-head canonical API server
+        shell: bash
+        env:
+          SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_SERVICE_ROLE_KEY || secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          set -euo pipefail
+          if [ -z "${SUPABASE_SERVICE_ROLE_KEY:-}" ]; then
+            echo "AUTHENTICATED_E2E_SERVER_BOUNDARY_BLOCKED: service-role key secret is not provisioned."
+            echo "The real business E2E cannot exercise the existing server worker boundary without the existing service-role runtime credential."
+            exit 2
+          fi
+          nohup node --experimental-strip-types --experimental-loader ./scripts/node-ts-extension-loader.mjs scripts/local-api-test-server.mjs > /tmp/report-advisor-api.log 2>&1 &
+          for i in {1..60}; do
+            if curl -fsS http://127.0.0.1:4174/__health >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/report-advisor-api.log
+          exit 1
       - name: Verify authenticated E2E secret contract
         env:
           SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
@@ -241,6 +261,7 @@ jobs:
           TEST_USER_A_PASSWORD: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_PASSWORD }}
           TEST_USER_B_EMAIL: ${{ secrets.REPORT_ADVISOR_E2E_USER_B_EMAIL }}
           TEST_USER_B_PASSWORD: ${{ secrets.REPORT_ADVISOR_E2E_USER_B_PASSWORD }}
+          CANONICAL_API_BASE_URL: http://127.0.0.1:4174
         run: node scripts/real-business-e2e.mjs
       - name: Verify live business evidence boundary
         env:
