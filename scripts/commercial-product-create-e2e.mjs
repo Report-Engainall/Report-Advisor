@@ -33,6 +33,7 @@ try {
   for (let attempt = 1; attempt <= 3; attempt += 1) {
     if (attempt > 1) {
       await page.goto(baseURL, { waitUntil: 'domcontentloaded', timeout: 30000 });
+      await page.locator('#login-email').waitFor({ state: 'visible', timeout: 30000 });
       await page.locator('#login-email').fill(email);
       await page.locator('#login-password').fill(password);
     }
@@ -52,7 +53,7 @@ try {
     }
     authResponse = candidate;
     if (authResponse || attempt === 3) break;
-    await page.waitForTimeout(2500);
+    await page.waitForTimeout(5000 * attempt);
   }
   if (!authResponse) throw new Error('AUTH_TOKEN_RESPONSE_TIMEOUT');
   const authStatus = authResponse.status();
