@@ -119,6 +119,39 @@ function tryParseStructuredPdfText(text: string): Row[] | null {
   setIfPresent('paid_amount', normalizeStructuredDocumentValue(match(/(?:المدفوع|المبلغ\s*المدفوع|paid)\s*[:：]?\s*([\d٠-٩٬،.,]+)/i) ?? ''));
   setIfPresent('currency', match(/(?:العملة|عمله|currency)\s*[:：]?\s*([A-Za-z]{3}|[A-Za-z]+)\b/i));
 
+  const structuredLabelPatterns: Array<{ key: string; pattern: RegExp; numeric?: boolean }> = [
+    { key: 'invoice_number', pattern: /(?:رقم\s*(?:الفاتورة|فاتورة)|invoice\s*(?:number|no\.?))/i },
+    { key: 'invoice_date', pattern: /(?:التاريخ|date)/i },
+    { key: 'customer_name', pattern: /(?:اسم\s*العميل|العميل|customer\s*name)/i },
+    { key: 'subtotal', pattern: /(?:المجموع\s*الفرعي|subtotal)/i, numeric: true },
+    { key: 'tax_amount', pattern: /(?:الضريبة|ضريبة|tax)/i, numeric: true },
+    { key: 'paid_amount', pattern: /(?:المدفوع|المبلغ\s*المدفوع|paid)/i, numeric: true },
+    { key: 'total', pattern: /(?:الإجمالي|الاجمالي|\btotal\b)/i, numeric: true },
+    { key: 'currency', pattern: /(?:العملة|عمله|currency)/i },
+  ];
+
+  const missingRequired = ['invoice_number', 'invoice_date', 'customer_name', 'total']
+    .some((key) => row[key] === null || row[key] === undefined || row[key] === '');
+  if (missingRequired) {
+    const matches: Array<{ key: string; start: number; end: number; numeric?: boolean }> = [];
+    for (const definition of structuredLabelPatterns) {
+      const found = definition.pattern.exec(normalized);
+      if (found) matches.push({ key: definition.key, start: found.index, end: found.index + found[0].length, numeric: definition.numeric });
+    }
+    matches.sort((a, b) => a.start - b.start);
+    for (let index = 0; index < matches.length; index += 1) {
+      const current = matches[index];
+      const next = matches[index + 1];
+      const rawValue = normalized
+        .slice(current.end, next?.start ?? normalized.length)
+        .replace(/^[\s:：#-]+/, '')
+        .trim();
+      if (!rawValue || row[current.key] !== undefined) continue;
+      const value = current.numeric ? rawValue.split(/\s+/)[0] ?? '' : rawValue;
+      setIfPresent(current.key, current.numeric ? normalizeStructuredDocumentValue(value) : value);
+    }
+  }
+
   const required = ['invoice_number', 'invoice_date', 'customer_name', 'total'];
   if (required.some((key) => row[key] === null || row[key] === undefined || row[key] === '')) return null;
   return [row];
