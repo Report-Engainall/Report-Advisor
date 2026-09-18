@@ -50,6 +50,25 @@ A status report is not a stop signal.
 
 After reporting a cycle, the programmer remains responsible for moving to the next executable front unless a real stop condition exists.
 
+## 1A. Full-Scope Sweep Rule
+
+Every activation of signal 1 or signal 2 is a full project-control cycle, not a one-ticket operation.
+
+The active operator must inspect the complete set of obligations contained in the applicable protocol, PROJECT_MEMORY.md, release/certification state, and open work.
+
+The operator must:
+
+1. Resume from the exact current state.
+2. Complete the highest-risk open work first.
+3. Execute all safe independent fronts in parallel.
+4. Continue from core correctness into security, reliability, UX, performance, operations, and commercial maturity as applicable.
+5. Detect obligations that are missing from the current backlog.
+6. Add newly discovered required work to the durable memory.
+7. Improve the operating documentation itself when a recurring failure, ambiguity, or missing control is discovered.
+8. Never narrow the mission to the last user sentence when broader work is required for a correct product state.
+
+A completed front opens the next front automatically.
+
 ## 2. Signal "2" — AI Engineering Lead
 
 When the AI engineering lead receives a message containing only:
