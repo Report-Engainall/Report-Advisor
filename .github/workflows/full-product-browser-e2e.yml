@@ -1,7 +1,7 @@
 name: Full Product Browser E2E
 
-# Exact-head browser discovery gate. Push and PR triggers remain narrowly scoped to E2E/runtime surfaces.
 # Exact-head browser discovery gate. PRs own authenticated browser proof; manual dispatch remains available.
+on:
   pull_request:
     branches: [main]
     paths:
