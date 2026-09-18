@@ -1,25 +1,7 @@
 import { createServer, type ViteDevServer } from 'vite';
 
 if (!('DOMMatrix' in globalThis)) Object.defineProperty(globalThis, 'DOMMatrix', { configurable: true, value: class DOMMatrix {} });
-type PromiseConstructorWithTry = PromiseConstructor & { try?: (fn: (...args: unknown[]) => unknown, ...args: unknown[]) => Promise<unknown> };
-const promiseConstructor = Promise as PromiseConstructorWithTry;
-if (!('toHex' in Uint8Array.prototype)) {
-  Object.defineProperty(Uint8Array.prototype, 'toHex', {
-    configurable: true,
-    value: function toHex(this: Uint8Array): string {
-      return Array.from(this, (byte) => byte.toString(16).padStart(2, '0')).join('');
-    },
-  });
-}
-
-if (typeof promiseConstructor.try !== 'function') {
-  Object.defineProperty(Promise, 'try', {
-    configurable: true,
-    writable: true,
-    value: (fn: (...args: unknown[]) => unknown, ...args: unknown[]) =>
-      new Promise((resolve, reject) => { try { resolve(fn(...args)); } catch (error) { reject(error); } }),
-  });
-}
+// PDF.js Node-runtime compatibility is exercised through the production adapter path.
 
 function assert(condition: unknown, message: string): asserts condition {
   if (!condition) throw new Error(`Structured PDF/OCR regression failed: ${message}`);
