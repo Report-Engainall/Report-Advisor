@@ -74,8 +74,8 @@ if (/batchSize|for \(let i = 0; i < reconciled\.rows\.length/.test(adapter)) {
 if (!/enqueue_report_execution_job/.test(adapter) || !/p_source_hash:\s*input\.sourceHash/.test(adapter)) {
   throw new Error('Canonical durable adapter must enqueue a source-bound durable job');
 }
-if (!/activeDataClient\.rpc\('enqueue_report_execution_job'/.test(adapter) || /activeWorkerClient\.rpc\('enqueue_report_execution_job'/.test(adapter)) {
-  throw new Error('Canonical durable job enqueue must use the authenticated data client; service-role worker authority is reserved for execution');
+if (!/activeWorkerClient\.rpc\('enqueue_report_execution_job'/.test(adapter) || /activeDataClient\.rpc\('enqueue_report_execution_job'/.test(adapter)) {
+  throw new Error('Canonical durable job enqueue must use the service-role worker client after the authenticated server boundary validates tenant context');
 }
 if (!/REPORT_EXECUTION_JOB_ENQUEUE_FAILED/.test(adapter)) {
   throw new Error('Canonical durable enqueue failures must preserve structured error detail');

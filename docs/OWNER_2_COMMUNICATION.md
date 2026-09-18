@@ -152,3 +152,12 @@ OBJECTIVE=ÿ™ÿµÿ≠Ÿäÿ≠ ÿ™ÿ∂ÿßÿ±ÿ® enqueue_report_execution_job ÿßŸÑÿ£ŸÖŸÜŸä: authe
 STAGING=Supabase fnqbvfuwbdpwvhcgzksl
 NO_BROWSER_WORKER_GRANT=true
 EXPECTED=Staging SQL verification ÿ´ŸÖ code/migration exact-head retrigger.
+
+## START | OWNER=2 | 2026-09-19T01:27+03:00
+BRANCH=ops/integration-runtimefix-20260918
+HEAD=462382b5b87c341236dc4ccb92609faf99674bf9
+OBJECTIVE=≈€·«ﬁ Business Persistence service-boundary correction À„ ≈À»«  Exact-SHA runtime° Ê»⁄œÂ« ≈€·«ﬁ PDF/OCR positive path ÊPhase-F/deployment parity ÊBackup/RPO/RTO ÊCertification/Release.
+FILES=src/lib/import/canonical-production-adapter.ts; scripts/check-import-transaction-contract.mjs; supabase/migrations/20260919012600_reconcile_report_execution_enqueue_service_boundary.sql; docs/OWNER_2_COMMUNICATION.md
+DEPENDENCIES=Supabase staging fnqbvfuwbdpwvhcgzksl; GitHub Actions; Vercel/provider runtime; existing durable runner/worker; no new runner/RPC.
+BLOCKERS=ﬁ»· «·≈À»«  «·‰Â«∆Ì ·« ÌÊÃœ blocker code „› —÷∫ Phase-F live endpoints/deployment parity/backup evidence ﬁœ  »ﬁÏ external gates ÊÌÃ» ≈À»« Â« √Ê  ’‰Ì›Â« »œﬁ….
+EXPECTED HANDOFF=Successor Exact-SHA with fresh Business Persistence + PDF/OCR + certification evidence; no evidence transfer.
