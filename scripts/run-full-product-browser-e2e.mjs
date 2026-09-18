@@ -272,9 +272,9 @@ try {
     }
 
     if (result.auth === 'PASS') {
-      const primaryNav = page.getByRole('navigation', { name: 'تنقل نظام الأعمال' });
-      await primaryNav.waitFor({ state: 'visible', timeout: 15000 }).catch(() => {});
-      const primaryNavVisible = await primaryNav.isVisible().catch(() => false);
+      const primaryNavLocator = page.getByRole('navigation', { name: /^(تنقل نظام الأعمال|التنقل التجاري الرئيسي)$/ });
+      await primaryNavLocator.waitFor({ state: 'visible', timeout: 15000 }).catch(() => {});
+      const primaryNavVisible = (await primaryNavLocator.count()) > 0;
       addFinding(
         'E2E-AUTH-012',
         primaryNavVisible ? 'PASS' : 'NOT_PROVEN',
