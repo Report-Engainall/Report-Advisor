@@ -6,6 +6,7 @@ const adapter = fs.readFileSync('src/lib/report-execution/durable-worker-adapter
 const runner = fs.readFileSync('src/lib/report-execution/durable-production-runner.ts', 'utf8');
 const browserAdapter = fs.readFileSync('src/lib/import/canonical-production-adapter.ts', 'utf8');
 const serverRunner = fs.readFileSync('api/canonical-import-run.ts', 'utf8');
+const resilienceRuntime = fs.readFileSync('src/server/resilience-runtime.mjs', 'utf8');
 const authorityMigration = fs.readFileSync('supabase/migrations/20260918050000_reconcile_report_execution_worker_service_authority.sql', 'utf8');
 
 for (const signature of [
@@ -83,7 +84,9 @@ assert.match(serverRunner, /durable-worker-adapter/);
 assert.match(serverRunner, /commitImportBatchWithClient/);
 assert.match(serverRunner, /SUPABASE_SERVICE_ROLE_KEY/);
 assert.match(serverRunner, /finishImport\(token, importId/);
-assert.match(serverRunner, /Authorization:/);
+assert.match(serverRunner, /supabaseUserRequest\(/);
+assert.match(resilienceRuntime, /export async function supabaseUserRequest/);
+assert.match(resilienceRuntime, /Authorization:\s*`Bearer \$\{token\}`/);
 
 console.log('Report execution worker current-main contract: PASS');
 
