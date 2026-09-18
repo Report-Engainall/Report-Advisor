@@ -14,6 +14,7 @@
 - Historical evidence from earlier SHAs remains historical and is not promoted automatically.
 - Current-head workflow execution is not yet evidenced on this SHA by the repository Actions run feed; absence of runs is not PASS and does not transfer historical evidence.
 - Current `main` is `54b6b95bae9fd3737c70c126bf727cac21aec143`.
+- Latest branch wrapper HEAD is `e695afc210212232ce8bc600c1aebabcf6eda41b`; it is documentation-only over code candidate `11f21f57...`.
 - PR #552 is the active remediation path; stale PR #542 is closed and its evidence is not promoted.
 - The first exact-head Vercel build at `d62e8894dfbeb06f2c9924ed82ff54e8bd8605f7` failed deterministically because `finishCanonicalImportFailure` was imported but not exported by `src/lib/import/canonical-production-adapter.ts`.
 - This was corrected minimally on candidate `11f21f57a424a5d4f29dc466851d2ff45881e9aa`; the next exact-head build is required before treating build/runtime as green.
