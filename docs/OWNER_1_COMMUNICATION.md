@@ -492,3 +492,16 @@ HANDOFF TO OWNER 2:
 
 CURRENT OWNER-1 STATE:
 Command Center, Decision Experience, Dashboard critical-load, Work Center evidence, Reports Center truth, Sales/Profitability truth, and Receivables truth waves are all completed and handed off as separate Exact SHAs. Performance budget is currently PASS at critical 487.1KB.
+
+## START — COMMAND 8 — 2026-09-19
+START
+DATE: 2026-09-19T02:20+03:00
+OWNER: 1
+BRANCH: feat/owner1-report-surface-integrity-wave10-20260919
+HEAD: 2279ba706da56b254a6b17f6eed759697c266205
+BASE: 2279ba706da56b254a6b17f6eed759697c266205
+OBJECTIVE: مراجعة وإغلاق فجوات Integrity المتبقية في أسطح التقارير/البيانات التجارية، مع ربط الحالة والـas-of فقط بالمصادر canonical التي تحمل نفس الدلالة، ومنع أي freshness أو evidence مصطنع.
+FILES / SURFACES: src/pages/ReportsPage.tsx; src/lib/queries.ts; relevant report contract guards only after inspection.
+DEPENDENCIES: existing canonical reads only؛ no new RPC/DB/Runner/Auth/Tenant/Storage/CI logic.
+BLOCKERS: لا blocker معروف عند البدء؛ browser/runtime proof تبقى ضمن Owner 2.
+EXPECTED HANDOFF: Owner 2 يعيد إثبات affected report/browser/runtime/release gates على Exact SHA الجديد، دون نقل evidence بين SHAs.
