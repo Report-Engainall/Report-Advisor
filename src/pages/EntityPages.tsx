@@ -6,8 +6,6 @@ import { PageHeader, LoadingState, ErrorState, TruthRail } from '@/components/ui
 import { DataTable } from '@/components/ui/DataTable';
 import { SavedViewBar } from '@/components/ui/SavedViewBar';
 import { useSavedView } from '@/hooks/useSavedView';
-import { SavedViewBar } from '@/components/ui/SavedViewBar';
-import { useSavedView } from '@/hooks/useSavedView';
 import { CustomerCreateDialog } from '@/components/CustomerCreateDialog';
 import { ProductCreateDialog } from '@/components/ProductCreateDialog';
 import { fetchCustomersPage, fetchProductsPage } from '@/lib/queries';
