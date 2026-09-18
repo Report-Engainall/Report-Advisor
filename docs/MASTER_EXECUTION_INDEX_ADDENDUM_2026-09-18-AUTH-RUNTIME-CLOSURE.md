@@ -2,7 +2,7 @@
 
 ## Exact HEAD
 - PR #595 branch: `commercial/comprehensive-product-development-20260918-rebased`
-- Current branch head at this addendum checkpoint: `58250507`
+- Current branch head at this addendum checkpoint: `14497a498f787236d97d518b75e9193b3d6cb586`
 - Base main: `fe5661060462ffa21d6aa31505f80c2021c4170a`
 - Main was not modified.
 
@@ -48,7 +48,7 @@ A first CI-wide concurrency lock was tested and removed because GitHub's concurr
 - Auth response wait is bounded at 60 seconds with bounded retry handling for transient HTTP statuses.
 - Authenticated shell convergence waits for primary navigation.
 - Logout checks wait for the visible control.
-- Storage/Product/Full Browser harnesses received the same bounded auth/UI convergence hardening.
+- Storage/Product/Full Browser/Upwork/Tenant-Adversarial harnesses now use the same bounded auth/UI convergence hardening.
 - Product and Customer create actions remain visible while tables load; a UI regression contract prevents the old loading-gate behavior from returning.
 
 ## External blockers
