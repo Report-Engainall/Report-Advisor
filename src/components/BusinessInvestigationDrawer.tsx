@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useId, useRef } from 'react';
 import { ArrowUpLeft, CheckCircle2, CircleAlert, ExternalLink, ShieldCheck, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -47,17 +47,46 @@ export function BusinessInvestigationDrawer({
   target: InvestigationTarget | null;
   onClose: () => void;
 }) {
+  const drawerRef = useRef<HTMLDivElement>(null);
+  const previousFocusRef = useRef<HTMLElement | null>(null);
+  const drawerId = 'business-investigation-' + useId().replace(/:/g, '');
+  const titleId = drawerId + '-title';
+
   useEffect(() => {
     if (!target) return;
     const previousOverflow = document.body.style.overflow;
+    const activeElement = document.activeElement;
+    previousFocusRef.current = activeElement instanceof HTMLElement ? activeElement : null;
     document.body.style.overflow = 'hidden';
+    requestAnimationFrame(() => drawerRef.current?.querySelector<HTMLElement>('button[data-investigation-close="true"]')?.focus());
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') onClose();
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        onClose();
+        return;
+      }
+      if (event.key !== 'Tab') return;
+      const drawer = drawerRef.current;
+      if (!drawer) return;
+      const focusable = Array.from(drawer.querySelectorAll<HTMLElement>('button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])')).filter(element => element.offsetParent !== null);
+      if (!focusable.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
     };
     window.addEventListener('keydown', onKeyDown);
     return () => {
       document.body.style.overflow = previousOverflow;
       window.removeEventListener('keydown', onKeyDown);
+      const previousFocus = previousFocusRef.current;
+      previousFocusRef.current = null;
+      if (previousFocus?.isConnected) requestAnimationFrame(() => previousFocus.focus());
     };
   }, [target, onClose]);
 
@@ -65,7 +94,7 @@ export function BusinessInvestigationDrawer({
   const meta = severityMeta[target.severity ?? 'info'];
 
   return (
-    <div className="fixed inset-0 z-[120] flex bg-ink-950/45 backdrop-blur-[2px]" role="dialog" aria-modal="true" aria-label={target.title}>
+    <div ref={drawerRef} id={drawerId} className="fixed inset-0 z-[120] flex bg-ink-950/45 backdrop-blur-[2px]" role="dialog" aria-modal="true" aria-labelledby={titleId}>
       <button type="button" className="absolute inset-0 cursor-default" aria-label="إغلاق" onClick={onClose} />
       <aside className="relative ms-auto flex h-full w-full max-w-2xl flex-col border-s border-ink-200 bg-[#fbfbfa] shadow-2xl">
         <header className="shrink-0 border-b border-ink-200 bg-white px-5 py-4 sm:px-6">
@@ -73,12 +102,12 @@ export function BusinessInvestigationDrawer({
             <div className="min-w-0 flex-1">
               <div className="text-[10px] font-black tracking-[0.14em] text-primary-700">{target.eyebrow}</div>
               <div className="mt-1 flex flex-wrap items-center gap-2">
-                <h2 className="text-xl font-black tracking-tight text-ink-950">{target.title}</h2>
+                <h2 id={titleId} className="text-xl font-black tracking-tight text-ink-950">{target.title}</h2>
                 <span className={`inline-flex rounded-full border px-2.5 py-1 text-[10px] font-black ${meta.className}`}>{meta.label}</span>
               </div>
               <p className="mt-2 max-w-xl text-sm leading-6 text-ink-500">{target.summary}</p>
             </div>
-            <button type="button" onClick={onClose} className="rounded-xl border border-ink-200 bg-white p-2 text-ink-400 hover:bg-ink-50 hover:text-ink-800" aria-label="إغلاق">
+            <button type="button" data-investigation-close="true" onClick={onClose} className="rounded-xl border border-ink-200 bg-white p-2 text-ink-400 hover:bg-ink-50 hover:text-ink-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2" aria-label="إغلاق">
               <X size={18} />
             </button>
           </div>
