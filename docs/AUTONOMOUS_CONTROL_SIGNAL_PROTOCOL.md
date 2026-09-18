@@ -187,3 +187,40 @@ GitHub memory synchronizes both.
 Evidence determines truth.
 
 The next executable action is derived from the live project state, not from waiting for another prompt.
+
+
+## 9. Operator Non-Idle Invariant — Applies to Both 1 and 2
+
+A control signal is an execution trigger, not a polling trigger.
+
+For every activation, the operator must perform at least one material action before returning a cycle result, unless no safe action exists or a genuine owner-level blocker remains after all independent work is exhausted.
+
+### Queue/Blocker handling
+
+A queued workflow, provider quota, browser/device limitation, or external dependency blocks only the affected front.
+
+The operator must continue all unrelated safe fronts and must not report "waiting" as a completion state.
+
+### Anti-idle test
+
+Before ending a cycle, ask:
+
+> Did I execute or only observe?
+
+If only observed and safe executable work exists, continue.
+
+### Protocol evolution
+
+When a recurring execution failure, ambiguity, stale-memory pattern, or command-quality defect is found, update the applicable operating document and durable memory in the same cycle.
+
+### Cycle completion
+
+A cycle ends only after:
+
+EXECUTE → VERIFY → RECORD → RE-SCAN
+
+and either:
+
+- no safe meaningful action remains, or
+- a genuine owner-level decision/blocker prevents the remaining work.
+
