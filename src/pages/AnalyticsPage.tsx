@@ -6,17 +6,121 @@ import { Badge } from '@/components/ui/Badge';
 import { PageHeader, LoadingState, ErrorState } from '@/components/ui/States';
 import { DataTable } from '@/components/ui/DataTable';
 const SimpleBarChart = lazy(async () => ({ default: (await import('@/components/ui/Charts')).SimpleBarChart }));
-import { fetchRFMSnapshot, fetchABCSnapshot, fetchAgingSnapshot, type RFMSnapshotRow, type ABCSnapshotRow, type AgingSnapshotRow } from '@/lib/dashboard-canonical';
+import { fetchDashboardSnapshot, fetchRFMSnapshot, fetchABCSnapshot, fetchAgingSnapshot, type RFMSnapshotRow, type ABCSnapshotRow, type AgingSnapshotRow } from '@/lib/dashboard-canonical';
 import { formatCurrency, formatNumber } from '@/lib/format';
 import { TruthContextStrip } from '@/components/TruthContextStrip';
 
 const analyticsCards = [
-  { path: '/analytics/rfm', title: 'تحليل RFM للعملاء', desc: 'تصنيف العملاء حسب الحداثة والتكرار والقيمة', icon: Users, iconClass: 'bg-primary-50 text-primary-600' },
-  { path: '/analytics/abc', title: 'تحليل ABC للمنتجات', desc: 'تصنيف المنتجات حسب الأهمية والمساهمة', icon: Package, iconClass: 'bg-accent-50 text-accent-600' },
-  { path: '/analytics/aging', title: 'تحليل أعمار الذمم', desc: 'توزيع الفواتير حسب عمر الاستحقاق', icon: Calendar, iconClass: 'bg-warning-50 text-warning-600' },
+  {
+    path: '/analytics/rfm',
+    title: 'عملاؤك',
+    question: 'من يستحق الاحتفاظ والعودة والمتابعة؟',
+    desc: 'RFM يربط حداثة الشراء وتكراره وقيمته لتحديد شرائح العملاء من المصدر التحليلي.',
+    icon: Users,
+    iconClass: 'bg-primary-50 text-primary-600',
+    tag: 'قرار العملاء',
+  },
+  {
+    path: '/analytics/abc',
+    title: 'محفظة المنتجات',
+    question: 'أين تتركز مساهمة الإيرادات؟',
+    desc: 'ABC يوضح مساهمة المنتجات تراكمياً مع إبقاء السجلات الناقصة خارج التصنيف الموثوق.',
+    icon: Package,
+    iconClass: 'bg-accent-50 text-accent-600',
+    tag: 'قرار المنتجات',
+  },
+  {
+    path: '/analytics/aging',
+    title: 'التعرض والتحصيل',
+    question: 'أين تتجمع الذمم وما عمرها؟',
+    desc: 'تحليل الأعمار يوزع الذمم حسب الاستحقاق من المصدر، مع إبقاء الحالات غير المؤكدة مرئية.',
+    icon: Calendar,
+    iconClass: 'bg-warning-50 text-warning-600',
+    tag: 'قرار التحصيل',
+  },
 ];
 
-export function AnalyticsCenterPage() { return <div className="space-y-6 animate-fade-in"><PageHeader title="مركز التحليلات" subtitle="تحليلات متقدمة لاكتشاف الأنماط والاتجاهات" /><div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">{analyticsCards.map((r) => <Link key={r.path} to={r.path}><Card hover className="h-full"><CardBody><div className="flex items-start gap-3"><div className={`w-11 h-11 rounded-xl ${r.iconClass} flex items-center justify-center flex-shrink-0`}><r.icon size={20} /></div><div><h3 className="font-semibold text-ink-800 text-sm">{r.title}</h3><p className="text-xs text-ink-500 mt-1">{r.desc}</p></div></div></CardBody></Card></Link>)}</div></div>; }
+export function AnalyticsCenterPage() {
+  const [snapshot, setSnapshot] = useState<Awaited<ReturnType<typeof fetchDashboardSnapshot>> | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const load = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      setSnapshot(await fetchDashboardSnapshot(6));
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : 'تعذر تحميل سياق التحليلات.');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { void load(); }, [load]);
+
+  if (loading) return <LoadingState message="جارٍ تثبيت سياق التحليلات..." />;
+  if (error) return <ErrorState message={error} onRetry={() => void load()} />;
+  if (!snapshot) return null;
+
+  return (
+    <div dir="rtl" className="space-y-6 animate-fade-in pb-10">
+      <PageHeader
+        title="مركز التحليلات"
+        subtitle="ابدأ من سؤال تجاري واضح، ثم افتح العدسة التي تملك مسارًا تحليليًا موثقًا للإجابة."
+        actions={<button type="button" onClick={() => void load()} className="btn-secondary">تحديث السياق</button>}
+      />
+
+      <TruthContextStrip months={snapshot.months} status={snapshot.kpis.status} asOf={snapshot.asOf} />
+
+      <section className="rounded-[18px] border border-ink-200 bg-ink-950 p-5 text-white shadow-card lg:p-6">
+        <div className="section-kicker text-primary-300">من السؤال إلى العدسة</div>
+        <h2 className="mt-2 text-xl font-black tracking-tight lg:text-2xl">ما الذي تريد فهمه الآن؟</h2>
+        <p className="mt-2 max-w-3xl text-[11px] leading-6 text-ink-300">
+          هذه الصفحة لا تصنع نتيجة جديدة؛ هي نقطة توجيه إلى التحليلات الكانونية الموجودة. حالة البيانات والزمن والسياق المؤسسي تأتي من اللقطة الحالية.
+        </p>
+        <div className="mt-5 grid gap-2 text-[10px] font-semibold sm:grid-cols-4">
+          {['سؤال تجاري', 'مصدر تحليلي', 'دليل وقيود', 'قرار قابل للتحقيق'].map((label, index) => (
+            <div key={label} className="rounded-xl border border-white/10 bg-white/[.045] p-3">
+              <span className="block text-white/35">0{index + 1}</span>
+              <span className="mt-2 block text-white">{label}</span>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section aria-label="عدسات التحليل" className="grid gap-4 lg:grid-cols-3">
+        {analyticsCards.map((r) => (
+          <Link key={r.path} to={r.path} className="group">
+            <Card hover className="h-full overflow-hidden">
+              <CardBody className="flex h-full flex-col p-5">
+                <div className="flex items-start justify-between gap-3">
+                  <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${r.iconClass}`}>
+                    <r.icon size={20} />
+                  </div>
+                  <span className="rounded-full bg-ink-50 px-2.5 py-1 text-[10px] font-bold text-ink-500">{r.tag}</span>
+                </div>
+                <h3 className="mt-4 text-base font-black text-ink-900">{r.title}</h3>
+                <p className="mt-1 text-sm font-semibold leading-6 text-ink-700">{r.question}</p>
+                <p className="mt-2 flex-1 text-xs leading-6 text-ink-500">{r.desc}</p>
+                <div className="mt-5 flex items-center justify-between border-t border-ink-100 pt-3 text-[10px] font-bold">
+                  <span className="text-ink-400">المصدر الكانوني هو المرجع</span>
+                  <span className="text-primary-700 transition-transform group-hover:-translate-x-1">فتح العدسة ←</span>
+                </div>
+              </CardBody>
+            </Card>
+          </Link>
+        ))}
+      </section>
+
+      <section className="grid gap-4 lg:grid-cols-3">
+        <Card><CardBody><div className="text-[10px] font-black text-ink-400">حدود الاستخدام</div><div className="mt-2 text-sm font-bold text-ink-800">لا يتم تعويض القيم المفقودة بصفر.</div><p className="mt-1 text-[11px] leading-5 text-ink-500">ستظهر الحالات غير الكافية كحالة صريحة بدل تحويلها إلى تصنيف أو درجة مصطنعة.</p></CardBody></Card>
+        <Card><CardBody><div className="text-[10px] font-black text-ink-400">زمن اللقطة</div><div className="mt-2 text-sm font-bold text-ink-800">{snapshot.asOf}</div><p className="mt-1 text-[11px] leading-5 text-ink-500">التحليل يظل مرتبطًا بالسياق الزمني الظاهر أعلى الصفحة.</p></CardBody></Card>
+        <Card><CardBody><div className="text-[10px] font-black text-ink-400">الخطوة التالية</div><div className="mt-2 text-sm font-bold text-ink-800">افتح العدسة، ثم افحص الدليل قبل اتخاذ إجراء.</div><p className="mt-1 text-[11px] leading-5 text-ink-500">التحليل ليس اعتمادًا تلقائيًا لقرار تشغيلي.</p></CardBody></Card>
+      </section>
+    </div>
+  );
+}
 
 const RFM_VARIANTS: Record<string, 'success' | 'primary' | 'accent' | 'warning' | 'danger' | 'neutral'> = { 'أبطال': 'success', 'مخلصون': 'primary', 'واعدون': 'accent', 'معرضون للخطر': 'warning', 'خاملون': 'danger' };
 
