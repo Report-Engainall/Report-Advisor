@@ -1277,3 +1277,46 @@ DONE: Wave 28 Executive Storyline completed and handed off.
 OPEN: Owner 2 runtime/release proof; Owner 1 continues competitive product differentiation.
 BLOCKED: none.
 NEXT START: entity-level customer/product command intelligence and deeper sector-specific outputs.
+
+
+## START — COMMAND 27 — 2026-09-19
+START
+DATE: 2026-09-19T02:05+03:00
+OWNER: 1
+BRANCH: feat/owner1-entity-command-wave29-20260919
+HEAD: 329b326036cded043745dabb6566666125282bad
+BASE: 329b326036cded043745dabb6566666125282bad
+OBJECTIVE: رفع صفحات العملاء والمنتجات من CRUD إلى Entity Command Context: ربط السجل بالقيمة المرئية في اللقطة التنفيذية، الحصة، الترتيب المرئي، وحالة المصدر، مع مسارات قرار مرتبطة.
+FILES / SURFACES: src/components/EntityCommandContext.tsx; src/pages/EntityPages.tsx; scripts/check-entity-command-context-contract.mjs; package.json
+DEPENDENCIES: fetchCustomersPage/fetchProductsPage الحالية + fetchDashboardSnapshot الحالي؛ لا RPC/DB/Runner/Auth/Tenant/Storage/CI change.
+BLOCKERS: لا يوجد blocker تطويري معروف.
+EXPECTED HANDOFF: Owner 2 يعيد إثبات browser/runtime/release على Exact SHA؛ لا نقل Evidence بين SHAs.
+
+
+EXECUTION
+CHANGE: إضافة Entity Command Context للعملاء والمنتجات وربط السجل باللقطة التنفيذية الحالية: قيمة الفترة، حصة المبيعات، الترتيب المرئي، المصدر، ومسار التحقيق التالي.
+FILES: src/components/EntityCommandContext.tsx; src/pages/EntityPages.tsx; scripts/check-entity-command-context-contract.mjs; package.json
+WHY: صفحات العملاء والمنتجات كانت تعرض السجل قبل معرفة «مكانه في الحركة». الآن تتحول إلى entry point للتحقيق، مع عدم تحويل غياب الكيان من أعلى النتائج إلى صفر أو عدم نشاط.
+TEST: Exact SHA 55ca1e7a4d43a4dfe45cd09a3084b87a9489df91 — entity-command-context PASS; typecheck PASS; perf:budget PASS (critical 498.5KB / largest JS 487.8KB); lint PASS (0 errors / 58 warnings); build PASS (2812 modules, 13.77s); route/sidebar parity PASS (35/34); product-wow-ui PASS.
+RESULT: verified on Exact SHA; no RPC/DB/Runner/Auth/Tenant/Storage/CI mutation. Snapshot fetch is fail-soft at entity-page layer; absence of context never becomes fake zero.
+COMMIT: 55ca1e7a4d43a4dfe45cd09a3084b87a9489df91
+NEW HEAD: 55ca1e7a4d43a4dfe45cd09a3084b87a9489df91
+STATUS: READY_FOR_HANDOFF
+
+HANDOFF
+FROM: OWNER 1
+TARGET: OWNER 2
+BRANCH: feat/owner1-entity-command-wave29-20260919
+SHA: 55ca1e7a4d43a4dfe45cd09a3084b87a9489df91
+CHANGED: Customer/Product Entity Command Context.
+VERIFIED: exact contract, typecheck, lint, build, performance, route parity, product WOW on feature Exact SHA.
+UNPROVEN: authenticated browser behavior; backend/runtime/DB/RLS/persistence/CI/CD/release remain Owner 2 scope.
+BLOCKERS: none in Owner 1 code.
+NEXT: integrate/rebase/cherry-pick Exact SHA 55ca1e7a4d43a4dfe45cd09a3084b87a9489df91 and reprove merged SHA; no cross-SHA evidence transfer.
+
+CLOSE
+HEAD: 55ca1e7a4d43a4dfe45cd09a3084b87a9489df91
+DONE: Wave 29 Entity Command Context completed and handed off.
+OPEN: Owner 2 runtime/release proof; Owner 1 continues commercial differentiation.
+BLOCKED: none.
+NEXT START: next differentiated result surface, prioritizing sector reports and high-value decision outputs.
