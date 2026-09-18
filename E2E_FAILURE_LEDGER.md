@@ -26,3 +26,9 @@
 - Browser harness is intentionally separate and uses a real Chromium browser against the exact-head built application.
 - No browser PASS is inferred from API tests, mocks, old deployments, or static contracts.
 - Route reachability checks are diagnostic only; page load alone does not certify business correctness.
+
+## 2026-09-19 — Exact-head CI retrigger after backend secret provisioning
+- The previously failed Full Product Browser run on `c9029723ef270917f7762182cfbd5b1ac12949c9` was blocked before business execution by the absent GitHub Actions backend secret `REPORT_ADVISOR_SUPABASE_SERVICE_ROLE_KEY`.
+- The owner has now provisioned that secret externally. Changing the secret does not rerun a historical GitHub Actions attempt, and the connected GitHub integration lacks rerun permission (403).
+- This ledger marker is governance-only and exists solely to create a new exact SHA through the existing `E2E_FAILURE_LEDGER.md` push trigger. No product/runtime behavior or evidence is changed by this marker.
+- The fresh workflow run on the new exact SHA is the only authoritative business-persistence attempt; no evidence from `c9029723` is transferred.
