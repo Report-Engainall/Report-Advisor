@@ -1065,3 +1065,16 @@ DONE: Wave 23 commercial proposal proof completed and handed off.
 OPEN: Owner 2 runtime/release proof; Owner 1 continues competitive product hardening.
 BLOCKED: none.
 NEXT START: inspect Work Center as the operational decision surface for the next competitive wave.
+
+## START — COMMAND 22 — 2026-09-19
+START
+DATE: 2026-09-19T03:18+03:00
+OWNER: 1
+BRANCH: feat/owner1-work-center-command-wave24-20260919
+HEAD: b581cccbdf77f19c86f71fcf85e29815d79f763e
+BASE: b581cccbdf77f19c86f71fcf85e29815d79f763e
+OBJECTIVE: تحويل Work Center من جدول متابعة إلى نقطة قرار أولية deterministic، عبر إبراز أول import قابل للإجراء حسب أولوية فشل ثم مراجعة ثم نشط، دون تغيير المصدر أو runtime.
+FILES / SURFACES: src/pages/WorkCenterPage.tsx; scripts/check-work-center-command-contract.mjs; package.json; docs/OWNER_1_COMMUNICATION.md
+DEPENDENCIES: fetchImportRecords الحالي، ImportRecord model، BusinessInvestigationDrawer؛ لا DB/RPC/Runner/Auth/Tenant/Storage/CI change.
+BLOCKERS: لا يوجد blocker تطويري معروف.
+EXPECTED HANDOFF: Owner 2 يعيد إثبات Work Center/browser/runtime/release على Exact SHA؛ لا نقل Evidence بين SHAs.
