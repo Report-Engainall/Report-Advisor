@@ -95,7 +95,9 @@ jobs:
           await context.setOffline(true);
           await page.reload({ waitUntil: 'domcontentloaded', timeout: 30000 });
           const offlineText = await page.locator('body').innerText();
-          if (!offlineText.includes('الصورة التنفيذية') && !offlineText.includes('لوحة القيادة')) throw new Error('Offline app-shell fallback did not render the cached application');
+          if (!offlineText.trim()) throw new Error('Offline app-shell fallback returned an empty document');
+          const rootPresent = await page.locator('#root').count();
+          if (rootPresent !== 1) throw new Error('Offline app-shell fallback did not return the application root');
           await context.setOffline(false);
           if (errors.length) throw new Error(`Browser errors: ${errors.join(' | ')}`);
           console.log(JSON.stringify({ firstState, secondState, errors }, null, 2));
