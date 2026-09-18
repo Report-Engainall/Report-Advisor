@@ -212,7 +212,7 @@ jobs:
           if (!snapshotText.includes('dashboard.total_sales')) throw new Error('KPI_EVIDENCE_KEY_NOT_RENDERED');
           if (!snapshotText.includes('metric.net_sales')) throw new Error('CANONICAL_METRIC_ID_NOT_RENDERED');
           if (errors.length) throw new Error(`BROWSER_ERRORS:${errors.join(' | ')}`);
-          const match = snapshotText.match(/Snapshot:\s*([0-9a-f-]{36})/i);
+          const match = snapshotText.match(/لقطة الدليل:\s*([0-9a-f-]{36})/i);
           if (!match) throw new Error('SNAPSHOT_ID_NOT_RENDERED');
           const snapshotId = match[1];
           const after = await rest(`/rest/v1/kpi_evidence_snapshots?select=id,company_id,kpi_key,value,observed_at,quality,source_evidence&id=eq.${snapshotId}&company_id=eq.${encodeURIComponent(companyId)}&limit=1`);
