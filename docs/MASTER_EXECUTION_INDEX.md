@@ -5,13 +5,13 @@
 > Authoritative execution manifest. This document never promotes historical evidence across an exact Git `HEAD` boundary. Pair every evidence batch with the exact Git `HEAD` of `main` and the exact environment/commit used.
 
 ### CURRENT EXACT HEAD
-- Current code/test candidate: `ffccf08e1ce4d5595d9ac448f310d62ce5d94e95`.
-- This is the exact current `main` head after the latest governance, resilience and device-independent browser-smoke work; the previous `e0503ae...` binding is superseded.
+- Current certification candidate for this branch: `684d57cfb1a283ffcffdec1e83b9789cc249444a`.
+- This branch is the exact PR #539 security reconciliation candidate based directly on Main `a32fae0fc08c1cbbcc60b6eedfb0f4bd74a21c50`; it is not itself the current production/Main head.
 - No runtime/browser/production evidence from an earlier SHA is promoted by this binding.
 - The certification binding itself is governance-only and does not certify runtime/product code; fresh exact-HEAD runtime evidence is still required.
 - Historical evidence from earlier SHAs remains historical and is not promoted automatically.
-- Current-head workflow execution is not yet evidenced on this SHA by the repository Actions run feed; absence of runs is not PASS and does not transfer historical evidence.
-- Vercel reports the current Main deployment path as externally blocked by the provider build-rate limit; no production deployment is claimed from that status.
+- Exact-head CI on this candidate has executed fresh security/quality/runtime workflows; PASS/FAIL remains bound to this SHA.
+- Vercel preview/deployment remains externally limited by the provider build-rate quota; no production deployment is claimed from that status.
 
 ### CURRENT EXECUTION CONTROL — 2026-09-18
 - PR #533 adds the mandatory continuous two-owner execution/resume protocol. It is governance-only and does not itself certify runtime.
