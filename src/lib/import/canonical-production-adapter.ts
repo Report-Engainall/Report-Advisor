@@ -36,6 +36,16 @@ async function stageRows(input: DurableCanonicalImportInput, companyId: string):
   }
 }
 
+async function finishCanonicalImportFailure(importId: string, message: string): Promise<void> {
+  const { error } = await supabase.rpc('import_finish_job', {
+    p_job_id: importId,
+    p_status: 'failed',
+    p_result_summary: {},
+    p_error_message: message,
+  });
+  if (error) throw error;
+}
+
 async function runServerBoundary(input: DurableCanonicalImportInput): Promise<Record<string, unknown>> {
   const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
   if (sessionError || !sessionData.session?.access_token) throw new Error('AUTHENTICATED_USER_REQUIRED');
@@ -72,7 +82,17 @@ export async function runCanonicalImportThroughDurableRunner(input: DurableCanon
     if (row.provenance.tenantId !== companyId) throw new Error(`CANONICAL_TENANT_MISMATCH:${row.rowNumber}`);
     if (row.provenance.sourceHash !== input.sourceHash) throw new Error(`CANONICAL_SOURCE_HASH_MISMATCH:${row.rowNumber}`);
   }
-  await stageRows(input, companyId);
+  try {
+    await stageRows(input, companyId);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    try {
+      await finishCanonicalImportFailure(input.importId, message);
+    } catch {
+      // Preserve the primary staging failure; server-side lifecycle remains fail-closed.
+    }
+    throw error;
+  }
   const serverResult = await runServerBoundary(input);
 
   return {
