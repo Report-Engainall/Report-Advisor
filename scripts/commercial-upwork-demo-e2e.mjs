@@ -1,4 +1,4 @@
-import { chromium } from 'playwright';
+﻿import { chromium } from 'playwright';
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import { execFileSync } from 'node:child_process';
@@ -27,7 +27,7 @@ try {
   await page.locator('#login-password').fill(password);
 
   let authResponse = null;
-  for (let attempt = 1; attempt <= 2; attempt += 1) {
+  for (let attempt = 1; attempt <= 3; attempt += 1) {
     if (attempt > 1) {
       await page.goto(baseURL, { waitUntil: 'domcontentloaded', timeout: 30000 });
       await page.locator('#login-email').waitFor({ state: 'visible', timeout: 30000 });
@@ -44,13 +44,13 @@ try {
     if (!(await loginSubmit.count())) throw new Error('LOGIN_SUBMIT_NOT_FOUND');
     await loginSubmit.click();
     const candidate = await authResponsePromise;
-    if (candidate && [429, 500, 502, 503, 504].includes(candidate.status()) && attempt < 2) {
-      await page.waitForTimeout(2500);
+    if (candidate && [429, 500, 502, 503, 504].includes(candidate.status()) && attempt < 3) {
+      await page.waitForTimeout(5000 * attempt);
       continue;
     }
     authResponse = candidate;
-    if (authResponse || attempt === 2) break;
-    await page.waitForTimeout(2500);
+    if (authResponse || attempt === 3) break;
+    await page.waitForTimeout(5000 * attempt);
   }
   if (!authResponse) throw new Error('AUTH_TOKEN_RESPONSE_TIMEOUT');
   const authStatus = authResponse.status();
@@ -75,7 +75,7 @@ try {
   }));
   if (!sessionReady) throw new Error('BROWSER_ACCESS_TOKEN_NOT_FOUND_AFTER_AUTH');
   await page.goto(`${baseURL}/proposal-demo`, { waitUntil: 'networkidle', timeout: 30000 });
-  await page.getByRole('heading', { name: /حوّل متطلبات الوظيفة/ }).waitFor({ state: 'visible', timeout: 10000 });
+  await page.getByRole('heading', { name: /ط­ظˆظ‘ظ„ ظ…طھط·ظ„ط¨ط§طھ ط§ظ„ظˆط¸ظٹظپط©/ }).waitFor({ state: 'visible', timeout: 10000 });
 
   const title = 'Senior Business Intelligence Analyst';
   const client = 'Evidence-First Retail Client';
@@ -90,17 +90,17 @@ try {
   await page.locator('#proposal-demo-client').fill(client);
   await page.locator('#proposal-demo-requirements').fill(requirements);
 
-  const matchedCount = await page.locator('text=قدرة موجودة').count();
+  const matchedCount = await page.locator('text=ظ‚ط¯ط±ط© ظ…ظˆط¬ظˆط¯ط©').count();
   assert.equal(matchedCount, 5, 'all five supplied requirements should map to existing capabilities');
-  const reviewCount = await page.locator('text=يحتاج مراجعة بشرية').count();
+  const reviewCount = await page.locator('text=ظٹط­طھط§ط¬ ظ…ط±ط§ط¬ط¹ط© ط¨ط´ط±ظٹط©').count();
   assert.equal(reviewCount, 0, 'known requirements must not be reported as unmatched');
 
   await page.screenshot({ path: `${reportDir}/proposal-demo.png`, fullPage: true });
-  const demoLink = page.getByRole('link', { name: 'العرض الحي' }).first();
+  const demoLink = page.getByRole('link', { name: 'ط§ظ„ط¹ط±ط¶ ط§ظ„ط­ظٹ' }).first();
   if (await demoLink.count() !== 1) throw new Error('LIVE_DEMO_LINK_NOT_FOUND');
   await demoLink.click();
   await page.waitForURL(url => url.pathname === '/', { timeout: 10000 });
-  await page.getByRole('heading', { name: /مركز القيادة|لوحة القيادة/ }).waitFor({ state: 'visible', timeout: 15000 }).catch(() => {});
+  await page.getByRole('heading', { name: /ظ…ط±ظƒط² ط§ظ„ظ‚ظٹط§ط¯ط©|ظ„ظˆط­ط© ط§ظ„ظ‚ظٹط§ط¯ط©/ }).waitFor({ state: 'visible', timeout: 15000 }).catch(() => {});
   await page.screenshot({ path: `${reportDir}/live-demo-route.png`, fullPage: true });
 
   await page.goBack({ waitUntil: 'networkidle', timeout: 30000 });
@@ -120,7 +120,7 @@ try {
   assert.match(pdfText, /Senior Business Intelligence Analyst/);
   assert.match(pdfText, /Evidence-First Retail Client/);
   assert.match(pdfText, /Capability Mapping/);
-  assert.match(pdfText, /تسلسل العرض الحي/);
+  assert.match(pdfText, /طھط³ظ„ط³ظ„ ط§ظ„ط¹ط±ط¶ ط§ظ„ط­ظٹ/);
   evidence.status = 'PASS';
   evidence.matchedCount = matchedCount;
   evidence.pdf = { verified: true, path: pdfPath };
@@ -135,3 +135,4 @@ try {
   await browser.close();
 }
 console.log(JSON.stringify(evidence, null, 2));
+
