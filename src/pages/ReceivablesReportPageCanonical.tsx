@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
-import { PageHeader, LoadingState, ErrorState } from '@/components/ui/States';
+import { PageHeader, LoadingState, ErrorState, TruthRail } from '@/components/ui/States';
 import { DataTable } from '@/components/ui/DataTable';
 import { fetchReceivablesReportSnapshot, type ReceivablesReportRow, type ReceivablesReportSnapshot } from '@/lib/receivables-truth';
 import { formatCurrency, formatNumber, formatDate } from '@/lib/format';
@@ -13,6 +13,7 @@ export function ReceivablesReportPageCanonical() {
   const [snapshot, setSnapshot] = useState<ReceivablesReportSnapshot | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [reloadTick, setReloadTick] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
@@ -22,16 +23,18 @@ export function ReceivablesReportPageCanonical() {
       .catch((cause) => { if (!cancelled) setError(cause instanceof Error ? cause.message : 'تعذر تحميل الذمم'); })
       .finally(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
-  }, [page]);
+  }, [page, reloadTick]);
 
   if (loading) return <LoadingState message="جارٍ تحميل الذمم من المصدر القانوني..." />;
-  if (error) return <ErrorState message={error} onRetry={() => { setError(null); setPage((value) => value); }} />;
+  if (error) return <ErrorState message={error} onRetry={() => { setError(null); setReloadTick((value) => value + 1); }} />;
   if (!snapshot) return <ErrorState message="تعذر إثبات لقطة الذمم" />;
 
   const lastPage = Math.max(0, Math.ceil(snapshot.totalRows / PAGE_SIZE) - 1);
   const bucketCards: Array<[string, number]> = [['0-30', snapshot.buckets['0-30']], ['31-60', snapshot.buckets['31-60']], ['61-90', snapshot.buckets['61-90']], ['90+', snapshot.buckets['90+']]];
 
-  return <div className="space-y-6 animate-fade-in">
+  return <div dir="rtl" className="space-y-6 animate-fade-in">
+    <TruthRail status={snapshot.undatedRows > 0 ? "review" : "live"} period="الذمم · المصدر القانوني"
+    />
     <PageHeader title="تقرير الذمم والتحصيل" subtitle="الإجمالي وأعمار الذمم من تجميع خادمي؛ الجدول صفحة عرض فقط" />
     <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
       <Card><CardBody><div className="text-xs text-ink-500 mb-1">إجمالي الذمم</div><div className="text-xl font-bold text-ink-900">{formatCurrency(snapshot.totalOutstanding)}</div></CardBody></Card>
