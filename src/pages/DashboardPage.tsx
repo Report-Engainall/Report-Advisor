@@ -102,8 +102,8 @@ export function DashboardPage() {
         <KPICard label="قيمة المخزون" value={kpis.inventoryValue} format="currency" icon={<Package size={16}/>} status={metricStatus(kpis.inventoryValue)} to="/inventory" evidenceTo="/metrics?metric=metric.inventory_value" />
         <KPICard label="العملاء" value={kpis.totalCustomers} format="number" icon={<Users size={16}/>} status={metricStatus(kpis.totalCustomers)} to="/customers" evidenceTo="/metrics?metric=metric.customer_activity" />
         <KPICard label="المنتجات" value={kpis.totalProducts} format="number" icon={<Package size={16}/>} status={metricStatus(kpis.totalProducts)} to="/products" evidenceTo="/metrics?metric=metric.inventory_velocity" />
-        <KPICard label="الفواتير" value={kpis.invoiceCount} format="number" icon={<Receipt size={16}/>} status={metricStatus(kpis.invoiceCount)} to="/reports/sales" />
-        <KPICard label="معدل التحصيل" value={kpis.collectionRate} format="percent" icon={<Wallet size={16}/>} status={metricStatus(kpis.collectionRate)} to="/reports/receivables" />
+        <KPICard label="الفواتير" value={kpis.invoiceCount} format="number" icon={<Receipt size={16}/>} status={metricStatus(kpis.invoiceCount)} to="/reports/sales" evidenceTo="/metrics?metric=metric.net_sales" />
+        <KPICard label="معدل التحصيل" value={kpis.collectionRate} format="percent" icon={<Wallet size={16}/>} status={metricStatus(kpis.collectionRate)} to="/reports/receivables" evidenceTo="/metrics?metric=metric.receivables" />
       </section>
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
