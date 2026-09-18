@@ -21,7 +21,12 @@ This document is the live ownership boundary for command `2`. It is intentionall
 - `src/components/TruthContextStrip.tsx`: truth context now supports an explicit source-period label when the canonical source does not expose a numeric month range.
 - `src/pages/ExecutiveCommandCenterPage.tsx`: the executive decision engine now opens the existing investigation drawer with KPI/evidence context instead of stopping at a status card.
 - Programmer parallel commit observed: `4a3ae6aad93f43bb62ee45c96935d855cfb8b8b2` (`perf(ui): lazy-load IntelligencePage.tsx`). The deployment stream is currently testing an intermediate SHA; this ownership doc does not promote that deployment to PASS.
-- Latest product-code commit issued by this wave: `e7253bae61d04a83d1e9c60ab7d9e1ba48e339c5`.
+- `src/components/ui/SavedViewMenu.tsx` + `src/pages/WorkCenterPage.tsx`: tenant-scoped local saved views, search, filter reset and explicit local-only semantics were added without creating a database write path.
+- `src/pages/AnalyticsPage.tsx`: the analytics hub is now question/decision-led while preserving the existing canonical RFM/ABC/Aging readers and fail-closed evidence states.
+- `src/pages/ProfitabilityReportCanonicalPage.tsx`: profitability metrics now open the existing investigation drawer with source/formula/missing-evidence context; the deterministic financial calculation contract remains unchanged.
+- `40765f57518f46b7e0d05d5c05a158b7c01d367a` produced a real Netlify build failure (exit code 2). The failure was isolated to the newly added saved-view syntax surface; `f3fc3b6306a8e1b3753b0ccd772a99ad5ae0fc19` removed escaped template syntax. Current product head is `ffa2b42f52da281cab73113a035da132170b4e22`; exact-head build/runtime proof is therefore still required.
+- Staging read-only evidence check: `backup_verification_runs`, `slo_evidence`, `operational_health_snapshots`, `production_certification_bundles`, `production_rollback_drills`, `autonomy_certification_runs`, and `tenant_isolation_canary_runs` currently have zero rows; these remain NOT PROVEN runtime fronts, not fabricated failures or passes.
+- Latest product-code commit issued by this wave: `ffa2b42f52da281cab73113a035da132170b4e22`.
 - The shared development remains on the isolated integration branch; `main` is not mutated by this wave.
 
 ### Active development fronts
