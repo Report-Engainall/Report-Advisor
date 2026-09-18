@@ -39,6 +39,8 @@ const checks = [
   [commandPalette.includes('role="combobox"') && commandPalette.includes('aria-activedescendant={activeItemId}'), 'Command palette input must expose active result.'],
   [commandPalette.includes('role="listbox"') && commandPalette.includes('role="option"'), 'Command palette results must expose option semantics.'],
   [commandPalette.includes('aria-selected={index === active}'), 'Command palette active result must be announced.'],
+  [commandPalette.includes('ref={paletteRef}') && commandPalette.includes('previousFocusRef.current = activeElement'), 'Command palette must restore focus to the opener after closing.'],
+  [commandPalette.includes("event.key === 'Tab'") && commandPalette.includes('dialog.querySelectorAll<HTMLElement>'), 'Command palette must trap keyboard focus inside the modal.'],
   [app.includes('id="mobile-sidebar"') && app.includes('aria-modal="true"'), 'Mobile sidebar dialog must be modal.'],
   [sidebar.includes("aria-controls={section.id+'-navigation-panel'}") && sidebar.includes("id={section.id+'-navigation-panel'}"), 'Sidebar sections must expose button-to-panel relationship.'],
   [sidebar.includes('focus-visible:ring-2 focus-visible:ring-primary-500'), 'Sidebar controls need visible keyboard focus.'],

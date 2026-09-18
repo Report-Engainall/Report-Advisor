@@ -56,6 +56,8 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
   const navigate = useNavigate();
   const location = useLocation();
   const inputRef = useRef<HTMLInputElement>(null);
+  const paletteRef = useRef<HTMLDivElement>(null);
+  const previousFocusRef = useRef<HTMLElement | null>(null);
   const paletteId = `command-palette-${useId().replace(/:/g, '')}`;
   const inputId = `${paletteId}-input`;
   const resultsId = `${paletteId}-results`;
@@ -119,7 +121,14 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
     onClose();
   }, [navigate, onClose, recentPaths]);
   useEffect(() => {
-    if (!open) return;
+    if (!open) {
+      const previousFocus = previousFocusRef.current;
+      previousFocusRef.current = null;
+      if (previousFocus?.isConnected) requestAnimationFrame(() => previousFocus.focus());
+      return;
+    }
+    const activeElement = document.activeElement;
+    previousFocusRef.current = activeElement instanceof HTMLElement ? activeElement : null;
     setQuery('');
     setActive(0);
     try {
@@ -133,6 +142,22 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
     if (!open) return;
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') onClose();
+      if (event.key === 'Tab') {
+        const dialog = paletteRef.current;
+        if (!dialog) return;
+        const focusable = Array.from(dialog.querySelectorAll<HTMLElement>('button:not([disabled]), input:not([disabled]), a[href], select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])')).filter(element => element.offsetParent !== null);
+        if (!focusable.length) { event.preventDefault(); return; }
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault();
+          last.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault();
+          first.focus();
+        }
+        return;
+      }
       if (event.key === 'ArrowDown') { event.preventDefault(); setActive(value => Math.min(value + 1, Math.max(filtered.length - 1, 0))); }
       if (event.key === 'ArrowUp') { event.preventDefault(); setActive(value => Math.max(value - 1, 0)); }
       if (event.key === 'Enter' && filtered[active]) { event.preventDefault(); openCommand(filtered[active]); }
@@ -144,7 +169,7 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
   const activeItemId = filtered[active] ? `${resultsId}-option-${active}` : undefined;
 
   return (
-    <div id={paletteId} className="fixed inset-0 z-[100] flex items-start justify-center bg-ink-950/45 px-4 pt-[12vh] backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby={`${paletteId}-title`}>
+    <div ref={paletteRef} id={paletteId} className="fixed inset-0 z-[100] flex items-start justify-center bg-ink-950/45 px-4 pt-[12vh] backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby={`${paletteId}-title`}>
       <button type="button" className="absolute inset-0 cursor-default" aria-label="إغلاق" onClick={onClose} />
       <div className="relative w-full max-w-2xl overflow-hidden rounded-2xl border border-ink-200 bg-white shadow-2xl" dir="rtl">
         <div className="border-b border-ink-100 px-4 py-3">
