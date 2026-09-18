@@ -80,3 +80,47 @@ This document is the execution guardrail derived from the comprehensive v3 speci
 ## Definition of Done
 
 A requirement is only FULLY IMPLEMENTED when its applicable UI, backend, database, security, audit, event/queue behavior, error/loading/offline state, tests, E2E/regression coverage, performance evidence and documentation are present.
+
+
+---
+
+## Priority 5 — Decision Operating System / Competitive Value
+
+| REQ-ID | Requirement | Acceptance Boundary | Status |
+|---|---|---|---|
+| RA-TRUST-001 | Evidence Passport for material KPI/report/decision/recommendation outputs | source + snapshot + as-of + freshness + formula + evidence + confidence + exact lineage | SPECIFIED |
+| RA-TRUST-002 | Data Trust Center | role-aware freshness, coverage, reconciliation, import and evidence health | SPECIFIED |
+| RA-DEC-001 | Decision Control Tower | prioritized queue with evidence, impact, alternatives, constraints, owner and approval | SPECIFIED |
+| RA-DEC-002 | Inaction / counterfactual view | scenario output labelled as estimate with assumptions | SPECIFIED |
+| RA-DEC-003 | Outcome & ROI Ledger | expected → approved → executed → actual → delta → learning | SPECIFIED |
+| RA-DEC-004 | Merchant Memory | immutable historical snapshots and decision history | SPECIFIED |
+| RA-COM-001 | Constraint-aware commercial recommendations | cash + lead time + MOQ + conversion + alternatives + margin where available | SPECIFIED |
+| RA-COM-002 | Profit Leak Radar | evidence-backed margin/cash leakage detection with review state | SPECIFIED |
+| RA-COM-003 | Customer Recovery Playbook | cadence + SKU mix + stockout + receivable evidence | SPECIFIED |
+| RA-COM-004 | Supplier Risk Cockpit | lead time + reliability + price + dependency + affected assortment | SPECIFIED |
+| RA-UX-001 | What Changed | verified snapshot comparison with impact and evidence | SPECIFIED |
+| RA-UX-002 | Signal-to-Noise Controller | role-specific thresholds and alert suppression without hiding critical evidence | SPECIFIED |
+| RA-AI-001 | Agent Control Room | agent scope/tools/data/evidence/confidence/approval/run state | SPECIFIED |
+| RA-AI-002 | Data Contract Autopilot | proposed mapping → review → approval; no silent schema mutation | SPECIFIED |
+| RA-PLAT-001 | Embedded Intelligence contract | canonical metrics/evidence exposed through governed adapter only | SPECIFIED |
+| RA-MKT-001 | Proposal Demo Mode | client/job-specific governed demo with evidence and proposal pack | SPECIFIED |
+| RA-MKT-002 | Commercial Proof layers | visual + functional + trust proof for premium capabilities | SPECIFIED |
+| RA-VALUE-001 | Product Value Gate | trust + decision value + outcome value + UX + performance + commercial proof | SPECIFIED |
+
+### New mandatory acceptance rules
+
+1. A dashboard-only implementation cannot satisfy a Decision OS requirement.
+2. A recommendation without an evidence passport is not product-complete.
+3. A decision without an authority boundary is not executable.
+4. An expected outcome without an actual-outcome path is not an Outcome Ledger closure.
+5. A feature that is technically correct but has no customer-value proof remains TECHNICALLY_COMPLETE, not COMMERCIAL_READY.
+6. Scenario output must never be written as historical fact.
+7. AI must consume governed evidence and deterministic calculations rather than becoming a competing calculation engine.
+8. Product telemetry measures value signals but never substitutes for business evidence.
+9. Every premium capability requires role/permission behavior, error/offline states, accessibility, performance evidence, regression coverage and exact-head proof where applicable.
+
+### Enhanced Definition of Done
+
+REQ → source contract → data boundary → UI workflow → permission → side effect → evidence → outcome → test → E2E → security → performance → commercial proof → exact-head evidence.
+
+No strategic capability reaches PRODUCT_COMPLETE from UI appearance alone.
