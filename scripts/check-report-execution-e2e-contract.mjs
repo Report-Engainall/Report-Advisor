@@ -36,10 +36,10 @@ required(durable, ['claim_report_execution_job', 'heartbeat_report_execution_job
 required(ledger, ['artifactRefs', 'evidence', 'tenantId', 'immutable'], 'Execution ledger');
 
 const assertGateImplementation = (source) => {
-  if (!source.includes("if (!input.sourceSnapshotId) throw new Error('Report execution requires a source snapshot');")) {
-    throw new Error('source snapshot guard missing');
-  }
-  if (!source.includes('assertNoQuarantine(input.routePlan);')) throw new Error('quarantine guard missing');
+  const snapshotGuard = /^\s*if \(!input\.sourceSnapshotId\) throw new Error\('Report execution requires a source snapshot'\);\s*$/m;
+  if (!snapshotGuard.test(source)) throw new Error('source snapshot guard missing');
+  const quarantineGuard = /^\s*assertNoQuarantine\(input\.routePlan\);\s*$/m;
+  if (!quarantineGuard.test(source)) throw new Error('quarantine guard missing');
 };
 assertGateImplementation(gate);
 
