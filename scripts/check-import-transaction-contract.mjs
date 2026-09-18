@@ -99,6 +99,9 @@ for (const token of [
   "serverExecution: true",
   "workerClient",
   "dataClient",
+  "from('import_jobs')",
+  ".eq('id', input.importId)",
+  ".eq('company_id', companyId)",
 ]) {
   if (!serverAdapter.includes(token)) throw new Error(`Canonical server execution boundary missing: ${token}`);
 }
