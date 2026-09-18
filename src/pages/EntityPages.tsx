@@ -6,6 +6,8 @@ import { PageHeader, LoadingState, ErrorState, TruthRail } from '@/components/ui
 import { DataTable } from '@/components/ui/DataTable';
 import { SavedViewBar } from '@/components/ui/SavedViewBar';
 import { useSavedView } from '@/hooks/useSavedView';
+import { SavedViewBar } from '@/components/ui/SavedViewBar';
+import { useSavedView } from '@/hooks/useSavedView';
 import { CustomerCreateDialog } from '@/components/CustomerCreateDialog';
 import { ProductCreateDialog } from '@/components/ProductCreateDialog';
 import { fetchCustomersPage, fetchProductsPage } from '@/lib/queries';
@@ -36,6 +38,7 @@ export function ProductsPage() {
 }
 
 export function InventoryPage() {
+  const inventoryViews = useSavedView('inventory', { filter: 'all' });
   const [snapshot, setSnapshot] = useState<Awaited<ReturnType<typeof fetchInventoryReportSnapshot>> | null>(null); const [loading, setLoading] = useState(true); const [error, setError] = useState<string | null>(null); const [filter, setFilter] = useState<'all' | 'low' | 'out'>('all'); const [page, setPage] = useState(0); const pageSize = 25;
   const load = useCallback(async () => { try { setLoading(true); setError(null); setSnapshot(await fetchInventoryReportSnapshot(page, pageSize, filter)); } catch (e: unknown) { setError(e instanceof Error ? e.message : 'فشل تحميل المخزون'); } finally { setLoading(false); } }, [page, filter]);
   useEffect(() => { void load(); }, [load]); useEffect(() => { setPage(0); }, [filter]); if (loading && !snapshot) return <LoadingState />; if (error && !snapshot) return <ErrorState message={error} onRetry={load} />; if (!snapshot) return null;
