@@ -40,7 +40,10 @@ function runCommand(key) {
   if (key.startsWith('npm:')) {
     const script = key.slice(4);
     const npmExecutable = process.platform === 'win32' ? 'npm.cmd' : 'npm';
-    result = spawnSync(npmExecutable, ['run', script], { encoding: 'utf8' });
+    result = spawnSync(npmExecutable, ['run', script], {
+      encoding: 'utf8',
+      shell: process.platform === 'win32',
+    });
   } else if (key.startsWith('node:')) {
     const args = key.slice(5).trim().split(/\s+/);
     result = spawnSync('node', args, { encoding: 'utf8' });
