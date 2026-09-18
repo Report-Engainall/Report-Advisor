@@ -55,7 +55,8 @@ function pdfWithText(text: string): ArrayBuffer {
     .flatMap((char) => char.split('').map((unit) => unit.charCodeAt(0)))
     .map((unit) => unit.toString(16).padStart(4, '0'))
     .join('');
-  const chunks = hex.match(/.{1,160}/g) ?? [];\n  const stream = `BT /F1 12 Tf 40 760 Td ${chunks.map((chunk) => `<${chunk}> Tj`).join(" 0 -16 Td ")} ET`;
+  const chunks = hex.match(/.{1,160}/g) ?? [];
+  const stream = `BT /F1 12 Tf 40 760 Td ${chunks.map((chunk) => `<${chunk}> Tj`).join(" 0 -16 Td ")} ET`;
 
   const objects = [
     '<< /Type /Catalog /Pages 2 0 R >>',
