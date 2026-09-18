@@ -6,6 +6,31 @@
 >
 > This protocol complements `docs/MASTER_PRODUCT_SPEC_AND_EXECUTION_PROTOCOL.md` and `docs/MASTER_EXECUTION_INDEX.md`. It must never override the exact-head, fail-closed, no-fabrication rules.
 
+## 0. CONTINUOUS OPERATIONAL MEMORY — MANDATORY
+
+The repository, not chat, is the durable memory of execution.
+
+Before every coordinator cycle, read docs/CONTINUOUS_OPERATIONAL_MEMORY.md and verify its live execution header against GitHub current state. Do not ask the user to reconstruct prior work when the repository contains the needed state.
+
+After every material coordinator action, update the operational memory with:
+- exact Main/PR SHA;
+- environment/provider;
+- action and result;
+- newly opened/closed/blocked fronts;
+- invalidated historical evidence;
+- no-repeat exclusions;
+- next executable action.
+
+The same memory is the programmer handoff. Programmer agents must read it before implementation and update their branch state when a material implementation/evidence change occurs. A pasted report is supplementary only and is never the system of record.
+
+State precedence is:
+1. current repository/GitHub state;
+2. exact workflow/runtime evidence;
+3. operational memory;
+4. chat/report narrative.
+
+Operational memory is itself fail-closed: it may record UNKNOWN, OPEN or BLOCKED, but it may not manufacture PASS.
+
 ## 1. CORE OPERATING RULE
 
 The coordinator must continuously convert available tool access into real progress.
