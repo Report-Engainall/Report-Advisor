@@ -983,3 +983,16 @@ DONE: Wave 21 scenario financial truth integrity completed and handed off.
 OPEN: Owner 2 integration/runtime/release proof; Owner 1 continues independent commercial hardening.
 BLOCKED: none.
 NEXT START: inspect Document Intelligence production surface and evidence visibility.
+
+## START — COMMAND 20 — 2026-09-19
+START
+DATE: 2026-09-19T02:45+03:00
+OWNER: 1
+BRANCH: feat/owner1-document-analysis-trust-wave22-20260919
+HEAD: eb8d324ca7b0e5b6298f3619795fcbd3512c10e0
+BASE: eb8d324ca7b0e5b6298f3619795fcbd3512c10e0
+OBJECTIVE: تقوية تجربة External File Analysis كمرحلة معاينة/تحليل موثوقة، مع توضيح security/hash/mapping وحقيقة أن الناتج لم يصبح Canonical Data بعد، وإضافة انتقال صريح لمسار الاستيراد الكانوني.
+FILES / SURFACES: src/pages/ExternalFileAnalysisPage.tsx; scripts/check-external-file-analysis-trust-contract.mjs; package.json; docs/OWNER_1_COMMUNICATION.md
+DEPENDENCIES: file-engine detector/security/parser الحالي؛ لا تخزين جديد ولا RPC/DB/Runner/Auth/Tenant/Storage/CI change.
+BLOCKERS: لا يوجد blocker تطويري معروف.
+EXPECTED HANDOFF: Owner 2 يعيد إثبات file analysis/browser/runtime/security/release على Exact SHA؛ لا نقل Evidence بين SHAs.
