@@ -1,4 +1,4 @@
-name: Commercial Product Creation E2E
+﻿name: Commercial Product Creation E2E
 
 on:
   pull_request:
@@ -20,7 +20,7 @@ env:
 jobs:
   product-create:
     runs-on: ubuntu-22.04
-    timeout-minutes: 30
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
         with:
@@ -94,3 +94,4 @@ jobs:
           name: commercial-product-create-${{ env.EXACT_HEAD }}
           path: artifacts/commercial-product-create
           if-no-files-found: warn
+

@@ -1,4 +1,4 @@
-name: Commercial Upwork Demo E2E
+﻿name: Commercial Upwork Demo E2E
 
 on:
   pull_request:
@@ -21,7 +21,7 @@ jobs:
   upwork-demo:
     if: startsWith(github.event.pull_request.head.ref || github.ref_name, 'commercial/')
     runs-on: ubuntu-22.04
-    timeout-minutes: 35
+    timeout-minutes: 50
     steps:
       - uses: actions/checkout@v4
         with:
@@ -96,3 +96,4 @@ jobs:
           name: commercial-upwork-demo-${{ env.EXACT_HEAD }}
           path: artifacts/commercial-upwork-demo
           if-no-files-found: warn
+

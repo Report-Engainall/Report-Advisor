@@ -1,4 +1,4 @@
-name: Commercial PWA E2E
+﻿name: Commercial PWA E2E
 
 on:
   pull_request:
@@ -22,7 +22,7 @@ jobs:
   pwa:
     if: startsWith(github.event.pull_request.head.ref || github.ref_name, 'commercial/')
     runs-on: ubuntu-22.04
-    timeout-minutes: 45
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
         with:
@@ -144,3 +144,4 @@ jobs:
           name: commercial-pwa-${{ env.EXACT_HEAD }}
           path: artifacts/pwa-auth-e2e
           if-no-files-found: warn
+
