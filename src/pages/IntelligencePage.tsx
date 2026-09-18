@@ -1,6 +1,7 @@
 import { lazy, Suspense, useEffect, useMemo, useState, useCallback } from 'react';
 import { Lightbulb, TrendingUp, AlertTriangle, CheckCircle2, XCircle, Zap, RefreshCw, ArrowUpLeft, ShieldCheck, Radar } from 'lucide-react';
 import { DeterministicIntelligenceAssistant } from '@/components/DeterministicIntelligenceAssistant';
+import { TruthContextStrip } from '@/components/TruthContextStrip';
 import type { InvestigationTarget } from '@/components/BusinessInvestigationDrawer';
 import { Link } from 'react-router-dom';
 import { Card, CardHeader, CardBody } from '@/components/ui/Card';
@@ -8,6 +9,7 @@ import { SeverityBadge, PriorityBadge, ConfidenceBadge, Badge } from '@/componen
 import { LoadingState, ErrorState, EmptyState } from '@/components/ui/States';
 import { ForecastChart } from '@/components/ui/Charts';
 import { fetchRecommendations, fetchAlerts, fetchForecasts, updateRecommendationStatus } from '@/lib/queries';
+import { fetchDashboardSnapshot } from '@/lib/dashboard-canonical';
 import { formatCurrency, relativeTime } from '@/lib/format';
 import type { Recommendation, Alert, Forecast } from '@/lib/types';
 
@@ -20,12 +22,18 @@ export function IntelligenceCenterPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [investigation, setInvestigation] = useState<InvestigationTarget | null>(null);
+  const [truthContext, setTruthContext] = useState<Awaited<ReturnType<typeof fetchDashboardSnapshot>> | null>(null);
 
   const load = useCallback(async () => {
     try {
       setLoading(true); setError(null);
       const [recs, alts, fc] = await Promise.all([fetchRecommendations(), fetchAlerts(), fetchForecasts()]);
       setRecommendations(recs); setAlerts(alts); setForecasts(fc);
+      try {
+        setTruthContext(await fetchDashboardSnapshot(6));
+      } catch {
+        setTruthContext(null);
+      }
     } catch (e) { setError(e instanceof Error ? e.message : 'تعذر تحميل مركز الذكاء'); }
     finally { setLoading(false); }
   }, []);
