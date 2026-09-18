@@ -23,6 +23,12 @@ const stages = [
   ['20-release-blockers', ['test:production-release-blockers']],
 ];
 
+
+function npmInvocation(script) {
+  if (process.platform === 'win32') return { command: 'cmd.exe', args: ['/d', '/s', '/c', `npm run ${script}`] };
+  return { command: 'npm', args: ['run', script] };
+}
+
 const maxParallel = Math.max(1, Number(process.env.READINESS_PARALLELISM ?? 5));
 const maxOutputChars = 12000;
 const results = new Map();
@@ -31,7 +37,8 @@ let cursor = 0;
 function runStage([name, scripts]) {
   return new Promise((resolve) => {
     const started = Date.now();
-    const child = spawn(process.platform === 'win32' ? 'npm.cmd' : 'npm', ['run', scripts[0]], {
+    const first = npmInvocation(scripts[0]);
+    const child = spawn(first.command, first.args, {
       stdio: ['ignore', 'pipe', 'pipe'],
       env: process.env,
     });
@@ -53,7 +60,8 @@ function runStage([name, scripts]) {
         resolve();
         return;
       }
-      const next = spawn(process.platform === 'win32' ? 'npm.cmd' : 'npm', ['run', scripts[1]], {
+      const second = npmInvocation(scripts[1]);
+      const next = spawn(second.command, second.args, {
         stdio: ['ignore', 'pipe', 'pipe'],
         env: process.env,
       });
