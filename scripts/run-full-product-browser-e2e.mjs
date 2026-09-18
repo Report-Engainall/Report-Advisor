@@ -53,32 +53,45 @@ page.on('request', request => requests.push({ method: request.method(), url: req
 async function probeAuthFromNode(email, password) {
   if (!supabaseURL || !supabaseAnonKey) return { status: 'BLOCKED', reason: 'SUPABASE_RUNTIME_ENV_MISSING' };
   const startedAt = Date.now();
-  try {
-    const response = await fetch(`${supabaseURL.replace(/\/$/, '')}/auth/v1/token?grant_type=password`, {
-      method: 'POST',
-      headers: {
-        apikey: supabaseAnonKey,
-        Authorization: `Bearer ${supabaseAnonKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ email, password }),
-      signal: AbortSignal.timeout(15000),
-    });
-    const bodyText = await response.text();
-    let detail = '';
-    if (!response.ok) {
-      try {
-        const body = JSON.parse(bodyText);
-        detail = body?.error_code || body?.error || body?.msg || body?.message || '';
-      } catch {}
+  const attempts = [];
+  for (let attempt = 1; attempt <= 3; attempt += 1) {
+    const attemptStarted = Date.now();
+    try {
+      const response = await fetch(`${supabaseURL.replace(/\/$/, '')}/auth/v1/token?grant_type=password`, {
+        method: 'POST',
+        headers: {
+          apikey: supabaseAnonKey,
+          Authorization: `Bearer ${supabaseAnonKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+        signal: AbortSignal.timeout(15000),
+      });
+      const bodyText = await response.text();
+      let detail = '';
+      if (!response.ok) {
+        try {
+          const body = JSON.parse(bodyText);
+          detail = body?.error_code || body?.error || body?.msg || body?.message || '';
+        } catch {}
+      }
+      attempts.push({ attempt, httpStatus: response.status, durationMs: Date.now() - attemptStarted, detail: detail ? String(detail).slice(0, 180) : undefined });
+      if (response.ok) {
+        return { status: 'PASS', httpStatus: response.status, durationMs: Date.now() - startedAt, attempts };
+      }
+    } catch (error) {
+      attempts.push({
+        attempt,
+        durationMs: Date.now() - attemptStarted,
+        error: error instanceof Error ? error.name + ':' + error.message.slice(0, 180) : String(error).slice(0, 180),
+      });
     }
-    return { status: response.ok ? 'PASS' : 'FAIL', httpStatus: response.status, durationMs: Date.now() - startedAt, detail: detail ? String(detail).slice(0, 180) : undefined };
-  } catch (error) {
-    return { status: 'FAIL', durationMs: Date.now() - startedAt, error: error instanceof Error ? error.name + ':' + error.message.slice(0, 180) : String(error).slice(0, 180) };
+    if (attempt < 3) await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
   }
+  return { status: 'FAIL', durationMs: Date.now() - startedAt, attempts };
 }
 async function login(targetPage, email, password) {
-  await targetPage.goto(baseURL, { waitUntil: 'networkidle', timeout: 30000 });
+  await targetPage.goto(baseURL, { waitUntil: 'domcontentloaded', timeout: 30000 });
   const loginEmail = targetPage.locator('#login-email');
   if (!(await loginEmail.count())) throw new Error('LOGIN_FORM_NOT_FOUND');
   await loginEmail.fill(email);
@@ -190,7 +203,7 @@ function addFinding(id, status, severity, reason, extra = {}) {
 }
 
 try {
-  await page.goto(baseURL, { waitUntil: 'networkidle', timeout: 30000 });
+  await page.goto(baseURL, { waitUntil: 'domcontentloaded', timeout: 30000 });
   await page.screenshot({ path: `${reportDir}/00-initial.png`, fullPage: true });
   const email = process.env.TEST_USER_A_EMAIL;
   const password = process.env.TEST_USER_A_PASSWORD;
@@ -214,7 +227,7 @@ try {
         result.tenant = 'PASS';
         addFinding('E2E-AUTH-006', 'PASS', 'P0', 'Browser session established and current tenant resolved through authenticated runtime RPC.', { tenantId: authenticatedTenant });
 
-        await page.reload({ waitUntil: 'networkidle', timeout: 30000 });
+        await page.reload({ waitUntil: 'domcontentloaded', timeout: 30000 });
         const refreshedTenant = await authenticatedTenantId(page);
         addFinding('E2E-AUTH-013', refreshedTenant === authenticatedTenant ? 'PASS' : 'FAIL', 'P0',
           refreshedTenant === authenticatedTenant
@@ -271,7 +284,7 @@ try {
         let status = 'PASS'; let reason = '';
         let inspection = null;
         try {
-          const response = await page.goto(`${baseURL}${route}`, { waitUntil: 'networkidle', timeout: 30000 });
+          const response = await page.goto(`${baseURL}${route}`, { waitUntil: 'domcontentloaded', timeout: 30000 });
           await page.waitForTimeout(500);
           const bodyText = (await page.locator('body').innerText()).trim();
           const appError = await page.getByText('حدث خطأ غير متوقع').count();
@@ -305,9 +318,9 @@ try {
       }
 
       try {
-        await page.goto(`${baseURL}/`, { waitUntil: 'networkidle', timeout: 30000 });
+        await page.goto(`${baseURL}/`, { waitUntil: 'domcontentloaded', timeout: 30000 });
         const beforeRefreshTenant = result.tenantA;
-        await page.reload({ waitUntil: 'networkidle', timeout: 30000 });
+        await page.reload({ waitUntil: 'domcontentloaded', timeout: 30000 });
         const afterRefreshTenant = await authenticatedTenantId(page);
         if (beforeRefreshTenant !== afterRefreshTenant) {
           addFinding('E2E-AUTH-009', 'FAIL', 'P0', `Tenant changed across browser refresh: ${beforeRefreshTenant} -> ${afterRefreshTenant}.`);
@@ -316,7 +329,7 @@ try {
         addFinding('E2E-AUTH-011', 'FAIL', 'P0', `Authenticated refresh persistence failed: ${error instanceof Error ? error.message : String(error)}`);
       }
 
-      await page.goto(`${baseURL}/`, { waitUntil: 'networkidle', timeout: 30000 });
+      await page.goto(`${baseURL}/`, { waitUntil: 'domcontentloaded', timeout: 30000 });
       const logout = page.getByRole('button', { name: 'تسجيل الخروج' });
       if (await logout.count()) {
         await logout.click();
