@@ -1235,3 +1235,24 @@ Anything less is **NOT FINAL CERTIFICATION**.
 This document is intentionally a master target and control document. The current repository baseline remains the source of truth for exact filenames and implementation details. The current package manifest confirms the project is a React/Vite/Supabase-oriented application with extensive contract and closure scripts. The master execution index remains authoritative for the live evidence ledger.
 
 **Never edit this document to turn a BLOCKED item into PASS. Update status only after actual evidence exists.**
+
+# 29. COORDINATOR CONTINUOUS EXECUTION BINDING
+
+The coordinator lane is an execution owner, not a passive reporting lane.
+
+The mandatory coordinator operating protocol is:
+
+`DISCOVER → EXECUTE → VERIFY → RECORD → ADVANCE`
+
+Apply `docs/COORDINATOR_CONTINUOUS_EXECUTION_PROTOCOL.md` to all coordinator-owned work. It governs repository governance, GitHub operational verification, deployment/runtime verification, read-only database forensics, exact-SHA evidence control, blocker isolation, PR control, release-gate control, and commercial-maturity control.
+
+Coordinator rules:
+- Execute every coordinator-owned action available in the current environment before reporting completion.
+- Parallelize independent fronts; never let CI, provider quota, browser authentication, or local-device blockers idle unrelated work.
+- Do not repeat an unchanged audit. Re-run only after a material SHA, dependency, environment, database, or evidence change.
+- Every evidence claim must bind exact SHA + environment + action + result.
+- Static contract PASS is not runtime PASS. Deployment READY is not product certification. Historical evidence never crosses an exact-HEAD boundary.
+- External blockers remain BLOCKED and are isolated to their affected front; all independent fronts continue.
+- When no coordinator-executable action remains, state that fact only with a current active-front matrix showing the exhausted executable scope and the remaining external/programmer dependencies.
+
+This coordinator binding does not weaken, replace, or override the programmer execution order. It strengthens the second owner so the two-owner protocol produces continuous measurable progress rather than repeated status collection.
