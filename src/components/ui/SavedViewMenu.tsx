@@ -64,7 +64,7 @@ export function SavedViewMenu({ storageKey, value, onApply, onReset, disabled = 
 
     const id = typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
       ? crypto.randomUUID()
-      : \`1789749693718-\${Math.random().toString(36).slice(2)}\`;
+      : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
     const next: SavedView[] = [
       { id, name: trimmed, value, createdAt: new Date().toISOString() },
       ...views.filter(view => JSON.stringify(view.value) !== currentFingerprint),
