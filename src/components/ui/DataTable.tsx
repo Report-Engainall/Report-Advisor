@@ -26,14 +26,14 @@ export function DataTable<T extends object>({ columns, data, loading, emptyMessa
     <div className="overflow-x-auto rounded-b-[1.35rem]">
       <table className="w-full min-w-[720px]">
         <thead>
-          <tr className="border-b border-ink-100 bg-[#f7faf7]">
+          <tr className="border-b border-ink-100 bg-[#f7faf7] shadow-[inset_0_-1px_0_rgba(15,118,110,.08)]">
             {columns.map(col => <th key={col.key} className={'px-4 py-3 text-[10px] font-black tracking-wide text-ink-500 ' + (col.align === 'center' ? 'text-center' : col.align === 'left' ? 'text-left' : 'text-right')} style={{ width: col.width }}>{col.label}</th>)}
           </tr>
         </thead>
         <tbody>
           {data.map((row, index) => {
             const record = row as Record<string, unknown>;
-            return <tr key={typeof record.id === 'string' || typeof record.id === 'number' ? String(record.id) : index} onClick={() => onRowClick?.(row)} className={'border-b border-ink-100/80 transition ' + (onRowClick ? 'cursor-pointer hover:bg-primary-50/35' : '')}>
+            return <tr key={typeof record.id === 'string' || typeof record.id === 'number' ? String(record.id) : index} onClick={() => onRowClick?.(row)} className={'border-b border-ink-100/80 transition odd:bg-white even:bg-ink-50/25 ' + (onRowClick ? 'cursor-pointer hover:bg-primary-50/45' : '')}>
               {columns.map(col => <td key={col.key} className={'px-4 py-3 text-xs font-medium text-ink-700 ' + (col.align === 'center' ? 'text-center' : col.align === 'left' ? 'text-left' : 'text-right') + ' ' + (col.className ?? '')}>{col.render ? col.render(row) : record[col.key] as ReactNode}</td>)}
             </tr>;
           })}
