@@ -857,3 +857,42 @@ PC01 device cleanup remains IN_PROGRESS / BLOCKED_EXTERNAL_CHANNEL after the rem
 - Staging currently shows a historical residue set of `processing` import_jobs on company `f68a7e91-3c7e-46fb-97a8-e339bec04e13`, with jobs dating back to 2026-09-14/15 and zero progress.
 - New import executions on the same tenant continue to reach `completed` with `committed=1` and direct canonical readback, so this is currently classified as stale historical residue rather than an active positive-path failure.
 - No bulk status mutation was performed. There is no dedicated public recovery RPC discovered; the authoritative terminal path remains `import_finish_job`.
+
+
+## 36. Worker Security Boundary + Canonical Import Server Boundary — 2026-09-18
+
+### Current exact runtime head
+- PR #542 exact branch head after security-boundary integration: `70e13022e48983293c7ed094671e851754f7f82b`.
+- Parent code/test head before governance rebind: `70b8a2b24f975c991ce193375b4486afa71f9ee7`.
+- The final `70e130...` commit is a documentation-only Master Execution Index rebind; runtime/code evidence must remain bound to `70b8a2...` until fresh exact-head CI completes, and certification evidence is not promoted automatically.
+
+### Security architecture correction
+- Exact source inspection showed the browser-side canonical import adapter still invoked the durable worker lifecycle through the browser Supabase client while the worker migration had already restricted worker RPCs toward service-only execution.
+- This was treated as a real architecture/security mismatch, not as a checker problem.
+- PR #542 now moves the durable worker lifecycle behind `api/canonical-import-run.ts` and keeps the existing canonical durable runner/store intact.
+- The browser path now stages already-reconciled canonical rows into tenant-scoped `public.import_job_rows` using the existing authenticated RLS boundary, then calls the authenticated server endpoint with the user session token.
+- The server endpoint resolves the authenticated user and tenant, uses the existing `service_role` Supabase client for worker-only RPCs, executes `runDurableProductionLifecycle` with `SupabaseReportExecutionStore`, and preserves `import_finish_job` as the authoritative terminal close.
+- Shared canonical commit logic was extracted to `src/lib/import/canonical-commit-core.ts` so the server boundary can reuse the existing deterministic import-commit implementation without importing the browser Supabase client.
+- No new durable runner or database RPC was introduced.
+
+### Security-definer classification correction
+- The repository SECURITY DEFINER exposure checker was updated to classify the full report worker set as service-only: enqueue, claim, heartbeat, checkpoint, complete, fail, recover-expired, and retry.
+- `retry_report_execution_job` is no longer treated as an authenticated operator boundary in the active runtime path because its verified caller is the server-side worker boundary.
+- The authoritative worker migration already revokes PUBLIC/anon/authenticated EXECUTE and grants `service_role` for the worker set; the checker now verifies that exact intent instead of asserting an obsolete authenticated grant.
+
+### Duplicate security front closed
+- PR #546 was closed unmerged as superseded by the integrated PR #542 implementation.
+- No evidence from #546 is transferred to #542.
+- The #546 revoke-only migration was intentionally not merged because it duplicated worker privilege hardening already present in the active #542 branch and excluded retry in a way that no longer matched the verified caller graph.
+
+### Freshness / blockers
+- No GitHub Actions workflow result has yet been promoted for the new runtime code head after the security-boundary commits; the connector did not yet surface workflow runs for the new commit at the inspection point.
+- Vercel remains an external provider path and has reported deployment rate-limit constraints on affected release heads; no bypass or production-deployment claim is allowed.
+- Storage Tenant Runtime remains a separate external/product-readiness question; no synthetic bucket or configuration is introduced.
+- Staging mutable data was not modified during this source-level security correction; live `import_job_rows` currently contains zero rows at the inspection point.
+
+### Required next proof
+- Fresh exact-head CI on `70b8a2...` / `70e130...` lineage.
+- Exact security-definer exposure contract success.
+- Exact import lifecycle/browser proof proving the browser-to-server worker boundary and real DB persistence.
+- Only then re-evaluate certification state.
