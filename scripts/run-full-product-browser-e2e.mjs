@@ -55,11 +55,47 @@ async function login(targetPage, email, password) {
   if (!(await loginEmail.count())) throw new Error('LOGIN_FORM_NOT_FOUND');
   await loginEmail.fill(email);
   await targetPage.locator('#login-password').fill(password);
+
+  const authResponsePromise = targetPage.waitForResponse(
+    response =>
+      response.request().method() === 'POST' &&
+      response.url().includes('/auth/v1/token?grant_type=password'),
+    { timeout: 30000 },
+  ).catch(() => null);
+
   const loginSubmit = targetPage.locator('form button[type="submit"]');
   if (!(await loginSubmit.count())) throw new Error('LOGIN_SUBMIT_NOT_FOUND');
   await loginSubmit.click();
-  await targetPage.waitForLoadState('networkidle', { timeout: 30000 }).catch(() => {});
-  await targetPage.waitForTimeout(1500);
+
+  const authResponse = await authResponsePromise;
+  if (!authResponse) {
+    throw new Error('AUTH_TOKEN_RESPONSE_TIMEOUT');
+  }
+
+  const authStatus = authResponse.status();
+  if (authStatus >= 400) {
+    let detail = '';
+    try {
+      const body = await authResponse.json();
+      detail = body?.error_code || body?.error || body?.msg || body?.message || '';
+    } catch {
+      detail = '';
+    }
+    throw new Error('AUTH_TOKEN_HTTP_' + authStatus + (detail ? '_' + detail : ''));
+  }
+
+  try {
+    await targetPage.locator('#login-email').waitFor({ state: 'hidden', timeout: 30000 });
+  } catch {
+    const alertText = await targetPage.getByRole('alert').first().textContent().catch(() => '');
+    const loading = await targetPage.getByRole('button', { name: 'جارٍ التحقق...' }).count();
+    const detail = alertText?.trim() ? ':' + alertText.trim().slice(0, 180) : '';
+    throw new Error(
+      loading
+        ? 'AUTH_UI_SESSION_CONVERGENCE_TIMEOUT' + detail
+        : 'AUTH_UI_SESSION_NOT_ESTABLISHED' + detail,
+    );
+  }
 }
 
 async function authenticatedTenantId(targetPage) {
