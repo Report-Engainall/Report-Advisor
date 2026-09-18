@@ -1,6 +1,6 @@
-import type { ReportExecutionRequest } from './report-execution-contract';
-import { SupabaseReportExecutionStore } from './durable-worker-adapter';
-import { runDurableProductionLifecycle, type DurableProductionRunInput, type DurableSourceSnapshot } from './durable-production-runner';
+import type { ReportExecutionRequest } from './report-execution-contract.js';
+import { SupabaseReportExecutionStore } from './durable-worker-adapter.js';
+import { runDurableProductionLifecycle, type DurableProductionRunInput, type DurableSourceSnapshot } from './durable-production-runner.js';
 
 export interface VerifiedProductionRunInput<T = unknown> extends Omit<DurableProductionRunInput<T>, 'request' | 'loadSourceSnapshot'> {
   request: ReportExecutionRequest & { sourceSnapshotId: string };
