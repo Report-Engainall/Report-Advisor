@@ -42,7 +42,7 @@ function scoreCapability(requirement: string, capability: Capability): number {
 }
 
 export function ProposalDemoPage() {
-  const [jobTitle, setJobTitle] = useState('Business Intelligence / Data Analytics Project');
+  const [jobTitle, setالوظيفةTitle] = useState('Business Intelligence / Data Analytics Project');
   const [client, setClient] = useState('Prospective Client');
   const [requirements, setRequirements] = useState('Dashboard with sales and financial KPIs\nExcel/CSV import and validation\nReceivables and aging analysis\nInventory and demand forecasting\nRecommendations and decision support');
 
@@ -59,7 +59,7 @@ export function ProposalDemoPage() {
     <div dir="rtl" className="space-y-6 print:bg-white print:text-black">
       <div className="flex flex-col gap-4 rounded-2xl border border-ink-100 bg-gradient-to-br from-primary-950 via-primary-900 to-ink-900 p-6 text-white shadow-sm sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <div className="mb-2 flex items-center gap-2 text-sm text-primary-100"><Wand2 size={16} /> Upwork Job Fit / Proposal Demo Mode</div>
+          <div className="mb-2 flex items-center gap-2 text-sm text-primary-100"><Wand2 size={16} /> مطابقة وظيفة Upwork / وضع العرض التقديمي</div>
           <h1 className="text-2xl font-black sm:text-3xl">حوّل متطلبات الوظيفة إلى عرض حي مبني على قدرات المنتج الفعلية</h1>
           <p className="mt-2 max-w-3xl text-sm leading-6 text-primary-100">هذه الشاشة لا تنشئ Mockup مستقلًا. إنها تربط متطلبات العميل بوحدات Report-Advisor الموجودة فعليًا وتفتح نفس مسارات المنتج الحية للعرض.</p>
         </div>
@@ -70,7 +70,7 @@ export function ProposalDemoPage() {
         <Card>
           <CardHeader title="سياق الوظيفة" subtitle="اكتب المتطلبات الفعلية، ثم اعرض المطابقة قبل فتح العرض الحي." />
           <CardBody className="space-y-4">
-            <div><label htmlFor="proposal-demo-title" className="mb-1 block text-xs font-medium text-ink-700">عنوان الوظيفة</label><input id="proposal-demo-title" value={jobTitle} onChange={event => setJobTitle(event.target.value)} className="input w-full" /></div>
+            <div><label htmlFor="proposal-demo-title" className="mb-1 block text-xs font-medium text-ink-700">عنوان الوظيفة</label><input id="proposal-demo-title" value={jobTitle} onChange={event => setالوظيفةTitle(event.target.value)} className="input w-full" /></div>
             <div><label htmlFor="proposal-demo-client" className="mb-1 block text-xs font-medium text-ink-700">اسم العميل / السياق</label><input id="proposal-demo-client" value={client} onChange={event => setClient(event.target.value)} className="input w-full" /></div>
             <div><label htmlFor="proposal-demo-requirements" className="mb-1 block text-xs font-medium text-ink-700">متطلبات الوظيفة — سطر لكل مطلب</label><textarea id="proposal-demo-requirements" value={requirements} onChange={event => setRequirements(event.target.value)} className="input min-h-64 w-full resize-y" /></div>
           </CardBody>
@@ -81,11 +81,11 @@ export function ProposalDemoPage() {
           <CardBody>
             <div className="rounded-xl border border-ink-100 bg-ink-50/60 p-4">
               <div className="text-xs text-ink-400">العميل</div><div className="mt-1 text-lg font-bold text-ink-900">{client}</div>
-              <div className="mt-4 text-xs text-ink-400">Job</div><div className="mt-1 text-base font-semibold text-ink-800">{jobTitle}</div>
+              <div className="mt-4 text-xs text-ink-400">الوظيفة</div><div className="mt-1 text-base font-semibold text-ink-800">{jobTitle}</div>
             </div>
             <div className="mt-4 grid grid-cols-2 gap-3">
-              <div className="rounded-xl border border-success-200 bg-success-50 p-4"><div className="text-xs text-success-700">Matched</div><div className="mt-1 text-2xl font-black text-success-800">{matched.length}</div></div>
-              <div className="rounded-xl border border-warning-200 bg-warning-50 p-4"><div className="text-xs text-warning-700">Needs review</div><div className="mt-1 text-2xl font-black text-warning-800">{unmatched.length}</div></div>
+              <div className="rounded-xl border border-success-200 bg-success-50 p-4"><div className="text-xs text-success-700">المطابق</div><div className="mt-1 text-2xl font-black text-success-800">{matched.length}</div></div>
+              <div className="rounded-xl border border-warning-200 bg-warning-50 p-4"><div className="text-xs text-warning-700">يحتاج مراجعة</div><div className="mt-1 text-2xl font-black text-warning-800">{unmatched.length}</div></div>
             </div>
             <div className="mt-4 flex flex-wrap gap-2 print:hidden">
               <Link to="/" className="btn-primary text-xs"><Target size={14} /> افتح المنتج</Link>
@@ -102,7 +102,7 @@ export function ProposalDemoPage() {
           {mapped.map(item => (
             <div key={item.requirement} className="rounded-xl border border-ink-100 p-4">
               <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-                <div className="min-w-0"><div className="text-sm font-semibold text-ink-800">{item.requirement}</div>{item.match && <div className="mt-1 text-xs text-ink-400">Mapped to: {item.match.title}</div>}</div>
+                <div className="min-w-0"><div className="text-sm font-semibold text-ink-800">{item.requirement}</div>{item.match && <div className="mt-1 text-xs text-ink-400">مرتبط بـ: {item.match.title}</div>}</div>
                 {item.match ? <div className="flex flex-wrap items-center gap-2"><span className="inline-flex items-center gap-1.5 rounded-full bg-success-50 px-3 py-1 text-xs font-medium text-success-700"><CheckCircle2 size={14} /> قدرة موجودة</span><Link to={item.match.path} className="inline-flex items-center gap-1.5 rounded-lg border border-ink-200 px-3 py-1.5 text-xs font-medium text-ink-700 hover:bg-ink-50 print:hidden">العرض الحي <ArrowUpRight size={14} /></Link></div> : <span className="inline-flex items-center gap-1.5 rounded-full bg-warning-50 px-3 py-1 text-xs font-medium text-warning-700">يحتاج مراجعة بشرية</span>}
               </div>
             </div>
@@ -119,7 +119,7 @@ export function ProposalDemoPage() {
         </CardBody>
       </Card>
 
-      <div className="text-xs leading-5 text-ink-400">لا تُنشئ هذه الشاشة بيانات أعمال اصطناعية ولا تنقل Evidence من SHA إلى SHA. كل رابط يفتح الوحدة الفعلية في Report-Advisor، وتبقى نتائج الأعمال والقيم الرقمية تحت مصدر الحقيقة والـtenant الحالي.</div>
+      <div className="text-xs leading-5 text-ink-400">لا تُنشئ هذه الشاشة بيانات أعمال اصطناعية ولا تنقل Evidence من SHA إلى SHA. كل رابط يفتح الوحدة الفعلية في Report-Advisor، وتبقى نتائج الأعمال والقيم الرقمية تحت مصدر الحقيقة والشركة الحالية.</div>
     </div>
   );
 }
