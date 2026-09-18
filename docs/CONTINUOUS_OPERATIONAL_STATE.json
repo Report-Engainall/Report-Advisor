@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "roleContract": "coordinator+programmer",
-  "updatedAt": "2026-09-18T04:25:00Z",
+  "updatedAt": "2026-09-18T04:35:00Z",
   "authority": {
     "mainSha": "a32fae0fc08c1cbbcc60b6eedfb0f4bd74a21c50",
     "mainIsUntouched": true,
@@ -30,7 +30,7 @@
       "area": "security",
       "sha": "5f636860eee883037e5c0ae2f4444cd6f753aa36",
       "state": "OPEN",
-      "next": "inspect fresh exact-head CI for first actionable failure",
+      "next": "wait only for provider CI state change; then inspect first exact-head failure",
       "evidence": [
         "security-definer-exposure contract PASS on predecessor 76f2b5...",
         "quality PASS on predecessor 76f2b5...",
