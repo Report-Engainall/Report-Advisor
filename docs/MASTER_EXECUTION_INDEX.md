@@ -5,10 +5,10 @@
 > Authoritative execution manifest. This document never promotes historical evidence across an exact Git `HEAD` boundary. Pair every evidence batch with the exact Git `HEAD` of `main` and the exact environment/commit used.
 
 ### CURRENT EXACT HEAD
-- Current code/test candidate: `efe572cf65d56728e0b4a3d9d42007439b20e185`.
+- Current code/test candidate: `de8050b3b9c9b67abbc0e1376a14b7bf91265e75`.
 - This candidate is reconstructed directly on governed current Main `f37e4eee4131b521be7f69589a27832bc978761f`; the only code changes are the retained canonical import/worker remediation and the structured PDF/OCR hardening.
 - No earlier runtime PASS is promoted across this SHA boundary.
-- PC01 exact-candidate verification on `efe572cf...`: `npm ci` completed; TypeScript typecheck PASS; file-engine behavioral regression PASS; file-engine architecture contract PASS; production build PASS.
+- PC01 exact-candidate verification through code parent `efe572cf...`: `npm ci` completed; TypeScript typecheck PASS; file-engine behavioral regression PASS; file-engine architecture contract PASS; production build PASS. On the final contract HEAD `de8050b3...`: import/security/certification contracts PASS, `pdf-renderer-byte-integrity` PASS, lint PASS with 0 errors, and typecheck/build PASS.
 - The production build completed with only non-blocking Browserslist/Bluebird warnings.
 - Fresh real-Staging PDF/OCR runtime evidence is still required; the predecessor `e5a31d...` failure at `invoice_date` is historical and its parser root cause has been corrected here.
 - Vercel deployment remains unproven because the provider build-rate-limit gate is external; no production mutation/cutover was performed.
@@ -23,7 +23,7 @@
 ### ACTIVE REMEDIATION RCA — 2026-09-18
 - Exact predecessor `e5a31d88...` failed real-Staging structured PDF regression at `invoice_date`.
 - Root cause: integration/rebase retained a stricter date/numeric parser than governed Main's whitespace-tolerant parser.
-- Candidate `efe572cf...` restores whitespace-tolerant date separators/numeric spacing while retaining the durable canonical-import and worker authority remediation.
+- Candidate lineage through `de8050b3...` restores whitespace-tolerant date separators/numeric spacing while retaining the durable canonical-import and worker authority remediation; the final candidate also corrects the import governance contract to match the authenticated server-boundary architecture.
 - A source-newline encoding defect was found by exact typecheck in an intermediate parser commit and corrected before this candidate.
 
 ### CURRENT MAIN — MATERIAL FRONT CLOSURE
