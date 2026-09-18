@@ -10,5 +10,8 @@ assert.doesNotThrow(() => validateCertificationBoundary({ index, head: candidate
 assert.doesNotThrow(() => validateCertificationBoundary({ index, head: child, parent: candidate, changedFiles: ['.github/workflows/final-certification-gate.yml'] }));
 assert.throws(() => validateCertificationBoundary({ index, head: child, parent: candidate, changedFiles: ['src/app.tsx'] }), /non-governance changes/);
 assert.throws(() => validateCertificationBoundary({ index, head: child, parent: '0'.repeat(40), changedFiles: ['.github/workflows/final-certification-gate.yml'] }), /not an ancestor/);
+assert.doesNotThrow(() => validateCertificationBoundary({ index: '', head: child, parent: candidate, changedFiles: ['src/App.tsx'], branch: 'integration/certification-candidate-20260918', certificationSha: child, base: 'main' }));
+assert.throws(() => validateCertificationBoundary({ index: '', head: child, parent: candidate, changedFiles: [], branch: 'integration/certification-candidate-20260918', certificationSha: candidate, base: 'main' }), /CERTIFICATION_SHA/);
+assert.throws(() => validateCertificationBoundary({ index: '', head: child, parent: candidate, changedFiles: [], branch: 'integration/certification-candidate-20260918', certificationSha: child, base: 'develop' }), /target main/);
 
-console.log('PASS certification-boundary Test-of-Test: exact candidate, governed-only ancestry, source mutation rejection, and ancestry spoof rejection are covered.');
+console.log('PASS certification-boundary Test-of-Test: exact candidate, governed-only ancestry, source mutation rejection, ancestry spoof rejection, and branch-bound exact-SHA certification identity are covered.');

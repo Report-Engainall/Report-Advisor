@@ -5,7 +5,13 @@ import { execFileSync } from 'node:child_process';
 const normalize = value => String(value ?? '').replaceAll('\r\n', '\n').trim();
 const candidateFromIndex = index => normalize(index).match(/(?:CURRENT PROJECT STATE|CURRENT EXECUTION BOUNDARY)[\s\S]{0,1600}?(?:CURRENT_CODE_TEST_CANDIDATE|Current code\/test candidate|Current Code\/Test Candidate|Exact code\/test head entering this sweep)[^`]*`([0-9a-f]{40})`/i)?.[1]?.toLowerCase();
 
-export function validateCertificationBoundary({ index, head, parent, changedFiles }) {
+export function validateCertificationBoundary({ index, head, parent, changedFiles, branch = process.env.GITHUB_HEAD_REF || process.env.GITHUB_REF_NAME || '', certificationSha = process.env.CERTIFICATION_SHA || '', base = process.env.GITHUB_BASE_REF || 'main' }) {
+  if (/^integration\/certification-[^/]+$/.test(branch)) {
+    if (base !== 'main') throw new Error(`CERTIFICATION BOUNDARY FAIL: integration certification branch must target main, got ${base}`);
+    if (!/^[0-9a-f]{40}$/.test(certificationSha)) throw new Error('CERTIFICATION BOUNDARY FAIL: integration candidate requires an explicit 40-character CERTIFICATION_SHA');
+    if (head !== certificationSha) throw new Error(`CERTIFICATION BOUNDARY FAIL: CERTIFICATION_SHA ${certificationSha} differs from HEAD ${head}`);
+    return true;
+  }
   const indexed = candidateFromIndex(index);
   if (!indexed) throw new Error('CERTIFICATION BOUNDARY FAIL: current code/test candidate missing from Master Index');
   if (!/^[0-9a-f]{40}$/.test(head)) throw new Error(`CERTIFICATION BOUNDARY FAIL: invalid HEAD ${head}`);
@@ -59,6 +65,10 @@ if (process.argv[1]?.endsWith('check-certification-boundary-integrity.mjs')) {
   const parent = execFileSync('git', ['rev-parse', 'HEAD^'], { encoding: 'utf8' }).trim();
   const indexed = candidateFromIndex(index);
   const changedFiles = indexed ? execFileSync('git', ['diff', '--name-only', indexed, head], { encoding: 'utf8' }).trim().split('\n').filter(Boolean) : [];
-  validateCertificationBoundary({ index, head, parent, changedFiles });
-  console.log(`CERTIFICATION BOUNDARY PASS: indexed=${indexed} HEAD=${head} changed=${changedFiles.length}`);
+  const branch = process.env.GITHUB_HEAD_REF || process.env.GITHUB_REF_NAME || '';
+  const certificationSha = process.env.CERTIFICATION_SHA || '';
+  const base = process.env.GITHUB_BASE_REF || 'main';
+  validateCertificationBoundary({ index, head, parent, changedFiles, branch, certificationSha, base });
+  if (/^integration\/certification-[^/]+$/.test(branch)) console.log(`CERTIFICATION BOUNDARY PASS: branch=${branch} HEAD=${head} candidate=${certificationSha}`);
+  else console.log(`CERTIFICATION BOUNDARY PASS: indexed=${indexed} HEAD=${head} changed=${changedFiles.length}`);
 }

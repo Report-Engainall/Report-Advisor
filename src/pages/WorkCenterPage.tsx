@@ -26,7 +26,7 @@ export function WorkCenterPage() {
   const [rows, setRows] = useState<ImportRecord[]>([]);
   const [filter, setFilter] = useState<FilterKey>('all');
   const [search, setSearch] = useState('');
-  const [companyId, setCompanyId] = useState<string | null>(null);
+  const [resolvedCompanyId, setResolvedCompanyId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [investigation, setInvestigation] = useState<InvestigationTarget | null>(null);
@@ -37,10 +37,10 @@ export function WorkCenterPage() {
     finally { setLoading(false); }
   }, []);
   useEffect(() => { void load(); }, [load]);
-  useEffect(() => { void resolveCurrentCompanyId().then(setCompanyId); }, []);
+  useEffect(() => { void resolveCurrentCompanyId().then(setResolvedCompanyId); }, []);
 
   const filtered = useMemo(() => { const term = search.trim().toLocaleLowerCase('ar'); return rows.filter(r => matches(r, filter) && (!term || [r.file_name, r.entity_type, r.error_message].filter(Boolean).some(value => String(value).toLocaleLowerCase('ar').includes(term)))); }, [rows, filter, search]);
-  const savedViewKey = companyId ? 'report-advisor.saved-views.' + companyId + '.work-center' : '';
+  const savedViewKey = resolvedCompanyId ? 'report-advisor.saved-views.' + resolvedCompanyId + '.work-center' : '';
   const applySavedView = (value: SavedViewValue) => {
     const nextFilter = value.filter;
     setFilter(nextFilter === 'active' || nextFilter === 'review' || nextFilter === 'completed' || nextFilter === 'failed' ? nextFilter : 'all');
