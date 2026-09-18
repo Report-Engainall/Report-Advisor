@@ -955,3 +955,31 @@ FILES / SURFACES: src/pages/ScenarioTruthGuardPage.tsx; scripts/check-scenario-f
 DEPENDENCIES: fetchProfitabilitySnapshot وCanonicalScenarioPage الحاليان؛ لا RPC/DB/Runner/Auth/Tenant/Storage/CI change.
 BLOCKERS: لا يوجد blocker تطويري معروف.
 EXPECTED HANDOFF: Owner 2 يعيد إثبات scenarios/browser/runtime/release على Exact SHA؛ لا نقل Evidence بين SHAs.
+
+EXECUTION
+CHANGE: جعل بوابة الحقيقة المالية في /intelligence/scenarios مرئية قبل المحاكاة وعند الحظر، مع الاحتفاظ بـsnapshot.as_of الحقيقي وعدم تغيير CanonicalScenarioPage أو مصدر البيانات.
+FILES: src/pages/ScenarioTruthGuardPage.tsx; scripts/check-scenario-financial-truth-guard.mjs; package.json.
+WHY: المستخدم كان يرى حالة الحظر/الجاهزية، لكن مصدر الحقيقة المالي وas-of لم يكونا ظاهرين كسياق موحد في سطح القرار.
+TEST: final Exact SHA 08ed11dfad6e48f61ebc80e727018d031384bacb: scenario financial truth guard PASS; Decision Experience PASS; Executive Command Center Product PASS; route/sidebar parity PASS (35/34); typecheck PASS; lint PASS (0 errors / 59 warnings); build PASS (2808 modules, 15.09s); perf:budget PASS (critical 488.0KB / largest JS 487.8KB).
+RESULT: verified on final feature Exact SHA; no RPC/DB/Runner/Auth/Tenant/Storage/CI mutation.
+COMMIT: 08ed11dfad6e48f61ebc80e727018d031384bacb
+NEW HEAD: 08ed11dfad6e48f61ebc80e727018d031384bacb
+STATUS: READY_FOR_HANDOFF
+
+HANDOFF
+FROM: OWNER 1
+TARGET: OWNER 2
+BRANCH: feat/owner1-scenario-truth-wave21-20260919
+SHA: 08ed11dfad6e48f61ebc80e727018d031384bacb
+CHANGED: ScenarioTruthGuard financial TruthContextStrip + contract registration.
+VERIFIED: scenario guard, decision experience, command-center product, route parity, typecheck, lint, build, performance on feature Exact SHA.
+UNPROVEN: authenticated browser behavior; backend/runtime/DB/RLS/persistence/CI/CD/release certification remain Owner 2 scope.
+BLOCKERS: none in Owner 1 code.
+NEXT: integrate/rebase/cherry-pick Exact SHA 08ed11dfad6e48f61ebc80e727018d031384bacb and reprove scenario/browser/runtime/release gates on merged Exact SHA; no cross-SHA evidence transfer.
+
+CLOSE
+HEAD: 08ed11dfad6e48f61ebc80e727018d031384bacb
+DONE: Wave 21 scenario financial truth integrity completed and handed off.
+OPEN: Owner 2 integration/runtime/release proof; Owner 1 continues independent commercial hardening.
+BLOCKED: none.
+NEXT START: inspect Document Intelligence production surface and evidence visibility.
