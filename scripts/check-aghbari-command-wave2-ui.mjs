@@ -29,7 +29,6 @@ const checks = [
   [companySettings.includes("aria-pressed={workspaceMode === 'advanced'}"), 'Advanced workspace mode must expose pressed state.'],
   [companySettings.includes("aria-pressed={workspaceMode === 'expert'}"), 'Expert workspace mode must expose pressed state.'],
   [profile.includes('<LoadingState message="جارٍ تحميل بيانات الحساب..." />'), 'Profile settings must use the shared loading state.'],
-<<<<<<< HEAD
   [savedViews.includes('const popupId = `saved-view-${generatedId.replace(/:/g, \'\')}`;'), 'Saved views must use a unique popup id.'],
   [savedViews.includes('aria-haspopup="dialog"') && savedViews.includes('role="dialog"'), 'Saved view popover must use dialog semantics.'],
   [savedViews.includes("event.key !== 'Escape'") && savedViews.includes('triggerRef.current?.focus()'), 'Escape must return focus to the trigger.'],
@@ -43,8 +42,6 @@ const checks = [
   [app.includes('id="mobile-sidebar"') && app.includes('aria-modal="true"'), 'Mobile sidebar dialog must be modal.'],
   [sidebar.includes("aria-controls={section.id+'-navigation-panel'}") && sidebar.includes("id={section.id+'-navigation-panel'}"), 'Sidebar sections must expose button-to-panel relationship.'],
   [sidebar.includes('focus-visible:ring-2 focus-visible:ring-primary-500'), 'Sidebar controls need visible keyboard focus.'],
-=======
->>>>>>> 2e714d64 (test(ui): extend command wave 2 accessibility guard)
 ];
 
 const failed = checks.filter(([ok]) => !ok);
