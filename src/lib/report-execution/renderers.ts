@@ -1,5 +1,5 @@
 import * as XLSX from 'xlsx';
-import type { ReportOutputFormat } from './report-execution-contract';
+import type { ReportOutputFormat } from './report-execution-contract.js';
 
 export interface ReportRow { [key: string]: unknown }
 export interface RenderInput { reportId: string; title: string; columns: string[]; rows: ReportRow[]; generatedAt: string; }
