@@ -1,10 +1,9 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
-  Activity, BarChart3, Bell, Brain, BriefcaseBusiness, ChevronDown, ClipboardCheck, Crosshair,
-  FileBarChart, Gauge, Layers3, LayoutDashboard, ListChecks, LogOut, Package, Presentation,
-  Scale, ScanSearch, Settings, Sparkles, Target, Upload, UserCircle, Users, Warehouse,
-  AlertCircle, PlugZap, WalletCards
+  Activity, BarChart3, Brain, ChevronDown, ClipboardCheck, Crosshair, FileBarChart, Gauge,
+  Layers3, LayoutDashboard, ListChecks, LogOut, Package, Presentation, Scale, ScanSearch,
+  Settings, Target, Upload, UserCircle, Users, Warehouse, AlertCircle, PlugZap
 } from 'lucide-react';
 import type { User } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
@@ -32,7 +31,7 @@ const navSections: NavSection[] = [
     { path: '/', label: 'لوحة اليوم', enLabel: 'Today', icon: <LayoutDashboard size={18}/>, hint: 'ما يحدث الآن', enHint: 'What matters now' },
     { path: '/command-center', label: 'مركز القيادة', enLabel: 'Command Center', icon: <Crosshair size={18}/>, hint: 'الأولويات والإجراءات', enHint: 'Priorities and actions' },
     { path: '/decision-experience', label: 'قرار اليوم', enLabel: 'Today’s Decision', icon: <Scale size={18}/>, hint: 'دليل → قرار → إجراء', enHint: 'Evidence → decision → action' },
-    { path: '/intelligence', label: 'التنبيهات المهمة', enLabel: 'Important Alerts', icon: <Bell size={18}/>, hint: 'ما يحتاج انتباهًا', enHint: 'What needs attention' },
+    { path: '/intelligence', label: 'التنبيهات المهمة', enLabel: 'Important Alerts', icon: <AlertCircle size={18}/>, hint: 'ما يحتاج انتباهًا', enHint: 'What needs attention' },
   ]},
   { id: 'operations', title: 'التشغيل', enTitle: 'Operations', items: [
     { path: '/work-center', label: 'مركز العمل', enLabel: 'Work Center', icon: <Activity size={18}/>, hint: 'الحالات والاستثناءات', enHint: 'Execution and exceptions' },
@@ -42,7 +41,7 @@ const navSections: NavSection[] = [
     { path: '/connections', label: 'المصادر والموصلات', enLabel: 'Sources & Connections', icon: <PlugZap size={18}/>, hint: 'متاجر وملفات وأنظمة', enHint: 'Stores, files, systems' },
   ]},
   { id: 'money', title: 'المال', enTitle: 'Money', items: [
-    { path: '/reports/sales', label: 'المبيعات', enLabel: 'Sales', icon: <WalletCards size={18}/>, hint: 'الحركة والإيراد', enHint: 'Revenue and movement' },
+    { path: '/reports/sales', label: 'المبيعات', enLabel: 'Sales', icon: <FileBarChart size={18}/>, hint: 'الحركة والإيراد', enHint: 'Revenue and movement' },
     { path: '/reports/purchases', label: 'المشتريات', enLabel: 'Purchases', icon: <WalletCards size={18}/>, hint: 'التكلفة والتوريد', enHint: 'Cost and supply' },
     { path: '/reports/receivables', label: 'الذمم والتحصيل', enLabel: 'Receivables', icon: <WalletCards size={18}/>, hint: 'النقد المتعثر', enHint: 'Cash at risk' },
     { path: '/reports/profitability', label: 'الربحية', enLabel: 'Profitability', icon: <Gauge size={18}/>, hint: 'أين نصنع الهامش', enHint: 'Where margin comes from' },
@@ -55,7 +54,7 @@ const navSections: NavSection[] = [
   ]},
   { id: 'intelligence', title: 'القرار والذكاء', enTitle: 'Decision & Intelligence', items: [
     { path: '/intelligence', label: 'مركز الذكاء', enLabel: 'Intelligence Center', icon: <Brain size={18}/>, hint: 'المساعد الذكي داخل السياق', enHint: 'Contextual intelligence' },
-    { path: '/intelligence/recommendations', label: 'التوصيات', enLabel: 'Recommendations', icon: <Sparkles size={18}/>, hint: 'ماذا نفعل بعد ذلك', enHint: 'What to do next' },
+    { path: '/intelligence/recommendations', label: 'التوصيات', enLabel: 'Recommendations', icon: <Brain size={18}/>, hint: 'ماذا نفعل بعد ذلك', enHint: 'What to do next' },
     { path: '/intelligence/forecasts', label: 'التنبؤات', enLabel: 'Forecasts', icon: <Target size={18}/>, hint: 'ما قد يحدث', enHint: 'What may happen' },
     { path: '/intelligence/scenarios', label: 'السيناريوهات', enLabel: 'Scenarios', icon: <Crosshair size={18}/>, hint: 'ماذا لو؟', enHint: 'What if?' },
     { path: '/analytics/rfm', label: 'RFM', enLabel: 'RFM', icon: <BarChart3 size={18}/> },
@@ -79,23 +78,6 @@ const navSections: NavSection[] = [
   ]},
 ];
 
-const quickActions = [
-  { path: '/import', label: 'استيراد', enLabel: 'Import', icon: <Upload size={14}/> },
-  { path: '/reports/executive', label: 'تقرير تنفيذي', enLabel: 'Executive', icon: <ClipboardCheck size={14}/> },
-  { path: '/reports/receivables', label: 'الذمم', enLabel: 'Receivables', icon: <WalletCards size={14}/> },
-  { path: '/inventory', label: 'المخزون', enLabel: 'Inventory', icon: <Warehouse size={14}/> },
-  { path: '/decision-experience', label: 'قرار اليوم', enLabel: 'Decision', icon: <Scale size={14}/> },
-];
-
-const sectionIcon = (id: string) => {
-  if (id === 'today') return <LayoutDashboard size={18}/>;
-  if (id === 'operations') return <BriefcaseBusiness size={18}/>;
-  if (id === 'money') return <WalletCards size={18}/>;
-  if (id === 'customers-products') return <Package size={18}/>;
-  if (id === 'intelligence') return <Brain size={18}/>;
-  if (id === 'reports') return <FileBarChart size={18}/>;
-  return <Settings size={18}/>;
-};
 
 export function Sidebar({ alertCount = 0, onNavigate, user }: { alertCount?: number; onNavigate?: () => void; user?: User | null }) {
   const { language } = useLanguage();
@@ -157,16 +139,6 @@ export function Sidebar({ alertCount = 0, onNavigate, user }: { alertCount?: num
         </div>
       </div>
 
-      <div className="px-4 pt-3">
-        <div className="grid grid-cols-5 gap-1 rounded-2xl border border-white/8 bg-white/[0.025] p-1.5">
-          {quickActions.map(action => {
-            const active = location.pathname === action.path || (action.path !== '/' && location.pathname.startsWith(action.path));
-            return <Link key={action.path} to={action.path} onClick={onNavigate} className={'flex min-h-12 flex-col items-center justify-center gap-1 rounded-xl px-1 text-center text-[9px] font-bold transition ' + (active ? 'bg-primary-500/15 text-primary-100' : 'text-slate-500 hover:bg-white/5 hover:text-white')}>
-              {action.icon}<span className="truncate">{language === 'ar' ? action.label : action.enLabel}</span>
-            </Link>;
-          })}
-        </div>
-      </div>
 
       <nav className="flex-1 overflow-y-auto px-3 py-5" aria-label={language === 'ar' ? 'التنقل التجاري الرئيسي' : 'Primary business navigation'}>
         <div className="mb-2 px-2 text-[10px] font-black tracking-[0.14em] text-slate-600">
