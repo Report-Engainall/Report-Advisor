@@ -21,7 +21,7 @@ export interface ABCSnapshotRow {product_id:string;product_name:string;revenue:n
 export interface ABCSnapshot {rows:ABCSnapshotRow[];totalRevenue:number|null;unknownRows:number|null;status:'INSUFFICIENT_DATA'|'CALCULATED';}
 export interface AgingSnapshotRow {name:string;amount:number;count:number;}
 export interface AgingSnapshot {rows:AgingSnapshotRow[];asOf:string;unknownRows:number|null;status:'NO_DATA'|'INSUFFICIENT_DATA'|'CALCULATED';}
-interface Snapshot { kpis:DashboardKPIs; trend:MonthlyTrend[]; topCustomers:TopEntity[]; topProducts:TopEntity[]; categories:CategoryBreakdown[]; aging:AgingDashboard; }
+interface Snapshot { kpis:DashboardKPIs; trend:MonthlyTrend[]; topCustomers:TopEntity[]; topProducts:TopEntity[]; categories:CategoryBreakdown[]; aging:AgingDashboard; asOf:string; months:number; }
 function finiteOrNull(value: unknown): number|null { return typeof value === 'number' && Number.isFinite(value) ? value : null; }
 function requiredArray<T>(value: unknown): T[] { return Array.isArray(value) ? value as T[] : []; }
 function asOfDate(): string { return new Date().toISOString().slice(0, 10); }
@@ -70,6 +70,8 @@ export async function fetchDashboardSnapshot(months = 6): Promise<Snapshot> {
     topCustomers: requiredArray<TopEntity>(row.topCustomers).slice(0,10),
     topProducts: requiredArray<TopEntity>(row.topProducts).slice(0,10),
     categories: requiredArray<CategoryBreakdown>(row.categories),
+    asOf: typeof row.asOf === 'string' ? row.asOf : asOfDate(),
+    months: typeof row.months === 'number' && Number.isInteger(row.months) ? row.months : months,
     aging:{
       rows:requiredArray<AgingBucket>(agingRow.rows),
       totalAmount:finiteOrNull(agingRow.totalAmount),

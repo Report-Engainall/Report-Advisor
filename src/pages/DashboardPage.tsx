@@ -4,6 +4,7 @@ import {
   FileSearch, Package, Receipt, RefreshCw, Sparkles, TrendingUp, Upload, Users, Wallet
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { TruthContextStrip } from '@/components/TruthContextStrip';
 import { KPICard } from '@/components/ui/KPICard';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { Badge, PriorityBadge, SeverityBadge } from '@/components/ui/Badge';
@@ -15,10 +16,11 @@ import type { Recommendation, Alert } from '@/lib/types';
 import type { DashboardKPIs, MonthlyTrend, TopEntity, CategoryBreakdown, AgingDashboard } from '@/lib/dashboard-canonical';
 
 const TREND_RANGES = [{ value: 3, label: '3 أشهر' }, { value: 6, label: '6 أشهر' }, { value: 12, label: '12 شهرًا' }] as const;
-const metricStatus = (value: number | null): 'CONFIRMED' | 'INSUFFICIENT_DATA' => value === null ? 'INSUFFICIENT_DATA' : 'CONFIRMED';
+const metricStatus = (value: number | null, snapshotStatus: DashboardKPIs['status']): 'CONFIRMED' | 'CALCULATED' | 'INSUFFICIENT_DATA' => value === null ? 'INSUFFICIENT_DATA' : snapshotStatus === 'CONFIRMED' ? 'CONFIRMED' : 'CALCULATED';
 
 export function DashboardPage() {
   const [kpis, setKpis] = useState<DashboardKPIs | null>(null);
+  const [snapshotAsOf, setSnapshotAsOf] = useState<string | null>(null);
   const [trend, setTrend] = useState<MonthlyTrend[]>([]);
   const [topCustomers, setTopCustomers] = useState<TopEntity[]>([]);
   const [topProducts, setTopProducts] = useState<TopEntity[]>([]);
@@ -35,9 +37,10 @@ export function DashboardPage() {
     try {
       if (silent) setRefreshing(true); else setLoading(true);
       setError(null);
-      const [{ kpis: nextKpis, trend: nextTrend, topCustomers: customers, topProducts: products, categories: nextCategories, aging: nextAging }, intelligence] =
+      const [{ kpis: nextKpis, trend: nextTrend, topCustomers: customers, topProducts: products, categories: nextCategories, aging: nextAging, asOf: nextAsOf }, intelligence] =
         await Promise.all([fetchDashboardSnapshot(trendMonths), fetchDashboardIntelligence()]);
       setKpis(nextKpis);
+      setSnapshotAsOf(nextAsOf);
       setTrend(nextTrend);
       setTopCustomers(customers.slice(0, 5));
       setTopProducts(products.slice(0, 5));
@@ -66,44 +69,38 @@ export function DashboardPage() {
 
   return (
     <div dir="rtl" className="animate-fade-in space-y-6 pb-10">
-      <section className="relative overflow-hidden rounded-[2rem] bg-ink-950 p-6 text-white shadow-elevated lg:p-8">
-        <div className="soft-grid absolute inset-0 opacity-30" aria-hidden="true" />
-        <div className="absolute -left-16 -top-20 h-64 w-64 rounded-full bg-primary-600/20 blur-3xl" aria-hidden="true" />
-        <div className="absolute -bottom-20 right-1/3 h-72 w-72 rounded-full bg-accent-500/10 blur-3xl" aria-hidden="true" />
-        <div className="relative grid gap-8 lg:grid-cols-[1.45fr_.8fr]">
-          <div>
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="inline-flex items-center gap-2 rounded-full border border-primary-300/20 bg-primary-500/10 px-3 py-1.5 text-xs font-bold text-primary-100"><Sparkles size={14}/> الصورة التنفيذية</span>
-              <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-semibold text-slate-300"><Database size={13}/> {kpis.status === 'INSUFFICIENT_DATA' ? 'بعض المؤشرات غير مكتملة' : 'المؤشرات محسوبة من المصدر'}</span>
-            </div>
-            <h1 className="mt-5 max-w-3xl text-3xl font-black tracking-tight lg:text-[2.6rem]">من البيانات إلى القرار التجاري — في شاشة واحدة.</h1>
-            <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-300 lg:text-base">الأغبري لا يعرض أرقامًا للزينة. يعرض ما يمكن إثباته، يوضح ما يحتاج مراجعة، ثم يربط المؤشر بالإجراء والقرار والتقرير.</p>
-            <div className="mt-6 flex flex-wrap gap-2.5">
-              <Link to="/command-center" className="btn bg-white text-ink-950 hover:bg-slate-100"><Brain size={16}/> فتح مركز القيادة</Link>
-              <Link to="/import" className="btn border border-white/10 bg-white/5 text-white hover:bg-white/10"><Upload size={16}/> إدخال مصدر جديد</Link>
-              <Link to="/reports/executive" className="btn border border-white/10 bg-transparent text-slate-200 hover:bg-white/5"><FileSearch size={16}/> التقرير التنفيذي</Link>
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-3 self-end">
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur"><div className="text-[11px] text-slate-400">تغطية المؤشرات</div><div className="mt-1 text-2xl font-black">{coverage}%</div><div className="mt-1 text-[10px] text-slate-500">من 8 مؤشرات أساسية</div></div>
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur"><div className="text-[11px] text-slate-400">تنبيهات</div><div className="mt-1 text-2xl font-black">{alerts.length}</div><div className="mt-1 text-[10px] text-slate-500">مركز الانتباه</div></div>
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur"><div className="text-[11px] text-slate-400">توصيات</div><div className="mt-1 text-2xl font-black">{liveRecommendations.length}</div><div className="mt-1 text-[10px] text-slate-500">قابلة للمراجعة</div></div>
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur"><div className="text-[11px] text-slate-400">الحالة</div><div className="mt-1 flex items-center gap-2 text-sm font-bold">{kpis.status === 'INSUFFICIENT_DATA' ? <CircleAlert size={16} className="text-warning-400"/> : <CheckCircle2 size={16} className="text-success-400"/>}{kpis.status === 'INSUFFICIENT_DATA' ? 'مراجعة مطلوبة' : 'صورة صالحة'}</div><div className="mt-1 text-[10px] text-slate-500">لا توجد قيم مفترضة</div></div>
+      <section className="command-strip -mx-3 -mt-3 mb-1 sm:-mx-4 lg:-mx-5 2xl:-mx-6">
+        <div className="px-4 py-4 lg:px-5 2xl:px-6">
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+            <div className="min-w-0"><div className="section-kicker">مؤشرات أساسية · اليوم</div><h1 className="mt-1 text-[22px] font-black tracking-tight text-ink-950">صورة العمل الآن</h1><p className="mt-1 max-w-2xl text-[11px] leading-5 text-ink-500">من البيانات إلى القرار التجاري — في شاشة واحدة. المبيعات، النقد، المخزون والتنبيهات في مسار واحد، مع إبقاء حدود الدليل واضحة.</p></div>
+            <div className="flex flex-wrap gap-1.5"><Link to="/import" className="btn-primary text-xs"><Upload size={14}/> استيراد</Link><Link to="/command-center" className="btn-secondary text-xs"><Brain size={14}/> مركز القيادة</Link><Link to="/reports/executive" className="btn-ghost text-xs"><FileSearch size={14}/> التقرير التنفيذي</Link><Link to="/decision-experience" className="btn-ghost text-xs">قرار اليوم</Link></div>
           </div>
         </div>
       </section>
+      <TruthContextStrip months={trendMonths} status={kpis.status} asOf={snapshotAsOf ?? 'غير متاح'} />
 
-      <section className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:gap-4">
-        <KPICard label="إجمالي المبيعات" value={kpis.totalSales} format="currency" icon={<TrendingUp size={16}/>} status={metricStatus(kpis.totalSales)}/>
-        <KPICard label="إجمالي الربح" value={kpis.grossProfit} format="currency" icon={<BarChart3 size={16}/>} status={metricStatus(kpis.grossProfit)} hint={kpis.grossMargin === null ? undefined : 'الهامش ' + kpis.grossMargin.toFixed(1) + '%'}/>
-        <KPICard label="الذمم المدينة" value={kpis.totalReceivables} format="currency" icon={<Receipt size={16}/>} status={metricStatus(kpis.totalReceivables)}/>
-        <KPICard label="قيمة المخزون" value={kpis.inventoryValue} format="currency" icon={<Package size={16}/>} status={metricStatus(kpis.inventoryValue)}/>
-        <KPICard label="العملاء" value={kpis.totalCustomers} format="number" icon={<Users size={16}/>} status={metricStatus(kpis.totalCustomers)}/>
-        <KPICard label="المنتجات" value={kpis.totalProducts} format="number" icon={<Package size={16}/>} status={metricStatus(kpis.totalProducts)}/>
-        <KPICard label="الفواتير" value={kpis.invoiceCount} format="number" icon={<Receipt size={16}/>} status={metricStatus(kpis.invoiceCount)}/>
-        <KPICard label="معدل التحصيل" value={kpis.collectionRate} format="percent" icon={<Wallet size={16}/>} status={metricStatus(kpis.collectionRate)}/>
+      <section className="grid gap-3 lg:grid-cols-[1.1fr_.9fr]">
+        <section className="card">
+          <div className="border-b border-ink-100 px-4 py-3"><div className="text-[12px] font-bold text-ink-900">ملخص القرار في دقيقة · قرار اليوم</div><div className="mt-0.5 text-[10px] text-ink-400">أهم إشارة متاحة ثم الخطوة التالية.</div></div>
+          <div className="grid gap-px bg-ink-100 sm:grid-cols-2">
+            <div className="bg-white p-4"><div className="text-[10px] font-semibold text-ink-400">أهم إشارة</div><div className="mt-1.5 text-[13px] font-bold text-ink-900">{liveAlerts[0]?.title??'لا توجد تنبيهات نشطة الآن'}</div><div className="mt-1 text-[11px] leading-5 text-ink-500">{liveAlerts[0]?.description??'لا توجد إشارة تحتاج تدخلاً في هذه اللحظة.'}</div></div>
+            <div className="bg-white p-4"><div className="text-[10px] font-semibold text-ink-400">الخطوة التالية</div><div className="mt-1.5 text-[13px] font-bold text-ink-900">{liveRecommendations[0]?.title??'راجع صحة البيانات أو افتح التقرير التنفيذي'}</div><div className="mt-2 flex flex-wrap gap-1.5"><Link to={liveRecommendations[0]?'/decision-experience':'/reports/executive'} className="btn-primary text-[11px]">فتح المسار <ArrowUpLeft size={13}/></Link><span className="inline-flex items-center rounded-[8px] bg-ink-50 px-2 py-1 text-[10px] font-bold text-ink-500">{coverage}%</span></div></div>
+          </div>
+        </section>
+        <section className="card">
+          <div className="border-b border-ink-100 px-4 py-3"><div className="text-[12px] font-bold text-ink-900">حالة الدليل</div><div className="mt-0.5 text-[10px] text-ink-400">تغطية المؤشرات وموعد اللقطة.</div></div>
+          <div className="p-4"><div className="flex items-center gap-2 text-[13px] font-bold text-ink-900">{kpis.status==='INSUFFICIENT_DATA'?<CircleAlert size={15} className="text-warning-600"/>:<CheckCircle2 size={15} className="text-success-600"/>}{kpis.status==='INSUFFICIENT_DATA'?'مراجعة مطلوبة':'الصورة صالحة للاستخدام'}</div><div className="mt-3 h-1.5 overflow-hidden rounded-full bg-ink-100"><div className="h-full rounded-full bg-primary-600" style={{width:coverage+'%'}}/></div><div className="mt-2 flex items-center justify-between text-[10px] text-ink-400"><span>تغطية المؤشرات</span><span>{snapshotAsOf??'as-of غير متاح'}</span></div></div>
+        </section>
       </section>
-
+      <section className="grid gap-3 lg:grid-cols-4">
+        <KPICard label="إجمالي المبيعات" value={kpis.totalSales} format="currency" icon={<TrendingUp size={16}/>} status={metricStatus(kpis.totalSales,kpis.status)}/>
+        <KPICard label="إجمالي الربح" value={kpis.grossProfit} format="currency" icon={<BarChart3 size={16}/>} status={metricStatus(kpis.grossProfit,kpis.status)} hint={kpis.grossMargin===null?undefined:'الهامش '+kpis.grossMargin.toFixed(1)+'%'}/>
+        <KPICard label="الذمم المدينة" value={kpis.totalReceivables} format="currency" icon={<Receipt size={16}/>} status={metricStatus(kpis.totalReceivables,kpis.status)}/>
+        <KPICard label="قيمة المخزون" value={kpis.inventoryValue} format="currency" icon={<Package size={16}/>} status={metricStatus(kpis.inventoryValue,kpis.status)}/>
+      </section>
+      <section className="grid grid-cols-2 gap-px overflow-hidden rounded-[10px] border border-ink-200 bg-ink-200 sm:grid-cols-4">
+        {[['العملاء',kpis.totalCustomers],['المنتجات',kpis.totalProducts],['الفواتير',kpis.invoiceCount],['معدل التحصيل',kpis.collectionRate]].map(([label,value])=><div key={label} className="bg-white px-3.5 py-3"><div className="text-[10px] font-semibold text-ink-400">{label}</div><div className="mt-1 text-[15px] font-black tabular-nums text-ink-900">{value===null?'غير متاح':String(value)+(label==='معدل التحصيل'?'%':'')}</div></div>)}
+      </section>
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div><h2 className="text-lg font-black text-ink-950">لوحة الإثبات والتحليل</h2><p className="mt-1 text-xs text-ink-500">اتجاهات فعلية مع التحكم في الفترة الزمنية.</p></div>
         <div className="flex flex-wrap gap-2">

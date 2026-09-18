@@ -1,6 +1,34 @@
+### LIVE EXECUTION UPDATE — 2026-09-18T12:35Z
+- **PR #595 Exact HEAD:** `46fd602a6038a6b2b7b4b45bf79e97e1de881adc`.
+- **Fresh PC01 exact-head verification:** typecheck PASS; production build PASS; performance budget **887.7KB / 900KB** and largest JS 487.8KB; UI route/sidebar parity PASS (35/34); executive dashboard UI PASS.
+- **Fresh exact-head release contracts:** 20/20 release readiness PASS; P0 13/13 PASS; P1 8/8 PASS; production-certification evidence integrity PASS; production-certification contract PASS; operational-resilience contract PASS; release-resilience manifest PASS.
+- **CI state:** current authenticated browser/storage/worker/recovery/regression workflows are still QUEUED; no runtime PASS is transferred from another SHA.
+- **Runtime truth:** local device has no E2E/Phase-F secret values. Direct staging attempt correctly fails closed without authenticated context; no credential/evidence bypass was used.
+- **Still open:** authenticated business/persistence + tenant A/B runtime, storage signed-URL runtime, real worker lease/expiry/recovery/retry/DLQ runtime, measured backup/restore RPO/RTO, Phase-F live resilience, deployed-SHA parity, final certification.
+- This update supersedes older exact-head pointers in this document; historical evidence remains bound to its original SHA.
+
+### LIVE EXECUTION UPDATE — 2026-09-18T12:20Z
+- **PR #595 Exact HEAD:** `cb49e15e0f892c81d233a50b773d709a5d7687cb`.
+- **PC01 exact-head local verification on cb49e15e:** typecheck PASS; production build PASS; performance budget PASS at **885.3KB / 900KB**, largest JS 487.8KB; UI route/sidebar parity PASS (35 routes / 34 sidebar links); executive dashboard UI contract PASS.
+- **Broader exact-head local contracts already re-proven on the current product wave before the latest navigation trim:** 20/20 release readiness PASS; P0 family 13/13 PASS; P1 family 8/8 PASS; production-readiness PASS; production-release-blocker contract PASS; operational-resilience contract PASS; release-resilience manifest PASS; production-certification evidence-integrity PASS; production-certification contract PASS; report-execution foundation PASS; report-execution E2E/adversarial guard contract PASS.
+- **UI regression fixed during this execution:** commercial Seven-Hub navigation exceeded the 900KB performance budget (904.5KB). Nonessential navigation bundle weight was trimmed, duplicate hub path `/intelligence` was removed, and the same current Exact HEAD re-proved at 885.3KB.
+- **Still fail-closed / not claimed closed:** authenticated browser/business persistence E2E; tenant A/B runtime denial; storage runtime signed-URL evidence; real worker lease/expiry/recovery/DLQ lifecycle; measured backup/restore RPO/RTO; Phase-F live resilience; exact deployed production parity; final certification.
+- **External secret state on PC01:** E2E/Phase-F runtime variables are not present locally; no credentials were fabricated. These gates remain BLOCKED_EXTERNAL/UNPROVEN until the governed runtime inputs are available.
+- This update supersedes older stale “NO EXECUTION STARTED” wording for PR #595.
+
+### LATEST EXECUTION OVERRIDE — 2026-09-18T10:15Z
+- PR #595 UI/Product exact head: 6eb585546d0e90c88fd14dbacdcb9b7771a48215.
+- Final UI closure includes localization of the aging unknown-state user text; no new RPC/runner/data path introduced.
+- Exact-head PC01 evidence on 6eb58554…: typecheck PASS; executive dashboard UI contract PASS; dashboard numeric truth PASS; route/sidebar parity PASS; production build PASS; performance budget PASS; PostCSS toolchain PASS.
+- External release blockers remain outside the UI lane: GitHub Actions queue/pending state, Vercel provider deployment quota, runtime/persistence/12-scenario E2E, Phase F live resilience, backup/restore + measured RPO/RTO, and release parity.
+- This override supersedes older READY STATE wording below where it says no execution has started.
+
 ## CURRENT EXECUTION BOUNDARY — 2026-09-18
 
 > تحديث تنفيذي بعد أمر المالك «انطلق». هذا القسم يصف الحالة المثبتة من الأدوات فقط. لا يتم نقل Evidence بين SHAs، ولا تُعد الحالة PASS إلا بدليل Exact-HEAD.
+- **CURRENT CODE/TEST CANDIDATE:** `ee513fbacd9f46d89331d81bb4f49580b9d1635b` on `commercial/comprehensive-product-development-20260918-rebased`.
+- **Fresh current-head changes:** dashboard numeric-truth guard is formatting-tolerant without weakening its semantic checks; authenticated browser E2E now records an independent Node-side auth transport result without exposing credentials or tokens.
+- **Runtime state:** browser/business/storage/PWA E2E, worker live lifecycle, backup/RPO/RTO and Phase-F live resilience remain unproven or externally blocked; no certification is claimed.
 
 ### CURRENT EXACT HEAD / DEPLOYED STATE
 - **Current code/test candidate:** `fe5661060462ffa21d6aa31505f80c2021c4170a`.
@@ -22,6 +50,28 @@
 9. **PDF/OCR:** لا يوجد نقل للنتيجة التاريخية `10/12`; يجب إعادة إثبات السيناريوهات على Exact HEAD. Repository path يحتوي بالفعل على structured PDF/OCR hardening، لكن ذلك لا يساوي runtime certification.
 10. **Production parity:** Netlify public access is verified, but Production is still serving the older `ad12e9e...` deploy. Vercel remains externally blocked by `api-deployments-free-per-day` build-rate-limit and is not release proof.
 
+
+### CURRENT PRODUCT WAVE UPDATE — PR #595
+- UI/product wave rebased directly onto current main fe5661060462ffa21d6aa31505f80c2021c4170a and opened as PR #595.
+- Superseded PR #587 is closed; no historical CI/evidence from #587 is treated as certification for #595.
+- Latest product/UI execution source head before this governance sync: `3230faa7d0dcd8258fcf8b1eb9d4265bb4f0eb81`. This checkpoint includes UI contract-alignment test fixes only after the completed product surface work.
+- UI work included shell/header/sidebar/command palette, dashboard truth context, Intelligence assistant, decision stage UX/deep-link synchronization, Data Quality, Executive Command Center/Report, Metric Inspector, Alternatives and Work Center refinements.
+- Shared E2E login harness fixed to target the semantic form submit control instead of the obsolete localized login-label text.
+- Dashboard truth adversarial regression contract made whitespace-tolerant without weakening the intended semantic guard.
+- PR #595 is based directly on current main; fresh exact-head CI is authoritative.
+
+### LATEST UI SURFACE UPDATE — PR #595
+- Canonical Import visible durable-job label localized; import workflow remains on the existing authoritative lifecycle and RPC path.
+- Full navigation parity verified: Router 33 non-wildcard routes ↔ Command Palette 33 paths ↔ Sidebar 33 links; Header labels cover all non-root routes.
+- PWA verification: current preview exposes service worker v2 with app-shell/offline navigation fallback; source manifest is Arabic RTL, standalone, and scoped to root.
+- Route/sidebar parity verified after the latest nav fix: 34 application routes, 33 sidebar links (wildcard excluded), no missing or duplicate paths.
+- Added canonical report links for sales, purchases, and inventory to the sidebar; hardened the parity parser for whitespace-tolerant path syntax.
+- Localized remaining visible technical English across Intelligence, Decision Experience, Executive Report, Data Quality, File Analysis, Onboarding, Metric Inspector, Proposal Demo, shell and contextual assistant surfaces.
+- Added semantic selection/pressed states to additional mode/tab controls.
+- Completed an additional UI polish pass: localized operating-model/context labels, translated decision lifecycle states, replaced raw freshness JSON with a user-readable freshness policy, localized metric snapshot wording, normalized the Proposal Demo setter, localized the Proposal capability/snapshot surface, and localized the aging-analysis unknown-state label (UNDATED → Arabic user-facing wording).
+- Repaired dashboard UI contract drift: the guard now follows the current executive headline, work-path surface, live alert/recommendation arrays, and current coverage wording instead of obsolete identifiers/copy.
+- Current Netlify public preview renders the Arabic Aghbari shell successfully; Vercel preview is provider-authenticated. Certification remains independent of preview rendering.
+- Exact-head GitHub Actions on the current product source head remain queued/pending; no PASS is transferred or claimed. Local PC01 verification on 6eb58554… passed typecheck, production build, executive-dashboard UI contract, dashboard numeric-truth contract, route/sidebar parity, PostCSS toolchain and performance budget.
 ### LATEST EXECUTION UPDATE — 2026-09-18
 - Staging forward-only parity checkpoint applied successfully: `harden_import_field_lineage_rls`, `revoke_authenticated_worker_enqueue`, `reconcile_live_source_end_state`.
 - Verified import row integrity: null company=0, orphan job=0, cross-tenant row/job mismatch=0.

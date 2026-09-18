@@ -34,7 +34,7 @@ if (missingGroups.length) {
   throw new Error(`Quality workflow is missing mandatory stages: ${missingGroups.map((group) => group.join(' OR ')).join(', ')}`);
 }
 
-const concurrencyMatch = workflow.match(/concurrency:\s*\n\s*group:\s*(.+)\n\s*cancel-in-progress:\s*(true|false)/m);
+const concurrencyMatch = workflow.match(/concurrency:\s*\r?\n\s*group:\s*(.+)\r?\n\s*cancel-in-progress:\s*(true|false)/m);
 if (!concurrencyMatch) throw new Error('Quality workflow must define an explicit concurrency policy.');
 const concurrencyGroup = concurrencyMatch[1].trim();
 const cancelInProgress = concurrencyMatch[2] === 'true';
