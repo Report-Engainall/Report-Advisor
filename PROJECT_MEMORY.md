@@ -796,3 +796,24 @@ PC01 device cleanup remains IN_PROGRESS / BLOCKED_EXTERNAL_CHANNEL after the rem
 - No process is marked as successfully terminated without evidence.
 - Device front status: **IN_PROGRESS / BLOCKED_EXTERNAL_CHANNEL**.
 - Required future proof remains before closure: reconnect, inspect processes, remove only confirmed automation duplicates/stale sessions, then capture before/after CPU/memory evidence.
+
+
+## 27. Final Certification TOCTOU Parser Closure — 2026-09-18
+
+### Exact repair lineage
+- PR #542 application repair head: `17898a913237bd50168e0f64231a475f7608f0b1`.
+- PR #542 governance/index rebind head: `dad5dda868bc8943fbcae2ec70c708a684c242d3`.
+- Prior certification failure was traced to `scripts/check-decision-approval-toctou-contract.mjs` using case-sensitive token searches against canonical SQL that uses uppercase SQL keywords.
+- Repair normalized the canonical function body for semantic position checks and hardened the adversarial gate mutation similarly.
+- `MASTER_EXECUTION_INDEX.md` is intentionally bound to the application/code head, while the immediately following governance commit contains only the rebind.
+
+### Fresh evidence boundary
+- The prior exact-head Final Certification run failed specifically at `check-decision-approval-toctou-contract.mjs`; all earlier 20-stage release-readiness checks in that same run passed.
+- A fresh CI wave was triggered by the repaired exact-head lineage and remains the authority for acceptance.
+- Local regression matrix evidence remains 12/12 PASS on code head `50551116...`; it is not promoted to production certification.
+- Vercel deployment status remains externally rate-limited on the affected release fronts; Cloudflare Pages has independently reported successful branch preview deployments on earlier exact security heads.
+
+### Migration provenance boundary
+- Staging contains later migration ledger entries including the worker/security reconciliation tail not present on `main`.
+- PR #542 includes forward-only source reconciliation migrations for the verified live worker search_path state.
+- The historically missing ledger record `20260918024152` remains an explicit provenance gap; no synthetic source file or historical migration rewrite is permitted.
