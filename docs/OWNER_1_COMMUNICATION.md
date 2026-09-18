@@ -942,3 +942,16 @@ DONE: Wave 20 executive command-center truth integrity completed and handed off.
 OPEN: Owner 2 integration/runtime/release proof; Owner 1 independent product hardening remains.
 BLOCKED: none.
 NEXT START: continue only on the next independent product truth gap; no main mutation.
+
+## START — COMMAND 19 — 2026-09-19
+START
+DATE: 2026-09-19T02:32+03:00
+OWNER: 1
+BRANCH: feat/owner1-scenario-truth-wave21-20260919
+HEAD: e71a73101cffb719b84a5d0588eb6606353240ed
+BASE: e71a73101cffb719b84a5d0588eb6606353240ed
+OBJECTIVE: جعل الحقيقة المالية المرئية في بوابة السيناريوهات قبل المحاكاة وأثناء الحظر، باستخدام status/as_of من fetchProfitabilitySnapshot دون تغيير simulator أو RPC/DB.
+FILES / SURFACES: src/pages/ScenarioTruthGuardPage.tsx; scripts/check-scenario-financial-truth-guard.mjs; package.json; docs/OWNER_1_COMMUNICATION.md
+DEPENDENCIES: fetchProfitabilitySnapshot وCanonicalScenarioPage الحاليان؛ لا RPC/DB/Runner/Auth/Tenant/Storage/CI change.
+BLOCKERS: لا يوجد blocker تطويري معروف.
+EXPECTED HANDOFF: Owner 2 يعيد إثبات scenarios/browser/runtime/release على Exact SHA؛ لا نقل Evidence بين SHAs.
