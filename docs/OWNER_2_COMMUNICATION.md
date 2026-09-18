@@ -172,3 +172,12 @@ COMMIT=ef8fcb449c217bff6958d551815d5c7869b340eb
 NEW HEAD=ef8fcb449c217bff6958d551815d5c7869b340eb
 STATUS=IN_PROGRESS
 NEXT=Fresh exact-head browser/business persistence proof; then PDF/OCR positive live commit/readback; Phase-F/deployment parity; backup/restore RPO/RTO; final certification/release.
+
+## EXECUTION | OWNER=2 | 2026-09-19T01:40+03:00
+CHANGE=Closed exact-head Business Persistence failure root cause: CanonicalImportPage previously sent only valid/invalid counters to import_finish_job, while the DB gate requires committed/invalidRows to derive processed_rows safely.
+FILES=src/pages/CanonicalImportPage.tsx; scripts/check-import-transaction-contract.mjs; docs/OWNER_2_COMMUNICATION.md
+WHY=Fresh exact-head 9fda8a68/ef8fcb44 runtime evidence failed at IMPORT_COMPLETION_REQUIRES_ALL_ROWS_PROCESSED with processed_rows=0,total_rows=1 despite canonical execution reaching the finish call. DB fail-closed rule is correct; caller summary contract was incomplete.
+TEST=import transaction contract PASS; TypeScript typecheck PASS; production build PASS.
+RESULT=Code root cause fixed without weakening import_finish_job or adding a new runtime path.
+STATUS=VERIFIED_LOCALLY
+NEXT=Push successor, obtain fresh exact-head business persistence evidence, then continue PDF/OCR and release resilience gates.

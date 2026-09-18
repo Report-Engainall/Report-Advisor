@@ -152,6 +152,8 @@ export function CanonicalImportPage() {
         total: rows.length,
         valid: validRows.length,
         invalid: rows.length - validRows.length,
+        committed: validRows.length,
+        invalidRows: rows.length - validRows.length,
         importId: rec.id,
         jobId: execution.jobId,
       });

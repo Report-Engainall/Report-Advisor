@@ -139,6 +139,9 @@ if (fs.existsSync(pagePath)) {
   if (!/supabase\.rpc\('import_finish_job'/.test(page)) {
     throw new Error('Canonical import UI must close terminal state only through import_finish_job');
   }
+  if (!/committed:\s*validRows\.length/.test(page) || !/invalidRows:\s*rows\.length\s*-\s*validRows\.length/.test(page)) {
+    throw new Error('Canonical import UI must provide committed and invalidRows counters to import_finish_job so completion is based on real processed-row accounting');
+  }
   if (/updateImportRecord\([^\n]*(status:\s*['"](?:completed|failed|partial|cancelled)['"])/.test(page)) {
     throw new Error('Canonical import UI must not directly write terminal import status');
   }
