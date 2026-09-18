@@ -65,11 +65,26 @@ const navSections: NavSection[] = [
 export function Sidebar({ alertCount = 0, onNavigate, user }: { alertCount?: number; onNavigate?: () => void; user?: User | null }) {
   const { language } = useLanguage();
   const location = useLocation();
+  const [workspaceMode, setWorkspaceMode] = useState<WorkspaceMode>(readWorkspaceMode);
+  const visibleSections = useMemo(() => navSections.map(section => ({
+    ...section,
+    items: section.items.filter(item => isWorkspacePathVisible(item.path, workspaceMode)),
+  })).filter(section => section.items.length > 0), [workspaceMode]);
   const activeSection = useMemo(
     () => navSections.find(section => section.items.some(item => location.pathname === item.path || (item.path !== '/' && location.pathname.startsWith(item.path))))?.title ?? 'مركز القرار',
     [location.pathname],
   );
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
+
+  useEffect(() => {
+    const sync = () => setWorkspaceMode(readWorkspaceMode());
+    window.addEventListener('storage', sync);
+    window.addEventListener('report-advisor:workspace-mode', sync);
+    return () => {
+      window.removeEventListener('storage', sync);
+      window.removeEventListener('report-advisor:workspace-mode', sync);
+    };
+  }, []);
 
   useEffect(() => {
     setCollapsed(prev => ({ ...prev, [activeSection]: false }));
@@ -97,11 +112,12 @@ export function Sidebar({ alertCount = 0, onNavigate, user }: { alertCount?: num
         <div className="rounded-2xl border border-primary-400/15 bg-primary-500/10 px-4 py-3">
           <div className="text-[10px] font-black tracking-[0.18em] text-primary-200">نموذج التشغيل</div>
           <div className="mt-1 text-xs leading-5 text-slate-300">بيانات → دليل → قرار → إجراء → تعلّم</div>
+          <div className="mt-2 text-[10px] font-semibold text-primary-100/80">مساحة: {workspaceMode === 'essential' ? 'أساسية' : workspaceMode === 'advanced' ? 'متقدمة' : 'خبيرة'}</div>
         </div>
       </div>
 
       <nav className="flex-1 space-y-3 px-3 py-4" aria-label={language === "ar" ? "التنقل الرئيسي" : "Main navigation"}>
-        {navSections.map(section => {
+        {visibleSections.map(section => {
           const isOpen = !collapsed[section.title];
           const isActive = activeSection === section.title;
           return (
