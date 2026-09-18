@@ -5,25 +5,25 @@
 > Authoritative execution manifest. This document never promotes historical evidence across an exact Git `HEAD` boundary. Pair every evidence batch with the exact Git `HEAD` of `main` and the exact environment/commit used.
 
 ### CURRENT EXACT HEAD
-- Current code/test candidate: `11f21f57a424a5d4f29dc466851d2ff45881e9aa`.
-- This is the exact remediation candidate created directly from current `main` `54b6b95bae9fd3737c70c126bf727cac21aec143`, preserving current-main governance files and reapplying the PDF/OCR + import runtime remediation.
+- Current code/test candidate: `b4aac3b502c42aa0d275fbc8b22d209db394703e`.
+- This is the linear remediation candidate created directly from current `main` `c466666cef65d082383aca4fd3384261e9f64690`, preserving the latest Main PDF runtime additions and reapplying the canonical import/worker lifecycle remediation.
 - The autonomous operating protocol is now repository-resident at `docs/PROGRAMMER_AUTONOMOUS_OPERATING_PROTOCOL.md`.
 - PC01 native desktop verification is recorded at `docs/evidence/DEVICE_PC01_VERIFICATION_20260918.md`; its native smoke is PASS and its evidence is bound to the documented local source SHA/environment.
 - No runtime/browser/production evidence from an earlier SHA is promoted by this binding.
 - The certification binding itself is governance-only and does not certify runtime/product code; fresh exact-HEAD runtime evidence is still required.
 - Historical evidence from earlier SHAs remains historical and is not promoted automatically.
 - Current-head workflow execution is not yet evidenced on this SHA by the repository Actions run feed; absence of runs is not PASS and does not transfer historical evidence.
-- Current `main` is `54b6b95bae9fd3737c70c126bf727cac21aec143`.
-- Latest branch wrapper HEAD is `e695afc210212232ce8bc600c1aebabcf6eda41b`; it is documentation-only over code candidate `11f21f57...`.
-- PR #552 is the active remediation path; stale PR #542 is closed and its evidence is not promoted.
+- Current `main` is `c466666cef65d082383aca4fd3384261e9f64690`.
+- Active remediation branch is `fix/pdf-structured-runtime-rebased-20260918`; PR #553 is the authoritative continuation. Previous PR #552 and candidate `11f21f...` are superseded and their exact-head runtime evidence is not transferred.
+- PR #553 is the active remediation path; stale PRs #552 and #542 are closed/superseded and their evidence is not promoted.
 - The first exact-head Vercel build at `d62e8894dfbeb06f2c9924ed82ff54e8bd8605f7` failed deterministically because `finishCanonicalImportFailure` was imported but not exported by `src/lib/import/canonical-production-adapter.ts`.
-- This was corrected minimally on candidate `11f21f57a424a5d4f29dc466851d2ff45881e9aa`; the next exact-head build is required before treating build/runtime as green.
+- This was corrected minimally before the rebased candidate; the fix is included in `b4aac3b502c42aa0d275fbc8b22d209db394703e`. Fresh exact-head build/runtime evidence is required.
 - Staging worker service-authority migration `20260918043413_reconcile_report_execution_worker_service_authority` is applied and preserved by this candidate.
-- Vercel deployment proof remains pending for candidate `11f21f57a424a5d4f29dc466851d2ff45881e9aa`; no deployment/runtime PASS is claimed until the new build completes.
+- Vercel deployment proof remains pending for candidate `b4aac3b502c42aa0d275fbc8b22d209db394703e`; no deployment/runtime PASS is claimed until the new build completes.
 
 ### CURRENT EXECUTION CONTROL — 2026-09-18
 - PR #533 adds the mandatory continuous two-owner execution/resume protocol. It is governance-only and does not itself certify runtime.
-- Programmer-owned active runtime front: PR #552 (`f860490641d3a9650ca75d56d3f3207e6c3ee0db`) for structured PDF/OCR, canonical import terminal authority, and worker service-authority reconciliation on current Main.
+- Programmer-owned active runtime front: PR #553 (`b4aac3b502c42aa0d275fbc8b22d209db394703e`) for structured PDF/OCR, canonical import terminal authority, and worker service-authority reconciliation on current Main.
 - Coordinator-owned verification fronts: fresh exact-head CI/runtime evidence, Supabase staging truth/security, production/deployment verification, resilience/evidence control, and commercial-gap control.
 - Rule: do not restart closed work. Resume IN_PROGRESS fronts from their last verified checkpoint. Do not mix evidence across SHA boundaries.
 - Rule: independent fronts must run in parallel; a queued CI workflow or external provider blocker must not idle unrelated work.
@@ -35,7 +35,7 @@
 - This closes the previously diagnosed worker authority mismatch at the RPC boundary. Full end-to-end lifecycle/runtime certification is still separate and remains unproven until a real exact-head production lifecycle is observed.
 
 ### ACTIVE EXACT-HEAD EVIDENCE — 2026-09-18
-- GitHub Actions has begun the exact-head run matrix for candidate `11f21f57...`; many required workflows are queued, with `desktop-windows` in progress and no certification conclusion yet.
+- Earlier exact-head Actions for `11f21f...` are historical to that superseded candidate and are not transferred. PR #553 requires a fresh exact-head run matrix.
 - Vercel stale-head deployment `dpl_BLhvgu345Srr8G4Ra5VSLuqHs5Bh` for `d62e889...` failed at `npm run build` on the missing export described above; no PASS is transferred.
 - The correct next gate is the new candidate build plus the exact-head regression/certification workflows.
 
