@@ -5,7 +5,7 @@
 > Authoritative execution manifest. This document never promotes historical evidence across an exact Git `HEAD` boundary. Pair every evidence batch with the exact Git `HEAD` of `main` and the exact environment/commit used.
 
 ### CURRENT EXACT HEAD
-- Current code/test candidate: `40b64a3dcfe1e3f9cd9bb677c3d85207163097e4`.
+- Current code/test candidate: `ccf1c5e7c001eabb85a0b2eea56a467ee4672d1d`.
 - Current Main product/test candidate remains `1ed603e1b8fee7488fd43e9c00f65ff5dd13f9ce` until the source-parity repair is merged; this branch candidate is `a1d1d97157bef2d944002aa36dc70bf133eb1cda` (PR #570). PR #550 structured PDF/file-engine repair, PR #556 coordinator runtime-loader restoration, and PR #564 Windows-safe readiness/lint fixes are included in the candidate lineage.
 - The autonomous operating protocol is now repository-resident at `docs/PROGRAMMER_AUTONOMOUS_OPERATING_PROTOCOL.md`.
 - PC01 exact-main runtime evidence is recorded in `docs/evidence/EXACT_MAIN_RUNTIME_20260918.md`; current-head native/installer evidence remains pending a workflow run against `1ed603e1...`.
