@@ -84,7 +84,11 @@ async function browserSession(user) {
     const alertText = await page.getByRole('alert').first().textContent().catch(() => '');
     throw new Error('AUTH_UI_SESSION_NOT_ESTABLISHED' + (alertText?.trim() ? ':' + alertText.trim().slice(0, 180) : ''));
   }
-  await page.getByRole('navigation', { name: 'التنقل التجاري الرئيسي' }).waitFor({ state: 'visible', timeout: 30000 });
+  const sessionReady = await page.evaluate(() => Object.entries(localStorage).some(([key, value]) => {
+    if (!key.endsWith('-auth-token')) return false;
+    try { return Boolean(JSON.parse(value)?.access_token); } catch { return false; }
+  }));
+  if (!sessionReady) throw new Error('BROWSER_ACCESS_TOKEN_NOT_FOUND_AFTER_AUTH');
   const token = await page.evaluate(() => {
     const raw = Object.entries(localStorage).find(([key]) => key.endsWith('-auth-token'))?.[1];
     if (!raw) throw new Error('BROWSER_SESSION_NOT_FOUND');
