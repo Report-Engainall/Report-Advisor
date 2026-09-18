@@ -5,14 +5,14 @@
 > Authoritative execution manifest. This document never promotes historical evidence across an exact Git `HEAD` boundary. Pair every evidence batch with the exact Git `HEAD` of `main` and the exact environment/commit used.
 
 ### CURRENT EXACT HEAD
-- Current code/test candidate: `f0bcf54fb057ab5d55dd867864fa94b9f4861b5a` (merge of PR #584 — Aghbari operating workspace completion).
-- Current Main product/test candidate: `f0bcf54fb057ab5d55dd867864fa94b9f4861b5a` (PR #584 merged). Work Center, Import framing, and Reports Center now follow the same Arabic RTL evidence-first command-center model. The product shell and shared UI system now follow the agreed Arabic RTL Aghbari command-center model.
+- Current code/test candidate: `3214b8697dcbc1b02de15df4f42439800eb5b2e3` (Netlify deployment configuration added after PR #584).
+- Current Main product/test candidate: `3214b8697dcbc1b02de15df4f42439800eb5b2e3` (PR #584 UI completion plus Netlify SPA build/routing configuration). Work Center, Import framing, and Reports Center now follow the same Arabic RTL evidence-first command-center model. The product shell and shared UI system now follow the agreed Arabic RTL Aghbari command-center model.
 - The autonomous operating protocol is now repository-resident at `docs/PROGRAMMER_AUTONOMOUS_OPERATING_PROTOCOL.md`.
 - PC01 predecessor runtime evidence remains historical; fresh exact-Main runtime/browser/installer evidence for `04dd76f6fdfacb3dbb528f3d3a266df1a6179d18` is required and is not promoted from earlier SHAs.
 - No runtime/browser/production evidence from an earlier SHA is promoted by this binding.
 - The certification binding itself is governance-only and does not certify runtime/product code; fresh exact-HEAD runtime evidence for this candidate is still required.
 - Historical evidence from earlier SHAs remains historical and is not promoted automatically.
-- Post-merge current-head validation for `f0bcf54fb057ab5d55dd867864fa94b9f4861b5a` is still required; UI source integration is merged, but fresh exact-Main runtime/browser evidence remains separate from source completion.
+- Post-merge current-head validation for `3214b8697dcbc1b02de15df4f42439800eb5b2e3` is still required; UI source integration and Netlify routing config are merged, but fresh exact-Main runtime/browser evidence remains separate from source completion.
 - Live Vercel state has READY preview deployment evidence for predecessor PR #578 commits, while current-main production cutover remains unproven; no stale deployment is promoted as current production evidence.
 - Current current-head production deployment/cutover is NOT PROVEN; no production mutation or alias change was performed.
 - Vercel preview deployments currently include failures caused by the provider build-rate limit; this external blocker does not justify idling repository-side execution.
@@ -29,6 +29,7 @@
 - PR #575 — canonical import server-worker boundary/type/contract closure plus storage-runtime test correction — **merged** to Main at `e1c908b2abc0a46f7291c9502a6ff02a7e024c59`.
 - PR #578 — structured PDF runtime normalization/compatibility plus canonical private documents bucket remediation — **merged** to Main at `04dd76f6fdfacb3dbb528f3d3a266df1a6179d18`; fresh exact-Main certification evidence is still pending.
 - PR #584 — Aghbari operating workspace completion (Work Center, Import framing, Reports Center) — **merged** to Main at `f0bcf54fb057ab5d55dd867864fa94b9f4861b5a`; fresh exact-Main runtime/browser/build evidence remains separate from source completion.
+- Netlify deployment configuration — **merged directly to Main** at `3214b8697dcbc1b02de15df4f42439800eb5b2e3`; SPA fallback and `npm run build`/`dist` defaults added. Netlify environment variables remain deployment-time configuration.
 
 - PR #525 — security exposure checker bound to repository truth — merged.
 - PR #520 — migration/observability parity reconciliation — merged.
