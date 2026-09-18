@@ -832,3 +832,31 @@ FILES / SURFACES: src/pages/InventoryIntelligencePage.tsx; scripts/check-invento
 DEPENDENCIES: fetchInventoryIntelligenceSource الحالي + applyReportMode؛ لا تغيير في boundary أو DB/RLS/Runner/Auth/Storage/CI.
 BLOCKERS: لا يوجد blocker تطويري معروف.
 EXPECTED HANDOFF: Owner 2 يعيد إثبات Inventory Intelligence/browser/runtime/release gates على Exact SHA؛ لا نقل Evidence بين SHAs.
+
+EXECUTION
+CHANGE: إضافة TruthContextStrip إلى Inventory Intelligence اعتمادًا على الأدلة المحسوبة الموجودة: CALCULATED عند وجود تغطية قابلة للحساب، وINSUFFICIENT_DATA عند غيابها، مع التصريح بأن as-of غير متاح من المصدر.
+FILES: src/pages/InventoryIntelligencePage.tsx; scripts/check-inventory-intelligence-truth-contract.mjs; package.json.
+WHY: الواجهة كانت تعرض أرقام/تغطية صحيحة لكن دون سياق حقيقة موحد؛ تم إغلاق الفجوة دون تغيير boundary أو RPC أو DB.
+TEST: final Exact SHA 87218d08d595888b8e920792cb720eea5886b112: test:inventory-intelligence-truth PASS; test:inventory-intelligence-ui PASS; test:inventory-intelligence PASS; test:demand-velocity PASS; route/sidebar parity PASS (35/34); typecheck PASS; lint PASS (0 errors / 59 warnings); build PASS (2808 modules, 17.84s); perf:budget PASS (critical 487.4KB / largest JS 487.8KB).
+RESULT: verified on final feature Exact SHA; no RPC/DB/Runner/Auth/Tenant/Storage/CI mutation.
+COMMIT: 87218d08d595888b8e920792cb720eea5886b112
+NEW HEAD: 87218d08d595888b8e920792cb720eea5886b112
+STATUS: READY_FOR_HANDOFF
+
+HANDOFF
+FROM: OWNER 1
+TARGET: OWNER 2
+BRANCH: feat/owner1-inventory-truth-wave18-20260919
+SHA: 87218d08d595888b8e920792cb720eea5886b112
+CHANGED: Inventory TruthContextStrip + derived CALCULATED/INSUFFICIENT_DATA status + exact contract guard.
+VERIFIED: inventory UI/engine/demand contracts, route parity, typecheck, lint, build, performance on feature Exact SHA.
+UNPROVEN: authenticated browser behavior; backend/runtime/DB/RLS/persistence/CI/CD/release certification remain Owner 2 scope.
+BLOCKERS: none in Owner 1 code.
+NEXT: integrate/rebase/cherry-pick Exact SHA 87218d08d595888b8e920792cb720eea5886b112 and reprove Inventory/browser/runtime/release gates on merged Exact SHA; no cross-SHA evidence transfer.
+
+CLOSE
+HEAD: 87218d08d595888b8e920792cb720eea5886b112
+DONE: Wave 18 Inventory Intelligence truth integrity completed and handed off.
+OPEN: Owner 2 integration/runtime/release proof; Owner 1 next front remains independent commercial/data-truth hardening.
+BLOCKED: none.
+NEXT START: inspect customer/product intelligence surfaces for missing canonical truth context.
