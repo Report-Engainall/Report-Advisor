@@ -1,0 +1,154 @@
+{
+  "schemaVersion": 1,
+  "roleContract": "coordinator+programmer",
+  "updatedAt": "2026-09-18T03:10:00Z",
+  "authority": {
+    "mainSha": "a32fae0fc08c1cbbcc60b6eedfb0f4bd74a21c50",
+    "mainIsUntouched": true,
+    "stagingProject": "fnqbvfuwbdpwvhcgzksl",
+    "productionUrl": "https://report-advisor.vercel.app"
+  },
+  "executionMemory": "docs/CONTINUOUS_OPERATIONAL_MEMORY.md",
+  "fronts": [
+    {
+      "id": "PR-540",
+      "area": "pdf",
+      "sha": "a378f55ba7e845a7c5f672ca276e36099de8bee0",
+      "state": "OPEN",
+      "next": "inspect exact-head CI after index rebind",
+      "evidence": [
+        "local structured PDF/OCR PASS at predecessor implementation SHA 18baeaed...",
+        "typecheck PASS at predecessor implementation SHA 18baeaed..."
+      ],
+      "doNotRepeat": [
+        "pre-fix subtotal false-match diagnosis",
+        "pre-fix Node22 failure"
+      ]
+    },
+    {
+      "id": "PR-539",
+      "area": "security",
+      "sha": "f24ddd623d9d0a72c0c3b3d0bd6724bd6dcb6c5b",
+      "state": "OPEN",
+      "next": "inspect newly completed exact-head security/certification failures",
+      "evidence": [
+        "security-definer-exposure contract PASS on predecessor 76f2b5...",
+        "quality PASS on predecessor 76f2b5..."
+      ],
+      "doNotRepeat": [
+        "stale-index certification failure on 76f2b5..."
+      ]
+    },
+    {
+      "id": "PR-536",
+      "area": "import-terminal-authority",
+      "sha": "2ba3251712168ad64b14127b6583d2bc1d0162ac",
+      "state": "OPEN",
+      "next": "inspect exact-head CI after index rebind",
+      "evidence": [],
+      "doNotRepeat": [
+        "old stale-index binding at ffccf08e..."
+      ]
+    },
+    {
+      "id": "PR-534",
+      "area": "master-index",
+      "sha": "013c4c31f8fe91f789ad13d29cb3ec6741cfc4e4",
+      "state": "OPEN",
+      "next": "merge only when mandatory provider gates allow",
+      "evidence": [
+        "index rebinding to main a32fae0"
+      ],
+      "doNotRepeat": [
+        "unchanged Vercel quota failure"
+      ]
+    },
+    {
+      "id": "PR-537",
+      "area": "execution-governance",
+      "sha": "d2539caef3559106068c59d4432ddf753392b6fd",
+      "state": "OPEN",
+      "next": "merge once mandatory gates permit; until then keep memory current",
+      "evidence": [
+        "operational memory created and bound into coordinator/master protocols"
+      ],
+      "doNotRepeat": [
+        "reconstructing history from chat"
+      ]
+    },
+    {
+      "id": "ISSUE-399",
+      "area": "migration-lineage",
+      "sha": "main:a32fae0fc08c1cbbcc60b6eedfb0f4bd74a21c50",
+      "state": "OPEN",
+      "next": "forward-only lineage reconciliation + disposable replay",
+      "evidence": [
+        "live 291 applied migrations",
+        "live worker grant drift documented",
+        "live retry auth/tenant checks observed"
+      ],
+      "doNotRepeat": [
+        "live mutation for forensics",
+        "using failed preview branch as replay proof"
+      ]
+    },
+    {
+      "id": "STORAGE-RUNTIME",
+      "area": "storage-isolation",
+      "sha": "current relevant PR",
+      "state": "BLOCKED_EXTERNAL",
+      "next": "canonical storage bucket and authenticated runtime configuration",
+      "evidence": [
+        "workflow reports missing REPORT_ADVISOR_STORAGE_BUCKET"
+      ],
+      "doNotRepeat": [
+        "guessing bucket name"
+      ]
+    },
+    {
+      "id": "PHASE-F",
+      "area": "resilience",
+      "sha": "current relevant PR",
+      "state": "BLOCKED_EXTERNAL",
+      "next": "required operational resilience environment/secrets",
+      "evidence": [
+        "fail-closed probe behavior"
+      ],
+      "doNotRepeat": [
+        "turning blocked probes into PASS"
+      ]
+    },
+    {
+      "id": "VERCEL",
+      "area": "deployment",
+      "sha": "provider",
+      "state": "BLOCKED_EXTERNAL",
+      "next": "provider quota recovery",
+      "evidence": [
+        "Vercel build-rate-limit status"
+      ],
+      "doNotRepeat": [
+        "bypassing provider gate"
+      ]
+    }
+  ],
+  "invariants": [
+    "no fake PASS/evidence/JWT/session",
+    "no cross-SHA evidence transfer",
+    "no duplicate runner/RPC architecture for test satisfaction",
+    "import_finish_job remains authoritative terminal transition",
+    "main remains release authority",
+    "production/forensic DB mutation requires separate operational authorization"
+  ],
+  "cycle": {
+    "algorithm": [
+      "DISCOVER",
+      "EXECUTE",
+      "VERIFY",
+      "RECORD",
+      "ADVANCE"
+    ],
+    "closeCondition": "NO EXECUTABLE COORDINATOR ACTION REMAINS IN THE CURRENT ENVIRONMENT",
+    "mandatoryEndUpdate": true
+  }
+}
