@@ -53,7 +53,6 @@ const navSections: NavSection[] = [
     { path: '/alternative-groups', label: 'البدائل', enLabel: 'Alternatives', icon: <Layers3 size={18}/>, hint: 'فرص الاستبدال', enHint: 'Substitution opportunities' },
   ]},
   { id: 'intelligence', title: 'القرار والذكاء', enTitle: 'Decision & Intelligence', items: [
-    { path: '/intelligence', label: 'مركز الذكاء', enLabel: 'Intelligence Center', icon: <Brain size={18}/>, hint: 'المساعد الذكي داخل السياق', enHint: 'Contextual intelligence' },
     { path: '/intelligence/recommendations', label: 'التوصيات', enLabel: 'Recommendations', icon: <Brain size={18}/>, hint: 'ماذا نفعل بعد ذلك', enHint: 'What to do next' },
     { path: '/intelligence/forecasts', label: 'التنبؤات', enLabel: 'Forecasts', icon: <Target size={18}/>, hint: 'ما قد يحدث', enHint: 'What may happen' },
     { path: '/intelligence/scenarios', label: 'السيناريوهات', enLabel: 'Scenarios', icon: <Crosshair size={18}/>, hint: 'ماذا لو؟', enHint: 'What if?' },
