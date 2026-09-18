@@ -6,11 +6,11 @@
 
 ### CURRENT EXACT HEAD
 - Governed Main: `9bd7243c8864ca5bcf431b14a7c2eb35c698de7c`.
-- Current code/test candidate: `5f57e0dfcf2712f039e96742c4f44c02abc54adc`.
+- Current code/test candidate: `b16ea9a3fe68beaec921bfc0e07e86305f6242a2`.
 - PR #567 is the active open certification path on branch `fix/pdf-structured-runtime-final-20260918`; PR #560 was closed during the forced branch rebind and is historical only.
 - The autonomous operating protocol remains repository-resident at `docs/PROGRAMMER_AUTONOMOUS_OPERATING_PROTOCOL.md`.
-- Fresh PC01 proof on predecessor `9dd3c86d...`: 20-stage release readiness PASS (20/20) and Windows-safe production-gate runtime PASS (integrity, typecheck, build). This proof is recorded as predecessor evidence and is not independently promoted as a runtime PASS for `5f57e0df...`.
-- The production-gate runtime Windows fix is now part of the exact candidate; the previous `C:\Program` process-launch defect is closed.
+- Fresh PC01 proof on predecessor `9dd3c86d...`: 20-stage release readiness PASS (20/20) and Windows-safe production-gate runtime PASS (integrity, typecheck, build). This proof is recorded as predecessor evidence and is not independently promoted as a runtime PASS for `b16ea9a3...`.
+- The production-gate runtime Windows fix is part of the current remediation lineage; the previous `C:\Program` process-launch defect is closed. The current candidate also includes the source-preservation contract rebind from wrapper to canonical commit core.
 - No runtime/browser/production evidence from an earlier SHA is promoted by this binding.
 - Fresh exact-head GitHub PDF/OCR, Browser E2E, production-regression evidence, enforcement, and Final Certification remain mandatory.
 - Current-head production deployment/cutover remains NOT PROVEN; no production mutation or alias change was performed.
