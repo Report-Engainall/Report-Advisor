@@ -85,8 +85,8 @@ jobs:
           cache: npm
       - name: Install locked dependencies
         run: npm ci --include=dev --no-audit --no-fund
-      - name: Install browser E2E runner
-        run: npm install --no-save --ignore-scripts playwright@1.55.0
+      - name: Install browser and exact-head API runtimes
+        run: npm install --no-save --ignore-scripts playwright@1.55.0 tsx@4.23.13
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
       - name: Build exact HEAD
@@ -94,8 +94,6 @@ jobs:
           VITE_SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
         run: npm run build
-      - name: Install exact-head TypeScript API runtime
-        run: npm install --no-save --ignore-scripts tsx@4.23.13
       - name: Start exact-head browser runtime with actual canonical API boundary
         shell: bash
         env:
