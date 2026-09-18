@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { DataTable } from '@/components/ui/DataTable';
-import { PageHeader, LoadingState, ErrorState } from '@/components/ui/States';
+import { PageHeader, LoadingState, ErrorState, TruthRail } from '@/components/ui/States';
 import { formatCurrency, formatDate, formatNumber } from '@/lib/format';
 import { fetchReceivablesReportPage, fetchReceivablesExportRows, type ReceivablesReportPage, type ReceivablesReportRow } from '@/lib/queries';
 import { downloadReportArtifact } from '@/lib/report-execution/download';
@@ -27,7 +27,8 @@ export function ReceivablesReportCanonicalPage() {
     const rows = await fetchReceivablesExportRows();
     downloadReportArtifact('receivables-report', 'تقرير الذمم والتحصيل', ['رقم الفاتورة','العميل','تاريخ الفاتورة','تاريخ الاستحقاق','الإجمالي','المدفوع','المتبقي'], rows.map(r => ({ 'رقم الفاتورة': r.invoice_number, 'العميل': r.customer, 'تاريخ الفاتورة': r.invoice_date, 'تاريخ الاستحقاق': r.due_date, 'الإجمالي': r.total, 'المدفوع': r.paid_amount, 'المتبقي': r.balance })));
   };
-  return <div className="space-y-6 animate-fade-in">
+  return <div dir="rtl" className="space-y-6 animate-fade-in">
+    <TruthRail status={snapshot.total_outstanding != null ? 'live' : 'limited'} period={`${formatNumber(snapshot.total_rows)} فاتورة في النطاق الحالي`} />
     <PageHeader title="تقرير الذمم والتحصيل" subtitle="الإجماليات والصفحات مشتقة من نفس الحقيقة المعتمدة على الخادم." actions={<button onClick={() => void exportRows()} className="btn-secondary text-xs">تصدير XLSX</button>} />
     {error && <div role="alert" className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</div>}
     <Card><CardBody><div className="grid grid-cols-1 md:grid-cols-2 gap-4"><div><div className="text-xs text-ink-500">إجمالي الذمم</div><div className="text-2xl font-bold text-ink-900">{formatCurrency(snapshot.total_outstanding)}</div></div><div><div className="text-xs text-ink-500">عدد الفواتير المستحقة</div><div className="text-2xl font-bold text-ink-900">{formatNumber(snapshot.total_rows)}</div></div></div></CardBody></Card>

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Plus, Save, Trash2, UsersRound, RefreshCw, AlertTriangle, Layers3 } from 'lucide-react';
 import { supabase, resolveCurrentCompanyId } from '@/lib/supabase';
 import { validateAlternativeGroupIsolation, type TenantScopedMember } from '@/lib/free-toolbox/alternative-group-security';
-import { PageHeader } from '@/components/ui/States';
+import { PageHeader, TruthRail } from '@/components/ui/States';
 
 type Group={id:string;name:string;description:string|null;base_unit:string;is_active:boolean;created_at:string};
 type Member={id:string;group_id:string;sku:string;conversion_factor:number};
@@ -20,7 +20,7 @@ export function AlternativeGroupsPage(){
  const removeMember=async(id:string)=>{setSaving(true);setError('');try{const companyId=await requireTenant();const {error:e}=await supabase.rpc('remove_alternative_item_group_member',{p_company_id:companyId,p_member_id:id});if(e)throw e;setMembers(v=>v.filter(m=>m.id!==id))}catch(e){setError(e instanceof Error?e.message:'تعذر حذف الصنف')}finally{setSaving(false)}};
  const activeMembers=members.filter(m=>m.group_id===selected); const selectedGroup=groups.find(g=>g.id===selected);
  return <div dir="rtl" className="space-y-6">
-  <PageHeader title="مجموعات الأصناف البديلة" subtitle="اربط الأصناف المتكافئة على مستوى المجموعة مع الحفاظ على عزل المستأجر ومسار البيانات الحاكم." actions={<button onClick={load} className="btn-secondary"><RefreshCw size={16}/> تحديث</button>} />
+  <TruthRail status={error ? 'review' : 'live'} period={`${groups.length} مجموعة · ${members.length} عضو`} /><PageHeader title="مجموعات الأصناف البديلة" subtitle="اربط الأصناف المتكافئة على مستوى المجموعة مع الحفاظ على عزل المستأجر ومسار البيانات الحاكم." actions={<button onClick={load} className="btn-secondary"><RefreshCw size={16}/> تحديث</button>} />
   <section className="rounded-[1.6rem] bg-ink-950 p-5 text-white shadow-elevated"><div className="flex items-start gap-3"><span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary-500/15 text-primary-200"><Layers3 size={18}/></span><div><div className="text-xs font-black text-primary-200">تجميع القرار</div><p className="mt-1 text-xs leading-6 text-ink-300">المجموعة البديلة لا تغيّر بيانات البيع والمخزون الأصلية؛ هي طبقة ربط تستخدمها محركات القرار عند توفر العلاقات الموثقة.</p></div></div></section>
   {error&&<div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 flex gap-2"><AlertTriangle size={18}/>{error}</div>}
   <div className="grid lg:grid-cols-[360px_1fr] gap-5">
