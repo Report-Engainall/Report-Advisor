@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "roleContract": "coordinator+programmer",
-  "updatedAt": "2026-09-18T03:18:00Z",
+  "updatedAt": "2026-09-18T03:32:00Z",
   "authority": {
     "mainSha": "a32fae0fc08c1cbbcc60b6eedfb0f4bd74a21c50",
     "mainIsUntouched": true,
@@ -13,9 +13,9 @@
     {
       "id": "PR-540",
       "area": "pdf",
-      "sha": "a378f55ba7e845a7c5f672ca276e36099de8bee0",
+      "sha": "b7c57d047fbf75e7fadf4167dad7b618c547a1c0",
       "state": "OPEN",
-      "next": "inspect exact-head CI after index rebind",
+      "next": "inspect exact-head CI; preserve single canonical PDF front",
       "evidence": [
         "local structured PDF/OCR PASS at predecessor implementation SHA 18baeaed...",
         "typecheck PASS at predecessor implementation SHA 18baeaed..."
@@ -28,9 +28,9 @@
     {
       "id": "PR-539",
       "area": "security",
-      "sha": "f24ddd623d9d0a72c0c3b3d0bd6724bd6dcb6c5b",
+      "sha": "89507eaaf68ca227816920bf09d2c0093ec0f7e4",
       "state": "OPEN",
-      "next": "inspect newly completed exact-head security/certification failures",
+      "next": "inspect fresh exact-head CI first failure",
       "evidence": [
         "security-definer-exposure contract PASS on predecessor 76f2b5...",
         "quality PASS on predecessor 76f2b5..."
@@ -44,7 +44,7 @@
       "area": "import-terminal-authority",
       "sha": "2ba3251712168ad64b14127b6583d2bc1d0162ac",
       "state": "OPEN",
-      "next": "inspect exact-head CI after index rebind",
+      "next": "continue import closure; security-definer gate depends on #539 merge; do not duplicate security fix",
       "evidence": [],
       "doNotRepeat": [
         "old stale-index binding at ffccf08e..."
@@ -151,5 +151,11 @@
     ],
     "closeCondition": "NO EXECUTABLE COORDINATOR ACTION REMAINS IN THE CURRENT ENVIRONMENT",
     "mandatoryEndUpdate": true
-  }
+  },
+  "superseded": [
+    {
+      "id": "PR-541",
+      "reason": "PDF work selectively consolidated into PR-540; unrelated security/import/browser changes excluded"
+    }
+  ]
 }
