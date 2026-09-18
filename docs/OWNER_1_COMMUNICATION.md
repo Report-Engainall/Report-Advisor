@@ -1320,3 +1320,46 @@ DONE: Wave 29 Entity Command Context completed and handed off.
 OPEN: Owner 2 runtime/release proof; Owner 1 continues commercial differentiation.
 BLOCKED: none.
 NEXT START: next differentiated result surface, prioritizing sector reports and high-value decision outputs.
+
+
+## START — COMMAND 28 — 2026-09-19
+START
+DATE: 2026-09-19T02:30+03:00
+OWNER: 1
+BRANCH: feat/owner1-sector-report-lens-wave30-20260919
+HEAD: 41b763874c7e63f46a9b3d7665c7ae618c2c3479
+BASE: 41b763874c7e63f46a9b3d7665c7ae618c2c3479
+OBJECTIVE: إضافة Sector Report Lens إلى التقرير التنفيذي، بحيث يتغير محتوى التقرير بحسب company.industry، خصوصًا pharmacy/distribution/retail/services، مع جاهزية دوائية صريحة لا تعرض Batch/Expiry/FEFO/Rx كحقائق قبل توفر مصدرها.
+FILES / SURFACES: src/components/SectorReportLens.tsx; src/pages/ExecutiveReportPage.tsx; scripts/check-sector-report-lens-contract.mjs; package.json
+DEPENDENCIES: companies.industry الحالية + fetchDashboardSnapshot؛ لا RPC/DB schema mutation.
+BLOCKERS: لا يوجد blocker تطويري معروف.
+EXPECTED HANDOFF: Owner 2 يعيد إثبات browser/runtime/release على Exact SHA؛ لا نقل Evidence بين SHAs.
+
+
+EXECUTION
+CHANGE: إضافة Sector Report Lens إلى Executive Report، يقرأ company.industry ويعيد تشكيل قسم «ماذا نعرض» لقطاعات الصيدليات والتوزيع والتجزئة والخدمات، مع فصل الجاهز عن partial وعن requires-source.
+FILES: src/components/SectorReportLens.tsx; src/pages/ExecutiveReportPage.tsx; scripts/check-sector-report-lens-contract.mjs; package.json
+WHY: المنافسة لا تكون بإضافة KPI أخرى؛ يجب أن يشعر التاجر أن التقرير يفهم نوع نشاطه. في الصيدليات خصوصًا، يشرح التقرير حدود batch/expiry/FEFO/Rx بوضوح بدل عرض أرقام دوائية غير موثقة.
+TEST: Exact SHA a7d61eef6c2ffff2ee9d73df4ea730799c9fec07 — sector-report-lens PASS; typecheck PASS; perf:budget PASS (critical 498.6KB / largest JS 487.8KB); lint PASS (0 errors / 58 warnings); build PASS (2813 modules, 11.88s); route/sidebar parity PASS (35/34); executive dashboard UI PASS.
+RESULT: verified on Exact SHA; no RPC/DB schema/Runner/Auth/Tenant/Storage/CI mutation.
+COMMIT: a7d61eef6c2ffff2ee9d73df4ea730799c9fec07
+NEW HEAD: a7d61eef6c2ffff2ee9d73df4ea730799c9fec07
+STATUS: READY_FOR_HANDOFF
+
+HANDOFF
+FROM: OWNER 1
+TARGET: OWNER 2
+BRANCH: feat/owner1-sector-report-lens-wave30-20260919
+SHA: a7d61eef6c2ffff2ee9d73df4ea730799c9fec07
+CHANGED: Sector-aware Executive Report lens, including pharmacy evidence boundaries.
+VERIFIED: exact contract, typecheck, lint, build, performance, route parity, executive UI on feature Exact SHA.
+UNPROVEN: authenticated browser behavior; runtime/DB/RLS/persistence/CI/CD/release remain Owner 2 scope.
+BLOCKERS: none in Owner 1 code.
+NEXT: integrate/rebase/cherry-pick Exact SHA a7d61eef6c2ffff2ee9d73df4ea730799c9fec07 and reprove merged SHA; no cross-SHA evidence transfer.
+
+CLOSE
+HEAD: a7d61eef6c2ffff2ee9d73df4ea730799c9fec07
+DONE: Wave 30 Sector Report Lens completed and handed off.
+OPEN: Owner 2 runtime/release proof; Owner 1 continues sector-specific report depth and intelligence.
+BLOCKED: none.
+NEXT START: pharmacy-specific evidence/reporting depth, followed by supplier/demand and commercial planning outputs.
