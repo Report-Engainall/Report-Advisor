@@ -63,7 +63,7 @@ A preview deployment is not production proof.
 
 # 2. LIVE EXECUTION HEADER
 
-Last material update: 2026-09-18T04:15Z
+Last material update: 2026-09-18T04:25Z
 Current Main: a32fae0fc08c1cbbcc60b6eedfb0f4bd74a21c50
 Primary environment: Supabase staging fnqbvfuwbdpwvhcgzksl
 Production URL: https://report-advisor.vercel.app
@@ -382,3 +382,8 @@ without asking the user to reconstruct project history.
 - Connected Vercel project currently reports a READY preview deployment for #540 source commit b7c57d04.
 - This disproves the older "actively rate-limited right now" state; that historical blocker is retained only in old evidence, not as current status.
 - Production remains unproven because the observed deployment has no production target and the project is reported live=false.
+
+### 2026-09-18T04:25Z — Execution entrypoint completed
+- Added `docs/EXECUTION_START_HERE.md` as the single durable launchpoint for new agents.
+- The entrypoint directs every cycle to both operational-memory files, exact GitHub head verification, fail-closed execution, evidence recording, and the next independent queue item.
+- This reduces the operational role of chat/pasted reports to transport only; repository state remains authoritative.
