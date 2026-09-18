@@ -141,3 +141,17 @@ NEXT HANDOFF
 Target branch: integration/certification-candidate-20260918
 Expected action: Owner 2 repairs existing runtime secret/endpoint configuration only, preserves fail-closed probes, then reruns affected gates on the resulting Exact SHA.
 SHA to verify after handoff: c9029723ef270917f7762182cfbd5b1ac12949c9 or the newly produced exact SHA after a runtime fix.
+
+## DEVELOPMENT WAVE — ENTITY CONTEXT ACCESSIBILITY — 2026-09-18
+BRANCH: ui/aghbari-command-wave2-20260918
+UI HEAD: 493dfed2539bfa73d4f58c8d0a9a3e1b07a346e2
+BASE: main
+CHANGE: Harden Customer/Product EntityContextDrawer with modal labeling, unique id/title relationship, Escape close, Tab focus trap, initial close focus, body-scroll lock, opener-focus restoration.
+GUARD: scripts/check-entity-context-accessibility-contract.mjs + package script test:entity-context-accessibility
+VERIFIED EXACT SHA: entity contract PASS; typecheck PASS; build PASS; performance budget PASS (critical 490.2KB, largest JS 487.8KB).
+HANDOFF: Owner 2 may integrate this UI SHA when appropriate; affected gates must be reproved on the exact merged/integration SHA. No backend/RPC/data-path changes.
+
+NEXT HANDOFF
+Target branch: integration/certification-candidate-20260918
+Expected action: integrate/reprove UI when merge window is selected; keep runtime blockers on c9029723 separately.
+SHA to verify after handoff: 493dfed2539bfa73d4f58c8d0a9a3e1b07a346e2
