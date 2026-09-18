@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { fetchDashboardIntelligence, fetchDashboardSnapshot, type DashboardKPIs, type MonthlyTrend } from '@/lib/dashboard-canonical';
 import type { Alert, Recommendation } from '@/lib/types';
 import { formatCurrency, formatNumber } from '@/lib/format';
+import { TruthContextStrip } from '@/components/TruthContextStrip';
 
 function Metric({ label, value, hint }: { label: string; value: string; hint: string }) {
   return <div className="rounded-2xl border border-ink-100 bg-ink-50/70 p-4">
@@ -35,6 +36,7 @@ function TrendStrip({ trend }: { trend: MonthlyTrend[] }) {
 export function ExecutiveReportPage() {
   const [kpis, setKpis] = useState<DashboardKPIs | null>(null);
   const [trend, setTrend] = useState<MonthlyTrend[]>([]);
+  const [asOf, setAsOf] = useState<string>('غير متاح');
   const [data, setData] = useState<{ alerts: Alert[]; recommendations: Recommendation[] } | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -46,6 +48,7 @@ export function ExecutiveReportPage() {
       const [snapshot, intelligence] = await Promise.all([fetchDashboardSnapshot(6), fetchDashboardIntelligence()]);
       setKpis(snapshot.kpis);
       setTrend(snapshot.trend);
+      setAsOf(snapshot.asOf);
       setData(intelligence);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'تعذر تحميل التقرير التنفيذي.');
@@ -75,8 +78,10 @@ export function ExecutiveReportPage() {
     {error && <div role="alert" className="rounded-2xl border border-red-200 bg-red-50 p-5 text-sm text-red-800">{error}<button type="button" onClick={() => void load()} className="mr-3 rounded-lg border border-red-300 bg-white px-3 py-1 font-semibold">إعادة المحاولة</button></div>}
 
     {!loading && !error && <>
+      <TruthContextStrip months={6} status={kpis?.status ?? 'INSUFFICIENT_DATA'} asOf={asOf} />
+
       <section className="rounded-2xl border border-ink-200 bg-white p-5 shadow-sm">
-        <div className="flex flex-wrap items-center justify-between gap-3"><div><p className="text-xs font-bold uppercase tracking-wider text-primary-600">Executive Summary</p><h2 className="mt-1 text-lg font-black">لقطة الإدارة الحالية</h2></div><span className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-[11px] font-bold text-emerald-700">مصدر البيانات: canonical</span></div>
+        <div className="flex flex-wrap items-center justify-between gap-3"><div><p className="text-xs font-bold tracking-wider text-primary-600">الملخص التنفيذي</p><h2 className="mt-1 text-lg font-black">لقطة الإدارة الحالية</h2></div><span className="rounded-full border border-primary-200 bg-primary-50 px-3 py-1 text-[11px] font-bold text-primary-700">المصدر: بيانات قانونية</span></div>
         <div className="mt-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
           <Metric label="إجمالي المبيعات" value={kpis?.totalSales == null ? 'غير متاح' : formatCurrency(kpis.totalSales)} hint="الفترة المعتمدة في المصدر" />
           <Metric label="الهامش الإجمالي" value={kpis?.grossMargin == null ? 'غير متاح' : `${kpis.grossMargin.toFixed(1)}%`} hint="لا يعرض عند نقص المصدر" />
@@ -92,11 +97,11 @@ export function ExecutiveReportPage() {
 
       <section className="grid gap-5 lg:grid-cols-2">
         <div className="rounded-2xl border border-ink-200 bg-white p-5 shadow-sm">
-          <div className="flex items-center justify-between"><div><p className="text-xs font-bold text-red-600">ATTENTION</p><h2 className="mt-1 text-lg font-black">أهم التنبيهات</h2></div><span className="rounded-full bg-red-50 px-2.5 py-1 text-xs font-bold text-red-700">{formatNumber(data?.alerts.length ?? 0)}</span></div>
+          <div className="flex items-center justify-between"><div><p className="text-xs font-bold text-danger-600">الانتباه</p><h2 className="mt-1 text-lg font-black">أهم التنبيهات</h2></div><span className="rounded-full bg-red-50 px-2.5 py-1 text-xs font-bold text-red-700">{formatNumber(data?.alerts.length ?? 0)}</span></div>
           <div className="mt-4 space-y-3">{(data?.alerts ?? []).slice(0, 6).map((alert) => <article key={alert.id} className="rounded-xl border border-ink-100 p-4"><p className="font-bold text-ink-900">{alert.title}</p><Link to="/decision-experience?stage=decision" className="mt-2 inline-flex items-center gap-1 text-xs font-bold text-primary-700">فتح سياق القرار <ArrowLeft size={13} /></Link></article>)}{!(data?.alerts?.length) && <p className="rounded-xl bg-ink-50 p-4 text-sm text-ink-500">لا توجد تنبيهات مصدرية حاليًا.</p>}</div>
         </div>
         <div className="rounded-2xl border border-ink-200 bg-white p-5 shadow-sm">
-          <div className="flex items-center justify-between"><div><p className="text-xs font-bold text-primary-600">ACTION</p><h2 className="mt-1 text-lg font-black">التوصيات النشطة</h2></div><span className="rounded-full bg-primary-50 px-2.5 py-1 text-xs font-bold text-primary-700">{formatNumber(data?.recommendations.length ?? 0)}</span></div>
+          <div className="flex items-center justify-between"><div><p className="text-xs font-bold text-primary-600">الإجراء</p><h2 className="mt-1 text-lg font-black">التوصيات النشطة</h2></div><span className="rounded-full bg-primary-50 px-2.5 py-1 text-xs font-bold text-primary-700">{formatNumber(data?.recommendations.length ?? 0)}</span></div>
           <div className="mt-4 space-y-3">{(data?.recommendations ?? []).slice(0, 6).map((rec, index) => <article key={rec.id ?? index} className="rounded-xl border border-ink-100 p-4"><p className="font-bold text-ink-900">{rec.title}</p><Link to="/decision-experience" className="mt-2 inline-flex items-center gap-1 text-xs font-bold text-primary-700">فتح مساحة القرار <ArrowLeft size={13} /></Link></article>)}{!(data?.recommendations?.length) && <p className="rounded-xl bg-ink-50 p-4 text-sm text-ink-500">لا توجد توصيات مصدرية حاليًا.</p>}</div>
         </div>
       </section>
@@ -108,8 +113,8 @@ export function ExecutiveReportPage() {
 
       <section className="rounded-2xl border border-ink-200 bg-white p-5 shadow-sm">
         <div className="flex items-center gap-2"><ShieldCheck size={18} className="text-primary-600" /><h2 className="text-lg font-black">القرار والمساءلة والنتيجة</h2></div>
-        <div className="mt-4 grid gap-3 sm:grid-cols-3"><div className="rounded-xl bg-ink-50 p-4"><p className="text-xs text-ink-500">Decision</p><p className="mt-1 font-bold">يحتاج authority runtime</p></div><div className="rounded-xl bg-ink-50 p-4"><p className="text-xs text-ink-500">Actual Outcome</p><p className="mt-1 font-bold">Awaiting actual outcome</p></div><div className="rounded-xl bg-ink-50 p-4"><p className="text-xs text-ink-500">Learning</p><p className="mt-1 font-bold">Not yet verified</p></div></div>
-        <Link to="/decision-experience" className="mt-4 inline-flex rounded-xl bg-ink-950 px-4 py-2.5 text-xs font-bold text-white">فتح Decision Workspace</Link>
+        <div className="mt-4 grid gap-3 sm:grid-cols-3"><div className="rounded-xl bg-ink-50 p-4"><p className="text-xs text-ink-500">Decision</p><p className="mt-1 font-bold">يحتاج authority runtime</p></div><div className="rounded-xl bg-ink-50 p-4"><p className="text-xs text-ink-500">Actual Outcome</p><p className="mt-1 font-bold">بانتظار النتيجة الفعلية</p></div><div className="rounded-xl bg-ink-50 p-4"><p className="text-xs text-ink-500">Learning</p><p className="mt-1 font-bold">غير مثبت بعد</p></div></div>
+        <Link to="/decision-experience" className="mt-4 inline-flex rounded-xl bg-ink-950 px-4 py-2.5 text-xs font-bold text-white">فتح مساحة القرار</Link>
       </section>
     </>}
   </div>;
