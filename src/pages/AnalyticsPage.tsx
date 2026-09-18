@@ -10,12 +10,12 @@ import { fetchRFMSnapshot, fetchABCSnapshot, fetchAgingSnapshot, type RFMSnapsho
 import { formatCurrency, formatNumber } from '@/lib/format';
 
 const analyticsCards = [
-  { path: '/analytics/rfm', title: 'تحليل RFM للعملاء', desc: 'تصنيف العملاء حسب الحداثة والتكرار والقيمة', icon: Users, color: 'primary' },
-  { path: '/analytics/abc', title: 'تحليل ABC للمنتجات', desc: 'تصنيف المنتجات حسب الأهمية والمساهمة', icon: Package, color: 'accent' },
-  { path: '/analytics/aging', title: 'تحليل أعمار الذمم', desc: 'توزيع الفواتير حسب عمر الاستحقاق', icon: Calendar, color: 'warning' },
+  { path: '/analytics/rfm', title: 'تحليل RFM للعملاء', desc: 'تصنيف العملاء حسب الحداثة والتكرار والقيمة', icon: Users, iconClass: 'bg-primary-50 text-primary-600' },
+  { path: '/analytics/abc', title: 'تحليل ABC للمنتجات', desc: 'تصنيف المنتجات حسب الأهمية والمساهمة', icon: Package, iconClass: 'bg-accent-50 text-accent-600' },
+  { path: '/analytics/aging', title: 'تحليل أعمار الذمم', desc: 'توزيع الفواتير حسب عمر الاستحقاق', icon: Calendar, iconClass: 'bg-warning-50 text-warning-600' },
 ];
 
-export function AnalyticsCenterPage() { return <div className="space-y-6 animate-fade-in"><PageHeader title="مركز التحليلات" subtitle="تحليلات متقدمة لاكتشاف الأنماط والاتجاهات" /><div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">{analyticsCards.map((r) => <Link key={r.path} to={r.path}><Card hover className="h-full"><CardBody><div className="flex items-start gap-3"><div className={`w-11 h-11 rounded-xl bg-${r.color}-50 text-${r.color}-600 flex items-center justify-center flex-shrink-0`}><r.icon size={20} /></div><div><h3 className="font-semibold text-ink-800 text-sm">{r.title}</h3><p className="text-xs text-ink-500 mt-1">{r.desc}</p></div></div></CardBody></Card></Link>)}</div></div>; }
+export function AnalyticsCenterPage() { return <div className="space-y-6 animate-fade-in"><PageHeader title="مركز التحليلات" subtitle="تحليلات متقدمة لاكتشاف الأنماط والاتجاهات" /><div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">{analyticsCards.map((r) => <Link key={r.path} to={r.path}><Card hover className="h-full"><CardBody><div className="flex items-start gap-3"><div className={`w-11 h-11 rounded-xl ${r.iconClass} flex items-center justify-center flex-shrink-0`}><r.icon size={20} /></div><div><h3 className="font-semibold text-ink-800 text-sm">{r.title}</h3><p className="text-xs text-ink-500 mt-1">{r.desc}</p></div></div></CardBody></Card></Link>)}</div></div>; }
 
 const RFM_VARIANTS: Record<string, 'success' | 'primary' | 'accent' | 'warning' | 'danger' | 'neutral'> = { 'أبطال': 'success', 'مخلصون': 'primary', 'واعدون': 'accent', 'معرضون للخطر': 'warning', 'خاملون': 'danger' };
 
