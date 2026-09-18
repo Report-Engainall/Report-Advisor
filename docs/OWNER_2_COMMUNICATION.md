@@ -351,3 +351,44 @@ NEXT HANDOFF:
 - Then deploy the exact candidate to the governed runtime and re-run only affected Phase-F/deployed-parity gates.
 - Separately, obtain authoritative confirmation of the production report-execution worker invoker (or an existing external worker deployment) before claiming worker lifecycle certification; do not add a duplicate production runner to compensate.
 STATUS: BLOCKED_EXTERNAL / VERIFIED_CONTRACTS / FAIL_CLOSED
+
+
+## START | OWNER=2 | DATE=2026-09-19T00:35+03:00
+BRANCH=ops/owner2-runtime-release-20260918
+REFERENCE_HEAD=c9029723ef270917f7762182cfbd5b1ac12949c9
+OBJECTIVE=إنشاء Exact-SHA governance retrigger حقيقي بعد provision للـbackend secret، لأن GitHub integration الحالي لا يملك rerun permission ولا يعيد workflow قديمًا تلقائيًا عند تغيير secret.
+SCOPE=integration branch governance-only marker؛ لا تغيير product/runtime semantics؛ no DB mutation.
+DEPENDENCIES=REPORT_ADVISOR_SUPABASE_SERVICE_ROLE_KEY provisioned by owner; GitHub push-triggered workflow execution.
+BLOCKERS=GitHub API rerun 403; TinyFish browser automation unavailable due wallet balance; this execution must therefore use a real commit-triggered workflow on a new Exact SHA.
+NEXT=append a CI execution marker to an already-governed Full Product Browser trigger path, push the new exact candidate, observe fresh workflow, then continue runtime/release gates only from that SHA.
+
+
+## EXECUTED → VERIFIED → OPEN → BLOCKED → NEXT HANDOFF | 2026-09-19T01:05+03:00
+EXECUTED:
+- Created governance-only exact-SHA retrigger marker at fad55674665b4c01de560094d1e02ed7ac3923fa because historical GitHub rerun API is 403.
+- Fresh Full Product Browser @fad55674 still reported SUPABASE_SERVICE_ROLE_KEY=MISSING.
+- Bound Full Product Browser job to the existing GitHub Actions environment `staging` and created exact SHA 4a79e23faffd39c96c3839d1e15fe543465930cf.
+- No product/runtime/database semantics changed.
+
+VERIFIED:
+- @4a79e23f triggers fresh Full Product Browser #1897 and Storage Runtime #600.
+- Full Product Browser @4a79e23f reaches the backend-secret gate but still receives SUPABASE_SERVICE_ROLE_KEY as empty/missing; business execution remains skipped.
+- Existing environment convention confirms release-certification uses GitHub environment `staging`.
+- Existing project environment diagnostic records `SUPABASE_SERVICE_ROLE_KEY` present in Vercel Production/Preview; this is separate from GitHub Actions secret injection and cannot satisfy ${{ secrets.REPORT_ADVISOR_SUPABASE_SERVICE_ROLE_KEY }}.
+- Storage Runtime @4a79e23f remains affected by the known Supabase PGRST303 JWT-issued-at-future failure.
+- Main remains unchanged at 1568e43889d27b5d850e64c0b99d03a994fd3bbe.
+
+OPEN:
+- GitHub Actions backend secret is still not visible to the Full Product Browser workflow even after staging environment binding.
+- Required GitHub secret key remains exactly `REPORT_ADVISOR_SUPABASE_SERVICE_ROLE_KEY`; it must exist as an Actions Repository secret or a secret in the exact `staging` Environment, with no alternative name.
+- Storage PGRST303 remains external.
+- Phase-F remains 0/4 and deployment parity is open.
+
+BLOCKED:
+- No code workaround, anon-key substitution, browser service-role injection, or secret logging is allowed.
+- Full Product business persistence cannot be certified until GitHub Actions resolves the exact secret name/scope.
+
+NEXT HANDOFF:
+- Correct only the GitHub Actions secret scope/name: `REPORT_ADVISOR_SUPABASE_SERVICE_ROLE_KEY` containing the same staging service_role key used by the server, visible to Environment `staging`/repository Actions.
+- Then the existing push-triggered workflow on the newest exact SHA can be retriggered by a minimal governed marker if needed; no historical Evidence is reused.
+- Continue Storage, Phase-F, deployment parity, backup/RPO-RTO and final certification independently as their external blockers clear.
