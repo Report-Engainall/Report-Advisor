@@ -35,6 +35,8 @@
 - PR #526 — tenant-scoped billing runtime with explicit PUBLIC/anon SECURITY DEFINER revocation and authenticated-only execution — merged.
 - PR #527 — exact-PR-head recovery / Phase F CI evidence enablement — merged.
 - PR #529 — tenant-backed `/work-center` operational surface using the existing import read path — merged.
+- PR #550 — structured PDF/file-engine runtime repair — merged and fresh exact-main PDF verification is recorded.
+- PR #556 — production-coordinator runtime test loader restoration — merged and current exact-head coordinator proof is recorded.
 
 ### BOUNDARY / GOVERNANCE
 - No rebuild from scratch.
