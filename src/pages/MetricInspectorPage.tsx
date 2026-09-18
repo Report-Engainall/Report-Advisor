@@ -158,7 +158,7 @@ export function MetricInspectorPage() {
                       )}`}
                     >
                       <ShieldCheck size={14} />
-                      {governance?.certificationStatus ?? 'DRAFT'}
+                      {governance?.certificationStatus === 'CERTIFIED' ? 'مؤكد' : governance?.certificationStatus === 'REVIEWED' ? 'مراجع' : governance?.certificationStatus === 'DEPRECATED' ? 'متقاعد' : 'مسودة'}
                     </span>
                     <span
                       className={`inline-flex items-center gap-1 text-xs font-medium ${freshnessClass(
@@ -166,7 +166,7 @@ export function MetricInspectorPage() {
                       )}`}
                     >
                       <Clock3 size={14} />
-                      {freshness}
+                      {freshness === 'FRESH' ? 'حديث' : freshness === 'STALE' ? 'قديم' : 'غير مثبت'}
                     </span>
                     {selectedCanCapture && (
                       <button
@@ -208,17 +208,17 @@ export function MetricInspectorPage() {
                 <CardHeader title="التعريف والحساب" />
                 <CardBody className="space-y-3">
                   <div>
-                    <div className="text-xs text-ink-400">Formula</div>
+                    <div className="text-xs text-ink-400">الصيغة</div>
                     <code className="mt-1 block break-words rounded-lg bg-ink-50 p-3 text-xs text-ink-700">
                       {selected.definition.formula}
                     </code>
                   </div>
                   <div>
-                    <div className="text-xs text-ink-400">Time semantic</div>
+                    <div className="text-xs text-ink-400">دلالة الزمن</div>
                     <div className="mt-1 font-medium text-ink-800">{selected.definition.timeSemantic}</div>
                   </div>
                   <div>
-                    <div className="text-xs text-ink-400">Owner</div>
+                    <div className="text-xs text-ink-400">المسؤول</div>
                     <div className="mt-1 font-medium text-ink-800">
                       {governance?.owner ?? selected.definition.owner}
                     </div>
@@ -232,14 +232,14 @@ export function MetricInspectorPage() {
                   <div className="flex items-start gap-2">
                     <Database size={16} className="mt-0.5 text-primary-600" />
                     <div>
-                      <div className="text-xs text-ink-400">Sources</div>
+                      <div className="text-xs text-ink-400">المصادر</div>
                       <div className="text-sm text-ink-800">{selected.definition.source.join('، ')}</div>
                     </div>
                   </div>
                   <div className="flex items-start gap-2">
                     <GitBranch size={16} className="mt-0.5 text-primary-600" />
                     <div>
-                      <div className="text-xs text-ink-400">Evidence references</div>
+                      <div className="text-xs text-ink-400">مراجع الدليل</div>
                       <div className="text-sm text-ink-800">
                         {governance?.evidence.join('، ') || selected.definition.evidence.join('، ')}
                       </div>
@@ -250,11 +250,11 @@ export function MetricInspectorPage() {
             </div>
 
             <Card>
-              <CardHeader title="Consumers & Dependencies" />
+              <CardHeader title="المستهلكون والاعتماديات" />
               <CardBody>
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                   <div>
-                    <div className="mb-2 text-xs text-ink-400">Consumers</div>
+                    <div className="mb-2 text-xs text-ink-400">المستهلكون</div>
                     <div className="flex flex-wrap gap-2">
                       {(governance?.consumers ?? selected.definition.consumers).map((item) => (
                         <span key={item} className="rounded-full bg-ink-50 px-2.5 py-1 text-xs text-ink-600">
@@ -264,7 +264,7 @@ export function MetricInspectorPage() {
                     </div>
                   </div>
                   <div>
-                    <div className="mb-2 text-xs text-ink-400">Dependencies</div>
+                    <div className="mb-2 text-xs text-ink-400">الاعتماديات</div>
                     <div className="flex flex-wrap gap-2">
                       {(governance?.dependencies ?? selected.definition.dependencies ?? []).map((item) => (
                         <span key={item} className="rounded-full bg-ink-50 px-2.5 py-1 text-xs text-ink-600">
@@ -278,13 +278,13 @@ export function MetricInspectorPage() {
             </Card>
 
             <Card>
-              <CardHeader title="Test & Governance Status" />
+              <CardHeader title="حالة الاختبارات والحوكمة" />
               <CardBody>
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                   <div className="rounded-xl bg-ink-50 p-4">
                     <div className="flex items-center gap-2 text-sm font-medium text-ink-700">
                       <CheckCircle2 size={16} className="text-success-600" />
-                      Tests
+                      الاختبارات
                     </div>
                     <div className="mt-2 text-xs text-ink-500">
                       {(governance?.tests ?? selected.definition.tests).join('، ')}
@@ -293,14 +293,14 @@ export function MetricInspectorPage() {
                   <div className="rounded-xl bg-ink-50 p-4">
                     <div className="flex items-center gap-2 text-sm font-medium text-ink-700">
                       <AlertTriangle size={16} className="text-warning-600" />
-                      Freshness policy
+                      سياسة الحداثة
                     </div>
                     <div className="mt-2 text-xs text-ink-500">
                       {governance ? JSON.stringify(governance.freshness) : 'غير محفوظة'}
                     </div>
                   </div>
                   <div className="rounded-xl bg-ink-50 p-4">
-                    <div className="text-sm font-medium text-ink-700">Version</div>
+                    <div className="text-sm font-medium text-ink-700">الإصدار</div>
                     <div className="mt-2 text-lg font-bold text-ink-900">
                       v{governance?.version ?? selected.definition.version}
                     </div>
