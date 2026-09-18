@@ -267,13 +267,15 @@ try {
     }
 
     if (result.auth === 'PASS') {
-      const primaryNav = await page.getByRole('navigation', { name: 'التنقل التجاري الرئيسي' }).count();
+      const primaryNav = page.getByRole('navigation', { name: 'التنقل التجاري الرئيسي' });
+      await primaryNav.waitFor({ state: 'visible', timeout: 15000 }).catch(() => {});
+      const primaryNavVisible = await primaryNav.isVisible().catch(() => false);
       addFinding(
         'E2E-AUTH-012',
-        primaryNav ? 'PASS' : 'NOT_PROVEN',
+        primaryNavVisible ? 'PASS' : 'NOT_PROVEN',
         'P1',
-        primaryNav
-          ? 'Authenticated application shell became visible after login.'
+        primaryNavVisible
+          ? 'Authenticated application shell became visible within the bounded convergence window after login.'
           : 'Authenticated session is proven, but the primary navigation shell did not become visible within the bounded convergence window.',
       );
 
