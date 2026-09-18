@@ -8,7 +8,7 @@
 
 ## 0. CONTINUOUS OPERATIONAL MEMORY — MANDATORY
 
-The repository, not chat, is the durable memory of execution.
+The repository, not chat, is the durable memory of execution. The human-readable ledger is docs/CONTINUOUS_OPERATIONAL_MEMORY.md and the machine-readable companion is docs/CONTINUOUS_OPERATIONAL_STATE.json.
 
 Before every coordinator cycle, read docs/CONTINUOUS_OPERATIONAL_MEMORY.md and verify its live execution header against GitHub current state. Do not ask the user to reconstruct prior work when the repository contains the needed state.
 
@@ -43,7 +43,7 @@ The same memory is the programmer handoff. Programmer agents must read it before
 
 State precedence is: current repository/GitHub state → exact workflow/runtime evidence → operational memory → chat/report narrative.
 
-Operational memory is fail-closed: it may record UNKNOWN, OPEN or BLOCKED, but it may not manufacture PASS.
+Operational memory is fail-closed: it may record UNKNOWN, OPEN or BLOCKED, but it may not manufacture PASS. When the two memory files disagree, current GitHub/repository evidence wins and both files must be reconciled in the same cycle.
 
 ## 1. CORE OPERATING RULE
 
