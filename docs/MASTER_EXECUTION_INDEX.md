@@ -5,12 +5,12 @@
 > Authoritative execution manifest. This document never promotes historical evidence across an exact Git `HEAD` boundary. Pair every evidence batch with the exact Git `HEAD` of `main` and the exact environment/commit used.
 
 ### CURRENT EXACT HEAD
-- Current code/test candidate: `1ed603e1b8fee7488fd43e9c00f65ff5dd13f9ce`.
-- Current Main product/test candidate is `1ed603e1b8fee7488fd43e9c00f65ff5dd13f9ce`. PR #550 structured PDF/file-engine repair, PR #556 coordinator runtime-loader restoration, and PR #564 Windows-safe readiness/lint fixes are included in the candidate lineage.
+- Current code/test candidate: `a1d1d97157bef2d944002aa36dc70bf133eb1cda`.
+- Current Main product/test candidate remains `1ed603e1b8fee7488fd43e9c00f65ff5dd13f9ce` until the source-parity repair is merged; this branch candidate is `a1d1d97157bef2d944002aa36dc70bf133eb1cda` (PR #570). PR #550 structured PDF/file-engine repair, PR #556 coordinator runtime-loader restoration, and PR #564 Windows-safe readiness/lint fixes are included in the candidate lineage.
 - The autonomous operating protocol is now repository-resident at `docs/PROGRAMMER_AUTONOMOUS_OPERATING_PROTOCOL.md`.
 - PC01 exact-main runtime evidence is recorded in `docs/evidence/EXACT_MAIN_RUNTIME_20260918.md`; current-head native/installer evidence remains pending a workflow run against `1ed603e1...`.
 - No runtime/browser/production evidence from an earlier SHA is promoted by this binding.
-- The certification binding itself is governance-only and does not certify runtime/product code; fresh exact-HEAD runtime evidence is still required.
+- The certification binding itself is governance-only and does not certify runtime/product code; fresh exact-HEAD runtime evidence for this candidate is still required.
 - Historical evidence from earlier SHAs remains historical and is not promoted automatically.
 - Current-head workflow execution is not yet evidenced on this SHA by the repository Actions run feed; absence of runs is not PASS and does not transfer historical evidence.
 - Live Vercel state shows the most recent observed production deployment still bound to historical Main SHA `a32fae0fc08c1cbbcc60b6eedfb0f4bd74a21c50` and READY; this is stale relative to the current code/test candidate and is not promoted as current production evidence.
