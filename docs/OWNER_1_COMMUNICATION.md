@@ -860,3 +860,16 @@ DONE: Wave 18 Inventory Intelligence truth integrity completed and handed off.
 OPEN: Owner 2 integration/runtime/release proof; Owner 1 next front remains independent commercial/data-truth hardening.
 BLOCKED: none.
 NEXT START: inspect customer/product intelligence surfaces for missing canonical truth context.
+
+## START — COMMAND 17 — 2026-09-19
+START
+DATE: 2026-09-19T02:15+03:00
+OWNER: 1
+BRANCH: feat/owner1-inventory-report-truth-wave19-20260919
+HEAD: c9b4afd11acb891e4706f1f679adbc8dc1b0b820
+BASE: c9b4afd11acb891e4706f1f679adbc8dc1b0b820
+OBJECTIVE: توحيد سياق الحقيقة في صفحة المخزون التشغيلية /inventory باستخدام dataStatus canonical من get_inventory_report_snapshot، دون تغيير RPC أو DB.
+FILES / SURFACES: src/pages/EntityPages.tsx; scripts/check-inventory-page-truth-contract.mjs; package.json; docs/OWNER_1_COMMUNICATION.md
+DEPENDENCIES: fetchInventoryReportSnapshot الحالي؛ لا تغيير في query/RPC/RLS/Runner/Auth/Storage/CI.
+BLOCKERS: لا يوجد blocker تطويري معروف.
+EXPECTED HANDOFF: Owner 2 يعيد إثبات /inventory/browser/runtime/release gates على Exact SHA؛ لا نقل Evidence بين SHAs.
