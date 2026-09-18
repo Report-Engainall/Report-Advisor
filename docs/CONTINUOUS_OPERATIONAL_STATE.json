@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "roleContract": "coordinator+programmer",
-  "updatedAt": "2026-09-18T04:05:00Z",
+  "updatedAt": "2026-09-18T04:15:00Z",
   "authority": {
     "mainSha": "a32fae0fc08c1cbbcc60b6eedfb0f4bd74a21c50",
     "mainIsUntouched": true,
@@ -129,10 +129,12 @@
       "id": "VERCEL",
       "area": "deployment",
       "sha": "provider",
-      "state": "BLOCKED_EXTERNAL",
-      "next": "provider quota recovery",
+      "state": "PREVIEW_READY_PRODUCTION_UNPROVEN",
+      "next": "verify production promotion only when release gates are green",
       "evidence": [
-        "Vercel build-rate-limit status"
+        "Vercel build-rate-limit status",
+        "Vercel preview READY for #540 b7c57d04",
+        "production target not proven"
       ],
       "doNotRepeat": [
         "bypassing provider gate"
