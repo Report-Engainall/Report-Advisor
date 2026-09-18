@@ -5,8 +5,8 @@
 > Authoritative execution manifest. This document never promotes historical evidence across an exact Git `HEAD` boundary. Pair every evidence batch with the exact Git `HEAD` of `main` and the exact environment/commit used.
 
 ### CURRENT EXACT HEAD
-- Current code/test candidate: `c59caa11b3c2430f8bd0e5f06581c799a7d79d97`.
-- Current Main product/test candidate remains `1ed603e1b8fee7488fd43e9c00f65ff5dd13f9ce` as the last merged product candidate; security source-parity repair PR #570 is merged, and this browser-E2E diagnostic candidate is `c59caa11b3c2430f8bd0e5f06581c799a7d79d97` (PR pending). PR #550 structured PDF/file-engine repair, PR #556 coordinator runtime-loader restoration, and PR #564 Windows-safe readiness/lint fixes are included in the candidate lineage.
+- Current code/test candidate: `40b64a3dcfe1e3f9cd9bb677c3d85207163097e4`.
+- Current Main product/test candidate remains `40b64a3dcfe1e3f9cd9bb677c3d85207163097e4` while this browser-E2E diagnostic is evaluated in PR #572. PR #550 structured PDF/file-engine repair, PR #556 coordinator runtime-loader restoration, and PR #564 Windows-safe readiness/lint fixes are included in the candidate lineage.
 - The autonomous operating protocol is now repository-resident at `docs/PROGRAMMER_AUTONOMOUS_OPERATING_PROTOCOL.md`.
 - PC01 exact-main runtime evidence is recorded in `docs/evidence/EXACT_MAIN_RUNTIME_20260918.md`; current-head native/installer evidence remains pending a workflow run against `1ed603e1...`.
 - No runtime/browser/production evidence from an earlier SHA is promoted by this binding.
