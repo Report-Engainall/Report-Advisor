@@ -9,7 +9,7 @@ import {
   ShieldCheck,
 } from 'lucide-react';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
-import { EmptyState, ErrorState, LoadingState, PageHeader } from '@/components/ui/States';
+import { EmptyState, ErrorState, LoadingState, PageHeader, TruthRail } from '@/components/ui/States';
 import {
   listSemanticMetricContracts,
   semanticMetricIsFresh,
@@ -108,6 +108,7 @@ export function MetricInspectorPage() {
         title="حوكمة المؤشرات"
         subtitle="تعريف المؤشر، نسخته، مصدره، الأدلة، والجهات المستهلكة من عقد موحد"
       />
+      <TruthRail status={freshness === 'FRESH' ? 'live' : freshness === 'STALE' ? 'review' : 'limited'} period={selected ? `المؤشر المحدد · ${selected.definition.metricId}` : `${items.length} مؤشرات`} />
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[320px_1fr]">
         <Card>

@@ -3,7 +3,7 @@ import { AlertCircle, BarChart3, CheckCircle2, Download, FileImage, FileSpreadsh
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { DataTable } from '@/components/ui/DataTable';
-import { PageHeader } from '@/components/ui/States';
+import { PageHeader, TruthRail } from '@/components/ui/States';
 import { detectFormat } from '@/lib/file-engine/detector';
 import { securityScan, computeSHA256 } from '@/lib/file-engine/security';
 import { parseFile } from '@/lib/file-engine/adapters';
@@ -67,6 +67,7 @@ export function ExternalFileAnalysisPage() {
 
   return <div className="space-y-6" dir="rtl">
     <PageHeader title="مختبر الملفات والبيانات" subtitle="حلّل أي ملف خارجي دون إجباره على نموذج أعمال مسبق، مع إبقاء الحقول الأصلية متاحة للمراجعة." />
+    <TruthRail status={error ? 'review' : file ? 'live' : 'limited'} period={file ? `فحص محلي · ${file.name}` : 'لم يتم تحميل ملف'} />
     <Card><CardBody>
       <div className="grid gap-5 lg:grid-cols-[1fr_auto] items-center">
         <div><div className="flex items-center gap-2"><Sparkles size={18}/><h2 className="font-semibold">Universal File Intelligence</h2></div><p className="mt-2 text-sm leading-6 text-ink-500">فحص أمني → كشف الصيغة → استخراج → profiling → mapping → جودة → جاهزية للتحليل. هذا المسار تحليلي ولا يكتب سجلات الأعمال تلقائيًا.</p><div className="mt-3 flex flex-wrap gap-2"><Badge variant="neutral">كل الأعمدة</Badge><Badge variant="neutral">أنواع البيانات</Badge><Badge variant="neutral">Mapping Evidence</Badge><Badge variant="neutral">Quality Signals</Badge><Badge variant="neutral">OCR عربي + English</Badge><Badge variant="neutral">SHA-256</Badge></div></div>

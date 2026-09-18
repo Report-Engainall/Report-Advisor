@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Upload, FileSpreadsheet, FileText, FileImage, FileType, Database, CheckCircle2, XCircle, AlertCircle, AlertTriangle, ShieldCheck, Loader2, ArrowLeft, LockKeyhole, FileCheck2, RefreshCw } from 'lucide-react';
 import { Card, CardHeader, CardBody } from '@/components/ui/Card';
 import { Badge, StatusBadge } from '@/components/ui/Badge';
-import { PageHeader, LoadingState, EmptyState } from '@/components/ui/States';
+import { PageHeader, LoadingState, EmptyState, TruthRail } from '@/components/ui/States';
 import { DataTable } from '@/components/ui/DataTable';
 import { fetchImportRecords, createImportRecord } from '@/lib/queries';
 import { supabase, resolveCurrentCompanyId } from '@/lib/supabase';
@@ -186,8 +186,9 @@ export function CanonicalImportPage() {
   const qualityVariant = quality >= 75 ? 'success' : quality >= 50 ? 'warning' : 'danger';
   const ready = Boolean(file && fileHash && securityPassed && !duplicate && valid > 0 && (quality >= 75 || (quality >= 50 && quality < 75 && qualityApproved)));
 
-  return <div className="space-y-5 animate-fade-in">
+  return <div dir="rtl" className="space-y-5 animate-fade-in">
     <PageHeader title="مركز الاستيراد" subtitle="مسار موحد: فحص أمني → تحليل → مطابقة → مراجعة → كتابة قانونية في البيانات الأساسية" />
+    <TruthRail status={step === 'done' ? 'live' : error ? 'review' : step === 'upload' ? 'limited' : 'review'} period={file ? `المصدر الحالي · ${file.name}` : 'بانتظار المصدر'} />
     <Stepper step={step} />
 
     {step === 'upload' && <Card><CardBody>

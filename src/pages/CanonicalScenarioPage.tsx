@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
-import { PageHeader } from '@/components/ui/States';
+import { PageHeader, TruthRail } from '@/components/ui/States';
 import { formatCurrency } from '@/lib/format';
 
 type CanonicalScenarioPageProps = {
@@ -21,8 +21,9 @@ export function CanonicalScenarioPage({ baseRevenue, baseCost, currency }: Canon
   const profitChange = baseProfit === 0 ? null : ((newProfit - baseProfit) / Math.abs(baseProfit)) * 100;
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      <PageHeader title="محاكاة السيناريوهات" subtitle="اختبر تأثير التغييرات على الأداء المالي" />
+    <div dir="rtl" className="space-y-6 animate-fade-in">
+      <PageHeader title="محاكاة السيناريوهات" subtitle="اختبر تأثير التغييرات على الأداء المالي دون تغيير البيانات المصدرية." />
+      <TruthRail status="review" period={`${currency} · What-if محلي غير persisted`} />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <Card>
           <CardHeader title="محددات السيناريو" />
