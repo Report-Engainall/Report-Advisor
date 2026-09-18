@@ -53,7 +53,7 @@ async function browserSession(user) {
       response =>
         response.request().method() === 'POST' &&
         response.url().includes('/auth/v1/token?grant_type=password'),
-      { timeout: 30000 },
+      { timeout: 60000 },
     ).catch(() => null);
     const loginSubmit = page.locator('form button[type="submit"]');
     if (!(await loginSubmit.count())) throw new Error('LOGIN_SUBMIT_NOT_FOUND');
