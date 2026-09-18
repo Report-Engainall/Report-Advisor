@@ -591,3 +591,34 @@ Historical evidence from 66d is not promoted to 51c.
 - Vercel has no deployment for PR #542 candidate/head in the currently inspected deployment list. Production remains separate; no candidate deployment is claimed.
 - Governance-document defect observed: `docs/MASTER_EXECUTION_INDEX.md` contains an isolated `NaN` line immediately after the current candidate line. It does not currently break the case-insensitive certification-boundary parser, but it is a documentation-integrity defect and should be removed in a later governance-only correction without transferring or invalidating runtime evidence.
 - Decision: do not churn the candidate while the fresh exact-head evidence wave is pending. Continue independent verification and patch only causal failures. Do not promote queued, historical, local, or unrelated evidence.
+
+
+## 25. Execution Reconciliation — 2026-09-18
+
+### Active exact-head state
+- Main live head remains `a32fae0fc08c1cbbcc60b6eedfb0f4bd74a21c50`.
+- Active runtime repair front: PR #542, current exact branch head `a346e68ff06cb452eff64d98a8b9980142a7daef`.
+- Code-bearing PDF/OCR repair head immediately before the governance-only index correction: `51c71124c6b90f98f4659e8d79efabf800a5cc1c`.
+- `a346e68...` changes only `docs/MASTER_EXECUTION_INDEX.md`; it removes a stale `NaN` marker and binds the index to the exact active head.
+
+### Fresh verification
+- Local Windows worktree exact code head `51c71124...`: `check-file-engine-regressions.ts` PASS.
+- Local Windows worktree exact code head `51c71124...`: `check-pdf-structured-regression.ts` PASS with real staging URL/publishable key configuration; PDF.js emitted a Node compatibility warning only, and the test process exited successfully.
+- Local Windows worktree exact code head `51c71124...`: `npm run typecheck` PASS.
+- Local Windows worktree exact code head `51c71124...`: `npm run lint -- --quiet` PASS.
+- These local results are local evidence only and are not production certification.
+
+### Live staging truth
+- Supabase staging `fnqbvfuwbdpwvhcgzksl` is `ACTIVE_HEALTHY`.
+- Current staging row counts observed: companies=2, memberships=2, import_jobs=3590, canonical_import_commits=2475, sales_invoices=329.
+- Live `public.import_finish_job(uuid,text,jsonb,text)` is SECURITY INVOKER, pins `search_path` to `public`, enforces `current_company_id()`, validates terminal states, and accepts the authoritative `committed` / `invalidRows` completion summary.
+- `import_finish_job` EXECUTE is granted to authenticated/service_role/postgres and not anonymous.
+
+### External blockers
+- Vercel status on active PR/runtime heads remains provider quota failure `api-deployments-free-per-day`; no bypass is authorized.
+- Storage Tenant Runtime remains externally blocked where `REPORT_ADVISOR_STORAGE_BUCKET` is absent; no synthetic bucket or PASS is permitted.
+- Supabase security advisors currently report a broad existing set of authenticated SECURITY DEFINER exposure warnings plus leaked-password protection disabled. These are tracked findings, not silently treated as release blockers unless the affected function is in the release-critical surface.
+
+### Certification state
+- Certification remains FAIL-CLOSED.
+- Fresh exact-head Actions evidence is required on the post-index-correction head before any runtime certification claim.
