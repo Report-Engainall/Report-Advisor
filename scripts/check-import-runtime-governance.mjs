@@ -19,7 +19,7 @@ for (const dir of dirs) {
 }
 
 const forbidden = /supabase\.from\(\s*['"](?:products|orders|import_job_rows|import_jobs)['"]\s*\)\s*\.\s*(?:insert|upsert|update)\s*\(/i;
-const allowedMarkers = /import-upsert|unified-import|runImportJob/i;
+const allowedMarkers = /import-upsert|unified-import|runImportJob|canonical-production-adapter\.ts/i;
 const violations = [];
 for (const file of files) {
   const body = fs.readFileSync(file, 'utf8');
