@@ -65,12 +65,13 @@ async function resolveCurrentCompany(token: string): Promise<string | null> {
   return typeof value === 'string' && value ? value : null;
 }
 
-function serviceClient(): SupabaseClient {
+function authenticatedClient(token: string): SupabaseClient {
   const url = process.env.SUPABASE_URL?.trim();
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
-  if (!url || !key) throw new Error('missing_supabase_server_configuration');
+  const key = process.env.VITE_SUPABASE_ANON_KEY?.trim();
+  if (!url || !key || !token) throw new Error('missing_supabase_authenticated_server_configuration');
   return createClient(url, key, {
     auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
+    global: { headers: { Authorization: `Bearer ${token}` } },
   });
 }
 
@@ -175,7 +176,7 @@ async function retryIfNeeded(client: SupabaseClient, jobId: string, companyId: s
 
 export default async function handler(req: any, res: any) {
   if (!requireMethod(req, res, 'POST')) return;
-  if (!requireConfig(res, ['SUPABASE_URL', 'SUPABASE_SERVICE_ROLE_KEY', 'VITE_SUPABASE_ANON_KEY'])) return;
+  if (!requireConfig(res, ['SUPABASE_URL', 'VITE_SUPABASE_ANON_KEY'])) return;
 
   const token = bearerToken(req);
   if (!token) return json(res, 401, { status: 'failed', error: 'authenticated_user_token_required' });
@@ -194,7 +195,7 @@ export default async function handler(req: any, res: any) {
     if (!/^sha256:[0-9a-fA-F]{64}$/.test(sourceHash)) throw new Error('source_hash_invalid');
     const entityType = requiredEntityType(body.entityType);
     const qualityScore = requiredQuality(body.qualityScore);
-    const client = serviceClient();
+    const client = authenticatedClient(token);
 
     const importJob = await loadImportJob(client, importId, companyId);
     if (importJob.status !== 'processing' && importJob.status !== 'queued') {
