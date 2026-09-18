@@ -26,22 +26,39 @@ export function Header({
 
   const currentLabel = useMemo(() => {
     if (location.pathname === '/') return 'لوحة التحكم';
-    const map: Record<string, string> = {
-      '/command-center': 'مركز القيادة',
-      '/work-center': 'مركز العمل',
-      '/import': 'إدخال البيانات',
-      '/import/analyze': 'تحليل المستندات',
-      '/data-quality': 'جودة البيانات',
-      '/reports': 'مركز التقارير',
-      '/analytics': 'التحليلات',
-      '/intelligence': 'مركز الذكاء',
-      '/decision-experience': 'تجربة القرار',
-      '/customers': 'العملاء',
-      '/products': 'المنتجات',
-      '/inventory': 'المخزون',
-      '/settings': 'إعدادات الشركة',
-    };
-    return map[location.pathname] ?? 'واجهة الأغبري';
+    const map: Array<[string, string]> = [
+      ['/command-center', 'مركز القيادة'],
+      ['/work-center', 'مركز العمل'],
+      ['/import/analyze', 'تحليل المستندات'],
+      ['/import', 'إدخال البيانات'],
+      ['/data-quality', 'جودة البيانات'],
+      ['/reports/executive', 'التقرير التنفيذي'],
+      ['/reports/sales', 'تقرير المبيعات'],
+      ['/reports/purchases', 'تقرير المشتريات'],
+      ['/reports/inventory-intelligence', 'ذكاء المخزون'],
+      ['/reports/demand-velocity', 'سرعة الطلب'],
+      ['/reports/receivables', 'الذمم والتحصيل'],
+      ['/reports/profitability', 'الربحية'],
+      ['/reports', 'مركز التقارير'],
+      ['/analytics/rfm', 'تحليل RFM'],
+      ['/analytics/abc', 'تحليل ABC'],
+      ['/analytics/aging', 'أعمار الذمم'],
+      ['/analytics', 'التحليلات'],
+      ['/intelligence/recommendations', 'التوصيات'],
+      ['/intelligence/forecasts', 'التنبؤات'],
+      ['/intelligence/scenarios', 'السيناريوهات'],
+      ['/intelligence', 'مركز الذكاء'],
+      ['/decision-experience', 'تجربة القرار'],
+      ['/alternative-groups', 'مجموعات البدائل'],
+      ['/customers', 'العملاء'],
+      ['/products', 'المنتجات'],
+      ['/inventory', 'المخزون'],
+      ['/settings/profile', 'ملفي الشخصي'],
+      ['/settings', 'إعدادات الشركة'],
+      ['/onboarding', 'بدء الاستخدام'],
+      ['/proposal-demo', 'وضع العرض التقديمي'],
+    ];
+    return map.find(([prefix]) => location.pathname === prefix || location.pathname.startsWith(prefix + '/'))?.[1] ?? 'واجهة الأغبري';
   }, [location.pathname]);
 
   useEffect(() => {
