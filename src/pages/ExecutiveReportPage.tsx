@@ -5,6 +5,8 @@ import { fetchDashboardIntelligence, fetchDashboardSnapshot, type DashboardKPIs,
 import type { Alert, Recommendation } from '@/lib/types';
 import { formatCurrency, formatNumber } from '@/lib/format';
 import { TruthContextStrip } from '@/components/TruthContextStrip';
+import { CommercialOpportunityRadar } from '@/components/CommercialOpportunityRadar';
+import { buildCommercialOpportunityRadar } from '@/lib/commercial-opportunity-radar';
 
 function Metric({ label, value, hint }: { label: string; value: string; hint: string }) {
   return <div className="rounded-2xl border border-ink-100 bg-ink-50/70 p-4">
@@ -36,6 +38,10 @@ function TrendStrip({ trend }: { trend: MonthlyTrend[] }) {
 export function ExecutiveReportPage() {
   const [kpis, setKpis] = useState<DashboardKPIs | null>(null);
   const [trend, setTrend] = useState<MonthlyTrend[]>([]);
+  const [topCustomers, setTopCustomers] = useState<Awaited<ReturnType<typeof fetchDashboardSnapshot>>['topCustomers']>([]);
+  const [topProducts, setTopProducts] = useState<Awaited<ReturnType<typeof fetchDashboardSnapshot>>['topProducts']>([]);
+  const [categories, setCategories] = useState<Awaited<ReturnType<typeof fetchDashboardSnapshot>>['categories']>([]);
+  const [aging, setAging] = useState<Awaited<ReturnType<typeof fetchDashboardSnapshot>>['aging']>({ rows: [], totalAmount: null, unknownRows: 0, status: 'NO_DATA' });
   const [asOf, setAsOf] = useState<string>('غير متاح');
   const [data, setData] = useState<{ alerts: Alert[]; recommendations: Recommendation[] } | null>(null);
   const [loading, setLoading] = useState(true);
@@ -48,6 +54,10 @@ export function ExecutiveReportPage() {
       const [snapshot, intelligence] = await Promise.all([fetchDashboardSnapshot(6), fetchDashboardIntelligence()]);
       setKpis(snapshot.kpis);
       setTrend(snapshot.trend);
+      setTopCustomers(snapshot.topCustomers);
+      setTopProducts(snapshot.topProducts);
+      setCategories(snapshot.categories);
+      setAging(snapshot.aging);
       setAsOf(snapshot.asOf);
       setData(intelligence);
     } catch (e) {
@@ -58,6 +68,14 @@ export function ExecutiveReportPage() {
   }, []);
 
   useEffect(() => { void load(); }, [load]);
+
+  const commercialSignals = kpis
+    ? buildCommercialOpportunityRadar({ kpis, trend, topCustomers, topProducts, categories, aging, months: 6 })
+    : [];
+  const finiteSales = trend.filter(point => typeof point.sales === 'number' && Number.isFinite(point.sales));
+  const firstSales = finiteSales[0]?.sales ?? null;
+  const lastSales = finiteSales.at(-1)?.sales ?? null;
+  const salesDelta = firstSales != null && firstSales > 0 && lastSales != null ? ((lastSales - firstSales) / firstSales) * 100 : null;
 
   return <div dir="rtl" className="report-page space-y-5 pb-10 print:space-y-3">
     <header className="overflow-hidden rounded-[14px] border border-ink-200 bg-white p-5 shadow-card lg:p-6">
@@ -89,6 +107,18 @@ export function ExecutiveReportPage() {
           <Metric label="الذمم المتأخرة" value={kpis?.overdueReceivables == null ? 'غير متاح' : formatCurrency(kpis.overdueReceivables)} hint="رصيد يحتاج متابعة" />
         </div>
       </section>
+
+      <section className="rounded-2xl border border-ink-200 bg-white p-5 shadow-sm">
+        <div className="flex flex-wrap items-end justify-between gap-3"><div><p className="text-xs font-bold tracking-wider text-primary-600">قصة الإدارة</p><h2 className="mt-1 text-lg font-black">ماذا تقول اللقطة الحالية؟</h2><p className="mt-1 max-w-3xl text-xs leading-6 text-ink-500">هذه قراءة وصفية مشتقة من الأرقام نفسها؛ لا تحوّل الارتباط إلى سبب جذري، ولا تستنتج تنفيذًا غير مثبت.</p></div><span className="rounded-full bg-ink-100 px-3 py-1 text-[10px] font-black text-ink-600">حتى {asOf}</span></div>
+        <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <Metric label="الصورة المالية" value={kpis?.grossProfit == null ? 'غير متاحة' : formatCurrency(kpis.grossProfit)} hint={kpis?.grossMargin == null ? 'الهامش غير متاح' : 'هامش إجمالي ' + kpis.grossMargin.toFixed(1) + '%'} />
+          <Metric label="زخم الحركة" value={salesDelta == null ? 'غير متاح' : (salesDelta >= 0 ? '+' : '') + salesDelta.toFixed(1) + '%'} hint="أول قيمة مبيعات متاحة → آخر قيمة" />
+          <Metric label="ضغط التحصيل" value={kpis?.overdueReceivables == null ? 'غير متاح' : formatCurrency(kpis.overdueReceivables)} hint={kpis?.collectionRate == null ? 'معدل التحصيل غير متاح' : 'معدل التحصيل ' + kpis.collectionRate.toFixed(1) + '%'} />
+          <Metric label="حالة الدليل" value={kpis?.status === 'CONFIRMED' ? 'مصدر مؤكد' : kpis?.status === 'CALCULATED' ? 'محسوب من المصدر' : 'بيانات غير كافية'} hint="الحالة لا تثبت وحدها السبب أو نتيجة القرار" />
+        </div>
+      </section>
+
+      <CommercialOpportunityRadar signals={commercialSignals} />
 
       <section className="rounded-2xl border border-ink-200 bg-white p-5 shadow-sm">
         <div className="flex items-center gap-2"><TrendingUp size={18} className="text-primary-600" /><div><h2 className="text-lg font-black">نبض المبيعات</h2><p className="text-xs text-ink-500">آخر 6 أشهر من المصدر المعتمد</p></div></div>
