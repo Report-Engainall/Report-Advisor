@@ -6,7 +6,7 @@
 
 ### CURRENT EXACT HEAD
 - Governed Main: `9bd7243c8864ca5bcf431b14a7c2eb35c698de7c`.
-- Current code/test candidate: `fbaef57af81bc529c4f3b4854ceb1ad5bdd44ca7`.
+- Current code/test candidate: `7e19745f306a119512d153e05f8970408deb6028`.
 - PR #567 is the active open certification path on branch `fix/pdf-structured-runtime-final-20260918`; PR #560 was closed during the forced branch rebind and is historical only.
 - The autonomous operating protocol remains repository-resident at `docs/PROGRAMMER_AUTONOMOUS_OPERATING_PROTOCOL.md`.
 - Fresh PC01 proof on predecessor `9dd3c86d...`: 20-stage release readiness PASS (20/20) and Windows-safe production-gate runtime PASS (integrity, typecheck, build). This proof is recorded as predecessor evidence and is not independently promoted as a runtime PASS for `fbaef57a...`.
@@ -17,7 +17,7 @@
 
 ### CURRENT EXECUTION CONTROL — 2026-09-18
 - PR #533 remains the repository-resident continuous execution/resume protocol and is governance-only.
-- Structured PDF/file-engine regression was PASS on the immediately preceding candidate before the CI-script-only patch; it is deliberately not promoted to `9dd3c86d...`. The required fresh PDF/OCR run remains GitHub-bound because PC01 cannot expose the real CI secret safely through the local command boundary.
+- Structured PDF/file-engine regression was previously PASS on a predecessor candidate, but no historical PDF/OCR PASS is promoted to `7e19745f...`; the required fresh exact-head PDF/OCR run remains GitHub-bound because PC01 cannot expose the real CI secret safely through the local command boundary.
 - Canonical import server-boundary remediation and worker service-role authority reconciliation remain part of the current candidate. The existing durable runner/RPC architecture was retained; the runner was not rewritten.
 - The exact-candidate repository readiness suite is PASS, but authenticated business E2E, fresh exact-head PDF/OCR runtime, current-head Browser/Certification evidence, and current-head production/deployment verification remain open.
 - Rule: do not restart closed work or transfer evidence across SHA boundaries.
