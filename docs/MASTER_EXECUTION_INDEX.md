@@ -3,7 +3,7 @@
 > تحديث تنفيذي بعد أمر المالك «انطلق». هذا القسم يصف الحالة المثبتة من الأدوات فقط. لا يتم نقل Evidence بين SHAs، ولا تُعد الحالة PASS إلا بدليل Exact-HEAD.
 
 ### CURRENT EXACT HEAD / DEPLOYED STATE
-- **Current code/test candidate:** `ce9885eb153dd6a1f02e2aa48c114d383f0182` (latest UI code/test head; subsequent documentation-only binding remains governance-only).
+- **Current code/test candidate:** `ce9885eb153dd6a1f1d02e2aa48c114d383f0182` (latest UI code/test head; subsequent documentation-only binding remains governance-only).
 - **Reference product/runtime code HEAD:** `c11c084d161cceb4595f8552b6c49c3f610f0ec2`; current `main` also carries the forward-only security/source-parity migrations merged afterward.
 - **Current main:** `7d6bca3c02416c9b6c877e82115eb9961f635a47`; this includes the forward-only security/source-parity merge `64c870426...` plus the closure-ledger docs sync. Product feature code remains anchored to the earlier runtime code reference until PR #587 is accepted.
 - **Netlify Production:** latest verified production deploy `6aacfe23cc817a00089dce5c` = `ready`, branch `main`, but still points to commit `ad12e9e564f85ffde8bb29daa6e41e73ca969b92`, which predates current `main`. Public access remains verified without Netlify SSO/password. Connector-side redeploy requires a source/repo execution environment.
@@ -31,7 +31,7 @@
 - Product development PR #587 type error is repaired at `dfdc662...`; a fresh shared-harness login regression was then fixed at `182f0983...` and `3c4bb990...`. Fresh workflows on `3c4bb990...` remain authoritative and pending.
 
 ### LATEST UI / PRODUCT-EXPERIENCE UPDATE — 2026-09-18
-- UI code/test head: `ce9885eb153dd6a1f02e2aa48c114d383f0182`.
+- UI code/test head: `ce9885eb153dd6a1f1d02e2aa48c114d383f0182`.
 - Implemented tenant/user-scoped browser Saved Views for customers, products, inventory, demand velocity, and inventory intelligence using existing tenant resolution only; no backend contract added.
 - Dashboard KPI drill-down now exposes separate operational and metric-evidence links; recommendations open Decision Experience directly at the selected Evidence stage using the existing recommendation identifier.
 - Added shared accessibility hardening for header/sidebar/command palette/loading/error states, keyboard-accessible file selection, and responsive creation dialogs.
