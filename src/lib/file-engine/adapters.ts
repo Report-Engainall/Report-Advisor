@@ -98,9 +98,21 @@ function tryParseStructuredPdfText(text: string): Row[] | null {
   const embedded = extractEmbeddedJson(compact);
   if (embedded !== null) candidates.push(embedded);
 
+  const normalizeStructuredRecord = (record: Row): Row => {
+    const normalizedRecord: Row = { ...record };
+    for (const field of ['subtotal', 'tax_amount', 'total', 'paid_amount']) {
+      const value = normalizedRecord[field];
+      if (typeof value === 'string') normalizedRecord[field] = normalizeStructuredDocumentValue(value);
+    }
+    if (typeof normalizedRecord.invoice_date === 'string') {
+      normalizedRecord.invoice_date = normalizeArabicDigits(normalizedRecord.invoice_date);
+    }
+    return normalizedRecord;
+  };
+
   for (const parsed of candidates) {
-    if (isRecord(parsed)) return [parsed];
-    if (Array.isArray(parsed) && parsed.length && parsed.every(isRecord)) return parsed;
+    if (isRecord(parsed)) return [normalizeStructuredRecord(parsed)];
+    if (Array.isArray(parsed) && parsed.length && parsed.every(isRecord)) return parsed.map(normalizeStructuredRecord);
   }
 
   const normalized = normalizeArabicDigits(
