@@ -622,3 +622,16 @@ Historical evidence from 66d is not promoted to 51c.
 ### Certification state
 - Certification remains FAIL-CLOSED.
 - Fresh exact-head Actions evidence is required on the post-index-correction head before any runtime certification claim.
+
+
+## 27. Leadership Self-Correction — 2026-09-18
+- The prior `2` cycle was too observation-heavy and ended while safe independent work remained.
+- Corrective governance commits: `d1a2d4e5dbfc15482eab06b7eacd4890ee80761b`, `1184b71d7f10a5bff5284810765185dc80ff6f98`, `9c9fa6f65420a7ce269fa6696cb6ec76726f406c`.
+- These add a mandatory non-idle execution gate to the AI lead, dual-signal protocol, and programmer protocol: queued CI is not a stop; every activation must execute a material action, re-scan, and improve the control plane when a recurring failure is found.
+- Live Supabase Security Advisor reports 49 authenticated-callable SECURITY DEFINER warnings.
+- Release-critical report execution RPCs were inspected individually; no blanket revoke was performed.
+- Issue #544 now tracks intent-based classification and adversarial closure of the seven report-runtime RPCs.
+- Main: `a32fae0fc08c1cbbcc60b6eedfb0f4bd74a21c50`.
+- PR #542 branch HEAD: `a346e68ff06cb452eff64d98a8b9980142a7daef`.
+- Governed code/test candidate: `51c71124c6b90f98f4659e8d79efabf800a5cc1c`.
+- Certification remains FAIL-CLOSED.
