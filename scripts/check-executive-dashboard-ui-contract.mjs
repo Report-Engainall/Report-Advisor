@@ -3,18 +3,20 @@ import fs from 'node:fs';
 
 const source = fs.readFileSync('src/pages/DashboardPage.tsx', 'utf8');
 for (const token of [
-  'من البيانات إلى القرار التجاري — في شاشة واحدة.',
-  'مركز القيادة',
-  'التقرير التنفيذي',
-  'مؤشرات أساسية',
-  'تغطية المؤشرات',
+  'BUSINESS COMMAND SYSTEM',
+  'نبض الأعمال',
   'مركز الانتباه',
   'طابور القرار',
   'مسارات العمل',
+  'مساحة الإثبات والتحليل',
   'fetchDashboardSnapshot',
   'fetchDashboardIntelligence',
   'metricStatus',
-  'مسارات العمل',
+  'BusinessInvestigationDrawer',
+  'openKpi',
+  'openAlert',
+  'openRecommendation',
+  'snapshotAsOf',
 ]) assert.ok(source.includes(token), `dashboard UI contract missing: ${token}`);
 
 assert.match(source, /kpis\.totalSales/);
@@ -25,5 +27,6 @@ assert.match(source, /aging\.rows/);
 assert.match(source, /liveAlerts\.map/);
 assert.match(source, /liveRecommendations\.map/);
 assert.match(source, /TREND_RANGES\.map/);
+assert.match(source, /BusinessInvestigationDrawer target=\{investigation\}/);
 
 console.log('Executive dashboard UI contract: PASS');
