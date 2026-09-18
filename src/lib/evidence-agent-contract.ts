@@ -1,4 +1,5 @@
 export const AGHBARI_EVIDENCE_PROTOCOL_VERSION = '1.0';
+export const AGHBARI_EVIDENCE_ENDPOINT = '/api/evidence-context';
 
 export const AGHBARI_EVIDENCE_TOOLS = [
   'get_dashboard_snapshot',
