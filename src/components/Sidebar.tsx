@@ -27,6 +27,9 @@ const navSections: NavSection[] = [
   ]},
   { title: 'التحليل التجاري', items: [
     { path: '/reports', label: 'مركز التقارير', icon: <FileBarChart size={18}/> },
+    { path: '/reports/sales', label: 'تقرير المبيعات', icon: <FileBarChart size={18}/> },
+    { path: '/reports/purchases', label: 'تقرير المشتريات', icon: <FileBarChart size={18}/> },
+    { path: '/reports/inventory', label: 'تقرير المخزون', icon: <Package size={18}/> },
     { path: '/analytics', label: 'التحليلات', icon: <BarChart3 size={18}/> },
     { path: '/reports/inventory-intelligence', label: 'ذكاء المخزون', icon: <Gauge size={18}/> },
     { path: '/reports/demand-velocity', label: 'الطلب والحركة', icon: <Activity size={18}/> },
