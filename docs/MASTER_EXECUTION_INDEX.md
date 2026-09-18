@@ -1,3 +1,12 @@
+### LIVE EXECUTION UPDATE — 2026-09-18T17:30Z
+- **CURRENT EXACT HEAD:** `4981c94c7efb882ba0c19c6f6dab8335d0e993b4`.
+- **Real staging worker recovery fix:** identified a lifecycle defect where expired `leased/processing` jobs with remaining attempt budget were never returned to `queued`; only exhausted jobs were dead-lettered.
+- **Forward-only fix:** added `20260918172214_recover_expired_report_execution_retry_path.sql` to re-queue expired jobs while `attempt < max_attempts`, dead-letter exhausted jobs, clear lease ownership/token/expiry, and preserve structured recovery provenance. No runner/RPC duplication and no historical migration rewrite.
+- **Staging proof:** executed the canonical recovery against existing stale staging jobs only; **18 real expired jobs recovered** (1 + 17 across the two existing tenants), **0 expired leased/processing jobs remain**, 18 recovered rows now carry `worker_lease_expired_retry`, and the exhausted historical job remains `dead_letter`.
+- **Exact-head code proof:** typecheck PASS; expired-recovery contract PASS; worker current-main contract PASS; report-execution foundation PASS; operational resilience + backup evidence integrity PASS; production readiness PASS (21 paths / 31 workflow gates); production release-blocker contract PASS.
+- **Release truth:** this fixes a genuine worker lifecycle defect, but it does not by itself prove live production worker runtime, backup/restore RPO/RTO, Phase-F live resilience, or deployed-SHA certification.
+- **Vercel:** still externally blocked by provider build-rate-limit. Netlify authenticated proxy deployment was attempted twice for the current source; the proxy reached upload then returned HTTP 500, so no new deployment is claimed.
+
 ### LIVE EXECUTION UPDATE — 2026-09-18T17:05Z
 - **CURRENT EXACT HEAD:** `2e48261e8926a42fa4520cf487b1b2625be5621f`.
 - Added reusable local/tenant-keyed Saved Views to **Work Center**, **Demand Velocity**, and **Inventory Intelligence**, with explicit reset controls; no database/RPC duplication.
