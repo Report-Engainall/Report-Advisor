@@ -22,6 +22,8 @@ export default defineConfig({
           'vendor-react': ['react', 'react-dom', 'react-router-dom'],
           'vendor-charts': ['recharts'],
           'vendor-xlsx': ['xlsx'],
+          'vendor-documents': ['pdfjs-dist', 'mammoth'],
+          'vendor-ocr': ['tesseract.js'],
         },
       },
     },
