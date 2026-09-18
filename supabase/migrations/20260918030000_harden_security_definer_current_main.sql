@@ -602,5 +602,8 @@ GRANT EXECUTE ON FUNCTION public.record_recommendation_outcome(text,timestamptz,
 REVOKE ALL ON FUNCTION public.request_decision_approval(uuid,text) FROM PUBLIC, anon;
 GRANT EXECUTE ON FUNCTION public.request_decision_approval(uuid,text) TO authenticated;
 
-REVOKE ALL ON FUNCTION public.retry_report_execution_job(uuid,uuid) FROM PUBLIC, anon, authenticated;
-GRANT EXECUTE ON FUNCTION public.retry_report_execution_job(uuid,uuid) TO service_role;
+-- retry_report_execution_job is intentionally authenticated/tenant-scoped:
+-- its body requires auth.uid() and current_company_id() = p_company_id.
+-- Keeping authenticated EXECUTE preserves that caller contract; PUBLIC/anon remain denied.
+REVOKE ALL ON FUNCTION public.retry_report_execution_job(uuid,uuid) FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION public.retry_report_execution_job(uuid,uuid) TO authenticated;
