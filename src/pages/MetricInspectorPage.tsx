@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import {
   AlertTriangle,
   Camera,
@@ -43,6 +44,8 @@ export function MetricInspectorPage() {
   const [selected, setSelected] = useState<SemanticMetricContract | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [params] = useSearchParams();
+  const requestedMetric = params.get('metric');
   const [capture, setCapture] = useState<KpiEvidenceSnapshot | null>(null);
   const [captureError, setCaptureError] = useState<string | null>(null);
   const [capturing, setCapturing] = useState(false);
@@ -54,6 +57,8 @@ export function MetricInspectorPage() {
       const result = await listSemanticMetricContracts();
       setItems(result);
       setSelected((current) => {
+        const requested = requestedMetric ? result.find(item => item.definition.metricId === requestedMetric || item.definition.key === requestedMetric) : null;
+        if (requested) return requested;
         if (!current) return result[0] ?? null;
         return result.find((item) => item.definition.metricId === current.definition.metricId) ?? result[0] ?? null;
       });
@@ -62,7 +67,7 @@ export function MetricInspectorPage() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [requestedMetric]);
 
   useEffect(() => {
     void load();
