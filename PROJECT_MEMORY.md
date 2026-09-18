@@ -786,3 +786,13 @@ PC01 device cleanup remains IN_PROGRESS / BLOCKED_EXTERNAL_CHANNEL after the rem
 - Master Index was rebound to the new code/test candidate by governance-only commit: 884362ebb7380d7db3deae1032de7099f94ae0006.
 - No SQL lock order, transaction semantics, or approval policy was weakened.
 - Fresh CI evidence for the new candidate is required; no previous certification evidence transfers.
+
+
+## 34. Device Channel State — 2026-09-18
+
+- PC01 (`e4088840-5dc3-49fe-bb4f-b331a167703b`) subsequently reports **offline** in Remote Desktop Commander.
+- The earlier live process snapshot remains the last reliable device evidence: duplicate Desktop Commander PIDs, stale blocked sessions, duplicate yq installation processes, and actionlint instances were observed.
+- Targeted process termination was attempted but the remote channel became timeout-prone before post-cleanup verification.
+- No process is marked as successfully terminated without evidence.
+- Device front status: **IN_PROGRESS / BLOCKED_EXTERNAL_CHANNEL**.
+- Required future proof remains before closure: reconnect, inspect processes, remove only confirmed automation duplicates/stale sessions, then capture before/after CPU/memory evidence.
