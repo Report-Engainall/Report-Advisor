@@ -5,23 +5,23 @@
 > Authoritative execution manifest. This document never promotes historical evidence across an exact Git `HEAD` boundary. Pair every evidence batch with the exact Git `HEAD` of `main` and the exact environment/commit used.
 
 ### CURRENT EXACT HEAD
-- Current code/test candidate: `c466666cef65d082383aca4fd3384261e9f64690`.
-- Current Main contains the merged structured-PDF/file-engine repair from PR #550. This is the exact code/test candidate used for the fresh PC01 runtime/build/native verification recorded below.
-- The subsequent governance-only index/document update must not be treated as a new product code candidate.
+- Current code/test candidate: `326bb98ea7648dfaff25e8120f8c759e7a98ff6d`.
+- Current Main includes PR #550 structured PDF/file-engine repair and PR #556 production-coordinator runtime test-loader restoration. The exact current candidate was freshly verified on PC01 for the coordinator/runtime surfaces; the PDF/file-engine implementation did not change in PR #556.
 - The autonomous operating protocol is now repository-resident at `docs/PROGRAMMER_AUTONOMOUS_OPERATING_PROTOCOL.md`.
-- PC01 native desktop verification is recorded at `docs/evidence/DEVICE_PC01_VERIFICATION_20260918.md`; the original native smoke evidence is preserved historically. A fresh Exact-Main native smoke PASS at code candidate `c466666cef65d082383aca4fd3384261e9f64690` is recorded in `docs/evidence/EXACT_MAIN_RUNTIME_20260918.md`.
+- PC01 native desktop verification is recorded at `docs/evidence/DEVICE_PC01_VERIFICATION_20260918.md`; a fresh Exact-Main native smoke PASS at predecessor candidate `c466666cef65d082383aca4fd3384261e9f64690` is historical because PR #556 changed only test/runtime tooling. No native smoke failure is known on the current candidate.
 - No runtime/browser/production evidence from an earlier SHA is promoted by this binding.
 - The certification binding itself is governance-only and does not certify runtime/product code; fresh exact-HEAD runtime evidence is still required.
 - Historical evidence from earlier SHAs remains historical and is not promoted automatically.
 - Current-head workflow execution is not yet evidenced on this SHA by the repository Actions run feed; absence of runs is not PASS and does not transfer historical evidence.
-- The current Vercel production deployment is now READY and is SHA-matched to `a32fae0fc08c1cbbcc60b6eedfb0f4bd74a21c50`; this proves deployment binding/build readiness only, not runtime certification.
-
-- Vercel reports the current Main deployment path as externally blocked by the provider build-rate limit; no production deployment is claimed from that status.
+- Live Vercel state shows the most recent observed production deployment still bound to historical Main SHA `a32fae0fc08c1cbbcc60b6eedfb0f4bd74a21c50` and READY; this is stale relative to the current code/test candidate and is not promoted as current production evidence.
+- Current current-head production deployment/cutover is NOT PROVEN; no production mutation or alias change was performed.
+- Vercel preview deployments currently include failures caused by the provider build-rate limit; this external blocker does not justify idling repository-side execution.
 
 ### CURRENT EXECUTION CONTROL — 2026-09-18
 - PR #533 adds the mandatory continuous two-owner execution/resume protocol. It is governance-only and does not itself certify runtime.
-- Structured PDF/file-engine runtime front is CLOSED through PR #550. Fresh PC01 Exact-Main proof at code candidate `c466666cef65d082383aca4fd3384261e9f64690`: file-engine contract PASS, structured PDF/OCR behavioral regression PASS, production build PASS, native desktop smoke PASS. Windows NSIS packaging was attempted on Exact Main but exceeded the safe execution window and was terminated; no packaging PASS is claimed for that exact candidate.
-- Coordinator-owned verification fronts: current exact-head evidence binding, Supabase staging truth/security, production/deployment verification, resilience/evidence control, and commercial-gap control.
+- Structured PDF/file-engine runtime front is CLOSED through PR #550. Fresh PC01 Exact-Main proof at predecessor code candidate `c466666cef65d082383aca4fd3384261e9f64690`: file-engine contract PASS, structured PDF/OCR behavioral regression PASS, production build PASS, native desktop smoke PASS. Windows NSIS packaging was attempted on that candidate but exceeded the safe execution window; no exact-main packaging PASS is claimed.
+- Production-coordinator runtime front is CLOSED through PR #556. Current candidate `326bb98ea7648dfaff25e8120f8c759e7a98ff6d` has PC01 PASS for `test:production-coordinator-runtime` and `test:production-coordinator-integration`; `test:phase-l-resumable-execution`, operational-resilience contracts, and production-release-blocker contract also passed. Durable evidence: `docs/evidence/PRODUCTION_COORDINATOR_RUNTIME_20260918.md`.
+- Coordinator-owned remaining fronts: current exact-head evidence binding, Supabase staging truth/security, authenticated business E2E, production/deployment verification, resilience runtime proof, and commercial-gap control.
 - Rule: do not restart closed work. Resume IN_PROGRESS fronts from their last verified checkpoint. Do not mix evidence across SHA boundaries.
 - Rule: independent fronts must run in parallel; a queued CI workflow or external provider blocker must not idle unrelated work.
 
@@ -35,6 +35,8 @@
 - PR #526 — tenant-scoped billing runtime with explicit PUBLIC/anon SECURITY DEFINER revocation and authenticated-only execution — merged.
 - PR #527 — exact-PR-head recovery / Phase F CI evidence enablement — merged.
 - PR #529 — tenant-backed `/work-center` operational surface using the existing import read path — merged.
+- PR #550 — structured PDF/file-engine runtime repair — merged and fresh exact-main PDF verification is recorded.
+- PR #556 — production-coordinator runtime test loader restoration — merged and current exact-head coordinator proof is recorded.
 
 ### BOUNDARY / GOVERNANCE
 - No rebuild from scratch.
