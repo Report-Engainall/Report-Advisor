@@ -256,3 +256,51 @@ NEXT HANDOFF:
 - Immediate external dependency: provision REPORT_ADVISOR_SUPABASE_SERVICE_ROLE_KEY.
 - Then rerun only the affected Full Product Browser/Business Persistence gate on @c9029723.
 - If that passes, continue exact-head release parity/deployment and Phase-F/backup/restore gates.
+
+## CURRENT EXACT-HEAD CLOSURE | 2026-09-18T23:08+03:00
+EXECUTED:
+- Continued directly from integration/certification-candidate-20260918@c9029723ef270917f7762182cfbd5b1ac12949c9.
+- No DB mutation, no migration mutation, no grant change, no evidence transfer, no production deployment.
+
+VERIFIED:
+- Exact remote integration: c9029723ef270917f7762182cfbd5b1ac12949c9.
+- Main remains: 1568e43889d27b5d850e64c0b99d03a994fd3bbe.
+- Owner 1 UI is currently d43958706daec644da6cf22458df7461dbc2f1d5.
+- HEAD identity + certification provenance + certification boundary + release resilience manifest + workflow command integrity: PASS on c9029723.
+- Final Certification Gate @c9029723: PASS.
+- Commercial Product Creation E2E @c9029723: PASS.
+- Device-Independent Browser E2E @c9029723: PASS, including authenticated Auth/Tenant/Product/Import.
+- Desktop Windows @c9029723: PASS, including native smoke and installer upload.
+- Full Product Browser E2E @c9029723: BLOCKED before business persistence because REPORT_ADVISOR_SUPABASE_SERVICE_ROLE_KEY is not provisioned in Actions. The new exact-head backend harness therefore stopped with BACKEND_RUNTIME_BLOCKED; this is the intended fail-closed behavior.
+- Storage Tenant Runtime E2E @c9029723: FAIL with HTTP 401 PGRST303 'JWT issued at future' during current_company_id immediately after fresh Auth.
+- Independent PC01 staging clock probe: /auth/v1/health Date=Fri, 18 Sep 2026 21:05:28 GMT; /rest/v1/ Date=Fri, 18 Sep 2026 21:05:29 GMT; PC UTC=2026-09-18T21:05:28Z. Client and gateway headers are aligned to the second, so no PC clock skew evidence exists.
+- Current upstream PostgREST records document recurring PGRST303 'JWT issued at future' defects even after prior fixes, including reports where fresh Auth succeeds and Data API immediately rejects the same JWT. This supports classifying the current storage failure as provider/runtime external until project-side traces prove an application cause.
+- Phase-F @c9029723: NOT READY, 0/4 live probes (operational-health 404; tenant-canary fetch failure; backup-restore 405; rollback-forward 405).
+- Backup verification evidence remains absent; no synthetic restore/RPO/RTO evidence created.
+- Vercel exact deployed-SHA parity remains unproven; PC01 has no Vercel auth and connector access is 403.
+
+OPEN:
+- Business Persistence runtime requires the external GitHub Actions secret REPORT_ADVISOR_SUPABASE_SERVICE_ROLE_KEY (backend-only).
+- Storage runtime needs Supabase provider-side PGRST303 resolution or authoritative project trace/version confirmation.
+- Phase-F needs valid target endpoints/secrets and actual deployment of the exact candidate.
+- Backup/restore/RPO/RTO and rollback/forward-fix live evidence remain open.
+- Exact Vercel deployed SHA remains open.
+
+BLOCKED:
+- No local service-role secret, no GitHub CLI auth, no Vercel credentials on PC01; therefore these cannot be provisioned autonomously without an authorized credential path.
+- No application auth weakening or retry bypass was introduced for PGRST303.
+
+NEXT HANDOFF:
+- External: provision REPORT_ADVISOR_SUPABASE_SERVICE_ROLE_KEY as GitHub Actions backend-only secret.
+- External: resolve/confirm Supabase staging PGRST303 incident/project runtime state; provide fresh authenticated Storage E2E rerun.
+- External: deploy c9029723 (or a newer exact candidate after any legitimate change) to an environment with /api Functions enabled, then rerun Full Product Browser business persistence and Phase-F.
+- Only after fresh runtime + backup/restore + deployed-SHA parity evidence: final release certification and launch.
+
+## ADVISOR SNAPSHOT | 2026-09-18
+SECURITY:
+- Current Supabase Security Advisor reports WARN-level authenticated SECURITY DEFINER exposure findings (42 findings). These are existing API functions, many intentionally user-callable and already covered by repository security-definer exposure contracts. No blanket revoke was applied because that could break canonical product behavior and would violate the smallest-correct-change rule.
+- Current performance advisor reports unused-index warnings. These are optimization candidates, not release blockers for this certification wave; no index churn was introduced.
+
+OBSERVABILITY:
+- Supabase staging is reachable; PC01/auth and REST Date headers are aligned to the same UTC second.
+- Current PGRST303 evidence is consistent with the documented upstream PostgREST/Supabase JWT timing issue class; no client-side clock defect has been found.
