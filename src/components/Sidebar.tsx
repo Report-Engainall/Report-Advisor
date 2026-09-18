@@ -42,8 +42,8 @@ const navSections: NavSection[] = [
   ]},
   { id: 'money', title: 'المال', enTitle: 'Money', items: [
     { path: '/reports/sales', label: 'المبيعات', enLabel: 'Sales', icon: <FileBarChart size={18}/>, hint: 'الحركة والإيراد', enHint: 'Revenue and movement' },
-    { path: '/reports/purchases', label: 'المشتريات', enLabel: 'Purchases', icon: <WalletCards size={18}/>, hint: 'التكلفة والتوريد', enHint: 'Cost and supply' },
-    { path: '/reports/receivables', label: 'الذمم والتحصيل', enLabel: 'Receivables', icon: <WalletCards size={18}/>, hint: 'النقد المتعثر', enHint: 'Cash at risk' },
+    { path: '/reports/purchases', label: 'المشتريات', enLabel: 'Purchases', icon: <FileBarChart size={18}/>, hint: 'التكلفة والتوريد', enHint: 'Cost and supply' },
+    { path: '/reports/receivables', label: 'الذمم والتحصيل', enLabel: 'Receivables', icon: <FileBarChart size={18}/>, hint: 'النقد المتعثر', enHint: 'Cash at risk' },
     { path: '/reports/profitability', label: 'الربحية', enLabel: 'Profitability', icon: <Gauge size={18}/>, hint: 'أين نصنع الهامش', enHint: 'Where margin comes from' },
   ]},
   { id: 'customers-products', title: 'العملاء والمنتجات', enTitle: 'Customers & Products', items: [
@@ -81,7 +81,7 @@ const navSections: NavSection[] = [
 const sectionIcon = (id: string) => {
   if (id === 'today') return <LayoutDashboard size={18}/>;
   if (id === 'operations') return <BriefcaseBusiness size={18}/>;
-  if (id === 'money') return <WalletCards size={18}/>;
+  if (id === 'money') return <FileBarChart size={18}/>;
   if (id === 'customers-products') return <Package size={18}/>;
   if (id === 'intelligence') return <Brain size={18}/>;
   if (id === 'reports') return <FileBarChart size={18}/>;
@@ -168,7 +168,7 @@ export function Sidebar({ alertCount = 0, onNavigate, user }: { alertCount?: num
                   aria-expanded={open}
                 >
                   <span className={'flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ' + (active ? 'bg-primary-500/15 text-primary-200' : 'bg-white/[0.04] text-slate-500')}>
-                    {sectionIcon(section.id)}
+                    {section.items[0]?.icon}
                   </span>
                   <span className="min-w-0 flex-1 text-sm font-bold">{language === 'ar' ? section.title : section.enTitle}</span>
                   <ChevronDown size={15} className={'shrink-0 text-slate-600 transition-transform ' + (open ? '' : '-rotate-90')} />
