@@ -462,3 +462,33 @@ DEPENDENCIES: existing fetchDashboardSnapshot + fetchSalesInvoices only؛ no new
 SUCCESS CRITERIA: receivables report shows TruthContextStrip from snapshot; no synthetic freshness; contracts/typecheck/lint/build/perf PASS.
 BLOCKERS: none known.
 EXPECTED HANDOFF: Owner 2 reprove receivables/browser/runtime/release gates on Exact SHA.
+
+## EXECUTION — COMMAND 7 — 2026-09-19
+OWNER: 1
+BRANCH: feat/owner1-receivables-truth-wave9-20260919
+FINAL UI HEAD: 2279ba706da56b254a6b17f6eed759697c266205
+
+CHANGE:
+- Receivables report now preserves the canonical dashboard snapshot alongside aging data.
+- TruthContextStrip displays canonical dashboard status + as-of before receivables evidence.
+- No freshness generated from client clock; no new RPC/DB/runtime path.
+- Added scripts/check-receivables-report-truth-contract.mjs and package script test:receivables-report-truth.
+
+EXACT-HEAD TESTS — 2279ba706da56b254a6b17f6eed759697c266205
+- test:receivables-report-truth: PASS
+- typecheck: PASS
+- lint: PASS — 0 errors / 59 pre-existing warnings
+- test:ui-route-sidebar-parity: PASS
+- test:executive-report-product-contract: PASS
+- test:report-execution-foundation: PASS
+- build: PASS — 2808 modules, 13.03s
+- perf:budget: PASS — critical 487.1KB / largest JS 487.8KB
+
+HANDOFF TO OWNER 2:
+- Integrate/rebase/cherry-pick Exact UI HEAD 2279ba706da56b254a6b17f6eed759697c266205.
+- Reprove receivables/browser/runtime/release gates on the merged Exact SHA.
+- Preserve canonical status/as-of; do not synthesize freshness or completion locally.
+- No main mutation by Owner 1.
+
+CURRENT OWNER-1 STATE:
+Command Center, Decision Experience, Dashboard critical-load, Work Center evidence, Reports Center truth, Sales/Profitability truth, and Receivables truth waves are all completed and handed off as separate Exact SHAs. Performance budget is currently PASS at critical 487.1KB.
