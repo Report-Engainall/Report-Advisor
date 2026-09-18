@@ -11,6 +11,8 @@ const files = read('src/pages/ExternalFileAnalysisPage.tsx');
 const companySettings = read('src/pages/CompanySettingsPage.tsx');
 const profile = read('src/pages/ProfileSettingsPage.tsx');
 const savedViews = read('src/components/ui/SavedViewMenu.tsx');
+const header = read('src/components/Header.tsx');
+const app = read('src/App.tsx');
 
 const checks = [
   [recommendations.includes('إشارات مصدرية تنتظر قرارًا بشريًا'), 'Recommendations must state human decision ownership.'],
@@ -29,6 +31,9 @@ const checks = [
   [savedViews.includes('aria-haspopup="dialog"') && savedViews.includes('role="dialog"'), 'Saved view popover must use dialog semantics.'],
   [savedViews.includes("event.key !== 'Escape'") && savedViews.includes('triggerRef.current?.focus()'), 'Escape must return focus to the trigger.'],
   [savedViews.includes('focus-visible:ring-2 focus-visible:ring-primary-500'), 'Saved view actions need visible keyboard focus.'],
+  [header.includes('aria-expanded={mobileMenuOpen}') && header.includes('aria-controls="mobile-sidebar"'), 'Mobile menu trigger must expose open state.'],
+  [header.includes('aria-haspopup="dialog"') && header.includes('aria-controls="alerts-popover"'), 'Alerts trigger must expose dialog relationship.'],
+  [app.includes('id="mobile-sidebar"') && app.includes('role="dialog"'), 'Mobile sidebar must expose dialog semantics.'],
 ];
 
 const failed = checks.filter(([ok]) => !ok);
