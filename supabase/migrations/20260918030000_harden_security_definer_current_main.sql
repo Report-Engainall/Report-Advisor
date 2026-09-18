@@ -20,7 +20,7 @@ CREATE OR REPLACE FUNCTION public.create_decision_work_item(
 RETURNS uuid
 LANGUAGE plpgsql
 SECURITY DEFINER
-SET search_path = public
+SET search_path = public, pg_catalog
 AS $function$
 DECLARE
   v_company uuid := public.current_company_id();
@@ -96,7 +96,7 @@ CREATE OR REPLACE FUNCTION public.create_runtime_decision(
 RETURNS uuid
 LANGUAGE plpgsql
 SECURITY DEFINER
-SET search_path = public
+SET search_path = public, pg_catalog
 AS $function$
 DECLARE
   v_company uuid := public.current_company_id();
@@ -134,7 +134,7 @@ CREATE OR REPLACE FUNCTION public.decide_approval(
 RETURNS boolean
 LANGUAGE plpgsql
 SECURITY DEFINER
-SET search_path = public
+SET search_path = public, pg_catalog
 AS $function$
 DECLARE
   v_company uuid := public.current_company_id();
@@ -221,7 +221,7 @@ CREATE OR REPLACE FUNCTION public.link_recommendation_to_decision(
 RETURNS void
 LANGUAGE plpgsql
 SECURITY DEFINER
-SET search_path = public
+SET search_path = public, pg_catalog
 AS $function$
 DECLARE
   v_company_id uuid;
@@ -286,7 +286,7 @@ CREATE OR REPLACE FUNCTION public.notify_decision_work_item(
 RETURNS uuid
 LANGUAGE plpgsql
 SECURITY DEFINER
-SET search_path = public
+SET search_path = public, pg_catalog
 AS $function$
 DECLARE
   v_company uuid := public.current_company_id();
@@ -332,7 +332,7 @@ CREATE OR REPLACE FUNCTION public.record_recommendation_outcome(
 RETURNS uuid
 LANGUAGE plpgsql
 SECURITY DEFINER
-SET search_path = public
+SET search_path = public, pg_catalog
 AS $function$
 DECLARE
   v_company uuid := public.current_company_id();
@@ -480,7 +480,7 @@ CREATE OR REPLACE FUNCTION public.request_decision_approval(
 RETURNS uuid
 LANGUAGE plpgsql
 SECURITY DEFINER
-SET search_path = public
+SET search_path = public, pg_catalog
 AS $function$
 DECLARE
   v_company uuid := public.current_company_id();
@@ -545,7 +545,7 @@ CREATE OR REPLACE FUNCTION public.retry_report_execution_job(
 RETURNS boolean
 LANGUAGE plpgsql
 SECURITY DEFINER
-SET search_path = public
+SET search_path = public, pg_catalog
 AS $function$
 DECLARE
   affected integer;
