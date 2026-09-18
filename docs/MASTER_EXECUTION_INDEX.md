@@ -1,14 +1,14 @@
 ### LATEST EXECUTION UPDATE — 2026-09-18 / EXACT HEAD TEST + RUNTIME CLOSURE
-- Indexed certification candidate is 1308e66115d7309fc45c6391e85604cb4f9a5633; any commits after it in this branch are governance-only Master Index updates.
-- Indexed certification candidate: 1308e66115d7309fc45c6391e85604cb4f9a5633; this candidate contains test-harness corrections relative to the prior candidate lineage.
-- Test-harness corrections bound to this candidate: authenticated-shell navigation selector aligned with the actual Sidebar aria-label; KPI persistence workflow selectors aligned with the actual Arabic login/capture/success controls; no production UI/data path was changed by these fixes.
-- Fresh exact-head results immediately before the KPI workflow correction: Device-Independent Browser E2E #510 PASS; Storage Tenant Runtime #3076 PASS; Commercial Product Creation E2E #487 PASS; Production Regression Evidence #851 PASS with 12/12 scenarios; Quality #5966 PASS; Golden Evidence Integrity #2537 PASS; Execution Enforcement #5700 PASS; Final Certification Gate #6057 PASS.
-- Full Product Browser E2E #1794/#1795 failed only at the inline KPI persistence harness because it searched for mojibake login/capture/success labels; the candidate corrects those selectors to stable form/actual Arabic labels. No application runtime failure was established by that step.
-- Phase F #599 remains FAIL-CLOSED: GitHub secrets are now present, but the Vercel runtime target returned 404/405 probe failures and the exact deployed function environment reports operational_token_not_configured. The staging operational_health_snapshots table is empty; tenant-canary therefore also lacks a real foreign-tenant health seed. No synthetic seed was inserted.
-- Vercel exact-head deployment for this candidate is externally blocked by the provider status: Deployment rate limited - retry in 24 hours. The prior d2cbcf2 deployment is not treated as current-head deployment evidence.
-- Supabase staging: project fnqbvfuwbdpwvhcgzksl remains ACTIVE_HEALTHY; no DB mutation was made during this test-harness correction wave.
-- Main: unchanged at 1568e43889d27b5d850e64c0b99d03a994fd3bbe.
-- Certification rule: no historical runtime evidence is transferred to 1308e661; final production certification remains FAIL-CLOSED until fresh Full Product E2E, live Phase F, exact deployed parity, and measured resilience/release evidence close on this candidate.
+- Current exact branch HEAD: `de49900065e141f8dab1e66b6587d57400082df3`.
+- Certification candidate is now `de49900065e141f8dab1e66b6587d57400082df3`; this is the first non-governance correction after the previously indexed candidate and therefore historical runtime evidence is not transferred automatically.
+- Fresh head correction: Full Product Browser E2E KPI persistence harness now extracts the rendered Arabic evidence identifier from `لقطة الدليل:` instead of the obsolete English `Snapshot:` text. No production UI/data path was changed.
+- Fresh runtime rerun before this correction: Commercial Product Creation E2E #492 PASS; Storage Tenant Runtime E2E #520 PASS; Device-Independent Browser E2E #515 was still running; Full Product Browser E2E #1805 failed only at the stale KPI snapshot-label assertion.
+- Phase F #604 now reads all configured GitHub secrets, so secret provisioning is confirmed. Live probes are nevertheless FAIL-CLOSED at 0/4: operational-health HTTP 404, tenant-canary transport failure, backup-restore HTTP 405, rollback-forward-fix HTTP 405. The probe targets therefore require canonical live endpoint configuration; no synthetic evidence or seed was inserted.
+- Vercel exact-head deployment remains externally blocked by the provider build-rate limit; an older deployment is not treated as current-head parity evidence.
+- Supabase staging remains the governed target; no database mutation was made while correcting the test harness.
+- Main remains unchanged at `1568e43889d27b5d850e64c0b99d03a994fd3bbe`.
+- Certification remains FAIL-CLOSED until fresh Full Product E2E, live Phase F, exact deployed parity, and measured resilience/release evidence close on the current candidate.
+
 ### LIVE EXECUTION UPDATE — 2026-09-18T12:35Z
 - **PR #595 Exact HEAD:** `46fd602a6038a6b2b7b4b45bf79e97e1de881adc`.
 - **Fresh PC01 exact-head verification:** typecheck PASS; production build PASS; performance budget **887.7KB / 900KB** and largest JS 487.8KB; UI route/sidebar parity PASS (35/34); executive dashboard UI PASS.
