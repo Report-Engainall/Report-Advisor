@@ -1119,3 +1119,31 @@ FILES / SURFACES: src/pages/DecisionExperiencePage.tsx; scripts/check-decision-e
 DEPENDENCIES: fetchRecommendations/fetchAlerts الحالية؛ لا RPC/DB/Runner/Auth/Tenant/Storage/CI change.
 BLOCKERS: لا يوجد blocker تطويري معروف.
 EXPECTED HANDOFF: Owner 2 يعيد إثبات Decision Experience/browser/runtime/release على Exact SHA؛ لا نقل Evidence بين SHAs.
+
+EXECUTION
+CHANGE: إضافة هدف قرار أول في Decision Experience يعتمد deterministic على severity/priority المصدرية، مع تفضيل recommendations القابلة للتنفيذ (new/accepted) وإبقاء مسار evidence الحالي كما هو.
+FILES: src/pages/DecisionExperiencePage.tsx; scripts/check-decision-experience-command-contract.mjs; package.json.
+WHY: الواجهة كانت تبدأ بالإشارة الأولى، لا بالهدف الأعلى أولوية؛ تم تحويلها إلى command surface أكثر وضوحًا دون إدخال scoring جديد أو تغيير backend semantics.
+TEST: final Exact SHA 4a5cb019ef154ff37b726d1eb8808ac07e624b01: decision-experience-command PASS; decision-experience-trust PASS; business-investigation-accessibility PASS; intelligence-product PASS; route/sidebar parity PASS (35/34); typecheck PASS; lint PASS (0 errors / 58 warnings); build PASS (2808 modules, 14.94s); perf:budget PASS (critical 488.1KB / largest JS 487.8KB).
+RESULT: verified on final feature Exact SHA; no RPC/DB/Runner/Auth/Tenant/Storage/CI mutation.
+COMMIT: 4a5cb019ef154ff37b726d1eb8808ac07e624b01
+NEW HEAD: 4a5cb019ef154ff37b726d1eb8808ac07e624b01
+STATUS: READY_FOR_HANDOFF
+
+HANDOFF
+FROM: OWNER 1
+TARGET: OWNER 2
+BRANCH: feat/owner1-decision-command-wave25-20260919
+SHA: 4a5cb019ef154ff37b726d1eb8808ac07e624b01
+CHANGED: Decision Experience first-target command surface + exact contract guard.
+VERIFIED: decision command/trust, accessibility, intelligence product, route parity, typecheck, lint, build, performance on feature Exact SHA.
+UNPROVEN: authenticated browser behavior; backend/runtime/DB/RLS/persistence/CI/CD/release certification remain Owner 2 scope.
+BLOCKERS: none in Owner 1 code.
+NEXT: integrate/rebase/cherry-pick Exact SHA 4a5cb019ef154ff37b726d1eb8808ac07e624b01 and reprove Decision Experience/browser/runtime/release gates on merged Exact SHA; no cross-SHA evidence transfer.
+
+CLOSE
+HEAD: 4a5cb019ef154ff37b726d1eb8808ac07e624b01
+DONE: Wave 25 Decision Experience command integrity completed and handed off.
+OPEN: Owner 2 runtime/release proof; Owner 1 continues competitive product development.
+BLOCKED: none.
+NEXT START: continue the next independent product command or commercial differentiation surface.
