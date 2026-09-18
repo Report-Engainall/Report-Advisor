@@ -63,7 +63,7 @@ A preview deployment is not production proof.
 
 # 2. LIVE EXECUTION HEADER
 
-Last material update: 2026-09-18T03:45Z
+Last material update: 2026-09-18T03:55Z
 Current Main: a32fae0fc08c1cbbcc60b6eedfb0f4bd74a21c50
 Primary environment: Supabase staging fnqbvfuwbdpwvhcgzksl
 Production URL: https://report-advisor.vercel.app
@@ -76,7 +76,7 @@ Coordinator PR head is verified directly from GitHub for every cycle; do not tre
 | PR | Front | Exact HEAD | State | Canonical purpose |
 |---|---|---|---|---|
 | #540 | PDF/document runtime | b7c57d047fbf75e7fadf4167dad7b618c547a1c0 | OPEN / consolidated PDF hardening; exact-head CI in progress | Consolidated PDF parser + Node 22 runtime compatibility + deterministic real-PDF regression |
-| #539 | Security-definer/current-main reconciliation | 900c009a8a37b2cc354aa8e9f94d5893c9016be8 | OPEN / checker + SQL hardening; fresh CI pending | Harden current-main SECURITY DEFINER boundaries and retry auth/tenant guards |
+| #539 | Security-definer/current-main reconciliation | 5f636860eee883037e5c0ae2f4444cd6f753aa36 | OPEN / worker lineage + security hardening; exact-head CI active | Harden current-main SECURITY DEFINER boundaries and retry auth/tenant guards |
 | #536 | Import terminal authority | 2ba3251712168ad64b14127b6583d2bc1d0162ac | OPEN / exact-head CI active; security gate depends on #539 | Route terminal import state through existing import_finish_job |
 | #534 | Master execution index | 013c4c31f8fe91f789ad13d29cb3ec6741cfc4e4 | OPEN / governance | Rebind index to Main a32fae0 |
 | #537 | Coordinator protocol | 4b230b4642dd99396cf7b779d383943d0cfcc9c6 | OPEN / governance | Continuous coordinator execution + this memory contract |
@@ -363,3 +363,11 @@ without asking the user to reconstruct project history.
 - Coordinator corrected the checker parser to perform case-insensitive token indexing and added a regression assertion; exact local `lock-order` and `security-definer exposure` contracts now PASS.
 - #539 exact head is now `900c009a8a37b2cc354aa8e9f94d5893c9016be8`; fresh GitHub workflows have not started yet. Earlier CI failures tied to other refs/merge refs are not evidence for this head.
 - #536 remains dependent on security reconciliation for the repository-wide security-definer gate; no duplicate security implementation was added to import front.
+
+### 2026-09-18T03:55Z — Worker lineage reconciliation completed in source
+- Added forward-only current-Main migration `20260918035000_reconcile_report_execution_worker_search_path_completion_current_main.sql` to #539.
+- This records safe `search_path = public, pg_catalog` for enqueue/advance/recover worker functions already verified in Staging; it does not fabricate or recreate missing historical migration history.
+- Rebound #539 Master Execution Index candidate to the code head before its governance-only index commit.
+- Exact latest #539 head: `5f636860eee883037e5c0ae2f4444cd6f753aa36`.
+- Local exact-head contracts: decision approval lock order PASS; security-definer exposure PASS; certification boundary PASS.
+- Fresh GitHub CI is active for #539 `5f636860...`; earlier runs on 76f2/f24/895/900 are historical and must not be used as current-head evidence.
