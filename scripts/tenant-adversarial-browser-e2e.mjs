@@ -87,11 +87,19 @@ async function rest(page, path, init = {}) {
 }
 
 async function tenantId(page) {
-  const response = await rest(page, 'rpc/current_company_id', { method: 'POST', body: '{}' });
-  if (!response.ok) throw new Error(`TENANT_RPC_HTTP_${response.status}`);
-  const id = typeof response.body === 'string' ? response.body : JSON.stringify(response.body);
-  if (!id || id === 'null') throw new Error('TENANT_ID_EMPTY');
-  return id.replaceAll('"', '');
+  let last = null;
+  for (let attempt = 1; attempt <= 8; attempt += 1) {
+    const response = await rest(page, 'rpc/current_company_id', { method: 'POST', body: '{}' });
+    if (response.ok) {
+      const id = typeof response.body === 'string' ? response.body : JSON.stringify(response.body);
+      if (!id || id === 'null') throw new Error('TENANT_ID_EMPTY');
+      return id.replaceAll('"', '');
+    }
+    last = response;
+    if (![502, 503, 504, 544].includes(response.status) || attempt === 8) break;
+    await page.waitForTimeout(1500 * attempt);
+  }
+  throw new Error(`TENANT_RPC_HTTP_${last?.status ?? 'UNKNOWN'}`);
 }
 
 requireEnv();
