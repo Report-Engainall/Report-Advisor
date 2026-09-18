@@ -1064,3 +1064,47 @@ customer value
 - vendor lock-in.
 
 Reject or defer negative-net-value ideas or anything violating a non-negotiable invariant.
+
+
+## 34.19 2026 execution portfolio
+
+Execute the new requirements through three coordinated value tracks rather than creating a large parallel feature backlog:
+
+### Track A — Trust Core
+- Evidence Passport
+- Data Trust Center
+- What Changed
+- Semantic Metric Studio
+- Continuous Reconciliation
+
+### Track B — Decision Value
+- Decision Control Tower
+- Counterfactual / Scenario Lab
+- Outcome & ROI Ledger
+- Profit Leak Radar
+- Customer Recovery Playbook
+- Supplier Risk Cockpit
+- Assortment & Cash Simulator
+- Merchant Memory
+
+### Track C — Commercial Scale
+- Proposal Demo Mode
+- Commercial Playbooks
+- Executive / Board Pack
+- Embedded Intelligence contract
+- enterprise governance/integrations
+- vertical intelligence packs
+
+Track A should create the trust primitives used by Tracks B and C. Track B should prove customer value before Track C expands packaging or integrations.
+
+### 34.20 Product investment rule
+Do not start a new flagship surface when an existing surface can be upgraded into a measurable decision loop with lower complexity.
+
+Prefer complete loops over module count:
+signal → evidence → recommendation → approval → action → outcome.
+
+### 34.21 Competitive non-goals
+Do not chase feature parity with every generic BI vendor. Do not add generic chart types, decorative AI chat, arbitrary marketplace connectors or expensive infrastructure unless a validated customer problem requires them.
+
+### 34.22 Saleability rule
+Every flagship workflow must have a 3-minute customer demonstration path, a real evidence path, and a clear business outcome statement before it is marketed as premium.
