@@ -1,16 +1,31 @@
-# Report Advisor — Master Execution & Truth Index
-
 ## CURRENT EXECUTION BOUNDARY — 2026-09-18
 
-> هذا القسم هو حالة العمل الحالية فقط. السجل التاريخي محفوظ أدناه ولا يُعاد منه اعتماد أي Evidence عبر حدود Exact HEAD. لا يوجد تنفيذ برمجي جديد ضمن هذه المزامنة؛ هذه الموجة توثيق/تقسيم ملكية فقط.
+> تحديث تنفيذي بعد أمر المالك «انطلق». هذا القسم يصف الحالة المثبتة من الأدوات فقط. لا يتم نقل Evidence بين SHAs، ولا تُعد الحالة PASS إلا بدليل Exact-HEAD.
 
 ### CURRENT EXACT HEAD / DEPLOYED STATE
-- **Current code/test HEAD:** `c11c084d161cceb4595f8552b6c49c3f610f0ec2` (last code change).
-- **Current repository HEAD:** `913de96f068cbcc4cc59de7a4368313fe12dcd23` (documentation-only sync; no product/runtime code mutation).
-- **Netlify Production:** `ready` ومربوط بنفس الـHEAD؛ Build `npm run build` نجح، وSPA redirect نجح.
-- **Completed UI wave:** Application Shell + RTL visual system + Dashboard + Login + Work Center + Import framing + Reports Center. هذه الأسطح تُعامل الآن كـ**منجزة مصدرًا** ولا تُعاد كمهام تصميمية أساسية.
-- آخر إصلاح منشور: تصحيح JSX في `src/pages/WorkCenterPage.tsx` بعد خطأ Build، ولا توجد حاجة لإعادة فتح هذا العطل.
-- لا تُستخدم حالة Netlify الناجحة كدليل على Browser/Auth/Business E2E؛ Runtime certification تبقى Exact-HEAD فقط.
+- **Reference code HEAD:** `c11c084d161cceb4595f8552b6c49c3f610f0ec2`.
+- **Current main:** `c42214361bde9be484eab622adf7c6065a37af3e`; المقارنة مع `c11c084...` تُظهر تغييرات توثيقية فقط، لذلك لا يوجد تغيير Product/Runtime بينهما.
+- **Netlify Production:** deploy `6aacfad6652a8000086bf290` = `ready`, branch `main`, commit `c422143...`; public fetch نجح، وظهر التطبيق للمستخدم غير المسجل دون جدار Netlify SSO/password.
+- **Netlify administrative access control:** تم إزالة Team SSO/password requirement للمشروع فقط؛ لم يتم تغيير Auth التطبيق.
+- **Staging DB live counts:** companies=2, memberships=2, import_jobs=3800, canonical_import_commits=2557, kpi_evidence_snapshots=314, sales_invoices=355.
+
+### FRESH FINDINGS — ENGINEERING / RUNTIME / RELEASE
+1. **Fresh exact-head runtime evidence:** غير مثبت على `c11c084...`; لا توجد workflow runs مرتبطة مباشرة بهذا SHA. لا يتم نقل Evidence من SHA آخر.
+2. **Current parallel UI branch evidence is not certification evidence:** PR #587 / SHA `866e39...` لديه فشل UI/typecheck في `src/pages/ReportsPage.tsx`; هذا خارج ملكية Runtime ولا يُنقل إلى `c11c084...`.
+3. **Phase F live resilience:** آخر تنفيذ exact-head على SHA الموازي أثبت أن سبب الفشل خارجي: جميع متغيرات Phase F الحية غير مُهيأة في GitHub Actions. المتطلبات المحددة: `RESILIENCE_TARGET_ENV`, `RESILIENCE_OPERATIONAL_TOKEN`, `RESILIENCE_CANARY_AUTH_TOKEN`, `RESILIENCE_HEALTH_URL`, `RESILIENCE_CANARY_URL`, `RESILIENCE_BACKUP_VERIFY_URL`, `RESILIENCE_ROLLBACK_DRILL_URL`.
+4. **Migration/source parity blocker:** Staging migration ledger يحتوي على migrations تطبيقية أحدث غير موجودة في `c11...` source tree، منها: `20260918053906_reconcile_import_job_row_tenant_schema`, `20260918053540_reconcile_import_lineage_tenant_integrity`, `20260918053527_reconcile_import_lineage_idempotency`, `20260918043413_reconcile_report_execution_worker_service_authority`, `20260918024152_reconcile_report_execution_worker_search_path_completion`, `20260918023708_reconcile_report_execution_worker_search_path`. هذا **DRIFT حقيقي** ويجب إغلاقه forward-only؛ لا حذف أو إعادة كتابة للتاريخ.
+5. **Storage baseline:** bucket `documents` private، وسياسات storage الحالية authenticated + tenant-scoped. Runtime signed-URL proof ما زال غير مثبت.
+6. **Realtime:** publication `supabase_realtime` تشمل حالياً `client_ui_settings`, `customer_invitations`, `inventory_balances`, `orders`. Authorization runtime proof ما زال مطلوباً.
+7. **Worker live state:** `report_execution_jobs` حالياً يحتوي completed=2556, dead_letter=5, failed=10, leased=3, processing=15, queued=515. هذا ليس بحد ذاته resilience PASS؛ disposable enqueue→claim→heartbeat→expiry→recovery→retry/DLQ ما زال مطلوباً.
+8. **Backup/restore:** جدول `backup_verification_runs` لا يحتوي سجلات تحقق حالية؛ RPO/RTO المقاس غير مثبت.
+9. **PDF/OCR:** لا يوجد نقل للنتيجة التاريخية `10/12`; يجب إعادة إثبات السيناريوهات على Exact HEAD. Repository path يحتوي بالفعل على structured PDF/OCR hardening، لكن ذلك لا يساوي runtime certification.
+10. **Production parity:** Netlify public access مثبت؛ Vercel status على main ما زال غير صالح كدليل نشر بسبب build-rate-limit failure/pending، لذلك لا يُستخدم كـrelease proof.
+
+### EXECUTION STATE
+- **Done:** Netlify public-access administrative blocker removed and public access verified.
+- **In progress:** exact-head runtime/DB/release closure; migration parity investigation; operational certification evidence.
+- **Blocked externally:** Phase F live probes until required GitHub Actions secrets/targets are provisioned.
+- **Fail-Closed:** Final certification remains closed until fresh Exact-HEAD Browser E2E + persistence + resilience + backup/RPO/RTO + release parity evidence exists.
 
 ### OWNERSHIP SPLIT — START ONLY AFTER OWNER COMMAND
 
