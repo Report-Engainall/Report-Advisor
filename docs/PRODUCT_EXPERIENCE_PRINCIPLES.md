@@ -205,3 +205,57 @@ A new screen is not successful merely because it looks polished.
 Accept it when:
 
 **usable + clear + fast + permission-aware + evidence-aware + actionable + consistent + testable**.
+
+
+---
+
+## Competitive Experience Standard — 2026-09-18
+
+The interface must differentiate by decision quality, not visual decoration.
+
+### The six-screen test
+
+For any high-value workflow, the user should be able to move through:
+1. What changed?
+2. Why does it matter?
+3. Show me the evidence.
+4. What can I do?
+5. What happens if I do nothing?
+6. What happened after I acted?
+
+If a workflow stops at a chart or recommendation, it is incomplete.
+
+### Premium interaction patterns
+
+- Evidence Passport drawer/side panel without losing context.
+- What Changed diff view with period comparison.
+- Decision cards with impact, confidence, constraints and owner.
+- Counterfactual comparison with explicit scenario labels.
+- One-click transition from insight → evidence → decision → task.
+- Expected-vs-actual outcome comparison.
+- Saved views tied to tenant/user scope.
+- Role-aware home/work queue.
+- Mobile action sheets for approvals and field tasks.
+- Low-bandwidth priority loading: text/KPI first, heavy chart/document assets later.
+
+### Trust visual language
+
+Every important result should make state visible:
+OBSERVED / CALCULATED / ESTIMATED / FORECAST / REVIEW / BLOCKED / UNAVAILABLE.
+
+Never use color as the only trust indicator.
+
+### Commercial demo standard
+
+A proposal/demo workspace must tell the client:
+- what problem was detected;
+- what evidence supports it;
+- what the system recommends;
+- what the action would change;
+- how the result would be verified.
+
+A static screenshot cannot satisfy this standard.
+
+### UX acceptance formula
+
+CLEAR + FAST + ACCESSIBLE + PERMISSION-AWARE + EVIDENCE-AWARE + ACTIONABLE + OUTCOME-AWARE.
