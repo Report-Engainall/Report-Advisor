@@ -697,3 +697,51 @@ Historical evidence from 66d is not promoted to 51c.
 - Targeted cleanup was attempted only against the duplicate/stale automation processes; the remote control channel then became timeout-prone. Device cleanup is therefore **IN_PROGRESS / BLOCKED_EXTERNAL_CHANNEL**, not closed.
 - No reboot, shutdown, destructive disk operation, or user-application termination was performed.
 - Issue #545 records the exact device cleanup front and acceptance evidence.
+
+
+## 31. Exact-head Runtime Wave RCA — 2026-09-18
+
+### Fresh evidence on a346e68ff06cb452eff64d98a8b9980142a7daef
+
+Verified workflow results:
+- Full Product Browser E2E 35304097897: SUCCESS.
+- import-finish-lifecycle-security 35304098135: SUCCESS.
+- PDF structured parser regression 35304098034: SUCCESS.
+- production-regression-evidence 35304098023: SUCCESS.
+- desktop-windows 35304098075: SUCCESS.
+- certification-evidence-boundary 35304097925: SUCCESS.
+- storage-tenant-isolation 35304097938: SUCCESS.
+- Commercial Product Creation E2E 35304097936: SUCCESS.
+- Phase 2 security closure 35304098012: SUCCESS.
+- Phase 3 data import truth 35304098113: SUCCESS.
+- security-definer-exposure-contract 35304097962: SUCCESS.
+- OCR Confidence Contract 35304098048: SUCCESS.
+- company-context-contract 35304098042: SUCCESS.
+- Execution Enforcement Contract 35304098045: SUCCESS.
+
+### Failures independently classified
+
+- Quality 35304097988 failed at a diagnostic branch-head consistency assertion; install was skipped, so later eslint/vite failures were secondary command-not-found effects. The branch continued advancing while the run was executing, so this is stale-head workflow evidence, not a product-code failure.
+- Phase9 Windows contract 35304097919 failed in the same exact-head-vs-remote-branch consistency preflight before the actual phase contract ran.
+- Storage Tenant Runtime 35304098052 is a genuine external configuration block: REPORT_ADVISOR_STORAGE_BUCKET is empty; runtime explicitly classified itself BLOCKED EXTERNAL. No storage bucket is invented.
+- Final Certification 35304098114 failed at check-decision-approval-toctou-contract.mjs: the SQL verifier used case-sensitive indexOf for lowercase from/guard tokens while the canonical migration uses normal uppercase SQL. This is a verifier false-negative.
+
+### Corrective action
+
+- Root cause fixed in scripts/check-decision-approval-toctou-contract.mjs.
+- New code fix commit: ce674d937cde275f6e233e2fd4ad78589e9dafb5.
+- Master Index candidate rebound to that exact code commit via docs-only commit: e5ca7443748562c97d2098e55d31d6a857cc053b.
+- Fresh exact-head CI for the new candidate is not yet surfaced in the commit run feed; therefore no PASS is claimed for the new candidate.
+
+### Governance branch note
+
+- PR #543 governance workflows include a security-definer contract failure because PR #543 is based on main and does not contain PR #542 runtime security migrations. This is dependency scope, not a reason to weaken the security contract.
+- Keep governance and runtime lanes independent; classify workflow applicability rather than transferring runtime evidence across branches.
+
+### Certification state
+
+FAIL-CLOSED until fresh evidence exists on ce674... / its governance-only descendant e5ca....
+
+### Device state
+
+PC01 device cleanup remains IN_PROGRESS / BLOCKED_EXTERNAL_CHANNEL after the remote control channel became timeout-prone while targeted duplicate-process cleanup was attempted. Exact process evidence is tracked in Issue #545.
