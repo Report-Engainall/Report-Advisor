@@ -42,6 +42,61 @@
   .nav-item-inactive { @apply text-slate-300 hover:bg-white/5 hover:text-white; }
   .shell-surface { @apply rounded-[1.6rem] border border-ink-200/70 bg-white shadow-card; }
   .metric-value { @apply tabular-nums text-[1.65rem] font-black tracking-tight text-ink-950; }
+
+  /* Commercial import/workspace language */
+  [aria-label="مراحل الاستيراد"] {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    gap: 0;
+    margin-bottom: 1.5rem;
+    padding: .25rem 0 .75rem;
+  }
+  [aria-label="مراحل الاستيراد"] > div {
+    position: relative;
+    flex: 1 1 0%;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    color: #94a3a0 !important;
+    padding: .15rem .5rem .55rem !important;
+    box-shadow: none !important;
+  }
+  [aria-label="مراحل الاستيراد"] > div::before {
+    content: "";
+    position: absolute;
+    top: .95rem;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: #e5ebe7;
+    z-index: 0;
+  }
+  [aria-label="مراحل الاستيراد"] > div:first-child::before { right: 50%; }
+  [aria-label="مراحل الاستيراد"] > div:last-child::before { left: 50%; }
+  [aria-label="مراحل الاستيراد"] > div > div:first-child {
+    position: relative;
+    z-index: 1;
+    margin: 0 auto .45rem;
+    display: flex;
+    height: 1.9rem;
+    width: 1.9rem;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    border: 2px solid #d7e0db;
+    background: #f4f7f4;
+    color: #74827b;
+    font-size: .68rem;
+    font-weight: 900;
+  }
+  [aria-label="مراحل الاستيراد"] > div > div:last-child {
+    position: relative;
+    z-index: 1;
+    font-size: .72rem;
+    font-weight: 800;
+  }
+  [aria-label="مراحل الاستيراد"] > div:has(div:last-child) {}
 }
 
 @layer utilities {
