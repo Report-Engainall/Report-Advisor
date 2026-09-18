@@ -356,3 +356,17 @@ HANDOFF TO OWNER 2:
 
 NEXT OWNER-1 FRONT:
 - Reports/Outputs commercial surface hardening using current canonical report/execution read paths only.
+
+## START — COMMAND 5 — 2026-09-19
+START
+DATE: 2026-09-19T01:25+03:00
+OWNER: 1
+BRANCH: feat/owner1-reports-output-truth-wave7-20260919
+HEAD: 9860c2e02d5e8ac7537e065c2687173d0f13f1bc
+BASE: feat/owner1-work-center-evidence-wave6-20260919
+OBJECTIVE: تقوية مركز المخرجات بحيث يعرض الحالة المصدرية الحالية قبل فتح التقرير، ولا يعتبر وجود route أو وصف التقرير «دليلًا مؤكدًا».
+FILES / SURFACES: src/pages/ReportsPage.tsx; scripts/check-reports-center-truth-contract.mjs; package.json.
+DEPENDENCIES: get_dashboard_snapshot + existing report routes only؛ no new RPC/DB/runtime.
+SUCCESS CRITERIA: as-of/status visible; false confirmed reason removed; contract/typecheck/lint/build/perf remain PASS.
+BLOCKERS: none known.
+EXPECTED HANDOFF: Owner 2 reprove report/browser/runtime/release gates on Exact SHA.
