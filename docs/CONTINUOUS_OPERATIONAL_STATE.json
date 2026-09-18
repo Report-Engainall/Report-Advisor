@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "roleContract": "coordinator+programmer",
-  "updatedAt": "2026-09-18T03:55:00Z",
+  "updatedAt": "2026-09-18T04:05:00Z",
   "authority": {
     "mainSha": "a32fae0fc08c1cbbcc60b6eedfb0f4bd74a21c50",
     "mainIsUntouched": true,
@@ -13,9 +13,9 @@
     {
       "id": "PR-540",
       "area": "pdf",
-      "sha": "b7c57d047fbf75e7fadf4167dad7b618c547a1c0",
+      "sha": "073939e71f769b9beb70ad7a2951110c095b1d13",
       "state": "OPEN",
-      "next": "inspect exact-head CI; preserve single canonical PDF front",
+      "next": "verify exact-head CI PDF regression and current certification; do not duplicate security",
       "evidence": [
         "local structured PDF/OCR PASS at predecessor implementation SHA 18baeaed...",
         "typecheck PASS at predecessor implementation SHA 18baeaed..."
@@ -50,7 +50,7 @@
       "area": "import-terminal-authority",
       "sha": "2ba3251712168ad64b14127b6583d2bc1d0162ac",
       "state": "OPEN",
-      "next": "continue import closure; security-definer gate depends on #539 merge; do not duplicate security fix",
+      "next": "await #539 for security baseline; keep import terminal-authority evidence isolated",
       "evidence": [],
       "doNotRepeat": [
         "old stale-index binding at ffccf08e..."
@@ -61,7 +61,7 @@
       "area": "master-index",
       "sha": "013c4c31f8fe91f789ad13d29cb3ec6741cfc4e4",
       "state": "OPEN",
-      "next": "merge only when mandatory provider gates allow",
+      "next": "await #539 for security baseline; otherwise provider-gated merge path",
       "evidence": [
         "index rebinding to main a32fae0"
       ],
