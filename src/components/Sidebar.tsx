@@ -14,24 +14,6 @@ import { isWorkspacePathVisible, readWorkspaceMode, type WorkspaceMode } from '@
 interface NavItem { path: string; label: string; icon: ReactNode; hint?: string; enLabel?: string; enHint?: string }
 interface NavSection { title: string; items: NavItem[] }
 
-type WorkspaceMode = 'essential' | 'advanced' | 'expert';
-const WORKSPACE_MODE_KEY = 'report-advisor.workspace-mode';
-const ADVANCED_PATHS = new Set([
-  '/reports/inventory-intelligence', '/reports/demand-velocity', '/reports/profitability',
-  '/analytics/rfm', '/analytics/abc', '/analytics/aging', '/alternative-groups', '/metrics', '/intelligence/scenarios',
-]);
-const EXPERT_PATHS = new Set(['/proposal-demo', '/connections']);
-function readWorkspaceMode(): WorkspaceMode {
-  if (typeof window === 'undefined') return 'essential';
-  const value = window.localStorage.getItem(WORKSPACE_MODE_KEY);
-  return value === 'advanced' || value === 'expert' ? value : 'essential';
-}
-function isWorkspacePathVisible(path: string, mode: WorkspaceMode): boolean {
-  if (mode === 'expert') return true;
-  if (mode === 'advanced') return !EXPERT_PATHS.has(path);
-  return !ADVANCED_PATHS.has(path) && !EXPERT_PATHS.has(path);
-}
-
 const navSections: NavSection[] = [
   { title: 'مركز القرار', items: [
     { path: '/', label: 'لوحة التحكم', icon: <LayoutDashboard size={18}/>, hint: 'الصورة التنفيذية' },
