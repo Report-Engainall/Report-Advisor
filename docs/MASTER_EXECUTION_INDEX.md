@@ -40,6 +40,8 @@
 - No Staging data fixture is treated as certification unless an actual lifecycle is observed.
 - No HTTP 200, UI shell, CI-created run, fixture assertion, simulated JWT, historical deployment, or old SHA can certify the current candidate.
 - External operational blockers do not justify idle work on source reconciliation, contract hardening, test design, or evidence preparation.
+- Recovery boundary: `backup/restore` remains **NOT PROVEN** until an isolated restore drill records measured RPO/RTO, successful application readback, and exact evidence on the current candidate.
+
 - Browser E2E must use real Chromium, real Supabase authentication, and browser-held sessions; service-role or mocked sessions are prohibited for certification.
 
 ## DEEP AUDIT — 2026-09-07
