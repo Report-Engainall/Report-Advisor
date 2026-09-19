@@ -35,6 +35,39 @@ for (const [file, required] of checks) {
   }
 }
 
+const scanRoots = ['src', 'scripts'];
+const sourceFiles = [];
+function walk(dir) {
+  if (!fs.existsSync(dir)) return;
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    if (['node_modules', '.git', 'dist', 'build'].includes(entry.name)) continue;
+    const full = path.join(dir, entry.name);
+    if (entry.isDirectory()) walk(full);
+    else if /\.(ts|tsx|mjs|cjs)$/.test(entry.name)) sourceFiles.push(full);
+  }
+}
+for (const root of scanRoots) walk(root);
+
+const legacyReferences = [
+  ['IntelligencePages.tsx', 'src/pages/IntelligencePages.tsx'],
+  ['ReceivablesReportPageCanonical.tsx', 'src/pages/ReceivablesReportPageCanonical.tsx'],
+  ['import-pipeline/folder-handle-store', 'src/lib/import-pipeline/folder-handle-store.ts'],
+];
+for (const [needle, legacyFile] of legacyReferences) {
+  const consumers = [];
+  for (const file of sourceFiles) {
+    const normalized = file.replaceAll(path.sep, '/');
+    if (normalized === legacyFile) continue;
+    const source = fs.readFileSync(file, 'utf8');
+    if (source.includes(needle)) consumers.push(normalized);
+  }
+  if (consumers.length) {
+    console.log(JSON.stringify({ legacyFile, consumers }));
+  } else {
+    console.log(JSON.stringify({ legacyFile, consumers: [], orphanCandidate: true }));
+  }
+}
+
 const app = read('src/App.tsx');
 for (const token of [
   "import('@/pages/IntelligencePage')",
@@ -57,6 +90,9 @@ for (const [file, maxLines] of wrapperLimits) {
   const lines = read(file).trim().split('\n').length;
   if (lines > maxLines) failures.push(`${file}: compatibility wrapper grew to ${lines} lines; keep it zero-logic`);
 }
+
+const canonicalIntelligence = read('src/pages/IntelligencePage.tsx');
+if (canonicalIntelligence.includes('from \'@/pages/IntelligencePages\'') || canonicalIntelligence.includes('from \'./IntelligencePages\'')) failures.push('IntelligencePage.tsx: canonical module must not import or re-export the compatibility module');
 
 if (failures.length) {
   console.error('Architecture consolidation guard FAILED');
