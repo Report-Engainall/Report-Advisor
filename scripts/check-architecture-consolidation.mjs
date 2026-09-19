@@ -6,14 +6,6 @@ const read = (file) => fs.readFileSync(path.join(root, file), 'utf8');
 const failures = [];
 
 const checks = [
-  ['src/pages/IntelligencePages.tsx', [
-    "export { RecommendationsPage, ForecastsPage } from './IntelligencePage';",
-    '@deprecated Compatibility surface only.',
-  ]],
-  ['src/pages/ReceivablesReportPageCanonical.tsx', [
-    "export { ReceivablesReportCanonicalPage as ReceivablesReportPageCanonical } from './ReceivablesReportCanonicalPage';",
-    '@deprecated Compatibility surface only.',
-  ]],
   ['src/lib/import-pipeline/folder-handle-store.ts', [
     "} from '../import/folder-handle-store';",
     '@deprecated Compatibility surface only.',
@@ -47,6 +39,14 @@ function walk(dir) {
   }
 }
 for (const root of scanRoots) walk(root);
+
+const removedLegacyFiles = [
+  'src/pages/IntelligencePages.tsx',
+  'src/pages/ReceivablesReportPageCanonical.tsx',
+];
+for (const file of removedLegacyFiles) {
+  if (fs.existsSync(path.join(root, file))) failures.push(`removed legacy module still exists: ${file}`);
+}
 
 const legacyReferences = [
   ['IntelligencePages.tsx', 'src/pages/IntelligencePages.tsx'],
@@ -82,8 +82,6 @@ for (const token of ['reduce(', 'Math.max(0,Math.min(100']) {
 }
 
 const wrapperLimits = [
-  ['src/pages/IntelligencePages.tsx', 15],
-  ['src/pages/ReceivablesReportPageCanonical.tsx', 15],
   ['src/lib/import-pipeline/folder-handle-store.ts', 15],
 ];
 for (const [file, maxLines] of wrapperLimits) {
