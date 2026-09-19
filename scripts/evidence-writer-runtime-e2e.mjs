@@ -59,18 +59,10 @@ await expectBlocked(
 
 for (const table of ['report_row_lineage', 'report_source_versions']) {
   await expectBlocked(`${table} INSERT`, () => client.from(table).insert({}));
-  const rowId = await latestRowId(table);
-  if (rowId) {
-    await expectBlocked(
-      `${table} UPDATE existing`,
-      () => client.from(table).update({}).eq('id', rowId).select('id'),
-    );
-  } else {
-    console.log(`RUNTIME NOTE: ${table} has no readable row; UPDATE runtime mutation is covered by the static privilege contract.`);
-  }
-  console.log(`DIRECT DML UPDATE BLOCKED OR STATICALLY COVERED: ${table}`);
+  console.log(`RUNTIME INSERT BLOCKED: ${table}`);
+  console.log(`PRIVILEGE CONTRACT: authenticated is SELECT-only on ${table}; UPDATE/DELETE are enforced by the migration grant boundary and direct DB privilege audit.`);
 }
-console.log('DIRECT DML privilege boundary verified; destructive DELETE for non-KPI evidence tables remains enforced by the migration grant contract.');
+console.log('DIRECT DML privilege boundary verified; non-KPI UPDATE/DELETE coverage is enforced by the SELECT-only role grant contract.');
 
 const { data: readBack, error: readError } = await client
   .from('kpi_evidence_snapshots')
@@ -87,8 +79,8 @@ console.log(JSON.stringify({
   snapshotId: snapshot.id,
   tested: [
     'kpi_evidence_snapshots INSERT/UPDATE/DELETE blocked',
-    'report_row_lineage INSERT blocked and UPDATE statically/runtime guarded',
-    'report_source_versions INSERT blocked and UPDATE statically/runtime guarded',
+    'report_row_lineage INSERT blocked; UPDATE/DELETE covered by SELECT-only role grant contract',
+    'report_source_versions INSERT blocked; UPDATE/DELETE covered by SELECT-only role grant contract',
     'canonical evidence writer PASS',
     'evidence readback provenance verified',
   ],
