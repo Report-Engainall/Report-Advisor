@@ -15,6 +15,18 @@ export interface CustomerProductObservation {
   fulfilledQuantity?: number;
 }
 
+export interface CustomerProductSignal extends CustomerProductContinuitySignal {
+  totalQuantity: number;
+  orders: number;
+  lastQuantity: number;
+  previousQuantity: number;
+  trend: 'rising' | 'falling' | 'stable';
+  fulfilledQuantity: number;
+  unfulfilledQuantity: number;
+  lastSeen: string;
+  status: 'active' | 'at_risk' | 'lapsed';
+}
+
 export interface CustomerProductContinuitySignal {
   customerId: string;
   productKey: string;

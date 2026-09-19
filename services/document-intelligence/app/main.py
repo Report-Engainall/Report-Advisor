@@ -202,7 +202,6 @@ def parse_with_ocr(data: bytes, filename: str, mime: str) -> dict[str, Any]:
         return {"document": envelope.to_dict(), "engine": "paddleocr", "warnings": envelope.warnings}
 
     try:
-        images = _ocr_images(data, filename, mime)
         import numpy as np
 
         ocr = PaddleOCR(use_doc_orientation_classify=True, use_doc_unwarping=False, use_textline_orientation=True, lang="arabic")
