@@ -267,14 +267,21 @@ try {
     }
 
     if (result.auth === 'PASS') {
-      const primaryNav = await page.getByRole('navigation', { name: 'التنقل التجاري الرئيسي' }).count();
+      const primaryNavLink = page.locator('nav a[href="/import"], aside a[href="/import"]').first();
+      let primaryNav = false;
+      try {
+        await primaryNavLink.waitFor({ state: 'visible', timeout: 15000 });
+        primaryNav = true;
+      } catch {
+        primaryNav = false;
+      }
       addFinding(
         'E2E-AUTH-012',
         primaryNav ? 'PASS' : 'NOT_PROVEN',
         'P1',
         primaryNav
-          ? 'Authenticated application shell became visible after login.'
-          : 'Authenticated session is proven, but the primary navigation shell did not become visible within the bounded convergence window.',
+          ? 'Authenticated application shell became visible after login and exposed the canonical import route from the navigation shell.'
+          : 'Authenticated session is proven, but the navigation shell did not expose the canonical import route within the bounded 15-second convergence window.',
       );
 
       const emailB = process.env.TEST_USER_B_EMAIL;
