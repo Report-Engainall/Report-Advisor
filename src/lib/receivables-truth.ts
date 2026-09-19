@@ -25,6 +25,15 @@ export type ReceivablesReportRowCanonical = {
   customer: { id: string | null; name: string | null } | null;
 };
 
+export interface ReceivablesTruthProvenance {
+  source: 'sales_invoices';
+  formula: string;
+  tenant_id: string;
+  as_of: string;
+  freshness: 'query_time';
+  period: { kind: 'as_of'; as_of_date: string };
+  evidence: { rpc: 'get_receivables_report_page'; filter: string };
+}
 export interface ReceivablesReportPage {
   status: 'CALCULATED' | 'NO_DATA';
   page: number;
@@ -32,6 +41,7 @@ export interface ReceivablesReportPage {
   total_rows: number;
   total_outstanding: number;
   rows: ReceivablesReportRowCanonical[];
+  provenance: ReceivablesTruthProvenance;
 }
 
 export type CanonicalExportRow = { [key: string]: string | number | null };
@@ -93,13 +103,47 @@ export async function fetchReceivablesReportPage(page = 0, pageSize = 25): Promi
   if (!data || typeof data !== 'object') throw new Error('REPORT_DATA_UNAVAILABLE: receivables snapshot missing');
   const payload = data as Record<string, unknown>;
   if (!Array.isArray(payload.rows)) throw new Error('REPORT_DATA_UNAVAILABLE: receivables rows missing');
+  const requiredString = (value: unknown, field: string): string => {
+    if (typeof value !== 'string' || value.trim() === '') throw new Error(`REPORT_DATA_UNAVAILABLE: receivables ${field} missing`);
+    return value;
+  };
+  const provenance = payload.provenance;
+  if (!provenance || typeof provenance !== 'object') throw new Error('REPORT_DATA_UNAVAILABLE: receivables provenance missing');
+  const p = provenance as Record<string, unknown>;
+  const period = p.period;
+  const evidence = p.evidence;
+  if (!period || typeof period !== 'object' || !evidence || typeof evidence !== 'object') throw new Error('REPORT_DATA_UNAVAILABLE: receivables provenance incomplete');
+  const periodObj = period as Record<string, unknown>;
+  const evidenceObj = evidence as Record<string, unknown>;
+  if (p.source !== 'sales_invoices' || p.freshness !== 'query_time' || periodObj.kind !== 'as_of' || evidenceObj.rpc !== 'get_receivables_report_page') {
+    throw new Error('REPORT_DATA_UNAVAILABLE: receivables provenance contract mismatch');
+  }
+  if (!Array.isArray(payload.rows)) throw new Error('REPORT_DATA_UNAVAILABLE: receivables rows missing');
+  if (typeof payload.total_rows !== 'number' || !Number.isFinite(payload.total_rows)) throw new Error('REPORT_DATA_UNAVAILABLE: receivables total_rows missing');
+  if (typeof payload.total_outstanding !== 'number' || !Number.isFinite(payload.total_outstanding)) throw new Error('REPORT_DATA_UNAVAILABLE: receivables total_outstanding missing');
+  if (typeof payload.page !== 'number' || !Number.isInteger(payload.page)) throw new Error('REPORT_DATA_UNAVAILABLE: receivables page missing');
+  if (typeof payload.page_size !== 'number' || !Number.isInteger(payload.page_size)) throw new Error('REPORT_DATA_UNAVAILABLE: receivables page_size missing');
+  const asOf = requiredString(p.as_of, 'as_of');
+  const tenantId = requiredString(p.tenant_id, 'tenant_id');
+  const asOfDate = requiredString(periodObj.as_of_date, 'period.as_of_date');
+  const formula = requiredString(p.formula, 'formula');
+  const filter = requiredString(evidenceObj.filter, 'evidence.filter');
   return {
     status: payload.status === 'NO_DATA' ? 'NO_DATA' : 'CALCULATED',
-    page: Number(payload.page ?? page),
-    page_size: Number(payload.page_size ?? pageSize),
-    total_rows: Number(payload.total_rows ?? 0),
-    total_outstanding: Number(payload.total_outstanding ?? 0),
+    page: payload.page,
+    page_size: payload.page_size,
+    total_rows: payload.total_rows,
+    total_outstanding: payload.total_outstanding,
     rows: payload.rows as ReceivablesReportRowCanonical[],
+    provenance: {
+      source: 'sales_invoices',
+      formula,
+      tenant_id: tenantId,
+      as_of: asOf,
+      freshness: 'query_time',
+      period: { kind: 'as_of', as_of_date: asOfDate },
+      evidence: { rpc: 'get_receivables_report_page', filter },
+    },
   };
 }
 
