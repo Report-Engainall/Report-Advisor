@@ -1,4 +1,4 @@
-import { supabase } from './supabase';
+import { supabase, resolveCurrentCompanyId } from './supabase';
 
 export interface ReceivablesReportRow {
   id: string;
@@ -104,10 +104,7 @@ export async function fetchReceivablesReportPage(page = 0, pageSize = 25): Promi
 }
 
 export async function fetchReceivablesExportRows(): Promise<CanonicalExportRow[]> {
-  const companyId = await (async () => {
-    const { resolveCurrentCompanyId } = await import('./supabase');
-    return resolveCurrentCompanyId();
-  })();
+  const companyId = await resolveCurrentCompanyId();
   if (!companyId) throw new Error('TENANT_REQUIRED');
   const { data, error } = await supabase.rpc('get_receivables_export_rows', {
     p_company_id: companyId,
