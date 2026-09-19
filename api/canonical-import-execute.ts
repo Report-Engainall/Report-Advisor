@@ -1,6 +1,17 @@
 import { createClient } from '@supabase/supabase-js';
 import { runCanonicalImportThroughDurableRunner, type DurableCanonicalImportInput } from '../src/lib/import/canonical-production-adapter';
+import { assertCanonicalImportProvenance } from '../src/lib/import/canonical-truth-boundary';
 import { json, requireConfig, requireMethod, supabaseUserRequest } from '../src/server/resilience-runtime.mjs';
+
+const MAX_REQUEST_BYTES = Number(process.env.CANONICAL_IMPORT_MAX_REQUEST_BYTES ?? 25 * 1024 * 1024);
+
+function assertRequestSize(req: any): void {
+  const raw = req.headers?.['content-length'] ?? req.headers?.['Content-Length'];
+  if (raw != null) {
+    const size = Number(raw);
+    if (Number.isFinite(size) && size > MAX_REQUEST_BYTES) throw new Error('request_too_large');
+  }
+}
 
 function bearerToken(req: any): string | null {
   const value = req.headers?.authorization;
@@ -28,11 +39,24 @@ async function resolveCurrentCompany(token: string): Promise<string | null> {
 }
 
 async function parseBody(req: any): Promise<unknown> {
-  if (req.body && typeof req.body === 'object') return req.body;
-  if (typeof req.body === 'string' && req.body.trim()) return JSON.parse(req.body);
-
+  assertRequestSize(req);
+  if (req.body && typeof req.body === 'object') {
+    const serialized = JSON.stringify(req.body);
+    if (Buffer.byteLength(serialized, 'utf8') > MAX_REQUEST_BYTES) throw new Error('request_too_large');
+    return req.body;
+  }
+  if (typeof req.body === 'string' && req.body.trim()) {
+    if (Buffer.byteLength(req.body, 'utf8') > MAX_REQUEST_BYTES) throw new Error('request_too_large');
+    return JSON.parse(req.body);
+  }
   const chunks: Buffer[] = [];
-  for await (const chunk of req) chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
+  let totalBytes = 0;
+  for await (const chunk of req) {
+    const buffer = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk);
+    totalBytes += buffer.byteLength;
+    if (totalBytes > MAX_REQUEST_BYTES) throw new Error('request_too_large');
+    chunks.push(buffer);
+  }
   if (!chunks.length) throw new Error('request_body_required');
   return JSON.parse(Buffer.concat(chunks).toString('utf8'));
 }
@@ -93,6 +117,15 @@ export default async function handler(req: any, res: any) {
       json(res, 409, { status: 'failed', error: 'import_job_source_identity_mismatch' });
       return;
     }
+    for (const row of input.rows) {
+      assertCanonicalImportProvenance(row, {
+        tenantId: companyId,
+        sourceId: importJob.file_name,
+        sourceHash: input.sourceHash,
+        importId: input.importId,
+      });
+    }
+
     if (['completed', 'partial', 'failed', 'cancelled'].includes(importJob.status)) {
       json(res, 409, { status: 'failed', error: 'import_job_already_terminal' });
       return;
@@ -114,7 +147,7 @@ export default async function handler(req: any, res: any) {
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     const status =
-      /required|invalid|tenant|hash|rows|quality|business|duplicate|already_completed|already_running|not_retryable/i.test(message) ? 400 : 502;
+      message === 'request_too_large' ? 413 : /required|invalid|tenant|hash|rows|quality|business|duplicate|already_completed|already_running|not_retryable|provenance/i.test(message) ? 400 : 502;
     json(res, status, { status: 'failed', error: message.slice(0, 512) });
   }
 }
