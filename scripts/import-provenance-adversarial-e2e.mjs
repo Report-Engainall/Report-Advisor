@@ -150,6 +150,9 @@ try {
   };
 
   await expectReject(sessionA, { ...base, sourceHash: `sha256:${'f'.repeat(64)}` }, 'CANONICAL_SOURCE_HASH_MISMATCH');
+  await expectReject(sessionA, { ...base, fileRecordId: crypto.randomUUID() }, 'CLIENT_PROVENANCE_FORBIDDEN');
+  await expectReject(sessionA, { ...base, sourceId: crypto.randomUUID() }, 'CLIENT_PROVENANCE_FORBIDDEN');
+  await expectReject(sessionA, { ...base, tenantId: crypto.randomUUID() }, 'CLIENT_PROVENANCE_FORBIDDEN');
 
   await expectReject(sessionA, { ...base, rows: [rowWithClaims(valid, { sourceId: crypto.randomUUID() })] }, 'CANONICAL_SOURCE_ID_MISMATCH');
 
@@ -204,6 +207,56 @@ try {
     qualityScore: 100,
   }, 'PERSISTED_SOURCE_HASH_TAMPERED');
 
+  const stateTampered = await createSourceJob(sessionA, 'state-tamper');
+  sources.push(stateTampered);
+  await admin.from('file_records')
+    .update({ file_hash: stateTampered.hash, status: 'ready', security_status: 'passed', metadata: { ...stateTampered.fileRecord.metadata, raw_bytes_sha256: stateTampered.hash } })
+    .eq('id', stateTampered.fileRecord.id).eq('company_id', sessionA.companyId);
+  await admin.from('import_jobs')
+    .update({ source_fingerprint: stateTampered.hash, status: 'processing' })
+    .eq('id', stateTampered.job.id).eq('company_id', sessionA.companyId);
+
+  await admin.from('file_records').update({ status: 'uploaded' }).eq('id', stateTampered.fileRecord.id).eq('company_id', sessionA.companyId);
+  await expectReject(sessionA, {
+    entityType: 'customers',
+    importId: stateTampered.job.id,
+    rows: [{ rowNumber: 1, data: { code: `P0E-${runTag}-state1`, name: `state1 ${runTag}` } }],
+    qualityScore: 100,
+  }, 'AUTHORITATIVE_SOURCE_NOT_VERIFIED');
+
+  await admin.from('file_records').update({ status: 'ready', security_status: 'pending' }).eq('id', stateTampered.fileRecord.id).eq('company_id', sessionA.companyId);
+  await expectReject(sessionA, {
+    entityType: 'customers',
+    importId: stateTampered.job.id,
+    rows: [{ rowNumber: 1, data: { code: `P0E-${runTag}-state2`, name: `state2 ${runTag}` } }],
+    qualityScore: 100,
+  }, 'AUTHORITATIVE_SOURCE_NOT_VERIFIED');
+
+  const rawTampered = await createSourceJob(sessionA, 'raw-byte-tamper');
+  sources.push(rawTampered);
+  await admin.from('file_records')
+    .update({ file_hash: rawTampered.hash, status: 'ready', security_status: 'passed', metadata: { ...rawTampered.fileRecord.metadata, raw_bytes_sha256: rawTampered.hash } })
+    .eq('id', rawTampered.fileRecord.id).eq('company_id', sessionA.companyId);
+  await admin.from('import_jobs')
+    .update({ source_fingerprint: rawTampered.hash, status: 'processing' })
+    .eq('id', rawTampered.job.id).eq('company_id', sessionA.companyId);
+
+  const alteredBytes = Buffer.from(rawTampered.raw);
+  alteredBytes[alteredBytes.length - 2] = alteredBytes[alteredBytes.length - 2] ^ 1;
+  const { error: alteredUploadError } = await admin.storage.from('documents').upload(rawTampered.sourcePath, alteredBytes, {
+    contentType: 'text/csv',
+    cacheControl: '0',
+    upsert: true,
+  });
+  if (alteredUploadError) throw new Error(`RAW_BYTE_TAMPER_UPLOAD_FAILED:${alteredUploadError.message}`);
+
+  await expectReject(sessionA, {
+    entityType: 'customers',
+    importId: rawTampered.job.id,
+    rows: [{ rowNumber: 1, data: { code: `P0E-${runTag}-rawbytes`, name: `rawbytes ${runTag}` } }],
+    qualityScore: 100,
+  }, 'PERSISTED_SOURCE_HASH_TAMPERED');
+
   console.log(JSON.stringify({
     exactHead: process.env.EXACT_HEAD || null,
     status: 'PASS',
@@ -215,7 +268,11 @@ try {
       'cross_tenant_import_rejected',
       'fake_evidence_id_rejected',
       'lineage_mismatch_rejected',
+      'top_level_client_provenance_rejected',
+      'source_marked_not_ready_rejected',
+      'source_marked_not_passed_rejected',
       'persisted_source_hash_tamper_rejected',
+      'raw_bytes_modified_after_hash_persistence_rejected',
       'same_import_replay_no_duplicate',
       'valid_complete_provenance',
     ],
