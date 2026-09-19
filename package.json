@@ -103,7 +103,7 @@
     "test:report-execution-e2e-contract": "node scripts/check-report-execution-e2e-contract.mjs",
     "test:production-release-blockers": "node scripts/check-production-release-blockers.mjs",
     "test:operational-file-pipeline": "node --experimental-strip-types scripts/check-operational-file-pipeline.mjs",
-    "test:contracts": "node scripts/check-architecture-contract.mjs && node scripts/check-import-center-product-contract.mjs && node scripts/check-canonical-commit-ledger-boundary.mjs && node scripts/check-intelligence-canonicalization.mjs && node scripts/check-receivables-canonicalization.mjs && node scripts/check-document-intelligence-contract.mjs",
+    "test:contracts": "node scripts/check-architecture-contract.mjs && node scripts/check-import-center-product-contract.mjs && node scripts/check-canonical-commit-ledger-boundary.mjs && node scripts/check-intelligence-canonicalization.mjs && node scripts/check-receivables-canonicalization.mjs && node scripts/check-document-intelligence-contract.mjs && node scripts/check-canonical-truth-hardening.mjs",
     "test:selective-foundation": "node scripts/check-selective-foundation-integrity.mjs",
     "test:consolidated-intelligence": "node scripts/check-consolidated-intelligence.mjs",
     "test:inventory-intelligence": "node scripts/check-inventory-intelligence.mjs",
@@ -149,6 +149,7 @@
     "test:executive-report-product-contract": "node scripts/check-executive-report-product-contract.mjs",
     "test:intelligence-product-contract": "node scripts/check-intelligence-product-contract.mjs",
     "test:intelligence-canonicalization": "node scripts/check-intelligence-canonicalization.mjs",
-    "test:receivables-canonicalization": "node scripts/check-receivables-canonicalization.mjs"
+    "test:receivables-canonicalization": "node scripts/check-receivables-canonicalization.mjs",
+    "test:canonical-truth-hardening": "node scripts/check-canonical-truth-hardening.mjs"
   }
 }
