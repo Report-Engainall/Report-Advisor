@@ -1,4 +1,4 @@
-from app.intermediate_model import DocumentEnvelope, Provenance, can_transition
+from app.intermediate_model import DocumentEnvelope, ProcessingState, Provenance, can_transition
 
 
 def test_unknown_values_are_preserved_and_serializable() -> None:
@@ -8,7 +8,7 @@ def test_unknown_values_are_preserved_and_serializable() -> None:
         mime_type="text/csv",
         source_hash="abc",
         engine="test",
-        status="EXTRACTED",
+        state=ProcessingState.EXTRACTED,
         metadata={"unknown_column_count": 1},
         warnings=[],
     )
@@ -20,7 +20,7 @@ def test_unknown_values_are_preserved_and_serializable() -> None:
 def test_provenance_keeps_source_identity() -> None:
     provenance = Provenance(
         source_file_id="invoice.pdf",
-        source_sha256="abc",
+        source_hash="abc",
         page=2,
         table=1,
         row=7,
