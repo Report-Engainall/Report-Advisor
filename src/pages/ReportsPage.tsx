@@ -1,19 +1,7 @@
-import { useEffect, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { FileBarChart, ShoppingCart, Package, Receipt, TrendingUp } from 'lucide-react';
-import { Card, CardHeader, CardBody } from '@/components/ui/Card';
-import { Badge } from '@/components/ui/Badge';
-import { PageHeader, LoadingState, ErrorState } from '@/components/ui/States';
-import { DataTable } from '@/components/ui/DataTable';
-import { TrendChart, HorizontalBarChart, CategoryPieChart } from '@/components/ui/Charts';
-import { fetchDashboardSnapshot, fetchInventoryReportSnapshot } from '@/lib/dashboard-canonical';
-import { fetchSalesInvoices, fetchPurchaseInvoices, fetchPurchaseSummary, fetchSalesExportRows, fetchPurchaseExportRows, fetchInventoryExportRows, fetchReceivablesExportRows } from '@/lib/queries';
-import { formatCurrency, formatNumber, formatDate } from '@/lib/format';
-import { downloadReportArtifact } from '@/lib/report-execution/download';
-import type { SalesInvoice, PurchaseInvoice } from '@/lib/types';
-import type { DashboardKPIs, MonthlyTrend, TopEntity, CategoryBreakdown, AgingBucket, InventoryReportRow } from '@/lib/dashboard-canonical';
-
-const errorMessage = (error: unknown): string => error instanceof Error ? error.message : 'تعذر تحميل التقرير';
+import { Card, CardBody } from '@/components/ui/Card';
+import { PageHeader } from '@/components/ui/States';
 
 const reportCards = [
   { path:'/reports/sales', title:'المبيعات', stage:'قياس', desc:'حركة المبيعات والفواتير والعملاء والمنتجات.', icon:ShoppingCart, iconClass:'bg-primary-50 text-primary-600' },
