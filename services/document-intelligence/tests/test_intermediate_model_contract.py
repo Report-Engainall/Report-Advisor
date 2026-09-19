@@ -5,6 +5,7 @@ from app.intermediate_model import (
     Cell,
     DocumentEnvelope,
     Page,
+    ProcessingState,
     Provenance,
     Row,
     Table,
@@ -52,7 +53,7 @@ class IntermediateModelContractTests(unittest.TestCase):
         )
         payload = envelope.to_dict()
         self.assertEqual(payload["pages"][0]["tables"][0]["headers"], ["SKU", "Price"])
-        self.assertEqual(payload["pages"][0]["tables"][0]["rows"][0]["cells"][0]["provenance"]["source_sha256"], "b" * 64)
+        self.assertEqual(payload["pages"][0]["tables"][0]["rows"][0]["cells"][0]["provenance"]["source_hash"], "b" * 64)
 
     def test_production_is_terminal(self):
         self.assertFalse(can_transition("PRODUCTION", "RAW"))
