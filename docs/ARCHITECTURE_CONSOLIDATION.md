@@ -9,8 +9,8 @@
 
 | Surface | Canonical implementation | Legacy surface | Treatment |
 |---|---|---|---|
-| Intelligence pages | `src/pages/IntelligencePage.tsx` | `src/pages/IntelligencePages.tsx` | Re-export only; no second UI implementation |
-| Receivables report | `src/pages/ReceivablesReportCanonicalPage.tsx` | `src/pages/ReceivablesReportPageCanonical.tsx` | Re-export only; no second report implementation |
+| Intelligence pages | `src/pages/IntelligencePage.tsx` | `src/pages/IntelligencePages.tsx` | Duplicate implementation removed; canonical module now owns Recommendations/Forecasts |
+| Receivables report | `src/pages/ReceivablesReportCanonicalPage.tsx` | `src/pages/ReceivablesReportPageCanonical.tsx` | Duplicate implementation removed; canonical report remains |
 | Folder handle persistence | `src/lib/import/folder-handle-store.ts` | `src/lib/import-pipeline/folder-handle-store.ts` | Re-export only; stronger canonical implementation retained |
 | Data-quality score | `src/lib/free-toolbox/data-quality-score.ts` | `src/lib/free-toolbox/data-quality-gate.ts` | Gate is now policy adapter over canonical score math |
 
@@ -94,14 +94,14 @@ The following similarly named families were inspected before mutation:
 
 These were not merely similar; they were duplicate implementations and were collapsed:
 
-- `src/pages/IntelligencePages.tsx` → compatibility-only re-export; implementation moved to `IntelligencePage.tsx`.
-- `src/pages/ReceivablesReportPageCanonical.tsx` → compatibility-only re-export; implementation remains in `ReceivablesReportCanonicalPage.tsx`.
+- `src/pages/IntelligencePages.tsx` → deleted after canonical implementation absorbed its exports.
+- `src/pages/ReceivablesReportPageCanonical.tsx` → deleted after consumer surface was consolidated to `ReceivablesReportCanonicalPage.tsx`.
 - `src/lib/import-pipeline/folder-handle-store.ts` → compatibility-only re-export; persistence remains in `src/lib/import/folder-handle-store.ts`.
 - `src/lib/free-toolbox/data-quality-gate.ts` → policy adapter over the single canonical `qualityScore()` implementation.
 
 ### Deletion rule
 
-A compatibility file becomes a deletion candidate only when the consolidation guard proves zero consumers outside the compatibility file itself. Until that proof is green, the file remains a zero-logic adapter and is not allowed to accumulate features.
+A compatibility file becomes a deletion candidate only when the consolidation guard proves zero consumers outside the compatibility file itself. Proven dead page modules are deleted immediately. Import/storage compatibility modules remain only when a consumer scan has not yet proven safe deletion.
 
 ### Script consolidation rule
 
