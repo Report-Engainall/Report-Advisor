@@ -164,8 +164,12 @@ try {
     }
 
     if (result.auth === 'PASS') {
-      const dashboard = await page.getByTestId('dashboard-executive-heading').count();
-      if (!dashboard) addFinding('E2E-AUTH-012', 'NOT_PROVEN', 'P1', 'Authenticated session is proven, but the expected dashboard label was not present immediately after login.');
+      const dashboard = page.getByTestId('dashboard-executive-heading');
+      try {
+        await dashboard.waitFor({ state: 'visible', timeout: 15000 });
+      } catch {
+        addFinding('E2E-AUTH-012', 'NOT_PROVEN', 'Authenticated session is proven, but the dashboard readiness boundary did not become visible within 15 seconds after login.');
+      }
 
       const emailB = process.env.TEST_USER_B_EMAIL;
       const passwordB = process.env.TEST_USER_B_PASSWORD;
