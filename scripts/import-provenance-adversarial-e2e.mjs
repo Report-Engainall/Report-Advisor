@@ -235,7 +235,7 @@ try {
   await expectReject(sessionA, {
     entityType: 'customers',
     importId: tampered.job.id,
-    rows: [{ rowNumber: 1, data: { code: `P0E-${runTag}-tampered`, name: `tampered source ${runTag}` } }],
+    rows: [{ rowNumber: 1, data: { code: `P0E-${runTag}-tampered`, name: `tampered source ${runTag}`, segment: 'general', credit_limit: 0, payment_terms_days: 0 } }],
     qualityScore: 100,
   }, 'AUTHORITATIVE_SOURCE_NOT_VERIFIED');
 
@@ -252,7 +252,7 @@ try {
   await expectReject(sessionA, {
     entityType: 'customers',
     importId: stateTampered.job.id,
-    rows: [{ rowNumber: 1, data: { code: `P0E-${runTag}-state1`, name: `state1 ${runTag}` } }],
+    rows: [{ rowNumber: 1, data: { code: `P0E-${runTag}-state1`, name: `state1 ${runTag}`, segment: 'general', credit_limit: 0, payment_terms_days: 0 } }],
     qualityScore: 100,
   }, 'AUTHORITATIVE_SOURCE_NOT_VERIFIED');
 
@@ -260,7 +260,7 @@ try {
   await expectReject(sessionA, {
     entityType: 'customers',
     importId: stateTampered.job.id,
-    rows: [{ rowNumber: 1, data: { code: `P0E-${runTag}-state2`, name: `state2 ${runTag}` } }],
+    rows: [{ rowNumber: 1, data: { code: `P0E-${runTag}-state2`, name: `state2 ${runTag}`, segment: 'general', credit_limit: 0, payment_terms_days: 0 } }],
     qualityScore: 100,
   }, 'AUTHORITATIVE_SOURCE_NOT_VERIFIED');
 
@@ -285,7 +285,7 @@ try {
   await expectReject(sessionA, {
     entityType: 'customers',
     importId: rawTampered.job.id,
-    rows: [{ rowNumber: 1, data: { code: `P0E-${runTag}-rawbytes`, name: `rawbytes ${runTag}` } }],
+    rows: [{ rowNumber: 1, data: { code: `P0E-${runTag}-rawbytes`, name: `rawbytes ${runTag}`, segment: 'general', credit_limit: 0, payment_terms_days: 0 } }],
     qualityScore: 100,
   }, 'AUTHORITATIVE_SOURCE_HASH_DRIFT');
 
