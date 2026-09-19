@@ -1008,7 +1008,7 @@ Reference material is allowed only when it improves a measurable project capabil
 \r\n
 ## 43. Strategic Intake, Commercial Layer and Lifecycle State — 2026-09-19
 
-Deterministic business calculations are authoritative for financial and operational truth; AI may assist interpretation but never replaces governed calculation or evidence.
+deterministic business calculations are authoritative for financial and operational truth; AI may assist interpretation but never replaces governed calculation or evidence.
 
 The strategic product source reviewed on 2026-09-19 is development input only. It does not create a second product memory. `docs/MASTER_PRODUCT_REFERENCE.md` remains the single live product-memory authority.
 
