@@ -47,6 +47,8 @@ jobs:
         run: npm run test:concurrent-analysis
       - name: Document resilience contract
         run: npm run test:document-resilience && node --experimental-strip-types scripts/check-document-extraction-behavior.ts
+      - name: Document Intelligence Python runtime tests
+        run: python -m unittest discover -s services/document-intelligence/tests -p 'test_*.py'
       - name: 20-stage parallel release readiness
         run: npm run test:20-stage-readiness
       - name: Workflow command integrity
