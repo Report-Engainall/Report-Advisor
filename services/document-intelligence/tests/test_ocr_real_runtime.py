@@ -109,7 +109,7 @@ for block in blocks:
         raise AssertionError("REAL_SOURCE_HASH_PROVENANCE_MISMATCH")
 
 warnings = document.get("warnings") or []
-if document.get("state") not in {"REVIEW", "QUARANTINED"}:
+if str(document.get("state", "")).upper() not in {"REVIEW", "QUARANTINED"}:
     raise AssertionError(f"UNREADABLE_PAGE_NOT_FAIL_CLOSED:{document.get('state')}")
 if not any("page(s)" in warning for warning in warnings):
     raise AssertionError(f"UNREADABLE_PAGE_WARNING_MISSING:{warnings!r}")
