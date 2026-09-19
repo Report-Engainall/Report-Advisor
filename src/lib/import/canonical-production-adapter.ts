@@ -60,7 +60,7 @@ function assertSourceHash(rows: ReconciledCanonicalImportRow[], sourceHash: stri
 
 interface CanonicalServerExecutionResult { jobId: string; importId: string; [key: string]: unknown }
 
-async function executeThroughServerBoundary(input: DurableCanonicalImportInput): Promise<CanonicalServerExecutionResult> {
+async function executeThroughServerBoundary(input: DurableCanonicalImportInput, mode: 'execute' | 'finalize-source' = 'execute'): Promise<CanonicalServerExecutionResult> {
   const { supabase } = await import('../supabase');
   const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
   const accessToken = sessionData.session?.access_token;
@@ -72,7 +72,7 @@ async function executeThroughServerBoundary(input: DurableCanonicalImportInput):
       Authorization: `Bearer ${accessToken}`,
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify(input),
+    body: JSON.stringify({ ...input, mode }),
   });
 
   const text = await response.text();
@@ -217,4 +217,8 @@ export async function runCanonicalImportThroughDurableRunner(
   }, store);
 
   return { ...result, jobId: job.id, importId: input.importId };
+}
+
+export async function finalizeCanonicalImportSource(input: Pick<DurableCanonicalImportInput, 'importId' | 'fileName' | 'sourceHash' | 'entityType'>): Promise<{ importId: string; sourceHash: string }> {
+  return executeThroughServerBoundary({ ...input, rows: [], qualityScore: 0 }, 'finalize-source');
 }
