@@ -6,7 +6,7 @@ def test_unknown_values_are_preserved_and_serializable() -> None:
         schema_version="document-intelligence.v1",
         filename="sample.csv",
         mime_type="text/csv",
-        source_sha256="abc",
+        source_hash="abc",
         engine="test",
         status="EXTRACTED",
         metadata={"unknown_column_count": 1},
@@ -19,7 +19,7 @@ def test_unknown_values_are_preserved_and_serializable() -> None:
 
 def test_provenance_keeps_source_identity() -> None:
     provenance = Provenance(
-        source_file="invoice.pdf",
+        source_file_id="invoice.pdf",
         source_sha256="abc",
         page=2,
         table=1,
