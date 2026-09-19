@@ -176,26 +176,21 @@ def _paddle_text_and_scores(response: Any) -> tuple[list[str], list[Any]]:
             list(scores) if isinstance(scores, (list, tuple)) else [])
 
 
-def _render_pdf_pages(data: bytes) -> list[Image.Image]:
-    try:
-        import fitz
-    except Exception as exc:
-        raise RuntimeError("pdf_rasterizer_unavailable") from exc
-    with fitz.open(stream=data, filetype="pdf") as pdf:
-        if pdf.page_count > MAX_PDF_PAGES:
-            raise ValueError("pdf_page_limit_exceeded")
-        matrix = fitz.Matrix(PDF_RENDER_SCALE, PDF_RENDER_SCALE)
-        pages: list[Image.Image] = []
-        for page in pdf:
-            pixmap = page.get_pixmap(matrix=matrix, alpha=False)
-            pages.append(Image.open(io.BytesIO(pixmap.tobytes("png"))).convert("RGB"))
-        return pages
-
-
-def _ocr_images(data: bytes, filename: str, mime: str) -> list[Image.Image]:
+def _iter_ocr_images(data: bytes, mime: str):
     if mime == "application/pdf":
-        return _render_pdf_pages(data)
-    return [Image.open(io.BytesIO(data)).convert("RGB")]
+        try:
+            import fitz
+        except Exception as exc:
+            raise RuntimeError("pdf_rasterizer_unavailable") from exc
+        with fitz.open(stream=data, filetype="pdf") as pdf:
+            if pdf.page_count > MAX_PDF_PAGES:
+                raise ValueError("pdf_page_limit_exceeded")
+            matrix = fitz.Matrix(PDF_RENDER_SCALE, PDF_RENDER_SCALE)
+            for page in pdf:
+                pixmap = page.get_pixmap(matrix=matrix, alpha=False)
+                yield Image.open(io.BytesIO(pixmap.tobytes("png"))).convert("RGB")
+        return
+    yield Image.open(io.BytesIO(data)).convert("RGB")
 
 
 def parse_with_ocr(data: bytes, filename: str, mime: str) -> dict[str, Any]:
@@ -208,13 +203,15 @@ def parse_with_ocr(data: bytes, filename: str, mime: str) -> dict[str, Any]:
 
     try:
         images = _ocr_images(data, filename, mime)
+        import numpy as np
+
         ocr = PaddleOCR(use_doc_orientation_classify=True, use_doc_unwarping=False, use_textline_orientation=True, lang="arabic")
         envelope = _envelope(data, filename, mime, "paddleocr", [])
         invalid_confidence = False
         page_models: list[Page] = []
 
-        for page_number, image in enumerate(images, start=1):
-            result = ocr.predict(image)
+        for page_number, image in enumerate(_iter_ocr_images(data, mime), start=1):
+            result = ocr.predict(np.asarray(image))
             if result is None:
                 result = []
             elif isinstance(result, dict):
