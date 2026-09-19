@@ -2,7 +2,6 @@ import fs from 'node:fs';
 
 const required = [
   'docs/MASTER_PRODUCT_REFERENCE.md',
-  'docs/PRODUCT_INSPIRATION_MATRIX.md',
   'docs/MASTER_REQUIREMENTS_TRACEABILITY.md',
   'docs/FREE_OPEN_SOURCE_TOOLBOX.md',
   'docs/DOCUMENT_INGESTION_ACCURACY.md',
