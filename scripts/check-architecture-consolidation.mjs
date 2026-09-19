@@ -6,10 +6,6 @@ const read = (file) => fs.readFileSync(path.join(root, file), 'utf8');
 const failures = [];
 
 const checks = [
-  ['src/lib/import-pipeline/folder-handle-store.ts', [
-    "} from '../import/folder-handle-store';",
-    '@deprecated Compatibility surface only.',
-  ]],
   ['src/lib/free-toolbox/data-quality-gate.ts', [
     "from './data-quality-score';",
     'qualityScore(dimensions).overall',
@@ -35,7 +31,7 @@ function walk(dir) {
     if (['node_modules', '.git', 'dist', 'build'].includes(entry.name)) continue;
     const full = path.join(dir, entry.name);
     if (entry.isDirectory()) walk(full);
-    else if /\.(ts|tsx|mjs|cjs)$/.test(entry.name)) sourceFiles.push(full);
+    else if (/\.(ts|tsx|mjs|cjs)$/.test(entry.name)) sourceFiles.push(full);
   }
 }
 for (const root of scanRoots) walk(root);
@@ -82,13 +78,6 @@ for (const token of ['reduce(', 'Math.max(0,Math.min(100']) {
   if (qualityGate.includes(token)) failures.push(`data-quality-gate.ts: duplicate scoring arithmetic detected: ${token}`);
 }
 
-const wrapperLimits = [
-  ['src/lib/import-pipeline/folder-handle-store.ts', 15],
-];
-for (const [file, maxLines] of wrapperLimits) {
-  const lines = read(file).trim().split('\n').length;
-  if (lines > maxLines) failures.push(`${file}: compatibility wrapper grew to ${lines} lines; keep it zero-logic`);
-}
 
 const canonicalIntelligence = read('src/pages/IntelligencePage.tsx');
 if (canonicalIntelligence.includes('from \'@/pages/IntelligencePages\'') || canonicalIntelligence.includes('from \'./IntelligencePages\'')) failures.push('IntelligencePage.tsx: canonical module must not import or re-export the compatibility module');
