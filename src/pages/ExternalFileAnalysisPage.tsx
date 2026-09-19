@@ -78,6 +78,7 @@ export function ExternalFileAnalysisPage() {
       {error && <div className="mt-4 rounded-xl bg-danger-50 p-3 text-sm text-danger-700 flex gap-2"><AlertCircle size={17}/>{error}</div>}
     </CardBody></Card>
     {file && <>
+      <section className="grid gap-2 sm:grid-cols-5"><div className="rounded-xl border border-success-100 bg-success-50 p-3 text-center text-[10px] font-bold text-success-800">01 · فحص أمني</div><div className="rounded-xl border border-success-100 bg-success-50 p-3 text-center text-[10px] font-bold text-success-800">02 · كشف الصيغة</div><div className="rounded-xl border border-success-100 bg-success-50 p-3 text-center text-[10px] font-bold text-success-800">03 · استخراج</div><div className="rounded-xl border border-primary-100 bg-primary-50 p-3 text-center text-[10px] font-bold text-primary-800">04 · مطابقة وجودة</div><div className="rounded-xl border border-ink-200 bg-ink-50 p-3 text-center text-[10px] font-bold text-ink-600">05 · جاهزية التحليل</div></section>
       <Card><CardBody><div className="flex flex-wrap items-center justify-between gap-3"><div className="flex items-center gap-3">{fileIcon(file.format)}<div><b>{file.name}</b><div className="text-xs text-ink-400">{FORMAT_LABELS[file.format]} · {file.size.toLocaleString()} بايت · بصمة SHA-256: {file.hash.slice(0,16)}…</div></div></div><Badge variant="success"><ShieldCheck size={13}/> اجتاز الفحص الأمني</Badge></div></CardBody></Card>
       <section className="grid gap-4 lg:grid-cols-[1.3fr_.7fr]">
         <Card><CardBody>
