@@ -2,7 +2,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import type { ReportExecutionStage } from '../report-execution/checkpoint';
 import { SupabaseReportExecutionStore } from '../report-execution/durable-worker-adapter';
 import { runDurableProductionLifecycle } from '../report-execution/durable-production-runner';
-import { normalizeImportKey, type ReconciledCanonicalImportRow } from './canonical-truth-boundary';
+import { normalizeImportKey, type ReconciledCanonicalImportRow } from './canonical-truth-boundary.ts';
 import { commitImportBatch } from './canonical-commit';
 
 interface StageExecutionEvidence { evidenceKeys?: string[] }
