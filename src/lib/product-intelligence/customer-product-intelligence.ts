@@ -15,7 +15,7 @@ export interface CustomerProductObservation {
   fulfilledQuantity?: number;
 }
 
-export interface CustomerProductSignal {
+export interface CustomerProductContinuitySignal {
   customerId: string;
   productKey: string;
   periods: number;
@@ -41,7 +41,7 @@ export interface CustomerProductSignal {
 
 const nonNegative = (value: number | undefined): number => Number.isFinite(value) ? Math.max(0, value as number) : 0;
 
-export function analyzeCustomerProductContinuity(rows: CustomerProductPoint[]): CustomerProductSignal[] {
+export function analyzeCustomerProductContinuity(rows: CustomerProductPoint[]): CustomerProductContinuitySignal[] {
   const groups = new Map<string, CustomerProductPoint[]>();
   for (const row of rows) {
     const key = `${row.customerId}::${row.productKey}`;
@@ -59,7 +59,7 @@ export function analyzeCustomerProductContinuity(rows: CustomerProductPoint[]): 
     const last = ordered.findLast(row => nonNegative(row.requestedUnits) > 0)?.period;
     const previous = [...ordered].reverse().find((row, index) => nonNegative(row.requestedUnits) > 0 && row.period !== last)?.period;
 
-    let continuity: CustomerProductSignal['continuity'] = 'insufficient_data';
+    let continuity: CustomerProductContinuitySignal['continuity'] = 'insufficient_data';
     if (active === 0) continuity = 'insufficient_data';
     else if (ordered.length === 1 || previous === undefined) continuity = 'new';
     else {
@@ -76,18 +76,9 @@ export function analyzeCustomerProductContinuity(rows: CustomerProductPoint[]): 
     if (lost > 0) evidence.push(`unfulfilled=${lost}`);
     if (last) evidence.push(`last_active=${last}`);
 
-    const customerId = key.split('::')[0];
-    const productKey = key.split('::').slice(1).join('::');
-    const totalQuantity = requested;
-    const orders = ordered.length;
-    const lastQuantity = nonNegative(ordered.at(-1)?.requestedUnits);
-    const previousQuantity = nonNegative(ordered.at(-2)?.requestedUnits);
-    const ratio = previousQuantity > 0 ? (lastQuantity - previousQuantity) / previousQuantity : 0;
-    const trend = ratio > 0.1 ? 'rising' : ratio < -0.1 ? 'falling' : 'stable';
-
     return {
-      customerId,
-      productKey,
+      customerId: key.split('::')[0],
+      productKey: key.split('::').slice(1).join('::'),
       periods: ordered.length,
       totalRequested: requested,
       totalFulfilled: fulfilled,
@@ -98,15 +89,6 @@ export function analyzeCustomerProductContinuity(rows: CustomerProductPoint[]): 
       continuity,
       fillRate: requested > 0 ? fulfilled / requested : 1,
       evidence,
-      totalQuantity,
-      orders,
-      lastQuantity,
-      previousQuantity,
-      trend,
-      fulfilledQuantity: fulfilled,
-      unfulfilledQuantity: lost,
-      lastSeen: last ?? ordered.at(-1)?.period ?? '',
-      status: continuity === 'lapsed' ? 'lapsed' : lost > 0 ? 'at_risk' : 'active',
     };
   });
 }
