@@ -1,3 +1,5 @@
+import { normalizeBusinessKey } from '../file-engine/business-key.ts';
+
 export type ReconciliationState = 'RECONCILED' | 'CONFLICT' | 'INSUFFICIENT_DATA';
 
 export interface ImportEvidenceProvenance {
@@ -32,12 +34,11 @@ function stableValue(value: unknown): string {
   return JSON.stringify(value);
 }
 
-// Mirrors public.normalize_import_key(): lower-case, trim, then remove all whitespace.
-// Keeping the pre-write reconciliation key aligned with the DB key prevents two rows
-// in one batch from resolving to the same canonical record under different spellings.
+// Single canonical business-key algorithm. The DB function public.normalize_import_key()
+ // intentionally mirrors normalizeBusinessKey() so reconciliation, extraction, analysis,
+ // decision lookup, commit, and duplicate detection use the same identity semantics.
 export function normalizeImportKey(value: unknown): string | null {
-  if (value == null) return null;
-  const normalized = String(value).trim().toLowerCase().replace(/\s+/g, '');
+  const normalized = normalizeBusinessKey(value);
   return normalized || null;
 }
 
