@@ -18,20 +18,18 @@ const required = [
   /GRANT\s+EXECUTE\s+ON\s+FUNCTION\s+public\.import_commit_batch\(uuid,\s*text,\s*jsonb,\s*text,\s*text\)\s+TO\s+service_role/i,
   /GRANT\s+EXECUTE\s+ON\s+FUNCTION\s+public\.import_commit_batch\(uuid,\s*text,\s*jsonb,\s*text,\s*text,\s*uuid\)\s+TO\s+authenticated,\s*service_role/i,
 ];
-for (const pattern of required) if (!pattern.test(source)) throw new Error(`Canonical commit ledger boundary missing: ${pattern}`);
+const satisfiesBoundary = (candidate) => required.every((pattern) => pattern.test(candidate));
+if (!satisfiesBoundary(source)) {
+  throw new Error('Canonical commit ledger boundary missing one or more required security invariants');
+}
 
 const weakened = latestSource
   .replace(/REVOKE\s+ALL\s+ON\s+FUNCTION\s+public\.import_commit_batch\(uuid,\s*text,\s*jsonb,\s*text,\s*text\)\s+FROM\s+PUBLIC,\s*anon,\s*authenticated/i, 'GRANT EXECUTE ON FUNCTION public.import_commit_batch(uuid, text, jsonb, text, text) TO authenticated')
   .replace(/REVOKE\s+INSERT\s*,\s*UPDATE\s*,\s*DELETE\s+ON\s+public\.canonical_import_commits\s+FROM\s+authenticated/i, 'GRANT INSERT, UPDATE, DELETE ON public.canonical_import_commits TO authenticated')
   .replace(/SECURITY\s+DEFINER/i, 'SECURITY INVOKER');
-if (/REVOKE\s+INSERT\s*,\s*UPDATE\s*,\s*DELETE\s+ON\s+public\.canonical_import_commits\s+FROM\s+authenticated/i.test(weakened)) {
-  throw new Error('Adversarial ledger guard failed to detect restored direct table mutation');
-}
-if (/SECURITY\s+DEFINER/i.test(weakened)) {
-  throw new Error('Adversarial ledger guard failed to detect a security-invoker import RPC');
-}
-if (/GRANT\s+EXECUTE\s+ON\s+FUNCTION\s+public\.import_commit_batch\(uuid,\s*text,\s*jsonb,\s*text,\s*text\)[^\n]*TO\s+authenticated/i.test(weakened)) {
-  throw new Error('Adversarial ledger guard failed to detect legacy five-argument authenticated execution');
+
+if (satisfiesBoundary(weakened)) {
+  throw new Error('Adversarial ledger guard failed to reject weakened five-argument/direct-writer/security-invoker state');
 }
 
 console.log('Canonical commit ledger boundary: PASS (legacy 5-arg writer service-role-only; authoritative 7-arg RPC retained)');
