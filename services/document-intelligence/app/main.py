@@ -12,7 +12,10 @@ from zipfile import BadZipFile, ZipFile
 from fastapi import FastAPI, File, HTTPException, UploadFile
 from PIL import Image
 
-from contracts import Block, DocumentEnvelope, Page, ProcessingState, Provenance
+try:
+    from .contracts import Block, DocumentEnvelope, Page, ProcessingState, Provenance
+except ImportError:  # supports direct uvicorn main:app execution
+    from contracts import Block, DocumentEnvelope, Page, ProcessingState, Provenance
 
 app = FastAPI(title="Report Advisor Document Intelligence", version="0.3.0")
 
