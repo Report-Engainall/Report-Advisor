@@ -81,6 +81,11 @@ interface UntrustedCanonicalImportRequest {
 function validateInput(value: unknown): UntrustedCanonicalImportRequest {
   if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error('invalid_json');
   const body = value as Record<string, unknown>;
+  for (const field of ['tenantId', 'companyId', 'sourceId', 'sourceDocumentId', 'fileRecordId', 'lineageId', 'evidenceId']) {
+    if (Object.prototype.hasOwnProperty.call(body, field)) {
+      throw new Error(`CLIENT_PROVENANCE_FORBIDDEN:${field}`);
+    }
+  }
   const entityType = body.entityType;
   if (entityType !== 'products' && entityType !== 'customers' && entityType !== 'sales_invoices') throw new Error('entity_type_invalid');
   if (typeof body.importId !== 'string' || !body.importId.trim()) throw new Error('import_id_invalid');
@@ -219,6 +224,28 @@ export default async function handler(req: any, res: any) {
     const sourceMetadata = fileRecord.metadata && typeof fileRecord.metadata === 'object'
       ? fileRecord.metadata as Record<string, unknown>
       : {};
+    const persistedFileHash = typeof fileRecord.file_hash === 'string' && fileRecord.file_hash.trim()
+      ? fileRecord.file_hash.trim()
+      : null;
+    const persistedRawHash = typeof sourceMetadata.raw_bytes_sha256 === 'string' && sourceMetadata.raw_bytes_sha256.trim()
+      ? String(sourceMetadata.raw_bytes_sha256).trim()
+      : null;
+    const persistedJobHash = typeof importJob.source_fingerprint === 'string' && importJob.source_fingerprint.trim()
+      ? importJob.source_fingerprint.trim()
+      : null;
+    const hasPersistedProvenance = Boolean(persistedFileHash || persistedRawHash || persistedJobHash);
+
+    if (hasPersistedProvenance) {
+      if (fileRecord.status !== 'ready' || fileRecord.security_status !== 'passed') {
+        throw new Error('AUTHORITATIVE_SOURCE_NOT_VERIFIED');
+      }
+      if (!persistedFileHash || !persistedRawHash || !persistedJobHash) {
+        throw new Error('AUTHORITATIVE_SOURCE_PROVENANCE_INCOMPLETE');
+      }
+    } else if (fileRecord.status !== 'uploaded' || fileRecord.security_status !== 'pending') {
+      throw new Error('AUTHORITATIVE_SOURCE_STATE_INVALID');
+    }
+
     const bucket = sourceMetadata.storage_bucket;
     const objectPath = sourceMetadata.storage_path;
     if (bucket !== 'documents' || typeof objectPath !== 'string' || !objectPath.startsWith(`${companyId}/imports/`)) {
@@ -242,11 +269,14 @@ export default async function handler(req: any, res: any) {
     if (typeof input.sourceHash === 'string' && input.sourceHash !== sourceHash) {
       throw new Error('CANONICAL_SOURCE_HASH_MISMATCH');
     }
-    if (typeof importJob.source_fingerprint === 'string' && importJob.source_fingerprint.trim() !== '' && importJob.source_fingerprint.trim() !== sourceHash) {
+    if (persistedJobHash && persistedJobHash !== sourceHash) {
       throw new Error('AUTHORITATIVE_SOURCE_HASH_DRIFT');
     }
-    if (typeof fileRecord.file_hash === 'string' && fileRecord.file_hash.trim() !== '' && fileRecord.file_hash.trim() !== sourceHash) {
+    if (persistedFileHash && persistedFileHash !== sourceHash) {
       throw new Error('PERSISTED_SOURCE_HASH_TAMPERED');
+    }
+    if (persistedRawHash && persistedRawHash !== sourceHash) {
+      throw new Error('AUTHORITATIVE_SOURCE_RAW_HASH_TAMPERED');
     }
 
     const verifiedMetadata = {
@@ -256,27 +286,29 @@ export default async function handler(req: any, res: any) {
       raw_bytes_sha256: sourceHash,
       verified_at: new Date().toISOString(),
     };
-    const { error: fileUpdateError } = await workerClient
-      .from('file_records')
-      .update({
-        file_hash: sourceHash,
-        security_status: 'passed',
-        status: 'ready',
-        metadata: verifiedMetadata,
-      })
-      .eq('id', fileRecord.id)
-      .eq('company_id', companyId);
-    if (fileUpdateError) throw new Error(`AUTHORITATIVE_SOURCE_RECORD_UPDATE_FAILED:${fileUpdateError.message}`);
+    if (!hasPersistedProvenance) {
+      const { error: fileUpdateError } = await workerClient
+        .from('file_records')
+        .update({
+          file_hash: sourceHash,
+          security_status: 'passed',
+          status: 'ready',
+          metadata: verifiedMetadata,
+        })
+        .eq('id', fileRecord.id)
+        .eq('company_id', companyId);
+      if (fileUpdateError) throw new Error(`AUTHORITATIVE_SOURCE_RECORD_UPDATE_FAILED:${fileUpdateError.message}`);
 
-    const { error: jobSourceUpdateError } = await workerClient
-      .from('import_jobs')
-      .update({ source_fingerprint: sourceHash })
-      .eq('id', importJob.id)
-      .eq('company_id', companyId);
-    if (jobSourceUpdateError) throw new Error(`AUTHORITATIVE_IMPORT_SOURCE_UPDATE_FAILED:${jobSourceUpdateError.message}`);
+      const { error: jobSourceUpdateError } = await workerClient
+        .from('import_jobs')
+        .update({ source_fingerprint: sourceHash })
+        .eq('id', importJob.id)
+        .eq('company_id', companyId);
+      if (jobSourceUpdateError) throw new Error(`AUTHORITATIVE_IMPORT_SOURCE_UPDATE_FAILED:${jobSourceUpdateError.message}`);
+    }
 
     fileRecord.file_hash = sourceHash;
-    fileRecord.metadata = verifiedMetadata;
+    fileRecord.metadata = hasPersistedProvenance ? sourceMetadata : verifiedMetadata;
 
     if (['products', 'customers', 'sales_invoices'].includes(importJob.job_type) && importJob.job_type !== input.entityType) {
       json(res, 409, { status: 'failed', error: 'import_job_entity_type_mismatch' });
@@ -325,7 +357,7 @@ export default async function handler(req: any, res: any) {
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     const status =
-      message === 'request_too_large' ? 413 : /required|invalid|tenant|hash|rows|quality|business|duplicate|already_completed|already_running|not_retryable|provenance/i.test(message) ? 400 : 502;
+      message === 'request_too_large' ? 413 : /required|invalid|tenant|hash|rows|quality|business|duplicate|already_completed|already_running|not_retryable|provenance|authoritative_source|client_provenance/i.test(message) ? 400 : 502;
     json(res, status, { status: 'failed', error: message.slice(0, 512) });
   }
 }
