@@ -138,6 +138,21 @@ const sessionB = await signIn(emailB, passwordB);
 const sources = [];
 
 try {
+  const legacyWriterProbe = await sessionA.client.rpc('import_commit_batch', {
+    p_company_id: sessionA.companyId,
+    p_entity_type: 'customers',
+    p_rows: [],
+    p_null_policy: 'preserve',
+    p_source_hash: `sha256:${'0'.repeat(64)}`,
+  });
+  if (!legacyWriterProbe.error) {
+    throw new Error('LEGACY_5ARG_COMMIT_WRITER_MUST_BE_INACCESSIBLE');
+  }
+  const legacyWriterMessage = String(legacyWriterProbe.error.message ?? '');
+  if (!/permission denied|42501/i.test(`${legacyWriterProbe.error.code ?? ''} ${legacyWriterMessage}`)) {
+    throw new Error(`LEGACY_5ARG_COMMIT_WRONG_REJECTION:${legacyWriterProbe.error.code ?? ''}:${legacyWriterMessage}`);
+  }
+
   const valid = await createSourceJob(sessionA, 'valid');
   sources.push(valid);
 
@@ -273,6 +288,7 @@ try {
       'source_marked_not_passed_rejected',
       'persisted_source_hash_tamper_rejected',
       'raw_bytes_modified_after_hash_persistence_rejected',
+      'legacy_5arg_commit_writer_inaccessible',
       'same_import_replay_no_duplicate',
       'valid_complete_provenance',
     ],
