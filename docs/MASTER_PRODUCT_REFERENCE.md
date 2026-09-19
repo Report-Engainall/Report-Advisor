@@ -2,7 +2,7 @@
 
 > **AUTHORITATIVE SINGLE REFERENCE.** This is the permanent registry for the comprehensive product requirements, architecture guardrails, product inspiration, open-source projects, licenses, integration decisions, acceptance rules, implementation mapping, reliability rules, and release gates used while evolving Report Advisor.
 >
-> **Last reviewed:** 2026-08-21
+> **Last reviewed:** 2026-09-19
 >
 > This file supersedes scattered requirement/inspiration notes as the operational reference. New requirements, sources and implementation decisions are appended here rather than creating competing master lists.
 
@@ -10,7 +10,7 @@
 
 Report Advisor is a new product. It may learn from proven products and open-source projects, but it must not become a copy of any vendor.
 
-The target is a unified, accurate, fast, flexible, predictive, advisory and financially safe business-intelligence platform with deterministic business calculations, governed semantic metrics, evidence/lineage, multi-format document intelligence, operational/inventory/procurement intelligence, customer/supplier intelligence, financial/accounting intelligence, forecasting/backtesting, decision/what-if intelligence, ChatBI, report generation, proactive alerts, low-bandwidth UX, and a free-first/open-source-first architecture with no mandatory local AI installation or paid AI provider.
+The target is Aghbari as a Business Decision Operating System: a unified, accurate, evidence-first system that turns business data and documents into verified truth, prioritized signals, governed decisions, controlled actions, measurable outcomes, and organizational learning. BI, document intelligence, forecasting, finance, inventory, customer/supplier intelligence, reports, ChatBI, alerts and AI are capabilities inside that operating loop - not the product identity by themselves.
 
 ## 2. MASTER REQUIREMENTS — consolidated from the comprehensive specification
 
@@ -68,9 +68,9 @@ The target is a unified, accurate, fast, flexible, predictive, advisory and fina
 - Analytical memory and historical snapshots.
 - Proactive early warning and post-upload business diagnosis.
 - Automatic business health report using verified data only.
-- Optional isolated Onyx Pro dataset/sync.
 
-### Electronics/domain extensions
+
+### Domain extensions - modular, never the product identity
 - Product catalog, brands, categories, subcategories, variants, attributes.
 - SKU, barcode, serial number, IMEI.
 - Bundles and accessories.
@@ -712,4 +712,297 @@ Development proceeds in large batches without requiring user prompts between eve
 - preserve the single-reference policy;
 - report only after a meaningful batch or a blocking failure.
 
-Never trade correctness for apparent progress percentage.
+Never trade correctness for apparent progress percentage.\r\n\r\n## 34. Aghbari Product Identity - 2026-09-19
+
+This section is permanent product memory and is the canonical strategic direction for all future development.
+
+### Product category
+
+Aghbari is not being built as:
+- a pharmacy application;
+- a generic ERP clone;
+- a dashboard catalogue;
+- a chatbot wrapper;
+- an AI-generated reporting layer;
+- a collection of disconnected CRUD pages.
+
+Aghbari is a Business Decision Operating System.
+
+Core operating loop:
+`Data -> Truth -> Evidence -> Signal -> Decision -> Approval -> Action -> Outcome -> Learning -> Benchmark`
+
+Every major feature must strengthen one or more links in this loop.
+
+### Core product promise
+
+The system should answer, with traceable evidence:
+1. What is happening?
+2. What is important now?
+3. Why is it happening?
+4. What evidence proves it?
+5. What decision is available?
+6. Who approved it?
+7. What action was taken?
+8. What happened afterward?
+9. Did the decision create the expected value?
+10. What should the organization learn and reuse?
+
+Prefer proof of business value over feature-count growth.
+
+### Strategic capability pillars
+
+#### 1. Truth + Evidence Engine
+Canonical truth:
+`source -> formula -> period -> tenant -> as-of -> freshness -> evidence -> result`
+
+First-class evidence capabilities:
+- Evidence Passport;
+- evidence references and lineage;
+- confidence/truth state;
+- explicit missing-evidence states;
+- source and snapshot identity;
+- deterministic metric definitions.
+
+#### 2. Decision Operating System
+Lifecycle:
+`signal -> evidence -> decision -> approval -> work -> action receipt -> outcome -> learning`
+
+Existing approval/work/action/outcome infrastructure must become one coherent customer experience. No AI response may bypass the governed action path.
+
+#### 3. Money Recovery
+Evidence-backed pressure areas:
+- receivables and collections;
+- inventory exposure;
+- margin pressure;
+- cash and liquidity;
+- pricing leakage;
+- avoidable commercial loss.
+
+Never invent a recovery amount. Show evidence blockage when evidence is insufficient.
+
+#### 4. Decision ROI
+Eligible decisions should support:
+- expected impact;
+- actual measured impact;
+- delta;
+- return state;
+- outcome timing;
+- evidence sufficiency.
+
+`AWAITING_OUTCOME` is valid. Actuals are never fabricated.
+
+#### 5. Decision Coverage
+Coverage should be visible across Sales, Receivables, Margin, Inventory, Customers, Products and Collections.
+
+Coverage means canonical evidence exists to support a decision. Page existence is not coverage.
+
+#### 6. Decision Playbooks
+Important recurring signals should have guided and reversible playbooks.
+
+Examples:
+- collections: aging -> customer context -> approve -> act -> record collection outcome;
+- inventory: movement/balance -> demand/alternatives -> approve reversible action -> measure;
+- margin: canonical revenue/cost -> affected entities -> cause -> act -> measure.
+
+Playbooks must reuse governed paths and must not create shadow write engines.
+
+#### 7. Business Replay and Learning
+Decision history is a first-class asset.
+`signal -> evidence -> decision -> action -> outcome -> replay`
+
+Replay compares expected versus actual results and creates reusable learning without unverified causal claims.
+
+#### 8. Benchmark Network
+Peer benchmarking requires sufficient, policy-compliant real cohort data.
+Until the minimum sample is met:
+`BENCHMARK = INSUFFICIENT_SAMPLE`
+No synthetic benchmark is customer-facing truth.
+
+#### 9. Connector Memory and Schema Drift Guard
+Safely remember connector/source structure and detect:
+- added fields;
+- removed fields;
+- type changes;
+- stable schemas.
+
+Required-field removal or incompatible type change is blocking. Additive safe change may enter review. Schema memory must never silently change canonical truth.
+
+#### 10. Evidence Agent Protocol
+A tenant-scoped read-only evidence interface is part of the product architecture.
+
+Required:
+- current tenant scope;
+- authenticated user context;
+- canonical dashboard snapshot;
+- metric definitions;
+- evidence passport;
+- decision records;
+- outcome records;
+- structured truth and missing-evidence state;
+- no service-role exposure;
+- no write capability.
+
+Current endpoint: `/api/evidence-context`. It remains read-only and fail-closed.
+
+#### 11. Vertical Packs
+Core is horizontal; vertical differentiation lives in intelligence and presentation.
+
+Food/wholesale/distribution may be a demonstration pack, but Aghbari must not become pharmacy-specific or locked to one industry.
+
+Vertical packs may contain:
+- terminology;
+- KPI presets;
+- decision playbooks;
+- report lenses;
+- benchmark definitions;
+- import profiles;
+- demo datasets.
+
+Canonical truth remains shared.
+
+#### 12. Proposal and Job-to-Demo Compiler
+Upwork is a sales channel, not product identity.
+
+Target flow:
+`job requirements -> capability mapping -> real route -> real evidence -> screenshot -> verified gaps -> demo -> proposal`
+
+Only real capabilities may be claimed. Screenshots must map to reachable product states. Demo data must be synthetic or authorized. Gaps must be disclosed. No fabricated prior work or customer results.
+
+#### 13. Commercial Proof
+Value should be demonstrable within minutes:
+- money view;
+- evidence passport;
+- decision case;
+- expected versus actual outcome;
+- executive story;
+- route/deep-link;
+- verifiable product state.
+
+The sales demo should use the same architecture as the real product wherever possible.
+
+## 35. Product Experience Hierarchy
+
+Primary hierarchy:
+`TODAY -> MONEY -> DECISIONS -> TRUST/EVIDENCE -> INTELLIGENCE -> OUTPUTS -> REFERENCE -> ADMINISTRATION`
+
+Rules:
+- important signals are investigation entry points;
+- reports are decision outputs, not a catalogue;
+- intelligence explains and prioritizes but does not own authoritative numbers;
+- administration stays below customer-value surfaces;
+- progressive disclosure beats dashboard overload;
+- mobile and low-bandwidth are product requirements.
+
+## 36. Commercial Moat Rules
+
+The moat is the connected system of:
+- governed truth;
+- Evidence Passport;
+- decision lifecycle;
+- Money Recovery;
+- Decision ROI;
+- Decision Coverage;
+- playbooks;
+- Business Replay;
+- schema drift protection;
+- evidence-agent protocol;
+- real cohort benchmarking;
+- vertical packs;
+- proof-driven demos.
+
+The moat is the connected evidence-to-outcome system, not any single feature.
+
+## 37. Explicit Non-Goals and Rejected Direction
+
+Outside the product direction unless explicitly reauthorized:
+- pharmacy-specific product identity;
+- copied vendor dashboards, layouts, branding or proprietary assets;
+- decorative concept screens without real product flows;
+- screenshot-only features with no reachable implementation;
+- synthetic business evidence presented as live truth;
+- invented benchmark/sample data;
+- AI-generated authoritative financial numbers;
+- direct AI-to-database mutation outside the approved action path;
+- mandatory paid AI providers;
+- mandatory local model installation for customers;
+- separate competing truth engines;
+- duplicate runners, RPCs or write paths when an existing path is sufficient;
+- feature growth that does not improve customer value, evidence, actionability or commercial proof.
+
+## 38. Strategic Layer Status
+
+Baseline: integration SHA `323f9e78f1e80b06a9b98ce9496c7bad20da7bb4`.
+
+Implemented in code or architecture:
+- Aghbari moat panel;
+- Evidence Passport;
+- Decision ROI state model;
+- Decision Coverage;
+- Money Recovery derivation;
+- playbook guidance;
+- Schema Drift Guard;
+- benchmark readiness logic;
+- tenant-scoped Evidence Agent endpoint;
+- agent boundary contract;
+- Proposal Demo differentiation surface;
+- Decision Experience evidence and ROI surfaces;
+- dashboard Money Recovery and Decision Coverage surfaces.
+
+Still requiring deeper product/runtime completion:
+- live decision -> approval -> work -> action receipt -> outcome loop;
+- measured expected versus actual ROI from real outcomes;
+- Business Replay and reusable learning;
+- real cohort benchmark ingestion and governance;
+- connector memory persistence and production drift lifecycle;
+- deeper vertical packs;
+- full Job-to-Demo compiler;
+- complete customer-facing action receipts and outcome capture.
+
+This is implementation status, not certification. Production acceptance still requires the Definition of Done and exact-head evidence gates.
+
+## 39. Product Decision Rule
+
+For every proposed capability:
+`customer problem -> verified evidence -> decision/action value -> implementation path -> exact tests -> measurable outcome`
+
+Reject proposals whose main benefit is visual novelty, trend imitation or feature-count inflation.
+
+Prefer capabilities that:
+- reduce time to trustworthy decision;
+- recover or defend money;
+- reduce operational risk;
+- make evidence auditable;
+- close the outcome loop;
+- create reusable organizational learning;
+- strengthen commercial demonstration.
+
+## 40. Memory Governance - Single Live Product Memory
+
+This file is the single living product-memory authority.
+
+When requirements evolve:
+1. update this file;
+2. preserve compatible historical requirements;
+3. explicitly supersede conflicts;
+4. record rejected directions that prevent drift;
+5. link implementation and test evidence;
+6. never create a second product-memory master.
+
+Operational execution protocols may remain separate, but they are subordinate to this product memory for product direction.
+
+## 41. Reference Hygiene
+
+Reference material is allowed only when it improves a measurable project capability.
+
+- `docs/PRODUCT_INSPIRATION_MATRIX.md` is retired as redundant with this master reference.
+- `docs/INSPIRATION_IMPLEMENTATION_AUDIT.md` remains historical implementation evidence, not an active requirements master.
+- Visual inspiration is a principle source, not a design source. Adopt interaction and architecture principles; never copy layouts, assets, branding or visual identity.
+- Repository assets should remain minimal and purposeful. Do not store decorative reference images unless required by the shipped product.
+
+## 42. Owner Split - Product vs Operations
+
+- Owner 1: product architecture, UX, intelligence, commercial experience, decision surfaces, vertical packs, proposal/demo capabilities.
+- Owner 2: runtime, DB, security, tenant isolation, imports, PDF/OCR runtime, worker/report execution, storage, realtime, backup/restore, CI/CD, deployment, certification and release.
+- Both owners share this same product memory and exact-head evidence rules.
+- Neither owner may create a conflicting product identity or a second requirements master.
+\r\n
