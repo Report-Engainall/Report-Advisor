@@ -34,9 +34,7 @@ must(/REVOKE\s+EXECUTE\s+ON\s+FUNCTION\s+public\.current_company_id\(\)\s+FROM\s
 must(/fetchDashboardSnapshot/.test(queries), 'Canonical dashboard snapshot must own dashboard aggregation');
 must(/fetchDashboardIntelligence/.test(queries), 'Canonical dashboard intelligence must own recommendation/alert reads');
 must(/Compatibility boundary only/.test(compat), 'Compatibility layer must explicitly declare non-ownership of business truth');
-for (const symbol of ['MonthlyTrend','TopCustomers','TopProducts','CategoryBreakdown','AgingBuckets','Forecasts']) {
-  must(new RegExp(`canonicalFetch${symbol}`).test(compat), `Compatibility ${symbol} must delegate to canonical query`);
-}
+must(/export \* from ['"]\.\/queries['"]/.test(compat), 'Compatibility layer must remain a pure forwarding shim');
 
 must(/strict"\s*:\s*true/.test(tsconfig), 'TypeScript strict mode must remain enabled');
 must(/moduleResolution"\s*:\s*"bundler"/.test(tsconfig), 'Bundler module resolution must remain explicit');

@@ -33,7 +33,7 @@ if (!intermediate.includes('from .contracts import') || intermediate.includes('@
 if (!main.includes('from .contracts import') || !pipeline.includes('can_transition')) {
   throw new Error('Document Intelligence runtime must use the canonical contracts module');
 }
-if (!requirements.includes('pymupdf')) {
+if (!requirements.toLowerCase().includes('pymupdf')) {
   throw new Error('PDF runtime fallback requires PyMuPDF');
 }
 console.log('document-intelligence contract gate: PASS');

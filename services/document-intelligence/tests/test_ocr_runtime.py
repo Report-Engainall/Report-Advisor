@@ -58,7 +58,10 @@ class OcrRuntimeTests(unittest.TestCase):
             ]
         )
         result = main.parse_with_ocr(image_bytes(), "invoice.png", "image/png")
-        blocks = result["document"]["pages"][0]["blocks"]
+        pages = result["document"]["pages"]
+        if not pages:
+            self.fail(f"OCR execution diagnostic: warnings={result['warnings']} metadata={result['document'].get('metadata')}")
+        blocks = pages[0]["blocks"]
         self.assertEqual([block["confidence"] for block in blocks], [0.91, 0.74])
         self.assertEqual(result["warnings"], [])
 
