@@ -24,6 +24,9 @@ DECLARE
   v_company_id uuid := public.current_company_id();
   v_file_record_id uuid;
   v_file_hash text;
+  v_file_status text;
+  v_file_security_status text;
+  v_file_metadata jsonb;
   v_source_fingerprint text;
   v_job_type text;
 BEGIN
@@ -50,6 +53,9 @@ BEGIN
   SELECT
     i.file_record_id,
     fr.file_hash,
+    fr.status,
+    fr.security_status,
+    fr.metadata,
     i.source_fingerprint,
     i.job_type
   INTO
@@ -75,6 +81,18 @@ BEGIN
 
   IF v_file_hash IS DISTINCT FROM p_source_hash THEN
     RAISE EXCEPTION 'AUTHORITATIVE_SOURCE_HASH_MISMATCH';
+  END IF;
+
+  IF v_file_status IS DISTINCT FROM 'ready' OR v_file_security_status IS DISTINCT FROM 'passed' THEN
+    RAISE EXCEPTION 'AUTHORITATIVE_SOURCE_NOT_VERIFIED';
+  END IF;
+
+  IF coalesce(v_file_metadata->>'storage_bucket','') IS DISTINCT FROM 'documents' THEN
+    RAISE EXCEPTION 'AUTHORITATIVE_SOURCE_STORAGE_BINDING_INVALID';
+  END IF;
+
+  IF v_file_metadata->>'raw_bytes_sha256' IS DISTINCT FROM v_file_hash THEN
+    RAISE EXCEPTION 'AUTHORITATIVE_SOURCE_RAW_HASH_PROOF_MISSING';
   END IF;
 
   IF v_source_fingerprint IS NULL OR btrim(v_source_fingerprint) = '' THEN
