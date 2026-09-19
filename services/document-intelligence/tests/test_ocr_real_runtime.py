@@ -8,7 +8,7 @@ from pathlib import Path
 
 import fitz
 import numpy as np
-from PIL import Image
+from PIL import Image, ImageDraw, ImageFont
 from starlette.datastructures import Headers, UploadFile
 
 sys.path.insert(0, str(Path("services/document-intelligence/app").resolve()))
@@ -20,17 +20,40 @@ def build_fixture_pdf() -> bytes:
     if not font_path.exists():
         raise RuntimeError("ARABIC_FONT_MISSING")
 
+    # Build scan-like Arabic pages as raster images with deterministic RTL shaping.
+    # The production path under test is still PDF -> PyMuPDF rasterization -> PaddleOCR.
+    if not ImageFont or not hasattr(ImageFont, "truetype"):
+        raise RuntimeError("PIL_FONT_RUNTIME_UNAVAILABLE")
+
+    font = ImageFont.truetype(str(font_path), 64)
     document = fitz.open()
-    for text in ["فاتورة 123 المبيعات 450", "الصفحة الثانية 789 إجمالي"]:
-        page = document.new_page(width=595, height=842)
-        page.insert_text(
-            (72, 120),
+    for text, numbers in [
+        ("فاتورة المبيعات", "123 450"),
+        ("الصفحة الثانية إجمالي", "789"),
+    ]:
+        canvas = Image.new("RGB", (1400, 1800), "white")
+        draw = ImageDraw.Draw(canvas)
+        draw.text(
+            (1270, 420),
             text,
-            fontsize=30,
-            fontname="dejavu",
-            fontfile=str(font_path),
-            color=(0, 0, 0),
+            font=font,
+            fill="black",
+            direction="rtl",
+            anchor="ra",
         )
+        draw.text(
+            (1270, 540),
+            numbers,
+            font=font,
+            fill="black",
+            direction="rtl",
+            anchor="ra",
+        )
+        png = io.BytesIO()
+        canvas.save(png, format="PNG")
+
+        page = document.new_page(width=595, height=842)
+        page.insert_image(fitz.Rect(30, 30, 565, 812), stream=png.getvalue())
 
     # An intentionally unreadable page. The extractor must not silently promote
     # a multi-page document when one page produces no reliable OCR blocks.
