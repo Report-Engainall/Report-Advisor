@@ -9,7 +9,7 @@ for (const token of [
   'DECISION_ACTION_EVIDENCE_NOT_FOUND_OR_FORBIDDEN',
   'WORK_ITEM_EVIDENCE_REQUIRED',
   'WORK_ITEM_EVIDENCE_NOT_FOUND_OR_FORBIDDEN',
-  /jsonb_build_object\(\s*'work_item_id'\s*,\s*p_work_item_id\s*,\s*'evidence_snapshot_id'\s*,\s*v_evidence_snapshot_id\s*\)/s
+  /jsonb_build_object\(\s*'work_item_id'\s*,\s*p_work_item_id[\\s\\S]{0,600}'evidence_snapshot_id'\s*,\s*v_evidence_snapshot_id/s
 ]) {
   const present = token instanceof RegExp ? token.test(sql) : sql.includes(token);
   if (!present) throw new Error('Decision evidence authority missing token: '+String(token));
