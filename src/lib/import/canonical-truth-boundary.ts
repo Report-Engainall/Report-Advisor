@@ -125,3 +125,15 @@ export function assertCanonicalBoundary(row: ReconciledCanonicalImportRow, expec
     if (typeof value !== 'string' || !value.trim()) throw new Error(`CANONICAL_PROVENANCE_${name.toUpperCase()}_REQUIRED`);
   }
 }
+
+export function assertCanonicalImportProvenance(
+  row: ReconciledCanonicalImportRow,
+  expected: { tenantId: string; sourceId: string; sourceHash: string; importId: string },
+): void {
+  assertCanonicalBoundary(row, expected.tenantId);
+  if (row.provenance.sourceId !== expected.sourceId) throw new Error(`CANONICAL_SOURCE_ID_MISMATCH:${row.rowNumber}`);
+  if (row.provenance.sourceHash !== expected.sourceHash) throw new Error(`CANONICAL_SOURCE_HASH_MISMATCH:${row.rowNumber}`);
+  if (row.provenance.sourceDocumentId !== expected.importId) throw new Error(`CANONICAL_SOURCE_DOCUMENT_MISMATCH:${row.rowNumber}`);
+  if (!row.provenance.evidenceId.trim()) throw new Error(`CANONICAL_EVIDENCE_ID_REQUIRED:${row.rowNumber}`);
+  if (row.provenance.lineageId !== `${expected.tenantId}:${expected.importId}:${row.rowNumber}`) throw new Error(`CANONICAL_LINEAGE_ID_MISMATCH:${row.rowNumber}`);
+}
