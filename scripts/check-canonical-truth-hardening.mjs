@@ -9,8 +9,8 @@ const checks = [
   ['alert unavailable is distinct', () => {
     const app = read('src/App.tsx');
     const header = read('src/components/Header.tsx');
-    return app.includes("alertState === 'unavailable'") && app.includes('alertState={alertState}') &&
-      header.includes('alertsUnavailable') && header.includes('خدمة التنبيهات غير متاحة');
+    return /alertState\s*===\s*['\"]unavailable['\"]/.test(app) && app.includes('alertState={alertState}') &&
+      header.includes('alertsUnavailable') && /خدمة التنبيهات غير متاحة/.test(header);
   }],
   ['import history pagination', () => {
     const q = read('src/lib/queries.ts');
@@ -39,7 +39,7 @@ const checks = [
     const truth = read('src/lib/import/canonical-truth-boundary.ts');
     const adapter = read('src/lib/import/canonical-production-adapter.ts');
     return truth.includes('export function normalizeImportKey') &&
-      truth.includes('.trim().toLowerCase().replace(/\\s+/g, \'\')') &&
+      truth.includes('normalizeBusinessKey(value)') &&
       adapter.includes('normalizeImportKey(value)') &&
       !/function rowKey[\\s\\S]*?toLowerCase\(\)/.test(adapter);
   }],
