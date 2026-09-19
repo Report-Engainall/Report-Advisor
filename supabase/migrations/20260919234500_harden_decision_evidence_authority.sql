@@ -7,7 +7,7 @@ CREATE OR REPLACE FUNCTION public.decide_approval(
   p_approve boolean,
   p_reason text DEFAULT NULL
 ) RETURNS boolean
-LANGUAGE plpgsql SECURITY DEFINER SET search_path=public
+LANGUAGE plpgsql SECURITY DEFINER SET search_path TO public
 AS $function$
 DECLARE
   v_company uuid := public.current_company_id();
@@ -74,7 +74,7 @@ CREATE FUNCTION public.create_decision_action_receipt(
   p_decision_fingerprint text,
   p_evidence_snapshot_id uuid
 ) RETURNS uuid
-LANGUAGE plpgsql SECURITY DEFINER SET search_path=public
+LANGUAGE plpgsql SECURITY DEFINER SET search_path TO public
 AS $function$
 DECLARE
   v_company uuid := public.current_company_id();
@@ -122,7 +122,7 @@ $function$;
 CREATE OR REPLACE FUNCTION public.complete_decision_work_item(
   p_work_item_id uuid,p_actual_impact numeric,p_evidence jsonb DEFAULT '{}'::jsonb
 ) RETURNS boolean
-LANGUAGE plpgsql SECURITY DEFINER SET search_path=public
+LANGUAGE plpgsql SECURITY DEFINER SET search_path TO public
 AS $function$
 DECLARE
   v_company uuid:=public.current_company_id();
