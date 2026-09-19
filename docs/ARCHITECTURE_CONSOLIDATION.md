@@ -67,3 +67,42 @@ The next targets are not blind deletions:
 - No weakening of fail-closed behavior.
 - No new Runner/RPC introduced solely as part of cleanup.
 - Every removed implementation must have exactly one surviving canonical contract.
+
+
+## Candidate-family review at 2026-09-19
+
+The following similarly named families were inspected before mutation:
+
+| Family | Decision | Reason |
+|---|---|---|
+| `ImportPage` / `CanonicalImportPage` | KEEP AS LAYERS | `ImportPage` is the route shell and folder-batch surface; `CanonicalImportPage` owns the actual guarded import workflow. |
+| `ScenarioTruthGuardPage` / `CanonicalScenarioPage` | KEEP AS LAYERS | Truth guard verifies usable financial inputs before rendering the deterministic sandbox. |
+| `data-quality-snapshot-core` / `runtime` / `data-quality-snapshot` | KEEP AS LAYERS | Core validates, runtime reads the authoritative RPC, thin facade preserves the import surface. |
+| `outcome-feedback-core` / `outcome-feedback` | KEEP AS LAYERS | Core validates/domain-calculates; facade binds tenant context and persistence RPC. |
+| `dataLineage` / `free-toolbox/data-lineage` | KEEP | One is metric-specific lineage declarations; the other is a generic graph tracer with evidence refs. |
+| `decisionEvidence` / `free-toolbox/decision-evidence` | KEEP | One composes evidence-backed decisions; the other scores a decision-evidence value object. |
+| `groupDemand` / `free-toolbox/group-demand` | KEEP | One is alternative-group intelligence; the other is a lower-level normalized demand primitive. |
+| customer-product intelligence pair | KEEP FOR NOW | Different input grains and output semantics; require shared contract before any merge. |
+| supplier intelligence pair | KEEP FOR NOW | Event/reliability model differs from supplier-period financial-risk model. |
+| inventory-intelligence pair | KEEP FOR NOW | Domain insight calculation differs from async application source assembly. |
+| scenario engines | KEEP | Generic mode engine differs from financial scenario delta engine. |
+| evidence engines | KEEP | Generic evidence bundle differs from runtime decision/action evidence package. |
+| decision-intelligence pair | KEEP FOR NOW | Different decision models; no proven one-to-one replacement contract. |
+| reconciliation pair | KEEP | Generic file business-key reconciliation differs from report-row fingerprint/change classification. |
+
+### Confirmed unnecessary implementation surfaces
+
+These were not merely similar; they were duplicate implementations and were collapsed:
+
+- `src/pages/IntelligencePages.tsx` → compatibility-only re-export; implementation moved to `IntelligencePage.tsx`.
+- `src/pages/ReceivablesReportPageCanonical.tsx` → compatibility-only re-export; implementation remains in `ReceivablesReportCanonicalPage.tsx`.
+- `src/lib/import-pipeline/folder-handle-store.ts` → compatibility-only re-export; persistence remains in `src/lib/import/folder-handle-store.ts`.
+- `src/lib/free-toolbox/data-quality-gate.ts` → policy adapter over the single canonical `qualityScore()` implementation.
+
+### Deletion rule
+
+A compatibility file becomes a deletion candidate only when the consolidation guard proves zero consumers outside the compatibility file itself. Until that proof is green, the file remains a zero-logic adapter and is not allowed to accumulate features.
+
+### Script consolidation rule
+
+The `scripts/` surface is not being reduced by filename similarity. Each future candidate must be mapped to one invariant family and one authority check before removal. Duplicate assertions may be merged; historically important evidence producers remain preserved when they are still referenced by certification/release workflows.
