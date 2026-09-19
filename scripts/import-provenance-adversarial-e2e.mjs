@@ -118,7 +118,7 @@ async function callApi(session, body) {
 function rowWithClaims(source, claims) {
   return {
     rowNumber: 1,
-    data: { code: `P0E-${runTag}-valid`, name: committedCustomerName },
+    data: { code: `P0E-${runTag}-valid`, name: committedCustomerName, segment: 'general' },
     provenance: {
       tenantId: claims.tenantId ?? source.job.company_id,
       sourceId: claims.sourceId ?? source.fileRecord.id,
@@ -177,7 +177,7 @@ try {
     entityType: 'customers',
     importId: valid.job.id,
     fileName: valid.displayName,
-    rows: [{ rowNumber: 1, data: { code: `P0E-${runTag}-base`, name: committedCustomerName } }],
+    rows: [{ rowNumber: 1, data: { code: `P0E-${runTag}-base`, name: committedCustomerName, segment: 'general' } }],
     qualityScore: 100,
   };
 
