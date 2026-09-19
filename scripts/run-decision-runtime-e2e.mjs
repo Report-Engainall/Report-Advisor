@@ -144,6 +144,47 @@ const { data: finalDecision, error: finalError } = await client.from('business_i
 if (finalError) throw finalError;
 if (finalDecision.status !== 'EXECUTED') throw new Error(`DECISION_NOT_EXECUTED:${finalDecision.status}`);
 
+// Runtime latest-state projection proof: one tenant/key must retain only the newest outcome.
+// The same authenticated decision/evidence path is used for positive -> negative -> insufficient.
+const outcomeKey = randomKey;
+const outcomeEvidence = { evidence_snapshot_id: process.env.TEST_EVIDENCE_SNAPSHOT_ID, source: 'runtime-outcome-transition' };
+const observedPositive = new Date(Date.now() + 1000).toISOString();
+const observedNegative = new Date(Date.now() + 2000).toISOString();
+const observedInsufficient = new Date(Date.now() + 3000).toISOString();
+
+for (const [status, observedAt, expectedImpact, actualImpact, quality] of [
+  ['positive', observedPositive, 100, 120, 0.95],
+  ['negative', observedNegative, 100, 40, 0.50],
+  ['insufficient', observedInsufficient, null, null, null],
+]) {
+  const { data: transitionId, error: transitionError } = await client.rpc('record_recommendation_outcome', {
+    p_recommendation_key: outcomeKey,
+    p_observed_at: observedAt,
+    p_expected_impact: expectedImpact,
+    p_actual_impact: actualImpact,
+    p_outcome_quality: quality,
+    p_status: status,
+    p_decision_id: decision,
+    p_evidence: outcomeEvidence,
+  });
+  if (transitionError || !transitionId) throw transitionError ?? new Error(`OUTCOME_TRANSITION_ID_MISSING:${status}`);
+}
+
+const { data: latestOutcome, error: latestOutcomeError } = await client
+  .from('recommendation_outcomes')
+  .select('id,recommendation_key,decision_id,observed_at,expected_impact,actual_impact,outcome_quality,status,evidence')
+  .eq('recommendation_key', outcomeKey)
+  .eq('company_id', (await client.rpc('current_company_id')).data)
+  .single();
+if (latestOutcomeError) throw latestOutcomeError;
+if (latestOutcome.status !== 'insufficient') throw new Error(`LATEST_OUTCOME_STATUS_MISMATCH:${latestOutcome.status}`);
+if (latestOutcome.expected_impact !== null || latestOutcome.actual_impact !== null || latestOutcome.outcome_quality !== null) {
+  throw new Error('LATEST_INSUFFICIENT_OUTCOME_CARRIED_STALE_VALUES');
+}
+if (latestOutcome.decision_id !== decision || latestOutcome.evidence?.evidence_snapshot_id !== process.env.TEST_EVIDENCE_SNAPSHOT_ID) {
+  throw new Error('LATEST_OUTCOME_PROVENANCE_MISMATCH');
+}
+
 console.log(JSON.stringify({ status: 'PASS', synthetic: true, decision, workItem, tested: [
   'self approval', 'cross tenant approval', 'wrong assignee start', 'valid start',
   'cross-tenant evidence', 'mutated decision proof', 'valid action receipt', 'fake evidence snapshot', 'invalid outcome work item', 'missing outcome evidence', 'generated provenance precedence', 'duplicate completion', 'terminal decision execution'
