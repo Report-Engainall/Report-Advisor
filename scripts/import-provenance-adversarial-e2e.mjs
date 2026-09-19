@@ -237,7 +237,7 @@ try {
     importId: tampered.job.id,
     rows: [{ rowNumber: 1, data: { code: `P0E-${runTag}-tampered`, name: `tampered source ${runTag}` } }],
     qualityScore: 100,
-  }, 'PERSISTED_SOURCE_HASH_TAMPERED');
+  }, 'AUTHORITATIVE_SOURCE_NOT_VERIFIED');
 
   const stateTampered = await createSourceJob(sessionA, 'state-tamper');
   sources.push(stateTampered);
