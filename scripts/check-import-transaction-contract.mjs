@@ -59,6 +59,13 @@ if (fs.existsSync(canonicalCommitPath)) {
   }
 }
 
+const importQueriesPath = path.join(root, 'src', 'lib', 'queries.ts');
+if (!fs.existsSync(importQueriesPath)) throw new Error('Canonical import query boundary is missing');
+const importQueries = fs.readFileSync(importQueriesPath, 'utf8');
+if (!/export async function createImportRecord/.test(importQueries) || !importQueries.includes("supabase.rpc('import_create_job'")) {
+  throw new Error('Canonical import_create_job RPC is no longer bound through createImportRecord');
+}
+
 const adapterPath = path.join(root, 'src', 'lib', 'import', 'canonical-production-adapter.ts');
 if (!fs.existsSync(adapterPath)) throw new Error('Canonical durable import adapter is missing');
 const adapter = fs.readFileSync(adapterPath, 'utf8');
@@ -117,7 +124,6 @@ for (const token of [
   "raw_bytes_sha256",
   "storage_bucket",
   "storage_path",
-  "import_create_job",
   "requireMethod(req, res, 'POST')",
   "requireConfig(res, ['SUPABASE_URL', 'SUPABASE_SERVICE_ROLE_KEY', 'VITE_SUPABASE_ANON_KEY'])",
   "Authorization",

@@ -47,7 +47,7 @@ if (/Math\.random|fake|mock/i.test(page)) {
 }
 
 
-if (!/fetchImportRecords\(\)/.test(page) || !/setHistoryError/.test(page) || !/ErrorState/.test(page)) {
+if (!/(?:fetchImportRecords|fetchImportRecordPage)\(/.test(page) || !/setHistoryError/.test(page) || !/ErrorState/.test(page)) {
   console.error('Import Center product contract failed: history failures must remain visible, not collapse to an empty history.');
   process.exit(1);
 }

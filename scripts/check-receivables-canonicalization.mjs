@@ -7,7 +7,7 @@ const service = fs.readFileSync('src/lib/receivables-truth.ts', 'utf8');
 const queries = fs.readFileSync('src/lib/queries.ts', 'utf8');
 const app = fs.readFileSync('src/App.tsx', 'utf8');
 
-assert.match(app, /import\('@/pages\/ReceivablesReportCanonicalPage'/);
+assert.match(app, /import\('@\/pages\/ReceivablesReportCanonicalPage'/);
 assert.match(page, /from ['"]@\/lib\/receivables-truth['"]/);
 assert.match(service, /export async function fetchReceivablesReportPage/);
 assert.match(service, /export async function fetchReceivablesExportRows/);

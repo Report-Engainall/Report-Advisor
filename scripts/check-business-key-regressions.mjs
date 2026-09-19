@@ -37,8 +37,8 @@ assert.equal(
 
 const canonicalConsumers = [
   ['src/lib/file-engine/reconciliation.ts', /import\s*\{[^}]*normalizeBusinessKey[^}]*\}\s*from ['"]\.\/business-key\.ts['"]/s],
-  ['src/lib/import/canonical-truth-boundary.ts', /import\s*\{[^}]*normalizeBusinessKey[^}]*\}\s*from ['"]\.\.\/file-engine\/business-key\.ts['"]/s],
-  ['src/lib/import/canonical-production-adapter.ts', /import\s*\{[^}]*normalizeImportKey[^}]*\}\s*from ['"]\.\/canonical-truth-boundary\.ts['"]/s],
+  ['src/lib/import/canonical-truth-boundary.ts', /import\s*\{[^}]*normalizeBusinessKey[^}]*\}\s*from ['"]\.\.\/file-engine\/business-key(?:\.ts)?['"]/s],
+  ['src/lib/import/canonical-production-adapter.ts', /import\s*\{[^}]*normalizeImportKey[^}]*\}\s*from ['"]\.\/canonical-truth-boundary(?:\.ts)?['"]/s],
 ];
 for (const [relativePath, contract] of canonicalConsumers) {
   const source = fs.readFileSync(path.join(repositoryRoot, relativePath), 'utf8');

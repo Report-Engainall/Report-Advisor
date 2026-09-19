@@ -123,17 +123,17 @@ class OcrRuntimeTests(unittest.TestCase):
         pdf_bytes = pdf.tobytes()
         pdf.close()
 
-        seen_sizes = []
+        seen_shapes = []
         main = self.load_main(
             lambda image: (
-                seen_sizes.append(image.size)
+                seen_shapes.append(tuple(image.shape))
                 or [FakePageResult({"res": {"rec_texts": ["فاتورة"], "rec_scores": [0.92]}})]
             )
         )
         result = main.parse_with_ocr(pdf_bytes, "invoice.pdf", "application/pdf")
-        self.assertTrue(seen_sizes)
-        self.assertGreaterEqual(seen_sizes[0][0], 100)
-        self.assertGreaterEqual(seen_sizes[0][1], 100)
+        self.assertTrue(seen_shapes)
+        self.assertGreaterEqual(seen_shapes[0][0], 100)
+        self.assertGreaterEqual(seen_shapes[0][1], 100)
         self.assertEqual(result["document"]["pages"][0]["number"], 1)
 
     def test_pdf_signature_is_validated_before_parser(self):

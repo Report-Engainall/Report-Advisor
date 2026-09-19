@@ -78,9 +78,26 @@ async function createSourceJob(session, label) {
 function makeResponse() {
   return {
     statusCode: 200,
+    headers: {},
     payload: null,
+    body: null,
+    ended: false,
     status(code) { this.statusCode = code; return this; },
-    json(body) { this.payload = body; return this; },
+    setHeader(name, value) { this.headers[String(name).toLowerCase()] = value; return this; },
+    end(body = '') {
+      this.body = body;
+      this.ended = true;
+      if (typeof body === 'string' && body.length) {
+        try { this.payload = JSON.parse(body); } catch { this.payload = body; }
+      }
+      return this;
+    },
+    json(body) {
+      this.payload = body;
+      this.body = JSON.stringify(body);
+      this.ended = true;
+      return this;
+    },
   };
 }
 
