@@ -1,5 +1,5 @@
 import { supabase, resolveCurrentCompanyId } from './supabase';
-import { fetchReceivablesReportPage, fetchReceivablesExportRows, type ReceivablesReportPage, type ReceivablesReportRowCanonical, type CanonicalExportRow } from './receivables-truth';
+import type { ReceivablesReportPage, ReceivablesReportRowCanonical, CanonicalExportRow } from './receivables-truth';
 import { fetchDashboardSnapshot, fetchDashboardIntelligence, type DashboardKPIs, type MonthlyTrend, type TopEntity, type AgingBucket, type CategoryBreakdown } from './dashboard-canonical';
 import type { Recommendation, Alert, SalesInvoice, PurchaseInvoice, ImportRecord, Customer, Forecast, Product } from './types';
 export type { DashboardKPIs, MonthlyTrend, TopEntity, AgingBucket, CategoryBreakdown };
