@@ -227,7 +227,7 @@ export async function runCanonicalImportThroughDurableRunner(
         return { evidenceKeys: [`decision:commit_eligible=true:rows=${analysisRows}:quality=${input.qualityScore}:source=${input.sourceHash}`] };
       }
       if (stage === 'committed') await commitImportBatch(input.entityType, input.rows, input.sourceHash, { client: activeDataClient, companyId });
-    },,
+    },
   }, store);
 
   return { ...result, jobId: job.id, importId: input.importId };
