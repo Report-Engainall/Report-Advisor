@@ -114,7 +114,7 @@ class DocumentEnvelope:
 
 
 ALLOWED_TRANSITIONS: dict[ProcessingState, set[ProcessingState]] = {
-    ProcessingState.RAW: {ProcessingState.EXTRACTED, ProcessingState.FAILED} if hasattr(ProcessingState, "FAILED") else {ProcessingState.EXTRACTED},
+    ProcessingState.RAW: {ProcessingState.EXTRACTED},
     ProcessingState.EXTRACTED: {ProcessingState.STAGING, ProcessingState.QUARANTINED},
     ProcessingState.STAGING: {ProcessingState.VALIDATED, ProcessingState.QUARANTINED},
     ProcessingState.VALIDATED: {ProcessingState.RECONCILED, ProcessingState.QUARANTINED},
