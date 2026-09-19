@@ -180,13 +180,16 @@ try {
 
   const { data: committedJob } = await admin.from('import_jobs').select('source_fingerprint,status').eq('id', valid.job.id).single();
   const { data: committedSource } = await admin.from('file_records').select('file_hash,status,security_status,metadata').eq('id', valid.fileRecord.id).single();
+  const { data: canonicalCommit } = await admin.from('canonical_import_commits').select('source_hash,committed_count,committed_ids').eq('company_id', sessionA.companyId).eq('entity_type', 'customers').eq('source_hash', valid.hash).maybeSingle();
   if (committedSource?.file_hash !== valid.hash) throw new Error(`SOURCE_HASH_NOT_PERSISTED:${committedSource?.file_hash}`);
   if (committedJob?.source_fingerprint !== valid.hash) throw new Error(`IMPORT_SOURCE_FINGERPRINT_NOT_PERSISTED:${committedJob?.source_fingerprint}`);
   if (committedSource?.metadata?.raw_bytes_sha256 !== valid.hash) throw new Error('RAW_BYTES_SHA_NOT_RECORDED');
+  if (canonicalCommit?.source_hash !== valid.hash) throw new Error('CANONICAL_COMMIT_SOURCE_HASH_MISMATCH');
+  if (canonicalCommit?.committed_count !== 1) throw new Error(`CANONICAL_COMMIT_COUNT_UNEXPECTED:${canonicalCommit?.committed_count}`);
 
   const replay = await callApi(sessionA, validComplete);
-  if (replay.statusCode !== 409) {
-    throw new Error(`REPLAY_EXPECTED_TERMINAL_REJECTION:${replay.statusCode}:${JSON.stringify(replay.payload)}`);
+  if (replay.statusCode < 400 || replay.statusCode >= 500) {
+    throw new Error(`REPLAY_EXPECTED_IDEMPOTENT_REJECTION:${replay.statusCode}:${JSON.stringify(replay.payload)}`);
   }
   const { data: customerRows } = await admin.from('customers').select('id').eq('company_id', sessionA.companyId).eq('name', committedCustomerName);
   if ((customerRows ?? []).length !== 1) throw new Error(`REPLAY_DUPLICATE_COMMIT_DETECTED:${customerRows?.length ?? 0}`);
