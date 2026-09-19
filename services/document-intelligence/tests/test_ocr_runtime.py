@@ -141,6 +141,7 @@ class OcrRuntimeTests(unittest.TestCase):
     def test_docling_runtime_failure_uses_guarded_ocr_fallback(self):
         import asyncio
         import types
+        import fitz
 
         pdf = fitz.open()
         pdf.new_page(width=144, height=144)
