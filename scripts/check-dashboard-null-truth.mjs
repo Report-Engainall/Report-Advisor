@@ -18,7 +18,7 @@ if (!canonical.includes("const valueOrNull = (value: unknown): number | null => 
 if (!canonical.includes("rawStatus === 'CONFIRMED' && !hasEvidence")) {
   throw new Error('Dashboard canonical adapter must not claim CONFIRMED without evidence');
 }
-if (!dashboard.includes("const metricStatus=(value:number|null):'CONFIRMED'|'INSUFFICIENT_DATA'=>value===null?'INSUFFICIENT_DATA':'CONFIRMED';")) {
+if (!/const\s+metricStatus\s*=\s*\(value:\s*number\s*\|\s*null\).*value\s*===\s*null\s*\?\s*'INSUFFICIENT_DATA'\s*:\s*'CONFIRMED'/.test(dashboard)) {
   throw new Error('Dashboard must derive KPI status from each metric value, not the aggregate snapshot status');
 }
 

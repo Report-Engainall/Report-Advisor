@@ -27,3 +27,49 @@ export function runScenario(input: { baseline: { revenue: number; cost: number; 
     return { kind: change.kind, baseline: base, scenario: next, delta: { revenue: next.revenue - base.revenue, cost: next.cost - base.cost, grossProfit: next.grossProfit - base.grossProfit, cash: next.cash - base.cash }, deltaPct: { revenue: deltaPct(base.revenue, next.revenue), cost: deltaPct(base.cost, next.cost), grossProfit: deltaPct(base.grossProfit, next.grossProfit), cash: deltaPct(base.cash, next.cash) }, assumptions, confidence: 0.9, reversible: true, status: 'READY' };
   });
 }
+
+export type ScenarioMode = 'optimistic' | 'base' | 'pessimistic';
+export interface ScenarioVariable { key: string; base: number; upside: number; downside: number; }
+export interface ScenarioOutput { mode: ScenarioMode; variables: Record<string, number>; score: number; warnings: string[]; }
+export interface LegacyScenarioInput { variables: ScenarioVariable[]; mode?: ScenarioMode; }
+export function runScenarios(vars: ScenarioVariable[]): ScenarioOutput[] {
+  const modes: ScenarioMode[] = ['optimistic', 'base', 'pessimistic'];
+  return modes.map(mode => {
+    const variables: Record<string, number> = {};
+    for (const variable of vars) {
+      variables[variable.key] = mode === 'optimistic' ? variable.upside : mode === 'pessimistic' ? variable.downside : variable.base;
+    }
+    const values = Object.values(variables);
+    const score = values.length ? values.reduce((sum, value) => sum + value, 0) / values.length : 0;
+    const warnings: string[] = [];
+    if (mode === 'pessimistic') warnings.push('هذا سيناريو ضغط وليس توقعًا مؤكدًا');
+    return { mode, variables, score, warnings };
+  });
+}
+
+export function simulateScenario(input: LegacyScenarioInput): ScenarioOutput {
+  const mode = input.mode ?? 'base';
+  return runScenarios(input.variables).find(result => result.mode === mode)!;
+}
+
+export interface CustomScenario { variables: Record<string, number>; delta: number; score: number; label: string; }
+
+export function runCustomScenario(
+  vars: ScenarioVariable[],
+  changes: Record<string, number>,
+  impact: (values: Record<string, number>) => number,
+): CustomScenario {
+  const values = Object.fromEntries(vars.map(variable => [variable.key, changes[variable.key] ?? variable.base]));
+  const base = impact(Object.fromEntries(vars.map(variable => [variable.key, variable.base])));
+  const score = impact(values);
+  return {
+    variables: values,
+    delta: score - base,
+    score,
+    label: score >= base ? 'تحسن متوقع' : 'تراجع متوقع',
+  };
+}
+
+export function rankCustomScenarios(results: CustomScenario[]): CustomScenario[] {
+  return [...results].sort((a, b) => b.delta - a.delta);
+}
