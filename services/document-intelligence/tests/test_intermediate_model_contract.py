@@ -15,8 +15,8 @@ from app.intermediate_model import (
 class IntermediateModelContractTests(unittest.TestCase):
     def test_cell_provenance_supports_page_table_row_column_and_bbox(self):
         provenance = Provenance(
-            source_file="report.pdf",
-            source_sha256="a" * 64,
+            source_file_id="report.pdf",
+            source_hash="a" * 64,
             page=2,
             table=1,
             row=7,
@@ -32,7 +32,7 @@ class IntermediateModelContractTests(unittest.TestCase):
         self.assertEqual(cell.provenance.bbox, (1.0, 2.0, 3.0, 4.0))
 
     def test_intermediate_model_can_represent_mixed_page_and_table_content(self):
-        provenance = Provenance(source_file="x.pdf", source_sha256="b" * 64, page=1)
+        provenance = Provenance(source_file_id="x.pdf", source_hash="b" * 64, page=1)
         table = Table(
             index=0,
             headers=["SKU", "Price"],
@@ -46,7 +46,7 @@ class IntermediateModelContractTests(unittest.TestCase):
             mime_type="application/pdf",
             source_sha256="b" * 64,
             engine="test",
-            status="EXTRACTED",
+            state=ProcessingState.EXTRACTED,
             pages=[page],
             tables=[table],
         )
