@@ -20,7 +20,7 @@ export interface DurableProductionRunInput<T = unknown> {
   sourceHash: string;
   rows: Array<Record<string, unknown>>;
   lifecycle: Omit<ProductionLifecycleInput<T>, 'jobId' | 'companyId' | 'sourceHash' | 'currentRows'> & { currentRows: ProductionLifecycleInput<T>['currentRows'] };
-  executeStage?: (stage: ReportExecutionStage, input: { request: ReportExecutionRequest; rows: Array<Record<string, unknown>> }) => Promise<void>;
+  executeStage?: (stage: ReportExecutionStage, input: { request: ReportExecutionRequest; rows: Array<Record<string, unknown>> }) => Promise<{ evidenceKeys?: string[] } | void>;
   loadSourceSnapshot?: (input: { request: ReportExecutionRequest; expectedSourceHash: string; sourceSnapshotId: string }) => Promise<DurableSourceSnapshot<T>>;
   leaseSeconds?: number;
   heartbeatIntervalMs?: number;
@@ -54,15 +54,15 @@ export async function runDurableProductionLifecycle<T>(input: DurableProductionR
       void store.heartbeat(input.jobId, input.workerId, leaseSeconds, tenantId).catch((error) => { heartbeatFailure ??= error; });
     }, heartbeatIntervalMs);
 
-    const checkpoint = (stage: ReportExecutionStage): ReportExecutionCheckpoint => ({ ...job.checkpoint, sourceHash: input.sourceHash, stage, updatedAt: Date.now() });
+    const checkpoint = (stage: ReportExecutionStage, evidenceKeys: string[] = []): ReportExecutionCheckpoint => ({ ...job.checkpoint, sourceHash: input.sourceHash, stage, evidenceKeys: [...new Set([...(job.checkpoint.evidenceKeys ?? []), ...evidenceKeys])].sort(), updatedAt: Date.now() });
     let stage = job.checkpoint.stage;
     while (stage !== 'rendered') {
       if (heartbeatFailure) throw heartbeatFailure;
       const following = next(stage);
       if (!following) throw new Error(`Cannot advance production lifecycle from ${stage}`);
-      if (input.executeStage) await input.executeStage(following, { request: input.request, rows: sourceRows });
+      const stageEvidence = input.executeStage ? await input.executeStage(following, { request: input.request, rows: sourceRows }) : undefined;
       if (heartbeatFailure) throw heartbeatFailure;
-      await store.saveCheckpoint(input.jobId, checkpoint(following), input.workerId, tenantId);
+      await store.saveCheckpoint(input.jobId, checkpoint(following, stageEvidence?.evidenceKeys ?? []), input.workerId, tenantId);
       stage = following;
     }
 
