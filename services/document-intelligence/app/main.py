@@ -209,7 +209,7 @@ def parse_with_ocr(data: bytes, filename: str, mime: str) -> dict[str, Any]:
     try:
         import numpy as np
 
-        ocr = PaddleOCR(use_doc_orientation_classify=True, use_doc_unwarping=False, use_textline_orientation=True, lang="ar")
+        ocr = PaddleOCR(use_doc_orientation_classify=True, use_doc_unwarping=False, use_textline_orientation=True, lang="ar", enable_mkldnn=False)
         envelope = _envelope(data, filename, mime, "paddleocr", [])
         invalid_confidence = False
         unreadable_pages: list[int] = []
