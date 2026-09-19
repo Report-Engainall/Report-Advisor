@@ -132,7 +132,7 @@ export async function fetchDashboardIntelligence(): Promise<{recommendations: Re
       if (error) throw error;
       if (!data || typeof data !== 'object') throw new Error('REPORT_DATA_UNAVAILABLE: dashboard intelligence missing');
       const row = data as Record<string, unknown>;
-      return { recommendations: requiredArray<Recommendation>(row.recommendations), alerts: requiredArray<Alert>(row.alerts) };
+      return { recommendations: requiredArray<Recommendation>(row.recommendations, 'recommendations'), alerts: requiredArray<Alert>(row.alerts, 'alerts') };
     } catch (error) {
       lastError = error;
       if (attempt < maxAttempts) await new Promise(resolve => setTimeout(resolve, 250 * attempt));
