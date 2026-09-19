@@ -92,13 +92,13 @@ try {
   await page.locator('#proposal-demo-client').fill(client);
   await page.locator('#proposal-demo-requirements').fill(requirements);
 
-  const matchedCount = await page.locator('text=ظ‚ط¯ط±ط© ظ…ظˆط¬ظˆط¯ط©').count();
+  const matchedCount = await page.locator('text=قدرة موجودة').count();
   assert.equal(matchedCount, 5, 'all five supplied requirements should map to existing capabilities');
-  const reviewCount = await page.locator('text=ظٹط­طھط§ط¬ ظ…ط±ط§ط¬ط¹ط© ط¨ط´ط±ظٹط©').count();
+  const reviewCount = await page.locator('text=يحتاج مراجعة بشرية').count();
   assert.equal(reviewCount, 0, 'known requirements must not be reported as unmatched');
 
   await page.screenshot({ path: `${reportDir}/proposal-demo.png`, fullPage: true });
-  const demoLink = page.getByRole('link', { name: 'ط§ظ„ط¹ط±ط¶ ط§ظ„ط­ظٹ' }).first();
+  const demoLink = page.getByRole('link', { name: 'العرض الحي' }).first();
   if (await demoLink.count() !== 1) throw new Error('LIVE_DEMO_LINK_NOT_FOUND');
   await demoLink.click();
   await page.waitForURL(url => url.pathname === '/', { timeout: 10000 });
@@ -124,7 +124,7 @@ try {
   assert.match(pdfText, /Senior Business Intelligence Analyst/);
   assert.match(pdfText, /Evidence-First Retail Client/);
   assert.match(pdfText, /Capability Mapping/);
-  assert.match(pdfText, /طھط³ظ„ط³ظ„ ط§ظ„ط¹ط±ط¶ ط§ظ„ط­ظٹ/);
+  assert.match(pdfText, /تسلسل العرض الحي/);
   evidence.status = 'PASS';
   evidence.matchedCount = matchedCount;
   evidence.pdf = { verified: true, path: pdfPath };
