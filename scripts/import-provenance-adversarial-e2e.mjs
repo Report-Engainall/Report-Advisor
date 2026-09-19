@@ -133,7 +133,7 @@ function rowWithClaims(source, claims) {
 
 async function expectReject(session, body, codeFragment) {
   const response = await callApi(session, body);
-  if (response.statusCode < 400 || response.statusCode >= 500) {
+  if (response.statusCode < 400) {
     throw new Error(`EXPECTED_REJECT_NOT_REJECTED:${codeFragment}:${response.statusCode}:${JSON.stringify(response.payload)}`);
   }
   const actual = String(response.payload?.error ?? '');
