@@ -1,7 +1,10 @@
+[functions]
+  directory = "netlify/functions"
+
 [build]
   command = "npm run build"
   publish = "dist"
-  ignore = "if [ \"$CACHED_COMMIT_REF\" = \"$COMMIT_REF\" ]; then exit 1; fi; git diff --quiet \"$CACHED_COMMIT_REF\" \"$COMMIT_REF\" -- src public package.json package-lock.json index.html vite.config.ts tailwind.config.js postcss.config.js netlify.toml"
+  ignore = "if [ \"$CACHED_COMMIT_REF\" = \"$COMMIT_REF\" ]; then exit 1; fi; git diff --quiet \"$CACHED_COMMIT_REF\" \"$COMMIT_REF\" -- src public netlify/functions package.json package-lock.json index.html vite.config.ts tailwind.config.js postcss.config.js netlify.toml"
 
 [[redirects]]
   from = "/*"
