@@ -327,7 +327,7 @@ export default async function handler(req: any, res: any) {
         tenantId: companyId,
         sourceId: fileRecord.id,
         sourceHash,
-        importId: fileRecord.id,
+        sourceDocumentId: fileRecord.id,
       });
     }
 
