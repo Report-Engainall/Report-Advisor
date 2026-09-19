@@ -61,6 +61,9 @@ BEGIN
   INTO
     v_file_record_id,
     v_file_hash,
+    v_file_status,
+    v_file_security_status,
+    v_file_metadata,
     v_source_fingerprint,
     v_job_type
   FROM public.import_jobs i
