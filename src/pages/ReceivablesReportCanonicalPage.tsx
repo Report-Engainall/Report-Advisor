@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/Badge';
 import { DataTable } from '@/components/ui/DataTable';
 import { PageHeader, LoadingState, ErrorState } from '@/components/ui/States';
 import { formatCurrency, formatDate, formatNumber } from '@/lib/format';
-import { fetchReceivablesReportPage, fetchReceivablesExportRows, type ReceivablesReportPage, type ReceivablesReportRow } from '@/lib/queries';
+import { fetchReceivablesReportPage, fetchReceivablesExportRows, type ReceivablesReportPage, type ReceivablesReportRowCanonicalCanonical } from '@/lib/receivables-truth';
 import { downloadReportArtifact } from '@/lib/report-execution/download';
 
 export function ReceivablesReportCanonicalPage() {
