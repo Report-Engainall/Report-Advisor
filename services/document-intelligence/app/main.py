@@ -199,6 +199,8 @@ def parse_with_ocr(data: bytes, filename: str, mime: str) -> dict[str, Any]:
     except Exception as exc:
         envelope = _envelope(data, filename, mime, "paddleocr", ["OCR backend is unavailable; extraction is incomplete and requires review."], ProcessingState.QUARANTINED)
         envelope.metadata["error_type"] = type(exc).__name__
+        envelope.metadata["error_message"] = str(exc)[:512]
+        envelope.metadata["error_message"] = str(exc)[:512]
         return {"document": envelope.to_dict(), "engine": "paddleocr", "warnings": envelope.warnings}
 
     try:
