@@ -4,7 +4,7 @@ import { Card, CardHeader, CardBody } from '@/components/ui/Card';
 import { Badge, StatusBadge } from '@/components/ui/Badge';
 import { PageHeader, LoadingState, EmptyState, ErrorState } from '@/components/ui/States';
 import { DataTable } from '@/components/ui/DataTable';
-import { fetchImportRecords, createImportRecord } from '@/lib/queries';
+import { fetchImportRecordPage, createImportRecord } from '@/lib/queries';
 import { supabase, resolveCurrentCompanyId } from '@/lib/supabase';
 import { formatDateTime, formatNumber } from '@/lib/format';
 import { detectFormat } from '@/lib/file-engine/detector';
@@ -84,21 +84,26 @@ export function CanonicalImportPage() {
   const [progress, setProgress] = useState(0);
   const [result, setResult] = useState<any>(null);
   const [history, setHistory] = useState<any[]>([]);
+  const [historyPage, setHistoryPage] = useState(0);
+  const [historyMeta, setHistoryMeta] = useState({ count: 0, page: 0, page_size: 50 });
   const [loadingHistory, setLoadingHistory] = useState(true);
   const [historyError, setHistoryError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const loadHistory = useCallback(async () => {
+  const loadHistory = useCallback(async (page = historyPage) => {
     setLoadingHistory(true);
     setHistoryError(null);
     try {
-      setHistory(await fetchImportRecords());
+      const result = await fetchImportRecordPage(page, 50);
+      setHistory(result.data);
+      setHistoryPage(result.page);
+      setHistoryMeta({ count: result.count, page: result.page, page_size: result.page_size });
     } catch (historyLoadError) {
       setHistoryError(historyLoadError instanceof Error ? historyLoadError.message : 'تعذر تحميل سجل الاستيرادات');
     } finally {
       setLoadingHistory(false);
     }
-  }, []);
+  }, [historyPage]);
   useEffect(() => { void loadHistory(); }, [loadHistory]);
 
   const handleFile = useCallback(async (selected: File) => {
@@ -168,7 +173,7 @@ export function CanonicalImportPage() {
       });
       setProgress(100);
       setResult({ total: rows.length, valid: validRows.length, invalid: rows.length - validRows.length, importId: rec.id, jobId: execution.jobId });
-      setStep('done'); await loadHistory();
+      setStep('done'); await loadHistory(0);
     } catch (e: any) {
       const failureMessage = e?.message || 'خطأ غير معروف';
       if (rec?.id) {
@@ -230,6 +235,6 @@ export function CanonicalImportPage() {
 
     {step === 'done' && result && <Card><CardBody><div className="flex flex-col items-center py-10 gap-4"><CheckCircle2 className="text-success-500" size={52}/><h3 className="text-xl font-semibold">اكتملت عملية الاستيراد</h3><div className="grid grid-cols-3 gap-3 w-full max-w-lg text-center"><div className="p-3 rounded-lg bg-ink-50"><div className="text-xs text-ink-400">الإجمالي</div><b>{formatNumber(result.total)}</b></div><div className="p-3 rounded-lg bg-success-50"><div className="text-xs text-success-700">تمت الكتابة</div><b>{formatNumber(result.valid)}</b></div><div className="p-3 rounded-lg bg-danger-50"><div className="text-xs text-danger-700">مرفوض</div><b>{formatNumber(result.invalid)}</b></div></div><p className="text-xs text-ink-400">معرّف العملية: {result.importId}</p><p className="text-xs text-ink-400">Durable job: {result.jobId}</p><button type="button" onClick={reset} className="btn-primary"><Upload size={14}/> استيراد ملف آخر</button></div></CardBody></Card>}
 
-    <Card><CardHeader title="سجل الاستيرادات" subtitle="تاريخ العمليات المرتبطة بحسابك" action={<button type="button" onClick={() => void loadHistory()} className="btn-secondary text-xs"><RefreshCw size={13}/> تحديث</button>}/>{loadingHistory?<LoadingState message="جارٍ تحميل السجل..."/>:historyError?<ErrorState message={`فشل تحميل سجل الاستيرادات: ${historyError}`} onRetry={() => void loadHistory()}/>:history.length===0?<EmptyState icon={<Database size={32}/>} title="لا توجد استيرادات سابقة" message="ابدأ باستيراد ملفك الأول"/>:<DataTable columns={[{key:'file_name',label:'الملف'},{key:'entity_type',label:'النوع'},{key:'total_rows',label:'الصفوف',align:'center'},{key:'valid_rows',label:'صالح',align:'center'},{key:'invalid_rows',label:'مرفوض',align:'center'},{key:'status',label:'الحالة',align:'center',render:(r:any)=><StatusBadge status={r.status}/>},{key:'created_at',label:'التاريخ',render:(r:any)=>formatDateTime(r.created_at)}]} data={history} emptyMessage="لا توجد استيرادات"/>}</Card>
+    <Card><CardHeader title="سجل الاستيرادات" subtitle={historyMeta.count > 0 ? `عرض الصفحة ${historyMeta.page + 1} من ${Math.max(1, Math.ceil(historyMeta.count / historyMeta.page_size))} — ${formatNumber(historyMeta.count)} عملية إجمالًا` : 'تاريخ العمليات المرتبطة بحسابك'} action={<button type="button" onClick={() => void loadHistory(historyPage)} className="btn-secondary text-xs"><RefreshCw size={13}/> تحديث</button>}/>{loadingHistory?<LoadingState message="جارٍ تحميل السجل..."/>:historyError?<ErrorState message={`فشل تحميل سجل الاستيرادات: ${historyError}`} onRetry={() => void loadHistory(historyPage)}/>:historyMeta.count===0?<EmptyState icon={<Database size={32}/>} title="لا توجد استيرادات سابقة" message="ابدأ باستيراد ملفك الأول"/>:<><DataTable columns={[{key:'file_name',label:'الملف'},{key:'entity_type',label:'النوع'},{key:'total_rows',label:'الصفوف',align:'center'},{key:'valid_rows',label:'صالح',align:'center'},{key:'invalid_rows',label:'مرفوض',align:'center'},{key:'status',label:'الحالة',align:'center',render:(r:any)=><StatusBadge status={r.status}/>},{key:'created_at',label:'التاريخ',render:(r:any)=>formatDateTime(r.created_at)}]} data={history} emptyMessage="لا توجد استيرادات في هذه الصفحة"/><div className="flex items-center justify-between border-t border-ink-100 px-4 py-3"><span className="text-xs text-ink-400">عرض {history.length} من {formatNumber(historyMeta.count)}</span><div className="flex gap-2"><button type="button" disabled={historyPage === 0} onClick={() => void loadHistory(historyPage - 1)} className="px-3 py-1.5 rounded-lg border border-ink-200 text-xs disabled:opacity-40">السابق</button><button type="button" disabled={(historyPage + 1) * historyMeta.page_size >= historyMeta.count} onClick={() => void loadHistory(historyPage + 1)} className="px-3 py-1.5 rounded-lg border border-ink-200 text-xs disabled:opacity-40">التالي</button></div></div></>}</Card>
   </div>;
 }
