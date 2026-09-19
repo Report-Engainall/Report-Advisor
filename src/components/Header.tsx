@@ -10,11 +10,13 @@ type HealthState = 'checking' | 'healthy' | 'degraded' | 'offline';
 
 export function Header({
   alerts,
+  alertState,
   onMarkAlertRead,
   onMenuClick,
   onOpenCommandPalette,
 }: {
   alerts: Alert[];
+  alertState: 'loading' | 'ready' | 'unavailable';
   onMarkAlertRead: (id: string) => void;
   onMenuClick: () => void;
   onOpenCommandPalette: () => void;
@@ -23,6 +25,7 @@ export function Header({
   const [health, setHealth] = useState<HealthState>('checking');
   const location = useLocation();
   const unreadAlerts = alerts.filter(a => !a.is_read);
+  const alertsUnavailable = alertState === 'unavailable';
 
   const currentLabel = useMemo(() => {
     if (location.pathname === '/') return 'لوحة التحكم';
@@ -86,7 +89,7 @@ export function Header({
           <Link to="/import" className="rounded-xl p-2.5 text-ink-500 hover:bg-white hover:text-primary-700" title="إدخال بيانات" aria-label="إدخال بيانات"><Upload size={18}/></Link>
           <Link to="/intelligence" className="rounded-xl bg-primary-700 p-2.5 text-white shadow-sm hover:bg-primary-800" title="مركز الذكاء" aria-label="مركز الذكاء"><Brain size={18}/></Link>
           <div className="relative">
-            <button onClick={() => setShowAlerts(value => !value)} className="relative rounded-xl p-2.5 text-ink-500 hover:bg-white hover:text-ink-800" aria-label={'التنبيهات، ' + unreadAlerts.length + ' غير مقروء'} aria-expanded={showAlerts}>
+            <button onClick={() => setShowAlerts(value => !value)} className="relative rounded-xl p-2.5 text-ink-500 hover:bg-white hover:text-ink-800" aria-label={alertsUnavailable ? 'التنبيهات غير متاحة حاليًا' : 'التنبيهات، ' + unreadAlerts.length + ' غير مقروء'} aria-expanded={showAlerts}>
               <Bell size={18}/>
               {unreadAlerts.length > 0 && <span className="absolute -left-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-danger-600 px-1 text-[9px] font-black text-white">{unreadAlerts.length}</span>}
             </button>
@@ -95,7 +98,7 @@ export function Header({
                 <div className="fixed inset-0 z-40" onClick={() => setShowAlerts(false)} />
                 <div className="absolute left-0 z-50 mt-2 w-80 overflow-hidden rounded-2xl border border-ink-200 bg-white shadow-elevated">
                   <div className="flex items-center justify-between border-b border-ink-100 px-4 py-3"><span className="text-sm font-black text-ink-800">الانتباه</span><span className="text-xs text-ink-400">{unreadAlerts.length} غير مقروء</span></div>
-                  {alerts.length === 0 ? <div className="p-6 text-center text-sm text-ink-400">لا توجد تنبيهات</div> : (
+                  {alertsUnavailable ? <div className="p-6 text-center text-sm text-warning-700">خدمة التنبيهات غير متاحة حاليًا. لم يتم افتراض عدم وجود تنبيهات.</div> : alerts.length === 0 ? <div className="p-6 text-center text-sm text-ink-400">لا توجد تنبيهات</div> : (
                     <div className="max-h-96 divide-y divide-ink-100 overflow-y-auto">
                       {alerts.slice(0, 10).map(alert => (
                         <button type="button" key={alert.id} onClick={() => onMarkAlertRead(alert.id)} className={'w-full p-4 text-right hover:bg-ink-50 ' + (!alert.is_read ? 'bg-primary-50/40' : '')}>
