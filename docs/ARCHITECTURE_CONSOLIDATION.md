@@ -106,3 +106,27 @@ A compatibility file becomes a deletion candidate only when the consolidation gu
 ### Script consolidation rule
 
 The `scripts/` surface is not being reduced by filename similarity. Each future candidate must be mapped to one invariant family and one authority check before removal. Duplicate assertions may be merged; historically important evidence producers remain preserved when they are still referenced by certification/release workflows.
+
+
+## Script-family review at 2026-09-19
+
+Name collisions in `scripts/` were reviewed as contracts, not filenames:
+
+| Script family | Decision | Boundary |
+|---|---|---|
+| document-intelligence closure / contract / hardening | KEEP | closure checks pipeline/model presence; contract checks Python domain contracts/policy; hardening checks JS/TS application boundary invariants |
+| production-certification boundary / contract / gate | KEEP | boundary checks evidence/readiness surface; contract checks certification implementation/evidence keys; gate intentionally tests fail-closed behavior |
+| production-gate-integrity / runtime / `production-gate-integrity.mjs` | KEEP WITH FUTURE REFACTOR CANDIDATE | static package registration, runtime execution, and reusable gate function are different concerns; candidate for a future shared gate module, not safe blind deletion |
+| inventory-intelligence truth / inventory-intelligence | KEEP | UI/source-boundary truth guard versus lower-level deterministic engine behavior |
+| reliability-idempotency gate / reliability-idempotency | KEEP | tenant/payload/health gate versus pure idempotent operation semantics |
+| production-readiness family | REVIEW NEXT | likely overlaps at orchestration level; must inspect workflow consumers before any merge |
+| outcome-learning contract / regression | KEEP | structural contract versus behavioral regression |
+| performance-reliability contract / gate | KEEP | invariant contract versus release gate |
+| production-e2e-evidence contract / gate | KEEP | evidence shape versus gate policy |
+| tenant-legacy-consumers / regression | KEEP | source boundary versus regression behavior |
+| work-item-outcome-provenance boundary / provenance | REVIEW NEXT | likely adjacent; inspect exact consumers before consolidation |
+| canonical-certification-decision / check-canonical-certification-decision | REVIEW NEXT | possible duplicate authority; do not remove until workflow/package consumers are mapped |
+
+### Current outcome
+
+The consolidation wave has removed duplicate **implementations** from the highest-confidence cases while preserving thin compatibility boundaries. The remaining file count is not itself the success metric. The target state is a smaller number of authoritative implementations, explicit adapters, and one test authority per invariant.
