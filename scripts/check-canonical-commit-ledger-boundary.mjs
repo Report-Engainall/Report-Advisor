@@ -7,7 +7,9 @@ const candidates = fs.readdirSync(migrationDir)
   .sort();
 if (!candidates.length) throw new Error('Canonical commit ledger hardening migration is missing');
 
-const source = fs.readFileSync(path.join(migrationDir, candidates.at(-1)), 'utf8');
+const source = candidates
+  .map((file) => fs.readFileSync(path.join(migrationDir, file), 'utf8'))
+  .join('\n');
 const required = [
   /DROP\s+POLICY\s+IF\s+EXISTS\s+canonical_import_commits_tenant_insert/i,
   /REVOKE\s+INSERT\s*,\s*UPDATE\s*,\s*DELETE\s+ON\s+public\.canonical_import_commits\s+FROM\s+authenticated/i,
