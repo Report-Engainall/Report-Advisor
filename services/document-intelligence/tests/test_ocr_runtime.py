@@ -106,12 +106,9 @@ class OcrRuntimeTests(unittest.TestCase):
         result = main.parse_with_ocr(image_bytes(), "invoice.png", "image/png")
         self.assertEqual(result["engine"], "paddleocr")
         self.assertIn("OCR execution failed; document is not considered successfully extracted", result["warnings"][0])
-        self.assertEqual(result["document"]["status"], "FAILED")
+        self.assertEqual(result["document"]["state"], "quarantined")
         self.assertEqual(result["document"]["pages"], [])
 
-
-if __name__ == "__main__":
-    unittest.main()
 
 
     def test_pdf_is_rasterized_before_ocr(self):
@@ -140,3 +137,44 @@ if __name__ == "__main__":
         main = self.load_main(lambda image: [])
         with self.assertRaises(ValueError):
             main.validate_file_content(b"not a pdf", "invoice.pdf", "application/pdf")
+
+    def test_docling_runtime_failure_uses_guarded_ocr_fallback(self):
+        import asyncio
+        import types
+
+        pdf = fitz.open()
+        pdf.new_page(width=144, height=144)
+        pdf_bytes = pdf.tobytes()
+        pdf.close()
+
+        main = self.load_main(
+            lambda image: [FakePageResult({"res": {"rec_texts": ["فاتورة"], "rec_scores": [0.94]}})]
+        )
+
+        failing_docling = types.ModuleType("docling.document_converter")
+
+        class FailingDocumentConverter:
+            def convert(self, path):
+                raise RuntimeError("conversion failed")
+
+        failing_docling.DocumentConverter = FailingDocumentConverter
+
+        class FakeUpload:
+            content_type = "application/pdf"
+            filename = "invoice.pdf"
+
+            async def read(self, limit):
+                return pdf_bytes
+
+        with patch.dict(sys.modules, {
+            "docling": types.ModuleType("docling"),
+            "docling.document_converter": failing_docling,
+        }):
+            result = asyncio.run(main.parse_document(FakeUpload()))
+
+        self.assertEqual(result["engine"], "paddleocr")
+        self.assertTrue(any("guarded OCR fallback used" in warning for warning in result["warnings"]))
+        self.assertEqual(result["document"]["pages"][0]["blocks"][0]["confidence"], 0.94)
+
+if __name__ == "__main__":
+    unittest.main()
