@@ -35,7 +35,7 @@ async function createSourceJob(session, label) {
   const displayName = `p0e-${runTag}-${label}.csv`;
   const raw = Buffer.from([
     'code,name',
-    `P0E-${crypto.randomUUID().slice(0, 8)},${label}`,
+    `P0E-${runTag}-${label},${label}`,
     '',
   ].join('\n'), 'utf8');
   const hash = `sha256:${crypto.createHash('sha256').update(raw).digest('hex')}`;
@@ -145,7 +145,7 @@ try {
     entityType: 'customers',
     importId: valid.job.id,
     fileName: valid.displayName,
-    rows: [{ rowNumber: 1, data: { code: `P0E-${crypto.randomUUID().slice(0, 8)}`, name: 'P0E provenance customer' } }],
+    rows: [{ rowNumber: 1, data: { code: `P0E-${runTag}-base`, name: committedCustomerName } }],
     qualityScore: 100,
   };
 
@@ -188,7 +188,7 @@ try {
   if (replay.statusCode !== 409) {
     throw new Error(`REPLAY_EXPECTED_TERMINAL_REJECTION:${replay.statusCode}:${JSON.stringify(replay.payload)}`);
   }
-  const { data: customerRows } = await admin.from('customers').select('id').eq('company_id', sessionA.companyId).eq('name', 'P0E provenance customer');
+  const { data: customerRows } = await admin.from('customers').select('id').eq('company_id', sessionA.companyId).eq('name', committedCustomerName);
   if ((customerRows ?? []).length !== 1) throw new Error(`REPLAY_DUPLICATE_COMMIT_DETECTED:${customerRows?.length ?? 0}`);
 
   const tampered = await createSourceJob(sessionA, 'persisted-hash-tamper');
