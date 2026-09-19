@@ -8,6 +8,7 @@ const index = `## CURRENT PROJECT STATE\n- Current code/test candidate: \`${cand
 
 assert.doesNotThrow(() => validateCertificationBoundary({ index, head: candidate, parent: '', changedFiles: [] }));
 assert.doesNotThrow(() => validateCertificationBoundary({ index, head: child, parent: candidate, changedFiles: ['.github/workflows/final-certification-gate.yml'] }));
+assert.doesNotThrow(() => validateCertificationBoundary({ index, head: child, parent: candidate, changedFiles: ['docs/MASTER_PRODUCT_REFERENCE.md'] }));
 assert.throws(() => validateCertificationBoundary({ index, head: child, parent: candidate, changedFiles: ['src/app.tsx'] }), /non-governance changes/);
 assert.throws(() => validateCertificationBoundary({ index, head: child, parent: '0'.repeat(40), changedFiles: ['.github/workflows/final-certification-gate.yml'] }), /not an ancestor/);
 assert.doesNotThrow(() => validateCertificationBoundary({ index: '', head: child, parent: candidate, changedFiles: ['src/App.tsx'], branch: 'integration/certification-candidate-20260918', certificationSha: child, base: 'main' }));
