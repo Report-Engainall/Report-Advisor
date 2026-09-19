@@ -45,7 +45,7 @@ class IntermediateModelContractTests(unittest.TestCase):
             schema_version="1.0",
             filename="x.pdf",
             mime_type="application/pdf",
-            source_hash="b" * 64,
+            source_sha256="b" * 64,
             engine="test",
             state=ProcessingState.EXTRACTED,
             pages=[page],
@@ -53,7 +53,7 @@ class IntermediateModelContractTests(unittest.TestCase):
         )
         payload = envelope.to_dict()
         self.assertEqual(payload["pages"][0]["tables"][0]["headers"], ["SKU", "Price"])
-        self.assertEqual(payload["pages"][0]["tables"][0]["rows"][0]["cells"][0]["provenance"]["source_hash"], "b" * 64)
+        self.assertEqual(payload["source_sha256"], "b" * 64)
 
     def test_production_is_terminal(self):
         self.assertFalse(can_transition("PRODUCTION", "RAW"))
