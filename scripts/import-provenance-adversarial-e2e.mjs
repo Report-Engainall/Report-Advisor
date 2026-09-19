@@ -188,7 +188,7 @@ try {
 
   await expectReject(sessionA, { ...base, rows: [rowWithClaims(valid, { sourceId: crypto.randomUUID() })] }, 'CANONICAL_SOURCE_ID_MISMATCH');
 
-  await expectReject(sessionA, { ...base, rows: [rowWithClaims(valid, { sourceDocumentId: crypto.randomUUID() })] }, 'CANONICAL_SOURCE_DOCUMENT_MISMATCH');
+  await expectReject(sessionA, { ...base, rows: [rowWithClaims(valid, { sourceDocumentId: crypto.randomUUID() })] }, 'CANONICAL_SOURCE_DOCUMENT_ID_MISMATCH');
 
   await expectReject(sessionA, { ...base, rows: [rowWithClaims(valid, { evidenceId: 'fake-evidence-id' })] }, 'CANONICAL_EVIDENCE_ID_MISMATCH');
 
