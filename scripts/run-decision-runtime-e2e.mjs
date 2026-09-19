@@ -152,6 +152,7 @@ const observedPositive = new Date(Date.now() + 1000).toISOString();
 const observedNegative = new Date(Date.now() + 2000).toISOString();
 const observedInsufficient = new Date(Date.now() + 3000).toISOString();
 
+let transitionIdExpected = null;
 for (const [status, observedAt, expectedImpact, actualImpact, quality] of [
   ['positive', observedPositive, 100, 120, 0.95],
   ['negative', observedNegative, 100, 40, 0.50],
@@ -168,6 +169,8 @@ for (const [status, observedAt, expectedImpact, actualImpact, quality] of [
     p_evidence: outcomeEvidence,
   });
   if (transitionError || !transitionId) throw transitionError ?? new Error(`OUTCOME_TRANSITION_ID_MISSING:${status}`);
+  if (transitionIdExpected === null) transitionIdExpected = transitionId;
+  if (transitionId !== transitionIdExpected) throw new Error(`OUTCOME_ID_CHANGED_ACROSS_PROJECTION:${status}`);
 }
 
 const { data: latestOutcome, error: latestOutcomeError } = await client
@@ -184,8 +187,12 @@ if (latestOutcome.expected_impact !== null || latestOutcome.actual_impact !== nu
 if (latestOutcome.decision_id !== decision || latestOutcome.evidence?.evidence_snapshot_id !== process.env.TEST_EVIDENCE_SNAPSHOT_ID) {
   throw new Error('LATEST_OUTCOME_PROVENANCE_MISMATCH');
 }
+if (latestOutcome.id !== transitionIdExpected || latestOutcome.observed_at !== observedInsufficient) {
+  throw new Error('LATEST_OUTCOME_PROJECTION_IDENTITY_MISMATCH');
+}
 
 console.log(JSON.stringify({ status: 'PASS', synthetic: true, decision, workItem, tested: [
   'self approval', 'cross tenant approval', 'wrong assignee start', 'valid start',
-  'cross-tenant evidence', 'mutated decision proof', 'valid action receipt', 'fake evidence snapshot', 'invalid outcome work item', 'missing outcome evidence', 'generated provenance precedence', 'duplicate completion', 'terminal decision execution'
+  'cross-tenant evidence', 'mutated decision proof', 'valid action receipt', 'fake evidence snapshot', 'invalid outcome work item', 'missing outcome evidence', 'generated provenance precedence', 'duplicate completion', 'terminal decision execution',
+  'recommendation outcome positive -> negative -> insufficient latest-state projection'
 ] }, null, 2));
