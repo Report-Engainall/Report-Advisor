@@ -8,7 +8,7 @@ const files = {
 };
 
 const required = {
-  queries: [/src\/lib\/receivables-truth(?:\.ts)?/, 'export type ReceivablesReportRow = ReceivablesReportRowCanonical'],
+  queries: [/from ['"]\.\/receivables-truth(?:\.ts)?['"]/i, 'export type ReceivablesReportRow = ReceivablesReportRowCanonical'],
   page: ['fetchReceivablesReportPage', 'fetchReceivablesExportRows', 'ReceivablesReportCanonicalPage'],
   app: ["import('@/pages/ReceivablesReportCanonicalPage')", '<Route path="/reports/receivables" element={<ReceivablesReportPage />} />'],
   migration: ['public.current_company_id()', 'SECURITY DEFINER', 'SET search_path = public', 'REVOKE ALL ON FUNCTION public.get_receivables_report_page(integer, integer) FROM PUBLIC', 'GRANT EXECUTE ON FUNCTION public.get_receivables_report_page(integer, integer) TO authenticated', 'OFFSET v_page * v_page_size', 'LIMIT v_page_size'],
