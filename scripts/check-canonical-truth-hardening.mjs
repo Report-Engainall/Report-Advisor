@@ -9,7 +9,7 @@ const checks = [
   ['alert unavailable is distinct', () => {
     const app = read('src/App.tsx');
     const header = read('src/components/Header.tsx');
-    return /alertState\s*===\s*['\"]unavailable['\"]/.test(app) && app.includes('alertState={alertState}') &&
+    return /useState<'loading'\\|'ready'\\|'unavailable'>\('loading'\)/.test(app) && app.includes('alertState={alertState}') &&
       header.includes('alertsUnavailable') && /خدمة التنبيهات غير متاحة/.test(header);
   }],
   ['import history pagination', () => {
