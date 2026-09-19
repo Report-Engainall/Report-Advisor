@@ -1,4 +1,5 @@
 -- Authoritative source upload binding:
+DROP FUNCTION IF EXISTS public.import_create_job(uuid, text, integer);
 -- browser uploads raw bytes to the existing private documents bucket;
 -- this SECURITY DEFINER RPC creates the immutable source record and binds the import job to it.
 -- The server later derives SHA-256 from the stored raw bytes before canonical commit.
