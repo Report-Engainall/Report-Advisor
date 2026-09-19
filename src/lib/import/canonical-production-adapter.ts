@@ -2,8 +2,10 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import type { ReportExecutionStage } from '../report-execution/checkpoint';
 import { SupabaseReportExecutionStore } from '../report-execution/durable-worker-adapter';
 import { runDurableProductionLifecycle } from '../report-execution/durable-production-runner';
-import type { ReconciledCanonicalImportRow } from './canonical-truth-boundary';
+import { normalizeImportKey, type ReconciledCanonicalImportRow } from './canonical-truth-boundary.ts';
 import { commitImportBatch } from './canonical-commit';
+
+interface StageExecutionEvidence { evidenceKeys?: string[] }
 
 export interface DurableCanonicalImportInput {
   importId: string;
@@ -37,9 +39,9 @@ function rowKey(entityType: DurableCanonicalImportInput['entityType'], row: Reco
     : entityType === 'sales_invoices'
       ? row.data.invoice_number
       : (row.data.code ?? row.data.name);
-  const key = String(value ?? '').trim();
+  const key = normalizeImportKey(value);
   if (!key) throw new Error(`IMPORT_ROW_BUSINESS_KEY_REQUIRED:${row.rowNumber}`);
-  return `${entityType}:${key.toLowerCase()}`;
+  return `${entityType}:${key}`;
 }
 
 function assertUniqueBusinessKeys(entityType: DurableCanonicalImportInput['entityType'], rows: ReconciledCanonicalImportRow[]): void {
@@ -66,13 +68,22 @@ async function executeThroughServerBoundary(input: DurableCanonicalImportInput):
   const accessToken = sessionData.session?.access_token;
   if (sessionError || !accessToken) throw new Error('AUTHENTICATED_USER_REQUIRED');
 
+  // Client reconciliation is useful for deterministic row identity checks, but
+  // client provenance is never authoritative. Strip it before crossing the
+  // server boundary; the API re-materializes provenance from file_records.
+  const transportRows = input.rows.map(({ rowNumber, data, reconciliation }) => ({
+    rowNumber,
+    data,
+    reconciliation,
+  }));
+
   const response = await fetch('/api/canonical-import-execute', {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${accessToken}`,
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify(input),
+    body: JSON.stringify({ ...input, rows: transportRows }),
   });
 
   const text = await response.text();
@@ -123,6 +134,7 @@ export async function runCanonicalImportThroughDurableRunner(
   }
   if (!requestedBy) throw new Error('AUTHENTICATED_USER_REQUIRED');
 
+  // Identical source content is the durable identity; importId remains record/lineage identity.
   const jobKey = `canonical-import:${input.entityType}:${input.sourceHash}`;
   const activeWorkerClient = workerClient;
   const activeDataClient = dataClient;
@@ -201,7 +213,7 @@ export async function runCanonicalImportThroughDurableRunner(
         },
       })),
     },
-    executeStage: async (stage: ReportExecutionStage) => {
+    executeStage: async (stage: ReportExecutionStage): Promise<StageExecutionEvidence | void> => {
       if (stage === 'fingerprinted' && input.sourceHash.length !== 71) throw new Error('IMPORT_SOURCE_HASH_INVALID');
       if (stage === 'extracted' && input.rows.length === 0) throw new Error('IMPORT_EXTRACTION_EMPTY');
       if (stage === 'canonicalized') {
@@ -210,9 +222,20 @@ export async function runCanonicalImportThroughDurableRunner(
       if (stage === 'validated') {
         for (const row of input.rows) if (row.rowNumber < 1) throw new Error(`IMPORT_VALIDATION_INVALID_ROW_NUMBER:${row.rowNumber}`);
       }
-      if (stage === 'analyzed' && !currentRows.length) throw new Error('IMPORT_ANALYSIS_EMPTY');
-      if (stage === 'decisioned' && !input.rows.length) throw new Error('IMPORT_DECISION_EMPTY');
-      if (stage === 'committed') await commitImportBatch(input.entityType, input.rows, input.sourceHash, { client: activeDataClient, companyId });
+      if (stage === 'analyzed') {
+        if (!currentRows.length) throw new Error('IMPORT_ANALYSIS_EMPTY');
+        const businessKeys = currentRows.map(row => row.key);
+        const uniqueBusinessKeys = new Set(businessKeys).size;
+        if (uniqueBusinessKeys !== businessKeys.length) throw new Error('IMPORT_ANALYSIS_BUSINESS_KEY_COLLISION');
+        return { evidenceKeys: [`analysis:entity=${input.entityType}:rows=${currentRows.length}:uniqueKeys=${uniqueBusinessKeys}:source=${input.sourceHash}`] };
+      }
+      if (stage === 'decisioned') {
+        const analysisRows = currentRows.length;
+        const decisionEligible = analysisRows === input.rows.length && input.qualityScore >= 50;
+        if (!decisionEligible) throw new Error('IMPORT_DECISION_NOT_ELIGIBLE');
+        return { evidenceKeys: [`decision:commit_eligible=true:rows=${analysisRows}:quality=${input.qualityScore}:source=${input.sourceHash}`] };
+      }
+      if (stage === 'committed') await commitImportBatch(input.entityType, input.rows, input.sourceHash, { client: activeDataClient, companyId, importJobId: input.importId });
     },
   }, store);
 

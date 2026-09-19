@@ -1,0 +1,318 @@
+import crypto from 'node:crypto';
+import { createClient } from '@supabase/supabase-js';
+import handler from '../api/canonical-import-execute.ts';
+
+const url = process.env.REPORT_ADVISOR_SUPABASE_URL || process.env.SUPABASE_URL;
+const anon = process.env.REPORT_ADVISOR_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY;
+const service = process.env.REPORT_ADVISOR_SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
+const emailA = process.env.TEST_USER_A_EMAIL;
+const passwordA = process.env.TEST_USER_A_PASSWORD;
+const emailB = process.env.TEST_USER_B_EMAIL;
+const passwordB = process.env.TEST_USER_B_PASSWORD;
+
+for (const [name, value] of Object.entries({ url, anon, service, emailA, passwordA, emailB, passwordB })) {
+  if (!value) throw new Error(`IMPORT_PROVENANCE_SECRET_MISSING:${name}`);
+}
+process.env.SUPABASE_URL = url;
+process.env.VITE_SUPABASE_ANON_KEY = anon;
+process.env.SUPABASE_SERVICE_ROLE_KEY = service;
+
+const admin = createClient(url, service, { auth: { autoRefreshToken: false, persistSession: false } });
+const runTag = crypto.randomUUID().slice(0, 8);
+const committedCustomerName = `P0E provenance customer ${runTag}`;
+
+async function signIn(email, password) {
+  const client = createClient(url, anon, { auth: { autoRefreshToken: false, persistSession: false } });
+  const { data, error } = await client.auth.signInWithPassword({ email, password });
+  if (error || !data.session) throw new Error(`AUTH_FAILED:${email}:${error?.message ?? 'session_missing'}`);
+  const { data: company, error: companyError } = await client.rpc('current_company_id');
+  if (companyError || !company) throw new Error(`TENANT_RESOLUTION_FAILED:${companyError?.message ?? 'missing'}`);
+  return { client, accessToken: data.session.access_token, userId: data.user.id, companyId: company };
+}
+
+async function createSourceJob(session, label) {
+  const sourcePath = `${session.companyId}/imports/${crypto.randomUUID()}.csv`;
+  const displayName = `p0e-${runTag}-${label}.csv`;
+  const raw = Buffer.from([
+    'code,name',
+    `P0E-${runTag}-${label},${label}`,
+    '',
+  ].join('\n'), 'utf8');
+  const hash = `sha256:${crypto.createHash('sha256').update(raw).digest('hex')}`;
+
+  const { error: uploadError } = await session.client.storage.from('documents').upload(sourcePath, raw, {
+    contentType: 'text/csv',
+    cacheControl: '0',
+    upsert: false,
+  });
+  if (uploadError) throw new Error(`SOURCE_UPLOAD_FAILED:${uploadError.message}`);
+
+  const { data: jobId, error: jobError } = await session.client.rpc('import_create_job', {
+    p_company_id: session.companyId,
+    p_entity_type: 'customers',
+    p_total_rows: 1,
+    p_source_object_path: sourcePath,
+    p_file_name: displayName,
+    p_file_size: raw.byteLength,
+    p_file_mime: 'text/csv',
+  });
+  if (jobError || !jobId) throw new Error(`IMPORT_CREATE_JOB_FAILED:${jobError?.message ?? 'missing'}`);
+
+  const { data: job, error: jobReadError } = await admin
+    .from('import_jobs')
+    .select('id,company_id,file_record_id,source_fingerprint,status,job_type')
+    .eq('id', jobId)
+    .single();
+  if (jobReadError || !job?.file_record_id) throw new Error(`IMPORT_JOB_READ_FAILED:${jobReadError?.message ?? 'file_record_missing'}`);
+
+  const { data: fileRecord, error: fileReadError } = await admin
+    .from('file_records')
+    .select('id,company_id,file_name,file_size,file_mime,file_hash,status,security_status,metadata')
+    .eq('id', job.file_record_id)
+    .single();
+  if (fileReadError || !fileRecord) throw new Error(`FILE_RECORD_READ_FAILED:${fileReadError?.message ?? 'missing'}`);
+
+  return { sourcePath, raw, hash, job, fileRecord, displayName };
+}
+
+function makeResponse() {
+  return {
+    statusCode: 200,
+    headers: {},
+    payload: null,
+    body: null,
+    ended: false,
+    status(code) { this.statusCode = code; return this; },
+    setHeader(name, value) { this.headers[String(name).toLowerCase()] = value; return this; },
+    end(body = '') {
+      this.body = body;
+      this.ended = true;
+      if (typeof body === 'string' && body.length) {
+        try { this.payload = JSON.parse(body); } catch { this.payload = body; }
+      }
+      return this;
+    },
+    json(body) {
+      this.payload = body;
+      this.body = JSON.stringify(body);
+      this.ended = true;
+      return this;
+    },
+  };
+}
+
+async function callApi(session, body) {
+  const res = makeResponse();
+  await handler({
+    method: 'POST',
+    headers: {
+      authorization: `Bearer ${session.accessToken}`,
+      'content-type': 'application/json',
+      'content-length': String(Buffer.byteLength(JSON.stringify(body), 'utf8')),
+    },
+    body,
+  }, res);
+  return res;
+}
+
+function rowWithClaims(source, claims) {
+  return {
+    rowNumber: 1,
+    data: { code: `P0E-${runTag}-valid`, name: committedCustomerName, segment: 'general', credit_limit: 0, payment_terms_days: 0 },
+    provenance: {
+      tenantId: claims.tenantId ?? source.job.company_id,
+      sourceId: claims.sourceId ?? source.fileRecord.id,
+      sourceHash: claims.sourceHash ?? source.hash,
+      sourceDocumentId: claims.sourceDocumentId ?? source.fileRecord.id,
+      evidenceId: claims.evidenceId ?? `${source.fileRecord.id}:1`,
+      lineageId: claims.lineageId ?? `${source.job.company_id}:${source.fileRecord.id}:1`,
+    },
+    reconciliation: 'RECONCILED',
+  };
+}
+
+async function expectReject(session, body, codeFragment) {
+  const response = await callApi(session, body);
+  if (response.statusCode < 400) {
+    throw new Error(`EXPECTED_REJECT_NOT_REJECTED:${codeFragment}:${response.statusCode}:${JSON.stringify(response.payload)}`);
+  }
+  const actual = String(response.payload?.error ?? '');
+  if (codeFragment && !actual.includes(codeFragment)) {
+    throw new Error(`EXPECTED_REJECT_WRONG_REASON:${codeFragment}:${actual}`);
+  }
+  return response;
+}
+
+async function cleanupSource(source) {
+  try { await admin.storage.from('documents').remove([source.sourcePath]); } catch {}
+  try { await admin.from('customers').delete().eq('company_id', source.job.company_id).eq('name', committedCustomerName); } catch {}
+  try { await admin.from('import_jobs').delete().eq('id', source.job.id); } catch {}
+  try { await admin.from('file_records').delete().eq('id', source.fileRecord.id); } catch {}
+}
+
+const sessionA = await signIn(emailA, passwordA);
+const sessionB = await signIn(emailB, passwordB);
+const sources = [];
+
+try {
+  const legacyWriterProbe = await sessionA.client.rpc('import_commit_batch', {
+    p_company_id: sessionA.companyId,
+    p_entity_type: 'customers',
+    p_rows: [],
+    p_null_policy: 'preserve',
+    p_source_hash: `sha256:${'0'.repeat(64)}`,
+  });
+  if (!legacyWriterProbe.error) {
+    throw new Error('LEGACY_5ARG_COMMIT_WRITER_MUST_BE_INACCESSIBLE');
+  }
+  const legacyWriterMessage = String(legacyWriterProbe.error.message ?? '');
+  if (!/permission denied|42501/i.test(`${legacyWriterProbe.error.code ?? ''} ${legacyWriterMessage}`)) {
+    throw new Error(`LEGACY_5ARG_COMMIT_WRONG_REJECTION:${legacyWriterProbe.error.code ?? ''}:${legacyWriterMessage}`);
+  }
+
+  const valid = await createSourceJob(sessionA, 'valid');
+  sources.push(valid);
+
+  const base = {
+    entityType: 'customers',
+    importId: valid.job.id,
+    fileName: valid.displayName,
+    rows: [{ rowNumber: 1, data: { code: `P0E-${runTag}-base`, name: committedCustomerName, segment: 'general', credit_limit: 0, payment_terms_days: 0 } }],
+    qualityScore: 100,
+  };
+
+  await expectReject(sessionA, { ...base, sourceHash: `sha256:${'f'.repeat(64)}` }, 'CANONICAL_SOURCE_HASH_MISMATCH');
+  await expectReject(sessionA, { ...base, fileRecordId: crypto.randomUUID() }, 'CLIENT_PROVENANCE_FORBIDDEN');
+  await expectReject(sessionA, { ...base, sourceId: crypto.randomUUID() }, 'CLIENT_PROVENANCE_FORBIDDEN');
+  await expectReject(sessionA, { ...base, tenantId: crypto.randomUUID() }, 'CLIENT_PROVENANCE_FORBIDDEN');
+
+  await expectReject(sessionA, { ...base, rows: [rowWithClaims(valid, { sourceId: crypto.randomUUID() })] }, 'CANONICAL_SOURCE_ID_MISMATCH');
+
+  await expectReject(sessionA, { ...base, rows: [rowWithClaims(valid, { sourceDocumentId: crypto.randomUUID() })] }, 'CANONICAL_SOURCE_DOCUMENT_ID_MISMATCH');
+
+  await expectReject(sessionA, { ...base, rows: [rowWithClaims(valid, { evidenceId: 'fake-evidence-id' })] }, 'CANONICAL_EVIDENCE_ID_MISMATCH');
+
+  await expectReject(sessionA, { ...base, rows: [rowWithClaims(valid, { lineageId: 'forged-lineage' })] }, 'CANONICAL_LINEAGE_ID_MISMATCH');
+
+  const crossTenant = await createSourceJob(sessionB, 'cross-tenant');
+  sources.push(crossTenant);
+  await expectReject(sessionA, {
+    entityType: 'customers',
+    importId: crossTenant.job.id,
+    rows: base.rows,
+    qualityScore: 100,
+  }, 'import_job_not_found_or_forbidden');
+
+  const validComplete = {
+    ...base,
+    rows: [rowWithClaims(valid, {})],
+    sourceHash: valid.hash,
+  };
+  const validResponse = await callApi(sessionA, validComplete);
+  if (validResponse.statusCode !== 200 || validResponse.payload?.status === 'failed') {
+    throw new Error(`VALID_IMPORT_FAILED:${validResponse.statusCode}:${JSON.stringify(validResponse.payload)}`);
+  }
+
+  const { data: committedJob } = await admin.from('import_jobs').select('source_fingerprint,status').eq('id', valid.job.id).single();
+  const { data: committedSource } = await admin.from('file_records').select('file_hash,status,security_status,metadata').eq('id', valid.fileRecord.id).single();
+  const { data: canonicalCommit } = await admin.from('canonical_import_commits').select('source_hash,committed_count,committed_ids').eq('company_id', sessionA.companyId).eq('entity_type', 'customers').eq('source_hash', valid.hash).maybeSingle();
+  if (committedSource?.file_hash !== valid.hash) throw new Error(`SOURCE_HASH_NOT_PERSISTED:${committedSource?.file_hash}`);
+  if (committedJob?.source_fingerprint !== valid.hash) throw new Error(`IMPORT_SOURCE_FINGERPRINT_NOT_PERSISTED:${committedJob?.source_fingerprint}`);
+  if (committedSource?.metadata?.raw_bytes_sha256 !== valid.hash) throw new Error('RAW_BYTES_SHA_NOT_RECORDED');
+  if (canonicalCommit?.source_hash !== valid.hash) throw new Error('CANONICAL_COMMIT_SOURCE_HASH_MISMATCH');
+  if (canonicalCommit?.committed_count !== 1) throw new Error(`CANONICAL_COMMIT_COUNT_UNEXPECTED:${canonicalCommit?.committed_count}`);
+
+  const replay = await callApi(sessionA, validComplete);
+  if (replay.statusCode < 400 || replay.statusCode >= 500) {
+    throw new Error(`REPLAY_EXPECTED_IDEMPOTENT_REJECTION:${replay.statusCode}:${JSON.stringify(replay.payload)}`);
+  }
+  const { data: customerRows } = await admin.from('customers').select('id').eq('company_id', sessionA.companyId).eq('name', committedCustomerName);
+  if ((customerRows ?? []).length !== 1) throw new Error(`REPLAY_DUPLICATE_COMMIT_DETECTED:${customerRows?.length ?? 0}`);
+
+  const tampered = await createSourceJob(sessionA, 'persisted-hash-tamper');
+  sources.push(tampered);
+  await admin.from('file_records').update({ file_hash: `sha256:${'0'.repeat(64)}` }).eq('id', tampered.fileRecord.id).eq('company_id', sessionA.companyId);
+  await expectReject(sessionA, {
+    entityType: 'customers',
+    importId: tampered.job.id,
+    rows: [{ rowNumber: 1, data: { code: `P0E-${runTag}-tampered`, name: `tampered source ${runTag}`, segment: 'general', credit_limit: 0, payment_terms_days: 0 } }],
+    qualityScore: 100,
+  }, 'AUTHORITATIVE_SOURCE_NOT_VERIFIED');
+
+  const stateTampered = await createSourceJob(sessionA, 'state-tamper');
+  sources.push(stateTampered);
+  await admin.from('file_records')
+    .update({ file_hash: stateTampered.hash, status: 'ready', security_status: 'passed', metadata: { ...stateTampered.fileRecord.metadata, raw_bytes_sha256: stateTampered.hash } })
+    .eq('id', stateTampered.fileRecord.id).eq('company_id', sessionA.companyId);
+  await admin.from('import_jobs')
+    .update({ source_fingerprint: stateTampered.hash, status: 'processing' })
+    .eq('id', stateTampered.job.id).eq('company_id', sessionA.companyId);
+
+  await admin.from('file_records').update({ status: 'uploaded' }).eq('id', stateTampered.fileRecord.id).eq('company_id', sessionA.companyId);
+  await expectReject(sessionA, {
+    entityType: 'customers',
+    importId: stateTampered.job.id,
+    rows: [{ rowNumber: 1, data: { code: `P0E-${runTag}-state1`, name: `state1 ${runTag}`, segment: 'general', credit_limit: 0, payment_terms_days: 0 } }],
+    qualityScore: 100,
+  }, 'AUTHORITATIVE_SOURCE_NOT_VERIFIED');
+
+  await admin.from('file_records').update({ status: 'ready', security_status: 'pending' }).eq('id', stateTampered.fileRecord.id).eq('company_id', sessionA.companyId);
+  await expectReject(sessionA, {
+    entityType: 'customers',
+    importId: stateTampered.job.id,
+    rows: [{ rowNumber: 1, data: { code: `P0E-${runTag}-state2`, name: `state2 ${runTag}`, segment: 'general', credit_limit: 0, payment_terms_days: 0 } }],
+    qualityScore: 100,
+  }, 'AUTHORITATIVE_SOURCE_NOT_VERIFIED');
+
+  const rawTampered = await createSourceJob(sessionA, 'raw-byte-tamper');
+  sources.push(rawTampered);
+  await admin.from('file_records')
+    .update({ file_hash: rawTampered.hash, status: 'ready', security_status: 'passed', metadata: { ...rawTampered.fileRecord.metadata, raw_bytes_sha256: rawTampered.hash } })
+    .eq('id', rawTampered.fileRecord.id).eq('company_id', sessionA.companyId);
+  await admin.from('import_jobs')
+    .update({ source_fingerprint: rawTampered.hash, status: 'processing' })
+    .eq('id', rawTampered.job.id).eq('company_id', sessionA.companyId);
+
+  const alteredBytes = Buffer.from(rawTampered.raw);
+  alteredBytes[alteredBytes.length - 2] = alteredBytes[alteredBytes.length - 2] ^ 1;
+  const { error: alteredUploadError } = await admin.storage.from('documents').upload(rawTampered.sourcePath, alteredBytes, {
+    contentType: 'text/csv',
+    cacheControl: '0',
+    upsert: true,
+  });
+  if (alteredUploadError) throw new Error(`RAW_BYTE_TAMPER_UPLOAD_FAILED:${alteredUploadError.message}`);
+
+  await expectReject(sessionA, {
+    entityType: 'customers',
+    importId: rawTampered.job.id,
+    rows: [{ rowNumber: 1, data: { code: `P0E-${runTag}-rawbytes`, name: `rawbytes ${runTag}`, segment: 'general', credit_limit: 0, payment_terms_days: 0 } }],
+    qualityScore: 100,
+  }, 'AUTHORITATIVE_SOURCE_HASH_DRIFT');
+
+  console.log(JSON.stringify({
+    exactHead: process.env.EXACT_HEAD || null,
+    status: 'PASS',
+    adversarial: [
+      'valid_source_valid_import',
+      'forged_source_hash_rejected',
+      'forged_source_id_rejected',
+      'mismatching_source_document_id_rejected',
+      'cross_tenant_import_rejected',
+      'fake_evidence_id_rejected',
+      'lineage_mismatch_rejected',
+      'top_level_client_provenance_rejected',
+      'source_marked_not_ready_rejected',
+      'source_marked_not_passed_rejected',
+      'persisted_source_hash_tamper_rejected',
+      'raw_bytes_modified_after_hash_persistence_rejected',
+      'legacy_5arg_commit_writer_inaccessible',
+      'same_import_replay_no_duplicate',
+      'valid_complete_provenance',
+    ],
+    companyA: sessionA.companyId,
+    companyB: sessionB.companyId,
+    committedImportId: valid.job.id,
+  }, null, 2));
+} finally {
+  for (const source of sources.reverse()) await cleanupSource(source);
+}

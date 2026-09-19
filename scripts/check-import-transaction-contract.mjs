@@ -59,6 +59,13 @@ if (fs.existsSync(canonicalCommitPath)) {
   }
 }
 
+const importQueriesPath = path.join(root, 'src', 'lib', 'queries.ts');
+if (!fs.existsSync(importQueriesPath)) throw new Error('Canonical import query boundary is missing');
+const importQueries = fs.readFileSync(importQueriesPath, 'utf8');
+if (!/export async function createImportRecord/.test(importQueries) || !importQueries.includes("supabase.rpc('import_create_job'")) {
+  throw new Error('Canonical import_create_job RPC is no longer bound through createImportRecord');
+}
+
 const adapterPath = path.join(root, 'src', 'lib', 'import', 'canonical-production-adapter.ts');
 if (!fs.existsSync(adapterPath)) throw new Error('Canonical durable import adapter is missing');
 const adapter = fs.readFileSync(adapterPath, 'utf8');
@@ -86,17 +93,37 @@ if (/from ['"]@\/lib\//.test(adapter) || /from ['"]@\/lib\//.test(fs.readFileSyn
 if (!/await import\('\.\.\/supabase'\)/.test(adapter) || !/await import\('\.\.\/supabase'\)/.test(fs.readFileSync(canonicalCommitPath, 'utf8'))) {
   throw new Error('Browser Supabase client must remain lazy in server-importable canonical modules');
 }
-if (!/commitImportBatch\(input\.entityType, input\.rows, input\.sourceHash, \{ client: (?:dataClient|activeDataClient), companyId \}\)/.test(adapter)) {
-  throw new Error('Canonical import commit must remain tenant-bound to the authenticated data client');
+if (!/commitImportBatch\(input\.entityType, input\.rows, input\.sourceHash, \{ client: (?:dataClient|activeDataClient), companyId, importJobId: input\.importId \}\)/.test(adapter)) {
+  throw new Error('Canonical import commit must remain tenant-bound to the authenticated data client and authoritative import job');
 }
 if (!/IMPORT_DURABLE_JOB_ALREADY_RUNNING/.test(adapter)) {
   throw new Error('Canonical durable adapter must fail closed when the same durable import is already running');
+}
+
+if (!/IMPORT_ANALYSIS_BUSINESS_KEY_COLLISION/.test(adapter) || !/IMPORT_DECISION_NOT_ELIGIBLE/.test(adapter)) {
+  throw new Error('Canonical durable lifecycle must execute real analysis and decision gates');
+}
+if (!/const jobKey = `canonical-import:\$\{input\.entityType\}:\$\{input\.sourceHash\}`/.test(adapter)) {
+  throw new Error('Canonical durable identity must remain source-content bound');
 }
 
 const serverAdapterPath = path.join(root, 'api', 'canonical-import-execute.ts');
 if (!fs.existsSync(serverAdapterPath)) throw new Error('Canonical durable import server boundary is missing');
 const serverAdapter = fs.readFileSync(serverAdapterPath, 'utf8');
 for (const token of [
+  "const MAX_REQUEST_BYTES",
+  "assertRequestSize(req)",
+  "request_too_large",
+  "assertCanonicalImportProvenance",
+  "file_record_id",
+  "from('file_records')",
+  "materializeAuthoritativeRows",
+  "AUTHORITATIVE_SOURCE_HASH_DRIFT",
+  "storage.from('documents').download",
+  "createHash('sha256')",
+  "raw_bytes_sha256",
+  "storage_bucket",
+  "storage_path",
   "requireMethod(req, res, 'POST')",
   "requireConfig(res, ['SUPABASE_URL', 'SUPABASE_SERVICE_ROLE_KEY', 'VITE_SUPABASE_ANON_KEY'])",
   "Authorization",

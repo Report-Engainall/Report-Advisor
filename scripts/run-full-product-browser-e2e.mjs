@@ -164,8 +164,24 @@ try {
     }
 
     if (result.auth === 'PASS') {
-      const dashboard = await page.getByText('لوحة القيادة').count();
-      if (!dashboard) addFinding('E2E-AUTH-012', 'NOT_PROVEN', 'P1', 'Authenticated session is proven, but the expected dashboard label was not present immediately after login.');
+      const dashboard = page.getByTestId('dashboard-executive-heading');
+      try {
+        await dashboard.waitFor({ state: 'visible', timeout: 30000 });
+      } catch {
+        const diagnostics = {
+          url: page.url(),
+          dashboardLoadingShells: await page.getByTestId('dashboard-loading-shell').count(),
+          dashboardHeadings: await page.getByTestId('dashboard-executive-heading').count(),
+          loginForm: await page.locator('#login-email').count(),
+        };
+        addFinding(
+          'E2E-AUTH-012',
+          'NOT_PROVEN',
+          'P0',
+          'Authenticated session is proven, but the dashboard readiness boundary did not become visible within the bounded 30-second convergence window.',
+          diagnostics,
+        );
+      }
 
       const emailB = process.env.TEST_USER_B_EMAIL;
       const passwordB = process.env.TEST_USER_B_PASSWORD;

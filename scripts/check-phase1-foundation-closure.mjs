@@ -34,16 +34,16 @@ must(/REVOKE\s+EXECUTE\s+ON\s+FUNCTION\s+public\.current_company_id\(\)\s+FROM\s
 must(/fetchDashboardSnapshot/.test(queries), 'Canonical dashboard snapshot must own dashboard aggregation');
 must(/fetchDashboardIntelligence/.test(queries), 'Canonical dashboard intelligence must own recommendation/alert reads');
 must(/Compatibility boundary only/.test(compat), 'Compatibility layer must explicitly declare non-ownership of business truth');
-for (const symbol of ['MonthlyTrend','TopCustomers','TopProducts','CategoryBreakdown','AgingBuckets','Forecasts']) {
-  must(new RegExp(`canonicalFetch${symbol}`).test(compat), `Compatibility ${symbol} must delegate to canonical query`);
-}
+must(/export \* from ['"]\.\/queries['"]/.test(compat), 'Compatibility layer must remain a pure forwarding shim');
 
 must(/strict"\s*:\s*true/.test(tsconfig), 'TypeScript strict mode must remain enabled');
 must(/moduleResolution"\s*:\s*"bundler"/.test(tsconfig), 'Bundler module resolution must remain explicit');
 must(/@\/lib\/queries/.test(tsconfig), 'Canonical query alias must remain explicit');
 must(/npm run typecheck/.test(architecture) && /npm run lint/.test(architecture) && /npm run build/.test(architecture), 'Architecture contract must require typecheck/lint/build');
 must(/npm run test:contracts/.test(quality), 'Quality workflow must execute the architecture contract');
-must(/test\s+"\$\(git rev-parse HEAD\)"\s*=\s*"\$\{GITHUB_SHA\}"/.test(quality), 'Quality workflow must bind execution to exact checked-out SHA');
+must(/expected_exact_head="\$\{\{ github\.event\.pull_request\.head\.sha \|\| github\.sha \}\}"/.test(quality), 'Quality workflow must derive the exact head from pull request head SHA or github SHA');
+must(/test "\$\(git rev-parse HEAD\)" = "\$expected_exact_head"/.test(quality), 'Quality workflow must bind execution to the expected exact checked-out SHA');
+must(/test "\$actual_head" = "\$expected_head"/.test(quality), 'Quality pull-request execution must reassert exact head after checkout');
 must(/name: Phase 1 foundation closure/.test(quality) && /node scripts\/check-phase1-foundation-closure\.mjs/.test(quality), 'Quality workflow must execute the Phase-1 foundation gate');
 
 if (failures.length) {

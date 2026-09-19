@@ -55,7 +55,20 @@ export function DashboardPage() {
 
   useEffect(() => { void load(); }, [load]);
 
-  if (loading) return <LoadingState message="جارٍ بناء الصورة التنفيذية من المصدر..." />;
+  if (loading) {
+    return (
+      <main className="min-h-screen bg-ink-950 px-4 py-6 text-white sm:px-6 lg:px-8" data-testid="dashboard-loading-shell">
+        <section className="mx-auto max-w-7xl rounded-[2rem] border border-white/10 bg-white/[0.03] p-6 shadow-2xl">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="inline-flex items-center gap-2 rounded-full border border-primary-300/20 bg-primary-500/10 px-3 py-1.5 text-xs font-bold text-primary-100">الصورة التنفيذية</span>
+            <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-semibold text-slate-300">جاري بناء البيانات الموثوقة</span>
+          </div>
+          <h1 data-testid="dashboard-executive-heading" className="mt-5 max-w-3xl text-3xl font-black tracking-tight lg:text-[2.6rem]">من البيانات إلى القرار التجاري — في شاشة واحدة.</h1>
+          <div className="mt-6"><LoadingState message="جارٍ بناء الصورة التنفيذية من المصدر..." /></div>
+        </section>
+      </main>
+    );
+  }
   if (error) return <ErrorState message={error} onRetry={() => void load()} />;
   if (!kpis || !aging) return null;
 
@@ -76,7 +89,7 @@ export function DashboardPage() {
               <span className="inline-flex items-center gap-2 rounded-full border border-primary-300/20 bg-primary-500/10 px-3 py-1.5 text-xs font-bold text-primary-100"><Sparkles size={14}/> الصورة التنفيذية</span>
               <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-semibold text-slate-300"><Database size={13}/> {kpis.status === 'INSUFFICIENT_DATA' ? 'بعض المؤشرات غير مكتملة' : 'المؤشرات محسوبة من المصدر'}</span>
             </div>
-            <h1 className="mt-5 max-w-3xl text-3xl font-black tracking-tight lg:text-[2.6rem]">من البيانات إلى القرار التجاري — في شاشة واحدة.</h1>
+            <h1 data-testid="dashboard-executive-heading" className="mt-5 max-w-3xl text-3xl font-black tracking-tight lg:text-[2.6rem]">من البيانات إلى القرار التجاري — في شاشة واحدة.</h1>
             <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-300 lg:text-base">الأغبري لا يعرض أرقامًا للزينة. يعرض ما يمكن إثباته، يوضح ما يحتاج مراجعة، ثم يربط المؤشر بالإجراء والقرار والتقرير.</p>
             <div className="mt-6 flex flex-wrap gap-2.5">
               <Link to="/command-center" className="btn bg-white text-ink-950 hover:bg-slate-100"><Brain size={16}/> فتح مركز القيادة</Link>

@@ -12,7 +12,17 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v7
-        with: {fetch-depth: 1, persist-credentials: false}
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Verify exact checkout
+        shell: bash
+        run: |
+          set -euo pipefail
+          expected="${{ github.event.pull_request.head.sha || github.sha }}"
+          test "$(git rev-parse HEAD)" = "$expected"
+          test -z "$(git status --porcelain)"
       - uses: actions/setup-node@v7
         with: {node-version: 22, cache: npm}
       - name: Install
@@ -25,6 +35,8 @@ jobs:
         run: node scripts/check-lifecycle-mutation-boundary.mjs
       - name: Decision link RPC boundary
         run: node scripts/check-decision-link-rpc-boundary.mjs
+      - name: Decision evidence authority
+        run: node scripts/check-decision-evidence-authority.mjs
       - name: Receivables canonical truth
         run: node scripts/check-receivables-canonical-closure.mjs
       - name: Profitability financial truth
