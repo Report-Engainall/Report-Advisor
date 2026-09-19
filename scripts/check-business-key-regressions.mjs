@@ -2,6 +2,11 @@ import assert from 'node:assert/strict';
 import { normalizeBusinessKey, businessKeysEqual, buildBusinessKeyIndex, matchBusinessKey } from '../src/lib/file-engine/business-key.ts';
 
 assert.equal(normalizeBusinessKey('  ab-001  '), 'AB-001');
+assert.equal(normalizeBusinessKey('AB 123'), 'AB123');
+assert.equal(normalizeBusinessKey('AB123'), 'AB123');
+assert.equal(normalizeBusinessKey('ab 123'), 'AB123');
+assert.equal(businessKeysEqual('AB 123', 'ab123'), true);
+
 assert.equal(normalizeBusinessKey('أب ١٢٣'), 'اب123');
 assert.equal(normalizeBusinessKey('٠٠١٢٣'), '00123');
 assert.equal(normalizeBusinessKey('A\u200B-\u200F001'), 'A-001');
