@@ -43,6 +43,7 @@ for (const root of scanRoots) walk(root);
 const removedLegacyFiles = [
   'src/pages/IntelligencePages.tsx',
   'src/pages/ReceivablesReportPageCanonical.tsx',
+  'src/lib/import-pipeline/folder-handle-store.ts',
 ];
 for (const file of removedLegacyFiles) {
   if (fs.existsSync(path.join(root, file))) failures.push(`removed legacy module still exists: ${file}`);
