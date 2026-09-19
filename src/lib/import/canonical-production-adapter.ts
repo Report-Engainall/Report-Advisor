@@ -68,13 +68,22 @@ async function executeThroughServerBoundary(input: DurableCanonicalImportInput):
   const accessToken = sessionData.session?.access_token;
   if (sessionError || !accessToken) throw new Error('AUTHENTICATED_USER_REQUIRED');
 
+  // Client reconciliation is useful for deterministic row identity checks, but
+  // client provenance is never authoritative. Strip it before crossing the
+  // server boundary; the API re-materializes provenance from file_records.
+  const transportRows = input.rows.map(({ rowNumber, data, reconciliation }) => ({
+    rowNumber,
+    data,
+    reconciliation,
+  }));
+
   const response = await fetch('/api/canonical-import-execute', {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${accessToken}`,
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify(input),
+    body: JSON.stringify({ ...input, rows: transportRows }),
   });
 
   const text = await response.text();
