@@ -4,6 +4,12 @@ on:
   pull_request:
     paths:
       - 'src/lib/file-engine/security.ts'
+      - 'src/lib/file-engine/business-key.ts'
+      - 'src/lib/file-engine/reconciliation.ts'
+      - 'src/lib/import/canonical-truth-boundary.ts'
+      - 'src/lib/import/canonical-production-adapter.ts'
+      - 'scripts/check-business-key-regressions.mjs'
+      - 'scripts/business-key-runtime-parity.mjs'
       - 'scripts/check-duplicate-identity-contract.mjs'
       - '.github/workflows/duplicate-identity-contract.yml'
   workflow_dispatch:
@@ -36,3 +42,13 @@ jobs:
       - run: npm ci --no-audit --no-fund
       - name: Validate canonical duplicate identity boundary
         run: node scripts/check-duplicate-identity-contract.mjs
+      - name: Validate single business-key contract
+        run: node scripts/check-business-key-regressions.mjs
+      - name: Validate business-key runtime parity
+        env:
+          REPORT_ADVISOR_SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
+          REPORT_ADVISOR_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
+          TEST_USER_A_EMAIL: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_EMAIL }}
+          TEST_USER_A_PASSWORD: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_PASSWORD }}
+          EXACT_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: node scripts/business-key-runtime-parity.mjs

@@ -1,7 +1,10 @@
 const CACHE_NAME = 'aghbari-static-v1';
 const STATIC_DESTINATIONS = new Set(['script', 'style', 'image', 'font']);
+const SHELL_URLS = ['/', '/index.html', '/manifest.webmanifest', '/icon-192.svg', '/icon-512.svg'];
 
-self.addEventListener('install', () => self.skipWaiting());
+self.addEventListener('install', event => {
+  event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(SHELL_URLS)).then(() => self.skipWaiting()));
+});
 
 self.addEventListener('activate', event => {
   event.waitUntil(
@@ -13,6 +16,11 @@ self.addEventListener('activate', event => {
 self.addEventListener('fetch', event => {
   const request = event.request;
   if (request.method !== 'GET' || new URL(request.url).origin !== self.location.origin) return;
+
+  if (request.mode === 'navigate') {
+    event.respondWith(fetch(request).catch(() => caches.match('/index.html').then(cached => cached || Response.error())));
+    return;
+  }
 
   if (STATIC_DESTINATIONS.has(request.destination)) {
     event.respondWith(

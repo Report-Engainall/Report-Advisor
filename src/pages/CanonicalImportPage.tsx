@@ -2,9 +2,9 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Upload, FileSpreadsheet, FileText, FileImage, FileType, Database, CheckCircle2, XCircle, AlertCircle, AlertTriangle, ShieldCheck, Loader2, ArrowLeft, LockKeyhole, FileCheck2, RefreshCw } from 'lucide-react';
 import { Card, CardHeader, CardBody } from '@/components/ui/Card';
 import { Badge, StatusBadge } from '@/components/ui/Badge';
-import { PageHeader, LoadingState, EmptyState } from '@/components/ui/States';
+import { PageHeader, LoadingState, EmptyState, ErrorState } from '@/components/ui/States';
 import { DataTable } from '@/components/ui/DataTable';
-import { fetchImportRecords, createImportRecord } from '@/lib/queries';
+import { fetchImportRecordPage, createImportRecord } from '@/lib/queries';
 import { supabase, resolveCurrentCompanyId } from '@/lib/supabase';
 import { formatDateTime, formatNumber } from '@/lib/format';
 import { detectFormat } from '@/lib/file-engine/detector';
@@ -70,7 +70,8 @@ function Stepper({ step }: { step: Step }) {
 export function CanonicalImportPage() {
   const [step, setStep] = useState<Step>('upload');
   const [entityType, setEntityType] = useState<EntityType>('sales_invoices');
-  const [file, setFile] = useState<{ name: string; size: number; format: FileFormat } | null>(null);
+  const [file, setFile] = useState<{ name: string; size: number; format: FileFormat; mime: string } | null>(null);
+  const [sourceFile, setSourceFile] = useState<File | null>(null);
   const [fileHash, setFileHash] = useState<string | null>(null);
   const [rows, setRows] = useState<Row[]>([]);
   const [headers, setHeaders] = useState<string[]>([]);
@@ -84,13 +85,26 @@ export function CanonicalImportPage() {
   const [progress, setProgress] = useState(0);
   const [result, setResult] = useState<any>(null);
   const [history, setHistory] = useState<any[]>([]);
+  const [historyPage, setHistoryPage] = useState(0);
+  const [historyMeta, setHistoryMeta] = useState({ count: 0, page: 0, page_size: 50 });
   const [loadingHistory, setLoadingHistory] = useState(true);
+  const [historyError, setHistoryError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const loadHistory = useCallback(async () => {
+  const loadHistory = useCallback(async (page = historyPage) => {
     setLoadingHistory(true);
-    try { setHistory(await fetchImportRecords()); } catch { setHistory([]); } finally { setLoadingHistory(false); }
-  }, []);
+    setHistoryError(null);
+    try {
+      const result = await fetchImportRecordPage(page, 50);
+      setHistory(result.data);
+      setHistoryPage(result.page);
+      setHistoryMeta({ count: result.count, page: result.page, page_size: result.page_size });
+    } catch (historyLoadError) {
+      setHistoryError(historyLoadError instanceof Error ? historyLoadError.message : 'تعذر تحميل سجل الاستيرادات');
+    } finally {
+      setLoadingHistory(false);
+    }
+  }, [historyPage]);
   useEffect(() => { void loadHistory(); }, [loadHistory]);
 
   const handleFile = useCallback(async (selected: File) => {
@@ -102,7 +116,8 @@ export function CanonicalImportPage() {
       setSecurityPassed(true);
       const detection = detectFormat(selected, buffer);
       if (detection.format === 'unknown') throw new Error('تعذر تحديد صيغة الملف');
-      setFile({ name: selected.name, size: selected.size, format: detection.format });
+      setFile({ name: selected.name, size: selected.size, format: detection.format, mime: selected.type });
+      setSourceFile(selected);
       setWarnings(detection.warnings);
       const hash = await computeSHA256(buffer);
       setFileHash(hash);
@@ -112,6 +127,9 @@ export function CanonicalImportPage() {
       setDuplicate(dup.isDuplicate);
       if (dup.isDuplicate) setWarnings(prev => [...prev, 'هذا الملف موجود في سجل الاستيراد لهذا الحساب. لن يتم السماح بكتابة مكررة.']);
       const datasets: Dataset[] = await parseFile(buffer, selected.name, detection.format);
+      if (datasets.length > 1) {
+        throw new Error(`EXCEL_MULTI_SHEET_REQUIRES_SELECTION: الملف يحتوي على ${datasets.length} أوراق بيانات. اختر ورقة واحدة صراحة قبل الاستيراد.`);
+      }
       const dataset = datasets[0];
       if (!dataset || dataset.rowCount === 0) throw new Error('الملف فارغ أو لا يحتوي على بيانات قابلة للقراءة');
       setQuality(dataset.qualityScore);
@@ -143,9 +161,36 @@ export function CanonicalImportPage() {
     try {
       const companyId = await resolveCurrentCompanyId();
       if (!companyId) throw new Error('TENANT_CONTEXT_REQUIRED');
-      rec = await createImportRecord({ file_name: file.name, file_size: file.size, source_type: file.format, status: 'processing', total_rows: rows.length, valid_rows: validRows.length, invalid_rows: rows.length - validRows.length, quarantined_rows: rows.length - validRows.length, entity_type: entityType, progress: 0 });
+      if (!sourceFile) throw new Error('IMPORT_SOURCE_FILE_REQUIRED');
+      const sourcePath = `${companyId}/imports/${crypto.randomUUID()}${file.name.includes('.') ? `.${file.name.split('.').pop()}` : ''}`;
+      const sourceBuffer = await sourceFile.arrayBuffer();
+      const { error: uploadError } = await supabase.storage.from('documents').upload(sourcePath, sourceBuffer, {
+        contentType: file.mime || 'application/octet-stream',
+        cacheControl: '3600',
+        upsert: false,
+      });
+      if (uploadError) throw uploadError;
+      try {
+        rec = await createImportRecord({
+          file_name: file.name,
+          file_size: file.size,
+          file_mime: file.mime,
+          source_object_path: sourcePath,
+          source_type: file.format,
+          status: 'processing',
+          total_rows: rows.length,
+          valid_rows: validRows.length,
+          invalid_rows: rows.length - validRows.length,
+          quarantined_rows: rows.length - validRows.length,
+          entity_type: entityType,
+          progress: 0
+        });
+      } catch (createError) {
+        await supabase.storage.from('documents').remove([sourcePath]);
+        throw createError;
+      }
       const durableSourceHash = `sha256:${fileHash}`;
-      const reconciled = reconcileForCanonical(entityType, companyId, file.name, durableSourceHash, rec.id, (data, rowNumber) => `${durableSourceHash}:${rowNumber}:${JSON.stringify(data)}`, validRows.map(r => ({ rowNumber: r.rowNumber, data: r.data })));
+      const reconciled = reconcileForCanonical(entityType, companyId, rec.id, durableSourceHash, rec.id, (data, rowNumber) => `${durableSourceHash}:${rowNumber}:${JSON.stringify(data)}`, validRows.map(r => ({ rowNumber: r.rowNumber, data: r.data })));
       if (reconciled.rejected.length > 0) throw new Error(`CANONICAL_RECONCILIATION_REJECTED:${reconciled.rejected.map(r => `${r.rowNumber}:${r.reason}`).join(',')}`);
       const execution = await runCanonicalImportThroughDurableRunner({ importId: rec.id, fileName: file.name, sourceHash: durableSourceHash, entityType, rows: reconciled.rows, qualityScore: quality });
       await finishImportJob(rec.id, 'completed', {
@@ -157,7 +202,7 @@ export function CanonicalImportPage() {
       });
       setProgress(100);
       setResult({ total: rows.length, valid: validRows.length, invalid: rows.length - validRows.length, importId: rec.id, jobId: execution.jobId });
-      setStep('done'); await loadHistory();
+      setStep('done'); await loadHistory(0);
     } catch (e: any) {
       const failureMessage = e?.message || 'خطأ غير معروف';
       if (rec?.id) {
@@ -179,7 +224,7 @@ export function CanonicalImportPage() {
     }
   }, [rows, file, fileHash, entityType, duplicate, securityPassed, quality, qualityApproved, loadHistory]);
 
-  const reset = () => { setStep('upload'); setFile(null); setFileHash(null); setRows([]); setHeaders([]); setQuality(0); setQualityApproved(false); setMappings([]); setWarnings([]); setError(null); setDuplicate(false); setSecurityPassed(false); setResult(null); setProgress(0); if (inputRef.current) inputRef.current.value = ''; };
+  const reset = () => { setStep('upload'); setHistoryError(null); setFile(null); setSourceFile(null); setFileHash(null); setRows([]); setHeaders([]); setQuality(0); setQualityApproved(false); setMappings([]); setWarnings([]); setError(null); setDuplicate(false); setSecurityPassed(false); setResult(null); setProgress(0); if (inputRef.current) inputRef.current.value = ''; };
   const valid = rows.filter(r => r.valid).length;
   const invalid = rows.length - valid;
   const mappingCoverage = useMemo(() => mappings.length ? Math.round((mappings.filter(m => m.mappedField).length / mappings.length) * 100) : 0, [mappings]);
@@ -196,7 +241,7 @@ export function CanonicalImportPage() {
         <Badge variant="neutral"><LockKeyhole size={13}/> عزل الحساب مفعل</Badge>
       </div>
       <div className="mb-5"><label className="block text-sm font-medium text-ink-700 mb-2">ما الذي ستستورده؟</label><div className="grid grid-cols-1 md:grid-cols-3 gap-3">{ENTITIES.map(e => <button type="button" key={e.value} onClick={() => setEntityType(e.value)} className={`p-4 rounded-xl border-2 text-right transition-all ${entityType === e.value ? 'border-primary-500 bg-primary-50/60 shadow-sm' : 'border-ink-100 hover:border-ink-200'}`}><div className="flex items-center justify-between"><Database size={18}/>{entityType === e.value && <CheckCircle2 size={17}/>}</div><div className="text-sm font-semibold mt-3">{e.label}</div><div className="text-xs text-ink-400 mt-1">{e.description}</div></button>)}</div></div>
-      <div onClick={() => inputRef.current?.click()} className="border-2 border-dashed rounded-2xl p-10 text-center cursor-pointer hover:border-primary-400 hover:bg-primary-50/20 transition-colors"><input ref={inputRef} type="file" className="hidden" accept=".xlsx,.xls,.xlsm,.csv,.tsv,.ods,.json,.jsonl,.xml,.txt,.md,.pdf,.docx,.jpg,.jpeg,.png,.webp,.tiff,.bmp" onChange={e => { const f=e.target.files?.[0]; if(f) void handleFile(f); }} /><Upload className="mx-auto text-primary-500 mb-3" size={30}/><h3 className="font-semibold">اختر ملفًا أو اسحبه إلى هنا</h3><p className="text-sm text-ink-500 mt-1">Excel، CSV، JSON، PDF، Word والصور</p><p className="text-xs text-ink-300 mt-3">الحد الأقصى: {MAX_FILE_SIZE / 1024 / 1024} MB</p></div>
+      <div onClick={() => inputRef.current?.click()} className="border-2 border-dashed rounded-2xl p-10 text-center cursor-pointer hover:border-primary-400 hover:bg-primary-50/20 transition-colors"><input ref={inputRef} type="file" className="hidden" accept=".xlsx,.xls,.xlsm,.csv,.tsv,.ods,.json,.jsonl,.txt,.md,.pdf,.docx,.jpg,.jpeg,.png,.webp,.tiff,.bmp" onChange={e => { const f=e.target.files?.[0]; if(f) void handleFile(f); }} /><Upload className="mx-auto text-primary-500 mb-3" size={30}/><h3 className="font-semibold">اختر ملفًا أو اسحبه إلى هنا</h3><p className="text-sm text-ink-500 mt-1">Excel، CSV، JSON، PDF، Word والصور</p><p className="text-xs text-ink-300 mt-3">الحد الأقصى: {MAX_FILE_SIZE / 1024 / 1024} MB</p></div>
       {error && <div className="mt-4 p-3 rounded-lg bg-danger-50 text-danger-700 text-sm flex gap-2"><AlertCircle size={16}/>{error}</div>}
     </CardBody></Card>}
 
@@ -219,6 +264,6 @@ export function CanonicalImportPage() {
 
     {step === 'done' && result && <Card><CardBody><div className="flex flex-col items-center py-10 gap-4"><CheckCircle2 className="text-success-500" size={52}/><h3 className="text-xl font-semibold">اكتملت عملية الاستيراد</h3><div className="grid grid-cols-3 gap-3 w-full max-w-lg text-center"><div className="p-3 rounded-lg bg-ink-50"><div className="text-xs text-ink-400">الإجمالي</div><b>{formatNumber(result.total)}</b></div><div className="p-3 rounded-lg bg-success-50"><div className="text-xs text-success-700">تمت الكتابة</div><b>{formatNumber(result.valid)}</b></div><div className="p-3 rounded-lg bg-danger-50"><div className="text-xs text-danger-700">مرفوض</div><b>{formatNumber(result.invalid)}</b></div></div><p className="text-xs text-ink-400">معرّف العملية: {result.importId}</p><p className="text-xs text-ink-400">Durable job: {result.jobId}</p><button type="button" onClick={reset} className="btn-primary"><Upload size={14}/> استيراد ملف آخر</button></div></CardBody></Card>}
 
-    <Card><CardHeader title="سجل الاستيرادات" subtitle="تاريخ العمليات المرتبطة بحسابك" action={<button type="button" onClick={() => void loadHistory()} className="btn-secondary text-xs"><RefreshCw size={13}/> تحديث</button>}/>{loadingHistory?<LoadingState message="جارٍ تحميل السجل..."/>:history.length===0?<EmptyState icon={<Database size={32}/>} title="لا توجد استيرادات سابقة" message="ابدأ باستيراد ملفك الأول"/>:<DataTable columns={[{key:'file_name',label:'الملف'},{key:'entity_type',label:'النوع'},{key:'total_rows',label:'الصفوف',align:'center'},{key:'valid_rows',label:'صالح',align:'center'},{key:'invalid_rows',label:'مرفوض',align:'center'},{key:'status',label:'الحالة',align:'center',render:(r:any)=><StatusBadge status={r.status}/>},{key:'created_at',label:'التاريخ',render:(r:any)=>formatDateTime(r.created_at)}]} data={history} emptyMessage="لا توجد استيرادات"/>}</Card>
+    <Card><CardHeader title="سجل الاستيرادات" subtitle={historyMeta.count > 0 ? `عرض الصفحة ${historyMeta.page + 1} من ${Math.max(1, Math.ceil(historyMeta.count / historyMeta.page_size))} — ${formatNumber(historyMeta.count)} عملية إجمالًا` : 'تاريخ العمليات المرتبطة بحسابك'} action={<button type="button" onClick={() => void loadHistory(historyPage)} className="btn-secondary text-xs"><RefreshCw size={13}/> تحديث</button>}/>{loadingHistory?<LoadingState message="جارٍ تحميل السجل..."/>:historyError?<ErrorState message={`فشل تحميل سجل الاستيرادات: ${historyError}`} onRetry={() => void loadHistory(historyPage)}/>:historyMeta.count===0?<EmptyState icon={<Database size={32}/>} title="لا توجد استيرادات سابقة" message="ابدأ باستيراد ملفك الأول"/>:<><DataTable columns={[{key:'file_name',label:'الملف'},{key:'entity_type',label:'النوع'},{key:'total_rows',label:'الصفوف',align:'center'},{key:'valid_rows',label:'صالح',align:'center'},{key:'invalid_rows',label:'مرفوض',align:'center'},{key:'status',label:'الحالة',align:'center',render:(r:any)=><StatusBadge status={r.status}/>},{key:'created_at',label:'التاريخ',render:(r:any)=>formatDateTime(r.created_at)}]} data={history} emptyMessage="لا توجد استيرادات في هذه الصفحة"/><div className="flex items-center justify-between border-t border-ink-100 px-4 py-3"><span className="text-xs text-ink-400">عرض {history.length} من {formatNumber(historyMeta.count)}</span><div className="flex gap-2"><button type="button" disabled={historyPage === 0} onClick={() => void loadHistory(historyPage - 1)} className="px-3 py-1.5 rounded-lg border border-ink-200 text-xs disabled:opacity-40">السابق</button><button type="button" disabled={(historyPage + 1) * historyMeta.page_size >= historyMeta.count} onClick={() => void loadHistory(historyPage + 1)} className="px-3 py-1.5 rounded-lg border border-ink-200 text-xs disabled:opacity-40">التالي</button></div></div></>}</Card>
   </div>;
 }

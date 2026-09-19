@@ -39,7 +39,9 @@ const assertAppContract = (source) => {
   if (missing.length) throw new Error('Import application truth contract missing: ' + missing.join(', '));
 };
 assertAppContract(queriesSource);
-assertAppContract(compatSource);
+if (!compatSource.includes("export * from './queries';") || compatSource.includes('supabase.from') || compatSource.includes('supabase.rpc')) {
+  throw new Error('queries-compat must remain a pure forwarding boundary');
+}
 
 const knownBadPatterns = [
   'p_processed_rows: Math.max(0, Math.round(patch.progress))',
@@ -55,6 +57,8 @@ if (regressions.length) {
   console.error('Import truth regression detected: ' + regressions.join(', '));
   process.exit(1);
 }
+
+if (!queriesSource.includes('fetchImportRecordPage') || !queriesSource.includes('.range(from, to)')) throw new Error('Import history must be explicitly paginated');
 
 const tampered = queriesSource.replace('current.total_rows * progress / 100', 'progress');
 let tamperRejected = false;

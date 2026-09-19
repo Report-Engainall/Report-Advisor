@@ -5,7 +5,7 @@ import math
 from dataclasses import asdict, dataclass
 from typing import Any, Callable
 
-from .contracts import DocumentEnvelope, ProcessingState
+from .contracts import DocumentEnvelope, ProcessingState, can_transition
 
 
 @dataclass(frozen=True)
@@ -64,19 +64,7 @@ def classify_route(inspection: Inspection, *, structured_available: bool = True)
 
 
 def advance(document: DocumentEnvelope, target: ProcessingState) -> DocumentEnvelope:
-    transitions: dict[ProcessingState, set[ProcessingState]] = {
-        ProcessingState.RAW: {ProcessingState.EXTRACTED, ProcessingState.FAILED},
-        ProcessingState.EXTRACTED: {ProcessingState.STAGING, ProcessingState.QUARANTINED, ProcessingState.FAILED},
-        ProcessingState.STAGING: {ProcessingState.VALIDATED, ProcessingState.QUARANTINED, ProcessingState.FAILED},
-        ProcessingState.VALIDATED: {ProcessingState.RECONCILED, ProcessingState.QUARANTINED, ProcessingState.FAILED},
-        ProcessingState.RECONCILED: {ProcessingState.APPROVED, ProcessingState.REVIEW, ProcessingState.QUARANTINED, ProcessingState.FAILED},
-        ProcessingState.REVIEW: {ProcessingState.APPROVED, ProcessingState.QUARANTINED},
-        ProcessingState.APPROVED: {ProcessingState.PRODUCTION},
-        ProcessingState.QUARANTINED: {ProcessingState.EXTRACTED, ProcessingState.STAGING},
-        ProcessingState.FAILED: {ProcessingState.RAW, ProcessingState.EXTRACTED},
-        ProcessingState.PRODUCTION: set(),
-    }
-    if target not in transitions.get(document.state, set()):
+    if not can_transition(document.state, target):
         raise ValueError(f"illegal document transition: {document.state} -> {target}")
     document.state = target
     return document

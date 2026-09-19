@@ -8,10 +8,10 @@ const files = {
 };
 
 const required = {
-  queries: ["supabase.rpc('get_receivables_report_page'", 'export async function fetchReceivablesReportPage', "supabase.rpc('get_receivables_export_rows'", 'export async function fetchReceivablesExportRows'],
+  queries: ['src/lib/receivables-truth', 'export type ReceivablesReportRow = ReceivablesReportRowCanonical'],
   page: ['fetchReceivablesReportPage', 'fetchReceivablesExportRows', 'ReceivablesReportCanonicalPage'],
   app: ["import('@/pages/ReceivablesReportCanonicalPage')", '<Route path="/reports/receivables" element={<ReceivablesReportPage />} />'],
-  migration: ['public.current_company_id()', 'SECURITY DEFINER', 'SET search_path = public', 'REVOKE ALL ON FUNCTION public.get_receivables_report_page(integer, integer) FROM PUBLIC', 'REVOKE ALL ON FUNCTION public.get_receivables_report_page(integer, integer) FROM anon', 'GRANT EXECUTE ON FUNCTION public.get_receivables_report_page(integer, integer) TO authenticated', 'OFFSET v_page * v_page_size', 'LIMIT v_page_size'],
+  migration: ['public.current_company_id()', 'SECURITY DEFINER', 'SET search_path = public', 'REVOKE ALL ON FUNCTION public.get_receivables_report_page(integer, integer) FROM PUBLIC', 'GRANT EXECUTE ON FUNCTION public.get_receivables_report_page(integer, integer) TO authenticated', 'OFFSET v_page * v_page_size', 'LIMIT v_page_size'],
 };
 
 for (const [name, tokens] of Object.entries(required)) {
