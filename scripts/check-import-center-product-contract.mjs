@@ -46,7 +46,6 @@ if (/Math\.random|fake|mock/i.test(page)) {
   process.exit(1);
 }
 
-console.log('Import Center product contract: PASS (UI delegates to canonical durable import; authoritative commit remains at committed lifecycle stage).');
 
 if (!/fetchImportRecords\(\)/.test(page) || !/setHistoryError/.test(page) || !/ErrorState/.test(page)) {
   console.error('Import Center product contract failed: history failures must remain visible, not collapse to an empty history.');
@@ -57,3 +56,5 @@ if (!/datasets\.length > 1/.test(page) || !/EXCEL_MULTI_SHEET_REQUIRES_SELECTION
   console.error('Import Center product contract failed: multi-sheet datasets must not be silently reduced to the first sheet.');
   process.exit(1);
 }
+
+console.log('Import Center product contract: PASS (UI delegates to canonical durable import; authoritative commit remains at committed lifecycle stage).');
