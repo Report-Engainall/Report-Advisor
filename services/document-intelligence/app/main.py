@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import importlib
 import io
 import math
 import os
@@ -195,11 +196,13 @@ def _iter_ocr_images(data: bytes, mime: str):
 
 def parse_with_ocr(data: bytes, filename: str, mime: str) -> dict[str, Any]:
     try:
-        from paddleocr import PaddleOCR
+        paddleocr_module = importlib.import_module("paddleocr")
+        PaddleOCR = getattr(paddleocr_module, "PaddleOCR")
+        if not callable(PaddleOCR):
+            raise ImportError("paddleocr.PaddleOCR is not callable")
     except Exception as exc:
         envelope = _envelope(data, filename, mime, "paddleocr", ["OCR backend is unavailable; extraction is incomplete and requires review."], ProcessingState.QUARANTINED)
         envelope.metadata["error_type"] = type(exc).__name__
-        envelope.metadata["error_message"] = str(exc)[:512]
         envelope.metadata["error_message"] = str(exc)[:512]
         return {"document": envelope.to_dict(), "engine": "paddleocr", "warnings": envelope.warnings}
 
@@ -271,6 +274,7 @@ def parse_with_ocr(data: bytes, filename: str, mime: str) -> dict[str, Any]:
     except Exception as exc:
         envelope = _envelope(data, filename, mime, "paddleocr", ["OCR execution failed; document is not considered successfully extracted."], ProcessingState.QUARANTINED)
         envelope.metadata["error_type"] = type(exc).__name__
+        envelope.metadata["error_message"] = str(exc)[:512]
         return {"document": envelope.to_dict(), "engine": "paddleocr", "warnings": envelope.warnings}
 
 
