@@ -86,8 +86,8 @@ if (/from ['"]@\/lib\//.test(adapter) || /from ['"]@\/lib\//.test(fs.readFileSyn
 if (!/await import\('\.\.\/supabase'\)/.test(adapter) || !/await import\('\.\.\/supabase'\)/.test(fs.readFileSync(canonicalCommitPath, 'utf8'))) {
   throw new Error('Browser Supabase client must remain lazy in server-importable canonical modules');
 }
-if (!/commitImportBatch\(input\.entityType, input\.rows, input\.sourceHash, \{ client: (?:dataClient|activeDataClient), companyId \}\)/.test(adapter)) {
-  throw new Error('Canonical import commit must remain tenant-bound to the authenticated data client');
+if (!/commitImportBatch\(input\.entityType, input\.rows, input\.sourceHash, \{ client: (?:dataClient|activeDataClient), companyId, importJobId: input\.importId \}\)/.test(adapter)) {
+  throw new Error('Canonical import commit must remain tenant-bound to the authenticated data client and authoritative import job');
 }
 if (!/IMPORT_DURABLE_JOB_ALREADY_RUNNING/.test(adapter)) {
   throw new Error('Canonical durable adapter must fail closed when the same durable import is already running');
@@ -108,7 +108,10 @@ for (const token of [
   "assertRequestSize(req)",
   "request_too_large",
   "assertCanonicalImportProvenance",
-  "sourceId: importJob.file_name",
+  "file_record_id",
+  "from('file_records')",
+  "materializeAuthoritativeRows",
+  "AUTHORITATIVE_SOURCE_HASH_DRIFT",
   "requireMethod(req, res, 'POST')",
   "requireConfig(res, ['SUPABASE_URL', 'SUPABASE_SERVICE_ROLE_KEY', 'VITE_SUPABASE_ANON_KEY'])",
   "Authorization",
