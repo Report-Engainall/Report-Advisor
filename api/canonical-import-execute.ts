@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { createHash } from 'node:crypto';
 import { runCanonicalImportThroughDurableRunner, type DurableCanonicalImportInput } from '../src/lib/import/canonical-production-adapter';
 import { assertCanonicalImportProvenance, type ImportEvidenceProvenance, type ReconciledCanonicalImportRow } from '../src/lib/import/canonical-truth-boundary';
 import { json, requireConfig, requireMethod, supabaseUserRequest } from '../src/server/resilience-runtime.mjs';
@@ -189,6 +190,10 @@ export default async function handler(req: any, res: any) {
       global: { headers: { Authorization: `Bearer ${token}` } },
     });
 
+    const workerClient = createClient(process.env.SUPABASE_URL!.trim(), process.env.SUPABASE_SERVICE_ROLE_KEY!.trim(), {
+      auth: { autoRefreshToken: false, persistSession: false, detectSessionInUrl: false },
+    });
+
     const { data: importJob, error: importJobError } = await dataClient
       .from('import_jobs')
       .select('id, company_id, file_record_id, status, job_type, source_fingerprint')
@@ -200,9 +205,9 @@ export default async function handler(req: any, res: any) {
       return;
     }
 
-    const { data: fileRecord, error: fileRecordError } = await dataClient
+    const { data: fileRecord, error: fileRecordError } = await workerClient
       .from('file_records')
-      .select('id, company_id, file_name, file_hash, file_mime')
+      .select('id, company_id, file_name, file_size, file_mime, file_hash, security_status, status, metadata')
       .eq('id', importJob.file_record_id)
       .eq('company_id', companyId)
       .single();
@@ -211,14 +216,67 @@ export default async function handler(req: any, res: any) {
       return;
     }
 
-    const sourceHash = typeof fileRecord.file_hash === 'string' ? fileRecord.file_hash.trim() : '';
-    if (!/^sha256:[0-9a-fA-F]{64}$/.test(sourceHash)) throw new Error('AUTHORITATIVE_SOURCE_HASH_INVALID');
-    if (typeof importJob.source_fingerprint !== 'string' || importJob.source_fingerprint.trim() !== sourceHash) {
-      throw new Error('AUTHORITATIVE_SOURCE_HASH_DRIFT');
+    const sourceMetadata = fileRecord.metadata && typeof fileRecord.metadata === 'object'
+      ? fileRecord.metadata as Record<string, unknown>
+      : {};
+    const bucket = sourceMetadata.storage_bucket;
+    const objectPath = sourceMetadata.storage_path;
+    if (bucket !== 'documents' || typeof objectPath !== 'string' || !objectPath.startsWith(`${companyId}/imports/`)) {
+      throw new Error('AUTHORITATIVE_SOURCE_STORAGE_BINDING_INVALID');
     }
+    if (objectPath.includes('..') || objectPath.startsWith('/') || objectPath.includes('\\0')) {
+      throw new Error('AUTHORITATIVE_SOURCE_STORAGE_PATH_INVALID');
+    }
+
+    const { data: rawObject, error: storageError } = await workerClient.storage.from('documents').download(objectPath);
+    if (storageError || !rawObject) throw new Error(`AUTHORITATIVE_SOURCE_BYTES_UNAVAILABLE:${storageError?.message ?? 'empty'}`);
+    const rawBytes = Buffer.from(await rawObject.arrayBuffer());
+    if (!Number.isInteger(fileRecord.file_size) && typeof fileRecord.file_size !== 'number') {
+      throw new Error('AUTHORITATIVE_SOURCE_SIZE_MISSING');
+    }
+    if (Number(fileRecord.file_size) !== rawBytes.byteLength) {
+      throw new Error('AUTHORITATIVE_SOURCE_SIZE_MISMATCH');
+    }
+
+    const sourceHash = `sha256:${createHash('sha256').update(rawBytes).digest('hex')}`;
     if (typeof input.sourceHash === 'string' && input.sourceHash !== sourceHash) {
       throw new Error('CANONICAL_SOURCE_HASH_MISMATCH');
     }
+    if (typeof importJob.source_fingerprint === 'string' && importJob.source_fingerprint.trim() !== '' && importJob.source_fingerprint.trim() !== sourceHash) {
+      throw new Error('AUTHORITATIVE_SOURCE_HASH_DRIFT');
+    }
+    if (typeof fileRecord.file_hash === 'string' && fileRecord.file_hash.trim() !== '' && fileRecord.file_hash.trim() !== sourceHash) {
+      throw new Error('PERSISTED_SOURCE_HASH_TAMPERED');
+    }
+
+    const verifiedMetadata = {
+      ...sourceMetadata,
+      storage_bucket: 'documents',
+      storage_path: objectPath,
+      raw_bytes_sha256: sourceHash,
+      verified_at: new Date().toISOString(),
+    };
+    const { error: fileUpdateError } = await workerClient
+      .from('file_records')
+      .update({
+        file_hash: sourceHash,
+        security_status: 'passed',
+        status: 'ready',
+        metadata: verifiedMetadata,
+      })
+      .eq('id', fileRecord.id)
+      .eq('company_id', companyId);
+    if (fileUpdateError) throw new Error(`AUTHORITATIVE_SOURCE_RECORD_UPDATE_FAILED:${fileUpdateError.message}`);
+
+    const { error: jobSourceUpdateError } = await workerClient
+      .from('import_jobs')
+      .update({ source_fingerprint: sourceHash })
+      .eq('id', importJob.id)
+      .eq('company_id', companyId);
+    if (jobSourceUpdateError) throw new Error(`AUTHORITATIVE_IMPORT_SOURCE_UPDATE_FAILED:${jobSourceUpdateError.message}`);
+
+    fileRecord.file_hash = sourceHash;
+    fileRecord.metadata = verifiedMetadata;
 
     if (['products', 'customers', 'sales_invoices'].includes(importJob.job_type) && importJob.job_type !== input.entityType) {
       json(res, 409, { status: 'failed', error: 'import_job_entity_type_mismatch' });
@@ -254,10 +312,6 @@ export default async function handler(req: any, res: any) {
       rows: trustedRows,
       qualityScore: input.qualityScore,
     };
-
-    const workerClient = createClient(process.env.SUPABASE_URL!.trim(), process.env.SUPABASE_SERVICE_ROLE_KEY!.trim(), {
-      auth: { autoRefreshToken: false, persistSession: false, detectSessionInUrl: false },
-    });
 
     const result = await runCanonicalImportThroughDurableRunner(serverInput, {
       serverExecution: true,
