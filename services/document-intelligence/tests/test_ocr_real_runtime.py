@@ -87,7 +87,10 @@ if result.get("engine") != "paddleocr":
 document = result["document"]
 pages = document.get("pages", [])
 if len(pages) < 2:
-    raise AssertionError(f"REAL_OCR_MULTIPAGE_EXTRACTION_FAILED: pages={len(pages)}")
+    raise AssertionError(
+        f"REAL_OCR_MULTIPAGE_EXTRACTION_FAILED: pages={len(pages)} engine={result.get('engine')} "
+        f"warnings={result.get('warnings')} metadata={document.get('metadata')}"
+    )
 
 blocks = [block for page in pages for block in page.get("blocks", [])]
 joined = " ".join(block.get("text", "") for block in blocks)
