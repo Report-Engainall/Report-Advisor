@@ -11,7 +11,7 @@
 |---|---|---|---|
 | Intelligence pages | `src/pages/IntelligencePage.tsx` | `src/pages/IntelligencePages.tsx` | Duplicate implementation removed; canonical module now owns Recommendations/Forecasts |
 | Receivables report | `src/pages/ReceivablesReportCanonicalPage.tsx` | `src/pages/ReceivablesReportPageCanonical.tsx` | Duplicate implementation removed; canonical report remains |
-| Folder handle persistence | `src/lib/import/folder-handle-store.ts` | `src/lib/import-pipeline/folder-handle-store.ts` | Re-export only; stronger canonical implementation retained |
+| Folder handle persistence | `src/lib/import/folder-handle-store.ts` | `src/lib/import-pipeline/folder-handle-store.ts` | Redundant module deleted; canonical persistence retained |
 | Data-quality score | `src/lib/free-toolbox/data-quality-score.ts` | `src/lib/free-toolbox/data-quality-gate.ts` | Gate is now policy adapter over canonical score math |
 
 ## Deliberately retained as separate bounded contracts
@@ -96,7 +96,7 @@ These were not merely similar; they were duplicate implementations and were coll
 
 - `src/pages/IntelligencePages.tsx` → deleted after canonical implementation absorbed its exports.
 - `src/pages/ReceivablesReportPageCanonical.tsx` → deleted after consumer surface was consolidated to `ReceivablesReportCanonicalPage.tsx`.
-- `src/lib/import-pipeline/folder-handle-store.ts` → compatibility-only re-export; persistence remains in `src/lib/import/folder-handle-store.ts`.
+- `src/lib/import-pipeline/folder-handle-store.ts` → deleted; all folder-handle persistence remains in `src/lib/import/folder-handle-store.ts`.
 - `src/lib/free-toolbox/data-quality-gate.ts` → policy adapter over the single canonical `qualityScore()` implementation.
 
 ### Deletion rule
