@@ -18,6 +18,8 @@ process.env.VITE_SUPABASE_ANON_KEY = anon;
 process.env.SUPABASE_SERVICE_ROLE_KEY = service;
 
 const admin = createClient(url, service, { auth: { autoRefreshToken: false, persistSession: false } });
+const runTag = crypto.randomUUID().slice(0, 8);
+const committedCustomerName = `P0E provenance customer ${runTag}`;
 
 async function signIn(email, password) {
   const client = createClient(url, anon, { auth: { autoRefreshToken: false, persistSession: false } });
@@ -30,7 +32,7 @@ async function signIn(email, password) {
 
 async function createSourceJob(session, label) {
   const sourcePath = `${session.companyId}/imports/${crypto.randomUUID()}.csv`;
-  const displayName = `p0e-${label}-${Date.now()}.csv`;
+  const displayName = `p0e-${runTag}-${label}.csv`;
   const raw = Buffer.from([
     'code,name',
     `P0E-${crypto.randomUUID().slice(0, 8)},${label}`,
@@ -99,7 +101,7 @@ async function callApi(session, body) {
 function rowWithClaims(source, claims) {
   return {
     rowNumber: 1,
-    data: { code: `P0E-${crypto.randomUUID().slice(0, 8)}`, name: 'P0E provenance customer' },
+    data: { code: `P0E-${runTag}-valid`, name: committedCustomerName },
     provenance: {
       tenantId: claims.tenantId ?? source.job.company_id,
       sourceId: claims.sourceId ?? source.fileRecord.id,
@@ -126,7 +128,7 @@ async function expectReject(session, body, codeFragment) {
 
 async function cleanupSource(source) {
   try { await admin.storage.from('documents').remove([source.sourcePath]); } catch {}
-  try { await admin.from('customers').delete().eq('company_id', source.job.company_id).like('name', 'P0E provenance customer%'); } catch {}
+  try { await admin.from('customers').delete().eq('company_id', source.job.company_id).eq('name', committedCustomerName); } catch {}
   try { await admin.from('import_jobs').delete().eq('id', source.job.id); } catch {}
   try { await admin.from('file_records').delete().eq('id', source.fileRecord.id); } catch {}
 }
@@ -195,7 +197,7 @@ try {
   await expectReject(sessionA, {
     entityType: 'customers',
     importId: tampered.job.id,
-    rows: tampered ? rowWithClaims(tampered, {}) ? [{ rowNumber: 1, data: { code: `P0E-${crypto.randomUUID().slice(0, 8)}`, name: 'tampered source should reject' } }] : [] : [],
+    rows: [{ rowNumber: 1, data: { code: `P0E-${runTag}-tampered`, name: `tampered source ${runTag}` } }],
     qualityScore: 100,
   }, 'PERSISTED_SOURCE_HASH_TAMPERED');
 
