@@ -23,14 +23,14 @@ class IntermediateModelContractTests(unittest.TestCase):
             row=7,
             column=3,
             cell="C8",
-            bbox=(1.0, 2.0, 3.0, 4.0),
+            bounding_box=(1.0, 2.0, 3.0, 4.0),
             parser="test-parser",
             parser_version="1.0",
         )
         cell = Cell(value="123", source_text="١٢٣", confidence=0.99, provenance=provenance)
         self.assertEqual(cell.provenance.cell, "C8")
         self.assertEqual(cell.provenance.page, 2)
-        self.assertEqual(cell.provenance.bbox, (1.0, 2.0, 3.0, 4.0))
+        self.assertEqual(cell.provenance.bounding_box, (1.0, 2.0, 3.0, 4.0))
 
     def test_intermediate_model_can_represent_mixed_page_and_table_content(self):
         provenance = Provenance(source_file_id="x.pdf", source_hash="b" * 64, page=1)
@@ -45,7 +45,7 @@ class IntermediateModelContractTests(unittest.TestCase):
             schema_version="1.0",
             filename="x.pdf",
             mime_type="application/pdf",
-            source_sha256="b" * 64,
+            source_hash="b" * 64,
             engine="test",
             state=ProcessingState.EXTRACTED,
             pages=[page],
