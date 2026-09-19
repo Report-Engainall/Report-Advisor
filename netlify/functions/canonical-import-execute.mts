@@ -53,9 +53,11 @@ export default async (request: Request): Promise<Response> => {
       entityType?: 'products' | 'customers' | 'sales_invoices';
       rows?: unknown[];
       qualityScore?: number;
+      mode?: 'execute' | 'finalize-source';
     };
 
-    if (!payload.importId || !payload.entityType || !Array.isArray(payload.rows) || !Number.isFinite(payload.qualityScore)) {
+    const mode = payload.mode ?? 'execute';
+    if (!payload.importId || !payload.entityType || (mode === 'execute' && (!Array.isArray(payload.rows) || !Number.isFinite(payload.qualityScore)))) {
       throw new Error('CANONICAL_IMPORT_REQUEST_INVALID');
     }
 
@@ -146,6 +148,10 @@ export default async (request: Request): Promise<Response> => {
       .eq('id', job.id)
       .eq('company_id', companyId);
     if (jobUpdateError) throw jobUpdateError;
+
+    if (mode === 'finalize-source') {
+      return json(200, { importId: job.id, sourceHash: sourceSha });
+    }
 
     const execution = await runCanonicalImportThroughDurableRunner(
       {
