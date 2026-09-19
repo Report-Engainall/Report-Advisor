@@ -209,9 +209,10 @@ def parse_with_ocr(data: bytes, filename: str, mime: str) -> dict[str, Any]:
     try:
         import numpy as np
 
-        ocr = PaddleOCR(use_doc_orientation_classify=True, use_doc_unwarping=False, use_textline_orientation=True, lang="arabic")
+        ocr = PaddleOCR(use_doc_orientation_classify=True, use_doc_unwarping=False, use_textline_orientation=True, lang="ar")
         envelope = _envelope(data, filename, mime, "paddleocr", [])
         invalid_confidence = False
+        unreadable_pages: list[int] = []
         page_models: list[Page] = []
 
         for page_number, image in enumerate(_iter_ocr_images(data, mime), start=1):
@@ -255,6 +256,8 @@ def parse_with_ocr(data: bytes, filename: str, mime: str) -> dict[str, Any]:
                     ))
             if page_blocks:
                 page_models.append(Page(number=page_number, blocks=page_blocks))
+            else:
+                unreadable_pages.append(page_number)
 
         envelope.pages.extend(page_models)
         all_blocks = [block for page in page_models for block in page.blocks]
@@ -264,6 +267,9 @@ def parse_with_ocr(data: bytes, filename: str, mime: str) -> dict[str, Any]:
         elif invalid_confidence:
             envelope.warnings.append("OCR confidence contains invalid or missing values; affected blocks are fail-closed and require review.")
             envelope.state = ProcessingState.QUARANTINED
+        elif unreadable_pages:
+            envelope.warnings.append(f"OCR returned no reliable text for page(s): {unreadable_pages}; document requires review.")
+            envelope.state = ProcessingState.REVIEW
         else:
             minimum = min(block.confidence for block in all_blocks if block.confidence is not None)
             if minimum < 0.7:
