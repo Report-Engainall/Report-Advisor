@@ -63,7 +63,7 @@ export async function fetchDashboardSnapshot(months = 6): Promise<Snapshot> {
     status,
   };
 
-  const agingRow=(row.aging&&typeof row.aging==='object'?row.aging:{}) as Record<string,unknown>;
+  const agingRows = requiredArray<AgingBucket>(row.aging, 'aging');
   return {
     kpis,
     trend: requiredArray<MonthlyTrend>(row.trend, 'trend'),
@@ -71,10 +71,10 @@ export async function fetchDashboardSnapshot(months = 6): Promise<Snapshot> {
     topProducts: requiredArray<TopEntity>(row.topProducts, 'topProducts').slice(0,10),
     categories: requiredArray<CategoryBreakdown>(row.categories, 'categories'),
     aging:{
-      rows:requiredArray<AgingBucket>(agingRow.rows, 'aging.rows'),
-      totalAmount:finiteOrNull(agingRow.totalAmount),
-      unknownRows:typeof agingRow.unknownRows==='number'?agingRow.unknownRows:0,
-      status:agingRow.status==='CALCULATED'?'CALCULATED':agingRow.status==='NO_DATA'?'NO_DATA':'INSUFFICIENT_DATA'
+      rows: agingRows,
+      totalAmount: kpis.totalReceivables,
+      unknownRows: 0,
+      status: status === 'INSUFFICIENT_DATA' ? 'INSUFFICIENT_DATA' : agingRows.length ? 'CALCULATED' : 'NO_DATA'
     }
   };
 }
