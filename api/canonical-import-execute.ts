@@ -1,6 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { runCanonicalImportThroughDurableRunner, type DurableCanonicalImportInput } from '../src/lib/import/canonical-production-adapter';
-import { assertCanonicalImportProvenance } from '../src/lib/import/canonical-truth-boundary';
+import { assertCanonicalImportProvenance, type ImportEvidenceProvenance, type ReconciledCanonicalImportRow } from '../src/lib/import/canonical-truth-boundary';
 import { json, requireConfig, requireMethod, supabaseUserRequest } from '../src/server/resilience-runtime.mjs';
 
 const MAX_REQUEST_BYTES = Number(process.env.CANONICAL_IMPORT_MAX_REQUEST_BYTES ?? 25 * 1024 * 1024);
@@ -61,17 +61,103 @@ async function parseBody(req: any): Promise<unknown> {
   return JSON.parse(Buffer.concat(chunks).toString('utf8'));
 }
 
-function validateInput(value: unknown): DurableCanonicalImportInput {
+interface UntrustedCanonicalImportRow {
+  rowNumber: number;
+  data: Record<string, unknown>;
+  provenance?: Partial<ImportEvidenceProvenance>;
+  reconciliation?: string;
+}
+
+interface UntrustedCanonicalImportRequest {
+  entityType: 'products' | 'customers' | 'sales_invoices';
+  importId: string;
+  fileName?: string;
+  sourceHash?: string;
+  rows: UntrustedCanonicalImportRow[];
+  qualityScore: number;
+}
+
+function validateInput(value: unknown): UntrustedCanonicalImportRequest {
   if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error('invalid_json');
   const body = value as Record<string, unknown>;
   const entityType = body.entityType;
   if (entityType !== 'products' && entityType !== 'customers' && entityType !== 'sales_invoices') throw new Error('entity_type_invalid');
   if (typeof body.importId !== 'string' || !body.importId.trim()) throw new Error('import_id_invalid');
-  if (typeof body.fileName !== 'string' || !body.fileName.trim() || body.fileName.length > 512) throw new Error('file_name_invalid');
-  if (typeof body.sourceHash !== 'string' || !/^sha256:[0-9a-fA-F]{64}$/.test(body.sourceHash)) throw new Error('source_hash_invalid');
+  if (body.fileName !== undefined && (typeof body.fileName !== 'string' || body.fileName.length > 512)) throw new Error('file_name_invalid');
+  if (body.sourceHash !== undefined && (typeof body.sourceHash !== 'string' || !/^sha256:[0-9a-fA-F]{64}$/.test(body.sourceHash))) throw new Error('source_hash_invalid');
   if (!Array.isArray(body.rows) || body.rows.length < 1 || body.rows.length > 500000) throw new Error('rows_invalid');
   if (typeof body.qualityScore !== 'number' || !Number.isFinite(body.qualityScore) || body.qualityScore < 0 || body.qualityScore > 100) throw new Error('quality_score_invalid');
-  return body as unknown as DurableCanonicalImportInput;
+
+  const rows = body.rows.map((row, index) => {
+    if (!row || typeof row !== 'object' || Array.isArray(row)) throw new Error(`row_invalid:${index + 1}`);
+    const candidate = row as Record<string, unknown>;
+    if (!Number.isInteger(candidate.rowNumber) || Number(candidate.rowNumber) < 1) throw new Error(`row_number_invalid:${index + 1}`);
+    if (!candidate.data || typeof candidate.data !== 'object' || Array.isArray(candidate.data)) throw new Error(`row_data_invalid:${candidate.rowNumber}`);
+    if (candidate.reconciliation !== undefined && candidate.reconciliation !== 'RECONCILED') throw new Error(`row_reconciliation_not_reconciled:${candidate.rowNumber}`);
+    if (candidate.provenance !== undefined && (!candidate.provenance || typeof candidate.provenance !== 'object' || Array.isArray(candidate.provenance))) {
+      throw new Error(`row_provenance_invalid:${candidate.rowNumber}`);
+    }
+    return {
+      rowNumber: Number(candidate.rowNumber),
+      data: candidate.data as Record<string, unknown>,
+      provenance: candidate.provenance as Partial<ImportEvidenceProvenance> | undefined,
+      reconciliation: candidate.reconciliation as string | undefined,
+    };
+  });
+
+  const seenRows = new Set<number>();
+  for (const row of rows) {
+    if (seenRows.has(row.rowNumber)) throw new Error(`duplicate_row_number:${row.rowNumber}`);
+    seenRows.add(row.rowNumber);
+  }
+
+  return {
+    entityType: entityType as UntrustedCanonicalImportRequest['entityType'],
+    importId: body.importId as string,
+    fileName: body.fileName as string | undefined,
+    sourceHash: body.sourceHash as string | undefined,
+    rows,
+    qualityScore: Number(body.qualityScore),
+  };
+}
+
+function assertClaim(name: string, actual: unknown, expected: string, rowNumber?: number): void {
+  if (actual === undefined) return;
+  if (typeof actual !== 'string' || actual.trim() !== expected) {
+    throw new Error(`${name}_MISMATCH${rowNumber ? `:${rowNumber}` : ''}`);
+  }
+}
+
+function materializeAuthoritativeRows(
+  inputRows: UntrustedCanonicalImportRow[],
+  expected: { tenantId: string; sourceId: string; sourceHash: string; sourceDocumentId: string },
+): ReconciledCanonicalImportRow[] {
+  return inputRows.map((row) => {
+    const candidate = row.provenance ?? {};
+    assertClaim('CANONICAL_TENANT_ID', candidate.tenantId, expected.tenantId, row.rowNumber);
+    assertClaim('CANONICAL_SOURCE_ID', candidate.sourceId, expected.sourceId, row.rowNumber);
+    assertClaim('CANONICAL_SOURCE_HASH', candidate.sourceHash, expected.sourceHash, row.rowNumber);
+    assertClaim('CANONICAL_SOURCE_DOCUMENT_ID', candidate.sourceDocumentId, expected.sourceDocumentId, row.rowNumber);
+
+    const evidenceId = `${expected.sourceId}:${row.rowNumber}`;
+    const lineageId = `${expected.tenantId}:${expected.sourceDocumentId}:${row.rowNumber}`;
+    assertClaim('CANONICAL_EVIDENCE_ID', candidate.evidenceId, evidenceId, row.rowNumber);
+    assertClaim('CANONICAL_LINEAGE_ID', candidate.lineageId, lineageId, row.rowNumber);
+
+    return {
+      rowNumber: row.rowNumber,
+      data: row.data,
+      reconciliation: 'RECONCILED',
+      provenance: {
+        tenantId: expected.tenantId,
+        sourceId: expected.sourceId,
+        sourceHash: expected.sourceHash,
+        sourceDocumentId: expected.sourceDocumentId,
+        evidenceId,
+        lineageId,
+      },
+    };
+  });
 }
 
 export default async function handler(req: any, res: any) {
@@ -105,24 +191,53 @@ export default async function handler(req: any, res: any) {
 
     const { data: importJob, error: importJobError } = await dataClient
       .from('import_jobs')
-      .select('id, company_id, status, file_name, entity_type')
+      .select('id, company_id, file_record_id, status, job_type, source_fingerprint')
       .eq('id', input.importId)
       .eq('company_id', companyId)
       .single();
-    if (importJobError || !importJob) {
+    if (importJobError || !importJob || !importJob.file_record_id) {
       json(res, 404, { status: 'failed', error: 'import_job_not_found_or_forbidden' });
       return;
     }
-    if (importJob.file_name !== input.fileName || importJob.entity_type !== input.entityType) {
-      json(res, 409, { status: 'failed', error: 'import_job_source_identity_mismatch' });
+
+    const { data: fileRecord, error: fileRecordError } = await dataClient
+      .from('file_records')
+      .select('id, company_id, file_name, file_hash, file_mime')
+      .eq('id', importJob.file_record_id)
+      .eq('company_id', companyId)
+      .single();
+    if (fileRecordError || !fileRecord) {
+      json(res, 409, { status: 'failed', error: 'authoritative_source_record_not_found' });
       return;
     }
-    for (const row of input.rows) {
+
+    const sourceHash = typeof fileRecord.file_hash === 'string' ? fileRecord.file_hash.trim() : '';
+    if (!/^sha256:[0-9a-fA-F]{64}$/.test(sourceHash)) throw new Error('AUTHORITATIVE_SOURCE_HASH_INVALID');
+    if (typeof importJob.source_fingerprint !== 'string' || importJob.source_fingerprint.trim() !== sourceHash) {
+      throw new Error('AUTHORITATIVE_SOURCE_HASH_DRIFT');
+    }
+    if (typeof input.sourceHash === 'string' && input.sourceHash !== sourceHash) {
+      throw new Error('CANONICAL_SOURCE_HASH_MISMATCH');
+    }
+
+    if (['products', 'customers', 'sales_invoices'].includes(importJob.job_type) && importJob.job_type !== input.entityType) {
+      json(res, 409, { status: 'failed', error: 'import_job_entity_type_mismatch' });
+      return;
+    }
+
+    const trustedRows = materializeAuthoritativeRows(input.rows, {
+      tenantId: companyId,
+      sourceId: fileRecord.id,
+      sourceHash,
+      sourceDocumentId: fileRecord.id,
+    });
+
+    for (const row of trustedRows) {
       assertCanonicalImportProvenance(row, {
         tenantId: companyId,
-        sourceId: importJob.file_name,
-        sourceHash: input.sourceHash,
-        importId: input.importId,
+        sourceId: fileRecord.id,
+        sourceHash,
+        importId: fileRecord.id,
       });
     }
 
@@ -131,11 +246,20 @@ export default async function handler(req: any, res: any) {
       return;
     }
 
+    const serverInput: DurableCanonicalImportInput = {
+      importId: input.importId,
+      fileName: fileRecord.file_name,
+      sourceHash,
+      entityType: input.entityType,
+      rows: trustedRows,
+      qualityScore: input.qualityScore,
+    };
+
     const workerClient = createClient(process.env.SUPABASE_URL!.trim(), process.env.SUPABASE_SERVICE_ROLE_KEY!.trim(), {
       auth: { autoRefreshToken: false, persistSession: false, detectSessionInUrl: false },
     });
 
-    const result = await runCanonicalImportThroughDurableRunner(input, {
+    const result = await runCanonicalImportThroughDurableRunner(serverInput, {
       serverExecution: true,
       workerClient,
       dataClient,
