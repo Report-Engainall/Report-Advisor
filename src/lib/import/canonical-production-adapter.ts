@@ -226,7 +226,7 @@ export async function runCanonicalImportThroughDurableRunner(
         if (!decisionEligible) throw new Error('IMPORT_DECISION_NOT_ELIGIBLE');
         return { evidenceKeys: [`decision:commit_eligible=true:rows=${analysisRows}:quality=${input.qualityScore}:source=${input.sourceHash}`] };
       }
-      if (stage === 'committed') await commitImportBatch(input.entityType, input.rows, input.sourceHash, { client: activeDataClient, companyId });
+      if (stage === 'committed') await commitImportBatch(input.entityType, input.rows, input.sourceHash, { client: activeDataClient, companyId, importJobId: input.importId });
     },
   }, store);
 
