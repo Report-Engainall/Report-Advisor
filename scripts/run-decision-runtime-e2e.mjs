@@ -174,7 +174,7 @@ const { data: latestOutcome, error: latestOutcomeError } = await client
   .from('recommendation_outcomes')
   .select('id,recommendation_key,decision_id,observed_at,expected_impact,actual_impact,outcome_quality,status,evidence')
   .eq('recommendation_key', outcomeKey)
-  .eq('company_id', (await client.rpc('current_company_id')).data)
+  .eq('decision_id', decision)
   .single();
 if (latestOutcomeError) throw latestOutcomeError;
 if (latestOutcome.status !== 'insufficient') throw new Error(`LATEST_OUTCOME_STATUS_MISMATCH:${latestOutcome.status}`);
