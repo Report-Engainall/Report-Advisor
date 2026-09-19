@@ -1,3 +1,36 @@
-export interface QualityMetrics{completeness:number;validity:number;uniqueness:number;consistency:number;freshness:number}
-export interface QualityGate{score:number;passed:boolean;blocking:string[]}
-export function evaluateQuality(m:QualityMetrics,threshold=80):QualityGate{const entries=Object.entries(m) as [keyof QualityMetrics,number][];const blocking=entries.filter(([,v])=>v<threshold).map(([k])=>k);const score=entries.reduce((s,[,v])=>s+Math.max(0,Math.min(100,v)),0)/entries.length;return{score,passed:blocking.length===0,blocking}}
+import { qualityScore, type QualityDimensions } from './data-quality-score';
+
+export interface QualityMetrics {
+  completeness: number;
+  validity: number;
+  uniqueness: number;
+  consistency: number;
+  freshness: number;
+}
+
+export interface QualityGate {
+  score: number;
+  passed: boolean;
+  blocking: string[];
+}
+
+/**
+ * Canonical quality math lives in data-quality-score.ts.
+ * This module is the policy gate adapter: it applies a configurable blocking threshold
+ * without introducing a second scoring algorithm.
+ */
+export function evaluateQuality(m: QualityMetrics, threshold = 80): QualityGate {
+  const dimensions: QualityDimensions = {
+    completeness: m.completeness,
+    validity: m.validity,
+    uniqueness: m.uniqueness,
+    consistency: m.consistency,
+    timeliness: m.freshness,
+  };
+  const score = qualityScore(dimensions).overall;
+  const blocking = (Object.entries(m) as [keyof QualityMetrics, number][])
+    .filter(([, value]) => value < threshold)
+    .map(([key]) => key);
+
+  return { score, passed: blocking.length === 0, blocking };
+}
