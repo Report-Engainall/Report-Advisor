@@ -5,6 +5,8 @@ import { runDurableProductionLifecycle } from '../report-execution/durable-produ
 import type { ReconciledCanonicalImportRow } from './canonical-truth-boundary';
 import { commitImportBatch } from './canonical-commit';
 
+interface StageExecutionEvidence { evidenceKeys?: string[] }
+
 export interface DurableCanonicalImportInput {
   importId: string;
   fileName: string;
@@ -123,6 +125,7 @@ export async function runCanonicalImportThroughDurableRunner(
   }
   if (!requestedBy) throw new Error('AUTHENTICATED_USER_REQUIRED');
 
+  // Identical source content is the durable identity; importId remains record/lineage identity.
   const jobKey = `canonical-import:${input.entityType}:${input.sourceHash}`;
   const activeWorkerClient = workerClient;
   const activeDataClient = dataClient;
@@ -201,7 +204,7 @@ export async function runCanonicalImportThroughDurableRunner(
         },
       })),
     },
-    executeStage: async (stage: ReportExecutionStage) => {
+    executeStage: async (stage: ReportExecutionStage): Promise<StageExecutionEvidence | void> => {
       if (stage === 'fingerprinted' && input.sourceHash.length !== 71) throw new Error('IMPORT_SOURCE_HASH_INVALID');
       if (stage === 'extracted' && input.rows.length === 0) throw new Error('IMPORT_EXTRACTION_EMPTY');
       if (stage === 'canonicalized') {
@@ -210,10 +213,21 @@ export async function runCanonicalImportThroughDurableRunner(
       if (stage === 'validated') {
         for (const row of input.rows) if (row.rowNumber < 1) throw new Error(`IMPORT_VALIDATION_INVALID_ROW_NUMBER:${row.rowNumber}`);
       }
-      if (stage === 'analyzed' && !currentRows.length) throw new Error('IMPORT_ANALYSIS_EMPTY');
-      if (stage === 'decisioned' && !input.rows.length) throw new Error('IMPORT_DECISION_EMPTY');
+      if (stage === 'analyzed') {
+        if (!currentRows.length) throw new Error('IMPORT_ANALYSIS_EMPTY');
+        const businessKeys = currentRows.map(row => row.key);
+        const uniqueBusinessKeys = new Set(businessKeys).size;
+        if (uniqueBusinessKeys !== businessKeys.length) throw new Error('IMPORT_ANALYSIS_BUSINESS_KEY_COLLISION');
+        return { evidenceKeys: [`analysis:entity=${input.entityType}:rows=${currentRows.length}:uniqueKeys=${uniqueBusinessKeys}:source=${input.sourceHash}`] };
+      }
+      if (stage === 'decisioned') {
+        const analysisRows = currentRows.length;
+        const decisionEligible = analysisRows === input.rows.length && input.qualityScore >= 50;
+        if (!decisionEligible) throw new Error('IMPORT_DECISION_NOT_ELIGIBLE');
+        return { evidenceKeys: [`decision:commit_eligible=true:rows=${analysisRows}:quality=${input.qualityScore}:source=${input.sourceHash}`] };
+      }
       if (stage === 'committed') await commitImportBatch(input.entityType, input.rows, input.sourceHash, { client: activeDataClient, companyId });
-    },
+    },,
   }, store);
 
   return { ...result, jobId: job.id, importId: input.importId };
