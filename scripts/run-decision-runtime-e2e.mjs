@@ -1,10 +1,43 @@
 import { createClient } from '@supabase/supabase-js';
 
-const required = ['SUPABASE_URL','SUPABASE_ANON_KEY','TEST_USER_A_EMAIL','TEST_USER_A_PASSWORD','TEST_APPROVER_EMAIL','TEST_APPROVER_PASSWORD','TEST_USER_B_EMAIL','TEST_USER_B_PASSWORD','TEST_EVIDENCE_SNAPSHOT_ID'];
+const required = ['SUPABASE_URL','SUPABASE_ANON_KEY','TEST_USER_A_EMAIL','TEST_USER_A_PASSWORD','TEST_APPROVER_EMAIL','TEST_APPROVER_PASSWORD','TEST_USER_B_EMAIL','TEST_USER_B_PASSWORD'];
 for (const name of required) if (!process.env[name]) throw new Error(`MISSING_ENV:${name}`);
 
 const client = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY, { auth: { persistSession: false } });
 const randomKey = `owner-e2e-${Date.now()}`;
+
+async function resolveFreshEvidenceSnapshotId() {
+  const configured = evidenceSnapshotId?.trim();
+  const { data: companyId, error: companyError } = await client.rpc('current_company_id');
+  if (companyError || !companyId) throw companyError ?? new Error('TENANT_CONTEXT_REQUIRED');
+
+  const { data: rows, error } = await client
+    .from('kpi_evidence_snapshots')
+    .select('id,company_id,kpi_key,observed_at,source_evidence')
+    .eq('company_id', companyId)
+    .eq('kpi_key', 'dashboard.total_sales')
+    .order('observed_at', { ascending: false })
+    .limit(5);
+  if (error) throw error;
+
+  const cutoff = Date.now() - 15 * 60 * 1000;
+  const fresh = (rows ?? []).find((row) => {
+    const observed = Date.parse(String(row.observed_at ?? ''));
+    return row.company_id === companyId
+      && row.kpi_key === 'dashboard.total_sales'
+      && Number.isFinite(observed)
+      && observed >= cutoff
+      && row.source_evidence?.source_rpc === 'get_dashboard_snapshot';
+  });
+  if (!fresh?.id) {
+    if (configured) return configured;
+    throw new Error('FRESH_EVIDENCE_SNAPSHOT_NOT_FOUND');
+  }
+  if (configured && configured !== String(fresh.id)) {
+    throw new Error('EVIDENCE_SNAPSHOT_ID_CONFLICT');
+  }
+  return String(fresh.id);
+}
 
 async function signIn(email, password) {
   const { data, error } = await client.auth.signInWithPassword({ email, password });
@@ -17,6 +50,7 @@ async function expectFailure(label, fn) {
 }
 
 const userA = await signIn(process.env.TEST_USER_A_EMAIL, process.env.TEST_USER_A_PASSWORD);
+const evidenceSnapshotId = await resolveFreshEvidenceSnapshotId();
 const { data: decision, error: decisionError } = await client.rpc('create_runtime_decision', {
   p_decision_key: randomKey,
   p_decision_type: 'runtime_e2e',
@@ -25,7 +59,7 @@ const { data: decision, error: decisionError } = await client.rpc('create_runtim
   p_evidence: {
     source: 'runtime-e2e',
     corpus: randomKey,
-    evidence_snapshot_id: process.env.TEST_EVIDENCE_SNAPSHOT_ID,
+    evidence_snapshot_id: evidenceSnapshotId,
   },
 });
 if (decisionError) throw decisionError;
@@ -63,7 +97,7 @@ await expectFailure('cross-tenant evidence on action receipt', async () => clien
   p_work_item_id: crypto.randomUUID(),
   p_idempotency_key: `cross-tenant-${randomKey}`,
   p_decision_fingerprint: randomKey,
-  p_evidence_snapshot_id: process.env.TEST_EVIDENCE_SNAPSHOT_ID,
+  p_evidence_snapshot_id: evidenceSnapshotId,
 }).then(({ error }) => { if (error) throw error; }));
 
 await signIn(process.env.TEST_USER_A_EMAIL, process.env.TEST_USER_A_PASSWORD);
@@ -95,14 +129,14 @@ await expectFailure('mutated decision proof rejected', async () => client.rpc('c
   p_work_item_id: workItem,
   p_idempotency_key: `mutated-${randomKey}`,
   p_decision_fingerprint: `forged-${randomKey}`,
-  p_evidence_snapshot_id: process.env.TEST_EVIDENCE_SNAPSHOT_ID,
+  p_evidence_snapshot_id: evidenceSnapshotId,
 }).then(({ error }) => { if (error) throw error; }));
 
 const { data: actionReceipt, error: actionReceiptError } = await client.rpc('create_decision_action_receipt', {
   p_work_item_id: workItem,
   p_idempotency_key: `valid-action-${randomKey}`,
   p_decision_fingerprint: randomKey,
-  p_evidence_snapshot_id: process.env.TEST_EVIDENCE_SNAPSHOT_ID,
+  p_evidence_snapshot_id: evidenceSnapshotId,
 });
 if (actionReceiptError || !actionReceipt) throw actionReceiptError ?? new Error('VALID_ACTION_RECEIPT_MISSING');
 
@@ -113,14 +147,14 @@ await expectFailure('fake evidence snapshot rejected', async () => client.rpc('c
 }).then(({ error }) => { if (error) throw error; }));
 
 await expectFailure('outcome without valid work item', async () => client.rpc('complete_decision_work_item', {
-  p_work_item_id: crypto.randomUUID(), p_actual_impact: 100, p_evidence: { evidence_snapshot_id: process.env.TEST_EVIDENCE_SNAPSHOT_ID },
+  p_work_item_id: crypto.randomUUID(), p_actual_impact: 100, p_evidence: { evidence_snapshot_id: evidenceSnapshotId },
 }).then(({ error }) => { if (error) throw error; }));
 
 await expectFailure('missing outcome evidence', async () => client.rpc('complete_decision_work_item', {
   p_work_item_id: workItem, p_actual_impact: 90, p_evidence: {},
 }).then(({ error }) => { if (error) throw error; }));
 
-const forged = { evidence_snapshot_id: process.env.TEST_EVIDENCE_SNAPSHOT_ID, work_item_id: 'forged-by-caller', outcome_delta: 999, source: 'synthetic' };
+const forged = { evidence_snapshot_id: evidenceSnapshotId, work_item_id: 'forged-by-caller', outcome_delta: 999, source: 'synthetic' };
 const { error: completeError } = await client.rpc('complete_decision_work_item', {
   p_work_item_id: workItem,
   p_actual_impact: 90,
@@ -135,7 +169,7 @@ await expectFailure('duplicate completion', async () => client.rpc('complete_dec
 const { data: outcome, error: outcomeError } = await client.from('recommendation_outcomes')
   .select('evidence,actual_impact,status').eq('decision_id', decision).single();
 if (outcomeError) throw outcomeError;
-if (outcome.actual_impact !== 90 || outcome.evidence.work_item_id !== workItem || outcome.evidence.outcome_delta !== -10 || outcome.evidence.evidence_snapshot_id !== process.env.TEST_EVIDENCE_SNAPSHOT_ID) {
+if (outcome.actual_impact !== 90 || outcome.evidence.work_item_id !== workItem || outcome.evidence.outcome_delta !== -10 || outcome.evidence.evidence_snapshot_id !== evidenceSnapshotId) {
   throw new Error('GENERATED_PROVENANCE_ASSERTION_FAILED');
 }
 
@@ -147,7 +181,7 @@ if (finalDecision.status !== 'EXECUTED') throw new Error(`DECISION_NOT_EXECUTED:
 // Runtime latest-state projection proof: one tenant/key must retain only the newest outcome.
 // The same authenticated decision/evidence path is used for positive -> negative -> insufficient.
 const outcomeKey = randomKey;
-const outcomeEvidence = { evidence_snapshot_id: process.env.TEST_EVIDENCE_SNAPSHOT_ID, source: 'runtime-outcome-transition' };
+const outcomeEvidence = { evidence_snapshot_id: evidenceSnapshotId, source: 'runtime-outcome-transition' };
 const observedPositive = new Date(Date.now() + 1000).toISOString();
 const observedNegative = new Date(Date.now() + 2000).toISOString();
 const observedInsufficient = new Date(Date.now() + 3000).toISOString();
@@ -184,7 +218,7 @@ if (latestOutcome.status !== 'insufficient') throw new Error(`LATEST_OUTCOME_STA
 if (latestOutcome.expected_impact !== null || latestOutcome.actual_impact !== null || latestOutcome.outcome_quality !== null) {
   throw new Error('LATEST_INSUFFICIENT_OUTCOME_CARRIED_STALE_VALUES');
 }
-if (latestOutcome.decision_id !== decision || latestOutcome.evidence?.evidence_snapshot_id !== process.env.TEST_EVIDENCE_SNAPSHOT_ID) {
+if (latestOutcome.decision_id !== decision || latestOutcome.evidence?.evidence_snapshot_id !== evidenceSnapshotId) {
   throw new Error('LATEST_OUTCOME_PROVENANCE_MISMATCH');
 }
 if (latestOutcome.id !== transitionIdExpected || latestOutcome.observed_at !== observedInsufficient) {
