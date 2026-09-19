@@ -111,6 +111,16 @@ jobs:
           fi
           mkdir -p artifacts/import-provenance
           node --experimental-strip-types --experimental-loader ./scripts/node-ts-extension-loader.mjs scripts/import-provenance-adversarial-e2e.mjs | tee artifacts/import-provenance/result.json
+      - name: Run watched-report state-machine runtime E2E
+        env:
+          REPORT_ADVISOR_SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
+          REPORT_ADVISOR_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
+          REPORT_ADVISOR_SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_SERVICE_ROLE_KEY }}
+          TEST_USER_A_EMAIL: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_EMAIL }}
+          TEST_USER_A_PASSWORD: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_PASSWORD }}
+          TEST_USER_B_EMAIL: ${{ secrets.REPORT_ADVISOR_E2E_USER_B_EMAIL }}
+          TEST_USER_B_PASSWORD: ${{ secrets.REPORT_ADVISOR_E2E_USER_B_PASSWORD }}
+        run: node scripts/watched-report-runtime-e2e.mjs
       - name: Run decision evidence authenticated runtime E2E
         env:
           SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
