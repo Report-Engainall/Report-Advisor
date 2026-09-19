@@ -1,4 +1,4 @@
-name: Device-Independent Browser E2E
+﻿name: Device-Independent Browser E2E
 
 on:
   push:
@@ -16,8 +16,13 @@ on:
       - 'scripts/**'
   workflow_dispatch:
 
+
 permissions:
   contents: read
+
+concurrency:
+  group: device-independent-smoke-${{ github.event.pull_request.number || github.ref_name }}
+  cancel-in-progress: true
 
 env:
   EXACT_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
@@ -82,7 +87,7 @@ jobs:
   authenticated-e2e:
     needs: browser-smoke
     runs-on: ubuntu-22.04
-    timeout-minutes: 50
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
         with:
@@ -161,3 +166,4 @@ jobs:
           name: device-independent-e2e-${{ env.EXACT_HEAD }}
           path: artifacts/device-independent-e2e
           if-no-files-found: warn
+

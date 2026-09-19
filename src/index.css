@@ -1,57 +1,87 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-@layer base {
-  * { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
-  html { background: #f4f7f4; }
-  body {
-    margin: 0;
-    font-family: 'IBM Plex Sans Arabic', 'Inter', system-ui, sans-serif;
-    background:
-      radial-gradient(circle at 12% 0%, rgb(15 118 110 / .08), transparent 28rem),
-      radial-gradient(circle at 90% 12%, rgb(180 83 9 / .06), transparent 24rem),
-      #f4f7f4;
-    color: #17211c;
-    direction: rtl;
-  }
-  button, input, textarea, select { font: inherit; }
-  ::selection { background: rgb(15 118 110 / .16); color: #134e4a; }
-  ::-webkit-scrollbar { width: 8px; height: 8px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: #cbd5cf; border-radius: 999px; }
-  ::-webkit-scrollbar-thumb:hover { background: #9aa9a0; }
+@layer base{
+*{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+html{background:#f7f7f8}
+body{margin:0;font-family:'IBM Plex Sans Arabic','Inter',system-ui,sans-serif;background:#f7f7f8;color:#18181b;direction:rtl}
+button,input,textarea,select{font:inherit}
+::selection{background:rgb(37 99 235 / .14);color:#1e3a8a}
+::-webkit-scrollbar{width:7px;height:7px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#d4d4d8;border-radius:999px}
+::-webkit-scrollbar-thumb:hover{background:#a1a1aa}
 }
-
+@layer components{
+.card{@apply rounded-[12px] border border-ink-200 bg-white shadow-card}
+.card-hover{@apply transition-[border-color,box-shadow,transform] duration-150 hover:-translate-y-px hover:border-ink-300 hover:shadow-card-hover}
+.card > .card-body-divider{@apply border-t border-ink-100}
+.card-subtle{@apply rounded-[10px] border border-ink-100 bg-ink-50/60}
+.btn{@apply inline-flex items-center justify-center gap-2 rounded-[9px] px-3.5 py-2.5 text-sm font-semibold transition-[background-color,border-color,color,box-shadow] duration-150 disabled:cursor-not-allowed disabled:opacity-50}
+.btn-primary{@apply btn bg-primary-700 text-white shadow-sm hover:bg-primary-800 active:bg-primary-900}
+.btn-secondary{@apply btn border border-ink-200 bg-white text-ink-700 hover:border-ink-300 hover:bg-ink-50 hover:text-ink-900}
+.btn-ghost{@apply btn text-ink-600 hover:bg-ink-100 hover:text-ink-950}
+.input{@apply w-full rounded-[9px] border border-ink-200 bg-white px-3.5 py-2.5 text-sm text-ink-900 outline-none transition-[border-color,box-shadow] focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10}
+.badge{@apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold}
+.badge-primary{@apply badge bg-primary-50 text-primary-800 ring-1 ring-inset ring-primary-100}
+.badge-success{@apply badge bg-success-50 text-success-700 ring-1 ring-inset ring-success-100}
+.badge-warning{@apply badge bg-warning-50 text-warning-800 ring-1 ring-inset ring-warning-100}
+.badge-danger{@apply badge bg-danger-50 text-danger-700 ring-1 ring-inset ring-danger-100}
+.badge-neutral{@apply badge bg-ink-100 text-ink-600 ring-1 ring-inset ring-ink-200}
+.nav-item{@apply flex items-center gap-2.5 rounded-[8px] px-2.5 py-2 text-[13px] font-semibold transition-[background-color,color] duration-150}
+.nav-item-active{@apply bg-primary-50 text-primary-800}
+.nav-item-inactive{@apply text-ink-600 hover:bg-ink-100 hover:text-ink-950}
+.shell-surface{@apply rounded-[12px] border border-ink-200 bg-white}
+.metric-value{@apply tabular-nums text-[1.45rem] font-black tracking-tight text-ink-950}
+.command-strip{@apply border-b border-ink-200 bg-white}
+.section-kicker{@apply text-[10px] font-black tracking-[0.14em] text-ink-400}
+[aria-label="مراحل الاستيراد"]{display:grid;grid-template-columns:repeat(9,minmax(0,1fr));align-items:start;gap:0;margin-bottom:.75rem;padding:.15rem 0 .55rem}
+[aria-label="مراحل الاستيراد"]>div{position:relative;min-width:0;border:0!important;border-radius:0!important;background:transparent!important;color:#a1a1aa!important;padding:.1rem .2rem .3rem!important;box-shadow:none!important}
+[aria-label="مراحل الاستيراد"]>div::before{content:"";position:absolute;top:.72rem;left:0;right:0;height:1px;background:#e4e4e7;z-index:0}
+[aria-label="مراحل الاستيراد"]>div:first-child::before{right:50%}
+[aria-label="مراحل الاستيراد"]>div:last-child::before{left:50%}
+[aria-label="مراحل الاستيراد"]>div>div:first-child{position:relative;z-index:1;margin:0 auto .35rem;display:flex;height:1.55rem;width:1.55rem;align-items:center;justify-content:center;border-radius:999px;border:1px solid #d4d4d8;background:#fff;color:#71717a;font-size:.62rem;font-weight:800}
+[aria-label="مراحل الاستيراد"]>div>div:last-child{position:relative;z-index:1;font-size:.64rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media(max-width:860px){[aria-label="مراحل الاستيراد"]{display:flex;overflow-x:auto}[aria-label="مراحل الاستيراد"]>div{flex:0 0 6.25rem}}
+}
+@layer utilities{.text-balance{text-wrap:balance}.tabular-nums{font-variant-numeric:tabular-nums}.gradient-text{color:#1d4ed8;background:none}.soft-grid{background-image:none}}
+@layer base{@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}} :focus-visible{outline:2px solid rgb(37 99 235 / .55);outline-offset:2px}}
 @layer components {
-  .card { @apply rounded-[1.35rem] border border-ink-200/70 bg-white shadow-card; }
-  .card-hover { @apply transition-all duration-200 hover:-translate-y-0.5 hover:border-primary-200 hover:shadow-card-hover; }
-  .btn { @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all duration-150 disabled:cursor-not-allowed disabled:opacity-50; }
-  .btn-primary { @apply btn bg-primary-700 text-white shadow-sm hover:bg-primary-800 active:bg-primary-900; }
-  .btn-secondary { @apply btn border border-ink-200 bg-white text-ink-700 hover:border-primary-200 hover:bg-primary-50/70 hover:text-primary-800; }
-  .btn-ghost { @apply btn text-ink-600 hover:bg-ink-100 hover:text-ink-900; }
-  .input { @apply w-full rounded-xl border border-ink-200 bg-white px-3.5 py-2.5 text-sm text-ink-900 shadow-sm outline-none transition focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10; }
-  .badge { @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold; }
-  .badge-primary { @apply badge bg-primary-50 text-primary-800 ring-1 ring-inset ring-primary-100; }
-  .badge-success { @apply badge bg-success-50 text-success-700 ring-1 ring-inset ring-success-100; }
-  .badge-warning { @apply badge bg-warning-50 text-warning-800 ring-1 ring-inset ring-warning-100; }
-  .badge-danger { @apply badge bg-danger-50 text-danger-700 ring-1 ring-inset ring-danger-100; }
-  .badge-neutral { @apply badge bg-ink-100 text-ink-600 ring-1 ring-inset ring-ink-200; }
-  .nav-item { @apply flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition-all duration-150; }
-  .nav-item-active { @apply bg-primary-500/10 text-primary-200 ring-1 ring-inset ring-primary-400/20; }
-  .nav-item-inactive { @apply text-slate-300 hover:bg-white/5 hover:text-white; }
-  .shell-surface { @apply rounded-[1.6rem] border border-ink-200/70 bg-white shadow-card; }
-  .metric-value { @apply tabular-nums text-[1.65rem] font-black tracking-tight text-ink-950; }
+  .report-page{color:#18181b}
+  .print-hide{}
+  .page-surface{@apply rounded-[12px] border border-ink-200 bg-white}
+  .hero-surface{@apply rounded-[14px] border border-ink-200 bg-white shadow-card}
+  .hero-surface-soft{@apply rounded-[14px] border border-primary-100 bg-primary-50/45}
+  .filter-toolbar{@apply flex flex-wrap items-center gap-2 rounded-[10px] border border-ink-200 bg-ink-50/70 p-1.5}
+  .filter-chip{@apply inline-flex items-center justify-center rounded-[7px] px-3 py-1.5 text-[11px] font-bold text-ink-600 transition-colors}
+  .filter-chip-active{@apply bg-white text-ink-950 shadow-sm ring-1 ring-ink-200}
+  .icon-button{@apply inline-flex h-9 w-9 items-center justify-center rounded-[8px] border border-ink-200 bg-white text-ink-500 transition-colors hover:border-ink-300 hover:bg-ink-50 hover:text-ink-950}
+  .report-meta{@apply flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-ink-100 pt-3 text-[10px] font-semibold text-ink-400}
+  .report-meta > span{@apply inline-flex items-center gap-1.5}
+  .insight-callout{@apply rounded-[10px] border border-primary-100 bg-primary-50/55 p-4}
+  .warning-callout{@apply rounded-[10px] border border-warning-200 bg-warning-50/65 p-4}
+  .danger-callout{@apply rounded-[10px] border border-danger-200 bg-danger-50/65 p-4}
+  .data-table-shell{@apply border border-ink-200 bg-white}
+  .data-table-shell:focus-within{@apply ring-4 ring-primary-500/10}
+  .stage-pill{@apply rounded-[8px] border border-ink-200 bg-white px-3 py-2 text-right transition-colors}
+  .stage-pill-active{@apply border-primary-300 bg-primary-50 text-primary-900 shadow-sm}
+  .quiet-divider{@apply h-px bg-ink-100}
+  .page-grid{@apply grid gap-4}
+  .surface-label{@apply text-[10px] font-black tracking-[0.12em] text-ink-400}
+  .display-number{@apply tabular-nums text-[1.7rem] font-black tracking-[-0.03em] text-ink-950}
+  .muted-value{@apply text-ink-400}
+  .status-line{@apply inline-flex items-center gap-1.5 text-[11px] font-semibold}
+  .status-dot{@apply h-1.5 w-1.5 rounded-full bg-current}
 }
-
-@layer utilities {
-  .text-balance { text-wrap: balance; }
-  .tabular-nums { font-variant-numeric: tabular-nums; }
-  .gradient-text { @apply bg-clip-text text-transparent bg-gradient-to-r from-primary-700 via-primary-600 to-accent-600; }
-  .soft-grid {
-    background-image:
-      linear-gradient(rgb(148 163 184 / .09) 1px, transparent 1px),
-      linear-gradient(90deg, rgb(148 163 184 / .09) 1px, transparent 1px);
-    background-size: 28px 28px;
-  }
+@media print{
+  @page{size:A4;margin:12mm}
+  html,body{background:#fff!important}
+  body{print-color-adjust:exact;-webkit-print-color-adjust:exact}
+  .app-chrome,.print-hide{display:none!important}
+  .report-page{width:100%!important;max-width:none!important;padding:0!important;margin:0!important}
+  .report-page .card,.report-page section,.report-page header{box-shadow:none!important;break-inside:avoid}
+  .report-page h1,.report-page h2,.report-page h3{break-after:avoid}
+  .report-page a{color:inherit!important;text-decoration:none!important}
+  .report-page .print-break-before{break-before:page}
 }
+@media(max-width:640px){input,textarea,select{font-size:16px!important}}

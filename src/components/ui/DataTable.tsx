@@ -23,18 +23,18 @@ export function DataTable<T extends object>({ columns, data, loading, emptyMessa
   if (!data || data.length === 0) return <div className="p-12 text-center text-xs font-semibold text-ink-400">{emptyMessage}</div>;
 
   return (
-    <div className="overflow-x-auto rounded-b-[1.35rem]">
-      <table className="w-full min-w-[720px]">
+    <div className="data-table-shell overflow-auto rounded-[10px]">
+      <table className="w-full min-w-[760px] border-separate border-spacing-0">
         <thead>
-          <tr className="border-b border-ink-100 bg-[#f7faf7]">
-            {columns.map(col => <th key={col.key} className={'px-4 py-3 text-[10px] font-black tracking-wide text-ink-500 ' + (col.align === 'center' ? 'text-center' : col.align === 'left' ? 'text-left' : 'text-right')} style={{ width: col.width }}>{col.label}</th>)}
+          <tr>
+            {columns.map(col => <th key={col.key} className={'sticky top-0 z-10 border-b border-ink-200 bg-ink-50/95 px-4 py-2.5 text-[10px] font-black tracking-wide text-ink-500 backdrop-blur ' + (col.align === 'center' ? 'text-center' : col.align === 'left' ? 'text-left' : 'text-right')} style={{ width: col.width }}>{col.label}</th>)}
           </tr>
         </thead>
         <tbody>
           {data.map((row, index) => {
             const record = row as Record<string, unknown>;
-            return <tr key={typeof record.id === 'string' || typeof record.id === 'number' ? String(record.id) : index} onClick={() => onRowClick?.(row)} className={'border-b border-ink-100/80 transition ' + (onRowClick ? 'cursor-pointer hover:bg-primary-50/35' : '')}>
-              {columns.map(col => <td key={col.key} className={'px-4 py-3 text-xs font-medium text-ink-700 ' + (col.align === 'center' ? 'text-center' : col.align === 'left' ? 'text-left' : 'text-right') + ' ' + (col.className ?? '')}>{col.render ? col.render(row) : record[col.key] as ReactNode}</td>)}
+            return <tr key={typeof record.id === 'string' || typeof record.id === 'number' ? String(record.id) : index} onClick={() => onRowClick?.(row)} className={'group border-b border-ink-100/90 bg-white transition-colors last:border-b-0 ' + (onRowClick ? 'cursor-pointer hover:bg-primary-50/45 focus-within:bg-primary-50/45' : 'hover:bg-ink-50/55')}>
+              {columns.map(col => <td key={col.key} className={'border-b border-ink-100/80 px-4 py-3 text-xs font-medium text-ink-700 group-last:border-b-0 ' + (col.align === 'center' ? 'text-center' : col.align === 'left' ? 'text-left' : 'text-right') + ' ' + (col.className ?? '')}>{col.render ? col.render(row) : record[col.key] as ReactNode}</td>)}
             </tr>;
           })}
         </tbody>

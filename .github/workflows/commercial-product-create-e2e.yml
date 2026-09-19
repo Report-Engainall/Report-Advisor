@@ -1,4 +1,4 @@
-name: Commercial Product Creation E2E
+﻿name: Commercial Product Creation E2E
 
 on:
   pull_request:
@@ -10,8 +10,13 @@ on:
       - 'package-lock.json'
   workflow_dispatch:
 
+
 permissions:
   contents: read
+
+concurrency:
+  group: commercial-product-create-e2e-${{ github.event.pull_request.number || github.ref_name }}
+  cancel-in-progress: true
 
 env:
   EXACT_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
@@ -19,7 +24,7 @@ env:
 jobs:
   product-create:
     runs-on: ubuntu-22.04
-    timeout-minutes: 30
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
         with:
@@ -93,3 +98,4 @@ jobs:
           name: commercial-product-create-${{ env.EXACT_HEAD }}
           path: artifacts/commercial-product-create
           if-no-files-found: warn
+

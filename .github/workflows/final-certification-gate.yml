@@ -37,15 +37,29 @@ jobs:
         run: CERTIFICATION_SHA="${CERTIFICATION_SHA}" node scripts/build-release-manifest.mjs
       - name: Verify certification boundary integrity
         run: node scripts/check-certification-boundary-integrity.mjs
+      - name: Verify governed HEAD identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          branch="${GITHUB_HEAD_REF:-${GITHUB_REF_NAME}}"
+          base="$(git merge-base HEAD origin/main)"
+          node scripts/check-head-identity.mjs \
+            --branch "$branch" \
+            --sha "${CERTIFICATION_SHA}" \
+            --role "Owner 2 Operations/Runtime/Release Engineering" \
+            --base "$base" \
+            --candidate YES
       - name: Run certification contract tests
         shell: bash
         run: |
           set -euo pipefail
           for f in scripts/check-*.mjs; do
-            if [ "$(basename "$f")" = "check-live-production-evidence-boundary.mjs" ]; then
-              echo "Deferring $f to release-certification workflow where its required run/artifact identities are produced."
-              continue
-            fi
+            case "$(basename "$f")" in
+              check-live-production-evidence-boundary.mjs|check-head-identity.mjs)
+                echo "Deferring $f to its governed invocation."
+                continue
+                ;;
+            esac
             echo "Running $f"
             node "$f"
           done

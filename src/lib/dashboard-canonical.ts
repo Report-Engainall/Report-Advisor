@@ -18,10 +18,10 @@ export interface InventoryReportSnapshot {rows:InventoryReportRow[];page:number;
 export interface RFMSnapshotRow {customer_id:string;customer_name:string;recency:number;frequency:number;monetary:number;r_score:number;f_score:number;m_score:number;rfm_segment:string;}
 export interface RFMSnapshot {rows:RFMSnapshotRow[];asOf:string;unknownRows:number|null;status:'INSUFFICIENT_DATA'|'CALCULATED';}
 export interface ABCSnapshotRow {product_id:string;product_name:string;revenue:number;cumulative:number;cumulative_pct:number|null;class:'A'|'B'|'C'|null;}
-export interface ABCSnapshot {rows:ABCSnapshotRow[];totalRevenue:number|null;unknownRows:number|null;status:'INSUFFICIENT_DATA'|'CALCULATED';}
+export interface ABCSnapshot {rows:ABCSnapshotRow[];totalRevenue:number|null;unknownRows:number|null;status:'INSUFFICIENT_DATA'|'CALCULATED';asOf:string;}
 export interface AgingSnapshotRow {name:string;amount:number;count:number;}
 export interface AgingSnapshot {rows:AgingSnapshotRow[];asOf:string;unknownRows:number|null;status:'NO_DATA'|'INSUFFICIENT_DATA'|'CALCULATED';}
-interface Snapshot { kpis:DashboardKPIs; trend:MonthlyTrend[]; topCustomers:TopEntity[]; topProducts:TopEntity[]; categories:CategoryBreakdown[]; aging:AgingDashboard; }
+interface Snapshot { kpis:DashboardKPIs; trend:MonthlyTrend[]; topCustomers:TopEntity[]; topProducts:TopEntity[]; categories:CategoryBreakdown[]; aging:AgingDashboard; asOf:string; months:number; }
 function finiteOrNull(value: unknown): number|null { return typeof value === 'number' && Number.isFinite(value) ? value : null; }
 function requiredArray<T>(value: unknown): T[] { return Array.isArray(value) ? value as T[] : []; }
 function asOfDate(): string { return new Date().toISOString().slice(0, 10); }
@@ -70,6 +70,8 @@ export async function fetchDashboardSnapshot(months = 6): Promise<Snapshot> {
     topCustomers: requiredArray<TopEntity>(row.topCustomers).slice(0,10),
     topProducts: requiredArray<TopEntity>(row.topProducts).slice(0,10),
     categories: requiredArray<CategoryBreakdown>(row.categories),
+    asOf: typeof row.asOf === 'string' ? row.asOf : 'غير متاح',
+    months: typeof row.months === 'number' && Number.isInteger(row.months) ? row.months : months,
     aging:{
       rows:requiredArray<AgingBucket>(agingRow.rows),
       totalAmount:finiteOrNull(agingRow.totalAmount),
@@ -115,7 +117,7 @@ export async function fetchABCSnapshot(limit = 500): Promise<ABCSnapshot> {
   if (!Number.isInteger(limit) || limit < 1 || limit > 500) throw new Error('REPORT_QUERY_INVALID_LIMIT');
   const { data, error } = await supabase.rpc('get_abc_snapshot', { p_limit: limit });
   if (error) throw error; if (!data || typeof data !== 'object') throw new Error('REPORT_DATA_UNAVAILABLE: ABC snapshot missing');
-  const row = data as Record<string, unknown>; return { rows: requiredArray<ABCSnapshotRow>(row.rows), totalRevenue: finiteOrNull(row.totalRevenue), unknownRows: finiteOrNull(row.unknownRows), status: row.status === 'CALCULATED' ? 'CALCULATED' : 'INSUFFICIENT_DATA' };
+  const row = data as Record<string, unknown>; return { rows: requiredArray<ABCSnapshotRow>(row.rows), totalRevenue: finiteOrNull(row.totalRevenue), unknownRows: finiteOrNull(row.unknownRows), status: row.status === 'CALCULATED' ? 'CALCULATED' : 'INSUFFICIENT_DATA', asOf: typeof row.asOf === 'string' ? row.asOf : 'غير متاح' };
 }
 export async function fetchAgingSnapshot(): Promise<AgingSnapshot> {
   const { data, error } = await supabase.rpc('get_aging_snapshot', { p_as_of: asOfDate() });

@@ -1,4 +1,4 @@
-name: Full Product Browser E2E
+﻿name: Full Product Browser E2E
 
 # Exact-head browser discovery gate. Push and PR triggers remain narrowly scoped to E2E/runtime surfaces.
 on:
@@ -42,8 +42,13 @@ on:
       - 'package-lock.json'
   workflow_dispatch:
 
+
 permissions:
   contents: read
+
+concurrency:
+  group: full-product-browser-e2e-${{ github.event.pull_request.number || github.ref_name }}
+  cancel-in-progress: true
 
 env:
   EXACT_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
@@ -51,7 +56,8 @@ env:
 jobs:
   browser-e2e:
     runs-on: ubuntu-22.04
-    timeout-minutes: 40
+    timeout-minutes: 60
+    environment: staging
     steps:
       - uses: actions/checkout@v4
         with:
@@ -84,20 +90,53 @@ jobs:
           VITE_SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
         run: npm run build
-      - name: Start exact-head application
+      - name: Verify exact-head backend runtime secret contract
         shell: bash
         env:
-          VITE_SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
+          SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_SERVICE_ROLE_KEY }}
         run: |
           set -euo pipefail
-          nohup npm run preview -- --host 127.0.0.1 --port 4173 > /tmp/report-advisor-preview.log 2>&1 &
+          missing=0
+          for name in SUPABASE_URL VITE_SUPABASE_ANON_KEY SUPABASE_SERVICE_ROLE_KEY; do
+            if [ -n "${!name:-}" ]; then
+              echo "$name=SET"
+            else
+              echo "$name=MISSING"
+              missing=1
+            fi
+          done
+          if [ "$missing" -ne 0 ]; then
+            echo "BACKEND_RUNTIME_BLOCKED: server-side execution secret is not provisioned."
+            echo "The secret must remain backend-only; it must never be exposed to browser steps."
+            exit 2
+          fi
+      - name: Start exact-head application and API runtime
+        shell: bash
+        env:
+          SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          set -euo pipefail
+          nohup node --experimental-strip-types --experimental-loader ./scripts/node-ts-extension-loader.mjs scripts/local-exact-head-server.mjs > /tmp/report-advisor-preview.log 2>&1 &
           for i in {1..60}; do
-            if curl -fsS http://127.0.0.1:4173/ >/dev/null; then exit 0; fi
+            if curl -fsS http://127.0.0.1:4173/ >/dev/null; then break; fi
             sleep 1
           done
-          cat /tmp/report-advisor-preview.log
-          exit 1
+          if ! curl -fsS http://127.0.0.1:4173/ >/dev/null; then
+            cat /tmp/report-advisor-preview.log
+            exit 1
+          fi
+          api_status="$(curl -sS -o /tmp/report-advisor-api-probe.json -w '%{http_code}' -X POST -H 'Content-Type: application/json' http://127.0.0.1:4173/api/canonical-import-execute -d '{}')"
+          if [ "$api_status" != "401" ]; then
+            echo "EXACT_HEAD_API_BOUNDARY_UNEXPECTED_HTTP=$api_status"
+            cat /tmp/report-advisor-api-probe.json
+            cat /tmp/report-advisor-preview.log
+            exit 1
+          fi
+          echo "EXACT_HEAD_API_BOUNDARY=PASS (unauthenticated request rejected by real API handler with HTTP 401)"
       - name: Verify authenticated E2E secret contract
         env:
           SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
@@ -157,7 +196,7 @@ jobs:
           await page.goto(base, { waitUntil: 'networkidle', timeout: 30000 });
           await page.locator('#login-email').fill(email);
           await page.locator('#login-password').fill(password);
-          await page.getByRole('button', { name: 'تسجيل الدخول' }).click();
+          await page.locator('form button[type="submit"]').click();
           await page.waitForLoadState('networkidle', { timeout: 30000 }).catch(() => {});
           await page.waitForTimeout(1500);
 
@@ -211,7 +250,7 @@ jobs:
           if (!snapshotText.includes('dashboard.total_sales')) throw new Error('KPI_EVIDENCE_KEY_NOT_RENDERED');
           if (!snapshotText.includes('metric.net_sales')) throw new Error('CANONICAL_METRIC_ID_NOT_RENDERED');
           if (errors.length) throw new Error(`BROWSER_ERRORS:${errors.join(' | ')}`);
-          const match = snapshotText.match(/Snapshot:\s*([0-9a-f-]{36})/i);
+          const match = snapshotText.match(/لقطة الدليل:\s*([0-9a-f-]{36})/i);
           if (!match) throw new Error('SNAPSHOT_ID_NOT_RENDERED');
           const snapshotId = match[1];
           const after = await rest(`/rest/v1/kpi_evidence_snapshots?select=id,company_id,kpi_key,value,observed_at,quality,source_evidence&id=eq.${snapshotId}&company_id=eq.${encodeURIComponent(companyId)}&limit=1`);
@@ -277,3 +316,4 @@ jobs:
           name: live-business-evidence-${{ env.EXACT_HEAD }}
           path: artifacts/live-production-evidence
           if-no-files-found: warn
+

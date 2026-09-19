@@ -81,7 +81,7 @@ export default async function handler(req: any, res: any) {
 
     const { data: importJob, error: importJobError } = await dataClient
       .from('import_jobs')
-      .select('id, company_id, status, file_name, entity_type')
+      .select('id, company_id, status, job_type, result_summary')
       .eq('id', input.importId)
       .eq('company_id', companyId)
       .single();
@@ -89,7 +89,23 @@ export default async function handler(req: any, res: any) {
       json(res, 404, { status: 'failed', error: 'import_job_not_found_or_forbidden' });
       return;
     }
-    if (importJob.file_name !== input.fileName || importJob.entity_type !== input.entityType) {
+    const persistedSummary =
+      importJob.result_summary && typeof importJob.result_summary === 'object'
+        ? importJob.result_summary as Record<string, unknown>
+        : {};
+    const persistedEntityType =
+      typeof importJob.job_type === 'string' && importJob.job_type.trim()
+        ? importJob.job_type.trim()
+        : typeof persistedSummary.entity_type === 'string'
+          ? persistedSummary.entity_type.trim()
+          : '';
+    const persistedFileName =
+      typeof persistedSummary.file_name === 'string' ? persistedSummary.file_name.trim() : '';
+    if (persistedEntityType !== input.entityType) {
+      json(res, 409, { status: 'failed', error: 'import_job_source_identity_mismatch' });
+      return;
+    }
+    if (persistedFileName && persistedFileName !== input.fileName) {
       json(res, 409, { status: 'failed', error: 'import_job_source_identity_mismatch' });
       return;
     }

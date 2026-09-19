@@ -140,7 +140,12 @@ export async function runCanonicalImportThroughDurableRunner(
     ],
     p_max_attempts: 3,
   });
-  if (enqueueError) throw enqueueError;
+  if (enqueueError) {
+    const detail = [enqueueError.code, enqueueError.message, enqueueError.details, enqueueError.hint]
+      .filter((value) => typeof value === 'string' && value.trim())
+      .join(':');
+    throw new Error(`REPORT_EXECUTION_JOB_ENQUEUE_FAILED:${detail || 'unknown_error'}`);
+  }
   if (!enqueueData || typeof enqueueData !== 'object') throw new Error('REPORT_EXECUTION_JOB_ENQUEUE_EMPTY');
 
   const job = enqueueData as EnqueuedJob;

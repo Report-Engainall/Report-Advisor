@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { ArrowUpRight, CheckCircle2, FileText, Printer, Target, Wand2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
-import { PageHeader } from '@/components/ui/States';
+import { AghbariMoatPanel } from '@/components/AghbariMoatPanel';
 
 type Capability = {
   id: string;
@@ -13,22 +13,22 @@ type Capability = {
 };
 
 const CAPABILITIES: Capability[] = [
-  { id: 'dashboard', title: 'Command Center & KPI Dashboard', description: 'Executive sales, cash, receivables, customers, products and business health.', path: '/', keywords: ['dashboard', 'kpi', 'executive', 'sales', 'cash', 'receivables', 'business health'] },
-  { id: 'import', title: 'Evidence-First Data Import', description: 'Import, validation, reconciliation and governed persistence.', path: '/import', keywords: ['import', 'excel', 'csv', 'upload', 'validation', 'reconciliation', 'etl'] },
-  { id: 'data-quality', title: 'Data Quality & Review', description: 'Review data gaps, validation issues and blocked records before acceptance.', path: '/data-quality', keywords: ['quality', 'review', 'duplicates', 'validation', 'quarantine'] },
-  { id: 'reports', title: 'Business Reporting', description: 'Sales, inventory, receivables, profitability and executive reporting.', path: '/reports', keywords: ['report', 'reporting', 'sales report', 'inventory report', 'finance'] },
-  { id: 'receivables', title: 'Receivables & Aging', description: 'Outstanding balances, aging buckets and collection-focused views.', path: '/reports/receivables', keywords: ['receivables', 'aging', 'collections', 'ar', 'debtor'] },
-  { id: 'profitability', title: 'Profitability Intelligence', description: 'Canonical sales, cost and gross-profit reporting with evidence context.', path: '/reports/profitability', keywords: ['profitability', 'margin', 'gross profit', 'cost', 'finance'] },
-  { id: 'inventory', title: 'Inventory Intelligence', description: 'Stock position, movement, low-stock and availability analysis.', path: '/reports/inventory-intelligence', keywords: ['inventory', 'stock', 'warehouse', 'availability', 'slow movers'] },
-  { id: 'demand', title: 'Demand & Forecasting', description: 'Demand velocity, forecasts and constrained planning views.', path: '/reports/demand-velocity', keywords: ['demand', 'forecast', 'forecasting', 'planning', 'seasonality'] },
-  { id: 'analytics', title: 'Customer & Portfolio Analytics', description: 'RFM, ABC and aging analysis for segmentation and prioritization.', path: '/analytics', keywords: ['analytics', 'rfm', 'abc', 'segmentation', 'customer value'] },
-  { id: 'intelligence', title: 'Decision Intelligence', description: 'Recommendations, forecasts and evidence-bound decision support.', path: '/intelligence', keywords: ['recommendations', 'decision', 'ai', 'decision intelligence'] },
-  { id: 'scenarios', title: 'Scenarios & What-If Analysis', description: 'Governed scenario views with explicit data/evidence boundaries.', path: '/intelligence/scenarios', keywords: ['scenario', 'what if', 'simulation', 'optimization'] },
-  { id: 'metrics', title: 'Metric Governance & Evidence', description: 'Metric definitions, canonical resolution and evidence lineage.', path: '/metrics', keywords: ['metrics', 'governance', 'evidence', 'provenance', 'definitions'] },
-  { id: 'customers', title: 'Customer Operations', description: 'Tenant-scoped customer search, pagination and creation.', path: '/customers', keywords: ['customers', 'crm', 'client', 'customer management'] },
-  { id: 'products', title: 'Product Operations', description: 'Tenant-scoped products, SKU search and governed creation.', path: '/products', keywords: ['products', 'sku', 'catalog', 'items'] },
-  { id: 'inventory-page', title: 'Operational Inventory', description: 'Operational stock table with availability and reorder states.', path: '/inventory', keywords: ['inventory operations', 'reorder', 'stock table'] },
-  { id: 'decision', title: 'Decision Experience', description: 'Evidence-led decision workflow and governed action surface.', path: '/decision-experience', keywords: ['decision experience', 'actions', 'approvals', 'workflow'] },
+  { id: 'dashboard', title: 'مركز القيادة ولوحة المؤشرات', description: 'المبيعات والسيولة والذمم والعملاء والمنتجات وصحة الأعمال في صورة تنفيذية واحدة.', path: '/', keywords: ['dashboard', 'kpi', 'executive', 'sales', 'cash', 'receivables', 'business health'] },
+  { id: 'import', title: 'استيراد بيانات قائم على الدليل', description: 'استيراد وتحقق ومطابقة وحفظ منضبط عبر المسار المعتمد.', path: '/import', keywords: ['import', 'excel', 'csv', 'upload', 'validation', 'reconciliation', 'etl'] },
+  { id: 'data-quality', title: 'جودة البيانات والمراجعة', description: 'مراجعة فجوات البيانات ومشكلات التحقق والسجلات المحجوبة قبل الاعتماد.', path: '/data-quality', keywords: ['quality', 'review', 'duplicates', 'validation', 'quarantine'] },
+  { id: 'reports', title: 'التقارير التجارية', description: 'تقارير المبيعات والمخزون والذمم والربحية والتقرير التنفيذي.', path: '/reports', keywords: ['report', 'reporting', 'sales report', 'inventory report', 'finance'] },
+  { id: 'receivables', title: 'الذمم والأعمار', description: 'الأرصدة المستحقة وتصنيف الأعمار وواجهات تركز على التحصيل.', path: '/reports/receivables', keywords: ['receivables', 'aging', 'collections', 'ar', 'debtor'] },
+  { id: 'profitability', title: 'ذكاء الربحية', description: 'تقارير المبيعات والتكلفة والربح الإجمالي من المصدر الكانوني مع سياق الدليل.', path: '/reports/profitability', keywords: ['profitability', 'margin', 'gross profit', 'cost', 'finance'] },
+  { id: 'inventory', title: 'ذكاء المخزون', description: 'موقف المخزون والحركة والأصناف منخفضة الرصيد وتحليل الإتاحة.', path: '/reports/inventory-intelligence', keywords: ['inventory', 'stock', 'warehouse', 'availability', 'slow movers'] },
+  { id: 'demand', title: 'الطلب والتنبؤ', description: 'سرعة الطلب والتنبؤات وواجهات التخطيط المقيدة بالبيانات.', path: '/reports/demand-velocity', keywords: ['demand', 'forecast', 'forecasting', 'planning', 'seasonality'] },
+  { id: 'analytics', title: 'تحليلات العملاء والمحفظة', description: 'تحليل RFM وABC والأعمار للتقسيم وتحديد الأولويات.', path: '/analytics', keywords: ['analytics', 'rfm', 'abc', 'segmentation', 'customer value'] },
+  { id: 'intelligence', title: 'ذكاء القرار', description: 'توصيات وتنبؤات ودعم قرار مرتبط بالدليل.', path: '/intelligence', keywords: ['recommendations', 'decision', 'ai', 'decision intelligence'] },
+  { id: 'scenarios', title: 'السيناريوهات وتحليل ماذا لو', description: 'واجهات سيناريو منضبطة مع حدود واضحة للبيانات والدليل.', path: '/intelligence/scenarios', keywords: ['scenario', 'what if', 'simulation', 'optimization'] },
+  { id: 'metrics', title: 'حوكمة المؤشرات والأدلة', description: 'تعريفات المؤشرات والحل الكانوني وسلسلة الدليل.', path: '/metrics', keywords: ['metrics', 'governance', 'evidence', 'provenance', 'definitions'] },
+  { id: 'customers', title: 'تشغيل العملاء', description: 'بحث العملاء وصفحاتهم وإنشاؤهم ضمن نطاق الشركة الحالية.', path: '/customers', keywords: ['customers', 'crm', 'client', 'customer management'] },
+  { id: 'products', title: 'تشغيل المنتجات', description: 'المنتجات والبحث برقم الصنف والإنشاء المنضبط ضمن نطاق الشركة.', path: '/products', keywords: ['products', 'sku', 'catalog', 'items'] },
+  { id: 'inventory-page', title: 'المخزون التشغيلي', description: 'جدول المخزون التشغيلي مع حالة الإتاحة وإعادة الطلب.', path: '/inventory', keywords: ['inventory operations', 'reorder', 'stock table'] },
+  { id: 'decision', title: 'تجربة القرار', description: 'مسار قرار قائم على الدليل وواجهة إجراءات منضبطة.', path: '/decision-experience', keywords: ['decision experience', 'actions', 'approvals', 'workflow'] },
 ];
 
 function scoreCapability(requirement: string, capability: Capability): number {
@@ -54,12 +54,19 @@ export function ProposalDemoPage() {
 
   const matched = mapped.filter(item => item.match);
   const unmatched = mapped.filter(item => !item.match);
+  const coverage = mapped.length ? Math.round((matched.length / mapped.length) * 100) : 0;
+  const proposalSummary = useMemo(() => {
+    if (!mapped.length) return `لا توجد متطلبات مدخلة بعد لعميل ${client}.`;
+    if (!matched.length) return `لم يتم ربط أي متطلب تلقائيًا. راجع المتطلبات وأعد صياغتها أو افتح قدرات المنتج يدويًا قبل اعتماد العرض.`;
+    const focus = matched.slice(0, 4).map(item => item.match!.title).join('، ');
+    return `للعميل ${client} وبناءً على موجز «${jobTitle}»، يغطي العرض ${matched.length} من ${mapped.length} متطلبًا (${coverage}%). نقاط العرض الأساسية: ${focus}. العناصر غير المطابقة تبقى معلّقة للمراجعة ولا يتم تحويلها إلى ادعاءات جاهزية.`;
+  }, [client, jobTitle, mapped, matched, coverage]);
 
   return (
     <div dir="rtl" className="space-y-6 print:bg-white print:text-black">
       <div className="flex flex-col gap-4 rounded-2xl border border-ink-100 bg-gradient-to-br from-primary-950 via-primary-900 to-ink-900 p-6 text-white shadow-sm sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <div className="mb-2 flex items-center gap-2 text-sm text-primary-100"><Wand2 size={16} /> Upwork Job Fit / Proposal Demo Mode</div>
+          <div className="mb-2 flex items-center gap-2 text-sm text-primary-100"><Wand2 size={16} /> مطابقة وظيفة Upwork / وضع العرض التقديمي</div>
           <h1 className="text-2xl font-black sm:text-3xl">حوّل متطلبات الوظيفة إلى عرض حي مبني على قدرات المنتج الفعلية</h1>
           <p className="mt-2 max-w-3xl text-sm leading-6 text-primary-100">هذه الشاشة لا تنشئ Mockup مستقلًا. إنها تربط متطلبات العميل بوحدات Report-Advisor الموجودة فعليًا وتفتح نفس مسارات المنتج الحية للعرض.</p>
         </div>
@@ -77,16 +84,18 @@ export function ProposalDemoPage() {
         </Card>
 
         <Card>
-          <CardHeader title="Proposal Snapshot" subtitle="صياغة عرض ديمو مبنية على المنتجات والمسارات الموجودة." />
+          <CardHeader title="ملخص العرض" subtitle="صياغة عرض ديمو مبنية على المنتجات والمسارات الموجودة." />
           <CardBody>
             <div className="rounded-xl border border-ink-100 bg-ink-50/60 p-4">
-              <div className="text-xs text-ink-400">Client</div><div className="mt-1 text-lg font-bold text-ink-900">{client}</div>
-              <div className="mt-4 text-xs text-ink-400">Job</div><div className="mt-1 text-base font-semibold text-ink-800">{jobTitle}</div>
+              <div className="text-xs text-ink-400">العميل</div><div className="mt-1 text-lg font-bold text-ink-900">{client}</div>
+              <div className="mt-4 text-xs text-ink-400">الوظيفة</div><div className="mt-1 text-base font-semibold text-ink-800">{jobTitle}</div>
             </div>
-            <div className="mt-4 grid grid-cols-2 gap-3">
-              <div className="rounded-xl border border-success-200 bg-success-50 p-4"><div className="text-xs text-success-700">Matched</div><div className="mt-1 text-2xl font-black text-success-800">{matched.length}</div></div>
-              <div className="rounded-xl border border-warning-200 bg-warning-50 p-4"><div className="text-xs text-warning-700">Needs review</div><div className="mt-1 text-2xl font-black text-warning-800">{unmatched.length}</div></div>
+            <div className="mt-4 grid grid-cols-3 gap-3">
+              <div className="rounded-xl border border-primary-200 bg-primary-50 p-4"><div className="text-xs text-primary-700">تغطية المتطلبات</div><div className="mt-1 text-2xl font-black text-primary-800">{coverage}%</div></div>
+              <div className="rounded-xl border border-success-200 bg-success-50 p-4"><div className="text-xs text-success-700">متطلبات مرتبطة</div><div className="mt-1 text-2xl font-black text-success-800">{matched.length}</div></div>
+              <div className="rounded-xl border border-warning-200 bg-warning-50 p-4"><div className="text-xs text-warning-700">تحتاج مراجعة</div><div className="mt-1 text-2xl font-black text-warning-800">{unmatched.length}</div></div>
             </div>
+            <div className="mt-4 rounded-xl border border-ink-100 bg-ink-50/60 p-4"><div className="text-xs font-black text-ink-700">ملخص العرض</div><p className="mt-2 text-sm leading-6 text-ink-600">{proposalSummary}</p></div>
             <div className="mt-4 flex flex-wrap gap-2 print:hidden">
               <Link to="/" className="btn-primary text-xs"><Target size={14} /> افتح المنتج</Link>
               <Link to="/reports/executive" className="btn-secondary text-xs"><FileText size={14} /> افتح التقرير التنفيذي</Link>
@@ -96,14 +105,14 @@ export function ProposalDemoPage() {
       </div>
 
       <Card>
-        <CardHeader title="Capability Mapping" subtitle="المطابقة حتمية ومقيدة بكتالوج مسارات المنتج الحالية." />
+        <CardHeader title="Capability Mapping" subtitle="يُظهر هذا السطح ما تم ربطه من متطلبات العميل، وما بقي غير مطابق للمراجعة قبل أي ادعاء في العرض." />
         <CardBody className="space-y-3">
           {mapped.length === 0 && <div className="rounded-xl border border-dashed border-ink-200 p-6 text-center text-sm text-ink-400">أدخل متطلبات الوظيفة للبدء.</div>}
           {mapped.map(item => (
             <div key={item.requirement} className="rounded-xl border border-ink-100 p-4">
               <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-                <div className="min-w-0"><div className="text-sm font-semibold text-ink-800">{item.requirement}</div>{item.match && <div className="mt-1 text-xs text-ink-400">Mapped to: {item.match.title}</div>}</div>
-                {item.match ? <div className="flex flex-wrap items-center gap-2"><span className="inline-flex items-center gap-1.5 rounded-full bg-success-50 px-3 py-1 text-xs font-medium text-success-700"><CheckCircle2 size={14} /> قدرة موجودة</span><Link to={item.match.path} className="inline-flex items-center gap-1.5 rounded-lg border border-ink-200 px-3 py-1.5 text-xs font-medium text-ink-700 hover:bg-ink-50 print:hidden">Live Demo <ArrowUpRight size={14} /></Link></div> : <span className="inline-flex items-center gap-1.5 rounded-full bg-warning-50 px-3 py-1 text-xs font-medium text-warning-700">يحتاج مراجعة بشرية</span>}
+                <div className="min-w-0"><div className="text-sm font-semibold text-ink-800">{item.requirement}</div>{item.match && <div className="mt-1 text-xs text-ink-400">مرتبط بـ: {item.match.title}</div>}</div>
+                {item.match ? <div className="flex flex-wrap items-center gap-2"><span className="inline-flex items-center gap-1.5 rounded-full bg-success-50 px-3 py-1 text-xs font-medium text-success-700"><CheckCircle2 size={14} /> قدرة موجودة</span><Link to={item.match.path} className="inline-flex items-center gap-1.5 rounded-lg border border-ink-200 px-3 py-1.5 text-xs font-medium text-ink-700 hover:bg-ink-50 print:hidden">العرض الحي <ArrowUpRight size={14} /></Link></div> : <span className="inline-flex items-center gap-1.5 rounded-full bg-warning-50 px-3 py-1 text-xs font-medium text-warning-700">يحتاج مراجعة بشرية</span>}
               </div>
             </div>
           ))}
@@ -111,7 +120,7 @@ export function ProposalDemoPage() {
       </Card>
 
       <Card>
-        <CardHeader title="Live Demo Sequence" subtitle="تدفق مقترح لعرض حقيقي بدون نسخ منفصلة من المنتج." />
+        <CardHeader title="تسلسل العرض الحي" subtitle="تدفق مقترح لعرض حقيقي بدون نسخ منفصلة من المنتج." />
         <CardBody>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             {matched.slice(0, 8).map((item, index) => <Link key={`${item.requirement}-${index}`} to={item.match!.path} className="rounded-xl border border-ink-100 p-4 transition hover:-translate-y-0.5 hover:border-primary-200 hover:bg-primary-50/40 print:border-ink-300"><div className="text-xs font-bold text-primary-600">0{index + 1}</div><div className="mt-2 text-sm font-semibold text-ink-800">{item.match!.title}</div><div className="mt-1 text-xs leading-5 text-ink-400">{item.match!.description}</div></Link>)}
@@ -119,7 +128,9 @@ export function ProposalDemoPage() {
         </CardBody>
       </Card>
 
-      <div className="text-xs leading-5 text-ink-400">لا تُنشئ هذه الشاشة بيانات أعمال اصطناعية ولا تنقل Evidence من SHA إلى SHA. كل رابط يفتح الوحدة الفعلية في Report-Advisor، وتبقى نتائج الأعمال والقيم الرقمية تحت مصدر الحقيقة والـtenant الحالي.</div>
+      <AghbariMoatPanel />
+
+      <div className="text-xs leading-5 text-ink-400">لا تُنشئ هذه الشاشة بيانات أعمال اصطناعية ولا تنقل Evidence من SHA إلى SHA. كل رابط يفتح الوحدة الفعلية في Report-Advisor، وتبقى نتائج الأعمال والقيم الرقمية تحت مصدر الحقيقة والشركة الحالية.</div>
     </div>
   );
 }

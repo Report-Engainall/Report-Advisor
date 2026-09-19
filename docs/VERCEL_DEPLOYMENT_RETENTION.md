@@ -72,3 +72,7 @@ After cleanup, record:
 - confirmation that Production/RC/alias-critical deployments were preserved.
 
 No production alias mutation is part of this cleanup procedure.
+
+## 2026-09-18 runtime refresh note
+
+The Staging Preview runtime token has been provisioned in the Vercel Preview environment. The next Preview deployment for the certification candidate is the only deployment to be used for Phase-F live verification; no production alias mutation is part of this refresh.

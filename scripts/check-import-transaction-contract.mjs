@@ -74,6 +74,12 @@ if (/batchSize|for \(let i = 0; i < reconciled\.rows\.length/.test(adapter)) {
 if (!/enqueue_report_execution_job/.test(adapter) || !/p_source_hash:\s*input\.sourceHash/.test(adapter)) {
   throw new Error('Canonical durable adapter must enqueue a source-bound durable job');
 }
+if (!/activeWorkerClient\.rpc\('enqueue_report_execution_job'/.test(adapter) || /activeDataClient\.rpc\('enqueue_report_execution_job'/.test(adapter)) {
+  throw new Error('Canonical durable job enqueue must use the service-role worker client after the authenticated server boundary validates tenant context');
+}
+if (!/REPORT_EXECUTION_JOB_ENQUEUE_FAILED/.test(adapter)) {
+  throw new Error('Canonical durable enqueue failures must preserve structured error detail');
+}
 if (!/\/api\/canonical-import-execute/.test(adapter) || !/Authorization:.*accessToken/.test(adapter)) {
   throw new Error('Canonical browser import must route durable worker authority through the authenticated server boundary');
 }
@@ -108,8 +114,17 @@ for (const token of [
   "from('import_jobs')",
   ".eq('id', input.importId)",
   ".eq('company_id', companyId)",
+  ".select('id, company_id, status, job_type, result_summary')",
+  "job_type",
+  "result_summary",
 ]) {
   if (!serverAdapter.includes(token)) throw new Error(`Canonical server execution boundary missing: ${token}`);
+}
+if (serverAdapter.includes("file_name, entity_type')") || serverAdapter.includes("importJob.file_name") || serverAdapter.includes("importJob.entity_type")) {
+  throw new Error('Canonical server boundary must match the actual import_jobs schema and not reference legacy non-existent identity columns');
+}
+if (!/persistedEntityType/.test(serverAdapter) || !/importJob\.job_type/.test(serverAdapter)) {
+  throw new Error('Canonical server boundary must derive persisted entity identity from import_jobs.job_type');
 }
 if (/grant execute on function public\\.(claim|heartbeat|advance|complete|fail|retry)_report_execution_job[^\\n]*to authenticated/i.test(serverAdapter)) {
   throw new Error('Canonical server boundary must not add authenticated worker RPC grants');
@@ -123,6 +138,9 @@ if (fs.existsSync(pagePath)) {
   }
   if (!/supabase\.rpc\('import_finish_job'/.test(page)) {
     throw new Error('Canonical import UI must close terminal state only through import_finish_job');
+  }
+  if (!/committed:\s*validRows\.length/.test(page) || !/invalidRows:\s*rows\.length\s*-\s*validRows\.length/.test(page)) {
+    throw new Error('Canonical import UI must provide committed and invalidRows counters to import_finish_job so completion is based on real processed-row accounting');
   }
   if (/updateImportRecord\([^\n]*(status:\s*['"](?:completed|failed|partial|cancelled)['"])/.test(page)) {
     throw new Error('Canonical import UI must not directly write terminal import status');

@@ -11,6 +11,8 @@ const requiredPatterns = [
   /snapshot\.cost\s*!==\s*null/,
   /setFinancials\(\{[\s\S]*revenue:\s*snapshot\.revenue,[\s\S]*cost:\s*snapshot\.cost[\s\S]*\}\)/,
   /<CanonicalScenarioPage\s+baseRevenue=\{financials\.revenue\}\s+baseCost=\{financials\.cost\}/,
+  /TruthContextStrip status=\{truth\.status\} asOf=\{truth\.asOf\}/,
+  /snapshot\.as_of/,
 ];
 for (const pattern of requiredPatterns) {
   if (!pattern.test(guard)) throw new Error(`Scenario truth guard missing required boundary: ${pattern}`);
