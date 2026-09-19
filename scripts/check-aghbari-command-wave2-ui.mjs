@@ -5,7 +5,7 @@ import path from 'node:path';
 const root = process.cwd();
 const read = (file) => fs.readFileSync(path.join(root, file), 'utf8');
 
-const recommendations = read('src/pages/IntelligencePages.tsx');
+const recommendations = read('src/pages/IntelligencePage.tsx');
 const scenario = read('src/pages/CanonicalScenarioPage.tsx');
 const files = read('src/pages/ExternalFileAnalysisPage.tsx');
 const companySettings = read('src/pages/CompanySettingsPage.tsx');
