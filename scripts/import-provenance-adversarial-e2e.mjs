@@ -287,7 +287,7 @@ try {
     importId: rawTampered.job.id,
     rows: [{ rowNumber: 1, data: { code: `P0E-${runTag}-rawbytes`, name: `rawbytes ${runTag}` } }],
     qualityScore: 100,
-  }, 'PERSISTED_SOURCE_HASH_TAMPERED');
+  }, 'AUTHORITATIVE_SOURCE_HASH_DRIFT');
 
   console.log(JSON.stringify({
     exactHead: process.env.EXACT_HEAD || null,
