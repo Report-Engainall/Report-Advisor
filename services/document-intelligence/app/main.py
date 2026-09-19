@@ -196,6 +196,7 @@ def _iter_ocr_images(data: bytes, mime: str):
 
 def parse_with_ocr(data: bytes, filename: str, mime: str) -> dict[str, Any]:
     try:
+        os.environ.setdefault("FLAGS_use_mkldnn", "0")
         paddleocr_module = importlib.import_module("paddleocr")
         PaddleOCR = getattr(paddleocr_module, "PaddleOCR")
         if not callable(PaddleOCR):
