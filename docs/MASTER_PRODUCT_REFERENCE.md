@@ -1006,3 +1006,82 @@ Reference material is allowed only when it improves a measurable project capabil
 - Both owners share this same product memory and exact-head evidence rules.
 - Neither owner may create a conflicting product identity or a second requirements master.
 \r\n
+## 43. Strategic Intake, Commercial Layer and Lifecycle State — 2026-09-19
+
+The strategic product source reviewed on 2026-09-19 is development input only. It does not create a second product memory. `docs/MASTER_PRODUCT_REFERENCE.md` remains the single live product-memory authority.
+
+### Strategic intake classification
+
+#### KEEP
+- Aghbari = Business Decision Operating System.
+- `Data -> Truth -> Evidence -> Signal -> Decision -> Approval -> Action -> Outcome -> Learning -> Benchmark`.
+- Evidence Passport and explicit evidence sufficiency states.
+- Decision Operating System and governed decision lifecycle.
+- Money Recovery.
+- Decision ROI.
+- Decision Coverage.
+- Decision Playbooks.
+- Business Replay / organizational learning.
+- Benchmark Network with `INSUFFICIENT_SAMPLE` until policy-compliant real cohort evidence exists.
+- Connector Memory + Schema Drift Guard.
+- Read-only Evidence Agent boundary.
+- Vertical Packs without locking the product to one sector.
+- Commercial Proof.
+- Job-to-Demo / Proposal Compiler.
+- Product Experience hierarchy: `TODAY -> MONEY -> DECISIONS -> TRUST/EVIDENCE -> INTELLIGENCE -> OUTPUTS -> REFERENCE -> ADMINISTRATION`.
+- The hard rejection rules preventing pharmacy-only identity, CRUD-only product thinking, dashboard catalogue behavior, chatbot-wrapper behavior, fake evidence, duplicate engines and duplicate write paths.
+
+#### EVOLVE
+- The Commercial Engine is part of the product's distribution architecture, not the product identity.
+- Supported distribution sequence: Upwork, LinkedIn, Contra, Fiverr, Toptal later when operationally justified, and Direct B2B / agencies.
+- Commercial compiler flow: `Requirement -> Capability -> Evidence -> Real Route -> Demo -> Verified Gaps -> Proposal`.
+- Delivery loop: `Product -> Demo -> Evidence -> Lead/Job Fit -> Proposal -> Contract -> Delivery -> Outcome -> Case Study`.
+- Commercial surfaces must consume the same canonical product runtime, evidence and real routes used by customers.
+- Proposal generation must disclose unavailable capabilities, unverified gaps and missing evidence instead of filling them with synthetic claims.
+
+#### SUPERSEDE
+- Any separate product-memory, master-requirements or competing strategic-memory document is superseded by this file for live product direction.
+- The strategic source reviewed on 2026-09-19 remains historical/development source material only and does not become an operational master.
+- Older product direction that conflicts with the Business Decision Operating System identity is superseded only where this file explicitly states the new canonical direction; compatible requirements remain retained.
+
+#### REJECT
+- Pharmacy-only product identity.
+- Generic ERP clone positioning.
+- Dashboard catalogue as the main UX model.
+- Chatbot wrapper as the main product.
+- Decorative screens without reachable implementation.
+- Fake/synthetic business evidence presented as live truth.
+- Synthetic benchmarks represented as customer-facing truth.
+- AI-generated authoritative financial numbers.
+- Direct AI-to-database mutation outside governed approval/action paths.
+- Separate Truth/Decision/Write/Runner/RPC engines when an existing canonical path is sufficient.
+- Commercial-channel features that distort or fork the core product identity.
+
+### Product lifecycle states
+
+The following states are intentionally separate and must never be collapsed into one completion percentage:
+
+| State | Meaning | Current posture |
+|---|---|---|
+| Strategic Intent | Requirement is part of the canonical product direction | Active across sections 34–43 |
+| Implemented | Code or architecture exists | Core moat, evidence, decision and commercial-demo surfaces exist in part |
+| Runtime-Complete | Exact tested head executes the capability end-to-end in its real runtime | Must be asserted only against the exact current SHA; prior SHA evidence does not transfer automatically |
+| Evidence-Complete | Exact-SHA evidence proves runtime + DB/security/E2E requirements applicable to the capability | Current certification remains fail-closed until exact-head gates pass |
+| Commercial-Ready | Capability is real, demonstrable, evidence-backed and safe to claim in customer/job proposals | Product is progressing; full Job-to-Demo compiler and outcome-backed case-study loop remain incomplete |
+
+### Exact-head rule for strategic status
+
+A capability may remain strategically KEEP/EVOLVE while its implementation state is `PARTIAL` or `PENDING`. Strategic inclusion is not runtime acceptance. Exact SHA, environment and contract boundaries remain authoritative for claims of completion.
+
+### Commercial identity rule
+
+Aghbari is the product. Upwork, LinkedIn, Contra, Fiverr, Toptal and Direct B2B/agencies are distribution channels. No channel-specific surface may create a competing product identity, separate truth source, fake case study, copied customer proof, or duplicate execution path.
+
+### Memory change protocol
+
+Every future strategic evolution must:
+1. preserve Git history before substantive rewrite;
+2. classify the change as `KEEP`, `EVOLVE`, `SUPERSEDE` or `REJECT`;
+3. update this file rather than creating another product master;
+4. link code/test/runtime/evidence state where available;
+5. keep certification fail-closed when evidence does not match the exact head.
