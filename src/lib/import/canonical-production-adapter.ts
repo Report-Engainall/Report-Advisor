@@ -2,7 +2,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import type { ReportExecutionStage } from '../report-execution/checkpoint';
 import { SupabaseReportExecutionStore } from '../report-execution/durable-worker-adapter';
 import { runDurableProductionLifecycle } from '../report-execution/durable-production-runner';
-import type { ReconciledCanonicalImportRow } from './canonical-truth-boundary';
+import { normalizeImportKey, type ReconciledCanonicalImportRow } from './canonical-truth-boundary';
 import { commitImportBatch } from './canonical-commit';
 
 interface StageExecutionEvidence { evidenceKeys?: string[] }
@@ -39,9 +39,9 @@ function rowKey(entityType: DurableCanonicalImportInput['entityType'], row: Reco
     : entityType === 'sales_invoices'
       ? row.data.invoice_number
       : (row.data.code ?? row.data.name);
-  const key = String(value ?? '').trim();
+  const key = normalizeImportKey(value);
   if (!key) throw new Error(`IMPORT_ROW_BUSINESS_KEY_REQUIRED:${row.rowNumber}`);
-  return `${entityType}:${key.toLowerCase()}`;
+  return `${entityType}:${key}`;
 }
 
 function assertUniqueBusinessKeys(entityType: DurableCanonicalImportInput['entityType'], rows: ReconciledCanonicalImportRow[]): void {

@@ -35,7 +35,7 @@ function stableValue(value: unknown): string {
 // Mirrors public.normalize_import_key(): lower-case, trim, then remove all whitespace.
 // Keeping the pre-write reconciliation key aligned with the DB key prevents two rows
 // in one batch from resolving to the same canonical record under different spellings.
-function normalizeImportKey(value: unknown): string | null {
+export function normalizeImportKey(value: unknown): string | null {
   if (value == null) return null;
   const normalized = String(value).trim().toLowerCase().replace(/\s+/g, '');
   return normalized || null;
