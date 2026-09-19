@@ -70,7 +70,8 @@ function Stepper({ step }: { step: Step }) {
 export function CanonicalImportPage() {
   const [step, setStep] = useState<Step>('upload');
   const [entityType, setEntityType] = useState<EntityType>('sales_invoices');
-  const [file, setFile] = useState<{ name: string; size: number; format: FileFormat } | null>(null);
+  const [file, setFile] = useState<{ name: string; size: number; format: FileFormat; mime: string } | null>(null);
+  const [sourceFile, setSourceFile] = useState<File | null>(null);
   const [fileHash, setFileHash] = useState<string | null>(null);
   const [rows, setRows] = useState<Row[]>([]);
   const [headers, setHeaders] = useState<string[]>([]);
@@ -115,7 +116,8 @@ export function CanonicalImportPage() {
       setSecurityPassed(true);
       const detection = detectFormat(selected, buffer);
       if (detection.format === 'unknown') throw new Error('تعذر تحديد صيغة الملف');
-      setFile({ name: selected.name, size: selected.size, format: detection.format });
+      setFile({ name: selected.name, size: selected.size, format: detection.format, mime: selected.type });
+      setSourceFile(selected);
       setWarnings(detection.warnings);
       const hash = await computeSHA256(buffer);
       setFileHash(hash);
@@ -159,9 +161,36 @@ export function CanonicalImportPage() {
     try {
       const companyId = await resolveCurrentCompanyId();
       if (!companyId) throw new Error('TENANT_CONTEXT_REQUIRED');
-      rec = await createImportRecord({ file_name: file.name, file_size: file.size, source_type: file.format, status: 'processing', total_rows: rows.length, valid_rows: validRows.length, invalid_rows: rows.length - validRows.length, quarantined_rows: rows.length - validRows.length, entity_type: entityType, progress: 0 });
+      if (!sourceFile) throw new Error('IMPORT_SOURCE_FILE_REQUIRED');
+      const sourcePath = `${companyId}/imports/${crypto.randomUUID()}${file.name.includes('.') ? `.${file.name.split('.').pop()}` : ''}`;
+      const sourceBuffer = await sourceFile.arrayBuffer();
+      const { error: uploadError } = await supabase.storage.from('documents').upload(sourcePath, sourceBuffer, {
+        contentType: file.mime || 'application/octet-stream',
+        cacheControl: '3600',
+        upsert: false,
+      });
+      if (uploadError) throw uploadError;
+      try {
+        rec = await createImportRecord({
+          file_name: file.name,
+          file_size: file.size,
+          file_mime: file.mime,
+          source_object_path: sourcePath,
+          source_type: file.format,
+          status: 'processing',
+          total_rows: rows.length,
+          valid_rows: validRows.length,
+          invalid_rows: rows.length - validRows.length,
+          quarantined_rows: rows.length - validRows.length,
+          entity_type: entityType,
+          progress: 0
+        });
+      } catch (createError) {
+        await supabase.storage.from('documents').remove([sourcePath]);
+        throw createError;
+      }
       const durableSourceHash = `sha256:${fileHash}`;
-      const reconciled = reconcileForCanonical(entityType, companyId, file.name, durableSourceHash, rec.id, (data, rowNumber) => `${durableSourceHash}:${rowNumber}:${JSON.stringify(data)}`, validRows.map(r => ({ rowNumber: r.rowNumber, data: r.data })));
+      const reconciled = reconcileForCanonical(entityType, companyId, rec.id, durableSourceHash, rec.id, (data, rowNumber) => `${durableSourceHash}:${rowNumber}:${JSON.stringify(data)}`, validRows.map(r => ({ rowNumber: r.rowNumber, data: r.data })));
       if (reconciled.rejected.length > 0) throw new Error(`CANONICAL_RECONCILIATION_REJECTED:${reconciled.rejected.map(r => `${r.rowNumber}:${r.reason}`).join(',')}`);
       const execution = await runCanonicalImportThroughDurableRunner({ importId: rec.id, fileName: file.name, sourceHash: durableSourceHash, entityType, rows: reconciled.rows, qualityScore: quality });
       await finishImportJob(rec.id, 'completed', {
@@ -195,7 +224,7 @@ export function CanonicalImportPage() {
     }
   }, [rows, file, fileHash, entityType, duplicate, securityPassed, quality, qualityApproved, loadHistory]);
 
-  const reset = () => { setStep('upload'); setHistoryError(null); setFile(null); setFileHash(null); setRows([]); setHeaders([]); setQuality(0); setQualityApproved(false); setMappings([]); setWarnings([]); setError(null); setDuplicate(false); setSecurityPassed(false); setResult(null); setProgress(0); if (inputRef.current) inputRef.current.value = ''; };
+  const reset = () => { setStep('upload'); setHistoryError(null); setFile(null); setSourceFile(null); setFileHash(null); setRows([]); setHeaders([]); setQuality(0); setQualityApproved(false); setMappings([]); setWarnings([]); setError(null); setDuplicate(false); setSecurityPassed(false); setResult(null); setProgress(0); if (inputRef.current) inputRef.current.value = ''; };
   const valid = rows.filter(r => r.valid).length;
   const invalid = rows.length - valid;
   const mappingCoverage = useMemo(() => mappings.length ? Math.round((mappings.filter(m => m.mappedField).length / mappings.length) * 100) : 0, [mappings]);
