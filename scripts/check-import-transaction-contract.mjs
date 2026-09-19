@@ -93,10 +93,22 @@ if (!/IMPORT_DURABLE_JOB_ALREADY_RUNNING/.test(adapter)) {
   throw new Error('Canonical durable adapter must fail closed when the same durable import is already running');
 }
 
+if (!/IMPORT_ANALYSIS_BUSINESS_KEY_COLLISION/.test(adapter) || !/IMPORT_DECISION_NOT_ELIGIBLE/.test(adapter)) {
+  throw new Error('Canonical durable lifecycle must execute real analysis and decision gates');
+}
+if (!/const jobKey = `canonical-import:\$\{input\.entityType\}:\$\{input\.sourceHash\}`/.test(adapter)) {
+  throw new Error('Canonical durable identity must remain source-content bound');
+}
+
 const serverAdapterPath = path.join(root, 'api', 'canonical-import-execute.ts');
 if (!fs.existsSync(serverAdapterPath)) throw new Error('Canonical durable import server boundary is missing');
 const serverAdapter = fs.readFileSync(serverAdapterPath, 'utf8');
 for (const token of [
+  "const MAX_REQUEST_BYTES",
+  "assertRequestSize(req)",
+  "request_too_large",
+  "assertCanonicalImportProvenance",
+  "sourceId: importJob.file_name",
   "requireMethod(req, res, 'POST')",
   "requireConfig(res, ['SUPABASE_URL', 'SUPABASE_SERVICE_ROLE_KEY', 'VITE_SUPABASE_ANON_KEY'])",
   "Authorization",
