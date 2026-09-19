@@ -112,3 +112,31 @@ class OcrRuntimeTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+    def test_pdf_is_rasterized_before_ocr(self):
+        import fitz
+
+        pdf = fitz.open()
+        page = pdf.new_page(width=144, height=144)
+        page.insert_text((20, 60), "Invoice 123")
+        pdf_bytes = pdf.tobytes()
+        pdf.close()
+
+        seen_sizes = []
+        main = self.load_main(
+            lambda image: (
+                seen_sizes.append(image.size)
+                or [FakePageResult({"res": {"rec_texts": ["فاتورة"], "rec_scores": [0.92]}})]
+            )
+        )
+        result = main.parse_with_ocr(pdf_bytes, "invoice.pdf", "application/pdf")
+        self.assertTrue(seen_sizes)
+        self.assertGreaterEqual(seen_sizes[0][0], 100)
+        self.assertGreaterEqual(seen_sizes[0][1], 100)
+        self.assertEqual(result["document"]["pages"][0]["number"], 1)
+
+    def test_pdf_signature_is_validated_before_parser(self):
+        main = self.load_main(lambda image: [])
+        with self.assertRaises(ValueError):
+            main.validate_file_content(b"not a pdf", "invoice.pdf", "application/pdf")
