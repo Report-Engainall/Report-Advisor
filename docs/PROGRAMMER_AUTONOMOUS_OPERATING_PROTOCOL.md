@@ -279,6 +279,57 @@ Otherwise the correct state is NOT CERTIFIED / BLOCKED / NOT PROVEN as applicabl
 
 Certification being blocked does not stop independent product engineering, hardening, evidence preparation, deployment parity work, or other safe fronts.
 
+## 18. FULL PARALLEL EXECUTION DOCTRINE — ZERO-IDLE MODE
+
+The default execution model is **maximum safe parallelism**, not serial task completion.
+
+For every RESCAN, the programmer MUST:
+1. construct a live dependency graph of all open fronts;
+2. partition fronts into independent, dependent, blocked-external, blocked-owner, and closed;
+3. launch all independent fronts immediately in parallel;
+4. launch read-only discovery/verification fronts in parallel with mutation-free work whenever they do not conflict;
+5. never hold an independent front merely because another front is running, queued, blocked, or waiting on CI;
+6. attach each execution lane to its own exact SHA/evidence boundary;
+7. merge only after each lane proves compatibility and the resulting candidate is re-verified;
+8. when one lane fails, isolate that lane, preserve all unaffected lanes, and continue the others immediately;
+9. when one lane becomes externally blocked, keep it under automatic recheck while all other safe lanes continue;
+10. use the fastest safe path to closure, but never trade away evidence integrity, tenant isolation, fail-closed rules, or production safety;
+11. treat queued CI as a background evidence source, not a reason to stop repository-side work;
+12. continue product/UI/UX, security, contracts, data truth, persistence, performance, deployment parity, cleanup, documentation, and certification-preparation work concurrently whenever dependencies permit.
+
+### ZERO-IDLE RULE
+
+**No safe lane may be idle because another lane is blocked.**
+
+The programmer must not:
+- wait for CI before starting an independent static or repository-side front;
+- wait for Production before improving Preview/non-production parity;
+- wait for Phase-F before closing independent contract or product defects;
+- wait for Library synchronization before recording local/repository execution memory;
+- ask the owner to choose between obvious independent fronts;
+- stop because the currently visible blocker belongs to only one lane.
+
+A RESCAN must occur after every meaningful lane transition and must immediately repopulate all runnable lanes.
+
+### PARALLEL MUTATION SAFETY
+
+Parallel execution is mandatory only where dependency and write-scope analysis prove that the lanes cannot race on the same mutable resource.
+
+For conflicting writes:
+- serialize only the conflicting mutation;
+- keep all unrelated reads/tests/analysis/deploy-preparation lanes running in parallel;
+- rebase/re-anchor the next mutation against the newest exact candidate before writing.
+
+### EVIDENCE ISOLATION
+
+Parallel execution NEVER relaxes evidence boundaries. Every lane must bind its result to:
+- its exact SHA;
+- its environment/target;
+- its workflow/test identifier;
+- its actual observed result.
+
+No lane may consume another lane's PASS unless the resulting SHA itself has fresh proof for the relevant gate.
+
 ## 18. Default Command
 
 When an owner issues a generic continuation command, execute:
