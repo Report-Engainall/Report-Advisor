@@ -82,7 +82,7 @@ async function openImportEntity(page, entity) {
       await entityButton.waitFor({ state: 'visible', timeout: 20000 });
       await entityButton.click();
       await page.waitForFunction((entity) => document.querySelector(`[data-testid="import-entity-${entity}"]`)?.classList.contains('border-primary-500') === true, entity, { timeout: 10000 });
-      return entityButton;
+      evidence.steps.push({ step: `import-entity-selection:${entity}`, status: 'PASS' });`n      return entityButton;
     } catch {
       const diagnostics = await page.evaluate(() => ({ href: location.href, readyState: document.readyState, bodyText: document.body?.innerText?.slice(0, 500) || '' })).catch(() => ({ href: 'unavailable', readyState: 'unavailable', bodyText: '' }));
       if (attempt === 1 && !diagnostics.bodyText.trim()) {
