@@ -122,10 +122,6 @@ export function CompanySettingsPage() {
   const field = (value: string | null) => value?.trim() || 'غير متوفر';
   const modeLabel = useMemo(() => ({ essential: 'أساسية', advanced: 'متقدمة', expert: 'خبيرة' } satisfies Record<WorkspaceMode, string>)[preferences.mode], [preferences.mode]);
 
-  if (loading) return <LoadingState />;
-  if (error) return <ErrorState message={error} onRetry={load} />;
-  if (!company) return <ErrorState message="بيانات الشركة غير متاحة" onRetry={load} />;
-
   return (
     <div className="space-y-6 animate-fade-in">
       <PageHeader title="الإعدادات" subtitle="مصدر الشركة الموثوق + محرر مساحة العمل المحلي على هذا الجهاز" />
@@ -154,6 +150,13 @@ export function CompanySettingsPage() {
         <Card><CardHeader title="كروت لوحة اليوم" /><CardBody><div className="grid gap-2 sm:grid-cols-2">{DASHBOARD_WIDGET_OPTIONS.map(option => { const enabled = preferences.dashboardWidgets.includes(option.id); return <label key={option.id} className="flex items-center gap-2 rounded-xl border border-ink-100 px-3 py-2.5 text-xs text-ink-700"><input type="checkbox" checked={enabled} onChange={() => toggleWidget(option.id)} /><span className="h-2 w-2 rounded-full bg-primary-500" />{option.label}</label>; })}</div></CardBody></Card>
         <Card><CardHeader title="إعادة ضبط المنتج" /><CardBody><div className="rounded-2xl border border-warning-200 bg-warning-50/60 p-4 text-xs leading-5 text-warning-800">يعيد جميع تفضيلات مساحة العمل على هذا الجهاز إلى الإعدادات الافتراضية للمنتج.</div><button type="button" onClick={() => setPreferences(resetWorkspacePreferences())} className="mt-4 inline-flex items-center gap-2 rounded-xl border border-ink-200 bg-white px-3 py-2.5 text-xs font-bold text-ink-700 hover:bg-ink-50"><RotateCcw size={15}/> إعادة الإعدادات الافتراضية</button><div className="mt-3 text-[10px] text-ink-400">الوضع الحالي: {modeLabel} · الشخصية: {PRESET_OPTIONS.find(item => item.id === preferences.preset)?.label ?? preferences.preset}</div></CardBody></Card>
       </div>
+      {loading ? (
+        <LoadingState />
+      ) : error ? (
+        <ErrorState message={error} onRetry={load} />
+      ) : !company ? (
+        <ErrorState message="بيانات الشركة غير متاحة" onRetry={load} />
+      ) : (
       <Card><CardHeader title="معلومات الشركة" /><CardBody><div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <div><div className="text-xs text-ink-500">اسم الشركة</div><div className="mt-1 text-sm font-medium text-ink-800">{field(company.name)}</div></div>
         <div><div className="text-xs text-ink-500">الاسم القانوني</div><div className="mt-1 text-sm font-medium text-ink-800">{field(company.legal_name)}</div></div>
@@ -165,6 +168,8 @@ export function CompanySettingsPage() {
         <div><div className="text-xs text-ink-500">البريد الإلكتروني</div><div className="mt-1 text-sm font-medium text-ink-800">{field(company.email)}</div></div>
         <div className="md:col-span-2"><div className="text-xs text-ink-500">العنوان</div><div className="mt-1 text-sm font-medium text-ink-800">{field(company.address)}</div></div>
       </div></CardBody></Card>
+
+      )}
     </div>
   );
 }
