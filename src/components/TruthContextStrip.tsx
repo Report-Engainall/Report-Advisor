@@ -18,20 +18,20 @@ export function TruthContextStrip({ months, status, asOf }: TruthContextStripPro
   const meta = stateMeta[status];
   const StateIcon = meta.icon;
   return (
-    <section aria-label="سياق حقيقة البيانات" className="rounded-2xl border border-ink-200 bg-white/90 p-3 shadow-sm">
+    <section aria-label="سياق حقيقة البيانات" className="rounded-[12px] border border-ink-200 bg-white p-3 shadow-card">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-        <div className="flex items-center gap-2">
-          <Database size={16} className="text-primary-600" aria-hidden="true" />
-          <div>
-            <p className="text-xs font-bold text-ink-800">سياق المؤشرات</p>
-            <p className="text-[11px] text-ink-400">المعلومات مرتبطة بلقطة البيانات الحالية ولا تُستبدل بقيم افتراضية.</p>
+        <div className="flex min-w-0 items-center gap-2">
+          <Database size={16} className="shrink-0 text-primary-600" aria-hidden="true" />
+          <div className="min-w-0">
+            <p className="text-xs font-black text-ink-900">سياق المؤشرات</p>
+            <p className="text-[11px] leading-5 text-ink-400">هذه اللقطة هي مرجع القراءة الحالية؛ لا تُستبدل القيم غير المتاحة بأرقام افتراضية.</p>
           </div>
         </div>
-        <div className="flex flex-wrap items-center gap-2 text-[11px]">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-ink-50 px-2.5 py-1.5 text-ink-600 ring-1 ring-inset ring-ink-100"><CalendarRange size={13} aria-hidden="true" />النطاق: آخر {months} {months === 1 ? 'شهر' : 'أشهر'}</span>
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-ink-50 px-2.5 py-1.5 text-ink-600 ring-1 ring-inset ring-ink-100">حتى: {asOf}</span>
-          <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1.5 ring-1 ring-inset ${meta.className}`}><StateIcon size={13} aria-hidden="true" />{meta.label}</span>
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-ink-50 px-2.5 py-1.5 text-ink-600 ring-1 ring-inset ring-ink-100">سياق المؤسسة الحالية</span>
+        <div className="grid grid-cols-2 gap-2 text-[10px] sm:flex sm:flex-wrap sm:items-center">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-ink-50 px-2.5 py-1.5 font-semibold text-ink-600 ring-1 ring-inset ring-ink-100"><CalendarRange size={13} aria-hidden="true" />الفترة: آخر {months} {months === 1 ? 'شهر' : 'أشهر'}</span>
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-ink-50 px-2.5 py-1.5 font-semibold text-ink-600 ring-1 ring-inset ring-ink-100">اللقطة: {asOf}</span>
+          <span className={'inline-flex items-center gap-1.5 rounded-full px-2.5 py-1.5 font-bold ring-1 ring-inset ' + meta.className}><StateIcon size={13} aria-hidden="true" />{meta.label}</span>
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-ink-50 px-2.5 py-1.5 font-semibold text-ink-600 ring-1 ring-inset ring-ink-100">المؤسسة الحالية · مسار مصدر معتمد</span>
         </div>
       </div>
     </section>
