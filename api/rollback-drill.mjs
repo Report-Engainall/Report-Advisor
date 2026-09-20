@@ -33,9 +33,15 @@ async function assignAlias(deploymentId, alias) {
   return response.json();
 }
 
-async function verify(url, expectedDeployment) {
+function canonicalRollbackVerifyUrl(domain) {
+  const normalized = domain.replace(/\/+$/, '');
+  return `https://${normalized}/api/health`;
+}
+
+async function verify(domain, expectedDeployment) {
   const token = process.env.RESILIENCE_OPERATIONAL_TOKEN?.trim();
   if (!token) throw new Error('operational_token_required_for_rollback_verify');
+  const url = canonicalRollbackVerifyUrl(domain);
   const response = await secureOutboundFetch(url, 'rollback_verify_url', {
     headers: {
       Accept: 'application/json',
@@ -86,7 +92,6 @@ export default async function handler(req, res) {
     'RESILIENCE_ROLLBACK_DRILL_DOMAIN',
     'RESILIENCE_ROLLBACK_FROM_DEPLOYMENT',
     'RESILIENCE_ROLLBACK_FORWARD_DEPLOYMENT',
-    'RESILIENCE_ROLLBACK_VERIFY_URL',
   ])) return;
   if (isProductionEnv()) return json(res, 409, { status: 'blocked', error: 'production_rollback_drill_forbidden' });
 
@@ -96,7 +101,6 @@ export default async function handler(req, res) {
 
   const from = process.env.RESILIENCE_ROLLBACK_FROM_DEPLOYMENT.trim();
   const forward = process.env.RESILIENCE_ROLLBACK_FORWARD_DEPLOYMENT.trim();
-  const verifyUrl = process.env.RESILIENCE_ROLLBACK_VERIFY_URL.trim();
   if (from === forward) return json(res, 409, { status: 'blocked', error: 'rollback_deployments_must_differ' });
   const incidentKey = `rollback-drill-${Date.now()}`;
   const started = Date.now();
@@ -104,19 +108,19 @@ export default async function handler(req, res) {
   try {
     const [fromDeployment, forwardDeployment] = await Promise.all([deploymentReady(from), deploymentReady(forward)]);
     validatedForwardDeployment = forwardDeployment;
-    const before = await verify(verifyUrl, forwardDeployment);
+    const before = await verify(domain, forwardDeployment);
     if (!before.ok) return json(res, 503, { status: 'blocked', error: `forward_baseline_failed:${before.status}` });
 
     const rollbackStarted = Date.now();
     await assignAlias(fromDeployment.id, domain);
-    const rollbackProbe = await verify(verifyUrl, fromDeployment);
+    const rollbackProbe = await verify(domain, fromDeployment);
     if (!rollbackProbe.ok) {
       await assignAlias(forwardDeployment.id, domain);
       throw new Error(`rollback_probe_failed:${rollbackProbe.status}`);
     }
 
     await assignAlias(forwardDeployment.id, domain);
-    const forwardProbe = await verify(verifyUrl, forwardDeployment);
+    const forwardProbe = await verify(domain, forwardDeployment);
     const rtoSeconds = (Date.now() - rollbackStarted) / 1000;
     if (!forwardProbe.ok) throw new Error(`forward_fix_probe_failed:${forwardProbe.status}`);
 
