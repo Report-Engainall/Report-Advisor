@@ -36,7 +36,7 @@ jobs:
           cache: npm
       - run: npm ci --no-audit --no-fund
       - name: Install Supabase CLI for logical backup mode
-        if: env.RESILIENCE_BACKUP_MODE == 'logical'
+        if: ${{ (env.RESILIENCE_BACKUP_MODE || 'logical') == 'logical' }}
         uses: supabase/setup-cli@v1
         with:
           version: 2.81.3
@@ -87,6 +87,8 @@ jobs:
           RESILIENCE_BACKUP_MODE: ${{ secrets.RESILIENCE_BACKUP_MODE }}
           RESILIENCE_LOGICAL_SOURCE_DB_URL: ${{ secrets.RESILIENCE_LOGICAL_SOURCE_DB_URL }}
           RESILIENCE_MAX_RPO_SECONDS: ${{ secrets.RESILIENCE_MAX_RPO_SECONDS }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD || secrets.STAGING_DB_PASSWORD }}
+          SUPABASE_PROJECT_REF: fnqbvfuwbdpwvhcgzksl
         run: node scripts/phase-f-live-resilience-probes.mjs
       - name: Upload Phase F readiness evidence
         if: always()
