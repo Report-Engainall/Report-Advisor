@@ -79,6 +79,8 @@ jobs:
         run: npm install --no-save --ignore-scripts playwright@1.55.0
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
+      - name: Install Netlify CLI
+        run: npm install --no-save --ignore-scripts netlify-cli@latest
       - name: Build exact HEAD
         env:
           VITE_SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
@@ -92,8 +94,8 @@ jobs:
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_SERVICE_ROLE_KEY }}
         run: |
           set -euo pipefail
-          nohup npx --yes netlify-cli@latest dev --offline --dir . > /tmp/report-advisor-netlify-dev.log 2>&1 &
-          for i in {1..30}; do
+          nohup npx --no-install netlify-cli dev --offline --dir . > /tmp/report-advisor-netlify-dev.log 2>&1 &
+          for i in {1..90}; do
             if curl -fsS http://127.0.0.1:4173/ >/dev/null; then
               echo "E2E_APP_READY=http://127.0.0.1:4173"
               exit 0
