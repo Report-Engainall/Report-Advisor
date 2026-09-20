@@ -75,12 +75,10 @@ jobs:
           cache: npm
       - name: Install locked dependencies
         run: npm ci --include=dev --no-audit --no-fund
-      - name: Install browser E2E runner
-        run: npm install --no-save --ignore-scripts playwright@1.55.0
+      - name: Install browser E2E runner and Netlify CLI
+        run: npm install --no-save --ignore-scripts playwright@1.55.0 netlify-cli@latest
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
-      - name: Install Netlify CLI
-        run: npm install --no-save --ignore-scripts netlify-cli@latest
       - name: Build exact HEAD
         env:
           VITE_SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
