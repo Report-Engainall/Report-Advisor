@@ -36,12 +36,13 @@ for (const field of ['totalSales', 'grossProfit', 'totalReceivables', 'inventory
   }
 }
 
+const secondaryMetricPattern = /\{kpis\.(totalCustomers|totalProducts|invoiceCount|collectionRate)\s*===\s*null\s*\?\s*['"]غير متاح['"]\s*:\s*kpis\.\1(?:\s*\+\s*['"]%['"])?\}/;
 for (const field of ['totalCustomers', 'totalProducts', 'invoiceCount', 'collectionRate']) {
-  const usage = field === 'collectionRate'
-    ? /value===null\?'غير متاح':String\(value\)\+\(label==='معدل التحصيل'\?'%':''\)/
-    : /value===null\?'غير متاح':String\(value\)/;
-  if (!usage.test(dashboard)) {
+  if (!secondaryMetricPattern.test(dashboard)) {
     throw new Error(`${field} secondary KPI presentation must preserve null while retaining confirmed zero values`);
+  }
+  if (!new RegExp(`\\{kpis\\.${field}\\s*===\\s*null\\s*\\?`).test(dashboard)) {
+    throw new Error(`${field} secondary KPI must explicitly test null before rendering a value`);
   }
 }
 
