@@ -280,9 +280,27 @@ async function runWorkspacePersonalizationProbe(targetPage) {
   const financePreset = workspaceEditor.getByRole('button').filter({ hasText: 'المالية' }).first();
   await financePreset.waitFor({ state: 'visible', timeout: 15000 });
   await financePreset.click();
+  await targetPage.waitForTimeout(500);
+  await targetPage.screenshot({ path: reportDir + '/workspace-after-finance-preset.png', fullPage: true }).catch(() => {});
+  const afterPreset = await targetPage.evaluate(() => ({
+    pathname: window.location.pathname,
+    bodyText: (document.body?.innerText || '').slice(-2200),
+    workspaceCount: document.querySelectorAll('[data-testid="workspace-editor"]').length,
+    workspaceHtmlLength: document.querySelector('[data-testid="workspace-editor"]')?.innerHTML?.length ?? 0,
+    kpiLabelCount: [...document.querySelectorAll('[data-testid="workspace-editor"] label')].filter(node => (node.textContent || '').includes('بطاقات المؤشرات')).length,
+  }));
 
   const select = workspaceEditor.locator('select').first();
   await select.selectOption('/reports/profitability');
+  await targetPage.waitForTimeout(500);
+  await targetPage.screenshot({ path: reportDir + '/workspace-after-landing-change.png', fullPage: true }).catch(() => {});
+  const afterLanding = await targetPage.evaluate(() => ({
+    pathname: window.location.pathname,
+    bodyText: (document.body?.innerText || '').slice(-2200),
+    workspaceCount: document.querySelectorAll('[data-testid="workspace-editor"]').length,
+    workspaceHtmlLength: document.querySelector('[data-testid="workspace-editor"]')?.innerHTML?.length ?? 0,
+    kpiLabelCount: [...document.querySelectorAll('[data-testid="workspace-editor"] label')].filter(node => (node.textContent || '').includes('بطاقات المؤشرات')).length,
+  }));
 
   const kpiToggle = await targetPage.evaluate(() => {
     const normalize = (value) => (value || '').replace(/\\s+/g, ' ').trim();
@@ -290,7 +308,9 @@ async function runWorkspacePersonalizationProbe(targetPage) {
     const label = labels.find(candidate => normalize(candidate.textContent).includes('بطاقات المؤشرات'));
     if (!label) {
       throw new Error('WORKSPACE_KPI_LABEL_NOT_FOUND:' + JSON.stringify({
-        labelTexts: labels.map(candidate => normalize(candidate.textContent)).filter(Boolean).slice(-20),
+        afterPreset,
+        afterLanding,
+        labelTexts: labels.map(candidate => normalize(candidate.textContent)).filter(Boolean).slice(-30),
       }));
     }
     const input = label.querySelector('input[type="checkbox"]');
