@@ -1,3 +1,15 @@
+## EXECUTIVE SESSION RECORD — 2026-09-20T04:30+03:00
+- **SESSION-ID:** 20260920-0430-REPORT-ADVISOR
+- **DONE:** Re-established execution from the existing canonical memory because `/Report-Advisor/ONE-PROGRAMMER-SESSION-MEMORY.md` is absent from the repository; verified repository `Report-Engainall/Report-Advisor`, default branch `main`, and current `main` tip `1568e43889d27b5d850e64c0b99d03a994fd3bbe`. Re-anchored active product/runtime work to PR #595 and its current branch head before mutation.
+- **ACTUAL RESULT:** Fresh exact-head failure on `564a30913d9ec397421d1d241628316efb5cdad6` was localized to `scripts/real-business-e2e.mjs`: the test clicked the import entity button and immediately uploaded the file before React state settled, causing the customer fixture to be parsed under the previous entity mode and disabling commit. Root test fix committed on the same PR branch as `748a30c1f8349e1435dbd8c4de947e26889a9460`, adding an explicit wait for the selected entity state before file upload.
+- **ACTUAL STAGING CHECK:** A rollback-scoped exact Supabase probe of the existing `enqueue_report_execution_job` RPC succeeded under authenticated request context within a 5s timeout, so the previously observed enqueue timeout is not currently reproducible as a deterministic blocker. No direct table write, bypass, new RPC, or schema mutation was used.
+- **FRESH CI STATE:** New workflows for exact head `748a30c1f8349e1435dbd8c4de947e26889a9460` are running. Full Product Browser, Commercial Product Creation, PWA, Storage Runtime, Device-Independent Browser, Windows, Quality and resilience/recovery lanes are not yet terminal. Do not transfer any PASS from older SHAs.
+- **PRECISE STOP POINT:** `748a30c1f8349e1435dbd8c4de947e26889a9460` — waiting for fresh exact-head workflow evidence after the real-business harness fix; final certification remains fail-closed.
+- **NEXT ACTION:** Inspect the first terminal result on `748a30c1...`; if any exact-head job fails, fix only that first real failure and re-run the affected lane. If green, continue to the remaining live runtime gates without repeating closed contracts.
+- **DO NOT REPEAT:** Do not recreate or rename the canonical memory into a duplicate file; do not reuse evidence from `564a309...` or any older SHA; do not re-audit green contracts unless SHA/environment/contract changes; do not bypass canonical RPC/server boundaries; do not claim worker resilience, backup/RPO/RTO, Phase-F, deployed-SHA parity, or certification from queued/in-progress jobs.
+- **CURRENT RESUME POINTER:** `commercial/comprehensive-product-development-20260918-rebased@` + `748a30c1f8349e1435dbd8c4de947e26889a9460`.
+- **LAST EXECUTIVE ACTION:** updated this same canonical execution index after the new root-cause fix; continue from the exact SHA above.
+
 ### LIVE EXECUTION UPDATE — 2026-09-18T12:35Z
 - **PR #595 Exact HEAD:** `46fd602a6038a6b2b7b4b45bf79e97e1de881adc`.
 - **Fresh PC01 exact-head verification:** typecheck PASS; production build PASS; performance budget **887.7KB / 900KB** and largest JS 487.8KB; UI route/sidebar parity PASS (35/34); executive dashboard UI PASS.
