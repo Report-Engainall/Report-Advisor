@@ -6,7 +6,7 @@ import os from 'node:os';
 import crypto from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 
-const backupMode = (process.env.RESILIENCE_BACKUP_MODE || 'managed').trim().toLowerCase() || 'managed';
+const backupMode = (process.env.RESILIENCE_BACKUP_MODE || 'logical').trim().toLowerCase() || 'logical';
 if (!['managed', 'logical'].includes(backupMode)) throw new Error(`invalid_resilience_backup_mode:${backupMode}`);
 
 const baseRequired = [
@@ -122,7 +122,11 @@ function stableJson(value) {
 }
 
 async function logicalBackupRestore() {
-  const source = process.env.RESILIENCE_LOGICAL_SOURCE_DB_URL.trim();
+  const projectRef = (process.env.SUPABASE_PROJECT_REF || 'fnqbvfuwbdpwvhcgzksl').trim();
+  const password = process.env.SUPABASE_DB_PASSWORD?.trim() || '';
+  const source = process.env.RESILIENCE_LOGICAL_SOURCE_DB_URL?.trim()
+    || (password ? `postgresql://postgres.${encodeURIComponent(projectRef)}:${encodeURIComponent(password)}@aws-0-ap-southeast-2.pooler.supabase.com:5432/postgres` : '');
+  if (!source) throw new Error('logical_backup_source_db_url_not_configured');
   const maxRpoSeconds = Number(process.env.RESILIENCE_MAX_RPO_SECONDS);
   if (!Number.isFinite(maxRpoSeconds) || maxRpoSeconds < 0) {
     throw new Error('invalid_max_rpo_seconds');
