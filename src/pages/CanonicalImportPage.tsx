@@ -173,6 +173,7 @@ export function CanonicalImportPage() {
         invalidRows: rows.length - validRows.length,
         importId: rec.id,
         jobId: execution.jobId,
+        file_name: file.name,
       });
       setProgress(100);
       setResult({ total: rows.length, valid: validRows.length, invalid: rows.length - validRows.length, importId: rec.id, jobId: execution.jobId });
