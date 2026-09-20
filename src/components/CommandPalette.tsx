@@ -47,6 +47,17 @@ const COMMANDS: CommandItem[] = [
   { label: 'ملفي الشخصي', description: 'اسم العرض والهوية داخل التطبيق', path: '/settings/profile', keywords: ['profile', 'account', 'ملف شخصي', 'حساب'] },
 ];
 
+type CommandCategory = 'اليوم' | 'العمل' | 'التقارير' | 'القرار والذكاء' | 'البيانات المرجعية' | 'الإدارة';
+
+function commandCategory(path: string): CommandCategory {
+  if (path === '/' || path === '/command-center') return 'اليوم';
+  if (path.startsWith('/reports') || path.startsWith('/analytics')) return 'التقارير';
+  if (path.startsWith('/intelligence') || path === '/decision-experience' || path === '/metrics' || path === '/alternative-groups') return 'القرار والذكاء';
+  if (['/customers', '/products', '/inventory'].includes(path)) return 'البيانات المرجعية';
+  if (['/settings', '/settings/profile', '/onboarding', '/proposal-demo'].includes(path)) return 'الإدارة';
+  return 'العمل';
+}
+
 interface CommandPaletteProps { open: boolean; onClose: () => void; }
 
 const RECENT_COMMANDS_KEY = 'aghbari.commandPalette.recent';
@@ -136,8 +147,8 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
     <div className="fixed inset-0 z-[100] flex items-start justify-center bg-ink-950/45 px-4 pt-[12vh] backdrop-blur-sm" role="dialog" aria-modal="true" aria-label="لوحة الأوامر">
       <button className="absolute inset-0 cursor-default" aria-label="إغلاق" onClick={onClose} />
       <div className="relative w-full max-w-2xl overflow-hidden rounded-2xl border border-ink-200 bg-white shadow-2xl" dir="rtl">
-        <div className="flex items-center gap-3 border-b border-ink-100 px-4 py-3"><Search size={19} className="text-ink-400" /><input ref={inputRef} value={query} onChange={event => { setQuery(event.target.value); setActive(0); }} placeholder="ابحث عن صفحة أو إجراء..." className="min-w-0 flex-1 bg-transparent text-sm text-ink-900 outline-none placeholder:text-ink-400" /><kbd className="hidden rounded-md border border-ink-200 bg-ink-50 px-2 py-1 text-[10px] text-ink-400 sm:inline-flex">Esc</kbd></div>
-        <div className="max-h-[55vh] overflow-y-auto p-2">
+        <div className="flex items-center gap-3 border-b border-ink-100 px-4 py-3"><Search size={19} className="text-ink-400" /><input ref={inputRef} value={query} onChange={event => { setQuery(event.target.value); setActive(0); }} placeholder="ابحث عن صفحة أو إجراء..." className="min-w-0 flex-1 bg-transparent text-sm text-ink-900 outline-none placeholder:text-ink-400" aria-label="البحث في الأغبري" aria-autocomplete="list" aria-controls="command-results" aria-activedescendant={filtered[active] ? `command-option-${active}` : undefined} /><kbd className="hidden rounded-md border border-ink-200 bg-ink-50 px-2 py-1 text-[10px] text-ink-400 sm:inline-flex">Esc</kbd></div>
+        <div id="command-results" className="max-h-[55vh] overflow-y-auto p-2">
           {!query.trim() && recentCommands.length > 0 && (
             <div className="mb-2">
               <div className="px-3 pb-2 pt-1 text-[10px] font-bold uppercase tracking-wide text-ink-400">الوصول السريع</div>
@@ -167,13 +178,14 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
             filtered.map((item, index) => {
               const isCurrent = contextScore(item.path) >= 45;
               return (
-                <button key={item.path} type="button" onMouseEnter={() => setActive(index)} onClick={() => openCommand(item)}
+                <button key={item.path} id={`command-option-${index}`} role="option" aria-selected={index === active} type="button" onMouseEnter={() => setActive(index)} onClick={() => openCommand(item)}
                   className={`flex w-full items-center gap-3 rounded-xl px-3 py-3 text-right transition ${index === active ? 'bg-primary-50 text-primary-900' : 'hover:bg-ink-50'}`}>
                   <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${index === active ? 'bg-primary-100 text-primary-700' : 'bg-ink-100 text-ink-500'}`}><Command size={17}/></span>
                   <span className="min-w-0 flex-1">
-                    <span className="flex items-center gap-2">
-                      <span className="block truncate text-sm font-semibold">{item.label}</span>
-                      {!query.trim() && isCurrent && <span className="rounded-full bg-primary-50 px-2 py-0.5 text-[9px] font-bold text-primary-700">في هذه المساحة</span>}
+                    <span className="flex min-w-0 items-center gap-2">
+                      <span className="block min-w-0 truncate text-sm font-semibold">{item.label}</span>
+                      <span className="shrink-0 rounded-full bg-ink-100 px-2 py-0.5 text-[9px] font-bold text-ink-500">{commandCategory(item.path)}</span>
+                      {!query.trim() && isCurrent && <span className="shrink-0 rounded-full bg-primary-50 px-2 py-0.5 text-[9px] font-bold text-primary-700">في هذه المساحة</span>}
                     </span>
                     <span className="block truncate text-xs text-ink-400">{item.description}</span>
                   </span>
