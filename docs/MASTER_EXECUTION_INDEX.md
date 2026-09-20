@@ -225,3 +225,13 @@
 - **DO NOT REPEAT:** Do not reuse `9278956c...` business E2E as PASS; do not re-run closed contracts without relevant SHA/environment/contract change; do not create another memory/runner/contract; do not broaden selectors or bypass canonical import boundaries; do not claim Phase-F/certification from blocked probes.
 - **CURRENT RESUME POINTER:** `commercial/comprehensive-product-development-20260918-rebased@28fe8092c9ed3bf3e652fb96fe053d183b74e8dd`.
 - **LAST EXECUTIVE ACTION:** committed the bounded blank-route E2E recovery fix on the same PR branch; continue from `28fe8092...`.
+## EXECUTIVE SESSION UPDATE — 2026-09-20T04:58+03:00
+- **SESSION-ID:** 20260920-0450-REPORT-ADVISOR
+- **DONE:** Exact-head CI on `28fe8092c9ed3bf3e652fb96fe053d183b74e8dd` disproved the first recovery implementation: it navigated to the import surface but returned before selecting the entity, so the existing selection-settle assertion failed immediately on the customer import.
+- **ACTUAL RESULT:** Root cause was in the new E2E helper itself: `openImportEntity()` waited for the selector but did not click it, while `importOne()` still expected the old helper to have selected it. Fixed the helper to click the explicit test-id selector and wait for the actual selected-state class before returning. New code commit: `e446f87902fe61b747e73daf584aa0ca12b15917`.
+- **EVIDENCE:** `28fe8092...` remained FAIL for real-business E2E at the first customer import selection-settle assertion; no business PASS was promoted from it. Local exact working tree at the new code revision passed `node --check scripts/real-business-e2e.mjs` and `npm run build` with exit code 0. Phase-F remains independently blocked by missing governed operational token.
+- **PRECISE STOP POINT:** `e446f87902fe61b747e73daf584aa0ca12b15917` — fresh exact-head CI is the authority after this code correction.
+- **NEXT ACTION:** Continue with fresh exact-head CI; inspect the first terminal failure only. The target is now customer import selection → customer persistence → product import → invoice import → A/B isolation, then worker/recovery, backup/RPO/RTO, deployed parity and certification.
+- **DO NOT REPEAT:** Do not reuse `28fe8092...` business evidence; do not re-audit unrelated closed contracts; do not add another selector strategy, runner, RPC, or synthetic evidence; do not transfer any evidence to `e446f879...` or later SHAs.
+- **CURRENT RESUME POINTER:** `commercial/comprehensive-product-development-20260918-rebased@e446f87902fe61b747e73daf584aa0ca12b15917`.
+- **LAST EXECUTIVE ACTION:** corrected the helper root cause on the same PR branch; proceed from `e446f879...`.
