@@ -1,24 +1,24 @@
 ## LIVE EXECUTION UPDATE — 2026-09-21 — AGHBARI VISUAL COVERAGE WAVE
 
-- **SESSION-ID:** SESSION-20260921-VISUAL-CLOSURE-05
-- **CURRENT EXACT HEAD:** `4e07915a4f8b6255fcc6a132ea41406307aab4d7` on `commercial/comprehensive-product-development-20260918-rebased`.
+- **SESSION-ID:** SESSION-20260921-VISUAL-CLOSURE-06
+- **CURRENT EXACT HEAD:** `4596874d437990a42e04b907f9d9eb56a6981bee` on `commercial/comprehensive-product-development-20260918-rebased`.
 - **PRODUCT SCOPE LOCK:** UI-only. Backend, DB, RPC, runner, Phase-F and unrelated release work remain intentionally deferred.
 - **DONE:** Canonical Aghbari RTL shell remains fixed at a 284px right-side Sidebar with dark brand surface, business-section grouping, strong active states and correct Arabic directionality.
 - **DONE:** Shared PageHeader, KPI and DataTable primitives now provide one consistent enterprise visual language across the application.
-- **DONE:** Premium hero treatment applied to Dashboard, Intelligence and Decision Experience: layered dark-green gradients, gold/teal signal accents, restrained radial depth and stronger executive hierarchy.
-- **DONE:** Work Center upgraded with a dedicated operational hero treatment while preserving the authoritative import read path.
-- **DONE:** Import experience upgraded visually: premium stepper states, stronger source-selection cards, and a high-quality document dropzone without changing validation or commit behavior.
-- **DONE:** Chart presentation polished globally for Arabic RTL: refined grid rhythm, legend typography and visual consistency with the Aghbari palette.
-- **VERIFIED:** Local `npm run typecheck` passed on the visual batch.
-- **VERIFIED:** Local `npm run build` passed on the hero/decision visual batch; existing Browserslist/eval warnings only.
+- **DONE:** Premium hero treatment applied to Dashboard, Intelligence and Decision Experience, with restrained Aghbari gold/teal depth and stronger executive hierarchy.
+- **DONE:** Work Center upgraded with an operational hero surface while preserving the authoritative import read path.
+- **DONE:** Import experience upgraded with premium stepper states, source cards and document dropzone; validation/commit behavior unchanged.
+- **DONE:** Reports Center, Inventory Intelligence and Company Settings secondary surfaces now use the same premium Aghbari visual system.
+- **DONE:** Chart presentation polished globally for Arabic RTL.
+- **VERIFIED:** Local `npm run typecheck` passed on the complete visual wave.
+- **VERIFIED:** Local `npm run build` passed on the hero/decision visual wave; existing Browserslist/eval warnings only.
 - **VERIFIED:** UI route parity passed: 35 application routes / 34 canonical navigation links.
 - **VERIFIED:** Product WOW UI contract passed.
 - **BROWSER:** Local Vite remains available at `http://localhost:5173`; authenticated screenshot PASS is not claimed because PC01 lacks the required authenticated browser automation path.
-- **COMMITS/PUSH:** UI shell/PageHeader/KPI foundation and the current hero/import visual wave are all pushed to PR #595; latest exact source commit is `4e07915...`.
-- **NEXT VISUAL FRONT:** Continue polishing Reports/Analytics, Inventory/Receivables/Profitability, Entities, Settings/Profile and remaining secondary surfaces until the entire product reads as one premium Aghbari system.
-- **PRECISE STOP POINT:** `4e07915...` → continue UI-only visual coverage from this exact SHA; do not reopen backend/release work during this visual session.
+- **COMMITS/PUSH:** Visual work through `4596874...` is pushed to PR #595.
+- **PRECISE STOP POINT:** `4596874...` → the product now has a substantially unified premium visual frame across primary and secondary surfaces; continue only with remaining micro-polish or after owner reopens backend/release work.
 - **DO NOT REPEAT:** No duplicate navigation registry, no synthetic data, no backend redesign, no evidence transfer across SHAs, no RTL reversal.
-- **CURRENT RESUME POINTER:** `commercial/comprehensive-product-development-20260918-rebased@4e07915a4f8b6255fcc6a132ea41406307aab4d7` → continue premium UI coverage.
+- **CURRENT RESUME POINTER:** `commercial/comprehensive-product-development-20260918-rebased@4596874d437990a42e04b907f9d9eb56a6981bee` → premium UI coverage is the current completed visual boundary.
 
 ## EXECUTIVE SESSION UPDATE — 2026-09-20 — EXACT-HEAD RECONCILIATION BEFORE NEXT PROOF
 
