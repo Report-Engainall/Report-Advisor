@@ -1,3 +1,21 @@
+## EXECUTIVE SESSION UPDATE — 2026-09-20 — NAVIGATION / WORKSPACE CANONICALIZATION WAVE
+
+- **CURRENT EXECUTION SHA BEFORE MEMORY UPDATE:** `8088b64fa8564b7e13903956f4b82ae6878368b7`.
+- **BRANCH / PR:** `commercial/comprehensive-product-development-20260918-rebased` / PR #595.
+- **DONE:** Removed three active UI metadata duplications without creating a parallel implementation path:
+  - `Header.tsx` now resolves route labels through the canonical navigation registry.
+  - `CompanySettingsPage.tsx` now derives workspace route options, sections, and module groups from `navigation-registry.ts` instead of maintaining copied route labels/groups.
+  - `CommandPalette.tsx` now derives command categories from canonical navigation sections.
+  - Added `resolveNavigationItem()` as the canonical longest-prefix route resolver so nested routes such as `/reports/sales` resolve to their most specific registered label.
+  - Extended the existing UI route-completeness guard to fail on duplicate canonical navigation paths; no new workflow/test harness was created.
+- **REAL REGRESSION FOUND AND FIXED:** The first Header registry migration used first-match prefix resolution, which could map `/reports/sales` to the broader `/reports` label. The canonical resolver was corrected to longest-prefix matching before closure.
+- **LOCAL STATIC VERIFICATION:** The updated `check-ui-route-completeness.mjs` passes Node syntax validation. Full project proof is intentionally delegated to fresh Exact-HEAD CI; no unsupported runtime PASS is claimed from local syntax alone.
+- **CURRENT CI:** Fresh Exact-HEAD runs for `8088b64...` are queued/in-progress across Quality, Full Product Browser, UI route completeness, PWA, Product Creation, Storage, Desktop, Phase-F, and related gates. No current-head PASS is transferred from the previous SHA.
+- **PHASE-F:** Remains an external fail-closed lane; no RPO/token/backup/rollback value was fabricated.
+- **PRECISE STOP POINT:** Consume terminal Exact-HEAD results for `8088b64...`. Fix only the first new failing boundary. Do not reopen the prior 47 green gates unless the new changes materially affect them; this wave does affect navigation/UI gates, so fresh affected gates are expected and already queued.
+- **NEXT ACTION:** Consume UI route completeness + Quality + Browser/Product results first; then run/consume the release-wide gates only as their exact-head dependencies permit. Keep Phase-F isolated as external.
+- **DO NOT REPEAT:** Do not recreate navigation registries, route maps, workspace route metadata, duplicate tests, or new runners/RPCs. Do not reuse evidence from `bb538c79...` or older SHAs as certification proof for this wave.
+
 ## EXECUTIVE SESSION UPDATE — 2026-09-20T 19:01:07+03:00
 - **SESSION-ID:** SESSION-20260920-PARALLEL-CLOSURE-02
 - **CURRENT BRANCH HEAD / EXECUTION SHA:** `02720a86905aefccfaae2cecbb0b43ad3df114da` on `commercial/comprehensive-product-development-20260918-rebased`.
