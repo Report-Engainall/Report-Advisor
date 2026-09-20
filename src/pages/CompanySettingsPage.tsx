@@ -125,7 +125,8 @@ export function CompanySettingsPage() {
   return (
     <div className="space-y-6 animate-fade-in">
       <PageHeader title="الإعدادات" subtitle="مصدر الشركة الموثوق + محرر مساحة العمل المحلي على هذا الجهاز" />
-      <Card>
+      <div data-testid="workspace-editor">
+        <Card>
         <CardHeader title="محرر مساحة العمل" />
         <CardBody>
           <div className="rounded-2xl border border-ink-100 bg-ink-50/70 p-4 text-xs leading-5 text-ink-500">
@@ -143,7 +144,8 @@ export function CompanySettingsPage() {
             <div className="rounded-2xl border border-ink-100 bg-white p-4"><div className="text-sm font-bold text-ink-900">الإجراءات السريعة المفضلة</div><div className="mt-3 grid gap-2 sm:grid-cols-2">{WORKSPACE_ROUTE_OPTIONS.filter(option => option.path !== '/').slice(0, 8).map(option => <label key={option.path} className="flex items-center gap-2 rounded-xl border border-ink-100 px-3 py-2.5 text-xs text-ink-700"><input type="checkbox" checked={preferences.favoritePaths.includes(option.path)} onChange={() => togglePath(option.path, 'favoritePaths')} /><Star size={14} className={preferences.favoritePaths.includes(option.path) ? 'fill-current text-primary-600' : 'text-ink-300'} /><span>{option.label}</span></label>)}</div></div>
           </div>
         </CardBody>
-      </Card>
+        </Card>
+      </div>
       <div className="grid gap-6 xl:grid-cols-2">
         <Card><CardHeader title="إظهار / إخفاء الوحدات" /><CardBody><div className="space-y-3">{WORKSPACE_MODULE_GROUPS.map(group => { const hiddenCount = group.paths.filter(path => preferences.hiddenPaths.includes(path)).length; return <div key={group.id} className="rounded-2xl border border-ink-100 p-4"><div className="flex items-center justify-between gap-3"><div><div className="text-sm font-bold text-ink-900">{group.label}</div><div className="mt-0.5 text-[10px] text-ink-400">{hiddenCount} مخفية</div></div><Eye size={16} className="text-ink-400" /></div><div className="mt-3 grid gap-2 sm:grid-cols-2">{group.paths.map(path => { const option = WORKSPACE_ROUTE_OPTIONS.find(item => item.path === path); const hidden = preferences.hiddenPaths.includes(path); return <label key={path} className="flex items-center gap-2 rounded-xl border border-ink-100 px-3 py-2.5 text-xs text-ink-700"><input type="checkbox" checked={!hidden} onChange={() => togglePath(path, 'hiddenPaths')} />{hidden ? <EyeOff size={14} className="text-ink-300" /> : <Eye size={14} className="text-success-600" />}<span className="truncate">{option?.label ?? path}</span></label>; })}</div></div>; })}</div></CardBody></Card>
         <Card><CardHeader title="ترتيب التنقل" /><CardBody><div className="space-y-2">{preferences.sectionOrder.map((sectionId, index) => <div key={sectionId} className="flex items-center gap-2 rounded-xl border border-ink-100 bg-ink-50/50 p-3"><div className="min-w-0 flex-1 text-sm font-bold text-ink-800">{SECTION_LABELS[sectionId] ?? sectionId}</div><button type="button" disabled={index === 0} onClick={() => moveSection(sectionId, -1)} className="rounded-lg border border-ink-200 bg-white p-2 text-ink-500 disabled:opacity-30" aria-label="تحريك لأعلى"><ArrowUp size={14}/></button><button type="button" disabled={index === preferences.sectionOrder.length - 1} onClick={() => moveSection(sectionId, 1)} className="rounded-lg border border-ink-200 bg-white p-2 text-ink-500 disabled:opacity-30" aria-label="تحريك لأسفل"><ArrowDown size={14}/></button></div>)}</div></CardBody></Card>
