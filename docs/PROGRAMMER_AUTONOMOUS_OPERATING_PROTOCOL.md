@@ -212,7 +212,7 @@ The following are invalid completion tactics:
 - reporting deployment readiness as application correctness;
 - claiming certification while any mandatory gate is unresolved.
 
-## 15. Continuous Execution
+## 15. Continuous Execution — BLOCKER-LOCAL, SESSION-GLOBAL
 
 After closing a front, immediately rescan for:
 - newly exposed failures;
@@ -224,17 +224,43 @@ After closing a front, immediately rescan for:
 
 Then execute the next safe front.
 
-The stopping condition is not “one task finished.” The stopping condition is:
+**A blocker is local to the blocked front, not a stop condition for the whole execution session.**
 
-**no safe actionable front remains, or an explicit external/owner authorization blocker remains.**
+When a front is `BLOCKED_EXTERNAL`, `BLOCKED_OWNER`, or otherwise unable to progress because an external prerequisite is unavailable:
+1. record the exact blocker and affected front;
+2. mark that front blocked without weakening its acceptance criteria;
+3. immediately continue all independent repository, CI, UI/UX, data-truth, contract, security, performance, release-preparation, deployment-parity, documentation, cleanup, and evidence-consumption fronts that do not depend on the blocker;
+4. inspect dependency graph for alternate safe paths that reduce the blocker without fabricating inputs;
+5. periodically rescan the blocked front for newly available inputs or changed environment state;
+6. resume the blocked front automatically as soon as its prerequisite becomes available.
 
-## 16. Owner Escalation Format
+**Never end the session merely because one front is externally blocked while other safe actionable fronts remain.**
+
+The session stopping condition is only:
+
+**no safe actionable front remains anywhere in the dependency graph, or an explicit owner authorization is required for every remaining front.**
+
+An external blocker on one release gate does **not** authorize:
+- idle waiting;
+- returning a generic checklist to the owner;
+- stopping UI/product development;
+- stopping repository hardening;
+- stopping test-contract repair;
+- stopping cleanup/consolidation;
+- stopping evidence/document reconciliation;
+- stopping non-production deployment validation;
+- stopping independent runtime diagnostics.
+
+## 16. Owner Escalation Format — NON-STOP EXECUTION
 
 When escalation is unavoidable, provide only:
 1. exact blocker;
-2. why repository-side execution cannot remove it;
+2. why repository-side execution cannot remove that specific blocker;
 3. exact owner action required;
-4. what execution will resume automatically afterward.
+4. the fronts that continue autonomously in parallel;
+5. the exact gate that will resume automatically after the owner action.
+
+Escalation is **not** a session handoff and is **not** permission to stop executing other safe fronts.
 
 Do not ask broad questions or return the work as a vague checklist.
 
@@ -251,13 +277,24 @@ A release may be called certified only when every mandatory certification gate i
 
 Otherwise the correct state is NOT CERTIFIED / BLOCKED / NOT PROVEN as applicable.
 
+Certification being blocked does not stop independent product engineering, hardening, evidence preparation, deployment parity work, or other safe fronts.
+
 ## 18. Default Command
 
 When an owner issues a generic continuation command, execute:
 
-**READ CURRENT MEMORY → VERIFY EXACT HEAD → IDENTIFY LIVE BLOCKERS → EXECUTE ALL SAFE INDEPENDENT FRONTS → TEST → PROVE → DOCUMENT → RESCAN → CONTINUE**
+**READ CURRENT MEMORY → VERIFY EXACT HEAD → IDENTIFY ALL LIVE BLOCKERS → PARTITION BLOCKED VS UNBLOCKED FRONTS → EXECUTE ALL SAFE INDEPENDENT FRONTS → TEST → PROVE → DOCUMENT → RESCAN ALL FRONTIERS → RECHECK BLOCKED FRONTS → CONTINUE**
 
-Do not wait for another prompt merely because the previous front closed.
+Repeat this loop continuously.
+
+Do not wait for another prompt merely because:
+- the previous front closed;
+- a workflow is queued;
+- one external prerequisite is missing;
+- certification is currently blocked;
+- a different front requires owner action.
+
+Only stop when the global stopping condition in Section 15 is satisfied.
 
 ---
 **Governance:** This document is repository-resident operational policy. Changes to it must be intentional, auditable, and committed to GitHub.
