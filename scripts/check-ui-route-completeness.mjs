@@ -7,6 +7,7 @@ const pages = fs.readdirSync('src/pages').filter((name) => name.endsWith('Page.t
 const routePaths = [...app.matchAll(/<Route\s+path="([^"]+)"/g)].map((m) => m[1]);
 const navigationPaths = [...navigationRegistry.matchAll(/path:\s*'([^']+)'/g)].map((m) => m[1]);
 const unique = (items) => [...new Set(items)];
+const duplicateNavigationPaths = navigationPaths.filter((path, index) => navigationPaths.indexOf(path) !== index);
 const missingFromSidebar = routePaths.filter((path) => path !== '*' && !navigationPaths.includes(path));
 const missingRoutesForSidebar = navigationPaths.filter((path) => !routePaths.includes(path));
 
@@ -43,9 +44,9 @@ console.log(`UI route count: ${routePaths.length}`);
 console.log(`Canonical navigation count: ${unique(navigationPaths).length}`);
 console.log(`Page component files: ${pages.length}`);
 
+fail('duplicate navigation registry paths', unique(duplicateNavigationPaths));
 fail('routes missing from sidebar navigation', missingFromSidebar);
 fail('sidebar links missing a registered route', missingRoutesForSidebar);
-
 fail('page components unreachable from App/AuthGate import graph', unreferencedPageFiles);
 
 if (process.exitCode) {
