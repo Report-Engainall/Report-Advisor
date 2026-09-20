@@ -238,7 +238,7 @@ export function DashboardPage() {
 
   return (
     <div dir="rtl" className="animate-fade-in space-y-5 pb-10">
-      <section className="rounded-[18px] border border-ink-200 bg-ink-950 px-5 py-5 text-white shadow-elevated lg:px-6 lg:py-6">
+      <section className="ag-command-hero rounded-[20px] border border-ink-200 bg-ink-950 px-5 py-5 text-white shadow-elevated lg:px-6 lg:py-6">
         <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
           <div className="min-w-0">
             <div className="flex items-center gap-2 text-[11px] font-black text-primary-300">

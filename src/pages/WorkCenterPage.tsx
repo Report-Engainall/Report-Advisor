@@ -57,7 +57,7 @@ export function WorkCenterPage() {
     />
 
     <section className="grid gap-4 lg:grid-cols-[1.5fr_1fr]">
-      <Card className="hero-surface overflow-hidden">
+      <Card className="ag-operational-hero hero-surface overflow-hidden">
         <CardBody>
           <div className="flex flex-wrap items-start justify-between gap-5">
             <div>

@@ -30,7 +30,7 @@ function MetricStrip({
   icon: ReactNode;
 }) {
   return (
-    <div className="rounded-[14px] border border-ink-200 bg-white p-4 shadow-card">
+    <div className="ag-metric-tile rounded-[14px] border border-ink-200 bg-white p-4 shadow-card">
       <div className="flex items-center gap-2 text-[10px] font-black text-ink-400">
         <span className="text-primary-700">{icon}</span>
         {label}
@@ -104,7 +104,7 @@ export function IntelligenceCenterPage() {
 
   return (
     <div dir="rtl" className="space-y-5 animate-fade-in pb-10">
-      <section className="rounded-[18px] border border-ink-200 bg-ink-950 p-5 text-white shadow-elevated lg:p-6">
+      <section className="ag-command-hero rounded-[20px] border border-ink-200 bg-ink-950 p-5 text-white shadow-elevated lg:p-6">
         <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
           <div className="max-w-3xl">
             <div className="flex items-center gap-2 text-[11px] font-black text-primary-300">
