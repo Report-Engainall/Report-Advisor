@@ -302,9 +302,11 @@ async function runWorkspacePersonalizationProbe(targetPage) {
   const redirectedPath = new URL(await targetPage.url()).pathname;
   if (redirectedPath !== '/reports/profitability') throw new Error(`WORKSPACE_LANDING_REDIRECT_FAILED:${redirectedPath}`);
 
-  await targetPage.goto(`${baseURL}/settings`, { waitUntil: 'domcontentloaded', timeout: 30000 });
-  const resetButton = targetPage.getByRole('button', { name: 'إعادة الإعدادات الافتراضية' });
-  await resetButton.waitFor({ state: 'visible', timeout: 15000 });
+  const resetConvergence = await convergeSettingsPage();
+  const resetWorkspaceEditor = targetPage.locator('[data-testid="workspace-editor"]');
+  await resetWorkspaceEditor.waitFor({ state: 'visible', timeout: 30000 });
+  const resetButton = resetWorkspaceEditor.getByRole('button', { name: 'إعادة الإعدادات الافتراضية', exact: true });
+  await resetButton.waitFor({ state: 'visible', timeout: 30000 });
   await resetButton.click();
 
   const reset = await targetPage.evaluate(() => {
