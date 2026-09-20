@@ -47,6 +47,7 @@ button,input,textarea,select{font:inherit}
 @layer utilities{.text-balance{text-wrap:balance}.tabular-nums{font-variant-numeric:tabular-nums}.gradient-text{color:#0f766e;background:none}.soft-grid{background-image:none}}
 @layer base{@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}} :focus-visible{outline:2px solid rgb(20 184 166 / .55);outline-offset:2px}}
 @layer components {
+  .ag-page-header{position:relative;overflow:hidden;background:linear-gradient(135deg,rgba(255,255,255,.96),rgba(247,252,250,.92) 64%,rgba(255,248,232,.72));box-shadow:0 10px 28px -24px rgba(5,46,43,.52)}.ag-page-header::after{content:"";position:absolute;inset-inline-start:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,#e7b52b,#129b88);opacity:.85}.ag-page-kicker{display:flex;align-items:center;gap:.45rem;font-size:10px;font-weight:900;letter-spacing:.08em;color:#4d7a72}.ag-page-kicker-dot{width:6px;height:6px;border-radius:999px;background:#e7b52b;box-shadow:0 0 0 4px rgba(231,181,43,.12)}
   .report-page{color:#17211c}
   .print-hide{}
   .page-surface{@apply rounded-[12px] border border-ink-200 bg-white}
