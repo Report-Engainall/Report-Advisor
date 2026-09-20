@@ -308,8 +308,6 @@ async function runWorkspacePersonalizationProbe(targetPage) {
     const label = labels.find(candidate => normalize(candidate.textContent).includes('بطاقات المؤشرات'));
     if (!label) {
       throw new Error('WORKSPACE_KPI_LABEL_NOT_FOUND:' + JSON.stringify({
-        afterPreset,
-        afterLanding,
         labelTexts: labels.map(candidate => normalize(candidate.textContent)).filter(Boolean).slice(-30),
       }));
     }
@@ -320,7 +318,14 @@ async function runWorkspacePersonalizationProbe(targetPage) {
     const before = input.checked;
     if (before) input.click();
     return { before, after: input.checked };
-  });
+    });
+  } catch (error) {
+    throw new Error('WORKSPACE_KPI_INTERACTION_FAILED:' + JSON.stringify({
+      afterPreset,
+      afterLanding,
+      cause: error instanceof Error ? error.message : String(error),
+    }));
+  }
   if (kpiToggle.after) throw new Error('WORKSPACE_KPI_VISIBILITY_NOT_TOGGLED');
 
   const persisted = await targetPage.evaluate(() => {
