@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 import {
   ArrowUpLeft, BarChart3, Brain, CalendarRange, CheckCircle2, CircleAlert, FileSearch,
   Package, Receipt, RefreshCw, Sparkles, TrendingDown, TrendingUp, Upload, Users, WalletCards
@@ -60,7 +60,7 @@ function PulseMetric({
   label: string;
   value: number | null;
   detail?: string;
-  icon: React.ReactNode;
+  icon: ReactNode;
   status: 'CONFIRMED' | 'CALCULATED' | 'INSUFFICIENT_DATA';
 }) {
   const stateLabel = status === 'CONFIRMED' ? 'مثبت' : status === 'CALCULATED' ? 'محسوب' : 'غير كافٍ';
