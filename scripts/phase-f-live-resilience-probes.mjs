@@ -123,10 +123,21 @@ function stableJson(value) {
 
 async function logicalBackupRestore() {
   const projectRef = process.env.SUPABASE_PROJECT_REF?.trim() || '';
-  const password = process.env.SUPABASE_DB_PASSWORD?.trim() || '';
-  if (password && !projectRef) throw new Error('logical_backup_project_ref_not_configured');
-  const source = process.env.RESILIENCE_LOGICAL_SOURCE_DB_URL?.trim()
-    || (password ? `postgresql://postgres.${encodeURIComponent(projectRef)}:${encodeURIComponent(password)}@aws-0-ap-southeast-2.pooler.supabase.com:5432/postgres` : '');
+  const explicitSource = process.env.RESILIENCE_LOGICAL_SOURCE_DB_URL?.trim() || '';
+  const dbPassword = process.env.SUPABASE_DB_PASSWORD?.trim() || '';
+  const temporaryAccessToken = process.env.SUPABASE_TEMPORARY_ACCESS_TOKEN?.trim()
+    || process.env.SUPABASE_MANAGEMENT_TOKEN?.trim()
+    || '';
+  if ((dbPassword || temporaryAccessToken) && !projectRef) {
+    throw new Error('logical_backup_project_ref_not_configured');
+  }
+  const jitEnabled = !dbPassword && Boolean(temporaryAccessToken);
+  const password = dbPassword || temporaryAccessToken;
+  const querySuffix = jitEnabled ? '?options=-c%20jit%3Don' : '';
+  const source = explicitSource
+    || (password
+      ? `postgresql://postgres.${encodeURIComponent(projectRef)}:${encodeURIComponent(password)}@aws-0-ap-southeast-2.pooler.supabase.com:5432/postgres${querySuffix}`
+      : '');
   if (!source) throw new Error('logical_backup_source_db_url_not_configured');
   const maxRpoSeconds = Number(process.env.RESILIENCE_MAX_RPO_SECONDS);
   if (!Number.isFinite(maxRpoSeconds) || maxRpoSeconds < 0) {
