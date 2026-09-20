@@ -4,13 +4,9 @@ import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { PageHeader, LoadingState, ErrorState } from '@/components/ui/States';
 import { supabase, resolveCurrentCompanyId } from '@/lib/supabase';
 import {
-  applyWorkspacePreset,
-  DASHBOARD_WIDGET_OPTIONS,
   readWorkspacePreferences,
   resetWorkspacePreferences,
   writeWorkspacePreferences,
-  WORKSPACE_MODULE_GROUPS,
-  WORKSPACE_ROUTE_OPTIONS,
   type WorkspaceMode,
   type WorkspacePreset,
   type WorkspacePreferences,
@@ -36,6 +32,40 @@ const SECTION_LABELS: Record<string, string> = {
   today: 'اليوم', operations: 'التشغيل', money: 'المال', 'customers-products': 'العملاء والمنتجات',
   intelligence: 'القرار والذكاء', reports: 'التقارير', admin: 'الإدارة',
 };
+
+const DEFAULT_SECTION_ORDER = ['today', 'operations', 'money', 'customers-products', 'intelligence', 'reports', 'admin'] as const;
+const WORKSPACE_ROUTE_OPTIONS = [
+  { path: '/', label: 'لوحة اليوم' }, { path: '/work-center', label: 'مركز العمل' },
+  { path: '/command-center', label: 'مركز القيادة' }, { path: '/import', label: 'الاستيراد' },
+  { path: '/reports/sales', label: 'المبيعات' }, { path: '/reports/receivables', label: 'الذمم والتحصيل' },
+  { path: '/reports/profitability', label: 'الربحية' }, { path: '/inventory', label: 'المخزون' },
+  { path: '/decision-experience', label: 'قرار اليوم' }, { path: '/reports/executive', label: 'التقرير التنفيذي' },
+  { path: '/data-quality', label: 'جودة البيانات' }, { path: '/analytics', label: 'التحليلات' }, { path: '/metrics', label: 'تفسير المقاييس' },
+] as const;
+const WORKSPACE_MODULE_GROUPS = [
+  { id: 'operations', label: 'التشغيل', paths: ['/work-center', '/import', '/import/analyze', '/data-quality', '/connections'] },
+  { id: 'money', label: 'المال', paths: ['/reports/sales', '/reports/purchases', '/reports/receivables', '/reports/profitability'] },
+  { id: 'customers-products', label: 'العملاء والمنتجات', paths: ['/customers', '/products', '/inventory', '/alternative-groups'] },
+  { id: 'intelligence', label: 'القرار والذكاء', paths: ['/intelligence/recommendations', '/intelligence/forecasts', '/intelligence/scenarios', '/analytics/rfm', '/analytics/abc', '/analytics/aging', '/metrics'] },
+  { id: 'reports', label: 'التقارير والتحليلات', paths: ['/reports', '/reports/executive', '/reports/inventory', '/reports/inventory-intelligence', '/reports/demand-velocity', '/analytics'] },
+  { id: 'admin', label: 'الإدارة المتقدمة', paths: ['/onboarding', '/settings', '/settings/profile', '/proposal-demo'] },
+] as const;
+const DASHBOARD_WIDGET_OPTIONS = [
+  { id: 'kpis', label: 'بطاقات المؤشرات' }, { id: 'analysis', label: 'لوحة الإثبات والتحليل' },
+  { id: 'attention', label: 'الانتباه وطابور القرار' }, { id: 'entities', label: 'العملاء والمنتجات وأعمار الذمم' },
+  { id: 'work-paths', label: 'مسارات العمل' },
+] as const;
+const PRESETS: Record<WorkspacePreset, WorkspacePreferences> = {
+  'owner-executive': { mode: 'essential', preset: 'owner-executive', defaultLandingPath: '/command-center', hiddenPaths: [], favoritePaths: ['/', '/command-center', '/decision-experience', '/reports/executive'], sectionOrder: [...DEFAULT_SECTION_ORDER], dashboardWidgets: DASHBOARD_WIDGET_OPTIONS.map(option => option.id) },
+  finance: { mode: 'advanced', preset: 'finance', defaultLandingPath: '/reports/profitability', hiddenPaths: [], favoritePaths: ['/reports/profitability', '/reports/receivables', '/reports/sales', '/metrics'], sectionOrder: [...DEFAULT_SECTION_ORDER], dashboardWidgets: DASHBOARD_WIDGET_OPTIONS.map(option => option.id) },
+  sales: { mode: 'advanced', preset: 'sales', defaultLandingPath: '/reports/sales', hiddenPaths: [], favoritePaths: ['/reports/sales', '/customers', '/products', '/analytics/rfm'], sectionOrder: [...DEFAULT_SECTION_ORDER], dashboardWidgets: DASHBOARD_WIDGET_OPTIONS.map(option => option.id) },
+  collections: { mode: 'advanced', preset: 'collections', defaultLandingPath: '/reports/receivables', hiddenPaths: [], favoritePaths: ['/reports/receivables', '/work-center', '/customers', '/reports/executive'], sectionOrder: [...DEFAULT_SECTION_ORDER], dashboardWidgets: DASHBOARD_WIDGET_OPTIONS.map(option => option.id) },
+  inventory: { mode: 'advanced', preset: 'inventory', defaultLandingPath: '/inventory', hiddenPaths: [], favoritePaths: ['/inventory', '/reports/inventory-intelligence', '/reports/demand-velocity', '/products'], sectionOrder: [...DEFAULT_SECTION_ORDER], dashboardWidgets: DASHBOARD_WIDGET_OPTIONS.map(option => option.id) },
+  operations: { mode: 'advanced', preset: 'operations', defaultLandingPath: '/work-center', hiddenPaths: [], favoritePaths: ['/work-center', '/import', '/data-quality', '/connections'], sectionOrder: [...DEFAULT_SECTION_ORDER], dashboardWidgets: DASHBOARD_WIDGET_OPTIONS.map(option => option.id) },
+  analyst: { mode: 'advanced', preset: 'analyst', defaultLandingPath: '/analytics', hiddenPaths: [], favoritePaths: ['/analytics', '/metrics', '/intelligence/scenarios', '/data-quality'], sectionOrder: [...DEFAULT_SECTION_ORDER], dashboardWidgets: DASHBOARD_WIDGET_OPTIONS.map(option => option.id) },
+  'data-import': { mode: 'expert', preset: 'data-import', defaultLandingPath: '/import', hiddenPaths: [], favoritePaths: ['/import', '/import/analyze', '/data-quality', '/connections'], sectionOrder: [...DEFAULT_SECTION_ORDER], dashboardWidgets: DASHBOARD_WIDGET_OPTIONS.map(option => option.id) },
+};
+
 
 export function CompanySettingsPage() {
   const [company, setCompany] = useState<CompanySettings | null>(null);
@@ -72,7 +102,7 @@ export function CompanySettingsPage() {
 
   const commit = (next: Partial<WorkspacePreferences>) => setPreferences(writeWorkspacePreferences(next));
   const setMode = (mode: WorkspaceMode) => commit({ mode });
-  const setPreset = (preset: WorkspacePreset) => setPreferences(applyWorkspacePreset(preset));
+  const setPreset = (preset: WorkspacePreset) => setPreferences(writeWorkspacePreferences(PRESETS[preset]));
   const togglePath = (path: string, list: 'hiddenPaths' | 'favoritePaths') => {
     const current = preferences[list];
     commit({ [list]: current.includes(path) ? current.filter(item => item !== path) : [...current, path] });
