@@ -1,7 +1,7 @@
 export interface ArtifactIntegrityInput { format: 'web' | 'pdf' | 'xlsx'; mimeType: string; fileName: string; contentBase64: string; expectedHash?: string; }
 export interface ArtifactIntegrityResult { valid: boolean; byteLength: number; contentHash: string; reason?: string; }
 
-function bytes(input: string): Uint8Array { const binary = atob(input); return Uint8Array.from(binary, char => char.charCodeAt(0)); }
+function bytes(input: string): ArrayBuffer { const binary = atob(input); const data = new Uint8Array(binary.length); for (let i = 0; i < binary.length; i += 1) data[i] = binary.charCodeAt(i); return data.buffer; }
 function hex(buffer: ArrayBuffer): string { return [...new Uint8Array(buffer)].map(value => value.toString(16).padStart(2, '0')).join(''); }
 
 export async function verifyArtifactIntegrity(input: ArtifactIntegrityInput): Promise<ArtifactIntegrityResult> {
