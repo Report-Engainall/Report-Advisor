@@ -92,7 +92,7 @@ jobs:
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_SERVICE_ROLE_KEY }}
         run: |
           set -euo pipefail
-          nohup npm run preview -- --host 127.0.0.1 --port 4173 > /tmp/report-advisor-vite-preview.log 2>&1 &
+          nohup npx --yes netlify-cli@latest dev --offline --dir . > /tmp/report-advisor-netlify-dev.log 2>&1 &
           for i in {1..30}; do
             if curl -fsS http://127.0.0.1:4173/ >/dev/null; then
               echo "E2E_APP_READY=http://127.0.0.1:4173"
@@ -100,7 +100,7 @@ jobs:
             fi
             sleep 1
           done
-          cat /tmp/report-advisor-vite-preview.log
+          cat /tmp/report-advisor-netlify-dev.log
           exit 1
       - name: Verify authenticated E2E secret contract
         env:
