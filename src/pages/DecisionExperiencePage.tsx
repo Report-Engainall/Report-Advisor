@@ -1,51 +1,334 @@
-import { useCallback,useEffect,useState } from 'react';
-import { AlertTriangle, FileSearch, Lightbulb, ShieldCheck, Target, Workflow } from 'lucide-react';
-import { Link,useSearchParams } from 'react-router-dom';
-import { fetchAlerts,fetchRecommendations } from '@/lib/queries';
-import type { Alert,Recommendation } from '@/lib/types';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  AlertTriangle, ArrowUpLeft, CheckCircle2, ChevronLeft, FileSearch, Lightbulb,
+  ShieldCheck, Target, Workflow, XCircle
+} from 'lucide-react';
+import { Link, useSearchParams } from 'react-router-dom';
+import { Card, CardBody, CardHeader } from '@/components/ui/Card';
+import { ConfidenceBadge, PriorityBadge, SeverityBadge } from '@/components/ui/Badge';
+import { EmptyState, ErrorState, LoadingState } from '@/components/ui/States';
+import { fetchAlerts, fetchRecommendations } from '@/lib/queries';
+import { formatCurrency, relativeTime } from '@/lib/format';
+import type { Alert, Recommendation } from '@/lib/types';
 
-type Stage='command'|'evidence'|'decision'|'approval'|'work'|'outcome';
-const stages: {id:Stage;label:string;description:string}[]=[
- {id:'command',label:'مركز القيادة',description:'المعلومة والأولوية'},
- {id:'evidence',label:'الدليل',description:'المصدر والسياق'},
- {id:'decision',label:'القرار',description:'التوصية والسبب'},
- {id:'approval',label:'الموافقة',description:'المسؤولية والاعتماد'},
- {id:'work',label:'التنفيذ',description:'العمل والمتابعة'},
- {id:'outcome',label:'النتيجة والتعلّم',description:'المتوقع → الفعلي'},
+type Stage = 'command' | 'evidence' | 'decision' | 'approval' | 'work' | 'outcome';
+
+const STAGES: { id: Stage; label: string; description: string }[] = [
+  { id: 'command', label: 'الإشارة', description: 'ما الذي يحتاج انتباهًا؟' },
+  { id: 'evidence', label: 'الدليل', description: 'ما الذي يثبت ذلك؟' },
+  { id: 'decision', label: 'القرار', description: 'ما الإجراء المقترح؟' },
+  { id: 'approval', label: 'الموافقة', description: 'من يعتمد الإجراء؟' },
+  { id: 'work', label: 'التنفيذ', description: 'ماذا تم فعليًا؟' },
+  { id: 'outcome', label: 'النتيجة', description: 'ما الذي حدث بعد ذلك؟' },
 ];
-function Empty({title,detail}:{title:string;detail:string}){return <div className="rounded-2xl border border-dashed border-ink-300 bg-ink-50 p-6 text-center"><p className="font-semibold text-ink-800">{title}</p><p className="mt-2 text-xs leading-6 text-ink-500">{detail}</p></div>}
-function Blocked({children}:{children:string}){return <div role="status" className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">{children}</div>}
-export function DecisionExperiencePage(){const [params,setParams]=useSearchParams();const requested=params.get('stage') as Stage|null;const [stage,setStage]=useState<Stage>(stages.some(s=>s.id===requested)?requested!:'command');const [recommendations,setRecommendations]=useState<Recommendation[]>([]);const [alerts,setAlerts]=useState<Alert[]>([]);const [selectedId,setSelectedId]=useState(params.get('recommendationId'));const [loading,setLoading]=useState(true);const [error,setError]=useState<string|null>(null);
- const load=useCallback(async()=>{setLoading(true);setError(null);try{const [r,a]=await Promise.all([fetchRecommendations(),fetchAlerts()]);setRecommendations(r);setAlerts(a);setSelectedId(current=>current&&r.some(x=>x.id===current)?current:r[0]?.id??null);}catch(e){setError(e instanceof Error?e.message:'تعذر تحميل بيانات القرار.')}finally{setLoading(false)}},[]);
- useEffect(()=>{void load()},[load]);
- useEffect(()=>{if(requested&&stages.some(s=>s.id===requested))setStage(requested);},[requested]);
- useEffect(()=>{const requestedId=params.get('recommendationId');if(requestedId)setSelectedId(requestedId);},[params]);
- const selected=recommendations.find(r=>r.id===selectedId)??null;
- const stageIndex=Math.max(0, stages.findIndex(s=>s.id===stage));
- const go=(next:Stage,id=selectedId)=>{setStage(next);const p=new URLSearchParams(params);p.set('stage',next);if(id)p.set('recommendationId',id);else p.delete('recommendationId');setParams(p,{replace:true})};
- const selectRecommendation=(id:string,next:Stage='evidence')=>{setSelectedId(id);go(next,id)};
- return <div dir="rtl" className="space-y-5 pb-8">
-   <header className="hero-surface overflow-hidden p-5 lg:p-6">
-     <div className="flex flex-wrap items-center justify-between gap-3">
-       <div className="flex items-center gap-2 text-xs font-black text-primary-700"><Workflow size={17}/> منظومة القرار التنفيذية</div>
-       <span className="badge-neutral">المرحلة {String(stageIndex+1).padStart(2,'0')} / {String(stages.length).padStart(2,'0')}</span>
-     </div>
-     <h1 className="mt-2 text-[24px] font-black tracking-tight text-ink-950 lg:text-[28px]">من البيانات إلى الدليل، ثم القرار والنتيجة</h1>
-     <p className="mt-2 max-w-3xl text-[12px] leading-6 text-ink-500">رحلة موحدة تحفظ السياق ولا تعرض نجاحًا أو دليلًا موثقًا إلا من المصدر المعتمد.</p>
-     <div className="mt-4 h-1 overflow-hidden rounded-full bg-ink-100" aria-label="تقدم دورة القرار" role="progressbar" aria-valuemin={1} aria-valuemax={stages.length} aria-valuenow={stageIndex+1}>
-       <div className="h-full rounded-full bg-primary-600 transition-all duration-300" style={{width:`${((stageIndex+1)/stages.length)*100}%`}}/>
-     </div>
-     {selected && <div className="mt-4 flex flex-col gap-2 rounded-[10px] border border-warning-200 bg-warning-50/60 p-3 sm:flex-row sm:items-center sm:justify-between">
-       <div className="min-w-0"><div className="surface-label">السياق المحدد</div><div className="mt-1 truncate text-sm font-bold text-ink-900">{selected.title}</div></div>
-       <span className="shrink-0 text-[10px] font-bold text-warning-800">الدليل التشغيلي يحتاج إثباتًا حيًا</span>
-     </div>}
-   </header>
- <nav aria-label="مراحل دورة القرار" className="grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-6">{stages.map(s=><button key={s.id} type="button" aria-current={stage===s.id?'step':undefined} onClick={()=>go(s.id)} className={`stage-pill focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 ${stage===s.id?'stage-pill-active':'hover:border-ink-300 hover:bg-ink-50'}`}><span className="block text-xs font-bold">{s.label}</span><span className="mt-1 block text-[10px] text-ink-500">{s.description}</span></button>)}</nav>
- {error&&<div role="alert" className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-800"><div className="flex items-center gap-2 font-semibold"><AlertTriangle size={17}/> تعذر تحميل البيانات</div><p className="mt-1">{error}</p><button type="button" onClick={()=>void load()} className="mt-3 rounded-xl border border-red-300 bg-white px-3 py-2 text-xs font-semibold">إعادة المحاولة</button></div>}
- {stage==='command'&&<section className="grid gap-4 lg:grid-cols-2"><div className="rounded-2xl border border-ink-200 bg-white p-5"><div className="flex items-center gap-2"><Lightbulb size={19}/><h2 className="font-bold">التوصيات</h2></div><div className="mt-4 space-y-2">{!loading&&recommendations.length===0&&<Empty title="لا توجد توصيات" detail="لا يتم إنشاء بيانات تجريبية."/>}{recommendations.slice(0,8).map(r=><button key={r.id} type="button" onClick={()=>selectRecommendation(r.id)} className="w-full rounded-xl border border-ink-100 p-3 text-right hover:bg-ink-50"><p className="text-sm font-semibold">{r.title}</p><p className="mt-1 text-xs text-ink-500">{r.expected_impact==null?'الأثر المتوقع غير متاح':`الأثر المتوقع: ${r.expected_impact}`}</p></button>)}</div></div><div className="rounded-2xl border border-ink-200 bg-white p-5"><h2 className="font-bold">التنبيهات</h2><div className="mt-4 space-y-2">{!loading&&alerts.length===0&&<Empty title="لا توجد تنبيهات" detail="لا توجد تنبيهات في المصدر الحالي."/>}{alerts.slice(0,6).map(a=><Link key={a.id} to={`/decision-experience?stage=decision${selectedId?`&recommendationId=${encodeURIComponent(selectedId)}`:''}`} className="block rounded-xl border border-ink-100 p-3 hover:bg-ink-50"><p className="text-sm font-semibold">{a.title}</p></Link>)}</div></div></section>}
- {stage==='evidence'&&<section className="grid gap-4 lg:grid-cols-[.8fr_1.2fr]"><div className="rounded-2xl border border-ink-200 bg-white p-5"><h2 className="font-bold">اختيار التوصية</h2><div className="mt-4 space-y-2">{recommendations.length===0?<Empty title="لا توجد توصيات" detail="لا يمكن فحص دليل لتوصية غير موجودة."/>:recommendations.map(r=><button key={r.id} type="button" aria-pressed={selectedId===r.id} onClick={()=>selectRecommendation(r.id)} className={`w-full rounded-xl border p-3 text-right ${selectedId===r.id?'border-primary-400 bg-primary-50':'border-ink-100'}`}>{r.title}</button>)}</div></div><div className="rounded-2xl border border-ink-200 bg-white p-5"><div className="flex items-center gap-2"><FileSearch size={19}/><h2 className="font-bold">مساحة الدليل</h2></div>{selected?<div className="mt-5 space-y-4"><h3 className="text-lg font-bold">{selected.title}</h3><p className="text-sm leading-7 text-ink-600">{selected.description||'الوصف غير متاح من المصدر الحالي.'}</p><div className="grid gap-3 sm:grid-cols-2"><div className="rounded-xl bg-ink-50 p-4"><p className="text-xs text-ink-500">موثوقية الدليل</p><p className="mt-1 font-bold">غير مثبت</p></div><div className="rounded-xl bg-ink-50 p-4"><p className="text-xs text-ink-500">المصدر</p><p className="mt-1 font-bold">غير متاح</p></div></div><Blocked>الدليل التشغيلي مطلوب — لا توجد raw evidence مصطنعة ولا يتم استنتاج المصدر من التوصية.</Blocked><button type="button" onClick={()=>go('decision')} className="rounded-xl bg-ink-950 px-4 py-2.5 text-xs font-bold text-white">متابعة إلى القرار</button></div>:<Empty title="اختر توصية" detail="اختر عنصرًا موجودًا لفحص الدليل."/>}</div></section>}
- {stage==='decision'&&<section className="space-y-4"><div className="rounded-2xl border border-ink-200 bg-white p-5"><div className="flex items-center gap-2"><ShieldCheck size={19}/><h2 className="font-bold">مساحة القرار</h2></div>{selected?<div className="mt-4"><p className="font-semibold">{selected.title}</p><p className="mt-2 text-sm text-ink-500">مرشح قرار — لا يُعد المرشح حالة قرار محفوظة في المصدر.</p></div>:<Empty title="لا يوجد مرشح قرار" detail="لا يوجد قرار يمكن ربطه بتوصية حالية."/>}</div><Blocked>صلاحية المستخدم وسياق الشركة مطلوبة قبل أي موافقة أو تعديل. لا يتم تحويل المرشح إلى حالة معتمدة محليًا.</Blocked><div className="grid gap-3 sm:grid-cols-3">{['مقترح','بانتظار الموافقة','معتمد / مرفوض'].map(s=><div key={s} className="rounded-xl border border-ink-100 bg-white p-4"><p className="text-xs font-bold">{s}</p><p className="mt-2 text-xs text-ink-500">تصميم lifecycle فقط، وليس دليل حالة persisted.</p></div>)}</div></section>}
- {stage==='approval'&&<section className="space-y-4"><div className="rounded-2xl border border-ink-200 bg-white p-5"><div className="flex items-center gap-2"><ShieldCheck size={19}/><h2 className="font-bold">مركز الموافقة</h2></div><p className="mt-3 text-sm leading-7 text-ink-600">الموافقة تحتاج صلاحية تشغيلية ودليلًا حيًا موثقًا.</p></div><Blocked>إجراء الموافقة غير متاح — لا يتم إنشاء صاحب موافقة أو توقيت أو موافقة محلية.</Blocked></section>}
- {stage==='work'&&<section className="space-y-4"><div className="rounded-2xl border border-ink-200 bg-white p-5"><div className="flex items-center gap-2"><Target size={19}/><h2 className="font-bold">مساحة العمل الشخصية</h2></div><div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{['موافقاتي','مهامي','قيد التنفيذ','متأخر','مكتمل','متابعة النتيجة'].map(s=><div key={s} className="rounded-xl border border-ink-100 p-4"><p className="text-xs font-bold">{s}</p><p className="mt-2 text-xs text-ink-500">لا توجد بيانات تشغيلية متاحة.</p></div>)}</div></div><Blocked>لا يمكن اختلاق مهام أو حالات إنجاز. يتطلب هذا المسار جلسة موثقة وسياق الشركة.</Blocked></section>}
- {stage==='outcome'&&<section className="space-y-4"><div className="rounded-2xl border border-ink-200 bg-white p-5"><h2 className="font-bold">النتيجة والتعلّم</h2><div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{[['المتوقع',selected?.expected_impact==null?'الأثر المتوقع غير متاح':String(selected.expected_impact)],['الفعلي','النتيجة الفعلية غير متاحة بعد'],['الفارق','لا يمكن حساب الفارق بعد'],['جودة النتيجة','جودة النتيجة غير متاحة بعد'],['الملاحظات','الملاحظات غير متاحة بعد'],['إشارة التعلّم','إشارة التعلّم غير مثبتة بعد']].map(([l,v])=><div key={l} className="rounded-xl border border-ink-100 p-4"><p className="text-xs font-bold">{l}</p><p className="mt-2 text-sm font-semibold">{v}</p></div>)}</div></div><Blocked>تعلم المستودع لا يساوي تعلّم التشغيل. لا توجد نتيجة فعلية أو ملاحظات أو أدلة تعلّم تشغيلية موثقة.</Blocked></section>}
- </div>}
+
+function BlockedState({ title, detail }: { title: string; detail: string }) {
+  return (
+    <div className="rounded-[14px] border border-warning-200 bg-warning-50/70 p-4" role="status">
+      <div className="flex items-start gap-3">
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-warning-100 text-warning-800"><ShieldCheck size={17}/></div>
+        <div className="min-w-0">
+          <div className="text-[12px] font-black text-warning-950">{title}</div>
+          <p className="mt-1 text-[11px] leading-5 text-warning-900/80">{detail}</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function StageHeader({ label, description }: { label: string; description: string }) {
+  return (
+    <div>
+      <div className="section-kicker">{label}</div>
+      <h2 className="mt-1 text-xl font-black text-ink-950">{description}</h2>
+    </div>
+  );
+}
+
+function RecommendationCard({
+  recommendation,
+  active,
+  onClick,
+}: {
+  recommendation: Recommendation;
+  active: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={active}
+      className={'w-full rounded-[14px] border p-4 text-right transition ' + (active ? 'border-primary-300 bg-primary-50/50 shadow-sm' : 'border-ink-200 bg-white hover:border-primary-200 hover:bg-primary-50/20')}
+    >
+      <div className="flex items-start gap-3">
+        <span className={'flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ' + (active ? 'bg-primary-100 text-primary-700' : 'bg-ink-50 text-ink-500')}>
+          <Lightbulb size={17}/>
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="flex flex-wrap items-center gap-2"><span className="text-[13px] font-black text-ink-900">{recommendation.title}</span><PriorityBadge priority={recommendation.priority}/></span>
+          {recommendation.description && <span className="mt-1 block text-[11px] leading-5 text-ink-500">{recommendation.description}</span>}
+          <span className="mt-2 flex flex-wrap items-center gap-2">
+            <ConfidenceBadge confidence={recommendation.confidence}/>
+            {recommendation.expected_impact !== undefined && recommendation.expected_impact !== null && <span className="text-[10px] font-bold text-success-700">أثر متوقع: {formatCurrency(recommendation.expected_impact)}</span>}
+          </span>
+        </span>
+        <ChevronLeft size={16} className="mt-1 shrink-0 text-ink-300"/>
+      </div>
+    </button>
+  );
+}
+
+export function DecisionExperiencePage() {
+  const [params, setParams] = useSearchParams();
+  const requestedStage = params.get('stage') as Stage | null;
+  const [stage, setStage] = useState<Stage>(STAGES.some((item) => item.id === requestedStage) ? requestedStage! : 'command');
+  const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
+  const [alerts, setAlerts] = useState<Alert[]>([]);
+  const [selectedId, setSelectedId] = useState<string | null>(params.get('recommendationId'));
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const load = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const [nextRecommendations, nextAlerts] = await Promise.all([fetchRecommendations(), fetchAlerts()]);
+      setRecommendations(nextRecommendations);
+      setAlerts(nextAlerts);
+      setSelectedId((current) => current && nextRecommendations.some((item) => item.id === current) ? current : nextRecommendations[0]?.id ?? null);
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : 'تعذر تحميل سياق القرار');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { void load(); }, [load]);
+  useEffect(() => { if (requestedStage && STAGES.some((item) => item.id === requestedStage)) setStage(requestedStage); }, [requestedStage]);
+
+  const selected = recommendations.find((item) => item.id === selectedId) ?? null;
+  const currentStageIndex = Math.max(0, STAGES.findIndex((item) => item.id === stage));
+  const activeAlerts = useMemo(() => alerts.filter((item) => !item.is_read).slice(0, 6), [alerts]);
+  const selectedStatus = selected?.status ?? null;
+
+  const navigateStage = (next: Stage, id = selectedId) => {
+    setStage(next);
+    const nextParams = new URLSearchParams(params);
+    nextParams.set('stage', next);
+    if (id) nextParams.set('recommendationId', id);
+    else nextParams.delete('recommendationId');
+    setParams(nextParams, { replace: true });
+  };
+
+  const selectRecommendation = (id: string, next: Stage = 'evidence') => {
+    setSelectedId(id);
+    navigateStage(next, id);
+  };
+
+  if (loading) return <LoadingState message="جارٍ تحميل سياق القرار..." />;
+  if (error) return <ErrorState message={error} onRetry={() => void load()} />;
+
+  return (
+    <div dir="rtl" className="space-y-5 animate-fade-in pb-10">
+      <section className="rounded-[18px] border border-ink-200 bg-ink-950 p-5 text-white shadow-elevated lg:p-6">
+        <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
+          <div className="max-w-3xl">
+            <div className="flex items-center gap-2 text-[11px] font-black text-primary-300"><Workflow size={15}/> تجربة القرار</div>
+            <h1 className="mt-2 text-[25px] font-black tracking-tight lg:text-[31px]">من الإشارة إلى النتيجة — دون فقدان الدليل</h1>
+            <p className="mt-2 text-[12px] leading-6 text-ink-300">المسار يحفظ السياق ويُظهر بوضوح ما هو موجود، وما يحتاج إثباتًا، وما لم يُنفذ بعد.</p>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="rounded-full bg-white/10 px-2.5 py-1 text-[10px] font-bold text-ink-200">المرحلة {String(currentStageIndex + 1).padStart(2, '0')} / {String(STAGES.length).padStart(2, '0')}</span>
+            <Link to="/command-center" className="inline-flex items-center gap-2 rounded-[9px] border border-white/15 bg-white/10 px-3.5 py-2.5 text-[11px] font-bold text-white hover:bg-white/15">العودة لمركز القيادة <ArrowUpLeft size={13}/></Link>
+          </div>
+        </div>
+        <div className="mt-5 grid grid-cols-6 gap-1" aria-label="مراحل القرار" role="progressbar" aria-valuemin={1} aria-valuemax={STAGES.length} aria-valuenow={currentStageIndex + 1}>
+          {STAGES.map((item, index) => <button key={item.id} type="button" onClick={() => navigateStage(item.id)} aria-current={stage === item.id ? 'step' : undefined} className={'h-1.5 rounded-full transition-colors ' + (index <= currentStageIndex ? 'bg-primary-400' : 'bg-white/15')} title={item.label}/>)}
+        </div>
+      </section>
+
+      <nav aria-label="مراحل القرار" className="grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-6">
+        {STAGES.map((item, index) => (
+          <button key={item.id} type="button" onClick={() => navigateStage(item.id)} className={'stage-pill ' + (stage === item.id ? 'stage-pill-active' : 'hover:border-ink-300 hover:bg-ink-50')} aria-current={stage === item.id ? 'step' : undefined}>
+            <span className="block text-xs font-bold">{index + 1}. {item.label}</span>
+            <span className="mt-1 block text-[10px] text-ink-500">{item.description}</span>
+          </button>
+        ))}
+      </nav>
+
+      {stage === 'command' && (
+        <section className="grid gap-4 xl:grid-cols-[1.15fr_.85fr]">
+          <Card>
+            <CardHeader title="الإشارات التي تستدعي قرارًا" subtitle="اختر الإشارة التي تريد تحويلها إلى مسار قرار." />
+            <CardBody>
+              <div className="space-y-3">
+                {activeAlerts.map((alert) => (
+                  <article key={alert.id} className="rounded-[14px] border border-ink-200 bg-white p-4">
+                    <div className="flex items-start gap-3">
+                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-danger-50 text-danger-700"><AlertTriangle size={17}/></div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex flex-wrap items-center gap-2"><SeverityBadge severity={alert.severity}/><span className="text-[10px] text-ink-400">{relativeTime(alert.created_at)}</span></div>
+                        <div className="mt-2 text-[13px] font-black text-ink-900">{alert.title}</div>
+                        {alert.description && <p className="mt-1 text-[11px] leading-5 text-ink-500">{alert.description}</p>}
+                        <Link to="/command-center" className="mt-3 inline-flex items-center gap-1 text-[11px] font-bold text-primary-700">فحص المصدر أولًا <ArrowUpLeft size={13}/></Link>
+                      </div>
+                    </div>
+                  </article>
+                ))}
+                {!activeAlerts.length && <EmptyState title="لا توجد إشارات نشطة" message="لا توجد تنبيهات غير مقروءة في المصدر الحالي."/>}
+              </div>
+            </CardBody>
+          </Card>
+
+          <Card>
+            <CardHeader title="مرشحات القرار" subtitle="التوصية هي مرشح، وليست نتيجة تنفيذية محفوظة." />
+            <CardBody>
+              <div className="space-y-3">
+                {recommendations.slice(0, 6).map((recommendation) => <RecommendationCard key={recommendation.id} recommendation={recommendation} active={selectedId === recommendation.id} onClick={() => selectRecommendation(recommendation.id)} />)}
+                {!recommendations.length && <EmptyState title="لا توجد توصيات" message="لا يتم إنشاء توصية بديلة عند غياب بيانات المصدر."/>}
+              </div>
+            </CardBody>
+          </Card>
+        </section>
+      )}
+
+      {stage === 'evidence' && (
+        <section className="grid gap-4 xl:grid-cols-[.82fr_1.18fr]">
+          <Card>
+            <CardHeader title="اختيار التوصية" subtitle="حدد عنصرًا حقيقيًا من المصدر." />
+            <CardBody>
+              <div className="space-y-2">
+                {recommendations.map((recommendation) => <RecommendationCard key={recommendation.id} recommendation={recommendation} active={selectedId === recommendation.id} onClick={() => selectRecommendation(recommendation.id, 'evidence')} />)}
+                {!recommendations.length && <EmptyState title="لا توجد توصيات" message="لا يمكن فحص دليل لعنصر غير موجود."/>}
+              </div>
+            </CardBody>
+          </Card>
+
+          <Card>
+            <CardHeader title="مساحة الدليل" subtitle="المصدر، السياق، والثقة قبل القرار." action={selected ? <ConfidenceBadge confidence={selected.confidence} /> : undefined} />
+            <CardBody>
+              {selected ? (
+                <div className="space-y-4">
+                  <div className="rounded-[14px] border border-ink-200 bg-ink-50/70 p-4">
+                    <div className="surface-label">موضوع القرار</div>
+                    <h2 className="mt-1 text-lg font-black text-ink-950">{selected.title}</h2>
+                    {selected.description && <p className="mt-2 text-[12px] leading-6 text-ink-600">{selected.description}</p>}
+                  </div>
+                  <div className="grid gap-3 sm:grid-cols-3">
+                    <div className="rounded-[12px] border border-ink-100 bg-white p-3"><div className="text-[10px] text-ink-400">الحالة</div><div className="mt-1 text-[12px] font-black text-ink-900">{selectedStatus ?? 'غير متاح'}</div></div>
+                    <div className="rounded-[12px] border border-ink-100 bg-white p-3"><div className="text-[10px] text-ink-400">الثقة</div><div className="mt-1"><ConfidenceBadge confidence={selected.confidence}/></div></div>
+                    <div className="rounded-[12px] border border-ink-100 bg-white p-3"><div className="text-[10px] text-ink-400">الأثر المتوقع</div><div className="mt-1 text-[12px] font-black text-ink-900">{selected.expected_impact == null ? 'غير متاح' : formatCurrency(selected.expected_impact)}</div></div>
+                  </div>
+                  <BlockedState title="الدليل التشغيلي غير مثبت هنا" detail="لا تُعرض بيانات مصدرية مصطنعة ولا يتم تحويل وصف التوصية إلى دليل. الانتقال إلى القرار يحافظ على حالة المراجعة بدل الادعاء بوجود إثبات غير متاح." />
+                  <div className="flex flex-wrap gap-2"><button type="button" onClick={() => navigateStage('decision')} className="btn-primary text-[11px]">متابعة إلى القرار <ArrowUpLeft size={13}/></button><Link to="/metrics" className="btn-secondary text-[11px]">فحص تعريف المؤشر <FileSearch size={13}/></Link></div>
+                </div>
+              ) : <EmptyState title="اختر توصية" message="اختر عنصرًا موجودًا لفحص سياق الدليل." />}
+            </CardBody>
+          </Card>
+        </section>
+      )}
+
+      {stage === 'decision' && (
+        <section className="grid gap-4 xl:grid-cols-[1.1fr_.9fr]">
+          <Card>
+            <CardHeader title="صياغة القرار" subtitle="حوّل الإشارة إلى إجراء مقترح دون تسجيل نتيجة لم تحدث." />
+            <CardBody>
+              {selected ? (
+                <div className="space-y-4">
+                  <div className="rounded-[14px] border border-primary-100 bg-primary-50/40 p-4">
+                    <div className="flex flex-wrap items-center gap-2"><span className="text-[10px] font-black text-primary-700">التوصية المختارة</span><PriorityBadge priority={selected.priority}/><ConfidenceBadge confidence={selected.confidence}/></div>
+                    <h2 className="mt-2 text-lg font-black text-ink-950">{selected.title}</h2>
+                    {selected.description && <p className="mt-1 text-[11px] leading-5 text-ink-600">{selected.description}</p>}
+                  </div>
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <div className="rounded-[12px] border border-ink-100 bg-white p-4"><div className="text-[10px] text-ink-400">ما نعرفه</div><div className="mt-2 text-[12px] font-bold text-ink-900">التوصية وحالتها كما وردتا من المصدر.</div></div>
+                    <div className="rounded-[12px] border border-ink-100 bg-white p-4"><div className="text-[10px] text-ink-400">ما لا نعرفه بعد</div><div className="mt-2 text-[12px] font-bold text-ink-900">نتيجة تشغيلية مثبتة بعد التنفيذ.</div></div>
+                  </div>
+                </div>
+              ) : <EmptyState title="لا يوجد مرشح قرار" message="اختر توصية من خطوة الدليل أولًا." />}
+            </CardBody>
+          </Card>
+          <div className="space-y-4">
+            <BlockedState title="القرار المحفوظ غير متاح من هذه الواجهة" detail="لا تتم كتابة حالة قرار محلية أو إنشاء موافقة اصطناعية. يتطلب الحفظ مسار الصلاحية والـDML المعتمدين." />
+            <div className="grid gap-3">
+              <div className="rounded-[12px] border border-ink-200 bg-white p-4"><div className="flex items-center gap-2 text-[12px] font-black"><CheckCircle2 size={15} className="text-success-700"/> التوصية</div><p className="mt-1 text-[10px] text-ink-400">موجودة في المصدر</p></div>
+              <div className="rounded-[12px] border border-ink-200 bg-white p-4"><div className="flex items-center gap-2 text-[12px] font-black"><ShieldCheck size={15} className="text-warning-700"/> الموافقة</div><p className="mt-1 text-[10px] text-ink-400">تحتاج مسارًا تشغيليًا موثقًا</p></div>
+              <div className="rounded-[12px] border border-ink-200 bg-white p-4"><div className="flex items-center gap-2 text-[12px] font-black"><XCircle size={15} className="text-ink-400"/> النتيجة</div><p className="mt-1 text-[10px] text-ink-400">ليست مثبتة بعد</p></div>
+            </div>
+            <button type="button" onClick={() => navigateStage('approval')} className="btn-secondary w-full justify-center text-[11px]">عرض مرحلة الموافقة <ArrowUpLeft size={13}/></button>
+          </div>
+        </section>
+      )}
+
+      {stage === 'approval' && (
+        <section className="grid gap-4 lg:grid-cols-2">
+          <Card>
+            <CardHeader title="الموافقة والمسؤولية" subtitle="من يعتمد؟ وعلى أي دليل؟" />
+            <CardBody>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="rounded-[12px] border border-ink-100 bg-white p-4"><div className="text-[10px] text-ink-400">المسؤول المعتمد</div><div className="mt-2 text-[12px] font-black text-ink-900">غير متاح</div></div>
+                <div className="rounded-[12px] border border-ink-100 bg-white p-4"><div className="text-[10px] text-ink-400">وقت الاعتماد</div><div className="mt-2 text-[12px] font-black text-ink-900">غير متاح</div></div>
+                <div className="rounded-[12px] border border-ink-100 bg-white p-4"><div className="text-[10px] text-ink-400">الصلاحية</div><div className="mt-2 text-[12px] font-black text-ink-900">يتطلب جلسة موثقة</div></div>
+                <div className="rounded-[12px] border border-ink-100 bg-white p-4"><div className="text-[10px] text-ink-400">الدليل</div><div className="mt-2 text-[12px] font-black text-ink-900">يحتاج إثباتًا حيًا</div></div>
+              </div>
+            </CardBody>
+          </Card>
+          <BlockedState title="الموافقة محجوبة عمدًا" detail="المنتج لا يختلق صاحب موافقة، توقيتًا، أو حالة اعتماد. عند توفر المسار التشغيلي الموثق، تبقى هذه المرحلة مكانًا واضحًا للمسؤولية قبل التنفيذ." />
+        </section>
+      )}
+
+      {stage === 'work' && (
+        <section className="grid gap-4 xl:grid-cols-[1.1fr_.9fr]">
+          <Card>
+            <CardHeader title="التنفيذ والمتابعة" subtitle="ما تم فعليًا، وليس ما تتمنى المنظومة حدوثه." />
+            <CardBody>
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {['موافقاتي', 'مهامي', 'قيد التنفيذ', 'متأخر', 'مكتمل', 'متابعة النتيجة'].map((label) => (
+                  <div key={label} className="rounded-[12px] border border-ink-100 bg-white p-4">
+                    <div className="text-[12px] font-black text-ink-900">{label}</div>
+                    <div className="mt-1 text-[10px] text-ink-400">لا توجد حالة تشغيلية مثبتة في المسار الحالي.</div>
+                  </div>
+                ))}
+              </div>
+            </CardBody>
+          </Card>
+          <BlockedState title="لا يوجد سجل تنفيذ مُثبت" detail="لن يتم إنشاء مهمة أو حالة إنجاز من واجهة القرار. التنفيذ يجب أن يأتي من المسار التشغيلي المعتمد ويعود هنا كحالة persisted." />
+        </section>
+      )}
+
+      {stage === 'outcome' && (
+        <section className="grid gap-4 xl:grid-cols-[1.1fr_.9fr]">
+          <Card>
+            <CardHeader title="النتيجة والتعلّم" subtitle="المتوقع مقابل الفعلي لا يظهر إلا بعد وجود نتيجة حقيقية." />
+            <CardBody>
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {[
+                  ['المتوقع', selected?.expected_impact == null ? 'غير متاح' : formatCurrency(selected.expected_impact)],
+                  ['الفعلي', 'غير متاح بعد'],
+                  ['الفارق', 'لا يمكن حسابه بعد'],
+                  ['جودة النتيجة', 'غير متاحة'],
+                  ['ملاحظات التنفيذ', 'غير متاحة'],
+                  ['إشارة التعلّم', 'غير مثبتة'],
+                ].map(([label, value]) => (
+                  <div key={label} className="rounded-[12px] border border-ink-100 bg-white p-4">
+                    <div className="text-[10px] text-ink-400">{label}</div>
+                    <div className="mt-2 text-[12px] font-black text-ink-900">{value}</div>
+                  </div>
+                ))}
+              </div>
+            </CardBody>
+          </Card>
+          <BlockedState title="النتيجة الفعلية غير موجودة بعد" detail="عدم توفر النتيجة ليس فشلًا في العرض؛ إنه حد حقيقي في الدليل. لن تُحوّل التوصية إلى نتيجة أو تعلّم تشغيلي قبل وجود سجل تنفيذ موثق." />
+        </section>
+      )}
+
+      {selected && stage !== 'command' && (
+        <div className="flex flex-col gap-3 rounded-[14px] border border-ink-200 bg-white p-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="min-w-0"><div className="surface-label">السياق الحالي</div><div className="mt-1 truncate text-sm font-black text-ink-900">{selected.title}</div></div>
+          <div className="flex flex-wrap gap-2"><button type="button" onClick={() => navigateStage(STAGES[Math.max(0, currentStageIndex - 1)].id)} className="btn-secondary text-[11px]" disabled={currentStageIndex === 0}>السابق <ChevronLeft size={13}/></button><button type="button" onClick={() => navigateStage(STAGES[Math.min(STAGES.length - 1, currentStageIndex + 1)].id)} className="btn-primary text-[11px]" disabled={currentStageIndex === STAGES.length - 1}>التالي <ArrowUpLeft size={13}/></button></div>
+        </div>
+      )}
+    </div>
+  );
+}
