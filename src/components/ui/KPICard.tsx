@@ -31,7 +31,7 @@ export function KPICard({ label, value, format, change, changeLabel, icon, statu
   const StatusIcon = meta.icon;
 
   return (
-    <div className="card group relative overflow-hidden p-4 transition-[border-color,box-shadow] duration-150 hover:border-ink-300 hover:shadow-card-hover">
+    <div className="ag-kpi-card card group relative overflow-hidden p-4 transition-[border-color,box-shadow,transform] duration-150 hover:-translate-y-px hover:border-ink-300 hover:shadow-card-hover">
       <div className="relative flex items-start justify-between gap-3">
         <div className="flex min-w-0 items-center gap-2.5">
           <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[8px] border border-ink-200 bg-white text-ink-500 transition group-hover:border-primary-200 group-hover:bg-primary-50 group-hover:text-primary-700" aria-hidden="true">{icon}</span>

@@ -62,7 +62,7 @@ button,input,textarea,select{font:inherit}
   .insight-callout{@apply rounded-[10px] border border-primary-100 bg-primary-50/55 p-4}
   .warning-callout{@apply rounded-[10px] border border-warning-200 bg-warning-50/65 p-4}
   .danger-callout{@apply rounded-[10px] border border-danger-200 bg-danger-50/65 p-4}
-  .data-table-shell{@apply border border-ink-200 bg-white}
+  .data-table-shell{@apply border border-ink-200 bg-white}.ag-data-table thead th{background:linear-gradient(180deg,#f4faf8,#edf6f3);color:#426c64;border-bottom-color:#cfe2dd}.ag-data-table tbody tr{transition:background-color .15s ease}.ag-data-table tbody tr:nth-child(even){background:#fbfdfc}.ag-data-table tbody td{border-bottom-color:#e5eeea}.ag-data-table tbody tr:hover{background:#eef8f5!important}.ag-kpi-card{border-color:#d0e2dd}.ag-kpi-card .metric-value{color:#073b37}.ag-kpi-card:hover{border-color:#8fc5bb}
   .data-table-shell:focus-within{@apply ring-4 ring-primary-500/10}
   .stage-pill{@apply rounded-[8px] border border-ink-200 bg-white px-3 py-2 text-right transition-colors}
   .stage-pill-active{@apply border-primary-300 bg-primary-50 text-primary-900 shadow-sm}

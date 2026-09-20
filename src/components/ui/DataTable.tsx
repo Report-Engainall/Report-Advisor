@@ -23,7 +23,7 @@ export function DataTable<T extends object>({ columns, data, loading, emptyMessa
   if (!data || data.length === 0) return <div className="p-12 text-center text-xs font-semibold text-ink-400">{emptyMessage}</div>;
 
   return (
-    <div className="data-table-shell overflow-auto rounded-[10px]">
+    <div className="ag-data-table data-table-shell overflow-auto rounded-[12px]">
       <table className="w-full min-w-[760px] border-separate border-spacing-0">
         <thead>
           <tr>
