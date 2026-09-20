@@ -1,20 +1,21 @@
-## LIVE EXECUTION UPDATE — 2026-09-21 — VISUAL COVERAGE + RTL CONTRACT CLOSURE
+## LIVE EXECUTION UPDATE — 2026-09-21 — AGHBARI VISUAL COVERAGE WAVE
 
-- **SESSION-ID:** SESSION-20260921-VISUAL-CLOSURE-01
-- **CURRENT EXACT HEAD:** `cfdcb829e438c4250ce37ea403586e5a4603ecc9` on `commercial/comprehensive-product-development-20260918-rebased`.
-- **DONE:** Reconciled the live GitHub state; PR #595 head was `a561049f...` before this mutation. Local PC01 was aligned to that exact SHA before execution.
-- **DONE:** Verified the shared Aghbari shell/product surface already present on this candidate: canonical navigation, RTL language provider, mobile action bar, command palette, shared Card/KPI/Table/States primitives, Dashboard, Work Center, Import/Analyze, Data Quality, Analytics, Intelligence, Decision Experience, Reports, Inventory/Receivables/Profitability, Entities, Settings/Profile, and Connections routes are wired through one AppShell.
-- **DONE:** Local exact-head `npm run typecheck` passed. `npm run build` completed and regenerated `dist`; only non-fatal Browserslist/eval warnings were emitted.
-- **DONE:** `test:ui-route-sidebar-parity` passed: 35 application routes / 34 canonical navigation links in parity. `test:executive-dashboard-ui` passed. `test:product-wow-ui` passed.
-- **FIXED:** `test:connections-language-ui` was stale against the actual RTL implementation: the app correctly uses `dir={direction}` with `LanguageProvider`, while the guard still searched for an obsolete `flex-row-reverse` expression. The guard was aligned to the authoritative implementation; rerun passed all 7 checks.
-- **COMMIT/PUSH:** `cfdcb829e438c4250ce37ea403586e5a4603ecc9` pushed to PR #595 branch.
-- **BROWSER VERIFICATION:** Local Vite server is running at `http://localhost:5173`. The installed PC01 environment does not expose `agent-browser`; no screenshot-based PASS is claimed.
-- **PHASE-F / RELEASE:** Existing exact-head Phase-F and production-parity blockers remain external/fail-closed; this UI/test mutation does not justify reopening unrelated closed runtime gates.
-- **PRECISE STOP POINT:** Fresh CI is required for `cfdcb829...` because the SHA changed. Consume the affected UI/Quality/Browser/PWA gates and fix only the first concrete failure.
-- **NEXT ACTION:** Verify fresh GitHub Actions/Vercel status for `cfdcb829...`, then continue the visual sweep and exact-head closure without transferring evidence.
-- **DO NOT REPEAT:** Do not restore obsolete RTL test syntax, do not create duplicate navigation/runner/RPC infrastructure, do not transfer evidence across SHAs, and do not claim browser visual PASS without actual screenshot/runtime evidence.
-- **CURRENT RESUME POINTER:** `commercial/comprehensive-product-development-20260918-rebased@cfdcb829e438c4250ce37ea403586e5a4603ecc9` → fresh exact-head CI/proof consumption.
-- **LAST EXECUTIVE ACTION:** Reconciled exact SHA, verified local product/UI contracts, fixed the stale RTL shell guard, committed, and pushed the exact result.
+- **SESSION-ID:** SESSION-20260921-VISUAL-CLOSURE-02
+- **CURRENT EXACT HEAD:** `01178534264f39a7986a24f24429d3430891974f` on `commercial/comprehensive-product-development-20260918-rebased`.
+- **PRODUCT SCOPE LOCK:** This batch is UI-only. Backend, DB, RPC, runner, Phase-F, release gates and unrelated runtime checks are intentionally deferred while the visual product pass continues.
+- **DONE:** Refined the canonical Aghbari RTL shell without creating a parallel navigation system: desktop Sidebar width increased to 284px, brand block strengthened, workspace context surface upgraded, active section/item states made clearer, and the sidebar gained a consistent Aghbari visual edge treatment.
+- **DONE:** Refined the shared main surface/background and command header presentation so the entire application reads as one RTL enterprise workspace rather than isolated pages.
+- **DONE:** Preserved the single navigation registry and the existing `dir={direction}` architecture. No `flex-row-reverse` was reintroduced; Arabic Sidebar remains structurally on the right through the RTL flex direction.
+- **VERIFIED:** Local `npm run typecheck` passed.
+- **VERIFIED:** Local `npm run build` completed successfully; only existing non-fatal Browserslist/eval warnings were emitted.
+- **VERIFIED:** `test:ui-route-sidebar-parity` passed: 35 application routes / 34 canonical navigation links.
+- **VERIFIED:** `test:product-wow-ui` passed after the visual shell changes.
+- **BROWSER:** PC01 Vite server is available at `http://localhost:5173`; screenshot automation is not claimed as final evidence because the installed environment does not provide the required browser automation path/authenticated session.
+- **COMMIT/PUSH:** UI visual shell commit `01178534264f39a7986a24f24429d3430891974f` pushed to PR #595 branch.
+- **NEXT VISUAL FRONT:** Continue screen-level refinement of Dashboard, Work Center, Import/Document Intelligence, Intelligence, Decision Experience, Reports, Inventory, Receivables, Profitability, Entities and Settings using the same shared design system. Do not open backend/release work until the owner requests it.
+- **PRECISE STOP POINT:** Current exact UI SHA is `011785342...`; visual product work continues from this SHA. Fresh CI may run independently, but no CI result is required to proceed with further UI-only source work.
+- **DO NOT REPEAT:** Do not duplicate navigation registries, do not create new backend paths, do not transfer evidence between SHAs, and do not weaken RTL directionality.
+- **CURRENT RESUME POINTER:** `commercial/comprehensive-product-development-20260918-rebased@01178534264f39a7986a24f24429d3430891974f` → continue UI-only screen refinement.
 
 ## EXECUTIVE SESSION UPDATE — 2026-09-20 — EXACT-HEAD RECONCILIATION BEFORE NEXT PROOF
 
