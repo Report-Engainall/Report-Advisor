@@ -1,3 +1,13 @@
+## EXECUTIVE SESSION UPDATE — 2026-09-20 — WORKSPACE RESOLUTION CONSISTENCY
+
+- **CURRENT EXECUTION SHA:** `62e249b04c2bf731ce2efa4ebe7dbc86df19d9f8`.
+- **FIXED:** `isWorkspacePathVisible()` now uses the same canonical bounded/longest-prefix resolver as Header and Sidebar.
+- **ROOT GUARANTEE:** Nested routes cannot silently bypass the required Workspace visibility mode because their parent canonical navigation item is resolved consistently.
+- **LIVE DB READ-ONLY CHECK:** staging remains populated and healthy for the active test environment; no DB mutation was performed. Current observed counts: companies 2, memberships 2, customers 115596, products 1355, sales_invoices 445, operational_health_snapshots 37. Recovery/certification evidence tables remain empty (0) and were not fabricated.
+- **EVIDENCE BOUNDARY:** Fresh exact-head CI/deployment proof is still required for this new SHA.
+- **EXTERNAL BLOCKERS:** Vercel build-rate-limit and production operational-token configuration remain external and fail-closed.
+- **NEXT:** Continue from the first concrete exact-head CI result; no repeat of already-closed evidence.
+
 ## EXECUTIVE SESSION UPDATE — 2026-09-20 — SIDEBAR ROUTE MATCHING HARDENING
 
 - **CURRENT EXECUTION SHA:** `897574409271acdb04d9bedc99bc43865269ee1b`.
