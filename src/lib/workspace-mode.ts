@@ -1,4 +1,6 @@
-export type WorkspaceMode = 'essential' | 'advanced' | 'expert';
+import { NAVIGATION_ITEMS, type WorkspaceVisibilityMode } from '@/lib/navigation-registry';
+
+export type WorkspaceMode = WorkspaceVisibilityMode;
 export type WorkspacePreset =
   | 'owner-executive' | 'finance' | 'sales' | 'collections'
   | 'inventory' | 'operations' | 'analyst' | 'data-import';
@@ -17,17 +19,12 @@ export interface WorkspacePreferences {
 export const WORKSPACE_MODE_KEY = 'report-advisor.workspace-mode';
 export const WORKSPACE_PREFERENCES_KEY = 'report-advisor.workspace-preferences';
 
-const ADVANCED_PATHS = new Set([
-  '/analytics', '/reports/inventory-intelligence', '/reports/demand-velocity',
-  '/reports/profitability', '/analytics/rfm', '/analytics/abc', '/analytics/aging',
-  '/intelligence', '/intelligence/recommendations', '/intelligence/forecasts',
-  '/intelligence/scenarios', '/metrics', '/alternative-groups',
-]);
-const EXPERT_ONLY_PATHS = new Set(['/proposal-demo']);
 const VALID_PRESETS = new Set<WorkspacePreset>([
   'owner-executive', 'finance', 'sales', 'collections', 'inventory', 'operations', 'analyst', 'data-import',
 ]);
 const VALID_WIDGETS = new Set<DashboardWidgetId>(['kpis', 'analysis', 'attention', 'entities', 'work-paths']);
+
+const DEFAULT_SECTION_ORDER = ['today', 'operations', 'money', 'customers-products', 'intelligence', 'reports', 'admin'];
 
 export const DEFAULT_WORKSPACE_PREFERENCES: WorkspacePreferences = {
   mode: 'essential',
@@ -35,7 +32,7 @@ export const DEFAULT_WORKSPACE_PREFERENCES: WorkspacePreferences = {
   defaultLandingPath: '/',
   hiddenPaths: [],
   favoritePaths: ['/work-center', '/import', '/decision-experience', '/reports/executive'],
-  sectionOrder: ['today', 'operations', 'money', 'customers-products', 'intelligence', 'reports', 'admin'],
+  sectionOrder: DEFAULT_SECTION_ORDER,
   dashboardWidgets: ['kpis', 'analysis', 'attention', 'entities', 'work-paths'],
 };
 
@@ -98,8 +95,9 @@ export function isWorkspacePathVisible(
   preferences: WorkspacePreferences = readWorkspacePreferences(),
 ): boolean {
   if (preferences.hiddenPaths.includes(path)) return false;
-  if (mode === 'expert') return true;
-  if (EXPERT_ONLY_PATHS.has(path)) return false;
-  if (mode === 'advanced') return true;
-  return !ADVANCED_PATHS.has(path);
+  const item = NAVIGATION_ITEMS.find(entry => entry.path === path);
+  const required = item?.minimumWorkspaceMode;
+  if (!required) return true;
+  const rank: Record<WorkspaceMode, number> = { essential: 0, advanced: 1, expert: 2 };
+  return rank[mode] >= rank[required];
 }
