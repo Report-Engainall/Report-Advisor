@@ -245,3 +245,13 @@
 - **DO NOT REPEAT:** Do not reuse `28fe8092...` or `e446f879...` as current runtime evidence; do not create duplicate memory/runner/RPC; do not bypass authentication, tenant isolation, canonical import, or Phase-F token boundaries.
 - **CURRENT RESUME POINTER:** `commercial/comprehensive-product-development-20260918-rebased@COMBINED_NEXT_HEAD`.
 - **LAST EXECUTIVE ACTION:** added one bounded import-surface readiness assertion to the existing E2E helper and prepared this same memory file for the same commit.
+
+## EXECUTIVE SESSION UPDATE — 2026-09-20T05:06+03:00
+- **SESSION-ID:** 20260920-0506-REPORT-ADVISOR
+- **DONE:** Re-established from the canonical local execution index and verified the live PR branch. Remote advanced from `42a62df181d0bab25896f1f3961371348ea62fb3` to exact head `327d6e978c84be019028ec18c5d556c00e3fadbf` while this session was executing; the remote commit contains the exact first-failure fix for the malformed newline tokens in the import helper.
+- **ACTUAL RESULT:** Exact-head CI on `42a62df...` had the first terminal failure in real-business E2E: `SyntaxError: Unexpected identifier 'n'` in `scripts/real-business-e2e.mjs`. Remote `327d6e97...` now contains the targeted syntax correction. No PASS/evidence was transferred from `42a62df...`. Local checkout was rebased/reset to the actual remote head before continuing.
+- **PRECISE STOP POINT:** `327d6e978c84be019028ec18c5d556c00e3fadbf` is the current code authority. The only pending local mutation is this same execution-memory update.
+- **NEXT ACTION:** Commit this memory update, push it on PR #595, then inspect fresh exact-head CI for the resulting SHA and fix only the first newly terminal failure. Phase-F remains independently fail-closed because the governed operational token is not configured.
+- **DO NOT REPEAT:** Do not reuse `42a62df...` evidence as PASS; do not duplicate memory/runner/RPC/selector strategies; do not bypass Phase-F token gating; do not re-audit unrelated closed contracts.
+- **CURRENT RESUME POINTER:** `commercial/comprehensive-product-development-20260918-rebased@327d6e978c84be019028ec18c5d556c00e3fadbf` → next authoritative candidate is the memory-update commit.
+- **LAST EXECUTIVE ACTION:** reconciled the concurrent remote fix, verified its exact diff, and reset the local branch to the actual remote authority.
