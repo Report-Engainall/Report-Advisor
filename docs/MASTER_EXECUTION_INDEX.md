@@ -1,3 +1,14 @@
+## EXECUTIVE SESSION UPDATE — 2026-09-20 — WORKSPACE VISIBILITY CANONICALIZATION
+
+- **CURRENT EXECUTION SHA:** `743002b4540081a9c26980a7448e15effedd8687`.
+- **DONE:** Workspace visibility is now owned by `src/lib/navigation-registry.ts` via `minimumWorkspaceMode`; `workspace-mode.ts` no longer maintains duplicated `ADVANCED_PATHS` / `EXPERT_ONLY_PATHS` allowlists.
+- **DONE:** `WorkspaceMode` now aliases the canonical registry visibility type; default section order is derived from `NAVIGATION_SECTIONS`.
+- **DONE:** Verified repository search has no remaining `ADVANCED_PATHS`, `EXPERT_ONLY_PATHS`, or duplicated section-order declarations.
+- **BEHAVIOR PRESERVED:** Essential/advanced/expert visibility semantics remain unchanged for the previously governed paths; expert remains the only level exposing `/proposal-demo`.
+- **EVIDENCE BOUNDARY:** Current HEAD has not inherited CI PASS from prior SHAs. Fresh workflow runs for `743002b...` are now the only valid proof for this wave.
+- **NEXT ACTION:** Consume fresh Exact-HEAD UI/quality/build/product gates; fix only the first new failure. Phase-F remains isolated and fail-closed on its external prerequisites.
+- **DO NOT REPEAT:** Do not restore route allowlists outside the navigation registry, do not create another workspace visibility map, and do not transfer evidence from `bb538...`, `c7b810...`, or earlier SHAs.
+
 ## EXECUTIVE SESSION UPDATE — 2026-09-20 — NAVIGATION / WORKSPACE CANONICALIZATION WAVE
 
 - **CURRENT EXECUTION SHA BEFORE MEMORY UPDATE:** `8088b64fa8564b7e13903956f4b82ae6878368b7`.
