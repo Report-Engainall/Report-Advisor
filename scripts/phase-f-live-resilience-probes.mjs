@@ -138,7 +138,7 @@ async function logicalBackupRestore() {
   const startedAt = Date.now();
 
   try {
-    runCommand('supabase', ['init', '--force'], { cwd: workDir });
+    runCommand('supabase', ['init'], { cwd: workDir });
     fs.cpSync(
       path.join(process.cwd(), 'supabase', 'migrations'),
       path.join(workDir, 'supabase', 'migrations'),
@@ -152,7 +152,7 @@ async function logicalBackupRestore() {
     if (!dbLine) throw new Error('local_restore_db_url_missing');
     localDbUrl = dbLine.slice('DB_URL='.length).trim().replace(/^['"]|['"]$/g, '');
 
-    runCommand('supabase', ['db', 'reset', '--local'], { cwd: workDir });
+    runCommand('supabase', ['db', 'reset'], { cwd: workDir });
 
     const snapshotText = runDockerPsql(source, exactSnapshotSql);
     const snapshotAt = Date.parse(snapshotText);
