@@ -1,3 +1,15 @@
+## EXECUTIVE SESSION UPDATE — 2026-09-20T 19:01:07+03:00
+- **SESSION-ID:** SESSION-20260920-PARALLEL-CLOSURE-02
+- **CURRENT BRANCH HEAD / EXECUTION SHA:** `02720a86905aefccfaae2cecbb0b43ad3df114da` on `commercial/comprehensive-product-development-20260918-rebased`.
+- **DONE:** Implemented canonical Workspace personalization on the existing settings/workspace surfaces: role preset, default landing path, favorite routes, navigation ordering, module visibility, dashboard widget visibility, reset-to-defaults, and runtime synchronization across Sidebar/App/Dashboard. Then diagnosed a real 11/12 regression caused by critical bundle size (901.4KB > 900KB) and repaired the root cause by keeping `src/lib/workspace-mode.ts` runtime-core small and moving editor-only route/module/preset definitions into the lazy `CompanySettingsPage`.
+- **EVIDENCE:** Production Regression run `35521301328`, job `106105747925`, on exact SHA `02720a86905aefccfaae2cecbb0b43ad3df114da`, is terminal **PASS 12/12**. Artifact `10608420954`. The prior `15632b...` regression was not reused; its 11/12 performance failure was fixed before this candidate.
+- **CURRENT OPEN CI:** Quality, Full Product Browser E2E, Commercial Product Creation, Commercial PWA, Storage Tenant Runtime, Device-Independent Browser, Desktop Windows, and Phase-F are still executing/queued on this exact candidate at this checkpoint. Final Certification remains fail-closed until mandatory release gates are green.
+- **EXTERNAL / TOOLING BLOCKERS:** Phase-F still depends on real governed external resilience inputs; no RPO value is inferred or fabricated. PC01 is offline, so no local-machine evidence is claimed. External browser automation is unavailable due insufficient wallet balance; official GitHub/Vercel evidence remains authoritative.
+- **PRECISE STOP POINT:** Consume only terminal results bound to `02720a86905aefccfaae2cecbb0b43ad3df114da`. Fix the first real failing application/contract boundary if one appears; do not reopen green regression evidence. If Phase-F remains externally blocked, keep it isolated and continue all other independent fronts.
+- **NEXT ACTION:** Consume terminal Quality/Browser/Product/PWA/Storage/Windows/Phase-F results; then production-deployment parity → Phase-E/release gates → Final Certification as soon as prerequisites are satisfied.
+- **DO NOT REPEAT:** Do not transfer evidence from `15632b...` or older SHAs to `02720a86905aefccfaae2cecbb0b43ad3df114da`; do not invent RPO/RTO, backups, tokens, deployment IDs, browser evidence, or certification; do not create duplicate workspace runners/RPCs/workflows/memory files.
+- **STATUS:** **OPEN — PARALLEL CLOSURE CONTINUES**
+ 
 ## EXECUTIVE SESSION UPDATE — 2026-09-20 (LIVE PARALLEL CLOSURE)
 - **SESSION-ID:** SESSION-20260920-PARALLEL-CLOSURE-01
 - **DONE:** Reconciled live state from the canonical session-memory/library record, current GitHub branch, current execution index, current autonomous protocol, current CI, Supabase staging, and Vercel runtime/deployment state. Corrected the stale resume point from `8c93661...`/older heads to the live branch head `1d806b2e64a8fad267663e6d12458606bd5f4c69`.
@@ -197,7 +209,6 @@
 9. **Netlify/public-access verification:** التأكد من أن حماية Netlify الإدارية لا تمنع الوصول المقصود لتطبيق المستخدم؛ لا تغيير في Auth داخل التطبيق ولا تعطيل ضوابطه.
 10. **Resource/storage economy خارج UI:** CI/deployment hygiene، منع artifacts المكررة/الكبيرة في Git، تقليل استهلاك build/deploy حيث لا يمس وظائف المنتج أو Evidence، وعدم حذف أي مصدر أو سجل مطلوب.
 11. **Memory/governance:** بعد كل دفعة تنفيذية، تحديث exact HEAD، evidence، blockers والمالك؛ لا تعاد Audits المغلقة ما لم يتغير SHA أو البيئة أو العقد.
-
 ### NON-NEGOTIABLE EXECUTION RULES
 - لا يبدأ أي مسار من هذه القائمة قبل أمر المالك **«انطلق»**.
 - بعد أمر «انطلق» تعمل المساران بالتوازي؛ لا ينتظر أحد المسارين الآخر عند وجود blocker خارجي.
