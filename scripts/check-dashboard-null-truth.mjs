@@ -21,7 +21,7 @@ if (!canonical.includes("asOf: typeof row.asOf === 'string' ? row.asOf : asOfDat
 if (!canonical.includes("rawStatus === 'CONFIRMED' && !hasEvidence")) {
   throw new Error('Dashboard canonical adapter must not claim CONFIRMED without evidence');
 }
-const metricStatusContract = /const\s+metricStatus\s*=\s*\(value:\s*number\s*\|\s*null,\s*snapshotStatus:\s*DashboardKPIs\['status'\]\)\s*:\s*['"]CONFIRMED['"]\s*\|\s*['"]CALCULATED['"]\s*\|\s*['"]INSUFFICIENT_DATA['"]\s*=>\s*value\s*===\s*null\s*\?\s*['"]INSUFFICIENT_DATA['"]\s*:\s*snapshotStatus\s*===\s*['"]CONFIRMED['"]\s*\?\s*['"]CONFIRMED['"]\s*:\s*['"]CALCULATED['"]\s*;/;
+const metricStatusContract = /const\s+metricStatus\s*=\s*\(\s*value:\s*number\s*\|\s*null,\s*snapshotStatus:\s*DashboardKPIs\['status'\]\)\s*:\s*['"]CONFIRMED['"]\s*\|\s*['"]CALCULATED['"]\s*\|\s*['"]INSUFFICIENT_DATA['"]\s*=>\s*value\s*===\s*null\s*\?\s*['"]INSUFFICIENT_DATA['"]\s*:\s*snapshotStatus\s*===\s*['"]CONFIRMED['"]\s*\?\s*['"]CONFIRMED['"]\s*:\s*['"]CALCULATED['"]\s*;/;
 if (!metricStatusContract.test(dashboard)) {
   throw new Error('Dashboard must preserve null per metric while retaining CONFIRMED/CALCULATED source semantics');
 }
