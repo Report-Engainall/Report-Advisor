@@ -243,11 +243,11 @@ export function DashboardPage() {
           <div className="min-w-0">
             <div className="flex items-center gap-2 text-[11px] font-black text-primary-300">
               <Sparkles size={15} />
-              نظام قيادة الأعمال
+              مؤشرات أساسية · نظام قيادة الأعمال
             </div>
             <h1 className="mt-2 max-w-3xl text-[25px] font-black tracking-tight lg:text-[31px]">ماذا يحتاج عملك الآن؟</h1>
             <p className="mt-2 max-w-3xl text-[12px] leading-6 text-ink-300">
-              نبض الأعمال، إشارات الانتباه، والقرارات المقترحة في مسار واحد. كل رقم يبقى مرتبطًا بحالته ولقطة بياناته بدل إظهار قيمة غير موثقة.
+              من البيانات إلى القرار التجاري — في شاشة واحدة. نبض الأعمال، إشارات الانتباه، والقرارات المقترحة في مسار واحد. كل رقم يبقى مرتبطًا بحالته ولقطة بياناته بدل إظهار قيمة غير موثقة.
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -268,6 +268,41 @@ export function DashboardPage() {
       </section>
 
       <TruthContextStrip months={trendMonths} status={kpis.status} asOf={snapshotAsOf ?? 'غير متاح'} />
+      
+      <section className="grid gap-3 lg:grid-cols-[1.05fr_.95fr]">
+        <Card>
+          <CardHeader title="ملخص القرار في دقيقة" subtitle="أهم إشارة ثم الخطوة التالية، من الحالة الحية الحالية." />
+          <CardBody>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="rounded-[14px] border border-ink-200 bg-ink-50/55 p-4">
+                <div className="text-[10px] font-black text-ink-400">أهم إشارة</div>
+                <div className="mt-1.5 text-sm font-black text-ink-900">{liveAlerts[0]?.title ?? 'لا توجد إشارة غير مقروءة الآن'}</div>
+                <p className="mt-1 text-[11px] leading-5 text-ink-500">{liveAlerts[0]?.description ?? 'لا توجد إشارة تحتاج تدخلًا في اللحظة الحالية.'}</p>
+              </div>
+              <div className="rounded-[14px] border border-primary-100 bg-primary-50/40 p-4">
+                <div className="text-[10px] font-black text-primary-700">الخطوة التالية</div>
+                <div className="mt-1.5 text-sm font-black text-ink-900">{liveRecommendations[0]?.title ?? 'افتح مركز القيادة للتحقق من الأولويات'}</div>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  <Link to={liveRecommendations[0] ? '/decision-experience?stage=decision' : '/command-center'} className="btn-primary text-[11px]">فتح المسار <ArrowUpLeft size={13} /></Link>
+                  <Link to="/command-center" className="btn-ghost text-[11px]">مركز القيادة</Link>
+                </div>
+              </div>
+            </div>
+          </CardBody>
+        </Card>
+        <Card>
+          <CardHeader title="تغطية المؤشرات" subtitle="مدى اكتمال الصورة التنفيذية الحالية." />
+          <CardBody>
+            <div className="flex items-end justify-between gap-4">
+              <div className="text-3xl font-black tabular-nums text-ink-950">{coverage}%</div>
+              <div className="text-[11px] text-ink-500">{snapshotAsOf ?? 'as-of غير متاح'}</div>
+            </div>
+            <div className="mt-3 h-2 overflow-hidden rounded-full bg-ink-100">
+              <div className="h-full rounded-full bg-primary-600" style={{ width: coverage + '%' }} />
+            </div>
+          </CardBody>
+        </Card>
+      </section>
 
       <section className="overflow-hidden rounded-[14px] border border-ink-200 bg-white shadow-card">
         <div className="grid grid-cols-2 lg:grid-cols-4">
@@ -405,7 +440,7 @@ export function DashboardPage() {
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div>
             <div className="section-kicker">NEXT ACTION</div>
-            <h2 className="mt-1 text-base font-black text-ink-950">المسار التالي المقترح</h2>
+            <h2 className="mt-1 text-base font-black text-ink-950">مسارات العمل</h2>
             <p className="mt-1 text-xs text-ink-500">احتفظ بالسياق وانتقل مباشرة من الصورة إلى التنفيذ أو الفحص بدل العودة إلى قائمة الصفحات.</p>
           </div>
           <div className="flex flex-wrap gap-2">
