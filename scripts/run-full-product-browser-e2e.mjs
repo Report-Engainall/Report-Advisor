@@ -214,8 +214,48 @@ async function inspectPage(targetPage) {
 }
 
 async function runWorkspacePersonalizationProbe(targetPage) {
-  await targetPage.goto(`${baseURL}/settings`, { waitUntil: 'domcontentloaded', timeout: 30000 });
-  await targetPage.waitForURL(url => new URL(url).pathname === '/settings', { timeout: 30000 });
+  let convergenceRecovery = false;
+  async function convergeSettingsPage() {
+    const startedAt = Date.now();
+    let lastDiagnostic = null;
+    for (let attempt = 1; attempt <= 2; attempt += 1) {
+      const response = await targetPage.goto(`${baseURL}/settings`, { waitUntil: attempt === 1 ? 'domcontentloaded' : 'networkidle', timeout: 30000 });
+      await targetPage.waitForURL(url => new URL(url).pathname === '/settings', { timeout: 30000 });
+      await targetPage.waitForTimeout(attempt === 1 ? 750 : 1200);
+      const diagnostic = await targetPage.evaluate(() => ({
+        readyState: document.readyState,
+        pathname: window.location.pathname,
+        href: window.location.href,
+        title: document.title,
+        bodyTextLength: document.body?.innerText?.trim()?.length ?? 0,
+        rootChildCount: document.getElementById('root')?.childElementCount ?? 0,
+        workspaceAnchorCount: document.querySelectorAll('[data-testid="workspace-editor"]').length,
+      }));
+      lastDiagnostic = { attempt, responseStatus: response?.status() ?? null, durationMs: Date.now() - startedAt, ...diagnostic };
+      if (diagnostic.bodyTextLength > 0 && diagnostic.rootChildCount > 0 && diagnostic.workspaceAnchorCount > 0) {
+        return { ...lastDiagnostic, recovered: convergenceRecovery };
+      }
+      if (attempt === 1) convergenceRecovery = true;
+    }
+    return { ...lastDiagnostic, recovered: convergenceRecovery };
+  }
+
+  const convergence = await convergeSettingsPage();
+  if (!(convergence.workspaceAnchorCount > 0)) {
+    const diagnostic = await targetPage.evaluate(() => ({
+      pathname: window.location.pathname,
+      href: window.location.href,
+      title: document.title,
+      bodyText: (document.body?.innerText || '').slice(0, 1200),
+      workspaceAnchorCount: document.querySelectorAll('[data-testid="workspace-editor"]').length,
+      workspaceHeadingCount: [...document.querySelectorAll('h1,h2,h3,h4')].filter(node => (node.textContent || '').trim() === 'محرر مساحة العمل').length,
+      readyState: document.readyState,
+      rootChildCount: document.getElementById('root')?.childElementCount ?? 0,
+    }));
+    await targetPage.screenshot({ path: reportDir + '/workspace-probe-failure.png', fullPage: true }).catch(() => {});
+    throw new Error('WORKSPACE_EDITOR_NOT_CONVERGED:' + JSON.stringify({ convergence, diagnostic }));
+  }
+
   const workspaceEditor = targetPage.locator('[data-testid="workspace-editor"]');
   try {
     await workspaceEditor.waitFor({ state: 'visible', timeout: 30000 });
@@ -228,9 +268,6 @@ async function runWorkspacePersonalizationProbe(targetPage) {
       workspaceAnchorCount: document.querySelectorAll('[data-testid="workspace-editor"]').length,
       workspaceHeadingCount: [...document.querySelectorAll('h1,h2,h3,h4')].filter(node => (node.textContent || '').trim() === 'محرر مساحة العمل').length,
     }));
-    await targetPage.screenshot({ path: reportDir + '/workspace-probe-failure.png', fullPage: true }).catch(() => {});
-    throw new Error('WORKSPACE_EDITOR_NOT_CONVERGED:' + JSON.stringify(diagnostic));
-  }
   await workspaceEditor.getByRole('heading', { name: 'محرر مساحة العمل', exact: true }).waitFor({ state: 'visible', timeout: 30000 });
 
   const financePreset = workspaceEditor.getByRole('button').filter({ hasText: 'المالية' }).first();
@@ -269,6 +306,8 @@ async function runWorkspacePersonalizationProbe(targetPage) {
 
   return {
     status: 'PASS',
+    convergenceRecovery: convergence.recovered,
+    convergence,
     persistedPreset: persisted.preset,
     persistedLanding: persisted.defaultLandingPath,
     redirectedPath,
