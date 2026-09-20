@@ -1,3 +1,11 @@
+## EXECUTIVE SESSION UPDATE — 2026-09-20 — SIDEBAR ROUTE MATCHING HARDENING
+
+- **CURRENT EXECUTION SHA:** `897574409271acdb04d9bedc99bc43865269ee1b`.
+- **FIXED:** Sidebar active-section and active-item detection now use the canonical longest/bounded `resolveNavigationItem()` matcher.
+- **ROOT CAUSE REMOVED:** Prefix-only matching could mark parent routes such as `/settings` active together with `/settings/profile`.
+- **NO DUPLICATE WORK:** Existing navigation registry and resolver were reused; no new routing abstraction was introduced.
+- **NEXT:** Fresh exact-head CI is authoritative for this fix. Continue through the first concrete failure/result and keep external deployment/resilience blockers isolated.
+
 ## EXECUTIVE SESSION UPDATE — 2026-09-20 — DASHBOARD / MOBILE NAVIGATION CANONICALIZATION
 
 - **CURRENT EXECUTION SHA:** `f6d48d69f1fd309edf9f0e565ce34cb2dd603700`.
