@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Activity, BarChart3, Brain, ChevronDown, ClipboardCheck, FileBarChart, Gauge, Layers3, LayoutDashboard, ListChecks, LogOut, Package, Presentation, Scale, ScanSearch, Settings, Target, Upload, UserCircle, Users, Warehouse, AlertCircle, PlugZap } from 'lucide-react';
+import { Activity, BarChart3, Brain, ChevronDown, ClipboardCheck, FileBarChart, ShieldCheck, Gauge, Layers3, LayoutDashboard, ListChecks, LogOut, Package, Presentation, Scale, ScanSearch, Settings, Target, Upload, UserCircle, Users, Warehouse, AlertCircle, PlugZap } from 'lucide-react';
 import type { User } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
 import { getDisplayEmail, getDisplayName } from '@/lib/profile-display';
@@ -61,7 +61,7 @@ const navSections: NavSection[] = NAVIGATION_SECTIONS.map(section => ({
 
 function CreditMark(){return <span className="text-[13px] font-black">◫</span>}
 function ScenarioMark(){return <span className="text-[12px] font-black">◎</span>}
-const sectionIcons:Record<string,ReactNode>={today:<LayoutDashboard size={17}/>,operations:<Activity size={17}/>,money:<FileBarChart size={17}/>,'customers-products':<Package size={17}/>,intelligence:<Brain size={17}/>,reports:<ClipboardCheck size={17}/>,admin:<Settings size={17}/>};
+const sectionIcons:Record<string,ReactNode>={today:<LayoutDashboard size={17}/>,money:<FileBarChart size={17}/>,decisions:<ClipboardCheck size={17}/>,trust:<ShieldCheck size={17}/>,intelligence:<Brain size={17}/>,outputs:<ClipboardCheck size={17}/>,reference:<Package size={17}/>,admin:<Settings size={17}/>};
 
 export function Sidebar({alertCount=0,onNavigate,user}:{alertCount?:number;onNavigate?:()=>void;user?:User|null}){
  const{language}=useLanguage();const location=useLocation();const[workspaceMode,setWorkspaceMode]=useState<WorkspaceMode>(readWorkspaceMode);

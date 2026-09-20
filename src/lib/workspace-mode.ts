@@ -40,7 +40,7 @@ const normalizeList = (value: unknown): string[] =>
   Array.isArray(value) ? [...new Set(value.filter(item => typeof item === 'string'))] : [];
 
 function coercePreferences(input: Partial<WorkspacePreferences> | null | undefined): WorkspacePreferences {
-  const sectionOrder = normalizeList(input?.sectionOrder);
+  const sectionOrder = normalizeList(input?.sectionOrder).filter(item => DEFAULT_WORKSPACE_PREFERENCES.sectionOrder.includes(item));
   const mergedSections = [...sectionOrder, ...DEFAULT_WORKSPACE_PREFERENCES.sectionOrder.filter(item => !sectionOrder.includes(item))];
   const widgets = normalizeList(input?.dashboardWidgets).filter((item): item is DashboardWidgetId => VALID_WIDGETS.has(item as DashboardWidgetId));
   return {

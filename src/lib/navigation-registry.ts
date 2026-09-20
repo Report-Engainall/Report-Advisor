@@ -2,11 +2,12 @@ export type WorkspaceVisibilityMode = 'essential' | 'advanced' | 'expert';
 
 export type NavigationSectionId =
   | 'today'
-  | 'operations'
   | 'money'
-  | 'customers-products'
+  | 'decisions'
+  | 'trust'
   | 'intelligence'
-  | 'reports'
+  | 'outputs'
+  | 'reference'
   | 'admin';
 
 export type NavigationIconKey =
@@ -70,21 +71,27 @@ export const NAVIGATION_SECTIONS: NavigationSection[] = [
     enTitle: 'Today',
     items: [
       { section: 'today', path: '/', label: 'لوحة اليوم', enLabel: 'Today', description: 'النظرة التنفيذية الرئيسية', keywords: ['dashboard', 'home', 'لوحة', 'رئيسية'], icon: 'dashboard' },
-      { section: 'today', path: '/command-center', label: 'مركز القيادة', enLabel: 'Command Center', description: 'الأولويات والقرارات العاجلة', keywords: ['command', 'decision', 'قيادة', 'قرارات'], icon: 'command-center' },
-      { section: 'today', path: '/decision-experience', label: 'قرار اليوم', enLabel: 'Today’s Decision', description: 'الدليل والموافقة والتنفيذ والنتيجة', keywords: ['decision experience', 'evidence', 'approval', 'قرار', 'دليل', 'موافقة'], icon: 'decision' },
-      { section: 'today', path: '/intelligence', label: 'الانتباه والذكاء', enLabel: 'Attention & Intelligence', description: 'التوصيات والتنبؤات والسيناريوهات', keywords: ['ai', 'intelligence', 'forecast', 'سيناريو', 'تنبؤ'], icon: 'intelligence', minimumWorkspaceMode: 'advanced' },
+      { section: 'today', path: '/command-center', label: 'مركز القيادة', enLabel: 'Command Center', description: 'الأولويات التي تستحق انتباه الإدارة الآن', keywords: ['command', 'decision', 'قيادة', 'قرارات'], icon: 'command-center' },
     ],
   },
   {
-    id: 'operations',
-    title: 'التشغيل',
-    enTitle: 'Operations',
+    id: 'decisions',
+    title: 'القرارات',
+    enTitle: 'Decisions',
     items: [
-      { section: 'operations', path: '/work-center', label: 'مركز العمل', enLabel: 'Work Center', description: 'متابعة دورة الاستيراد وحالة العمل', keywords: ['work center', 'operations', 'jobs', 'عمليات', 'تشغيل'], icon: 'work-center' },
-      { section: 'operations', path: '/import', label: 'الاستيراد', enLabel: 'Import', description: 'رفع ومعاينة واعتماد الملفات', keywords: ['import', 'upload', 'excel', 'csv', 'pdf', 'استيراد', 'رفع'], icon: 'import' },
-      { section: 'operations', path: '/import/analyze', label: 'تحليل المستندات', enLabel: 'Document Analysis', description: 'استخراج وإثبات الملفات الخارجية', keywords: ['document analysis', 'file analysis', 'تحليل المستندات', 'ملفات'], icon: 'document' },
-      { section: 'operations', path: '/data-quality', label: 'جودة البيانات', enLabel: 'Data Quality', description: 'الفجوات والأخطاء والتغطية', keywords: ['quality', 'dq', 'جودة', 'بيانات'], icon: 'quality' },
-      { section: 'operations', path: '/connections', label: 'المصادر', enLabel: 'Sources', description: 'مصادر البيانات والاتصالات وحالتها', keywords: ['connections', 'sources', 'integrations', 'مصادر', 'اتصالات'], icon: 'connections' },
+      { section: 'decisions', path: '/decision-experience', label: 'قرار اليوم', enLabel: 'Today’s Decision', description: 'الدليل والموافقة والتنفيذ والنتيجة', keywords: ['decision', 'evidence', 'approval', 'قرار', 'دليل', 'موافقة'], icon: 'decision' },
+    ],
+  },
+  {
+    id: 'trust',
+    title: 'الثقة والأدلة',
+    enTitle: 'Trust & Evidence',
+    items: [
+      { section: 'trust', path: '/work-center', label: 'مركز العمل', enLabel: 'Work Center', description: 'متابعة دورة الاستيراد وحالة العمل', keywords: ['work center', 'operations', 'jobs', 'عمليات', 'تشغيل'], icon: 'work-center' },
+      { section: 'trust', path: '/import', label: 'الاستيراد', enLabel: 'Import', description: 'رفع ومعاينة واعتماد الملفات', keywords: ['import', 'upload', 'excel', 'csv', 'pdf', 'استيراد', 'رفع'], icon: 'import' },
+      { section: 'trust', path: '/import/analyze', label: 'تحليل المستندات', enLabel: 'Document Analysis', description: 'استخراج وإثبات الملفات الخارجية', keywords: ['document analysis', 'file analysis', 'تحليل المستندات', 'ملفات'], icon: 'document' },
+      { section: 'trust', path: '/data-quality', label: 'جودة البيانات', enLabel: 'Data Quality', description: 'الفجوات والأخطاء والتغطية', keywords: ['quality', 'dq', 'جودة', 'بيانات'], icon: 'quality' },
+      { section: 'trust', path: '/connections', label: 'المصادر', enLabel: 'Sources', description: 'مصادر البيانات والاتصالات وحالتها', keywords: ['connections', 'sources', 'integrations', 'مصادر', 'اتصالات'], icon: 'connections' },
     ],
   },
   {
@@ -99,21 +106,22 @@ export const NAVIGATION_SECTIONS: NavigationSection[] = [
     ],
   },
   {
-    id: 'customers-products',
-    title: 'العملاء والمنتجات',
-    enTitle: 'Customers & Products',
+    id: 'reference',
+    title: 'المرجع',
+    enTitle: 'Reference',
     items: [
-      { section: 'customers-products', path: '/customers', label: 'العملاء', enLabel: 'Customers', description: 'إدارة وتحليل العملاء', keywords: ['customers', 'clients', 'عملاء'], icon: 'customers' },
-      { section: 'customers-products', path: '/products', label: 'المنتجات', enLabel: 'Products', description: 'المنتجات والأصناف', keywords: ['products', 'sku', 'منتجات', 'أصناف'], icon: 'products' },
-      { section: 'customers-products', path: '/inventory', label: 'المخزون', enLabel: 'Inventory', description: 'المخزون والحركة', keywords: ['inventory', 'stock', 'مخزون'], icon: 'inventory' },
-      { section: 'customers-products', path: '/alternative-groups', label: 'البدائل', enLabel: 'Alternatives', description: 'ربط الأصناف البديلة ضمن مجموعات قابلة للإدارة', keywords: ['alternative groups', 'substitutes', 'بدائل', 'مجموعات'], icon: 'alternatives', minimumWorkspaceMode: 'advanced' },
+      { section: 'reference', path: '/customers', label: 'العملاء', enLabel: 'Customers', description: 'إدارة وتحليل العملاء', keywords: ['customers', 'clients', 'عملاء'], icon: 'customers' },
+      { section: 'reference', path: '/products', label: 'المنتجات', enLabel: 'Products', description: 'المنتجات والأصناف', keywords: ['products', 'sku', 'منتجات', 'أصناف'], icon: 'products' },
+      { section: 'reference', path: '/inventory', label: 'المخزون', enLabel: 'Inventory', description: 'المخزون والحركة', keywords: ['inventory', 'stock', 'مخزون'], icon: 'inventory' },
+      { section: 'reference', path: '/alternative-groups', label: 'البدائل', enLabel: 'Alternatives', description: 'ربط الأصناف البديلة ضمن مجموعات قابلة للإدارة', keywords: ['alternative groups', 'substitutes', 'بدائل', 'مجموعات'], icon: 'alternatives', minimumWorkspaceMode: 'advanced' },
     ],
   },
   {
     id: 'intelligence',
-    title: 'القرار والذكاء',
-    enTitle: 'Decision & Intelligence',
+    title: 'الذكاء',
+    enTitle: 'Intelligence',
     items: [
+      { section: 'intelligence', path: '/intelligence', label: 'الذكاء والانتباه', enLabel: 'Intelligence', description: 'الإشارات والصورة الذكية من المصدر الكانوني', keywords: ['ai', 'intelligence', 'ذكاء', 'انتباه'], icon: 'intelligence', minimumWorkspaceMode: 'advanced' },
       { section: 'intelligence', path: '/intelligence/recommendations', label: 'التوصيات', enLabel: 'Recommendations', description: 'مراجعة التوصيات والإجراءات المقترحة', keywords: ['recommendations', 'actions', 'توصيات', 'إجراءات'], icon: 'recommendations', minimumWorkspaceMode: 'advanced' },
       { section: 'intelligence', path: '/intelligence/forecasts', label: 'التنبؤات', enLabel: 'Forecasts', description: 'استعراض التنبؤات المتاحة من المصدر', keywords: ['forecasts', 'forecast', 'تنبؤات', 'توقعات'], icon: 'forecasts', minimumWorkspaceMode: 'advanced' },
       { section: 'intelligence', path: '/intelligence/scenarios', label: 'السيناريوهات', enLabel: 'Scenarios', description: 'حراسة حقائق السيناريو قبل القرار', keywords: ['scenarios', 'scenario truth', 'سيناريوهات'], icon: 'scenarios', minimumWorkspaceMode: 'advanced' },
@@ -124,16 +132,16 @@ export const NAVIGATION_SECTIONS: NavigationSection[] = [
     ],
   },
   {
-    id: 'reports',
-    title: 'التقارير',
-    enTitle: 'Reports',
+    id: 'outputs',
+    title: 'المخرجات',
+    enTitle: 'Outputs',
     items: [
-      { section: 'reports', path: '/reports/executive', label: 'التقرير التنفيذي', enLabel: 'Executive Report', description: 'قصة الأداء والقرارات للإدارة', keywords: ['executive report', 'board', 'management', 'تقرير تنفيذي', 'إدارة'], icon: 'executive-report' },
-      { section: 'reports', path: '/reports', label: 'مركز التقارير', enLabel: 'Reports Center', description: 'مركز التقارير والتصدير', keywords: ['reports', 'report', 'تقارير'], icon: 'reports' },
-      { section: 'reports', path: '/reports/inventory', label: 'تقرير المخزون', enLabel: 'Inventory Report', description: 'حالة المخزون والتقييم', keywords: ['inventory report', 'مخزون', 'تقرير مخزون'], icon: 'inventory-report' },
-      { section: 'reports', path: '/reports/inventory-intelligence', label: 'ذكاء المخزون', enLabel: 'Inventory Intelligence', description: 'القيمة وإعادة الطلب ونقاط النقص', keywords: ['inventory intelligence', 'stock', 'مخزون', 'إعادة الطلب'], icon: 'inventory-intelligence', minimumWorkspaceMode: 'advanced' },
-      { section: 'reports', path: '/reports/demand-velocity', label: 'الطلب والحركة', enLabel: 'Demand & Velocity', description: 'حركة الطلب والاتجاهات والسرعة', keywords: ['demand velocity', 'demand', 'velocity', 'طلب', 'سرعة'], icon: 'demand', minimumWorkspaceMode: 'advanced' },
-      { section: 'reports', path: '/analytics', label: 'مساحة التحليلات', enLabel: 'Analytics', description: 'RFM وABC والأعمار والتحليلات', keywords: ['analytics', 'rfm', 'abc', 'aging', 'تحليلات'], icon: 'analytics', minimumWorkspaceMode: 'advanced' },
+      { section: 'outputs', path: '/reports/executive', label: 'التقرير التنفيذي', enLabel: 'Executive Report', description: 'قصة الأداء والقرارات للإدارة', keywords: ['executive report', 'board', 'management', 'تقرير تنفيذي', 'إدارة'], icon: 'executive-report' },
+      { section: 'outputs', path: '/reports', label: 'مركز التقارير', enLabel: 'Reports Center', description: 'مركز التقارير والتصدير', keywords: ['reports', 'report', 'تقارير'], icon: 'reports' },
+      { section: 'outputs', path: '/reports/inventory', label: 'تقرير المخزون', enLabel: 'Inventory Report', description: 'حالة المخزون والتقييم', keywords: ['inventory report', 'مخزون', 'تقرير مخزون'], icon: 'inventory-report' },
+      { section: 'outputs', path: '/reports/inventory-intelligence', label: 'ذكاء المخزون', enLabel: 'Inventory Intelligence', description: 'القيمة وإعادة الطلب ونقاط النقص', keywords: ['inventory intelligence', 'stock', 'مخزون', 'إعادة الطلب'], icon: 'inventory-intelligence', minimumWorkspaceMode: 'advanced' },
+      { section: 'outputs', path: '/reports/demand-velocity', label: 'الطلب والحركة', enLabel: 'Demand & Velocity', description: 'حركة الطلب والاتجاهات والسرعة', keywords: ['demand velocity', 'demand', 'velocity', 'طلب', 'سرعة'], icon: 'demand', minimumWorkspaceMode: 'advanced' },
+      { section: 'outputs', path: '/analytics', label: 'مساحة التحليلات', enLabel: 'Analytics', description: 'RFM وABC والأعمار والتحليلات', keywords: ['analytics', 'rfm', 'abc', 'aging', 'تحليلات'], icon: 'analytics', minimumWorkspaceMode: 'advanced' },
     ],
   },
   {

@@ -7,15 +7,16 @@ type CommandItem = Pick<NavigationItem, 'label' | 'description' | 'path' | 'keyw
 
 const COMMANDS: CommandItem[] = NAVIGATION_ITEMS;
 
-type CommandCategory = 'اليوم' | 'العمل' | 'التقارير' | 'القرار والذكاء' | 'البيانات المرجعية' | 'الإدارة';
+type CommandCategory = 'اليوم' | 'المال' | 'القرارات' | 'الثقة' | 'الذكاء' | 'المخرجات' | 'المرجع' | 'الإدارة';
 
 const COMMAND_CATEGORY_LABELS: Record<NavigationSectionId, CommandCategory> = {
   today: 'اليوم',
-  operations: 'العمل',
-  money: 'التقارير',
-  'customers-products': 'البيانات المرجعية',
-  intelligence: 'القرار والذكاء',
-  reports: 'التقارير',
+  money: 'المال',
+  decisions: 'القرارات',
+  trust: 'الثقة',
+  intelligence: 'الذكاء',
+  outputs: 'المخرجات',
+  reference: 'المرجع',
   admin: 'الإدارة',
 };
 
