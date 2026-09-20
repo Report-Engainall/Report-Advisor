@@ -47,7 +47,7 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
   const contextScore = useCallback((path: string) => {
     const current = location.pathname;
     if (path === current) return 100;
-    if (path !== '/' && current.startsWith(path)) return 80;
+    if (path !== '/' && current.startsWith(path + '/')) return 80;
     const currentRoot = current.split('/').filter(Boolean)[0];
     const itemRoot = path.split('/').filter(Boolean)[0];
     if (currentRoot && currentRoot === itemRoot) return 45;
