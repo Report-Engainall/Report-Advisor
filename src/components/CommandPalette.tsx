@@ -135,10 +135,10 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-start justify-center bg-ink-950/45 px-4 pt-[12vh] backdrop-blur-sm" role="dialog" aria-modal="true" aria-label="لوحة الأوامر">
+    <div className="ag-command-overlay fixed inset-0 z-[100] flex items-start justify-center bg-ink-950/45 px-4 pt-[10vh] backdrop-blur-sm" role="dialog" aria-modal="true" aria-label="لوحة الأوامر">
       <button className="absolute inset-0 cursor-default" aria-label="إغلاق" onClick={onClose} />
-      <div className="relative w-full max-w-2xl overflow-hidden rounded-2xl border border-ink-200 bg-white shadow-2xl" dir="rtl">
-        <div className="flex items-center gap-3 border-b border-ink-100 px-4 py-3">
+      <div className="ag-command-palette relative w-full max-w-3xl overflow-hidden rounded-[18px] border border-ink-200 bg-white shadow-2xl" dir="rtl">
+        <div className="ag-command-search flex items-center gap-3 border-b border-ink-100 px-4 py-3.5">
           <Search size={19} className="text-ink-400" />
           <input
             ref={inputRef}
@@ -201,7 +201,7 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
                   type="button"
                   onMouseEnter={() => setActive(index)}
                   onClick={() => openCommand(item)}
-                  className={`flex w-full items-center gap-3 rounded-xl px-3 py-3 text-right transition ${index === active ? 'bg-primary-50 text-primary-900' : 'hover:bg-ink-50'}`}
+                  className={`ag-command-result flex w-full items-center gap-3 rounded-xl px-3 py-3 text-right transition ${index === active ? 'ag-command-result-active bg-primary-50 text-primary-900' : 'hover:bg-ink-50'}`}
                 >
                   <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${index === active ? 'bg-primary-100 text-primary-700' : 'bg-ink-100 text-ink-500'}`}><Command size={17}/></span>
                   <span className="min-w-0 flex-1">

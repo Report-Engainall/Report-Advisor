@@ -7,7 +7,7 @@ import type { Alert } from '@/lib/types';
 import { SeverityBadge } from './ui/Badge';
 import { relativeTime } from '@/lib/format';
 import { supabase } from '@/lib/supabase';
-import { resolveNavigationItem } from '@/lib/navigation-registry';
+import { NAVIGATION_SECTIONS, resolveNavigationItem } from '@/lib/navigation-registry';
 
 type HealthState = 'checking' | 'healthy' | 'degraded' | 'offline';
 
@@ -28,11 +28,12 @@ export function Header({
   const location = useLocation();
   const unreadAlerts = alerts.filter((alert) => !alert.is_read);
 
-  const currentLabel = useMemo(() => {
-    const item = resolveNavigationItem(location.pathname);
-    if (!item) return 'الأغبري';
-    return language === 'ar' ? item.label : item.enLabel;
-  }, [language, location.pathname]);
+  const currentNavigation = useMemo(() => resolveNavigationItem(location.pathname), [location.pathname]);
+  const currentLabel = currentNavigation ? (language === 'ar' ? currentNavigation.label : currentNavigation.enLabel) : 'الأغبري';
+  const currentSection = useMemo(() => {
+    const section = NAVIGATION_SECTIONS.find(item => item.id === currentNavigation?.section);
+    return section ? (language === 'ar' ? section.title : section.enTitle) : 'Aghbari';
+  }, [currentNavigation?.section, language]);
 
   useEffect(() => {
     let mounted = true;
@@ -87,10 +88,12 @@ export function Header({
           <Menu size={19} />
         </button>
 
-        <div className="hidden items-center gap-1.5 text-[11px] text-ink-400 md:flex">
-          <span>الأغبري</span>
-          <ChevronLeft size={12} />
-          <span className="font-bold text-ink-800">{currentLabel}</span>
+        <div className="hidden min-w-0 items-center gap-2 text-[10px] text-ink-400 md:flex">
+          <span className="font-black text-ink-500">الأغبري</span>
+          <ChevronLeft size={12} className="text-ink-300" />
+          <span className="ag-top-section">{currentSection}</span>
+          <ChevronLeft size={11} className="text-ink-300" />
+          <span className="truncate font-black text-ink-900">{currentLabel}</span>
         </div>
 
         <button
