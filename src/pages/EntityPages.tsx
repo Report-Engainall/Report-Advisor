@@ -23,7 +23,7 @@ function EntityContextDrawer({ title, subtitle, fields, links, onClose }: {
   return (
     <div className="fixed inset-0 z-[90] flex items-end justify-center bg-ink-950/35 p-0 backdrop-blur-sm sm:items-center sm:p-6" role="dialog" aria-modal="true" aria-label={title}>
       <button type="button" className="absolute inset-0 cursor-default" aria-label="إغلاق" onClick={onClose} />
-      <aside className="relative max-h-[88vh] w-full max-w-xl overflow-y-auto rounded-t-[1.75rem] border border-ink-200 bg-white p-5 shadow-2xl sm:rounded-[1.75rem] sm:p-6" dir="rtl">
+      <aside className="ag-entity-drawer relative max-h-[88vh] w-full max-w-xl overflow-y-auto rounded-t-[1.75rem] border border-ink-200 bg-white p-5 shadow-2xl sm:rounded-[1.75rem] sm:p-6" dir="rtl">
         <div className="flex items-start gap-4">
           <div className="min-w-0 flex-1">
             <div className="text-[10px] font-black uppercase tracking-[0.14em] text-primary-700">سياق الكيان</div>
@@ -86,12 +86,12 @@ export function CustomersPage() {
     <div className="space-y-6 animate-fade-in" dir="rtl">
       <PageHeader title="العملاء" subtitle={`${formatNumber(total)} عميل`} actions={<button type="button" onClick={() => setCreateOpen(true)} className="btn-primary text-xs"><Plus size={14} /> عميل جديد</button>} />
       {createOpen && <CustomerCreateDialog onClose={() => setCreateOpen(false)} onCreated={() => { void load(); }} />}
-      <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
+      <div className="ag-entity-toolbar grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
         <div>
           <label className="mb-1.5 block text-[11px] font-bold text-ink-500">ابحث ثم افتح السجل لفهم السياق</label>
           <div className="relative max-w-xl"><Search className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-400" size={18} /><input type="text" value={search} onChange={e => { setSearch(e.target.value); setPage(0); }} placeholder="بحث عن اسم أو كود العميل..." className="input pr-10" /></div>
         </div>
-        <div className="rounded-xl border border-ink-200 bg-white px-3 py-2 text-[11px] text-ink-500">سجل العميل = هوية + شروط التعامل + مسارات التحصيل والقرار</div>
+        <div className="ag-entity-note rounded-xl border border-ink-200 bg-white px-3 py-2 text-[11px] text-ink-500">سجل العميل = هوية + شروط التعامل + مسارات التحصيل والقرار</div>
       </div>
       {error && <div role="alert" className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</div>}
       <Card>
@@ -162,12 +162,12 @@ export function ProductsPage() {
     <div className="space-y-6 animate-fade-in" dir="rtl">
       <PageHeader title="المنتجات" subtitle={`${formatNumber(total)} منتج`} actions={<button type="button" onClick={() => setCreateOpen(true)} className="btn-primary text-xs"><Plus size={14} /> منتج جديد</button>} />
       {createOpen && <ProductCreateDialog onClose={() => setCreateOpen(false)} onCreated={() => { void load(); }} />}
-      <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
+      <div className="ag-entity-toolbar grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
         <div>
           <label className="mb-1.5 block text-[11px] font-bold text-ink-500">ابحث ثم افتح السجل لفهم ما يهم هذا الصنف</label>
           <div className="relative max-w-xl"><Search className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-400" size={18} /><input aria-label="بحث عن منتج" type="text" value={search} onChange={e => { setSearch(e.target.value); setPage(0); }} placeholder="بحث عن اسم أو SKU..." className="input pr-10" /></div>
         </div>
-        <div className="rounded-xl border border-ink-200 bg-white px-3 py-2 text-[11px] text-ink-500">سجل المنتج = السعر + التكلفة + الهامش + نقطة الطلب + مسارات المخزون والربحية</div>
+        <div className="ag-entity-note rounded-xl border border-ink-200 bg-white px-3 py-2 text-[11px] text-ink-500">سجل المنتج = السعر + التكلفة + الهامش + نقطة الطلب + مسارات المخزون والربحية</div>
       </div>
       {error && <div role="alert" className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</div>}
       <Card>

@@ -59,7 +59,7 @@ function MobileActionBar({ onOpenCommandPalette }: { onOpenCommandPalette: () =>
     { path: '/reports', icon: BarChart3 },
   ];
   return (
-    <nav aria-label="إجراءات الهاتف الرئيسية" className="fixed inset-x-3 bottom-3 z-40 rounded-[16px] border border-ink-200/90 bg-white/95 p-1.5 shadow-elevated backdrop-blur lg:hidden" style={{ paddingBottom: 'max(env(safe-area-inset-bottom), 6px)' }}>
+    <nav aria-label="إجراءات الهاتف الرئيسية" className="ag-mobile-bar fixed inset-x-3 bottom-3 z-40 rounded-[16px] border border-ink-200/90 bg-white/95 p-1.5 shadow-elevated backdrop-blur lg:hidden" style={{ paddingBottom: 'max(env(safe-area-inset-bottom), 6px)' }}>
       <div className="grid grid-cols-5 gap-1">
         {items.map(({ path, icon: Icon }) => {
           const label = resolveNavigationItem(path)?.label ?? path;
@@ -68,7 +68,7 @@ function MobileActionBar({ onOpenCommandPalette }: { onOpenCommandPalette: () =>
             <Link
               key={path}
               to={path}
-              className={"flex min-h-12 flex-col items-center justify-center gap-1 rounded-[11px] px-1 text-[10px] font-bold transition-colors " + (active ? "bg-primary-50 text-primary-800" : "text-ink-500 hover:bg-ink-50 hover:text-ink-900")}
+              className={"ag-mobile-item flex min-h-12 flex-col items-center justify-center gap-1 rounded-[11px] px-1 text-[10px] font-bold transition-colors " + (active ? "ag-mobile-item-active text-primary-800" : "text-ink-500 hover:bg-ink-50 hover:text-ink-900")}
               aria-current={active ? 'page' : undefined}
             >
               <Icon size={17} aria-hidden="true" />
@@ -79,7 +79,7 @@ function MobileActionBar({ onOpenCommandPalette }: { onOpenCommandPalette: () =>
         <button
           type="button"
           onClick={onOpenCommandPalette}
-          className="flex min-h-12 flex-col items-center justify-center gap-1 rounded-[11px] px-1 text-[10px] font-bold text-ink-500 transition-colors hover:bg-ink-50 hover:text-ink-900"
+          className="ag-mobile-search ag-mobile-item flex min-h-12 flex-col items-center justify-center gap-1 rounded-[11px] px-1 text-[10px] font-bold transition-colors hover:bg-ink-50 hover:text-white"
           aria-label="فتح البحث ولوحة الأوامر"
         >
           <Search size={17} aria-hidden="true" />

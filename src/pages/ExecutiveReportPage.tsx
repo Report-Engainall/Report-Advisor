@@ -60,7 +60,7 @@ export function ExecutiveReportPage() {
   useEffect(() => { void load(); }, [load]);
 
   return <div dir="rtl" className="report-page space-y-5 pb-10 print:space-y-3">
-    <header className="overflow-hidden rounded-[14px] border border-ink-200 bg-white p-5 shadow-card lg:p-6">
+    <header className="ag-exec-hero overflow-hidden rounded-[14px] border border-ink-200 bg-white p-5 shadow-card lg:p-6">
       <div className="flex flex-wrap items-end justify-between gap-5">
         <div>
           <div className="flex items-center gap-2 text-[10px] font-black tracking-[0.14em] text-primary-700"><FileText size={15}/> EXECUTIVE REPORTING</div>
@@ -80,7 +80,7 @@ export function ExecutiveReportPage() {
     {!loading && !error && <>
       <TruthContextStrip months={6} status={kpis?.status ?? 'INSUFFICIENT_DATA'} asOf={asOf} />
 
-      <section className="rounded-2xl border border-ink-200 bg-white p-5 shadow-sm">
+      <section className="ag-exec-panel rounded-2xl border border-ink-200 bg-white p-5 shadow-sm">
         <div className="flex flex-wrap items-center justify-between gap-3"><div><p className="text-xs font-bold tracking-wider text-primary-600">الملخص التنفيذي</p><h2 className="mt-1 text-lg font-black">لقطة الإدارة الحالية</h2></div><span className="rounded-full border border-primary-200 bg-primary-50 px-3 py-1 text-[11px] font-bold text-primary-700">المصدر: بيانات قانونية</span></div>
         <div className="mt-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
           <Metric label="إجمالي المبيعات" value={kpis?.totalSales == null ? 'غير متاح' : formatCurrency(kpis.totalSales)} hint="الفترة المعتمدة في المصدر" />
@@ -90,7 +90,7 @@ export function ExecutiveReportPage() {
         </div>
       </section>
 
-      <section className="rounded-2xl border border-ink-200 bg-white p-5 shadow-sm">
+      <section className="ag-exec-panel rounded-2xl border border-ink-200 bg-white p-5 shadow-sm">
         <div className="flex items-center gap-2"><TrendingUp size={18} className="text-primary-600" /><div><h2 className="text-lg font-black">نبض المبيعات</h2><p className="text-xs text-ink-500">آخر 6 أشهر من المصدر المعتمد</p></div></div>
         <div className="mt-5">{trend.length ? <TrendStrip trend={trend} /> : <p className="rounded-xl bg-ink-50 p-4 text-sm text-ink-500">لا توجد سلسلة زمنية كافية للعرض.</p>}</div>
       </section>
@@ -106,12 +106,12 @@ export function ExecutiveReportPage() {
         </div>
       </section>
 
-      <section className="rounded-2xl border border-amber-200 bg-amber-50 p-5">
+      <section className="ag-exec-warning rounded-2xl border border-amber-200 bg-amber-50 p-5">
         <div className="flex items-center gap-2 text-amber-900"><Target size={18} /><h2 className="font-black">حدود الدليل</h2></div>
         <p className="mt-2 text-sm leading-7 text-amber-900">المصدر والحساب والموثوقية التشغيلية تحتاج دليلًا تشغيليًا موثقًا. هذا التقرير لا يحول غياب الدليل إلى نجاح ولا يدعي تنفيذ قرار أو نتيجة فعلية.</p>
       </section>
 
-      <section className="rounded-2xl border border-ink-200 bg-white p-5 shadow-sm">
+      <section className="ag-exec-panel rounded-2xl border border-ink-200 bg-white p-5 shadow-sm">
         <div className="flex items-center gap-2"><ShieldCheck size={18} className="text-primary-600" /><h2 className="text-lg font-black">القرار والمساءلة والنتيجة</h2></div>
         <div className="mt-4 grid gap-3 sm:grid-cols-3"><div className="rounded-xl bg-ink-50 p-4"><p className="text-xs text-ink-500">Decision</p><p className="mt-1 font-bold">يحتاج authority runtime</p></div><div className="rounded-xl bg-ink-50 p-4"><p className="text-xs text-ink-500">Actual Outcome</p><p className="mt-1 font-bold">بانتظار النتيجة الفعلية</p></div><div className="rounded-xl bg-ink-50 p-4"><p className="text-xs text-ink-500">Learning</p><p className="mt-1 font-bold">غير مثبت بعد</p></div></div>
         <Link to="/decision-experience" className="mt-4 inline-flex rounded-xl bg-ink-950 px-4 py-2.5 text-xs font-bold text-white">فتح مساحة القرار</Link>

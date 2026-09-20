@@ -30,7 +30,7 @@ export function ConnectionsPage() {
 
   return (
     <div dir={ar ? 'rtl' : 'ltr'} className="space-y-6 animate-fade-in">
-      <section className="overflow-hidden rounded-[2rem] bg-ink-950 p-6 text-white shadow-elevated lg:p-8">
+      <section className="ag-connection-hero overflow-hidden rounded-[2rem] bg-ink-950 p-6 text-white shadow-elevated lg:p-8">
         <div className="grid gap-7 lg:grid-cols-[1.15fr_.85fr] lg:items-center">
           <div>
             <div className="inline-flex items-center gap-2 rounded-full border border-primary-300/20 bg-primary-500/10 px-3 py-1.5 text-xs font-black text-primary-100"><Globe2 size={14}/>{ar ? 'من المصدر إلى القرار' : 'Source → Decision'}</div>
@@ -52,7 +52,7 @@ export function ConnectionsPage() {
         {connectors.map(({ id, title: labels, description, icon: Icon, state, tag }) => {
           const isAvailable = state === 'available';
           return (
-            <article key={id} className="group rounded-3xl border border-ink-200 bg-white p-5 shadow-card transition hover:-translate-y-0.5 hover:shadow-elevated">
+            <article key={id} className="ag-connection-card group rounded-3xl border border-ink-200 bg-white p-5 shadow-card transition hover:-translate-y-0.5 hover:shadow-elevated">
               <div className="flex items-start justify-between gap-3"><span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary-50 text-primary-700"><Icon size={20}/></span><span className={'rounded-full px-2.5 py-1 text-[10px] font-black ' + (isAvailable ? 'bg-success-50 text-success-700' : 'bg-warning-50 text-warning-700')}>{ar ? tag.ar : tag.en}</span></div>
               <h2 className="mt-4 text-lg font-black text-ink-900">{ar ? labels.ar : labels.en}</h2>
               <p className="mt-2 min-h-16 text-sm leading-7 text-ink-500">{ar ? description.ar : description.en}</p>

@@ -81,7 +81,7 @@ export function Header({
     'text-warning-600';
 
   return (
-    <header className="sticky top-0 z-30 border-b border-ink-200 bg-white">
+    <header className="ag-topbar sticky top-0 z-30 border-b border-ink-200 bg-white">
       <div className="flex h-[60px] items-center gap-2.5 px-3 sm:px-4 lg:px-5">
         <button onClick={onMenuClick} className="rounded-[8px] p-2 text-ink-500 hover:bg-ink-100 lg:hidden" aria-label="فتح القائمة">
           <Menu size={19} />
@@ -96,7 +96,7 @@ export function Header({
         <button
           type="button"
           onClick={onOpenCommandPalette}
-          className="mx-auto flex h-9 w-full max-w-[470px] items-center gap-2.5 rounded-[9px] border border-ink-200 bg-ink-50/70 px-3.5 text-right text-xs text-ink-400 hover:border-primary-300 hover:bg-white"
+          className="ag-top-search mx-auto flex h-10 w-full max-w-[470px] items-center gap-2.5 rounded-[10px] border border-ink-200 bg-ink-50/70 px-3.5 text-right text-xs text-ink-400 hover:border-primary-300 hover:bg-white"
           aria-label="فتح البحث ولوحة الأوامر"
         >
           <Search size={16} className="text-ink-500" />
@@ -130,8 +130,8 @@ export function Header({
             {showAlerts && (
               <>
                 <div className="fixed inset-0 z-40" onClick={() => setShowAlerts(false)} />
-                <div className="absolute left-0 z-50 mt-1.5 w-80 overflow-hidden rounded-[12px] border border-ink-200 bg-white shadow-elevated">
-                  <div className="flex items-center justify-between border-b border-ink-100 px-4 py-3">
+                <div className="ag-alert-panel absolute left-0 z-50 mt-1.5 w-80 overflow-hidden rounded-[12px] border border-ink-200 bg-white shadow-elevated">
+                  <div className="ag-alert-head flex items-center justify-between border-b border-ink-100 px-4 py-3">
                     <span className="text-sm font-black text-ink-900">الانتباه</span>
                     <span className="text-[11px] text-ink-400">{unreadAlerts.length} غير مقروء</span>
                   </div>
@@ -145,7 +145,7 @@ export function Header({
                           type="button"
                           key={alert.id}
                           onClick={() => onMarkAlertRead(alert.id)}
-                          className={'w-full p-3.5 text-right hover:bg-ink-50 ' + (!alert.is_read ? 'bg-primary-50/40' : '')}
+                          className={'w-full p-3.5 text-right transition-colors hover:bg-ink-50 ' + (!alert.is_read ? 'bg-primary-50/40 ring-1 ring-inset ring-primary-100' : '')}
                         >
                           <div className="flex items-start gap-2">
                             <SeverityBadge severity={alert.severity} />
@@ -162,7 +162,7 @@ export function Header({
             )}
           </div>
 
-          <div className="hidden items-center gap-1.5 border-r border-ink-200 pr-2.5 lg:flex" role="status" aria-live="polite" title={healthLabel}>
+          <div className="ag-health-pill hidden items-center gap-1.5 border-r border-ink-200 pr-2.5 lg:flex" role="status" aria-live="polite" title={healthLabel}>
             <HealthIcon size={14} className={healthClass} />
             <span className="text-[11px] font-semibold text-ink-500">{healthLabel}</span>
           </div>
