@@ -167,6 +167,10 @@ export function CanonicalImportPage() {
         total: rows.length,
         valid: validRows.length,
         invalid: rows.length - validRows.length,
+        // Authoritative terminal counts are supplied only after the durable commit succeeds.
+        // commitImportBatch fails closed unless every canonical row commits.
+        committed: validRows.length,
+        invalidRows: rows.length - validRows.length,
         importId: rec.id,
         jobId: execution.jobId,
       });
