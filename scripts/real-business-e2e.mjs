@@ -118,7 +118,7 @@ async function waitForAuthoritativeImportCompletion(page, companyId, entity, mar
     const imports = await restSelect(
       page,
       'import_jobs',
-      { company_id: companyId, entity_type: entity },
+      { company_id: companyId, job_type: entity },
       'id,status,progress,processed_rows,valid_rows,invalid_rows,error_message,result_summary,created_at',
       { order: 'created_at.desc', limit: 20 },
     );
