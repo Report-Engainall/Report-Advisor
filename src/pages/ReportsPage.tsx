@@ -28,7 +28,7 @@ const reportCards = [
 export function ReportsCenterPage() {
   return <div dir="rtl" className="space-y-5 animate-fade-in pb-10">
     <PageHeader title="مركز التقارير" subtitle="منظومة التقارير التنفيذية: كل رقم يعود إلى مصدره، وكل تفسير يبقى منفصلًا عن حقيقة البيانات."/>
-    <section className="rounded-[14px] border border-ink-200 bg-white p-5 shadow-card lg:p-6">
+    <section className="ag-report-hero rounded-[18px] border border-ink-200 bg-white p-5 shadow-card lg:p-6">
       <div className="grid gap-6 lg:grid-cols-[1.4fr_.6fr] items-end">
         <div>
           <div className="section-kicker">بيانات → دليل → قرار</div>
@@ -43,7 +43,7 @@ export function ReportsCenterPage() {
     </section>
     <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
       {reportCards.map((r) => <Link key={r.path} to={r.path} className="group">
-        <Card className="h-full overflow-hidden transition hover:-translate-y-1 hover:shadow-xl">
+        <Card className="ag-report-card h-full overflow-hidden transition hover:-translate-y-1 hover:shadow-xl">
           <CardBody>
             <div className="flex items-start gap-4">
               <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl ${r.iconClass}`}><r.icon size={20}/></div>

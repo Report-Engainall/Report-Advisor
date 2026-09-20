@@ -1,22 +1,24 @@
 ## LIVE EXECUTION UPDATE — 2026-09-21 — AGHBARI VISUAL COVERAGE WAVE
 
-- **SESSION-ID:** SESSION-20260921-VISUAL-CLOSURE-04
-- **CURRENT EXACT HEAD:** `e713ef44e59ce0b5a5d40509bb588f591cc37b6f` on `commercial/comprehensive-product-development-20260918-rebased`.
+- **SESSION-ID:** SESSION-20260921-VISUAL-CLOSURE-05
+- **CURRENT EXACT HEAD:** `4e07915a4f8b6255fcc6a132ea41406307aab4d7` on `commercial/comprehensive-product-development-20260918-rebased`.
 - **PRODUCT SCOPE LOCK:** UI-only. Backend, DB, RPC, runner, Phase-F and unrelated release work remain intentionally deferred.
-- **DONE:** Aghbari RTL shell is now the canonical visual frame: 284px right-side Sidebar, dark brand surface, grouped business sections, stronger active states and consistent workspace edge treatment.
-- **DONE:** Shared `PageHeader` now gives the application a unified Arabic enterprise page framing with Aghbari gold/teal accents and consistent action placement.
-- **DONE:** Shared DataTable/KPI primitives now use the same Aghbari surface language: green-tinted table heads, lighter alternating rows, clearer row hover, stronger KPI hierarchy and subtle lift on interaction.
-- **DONE:** Preserved the single navigation registry and `dir={direction}`; no alternate routing or backend implementation added.
-- **VERIFIED:** Local `npm run typecheck` passed after the shared KPI/table layer.
-- **VERIFIED:** Local route parity passed: 35 application routes / 34 canonical navigation links.
+- **DONE:** Canonical Aghbari RTL shell remains fixed at a 284px right-side Sidebar with dark brand surface, business-section grouping, strong active states and correct Arabic directionality.
+- **DONE:** Shared PageHeader, KPI and DataTable primitives now provide one consistent enterprise visual language across the application.
+- **DONE:** Premium hero treatment applied to Dashboard, Intelligence and Decision Experience: layered dark-green gradients, gold/teal signal accents, restrained radial depth and stronger executive hierarchy.
+- **DONE:** Work Center upgraded with a dedicated operational hero treatment while preserving the authoritative import read path.
+- **DONE:** Import experience upgraded visually: premium stepper states, stronger source-selection cards, and a high-quality document dropzone without changing validation or commit behavior.
+- **DONE:** Chart presentation polished globally for Arabic RTL: refined grid rhythm, legend typography and visual consistency with the Aghbari palette.
+- **VERIFIED:** Local `npm run typecheck` passed on the visual batch.
+- **VERIFIED:** Local `npm run build` passed on the hero/decision visual batch; existing Browserslist/eval warnings only.
+- **VERIFIED:** UI route parity passed: 35 application routes / 34 canonical navigation links.
 - **VERIFIED:** Product WOW UI contract passed.
-- **VERIFIED:** Local build passed earlier in this visual wave after PageHeader changes; the KPI/Table delta is presentational and was covered by TypeScript + targeted UI contracts.
-- **BROWSER:** Local Vite server remains at `http://localhost:5173`; no authenticated screenshot PASS is claimed because PC01 lacks the required automation/auth session path.
-- **COMMITS/PUSH:** `011785342...` shell, `fcf7f5ed...` PageHeader markup, `0c5401af...` PageHeader CSS, `e713ef44...` KPI/Table visual layer — all pushed to PR #595 branch.
-- **NEXT VISUAL FRONT:** Continue screen-level refinement of Dashboard, Work Center, Import/Document Intelligence, Intelligence, Decision Experience, Reports, Inventory, Receivables, Profitability, Entities and Settings using the shared primitives just hardened.
-- **PRECISE STOP POINT:** `e713ef44...` → continue UI-only screen refinement; backend/release work remains deferred by owner instruction.
+- **BROWSER:** Local Vite remains available at `http://localhost:5173`; authenticated screenshot PASS is not claimed because PC01 lacks the required authenticated browser automation path.
+- **COMMITS/PUSH:** UI shell/PageHeader/KPI foundation and the current hero/import visual wave are all pushed to PR #595; latest exact source commit is `4e07915...`.
+- **NEXT VISUAL FRONT:** Continue polishing Reports/Analytics, Inventory/Receivables/Profitability, Entities, Settings/Profile and remaining secondary surfaces until the entire product reads as one premium Aghbari system.
+- **PRECISE STOP POINT:** `4e07915...` → continue UI-only visual coverage from this exact SHA; do not reopen backend/release work during this visual session.
 - **DO NOT REPEAT:** No duplicate navigation registry, no synthetic data, no backend redesign, no evidence transfer across SHAs, no RTL reversal.
-- **CURRENT RESUME POINTER:** `commercial/comprehensive-product-development-20260918-rebased@e713ef44e59ce0b5a5d40509bb588f591cc37b6f` → continue UI-only visual coverage.
+- **CURRENT RESUME POINTER:** `commercial/comprehensive-product-development-20260918-rebased@4e07915a4f8b6255fcc6a132ea41406307aab4d7` → continue premium UI coverage.
 
 ## EXECUTIVE SESSION UPDATE — 2026-09-20 — EXACT-HEAD RECONCILIATION BEFORE NEXT PROOF
 

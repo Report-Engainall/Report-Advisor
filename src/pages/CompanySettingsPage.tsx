@@ -121,7 +121,7 @@ export function CompanySettingsPage() {
       <PageHeader title="الإعدادات" subtitle="مصدر الشركة الموثوق + محرر مساحة العمل المحلي على هذا الجهاز" />
 
       <div data-testid="workspace-editor">
-        <Card>
+        <Card className="ag-settings-panel">
           <CardHeader title="محرر مساحة العمل" />
           <CardBody>
             <div className="rounded-2xl border border-ink-100 bg-ink-50/70 p-4 text-xs leading-5 text-ink-500">
