@@ -7,7 +7,7 @@ import type { Alert } from '@/lib/types';
 import { SeverityBadge } from './ui/Badge';
 import { relativeTime } from '@/lib/format';
 import { supabase } from '@/lib/supabase';
-import { NAVIGATION_ITEMS } from '@/lib/navigation-registry';
+import { resolveNavigationItem } from '@/lib/navigation-registry';
 
 type HealthState = 'checking' | 'healthy' | 'degraded' | 'offline';
 
@@ -29,11 +29,7 @@ export function Header({
   const unreadAlerts = alerts.filter((alert) => !alert.is_read);
 
   const currentLabel = useMemo(() => {
-    const item = NAVIGATION_ITEMS.find(
-      (entry) =>
-        location.pathname === entry.path ||
-        (entry.path !== '/' && location.pathname.startsWith(entry.path + '/')),
-    );
+    const item = resolveNavigationItem(location.pathname);
     if (!item) return 'الأغبري';
     return language === 'ar' ? item.label : item.enLabel;
   }, [language, location.pathname]);
@@ -87,11 +83,7 @@ export function Header({
   return (
     <header className="sticky top-0 z-30 border-b border-ink-200 bg-white">
       <div className="flex h-[60px] items-center gap-2.5 px-3 sm:px-4 lg:px-5">
-        <button
-          onClick={onMenuClick}
-          className="rounded-[8px] p-2 text-ink-500 hover:bg-ink-100 lg:hidden"
-          aria-label="فتح القائمة"
-        >
+        <button onClick={onMenuClick} className="rounded-[8px] p-2 text-ink-500 hover:bg-ink-100 lg:hidden" aria-label="فتح القائمة">
           <Menu size={19} />
         </button>
 
@@ -116,13 +108,7 @@ export function Header({
 
         <div className="flex items-center gap-0.5">
           <LanguageToggle />
-
-          <Link
-            to="/import"
-            className="rounded-[8px] p-2 text-ink-500 hover:bg-ink-100 hover:text-primary-700"
-            title="استيراد"
-            aria-label="استيراد"
-          >
+          <Link to="/import" className="rounded-[8px] p-2 text-ink-500 hover:bg-ink-100 hover:text-primary-700" title="استيراد" aria-label="استيراد">
             <Upload size={17} />
           </Link>
 
@@ -166,9 +152,7 @@ export function Header({
                             <span className="mr-auto text-[10px] text-ink-400">{relativeTime(alert.created_at)}</span>
                           </div>
                           <div className="mt-1.5 text-[13px] font-bold text-ink-800">{alert.title}</div>
-                          {alert.description && (
-                            <div className="mt-1 text-[11px] leading-5 text-ink-500">{alert.description}</div>
-                          )}
+                          {alert.description && <div className="mt-1 text-[11px] leading-5 text-ink-500">{alert.description}</div>}
                         </button>
                       ))}
                     </div>
@@ -178,12 +162,7 @@ export function Header({
             )}
           </div>
 
-          <div
-            className="hidden items-center gap-1.5 border-r border-ink-200 pr-2.5 lg:flex"
-            role="status"
-            aria-live="polite"
-            title={healthLabel}
-          >
+          <div className="hidden items-center gap-1.5 border-r border-ink-200 pr-2.5 lg:flex" role="status" aria-live="polite" title={healthLabel}>
             <HealthIcon size={14} className={healthClass} />
             <span className="text-[11px] font-semibold text-ink-500">{healthLabel}</span>
           </div>
