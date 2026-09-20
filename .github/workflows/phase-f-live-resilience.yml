@@ -38,11 +38,41 @@ jobs:
         run: node scripts/resilience-runtime.test.mjs
       - name: Static resilience contracts
         run: npm run test:operational-resilience && npm run test:release-resilience-manifest && npm run test:continuous-trust
+      - name: Resolve fresh authenticated canary session
+        env:
+          SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.REPORT_ADVISOR_SUPABASE_ANON_KEY }}
+          AUTH_EMAIL: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_EMAIL }}
+          AUTH_PASSWORD: ${{ secrets.REPORT_ADVISOR_E2E_USER_A_PASSWORD }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          token="$(node --input-type=module <<'NODE'
+          const url = process.env.SUPABASE_URL?.trim();
+          const anonKey = process.env.SUPABASE_ANON_KEY?.trim();
+          const email = process.env.AUTH_EMAIL?.trim();
+          const password = process.env.AUTH_PASSWORD;
+          if (!url || !anonKey || !email || !password) {
+            throw new Error('PHASE_F_CANARY_AUTH_ENV_MISSING');
+          }
+          const response = await fetch(`${url.replace(/\/$/, '')}/auth/v1/token?grant_type=password`, {
+            method: 'POST',
+            headers: { apikey: anonKey, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password }),
+          });
+          const body = await response.json().catch(() => ({}));
+          if (!response.ok || typeof body.access_token !== 'string' || !body.access_token.trim()) {
+            throw new Error(`PHASE_F_CANARY_AUTH_FAILED:${response.status}:${body.error_code || body.error || body.msg || 'unknown'}`);
+          }
+          process.stdout.write(body.access_token.trim());
+          NODE
+          )"
+          echo "::add-mask::$token"
+          printf 'RESILIENCE_CANARY_AUTH_TOKEN=%s\n' "$token" >> "$GITHUB_ENV"
       - name: Live resilience probes
         env:
           RESILIENCE_TARGET_ENV: ${{ secrets.RESILIENCE_TARGET_ENV }}
           RESILIENCE_OPERATIONAL_TOKEN: ${{ secrets.RESILIENCE_OPERATIONAL_TOKEN }}
-          RESILIENCE_CANARY_AUTH_TOKEN: ${{ secrets.RESILIENCE_CANARY_AUTH_TOKEN }}
           RESILIENCE_HEALTH_URL: https://report-advisor.vercel.app/api/health
           RESILIENCE_CANARY_URL: https://report-advisor.vercel.app/api/tenant-canary
           RESILIENCE_BACKUP_VERIFY_URL: https://report-advisor.vercel.app/api/backup-restore-verify
