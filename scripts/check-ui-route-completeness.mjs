@@ -6,16 +6,32 @@ const pages = fs.readdirSync('src/pages').filter((name) => name.endsWith('Page.t
 
 const routePaths = [...app.matchAll(/<Route\s+path="([^"]+)"/g)].map((m) => m[1]);
 const navigationPaths = [...navigationRegistry.matchAll(/path:\s*'([^']+)'/g)].map((m) => m[1]);
-const pageImports = [
-  ...app.matchAll(/from\s+['"]@\/pages\/([^'"]+)['"]/g),
-  ...app.matchAll(/import\([^)]*['"]@\/pages\/([^'"]+)['"]/g),
-].map((m) => m[1]);
-
 const unique = (items) => [...new Set(items)];
 const missingFromSidebar = routePaths.filter((path) => path !== '*' && !navigationPaths.includes(path));
 const missingRoutesForSidebar = navigationPaths.filter((path) => !routePaths.includes(path));
-const importedPageFiles = unique(pageImports.map((file) => file.endsWith('.tsx') ? file : `${file}.tsx`));
-const unreferencedPageFiles = pages.filter((file) => !importedPageFiles.includes(file));
+
+const pageSourceByFile = new Map();
+for (const page of pages) {
+  pageSourceByFile.set(page, fs.readFileSync(`src/pages/${page}`, 'utf8'));
+}
+const entrySources = [
+  app,
+  fs.readFileSync('src/components/AuthGate.tsx', 'utf8'),
+];
+const pageRef = (source) => [
+  ...source.matchAll(/from\s+['"]@\/pages\/([^'"]+)['"]/g),
+  ...source.matchAll(/import\([^)]*['"]@\/pages\/([^'"]+)['"]/g),
+].map((m) => m[1].endsWith('.tsx') ? m[1] : `${m[1]}.tsx`);
+
+const reachablePageFiles = new Set();
+const pendingPageFiles = unique(entrySources.flatMap(pageRef));
+while (pendingPageFiles.length) {
+  const page = pendingPageFiles.pop();
+  if (!page || reachablePageFiles.has(page) || !pageSourceByFile.has(page)) continue;
+  reachablePageFiles.add(page);
+  pendingPageFiles.push(...pageRef(pageSourceByFile.get(page)));
+}
+const unreferencedPageFiles = pages.filter((file) => !reachablePageFiles.has(file));
 
 const fail = (label, values) => {
   if (!values.length) return;
@@ -30,15 +46,7 @@ console.log(`Page component files: ${pages.length}`);
 fail('routes missing from sidebar navigation', missingFromSidebar);
 fail('sidebar links missing a registered route', missingRoutesForSidebar);
 
-const knownEntryOrLegacyFiles = new Set([
-  'LoginPage.tsx',
-  'CanonicalImportPage.tsx',
-  'CanonicalScenarioPage.tsx',
-  'ReceivablesReportPageCanonical.tsx',
-  'ReceivablesReportCanonicalPage.tsx',
-]);
-const unexpectedOrphans = unreferencedPageFiles.filter((file) => !knownEntryOrLegacyFiles.has(file));
-fail('page components neither imported nor explicitly allowlisted as entry/legacy', unexpectedOrphans);
+fail('page components unreachable from App/AuthGate import graph', unreferencedPageFiles);
 
 if (process.exitCode) {
   console.error('UI route/navigation completeness: FAIL');
