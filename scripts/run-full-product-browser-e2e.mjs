@@ -215,15 +215,19 @@ async function inspectPage(targetPage) {
 
 async function runWorkspacePersonalizationProbe(targetPage) {
   await targetPage.goto(`${baseURL}/settings`, { waitUntil: 'domcontentloaded', timeout: 30000 });
-  await targetPage.getByRole('heading', { name: 'محرر مساحة العمل', exact: true }).waitFor({ state: 'visible', timeout: 30000 });
-  const financePreset = targetPage.getByRole('button').filter({ hasText: 'المالية' }).first();
+  await targetPage.waitForURL(url => new URL(url).pathname === '/settings', { timeout: 30000 });
+  const workspaceEditor = targetPage.locator('[data-testid="workspace-editor"]');
+  await workspaceEditor.waitFor({ state: 'visible', timeout: 30000 });
+  await workspaceEditor.getByRole('heading', { name: 'محرر مساحة العمل', exact: true }).waitFor({ state: 'visible', timeout: 30000 });
+
+  const financePreset = workspaceEditor.getByRole('button').filter({ hasText: 'المالية' }).first();
   await financePreset.waitFor({ state: 'visible', timeout: 15000 });
   await financePreset.click();
 
-  const select = targetPage.locator('select').first();
+  const select = workspaceEditor.locator('select').first();
   await select.selectOption('/reports/profitability');
 
-  const kpiLabel = targetPage.locator('label').filter({ hasText: 'بطاقات المؤشرات' }).first();
+  const kpiLabel = workspaceEditor.locator('label').filter({ hasText: 'بطاقات المؤشرات' }).first();
   const kpiCheckbox = kpiLabel.locator('input[type="checkbox"]');
   if (await kpiCheckbox.isChecked()) await kpiCheckbox.uncheck();
 
