@@ -284,8 +284,7 @@ async function runWorkspacePersonalizationProbe(targetPage) {
   const select = workspaceEditor.locator('select').first();
   await select.selectOption('/reports/profitability');
 
-  const kpiLabel = workspaceEditor.locator('label').filter({ hasText: 'بطاقات المؤشرات' }).first();
-  const kpiCheckbox = kpiLabel.locator('input[type="checkbox"]');
+  const kpiCheckbox = workspaceEditor.locator('[data-testid="workspace-widget-kpis"] input[type="checkbox"]');
   if (await kpiCheckbox.isChecked()) await kpiCheckbox.uncheck();
 
   const persisted = await targetPage.evaluate(() => {
