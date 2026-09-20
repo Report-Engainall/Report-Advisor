@@ -147,3 +147,9 @@ export const NAVIGATION_SECTIONS: NavigationSection[] = [
 ];
 
 export const NAVIGATION_ITEMS = NAVIGATION_SECTIONS.flatMap(section => section.items);
+
+export function resolveNavigationItem(path: string): NavigationItem | null {
+  return [...NAVIGATION_ITEMS]
+    .sort((a, b) => b.path.length - a.path.length)
+    .find(item => path === item.path || (item.path !== '/' && path.startsWith(item.path + '/'))) ?? null;
+}
