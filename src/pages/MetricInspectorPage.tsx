@@ -110,14 +110,14 @@ export function MetricInspectorPage() {
   );
 
   return (
-    <div dir="rtl" className="space-y-6 animate-fade-in">
+    <div dir="rtl" className="ag-governance-page space-y-6 animate-fade-in">
       <PageHeader
         title="حوكمة المؤشرات"
         subtitle="تعريف المؤشر، نسخته، مصدره، الأدلة، والجهات المستهلكة من عقد موحد"
       />
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[320px_1fr]">
-        <Card>
+        <Card className="ag-governance-list">
           <CardHeader title="المؤشرات" subtitle={`${items.length} مؤشرًا محفوظًا`} />
           <CardBody className="p-2">
             <div className="space-y-1">
@@ -131,9 +131,9 @@ export function MetricInspectorPage() {
                     setCapture(null);
                     setCaptureError(null);
                   }}
-                  className={`w-full rounded-xl px-3 py-3 text-right transition ${
+                  className={`ag-governance-item w-full rounded-xl px-3 py-3 text-right transition ${
                     selected?.definition.metricId === item.definition.metricId
-                      ? 'bg-primary-50'
+                      ? 'ag-governance-item-active bg-primary-50'
                       : 'hover:bg-ink-50'
                   }`}
                 >
@@ -150,7 +150,7 @@ export function MetricInspectorPage() {
 
         {selected && (
           <div className="space-y-6">
-            <Card>
+            <Card className="ag-governance-hero">
               <CardBody>
                 <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                   <div>
