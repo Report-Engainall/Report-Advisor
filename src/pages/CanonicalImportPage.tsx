@@ -19,9 +19,9 @@ type EntityType = 'sales_invoices' | 'products' | 'customers';
 interface Row { rowNumber: number; data: Record<string, any>; valid: boolean; error?: string }
 
 const ENTITIES: Array<{ value: EntityType; label: string; description: string; required: string[] }> = [
-  { value: 'sales_invoices', label: 'فواتير المبيعات', description: 'حركة المبيعات والتحصيل', required: ['invoice_number', 'invoice_date', 'customer_name', 'total'] },
-  { value: 'products', label: 'المنتجات', description: 'الأصناف والأسعار والتكلفة', required: ['sku', 'name', 'cost_price', 'selling_price'] },
-  { value: 'customers', label: 'العملاء', description: 'بيانات العملاء الأساسية', required: ['name'] },
+  { value: 'sales_invoices', label: 'فواتير المبيعات', description: 'حركة المبيعات والتحصيل', required: ['invoice_number', 'invoice_date', 'customer_name', 'subtotal', 'tax_amount', 'total', 'paid_amount', 'status'] },
+  { value: 'products', label: 'المنتجات', description: 'الأصناف والأسعار والتكلفة', required: ['sku', 'name', 'unit', 'cost_price', 'selling_price', 'min_stock', 'reorder_point', 'is_active'] },
+  { value: 'customers', label: 'العملاء', description: 'بيانات العملاء الأساسية', required: ['name', 'segment', 'credit_limit', 'payment_terms_days'] },
 ];
 
 const STEPS: Array<{ key: Step; label: string }> = [
