@@ -296,5 +296,24 @@ Do not wait for another prompt merely because:
 
 Only stop when the global stopping condition in Section 15 is satisfied.
 
+## 19. Library / Persistent-Memory Synchronization — NO OWNER PROMPTS
+
+Persistent Library synchronization is an execution detail, not an owner decision.
+
+The programmer MUST:
+- attempt to update the canonical existing Library file automatically after meaningful memory changes;
+- never create a duplicate memory file merely because synchronization is rate-limited or temporarily unavailable;
+- never ask the owner whether the canonical Library replacement should be attempted;
+- never ask the owner to approve, choose, or confirm a normal Library synchronization action;
+- treat a platform-enforced interactive confirmation, rate limit, unavailable connector, or permission boundary as a **tooling/external blocker only**;
+- record that tooling blocker precisely and continue all repository/GitHub/CI/Vercel/Supabase and other safe fronts without stopping the execution session;
+- retry synchronization on the next safe rescan when the platform permits it;
+- keep the local/canonical working copy authoritative for execution continuity while durable Library synchronization remains pending;
+- never claim the Library was durably updated unless the mutation result proves it.
+
+A Library-sync blocker MUST NOT become an owner question, a session-stopping condition, or a reason to duplicate memory artifacts.
+
+
+
 ---
 **Governance:** This document is repository-resident operational policy. Changes to it must be intentional, auditable, and committed to GitHub.
