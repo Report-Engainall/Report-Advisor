@@ -51,8 +51,8 @@ export function WorkCenterPage() {
 
   return <div dir="rtl" className="space-y-5 animate-fade-in pb-10">
     <PageHeader
-      title="مركز العمليات"
-      subtitle="منطقة العمل التشغيلية: ما دخل النظام، أين وصل، وما الذي يحتاج تدخلًا."
+      title="مركز العمل"
+      subtitle="طابور العمل والاستثناءات: ما الذي ينتظر، ما الذي يحتاج مراجعة، وما الذي اكتمل فعليًا."
       actions={<button type="button" onClick={() => void load()} className="btn-secondary inline-flex items-center gap-2"><RefreshCw size={16}/> تحديث</button>}
     />
 
@@ -108,7 +108,7 @@ export function WorkCenterPage() {
     </section>
 
     <Card>
-      <CardHeader title="سجل العمليات" subtitle="فلترة حسب الحالة دون تغيير البيانات المصدرية."/>
+      <CardHeader title="طابور العمل" subtitle="ابدأ من الاستثناءات والحالات النشطة، ثم انتقل إلى السجل الكامل عند الحاجة."/>
       <CardBody>
         <div className="mb-5 flex flex-wrap items-center gap-2" role="toolbar" aria-label="تصفية العمليات">
           <Filter size={16} className="text-ink-400"/>
