@@ -7,7 +7,7 @@ import { AuthGate } from '@/components/AuthGate';
 import { CommandPalette } from '@/components/CommandPalette';
 import { ProductJourneyNav } from '@/components/ProductJourneyNav';
 import { DashboardPage } from '@/pages/DashboardPage';
-import { ScenarioTruthGuardPage } from '@/pages/ScenarioTruthGuardPage';
+const ScenarioTruthGuardPage = lazy(() => import('@/pages/ScenarioTruthGuardPage').then(m => ({ default: m.ScenarioTruthGuardPage })));
 import { markAlertRead } from '@/lib/queries';
 import { fetchDashboardIntelligence } from '@/lib/dashboard-canonical';
 import { getAuthenticatedUser } from '@/lib/auth-session';
