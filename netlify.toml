@@ -1,6 +1,13 @@
 [functions]
   directory = "netlify/functions"
 
+[dev]
+  command = "npm run preview -- --host 127.0.0.1 --port 5173"
+  targetPort = 5173
+  port = 4173
+  functions = "netlify/functions"
+  functionsPort = 9999
+
 [build]
   command = "npm run build"
   publish = "dist"
