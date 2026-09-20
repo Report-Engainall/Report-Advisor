@@ -1,4 +1,4 @@
-import { NAVIGATION_ITEMS, NAVIGATION_SECTIONS, type WorkspaceVisibilityMode } from '@/lib/navigation-registry';
+import { NAVIGATION_SECTIONS, resolveNavigationItem, type WorkspaceVisibilityMode } from '@/lib/navigation-registry';
 
 export type WorkspaceMode = WorkspaceVisibilityMode;
 export type WorkspacePreset =
@@ -95,7 +95,7 @@ export function isWorkspacePathVisible(
   preferences: WorkspacePreferences = readWorkspacePreferences(),
 ): boolean {
   if (preferences.hiddenPaths.includes(path)) return false;
-  const item = NAVIGATION_ITEMS.find(entry => entry.path === path);
+  const item = resolveNavigationItem(path);
   const required = item?.minimumWorkspaceMode;
   if (!required) return true;
   const rank: Record<WorkspaceMode, number> = { essential: 0, advanced: 1, expert: 2 };
