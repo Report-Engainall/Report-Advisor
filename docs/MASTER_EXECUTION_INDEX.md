@@ -1,24 +1,23 @@
-## LIVE EXECUTION UPDATE — 2026-09-21 — AGHBARI VISUAL COVERAGE WAVE
+## LIVE EXECUTION UPDATE — 2026-09-21 — AGHBARI PREMIUM VISUAL CLOSURE WAVE
 
-- **SESSION-ID:** SESSION-20260921-VISUAL-CLOSURE-06
-- **CURRENT EXACT HEAD:** `4596874d437990a42e04b907f9d9eb56a6981bee` on `commercial/comprehensive-product-development-20260918-rebased`.
+- **SESSION-ID:** SESSION-20260921-VISUAL-CLOSURE-07
+- **CURRENT EXACT SOURCE HEAD:** `4615023591ad37319dfcc00c39f53524ae620857` on `commercial/comprehensive-product-development-20260918-rebased`; GitHub branch ref verified at this SHA.
 - **PRODUCT SCOPE LOCK:** UI-only. Backend, DB, RPC, runner, Phase-F and unrelated release work remain intentionally deferred.
-- **DONE:** Canonical Aghbari RTL shell remains fixed at a 284px right-side Sidebar with dark brand surface, business-section grouping, strong active states and correct Arabic directionality.
-- **DONE:** Shared PageHeader, KPI and DataTable primitives now provide one consistent enterprise visual language across the application.
-- **DONE:** Premium hero treatment applied to Dashboard, Intelligence and Decision Experience, with restrained Aghbari gold/teal depth and stronger executive hierarchy.
-- **DONE:** Work Center upgraded with an operational hero surface while preserving the authoritative import read path.
-- **DONE:** Import experience upgraded with premium stepper states, source cards and document dropzone; validation/commit behavior unchanged.
-- **DONE:** Reports Center, Inventory Intelligence and Company Settings secondary surfaces now use the same premium Aghbari visual system.
-- **DONE:** Chart presentation polished globally for Arabic RTL.
-- **VERIFIED:** Local `npm run typecheck` passed on the complete visual wave.
-- **VERIFIED:** Local `npm run build` passed on the hero/decision visual wave; existing Browserslist/eval warnings only.
-- **VERIFIED:** UI route parity passed: 35 application routes / 34 canonical navigation links.
-- **VERIFIED:** Product WOW UI contract passed.
-- **BROWSER:** Local Vite remains available at `http://localhost:5173`; authenticated screenshot PASS is not claimed because PC01 lacks the required authenticated browser automation path.
-- **COMMITS/PUSH:** Visual work through `4596874...` is pushed to PR #595.
-- **PRECISE STOP POINT:** `4596874...` → the product now has a substantially unified premium visual frame across primary and secondary surfaces; continue only with remaining micro-polish or after owner reopens backend/release work.
-- **DO NOT REPEAT:** No duplicate navigation registry, no synthetic data, no backend redesign, no evidence transfer across SHAs, no RTL reversal.
-- **CURRENT RESUME POINTER:** `commercial/comprehensive-product-development-20260918-rebased@4596874d437990a42e04b907f9d9eb56a6981bee` → premium UI coverage is the current completed visual boundary.
+- **DONE:** Premium top chrome unified: sticky header, command/search control, alert panel and runtime health pill now share the Aghbari enterprise visual language.
+- **DONE:** Mobile action bar elevated into a persistent premium control surface with active-state treatment, safe-area spacing and dedicated command action styling.
+- **DONE:** Entity surfaces refined for Customers/Products/Inventory context, search toolbar, supporting notes and entity drawer presentation without changing data behavior.
+- **DONE:** Executive Report received the same premium hero/panel/warning treatment used by the core executive surfaces.
+- **DONE:** Profile Settings and Connections now match the Aghbari design system through dedicated visual surfaces; no connector/runtime claims were changed.
+- **VERIFIED:** `npm run typecheck` PASS.
+- **VERIFIED:** `npm run build` PASS; existing Browserslist/eval warnings only.
+- **VERIFIED:** UI route parity PASS: 35 application routes / 34 canonical navigation links; required routes present.
+- **VERIFIED:** Product WOW UI contract PASS.
+- **VERIFIED:** `git diff --check` PASS.
+- **BROWSER:** No authenticated screenshot PASS is claimed; PC01 does not expose the required authenticated browser automation path.
+- **COMMITS/PUSH:** Source commit `46150235...` pushed to PR #595 branch ref successfully. A follow-up documentation-only update is being recorded in this same execution index.
+- **PRECISE STOP POINT:** `46150235...` → remaining UI work is now limited to further micro-polish or owner-directed visual changes; backend/release fronts remain deferred by scope lock.
+- **DO NOT REPEAT:** Do not rebuild the shell/PageHeader/KPI/DataTable visual foundations, do not create duplicate navigation or design primitives, do not alter business/data contracts merely for presentation, do not transfer evidence across SHAs.
+- **CURRENT RESUME POINTER:** `commercial/comprehensive-product-development-20260918-rebased@4615023591ad37319dfcc00c39f53524ae620857` → current executable UI source boundary.
 
 ## EXECUTIVE SESSION UPDATE — 2026-09-20 — EXACT-HEAD RECONCILIATION BEFORE NEXT PROOF
 
