@@ -111,6 +111,7 @@ async function waitForAuthoritativeImportCompletion(page, companyId, entity, mar
   const fileName = `${marker}.csv`;
   const deadline = Date.now() + 120000;
   let lastImport = null;
+  let candidateJobId = null;
   let lastExecution = null;
   let nextExecutionProbeAt = 0;
 
@@ -118,13 +119,16 @@ async function waitForAuthoritativeImportCompletion(page, companyId, entity, mar
     const imports = await restSelect(
       page,
       'import_jobs',
-      { company_id: companyId, job_type: entity },
+      candidateJobId ? { company_id: companyId, id: candidateJobId } : { company_id: companyId, job_type: entity },
       'id,status,progress,processed_rows,valid_rows,invalid_rows,error_message,result_summary,created_at',
-      { order: 'created_at.desc', limit: 20 },
+      candidateJobId ? { limit: 1 } : { order: 'created_at.desc', limit: 20 },
     );
-    const candidate = imports.find((row) => row?.result_summary?.file_name === fileName);
+    const candidate = candidateJobId
+      ? imports[0] ?? null
+      : imports.find((row) => row?.result_summary?.file_name === fileName) ?? null;
 
     if (candidate) {
+      candidateJobId ??= candidate.id;
       lastImport = candidate;
 
       if (candidate.status === 'failed' || candidate.status === 'cancelled') {
