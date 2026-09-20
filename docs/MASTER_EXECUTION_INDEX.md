@@ -1,3 +1,20 @@
+## LIVE EXECUTION UPDATE — 2026-09-21 — RTL SHELL CORRECTION + CONTINUED PRODUCT CLOSURE
+
+- **SESSION-ID:** SESSION-20260921-RTL-PRODUCT-CLOSURE
+- **CURRENT EXACT HEAD:** `58a6de2cb30d0ebee3e25b9f71e078644ce792b1` on `commercial/comprehensive-product-development-20260918-rebased`.
+- **DONE:** Corrected the Arabic desktop shell direction at the root cause. `src/App.tsx` now uses the natural `flex-row` under the existing `dir="rtl"` instead of applying `flex-row-reverse` on top of RTL, which caused the sidebar/navigation to render on the left.
+- **DONE:** Cleaned `src/components/Sidebar.tsx` divider behavior so Arabic uses the left workspace-edge divider and English uses the right divider without simultaneously applying both borders.
+- **DONE:** Added a regression guard to `scripts/check-product-wow-ui-contract.mjs` that fails if the Arabic shell returns to the double-reversal pattern and verifies the explicit Sidebar direction/divider contract.
+- **ACTUAL DEPLOYMENT RESULT:** Vercel deployment `dpl_CdU4RvpfAZzLohTAghoMCYY5cpJM` at `6f08bf29b7d8c09324cb6c01ac22807a7857732a` reached **READY**. The new exact-head deployment for `58a6de2cb30d0ebee3e25b9f71e078644ce792b1` is currently **BUILDING**; no build PASS is claimed yet for `58a6...`.
+- **CURRENT CI:** Exact-head workflows for `58a6...` are queued/in progress. `Golden Score Identity` is already terminal PASS on this SHA; Quality, dashboard-null-truth, Full Product Browser, PWA, Product Creation, Desktop, production regression and Phase-F are not yet terminal. No result is transferred from an older SHA.
+- **BROWSER VERIFICATION LIMITATION:** The deployed app requires authentication for public page extraction. Browser automation visual verification was not executed because the available external automation wallet is out of funds; no screenshot-based PASS is claimed.
+- **PHASE-F:** Current exact-head Phase-F remains pending. Do not infer or copy prior SHA results; only use terminal evidence bound to `58a6...`.
+- **PRECISE STOP POINT:** Continue consuming exact-head CI/Vercel results for `58a6de2cb30d0ebee3e25b9f71e078644ce792b1`. Fix only the first concrete regression exposed on this SHA. Keep Phase-F fail-closed and continue independent product fronts.
+- **NEXT ACTION:** Consume terminal Quality + UI route + Browser/PWA/Product/Windows results, then address any exact-head regression and maintain the commercial Aghbari UI sweep without introducing duplicate navigation or execution infrastructure.
+- **DO NOT REPEAT:** Do not restore `flex-row-reverse` on the RTL root, do not duplicate navigation registries, do not transfer CI/evidence across SHAs, do not invent visual/browser proof, and do not fabricate Phase-F resilience inputs.
+- **CURRENT RESUME POINTER:** `commercial/comprehensive-product-development-20260918-rebased@58a6de2cb30d0ebee3e25b9f71e078644ce792b1` → RTL shell correction is implemented; exact-head proof consumption is the next executable action.
+- **LAST EXECUTIVE ACTION:** Updated the RTL shell, Sidebar divider contract, and UI regression guard; refreshed this canonical execution index to the new exact HEAD.
+
 ## EXECUTIVE SESSION UPDATE — 2026-09-20 — EXACT-HEAD RECONCILIATION BEFORE NEXT PROOF
 
 - **Current code/test candidate:** `fe5661060462ffa21d6aa31505f80c2021c4170a` (main ancestry reconciled into this branch).
