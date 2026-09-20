@@ -1,21 +1,20 @@
 ## LIVE EXECUTION UPDATE — 2026-09-21 — AGHBARI VISUAL COVERAGE WAVE
 
-- **SESSION-ID:** SESSION-20260921-VISUAL-CLOSURE-02
-- **CURRENT EXACT HEAD:** `01178534264f39a7986a24f24429d3430891974f` on `commercial/comprehensive-product-development-20260918-rebased`.
-- **PRODUCT SCOPE LOCK:** This batch is UI-only. Backend, DB, RPC, runner, Phase-F, release gates and unrelated runtime checks are intentionally deferred while the visual product pass continues.
-- **DONE:** Refined the canonical Aghbari RTL shell without creating a parallel navigation system: desktop Sidebar width increased to 284px, brand block strengthened, workspace context surface upgraded, active section/item states made clearer, and the sidebar gained a consistent Aghbari visual edge treatment.
-- **DONE:** Refined the shared main surface/background and command header presentation so the entire application reads as one RTL enterprise workspace rather than isolated pages.
-- **DONE:** Preserved the single navigation registry and the existing `dir={direction}` architecture. No `flex-row-reverse` was reintroduced; Arabic Sidebar remains structurally on the right through the RTL flex direction.
-- **VERIFIED:** Local `npm run typecheck` passed.
-- **VERIFIED:** Local `npm run build` completed successfully; only existing non-fatal Browserslist/eval warnings were emitted.
-- **VERIFIED:** `test:ui-route-sidebar-parity` passed: 35 application routes / 34 canonical navigation links.
-- **VERIFIED:** `test:product-wow-ui` passed after the visual shell changes.
-- **BROWSER:** PC01 Vite server is available at `http://localhost:5173`; screenshot automation is not claimed as final evidence because the installed environment does not provide the required browser automation path/authenticated session.
-- **COMMIT/PUSH:** UI visual shell commit `01178534264f39a7986a24f24429d3430891974f` pushed to PR #595 branch.
-- **NEXT VISUAL FRONT:** Continue screen-level refinement of Dashboard, Work Center, Import/Document Intelligence, Intelligence, Decision Experience, Reports, Inventory, Receivables, Profitability, Entities and Settings using the same shared design system. Do not open backend/release work until the owner requests it.
-- **PRECISE STOP POINT:** Current exact UI SHA is `011785342...`; visual product work continues from this SHA. Fresh CI may run independently, but no CI result is required to proceed with further UI-only source work.
-- **DO NOT REPEAT:** Do not duplicate navigation registries, do not create new backend paths, do not transfer evidence between SHAs, and do not weaken RTL directionality.
-- **CURRENT RESUME POINTER:** `commercial/comprehensive-product-development-20260918-rebased@01178534264f39a7986a24f24429d3430891974f` → continue UI-only screen refinement.
+- **SESSION-ID:** SESSION-20260921-VISUAL-CLOSURE-03
+- **CURRENT EXACT HEAD:** `0c5401af58c538484c3680e7856eba64ef23cd68` on `commercial/comprehensive-product-development-20260918-rebased`.
+- **PRODUCT SCOPE LOCK:** UI-only. Backend, DB, RPC, runner, Phase-F and unrelated release work remain intentionally deferred.
+- **DONE:** Completed the RTL Aghbari shell refinement: Sidebar is 284px, dark branded, grouped by canonical business sections, with stronger active states and the Arabic workspace edge kept on the right-side navigation layout.
+- **DONE:** Completed shared page framing: every screen using the existing `PageHeader` now receives a unified Aghbari workspace header with Arabic hierarchy, gold/teal accent language, clearer title/description separation and consistent action placement.
+- **DONE:** Preserved one navigation registry and the existing `dir={direction}` flow; no alternate routing or backend path was added.
+- **VERIFIED:** Local `npm run typecheck` passed after the PageHeader change.
+- **VERIFIED:** Local `npm run build` completed successfully after the shared page-header CSS change; existing Browserslist/eval warnings only.
+- **VERIFIED:** Earlier same-wave route parity and Product WOW UI checks passed and remain the relevant UI contract evidence for the preceding UI SHA; the current CSS-only delta has no route or product logic change.
+- **BROWSER:** Local Vite server remains available at `http://localhost:5173`. No authenticated screenshot PASS is claimed because PC01 lacks the required browser automation/authenticated session path.
+- **COMMITS/PUSH:** `011785342...` shell wave, `fcf7f5ed...` shared PageHeader markup, and `0c5401af...` shared PageHeader visual CSS are pushed to PR #595 branch.
+- **NEXT VISUAL FRONT:** Continue screen-level visual refinement on Dashboard, Work Center, Import/Document Intelligence, Intelligence, Decision Experience, Reports, Inventory, Receivables, Profitability, Entities and Settings using only shared primitives and canonical navigation.
+- **PRECISE STOP POINT:** `0c5401af...` → continue UI-only screen refinement. Do not wait for CI and do not reopen closed backend/runtime gates.
+- **DO NOT REPEAT:** No duplicate navigation registry, no fake data, no backend redesign, no evidence transfer across SHAs, no RTL reversal.
+- **CURRENT RESUME POINTER:** `commercial/comprehensive-product-development-20260918-rebased@0c5401af58c538484c3680e7856eba64ef23cd68` → UI-only visual coverage continues.
 
 ## EXECUTIVE SESSION UPDATE — 2026-09-20 — EXACT-HEAD RECONCILIATION BEFORE NEXT PROOF
 
