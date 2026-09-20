@@ -103,12 +103,12 @@ export function DashboardPage() {
           <div className="p-4"><div className="flex items-center gap-2 text-[13px] font-bold text-ink-900">{kpis.status==='INSUFFICIENT_DATA'?<CircleAlert size={15} className="text-warning-600"/>:<CheckCircle2 size={15} className="text-success-600"/>}{kpis.status==='INSUFFICIENT_DATA'?'مراجعة مطلوبة':'الصورة صالحة للاستخدام'}</div><div className="mt-3 h-1.5 overflow-hidden rounded-full bg-ink-100"><div className="h-full rounded-full bg-primary-600" style={{width:coverage+'%'}}/></div><div className="mt-2 flex items-center justify-between text-[10px] text-ink-400"><span>تغطية المؤشرات</span><span>{snapshotAsOf??'as-of غير متاح'}</span></div></div>
         </section>
       </section>
-      <section className="grid gap-3 lg:grid-cols-4">
+      {workspacePreferences.dashboardWidgets.includes('kpis') && <section className="grid gap-3 lg:grid-cols-4">
         <KPICard label="إجمالي المبيعات" value={kpis.totalSales} format="currency" icon={<TrendingUp size={16}/>} status={metricStatus(kpis.totalSales,kpis.status)}/>
         <KPICard label="إجمالي الربح" value={kpis.grossProfit} format="currency" icon={<BarChart3 size={16}/>} status={metricStatus(kpis.grossProfit,kpis.status)} hint={kpis.grossMargin===null?undefined:'الهامش '+kpis.grossMargin.toFixed(1)+'%'}/>
         <KPICard label="الذمم المدينة" value={kpis.totalReceivables} format="currency" icon={<Receipt size={16}/>} status={metricStatus(kpis.totalReceivables,kpis.status)}/>
         <KPICard label="قيمة المخزون" value={kpis.inventoryValue} format="currency" icon={<Package size={16}/>} status={metricStatus(kpis.inventoryValue,kpis.status)}/>
-      </section>
+      </section>}
       {workspacePreferences.dashboardWidgets.includes('kpis') && <section className="grid grid-cols-2 gap-px overflow-hidden rounded-[10px] border border-ink-200 bg-ink-200 sm:grid-cols-4">
         {[['العملاء',kpis.totalCustomers],['المنتجات',kpis.totalProducts],['الفواتير',kpis.invoiceCount],['معدل التحصيل',kpis.collectionRate]].map(([label,value])=><div key={label} className="bg-white px-3.5 py-3"><div className="text-[10px] font-semibold text-ink-400">{label}</div><div className="mt-1 text-[15px] font-black tabular-nums text-ink-900">{value===null?'غير متاح':String(value)+(label==='معدل التحصيل'?'%':'')}</div></div>)}
       </section>}
