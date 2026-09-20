@@ -1,13 +1,12 @@
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 import {
   ArrowUpLeft, BarChart3, Brain, CalendarRange, CheckCircle2, CircleAlert, FileSearch,
-  Package, Receipt, RefreshCw, Sparkles, TrendingDown, TrendingUp, Upload, Users, WalletCards
+  Package, Receipt, RefreshCw, Sparkles, TrendingUp, Upload, WalletCards
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { TruthContextStrip } from '@/components/TruthContextStrip';
-import { KPICard } from '@/components/ui/KPICard';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
-import { Badge, PriorityBadge, SeverityBadge } from '@/components/ui/Badge';
+import { PriorityBadge, SeverityBadge } from '@/components/ui/Badge';
 import { LoadingState, ErrorState } from '@/components/ui/States';
 import { TrendChart, CategoryPieChart, HorizontalBarChart } from '@/components/ui/Charts';
 import { fetchDashboardSnapshot, fetchDashboardIntelligence } from '@/lib/dashboard-canonical';
