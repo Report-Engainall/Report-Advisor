@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 import {
-  ArrowUpLeft, BarChart3, Brain, CalendarRange, CheckCircle2, CircleAlert,
+  ArrowUpLeft, BarChart3, Brain, CalendarRange, CircleAlert,
   FileSearch, Package, RefreshCw, Sparkles, TrendingUp, Upload, WalletCards
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -28,7 +28,7 @@ function MoneyMetric({
   label: string;
   value: number | null;
   note?: string;
-  icon: React.ReactNode;
+  icon: ReactNode;
 }) {
   return (
     <div className="border-l border-ink-100 px-4 py-4 last:border-l-0">
