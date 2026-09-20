@@ -1,23 +1,25 @@
-## LIVE EXECUTION UPDATE — 2026-09-21 — AGHBARI NAVIGATION / VISUAL CLOSURE WAVE 09
+## LIVE EXECUTION UPDATE — 2026-09-21 — AGHBARI NAVIGATION / VISUAL CLOSURE WAVE 10
 
-- **SESSION-ID:** SESSION-20260921-VISUAL-CLOSURE-09
-- **CURRENT EXACT SOURCE HEAD:** `c9036655d8b8053e4de93473e09f090c3f25a18e` on `commercial/comprehensive-product-development-20260918-rebased`; GitHub branch ref verified at this SHA.
+- **SESSION-ID:** SESSION-20260921-VISUAL-CLOSURE-10
+- **CURRENT EXACT SOURCE HEAD:** `8c8ad7ea2935161676c753eaf4d7f10e0a6b8308` on `commercial/comprehensive-product-development-20260918-rebased`; GitHub branch ref verified at this SHA.
 - **PRODUCT SCOPE LOCK:** UI-only. Backend, DB, RPC, runner, Phase-F and unrelated release work remain intentionally deferred.
 - **DONE:** Replaced the old navigation grouping with the product hierarchy: **اليوم → المال → القرارات → الثقة والأدلة → الذكاء → المخرجات → المرجع → الإدارة**.
 - **DONE:** Moved `قرار اليوم` into the dedicated القرارات section; kept `/intelligence` and its analytical surfaces under الذكاء; preserved all existing application paths.
 - **DONE:** Trust now groups the work/import/document/quality/source surfaces; Outputs groups executive/report surfaces; Reference groups customer/product/inventory/alternative reference surfaces.
 - **DONE:** Sidebar section icons and Command Palette categories now use the same canonical section IDs; no duplicate navigation registry was created.
 - **DONE:** Workspace preference coercion now filters obsolete section IDs from previous local preferences after the hierarchy change.
+- **DONE:** Sidebar now presents each section as an executive workspace with descriptor, canonical tag, item count and stronger active-state treatment.
+- **DONE:** Header breadcrumb now exposes `الأغبري → القسم → المساحة الحالية`; Command Palette uses the same canonical hierarchy visually.
 - **VERIFIED:** `npm run typecheck` PASS.
 - **VERIFIED:** UI route parity PASS: 35 application routes / 34 canonical navigation links; all required product routes present.
 - **VERIFIED:** Product WOW UI contract PASS.
 - **VERIFIED:** `git diff --check` PASS.
 - **VERIFIED:** `npm run build` PASS; only existing Browserslist/eval warnings were emitted.
 - **BROWSER:** No authenticated screenshot PASS is claimed; PC01 lacks the required authenticated browser automation path.
-- **COMMITS/PUSH:** Navigation source commit `c9036655...` is pushed to PR #595.
-- **PRECISE STOP POINT:** `c9036655...` → the visual shell and navigation now reflect the Aghbari product hierarchy instead of the legacy operations/reports grouping.
+- **COMMITS/PUSH:** Navigation source `c9036655...`, Sidebar elevation `b03c1ebd...`, and executive chrome `8c8ad7ea...` are pushed to PR #595.
+- **PRECISE STOP POINT:** `8c8ad7ea...` → the product hierarchy is now reflected consistently in Sidebar, page breadcrumb and Command Palette.
 - **DO NOT REPEAT:** Do not restore the old operations/customers-products/reports section model, do not add a parallel route map, do not change backend contracts for navigation presentation, do not transfer evidence across SHAs.
-- **CURRENT RESUME POINTER:** `commercial/comprehensive-product-development-20260918-rebased@c9036655d8b8053e4de93473e09f090c3f25a18e` → current executable UI/navigation source boundary.
+- **CURRENT RESUME POINTER:** `commercial/comprehensive-product-development-20260918-rebased@8c8ad7ea2935161676c753eaf4d7f10e0a6b8308` → current executable UI/navigation source boundary.
 
 ## EXECUTIVE SESSION UPDATE — 2026-09-20 — EXACT-HEAD RECONCILIATION BEFORE NEXT PROOF
 
