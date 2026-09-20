@@ -15,6 +15,7 @@ import type { Alert } from '@/lib/types';
 import { AlertTriangle, BarChart3, ClipboardCheck, Home, RefreshCw, Search, Upload, X } from 'lucide-react';
 import { FeedbackHost, notifyFeedback } from '@/components/ui/Feedback';
 import { isWorkspacePathVisible, readWorkspaceMode, readWorkspacePreferences } from '@/lib/workspace-mode';
+import { resolveNavigationItem } from '@/lib/navigation-registry';
 const Sidebar = lazy(() => import('@/components/Sidebar').then(m => ({ default: m.Sidebar })));
 const ImportPage = lazy(() => import('@/pages/ImportPage').then(m => ({ default: m.ImportPage })));
 const ExternalFileAnalysisPage = lazy(() => import('@/pages/ExternalFileAnalysisPage').then(m => ({ default: m.ExternalFileAnalysisPage })));
@@ -52,15 +53,16 @@ class AppErrorBoundary extends Component<{ children: ReactNode }, { hasError: bo
 function MobileActionBar({ onOpenCommandPalette }: { onOpenCommandPalette: () => void }) {
   const location = useLocation();
   const items = [
-    { path: '/', label: 'اليوم', icon: Home },
-    { path: '/import', label: 'استيراد', icon: Upload },
-    { path: '/decision-experience', label: 'القرار', icon: ClipboardCheck },
-    { path: '/reports', label: 'التقارير', icon: BarChart3 },
+    { path: '/', icon: Home },
+    { path: '/import', icon: Upload },
+    { path: '/decision-experience', icon: ClipboardCheck },
+    { path: '/reports', icon: BarChart3 },
   ];
   return (
     <nav aria-label="إجراءات الهاتف الرئيسية" className="fixed inset-x-3 bottom-3 z-40 rounded-[16px] border border-ink-200/90 bg-white/95 p-1.5 shadow-elevated backdrop-blur lg:hidden" style={{ paddingBottom: 'max(env(safe-area-inset-bottom), 6px)' }}>
       <div className="grid grid-cols-5 gap-1">
-        {items.map(({ path, label, icon: Icon }) => {
+        {items.map(({ path, icon: Icon }) => {
+          const label = resolveNavigationItem(path)?.label ?? path;
           const active = location.pathname === path || (path !== '/' && location.pathname.startsWith(path + '/'));
           return (
             <Link
