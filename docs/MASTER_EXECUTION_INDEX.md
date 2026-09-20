@@ -1,3 +1,11 @@
+## EXECUTIVE SESSION UPDATE — 2026-09-20 — COMMAND PALETTE CONTEXT MATCHING
+
+- **CURRENT EXECUTION SHA:** `86e1181020c024ab71fd85169680bb86234b7828`.
+- **FIXED:** Command Palette context scoring now uses bounded child-route matching instead of unrestricted prefix matching.
+- **RESULT:** `/settings/profile` no longer receives parent-route context priority merely because it begins with `/settings`; canonical navigation identity remains authoritative.
+- **EVIDENCE BOUNDARY:** Fresh exact-head CI/deployment proof is still required.
+- **EXTERNAL BLOCKERS:** Vercel build-rate-limit and production operational token remain external/fail-closed.
+
 ## EXECUTIVE SESSION UPDATE — 2026-09-20 — WORKSPACE RESOLUTION CONSISTENCY
 
 - **CURRENT EXECUTION SHA:** `62e249b04c2bf731ce2efa4ebe7dbc86df19d9f8`.
