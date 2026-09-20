@@ -13,5 +13,14 @@ if (!workflow.includes('workflow_dispatch')) throw new Error('Phase F live resil
 const pkg = JSON.parse(fs.readFileSync(path.join(root,'package.json'),'utf8'));
 for (const script of ['test:operational-resilience','test:release-resilience-manifest','test:continuous-trust']) if (!pkg.scripts?.[script]) throw new Error(`Package gate missing: ${script}`);
 const probe = fs.readFileSync(path.join(root,'scripts/phase-f-live-resilience-probes.mjs'),'utf8');
-for (const token of ['logicalBackupRestore','supabase db dump','artifact_sha256','rpo_seconds','rto_seconds','logical-']) if (!probe.includes(token)) throw new Error(`Logical backup/restore runtime invariant missing: ${token}`);
+for (const token of [
+  'logicalBackupRestore',
+  "runCommand('supabase'",
+  "'db', 'dump'",
+  "'--db-url'",
+  'artifact_sha256',
+  'rpo_seconds',
+  'rto_seconds',
+  'logical-',
+]) if (!probe.includes(token)) throw new Error(`Logical backup/restore runtime invariant missing: ${token}`);
 console.log('Phase F runtime closure contract: PASS');
