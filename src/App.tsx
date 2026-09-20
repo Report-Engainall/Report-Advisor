@@ -1,5 +1,5 @@
 import { Component, type ErrorInfo, type ReactNode, useEffect, useState, useCallback, useRef, lazy, Suspense } from 'react';
-import { BrowserRouter, Routes, Route, Link, useLocation } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom';
 import type { User } from '@supabase/supabase-js';
 import { Header } from '@/components/Header';
 import { LanguageProvider, useLanguage } from '@/lib/language';
