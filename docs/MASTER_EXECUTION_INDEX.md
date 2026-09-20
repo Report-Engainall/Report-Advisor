@@ -1,5 +1,8 @@
 ## EXECUTIVE SESSION UPDATE — 2026-09-20 — EXACT-HEAD RECONCILIATION BEFORE NEXT PROOF
 
+- **Current code/test candidate:** `fe5661060462ffa21d6aa31505f80c2021c4170a` (main ancestry reconciled into this branch).
+
+
 - **PRE-MUTATION EXACT HEAD:** `24470717174d0a5de4b4056dfd4366defc5e0982`.
 - **LIVE RECONCILIATION:** `main` = `1568e43889d27b5d850e64c0b99d03a994fd3bbe`; PR #595 is open on `commercial/comprehensive-product-development-20260918-rebased` at the pre-mutation head above and remains 1 commit behind current `main`.
 - **REAL FAILURES CONSUMED:** Quality failed only at `test:auth-tenant-convergence` because the static contract required one exact Header expression although Header already fail-closed unresolved `current_company_id`; Full Product Browser failed only in real business persistence because the browser waited 30s for the completion heading while the authoritative `sales_invoices` job remained `processing` at durable checkpoint `validated`.
