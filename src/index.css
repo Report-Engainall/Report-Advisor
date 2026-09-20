@@ -3,14 +3,14 @@
 @tailwind utilities;
 @layer base{
 *{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
-html{background:#f7f7f8}
-body{margin:0;font-family:'IBM Plex Sans Arabic','Inter',system-ui,sans-serif;background:#f7f7f8;color:#18181b;direction:rtl}
+html{background:#f8faf9}
+body{margin:0;font-family:'IBM Plex Sans Arabic','Inter',system-ui,sans-serif;background:#f8faf9;color:#17211c;direction:rtl}
 button,input,textarea,select{font:inherit}
-::selection{background:rgb(37 99 235 / .14);color:#1e3a8a}
+::selection{background:rgb(20 184 166 / .16);color:#134e4a}
 ::-webkit-scrollbar{width:7px;height:7px}
 ::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:#d4d4d8;border-radius:999px}
-::-webkit-scrollbar-thumb:hover{background:#a1a1aa}
+::-webkit-scrollbar-thumb{background:#c6d2ca;border-radius:999px}
+::-webkit-scrollbar-thumb:hover{background:#94a39a}
 }
 @layer components{
 .card{@apply rounded-[12px] border border-ink-200 bg-white shadow-card}
@@ -36,18 +36,18 @@ button,input,textarea,select{font:inherit}
 .command-strip{@apply border-b border-ink-200 bg-white}
 .section-kicker{@apply text-[10px] font-black tracking-[0.14em] text-ink-400}
 [aria-label="مراحل الاستيراد"]{display:grid;grid-template-columns:repeat(9,minmax(0,1fr));align-items:start;gap:0;margin-bottom:.75rem;padding:.15rem 0 .55rem}
-[aria-label="مراحل الاستيراد"]>div{position:relative;min-width:0;border:0!important;border-radius:0!important;background:transparent!important;color:#a1a1aa!important;padding:.1rem .2rem .3rem!important;box-shadow:none!important}
-[aria-label="مراحل الاستيراد"]>div::before{content:"";position:absolute;top:.72rem;left:0;right:0;height:1px;background:#e4e4e7;z-index:0}
+[aria-label="مراحل الاستيراد"]>div{position:relative;min-width:0;border:0!important;border-radius:0!important;background:transparent!important;color:#94a39a!important;padding:.1rem .2rem .3rem!important;box-shadow:none!important}
+[aria-label="مراحل الاستيراد"]>div::before{content:"";position:absolute;top:.72rem;left:0;right:0;height:1px;background:#dfe7e1;z-index:0}
 [aria-label="مراحل الاستيراد"]>div:first-child::before{right:50%}
 [aria-label="مراحل الاستيراد"]>div:last-child::before{left:50%}
-[aria-label="مراحل الاستيراد"]>div>div:first-child{position:relative;z-index:1;margin:0 auto .35rem;display:flex;height:1.55rem;width:1.55rem;align-items:center;justify-content:center;border-radius:999px;border:1px solid #d4d4d8;background:#fff;color:#71717a;font-size:.62rem;font-weight:800}
+[aria-label="مراحل الاستيراد"]>div>div:first-child{position:relative;z-index:1;margin:0 auto .35rem;display:flex;height:1.55rem;width:1.55rem;align-items:center;justify-content:center;border-radius:999px;border:1px solid #c6d2ca;background:#fff;color:#68786e;font-size:.62rem;font-weight:800}
 [aria-label="مراحل الاستيراد"]>div>div:last-child{position:relative;z-index:1;font-size:.64rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 @media(max-width:860px){[aria-label="مراحل الاستيراد"]{display:flex;overflow-x:auto}[aria-label="مراحل الاستيراد"]>div{flex:0 0 6.25rem}}
 }
-@layer utilities{.text-balance{text-wrap:balance}.tabular-nums{font-variant-numeric:tabular-nums}.gradient-text{color:#1d4ed8;background:none}.soft-grid{background-image:none}}
-@layer base{@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}} :focus-visible{outline:2px solid rgb(37 99 235 / .55);outline-offset:2px}}
+@layer utilities{.text-balance{text-wrap:balance}.tabular-nums{font-variant-numeric:tabular-nums}.gradient-text{color:#0f766e;background:none}.soft-grid{background-image:none}}
+@layer base{@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}} :focus-visible{outline:2px solid rgb(20 184 166 / .55);outline-offset:2px}}
 @layer components {
-  .report-page{color:#18181b}
+  .report-page{color:#17211c}
   .print-hide{}
   .page-surface{@apply rounded-[12px] border border-ink-200 bg-white}
   .hero-surface{@apply rounded-[14px] border border-ink-200 bg-white shadow-card}
