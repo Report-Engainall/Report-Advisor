@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 import {
   AlertTriangle, ArrowUpLeft, Brain, CheckCircle2, CircleAlert, Lightbulb,
-  RefreshCw, Sparkles, Target, TrendingUp, XCircle, Zap
+  RefreshCw, Sparkles, Target, TrendingUp, WalletCards, XCircle, Zap
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { DeterministicIntelligenceAssistant } from '@/components/DeterministicIntelligenceAssistant';
@@ -27,7 +27,7 @@ function MetricStrip({
   label: string;
   value: number;
   note: string;
-  icon: React.ReactNode;
+  icon: ReactNode;
 }) {
   return (
     <div className="rounded-[14px] border border-ink-200 bg-white p-4 shadow-card">
@@ -282,7 +282,7 @@ export function IntelligenceCenterPage() {
 }
 
 function WalletIcon() {
-  return <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary-50 text-primary-700"><span className="text-[12px] font-black">₿</span></div>;
+  return <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary-50 text-primary-700"><WalletCards size={15} /></div>;
 }
 
 function MarginIcon() {
