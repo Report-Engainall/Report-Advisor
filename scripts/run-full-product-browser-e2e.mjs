@@ -217,7 +217,20 @@ async function runWorkspacePersonalizationProbe(targetPage) {
   await targetPage.goto(`${baseURL}/settings`, { waitUntil: 'domcontentloaded', timeout: 30000 });
   await targetPage.waitForURL(url => new URL(url).pathname === '/settings', { timeout: 30000 });
   const workspaceEditor = targetPage.locator('[data-testid="workspace-editor"]');
-  await workspaceEditor.waitFor({ state: 'visible', timeout: 30000 });
+  try {
+    await workspaceEditor.waitFor({ state: 'visible', timeout: 30000 });
+  } catch (error) {
+    const diagnostic = await targetPage.evaluate(() => ({
+      pathname: window.location.pathname,
+      href: window.location.href,
+      title: document.title,
+      bodyText: (document.body?.innerText || '').slice(0, 1200),
+      workspaceAnchorCount: document.querySelectorAll('[data-testid="workspace-editor"]').length,
+      workspaceHeadingCount: [...document.querySelectorAll('h1,h2,h3,h4')].filter(node => (node.textContent || '').trim() === 'محرر مساحة العمل').length,
+    }));
+    await targetPage.screenshot({ path: reportDir + '/workspace-probe-failure.png', fullPage: true }).catch(() => {});
+    throw new Error('WORKSPACE_EDITOR_NOT_CONVERGED:' + JSON.stringify(diagnostic));
+  }
   await workspaceEditor.getByRole('heading', { name: 'محرر مساحة العمل', exact: true }).waitFor({ state: 'visible', timeout: 30000 });
 
   const financePreset = workspaceEditor.getByRole('button').filter({ hasText: 'المالية' }).first();
