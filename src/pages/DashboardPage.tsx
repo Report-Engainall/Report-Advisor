@@ -62,6 +62,16 @@ export function DashboardPage() {
   if (error) return <ErrorState message={error} onRetry={() => void load()} />;
   if (!kpis || !aging) return null;
 
+  const evidenceContext = {
+    source: 'get_dashboard_snapshot',
+    period: `آخر ${trendMonths} ${trendMonths === 1 ? 'شهر' : 'أشهر'}`,
+    asOf: snapshotAsOf ?? 'غير متاح',
+    tenant: 'الشركة الحالية',
+    freshness: snapshotAsOf ?? 'غير متاح',
+    nextAction: kpis.status === 'INSUFFICIENT_DATA' ? 'استكمال البيانات أو مراجعة المصدر قبل الاعتماد' : 'فتح المسار التفصيلي للمؤشر',
+    blockReason: kpis.status === 'INSUFFICIENT_DATA' ? 'المصدر الحالي لم يثبت جميع عناصر المؤشر بما يكفي لعرض قيمة مؤكدة.' : undefined,
+  };
+
   const confirmed = [kpis.totalSales, kpis.grossProfit, kpis.totalReceivables, kpis.inventoryValue, kpis.totalCustomers, kpis.totalProducts, kpis.invoiceCount, kpis.collectionRate].filter(value => value !== null).length;
   const coverage = Math.round((confirmed / 8) * 100);
   const liveRecommendations = recommendations.filter(row => row.status === 'new' || row.status === 'accepted').slice(0, 4);
@@ -93,10 +103,10 @@ export function DashboardPage() {
         </section>
       </section>
       <section className="grid gap-3 lg:grid-cols-4">
-        <KPICard label="إجمالي المبيعات" value={kpis.totalSales} format="currency" icon={<TrendingUp size={16}/>} status={metricStatus(kpis.totalSales,kpis.status)}/>
-        <KPICard label="إجمالي الربح" value={kpis.grossProfit} format="currency" icon={<BarChart3 size={16}/>} status={metricStatus(kpis.grossProfit,kpis.status)} hint={kpis.grossMargin===null?undefined:'الهامش '+kpis.grossMargin.toFixed(1)+'%'}/>
-        <KPICard label="الذمم المدينة" value={kpis.totalReceivables} format="currency" icon={<Receipt size={16}/>} status={metricStatus(kpis.totalReceivables,kpis.status)}/>
-        <KPICard label="قيمة المخزون" value={kpis.inventoryValue} format="currency" icon={<Package size={16}/>} status={metricStatus(kpis.inventoryValue,kpis.status)}/>
+        <KPICard label="إجمالي المبيعات" value={kpis.totalSales} format="currency" icon={<TrendingUp size={16}/>} status={metricStatus(kpis.totalSales,kpis.status)} evidence={evidenceContext}/>
+        <KPICard label="إجمالي الربح" value={kpis.grossProfit} format="currency" icon={<BarChart3 size={16}/>} status={metricStatus(kpis.grossProfit,kpis.status)} hint={kpis.grossMargin===null?undefined:'الهامش '+kpis.grossMargin.toFixed(1)+'%'} evidence={evidenceContext}/>
+        <KPICard label="الذمم المدينة" value={kpis.totalReceivables} format="currency" icon={<Receipt size={16}/>} status={metricStatus(kpis.totalReceivables,kpis.status)} evidence={evidenceContext}/>
+        <KPICard label="قيمة المخزون" value={kpis.inventoryValue} format="currency" icon={<Package size={16}/>} status={metricStatus(kpis.inventoryValue,kpis.status)} evidence={evidenceContext}/>
       </section>
       <section className="grid grid-cols-2 gap-px overflow-hidden rounded-[10px] border border-ink-200 bg-ink-200 sm:grid-cols-4">
         {[['العملاء',kpis.totalCustomers],['المنتجات',kpis.totalProducts],['الفواتير',kpis.invoiceCount],['معدل التحصيل',kpis.collectionRate]].map(([label,value])=><div key={label} className="bg-white px-3.5 py-3"><div className="text-[10px] font-semibold text-ink-400">{label}</div><div className="mt-1 text-[15px] font-black tabular-nums text-ink-900">{value===null?'غير متاح':String(value)+(label==='معدل التحصيل'?'%':'')}</div></div>)}
