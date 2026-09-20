@@ -20,6 +20,7 @@ const statusMeta: Record<DataStatus, { label: string; className: string; icon: t
   INSUFFICIENT_DATA: { label: 'بيانات غير كافية', className: 'text-warning-700 bg-warning-50 ring-warning-100', icon: ShieldAlert },
   FORECAST: { label: 'تنبؤ', className: 'text-accent-800 bg-accent-50 ring-accent-100', icon: Sparkles },
   ESTIMATED: { label: 'تقديري', className: 'text-warning-800 bg-warning-50 ring-warning-100', icon: ShieldAlert },
+  UNAVAILABLE: { label: 'غير متاح', className: 'text-ink-500 bg-ink-50 ring-ink-100', icon: ShieldAlert },
 };
 
 export function KPICard({ label, value, format, change, changeLabel, icon, status = 'CALCULATED', hint }: KPICardProps) {
