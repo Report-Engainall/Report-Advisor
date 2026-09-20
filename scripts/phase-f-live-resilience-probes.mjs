@@ -124,6 +124,7 @@ function stableJson(value) {
 async function logicalBackupRestore() {
   const projectRef = process.env.SUPABASE_PROJECT_REF?.trim() || '';
   const password = process.env.SUPABASE_DB_PASSWORD?.trim() || '';
+  if (password && !projectRef) throw new Error('logical_backup_project_ref_not_configured');
   const source = process.env.RESILIENCE_LOGICAL_SOURCE_DB_URL?.trim()
     || (password ? `postgresql://postgres.${encodeURIComponent(projectRef)}:${encodeURIComponent(password)}@aws-0-ap-southeast-2.pooler.supabase.com:5432/postgres` : '');
   if (!source) throw new Error('logical_backup_source_db_url_not_configured');
