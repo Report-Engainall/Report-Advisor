@@ -302,22 +302,24 @@ async function runWorkspacePersonalizationProbe(targetPage) {
     kpiLabelCount: [...document.querySelectorAll('[data-testid="workspace-editor"] label')].filter(node => (node.textContent || '').includes('بطاقات المؤشرات')).length,
   }));
 
-  const kpiToggle = await targetPage.evaluate(() => {
-    const normalize = (value) => (value || '').replace(/\\s+/g, ' ').trim();
-    const labels = [...document.querySelectorAll('[data-testid="workspace-editor"] label')];
-    const label = labels.find(candidate => normalize(candidate.textContent).includes('بطاقات المؤشرات'));
-    if (!label) {
-      throw new Error('WORKSPACE_KPI_LABEL_NOT_FOUND:' + JSON.stringify({
-        labelTexts: labels.map(candidate => normalize(candidate.textContent)).filter(Boolean).slice(-30),
-      }));
-    }
-    const input = label.querySelector('input[type="checkbox"]');
-    if (!(input instanceof HTMLInputElement)) throw new Error('WORKSPACE_KPI_CHECKBOX_NOT_FOUND');
-    const rect = label.getBoundingClientRect();
-    if (rect.width <= 0 || rect.height <= 0) throw new Error('WORKSPACE_KPI_CONTROL_NOT_VISIBLE');
-    const before = input.checked;
-    if (before) input.click();
-    return { before, after: input.checked };
+  let kpiToggle;
+  try {
+    kpiToggle = await targetPage.evaluate(() => {
+      const normalize = (value) => (value || '').replace(/\s+/g, ' ').trim();
+      const labels = [...document.querySelectorAll('[data-testid="workspace-editor"] label')];
+      const label = labels.find(candidate => normalize(candidate.textContent).includes('بطاقات المؤشرات'));
+      if (!label) {
+        throw new Error('WORKSPACE_KPI_LABEL_NOT_FOUND:' + JSON.stringify({
+          labelTexts: labels.map(candidate => normalize(candidate.textContent)).filter(Boolean).slice(-30),
+        }));
+      }
+      const input = label.querySelector('input[type="checkbox"]');
+      if (!(input instanceof HTMLInputElement)) throw new Error('WORKSPACE_KPI_CHECKBOX_NOT_FOUND');
+      const rect = label.getBoundingClientRect();
+      if (rect.width <= 0 || rect.height <= 0) throw new Error('WORKSPACE_KPI_CONTROL_NOT_VISIBLE');
+      const before = input.checked;
+      if (before) input.click();
+      return { before, after: input.checked };
     });
   } catch (error) {
     throw new Error('WORKSPACE_KPI_INTERACTION_FAILED:' + JSON.stringify({
