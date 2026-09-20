@@ -58,7 +58,7 @@ function assertSourceHash(rows: ReconciledCanonicalImportRow[], sourceHash: stri
   }
 }
 
-interface CanonicalServerExecutionResult { jobId: string; importId: string; [key: string]: unknown }
+interface CanonicalServerExecutionResult { jobId?: string; importId: string; sourceHash: string; [key: string]: unknown }
 
 async function executeThroughServerBoundary(input: DurableCanonicalImportInput, mode: 'execute' | 'finalize-source' = 'execute'): Promise<CanonicalServerExecutionResult> {
   const { supabase } = await import('../supabase');
@@ -83,7 +83,9 @@ async function executeThroughServerBoundary(input: DurableCanonicalImportInput, 
     const detail = typeof payload?.detail === 'string' ? payload.detail : typeof payload?.error === 'string' ? payload.error : `HTTP_${response.status}`;
     throw new Error(`CANONICAL_IMPORT_SERVER_EXECUTION_FAILED:${detail.slice(0, 512)}`);
   }
-  if (!payload?.jobId || !payload?.importId) throw new Error('CANONICAL_IMPORT_SERVER_EXECUTION_RESPONSE_INVALID');
+  if (!payload?.importId || !payload?.sourceHash || (mode === 'execute' && !payload?.jobId)) {
+    throw new Error('CANONICAL_IMPORT_SERVER_EXECUTION_RESPONSE_INVALID');
+  }
   return payload;
 }
 
