@@ -1,3 +1,14 @@
+## EXECUTIVE SESSION UPDATE — 2026-09-20 — EXACT-HEAD RECONCILIATION BEFORE NEXT PROOF
+
+- **PRE-MUTATION EXACT HEAD:** `24470717174d0a5de4b4056dfd4366defc5e0982`.
+- **LIVE RECONCILIATION:** `main` = `1568e43889d27b5d850e64c0b99d03a994fd3bbe`; PR #595 is open on `commercial/comprehensive-product-development-20260918-rebased` at the pre-mutation head above and remains 1 commit behind current `main`.
+- **REAL FAILURES CONSUMED:** Quality failed only at `test:auth-tenant-convergence` because the static contract required one exact Header expression although Header already fail-closed unresolved `current_company_id`; Full Product Browser failed only in real business persistence because the browser waited 30s for the completion heading while the authoritative `sales_invoices` job remained `processing` at durable checkpoint `validated`.
+- **RUNTIME EVIDENCE:** Staging readback for the failed run showed import job `f41b36bf-ee60-4d66-8cf2-8d87acce002e` at `processing`, 0/1 processed, and durable execution job `a08564c2-54cd-4a31-9932-9513e15f7304` at checkpoint `validated`; no evidence was fabricated and the orphaned lease was allowed to expire.
+- **IMPLEMENTED IN THIS MUTATION:** Hardened the auth/tenant static contract to recognize the existing fail-closed Header semantics; hardened real-business E2E to wait on authoritative `import_jobs` terminal state with a 120s bound and durable checkpoint diagnostics before asserting the UI completion heading.
+- **EVIDENCE BOUNDARY:** All previous PASS evidence remains bound to its original SHA. Fresh CI is required on the resulting commit.
+- **EXTERNAL BLOCKERS:** Vercel build-rate-limit/deployment pending and Phase-F resilience prerequisites remain isolated; they do not block internal product/contract work.
+- **NEXT:** Consume fresh Exact-HEAD Quality + Full Product Browser results first, then only affected regressions; do not replay unrelated closed gates.
+
 ## EXECUTIVE SESSION UPDATE — 2026-09-20 — COMMAND PALETTE CONTEXT MATCHING
 
 - **CURRENT EXECUTION SHA:** `86e1181020c024ab71fd85169680bb86234b7828`.
