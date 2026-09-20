@@ -71,8 +71,8 @@ export function Sidebar({alertCount=0,onNavigate,user}:{alertCount?:number;onNav
  useEffect(()=>{const sync=()=>{setWorkspaceMode(readWorkspaceMode());setWorkspacePreferences(readWorkspacePreferences())};window.addEventListener('storage',sync);window.addEventListener('report-advisor:workspace-mode',sync);window.addEventListener('report-advisor:workspace-preferences',sync);return()=>{window.removeEventListener('storage',sync);window.removeEventListener('report-advisor:workspace-mode',sync);window.removeEventListener('report-advisor:workspace-preferences',sync)}},[]);
  useEffect(()=>setExpandedSection(activeSection),[activeSection]);
  const signOut=async()=>{const{error}=await supabase.auth.signOut({scope:'local'});if(error)throw error;onNavigate?.()};
- return <aside dir={language==='ar'?'rtl':'ltr'} className={'flex h-screen w-[238px] shrink-0 flex-col border-l border-ink-200 bg-white text-ink-900 '+(language==='ar'?'border-l':'border-r')}>
-  <div className="border-b border-ink-200 px-4 py-3.5"><Link to="/" onClick={onNavigate} className="flex items-center gap-2.5"><div className="flex h-8 w-8 items-center justify-center rounded-[8px] bg-ink-950 text-sm font-black text-white">أ</div><div className="min-w-0"><div className="text-[14px] font-black">الأغبري</div><div className="mt-0.5 text-[10px] text-ink-400">Business Intelligence</div></div></Link></div>
+ return <aside dir={language==='ar'?'rtl':'ltr'} className={'ag-sidebar flex h-screen w-[260px] shrink-0 flex-col border-l border-ink-200 bg-white text-ink-900 '+(language==='ar'?'border-l':'border-r')}>
+  <div className="border-b border-ink-200 px-4 py-3.5"><Link to="/" onClick={onNavigate} className="flex items-center gap-2.5"><div className="flex h-8 w-8 items-center justify-center rounded-[8px] bg-ink-950 text-sm font-black text-white">أ</div><div className="min-w-0"><div className="text-[14px] font-black">الأغبري</div><div className="mt-0.5 text-[10px] text-ink-400">ذكاء الأعمال والقرار</div></div></Link></div>
   <div className="px-3 py-3">
     <div className="rounded-[12px] border border-ink-200 bg-ink-50/70 p-2.5">
       <div className="flex items-center gap-2">
