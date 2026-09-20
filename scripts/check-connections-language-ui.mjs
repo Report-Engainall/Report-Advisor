@@ -10,7 +10,7 @@ const checks = [
   ['connections route', app.includes('ConnectionsPage') && app.includes('path="/connections"')],
   ['language provider', app.includes('LanguageProvider') && language.includes('document.documentElement.dir')],
   ['language toggle', header.includes('LanguageToggle') && toggle.includes('toggleLanguage')],
-  ['rtl/ltr shell', app.includes('language === "ar" ? "flex-row-reverse"')],
+  ['rtl/ltr shell', app.includes('className="ag-app-shell flex min-h-screen flex-row') && app.includes('dir={direction}') && language.includes("language === 'ar' ? 'rtl' : 'ltr'")],
   ['source connectors', connections.includes('Store / API') && connections.includes('Excel / CSV') && connections.includes('PDF & Arabic documents')],
   ['claim-safe adapter state', connections.includes('No connection claim before runtime proof') && connections.includes('ما لا ندّعيه')],
   ['sidebar source entry', sidebar.includes('/connections') || connections.includes('Sources & Connections')],
