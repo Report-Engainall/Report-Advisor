@@ -1,23 +1,24 @@
-## LIVE EXECUTION UPDATE — 2026-09-21 — AGHBARI PREMIUM VISUAL CLOSURE WAVE
+## LIVE EXECUTION UPDATE — 2026-09-21 — AGHBARI VISUAL CLOSURE WAVE 08
 
-- **SESSION-ID:** SESSION-20260921-VISUAL-CLOSURE-07
-- **CURRENT EXACT SOURCE HEAD:** `4615023591ad37319dfcc00c39f53524ae620857` on `commercial/comprehensive-product-development-20260918-rebased`; GitHub branch ref verified at this SHA.
+- **SESSION-ID:** SESSION-20260921-VISUAL-CLOSURE-08
+- **CURRENT EXACT SOURCE HEAD:** `ab182d0ecb66faa530e0d7669ec9d02a429f047b` on `commercial/comprehensive-product-development-20260918-rebased`; GitHub branch ref verified at this SHA.
 - **PRODUCT SCOPE LOCK:** UI-only. Backend, DB, RPC, runner, Phase-F and unrelated release work remain intentionally deferred.
-- **DONE:** Premium top chrome unified: sticky header, command/search control, alert panel and runtime health pill now share the Aghbari enterprise visual language.
-- **DONE:** Mobile action bar elevated into a persistent premium control surface with active-state treatment, safe-area spacing and dedicated command action styling.
-- **DONE:** Entity surfaces refined for Customers/Products/Inventory context, search toolbar, supporting notes and entity drawer presentation without changing data behavior.
-- **DONE:** Executive Report received the same premium hero/panel/warning treatment used by the core executive surfaces.
-- **DONE:** Profile Settings and Connections now match the Aghbari design system through dedicated visual surfaces; no connector/runtime claims were changed.
+- **DONE:** Premium top chrome unified across the sticky header, global search/command control, alert surface and runtime health indicator.
+- **DONE:** Mobile action bar upgraded with Aghbari active-state treatment, glass surface, safe-area spacing and a dedicated command action.
+- **DONE:** Customers, Products and Inventory entity surfaces received unified search/context/drawer polish without changing data semantics or queries.
+- **DONE:** Executive Report, Profile Settings and Connections were brought into the same visual system.
+- **DONE:** Onboarding now has a clear premium readiness summary, dark next-action surface and elevated step states.
+- **DONE:** Metric Governance now has a stronger selected-metric workspace and visually distinct evidence/governance surfaces.
 - **VERIFIED:** `npm run typecheck` PASS.
-- **VERIFIED:** `npm run build` PASS; existing Browserslist/eval warnings only.
-- **VERIFIED:** UI route parity PASS: 35 application routes / 34 canonical navigation links; required routes present.
+- **VERIFIED:** `npm run build` PASS; only existing Browserslist/eval warnings were emitted.
+- **VERIFIED:** UI route parity PASS: 35 application routes / 34 canonical navigation links; required product routes present.
 - **VERIFIED:** Product WOW UI contract PASS.
 - **VERIFIED:** `git diff --check` PASS.
-- **BROWSER:** No authenticated screenshot PASS is claimed; PC01 does not expose the required authenticated browser automation path.
-- **COMMITS/PUSH:** Source commit `46150235...` pushed to PR #595 branch ref successfully. A follow-up documentation-only update is being recorded in this same execution index.
-- **PRECISE STOP POINT:** `46150235...` → remaining UI work is now limited to further micro-polish or owner-directed visual changes; backend/release fronts remain deferred by scope lock.
-- **DO NOT REPEAT:** Do not rebuild the shell/PageHeader/KPI/DataTable visual foundations, do not create duplicate navigation or design primitives, do not alter business/data contracts merely for presentation, do not transfer evidence across SHAs.
-- **CURRENT RESUME POINTER:** `commercial/comprehensive-product-development-20260918-rebased@4615023591ad37319dfcc00c39f53524ae620857` → current executable UI source boundary.
+- **BROWSER:** No authenticated screenshot PASS is claimed; PC01 lacks the required authenticated browser automation path.
+- **COMMITS/PUSH:** UI source commits `46150235...` and `ab182d0e...` are both pushed to PR #595. Documentation commit `e90a519e...` records the previous visual closure boundary.
+- **PRECISE STOP POINT:** `ab182d0e...` → primary and secondary product interfaces are now visually unified under the Aghbari premium system; further work should be micro-polish or owner-directed visual changes only unless scope is reopened.
+- **DO NOT REPEAT:** Do not rebuild the shell/PageHeader/KPI/DataTable foundations, do not add duplicate navigation/design primitives, do not alter business/data contracts for presentation, do not claim browser screenshot evidence that was not obtained, do not transfer evidence across SHAs.
+- **CURRENT RESUME POINTER:** `commercial/comprehensive-product-development-20260918-rebased@ab182d0ecb66faa530e0d7669ec9d02a429f047b` → current executable UI source boundary.
 
 ## EXECUTIVE SESSION UPDATE — 2026-09-20 — EXACT-HEAD RECONCILIATION BEFORE NEXT PROOF
 
