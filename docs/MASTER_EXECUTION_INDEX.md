@@ -235,3 +235,13 @@
 - **DO NOT REPEAT:** Do not reuse `28fe8092...` business evidence; do not re-audit unrelated closed contracts; do not add another selector strategy, runner, RPC, or synthetic evidence; do not transfer any evidence to `e446f879...` or later SHAs.
 - **CURRENT RESUME POINTER:** `commercial/comprehensive-product-development-20260918-rebased@e446f87902fe61b747e73daf584aa0ca12b15917`.
 - **LAST EXECUTIVE ACTION:** corrected the helper root cause on the same PR branch; proceed from `e446f879...`.
+## EXECUTIVE SESSION UPDATE — 2026-09-20T05:10+03:00
+- **SESSION-ID:** 20260920-0450-REPORT-ADVISOR
+- **DONE:** Current code head `240d61a2c067cc42f58047b9455a9256dab795c7` contains the corrected selection helper and now records the successful entity-selection transition as business evidence. Fresh workflows for this head are queued.
+- **ACTUAL RESULT:** The prior `28fe8092...` failure is isolated and corrected; the new helper clicks the explicit test-id selector and waits for the real selected-state class. The next hardening adds an attached file-input assertion before upload so the test cannot advance on a partially rendered import surface.
+- **EVIDENCE:** No PASS is transferred to `240d61a...`; its CI is still pending. `28fe8092...` remains terminal FAIL; `e446f879...` passed local syntax/build only. Phase-F remains fail-closed because the governed operational token is not configured.
+- **PRECISE STOP POINT:** The next combined code+memory commit is the authoritative candidate for fresh CI.
+- **NEXT ACTION:** Run and inspect fresh exact-head CI on the combined candidate; fix only the first terminal failure, then continue live persistence/isolation and release gates.
+- **DO NOT REPEAT:** Do not reuse `28fe8092...` or `e446f879...` as current runtime evidence; do not create duplicate memory/runner/RPC; do not bypass authentication, tenant isolation, canonical import, or Phase-F token boundaries.
+- **CURRENT RESUME POINTER:** `commercial/comprehensive-product-development-20260918-rebased@COMBINED_NEXT_HEAD`.
+- **LAST EXECUTIVE ACTION:** added one bounded import-surface readiness assertion to the existing E2E helper and prepared this same memory file for the same commit.
