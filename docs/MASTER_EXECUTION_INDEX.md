@@ -1,3 +1,14 @@
+## EXECUTIVE SESSION UPDATE — 2026-09-20T04:37+03:00
+- **SESSION-ID:** 20260920-0430-REPORT-ADVISOR
+- **DONE:** The first E2E fix at `748a30c1...` proved insufficient. Artifact `real-business-e2e-748a30c1...` showed the test timed out waiting for selected entity because `.first()` could target a sidebar «العملاء» control rather than the import entity selector.
+- **ACTUAL RESULT:** Repaired the harness by scoping the entity selector to `main button` and asserting the clicked entity actually carries the selected-state class before file upload. Exact code commit: `97b20a4c2a6ad1e02735a2545b62ba129764dc05`.
+- **EVIDENCE:** On `748a...`, Full Product Browser main flow and KPI persistence passed; Product Creation, Upwork Demo, PWA, Storage Runtime and multiple static/security/runtime contracts also passed. The business E2E failed only at the selector-settle timeout described above. No application-data bypass or evidence transfer occurred.
+- **PRECISE STOP POINT:** `97b20a4c2a6ad1e02735a2545b62ba129764dc05` — fresh CI is now the authoritative test of the second harness fix.
+- **NEXT ACTION:** Inspect fresh `97b20a4c...` workflow terminals; fix the first exact-head failure only, then continue through live business, worker/recovery, backup, release parity and certification gates.
+- **DO NOT REPEAT:** Do not reuse the failed `748a...` business evidence as PASS; do not re-run already terminal green contracts unless the new SHA changes their relevant scope; do not weaken selectors by broadening to text-only first matches.
+- **CURRENT RESUME POINTER:** `commercial/comprehensive-product-development-20260918-rebased@97b20a4c2a6ad1e02735a2545b62ba129764dc05`.
+- **LAST EXECUTIVE ACTION:** fixed the actual selector-root cause and committed it; memory is updated in this same canonical index.
+
 ## EXECUTIVE SESSION RECORD — 2026-09-20T04:30+03:00
 - **SESSION-ID:** 20260920-0430-REPORT-ADVISOR
 - **DONE:** Re-established execution from the existing canonical memory because `/Report-Advisor/ONE-PROGRAMMER-SESSION-MEMORY.md` is absent from the repository; verified repository `Report-Engainall/Report-Advisor`, default branch `main`, and current `main` tip `1568e43889d27b5d850e64c0b99d03a994fd3bbe`. Re-anchored active product/runtime work to PR #595 and its current branch head before mutation.
