@@ -1,4 +1,4 @@
-import { NAVIGATION_ITEMS, type WorkspaceVisibilityMode } from '@/lib/navigation-registry';
+import { NAVIGATION_ITEMS, NAVIGATION_SECTIONS, type WorkspaceVisibilityMode } from '@/lib/navigation-registry';
 
 export type WorkspaceMode = WorkspaceVisibilityMode;
 export type WorkspacePreset =
@@ -24,7 +24,7 @@ const VALID_PRESETS = new Set<WorkspacePreset>([
 ]);
 const VALID_WIDGETS = new Set<DashboardWidgetId>(['kpis', 'analysis', 'attention', 'entities', 'work-paths']);
 
-const DEFAULT_SECTION_ORDER = ['today', 'operations', 'money', 'customers-products', 'intelligence', 'reports', 'admin'];
+const DEFAULT_SECTION_ORDER = NAVIGATION_SECTIONS.map(section => section.id);
 
 export const DEFAULT_WORKSPACE_PREFERENCES: WorkspacePreferences = {
   mode: 'essential',
