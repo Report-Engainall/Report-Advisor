@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
-  ArrowUpLeft, BarChart3, Brain, CalendarRange, CheckCircle2, CircleAlert, Database,
-  FileSearch, Package, Receipt, RefreshCw, Sparkles, TrendingUp, Upload, Users, Wallet
+  ArrowUpLeft, BarChart3, Brain, CalendarRange, CheckCircle2, CircleAlert, FileSearch,
+  Package, Receipt, RefreshCw, Sparkles, TrendingDown, TrendingUp, Upload, Users, WalletCards
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { TruthContextStrip } from '@/components/TruthContextStrip';
@@ -13,12 +13,137 @@ import { TrendChart, CategoryPieChart, HorizontalBarChart } from '@/components/u
 import { fetchDashboardSnapshot, fetchDashboardIntelligence } from '@/lib/dashboard-canonical';
 import { formatCurrency, relativeTime } from '@/lib/format';
 import type { Recommendation, Alert } from '@/lib/types';
-import type { DashboardKPIs, MonthlyTrend, TopEntity, CategoryBreakdown, AgingDashboard } from '@/lib/dashboard-canonical';
+import type {
+  DashboardKPIs,
+  MonthlyTrend,
+  TopEntity,
+  CategoryBreakdown,
+  AgingDashboard,
+} from '@/lib/dashboard-canonical';
 import { readWorkspacePreferences, type WorkspacePreferences } from '@/lib/workspace-mode';
-import { resolveNavigationItem } from '@/lib/navigation-registry';
 
-const TREND_RANGES = [{ value: 3, label: '3 أشهر' }, { value: 6, label: '6 أشهر' }, { value: 12, label: '12 شهرًا' }] as const;
-const metricStatus = (value: number | null, snapshotStatus: DashboardKPIs['status']): 'CONFIRMED' | 'CALCULATED' | 'INSUFFICIENT_DATA' => value === null ? 'INSUFFICIENT_DATA' : snapshotStatus === 'CONFIRMED' ? 'CONFIRMED' : 'CALCULATED';
+const TREND_RANGES = [
+  { value: 3, label: '3 أشهر' },
+  { value: 6, label: '6 أشهر' },
+  { value: 12, label: '12 شهرًا' },
+] as const;
+
+const metricStatus = (
+  value: number | null,
+  snapshotStatus: DashboardKPIs['status'],
+): 'CONFIRMED' | 'CALCULATED' | 'INSUFFICIENT_DATA' =>
+  value === null ? 'INSUFFICIENT_DATA' : snapshotStatus === 'CONFIRMED' ? 'CONFIRMED' : 'CALCULATED';
+
+function StatusLine({ status, text }: { status: DashboardKPIs['status']; text: string }) {
+  const icon = status === 'INSUFFICIENT_DATA'
+    ? <CircleAlert size={13} />
+    : <CheckCircle2 size={13} />;
+  const tone = status === 'INSUFFICIENT_DATA'
+    ? 'text-warning-700 bg-warning-50'
+    : 'text-success-700 bg-success-50';
+
+  return (
+    <span className={'inline-flex items-center gap-1.5 rounded-full px-2 py-1 text-[10px] font-black ' + tone}>
+      {icon}
+      {text}
+    </span>
+  );
+}
+
+function PulseMetric({
+  label,
+  value,
+  detail,
+  icon,
+  status,
+}: {
+  label: string;
+  value: number | null;
+  detail?: string;
+  icon: React.ReactNode;
+  status: 'CONFIRMED' | 'CALCULATED' | 'INSUFFICIENT_DATA';
+}) {
+  const stateLabel = status === 'CONFIRMED' ? 'مثبت' : status === 'CALCULATED' ? 'محسوب' : 'غير كافٍ';
+  const stateTone = status === 'CONFIRMED'
+    ? 'text-success-700 bg-success-50'
+    : status === 'CALCULATED'
+      ? 'text-primary-700 bg-primary-50'
+      : 'text-warning-700 bg-warning-50';
+
+  return (
+    <div className="min-w-0 border-l border-ink-100 px-4 py-3 last:border-l-0">
+      <div className="flex items-center gap-2 text-[10px] font-bold text-ink-400">
+        <span className="text-ink-500">{icon}</span>
+        {label}
+      </div>
+      <div className="mt-2 flex items-end justify-between gap-2">
+        <div className="min-w-0">
+          <div className="truncate text-[18px] font-black tabular-nums text-ink-950">{value === null ? 'غير متاح' : formatCurrency(value)}</div>
+          {detail && <div className="mt-0.5 truncate text-[10px] text-ink-400">{detail}</div>}
+        </div>
+        <span className={'rounded-full px-2 py-1 text-[9px] font-black ' + stateTone}>{stateLabel}</span>
+      </div>
+    </div>
+  );
+}
+
+function AttentionCard({
+  alert,
+  recommendation,
+}: {
+  alert?: Alert;
+  recommendation?: Recommendation;
+}) {
+  if (alert) {
+    return (
+      <article className="rounded-[14px] border border-ink-200 bg-white p-4 shadow-card">
+        <div className="flex items-start gap-3">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-danger-50 text-danger-700">
+            <CircleAlert size={18} />
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-center gap-2">
+              <SeverityBadge severity={alert.severity} />
+              <span className="text-[10px] text-ink-400">{relativeTime(alert.created_at)}</span>
+            </div>
+            <h3 className="mt-2 text-[13px] font-black text-ink-900">{alert.title}</h3>
+            {alert.description && <p className="mt-1 text-[11px] leading-5 text-ink-500">{alert.description}</p>}
+            <div className="mt-3 flex flex-wrap gap-2">
+              <Link to="/command-center" className="btn-secondary text-[11px]">تحقيق الإشارة <ArrowUpLeft size={13} /></Link>
+              <Link to="/metrics" className="btn-ghost text-[11px]">فحص المؤشر</Link>
+            </div>
+          </div>
+        </div>
+      </article>
+    );
+  }
+
+  if (recommendation) {
+    return (
+      <article className="rounded-[14px] border border-primary-100 bg-primary-50/30 p-4">
+        <div className="flex items-start gap-3">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary-100 text-primary-700">
+            <Sparkles size={18} />
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-[10px] font-black text-primary-700">قرار مقترح</span>
+              <PriorityBadge priority={recommendation.priority} />
+            </div>
+            <h3 className="mt-2 text-[13px] font-black text-ink-900">{recommendation.title}</h3>
+            {recommendation.description && <p className="mt-1 text-[11px] leading-5 text-ink-500">{recommendation.description}</p>}
+            <div className="mt-3 flex flex-wrap gap-2">
+              <Link to="/decision-experience?stage=decision" className="btn-primary text-[11px]">فتح القرار <ArrowUpLeft size={13} /></Link>
+              <Link to="/intelligence" className="btn-ghost text-[11px]">فتح الذكاء</Link>
+            </div>
+          </div>
+        </div>
+      </article>
+    );
+  }
+
+  return null;
+}
 
 export function DashboardPage() {
   const [kpis, setKpis] = useState<DashboardKPIs | null>(null);
@@ -38,10 +163,26 @@ export function DashboardPage() {
 
   const load = useCallback(async (silent = false) => {
     try {
-      if (silent) setRefreshing(true); else setLoading(true);
+      if (silent) setRefreshing(true);
+      else setLoading(true);
       setError(null);
-      const [{ kpis: nextKpis, trend: nextTrend, topCustomers: customers, topProducts: products, categories: nextCategories, aging: nextAging, asOf: nextAsOf }, intelligence] =
-        await Promise.all([fetchDashboardSnapshot(trendMonths), fetchDashboardIntelligence()]);
+
+      const [
+        {
+          kpis: nextKpis,
+          trend: nextTrend,
+          topCustomers: customers,
+          topProducts: products,
+          categories: nextCategories,
+          aging: nextAging,
+          asOf: nextAsOf,
+        },
+        intelligence,
+      ] = await Promise.all([
+        fetchDashboardSnapshot(trendMonths),
+        fetchDashboardIntelligence(),
+      ]);
+
       setKpis(nextKpis);
       setSnapshotAsOf(nextAsOf);
       setTrend(nextTrend);
@@ -52,7 +193,7 @@ export function DashboardPage() {
       setRecommendations(intelligence.recommendations);
       setAlerts(intelligence.alerts);
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : 'فشل تحميل لوحة التحكم');
+      setError(cause instanceof Error ? cause.message : 'فشل تحميل لوحة الأعمال');
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -60,6 +201,7 @@ export function DashboardPage() {
   }, [trendMonths]);
 
   useEffect(() => { void load(); }, [load]);
+
   useEffect(() => {
     const sync = () => setWorkspacePreferences(readWorkspacePreferences());
     window.addEventListener('storage', sync);
@@ -70,104 +212,217 @@ export function DashboardPage() {
     };
   }, []);
 
-  if (loading) return <LoadingState message="جارٍ بناء الصورة التنفيذية من المصدر..." />;
+  const liveAlerts = useMemo(
+    () => alerts.filter((item) => !item.is_read).slice(0, 3),
+    [alerts],
+  );
+  const liveRecommendations = useMemo(
+    () => recommendations.filter((item) => item.status === 'new' || item.status === 'accepted').slice(0, 3),
+    [recommendations],
+  );
+
+  if (loading) return <LoadingState message="جارٍ بناء صورة الأعمال من المصدر..." />;
   if (error) return <ErrorState message={error} onRetry={() => void load()} />;
   if (!kpis || !aging) return null;
 
-  const confirmed = [kpis.totalSales, kpis.grossProfit, kpis.totalReceivables, kpis.inventoryValue, kpis.totalCustomers, kpis.totalProducts, kpis.invoiceCount, kpis.collectionRate].filter(value => value !== null).length;
-  const coverage = Math.round((confirmed / 8) * 100);
-  const liveRecommendations = recommendations.filter(row => row.status === 'new' || row.status === 'accepted').slice(0, 4);
-  const liveAlerts = alerts.slice(0, 4);
+  const evidenceMetrics = [
+    kpis.totalSales,
+    kpis.grossProfit,
+    kpis.totalReceivables,
+    kpis.inventoryValue,
+    kpis.totalCustomers,
+    kpis.totalProducts,
+    kpis.invoiceCount,
+    kpis.collectionRate,
+  ];
+  const coverage = Math.round((evidenceMetrics.filter((value) => value !== null).length / evidenceMetrics.length) * 100);
 
   return (
-    <div dir="rtl" className="animate-fade-in space-y-6 pb-10">
-      <section className="command-strip -mx-3 -mt-3 mb-1 sm:-mx-4 lg:-mx-5 2xl:-mx-6">
-        <div className="px-4 py-4 lg:px-5 2xl:px-6">
-          <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-            <div className="min-w-0"><div className="section-kicker">مؤشرات أساسية · اليوم</div><h1 className="mt-1 text-[22px] font-black tracking-tight text-ink-950">صورة العمل الآن</h1><p className="mt-1 max-w-2xl text-[11px] leading-5 text-ink-500">من البيانات إلى القرار التجاري — في شاشة واحدة. المبيعات، النقد، المخزون والتنبيهات في مسار واحد، مع إبقاء حدود الدليل واضحة.</p></div>
-            <div className="flex flex-wrap gap-1.5"><Link to="/import" className="btn-primary text-xs"><Upload size={14}/> استيراد</Link><Link to="/command-center" className="btn-secondary text-xs"><Brain size={14}/> مركز القيادة</Link><Link to="/reports/executive" className="btn-ghost text-xs"><FileSearch size={14}/> التقرير التنفيذي</Link><Link to="/decision-experience" className="btn-ghost text-xs">قرار اليوم</Link></div>
+    <div dir="rtl" className="animate-fade-in space-y-5 pb-10">
+      <section className="rounded-[18px] border border-ink-200 bg-ink-950 px-5 py-5 text-white shadow-elevated lg:px-6 lg:py-6">
+        <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
+          <div className="min-w-0">
+            <div className="flex items-center gap-2 text-[11px] font-black text-primary-300">
+              <Sparkles size={15} />
+              نظام قيادة الأعمال
+            </div>
+            <h1 className="mt-2 max-w-3xl text-[25px] font-black tracking-tight lg:text-[31px]">ماذا يحتاج عملك الآن؟</h1>
+            <p className="mt-2 max-w-3xl text-[12px] leading-6 text-ink-300">
+              نبض الأعمال، إشارات الانتباه، والقرارات المقترحة في مسار واحد. كل رقم يبقى مرتبطًا بحالته ولقطة بياناته بدل إظهار قيمة غير موثقة.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <Link to="/import" className="btn-primary text-[11px]"><Upload size={14} /> إدخال بيانات</Link>
+            <Link to="/decision-experience" className="inline-flex items-center justify-center gap-2 rounded-[9px] border border-white/15 bg-white/10 px-3.5 py-2.5 text-[11px] font-bold text-white hover:bg-white/15">قرار اليوم <ArrowUpLeft size={13} /></Link>
+            <Link to="/reports/executive" className="inline-flex items-center justify-center gap-2 rounded-[9px] border border-white/15 bg-white/10 px-3.5 py-2.5 text-[11px] font-bold text-white hover:bg-white/15">التقرير التنفيذي <FileSearch size={13} /></Link>
           </div>
         </div>
+        <div className="mt-5 flex flex-wrap items-center gap-2 border-t border-white/10 pt-4">
+          <StatusLine status={kpis.status} text={kpis.status === 'INSUFFICIENT_DATA' ? 'الصورة تحتاج مراجعة' : 'الصورة صالحة للاستخدام'} />
+          <span className="rounded-full bg-white/10 px-2.5 py-1 text-[10px] font-semibold text-ink-200">تغطية المؤشرات {coverage}%</span>
+          <span className="rounded-full bg-white/10 px-2.5 py-1 text-[10px] font-semibold text-ink-200">As-of: {snapshotAsOf ?? 'غير متاح'}</span>
+          <button type="button" onClick={() => void load(true)} disabled={refreshing} className="mr-auto inline-flex items-center gap-1.5 rounded-full bg-white/10 px-2.5 py-1 text-[10px] font-bold text-white hover:bg-white/15 disabled:opacity-60">
+            <RefreshCw size={12} className={refreshing ? 'animate-spin' : ''} />
+            تحديث الصورة
+          </button>
+        </div>
       </section>
+
       <TruthContextStrip months={trendMonths} status={kpis.status} asOf={snapshotAsOf ?? 'غير متاح'} />
 
-      <section className="grid gap-3 lg:grid-cols-[1.1fr_.9fr]">
-        <section className="card">
-          <div className="border-b border-ink-100 px-4 py-3"><div className="text-[12px] font-bold text-ink-900">ملخص القرار في دقيقة · قرار اليوم</div><div className="mt-0.5 text-[10px] text-ink-400">أهم إشارة متاحة ثم الخطوة التالية.</div></div>
-          <div className="grid gap-px bg-ink-100 sm:grid-cols-2">
-            <div className="bg-white p-4"><div className="text-[10px] font-semibold text-ink-400">أهم إشارة</div><div className="mt-1.5 text-[13px] font-bold text-ink-900">{liveAlerts[0]?.title??'لا توجد تنبيهات نشطة الآن'}</div><div className="mt-1 text-[11px] leading-5 text-ink-500">{liveAlerts[0]?.description??'لا توجد إشارة تحتاج تدخلاً في هذه اللحظة.'}</div></div>
-            <div className="bg-white p-4"><div className="text-[10px] font-semibold text-ink-400">الخطوة التالية</div><div className="mt-1.5 text-[13px] font-bold text-ink-900">{liveRecommendations[0]?.title??'راجع صحة البيانات أو افتح التقرير التنفيذي'}</div><div className="mt-2 flex flex-wrap gap-1.5"><Link to={liveRecommendations[0]?'/decision-experience':'/reports/executive'} className="btn-primary text-[11px]">فتح المسار <ArrowUpLeft size={13}/></Link><span className="inline-flex items-center rounded-[8px] bg-ink-50 px-2 py-1 text-[10px] font-bold text-ink-500">{coverage}%</span></div></div>
+      <section className="overflow-hidden rounded-[14px] border border-ink-200 bg-white shadow-card">
+        <div className="grid grid-cols-2 lg:grid-cols-4">
+          <PulseMetric label="المبيعات" value={kpis.totalSales} icon={<TrendingUp size={15} />} status={metricStatus(kpis.totalSales, kpis.status)} detail="الفترة الحالية" />
+          <PulseMetric label="الربح الإجمالي" value={kpis.grossProfit} icon={<BarChart3 size={15} />} status={metricStatus(kpis.grossProfit, kpis.status)} detail={kpis.grossMargin === null ? 'الهامش غير متاح' : 'الهامش ' + kpis.grossMargin.toFixed(1) + '%'} />
+          <PulseMetric label="الذمم" value={kpis.totalReceivables} icon={<WalletCards size={15} />} status={metricStatus(kpis.totalReceivables, kpis.status)} detail={kpis.collectionRate === null ? 'التحصيل غير متاح' : 'التحصيل ' + kpis.collectionRate.toFixed(1) + '%'} />
+          <PulseMetric label="المخزون" value={kpis.inventoryValue} icon={<Package size={15} />} status={metricStatus(kpis.inventoryValue, kpis.status)} detail="القيمة الحالية" />
+        </div>
+      </section>
+
+      <section className="grid gap-4 xl:grid-cols-[1.15fr_.85fr]">
+        <Card>
+          <CardHeader
+            title="مركز الانتباه"
+            subtitle="ما يحتاج تدخلًا أو تحقيقًا الآن، مع إبقاء الإشارة مرتبطة بمسارها."
+            action={<Link to="/command-center" className="btn-ghost text-[11px]">كل الإشارات <ArrowUpLeft size={13} /></Link>}
+          />
+          <CardBody>
+            <div className="space-y-3">
+              {liveAlerts.map((alert) => <AttentionCard key={alert.id} alert={alert} />)}
+              {liveAlerts.length === 0 && (
+                <div className="rounded-[14px] border border-dashed border-ink-200 bg-ink-50/60 p-8 text-center">
+                  <CheckCircle2 className="mx-auto text-success-600" size={24} />
+                  <div className="mt-2 text-sm font-black text-ink-800">لا توجد إشارات غير مقروءة الآن</div>
+                  <p className="mt-1 text-[11px] text-ink-400">الخطوة التالية يمكن أن تبدأ من التقارير أو من إدخال بيانات جديدة.</p>
+                </div>
+              )}
+            </div>
+          </CardBody>
+        </Card>
+
+        <Card>
+          <CardHeader
+            title="طابور القرار"
+            subtitle="التوصيات المتاحة للمراجعة والتنفيذ من المسار الحالي."
+            action={<Link to="/decision-experience" className="btn-ghost text-[11px]">مساحة القرار <ArrowUpLeft size={13} /></Link>}
+          />
+          <CardBody>
+            <div className="space-y-3">
+              {liveRecommendations.map((recommendation) => <AttentionCard key={recommendation.id} recommendation={recommendation} />)}
+              {liveRecommendations.length === 0 && (
+                <div className="rounded-[14px] border border-dashed border-ink-200 bg-ink-50/60 p-8 text-center">
+                  <Sparkles className="mx-auto text-ink-300" size={24} />
+                  <div className="mt-2 text-sm font-black text-ink-800">لا توجد توصيات قابلة للمراجعة الآن</div>
+                  <p className="mt-1 text-[11px] text-ink-400">لن يتم تصنيع قرار دون إشارة أو بيانات كافية.</p>
+                </div>
+              )}
+            </div>
+          </CardBody>
+        </Card>
+      </section>
+
+      {workspacePreferences.dashboardWidgets.includes('analysis') && (
+        <section className="space-y-3">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <div className="section-kicker">BUSINESS PULSE</div>
+              <h2 className="mt-1 text-lg font-black text-ink-950">الحركة التي تهم القرار</h2>
+              <p className="mt-1 text-xs text-ink-500">اتجاه المبيعات والربح من المصدر الكانوني، مع إمكانية تغيير الفترة.</p>
+            </div>
+            <div className="flex items-center gap-1 rounded-xl border border-ink-200 bg-white p-1 shadow-sm">
+              <CalendarRange size={15} className="mx-2 text-ink-400" />
+              {TREND_RANGES.map((item) => (
+                <button
+                  type="button"
+                  key={item.value}
+                  onClick={() => setTrendMonths(item.value)}
+                  className={'rounded-lg px-3 py-1.5 text-xs font-bold ' + (trendMonths === item.value ? 'bg-ink-950 text-white' : 'text-ink-500 hover:bg-ink-50')}
+                  aria-pressed={trendMonths === item.value}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="grid gap-4 lg:grid-cols-[1.45fr_.75fr]">
+            <Card>
+              <CardBody>
+                {trend.some((item) => item.status === 'CALCULATED')
+                  ? <TrendChart data={trend} />
+                  : <div className="py-14 text-center text-sm text-ink-400">لا توجد بيانات اتجاه قابلة للحساب.</div>}
+              </CardBody>
+            </Card>
+            <Card>
+              <CardHeader title="تركيب النشاط" subtitle="الفئات القادمة من المصدر الكانوني" />
+              <CardBody>
+                {categories.length
+                  ? <CategoryPieChart data={categories.map((item) => ({ ...item, name: item.categoryStatus === 'UNKNOWN' ? 'UNKNOWN' : item.name ?? 'UNKNOWN' }))} />
+                  : <div className="py-14 text-center text-sm text-ink-400">لا توجد بيانات فئات.</div>}
+              </CardBody>
+            </Card>
           </div>
         </section>
-        <section className="card">
-          <div className="border-b border-ink-100 px-4 py-3"><div className="text-[12px] font-bold text-ink-900">حالة الدليل</div><div className="mt-0.5 text-[10px] text-ink-400">تغطية المؤشرات وموعد اللقطة.</div></div>
-          <div className="p-4"><div className="flex items-center gap-2 text-[13px] font-bold text-ink-900">{kpis.status==='INSUFFICIENT_DATA'?<CircleAlert size={15} className="text-warning-600"/>:<CheckCircle2 size={15} className="text-success-600"/>}{kpis.status==='INSUFFICIENT_DATA'?'مراجعة مطلوبة':'الصورة صالحة للاستخدام'}</div><div className="mt-3 h-1.5 overflow-hidden rounded-full bg-ink-100"><div className="h-full rounded-full bg-primary-600" style={{width:coverage+'%'}}/></div><div className="mt-2 flex items-center justify-between text-[10px] text-ink-400"><span>تغطية المؤشرات</span><span>{snapshotAsOf??'as-of غير متاح'}</span></div></div>
-        </section>
+      )}
+
+      <section className="grid gap-4 lg:grid-cols-3">
+        <Card>
+          <CardHeader title="فرص العملاء" subtitle="أعلى العملاء بحسب البيانات الحالية" />
+          <CardBody>
+            {topCustomers.length ? <HorizontalBarChart data={topCustomers} dataKey="value" nameKey="name" height={210} /> : <div className="py-12 text-center text-sm text-ink-400">لا توجد بيانات.</div>}
+            <Link to="/customers" className="mt-3 flex items-center justify-center gap-1 text-[11px] font-bold text-primary-700">فتح العملاء <ArrowUpLeft size={13} /></Link>
+          </CardBody>
+        </Card>
+
+        <Card>
+          <CardHeader title="فرص المنتجات" subtitle="الأعلى حركة/قيمة في المصدر" />
+          <CardBody>
+            {topProducts.length ? <HorizontalBarChart data={topProducts} dataKey="value" nameKey="name" height={210} /> : <div className="py-12 text-center text-sm text-ink-400">لا توجد بيانات.</div>}
+            <Link to="/products" className="mt-3 flex items-center justify-center gap-1 text-[11px] font-bold text-primary-700">فتح المنتجات <ArrowUpLeft size={13} /></Link>
+          </CardBody>
+        </Card>
+
+        <Card>
+          <CardHeader
+            title="تحصيل وذمم"
+            subtitle={aging.status === 'CALCULATED' && aging.totalAmount !== null ? 'الإجمالي: ' + formatCurrency(aging.totalAmount) : aging.status === 'NO_DATA' ? 'لا توجد بيانات ذمم' : 'بيانات غير كافية'}
+          />
+          <CardBody>
+            <div className="space-y-1">
+              {aging.rows.map((bucket) => (
+                <div key={bucket.bucket} className="flex items-center justify-between border-b border-ink-100 py-2.5 last:border-b-0">
+                  <span className="text-xs font-semibold text-ink-600">{bucket.bucket}</span>
+                  <span className="text-xs tabular-nums text-ink-500">{bucket.amount === null ? 'UNKNOWN' : formatCurrency(bucket.amount)} · {bucket.count} فاتورة</span>
+                </div>
+              ))}
+              {aging.unknownRows > 0 && <div className="pt-3 text-[11px] text-ink-400">UNKNOWN: {aging.unknownRows} فاتورة بلا تاريخ استحقاق.</div>}
+            </div>
+            <Link to="/reports/receivables" className="mt-3 flex items-center justify-center gap-1 text-[11px] font-bold text-primary-700">فتح التحصيل <ArrowUpLeft size={13} /></Link>
+          </CardBody>
+        </Card>
       </section>
-      {workspacePreferences.dashboardWidgets.includes('kpis') && <section className="grid gap-3 lg:grid-cols-4">
-        <KPICard label="إجمالي المبيعات" value={kpis.totalSales} format="currency" icon={<TrendingUp size={16}/>} status={metricStatus(kpis.totalSales,kpis.status)}/>
-        <KPICard label="إجمالي الربح" value={kpis.grossProfit} format="currency" icon={<BarChart3 size={16}/>} status={metricStatus(kpis.grossProfit,kpis.status)} hint={kpis.grossMargin===null?undefined:'الهامش '+kpis.grossMargin.toFixed(1)+'%'}/>
-        <KPICard label="الذمم المدينة" value={kpis.totalReceivables} format="currency" icon={<Receipt size={16}/>} status={metricStatus(kpis.totalReceivables,kpis.status)}/>
-        <KPICard label="قيمة المخزون" value={kpis.inventoryValue} format="currency" icon={<Package size={16}/>} status={metricStatus(kpis.inventoryValue,kpis.status)}/>
-      </section>}
-      {workspacePreferences.dashboardWidgets.includes('kpis') && <section className="grid grid-cols-2 gap-px overflow-hidden rounded-[10px] border border-ink-200 bg-ink-200 sm:grid-cols-4">
-        {[['العملاء',kpis.totalCustomers],['المنتجات',kpis.totalProducts],['الفواتير',kpis.invoiceCount],['معدل التحصيل',kpis.collectionRate]].map(([label,value])=><div key={label} className="bg-white px-3.5 py-3"><div className="text-[10px] font-semibold text-ink-400">{label}</div><div className="mt-1 text-[15px] font-black tabular-nums text-ink-900">{value===null?'غير متاح':String(value)+(label==='معدل التحصيل'?'%':'')}</div></div>)}
-      </section>}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div><h2 className="text-lg font-black text-ink-950">لوحة الإثبات والتحليل</h2><p className="mt-1 text-xs text-ink-500">اتجاهات فعلية مع التحكم في الفترة الزمنية.</p></div>
-        <div className="flex flex-wrap gap-2">
-          <div className="flex items-center gap-1 rounded-xl border border-ink-200 bg-white p-1 shadow-sm"><CalendarRange size={15} className="mx-2 text-ink-400"/>{TREND_RANGES.map(item => <button type="button" key={item.value} onClick={() => setTrendMonths(item.value)} className={'rounded-lg px-3 py-1.5 text-xs font-bold ' + (trendMonths === item.value ? 'bg-ink-950 text-white' : 'text-ink-500 hover:bg-ink-50')} aria-pressed={trendMonths === item.value}>{item.label}</button>)}</div>
-          <button type="button" onClick={() => void load(true)} disabled={refreshing} className="btn-secondary"><RefreshCw size={15}/><span className="hidden sm:inline">تحديث</span></button>
+
+      <section className="rounded-[14px] border border-ink-200 bg-white p-4 shadow-card">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <div className="section-kicker">NEXT ACTION</div>
+            <h2 className="mt-1 text-base font-black text-ink-950">المسار التالي المقترح</h2>
+            <p className="mt-1 text-xs text-ink-500">احتفظ بالسياق وانتقل مباشرة من الصورة إلى التنفيذ أو الفحص بدل العودة إلى قائمة الصفحات.</p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <Link to="/work-center" className="btn-secondary text-[11px]">مركز العمل <ArrowUpLeft size={13} /></Link>
+            <Link to="/data-quality" className="btn-secondary text-[11px]">جودة البيانات <ArrowUpLeft size={13} /></Link>
+            <Link to="/intelligence" className="btn-primary text-[11px]">القرار والذكاء <Brain size={13} /></Link>
+          </div>
         </div>
-      </div>
+      </section>
 
-      {workspacePreferences.dashboardWidgets.includes('analysis') && <section className="grid gap-4 lg:grid-cols-[1.45fr_.75fr]">
-        <Card><CardHeader title="اتجاه المبيعات والربح" subtitle={'آخر ' + trendMonths + ' أشهر'} action={<Badge variant="primary">مُثبت</Badge>}/><CardBody>{trend.some(item => item.status === 'CALCULATED') ? <TrendChart data={trend}/> : <div className="py-14 text-center text-sm text-ink-400">لا توجد بيانات اتجاه قابلة للحساب.</div>}</CardBody></Card>
-        <Card><CardHeader title="توزيع النشاط" subtitle="التصنيف القادم من المصدر الكانوني"/><CardBody>{categories.length ? <CategoryPieChart data={categories.map(item => ({ ...item, name: item.categoryStatus === 'UNKNOWN' ? 'UNKNOWN' : item.name ?? 'UNKNOWN' }))}/> : <div className="py-14 text-center text-sm text-ink-400">لا توجد بيانات فئات.</div>}</CardBody></Card>
-      </section>}
-
-      {workspacePreferences.dashboardWidgets.includes('attention') && <section className="grid gap-4 lg:grid-cols-2">
-        <Card>
-          <CardHeader title="مركز الانتباه" subtitle="ما يستحق التحقق أو التدخل الآن"/>
-          <CardBody>
-            <div className="space-y-3">
-              {liveAlerts.map(alert => <div key={alert.id} className="flex items-start gap-3 rounded-2xl border border-ink-100 bg-ink-50/70 p-4"><SeverityBadge severity={alert.severity}/><div className="min-w-0 flex-1"><div className="text-sm font-bold text-ink-800">{alert.title}</div>{alert.description && <p className="mt-1 text-xs leading-5 text-ink-500">{alert.description}</p>}</div><span className="shrink-0 text-[10px] text-ink-400">{relativeTime(alert.created_at)}</span></div>)}
-              {liveAlerts.length === 0 && <div className="py-10 text-center text-sm text-ink-400">لا توجد تنبيهات نشطة.</div>}
-            </div>
-          </CardBody>
-        </Card>
-        <Card>
-          <CardHeader title="طابور القرار" subtitle="توصيات مشتقة من البيانات الحالية"/>
-          <CardBody>
-            <div className="space-y-3">
-              {liveRecommendations.map(row => <Link key={row.id} to="/decision-experience" className="flex items-start gap-3 rounded-2xl border border-ink-100 bg-white p-4 transition hover:border-primary-200 hover:bg-primary-50/30"><span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary-50 text-primary-700"><Brain size={17}/></span><span className="min-w-0 flex-1"><span className="flex flex-wrap items-center gap-2 text-sm font-bold text-ink-800">{row.title}<PriorityBadge priority={row.priority}/></span>{row.description && <span className="mt-1 block text-xs leading-5 text-ink-500">{row.description}</span>}</span><ArrowUpLeft size={16} className="shrink-0 text-ink-300"/></Link>)}
-              {liveRecommendations.length === 0 && <div className="py-10 text-center text-sm text-ink-400">لا توجد توصيات قابلة للمراجعة الآن.</div>}
-            </div>
-          </CardBody>
-        </Card>
-      </section>}
-
-      {workspacePreferences.dashboardWidgets.includes('entities') && <section className="grid gap-4 lg:grid-cols-3">
-        <Card><CardHeader title="أفضل العملاء" subtitle="بحسب البيانات الحالية"/><CardBody>{topCustomers.length ? <HorizontalBarChart data={topCustomers} dataKey="value" nameKey="name" height={230}/> : <div className="py-12 text-center text-sm text-ink-400">لا توجد بيانات.</div>}</CardBody></Card>
-        <Card><CardHeader title="أفضل المنتجات" subtitle="القيمة/الحركة من المصدر"/><CardBody>{topProducts.length ? <HorizontalBarChart data={topProducts} dataKey="value" nameKey="name" height={230}/> : <div className="py-12 text-center text-sm text-ink-400">لا توجد بيانات.</div>}</CardBody></Card>
-        <Card><CardHeader title="أعمار الذمم" subtitle={aging.status === 'CALCULATED' && aging.totalAmount !== null ? 'الإجمالي: ' + formatCurrency(aging.totalAmount) : aging.status === 'NO_DATA' ? 'لا توجد بيانات ذمم' : 'بيانات غير كافية'}/><CardBody><div className="space-y-1">{aging.rows.map(bucket => <div key={bucket.bucket} className="flex items-center justify-between border-b border-ink-100 py-2.5"><span className="text-xs font-semibold text-ink-600">{bucket.bucket}</span><span className="text-xs text-ink-500">{bucket.amount === null ? 'UNKNOWN' : formatCurrency(bucket.amount)} · {bucket.count} فاتورة</span></div>)}{aging.unknownRows > 0 && <div className="pt-3 text-[11px] text-ink-400">UNKNOWN: {aging.unknownRows} فاتورة بلا تاريخ استحقاق.</div>}</div></CardBody></Card>
-      </section>}
-
-      {workspacePreferences.dashboardWidgets.includes('work-paths') && <section>
-        <div className="mb-3"><h2 className="text-lg font-black text-ink-950">مسارات العمل</h2><p className="mt-1 text-xs text-ink-500">أهم المسارات للوصول إلى النتيجة المطلوبة دون تشعب.</p></div>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {[
-            { path: '/work-center', text: 'الحالات والاستثناءات والتنفيذ', icon: CheckCircle2 },
-            { path: '/import', text: 'من المصدر إلى الدورة الحاكمة', icon: Upload },
-            { path: '/intelligence', text: 'التفسير والتوصيات والتنبؤ', icon: Brain },
-            { path: '/reports/executive', text: 'قصة القرار والأثر', icon: FileSearch },
-          ].map(action => {
-            const Icon = action.icon;
-            const navigationItem = resolveNavigationItem(action.path);
-            return <Link key={action.path} to={action.path} className="card card-hover flex items-center gap-3 p-4"><span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-primary-50 text-primary-700"><Icon size={19}/></span><span className="min-w-0 flex-1"><span className="block text-sm font-black text-ink-800">{navigationItem?.label ?? action.path}</span><span className="mt-1 block text-[11px] text-ink-400">{action.text}</span></span><ArrowUpLeft size={16} className="text-ink-300"/></Link>;
-          })}
-        </div>
-      </section>}
+      <section className="grid grid-cols-2 gap-px overflow-hidden rounded-[10px] border border-ink-200 bg-ink-200 sm:grid-cols-4">
+        <div className="bg-white px-3.5 py-3"><div className="text-[10px] font-semibold text-ink-400">العملاء</div><div className="mt-1 text-[15px] font-black tabular-nums text-ink-900">{kpis.totalCustomers === null ? 'غير متاح' : kpis.totalCustomers}</div></div>
+        <div className="bg-white px-3.5 py-3"><div className="text-[10px] font-semibold text-ink-400">المنتجات</div><div className="mt-1 text-[15px] font-black tabular-nums text-ink-900">{kpis.totalProducts === null ? 'غير متاح' : kpis.totalProducts}</div></div>
+        <div className="bg-white px-3.5 py-3"><div className="text-[10px] font-semibold text-ink-400">الفواتير</div><div className="mt-1 text-[15px] font-black tabular-nums text-ink-900">{kpis.invoiceCount === null ? 'غير متاح' : kpis.invoiceCount}</div></div>
+        <div className="bg-white px-3.5 py-3"><div className="text-[10px] font-semibold text-ink-400">التحصيل</div><div className="mt-1 text-[15px] font-black tabular-nums text-ink-900">{kpis.collectionRate === null ? 'غير متاح' : kpis.collectionRate + '%'}</div></div>
+      </section>
     </div>
   );
 }
