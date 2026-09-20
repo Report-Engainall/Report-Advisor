@@ -1,3 +1,13 @@
+## EXECUTIVE SESSION UPDATE — 2026-09-20 — DASHBOARD / MOBILE NAVIGATION CANONICALIZATION
+
+- **CURRENT EXECUTION SHA:** `f6d48d69f1fd309edf9f0e565ce34cb2dd603700`.
+- **DONE:** Dashboard “مسارات العمل” labels now resolve from the canonical navigation registry instead of maintaining duplicate route labels.
+- **DONE:** Mobile action bar labels now resolve from the same canonical navigation registry.
+- **BEHAVIOR PRESERVED:** Custom Dashboard work-path descriptions and icon semantics remain local presentation metadata; route identity/labels are canonical.
+- **EVIDENCE BOUNDARY:** No CI or deployment PASS is inherited by this SHA. Fresh exact-head workflows remain authoritative.
+- **EXTERNAL BLOCKERS STILL OPEN:** Vercel build-rate-limit / deployment parity and production operational token remain external; no workaround or fabricated evidence was introduced.
+- **NEXT ACTION:** Consume exact-head CI failures/results; repair only concrete regressions and continue independent fronts.
+
 ## EXECUTIVE SESSION UPDATE — 2026-09-20 — WORKSPACE VISIBILITY CANONICALIZATION
 
 - **CURRENT EXECUTION SHA:** `743002b4540081a9c26980a7448e15effedd8687`.
