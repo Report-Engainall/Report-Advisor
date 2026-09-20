@@ -7,7 +7,7 @@ import { getDisplayEmail, getDisplayName } from '@/lib/profile-display';
 import { useLanguage } from '@/lib/language';
 import { isWorkspacePathVisible, readWorkspaceMode, readWorkspacePreferences, type WorkspaceMode, type WorkspacePreferences } from '@/lib/workspace-mode';
 
-import { NAVIGATION_SECTIONS, type NavigationIconKey, type NavigationItem } from '@/lib/navigation-registry';
+import { NAVIGATION_SECTIONS, type NavigationIconKey, type NavigationItem, type NavigationSectionId } from '@/lib/navigation-registry';
 
 interface NavItem extends NavigationItem { iconNode: ReactNode }
 interface NavSection {
@@ -67,7 +67,7 @@ export function Sidebar({alertCount=0,onNavigate,user}:{alertCount?:number;onNav
  const{language}=useLanguage();const location=useLocation();const[workspaceMode,setWorkspaceMode]=useState<WorkspaceMode>(readWorkspaceMode);
  const [workspacePreferences,setWorkspacePreferences]=useState<WorkspacePreferences>(readWorkspacePreferences); const visibleSections=useMemo(()=>navSections.map(s=>({...s,items:s.items.filter(i=>isWorkspacePathVisible(i.path,workspaceMode,workspacePreferences))})).filter(s=>s.items.length).sort((a,b)=>workspacePreferences.sectionOrder.indexOf(a.id)-workspacePreferences.sectionOrder.indexOf(b.id)),[workspaceMode,workspacePreferences]); const favoriteItems=useMemo(()=>{const visible=new Map(navSections.flatMap(section=>section.items).map(item=>[item.path,item]));return workspacePreferences.favoritePaths.map(path=>visible.get(path)).filter((item):item is NavItem=>item !== undefined).filter(item=>isWorkspacePathVisible(item.path,workspaceMode,workspacePreferences)).slice(0,4)},[workspacePreferences,workspaceMode]);
  const activeSection=useMemo(()=>visibleSections.find(s=>s.items.some(i=>location.pathname===i.path||(i.path!=='/'&&location.pathname.startsWith(i.path))))?.id??'today',[location.pathname,visibleSections]);
- const[expandedSection,setExpandedSection]=useState(activeSection);
+ const[expandedSection,setExpandedSection]=useState<NavigationSectionId | ''>(activeSection);
  useEffect(()=>{const sync=()=>{setWorkspaceMode(readWorkspaceMode());setWorkspacePreferences(readWorkspacePreferences())};window.addEventListener('storage',sync);window.addEventListener('report-advisor:workspace-mode',sync);window.addEventListener('report-advisor:workspace-preferences',sync);return()=>{window.removeEventListener('storage',sync);window.removeEventListener('report-advisor:workspace-mode',sync);window.removeEventListener('report-advisor:workspace-preferences',sync)}},[]);
  useEffect(()=>setExpandedSection(activeSection),[activeSection]);
  const signOut=async()=>{const{error}=await supabase.auth.signOut({scope:'local'});if(error)throw error;onNavigate?.()};

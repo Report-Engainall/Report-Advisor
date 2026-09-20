@@ -1,19 +1,19 @@
 import fs from 'node:fs';
 
 const app = fs.readFileSync('src/App.tsx', 'utf8');
-const sidebar = fs.readFileSync('src/components/Sidebar.tsx', 'utf8');
+const navigationRegistry = fs.readFileSync('src/lib/navigation-registry.ts', 'utf8');
 const pages = fs.readdirSync('src/pages').filter((name) => name.endsWith('Page.tsx'));
 
 const routePaths = [...app.matchAll(/<Route\s+path="([^"]+)"/g)].map((m) => m[1]);
-const sidebarPaths = [...sidebar.matchAll(/path:'([^']+)'/g)].map((m) => m[1]);
+const navigationPaths = [...navigationRegistry.matchAll(/path:\s*'([^']+)'/g)].map((m) => m[1]);
 const pageImports = [
   ...app.matchAll(/from\s+['"]@\/pages\/([^'"]+)['"]/g),
   ...app.matchAll(/import\([^)]*['"]@\/pages\/([^'"]+)['"]/g),
 ].map((m) => m[1]);
 
 const unique = (items) => [...new Set(items)];
-const missingFromSidebar = routePaths.filter((path) => path !== '*' && !sidebarPaths.includes(path));
-const missingRoutesForSidebar = sidebarPaths.filter((path) => !routePaths.includes(path));
+const missingFromSidebar = routePaths.filter((path) => path !== '*' && !navigationPaths.includes(path));
+const missingRoutesForSidebar = navigationPaths.filter((path) => !routePaths.includes(path));
 const importedPageFiles = unique(pageImports.map((file) => file.endsWith('.tsx') ? file : `${file}.tsx`));
 const unreferencedPageFiles = pages.filter((file) => !importedPageFiles.includes(file));
 
@@ -24,7 +24,7 @@ const fail = (label, values) => {
 };
 
 console.log(`UI route count: ${routePaths.length}`);
-console.log(`Sidebar navigation count: ${unique(sidebarPaths).length}`);
+console.log(`Canonical navigation count: ${unique(navigationPaths).length}`);
 console.log(`Page component files: ${pages.length}`);
 
 fail('routes missing from sidebar navigation', missingFromSidebar);

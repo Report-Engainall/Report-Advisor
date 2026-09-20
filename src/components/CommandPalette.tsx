@@ -1,3 +1,6 @@
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { ArrowRight, Command, Search } from 'lucide-react';
 import { NAVIGATION_ITEMS, type NavigationItem } from '@/lib/navigation-registry';
 
 type CommandItem = Pick<NavigationItem, 'label' | 'description' | 'path' | 'keywords'>;
