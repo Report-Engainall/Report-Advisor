@@ -38,8 +38,8 @@ if (!profileSettings.includes('full_name')) failures.push('Profile settings do n
 if (!header.includes("current_company_id")) failures.push('Header health indicator is not backed by a real database probe.');
 if (!header.includes('data: companyId')) failures.push('Header health probe does not inspect the resolved tenant value.');
 const unresolvedTenantFailsClosed =
-  header.includes('if (!companyId)') &&
-  header.includes("setHealth('degraded')");
+  (header.includes('if (!companyId)') && header.includes("setHealth('degraded')")) ||
+  header.includes("companyId ? 'healthy' : 'degraded'");
 
 if (!unresolvedTenantFailsClosed) failures.push('Header incorrectly treats an unresolved tenant as healthy.');
 if (!header.includes("'checking'") || !header.includes("'healthy'") || !header.includes("'degraded'") || !header.includes("'offline'")) failures.push('Header health state model is incomplete.');
