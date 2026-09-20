@@ -213,6 +213,51 @@ async function inspectPage(targetPage) {
   });
 }
 
+async function runWorkspacePersonalizationProbe(targetPage) {
+  await targetPage.goto(`${baseURL}/settings`, { waitUntil: 'domcontentloaded', timeout: 30000 });
+  await targetPage.getByRole('button', { name: 'المالية' }).first().waitFor({ state: 'visible', timeout: 15000 });
+  await targetPage.getByRole('button', { name: 'المالية' }).first().click();
+
+  const select = targetPage.locator('select').first();
+  await select.selectOption('/reports/profitability');
+
+  const kpiLabel = targetPage.locator('label').filter({ hasText: 'بطاقات المؤشرات' }).first();
+  const kpiCheckbox = kpiLabel.locator('input[type="checkbox"]');
+  if (await kpiCheckbox.isChecked()) await kpiCheckbox.uncheck();
+
+  const persisted = await targetPage.evaluate(() => {
+    const raw = localStorage.getItem('report-advisor.workspace-preferences');
+    return raw ? JSON.parse(raw) : null;
+  });
+  if (persisted?.preset !== 'finance') throw new Error('WORKSPACE_PRESET_NOT_PERSISTED');
+  if (persisted?.defaultLandingPath !== '/reports/profitability') throw new Error('WORKSPACE_LANDING_NOT_PERSISTED');
+  if (persisted?.dashboardWidgets?.includes('kpis')) throw new Error('WORKSPACE_KPI_VISIBILITY_NOT_PERSISTED');
+
+  await targetPage.goto(`${baseURL}/`, { waitUntil: 'domcontentloaded', timeout: 30000 });
+  await targetPage.waitForTimeout(750);
+  const redirectedPath = new URL(await targetPage.url()).pathname;
+  if (redirectedPath !== '/reports/profitability') throw new Error(`WORKSPACE_LANDING_REDIRECT_FAILED:${redirectedPath}`);
+
+  await targetPage.goto(`${baseURL}/settings`, { waitUntil: 'domcontentloaded', timeout: 30000 });
+  await targetPage.getByRole('button', { name: 'إعادة الإعدادات الافتراضية' }).click();
+  const reset = await targetPage.evaluate(() => {
+    const raw = localStorage.getItem('report-advisor.workspace-preferences');
+    return raw ? JSON.parse(raw) : null;
+  });
+  if (reset?.preset !== 'owner-executive') throw new Error('WORKSPACE_RESET_PRESET_FAILED');
+  if (reset?.defaultLandingPath !== '/') throw new Error('WORKSPACE_RESET_LANDING_FAILED');
+  if (!reset?.dashboardWidgets?.includes('kpis')) throw new Error('WORKSPACE_RESET_WIDGETS_FAILED');
+
+  return {
+    status: 'PASS',
+    persistedPreset: persisted.preset,
+    persistedLanding: persisted.defaultLandingPath,
+    redirectedPath,
+    resetPreset: reset.preset,
+    resetLanding: reset.defaultLandingPath,
+  };
+}
+
 function addFinding(id, status, severity, reason, extra = {}) {
   result.findings.push({ id, status, severity, reason, ...extra });
 }
@@ -344,6 +389,13 @@ try {
           `${route}: ${routeFailedResponses.length} relevant HTTP response(s) returned 4xx/5xx.`, { responses: routeFailedResponses });
         if (routeErrors.length) addFinding(`E2E-CONSOLE-${String(i + 1).padStart(3, '0')}`, 'FAIL', 'P1',
           `${route}: browser emitted ${routeErrors.length} console/page error(s).`, { errors: routeErrors });
+      }
+
+      try {
+        const workspaceProbe = await runWorkspacePersonalizationProbe(page);
+        addFinding('E2E-WORKSPACE-001', 'PASS', 'P1', 'Workspace personalization is proven through real browser interaction, persistence, landing redirect, and reset.', workspaceProbe);
+      } catch (error) {
+        addFinding('E2E-WORKSPACE-001', 'FAIL', 'P1', `Workspace personalization browser probe failed: ${error instanceof Error ? error.message : String(error)}`);
       }
 
       try {
