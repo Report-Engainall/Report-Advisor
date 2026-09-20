@@ -215,7 +215,7 @@ async function inspectPage(targetPage) {
 
 async function runWorkspacePersonalizationProbe(targetPage) {
   await targetPage.goto(`${baseURL}/settings`, { waitUntil: 'domcontentloaded', timeout: 30000 });
-  await targetPage.getByText('محرر مساحة العمل', { exact: true }).waitFor({ state: 'visible', timeout: 30000 });
+  await targetPage.getByRole('heading', { name: 'محرر مساحة العمل', exact: true }).waitFor({ state: 'visible', timeout: 30000 });
   const financePreset = targetPage.getByRole('button').filter({ hasText: 'المالية' }).first();
   await financePreset.waitFor({ state: 'visible', timeout: 15000 });
   await financePreset.click();
