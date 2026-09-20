@@ -14,6 +14,7 @@ import { fetchDashboardSnapshot, fetchDashboardIntelligence } from '@/lib/dashbo
 import { formatCurrency, relativeTime } from '@/lib/format';
 import type { Recommendation, Alert } from '@/lib/types';
 import type { DashboardKPIs, MonthlyTrend, TopEntity, CategoryBreakdown, AgingDashboard } from '@/lib/dashboard-canonical';
+import { readWorkspacePreferences, type WorkspacePreferences } from '@/lib/workspace-mode';
 
 const TREND_RANGES = [{ value: 3, label: '3 أشهر' }, { value: 6, label: '6 أشهر' }, { value: 12, label: '12 شهرًا' }] as const;
 const metricStatus = (value: number | null, snapshotStatus: DashboardKPIs['status']): 'CONFIRMED' | 'CALCULATED' | 'INSUFFICIENT_DATA' => value === null ? 'INSUFFICIENT_DATA' : snapshotStatus === 'CONFIRMED' ? 'CONFIRMED' : 'CALCULATED';
@@ -32,6 +33,7 @@ export function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [workspacePreferences, setWorkspacePreferences] = useState<WorkspacePreferences>(readWorkspacePreferences);
 
   const load = useCallback(async (silent = false) => {
     try {
@@ -57,6 +59,15 @@ export function DashboardPage() {
   }, [trendMonths]);
 
   useEffect(() => { void load(); }, [load]);
+  useEffect(() => {
+    const sync = () => setWorkspacePreferences(readWorkspacePreferences());
+    window.addEventListener('storage', sync);
+    window.addEventListener('report-advisor:workspace-preferences', sync);
+    return () => {
+      window.removeEventListener('storage', sync);
+      window.removeEventListener('report-advisor:workspace-preferences', sync);
+    };
+  }, []);
 
   if (loading) return <LoadingState message="جارٍ بناء الصورة التنفيذية من المصدر..." />;
   if (error) return <ErrorState message={error} onRetry={() => void load()} />;
@@ -98,9 +109,9 @@ export function DashboardPage() {
         <KPICard label="الذمم المدينة" value={kpis.totalReceivables} format="currency" icon={<Receipt size={16}/>} status={metricStatus(kpis.totalReceivables,kpis.status)}/>
         <KPICard label="قيمة المخزون" value={kpis.inventoryValue} format="currency" icon={<Package size={16}/>} status={metricStatus(kpis.inventoryValue,kpis.status)}/>
       </section>
-      <section className="grid grid-cols-2 gap-px overflow-hidden rounded-[10px] border border-ink-200 bg-ink-200 sm:grid-cols-4">
+      {workspacePreferences.dashboardWidgets.includes('kpis') && <section className="grid grid-cols-2 gap-px overflow-hidden rounded-[10px] border border-ink-200 bg-ink-200 sm:grid-cols-4">
         {[['العملاء',kpis.totalCustomers],['المنتجات',kpis.totalProducts],['الفواتير',kpis.invoiceCount],['معدل التحصيل',kpis.collectionRate]].map(([label,value])=><div key={label} className="bg-white px-3.5 py-3"><div className="text-[10px] font-semibold text-ink-400">{label}</div><div className="mt-1 text-[15px] font-black tabular-nums text-ink-900">{value===null?'غير متاح':String(value)+(label==='معدل التحصيل'?'%':'')}</div></div>)}
-      </section>
+      </section>}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div><h2 className="text-lg font-black text-ink-950">لوحة الإثبات والتحليل</h2><p className="mt-1 text-xs text-ink-500">اتجاهات فعلية مع التحكم في الفترة الزمنية.</p></div>
         <div className="flex flex-wrap gap-2">
@@ -109,12 +120,12 @@ export function DashboardPage() {
         </div>
       </div>
 
-      <section className="grid gap-4 lg:grid-cols-[1.45fr_.75fr]">
+      {workspacePreferences.dashboardWidgets.includes('analysis') && <section className="grid gap-4 lg:grid-cols-[1.45fr_.75fr]">
         <Card><CardHeader title="اتجاه المبيعات والربح" subtitle={'آخر ' + trendMonths + ' أشهر'} action={<Badge variant="primary">مُثبت</Badge>}/><CardBody>{trend.some(item => item.status === 'CALCULATED') ? <TrendChart data={trend}/> : <div className="py-14 text-center text-sm text-ink-400">لا توجد بيانات اتجاه قابلة للحساب.</div>}</CardBody></Card>
         <Card><CardHeader title="توزيع النشاط" subtitle="التصنيف القادم من المصدر الكانوني"/><CardBody>{categories.length ? <CategoryPieChart data={categories.map(item => ({ ...item, name: item.categoryStatus === 'UNKNOWN' ? 'UNKNOWN' : item.name ?? 'UNKNOWN' }))}/> : <div className="py-14 text-center text-sm text-ink-400">لا توجد بيانات فئات.</div>}</CardBody></Card>
-      </section>
+      </section>}
 
-      <section className="grid gap-4 lg:grid-cols-2">
+      {workspacePreferences.dashboardWidgets.includes('attention') && <section className="grid gap-4 lg:grid-cols-2">
         <Card>
           <CardHeader title="مركز الانتباه" subtitle="ما يستحق التحقق أو التدخل الآن"/>
           <CardBody>
@@ -133,15 +144,15 @@ export function DashboardPage() {
             </div>
           </CardBody>
         </Card>
-      </section>
+      </section>}
 
-      <section className="grid gap-4 lg:grid-cols-3">
+      {workspacePreferences.dashboardWidgets.includes('entities') && <section className="grid gap-4 lg:grid-cols-3">
         <Card><CardHeader title="أفضل العملاء" subtitle="بحسب البيانات الحالية"/><CardBody>{topCustomers.length ? <HorizontalBarChart data={topCustomers} dataKey="value" nameKey="name" height={230}/> : <div className="py-12 text-center text-sm text-ink-400">لا توجد بيانات.</div>}</CardBody></Card>
         <Card><CardHeader title="أفضل المنتجات" subtitle="القيمة/الحركة من المصدر"/><CardBody>{topProducts.length ? <HorizontalBarChart data={topProducts} dataKey="value" nameKey="name" height={230}/> : <div className="py-12 text-center text-sm text-ink-400">لا توجد بيانات.</div>}</CardBody></Card>
         <Card><CardHeader title="أعمار الذمم" subtitle={aging.status === 'CALCULATED' && aging.totalAmount !== null ? 'الإجمالي: ' + formatCurrency(aging.totalAmount) : aging.status === 'NO_DATA' ? 'لا توجد بيانات ذمم' : 'بيانات غير كافية'}/><CardBody><div className="space-y-1">{aging.rows.map(bucket => <div key={bucket.bucket} className="flex items-center justify-between border-b border-ink-100 py-2.5"><span className="text-xs font-semibold text-ink-600">{bucket.bucket}</span><span className="text-xs text-ink-500">{bucket.amount === null ? 'UNKNOWN' : formatCurrency(bucket.amount)} · {bucket.count} فاتورة</span></div>)}{aging.unknownRows > 0 && <div className="pt-3 text-[11px] text-ink-400">UNKNOWN: {aging.unknownRows} فاتورة بلا تاريخ استحقاق.</div>}</div></CardBody></Card>
-      </section>
+      </section>}
 
-      <section>
+      {workspacePreferences.dashboardWidgets.includes('work-paths') && <section>
         <div className="mb-3"><h2 className="text-lg font-black text-ink-950">مسارات العمل</h2><p className="mt-1 text-xs text-ink-500">أهم المسارات للوصول إلى النتيجة المطلوبة دون تشعب.</p></div>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {[
@@ -151,7 +162,7 @@ export function DashboardPage() {
             { path: '/reports/executive', label: 'التقرير التنفيذي', text: 'قصة القرار والأثر', icon: FileSearch },
           ].map(action => { const Icon = action.icon; return <Link key={action.path} to={action.path} className="card card-hover flex items-center gap-3 p-4"><span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-primary-50 text-primary-700"><Icon size={19}/></span><span className="min-w-0 flex-1"><span className="block text-sm font-black text-ink-800">{action.label}</span><span className="mt-1 block text-[11px] text-ink-400">{action.text}</span></span><ArrowUpLeft size={16} className="text-ink-300"/></Link>; })}
         </div>
-      </section>
+      </section>}
     </div>
   );
 }
