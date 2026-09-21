@@ -22,12 +22,12 @@
 ## CURRENT EXACT STATE
 - Branch: `commercial/comprehensive-product-development-20260918-rebased`
 - PR: `#595`
-- Last exact HEAD verified before this memory write: `c53d66afd327a6b935dd826c4662315ec6a28b40`
+- Last exact HEAD verified before this memory write: `9a0a9c33db4787464ad94ffdcb8bbd6fe412c95b`
 - UI direction: Aghbari BI/Decision OS architecture; no Bolt/commerce navigation.
 - Current product work: full visual coverage and architecture consolidation continue from existing implementation; do not rebuild from zero.
 
 ## NEXT EXECUTABLE ACTION
-Apply the canonical architecture to the live navigation/shell, remove incompatible primary-navigation surfaces, keep existing canonical routes/data paths, then run targeted typecheck/build/route/product-WOW checks and record exact-SHA results.
+Consume fresh CI for exact HEAD `9a0a9c33db4787464ad94ffdcb8bbd6fe412c95b`; then continue the full visual sweep from the canonical architecture without reopening closed runtime gates.
 
 ## DO NOT REPEAT
 - Do not recreate another memory document.
