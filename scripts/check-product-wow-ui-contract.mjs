@@ -85,6 +85,12 @@ assert.ok(reports.includes('لقطة تجارية موثقة'), 'reports center 
 assert.ok(reports.includes('NEXT ACTION'), 'reports center must expose a concrete next action');
 assert.ok(reports.includes('افحص جودة البيانات'), 'reports center must route insufficient truth to data quality');
 assert.ok(reports.includes('تحديث اللقطة'), 'reports center must support in-place refresh of the canonical snapshot');
+assert.ok(reports.includes('const reportReadiness = ['), 'reports center must derive a live readiness map for core report domains');
+assert.ok(reports.includes('REPORT READINESS'), 'reports center must expose the live report readiness surface');
+assert.ok(reports.includes('أي تقرير يمكن استخدامه الآن؟'), 'reports center readiness must answer the user\'s immediate report-availability question');
+assert.ok(reports.includes("kpis.grossProfit !== null && kpis.grossMargin !== null"), 'profitability readiness must require both gross profit and gross margin');
+assert.ok(reports.includes("aging.status === 'CALCULATED'"), 'receivables readiness must follow the authoritative aging status');
+
 assert.ok(!reports.includes('generateSynthetic'), 'reports center must not invent business values');
 const trustEvidence = fs.readFileSync('src/pages/TrustEvidencePage.tsx', 'utf8');
 assert.ok(trustEvidence.includes('const [refreshing, setRefreshing]'), 'trust evidence must refresh in-place instead of reloading the whole page');
