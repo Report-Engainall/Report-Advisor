@@ -41,6 +41,12 @@ assert.ok(appShell.includes('advisorCounts.recommendations'), 'global Advisor mu
 assert.ok(sidebar.includes("trust: { hint: 'إثبات، مصدر، وثقة', tag: 'TRUST' }"), 'Trust navigation section must have product metadata');
 assert.ok(sidebar.includes("outputs: { hint: 'تقارير ومخرجات القرار', tag: 'OUTPUT' }"), 'Outputs navigation section must have product metadata');
 assert.ok(!dashboard.includes('generateSynthetic'), 'decision brief must not invent synthetic business data');
+const reports = fs.readFileSync('src/pages/ReportsPage.tsx', 'utf8');
+assert.ok(reports.includes('لقطة تجارية موثقة'), 'reports center must expose the current canonical snapshot');
+assert.ok(reports.includes('NEXT ACTION'), 'reports center must expose a concrete next action');
+assert.ok(reports.includes('افحص جودة البيانات'), 'reports center must route insufficient truth to data quality');
+assert.ok(reports.includes('تحديث اللقطة'), 'reports center must support in-place refresh of the canonical snapshot');
+assert.ok(!reports.includes('generateSynthetic'), 'reports center must not invent business values');
 const trustEvidence = fs.readFileSync('src/pages/TrustEvidencePage.tsx', 'utf8');
 assert.ok(trustEvidence.includes('const [refreshing, setRefreshing]'), 'trust evidence must refresh in-place instead of reloading the whole page');
 assert.ok(!trustEvidence.includes('window.location.reload()'), 'trust evidence refresh must not discard page context with a full reload');
