@@ -98,6 +98,12 @@ assert.ok(workCenter.includes('const queueEmptyState = rows.length === 0'), 'wor
 assert.ok(workCenter.includes('إدخال مصدر من المسار الموحد'), 'work center empty tenant state must route to the canonical import entry');
 assert.ok(workCenter.includes('عرض كل العمليات'), 'work center filtered empty state must restore the full queue without a reload');
 assert.ok(workCenter.includes('<Link to="/import"'), 'work center must use the canonical import route for its first-action state');
+assert.ok(workCenter.includes('const nextAction = workerHealth?.expiredActive > 0'), 'work center must derive one next action from the live worker/queue state');
+assert.ok(workCenter.includes('إعادة فحص العامل الآن'), 'expired worker leases must surface an explicit recheck action');
+assert.ok(workCenter.includes('عرض المراجعة'), 'review pressure must surface a direct filter action');
+assert.ok(workCenter.includes('عرض الفشل'), 'failed operations must surface a direct filter action');
+assert.ok(workCenter.includes('إدخال مصدر جديد'), 'stable queue state must expose the canonical import action');
+assert.ok(workCenter.includes('aria-pressed={filter === k}'), 'work center filters must expose selected state to assistive technology');
 
 const executiveCommand = fs.readFileSync('src/pages/ExecutiveCommandCenterPage.tsx', 'utf8');
 assert.ok(executiveCommand.includes('بيانات الذمم متاحة'), 'money recovery must describe receivables availability without claiming recoverable money');
