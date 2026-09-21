@@ -25,6 +25,11 @@ const requiredPage = [
   'سجل الاستيرادات',
   'لن يتم حفظ نسخة تحليل مكررة',
   'invalidRows: 0',
+  'invalidRows: rows.length - validRows.length',
+  'describeImportFailure',
+  'لم يكتمل التنفيذ الخادمي',
+  'العطل الفعلي:',
+  'تحديث سجل العمليات',
 ];
 const requiredAdapter = [
   'runCanonicalImportThroughDurableRunner',
