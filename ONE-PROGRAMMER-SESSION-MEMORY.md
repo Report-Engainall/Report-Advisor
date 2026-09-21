@@ -1,20 +1,20 @@
 ## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-WAVE-45-FINAL
 
 - SESSION-ID → `2026-09-21-AGHBARI-WAVE-45`
-- SHA → `42c89ef31bc67a20c66fd7f22d8325ecb642a71f` — actual current `main` after merging PR #608.
+- SHA → `ca41c8e6d54124ec204c5c3eeef04fa9ae287bfe` — last exact `main` code/governance head immediately before this final memory write-back.
 - DONE → implemented the real Reports Center upgrade in `src/pages/ReportsPage.tsx` at `c6dd99d320f5fb751832cdb4f5b7e7661af22d8d`: canonical `fetchDashboardSnapshot(6)`, truth state, As Of, sales/receivables/inventory/invoice context, context-aware next action, and in-place refresh.
 - DONE → strengthened `scripts/check-product-wow-ui-contract.mjs` at `a0efc8caddd310dba4d7a0fe2b83dee14ca21669` to protect the new Report Center snapshot, next-action, refresh and no-synthetic-data invariants.
-- DONE → synchronized `docs/MASTER_PRODUCT_REFERENCE.md`, `docs/MASTER_EXECUTION_INDEX.md`, and this single session-memory file; PR #608 was merged to `main`.
+- DONE → synchronized the single live session memory, master product reference and master execution index; PR #608 was merged to `main`, and subsequent edits in this wave were governance write-backs only.
 - ACTUAL RESULT → exact source re-read after implementation and contract write; required UI/contract tokens are present and no new route/RPC/runner/import taxonomy/backend path was introduced.
-- ACTUAL RESULT → PR #608 Netlify deploy-preview status is **success** for the exact PR head, and the live preview served the Arabic Aghbari product shell without a deployment/runtime error. Public `/reports` and `/import` resolve to the protected product entry/login surface; authenticated visual proof is still unavailable because PC01 is offline and no fake session is permitted.
-- ACTUAL RESULT → Vercel exact-head status remains **failure** at the free-plan `build-rate-limit`; no Vercel READY/PASS is transferred.
-- ACTUAL RESULT → staging backup evidence at 2026-09-21 17:26 UTC remains `backup_verification_runs=0`; WAL archiving was active (`archived_count=3195`, `failed_count=21`) but this is not restore/RPO/RTO proof.
-- ACTUAL RESULT → repository Phase-F contains a real logical backup/restore probe with `supabase db dump`, ephemeral restore, SHA-256, row-count verification and RPO/RTO thresholds, but no fresh exact-head Phase-F run has been obtained on `42c89ef31bc67a20c66fd7f22d8325ecb642a71f`.
+- ACTUAL RESULT → PR #608 Netlify deploy-preview status is **success** for the exact PR head. The preview served the Arabic Aghbari product shell and the protected `/reports` + `/import` routes resolved cleanly to the product entry surface; authenticated visual proof is still unavailable because PC01 is offline and no fake session is permitted.
+- ACTUAL RESULT → Vercel exact-head status remains **failure** at the free-plan `build-rate-limit`; no Vercel READY/PASS was transferred.
+- ACTUAL RESULT → staging backup evidence at 2026-09-21 17:26 UTC remains `backup_verification_runs=0`; PostgreSQL WAL archiving was active (`archived_count=3195`, `failed_count=21`) but this is archival-health evidence, not restore/RPO/RTO proof.
+- ACTUAL RESULT → repository Phase-F contains a real logical backup/restore probe using `supabase db dump`, ephemeral restore, SHA-256, row-count verification and RPO/RTO thresholds; no fresh exact-head Phase-F run has been obtained on the current release head.
 - PRECISE STOP POINT → current `main` contains the UI + contract + synchronized governance; the remaining release boundary is fresh exact-`main` CI/build/Phase-F/browser/certification evidence.
 - WHAT REMAINS → fresh exact-`main` CI/build/Phase-F/browser evidence; repair only current-SHA failures; then backup/RPO-RTO proof, worker/server-boundary review, tenant A/B, server OCR authority, watched-folder runtime and final certification.
-- NEXT ACTION → execute/consume the first fresh exact-`main` CI/Phase-F run for `42c89ef31bc67a20c66fd7f22d8325ecb642a71f`; if a current-SHA failure appears, repair its root cause and re-run only that changed contract; otherwise continue directly to the next Phase-F closure gate.
+- NEXT ACTION → execute/consume the first fresh exact-`main` CI/Phase-F run for the current code head; if a current-SHA failure appears, repair its root cause and re-run only the changed contract; otherwise continue directly to the next Phase-F closure gate.
 - DO NOT REPEAT → do not treat `backup_verification_runs=0` as PASS; do not treat WAL archiving as a restore drill; do not transfer stale Vercel/runtime/build PASS; do not recreate the canonical import path; do not rerun closed tests without a material SHA/environment/contract change.
-- CURRENT RESUME POINTER → `42c89ef31bc67a20c66fd7f22d8325ecb642a71f` → fresh exact-`main` CI/build/Phase-F/browser/certification → repair current-SHA failure if any → backup/RPO-RTO → worker/server-boundary → tenant A/B/OCR/watched-folder → final certification.
+- CURRENT RESUME POINTER → `ca41c8e6d54124ec204c5c3eeef04fa9ae287bfe` → fresh exact-`main` CI/build/Phase-F/browser/certification → repair current-SHA failure if any → backup/RPO-RTO → worker/server-boundary → tenant A/B/OCR/watched-folder → final certification.
 
 ## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-COMPREHENSIVE-WAVE-44
 - SESSION-ID → `2026-09-21-AGHBARI-COMPREHENSIVE-WAVE-44`
