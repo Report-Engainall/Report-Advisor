@@ -23,6 +23,13 @@ const steps = [
 export function ConnectionsPage() {
   const { language } = useLanguage();
   const ar = language === 'ar';
+  const availableCount = connectors.filter(connector => connector.state === 'available').length;
+  const boundedCount = connectors.filter(connector => connector.state === 'bounded').length;
+  const adapterCount = connectors.filter(connector => connector.state === 'adapter').length;
+  const nextAvailableSource = connectors.find(connector => connector.state === 'available');
+  const nextLabel = nextAvailableSource
+    ? (ar ? `ابدأ من ${nextAvailableSource.title.ar}` : `Start with ${nextAvailableSource.title.en}`)
+    : (ar ? 'راجع حدود الموصلات' : 'Review connector limits');
   const title = ar ? 'مركز المصادر والموصلات' : 'Sources & Connections';
   const subtitle = ar
     ? 'اربط المتجر أو الملف أو النظام، ثم دع السلسلة نفسها تحوّل المصدر إلى حقيقة قابلة للإثبات وقرار قابل للتنفيذ.'
@@ -49,11 +56,11 @@ export function ConnectionsPage() {
       </section>
 
       <section className="ag-decision-strip" aria-label="ملخص المصادر">
-        <div className="ag-decision-cell"><span className="ag-decision-label">{ar ? "المسار المثبت" : "Proven path"}</span><span className="ag-decision-value">1</span></div>
-        <div className="ag-decision-cell"><span className="ag-decision-label">{ar ? "مسارات بحدود تشغيل" : "Bounded paths"}</span><span className="ag-decision-value">2</span></div>
+        <div className="ag-decision-cell"><span className="ag-decision-label">{ar ? "المسارات المثبتة" : "Proven paths"}</span><span className="ag-decision-value">{availableCount}</span></div>
+        <div className="ag-decision-cell"><span className="ag-decision-label">{ar ? "بحدود تشغيل" : "Bounded paths"}</span><span className="ag-decision-value">{boundedCount}</span></div>
+        <div className="ag-decision-cell"><span className="ag-decision-label">{ar ? "موصلات حسب المنصة" : "Adapter paths"}</span><span className="ag-decision-value">{adapterCount}</span></div>
         <div className="ag-decision-cell"><span className="ag-decision-label">Trust</span><span className="ag-decision-value">{ar ? "إثبات قبل الادعاء" : "Proof before claim"}</span></div>
-        <div className="ag-decision-cell"><span className="ag-decision-label">Tenant</span><span className="ag-decision-value">{ar ? "حوكمة مطلوبة" : "Governed"}</span></div>
-        <div className="ag-decision-cell"><span className="ag-decision-label">{ar ? "الخطوة التالية" : "Next"}</span><span className="ag-decision-value">{ar ? "ابدأ من ملف أو مجلد" : "Start with a file or folder"}</span></div>
+        <div className="ag-decision-cell"><span className="ag-decision-label">{ar ? "الخطوة التالية" : "Next"}</span><span className="ag-decision-value">{nextLabel}</span></div>
       </section>
 
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
