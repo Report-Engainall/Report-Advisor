@@ -1,14 +1,16 @@
-## CURRENT EXECUTION BOUNDARY — 2026-09-21 / WAVE 65 — EXACT-HEAD CERTIFICATION REBIND
+## CURRENT EXECUTION BOUNDARY — 2026-09-21 / WAVE 69 — EXACT-HEAD CERTIFICATION REBIND
 
 > Exact-head evidence only. No historical runtime result is transferred.
 
+- CURRENT_REPOSITORY_HEAD: `e55f6887fccc7b278a3632b9a90579eeb69ff9f1` (governance-only descendant of the current code/test candidate).
 - CURRENT_CODE_TEST_CANDIDATE: `ba034a4ec78e98716a352b7661d798fd5764d57b`.
-- CURRENT GOVERNANCE HEAD: `ba034a4ec78e98716a352b7661d798fd5764d57b` (current exact candidate for fresh certification).
-- DONE: Work Center explicitly labels the 500-row read as a bounded display window and no longer presents `rows.length` as `إجمالي السجل`.
-- DONE: UI contract guards the bounded semantics.
-- VERIFIED: source re-read on exact SHA; Supabase history index remains present; staging currently has `import_jobs=4477`; `backup_verification_runs=0`.
-- VERIFIED: fresh exact-head verification has checked out `a6abc24...`; quality and the independent contract/runtime gates are executing against that exact SHA.
-- ROOT CAUSE CLOSED: certification/enforcement correctly failed closed because the index still pointed to `30cf5d6...` while the tested HEAD `a6abc24...` contained non-governance UI/test changes. The canonical candidate token must be rebound to the exact tested parent.
+- CURRENT_GOVERNANCE_HEAD: `ba034a4ec78e98716a352b7661d798fd5764d57b` (current exact candidate for fresh certification).
+- DONE: Trust & Evidence now shows authoritative per-entity quality visually and exposes entity-level next actions to the canonical data-quality or evidence-source paths.
+- DONE: `check-product-wow-ui-contract.mjs` guards the visual quality indicator, authoritative score exposure, and entity-level next actions.
+- VERIFIED: source files were re-read from exact `ba034a4...`; no RPC, importer, runner, route family, or parallel data path was introduced.
+- ROOT CAUSE CLOSED: Execution Enforcement failed on `ba034a4...` because the certification index still referenced `a6abc24...` while the current candidate contained non-governance UI changes. The candidate binding is now corrected to `ba034a4...`; `e55f6887...` is documentation/governance-only on top of it.
+- OPEN: fresh certification/enforcement runs for the new governance-bound HEAD have not yet completed.
+
 - NETLIFY: READY production deploy is on old commit `21f6562...`; not current-head evidence.
 - PHASE-F: canonical workflow remains fail-closed until the required live resilience configuration is actually provisioned.
 - PRECISE NEXT ACTION: consume fresh Final Certification Gate + Execution Enforcement Contract after this governance-only rebind; then continue Phase-F backup/restore/RPO/RTO/rollback evidence.
