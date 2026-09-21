@@ -1251,3 +1251,11 @@ This update records implementation state only; it does not replace the product c
 - Decision Experience `command` stage now wraps its sibling readiness and command-grid sections in one Fragment under the existing stage condition.
 - This is a presentation-only structural repair; decision data, mutation paths, deterministic calculations, tenant/RLS and approval semantics are unchanged.
 - Current product-code candidate: `175fb6d0a417c12ed9809a6a0489d844fa096065`.
+
+
+## IMPLEMENTATION UPDATE — 2026-09-21 / TYPECHECK + PERFORMANCE OPTIMIZATION
+- Canonical commit provenance typing now matches the reconciled row contract.
+- Unified import callback dependency ordering is corrected.
+- Suppliers DataTable columns are explicitly typed against `SupplierRow`.
+- Dashboard chart components are dynamically imported behind Suspense to keep chart vendor code out of the initial critical module graph.
+- Performance budget thresholds are unchanged; runtime/build proof is still pending for `8a9d6dc1df8afc9a421b0db205225953f43ad957`.
