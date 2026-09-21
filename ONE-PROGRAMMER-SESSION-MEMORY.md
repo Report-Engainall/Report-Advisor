@@ -1,6 +1,6 @@
 ## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-COMPREHENSIVE-WAVE-44
 - SESSION-ID → `2026-09-21-AGHBARI-COMPREHENSIVE-WAVE-44`
-- SHA → current main before final memory write-back: `09f948f654a94ffecf2e8dc73e38d64ed532277e`.
+- SHA → final current main after all wave-44 governance write-backs: `73c9754e624a457dc439e0bf6e8e9c5e89934d87`.
 - DONE → repaired the unified canonical import terminal-failure experience in `src/pages/CanonicalImportPage.tsx` at `42c873d48980650c8cd38a6c242a416862e5f0c8`.
 - DONE → terminal failure summaries now include `invalidRows`; failure UX distinguishes server execution 500s, review approval requirements, and authoritative-source failures, preserves the exact technical error, gives the next action, and refreshes import history after failure.
 - DONE → strengthened `scripts/check-import-center-product-contract.mjs` at `52f362bdcab600b597f8321cd9a6f6a2ad9c0599` to guard the terminal failure contract and actionable error surface.
@@ -11,11 +11,11 @@
 - ACTUAL RESULT → one expired `processing` lease was recovered with the existing `recover_expired_report_execution_jobs` function. Immediate post-recovery verification: `expired_active_leases=0`, `processing=0`, `queued=564`, `failed=10`, `dead_letter=7`, `completed=3110`.
 - ACTUAL RESULT → current backup proof remains absent: `backup_verification_runs=0`. Supabase security advisor reports 47 authenticated-executable SECURITY DEFINER findings; no blanket revoke was applied.
 - ACTUAL RESULT → fresh exact-head build/browser/deployment PASS remains unproven. Vercel free-plan `build-rate-limit` remains an external blocker and PC01 is offline.
-- PRECISE STOP POINT → code/test/UI/contract fixes and live worker recovery are complete; governance references are updated; runtime/build proof remains the remaining release boundary.
+- PRECISE STOP POINT → code/test/UI/contract fixes and live worker recovery are complete; master product reference, execution index, and session memory are synchronized; runtime/build proof remains the remaining release boundary.
 - WHAT REMAINS → fresh exact-head CI/build/browser/certification; close backup/RPO-RTO evidence; inspect worker-lease/server-boundary behavior with disposable evidence; then tenant A/B, server OCR authority, watched-folder runtime, and final certification.
 - NEXT ACTION → consume the first fresh exact-head CI/build/browser/certification result for the current main; repair any new exact-head failure without weakening gates, then proceed directly to backup/RPO-RTO proof and remaining Phase-F runtime closure.
 - DO NOT REPEAT → do not restore generic failure text, omit terminal `invalidRows`, treat historical 500s as current, blanket-revoke SECURITY DEFINER functions, or transfer stale deployment/runtime PASS.
-- CURRENT RESUME POINTER → current main after this write-back → fresh exact-head CI/build/browser/certification → repair fresh failure if any → backup/RPO-RTO → worker/server-boundary → tenant A/B/OCR/watched-folder → final certification.
+- CURRENT RESUME POINTER → `73c9754e624a457dc439e0bf6e8e9c5e89934d87` → fresh exact-head CI/build/browser/certification → repair fresh failure if any → backup/RPO-RTO → worker/server-boundary → tenant A/B/OCR/watched-folder → final certification.
 
 ## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-CONNECTION-RENEWAL-43
 - SESSION-ID → `2026-09-21-AGHBARI-CONNECTION-RENEWAL-43`
