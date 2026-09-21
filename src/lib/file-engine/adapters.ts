@@ -287,7 +287,7 @@ async function parsePdfText(buffer: ArrayBuffer, fileName: string): Promise<Data
 }
 
 async function parseScannedPdfWithOcr(pdf: PdfDocument, fileName: string): Promise<Dataset[]> {
-  if (typeof document === 'undefined') throw new Error('PDF_SCANNED_IMAGE_ONLY: OCR requires a browser runtime; no business data was fabricated.');
+  if (typeof document === 'undefined') throw new Error('PDF_SCANNED_IMAGE_ONLY_SERVER_AUTHORITY_UNAVAILABLE: scanned-PDF OCR requires an authoritative OCR-capable runtime; no business data was fabricated.');
   if (pdf.numPages > PDF_OCR_MAX_PAGES) throw new Error(`PDF_OCR_PAGE_LIMIT_EXCEEDED: ${pdf.numPages} pages exceeds the safe OCR limit of ${PDF_OCR_MAX_PAGES}. Split the document before analysis.`);
   const tesseract = await import('tesseract.js');
   const worker = await tesseract.createWorker('ara+eng');
