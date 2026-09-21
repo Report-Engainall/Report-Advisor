@@ -3,7 +3,7 @@
 > تحديث تنفيذي بعد أمر المالك «انطلق». هذا القسم يصف الحالة المثبتة من الأدوات فقط. لا يتم نقل Evidence بين SHAs، ولا تُعد الحالة PASS إلا بدليل Exact-HEAD.
 
 ### CURRENT EXACT HEAD / DEPLOYED STATE
-- **Current product/code HEAD:** `23449d317277df32d560bc3fbb1b60f0e2a48eb9` on `main`.
+- **Current product/code HEAD:** `cd8f32ad1fc7d3ebc96d215596e010a14efe2892` on `main`.
 - **Previous product/runtime baseline:** `1568e43889d27b5d850e64c0b99d03a994fd3bbe`.
 - **Historical product/test candidate:** `fe5661060462ffa21d6aa31505f80c2021c4170a` — historical only; do not treat as current HEAD evidence.
 - **Reference product/runtime code HEAD:** `c11c084d161cceb4595f8552b6c49c3f610f0ec2`; current `main` also carries the forward-only security/source-parity migrations merged afterward.
@@ -284,3 +284,12 @@ There is one execution owner. Do not resurrect the previous UI/runtime owner spl
 - No new backend route/RPC/runner/import taxonomy/tenant path was introduced.
 - Exact-head runtime/build evidence remains open because Vercel reports the free-plan `build-rate-limit`; PC01 remains offline.
 - Next executable action: another independent weak canonical surface or cloud-safe closure, then exact-head runtime proof.
+
+
+## CONTINUATION UPDATE — 2026-09-21 / EXECUTIVE REPORT ACCOUNTABILITY WAVE 31
+- Exact product code HEAD: `cd8f32ad1fc7d3ebc96d215596e010a14efe2892`.
+- Executive Report now derives decision accountability and outcome state from existing recommendation fields: status, owner and impact_result.
+- Recommendation list now exposes status/owner/expected impact/actual impact result.
+- No new route, RPC, runner, data model, tenant/RLS path or calculation engine.
+- Vercel exact-head runtime remains blocked by free-plan `build-rate-limit`; no current-head PASS transferred.
+- Next executable action: continue the next weak canonical surface or independent cloud-safe closure, then runtime proof.
