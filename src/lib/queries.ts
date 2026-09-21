@@ -36,3 +36,29 @@ export async function fetchProductsPage(page=0,pageSize=50,search=''):Promise<Pr
 const MAX_ENTITY_ROWS = 500;
 export async function fetchCustomers(): Promise<Customer[]> { const companyId = await resolveCurrentCompanyId(); if (!companyId) throw new Error('TENANT_REQUIRED'); const {data,count,error}=await supabase.from('customers').select('*',{count:'exact'}).eq('company_id',companyId).order('name',{ascending:true}).order('id',{ascending:true}).range(0,MAX_ENTITY_ROWS-1); if(error)throw error; if((count??0)>MAX_ENTITY_ROWS)throw new Error('REPORT_QUERY_LIMIT_EXCEEDED: customers require explicit pagination'); return (data??[]) as Customer[]; }
 export async function fetchProducts(): Promise<Product[]> { const companyId = await resolveCurrentCompanyId(); if (!companyId) throw new Error('TENANT_REQUIRED'); const {data,count,error}=await supabase.from('products').select('*',{count:'exact'}).eq('company_id',companyId).order('name',{ascending:true}).order('id',{ascending:true}).range(0,MAX_ENTITY_ROWS-1); if(error)throw error; if((count??0)>MAX_ENTITY_ROWS)throw new Error('REPORT_QUERY_LIMIT_EXCEEDED: products require explicit pagination'); return (data??[]) as Product[]; }
+
+export type SupplierRow = {
+  id:string;
+  name:string;
+  code:string|null;
+  phone:string|null;
+  email:string|null;
+  address:string|null;
+  tax_id:string|null;
+  payment_terms_days:number|null;
+  created_at:string|null;
+};
+export type SuppliersPage = { data:SupplierRow[]; count:number|null; page:number; page_size:number };
+export async function fetchSuppliersPage(page=0,pageSize=50,search=''):Promise<SuppliersPage>{
+  if(!Number.isInteger(page)||page<0)throw new Error('REPORT_QUERY_INVALID_PAGE');
+  if(!Number.isInteger(pageSize)||pageSize<1||pageSize>100)throw new Error('REPORT_QUERY_INVALID_PAGE_SIZE');
+  const companyId=await resolveCurrentCompanyId();
+  if(!companyId)throw new Error('TENANT_REQUIRED');
+  const normalized=search.trim().replace(/[,%()\\]/g,' ');
+  const from=page*pageSize,to=from+pageSize-1;
+  let query=supabase.from('suppliers').select('id,name,code,phone,email,address,tax_id,payment_terms_days,created_at',{count:'exact'}).eq('company_id',companyId);
+  if(normalized)query=query.or(`name.ilike.%${normalized}%,code.ilike.%${normalized}%`);
+  const {data,count,error}=await query.order('name',{ascending:true}).order('id',{ascending:true}).range(from,to);
+  if(error)throw error;
+  return{data:(data??[]) as SupplierRow[],count,page,page_size:pageSize};
+}
