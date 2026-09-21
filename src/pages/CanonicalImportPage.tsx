@@ -128,7 +128,7 @@ export function CanonicalImportPage() {
       if (!companyId) throw new Error('TENANT_CONTEXT_REQUIRED');
       const dup = await checkDuplicate(hash, companyId, supabase);
       setDuplicate(dup.isDuplicate);
-      if (dup.isDuplicate) setWarnings(prev => [...prev, 'هذا الملف موجود في سجل الاستيراد لهذا الحساب. لن يتم السماح بكتابة مكررة.']);
+      if (dup.isDuplicate) setWarnings(prev => [...prev, 'هذا المصدر موجود مسبقًا لهذا الحساب. لن يتم حفظ نسخة تحليل مكررة.']);
       const datasets: Dataset[] = await parseFile(buffer, selected.name, detection.format);
       const dataset = datasets[0];
       if (!dataset || dataset.rowCount === 0) throw new Error('الملف فارغ أو لا يحتوي على بيانات قابلة للقراءة');
@@ -254,14 +254,14 @@ export function CanonicalImportPage() {
 
     {step === 'upload' && <Card><CardBody>
       <div className="flex flex-wrap items-start justify-between gap-3 mb-5">
-        <div><h2 className="text-lg font-semibold">ابدأ عملية استيراد موثوقة</h2><p className="text-sm text-ink-500 mt-1">لا يتم إدخال البيانات إلى الحقيقة الكانونية قبل اكتمال فهم المصدر وعقد الكتابة العام.</p></div>
+        <div><h2 className="text-lg font-semibold">ابدأ تحليل أي مصدر</h2><p className="text-sm text-ink-500 mt-1">لا يتم إدخال البيانات إلى الحقيقة الكانونية قبل اكتمال فهم المصدر وعقد الكتابة العام.</p></div>
         <Badge variant="neutral"><LockKeyhole size={13}/> عزل الحساب مفعل</Badge>
       </div>
       <div className="mb-5 rounded-[14px] border border-primary-100 bg-primary-50/50 p-4">
         <div className="flex items-start gap-3">
           <Database size={18} className="mt-0.5 shrink-0 text-primary-700"/>
           <div>
-            <div className="text-sm font-black text-ink-900">لا تختَر التخصص قبل قراءة الملف</div>
+            <div className="text-sm font-black text-ink-900">لا تختَر نوع السجل قبل قراءة الملف</div>
             <p className="mt-1 text-xs leading-5 text-ink-600">يرفع المستخدم الملف أولًا؛ النظام يقرأ الصيغة والأعمدة والمحتوى ثم يقترح التخصص. النظام يحدد النطاق دلاليًا بعد الفهم، ويطلب مراجعة عندما لا تكون الأدلة كافية.</p>
           </div>
         </div>
