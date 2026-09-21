@@ -78,7 +78,7 @@ const evidenceSurfaces = [
           {snapshot?.entities?.slice(0, 8).map(entity => <div key={entity.name} className="flex items-center justify-between gap-3 rounded-xl border border-ink-100 bg-ink-50/40 px-3 py-3">
             <span className="min-w-0 text-xs font-bold text-ink-800">{entity.name}</span>
             <span className="shrink-0 text-xs font-black text-ink-500">{entity.issues ?? 'غير متاح'} مشكلة</span>
-          />)}
+          </div>)}
         </CardBody>
       </Card>
 
@@ -102,35 +102,7 @@ const evidenceSurfaces = [
         <div><div className="text-[9px] font-black tracking-[.12em] text-primary-700">NEXT TRUST ACTION</div><div className="mt-1 text-sm font-black text-ink-950">{nextStep.label}</div><div className="mt-1 text-[10px] leading-5 text-ink-600">{nextStep.detail}</div></div>
         <span className="inline-flex items-center gap-2 rounded-xl bg-ink-950 px-3 py-2 text-[10px] font-black text-white">فتح الآن <ArrowLeft size={13}/></span>
       </div>
-    </Link>    <section className="grid gap-4 xl:grid-cols-2">
-      <Card>
-        <CardHeader title="خريطة الدليل" subtitle="الحالة التشغيلية لكل طبقة تُقرأ من المصدر، وليست شهادة بصرية بحد ذاتها." />
-        <CardBody>
-          <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
-            {['Source', 'Extraction', 'Normalization', 'Validation', 'Canonical Truth', 'Evidence', 'Signal', 'Decision'].map((stage, index) => <div key={stage} className="relative rounded-xl border border-ink-100 bg-white p-3">
-              <div className="text-[9px] font-black tracking-[.12em] text-ink-400">{String(index + 1).padStart(2, '0')}</div>
-              <div className="mt-1 text-xs font-black text-ink-800">{stage}</div>
-              <div className="mt-1 text-[9px] text-ink-400">الحالة تُحسم من المصدر</div>
-            </div>)}
-          </div>
-        </CardBody>
-      </Card>
-
-      <Card>
-        <CardHeader title="سطوح الحوكمة" subtitle="ما يتطلب سجلًا إضافيًا يُعرض كغير متاح بدل اختلاق نتيجة." />
-        <CardBody className="grid gap-2">
-          {evidenceSurfaces.map(surface => surface.available
-            ? <Link key={surface.title} to={surface.path} className="flex items-center gap-3 rounded-xl border border-ink-100 p-3 hover:border-primary-200 hover:bg-primary-50/40">
-                <surface.icon size={15} className="text-primary-700"/><span className="min-w-0 flex-1 text-xs font-bold text-ink-800">{surface.title}</span><ArrowLeft size={13}/>
-              </Link>
-            : <div key={surface.title} className="flex items-center gap-3 rounded-xl border border-warning-200 bg-warning-50/40 p-3">
-                <surface.icon size={15} className="text-warning-700"/><span className="min-w-0 flex-1"><span className="block text-xs font-bold text-ink-800">{surface.title}</span><span className="text-[10px] text-warning-900">غير متاح دون سجل موثق كافٍ.</span></span><span className="rounded-full bg-white px-2 py-1 text-[8px] font-black text-warning-800">BLOCKED</span>
-              </div>)}
-        </CardBody>
-      </Card>
-    </section>
-
-    <div className="rounded-2xl border border-warning-200 bg-warning-50/60 p-4 text-xs leading-6 text-warning-800">
+    </Link>    <div className="rounded-2xl border border-warning-200 bg-warning-50/60 p-4 text-xs leading-6 text-warning-800">
       الثقة لا تُستنتج من شكل الواجهة. أي غياب في المصدر أو السلسلة أو العينة يبقى ظاهرًا كـ REVIEW / BLOCKED / INSUFFICIENT DATA.
     </div>
   </div>;
