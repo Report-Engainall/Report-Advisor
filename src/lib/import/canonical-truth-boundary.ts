@@ -2,7 +2,7 @@ export type ReconciliationState = 'RECONCILED' | 'CONFLICT' | 'INSUFFICIENT_DATA
 export type CanonicalImportEntityType = 'products' | 'customers' | 'sales_invoices' | `generic:${string}`;
 
 function isGenericEntityType(entityType: CanonicalImportEntityType): entityType is `generic:${string}` {
-  return entityType.startsWith('generic:') && entityType.length > 8;
+  return /^generic:[a-z][a-z0-9_-]{0,63}$/.test(entityType);
 }
 
 export interface ImportEvidenceProvenance {
