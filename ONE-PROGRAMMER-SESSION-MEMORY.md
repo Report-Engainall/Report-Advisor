@@ -1,3 +1,23 @@
+## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-80
+
+- SESSION-ID → `2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-80`
+- CURRENT PR/GOVERNANCE HEAD BEFORE THIS WRITE → `5dcfde62f8d58193708f8badb633cfabdb9a707b`; this write is governance-only.
+- EXACT CODE/TEST CANDIDATE → `403ecefefdf171780a8ef91c6dfaea03b83efb8e`.
+- DONE → Executive Command Center Business Replay gap is now actionable: the surface remains honestly `غير مثبت`, discloses the real requirement for snapshots/outcomes, and routes to Trust & Evidence rather than ending as a dead capability card.
+- DONE → Product WOW contract now guards the replay-gap disclosure and evidence-first next action.
+- EXACT SOURCE VERIFICATION → latest functional delta is limited to `ExecutiveCommandCenterPage.tsx` and `check-product-wow-ui-contract.mjs` plus governance files; no backend/RPC/importer/runner/database mutation introduced.
+- PRIOR LIVE DATA PROOF → the staging recommendation inventory still has zero actionable rows for the populated tenant, so Decision Coverage correctly remains unavailable/no-recommendations rather than fabricated.
+- PRIOR EXACT DEPLOYMENT PROOF → Netlify READY was verified on `f87243c...`; this new `403ecef...` candidate has not yet emitted fresh Netlify-ready evidence.
+- CI / VERCEL → Vercel continues to report external free-plan `build-rate-limit`; no fresh GitHub Actions run or Vercel runtime PASS is attached to `403ecef...`.
+- AUTHENTICATED BROWSER → not proven; TinyFish automation could not start because its external wallet was out of funds. No browser PASS was claimed.
+- PHASE-F → remains FAIL-CLOSED on missing authorized `RESILIENCE_MAX_RPO_SECONDS` and live backup/restore configuration.
+- LEGACY IMPORT RECOVERY → no proven import-job recovery contract; the 151 legacy processing rows remain untouched.
+- PRECISE STOP POINT → decision-center replay-gap actionability is complete at source/contract level.
+- WHAT REMAINS → fresh exact-head deployment/CI evidence for `403ecef...`; authenticated browser proof; governed legacy-import recovery decision; real Phase-F recovery evidence; final certification.
+- NEXT EXECUTABLE ACTION → consume fresh exact-head deployment/CI evidence for `403ecef...`; if external proof is still blocked, continue independent product/UI closure without transferring stale evidence.
+- DO NOT REPEAT → do not claim replay exists; do not fabricate replay data; do not transfer `f87243c...` READY evidence to `403ecef...`; do not force-close legacy imports; do not invent Phase-F values or bypass tenant auth/RLS.
+- CURRENT RESUME POINTER → `403ecefefdf171780a8ef91c6dfaea03b83efb8e` → fresh exact-head deployment/CI evidence → authenticated browser proof → governed legacy-import recovery → Phase-F real recovery → final certification.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-79
 
 - SESSION-ID → `2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-79`
