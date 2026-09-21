@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 
+const entry = fs.readFileSync('src/pages/ImportPage.tsx', 'utf8');
 const page = fs.readFileSync('src/pages/CanonicalImportPage.tsx', 'utf8');
 const adapter = fs.readFileSync('src/lib/import/canonical-production-adapter.ts', 'utf8');
 const requiredPage = [
@@ -23,8 +24,21 @@ const requiredAdapter = [
   "stage === 'committed'",
 ];
 
+const forbiddenEntryTokens = [
+  'FolderBatchImportPanel',
+  'sales_invoices',
+  'products',
+  'customers',
+  'entityType',
+];
 const missingPage = requiredPage.filter(token => !page.includes(token));
 const missingAdapter = requiredAdapter.filter(token => !adapter.includes(token));
+if (forbiddenEntryTokens.some(token => entry.includes(token))) {
+  const found = forbiddenEntryTokens.filter(token => entry.includes(token));
+  console.error(`Import Center product contract failed. Unified /import entry exposes forbidden specialization or legacy folder importer: ${found.join(', ')}`);
+  process.exit(1);
+}
+
 if (missingPage.length || missingAdapter.length) {
   const missing = [
     ...missingPage.map(token => `page:${token}`),
