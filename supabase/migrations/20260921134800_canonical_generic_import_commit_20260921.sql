@@ -8,7 +8,7 @@ CREATE OR REPLACE FUNCTION public.import_commit_batch(
 RETURNS jsonb
 LANGUAGE plpgsql
 SECURITY DEFINER
-SET search_path TO ''
+SET search_path TO 'pg_catalog'
 SET statement_timeout TO '30s'
 AS $function$
 declare
