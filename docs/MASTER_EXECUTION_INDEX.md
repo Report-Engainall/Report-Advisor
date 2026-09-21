@@ -178,3 +178,13 @@ There is one execution owner. Do not resurrect the previous UI/runtime owner spl
 - **Exact-head gates:** typecheck PASS; build PASS (2808 modules); Product WOW UI PASS; route/sidebar parity PASS (37/35); Executive Dashboard UI PASS; Intelligence Product Contract PASS; Connections/Language UI PASS (7); diff-check PASS; lint 0 errors / 63 warnings.
 - **Deployment boundary:** latest proven Netlify deploy remains `6ab09c139d58a600089e430f` at product commit `64ce8344...`; no live PASS transferred to `e8317714...`.
 - **Next:** continue remaining weak canonical surfaces with responsive state polishing, then obtain exact-head deployment/runtime proof and resume runtime/evidence/CI closure.
+
+
+## LATEST EXACT-HEAD OVERRIDE — 2026-09-21 / VALUE-FIRST CORE SURFACES
+- **Current exact product/code HEAD:** `7d7fd0ee560e3e95c9d8c5937bf1f4b2aaafcce5` on `main`.
+- **Visual coverage added:** Reports Center, Decision Experience, Trust & Evidence, Connections, Customers/Products/Inventory, and Import received a unified value-first treatment. ImportPage visible Arabic copy was corrected from mojibake to clear product language while retaining the canonical import path.
+- **Design intent:** each core surface now makes the user-facing value, evidence state, next action, and operational context more legible without adding unsupported capabilities.
+- **No architecture change:** no new route, RPC, runner, tenant/RLS path, calculation logic, or import contract introduced.
+- **Exact-head gates:** typecheck PASS; build PASS (2808 modules); Product WOW UI PASS; route/sidebar parity PASS (37/35); Executive Dashboard UI PASS; Intelligence Product Contract PASS; Connections/Language UI PASS (7); diff-check PASS; lint 0 errors / 63 warnings.
+- **Deployment boundary:** the latest proven Netlify deploy is still the older `64ce8344...`; no live proof is transferred to `7d7fd0ee...`.
+- **Next:** continue high-value polish over remaining analytics/intelligence/output surfaces, then refresh exact-head deployment/runtime proof.

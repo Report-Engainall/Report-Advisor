@@ -74,3 +74,17 @@ CURRENT RESUME POINTER
 - NEXT EXECUTABLE ACTION → continue the same high-end visual sweep over any remaining weak canonical surfaces, with special attention to responsive tables/drawers, empty/review/blocked states and cross-surface consistency, then obtain fresh exact-head deployment/runtime proof.
 - DO NOT REPEAT → do not recreate the sidebar architecture; do not transfer old Netlify evidence to `e8317714...`; do not fabricate authenticated runtime or business data.
 - CURRENT RESUME POINTER → `e831771435e84a66356a718fb6d63abc1fe7c18d` → remaining canonical UI weak-surface sweep → exact-head deployment/runtime proof → runtime/evidence/CI closure.
+
+
+## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-VISUAL-CLOSURE-08
+- SESSION-ID → `2026-09-21-AGHBARI-VISUAL-CLOSURE-08`
+- EXACT HEAD → `7d7fd0ee560e3e95c9d8c5937bf1f4b2aaafcce5`
+- BRANCH / PR → `main` / pushed to `origin/main`
+- DONE → broad value-first UI wave across core surfaces: Reports Center, Decision Experience, Trust & Evidence, Connections, Customers/Products/Inventory, and Import. Also removed the visible mojibake in ImportPage and replaced it with clear Arabic operating copy tied to the real import lifecycle.
+- ACTUAL RESULT → core pages now share stronger executive hierarchy, evidence-aware emphasis, clearer actionable sections, better cards/tables/drawers, consistent hover/focus depth, and import guidance that explains real states without fabricating certainty. No backend/RPC/runner/tenant/RLS or deterministic business logic changed.
+- PRECISE STOP POINT → exact product code is `7d7fd0ee...`; repository is clean and synced. Current-head live deployment proof is still absent because the latest proven Netlify deployment is older.
+- OPEN BLOCKERS → authenticated post-login visual proof still requires a real configured Supabase runtime/session; current exact-head deployment/runtime proof, business E2E, resilience, backup/RPO/RTO and final certification remain open.
+- VERIFIED TESTS / EVIDENCE → typecheck PASS; build PASS (2808 modules); Product WOW UI PASS; route/sidebar parity PASS (37/35); Executive Dashboard UI PASS; Intelligence Product Contract PASS; Connections/Language UI PASS (7); diff-check PASS; lint 0 errors / 63 warnings.
+- NEXT EXECUTABLE ACTION → continue the remaining high-value visual polish on intelligence/analytics/output surfaces, then obtain fresh exact-head deployment/runtime proof and resume independent runtime/evidence/CI closure.
+- DO NOT REPEAT → do not recreate canonical navigation/shell/Advisor; do not transfer old live proof to `7d7fd0ee...`; do not add demo-only data, fake sessions, fake evidence, duplicate RPCs or runners.
+- CURRENT RESUME POINTER → `7d7fd0ee560e3e95c9d8c5937bf1f4b2aaafcce5` → remaining high-value surface polish → exact-head deployment/runtime proof → runtime/evidence/CI closure.
