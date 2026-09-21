@@ -1,3 +1,16 @@
+## CURRENT EXECUTION BOUNDARY — 2026-09-21 / WAVE 48 — DECISION CENTER + DECISION EXPERIENCE EMPTY-STATE ACTIONS
+
+> Exact-head evidence only. No older deployment/runtime result is transferred.
+
+- **CURRENT CODE/TEST CANDIDATE:** `19efa63103657e60c973ec2d4449d74e05e73025`.
+- **DECISION EXPERIENCE:** implementation `f0f50d97b2e77e415b33d268234ae6d4d88883ae`; guard `5e3f84e607744844a68d37db707ee252061cf832`.
+- **EXECUTIVE COMMAND CENTER:** implementation `95614f98043a3f3d00f49f92e80693378c06f6`; guard/current head `19efa63103657e60c973ec2d4449d74e05e73025`.
+- **DONE:** empty states in both decision surfaces now route to existing canonical next actions; no synthetic fallback was introduced.
+- **EXACT SOURCE VERIFICATION:** current GitHub source was re-read after the changes; compare from `4995f5eb...` to `19efa631...` contains only the decision/command-center UI, their UI contract guard, and the already-bound wave-47 governance write-backs.
+- **CURRENT BUILD/DEPLOY BOUNDARY:** exact-head combined status is Vercel `failure` (`build-rate-limit`) plus Vercel Deployments `pending`; `fetch_commit_workflow_runs` exposes no workflow run for this main SHA.
+- **NEXT EXECUTABLE ACTION:** first fresh exact-head CI/build/Phase-F/browser/certification evidence for `19efa631...`; repair only a failure reproduced on this SHA. If free-plan hosting remains blocked, continue only a materially justified canonical product closure, then return to backup/RPO-RTO → worker/server-boundary → tenant A/B → server OCR → watched-folder → final certification.
+- **DO NOT REPEAT:** do not transfer older READY deployments; do not recreate import routes or decision paths; do not count source inspection as runtime PASS; do not manufacture empty-state data.
+
 ## CURRENT EXECUTION BOUNDARY — 2026-09-21 / WAVE 47 — WORK CENTER ACTIONABLE EMPTY STATES
 
 > Exact-head evidence only. No older deployment/runtime result is transferred.
