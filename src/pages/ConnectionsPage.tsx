@@ -29,7 +29,7 @@ export function ConnectionsPage() {
     : 'Connect a store, file, or system, then let one governed chain turn source data into provable truth and executable decisions.';
 
   return (
-    <div dir={ar ? 'rtl' : 'ltr'} className="space-y-6 animate-fade-in">
+    <div dir={ar ? 'rtl' : 'ltr'} className="ag-connections-surface space-y-6 animate-fade-in">
       <section className="ag-connection-hero overflow-hidden rounded-[2rem] bg-ink-950 p-6 text-white shadow-elevated lg:p-8">
         <div className="grid gap-7 lg:grid-cols-[1.15fr_.85fr] lg:items-center">
           <div>

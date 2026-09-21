@@ -26,7 +26,7 @@ const reportCards = [
 ];
 
 export function ReportsCenterPage() {
-  return <div dir="rtl" className="space-y-5 animate-fade-in pb-10">
+  return <div dir="rtl" className="ag-reports-center-surface space-y-5 animate-fade-in pb-10">
     <PageHeader title="مركز التقارير" subtitle="منظومة التقارير التنفيذية: كل رقم يعود إلى مصدره، وكل تفسير يبقى منفصلًا عن حقيقة البيانات."/>
     <section className="ag-report-hero rounded-[18px] border border-ink-200 bg-white p-5 shadow-card lg:p-6">
       <div className="grid gap-6 lg:grid-cols-[1.4fr_.6fr] items-end">

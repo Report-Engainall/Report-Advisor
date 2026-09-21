@@ -218,3 +218,25 @@ button,input,textarea,select{font:inherit}
   .ag-data-quality-surface .ag-data-quality-issues{border-color:#cfe2dd;box-shadow:0 14px 30px -26px rgba(5,46,43,.44);overflow:hidden}
   .ag-data-quality-surface .ag-data-quality-issues>header{background:linear-gradient(135deg,#fbfefd,#f2f9f7)}
 }
+
+@layer components{
+  /* VALUE-FIRST SURFACES — reports / decisions / trust / entities / connections / import */
+  .ag-reports-center-surface>.ag-report-hero{border-color:#cfe2dd!important;background:radial-gradient(circle at 88% 14%,rgba(45,169,153,.10),transparent 19rem),linear-gradient(145deg,#fff,#f3faf7 72%,#fff9ec);box-shadow:0 18px 38px -30px rgba(5,46,43,.52)}
+  .ag-reports-center-surface .ag-report-card{border-color:#cfe2dd!important;background:linear-gradient(145deg,#fff,#f6fbf9);box-shadow:0 12px 28px -26px rgba(5,46,43,.44)!important;position:relative;overflow:hidden}
+  .ag-reports-center-surface .ag-report-card::after{content:"";position:absolute;inset-inline-start:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,#129b88,#e7b52b);opacity:.7}
+  .ag-reports-center-surface .ag-report-card:hover{border-color:#8fc5bb!important;box-shadow:0 20px 38px -28px rgba(5,46,43,.5)!important}
+  .ag-reports-center-surface .card{border-color:#cfe2dd;box-shadow:0 10px 26px -25px rgba(5,46,43,.4)}
+
+  .ag-decision-experience-surface .stage-pill{border-color:#cfe2dd;background:linear-gradient(145deg,#fff,#f6fbf9);min-height:72px}.ag-decision-experience-surface .stage-pill-active{border-color:#84bdb3!important;box-shadow:inset 3px 0 0 #e7b52b,0 10px 24px -22px rgba(5,46,43,.5);background:linear-gradient(145deg,#eef9f6,#fffdf5)!important}.ag-decision-experience-surface>.grid .card{border-color:#cfe2dd;box-shadow:0 12px 30px -27px rgba(5,46,43,.45)}.ag-decision-experience-surface article,.ag-decision-experience-surface .rounded-\[14px\]{transition:border-color .16s ease,box-shadow .16s ease}.ag-decision-experience-surface article:hover{border-color:#8fc5bb;box-shadow:0 14px 28px -25px rgba(5,46,43,.42)}
+
+  .ag-trust-evidence-surface>.ag-command-hero{box-shadow:0 24px 54px -34px rgba(0,0,0,.48)}.ag-trust-evidence-surface .ag-dashboard-module{border-color:#cfe2dd;background:linear-gradient(145deg,#fff,#f6fbf9);box-shadow:0 12px 28px -26px rgba(5,46,43,.44)}.ag-trust-evidence-surface .card{border-color:#cfe2dd;box-shadow:0 10px 26px -24px rgba(5,46,43,.4)}.ag-trust-evidence-surface .card-header{background:linear-gradient(135deg,#fbfefd,#f2f9f7)}
+  .ag-trust-evidence-surface .card .rounded-xl{transition:border-color .16s ease,transform .16s ease,background .16s ease}.ag-trust-evidence-surface .card .rounded-xl:hover{border-color:#b5d5ce;transform:translateY(-1px)}
+
+  .ag-connections-surface .ag-connection-card{position:relative;overflow:hidden}.ag-connections-surface .ag-connection-card::after{content:"";position:absolute;inset-inline-start:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,#129b88,#e7b52b);opacity:.55}.ag-connections-surface .ag-connection-card:hover::after{opacity:1}.ag-connections-surface .rounded-3xl:not(.ag-connection-card){border-color:#cfe2dd}.ag-connections-surface .ag-connection-hero{box-shadow:0 24px 54px -34px rgba(5,46,43,.66)}
+
+  .ag-entity-page-surface>.ag-page-header{background:linear-gradient(135deg,#fff,#f3faf7 72%,#fff9ec);box-shadow:0 14px 32px -28px rgba(5,46,43,.46)}.ag-entity-page-surface .ag-entity-toolbar{box-shadow:0 14px 30px -28px rgba(5,46,43,.45)}.ag-entity-page-surface .card:has(.ag-entity-drawer){overflow:hidden}.ag-entity-page-surface .data-table-shell,.ag-entity-page-surface .card{border-color:#cfe2dd;box-shadow:0 12px 28px -26px rgba(5,46,43,.42)}.ag-entity-page-surface .data-table-shell tbody tr{transition:background-color .12s ease}.ag-entity-page-surface .data-table-shell tbody tr:hover{background:#eef8f5!important}
+  .ag-entity-page-surface .btn-primary{box-shadow:0 8px 18px -14px rgba(5,46,43,.55)}.ag-entity-page-surface .ag-entity-note{background:linear-gradient(145deg,#f8fcfb,#fff)!important}
+
+  .ag-import-value-header{background:radial-gradient(circle at 86% 16%,rgba(45,169,153,.08),transparent 18rem),linear-gradient(145deg,#fff,#f3faf7 72%,#fff9ec)}.ag-import-value-rail{box-shadow:0 18px 40px -32px rgba(5,46,43,.5)}.ag-import-value-rail .border-b{border-color:#dfeae6}.ag-import-batch-surface>.rounded-2xl,.ag-import-batch-surface>div{border-color:#cfe2dd!important}
+}
+@media(max-width:640px){.ag-reports-center-surface .ag-report-card,.ag-decision-experience-surface .stage-pill{min-height:auto}.ag-import-value-header{border-radius:14px}.ag-entity-page-surface .ag-entity-toolbar{border-radius:12px}}

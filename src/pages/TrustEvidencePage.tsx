@@ -36,7 +36,7 @@ const evidenceSurfaces = [
   if (!snapshot && !error) return <LoadingState message="جارٍ قراءة حالة الثقة من المصدر..." />;
   if (error) return <ErrorState message={error} onRetry={() => window.location.reload()} />;
 
-  return <div dir="rtl" className="space-y-6 animate-fade-in pb-10">
+  return <div dir="rtl" className="ag-trust-evidence-surface space-y-6 animate-fade-in pb-10">
     <PageHeader title="مركز الثقة والأدلة" subtitle="طبقة واحدة لفهم مصدر الرقم، حالته، حدوده، وما إذا كان صالحًا للاستخدام في قرار." />
     <section className="ag-command-hero overflow-hidden rounded-[1.75rem] p-6 text-white lg:p-8">
       <div className="max-w-4xl">

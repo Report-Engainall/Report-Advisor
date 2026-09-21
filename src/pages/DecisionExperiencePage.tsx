@@ -130,7 +130,7 @@ export function DecisionExperiencePage() {
   if (error) return <ErrorState message={error} onRetry={() => void load()} />;
 
   return (
-    <div dir="rtl" className="space-y-5 animate-fade-in pb-10">
+    <div dir="rtl" className="ag-decision-experience-surface space-y-5 animate-fade-in pb-10">
       <section className="ag-command-hero rounded-[20px] border border-ink-200 bg-ink-950 p-5 text-white shadow-elevated lg:p-6">
         <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
           <div className="max-w-3xl">
