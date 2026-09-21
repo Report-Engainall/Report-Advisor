@@ -96,6 +96,28 @@ if (!/IMPORT_DURABLE_JOB_ALREADY_RUNNING/.test(adapter)) {
 const serverAdapterPath = path.join(root, 'netlify', 'functions', 'canonical-import-execute.mts');
 if (!fs.existsSync(serverAdapterPath)) throw new Error('Canonical durable import server boundary is missing');
 const serverAdapter = fs.readFileSync(serverAdapterPath, 'utf8');
+if (!/parseFile\(bytes\.buffer, fileRecord\.file_name/.test(serverAdapter)) {
+  throw new Error('Canonical server boundary must re-extract rows from the authoritative source bytes');
+}
+if (!/reconcileForCanonical\(/.test(serverAdapter)) {
+  throw new Error('Canonical server boundary must reconcile authoritative source rows before durable execution');
+}
+if (!/authoritativeQualityScore/.test(serverAdapter) || !/authoritativeQualityScore < 50/.test(serverAdapter) || !/authoritativeQualityScore < 75/.test(serverAdapter)) {
+  throw new Error('Canonical server boundary must enforce authoritative quality gates');
+}
+if (!/qualityApproved/.test(serverAdapter)) {
+  throw new Error('Canonical import quality approval must cross the server boundary');
+}
+if (!/authoritativeRowCount/.test(serverAdapter) || !/authoritativePreview/.test(serverAdapter)) {
+  throw new Error('Canonical server boundary must return authoritative parse evidence for persistence');
+}
+if (!/const dbBlock =/i.test('noop')) {
+  // marker kept intentionally unreachable; avoids accidental future broad replacements
+}
+if (serverAdapter.indexOf('const verifiedMetadata =') > serverAdapter.indexOf('const authoritativeDatasets =')) {
+  throw new Error('Source must not be marked ready before authoritative parsing');
+}
+
 for (const token of [
   "request.method !== 'POST'",
   "env('SUPABASE_SERVICE_ROLE_KEY')",
