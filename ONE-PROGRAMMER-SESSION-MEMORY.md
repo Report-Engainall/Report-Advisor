@@ -1,3 +1,18 @@
+## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-30
+- SESSION-ID → `2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-30`
+- BRANCH → `main`
+- EXACT PRODUCT CODE HEAD BEFORE DOCUMENTATION → `369fa466dee576c64ff82c7f61fddaf3ca389daa`
+- DONE → fixed a current-head Analytics compile/import defect in wave 29 and re-read the exact file.
+- DONE → hardened `src/pages/ConnectionsPage.tsx`: watched-folder and scanned-PDF paths are no longer presented as proven runtime capabilities; their operational limits are visible, and the secondary hero action now goes to Trust/Evidence instead of a demo surface.
+- DONE → hardened `src/pages/IntelligencePage.tsx`: recommendation accept/reject actions now use an explicit in-flight guard, disable duplicate clicks, show a saving state, and surface write failures without changing the existing recommendation mutation path.
+- VERIFICATION → exact Connections and Intelligence files were re-read after writes. Current main code head is confirmed as `369fa466dee576c64ff82c7f61fddaf3ca389daa`.
+- DEPLOYMENT BOUNDARY → current-head Vercel context remains externally blocked by the free-plan `build-rate-limit`; no current-head Build/E2E/Runtime PASS is claimed. PC01 is still offline.
+- LIVE STAGING → last verified worker state remains `expired_active_leases=0`, `queued_jobs=563`, `dead_letter_jobs=7`; `backup_verification_runs=0`.
+- PRECISE STOP POINT → two additional UI/product hardening waves completed without adding a new route, importer, RPC, runner, job family, calculation engine, tenant/RLS path, or fake evidence.
+- NEXT ACTION → continue with the next weak canonical surface or independent cloud-safe contract closure; when an executable environment is available, run exact-head build/deployment/browser evidence before final certification.
+- DO NOT REPEAT → do not restore overstated connector availability, demo-first surfaces, duplicate recommendation writes, specialized import UX, or old PASS evidence.
+- CURRENT RESUME POINTER → `369fa466dee576c64ff82c7f61fddaf3ca389daa` → next weak canonical surface / cloud-safe closure → exact-head build/deploy/browser → Phase-F/backup/OCR → tenant A/B/watched folder → final certification.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-29
 - SESSION-ID → `2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-29`
 - BRANCH → `main`
