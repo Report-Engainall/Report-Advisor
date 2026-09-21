@@ -1,4 +1,3 @@
-import { supabase } from '../supabase';
 import { normalizeColumnName } from './normalizer';
 import type { SynonymEntry } from './types';
 
@@ -17,7 +16,7 @@ const BUILTIN_SYNONYMS: Array<[string, string, number]> = [
 ];
 
 function createBuiltinMap(): Map<string, { canonical: string; confidence: number }> { const map = new Map<string, { canonical: string; confidence: number }>(); for (const [synonym, canonical, confidence] of BUILTIN_SYNONYMS) map.set(normalizeColumnName(synonym), { canonical, confidence }); return map; }
-export async function loadSynonyms(): Promise<Map<string, { canonical: string; confidence: number }>> { if (synonymCache) return synonymCache; const map = createBuiltinMap(); const { data, error } = await supabase.from('synonym_dictionary').select('*').eq('is_active', true); if (!error && data) for (const entry of data as SynonymEntry[]) { const key = normalizeColumnName(entry.synonym); const existing = map.get(key); if (!existing || entry.confidence > existing.confidence) map.set(key, { canonical: entry.canonical_field, confidence: entry.confidence }); } synonymCache = map; return map; }
+export async function loadSynonyms(): Promise<Map<string, { canonical: string; confidence: number }>> { if (synonymCache) return synonymCache; const map = createBuiltinMap(); if (typeof window !== 'undefined') { const { supabase } = await import('../supabase'); const { data, error } = await supabase.from('synonym_dictionary').select('*').eq('is_active', true); if (!error && data) for (const entry of data as SynonymEntry[]) { const key = normalizeColumnName(entry.synonym); const existing = map.get(key); if (!existing || entry.confidence > existing.confidence) map.set(key, { canonical: entry.canonical_field, confidence: entry.confidence }); } } synonymCache = map; return map; }
 export function clearSynonymCache(): void { synonymCache = null; }
 export interface ColumnMapping { sourceColumn: string; mappedField: string | null; confidence: number; requiresReview: boolean; }
 export async function mapColumns(sourceColumns: string[]): Promise<ColumnMapping[]> { const synonyms = await loadSynonyms(); return sourceColumns.map(col => { const normalized = normalizeColumnName(col); const match = synonyms.get(normalized); if (match) return { sourceColumn: col, mappedField: match.canonical, confidence: match.confidence, requiresReview: match.confidence < 80 }; const partialMatch = findPartialMatch(normalized, synonyms); return partialMatch ? { sourceColumn: col, mappedField: partialMatch.canonical, confidence: partialMatch.confidence, requiresReview: true } : { sourceColumn: col, mappedField: null, confidence: 0, requiresReview: true }; }); }
