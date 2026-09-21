@@ -1,3 +1,20 @@
+## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-54
+
+- SESSION-ID → `2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-54`
+- SHA → `2c9b4756b43e2415fda8b37ea367d02c8570c22f` (exact current code/schema head before this governance write-back).
+- DONE → bound Phase-F live health verification to exact deployment identity: `EXACT_HEAD` must equal runtime `deployment_sha`, and `deployment_id` must be present.
+- DONE → applied the existing repository security hardening migration `20260830061000_close_public_rpc_advisor_gaps` to staging; live record is version `20260921182639`.
+- DONE → verified `get_data_quality_snapshot()` is SECURITY INVOKER and `record_watched_report_file(...)` is no longer executable by authenticated/anon roles on staging.
+- DONE → added and applied six FK-covering indexes for `import_field_lineage` / `import_job_rows`; live migration version is `20260921182858`, matching GitHub migration file `20260921182858_20260921183000_import_fk_performance_indexes.sql`.
+- ACTUAL RESULT → Supabase performance advisor no longer reports the prior `unindexed_foreign_keys` findings for this import lineage path. Remaining unused-index findings are informational and were not deleted.
+- ACTUAL RESULT → staging currently reports 103/103 public tables with RLS enabled; security advisor is 46 authenticated SECURITY DEFINER findings + one leaked-password-protection warning after the targeted closure.
+- ACTUAL RESULT → current-head Vercel remains fail-closed (`failure` / `build-rate-limit`, deployment pending). No build/browser/runtime PASS is claimed.
+- PRECISE STOP POINT → Phase-F exact-SHA guard, live security drift closure and import FK performance closure are all implemented and verified at source/live-DB boundaries.
+- WHAT REMAINS → fresh exact-head CI/Phase-F/browser certification; then backup/RPO-RTO restore proof, worker/server-boundary runtime, tenant A/B, server OCR authority, watched-folder runtime and final certification.
+- NEXT ACTION → obtain the first exact-head runtime result for `2c9b4756...`; the current Phase-F probe must reject any stale deployment alias, then continue the remaining resilience/tenant/OCR/watched-folder gates.
+- DO NOT REPEAT → do not transfer stale READY evidence, do not weaken deployment identity checks, do not blanket-revoke SECURITY DEFINER functions, do not delete unused indexes without evidence.
+- CURRENT RESUME POINTER → `2c9b4756b43e2415fda8b37ea367d02c8570c22f` → fresh exact-head CI/Phase-F/browser → repair current-SHA failure only → backup/RPO-RTO → worker/server-boundary → tenant A/B → server OCR → watched-folder → final certification.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-53
 
 - SESSION-ID → `2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-53`
