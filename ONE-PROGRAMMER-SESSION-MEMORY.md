@@ -1,3 +1,22 @@
+## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-CONTINUOUS-DEVELOPMENT-24
+- SESSION-ID → `2026-09-21-AGHBARI-CONTINUOUS-DEVELOPMENT-24`
+- REPOSITORY HEAD BEFORE MEMORY WRITE-BACK → `b8779cda8acaa1713216860d2695e49c7da927b9`
+- LATEST CODE HEAD → `a5da0df9f675010cd8f324786ea495ddeae32c07`
+- EXECUTION MODE LOCK → every new programmer startup must produce real development progress; do not only report, summarize, or repeat closed work.
+- DONE → repaired and materially polished `src/pages/IntelligencePages.tsx`: removed Arabic mojibake, clarified recommendation status/priority/confidence, exposed source/impact state, strengthened evidence→decision transitions, and added a higher-value executive summary strip. Forecasts now expose actual record/company coverage, quality metadata, latest period and explicit forecast-vs-truth framing.
+- DONE → repaired `src/pages/WorkCenterPage.tsx` so the user no longer sees internal `entity_type` / importer taxonomy. The operational queue now exposes source, source format, canonical state, progress, accepted data and exceptions.
+- DONE → refreshed `docs/MASTER_PRODUCT_REFERENCE.md` with the latest exact product code head and deployment/runtime priority.
+- DONE → refreshed `docs/MASTER_EXECUTION_INDEX.md` with the exact current-code state, two-file UI diff boundary, deployment blocker and next executable action.
+- PRODUCT RULE → source-first/general import remains binding. No fixed entity names may leak back into import UX, Work Center, history, product identity, import routes or importer choices.
+- ARCHITECTURE RESULT → no new route, RPC, runner, job family, calculation logic, tenant/RLS path or import lifecycle was introduced in this wave.
+- EXACT DIFF RESULT → from code head `895690b44...` to `a5da0df9...` the two substantive product files changed are `src/pages/IntelligencePages.tsx` and `src/pages/WorkCenterPage.tsx`; documentation then recorded the state.
+- DEPLOYMENT RESULT → Vercel exact-head status for `a5da0df9...` shows free-plan `build-rate-limit` failure and a pending deployment context. No READY/PASS is claimed for the current head.
+- RUNTIME RESULT → no authenticated browser/runtime PASS was claimed; PC01 remains Offline and no fake session/JWT/bypass was used.
+- PRECISE STOP POINT → continuous development wave is complete at code head `a5da0df9...`; repository documentation is recorded at `b8779cda...`; exact-head hosting/runtime proof remains open.
+- NEXT EXECUTABLE ACTION → continue independent high-value product development on remaining weak canonical surfaces, while pursuing exact-head deployment/runtime proof whenever a free hosting path permits it. Do not let the hosting blocker stop UI/product consolidation that can be proven safely in GitHub.
+- DO NOT REPEAT → no entity picker, no domain cards, no specialized import UX, no internal importer taxonomy exposed in operations, no duplicate RPC/runner, no stale PASS transfer, no fake authenticated evidence.
+- CURRENT RESUME POINTER → `b8779cda8acaa1713216860d2695e49c7da927b9` / code head `a5da0df9f675010cd8f324786ea495ddeae32c07` → next weak canonical surface → responsive/accessibility/value polish → exact-head deployment/runtime proof → resilience/backup/OCR/CI → final certification.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-SOURCE-FIRST-23
 - SESSION-ID → `2026-09-21-AGHBARI-SOURCE-FIRST-23`
 - EXACT REPOSITORY HEAD BEFORE THIS WRITE-BACK → `9684bbc7c95ee3ab5b06f64bce481e55de529b60`
