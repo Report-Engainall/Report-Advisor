@@ -1,43 +1,51 @@
+## CURRENT PROJECT STATE — 2026-09-21 / LIVE SECURITY RUNTIME HARDENING
+
+> Exact-head evidence only. The active candidate includes the migration that hardens both live `import_commit_batch` SECURITY DEFINER overloads.
+
+- **CURRENT CODE/TEST CANDIDATE:** `c5587c5fc03d924f114f17c863aba49822af55af`.
+- **CURRENT_CODE_TEST_CANDIDATE:** `c5587c5fc03d924f114f17c863aba49822af55af`.
+- **DONE:** staging runtime now reports `search_path=pg_catalog` for both 5-argument and 6-argument `import_commit_batch` overloads, with `statement_timeout=30s`.
+- **DO NOT REPEAT:** do not claim the security fix from repository text alone; the live staging function state has now been verified separately.
 ## CURRENT PROJECT STATE — 2026-09-21 / SECURITY-DEFINER SEARCH_PATH HARDENING
 
 > Exact-head evidence only. The active candidate includes the generic import SECURITY DEFINER hardening across all three current-main import_commit_batch migrations.
 
-- **CURRENT CODE/TEST CANDIDATE:** `b54a69821562043fb40c097195bb446574a55500`.
-- **CURRENT_CODE_TEST_CANDIDATE:** `b54a69821562043fb40c097195bb446574a55500`.
+- **CURRENT CODE/TEST CANDIDATE:** `c5587c5fc03d924f114f17c863aba49822af55af`.
+- **CURRENT_CODE_TEST_CANDIDATE:** `c5587c5fc03d924f114f17c863aba49822af55af`.
 - **DONE:** generic `import_commit_batch` migration definitions now pin `search_path` to `pg_catalog` instead of the unfixed empty path.
 - **DO NOT REPEAT:** do not weaken SECURITY DEFINER search_path rules; validate the migration chain and live function security contract on the exact candidate.
 ## CURRENT PROJECT STATE — 2026-09-21 / INVENTORY NAVIGATION SOURCE-OF-TRUTH ALIGNMENT
 
 > Exact-head evidence only. Inventory Intelligence UI verification now reads the canonical navigation registry instead of coupling to Sidebar implementation text.
 
-- **CURRENT CODE/TEST CANDIDATE:** `b54a69821562043fb40c097195bb446574a55500`.
-- **CURRENT_CODE_TEST_CANDIDATE:** `b54a69821562043fb40c097195bb446574a55500`.
+- **CURRENT CODE/TEST CANDIDATE:** `c5587c5fc03d924f114f17c863aba49822af55af`.
+- **CURRENT_CODE_TEST_CANDIDATE:** `c5587c5fc03d924f114f17c863aba49822af55af`.
 - **DONE:** `check-inventory-intelligence-ui.mjs` now validates the canonical `navigation-registry.ts` entry for `ذكاء المخزون`.
 - **DO NOT REPEAT:** do not make certification depend on rendered Sidebar text when navigation-registry is the product source of truth.
 ## CURRENT PROJECT STATE — 2026-09-21 / INVENTORY INTELLIGENCE UI CONTRACT ALIGNMENT
 
 > Exact-head evidence only. The active candidate includes the current navigation label contract; no legacy sidebar item is being restored.
 
-- **CURRENT CODE/TEST CANDIDATE:** `b54a69821562043fb40c097195bb446574a55500`.
-- **CURRENT_CODE_TEST_CANDIDATE:** `b54a69821562043fb40c097195bb446574a55500`.
+- **CURRENT CODE/TEST CANDIDATE:** `c5587c5fc03d924f114f17c863aba49822af55af`.
+- **CURRENT_CODE_TEST_CANDIDATE:** `c5587c5fc03d924f114f17c863aba49822af55af`.
 - **DONE:** inventory-intelligence UI guard now matches the canonical navigation registry label `ذكاء المخزون`.
 - **DO NOT REPEAT:** do not restore the retired `ذكاء المخزون والمجموعات` navigation label solely for test compatibility.
 ## CURRENT PROJECT STATE — 2026-09-21 / IMPORT UI CONTRACT ALIGNMENT
 
 > Exact-head evidence only. The active candidate includes the unified importer UI contract repair; the product architecture remains one source-first import surface.
 
-- **CURRENT CODE/TEST CANDIDATE:** `b54a69821562043fb40c097195bb446574a55500`.
-- **CURRENT_CODE_TEST_CANDIDATE:** `b54a69821562043fb40c097195bb446574a55500`.
-- **CURRENT REPOSITORY HEAD:** `b54a69821562043fb40c097195bb446574a55500` before this governance-only rebind.
+- **CURRENT CODE/TEST CANDIDATE:** `c5587c5fc03d924f114f17c863aba49822af55af`.
+- **CURRENT_CODE_TEST_CANDIDATE:** `c5587c5fc03d924f114f17c863aba49822af55af`.
+- **CURRENT REPOSITORY HEAD:** `c5587c5fc03d924f114f17c863aba49822af55af` before this governance-only rebind.
 - **DONE:** import product contract now asserts the current `مركز المصادر` / `اعتماد المصدر` / duplicate-protection language and no longer depends on retired specialized labels.
 - **DO NOT REPEAT:** do not reintroduce fixed entity selectors or legacy folder-import wording to satisfy a test.
 ## CURRENT PROJECT STATE — 2026-09-21 / UNIFIED BUSINESS E2E CONTRACT REBIND
 
 > Exact-head evidence only. The active candidate is the unified source-first business E2E contract repair; older candidate markers remain historical and are not evidence.
 
-- **CURRENT CODE/TEST CANDIDATE:** `b54a69821562043fb40c097195bb446574a55500`.
-- **CURRENT_CODE_TEST_CANDIDATE:** `b54a69821562043fb40c097195bb446574a55500`.
-- **CURRENT REPOSITORY HEAD:** `b54a69821562043fb40c097195bb446574a55500` before this governance-only rebind.
+- **CURRENT CODE/TEST CANDIDATE:** `c5587c5fc03d924f114f17c863aba49822af55af`.
+- **CURRENT_CODE_TEST_CANDIDATE:** `c5587c5fc03d924f114f17c863aba49822af55af`.
+- **CURRENT REPOSITORY HEAD:** `c5587c5fc03d924f114f17c863aba49822af55af` before this governance-only rebind.
 - **DONE:** `real-business-e2e.mjs` now exercises one unified `/import` source entry, generic canonical commit persistence, provenance, and tenant-A/B isolation; it no longer requires retired entity-selector controls.
 - **DO NOT REPEAT:** do not restore per-entity import buttons/selectors merely to satisfy tests.
 
@@ -45,20 +53,20 @@
 
 > Exact-head evidence only. The active certification candidate is the current unified-import contract repair; older candidate markers below are historical.
 
-- **CURRENT CODE/TEST CANDIDATE:** `b54a69821562043fb40c097195bb446574a55500`.
-- **CURRENT_CODE_TEST_CANDIDATE:** `b54a69821562043fb40c097195bb446574a55500`.
-- **CURRENT REPOSITORY HEAD:** `b54a69821562043fb40c097195bb446574a55500` (governance-only descendant of the candidate).
+- **CURRENT CODE/TEST CANDIDATE:** `c5587c5fc03d924f114f17c863aba49822af55af`.
+- **CURRENT_CODE_TEST_CANDIDATE:** `c5587c5fc03d924f114f17c863aba49822af55af`.
+- **CURRENT REPOSITORY HEAD:** `c5587c5fc03d924f114f17c863aba49822af55af` (governance-only descendant of the candidate).
 - **CERTIFICATION BOUNDARY:** candidate `72e8182...` plus governance-only descendants are permitted; no source/code changes may be smuggled through documentation.
 
 ## LATEST EXECUTION BOUNDARY — 2026-09-21 / UNIFIED IMPORT CONTRACT REPAIR
 
 > Exact-head evidence only. The repository now reflects the current unified source-first importer architecture; the retired specialized folder importer is not restored.
 
-- **CURRENT REPOSITORY HEAD:** `b54a69821562043fb40c097195bb446574a55500` on `main`.
-- **CURRENT_CODE_TEST_CANDIDATE:** `b54a69821562043fb40c097195bb446574a55500`.
+- **CURRENT REPOSITORY HEAD:** `c5587c5fc03d924f114f17c863aba49822af55af` on `main`.
+- **CURRENT_CODE_TEST_CANDIDATE:** `c5587c5fc03d924f114f17c863aba49822af55af`.
 - **LATEST PRODUCT UI CODE COMMIT:** `b397204051d19c0107112c9b2ea389a9ac6a428c`.
 - **LATEST UI CONTRACT TEST COMMIT:** `3b10164c8bce6b1f7b17af9ac7e0e71ade4cc505`.
-- **LATEST CERTIFICATION/GATE REPAIR:** `b54a69821562043fb40c097195bb446574a55500`.
+- **LATEST CERTIFICATION/GATE REPAIR:** `c5587c5fc03d924f114f17c863aba49822af55af`.
 - **DONE:** `check-master-requirements-contract.mjs` no longer requires the removed `FolderBatchImportPanel.tsx`.
 - **DONE:** `check-final-execution-batch.mjs` no longer requires the removed `check-folder-batch-import.mjs` gate.
 - **ARCHITECTURE:** `/import` remains one source-first canonical importer; fixed entity targets and the retired folder importer remain forbidden.
