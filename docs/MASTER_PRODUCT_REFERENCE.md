@@ -183,6 +183,20 @@ Before deletion, inspect references/dependencies and preserve any required capab
 
 هذه المبادرة **مقيدة بالقيمة وليست تفويضًا للزحام أو اختراع وظائف**: يُنفذ العنصر فقط إذا أضاف قيمة واضحة مثل فهم أسرع، قرار أسرع، عمل أسرع، دليل أوضح، اكتشاف فرصة/مشكلة، خطوات أقل، ثقة أعلى، أو قيمة مدركة أعلى. ويجب أن يبقى متسقًا مع الـIA، الهوية البصرية، المسارات الحقيقية، حالات الثقة، deterministic calculations، fail-closed، tenant/RLS، والأداء والاستجابة. لا يجوز أن تتحول المبادرة إلى taxonomy جديدة أو backend path جديد لمجرد خدمة الواجهة.
 
+### MANDATORY PROGRESSIVE DISCLOSURE — BUSINESS-FIRST NAVIGATION
+
+قوة المنتج لا تُقاس بعدد العناصر الظاهرة في الـSidebar. **الواجهة الأساسية يجب أن تبقى موجهة لرجل الأعمال، لا لكتالوج قدرات تقني.**
+
+قاعدة العرض:
+- تبقى المناطق الثمانية ثابتة وواضحة.
+- تظهر في المستوى الأول الوظائف الأكثر استخدامًا واتخاذًا للقرار فقط.
+- القدرات المتقدمة التي يمكن أن تشتت المستخدم تُكتشف داخل الـHub أو عبر فتح القسم، ويمكن إظهارها في الـSidebar فقط عند وضع **Advanced/Expert**.
+- لا تتحول كل KPI أو تقنية تحليل أو طبقة ثقة إلى عنصر Navigation مستقل لمجرد أنها موجودة في المنتج.
+- يجب أن تكشف الواجهة العمق تدريجيًا: **Overview → Hub → Advanced Surface → Evidence/Detail**.
+- كل سطح جديد يجب أن يكون مكتمل القيمة وقابلًا للوصول، لكن دون التضحية بالوضوح أو التسلسل البصري.
+
+الهدف: **إظهار قوة العمل المتراكم عبر الشهور دون إغراق رجل الأعمال في التفاصيل من أول نظرة.**
+
 ### Visual-first execution priority
 
 For the next major product-development wave, the first priority is **complete visual coverage of the entire canonical product surface** using the shared design system and real application paths.
