@@ -47,6 +47,7 @@ export function IntelligenceCenterPage() {
   const [forecasts, setForecasts] = useState<Forecast[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [decisionId, setDecisionId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(async (silent = false) => {
@@ -84,6 +85,20 @@ export function IntelligenceCenterPage() {
     () => forecasts.filter((item) => item.entity_type === 'company'),
     [forecasts],
   );
+
+  const decideRecommendation = useCallback(async (recommendationId: string, status: 'accepted' | 'rejected') => {
+    if (decisionId) return;
+    try {
+      setDecisionId(recommendationId);
+      setError(null);
+      await updateRecommendationStatus(recommendationId, status);
+      await load(true);
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : 'تعذر تحديث حالة التوصية.');
+    } finally {
+      setDecisionId(null);
+    }
+  }, [decisionId, load]);
 
   const forecastChartData = useMemo(
     () => companyForecasts.map((forecast) => {
@@ -228,17 +243,19 @@ export function IntelligenceCenterPage() {
                       <div className="mt-3 flex flex-wrap gap-2">
                         <button
                           type="button"
-                          onClick={async () => { await updateRecommendationStatus(recommendation.id, 'accepted'); await load(true); }}
-                          className="btn-primary text-[11px]"
+                          onClick={() => void decideRecommendation(recommendation.id, 'accepted')}
+                          disabled={decisionId !== null}
+                          className="btn-primary text-[11px] disabled:cursor-wait disabled:opacity-60"
                         >
-                          <CheckCircle2 size={13} /> قبول
+                          <CheckCircle2 size={13} /> {decisionId === recommendation.id ? 'جارٍ الحفظ…' : 'قبول'}
                         </button>
                         <button
                           type="button"
-                          onClick={async () => { await updateRecommendationStatus(recommendation.id, 'rejected'); await load(true); }}
-                          className="btn-secondary text-[11px]"
+                          onClick={() => void decideRecommendation(recommendation.id, 'rejected')}
+                          disabled={decisionId !== null}
+                          className="btn-secondary text-[11px] disabled:cursor-wait disabled:opacity-60"
                         >
-                          <XCircle size={13} /> رفض
+                          <XCircle size={13} /> {decisionId === recommendation.id ? 'جارٍ الحفظ…' : 'رفض'}
                         </button>
                         <Link to="/decision-experience?stage=decision" className="btn-ghost text-[11px]">فتح القرار</Link>
                       </div>
