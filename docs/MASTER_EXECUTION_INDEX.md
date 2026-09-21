@@ -3,7 +3,7 @@
 > Exact-head evidence only. No historical production runtime result is transferred.
 
 - CURRENT CERTIFIED MAIN BASELINE: `5367346e2837a06a4d1787bb016399245f213792`.
-- EXACT-HEAD CODE FIX CANDIDATE: `84a62e169ce8db61d2dc6598e654127543ecdabb`.
+- CURRENT CODE/TEST CANDIDATE: `84a62e169ce8db61d2dc6598e654127543ecdabb`.
 - DATABASE FIX VERIFIED: migration `20260921194500_import_history_recent_window_index.sql` was committed and applied to Supabase staging; `idx_import_jobs_company_created_id` exists.
 - EXACT-HEAD BROWSER RESULT: Full Product Browser E2E for `84a62...` completed **SUCCESS**. Build, exact checkout, app start, authenticated E2E contract, full product browser E2E, KPI evidence persistence, and real-business browser evidence completed without failure.
 - ROOT CAUSE CLOSED: the real-business E2E timeout was an import-history scale/performance boundary on a tenant with 4,471 import jobs; the bounded query lacked its matching composite index.
