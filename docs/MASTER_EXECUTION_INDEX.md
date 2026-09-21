@@ -3,8 +3,8 @@
 > Exact-head evidence only. Repository state below is the latest observed state; no older PASS is transferred.
 
 - **CURRENT REPOSITORY HEAD:** `166a8d2ada5368a22fef581932282bf5912cd403` on `main` (this commit is documentation-only after the product/test fixes below).
-- **LATEST PRODUCT UI CODE COMMIT:** `210441941d3732f7a46bc6b57b5b038231017f15`.
-- **LATEST UI CONTRACT TEST COMMIT:** `0a3b701d56412f7e7c4cdc336a3338ea50089a62`.
+- **LATEST PRODUCT UI CODE COMMIT:** `3b10164c8bce6b1f7b17af9ac7e0e71ade4cc505`.
+- **LATEST UI CONTRACT TEST COMMIT:** `3b10164c8bce6b1f7b17af9ac7e0e71ade4cc505`.
 - **DONE:** Trust & Evidence now refreshes in place through the existing authoritative data-quality snapshot; no full-page reload is used for refresh/error retry.
 - **DONE:** Trust & Evidence exposes source record count, total issues and critical-issue pressure and derives a real next action from existing snapshot state; EMPTY now routes to the canonical unified `/import` entry.
 - **DONE:** Added contract assertions preventing regression to reload-based refresh, blank empty state, non-actionable critical issues, or malformed JSX action-label syntax.
@@ -20,7 +20,7 @@
 
 > تحديث تنفيذي بعد أمر المالك «انطلق». هذا القسم يصف الحالة المثبتة من الأدوات فقط. لا يتم نقل Evidence بين SHAs، ولا تُعد الحالة PASS إلا بدليل Exact-HEAD.
 
-- **CURRENT CODE/TEST CANDIDATE:** `e6c39323eb0c0177b1de73c3b276ce9491fd07f0`
+- **CURRENT CODE/TEST CANDIDATE:** `3b10164c8bce6b1f7b17af9ac7e0e71ade4cc505`
 - **CURRENT_REPOSITORY_HEAD:** `943f0619abfddb56daddc83bc500659376655474`
 
 ### CURRENT EXACT HEAD / DEPLOYED STATE
