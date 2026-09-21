@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import type { LucideIcon } from 'lucide-react';
+import { ArrowUpLeft, Upload } from 'lucide-react';
 import { Users, Package, Warehouse, CheckCircle2, AlertTriangle, Database, ShieldCheck, BarChart3, RefreshCw } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { Card, CardHeader, CardBody } from '@/components/ui/Card';
 import { PageHeader, LoadingState, ErrorState, EmptyState } from '@/components/ui/States';
 import { DataTable } from '@/components/ui/DataTable';
@@ -21,8 +23,8 @@ export function DataQualitySnapshotPage() {
   if (loading) return <LoadingState message="جارٍ فحص جودة البيانات..." />;
   if (error) return <ErrorState message={error} onRetry={load} />;
   const totalRecords = entities.reduce((s,e)=>s+e.total,0); const totalIssues = entities.reduce((s,e)=>s+e.issues,0);
-  return <div dir="rtl" className="ag-data-quality-surface space-y-6 animate-fade-in"><PageHeader title="جودة البيانات" subtitle="المؤشرات المحسوبة من المصدر المعتمد على الخادم وبسياق الشركة الحالية" actions={<><span className={snapshotStatus === 'EMPTY' ? 'badge-warning badge' : 'badge-success badge'}>{snapshotStatus === 'EMPTY' ? 'لا توجد بيانات تجارية' : 'لقطة جودة متاحة'}</span><button type="button" onClick={() => void load(true)} disabled={refreshing} className="btn-secondary"><RefreshCw size={15} className={refreshing ? 'animate-spin' : ''}/> تحديث</button></>} />
-    <section className="ag-decision-strip" aria-label="ملخص جودة البيانات">
+  return <div dir="rtl" className="ag-data-quality-surface space-y-6 animate-fade-in"><PageHeader title="جودة البيانات" subtitle="فحص مركزي للحالات التي قد تؤثر في التحليل والقرار، مع إبقاء حالة النقص ظاهرة بدل تحويلها إلى يقين." actions={<><Link to="/import" className="btn-secondary text-[10px]"><Upload size={13}/> استيراد مصدر</Link><span className={snapshotStatus === 'EMPTY' ? 'badge-warning badge' : 'badge-success badge'}>{snapshotStatus === 'EMPTY' ? 'EMPTY — لا توجد قاعدة تجارية' : 'لقطة جودة متاحة'}</span><button type="button" onClick={() => void load(true)} disabled={refreshing} className="btn-primary text-[10px]"><RefreshCw size={13} className={refreshing ? 'animate-spin' : ''}/> تحديث</button></>} />
+    <section className="rounded-2xl border border-primary-200 bg-primary-50/55 p-4" aria-label="قاعدة قراءة جودة البيانات"><div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"><div className="flex items-start gap-3"><div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white text-primary-700 ring-1 ring-inset ring-primary-100"><ShieldCheck size={17}/></div><div><div className="text-xs font-black text-ink-900">قاعدة القراءة</div><p className="mt-1 text-[10px] leading-5 text-ink-500">الدرجة أداة تشخيص مشتقة من السجلات والمشكلات المرصودة في اللقطة الحالية، وليست ثقة مطلقة ولا بديلًا عن الدليل.</p></div></div><Link to="/trust" className="btn-ghost shrink-0 text-[10px]">فحص الثقة والأدلة <ArrowUpLeft size={13}/></Link></div></section><section className="ag-decision-strip" aria-label="ملخص جودة البيانات">
       <div className="ag-decision-cell"><span className="ag-decision-label">الحالة</span><span className="ag-decision-value">{snapshotStatus === 'EMPTY' ? 'EMPTY' : 'AVAILABLE'}</span></div>
       <div className="ag-decision-cell"><span className="ag-decision-label">السجلات</span><span className="ag-decision-value">{formatNumber(entities.reduce((s,e)=>s+e.total,0))}</span></div>
       <div className="ag-decision-cell"><span className="ag-decision-label">المشكلات</span><span className="ag-decision-value">{formatNumber(issues.reduce((s,i)=>s+i.count,0))}</span></div>
