@@ -1214,3 +1214,9 @@ This update records implementation state only; it does not replace the product c
 - The secondary source-center action now routes to Trust/Evidence rather than a demo-first surface.
 - `IntelligencePage` recommendation acceptance/rejection now exposes in-flight state and failure handling without changing the existing canonical mutation path.
 - The product constitution remains unchanged: one source-first import experience, eight top-level zones, progressive disclosure, Aghbari RTL enterprise design, evidence-aware states, and no Bolt/CRUD taxonomy.
+
+
+## IMPLEMENTATION UPDATE — 2026-09-21 / EXECUTIVE REPORT ACCOUNTABILITY WAVE 31
+- Executive reporting now uses existing recommendation records to expose active decision count, accountable-owner coverage, and recorded outcome coverage.
+- Recommendation summaries show real status/owner/expected impact/actual impact result fields.
+- This is a presentation/value improvement only; the canonical product architecture, source-first unified import, evidence states, deterministic calculations, tenant/RLS and backend paths are unchanged.
