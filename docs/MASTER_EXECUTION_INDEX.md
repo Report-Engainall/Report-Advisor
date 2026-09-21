@@ -1,3 +1,22 @@
+## CURRENT EXECUTION BOUNDARY — 2026-09-21 / WAVE 82 — IMPORT HISTORY EVIDENCE CLOSURE
+
+> Exact-head evidence only. No historical runtime result is transferred.
+
+- CURRENT_CODE_TEST_CANDIDATE: `674efd3a5491f4dc5c9733cec698278d880ccf74`.
+- DONE: Unified Import history now surfaces the persisted source-understanding confidence already written by the real import completion path.
+- DONE: Unified Import history now distinguishes whether a persisted evidence snapshot exists; older rows without a snapshot remain explicitly `غير مثبتة` instead of inheriting a positive state.
+- DONE: `ImportRecord` carries these two optional evidence fields without changing the database schema or adding a parallel importer/RPC.
+- DONE: Product WOW contract now guards both the query mapping and the user-facing fail-closed history semantics.
+- EXACT SOURCE VERIFICATION: compare from `1c3742845eaf82e2ba0a936a6ef4edd114233e9d` to `674efd3a5491f4dc5c9733cec698278d880ccf74` is linear, six commits, with the functional delta limited to `src/lib/types.ts`, `src/lib/queries.ts`, `src/pages/CanonicalImportPage.tsx`, and `scripts/check-product-wow-ui-contract.mjs` plus governance write-backs.
+- VERIFIED BLOBS: types `08799d7764f88daecb4069a4fd87f961f1d1dc94`; queries `524960d3f0e8b4fb9ba396cead4b0807c1eca97f`; import UI `822f1e511909e6cd3dad7e9781b202e4d873195b`; contract `01874346ec5f2c96323f202ec4deba7e50310ead`.
+- CURRENT EXTERNAL EVIDENCE: exact-head combined status currently exposes Vercel `failure` due the external free-plan `build-rate-limit`; no CI/runtime PASS is attached to `674efd3...`.
+- AUTHENTICATED BROWSER / NETLIFY: no new exact-head authenticated browser PASS or Netlify READY evidence is claimed for `674efd3...`.
+- PHASE-F / LEGACY RECOVERY: unchanged and fail-closed; no import-job force-close, no invented recovery RPC, no invented Phase-F RPO/RTO.
+- PRECISE STOP POINT: import history evidence is now visible from the already-persisted authoritative completion summary, with missing evidence remaining visibly unverified.
+- NEXT EXECUTABLE ACTION: consume fresh exact-head deployment/CI evidence for `674efd3...`; continue the next independent high-value product surface while preserving exact-SHA evidence boundaries.
+- DO NOT REPEAT: do not transfer prior Netlify READY evidence to `674efd3...`; do not treat history-row presence as proof of an evidence snapshot; do not fabricate confidence for legacy rows; do not create duplicate importer/RPC/runner paths.
+- CURRENT RESUME POINTER: `674efd3a5491f4dc5c9733cec698278d880ccf74` → fresh exact-head deployment/CI evidence → authenticated browser proof → next independent product/UI closure → governed legacy recovery → Phase-F real recovery → final certification.
+
 ## CURRENT EXECUTION BOUNDARY — 2026-09-21 / WAVE 81 — REPORT READINESS INTELLIGENCE
 
 > Exact-head evidence only. No historical runtime result is transferred.
