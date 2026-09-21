@@ -204,7 +204,8 @@ CURRENT RESUME POINTER
 
 ## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-BUSINESS-FIRST-UI-16
 - SESSION-ID → `2026-09-21-AGHBARI-BUSINESS-FIRST-UI-16`
-- EXACT HEAD → `79e9724de640383f67fdad54315b9d6893fb6a72`
+- REPOSITORY HEAD → `9b8d9738cc06f5c2c92d7a8cdc50bc09fdfd5cd6`
+- PRODUCT CODE HEAD → `215f42caca31c318af29cbfd3a2b196891cae07c`
 - BRANCH / PR → `main` / pushed to `origin/main`
 - DONE → ثُبّتت قاعدة Business-First Progressive Disclosure في المرجعين الحاكمين، ثم أُكملت واجهتان كانتا ناقصتين ضمن موضعهما الصحيح: **الموردون** تحت البيانات المرجعية، و**السيولة والتعرض النقدي** داخل التحليل التجاري. أضيفت المسارات إلى الـNavigation Registry بوضع Advanced، وأصبح الوصول إليهما متاحًا داخل الـHubs دون تضخيم المستوى الأول من القائمة. كما أُضيفا إلى عقد Route/Sidebar parity حتى لا تختفيا مستقبلًا.
 - ACTUAL RESULT → الشجرة الأساسية ذات الأقسام الثمانية بقيت كما هي، مع كشف تدريجي للقدرات المتقدمة. واجهة الموردين تقرأ السجل الحقيقي tenant-scoped من جدول `suppliers` وتربطه بسياق المشتريات. واجهة السيولة تستخدم المؤشرات الكانونية الموجودة أصلًا: الذمم، المتأخر، مستحقات الموردين، ومعدل التحصيل، وتحسب صافي التعرض التجاري فقط عند توفر الطرفين، ولا تختلق رصيدًا نقديًا بنكيًا.
@@ -217,4 +218,4 @@ CURRENT RESUME POINTER
 - VERIFIED TESTS / EVIDENCE → static route/navigation parity verified from current GitHub source; supplier schema verified against staging; no fake session/JWT/data/evidence used; no old live PASS transferred.
 - NEXT EXECUTABLE ACTION → obtain fresh Exact-HEAD CI/deployment proof for `79e9724de640383f67fdad54315b9d6893fb6a72`, then perform authenticated visual sweep and continue independent runtime/evidence/CI closure.
 - DO NOT REPEAT → do not recreate the 8-zone navigation, App Shell, Advisor, existing core UI waves, or existing supplier/purchase data path; do not expose advanced capabilities as a cluttered first-level catalog; do not fabricate cash balances; do not transfer deployment/runtime evidence from an older SHA.
-- CURRENT RESUME POINTER → `79e9724de640383f67fdad54315b9d6893fb6a72` → exact-head build/deployment proof → authenticated visual sweep → runtime/evidence/CI closure.
+- CURRENT RESUME POINTER → repository `9b8d9738cc06f5c2c92d7a8cdc50bc09fdfd5cd6` / product `215f42caca31c318af29cbfd3a2b196891cae07c` → exact-head build/deployment proof → authenticated visual sweep → runtime/evidence/CI closure.
