@@ -1,3 +1,15 @@
+## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-57
+
+- SESSION-ID → `2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-57`
+- SHA → `c88abe725b066d8bbeb80de629be6198791d1523` (exact current code/test head before this governance rebind).
+- DONE → repaired the current UI contract guard after Final Certification Gate exposed stale literal matching for the Work Center null-safe `expiredActive` expression.
+- ACTUAL RESULT → only `scripts/check-product-wow-ui-contract.mjs` changed in this correction; no runtime/product architecture changed.
+- ACTUAL RESULT → previous exact-head `88323...` had 20/20 release-readiness PASS and certification boundary PASS; its final certification then stopped on the stale Work Center guard assertion. That failure is now corrected at source.
+- PRECISE STOP POINT → certification is re-triggered on `c88abe...`; no PASS is transferred across the new SHA.
+- WHAT REMAINS → fresh quality/enforcement/final-certification results for `c88abe...`; then backup/RPO-RTO → worker/server-boundary → tenant A/B → server OCR → watched-folder → final certification.
+- NEXT ACTION → consume the first fresh exact-head certification results for `c88abe...`.
+- DO NOT REPEAT → do not revert to the stale guard literal; do not transfer `88323...` final-certification evidence; do not weaken source guards.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-56
 
 - SESSION-ID → `2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-56`
@@ -497,20 +509,3 @@
 - NEXT EXECUTABLE ACTION → continue the next weak canonical surface with real UI/product value, responsive/accessibility polish and consolidation; pursue exact-head deployment/runtime proof when hosting capacity permits.
 - DO NOT REPEAT → do not recreate shell/navigation/import/intelligence/trust structures already improved; do not reintroduce importer taxonomy; do not duplicate backend paths; do not transfer stale PASS evidence.
 - CURRENT RESUME POINTER → `f5ccfaba283bff4ad27406a04942aae57afc3d8c` / code `778a601189077e0bda5b844e6d6a06e35ab7e1e3` → next weak canonical surface → responsive/accessibility/value polish → exact-head deployment/runtime → resilience/backup/OCR/CI → final certification.
-
-## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-CONTINUOUS-DEVELOPMENT-24
-- SESSION-ID → `2026-09-21-AGHBARI-CONTINUOUS-DEVELOPMENT-24`
-- REPOSITORY HEAD BEFORE MEMORY WRITE-BACK → `b8779cda8acaa1713216860d2695e49c7da927b9`
-- LATEST CODE HEAD → `a5da0df9f675010cd8f324786ea495ddeae32c07`
-- EXECUTION MODE LOCK → every new programmer startup must produce real development progress; do not only report, summarize, or repeat closed work.
-- DONE → repaired and materially polished `src/pages/IntelligencePages.tsx`: removed Arabic mojibake, clarified recommendation status/priority/confidence, exposed source/impact state, strengthened evidence→decision transitions, and added a higher-value executive summary strip. Forecasts now expose actual record/company coverage, quality metadata, latest period and explicit forecast-vs-truth framing.
-- DONE → repaired `src/pages/WorkCenterPage.tsx` so the user no longer sees internal `entity_type` / importer taxonomy. The operational queue now exposes source, source format, canonical state, progress, accepted data and exceptions.
-- DONE → refreshed `docs/MASTER_PRODUCT_REFERENCE.md` with the latest exact product code head and deployment/runtime priority.
-- DONE → refreshed `docs/MASTER_EXECUTION_INDEX.md` with the exact current-code state, two-file UI diff boundary, deployment blocker and next executable action.
-- PRODUCT RULE → source-first/general import remains binding. No fixed entity names may leak back into import UX, Work Center, history, product identity, import routes or importer choices.
-- ARCHITECTURE RESULT → no new route, RPC, runner, job family, calculation logic, tenant/RLS path or import lifecycle was introduced in this wave.
-- EXACT DIFF RESULT → from code head `895690b44...` to `a5da0df9...` the two substantive product files changed are `src/pages/IntelligencePages.tsx` and `src/pages/WorkCenterPage.tsx`; documentation then recorded the state.
-- DEPLOYMENT RESULT → Vercel exact-head status for `a5da0df9...` shows free-plan `build-rate-limit` failure and a pending deployment context. No READY/PASS is claimed for the current head.
-- RUNTIME RESULT → no authenticated browser/runtime PASS was claimed; PC01 remains Offline and no fake session/JWT/bypass was used.
-- PRECISE STOP POINT → continuous development wave is complete at code head `a5da0df9...`; repository documentation is recorded at `b8779cda...`; exact-head hosting/runtime proof remains open.
-- NEXT EXECUTABLE ACTION → continue independent high-value product development on remaining weak canonical surfaces, while pursuing exact-head deployment/runtime proof whenever a free hosting path permits it. Do not let the hosting blocker stop UI/product consolidation that can be proven safely in GitHub.
