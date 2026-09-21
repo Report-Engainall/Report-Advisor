@@ -4,13 +4,14 @@ import { Card, CardHeader, CardBody } from '@/components/ui/Card';
 import { Badge, StatusBadge } from '@/components/ui/Badge';
 import { PageHeader, LoadingState, EmptyState } from '@/components/ui/States';
 import { DataTable } from '@/components/ui/DataTable';
-import { fetchImportRecords } from '@/lib/queries';
+import { fetchImportRecords, createImportRecord } from '@/lib/queries';
 import { supabase, resolveCurrentCompanyId } from '@/lib/supabase';
 import { formatDateTime, formatNumber } from '@/lib/format';
 import { detectFormat } from '@/lib/file-engine/detector';
 import { securityScan, computeSHA256, checkDuplicate } from '@/lib/file-engine/security';
 import { parseFile } from '@/lib/file-engine/adapters';
 import { FORMAT_LABELS, MAX_FILE_SIZE, type FileFormat, type Dataset } from '@/lib/file-engine/types';
+import { runCanonicalImportThroughDurableRunner } from '@/lib/import/canonical-production-adapter';
 
 type Step = 'upload' | 'scanning' | 'preview' | 'saving' | 'done';
 interface Row { rowNumber: number; data: Record<string, any>; valid: boolean; error?: string }
@@ -147,19 +148,35 @@ export function CanonicalImportPage() {
     }
   }, []);
 
+  const finishImportJob = async (
+    importJobId: string,
+    status: 'completed' | 'partial' | 'failed' | 'cancelled',
+    resultSummary: Record<string, unknown>,
+    errorMessage?: string,
+  ): Promise<void> => {
+    const { error } = await supabase.rpc('import_finish_job', {
+      p_job_id: importJobId,
+      p_status: status,
+      p_result_summary: resultSummary,
+      p_error_message: errorMessage ?? null,
+    });
+    if (error) throw error;
+  };
+
   const saveAnalysis = useCallback(async () => {
     const validRows = rows.filter(r => r.valid);
     if (detectedDomain === 'unknown') {
-      setError('النطاق الدلالي غير محسوم بعد. راجع المطابقة قبل الحفظ.');
+      setError('النطاق الدلالي غير محسوم بعد. راجع المطابقة قبل الاعتماد.');
       return;
     }
     if (!validRows.length || !file || !fileHash || duplicate || !securityPassed) return;
-    if (quality < 50) { setError('جودة البيانات أقل من 50% — التحليل مرفوض.'); return; }
-    if (quality < 75 && !qualityApproved) { setError('جودة البيانات بين 50% و74% وتتطلب موافقة صريحة قبل الحفظ.'); return; }
+    if (quality < 50) { setError('جودة البيانات أقل من 50% — الاستيراد مرفوض.'); return; }
+    if (quality < 75 && !qualityApproved) { setError('جودة البيانات بين 50% و74% وتتطلب موافقة صريحة قبل الاعتماد.'); return; }
 
     setStep('saving');
-    setProgress(15);
+    setProgress(10);
     setError(null);
+    let importJobId: string | null = null;
 
     try {
       const companyId = await resolveCurrentCompanyId();
@@ -169,25 +186,71 @@ export function CanonicalImportPage() {
 
       const extension = (sourceFile.name.split('.').pop() || 'bin')
         .toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 12) || 'bin';
-      const sourceObjectPath = `${companyId}/analysis/${crypto.randomUUID()}.${extension}`;
+      const sourceObjectPath = `${companyId}/imports/${crypto.randomUUID()}.${extension}`;
 
       const { error: uploadError } = await supabase.storage
         .from('documents')
         .upload(sourceObjectPath, sourceFile, { contentType: file.mime, upsert: false });
       if (uploadError) throw new Error(`SOURCE_UPLOAD_FAILED:${uploadError.message}`);
 
-      setProgress(70);
+      setProgress(30);
+
+      const entityType = `generic:${detectedDomain}`;
+      const rec = await createImportRecord({
+        file_name: file.name,
+        file_size: file.size,
+        source_type: file.format,
+        file_mime: file.mime,
+        source_object_path: sourceObjectPath,
+        status: 'processing',
+        total_rows: rows.length,
+        valid_rows: validRows.length,
+        invalid_rows: rows.length - validRows.length,
+        quarantined_rows: rows.length - validRows.length,
+        entity_type: entityType,
+        progress: 0,
+      });
+      importJobId = rec.id;
+
+      setProgress(45);
+
+      const durableSourceHash = `sha256:${fileHash}`;
+      const reconciled = reconcileForCanonical(
+        entityType,
+        companyId,
+        file.name,
+        durableSourceHash,
+        rec.id,
+        (data, rowNumber) => `${durableSourceHash}:${rowNumber}:${JSON.stringify(data)}`,
+        validRows.map(r => ({ rowNumber: r.rowNumber, data: r.data })),
+      );
+      if (reconciled.rejected.length > 0) {
+        throw new Error(`CANONICAL_RECONCILIATION_REJECTED:${reconciled.rejected.map(r => `${r.rowNumber}:${r.reason}`).join(',')}`);
+      }
+
+      setProgress(60);
+
+      const execution = await runCanonicalImportThroughDurableRunner({
+        importId: rec.id,
+        fileName: file.name,
+        sourceHash: durableSourceHash,
+        entityType,
+        rows: reconciled.rows,
+        qualityScore: quality,
+      });
+
+      setProgress(88);
 
       const previewRows = validRows.slice(0, 25).map((row) => row.data);
       const { data: snapshot, error: snapshotError } = await supabase
         .from('source_analysis_snapshots')
         .insert({
           company_id: companyId,
-          import_job_id: null,
-          source_hash: `sha256:${fileHash}`,
+          import_job_id: rec.id,
+          source_hash: durableSourceHash,
           source_path: sourceObjectPath,
           source_format: file.format,
-          analysis_status: 'analyzed',
+          analysis_status: 'completed',
           entity_type: detectedDomain,
           quality_score: quality,
           row_count: rows.length,
@@ -215,30 +278,64 @@ export function CanonicalImportPage() {
             detectedDomain,
             detectionReason,
             savedAsAnalysis: true,
-            canonicalWriteStatus: 'BLOCKED_PENDING_GENERAL_CONTRACT',
+            canonicalWriteStatus: 'COMMITTED_GENERAL_CANONICAL_DATASET',
+            committed: validRows.length,
+            jobId: execution.jobId,
           },
         })
         .select('id')
         .single();
 
       if (snapshotError) throw snapshotError;
+
+      await finishImportJob(rec.id, 'completed', {
+        total: rows.length,
+        valid: validRows.length,
+        invalid: rows.length - validRows.length,
+        committed: validRows.length,
+        importId: rec.id,
+        jobId: execution.jobId,
+        file_name: file.name,
+        detected_domain: detectedDomain,
+        snapshot_id: snapshot?.id ?? null,
+      });
+
       setProgress(100);
       setResult({
         total: rows.length,
         valid: validRows.length,
         invalid: rows.length - validRows.length,
         snapshotId: snapshot?.id ?? null,
+        importId: rec.id,
+        jobId: execution.jobId,
         detectedDomain,
       });
       setStep('done');
+      await loadHistory();
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : 'تعذر حفظ تحليل المصدر');
+      const failureMessage = cause instanceof Error ? cause.message : 'تعذر اعتماد المصدر';
+      if (importJobId) {
+        try {
+          await finishImportJob(importJobId, 'failed', {
+            total: rows.length,
+            valid: validRows.length,
+            invalid: rows.length - validRows.length,
+            importId: importJobId,
+            detected_domain: detectedDomain,
+          }, failureMessage);
+        } catch (finishError) {
+          setError(`فشل الاعتماد — وتعذر إغلاق سجل العملية بأمان: ${finishError instanceof Error ? finishError.message : 'IMPORT_FINISH_FAILED'}`);
+          setStep('preview');
+          return;
+        }
+      }
+      setError(`فشل اعتماد المصدر: ${failureMessage}`);
       setStep('preview');
     }
   }, [
     rows, file, fileHash, detectedDomain, duplicate, securityPassed, quality,
     qualityApproved, headers.length, mappings, warnings, detectionConfidence,
-    detectionReason, mappingCoverage,
+    detectionReason, mappingCoverage, loadHistory,
   ]);
 
   const reset = () => { selectedFileRef.current = null; setStep('upload'); setFile(null); setFileHash(null); setRows([]); setHeaders([]); setQuality(0); setQualityApproved(false); setMappings([]); setWarnings([]); setError(null); setDuplicate(false); setSecurityPassed(false); setResult(null); setProgress(0); setDetectedDomain('unknown'); setDetectionConfidence(0); setDetectionReason('لم يبدأ تحليل الملف بعد.'); if (inputRef.current) inputRef.current.value = ''; };
@@ -302,7 +399,7 @@ export function CanonicalImportPage() {
 
     {step === 'saving' && <Card><CardBody><div className="flex flex-col items-center py-12 gap-4"><Loader2 className="animate-spin text-primary-500" size={34}/><b>جارٍ حفظ المصدر والتحليل الدلالي...</b><span className="text-lg font-semibold">{progress}%</span><div className="w-full max-w-xl h-2 bg-ink-100 rounded-full overflow-hidden"><div className="h-full bg-primary-500 rounded-full transition-all" style={{width:`${progress}%`}}/></div><p className="text-xs text-ink-400">هذا الحفظ يسجل المصدر والتحليل والأدلة الأولية. لا يُعلن committed ولا يكتب إلى الحقيقة الكانونية العامة.</p></div></CardBody></Card>}
 
-    {step === 'done' && result && <Card><CardBody><div className="flex flex-col items-center py-10 gap-4"><CheckCircle2 className="text-success-500" size={52}/><h3 className="text-xl font-semibold">تم حفظ تحليل المصدر</h3><div className="grid grid-cols-2 gap-3 w-full max-w-lg text-center"><div className="p-3 rounded-lg bg-ink-50"><div className="text-xs text-ink-400">الصفوف المقروءة</div><b>{formatNumber(result.total)}</b></div><div className="p-3 rounded-lg bg-primary-50"><div className="text-xs text-primary-700">النطاق المكتشف</div><b>{DOMAIN_LABELS[result.detectedDomain] ?? result.detectedDomain}</b></div></div><p className="text-xs text-ink-400">Snapshot ID: {result.snapshotId ?? 'غير متاح'}</p><p className="max-w-xl text-center text-[11px] leading-5 text-ink-500">تم حفظ المصدر والتحليل مع بصمته ودرجة الجودة. الكتابة إلى الحقيقة الكانونية العامة ما زالت مقفلة حتى يوجد عقد عام لا يربط المنصة بأنواع ثابتة.</p><button type="button" onClick={reset} className="btn-primary"><Upload size={14}/> تحليل ملف آخر</button></div></CardBody></Card>}
+    {step === 'done' && result && <Card><CardBody><div className="flex flex-col items-center py-10 gap-4"><CheckCircle2 className="text-success-500" size={52}/><h3 className="text-xl font-semibold">تم حفظ تحليل المصدر</h3><div className="grid grid-cols-2 gap-3 w-full max-w-lg text-center"><div className="p-3 rounded-lg bg-ink-50"><div className="text-xs text-ink-400">الصفوف المقروءة</div><b>{formatNumber(result.total)}</b></div><div className="p-3 rounded-lg bg-primary-50"><div className="text-xs text-primary-700">النطاق المكتشف</div><b>{DOMAIN_LABELS[result.detectedDomain] ?? result.detectedDomain}</b></div></div><p className="text-xs text-ink-400">Snapshot ID: {result.snapshotId ?? 'غير متاح'}</p><p className="max-w-xl text-center text-[11px] leading-5 text-ink-500">تم اعتماد المصدر في طبقة البيانات الكانونية العامة مع بصمته وسياقه وجودته؛ لم يُنشأ مستورد متخصص ولم يُطلب اختيار جدول مستهدف.</p><button type="button" onClick={reset} className="btn-primary"><Upload size={14}/> تحليل ملف آخر</button></div></CardBody></Card>}
 
     <Card><CardHeader title="سجل الاستيرادات" subtitle="تاريخ عمليات المصادر والتحليل المرتبطة بحسابك" action={<button type="button" onClick={() => void loadHistory()} className="btn-secondary text-xs"><RefreshCw size={13}/> تحديث</button>}/>{loadingHistory?<LoadingState message="جارٍ تحميل السجل..."/>:history.length===0?<EmptyState icon={<Database size={32}/>} title="لا توجد عمليات سابقة" message="ابدأ بتحليل أول مصدر"/>:<DataTable columns={[{key:'file_name',label:'المصدر'},{key:'total_rows',label:'الصفوف',align:'center'},{key:'valid_rows',label:'صالح',align:'center'},{key:'invalid_rows',label:'مراجعة',align:'center'},{key:'status',label:'الحالة',align:'center',render:(r:any)=><StatusBadge status={r.status}/>},{key:'created_at',label:'التاريخ',render:(r:any)=>formatDateTime(r.created_at)}]} data={history} emptyMessage="لا توجد عمليات سابقة"/>}</Card>
   </div>;
