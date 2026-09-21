@@ -103,3 +103,8 @@ CURRENT RESUME POINTER
 - NEXT EXECUTABLE ACTION → push and verify 63f6cf6597b72085b2fa59019a6095cdebd62ff3, obtain fresh exact-head deployment proof, then run the authenticated visual sweep on a real Supabase-capable runtime.
 - DO NOT REPEAT → do not recreate the 8-zone navigation, global Advisor, sidebar tree, reports/decision/trust/import surfaces already closed; do not transfer older live PASS to 63f6cf65...; do not fabricate sessions, data, evidence, or backend behavior.
 - CURRENT RESUME POINTER → 63f6cf6597b72085b2fa59019a6095cdebd62ff3 → exact-head push/deployment/runtime proof → authenticated visual sweep → runtime/evidence/CI closure.
+
+### SESSION-09 CORRECTION / FINAL RESUME STATE
+- PRODUCT CODE SHA VERIFIED AND PUSHED → 63f6cf6597b72085b2fa59019a6095cdebd62ff3
+- SESSION MEMORY COMMIT VERIFIED ON GITHUB → 4564a8d0b7c6ffba7724de62b48a9a378ce5850b
+- CURRENT NEXT ACTION → fresh deployment/runtime proof for product code 63f6cf6597b72085b2fa59019a6095cdebd62ff3, then authenticated visual sweep with real Supabase runtime.
