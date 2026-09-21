@@ -1,3 +1,17 @@
+## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-33
+- SESSION-ID → `2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-33`
+- EXACT PRODUCT CODE HEAD → `ad20f67fcb19b7668a168ed974b5b33d8de105de`
+- DONE → repaired Decision Experience JSX after Exact-HEAD CI exposed a real parser/build failure.
+- DONE → repaired Liquidity lint expression and import UI direct-write path in the preceding wave.
+- DONE → import Snapshot persistence is now server-authoritative after durable canonical execution.
+- DONE → unified /import no longer exposes legacy folder/entity specialization and its contract blocks reintroduction.
+- DONE → governance/adversarial checks now recognize the approved continuity-governance allowlist while rejecting any source-code drift under an index-only boundary.
+- CI STATUS → a fresh CI run is now triggered for the new code candidate; previous failures on older candidate SHAs are not transferred.
+- PRECISE STOP POINT → code candidate is `ad20f67fcb19b7668a168ed974b5b33d8de105de`; documentation commits after it are governance-only.
+- NEXT ACTION → consume the new exact-head CI/build/lint/certification results; repair remaining failures, then proceed to runtime/Phase-F/backup/OCR/Tenant-A-B closure.
+- DO NOT REPEAT → do not transfer the previous build failures or old certification evidence to this SHA.
+- CURRENT RESUME POINTER → `ad20f67fcb19b7668a168ed974b5b33d8de105de` → exact-head CI → independent runtime/product closure → Phase-F/backup/OCR → tenant A/B/watched folder → final certification.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-32
 - SESSION-ID → `2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-32`
 - EXACT PRODUCT CODE HEAD → `cccf7fa61c9689aab08e425f885c9d2a8583e71d`
