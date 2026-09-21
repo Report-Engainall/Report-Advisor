@@ -1,3 +1,17 @@
+## CURRENT EXECUTION BOUNDARY — 2026-09-21 / WAVE 64 — WORK CENTER BOUNDED HISTORY + EXACT-HEAD PROOF OPEN
+
+> Exact-head evidence only. No historical runtime result is transferred.
+
+- CURRENT CODE/TEST HEAD: `e7e153c7e69b82eca15457a6325f110b3df00aea`.
+- DONE: Work Center explicitly labels the 500-row read as a bounded display window and no longer presents `rows.length` as `إجمالي السجل`.
+- DONE: UI contract guards the bounded semantics.
+- VERIFIED: source re-read on exact SHA; Supabase history index remains present; staging currently has `import_jobs=4477`; `backup_verification_runs=0`.
+- NOT VERIFIED: fresh CI/build/browser runtime for `e7e153c...`; PR-triggered workflow lookup returned no runs; Vercel remains rate-limited.
+- NETLIFY: READY production deploy is on old commit `21f6562...`; not current-head evidence.
+- PHASE-F: canonical workflow remains fail-closed until the required live resilience configuration is actually provisioned.
+- PRECISE NEXT ACTION: obtain/trigger fresh exact-head verification for `e7e153c...`, then consume real Phase-F backup/restore/RPO/RTO/rollback evidence.
+- DO NOT REPEAT: do not transfer historical PASS, do not mislabel bounded history, do not use old Netlify deploy as current, do not invent Phase-F configuration.
+
 ## CURRENT EXECUTION BOUNDARY — 2026-09-21 / WAVE 63 — DASHBOARD UI + EXACT-HEAD PROOF OPEN
 
 > Exact-head evidence only. No historical runtime result is transferred.

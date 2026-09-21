@@ -1,3 +1,22 @@
+## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-64
+
+- SESSION-ID → `2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-64`
+- EXACT CODE HEAD → `e7e153c7e69b82eca15457a6325f110b3df00aea`.
+- DONE → repaired Work Center history semantics in `src/pages/WorkCenterPage.tsx`: the bounded 500-row read is now explicitly presented as a current display window, not as a full historical total.
+- DONE → added a visible bounded-window notice and changed the summary label from misleading `إجمالي السجل` to `نافذة العرض / السجل المعروض`, with `أحدث 500` shown when the bound is reached.
+- DONE → strengthened `scripts/check-product-wow-ui-contract.mjs` to guard the bounded-window disclosure and forbid returning to a full-history interpretation of the 500-row window.
+- ACTUAL RESULT → exact source verification on `e7e153c...` confirms the notice, `أحدث 500` wording, and contract guards. No new route, RPC, runner, importer, tenant path, or database mutation was introduced.
+- ACTUAL CI/RUNTIME RESULT → GitHub PR-triggered workflow lookup for `e7e153c...` returned no runs; combined status exposes only Vercel failure/pending contexts. Therefore no current-head CI/build/browser PASS is claimed.
+- VERCEL → current-head deployment remains blocked by free-plan `build-rate-limit`; this is external to the UI change.
+- NETLIFY → existing production deploy remains READY but serves old commit `21f6562dbca1016842f037299ffd8815b59fe1aa`; it is not current-head runtime proof. Connected Netlify deploy tooling cannot execute the required source-directory upload from this session because PC01 is offline.
+- ACTUAL DB STATE → Supabase staging still has `idx_import_jobs_company_created_id`; `import_jobs=4477`; `backup_verification_runs=0`.
+- PHASE-F → canonical workflow remains fail-closed until live resilience configuration is actually provisioned. No resilience secret/value was fabricated.
+- PRECISE STOP POINT → UI semantics are improved on current main; current-head CI/runtime evidence and Phase-F recovery proof remain open.
+- WHAT REMAINS → fresh exact-head quality/build/browser/certification on `e7e153c...`; then provision/verify live Phase-F configuration and rerun the existing workflow; consume real backup/restore/RPO/RTO/rollback evidence; then worker/server-boundary → tenant A/B → server OCR → watched-folder → final certification.
+- NEXT ACTION → trigger/consume the first fresh current-head verification path available for `e7e153c...`; keep the Phase-F live configuration gate fail-closed until its real values/targets are available.
+- DO NOT REPEAT → do not call the 500-row window a total history; do not transfer `84a62...` browser PASS; do not treat the old Netlify deploy as current; do not invent Phase-F values; do not recreate canonical import/history paths.
+- CURRENT RESUME POINTER → `e7e153c7e69b82eca15457a6325f110b3df00aea` → fresh exact-head verification → Phase-F live configuration + canonical rerun → real recovery/RPO/RTO/rollback → worker/server-boundary → tenant A/B → server OCR → watched-folder → final certification.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-63
 
 - SESSION-ID → `2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-63`

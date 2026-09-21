@@ -1,3 +1,12 @@
+## IMPLEMENTATION UPDATE — 2026-09-21 / WAVE 64 — WORK CENTER BOUNDED HISTORY UX
+
+- Exact code HEAD: `e7e153c7e69b82eca15457a6325f110b3df00aea`.
+- REAL UI CHANGE: Work Center now distinguishes the current bounded history window from a full tenant-wide total. When 500 rows are present, the UI explicitly says `أحدث 500` and explains that older records remain outside the current display window.
+- CONTRACT: Product WOW UI guard now protects the bounded-window disclosure and prevents regression to `إجمالي السجل` semantics.
+- NO ARCHITECTURE CHANGE: existing import/history query and canonical paths remain unchanged.
+- RUNTIME STATUS: no current-head CI/build/browser PASS is claimed for `e7e153c...`.
+- NEXT: fresh exact-head verification, then Phase-F live resilience configuration and recovery evidence.
+
 ## IMPLEMENTATION UPDATE — 2026-09-21 / WAVE 63 — DASHBOARD CURRENT-TRUTH NEXT ACTION
 
 - Exact code HEAD: `476c4bb827c3a2d485726af6b2e5d3e5391ff33a`.
