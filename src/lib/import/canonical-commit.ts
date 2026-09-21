@@ -1,5 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { assertCanonicalBoundary, type ReconciledCanonicalImportRow } from './canonical-truth-boundary';
+import { assertCanonicalBoundary, type CanonicalImportEntityType, type ReconciledCanonicalImportRow } from './canonical-truth-boundary';
 
 export interface CanonicalImportRow { data: Record<string, unknown>; rowNumber: number }
 export interface CanonicalCommitResult { committed: number; ids: string[]; idempotentReplay: boolean }
@@ -32,7 +32,15 @@ function requiredBoolean(value: unknown, field: string, rowNumber: number): bool
   throw new Error(`${field} must be a boolean for import row ${rowNumber}`);
 }
 
-function canonicalizeRow(entityType: 'products' | 'customers' | 'sales_invoices', row: CanonicalImportRow): Record<string, unknown> {
+function canonicalizeRow(entityType: CanonicalImportEntityType, row: CanonicalImportRow): Record<string, unknown> {
+  if (entityType.startsWith('generic:')) {
+    if (!/^generic:[A-Za-z][A-Za-z0-9_-]{0,63}$/.test(entityType)) throw new Error('IMPORT_GENERIC_DOMAIN_INVALID');
+    return {
+      row_number: row.rowNumber,
+      record_key: `source-row:${row.rowNumber}`,
+      data: row.data,
+    };
+  }
   const d = row.data;
   if (entityType === 'products') {
     return {
@@ -71,7 +79,7 @@ function canonicalizeRow(entityType: 'products' | 'customers' | 'sales_invoices'
 }
 
 export async function commitImportBatch(
-  entityType: 'products' | 'customers' | 'sales_invoices',
+  entityType: CanonicalImportEntityType,
   rows: ReconciledCanonicalImportRow[],
   sourceHash: string,
   context: { client?: SupabaseClient; companyId?: string; importJobId?: string } = {},
