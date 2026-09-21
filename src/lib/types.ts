@@ -176,6 +176,8 @@ export interface ImportRecord {
   entity_type: string | null;
   progress: number | null;
   error_message: string | null;
+  semantic_understanding_confidence?: number | null;
+  snapshot_id?: string | null;
   created_at: string;
   completed_at: string | null;
 }
