@@ -1,3 +1,15 @@
+## CURRENT EXECUTION BOUNDARY — 2026-09-21 / WAVE 56 — EXACT-HEAD CERTIFICATION REBIND
+
+> Exact-head evidence only. No historical deployment/runtime result is transferred.
+
+- CURRENT CODE/TEST CANDIDATE: `88323d3fd8d5cc6cb8acca8e53894a11d72cb83e`.
+- EXACT-HEAD QUALITY: 20/20 release-readiness stages PASS on this SHA after closing three typecheck defects exposed by the runner.
+- CURRENT CERTIFICATION DIAGNOSIS: certification/enforcement gates rejected the run because their index still pointed to `435534c9...` while current code/test was `88323d3f...`.
+- CORRECTION IN THIS WAVE: certification index/reference is being rebound to the real current code/test SHA through the existing governance files; no boundary weakening or bypass.
+- PASSING INDEPENDENT RUNS ON CURRENT SHA: UI route completeness, storage tenant isolation, and Final Execution Batch.
+- CURRENT RUNTIME BOUNDARY: Vercel runtime evidence is still not current-head proof; older READY deployments are not transferred.
+- PRECISE NEXT ACTION: consume fresh Execution Enforcement Contract + Final Certification Gate after this rebind; repair only a reproduced current-SHA failure, then backup/RPO-RTO → worker/server-boundary → tenant A/B → server OCR → watched-folder → final certification.
+
 ## CURRENT EXECUTION BOUNDARY — 2026-09-21 / WAVE 55 — WORK CENTER OPERATIONAL ACTIONABILITY
 
 > Exact-head evidence only. No historical deployment/runtime result is transferred.
@@ -497,18 +509,3 @@ There is one execution owner. Do not resurrect the previous UI/runtime owner spl
 - لا تعتبر المنتج مكتملًا بمرور build فقط؛ المطلوب UX + truth + persistence + runtime + evidence + CI + deployment.
 
 ## DEEP AUDIT — 2026-09-07
-
-### Database / Security baseline
-- Staging Supabase project baseline was previously observed as `ACTIVE_HEALTHY`; these historical observations are not treated as current-head certification evidence.
-- Critical-table RLS verification: 9/9 checked tables protected in the historical baseline.
-- Critical-table anonymous-policy verification: 9/9 checked tables had no anon policies in the historical baseline.
-- Security-definer authenticated surface was previously audited for tenant binding and pinned `search_path`.
-- Worker RPC surface was designed for service_role-only execution; authenticated browser execution is not a substitute for worker authority.
-- Canonical import RPCs remain the supported authenticated business mutation surface.
-- Runtime lifecycle PASS is never inferred from schema-only inspection.
-
-### P0 — AUTHENTICATED E2E / TENANT A-B
-- Dedicated Actor A/B authenticated users and one-to-one tenant mapping remain part of the established browser test design.
-- The real business runner covers authenticated tenant resolution, customer/product/invoice import, DB read-back, UI read-back, refresh continuity, Tenant B isolation, cross-tenant denial, and logout/session lifecycle.
-- Existing customer and product screens now use tenant-scoped pagination/search and real create dialogs through existing canonical paths; current Main source confirms the capability, but fresh current-head business E2E evidence is still required before certification.
-- `/onboarding` is present in current Main and reads authenticated user, current company, membership role, canonical import count, and data-quality state; current-head browser proof remains required.
