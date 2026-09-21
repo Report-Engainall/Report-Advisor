@@ -12,7 +12,7 @@ const legacyFolderImporterPaths = [
 const page = fs.readFileSync('src/pages/CanonicalImportPage.tsx', 'utf8');
 const adapter = fs.readFileSync('src/lib/import/canonical-production-adapter.ts', 'utf8');
 const requiredPage = [
-  'مركز الاستيراد',
+  'مركز المصادر',
   'Stepper',
   'securityScan',
   'computeSHA256',
@@ -21,9 +21,9 @@ const requiredPage = [
   'runCanonicalImportThroughDurableRunner',
   'أمان: ناجح',
   'الكتابة متوقفة لحماية البيانات',
-  'اعتماد وكتابة',
+  'اعتماد المصدر',
   'سجل الاستيرادات',
-  'لن يتم السماح بكتابة مكررة',
+  'لن يتم حفظ نسخة تحليل مكررة',
 ];
 const requiredAdapter = [
   'runCanonicalImportThroughDurableRunner',
