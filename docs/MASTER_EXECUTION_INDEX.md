@@ -1,3 +1,11 @@
+## CURRENT PROJECT STATE — 2026-09-21 / EXACT UNIFIED IMPORT CERTIFICATION CANDIDATE
+
+> Exact-head evidence only. The active certification candidate is the current unified-import contract repair; older candidate markers below are historical.
+
+- **CURRENT_CODE_TEST_CANDIDATE:** `72e8182aaa364fb1736e8796c214505a6ea36975`.
+- **CURRENT REPOSITORY HEAD:** `b610bd3fd04ec00580aee381b7932adb97decf25` (governance-only descendant of the candidate).
+- **CERTIFICATION BOUNDARY:** candidate `72e8182...` plus governance-only descendants are permitted; no source/code changes may be smuggled through documentation.
+
 ## LATEST EXECUTION BOUNDARY — 2026-09-21 / UNIFIED IMPORT CONTRACT REPAIR
 
 > Exact-head evidence only. The repository now reflects the current unified source-first importer architecture; the retired specialized folder importer is not restored.
