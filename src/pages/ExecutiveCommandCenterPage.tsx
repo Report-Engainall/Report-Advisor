@@ -112,6 +112,17 @@ export function ExecutiveCommandCenterPage() {
     const fields = [kpis.totalSales, kpis.grossProfit, kpis.totalReceivables, kpis.inventoryValue, kpis.collectionRate];
     return Math.round((fields.filter((value) => value !== null).length / fields.length) * 100);
   }, [kpis]);
+  const decisionCoverage = useMemo(() => {
+    const actionable = recommendations.filter((item) => item.status === 'new' || item.status === 'accepted');
+    const owned = actionable.filter((item) => item.owner?.trim()).length;
+    const outcomes = actionable.filter((item) => item.impact_result?.trim()).length;
+    return {
+      total: actionable.length,
+      ownerCoverage: actionable.length ? Math.round((owned / actionable.length) * 100) : null,
+      outcomeCoverage: actionable.length ? Math.round((outcomes / actionable.length) * 100) : null,
+      pending: recommendations.filter((item) => item.status === 'new').length,
+    };
+  }, [recommendations]);
 
   if (loading) return <LoadingState message="جارٍ بناء مركز القيادة من المصدر..." />;
   if (error) return <ErrorState message={error} onRetry={() => void load()} />;
@@ -144,6 +155,7 @@ export function ExecutiveCommandCenterPage() {
         <div className="ag-decision-cell"><span className="ag-decision-label">تغطية القياسات</span><span className="ag-decision-value">{coverage}%</span></div>
         <div className="ag-decision-cell"><span className="ag-decision-label">إشارات مفتوحة</span><span className="ag-decision-value">{alerts.length}</span></div>
         <div className="ag-decision-cell"><span className="ag-decision-label">توصيات للمراجعة</span><span className="ag-decision-value">{recommendations.length}</span></div>
+        <div className="ag-decision-cell"><span className="ag-decision-label">تغطية القرار</span><span className="ag-decision-value">{decisionCoverage.outcomeCoverage === null ? 'غير متاح' : decisionCoverage.outcomeCoverage + '%'}</span></div>
         <div className="ag-decision-cell"><span className="ag-decision-label">As-of</span><span className="ag-decision-value">{asOf ?? 'غير متاح'}</span></div>
       </div>
       <div className="ag-action-cluster">
@@ -160,11 +172,11 @@ export function ExecutiveCommandCenterPage() {
           <div className="mt-3 text-sm font-black text-ink-900">Money Recovery</div>
           <p className="mt-1 text-[10px] leading-5 text-ink-500">ابدأ من الذمم والتحصيل للتحقق من الأموال القابلة للاسترداد؛ لا يتم احتساب فرصة مالية إضافية هنا دون ledger موثّق.</p>
         </Link>
-        <div className="card p-4">
-          <div className="flex items-center justify-between gap-3"><BarChart3 size={18} className="text-warning-700"/><span className="rounded-full bg-warning-50 px-2 py-1 text-[9px] font-black text-warning-800">INSUFFICIENT DATA</span></div>
-          <div className="mt-3 text-sm font-black text-ink-900">Decision ROI</div>
-          <p className="mt-1 text-[10px] leading-5 text-ink-500">لا يوجد في هذا السطح سجل نتائج مالي موثّق يسمح بحساب عائد القرار دون اختلاق أثر.</p>
-        </div>
+        <Link to="/decision-experience?stage=decision" className="card card-hover p-4">
+          <div className="flex items-center justify-between gap-3"><BarChart3 size={18} className="text-warning-700"/><span className="rounded-full bg-warning-50 px-2 py-1 text-[9px] font-black text-warning-800">{decisionCoverage.total ? 'حقيقي' : 'لا توجد توصيات'}</span></div>
+          <div className="mt-3 text-sm font-black text-ink-900">Decision Coverage</div>
+          <p className="mt-1 text-[10px] leading-5 text-ink-500">{decisionCoverage.total ? 'تغطية المالك ' + (decisionCoverage.ownerCoverage ?? 0) + '% · نتيجة مسجلة ' + (decisionCoverage.outcomeCoverage ?? 0) + '% · معلقة ' + decisionCoverage.pending : 'لا توجد توصيات قابلة للمتابعة؛ لا يتم تصنيع تغطية أو أثر بديل.'}</p>
+        </Link>
         <div className="card p-4">
           <div className="flex items-center justify-between gap-3"><FileSearch size={18} className="text-ink-500"/><span className="rounded-full bg-ink-100 px-2 py-1 text-[9px] font-black text-ink-600">NOT AVAILABLE</span></div>
           <div className="mt-3 text-sm font-black text-ink-900">Business Replay</div>
