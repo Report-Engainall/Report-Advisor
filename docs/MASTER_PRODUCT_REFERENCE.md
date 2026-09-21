@@ -1,3 +1,14 @@
+## IMPLEMENTATION UPDATE — 2026-09-21 / WAVE 60 — IMPORT HISTORY SCALE CLOSURE
+
+- Exact current code/test candidate: `f6d6e64b5da8411ec7bcc49fe912a0af04db86aa`.
+- A real exact-head browser run proved the unified import path itself persisted successfully (job completed, committed row, canonical record, provenance), then exposed a scale defect in the import history UI for a tenant with 4,471 import jobs.
+- Root cause: the bounded latest-500 query still requested an exact total count and deliberately failed when total rows exceeded the display window.
+- FIXED in canonical `src/lib/queries.ts` and compatibility `src/lib/queries-compat.ts`: removed the global count dependency while preserving the 500-row tenant-scoped range.
+- FIXED in UI: the history heading now states the bounded recent-window semantics explicitly.
+- Strengthened `scripts/check-import-query-bounds.mjs` to enforce the bounded range without requiring the misleading global count guard.
+- No change to canonical import execution, DB commit, tenant authority, calculations, or importer architecture.
+- NEXT: consume fresh exact-head gates on `f6d6...`; runtime/business persistence must re-pass before declaring the UI closure complete.
+
 ## IMPLEMENTATION UPDATE — 2026-09-21 / WAVE 58 FINAL — CERTIFIED UI CLOSURE, RUNTIME BLOCKER BOUND
 
 - Exact code/test candidate: `cbfb7d0906e893ac32e274b571519d6f536ff8ad`.
@@ -498,14 +509,3 @@ This is the target product tree. It defines how capabilities are presented; it d
 │  ├─ Scenarios / What-if
 │  ├─ Decision Experience
 │  └─ Decision Playbooks
-├─ 05 الثقة والأدلة
-│  ├─ Evidence Center
-│  ├─ Evidence Passport
-│  ├─ Metric Inspector
-│  ├─ Provenance / Lineage
-│  ├─ Snapshots / As-of
-│  ├─ Confidence / Truth states
-│  ├─ Decision Evidence
-│  └─ Benchmark Governance
-├─ 06 التقارير والمخرجات
-│  ├─ Executive Report
