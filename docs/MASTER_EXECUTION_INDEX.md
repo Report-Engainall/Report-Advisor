@@ -1,3 +1,19 @@
+## CURRENT EXECUTION BOUNDARY — 2026-09-21 / DECISION ACCOUNTABILITY UI WAVE 32
+
+> Exact-head evidence only. The current main head contains the dashboard UI and its contract guard; live deployment/build evidence remains fail-closed.
+
+- **CURRENT REPOSITORY HEAD:** `5cc850be38aa98ee3d0ae6c82a64e777ff5dc1dc` on `main` after the required session-memory write-back.
+- **LATEST PRODUCT UI CODE COMMIT:** `63e1aa9c716135ac019db6b11896318889d27cbc`.
+- **LATEST UI CONTRACT TEST COMMIT:** `e6185e782e94fd227290a27a3b1d2263ced8d80c`.
+- **DONE:** Business Pulse now surfaces decision-accountability metrics derived from the existing Recommendation records: actionable count, owner coverage, recorded outcome coverage, and pending review count.
+- **DONE:** `check-product-wow-ui-contract.mjs` now guards this accountability surface and rejects regression to an unaccountable summary.
+- **EXACT-HEAD SOURCE VERIFICATION:** dashboard and contract files were re-fetched from `main`; required accountability tokens and derivations are present, and no synthetic-data path was introduced.
+- **LIVE DEPLOYMENT STATUS:** Vercel remains blocked by the free-plan `build-rate-limit`; no current-head deployment PASS is claimed. Netlify production remains stale at commit `21f6562dbca1016842f037299ffd8815b59fe1aa`; the connected deploy action returned its source/repo CLI requirement rather than executing a build.
+- **LOCAL VERIFICATION STATUS:** PC01 is offline; no local full build/browser PASS is claimed. No fresh PR-triggered GitHub Actions run is attached to the current main candidate.
+- **BLOCKER:** live build/browser/certification proof is unavailable from currently connected execution paths. This is an evidence blocker, not a code PASS.
+- **NEXT EXECUTABLE ACTION:** obtain the first fresh exact-head build/browser/certification result for `e6185e...`; repair any fresh failure, otherwise continue Phase-F/runtime closure (resilience → backup/RPO-RTO → server OCR authority → tenant A/B → watched-folder) without importing historical PASS.
+- **DO NOT REPEAT:** do not transfer older runtime PASS, do not treat stale Netlify/Vercel deployments as proof, and do not add duplicate UI/backend paths to compensate for deployment blockage.
+
 ## CURRENT PROJECT STATE — 2026-09-21 / DASHBOARD TEST CONTRACT SECONDARY DISPLAY ALIGNMENT
 
 > Exact-head evidence only. The active candidate includes a test-only alignment for the Dashboard metric display contract.
