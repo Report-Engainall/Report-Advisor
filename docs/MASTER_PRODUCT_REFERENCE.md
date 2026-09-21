@@ -1,3 +1,12 @@
+## IMPLEMENTATION UPDATE — 2026-09-21 / WAVE 65 — DASHBOARD HOOK ORDER + CERTIFICATION REBIND
+
+- Exact code/test candidate: 30cf5d6ecf5a91e65642a38df31087498f4e356c.
+- REAL FIX: Dashboard next-action derivation now obeys React Hooks ordering and remains null-safe while the snapshot is loading/error-bound.
+- CONTRACT: Product WOW UI guard enforces the hook before early returns.
+- REAL GOVERNANCE FIX: Master Execution Index is rebound with the canonical CURRENT_CODE_TEST_CANDIDATE token to prevent historical candidate selection.
+- NO ARCHITECTURE CHANGE: no route/RPC/runner/importer/tenant/database path was created or replaced.
+- NEXT: consume fresh exact-head certification/enforcement and continue Phase-F recovery evidence.
+
 ## IMPLEMENTATION UPDATE — 2026-09-21 / WAVE 64 — WORK CENTER BOUNDED HISTORY UX
 
 - Exact code HEAD: `e7e153c7e69b82eca15457a6325f110b3df00aea`.

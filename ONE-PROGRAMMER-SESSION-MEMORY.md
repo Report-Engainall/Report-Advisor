@@ -1,3 +1,20 @@
+## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-65
+
+- SESSION-ID → 2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-65
+- EXACT CODE/TEST CANDIDATE → 30cf5d6ecf5a91e65642a38df31087498f4e356c.
+- DONE → fixed the real React Hooks violation exposed by exact-head quality: Dashboard dashboardNextAction is now declared before loading/error early returns and safely uses kpis?.status.
+- DONE → strengthened Product WOW UI contract to enforce the unconditional hook-order boundary.
+- ACTUAL QUALITY ROOT CAUSE → predecessor 97a728... had 19/20 release-readiness stages; the only hard failure was react-hooks/rules-of-hooks at Dashboard line 201. Build, performance budget, production scale, and completed downstream gates passed.
+- ACTUAL CERTIFICATION ROOT CAUSE → Final Certification Gate and Execution Enforcement on 30cf5d6... failed because the certification boundary parser selected historical 84a62... from the Master Index.
+- GOVERNANCE FIX → Master Execution Index now uses CURRENT_CODE_TEST_CANDIDATE=30cf5d6... so the existing boundary guard resolves the current candidate instead of history.
+- VERCEL → exact candidate deployment dpl_7sU7MX3rnfQLcRKN4j7 is BUILDING for 30cf5d6...; no READY/runtime PASS is claimed.
+- PHASE-F → still fail-closed on live resilience configuration; no secret/value fabricated.
+- ACTUAL DB STATE → idx_import_jobs_company_created_id exists; import_jobs=4477; backup_verification_runs=0.
+- PRECISE STOP POINT → candidate code is repaired; certification provenance rebind is committed and awaiting fresh gate runs.
+- NEXT ACTION → consume the first fresh Final Certification + Execution Enforcement result after the Master Index rebind; repair only a reproduced current-SHA failure.
+- DO NOT REPEAT → do not transfer 84a62... certification; do not weaken boundary checks; do not reopen the fixed hook-order defect; do not invent Phase-F values.
+- CURRENT RESUME POINTER → 30cf5d6ecf5a91e65642a38df31087498f4e356c → fresh certification/enforcement → Phase-F recovery proof → remaining runtime gates.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-64
 
 - SESSION-ID → `2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-64`
