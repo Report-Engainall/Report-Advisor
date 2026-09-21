@@ -52,6 +52,9 @@ export function WorkCenterPage() {
     completed: rows.filter(r => r.status === 'completed').length,
     failed: rows.filter(r => r.status === 'failed' || r.status === 'cancelled').length,
   }), [rows]);
+  const historyWindowNotice = rows.length >= 500
+    ? 'المعروض هو أحدث 500 عملية ضمن نافذة القراءة الحالية؛ لا يُستخدم كإجمالي تاريخي كامل.'
+    : 'المعروض هو السجل الذي أعادته نافذة القراءة الحالية.';
 
   const nextAction = (workerHealth?.expiredActive ?? 0) > 0
     ? { kind: 'refresh' as const, tone: 'danger' as const, title: 'إعادة فحص العامل الآن', message: 'هناك leases منتهية مثبتة في القراءة الحالية؛ أعد قراءة الحالة بعد دورة recovery التشغيلية بدل اعتبار الطابور سليمًا.', label: 'إعادة فحص العامل' }
@@ -166,7 +169,7 @@ export function WorkCenterPage() {
     </section>
 
     <section className="ag-decision-strip" aria-label="ملخص التشغيل">
-      <div className="ag-decision-cell"><span className="ag-decision-label">إجمالي السجل</span><span className="ag-decision-value">{formatNumber(rows.length)}</span></div>
+      <div className="ag-decision-cell"><span className="ag-decision-label">{rows.length >= 500 ? 'نافذة العرض' : 'السجل المعروض'}</span><span className="ag-decision-value">{rows.length >= 500 ? 'أحدث 500' : formatNumber(rows.length)}</span></div>
       <div className="ag-decision-cell"><span className="ag-decision-label">نشطة</span><span className="ag-decision-value">{formatNumber(counts.active)}</span></div>
       <div className="ag-decision-cell"><span className="ag-decision-label">تحتاج مراجعة</span><span className="ag-decision-value">{formatNumber(counts.review)}</span></div>
       <div className="ag-decision-cell"><span className="ag-decision-label">مكتملة</span><span className="ag-decision-value">{formatNumber(counts.completed)}</span></div>
@@ -174,8 +177,11 @@ export function WorkCenterPage() {
     </section>
 
     <Card>
-      <CardHeader title="طابور العمل" subtitle="ابدأ من الاستثناءات والحالات النشطة، ثم انتقل إلى السجل الكامل عند الحاجة."/>
+      <CardHeader title="طابور العمل" subtitle="ابدأ من الاستثناءات والحالات النشطة، ثم استخدم نافذة العرض الحالية دون اعتبارها إجمالي التاريخ."/>
       <CardBody>
+        <div role="status" className="mb-4 rounded-xl border border-ink-200 bg-ink-50/70 px-3 py-2 text-[10px] leading-5 text-ink-500">
+          {historyWindowNotice}
+        </div>
         <div className="mb-5 flex flex-wrap items-center gap-2" role="toolbar" aria-label="تصفية العمليات">
           <Filter size={16} className="text-ink-400"/>
           {(['all','active','review','completed','failed'] as FilterKey[]).map(k => (

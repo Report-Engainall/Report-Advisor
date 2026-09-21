@@ -106,6 +106,8 @@ assert.ok(workCenter.includes('إعادة فحص العامل الآن'), 'expir
 assert.ok(workCenter.includes('عرض المراجعة'), 'review pressure must surface a direct filter action');
 assert.ok(workCenter.includes('عرض الفشل'), 'failed operations must surface a direct filter action');
 assert.ok(workCenter.includes('إدخال مصدر جديد'), 'stable queue state must expose the canonical import action');
+assert.ok(workCenter.includes('historyWindowNotice'), 'work center must disclose when the import history is bounded to the current window');
+assert.ok(workCenter.includes('أحدث 500'), 'work center must not label a bounded 500-row window as a full historical total');
 assert.ok(workCenter.includes('aria-pressed={filter === k}'), 'work center filters must expose selected state to assistive technology');
 assert.ok(workCenter.includes('aria-live="polite"'), 'work center next-action messaging must be announced without interrupting the user');
 
