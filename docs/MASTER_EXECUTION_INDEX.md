@@ -1,3 +1,15 @@
+## CURRENT EXECUTION BOUNDARY — 2026-09-21 / WAVE 61 — IMPORT HISTORY DATABASE PERFORMANCE
+
+> Exact-head evidence only. No historical runtime result is transferred.
+
+- CURRENT CODE/TEST CANDIDATE: `84a62e169ce8db61d2dc6598e654127543ecdabb`.
+- ROOT CAUSE CONFIRMED: `import_jobs` had no composite index for the exact bounded history order/filter `company_id, created_at DESC, id ASC`; the affected tenant had 4,471 import jobs.
+- FIX APPLIED: migration `20260921194500_import_history_recent_window_index.sql` creates `idx_import_jobs_company_created_id`.
+- DB PROOF: Supabase staging now exposes that index in `pg_indexes`.
+- UI/query FIX from Wave 60 remains: bounded recent history read without global exact count.
+- PRECISE NEXT ACTION: exact-head Browser E2E on `84a62...`, with emphasis on unified import history readback; then consume quality/certification and continue Phase-F/RPO-RTO.
+- DO NOT REPEAT: do not restore global count rejection; do not remove the composite history index; do not transfer f6d6 browser evidence to 84a62.
+
 ## CURRENT EXECUTION BOUNDARY — 2026-09-21 / WAVE 60 — IMPORT HISTORY SCALE CLOSURE
 
 > Exact-head evidence only. No historical runtime result is transferred.
@@ -498,14 +510,3 @@ This constitution is mandatory for every product/UI change. The programmer must 
 5. الثقة والأدلة
 6. التقارير والمخرجات
 7. البيانات المرجعية
-8. الإعدادات
-
-**Permanent intelligence layer:** المستشار الأغبري is a context-aware fixed drawer available across the product; it is not a ninth sidebar category.
-
-**Visual-first rule:** the first major implementation objective is complete visual coverage of the canonical product surfaces using one Aghbari RTL design system and the real application paths. The goal is a coherent commercial product, not a growing collection of routes.
-
-**Cleanup rule:** every conflicting legacy surface must be classified KEEP / IMPROVE / REPLACE / REMOVE after dependency inspection. Do not preserve conflicting UI simply because it already exists; do not delete valid capability merely because its presentation is obsolete.
-
-### EXECUTION STATE
-- **Product direction:** the canonical Aghbari product constitution remains the binding UI/product architecture.
-- **Current product code:** `main` at `7ed583d40ac4090620270c17b48b38f75949cacd`.
