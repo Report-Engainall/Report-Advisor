@@ -1,3 +1,14 @@
+## IMPLEMENTATION UPDATE — 2026-09-21 / WAVE 58 FINAL — CERTIFIED UI CLOSURE, RUNTIME BLOCKER BOUND
+
+- Exact code/test candidate: `cbfb7d0906e893ac32e274b571519d6f536ff8ad`.
+- UI closure: Connections status summary and next action are now derived from the canonical connector states; hard-coded counts were removed and the Product WOW UI contract guards the derivation.
+- EXACT-HEAD CI RESULT: on the candidate's governed main descendant `2b9d28c9a1a8fa12677c03f11b7ba94e2a3dbac7`, quality PASS, Execution Enforcement Contract PASS, Final Execution Batch PASS, Storage Tenant Isolation PASS, and Final Certification Gate PASS.
+- No backend/RPC/runner/import lifecycle/tenant/calculation path changed in Wave 58.
+- LIVE STAGING OBSERVATION remains unchanged from the current read-only check: `backup_verification_runs=0`; `import_processing=152`; `report_processing=1`; `report_dead_letter=7`; `watched_report_files=0`; `watched_report_folders=0`. These are observations, not certification.
+- CURRENT RUNTIME BLOCKER: Vercel exact-head status remains `failure / build-rate-limit` and deployment context `pending` for current main `2b9d28c9...`; no current-head browser/live-runtime PASS is claimed.
+- The existing full-product browser workflow requires real E2E secrets and exact-head deployment/runtime; those requirements were not bypassed.
+- NEXT: obtain exact-head deployment/browser/runtime evidence through a real execution path; then execute the governed Phase-F backup/restore and remaining worker/server-boundary → tenant A/B → server OCR → watched-folder gates.
+
 ## IMPLEMENTATION UPDATE — 2026-09-21 / WAVE 58 — CONNECTIONS STATE-DRIVEN UI
 
 - Exact current code/test head: `cbfb7d0906e893ac32e274b571519d6f536ff8ad`.
@@ -498,13 +509,3 @@ This is the target product tree. It defines how capabilities are presented; it d
 │  └─ Benchmark Governance
 ├─ 06 التقارير والمخرجات
 │  ├─ Executive Report
-│  ├─ Sales / Purchases
-│  ├─ Inventory / Demand
-│  ├─ Receivables / Profitability
-│  ├─ Decision / Recommendation Reports
-│  ├─ Data Quality / Audit
-│  ├─ Report Builder
-│  └─ PDF / Excel / CSV / Print
-├─ 07 البيانات المرجعية
-│  ├─ Customers
-│  ├─ Products
