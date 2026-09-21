@@ -1,3 +1,14 @@
+## CURRENT EXECUTION BOUNDARY — 2026-09-21 / WAVE 60 — IMPORT HISTORY SCALE CLOSURE
+
+> Exact-head evidence only. No historical runtime result is transferred.
+
+- CURRENT CODE/TEST CANDIDATE: `f6d6e64b5da8411ec7bcc49fe912a0af04db86aa`.
+- ROOT CAUSE CLOSED: `fetchImportRecords()` rejected any tenant with more than 500 import rows because it requested `count: 'exact'` and converted `count > 500` into `REPORT_QUERY_LIMIT_EXCEEDED`.
+- LIVE E2E OBSERVATION: the affected tenant had 4,471 import jobs; the newly imported customer job itself completed successfully with one canonical row and provenance. The UI history failed only when rendering the bounded history because the read function rejected the large total count.
+- FIX: canonical and compatibility import-history reads now use only the existing bounded latest-500 window; no global count query, no unbounded tenant read, no new RPC, and no new import route.
+- UI: the import history header explicitly states that it shows the latest 500 while older records remain stored.
+- NEXT: fresh exact-head quality, certification, final execution, storage, and browser E2E on `f6d6...`; then re-check real business persistence and continue Phase-F/RPO-RTO.
+
 ## CURRENT EXECUTION BOUNDARY — 2026-09-21 / WAVE 58 FINAL — CERTIFIED UI CLOSURE, RUNTIME BLOCKER
 
 > Exact-head evidence only. No historical deployment/runtime result is transferred.
@@ -498,15 +509,3 @@ This constitution is mandatory for every product/UI change. The programmer must 
 ### EXECUTION STATE
 - **Product direction:** the canonical Aghbari product constitution remains the binding UI/product architecture.
 - **Current product code:** `main` at `7ed583d40ac4090620270c17b48b38f75949cacd`.
-- **Visual implementation state:** comprehensive Aghbari UI wave integrated; global Advisor fixed and mobile-ready; canonical 8-zone navigation in place; Proposal Demo no longer a primary navigation surface; Trust/Outputs metadata unified; stale UI contracts converted to structural checks.
-- **Exact-head verified gates:** typecheck PASS; Product WOW UI PASS; UI route/sidebar parity PASS; Executive Dashboard UI PASS; Intelligence Product Contract PASS; Connections/Language UI PASS (7 checks).
-- **Runtime visual proof:** public/login surface PROVEN on exact product HEAD via Vercel deployment `dpl_7SbnFXRtMJhto7aJKsqfBq2ggHqK` (READY, HTTP 200); Chrome verified RTL desktop/mobile and no console errors or horizontal overflow. Authenticated post-login visual coverage remains NOT PROVEN because auth was not bypassed or fabricated.
-- **Immediate execution priority:** authenticated visual sweep of all canonical surfaces using a real permitted session/runtime, followed by real defect fixes, responsive/accessibility/performance polish, and independent runtime/truth/evidence/CI closure.
-
-### SINGLE-PROGRAMMER EXECUTION MODE — NO OWNER SPLIT
-
-There is one execution owner. Do not resurrect the previous UI/runtime owner split.
-
-**MANDATORY PROGRAMMER COMMAND — APPLY NOW**
-
-> نفّذ المنتج وفق \`docs/MASTER_PRODUCT_REFERENCE.md\` والـ**AUTHORITATIVE PRODUCT CONSTITUTION — AGHBARI 2026-09-21** باعتبارها المرجع الوحيد للهوية والواجهات والهيكلية. ابدأ بالواجهات كاملة أولًا: وحّد الـShell والـSidebar والـHeader والـDesign System، ثم غطِّ جميع الأسطح القانونية لمركز القرار والبيانات والتشغيل والتحليل التجاري والذكاء والقرار والثقة والأدلة والتقارير والمخرجات والبيانات المرجعية والإعدادات، مع المستشار الأغبري الثابت. أزل/استبدل أي واجهة أو قسم متعارض مع هذه البنية بعد فحص الاعتماديات، ولا تعُد إلى Bolt/Commerce/CRUD taxonomy أو duplicate navigation. استخدم البيانات والمسارات الحقيقية فقط، وأظهر حالات loading/empty/review/blocked/insufficient-data بدل التزييف. حافظ على المسارات/RPCs/runners الحالية والـtenant/RLS والحسابات الحتمية وfail-closed. نفّذ تغطية بصرية كاملة ثم واصل الـpolish والـruntime والـevidence والـCI حتى أقصى إغلاق حقيقي ممكن، وسجّل exact SHA والحالة التالية في هذا الفهرس بعد كل دفعة جوهرية.
