@@ -11,6 +11,7 @@ import { detectFormat } from '@/lib/file-engine/detector';
 import { securityScan, computeSHA256, checkDuplicate } from '@/lib/file-engine/security';
 import { parseFile } from '@/lib/file-engine/adapters';
 import { FORMAT_LABELS, MAX_FILE_SIZE, type FileFormat, type Dataset } from '@/lib/file-engine/types';
+import { reconcileForCanonical } from '@/lib/import/canonical-truth-boundary';
 import { runCanonicalImportThroughDurableRunner } from '@/lib/import/canonical-production-adapter';
 
 type Step = 'upload' | 'scanning' | 'preview' | 'saving' | 'done';
@@ -242,51 +243,54 @@ export function CanonicalImportPage() {
       setProgress(88);
 
       const previewRows = validRows.slice(0, 25).map((row) => row.data);
-      const { data: snapshot, error: snapshotError } = await supabase
-        .from('source_analysis_snapshots')
-        .insert({
-          company_id: companyId,
-          import_job_id: rec.id,
-          source_hash: durableSourceHash,
-          source_path: sourceObjectPath,
-          source_format: file.format,
-          analysis_status: 'completed',
-          entity_type: detectedDomain,
-          quality_score: quality,
-          row_count: rows.length,
-          column_count: headers.length,
-          datasets: [{
-            name: file.name,
-            rowCount: rows.length,
-            columnCount: headers.length,
-            columns: mappings,
-            preview: previewRows,
-          }],
-          canonical_text: [
-            `source=${file.name}`,
-            `detected_domain=${detectedDomain}`,
-            `detection_confidence=${detectionConfidence}%`,
-            detectionReason,
-          ].join(' | '),
-          visual_assets: [],
-          warnings,
-          metadata: {
-            fileName: file.name,
-            fileSize: file.size,
-            mappingCoverage,
-            detectionConfidence,
-            detectedDomain,
-            detectionReason,
-            savedAsAnalysis: true,
-            canonicalWriteStatus: 'COMMITTED_GENERAL_CANONICAL_DATASET',
-            committed: validRows.length,
-            jobId: execution.jobId,
-          },
-        })
-        .select('id')
-        .single();
-
-      if (snapshotError) throw snapshotError;
+      let snapshotId: string | null = null;
+      try {
+        const { data: snapshot, error: snapshotError } = await supabase
+          .from('source_analysis_snapshots')
+          .insert({
+            company_id: companyId,
+            import_job_id: rec.id,
+            source_hash: durableSourceHash,
+            source_path: sourceObjectPath,
+            source_format: file.format,
+            analysis_status: 'analyzed',
+            entity_type: detectedDomain,
+            quality_score: quality,
+            row_count: rows.length,
+            column_count: headers.length,
+            datasets: [{
+              name: file.name,
+              rowCount: rows.length,
+              columnCount: headers.length,
+              columns: mappings,
+              preview: previewRows,
+            }],
+            canonical_text: [
+              `source=${file.name}`,
+              `detected_domain=${detectedDomain}`,
+              `detection_confidence=${detectionConfidence}%`,
+              detectionReason,
+            ].join(' | '),
+            visual_assets: [],
+            warnings,
+            metadata: {
+              fileName: file.name,
+              fileSize: file.size,
+              mappingCoverage,
+              detectionConfidence,
+              detectedDomain,
+              detectionReason,
+              canonicalWriteStatus: 'GENERAL_CANONICAL_DATASET',
+              committed: validRows.length,
+              jobId: execution.jobId,
+            },
+          })
+          .select('id')
+          .single();
+        if (!snapshotError) snapshotId = snapshot?.id ?? null;
+      } catch {
+        snapshotId = null;
+      }
 
       await finishImportJob(rec.id, 'completed', {
         total: rows.length,
@@ -297,7 +301,7 @@ export function CanonicalImportPage() {
         jobId: execution.jobId,
         file_name: file.name,
         detected_domain: detectedDomain,
-        snapshot_id: snapshot?.id ?? null,
+        snapshot_id: snapshotId,
       });
 
       setProgress(100);
@@ -305,7 +309,7 @@ export function CanonicalImportPage() {
         total: rows.length,
         valid: validRows.length,
         invalid: rows.length - validRows.length,
-        snapshotId: snapshot?.id ?? null,
+        snapshotId,
         importId: rec.id,
         jobId: execution.jobId,
         detectedDomain,
