@@ -76,7 +76,7 @@ export function WorkCenterPage() {
                 <div className="mt-1 text-sm font-black text-ink-900">{nextAction.title}</div>
                 <p className="mt-1 text-[10px] leading-5 text-ink-600">{nextAction.detail}</p>
               </div>
-              <button type="button" onClick={() => setFilter(nextAction.filter)} className="shrink-0 rounded-xl bg-ink-950 px-3 py-2 text-xs font-bold text-white transition hover:bg-ink-800">
+              <button type="button" aria-label={`الخطوة التالية: ${nextAction.title}`} onClick={() => setFilter(nextAction.filter)} className="shrink-0 rounded-xl bg-ink-950 px-3 py-2 text-xs font-bold text-white transition hover:bg-ink-800">
                 فتح الحالات ذات الصلة ←
               </button>
             </div>
