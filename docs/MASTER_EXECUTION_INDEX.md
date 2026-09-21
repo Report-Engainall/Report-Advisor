@@ -3,7 +3,7 @@
 > Exact-head evidence only. The repository now reflects the current unified source-first importer architecture; the retired specialized folder importer is not restored.
 
 - **CURRENT REPOSITORY HEAD:** `72e8182aaa364fb1736e8796c214505a6ea36975` on `main`.
-- **CURRENT CODE/TEST CANDIDATE:** `72e8182aaa364fb1736e8796c214505a6ea36975`.
+- **CURRENT_CODE_TEST_CANDIDATE:** `72e8182aaa364fb1736e8796c214505a6ea36975`.
 - **LATEST PRODUCT UI CODE COMMIT:** `b397204051d19c0107112c9b2ea389a9ac6a428c`.
 - **LATEST UI CONTRACT TEST COMMIT:** `3b10164c8bce6b1f7b17af9ac7e0e71ade4cc505`.
 - **LATEST CERTIFICATION/GATE REPAIR:** `72e8182aaa364fb1736e8796c214505a6ea36975`.
