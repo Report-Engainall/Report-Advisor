@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 import {
   ArrowUpLeft, BarChart3, Brain, CalendarRange, CheckCircle2, CircleAlert, FileSearch,
   Package, RefreshCw, Sparkles, TrendingUp, WalletCards
@@ -8,7 +8,9 @@ import { TruthContextStrip } from '@/components/TruthContextStrip';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 
 import { LoadingState, ErrorState } from '@/components/ui/States';
-import { TrendChart, CategoryPieChart, HorizontalBarChart } from '@/components/ui/Charts';
+const TrendChart = lazy(() => import('@/components/ui/Charts').then(m => ({ default: m.TrendChart })));
+const CategoryPieChart = lazy(() => import('@/components/ui/Charts').then(m => ({ default: m.CategoryPieChart })));
+const HorizontalBarChart = lazy(() => import('@/components/ui/Charts').then(m => ({ default: m.HorizontalBarChart })));
 import { fetchDashboardSnapshot, fetchDashboardIntelligence } from '@/lib/dashboard-canonical';
 import { formatCurrency } from '@/lib/format';
 import type { Recommendation, Alert } from '@/lib/types';
@@ -286,7 +288,8 @@ export function DashboardPage() {
       </section>
 
       {workspacePreferences.dashboardWidgets.includes('analysis') && (
-        <section className="space-y-3">
+        <Suspense fallback={<div className="h-72 animate-pulse rounded-[16px] bg-ink-100" aria-label="جارٍ تحميل التحليلات" />}>
+          <section className="space-y-3">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <div className="section-kicker">BUSINESS PULSE</div>
@@ -327,9 +330,12 @@ export function DashboardPage() {
             </Card>
           </div>
         </section>
+          </section>
+        </Suspense>
       )}
 
-      <section className="grid gap-4 lg:grid-cols-3">
+      <Suspense fallback={<div className="grid gap-4 lg:grid-cols-3"><div className="h-72 animate-pulse rounded-[16px] bg-ink-100" /><div className="h-72 animate-pulse rounded-[16px] bg-ink-100" /><div className="h-72 animate-pulse rounded-[16px] bg-ink-100" />}></div>}
+            <section className="grid gap-4 lg:grid-cols-3">
         <Card>
           <CardHeader title="فرص العملاء" subtitle="أعلى العملاء بحسب البيانات الحالية" />
           <CardBody>
@@ -365,6 +371,7 @@ export function DashboardPage() {
           </CardBody>
         </Card>
       </section>
+      </Suspense>
 
       <section className="rounded-[14px] border border-ink-200 bg-white p-4 shadow-card">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
