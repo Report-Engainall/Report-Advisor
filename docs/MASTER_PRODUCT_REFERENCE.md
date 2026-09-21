@@ -1234,3 +1234,8 @@ This update records implementation state only; it does not replace the product c
 - Decision Experience JSX was corrected after exact-head CI exposed a parser error; the readiness display remains driven by existing recommendation state.
 - The current code candidate also contains the unified import boundary correction: one canonical source-first entry, no legacy folder-specialization UI, server-authoritative Snapshot persistence, and explicit import-order contract checks.
 - No new product taxonomy, RPC, runner, or calculation engine was introduced.
+
+
+## IMPLEMENTATION UPDATE — 2026-09-21 / DECISION JSX FINAL REPAIR
+- Decision Experience now has a direct, structurally valid Decision Readiness block driven by the existing recommendation state.
+- This was a presentation-only repair; no decision backend path, deterministic business calculation, tenant/RLS, or approval contract changed.
