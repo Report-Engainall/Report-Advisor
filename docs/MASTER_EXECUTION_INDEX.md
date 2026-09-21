@@ -1,3 +1,19 @@
+## CURRENT EXECUTION BOUNDARY — 2026-09-21 / WAVE 46 — VERIFIED EXCEPT PHASE-F RPO CONFIG
+
+> Exact-head evidence only.
+
+- **CURRENT_CODE_TEST_CANDIDATE:** `a87ebaef725a4d920a2dd26bf1695e197126b5aa` on `exec/wave-46-workcenter-actionability-20260921`.
+- **GOVERNANCE HEAD:** `8053b8d179869f65f0226d893d836a84af02dfe9` (subsequent to code candidate; governance-only).
+- **UI DONE:** Work Center next-action surface is state-driven, existing-path only, and accessibility-labeled.
+- **CERTIFICATION:** Final Certification Gate `#7538` PASS.
+- **QUALITY:** Quality `#6740` PASS, including Typecheck/Lint/Build/Performance and broad contract/regression stages.
+- **BROWSER:** Device-Independent Browser E2E `#1006` PASS, including authenticated Auth/Tenant/Product/Import E2E and evidence upload.
+- **DATA QUALITY:** `#2880` PASS.
+- **PHASE-F:** `#1068` FAIL-CLOSED external configuration: `RESILIENCE_MAX_RPO_SECONDS` missing. All preceding local/static/canary checks passed.
+- **DEPLOYMENT:** Netlify preview success; Vercel externally rate-limited; no stale Vercel PASS transferred.
+- **NEXT EXECUTABLE ACTION:** provision the approved `RESILIENCE_MAX_RPO_SECONDS` value in GitHub Actions and rerun Phase-F on `a87ebaef725a4d920a2dd26bf1695e197126b5aa` without code changes.
+- **DO NOT REPEAT:** do not invent the RPO threshold, weaken the probe, or merge while Phase-F remains blocked.
+
 ## CURRENT EXECUTION BOUNDARY — 2026-09-21 / WAVE 45 — REPORT SNAPSHOT + EXACT-HEAD CERTIFICATION
 
 > Exact-head evidence only.

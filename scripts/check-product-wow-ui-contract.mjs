@@ -41,6 +41,10 @@ assert.ok(appShell.includes('advisorCounts.recommendations'), 'global Advisor mu
 assert.ok(sidebar.includes("trust: { hint: 'إثبات، مصدر، وثقة', tag: 'TRUST' }"), 'Trust navigation section must have product metadata');
 assert.ok(sidebar.includes("outputs: { hint: 'تقارير ومخرجات القرار', tag: 'OUTPUT' }"), 'Outputs navigation section must have product metadata');
 assert.ok(!dashboard.includes('generateSynthetic'), 'decision brief must not invent synthetic business data');
+const workCenter = fs.readFileSync('src/pages/WorkCenterPage.tsx', 'utf8');
+assert.ok(workCenter.includes('NEXT OPERATIONAL ACTION'), 'work center must expose one context-aware next operational action');
+assert.ok(workCenter.includes('nextAction.filter'), 'work center next action must lead to an existing table filter');
+assert.ok(workCenter.includes('لا توجد متابعة عاجلة'), 'work center must expose an explicit clear-state message');
 const reports = fs.readFileSync('src/pages/ReportsPage.tsx', 'utf8');
 assert.ok(reports.includes('لقطة تجارية موثقة'), 'reports center must expose the current canonical snapshot');
 assert.ok(reports.includes('NEXT ACTION'), 'reports center must expose a concrete next action');

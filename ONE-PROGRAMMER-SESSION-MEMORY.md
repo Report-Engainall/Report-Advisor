@@ -1,3 +1,36 @@
+## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-WAVE-46-CURRENT-EVIDENCE
+
+- SESSION-ID → `2026-09-21-AGHBARI-WAVE-46`
+- SHA → current branch head `8053b8d179869f65f0226d893d836a84af02dfe9`; active code/test candidate `a87ebaef725a4d920a2dd26bf1695e197126b5aa` with governance-only descendants afterward.
+- DONE → Work Center now exposes a real state-driven `NEXT OPERATIONAL ACTION` plus accessible action labeling; the action only targets existing filters and uses live import/worker state.
+- DONE → Product WOW contract guards cover the Work Center next-action surface.
+- ACTUAL RESULT → Final Certification Gate `#7538` **PASS** on the exact code candidate.
+- ACTUAL RESULT → Quality `#6740` **PASS** on the exact code candidate, including Typecheck, Lint, Build, Performance budget, core regressions and production/security contracts.
+- ACTUAL RESULT → Device-Independent Browser E2E `#1006` **PASS** on the exact code candidate: browser smoke and authenticated Auth/Tenant/Product/Import E2E both succeeded, with cloud evidence uploaded.
+- ACTUAL RESULT → Data-quality runtime `#2880` **PASS** on the exact code candidate.
+- ACTUAL RESULT → Phase-F live resilience `#1068` is **FAIL-CLOSED / BLOCKED EXTERNAL**, not a code failure: local resilience tests, static contracts and authenticated canary resolution passed, then the live probe stopped because `RESILIENCE_MAX_RPO_SECONDS` is not provisioned in GitHub Actions. No RPO threshold was invented.
+- ACTUAL RESULT → Netlify preview is successful for the PR head; Vercel remains externally blocked by the free-plan deployment-rate limit. No stale Vercel PASS transferred.
+- PRECISE STOP POINT → all current-code certification/quality/browser evidence is green; the release boundary is now solely the missing governed RPO threshold for Phase-F.
+- WHAT REMAINS → provision an approved `RESILIENCE_MAX_RPO_SECONDS` GitHub Actions secret/variable, rerun Phase-F on the unchanged candidate, consume the resulting backup/RPO/RTO evidence, then merge only if Phase-F closes.
+- NEXT ACTION → set the approved RPO threshold in GitHub Actions and rerun `phase-f-live-resilience` on candidate `a87ebaef725a4d920a2dd26bf1695e197126b5aa`; no code change is justified until that external configuration is supplied.
+- DO NOT REPEAT → do not invent an RPO number, do not weaken the Phase-F required configuration, do not transfer stale deployment/runtime evidence, and do not merge while Phase-F remains BLOCKED EXTERNAL.
+- CURRENT RESUME POINTER → `a87ebaef725a4d920a2dd26bf1695e197126b5aa` → approved `RESILIENCE_MAX_RPO_SECONDS` → rerun Phase-F → consume backup/RPO/RTO proof → merge only with exact current-SHA evidence → remaining final certification.
+
+## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-WAVE-46-CANDIDATE
+
+- SESSION-ID → `2026-09-21-AGHBARI-WAVE-46`
+- SHA → candidate `7b756852a45aabb43024c2253f6b538fa7c6e559`; subsequent memory/index edits remain governance-only descendants.
+- DONE → Work Center actionability UI implemented at `e51f6b1355ea7b75157504ac62b11039b3749136` and accessibility refinement at `7b756852a45aabb43024c2253f6b538fa7c6e559`.
+- DONE → Product WOW contract guard added at `ecdc7ff7d7638f3385eda7c8ad58ab95017d41a6`.
+- ACTUAL RESULT → first Final Certification run `#7535` failed closed on the certification-boundary check because the Master Execution Index still named historical candidate `2caedfa8...`; the log explicitly reports no indexed-current-candidate match and stops before product contract tests.
+- ACTUAL RESULT → root cause is governance/index drift, not a Work Center product-code failure. The boundary contract remains fail-closed.
+- CORRECTION → Master Execution Index is now being rebound to the actual current candidate `7b756852a45aabb43024c2253f6b538fa7c6e559`; this is a governance-only repair allowed by the certification boundary.
+- PRECISE STOP POINT → fresh synchronized CI/certification runs for the rebound candidate are the immediate release boundary.
+- WHAT REMAINS → fresh Final Certification, Phase-F live resilience, quality/build/browser runtime evidence on `7b756852a45aabb43024c2253f6b538fa7c6e559`; repair only current-candidate failures.
+- NEXT ACTION → consume the new exact-head runs triggered by the candidate-boundary correction.
+- DO NOT REPEAT → do not weaken `check-certification-boundary-integrity.mjs`, do not re-use `2caedfa8...` as the active candidate, and do not classify the first Final Certification failure as a UI regression.
+- CURRENT RESUME POINTER → `7b756852a45aabb43024c2253f6b538fa7c6e559` → fresh exact-head CI/Phase-F/Final Certification → repair current-candidate failure if any → merge only with exact evidence → continue backup/RPO-RTO and remaining Phase-F closure.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-WAVE-45-FINAL
 
 - SESSION-ID → `2026-09-21-AGHBARI-WAVE-45`
