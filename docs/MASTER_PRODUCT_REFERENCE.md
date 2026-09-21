@@ -1,3 +1,13 @@
+## IMPLEMENTATION UPDATE — 2026-09-21 / WORK CENTER ACTIONABLE EMPTY STATES WAVE 47
+
+- Exact code/test candidate: `4995f5eb3b520cc8109d1f7b3c3baa5aa1d60525`; UI implementation commit `9e7d8b4040aacce163c780bf5c4f353ee6f8b64f`; UI contract guard `4995f5eb3b520cc8109d1f7b3c3baa5aa1d60525`.
+- Work Center now distinguishes a genuinely empty tenant queue from a filter producing zero matches.
+- Empty tenant state now sends the user directly to the canonical unified `/import` entry; filtered-empty state restores the full queue in place without a reload.
+- This completes the missing operational next-step behavior without exposing internal importer taxonomy or creating a parallel workflow.
+- Exact source re-read confirms both actions and the contract guards. Compare from the prior release anchor `916ef274...` to `4995f5...` shows only the intended UI/contract changes plus the synchronized governance files.
+- Current exact-head deployment proof remains open: Vercel reports failure/pending `build-rate-limit` for the newest main commit, and no GitHub Actions run is attached to the current SHA. The READY deployment for `43219c...` proves only that earlier exact SHA and is not transferred.
+- No route, RPC, runner, table, import engine, tenant/RLS path or deterministic business calculation was added.
+
 ## IMPLEMENTATION UPDATE — 2026-09-21 / DATA QUALITY DECISION ACTION WAVE 46
 
 - Exact code candidate: `c71742d8b70f61ed580791cabf415ad81fd6944a`; UI implementation commit: `43219c1bf39c5cffee5f203fabd1324d01699aab`; UI contract guard: `c71742d8b70f61ed580791cabf415ad81fd6944a`.
