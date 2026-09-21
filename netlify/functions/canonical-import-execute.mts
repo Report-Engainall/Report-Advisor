@@ -50,13 +50,15 @@ export default async (request: Request): Promise<Response> => {
       importId?: string;
       fileName?: string;
       sourceHash?: string;
-      entityType?: 'products' | 'customers' | 'sales_invoices';
+      entityType?: 'products' | 'customers' | 'sales_invoices' | `generic:${string}`;
       rows?: unknown[];
       qualityScore?: number;
       mode?: 'execute' | 'finalize-source';
     };
 
     const mode = payload.mode ?? 'execute';
+    const genericEntity = typeof payload.entityType === 'string' && /^generic:[A-Za-z][A-Za-z0-9_-]{0,63}$/.test(payload.entityType);
+    if (payload.entityType !== 'products' && payload.entityType !== 'customers' && payload.entityType !== 'sales_invoices' && !genericEntity) throw new Error('CANONICAL_IMPORT_ENTITY_TYPE_INVALID');
     if (!payload.importId || !payload.entityType || (mode === 'execute' && (!Array.isArray(payload.rows) || !Number.isFinite(payload.qualityScore)))) {
       throw new Error('CANONICAL_IMPORT_REQUEST_INVALID');
     }
