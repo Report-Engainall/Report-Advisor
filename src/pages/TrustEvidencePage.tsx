@@ -51,6 +51,14 @@ const evidenceSurfaces = [
       </div>
     </section>
 
+    <section className="ag-decision-strip" aria-label="ملخص الثقة">
+      <div className="ag-decision-cell"><span className="ag-decision-label">الحالة</span><span className="ag-decision-value">{status}</span></div>
+      <div className="ag-decision-cell"><span className="ag-decision-label">الكيانات المفحوصة</span><span className="ag-decision-value">{snapshot?.entities?.length ?? 0}</span></div>
+      <div className="ag-decision-cell"><span className="ag-decision-label">المشكلات</span><span className="ag-decision-value">{issueTotal ?? 'غير متاح'}</span></div>
+      <div className="ag-decision-cell"><span className="ag-decision-label">المصدر التالي</span><span className="ag-decision-value">جودة البيانات</span></div>
+      <div className="ag-decision-cell"><span className="ag-decision-label">قاعدة القرار</span><span className="ag-decision-value">لا قرار بلا دليل</span></div>
+    </section>
+
     <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
       {states.map(({ title, text, tone, icon: Icon }) => <Card key={title} className="ag-dashboard-module"><CardBody>
         <div className="flex items-center justify-between gap-3"><span className={'rounded-full px-2.5 py-1 text-[9px] font-black '+tone}>{title}</span><Icon size={18} className="text-ink-400"/></div>
