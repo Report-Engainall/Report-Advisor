@@ -1,3 +1,14 @@
+## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-38
+- SESSION-ID → `2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-38`
+- EXACT PRODUCT CODE HEAD → `167fcaf05400af135d76e1409a8dc8d26cf2f65f`
+- DONE → removed the isolated legacy specialized folder-importer package: `FolderBatchImportPanel`, `batch-folder.ts`, both batch-folder tests, and `check-folder-batch-import.mjs`.
+- DONE → strengthened `check-import-center-product-contract.mjs` so the unified import contract fails closed if the legacy folder-importer files reappear or if fixed entity targets leak into the `/import` entry.
+- VERIFIED → GitHub repository tree and Code Search show no remaining references to the removed folder importer component/tests/contract script.
+- PRODUCT RULE → `/import` remains one source-first canonical entry; specialization such as `products/customers/sales_invoices` is not a user-facing import mode.
+- CI BOUNDARY → the latest code candidate also contains the prior TypeScript fixes and dashboard chart lazy-loading, but exact-head build/performance/browser PASS still requires fresh CI evidence; Vercel remains blocked by free-plan `build-rate-limit`.
+- CURRENT RESUME POINTER → `167fcaf05400af135d76e1409a8dc8d26cf2f65f` → fresh exact-head CI → next independent runtime/resilience closure → Phase-F/backup/OCR → tenant A/B/watched folder → final certification.
+- DO NOT REPEAT → do not restore the legacy folder batch importer or create a second import engine/path.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-37
 - SESSION-ID → `2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-37`
 - EXACT PRODUCT CODE HEAD → `8a9d6dc1df8afc9a421b0db205225953f43ad957`
