@@ -1,3 +1,22 @@
+## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-COMPREHENSIVE-WAVE-44
+- SESSION-ID → `2026-09-21-AGHBARI-COMPREHENSIVE-WAVE-44`
+- SHA → current main before final memory write-back: `09f948f654a94ffecf2e8dc73e38d64ed532277e`.
+- DONE → repaired the unified canonical import terminal-failure experience in `src/pages/CanonicalImportPage.tsx` at `42c873d48980650c8cd38a6c242a416862e5f0c8`.
+- DONE → terminal failure summaries now include `invalidRows`; failure UX distinguishes server execution 500s, review approval requirements, and authoritative-source failures, preserves the exact technical error, gives the next action, and refreshes import history after failure.
+- DONE → strengthened `scripts/check-import-center-product-contract.mjs` at `52f362bdcab600b597f8321cd9a6f6a2ad9c0599` to guard the terminal failure contract and actionable error surface.
+- DONE → updated `docs/MASTER_PRODUCT_REFERENCE.md` at `913b0832f4d71c421435f894759f67f87a907d23` with the implementation and live resilience evidence.
+- DONE → updated `docs/MASTER_EXECUTION_INDEX.md` at `09f948f654a94ffecf2e8dc73e38d64ed532277e` with the exact-head code/test evidence, live staging results, security/backup gaps, and next executable action.
+- ACTUAL RESULT → live staging newest two imports after the finish-job repair both reached `completed`, with `committed=1`, `invalidRows=0`, and persisted snapshot IDs.
+- ACTUAL RESULT → historical HTTP-500 cluster is bounded to observations before the two successful imports; the newest observed 500 at 17:01 UTC had a related durable report job that later expired and was recovered. This is evidence of a worker-lease/runtime interaction, not proof that every older 500 shared one root cause.
+- ACTUAL RESULT → one expired `processing` lease was recovered with the existing `recover_expired_report_execution_jobs` function. Immediate post-recovery verification: `expired_active_leases=0`, `processing=0`, `queued=564`, `failed=10`, `dead_letter=7`, `completed=3110`.
+- ACTUAL RESULT → current backup proof remains absent: `backup_verification_runs=0`. Supabase security advisor reports 47 authenticated-executable SECURITY DEFINER findings; no blanket revoke was applied.
+- ACTUAL RESULT → fresh exact-head build/browser/deployment PASS remains unproven. Vercel free-plan `build-rate-limit` remains an external blocker and PC01 is offline.
+- PRECISE STOP POINT → code/test/UI/contract fixes and live worker recovery are complete; governance references are updated; runtime/build proof remains the remaining release boundary.
+- WHAT REMAINS → fresh exact-head CI/build/browser/certification; close backup/RPO-RTO evidence; inspect worker-lease/server-boundary behavior with disposable evidence; then tenant A/B, server OCR authority, watched-folder runtime, and final certification.
+- NEXT ACTION → consume the first fresh exact-head CI/build/browser/certification result for the current main; repair any new exact-head failure without weakening gates, then proceed directly to backup/RPO-RTO proof and remaining Phase-F runtime closure.
+- DO NOT REPEAT → do not restore generic failure text, omit terminal `invalidRows`, treat historical 500s as current, blanket-revoke SECURITY DEFINER functions, or transfer stale deployment/runtime PASS.
+- CURRENT RESUME POINTER → current main after this write-back → fresh exact-head CI/build/browser/certification → repair fresh failure if any → backup/RPO-RTO → worker/server-boundary → tenant A/B/OCR/watched-folder → final certification.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-CONNECTION-RENEWAL-43
 - SESSION-ID → `2026-09-21-AGHBARI-CONNECTION-RENEWAL-43`
 - SHA → final current main after this session's governance write-backs: `a2cff63713ca1578999ef89565ebec5f69184e86`.
