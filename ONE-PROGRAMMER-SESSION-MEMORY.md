@@ -1,5 +1,5 @@
-# ONE-PROGRAMMER-SESSION-MEMORY
-> Canonical startup/resume memory for Report-Advisor / الأغبري.
+﻿# ONE-PROGRAMMER-SESSION-MEMORY
+> Canonical startup/resume memory for Report-Advisor / ط§ظ„ط£ط؛ط¨ط±ظٹ.
 > Do not create another competing session-memory file.
 
 ## MANDATORY START SEQUENCE
@@ -22,7 +22,7 @@
 ## CURRENT EXACT STATE
 - Branch: `commercial/comprehensive-product-development-20260918-rebased`
 - PR: `#595`
-- Last exact HEAD verified before this memory write: `2cecc10d80201e54c3f7252eb8e7c76dccc2ae1c`
+- Last exact HEAD verified before this memory write: `c53d66afd327a6b935dd826c4662315ec6a28b40`
 - UI direction: Aghbari BI/Decision OS architecture; no Bolt/commerce navigation.
 - Current product work: full visual coverage and architecture consolidation continue from existing implementation; do not rebuild from zero.
 
@@ -38,4 +38,5 @@ Apply the canonical architecture to the live navigation/shell, remove incompatib
 - Do not delete a code surface without dependency inspection.
 
 ## WRITE-BACK FORMAT
-`CURRENT EXACT HEAD → DONE → ACTUAL RESULT → PRECISE STOP POINT → NEXT ACTION → DO NOT REPEAT → CURRENT RESUME POINTER`
+`CURRENT EXACT HEAD â†’ DONE â†’ ACTUAL RESULT â†’ PRECISE STOP POINT â†’ NEXT ACTION â†’ DO NOT REPEAT â†’ CURRENT RESUME POINTER`
+
