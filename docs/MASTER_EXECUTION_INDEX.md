@@ -79,8 +79,8 @@ This constitution is mandatory for every product/UI change. The programmer must 
 - **Current product code:** `main` at `7ed583d40ac4090620270c17b48b38f75949cacd`.
 - **Visual implementation state:** comprehensive Aghbari UI wave integrated; global Advisor fixed and mobile-ready; canonical 8-zone navigation in place; Proposal Demo no longer a primary navigation surface; Trust/Outputs metadata unified; stale UI contracts converted to structural checks.
 - **Exact-head verified gates:** typecheck PASS; Product WOW UI PASS; UI route/sidebar parity PASS; Executive Dashboard UI PASS; Intelligence Product Contract PASS; Connections/Language UI PASS (7 checks).
-- **Runtime visual proof:** NOT PROVEN on PC01 because local Supabase environment variables are absent; no synthetic configuration was introduced.
-- **Immediate execution priority:** configured-preview visual sweep of all canonical surfaces, followed by real defect fixes, responsive/accessibility/performance polish, and independent runtime/truth/evidence/CI closure.
+- **Runtime visual proof:** public/login surface PROVEN on exact product HEAD via Vercel deployment `dpl_7SbnFXRtMJhto7aJKsqfBq2ggHqK` (READY, HTTP 200); Chrome verified RTL desktop/mobile and no console errors or horizontal overflow. Authenticated post-login visual coverage remains NOT PROVEN because auth was not bypassed or fabricated.
+- **Immediate execution priority:** authenticated visual sweep of all canonical surfaces using a real permitted session/runtime, followed by real defect fixes, responsive/accessibility/performance polish, and independent runtime/truth/evidence/CI closure.
 
 ### SINGLE-PROGRAMMER EXECUTION MODE — NO OWNER SPLIT
 
