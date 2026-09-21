@@ -1,16 +1,18 @@
-## CURRENT EXECUTION BOUNDARY — 2026-09-21 / WAVE 46 — EXACT-HEAD RESULTS
+## CURRENT EXECUTION BOUNDARY — 2026-09-21 / WAVE 46 — VERIFIED EXCEPT PHASE-F RPO CONFIG
 
 > Exact-head evidence only.
 
 - **CURRENT_CODE_TEST_CANDIDATE:** `a87ebaef725a4d920a2dd26bf1695e197126b5aa` on `exec/wave-46-workcenter-actionability-20260921`.
+- **GOVERNANCE HEAD:** `8053b8d179869f65f0226d893d836a84af02dfe9` (subsequent to code candidate; governance-only).
 - **UI DONE:** Work Center next-action surface is state-driven, existing-path only, and accessibility-labeled.
-- **CERTIFICATION:** Final Certification Gate `#7538` PASS on the exact candidate.
-- **QUALITY:** Quality `#6740` PASS on the exact candidate, including Typecheck/Lint/Build/Performance and broad contract/regression stages.
-- **BROWSER:** Browser smoke PASS on the exact candidate; authenticated E2E remains in progress.
-- **PHASE-F:** Run `#1068` FAIL-CLOSED external configuration: `RESILIENCE_MAX_RPO_SECONDS` is missing. Local/static resilience and real canary authentication passed before the blocker was hit.
-- **DEPLOYMENT:** Netlify preview is healthy; Vercel is externally rate-limited. No stale deployment PASS is transferred.
-- **NEXT EXECUTABLE ACTION:** consume authenticated E2E, then provision the approved RPO threshold and rerun Phase-F without changing the code candidate; merge only after exact evidence closes Phase-F.
-- **DO NOT REPEAT:** do not invent an RPO threshold, do not weaken Phase-F required configuration, and do not mark Phase-F PASS from partial probes.
+- **CERTIFICATION:** Final Certification Gate `#7538` PASS.
+- **QUALITY:** Quality `#6740` PASS, including Typecheck/Lint/Build/Performance and broad contract/regression stages.
+- **BROWSER:** Device-Independent Browser E2E `#1006` PASS, including authenticated Auth/Tenant/Product/Import E2E and evidence upload.
+- **DATA QUALITY:** `#2880` PASS.
+- **PHASE-F:** `#1068` FAIL-CLOSED external configuration: `RESILIENCE_MAX_RPO_SECONDS` missing. All preceding local/static/canary checks passed.
+- **DEPLOYMENT:** Netlify preview success; Vercel externally rate-limited; no stale Vercel PASS transferred.
+- **NEXT EXECUTABLE ACTION:** provision the approved `RESILIENCE_MAX_RPO_SECONDS` value in GitHub Actions and rerun Phase-F on `a87ebaef725a4d920a2dd26bf1695e197126b5aa` without code changes.
+- **DO NOT REPEAT:** do not invent the RPO threshold, weaken the probe, or merge while Phase-F remains blocked.
 
 ## CURRENT EXECUTION BOUNDARY — 2026-09-21 / WAVE 45 — REPORT SNAPSHOT + EXACT-HEAD CERTIFICATION
 
