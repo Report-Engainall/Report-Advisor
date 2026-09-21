@@ -1266,3 +1266,9 @@ This update records implementation state only; it does not replace the product c
 - The unified `/import` entry remains source-first and domain-neutral.
 - The Import Center contract now fails closed on reintroduction of the removed folder-importer package or fixed user-facing import targets.
 - No new import route, runner, RPC, table, or specialized canonical path was introduced.
+
+
+## IMPLEMENTATION UPDATE — 2026-09-21 / CANONICAL PROVENANCE LINT CLOSURE
+- Canonical import commit mapping now uses the full reconciled row with provenance and a non-empty type alias.
+- The exact-head lint error is closed without changing the canonical RPC or import lifecycle.
+- Prior exact-head Build and Performance Budget passes remain historical evidence only until re-run on `e6c39323eb0c0177b1de73c3b276ce9491fd07f0`.
