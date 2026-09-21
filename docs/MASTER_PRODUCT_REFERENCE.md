@@ -202,6 +202,210 @@ The following are explicitly **not** the product identity and must not be restor
 
 This constitution supersedes conflicting UI/navigation proposals while preserving valid underlying technical capabilities.
 
+## 2B. CANONICAL AGHBARI PRODUCT TREE — UI / UX / SURFACE CONTRACT
+
+This is the target product tree. It defines how capabilities are presented; it does not authorize new backend paths merely to satisfy a visual tree.
+
+الأغبري
+├─ Global App Shell
+│  ├─ RTL workspace
+│  ├─ Header / company / period / As Of / freshness / trust
+│  ├─ Command Palette
+│  ├─ Notifications / account
+│  ├─ Persistent Aghbari Advisor drawer
+│  └─ Responsive / PWA / low-bandwidth behavior
+├─ 01 مركز القرار
+│  ├─ نبض الأعمال
+│  ├─ Decision Queue
+│  ├─ Signals & Exceptions
+│  ├─ Opportunities / Money Recovery
+│  ├─ Decision Coverage
+│  ├─ Decision ROI
+│  ├─ Business Replay
+│  └─ Outcome follow-up
+├─ 02 البيانات والتشغيل
+│  ├─ Work Center
+│  ├─ Import / Upload
+│  ├─ Document Intelligence
+│  ├─ Extraction / OCR
+│  ├─ Validation / Review
+│  ├─ Reconciliation / Deduplication
+│  ├─ Data Quality
+│  ├─ Sources / Connectors
+│  ├─ Watched Reports / Folder processing
+│  └─ Operational jobs
+├─ 03 التحليل التجاري
+│  ├─ Analytics Home
+│  ├─ Sales
+│  ├─ Purchases
+│  ├─ Receivables / Collections
+│  ├─ Liquidity / Cash
+│  ├─ Profitability / Margin
+│  ├─ Inventory
+│  ├─ Demand / Movement
+│  ├─ Customers / Customer 360
+│  ├─ Products / Product 360
+│  ├─ Suppliers
+│  ├─ RFM
+│  ├─ ABC / XYZ / FSN
+│  ├─ Aging
+│  ├─ Concentration
+│  └─ Anomalies / Trends
+├─ 04 الذكاء والقرار
+│  ├─ Intelligence Control Room
+│  ├─ Signals / Drivers / Early Warning
+│  ├─ Recommendations
+│  ├─ Forecasts + Backtesting
+│  ├─ Scenarios / What-if
+│  ├─ Decision Experience
+│  └─ Decision Playbooks
+├─ 05 الثقة والأدلة
+│  ├─ Evidence Center
+│  ├─ Evidence Passport
+│  ├─ Metric Inspector
+│  ├─ Provenance / Lineage
+│  ├─ Snapshots / As-of
+│  ├─ Confidence / Truth states
+│  ├─ Decision Evidence
+│  └─ Benchmark Governance
+├─ 06 التقارير والمخرجات
+│  ├─ Executive Report
+│  ├─ Sales / Purchases
+│  ├─ Inventory / Demand
+│  ├─ Receivables / Profitability
+│  ├─ Decision / Recommendation Reports
+│  ├─ Data Quality / Audit
+│  ├─ Report Builder
+│  └─ PDF / Excel / CSV / Print
+├─ 07 البيانات المرجعية
+│  ├─ Customers
+│  ├─ Products
+│  ├─ Suppliers
+│  ├─ Warehouses / Locations
+│  ├─ Inventory entities
+│  ├─ Alternatives
+│  └─ Business Keys / Synonyms / Units / Semantic Dictionary
+└─ 08 الإعدادات
+   ├─ Company / Workspace
+   ├─ Users / Roles / Permissions
+   ├─ Profile
+   ├─ Language / Currency
+   ├─ Sources / Connectors
+   ├─ Notifications
+   ├─ Security
+   ├─ Integrations
+   └─ System Health / Operations
+
+### Progressive disclosure contract
+
+The same product supports three density levels without becoming three products:
+- Essential: Decision Center, Import, Reports, Sales, Receivables, Inventory, Customers, Products, Decisions.
+- Advanced: Profitability, Demand, RFM, ABC, Aging, Alternatives, Metric Inspector, Scenarios, Data Quality.
+- Expert: Document Intelligence, File Analysis, Evidence/Audit, Integrations, System/Operations.
+
+Role presets may emphasize the same canonical surfaces for Executive, Finance, Sales, Collections, Inventory, Operations, Analyst and Data/Import Operator. Hidden UI is never an authorization boundary; server-side tenant/RLS/permissions remain authoritative.
+
+### Screen completion contract
+
+Every canonical surface must be a native Aghbari screen with:
+- real data path or explicit unavailable state;
+- loading, empty, review, blocked and error states;
+- evidence/truth context where material;
+- mobile/responsive behavior;
+- keyboard/focus accessibility;
+- consistent shell/design system;
+- contextual drill-down/return path;
+- no standalone mock data.
+
+## 2C. CANONICAL TECHNOLOGY & OPERATING STACK
+
+### Current native application stack
+
+- Frontend: React 18 + TypeScript + Vite.
+- Routing: React Router.
+- Styling/design: Tailwind CSS + shared CSS/design tokens; IBM Plex Sans Arabic; RTL-first.
+- Icons: Lucide React.
+- Charts: Recharts through shared chart primitives.
+- Business/data client: Supabase JS.
+- Backend/data authority: Supabase/Postgres, RLS, RPC/security-definer boundaries, tenant context.
+- Document inputs: XLSX/CSV/PDF/text/Word-compatible extraction using the existing adapters: xlsx, pdfjs-dist, mammoth, tesseract.js where applicable.
+- PWA/offline: service worker, local persistence/fingerprint patterns and progressive/offline-first workflows where the existing contract requires them.
+- AI: deterministic query/intelligence context first; LLM/Ollama/local models are assistive adapters only and never the source of authoritative numeric truth.
+- Hosting/deployment: GitHub source + GitHub Actions; Vercel/Netlify are deployment/preview targets, never evidence by themselves.
+- Validation: repository contracts, TypeScript, build/lint, targeted tests, browser E2E, tenant adversarial checks, persistence/readback checks and release/certification gates.
+
+### Optional open-source capability registry
+
+Open-source engines remain adapters/reference capabilities, not mandatory bundled dependencies. Existing registry candidates include DuckDB, Apache Arrow/Parquet, Polars/pandas, Tesseract, Docling, PaddleOCR, Unstructured, LangChain/LangGraph, Dify/Langflow and related analytics/document/AI tooling. Any adoption requires capability proof, license/security review, measurable benefit and adapter isolation.
+
+### Intelligence and reliability techniques
+
+Use, where already supported by repository contracts:
+- deterministic semantic metric resolution;
+- evidence/lineage and immutable snapshots;
+- analysis caching and cache invalidation;
+- lazy routes/code splitting/manual chunking;
+- virtualized large-data table patterns;
+- debounced search/prefetch where useful;
+- bounded concurrency;
+- queue leases, heartbeats, checkpoints, retry/DLQ;
+- watched-folder fingerprinting and incremental reconciliation;
+- forecasting minimum-data gates + MAE/RMSE/MAPE/backtesting;
+- bounded scenarios/constraint-aware optimization;
+- tenant-aware business-risk/approval controls;
+- artifact integrity and release manifests;
+- SLO/error-budget and health evidence;
+- backup/restore and RPO/RTO evidence;
+- rollback/forward-fix drills.
+
+### Space / cost / build discipline
+
+Prefer:
+1. route-level lazy loading and shared components;
+2. existing RPCs/runners/adapters over duplicates;
+3. manual chunking only where it reduces actual load/cost;
+4. removal/consolidation of dead CSS, components, routes and assets after dependency inspection;
+5. small visual primitives over repeated per-page implementations;
+6. no large images/fonts/assets added to Git without measurable product value;
+7. no new package unless existing capabilities cannot safely satisfy the requirement;
+8. no rerun of unchanged expensive gates.
+
+The objective is maximum product surface with minimum duplicate code, bundle weight, build/deploy cost and CI repetition without reducing evidence quality or functionality.
+
+## 2D. END-TO-END PRODUCT EXECUTION GRAPH
+
+Source / Connected Data
+  ↓
+Detection → Extraction → OCR/Table parsing
+  ↓
+Normalization → Entity Resolution → Validation
+  ↓
+Data Quality → Reconciliation → Canonical Truth
+  ↓
+Semantic Metrics → Deterministic KPI Engine
+  ↓
+Analytics → Signals → Evidence
+  ↓
+Intelligence → Forecast / Scenario / Recommendation
+  ↓
+Decision → Approval → Action
+  ↓
+Outcome → Replay → Learning
+  ↓
+Benchmark / Trust
+  ↓
+Reports / Executive Outputs
+
+At every arrow the UI should expose the state that is genuinely known. AI never replaces a missing deterministic boundary.
+
+## 2E. COMPLETE PRODUCT GATE
+
+A product surface is complete only when:
+Product UX + Visual consistency + Real data path + Truth state + Persistence + Tenant/RLS + Runtime behavior + Evidence + Tests + Performance + Deployment readiness
+
+Passing build or route existence alone is never completion.
+
+
 
 ## 2. MASTER REQUIREMENTS — consolidated from the comprehensive specification
 
