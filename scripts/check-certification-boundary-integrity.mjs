@@ -13,6 +13,8 @@ export function validateCertificationBoundary({ index, head, parent, changedFile
 
   const allowedGovernanceOnly = new Set([
     'docs/MASTER_EXECUTION_INDEX.md',
+    'ONE-PROGRAMMER-SESSION-MEMORY.md',
+    'docs/MASTER_PRODUCT_REFERENCE.md',
     'docs/EVIDENCE/2026-09-04_RBAC_APPROVAL_AUTHORITY_FORENSIC.md',
     'docs/EVIDENCE/2026-09-04_CANDIDATE_RECONCILIATION_c346-to-f89.md',
     'scripts/check-artifact-migration-provenance.mjs',
