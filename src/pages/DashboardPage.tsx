@@ -330,11 +330,10 @@ export function DashboardPage() {
             </Card>
           </div>
         </section>
-          </section>
         </Suspense>
       )}
 
-      <Suspense fallback={<div className="grid gap-4 lg:grid-cols-3"><div className="h-72 animate-pulse rounded-[16px] bg-ink-100" /><div className="h-72 animate-pulse rounded-[16px] bg-ink-100" /><div className="h-72 animate-pulse rounded-[16px] bg-ink-100" />}></div>}
+      <Suspense fallback={<div className="grid gap-4 lg:grid-cols-3"><div className="h-72 animate-pulse rounded-[16px] bg-ink-100" /><div className="h-72 animate-pulse rounded-[16px] bg-ink-100" /><div className="h-72 animate-pulse rounded-[16px] bg-ink-100" /></div>}>
             <section className="grid gap-4 lg:grid-cols-3">
         <Card>
           <CardHeader title="فرص العملاء" subtitle="أعلى العملاء بحسب البيانات الحالية" />
