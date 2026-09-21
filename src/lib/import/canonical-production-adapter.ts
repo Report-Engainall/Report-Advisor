@@ -2,14 +2,14 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import type { ReportExecutionStage } from '../report-execution/checkpoint';
 import { SupabaseReportExecutionStore } from '../report-execution/durable-worker-adapter';
 import { runDurableProductionLifecycle } from '../report-execution/durable-production-runner';
-import type { ReconciledCanonicalImportRow } from './canonical-truth-boundary';
+import type { CanonicalImportEntityType, ReconciledCanonicalImportRow } from './canonical-truth-boundary';
 import { commitImportBatch } from './canonical-commit';
 
 export interface DurableCanonicalImportInput {
   importId: string;
   fileName: string;
   sourceHash: string;
-  entityType: 'products' | 'customers' | 'sales_invoices';
+  entityType: CanonicalImportEntityType;
   rows: ReconciledCanonicalImportRow[];
   qualityScore: number;
 }
@@ -32,6 +32,9 @@ interface EnqueuedJob {
 }
 
 function rowKey(entityType: DurableCanonicalImportInput['entityType'], row: ReconciledCanonicalImportRow): string {
+  if (entityType.startsWith('generic:')) {
+    return `${entityType}:${row.provenance.lineageId}`;
+  }
   const value = entityType === 'products'
     ? row.data.sku
     : entityType === 'sales_invoices'
