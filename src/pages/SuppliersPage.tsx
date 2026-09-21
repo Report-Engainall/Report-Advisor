@@ -3,7 +3,7 @@ import { Mail, MapPin, Phone, Search, Truck } from 'lucide-react';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { PageHeader, LoadingState, ErrorState, EmptyState } from '@/components/ui/States';
-import { DataTable, type DataTableColumn } from '@/components/ui/DataTable';
+import { DataTable } from '@/components/ui/DataTable';
 import { fetchSuppliersPage, type SupplierRow } from '@/lib/queries';
 
 const PAGE_SIZE = 50;
@@ -33,7 +33,7 @@ export function SuppliersPage() {
 
   useEffect(() => { void load(); }, [load]);
 
-  const columns: DataTableColumn<SupplierRow>[] = [
+  const columns = [
     {
       key: 'name',
       label: 'المورد',
