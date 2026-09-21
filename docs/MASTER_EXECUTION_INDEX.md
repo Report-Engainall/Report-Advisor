@@ -1,3 +1,20 @@
+## CURRENT EXECUTION BOUNDARY — 2026-09-21 / WAVE 81 — REPORT READINESS INTELLIGENCE
+
+> Exact-head evidence only. No historical runtime result is transferred.
+
+- CURRENT_CODE_TEST_CANDIDATE: `1c3742845eaf82e2ba0a936a6ef4edd114233e9d`.
+- DONE: Reports Center now exposes a live `REPORT READINESS` map for Sales, Profitability, Inventory, and Receivables.
+- DONE: Each readiness state is derived from existing canonical snapshot fields; profitability requires both gross profit and gross margin, while receivables follows the authoritative aging status.
+- DONE: Each report readiness state has a direct route and an explanatory detail so the user can distinguish CALCULATED, NO DATA, and INSUFFICIENT DATA before opening a report.
+- DONE: Product WOW contract guards the new readiness surface and its canonical truth requirements.
+- VERIFIED: compare from the prior functional candidate `403ecef...` is linear; this wave adds only Reports Center UI/contract plus governance descendants.
+- CURRENT EXTERNAL EVIDENCE: Vercel remains blocked by free-plan `build-rate-limit`; no current-head Vercel runtime PASS. Netlify fresh evidence for `1c374284...` has not yet been emitted. No CI PASS is claimed.
+- PHASE-F / LEGACY RECOVERY: unchanged and fail-closed; no import-job force-close, no invented Phase-F values.
+- PRECISE STOP POINT: live report readiness UI and contract are implemented.
+- NEXT EXECUTABLE ACTION: consume fresh exact-head deployment/CI evidence for `1c374284...`; meanwhile continue independent product/UI closure and governed recovery analysis.
+- DO NOT REPEAT: do not transfer `f87243c...` or `403ecef...` deployment evidence to `1c374284...`; do not claim report readiness from CSS or card existence; do not fabricate report metrics.
+- CURRENT RESUME POINTER: `1c3742845eaf82e2ba0a936a6ef4edd114233e9d` → fresh exact-head deployment/CI evidence → authenticated browser proof → governed legacy recovery → Phase-F real recovery → final certification.
+
 ## CURRENT EXECUTION BOUNDARY — 2026-09-21 / WAVE 80 — DECISION CENTER REPLAY GAP ACTIONABILITY
 
 > Exact-head evidence only. No historical runtime result is transferred.
