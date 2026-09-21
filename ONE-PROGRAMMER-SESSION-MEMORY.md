@@ -1,3 +1,19 @@
+## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-52
+
+- SESSION-ID → `2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-52`
+- SHA → `d6aec3aa6285f852043c4b3b7b1bbb364305141b` (exact code/test head before this governance write-back).
+- DONE → upgraded Canonical Import history with a separate `historyError` state so backend/service failures cannot masquerade as an empty history.
+- DONE → kept true empty history actionable via the existing `reset` source-selection path; no parallel importer was introduced.
+- DONE → strengthened `scripts/check-product-wow-ui-contract.mjs` to require the error distinction and in-place retry.
+- DONE → live-staging security/runtime verification: 103 public tables, all with RLS; security advisor 60 authenticated SECURITY DEFINER findings + one leaked-password-protection warning; core import/runtime functions inspected before considering privilege changes.
+- ACTUAL RESULT → exact source re-read confirms `historyError`, retry, and empty-history action. Compare from `db047cb4...` to `d6aec3aa...` contains only the Canonical Import UI and guard.
+- ACTUAL RESULT → exact-head deployment remains fail-closed at Vercel `build-rate-limit`; no build/browser/runtime PASS is claimed.
+- PRECISE STOP POINT → Wave 52 closes a real truth-boundary bug in the unified importer and records live database posture without unsafe privilege mutation.
+- WHAT REMAINS → fresh exact-head CI/build/Phase-F/browser certification; then backup/RPO-RTO restore proof, worker/server-boundary runtime, tenant A/B, server OCR authority, watched-folder runtime and final certification.
+- NEXT ACTION → obtain the first fresh exact-head CI/build/Phase-F/browser/certification result for `d6aec3aa...`; repair only a reproduced current-SHA failure.
+- DO NOT REPEAT → do not regress error→empty semantics; do not blanket-revoke SECURITY DEFINER functions; do not transfer stale READY deployments.
+- CURRENT RESUME POINTER → `d6aec3aa6285f852043c4b3b7b1bbb364305141b` → fresh exact-head CI/build/Phase-F/browser/certification → repair current-SHA failure if reproduced → backup/RPO-RTO → worker/server-boundary → tenant A/B → server OCR → watched-folder → final certification.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-51
 
 - SESSION-ID → `2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-51`
