@@ -14,6 +14,10 @@ const pkg = JSON.parse(fs.readFileSync(path.join(root,'package.json'),'utf8'));
 for (const script of ['test:operational-resilience','test:release-resilience-manifest','test:continuous-trust']) if (!pkg.scripts?.[script]) throw new Error(`Package gate missing: ${script}`);
 const probe = fs.readFileSync(path.join(root,'scripts/phase-f-live-resilience-probes.mjs'),'utf8');
 for (const token of [
+  'EXACT_HEAD',
+  'deployment_sha',
+  'deployment_id',
+  'DEPLOYMENT_SHA_MISMATCH',
   'logicalBackupRestore',
   "runCommand('supabase'",
   "'db', 'dump'",
