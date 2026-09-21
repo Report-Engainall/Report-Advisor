@@ -1,3 +1,22 @@
+## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-71
+
+- SESSION-ID → 2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-71
+- EXACT ACTIVE HEAD → `dd01200d41763864c63f370b9d6a75c7b24a0714`.
+- ACTIVE PR → #612 / `fix/trust-evidence-current-trust-state-20260921`.
+- DONE → Canonical Import UI now exposes the real proven lifecycle during save: source read, source stored, import job created, canonical reconciliation passed, authoritative runner result returned, final import-job recording.
+- DONE → The lifecycle tracker is driven by the existing real progress checkpoints in `CanonicalImportPage.tsx`; no synthetic backend status or new runtime path was introduced.
+- DONE → Product WOW UI contract now guards the lifecycle tracker and its fail-closed final-state wording.
+- VERIFIED → Cloudflare Pages is building the current head `dd01200...`; prior current-head Cloudflare preview `676533b...` was confirmed deploy-successful.
+- VERIFIED → On predecessor governance head `676533b...`, Execution Enforcement Contract and Final Certification Gate both passed. Fresh runs for `dd01200...` are currently in progress.
+- LIVE → Supabase staging remains ACTIVE_HEALTHY; import_jobs=4482; worker queued=564; processing=0; leased=0; failed=10; dead_letter=7; backup_verification_runs=0; production_rollback_drills=0; autonomy_rollback_drills=0.
+- PHASE-F → still FAIL-CLOSED because authorized `RESILIENCE_MAX_RPO_SECONDS` and logical backup source configuration are not provisioned. No value was invented.
+- DEPLOYMENT → Vercel remains limited by `api-deployments-free-per-day`; Netlify preview for recent head was processing/cancel-prone; Cloudflare remains the available current-head preview path.
+- PRECISE STOP POINT → `dd01200...` code/test candidate with fresh Execution Enforcement + Final Certification runs in progress.
+- WHAT REMAINS → consume fresh exact-head certification/enforcement; verify current Cloudflare preview after build; then continue Phase-F only when its authorized configuration exists.
+- NEXT ACTION → consume `dd01200...` exact-head CI results → verify current Cloudflare preview → Phase-F authorized configuration → real backup/restore/RPO/RTO/rollback → release-gate re-evaluation.
+- DO NOT REPEAT → do not transfer predecessor PASS to `dd01200...`; do not invent lifecycle states not returned by the canonical runner; do not create a second importer or lifecycle backend; do not treat Vercel/Netlify old or canceled previews as current-head proof.
+- CURRENT RESUME POINTER → `dd01200d41763864c63f370b9d6a75c7b24a0714` → fresh exact-head certification/enforcement → current-head preview verification → authorized Phase-F → recovery evidence → release gates.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-70
 
 - SESSION-ID → 2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-70
