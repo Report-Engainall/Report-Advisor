@@ -1,3 +1,18 @@
+## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-51
+
+- SESSION-ID → `2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-51`
+- SHA → `c90a97aad3c353f031c80cfd0788836b20add1e1` (exact code/test head before this governance write-back).
+- DONE → upgraded Inventory empty-state behavior in `src/pages/EntityPages.tsx` to distinguish source-empty from filter-empty and route each to a real next action.
+- DONE → corrected the initial condition so only authoritative `totalRows === 0` and explicit `filteredRows === 0` with a non-`all` filter produce empty-state branches; unknown counts remain unknown.
+- DONE → strengthened `scripts/check-product-wow-ui-contract.mjs` to bind the two conditions, unified import route and in-place filter reset.
+- ACTUAL RESULT → exact source re-read and compare from `e85e43d2...` to `c90a97aa...` show only the Inventory UI and contract changes in this wave.
+- ACTUAL RESULT → exact-head deployment remains fail-closed at Vercel `build-rate-limit`; no build/browser/runtime PASS is claimed.
+- PRECISE STOP POINT → Wave 51 Inventory actionability is implemented and contract-bound; Waves 48–50 remain intact.
+- WHAT REMAINS → fresh exact-head CI/build/Phase-F/browser certification; then backup/RPO-RTO restore proof, worker/server-boundary runtime, tenant A/B, server OCR authority, watched-folder runtime and final certification.
+- NEXT ACTION → obtain the first fresh exact-head CI/build/Phase-F/browser/certification result for `c90a97aa...`; repair only a reproduced current-SHA failure.
+- DO NOT REPEAT → do not regress to generic inventory empty text; do not treat unknown counts as zero; do not transfer stale deployment evidence.
+- CURRENT RESUME POINTER → `c90a97aad3c353f031c80cfd0788836b20add1e1` → fresh exact-head CI/build/Phase-F/browser/certification → repair current-SHA failure if reproduced → backup/RPO-RTO → worker/server-boundary → tenant A/B → server OCR → watched-folder → final certification.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-50
 
 - SESSION-ID → `2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-50`
