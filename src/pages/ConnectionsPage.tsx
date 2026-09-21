@@ -48,6 +48,14 @@ export function ConnectionsPage() {
         </div>
       </section>
 
+      <section className="ag-decision-strip" aria-label="ملخص المصادر">
+        <div className="ag-decision-cell"><span className="ag-decision-label">{ar ? "المسارات المتاحة" : "Available paths"}</span><span className="ag-decision-value">3</span></div>
+        <div className="ag-decision-cell"><span className="ag-decision-label">{ar ? "طبقة موصلات" : "Adapter layer"}</span><span className="ag-decision-value">2</span></div>
+        <div className="ag-decision-cell"><span className="ag-decision-label">Trust</span><span className="ag-decision-value">{ar ? "إثبات قبل الادعاء" : "Proof before claim"}</span></div>
+        <div className="ag-decision-cell"><span className="ag-decision-label">Tenant</span><span className="ag-decision-value">{ar ? "حوكمة مطلوبة" : "Governed"}</span></div>
+        <div className="ag-decision-cell"><span className="ag-decision-label">{ar ? "الخطوة التالية" : "Next"}</span><span className="ag-decision-value">{ar ? "ابدأ من ملف أو مجلد" : "Start with a file or folder"}</span></div>
+      </section>
+
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {connectors.map(({ id, title: labels, description, icon: Icon, state, tag }) => {
           const isAvailable = state === 'available';
