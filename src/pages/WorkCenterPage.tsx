@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Activity, AlertTriangle, CheckCircle2, Clock3, Filter, RefreshCw, ShieldCheck, XCircle } from 'lucide-react';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
+import { Link } from 'react-router-dom';
 import { DataTable } from '@/components/ui/DataTable';
 import { EmptyState, ErrorState, LoadingState, PageHeader } from '@/components/ui/States';
 import { fetchImportRecords, fetchWorkerHealthSnapshot, type WorkerHealthSnapshot } from '@/lib/queries';
@@ -42,6 +43,9 @@ export function WorkCenterPage() {
   useEffect(() => { void load(); }, [load]);
 
   const filtered = useMemo(() => rows.filter(r => matches(r, filter)), [rows, filter]);
+  const queueEmptyState = rows.length === 0
+    ? { title: 'لا توجد عمليات تشغيل مثبتة', message: 'لا توجد عمليات استيراد مسجلة لهذا المستأجر حتى الآن؛ ابدأ بالمصدر الموحد لبناء أول دورة تشغيل قابلة للتتبع.' }
+    : { title: 'لا توجد عمليات مطابقة', message: 'غيّر عامل التصفية أو اعرض السجل الكامل للوصول إلى العمليات المسجلة.' };
   const counts = useMemo(() => ({
     active: rows.filter(r => r.status === 'queued' || r.status === 'processing').length,
     review: rows.filter(r => r.status === 'partial' || (r.invalid_rows ?? 0) > 0 || (r.quarantined_rows ?? 0) > 0).length,
@@ -153,7 +157,15 @@ export function WorkCenterPage() {
           ))}
         </div>
         {filtered.length === 0 ? (
-          <EmptyState title="لا توجد عمليات مطابقة" message={rows.length === 0 ? 'لا توجد عمليات استيراد مسجلة لهذا المستأجر حتى الآن.' : 'غيّر عامل التصفية لرؤية عمليات أخرى.'}/>
+          <EmptyState
+            title={queueEmptyState.title}
+            message={queueEmptyState.message}
+            action={rows.length === 0 ? (
+              <Link to="/import" className="btn-primary mt-1 inline-flex items-center gap-2">إدخال مصدر من المسار الموحد</Link>
+            ) : (
+              <button type="button" onClick={() => setFilter('all')} className="btn-secondary mt-1">عرض كل العمليات</button>
+            )}
+          />
         ) : (
           <DataTable
             data={filtered}
