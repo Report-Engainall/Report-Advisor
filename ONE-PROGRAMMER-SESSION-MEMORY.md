@@ -1,3 +1,24 @@
+## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-82
+
+- SESSION-ID → `2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-82`
+- CURRENT PR HEAD BEFORE GOVERNANCE WRITE → `674efd3a5491f4dc5c9733cec698278d880ccf74`.
+- DONE → Unified Import history now reads the persisted `semantic_understanding_confidence` already written at real completion time and shows it as source-understanding confidence, not trust.
+- DONE → Unified Import history now shows whether `snapshot_id` exists in the persisted result summary; missing snapshots remain `غير مثبتة` and do not inherit a positive state.
+- DONE → Added only optional `ImportRecord` fields plus existing result-summary mapping; no schema, RPC, importer, durable runner, or tenant/RLS path was added or altered.
+- DONE → Product WOW contract now guards query mapping and fail-closed UI semantics for the two persisted evidence fields.
+- EXACT SOURCE VERIFICATION → compare from code/test candidate `1c3742845eaf82e2ba0a936a6ef4edd114233e9d` to functional head `674efd3a5491f4dc5c9733cec698278d880ccf74` is linear and six commits ahead, with intended functional files only: types, queries, canonical import UI, and contract; remaining deltas are governance write-backs.
+- VERIFIED BLOBS → types `08799d7764f88daecb4069a4fd87f961f1d1dc94`; queries `524960d3f0e8b4fb9ba396cead4b0807c1eca97f`; CanonicalImportPage `822f1e511909e6cd3dad7e9781b202e4d873195b`; contract `01874346ec5f2c96323f202ec4deba7e50310ead`.
+- CURRENT HEAD STATUS → after the functional commits, combined status on `674efd3...` shows Vercel `failure` caused by external free-plan `build-rate-limit`. No current-head runtime/CI PASS is claimed.
+- NETLIFY / AUTH BROWSER → no fresh exact-head READY or authenticated browser PASS was observed; stale proof is not transferred.
+- LIVE DATA / MUTATION → no database mutation or staging write was executed in this wave. The change consumes only evidence already persisted by the existing import completion path.
+- PHASE-F → FAIL-CLOSED unchanged; authorized live backup/restore configuration and `RESILIENCE_MAX_RPO_SECONDS` remain missing.
+- LEGACY IMPORT RECOVERY → unchanged; no proven recovery contract for the 151 processing `import_jobs`, so no force-close or arbitrary finish mutation performed.
+- PRECISE STOP POINT → the unified import history now tells the operator not only whether a job finished, but whether persisted source-understanding evidence and a persisted evidence snapshot were actually recorded.
+- WHAT REMAINS → fresh exact-head deployment/CI evidence; authenticated browser proof; next independent product/UI closure; governed legacy recovery decision; real Phase-F recovery evidence; final certification.
+- NEXT EXECUTABLE ACTION → continue from current governance head after this write with fresh exact-head deployment/CI consumption when available, then develop the next independent high-value product/UI surface without transferring stale runtime evidence.
+- DO NOT REPEAT → do not treat confidence as trust; do not show legacy rows as snapshot-verified without `snapshot_id`; do not transfer prior Netlify/Vercel/CI PASS; do not create duplicate import/RPC/runner paths; do not force-close the 151 legacy imports; do not invent Phase-F values.
+- CURRENT RESUME POINTER → `674efd3a5491f4dc5c9733cec698278d880ccf74` → governance head → fresh exact-head deployment/CI evidence → authenticated browser proof → next independent product/UI closure → governed legacy recovery → Phase-F real recovery → final certification.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-81
 
 - SESSION-ID → `2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-81`
