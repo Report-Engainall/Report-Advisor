@@ -1,3 +1,25 @@
+## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-81
+
+- SESSION-ID → `2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-81`
+- CURRENT PR/GOVERNANCE HEAD BEFORE THIS WRITE → `991b07e99a9e4ae9b2e5d215adea223a73a7ef3e`; this write is governance-only.
+- EXACT CODE/TEST CANDIDATE → `1c3742845eaf82e2ba0a936a6ef4edd114233e9d`.
+- DONE → Reports Center now exposes a live `REPORT READINESS` map for Sales, Profitability, Inventory, and Receivables.
+- DONE → Readiness is derived from existing canonical snapshot truth: profitability requires both gross profit and gross margin; receivables follows the authoritative aging status; no report gets a positive state from visual presence alone.
+- DONE → Each report domain now exposes state + explanation + direct canonical route, reducing wasted navigation and making insufficient data visible before entering the report.
+- DONE → Product WOW contract now guards the readiness map and its source-of-truth semantics.
+- EXACT SOURCE VERIFICATION → compare from `403ecef...` to `1c374284...` is linear and limited to Reports Center, contract, and governance descendants.
+- LIVE DATA / EVIDENCE → no new data mutation; prior staging checks remain the only current live-data evidence. No stale deployment evidence is transferred.
+- VERCEL / CI → Vercel remains externally blocked by free-plan `build-rate-limit`; no fresh CI or Vercel runtime PASS attached to `1c374284...`.
+- NETLIFY → no fresh exact-head deployment result emitted yet for `1c374284...`.
+- AUTH BROWSER → still unproven because external browser automation wallet was unavailable; no authenticated E2E PASS claimed.
+- PHASE-F → remains FAIL-CLOSED on missing authorized live backup/restore configuration and `RESILIENCE_MAX_RPO_SECONDS`.
+- LEGACY IMPORT RECOVERY → no proven recovery contract for the 151 legacy `import_jobs`; no force-close or arbitrary finish mutation performed.
+- PRECISE STOP POINT → report-readiness surface is implemented and contract-guarded.
+- WHAT REMAINS → fresh exact-head deployment/CI evidence; authenticated browser proof; continued independent UI/product closure; governed legacy-import recovery decision; real Phase-F recovery evidence; final certification.
+- NEXT EXECUTABLE ACTION → continue from `1c374284...`: consume fresh exact-head deployment evidence when available, while developing the next independent high-value UI/product surface without transferring stale proof.
+- DO NOT REPEAT → do not transfer old deployment/CI PASS; do not claim report readiness from UI existence; do not invent report values; do not force-close legacy imports; do not bypass Auth/RLS or Phase-F gates.
+- CURRENT RESUME POINTER → `1c3742845eaf82e2ba0a936a6ef4edd114233e9d` → fresh exact-head deployment/CI evidence → authenticated browser proof → next independent product/UI closure → governed legacy recovery → Phase-F real recovery → final certification.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-80
 
 - SESSION-ID → `2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-80`
