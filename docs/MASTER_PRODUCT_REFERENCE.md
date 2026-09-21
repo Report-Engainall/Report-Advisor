@@ -1,3 +1,13 @@
+## IMPLEMENTATION UPDATE — 2026-09-21 / WAVE 57 — CURRENT-SHA UI GUARD REPAIR
+
+- Exact current code/test head: `c88abe725b066d8bbeb80de629be6198791d1523`.
+- Closed the fresh certification failure in `scripts/check-product-wow-ui-contract.mjs`: the Work Center guard previously matched a stale literal `workerHealth?.expiredActive > 0`; the actual canonical code safely uses `(workerHealth?.expiredActive ?? 0) > 0`.
+- The guard now asserts the real fail-closed implementation instead of accepting an obsolete syntax.
+- No product route, RPC, runner, importer, tenant model, calculation, or runtime path changed.
+- Prior exact-current-SHA result remains valid for the underlying Work Center/type fixes: the 20-stage release-readiness gate passed all 20 stages on `88323...`; the new `c88abe...` change is contract-test repair only.
+- Certification/enforcement must be freshly consumed on `c88abe...`; no older certification evidence is transferred.
+- Next: consume fresh quality, Execution Enforcement Contract, Final Certification Gate and Final Execution Batch for `c88abe...`; then continue backup/RPO-RTO → worker/server-boundary → tenant A/B → server OCR → watched-folder → final certification.
+
 ## IMPLEMENTATION UPDATE — 2026-09-21 / WAVE 56 — EXACT-HEAD TYPE/CERTIFICATION REBIND
 
 - Exact code/test head: `88323d3fd8d5cc6cb8acca8e53894a11d72cb83e`.
@@ -498,15 +508,3 @@ This is the target product tree. It defines how capabilities are presented; it d
    ├─ Users / Roles / Permissions
    ├─ Profile
    ├─ Language / Currency
-   ├─ Sources / Connectors
-   ├─ Notifications
-   ├─ Security
-   ├─ Integrations
-   └─ System Health / Operations
-
-### Progressive disclosure contract
-
-The same product supports three density levels without becoming three products:
-- Essential: Decision Center, Import, Reports, Sales, Receivables, Inventory, Customers, Products, Decisions.
-- Advanced: Profitability, Demand, RFM, ABC, Aging, Alternatives, Metric Inspector, Scenarios, Data Quality.
-- Expert: Document Intelligence, File Analysis, Evidence/Audit, Integrations, System/Operations.
