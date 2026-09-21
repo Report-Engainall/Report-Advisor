@@ -1,3 +1,14 @@
+## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-61
+
+- SESSION-ID → `2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-61`
+- SHA → `84a62e169ce8db61d2dc6598e654127543ecdabb`.
+- DONE → confirmed the import history read path was bounded but lacked the matching DB composite index under a tenant with 4,471 import jobs.
+- DONE → added migration `20260921194500_import_history_recent_window_index.sql` and applied it to Supabase staging.
+- ACTUAL RESULT → `idx_import_jobs_company_created_id` now exists in staging; the unified import commit itself had already completed correctly in the failing E2E.
+- PRECISE STOP POINT → browser history runtime is the remaining validation target for this specific defect.
+- NEXT ACTION → consume fresh exact-head Browser E2E on `84a62...`, then quality/certification and Phase-F/RPO-RTO.
+- DO NOT REPEAT → do not transfer f6d6 runtime; do not remove the bounded range; do not revert to exact-count history rejection; do not bypass DB migration.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-60
 
 - SESSION-ID → `2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-60`
@@ -498,15 +509,3 @@
 - SECURITY ADVISOR BOUNDARY → Supabase currently reports 47 authenticated SECURITY DEFINER warnings. These were not mass-revoked because several are intentional canonical/auth/runtime boundaries; no blind DDL was applied.
 - EXACT VERIFICATION → current `main` HEAD re-read as `aaf3b07e...`; server re-extraction/reconciliation/quality-gate/approval checks and UI authoritative-result checks are present in the exact files on current main. No fake PASS or stale SHA evidence transferred.
 - BUILD/RUNTIME BOUNDARY → exact-head typecheck/build/browser/runtime certification is still NOT PROVEN. GitHub combined status on `aaf3b07e...` reports Vercel free-plan `build-rate-limit` failure with deployment context pending; PC01 remains offline.
-- PRECISE STOP POINT → canonical import provenance/quality boundary is materially hardened and persisted in code, while live runtime execution of the final head remains open.
-- WHAT REMAINS → exact-head compile/runtime proof; authenticated browser E2E; tenant A/B; disposable worker resilience lifecycle; backup/RPO-RTO verification; OCR/scanned-PDF server authority; watched-folder runtime; final CI/certification.
-- NEXT ACTION → continue the next independent core closure (worker/resilience/OCR/runtime-safe path) while keeping UI/product development active; then obtain exact-head build/deployment/runtime proof when an executable free environment is available.
-- DO NOT REPEAT → do not trust browser rows as authoritative import truth; do not mark source ready before server extraction; do not add parallel import RPCs/runners; do not transfer PASS across SHAs; do not mass-revoke intentional SECURITY DEFINER functions without per-function evidence.
-- CURRENT RESUME POINTER → `aaf3b07e2399718c8efe379c328d96ed149ea2a4` → next independent core closure (worker/resilience/OCR) + canonical UI polish → exact-head build/deployment/runtime → final certification.
-
-## FINAL WRITE-BACK STATUS — 2026-09-21-AGHBARI-CONTINUOUS-DEVELOPMENT-26
-- CODE HEAD TO RESUME FROM → `3de200146403ff4e1dae105837dd37af3eff3f50`
-- DOCUMENTATION WRITE-BACKS COMPLETED AFTER CODE → memory `6cb446f...`, execution index `9b64fb7...`, product reference `6897d4b...`.
-- CURRENT MAIN MOVED FORWARD ONLY BY THE REQUIRED MEMORY/DOCUMENTATION WRITE-BACKS; no later product-code changes supersede `3de20014...`.
-- FINAL RESUME RULE → resume from code `3de20014...`, not from the documentation commits.
-- CURRENT BLOCKER → exact-head build/typecheck/runtime/deployment proof remains unproven because PC01 is offline, container GitHub DNS is unavailable, and Vercel reports free-plan `build-rate-limit`.
