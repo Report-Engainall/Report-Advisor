@@ -265,10 +265,10 @@ export function CanonicalImportPage() {
       }
 
       await finishImportJob(rec.id, 'completed', {
-        total: rows.length,
-        valid: validRows.length,
-        invalid: rows.length - validRows.length,
-        committed: validRows.length,
+        total: authoritativeRowCount,
+        valid: authoritativeRowCount,
+        invalid: 0,
+        committed: authoritativeRowCount,
         importId: rec.id,
         jobId: execution.jobId,
         file_name: file.name,
