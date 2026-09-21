@@ -1,3 +1,17 @@
+## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-58 FINAL
+
+- SESSION-ID → `2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-58 FINAL`
+- SHA → `cbfb7d0906e893ac32e274b571519d6f536ff8ad` (exact current code/test candidate before final governance write-backs).
+- DONE → delivered a real Connections UI improvement: proven/bounded/adapter counts and the next source action are derived from the canonical connector-state array instead of hard-coded values.
+- DONE → Product WOW UI contract now guards the dynamic Connections summary.
+- ACTUAL RESULT → governed main descendant `2b9d28c9a1a8fa12677c03f11b7ba94e2a3dbac7` completed with PASS for quality, Execution Enforcement Contract, Final Execution Batch, Storage Tenant Isolation, and Final Certification Gate.
+- ACTUAL RESULT → current Vercel status remains `failure / build-rate-limit` with deployment context `pending`; no current-head browser/runtime PASS is claimed.
+- ACTUAL RESULT → read-only staging observation remains `backup_verification_runs=0`, `import_processing=152`, `report_processing=1`, `report_dead_letter=7`, `watched_report_files=0`, `watched_report_folders=0`; these are not certification.
+- PRECISE STOP POINT → code/UI/contract quality and repository certification are green; the remaining blocker is external exact-head runtime/deployment evidence followed by Phase-F/RPO-RTO and remaining operational gates.
+- WHAT REMAINS → exact-head deployment/browser runtime → governed Phase-F backup/restore → worker/server-boundary → tenant A/B isolation → server OCR authority → watched-folder runtime → final certification.
+- NEXT ACTION → obtain a real exact-head runtime/browser result for the current governed main descendant `2b9d28c9...`; then execute/consume Phase-F RPO-RTO evidence and continue the remaining gates.
+- DO NOT REPEAT → do not transfer old Vercel READY deployments; do not treat source contracts as runtime PASS; do not fabricate browser auth/E2E secrets; do not bypass certification or backup/restore gates; do not restore static Connections counts.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-58
 
 - SESSION-ID → `2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-58`
@@ -498,15 +512,3 @@
 - EXACT UI COMMITS → scenario `be93a9ee2b54e1d43692b546a3fb8faedddb4dec`; truth gate `05713d80013a485aac07aa433d46499aa3ab9625`; data quality `3de200146403ff4e1dae105837dd37af3eff3f50`.
 - VERIFICATION → exact `main` HEAD re-read as `3de20014...`; the three changed UI files were re-read on that exact branch state. Combined GitHub status for the exact head reports the Vercel free-plan `build-rate-limit` failure. No current-head GitHub Actions workflow run is available through the connected GitHub workflow-read path.
 - BUILD/RUNTIME BOUNDARY → `typecheck`, `build`, authenticated browser E2E and exact-head live deployment PASS are **NOT PROVEN** in this wave. PC01 is offline, and the available container cannot reach GitHub/DNS to clone the repository, so no local build claim is made.
-- DEPLOYMENT BOUNDARY → Vercel remains blocked externally by the free-plan `build-rate-limit`; no deployment PASS is transferred from older SHAs.
-- PRECISE STOP POINT → UI/product development wave completed across Scenario Truth Gate, Canonical Scenario, and Data Quality. Current exact code is `3de20014...`; exact-head compile/deployment/runtime proof remains open.
-- WHAT REMAINS → exact-head typecheck/build; exact-head free hosting deployment/runtime proof; authenticated browser/E2E; tenant A/B; resilience/backup; OCR/watched-folder; CI/final certification.
-- NEXT ACTION → continue the next weak canonical surface with real responsive/accessibility/product-value improvement, then obtain exact-head build/deployment/runtime proof as soon as an executable free environment is available.
-- DO NOT REPEAT → do not recreate scenario controls/truth gate/data-quality boundary already implemented; do not introduce duplicate backend paths; do not transfer older deployment/browser PASS; do not expose importer taxonomy.
-- CURRENT RESUME POINTER → `3de200146403ff4e1dae105837dd37af3eff3f50` → next weak canonical surface → exact-head compile/deployment/runtime → resilience/backup/OCR/CI → final certification.
-
-## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-CONTINUOUS-DEVELOPMENT-25
-- SESSION-ID → `2026-09-21-AGHBARI-CONTINUOUS-DEVELOPMENT-25`
-- REPOSITORY HEAD BEFORE MEMORY WRITE-BACK → `f5ccfaba283bff4ad27406a04942aae57afc3d8c`
-- LATEST CODE HEAD → `778a601189077e0bda5b844e6d6a06e35ab7e1e3`
-- EXECUTION MODE → every startup must perform real development; this wave continues that rule.
