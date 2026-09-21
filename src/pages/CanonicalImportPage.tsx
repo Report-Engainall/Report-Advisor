@@ -264,7 +264,7 @@ export function CanonicalImportPage() {
   }, [
     rows, file, fileHash, duplicate, securityPassed, quality,
     qualityApproved, headers.length, mappings, warnings, understandingConfidence,
-    understandingReason, mappingCoverage, loadHistory,
+    understandingReason, loadHistory,
   ]);
 
   const reset = () => { selectedFileRef.current = null; setStep('upload'); setFile(null); setFileHash(null); setRows([]); setHeaders([]); setQuality(0); setQualityApproved(false); setMappings([]); setWarnings([]); setError(null); setDuplicate(false); setSecurityPassed(false); setResult(null); setProgress(0); setUnderstandingConfidence(0); setUnderstandingReason('لم يبدأ تحليل المصدر بعد.'); if (inputRef.current) inputRef.current.value = ''; };
