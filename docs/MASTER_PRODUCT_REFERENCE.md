@@ -1,3 +1,13 @@
+## IMPLEMENTATION UPDATE — 2026-09-21 / WAVE 62 FINAL — IMPORT RUNTIME CLOSED, PHASE-F BLOCKER BOUND
+
+- Exact-head Browser E2E on `84a62e169ce8db61d2dc6598e654127543ecdabb` is **PASS**.
+- The verified browser run proved the unified import product path through exact build/start/auth and real persistence evidence. The underlying import job committed one canonical row with provenance; the only prior failure was history rendering at scale.
+- The decisive DB performance repair is now permanent: `idx_import_jobs_company_created_id` exists in staging and is represented by migration `20260921194500_import_history_recent_window_index.sql`.
+- Main baseline `5367346...` has fresh PASS for quality, final certification, enforcement, final execution, and storage isolation.
+- Phase-F was executed through closed PR #611. Pre-live resilience contracts and canary authentication passed; live probes correctly stopped fail-closed because the live resilience configuration is incomplete. Missing configuration includes `RESILIENCE_MAX_RPO_SECONDS` plus backup/restore runtime credentials/target configuration.
+- No product architecture was weakened or bypassed. No old runtime evidence was transferred.
+- NEXT: provision the required live resilience configuration, rerun Phase-F, then consume real restore/RPO/RTO/rollback evidence and close the remaining worker/server-boundary → tenant A/B → server OCR → watched-folder gates.
+
 ## IMPLEMENTATION UPDATE — 2026-09-21 / WAVE 61 — IMPORT HISTORY DATABASE PERFORMANCE
 
 - Exact current code/test candidate: `84a62e169ce8db61d2dc6598e654127543ecdabb`.
@@ -498,13 +508,3 @@ This is the target product tree. It defines how capabilities are presented; it d
 │  ├─ Analytics Home
 │  ├─ Sales
 │  ├─ Purchases
-│  ├─ Receivables / Collections
-│  ├─ Liquidity / Cash
-│  ├─ Profitability / Margin
-│  ├─ Inventory
-│  ├─ Demand / Movement
-│  ├─ Customers / Customer 360
-│  ├─ Products / Product 360
-│  ├─ Suppliers
-│  ├─ RFM
-│  ├─ ABC / XYZ / FSN
