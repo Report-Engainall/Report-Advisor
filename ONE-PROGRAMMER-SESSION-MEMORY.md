@@ -1,3 +1,11 @@
+## PHASE-F EXECUTION PROBE — 2026-09-21
+
+- PURPOSE → trigger the existing governed `phase-f-live-resilience.yml` through a same-repository PR so real authenticated backup/restore/RPO/RTO evidence can be produced.
+- BASE HEAD → `5367346e2837a06a4d1787bb016399245f213792`.
+- NO PRODUCT CODE CHANGE → this branch is governance-only and is not intended for merge.
+- REQUIRED OUTCOME → exact-head Phase-F evidence or an exact current blocker with its real root cause.
+- DO NOT MERGE THIS PROBE BRANCH merely to obtain runtime evidence.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-61
 
 - SESSION-ID → `2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-61`
