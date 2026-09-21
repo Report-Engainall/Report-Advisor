@@ -27,6 +27,20 @@ const failureObservabilityRequired = [
 ];
 const missingFailureObservability = failureObservabilityRequired.filter(x => !failureObservabilitySql.includes(x));
 if (missingFailureObservability.length) throw new Error(`Report execution failure observability contract blockers:\n${missingFailureObservability.join('\n')}`);
+const workerRecoveryMigration = path.join(root,'supabase/migrations/20260921170000_reconcile_expired_worker_recovery_retryable.sql');
+if (!fs.existsSync(workerRecoveryMigration)) throw new Error('Expired worker recovery reconciliation migration missing');
+const workerRecoverySql = fs.readFileSync(workerRecoveryMigration,'utf8');
+for (const token of [
+  'recover_expired_report_execution_jobs',
+  'worker_lease_expired_retry',
+  'worker_attempts_exhausted_after_lease_expiry',
+  'FOR UPDATE SKIP LOCKED',
+  'REVOKE ALL ON FUNCTION public.recover_expired_report_execution_jobs(uuid, integer)',
+  'GRANT EXECUTE ON FUNCTION public.recover_expired_report_execution_jobs(uuid, integer) TO service_role'
+]) {
+  if (!workerRecoverySql.includes(token)) throw new Error(`Expired worker recovery reconciliation missing: ${token}`);
+}
+
 const roadmap = fs.readFileSync(path.join(root,'docs/IMPLEMENTATION_ROADMAP.md'),'utf8');
 for (const item of ['Automated tenant-isolation canary suite','Automated migration dry-run and schema drift detection','Backup freshness/restore verification','Queue health, stuck-worker and dead-letter alerting','Artifact delivery integrity monitoring','SLO dashboards, error budgets and incident evidence ledger','Periodic trust certification']) if (!roadmap.includes(item)) throw new Error(`Roadmap resilience item missing: ${item}`);
 console.log('Operational resilience contract: PASS');
