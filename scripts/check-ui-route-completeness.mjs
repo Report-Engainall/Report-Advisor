@@ -7,8 +7,9 @@ const pages = fs.readdirSync('src/pages').filter((name) => name.endsWith('Page.t
 const routePaths = [...app.matchAll(/<Route\s+path="([^"]+)"/g)].map((m) => m[1]);
 const navigationPaths = [...navigationRegistry.matchAll(/path:\s*'([^']+)'/g)].map((m) => m[1]);
 const unique = (items) => [...new Set(items)];
+const INTERNAL_PROGRESSIVE_DISCLOSURE_ROUTES = new Set(['/proposal-demo']);
 const duplicateNavigationPaths = navigationPaths.filter((path, index) => navigationPaths.indexOf(path) !== index);
-const missingFromSidebar = routePaths.filter((path) => path !== '*' && !navigationPaths.includes(path));
+const missingFromSidebar = routePaths.filter((path) => path !== '*' && !navigationPaths.includes(path) && !INTERNAL_PROGRESSIVE_DISCLOSURE_ROUTES.has(path));
 const missingRoutesForSidebar = navigationPaths.filter((path) => !routePaths.includes(path));
 
 const pageSourceByFile = new Map();
@@ -42,6 +43,7 @@ const fail = (label, values) => {
 
 console.log(`UI route count: ${routePaths.length}`);
 console.log(`Canonical navigation count: ${unique(navigationPaths).length}`);
+console.log(`Internal progressive-disclosure routes: ${[...INTERNAL_PROGRESSIVE_DISCLOSURE_ROUTES].join(', ')}`);
 console.log(`Page component files: ${pages.length}`);
 
 fail('duplicate navigation registry paths', unique(duplicateNavigationPaths));
