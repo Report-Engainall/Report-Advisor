@@ -1,6 +1,5 @@
 import { ArrowDown, FileCheck2, LockKeyhole, ShieldCheck, Sparkles } from 'lucide-react';
 import { CanonicalImportPage } from '@/pages/CanonicalImportPage';
-import { FolderBatchImportPanel } from '@/components/FolderBatchImportPanel';
 
 export function ImportPage() {
   return (
@@ -9,7 +8,7 @@ export function ImportPage() {
         <div className="min-w-0">
           <div className="section-kicker">البيانات والتشغيل / الاستيراد</div>
           <h1 className="mt-1 text-[22px] font-black tracking-tight text-ink-950">حوّل أي مصدر إلى دليل قابل للمراجعة</h1>
-          <p className="mt-1 max-w-3xl text-[11px] leading-5 text-ink-500">ارفع الملف أو استخدم المجلد التشغيلي، ثم راقب الفهم والتطبيع والتحقق قبل أن تصبح البيانات جزءًا من الحقيقة الكانونية.</p>
+          <p className="mt-1 max-w-3xl text-[11px] leading-5 text-ink-500">ارفع أي مصدر من المدخل الموحد، ثم راقب الفهم والتطبيع والتحقق قبل أن تصبح البيانات جزءًا من الحقيقة الكانونية.</p>
         </div>
         <div className="flex flex-wrap items-center gap-1.5 text-[10px] font-semibold text-ink-500">
           <span className="inline-flex items-center gap-1.5 rounded-[9px] border border-primary-100 bg-primary-50/70 px-2.5 py-1.5"><ShieldCheck size={14} className="text-primary-700" /> فحص قبل الاعتماد</span>
@@ -49,9 +48,6 @@ export function ImportPage() {
         </aside>
       </div>
 
-      <section className="ag-import-batch-surface border-t border-ink-200 pt-4">
-        <FolderBatchImportPanel />
-      </section>
     </div>
   );
 }
