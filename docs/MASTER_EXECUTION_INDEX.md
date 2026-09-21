@@ -3,10 +3,11 @@
 > تحديث تنفيذي بعد أمر المالك «انطلق». هذا القسم يصف الحالة المثبتة من الأدوات فقط. لا يتم نقل Evidence بين SHAs، ولا تُعد الحالة PASS إلا بدليل Exact-HEAD.
 
 ### CURRENT EXACT HEAD / DEPLOYED STATE
-- **Observed current code HEAD before this documentation wave:** `1568e43889d27b5d850e64c0b99d03a994fd3bbe` on `main`. This documentation wave does not claim product-code changes and must not transfer code/runtime evidence to the documentation commits.
+- **Current product/code HEAD:** `7ed583d40ac4090620270c17b48b38f75949cacd` on `main`.
+- **Previous product/runtime baseline:** `1568e43889d27b5d850e64c0b99d03a994fd3bbe`.
 - **Historical product/test candidate:** `fe5661060462ffa21d6aa31505f80c2021c4170a` — historical only; do not treat as current HEAD evidence.
 - **Reference product/runtime code HEAD:** `c11c084d161cceb4595f8552b6c49c3f610f0ec2`; current `main` also carries the forward-only security/source-parity migrations merged afterward.
-- **Last verified execution HEAD:** `82d489df29b7e1b541f65cfbb398547c93e94295`. Subsequent memory-only commits do not imply product-code changes; every session must still re-read exact repository HEAD before acting.
+- **Last exact-head verified product result:** `7ed583d4...` with targeted UI/typecheck gates PASS; runtime visual proof is still NOT PROVEN because PC01 lacks configured Supabase environment variables.
 - **Netlify Production:** latest verified production deploy `6aacfe23cc817a00089dce5c` = `ready`, branch `main`, but still points to commit `ad12e9e564f85ffde8bb29daa6e41e73ca969b92`, which predates current `main`. Public access remains verified without Netlify SSO/password. Connector-side redeploy requires a source/repo execution environment.
 - **Netlify administrative access control:** تم إزالة Team SSO/password requirement للمشروع فقط؛ لم يتم تغيير Auth التطبيق.
 - **Staging DB live counts:** companies=2, memberships=2, import_jobs=3800, canonical_import_commits=2557, kpi_evidence_snapshots=314, sales_invoices=355.
@@ -74,10 +75,12 @@ This constitution is mandatory for every product/UI change. The programmer must 
 **Cleanup rule:** every conflicting legacy surface must be classified KEEP / IMPROVE / REPLACE / REMOVE after dependency inspection. Do not preserve conflicting UI simply because it already exists; do not delete valid capability merely because its presentation is obsolete.
 
 ### EXECUTION STATE
-- **Product direction:** the canonical Aghbari product constitution above is now the binding UI/product architecture.
-- **Code baseline:** current \`main\` is \`1568e43889d27b5d850e64c0b99d03a994fd3bbe\` at the start of this documentation wave.
-- **Runtime/certification:** existing fail-closed blockers and exact-SHA evidence rules remain active; no historical PASS is reclassified by this documentation change.
-- **Immediate execution priority:** complete the visual product surface first, in the canonical order, while continuing independent runtime/data/evidence closure in parallel.
+- **Product direction:** the canonical Aghbari product constitution remains the binding UI/product architecture.
+- **Current product code:** `main` at `7ed583d40ac4090620270c17b48b38f75949cacd`.
+- **Visual implementation state:** comprehensive Aghbari UI wave integrated; global Advisor fixed and mobile-ready; canonical 8-zone navigation in place; Proposal Demo no longer a primary navigation surface; Trust/Outputs metadata unified; stale UI contracts converted to structural checks.
+- **Exact-head verified gates:** typecheck PASS; Product WOW UI PASS; UI route/sidebar parity PASS; Executive Dashboard UI PASS; Intelligence Product Contract PASS; Connections/Language UI PASS (7 checks).
+- **Runtime visual proof:** NOT PROVEN on PC01 because local Supabase environment variables are absent; no synthetic configuration was introduced.
+- **Immediate execution priority:** configured-preview visual sweep of all canonical surfaces, followed by real defect fixes, responsive/accessibility/performance polish, and independent runtime/truth/evidence/CI closure.
 
 ### SINGLE-PROGRAMMER EXECUTION MODE — NO OWNER SPLIT
 

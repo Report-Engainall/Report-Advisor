@@ -33,12 +33,15 @@ CURRENT RESUME POINTER
 
 ## CURRENT RESUME POINTER
 
-- SESSION-ID: 2026-09-21-AGHBARI-CONSOLIDATION
-- LAST VERIFIED EXECUTION HEAD: `82d489df29b7e1b541f65cfbb398547c93e94295`
+- SESSION-ID: 2026-09-21-AGHBARI-VISUAL-CLOSURE-01
+- LAST VERIFIED EXECUTION HEAD: `7ed583d40ac4090620270c17b48b38f75949cacd`
 - BRANCH: `main`
-- PRODUCT CODE BASELINE: `1568e43889d27b5d850e64c0b99d03a994fd3bbe` (subsequent commits in this sequence are documentation/memory governance only unless proven otherwise)
-- LAST DONE: canonical Aghbari product constitution merged; canonical product tree and technology/operating architecture consolidated into the master reference; session start/end continuity contract added to the execution index; this file established as the single live resume memory. The current documentation commits are governance/memory only; no product-code PASS is implied.
-- NEXT EXECUTABLE ACTION: execute the full visual product coverage wave on the current product-code baseline, beginning with the shared Aghbari App Shell / Sidebar / Header / Design System, then all canonical surfaces in the master tree. Reconcile and remove incompatible legacy UI only after dependency inspection. Continue runtime/data/evidence/CI work in parallel wherever independent.
-- OPEN BLOCKERS: existing fail-closed runtime/certification blockers remain open until fresh exact-head proof. Do not convert them to PASS.
-- DO NOT REPEAT: do not recreate product architecture docs; do not recreate navigation taxonomies; do not restore Bolt/Commerce/CRUD identity; do not create duplicate RPCs/runners; do not transfer PASS/evidence across SHAs; do not use fake data/session/JWT/evidence; do not delete useful capabilities without dependency inspection.
-- CURRENT RESUME POINTER: shared visual foundation → global shell/navigation → Decision Center → Data Operations → Business Analytics → Intelligence & Decision → Trust & Evidence → Reports & Outputs → Master Data → Settings → visual regression/performance/accessibility → parallel truth/runtime/evidence closure.
+- CURRENT PRODUCT CODE HEAD: `7ed583d40ac4090620270c17b48b38f75949cacd`
+- LAST DONE: integrated the comprehensive Aghbari visual wave into main; aligned navigation with the canonical 8-zone architecture; kept `/proposal-demo` hidden from primary navigation; repaired stale dashboard/intelligence UI contracts structurally; made the Aghbari Advisor global and mobile-accessible; supplied live recommendation context to the global Advisor; completed Trust/Outputs sidebar metadata; pushed the exact code to GitHub main.
+- EXACT-HEAD VERIFIED: typecheck PASS; Product WOW UI PASS; route/sidebar parity PASS (35 routes / 33 canonical links); Executive Dashboard UI PASS; Intelligence Product Contract PASS; Connections/Language UI PASS (7 checks). These results are bound to exact HEAD `7ed583d4...`.
+- BUILD NOTE: production build PASS was observed immediately before the final `7ed583d4` commit on the same resulting source tree; it is not reused as certification evidence for a different SHA.
+- VISUAL RUNTIME STOP POINT: local Chrome/Playwright reached the app but the local environment has no Supabase environment variables, so authenticated visual rendering was NOT PROVEN. No fake environment, token, or session was introduced.
+- OPEN BLOCKERS: existing fail-closed runtime/certification blockers remain; local visual runtime proof requires a real configured preview/runtime target; production/Netlify/Vercel deployment evidence remains separate and must be exact-head.
+- NEXT EXECUTABLE ACTION: obtain/verify a real configured preview target for `main` (without exposing secrets), run the visual sweep across Decision Center, Data Operations, Business Analytics, Intelligence & Decision, Trust & Evidence, Reports & Outputs, Master Data and Settings on the exact current product head, then fix any real visual/runtime defects and continue independent runtime/evidence/CI closure.
+- DO NOT REPEAT: do not recreate product architecture docs; do not recreate navigation taxonomies; do not restore Bolt/Commerce/CRUD identity; do not create duplicate RPCs/runners; do not transfer PASS/evidence across SHAs; do not use fake data/session/JWT/evidence; do not delete useful capabilities without dependency inspection; do not treat local browser env absence as permission to invent configuration.
+- CURRENT RESUME POINTER: configured preview/runtime → full visual sweep → real defects only → responsive/accessibility/performance refinement → exact-head verification → parallel truth/runtime/evidence/CI closure.
