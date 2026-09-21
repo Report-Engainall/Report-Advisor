@@ -34,7 +34,7 @@ CURRENT RESUME POINTER
 ## CURRENT RESUME POINTER
 
 - SESSION-ID: 2026-09-21-AGHBARI-CONSOLIDATION
-- EXACT HEAD: `614cd778f08f844c282a10d6334519ceb2c8358d`
+- EXACT HEAD: `ab43a5e23eaa0d8838dde608ec57d0ccd49d3d46`
 - BRANCH: `main`
 - PRODUCT CODE BASELINE: `1568e43889d27b5d850e64c0b99d03a994fd3bbe` (subsequent commits in this sequence are documentation/memory governance only unless proven otherwise)
 - LAST DONE: canonical Aghbari product constitution merged; canonical product tree and technology/operating architecture consolidated into the master reference; session start/end continuity contract added to the execution index; this file established as the single live resume memory.
