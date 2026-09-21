@@ -778,3 +778,153 @@ button,input,textarea,select{font:inherit}
   .ag-page-header .btn-primary,
   .ag-main .card-hover { transition: none !important; }
 }
+
+/* AGHBARI CUSTOM HERO UNIFICATION — shared executive surface language */
+@layer components {
+  .ag-main :is(.ag-report-hero, .ag-operational-hero, .ag-import-value-header, .ag-governance-hero) {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+    color: #f8fafc;
+    border-color: rgb(167 205 197 / 24%) !important;
+    background:
+      radial-gradient(circle at 88% 14%, rgb(45 169 153 / 17%), transparent 23rem),
+      radial-gradient(circle at 8% 88%, rgb(231 181 43 / 9%), transparent 19rem),
+      linear-gradient(135deg, #052f2d 0%, #063c37 54%, #071f1f 100%) !important;
+    box-shadow: 0 24px 52px -34px rgb(5 46 43 / 68%), inset 0 1px 0 rgb(255 255 255 / 6%) !important;
+  }
+  .ag-main :is(.ag-report-hero, .ag-operational-hero, .ag-import-value-header, .ag-governance-hero)::before {
+    content: "";
+    position: absolute;
+    inset-inline-end: -4rem;
+    top: -5rem;
+    width: 15rem;
+    height: 15rem;
+    border-radius: 999px;
+    border: 1px solid rgb(167 231 220 / 14%);
+    box-shadow: 0 0 0 2.5rem rgb(45 169 153 / 3%), 0 0 0 5rem rgb(231 181 43 / 2%);
+    pointer-events: none;
+  }
+  .ag-main :is(.ag-report-hero, .ag-operational-hero, .ag-import-value-header, .ag-governance-hero)::after {
+    content: "";
+    position: absolute;
+    inset-inline-start: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: linear-gradient(180deg, #e7b52b, #2da999, #0f766e);
+    pointer-events: none;
+  }
+  .ag-main :is(.ag-report-hero, .ag-operational-hero, .ag-import-value-header, .ag-governance-hero) > * {
+    position: relative;
+    z-index: 1;
+  }
+  .ag-main :is(.ag-report-hero, .ag-operational-hero, .ag-import-value-header, .ag-governance-hero) :is(h1, h2, h3) {
+    color: #fff !important;
+  }
+  .ag-main :is(.ag-report-hero, .ag-operational-hero, .ag-import-value-header, .ag-governance-hero) :is(p, .text-ink-500, .text-ink-600, .text-ink-700) {
+    color: #cbd5e1 !important;
+  }
+  .ag-main :is(.ag-report-hero, .ag-operational-hero, .ag-import-value-header, .ag-governance-hero) .section-kicker {
+    color: #bfe7df !important;
+  }
+  .ag-main .ag-report-hero .bg-ink-50,
+  .ag-main .ag-operational-hero .card-subtle,
+  .ag-main .ag-import-value-header .bg-primary-50,
+  .ag-main .ag-governance-hero .card-subtle {
+    border-color: rgb(191 235 226 / 18%) !important;
+    background: rgb(255 255 255 / 7%) !important;
+    color: #e2e8f0 !important;
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 5%);
+  }
+  .ag-main :is(.ag-operational-hero, .ag-import-value-header, .ag-report-hero) :is(.text-primary-700, .text-primary-800, .text-primary-600) {
+    color: #a7ded5 !important;
+  }
+  .ag-main :is(.ag-operational-hero, .ag-import-value-header, .ag-report-hero) :is(.text-warning-700, .text-warning-800) {
+    color: #f4d27a !important;
+  }
+  .ag-main .ag-operational-hero .display-number {
+    color: #f8fafc !important;
+  }
+  .ag-main .ag-operational-hero .card-subtle:hover {
+    border-color: rgb(167 231 220 / 34%) !important;
+    background: rgb(255 255 255 / 12%) !important;
+  }
+  .ag-main .ag-import-value-header .bg-white {
+    background: rgb(255 255 255 / 9%) !important;
+    border-color: rgb(191 235 226 / 18%) !important;
+  }
+  .ag-main .ag-report-hero + .ag-report-card,
+  .ag-main .ag-report-hero ~ .ag-report-card {
+    border-color: #cddbd7 !important;
+  }
+  .ag-main .ag-command-hero :is(.text-ink-300, .text-ink-400) {
+    color: #b7cbc5 !important;
+  }
+}
+
+@media (max-width: 767px) {
+  .ag-main :is(.ag-report-hero, .ag-operational-hero, .ag-import-value-header, .ag-governance-hero) {
+    border-radius: 15px !important;
+    padding: 1rem !important;
+  }
+  .ag-main :is(.ag-report-hero, .ag-operational-hero, .ag-import-value-header, .ag-governance-hero)::before {
+    width: 10rem;
+    height: 10rem;
+    top: -3rem;
+    inset-inline-end: -3rem;
+  }
+}
+
+/* AGHBARI DASHBOARD HERO — align the primary dashboard with shared executive heroes */
+@layer components {
+  .ag-main .ag-dashboard-header {
+    border-color: rgb(167 205 197 / 24%) !important;
+    color: #f8fafc;
+    background:
+      radial-gradient(circle at 88% 10%, rgb(45 169 153 / 18%), transparent 22rem),
+      radial-gradient(circle at 8% 90%, rgb(231 181 43 / 10%), transparent 18rem),
+      linear-gradient(135deg, #052f2d 0%, #063c37 54%, #071f1f 100%) !important;
+    box-shadow: 0 26px 60px -40px rgb(5 46 43 / 72%), inset 0 1px 0 rgb(255 255 255 / 6%) !important;
+  }
+  .ag-main .ag-dashboard-header::after {
+    content: "";
+    position: absolute;
+    inset-inline-start: 1.5rem;
+    top: 1rem;
+    width: 4px;
+    height: 16px;
+    background: linear-gradient(180deg, #e7b52b, #2da999);
+    border-radius: 999px;
+    opacity: 1;
+  }
+  .ag-main .ag-dashboard-header h1 { color: #fff !important; text-shadow: 0 6px 24px rgb(0 0 0 / 16%); }
+  .ag-main .ag-dashboard-header p { color: #cbd5e1 !important; }
+  .ag-main .ag-dashboard-header .text-primary-700 { color: #bfe7df !important; }
+  .ag-main .ag-dashboard-header .text-ink-500,
+  .ag-main .ag-dashboard-header .text-ink-400 { color: #b9cbc6 !important; }
+  .ag-main .ag-dashboard-header .border-ink-100,
+  .ag-main .ag-dashboard-header .border-ink-200 {
+    border-color: rgb(191 235 226 / 18%) !important;
+  }
+  .ag-main .ag-dashboard-header .bg-white {
+    background: rgb(255 255 255 / 8%) !important;
+    color: #f8fafc !important;
+  }
+  .ag-main .ag-dashboard-header .bg-ink-50 {
+    background: rgb(255 255 255 / 7%) !important;
+  }
+  .ag-main .ag-dashboard-header .bg-primary-50 {
+    background: rgb(45 169 153 / 14%) !important;
+  }
+  .ag-main .ag-dashboard-header .btn-secondary {
+    border-color: rgb(255 255 255 / 22%) !important;
+    background: rgb(255 255 255 / 8%) !important;
+    color: #f8fafc !important;
+  }
+  .ag-main .ag-dashboard-header .btn-ghost { color: #dbeafe !important; }
+  .ag-main .ag-dashboard-header .btn-ghost:hover { background: rgb(255 255 255 / 9%) !important; color: #fff !important; }
+}
+@media (max-width: 767px) {
+  .ag-main .ag-dashboard-header::after { display: none; }
+}
