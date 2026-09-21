@@ -177,11 +177,12 @@ export function ExecutiveCommandCenterPage() {
           <div className="mt-3 text-sm font-black text-ink-900">Decision Coverage</div>
           <p className="mt-1 text-[10px] leading-5 text-ink-500">{decisionCoverage.total ? 'تغطية المالك ' + (decisionCoverage.ownerCoverage ?? 0) + '% · نتيجة مسجلة ' + (decisionCoverage.outcomeCoverage ?? 0) + '% · معلقة ' + decisionCoverage.pending : 'لا توجد توصيات قابلة للمتابعة؛ لا يتم تصنيع تغطية أو أثر بديل.'}</p>
         </Link>
-        <div className="card p-4">
-          <div className="flex items-center justify-between gap-3"><FileSearch size={18} className="text-ink-500"/><span className="rounded-full bg-ink-100 px-2 py-1 text-[9px] font-black text-ink-600">NOT AVAILABLE</span></div>
+        <Link to="/trust" className="card card-hover p-4">
+          <div className="flex items-center justify-between gap-3"><FileSearch size={18} className="text-ink-500"/><span className="rounded-full bg-ink-100 px-2 py-1 text-[9px] font-black text-ink-600">غير مثبت</span></div>
           <div className="mt-3 text-sm font-black text-ink-900">Business Replay</div>
-          <p className="mt-1 text-[10px] leading-5 text-ink-500">إعادة التشغيل تحتاج snapshots وoutcomes تاريخية مثبتة؛ الواجهة لا تصنع سجلًا بديلًا.</p>
-        </div>
+          <p className="mt-1 text-[10px] leading-5 text-ink-500">إعادة التشغيل تحتاج snapshots وoutcomes تاريخية مثبتة. افحص الدليل أولًا بدل عرض Replay غير موجود.</p>
+          <span className="mt-3 inline-flex items-center gap-1 text-[10px] font-black text-primary-700">فحص مسار الدليل <ArrowUpLeft size={12}/></span>
+        </Link>
         <Link to="/decision-experience?stage=outcome" className="card card-hover p-4">
           <div className="flex items-center justify-between gap-3"><CheckCircle2 size={18} className="text-primary-700"/><span className="rounded-full bg-primary-50 px-2 py-1 text-[9px] font-black text-primary-700">مسار القرار</span></div>
           <div className="mt-3 text-sm font-black text-ink-900">Outcome follow-up</div>
