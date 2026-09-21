@@ -53,7 +53,7 @@ export function WorkCenterPage() {
     failed: rows.filter(r => r.status === 'failed' || r.status === 'cancelled').length,
   }), [rows]);
 
-  const nextAction = workerHealth?.expiredActive > 0
+  const nextAction = (workerHealth?.expiredActive ?? 0) > 0
     ? { kind: 'refresh' as const, tone: 'danger' as const, title: 'إعادة فحص العامل الآن', message: 'هناك leases منتهية مثبتة في القراءة الحالية؛ أعد قراءة الحالة بعد دورة recovery التشغيلية بدل اعتبار الطابور سليمًا.', label: 'إعادة فحص العامل' }
     : workerHealth && !workerHealth.activeReadComplete
       ? { kind: 'refresh' as const, tone: 'warning' as const, title: 'قراءة العامل جزئية', message: 'لم تُقرأ كل leases النشطة؛ لا يمكن تحويل القراءة الجزئية إلى حكم سلامة كامل. أعد الفحص عند الحاجة.', label: 'إعادة قراءة العامل' }
@@ -130,17 +130,17 @@ export function WorkCenterPage() {
 
     <section className="grid gap-4 lg:grid-cols-[1.15fr_.85fr]">
       <Card>
-        <CardHeader title="صحة العامل" subtitle="قراءة مباشرة من مسار التنفيذ durable؛ لا تُعلن الحالة سليمة إذا بقيت lease منتهية." action={workerHealth ? <span className={`badge ${workerHealth.expiredActive > 0 ? 'badge-danger' : workerHealth.activeReadComplete ? 'badge-success' : 'badge-warning'}`}>{workerHealth.expiredActive > 0 ? 'تحتاج تدخل' : workerHealth.activeReadComplete ? 'لا توجد leases منتهية' : 'قراءة جزئية'}</span> : undefined}/>
+        <CardHeader title="صحة العامل" subtitle="قراءة مباشرة من مسار التنفيذ durable؛ لا تُعلن الحالة سليمة إذا بقيت lease منتهية." action={workerHealth ? <span className={`badge ${workerHealth.expiredActive > 0 ? 'badge-danger' : workerHealth.activeReadComplete ? 'badge-success' : 'badge-warning'}`}>{(workerHealth.expiredActive ?? 0) > 0 ? 'تحتاج تدخل' : workerHealth.activeReadComplete ? 'لا توجد leases منتهية' : 'قراءة جزئية'}</span> : undefined}/>
         <CardBody>
           {workerHealth ? <div className="grid gap-3 sm:grid-cols-3">
             <div className="rounded-2xl border border-ink-100 bg-ink-50 p-4"><div className="text-[10px] text-ink-400">بالانتظار</div><div className="mt-2 text-2xl font-black text-ink-950">{formatNumber(workerHealth.queued)}</div></div>
             <div className="rounded-2xl border border-ink-100 bg-ink-50 p-4"><div className="text-[10px] text-ink-400">قيد التنفيذ</div><div className="mt-2 text-2xl font-black text-ink-950">{formatNumber(workerHealth.active)}</div></div>
-            <div className={`rounded-2xl border p-4 ${workerHealth.expiredActive > 0 ? 'border-danger-200 bg-danger-50/60' : 'border-success-200 bg-success-50/60'}`}><div className="text-[10px] text-ink-500">leases منتهية</div><div className={`mt-2 text-2xl font-black ${workerHealth.expiredActive > 0 ? 'text-danger-700' : 'text-success-700'}`}>{formatNumber(workerHealth.expiredActive)}</div></div>
+            <div className={`rounded-2xl border p-4 ${(workerHealth.expiredActive ?? 0) > 0 ? 'border-danger-200 bg-danger-50/60' : 'border-success-200 bg-success-50/60'}`}><div className="text-[10px] text-ink-500">leases منتهية</div><div className={`mt-2 text-2xl font-black ${(workerHealth.expiredActive ?? 0) > 0 ? 'text-danger-700' : 'text-success-700'}`}>{formatNumber(workerHealth.expiredActive)}</div></div>
           </div> : <div className="text-xs text-ink-400">لم تتوفر قراءة العامل بعد.</div>}
           {workerHealth && !workerHealth.activeReadComplete && <div className="mt-3 rounded-xl border border-warning-200 bg-warning-50/70 px-3 py-2 text-[10px] leading-5 text-warning-900">القراءة محدودة بـ500 lease نشطة؛ لا تُفسَّر كحكم كامل على العامل.</div>}
         </CardBody>
       </Card>
-      <Card variant={nextAction.tone === 'danger' ? 'alert' : nextAction.tone === 'warning' ? 'alert' : nextAction.tone === 'success' ? 'evidence' : 'default'}>
+      <Card variant={nextAction.tone === 'danger' ? 'alert' : nextAction.tone === 'warning' ? 'alert' : nextAction.tone === 'success' ? 'evidence' : 'standard'}>
         <CardHeader title="الإجراء التالي" subtitle="يُشتق مباشرة من الحالة التشغيلية الحالية؛ المعالجة الفعلية تبقى داخل المسارات الكانونية." />
         <CardBody>
           <div className="flex items-start gap-3">
