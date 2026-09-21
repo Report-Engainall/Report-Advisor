@@ -78,6 +78,14 @@ export function ExecutiveReportPage() {
     {error && <div role="alert" className="rounded-2xl border border-red-200 bg-red-50 p-5 text-sm text-red-800">{error}<button type="button" onClick={() => void load()} className="mr-3 rounded-lg border border-red-300 bg-white px-3 py-1 font-semibold">إعادة المحاولة</button></div>}
 
     {!loading && !error && <>
+      <section className="ag-decision-strip" aria-label="ملخص التقرير التنفيذي">
+        <div className="ag-decision-cell"><span className="ag-decision-label">المبيعات</span><span className="ag-decision-value">{kpis?.totalSales == null ? 'غير متاح' : formatCurrency(kpis.totalSales)}</span></div>
+        <div className="ag-decision-cell"><span className="ag-decision-label">الهامش</span><span className="ag-decision-value">{kpis?.grossMargin == null ? 'غير متاح' : `${kpis.grossMargin.toFixed(1)}%`}</span></div>
+        <div className="ag-decision-cell"><span className="ag-decision-label">التحصيل</span><span className="ag-decision-value">{kpis?.collectionRate == null ? 'غير متاح' : `${kpis.collectionRate.toFixed(1)}%`}</span></div>
+        <div className="ag-decision-cell"><span className="ag-decision-label">التنبيهات</span><span className="ag-decision-value">{data?.alerts.length ?? 0}</span></div>
+        <div className="ag-decision-cell"><span className="ag-decision-label">الحالة</span><span className="ag-decision-value">{kpis?.status ?? 'INSUFFICIENT_DATA'}</span></div>
+      </section>
+
       <TruthContextStrip months={6} status={kpis?.status ?? 'INSUFFICIENT_DATA'} asOf={asOf} />
 
       <section className="ag-exec-panel rounded-2xl border border-ink-200 bg-white p-5 shadow-sm">
