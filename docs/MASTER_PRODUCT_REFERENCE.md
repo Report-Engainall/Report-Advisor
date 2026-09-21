@@ -1,3 +1,14 @@
+## IMPLEMENTATION UPDATE — 2026-09-21 / WAVE 51 — INVENTORY EMPTY-STATE GOVERNANCE
+
+- Exact code/test candidate: `c90a97aad3c353f031c80cfd0788836b20add1e1`.
+- Inventory UI implementation was added in `src/pages/EntityPages.tsx` across implementation commits `976adb2b54ba52af9cadae4b4deb0085bdc539e8` and corrective `3b7f6e35f69bb53fd56a1714922376d4322ccd1a`.
+- UI contract guard: `c90a97aad3c353f031c80cfd0788836b20add1e1`.
+- Inventory now distinguishes an authoritative empty source (`totalRows === 0`) from an authoritative filtered-empty result (`filter !== 'all' && filteredRows === 0`).
+- Empty source routes to the existing unified `/import`; filtered-empty restores `all` in place without reload.
+- The condition was deliberately narrowed after review so unknown/null counts are not misclassified as empty.
+- No route, RPC, runner, import engine, table, tenant/RLS path or business calculation was introduced.
+- Exact source verification confirms the state conditions, import action and filter reset action. Exact-head deployment remains fail-closed at the Vercel free-plan `build-rate-limit` boundary.
+
 ## IMPLEMENTATION UPDATE — 2026-09-21 / WAVE 50 — DASHBOARD ANALYTICAL EMPTY STATES
 
 - Exact code/test candidate: `6ae2c1c5e41c85598d2b7a160b7fe681aa7e7e33`.
