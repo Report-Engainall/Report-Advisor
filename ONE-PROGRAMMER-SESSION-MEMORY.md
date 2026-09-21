@@ -108,3 +108,31 @@ CURRENT RESUME POINTER
 - PRODUCT CODE SHA VERIFIED AND PUSHED → 63f6cf6597b72085b2fa59019a6095cdebd62ff3
 - SESSION MEMORY COMMIT VERIFIED ON GITHUB → 4564a8d0b7c6ffba7724de62b48a9a378ce5850b
 - CURRENT NEXT ACTION → fresh deployment/runtime proof for product code 63f6cf6597b72085b2fa59019a6095cdebd62ff3, then authenticated visual sweep with real Supabase runtime.
+## LATEST LOCAL VISUAL WRITE-BACK — 2026-09-21-AGHBARI-VISUAL-REFINEMENT-10
+- SESSION-ID → 2026-09-21-AGHBARI-VISUAL-REFINEMENT-10
+- EXACT HEAD → 654c3ddb8a37652d3e6a876b783e8514bde5407a
+- BRANCH / PR → main
+- DONE → visual refinement in src/index.css: clearer sidebar separators and RTL branch connectors; higher text contrast; stronger card/table borders; focus-visible states; responsive table density; touch-safe controls; tablet sidebar compression; KPI grids collapse from 4/3 columns to 2 then 1.
+- ACTUAL RESULT → readability and responsive-density issues improved without changing routes, RPCs, runners, tenant/RLS, calculations, import lifecycle, or fail-closed rules.
+- PRECISE STOP POINT → local src/index.css contains the new refinement blocks; Git ref is still 654c3ddb8a37652d3e6a876b783e8514bde5407a.
+
+- OPEN BLOCKERS → local typecheck/build/browser verification and remote commit/push remain pending; no false PASS was recorded.
+- VERIFIED EVIDENCE → GitHub main was checked at 654c3ddb8a37652d3e6a876b783e8514bde5407a; source edits were successfully written to PC01.
+- NEXT EXECUTABLE ACTION → run the existing typecheck/build/UI checks and browser verification, then commit/push and refresh exact-head deployment proof.
+- DO NOT REPEAT → do not rebuild the mobile Drawer/sidebar architecture, canonical 8-zone navigation, global Advisor, or already-closed core surfaces; do not transfer old deployment evidence to a new SHA.
+- CURRENT RESUME POINTER → 654c3ddb8a37652d3e6a876b783e8514bde5407a → exact-head tests → commit/push → fresh deployment/runtime proof → authenticated visual sweep.
+
+
+## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-VISUAL-REFINEMENT-11
+- SESSION-ID → 2026-09-21-AGHBARI-VISUAL-REFINEMENT-11
+- PRODUCT CODE SHA → 9f23917db3632c22b9796ffc2a61e17fef2569c0
+- MEMORY BASE → product code commit 9f23917d was pushed to origin/main successfully.
+- DONE → premium card and table polish: stronger card header hierarchy, restrained teal/gold accent rails, richer primary/secondary button treatment, clearer empty-table state, keyboard-accessible clickable rows, improved table focus/scroll treatment, plus the previous sidebar/tree contrast and responsive-density wave.
+- ACTUAL RESULT → shared visual system now gives cards clearer hierarchy, tables stronger readability, empty states an evidence-aware explanation, and interactive rows proper keyboard activation. No route, RPC, runner, tenant/RLS, deterministic calculation, or import lifecycle changed.
+- VERIFIED TESTS / EVIDENCE → npm run typecheck PASS; npm run build PASS (2808 modules transformed); test:product-wow-ui PASS; test:ui-route-sidebar-parity PASS (37 routes / 35 links); test:executive-dashboard-ui PASS; test:connections-language-ui PASS (7 checks); git diff --check PASS; lint PASS with 0 errors / 63 warnings.
+- VISUAL VERIFICATION BOUNDARY → exact local build is served on preview port 4178; agent-browser is not installed on PC01 and Edge headless screenshot attempts did not emit screenshot files, so no authenticated visual PASS is claimed from this session.
+- DEPLOYMENT BOUNDARY → GitHub origin/main is at 9f23917d. Netlify reader still reports the older production deploy 6ab0a18d... at commit 21f6562d...; a manual Netlify deployment command was started from PC01 but has not returned a final deploy record yet.
+- OPEN BLOCKERS → fresh Netlify exact-head deployment proof; authenticated post-login visual sweep with real Supabase runtime; runtime/business E2E, resilience, backup/RPO/RTO and final certification remain independently open.
+- NEXT EXECUTABLE ACTION → verify the Netlify deployment result; if exact 9f23917d is ready, run public responsive/route checks against that exact deploy, then proceed to authenticated visual/runtime closure.
+- DO NOT REPEAT → do not rebuild the existing mobile Drawer/sidebar architecture, canonical 8-zone navigation, global Advisor, or already-closed core surfaces; do not transfer older deploy evidence to 9f23917d; do not fabricate authenticated runtime or browser screenshots.
+- CURRENT RESUME POINTER → 9f23917db3632c22b9796ffc2a61e17fef2569c0 → Netlify exact-head proof → authenticated visual sweep → runtime/evidence/CI closure.
