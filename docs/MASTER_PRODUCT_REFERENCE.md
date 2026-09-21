@@ -1,3 +1,12 @@
+## IMPLEMENTATION UPDATE — 2026-09-21 / WAVE 48B — DECISION SOURCE-INSPECTION ROUTE FIX
+
+- Exact code/test candidate: `34b2038602f4899a78e6e183087cfe232c02faa8`.
+- UI fix: `42ca66e327ce63fd5353de86d3f8753f12356b55` changes the Decision Experience alert action «فحص المصدر أولًا» from the command-center route to the canonical Trust & Evidence surface `/trust`.
+- UI contract guard: `34b2038602f4899a78e6e183087cfe232c02faa8`.
+- This is a routing correction only; no new route, RPC, runner, import engine, table, tenant/RLS path or business calculation was introduced.
+- Exact source was re-read after the change. No runtime/build PASS is claimed for this SHA.
+- Exact-head deployment remains blocked by the free-plan Vercel `build-rate-limit`; older READY deployments remain non-transferable.
+
 ## IMPLEMENTATION UPDATE — 2026-09-21 / WAVE 48 — DECISION SURFACE ACTIONABLE EMPTY STATES
 
 - Exact code/test candidate: `19efa63103657e60c973ec2d4449d74e05e73025`.
