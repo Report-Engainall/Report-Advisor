@@ -198,7 +198,8 @@ export function DecisionExperiencePage() {
       </nav>
 
       {stage === 'command' && (
-        <section className="rounded-[16px] border border-ink-200 bg-white p-4 shadow-card">
+        <>
+          <section className="rounded-[16px] border border-ink-200 bg-white p-4 shadow-card">
           <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
             <div className="min-w-0">
               <div className="section-kicker">DECISION READINESS</div>
@@ -215,7 +216,7 @@ export function DecisionExperiencePage() {
           </div>
         </section>
 
-      <section className="grid gap-4 xl:grid-cols-[1.15fr_.85fr]">
+          <section className="grid gap-4 xl:grid-cols-[1.15fr_.85fr]">
           <Card>
             <CardHeader title="الإشارات التي تستدعي قرارًا" subtitle="اختر الإشارة التي تريد تحويلها إلى مسار قرار." />
             <CardBody>
@@ -247,7 +248,8 @@ export function DecisionExperiencePage() {
               </div>
             </CardBody>
           </Card>
-        </section>
+          </section>
+        </>
       )}
 
       {stage === 'evidence' && (
