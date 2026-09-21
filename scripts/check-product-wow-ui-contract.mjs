@@ -92,6 +92,9 @@ assert.ok(trustEvidence.includes('درجة الجودة: {entity.score}%'), 'tru
 assert.ok(trustEvidence.includes('role="progressbar"'), 'trust evidence must visualize each authoritative quality score as an accessible progress indicator');
 assert.ok(trustEvidence.includes('aria-valuenow={entity.score}'), 'trust evidence quality progress must expose the authoritative score to assistive technology');
 assert.ok(trustEvidence.includes('Math.max(0, Math.min(100, entity.score))'), 'trust evidence quality visualization must clamp the authoritative score to the valid progress range');
+assert.ok(trustEvidence.includes("to={(entity.issues ?? 0) > 0 ? '/data-quality' : '/import/analyze'}"), 'trust evidence must expose a real entity-level next action from authoritative issue pressure');
+assert.ok(trustEvidence.includes("'راجع الجودة'"), 'entities with issues must expose the canonical data-quality review action');
+assert.ok(trustEvidence.includes("'افحص المصدر'"), 'clean entities must expose the canonical evidence-source inspection action');
 assert.ok(!trustEvidence.includes('window.location.reload()'), 'trust evidence refresh must not discard page context with a full reload');
 assert.ok(trustEvidence.includes('لا توجد بيانات مثبتة بعد'), 'empty trust state must explain the absence of evidence');
 assert.ok(trustEvidence.includes('RECORDS CHECKED'), 'trust evidence must expose the source record count');
