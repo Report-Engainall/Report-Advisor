@@ -88,3 +88,18 @@ CURRENT RESUME POINTER
 - NEXT EXECUTABLE ACTION → continue the remaining high-value visual polish on intelligence/analytics/output surfaces, then obtain fresh exact-head deployment/runtime proof and resume independent runtime/evidence/CI closure.
 - DO NOT REPEAT → do not recreate canonical navigation/shell/Advisor; do not transfer old live proof to `7d7fd0ee...`; do not add demo-only data, fake sessions, fake evidence, duplicate RPCs or runners.
 - CURRENT RESUME POINTER → `7d7fd0ee560e3e95c9d8c5937bf1f4b2aaafcce5` → remaining high-value surface polish → exact-head deployment/runtime proof → runtime/evidence/CI closure.
+
+
+## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-VISUAL-CLOSURE-09
+- SESSION-ID → 2026-09-21-AGHBARI-VISUAL-CLOSURE-09
+- EXACT HEAD → 63f6cf6597b72085b2fa59019a6095cdebd62ff3
+- BRANCH / PR → main / local main commit created; push not yet re-verified in this session.
+- STARTING HEAD → 21f6562dbca1016842f037299ffd8815b59fe1aa on the PC01 checkout; working tree was clean before this UI batch.
+- DONE → premium precision UI wave: global typography rhythm, numeric hierarchy, responsive data-table density, focus/keyboard depth, branded loading/empty/error states, skeleton shimmer, mobile touch sizing, and reduced-motion safeguards. Existing IBM Plex Sans Arabic + Inter stack remains canonical. No backend/RPC/runner/tenant/RLS/import-contract/business-calculation changes.
+- ACTUAL RESULT → generic states now use an Aghbari enterprise surface; tables and metrics have stronger scanability; page titles scale deliberately; small-screen controls receive stable touch sizing. Shared-system changes propagate across analytics/intelligence/output surfaces without new taxonomy.
+- PRECISE STOP POINT → product code exact at 63f6cf65...; local repository clean after commit; Vite preview was running on http://127.0.0.1:4177/. Authenticated post-login proof was not claimed because the real Supabase session/runtime is still unavailable locally.
+- OPEN BLOCKERS → exact-head deployment/runtime proof, authenticated visual sweep, business E2E, resilience, backup/RPO/RTO, and final certification remain open.
+- VERIFIED TESTS / EVIDENCE → typecheck PASS; build PASS (2808 modules); product-wow PASS; route/sidebar parity PASS (37 routes / 35 links); executive-dashboard-ui PASS; intelligence-product-contract PASS; connections-language-ui PASS (7); git diff --check PASS; lint PASS with 0 errors / 63 warnings.
+- NEXT EXECUTABLE ACTION → push and verify 63f6cf6597b72085b2fa59019a6095cdebd62ff3, obtain fresh exact-head deployment proof, then run the authenticated visual sweep on a real Supabase-capable runtime.
+- DO NOT REPEAT → do not recreate the 8-zone navigation, global Advisor, sidebar tree, reports/decision/trust/import surfaces already closed; do not transfer older live PASS to 63f6cf65...; do not fabricate sessions, data, evidence, or backend behavior.
+- CURRENT RESUME POINTER → 63f6cf6597b72085b2fa59019a6095cdebd62ff3 → exact-head push/deployment/runtime proof → authenticated visual sweep → runtime/evidence/CI closure.
