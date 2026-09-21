@@ -4,17 +4,15 @@ import { Card, CardHeader, CardBody } from '@/components/ui/Card';
 import { Badge, StatusBadge } from '@/components/ui/Badge';
 import { PageHeader, LoadingState, EmptyState } from '@/components/ui/States';
 import { DataTable } from '@/components/ui/DataTable';
-import { fetchImportRecords, createImportRecord } from '@/lib/queries';
+import { fetchImportRecords } from '@/lib/queries';
 import { supabase, resolveCurrentCompanyId } from '@/lib/supabase';
 import { formatDateTime, formatNumber } from '@/lib/format';
 import { detectFormat } from '@/lib/file-engine/detector';
 import { securityScan, computeSHA256, checkDuplicate } from '@/lib/file-engine/security';
 import { parseFile } from '@/lib/file-engine/adapters';
 import { FORMAT_LABELS, MAX_FILE_SIZE, type FileFormat, type Dataset } from '@/lib/file-engine/types';
-import { reconcileForCanonical } from '@/lib/import/canonical-truth-boundary';
-import { runCanonicalImportThroughDurableRunner } from '@/lib/import/canonical-production-adapter';
 
-type Step = 'upload' | 'scanning' | 'preview' | 'committing' | 'done';
+type Step = 'upload' | 'scanning' | 'preview' | 'saving' | 'done';
 interface Row { rowNumber: number; data: Record<string, any>; valid: boolean; error?: string }
 
 const DOMAIN_LABELS: Record<string, string> = {
@@ -59,7 +57,7 @@ const STEPS: Array<{ key: Step; label: string }> = [
   { key: 'upload', label: 'الملف' },
   { key: 'scanning', label: 'الفحص' },
   { key: 'preview', label: 'المراجعة' },
-  { key: 'committing', label: 'الكتابة' },
+  { key: 'saving', label: 'حفظ التحليل' },
   { key: 'done', label: 'النتيجة' },
 ];
 
@@ -68,21 +66,6 @@ function icon(format: FileFormat) {
   if (['pdf', 'docx', 'doc', 'rtf'].includes(format)) return <FileText size={18} />;
   if (['jpg', 'jpeg', 'png', 'webp', 'tiff', 'bmp'].includes(format)) return <FileImage size={18} />;
   return <FileType size={18} />;
-}
-
-async function finishImportJob(
-  importJobId: string,
-  status: 'completed' | 'partial' | 'failed' | 'cancelled',
-  resultSummary: Record<string, unknown>,
-  errorMessage?: string,
-): Promise<void> {
-  const { error } = await supabase.rpc('import_finish_job', {
-    p_job_id: importJobId,
-    p_status: status,
-    p_result_summary: resultSummary,
-    p_error_message: errorMessage ?? null,
-  });
-  if (error) throw error;
 }
 
 function Stepper({ step }: { step: Step }) {
@@ -164,74 +147,99 @@ export function CanonicalImportPage() {
     }
   }, []);
 
-  const commit = useCallback(async () => {
+  const saveAnalysis = useCallback(async () => {
     const validRows = rows.filter(r => r.valid);
     if (detectedDomain === 'unknown') {
-      setError('النطاق الدلالي غير محسوم بعد. راجع المطابقة قبل الاعتماد.');
+      setError('النطاق الدلالي غير محسوم بعد. راجع المطابقة قبل الحفظ.');
       return;
     }
     if (!validRows.length || !file || !fileHash || duplicate || !securityPassed) return;
-    if (quality < 50) { setError('جودة البيانات أقل من 50% — الاستيراد مرفوض.'); return; }
-    if (quality < 75 && !qualityApproved) { setError('جودة البيانات بين 50% و74% وتتطلب موافقة صريحة قبل الاستيراد.'); return; }
-    setStep('committing'); setProgress(10); setError(null);
-    let rec: Awaited<ReturnType<typeof createImportRecord>> | null = null;
+    if (quality < 50) { setError('جودة البيانات أقل من 50% — التحليل مرفوض.'); return; }
+    if (quality < 75 && !qualityApproved) { setError('جودة البيانات بين 50% و74% وتتطلب موافقة صريحة قبل الحفظ.'); return; }
+
+    setStep('saving');
+    setProgress(15);
+    setError(null);
+
     try {
       const companyId = await resolveCurrentCompanyId();
       if (!companyId) throw new Error('TENANT_CONTEXT_REQUIRED');
       const sourceFile = selectedFileRef.current;
       if (!sourceFile) throw new Error('SOURCE_FILE_NOT_AVAILABLE');
-      const extension = (sourceFile.name.split('.').pop() || 'bin').toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 12) || 'bin';
-      const sourceObjectPath = `${companyId}/imports/${crypto.randomUUID()}.${extension}`;
+
+      const extension = (sourceFile.name.split('.').pop() || 'bin')
+        .toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 12) || 'bin';
+      const sourceObjectPath = `${companyId}/analysis/${crypto.randomUUID()}.${extension}`;
+
       const { error: uploadError } = await supabase.storage
         .from('documents')
         .upload(sourceObjectPath, sourceFile, { contentType: file.mime, upsert: false });
       if (uploadError) throw new Error(`SOURCE_UPLOAD_FAILED:${uploadError.message}`);
-      try {
-        rec = await createImportRecord({ file_name: file.name, file_size: file.size, source_type: file.format, file_mime: file.mime, source_object_path: sourceObjectPath, status: 'processing', total_rows: rows.length, valid_rows: validRows.length, invalid_rows: rows.length - validRows.length, quarantined_rows: rows.length - validRows.length, entity_type: 'generic-analysis', progress: 0 });
-      } catch (createError) {
-        await supabase.storage.from('documents').remove([sourceObjectPath]).catch(() => undefined);
-        throw createError;
-      }
-      const durableSourceHash = `sha256:${fileHash}`;
-      throw new Error('GENERIC_CANONICAL_WRITE_CONTRACT_REQUIRED_BEFORE_COMMIT');
-      /* const reconciled = reconcileForCanonical('generic', companyId, file.name, durableSourceHash, rec.id, (data, rowNumber) => `${durableSourceHash}:${rowNumber}:${JSON.stringify(data)}`, validRows.map(r => ({ rowNumber: r.rowNumber, data: r.data })));
-      if (reconciled.rejected.length > 0) throw new Error(`CANONICAL_RECONCILIATION_REJECTED:${reconciled.rejected.map(r => `${r.rowNumber}:${r.reason}`).join(',')}`);
-      const execution = await runCanonicalImportThroughDurableRunner({ importId: rec.id, fileName: file.name, sourceHash: durableSourceHash, entityType, rows: reconciled.rows, qualityScore: quality });
-      await finishImportJob(rec.id, 'completed', {
+
+      setProgress(70);
+
+      const previewRows = validRows.slice(0, 25).map((row) => row.data);
+      const { data: snapshot, error: snapshotError } = await supabase
+        .from('source_analysis_snapshots')
+        .insert({
+          company_id: companyId,
+          import_job_id: null,
+          source_hash: `sha256:${fileHash}`,
+          source_path: sourceObjectPath,
+          source_format: file.format,
+          analysis_status: 'analyzed',
+          entity_type: detectedDomain,
+          quality_score: quality,
+          row_count: rows.length,
+          column_count: headers.length,
+          datasets: [{
+            name: file.name,
+            rowCount: rows.length,
+            columnCount: headers.length,
+            columns: mappings,
+            preview: previewRows,
+          }],
+          canonical_text: [
+            `source=${file.name}`,
+            `detected_domain=${detectedDomain}`,
+            `detection_confidence=${detectionConfidence}%`,
+            detectionReason,
+          ].join(' | '),
+          visual_assets: [],
+          warnings,
+          metadata: {
+            fileName: file.name,
+            fileSize: file.size,
+            mappingCoverage,
+            detectionConfidence,
+            detectedDomain,
+            detectionReason,
+            savedAsAnalysis: true,
+            canonicalWriteStatus: 'BLOCKED_PENDING_GENERAL_CONTRACT',
+          },
+        })
+        .select('id')
+        .single();
+
+      if (snapshotError) throw snapshotError;
+      setProgress(100);
+      setResult({
         total: rows.length,
         valid: validRows.length,
         invalid: rows.length - validRows.length,
-        // Authoritative terminal counts are supplied only after the durable commit succeeds.
-        // commitImportBatch fails closed unless every canonical row commits.
-        committed: validRows.length,
-        invalidRows: rows.length - validRows.length,
-        importId: rec.id,
-        jobId: execution.jobId,
-        file_name: file.name,
+        snapshotId: snapshot?.id ?? null,
+        detectedDomain,
       });
-      setProgress(100); */
-      setResult({ total: rows.length, valid: validRows.length, invalid: rows.length - validRows.length, importId: rec.id, jobId: execution.jobId });
-      setStep('done'); await loadHistory();
-    } catch (e: any) {
-      const failureMessage = e?.message || 'خطأ غير معروف';
-      if (rec?.id) {
-        try {
-          await finishImportJob(rec.id, 'failed', {
-            importId: rec.id,
-            entityType,
-            total: rows.length,
-            valid: validRows.length,
-            invalid: rows.length - validRows.length,
-          }, failureMessage);
-        } catch (finishError: any) {
-          setError(`فشل الاستيراد — وتعذر إغلاق سجل العملية بأمان: ${finishError?.message || 'IMPORT_FINISH_FAILED'}`);
-          setStep('preview');
-          return;
-        }
-      }
-      setError(`فشل الاستيراد: ${failureMessage}`); setStep('preview');
+      setStep('done');
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : 'تعذر حفظ تحليل المصدر');
+      setStep('preview');
     }
-  }, [rows, file, fileHash, detectedDomain, duplicate, securityPassed, quality, qualityApproved, loadHistory]);
+  }, [
+    rows, file, fileHash, detectedDomain, duplicate, securityPassed, quality,
+    qualityApproved, headers.length, mappings, warnings, detectionConfidence,
+    detectionReason, mappingCoverage,
+  ]);
 
   const reset = () => { selectedFileRef.current = null; setStep('upload'); setFile(null); setFileHash(null); setRows([]); setHeaders([]); setQuality(0); setQualityApproved(false); setMappings([]); setWarnings([]); setError(null); setDuplicate(false); setSecurityPassed(false); setResult(null); setProgress(0); setDetectedDomain('unknown'); setDetectionConfidence(0); setDetectionReason('لم يبدأ تحليل الملف بعد.'); if (inputRef.current) inputRef.current.value = ''; };
   const valid = rows.filter(r => r.valid).length;
@@ -241,7 +249,7 @@ export function CanonicalImportPage() {
   const ready = Boolean(detectedDomain !== 'unknown' && file && fileHash && securityPassed && !duplicate && valid > 0 && (quality >= 75 || (quality >= 50 && quality < 75 && qualityApproved)));
 
   return <div className="space-y-5 animate-fade-in">
-    <PageHeader title="مركز الاستيراد" subtitle="مسار موحد: فحص أمني → تحليل → مطابقة → مراجعة → كتابة قانونية في البيانات الأساسية" />
+    <PageHeader title="مركز الاستيراد" subtitle="مسار موحد: فحص أمني → فهم المحتوى → مطابقة → جودة → حفظ دليل التحليل" />
     <Stepper step={step} />
 
     {step === 'upload' && <Card><CardBody>
@@ -281,20 +289,20 @@ export function CanonicalImportPage() {
           </div>
         </CardBody>
       </Card>
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3"><Card><CardBody><div className="text-xs text-ink-400">إجمالي الصفوف</div><div className="text-xl font-bold mt-1">{formatNumber(rows.length)}</div></CardBody></Card><Card><CardBody><div className="text-xs text-ink-400">جاهز للكتابة</div><div className="text-xl font-bold mt-1 text-success-600">{formatNumber(valid)}</div></CardBody></Card><Card><CardBody><div className="text-xs text-ink-400">سيتم عزلها</div><div className="text-xl font-bold mt-1 text-danger-600">{formatNumber(invalid)}</div></CardBody></Card><Card><CardBody><div className="text-xs text-ink-400">حالة التكرار</div><div className={`text-sm font-semibold mt-2 ${duplicate ? 'text-danger-600' : 'text-success-600'}`}>{duplicate ? 'مكرر — محظور' : 'لا يوجد تكرار'}</div></CardBody></Card></div>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3"><Card><CardBody><div className="text-xs text-ink-400">إجمالي الصفوف</div><div className="text-xl font-bold mt-1">{formatNumber(rows.length)}</div></CardBody></Card><Card><CardBody><div className="text-xs text-ink-400">جاهز للتحليل</div><div className="text-xl font-bold mt-1 text-success-600">{formatNumber(valid)}</div></CardBody></Card><Card><CardBody><div className="text-xs text-ink-400">تحتاج مراجعة</div><div className="text-xl font-bold mt-1 text-danger-600">{formatNumber(invalid)}</div></CardBody></Card><Card><CardBody><div className="text-xs text-ink-400">حالة التكرار</div><div className={`text-sm font-semibold mt-2 ${duplicate ? 'text-danger-600' : 'text-success-600'}`}>{duplicate ? 'مكرر — محظور' : 'لا يوجد تكرار'}</div></CardBody></Card></div>
       {warnings.length>0 && <div className="space-y-2">{warnings.map((w,i)=><div key={i} className="p-3 rounded-lg bg-warning-50 text-warning-700 text-sm flex gap-2"><AlertTriangle size={16}/>{w}</div>)}</div>}
       {duplicate && <div className="p-4 rounded-xl border border-danger-200 bg-danger-50 text-danger-700 text-sm flex items-start gap-3"><XCircle size={18}/><div><b>الكتابة متوقفة لحماية البيانات.</b><div className="mt-1">تم اكتشاف بصمة ملف مطابقة داخل حسابك. أعد تصدير الملف أو استخدم مصدرًا جديدًا بدل إنشاء نسخة مكررة.</div></div></div>}
       {quality >= 50 && quality < 75 && !duplicate && <label className="p-4 rounded-xl border border-warning-200 bg-warning-50 text-warning-800 text-sm flex items-start gap-3 cursor-pointer"><input type="checkbox" checked={qualityApproved} onChange={e => setQualityApproved(e.target.checked)} className="mt-1"/><span><b>موافقة جودة صريحة:</b> الجودة {quality}% تقع في نطاق المراجعة (50–74%) ويجب تأكيدك قبل الكتابة.</span></label>}
       {quality < 50 && <div className="p-4 rounded-xl border border-danger-200 bg-danger-50 text-danger-700 text-sm flex gap-2"><XCircle size={18}/> جودة البيانات أقل من 50% — الاستيراد مرفوض.</div>}
       {mappings.length>0&&<Card><CardHeader title="مطابقة الأعمدة" subtitle={`${mappingCoverage}% من أعمدة المصدر لها حقل مكتشف`}/><DataTable columns={[{key:'name',label:'عمود المصدر'},{key:'mappedField',label:'الحقل القانوني',render:(r:any)=>r.mappedField||'غير معين'},{key:'confidence',label:'الثقة',align:'center',render:(r:any)=><Badge variant={r.confidence>=80?'success':r.confidence>=50?'warning':'danger'}>{r.mappedField?r.confidence+'%':'—'}</Badge>}]} data={mappings} emptyMessage="لا توجد أعمدة"/></Card>}
-      <Card><CardHeader title="مراجعة قبل الكتابة" subtitle="تظهر أول 10 صفوف مع حالة كل صف" action={<div className="flex gap-2"><button type="button" onClick={reset} className="btn-secondary text-xs"><ArrowLeft size={13}/> اختيار ملف آخر</button><button type="button" onClick={() => void commit()} className="btn-primary text-xs" aria-label="تأكيد الاستيراد" disabled={!ready}><FileCheck2 size={13}/> اعتماد التحليل — {formatNumber(valid)} صف</button></div>}/><DataTable columns={[{key:'rowNumber',label:'#',align:'center' as const}, ...headers.slice(0,6).map(h=>({key:h,label:h,render:(r:Row)=>String(r.data[h]??'')})), {key:'status',label:'الحالة',align:'center' as const,render:(r:Row)=>r.valid?<Badge variant="success">صالح</Badge>:<Badge variant="danger">مرفوض</Badge>}, {key:'error',label:'الملاحظة',render:(r:Row)=>r.error||'—'}]} data={rows.slice(0,10)} emptyMessage="لا توجد بيانات"/></Card>
+      <Card><CardHeader title="مراجعة قبل الكتابة" subtitle="تظهر أول 10 صفوف مع حالة كل صف" action={<div className="flex gap-2"><button type="button" onClick={reset} className="btn-secondary text-xs"><ArrowLeft size={13}/> اختيار ملف آخر</button><button type="button" onClick={() => void saveAnalysis()} className="btn-primary text-xs" aria-label="تأكيد الاستيراد" disabled={!ready}><FileCheck2 size={13}/> حفظ التحليل الموثق — {formatNumber(valid)} صف</button></div>}/><DataTable columns={[{key:'rowNumber',label:'#',align:'center' as const}, ...headers.slice(0,6).map(h=>({key:h,label:h,render:(r:Row)=>String(r.data[h]??'')})), {key:'status',label:'الحالة',align:'center' as const,render:(r:Row)=>r.valid?<Badge variant="success">صالح</Badge>:<Badge variant="danger">مرفوض</Badge>}, {key:'error',label:'الملاحظة',render:(r:Row)=>r.error||'—'}]} data={rows.slice(0,10)} emptyMessage="لا توجد بيانات"/></Card>
       {!ready && <div className="p-3 rounded-lg bg-ink-50 text-ink-600 text-sm">الاعتماد متوقف حتى تتوفر بيانات صالحة، جودة لا تقل عن 75% أو موافقة صريحة ضمن 50–74%، وعدم وجود تكرار، مع نجاح الفحص الأمني.</div>}
       {error&&<div className="p-3 rounded-lg bg-danger-50 text-danger-700 text-sm flex gap-2"><AlertCircle size={16}/>{error}</div>}
     </div>}
 
-    {step === 'committing' && <Card><CardBody><div className="flex flex-col items-center py-12 gap-4"><Loader2 className="animate-spin text-primary-500" size={34}/><b>جارٍ تنفيذ دورة الإنتاج الكاملة...</b><span className="text-lg font-semibold">{progress}%</span><div className="w-full max-w-xl h-2 bg-ink-100 rounded-full overflow-hidden"><div className="h-full bg-primary-500 rounded-full transition-all" style={{width:`${progress}%`}}/></div><p className="text-xs text-ink-400">المعاملة المركزية تُنفذ مرة واحدة، ولا يُثبت committed قبل نجاح الكتابة الذرية.</p></div></CardBody></Card>}
+    {step === 'saving' && <Card><CardBody><div className="flex flex-col items-center py-12 gap-4"><Loader2 className="animate-spin text-primary-500" size={34}/><b>جارٍ حفظ المصدر والتحليل الدلالي...</b><span className="text-lg font-semibold">{progress}%</span><div className="w-full max-w-xl h-2 bg-ink-100 rounded-full overflow-hidden"><div className="h-full bg-primary-500 rounded-full transition-all" style={{width:`${progress}%`}}/></div><p className="text-xs text-ink-400">هذا الحفظ يسجل المصدر والتحليل والأدلة الأولية. لا يُعلن committed ولا يكتب إلى الحقيقة الكانونية العامة.</p></div></CardBody></Card>}
 
-    {step === 'done' && result && <Card><CardBody><div className="flex flex-col items-center py-10 gap-4"><CheckCircle2 className="text-success-500" size={52}/><h3 className="text-xl font-semibold">اكتملت عملية الاستيراد</h3><div className="grid grid-cols-3 gap-3 w-full max-w-lg text-center"><div className="p-3 rounded-lg bg-ink-50"><div className="text-xs text-ink-400">الإجمالي</div><b>{formatNumber(result.total)}</b></div><div className="p-3 rounded-lg bg-success-50"><div className="text-xs text-success-700">تمت الكتابة</div><b>{formatNumber(result.valid)}</b></div><div className="p-3 rounded-lg bg-danger-50"><div className="text-xs text-danger-700">مرفوض</div><b>{formatNumber(result.invalid)}</b></div></div><p className="text-xs text-ink-400">معرّف العملية: {result.importId}</p><p className="text-xs text-ink-400">معرّف المهمة الدائمة: {result.jobId}</p><button type="button" onClick={reset} className="btn-primary"><Upload size={14}/> استيراد ملف آخر</button></div></CardBody></Card>}
+    {step === 'done' && result && <Card><CardBody><div className="flex flex-col items-center py-10 gap-4"><CheckCircle2 className="text-success-500" size={52}/><h3 className="text-xl font-semibold">تم حفظ تحليل المصدر</h3><div className="grid grid-cols-2 gap-3 w-full max-w-lg text-center"><div className="p-3 rounded-lg bg-ink-50"><div className="text-xs text-ink-400">الصفوف المقروءة</div><b>{formatNumber(result.total)}</b></div><div className="p-3 rounded-lg bg-primary-50"><div className="text-xs text-primary-700">النطاق المكتشف</div><b>{DOMAIN_LABELS[result.detectedDomain] ?? result.detectedDomain}</b></div></div><p className="text-xs text-ink-400">Snapshot ID: {result.snapshotId ?? 'غير متاح'}</p><p className="max-w-xl text-center text-[11px] leading-5 text-ink-500">تم حفظ المصدر والتحليل مع بصمته ودرجة الجودة. الكتابة إلى الحقيقة الكانونية العامة ما زالت مقفلة حتى يوجد عقد عام لا يربط المنصة بأنواع ثابتة.</p><button type="button" onClick={reset} className="btn-primary"><Upload size={14}/> تحليل ملف آخر</button></div></CardBody></Card>}
 
     <Card><CardHeader title="سجل الاستيرادات" subtitle="تاريخ العمليات المرتبطة بحسابك" action={<button type="button" onClick={() => void loadHistory()} className="btn-secondary text-xs"><RefreshCw size={13}/> تحديث</button>}/>{loadingHistory?<LoadingState message="جارٍ تحميل السجل..."/>:history.length===0?<EmptyState icon={<Database size={32}/>} title="لا توجد استيرادات سابقة" message="ابدأ باستيراد ملفك الأول"/>:<DataTable columns={[{key:'file_name',label:'الملف'},{key:'entity_type',label:'النوع'},{key:'total_rows',label:'الصفوف',align:'center'},{key:'valid_rows',label:'صالح',align:'center'},{key:'invalid_rows',label:'مرفوض',align:'center'},{key:'status',label:'الحالة',align:'center',render:(r:any)=><StatusBadge status={r.status}/>},{key:'created_at',label:'التاريخ',render:(r:any)=>formatDateTime(r.created_at)}]} data={history} emptyMessage="لا توجد استيرادات"/>}</Card>
   </div>;
