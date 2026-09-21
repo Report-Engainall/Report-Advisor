@@ -174,3 +174,47 @@ button,input,textarea,select{font:inherit}
   .ag-mobile-bar::before{content:"";position:absolute;inset-inline:22%;top:-3px;height:2px;border-radius:999px;background:linear-gradient(90deg,transparent,#e7b52b,#129b88,transparent);opacity:.7}
 }
 @media(max-width:640px){#ag-global-advisor{left:.65rem!important;right:.65rem!important;bottom:5.2rem!important;width:auto!important;max-height:calc(100vh - 7rem)!important;border-radius:22px!important}#ag-global-advisor [aria-label="المساعد الذكي السياقي"]{padding:.85rem}button[aria-controls="ag-global-advisor"]{display:none}}
+
+@layer components{
+  /* AGHBARI NAV TREE / READABILITY WAVE */
+  .ag-sidebar .ag-nav-sublist{position:relative;margin-inline-start:.85rem;padding-inline-start:.7rem!important;border-inline-start:1.5px solid rgba(175,218,209,.42)!important;background:linear-gradient(90deg,rgba(45,169,153,.045),transparent 70%);border-radius:0 0 10px 10px}
+  .ag-sidebar .ag-nav-sublist::before{content:"";position:absolute;inset-inline-start:-2px;top:4px;bottom:4px;width:3px;border-radius:999px;background:linear-gradient(180deg,rgba(231,181,43,.62),rgba(45,169,153,.24),rgba(231,181,43,.08));opacity:.75}
+  .ag-sidebar .ag-nav-sublist>.ag-nav-item{position:relative;min-height:39px;margin-inline:0;border-radius:9px;letter-spacing:-.005em}
+  .ag-sidebar .ag-nav-sublist>.ag-nav-item::before{content:"";position:absolute;inset-inline-start:-.72rem;top:50%;width:.58rem;height:1px;background:rgba(175,218,209,.52);transform:translateY(-50%)}
+  .ag-sidebar .ag-nav-sublist>.ag-nav-item:hover::before{background:#72b8ac}
+  .ag-sidebar .ag-nav-sublist>.ag-nav-item.ag-nav-item-active::before{height:2px;background:#e7b52b;box-shadow:0 0 0 2px rgba(231,181,43,.06)}
+  .ag-sidebar .ag-nav-sublist>.ag-nav-item .ag-nav-current{margin-inline-end:.15rem}
+  .ag-sidebar .ag-nav-sublist>.ag-nav-item:not(.ag-nav-item-active){color:#d9ece8!important}
+  .ag-sidebar .ag-nav-sublist>.ag-nav-item:not(.ag-nav-item-active) svg{color:#8fbab2!important}
+  .ag-sidebar .ag-nav-sublist>.ag-nav-item.ag-nav-item-active{background:linear-gradient(90deg,rgba(45,169,153,.27),rgba(12,92,84,.62))!important;border-color:rgba(135,222,208,.27)!important}
+  .ag-sidebar .ag-nav-sublist>.ag-nav-item.ag-nav-item-active svg{color:#d6f6ef!important}
+  .ag-sidebar .ag-section-toggle{font-size:.94rem}
+
+  /* MASTER DATA / METRIC GOVERNANCE — common executive surface */
+  .ag-master-data-surface>.ag-operational-hero,.ag-metric-governance-surface .ag-governance-hero{border-color:#cfe2dd!important;box-shadow:0 20px 42px -32px rgba(5,46,43,.55)}
+  .ag-master-data-surface .card,.ag-metric-governance-surface .card{border-color:#cfe2dd;box-shadow:0 12px 30px -27px rgba(5,46,43,.45)}
+  .ag-master-data-surface .card-hover:hover,.ag-metric-governance-surface .ag-governance-list .ag-governance-item:hover{border-color:#8fc5bb}
+  .ag-master-data-surface .card-header,.ag-metric-governance-surface .card-header{background:linear-gradient(135deg,#fbfefd,#f2f9f7)}
+  .ag-master-data-surface .ag-operational-hero::after{content:"REFERENCE / SEMANTICS";position:absolute;inset-inline-start:1.5rem;top:1.4rem;font-size:8px;font-weight:900;letter-spacing:.16em;color:#6f948c}
+  .ag-master-data-surface .ag-operational-hero{position:relative}
+  .ag-master-data-surface section:last-of-type .bg-white,.ag-master-data-surface section:last-of-type .bg-ink-50\/45{background:linear-gradient(145deg,#fff,#f7fbfa)}
+  .ag-metric-governance-surface>.grid>.ag-governance-list{align-self:start;position:sticky;top:78px}
+  .ag-metric-governance-surface .ag-governance-list .card-header{border-bottom:1px solid #d9e8e4}
+  .ag-metric-governance-surface .ag-governance-item{border:1px solid transparent}
+  .ag-metric-governance-surface .ag-governance-item-active{box-shadow:inset 3px 0 0 #e7b52b,0 10px 22px -20px rgba(5,46,43,.48)}
+  .ag-metric-governance-surface .ag-governance-hero{background:radial-gradient(circle at 88% 15%,rgba(45,169,153,.09),transparent 19rem),linear-gradient(145deg,#fff,#f2f9f7 74%,#fff8ea)}
+  .ag-metric-governance-surface .rounded-xl.bg-ink-50{background:linear-gradient(145deg,#f7fbfa,#eef7f4)}
+}
+@media(max-width:1024px){.ag-metric-governance-surface>.grid>.ag-governance-list{position:relative;top:auto}}
+@media(max-width:640px){.ag-sidebar .ag-nav-sublist{margin-inline-start:.65rem;padding-inline-start:.58rem!important}.ag-sidebar .ag-nav-sublist>.ag-nav-item::before{inset-inline-start:-.60rem;width:.45rem}.ag-master-data-surface>.ag-operational-hero,.ag-metric-governance-surface .ag-governance-hero{border-radius:16px!important}}
+
+@layer components{
+  .ag-data-quality-surface>.ag-page-header{background:radial-gradient(circle at 88% 18%,rgba(45,169,153,.09),transparent 18rem),linear-gradient(135deg,#fff,#f3faf7 72%,#fff9ec);box-shadow:0 16px 34px -28px rgba(5,46,43,.5)}
+  .ag-data-quality-surface .ag-data-quality-overview{border-color:#cfe2dd;background:linear-gradient(145deg,#fff,#f2f9f7);box-shadow:0 18px 38px -30px rgba(5,46,43,.5)}
+  .ag-data-quality-surface .ag-data-quality-metric{border:1px solid #dce9e5;background:rgba(255,255,255,.72);box-shadow:0 8px 18px -18px rgba(5,46,43,.4)}
+  .ag-data-quality-surface .ag-data-quality-entity{position:relative;overflow:hidden;border-color:#cfe2dd;box-shadow:0 12px 28px -26px rgba(5,46,43,.44);transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease}
+  .ag-data-quality-surface .ag-data-quality-entity::after{content:"";position:absolute;inset-inline-start:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,#129b88,#e7b52b);opacity:.68}
+  .ag-data-quality-surface .ag-data-quality-entity:hover{transform:translateY(-1px);border-color:#8fc5bb;box-shadow:0 18px 34px -26px rgba(5,46,43,.5)}
+  .ag-data-quality-surface .ag-data-quality-issues{border-color:#cfe2dd;box-shadow:0 14px 30px -26px rgba(5,46,43,.44);overflow:hidden}
+  .ag-data-quality-surface .ag-data-quality-issues>header{background:linear-gradient(135deg,#fbfefd,#f2f9f7)}
+}

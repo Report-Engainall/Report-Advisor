@@ -110,7 +110,7 @@ export function MetricInspectorPage() {
   );
 
   return (
-    <div dir="rtl" className="ag-governance-page space-y-6 animate-fade-in">
+    <div dir="rtl" className="ag-governance-page ag-metric-governance-surface space-y-6 animate-fade-in">
       <PageHeader
         title="حوكمة المؤشرات"
         subtitle="تعريف المؤشر، نسخته، مصدره، الأدلة، والجهات المستهلكة من عقد موحد"

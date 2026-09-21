@@ -20,7 +20,7 @@ const semanticSurfaces = [
   { title: 'المرادفات والوحدات', icon: Tags, detail: 'تُحفظ كجزء من السياق الدلالي عند توفر source mapping، وإلا تبقى غير متاحة.' },
   { title: 'القاموس الدلالي', icon: BookOpenCheck, detail: 'مرجع تحليلي مستهدف؛ لا يتم عرض سجل اصطناعي عند غياب المصدر.' },
 ];export function MasterDataHubPage() {
-  return <div dir="rtl" className="space-y-6 animate-fade-in pb-10">
+  return <div dir="rtl" className="ag-master-data-surface space-y-6 animate-fade-in pb-10">
     <PageHeader
       title="البيانات المرجعية"
       subtitle="هوية الكيانات والمفاتيح والدلالات التي تمنح التحليل سياقه الصحيح دون تحويل المنصة إلى نظام CRUD."
