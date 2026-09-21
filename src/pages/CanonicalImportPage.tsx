@@ -15,79 +15,44 @@ import { reconcileForCanonical } from '@/lib/import/canonical-truth-boundary';
 import { runCanonicalImportThroughDurableRunner } from '@/lib/import/canonical-production-adapter';
 
 type Step = 'upload' | 'scanning' | 'preview' | 'committing' | 'done';
-type EntityType = 'sales_invoices' | 'products' | 'customers';
 interface Row { rowNumber: number; data: Record<string, any>; valid: boolean; error?: string }
 
-const ENTITIES: Array<{ value: EntityType; label: string; description: string; required: string[] }> = [
-  { value: 'sales_invoices', label: 'فواتير المبيعات', description: 'حركة المبيعات والتحصيل', required: ['invoice_number', 'invoice_date', 'customer_name', 'subtotal', 'tax_amount', 'total', 'paid_amount', 'status'] },
-  { value: 'products', label: 'المنتجات', description: 'الأصناف والأسعار والتكلفة', required: ['sku', 'name', 'unit', 'cost_price', 'selling_price', 'min_stock', 'reorder_point', 'is_active'] },
-  { value: 'customers', label: 'العملاء', description: 'بيانات العملاء الأساسية', required: ['name', 'segment', 'credit_limit', 'payment_terms_days'] },
-];
+const DOMAIN_LABELS: Record<string, string> = {
+  inventory: 'بيانات تشغيلية / مخزون',
+  sales: 'نشاط تجاري / مبيعات',
+  purchases: 'نشاط تجاري / مشتريات',
+  customerBalances: 'علاقات العملاء / أرصدة',
+  supplierBalances: 'علاقات الموردين / أرصدة',
+  stockMovement: 'حركة تشغيلية',
+  unknown: 'نطاق غير محسوم بعد',
+};
 
-function normalizeEntityToken(value: unknown): string {
-  return String(value ?? '')
-    .trim()
-    .toLowerCase()
-    .replace(/[\s_\-./]+/g, '');
+function normalizeSemanticToken(value: unknown): string {
+  return String(value ?? '').trim().toLowerCase().replace(/[\s_\-./]+/g, '');
 }
 
-function inferEntityType(dataset: Dataset): { entityType: EntityType | null; confidence: number; reason: string } {
-  const tokens = new Set(
-    dataset.columns.flatMap((column) => [
-      column.mappedField,
-      column.name,
-    ].filter(Boolean).map(normalizeEntityToken)),
-  );
+function inferGenericDomain(dataset: Dataset): { domain: string; confidence: number; reason: string } {
+  const columns = dataset.columns.map((column) => column.mappedField ?? column.name);
+  const tokens = new Set(columns.map(normalizeSemanticToken));
+  const scores: Array<{ domain: string; hits: number; hints: string[] }> = [
+    { domain: 'inventory', hits: ['sku','productcode','productname','currentstock','warehouse','quantity'].filter(x => tokens.has(x)).length, hints: ['الصنف','الكمية','المخزن','الرصيد'] },
+    { domain: 'sales', hits: ['productcode','quantity','netamount','price','documentdate'].filter(x => tokens.has(x)).length, hints: ['الحركة','القيمة','التاريخ','السعر'] },
+    { domain: 'purchases', hits: ['productcode','quantity','netamount','suppliercode','cost'].filter(x => tokens.has(x)).length, hints: ['المورد','التكلفة','الكمية','القيمة'] },
+    { domain: 'customerBalances', hits: ['customercode','customername','netamount','duedate'].filter(x => tokens.has(x)).length, hints: ['العميل','الرصيد','الاستحقاق'] },
+    { domain: 'supplierBalances', hits: ['suppliercode','suppliername','netamount','duedate'].filter(x => tokens.has(x)).length, hints: ['المورد','الرصيد','الاستحقاق'] },
+    { domain: 'stockMovement', hits: ['productcode','documentdate','quantity','warehouse'].filter(x => tokens.has(x)).length, hints: ['الحركة','الصنف','المخزن'] },
+  ].sort((a,b) => b.hits - a.hits);
 
-  const aliases: Record<EntityType, string[]> = {
-    sales_invoices: ['invoicenumber','invoicedate','customername','subtotal','taxamount','total','paidamount','status'],
-    products: ['sku','name','unit','costprice','sellingprice','minstock','reorderpoint','isactive'],
-    customers: ['code','name','segment','creditlimit','paymenttermsdays'],
-  };
-
-  const scored = (Object.keys(aliases) as EntityType[]).map((entityType) => {
-    const hits = aliases[entityType].filter((field) => tokens.has(field)).length;
-    const ratio = hits / aliases[entityType].length;
-    const mappedHits = dataset.columns.filter((column) => column.mappedField && aliases[entityType].includes(normalizeEntityToken(column.mappedField))).length;
-    return { entityType, hits, ratio, mappedHits };
-  }).sort((a, b) => b.hits - a.hits || b.mappedHits - a.mappedHits);
-
-  const best = scored[0];
-  if (!best || best.hits < 3 || best.ratio < 0.34) {
-    return { entityType: null, confidence: 0, reason: 'لم يستطع النظام تثبيت تخصص قانوني مدعوم من بنية الأعمدة الحالية.' };
+  const best = scores[0];
+  if (!best || best.hits < 2) {
+    return { domain: 'unknown', confidence: 0, reason: 'تم فهم بنية الملف، لكن لم تتوفر إشارات كافية لتثبيت نطاق أعمال بعينه.' };
   }
-
-  const confidence = Math.min(99, Math.round((best.hits / aliases[best.entityType].length) * 100));
+  const confidence = Math.min(99, Math.round(best.hits / 6 * 100));
   return {
-    entityType: best.entityType,
+    domain: best.domain,
     confidence,
-    reason: `تم الاستدلال من ${best.hits} حقول مطابقة ومن خريطة الأعمدة الحالية.`,
+    reason: `استند الاكتشاف إلى ${best.hits} إشارات دلالية من الأعمدة والمحتوى: ${best.hints.join('، ')}.`,
   };
-}
-
-function validateRowsForEntity(rows: Row[], entityType: EntityType | null): Row[] {
-  if (!entityType) {
-    return rows.map((row) => ({
-      ...row,
-      valid: false,
-      error: 'التخصص القانوني غير مثبت بعد. اختر التخصص الصحيح بعد تحليل الملف قبل الاعتماد.',
-    }));
-  }
-  const config = ENTITIES.find((item) => item.value === entityType);
-  if (!config) return rows;
-  return rows.map((row) => {
-    const missing = config.required.filter((field) => {
-      const key = Object.keys(row.data).find((k) => k === field)
-        ?? Object.keys(row.data).find((k) => k.toLowerCase().includes(field.toLowerCase()));
-      const value = key ? row.data[key] : undefined;
-      return value == null || String(value).trim() === '';
-    });
-    return {
-      ...row,
-      valid: missing.length === 0,
-      error: missing.length ? `حقول مطلوبة ناقصة: ${missing.join(', ')}` : undefined,
-    };
-  });
 }
 
 const STEPS: Array<{ key: Step; label: string }> = [
@@ -135,7 +100,7 @@ function Stepper({ step }: { step: Step }) {
 
 export function CanonicalImportPage() {
   const [step, setStep] = useState<Step>('upload');
-  const [entityType, setEntityType] = useState<EntityType | null>(null);
+  const [detectedDomain, setDetectedDomain] = useState('unknown');
   const [detectionConfidence, setDetectionConfidence] = useState(0);
   const [detectionReason, setDetectionReason] = useState('لم يبدأ تحليل الملف بعد.');
   const [file, setFile] = useState<{ name: string; size: number; format: FileFormat; mime: string } | null>(null);
@@ -188,13 +153,12 @@ export function CanonicalImportPage() {
       setMappings(dataset.columns.map(c => ({ name: c.name, mappedField: c.mappedField, confidence: c.mappingConfidence })));
       const hdrs = dataset.columns.map(c => c.name);
       setHeaders(hdrs);
-      const detectionResult = inferEntityType(dataset);
-      setEntityType(detectionResult.entityType);
+      const detectionResult = inferGenericDomain(dataset);
+      setDetectedDomain(detectionResult.domain);
       setDetectionConfidence(detectionResult.confidence);
       setDetectionReason(detectionResult.reason);
-      setRows(dataset.rows.map((data, i) => ({ rowNumber: i + 1, data, valid: false })));
+      setRows(dataset.rows.map((data, i) => ({ rowNumber: i + 1, data, valid: true })));
       setStep('preview');
-      setRows(validateRowsForEntity(dataset.rows.map((data, i) => ({ rowNumber: i + 1, data, valid: false })), detectionResult.entityType));
     } catch (e: any) {
       setError(e?.message || 'فشل قراءة الملف'); setStep('upload');
     }
@@ -202,8 +166,8 @@ export function CanonicalImportPage() {
 
   const commit = useCallback(async () => {
     const validRows = rows.filter(r => r.valid);
-    if (!entityType) {
-      setError('التخصص القانوني غير مثبت. اختر التخصص الصحيح من نتيجة التحليل قبل الاعتماد.');
+    if (detectedDomain === 'unknown') {
+      setError('النطاق الدلالي غير محسوم بعد. راجع المطابقة قبل الاعتماد.');
       return;
     }
     if (!validRows.length || !file || !fileHash || duplicate || !securityPassed) return;
@@ -223,13 +187,14 @@ export function CanonicalImportPage() {
         .upload(sourceObjectPath, sourceFile, { contentType: file.mime, upsert: false });
       if (uploadError) throw new Error(`SOURCE_UPLOAD_FAILED:${uploadError.message}`);
       try {
-        rec = await createImportRecord({ file_name: file.name, file_size: file.size, source_type: file.format, file_mime: file.mime, source_object_path: sourceObjectPath, status: 'processing', total_rows: rows.length, valid_rows: validRows.length, invalid_rows: rows.length - validRows.length, quarantined_rows: rows.length - validRows.length, entity_type: entityType, progress: 0 });
+        rec = await createImportRecord({ file_name: file.name, file_size: file.size, source_type: file.format, file_mime: file.mime, source_object_path: sourceObjectPath, status: 'processing', total_rows: rows.length, valid_rows: validRows.length, invalid_rows: rows.length - validRows.length, quarantined_rows: rows.length - validRows.length, entity_type: 'generic-analysis', progress: 0 });
       } catch (createError) {
         await supabase.storage.from('documents').remove([sourceObjectPath]).catch(() => undefined);
         throw createError;
       }
       const durableSourceHash = `sha256:${fileHash}`;
-      const reconciled = reconcileForCanonical(entityType, companyId, file.name, durableSourceHash, rec.id, (data, rowNumber) => `${durableSourceHash}:${rowNumber}:${JSON.stringify(data)}`, validRows.map(r => ({ rowNumber: r.rowNumber, data: r.data })));
+      throw new Error('GENERIC_CANONICAL_WRITE_CONTRACT_REQUIRED_BEFORE_COMMIT');
+      /* const reconciled = reconcileForCanonical('generic', companyId, file.name, durableSourceHash, rec.id, (data, rowNumber) => `${durableSourceHash}:${rowNumber}:${JSON.stringify(data)}`, validRows.map(r => ({ rowNumber: r.rowNumber, data: r.data })));
       if (reconciled.rejected.length > 0) throw new Error(`CANONICAL_RECONCILIATION_REJECTED:${reconciled.rejected.map(r => `${r.rowNumber}:${r.reason}`).join(',')}`);
       const execution = await runCanonicalImportThroughDurableRunner({ importId: rec.id, fileName: file.name, sourceHash: durableSourceHash, entityType, rows: reconciled.rows, qualityScore: quality });
       await finishImportJob(rec.id, 'completed', {
@@ -244,7 +209,7 @@ export function CanonicalImportPage() {
         jobId: execution.jobId,
         file_name: file.name,
       });
-      setProgress(100);
+      setProgress(100); */
       setResult({ total: rows.length, valid: validRows.length, invalid: rows.length - validRows.length, importId: rec.id, jobId: execution.jobId });
       setStep('done'); await loadHistory();
     } catch (e: any) {
@@ -266,22 +231,14 @@ export function CanonicalImportPage() {
       }
       setError(`فشل الاستيراد: ${failureMessage}`); setStep('preview');
     }
-  }, [rows, file, fileHash, entityType, duplicate, securityPassed, quality, qualityApproved, loadHistory]);
+  }, [rows, file, fileHash, detectedDomain, duplicate, securityPassed, quality, qualityApproved, loadHistory]);
 
-  const changeEntityType = (next: EntityType | null) => {
-    setEntityType(next);
-    setRows(validateRowsForEntity(rows, next));
-    if (next) {
-      setDetectionConfidence(100);
-      setDetectionReason('تم تعديل التخصص يدويًا بعد قراءة الملف؛ سيبقى الاعتماد مقيدًا بالمطابقة والبيانات الصالحة.');
-    }
-  };
-  const reset = () => { selectedFileRef.current = null; setStep('upload'); setFile(null); setFileHash(null); setRows([]); setHeaders([]); setQuality(0); setQualityApproved(false); setMappings([]); setWarnings([]); setError(null); setDuplicate(false); setSecurityPassed(false); setResult(null); setProgress(0); setEntityType(null); setDetectionConfidence(0); setDetectionReason('لم يبدأ تحليل الملف بعد.'); if (inputRef.current) inputRef.current.value = ''; };
+  const reset = () => { selectedFileRef.current = null; setStep('upload'); setFile(null); setFileHash(null); setRows([]); setHeaders([]); setQuality(0); setQualityApproved(false); setMappings([]); setWarnings([]); setError(null); setDuplicate(false); setSecurityPassed(false); setResult(null); setProgress(0); setDetectedDomain('unknown'); setDetectionConfidence(0); setDetectionReason('لم يبدأ تحليل الملف بعد.'); if (inputRef.current) inputRef.current.value = ''; };
   const valid = rows.filter(r => r.valid).length;
   const invalid = rows.length - valid;
   const mappingCoverage = useMemo(() => mappings.length ? Math.round((mappings.filter(m => m.mappedField).length / mappings.length) * 100) : 0, [mappings]);
   const qualityVariant = quality >= 75 ? 'success' : quality >= 50 ? 'warning' : 'danger';
-  const ready = Boolean(entityType && file && fileHash && securityPassed && !duplicate && valid > 0 && (quality >= 75 || (quality >= 50 && quality < 75 && qualityApproved)));
+  const ready = Boolean(detectedDomain !== 'unknown' && file && fileHash && securityPassed && !duplicate && valid > 0 && (quality >= 75 || (quality >= 50 && quality < 75 && qualityApproved)));
 
   return <div className="space-y-5 animate-fade-in">
     <PageHeader title="مركز الاستيراد" subtitle="مسار موحد: فحص أمني → تحليل → مطابقة → مراجعة → كتابة قانونية في البيانات الأساسية" />
@@ -297,7 +254,7 @@ export function CanonicalImportPage() {
           <Database size={18} className="mt-0.5 shrink-0 text-primary-700"/>
           <div>
             <div className="text-sm font-black text-ink-900">لا تختَر التخصص قبل قراءة الملف</div>
-            <p className="mt-1 text-xs leading-5 text-ink-600">يرفع المستخدم الملف أولًا؛ النظام يقرأ الصيغة والأعمدة والمحتوى ثم يقترح التخصص. يمكن تصحيح الاقتراح بعد التحليل، دون إنشاء مستورد منفصل.</p>
+            <p className="mt-1 text-xs leading-5 text-ink-600">يرفع المستخدم الملف أولًا؛ النظام يقرأ الصيغة والأعمدة والمحتوى ثم يقترح التخصص. النظام يحدد النطاق دلاليًا بعد الفهم، ويطلب مراجعة عندما لا تكون الأدلة كافية.</p>
           </div>
         </div>
       </div>
@@ -314,18 +271,12 @@ export function CanonicalImportPage() {
           <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
             <div className="min-w-0">
               <div className="text-[10px] font-black tracking-[.08em] text-primary-700">AUTOMATIC DOMAIN DETECTION</div>
-              <div className="mt-1 text-sm font-black text-ink-950">{entityType ? ENTITIES.find((item) => item.value === entityType)?.label : 'التخصص غير مثبت'}</div>
+              <div className="mt-1 text-sm font-black text-ink-950">{DOMAIN_LABELS[detectedDomain] ?? 'نطاق أعمال مكتشف'}</div>
               <div className="mt-1 text-[11px] leading-5 text-ink-500">{detectionReason}</div>
             </div>
             <div className="flex flex-wrap items-center gap-2">
               <span className={detectionConfidence >= 75 ? 'badge-success' : detectionConfidence > 0 ? 'badge-warning' : 'badge-neutral'}>ثقة الاكتشاف {detectionConfidence || 0}%</span>
-              <label className="flex items-center gap-2 text-xs font-semibold text-ink-700">
-                <span>تصحيح التخصص</span>
-                <select value={entityType ?? ''} onChange={(event) => changeEntityType((event.target.value || null) as EntityType | null)} className="input min-w-[190px]">
-                  <option value="">غير مثبت</option>
-                  {ENTITIES.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}
-                </select>
-              </label>
+              <span className="badge-neutral">الاكتشاف تلقائي</span>
             </div>
           </div>
         </CardBody>
@@ -336,7 +287,7 @@ export function CanonicalImportPage() {
       {quality >= 50 && quality < 75 && !duplicate && <label className="p-4 rounded-xl border border-warning-200 bg-warning-50 text-warning-800 text-sm flex items-start gap-3 cursor-pointer"><input type="checkbox" checked={qualityApproved} onChange={e => setQualityApproved(e.target.checked)} className="mt-1"/><span><b>موافقة جودة صريحة:</b> الجودة {quality}% تقع في نطاق المراجعة (50–74%) ويجب تأكيدك قبل الكتابة.</span></label>}
       {quality < 50 && <div className="p-4 rounded-xl border border-danger-200 bg-danger-50 text-danger-700 text-sm flex gap-2"><XCircle size={18}/> جودة البيانات أقل من 50% — الاستيراد مرفوض.</div>}
       {mappings.length>0&&<Card><CardHeader title="مطابقة الأعمدة" subtitle={`${mappingCoverage}% من أعمدة المصدر لها حقل مكتشف`}/><DataTable columns={[{key:'name',label:'عمود المصدر'},{key:'mappedField',label:'الحقل القانوني',render:(r:any)=>r.mappedField||'غير معين'},{key:'confidence',label:'الثقة',align:'center',render:(r:any)=><Badge variant={r.confidence>=80?'success':r.confidence>=50?'warning':'danger'}>{r.mappedField?r.confidence+'%':'—'}</Badge>}]} data={mappings} emptyMessage="لا توجد أعمدة"/></Card>}
-      <Card><CardHeader title="مراجعة قبل الكتابة" subtitle="تظهر أول 10 صفوف مع حالة كل صف" action={<div className="flex gap-2"><button type="button" onClick={reset} className="btn-secondary text-xs"><ArrowLeft size={13}/> اختيار ملف آخر</button><button type="button" onClick={() => void commit()} className="btn-primary text-xs" aria-label="تأكيد الاستيراد" disabled={!ready}><FileCheck2 size={13}/> اعتماد وكتابة {formatNumber(valid)} صف</button></div>}/><DataTable columns={[{key:'rowNumber',label:'#',align:'center' as const}, ...headers.slice(0,6).map(h=>({key:h,label:h,render:(r:Row)=>String(r.data[h]??'')})), {key:'status',label:'الحالة',align:'center' as const,render:(r:Row)=>r.valid?<Badge variant="success">صالح</Badge>:<Badge variant="danger">مرفوض</Badge>}, {key:'error',label:'الملاحظة',render:(r:Row)=>r.error||'—'}]} data={rows.slice(0,10)} emptyMessage="لا توجد بيانات"/></Card>
+      <Card><CardHeader title="مراجعة قبل الكتابة" subtitle="تظهر أول 10 صفوف مع حالة كل صف" action={<div className="flex gap-2"><button type="button" onClick={reset} className="btn-secondary text-xs"><ArrowLeft size={13}/> اختيار ملف آخر</button><button type="button" onClick={() => void commit()} className="btn-primary text-xs" aria-label="تأكيد الاستيراد" disabled={!ready}><FileCheck2 size={13}/> اعتماد التحليل — {formatNumber(valid)} صف</button></div>}/><DataTable columns={[{key:'rowNumber',label:'#',align:'center' as const}, ...headers.slice(0,6).map(h=>({key:h,label:h,render:(r:Row)=>String(r.data[h]??'')})), {key:'status',label:'الحالة',align:'center' as const,render:(r:Row)=>r.valid?<Badge variant="success">صالح</Badge>:<Badge variant="danger">مرفوض</Badge>}, {key:'error',label:'الملاحظة',render:(r:Row)=>r.error||'—'}]} data={rows.slice(0,10)} emptyMessage="لا توجد بيانات"/></Card>
       {!ready && <div className="p-3 rounded-lg bg-ink-50 text-ink-600 text-sm">الاعتماد متوقف حتى تتوفر بيانات صالحة، جودة لا تقل عن 75% أو موافقة صريحة ضمن 50–74%، وعدم وجود تكرار، مع نجاح الفحص الأمني.</div>}
       {error&&<div className="p-3 rounded-lg bg-danger-50 text-danger-700 text-sm flex gap-2"><AlertCircle size={16}/>{error}</div>}
     </div>}
