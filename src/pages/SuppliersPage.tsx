@@ -111,17 +111,17 @@ export function SuppliersPage() {
 
       <section className="grid gap-3 sm:grid-cols-3">
         {[
-          ['بيانات التواصل', completeness.contact, Mail],
-          ['شروط السداد', completeness.payment, ShieldCheck],
-          ['العنوان', completeness.address, MapPin],
-        ].map(([label, value, Icon]) => (
-          <Card key={label as string} variant="quality">
+          { label: 'بيانات التواصل', value: completeness.contact, icon: Mail },
+          { label: 'شروط السداد', value: completeness.payment, icon: ShieldCheck },
+          { label: 'العنوان', value: completeness.address, icon: MapPin },
+        ].map(({ label, value, icon: Icon }) => (
+          <Card key={label} variant="quality">
             <CardBody>
               <div className="flex items-center justify-between gap-3">
-                <div className="flex items-center gap-2 text-[10px] font-black text-ink-500"><Icon size={15} className="text-primary-700" />{label as string}</div>
+                <div className="flex items-center gap-2 text-[10px] font-black text-ink-500"><Icon size={15} className="text-primary-700" />{label}</div>
                 <CircleCheck size={16} className="text-primary-700" />
               </div>
-              <div className="mt-2 text-xl font-black tabular-nums text-ink-950">{value as number}<span className="mr-1 text-[10px] font-bold text-ink-400">/{rows.length}</span></div>
+              <div className="mt-2 text-xl font-black tabular-nums text-ink-950">{value}<span className="mr-1 text-[10px] font-bold text-ink-400">/{rows.length}</span></div>
               <div className="mt-1 text-[9px] leading-5 text-ink-400">موجود في الصفحة الحالية من السجل المرجعي.</div>
             </CardBody>
           </Card>
