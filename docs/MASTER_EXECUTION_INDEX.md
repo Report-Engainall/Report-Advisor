@@ -3,11 +3,11 @@
 > تحديث تنفيذي بعد أمر المالك «انطلق». هذا القسم يصف الحالة المثبتة من الأدوات فقط. لا يتم نقل Evidence بين SHAs، ولا تُعد الحالة PASS إلا بدليل Exact-HEAD.
 
 ### CURRENT EXACT HEAD / DEPLOYED STATE
-- **Current product/code HEAD:** `7ed583d40ac4090620270c17b48b38f75949cacd` on `main`.
+- **Current product/code HEAD:** `23449d317277df32d560bc3fbb1b60f0e2a48eb9` on `main`.
 - **Previous product/runtime baseline:** `1568e43889d27b5d850e64c0b99d03a994fd3bbe`.
 - **Historical product/test candidate:** `fe5661060462ffa21d6aa31505f80c2021c4170a` — historical only; do not treat as current HEAD evidence.
 - **Reference product/runtime code HEAD:** `c11c084d161cceb4595f8552b6c49c3f610f0ec2`; current `main` also carries the forward-only security/source-parity migrations merged afterward.
-- **Last exact-head verified product result:** `7ed583d4...` with targeted UI/typecheck gates PASS; runtime visual proof is still NOT PROVEN because PC01 lacks configured Supabase environment variables.
+- **Last exact-head verified product result:** no current-head runtime/build PASS; the latest code-only verification on `23449d317277df32d560bc3fbb1b60f0e2a48eb9` closed a real AnalyticsPage import defect and re-read the exact file. Vercel remains blocked by free-plan `build-rate-limit`.
 - **Netlify Production:** latest verified production deploy `6aacfe23cc817a00089dce5c` = `ready`, branch `main`, but still points to commit `ad12e9e564f85ffde8bb29daa6e41e73ca969b92`, which predates current `main`. Public access remains verified without Netlify SSO/password. Connector-side redeploy requires a source/repo execution environment.
 - **Netlify administrative access control:** تم إزالة Team SSO/password requirement للمشروع فقط؛ لم يتم تغيير Auth التطبيق.
 - **Staging DB live counts:** companies=2, memberships=2, import_jobs=3800, canonical_import_commits=2557, kpi_evidence_snapshots=314, sales_invoices=355.
@@ -265,3 +265,12 @@ There is one execution owner. Do not resurrect the previous UI/runtime owner spl
 - Decision Experience and Work Center gained real operational context without new backend business paths.
 - Current exact-head GitHub status still has the Vercel free-plan `build-rate-limit` failure. No build/browser/runtime PASS is transferred.
 - Next executable action: Phase-F/backup/OCR runtime closure, then exact-head compile/deploy/browser proof and final certification.
+
+
+## CONTINUATION UPDATE — 2026-09-21 / ANALYTICS CURRENT-HEAD REPAIR
+- Exact code HEAD: `23449d317277df32d560bc3fbb1b60f0e2a48eb9`.
+- Fixed `src/pages/AnalyticsPage.tsx` missing `ChartNoAxesCombined` import and removed unused `BarChart3` import.
+- Exact file re-read successfully after the write.
+- Supabase staging recheck: expired active leases=0; backup verification runs=0; queued=563; dead_letter=7.
+- No runtime/build PASS is claimed because exact-head Vercel remains externally blocked by `build-rate-limit`.
+- Next executable action: independent weak canonical surface or cloud-safe closure, then exact-head runtime proof when an executable environment is available.
