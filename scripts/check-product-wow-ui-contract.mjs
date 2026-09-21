@@ -93,10 +93,10 @@ assert.ok(trustEvidence.includes("label: 'BLOCKED'"), 'critical trust pressure m
 assert.ok(trustEvidence.includes("label: 'REVIEW'"), 'non-critical quality pressure must surface a review state');
 assert.ok(trustEvidence.includes("label: 'VERIFIED'"), 'clean quality state must surface an explicit verified state');
 assert.ok(trustEvidence.includes('trustState.detail'), 'trust evidence must explain the current decision-eligibility state');
-assert.ok(trustEvidence.includes('درجة الجودة: {entity.score}%'), 'trust evidence must expose the authoritative entity quality score');
+assert.ok(trustEvidence.includes('const qualityScore = Math.max(0, Math.min(100, Number(entity.score) || 0));'), 'trust evidence must normalize each authoritative entity quality score before rendering');
 assert.ok(trustEvidence.includes('role="progressbar"'), 'trust evidence must visualize each authoritative quality score as an accessible progress indicator');
-assert.ok(trustEvidence.includes('aria-valuenow={entity.score}'), 'trust evidence quality progress must expose the authoritative score to assistive technology');
-assert.ok(trustEvidence.includes('Math.max(0, Math.min(100, entity.score))'), 'trust evidence quality visualization must clamp the authoritative score to the valid progress range');
+assert.ok(trustEvidence.includes('aria-valuenow={qualityScore}'), 'trust evidence quality progress must expose the normalized authoritative score to assistive technology');
+assert.ok(trustEvidence.includes('style={{ width: `${qualityScore}%` }}'), 'trust evidence quality visualization must use the same normalized score as its accessible value');
 assert.ok(trustEvidence.includes("to={(entity.issues ?? 0) > 0 ? '/data-quality' : '/import/analyze'}"), 'trust evidence must expose a real entity-level next action from authoritative issue pressure');
 assert.ok(trustEvidence.includes("'راجع الجودة'"), 'entities with issues must expose the canonical data-quality review action');
 assert.ok(trustEvidence.includes("'افحص المصدر'"), 'clean entities must expose the canonical evidence-source inspection action');
