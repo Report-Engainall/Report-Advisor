@@ -2,11 +2,11 @@
 
 > تحديث تنفيذي بعد أمر المالك «انطلق». هذا القسم يصف الحالة المثبتة من الأدوات فقط. لا يتم نقل Evidence بين SHAs، ولا تُعد الحالة PASS إلا بدليل Exact-HEAD.
 
-- **CURRENT CODE/TEST CANDIDATE:** `522099ffa8b7b0c4f12e60813d4a99bb62fb1f9c`
+- **CURRENT CODE/TEST CANDIDATE:** `48ae39978afc495290a1b634bf052f4f10eeef24`
 - **CURRENT_REPOSITORY_HEAD:** `943f0619abfddb56daddc83bc500659376655474`
 
 ### CURRENT EXACT HEAD / DEPLOYED STATE
-- **Current product/code HEAD:** `522099ffa8b7b0c4f12e60813d4a99bb62fb1f9c` on `main`.
+- **Current product/code HEAD:** `48ae39978afc495290a1b634bf052f4f10eeef24` on `main`.
 - **Previous product/runtime baseline:** `1568e43889d27b5d850e64c0b99d03a994fd3bbe`.
 - **Historical product/test candidate:** `fe5661060462ffa21d6aa31505f80c2021c4170a` — historical only; do not treat as current HEAD evidence.
 - **Reference product/runtime code HEAD:** `c11c084d161cceb4595f8552b6c49c3f610f0ec2`; current `main` also carries the forward-only security/source-parity migrations merged afterward.
@@ -327,3 +327,9 @@ There is one execution owner. Do not resurrect the previous UI/runtime owner spl
 - Decision Experience conditional is now structurally closed with the required `) }` boundary.
 - UI route completeness explicitly permits only `/proposal-demo` as an internal progressive-disclosure route; it remains outside the primary sidebar taxonomy.
 - The unified import entry remains canonical-only.
+
+
+## CONTINUATION UPDATE — 2026-09-21 / DECISION CONDITIONAL FINAL CLOSURE
+- Exact product code HEAD: `48ae39978afc495290a1b634bf052f4f10eeef24`.
+- Decision Experience `command` stage now has one enclosing conditional around the full command surface; the readiness strip and alert/recommendation grid are not split by premature JSX closure.
+- No decision data or backend contract changed.
