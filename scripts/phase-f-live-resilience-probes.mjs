@@ -10,6 +10,7 @@ const backupMode = (process.env.RESILIENCE_BACKUP_MODE || 'logical').trim().toLo
 if (!['managed', 'logical'].includes(backupMode)) throw new Error(`invalid_resilience_backup_mode:${backupMode}`);
 
 const baseRequired = [
+  'EXACT_HEAD',
   'RESILIENCE_TARGET_ENV',
   'RESILIENCE_OPERATIONAL_TOKEN',
   'RESILIENCE_CANARY_AUTH_TOKEN',
@@ -230,7 +231,7 @@ async function logicalBackupRestore() {
   }
 }
 
-async function probe(name, url, options = {}) {
+async function probe(name, url, options = {}, validation = {}) {
   try {
     const response = await fetch(url, {
       ...options,
@@ -241,17 +242,42 @@ async function probe(name, url, options = {}) {
       },
     });
     const body = await response.text();
-    const pass = response.ok;
-    checks.push({ name, pass, status: response.status });
-    console.log(`${pass ? 'PASS' : 'FAIL'} ${name}: HTTP ${response.status}`);
-    if (!pass) console.error(body.slice(0, 500));
+    let parsedBody = null;
+    try { parsedBody = JSON.parse(body); } catch {}
+    let pass = response.ok;
+    const result = { name, pass, status: response.status };
+    if (validation.expectDeploymentSha) {
+      const expectedSha = exactHead;
+      const deploymentSha = typeof parsedBody?.deployment_sha === 'string' ? parsedBody.deployment_sha.trim() : null;
+      const deploymentId = typeof parsedBody?.deployment_id === 'string' ? parsedBody.deployment_id.trim() : null;
+      result.expected_deployment_sha = expectedSha;
+      result.deployment_sha = deploymentSha;
+      result.deployment_id = deploymentId;
+      if (pass && (!expectedSha || expectedSha === 'UNKNOWN')) {
+        pass = false;
+        result.failure = 'EXACT_HEAD_REQUIRED';
+      } else if (pass && !deploymentSha) {
+        pass = false;
+        result.failure = 'DEPLOYMENT_SHA_MISSING';
+      } else if (pass && deploymentSha !== expectedSha) {
+        pass = false;
+        result.failure = 'DEPLOYMENT_SHA_MISMATCH';
+      } else if (pass && !deploymentId) {
+        pass = false;
+        result.failure = 'DEPLOYMENT_ID_MISSING';
+      }
+      result.pass = pass;
+    }
+    checks.push(result);
+    console.log(`${pass ? 'PASS' : 'FAIL'} ${name}: HTTP ${response.status}${result.failure ? ` — ${result.failure}` : ''}`);
+    if (!pass) console.error(body.slice(0, 800));
   } catch (error) {
     checks.push({ name, pass: false, error: String(error) });
     console.error(`FAIL ${name}: ${error}`);
   }
 }
 
-await probe('operational-health', process.env.RESILIENCE_HEALTH_URL);
+await probe('operational-health', process.env.RESILIENCE_HEALTH_URL, {}, { expectDeploymentSha: true });
 await probe('tenant-canary', process.env.RESILIENCE_CANARY_URL, {
   headers: { Authorization: `Bearer ${process.env.RESILIENCE_CANARY_AUTH_TOKEN.trim()}` },
 });
