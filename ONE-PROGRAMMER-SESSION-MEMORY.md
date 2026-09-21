@@ -201,3 +201,20 @@ CURRENT RESUME POINTER
 - NEXT EXECUTABLE ACTION → refresh exact-head deployment/runtime proof for b39660fc, then perform authenticated visual sweep across canonical routes and verify the shared Hero language at Desktop/Tablet/Mobile.
 - DO NOT REPEAT → do not rebuild PageHeader, Drawer/sidebar, global Advisor, Command Palette, or prior contrast/responsive work; do not transfer older deploy/browser evidence to b39660fc; do not fabricate runtime sessions/screenshots.
 - CURRENT RESUME POINTER → b39660fc21af920d8bbf742eb7dc36139238cea3 → exact-head deployment/runtime proof → authenticated responsive visual sweep → runtime/evidence/CI closure.
+
+## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-BUSINESS-FIRST-UI-16
+- SESSION-ID → `2026-09-21-AGHBARI-BUSINESS-FIRST-UI-16`
+- EXACT HEAD → `79e9724de640383f67fdad54315b9d6893fb6a72`
+- BRANCH / PR → `main` / pushed to `origin/main`
+- DONE → ثُبّتت قاعدة Business-First Progressive Disclosure في المرجعين الحاكمين، ثم أُكملت واجهتان كانتا ناقصتين ضمن موضعهما الصحيح: **الموردون** تحت البيانات المرجعية، و**السيولة والتعرض النقدي** داخل التحليل التجاري. أضيفت المسارات إلى الـNavigation Registry بوضع Advanced، وأصبح الوصول إليهما متاحًا داخل الـHubs دون تضخيم المستوى الأول من القائمة. كما أُضيفا إلى عقد Route/Sidebar parity حتى لا تختفيا مستقبلًا.
+- ACTUAL RESULT → الشجرة الأساسية ذات الأقسام الثمانية بقيت كما هي، مع كشف تدريجي للقدرات المتقدمة. واجهة الموردين تقرأ السجل الحقيقي tenant-scoped من جدول `suppliers` وتربطه بسياق المشتريات. واجهة السيولة تستخدم المؤشرات الكانونية الموجودة أصلًا: الذمم، المتأخر، مستحقات الموردين، ومعدل التحصيل، وتحسب صافي التعرض التجاري فقط عند توفر الطرفين، ولا تختلق رصيدًا نقديًا بنكيًا.
+- CODE / ARCHITECTURE IMPACT → لا RPC جديد، لا Runner جديد، لا migration/DDL، لا تغيير Tenant/RLS، ولا تغيير في الحسابات الحتمية أو fail-closed. تمت إعادة استخدام مسارات البيانات والـdashboard snapshot القائمة.
+- VERIFIED STRUCTURAL RESULT → Exact current `main` يعرض `39` application routes مقابل `37` canonical navigation links، مع `missingFromApp=[]` و`missingFromNav=[]`. المساران الجديدان `/suppliers` و`/analytics/liquidity` موجودان في App وفي Navigation Registry، ومثبتان الآن ضمن required routes في parity contract.
+- DATABASE EVIDENCE → staging Supabase `Report-Advisor-P0-2-Staging` verified that `suppliers` contains company-scoped identity/contact/payment-term fields and is already referenced by existing purchase-invoice data paths.
+- DEPLOYMENT / VERIFICATION BOUNDARY → لا أُعلن Build أو Runtime PASS على Exact HEAD الحالي؛ Vercel الحالي ما زال يواجه `api-deployments-free-per-day / build-rate-limit`، وأحدث deployment READY المرصود كان على SHA أقدم. لا يتم نقل الدليل القديم إلى SHA الحالي.
+- PRECISE STOP POINT → repository HEAD `79e9724de640383f67fdad54315b9d6893fb6a72` بعد آخر اختبار/توثيق للدفعة. الواجهات الجديدة موصولة بالمسارات الحقيقية، والتنفيذ التالي هو إثبات البناء/deployment على Exact HEAD ثم المتابعة في authenticated visual/runtime closure.
+- OPEN BLOCKERS → Exact-head build/deployment proof؛ authenticated post-login visual sweep على Supabase runtime حقيقي؛ Business E2E/Tenant A-B؛ worker/resilience؛ backup/RPO-RTO؛ OCR/watched-folder runtime؛ final certification.
+- VERIFIED TESTS / EVIDENCE → static route/navigation parity verified from current GitHub source; supplier schema verified against staging; no fake session/JWT/data/evidence used; no old live PASS transferred.
+- NEXT EXECUTABLE ACTION → obtain fresh Exact-HEAD CI/deployment proof for `79e9724de640383f67fdad54315b9d6893fb6a72`, then perform authenticated visual sweep and continue independent runtime/evidence/CI closure.
+- DO NOT REPEAT → do not recreate the 8-zone navigation, App Shell, Advisor, existing core UI waves, or existing supplier/purchase data path; do not expose advanced capabilities as a cluttered first-level catalog; do not fabricate cash balances; do not transfer deployment/runtime evidence from an older SHA.
+- CURRENT RESUME POINTER → `79e9724de640383f67fdad54315b9d6893fb6a72` → exact-head build/deployment proof → authenticated visual sweep → runtime/evidence/CI closure.
