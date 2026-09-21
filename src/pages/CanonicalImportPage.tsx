@@ -206,11 +206,15 @@ export function CanonicalImportPage() {
         entityType,
         rows: reconciled.rows,
         qualityScore: quality,
+        qualityApproved,
       });
 
       setProgress(88);
 
-      const previewRows = validRows.slice(0, 25).map((row) => row.data);
+      const authoritativeRowCount = Number(execution.authoritativeRowCount ?? validRows.length);
+      const authoritativeQualityScore = Number(execution.authoritativeQualityScore ?? quality);
+      const previewRows = Array.isArray(execution.authoritativePreview) ? execution.authoritativePreview : validRows.slice(0, 25).map((row) => row.data);
+      const authoritativeColumns = Array.isArray(execution.authoritativeColumns) ? execution.authoritativeColumns : mappings;
       let snapshotId: string | null = null;
       try {
         const { data: snapshot, error: snapshotError } = await supabase
@@ -223,14 +227,14 @@ export function CanonicalImportPage() {
             source_format: file.format,
             analysis_status: 'analyzed',
             entity_type: 'source-data',
-            quality_score: quality,
-            row_count: rows.length,
-            column_count: headers.length,
+            quality_score: authoritativeQualityScore,
+            row_count: authoritativeRowCount,
+            column_count: Array.isArray(authoritativeColumns) ? authoritativeColumns.length : headers.length,
             datasets: [{
               name: file.name,
-              rowCount: rows.length,
-              columnCount: headers.length,
-              columns: mappings,
+              rowCount: authoritativeRowCount,
+              columnCount: Array.isArray(authoritativeColumns) ? authoritativeColumns.length : headers.length,
+              columns: authoritativeColumns,
               preview: previewRows,
             }],
             canonical_text: [
@@ -247,7 +251,9 @@ export function CanonicalImportPage() {
               semanticUnderstandingConfidence: understandingConfidence,
               semanticUnderstandingReason: understandingReason,
               canonicalWriteStatus: 'GENERAL_CANONICAL_DATASET',
-              committed: validRows.length,
+              serverAuthoritativeSource: true,
+              serverAuthoritativeQualityScore: authoritativeQualityScore,
+              committed: authoritativeRowCount,
               jobId: execution.jobId,
             },
           })
@@ -279,6 +285,7 @@ export function CanonicalImportPage() {
         importId: rec.id,
         jobId: execution.jobId,
         understandingConfidence,
+        authoritativeQualityScore: Number(execution.authoritativeQualityScore ?? quality),
       });
       setStep('done');
       await loadHistory();
