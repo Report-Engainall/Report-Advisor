@@ -19,9 +19,9 @@ type EntityType = 'sales_invoices' | 'products' | 'customers';
 interface Row { rowNumber: number; data: Record<string, any>; valid: boolean; error?: string }
 
 const ENTITIES: Array<{ value: EntityType; label: string; description: string; required: string[] }> = [
-  { value: 'sales_invoices', label: 'فواتير المبيعات', description: 'حركة المبيعات والتحصيل', required: ['invoice_number', 'invoice_date', 'customer_name', 'total'] },
-  { value: 'products', label: 'المنتجات', description: 'الأصناف والأسعار والتكلفة', required: ['sku', 'name', 'cost_price', 'selling_price'] },
-  { value: 'customers', label: 'العملاء', description: 'بيانات العملاء الأساسية', required: ['name'] },
+  { value: 'sales_invoices', label: 'فواتير المبيعات', description: 'حركة المبيعات والتحصيل', required: ['invoice_number', 'invoice_date', 'customer_name', 'subtotal', 'tax_amount', 'total', 'paid_amount', 'status'] },
+  { value: 'products', label: 'المنتجات', description: 'الأصناف والأسعار والتكلفة', required: ['sku', 'name', 'unit', 'cost_price', 'selling_price', 'min_stock', 'reorder_point', 'is_active'] },
+  { value: 'customers', label: 'العملاء', description: 'بيانات العملاء الأساسية', required: ['name', 'segment', 'credit_limit', 'payment_terms_days'] },
 ];
 
 const STEPS: Array<{ key: Step; label: string }> = [
@@ -60,7 +60,7 @@ function Stepper({ step }: { step: Step }) {
     {STEPS.map((item, index) => {
       const complete = index < current || step === 'done';
       const active = index === current && step !== 'done';
-      return <div key={item.key} className={`rounded-lg border px-2 py-2 text-center text-xs ${complete ? 'border-success-200 bg-success-50 text-success-700' : active ? 'border-primary-300 bg-primary-50 text-primary-700' : 'border-ink-100 bg-white text-ink-400'}`}>
+      return <div key={item.key} className={`ag-import-step rounded-[12px] border px-2.5 py-2.5 text-center text-xs ${complete ? 'ag-import-step-complete' : active ? 'ag-import-step-active' : 'ag-import-step-idle'}`}>
         <div className="font-semibold">{complete ? '✓' : index + 1}</div><div className="mt-1">{item.label}</div>
       </div>;
     })}
@@ -70,7 +70,7 @@ function Stepper({ step }: { step: Step }) {
 export function CanonicalImportPage() {
   const [step, setStep] = useState<Step>('upload');
   const [entityType, setEntityType] = useState<EntityType>('sales_invoices');
-  const [file, setFile] = useState<{ name: string; size: number; format: FileFormat } | null>(null);
+  const [file, setFile] = useState<{ name: string; size: number; format: FileFormat; mime: string } | null>(null);
   const [fileHash, setFileHash] = useState<string | null>(null);
   const [rows, setRows] = useState<Row[]>([]);
   const [headers, setHeaders] = useState<string[]>([]);
@@ -86,6 +86,7 @@ export function CanonicalImportPage() {
   const [history, setHistory] = useState<any[]>([]);
   const [loadingHistory, setLoadingHistory] = useState(true);
   const inputRef = useRef<HTMLInputElement>(null);
+  const selectedFileRef = useRef<File | null>(null);
 
   const loadHistory = useCallback(async () => {
     setLoadingHistory(true);
@@ -102,7 +103,8 @@ export function CanonicalImportPage() {
       setSecurityPassed(true);
       const detection = detectFormat(selected, buffer);
       if (detection.format === 'unknown') throw new Error('تعذر تحديد صيغة الملف');
-      setFile({ name: selected.name, size: selected.size, format: detection.format });
+      selectedFileRef.current = selected;
+      setFile({ name: selected.name, size: selected.size, format: detection.format, mime: selected.type || detection.mime });
       setWarnings(detection.warnings);
       const hash = await computeSHA256(buffer);
       setFileHash(hash);
@@ -143,7 +145,20 @@ export function CanonicalImportPage() {
     try {
       const companyId = await resolveCurrentCompanyId();
       if (!companyId) throw new Error('TENANT_CONTEXT_REQUIRED');
-      rec = await createImportRecord({ file_name: file.name, file_size: file.size, source_type: file.format, status: 'processing', total_rows: rows.length, valid_rows: validRows.length, invalid_rows: rows.length - validRows.length, quarantined_rows: rows.length - validRows.length, entity_type: entityType, progress: 0 });
+      const sourceFile = selectedFileRef.current;
+      if (!sourceFile) throw new Error('SOURCE_FILE_NOT_AVAILABLE');
+      const extension = (sourceFile.name.split('.').pop() || 'bin').toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 12) || 'bin';
+      const sourceObjectPath = `${companyId}/imports/${crypto.randomUUID()}.${extension}`;
+      const { error: uploadError } = await supabase.storage
+        .from('documents')
+        .upload(sourceObjectPath, sourceFile, { contentType: file.mime, upsert: false });
+      if (uploadError) throw new Error(`SOURCE_UPLOAD_FAILED:${uploadError.message}`);
+      try {
+        rec = await createImportRecord({ file_name: file.name, file_size: file.size, source_type: file.format, file_mime: file.mime, source_object_path: sourceObjectPath, status: 'processing', total_rows: rows.length, valid_rows: validRows.length, invalid_rows: rows.length - validRows.length, quarantined_rows: rows.length - validRows.length, entity_type: entityType, progress: 0 });
+      } catch (createError) {
+        await supabase.storage.from('documents').remove([sourceObjectPath]).catch(() => undefined);
+        throw createError;
+      }
       const durableSourceHash = `sha256:${fileHash}`;
       const reconciled = reconcileForCanonical(entityType, companyId, file.name, durableSourceHash, rec.id, (data, rowNumber) => `${durableSourceHash}:${rowNumber}:${JSON.stringify(data)}`, validRows.map(r => ({ rowNumber: r.rowNumber, data: r.data })));
       if (reconciled.rejected.length > 0) throw new Error(`CANONICAL_RECONCILIATION_REJECTED:${reconciled.rejected.map(r => `${r.rowNumber}:${r.reason}`).join(',')}`);
@@ -152,8 +167,13 @@ export function CanonicalImportPage() {
         total: rows.length,
         valid: validRows.length,
         invalid: rows.length - validRows.length,
+        // Authoritative terminal counts are supplied only after the durable commit succeeds.
+        // commitImportBatch fails closed unless every canonical row commits.
+        committed: validRows.length,
+        invalidRows: rows.length - validRows.length,
         importId: rec.id,
         jobId: execution.jobId,
+        file_name: file.name,
       });
       setProgress(100);
       setResult({ total: rows.length, valid: validRows.length, invalid: rows.length - validRows.length, importId: rec.id, jobId: execution.jobId });
@@ -179,7 +199,7 @@ export function CanonicalImportPage() {
     }
   }, [rows, file, fileHash, entityType, duplicate, securityPassed, quality, qualityApproved, loadHistory]);
 
-  const reset = () => { setStep('upload'); setFile(null); setFileHash(null); setRows([]); setHeaders([]); setQuality(0); setQualityApproved(false); setMappings([]); setWarnings([]); setError(null); setDuplicate(false); setSecurityPassed(false); setResult(null); setProgress(0); if (inputRef.current) inputRef.current.value = ''; };
+  const reset = () => { selectedFileRef.current = null; setStep('upload'); setFile(null); setFileHash(null); setRows([]); setHeaders([]); setQuality(0); setQualityApproved(false); setMappings([]); setWarnings([]); setError(null); setDuplicate(false); setSecurityPassed(false); setResult(null); setProgress(0); if (inputRef.current) inputRef.current.value = ''; };
   const valid = rows.filter(r => r.valid).length;
   const invalid = rows.length - valid;
   const mappingCoverage = useMemo(() => mappings.length ? Math.round((mappings.filter(m => m.mappedField).length / mappings.length) * 100) : 0, [mappings]);
@@ -195,8 +215,8 @@ export function CanonicalImportPage() {
         <div><h2 className="text-lg font-semibold">ابدأ عملية استيراد موثوقة</h2><p className="text-sm text-ink-500 mt-1">لا تتم الكتابة قبل اجتياز الفحص والمراجعة والتحقق من سياق الحساب.</p></div>
         <Badge variant="neutral"><LockKeyhole size={13}/> عزل الحساب مفعل</Badge>
       </div>
-      <div className="mb-5"><label className="block text-sm font-medium text-ink-700 mb-2">ما الذي ستستورده؟</label><div className="grid grid-cols-1 md:grid-cols-3 gap-3">{ENTITIES.map(e => <button type="button" key={e.value} onClick={() => setEntityType(e.value)} className={`p-4 rounded-xl border-2 text-right transition-all ${entityType === e.value ? 'border-primary-500 bg-primary-50/60 shadow-sm' : 'border-ink-100 hover:border-ink-200'}`}><div className="flex items-center justify-between"><Database size={18}/>{entityType === e.value && <CheckCircle2 size={17}/>}</div><div className="text-sm font-semibold mt-3">{e.label}</div><div className="text-xs text-ink-400 mt-1">{e.description}</div></button>)}</div></div>
-      <div onClick={() => inputRef.current?.click()} className="border-2 border-dashed rounded-2xl p-10 text-center cursor-pointer hover:border-primary-400 hover:bg-primary-50/20 transition-colors"><input ref={inputRef} type="file" className="hidden" accept=".xlsx,.xls,.xlsm,.csv,.tsv,.ods,.json,.jsonl,.xml,.txt,.md,.pdf,.docx,.jpg,.jpeg,.png,.webp,.tiff,.bmp" onChange={e => { const f=e.target.files?.[0]; if(f) void handleFile(f); }} /><Upload className="mx-auto text-primary-500 mb-3" size={30}/><h3 className="font-semibold">اختر ملفًا أو اسحبه إلى هنا</h3><p className="text-sm text-ink-500 mt-1">Excel، CSV، JSON، PDF، Word والصور</p><p className="text-xs text-ink-300 mt-3">الحد الأقصى: {MAX_FILE_SIZE / 1024 / 1024} MB</p></div>
+      <div className="mb-5"><label className="mb-2 block text-[11px] font-black uppercase tracking-wide text-ink-500">ما الذي ستستورده؟</label><div className="grid grid-cols-1 md:grid-cols-3 gap-3">{ENTITIES.map(e => <button type="button" key={e.value} data-testid={`import-entity-${e.value}`} onClick={() => setEntityType(e.value)} className={`ag-import-source p-4 rounded-[14px] border-2 text-right transition-all ${entityType === e.value ? 'border-primary-500 bg-primary-50/60 shadow-sm' : 'border-ink-100 hover:border-ink-200'}`}><div className="flex items-center justify-between"><Database size={18}/>{entityType === e.value && <CheckCircle2 size={17}/>}</div><div className="text-sm font-semibold mt-3">{e.label}</div><div className="text-xs text-ink-400 mt-1">{e.description}</div></button>)}</div></div>
+      <div onClick={() => inputRef.current?.click()} className="ag-import-dropzone border-2 border-dashed rounded-[18px] p-10 text-center cursor-pointer hover:border-primary-400 hover:bg-primary-50/20 transition-colors"><input ref={inputRef} type="file" className="hidden" accept=".xlsx,.xls,.xlsm,.csv,.tsv,.ods,.json,.jsonl,.xml,.txt,.md,.pdf,.docx,.jpg,.jpeg,.png,.webp,.tiff,.bmp" onChange={e => { const f=e.target.files?.[0]; if(f) void handleFile(f); }} /><Upload className="mx-auto text-primary-500 mb-3" size={30}/><h3 className="font-semibold">اختر ملفًا أو اسحبه إلى هنا</h3><p className="text-sm text-ink-500 mt-1">Excel، CSV، JSON، PDF، Word والصور</p><p className="text-xs text-ink-300 mt-3">الحد الأقصى: {MAX_FILE_SIZE / 1024 / 1024} MB</p></div>
       {error && <div className="mt-4 p-3 rounded-lg bg-danger-50 text-danger-700 text-sm flex gap-2"><AlertCircle size={16}/>{error}</div>}
     </CardBody></Card>}
 
@@ -217,7 +237,7 @@ export function CanonicalImportPage() {
 
     {step === 'committing' && <Card><CardBody><div className="flex flex-col items-center py-12 gap-4"><Loader2 className="animate-spin text-primary-500" size={34}/><b>جارٍ تنفيذ دورة الإنتاج الكاملة...</b><span className="text-lg font-semibold">{progress}%</span><div className="w-full max-w-xl h-2 bg-ink-100 rounded-full overflow-hidden"><div className="h-full bg-primary-500 rounded-full transition-all" style={{width:`${progress}%`}}/></div><p className="text-xs text-ink-400">المعاملة المركزية تُنفذ مرة واحدة، ولا يُثبت committed قبل نجاح الكتابة الذرية.</p></div></CardBody></Card>}
 
-    {step === 'done' && result && <Card><CardBody><div className="flex flex-col items-center py-10 gap-4"><CheckCircle2 className="text-success-500" size={52}/><h3 className="text-xl font-semibold">اكتملت عملية الاستيراد</h3><div className="grid grid-cols-3 gap-3 w-full max-w-lg text-center"><div className="p-3 rounded-lg bg-ink-50"><div className="text-xs text-ink-400">الإجمالي</div><b>{formatNumber(result.total)}</b></div><div className="p-3 rounded-lg bg-success-50"><div className="text-xs text-success-700">تمت الكتابة</div><b>{formatNumber(result.valid)}</b></div><div className="p-3 rounded-lg bg-danger-50"><div className="text-xs text-danger-700">مرفوض</div><b>{formatNumber(result.invalid)}</b></div></div><p className="text-xs text-ink-400">معرّف العملية: {result.importId}</p><p className="text-xs text-ink-400">Durable job: {result.jobId}</p><button type="button" onClick={reset} className="btn-primary"><Upload size={14}/> استيراد ملف آخر</button></div></CardBody></Card>}
+    {step === 'done' && result && <Card><CardBody><div className="flex flex-col items-center py-10 gap-4"><CheckCircle2 className="text-success-500" size={52}/><h3 className="text-xl font-semibold">اكتملت عملية الاستيراد</h3><div className="grid grid-cols-3 gap-3 w-full max-w-lg text-center"><div className="p-3 rounded-lg bg-ink-50"><div className="text-xs text-ink-400">الإجمالي</div><b>{formatNumber(result.total)}</b></div><div className="p-3 rounded-lg bg-success-50"><div className="text-xs text-success-700">تمت الكتابة</div><b>{formatNumber(result.valid)}</b></div><div className="p-3 rounded-lg bg-danger-50"><div className="text-xs text-danger-700">مرفوض</div><b>{formatNumber(result.invalid)}</b></div></div><p className="text-xs text-ink-400">معرّف العملية: {result.importId}</p><p className="text-xs text-ink-400">معرّف المهمة الدائمة: {result.jobId}</p><button type="button" onClick={reset} className="btn-primary"><Upload size={14}/> استيراد ملف آخر</button></div></CardBody></Card>}
 
     <Card><CardHeader title="سجل الاستيرادات" subtitle="تاريخ العمليات المرتبطة بحسابك" action={<button type="button" onClick={() => void loadHistory()} className="btn-secondary text-xs"><RefreshCw size={13}/> تحديث</button>}/>{loadingHistory?<LoadingState message="جارٍ تحميل السجل..."/>:history.length===0?<EmptyState icon={<Database size={32}/>} title="لا توجد استيرادات سابقة" message="ابدأ باستيراد ملفك الأول"/>:<DataTable columns={[{key:'file_name',label:'الملف'},{key:'entity_type',label:'النوع'},{key:'total_rows',label:'الصفوف',align:'center'},{key:'valid_rows',label:'صالح',align:'center'},{key:'invalid_rows',label:'مرفوض',align:'center'},{key:'status',label:'الحالة',align:'center',render:(r:any)=><StatusBadge status={r.status}/>},{key:'created_at',label:'التاريخ',render:(r:any)=>formatDateTime(r.created_at)}]} data={history} emptyMessage="لا توجد استيرادات"/>}</Card>
   </div>;

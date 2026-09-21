@@ -50,10 +50,10 @@ export function ProfileSettingsPage() {
     <div dir="rtl" className="space-y-6 animate-fade-in">
       <PageHeader title="الملف الشخصي" subtitle="تحكم في اسم العرض والهوية الظاهرة داخل التطبيق" />
 
-      <Card>
+      <Card className="ag-profile-form">
         <CardHeader title="هوية المستخدم" />
         <CardBody>
-          <div className="flex items-center gap-4 mb-6">
+          <div className="ag-profile-identity flex items-center gap-4 mb-6 rounded-2xl border p-4">
             <div className="w-12 h-12 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center">
               <UserCircle size={28} />
             </div>

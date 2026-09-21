@@ -14,7 +14,14 @@ export default async function handler(req, res) {
       return json(res, 503, { status: 'critical', component: 'database', http_status: response.status, detail: body.slice(0, 300) });
     }
     await persistHealth(process.env.RESILIENCE_COMPANY_ID.trim(), 'database', 'healthy', latencyMs, { source: 'vercel-function' });
-    return json(res, 200, { status: 'healthy', component: 'database', latency_ms: latencyMs, checked_at: new Date().toISOString() });
+    return json(res, 200, {
+      status: 'healthy',
+      component: 'database',
+      latency_ms: latencyMs,
+      deployment_id: process.env.VERCEL_DEPLOYMENT_ID?.trim() || null,
+      deployment_sha: process.env.VERCEL_GIT_COMMIT_SHA?.trim() || null,
+      checked_at: new Date().toISOString(),
+    });
   } catch (error) {
     return json(res, 503, { status: 'critical', component: 'database', error: String(error) });
   }

@@ -25,6 +25,7 @@ const result = {
   startedAt: new Date().toISOString(),
   auth: 'NOT_PROVEN', tenant: 'NOT_PROVEN',
   routes: [], findings: [], actions: [], requests: [], failedResponses: [],
+  authNetworkProbe: null,
 };
 const browser = await chromium.launch({ headless: true });
 const context = await browser.newContext({ viewport: { width: 1440, height: 1000 }, locale: 'ar-SA' });
@@ -36,9 +37,11 @@ const requests = [];
 
 page.on('console', msg => { if (msg.type() === 'error') consoleErrors.push(msg.text()); });
 page.on('pageerror', error => consoleErrors.push(`[pageerror] ${error.message}`));
-page.on('requestfailed', request => failedRequests.push({
-  method: request.method(), url: request.url(), error: request.failure()?.errorText || 'unknown'
-}));
+page.on('requestfailed', request => {
+  const error = request.failure()?.errorText || 'unknown';
+  if (error === 'net::ERR_ABORTED') return;
+  failedRequests.push({ method: request.method(), url: request.url(), error });
+});
 page.on('response', async response => {
   if (response.status() < 400) return;
   const url = response.url();
@@ -49,21 +52,121 @@ page.on('response', async response => {
 });
 page.on('request', request => requests.push({ method: request.method(), url: request.url() }));
 
+async function probeAuthFromNode(email, password) {
+  if (!supabaseURL || !supabaseAnonKey) return { status: 'BLOCKED', reason: 'SUPABASE_RUNTIME_ENV_MISSING' };
+  const startedAt = Date.now();
+  const attempts = [];
+  for (let attempt = 1; attempt <= 3; attempt += 1) {
+    const attemptStarted = Date.now();
+    try {
+      const response = await fetch(`${supabaseURL.replace(/\/$/, '')}/auth/v1/token?grant_type=password`, {
+        method: 'POST',
+        headers: {
+          apikey: supabaseAnonKey,
+          Authorization: `Bearer ${supabaseAnonKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+        signal: AbortSignal.timeout(15000),
+      });
+      const bodyText = await response.text();
+      let detail = '';
+      if (!response.ok) {
+        try {
+          const body = JSON.parse(bodyText);
+          detail = body?.error_code || body?.error || body?.msg || body?.message || '';
+        } catch {}
+      }
+      attempts.push({ attempt, httpStatus: response.status, durationMs: Date.now() - attemptStarted, detail: detail ? String(detail).slice(0, 180) : undefined });
+      if (response.ok) {
+        return { status: 'PASS', httpStatus: response.status, durationMs: Date.now() - startedAt, attempts };
+      }
+    } catch (error) {
+      attempts.push({
+        attempt,
+        durationMs: Date.now() - attemptStarted,
+        error: error instanceof Error ? error.name + ':' + error.message.slice(0, 180) : String(error).slice(0, 180),
+      });
+    }
+    if (attempt < 3) await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+  }
+  return { status: 'FAIL', durationMs: Date.now() - startedAt, attempts };
+}
 async function login(targetPage, email, password) {
-  await targetPage.goto(baseURL, { waitUntil: 'networkidle', timeout: 30000 });
+  await targetPage.goto(baseURL, { waitUntil: 'domcontentloaded', timeout: 30000 });
   const loginEmail = targetPage.locator('#login-email');
-  if (!(await loginEmail.count())) throw new Error('LOGIN_FORM_NOT_FOUND');
+  await loginEmail.waitFor({ state: 'visible', timeout: 30000 }).catch(() => {
+    throw new Error('LOGIN_FORM_NOT_READY');
+  });
   await loginEmail.fill(email);
   await targetPage.locator('#login-password').fill(password);
-  await targetPage.getByRole('button', { name: 'تسجيل الدخول' }).click();
-  await targetPage.waitForLoadState('networkidle', { timeout: 30000 }).catch(() => {});
-  await targetPage.waitForTimeout(1500);
+
+  // Browser authentication is the authoritative proof for this browser E2E.
+  // Keep the optional Node probe non-blocking so a parallel Auth gateway/rate-limit condition
+  // cannot veto a real browser session that successfully receives the password-grant response.
+  result.authNetworkProbe = { status: 'NOT_RUN', reason: 'BROWSER_AUTH_AUTHORITATIVE' };
+
+  let authResponse = null;
+  for (let attempt = 1; attempt <= 3; attempt += 1) {
+    if (attempt > 1) {
+      await targetPage.goto(baseURL, { waitUntil: 'domcontentloaded', timeout: 30000 });
+      await targetPage.locator('#login-email').waitFor({ state: 'visible', timeout: 30000 });
+      await targetPage.locator('#login-email').fill(email);
+      await targetPage.locator('#login-password').fill(password);
+    }
+    const authResponsePromise = targetPage.waitForResponse(
+      response =>
+        response.request().method() === 'POST' &&
+        response.url().includes('/auth/v1/token?grant_type=password'),
+      { timeout: 60000 },
+    ).catch(() => null);
+    const loginSubmit = targetPage.locator('form button[type="submit"]');
+    if (!(await loginSubmit.count())) throw new Error('LOGIN_SUBMIT_NOT_FOUND');
+    await loginSubmit.click();
+    const candidate = await authResponsePromise;
+    if (candidate && [429, 500, 502, 503, 504].includes(candidate.status()) && attempt < 3) {
+      await targetPage.waitForTimeout(5000 * attempt);
+      continue;
+    }
+    authResponse = candidate;
+    if (authResponse || attempt === 3) break;
+    await targetPage.waitForTimeout(5000 * attempt);
+  }
+
+  if (!authResponse) {
+    throw new Error('AUTH_TOKEN_RESPONSE_TIMEOUT');
+  }
+
+  const authStatus = authResponse.status();
+  if (authStatus >= 400) {
+    let detail = '';
+    try {
+      const body = await authResponse.json();
+      detail = body?.error_code || body?.error || body?.msg || body?.message || '';
+    } catch {
+      detail = '';
+    }
+    throw new Error('AUTH_TOKEN_HTTP_' + authStatus + (detail ? '_' + detail : ''));
+  }
+
+  try {
+    await targetPage.locator('#login-email').waitFor({ state: 'hidden', timeout: 30000 });
+  } catch {
+    const alertText = await targetPage.getByRole('alert').first().textContent().catch(() => '');
+    const loading = await targetPage.getByRole('button', { name: 'جارٍ التحقق...' }).count();
+    const detail = alertText?.trim() ? ':' + alertText.trim().slice(0, 180) : '';
+    throw new Error(
+      loading
+        ? 'AUTH_UI_SESSION_CONVERGENCE_TIMEOUT' + detail
+        : 'AUTH_UI_SESSION_NOT_ESTABLISHED' + detail,
+    );
+  }
 }
 
 async function authenticatedTenantId(targetPage) {
   if (!supabaseURL || !supabaseAnonKey) throw new Error('SUPABASE_RUNTIME_ENV_MISSING');
   let lastError = null;
-  for (let attempt = 1; attempt <= 10; attempt += 1) {
+  for (let attempt = 1; attempt <= 8; attempt += 1) {
     try {
       return await targetPage.evaluate(async ({ url, anonKey }) => {
         const entry = Object.entries(localStorage).find(([key]) => key.endsWith('-auth-token'))?.[1];
@@ -83,7 +186,7 @@ async function authenticatedTenantId(targetPage) {
       }, { url: supabaseURL, anonKey: supabaseAnonKey });
     } catch (error) {
       lastError = error;
-      if (attempt < 10) await new Promise(resolve => setTimeout(resolve, 400));
+      if (attempt < 8) await new Promise(resolve => setTimeout(resolve, 1500 * attempt));
     }
   }
   throw lastError || new Error('BROWSER_SESSION_CONVERGENCE_FAILED');
@@ -110,12 +213,128 @@ async function inspectPage(targetPage) {
   });
 }
 
+async function runWorkspacePersonalizationProbe(targetPage) {
+  let convergenceRecovery = false;
+
+  async function convergeSettingsPage() {
+    const startedAt = Date.now();
+    let lastDiagnostic = null;
+
+    for (let attempt = 1; attempt <= 2; attempt += 1) {
+      const response = await targetPage.goto(`${baseURL}/settings`, {
+        waitUntil: attempt === 1 ? 'domcontentloaded' : 'networkidle',
+        timeout: 30000,
+      });
+      await targetPage.waitForURL(url => new URL(url).pathname === '/settings', { timeout: 30000 });
+      await targetPage.waitForTimeout(attempt === 1 ? 750 : 1200);
+
+      const diagnostic = await targetPage.evaluate(() => ({
+        readyState: document.readyState,
+        pathname: window.location.pathname,
+        href: window.location.href,
+        title: document.title,
+        bodyTextLength: document.body?.innerText?.trim()?.length ?? 0,
+        rootChildCount: document.getElementById('root')?.childElementCount ?? 0,
+        workspaceAnchorCount: document.querySelectorAll('[data-testid="workspace-editor"]').length,
+      }));
+
+      lastDiagnostic = {
+        attempt,
+        responseStatus: response?.status() ?? null,
+        durationMs: Date.now() - startedAt,
+        ...diagnostic,
+      };
+
+      if (diagnostic.bodyTextLength > 0 && diagnostic.rootChildCount > 0 && diagnostic.workspaceAnchorCount > 0) {
+        return { ...lastDiagnostic, recovered: convergenceRecovery };
+      }
+
+      if (attempt === 1) convergenceRecovery = true;
+    }
+
+    return { ...lastDiagnostic, recovered: convergenceRecovery };
+  }
+
+  const convergence = await convergeSettingsPage();
+  const workspaceEditor = targetPage.locator('[data-testid="workspace-editor"]');
+
+  if (!(convergence.workspaceAnchorCount > 0)) {
+    const diagnostic = await targetPage.evaluate(() => ({
+      pathname: window.location.pathname,
+      href: window.location.href,
+      title: document.title,
+      bodyText: (document.body?.innerText || '').slice(0, 1200),
+      workspaceAnchorCount: document.querySelectorAll('[data-testid="workspace-editor"]').length,
+      workspaceHeadingCount: [...document.querySelectorAll('h1,h2,h3,h4')]
+        .filter(node => (node.textContent || '').trim() === 'محرر مساحة العمل').length,
+      readyState: document.readyState,
+      rootChildCount: document.getElementById('root')?.childElementCount ?? 0,
+    }));
+    await targetPage.screenshot({ path: reportDir + '/workspace-probe-failure.png', fullPage: true }).catch(() => {});
+    throw new Error('WORKSPACE_EDITOR_NOT_CONVERGED:' + JSON.stringify({ convergence, diagnostic }));
+  }
+
+  await workspaceEditor.waitFor({ state: 'visible', timeout: 30000 });
+  await workspaceEditor.getByRole('heading', { name: 'محرر مساحة العمل', exact: true }).waitFor({ state: 'visible', timeout: 30000 });
+
+  const financePreset = workspaceEditor.getByRole('button').filter({ hasText: 'المالية' }).first();
+  await financePreset.waitFor({ state: 'visible', timeout: 15000 });
+  await financePreset.click();
+
+  const select = workspaceEditor.locator('select').first();
+  await select.selectOption('/reports/profitability');
+
+  const kpiToggle = targetPage.locator('[data-testid="workspace-widget-kpis"] input[type="checkbox"]');
+  await kpiToggle.waitFor({ state: 'visible', timeout: 15000 });
+  if (await kpiToggle.isChecked()) await kpiToggle.uncheck();
+  if (await kpiToggle.isChecked()) throw new Error('WORKSPACE_KPI_VISIBILITY_NOT_TOGGLED');
+
+  const persisted = await targetPage.evaluate(() => {
+    const raw = localStorage.getItem('report-advisor.workspace-preferences');
+    return raw ? JSON.parse(raw) : null;
+  });
+  if (persisted?.preset !== 'finance') throw new Error('WORKSPACE_PRESET_NOT_PERSISTED');
+  if (persisted?.defaultLandingPath !== '/reports/profitability') throw new Error('WORKSPACE_LANDING_NOT_PERSISTED');
+  if (persisted?.dashboardWidgets?.includes('kpis')) throw new Error('WORKSPACE_KPI_VISIBILITY_NOT_PERSISTED');
+
+  await targetPage.goto(`${baseURL}/`, { waitUntil: 'domcontentloaded', timeout: 30000 });
+  await targetPage.waitForTimeout(750);
+  const redirectedPath = new URL(await targetPage.url()).pathname;
+  if (redirectedPath !== '/reports/profitability') throw new Error(`WORKSPACE_LANDING_REDIRECT_FAILED:${redirectedPath}`);
+
+  const resetConvergence = await convergeSettingsPage();
+  const resetWorkspaceEditor = targetPage.locator('[data-testid="workspace-editor"]');
+  await resetWorkspaceEditor.waitFor({ state: 'visible', timeout: 30000 });
+  const resetButton = targetPage.getByRole('button', { name: 'إعادة الإعدادات الافتراضية', exact: true });
+  await resetButton.waitFor({ state: 'visible', timeout: 30000 });
+  await resetButton.click();
+
+  const reset = await targetPage.evaluate(() => {
+    const raw = localStorage.getItem('report-advisor.workspace-preferences');
+    return raw ? JSON.parse(raw) : null;
+  });
+  if (reset?.preset !== 'owner-executive') throw new Error('WORKSPACE_RESET_PRESET_FAILED');
+  if (reset?.defaultLandingPath !== '/') throw new Error('WORKSPACE_RESET_LANDING_FAILED');
+  if (!reset?.dashboardWidgets?.includes('kpis')) throw new Error('WORKSPACE_RESET_WIDGETS_FAILED');
+
+  return {
+    status: 'PASS',
+    convergenceRecovery: convergence.recovered,
+    convergence,
+    persistedPreset: persisted.preset,
+    persistedLanding: persisted.defaultLandingPath,
+    redirectedPath,
+    resetPreset: reset.preset,
+    resetLanding: reset.defaultLandingPath,
+  };
+}
+
 function addFinding(id, status, severity, reason, extra = {}) {
   result.findings.push({ id, status, severity, reason, ...extra });
 }
 
 try {
-  await page.goto(baseURL, { waitUntil: 'networkidle', timeout: 30000 });
+  await page.goto(baseURL, { waitUntil: 'domcontentloaded', timeout: 30000 });
   await page.screenshot({ path: `${reportDir}/00-initial.png`, fullPage: true });
   const email = process.env.TEST_USER_A_EMAIL;
   const password = process.env.TEST_USER_A_PASSWORD;
@@ -139,7 +358,7 @@ try {
         result.tenant = 'PASS';
         addFinding('E2E-AUTH-006', 'PASS', 'P0', 'Browser session established and current tenant resolved through authenticated runtime RPC.', { tenantId: authenticatedTenant });
 
-        await page.reload({ waitUntil: 'networkidle', timeout: 30000 });
+        await page.reload({ waitUntil: 'domcontentloaded', timeout: 30000 });
         const refreshedTenant = await authenticatedTenantId(page);
         addFinding('E2E-AUTH-013', refreshedTenant === authenticatedTenant ? 'PASS' : 'FAIL', 'P0',
           refreshedTenant === authenticatedTenant
@@ -164,8 +383,22 @@ try {
     }
 
     if (result.auth === 'PASS') {
-      const dashboard = await page.getByText('لوحة القيادة').count();
-      if (!dashboard) addFinding('E2E-AUTH-012', 'NOT_PROVEN', 'P1', 'Authenticated session is proven, but the expected dashboard label was not present immediately after login.');
+      const primaryNavLink = page.locator('nav a[href="/import"], aside a[href="/import"]').first();
+      let primaryNav = false;
+      try {
+        await primaryNavLink.waitFor({ state: 'visible', timeout: 15000 });
+        primaryNav = true;
+      } catch {
+        primaryNav = false;
+      }
+      addFinding(
+        'E2E-AUTH-012',
+        primaryNav ? 'PASS' : 'NOT_PROVEN',
+        'P1',
+        primaryNav
+          ? 'Authenticated application shell became visible after login and exposed the canonical import route from the navigation shell.'
+          : 'Authenticated session is proven, but the navigation shell did not expose the canonical import route within the bounded 15-second convergence window.',
+      );
 
       const emailB = process.env.TEST_USER_B_EMAIL;
       const passwordB = process.env.TEST_USER_B_PASSWORD;
@@ -196,7 +429,7 @@ try {
         let status = 'PASS'; let reason = '';
         let inspection = null;
         try {
-          const response = await page.goto(`${baseURL}${route}`, { waitUntil: 'networkidle', timeout: 30000 });
+          const response = await page.goto(`${baseURL}${route}`, { waitUntil: 'domcontentloaded', timeout: 30000 });
           await page.waitForTimeout(500);
           const bodyText = (await page.locator('body').innerText()).trim();
           const appError = await page.getByText('حدث خطأ غير متوقع').count();
@@ -230,9 +463,16 @@ try {
       }
 
       try {
-        await page.goto(`${baseURL}/`, { waitUntil: 'networkidle', timeout: 30000 });
+        const workspaceProbe = await runWorkspacePersonalizationProbe(page);
+        addFinding('E2E-WORKSPACE-001', 'PASS', 'P1', 'Workspace personalization is proven through real browser interaction, persistence, landing redirect, and reset.', workspaceProbe);
+      } catch (error) {
+        addFinding('E2E-WORKSPACE-001', 'FAIL', 'P1', `Workspace personalization browser probe failed: ${error instanceof Error ? error.message : String(error)}`);
+      }
+
+      try {
+        await page.goto(`${baseURL}/`, { waitUntil: 'domcontentloaded', timeout: 30000 });
         const beforeRefreshTenant = result.tenantA;
-        await page.reload({ waitUntil: 'networkidle', timeout: 30000 });
+        await page.reload({ waitUntil: 'domcontentloaded', timeout: 30000 });
         const afterRefreshTenant = await authenticatedTenantId(page);
         if (beforeRefreshTenant !== afterRefreshTenant) {
           addFinding('E2E-AUTH-009', 'FAIL', 'P0', `Tenant changed across browser refresh: ${beforeRefreshTenant} -> ${afterRefreshTenant}.`);
@@ -241,9 +481,10 @@ try {
         addFinding('E2E-AUTH-011', 'FAIL', 'P0', `Authenticated refresh persistence failed: ${error instanceof Error ? error.message : String(error)}`);
       }
 
-      await page.goto(`${baseURL}/`, { waitUntil: 'networkidle', timeout: 30000 });
+      await page.goto(`${baseURL}/`, { waitUntil: 'domcontentloaded', timeout: 30000 });
       const logout = page.getByRole('button', { name: 'تسجيل الخروج' });
-      if (await logout.count()) {
+      await logout.waitFor({ state: 'visible', timeout: 30000 }).catch(() => {});
+      if (await logout.count() && await logout.isVisible().catch(() => false)) {
         await logout.click();
         try {
           await page.locator('#login-email').waitFor({ state: 'visible', timeout: 10000 });

@@ -33,9 +33,52 @@ async function assignAlias(deploymentId, alias) {
   return response.json();
 }
 
-async function verify(url) {
-  const response = await secureOutboundFetch(url, 'rollback_verify_url', { headers: { Accept: 'application/json' }, cache: 'no-store' });
-  return { ok: response.ok, status: response.status };
+function canonicalRollbackVerifyUrl(domain) {
+  const normalized = domain.replace(/\/+$/, '');
+  return `https://${normalized}/api/health`;
+}
+
+async function verify(domain, expectedDeployment) {
+  const token = process.env.RESILIENCE_OPERATIONAL_TOKEN?.trim();
+  if (!token) throw new Error('operational_token_required_for_rollback_verify');
+  const url = canonicalRollbackVerifyUrl(domain);
+  const response = await secureOutboundFetch(url, 'rollback_verify_url', {
+    headers: {
+      Accept: 'application/json',
+      'x-resilience-token': token,
+    },
+    cache: 'no-store',
+  });
+  const text = await response.text();
+  if (!response.ok) return { ok: false, status: response.status, detail: text.slice(0, 500) };
+  let body;
+  try {
+    body = JSON.parse(text);
+  } catch {
+    return { ok: false, status: response.status, detail: 'rollback_verifier_invalid_json' };
+  }
+  const expectedId = String(expectedDeployment?.id || '').trim();
+  const expectedSha = String(expectedDeployment?.meta?.githubCommitSha || '').trim().toLowerCase();
+  const actualId = String(body?.deployment_id || '').trim();
+  const actualSha = String(body?.deployment_sha || '').trim().toLowerCase();
+  if (!expectedId || !expectedSha) {
+    return { ok: false, status: 502, detail: 'rollback_expected_deployment_identity_missing' };
+  }
+  if (actualId !== expectedId || actualSha !== expectedSha) {
+    return {
+      ok: false,
+      status: 502,
+      detail: 'rollback_deployment_identity_mismatch',
+      expected: { id: expectedId, sha: expectedSha },
+      actual: { id: actualId, sha: actualSha },
+    };
+  }
+  return {
+    ok: true,
+    status: response.status,
+    deployment_id: actualId,
+    deployment_sha: actualSha,
+  };
 }
 
 export default async function handler(req, res) {
@@ -49,7 +92,6 @@ export default async function handler(req, res) {
     'RESILIENCE_ROLLBACK_DRILL_DOMAIN',
     'RESILIENCE_ROLLBACK_FROM_DEPLOYMENT',
     'RESILIENCE_ROLLBACK_FORWARD_DEPLOYMENT',
-    'RESILIENCE_ROLLBACK_VERIFY_URL',
   ])) return;
   if (isProductionEnv()) return json(res, 409, { status: 'blocked', error: 'production_rollback_drill_forbidden' });
 
@@ -59,7 +101,6 @@ export default async function handler(req, res) {
 
   const from = process.env.RESILIENCE_ROLLBACK_FROM_DEPLOYMENT.trim();
   const forward = process.env.RESILIENCE_ROLLBACK_FORWARD_DEPLOYMENT.trim();
-  const verifyUrl = process.env.RESILIENCE_ROLLBACK_VERIFY_URL.trim();
   if (from === forward) return json(res, 409, { status: 'blocked', error: 'rollback_deployments_must_differ' });
   const incidentKey = `rollback-drill-${Date.now()}`;
   const started = Date.now();
@@ -67,19 +108,19 @@ export default async function handler(req, res) {
   try {
     const [fromDeployment, forwardDeployment] = await Promise.all([deploymentReady(from), deploymentReady(forward)]);
     validatedForwardDeployment = forwardDeployment;
-    const before = await verify(verifyUrl);
+    const before = await verify(domain, forwardDeployment);
     if (!before.ok) return json(res, 503, { status: 'blocked', error: `forward_baseline_failed:${before.status}` });
 
     const rollbackStarted = Date.now();
     await assignAlias(fromDeployment.id, domain);
-    const rollbackProbe = await verify(verifyUrl);
+    const rollbackProbe = await verify(domain, fromDeployment);
     if (!rollbackProbe.ok) {
       await assignAlias(forwardDeployment.id, domain);
       throw new Error(`rollback_probe_failed:${rollbackProbe.status}`);
     }
 
     await assignAlias(forwardDeployment.id, domain);
-    const forwardProbe = await verify(verifyUrl);
+    const forwardProbe = await verify(domain, forwardDeployment);
     const rtoSeconds = (Date.now() - rollbackStarted) / 1000;
     if (!forwardProbe.ok) throw new Error(`forward_fix_probe_failed:${forwardProbe.status}`);
 
@@ -93,7 +134,7 @@ export default async function handler(req, res) {
       root_cause: 'controlled rollback drill',
       impact: { production_touched: false, target_env: process.env.RESILIENCE_TARGET_ENV.trim(), alias: domain },
       actions: ['verified forward deployment', 'aliased rollback deployment', 'verified rollback', 'restored forward deployment', 'verified forward recovery'],
-      evidence: { from_deployment: fromDeployment.id, forward_deployment: forwardDeployment.id, rollback_probe: rollbackProbe, forward_probe: forwardProbe, rto_seconds: rtoSeconds },
+      evidence: { from_deployment: fromDeployment.id, forward_deployment: forwardDeployment.id, expected_from_sha: fromDeployment.meta?.githubCommitSha || null, expected_forward_sha: forwardDeployment.meta?.githubCommitSha || null, rollback_probe: rollbackProbe, forward_probe: forwardProbe, rto_seconds: rtoSeconds },
     });
     return json(res, 200, { status: 'passed', production_touched: false, rollback_verified: true, forward_recovery_verified: true, rto_seconds: rtoSeconds });
   } catch (error) {

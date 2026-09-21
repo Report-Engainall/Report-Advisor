@@ -1,26 +1,216 @@
-import { useEffect, useMemo, useState } from 'react';
-import { Activity, Bell, BrainCircuit, ChevronLeft, CircleAlert, Gauge, ShieldAlert, Sparkles, WalletCards } from 'lucide-react';
-import { fetchDashboardSnapshot, type DashboardKPIs } from '../lib/dashboard-canonical';
-import { isCompleteDashboardKPIs, type CompleteDashboardKPIs } from '../lib/dashboard-kpi-guards';
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
+import {
+  ArrowUpLeft, BarChart3, Brain, CalendarRange, CircleAlert,
+  FileSearch, Package, RefreshCw, Sparkles, TrendingUp, Upload, WalletCards
+} from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Card, CardBody, CardHeader } from '@/components/ui/Card';
+import { PriorityBadge, SeverityBadge } from '@/components/ui/Badge';
+import { LoadingState, ErrorState, EmptyState } from '@/components/ui/States';
+import { TrendChart } from '@/components/ui/Charts';
+import { TruthContextStrip } from '@/components/TruthContextStrip';
+import { fetchDashboardIntelligence, fetchDashboardSnapshot, type DashboardKPIs } from '@/lib/dashboard-canonical';
+import { formatCurrency, relativeTime } from '@/lib/format';
+import type { Alert, Recommendation } from '@/lib/types';
 
-type Status = 'good' | 'watch' | 'critical';
-type CommandCard = { label: string; value: string; status: Status; icon: typeof WalletCards };
-const formatNumber=(value:number)=>new Intl.NumberFormat('ar-YE',{maximumFractionDigits:1}).format(value);
-const formatPercent=(value:number)=>`${formatNumber(value)}%`;
-function getReceivableStatus(kpi:CompleteDashboardKPIs):Status{const overdueRate=kpi.totalReceivables>0?(kpi.overdueReceivables/kpi.totalReceivables)*100:0;if(kpi.totalReceivables<=0)return'good';if(overdueRate>=35)return'critical';if(overdueRate>=15)return'watch';return'good';}
-function getMarginStatus(m:number):Status{return m>=20?'good':m>=10?'watch':'critical';}
-function getCollectionStatus(r:number):Status{return r>=80?'good':r>=60?'watch':'critical';}
-function statusLabel(s:Status){return s==='good'?'مستقر':s==='watch'?'مراقبة':'حرج';}
+const PERIODS = [
+  { value: 3, label: '3 أشهر' },
+  { value: 6, label: '6 أشهر' },
+  { value: 12, label: '12 شهرًا' },
+] as const;
 
-export function ExecutiveCommandCenterPage(){
- const[months,setMonths]=useState(3);const[selected,setSelected]=useState(0);const[kpis,setKpis]=useState<DashboardKPIs|null>(null);const[loading,setLoading]=useState(true);const[error,setError]=useState<string|null>(null);
- useEffect(()=>{let active=true;setLoading(true);setError(null);fetchDashboardSnapshot(months).then(snapshot=>{if(active)setKpis(snapshot.kpis);}).catch(()=>{if(active)setError('تعذر تحميل مؤشرات مركز القيادة.');}).finally(()=>{if(active)setLoading(false);});return()=>{active=false;}},[months]);
- const completeKpis=isCompleteDashboardKPIs(kpis)?kpis:null;
- const cards=useMemo<CommandCard[]>(()=>{if(!completeKpis)return[];return[{label:'الذمم المستحقة',value:formatNumber(completeKpis.totalReceivables),status:getReceivableStatus(completeKpis),icon:WalletCards},{label:'هامش الربح الإجمالي',value:formatPercent(completeKpis.grossMargin),status:getMarginStatus(completeKpis.grossMargin),icon:Gauge},{label:'قيمة المخزون',value:formatNumber(completeKpis.inventoryValue),status:completeKpis.inventoryValue>0?'good':'watch',icon:Activity},{label:'الذمم المتأخرة',value:formatNumber(completeKpis.overdueReceivables),status:getReceivableStatus(completeKpis),icon:ShieldAlert}];},[completeKpis]);
- const actions=useMemo(()=>{if(!completeKpis)return[];const overdueRate=completeKpis.totalReceivables>0?(completeKpis.overdueReceivables/completeKpis.totalReceivables)*100:0;return[{title:overdueRate>=15?'رفع التحصيل من العملاء المتأخرين':'مواصلة متابعة التحصيل',impact:`${formatPercent(overdueRate)} من الذمم مستحقة ومتأخرة`,status:(overdueRate>=35?'critical':overdueRate>=15?'watch':'good') as Status},{title:completeKpis.grossMargin<15?'مراجعة هوامش الأصناف منخفضة الربحية':'مراجعة فرص تحسين الهامش',impact:`الهامش الإجمالي الحالي ${formatPercent(completeKpis.grossMargin)}`,status:(completeKpis.grossMargin<10?'critical':completeKpis.grossMargin<20?'watch':'good') as Status},{title:completeKpis.collectionRate<70?'تحسين دورة التحصيل':'الحفاظ على كفاءة التحصيل',impact:`معدل التحصيل ${formatPercent(completeKpis.collectionRate)}`,status:getCollectionStatus(completeKpis.collectionRate)}];},[completeKpis]);
- const selectedAction=actions[selected]??actions[0];
- return <div dir="rtl" className="space-y-6"><section className="relative overflow-hidden rounded-3xl bg-ink-950 text-white p-6 lg:p-8"><div className="relative flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5"><div><div className="flex items-center gap-2 text-primary-300 text-sm font-medium"><Sparkles size={16}/> مركز القيادة التنفيذي</div><h1 className="mt-2 text-2xl lg:text-3xl font-bold">صورة العمل الآن</h1><p className="mt-2 text-ink-300 max-w-2xl">مؤشرات حقيقية من بيانات الشركة، مع تفسير للإجراءات ذات الأولوية. النطاق الزمني يحدد عدد الأشهر التي يعرضها المصدر المعتمد.</p></div><div className="flex items-center gap-2 rounded-2xl bg-white/10 p-1">{[[1,'شهر'],[3,'3 أشهر'],[6,'6 أشهر']].map(([value,label])=><button key={value} onClick={()=>setMonths(Number(value))} className={`px-4 py-2 rounded-xl text-sm ${months===value?'bg-white text-ink-900':''}`}>{label}</button>)}</div></div></section>
- {loading&&<div className="rounded-2xl border border-ink-200 bg-white p-6 text-sm text-ink-500">جارٍ تحميل المؤشرات الحقيقية…</div>}{error&&<div role="alert" className="rounded-2xl border border-red-200 bg-red-50 p-6 text-sm text-red-700">{error}</div>}{!loading&&!error&&kpis?.status==='INSUFFICIENT_DATA'&&<div className="rounded-2xl border border-amber-200 bg-amber-50 p-6 text-sm text-amber-800">البيانات الحالية غير كافية لإصدار جميع المؤشرات بثقة. لا يتم عرض قيم افتراضية.</div>}
- {!loading&&!error&&completeKpis&&<><section className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">{cards.map(card=>{const Icon=card.icon;return <div key={card.label} className="rounded-2xl border border-ink-200 bg-white p-5 shadow-sm"><div className="flex items-center justify-between"><div className="rounded-xl bg-ink-50 p-2.5"><Icon size={20}/></div><span className="text-xs font-semibold px-2 py-1 rounded-full">{statusLabel(card.status)}</span></div><p className="mt-5 text-sm text-ink-500">{card.label}</p><strong className="text-2xl">{card.value}</strong></div>})}</section><section className="grid grid-cols-1 xl:grid-cols-3 gap-5"><div className="xl:col-span-2 rounded-2xl border border-ink-200 bg-white p-5"><div className="flex items-center justify-between"><div><h2 className="font-bold text-lg">محرك القرار</h2><p className="text-sm text-ink-500 mt-1">الإجراءات مشتقة من المؤشرات الحالية وليست قيمًا تجريبية ثابتة.</p></div><BrainCircuit size={22}/></div><div className="mt-5 space-y-3">{actions.map((action,index)=><button key={action.title} onClick={()=>setSelected(index)} className="w-full text-right rounded-2xl border p-4"><div className="flex items-center gap-3"><div className="h-2.5 w-2.5 rounded-full"/><div className="flex-1"><p className="font-semibold">{action.title}</p><p className="text-xs text-ink-500 mt-1">{action.impact}</p></div><ChevronLeft size={18}/></div></button>)}</div></div><div className="rounded-2xl border border-ink-200 bg-white p-5"><div className="flex items-center gap-2"><CircleAlert size={20}/><h2 className="font-bold">التفسير والأدلة</h2></div><p className="mt-4 text-sm leading-7 text-ink-600">{selectedAction?.title??'لا توجد توصية متاحة حاليًا.'}</p><div className="mt-5 rounded-xl bg-ink-50 p-4"><div className="text-xs text-ink-500">الأثر/المؤشر المرتبط</div><div className="mt-1 font-bold">{selectedAction?.impact??'لا توجد بيانات كافية'}</div></div></div></section><section className="rounded-2xl border border-ink-200 bg-white p-5"><div className="flex items-center gap-2"><Bell size={20}/><h2 className="font-bold">مراقبة التنبيهات الذكية</h2></div><div className="mt-4 grid md:grid-cols-3 gap-3"><div className="rounded-xl bg-red-50 p-4"><b>متأخر</b><p className="text-sm mt-1">الذمم المتأخرة: {formatNumber(completeKpis.overdueReceivables)}</p></div><div className="rounded-xl bg-amber-50 p-4"><b>هامش</b><p className="text-sm mt-1">الهامش الإجمالي: {formatPercent(completeKpis.grossMargin)}</p></div><div className="rounded-xl bg-emerald-50 p-4"><b>تحصيل</b><p className="text-sm mt-1">معدل التحصيل: {formatPercent(completeKpis.collectionRate)}</p></div></div></section></>}
- </div>;
+function MoneyMetric({
+  label,
+  value,
+  note,
+  icon,
+}: {
+  label: string;
+  value: number | null;
+  note?: string;
+  icon: ReactNode;
+}) {
+  return (
+    <div className="border-l border-ink-100 px-4 py-4 last:border-l-0">
+      <div className="flex items-center gap-2 text-[10px] font-black text-ink-400">
+        <span className="text-primary-700">{icon}</span>{label}
+      </div>
+      <div className="mt-2 text-[20px] font-black tabular-nums text-ink-950">{value === null ? 'غير متاح' : formatCurrency(value)}</div>
+      {note && <div className="mt-1 text-[10px] text-ink-400">{note}</div>}
+    </div>
+  );
+}
+
+function AlertRow({ alert }: { alert: Alert }) {
+  return (
+    <article className="rounded-[14px] border border-ink-200 bg-white p-4">
+      <div className="flex items-start gap-3">
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-danger-50 text-danger-700"><CircleAlert size={17}/></div>
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-2"><SeverityBadge severity={alert.severity}/><span className="text-[10px] text-ink-400">{relativeTime(alert.created_at)}</span></div>
+          <div className="mt-2 text-[13px] font-black text-ink-900">{alert.title}</div>
+          {alert.description && <p className="mt-1 text-[11px] leading-5 text-ink-500">{alert.description}</p>}
+          <div className="mt-3 flex gap-2"><Link to="/decision-experience" className="btn-secondary text-[11px]">افتح السياق <ArrowUpLeft size={13}/></Link><Link to="/metrics" className="btn-ghost text-[11px]">افحص القياس</Link></div>
+        </div>
+      </div>
+    </article>
+  );
+}
+
+function DecisionRow({ recommendation }: { recommendation: Recommendation }) {
+  return (
+    <article className="rounded-[14px] border border-primary-100 bg-primary-50/25 p-4">
+      <div className="flex items-start gap-3">
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary-100 text-primary-700"><Sparkles size={17}/></div>
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-2"><span className="text-[10px] font-black text-primary-700">توصية</span><PriorityBadge priority={recommendation.priority}/></div>
+          <div className="mt-2 text-[13px] font-black text-ink-900">{recommendation.title}</div>
+          {recommendation.description && <p className="mt-1 text-[11px] leading-5 text-ink-500">{recommendation.description}</p>}
+          <div className="mt-3"><Link to="/decision-experience?stage=decision" className="btn-primary text-[11px]">فتح القرار <ArrowUpLeft size={13}/></Link></div>
+        </div>
+      </div>
+    </article>
+  );
+}
+
+export function ExecutiveCommandCenterPage() {
+  const [months, setMonths] = useState(3);
+  const [kpis, setKpis] = useState<DashboardKPIs | null>(null);
+  const [asOf, setAsOf] = useState<string | null>(null);
+  const [trend, setTrend] = useState<Awaited<ReturnType<typeof fetchDashboardSnapshot>>['trend']>([]);
+  const [alerts, setAlerts] = useState<Alert[]>([]);
+  const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const load = useCallback(async (silent = false) => {
+    try {
+      if (silent) setRefreshing(true); else setLoading(true);
+      setError(null);
+      const [snapshot, intelligence] = await Promise.all([
+        fetchDashboardSnapshot(months),
+        fetchDashboardIntelligence(),
+      ]);
+      setKpis(snapshot.kpis);
+      setAsOf(snapshot.asOf);
+      setTrend(snapshot.trend);
+      setAlerts(intelligence.alerts.filter((item) => !item.is_read).slice(0, 5));
+      setRecommendations(intelligence.recommendations.filter((item) => item.status === 'new' || item.status === 'accepted').slice(0, 5));
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : 'تعذر تحميل مركز القيادة');
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  }, [months]);
+
+  useEffect(() => { void load(); }, [load]);
+
+  const coverage = useMemo(() => {
+    if (!kpis) return 0;
+    const fields = [kpis.totalSales, kpis.grossProfit, kpis.totalReceivables, kpis.inventoryValue, kpis.collectionRate];
+    return Math.round((fields.filter((value) => value !== null).length / fields.length) * 100);
+  }, [kpis]);
+
+  if (loading) return <LoadingState message="جارٍ بناء مركز القيادة من المصدر..." />;
+  if (error) return <ErrorState message={error} onRetry={() => void load()} />;
+  if (!kpis) return null;
+
+  return (
+    <div dir="rtl" className="space-y-5 animate-fade-in pb-10">
+      <section className="rounded-[18px] border border-ink-200 bg-ink-950 p-5 text-white shadow-elevated lg:p-6">
+        <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
+          <div className="max-w-3xl">
+            <div className="flex items-center gap-2 text-[11px] font-black text-primary-300"><WalletCards size={15}/> مركز القيادة</div>
+            <h1 className="mt-2 text-[25px] font-black tracking-tight lg:text-[31px]">ما يؤثر على المال والعمل الآن</h1>
+            <p className="mt-2 text-[12px] leading-6 text-ink-300">شاشة واحدة تجمع الصورة المالية، إشارات الانتباه، والقرارات المقترحة، مع بقاء المصدر وحالة الدليل ظاهرين.</p>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="flex items-center gap-1 rounded-[10px] bg-white/10 p-1">
+              {PERIODS.map((period) => <button key={period.value} type="button" onClick={() => setMonths(period.value)} className={'rounded-[8px] px-3 py-1.5 text-[10px] font-bold ' + (months === period.value ? 'bg-white text-ink-950' : 'text-ink-300 hover:bg-white/10')} aria-pressed={months === period.value}>{period.label}</button>)}
+            </div>
+            <button type="button" onClick={() => void load(true)} disabled={refreshing} className="inline-flex items-center gap-2 rounded-[9px] border border-white/15 bg-white/10 px-3.5 py-2.5 text-[11px] font-bold text-white hover:bg-white/15 disabled:opacity-60"><RefreshCw size={14} className={refreshing ? 'animate-spin' : ''}/> تحديث</button>
+          </div>
+        </div>
+      </section>
+
+      <TruthContextStrip months={months} status={kpis.status} asOf={asOf ?? 'غير متاح'} />
+
+      <section className="overflow-hidden rounded-[14px] border border-ink-200 bg-white shadow-card">
+        <div className="grid grid-cols-2 lg:grid-cols-4">
+          <MoneyMetric label="المبيعات" value={kpis.totalSales} icon={<TrendingUp size={15}/>} note="الفترة الحالية"/>
+          <MoneyMetric label="الربح الإجمالي" value={kpis.grossProfit} icon={<BarChart3 size={15}/>} note={kpis.grossMargin === null ? 'الهامش غير متاح' : 'الهامش ' + kpis.grossMargin.toFixed(1) + '%'}/>
+          <MoneyMetric label="الذمم" value={kpis.totalReceivables} icon={<WalletCards size={15}/>} note={kpis.collectionRate === null ? 'التحصيل غير متاح' : 'التحصيل ' + kpis.collectionRate.toFixed(1) + '%'}/>
+          <MoneyMetric label="المخزون" value={kpis.inventoryValue} icon={<Package size={15}/>} note="القيمة الحالية"/>
+        </div>
+      </section>
+
+      {kpis.status === 'INSUFFICIENT_DATA' && (
+        <div className="rounded-[14px] border border-warning-200 bg-warning-50 p-4 text-[11px] leading-5 text-warning-900">
+          <div className="flex items-center gap-2 font-black"><CircleAlert size={15}/> لا يمكن إصدار كل الاستنتاجات بثقة</div>
+          <div className="mt-1">التغطية الحالية للقياسات الرئيسية {coverage}%. البيانات غير الكافية تبقى ظاهرة كحالة، ولا تُستبدل بأصفار أو تقديرات مخفية.</div>
+        </div>
+      )}
+
+      <section className="grid gap-4 xl:grid-cols-[1.15fr_.85fr]">
+        <Card>
+          <CardHeader title="مركز الانتباه" subtitle="الإشارات التي تستحق فحصًا أو تدخلاً." action={<Link to="/intelligence" className="btn-ghost text-[11px]">الذكاء <Brain size={13}/></Link>}/>
+          <CardBody>
+            <div className="space-y-3">
+              {alerts.map((alert) => <AlertRow key={alert.id} alert={alert}/>)}
+              {alerts.length === 0 && <EmptyState title="لا توجد إشارات نشطة" message="لا يوجد تنبيه غير مقروء في المصدر الحالي."/>}
+            </div>
+          </CardBody>
+        </Card>
+
+        <Card>
+          <CardHeader title="طابور القرار" subtitle="ما يمكن تحويله إلى قرار الآن." action={<Link to="/decision-experience" className="btn-ghost text-[11px]">مساحة القرار <ArrowUpLeft size={13}/></Link>}/>
+          <CardBody>
+            <div className="space-y-3">
+              {recommendations.map((recommendation) => <DecisionRow key={recommendation.id} recommendation={recommendation}/>)}
+              {recommendations.length === 0 && <EmptyState title="لا توجد توصيات قابلة للمراجعة" message="لن تتم صناعة بديل اصطناعي عند غياب الإشارة."/>}
+            </div>
+          </CardBody>
+        </Card>
+      </section>
+
+      <Card>
+        <CardHeader
+          title="نبض الأعمال"
+          subtitle="اتجاه المبيعات والربح ضمن الفترة المختارة."
+          action={<span className="inline-flex items-center gap-1 text-[10px] font-bold text-ink-400"><CalendarRange size={13}/> {months} أشهر</span>}
+        />
+        <CardBody>
+          {trend.some((item) => item.status === 'CALCULATED')
+            ? <TrendChart data={trend}/>
+            : <div className="py-12 text-center text-sm text-ink-400">لا توجد بيانات اتجاه قابلة للحساب.</div>}
+        </CardBody>
+      </Card>
+
+      <section>
+        <div className="mb-3 flex items-end justify-between gap-3">
+          <div><div className="section-kicker">ACTION SURFACES</div><h2 className="mt-1 text-lg font-black text-ink-950">انتقل من الرؤية إلى العمل</h2></div>
+          <span className="text-[10px] text-ink-400">المسار يبقى مرتبطًا بسياق القرار</span>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <Link to="/reports/receivables" className="card card-hover p-4"><WalletCards size={18} className="text-primary-700"/><div className="mt-3 text-sm font-black text-ink-900">التحصيل</div><div className="mt-1 text-[10px] text-ink-400">الذمم والأعمار والعملاء</div><ArrowUpLeft size={14} className="mt-3 text-ink-300"/></Link>
+          <Link to="/reports/profitability" className="card card-hover p-4"><BarChart3 size={18} className="text-primary-700"/><div className="mt-3 text-sm font-black text-ink-900">الربحية</div><div className="mt-1 text-[10px] text-ink-400">الإيراد والتكلفة والهامش</div><ArrowUpLeft size={14} className="mt-3 text-ink-300"/></Link>
+          <Link to="/inventory" className="card card-hover p-4"><Package size={18} className="text-primary-700"/><div className="mt-3 text-sm font-black text-ink-900">المخزون</div><div className="mt-1 text-[10px] text-ink-400">الحركة والقيمة والمنتجات</div><ArrowUpLeft size={14} className="mt-3 text-ink-300"/></Link>
+          <Link to="/import" className="card card-hover p-4"><Upload size={18} className="text-primary-700"/><div className="mt-3 text-sm font-black text-ink-900">إدخال البيانات</div><div className="mt-1 text-[10px] text-ink-400">من المصدر إلى المسار الحاكم</div><ArrowUpLeft size={14} className="mt-3 text-ink-300"/></Link>
+        </div>
+      </section>
+
+      <section className="rounded-[14px] border border-ink-200 bg-white p-4">
+        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <div><div className="text-[12px] font-black text-ink-900">خط الحقيقة</div><div className="mt-1 text-[10px] text-ink-400">المصدر → الدليل → البيانات → الإشارة → القرار → الإجراء → النتيجة.</div></div>
+          <div className="flex flex-wrap gap-2">
+            <Link to="/data-quality" className="btn-secondary text-[11px]">جودة البيانات <ArrowUpLeft size={13}/></Link>
+            <Link to="/reports/executive" className="btn-secondary text-[11px]">التقرير التنفيذي <FileSearch size={13}/></Link>
+            <Link to="/work-center" className="btn-primary text-[11px]">مركز العمل <ArrowUpLeft size={13}/></Link>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
 }

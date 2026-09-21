@@ -17,7 +17,7 @@ assert.match(topMigration,/current_company_id\(\)/);
 assert.doesNotMatch(page,/aging\.reduce\(/);
 assert.doesNotMatch(page,/bucket\.amount \/ total/);
 assert.doesNotMatch(page,/categories\.map\(.*reduce/s);
-assert.match(page,/categoryStatus==='UNKNOWN'/);
+assert.match(page,/categoryStatus\s*===\s*['"]UNKNOWN['"]/);
 assert.match(page,/aging\.totalAmount/);
 assert.match(page,/aging\.status/);
 assert.match(adapter,/(get_dashboard_top_entities|get_dashboard_snapshot)/);

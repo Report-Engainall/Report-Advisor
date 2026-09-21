@@ -86,28 +86,29 @@ if (/from ['"]@\/lib\//.test(adapter) || /from ['"]@\/lib\//.test(fs.readFileSyn
 if (!/await import\('\.\.\/supabase'\)/.test(adapter) || !/await import\('\.\.\/supabase'\)/.test(fs.readFileSync(canonicalCommitPath, 'utf8'))) {
   throw new Error('Browser Supabase client must remain lazy in server-importable canonical modules');
 }
-if (!/commitImportBatch\(input\.entityType, input\.rows, input\.sourceHash, \{ client: (?:dataClient|activeDataClient), companyId \}\)/.test(adapter)) {
-  throw new Error('Canonical import commit must remain tenant-bound to the authenticated data client');
+if (!/commitImportBatch\(input\.entityType,\s*input\.rows,\s*input\.sourceHash,\s*\{\s*client:\s*activeDataClient,\s*companyId,\s*importJobId:\s*input\.importId\s*\}\)/.test(adapter)) {
+  throw new Error('Canonical import commit must remain tenant-bound to the authenticated data client and source import job');
 }
 if (!/IMPORT_DURABLE_JOB_ALREADY_RUNNING/.test(adapter)) {
   throw new Error('Canonical durable adapter must fail closed when the same durable import is already running');
 }
 
-const serverAdapterPath = path.join(root, 'api', 'canonical-import-execute.ts');
+const serverAdapterPath = path.join(root, 'netlify', 'functions', 'canonical-import-execute.mts');
 if (!fs.existsSync(serverAdapterPath)) throw new Error('Canonical durable import server boundary is missing');
 const serverAdapter = fs.readFileSync(serverAdapterPath, 'utf8');
 for (const token of [
-  "requireMethod(req, res, 'POST')",
-  "requireConfig(res, ['SUPABASE_URL', 'SUPABASE_SERVICE_ROLE_KEY', 'VITE_SUPABASE_ANON_KEY'])",
+  "request.method !== 'POST'",
+  "env('SUPABASE_SERVICE_ROLE_KEY')",
   "Authorization",
-  "current_company_id",
+  "userClient.rpc('current_company_id')",
   "SUPABASE_SERVICE_ROLE_KEY",
   "serverExecution: true",
-  "workerClient",
-  "dataClient",
-  "from('import_jobs')",
-  ".eq('id', input.importId)",
+  "workerClient: serviceClient",
+  "dataClient: userClient",
+  ".from('import_jobs')",
+  ".eq('id', payload.importId)",
   ".eq('company_id', companyId)",
+  "mode === 'finalize-source'",
 ]) {
   if (!serverAdapter.includes(token)) throw new Error(`Canonical server execution boundary missing: ${token}`);
 }

@@ -212,7 +212,7 @@ The following are invalid completion tactics:
 - reporting deployment readiness as application correctness;
 - claiming certification while any mandatory gate is unresolved.
 
-## 15. Continuous Execution
+## 15. Continuous Execution — BLOCKER-LOCAL, SESSION-GLOBAL
 
 After closing a front, immediately rescan for:
 - newly exposed failures;
@@ -224,17 +224,43 @@ After closing a front, immediately rescan for:
 
 Then execute the next safe front.
 
-The stopping condition is not “one task finished.” The stopping condition is:
+**A blocker is local to the blocked front, not a stop condition for the whole execution session.**
 
-**no safe actionable front remains, or an explicit external/owner authorization blocker remains.**
+When a front is `BLOCKED_EXTERNAL`, `BLOCKED_OWNER`, or otherwise unable to progress because an external prerequisite is unavailable:
+1. record the exact blocker and affected front;
+2. mark that front blocked without weakening its acceptance criteria;
+3. immediately continue all independent repository, CI, UI/UX, data-truth, contract, security, performance, release-preparation, deployment-parity, documentation, cleanup, and evidence-consumption fronts that do not depend on the blocker;
+4. inspect dependency graph for alternate safe paths that reduce the blocker without fabricating inputs;
+5. periodically rescan the blocked front for newly available inputs or changed environment state;
+6. resume the blocked front automatically as soon as its prerequisite becomes available.
 
-## 16. Owner Escalation Format
+**Never end the session merely because one front is externally blocked while other safe actionable fronts remain.**
+
+The session stopping condition is only:
+
+**no safe actionable front remains anywhere in the dependency graph, or an explicit owner authorization is required for every remaining front.**
+
+An external blocker on one release gate does **not** authorize:
+- idle waiting;
+- returning a generic checklist to the owner;
+- stopping UI/product development;
+- stopping repository hardening;
+- stopping test-contract repair;
+- stopping cleanup/consolidation;
+- stopping evidence/document reconciliation;
+- stopping non-production deployment validation;
+- stopping independent runtime diagnostics.
+
+## 16. Owner Escalation Format — NON-STOP EXECUTION
 
 When escalation is unavoidable, provide only:
 1. exact blocker;
-2. why repository-side execution cannot remove it;
+2. why repository-side execution cannot remove that specific blocker;
 3. exact owner action required;
-4. what execution will resume automatically afterward.
+4. the fronts that continue autonomously in parallel;
+5. the exact gate that will resume automatically after the owner action.
+
+Escalation is **not** a session handoff and is **not** permission to stop executing other safe fronts.
 
 Do not ask broad questions or return the work as a vague checklist.
 
@@ -251,13 +277,94 @@ A release may be called certified only when every mandatory certification gate i
 
 Otherwise the correct state is NOT CERTIFIED / BLOCKED / NOT PROVEN as applicable.
 
+Certification being blocked does not stop independent product engineering, hardening, evidence preparation, deployment parity work, or other safe fronts.
+
+## 18. FULL PARALLEL EXECUTION DOCTRINE — ZERO-IDLE MODE
+
+The default execution model is **maximum safe parallelism**, not serial task completion.
+
+For every RESCAN, the programmer MUST:
+1. construct a live dependency graph of all open fronts;
+2. partition fronts into independent, dependent, blocked-external, blocked-owner, and closed;
+3. launch all independent fronts immediately in parallel;
+4. launch read-only discovery/verification fronts in parallel with mutation-free work whenever they do not conflict;
+5. never hold an independent front merely because another front is running, queued, blocked, or waiting on CI;
+6. attach each execution lane to its own exact SHA/evidence boundary;
+7. merge only after each lane proves compatibility and the resulting candidate is re-verified;
+8. when one lane fails, isolate that lane, preserve all unaffected lanes, and continue the others immediately;
+9. when one lane becomes externally blocked, keep it under automatic recheck while all other safe lanes continue;
+10. use the fastest safe path to closure, but never trade away evidence integrity, tenant isolation, fail-closed rules, or production safety;
+11. treat queued CI as a background evidence source, not a reason to stop repository-side work;
+12. continue product/UI/UX, security, contracts, data truth, persistence, performance, deployment parity, cleanup, documentation, and certification-preparation work concurrently whenever dependencies permit.
+
+### ZERO-IDLE RULE
+
+**No safe lane may be idle because another lane is blocked.**
+
+The programmer must not:
+- wait for CI before starting an independent static or repository-side front;
+- wait for Production before improving Preview/non-production parity;
+- wait for Phase-F before closing independent contract or product defects;
+- wait for Library synchronization before recording local/repository execution memory;
+- ask the owner to choose between obvious independent fronts;
+- stop because the currently visible blocker belongs to only one lane.
+
+A RESCAN must occur after every meaningful lane transition and must immediately repopulate all runnable lanes.
+
+### PARALLEL MUTATION SAFETY
+
+Parallel execution is mandatory only where dependency and write-scope analysis prove that the lanes cannot race on the same mutable resource.
+
+For conflicting writes:
+- serialize only the conflicting mutation;
+- keep all unrelated reads/tests/analysis/deploy-preparation lanes running in parallel;
+- rebase/re-anchor the next mutation against the newest exact candidate before writing.
+
+### EVIDENCE ISOLATION
+
+Parallel execution NEVER relaxes evidence boundaries. Every lane must bind its result to:
+- its exact SHA;
+- its environment/target;
+- its workflow/test identifier;
+- its actual observed result.
+
+No lane may consume another lane's PASS unless the resulting SHA itself has fresh proof for the relevant gate.
+
 ## 18. Default Command
 
 When an owner issues a generic continuation command, execute:
 
-**READ CURRENT MEMORY → VERIFY EXACT HEAD → IDENTIFY LIVE BLOCKERS → EXECUTE ALL SAFE INDEPENDENT FRONTS → TEST → PROVE → DOCUMENT → RESCAN → CONTINUE**
+**READ CURRENT MEMORY → VERIFY EXACT HEAD → IDENTIFY ALL LIVE BLOCKERS → PARTITION BLOCKED VS UNBLOCKED FRONTS → EXECUTE ALL SAFE INDEPENDENT FRONTS → TEST → PROVE → DOCUMENT → RESCAN ALL FRONTIERS → RECHECK BLOCKED FRONTS → CONTINUE**
 
-Do not wait for another prompt merely because the previous front closed.
+Repeat this loop continuously.
+
+Do not wait for another prompt merely because:
+- the previous front closed;
+- a workflow is queued;
+- one external prerequisite is missing;
+- certification is currently blocked;
+- a different front requires owner action.
+
+Only stop when the global stopping condition in Section 15 is satisfied.
+
+## 19. Library / Persistent-Memory Synchronization — NO OWNER PROMPTS
+
+Persistent Library synchronization is an execution detail, not an owner decision.
+
+The programmer MUST:
+- attempt to update the canonical existing Library file automatically after meaningful memory changes;
+- never create a duplicate memory file merely because synchronization is rate-limited or temporarily unavailable;
+- never ask the owner whether the canonical Library replacement should be attempted;
+- never ask the owner to approve, choose, or confirm a normal Library synchronization action;
+- treat a platform-enforced interactive confirmation, rate limit, unavailable connector, or permission boundary as a **tooling/external blocker only**;
+- record that tooling blocker precisely and continue all repository/GitHub/CI/Vercel/Supabase and other safe fronts without stopping the execution session;
+- retry synchronization on the next safe rescan when the platform permits it;
+- keep the local/canonical working copy authoritative for execution continuity while durable Library synchronization remains pending;
+- never claim the Library was durably updated unless the mutation result proves it.
+
+A Library-sync blocker MUST NOT become an owner question, a session-stopping condition, or a reason to duplicate memory artifacts.
+
+
 
 ---
 **Governance:** This document is repository-resident operational policy. Changes to it must be intentional, auditable, and committed to GitHub.

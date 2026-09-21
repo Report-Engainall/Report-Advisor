@@ -58,9 +58,9 @@ function assertSourceHash(rows: ReconciledCanonicalImportRow[], sourceHash: stri
   }
 }
 
-interface CanonicalServerExecutionResult { jobId: string; importId: string; [key: string]: unknown }
+interface CanonicalServerExecutionResult { jobId?: string; importId: string; sourceHash: string; [key: string]: unknown }
 
-async function executeThroughServerBoundary(input: DurableCanonicalImportInput): Promise<CanonicalServerExecutionResult> {
+async function executeThroughServerBoundary(input: DurableCanonicalImportInput, mode: 'execute' | 'finalize-source' = 'execute'): Promise<CanonicalServerExecutionResult> {
   const { supabase } = await import('../supabase');
   const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
   const accessToken = sessionData.session?.access_token;
@@ -72,7 +72,7 @@ async function executeThroughServerBoundary(input: DurableCanonicalImportInput):
       Authorization: `Bearer ${accessToken}`,
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify(input),
+    body: JSON.stringify({ ...input, mode }),
   });
 
   const text = await response.text();
@@ -83,7 +83,9 @@ async function executeThroughServerBoundary(input: DurableCanonicalImportInput):
     const detail = typeof payload?.detail === 'string' ? payload.detail : typeof payload?.error === 'string' ? payload.error : `HTTP_${response.status}`;
     throw new Error(`CANONICAL_IMPORT_SERVER_EXECUTION_FAILED:${detail.slice(0, 512)}`);
   }
-  if (!payload?.jobId || !payload?.importId) throw new Error('CANONICAL_IMPORT_SERVER_EXECUTION_RESPONSE_INVALID');
+  if (!payload?.importId || !payload?.sourceHash || (mode === 'execute' && !payload?.jobId)) {
+    throw new Error('CANONICAL_IMPORT_SERVER_EXECUTION_RESPONSE_INVALID');
+  }
   return payload;
 }
 
@@ -212,9 +214,13 @@ export async function runCanonicalImportThroughDurableRunner(
       }
       if (stage === 'analyzed' && !currentRows.length) throw new Error('IMPORT_ANALYSIS_EMPTY');
       if (stage === 'decisioned' && !input.rows.length) throw new Error('IMPORT_DECISION_EMPTY');
-      if (stage === 'committed') await commitImportBatch(input.entityType, input.rows, input.sourceHash, { client: activeDataClient, companyId });
+      if (stage === 'committed') await commitImportBatch(input.entityType, input.rows, input.sourceHash, { client: activeDataClient, companyId, importJobId: input.importId });
     },
   }, store);
 
   return { ...result, jobId: job.id, importId: input.importId };
+}
+
+export async function finalizeCanonicalImportSource(input: Pick<DurableCanonicalImportInput, 'importId' | 'fileName' | 'sourceHash' | 'entityType'>): Promise<{ importId: string; sourceHash: string }> {
+  return executeThroughServerBoundary({ ...input, rows: [], qualityScore: 0 }, 'finalize-source');
 }

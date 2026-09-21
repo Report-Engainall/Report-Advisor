@@ -37,7 +37,11 @@ if (!profileSettings.includes('supabase.auth.updateUser')) failures.push('Profil
 if (!profileSettings.includes('full_name')) failures.push('Profile settings do not persist the display name.');
 if (!header.includes("current_company_id")) failures.push('Header health indicator is not backed by a real database probe.');
 if (!header.includes('data: companyId')) failures.push('Header health probe does not inspect the resolved tenant value.');
-if (!header.includes("!companyId ? 'degraded' : 'healthy'")) failures.push('Header incorrectly treats an unresolved tenant as healthy.');
+const unresolvedTenantFailsClosed =
+  (header.includes('if (!companyId)') && header.includes("setHealth('degraded')")) ||
+  header.includes("companyId ? 'healthy' : 'degraded'");
+
+if (!unresolvedTenantFailsClosed) failures.push('Header incorrectly treats an unresolved tenant as healthy.');
 if (!header.includes("'checking'") || !header.includes("'healthy'") || !header.includes("'degraded'") || !header.includes("'offline'")) failures.push('Header health state model is incomplete.');
 if (queries.includes("import { supabase, COMPANY_ID }")) failures.push('Canonical dashboard queries still depend on static COMPANY_ID.');
 if (queries.includes(".eq('company_id', COMPANY_ID)")) failures.push('Canonical dashboard queries still apply legacy frontend tenant filtering.');

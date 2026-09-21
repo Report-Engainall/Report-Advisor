@@ -74,18 +74,20 @@ export async function commitImportBatch(
   entityType: 'products' | 'customers' | 'sales_invoices',
   rows: ReconciledCanonicalImportRow[],
   sourceHash: string,
-  context: { client?: SupabaseClient; companyId?: string } = {},
+  context: { client?: SupabaseClient; companyId?: string; importJobId?: string } = {},
 ): Promise<CanonicalCommitResult> {
   if (!rows.length) return { committed: 0, ids: [], idempotentReplay: false };
   if (!/^sha256:[0-9a-fA-F]{64}$/.test(sourceHash)) throw new Error('IMPORT_SOURCE_HASH_INVALID');
   let client = context.client;
   let companyId = context.companyId;
+  const importJobId = context.importJobId;
   if (!client || !companyId) {
     const browser = await import('../supabase');
     client ??= browser.supabase;
     companyId ??= (await browser.resolveCurrentCompanyId()) ?? undefined;
   }
   if (!client || !companyId) throw new Error('No authenticated tenant context is available for canonical import');
+  if (!importJobId) throw new Error('IMPORT_JOB_ID_REQUIRED');
 
   rows.forEach((row) => assertCanonicalBoundary(row, companyId));
   for (const row of rows) {
@@ -100,6 +102,7 @@ export async function commitImportBatch(
     p_rows: payload,
     p_null_policy: 'preserve',
     p_source_hash: sourceHash,
+    p_import_job_id: importJobId,
   });
   if (error) throw error;
 

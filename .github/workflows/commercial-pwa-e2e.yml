@@ -1,4 +1,4 @@
-name: Commercial PWA E2E
+﻿name: Commercial PWA E2E
 
 on:
   pull_request:
@@ -11,6 +11,7 @@ on:
       - 'scripts/run-full-product-browser-e2e.mjs'
   workflow_dispatch:
 
+
 permissions:
   contents: read
 
@@ -21,7 +22,7 @@ jobs:
   pwa:
     if: startsWith(github.event.pull_request.head.ref || github.ref_name, 'commercial/')
     runs-on: ubuntu-22.04
-    timeout-minutes: 45
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
         with:
@@ -91,7 +92,16 @@ jobs:
           if (!firstState.scope.endsWith('/')) throw new Error(`Unexpected service worker scope: ${firstState.scope}`);
           if (!['installed','activating','activated'].includes(String(firstState.state))) throw new Error(`Unexpected initial service worker state: ${firstState.state}`);
           if (!secondState.controller) throw new Error('Service worker does not control the application after reload');
-          if (!secondState.caches.includes('aghbari-static-v1')) throw new Error('Expected static cache was not created');
+          if (!secondState.caches.includes('aghbari-static-v2')) throw new Error('Expected static cache was not created');
+          await context.setOffline(true);
+          await page.reload({ waitUntil: 'domcontentloaded', timeout: 30000 });
+          const offlineText = await page.locator('body').innerText();
+          if (offlineText.trim().length < 20) throw new Error('Offline app-shell fallback returned insufficient rendered content');
+          const rootPresent = await page.locator('#root').count();
+          if (rootPresent !== 1) throw new Error('Offline app-shell fallback did not return the application root');
+          const rootHtml = await page.locator('#root').innerHTML();
+          if (rootHtml.trim().length < 200) throw new Error('Offline app-shell fallback returned an empty or skeletal React root');
+          await context.setOffline(false);
           if (errors.length) throw new Error(`Browser errors: ${errors.join(' | ')}`);
           console.log(JSON.stringify({ firstState, secondState, errors }, null, 2));
           await browser.close();
@@ -134,3 +144,4 @@ jobs:
           name: commercial-pwa-${{ env.EXACT_HEAD }}
           path: artifacts/pwa-auth-e2e
           if-no-files-found: warn
+

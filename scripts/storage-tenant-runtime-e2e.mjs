@@ -1,4 +1,4 @@
-import { chromium } from 'playwright';
+﻿import { chromium } from 'playwright';
 import fs from 'node:fs/promises';
 import assert from 'node:assert/strict';
 
@@ -37,11 +37,58 @@ const browser = await chromium.launch({ headless: true });
 async function browserSession(user) {
   const context = await browser.newContext({ viewport: { width: 1440, height: 1000 }, locale: 'ar-SA' });
   const page = await context.newPage();
-  await page.goto(baseURL, { waitUntil: 'networkidle', timeout: 30000 });
+  await page.goto(baseURL, { waitUntil: 'domcontentloaded', timeout: 30000 });
+  await page.locator('#login-email').waitFor({ state: 'visible', timeout: 30000 });
   await page.locator('#login-email').fill(user.email);
   await page.locator('#login-password').fill(user.password);
-  await page.getByRole('button', { name: 'تسجيل الدخول' }).click();
-  await page.locator('#login-email').waitFor({ state: 'hidden', timeout: 30000 });
+
+  let authResponse = null;
+  for (let attempt = 1; attempt <= 3; attempt += 1) {
+    if (attempt > 1) {
+      await page.goto(baseURL, { waitUntil: 'networkidle', timeout: 30000 });
+      await page.locator('#login-email').fill(user.email);
+      await page.locator('#login-password').fill(user.password);
+    }
+    const authResponsePromise = page.waitForResponse(
+      response =>
+        response.request().method() === 'POST' &&
+        response.url().includes('/auth/v1/token?grant_type=password'),
+      { timeout: 60000 },
+    ).catch(() => null);
+    const loginSubmit = page.locator('form button[type="submit"]');
+    if (!(await loginSubmit.count())) throw new Error('LOGIN_SUBMIT_NOT_FOUND');
+    await loginSubmit.click();
+    const candidate = await authResponsePromise;
+    if (candidate && [429, 500, 502, 503, 504].includes(candidate.status()) && attempt < 3) {
+      await page.waitForTimeout(5000 * attempt);
+      continue;
+    }
+    authResponse = candidate;
+    if (authResponse || attempt === 3) break;
+    await page.waitForTimeout(5000 * attempt);
+  }
+  if (!authResponse) throw new Error('AUTH_TOKEN_RESPONSE_TIMEOUT');
+  const authStatus = authResponse.status();
+  if (authStatus >= 400) {
+    let detail = '';
+    try {
+      const body = await authResponse.json();
+      detail = body?.error_code || body?.error || body?.msg || body?.message || '';
+    } catch {}
+    throw new Error('AUTH_TOKEN_HTTP_' + authStatus + (detail ? '_' + detail : ''));
+  }
+
+  try {
+    await page.locator('#login-email').waitFor({ state: 'hidden', timeout: 30000 });
+  } catch {
+    const alertText = await page.getByRole('alert').first().textContent().catch(() => '');
+    throw new Error('AUTH_UI_SESSION_NOT_ESTABLISHED' + (alertText?.trim() ? ':' + alertText.trim().slice(0, 180) : ''));
+  }
+  const sessionReady = await page.evaluate(() => Object.entries(localStorage).some(([key, value]) => {
+    if (!key.endsWith('-auth-token')) return false;
+    try { return Boolean(JSON.parse(value)?.access_token); } catch { return false; }
+  }));
+  if (!sessionReady) throw new Error('BROWSER_ACCESS_TOKEN_NOT_FOUND_AFTER_AUTH');
   const token = await page.evaluate(() => {
     const raw = Object.entries(localStorage).find(([key]) => key.endsWith('-auth-token'))?.[1];
     if (!raw) throw new Error('BROWSER_SESSION_NOT_FOUND');
@@ -52,11 +99,18 @@ async function browserSession(user) {
   const tenantResponse = await page.evaluate(async ({ url, anon }) => {
     const raw = Object.entries(localStorage).find(([key]) => key.endsWith('-auth-token'))?.[1];
     const session = JSON.parse(raw);
-    const response = await fetch(`${url}/rest/v1/rpc/current_company_id`, {
-      method: 'POST', headers: { apikey: anon, Authorization: `Bearer ${session.access_token}`, 'Content-Type': 'application/json' }, body: '{}',
-    });
-    const body = await response.text();
-    return { ok: response.ok, status: response.status, body };
+    let last = null;
+    for (let attempt = 1; attempt <= 12; attempt += 1) {
+      const response = await fetch(`${url}/rest/v1/rpc/current_company_id`, {
+        method: 'POST', headers: { apikey: anon, Authorization: `Bearer ${session.access_token}`, 'Content-Type': 'application/json' }, body: '{}',
+      });
+      const body = await response.text();
+      if (response.ok) return { ok: true, status: response.status, body };
+      last = { ok: false, status: response.status, body };
+      if (![502, 503, 504, 544].includes(response.status) || attempt === 12) return last;
+      await new Promise(resolve => setTimeout(resolve, 3000 * attempt));
+    }
+    return last || { ok: false, status: 599, body: 'tenant resolution exhausted' };
   }, { url: supabaseURL, anon: anonKey });
   assert.equal(tenantResponse.ok, true, `current_company_id failed: ${tenantResponse.status}:${tenantResponse.body}`);
   const tenant = tenantResponse.body.replaceAll('"', '').trim();
@@ -64,10 +118,21 @@ async function browserSession(user) {
   return { context, page, token, tenant };
 }
 async function storageRequest(token, method, path, body, headers = {}) {
-  const response = await fetch(`${supabaseURL}/storage/v1/${path}`, { method, headers: { apikey: anonKey, Authorization: `Bearer ${token}`, ...headers }, body });
-  const text = await response.text();
-  let payload = text; try { payload = JSON.parse(text); } catch {}
-  return { ok: response.ok, status: response.status, payload };
+  const transientStatuses = new Set([502, 503, 504, 544]);
+  let last = null;
+  for (let attempt = 1; attempt <= 3; attempt += 1) {
+    const response = await fetch(`${supabaseURL}/storage/v1/${path}`, {
+      method,
+      headers: { apikey: anonKey, Authorization: `Bearer ${token}`, ...headers },
+      body,
+    });
+    const text = await response.text();
+    let payload = text; try { payload = JSON.parse(text); } catch {}
+    last = { ok: response.ok, status: response.status, payload, attempts: attempt };
+    if (response.ok || !transientStatuses.has(response.status) || attempt === 3) return last;
+    await new Promise(resolve => setTimeout(resolve, 750 * attempt));
+  }
+  return last;
 }
 async function assertDenied(label, response) {
   const denied = !response.ok;
@@ -91,7 +156,7 @@ try {
   cleanup.push(['A', aPath], ['B', bPath]);
 
   const uploadA = await storageRequest(sessionA.token, 'POST', `object/${encodeURIComponent(bucket)}/${aPath}`, Buffer.from(`storage-e2e ${exactHead}`), { 'content-type': 'text/plain', 'x-upsert': 'false' });
-  assert.equal(uploadA.ok, true, `Tenant A upload failed: ${uploadA.status}`);
+  assert.equal(uploadA.ok, true, `Tenant A upload failed: ${uploadA.status}:${JSON.stringify(uploadA.payload)}`);
   evidence.checks.push({ label: 'Tenant A upload', status: uploadA.status, result: 'PASS' });
 
   const listA = await storageRequest(sessionA.token, 'POST', `object/list/${encodeURIComponent(bucket)}`, JSON.stringify({ prefix: `${sessionA.tenant}/`, limit: 100, offset: 0, sortBy: { column: 'name', order: 'asc' } }), { 'content-type': 'application/json' });
@@ -123,7 +188,7 @@ try {
   }
 
   const uploadB = await storageRequest(sessionB.token, 'POST', `object/${encodeURIComponent(bucket)}/${bPath}`, Buffer.from('tenant-b'), { 'content-type': 'text/plain', 'x-upsert': 'false' });
-  assert.equal(uploadB.ok, true, `Tenant B upload failed: ${uploadB.status}`);
+  assert.equal(uploadB.ok, true, `Tenant B upload failed: ${uploadB.status}:${JSON.stringify(uploadB.payload)}`);
   evidence.checks.push({ label: 'Tenant B upload', status: uploadB.status, result: 'PASS' });
   const readB = await storageRequest(sessionB.token, 'GET', `object/${encodeURIComponent(bucket)}/${bPath}`);
   assert.equal(readB.ok, true, `Tenant B read failed: ${readB.status}`);
@@ -164,3 +229,4 @@ try {
   await browser.close();
 }
 console.log(JSON.stringify(evidence, null, 2));
+
