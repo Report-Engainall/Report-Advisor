@@ -1,6 +1,6 @@
 ## IMPLEMENTATION UPDATE — 2026-09-21 / REPORT CENTER LIVE SNAPSHOT + PHASE-F EVIDENCE BOUNDARY
 
-- Exact current `main` head: `42c89ef31bc67a20c66fd7f22d8325ecb642a71f` (merged wave-45 governance head; UI code commit `c6dd99d320f5fb751832cdb4f5b7e7661af22d8d`; UI contract guard `a0efc8caddd310dba4d7a0fe2b83dee14ca21669`).
+- Wave-45 code/merge anchor: `42c89ef31bc67a20c66fd7f22d8325ecb642a71f` (UI code commit `c6dd99d320f5fb751832cdb4f5b7e7661af22d8d`; UI contract guard `a0efc8caddd310dba4d7a0fe2b83dee14ca21669`). Subsequent commits are governance-only write-backs.
 - Report Center is no longer a static catalog: it reads the existing canonical `fetchDashboardSnapshot(6)`, exposes live sales/receivables/inventory/invoice context, the snapshot truth state, As Of, aging-data state and a direct next action.
 - The refresh action stays within the page and the surface explicitly avoids replacement values when the canonical snapshot is insufficient.
 - Contract guard `check-product-wow-ui-contract.mjs` now protects the live snapshot, next-action, refresh and no-synthetic-data invariants.
