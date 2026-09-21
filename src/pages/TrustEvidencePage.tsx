@@ -58,6 +58,16 @@ export function TrustEvidencePage() {
     () => snapshot?.issues?.filter((issue) => issue.severity === 'critical').reduce((sum, issue) => sum + issue.count, 0) ?? 0,
     [snapshot],
   );
+  const weightedQualityScore = useMemo(() => {
+    if (!snapshot?.entities?.length) return null;
+    const weightedRows = snapshot.entities.reduce((sum, entity) => sum + Math.max(0, entity.total ?? 0), 0);
+    if (weightedRows <= 0) return null;
+    const weightedScore = snapshot.entities.reduce(
+      (sum, entity) => sum + (Math.max(0, Number(entity.score) || 0) * Math.max(0, entity.total ?? 0)),
+      0,
+    ) / weightedRows;
+    return Math.max(0, Math.min(100, Math.round(weightedScore)));
+  }, [snapshot]);
   const trustState = snapshot?.status === 'EMPTY'
     ? { label: 'INSUFFICIENT DATA', detail: 'لا توجد بيانات مثبتة تسمح بإصدار حالة ثقة قابلة للاستخدام.' }
     : criticalIssueTotal > 0
@@ -100,11 +110,16 @@ export function TrustEvidencePage() {
         <h2 className="mt-3 text-2xl font-black lg:text-3xl">لا رقم بلا سياق، ولا قرار بلا دليل.</h2>
         <p className="mt-3 text-sm leading-7 text-slate-300">الواجهة لا ترفع درجة الثقة من تلقاء نفسها. كل حالة مرتبطة بجودة المصدر أو حدود البيانات الفعلية.</p>
       </div>
-      <div className="mt-6 grid gap-3 sm:grid-cols-4" role="status" aria-live="polite">
+      <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-5" role="status" aria-live="polite">
         <div className="rounded-2xl border border-white/10 bg-white/5 p-4"><div className="text-[9px] font-black text-ink-300">CURRENT STATUS</div><div className="mt-1 text-lg font-black">{statusLabel}</div></div>
         <div className="rounded-2xl border border-white/10 bg-white/5 p-4"><div className="text-[9px] font-black text-ink-300">RECORDS CHECKED</div><div className="mt-1 text-lg font-black">{totalRecords == null ? 'غير متاح' : totalRecords}</div></div>
         <div className="rounded-2xl border border-white/10 bg-white/5 p-4"><div className="text-[9px] font-black text-ink-300">ISSUES REPORTED</div><div className="mt-1 text-lg font-black">{issueTotal ?? 'غير متاح'}</div></div>
         <div className="rounded-2xl border border-white/10 bg-white/5 p-4"><div className="text-[9px] font-black text-ink-300">CRITICAL</div><div className="mt-1 text-lg font-black">{criticalIssueTotal}</div></div>
+        <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+          <div className="text-[9px] font-black text-ink-300">QUALITY COVERAGE</div>
+          <div className="mt-1 text-lg font-black">{weightedQualityScore == null ? 'غير متاح' : weightedQualityScore + '%'}</div>
+          <div className="mt-1 text-[9px] text-ink-400">متوسط موزون بعدد السجلات</div>
+        </div>
       </div>
     </section>
 
@@ -120,6 +135,25 @@ export function TrustEvidencePage() {
             <div className="mt-1 text-xs leading-5 text-ink-600">{trustState.detail}</div>
           </div>
         </div>
+        {weightedQualityScore !== null && (
+          <div className="mt-3 rounded-xl border border-ink-100 bg-ink-50/60 px-3 py-2.5">
+            <div className="flex items-center justify-between gap-3">
+              <span className="text-[9px] font-black tracking-[.08em] text-ink-500">ENTITY QUALITY COVERAGE</span>
+              <span className="text-[10px] font-black text-ink-800">{weightedQualityScore}%</span>
+            </div>
+            <div
+              className="mt-2 h-1.5 overflow-hidden rounded-full bg-ink-100"
+              role="progressbar"
+              aria-label="متوسط جودة الكيانات الموزون بعدد السجلات"
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-valuenow={weightedQualityScore}
+            >
+              <span className="block h-full rounded-full bg-primary-500" style={{ width: weightedQualityScore + '%' }} />
+            </div>
+            <div className="mt-1 text-[9px] leading-5 text-ink-400">تلخيص من درجات جودة الكيانات الحالية، موزون بعدد السجلات؛ ليس درجة ثقة مستقلة.</div>
+          </div>
+        )}
         <Link to={nextStep.path} className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-ink-950 px-3 py-2 text-[10px] font-black text-white hover:bg-ink-800">
           الخطوة التالية: {nextStep.label}
           <ArrowLeft size={13} />
