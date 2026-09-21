@@ -1,7 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { assertCanonicalBoundary, type CanonicalImportEntityType, type ReconciledCanonicalImportRow } from './canonical-truth-boundary';
 
-export interface CanonicalImportRow { data: Record<string, unknown>; rowNumber: number }
+export interface CanonicalImportRow extends Pick<ReconciledCanonicalImportRow, 'data' | 'rowNumber' | 'provenance'> {}
 export interface CanonicalCommitResult { committed: number; ids: string[]; idempotentReplay: boolean }
 
 function text(value: unknown): string | null {
