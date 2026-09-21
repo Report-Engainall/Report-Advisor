@@ -39,6 +39,7 @@ function canonicalizeRow(entityType: CanonicalImportEntityType, row: CanonicalIm
       row_number: row.rowNumber,
       record_key: `source-row:${row.rowNumber}`,
       data: row.data,
+      provenance: row.provenance,
     };
   }
   const d = row.data;
