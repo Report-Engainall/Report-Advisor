@@ -1,3 +1,16 @@
+## IMPLEMENTATION UPDATE — 2026-09-21 / WAVE 48 — DECISION SURFACE ACTIONABLE EMPTY STATES
+
+- Exact code/test candidate: `19efa63103657e60c973ec2d4449d74e05e73025`.
+- Decision Experience implementation: `f0f50d97b2e77e415b33d268234ae6d4d88883ae`; UI contract guard: `5e3f84e607744844a68d37db707ee252061cf832`.
+- Executive Command Center implementation: `95614f98043a3f3d00f49f92e80693378c06f6`; UI contract guard: `19efa63103657e60c973ec2d4449d74e05e73025`.
+- Decision Experience empty states now expose real next actions: trust review when there are no active alerts, unified import when recommendations are absent, and return to the decision signal context when a recommendation is not selected.
+- Executive Command Center empty signal/recommendation/trend states now expose the existing canonical intelligence or data-quality routes instead of ending in passive text.
+- The trend-empty state remains fail-closed: no synthetic trend data, no fabricated KPI, and no inferred business result.
+- Exact source verification confirms the changed files and their contract assertions on current `main`.
+- No route, RPC, runner, import engine, table, tenant/RLS path, or deterministic calculation was introduced.
+- Fresh exact-head status for `19efa...` remains fail-closed: Vercel reports `failure` with `build-rate-limit`, Vercel Deployments is `pending`, and GitHub reports no workflow run attached to this main commit.
+- Existing Vercel READY deployments for older SHAs remain historical exact-SHA evidence only and are not transferred.
+
 ## IMPLEMENTATION UPDATE — 2026-09-21 / WORK CENTER ACTIONABLE EMPTY STATES WAVE 47
 
 - Exact code/test candidate: `4995f5eb3b520cc8109d1f7b3c3baa5aa1d60525`; UI implementation commit `9e7d8b4040aacce163c780bf5c4f353ee6f8b64f`; UI contract guard `4995f5eb3b520cc8109d1f7b3c3baa5aa1d60525`.
