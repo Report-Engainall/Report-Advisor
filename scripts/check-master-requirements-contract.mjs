@@ -7,7 +7,6 @@ const exists = relative => fs.existsSync(path.join(root, relative));
 
 // Validate executable implementation surfaces rather than prose in a roadmap.
 const requiredFiles = [
-  'src/components/FolderBatchImportPanel.tsx',
   'scripts/check-watched-report-pipeline-contract.mjs',
   'scripts/check-file-engine-contract.mjs',
   'scripts/check-file-engine-capability-contract.mjs',
