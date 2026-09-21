@@ -12,6 +12,7 @@ export interface DurableCanonicalImportInput {
   entityType: CanonicalImportEntityType;
   rows: ReconciledCanonicalImportRow[];
   qualityScore: number;
+  qualityApproved: boolean;
 }
 
 export interface CanonicalImportExecutionOptions {
@@ -97,9 +98,12 @@ export async function runCanonicalImportThroughDurableRunner(
   options: CanonicalImportExecutionOptions = {},
 ) {
   if (!input.rows.length) throw new Error('CANONICAL_IMPORT_REQUIRES_ROWS');
+  if (typeof input.qualityApproved !== 'boolean') throw new Error('CANONICAL_IMPORT_QUALITY_APPROVAL_REQUIRED');
   if (!input.importId.trim()) throw new Error('CANONICAL_IMPORT_REQUIRES_IMPORT_ID');
   if (!input.fileName.trim()) throw new Error('CANONICAL_IMPORT_REQUIRES_SOURCE_PATH');
   if (!Number.isFinite(input.qualityScore) || input.qualityScore < 0 || input.qualityScore > 100) throw new Error('CANONICAL_IMPORT_INVALID_QUALITY');
+  if (input.qualityScore < 50) throw new Error('CANONICAL_IMPORT_QUALITY_REJECTED');
+  if (input.qualityScore < 75 && !input.qualityApproved) throw new Error('CANONICAL_IMPORT_REVIEW_APPROVAL_REQUIRED');
 
   if (typeof window !== 'undefined' && !options.serverExecution) {
     return executeThroughServerBoundary(input);
