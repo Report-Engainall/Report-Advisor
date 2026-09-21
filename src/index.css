@@ -610,3 +610,171 @@ button,input,textarea,select{font:inherit}
   .ag-decision-cell:first-child { grid-column: 1 / -1; }
   .ag-decision-value { white-space: normal; }
 }
+
+/* AGHBARI CONTRAST + LEADERSHIP HERO + RESPONSIVE SCALE — 2026-09-21 */
+@layer components {
+  .ag-page-header {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+    border-color: rgb(167 205 197 / 24%) !important;
+    color: #fff;
+    background:
+      radial-gradient(circle at 88% 16%, rgb(45 169 153 / 18%), transparent 24rem),
+      radial-gradient(circle at 10% 90%, rgb(231 181 43 / 10%), transparent 20rem),
+      linear-gradient(135deg, #052f2d 0%, #063c37 54%, #071f1f 100%) !important;
+    box-shadow: 0 24px 52px -34px rgb(5 46 43 / 70%), inset 0 1px 0 rgb(255 255 255 / 7%) !important;
+  }
+  .ag-page-header::after {
+    content: "";
+    position: absolute;
+    inset-inline-start: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: linear-gradient(180deg, #e7b52b 0%, #2da999 50%, #0f766e 100%);
+    opacity: 1;
+    pointer-events: none;
+  }
+  .ag-page-header::before {
+    content: "";
+    position: absolute;
+    inset-inline-end: -4rem;
+    top: -5rem;
+    width: 16rem;
+    height: 16rem;
+    border-radius: 999px;
+    border: 1px solid rgb(167 231 220 / 16%);
+    box-shadow: 0 0 0 2rem rgb(45 169 153 / 3%), 0 0 0 4rem rgb(231 181 43 / 2%);
+    pointer-events: none;
+  }
+  .ag-page-header > * { position: relative; z-index: 1; }
+  .ag-page-header h1 {
+    color: #fff !important;
+    font-size: clamp(1.5rem, 1.1rem + 1.15vw, 2.05rem) !important;
+    line-height: 1.12 !important;
+    font-weight: 950 !important;
+    letter-spacing: -.025em;
+  }
+  .ag-page-header p {
+    color: #cbd5e1 !important;
+    max-width: 72ch;
+    font-size: 11px;
+    line-height: 1.8;
+  }
+  .ag-page-header .ag-page-kicker { color: #bfe7df !important; letter-spacing: .1em; }
+  .ag-page-header .ag-page-kicker-dot {
+    background: #e7b52b;
+    box-shadow: 0 0 0 4px rgb(231 181 43 / 14%);
+  }
+  .ag-page-header .btn-primary {
+    border: 1px solid rgb(255 255 255 / 18%) !important;
+    background: linear-gradient(135deg, #e7b52b, #f2c85a) !important;
+    color: #092c29 !important;
+    box-shadow: 0 14px 28px -18px rgb(0 0 0 / 70%), inset 0 1px 0 rgb(255 255 255 / 35%);
+  }
+  .ag-page-header .btn-primary:hover { background: linear-gradient(135deg, #f0c047, #f5d278) !important; }
+  .ag-page-header .btn-secondary {
+    border-color: rgb(255 255 255 / 22%) !important;
+    background: rgb(255 255 255 / 8%) !important;
+    color: #f8fafc !important;
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 8%);
+  }
+  .ag-page-header .btn-secondary:hover {
+    border-color: rgb(167 231 220 / 36%) !important;
+    background: rgb(255 255 255 / 14%) !important;
+    color: #fff !important;
+  }
+  .ag-page-header .btn-ghost { color: #dbeafe !important; }
+  .ag-page-header .btn-ghost:hover { color: #fff !important; background: rgb(255 255 255 / 9%) !important; }
+
+  .ag-app-shell .ag-sidebar { border-color: rgb(143 200 190 / 24%) !important; }
+  .ag-app-shell .ag-sidebar .border-ink-100 { border-color: rgb(191 235 226 / 14%) !important; }
+  .ag-app-shell .ag-sidebar .border-ink-200 { border-color: rgb(191 235 226 / 20%) !important; }
+  .ag-app-shell .ag-nav-sublist { border-inline-start-color: #74b8ad !important; }
+  .ag-app-shell .ag-nav-sublist .ag-nav-item::before { border-top-color: #74b8ad !important; }
+  .ag-app-shell .ag-nav-sublist .ag-nav-item-active::before { border-top-color: #e7b52b !important; }
+
+  .ag-main {
+    background: linear-gradient(180deg, #f8fafc 0%, #eef5f3 100%) !important;
+  }
+  .ag-main .border-ink-100 { border-color: #dce5e2 !important; }
+  .ag-main .border-ink-200 { border-color: #cddbd7 !important; }
+  .ag-main .text-ink-400 { color: #5f756d !important; }
+  .ag-main .text-ink-500 { color: #4a625a !important; }
+  .ag-main .text-ink-300 { color: #789087 !important; }
+  .ag-main .card,
+  .ag-main .data-table-shell {
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 4%), 0 2px 4px -1px rgb(0 0 0 / 2%) !important;
+  }
+  .ag-main .card-hover:hover { box-shadow: 0 16px 30px -24px rgb(5 46 43 / 40%) !important; }
+
+  .ag-main .font-mono,
+  .ag-main code {
+    display: inline-flex;
+    max-width: 100%;
+    min-width: 0;
+    align-items: center;
+    border: 1px solid #d9e2e7;
+    border-radius: 7px;
+    background: #f1f5f9;
+    padding: 3px 7px;
+    color: #334e5b !important;
+    font-family: "Inter", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace !important;
+    font-size: .72rem !important;
+    line-height: 1.45;
+    direction: ltr;
+    unicode-bidi: isolate;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: middle;
+  }
+  .ag-main pre {
+    max-width: 100%;
+    overflow: auto;
+    border: 1px solid #d9e2e7;
+    border-radius: 10px;
+    background: #f1f5f9;
+    color: #334e5b;
+    padding: 10px 12px;
+    direction: ltr;
+    text-align: left;
+  }
+
+  .ag-main .ag-kpi-number,
+  .ag-main .metric-value,
+  .ag-main .display-number {
+    min-width: 0;
+    overflow-wrap: anywhere;
+    font-variant-numeric: tabular-nums;
+  }
+  .ag-main .grid > * { min-width: 0; }
+}
+
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .ag-main { padding-inline: 14px !important; }
+  .ag-main .grid.grid-cols-4,
+  .ag-main .grid.grid-cols-3,
+  .ag-main .grid.grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+  .ag-main .ag-dashboard-kpi .metric-value { font-size: 1.42rem; }
+  .ag-main .ag-page-header { margin-bottom: 16px; }
+}
+
+@media (max-width: 767px) {
+  .ag-main .grid.grid-cols-4,
+  .ag-main .grid.grid-cols-3,
+  .ag-main .grid.grid-cols-2 { grid-template-columns: 1fr !important; }
+  .ag-main .ag-page-header {
+    gap: 14px;
+    padding: 16px !important;
+    border-radius: 15px !important;
+  }
+  .ag-page-header h1 { font-size: 1.34rem !important; }
+  .ag-page-header p { font-size: 10.5px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ag-page-header .btn-primary,
+  .ag-main .card-hover { transition: none !important; }
+}

@@ -84,7 +84,7 @@ export function Header({
   return (
     <header className="ag-topbar sticky top-0 z-30 border-b border-ink-200 bg-white">
       <div className="flex h-[60px] items-center gap-2.5 px-3 sm:px-4 lg:px-5">
-        <button onClick={onMenuClick} className="rounded-[8px] p-2 text-ink-500 hover:bg-ink-100 lg:hidden" aria-label="فتح القائمة">
+        <button onClick={onMenuClick} className="rounded-[8px] p-2 text-ink-500 hover:bg-ink-100 xl:hidden" aria-label="فتح القائمة">
           <Menu size={19} />
         </button>
 
