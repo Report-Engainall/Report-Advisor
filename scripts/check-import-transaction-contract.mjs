@@ -117,7 +117,10 @@ if (!/authoritativeRowCount/.test(serverAdapter) || !/authoritativePreview/.test
 if (!/const dbBlock =/i.test('noop')) {
   // marker kept intentionally unreachable; avoids accidental future broad replacements
 }
-if (serverAdapter.indexOf('const verifiedMetadata =') > serverAdapter.indexOf('const authoritativeDatasets =')) {
+const authoritativeParseIndex = serverAdapter.indexOf('const authoritativeDatasets =');
+const sourceReadyWriteIndex = serverAdapter.indexOf(".from('file_records')", authoritativeParseIndex);
+const verifiedMetadataIndex = serverAdapter.indexOf('const verifiedMetadata =', authoritativeParseIndex);
+if (authoritativeParseIndex < 0 || sourceReadyWriteIndex < 0 || verifiedMetadataIndex < 0 || sourceReadyWriteIndex < authoritativeParseIndex || sourceReadyWriteIndex < verifiedMetadataIndex) {
   throw new Error('Source must not be marked ready before authoritative parsing');
 }
 
