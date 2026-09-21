@@ -112,6 +112,10 @@ assert.ok(commandCenterSurface.includes('const decisionCoverage = useMemo(() =>'
 assert.ok(commandCenterSurface.includes('ownerCoverage'), 'decision coverage must expose owner coverage from actual recommendation ownership');
 assert.ok(commandCenterSurface.includes('outcomeCoverage'), 'decision coverage must expose recorded outcome coverage from actual recommendation results');
 assert.ok(commandCenterSurface.includes('Decision Coverage'), 'command center must expose decision coverage as a product surface');
+assert.ok(commandCenterSurface.includes('Business Replay'), 'command center must retain the replay capability surface');
+assert.ok(commandCenterSurface.includes('فحص مسار الدليل'), 'unavailable replay must expose an evidence-first next action');
+assert.ok(commandCenterSurface.includes('إعادة التشغيل تحتاج snapshots وoutcomes تاريخية مثبتة'), 'replay gap must disclose its real evidence prerequisite');
+
 assert.ok(!commandCenterSurface.includes('Decision ROI'), 'command center must not imply ROI when no ROI ledger is available');
 
 const workCenterSurface = fs.readFileSync('src/pages/WorkCenterPage.tsx', 'utf8');
