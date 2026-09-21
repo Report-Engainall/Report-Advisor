@@ -24,6 +24,9 @@ for (const [name, candidate] of mustReject) assert.throws(() => validateExecutio
 const currentHead = execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
 const parentHead = execFileSync('git', ['rev-parse', 'HEAD^'], { encoding: 'utf8' }).trim();
 const governanceOnlyFiles = [
+  'docs/MASTER_EXECUTION_INDEX.md',
+  'ONE-PROGRAMMER-SESSION-MEMORY.md',
+  'docs/MASTER_PRODUCT_REFERENCE.md',
   'scripts/check-execution-enforcement-protocol.mjs',
   'scripts/check-execution-enforcement-protocol.test.mjs',
 ];
@@ -36,9 +39,9 @@ const boldCandidateIndex = `## CURRENT EXECUTION BOUNDARY\n- **CURRENT CODE/TEST
 assert.equal(validateCurrentHeadIndex(boldCandidateIndex, currentHead), true);
 
 const indexOnlyBoundary = `## CURRENT PROJECT STATE\n- Current repository index boundary head: \`${parentHead}\`.\n- Current code/test candidate: \`${parentHead}\`.`;
-assert.equal(validateCurrentHeadIndex(indexOnlyBoundary, currentHead, parentHead, ['docs/MASTER_EXECUTION_INDEX.md']), true);
+assert.equal(validateCurrentHeadIndex(indexOnlyBoundary, currentHead, parentHead, governanceOnlyFiles), true);
 assert.throws(
-  () => validateCurrentHeadIndex(indexOnlyBoundary, currentHead, parentHead, ['docs/MASTER_EXECUTION_INDEX.md', 'src/app.tsx']),
+  () => validateCurrentHeadIndex(indexOnlyBoundary, currentHead, parentHead, [...governanceOnlyFiles, 'src/app.tsx']),
   /(INDEX DRIFT|INDEX BOUNDARY NOT ANCESTOR)/,
 );
 
