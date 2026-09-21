@@ -42,6 +42,11 @@ assert.ok(sidebar.includes("trust: { hint: 'إثبات، مصدر، وثقة', t
 assert.ok(sidebar.includes("outputs: { hint: 'تقارير ومخرجات القرار', tag: 'OUTPUT' }"), 'Outputs navigation section must have product metadata');
 assert.ok(!dashboard.includes('generateSynthetic'), 'decision brief must not invent synthetic business data');
 const importSurface = fs.readFileSync('src/pages/CanonicalImportPage.tsx', 'utf8');
+assert.ok(importSurface.includes('const IMPORT_EVIDENCE_STAGES = ['), 'canonical import must expose the proven import evidence stages');
+assert.ok(importSurface.includes('مراحل الاستيراد المثبتة'), 'canonical import save state must expose the actual evidence lifecycle');
+assert.ok(importSurface.includes('النتيجة authoritative وصلت'), 'canonical import lifecycle must distinguish authoritative runner completion');
+assert.ok(importSurface.includes('الاعتماد النهائي مسجل'), 'canonical import lifecycle must distinguish final import-job recording');
+assert.ok(importSurface.includes('لا نعلن «اعتمادًا» من الواجهة وحدها'), 'canonical import must remain fail-closed in its final user-facing lifecycle explanation');
 assert.ok(importSurface.includes('لم يُثبت مصدر سابق لهذا الحساب بعد'), 'canonical import history empty state must distinguish an empty history');
 assert.ok(importSurface.includes('اختيار مصدر'), 'canonical import history empty state must expose a real source-selection action');
 assert.ok(importSurface.includes('onClick={reset}'), 'canonical import history empty state must use the existing reset/import path');
