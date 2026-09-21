@@ -1179,3 +1179,13 @@ This update records implementation state only; it does not replace the product c
 - Data Quality: existing snapshot and diagnostic score logic are preserved; the UI now makes the score boundary explicit and adds source-import and Trust/Evidence actions.
 - No new backend capability was invented. No importer taxonomy was added to product UX.
 - Exact-head runtime/build proof remains open and must be re-proven on this SHA.
+
+
+## IMPLEMENTATION UPDATE — 2026-09-21 / CORE IMPORT PROVENANCE HARDENING
+- Current exact product/code HEAD: `aaf3b07e2399718c8efe379c328d96ed149ea2a4`.
+- The unified import remains one general source-first experience.
+- Canonical server execution now verifies the stored source bytes, re-extracts them, re-runs reconciliation, applies authoritative quality gates, and sends only server-derived rows to the existing durable commit boundary.
+- Quality contract: below 50 rejects; 50–74 requires explicit review approval; 75+ proceeds without that review requirement.
+- Browser-derived rows are no longer authoritative commit input.
+- No new RPC, runner, import route, specialized importer, tenant/RLS model or product taxonomy was introduced.
+- Exact-head runtime/build proof remains open and must be re-proven on this SHA.
