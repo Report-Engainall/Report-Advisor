@@ -1,3 +1,18 @@
+## CURRENT EXECUTION BOUNDARY — 2026-09-21 / WAVE 80 — DECISION CENTER REPLAY GAP ACTIONABILITY
+
+> Exact-head evidence only. No historical runtime result is transferred.
+
+- CURRENT_CODE_TEST_CANDIDATE: `403ecefefdf171780a8ef91c6dfaea03b83efb8e`.
+- DONE: Business Replay remains explicitly unimplemented in the current product truth, but its empty capability surface now routes the user to Trust & Evidence for the evidence prerequisites instead of ending with a dead informational card.
+- DONE: Product WOW contract guards the replay-gap disclosure and evidence-first next action.
+- EXACT SOURCE VERIFICATION: the latest functional compare remains limited to the intended Executive Command Center + UI contract change plus governance write-backs.
+- CURRENT DEPLOYMENT/CI: Vercel reports the external free-plan `build-rate-limit`; no Vercel runtime PASS. Fresh GitHub Actions evidence is still not attached to this candidate. Earlier exact-head Netlify READY proof exists for `f87243c...`; this new candidate's Netlify deployment evidence has not yet been emitted.
+- PHASE-F / RECOVERY: unchanged; authorized Phase-F live backup/restore configuration is still absent, and the 151 legacy import processing rows remain untouched because no import recovery contract is proven.
+- PRECISE STOP POINT: decision-center capability-gap actionability is closed at source level and contract-guarded.
+- NEXT EXECUTABLE ACTION: consume fresh deployment/CI evidence for `403ecef...`; then continue authenticated exact-head browser verification, governed legacy-import recovery analysis, Phase-F real recovery evidence, and final certification.
+- DO NOT REPEAT: do not claim Business Replay exists; do not create synthetic replay data; do not transfer READY/CI evidence from `f87243c...` to `403ecef...`; do not force-close legacy imports; do not invent Phase-F secrets/RPO/RTO.
+- CURRENT RESUME POINTER: `403ecefefdf171780a8ef91c6dfaea03b83efb8e` → fresh exact-head deployment/CI evidence → authenticated browser proof → governed legacy-import recovery → Phase-F real recovery → final certification.
+
 ## CURRENT EXECUTION BOUNDARY — 2026-09-21 / WAVE 79 — PARALLEL PRODUCT VALUE CLOSURE
 
 > Exact-head evidence only. No historical runtime result is transferred.
