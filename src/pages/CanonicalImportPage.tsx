@@ -24,6 +24,72 @@ const ENTITIES: Array<{ value: EntityType; label: string; description: string; r
   { value: 'customers', label: 'العملاء', description: 'بيانات العملاء الأساسية', required: ['name', 'segment', 'credit_limit', 'payment_terms_days'] },
 ];
 
+function normalizeEntityToken(value: unknown): string {
+  return String(value ?? '')
+    .trim()
+    .toLowerCase()
+    .replace(/[\s_\-./]+/g, '');
+}
+
+function inferEntityType(dataset: Dataset): { entityType: EntityType | null; confidence: number; reason: string } {
+  const tokens = new Set(
+    dataset.columns.flatMap((column) => [
+      column.mappedField,
+      column.name,
+    ].filter(Boolean).map(normalizeEntityToken)),
+  );
+
+  const aliases: Record<EntityType, string[]> = {
+    sales_invoices: ['invoicenumber','invoicedate','customername','subtotal','taxamount','total','paidamount','status'],
+    products: ['sku','name','unit','costprice','sellingprice','minstock','reorderpoint','isactive'],
+    customers: ['code','name','segment','creditlimit','paymenttermsdays'],
+  };
+
+  const scored = (Object.keys(aliases) as EntityType[]).map((entityType) => {
+    const hits = aliases[entityType].filter((field) => tokens.has(field)).length;
+    const ratio = hits / aliases[entityType].length;
+    const mappedHits = dataset.columns.filter((column) => column.mappedField && aliases[entityType].includes(normalizeEntityToken(column.mappedField))).length;
+    return { entityType, hits, ratio, mappedHits };
+  }).sort((a, b) => b.hits - a.hits || b.mappedHits - a.mappedHits);
+
+  const best = scored[0];
+  if (!best || best.hits < 3 || best.ratio < 0.34) {
+    return { entityType: null, confidence: 0, reason: 'لم يستطع النظام تثبيت تخصص قانوني مدعوم من بنية الأعمدة الحالية.' };
+  }
+
+  const confidence = Math.min(99, Math.round((best.hits / aliases[best.entityType].length) * 100));
+  return {
+    entityType: best.entityType,
+    confidence,
+    reason: `تم الاستدلال من ${best.hits} حقول مطابقة ومن خريطة الأعمدة الحالية.`,
+  };
+}
+
+function validateRowsForEntity(rows: Row[], entityType: EntityType | null): Row[] {
+  if (!entityType) {
+    return rows.map((row) => ({
+      ...row,
+      valid: false,
+      error: 'التخصص القانوني غير مثبت بعد. اختر التخصص الصحيح بعد تحليل الملف قبل الاعتماد.',
+    }));
+  }
+  const config = ENTITIES.find((item) => item.value === entityType);
+  if (!config) return rows;
+  return rows.map((row) => {
+    const missing = config.required.filter((field) => {
+      const key = Object.keys(row.data).find((k) => k === field)
+        ?? Object.keys(row.data).find((k) => k.toLowerCase().includes(field.toLowerCase()));
+      const value = key ? row.data[key] : undefined;
+      return value == null || String(value).trim() === '';
+    });
+    return {
+      ...row,
+      valid: missing.length === 0,
+      error: missing.length ? `حقول مطلوبة ناقصة: ${missing.join(', ')}` : undefined,
+    };
+  });
+}
+
 const STEPS: Array<{ key: Step; label: string }> = [
   { key: 'upload', label: 'الملف' },
   { key: 'scanning', label: 'الفحص' },
@@ -69,7 +135,9 @@ function Stepper({ step }: { step: Step }) {
 
 export function CanonicalImportPage() {
   const [step, setStep] = useState<Step>('upload');
-  const [entityType, setEntityType] = useState<EntityType>('sales_invoices');
+  const [entityType, setEntityType] = useState<EntityType | null>(null);
+  const [detectionConfidence, setDetectionConfidence] = useState(0);
+  const [detectionReason, setDetectionReason] = useState('لم يبدأ تحليل الملف بعد.');
   const [file, setFile] = useState<{ name: string; size: number; format: FileFormat; mime: string } | null>(null);
   const [fileHash, setFileHash] = useState<string | null>(null);
   const [rows, setRows] = useState<Row[]>([]);
@@ -120,23 +188,24 @@ export function CanonicalImportPage() {
       setMappings(dataset.columns.map(c => ({ name: c.name, mappedField: c.mappedField, confidence: c.mappingConfidence })));
       const hdrs = dataset.columns.map(c => c.name);
       setHeaders(hdrs);
-      const config = ENTITIES.find(e => e.value === entityType)!;
-      setRows(dataset.rows.map((data, i) => {
-        const missing = config.required.filter(field => {
-          const key = Object.keys(data).find(k => k === field) ?? Object.keys(data).find(k => k.toLowerCase().includes(field.toLowerCase()));
-          const value = key ? data[key] : undefined;
-          return value == null || String(value).trim() === '';
-        });
-        return { rowNumber: i + 1, data, valid: missing.length === 0, error: missing.length ? `حقول مطلوبة ناقصة: ${missing.join(', ')}` : undefined };
-      }));
+      const detectionResult = inferEntityType(dataset);
+      setEntityType(detectionResult.entityType);
+      setDetectionConfidence(detectionResult.confidence);
+      setDetectionReason(detectionResult.reason);
+      setRows(dataset.rows.map((data, i) => ({ rowNumber: i + 1, data, valid: false })));
       setStep('preview');
+      setRows(validateRowsForEntity(dataset.rows.map((data, i) => ({ rowNumber: i + 1, data, valid: false })), detectionResult.entityType));
     } catch (e: any) {
       setError(e?.message || 'فشل قراءة الملف'); setStep('upload');
     }
-  }, [entityType]);
+  }, []);
 
   const commit = useCallback(async () => {
     const validRows = rows.filter(r => r.valid);
+    if (!entityType) {
+      setError('التخصص القانوني غير مثبت. اختر التخصص الصحيح من نتيجة التحليل قبل الاعتماد.');
+      return;
+    }
     if (!validRows.length || !file || !fileHash || duplicate || !securityPassed) return;
     if (quality < 50) { setError('جودة البيانات أقل من 50% — الاستيراد مرفوض.'); return; }
     if (quality < 75 && !qualityApproved) { setError('جودة البيانات بين 50% و74% وتتطلب موافقة صريحة قبل الاستيراد.'); return; }
@@ -199,12 +268,20 @@ export function CanonicalImportPage() {
     }
   }, [rows, file, fileHash, entityType, duplicate, securityPassed, quality, qualityApproved, loadHistory]);
 
-  const reset = () => { selectedFileRef.current = null; setStep('upload'); setFile(null); setFileHash(null); setRows([]); setHeaders([]); setQuality(0); setQualityApproved(false); setMappings([]); setWarnings([]); setError(null); setDuplicate(false); setSecurityPassed(false); setResult(null); setProgress(0); if (inputRef.current) inputRef.current.value = ''; };
+  const changeEntityType = (next: EntityType | null) => {
+    setEntityType(next);
+    setRows(validateRowsForEntity(rows, next));
+    if (next) {
+      setDetectionConfidence(100);
+      setDetectionReason('تم تعديل التخصص يدويًا بعد قراءة الملف؛ سيبقى الاعتماد مقيدًا بالمطابقة والبيانات الصالحة.');
+    }
+  };
+  const reset = () => { selectedFileRef.current = null; setStep('upload'); setFile(null); setFileHash(null); setRows([]); setHeaders([]); setQuality(0); setQualityApproved(false); setMappings([]); setWarnings([]); setError(null); setDuplicate(false); setSecurityPassed(false); setResult(null); setProgress(0); setEntityType(null); setDetectionConfidence(0); setDetectionReason('لم يبدأ تحليل الملف بعد.'); if (inputRef.current) inputRef.current.value = ''; };
   const valid = rows.filter(r => r.valid).length;
   const invalid = rows.length - valid;
   const mappingCoverage = useMemo(() => mappings.length ? Math.round((mappings.filter(m => m.mappedField).length / mappings.length) * 100) : 0, [mappings]);
   const qualityVariant = quality >= 75 ? 'success' : quality >= 50 ? 'warning' : 'danger';
-  const ready = Boolean(file && fileHash && securityPassed && !duplicate && valid > 0 && (quality >= 75 || (quality >= 50 && quality < 75 && qualityApproved)));
+  const ready = Boolean(entityType && file && fileHash && securityPassed && !duplicate && valid > 0 && (quality >= 75 || (quality >= 50 && quality < 75 && qualityApproved)));
 
   return <div className="space-y-5 animate-fade-in">
     <PageHeader title="مركز الاستيراد" subtitle="مسار موحد: فحص أمني → تحليل → مطابقة → مراجعة → كتابة قانونية في البيانات الأساسية" />
@@ -215,7 +292,15 @@ export function CanonicalImportPage() {
         <div><h2 className="text-lg font-semibold">ابدأ عملية استيراد موثوقة</h2><p className="text-sm text-ink-500 mt-1">لا تتم الكتابة قبل اجتياز الفحص والمراجعة والتحقق من سياق الحساب.</p></div>
         <Badge variant="neutral"><LockKeyhole size={13}/> عزل الحساب مفعل</Badge>
       </div>
-      <div className="mb-5"><label className="mb-2 block text-[11px] font-black uppercase tracking-wide text-ink-500">ما الذي ستستورده؟</label><div className="grid grid-cols-1 md:grid-cols-3 gap-3">{ENTITIES.map(e => <button type="button" key={e.value} data-testid={`import-entity-${e.value}`} onClick={() => setEntityType(e.value)} className={`ag-import-source p-4 rounded-[14px] border-2 text-right transition-all ${entityType === e.value ? 'border-primary-500 bg-primary-50/60 shadow-sm' : 'border-ink-100 hover:border-ink-200'}`}><div className="flex items-center justify-between"><Database size={18}/>{entityType === e.value && <CheckCircle2 size={17}/>}</div><div className="text-sm font-semibold mt-3">{e.label}</div><div className="text-xs text-ink-400 mt-1">{e.description}</div></button>)}</div></div>
+      <div className="mb-5 rounded-[14px] border border-primary-100 bg-primary-50/50 p-4">
+        <div className="flex items-start gap-3">
+          <Database size={18} className="mt-0.5 shrink-0 text-primary-700"/>
+          <div>
+            <div className="text-sm font-black text-ink-900">لا تختَر التخصص قبل قراءة الملف</div>
+            <p className="mt-1 text-xs leading-5 text-ink-600">يرفع المستخدم الملف أولًا؛ النظام يقرأ الصيغة والأعمدة والمحتوى ثم يقترح التخصص. يمكن تصحيح الاقتراح بعد التحليل، دون إنشاء مستورد منفصل.</p>
+          </div>
+        </div>
+      </div>
       <div onClick={() => inputRef.current?.click()} className="ag-import-dropzone border-2 border-dashed rounded-[18px] p-10 text-center cursor-pointer hover:border-primary-400 hover:bg-primary-50/20 transition-colors"><input ref={inputRef} type="file" className="hidden" accept=".xlsx,.xls,.xlsm,.csv,.tsv,.ods,.json,.jsonl,.xml,.txt,.md,.pdf,.docx,.jpg,.jpeg,.png,.webp,.tiff,.bmp" onChange={e => { const f=e.target.files?.[0]; if(f) void handleFile(f); }} /><Upload className="mx-auto text-primary-500 mb-3" size={30}/><h3 className="font-semibold">اختر ملفًا أو اسحبه إلى هنا</h3><p className="text-sm text-ink-500 mt-1">Excel، CSV، JSON، PDF، Word والصور</p><p className="text-xs text-ink-300 mt-3">الحد الأقصى: {MAX_FILE_SIZE / 1024 / 1024} MB</p></div>
       {error && <div className="mt-4 p-3 rounded-lg bg-danger-50 text-danger-700 text-sm flex gap-2"><AlertCircle size={16}/>{error}</div>}
     </CardBody></Card>}
@@ -224,6 +309,27 @@ export function CanonicalImportPage() {
 
     {step === 'preview' && file && <div className="space-y-4">
       <Card><CardBody><div className="flex flex-wrap items-center justify-between gap-4"><div className="flex items-center gap-3">{icon(file.format)}<div><b className="break-all">{file.name}</b><div className="text-xs text-ink-400 mt-1">{FORMAT_LABELS[file.format]} · {formatNumber(file.size)} بايت</div></div></div><div className="flex gap-2 flex-wrap"><Badge variant="success"><ShieldCheck size={12}/> أمان: ناجح</Badge><Badge variant={qualityVariant}>جودة: {quality}%</Badge><Badge variant="neutral">مطابقة: {mappingCoverage}%</Badge></div></div></CardBody></Card>
+      <Card>
+        <CardBody>
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+            <div className="min-w-0">
+              <div className="text-[10px] font-black tracking-[.08em] text-primary-700">AUTOMATIC DOMAIN DETECTION</div>
+              <div className="mt-1 text-sm font-black text-ink-950">{entityType ? ENTITIES.find((item) => item.value === entityType)?.label : 'التخصص غير مثبت'}</div>
+              <div className="mt-1 text-[11px] leading-5 text-ink-500">{detectionReason}</div>
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <span className={detectionConfidence >= 75 ? 'badge-success' : detectionConfidence > 0 ? 'badge-warning' : 'badge-neutral'}>ثقة الاكتشاف {detectionConfidence || 0}%</span>
+              <label className="flex items-center gap-2 text-xs font-semibold text-ink-700">
+                <span>تصحيح التخصص</span>
+                <select value={entityType ?? ''} onChange={(event) => changeEntityType((event.target.value || null) as EntityType | null)} className="input min-w-[190px]">
+                  <option value="">غير مثبت</option>
+                  {ENTITIES.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}
+                </select>
+              </label>
+            </div>
+          </div>
+        </CardBody>
+      </Card>
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3"><Card><CardBody><div className="text-xs text-ink-400">إجمالي الصفوف</div><div className="text-xl font-bold mt-1">{formatNumber(rows.length)}</div></CardBody></Card><Card><CardBody><div className="text-xs text-ink-400">جاهز للكتابة</div><div className="text-xl font-bold mt-1 text-success-600">{formatNumber(valid)}</div></CardBody></Card><Card><CardBody><div className="text-xs text-ink-400">سيتم عزلها</div><div className="text-xl font-bold mt-1 text-danger-600">{formatNumber(invalid)}</div></CardBody></Card><Card><CardBody><div className="text-xs text-ink-400">حالة التكرار</div><div className={`text-sm font-semibold mt-2 ${duplicate ? 'text-danger-600' : 'text-success-600'}`}>{duplicate ? 'مكرر — محظور' : 'لا يوجد تكرار'}</div></CardBody></Card></div>
       {warnings.length>0 && <div className="space-y-2">{warnings.map((w,i)=><div key={i} className="p-3 rounded-lg bg-warning-50 text-warning-700 text-sm flex gap-2"><AlertTriangle size={16}/>{w}</div>)}</div>}
       {duplicate && <div className="p-4 rounded-xl border border-danger-200 bg-danger-50 text-danger-700 text-sm flex items-start gap-3"><XCircle size={18}/><div><b>الكتابة متوقفة لحماية البيانات.</b><div className="mt-1">تم اكتشاف بصمة ملف مطابقة داخل حسابك. أعد تصدير الملف أو استخدم مصدرًا جديدًا بدل إنشاء نسخة مكررة.</div></div></div>}
