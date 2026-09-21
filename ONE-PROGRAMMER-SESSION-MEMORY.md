@@ -1,3 +1,12 @@
+## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-34
+- SESSION-ID → `2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-34`
+- EXACT PRODUCT CODE HEAD → `13b690c06b185ad2aba7a764bb5a8f158ab8f7eb`
+- DONE → final-repaired the Decision Experience JSX block after CI showed the previous partial fix still contained the invalid nested expression.
+- VERIFIED → exact diff removes the IIFE-based JSX and leaves one direct `section` tree with the existing readiness state.
+- CI CONTEXT → previous CI run failed on the malformed JSX; a fresh run is triggered for this exact code candidate. No PASS is inherited.
+- CURRENT RESUME POINTER → `13b690c06b185ad2aba7a764bb5a8f158ab8f7eb` → exact-head quality/build/certification/browser → remaining runtime/Phase-F/backup/OCR/Tenant-A-B closure.
+- DO NOT REPEAT → do not return to the malformed JSX or copy previous CI failures into the current result.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-33
 - SESSION-ID → `2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-33`
 - EXACT PRODUCT CODE HEAD → `ad20f67fcb19b7668a168ed974b5b33d8de105de`
