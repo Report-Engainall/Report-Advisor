@@ -46,6 +46,8 @@ export type NavigationIconKey =
   | 'settings'
   | 'profile'
   | 'master-data'
+  | 'liquidity'
+  | 'suppliers'
 ;
 
 export interface NavigationItem {
@@ -97,6 +99,7 @@ export const NAVIGATION_SECTIONS: NavigationSection[] = [
       { section: 'analytics', path: '/reports/sales', label: 'المبيعات', enLabel: 'Sales', description: 'اتجاه المبيعات وقيمتها وتغيراتها', keywords: ['sales', 'مبيعات'], icon: 'money' },
       { section: 'analytics', path: '/reports/purchases', label: 'المشتريات', enLabel: 'Purchases', description: 'الحركة الشرائية والإنفاق', keywords: ['purchases', 'مشتريات'], icon: 'purchases' },
       { section: 'analytics', path: '/reports/receivables', label: 'التحصيل والذمم', enLabel: 'Receivables', description: 'التحصيل والأعمار والتعرض المالي', keywords: ['receivables', 'aging', 'collection', 'ذمم', 'تحصيل'], icon: 'receivables' },
+      { section: 'analytics', path: '/analytics/liquidity', label: 'السيولة والتعرض النقدي', enLabel: 'Liquidity & Exposure', description: 'قراءة الذمم والمستحقات والتحصيل دون اختلاق رصيد نقدي', keywords: ['liquidity', 'cash', 'payables', 'receivables', 'سيولة', 'نقد'], icon: 'liquidity', minimumWorkspaceMode: 'advanced' },
       { section: 'analytics', path: '/reports/profitability', label: 'الربحية والهامش', enLabel: 'Profitability', description: 'الإيراد والتكلفة والهامش', keywords: ['profitability', 'margin', 'profit', 'ربحية', 'هامش'], icon: 'profitability', minimumWorkspaceMode: 'advanced' },
       { section: 'analytics', path: '/reports/inventory', label: 'تقرير المخزون', enLabel: 'Inventory Report', description: 'حالة المخزون وقيمته', keywords: ['inventory report', 'مخزون'], icon: 'inventory-report' },
       { section: 'analytics', path: '/reports/inventory-intelligence', label: 'ذكاء المخزون', enLabel: 'Inventory Intelligence', description: 'التغطية ونقاط الخطر وإعادة الطلب', keywords: ['inventory intelligence', 'stock', 'مخزون', 'إعادة الطلب'], icon: 'inventory-intelligence', minimumWorkspaceMode: 'advanced' },
@@ -142,6 +145,7 @@ export const NAVIGATION_SECTIONS: NavigationSection[] = [
     enTitle: 'Master Data',
     items: [
       { section: 'reference', path: '/master-data', label: 'مركز البيانات المرجعية', enLabel: 'Master Data Center', description: 'مدخل موحد للكيانات المرجعية والسياق الدلالي', keywords: ['master data', 'reference', 'بيانات مرجعية'], icon: 'master-data' },
+      { section: 'reference', path: '/suppliers', label: 'الموردون', enLabel: 'Suppliers', description: 'هوية الموردين وسياقهم المرجعي المرتبط بالمشتريات', keywords: ['suppliers', 'vendors', 'موردون'], icon: 'suppliers', minimumWorkspaceMode: 'advanced' },
       { section: 'reference', path: '/customers', label: 'العملاء', enLabel: 'Customers', description: 'الكيانات والعملاء وشرائحهم', keywords: ['customers', 'clients', 'عملاء'], icon: 'customers' },
       { section: 'reference', path: '/products', label: 'المنتجات', enLabel: 'Products', description: 'الأصناف والمنتجات والهوية المرجعية', keywords: ['products', 'sku', 'منتجات', 'أصناف'], icon: 'products' },
       { section: 'reference', path: '/inventory', label: 'المخزون', enLabel: 'Inventory', description: 'مرجع المخزون وحركته', keywords: ['inventory', 'stock', 'مخزون'], icon: 'inventory' },
