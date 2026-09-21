@@ -158,6 +158,7 @@ export function DecisionExperiencePage() {
 
   if (loading) return <LoadingState message="جارٍ تحميل سياق القرار..." />;
   if (error) return <ErrorState message={error} onRetry={() => void load()} />;
+  const readiness = decisionReadiness(selected);
 
   return (
     <div dir="rtl" className="ag-decision-experience-surface space-y-5 animate-fade-in pb-10">
