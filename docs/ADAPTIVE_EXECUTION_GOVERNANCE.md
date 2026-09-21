@@ -71,7 +71,7 @@ These are mandatory governance invariants, not advisory examples:
 - `EVIDENCE IS EXACT-SHA BOUND`: evidence from an older SHA MUST NOT be transferred to a newer SHA.
 - `UNPROVEN ≠ PASS`: missing runtime/operational proof remains UNPROVEN.
 - `EXTERNAL BLOCKER ≠ LOCAL STOP`: external blockers isolate only dependent work; independent actionable work MUST continue.
-- `INDEX-ONLY BOUNDARY`: a current HEAD may differ from the indexed code/test head only when ancestry is verified and every changed path is exactly `docs/MASTER_EXECUTION_INDEX.md`; otherwise it is INDEX DRIFT.
+- `INDEX-ONLY BOUNDARY`: a current HEAD may differ from the indexed code/test head only when ancestry is verified and every changed path is within the approved continuity-governance allowlist (`docs/MASTER_EXECUTION_INDEX.md`, `ONE-PROGRAMMER-SESSION-MEMORY.md`, `docs/MASTER_PRODUCT_REFERENCE.md`, and the governing index/enforcement test scripts); otherwise it is INDEX DRIFT.
 - `INDEX UPDATE ≠ CAPABILITY CLOSURE`: documentation/history synchronization never counts as product capability progress by itself.
 
 ## E1–E8 STRATEGY MEMORY
