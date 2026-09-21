@@ -1207,3 +1207,10 @@ This update records implementation state only; it does not replace the product c
 - Product shape is unchanged: unified source-first import, canonical 8-zone information architecture, progressive disclosure, Aghbari RTL design system, and evidence-first states remain binding.
 - No new route, importer, RPC, runner, job family, table, tenant/RLS path, or deterministic calculation was introduced.
 - Runtime boundary remains explicit: exact-head deployment/build/browser proof is not current PASS while Vercel is blocked by free-plan build-rate limit.
+
+
+## IMPLEMENTATION UPDATE — 2026-09-21 / UI TRUTH + INTERACTION HARDENING WAVE 30
+- `ConnectionsPage` now communicates three evidence states: proven path, bounded runtime path, and adapter-only path. Claims about watched-folder automation and scanned-PDF OCR are explicitly bounded until runtime proof exists.
+- The secondary source-center action now routes to Trust/Evidence rather than a demo-first surface.
+- `IntelligencePage` recommendation acceptance/rejection now exposes in-flight state and failure handling without changing the existing canonical mutation path.
+- The product constitution remains unchanged: one source-first import experience, eight top-level zones, progressive disclosure, Aghbari RTL enterprise design, evidence-aware states, and no Bolt/CRUD taxonomy.
