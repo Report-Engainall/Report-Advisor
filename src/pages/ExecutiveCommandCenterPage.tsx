@@ -136,6 +136,23 @@ export function ExecutiveCommandCenterPage() {
       </section>
 
       <TruthContextStrip months={months} status={kpis.status} asOf={asOf ?? 'غير متاح'} />
+      <div className="ag-decision-strip" aria-label="ملخص مركز القرار">
+        <div className="ag-decision-cell">
+          <span className="ag-decision-label">وضع الحقيقة</span>
+          <span className="ag-decision-value">{kpis.status === 'INSUFFICIENT_DATA' ? 'بيانات غير كافية' : 'الصورة قابلة للاستخدام'}</span>
+        </div>
+        <div className="ag-decision-cell"><span className="ag-decision-label">تغطية القياسات</span><span className="ag-decision-value">{coverage}%</span></div>
+        <div className="ag-decision-cell"><span className="ag-decision-label">إشارات مفتوحة</span><span className="ag-decision-value">{alerts.length}</span></div>
+        <div className="ag-decision-cell"><span className="ag-decision-label">توصيات للمراجعة</span><span className="ag-decision-value">{recommendations.length}</span></div>
+        <div className="ag-decision-cell"><span className="ag-decision-label">As-of</span><span className="ag-decision-value">{asOf ?? 'غير متاح'}</span></div>
+      </div>
+      <div className="ag-action-cluster">
+        <Link to={alerts.length ? '/intelligence' : '/decision-experience?stage=decision'} className="btn-primary text-[11px]">
+          {alerts.length ? 'فحص الإشارات' : 'فتح مساحة القرار'} <ArrowUpLeft size={13}/>
+        </Link>
+        <Link to="/data-quality" className="btn-secondary text-[11px]">مراجعة جودة البيانات</Link>
+        <Link to="/reports/executive" className="btn-ghost text-[11px]">التقرير التنفيذي</Link>
+      </div>
 
       <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
         <Link to="/reports/receivables" className="card card-hover p-4">
