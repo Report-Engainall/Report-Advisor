@@ -1,3 +1,27 @@
+## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-79
+
+- SESSION-ID → `2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-79`
+- CURRENT PR/GOVERNANCE HEAD BEFORE THIS WRITE → `dac84177a3047f534384b0db6dcb83bb8a678500`; this write is governance-only.
+- EXACT CODE/TEST CANDIDATE → `f87243c34c909b89501c8b3b717215891be1bbb`.
+- DONE → Canonical Import completion UI now reports authoritative server row count, authoritative quality, server source hash, and evidence snapshot state; final totals no longer reuse browser-side preview counts.
+- DONE → Work Center now exposes persisted error/review reason context in the operations table, so operators can see why a row is failed/partial/review rather than infer from status alone.
+- DONE → Executive Command Center now exposes Decision Coverage derived from current actionable recommendations: owner coverage, recorded outcome coverage, and pending decisions; the unavailable ROI ledger is no longer implied as if it existed.
+- DONE → Product WOW contract now guards the three product surfaces and their fail-closed semantics.
+- EXACT SOURCE VERIFICATION → changed UI/contract files were re-read after write. Compare from prior functional candidate `2f0c106...` to `f87243c...` is linear and limited to the intended UI/contract plus governance files.
+- LIVE DATA VERIFICATION → staging recommendation inventory currently has `actionable=0`, `owned=0`, `outcomes=0`, `pending=0` for the populated tenant; the new Decision Coverage correctly resolves to the no-recommendations state instead of manufacturing percentages.
+- NETLIFY → exact candidate `f87243c...` preview deploy is READY, branch `fix/trust-evidence-current-trust-state-20260921`, PR #612. The existing `canonical-import-execute` function is present in the deploy.
+- PUBLIC PREVIEW → unauthenticated fetch succeeded and verified the Arabic RTL Aghbari shell, Evidence-first positioning, workspace authentication gate, tenant-isolation messaging, and PWA/mobile metadata.
+- AUTHENTICATED BROWSER → not proven. TinyFish live automation did not start because the external wallet balance is negative; no retry was performed and no browser PASS was claimed.
+- VERCEL → exact candidate remains externally blocked by free-plan `build-rate-limit`; no Vercel runtime PASS claimed.
+- GITHUB ACTIONS → no workflow run attached to exact candidate `f87243c...`; no CI PASS claimed.
+- PHASE-F → remains FAIL-CLOSED on missing authorized `RESILIENCE_MAX_RPO_SECONDS` and live backup/restore configuration; no value or secret invented.
+- LEGACY IMPORT RECOVERY → live function inventory still has `recover_expired_report_execution_jobs` only for durable report jobs; no proven import-job recovery function exists. The 151 legacy processing import rows remain untouched.
+- PRECISE STOP POINT → product/UI value closure is implemented on code candidate `f87243c...`; governance head will advance with this memory write.
+- WHAT REMAINS → fresh exact-head CI/authenticated browser proof; governed legacy-import recovery decision; authorized Phase-F real backup/restore/RPO/RTO/rollback evidence; final certification.
+- NEXT EXECUTABLE ACTION → continue independent product/UI value closure where safe, then consume the first fresh exact-head CI/browser evidence for `f87243c...` and proceed with governed recovery/Phase-F without transferring stale proof.
+- DO NOT REPEAT → do not transfer older runtime/CI PASS; do not claim authenticated E2E from the public preview; do not fabricate Decision Coverage; do not restore client rows as authoritative import truth; do not force-close legacy imports; do not create duplicate RPC/import/runner paths; do not bypass tenant auth/RLS.
+- CURRENT RESUME POINTER → `f87243c34c909b89501c8b3b717215891be1b1bb` → exact-head CI/authenticated browser proof → governed legacy-import recovery decision → Phase-F real recovery evidence → final certification.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-78B
 
 - SESSION-ID → `2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-78B`
