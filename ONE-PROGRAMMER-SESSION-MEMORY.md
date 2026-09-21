@@ -1,5 +1,28 @@
 
 
+## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-DOMAIN-NEUTRAL-21
+- SESSION-ID → `2026-09-21-AGHBARI-DOMAIN-NEUTRAL-21`
+- EXACT PRODUCT CODE HEAD → `5bc69b8b763885d4b70f8e8cb816399330927df7`
+- REPOSITORY HEAD BEFORE MEMORY WRITE-BACK → `e78bb910b5ce4f9b159d47062ed0773d7ccf83c8`
+- BRANCH / PR → `main` / current `origin/main`
+- USER PRODUCT DIRECTION → the product must remain a **general Business Decision Operating System**. Do not make the unified import experience a fixed `products | customers | sales_invoices` importer or expose those as the product's identity.
+- DEVICE CONSTRAINT → PC01 remains Offline; this wave is cloud-only through GitHub/Vercel/Supabase.
+- DONE → removed the fixed entity picker from the unified import surface; the file is now read first and the system derives a generic semantic domain with confidence/reason instead of asking the user to select a table-like target. The save path records the verified source analysis in `source_analysis_snapshots` with source hash, storage path, detected domain, quality, mapping, preview, warnings and provenance metadata.
+- DONE → made `src/lib/universalImportContract.ts` automatic-only: the shared import profile is now a single `automatic` profile with `target: 'auto'`; specialized profiles were removed from the shared contract.
+- DONE → removed the entity-type column from the unified import history surface and changed import wording to source/evidence/analysis language rather than specialized-record language.
+- DONE → updated `docs/MASTER_PRODUCT_REFERENCE.md` with a binding **DOMAIN-NEUTRAL INGESTION** decision: `Any Source → Understand → Semantic Mapping → Quality → Evidence → Domain Detection → Review → General Canonical Contract`.
+- IMPORTANT FAIL-CLOSED DECISION → the current low-level canonical write adapter/RPC still expects specialized targets. The unified UI therefore **does not pretend to commit generic data into a specialized table**. The current generic path saves a verified analysis/evidence snapshot and explicitly marks canonical writing as blocked pending a general contract.
+- IMPORTANT CLOUD FINDING → existing Supabase substrate already contains generic `source_analysis_snapshots`, `import_snapshots`, and `report_source_versions`; no new specialized table was created. The existing `documents` storage RLS permits tenant-owned paths under the company's first path segment, so the new source-analysis storage path remains tenant-scoped without a new storage policy.
+- SOURCE VERIFICATION → current `CanonicalImportPage.tsx` and shared import contract contain no literal `products`, `customers`, or `sales_invoices` targets. The user-facing unified import path is domain-neutral.
+- VERCEL EXACT-HEAD STATUS → latest product-code deployment `5bc69b8b763885d4b70f8e8cb816399330927df7` (`dpl_EBQgSavryMoy5cWdErZ4VgSnAkJJ`) is currently **QUEUED**; no READY/PASS is transferred from prior exact SHAs. Prior `4a696091...` deployment `dpl_DDEA2tJJzmsXHWpRADTWR2ZAMLJa` is **READY**. Public root proof remains previously established on exact READY deployments; authenticated post-login proof remains unavailable.
+- SUPABASE SECURITY → staging remains `ACTIVE_HEALTHY`; RLS/tenant policies reviewed for the new snapshot and storage paths. The project still reports 47 authenticated SECURITY DEFINER warnings; no mass revoke, DDL or speculative security change was made.
+- PRECISE STOP POINT → product implementation is `5bc69b8b...`; repository documentation was then updated at `e78bb910...`. The next Vercel deployment for the product-code head is still queued.
+- OPEN BLOCKERS → exact `5bc69b8b...` READY deployment; authenticated runtime/browser evidence; general canonical write contract; E2E/Tenant A-B; resilience/backup/RPO-RTO; OCR/watched-folder runtime; CI/final certification.
+- NEXT EXECUTABLE ACTION → verify exact-head `5bc69b8b...` Vercel deployment; then design the general canonical write contract **using the existing generic snapshot/source substrate first**, without creating fixed entity-specific import tables or new specialized user-facing importers. Preserve fail-closed behavior until that general contract is real and tested.
+- DO NOT REPEAT → do not restore a fixed entity selector; do not reintroduce specialized shared import profiles; do not claim generic canonical commit before the general contract exists; do not add new specialized import routes/RPCs/tables merely to support individual domains; do not transfer PASS across SHAs.
+- CURRENT RESUME POINTER → product `5bc69b8b763885d4b70f8e8cb816399330927df7` / repository before memory write-back `e78bb910b5ce4f9b159d47062ed0773d7ccf83c8` → exact-head Vercel verification → general canonical write contract using existing generic substrate → authenticated/runtime evidence → resilience/backup/OCR/CI → final certification.
+
+
 ## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-CLOUD-UI-20
 - SESSION-ID → `2026-09-21-AGHBARI-CLOUD-UI-20`
 - EXACT PRODUCT CODE HEAD → `f6d20c7216d594041b4bea0d2d690024df674cc8`
