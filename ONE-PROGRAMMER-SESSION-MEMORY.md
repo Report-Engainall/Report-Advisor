@@ -1,3 +1,15 @@
+## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-58
+
+- SESSION-ID → `2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-58`
+- SHA → `cbfb7d0906e893ac32e274b571519d6f536ff8ad` (exact current code/test head before this governance write-back).
+- DONE → upgraded `src/pages/ConnectionsPage.tsx` so its status strip is derived from connector state instead of hard-coded counts; the next-source label is also state-derived.
+- DONE → strengthened `scripts/check-product-wow-ui-contract.mjs` to lock those UI truth invariants.
+- ACTUAL RESULT → only the Connections UI and its existing Product WOW contract changed in this wave; no backend/runtime architecture changed.
+- PRECISE STOP POINT → UI value improvement is implemented; new exact-head certification is required because the code/test SHA changed.
+- WHAT REMAINS → fresh quality/enforcement/final-certification on `cbfb...`; then exact-head runtime/browser, backup/RPO-RTO, worker/server-boundary, tenant A/B, server OCR, watched-folder, final certification.
+- NEXT ACTION → consume fresh exact-head CI/certification results for `cbfb...` and repair only reproduced current-SHA failures.
+- DO NOT REPEAT → do not transfer `9684...` PASS; do not restore static connector state counts; do not add parallel connection routes.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-57
 
 - SESSION-ID → `2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-57`
@@ -498,14 +510,3 @@
 - REPOSITORY HEAD BEFORE MEMORY WRITE-BACK → `f5ccfaba283bff4ad27406a04942aae57afc3d8c`
 - LATEST CODE HEAD → `778a601189077e0bda5b844e6d6a06e35ab7e1e3`
 - EXECUTION MODE → every startup must perform real development; this wave continues that rule.
-- DONE → upgraded `src/pages/TrustEvidencePage.tsx` from a mostly descriptive trust dashboard into an actionable governance surface. All evidence surfaces are shown once, unavailable surfaces remain explicitly marked, and a context-aware next trust action is derived from the existing data-quality snapshot.
-- DONE → added explicit refresh control and clearer evidence-path presentation without introducing a new backend state or duplicate navigation.
-- DONE → corrected JSX after verification detected an invalid element close; final file was re-read successfully after the repair.
-- TRUTH / ARCHITECTURE RESULT → next-step routing depends only on existing snapshot status/issues. No synthetic trust score, fabricated evidence, business metric, route, RPC, runner, job family, tenant/RLS path, or import lifecycle was added.
-- EXACT DIFF RESULT → relative to repository memory head `d33c19a...`, this wave added product changes only in `src/pages/TrustEvidencePage.tsx`; documentation was then updated.
-- DEPLOYMENT RESULT → exact current Vercel status remains **failure** because of free-plan `build-rate-limit`. No READY/PASS is claimed for `778a6011...`.
-- RUNTIME RESULT → no authenticated browser PASS; PC01 remains Offline and no fake session/JWT/bypass was used.
-- PRECISE STOP POINT → Trust & Evidence actionability is implemented and recorded; exact-head deployment/runtime proof remains open.
-- NEXT EXECUTABLE ACTION → continue the next weak canonical surface with real UI/product value, responsive/accessibility polish and consolidation; pursue exact-head deployment/runtime proof when hosting capacity permits.
-- DO NOT REPEAT → do not recreate shell/navigation/import/intelligence/trust structures already improved; do not reintroduce importer taxonomy; do not duplicate backend paths; do not transfer stale PASS evidence.
-- CURRENT RESUME POINTER → `f5ccfaba283bff4ad27406a04942aae57afc3d8c` / code `778a601189077e0bda5b844e6d6a06e35ab7e1e3` → next weak canonical surface → responsive/accessibility/value polish → exact-head deployment/runtime → resilience/backup/OCR/CI → final certification.
