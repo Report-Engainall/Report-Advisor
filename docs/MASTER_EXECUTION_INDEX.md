@@ -159,3 +159,13 @@ There is one execution owner. Do not resurrect the previous UI/runtime owner spl
 - The release decision layer currently fail-closes on missing/invalid `source_sha`, candidate SHA mismatch, scenario count mismatch, non-PASS scenario states, per-scenario SHA mismatch, missing/invalid evidence, evidence hash mismatch, and regression mismatch.
 - Final Certification Gate checks out the exact certification SHA with full history, verifies certification-boundary integrity, verifies exact checkout provenance, and rejects synthetic PR merge SHA as certification evidence.
 - Final certification remains FAIL-CLOSED until fresh exact-head runtime/evidence and governed candidate binding are satisfied.
+
+
+## LATEST EXACT-HEAD OVERRIDE — 2026-09-21 / VISUAL POLISH WAVE
+- **Authoritative current product/code HEAD:** `5b93dce673ebfc84710d2c07d37a4640ec2bada4` on `main`; this supersedes stale earlier CURRENT HEAD values in this historical execution section.
+- **Done:** premium shell polish across the global app frame, sidebar identity, top bar/search, fixed Aghbari Advisor drawer, Advisor launcher, and mobile action bar. No business calculation, RPC, runner, tenant/RLS, import lifecycle or fail-closed rule was changed.
+- **Exact-head verification:** `npm run typecheck` PASS; `npm run build` PASS (2808 modules transformed); `npm run test:product-wow-ui` PASS; `npm run test:ui-route-sidebar-parity` PASS (37 routes / 35 canonical navigation links); `npm run test:executive-dashboard-ui` PASS; `npm run test:intelligence-product-contract` PASS; `npm run test:connections-language-ui` PASS (7 checks); `git diff --check` PASS; lint 0 errors / 63 warnings.
+- **Deployment boundary:** Netlify latest proven deploy remains `6ab09c139d58a600089e430f` serving product commit `64ce8344acc8a8e2ae3f46890efd8af69b008dd9`. The new `5b93dce6...` code is pushed to GitHub `main` but has not yet received fresh Netlify runtime proof; do not transfer the older live proof to this SHA.
+- **Open blocker:** authenticated visual sweep still requires a real configured Supabase runtime/session; no fake session/JWT/bypass is permitted.
+- **Next executable action:** continue visual polish on any remaining weak canonical surface only after inspecting its existing route and dependencies; then obtain fresh deployment/runtime proof on exact `5b93dce6...` and proceed with independent runtime/evidence/CI closure.
+- **Do not repeat:** do not recreate the canonical shell/navigation/advisor; do not fabricate post-login screenshots; do not claim current-head live PASS from the older `64ce8344...` deploy.
