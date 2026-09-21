@@ -147,7 +147,7 @@ export function WorkCenterPage() {
             <ShieldCheck size={18} className={nextAction.tone === 'danger' ? 'text-danger-700 mt-0.5' : nextAction.tone === 'warning' ? 'text-warning-700 mt-0.5' : nextAction.tone === 'success' ? 'text-success-700 mt-0.5' : 'text-primary-700 mt-0.5'} />
             <div className="min-w-0">
               <div className="text-sm font-black text-ink-900">{nextAction.title}</div>
-              <div className="mt-1 text-[11px] leading-5 text-ink-600">{nextAction.message}</div>
+              <div aria-live="polite" className="mt-1 text-[11px] leading-5 text-ink-600">{nextAction.message}</div>
               <div className="mt-4">
                 {nextAction.kind === 'refresh' && (
                   <button type="button" onClick={() => void load()} className="btn-secondary text-xs">{nextAction.label}</button>
