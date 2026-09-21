@@ -31,7 +31,7 @@ export const DEFAULT_WORKSPACE_PREFERENCES: WorkspacePreferences = {
   preset: 'owner-executive',
   defaultLandingPath: '/',
   hiddenPaths: [],
-  favoritePaths: ['/work-center', '/import', '/decision-experience', '/reports/executive'],
+  favoritePaths: ['/reports/executive', '/reports/sales', '/reports/receivables', '/import/analyze'],
   sectionOrder: DEFAULT_SECTION_ORDER,
   dashboardWidgets: ['kpis', 'analysis', 'attention', 'entities', 'work-paths'],
 };

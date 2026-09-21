@@ -1,16 +1,16 @@
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 import {
   ArrowUpLeft, BarChart3, Brain, CalendarRange, CheckCircle2, CircleAlert, FileSearch,
-  Package, Receipt, RefreshCw, Sparkles, TrendingUp, Upload, WalletCards
+  Package, RefreshCw, Sparkles, TrendingUp, WalletCards
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { TruthContextStrip } from '@/components/TruthContextStrip';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
-import { PriorityBadge, SeverityBadge } from '@/components/ui/Badge';
+
 import { LoadingState, ErrorState } from '@/components/ui/States';
 import { TrendChart, CategoryPieChart, HorizontalBarChart } from '@/components/ui/Charts';
 import { fetchDashboardSnapshot, fetchDashboardIntelligence } from '@/lib/dashboard-canonical';
-import { formatCurrency, relativeTime } from '@/lib/format';
+import { formatCurrency } from '@/lib/format';
 import type { Recommendation, Alert } from '@/lib/types';
 import type {
   DashboardKPIs,
@@ -84,64 +84,6 @@ function PulseMetric({
       </div>
     </div>
   );
-}
-
-function AttentionCard({
-  alert,
-  recommendation,
-}: {
-  alert?: Alert;
-  recommendation?: Recommendation;
-}) {
-  if (alert) {
-    return (
-      <article className="rounded-[14px] border border-ink-200 bg-white p-4 shadow-card">
-        <div className="flex items-start gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-danger-50 text-danger-700">
-            <CircleAlert size={18} />
-          </div>
-          <div className="min-w-0 flex-1">
-            <div className="flex flex-wrap items-center gap-2">
-              <SeverityBadge severity={alert.severity} />
-              <span className="text-[10px] text-ink-400">{relativeTime(alert.created_at)}</span>
-            </div>
-            <h3 className="mt-2 text-[13px] font-black text-ink-900">{alert.title}</h3>
-            {alert.description && <p className="mt-1 text-[11px] leading-5 text-ink-500">{alert.description}</p>}
-            <div className="mt-3 flex flex-wrap gap-2">
-              <Link to="/command-center" className="btn-secondary text-[11px]">تحقيق الإشارة <ArrowUpLeft size={13} /></Link>
-              <Link to="/metrics" className="btn-ghost text-[11px]">فحص المؤشر</Link>
-            </div>
-          </div>
-        </div>
-      </article>
-    );
-  }
-
-  if (recommendation) {
-    return (
-      <article className="rounded-[14px] border border-primary-100 bg-primary-50/30 p-4">
-        <div className="flex items-start gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary-100 text-primary-700">
-            <Sparkles size={18} />
-          </div>
-          <div className="min-w-0 flex-1">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="text-[10px] font-black text-primary-700">قرار مقترح</span>
-              <PriorityBadge priority={recommendation.priority} />
-            </div>
-            <h3 className="mt-2 text-[13px] font-black text-ink-900">{recommendation.title}</h3>
-            {recommendation.description && <p className="mt-1 text-[11px] leading-5 text-ink-500">{recommendation.description}</p>}
-            <div className="mt-3 flex flex-wrap gap-2">
-              <Link to="/decision-experience?stage=decision" className="btn-primary text-[11px]">فتح القرار <ArrowUpLeft size={13} /></Link>
-              <Link to="/intelligence" className="btn-ghost text-[11px]">فتح الذكاء</Link>
-            </div>
-          </div>
-        </div>
-      </article>
-    );
-  }
-
-  return null;
 }
 
 export function DashboardPage() {
@@ -238,29 +180,29 @@ export function DashboardPage() {
 
   return (
     <div dir="rtl" className="animate-fade-in space-y-5 pb-10">
-      <section className="ag-command-hero rounded-[20px] border border-ink-200 bg-ink-950 px-5 py-5 text-white shadow-elevated lg:px-6 lg:py-6">
+      <section className="ag-dashboard-header rounded-[18px] border border-ink-200 bg-white px-5 py-5 shadow-card lg:px-6 lg:py-6">
         <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
           <div className="min-w-0">
-            <div className="flex items-center gap-2 text-[11px] font-black text-primary-300">
+            <div className="flex items-center gap-2 text-[11px] font-black text-primary-700">
               <Sparkles size={15} />
-              مؤشرات أساسية · نظام قيادة الأعمال
+              لوحة ذكاء الأعمال · الأغبري
             </div>
-            <h1 className="mt-2 max-w-3xl text-[25px] font-black tracking-tight lg:text-[31px]">ماذا يحتاج عملك الآن؟</h1>
-            <p className="mt-2 max-w-3xl text-[12px] leading-6 text-ink-300">
-              من البيانات إلى القرار التجاري — في شاشة واحدة. نبض الأعمال، إشارات الانتباه، والقرارات المقترحة في مسار واحد. كل رقم يبقى مرتبطًا بحالته ولقطة بياناته بدل إظهار قيمة غير موثقة.
+            <h1 className="mt-2 max-w-3xl text-[25px] font-black tracking-tight text-ink-950 lg:text-[31px]">نبض الأعمال</h1>
+            <p className="mt-2 max-w-3xl text-[12px] leading-6 text-ink-500">
+              صورة تنفيذية موثقة لأداء العمل اليوم — من البيانات إلى التحليل ثم الإشارة والقرار. لا تعرض المنصة رقمًا غير مدعوم بمصدره وحالته.
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
-            <Link to="/import" className="btn-primary text-[11px]"><Upload size={14} /> إدخال بيانات</Link>
-            <Link to="/decision-experience" className="inline-flex items-center justify-center gap-2 rounded-[9px] border border-white/15 bg-white/10 px-3.5 py-2.5 text-[11px] font-bold text-white hover:bg-white/15">قرار اليوم <ArrowUpLeft size={13} /></Link>
-            <Link to="/reports/executive" className="inline-flex items-center justify-center gap-2 rounded-[9px] border border-white/15 bg-white/10 px-3.5 py-2.5 text-[11px] font-bold text-white hover:bg-white/15">التقرير التنفيذي <FileSearch size={13} /></Link>
+            <Link to="/command-center" className="btn-primary text-[11px]"><Sparkles size={14} /> مركز القرار</Link>
+            <Link to="/reports/executive" className="btn-secondary text-[11px]"><FileSearch size={13} /> التقرير التنفيذي</Link>
+            <Link to="/import/analyze" className="btn-ghost text-[11px]">تحليل المستندات</Link>
           </div>
         </div>
-        <div className="mt-5 flex flex-wrap items-center gap-2 border-t border-white/10 pt-4">
+        <div className="mt-5 flex flex-wrap items-center gap-2 border-t border-ink-100 pt-4">
           <StatusLine status={kpis.status} text={kpis.status === 'INSUFFICIENT_DATA' ? 'الصورة تحتاج مراجعة' : 'الصورة صالحة للاستخدام'} />
-          <span className="rounded-full bg-white/10 px-2.5 py-1 text-[10px] font-semibold text-ink-200">تغطية المؤشرات {coverage}%</span>
-          <span className="rounded-full bg-white/10 px-2.5 py-1 text-[10px] font-semibold text-ink-200">As-of: {snapshotAsOf ?? 'غير متاح'}</span>
-          <button type="button" onClick={() => void load(true)} disabled={refreshing} className="mr-auto inline-flex items-center gap-1.5 rounded-full bg-white/10 px-2.5 py-1 text-[10px] font-bold text-white hover:bg-white/15 disabled:opacity-60">
+          <span className="rounded-full border border-ink-200 bg-ink-50 px-2.5 py-1 text-[10px] font-semibold text-ink-500">تغطية المؤشرات {coverage}%</span>
+          <span className="rounded-full border border-ink-200 bg-white px-2.5 py-1 text-[10px] font-semibold text-ink-400">As-of: {snapshotAsOf ?? 'غير متاح'}</span>
+          <button type="button" onClick={() => void load(true)} disabled={refreshing} className="mr-auto inline-flex items-center gap-1.5 rounded-full bg-primary-50 px-2.5 py-1 text-[10px] font-bold text-primary-800 hover:bg-primary-100 disabled:opacity-60">
             <RefreshCw size={12} className={refreshing ? 'animate-spin' : ''} />
             تحديث الصورة
           </button>
@@ -304,55 +246,43 @@ export function DashboardPage() {
         </Card>
       </section>
 
-      <section className="overflow-hidden rounded-[14px] border border-ink-200 bg-white shadow-card">
-        <div className="grid grid-cols-2 lg:grid-cols-4">
-          <PulseMetric label="المبيعات" value={kpis.totalSales} icon={<TrendingUp size={15} />} status={metricStatus(kpis.totalSales, kpis.status)} detail="الفترة الحالية" />
-          <PulseMetric label="الربح الإجمالي" value={kpis.grossProfit} icon={<BarChart3 size={15} />} status={metricStatus(kpis.grossProfit, kpis.status)} detail={kpis.grossMargin === null ? 'الهامش غير متاح' : 'الهامش ' + kpis.grossMargin.toFixed(1) + '%'} />
-          <PulseMetric label="الذمم" value={kpis.totalReceivables} icon={<WalletCards size={15} />} status={metricStatus(kpis.totalReceivables, kpis.status)} detail={kpis.collectionRate === null ? 'التحصيل غير متاح' : 'التحصيل ' + kpis.collectionRate.toFixed(1) + '%'} />
-          <PulseMetric label="المخزون" value={kpis.inventoryValue} icon={<Package size={15} />} status={metricStatus(kpis.inventoryValue, kpis.status)} detail="القيمة الحالية" />
-        </div>
+      <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <Card className="ag-dashboard-kpi"><CardBody><PulseMetric label="الإيرادات" value={kpis.totalSales} icon={<TrendingUp size={16} />} status={metricStatus(kpis.totalSales, kpis.status)} detail="الفترة الحالية" /></CardBody></Card>
+        <Card className="ag-dashboard-kpi"><CardBody><PulseMetric label="الربح الإجمالي" value={kpis.grossProfit} icon={<BarChart3 size={16} />} status={metricStatus(kpis.grossProfit, kpis.status)} detail={kpis.grossMargin === null ? 'الهامش غير متاح' : 'الهامش ' + kpis.grossMargin.toFixed(1) + '%'} /></CardBody></Card>
+        <Card className="ag-dashboard-kpi"><CardBody><PulseMetric label="التحصيل والذمم" value={kpis.totalReceivables} icon={<WalletCards size={16} />} status={metricStatus(kpis.totalReceivables, kpis.status)} detail={kpis.collectionRate === null ? 'التحصيل غير متاح' : 'نسبة التحصيل ' + kpis.collectionRate.toFixed(1) + '%'} /></CardBody></Card>
+        <Card className="ag-dashboard-kpi"><CardBody><PulseMetric label="قيمة المخزون" value={kpis.inventoryValue} icon={<Package size={16} />} status={metricStatus(kpis.inventoryValue, kpis.status)} detail={kpis.invoiceCount === null ? 'عدد الفواتير غير متاح' : 'الفواتير ' + kpis.invoiceCount.toLocaleString('en-US')} /></CardBody></Card>
       </section>
 
-      <section className="grid gap-4 xl:grid-cols-[1.15fr_.85fr]">
-        <Card>
-          <CardHeader
-            title="مركز الانتباه"
-            subtitle="ما يحتاج تدخلًا أو تحقيقًا الآن، مع إبقاء الإشارة مرتبطة بمسارها."
-            action={<Link to="/command-center" className="btn-ghost text-[11px]">كل الإشارات <ArrowUpLeft size={13} /></Link>}
-          />
-          <CardBody>
-            <div className="space-y-3">
-              {liveAlerts.map((alert) => <AttentionCard key={alert.id} alert={alert} />)}
-              {liveAlerts.length === 0 && (
-                <div className="rounded-[14px] border border-dashed border-ink-200 bg-ink-50/60 p-8 text-center">
-                  <CheckCircle2 className="mx-auto text-success-600" size={24} />
-                  <div className="mt-2 text-sm font-black text-ink-800">لا توجد إشارات غير مقروءة الآن</div>
-                  <p className="mt-1 text-[11px] text-ink-400">الخطوة التالية يمكن أن تبدأ من التقارير أو من إدخال بيانات جديدة.</p>
-                </div>
-              )}
-            </div>
-          </CardBody>
-        </Card>
-
-        <Card>
-          <CardHeader
-            title="طابور القرار"
-            subtitle="التوصيات المتاحة للمراجعة والتنفيذ من المسار الحالي."
-            action={<Link to="/decision-experience" className="btn-ghost text-[11px]">مساحة القرار <ArrowUpLeft size={13} /></Link>}
-          />
-          <CardBody>
-            <div className="space-y-3">
-              {liveRecommendations.map((recommendation) => <AttentionCard key={recommendation.id} recommendation={recommendation} />)}
-              {liveRecommendations.length === 0 && (
-                <div className="rounded-[14px] border border-dashed border-ink-200 bg-ink-50/60 p-8 text-center">
-                  <Sparkles className="mx-auto text-ink-300" size={24} />
-                  <div className="mt-2 text-sm font-black text-ink-800">لا توجد توصيات قابلة للمراجعة الآن</div>
-                  <p className="mt-1 text-[11px] text-ink-400">لن يتم تصنيع قرار دون إشارة أو بيانات كافية.</p>
-                </div>
-              )}
-            </div>
-          </CardBody>
-        </Card>
+      <section className="space-y-3">
+        <div className="flex items-end justify-between gap-3">
+          <div>
+            <div className="section-kicker">ACTIONABLE INTELLIGENCE</div>
+            <h2 className="mt-1 text-[17px] font-black text-ink-950">التنبيهات والتوصيات والقرارات</h2>
+          </div>
+          <Link to="/command-center" className="btn-ghost text-[11px]">فتح مركز القرار <ArrowUpLeft size={13} /></Link>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <Link to="/command-center" className="ag-dashboard-action rounded-[14px] border border-ink-200 bg-white p-4 shadow-card">
+            <div className="flex items-start justify-between gap-3"><div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-50 text-primary-700"><TrendingUp size={18} /></div><span className="rounded-full bg-primary-50 px-2 py-1 text-[10px] font-black text-primary-700">{alerts.length}</span></div>
+            <div className="mt-3 text-[13px] font-black text-ink-900">المستجدات والتغيرات</div>
+            <div className="mt-1 line-clamp-2 text-[11px] leading-5 text-ink-500">{liveAlerts[0]?.title ?? 'لا توجد مستجدات تحتاج انتباهًا الآن'}</div>
+          </Link>
+          <Link to="/intelligence/recommendations" className="ag-dashboard-action rounded-[14px] border border-primary-100 bg-primary-50/45 p-4 shadow-card">
+            <div className="flex items-start justify-between gap-3"><div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-primary-700"><Sparkles size={18} /></div><span className="rounded-full bg-white px-2 py-1 text-[10px] font-black text-primary-700">{liveRecommendations.length}</span></div>
+            <div className="mt-3 text-[13px] font-black text-ink-900">توصيات قابلة للتنفيذ</div>
+            <div className="mt-1 line-clamp-2 text-[11px] leading-5 text-ink-500">{liveRecommendations[0]?.title ?? 'لا توجد توصيات جديدة في المصدر الحالي'}</div>
+          </Link>
+          <Link to="/command-center" className="ag-dashboard-action rounded-[14px] border border-danger-100 bg-danger-50/55 p-4 shadow-card">
+            <div className="flex items-start justify-between gap-3"><div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-danger-700"><CircleAlert size={18} /></div><span className="rounded-full bg-white px-2 py-1 text-[10px] font-black text-danger-700">{liveAlerts.length}</span></div>
+            <div className="mt-3 text-[13px] font-black text-ink-900">تنبيهات مهمة</div>
+            <div className="mt-1 line-clamp-2 text-[11px] leading-5 text-ink-500">{liveAlerts.length ? 'توجد إشارات غير مقروءة مرتبطة بالمسار الحالي.' : 'لا توجد تنبيهات غير مقروءة الآن.'}</div>
+          </Link>
+          <Link to="/decision-experience?stage=decision" className="ag-dashboard-action rounded-[14px] border border-warning-100 bg-warning-50/55 p-4 shadow-card">
+            <div className="flex items-start justify-between gap-3"><div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-warning-700"><CircleAlert size={18} /></div><span className="rounded-full bg-white px-2 py-1 text-[10px] font-black text-warning-700">{recommendations.filter(item => item.status === 'new').length}</span></div>
+            <div className="mt-3 text-[13px] font-black text-ink-900">قرارات تحتاج مراجعة</div>
+            <div className="mt-1 line-clamp-2 text-[11px] leading-5 text-ink-500">{recommendations.some(item => item.status === 'new') ? 'توجد توصيات جديدة لمراجعتها قبل الإجراء.' : 'لا توجد قرارات معلقة للمراجعة.'}</div>
+          </Link>
+        </div>
       </section>
 
       {workspacePreferences.dashboardWidgets.includes('analysis') && (

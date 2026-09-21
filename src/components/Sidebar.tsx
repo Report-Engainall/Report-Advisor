@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Activity, BarChart3, Brain, ChevronDown, ClipboardCheck, FileBarChart, ShieldCheck, Gauge, Layers3, LayoutDashboard, ListChecks, LogOut, Package, Presentation, Scale, ScanSearch, Settings, Target, Upload, UserCircle, Users, Warehouse, AlertCircle, PlugZap } from 'lucide-react';
+import { Activity, BarChart3, Brain, ChevronDown, ClipboardCheck, Database, FileBarChart, Files, Gauge, Layers3, LayoutDashboard, ListChecks, LogOut, Package, Presentation, Scale, ScanSearch, Settings, Target, Upload, UserCircle, Users, Warehouse, AlertCircle, PlugZap } from 'lucide-react';
 import type { User } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
 import { getDisplayEmail, getDisplayName } from '@/lib/profile-display';
@@ -61,22 +61,28 @@ const navSections: NavSection[] = NAVIGATION_SECTIONS.map(section => ({
 
 function CreditMark(){return <span className="text-[13px] font-black">◫</span>}
 function ScenarioMark(){return <span className="text-[12px] font-black">◎</span>}
-const sectionIcons:Record<string,ReactNode>={today:<LayoutDashboard size={17}/>,money:<FileBarChart size={17}/>,decisions:<ClipboardCheck size={17}/>,trust:<ShieldCheck size={17}/>,intelligence:<Brain size={17}/>,outputs:<ClipboardCheck size={17}/>,reference:<Package size={17}/>,admin:<Settings size={17}/>};
-const sectionMeta:Record<string,{hint:string;tag:string}>= {
-  today:{hint:'نبض الإدارة والأولوية',tag:'NOW'},
-  money:{hint:'النقد والهامش والحركة',tag:'MONEY'},
-  decisions:{hint:'قرار يمكن تتبعه',tag:'DECIDE'},
-  trust:{hint:'دليل قبل القرار',tag:'TRUST'},
-  intelligence:{hint:'إشارات وتحليلات متقدمة',tag:'INTEL'},
-  outputs:{hint:'تقارير ومخرجات الإدارة',tag:'OUTPUT'},
-  reference:{hint:'بيانات مرجعية أساسية',tag:'MASTER'},
-  admin:{hint:'التهيئة وإدارة مساحة العمل',tag:'ADMIN'},
+const sectionIcons: Record<NavigationSectionId, ReactNode> = {
+  'decision-center': <Target size={17} />,
+  'data-operations': <Database size={17} />,
+  analytics: <BarChart3 size={17} />,
+  intelligence: <Brain size={17} />,
+  reference: <Files size={17} />,
+  admin: <Settings size={17} />,
 };
+const sectionMeta: Record<NavigationSectionId, { hint: string; tag: string }> = {
+  'decision-center': { hint: 'الصورة التنفيذية والقرار', tag: 'DECIDE' },
+  'data-operations': { hint: 'مصادر، مستندات وجودة', tag: 'DATA' },
+  analytics: { hint: 'المؤشرات والتقارير التجارية', tag: 'BI' },
+  intelligence: { hint: 'إشارات واستكشاف ذكي', tag: 'INTEL' },
+  reference: { hint: 'كيانات ومعارف أساسية', tag: 'MASTER' },
+  admin: { hint: 'التهيئة وضبط مساحة العمل', tag: 'ADMIN' },
+};
+
 
 export function Sidebar({alertCount=0,onNavigate,user}:{alertCount?:number;onNavigate?:()=>void;user?:User|null}){
  const{language}=useLanguage();const location=useLocation();const[workspaceMode,setWorkspaceMode]=useState<WorkspaceMode>(readWorkspaceMode);
  const [workspacePreferences,setWorkspacePreferences]=useState<WorkspacePreferences>(readWorkspacePreferences); const visibleSections=useMemo(()=>navSections.map(s=>({...s,items:s.items.filter(i=>isWorkspacePathVisible(i.path,workspaceMode,workspacePreferences))})).filter(s=>s.items.length).sort((a,b)=>workspacePreferences.sectionOrder.indexOf(a.id)-workspacePreferences.sectionOrder.indexOf(b.id)),[workspaceMode,workspacePreferences]); const favoriteItems=useMemo(()=>{const visible=new Map(navSections.flatMap(section=>section.items).map(item=>[item.path,item]));return workspacePreferences.favoritePaths.map(path=>visible.get(path)).filter((item):item is NavItem=>item !== undefined).filter(item=>isWorkspacePathVisible(item.path,workspaceMode,workspacePreferences)).slice(0,4)},[workspacePreferences,workspaceMode]);
- const activeSection=useMemo(()=>resolveNavigationItem(location.pathname)?.section ?? 'today',[location.pathname]);
+ const activeSection=useMemo(()=>resolveNavigationItem(location.pathname)?.section ?? 'decision-center',[location.pathname]);
  const[expandedSection,setExpandedSection]=useState<NavigationSectionId | ''>(activeSection);
  useEffect(()=>{const sync=()=>{setWorkspaceMode(readWorkspaceMode());setWorkspacePreferences(readWorkspacePreferences())};window.addEventListener('storage',sync);window.addEventListener('report-advisor:workspace-mode',sync);window.addEventListener('report-advisor:workspace-preferences',sync);return()=>{window.removeEventListener('storage',sync);window.removeEventListener('report-advisor:workspace-mode',sync);window.removeEventListener('report-advisor:workspace-preferences',sync)}},[]);
  useEffect(()=>setExpandedSection(activeSection),[activeSection]);
@@ -86,23 +92,23 @@ export function Sidebar({alertCount=0,onNavigate,user}:{alertCount?:number;onNav
   <div className="px-3 py-3">
     <div className="ag-sidebar-workspace rounded-[14px] border border-primary-100 bg-gradient-to-br from-primary-50/80 via-white to-[#fff8e8] p-3 shadow-sm">
       <div className="flex items-center gap-2">
-        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[8px] bg-primary-700 text-white"><Scale size={15}/></span>
+        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[8px] bg-primary-700 text-white"><Target size={15}/></span>
         <div className="min-w-0 flex-1">
-          <div className="text-[10px] font-black text-ink-800">مساحة الأعمال</div>
+          <div className="text-[10px] font-black text-ink-800">مركز القرار</div>
           <div className="mt-0.5 text-[9px] text-ink-400">{workspaceMode==='essential'?'أساسية':workspaceMode==='advanced'?'متقدمة':'خبيرة'} · وصول تدريجي</div>
         </div>
       </div>
       <div className="mt-2 grid grid-cols-2 gap-1.5">
-        <Link to="/command-center" onClick={onNavigate} className="flex items-center justify-center gap-1 rounded-[8px] bg-ink-950 px-2 py-2 text-[10px] font-black text-white hover:bg-ink-800"><Scale size={12}/> مركز القيادة</Link>
+        <Link to="/command-center" onClick={onNavigate} className="flex items-center justify-center gap-1 rounded-[8px] bg-ink-950 px-2 py-2 text-[10px] font-black text-white hover:bg-ink-800"><Target size={12}/> مركز القرار</Link>
         <Link to="/import" onClick={onNavigate} className="flex items-center justify-center gap-1 rounded-[8px] border border-ink-200 bg-white px-2 py-2 text-[10px] font-black text-ink-700 hover:border-primary-200 hover:bg-primary-50 hover:text-primary-800"><Upload size={12}/> إدخال البيانات</Link>
       </div>
     </div>
   </div>
   <div className="ag-sidebar-shortcuts px-3 pb-1">
-    <div className="flex items-center justify-between px-2 pb-2"><div className="section-kicker">وصول تنفيذي</div><span className="text-[9px] font-black text-ink-500">QUICK</span></div>
+    <div className="flex items-center justify-between px-2 pb-2"><div className="section-kicker">أدلة سريعة</div><span className="text-[9px] font-black text-ink-500">EVIDENCE</span></div>
     <div className="grid grid-cols-2 gap-1.5">{(favoriteItems.length?favoriteItems:navSections.flatMap(section=>section.items).filter(item=>isWorkspacePathVisible(item.path,workspaceMode,workspacePreferences)).slice(0,4)).map(item=><Link key={item.path} to={item.path} onClick={onNavigate} className="flex items-center gap-1.5 rounded-[8px] border border-ink-200 bg-white px-2 py-2 text-[11px] font-semibold text-ink-600 hover:border-primary-200 hover:bg-primary-50 hover:text-primary-800">{item.iconNode}<span className="truncate">{language==='ar'?item.label:item.enLabel}</span></Link>)}</div>
   </div>
-  <nav className="flex-1 overflow-y-auto px-3 py-3" aria-label={language==='ar'?'التنقل التجاري الرئيسي':'Primary business navigation'}><div className="space-y-1">{visibleSections.map(section=>{const active=activeSection===section.id,open=expandedSection===section.id;const meta=sectionMeta[section.id]??{hint:'',tag:''};return <div key={section.id} className="ag-nav-section"><button type="button" onClick={()=>setExpandedSection(open?'':section.id)} className={'ag-section-toggle flex w-full items-center gap-2.5 rounded-[11px] px-2.5 py-2.5 text-right transition '+(active?'ag-section-toggle-active':'text-ink-600 hover:bg-ink-50 hover:text-ink-950')} aria-expanded={open}><span className={'flex h-8 w-8 shrink-0 items-center justify-center rounded-[8px] '+(active?'bg-white text-primary-700':'bg-ink-50 text-ink-400')}>{sectionIcons[section.id]}</span><span className="min-w-0 flex-1"><span className="flex items-center gap-2"><span className="text-[13px] font-black">{language==='ar'?section.title:section.enTitle}</span><span className="ag-section-tag">{meta.tag}</span></span><span className="mt-0.5 block truncate text-[9px] font-medium text-ink-400">{meta.hint}</span></span>{section.id==='today'&&alertCount>0&&<span className="min-w-4 rounded-full bg-danger-600 px-1 text-center text-[9px] font-black text-white">{alertCount}</span>}<span className="flex h-6 min-w-6 items-center justify-center rounded-full border border-ink-200 bg-white/70 text-[9px] font-black text-ink-400">{section.items.length}</span><ChevronDown size={14} className={'shrink-0 text-ink-300 transition-transform '+(open?'':'-rotate-90')}/></button>{open&&<div className="ag-nav-sublist mr-3 mt-0.5 space-y-0.5 border-r border-ink-200 pr-2">{section.items.map(item=>{const activeItem=resolveNavigationItem(location.pathname)?.path===item.path;return <Link key={item.path} to={item.path} onClick={onNavigate} className={'ag-nav-item nav-item '+(activeItem?'ag-nav-item-active':'ag-nav-item-inactive')}><span className="shrink-0">{item.iconNode}</span><span className="min-w-0 flex-1 truncate">{language==='ar'?item.label:item.enLabel}</span>{activeItem&&<span className="ag-nav-current"/>}</Link>})}</div>}</div>})}</div></nav>
+  <nav className="flex-1 overflow-y-auto px-3 py-3" aria-label={language==='ar'?'التنقل الرئيسي للمنصة':'Primary analytics navigation'}><div className="space-y-1">{visibleSections.map(section=>{const active=activeSection===section.id,open=expandedSection===section.id;const meta=sectionMeta[section.id]??{hint:'',tag:''};return <div key={section.id} className="ag-nav-section"><button type="button" onClick={()=>setExpandedSection(open?'':section.id)} className={'ag-section-toggle flex w-full items-center gap-2.5 rounded-[11px] px-2.5 py-2.5 text-right transition '+(active?'ag-section-toggle-active':'text-ink-600 hover:bg-ink-50 hover:text-ink-950')} aria-expanded={open}><span className={'flex h-8 w-8 shrink-0 items-center justify-center rounded-[8px] '+(active?'bg-white text-primary-700':'bg-ink-50 text-ink-400')}>{sectionIcons[section.id]}</span><span className="min-w-0 flex-1"><span className="flex items-center gap-2"><span className="text-[13px] font-black">{language==='ar'?section.title:section.enTitle}</span><span className="ag-section-tag">{meta.tag}</span></span><span className="mt-0.5 block truncate text-[9px] font-medium text-ink-400">{meta.hint}</span></span>{section.id==='decision-center'&&alertCount>0&&<span className="min-w-4 rounded-full bg-danger-600 px-1 text-center text-[9px] font-black text-white">{alertCount}</span>}<span className="flex h-6 min-w-6 items-center justify-center rounded-full border border-ink-200 bg-white/70 text-[9px] font-black text-ink-400">{section.items.length}</span><ChevronDown size={14} className={'shrink-0 text-ink-300 transition-transform '+(open?'':'-rotate-90')}/></button>{open&&<div className="ag-nav-sublist mr-3 mt-0.5 space-y-0.5 border-r border-ink-200 pr-2">{section.items.map(item=>{const activeItem=resolveNavigationItem(location.pathname)?.path===item.path;return <Link key={item.path} to={item.path} onClick={onNavigate} className={'ag-nav-item nav-item '+(activeItem?'ag-nav-item-active':'ag-nav-item-inactive')}><span className="shrink-0">{item.iconNode}</span><span className="min-w-0 flex-1 truncate">{language==='ar'?item.label:item.enLabel}</span>{activeItem&&<span className="ag-nav-current"/>}</Link>})}</div>}</div>})}</div></nav>
   <div className="border-t border-ink-200 p-3"><div className="flex items-center gap-2.5"><div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[8px] bg-ink-100 text-[11px] font-black text-ink-700">{getDisplayName(user??null).slice(0,1)||'م'}</div><div className="min-w-0 flex-1"><div className="truncate text-[12px] font-bold text-ink-800">{getDisplayName(user??null)}</div><div className="truncate text-[10px] text-ink-400" dir="ltr">{getDisplayEmail(user??null)}</div></div><button type="button" onClick={()=>void signOut()} className="rounded-[8px] p-2 text-ink-400 hover:bg-ink-100 hover:text-ink-800" aria-label={language==='ar'?'تسجيل الخروج':'Sign out'}><LogOut size={15}/></button></div></div>
  </aside>
 }
