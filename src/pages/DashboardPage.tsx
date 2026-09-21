@@ -163,6 +163,21 @@ export function DashboardPage() {
     () => recommendations.filter((item) => item.status === 'new' || item.status === 'accepted').slice(0, 3),
     [recommendations],
   );
+  const decisionAccountability = useMemo(() => {
+    const actionable = recommendations.filter((item) => item.status === 'new' || item.status === 'accepted');
+    const owned = actionable.filter((item) => item.owner?.trim()).length;
+    const outcomes = actionable.filter((item) => item.impact_result?.trim()).length;
+    const pending = recommendations.filter((item) => item.status === 'new').length;
+
+    return {
+      total: actionable.length,
+      owned,
+      outcomes,
+      pending,
+      ownerCoverage: actionable.length ? Math.round((owned / actionable.length) * 100) : null,
+      outcomeCoverage: actionable.length ? Math.round((outcomes / actionable.length) * 100) : null,
+    };
+  }, [recommendations]);
 
   if (loading) return <LoadingState message="جارٍ بناء صورة الأعمال من المصدر..." />;
   if (error) return <ErrorState message={error} onRetry={() => void load()} />;
@@ -235,14 +250,41 @@ export function DashboardPage() {
           </CardBody>
         </Card>
         <Card>
-          <CardHeader title="تغطية المؤشرات" subtitle="مدى اكتمال الصورة التنفيذية الحالية." />
+          <CardHeader title="تغطية الحقيقة والقرار" subtitle="اكتمال الصورة التنفيذية، ومدى جاهزية التوصيات للتنفيذ والمتابعة." />
           <CardBody>
-            <div className="flex items-end justify-between gap-4">
-              <div className="text-3xl font-black tabular-nums text-ink-950">{coverage}%</div>
-              <div className="text-[11px] text-ink-500">{snapshotAsOf ?? 'as-of غير متاح'}</div>
+            <div className="flex flex-wrap items-end justify-between gap-4">
+              <div>
+                <div className="text-3xl font-black tabular-nums text-ink-950">{coverage}%</div>
+                <div className="mt-1 text-[10px] font-semibold text-ink-400">تغطية المؤشرات الحالية</div>
+              </div>
+              <div className="text-left text-[11px] text-ink-500">
+                <div>{decisionAccountability.total} توصية قابلة للتنفيذ</div>
+                <div className="mt-1">آخر تحديث: {snapshotAsOf ?? 'غير متاح'}</div>
+              </div>
             </div>
             <div className="mt-3 h-2 overflow-hidden rounded-full bg-ink-100">
               <div className="h-full rounded-full bg-primary-600" style={{ width: coverage + '%' }} />
+            </div>
+            <div className="mt-4 grid gap-2 sm:grid-cols-3">
+              <div className="rounded-xl border border-ink-100 bg-ink-50/50 p-2.5">
+                <div className="text-[9px] font-black text-ink-400">مالك محدد</div>
+                <div className="mt-1 text-sm font-black text-ink-900">
+                  {decisionAccountability.ownerCoverage === null ? 'لا توجد' : decisionAccountability.ownerCoverage + '%'}
+                </div>
+                <div className="mt-0.5 text-[9px] text-ink-400">{decisionAccountability.owned}/{decisionAccountability.total || 0}</div>
+              </div>
+              <div className="rounded-xl border border-ink-100 bg-ink-50/50 p-2.5">
+                <div className="text-[9px] font-black text-ink-400">نتيجة أثر مسجلة</div>
+                <div className="mt-1 text-sm font-black text-ink-900">
+                  {decisionAccountability.outcomeCoverage === null ? 'لا توجد' : decisionAccountability.outcomeCoverage + '%'}
+                </div>
+                <div className="mt-0.5 text-[9px] text-ink-400">{decisionAccountability.outcomes}/{decisionAccountability.total || 0}</div>
+              </div>
+              <Link to="/decision-experience?stage=decision" className="rounded-xl border border-primary-100 bg-primary-50/60 p-2.5 transition-colors hover:bg-primary-100">
+                <div className="text-[9px] font-black text-primary-700">تحتاج مراجعة</div>
+                <div className="mt-1 text-sm font-black text-ink-900">{decisionAccountability.pending}</div>
+                <div className="mt-0.5 inline-flex items-center gap-1 text-[9px] font-bold text-primary-700">افتح المسار <ArrowUpLeft size={11} /></div>
+              </Link>
             </div>
           </CardBody>
         </Card>
