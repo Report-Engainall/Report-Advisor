@@ -1,3 +1,25 @@
+## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-78
+
+- SESSION-ID → `2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-78`
+- CURRENT PR HEAD BEFORE THIS WRITE → `d110aedf6a55bbb0aadc575938dbc451eb8e8230`; this memory update is governance-only.
+- EXACT CODE/TEST CANDIDATE → `2f0c106dacb586a88b421b6797e7d4922a9338c7`.
+- DONE → Trust & Evidence now exposes a record-weighted aggregate quality coverage derived only from the existing authoritative data-quality entity scores and record totals.
+- DONE → The aggregate is explicitly disclosed as a quality summary, not a new trust score; it uses one normalized 0–100 value for text, visualization, and accessibility.
+- DONE → The new summary is visible in the truth-control hero and decision-eligibility surface, with a concrete explanation of its record-weighted basis and a direct next action still driven by the authoritative issue state.
+- DONE → Product WOW UI contract now guards the aggregate derivation, disclosure, non-trust semantics, and accessible progress surface.
+- DONE → Master execution index was rebound to candidate `2f0c106...` in governance commit `d110aed...`.
+- EXACT SOURCE VERIFICATION → `TrustEvidencePage.tsx` and `check-product-wow-ui-contract.mjs` were re-read after write. Compare from prior code/test candidate `f66e5efa...` to `2f0c106...` is linear with no behind commits; this session's functional delta is confined to the trust UI/contract plus governance write-backs.
+- LIVE DATA VERIFICATION → Supabase staging function definition confirms the authoritative snapshot score is a per-entity record-derived 0–100 quality score. A read-only aggregate replay against the live staging tables produced weighted quality `75%` for the small populated tenant and `100%` for the larger tenant; no data was modified.
+- AUTH/RLS BOUNDARY → direct RPC invocation without an authenticated tenant correctly failed closed with `TENANT_CONTEXT_REQUIRED`; no fake JWT, service-session bypass, or RLS weakening was used.
+- CURRENT EXACT-HEAD STATUS → Vercel = failure due external free-plan `build-rate-limit`; Vercel deployment context = pending; CodeRabbit = success; Netlify preview build for exact candidate `2f0c106...` = currently `building`. No current-head build/browser/runtime PASS is claimed.
+- GITHUB ACTIONS → no PR workflow run is attached to `2f0c106...` yet; stale historical runs are not transferred.
+- PHASE-F → remains FAIL-CLOSED because authorized `RESILIENCE_MAX_RPO_SECONDS` and live backup/restore configuration are not provisioned. No value was invented.
+- PRECISE STOP POINT → UI + contract + execution-index binding are complete on exact candidate `2f0c106...`; current-head runtime/certification evidence remains open.
+- WHAT REMAINS → fresh exact-head CI/deployment result; authenticated trust/import runtime proof when the exact deployment is available; governed handling of the 151 legacy processing import jobs and 18 recent canonical HTTP_500 history cluster; authorized Phase-F recovery evidence; final certification.
+- NEXT EXECUTABLE ACTION → consume the first fresh exact-head deployment/CI result for `2f0c106...`; if a current-SHA failure reproduces, root-fix it only, otherwise verify the exact preview's Trust & Evidence surface and continue the governed runtime/recovery sequence.
+- DO NOT REPEAT → do not transfer stale PASS; do not label weighted quality as trust; do not invent domain detection; do not force-close legacy processing jobs; do not bypass tenant auth/RLS; do not create duplicate importer/RPC/runner paths; do not treat an unauthenticated preview as authenticated business E2E.
+- CURRENT RESUME POINTER → `2f0c106dacb586a88b421b6797e7d4922a9338c7` → fresh exact-head CI/deployment verification → authenticated trust/import runtime proof → governed legacy-job recovery decision → Phase-F real recovery evidence → final certification.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-77
 
 - SESSION-ID → `2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-77`
