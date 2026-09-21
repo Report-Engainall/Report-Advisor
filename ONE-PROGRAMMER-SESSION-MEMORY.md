@@ -1,3 +1,17 @@
+## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-48B
+
+- SESSION-ID → `2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-48B`
+- SHA → `34b2038602f4899a78e6e183087cfe232c02faa8` (exact code/test head before this governance write-back).
+- DONE → corrected the Decision Experience source-inspection action so «فحص المصدر أولًا» routes to `/trust`, the canonical Trust & Evidence surface.
+- DONE → strengthened the UI contract to bind this exact route.
+- ACTUAL RESULT → source re-read confirms the route correction and guard. No new route or backend path was added.
+- ACTUAL RESULT → current exact-head deployment evidence remains fail-closed: Vercel free-plan `build-rate-limit`, deployment context pending, and no GitHub Actions workflow run for the current main SHA. No build/browser/runtime PASS is claimed.
+- PRECISE STOP POINT → Wave 48 decision actionability is complete across Decision Experience and Executive Command Center, including actionable empty states and the corrected source-inspection route.
+- WHAT REMAINS → fresh exact-head CI/build/Phase-F/browser certification; then backup/RPO-RTO, worker/server-boundary, tenant A/B, server OCR, watched-folder and final certification.
+- NEXT ACTION → obtain the first fresh exact-head CI/build/Phase-F/browser/certification result for `34b2038602...`; repair only a current-SHA failure if reproduced.
+- DO NOT REPEAT → do not restore the old command-center source link; do not transfer any older READY deployment; do not use source guards as runtime proof.
+- CURRENT RESUME POINTER → `34b2038602f4899a78e6e183087cfe232c02faa8` → fresh exact-head CI/build/Phase-F/browser/certification → repair current-SHA failure if reproduced → backup/RPO-RTO → worker/server-boundary → tenant A/B → server OCR → watched-folder → final certification.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-48
 
 - SESSION-ID → `2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-48`
