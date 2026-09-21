@@ -1,4 +1,20 @@
-
+## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-SOURCE-FIRST-23
+- SESSION-ID → `2026-09-21-AGHBARI-SOURCE-FIRST-23`
+- EXACT REPOSITORY HEAD BEFORE THIS WRITE-BACK → `9684bbc7c95ee3ab5b06f64bce481e55de529b60`
+- EXACT PRODUCT/UI COMMITS → `665ae0b2b25e0aa5f67f7bd622fe0ddc7219e5fa` then `f71647736d0d18c65e920fba0e6a7e883d7ba8a4`
+- USER CORRECTION LOCKED → `products | customers | sales_invoices` are not the product identity, not import modes, not import engines, not user-facing taxonomy, and must not be reintroduced as the unified-import experience. They may remain only as internal legacy compatibility details where dependency evidence requires them.
+- DONE → removed the remaining six-domain heuristic from `src/pages/CanonicalImportPage.tsx`; the unified import now computes general source-understanding confidence from structural mapping coverage, source quality and readable rows instead of selecting or presenting a fixed business domain.
+- DONE → unified commit identity is now the neutral internal `generic:source-data`; no named business entity is exposed to the user as an import target.
+- DONE → removed domain-detection language from the preview/result experience and replaced it with source understanding, semantic context, quality, provenance and confidence.
+- DONE → corrected user-facing language from «save analysis» toward actual canonical approval/commit semantics; the done state now describes real general canonical acceptance rather than a specialized importer.
+- DONE → updated `docs/MASTER_PRODUCT_REFERENCE.md` to make the source-first rule binding: the user thinks «I have a source for Aghbari to understand», not «which database table should I import into?».
+- VERIFICATION → current unified import source no longer contains the forbidden literal entity list or the previous `AUTOMATIC DOMAIN DETECTION` surface. The shared import contract remains automatic-only.
+- IMPORTANT → this is a product-shape correction, not a rollback of the general canonical dataset implementation. `canonical_dataset_records` and the existing `import_commit_batch` path remain the general canonical substrate.
+- DEPLOYMENT EVIDENCE → no exact READY deployment is claimed for the new SHAs `665ae0b2...`, `f7164773...`, or `9684bbc7...`. Existing earlier READY evidence is not transferred.
+- PRECISE STOP POINT → source-first/general import UX and master product rule are corrected in GitHub; exact-head deployment and authenticated runtime proof remain open.
+- NEXT EXECUTABLE ACTION → verify/build the current exact HEAD with available cloud CI/deployment paths; if runtime proof remains blocked, continue only with cloud-safe code audits and concrete product-value improvements without reintroducing specialization into import.
+- DO NOT REPEAT → do not restore entity pickers, domain cards, specialized import routes, or user-facing target tables; do not create another import RPC/runner; do not transfer deployment PASS across SHAs; do not interpret internal legacy compatibility names as product taxonomy.
+- CURRENT RESUME POINTER → `9684bbc7c95ee3ab5b06f64bce481e55de529b60` → exact-head deployment/CI proof → authenticated runtime evidence → resilience/backup/OCR/CI → final certification.
 
 ## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-GENERAL-IMPORT-22
 - SESSION-ID → `2026-09-21-AGHBARI-GENERAL-IMPORT-22`
