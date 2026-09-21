@@ -192,6 +192,8 @@ The correct mental model is:
 
 Until a genuinely general canonical write contract exists, the system must save and expose the verified analysis/evidence state rather than pretending a specialized target is the final truth.
 
+Current implementation decision: the general canonical contract now exists on the existing `import_commit_batch` path. Domain-neutral rows are persisted in `canonical_dataset_records`, protected by tenant RLS and provenance/source-hash checks, while legacy specialized implementation branches remain internal compatibility only. The unified import UX must not expose those legacy entity names as the product's identity or force a target selection.
+
 ### Truth and finance rules visible in UI
 
 - Deterministic calculations are authoritative.
