@@ -254,3 +254,14 @@ There is one execution owner. Do not resurrect the previous UI/runtime owner spl
 - **Contract guard:** `scripts/check-import-transaction-contract.mjs` now asserts these authoritative-server invariants.
 - **Live Supabase proof:** current staging is healthy; canonical generic substrate is installed, tenant/RLS boundaries are present, and the authoritative import RPC verifies tenant/source provenance in its live function body.
 - **Open runtime blockers:** exact-head build/runtime/deployment, authenticated E2E, worker resilience, backup/RPO-RTO, OCR/scanned-PDF server authority, watched-folder runtime, final certification.
+
+
+## LATEST EXECUTION OVERRIDE — 2026-09-21 / CORE RESILIENCE + UI WAVE 28
+- Exact current `main` HEAD: `403d6af5211482fd9086668136b2902707970e41`.
+- Canonical import provenance and quality are now server-authoritative; browser rows are not commit truth.
+- Expired durable worker leases were actually recovered in staging using the existing canonical recovery RPC: 5 expired processing jobs → queued, leaving expired active leases at 0.
+- Added forward-only worker-recovery parity migration `20260921170000_reconcile_expired_worker_recovery_retryable.sql`.
+- Scanned-PDF server authority is explicitly fail-closed until a server OCR runtime exists; no browser-only OCR can create authoritative committed data.
+- Decision Experience and Work Center gained real operational context without new backend business paths.
+- Current exact-head GitHub status still has the Vercel free-plan `build-rate-limit` failure. No build/browser/runtime PASS is transferred.
+- Next executable action: Phase-F/backup/OCR runtime closure, then exact-head compile/deploy/browser proof and final certification.
