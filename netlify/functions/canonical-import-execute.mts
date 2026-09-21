@@ -202,10 +202,57 @@ export default async (request: Request): Promise<Response> => {
       },
     );
 
+    let snapshotId: string | null = null;
+    try {
+      const { data: snapshot, error: snapshotError } = await serviceClient
+        .from('source_analysis_snapshots')
+        .insert({
+          company_id: companyId,
+          import_job_id: job.id,
+          source_hash: sourceSha,
+          source_path: storagePath,
+          source_format: detection.format,
+          analysis_status: 'analyzed',
+          entity_type: 'source-data',
+          quality_score: authoritativeQualityScore,
+          row_count: authoritativeRows.length,
+          column_count: Array.isArray(authoritativeDataset.columns) ? authoritativeDataset.columns.length : 0,
+          datasets: [{
+            name: fileRecord.file_name || payload.fileName || 'import',
+            rowCount: authoritativeRows.length,
+            columnCount: Array.isArray(authoritativeDataset.columns) ? authoritativeDataset.columns.length : 0,
+            columns: authoritativeDataset.columns,
+            preview: authoritativeDataset.preview.slice(0, 25),
+          }],
+          canonical_text: [
+            `source=${fileRecord.file_name || payload.fileName || 'import'}`,
+            `server_authoritative_quality=${authoritativeQualityScore}%`,
+            `source_sha=${sourceSha}`,
+          ].join(' | '),
+          visual_assets: [],
+          warnings: [],
+          metadata: {
+            fileName: fileRecord.file_name || payload.fileName || 'import',
+            sourceFormat: detection.format,
+            serverAuthoritativeSource: true,
+            serverAuthoritativeQualityScore: authoritativeQualityScore,
+            committed: authoritativeRows.length,
+            jobId: execution.jobId,
+            sourceStoragePath: storagePath,
+          },
+        })
+        .select('id')
+        .single();
+      if (!snapshotError) snapshotId = snapshot?.id ?? null;
+    } catch (snapshotError) {
+      console.error('[canonical-import-execute] non-fatal snapshot persistence failure', snapshotError);
+    }
+
     return json(200, {
       ...execution,
       importId: job.id,
       sourceHash: sourceSha,
+      snapshotId,
       authoritativeRowCount: authoritativeRows.length,
       authoritativeQualityScore,
       authoritativeColumns: authoritativeDataset.columns,
