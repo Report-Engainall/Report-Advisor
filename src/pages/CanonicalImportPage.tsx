@@ -220,6 +220,7 @@ export function CanonicalImportPage() {
         total: authoritativeRowCount,
         valid: authoritativeRowCount,
         invalid: 0,
+        invalidRows: 0,
         committed: authoritativeRowCount,
         importId: rec.id,
         jobId: execution.jobId,
