@@ -1,21 +1,27 @@
-## CURRENT EXECUTION BOUNDARY — 2026-09-21 / WAVE 73 — EXACT-HEAD UI CONTRACT REPAIR
+## CURRENT EXECUTION BOUNDARY — 2026-09-21 / WAVE 75 — CANONICAL SERVER BOUNDARY UNIFICATION
 
 > Exact-head evidence only. No historical runtime result is transferred.
 
-- CURRENT_REPOSITORY_HEAD: `aabfbc4dd23f9afc3b8cbbf3279b4695fd45a231` (current code/test candidate; later governance-only descendants are allowed).
-- CURRENT_CODE_TEST_CANDIDATE: `aabfbc4dd23f9afc3b8cbbf3279b4695fd45a231`.
-- CURRENT_GOVERNANCE_HEAD: `aabfbc4dd23f9afc3b8cbbf3279b4695fd45a231`.
-- DONE: Trust & Evidence quality visualization now normalizes every entity score to 0–100 once and uses the same normalized value for visible percentage, progress width, and aria-valuenow.
-- DONE: Product WOW UI contract now guards the normalized score boundary and prevents visual/accessibility drift from the authoritative value.
-- VERIFIED: exact source and contract were re-read after the commits; no new RPC, importer, runner, route family, tenant path, or database mutation was introduced.
-- LIVE SUPABASE: `import_jobs=4489`; completed=3089; processing=151; failed=1249; queued=0; dead_letter=0. The 151 processing jobs are legacy-looking single-row records dating back to 2026-09-14 and were not mutated. Backup verification and rollback drill tables remain at zero.
-- LIVE FAILURE ANALYSIS: the largest failed-import groups are historical; the latest repeated canonical server HTTP_500 cluster contains 18 jobs on 2026-09-21, all single-row jobs with no processed rows. No database status was force-changed because the canonical recovery path and authoritative runtime cause must be proven first.
-- PERFORMANCE ADVISOR: 82 unused-index notices remain. No indexes were deleted because usage evidence, dependency review, and workload impact are required.
-- CI/RUNTIME BOUNDARY: no GitHub Actions run is associated with exact candidate `aabfbc4...`; current Vercel remains rate-limited externally, while Cloudflare has successfully deployed the branch preview for the preceding governance head `78808b6...`. No current-head CI/build/browser PASS is claimed.
-- PHASE-F: remains fail-closed because authorized live resilience configuration and real backup/restore evidence are not provisioned. No RPO/RTO value was invented.
-- PRECISE STOP POINT: code/test candidate `aabfbc4...`; governance index write is the next exact state transition, followed by final session-memory write-back.
-- NEXT EXECUTABLE ACTION: consume any fresh exact-head CI/deployment evidence that appears; continue investigation of the 151 stale processing records and 18 recent canonical HTTP_500 failures through the existing recovery/runtime path; then provision authorized Phase-F configuration before real recovery evidence.
-- DO NOT REPEAT: do not transfer historical PASS; do not force-close processing jobs; do not delete unused indexes solely from the advisor; do not create duplicate import/RPC/runner paths; do not invent Phase-F secrets or RPO/RTO values.
+- CURRENT_REPOSITORY_HEAD: `f66e5efa70b002c6f85c78e1123f1b09130d4c9f` (current code/test candidate; governance-only descendants may follow).
+- CURRENT_CODE_TEST_CANDIDATE: `f66e5efa70b002c6f85c78e1123f1b09130d4c9f`.
+- CURRENT_GOVERNANCE_HEAD: `f66e5efa70b002c6f85c78e1123f1b09130d4c9f`.
+- DONE: Vercel and Netlify canonical-import-execute adapters now delegate to one shared server implementation; platform wrappers no longer own separate canonical execution logic.
+- DONE: The shared server boundary re-reads the authoritative source from tenant-scoped Storage, computes the server SHA-256 fingerprint, runs securityScan + format detection + parseFile, reconciles through the existing canonical truth boundary, then calls the existing durable runner.
+- DONE: Client-supplied `rows` are no longer part of the trusted server request contract. The client may still send its existing payload shape, but the server derives authoritative rows only from the stored source.
+- DONE: Existing `finalize-source` behavior and `/api/canonical-import-execute` route ownership remain intact through thin platform adapters.
+- DONE: Added `check-canonical-import-server-boundary.mjs` so future drift back to parallel Vercel/Netlify execution paths fails the certification contract.
+- VERIFIED: compare from the prior governance head `c4cf6a7...` to `f66e5efa...` contains only the two hosting adapters, one shared server implementation, and the new boundary contract.
+- LIVE SUPABASE: `import_jobs=4489`; completed=3089; processing=151; failed=1249; queued=0; dead_letter=0. `report_execution_jobs`: completed=3152; queued=564; failed=10; dead_letter=7.
+- LIVE OPERATIONAL FINDING: the 151 processing `import_jobs` records have no matching `report_execution_jobs` by source path and are legacy-shaped one-row records from 2026-09-14 through 2026-09-20. They were not force-closed. The 564 queued durable jobs are a separate current durable queue and have no active/leased workers at the moment checked.
+- LIVE FAILURE FINDING: the latest repeated `CANONICAL_IMPORT_SERVER_EXECUTION_FAILED:HTTP_500` cluster contains 18 single-row failures on 2026-09-21. The current application-level Vercel route returns 502 for unexpected server errors, while Vercel runtime logs for that time window contained no canonical-import 500 entries; therefore the 18 records are not sufficient to identify a current application root cause and were not mutated.
+- CI BOUNDARY: the latest PR workflow batch available from GitHub started at 20:06Z on old merge/head state `048ef6b...`, before current candidate `aabfbc4...` and the present `f66e5efa...` changes. Its failures are not current-head evidence and are not transferred.
+- CURRENT CI GAP: no workflow run has yet been observed for the current exact code/test candidate `f66e5efa...`; no current-head CI/build/browser PASS is claimed.
+- VERCEL: free-plan deployment rate limit remains external; no current-head Vercel runtime PASS is claimed.
+- CLOUDFLARE: prior branch preview rendering is valid only for the preceding deployment; current `f66e5efa...` deployment/render evidence has not been claimed.
+- PHASE-F: remains FAIL-CLOSED because `RESILIENCE_MAX_RPO_SECONDS` and the required authorized live backup/restore configuration are not provisioned. No RPO/RTO value was invented.
+- PRECISE STOP POINT: code/test candidate `f66e5efa...` complete; the next state transition is this governance write, followed by the session-memory write-back.
+- NEXT EXECUTABLE ACTION: consume fresh current-head CI/deployment evidence when emitted; continue root-cause closure only from a reproducible current canonical-import runtime failure; treat the 151 legacy processing records as a separate migration/cleanup investigation; then provision authorized Phase-F and obtain real recovery evidence.
+- DO NOT REPEAT: do not transfer old PR run results; do not force-close legacy processing rows; do not delete unused indexes solely from advisor output; do not invent Phase-F secrets/RPO/RTO; do not create duplicate import/RPC/runner paths; do not trust client rows as authoritative data.
 
 ## CURRENT EXECUTION BOUNDARY — 2026-09-21 / WAVE 63 — DASHBOARD UI + EXACT-HEAD PROOF OPEN
 
