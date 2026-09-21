@@ -1,20 +1,21 @@
-## CURRENT EXECUTION BOUNDARY — 2026-09-21 / WAVE 69 — EXACT-HEAD CERTIFICATION REBIND
+## CURRENT EXECUTION BOUNDARY — 2026-09-21 / WAVE 73 — EXACT-HEAD UI CONTRACT REPAIR
 
 > Exact-head evidence only. No historical runtime result is transferred.
 
-- CURRENT_REPOSITORY_HEAD: `a8fdbc75a76088faa45dfb1bcaaede78a5e21745` (governance-only descendant of the current code/test candidate).
-- CURRENT_CODE_TEST_CANDIDATE: `f5a5097e6c093b0ed266b8143c3308e369d96ff3`.
-- CURRENT_GOVERNANCE_HEAD: `f5a5097e6c093b0ed266b8143c3308e369d96ff3` (latest verified governance candidate; current repository head is a governance-only descendant).
-- DONE: Trust & Evidence now shows authoritative per-entity quality visually and exposes entity-level next actions to the canonical data-quality or evidence-source paths.
-- DONE: `check-product-wow-ui-contract.mjs` guards the visual quality indicator, authoritative score exposure, and entity-level next actions.
-- VERIFIED: source files were re-read from exact `ba034a4...`; no RPC, importer, runner, route family, or parallel data path was introduced.
-- ROOT CAUSE CLOSED: Execution Enforcement failed on `ba034a4...` because the certification index still referenced `a6abc24...` while the current candidate contained non-governance UI changes. The candidate binding is now corrected to `ba034a4...`; `e55f6887...` is documentation/governance-only on top of it.
-- OPEN: fresh certification/enforcement runs for the new governance-bound HEAD have not yet completed.
-
-- NETLIFY: READY production deploy is on old commit `21f6562...`; not current-head evidence.
-- PHASE-F: canonical workflow remains fail-closed until the required live resilience configuration is actually provisioned.
-- PRECISE NEXT ACTION: consume fresh Final Certification Gate + Execution Enforcement Contract after this governance-only rebind; then continue Phase-F backup/restore/RPO/RTO/rollback evidence.
-- DO NOT REPEAT: do not transfer historical PASS, do not mislabel bounded history, do not use old Netlify deploy as current, do not invent Phase-F configuration.
+- CURRENT_REPOSITORY_HEAD: `aabfbc4dd23f9afc3b8cbbf3279b4695fd45a231` (current code/test candidate; later governance-only descendants are allowed).
+- CURRENT_CODE_TEST_CANDIDATE: `aabfbc4dd23f9afc3b8cbbf3279b4695fd45a231`.
+- CURRENT_GOVERNANCE_HEAD: `aabfbc4dd23f9afc3b8cbbf3279b4695fd45a231`.
+- DONE: Trust & Evidence quality visualization now normalizes every entity score to 0–100 once and uses the same normalized value for visible percentage, progress width, and aria-valuenow.
+- DONE: Product WOW UI contract now guards the normalized score boundary and prevents visual/accessibility drift from the authoritative value.
+- VERIFIED: exact source and contract were re-read after the commits; no new RPC, importer, runner, route family, tenant path, or database mutation was introduced.
+- LIVE SUPABASE: `import_jobs=4489`; completed=3089; processing=151; failed=1249; queued=0; dead_letter=0. The 151 processing jobs are legacy-looking single-row records dating back to 2026-09-14 and were not mutated. Backup verification and rollback drill tables remain at zero.
+- LIVE FAILURE ANALYSIS: the largest failed-import groups are historical; the latest repeated canonical server HTTP_500 cluster contains 18 jobs on 2026-09-21, all single-row jobs with no processed rows. No database status was force-changed because the canonical recovery path and authoritative runtime cause must be proven first.
+- PERFORMANCE ADVISOR: 82 unused-index notices remain. No indexes were deleted because usage evidence, dependency review, and workload impact are required.
+- CI/RUNTIME BOUNDARY: no GitHub Actions run is associated with exact candidate `aabfbc4...`; current Vercel remains rate-limited externally, while Cloudflare has successfully deployed the branch preview for the preceding governance head `78808b6...`. No current-head CI/build/browser PASS is claimed.
+- PHASE-F: remains fail-closed because authorized live resilience configuration and real backup/restore evidence are not provisioned. No RPO/RTO value was invented.
+- PRECISE STOP POINT: code/test candidate `aabfbc4...`; governance index write is the next exact state transition, followed by final session-memory write-back.
+- NEXT EXECUTABLE ACTION: consume any fresh exact-head CI/deployment evidence that appears; continue investigation of the 151 stale processing records and 18 recent canonical HTTP_500 failures through the existing recovery/runtime path; then provision authorized Phase-F configuration before real recovery evidence.
+- DO NOT REPEAT: do not transfer historical PASS; do not force-close processing jobs; do not delete unused indexes solely from the advisor; do not create duplicate import/RPC/runner paths; do not invent Phase-F secrets or RPO/RTO values.
 
 ## CURRENT EXECUTION BOUNDARY — 2026-09-21 / WAVE 63 — DASHBOARD UI + EXACT-HEAD PROOF OPEN
 
