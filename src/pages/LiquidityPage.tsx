@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { ArrowUpLeft, CircleAlert, Landmark, RefreshCw } from 'lucide-react';
+import { ArrowUpLeft, CircleAlert, Landmark, RefreshCw, ShieldCheck, Target } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
@@ -69,6 +69,28 @@ export function LiquidityPage() {
         <div className="flex items-start gap-3 rounded-xl border border-warning-200 bg-warning-50/60 p-3"><CircleAlert size={17} className="mt-0.5 shrink-0 text-warning-700" /><div><div className="text-[11px] font-black text-warning-950">الرصيد النقدي المباشر</div><p className="mt-1 text-[10px] leading-5 text-warning-900">غير متاح من المصدر الحالي؛ لا توجد خانة بنكية موثقة هنا.</p></div></div>
         <div className="flex flex-wrap gap-2"><Link to="/reports/receivables" className="btn-secondary text-[11px]">تفاصيل الذمم <ArrowUpLeft size={13}/></Link><Link to="/reports/purchases" className="btn-secondary text-[11px]">تفاصيل المشتريات <ArrowUpLeft size={13}/></Link><Link to="/trust" className="btn-ghost text-[11px]">فحص الثقة</Link></div>
       </CardBody></Card>
+    </section>
+    <section className="ag-decision-strip" aria-label="سياق السيولة">
+      <div className="ag-decision-cell">
+        <span className="ag-decision-label">الحقيقة المتاحة</span>
+        <span className="ag-decision-value"><ShieldCheck size={13} className="mr-1 inline text-primary-700" /> الذمم والمستحقات ومعدل التحصيل</span>
+      </div>
+      <div className="ag-decision-cell">
+        <span className="ag-decision-label">التعرض</span>
+        <span className="ag-decision-value">{exposure == null ? 'غير متاح' : formatCurrency(exposure)}</span>
+      </div>
+      <div className="ag-decision-cell">
+        <span className="ag-decision-label">As Of</span>
+        <span className="ag-decision-value">{asOf}</span>
+      </div>
+      <div className="ag-decision-cell">
+        <span className="ag-decision-label">الحالة</span>
+        <span className="ag-decision-value">{kpis.status}</span>
+      </div>
+      <div className="ag-decision-cell">
+        <span className="ag-decision-label">الخطوة التالية</span>
+        <span className="ag-decision-value"><Target size={13} className="mr-1 inline text-primary-700" /> راجع أكبر مصادر التعرض</span>
+      </div>
     </section>
     {kpis.status === 'INSUFFICIENT_DATA' && <div className="rounded-2xl border border-warning-200 bg-warning-50/70 p-4 text-[11px] leading-6 text-warning-900">بعض المؤشرات المالية لا تكفي لإصدار صورة مكتملة. تبقى القيم غير المتاحة ظاهرة كـ«غير متاح» ولا تُستبدل بأصفار أو تقديرات.</div>}
   </div>;
