@@ -210,6 +210,10 @@ export function WorkCenterPage() {
               { key: 'progress', label: 'التقدم', align: 'center', render: (r: ImportRecord) => r.progress == null ? '—' : <div className="min-w-24"><div className="text-xs font-bold">{Math.max(0, Math.min(100, r.progress))}%</div><div className="mt-1 h-1.5 overflow-hidden rounded-full bg-ink-100"><div className="h-full rounded-full bg-primary-500" style={{ width: `${Math.max(0, Math.min(100, r.progress))}%` }}/></div></div> },
               { key: 'valid', label: 'البيانات المقبولة', align: 'center', render: (r: ImportRecord) => r.valid_rows == null ? 'غير متاح' : formatNumber(r.valid_rows) },
               { key: 'exceptions', label: 'الاستثناءات', align: 'center', render: (r: ImportRecord) => <span className={(r.invalid_rows ?? 0) + (r.quarantined_rows ?? 0) > 0 ? 'font-semibold text-warning-700' : 'text-ink-500'}>{formatNumber((r.invalid_rows ?? 0) + (r.quarantined_rows ?? 0))}</span> },
+              { key: 'reason', label: 'سبب / حد الحالة', render: (r: ImportRecord) => {
+                const text = r.error_message?.trim() || ((r.invalid_rows ?? 0) + (r.quarantined_rows ?? 0) > 0 ? 'توجد صفوف تحتاج مراجعة داخل النتيجة الحالية.' : r.status === 'partial' ? 'العملية اكتملت جزئيًا؛ راجع حدود النتيجة قبل اعتمادها.' : 'لا توجد ملاحظة مسجلة.');
+                return <span className="block max-w-[260px] text-[10px] leading-5 text-ink-500">{text}</span>;
+              } },
               { key: 'updated', label: 'آخر تحديث', align: 'center', render: (r: ImportRecord) => <span className="inline-flex items-center gap-1 text-xs text-ink-500"><Clock3 size={13}/>{new Date(r.completed_at ?? r.created_at).toLocaleString('ar-YE')}</span> },
             ]}
           />
