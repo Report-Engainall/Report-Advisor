@@ -1,3 +1,18 @@
+## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-WAVE-46-CANDIDATE
+
+- SESSION-ID → `2026-09-21-AGHBARI-WAVE-46`
+- SHA → candidate `7b756852a45aabb43024c2253f6b538fa7c6e559`; subsequent memory/index edits remain governance-only descendants.
+- DONE → Work Center actionability UI implemented at `e51f6b1355ea7b75157504ac62b11039b3749136` and accessibility refinement at `7b756852a45aabb43024c2253f6b538fa7c6e559`.
+- DONE → Product WOW contract guard added at `ecdc7ff7d7638f3385eda7c8ad58ab95017d41a6`.
+- ACTUAL RESULT → first Final Certification run `#7535` failed closed on the certification-boundary check because the Master Execution Index still named historical candidate `2caedfa8...`; the log explicitly reports no indexed-current-candidate match and stops before product contract tests.
+- ACTUAL RESULT → root cause is governance/index drift, not a Work Center product-code failure. The boundary contract remains fail-closed.
+- CORRECTION → Master Execution Index is now being rebound to the actual current candidate `7b756852a45aabb43024c2253f6b538fa7c6e559`; this is a governance-only repair allowed by the certification boundary.
+- PRECISE STOP POINT → fresh synchronized CI/certification runs for the rebound candidate are the immediate release boundary.
+- WHAT REMAINS → fresh Final Certification, Phase-F live resilience, quality/build/browser runtime evidence on `7b756852a45aabb43024c2253f6b538fa7c6e559`; repair only current-candidate failures.
+- NEXT ACTION → consume the new exact-head runs triggered by the candidate-boundary correction.
+- DO NOT REPEAT → do not weaken `check-certification-boundary-integrity.mjs`, do not re-use `2caedfa8...` as the active candidate, and do not classify the first Final Certification failure as a UI regression.
+- CURRENT RESUME POINTER → `7b756852a45aabb43024c2253f6b538fa7c6e559` → fresh exact-head CI/Phase-F/Final Certification → repair current-candidate failure if any → merge only with exact evidence → continue backup/RPO-RTO and remaining Phase-F closure.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-WAVE-45-FINAL
 
 - SESSION-ID → `2026-09-21-AGHBARI-WAVE-45`
