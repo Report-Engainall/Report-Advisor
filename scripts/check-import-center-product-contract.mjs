@@ -24,6 +24,7 @@ const requiredPage = [
   'اعتماد المصدر',
   'سجل الاستيرادات',
   'لن يتم حفظ نسخة تحليل مكررة',
+  'invalidRows: 0',
 ];
 const requiredAdapter = [
   'runCanonicalImportThroughDurableRunner',
