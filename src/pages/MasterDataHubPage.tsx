@@ -41,6 +41,14 @@ const semanticSurfaces = [
       </div>
     </section>
 
+    <section className="ag-decision-strip" aria-label="ملخص البيانات المرجعية">
+      <div className="ag-decision-cell"><span className="ag-decision-label">العملاء</span><span className="ag-decision-value">مسار حقيقي</span></div>
+      <div className="ag-decision-cell"><span className="ag-decision-label">المنتجات</span><span className="ag-decision-value">مسار حقيقي</span></div>
+      <div className="ag-decision-cell"><span className="ag-decision-label">المخزون</span><span className="ag-decision-value">مسار حقيقي</span></div>
+      <div className="ag-decision-cell"><span className="ag-decision-label">الموردون</span><span className="ag-decision-value">مسار حقيقي</span></div>
+      <div className="ag-decision-cell"><span className="ag-decision-label">السياق الدلالي</span><span className="ag-decision-value">جزئي / معلن</span></div>
+    </section>
+
     <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
       {entityLinks.map(({ path, title, desc, icon: Icon }) => <Link key={path} to={path} className="group">
         <Card className="h-full transition hover:-translate-y-1 hover:border-primary-300">
