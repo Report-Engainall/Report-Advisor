@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Mail, MapPin, Phone, Search, Truck } from 'lucide-react';
+import { CircleCheck, Mail, MapPin, Phone, Search, ShieldCheck, Truck } from 'lucide-react';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { PageHeader, LoadingState, ErrorState, EmptyState } from '@/components/ui/States';
@@ -33,6 +33,16 @@ export function SuppliersPage() {
   }, [page, appliedSearch]);
 
   useEffect(() => { void load(); }, [load]);
+
+  const completeness = useMemo(() => {
+    const total = rows.length;
+    if (!total) return { contact: 0, payment: 0, address: 0 };
+    return {
+      contact: rows.filter(row => Boolean(row.phone || row.email)).length,
+      payment: rows.filter(row => row.payment_terms_days != null).length,
+      address: rows.filter(row => Boolean(row.address)).length,
+    };
+  }, [rows]);
 
   const columns = [
     {
@@ -99,6 +109,25 @@ export function SuppliersPage() {
         </div>
       </section>
 
+      <section className="grid gap-3 sm:grid-cols-3">
+        {[
+          ['بيانات التواصل', completeness.contact, Mail],
+          ['شروط السداد', completeness.payment, ShieldCheck],
+          ['العنوان', completeness.address, MapPin],
+        ].map(([label, value, Icon]) => (
+          <Card key={label as string} variant="quality">
+            <CardBody>
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2 text-[10px] font-black text-ink-500"><Icon size={15} className="text-primary-700" />{label as string}</div>
+                <CircleCheck size={16} className="text-primary-700" />
+              </div>
+              <div className="mt-2 text-xl font-black tabular-nums text-ink-950">{value as number}<span className="mr-1 text-[10px] font-bold text-ink-400">/{rows.length}</span></div>
+              <div className="mt-1 text-[9px] leading-5 text-ink-400">موجود في الصفحة الحالية من السجل المرجعي.</div>
+            </CardBody>
+          </Card>
+        ))}
+      </section>
+
       <Card>
         <CardHeader
           title="دليل الموردين"
@@ -128,9 +157,12 @@ export function SuppliersPage() {
       </Card>
 
       <div className="flex flex-col gap-3 rounded-2xl border border-ink-200 bg-white p-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <div className="text-[11px] font-black text-ink-900">السياق الشرائي</div>
-          <p className="mt-1 text-[10px] leading-5 text-ink-400">لرؤية الفواتير والإنفاق وشروط السداد، انتقل إلى مسار المشتريات الكانوني بدل تكرار بياناتها هنا.</p>
+        <div className="flex items-start gap-3">
+          <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary-50 text-primary-700"><ShieldCheck size={15} /></div>
+          <div>
+            <div className="text-[11px] font-black text-ink-900">السياق الشرائي</div>
+            <p className="mt-1 text-[10px] leading-5 text-ink-400">لرؤية الفواتير والإنفاق وشروط السداد، انتقل إلى مسار المشتريات الكانوني بدل تكرار بياناتها هنا.</p>
+          </div>
         </div>
         <Link to="/reports/purchases" className="btn-secondary text-[11px]">فتح المشتريات</Link>
       </div>
