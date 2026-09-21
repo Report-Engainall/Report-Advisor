@@ -41,6 +41,13 @@ assert.ok(appShell.includes('advisorCounts.recommendations'), 'global Advisor mu
 assert.ok(sidebar.includes("trust: { hint: 'إثبات، مصدر، وثقة', tag: 'TRUST' }"), 'Trust navigation section must have product metadata');
 assert.ok(sidebar.includes("outputs: { hint: 'تقارير ومخرجات القرار', tag: 'OUTPUT' }"), 'Outputs navigation section must have product metadata');
 assert.ok(!dashboard.includes('generateSynthetic'), 'decision brief must not invent synthetic business data');
+const dashboardSurface = fs.readFileSync('src/pages/DashboardPage.tsx', 'utf8');
+assert.ok(dashboardSurface.includes('const emptyAnalysisAction'), 'dashboard empty analysis states must derive a real next action');
+assert.ok(dashboardSurface.includes('تبقى الحالة غير مثبتة'), 'dashboard trend empty state must remain fail-closed');
+assert.ok(dashboardSurface.includes('لا يتم تصنيع تركيب للفئات'), 'dashboard category empty state must not fabricate composition');
+assert.ok(dashboardSurface.includes('مراجعة جودة البيانات'), 'dashboard customer/product empties must route to data quality');
+assert.ok(dashboardSurface.includes("to: '/data-quality'"), 'dashboard must use the canonical data-quality route for insufficient truth');
+
 const reports = fs.readFileSync('src/pages/ReportsPage.tsx', 'utf8');
 assert.ok(!reports.includes('window.location.reload()'), 'report pages must retry in place without a full browser reload');
 assert.ok(reports.includes('export function PurchasesReportPage()'), 'purchase report must remain guarded after retry refactor');
