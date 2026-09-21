@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
-  AlertTriangle, ArrowUpLeft, CheckCircle2, ChevronLeft, FileSearch, Lightbulb,
-  ShieldCheck, Target, Workflow, XCircle
+  AlertTriangle, ArrowUpLeft, CalendarClock, CheckCircle2, ChevronLeft, FileSearch, Lightbulb,
+  ShieldCheck, Target, UserRound, Workflow, XCircle
 } from 'lucide-react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
@@ -21,6 +21,36 @@ const STAGES: { id: Stage; label: string; description: string }[] = [
   { id: 'work', label: 'التنفيذ', description: 'ماذا تم فعليًا؟' },
   { id: 'outcome', label: 'النتيجة', description: 'ما الذي حدث بعد ذلك؟' },
 ];
+
+
+function statusLabel(status: string | null): string {
+  if (!status) return 'غير متاح';
+  const labels: Record<string, string> = {
+    pending: 'قيد المراجعة',
+    proposed: 'مقترح',
+    approved: 'معتمد',
+    in_progress: 'قيد التنفيذ',
+    completed: 'مكتمل',
+    rejected: 'مرفوض',
+    cancelled: 'ملغى',
+  };
+  return labels[status] ?? status;
+}
+
+function decisionReadiness(recommendation: Recommendation | null): { label: string; tone: string; detail: string } {
+  if (!recommendation) return { label: 'لا توجد توصية', tone: 'text-ink-500 bg-ink-50', detail: 'لا يوجد عنصر حقيقي لبدء مسار القرار.' };
+  if (!recommendation.owner) return { label: 'ينقص المسؤول', tone: 'text-warning-700 bg-warning-50', detail: 'التوصية موجودة، لكن لا يظهر مسؤول فعلي مرتبط بها.' };
+  if (!recommendation.deadline) return { label: 'ينقص الموعد', tone: 'text-warning-700 bg-warning-50', detail: 'التوصية لها مسؤول، لكن الموعد غير مثبت بعد.' };
+  if (!recommendation.expected_impact) return { label: 'الأثر غير متاح', tone: 'text-warning-700 bg-warning-50', detail: 'لا يوجد أثر متوقع قابل للعرض على هذه التوصية.' };
+  return { label: 'سياق القرار مكتمل', tone: 'text-success-700 bg-success-50', detail: 'المسؤول والموعد والأثر المتوقع متاحة في سجل التوصية.' };
+}
+
+function formatDeadline(value: string | null): string {
+  if (!value) return 'غير متاح';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return date.toLocaleDateString('ar-YE', { year: 'numeric', month: 'short', day: 'numeric' });
+}
 
 function BlockedState({ title, detail }: { title: string; detail: string }) {
   return (
@@ -151,8 +181,9 @@ export function DecisionExperiencePage() {
       <section className="ag-decision-strip" aria-label="ملخص القرار">
         <div className="ag-decision-cell"><span className="ag-decision-label">التوصية المحددة</span><span className="ag-decision-value">{selected?.title ?? 'لم تُحدد بعد'}</span></div>
         <div className="ag-decision-cell"><span className="ag-decision-label">الثقة</span><span className="ag-decision-value">{selected?.confidence ?? 'غير متاح'}</span></div>
-        <div className="ag-decision-cell"><span className="ag-decision-label">الحالة</span><span className="ag-decision-value">{selectedStatus ?? 'غير متاح'}</span></div>
-        <div className="ag-decision-cell"><span className="ag-decision-label">التنبيهات النشطة</span><span className="ag-decision-value">{activeAlerts.length}</span></div>
+        <div className="ag-decision-cell"><span className="ag-decision-label">الحالة</span><span className="ag-decision-value">{statusLabel(selectedStatus)}</span></div>
+        <div className="ag-decision-cell"><span className="ag-decision-label">المسؤول</span><span className="ag-decision-value">{selected?.owner ?? 'غير متاح'}</span></div>
+        <div className="ag-decision-cell"><span className="ag-decision-label">الموعد</span><span className="ag-decision-value">{formatDeadline(selected?.deadline ?? null)}</span></div>
         <div className="ag-decision-cell"><span className="ag-decision-label">المرحلة</span><span className="ag-decision-value">{STAGES[currentStageIndex]?.label}</span></div>
       </section>
 
@@ -166,7 +197,14 @@ export function DecisionExperiencePage() {
       </nav>
 
       {stage === 'command' && (
-        <section className="grid gap-4 xl:grid-cols-[1.15fr_.85fr]">
+        <section className="rounded-[16px] border border-ink-200 bg-white p-4 shadow-card">
+        {(() => { const readiness = decisionReadiness(selected); return <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <div className="min-w-0"><div className="section-kicker">DECISION READINESS</div><div className="mt-1 flex flex-wrap items-center gap-2"><span className={\`rounded-full px-2.5 py-1 text-[10px] font-black \${readiness.tone}\`}>{readiness.label}</span><span className="text-[10px] text-ink-400">{readiness.detail}</span></div></div>
+          <div className="flex flex-wrap gap-2 text-[10px] font-bold text-ink-600"><span className="inline-flex items-center gap-1 rounded-xl bg-ink-50 px-2.5 py-2"><UserRound size={13}/> {selected?.owner ?? 'مسؤول غير مثبت'}</span><span className="inline-flex items-center gap-1 rounded-xl bg-ink-50 px-2.5 py-2"><CalendarClock size={13}/> {formatDeadline(selected?.deadline ?? null)}</span><span className="inline-flex items-center gap-1 rounded-xl bg-ink-50 px-2.5 py-2">الأثر: {selected?.expected_impact == null ? 'غير متاح' : formatCurrency(selected.expected_impact)}</span></div>
+        </div>; })()}
+      </section>
+
+      <section className="grid gap-4 xl:grid-cols-[1.15fr_.85fr]">
           <Card>
             <CardHeader title="الإشارات التي تستدعي قرارًا" subtitle="اختر الإشارة التي تريد تحويلها إلى مسار قرار." />
             <CardBody>
@@ -249,8 +287,10 @@ export function DecisionExperiencePage() {
                     <h2 className="mt-2 text-lg font-black text-ink-950">{selected.title}</h2>
                     {selected.description && <p className="mt-1 text-[11px] leading-5 text-ink-600">{selected.description}</p>}
                   </div>
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    <div className="rounded-[12px] border border-ink-100 bg-white p-4"><div className="text-[10px] text-ink-400">ما نعرفه</div><div className="mt-2 text-[12px] font-bold text-ink-900">التوصية وحالتها كما وردتا من المصدر.</div></div>
+                  <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                    <div className="rounded-[12px] border border-ink-100 bg-white p-4"><div className="text-[10px] text-ink-400">ما نعرفه</div><div className="mt-2 text-[12px] font-bold text-ink-900">{statusLabel(selected.status)}</div></div>
+                    <div className="rounded-[12px] border border-ink-100 bg-white p-4"><div className="text-[10px] text-ink-400">المسؤول</div><div className="mt-2 text-[12px] font-bold text-ink-900">{selected.owner ?? 'غير مثبت'}</div></div>
+                    <div className="rounded-[12px] border border-ink-100 bg-white p-4"><div className="text-[10px] text-ink-400">الموعد</div><div className="mt-2 text-[12px] font-bold text-ink-900">{formatDeadline(selected.deadline)}</div></div>
                     <div className="rounded-[12px] border border-ink-100 bg-white p-4"><div className="text-[10px] text-ink-400">ما لا نعرفه بعد</div><div className="mt-2 text-[12px] font-bold text-ink-900">نتيجة تشغيلية مثبتة بعد التنفيذ.</div></div>
                   </div>
                 </div>
@@ -292,11 +332,15 @@ export function DecisionExperiencePage() {
             <CardHeader title="التنفيذ والمتابعة" subtitle="ما تم فعليًا، وليس ما تتمنى المنظومة حدوثه." />
             <CardBody>
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                {['موافقاتي', 'مهامي', 'قيد التنفيذ', 'متأخر', 'مكتمل', 'متابعة النتيجة'].map((label) => (
-                  <div key={label} className="rounded-[12px] border border-ink-100 bg-white p-4">
-                    <div className="text-[12px] font-black text-ink-900">{label}</div>
-                    <div className="mt-1 text-[10px] text-ink-400">لا توجد حالة تشغيلية مثبتة في المسار الحالي.</div>
-                  </div>
+                {[
+                  ['المسؤول الحالي', selected?.owner ?? 'غير مثبت'],
+                  ['الموعد', formatDeadline(selected?.deadline ?? null)],
+                  ['حالة التوصية', statusLabel(selectedStatus)],
+                  ['الأثر المتوقع', selected?.expected_impact == null ? 'غير متاح' : formatCurrency(selected.expected_impact)],
+                  ['الأثر الفعلي', selected?.impact_result ?? 'غير متاح بعد'],
+                  ['الإشارة التالية', selected?.impact_result ? 'الانتقال إلى النتيجة والتعلّم' : 'انتظار سجل تنفيذ موثق'],
+                ].map(([label, value]) => (
+                  <div key={label} className="rounded-[12px] border border-ink-100 bg-white p-4"><div className="text-[10px] text-ink-400">{label}</div><div className="mt-2 text-[12px] font-black text-ink-900">{value}</div></div>
                 ))}
               </div>
             </CardBody>
