@@ -8,11 +8,11 @@ export function ImportPage() {
       <header className="ag-import-value-header flex flex-col gap-3 rounded-[18px] border border-ink-200 bg-white/80 p-4 shadow-card lg:flex-row lg:items-end lg:justify-between lg:p-5">
         <div className="min-w-0">
           <div className="section-kicker">البيانات والتشغيل / الاستيراد</div>
-          <h1 className="mt-1 text-[22px] font-black tracking-tight text-ink-950">حوّل المصدر إلى حقيقة قابلة للمراجعة</h1>
+          <h1 className="mt-1 text-[22px] font-black tracking-tight text-ink-950">حوّل أي مصدر إلى دليل قابل للمراجعة</h1>
           <p className="mt-1 max-w-3xl text-[11px] leading-5 text-ink-500">ارفع الملف أو استخدم المجلد التشغيلي، ثم راقب الفهم والتطبيع والتحقق قبل أن تصبح البيانات جزءًا من الحقيقة الكانونية.</p>
         </div>
         <div className="flex flex-wrap items-center gap-1.5 text-[10px] font-semibold text-ink-500">
-          <span className="inline-flex items-center gap-1.5 rounded-[9px] border border-primary-100 bg-primary-50/70 px-2.5 py-1.5"><ShieldCheck size={14} className="text-primary-700" /> فحص قبل الكتابة</span>
+          <span className="inline-flex items-center gap-1.5 rounded-[9px] border border-primary-100 bg-primary-50/70 px-2.5 py-1.5"><ShieldCheck size={14} className="text-primary-700" /> فحص قبل الاعتماد</span>
           <span className="inline-flex items-center gap-1.5 rounded-[9px] border border-ink-200 bg-white px-2.5 py-1.5"><LockKeyhole size={14} className="text-primary-700" /> نطاق الشركة محمي</span>
         </div>
       </header>
