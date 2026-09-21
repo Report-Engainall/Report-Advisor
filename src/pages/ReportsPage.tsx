@@ -60,6 +60,24 @@ export function ReportsCenterPage() {
         </Card>
       </Link>)}
     </div>
+
+    <section className="grid gap-4 lg:grid-cols-3">
+      <Link to="/reports/executive" className="card card-hover p-4">
+        <div className="text-[9px] font-black tracking-[.12em] text-primary-700">DECISION OUTPUT</div>
+        <h3 className="mt-2 text-sm font-black text-ink-900">تقارير القرار والتوصية</h3>
+        <p className="mt-1 text-[10px] leading-5 text-ink-500">استخدم التقرير التنفيذي كسطح مخرجات القرار الحالي، مع بقاء الدليل والسياق ظاهرين.</p>
+      </Link>
+      <Link to="/data-quality" className="card card-hover p-4">
+        <div className="text-[9px] font-black tracking-[.12em] text-primary-700">AUDIT OUTPUT</div>
+        <h3 className="mt-2 text-sm font-black text-ink-900">جودة البيانات والتدقيق</h3>
+        <p className="mt-1 text-[10px] leading-5 text-ink-500">مسار الجودة هو المصدر الحالي لمراجعة الحالات بدل إنشاء تقرير تدقيق منفصل ببيانات مكررة.</p>
+      </Link>
+      <div className="card p-4 border-warning-200 bg-warning-50/35">
+        <div className="text-[9px] font-black tracking-[.12em] text-warning-800">NOT AVAILABLE</div>
+        <h3 className="mt-2 text-sm font-black text-ink-900">Report Builder</h3>
+        <p className="mt-1 text-[10px] leading-5 text-warning-900">لا توجد شاشة بناء تقارير مستقلة مثبتة في المسار الحالي؛ لا يتم محاكاة محرر لا يملك مسارًا حقيقيًا.</p>
+      </div>
+    </section>
   </div>;
 }
 

@@ -143,6 +143,29 @@ export function IntelligenceCenterPage() {
         forecastsCount={forecasts.length}
       />
 
+      <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <Link to="/command-center" className="card card-hover p-4">
+          <div className="flex items-center justify-between"><CircleAlert size={17} className="text-danger-700"/><span className="badge-danger">EARLY WARNING</span></div>
+          <div className="mt-3 text-sm font-black text-ink-900">الإشارات ومحركات التغير</div>
+          <p className="mt-1 text-[10px] leading-5 text-ink-500">تحقيق الإشارة يبدأ من مركز القيادة حيث تظهر الحالة والسياق قبل القرار.</p>
+        </Link>
+        <Link to="/intelligence/forecasts" className="card card-hover p-4">
+          <div className="flex items-center justify-between"><TrendingUp size={17} className="text-primary-700"/><span className="badge-primary">FORECAST</span></div>
+          <div className="mt-3 text-sm font-black text-ink-900">التنبؤ + الاختبار الرجعي</div>
+          <p className="mt-1 text-[10px] leading-5 text-ink-500">التنبؤات متاحة من المصدر؛ الاختبار الرجعي مستقل عن العرض ولا يُملأ بنتيجة تقديرية.</p>
+        </Link>
+        <Link to="/intelligence/scenarios" className="card card-hover p-4">
+          <div className="flex items-center justify-between"><Target size={17} className="text-primary-700"/><span className="badge-primary">WHAT-IF</span></div>
+          <div className="mt-3 text-sm font-black text-ink-900">السيناريوهات</div>
+          <p className="mt-1 text-[10px] leading-5 text-ink-500">انتقل إلى حارس السيناريوهات مع بقاء شروط الحقيقة والحساب الحتمي في المقدمة.</p>
+        </Link>
+        <div className="card p-4">
+          <div className="flex items-center justify-between"><Sparkles size={17} className="text-warning-700"/><span className="badge-warning">NOT AVAILABLE</span></div>
+          <div className="mt-3 text-sm font-black text-ink-900">Decision Playbooks</div>
+          <p className="mt-1 text-[10px] leading-5 text-ink-500">قوالب اللعبات التنفيذية تحتاج مسار سجل مستقل؛ لن تُعرض كقوالب جاهزة مزيفة.</p>
+        </div>
+      </section>
+
       <section className="grid gap-4 xl:grid-cols-[1.15fr_.85fr]">
         <Card>
           <CardHeader

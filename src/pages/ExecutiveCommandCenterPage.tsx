@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 import {
-  ArrowUpLeft, BarChart3, Brain, CalendarRange, CircleAlert,
+  ArrowUpLeft, BarChart3, Brain, CalendarRange, CheckCircle2, CircleAlert,
   FileSearch, Package, RefreshCw, Sparkles, TrendingUp, Upload, WalletCards
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -136,6 +136,29 @@ export function ExecutiveCommandCenterPage() {
       </section>
 
       <TruthContextStrip months={months} status={kpis.status} asOf={asOf ?? 'غير متاح'} />
+
+      <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+        <Link to="/reports/receivables" className="card card-hover p-4">
+          <div className="flex items-center justify-between gap-3"><WalletCards size={18} className="text-primary-700"/><span className="rounded-full bg-success-50 px-2 py-1 text-[9px] font-black text-success-700">{kpis.totalReceivables === null ? 'INSUFFICIENT DATA' : 'مسار قابل للتحقق'}</span></div>
+          <div className="mt-3 text-sm font-black text-ink-900">Money Recovery</div>
+          <p className="mt-1 text-[10px] leading-5 text-ink-500">ابدأ من الذمم والتحصيل للتحقق من الأموال القابلة للاسترداد؛ لا يتم احتساب فرصة مالية إضافية هنا دون ledger موثّق.</p>
+        </Link>
+        <div className="card p-4">
+          <div className="flex items-center justify-between gap-3"><BarChart3 size={18} className="text-warning-700"/><span className="rounded-full bg-warning-50 px-2 py-1 text-[9px] font-black text-warning-800">INSUFFICIENT DATA</span></div>
+          <div className="mt-3 text-sm font-black text-ink-900">Decision ROI</div>
+          <p className="mt-1 text-[10px] leading-5 text-ink-500">لا يوجد في هذا السطح سجل نتائج مالي موثّق يسمح بحساب عائد القرار دون اختلاق أثر.</p>
+        </div>
+        <div className="card p-4">
+          <div className="flex items-center justify-between gap-3"><FileSearch size={18} className="text-ink-500"/><span className="rounded-full bg-ink-100 px-2 py-1 text-[9px] font-black text-ink-600">NOT AVAILABLE</span></div>
+          <div className="mt-3 text-sm font-black text-ink-900">Business Replay</div>
+          <p className="mt-1 text-[10px] leading-5 text-ink-500">إعادة التشغيل تحتاج snapshots وoutcomes تاريخية مثبتة؛ الواجهة لا تصنع سجلًا بديلًا.</p>
+        </div>
+        <Link to="/decision-experience?stage=outcome" className="card card-hover p-4">
+          <div className="flex items-center justify-between gap-3"><CheckCircle2 size={18} className="text-primary-700"/><span className="rounded-full bg-primary-50 px-2 py-1 text-[9px] font-black text-primary-700">مسار القرار</span></div>
+          <div className="mt-3 text-sm font-black text-ink-900">Outcome follow-up</div>
+          <p className="mt-1 text-[10px] leading-5 text-ink-500">تابع نتيجة القرار من مساحة القرار مع الحفاظ على حالة الدليل وعدم تحويل التوصية إلى نجاح تلقائي.</p>
+        </Link>
+      </section>
 
       <section className="overflow-hidden rounded-[14px] border border-ink-200 bg-white shadow-card">
         <div className="grid grid-cols-2 lg:grid-cols-4">
