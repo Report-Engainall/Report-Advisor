@@ -1288,3 +1288,15 @@ This update records implementation state only; it does not replace the product c
 - Contract guard commit: `e6185e782e94fd227290a27a3b1d2263ced8d80c`.
 - No new RPC, query family, route, table, importer, runner, tenant/RLS path, or synthetic business data was introduced.
 - This UI change remains subject to fresh exact-head build/browser certification; historical runtime PASS is not transferred.
+
+
+## IMPLEMENTATION UPDATE — 2026-09-21 / CANONICAL IMPORT FAILURE CLOSURE + LIVE RESILIENCE CHECK
+- Exact UI fix commit: `42c873d48980650c8cd38a6c242a416862e5f0c8`.
+- Exact contract-guard commit: `52f362bdcab600b597f8321cd9a6f6a2ad9c0599`.
+- Unified import terminal summaries now carry `invalidRows` consistently for both completed and failed terminal states.
+- Canonical import failure UX now distinguishes server-side execution failures, review-required quality states, and authoritative-source validation failures; it keeps the exact technical error visible, provides the next action, and refreshes the import history after a failed canonical attempt.
+- No new importer, RPC, runner, route, tenant/RLS path, or synthetic data was introduced.
+- Live staging verification on 2026-09-21: the two newest imports after the finish-job repair completed successfully with `committed=1`, `invalidRows=0`, and persisted snapshot IDs. Historical HTTP-500 failures remain before 17:01 UTC; they are not transferred as current failure evidence.
+- Live worker recovery: one expired `processing` lease was recovered through the existing canonical `recover_expired_report_execution_jobs` function. Immediate verification showed `expired_active_leases=0` and `processing=0`; queued work remains 564, failed=10, dead_letter=7, completed=3110 at the observation point.
+- Live evidence gap: `backup_verification_runs=0`; measured backup/RPO-RTO proof is still absent. Supabase security advisor reports 47 authenticated-executable SECURITY DEFINER warnings; no blanket revoke is authorized without function-by-function contract review.
+- Fresh exact-head build/browser/deployment certification is still open; stale Vercel/Netlify evidence is not transferred.
