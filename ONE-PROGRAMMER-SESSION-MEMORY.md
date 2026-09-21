@@ -1,3 +1,24 @@
+## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-CORE-IMPORT-HARDENING-27
+- SESSION-ID → `2026-09-21-AGHBARI-CORE-IMPORT-HARDENING-27`
+- BRANCH → `main`
+- EXACT CODE/REPOSITORY HEAD → `aaf3b07e2399718c8efe379c328d96ed149ea2a4`
+- DONE → closed a substantive provenance gap in the canonical import core. The server boundary now re-downloads the authoritative source bytes, verifies the SHA-256, re-extracts the dataset from those bytes, re-runs canonical reconciliation on the server, applies authoritative quality gates, and passes only server-derived reconciled rows into the existing durable canonical lifecycle.
+- DONE → added explicit `qualityApproved` to the canonical import execution contract. Server-side quality is authoritative: <50 rejects, 50–74 requires explicit approval, >=75 can continue without the review flag.
+- DONE → removed the earlier state-order defect where `file_records` could be marked `ready/passed` before authoritative server extraction completed. Source readiness for the execute path is now persisted only after server extraction and reconciliation succeed.
+- DONE → canonical import UI now persists server-authoritative row count, quality score, columns and preview returned from the exact source bytes instead of treating browser-derived counts as final commit truth.
+- DONE → strengthened `scripts/check-import-transaction-contract.mjs` to fail if the server boundary stops re-extracting/reconciling authoritative bytes, drops quality gates, or loses explicit approval state.
+- LIVE DATABASE VERIFICATION → staging Supabase project `fnqbvfuwbdpwvhcgzksl` is ACTIVE_HEALTHY. `canonical_dataset_records` has unique `(company_id, source_hash, row_number)`; `canonical_import_commits` has 3105 rows, 0 generic commits, 0 null company IDs. `report_execution_jobs`: queued=558, active=5, completed=3104, failed=10, dead_letter=7. `backup_verification_runs` = 0.
+- LIVE DATABASE SECURITY VERIFICATION → `current_company_id()` is SECURITY DEFINER with `search_path=public, pg_catalog`, authenticated EXECUTE true, anon false. Authoritative `import_commit_batch(uuid,text,jsonb,text,text,uuid)` is SECURITY DEFINER with `search_path=pg_catalog`, authenticated EXECUTE true, anon false; its live body explicitly rejects missing tenant context, tenant mismatch, missing/invalid source hash, source hash drift, unverified file state, storage binding violations and missing raw-byte hash proof.
+- LIVE RLS VERIFICATION → `canonical_dataset_records`, `canonical_import_commits`, `file_records`, and `import_jobs` use authenticated tenant-scoped policies through `current_company_id()`; update/insert policies retain both tenant predicates where applicable.
+- SECURITY ADVISOR BOUNDARY → Supabase currently reports 47 authenticated SECURITY DEFINER warnings. These were not mass-revoked because several are intentional canonical/auth/runtime boundaries; no blind DDL was applied.
+- EXACT VERIFICATION → current `main` HEAD re-read as `aaf3b07e...`; server re-extraction/reconciliation/quality-gate/approval checks and UI authoritative-result checks are present in the exact files on current main. No fake PASS or stale SHA evidence transferred.
+- BUILD/RUNTIME BOUNDARY → exact-head typecheck/build/browser/runtime certification is still NOT PROVEN. GitHub combined status on `aaf3b07e...` reports Vercel free-plan `build-rate-limit` failure with deployment context pending; PC01 remains offline.
+- PRECISE STOP POINT → canonical import provenance/quality boundary is materially hardened and persisted in code, while live runtime execution of the final head remains open.
+- WHAT REMAINS → exact-head compile/runtime proof; authenticated browser E2E; tenant A/B; disposable worker resilience lifecycle; backup/RPO-RTO verification; OCR/scanned-PDF server authority; watched-folder runtime; final CI/certification.
+- NEXT ACTION → continue the next independent core closure (worker/resilience/OCR/runtime-safe path) while keeping UI/product development active; then obtain exact-head build/deployment/runtime proof when an executable free environment is available.
+- DO NOT REPEAT → do not trust browser rows as authoritative import truth; do not mark source ready before server extraction; do not add parallel import RPCs/runners; do not transfer PASS across SHAs; do not mass-revoke intentional SECURITY DEFINER functions without per-function evidence.
+- CURRENT RESUME POINTER → `aaf3b07e2399718c8efe379c328d96ed149ea2a4` → next independent core closure (worker/resilience/OCR) + canonical UI polish → exact-head build/deployment/runtime → final certification.
+
 ## FINAL WRITE-BACK STATUS — 2026-09-21-AGHBARI-CONTINUOUS-DEVELOPMENT-26
 - CODE HEAD TO RESUME FROM → `3de200146403ff4e1dae105837dd37af3eff3f50`
 - DOCUMENTATION WRITE-BACKS COMPLETED AFTER CODE → memory `6cb446f...`, execution index `9b64fb7...`, product reference `6897d4b...`.
