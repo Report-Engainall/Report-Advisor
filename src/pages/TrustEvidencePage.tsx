@@ -1,4 +1,4 @@
-import { ArrowLeft, CheckCircle2, Eye, FileSearch, GitBranch, History, Landmark, RefreshCw, ShieldCheck } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, CircleAlert, Eye, FileSearch, GitBranch, History, Landmark, RefreshCw, ShieldCheck } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
@@ -46,7 +46,6 @@ export function TrustEvidencePage() {
   }, [loadSnapshot]);
 
   const status = snapshot?.status ?? 'INSUFFICIENT DATA';
-  const statusLabel = status === 'OK' ? 'الحالة قابلة للاستخدام' : status === 'EMPTY' ? 'لا توجد بيانات مثبتة بعد' : status;
   const issueTotal = useMemo(
     () => snapshot?.entities?.reduce((sum, entity) => sum + (entity.issues ?? 0), 0) ?? null,
     [snapshot],
@@ -59,6 +58,14 @@ export function TrustEvidencePage() {
     () => snapshot?.issues?.filter((issue) => issue.severity === 'critical').reduce((sum, issue) => sum + issue.count, 0) ?? 0,
     [snapshot],
   );
+  const trustState = snapshot?.status === 'EMPTY'
+    ? { label: 'INSUFFICIENT DATA', detail: 'لا توجد بيانات مثبتة تسمح بإصدار حالة ثقة قابلة للاستخدام.' }
+    : criticalIssueTotal > 0
+      ? { label: 'BLOCKED', detail: 'توجد مشكلات حرجة تمنع استخدام النتائج في قرار قبل إغلاق سببها.' }
+      : issueTotal && issueTotal > 0
+        ? { label: 'REVIEW', detail: 'توجد ملاحظات في المصدر؛ راجعها قبل الاعتماد التشغيلي للنتائج.' }
+        : { label: 'VERIFIED', detail: 'المصدر الحالي لا يحمل مشكلات مسجلة ضمن لقطة الجودة المتاحة.' };
+  const statusLabel = trustState.label;
   const nextStep = snapshot?.status === 'EMPTY'
     ? { label: 'ابدأ من المصدر', detail: 'أضف ملفًا أو مصدرًا حتى يمكن بناء حالة حقيقة وأدلة فعلية.', path: '/import' }
     : criticalIssueTotal > 0
@@ -101,6 +108,25 @@ export function TrustEvidencePage() {
       </div>
     </section>
 
+    <section className="rounded-2xl border border-ink-100 bg-white p-4 shadow-sm" aria-label="أهلية القرار الحالية">
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex items-start gap-3">
+          <div className={"mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl " + (trustState.label === 'VERIFIED' ? 'bg-success-50 text-success-700' : trustState.label === 'REVIEW' ? 'bg-warning-50 text-warning-700' : 'bg-danger-50 text-danger-700')}>
+            <CircleAlert size={17} />
+          </div>
+          <div>
+            <div className="text-[9px] font-black tracking-[.12em] text-ink-400">DECISION ELIGIBILITY</div>
+            <div className="mt-1 text-sm font-black text-ink-950">{trustState.label}</div>
+            <div className="mt-1 text-xs leading-5 text-ink-600">{trustState.detail}</div>
+          </div>
+        </div>
+        <Link to={nextStep.path} className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-ink-950 px-3 py-2 text-[10px] font-black text-white hover:bg-ink-800">
+          الخطوة التالية: {nextStep.label}
+          <ArrowLeft size={13} />
+        </Link>
+      </div>
+    </section>
+
     <section className="ag-decision-strip" aria-label="ملخص الثقة">
       <div className="ag-decision-cell"><span className="ag-decision-label">الحالة الحالية</span><span className="ag-decision-value">{statusLabel}</span></div>
       <div className="ag-decision-cell"><span className="ag-decision-label">السجلات</span><span className="ag-decision-value">{totalRecords == null ? 'غير متاح' : totalRecords}</span></div>
@@ -124,8 +150,26 @@ export function TrustEvidencePage() {
             <div className="space-y-2.5">
               {snapshot.entities.slice(0, 8).map(entity => (
                 <div key={entity.name} className="flex items-center justify-between gap-3 rounded-xl border border-ink-100 bg-ink-50/40 px-3 py-3">
-                  <span className="min-w-0 text-xs font-bold text-ink-800">{entity.name}</span>
-                  <span className="shrink-0 text-xs font-black text-ink-500">{entity.issues ?? 'غير متاح'} مشكلة</span>
+                  <div className="min-w-0">
+                    <span className="block text-xs font-bold text-ink-800">{entity.name}</span>
+                    <div className="mt-1 flex items-center gap-2">
+  <span className="text-[10px] text-ink-400">درجة الجودة: {entity.score}%</span>
+  <span className="h-1.5 w-24 overflow-hidden rounded-full bg-ink-100" role="progressbar" aria-label={"درجة جودة " + entity.name} aria-valuemin={0} aria-valuemax={100} aria-valuenow={entity.score}>
+    <span className="block h-full rounded-full bg-primary-500" style={{ width: Math.max(0, Math.min(100, entity.score)) + '%' }} />
+  </span>
+</div>
+                  </div>
+                  <div className="shrink-0 text-left">
+                    <span className="block text-xs font-black text-ink-500">{entity.issues ?? 'غير متاح'} مشكلة</span>
+                    <Link
+                      to={(entity.issues ?? 0) > 0 ? '/data-quality' : '/import/analyze'}
+                      className="mt-1 inline-flex items-center gap-1 text-[9px] font-black text-primary-700 hover:text-primary-900"
+                      aria-label={(entity.issues ?? 0) > 0 ? `مراجعة جودة ${entity.name}` : `فحص مصدر ${entity.name}`}
+                    >
+                      {(entity.issues ?? 0) > 0 ? 'راجع الجودة' : 'افحص المصدر'}
+                      <ArrowLeft size={10} />
+                    </Link>
+                  </div>
                 </div>
               ))}
             </div>
