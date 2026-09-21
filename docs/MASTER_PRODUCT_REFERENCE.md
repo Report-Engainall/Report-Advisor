@@ -1,13 +1,13 @@
 ## IMPLEMENTATION UPDATE — 2026-09-21 / REPORT CENTER LIVE SNAPSHOT + PHASE-F EVIDENCE BOUNDARY
 
-- Exact product/test candidate: `a0efc8caddd310dba4d7a0fe2b83dee14ca21669` (UI code commit `c6dd99d320f5fb751832cdb4f5b7e7661af22d8d`; UI contract guard `a0efc8caddd310dba4d7a0fe2b83dee14ca21669`).
+- Exact current `main` head: `42c89ef31bc67a20c66fd7f22d8325ecb642a71f` (merged wave-45 governance head; UI code commit `c6dd99d320f5fb751832cdb4f5b7e7661af22d8d`; UI contract guard `a0efc8caddd310dba4d7a0fe2b83dee14ca21669`).
 - Report Center is no longer a static catalog: it reads the existing canonical `fetchDashboardSnapshot(6)`, exposes live sales/receivables/inventory/invoice context, the snapshot truth state, As Of, aging-data state and a direct next action.
 - The refresh action stays within the page and the surface explicitly avoids replacement values when the canonical snapshot is insufficient.
 - Contract guard `check-product-wow-ui-contract.mjs` now protects the live snapshot, next-action, refresh and no-synthetic-data invariants.
 - No route, RPC, runner, table, import engine, deterministic calculation, tenant/RLS path or product taxonomy was added.
 - Staging backup evidence check at 2026-09-21 17:26 UTC: `backup_verification_runs=0`; PostgreSQL WAL archiving was active with `archived_count=3195`, `failed_count=21`, and `last_archived_time=2026-09-21 17:26:30 UTC`. This is archival-health evidence only and is **not** restore/RPO/RTO proof.
 - The repository already contains the real logical backup/restore Phase-F path using `supabase db dump`, ephemeral restore, SHA-256 artifact evidence, row-count comparison, and explicit RPO/RTO thresholds; fresh exact-head execution remains the acceptance boundary.
-- Exact-head CI/runtime/browser certification is not yet claimed for `a0efc8caddd310dba4d7a0fe2b83dee14ca21669`; the main-branch push does not trigger the Phase-F workflow, so this wave opens a PR to obtain a real exact-head run.
+- Exact-head CI/runtime/browser certification is not yet claimed for `42c89ef31bc67a20c66fd7f22d8325ecb642a71f`. PR #608 was merged after the exact source/contract verification and a successful public Netlify deploy-preview check on the PR head; the Phase-F workflow still requires `pull_request` or manual `workflow_dispatch`, and the connected browser-dispatch path is currently unavailable. Vercel remains externally blocked by the free-plan `build-rate-limit`.
 
 ## LATEST IMPLEMENTATION UPDATE — 2026-09-21 / TRUST & EVIDENCE ACTIONABILITY WAVE 40
 
