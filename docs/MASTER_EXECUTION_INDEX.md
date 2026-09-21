@@ -1,3 +1,16 @@
+## CURRENT EXECUTION BOUNDARY — 2026-09-21 / WAVE 51 — INVENTORY EMPTY-STATE GOVERNANCE
+
+> Exact-head evidence only. No historical deployment/runtime result is transferred.
+
+- CURRENT CODE/TEST CANDIDATE: `c90a97aad3c353f031c80cfd0788836b20add1e1`.
+- UI IMPLEMENTATION: `3b7f6e35f69bb53fd56a1714922376d4322ccd1a` (with initial actionable-state commit `976adb2b54ba52af9cadae4b4deb0085bdc539e8`).
+- UI CONTRACT: `c90a97aad3c353f031c80cfd0788836b20add1e1`.
+- DONE: Inventory empty states are now source-aware and filter-aware, with real next actions and no reload.
+- EXACT SOURCE VERIFICATION: current `EntityPages.tsx` confirms `totalRows === 0` for source-empty and explicit `filter` + `filteredRows === 0` for filtered-empty.
+- CURRENT BUILD/DEPLOY BOUNDARY: Vercel exact-head status remains `failure` / `build-rate-limit`; no runtime PASS is claimed.
+- NEXT EXECUTABLE ACTION: fresh exact-head CI/build/Phase-F/browser/certification for `c90a97aa...`; repair only a failure reproduced on this SHA. Then backup/RPO-RTO → worker/server-boundary → tenant A/B → server OCR → watched-folder → final certification.
+- DO NOT REPEAT: do not classify unknown counts as empty; do not transfer older READY deployments; do not recreate import workflows.
+
 ## CURRENT EXECUTION BOUNDARY — 2026-09-21 / WAVE 50 — DASHBOARD ANALYTICAL EMPTY STATES
 
 > Exact-head evidence only. No historical deployment/runtime result is transferred.
