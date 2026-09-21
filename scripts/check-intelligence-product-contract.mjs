@@ -1,7 +1,36 @@
+import assert from 'node:assert/strict';
 import fs from 'node:fs';
+
 const source = fs.readFileSync('src/pages/IntelligencePage.tsx', 'utf8');
-const required = ['مركز الذكاء والقرار','fetchRecommendations','fetchAlerts','fetchForecasts','updateRecommendationStatus','FORECAST','مساحة القرار','لا توجد تنبؤات مصدرية','لا توجد تنبيهات مصدرية حاليًا','لا توجد توصيات مصدرية حاليًا','مسار نتيجة تشغيلية موثقة'];
-const missing = required.filter(token => !source.includes(token));
-if (missing.length) { console.error('Intelligence product contract: FAIL'); missing.forEach(token => console.error(`- missing: ${token}`)); process.exit(1); }
-if (/Math\.random\(|fake|mock/i.test(source)) { console.error('Intelligence product contract: FAIL — synthetic marker detected'); process.exit(1); }
+
+for (const token of [
+  'fetchRecommendations',
+  'fetchAlerts',
+  'fetchForecasts',
+  'updateRecommendationStatus',
+  'DeterministicIntelligenceAssistant',
+  'ForecastChart',
+  'PriorityBadge',
+  'ConfidenceBadge',
+  'activeAlerts',
+  'newRecommendations',
+  'companyForecasts',
+  'مساحة القرار',
+  'FORECAST',
+]) {
+  assert.ok(source.includes(token), 'intelligence product contract missing: ' + token);
+}
+
+for (const token of [
+  /<Card>/,
+  /activeAlerts\.slice/,
+  /newRecommendations\.slice/,
+  /forecastChartData/,
+  /updateRecommendationStatus/,
+  /EmptyState/,
+]) {
+  assert.match(source, token);
+}
+
+assert.ok(!/Math\.random\(|fake|mock/i.test(source), 'synthetic marker detected');
 console.log('Intelligence product contract: PASS');
