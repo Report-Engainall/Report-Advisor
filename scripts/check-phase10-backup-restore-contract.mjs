@@ -41,7 +41,7 @@ for (const token of [
 // Bind the remaining-work register to recovery concepts explicitly present in
 // the authoritative index. Runtime recovery proof remains a separate gate.
 const indexLower = index.toLowerCase();
-for (const token of ['backup/restore', 'rollback', 'recovery', 'not proven']) {
+for (const token of ['backup/restore', 'rollback', 'recovery', 'runtime proof remains open']) {
   if (!indexLower.includes(token)) throw new Error(`Remaining-work register lost recovery boundary: ${token}`);
 }
 
