@@ -2,11 +2,11 @@
 
 > تحديث تنفيذي بعد أمر المالك «انطلق». هذا القسم يصف الحالة المثبتة من الأدوات فقط. لا يتم نقل Evidence بين SHAs، ولا تُعد الحالة PASS إلا بدليل Exact-HEAD.
 
-- **CURRENT CODE/TEST CANDIDATE:** `ad20f67fcb19b7668a168ed974b5b33d8de105de`
+- **CURRENT CODE/TEST CANDIDATE:** `13b690c06b185ad2aba7a764bb5a8f158ab8f7eb`
 - **CURRENT_REPOSITORY_HEAD:** `943f0619abfddb56daddc83bc500659376655474`
 
 ### CURRENT EXACT HEAD / DEPLOYED STATE
-- **Current product/code HEAD:** `ad20f67fcb19b7668a168ed974b5b33d8de105de` on `main`.
+- **Current product/code HEAD:** `13b690c06b185ad2aba7a764bb5a8f158ab8f7eb` on `main`.
 - **Previous product/runtime baseline:** `1568e43889d27b5d850e64c0b99d03a994fd3bbe`.
 - **Historical product/test candidate:** `fe5661060462ffa21d6aa31505f80c2021c4170a` — historical only; do not treat as current HEAD evidence.
 - **Reference product/runtime code HEAD:** `c11c084d161cceb4595f8552b6c49c3f610f0ec2`; current `main` also carries the forward-only security/source-parity migrations merged afterward.
@@ -313,3 +313,10 @@ There is one execution owner. Do not resurrect the previous UI/runtime owner spl
 - Decision Experience JSX was simplified to a direct readiness block after CI exposed an invalid nested JSX expression.
 - No business behavior, backend path, decision mutation, tenant/RLS or deterministic calculation changed.
 - Previous import-authority, unified-entry, server Snapshot and import-order repairs remain part of the same current code candidate.
+
+
+## CONTINUATION UPDATE — 2026-09-21 / DECISION JSX FINAL REPAIR
+- Exact product code HEAD: `13b690c06b185ad2aba7a764bb5a8f158ab8f7eb`.
+- Replaced the invalid nested JSX/IIFE Decision Readiness block with direct JSX.
+- Exact diff confirms the previous malformed expression and section closure were removed.
+- No decision data contract or mutation path changed.
