@@ -1,3 +1,24 @@
+## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-76
+
+- SESSION-ID → `2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-76`
+- EXACT CURRENT CODE/TEST CANDIDATE → `f66e5efa70b002c6f85c78e1123f1b09130d4c9f`.
+- GOVERNANCE INDEX DESCENDANT BEFORE THIS WRITE → `30cca8452c587d3a989c4995aebf493c7b0b8063`; this memory commit itself is governance-only and will become the new branch head.
+- DONE → Canonical Import server execution was unified into one shared implementation at `src/server/canonical-import-execute.ts`.
+- DONE → Vercel `api/canonical-import-execute.ts` and Netlify `netlify/functions/canonical-import-execute.mts` are now thin platform adapters only; neither owns a second durable-import execution path.
+- DONE → The shared boundary ignores client-supplied rows as authoritative input and instead re-reads the tenant-scoped source from Storage, hashes it server-side, runs securityScan, detects format, parses source data, reconciles through the existing canonical truth boundary, runs the existing durable runner, and records the existing source-analysis snapshot evidence.
+- DONE → `scripts/check-canonical-import-server-boundary.mjs` was added to guard against reintroducing parallel Vercel/Netlify business paths or trusting browser rows.
+- VERIFIED → Compare from prior governance head `c4cf6a7...` to candidate `f66e5efa...` contains only the Vercel adapter, Netlify adapter, shared server boundary, and the new contract. No migration, RPC, runner replacement, tenant model, or parallel importer was introduced.
+- LIVE SUPABASE → `import_jobs=4489`: completed=3089, processing=151, failed=1249, queued=0, dead_letter=0. `report_execution_jobs`: completed=3152, queued=564, failed=10, dead_letter=7. No `leased`/processing durable jobs were observed at the check time.
+- LIVE LEGACY PROCESSING → 151 `import_jobs` records are one-row legacy-shaped records from 2026-09-14 through 2026-09-20 with null idempotency/source fingerprint and no matching `report_execution_jobs` by source path. They were not force-closed or altered.
+- LIVE FAILURE ANALYSIS → the latest repeated `CANONICAL_IMPORT_SERVER_EXECUTION_FAILED:HTTP_500` cluster contains 18 single-row jobs from 2026-09-21 with zero processed rows. Current Vercel app catch behavior maps unexpected application errors to 502, and the queried Vercel runtime logs for the relevant period contained no canonical-import 500 entries. This does not prove a root cause, so no data mutation was made.
+- CI → the latest PR workflow batch available during this wave began at 20:06Z on old merge/head state `048ef6b...`, before candidate `aabfbc4...` and before `f66e5efa...`. Its failures are stale event/ref failures and are not current-head evidence. No exact-current-head PASS is claimed.
+- PHASE-F → still FAIL-CLOSED because authorized `RESILIENCE_MAX_RPO_SECONDS` and live backup/restore configuration remain absent. No RPO/RTO value or secret was invented.
+- HOSTING → Vercel free-plan deployment-rate limit remains external. Prior Cloudflare preview rendering is not transferred as current-head deployment proof.
+- PRECISE STOP POINT → candidate `f66e5efa...` and governance index `30cca845...` are complete; this write-back is the final state record for the wave.
+- NEXT ACTION → consume fresh workflow/deployment evidence generated for the current candidate; then reproduce any canonical-import runtime failure through the current unified boundary before changing data; investigate the 151 legacy processing records as a separate governed cleanup/migration task; provision authorized Phase-F → real backup/restore/RPO/RTO/rollback → final certification.
+- DO NOT REPEAT → do not transfer stale Actions results; do not rerun stale workflow failures as current proof; do not force-close legacy processing rows; do not delete unused indexes solely from advisor output; do not invent Phase-F secrets/RPO/RTO; do not create duplicate import/RPC/runner paths; do not treat preview rendering as authenticated runtime certification.
+- CURRENT RESUME POINTER → `f66e5efa70b002c6f85c78e1123f1b09130d4c9f` → fresh exact-head CI/deployment evidence → canonical runtime reproduction → governed legacy-job cleanup path → authorized Phase-F → real recovery evidence → final certification.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-74
 
 - SESSION-ID → `2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-74`
