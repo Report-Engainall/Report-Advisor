@@ -1,21 +1,31 @@
+## CURRENT PROJECT STATE — 2026-09-21 / UNIFIED BUSINESS E2E CONTRACT REBIND
+
+> Exact-head evidence only. The active candidate is the unified source-first business E2E contract repair; older candidate markers remain historical and are not evidence.
+
+- **CURRENT CODE/TEST CANDIDATE:** `5b0de0d593fda911f578898d70d50c3099fba424`.
+- **CURRENT_CODE_TEST_CANDIDATE:** `5b0de0d593fda911f578898d70d50c3099fba424`.
+- **CURRENT REPOSITORY HEAD:** `5b0de0d593fda911f578898d70d50c3099fba424` before this governance-only rebind.
+- **DONE:** `real-business-e2e.mjs` now exercises one unified `/import` source entry, generic canonical commit persistence, provenance, and tenant-A/B isolation; it no longer requires retired entity-selector controls.
+- **DO NOT REPEAT:** do not restore per-entity import buttons/selectors merely to satisfy tests.
+
 ## CURRENT PROJECT STATE — 2026-09-21 / EXACT UNIFIED IMPORT CERTIFICATION CANDIDATE
 
 > Exact-head evidence only. The active certification candidate is the current unified-import contract repair; older candidate markers below are historical.
 
-- **CURRENT CODE/TEST CANDIDATE:** `72e8182aaa364fb1736e8796c214505a6ea36975`.
-- **CURRENT_CODE_TEST_CANDIDATE:** `72e8182aaa364fb1736e8796c214505a6ea36975`.
-- **CURRENT REPOSITORY HEAD:** `b610bd3fd04ec00580aee381b7932adb97decf25` (governance-only descendant of the candidate).
+- **CURRENT CODE/TEST CANDIDATE:** `5b0de0d593fda911f578898d70d50c3099fba424`.
+- **CURRENT_CODE_TEST_CANDIDATE:** `5b0de0d593fda911f578898d70d50c3099fba424`.
+- **CURRENT REPOSITORY HEAD:** `5b0de0d593fda911f578898d70d50c3099fba424` (governance-only descendant of the candidate).
 - **CERTIFICATION BOUNDARY:** candidate `72e8182...` plus governance-only descendants are permitted; no source/code changes may be smuggled through documentation.
 
 ## LATEST EXECUTION BOUNDARY — 2026-09-21 / UNIFIED IMPORT CONTRACT REPAIR
 
 > Exact-head evidence only. The repository now reflects the current unified source-first importer architecture; the retired specialized folder importer is not restored.
 
-- **CURRENT REPOSITORY HEAD:** `72e8182aaa364fb1736e8796c214505a6ea36975` on `main`.
-- **CURRENT_CODE_TEST_CANDIDATE:** `72e8182aaa364fb1736e8796c214505a6ea36975`.
+- **CURRENT REPOSITORY HEAD:** `5b0de0d593fda911f578898d70d50c3099fba424` on `main`.
+- **CURRENT_CODE_TEST_CANDIDATE:** `5b0de0d593fda911f578898d70d50c3099fba424`.
 - **LATEST PRODUCT UI CODE COMMIT:** `b397204051d19c0107112c9b2ea389a9ac6a428c`.
 - **LATEST UI CONTRACT TEST COMMIT:** `3b10164c8bce6b1f7b17af9ac7e0e71ade4cc505`.
-- **LATEST CERTIFICATION/GATE REPAIR:** `72e8182aaa364fb1736e8796c214505a6ea36975`.
+- **LATEST CERTIFICATION/GATE REPAIR:** `5b0de0d593fda911f578898d70d50c3099fba424`.
 - **DONE:** `check-master-requirements-contract.mjs` no longer requires the removed `FolderBatchImportPanel.tsx`.
 - **DONE:** `check-final-execution-batch.mjs` no longer requires the removed `check-folder-batch-import.mjs` gate.
 - **ARCHITECTURE:** `/import` remains one source-first canonical importer; fixed entity targets and the retired folder importer remain forbidden.
