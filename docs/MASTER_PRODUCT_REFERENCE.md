@@ -1,3 +1,16 @@
+## IMPLEMENTATION UPDATE — 2026-09-21 / WAVE 56 — EXACT-HEAD TYPE/CERTIFICATION REBIND
+
+- Exact code/test head: `88323d3fd8d5cc6cb8acca8e53894a11d72cb83e`.
+- REAL CURRENT-SHA FAILURE FOUND: GitHub Actions `quality` on the preceding governance head `4be6a2be...` failed only in the 20-stage release-readiness typecheck because `CanonicalImportPage.tsx` lacked the existing `ErrorState` import and `WorkCenterPage.tsx` introduced two optional-state/type errors.
+- FIXED: restored the canonical `ErrorState` import; guarded `workerHealth.expiredActive` with an explicit nullish fallback; and changed the Work Center Card fallback from invalid `default` to the existing canonical `standard` variant.
+- EXACT CURRENT CI RESULT: on `88323d3fd8d5cc6cb8acca8e53894a11d72cb83e`, the `20-stage release readiness` gate completed **20/20 PASS**.
+- INDEPENDENT CURRENT-SHA RESULTS: UI route completeness PASS; storage tenant isolation PASS; Final Execution Batch PASS.
+- REAL CERTIFICATION FAILURE DIAGNOSIS: `Execution Enforcement Contract` and `Final Certification Gate` both stopped at the same existing certification-boundary guard because the indexed candidate remained `435534c9652...` while the current code/test candidate is `88323d3fd8...`.
+- CORRECTION: this wave rebinds the existing governed certification index/reference to the exact code/test candidate instead of weakening or bypassing the boundary.
+- NO ARCHITECTURE CHANGE: no new route, RPC, runner, importer, tenant model, calculation engine, or alternate certification path was introduced.
+- DEPLOYMENT BOUNDARY: Vercel has a READY deployment for the prior governance SHA `918892...` only; no runtime PASS is transferred to `88323...`. Current exact-head runtime remains unproven.
+- NEXT: consume the new certification/enforcement runs triggered by this governance rebind; then continue backup/RPO-RTO → worker/server-boundary → tenant A/B → server OCR → watched-folder → final certification.
+
 ## IMPLEMENTATION UPDATE — 2026-09-21 / WAVE 55 — WORK CENTER OPERATIONAL ACTIONABILITY
 
 - Exact current code/test head before governance: `435534c9652ce30df9e55dc744d469782279c4fd`.
@@ -497,15 +510,3 @@ The same product supports three density levels without becoming three products:
 - Essential: Decision Center, Import, Reports, Sales, Receivables, Inventory, Customers, Products, Decisions.
 - Advanced: Profitability, Demand, RFM, ABC, Aging, Alternatives, Metric Inspector, Scenarios, Data Quality.
 - Expert: Document Intelligence, File Analysis, Evidence/Audit, Integrations, System/Operations.
-
-Role presets may emphasize the same canonical surfaces for Executive, Finance, Sales, Collections, Inventory, Operations, Analyst and Data/Import Operator. Hidden UI is never an authorization boundary; server-side tenant/RLS/permissions remain authoritative.
-
-### Screen completion contract
-
-Every canonical surface must be a native Aghbari screen with:
-- real data path or explicit unavailable state;
-- loading, empty, review, blocked and error states;
-- evidence/truth context where material;
-- mobile/responsive behavior;
-- keyboard/focus accessibility;
-- consistent shell/design system;
