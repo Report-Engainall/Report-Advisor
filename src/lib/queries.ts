@@ -62,3 +62,49 @@ export async function fetchSuppliersPage(page=0,pageSize=50,search=''):Promise<S
   if(error)throw error;
   return{data:(data??[]) as SupplierRow[],count,page,page_size:pageSize};
 }
+
+export type WorkerHealthSnapshot = {
+  queued: number;
+  active: number;
+  expiredActive: number;
+  activeReadComplete: boolean;
+};
+
+export async function fetchWorkerHealthSnapshot(): Promise<WorkerHealthSnapshot> {
+  const companyId = await resolveCurrentCompanyId();
+  if (!companyId) throw new Error('TENANT_REQUIRED');
+
+  const now = new Date();
+  const [queuedResult, activeResult] = await Promise.all([
+    supabase
+      .from('report_execution_jobs')
+      .select('id', { count: 'exact', head: true })
+      .eq('company_id', companyId)
+      .eq('status', 'queued'),
+    supabase
+      .from('report_execution_jobs')
+      .select('status,lease_expires_at', { count: 'exact' })
+      .eq('company_id', companyId)
+      .in('status', ['leased', 'processing'])
+      .order('lease_expires_at', { ascending: true })
+      .range(0, 499),
+  ]);
+
+  if (queuedResult.error) throw queuedResult.error;
+  if (activeResult.error) throw activeResult.error;
+
+  const activeRows = (activeResult.data ?? []) as Array<{ status: string; lease_expires_at: string | null }>;
+  const activeTotal = activeResult.count ?? activeRows.length;
+  const expiredActive = activeRows.filter((row) => {
+    if (!row.lease_expires_at) return false;
+    const expiresAt = new Date(row.lease_expires_at);
+    return !Number.isNaN(expiresAt.getTime()) && expiresAt.getTime() <= now.getTime();
+  }).length;
+
+  return {
+    queued: queuedResult.count ?? 0,
+    active: activeTotal,
+    expiredActive,
+    activeReadComplete: activeTotal <= activeRows.length,
+  };
+}
