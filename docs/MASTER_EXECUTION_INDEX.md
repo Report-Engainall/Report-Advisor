@@ -4,10 +4,9 @@
 
 ### CURRENT EXACT HEAD / DEPLOYED STATE
 - **Observed current code HEAD before this documentation wave:** `1568e43889d27b5d850e64c0b99d03a994fd3bbe` on `main`. This documentation wave does not claim product-code changes and must not transfer code/runtime evidence to the documentation commits.
-- **Current documentation branch:** `docs/aghbari-product-constitution-20260921`.
-- **Current code/test candidate:** `fe5661060462ffa21d6aa31505f80c2021c4170a`.
+- **Historical product/test candidate:** `fe5661060462ffa21d6aa31505f80c2021c4170a` — historical only; do not treat as current HEAD evidence.
 - **Reference product/runtime code HEAD:** `c11c084d161cceb4595f8552b6c49c3f610f0ec2`; current `main` also carries the forward-only security/source-parity migrations merged afterward.
-- **Current main observed from GitHub:** `1568e43889d27b5d850e64c0b99d03a994fd3bbe`. Treat this as the current code baseline for subsequent exact-SHA reconciliation.
+- **Current main at last memory write:** `ae6b9664066f1c1c788a164020bc4bef4807710a`. The repository HEAD may advance; every session must re-read exact HEAD before acting.
 - **Netlify Production:** latest verified production deploy `6aacfe23cc817a00089dce5c` = `ready`, branch `main`, but still points to commit `ad12e9e564f85ffde8bb29daa6e41e73ca969b92`, which predates current `main`. Public access remains verified without Netlify SSO/password. Connector-side redeploy requires a source/repo execution environment.
 - **Netlify administrative access control:** تم إزالة Team SSO/password requirement للمشروع فقط؛ لم يتم تغيير Auth التطبيق.
 - **Staging DB live counts:** companies=2, memberships=2, import_jobs=3800, canonical_import_commits=2557, kpi_evidence_snapshots=314, sales_invoices=355.
@@ -31,6 +30,26 @@
 - Verified `import_field_lineage` authenticated policy is explicit restrictive deny; Security Advisor targeted findings remain clear.
 - PR #590 source migrations are merged into `main` at `64c870426b75de7726e0f60321d580074bb76fa9`; staging verification is clean for import-row integrity and worker RPC authority.
 - Product development PR #587 type error is repaired at `dfdc662...`; a fresh shared-harness login regression was then fixed at `182f0983...` and `3c4bb990...`. Fresh workflows on `3c4bb990...` remain authoritative and pending.
+
+### SESSION START / SESSION END MEMORY CONTRACT — MANDATORY
+
+**Canonical live memory:** `/Report-Advisor/ONE-PROGRAMMER-SESSION-MEMORY.md`.
+
+At the start of every session, the programmer MUST:
+1. Read the canonical session memory.
+2. Read `docs/MASTER_PRODUCT_REFERENCE.md` and `docs/MASTER_EXECUTION_INDEX.md`.
+3. Verify exact Git HEAD/branch/status plus relevant PR/CI/runtime/deployment evidence.
+4. Resume from **CURRENT RESUME POINTER / NEXT EXECUTABLE ACTION**; never restart discovery from zero.
+5. Execute all safe independent fronts in parallel and serialize only conflicting writes.
+
+At the end of every meaningful batch, and before ending the session, the programmer MUST update the same memory file with:
+`SESSION-ID → EXACT HEAD → DONE → ACTUAL RESULT → PRECISE STOP POINT → OPEN BLOCKERS → VERIFIED TESTS/EVIDENCE → NEXT EXECUTABLE ACTION → DO NOT REPEAT → CURRENT RESUME POINTER`.
+
+A session is never considered complete merely because the chat ended. Repository memory is the continuity mechanism.
+
+The startup command is intentionally short:
+
+> **ابدأ من الذاكرة الحية. اقرأ المرجع الأساسي، ثبّت الـHEAD الحقيقي، خذ آخر RESUME POINTER، نفّذ NEXT ACTION مباشرة، واعمل بالتوازي دون إعادة الشغل المغلق. وفي نهاية كل دفعة احفظ النتيجة والـSHA ونقطة التوقف والخطوة التالية في نفس الذاكرة قبل مواصلة التنفيذ.**
 
 ### PRODUCT CONSTITUTION — MANDATORY OPERATING CONTRACT
 
