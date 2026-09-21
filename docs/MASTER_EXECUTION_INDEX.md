@@ -1,3 +1,16 @@
+## CURRENT EXECUTION BOUNDARY — 2026-09-21 / WAVE 49 — REPORT RETRY RESILIENCE
+
+> Exact-head evidence only. No historical deployment/runtime result is transferred.
+
+- CURRENT CODE/TEST CANDIDATE: `7301ae56b7c01723ebdcc78756fc8a1ea5ffe399`.
+- UI IMPLEMENTATION: `e6478ad3d7569e1e9cea832dac2e6b02f731ed9f`.
+- UI CONTRACT: `7301ae56b7c01723ebdcc78756fc8a1ea5ffe399`.
+- DONE: four report pages now retry in place through their existing loaders; full browser reload is removed from report error recovery.
+- EXACT SOURCE VERIFICATION: current ReportsPage.tsx contains zero `window.location.reload()` calls; exact compare from previous `69e56486...` head is limited to ReportsPage.tsx and its UI contract guard.
+- CURRENT BUILD/DEPLOY BOUNDARY: exact-head status is Vercel `failure` / `build-rate-limit` plus Vercel Deployments `pending`.
+- NEXT EXECUTABLE ACTION: fresh exact-head CI/build/Phase-F/browser/certification for `7301ae56...`; repair only a failure reproduced on this SHA. Then backup/RPO-RTO → worker/server-boundary → tenant A/B → server OCR → watched-folder → final certification.
+- DO NOT REPEAT: do not restore full-page report retries; do not transfer older READY deployment evidence; do not count source-level verification as runtime PASS.
+
 ## CURRENT EXECUTION BOUNDARY — 2026-09-21 / WAVE 48B — DECISION SOURCE ROUTING CORRECTION
 
 > Exact-head evidence only. No historical deployment/runtime result is transferred.
