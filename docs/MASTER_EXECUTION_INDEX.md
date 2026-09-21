@@ -1,3 +1,18 @@
+## CURRENT EXECUTION BOUNDARY — 2026-09-21 / WAVE 47 — WORK CENTER ACTIONABLE EMPTY STATES
+
+> Exact-head evidence only. No older deployment/runtime result is transferred.
+
+- **CODE/TEST CANDIDATE:** `4995f5eb3b520cc8109d1f7b3c3baa5aa1d60525`.
+- **UI IMPLEMENTATION:** `9e7d8b4040aacce163c780bf5c4f353ee6f8b64f` updated `src/pages/WorkCenterPage.tsx`.
+- **UI CONTRACT:** `4995f5eb3b520cc8109d1f7b3c3baa5aa1d60525` updated `scripts/check-product-wow-ui-contract.mjs`.
+- **DONE:** Work Center now distinguishes a tenant with no recorded operations from a filter with zero matches. Empty tenant state routes to canonical unified import; filtered-empty state restores `all` in place.
+- **ARCHITECTURE:** no new route/RPC/runner/import engine/table/tenant-RLS/calculation path.
+- **EXACT SOURCE VERIFICATION:** implementation and contract files were re-read after commit; the current diff from `916ef274...` contains the intended Work Center/Data Quality UI and contract changes plus governance write-backs.
+- **CURRENT BUILD/DEPLOY BOUNDARY:** GitHub combined status for `4995f5...` reports Vercel `failure` with `build-rate-limit`; Vercel deployment context is pending and no GitHub Actions workflow run is attached. No current-head build/browser/runtime PASS is claimed.
+- **ADDITIONAL EXACT EVIDENCE:** a Vercel READY deployment exists for earlier UI SHA `43219c...`; it is not evidence for `4995f5...`.
+- **NEXT EXECUTABLE ACTION:** obtain fresh exact-head CI/build/Phase-F/browser/certification for `4995f5...`; repair only failures reproduced there. If hosting remains capacity-blocked, continue independent canonical product/UI closure, then resume backup/RPO-RTO → worker/server-boundary → tenant A/B → server OCR → watched-folder → final certification.
+- **DO NOT REPEAT:** do not transfer `43219c...` runtime PASS; do not recreate canonical import paths/RPCs; do not weaken empty-state truth boundaries; do not use fake sessions or stale PASS evidence.
+
 ## CURRENT EXECUTION BOUNDARY — 2026-09-21 / WAVE 46 — DATA QUALITY DECISION ACTION
 
 > Exact-head evidence only. No older deployment/runtime result is transferred.
