@@ -14,6 +14,19 @@ function Metric({ label, value, hint }: { label: string; value: string; hint: st
   </div>;
 }
 
+function recommendationStatusLabel(status: string): string {
+  const labels: Record<string, string> = {
+    pending: 'قيد المراجعة',
+    proposed: 'مقترح',
+    approved: 'معتمد',
+    in_progress: 'قيد التنفيذ',
+    completed: 'مكتمل',
+    rejected: 'مرفوض',
+    cancelled: 'ملغى',
+  };
+  return labels[status] ?? status;
+}
+
 function TrendStrip({ trend }: { trend: MonthlyTrend[] }) {
   const points = trend.slice(-6);
   const values = points.map((point) => typeof point.sales === 'number' && Number.isFinite(point.sales) ? point.sales : null);
@@ -115,7 +128,12 @@ export function ExecutiveReportPage() {
         </div>
         <div className="rounded-2xl border border-ink-200 bg-white p-5 shadow-sm">
           <div className="flex items-center justify-between"><div><p className="text-xs font-bold text-primary-600">الإجراء</p><h2 className="mt-1 text-lg font-black">التوصيات النشطة</h2></div><span className="rounded-full bg-primary-50 px-2.5 py-1 text-xs font-bold text-primary-700">{formatNumber(data?.recommendations.length ?? 0)}</span></div>
-          <div className="mt-4 space-y-3">{(data?.recommendations ?? []).slice(0, 6).map((rec, index) => <article key={rec.id ?? index} className="rounded-xl border border-ink-100 p-4"><p className="font-bold text-ink-900">{rec.title}</p><Link to="/decision-experience" className="mt-2 inline-flex items-center gap-1 text-xs font-bold text-primary-700">فتح مساحة القرار <ArrowLeft size={13} /></Link></article>)}{!(data?.recommendations?.length) && <p className="rounded-xl bg-ink-50 p-4 text-sm text-ink-500">لا توجد توصيات مصدرية حاليًا.</p>}</div>
+          <div className="mt-4 space-y-3">{(data?.recommendations ?? []).slice(0, 6).map((rec, index) => <article key={rec.id ?? index} className="rounded-xl border border-ink-100 p-4">
+            <div className="flex flex-wrap items-center gap-2"><span className="rounded-full bg-primary-50 px-2 py-1 text-[9px] font-black text-primary-700">{recommendationStatusLabel(rec.status)}</span>{rec.owner && <span className="rounded-full bg-ink-50 px-2 py-1 text-[9px] font-bold text-ink-500">المسؤول: {rec.owner}</span>}</div>
+            <p className="mt-2 font-bold text-ink-900">{rec.title}</p>
+            <div className="mt-2 flex flex-wrap gap-3 text-[10px] text-ink-500"><span>الأثر المتوقع: {rec.expected_impact == null ? 'غير متاح' : formatCurrency(rec.expected_impact)}</span><span>الأثر الفعلي: {rec.impact_result ?? 'غير مسجل'}</span></div>
+            <Link to="/decision-experience" className="mt-3 inline-flex items-center gap-1 text-xs font-bold text-primary-700">فتح مساحة القرار <ArrowLeft size={13} /></Link>
+          </article>)}{!(data?.recommendations?.length) && <p className="rounded-xl bg-ink-50 p-4 text-sm text-ink-500">لا توجد توصيات مصدرية حاليًا.</p>}</div>
         </div>
       </section>
 
