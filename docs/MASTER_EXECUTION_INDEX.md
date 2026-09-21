@@ -2,6 +2,9 @@
 
 > تحديث تنفيذي بعد أمر المالك «انطلق». هذا القسم يصف الحالة المثبتة من الأدوات فقط. لا يتم نقل Evidence بين SHAs، ولا تُعد الحالة PASS إلا بدليل Exact-HEAD.
 
+- **CURRENT_CODE_TEST_CANDIDATE:** `cd8f32ad1fc7d3ebc96d215596e010a14efe2892`
+- **CURRENT_REPOSITORY_HEAD:** `943f0619abfddb56daddc83bc500659376655474`
+
 ### CURRENT EXACT HEAD / DEPLOYED STATE
 - **Current product/code HEAD:** `cd8f32ad1fc7d3ebc96d215596e010a14efe2892` on `main`.
 - **Previous product/runtime baseline:** `1568e43889d27b5d850e64c0b99d03a994fd3bbe`.
