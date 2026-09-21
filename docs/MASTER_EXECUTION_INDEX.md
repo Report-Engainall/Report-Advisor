@@ -1,3 +1,21 @@
+## LATEST EXECUTION BOUNDARY — 2026-09-21 / CONTINUOUS WAVE 40
+
+> Exact-head evidence only. Repository state below is the latest observed state; no older PASS is transferred.
+
+- **CURRENT REPOSITORY HEAD:** `166a8d2ada5368a22fef581932282bf5912cd403` on `main` (this commit is documentation-only after the product/test fixes below).
+- **LATEST PRODUCT UI CODE COMMIT:** `210441941d3732f7a46bc6b57b5b038231017f15`.
+- **LATEST UI CONTRACT TEST COMMIT:** `0a3b701d56412f7e7c4cdc336a3338ea50089a62`.
+- **DONE:** Trust & Evidence now refreshes in place through the existing authoritative data-quality snapshot; no full-page reload is used for refresh/error retry.
+- **DONE:** Trust & Evidence exposes source record count, total issues and critical-issue pressure and derives a real next action from existing snapshot state; EMPTY now routes to the canonical unified `/import` entry.
+- **DONE:** Added contract assertions preventing regression to reload-based refresh, blank empty state, non-actionable critical issues, or malformed JSX action-label syntax.
+- **EXACT-HEAD STATIC VERIFICATION:** corrected Trust Evidence TSX parses cleanly and passes isolated strict TypeScript checking after the malformed escaped-template JSX was repaired.
+- **LIVE STAGING RECHECK:** `expired_active_leases=0`, `worker_processing=0`, `worker_queued=563`, `worker_failed=10`, `worker_dead_letter=7`, `backup_verification_runs=0`; this is operational state evidence, not backup PASS.
+- **SECURITY ADVISOR:** staging reports 47 authenticated-executable SECURITY DEFINER warnings. Targeted canonical import functions were checked for their live grants; their authenticated execution is intentional in the current governed import contract, so no blanket revoke was performed.
+- **DEPLOYMENT BLOCKER:** the last exact UI commit `952ed9e204e2f821b554460a982d7dd17fd3a3da` created a real Vercel build failure caused by malformed JSX in its Trust Evidence `aria-label`; that parser defect is fixed in `210441941d3732f7a46bc6b57b5b038231017f15`.
+- **CURRENT DEPLOYMENT PROOF:** Vercel has not yet produced a READY deployment for the corrected code; GitHub status remains `Vercel=failure` on the free-plan `build-rate-limit` context with deployment context pending for the current main head. No deployment PASS is claimed.
+- **OTHER BLOCKER:** Netlify deployment write was rate-limited (HTTP 429) during this wave; PC01 remains offline, so no authenticated browser proof or local full-repo build is claimed.
+- **NEXT EXECUTABLE ACTION:** consume the first fresh exact-head deployment/build result for the corrected UI candidate; if hosting remains blocked, continue the next independent cloud-safe canonical product/UI closure while keeping exact-head proof fail-closed, then resume Phase-F/backup/OCR/tenant-A-B/watched-folder evidence.
+- **DO NOT REPEAT:** do not restore full-page reload refresh, blank empty-state behavior, malformed JSX, duplicate import paths/RPCs/runners, or old deployment/runtime evidence.
 ## CURRENT EXECUTION BOUNDARY — 2026-09-21
 
 > تحديث تنفيذي بعد أمر المالك «انطلق». هذا القسم يصف الحالة المثبتة من الأدوات فقط. لا يتم نقل Evidence بين SHAs، ولا تُعد الحالة PASS إلا بدليل Exact-HEAD.
