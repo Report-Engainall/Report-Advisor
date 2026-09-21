@@ -1,3 +1,19 @@
+## CURRENT EXECUTION BOUNDARY — 2026-09-21 / WAVE 46 — DATA QUALITY DECISION ACTION
+
+> Exact-head evidence only. No older deployment/runtime result is transferred.
+
+- **CODE/TEST CANDIDATE:** `c71742d8b70f61ed580791cabf415ad81fd6944a`.
+- **UI IMPLEMENTATION:** `43219c1bf39c5cffee5f203fabd1324d01699aab` updated `src/pages/DataQualitySnapshotPage.tsx`.
+- **UI CONTRACT:** `c71742d8b70f61ed580791cabf415ad81fd6944a` updated `scripts/check-product-wow-ui-contract.mjs`.
+- **DONE:** Data Quality now exposes a state-derived next action and direct canonical routing for EMPTY, critical, non-critical and clean states; summary text no longer contains a generic hardcoded next step.
+- **ARCHITECTURE:** no new route/RPC/runner/import engine/table/tenant-RLS/calculation path.
+- **EXACT SOURCE VERIFICATION:** both changed files were re-read from GitHub after commit; comparison from starting `916ef274...` to `c71742d...` is exactly two commits and only the two intended files changed.
+- **CURRENT BUILD/DEPLOY BOUNDARY:** GitHub combined status for `c71742...` reports Vercel `failure` with `build-rate-limit`; `fetch_commit_workflow_runs` returns no runs for this main commit. No build/browser/runtime PASS is claimed.
+- **HOSTING:** the prior `916ef274...` Vercel deployment is READY only for that exact older SHA. Netlify production remains on an older deploy; the connected deploy action cannot execute the source upload without a repository execution environment.
+- **WORKSTATION:** PC01 is offline, so local working-tree/build/browser evidence is unavailable.
+- **NEXT EXECUTABLE ACTION:** obtain the first fresh exact-head CI/build/Phase-F/browser/certification evidence for `c71742...`; repair only a failure reproduced on this SHA. While hosting/CI capacity is unavailable, continue only independent cloud-safe product/contract closure without weakening gates, then resume backup/RPO-RTO → worker/server-boundary → tenant A/B → server OCR → watched-folder → final certification.
+- **DO NOT REPEAT:** do not transfer `916ef274...` deployment PASS; do not claim source re-read as build PASS; do not recreate canonical import paths/RPCs; do not use fake authentication or browser budget workarounds.
+
 ## CURRENT EXECUTION BOUNDARY — 2026-09-21 / WAVE 45 — REPORT SNAPSHOT + EXACT-HEAD CERTIFICATION
 
 > Exact-head evidence only.
