@@ -1,3 +1,17 @@
+## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-40
+- SESSION-ID → `2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-40`
+- SHA → `210441941d3732f7a46bc6b57b5b038231017f15` (latest product UI code); repository head before this memory write-back → `77b28c14a9e9d815f28cfd6e7612e9d9109e919`.
+- DONE → upgraded `src/pages/TrustEvidencePage.tsx` so refresh/error retry stays inside the current view, EMPTY quality state is actionable, record/issue/critical pressure is visible, and the next action follows the existing authoritative snapshot.
+- DONE → added `scripts/check-product-wow-ui-contract.mjs` guards for in-place refresh, actionable EMPTY/critical states, and valid JSX action-label syntax.
+- ACTUAL RESULT → Vercel deployment of the preceding UI commit `952ed9e204e2f821b554460a982d7dd17fd3a3da` failed with `lint_or_type_error` because the generated Trust Evidence `aria-label` contained escaped template backticks. The defect was isolated and corrected in `210441941d3732f7a46bc6b57b5b038231017f15`.
+- ACTUAL RESULT → corrected Trust Evidence TSX passes isolated parser and strict TypeScript verification in the execution container. This is source-level evidence only; it is not a substitute for the full repository build.
+- ACTUAL RESULT → staging recheck: `expired_active_leases=0`, `worker_processing=0`, `worker_queued=563`, `worker_failed=10`, `worker_dead_letter=7`, `backup_verification_runs=0`.
+- ACTUAL RESULT → Supabase security advisor currently reports 47 authenticated-executable SECURITY DEFINER warnings. Targeted canonical import grants were inspected; no blanket revoke was applied because those functions are part of the existing governed authenticated import contract.
+- PRECISE STOP POINT → repository has documented code/test/master-reference state; current main HEAD is the documentation commit `77b28c14a9e9d815f28cfd6e7612e9d9109e919` before this memory write-back. GitHub status for the corrected candidate still shows the Vercel free-plan `build-rate-limit` failure/pending deployment context.
+- WHAT REMAINS → fresh exact-head deployment/build/browser evidence for the corrected candidate; Phase-F live probes; backup/RPO-RTO proof; server-side scanned-PDF OCR authority; authenticated tenant A/B; watched-folder runtime; final certification.
+- NEXT ACTION → consume the first fresh exact-head deployment/build result for `210441941d3732f7a46bc6b57b5b038231017f15`; if hosting remains blocked, continue the next independent cloud-safe canonical UI/product closure and keep runtime certification fail-closed.
+- DO NOT REPEAT → do not restore full-page reload refresh, blank EMPTY trust panels, malformed JSX, duplicate import engines/RPCs/runners, blanket SECURITY DEFINER revokes, or old deployment/runtime PASS.
+- CURRENT RESUME POINTER → `210441941d3732f7a46bc6b57b5b038231017f15` → fresh exact-head deployment/build/browser proof → next independent cloud-safe closure → Phase-F/backup/OCR → tenant A/B/watched-folder → final certification.
 ## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-39
 - SESSION-ID → `2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-39`
 - EXACT PRODUCT CODE HEAD → `e6c39323eb0c0177b1de73c3b276ce9491fd07f0`
