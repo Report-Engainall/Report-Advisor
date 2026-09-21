@@ -44,6 +44,36 @@ function icon(format: FileFormat) {
   return <FileType size={18} />;
 }
 
+function describeImportFailure(message: string | null): { title: string; detail: string; action: string } | null {
+  if (!message) return null;
+  if (message.includes('CANONICAL_IMPORT_SERVER_EXECUTION_FAILED:HTTP_500')) {
+    return {
+      title: 'لم يكتمل التنفيذ الخادمي',
+      detail: 'الخادم أعاد 500 أثناء المسار الكانوني. لم يتم إعلان نجاح الاعتماد، ولا يجب اعتبار الملف مثبتًا في الحقيقة الكانونية قبل نجاح الإكمال.',
+      action: 'حدّث سجل العمليات ثم أعد المحاولة بعد استقرار مسار التنفيذ.',
+    };
+  }
+  if (message.includes('CANONICAL_IMPORT_REVIEW_APPROVAL_REQUIRED')) {
+    return {
+      title: 'المصدر يحتاج موافقة مراجعة',
+      detail: 'جودة المصدر تقع ضمن نطاق المراجعة، لذلك لن تتم الكتابة الكانونية دون موافقة صريحة.',
+      action: 'فعّل موافقة الجودة في شاشة المراجعة ثم أعد الاعتماد.',
+    };
+  }
+  if (message.includes('AUTHORITATIVE_SOURCE')) {
+    return {
+      title: 'التحقق السلطوي للمصدر لم يكتمل',
+      detail: 'تعذر إثبات المصدر المخزّن أو سلامته أو صيغته على الخادم.',
+      action: 'راجع المصدر وأعد المحاولة بعد تصحيح الملف أو حالة المصدر.',
+    };
+  }
+  return {
+    title: 'تعذر اعتماد المصدر',
+    detail: message.replace(/^فشل اعتماد المصدر:\s*/, ''),
+    action: 'راجع حالة المصدر والسجل ثم أعد المحاولة.',
+  };
+}
+
 function Stepper({ step }: { step: Step }) {
   const current = STEPS.findIndex(s => s.key === step);
   return <div className="grid grid-cols-5 gap-2 mb-5" aria-label="مراحل الاستيراد">
@@ -250,6 +280,7 @@ export function CanonicalImportPage() {
             total: rows.length,
             valid: validRows.length,
             invalid: rows.length - validRows.length,
+            invalidRows: rows.length - validRows.length,
             importId: importJobId,
             semantic_understanding_confidence: understandingConfidence,
           }, failureMessage);
@@ -260,6 +291,7 @@ export function CanonicalImportPage() {
         }
       }
       setError(`فشل اعتماد المصدر: ${failureMessage}`);
+      await loadHistory();
       setStep('preview');
     }
   }, [
@@ -274,6 +306,7 @@ export function CanonicalImportPage() {
   const mappingCoverage = useMemo(() => mappings.length ? Math.round((mappings.filter(m => m.mappedField).length / mappings.length) * 100) : 0, [mappings]);
   const qualityVariant = quality >= 75 ? 'success' : quality >= 50 ? 'warning' : 'danger';
   const ready = Boolean(file && fileHash && securityPassed && !duplicate && valid > 0 && (quality >= 75 || (quality >= 50 && quality < 75 && qualityApproved)));
+  const failurePresentation = describeImportFailure(error);
 
   return <div className="space-y-5 animate-fade-in">
     <PageHeader title="مركز المصادر" subtitle="مسار موحد: فحص أمني → قراءة المحتوى → فهم دلالي → جودة → اعتماد → معرفة موثوقة" />
@@ -324,7 +357,20 @@ export function CanonicalImportPage() {
       {mappings.length>0&&<Card><CardHeader title="مطابقة الأعمدة" subtitle={`${mappingCoverage}% من أعمدة المصدر لها حقل مكتشف`}/><DataTable columns={[{key:'name',label:'عمود المصدر'},{key:'mappedField',label:'المعنى المكتشف',render:(r:any)=>r.mappedField||'غير معين'},{key:'confidence',label:'الثقة',align:'center',render:(r:any)=><Badge variant={r.confidence>=80?'success':r.confidence>=50?'warning':'danger'}>{r.mappedField?r.confidence+'%':'—'}</Badge>}]} data={mappings} emptyMessage="لا توجد أعمدة"/></Card>}
       <Card><CardHeader title="مراجعة قبل الاعتماد" subtitle="تظهر أول 10 صفوف مع حالة كل صف" action={<div className="flex gap-2"><button type="button" onClick={reset} className="btn-secondary text-xs"><ArrowLeft size={13}/> اختيار ملف آخر</button><button type="button" onClick={() => void saveAnalysis()} className="btn-primary text-xs" aria-label="تأكيد الاستيراد" disabled={!ready}><FileCheck2 size={13}/> اعتماد المصدر — {formatNumber(valid)} صف</button></div>}/><DataTable columns={[{key:'rowNumber',label:'#',align:'center' as const}, ...headers.slice(0,6).map(h=>({key:h,label:h,render:(r:Row)=>String(r.data[h]??'')})), {key:'status',label:'الحالة',align:'center' as const,render:(r:Row)=>r.valid?<Badge variant="success">صالح</Badge>:<Badge variant="danger">مرفوض</Badge>}, {key:'error',label:'الملاحظة',render:(r:Row)=>r.error||'—'}]} data={rows.slice(0,10)} emptyMessage="لا توجد بيانات"/></Card>
       {!ready && <div className="p-3 rounded-lg bg-ink-50 text-ink-600 text-sm">الحفظ متوقف حتى تتوفر بيانات قابلة للقراءة، جودة لا تقل عن 75% أو موافقة صريحة ضمن 50–74%، وعدم وجود مصدر مكرر، مع نجاح الفحص الأمني.</div>}
-      {error&&<div className="p-3 rounded-lg bg-danger-50 text-danger-700 text-sm flex gap-2"><AlertCircle size={16}/>{error}</div>}
+      {failurePresentation && <div className="rounded-xl border border-danger-200 bg-danger-50 p-4 text-danger-800">
+        <div className="flex items-start gap-3">
+          <AlertCircle size={18} className="mt-0.5 shrink-0" />
+          <div className="min-w-0">
+            <div className="font-black">{failurePresentation.title}</div>
+            <div className="mt-1 text-sm leading-6">{failurePresentation.detail}</div>
+            <div className="mt-2 rounded-lg border border-danger-200/70 bg-white/70 px-3 py-2 text-[11px] font-semibold text-danger-700">{failurePresentation.action}</div>
+            <div className="mt-2 break-all font-mono text-[10px] text-danger-600/80">العطل الفعلي: {error}</div>
+            <button type="button" onClick={() => void loadHistory()} className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-danger-200 bg-white px-3 py-2 text-[11px] font-black text-danger-700 hover:bg-danger-50">
+              <RefreshCw size={13} /> تحديث سجل العمليات
+            </button>
+          </div>
+        </div>
+      </div>}
     </div>}
 
     {step === 'saving' && <Card><CardBody><div className="flex flex-col items-center py-12 gap-4"><Loader2 className="animate-spin text-primary-500" size={34}/><b>جارٍ اعتماد المصدر وفهمه ضمن النموذج العام...</b><span className="text-lg font-semibold">{progress}%</span><div className="w-full max-w-xl h-2 bg-ink-100 rounded-full overflow-hidden"><div className="h-full bg-primary-500 rounded-full transition-all" style={{width:`${progress}%`}}/></div><p className="text-xs text-ink-400">يتم اعتماد المصدر عبر مسار الحقيقة الكانونية العامة مع بصمته وسياقه وجودته، ولا يُعلن نجاح الاعتماد إلا بعد إتمام مسار الكتابة الفعلي.</p></div></CardBody></Card>}
