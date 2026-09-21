@@ -1,3 +1,25 @@
+## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-67
+
+- SESSION-ID → 2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-67
+- EXACT MAIN HEAD BEFORE WRITE-BACK → 4428ca00d63e83dc88cf578ce72e7bf627ab0b41.
+- ACTIVE CODE/TEST CANDIDATE → a6abc24c67f070b5d966febd1867c42578f501fa on PR #612.
+- EXACT VERIFIED PR HEAD → 501ba87b0238f5228dc5bd85a5f3307d1d658a58 (governance-only descendant of the tested UI candidate).
+- DONE → Trust & Evidence now derives explicit decision eligibility from the authoritative data-quality snapshot: EMPTY → INSUFFICIENT DATA, critical issues → BLOCKED, non-critical issues → REVIEW, clean snapshot → VERIFIED.
+- DONE → Trust & Evidence exposes the authoritative entity quality score and a direct next action; existing canonical routes only were reused; no new RPC/importer/runner/database path was introduced.
+- DONE → Product WOW UI contract now guards the new trust-state derivation, rationale, and quality score visibility.
+- DONE → Certification boundary was rebound through the existing canonical Master Execution Index so the exact tested UI candidate is recognized without weakening the fail-closed boundary.
+- EXACT-HEAD VERIFICATION → Execution Enforcement Contract PASS on 501ba87... including boundary integrity and adversarial checks; Final Certification Gate PASS; quality PASS; recovery-readiness PASS; production-regression-evidence PASS; Storage Tenant Runtime E2E PASS; Device-Independent Browser E2E PASS including browser smoke and authenticated Auth/Tenant/Product/Import run.
+- EXACT-HEAD DEPLOYMENT → Netlify Deploy Preview status is success for 501ba87...; unauthenticated preview correctly exposes the real Arabic product shell/login gate. Authenticated product/browser proof is supplied by the exact-head GitHub E2E, not by a guest scrape.
+- VERCEL → current-head deployment status remains failure/pending because of Vercel build-rate-limit; no current-head Vercel runtime PASS is claimed.
+- PHASE-F → exact-head run 35646074831 is FAIL-CLOSED / BLOCKED EXTERNAL. All prerequisite local/runtime/static/authenticated-canary stages passed, but Live resilience probes stop before recovery evidence because only RESILIENCE_MAX_RPO_SECONDS is missing from the GitHub execution environment.
+- RPO CONTRACT → phase-f-live-resilience-probes.mjs requires RESILIENCE_MAX_RPO_SECONDS only for logical backup mode and validates it as a finite numeric value >= 0 seconds. Repository search found no approved value, so no value was invented.
+- LIVE SUPABASE → project fnqbvfuwbdpwvhcgzksl remains ACTIVE_HEALTHY; current import_jobs=4481; backup_verification_runs=0; production_rollback_drills=0; autonomy_rollback_drills=0. Therefore real backup/restore/RPO/RTO/rollback proof is still unproven.
+- PRECISE STOP POINT → PR #612 head 501ba87... is fully certified by the current exact-head repository checks and runtime E2E except for the external Phase-F configuration gate and Vercel hosting capacity gate.
+- WHAT REMAINS → provision the approved GitHub Actions RESILIENCE_MAX_RPO_SECONDS value, rerun Phase-F on the exact current head, and consume real backup/restore + RPO/RTO + rollback evidence. Vercel production deployment requires resolving the existing build-rate-limit independently.
+- NEXT ACTION → after the RPO value is provisioned, rerun only Phase-F and consume its new exact-head recovery evidence; do not rerun closed gates unless SHA, code, contract, dependency, or environment changes.
+- DO NOT REPEAT → do not transfer PASS from a6abc/501ba87 to a future SHA; do not invent the RPO SLA; do not call Netlify preview or older Vercel deployments production proof; do not alter canonical import/decision paths; do not blanket-revoke SECURITY DEFINER functions or delete unused indexes.
+- CURRENT RESUME POINTER → PR #612 / exact head 501ba87... → provision RESILIENCE_MAX_RPO_SECONDS (approved seconds value) → rerun Phase-F live resilience → obtain backup/restore/RPO/RTO/rollback evidence → re-evaluate merge/release gates including Vercel capacity.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-66
 
 - SESSION-ID → 2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-66
