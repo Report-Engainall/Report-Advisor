@@ -2,16 +2,16 @@
 
 > Exact-head evidence only. No historical runtime result is transferred.
 
-- CURRENT_CODE_TEST_CANDIDATE: `30cf5d6ecf5a91e65642a38df31087498f4e356c`.
-- CURRENT GOVERNANCE HEAD: `30cf5d6ecf5a91e65642a38df31087498f4e356c`.
+- CURRENT_CODE_TEST_CANDIDATE: `a6abc24c67f070b5d966febd1867c42578f501fa`.
+- CURRENT GOVERNANCE HEAD: `a6abc24c67f070b5d966febd1867c42578f501fa` (governance-bound parent for fresh certification).
 - DONE: Work Center explicitly labels the 500-row read as a bounded display window and no longer presents `rows.length` as `إجمالي السجل`.
 - DONE: UI contract guards the bounded semantics.
 - VERIFIED: source re-read on exact SHA; Supabase history index remains present; staging currently has `import_jobs=4477`; `backup_verification_runs=0`.
-- VERIFIED: fresh exact-head verification has been triggered for `30cf5d6...`; predecessor quality failure was the Dashboard hook-order defect, now repaired.
-- ROOT CAUSE CLOSED: certification parsing selected historical `84a62...` because the current boundary used the non-canonical `CURRENT CODE/TEST HEAD` wording.
+- VERIFIED: fresh exact-head verification has checked out `a6abc24...`; quality and the independent contract/runtime gates are executing against that exact SHA.
+- ROOT CAUSE CLOSED: certification/enforcement correctly failed closed because the index still pointed to `30cf5d6...` while the tested HEAD `a6abc24...` contained non-governance UI/test changes. The canonical candidate token must be rebound to the exact tested parent.
 - NETLIFY: READY production deploy is on old commit `21f6562...`; not current-head evidence.
 - PHASE-F: canonical workflow remains fail-closed until the required live resilience configuration is actually provisioned.
-- PRECISE NEXT ACTION: consume fresh Final Certification Gate + Execution Enforcement Contract on `30cf5d6...`, then continue Phase-F backup/restore/RPO/RTO/rollback evidence.
+- PRECISE NEXT ACTION: consume fresh Final Certification Gate + Execution Enforcement Contract after this governance-only rebind; then continue Phase-F backup/restore/RPO/RTO/rollback evidence.
 - DO NOT REPEAT: do not transfer historical PASS, do not mislabel bounded history, do not use old Netlify deploy as current, do not invent Phase-F configuration.
 
 ## CURRENT EXECUTION BOUNDARY — 2026-09-21 / WAVE 63 — DASHBOARD UI + EXACT-HEAD PROOF OPEN
