@@ -11,14 +11,14 @@
 - **BACKUP GAP:** `backup_verification_runs=0`; no RPO/RTO proof exists yet.
 - **SECURITY GAP:** Supabase advisor currently reports 47 authenticated-executable SECURITY DEFINER findings. No blanket revoke/change is applied because the existing authenticated RPC contracts require function-by-function authorization review.
 - **DEPLOYMENT GAP:** Vercel still reports the free-plan `build-rate-limit`; no current-head deployment PASS is claimed. PC01 is offline, so no local build/browser PASS is claimed.
-- **NEXT EXECUTABLE ACTION:** obtain fresh exact-head CI/build/browser evidence for the current main after this wave; then close backup/RPO-RTO proof and inspect the remaining server-boundary/worker-lease behavior with disposable evidence, without weakening canonical import semantics.
+- **NEXT EXECUTABLE ACTION:** obtain fresh exact-head CI/build/browser evidence for current main `0165be03...`; then close backup/RPO-RTO proof and inspect the remaining server-boundary/worker-lease behavior with disposable evidence, without weakening canonical import semantics.
 - **DO NOT REPEAT:** do not reintroduce generic import error text, omit terminal `invalidRows`, classify stale HTTP-500 evidence as current, blanket-revoke SECURITY DEFINER functions, or transfer stale deployment PASS.
 
 ## CURRENT EXECUTION BOUNDARY — 2026-09-21 / SESSION 43 REBIND AFTER CONNECTION RENEWAL
 
 > Exact-head evidence only.
 
-- **CURRENT REPOSITORY HEAD:** `14148438b3391f3a9c64bb049cb64899904243cd` on `main`.
+- **CURRENT REPOSITORY HEAD:** `0165be03e074e8d5a55a735308757165cfa22a14` on `main`.
 - **RECENT CODE/TEST MOVEMENT AFTER SESSION 42:** canonical import finish-job repair at `d2a1f22643bf7b5222fcda4176fcb5e7895ee361`, its contract guard at `2caedfa8ab2f71dd06bffb4992d122dc08bb75ac`, and certification binding at `40cc9527d5a31d81c71ffb0cfa44a2cfd435df1d`.
 - **MASTER PRODUCT REFERENCE:** successfully updated in the renewed connection at commit `e2e9e9d10366e546ec09940e1cd91dedbe7171c6`; the Dashboard Decision Accountability Wave 32 is now recorded there.
 - **CURRENT UI CODE:** Dashboard decision-accountability surface remains present in `src/pages/DashboardPage.tsx`; its exact blob SHA is `b98102702f6ed93a3bd5bb59ae9ed374cd2e3d55`.
