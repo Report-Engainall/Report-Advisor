@@ -1228,3 +1228,9 @@ This update records implementation state only; it does not replace the product c
 - Import CI now explicitly guards the entry surface against fixed entity taxonomy and verifies authoritative parse/reconciliation precedes the source-ready state.
 - Decision Experience and Liquidity syntax/lint defects found by exact-head GitHub Actions were repaired.
 - No new importer taxonomy, RPC, runner, job family, or deterministic calculation path was introduced.
+
+
+## IMPLEMENTATION UPDATE — 2026-09-21 / CURRENT-HEAD JSX REPAIR
+- Decision Experience JSX was corrected after exact-head CI exposed a parser error; the readiness display remains driven by existing recommendation state.
+- The current code candidate also contains the unified import boundary correction: one canonical source-first entry, no legacy folder-specialization UI, server-authoritative Snapshot persistence, and explicit import-order contract checks.
+- No new product taxonomy, RPC, runner, or calculation engine was introduced.
