@@ -215,55 +215,7 @@ export function CanonicalImportPage() {
       const authoritativeQualityScore = Number(execution.authoritativeQualityScore ?? quality);
       const previewRows = Array.isArray(execution.authoritativePreview) ? execution.authoritativePreview : validRows.slice(0, 25).map((row) => row.data);
       const authoritativeColumns = Array.isArray(execution.authoritativeColumns) ? execution.authoritativeColumns : mappings;
-      let snapshotId: string | null = null;
-      try {
-        const { data: snapshot, error: snapshotError } = await supabase
-          .from('source_analysis_snapshots')
-          .insert({
-            company_id: companyId,
-            import_job_id: rec.id,
-            source_hash: durableSourceHash,
-            source_path: sourceObjectPath,
-            source_format: file.format,
-            analysis_status: 'analyzed',
-            entity_type: 'source-data',
-            quality_score: authoritativeQualityScore,
-            row_count: authoritativeRowCount,
-            column_count: Array.isArray(authoritativeColumns) ? authoritativeColumns.length : headers.length,
-            datasets: [{
-              name: file.name,
-              rowCount: authoritativeRowCount,
-              columnCount: Array.isArray(authoritativeColumns) ? authoritativeColumns.length : headers.length,
-              columns: authoritativeColumns,
-              preview: previewRows,
-            }],
-            canonical_text: [
-              `source=${file.name}`,
-              `semantic_understanding_confidence=${understandingConfidence}%`,
-              understandingReason,
-            ].join(' | '),
-            visual_assets: [],
-            warnings,
-            metadata: {
-              fileName: file.name,
-              fileSize: file.size,
-              mappingCoverage,
-              semanticUnderstandingConfidence: understandingConfidence,
-              semanticUnderstandingReason: understandingReason,
-              canonicalWriteStatus: 'GENERAL_CANONICAL_DATASET',
-              serverAuthoritativeSource: true,
-              serverAuthoritativeQualityScore: authoritativeQualityScore,
-              committed: authoritativeRowCount,
-              jobId: execution.jobId,
-            },
-          })
-          .select('id')
-          .single();
-        if (!snapshotError) snapshotId = snapshot?.id ?? null;
-      } catch {
-        snapshotId = null;
-      }
-
+      const snapshotId = typeof execution.snapshotId === 'string' ? execution.snapshotId : null;
       await finishImportJob(rec.id, 'completed', {
         total: authoritativeRowCount,
         valid: authoritativeRowCount,
