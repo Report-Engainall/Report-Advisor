@@ -1,11 +1,13 @@
-## CURRENT EXECUTION BOUNDARY — 2026-09-18
+## CURRENT EXECUTION BOUNDARY — 2026-09-21
 
 > تحديث تنفيذي بعد أمر المالك «انطلق». هذا القسم يصف الحالة المثبتة من الأدوات فقط. لا يتم نقل Evidence بين SHAs، ولا تُعد الحالة PASS إلا بدليل Exact-HEAD.
 
 ### CURRENT EXACT HEAD / DEPLOYED STATE
+- **Observed current code HEAD before this documentation wave:** `1568e43889d27b5d850e64c0b99d03a994fd3bbe` on `main`. This documentation wave does not claim product-code changes and must not transfer code/runtime evidence to the documentation commits.
+- **Current documentation branch:** `docs/aghbari-product-constitution-20260921`.
 - **Current code/test candidate:** `fe5661060462ffa21d6aa31505f80c2021c4170a`.
 - **Reference product/runtime code HEAD:** `c11c084d161cceb4595f8552b6c49c3f610f0ec2`; current `main` also carries the forward-only security/source-parity migrations merged afterward.
-- **Current main:** `fe5661060462ffa21d6aa31505f80c2021c4170a`; this includes the forward-only security/source-parity merge `64c870426...` plus the closure-ledger docs sync. Product feature code remains anchored to the earlier runtime code reference until PR #587 is accepted.
+- **Current main observed from GitHub:** `1568e43889d27b5d850e64c0b99d03a994fd3bbe`. Treat this as the current code baseline for subsequent exact-SHA reconciliation.
 - **Netlify Production:** latest verified production deploy `6aacfe23cc817a00089dce5c` = `ready`, branch `main`, but still points to commit `ad12e9e564f85ffde8bb29daa6e41e73ca969b92`, which predates current `main`. Public access remains verified without Netlify SSO/password. Connector-side redeploy requires a source/repo execution environment.
 - **Netlify administrative access control:** تم إزالة Team SSO/password requirement للمشروع فقط؛ لم يتم تغيير Auth التطبيق.
 - **Staging DB live counts:** companies=2, memberships=2, import_jobs=3800, canonical_import_commits=2557, kpi_evidence_snapshots=314, sales_invoices=355.
@@ -30,61 +32,52 @@
 - PR #590 source migrations are merged into `main` at `64c870426b75de7726e0f60321d580074bb76fa9`; staging verification is clean for import-row integrity and worker RPC authority.
 - Product development PR #587 type error is repaired at `dfdc662...`; a fresh shared-harness login regression was then fixed at `182f0983...` and `3c4bb990...`. Fresh workflows on `3c4bb990...` remain authoritative and pending.
 
+### PRODUCT CONSTITUTION — MANDATORY OPERATING CONTRACT
+
+**Primary product authority:** \`docs/MASTER_PRODUCT_REFERENCE.md\` → **AUTHORITATIVE PRODUCT CONSTITUTION — AGHBARI 2026-09-21**.
+
+This constitution is mandatory for every product/UI change. The programmer must not restore, extend or invent a conflicting navigation taxonomy, Bolt/Commerce/CRUD presentation, standalone chatbot identity, duplicate design system, duplicate Intelligence/Evidence tree, or one-page-per-KPI sidebar.
+
+**Fixed top-level product zones:**
+1. مركز القرار
+2. البيانات والتشغيل
+3. التحليل التجاري
+4. الذكاء والقرار
+5. الثقة والأدلة
+6. التقارير والمخرجات
+7. البيانات المرجعية
+8. الإعدادات
+
+**Permanent intelligence layer:** المستشار الأغبري is a context-aware fixed drawer available across the product; it is not a ninth sidebar category.
+
+**Visual-first rule:** the first major implementation objective is complete visual coverage of the canonical product surfaces using one Aghbari RTL design system and the real application paths. The goal is a coherent commercial product, not a growing collection of routes.
+
+**Cleanup rule:** every conflicting legacy surface must be classified KEEP / IMPROVE / REPLACE / REMOVE after dependency inspection. Do not preserve conflicting UI simply because it already exists; do not delete valid capability merely because its presentation is obsolete.
+
 ### EXECUTION STATE
-- **Done:** Netlify administrative access blocker removed; PR #590 security/source-parity migrations merged; staging import-row integrity is 0/0/0 and all 8 worker RPCs are service_role-only with pinned search_path.
-- **In progress:** exact-head runtime/DB/release closure; migration parity investigation; operational certification evidence.
-- **Blocked externally:** Phase F live probes until required GitHub Actions secrets/targets are provisioned.
-- **Fail-Closed:** Final certification remains closed until fresh Exact-HEAD Browser E2E + persistence + resilience + backup/RPO/RTO + release parity evidence exists.
+- **Product direction:** the canonical Aghbari product constitution above is now the binding UI/product architecture.
+- **Code baseline:** current \`main\` is \`1568e43889d27b5d850e64c0b99d03a994fd3bbe\` at the start of this documentation wave.
+- **Runtime/certification:** existing fail-closed blockers and exact-SHA evidence rules remain active; no historical PASS is reclassified by this documentation change.
+- **Immediate execution priority:** complete the visual product surface first, in the canonical order, while continuing independent runtime/data/evidence closure in parallel.
 
-### OWNERSHIP SPLIT — START ONLY AFTER OWNER COMMAND
+### SINGLE-PROGRAMMER EXECUTION MODE — NO OWNER SPLIT
 
-#### A) UI / Product Experience Owner — ChatGPT
-**الاختصاص الكامل:** تطوير الواجهات وتجربة المنتج فقط، مع الالتزام بالمصادر/Adapters/RPCs الحالية وعدم اختراع مسارات بيانات جديدة.
+There is one execution owner. Do not resurrect the previous UI/runtime owner split.
 
-**المتبقي فقط:**
-1. **موجة UI الشاملة لبقية الأسطح:** Analytics، Data Quality، Intelligence/Intelligence Pages، Executive Command Center/Report، Decision Experience، Inventory Intelligence، Demand Velocity، Alternative Groups، Metric Inspector، Scenario/Scenario Truth Guard، External File Analysis، Onboarding، Company/Profile Settings، وكل الصفحات canonical/report detail غير المغلقة بصريًا.
-2. **توحيد نظام الواجهة:** typography/spacing/surfaces/buttons/forms/tables/badges/tabs/dialogs/empty-loading-error states، RTL، hierarchy، density، visual evidence states.
-3. **مسار المنتج المتكامل:** Source → Evidence → Data → Decision → Action → Outcome داخل الواجهة، مع progressive disclosure وعدم إخفاء نقص البيانات أو حالات review/reject/insufficient-data.
-4. **Command Palette / keyboard-first UX** وربطها فعليًا بالمسارات والإجراءات الموجودة دون اختراع actions backend.
-5. **Saved views / filters / grouping / reset UX** بالاعتماد على المسارات الحالية، مع الحفاظ على tenant scope.
-6. **Mobile + responsive + low-bandwidth:** progressive disclosure، جداول قابلة للاستخدام، عدم الاعتماد على صور ثقيلة، وعدم تحميل الموارد غير المطلوبة للمسار.
-7. **Performance / storage economy للواجهة:** route-level lazy loading، تقسيم chunks، إزالة التكرار والأنماط/المكونات المكررة، عدم إضافة حزم ثقيلة بلا ضرورة، وعدم إدخال assets كبيرة إلى المستودع.
-8. **Accessibility + RTL quality:** focus/keyboard/labels/contrast/reduced-motion، حالات الشاشة الصغيرة، ودعم الاستخدام الفعلي بالعربية.
-9. **Visual QA بعد كل موجة:** exact-head build + route verification + responsive sanity + no console errors في المسارات التي يتم تعديلها؛ لا يُرفع أي UI claim إلى Certification بدون Evidence حقيقي.
+**MANDATORY PROGRAMMER COMMAND — APPLY NOW**
 
-**حدود هذا المسار:** لا تغيير في RPCs، لا Runner جديد، لا fake KPI/data، لا bypass، لا نقل مسؤولية commit إلى الواجهة.
-
-#### B) Engineering / Runtime / Release Owner — Programmer
-**الاختصاص الكامل:** كل ما عدا تطوير الواجهات أعلاه، مع السياسة الصارمة الحالية.
-
-**المتبقي فقط:**
-1. **Fresh exact-HEAD business/browser E2E:** real Chromium + real Supabase auth + Actor A/B + tenant isolation + import/create/read-back/refresh/logout؛ لا mocks ولا service-role browser sessions.
-2. **إغلاق Known Runtime blockers:** آخر 12-scenario runtime كان `10/12` مع فشل `pdf-text` و`pdf-ocr-ar` بسبب `POSITIVE_POLICY_COMMIT_UNAVAILABLE`، إضافة إلى فشل persistence E2E؛ يجب إعادة التحقق على `c11c084...` أو SHA أحدث وعدم نقل أي Evidence قديم.
-3. **PDF/OCR positive-policy commit path:** extraction → normalization → validation → canonical commit → render، باستخدام المسار القائم، بدون إعادة كتابة durable runner.
-4. **Persistence / business truth:** إصلاح السبب الجذري لأي فشل في commit/read-back، والتحقق من DB→UI→refresh truth.
-5. **Migration/source parity:** إغلاق أي live migration/source lineage drift بقي من السجل، بدون rewriting تاريخي.
-6. **Worker resilience:** enqueue → claim → heartbeat/checkpoint → expiry/recovery → retry/DLQ evidence.
-7. **Operational certification:** storage/signed URL، realtime authorization، AI retrieval isolation، backup/restore + measured RPO/RTO، rollback/forward-fix، observability/SLO، security/secret audit.
-8. **Production/release parity:** exact environment variables/config، signed artifact verification، staging dry-run/schema drift، release manifest/canary/stabilization، final fail-closed certification bundle.
-9. **Netlify/public-access verification:** التأكد من أن حماية Netlify الإدارية لا تمنع الوصول المقصود لتطبيق المستخدم؛ لا تغيير في Auth داخل التطبيق ولا تعطيل ضوابطه.
-10. **Resource/storage economy خارج UI:** CI/deployment hygiene، منع artifacts المكررة/الكبيرة في Git، تقليل استهلاك build/deploy حيث لا يمس وظائف المنتج أو Evidence، وعدم حذف أي مصدر أو سجل مطلوب.
-11. **Memory/governance:** بعد كل دفعة تنفيذية، تحديث exact HEAD، evidence، blockers والمالك؛ لا تعاد Audits المغلقة ما لم يتغير SHA أو البيئة أو العقد.
+> نفّذ المنتج وفق \`docs/MASTER_PRODUCT_REFERENCE.md\` والـ**AUTHORITATIVE PRODUCT CONSTITUTION — AGHBARI 2026-09-21** باعتبارها المرجع الوحيد للهوية والواجهات والهيكلية. ابدأ بالواجهات كاملة أولًا: وحّد الـShell والـSidebar والـHeader والـDesign System، ثم غطِّ جميع الأسطح القانونية لمركز القرار والبيانات والتشغيل والتحليل التجاري والذكاء والقرار والثقة والأدلة والتقارير والمخرجات والبيانات المرجعية والإعدادات، مع المستشار الأغبري الثابت. أزل/استبدل أي واجهة أو قسم متعارض مع هذه البنية بعد فحص الاعتماديات، ولا تعُد إلى Bolt/Commerce/CRUD taxonomy أو duplicate navigation. استخدم البيانات والمسارات الحقيقية فقط، وأظهر حالات loading/empty/review/blocked/insufficient-data بدل التزييف. حافظ على المسارات/RPCs/runners الحالية والـtenant/RLS والحسابات الحتمية وfail-closed. نفّذ تغطية بصرية كاملة ثم واصل الـpolish والـruntime والـevidence والـCI حتى أقصى إغلاق حقيقي ممكن، وسجّل exact SHA والحالة التالية في هذا الفهرس بعد كل دفعة جوهرية.
 
 ### NON-NEGOTIABLE EXECUTION RULES
-- لا يبدأ أي مسار من هذه القائمة قبل أمر المالك **«انطلق»**.
-- بعد أمر «انطلق» تعمل المساران بالتوازي؛ لا ينتظر أحد المسارين الآخر عند وجود blocker خارجي.
-- ما هو منجز أعلاه لا يعاد كمهام جديدة إلا إذا ظهر Regression على SHA/Environment متغير.
-- كل PASS يجب أن يكون حقيقيًا، exact-HEAD، وقابلًا للتتبع؛ لا historical transfer ولا synthetic evidence.
-- Staging first لأي DB mutation؛ Production mutation ممنوع دون إثبات الهدف والبوابة المناسبة.
-- لا rebuild من الصفر، لا duplicate runner/RPC، ولا fake fixtures في مسارات الاعتماد.
-- الأولوية في توفير المساحة: تقليل تكرار builds/assets/dependencies ورفع الكفاءة قبل إضافة موارد جديدة، مع إبقاء المنتج كاملًا.
+- لا تُنقل نتيجة أو Evidence أو PASS بين SHAs.
+- لا تغيّر المسارات authoritative لمجرد تجميل الواجهة.
+- لا Runner جديد، لا RPC جديد، لا fake KPI/data/session/JWT/evidence، ولا bypass.
+- اعمل على الجبهات المستقلة بالتوازي؛ blocker واحد لا يوقف العمل المستقل.
+- بعد كل دفعة جوهرية: exact SHA → verification → memory update.
+- الأولوية للمساحة: lazy routes/chunks، إزالة التكرار، تقليل assets/dependencies، consolidation قبل الإضافة.
+- لا تعاود اختبار ما أُغلق إلا عند تغير SHA أو البيئة أو العقد.
+- لا تعتبر المنتج مكتملًا بمرور build فقط؛ المطلوب UX + truth + persistence + runtime + evidence + CI + deployment.
 
-### READY STATE FOR NEXT COMMAND
-- **Status:** تخطيط وتقسيم ملكية فقط — **NO EXECUTION STARTED**.
-- **Next owner command:** `انطلق`.
-- عند وصول `انطلق`: ChatGPT يبدأ موجة UI الشاملة، والمبرمج يبدأ كل الأعمال الهندسية/التشغيلية/الشهادات المتبقية أعلاه بالتوازي.
-- لا حاجة لإعادة إرسال هذه التعليمات بعد أمر «انطلق».
- 
 ## DEEP AUDIT — 2026-09-07
 
 ### Database / Security baseline

@@ -2,7 +2,7 @@
 
 > **AUTHORITATIVE SINGLE REFERENCE.** This is the permanent registry for the comprehensive product requirements, architecture guardrails, product inspiration, open-source projects, licenses, integration decisions, acceptance rules, implementation mapping, reliability rules, and release gates used while evolving Report Advisor.
 >
-> **Last reviewed:** 2026-08-21
+> **Last reviewed:** 2026-09-21
 >
 > This file supersedes scattered requirement/inspiration notes as the operational reference. New requirements, sources and implementation decisions are appended here rather than creating competing master lists.
 
@@ -10,7 +10,198 @@
 
 Report Advisor is a new product. It may learn from proven products and open-source projects, but it must not become a copy of any vendor.
 
-The target is a unified, accurate, fast, flexible, predictive, advisory and financially safe business-intelligence platform with deterministic business calculations, governed semantic metrics, evidence/lineage, multi-format document intelligence, operational/inventory/procurement intelligence, customer/supplier intelligence, financial/accounting intelligence, forecasting/backtesting, decision/what-if intelligence, ChatBI, report generation, proactive alerts, low-bandwidth UX, and a free-first/open-source-first architecture with no mandatory local AI installation or paid AI provider.
+The target is a unified, accurate, fast, flexible, predictive, advisory and financially safe Business Decision Operating System with deterministic business calculations, governed semantic metrics, evidence/lineage, multi-format document intelligence, operational/inventory/procurement intelligence, customer/supplier intelligence, financial/accounting intelligence, forecasting/backtesting, decision/what-if intelligence, ChatBI, report generation, proactive alerts, low-bandwidth UX, and a free-first/open-source-first architecture with no mandatory local AI installation or paid AI provider.
+
+
+## 2A. AUTHORITATIVE PRODUCT CONSTITUTION — AGHBARI 2026-09-21
+
+> **BINDING PRODUCT RULE.** This section is part of \`docs/MASTER_PRODUCT_REFERENCE.md\` itself. It is not a secondary UI note and must not be copied into a competing master document. When older UI structures, navigation maps, screen groupings or visual contracts conflict with this section, the older structure is **SUPERSEDED** for product design purposes. Historical files remain historical evidence only.
+
+### Product identity
+
+**الأغبري / Report-Advisor — Business Decision Operating System**
+
+The product is not a generic dashboard, CRUD application, mini-ERP, pharmacy application, chatbot, or Bolt-style template. Its purpose is to turn business data and documents into:
+
+\`Data → Truth → Evidence → Signal → Decision → Approval → Action → Outcome → Learning → Benchmark\`
+
+The product experience must visibly connect business facts to business decisions while remaining fail-closed when evidence, history, cost basis, freshness, tenant scope, or confidence is insufficient.
+
+### Mandatory top-level information architecture
+
+The primary application navigation is fixed to these zones only:
+
+1. **مركز القرار / Decision Center**
+   - Business health, decision queue, exceptions, signals, opportunities, Money Recovery, Decision Coverage, Decision ROI, Business Replay, outcome follow-up.
+
+2. **البيانات والتشغيل / Data Operations**
+   - Work Center, import/upload, document intelligence, extraction, normalization, validation, reconciliation, data quality, schema drift, sources/connectors and operational jobs.
+
+3. **التحليل التجاري / Business Analytics**
+   - Sales, Purchases, Profitability, Receivables/Collections, Liquidity/Cash, Inventory, Demand/Movement, Customer/Supplier analysis, RFM, ABC/XYZ/FSN, Aging, concentration, anomalies and trend analysis.
+
+4. **الذكاء والقرار / Intelligence & Decision**
+   - Signals, drivers, early warnings, recommendations, forecasts, backtests, scenarios, AI advisory, Decision Experience and Decision Playbooks.
+
+5. **الثقة والأدلة / Trust & Evidence**
+   - Evidence Center, Evidence Passport, provenance, lineage, Metric Inspector, snapshots, confidence, decision evidence, benchmark governance and trust health.
+
+6. **التقارير والمخرجات / Reports & Outputs**
+   - Executive report, domain reports, Report Builder, review, export and print surfaces. Reports are decision outputs, not merely decorative views.
+
+7. **البيانات المرجعية / Master Data**
+   - Customers, Products, Suppliers, Warehouses, inventory entities, business keys, synonyms, units, packaging and semantic dictionary.
+
+8. **الإعدادات / Settings**
+   - Company, users, roles, permissions, profile, language, currency, sources/connectors, notifications, security, integrations and system health.
+
+No additional top-level sidebar category may be introduced unless this master reference is deliberately amended with an explicit product decision.
+
+### Aghbari Advisor — permanent intelligence layer
+
+**المستشار الأغبري** is not a standalone navigation category. It is a persistent application layer available from every major screen through a fixed conversation drawer/panel.
+
+It must understand current page context, active report/metric/entity/decision and available evidence. It may explain, investigate, compare, diagnose, summarize, forecast where minimum-data gates pass, build scenarios, draft recommendations and navigate the user to evidence/analysis/decision surfaces.
+
+Every consequential answer must expose, where applicable:
+
+- Source / Evidence
+- Calculation or metric reference
+- Period / As Of / Freshness
+- Confidence / quality state
+- Expected impact
+- Recommended next step
+
+The advisor may never manufacture authoritative business numbers, bypass validation, perform unapproved financial writes, or replace deterministic business calculations.
+
+### Information-architecture rule
+
+Do **not** promote individual metrics or analytical techniques into top-level navigation.
+
+The following are lenses/features inside their parent domains, not sidebar categories:
+- RFM
+- ABC / XYZ / FSN
+- Aging
+- DSO / DIO / DPO / CCC
+- Forecasts
+- Margin
+- Velocity / acceleration
+- Metric Inspector
+- Evidence Passport
+- Provenance
+- Confidence
+- Scenario analysis
+
+Likewise, the advisor is not a separate app.
+
+### Canonical business journey
+
+For any imported report, document or connected dataset, the user-visible journey should progressively reveal:
+
+\`Source → Extraction → Normalization → Validation → Reconciliation → Canonical Truth → Semantic Metrics → Analysis → Evidence → Signal → Intelligence → Recommendation → Decision → Approval → Action → Outcome → Learning → Benchmark\`
+
+The UI must never imply a later state before the authoritative backend state exists.
+
+### Visual constitution
+
+The visual system is fixed at product level:
+
+- Arabic-first RTL enterprise SaaS.
+- Aghbari dark ink/navigation foundation with teal/emerald and restrained warm-gold accents.
+- High information density without visual noise.
+- Strong hierarchy and progressive disclosure.
+- One shared App Shell, Header, Sidebar, Page Header and design system.
+- Shared typography, spacing, surfaces, controls, states, tables, charts, dialogs and responsive rules.
+- KPI cards are evidence-aware and must expose data state when it matters.
+- Charts use a consistent semantic palette and meaningful labels; no decorative color proliferation.
+- Trust states are first-class: \`VERIFIED\`, \`TRUSTED\`, \`PARTIAL\`, \`REVIEW\`, \`BLOCKED\`, \`INSUFFICIENT DATA\`.
+- Responsive, mobile-capable, PWA-friendly and low-bandwidth aware.
+- Keyboard-first command access through the existing Command Palette.
+- Accessibility, focus behavior, readable Arabic typography and reduced-motion behavior are required.
+- No copied vendor UI, generic Bolt sections, legacy visual islands, contradictory brand systems or demo-only screens.
+
+The approved BI reference image defines **composition, hierarchy, density and visual language** only. It is not a literal copy target.
+
+### Dashboard / Decision Center visual contract
+
+The home surface is a **Decision Center**, not a generic KPI wall. Its visual hierarchy should prioritize:
+
+1. Business pulse / executive context.
+2. Four or fewer critical business indicators where real evidence exists.
+3. Business trend and drivers.
+4. Distribution / concentration / exposure views where useful.
+5. Decision summary: what needs attention, why, evidence, owner/next step.
+6. High-value signals and exceptions.
+7. Direct entry points to Work Center, Reports, Documents, Intelligence, Investigations and other decision workflows.
+
+No fabricated metric, synthetic alert or placeholder chart may be presented as business truth.
+
+### Document / import visual contract
+
+The import experience must make the real processing lifecycle visible:
+
+\`queued → fingerprinted → extracted → canonicalized → validated → analyzed → decisioned → committed → rendered\`
+
+The interface must distinguish:
+- pending/processing,
+- review-required,
+- blocked/rejected,
+- committed,
+- rendered,
+- unavailable.
+
+\`committed\` is only shown after the authoritative database commit path succeeds.
+
+### Truth and finance rules visible in UI
+
+- Deterministic calculations are authoritative.
+- AI is assistive for explanation, synthesis and recommendation wording.
+- Profitability is explicitly unavailable when no verified cost basis exists.
+- Forecasts are explicitly unavailable when minimum-data gates fail.
+- Benchmarks show \`INSUFFICIENT SAMPLE\` when sampling requirements are not met.
+- Stale or unknown data cannot silently drive executive warnings or decisions.
+- Tenant scope, period, As Of, freshness and evidence remain traceable from important outputs.
+
+### Cleanup / consolidation law
+
+The product must continuously converge toward one coherent system.
+
+For every legacy or duplicate surface, classify it as:
+- **KEEP** — required and canonical.
+- **IMPROVE** — required but visually/architecturally weak.
+- **REPLACE** — capability needed but implementation contradicts the canonical product path.
+- **REMOVE** — proven orphan, duplicate, dead, obsolete, mock, legacy-branded or conflicting surface.
+
+Before deletion, inspect references/dependencies and preserve any required capability by consolidating into the canonical path. Do not create another wrapper, runner, RPC, navigation map or competing design system to avoid doing the consolidation.
+
+### Visual-first execution priority
+
+For the next major product-development wave, the first priority is **complete visual coverage of the entire canonical product surface** using the shared design system and real application paths.
+
+The programmer must first bring all canonical screens into one coherent Aghbari product experience, then deepen truth/runtime/certification work in parallel where independent, without weakening any fail-closed rule.
+
+The target is not “more pages”. The target is a visibly complete, commercially credible product whose:
+- shell is coherent,
+- navigation is canonical,
+- every major surface looks native to Aghbari,
+- real data paths remain authoritative,
+- empty/loading/error/review states are deliberate,
+- and the transition from data to evidence to decision is visible.
+
+### Supersession statement
+
+The following are explicitly **not** the product identity and must not be restored as the main information architecture:
+- generic Commerce / ERP CRUD groupings,
+- arbitrary Bolt-style dashboard sections,
+- duplicate sidebar taxonomies,
+- one-page-per-KPI navigation,
+- a standalone chatbot product identity,
+- visual mockups that bypass real application state,
+- duplicate "Intelligence" or "Evidence" navigation trees,
+- sector-specific framing that narrows the platform into a single industry.
+
+This constitution supersedes conflicting UI/navigation proposals while preserving valid underlying technical capabilities.
+
 
 ## 2. MASTER REQUIREMENTS — consolidated from the comprehensive specification
 
