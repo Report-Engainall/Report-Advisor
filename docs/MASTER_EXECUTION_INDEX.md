@@ -1,3 +1,16 @@
+## CURRENT EXECUTION BOUNDARY — 2026-09-21 / WAVE 58 FINAL — CERTIFIED UI CLOSURE, RUNTIME BLOCKER
+
+> Exact-head evidence only. No historical deployment/runtime result is transferred.
+
+- CURRENT CODE/TEST CANDIDATE: `cbfb7d0906e893ac32e274b571519d6f536ff8ad`.
+- GOVERNED MAIN DESCENDANT CERTIFIED: `2b9d28c9a1a8fa12677c03f11b7ba94e2a3dbac7` (documentation/governance descendants only).
+- CI PASS: quality, Execution Enforcement Contract, Final Execution Batch, Storage Tenant Isolation, Final Certification Gate.
+- UI DONE: Connections source status and next action are state-derived and guarded.
+- RUNTIME BOUNDARY: current main has Vercel `failure / build-rate-limit` and Vercel deployment `pending`; no live/browser PASS is claimed.
+- BACKUP/RPO-RTO: source-level contracts are PASS, but staging still reports `backup_verification_runs=0`; restore/RPO/RTO runtime proof remains open.
+- PRECISE NEXT ACTION: obtain a real exact-head deployment/browser runtime result for `2b9d28c9...`; then run/consume governed Phase-F backup/restore → worker/server-boundary → tenant A/B → server OCR → watched-folder → final certification.
+- DO NOT REPEAT: do not transfer old Vercel READY deployments, do not call source contracts runtime evidence, do not fabricate E2E secrets or browser sessions, do not bypass Phase-F gates.
+
 ## CURRENT EXECUTION BOUNDARY — 2026-09-21 / WAVE 58 — CONNECTIONS STATE-DRIVEN UI
 
 > Exact-head evidence only. No historical deployment/runtime result is transferred.
@@ -497,14 +510,3 @@ There is one execution owner. Do not resurrect the previous UI/runtime owner spl
 **MANDATORY PROGRAMMER COMMAND — APPLY NOW**
 
 > نفّذ المنتج وفق \`docs/MASTER_PRODUCT_REFERENCE.md\` والـ**AUTHORITATIVE PRODUCT CONSTITUTION — AGHBARI 2026-09-21** باعتبارها المرجع الوحيد للهوية والواجهات والهيكلية. ابدأ بالواجهات كاملة أولًا: وحّد الـShell والـSidebar والـHeader والـDesign System، ثم غطِّ جميع الأسطح القانونية لمركز القرار والبيانات والتشغيل والتحليل التجاري والذكاء والقرار والثقة والأدلة والتقارير والمخرجات والبيانات المرجعية والإعدادات، مع المستشار الأغبري الثابت. أزل/استبدل أي واجهة أو قسم متعارض مع هذه البنية بعد فحص الاعتماديات، ولا تعُد إلى Bolt/Commerce/CRUD taxonomy أو duplicate navigation. استخدم البيانات والمسارات الحقيقية فقط، وأظهر حالات loading/empty/review/blocked/insufficient-data بدل التزييف. حافظ على المسارات/RPCs/runners الحالية والـtenant/RLS والحسابات الحتمية وfail-closed. نفّذ تغطية بصرية كاملة ثم واصل الـpolish والـruntime والـevidence والـCI حتى أقصى إغلاق حقيقي ممكن، وسجّل exact SHA والحالة التالية في هذا الفهرس بعد كل دفعة جوهرية.
-
-
-### MANDATORY UI PRODUCT-DESIGN INITIATIVE — EVERY EXECUTION WAVE
-
-هذه قاعدة تنفيذ إلزامية، وليست اقتراحًا اختياريًا: عند العمل على أي واجهة أو تدفق، لا يقتصر دور المبرمج على تنفيذ النص الحرفي للمواصفة؛ بل يعمل أيضًا بعقلية **Product Designer + UI/UX Engineer**، ويراجع كل شاشة وكل تدفق لاكتشاف فرص حقيقية لرفع قيمة المنتج.
-
-بعد إنجاز أي جزء تقني مرتبط بواجهة، يجب تنفيذ مراجعة **«ما الذي يمكن تحسينه هنا؟»** ثم اتخاذ الإجراء المناسب مباشرة، دون انتظار تعليمات تفصيلية لكل زر أو بطاقة أو تفاعل. يجوز للمبرمج، ضمن هوية الأغبري وبنية المنتج القائمة، أن يقترح وينفذ تحسينات مثل: زر أو Action يختصر خطوة، بطاقة أو مؤشر، عرض بيانات أفضل، Drawer/Panel/Modal، تبويب أو فلتر أو بحث ذكي، تنبيه أو حالة بصرية، Tooltip أو شرح سياقي، مقارنة أو Visualization أو Timeline أو Evidence View، حالات Empty/Loading/Success/Warning/Blocked/Review/Insufficient Data، Micro-interaction أو Shortcut، أو إعادة ترتيب وتبسيط وتحسين التسلسل البصري وطريقة تقديم النتيجة أو التوصية أو القرار.
-
-**القاعدة الحاكمة:** لا تُضاف عناصر لمجرد زيادة المحتوى. كل مبادرة جديدة يجب أن تضيف قيمة يمكن الدفاع عنها عبر واحد أو أكثر من: **فهم أسرع، قرار أسرع، عمل أسرع، وضوح أفضل للحقيقة/الدليل، اكتشاف فرصة، كشف مشكلة، تقليل خطوات، رفع الثقة، أو رفع القيمة المدركة للمنتج.** وما لا يحقق قيمة واضحة يُترك.
-
-المبادرة لا تمنح صلاحية اختراع وظائف تجارية أو backend paths من خارج العقد القائم. أي تحسين يجب أن يحافظ على الهوية البصرية للأغبري، الـIA المعتمدة، المسارات authoritative، الحقيقة والـevidence، deterministic calculations، tenant/RLS، fail-closed، والأداء والاستجابة وإتاحة الاستخدام. **المطلوب ليس تنفيذ واجهة مكتوبة فقط؛ المطلوب اكتشاف وإغلاق الفجوات التي تمنع الواجهة من أن تكون أوضح وأكثر قيمة واحترافًا.**
