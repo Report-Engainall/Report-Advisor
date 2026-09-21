@@ -1,3 +1,22 @@
+## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-63
+
+- SESSION-ID → `2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-63`
+- EXACT HEAD BEFORE GOVERNANCE WRITE-BACK → `476c4bb827c3a2d485726af6b2e5d3e5391ff33a`.
+- DONE → implemented a real Dashboard UI decision-action upgrade in `src/pages/DashboardPage.tsx`: one derived `dashboardNextAction` now responds to insufficient truth, pending decisions, live alerts, lack of calculable trend data, and normal analysis readiness.
+- DONE → bound the dashboard decision brief and bottom NEXT ACTION surface to that derived action; the UI no longer presents only static next-step choices for these states.
+- DONE → strengthened `scripts/check-product-wow-ui-contract.mjs` to guard the new current-truth action derivation, route binding, and action rationale.
+- ACTUAL RESULT → commit `476c4bb827c3a2d485726af6b2e5d3e5391ff33a` is now the real `main` HEAD. Exact source re-read at that SHA confirms the new action derivation and dynamic route/description bindings. This is source verification only; no CI/build/browser PASS is claimed for this new SHA yet.
+- ACTUAL LIVE DB RESULT → Supabase staging currently has `idx_import_jobs_company_created_id`; `import_jobs=4477`; `backup_verification_runs=0`. The import-history scale index remains present. No database mutation was performed in this wave.
+- ACTUAL PHASE-F RESULT → the existing governed PR #611 proved local/static/canary stages and correctly failed closed at live resilience because required live configuration was not provisioned. The current toolset cannot enumerate or write GitHub Actions secrets, so no secret has been fabricated and no Phase-F live PASS is claimed.
+- ACTUAL RUNTIME RESULT → PC01 Remote Desktop is currently offline, so a local full build/browser run cannot be claimed from this session. GitHub combined status for `476c4bb...` currently exposes no status entries.
+- SECURITY/DB OBSERVATION → Supabase security advisor still reports 46 authenticated-executable SECURITY DEFINER warnings; performance advisor contains unused-index notices. No blanket revoke/delete was performed because the canonical access model and usage evidence must be inspected per function/index.
+- PRECISE STOP POINT → real UI/code work is merged to `main`, but current-head CI/runtime proof and Phase-F live recovery proof remain open.
+- WHAT REMAINS → fresh exact-head quality/build/browser/certification evidence for `476c4bb...`; provision/verify the existing Phase-F live configuration and rerun the canonical `.github/workflows/phase-f-live-resilience.yml`; consume real backup/restore + RPO/RTO + rollback evidence; then continue worker/server-boundary → tenant A/B → server OCR → watched-folder → final certification.
+- NEXT ACTION → execute/consume the first fresh exact-head verification path for `476c4bb...`; in parallel, provision/verify the missing Phase-F live configuration (including `RESILIENCE_MAX_RPO_SECONDS` and backup/restore runtime target/credentials) without inventing values.
+- DO NOT REPEAT → do not transfer the `84a62...` browser PASS to `476c4bb...`; do not claim Phase-F PASS from local/static contracts; do not fabricate resilience secrets; do not blanket-revoke SECURITY DEFINER functions; do not delete unused indexes without workload evidence; do not recreate canonical import/history paths.
+
+- CURRENT RESUME POINTER → `476c4bb827c3a2d485726af6b2e5d3e5391ff33a` → fresh exact-head CI/build/browser/certification → Phase-F live configuration + canonical rerun → real recovery/RPO/RTO/rollback evidence → worker/server-boundary → tenant A/B → server OCR → watched-folder → final certification.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-62 FINAL
 
 - SESSION-ID → `2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-62 FINAL`

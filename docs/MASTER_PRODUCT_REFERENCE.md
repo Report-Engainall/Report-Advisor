@@ -1,3 +1,13 @@
+## IMPLEMENTATION UPDATE — 2026-09-21 / WAVE 63 — DASHBOARD CURRENT-TRUTH NEXT ACTION
+
+- Exact code HEAD: `476c4bb827c3a2d485726af6b2e5d3e5391ff33a`.
+- REAL UI CHANGE: Dashboard now derives a single next action from current truth/state: insufficient evidence → data quality; pending decisions → decision review; unread signals → command center; no calculable trend → source analysis; otherwise analytics.
+- REAL UI CHANGE: the decision brief and bottom NEXT ACTION surface both consume that derived action, including rationale text and canonical destination.
+- CONTRACT: `scripts/check-product-wow-ui-contract.mjs` now guards the derived action hook, route binding, and rationale binding.
+- NO ARCHITECTURE CHANGE: no new route, RPC, runner, importer, tenant path, or calculation engine was introduced.
+- RUNTIME STATUS: no current-head CI/build/browser PASS is claimed yet for `476c4bb...`; old runtime evidence remains historical.
+- NEXT: obtain fresh exact-head verification for `476c4bb...`; separately close the external Phase-F live resilience configuration and consume real backup/restore/RPO/RTO/rollback evidence.
+
 ## IMPLEMENTATION UPDATE — 2026-09-21 / WAVE 62 FINAL — IMPORT RUNTIME CLOSED, PHASE-F BLOCKER BOUND
 
 - Exact-head Browser E2E on `84a62e169ce8db61d2dc6598e654127543ecdabb` is **PASS**.
