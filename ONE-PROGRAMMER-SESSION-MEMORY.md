@@ -1,3 +1,17 @@
+## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-49
+
+- SESSION-ID → `2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-49`
+- SHA → `7301ae56b7c01723ebdcc78756fc8a1ea5ffe399` (exact code/test head before this governance write-back).
+- DONE → hardened report error recovery across Purchases, Inventory, Receivables and Profitability by replacing full-browser reloads with in-place data-loader retries.
+- DONE → strengthened `scripts/check-product-wow-ui-contract.mjs` to reject `window.location.reload()` in the report center and preserve the four report surfaces.
+- ACTUAL RESULT → exact source re-read confirms zero full-reload recovery calls in `ReportsPage.tsx`; compare from `69e56486...` to `7301ae56...` contains only `ReportsPage.tsx` and the contract guard.
+- ACTUAL RESULT → exact-head Vercel status remains fail-closed: `failure` at free-plan `build-rate-limit`; deployment context `pending`. No build/browser/runtime PASS is claimed.
+- PRECISE STOP POINT → Wave 49 report retry resilience is implemented and contract-bound; Wave 48 decision/command-center actionability remains intact.
+- WHAT REMAINS → fresh exact-head CI/build/Phase-F/browser certification; then backup/RPO-RTO restore proof, worker/server-boundary runtime, tenant A/B, server OCR authority, watched-folder runtime and final certification.
+- NEXT ACTION → obtain the first fresh exact-head CI/build/Phase-F/browser/certification result for `7301ae56...`; repair only a reproduced current-SHA failure.
+- DO NOT REPEAT → do not reintroduce `window.location.reload()` to report errors; do not transfer READY evidence from prior SHAs; do not use source guards as runtime proof.
+- CURRENT RESUME POINTER → `7301ae56b7c01723ebdcc78756fc8a1ea5ffe399` → fresh exact-head CI/build/Phase-F/browser/certification → repair current-SHA failure if reproduced → backup/RPO-RTO → worker/server-boundary → tenant A/B → server OCR → watched-folder → final certification.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-48B
 
 - SESSION-ID → `2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-48B`
