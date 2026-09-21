@@ -1,4 +1,4 @@
-﻿import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ArrowRight, Command, Search } from 'lucide-react';
 import { NAVIGATION_ITEMS, type NavigationItem, type NavigationSectionId } from '@/lib/navigation-registry';
@@ -7,19 +7,19 @@ type CommandItem = Pick<NavigationItem, 'label' | 'description' | 'path' | 'keyw
 
 const COMMANDS: CommandItem[] = NAVIGATION_ITEMS;
 
-type CommandCategory = 'ظ…ط±ظƒط² ط§ظ„ظ‚ط±ط§ط±' | 'ط§ظ„ط¨ظٹط§ظ†ط§طھ ظˆط§ظ„طھط´ط؛ظٹظ„' | 'ط§ظ„طھط­ظ„ظٹظ„ ط§ظ„طھط¬ط§ط±ظٹ' | 'ط§ظ„ط°ظƒط§ط، ظˆط§ظ„ظ‚ط±ط§ط±' | 'ط§ظ„ط«ظ‚ط© ظˆط§ظ„ط£ط¯ظ„ط©' | 'ط§ظ„طھظ‚ط§ط±ظٹط± ظˆط§ظ„ظ…ط®ط±ط¬ط§طھ' | 'ط§ظ„ط¨ظٹط§ظ†ط§طھ ط§ظ„ظ…ط±ط¬ط¹ظٹط©' | 'ط§ظ„ط¥ط¹ط¯ط§ط¯ط§طھ';
+type CommandCategory = 'مركز القرار' | 'العمل والبيانات' | 'التحليل التجاري' | 'الذكاء والاستكشاف' | 'البيانات المرجعية' | 'الإعدادات والتجهيز';
 
 const COMMAND_CATEGORY_LABELS: Record<string, CommandCategory> = {
-  'decision-center': 'ظ…ط±ظƒط² ط§ظ„ظ‚ط±ط§ط±',
-  'data-operations': 'ط§ظ„ط¹ظ…ظ„ ظˆط§ظ„ط¨ظٹط§ظ†ط§طھ',
-  analytics: 'ط§ظ„طھط­ظ„ظٹظ„ ط§ظ„طھط¬ط§ط±ظٹ',
-  intelligence: 'ط§ظ„ط°ظƒط§ط، ظˆط§ظ„ط§ط³طھظƒط´ط§ظپ',
-  reference: 'ط§ظ„ط¨ظٹط§ظ†ط§طھ ط§ظ„ظ…ط±ط¬ط¹ظٹط©',
-  admin: 'ط§ظ„ط¥ط¹ط¯ط§ط¯ط§طھ ظˆط§ظ„طھط¬ظ‡ظٹط²',
+  'decision-center': 'مركز القرار',
+  'data-operations': 'العمل والبيانات',
+  analytics: 'التحليل التجاري',
+  intelligence: 'الذكاء والاستكشاف',
+  reference: 'البيانات المرجعية',
+  admin: 'الإعدادات والتجهيز',
 };
 
 function commandCategory(section: NavigationSectionId): CommandCategory {
-  return COMMAND_CATEGORY_LABELS[section];
+  return COMMAND_CATEGORY_LABELS[section] ?? (section === 'trust' ? 'Trust & Evidence' : 'Reports & Outputs');
 }
 
 interface CommandPaletteProps {
@@ -133,8 +133,8 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
   if (!open) return null;
 
   return (
-    <div className="ag-command-overlay fixed inset-0 z-[100] flex items-start justify-center bg-ink-950/45 px-4 pt-[10vh] backdrop-blur-sm" role="dialog" aria-modal="true" aria-label="ظ„ظˆط­ط© ط§ظ„ط£ظˆط§ظ…ط±">
-      <button className="absolute inset-0 cursor-default" aria-label="ط¥ط؛ظ„ط§ظ‚" onClick={onClose} />
+    <div className="ag-command-overlay fixed inset-0 z-[100] flex items-start justify-center bg-ink-950/45 px-4 pt-[10vh] backdrop-blur-sm" role="dialog" aria-modal="true" aria-label="لوحة الأوامر">
+      <button className="absolute inset-0 cursor-default" aria-label="إغلاق" onClick={onClose} />
       <div className="ag-command-palette relative w-full max-w-3xl overflow-hidden rounded-[18px] border border-ink-200 bg-white shadow-2xl" dir="rtl">
         <div className="ag-command-search flex items-center gap-3 border-b border-ink-100 px-4 py-3.5">
           <Search size={19} className="text-ink-400" />
@@ -142,9 +142,9 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
             ref={inputRef}
             value={query}
             onChange={event => { setQuery(event.target.value); setActive(0); }}
-            placeholder="ط§ط¨ط­ط« ط¹ظ† طµظپط­ط© ط£ظˆ ط¥ط¬ط±ط§ط،..."
+            placeholder="ابحث عن صفحة أو إجراء..."
             className="min-w-0 flex-1 bg-transparent text-sm text-ink-900 outline-none placeholder:text-ink-400"
-            aria-label="ط§ظ„ط¨ط­ط« ظپظٹ ط§ظ„ط£ط؛ط¨ط±ظٹ"
+            aria-label="البحث في الأغبري"
             aria-autocomplete="list"
             aria-controls="command-results"
             aria-activedescendant={filtered[active] ? `command-option-${active}` : undefined}
@@ -152,10 +152,10 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
           <kbd className="hidden rounded-md border border-ink-200 bg-ink-50 px-2 py-1 text-[10px] text-ink-400 sm:inline-flex">Esc</kbd>
         </div>
 
-        <div id="command-results" className="max-h-[55vh] overflow-y-auto p-2" role="listbox" aria-label="ظ†طھط§ط¦ط¬ ظ„ظˆط­ط© ط§ظ„ط£ظˆط§ظ…ط±">
+        <div id="command-results" className="max-h-[55vh] overflow-y-auto p-2" role="listbox" aria-label="نتائج لوحة الأوامر">
           {!query.trim() && recentCommands.length > 0 && (
             <div className="mb-2">
-              <div className="px-3 pb-2 pt-1 text-[10px] font-bold uppercase tracking-wide text-ink-400">ط§ظ„ظˆطµظˆظ„ ط§ظ„ط³ط±ظٹط¹</div>
+              <div className="px-3 pb-2 pt-1 text-[10px] font-bold uppercase tracking-wide text-ink-400">الوصول السريع</div>
               <div className="rounded-xl border border-primary-100 bg-primary-50/50 p-1">
                 {recentCommands.map(item => {
                   const index = filtered.findIndex(row => row.path === item.path);
@@ -182,11 +182,11 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
           )}
 
           {!query.trim() && (
-            <div className="px-3 pb-2 pt-2 text-[10px] font-bold uppercase tracking-wide text-ink-400">ظ…ط±طھط¨ط· ط¨ظ…ط§ طھط¹ظ…ظ„ ط¹ظ„ظٹظ‡ ط§ظ„ط¢ظ†</div>
+            <div className="px-3 pb-2 pt-2 text-[10px] font-bold uppercase tracking-wide text-ink-400">مرتبط بما تعمل عليه الآن</div>
           )}
 
           {filtered.length === 0 ? (
-            <div className="px-4 py-10 text-center text-sm text-ink-400">ظ„ط§ طھظˆط¬ط¯ ظ†طھط§ط¦ط¬ ظ…ط·ط§ط¨ظ‚ط©</div>
+            <div className="px-4 py-10 text-center text-sm text-ink-400">لا توجد نتائج مطابقة</div>
           ) : (
             filtered.map((item, index) => {
               const isCurrent = contextScore(item.path) >= 45;
@@ -206,7 +206,7 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
                     <span className="flex min-w-0 items-center gap-2">
                       <span className="block min-w-0 truncate text-sm font-semibold">{item.label}</span>
                       <span className="shrink-0 rounded-full bg-ink-100 px-2 py-0.5 text-[9px] font-bold text-ink-500">{commandCategory(item.section)}</span>
-                      {!query.trim() && isCurrent && <span className="shrink-0 rounded-full bg-primary-50 px-2 py-0.5 text-[9px] font-bold text-primary-700">ظپظٹ ظ‡ط°ظ‡ ط§ظ„ظ…ط³ط§ط­ط©</span>}
+                      {!query.trim() && isCurrent && <span className="shrink-0 rounded-full bg-primary-50 px-2 py-0.5 text-[9px] font-bold text-primary-700">في هذه المساحة</span>}
                     </span>
                     <span className="block truncate text-xs text-ink-400">{item.description}</span>
                   </span>
@@ -218,10 +218,9 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
         </div>
 
         <div className="flex flex-wrap items-center gap-3 border-t border-ink-100 bg-ink-50/70 px-4 py-2 text-[11px] text-ink-400">
-          <span>â†‘â†“ ظ„ظ„طھظ†ظ‚ظ„</span><span>Enter ظ„ظ„ظپطھط­</span><span>Esc ظ„ظ„ط¥ط؛ظ„ط§ظ‚</span>
+          <span>↑↓ للتنقل</span><span>Enter للفتح</span><span>Esc للإغلاق</span>
         </div>
       </div>
     </div>
   );
 }
-
