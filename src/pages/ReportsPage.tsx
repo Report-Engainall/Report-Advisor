@@ -68,6 +68,33 @@ export function ReportsCenterPage() {
   const nextPath = kpis.status === 'INSUFFICIENT_DATA' || aging.status === 'INSUFFICIENT_DATA' ? '/data-quality' : '/reports/executive';
   const nextLabel = kpis.status === 'INSUFFICIENT_DATA' || aging.status === 'INSUFFICIENT_DATA' ? 'افحص جودة البيانات' : 'افتح التقرير التنفيذي';
 
+  const reportReadiness = [
+    {
+      path: '/reports/sales',
+      label: 'المبيعات',
+      state: kpis.totalSales !== null && kpis.invoiceCount !== null ? 'CALCULATED' : 'INSUFFICIENT DATA',
+      detail: kpis.totalSales !== null && kpis.invoiceCount !== null ? 'الإيراد وعدد الفواتير متاحان.' : 'تحتاج مؤشرات المبيعات الأساسية إلى مصدر كافٍ.',
+    },
+    {
+      path: '/reports/profitability',
+      label: 'الربحية',
+      state: kpis.grossProfit !== null && kpis.grossMargin !== null ? 'CALCULATED' : 'INSUFFICIENT DATA',
+      detail: kpis.grossProfit !== null && kpis.grossMargin !== null ? 'الربح والهامش قابلان للحساب من اللقطة الحالية.' : 'لا تُعرض ربحية مكتملة دون هامش وبيانات تكلفة كافية.',
+    },
+    {
+      path: '/reports/inventory',
+      label: 'المخزون',
+      state: kpis.inventoryValue !== null ? 'CALCULATED' : 'INSUFFICIENT DATA',
+      detail: kpis.inventoryValue !== null ? 'قيمة المخزون متاحة في اللقطة الحالية.' : 'قيمة المخزون غير مثبتة في اللقطة الحالية.',
+    },
+    {
+      path: '/reports/receivables',
+      label: 'التحصيل',
+      state: aging.status === 'CALCULATED' ? 'CALCULATED' : aging.status === 'NO_DATA' ? 'NO DATA' : 'INSUFFICIENT DATA',
+      detail: aging.status === 'CALCULATED' ? 'أعمار الذمم قابلة للحساب.' : aging.status === 'NO_DATA' ? 'لا توجد ذمم مثبتة في المصدر الحالي.' : 'بيانات أعمار الذمم غير كافية للحكم.',
+    },
+  ] as const;
+
   return <div dir="rtl" className="ag-reports-center-surface space-y-5 animate-fade-in pb-10">
     <PageHeader
       title="مركز التقارير"
@@ -112,6 +139,29 @@ export function ReportsCenterPage() {
           </div>
           <Link to={nextPath} className="mt-4 inline-flex items-center justify-center rounded-xl bg-white px-3 py-2 text-xs font-bold text-ink-950 transition hover:bg-ink-100">{nextLabel} ←</Link>
         </div>
+      </div>
+    </section>
+
+    <section className="rounded-[18px] border border-ink-200 bg-white p-4 shadow-card lg:p-5" aria-label="جاهزية التقارير">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <div className="section-kicker">REPORT READINESS</div>
+          <h2 className="mt-1 text-lg font-black text-ink-950">أي تقرير يمكن استخدامه الآن؟</h2>
+          <p className="mt-1 text-[10px] leading-5 text-ink-500">الحالة مشتقة من اللقطة التنفيذية الحالية، وليست تقييمًا شكليًا لواجهة التقرير.</p>
+        </div>
+        <Link to={nextPath} className="btn-secondary text-[10px]">{nextLabel}</Link>
+      </div>
+      <div className="mt-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+        {reportReadiness.map((item) => (
+          <Link key={item.path} to={item.path} className="rounded-2xl border border-ink-100 bg-ink-50/45 p-3 transition hover:border-primary-200 hover:bg-white">
+            <div className="flex items-start justify-between gap-2">
+              <span className="text-xs font-black text-ink-900">{item.label}</span>
+              <span className={'rounded-full px-2 py-1 text-[9px] font-black ' + (item.state === 'CALCULATED' ? 'bg-success-50 text-success-700' : item.state === 'NO DATA' ? 'bg-ink-100 text-ink-600' : 'bg-warning-50 text-warning-800')}>{item.state}</span>
+            </div>
+            <p className="mt-2 text-[10px] leading-5 text-ink-500">{item.detail}</p>
+            <span className="mt-2 inline-flex items-center text-[9px] font-bold text-primary-700">فتح التقرير ←</span>
+          </Link>
+        ))}
       </div>
     </section>
 
