@@ -194,6 +194,10 @@ export function DashboardPage() {
     kpis.collectionRate,
   ];
   const coverage = Math.round((evidenceMetrics.filter((value) => value !== null).length / evidenceMetrics.length) * 100);
+  const emptyAnalysisAction = kpis.status === 'INSUFFICIENT_DATA'
+    ? { to: '/data-quality', label: 'مراجعة جودة البيانات' }
+    : { to: '/analytics', label: 'فتح التحليل' };
+
 
   return (
     <div dir="rtl" className="animate-fade-in space-y-5 pb-10">
@@ -359,7 +363,11 @@ export function DashboardPage() {
               <CardBody>
                 {trend.some((item) => item.status === 'CALCULATED')
                   ? <TrendChart data={trend} />
-                  : <div className="py-14 text-center text-sm text-ink-400">لا توجد بيانات اتجاه قابلة للحساب.</div>}
+                  : <div className="rounded-[14px] border border-warning-100 bg-warning-50/55 p-5">
+                      <div className="text-sm font-black text-ink-800">لا توجد بيانات اتجاه قابلة للحساب.</div>
+                      <p className="mt-1 text-[10px] leading-5 text-ink-500">تبقى الحالة غير مثبتة بدل تحويل غياب السجل إلى اتجاه مصطنع.</p>
+                      <Link to={emptyAnalysisAction.to} className="mt-3 inline-flex btn-secondary text-[11px]">{emptyAnalysisAction.label} <ArrowUpLeft size={13} /></Link>
+                    </div>}
               </CardBody>
             </Card>
             <Card>
@@ -367,7 +375,11 @@ export function DashboardPage() {
               <CardBody>
                 {categories.length
                   ? <CategoryPieChart data={categories.map((item) => ({ ...item, name: item.categoryStatus === 'UNKNOWN' ? 'UNKNOWN' : item.name ?? 'UNKNOWN' }))} />
-                  : <div className="py-14 text-center text-sm text-ink-400">لا توجد بيانات فئات.</div>}
+                  : <div className="rounded-[14px] border border-warning-100 bg-warning-50/55 p-5">
+                      <div className="text-sm font-black text-ink-800">لا توجد بيانات فئات.</div>
+                      <p className="mt-1 text-[10px] leading-5 text-ink-500">لا يتم تصنيع تركيب للفئات عند غياب المصدر الكانوني.</p>
+                      <Link to={emptyAnalysisAction.to} className="mt-3 inline-flex btn-secondary text-[11px]">{emptyAnalysisAction.label} <ArrowUpLeft size={13} /></Link>
+                    </div>}
               </CardBody>
             </Card>
           </div>
@@ -380,7 +392,7 @@ export function DashboardPage() {
         <Card>
           <CardHeader title="فرص العملاء" subtitle="أعلى العملاء بحسب البيانات الحالية" />
           <CardBody>
-            {topCustomers.length ? <HorizontalBarChart data={topCustomers} dataKey="value" nameKey="name" height={210} /> : <div className="py-12 text-center text-sm text-ink-400">لا توجد بيانات.</div>}
+            {topCustomers.length ? <HorizontalBarChart data={topCustomers} dataKey="value" nameKey="name" height={210} /> : <div className="rounded-[14px] border border-warning-100 bg-warning-50/55 p-5"><div className="text-sm font-black text-ink-800">لا توجد بيانات عملاء قابلة للترتيب.</div><p className="mt-1 text-[10px] leading-5 text-ink-500">راجع المصدر وجودة البيانات قبل استخدام ترتيب العملاء كسياق قرار.</p><Link to="/data-quality" className="mt-3 inline-flex btn-secondary text-[11px]">مراجعة جودة البيانات <ArrowUpLeft size={13} /></Link></div>}
             <Link to="/customers" className="mt-3 flex items-center justify-center gap-1 text-[11px] font-bold text-primary-700">فتح العملاء <ArrowUpLeft size={13} /></Link>
           </CardBody>
         </Card>
@@ -388,7 +400,7 @@ export function DashboardPage() {
         <Card>
           <CardHeader title="فرص المنتجات" subtitle="الأعلى حركة/قيمة في المصدر" />
           <CardBody>
-            {topProducts.length ? <HorizontalBarChart data={topProducts} dataKey="value" nameKey="name" height={210} /> : <div className="py-12 text-center text-sm text-ink-400">لا توجد بيانات.</div>}
+            {topProducts.length ? <HorizontalBarChart data={topProducts} dataKey="value" nameKey="name" height={210} /> : <div className="rounded-[14px] border border-warning-100 bg-warning-50/55 p-5"><div className="text-sm font-black text-ink-800">لا توجد بيانات منتجات قابلة للترتيب.</div><p className="mt-1 text-[10px] leading-5 text-ink-500">راجع المصدر وجودة البيانات قبل استخدام حركة المنتجات كسياق قرار.</p><Link to="/data-quality" className="mt-3 inline-flex btn-secondary text-[11px]">مراجعة جودة البيانات <ArrowUpLeft size={13} /></Link></div>}
             <Link to="/products" className="mt-3 flex items-center justify-center gap-1 text-[11px] font-bold text-primary-700">فتح المنتجات <ArrowUpLeft size={13} /></Link>
           </CardBody>
         </Card>
