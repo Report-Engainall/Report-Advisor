@@ -1,5 +1,27 @@
 
 
+## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-CLOUD-UI-20
+- SESSION-ID → `2026-09-21-AGHBARI-CLOUD-UI-20`
+- EXACT PRODUCT CODE HEAD → `f6d20c7216d594041b4bea0d2d690024df674cc8`
+- REPOSITORY HEAD BEFORE MEMORY WRITE-BACK → `f6d20c7216d594041b4bea0d2d690024df674cc8`
+- BRANCH / PR → `main` / current `origin/main`
+- DEVICE CONSTRAINT → PC01 remains Offline; this session is cloud-only through GitHub/Vercel/Supabase.
+- DONE → strengthened sidebar branch connector contrast in `src/index.css`; changed the unified import UX so the file is analyzed first and the supported canonical domain is inferred afterward, with explicit confidence/reason and post-analysis correction instead of pre-selecting a domain; added a compact executive summary/action layer to `ExecutiveCommandCenterPage.tsx`.
+- ACTUAL RESULT → Import now follows `upload → security/format/hash → parse → domain inference → review → canonical write`; unsupported/unresolved domain inference remains fail-closed. The Decision Center now surfaces truth posture, metric coverage, open signals, recommendations and As-of with direct actions. Sidebar branch lines are materially darker while the active branch remains gold.
+- CODE IMPACT → three product files changed in this wave: `src/index.css`, `src/pages/CanonicalImportPage.tsx`, `src/pages/ExecutiveCommandCenterPage.tsx`. No RPC, Runner, migration, DDL, tenant/RLS, deterministic-calculation, or core import-contract change.
+- IMPORTANT ARCHITECTURE FINDING → `src/pages/IntelligencePages.tsx` is still actively imported by `ReportsPage.tsx` for `RecommendationsPage` and `ForecastsPage`; it was not deleted because the dependency is real.
+- IMPORT SCOPE LIMIT → the current canonical production adapter accepts only `products | customers | sales_invoices`. The new UI no longer pretends the user can choose any domain before analysis; broader automatic specialization still requires an explicit backend/canonical-contract expansion before it can be honestly claimed.
+- VERCEL EXACT-HEAD STATUS → `8b7748fd13c6db24a4e87e0b2e8d4e77afe30af6` deployment `dpl_8H2rAumbfAHe9JyouWSheMUUM5C4` is **READY**, exact SHA matched, and GitHub Vercel contexts are **success**. Latest product head `f6d20c7216d594041b4bea0d2d690024df674cc8` deployment `dpl_Dz3nQojb7dYP9D1MURCviSEubAjw` is **READY**, exact SHA matched, target production, aliases include `report-advisor.vercel.app`. Exact deployment root returned HTTP 200 with Arabic RTL metadata, Aghbari title, IBM Plex Sans Arabic/Inter, manifest and mobile PWA metadata.
+- SUPABASE CLOUD AUDIT → staging project `Report-Advisor-P0-2-Staging` remains `ACTIVE_HEALTHY`. Critical business/import/decision/snapshot tables checked in this session have RLS enabled with authenticated tenant-scoped policies and no anon policy observed. Evidence/outcome mutation functions checked include tenant/auth guards and deny anon execution; decision outcome paths require approved decision, completed work and tenant-owned evidence. No unjustified SECURITY DEFINER exposure was proven; no bulk revoke or DDL change was made.
+- SECURITY ADVISOR → the staging project still reports 47 authenticated SECURITY DEFINER warnings. Treat as governed warnings requiring selective function-level review, not as permission to mass-revoke.
+- PERFORMANCE ADVISOR → unused-index advisories remain; no indexes were deleted without workload/dependency proof.
+- PRECISE STOP POINT → product code is `f6d20c7216d594041b4bea0d2d690024df674cc8`; exact-head Vercel production proof is READY and public root HTTP 200. Authenticated post-login browser/runtime proof is still unavailable because PC01 is offline and no fake session is permitted.
+- OPEN BLOCKERS → real authenticated visual/runtime sweep; business E2E and Tenant A/B isolation evidence; resilience/worker proof; backup/RPO-RTO; OCR/watched-folder runtime; broader canonical import domain support; CI/workflow evidence; final certification.
+- NEXT EXECUTABLE ACTION → continue cloud-only from exact product SHA `f6d20c7216d594041b4bea0d2d690024df674cc8`: close runtime/authenticated evidence where connector capabilities allow, then selectively audit remaining SECURITY DEFINER warnings and the broader import-domain contract; after concrete evidence, address only justified backend blockers before final certification.
+- DO NOT REPEAT → do not recreate shell/navigation/Advisor, Unified Import entry, prior UI summary strips, sidebar hero system, or existing decision/report/quality/master-data/connection summaries; do not delete `IntelligencePages.tsx`; do not claim broader import specialization until canonical adapter/RPC support exists; do not transfer evidence across SHAs; do not bulk-revoke SECURITY DEFINER grants.
+- CURRENT RESUME POINTER → repository/product `f6d20c7216d594041b4bea0d2d690024df674cc8` → authenticated/runtime evidence → selective security closure → canonical import domain-contract expansion (only if proven required) → resilience/backup/OCR/CI → final certification.
+
+
 ## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-CLOUD-UI-19
 - SESSION-ID → `2026-09-21-AGHBARI-CLOUD-UI-19`
 - EXACT PRODUCT CODE HEAD → `6b1084452b8542784ec2145a644282f4d2cfac7b`
