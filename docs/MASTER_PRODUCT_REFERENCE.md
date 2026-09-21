@@ -1,3 +1,10 @@
+## LATEST IMPLEMENTATION UPDATE — 2026-09-21 / TRUST & EVIDENCE ACTIONABILITY WAVE 40
+
+- The canonical Trust & Evidence surface now refreshes its authoritative data-quality snapshot in place; full-page reload is no longer used for refresh/error retry.
+- The surface now exposes record count, issue count and critical-issue pressure derived from the existing snapshot, with a context-aware next action: source ingestion for an empty tenant, data-quality remediation for issues, and evidence inspection when the snapshot is clean.
+- Empty quality state is now an explicit actionable state with a real `/import` entry rather than an unexplained blank panel.
+- A UI contract now guards the in-place refresh, empty-state actionability, critical-issue routing, and the exact valid JSX action-label expression.
+- No new route, RPC, runner, calculation engine, tenant/RLS path, import engine, or synthetic evidence was introduced.
 # Report Advisor — Master Product, Requirements & Open-Source Reference
 
 > **AUTHORITATIVE SINGLE REFERENCE.** This is the permanent registry for the comprehensive product requirements, architecture guardrails, product inspiration, open-source projects, licenses, integration decisions, acceptance rules, implementation mapping, reliability rules, and release gates used while evolving Report Advisor.
