@@ -229,7 +229,7 @@ export function DecisionExperiencePage() {
                         <div className="flex flex-wrap items-center gap-2"><SeverityBadge severity={alert.severity}/><span className="text-[10px] text-ink-400">{relativeTime(alert.created_at)}</span></div>
                         <div className="mt-2 text-[13px] font-black text-ink-900">{alert.title}</div>
                         {alert.description && <p className="mt-1 text-[11px] leading-5 text-ink-500">{alert.description}</p>}
-                        <Link to="/command-center" className="mt-3 inline-flex items-center gap-1 text-[11px] font-bold text-primary-700">فحص المصدر أولًا <ArrowUpLeft size={13}/></Link>
+                        <Link to="/trust" className="mt-3 inline-flex items-center gap-1 text-[11px] font-bold text-primary-700">فحص المصدر أولًا <ArrowUpLeft size={13}/></Link>
                       </div>
                     </div>
                   </article>
