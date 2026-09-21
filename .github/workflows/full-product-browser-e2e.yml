@@ -259,6 +259,15 @@ jobs:
           TEST_USER_B_EMAIL: ${{ secrets.REPORT_ADVISOR_E2E_USER_B_EMAIL }}
           TEST_USER_B_PASSWORD: ${{ secrets.REPORT_ADVISOR_E2E_USER_B_PASSWORD }}
         run: node scripts/real-business-e2e.mjs
+      - name: Dump Netlify Dev diagnostics after browser E2E failure
+        if: failure()
+        shell: bash
+        run: |
+          set +e
+          echo '--- /tmp/report-advisor-netlify-dev.log ---'
+          cat /tmp/report-advisor-netlify-dev.log 2>/dev/null || true
+          echo '--- end diagnostics ---'
+
       - name: Verify live business evidence boundary
         env:
           REPORT_ADVISOR_SUPABASE_URL: ${{ secrets.REPORT_ADVISOR_SUPABASE_URL }}
