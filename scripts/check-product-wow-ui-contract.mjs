@@ -83,6 +83,12 @@ assert.ok(reports.includes('تحديث اللقطة'), 'reports center must supp
 assert.ok(!reports.includes('generateSynthetic'), 'reports center must not invent business values');
 const trustEvidence = fs.readFileSync('src/pages/TrustEvidencePage.tsx', 'utf8');
 assert.ok(trustEvidence.includes('const [refreshing, setRefreshing]'), 'trust evidence must refresh in-place instead of reloading the whole page');
+assert.ok(trustEvidence.includes("const trustState = snapshot?.status === 'EMPTY'"), 'trust evidence must derive a current decision-eligibility state from the authoritative snapshot');
+assert.ok(trustEvidence.includes("label: 'BLOCKED'"), 'critical trust pressure must block decision use instead of showing a generic OK state');
+assert.ok(trustEvidence.includes("label: 'REVIEW'"), 'non-critical quality pressure must surface a review state');
+assert.ok(trustEvidence.includes("label: 'VERIFIED'"), 'clean quality state must surface an explicit verified state');
+assert.ok(trustEvidence.includes('trustState.detail'), 'trust evidence must explain the current decision-eligibility state');
+assert.ok(trustEvidence.includes('درجة الجودة: {entity.score}%'), 'trust evidence must expose the authoritative entity quality score');
 assert.ok(!trustEvidence.includes('window.location.reload()'), 'trust evidence refresh must not discard page context with a full reload');
 assert.ok(trustEvidence.includes('لا توجد بيانات مثبتة بعد'), 'empty trust state must explain the absence of evidence');
 assert.ok(trustEvidence.includes('RECORDS CHECKED'), 'trust evidence must expose the source record count');
