@@ -182,6 +182,16 @@ The interface must distinguish:
 
 **النتيجة التصميمية المطلوبة:** قوة التخصصات لا تُعرض عبر تعدد شاشات الاستيراد، بل عبر قدرة النظام على فهم أي ملف، اكتشاف تخصصه، تفسير قراره، طلب المراجعة عند الحاجة، ثم اعتماده عبر **مسار واحد موثوق وقابل للتدقيق**.
 
+### PRODUCT DECISION — DOMAIN-NEUTRAL INGESTION
+The unified ingestion surface is intentionally **domain-neutral**. The user never starts by selecting a fixed target entity or a table-specific importer. The system reads the source first, extracts structure/content, resolves semantic meaning and confidence, and only then determines the business domain represented by the source.
+
+The product identity must remain broader than any single business record type. Fixed implementation targets may exist only as internal compatibility details while they are being replaced or generalized; they must not define the import UX, product taxonomy, customer-facing language or the canonical product position.
+
+The correct mental model is:
+`Any Source → Understand → Semantic Mapping → Quality → Evidence → Domain Detection → Review → General Canonical Contract`
+
+Until a genuinely general canonical write contract exists, the system must save and expose the verified analysis/evidence state rather than pretending a specialized target is the final truth.
+
 ### Truth and finance rules visible in UI
 
 - Deterministic calculations are authoritative.
