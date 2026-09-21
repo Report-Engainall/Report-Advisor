@@ -1,3 +1,13 @@
+## IMPLEMENTATION UPDATE — 2026-09-21 / WAVE 58 — CONNECTIONS STATE-DRIVEN UI
+
+- Exact current code/test head: `cbfb7d0906e893ac32e274b571519d6f536ff8ad`.
+- `src/pages/ConnectionsPage.tsx` now derives proven, bounded, adapter counts and the next source action directly from the canonical connector state model; hard-coded status counts and the generic next label were removed.
+- The visible summary now exposes the actual product state instead of static presentation values, while all existing canonical `/import` and `/trust` actions remain unchanged.
+- `scripts/check-product-wow-ui-contract.mjs` now guards these dynamic summary invariants.
+- No backend/RPC/runner/import lifecycle/tenant/calculation path changed.
+- Current runtime boundary remains external; no old deployment/browser PASS is transferred to `cbfb...`.
+- NEXT: fresh exact-head quality/enforcement/final-certification for `cbfb...`; then exact-head runtime/browser when hosting permits, followed by backup/RPO-RTO → worker/server-boundary → tenant A/B → server OCR → watched-folder → final certification.
+
 ## IMPLEMENTATION UPDATE — 2026-09-21 / WAVE 57 — CURRENT-SHA UI GUARD REPAIR
 
 - Exact current code/test head: `c88abe725b066d8bbeb80de629be6198791d1523`.
@@ -498,13 +508,3 @@ This is the target product tree. It defines how capabilities are presented; it d
 ├─ 07 البيانات المرجعية
 │  ├─ Customers
 │  ├─ Products
-│  ├─ Suppliers
-│  ├─ Warehouses / Locations
-│  ├─ Inventory entities
-│  ├─ Alternatives
-│  └─ Business Keys / Synonyms / Units / Semantic Dictionary
-└─ 08 الإعدادات
-   ├─ Company / Workspace
-   ├─ Users / Roles / Permissions
-   ├─ Profile
-   ├─ Language / Currency
