@@ -234,7 +234,7 @@ export function DecisionExperiencePage() {
                     </div>
                   </article>
                 ))}
-                {!activeAlerts.length && <EmptyState title="لا توجد إشارات نشطة" message="لا توجد تنبيهات غير مقروءة في المصدر الحالي."/>}
+                {!activeAlerts.length && <EmptyState title="لا توجد إشارات نشطة" message="لا توجد تنبيهات غير مقروءة في المصدر الحالي." action={<Link to="/trust" className="btn-secondary text-[11px]">فحص الثقة</Link>}/>} 
               </div>
             </CardBody>
           </Card>
@@ -244,7 +244,7 @@ export function DecisionExperiencePage() {
             <CardBody>
               <div className="space-y-3">
                 {recommendations.slice(0, 6).map((recommendation) => <RecommendationCard key={recommendation.id} recommendation={recommendation} active={selectedId === recommendation.id} onClick={() => selectRecommendation(recommendation.id)} />)}
-                {!recommendations.length && <EmptyState title="لا توجد توصيات" message="لا يتم إنشاء توصية بديلة عند غياب بيانات المصدر."/>}
+                {!recommendations.length && <EmptyState title="لا توجد توصيات" message="لا يتم إنشاء توصية بديلة عند غياب بيانات المصدر." action={<Link to="/import" className="btn-primary text-[11px]">إضافة مصدر</Link>}/>} 
               </div>
             </CardBody>
           </Card>
@@ -259,7 +259,7 @@ export function DecisionExperiencePage() {
             <CardBody>
               <div className="space-y-2">
                 {recommendations.map((recommendation) => <RecommendationCard key={recommendation.id} recommendation={recommendation} active={selectedId === recommendation.id} onClick={() => selectRecommendation(recommendation.id, 'evidence')} />)}
-                {!recommendations.length && <EmptyState title="لا توجد توصيات" message="لا يمكن فحص دليل لعنصر غير موجود."/>}
+                {!recommendations.length && <EmptyState title="لا توجد توصيات" message="لا يمكن فحص دليل لعنصر غير موجود." action={<Link to="/import" className="btn-primary text-[11px]">إضافة مصدر</Link>}/>} 
               </div>
             </CardBody>
           </Card>
@@ -282,7 +282,7 @@ export function DecisionExperiencePage() {
                   <BlockedState title="الدليل التشغيلي غير مثبت هنا" detail="لا تُعرض بيانات مصدرية مصطنعة ولا يتم تحويل وصف التوصية إلى دليل. الانتقال إلى القرار يحافظ على حالة المراجعة بدل الادعاء بوجود إثبات غير متاح." />
                   <div className="flex flex-wrap gap-2"><button type="button" onClick={() => navigateStage('decision')} className="btn-primary text-[11px]">متابعة إلى القرار <ArrowUpLeft size={13}/></button><Link to="/metrics" className="btn-secondary text-[11px]">فحص تعريف المؤشر <FileSearch size={13}/></Link></div>
                 </div>
-              ) : <EmptyState title="اختر توصية" message="اختر عنصرًا موجودًا لفحص سياق الدليل." />}
+              ) : <EmptyState title="اختر توصية" message="اختر عنصرًا موجودًا لفحص سياق الدليل." action={<Link to="/command-center" className="btn-secondary text-[11px]">العودة إلى الإشارات</Link>}/>} 
             </CardBody>
           </Card>
         </section>
