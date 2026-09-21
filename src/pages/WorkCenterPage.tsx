@@ -3,7 +3,7 @@ import { Activity, AlertTriangle, CheckCircle2, Clock3, Filter, RefreshCw, Shiel
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { DataTable } from '@/components/ui/DataTable';
 import { EmptyState, ErrorState, LoadingState, PageHeader } from '@/components/ui/States';
-import { fetchImportRecords } from '@/lib/queries';
+import { fetchImportRecords, fetchWorkerHealthSnapshot, type WorkerHealthSnapshot } from '@/lib/queries';
 import type { ImportRecord } from '@/lib/types';
 import { formatNumber } from '@/lib/format';
 
@@ -20,6 +20,7 @@ function matches(row: ImportRecord, filter: FilterKey) {
 
 export function WorkCenterPage() {
   const [rows, setRows] = useState<ImportRecord[]>([]);
+  const [workerHealth, setWorkerHealth] = useState<WorkerHealthSnapshot | null>(null);
   const [filter, setFilter] = useState<FilterKey>('all');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -28,7 +29,9 @@ export function WorkCenterPage() {
     try {
       setLoading(true);
       setError(null);
-      setRows(await fetchImportRecords());
+      const [imports, health] = await Promise.all([fetchImportRecords(), fetchWorkerHealthSnapshot()]);
+      setRows(imports);
+      setWorkerHealth(health);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'فشل تحميل مركز العمليات');
     } finally {
@@ -102,6 +105,29 @@ export function WorkCenterPage() {
                 <div><div className="text-xs font-bold text-ink-800">{label}</div><div className="mt-1 text-xs text-ink-500">{detail}</div></div>
               </div>
             ))}
+          </div>
+        </CardBody>
+      </Card>
+    </section>
+
+    <section className="grid gap-4 lg:grid-cols-[1.15fr_.85fr]">
+      <Card>
+        <CardHeader title="صحة العامل" subtitle="قراءة مباشرة من مسار التنفيذ durable؛ لا تُعلن الحالة سليمة إذا بقيت lease منتهية." action={workerHealth ? <span className={`badge ${workerHealth.expiredActive > 0 ? 'badge-danger' : workerHealth.activeReadComplete ? 'badge-success' : 'badge-warning'}`}>{workerHealth.expiredActive > 0 ? 'تحتاج تدخل' : workerHealth.activeReadComplete ? 'لا توجد leases منتهية' : 'قراءة جزئية'}</span> : undefined}/>
+        <CardBody>
+          {workerHealth ? <div className="grid gap-3 sm:grid-cols-3">
+            <div className="rounded-2xl border border-ink-100 bg-ink-50 p-4"><div className="text-[10px] text-ink-400">بالانتظار</div><div className="mt-2 text-2xl font-black text-ink-950">{formatNumber(workerHealth.queued)}</div></div>
+            <div className="rounded-2xl border border-ink-100 bg-ink-50 p-4"><div className="text-[10px] text-ink-400">قيد التنفيذ</div><div className="mt-2 text-2xl font-black text-ink-950">{formatNumber(workerHealth.active)}</div></div>
+            <div className={`rounded-2xl border p-4 ${workerHealth.expiredActive > 0 ? 'border-danger-200 bg-danger-50/60' : 'border-success-200 bg-success-50/60'}`}><div className="text-[10px] text-ink-500">leases منتهية</div><div className={`mt-2 text-2xl font-black ${workerHealth.expiredActive > 0 ? 'text-danger-700' : 'text-success-700'}`}>{formatNumber(workerHealth.expiredActive)}</div></div>
+          </div> : <div className="text-xs text-ink-400">لم تتوفر قراءة العامل بعد.</div>}
+          {workerHealth && !workerHealth.activeReadComplete && <div className="mt-3 rounded-xl border border-warning-200 bg-warning-50/70 px-3 py-2 text-[10px] leading-5 text-warning-900">القراءة محدودة بـ500 lease نشطة؛ لا تُفسَّر كحكم كامل على العامل.</div>}
+        </CardBody>
+      </Card>
+      <Card variant={workerHealth?.expiredActive ? 'alert' : 'evidence'}>
+        <CardHeader title="قرار الحالة" subtitle="المعالجة الفعلية للـlease تتم عبر مسار recovery الكانوني، وليس من هذه الواجهة." />
+        <CardBody>
+          <div className="flex items-start gap-3">
+            <ShieldCheck size={18} className={workerHealth?.expiredActive ? 'text-danger-700 mt-0.5' : 'text-success-700 mt-0.5'} />
+            <div className="text-[11px] leading-5 text-ink-600">{workerHealth?.expiredActive ? 'هناك leases منتهية تحتاج recovery من مسار التشغيل.' : 'لا توجد leases منتهية في القراءة الحالية؛ العامل لا يملك حالة عالقة مثبتة في هذه اللحظة.'}</div>
           </div>
         </CardBody>
       </Card>
