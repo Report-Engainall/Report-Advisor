@@ -1,3 +1,19 @@
+## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-77
+
+- SESSION-ID → `2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-77`
+- CURRENT PR HEAD BEFORE THIS WRITE → `0c6d0ad67e9634924e5274609156fb45ab0dcf87`; code/test candidate remains `f66e5efa70b002c6f85c78e1123f1b09130d4c9f`. This write is governance-only.
+- NEW HOSTING EVIDENCE → GitHub combined status for exact PR HEAD `0c6d0ad...` reports `netlify/aghbari-report-advisor/deploy-preview` = SUCCESS with deploy id `6ab1940bd46aa90008aa48c8`.
+- NEW LIVE RENDER EVIDENCE → Netlify preview `https://deploy-preview-612--aghbari-report-advisor.netlify.app/` and `/import` were fetched successfully. Both render the Arabic RTL Aghbari shell, Evidence-first positioning, authenticated workspace gate, tenant-isolation messaging, and PWA/mobile metadata with no blank/error response. This is unauthenticated deployment/render proof, not authenticated business-E2E certification.
+- VERCEL → exact current PR status remains FAILURE/PENDING because of the external free-plan deployment-rate limit; no Vercel runtime PASS is claimed.
+- CI → no fresh GitHub Actions workflow run after the current candidate `f66e5efa...` was observed; the old 20:06Z batch remains stale and is not transferred.
+- DONE / CODE → canonical server boundary unification remains the active code closure: Vercel and Netlify adapters delegate to one shared authoritative import execution implementation; client rows are not trusted; existing Storage/hash/security/parse/reconcile/durable-runner/snapshot chain is preserved.
+- LIVE SUPABASE → import_jobs=4489 (completed=3089, processing=151, failed=1249, queued=0, dead_letter=0); report_execution_jobs completed=3152, queued=564, failed=10, dead_letter=7, with no leased/processing durable jobs observed.
+- PHASE-F → still FAIL-CLOSED on missing authorized `RESILIENCE_MAX_RPO_SECONDS` and live backup/restore configuration. No RPO/RTO/secret was invented.
+- PRECISE STOP POINT → current branch head will advance to this memory commit; code/test candidate remains `f66e5efa...`. Netlify render proof is current and exact-head status proof is current; authenticated business-E2E and fresh CI remain open.
+- NEXT ACTION → consume fresh exact-head Actions if GitHub emits them; validate the unified server boundary through its real authenticated runtime path when deployment capacity permits; keep 151 legacy processing rows untouched until their governed recovery/cleanup contract is proven; then authorized Phase-F → real backup/restore/RPO/RTO/rollback → final certification.
+- DO NOT REPEAT → do not transfer stale Actions; do not treat Netlify unauthenticated render as authenticated E2E; do not force-close legacy import jobs; do not bypass canonical server execution; do not invent Phase-F values; do not create duplicate import/RPC/runner paths.
+- CURRENT RESUME POINTER → `f66e5efa70b002c6f85c78e1123f1b09130d4c9f` → fresh exact-head CI/deployment evidence → authenticated unified-import runtime proof → governed legacy-job recovery decision → Phase-F real recovery evidence → final certification.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-76
 
 - SESSION-ID → `2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-76`
