@@ -75,6 +75,8 @@ const sectionMeta = {
   'data-operations': { hint: 'مصادر، مستندات وجودة', tag: 'DATA' },
   analytics: { hint: 'المؤشرات والتقارير التجارية', tag: 'BI' },
   intelligence: { hint: 'إشارات واستكشاف ذكي', tag: 'INTEL' },
+  trust: { hint: 'إثبات، مصدر، وثقة', tag: 'TRUST' },
+  outputs: { hint: 'تقارير ومخرجات القرار', tag: 'OUTPUT' },
   reference: { hint: 'كيانات ومعارف أساسية', tag: 'MASTER' },
   admin: { hint: 'التهيئة وضبط مساحة العمل', tag: 'ADMIN' },
 };
