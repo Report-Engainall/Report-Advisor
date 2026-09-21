@@ -42,6 +42,7 @@ export function validateCertificationBoundary({ index, head, parent, changedFile
     'scripts/run-full-product-browser-e2e.mjs',
     '.github/workflows/execution-enforcement-contract.yml',
     '.github/workflows/final-certification-gate.yml',
+    '.github/workflows/full-product-browser-e2e.yml',
   ]);
   if (!Array.isArray(changedFiles) || changedFiles.length === 0 || changedFiles.some(file => !allowedGovernanceOnly.has(file))) {
     throw new Error(`CERTIFICATION BOUNDARY FAIL: HEAD ${head} differs from indexed candidate ${indexed} with non-governance changes`);
