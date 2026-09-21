@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Mail, MapPin, Phone, Search, Truck } from 'lucide-react';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
@@ -131,7 +132,7 @@ export function SuppliersPage() {
           <div className="text-[11px] font-black text-ink-900">السياق الشرائي</div>
           <p className="mt-1 text-[10px] leading-5 text-ink-400">لرؤية الفواتير والإنفاق وشروط السداد، انتقل إلى مسار المشتريات الكانوني بدل تكرار بياناتها هنا.</p>
         </div>
-        <a href="/reports/purchases" className="btn-secondary text-[11px]">فتح المشتريات</a>
+        <Link to="/reports/purchases" className="btn-secondary text-[11px]">فتح المشتريات</Link>
       </div>
     </div>
   );
