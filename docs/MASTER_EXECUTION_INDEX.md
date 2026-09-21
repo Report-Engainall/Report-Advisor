@@ -2,13 +2,13 @@
 
 > Exact-head evidence only.
 
-- **CURRENT PRODUCT/TEST HEAD:** `a0efc8caddd310dba4d7a0fe2b83dee14ca21669` on branch `exec/wave-45-exact-head-certification-20260921`.
+- **CURRENT REPOSITORY HEAD:** `42c89ef31bc67a20c66fd7f22d8325ecb642a71f` on `main` after merging PR #608.
 - **UI DONE:** Report Center now consumes the canonical dashboard snapshot, shows truth posture/As-of/core financial context, provides a context-aware next action, and refreshes in place.
 - **UI CONTRACT DONE:** `check-product-wow-ui-contract.mjs` guards the snapshot, next-action, refresh and no-synthetic-data requirements.
 - **STAGING BACKUP OBSERVATION:** `backup_verification_runs=0`; PostgreSQL WAL archiver reports 3195 archived segments and 21 failed segments, with the last archived WAL timestamp at 2026-09-21 17:26:30 UTC. This does not constitute a restore drill or RPO/RTO PASS.
 - **PHASE-F PATH:** the repository's logical backup mode performs a real `supabase db dump`, restores into an ephemeral local Postgres, compares table row counts, hashes the dump and measures RPO/RTO. The required secrets/config are executed only by the Phase-F workflow.
-- **CI GAP CLOSED BY MECHANISM:** Phase-F is `pull_request` + `workflow_dispatch`; because `main` push did not create a run for `a0efc8caddd310dba4d7a0fe2b83dee14ca21669`, this branch/PR is the exact execution path for fresh CI.
-- **NEXT EXECUTABLE ACTION:** create the PR from `exec/wave-45-exact-head-certification-20260921`, consume its exact-head CI/Phase-F/browser/certification results, repair any fresh failure, then merge only when current SHA evidence supports it.
+- **CI EXECUTION STATUS:** PR #608 was the exact pull-request path and produced a successful Netlify deploy-preview status on its head, but no Phase-F GitHub Actions run was exposed by the connected GitHub Actions reader. Manual dispatch was attempted through the available browser-automation path but could not start because that execution channel has no available wallet capacity.
+- **NEXT EXECUTABLE ACTION:** obtain a fresh exact-`main` CI/build/Phase-F run for `42c89ef31bc67a20c66fd7f22d8325ecb642a71f`; repair only failures reproduced on this SHA, then continue backup/RPO-RTO → worker/server-boundary → tenant A/B → server OCR authority → watched-folder → final certification.
 - **DO NOT REPEAT:** do not transfer old deployment/runtime PASS; do not record WAL archival health as backup/restore proof; do not rerun closed checks without SHA/environment/contract change.
 
 ## CURRENT EXECUTION BOUNDARY — 2026-09-21 / COMPREHENSIVE IMPORT + RESILIENCE WAVE 44
