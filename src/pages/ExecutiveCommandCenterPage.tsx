@@ -199,7 +199,7 @@ export function ExecutiveCommandCenterPage() {
           <CardBody>
             <div className="space-y-3">
               {alerts.map((alert) => <AlertRow key={alert.id} alert={alert}/>)}
-              {alerts.length === 0 && <EmptyState title="لا توجد إشارات نشطة" message="لا يوجد تنبيه غير مقروء في المصدر الحالي."/>}
+              {alerts.length === 0 && <EmptyState title="لا توجد إشارات نشطة" message="لا يوجد تنبيه غير مقروء في المصدر الحالي." action={<Link to="/intelligence" className="btn-secondary text-[11px]">فحص مساحة الإشارات</Link>}/>} 
             </div>
           </CardBody>
         </Card>
@@ -209,7 +209,7 @@ export function ExecutiveCommandCenterPage() {
           <CardBody>
             <div className="space-y-3">
               {recommendations.map((recommendation) => <DecisionRow key={recommendation.id} recommendation={recommendation}/>)}
-              {recommendations.length === 0 && <EmptyState title="لا توجد توصيات قابلة للمراجعة" message="لن تتم صناعة بديل اصطناعي عند غياب الإشارة."/>}
+              {recommendations.length === 0 && <EmptyState title="لا توجد توصيات قابلة للمراجعة" message="لن تتم صناعة بديل اصطناعي عند غياب الإشارة." action={<Link to="/data-quality" className="btn-secondary text-[11px]">مراجعة جودة البيانات</Link>}/>} 
             </div>
           </CardBody>
         </Card>
@@ -224,7 +224,11 @@ export function ExecutiveCommandCenterPage() {
         <CardBody>
           {trend.some((item) => item.status === 'CALCULATED')
             ? <TrendChart data={trend}/>
-            : <div className="py-12 text-center text-sm text-ink-400">لا توجد بيانات اتجاه قابلة للحساب.</div>}
+            : <div className="rounded-[14px] border border-ink-100 bg-ink-50/60 py-10 text-center">
+              <div className="text-sm font-black text-ink-700">لا توجد بيانات اتجاه قابلة للحساب.</div>
+              <p className="mt-1 text-[10px] text-ink-400">راجع جودة المصدر قبل استخدام اتجاهات المبيعات والربح كإشارة قرار.</p>
+              <Link to="/data-quality" className="mt-3 inline-flex btn-secondary text-[11px]">مراجعة جودة البيانات <ArrowUpLeft size={13}/></Link>
+            </div>}
         </CardBody>
       </Card>
 
