@@ -1,3 +1,18 @@
+## LATEST EXECUTION BOUNDARY — 2026-09-21 / UNIFIED IMPORT CONTRACT REPAIR
+
+> Exact-head evidence only. The repository now reflects the current unified source-first importer architecture; the retired specialized folder importer is not restored.
+
+- **CURRENT REPOSITORY HEAD:** `72e8182aaa364fb1736e8796c214505a6ea36975` on `main`.
+- **CURRENT CODE/TEST CANDIDATE:** `72e8182aaa364fb1736e8796c214505a6ea36975`.
+- **LATEST PRODUCT UI CODE COMMIT:** `b397204051d19c0107112c9b2ea389a9ac6a428c`.
+- **LATEST UI CONTRACT TEST COMMIT:** `3b10164c8bce6b1f7b17af9ac7e0e71ade4cc505`.
+- **LATEST CERTIFICATION/GATE REPAIR:** `72e8182aaa364fb1736e8796c214505a6ea36975`.
+- **DONE:** `check-master-requirements-contract.mjs` no longer requires the removed `FolderBatchImportPanel.tsx`.
+- **DONE:** `check-final-execution-batch.mjs` no longer requires the removed `check-folder-batch-import.mjs` gate.
+- **ARCHITECTURE:** `/import` remains one source-first canonical importer; fixed entity targets and the retired folder importer remain forbidden.
+- **NEXT EXECUTABLE ACTION:** consume exact-head Actions for `72e8182...` and repair any fresh failure; then proceed to Phase-F/runtime closure without transferring older PASS evidence.
+- **DO NOT REPEAT:** do not recreate the retired folder importer or weaken the unified-import product contract.
+
 ## LATEST EXECUTION BOUNDARY — 2026-09-21 / CONTINUOUS WAVE 40
 
 > Exact-head evidence only. Repository state below is the latest observed state; no older PASS is transferred.
