@@ -1,7 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { assertCanonicalBoundary, type CanonicalImportEntityType, type ReconciledCanonicalImportRow } from './canonical-truth-boundary';
 
-export interface CanonicalImportRow extends Pick<ReconciledCanonicalImportRow, 'data' | 'rowNumber' | 'provenance'> {}
+export type CanonicalImportRow = Pick<ReconciledCanonicalImportRow, 'data' | 'rowNumber' | 'provenance'>;
 export interface CanonicalCommitResult { committed: number; ids: string[]; idempotentReplay: boolean }
 
 function text(value: unknown): string | null {
@@ -103,7 +103,7 @@ export async function commitImportBatch(
     if (row.provenance.sourceHash !== sourceHash) throw new Error(`CANONICAL_SOURCE_HASH_MISMATCH:${row.rowNumber}`);
   }
 
-  const payload = rows.map((row) => canonicalizeRow(entityType, { data: row.data, rowNumber: row.rowNumber }));
+  const payload = rows.map((row) => canonicalizeRow(entityType, row));
   const activeClient = client;
   const { data, error } = await activeClient.rpc('import_commit_batch', {
     p_company_id: companyId,
