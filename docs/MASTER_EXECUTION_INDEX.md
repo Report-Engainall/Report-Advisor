@@ -2,8 +2,8 @@
 
 > Exact-head evidence only. No historical runtime result is transferred.
 
-- CURRENT_CODE_TEST_CANDIDATE: `a6abc24c67f070b5d966febd1867c42578f501fa`.
-- CURRENT GOVERNANCE HEAD: `a6abc24c67f070b5d966febd1867c42578f501fa` (governance-bound parent for fresh certification).
+- CURRENT_CODE_TEST_CANDIDATE: `ba034a4ec78e98716a352b7661d798fd5764d57b`.
+- CURRENT GOVERNANCE HEAD: `ba034a4ec78e98716a352b7661d798fd5764d57b` (current exact candidate for fresh certification).
 - DONE: Work Center explicitly labels the 500-row read as a bounded display window and no longer presents `rows.length` as `إجمالي السجل`.
 - DONE: UI contract guards the bounded semantics.
 - VERIFIED: source re-read on exact SHA; Supabase history index remains present; staging currently has `import_jobs=4477`; `backup_verification_runs=0`.
