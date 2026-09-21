@@ -1,3 +1,19 @@
+## CURRENT EXECUTION BOUNDARY — 2026-09-21 / WAVE 62 FINAL — RUNTIME PASS + PHASE-F EXTERNAL BLOCKER
+
+> Exact-head evidence only. No historical production runtime result is transferred.
+
+- CURRENT CERTIFIED MAIN BASELINE: `5367346e2837a06a4d1787bb016399245f213792`.
+- EXACT-HEAD CODE FIX CANDIDATE: `84a62e169ce8db61d2dc6598e654127543ecdabb`.
+- DATABASE FIX VERIFIED: migration `20260921194500_import_history_recent_window_index.sql` was committed and applied to Supabase staging; `idx_import_jobs_company_created_id` exists.
+- EXACT-HEAD BROWSER RESULT: Full Product Browser E2E for `84a62...` completed **SUCCESS**. Build, exact checkout, app start, authenticated E2E contract, full product browser E2E, KPI evidence persistence, and real-business browser evidence completed without failure.
+- ROOT CAUSE CLOSED: the real-business E2E timeout was an import-history scale/performance boundary on a tenant with 4,471 import jobs; the bounded query lacked its matching composite index.
+- REPOSITORY CI ON MAIN BASELINE: quality, Final Certification Gate, Execution Enforcement Contract, Final Execution Batch, and Storage Tenant Isolation all PASS.
+- PHASE-F RESULT: governed same-repo PR #611 executed the real Phase-F workflow. Checkout, local operational resilience, static resilience contracts, continuous trust, and authenticated canary session all PASS. Live resilience probes fail-closed with `PHASE_F_STATUS=BLOCKED EXTERNAL` because required live resilience configuration is not provisioned; at minimum `RESILIENCE_MAX_RPO_SECONDS` and backup/restore runtime credentials/config are absent.
+- SUPABASE PROJECT STATE: `ACTIVE_HEALTHY`; database host is `db.fnqbvfuwbdpwvhcgzksl.supabase.co`. This does not substitute for restore/RPO/RTO evidence.
+- VERCEL: current production build status remains blocked by `build-rate-limit`; no current-head Vercel production PASS is claimed.
+- PRECISE NEXT ACTION: provision the missing Phase-F live resilience configuration in the GitHub execution environment, rerun Phase-F, and consume real backup/restore + RPO/RTO + rollback evidence. Then continue worker/server-boundary → tenant A/B → server OCR → watched-folder runtime → final production certification.
+- DO NOT REPEAT: do not treat local/source resilience contracts as RPO/RTO proof; do not transfer browser PASS to old Vercel deployments; do not invent missing secret values; do not merge the closed probe branch.
+
 ## CURRENT EXECUTION BOUNDARY — 2026-09-21 / WAVE 61 — IMPORT HISTORY DATABASE PERFORMANCE
 
 > Exact-head evidence only. No historical runtime result is transferred.
@@ -497,16 +513,3 @@ The startup command is intentionally short:
 > **ابدأ من الذاكرة الحية. اقرأ المرجع الأساسي، ثبّت الـHEAD الحقيقي، خذ آخر RESUME POINTER، نفّذ NEXT ACTION مباشرة، واعمل بالتوازي دون إعادة الشغل المغلق. وفي نهاية كل دفعة احفظ النتيجة والـSHA ونقطة التوقف والخطوة التالية في نفس الذاكرة قبل مواصلة التنفيذ.**
 
 ### PRODUCT CONSTITUTION — MANDATORY OPERATING CONTRACT
-
-**Primary product authority:** \`docs/MASTER_PRODUCT_REFERENCE.md\` → **AUTHORITATIVE PRODUCT CONSTITUTION — AGHBARI 2026-09-21**.
-
-This constitution is mandatory for every product/UI change. The programmer must not restore, extend or invent a conflicting navigation taxonomy, Bolt/Commerce/CRUD presentation, standalone chatbot identity, duplicate design system, duplicate Intelligence/Evidence tree, or one-page-per-KPI sidebar.
-
-**Fixed top-level product zones:**
-1. مركز القرار
-2. البيانات والتشغيل
-3. التحليل التجاري
-4. الذكاء والقرار
-5. الثقة والأدلة
-6. التقارير والمخرجات
-7. البيانات المرجعية
