@@ -48,7 +48,6 @@ for (const format of declaredFormats) {
 
 console.log(`file-engine capability contract: PASS (${declaredFormats.length} declared formats explicitly dispatched)`);
 
-const adapters = fs.readFileSync(path.join(root, 'src/lib/file-engine/adapters.ts'), 'utf8');
 if (!adapters.includes('PDF_SCANNED_IMAGE_ONLY_SERVER_AUTHORITY_UNAVAILABLE')) {
   throw new Error('Scanned PDF server authority must fail closed with an explicit runtime capability boundary');
 }
