@@ -89,6 +89,9 @@ assert.ok(trustEvidence.includes("label: 'REVIEW'"), 'non-critical quality press
 assert.ok(trustEvidence.includes("label: 'VERIFIED'"), 'clean quality state must surface an explicit verified state');
 assert.ok(trustEvidence.includes('trustState.detail'), 'trust evidence must explain the current decision-eligibility state');
 assert.ok(trustEvidence.includes('درجة الجودة: {entity.score}%'), 'trust evidence must expose the authoritative entity quality score');
+assert.ok(trustEvidence.includes('role="progressbar"'), 'trust evidence must visualize each authoritative quality score as an accessible progress indicator');
+assert.ok(trustEvidence.includes('aria-valuenow={entity.score}'), 'trust evidence quality progress must expose the authoritative score to assistive technology');
+assert.ok(trustEvidence.includes('Math.max(0, Math.min(100, entity.score))'), 'trust evidence quality visualization must clamp the authoritative score to the valid progress range');
 assert.ok(!trustEvidence.includes('window.location.reload()'), 'trust evidence refresh must not discard page context with a full reload');
 assert.ok(trustEvidence.includes('لا توجد بيانات مثبتة بعد'), 'empty trust state must explain the absence of evidence');
 assert.ok(trustEvidence.includes('RECORDS CHECKED'), 'trust evidence must expose the source record count');
