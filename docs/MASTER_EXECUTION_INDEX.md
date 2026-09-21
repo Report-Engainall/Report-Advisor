@@ -1,3 +1,13 @@
+## CURRENT PROJECT STATE — 2026-09-21 / CANONICAL IMPORT FINISH-JOB SUMMARY REPAIR
+
+> Exact-head evidence only. The active candidate fixes the terminal import-job completion contract exposed by the live staging run.
+
+- **CURRENT CODE/TEST CANDIDATE:** `2caedfa8ab2f71dd06bffb4992d122dc08bb75ac`.
+- **CURRENT_CODE_TEST_CANDIDATE:** `2caedfa8ab2f71dd06bffb4992d122dc08bb75ac`.
+- **CURRENT REPOSITORY HEAD:** `2caedfa8ab2f71dd06bffb4992d122dc08bb75ac` before this governance bind.
+- **ROOT CAUSE CLOSED:** canonical commit and durable report execution already succeeded, but `import_finish_job` required `committed + invalidRows = total`; the UI supplied `invalid` but omitted `invalidRows`, causing a false failed import status.
+- **DONE:** canonical import success summary now includes `invalidRows: 0`, and the product contract guards this exact terminal-status field.
+- **NEXT EXECUTABLE ACTION:** consume exact-head CI and real business E2E; confirm the imported job reaches `completed` instead of the previous false `failed`.
 ## CURRENT EXECUTION BOUNDARY — 2026-09-21 / DECISION ACCOUNTABILITY UI WAVE 32
 
 > Exact-head evidence only. The current main head contains the dashboard UI and its contract guard; live deployment/build evidence remains fail-closed.
@@ -18,27 +28,27 @@
 
 > Exact-head evidence only. The active candidate includes a test-only alignment for the Dashboard metric display contract.
 
-- **CURRENT CODE/TEST CANDIDATE:** `09688575824861a392611b1b175c2d7b28e51c18`.
-- **CURRENT_CODE_TEST_CANDIDATE:** `09688575824861a392611b1b175c2d7b28e51c18`.
-- **CURRENT REPOSITORY HEAD:** `09688575824861a392611b1b175c2d7b28e51c18` before this governance bind.
+- **CURRENT CODE/TEST CANDIDATE:** `2caedfa8ab2f71dd06bffb4992d122dc08bb75ac`.
+- **CURRENT_CODE_TEST_CANDIDATE:** `2caedfa8ab2f71dd06bffb4992d122dc08bb75ac`.
+- **CURRENT REPOSITORY HEAD:** `2caedfa8ab2f71dd06bffb4992d122dc08bb75ac` before this governance bind.
 - **DONE:** `dashboard-canonical-regression.mjs` now validates the current `formatCurrency(value)` renderer and no longer requires the retired string-concatenation display pattern.
 - **DO NOT REPEAT:** do not change Dashboard rendering to satisfy the obsolete regex.
 ## CURRENT PROJECT STATE — 2026-09-21 / COMPLETE LAZY SYNONYM CLIENT BOUNDARY
 
 > Exact-head evidence only. The active candidate completes the browser-only lazy Supabase boundary for all synonym CRUD/query functions.
 
-- **CURRENT CODE/TEST CANDIDATE:** `09688575824861a392611b1b175c2d7b28e51c18`.
-- **CURRENT_CODE_TEST_CANDIDATE:** `09688575824861a392611b1b175c2d7b28e51c18`.
-- **CURRENT REPOSITORY HEAD:** `09688575824861a392611b1b175c2d7b28e51c18` before this governance bind.
+- **CURRENT CODE/TEST CANDIDATE:** `2caedfa8ab2f71dd06bffb4992d122dc08bb75ac`.
+- **CURRENT_CODE_TEST_CANDIDATE:** `2caedfa8ab2f71dd06bffb4992d122dc08bb75ac`.
+- **CURRENT REPOSITORY HEAD:** `2caedfa8ab2f71dd06bffb4992d122dc08bb75ac` before this governance bind.
 - **DONE:** all synonym dictionary reads/writes now acquire the browser Supabase client lazily; server file-engine imports no longer initialize browser-only Supabase.
 - **DO NOT REPEAT:** do not restore a top-level `../supabase` import in `src/lib/file-engine/synonyms.ts`.
 ## CURRENT PROJECT STATE — 2026-09-21 / SERVER-SAFE FILE ENGINE IMPORT FIX
 
 > Exact-head evidence only. The active candidate includes the server-safe synonym loading fix plus its regression guard.
 
-- **CURRENT CODE/TEST CANDIDATE:** `09688575824861a392611b1b175c2d7b28e51c18`.
-- **CURRENT_CODE_TEST_CANDIDATE:** `09688575824861a392611b1b175c2d7b28e51c18`.
-- **CURRENT REPOSITORY HEAD:** `09688575824861a392611b1b175c2d7b28e51c18` before this governance bind.
+- **CURRENT CODE/TEST CANDIDATE:** `2caedfa8ab2f71dd06bffb4992d122dc08bb75ac`.
+- **CURRENT_CODE_TEST_CANDIDATE:** `2caedfa8ab2f71dd06bffb4992d122dc08bb75ac`.
+- **CURRENT REPOSITORY HEAD:** `2caedfa8ab2f71dd06bffb4992d122dc08bb75ac` before this governance bind.
 - **DONE:** `src/lib/file-engine/synonyms.ts` no longer imports the browser-only Supabase client at module load; browser DB synonyms remain available via dynamic import, while server parsing safely uses built-in deterministic synonyms.
 - **DONE:** `check-file-engine-contract.mjs` now rejects browser Supabase imports from the server-loaded synonyms module.
 - **ROOT CAUSE CLOSED:** the exact-head browser E2E 500 was `Cannot read properties of undefined (reading 'VITE_SUPABASE_URL')` during Netlify function initialization.
@@ -48,8 +58,8 @@
 
 > Exact-head evidence only. The certification candidate now includes the browser diagnostic test plus its CI workflow change; the current HEAD is governance-only beyond it.
 
-- **CURRENT CODE/TEST CANDIDATE:** `09688575824861a392611b1b175c2d7b28e51c18`.
-- **CURRENT_CODE_TEST_CANDIDATE:** `09688575824861a392611b1b175c2d7b28e51c18`.
+- **CURRENT CODE/TEST CANDIDATE:** `2caedfa8ab2f71dd06bffb4992d122dc08bb75ac`.
+- **CURRENT_CODE_TEST_CANDIDATE:** `2caedfa8ab2f71dd06bffb4992d122dc08bb75ac`.
 - **CURRENT REPOSITORY HEAD:** `43b4f37a0ffcab12d5d8bb0a8718aa45590e2937`.
 - **DONE:** certification candidate now includes the CI diagnostic change that must be part of the exact tested state.
 - **NEXT EXECUTABLE ACTION:** consume fresh certification/enforcement runs for the rebound candidate; continue browser diagnostic run and use its captured Netlify failure detail.
@@ -57,8 +67,8 @@
 
 > Exact-head evidence only. The active code/test candidate adds diagnostics around the canonical server import boundary; no product import behavior is weakened.
 
-- **CURRENT CODE/TEST CANDIDATE:** `09688575824861a392611b1b175c2d7b28e51c18`.
-- **CURRENT_CODE_TEST_CANDIDATE:** `09688575824861a392611b1b175c2d7b28e51c18`.
+- **CURRENT CODE/TEST CANDIDATE:** `2caedfa8ab2f71dd06bffb4992d122dc08bb75ac`.
+- **CURRENT_CODE_TEST_CANDIDATE:** `2caedfa8ab2f71dd06bffb4992d122dc08bb75ac`.
 - **CURRENT REPOSITORY HEAD:** `43b4f37a0ffcab12d5d8bb0a8718aa45590e2937` (governance-only descendant).
 - **DONE:** real-business E2E now captures the actual canonical import response body and relevant local server-boundary errors.
 - **DONE:** browser workflow dumps the Netlify Dev log when the browser E2E fails.
@@ -68,48 +78,48 @@
 
 > Exact-head evidence only. The active candidate includes a test-only dashboard contract alignment; DashboardPage behavior is unchanged.
 
-- **CURRENT CODE/TEST CANDIDATE:** `09688575824861a392611b1b175c2d7b28e51c18`.
-- **CURRENT_CODE_TEST_CANDIDATE:** `09688575824861a392611b1b175c2d7b28e51c18`.
+- **CURRENT CODE/TEST CANDIDATE:** `2caedfa8ab2f71dd06bffb4992d122dc08bb75ac`.
+- **CURRENT_CODE_TEST_CANDIDATE:** `2caedfa8ab2f71dd06bffb4992d122dc08bb75ac`.
 - **DONE:** dashboard canonical regression now accepts the current `metricStatus` signature including the valid parameter separator.
 - **DO NOT REPEAT:** do not alter dashboard behavior to satisfy a stale regular expression.
 ## CURRENT PROJECT STATE — 2026-09-21 / LIVE SECURITY RUNTIME HARDENING
 
 > Exact-head evidence only. The active candidate includes the migration that hardens both live `import_commit_batch` SECURITY DEFINER overloads.
 
-- **CURRENT CODE/TEST CANDIDATE:** `09688575824861a392611b1b175c2d7b28e51c18`.
-- **CURRENT_CODE_TEST_CANDIDATE:** `09688575824861a392611b1b175c2d7b28e51c18`.
+- **CURRENT CODE/TEST CANDIDATE:** `2caedfa8ab2f71dd06bffb4992d122dc08bb75ac`.
+- **CURRENT_CODE_TEST_CANDIDATE:** `2caedfa8ab2f71dd06bffb4992d122dc08bb75ac`.
 - **DONE:** staging runtime now reports `search_path=pg_catalog` for both 5-argument and 6-argument `import_commit_batch` overloads, with `statement_timeout=30s`.
 - **DO NOT REPEAT:** do not claim the security fix from repository text alone; the live staging function state has now been verified separately.
 ## CURRENT PROJECT STATE — 2026-09-21 / SECURITY-DEFINER SEARCH_PATH HARDENING
 
 > Exact-head evidence only. The active candidate includes the generic import SECURITY DEFINER hardening across all three current-main import_commit_batch migrations.
 
-- **CURRENT CODE/TEST CANDIDATE:** `09688575824861a392611b1b175c2d7b28e51c18`.
-- **CURRENT_CODE_TEST_CANDIDATE:** `09688575824861a392611b1b175c2d7b28e51c18`.
+- **CURRENT CODE/TEST CANDIDATE:** `2caedfa8ab2f71dd06bffb4992d122dc08bb75ac`.
+- **CURRENT_CODE_TEST_CANDIDATE:** `2caedfa8ab2f71dd06bffb4992d122dc08bb75ac`.
 - **DONE:** generic `import_commit_batch` migration definitions now pin `search_path` to `pg_catalog` instead of the unfixed empty path.
 - **DO NOT REPEAT:** do not weaken SECURITY DEFINER search_path rules; validate the migration chain and live function security contract on the exact candidate.
 ## CURRENT PROJECT STATE — 2026-09-21 / INVENTORY NAVIGATION SOURCE-OF-TRUTH ALIGNMENT
 
 > Exact-head evidence only. Inventory Intelligence UI verification now reads the canonical navigation registry instead of coupling to Sidebar implementation text.
 
-- **CURRENT CODE/TEST CANDIDATE:** `09688575824861a392611b1b175c2d7b28e51c18`.
-- **CURRENT_CODE_TEST_CANDIDATE:** `09688575824861a392611b1b175c2d7b28e51c18`.
+- **CURRENT CODE/TEST CANDIDATE:** `2caedfa8ab2f71dd06bffb4992d122dc08bb75ac`.
+- **CURRENT_CODE_TEST_CANDIDATE:** `2caedfa8ab2f71dd06bffb4992d122dc08bb75ac`.
 - **DONE:** `check-inventory-intelligence-ui.mjs` now validates the canonical `navigation-registry.ts` entry for `ذكاء المخزون`.
 - **DO NOT REPEAT:** do not make certification depend on rendered Sidebar text when navigation-registry is the product source of truth.
 ## CURRENT PROJECT STATE — 2026-09-21 / INVENTORY INTELLIGENCE UI CONTRACT ALIGNMENT
 
 > Exact-head evidence only. The active candidate includes the current navigation label contract; no legacy sidebar item is being restored.
 
-- **CURRENT CODE/TEST CANDIDATE:** `09688575824861a392611b1b175c2d7b28e51c18`.
-- **CURRENT_CODE_TEST_CANDIDATE:** `09688575824861a392611b1b175c2d7b28e51c18`.
+- **CURRENT CODE/TEST CANDIDATE:** `2caedfa8ab2f71dd06bffb4992d122dc08bb75ac`.
+- **CURRENT_CODE_TEST_CANDIDATE:** `2caedfa8ab2f71dd06bffb4992d122dc08bb75ac`.
 - **DONE:** inventory-intelligence UI guard now matches the canonical navigation registry label `ذكاء المخزون`.
 - **DO NOT REPEAT:** do not restore the retired `ذكاء المخزون والمجموعات` navigation label solely for test compatibility.
 ## CURRENT PROJECT STATE — 2026-09-21 / IMPORT UI CONTRACT ALIGNMENT
 
 > Exact-head evidence only. The active candidate includes the unified importer UI contract repair; the product architecture remains one source-first import surface.
 
-- **CURRENT CODE/TEST CANDIDATE:** `09688575824861a392611b1b175c2d7b28e51c18`.
-- **CURRENT_CODE_TEST_CANDIDATE:** `09688575824861a392611b1b175c2d7b28e51c18`.
+- **CURRENT CODE/TEST CANDIDATE:** `2caedfa8ab2f71dd06bffb4992d122dc08bb75ac`.
+- **CURRENT_CODE_TEST_CANDIDATE:** `2caedfa8ab2f71dd06bffb4992d122dc08bb75ac`.
 - **CURRENT REPOSITORY HEAD:** `43b4f37a0ffcab12d5d8bb0a8718aa45590e2937` as the current governance-only descendant.
 - **DONE:** import product contract now asserts the current `مركز المصادر` / `اعتماد المصدر` / duplicate-protection language and no longer depends on retired specialized labels.
 - **DO NOT REPEAT:** do not reintroduce fixed entity selectors or legacy folder-import wording to satisfy a test.
@@ -117,8 +127,8 @@
 
 > Exact-head evidence only. The active candidate is the unified source-first business E2E contract repair; older candidate markers remain historical and are not evidence.
 
-- **CURRENT CODE/TEST CANDIDATE:** `09688575824861a392611b1b175c2d7b28e51c18`.
-- **CURRENT_CODE_TEST_CANDIDATE:** `09688575824861a392611b1b175c2d7b28e51c18`.
+- **CURRENT CODE/TEST CANDIDATE:** `2caedfa8ab2f71dd06bffb4992d122dc08bb75ac`.
+- **CURRENT_CODE_TEST_CANDIDATE:** `2caedfa8ab2f71dd06bffb4992d122dc08bb75ac`.
 - **CURRENT REPOSITORY HEAD:** `43b4f37a0ffcab12d5d8bb0a8718aa45590e2937` as the current governance-only descendant.
 - **DONE:** `real-business-e2e.mjs` now exercises one unified `/import` source entry, generic canonical commit persistence, provenance, and tenant-A/B isolation; it no longer requires retired entity-selector controls.
 - **DO NOT REPEAT:** do not restore per-entity import buttons/selectors merely to satisfy tests.
@@ -127,20 +137,20 @@
 
 > Exact-head evidence only. The active certification candidate is the current unified-import contract repair; older candidate markers below are historical.
 
-- **CURRENT CODE/TEST CANDIDATE:** `09688575824861a392611b1b175c2d7b28e51c18`.
-- **CURRENT_CODE_TEST_CANDIDATE:** `09688575824861a392611b1b175c2d7b28e51c18`.
-- **CURRENT REPOSITORY HEAD:** `09688575824861a392611b1b175c2d7b28e51c18` (governance-only descendant of the candidate).
+- **CURRENT CODE/TEST CANDIDATE:** `2caedfa8ab2f71dd06bffb4992d122dc08bb75ac`.
+- **CURRENT_CODE_TEST_CANDIDATE:** `2caedfa8ab2f71dd06bffb4992d122dc08bb75ac`.
+- **CURRENT REPOSITORY HEAD:** `2caedfa8ab2f71dd06bffb4992d122dc08bb75ac` (governance-only descendant of the candidate).
 - **CERTIFICATION BOUNDARY:** candidate `72e8182...` plus governance-only descendants are permitted; no source/code changes may be smuggled through documentation.
 
 ## LATEST EXECUTION BOUNDARY — 2026-09-21 / UNIFIED IMPORT CONTRACT REPAIR
 
 > Exact-head evidence only. The repository now reflects the current unified source-first importer architecture; the retired specialized folder importer is not restored.
 
-- **CURRENT REPOSITORY HEAD:** `09688575824861a392611b1b175c2d7b28e51c18` on `main`.
-- **CURRENT_CODE_TEST_CANDIDATE:** `09688575824861a392611b1b175c2d7b28e51c18`.
+- **CURRENT REPOSITORY HEAD:** `2caedfa8ab2f71dd06bffb4992d122dc08bb75ac` on `main`.
+- **CURRENT_CODE_TEST_CANDIDATE:** `2caedfa8ab2f71dd06bffb4992d122dc08bb75ac`.
 - **LATEST PRODUCT UI CODE COMMIT:** `b397204051d19c0107112c9b2ea389a9ac6a428c`.
 - **LATEST UI CONTRACT TEST COMMIT:** `3b10164c8bce6b1f7b17af9ac7e0e71ade4cc505`.
-- **LATEST CERTIFICATION/GATE REPAIR:** `09688575824861a392611b1b175c2d7b28e51c18`.
+- **LATEST CERTIFICATION/GATE REPAIR:** `2caedfa8ab2f71dd06bffb4992d122dc08bb75ac`.
 - **DONE:** `check-master-requirements-contract.mjs` no longer requires the removed `FolderBatchImportPanel.tsx`.
 - **DONE:** `check-final-execution-batch.mjs` no longer requires the removed `check-folder-batch-import.mjs` gate.
 - **ARCHITECTURE:** `/import` remains one source-first canonical importer; fixed entity targets and the retired folder importer remain forbidden.
