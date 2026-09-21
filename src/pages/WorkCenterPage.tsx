@@ -53,6 +53,20 @@ export function WorkCenterPage() {
     failed: rows.filter(r => r.status === 'failed' || r.status === 'cancelled').length,
   }), [rows]);
 
+  const nextAction = workerHealth?.expiredActive > 0
+    ? { kind: 'refresh' as const, tone: 'danger' as const, title: 'إعادة فحص العامل الآن', message: 'هناك leases منتهية مثبتة في القراءة الحالية؛ أعد قراءة الحالة بعد دورة recovery التشغيلية بدل اعتبار الطابور سليمًا.', label: 'إعادة فحص العامل' }
+    : workerHealth && !workerHealth.activeReadComplete
+      ? { kind: 'refresh' as const, tone: 'warning' as const, title: 'قراءة العامل جزئية', message: 'لم تُقرأ كل leases النشطة؛ لا يمكن تحويل القراءة الجزئية إلى حكم سلامة كامل. أعد الفحص عند الحاجة.', label: 'إعادة قراءة العامل' }
+      : counts.review > 0
+        ? { kind: 'filter' as const, filter: 'review' as FilterKey, tone: 'warning' as const, title: 'راجع الاستثناءات أولًا', message: 'هناك عمليات تحتوي على مراجعة أو صفوف غير صالحة/معزولة؛ ابدأ بها قبل اعتبار الطابور مستقرًا.', label: 'عرض المراجعة' }
+        : counts.failed > 0
+          ? { kind: 'filter' as const, filter: 'failed' as FilterKey, tone: 'danger' as const, title: 'راجع عمليات الفشل', message: 'هناك عمليات فاشلة أو ملغاة؛ افتحها قبل بدء دورة جديدة حتى لا يضيع سبب التعثر.', label: 'عرض الفشل' }
+          : counts.active > 0
+            ? { kind: 'filter' as const, filter: 'active' as FilterKey, tone: 'primary' as const, title: 'تابع العمليات النشطة', message: 'هناك عمليات في الطابور أو التنفيذ. اعرضها مباشرة بدل القفز إلى سجل مكتمل.', label: 'عرض النشطة' }
+            : rows.length === 0
+              ? { kind: 'import' as const, tone: 'primary' as const, title: 'ابدأ أول دورة تشغيل من المصدر الموحد', message: 'لا توجد عمليات مسجلة لهذا المستأجر بعد؛ نقطة البدء الصحيحة هي الاستيراد الكانوني الموحد.', label: 'إدخال مصدر' }
+              : { kind: 'import' as const, tone: 'success' as const, title: 'لا يوجد استثناء حرج مثبت الآن', message: 'السجل الحالي لا يحتوي على حالات نشطة أو مراجعة أو فشل؛ يمكنك بدء مصدر جديد دون إنشاء مسار بديل.', label: 'إدخال مصدر جديد' };
+
   if (loading) return <LoadingState message="جارٍ تحميل حالة العمليات..." />;
   if (error) return <ErrorState message={error} onRetry={load} />;
 
@@ -126,12 +140,26 @@ export function WorkCenterPage() {
           {workerHealth && !workerHealth.activeReadComplete && <div className="mt-3 rounded-xl border border-warning-200 bg-warning-50/70 px-3 py-2 text-[10px] leading-5 text-warning-900">القراءة محدودة بـ500 lease نشطة؛ لا تُفسَّر كحكم كامل على العامل.</div>}
         </CardBody>
       </Card>
-      <Card variant={workerHealth?.expiredActive ? 'alert' : 'evidence'}>
-        <CardHeader title="قرار الحالة" subtitle="المعالجة الفعلية للـlease تتم عبر مسار recovery الكانوني، وليس من هذه الواجهة." />
+      <Card variant={nextAction.tone === 'danger' ? 'alert' : nextAction.tone === 'warning' ? 'alert' : nextAction.tone === 'success' ? 'evidence' : 'default'}>
+        <CardHeader title="الإجراء التالي" subtitle="يُشتق مباشرة من الحالة التشغيلية الحالية؛ المعالجة الفعلية تبقى داخل المسارات الكانونية." />
         <CardBody>
           <div className="flex items-start gap-3">
-            <ShieldCheck size={18} className={workerHealth?.expiredActive ? 'text-danger-700 mt-0.5' : 'text-success-700 mt-0.5'} />
-            <div className="text-[11px] leading-5 text-ink-600">{workerHealth?.expiredActive ? 'هناك leases منتهية تحتاج recovery من مسار التشغيل.' : 'لا توجد leases منتهية في القراءة الحالية؛ العامل لا يملك حالة عالقة مثبتة في هذه اللحظة.'}</div>
+            <ShieldCheck size={18} className={nextAction.tone === 'danger' ? 'text-danger-700 mt-0.5' : nextAction.tone === 'warning' ? 'text-warning-700 mt-0.5' : nextAction.tone === 'success' ? 'text-success-700 mt-0.5' : 'text-primary-700 mt-0.5'} />
+            <div className="min-w-0">
+              <div className="text-sm font-black text-ink-900">{nextAction.title}</div>
+              <div className="mt-1 text-[11px] leading-5 text-ink-600">{nextAction.message}</div>
+              <div className="mt-4">
+                {nextAction.kind === 'refresh' && (
+                  <button type="button" onClick={() => void load()} className="btn-secondary text-xs">{nextAction.label}</button>
+                )}
+                {nextAction.kind === 'filter' && (
+                  <button type="button" onClick={() => setFilter(nextAction.filter)} className="btn-secondary text-xs">{nextAction.label}</button>
+                )}
+                {nextAction.kind === 'import' && (
+                  <Link to="/import" className="btn-primary inline-flex text-xs">{nextAction.label}</Link>
+                )}
+              </div>
+            </div>
           </div>
         </CardBody>
       </Card>
@@ -151,7 +179,7 @@ export function WorkCenterPage() {
         <div className="mb-5 flex flex-wrap items-center gap-2" role="toolbar" aria-label="تصفية العمليات">
           <Filter size={16} className="text-ink-400"/>
           {(['all','active','review','completed','failed'] as FilterKey[]).map(k => (
-            <button key={k} type="button" onClick={() => setFilter(k)} className={`rounded-full px-3 py-1.5 text-xs font-semibold ${filter === k ? 'bg-ink-950 text-white' : 'bg-ink-50 text-ink-600 hover:bg-ink-100'}`}>
+            <button key={k} type="button" onClick={() => setFilter(k)} aria-pressed={filter === k} className={`rounded-full px-3 py-1.5 text-xs font-semibold ${filter === k ? 'bg-ink-950 text-white' : 'bg-ink-50 text-ink-600 hover:bg-ink-100'}`}>
               {k === 'all' ? 'الكل' : k === 'active' ? 'النشطة' : k === 'review' ? 'المراجعة' : k === 'completed' ? 'المكتملة' : 'الفاشلة'}
             </button>
           ))}
