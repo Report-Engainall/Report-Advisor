@@ -1,3 +1,15 @@
+## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-60
+
+- SESSION-ID → `2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-60`
+- SHA → `f6d6e64b5da8411ec7bcc49fe912a0af04db86aa`.
+- DONE → closed the real import-history scale defect exposed by exact-head Browser E2E.
+- ACTUAL RESULT → tenant had 4,471 import jobs; the test import itself completed and persisted a canonical row correctly, but the UI history query rejected the tenant because `count > 500`.
+- FIXED → canonical and compatibility import-history reads now retrieve only the newest bounded 500 records without exact-count rejection; UI copy makes the bounded window explicit.
+- FIXED → `check-import-query-bounds.mjs` now protects the actual bounded-read invariant.
+- PRECISE STOP POINT → code correction complete; fresh CI and exact-head Browser E2E are required on `f6d6...`.
+- NEXT ACTION → consume exact-head quality/certification/browser results, then verify real business persistence and proceed to Phase-F/RPO-RTO.
+- DO NOT REPEAT → do not restore the exact-count rejection; do not remove the 500-row DB range; do not treat the earlier b352 Browser runtime as proof for f6d6; do not bypass certification.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-58 FINAL
 
 - SESSION-ID → `2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-58 FINAL`
@@ -498,17 +510,3 @@
 - CURRENT MAIN MOVED FORWARD ONLY BY THE REQUIRED MEMORY/DOCUMENTATION WRITE-BACKS; no later product-code changes supersede `3de20014...`.
 - FINAL RESUME RULE → resume from code `3de20014...`, not from the documentation commits.
 - CURRENT BLOCKER → exact-head build/typecheck/runtime/deployment proof remains unproven because PC01 is offline, container GitHub DNS is unavailable, and Vercel reports free-plan `build-rate-limit`.
-- NEXT ACTION → next weak canonical UI surface, then exact-head build/deployment/runtime proof when an executable environment is available.
-
-## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-CONTINUOUS-DEVELOPMENT-26
-- SESSION-ID → `2026-09-21-AGHBARI-CONTINUOUS-DEVELOPMENT-26`
-- BRANCH → `main`
-- EXACT REPOSITORY HEAD → `3de200146403ff4e1dae105837dd37af3eff3f50`
-- DONE → materially upgraded `src/pages/CanonicalScenarioPage.tsx` into a value-first sensitivity/decision surface without changing its deterministic calculation formula or introducing new backend state.
-- DONE → upgraded `src/pages/ScenarioTruthGuardPage.tsx` so the blocked financial-truth state is a clear governed workflow with direct routes to Data Quality and Trust/Evidence.
-- DONE → polished `src/pages/DataQualitySnapshotPage.tsx` with an explicit diagnostic-boundary explanation and direct actions to source import and Trust/Evidence, while preserving its existing server-side snapshot and scoring logic.
-- ACTUAL RESULT → all three UI surfaces are present on current `main` and were re-read from GitHub after their writes. Scenario calculations still derive only from existing `baseRevenue`, `baseCost`, `currency`, and the three existing sensitivity controls. Truth-gate logic still uses the existing `fetchProfitabilitySnapshot()` boundary. Data Quality still uses `fetchDataQualitySnapshot()` and its existing diagnostic calculation.
-- ARCHITECTURE RESULT → no new route, RPC, runner, job family, import lifecycle, tenant/RLS path, business calculation engine, fake evidence, mock session, fake JWT, or bypass was introduced.
-- EXACT UI COMMITS → scenario `be93a9ee2b54e1d43692b546a3fb8faedddb4dec`; truth gate `05713d80013a485aac07aa433d46499aa3ab9625`; data quality `3de200146403ff4e1dae105837dd37af3eff3f50`.
-- VERIFICATION → exact `main` HEAD re-read as `3de20014...`; the three changed UI files were re-read on that exact branch state. Combined GitHub status for the exact head reports the Vercel free-plan `build-rate-limit` failure. No current-head GitHub Actions workflow run is available through the connected GitHub workflow-read path.
-- BUILD/RUNTIME BOUNDARY → `typecheck`, `build`, authenticated browser E2E and exact-head live deployment PASS are **NOT PROVEN** in this wave. PC01 is offline, and the available container cannot reach GitHub/DNS to clone the repository, so no local build claim is made.
