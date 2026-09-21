@@ -198,6 +198,46 @@ export function DashboardPage() {
     ? { to: '/data-quality', label: 'مراجعة جودة البيانات' }
     : { to: '/analytics', label: 'فتح التحليل' };
 
+  const dashboardNextAction = useMemo(() => {
+    if (kpis.status === 'INSUFFICIENT_DATA') {
+      return {
+        to: '/data-quality',
+        label: 'مراجعة جودة البيانات',
+        title: 'الصورة تحتاج مراجعة قبل اتخاذ القرار',
+        description: 'توجد مؤشرات غير متاحة أو غير مثبتة. أصلح مصدر الحقيقة أولًا بدل اتخاذ قرار من صورة ناقصة.',
+      };
+    }
+    if (decisionAccountability.pending > 0) {
+      return {
+        to: '/decision-experience?stage=decision',
+        label: 'مراجعة القرارات',
+        title: decisionAccountability.pending + ' توصية جديدة تنتظر المراجعة',
+        description: 'هناك توصيات دخلت مرحلة القرار ولم تُحسم بعد؛ راجع الأدلة والمالك والأثر المتوقع قبل الإجراء.',
+      };
+    }
+    if (liveAlerts.length > 0) {
+      return {
+        to: '/command-center',
+        label: 'فتح الإشارات',
+        title: liveAlerts[0]?.title ?? 'توجد إشارات جديدة',
+        description: 'توجد إشارات غير مقروءة في المسار الحالي. افتح مركز القرار لفحصها وربطها بالإجراء المناسب.',
+      };
+    }
+    if (!trend.some((item) => item.status === 'CALCULATED')) {
+      return {
+        to: '/import/analyze',
+        label: 'تحليل مصدر',
+        title: 'لا يوجد اتجاه قابل للحساب من المصدر الحالي',
+        description: 'قبل الاعتماد على تحليل الحركة، افحص المصدر الحالي أو حلّل مستندًا/بيانات جديدة عبر المسار الموحد.',
+      };
+    }
+    return {
+      to: '/analytics',
+      label: 'فتح التحليل',
+      title: 'الصورة صالحة للمتابعة والتحليل',
+      description: 'لا توجد إشارة عاجلة أو قرارات معلقة؛ انتقل إلى التحليل لاستخراج الفرص والقيم الداعمة للقرار.',
+    };
+  }, [kpis.status, decisionAccountability.pending, liveAlerts, trend]);
 
   return (
     <div dir="rtl" className="animate-fade-in space-y-5 pb-10">
@@ -244,9 +284,10 @@ export function DashboardPage() {
               </div>
               <div className="rounded-[14px] border border-primary-100 bg-primary-50/40 p-4">
                 <div className="text-[10px] font-black text-primary-700">الخطوة التالية</div>
-                <div className="mt-1.5 text-sm font-black text-ink-900">{liveRecommendations[0]?.title ?? 'افتح مركز القيادة للتحقق من الأولويات'}</div>
+                <div className="mt-1.5 text-sm font-black text-ink-900">{dashboardNextAction.title}</div>
+                <p className="mt-1 text-[11px] leading-5 text-ink-500">{dashboardNextAction.description}</p>
                 <div className="mt-2 flex flex-wrap gap-2">
-                  <Link to={liveRecommendations[0] ? '/decision-experience?stage=decision' : '/command-center'} className="btn-primary text-[11px]">فتح المسار <ArrowUpLeft size={13} /></Link>
+                  <Link to={dashboardNextAction.to} className="btn-primary text-[11px]">{dashboardNextAction.label} <ArrowUpLeft size={13} /></Link>
                   <Link to="/command-center" className="btn-ghost text-[11px]">مركز القيادة</Link>
                 </div>
               </div>
@@ -426,17 +467,17 @@ export function DashboardPage() {
       </section>
       </Suspense>
 
-      <section className="rounded-[14px] border border-ink-200 bg-white p-4 shadow-card">
-        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-          <div>
-            <div className="section-kicker">NEXT ACTION</div>
-            <h2 className="mt-1 text-base font-black text-ink-950">مسارات العمل</h2>
-            <p className="mt-1 text-xs text-ink-500">احتفظ بالسياق وانتقل مباشرة من الصورة إلى التنفيذ أو الفحص بدل العودة إلى قائمة الصفحات.</p>
+      <section className="rounded-[14px] border border-primary-100 bg-primary-50/35 p-4 shadow-card">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div className="min-w-0">
+            <div className="section-kicker">NEXT ACTION · FROM CURRENT TRUTH</div>
+            <h2 className="mt-1 text-base font-black text-ink-950">{dashboardNextAction.title}</h2>
+            <p className="mt-1 max-w-3xl text-xs leading-5 text-ink-500">{dashboardNextAction.description}</p>
           </div>
           <div className="flex flex-wrap gap-2">
+            <Link to={dashboardNextAction.to} className="btn-primary text-[11px]">{dashboardNextAction.label} <ArrowUpLeft size={13} /></Link>
             <Link to="/work-center" className="btn-secondary text-[11px]">مركز العمل <ArrowUpLeft size={13} /></Link>
-            <Link to="/data-quality" className="btn-secondary text-[11px]">جودة البيانات <ArrowUpLeft size={13} /></Link>
-            <Link to="/intelligence" className="btn-primary text-[11px]">القرار والذكاء <Brain size={13} /></Link>
+            <Link to="/intelligence" className="btn-ghost text-[11px]">القرار والذكاء <Brain size={13} /></Link>
           </div>
         </div>
       </section>

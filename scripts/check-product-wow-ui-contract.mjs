@@ -63,6 +63,9 @@ assert.ok(dashboardSurface.includes('تبقى الحالة غير مثبتة'), 
 assert.ok(dashboardSurface.includes('لا يتم تصنيع تركيب للفئات'), 'dashboard category empty state must not fabricate composition');
 assert.ok(dashboardSurface.includes('مراجعة جودة البيانات'), 'dashboard customer/product empties must route to data quality');
 assert.ok(dashboardSurface.includes("to: '/data-quality'"), 'dashboard must use the canonical data-quality route for insufficient truth');
+assert.ok(dashboardSurface.includes('const dashboardNextAction = useMemo'), 'dashboard must derive one next action from current truth and decision state');
+assert.ok(dashboardSurface.includes('dashboardNextAction.to'), 'dashboard next action must use its derived canonical route');
+assert.ok(dashboardSurface.includes('dashboardNextAction.description'), 'dashboard next action must explain why the action is recommended');
 
 const reports = fs.readFileSync('src/pages/ReportsPage.tsx', 'utf8');
 assert.ok(!reports.includes('window.location.reload()'), 'report pages must retry in place without a full browser reload');
