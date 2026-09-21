@@ -2,6 +2,8 @@ import { createHash } from 'node:crypto';
 import { createClient } from '@supabase/supabase-js';
 import { securityScan } from '../../src/lib/file-engine/security.ts';
 import { detectFormat } from '../../src/lib/file-engine/detector.ts';
+import { parseFile } from '../../src/lib/file-engine/adapters.ts';
+import { reconcileForCanonical } from '../../src/lib/import/canonical-truth-boundary.ts';
 import { runCanonicalImportThroughDurableRunner } from '../../src/lib/import/canonical-production-adapter.ts';
 
 function json(status: number, body: Record<string, unknown>): Response {
@@ -53,13 +55,14 @@ export default async (request: Request): Promise<Response> => {
       entityType?: 'products' | 'customers' | 'sales_invoices' | `generic:${string}`;
       rows?: unknown[];
       qualityScore?: number;
+      qualityApproved?: boolean;
       mode?: 'execute' | 'finalize-source';
     };
 
     const mode = payload.mode ?? 'execute';
     const genericEntity = typeof payload.entityType === 'string' && /^generic:[a-z][a-z0-9_-]{0,63}$/.test(payload.entityType);
     if (payload.entityType !== 'products' && payload.entityType !== 'customers' && payload.entityType !== 'sales_invoices' && !genericEntity) throw new Error('CANONICAL_IMPORT_ENTITY_TYPE_INVALID');
-    if (!payload.importId || !payload.entityType || (mode === 'execute' && (!Array.isArray(payload.rows) || !Number.isFinite(payload.qualityScore)))) {
+    if (!payload.importId || !payload.entityType || (mode === 'execute' && (!Array.isArray(payload.rows) || !Number.isFinite(payload.qualityScore) || typeof payload.qualityApproved !== 'boolean'))) {
       throw new Error('CANONICAL_IMPORT_REQUEST_INVALID');
     }
 
@@ -155,14 +158,40 @@ export default async (request: Request): Promise<Response> => {
       return json(200, { importId: job.id, sourceHash: sourceSha });
     }
 
+    const authoritativeDatasets = await parseFile(bytes.buffer, fileRecord.file_name || payload.fileName || 'import', detection.format);
+    const authoritativeDataset = authoritativeDatasets[0];
+    if (!authoritativeDataset || authoritativeDataset.rowCount === 0) throw new Error('AUTHORITATIVE_SOURCE_PARSE_EMPTY');
+
+    const authoritativeQualityScore = Math.max(0, Math.min(100, Math.round(authoritativeDataset.qualityScore)));
+    if (authoritativeQualityScore < 50) throw new Error(`CANONICAL_IMPORT_QUALITY_REJECTED:${authoritativeQualityScore}`);
+    if (authoritativeQualityScore < 75 && payload.qualityApproved !== true) {
+      throw new Error(`CANONICAL_IMPORT_REVIEW_APPROVAL_REQUIRED:${authoritativeQualityScore}`);
+    }
+
+    const authoritativeRows = authoritativeDataset.rows.map((data, index) => ({ rowNumber: index + 1, data }));
+    const reconciled = reconcileForCanonical(
+      payload.entityType,
+      String(companyId),
+      fileRecord.file_name || payload.fileName || 'import',
+      sourceSha,
+      job.id,
+      (_data, rowNumber) => `${sourceSha}:${rowNumber}`,
+      authoritativeRows,
+    );
+    if (reconciled.rejected.length > 0) {
+      throw new Error(`CANONICAL_RECONCILIATION_REJECTED:${reconciled.rejected.map(item => `${item.rowNumber}:${item.reason}`).join(',')}`);
+    }
+    if (reconciled.rows.length !== authoritativeRows.length) throw new Error('AUTHORITATIVE_SOURCE_RECONCILIATION_COUNT_MISMATCH');
+
     const execution = await runCanonicalImportThroughDurableRunner(
       {
         importId: job.id,
         fileName: fileRecord.file_name || payload.fileName || 'import',
         sourceHash: sourceSha,
         entityType: payload.entityType,
-        rows: payload.rows as never[],
-        qualityScore: Number(payload.qualityScore),
+        rows: reconciled.rows,
+        qualityScore: authoritativeQualityScore,
+        qualityApproved: payload.qualityApproved === true,
       },
       {
         serverExecution: true,
@@ -173,7 +202,15 @@ export default async (request: Request): Promise<Response> => {
       },
     );
 
-    return json(200, { ...execution, importId: job.id, sourceHash: sourceSha });
+    return json(200, {
+      ...execution,
+      importId: job.id,
+      sourceHash: sourceSha,
+      authoritativeRowCount: authoritativeRows.length,
+      authoritativeQualityScore,
+      authoritativeColumns: authoritativeDataset.columns,
+      authoritativePreview: authoritativeDataset.preview.slice(0, 25),
+    });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'CANONICAL_IMPORT_SERVER_EXECUTION_FAILED';
     const status = message.startsWith('NETLIFY_ENV_MISSING') ? 503 : 400;
