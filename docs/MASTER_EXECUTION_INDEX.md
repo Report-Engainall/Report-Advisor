@@ -274,3 +274,13 @@ There is one execution owner. Do not resurrect the previous UI/runtime owner spl
 - Supabase staging recheck: expired active leases=0; backup verification runs=0; queued=563; dead_letter=7.
 - No runtime/build PASS is claimed because exact-head Vercel remains externally blocked by `build-rate-limit`.
 - Next executable action: independent weak canonical surface or cloud-safe closure, then exact-head runtime proof when an executable environment is available.
+
+
+## CONTINUATION UPDATE — 2026-09-21 / UI TRUTH + INTERACTION HARDENING WAVE 30
+- Exact product code HEAD: `369fa466dee576c64ff82c7f61fddaf3ca389daa`.
+- Analytics current-head import defect closed in the preceding wave; exact file was re-read.
+- Connections surface now distinguishes proven, bounded, and adapter-only connection states. Watched-folder automation and scanned-PDF OCR are no longer implied to be runtime-proven.
+- Intelligence recommendation actions now have an in-flight interaction guard and explicit error handling while retaining the existing mutation boundary.
+- No new backend route/RPC/runner/import taxonomy/tenant path was introduced.
+- Exact-head runtime/build evidence remains open because Vercel reports the free-plan `build-rate-limit`; PC01 remains offline.
+- Next executable action: another independent weak canonical surface or cloud-safe closure, then exact-head runtime proof.
