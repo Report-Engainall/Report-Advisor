@@ -148,6 +148,14 @@ export function DecisionExperiencePage() {
         </div>
       </section>
 
+      <section className="ag-decision-strip" aria-label="ملخص القرار">
+        <div className="ag-decision-cell"><span className="ag-decision-label">التوصية المحددة</span><span className="ag-decision-value">{selected?.title ?? 'لم تُحدد بعد'}</span></div>
+        <div className="ag-decision-cell"><span className="ag-decision-label">الثقة</span><span className="ag-decision-value">{selected?.confidence ?? 'غير متاح'}</span></div>
+        <div className="ag-decision-cell"><span className="ag-decision-label">الحالة</span><span className="ag-decision-value">{selectedStatus ?? 'غير متاح'}</span></div>
+        <div className="ag-decision-cell"><span className="ag-decision-label">التنبيهات النشطة</span><span className="ag-decision-value">{activeAlerts.length}</span></div>
+        <div className="ag-decision-cell"><span className="ag-decision-label">المرحلة</span><span className="ag-decision-value">{STAGES[currentStageIndex]?.label}</span></div>
+      </section>
+
       <nav aria-label="مراحل القرار" className="grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-6">
         {STAGES.map((item, index) => (
           <button key={item.id} type="button" onClick={() => navigateStage(item.id)} className={'stage-pill ' + (stage === item.id ? 'stage-pill-active' : 'hover:border-ink-300 hover:bg-ink-50')} aria-current={stage === item.id ? 'step' : undefined}>
