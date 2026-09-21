@@ -1259,3 +1259,10 @@ This update records implementation state only; it does not replace the product c
 - Suppliers DataTable columns are explicitly typed against `SupplierRow`.
 - Dashboard chart components are dynamically imported behind Suspense to keep chart vendor code out of the initial critical module graph.
 - Performance budget thresholds are unchanged; runtime/build proof is still pending for `8a9d6dc1df8afc9a421b0db205225953f43ad957`.
+
+
+## IMPLEMENTATION UPDATE — 2026-09-21 / LEGACY FOLDER IMPORTER REMOVAL
+- The isolated legacy folder batch importer has been removed rather than preserved as a conflicting second import engine.
+- The unified `/import` entry remains source-first and domain-neutral.
+- The Import Center contract now fails closed on reintroduction of the removed folder-importer package or fixed user-facing import targets.
+- No new import route, runner, RPC, table, or specialized canonical path was introduced.
