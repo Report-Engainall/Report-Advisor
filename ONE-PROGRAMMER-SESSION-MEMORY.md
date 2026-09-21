@@ -185,3 +185,19 @@ CURRENT RESUME POINTER
 - NEXT EXECUTABLE ACTION → refresh exact-head deployment/runtime proof for 7f9c45bf, then perform authenticated visual sweep across canonical pages at Desktop/Tablet/Mobile widths.
 - DO NOT REPEAT → do not rebuild the Drawer/sidebar architecture, global Advisor, Command Palette, PageHeader/state system, or previously closed core surfaces; do not transfer older live/browser PASS to 7f9c45bf; do not fabricate runtime sessions or evidence.
 - CURRENT RESUME POINTER → 7f9c45bf047d3df2435d57be0548dcae4fd14254 → exact-head deployment/runtime proof → authenticated responsive visual sweep → runtime/evidence/CI closure.
+
+
+## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-HERO-UNIFICATION-15
+- SESSION-ID → 2026-09-21-AGHBARI-HERO-UNIFICATION-15
+- PRODUCT CODE HEAD → b39660fc21af920d8bbf742eb7dc36139238cea3
+- BRANCH / PR → main / pushed to origin/main
+- DONE → unified custom executive Hero surfaces beyond the shared PageHeader: reports hero, work-center operational hero, import value header, governance hero, trust/control hero contrast, and the primary dashboard hero now use the same dark emerald/near-black leadership language with restrained teal/amber accents, white high-weight headings, slate-light supporting text, translucent proof panels, and responsive mobile treatment.
+- ACTUAL RESULT → no major page family is left with a visually isolated white Hero treatment; the dashboard, reports, operations, import, governance, and trust surfaces now read as one Enterprise Aghbari system rather than separate templates.
+- CODE IMPACT → CSS-only visual layer. No RPC, runner, tenant/RLS, import lifecycle, deterministic calculation, or backend contract changes.
+- VERIFIED TESTS / EVIDENCE → typecheck PASS; build PASS (2808 modules transformed); product-wow-ui PASS; route/sidebar parity PASS (37 routes / 35 canonical links); executive-dashboard-ui PASS; connections-language-ui PASS (7 checks); lint PASS with 0 errors / 63 warnings; git diff --check PASS; CSS minifier completed without the new arbitrary-selector warnings after selector cleanup.
+- VISUAL BOUNDARY → no authenticated browser screenshot PASS claimed; exact-head deployment/runtime proof still pending for b39660fc.
+- PRECISE STOP POINT → product code b39660fc21af920d8bbf742eb7dc36139238cea3 is pushed to origin/main.
+- OPEN BLOCKERS → fresh exact-head deployment proof for b39660fc; authenticated responsive visual sweep at Desktop/Tablet/Mobile widths; runtime/business E2E, resilience, backup/RPO/RTO and final certification.
+- NEXT EXECUTABLE ACTION → refresh exact-head deployment/runtime proof for b39660fc, then perform authenticated visual sweep across canonical routes and verify the shared Hero language at Desktop/Tablet/Mobile.
+- DO NOT REPEAT → do not rebuild PageHeader, Drawer/sidebar, global Advisor, Command Palette, or prior contrast/responsive work; do not transfer older deploy/browser evidence to b39660fc; do not fabricate runtime sessions/screenshots.
+- CURRENT RESUME POINTER → b39660fc21af920d8bbf742eb7dc36139238cea3 → exact-head deployment/runtime proof → authenticated responsive visual sweep → runtime/evidence/CI closure.
