@@ -1,3 +1,24 @@
+## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-72
+
+- SESSION-ID → 2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-72
+- EXACT CURRENT HEAD → `69234a3b162cb6647dcd35df70311b6589999191`.
+- ACTIVE PR → #612 / `fix/trust-evidence-current-trust-state-20260921`.
+- CURRENT CODE/TEST CANDIDATE → `f5a5097e6c093b0ed266b8143c3308e369d96ff3`; current head after it is governance-only.
+- DONE → Trust & Evidence: authoritative decision eligibility, accessible per-entity quality score visualization, and entity-level canonical next actions.
+- DONE → Canonical Import: real evidence lifecycle shown during save from existing checkpoints: source read, source stored, import job created, canonical reconciliation passed, authoritative runner result returned, final import-job recording.
+- DONE → UI contract guards both feature sets. No new RPC/importer/runner/route family/database path was introduced.
+- VERIFIED → Exact source for UI and contract was re-read after the latest code commits. The canonical `/data-quality` and `/import/analyze` routes exist in the application and navigation registry.
+- VERIFIED → Cloudflare predecessor preview for `676533b...` was a successful deploy and its rendered page was fetched live: Arabic Aghbari shell, login gate, evidence-first product messaging, and PWA/mobile metadata were present; no blank-page/error response was returned.
+- VERIFIED → On predecessor governance head `676533b...`, Execution Enforcement Contract and Final Certification Gate both passed.
+- CURRENT VERIFICATION STATE → Fresh certification/enforcement for later code candidate `dd01200...` started, but governance-memory descendant `f5a5097...` initially failed because the index still referenced `ba034a4...`. The candidate has since been rebound to `f5a5097...`, and subsequent index changes are governance-only.
+- LIVE SUPABASE → ACTIVE_HEALTHY; import_jobs=4482; worker queued=564; processing=0; leased=0; failed=10; dead_letter=7; backup_verification_runs=0; production_rollback_drills=0; autonomy_rollback_drills=0.
+- PHASE-F → remains FAIL-CLOSED because authorized `RESILIENCE_MAX_RPO_SECONDS` and logical backup source configuration are not provisioned. No RPO value was invented.
+- HOSTING → Vercel current plan remains rate-limited; Netlify current previews are cancel-prone/pending; Cloudflare is the available current-head preview path.
+- PRECISE STOP POINT → `69234a3...` with current certification candidate `f5a5097...`; latest governance-index alignment is complete. No current-head Final Certification/Execution Enforcement PASS is claimed after the final governance commits.
+- WHAT REMAINS → consume fresh exact-head certification/enforcement for the now-correct candidate binding; verify latest Cloudflare current-head deployment; then execute canonical Phase-F only after authorized configuration exists.
+- NEXT ACTION → fresh exact-head certification/enforcement → current-head Cloudflare preview verification → authorized Phase-F configuration → real backup/restore/RPO/RTO/rollback → release-gate re-evaluation.
+- DO NOT REPEAT → do not transfer PASS from older SHAs; do not treat `676533b...` preview as current-head proof; do not invent RPO; do not create duplicate import/backend paths; do not repeat closed suites unless SHA/code/contract/dependency/environment changed.
+- CURRENT RESUME POINTER → `69234a3b162cb6647dcd35df70311b6589999191` → fresh exact-head certification/enforcement → latest preview verification → authorized Phase-F → recovery evidence → release gates.
 ## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-71
 
 - SESSION-ID → 2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-71
