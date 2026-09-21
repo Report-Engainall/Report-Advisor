@@ -1,3 +1,17 @@
+## CURRENT EXECUTION BOUNDARY — 2026-09-21 / WAVE 46 — WORK CENTER ACTIONABILITY + EXACT-HEAD CERTIFICATION
+
+> Exact-head evidence only.
+
+- **CURRENT_CODE_TEST_CANDIDATE:** `7b756852a45aabb43024c2253f6b538fa7c6e559` on branch `exec/wave-46-workcenter-actionability-20260921`.
+- **CURRENT REPOSITORY BASE:** `916ef2749f763f4a55129830fb57bec762cb481b`.
+- **UI DONE:** Work Center now derives one context-aware `NEXT OPERATIONAL ACTION` from existing import records and worker-health state and routes the action to an existing table filter.
+- **UI ACCESSIBILITY DONE:** the next-action control exposes an explicit accessible label derived from the current action title.
+- **CONTRACT DONE:** `scripts/check-product-wow-ui-contract.mjs` guards the next-action surface and its existing-filter destination.
+- **CERTIFICATION ROOT CAUSE:** the first exact-head Final Certification run failed closed because Master Execution Index still pointed to the historical `2caedfa8...` candidate; no product-code corruption was found.
+- **CORRECTION:** the current code/test candidate is now explicitly bound to `7b756852a45aabb43024c2253f6b538fa7c6e559`; no certification gate was weakened and no stale candidate is retained as the active boundary.
+- **NEXT EXECUTABLE ACTION:** consume the fresh exact-head CI/Phase-F/Final Certification results for `7b756852a45aabb43024c2253f6b538fa7c6e559`; repair only failures reproduced on this candidate.
+- **DO NOT REPEAT:** do not restore the historical `2caedfa8...` candidate as the active certification boundary and do not classify the previous boundary failure as a product-code failure.
+
 ## CURRENT EXECUTION BOUNDARY — 2026-09-21 / WAVE 45 — REPORT SNAPSHOT + EXACT-HEAD CERTIFICATION
 
 > Exact-head evidence only.
