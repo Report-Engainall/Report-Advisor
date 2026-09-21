@@ -2,11 +2,11 @@
 
 > تحديث تنفيذي بعد أمر المالك «انطلق». هذا القسم يصف الحالة المثبتة من الأدوات فقط. لا يتم نقل Evidence بين SHAs، ولا تُعد الحالة PASS إلا بدليل Exact-HEAD.
 
-- **CURRENT CODE/TEST CANDIDATE:** `cccf7fa61c9689aab08e425f885c9d2a8583e71d`
+- **CURRENT CODE/TEST CANDIDATE:** `ad20f67fcb19b7668a168ed974b5b33d8de105de`
 - **CURRENT_REPOSITORY_HEAD:** `943f0619abfddb56daddc83bc500659376655474`
 
 ### CURRENT EXACT HEAD / DEPLOYED STATE
-- **Current product/code HEAD:** `cccf7fa61c9689aab08e425f885c9d2a8583e71d` on `main`.
+- **Current product/code HEAD:** `ad20f67fcb19b7668a168ed974b5b33d8de105de` on `main`.
 - **Previous product/runtime baseline:** `1568e43889d27b5d850e64c0b99d03a994fd3bbe`.
 - **Historical product/test candidate:** `fe5661060462ffa21d6aa31505f80c2021c4170a` — historical only; do not treat as current HEAD evidence.
 - **Reference product/runtime code HEAD:** `c11c084d161cceb4595f8552b6c49c3f610f0ec2`; current `main` also carries the forward-only security/source-parity migrations merged afterward.
@@ -306,3 +306,10 @@ There is one execution owner. Do not resurrect the previous UI/runtime owner spl
 - The import transaction contract now checks that authoritative parsing/reconciliation precede the `file_records.status='ready'` write.
 - Current code also repairs a real Decision Experience syntax error and the Liquidity loading-state lint error found by GitHub Actions.
 - Exact-head runtime/build proof is still to be consumed from the new CI run; no stale PASS is transferred.
+
+
+## CONTINUATION UPDATE — 2026-09-21 / CURRENT-HEAD JSX REPAIR
+- Exact product code HEAD: `ad20f67fcb19b7668a168ed974b5b33d8de105de`.
+- Decision Experience JSX was simplified to a direct readiness block after CI exposed an invalid nested JSX expression.
+- No business behavior, backend path, decision mutation, tenant/RLS or deterministic calculation changed.
+- Previous import-authority, unified-entry, server Snapshot and import-order repairs remain part of the same current code candidate.
