@@ -82,47 +82,44 @@ async function login(page, email, password) {
   assert.equal(await page.getByText('حدث خطأ غير متوقع').count(), 0, 'application error boundary must not render');
 }
 function csvBuffer(fields) { const headers = Object.keys(fields); const values = Object.values(fields).map(value => String(value).replaceAll(',', ' ')); return Buffer.from(`\ufeff${headers.join(',')}\n${values.join(',')}\n`, 'utf8'); }
-async function openImportEntity(page, entity) {
-  const entityButton = page.getByTestId(`import-entity-${entity}`);
+async function openImportSource(page) {
   for (let attempt = 1; attempt <= 2; attempt += 1) {
-    await page.goto(baseURL, { waitUntil: 'domcontentloaded', timeout: 30000 });
+    await page.goto(`${baseURL}/import`, { waitUntil: 'domcontentloaded', timeout: 30000 });
     try {
-      await page.getByRole('link', { name: 'استيراد', exact: true }).first().waitFor({ state: 'visible', timeout: 20000 });
-      await page.getByRole('link', { name: 'استيراد', exact: true }).first().click();
-      await page.getByText('مركز الاستيراد', { exact: true }).waitFor({ state: 'visible', timeout: 20000 });
-      await entityButton.waitFor({ state: 'visible', timeout: 20000 });
-      await entityButton.click();
-      await page.waitForFunction((entity) => document.querySelector(`[data-testid="import-entity-${entity}"]`)?.classList.contains('border-primary-500') === true, entity, { timeout: 10000 });
-      evidence.steps.push({ step: `import-entity-selection:${entity}`, status: 'PASS' });
+      await page.getByText('مركز المصادر', { exact: true }).waitFor({ state: 'visible', timeout: 20000 });
       await page.locator('input[type=file]').first().waitFor({ state: 'attached', timeout: 10000 });
-      return entityButton;
+      evidence.steps.push({ step: 'unified-import-source-entry', status: 'PASS' });
+      return;
     } catch {
-      const diagnostics = await page.evaluate(() => ({ href: location.href, readyState: document.readyState, bodyText: document.body?.innerText?.slice(0, 500) || '' })).catch(() => ({ href: 'unavailable', readyState: 'unavailable', bodyText: '' }));
+      const diagnostics = await page.evaluate(() => ({
+        href: location.href,
+        readyState: document.readyState,
+        bodyText: document.body?.innerText?.slice(0, 500) || '',
+      })).catch(() => ({ href: 'unavailable', readyState: 'unavailable', bodyText: '' }));
       if (attempt === 1 && !diagnostics.bodyText.trim()) {
         await page.reload({ waitUntil: 'networkidle', timeout: 30000 });
         continue;
       }
-      throw new Error(`IMPORT_ROUTE_NOT_READY:${entity}:attempt=${attempt}:href=${diagnostics.href}:readyState=${diagnostics.readyState}:body=${JSON.stringify(diagnostics.bodyText)}`);
+      throw new Error(`UNIFIED_IMPORT_ROUTE_NOT_READY:attempt=${attempt}:href=${diagnostics.href}:readyState=${diagnostics.readyState}:body=${JSON.stringify(diagnostics.bodyText)}`);
     }
   }
-  throw new Error(`IMPORT_ROUTE_NOT_READY:${entity}:exhausted`);
+  throw new Error('UNIFIED_IMPORT_ROUTE_NOT_READY:exhausted');
 }
-async function waitForAuthoritativeImportCompletion(page, companyId, entity, marker) {
+async function waitForAuthoritativeImportCompletion(page, companyId, marker) {
   const fileName = `${marker}.csv`;
   const deadline = Date.now() + 120000;
   let lastImport = null;
   let candidateJobId = null;
-  let lastExecution = null;
-  let nextExecutionProbeAt = 0;
 
   while (Date.now() < deadline) {
     const imports = await restSelect(
       page,
       'import_jobs',
-      candidateJobId ? { company_id: companyId, id: candidateJobId } : { company_id: companyId, job_type: entity },
-      'id,status,progress,processed_rows,valid_rows,invalid_rows,error_message,result_summary,created_at',
-      candidateJobId ? { limit: 1 } : { order: 'created_at.desc', limit: 20 },
+      candidateJobId ? { company_id: companyId, id: candidateJobId } : { company_id: companyId },
+      'id,status,job_type,progress,processed_rows,valid_rows,invalid_rows,error_message,result_summary,created_at',
+      candidateJobId ? { limit: 1 } : { order: 'created_at.desc', limit: 50 },
     );
+
     const candidate = candidateJobId
       ? imports[0] ?? null
       : imports.find((row) => row?.result_summary?.file_name === fileName) ?? null;
@@ -131,27 +128,17 @@ async function waitForAuthoritativeImportCompletion(page, companyId, entity, mar
       candidateJobId ??= candidate.id;
       lastImport = candidate;
 
+      if (candidate.job_type !== 'generic:source-data') {
+        throw new Error(`UNIFIED_IMPORT_WRONG_JOB_TYPE:${candidate.job_type || 'missing'}`);
+      }
+
       if (candidate.status === 'failed' || candidate.status === 'cancelled') {
-        throw new Error(`IMPORT_TERMINAL_STATUS:${entity}:job=${candidate.id}:status=${candidate.status}:error=${candidate.error_message || 'none'}`);
+        throw new Error(`IMPORT_TERMINAL_STATUS:job=${candidate.id}:status=${candidate.status}:error=${candidate.error_message || 'none'}`);
       }
 
       if (candidate.status === 'completed') {
-        evidence.steps.push({ step: `import-authoritative-complete:${entity}`, status: 'PASS', importJobId: candidate.id });
+        evidence.steps.push({ step: 'unified-import-authoritative-complete', status: 'PASS', importJobId: candidate.id });
         return candidate;
-      }
-
-      if (Date.now() >= nextExecutionProbeAt) {
-        const executions = await restSelect(
-          page,
-          'report_execution_jobs',
-          { company_id: companyId },
-          'id,status,checkpoint,attempt,max_attempts,lease_expires_at,created_at',
-          { order: 'created_at.desc', limit: 20 },
-        );
-        lastExecution = executions.find(
-          (job) => Array.isArray(job?.checkpoint?.evidenceKeys) && job.checkpoint.evidenceKeys.includes(`import:${candidate.id}`),
-        ) ?? null;
-        nextExecutionProbeAt = Date.now() + 5000;
       }
     }
 
@@ -159,38 +146,158 @@ async function waitForAuthoritativeImportCompletion(page, companyId, entity, mar
   }
 
   throw new Error(
-    `IMPORT_COMPLETION_TIMEOUT:${entity}:importJob=${lastImport?.id ?? 'NOT_FOUND'}:status=${lastImport?.status ?? 'NOT_FOUND'}:progress=${lastImport?.progress ?? 'NOT_OBSERVED'}:executionJob=${lastExecution?.id ?? 'NOT_FOUND'}:executionStatus=${lastExecution?.status ?? 'NOT_OBSERVED'}:checkpoint=${lastExecution?.checkpoint?.stage ?? 'NOT_OBSERVED'}`,
+    `IMPORT_COMPLETION_TIMEOUT:importJob=${lastImport?.id ?? 'NOT_FOUND'}:status=${lastImport?.status ?? 'NOT_FOUND'}:progress=${lastImport?.progress ?? 'NOT_OBSERVED'}`,
   );
 }
-
-async function importOne(page, entity, fields, marker) {
-  const entityButton = await openImportEntity(page, entity);
-  await page.locator('input[type=file]').first().setInputFiles({ name: `${marker}.csv`, mimeType: 'text/csv', buffer: csvBuffer(fields) });
+async function importOne(page, label, fields, marker) {
+  await openImportSource(page);
+  await page.locator('input[type=file]').first().setInputFiles({
+    name: `${marker}.csv`,
+    mimeType: 'text/csv',
+    buffer: csvBuffer(fields),
+  });
   await page.getByText('المراجعة', { exact: true }).waitFor({ state: 'visible', timeout: 30000 });
+
   const commit = page.getByRole('button', { name: /تأكيد الاستيراد/ });
   const qualityApproval = page.getByRole('checkbox', { name: /موافقة جودة صريحة/ });
 
   if (await qualityApproval.count() === 1 && await qualityApproval.isVisible()) {
     await qualityApproval.check();
-    await page.waitForTimeout(100);
-    evidence.steps.push({ step: `import-quality-approval:${entity}`, status: 'PASS' });
+    evidence.steps.push({ step: `unified-import-quality-approval:${label}`, status: 'PASS' });
   }
 
-  assert.equal(await commit.isEnabled(), true, `${entity} valid import must be enabled`);
+  assert.equal(await commit.isEnabled(), true, 'valid unified source import must be enabled');
   await commit.click();
 
   const companyId = evidence.tenantA ?? await currentTenant(page);
-  await waitForAuthoritativeImportCompletion(page, companyId, entity, marker);
+  const job = await waitForAuthoritativeImportCompletion(page, companyId, marker);
 
+  await page.getByRole('heading', { name: 'تم اعتماد المصدر', exact: true }).waitFor({ state: 'visible', timeout: 15000 });
+
+  const canonicalRows = await restSelect(
+    page,
+    'canonical_dataset_records',
+    { company_id: companyId, import_job_id: job.id },
+    'id,company_id,import_job_id,source_hash,semantic_domain,row_number,record_key,data,provenance',
+  );
+  assert.equal(canonicalRows.length, 1, 'unified import must persist one canonical source row for the test file');
+  assert.equal(canonicalRows[0].company_id, companyId);
+  assert.equal(canonicalRows[0].import_job_id, job.id);
+  assert.equal(canonicalRows[0].semantic_domain, 'source-data');
+  assert.equal(canonicalRows[0].row_number, 1);
+  assert.equal(canonicalRows[0].provenance?.tenantId, companyId);
+  assert.equal(canonicalRows[0].provenance?.sourceDocumentId, job.id);
+  evidence.persisted[label] = { job, canonical: canonicalRows[0] };
+  evidence.steps.push({
+    step: `unified-import-canonical-persistence:${label}`,
+    status: 'PASS',
+    importJobId: job.id,
+    canonicalRecordId: canonicalRows[0].id,
+  });
+
+  await page.goto(`${baseURL}/import`, { waitUntil: 'networkidle', timeout: 30000 });
+  await page.getByText(`${marker}.csv`, { exact: true }).waitFor({ state: 'visible', timeout: 15000 });
+  evidence.steps.push({ step: `unified-import-history-readback:${label}`, status: 'PASS' });
+
+  return { job, canonical: canonicalRows[0] };
+}
+
+async function uiSearch(page, route, placeholder, value, step) { await page.goto(`${baseURL}${route}`, { waitUntil: 'networkidle', timeout: 30000 }); const input = page.getByPlaceholder(placeholder); await input.fill(value); await page.waitForTimeout(300); await page.getByText(value, { exact: true }).first().waitFor({ state: 'visible', timeout: 10000 }); evidence.steps.push({ step, status: 'PASS', value }); }
+try {
+  await login(pageA, emailA, passwordA);
+  evidence.tenantA = await currentTenant(pageA);
+  evidence.steps.push({ step: 'tenant-A-resolution', status: 'PASS', tenantId: evidence.tenantA });
+
+  const suffix = `${Date.now()}-${process.pid}`;
+  const customerName = `E2E عميل ${suffix}`;
+  const customerNumber = `E2E-CUST-${suffix}`;
+  const customerPhone = `+967770${String(Date.now()).slice(-6)}`;
+  const customerEmail = `e2e-${suffix}@example.invalid`;
+  const sku = `E2E-SKU-${suffix}`;
+  const productName = `E2E منتج ${suffix}`;
+  const invoiceNumber = `E2E-INV-${suffix}`;
+  const invoiceDate = new Date().toISOString().slice(0, 10);
+
+  await importOne(pageA, 'customer-source', {
+    name: customerName,
+    code: customerNumber,
+    phone: customerPhone,
+    email: customerEmail,
+    segment: 'retail',
+    credit_limit: 0,
+    payment_terms_days: 0,
+  }, `customer-${suffix}`);
+
+  await importOne(pageA, 'product-source', {
+    sku,
+    name: productName,
+    unit: 'قطعة',
+    cost_price: 10,
+    selling_price: 15,
+    min_stock: 0,
+    reorder_point: 0,
+    is_active: true,
+  }, `product-${suffix}`);
+
+  await importOne(pageA, 'sales-source', {
+    invoice_number: invoiceNumber,
+    invoice_date: invoiceDate,
+    customer_name: customerName,
+    subtotal: 15,
+    tax_amount: 0,
+    total: 15,
+    paid_amount: 15,
+    status: 'posted',
+  }, `invoice-${suffix}`);
+
+  const tenantBeforeRefresh = await currentTenant(pageA);
+  await pageA.reload({ waitUntil: 'networkidle', timeout: 30000 });
+  assert.equal(await currentTenant(pageA), tenantBeforeRefresh, 'tenant context must survive refresh');
+  evidence.steps.push({ step: 'refresh-session-tenant', status: 'PASS' });
+
+  const contextB = await browser.newContext({ viewport: { width: 1440, height: 1000 }, locale: 'ar-SA' });
+  const pageB = await contextB.newPage();
+  attachRuntimeCapture(pageB);
   try {
-    await page.getByRole('heading', { name: 'اكتملت عملية الاستيراد', exact: true }).waitFor({ state: 'visible', timeout: 15000 });
-  } catch (error) {
-    const visibleError = await page.locator('.bg-danger-50').allTextContents().catch(() => []);
-    throw new Error(`${error instanceof Error ? error.message : String(error)} UI_ERRORS=${visibleError.join(' | ')}`);
+    await login(pageB, emailB, passwordB);
+    evidence.tenantB = await currentTenant(pageB);
+    assert.notEqual(evidence.tenantB, evidence.tenantA, 'A and B must resolve distinct tenants');
+    evidence.steps.push({ step: 'tenant-B-resolution', status: 'PASS', tenantId: evidence.tenantB });
+
+    for (const [label, persisted] of Object.entries(evidence.persisted)) {
+      const rows = await restSelect(
+        pageB,
+        'canonical_dataset_records',
+        { company_id: evidence.tenantA, id: persisted.canonical.id },
+        'id,company_id,import_job_id',
+      );
+      assert.equal(rows.length, 0, `Tenant B must not read Tenant A canonical ${label} source row`);
+    }
+    evidence.steps.push({ step: 'A-to-B-canonical-read-isolation', status: 'PASS' });
+
+    await pageB.goto(`${baseURL}/import`, { waitUntil: 'networkidle', timeout: 30000 });
+    for (const persisted of Object.values(evidence.persisted)) {
+      const marker = String(persisted.job?.result_summary?.file_name || '');
+      if (marker) assert.equal(await pageB.getByText(marker, { exact: true }).count(), 0, 'Tenant B UI must not show Tenant A source history');
+    }
+    evidence.steps.push({ step: 'A-to-B-ui-import-history-isolation', status: 'PASS' });
+
+    const logoutB = pageB.getByRole('button', { name: 'تسجيل الخروج' });
+    assert.equal(await logoutB.count(), 1, 'Tenant B logout control must exist');
+    await logoutB.click();
+    await pageB.locator('#login-email').waitFor({ state: 'visible', timeout: 10000 });
+    evidence.steps.push({ step: 'logout-B', status: 'PASS' });
+  } finally {
+    await pageB.close();
+    await contextB.close();
   }
 
-  evidence.steps.push({ step: `import:${entity}`, status: 'PASS' });
-}
-async function uiSearch(page, route, placeholder, value, step) { await page.goto(`${baseURL}${route}`, { waitUntil: 'networkidle', timeout: 30000 }); const input = page.getByPlaceholder(placeholder); await input.fill(value); await page.waitForTimeout(300); await page.getByText(value, { exact: true }).first().waitFor({ state: 'visible', timeout: 10000 }); evidence.steps.push({ step, status: 'PASS', value }); }
-try { await login(pageA, emailA, passwordA); evidence.tenantA = await currentTenant(pageA); evidence.steps.push({ step: 'tenant-A-resolution', status: 'PASS', tenantId: evidence.tenantA }); const suffix = `${Date.now()}-${process.pid}`; const customerName = `E2E عميل ${suffix}`; const customerNumber = `E2E-CUST-${suffix}`; const customerPhone = `+967770${String(Date.now()).slice(-6)}`; const customerEmail = `e2e-${suffix}@example.invalid`; const sku = `E2E-SKU-${suffix}`; const productName = `E2E منتج ${suffix}`; const invoiceNumber = `E2E-INV-${suffix}`; const invoiceDate = new Date().toISOString().slice(0, 10); await importOne(pageA, 'customers', { name: customerName, segment: 'retail', credit_limit: 0, payment_terms_days: 0 }, `customer-${suffix}`); const customers = await restSelect(pageA, 'customers', { company_id: evidence.tenantA, name: customerName }, 'id,name,company_id'); assert.equal(customers.length, 1, 'customer persistence must produce exactly one row'); assert.equal(customers[0].company_id, evidence.tenantA); evidence.persisted.customer = customers[0]; await uiSearch(pageA, '/customers', 'بحث عن اسم أو كود العميل...', customerName, 'customer-ui-readback'); await importOne(pageA, 'products', { sku, name: productName, unit: 'قطعة', cost_price: 10, selling_price: 15, min_stock: 0, reorder_point: 0, is_active: true }, `product-${suffix}`); const products = await restSelect(pageA, 'products', { company_id: evidence.tenantA, sku }, 'id,name,sku,company_id,selling_price'); assert.equal(products.length, 1, 'product persistence must produce exactly one row'); assert.equal(products[0].company_id, evidence.tenantA); assert.equal(Number(products[0].selling_price), 15); evidence.persisted.product = products[0]; await uiSearch(pageA, '/products', 'بحث عن اسم أو SKU...', sku, 'product-ui-readback'); await importOne(pageA, 'sales_invoices', { invoice_number: invoiceNumber, invoice_date: invoiceDate, customer_id: customers[0].id, customer_name: customerName, subtotal: 15, tax_amount: 0, total: 15, paid_amount: 15, status: 'posted' }, `invoice-${suffix}`); const invoices = await restSelect(pageA, 'sales_invoices', { company_id: evidence.tenantA, invoice_number: invoiceNumber }, 'id,company_id,invoice_number,customer_id,total,status'); assert.equal(invoices.length, 1, 'invoice persistence must produce exactly one row'); assert.equal(invoices[0].company_id, evidence.tenantA); assert.equal(invoices[0].customer_id, customers[0].id); assert.equal(Number(invoices[0].total), 15); evidence.persisted.invoice = invoices[0]; await pageA.goto(`${baseURL}/reports/sales`, { waitUntil: 'networkidle', timeout: 30000 }); await pageA.getByText(invoiceNumber, { exact: true }).first().waitFor({ state: 'visible', timeout: 10000 }); evidence.steps.push({ step: 'sales-report-readback', status: 'PASS' }); const tenantBeforeRefresh = await currentTenant(pageA); await pageA.reload({ waitUntil: 'networkidle', timeout: 30000 }); assert.equal(await currentTenant(pageA), tenantBeforeRefresh, 'tenant context must survive refresh'); evidence.steps.push({ step: 'refresh-session-tenant', status: 'PASS' }); const contextB = await browser.newContext({ viewport: { width: 1440, height: 1000 }, locale: 'ar-SA' }); const pageB = await contextB.newPage(); attachRuntimeCapture(pageB); try { await login(pageB, emailB, passwordB); evidence.tenantB = await currentTenant(pageB); assert.notEqual(evidence.tenantB, evidence.tenantA, 'A and B must resolve distinct tenants'); evidence.steps.push({ step: 'tenant-B-resolution', status: 'PASS', tenantId: evidence.tenantB }); for (const [table, filter, label] of [['customers', { company_id: evidence.tenantA, name: customerName }, 'customer'], ['products', { company_id: evidence.tenantA, sku }, 'product'], ['sales_invoices', { company_id: evidence.tenantA, invoice_number: invoiceNumber }, 'invoice']]) { const rows = await restSelect(pageB, table, filter, table === 'sales_invoices' ? 'id,company_id,invoice_number' : 'id,company_id'); assert.equal(rows.length, 0, `Tenant B must not read Tenant A ${label}`); } evidence.steps.push({ step: 'A-to-B-rest-read-isolation', status: 'PASS' }); for (const [table, id, payload, label] of [['customers', customers[0].id, { name: customerName }, 'customer'], ['products', products[0].id, { name: productName }, 'product'], ['sales_invoices', invoices[0].id, { status: invoices[0].status }, 'invoice']]) { const rows = await restUpdate(pageB, table, id, payload); assert.equal(rows.length, 0, `Tenant B must not mutate Tenant A ${label}`); } evidence.steps.push({ step: 'B-to-A-rest-mutation-isolation', status: 'PASS' }); await pageB.goto(`${baseURL}/customers`, { waitUntil: 'networkidle', timeout: 30000 }); await pageB.getByPlaceholder('بحث عن اسم أو كود العميل...').fill(customerName); assert.equal(await pageB.getByText(customerName, { exact: true }).count(), 0, 'Tenant B UI must not show Tenant A customer'); await pageB.goto(`${baseURL}/products`, { waitUntil: 'networkidle', timeout: 30000 }); await pageB.getByPlaceholder('بحث عن اسم أو SKU...').fill(sku); assert.equal(await pageB.getByText(sku, { exact: true }).count(), 0, 'Tenant B UI must not show Tenant A product'); evidence.steps.push({ step: 'A-to-B-ui-isolation', status: 'PASS' }); await pageB.goto(baseURL, { waitUntil: 'networkidle', timeout: 30000 }); const logoutB = pageB.getByRole('button', { name: 'تسجيل الخروج' }); assert.equal(await logoutB.count(), 1, 'Tenant B logout control must exist'); await logoutB.click(); await pageB.locator('#login-email').waitFor({ state: 'visible', timeout: 10000 }); evidence.steps.push({ step: 'logout-B', status: 'PASS' }); } finally { await pageB.close(); await contextB.close(); } await pageA.goto(baseURL, { waitUntil: 'networkidle', timeout: 30000 }); const logoutA = pageA.getByRole('button', { name: 'تسجيل الخروج' }); assert.equal(await logoutA.count(), 1, 'Tenant A logout control must exist'); await logoutA.click(); await pageA.locator('#login-email').waitFor({ state: 'visible', timeout: 10000 }); evidence.steps.push({ step: 'logout-A', status: 'PASS' }); if (evidence.failures.length) throw new Error(`BROWSER_RUNTIME_ERRORS:${evidence.failures.join(' | ')}`); evidence.status = 'PASS'; } catch (error) { evidence.status = 'FAIL'; evidence.error = error instanceof Error ? error.message : String(error); await pageA.screenshot({ path: `${reportDir}/failure.png`, fullPage: true }).catch(() => {}); process.exitCode = 1; } finally { evidence.finishedAt = new Date().toISOString(); await fs.writeFile(`${reportDir}/result.json`, JSON.stringify(evidence, null, 2)); await browser.close(); }
+  await pageA.goto(baseURL, { waitUntil: 'networkidle', timeout: 30000 });
+  const logoutA = pageA.getByRole('button', { name: 'تسجيل الخروج' });
+  assert.equal(await logoutA.count(), 1, 'Tenant A logout control must exist');
+  await logoutA.click();
+  await pageA.locator('#login-email').waitFor({ state: 'visible', timeout: 10000 });
+  evidence.steps.push({ step: 'logout-A', status: 'PASS' });
+
+if (evidence.failures.length) throw new Error(`BROWSER_RUNTIME_ERRORS:${evidence.failures.join(' | ')}`); evidence.status = 'PASS'; } catch (error) { evidence.status = 'FAIL'; evidence.error = error instanceof Error ? error.message : String(error); await pageA.screenshot({ path: `${reportDir}/failure.png`, fullPage: true }).catch(() => {}); process.exitCode = 1; } finally { evidence.finishedAt = new Date().toISOString(); await fs.writeFile(`${reportDir}/result.json`, JSON.stringify(evidence, null, 2)); await browser.close(); }
 console.log(JSON.stringify(evidence, null, 2));
