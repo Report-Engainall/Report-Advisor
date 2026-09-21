@@ -1169,3 +1169,13 @@ Never trade correctness for apparent progress percentage.
 - **Truth rule preserved:** the next action is derived only from the existing data-quality snapshot state; no new confidence score, synthetic evidence, or unsupported business state was introduced.
 - **Architecture unchanged:** no route, RPC, runner, job family, calculation, tenant/RLS path, or import lifecycle was introduced.
 - **Deployment boundary:** exact current head remains unproven live; Vercel continues to report the free-plan `build-rate-limit` blocker.
+
+## IMPLEMENTATION UPDATE — 2026-09-21 / UI PRODUCT WAVE 26
+This update records implementation state only; it does not replace the product constitution.
+
+- Current exact product/code HEAD: `3de200146403ff4e1dae105837dd37af3eff3f50`.
+- Scenario/what-if surface: the existing deterministic scenario calculation is now presented as a governed sensitivity workflow with baseline, assumptions, revenue/cost/profit deltas, margin impact, reset, boundaries and decision handoff.
+- Scenario truth gate: the existing financial truth check remains authoritative; blocked state now directs the user toward Data Quality or Trust/Evidence rather than exposing an empty or misleading scenario surface.
+- Data Quality: existing snapshot and diagnostic score logic are preserved; the UI now makes the score boundary explicit and adds source-import and Trust/Evidence actions.
+- No new backend capability was invented. No importer taxonomy was added to product UX.
+- Exact-head runtime/build proof remains open and must be re-proven on this SHA.
