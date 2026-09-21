@@ -17,49 +17,18 @@ import { runCanonicalImportThroughDurableRunner } from '@/lib/import/canonical-p
 type Step = 'upload' | 'scanning' | 'preview' | 'saving' | 'done';
 interface Row { rowNumber: number; data: Record<string, any>; valid: boolean; error?: string }
 
-const DOMAIN_LABELS: Record<string, string> = {
-  inventory: 'بيانات تشغيلية',
-  sales: 'نشاط تجاري',
-  purchases: 'نشاط توريد',
-  'customer-balances': 'بيانات علاقات وأرصدة',
-  'supplier-balances': 'بيانات علاقات وأرصدة',
-  'stock-movement': 'حركة تشغيلية',
-  unknown: 'نطاق دلالي غير محسوم',
-  'general-source': 'بيانات عامة / تحتاج تصنيفًا أعمق',
-};
-
-function normalizeSemanticToken(value: unknown): string {
-  return String(value ?? '').trim().toLowerCase().replace(/[\s_\-./]+/g, '');
+function analyzeSourceUnderstanding(dataset: Dataset): { confidence: number; reason: string } {
+  const columnCount = dataset.columns.length;
+  const mappedCount = dataset.columns.filter(column => Boolean(column.mappedField)).length;
+  const mappingCoverage = columnCount ? mappedCount / columnCount : 0;
+  const structuralScore = Math.min(100, Math.round(mappingCoverage * 100));
+  const qualityScore = Math.max(0, Math.min(100, Math.round(dataset.qualityScore)));
+  const rowSignal = dataset.rowCount > 0 ? 100 : 0;
+  const confidence = Math.min(99, Math.round((structuralScore * 0.5) + (qualityScore * 0.4) + (rowSignal * 0.1)));
+  if (confidence >= 75) return { confidence, reason: 'تم فهم بنية المصدر وحقوله بدرجة كافية لبناء سياقه العام دون فرض هوية أو نوع سجل مسبق.' };
+  if (confidence >= 50) return { confidence, reason: 'تمت قراءة المصدر وفهم جزء معتبر من بنيته؛ بعض الحقول تحتاج مراجعة قبل الاعتماد.' };
+  return { confidence, reason: 'تمت قراءة المصدر، لكن دقة الفهم البنيوي لا تزال محدودة ويجب مراجعة البيانات قبل الاعتماد.' };
 }
-
-function inferGenericDomain(dataset: Dataset): { domain: string; confidence: number; reason: string } {
-  const columns = dataset.columns.map((column) => column.mappedField ?? column.name);
-  const tokens = new Set(columns.map(normalizeSemanticToken));
-  const scores: Array<{ domain: string; hits: number; hints: string[] }> = [
-    { domain: 'inventory', hits: ['sku','productcode','productname','currentstock','warehouse','quantity'].filter(x => tokens.has(x)).length, hints: ['الصنف','الكمية','المخزن','الرصيد'] },
-    { domain: 'sales', hits: ['productcode','quantity','netamount','price','documentdate'].filter(x => tokens.has(x)).length, hints: ['الحركة','القيمة','التاريخ','السعر'] },
-    { domain: 'purchases', hits: ['productcode','quantity','netamount','suppliercode','cost'].filter(x => tokens.has(x)).length, hints: ['المورد','التكلفة','الكمية','القيمة'] },
-    { domain: 'customer-balances', hits: ['customercode','customername','netamount','duedate'].filter(x => tokens.has(x)).length, hints: ['العميل','الرصيد','الاستحقاق'] },
-    { domain: 'supplier-balances', hits: ['suppliercode','suppliername','netamount','duedate'].filter(x => tokens.has(x)).length, hints: ['المورد','الرصيد','الاستحقاق'] },
-    { domain: 'stock-movement', hits: ['productcode','documentdate','quantity','warehouse'].filter(x => tokens.has(x)).length, hints: ['الحركة','الصنف','المخزن'] },
-  ].sort((a,b) => b.hits - a.hits);
-
-  const best = scores[0];
-  if (!best || best.hits < 2) {
-    return {
-      domain: 'general-source',
-      confidence: 0,
-      reason: 'فهم النظام بنية المصدر، لكن لم يثبت نطاقًا متخصصًا. سيُحفظ كمصدر عام دون افتراض هوية أعمال غير مدعومة.',
-    };
-  }
-  const confidence = Math.min(99, Math.round(best.hits / 6 * 100));
-  return {
-    domain: best.domain,
-    confidence,
-    reason: `استند الاكتشاف إلى ${best.hits} إشارات دلالية من الأعمدة والمحتوى: ${best.hints.join('، ')}.`,
-  };
-}
-
 const STEPS: Array<{ key: Step; label: string }> = [
   { key: 'upload', label: 'الملف' },
   { key: 'scanning', label: 'الفحص' },
@@ -90,9 +59,8 @@ function Stepper({ step }: { step: Step }) {
 
 export function CanonicalImportPage() {
   const [step, setStep] = useState<Step>('upload');
-  const [detectedDomain, setDetectedDomain] = useState('unknown');
-  const [detectionConfidence, setDetectionConfidence] = useState(0);
-  const [detectionReason, setDetectionReason] = useState('لم يبدأ تحليل الملف بعد.');
+  const [understandingConfidence, setUnderstandingConfidence] = useState(0);
+  const [understandingReason, setUnderstandingReason] = useState('لم يبدأ تحليل المصدر بعد.');
   const [file, setFile] = useState<{ name: string; size: number; format: FileFormat; mime: string } | null>(null);
   const [fileHash, setFileHash] = useState<string | null>(null);
   const [rows, setRows] = useState<Row[]>([]);
@@ -143,10 +111,9 @@ export function CanonicalImportPage() {
       setMappings(dataset.columns.map(c => ({ name: c.name, mappedField: c.mappedField, confidence: c.mappingConfidence })));
       const hdrs = dataset.columns.map(c => c.name);
       setHeaders(hdrs);
-      const detectionResult = inferGenericDomain(dataset);
-      setDetectedDomain(detectionResult.domain);
-      setDetectionConfidence(detectionResult.confidence);
-      setDetectionReason(detectionResult.reason);
+      const understanding = analyzeSourceUnderstanding(dataset);
+      setUnderstandingConfidence(understanding.confidence);
+      setUnderstandingReason(understanding.reason);
       setRows(dataset.rows.map((data, i) => ({ rowNumber: i + 1, data, valid: true })));
       setStep('preview');
     } catch (e: any) {
@@ -171,10 +138,6 @@ export function CanonicalImportPage() {
 
   const saveAnalysis = useCallback(async () => {
     const validRows = rows.filter(r => r.valid);
-    if (detectedDomain === 'unknown') {
-      setError('النطاق الدلالي غير محسوم بعد. راجع المطابقة قبل الاعتماد.');
-      return;
-    }
     if (!validRows.length || !file || !fileHash || duplicate || !securityPassed) return;
     if (quality < 50) { setError('جودة البيانات أقل من 50% — الاستيراد مرفوض.'); return; }
     if (quality < 75 && !qualityApproved) { setError('جودة البيانات بين 50% و74% وتتطلب موافقة صريحة قبل الاعتماد.'); return; }
@@ -201,7 +164,7 @@ export function CanonicalImportPage() {
 
       setProgress(30);
 
-      const entityType = `generic:${detectedDomain}`;
+      const entityType = 'generic:source-data';
       const rec = await createImportRecord({
         file_name: file.name,
         file_size: file.size,
@@ -259,7 +222,7 @@ export function CanonicalImportPage() {
             source_path: sourceObjectPath,
             source_format: file.format,
             analysis_status: 'analyzed',
-            entity_type: detectedDomain,
+            entity_type: 'source-data',
             quality_score: quality,
             row_count: rows.length,
             column_count: headers.length,
@@ -272,9 +235,8 @@ export function CanonicalImportPage() {
             }],
             canonical_text: [
               `source=${file.name}`,
-              `detected_domain=${detectedDomain}`,
-              `detection_confidence=${detectionConfidence}%`,
-              detectionReason,
+              `semantic_understanding_confidence=${understandingConfidence}%`,
+              understandingReason,
             ].join(' | '),
             visual_assets: [],
             warnings,
@@ -282,9 +244,8 @@ export function CanonicalImportPage() {
               fileName: file.name,
               fileSize: file.size,
               mappingCoverage,
-              detectionConfidence,
-              detectedDomain,
-              detectionReason,
+              semanticUnderstandingConfidence: understandingConfidence,
+              semanticUnderstandingReason: understandingReason,
               canonicalWriteStatus: 'GENERAL_CANONICAL_DATASET',
               committed: validRows.length,
               jobId: execution.jobId,
@@ -305,7 +266,7 @@ export function CanonicalImportPage() {
         importId: rec.id,
         jobId: execution.jobId,
         file_name: file.name,
-        detected_domain: detectedDomain,
+        semantic_understanding_confidence: understandingConfidence,
         snapshot_id: snapshotId,
       });
 
@@ -317,7 +278,7 @@ export function CanonicalImportPage() {
         snapshotId,
         importId: rec.id,
         jobId: execution.jobId,
-        detectedDomain,
+        understandingConfidence,
       });
       setStep('done');
       await loadHistory();
@@ -330,7 +291,7 @@ export function CanonicalImportPage() {
             valid: validRows.length,
             invalid: rows.length - validRows.length,
             importId: importJobId,
-            detected_domain: detectedDomain,
+            semantic_understanding_confidence: understandingConfidence,
           }, failureMessage);
         } catch (finishError) {
           setError(`فشل الاعتماد — وتعذر إغلاق سجل العملية بأمان: ${finishError instanceof Error ? finishError.message : 'IMPORT_FINISH_FAILED'}`);
@@ -342,17 +303,17 @@ export function CanonicalImportPage() {
       setStep('preview');
     }
   }, [
-    rows, file, fileHash, detectedDomain, duplicate, securityPassed, quality,
-    qualityApproved, headers.length, mappings, warnings, detectionConfidence,
-    detectionReason, mappingCoverage, loadHistory,
+    rows, file, fileHash, duplicate, securityPassed, quality,
+    qualityApproved, headers.length, mappings, warnings, understandingConfidence,
+    understandingReason, mappingCoverage, loadHistory,
   ]);
 
-  const reset = () => { selectedFileRef.current = null; setStep('upload'); setFile(null); setFileHash(null); setRows([]); setHeaders([]); setQuality(0); setQualityApproved(false); setMappings([]); setWarnings([]); setError(null); setDuplicate(false); setSecurityPassed(false); setResult(null); setProgress(0); setDetectedDomain('unknown'); setDetectionConfidence(0); setDetectionReason('لم يبدأ تحليل الملف بعد.'); if (inputRef.current) inputRef.current.value = ''; };
+  const reset = () => { selectedFileRef.current = null; setStep('upload'); setFile(null); setFileHash(null); setRows([]); setHeaders([]); setQuality(0); setQualityApproved(false); setMappings([]); setWarnings([]); setError(null); setDuplicate(false); setSecurityPassed(false); setResult(null); setProgress(0); setUnderstandingConfidence(0); setUnderstandingReason('لم يبدأ تحليل المصدر بعد.'); if (inputRef.current) inputRef.current.value = ''; };
   const valid = rows.filter(r => r.valid).length;
   const invalid = rows.length - valid;
   const mappingCoverage = useMemo(() => mappings.length ? Math.round((mappings.filter(m => m.mappedField).length / mappings.length) * 100) : 0, [mappings]);
   const qualityVariant = quality >= 75 ? 'success' : quality >= 50 ? 'warning' : 'danger';
-  const ready = Boolean(detectedDomain !== 'unknown' && file && fileHash && securityPassed && !duplicate && valid > 0 && (quality >= 75 || (quality >= 50 && quality < 75 && qualityApproved)));
+  const ready = Boolean(file && fileHash && securityPassed && !duplicate && valid > 0 && (quality >= 75 || (quality >= 50 && quality < 75 && qualityApproved)));
 
   return <div className="space-y-5 animate-fade-in">
     <PageHeader title="مركز الاستيراد" subtitle="مسار موحد: فحص أمني → فهم المحتوى → مطابقة → جودة → حفظ دليل التحليل" />
@@ -384,13 +345,13 @@ export function CanonicalImportPage() {
         <CardBody>
           <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
             <div className="min-w-0">
-              <div className="text-[10px] font-black tracking-[.08em] text-primary-700">AUTOMATIC DOMAIN DETECTION</div>
-              <div className="mt-1 text-sm font-black text-ink-950">{DOMAIN_LABELS[detectedDomain] ?? 'نطاق أعمال مكتشف'}</div>
-              <div className="mt-1 text-[11px] leading-5 text-ink-500">{detectionReason}</div>
+              <div className="text-[10px] font-black tracking-[.08em] text-primary-700">SOURCE UNDERSTANDING</div>
+              <div className="mt-1 text-sm font-black text-ink-950">فهم المصدر وسياقه</div>
+              <div className="mt-1 text-[11px] leading-5 text-ink-500">{understandingReason}</div>
             </div>
             <div className="flex flex-wrap items-center gap-2">
-              <span className={detectionConfidence >= 75 ? 'badge-success' : detectionConfidence > 0 ? 'badge-warning' : 'badge-neutral'}>ثقة الاكتشاف {detectionConfidence || 0}%</span>
-              <span className="badge-neutral">الاكتشاف تلقائي</span>
+              <span className={understandingConfidence >= 75 ? 'badge-success' : understandingConfidence >= 50 ? 'badge-warning' : 'badge-neutral'}>ثقة الفهم {understandingConfidence || 0}%</span>
+              <span className="badge-neutral">تحليل تلقائي</span>
             </div>
           </div>
         </CardBody>
@@ -406,9 +367,9 @@ export function CanonicalImportPage() {
       {error&&<div className="p-3 rounded-lg bg-danger-50 text-danger-700 text-sm flex gap-2"><AlertCircle size={16}/>{error}</div>}
     </div>}
 
-    {step === 'saving' && <Card><CardBody><div className="flex flex-col items-center py-12 gap-4"><Loader2 className="animate-spin text-primary-500" size={34}/><b>جارٍ حفظ المصدر والتحليل الدلالي...</b><span className="text-lg font-semibold">{progress}%</span><div className="w-full max-w-xl h-2 bg-ink-100 rounded-full overflow-hidden"><div className="h-full bg-primary-500 rounded-full transition-all" style={{width:`${progress}%`}}/></div><p className="text-xs text-ink-400">هذا الحفظ يسجل المصدر والتحليل والأدلة الأولية. لا يُعلن committed ولا يكتب إلى الحقيقة الكانونية العامة.</p></div></CardBody></Card>}
+    {step === 'saving' && <Card><CardBody><div className="flex flex-col items-center py-12 gap-4"><Loader2 className="animate-spin text-primary-500" size={34}/><b>جارٍ اعتماد المصدر وفهمه ضمن النموذج العام...</b><span className="text-lg font-semibold">{progress}%</span><div className="w-full max-w-xl h-2 bg-ink-100 rounded-full overflow-hidden"><div className="h-full bg-primary-500 rounded-full transition-all" style={{width:`${progress}%`}}/></div><p className="text-xs text-ink-400">يتم اعتماد المصدر عبر مسار الحقيقة الكانونية العامة مع بصمته وسياقه وجودته، ولا يُعلن نجاح الاعتماد إلا بعد إتمام مسار الكتابة الفعلي.</p></div></CardBody></Card>}
 
-    {step === 'done' && result && <Card><CardBody><div className="flex flex-col items-center py-10 gap-4"><CheckCircle2 className="text-success-500" size={52}/><h3 className="text-xl font-semibold">تم حفظ تحليل المصدر</h3><div className="grid grid-cols-2 gap-3 w-full max-w-lg text-center"><div className="p-3 rounded-lg bg-ink-50"><div className="text-xs text-ink-400">الصفوف المقروءة</div><b>{formatNumber(result.total)}</b></div><div className="p-3 rounded-lg bg-primary-50"><div className="text-xs text-primary-700">النطاق المكتشف</div><b>{DOMAIN_LABELS[result.detectedDomain] ?? result.detectedDomain}</b></div></div><p className="text-xs text-ink-400">Snapshot ID: {result.snapshotId ?? 'غير متاح'}</p><p className="max-w-xl text-center text-[11px] leading-5 text-ink-500">تم اعتماد المصدر في طبقة البيانات الكانونية العامة مع بصمته وسياقه وجودته؛ لم يُنشأ مستورد متخصص ولم يُطلب اختيار جدول مستهدف.</p><button type="button" onClick={reset} className="btn-primary"><Upload size={14}/> تحليل ملف آخر</button></div></CardBody></Card>}
+    {step === 'done' && result && <Card><CardBody><div className="flex flex-col items-center py-10 gap-4"><CheckCircle2 className="text-success-500" size={52}/><h3 className="text-xl font-semibold">تم حفظ تحليل المصدر</h3><div className="grid grid-cols-2 gap-3 w-full max-w-lg text-center"><div className="p-3 rounded-lg bg-ink-50"><div className="text-xs text-ink-400">الصفوف المقروءة</div><b>{formatNumber(result.total)}</b></div><div className="p-3 rounded-lg bg-primary-50"><div className="text-xs text-primary-700">ثقة فهم المصدر</div><b>{result.understandingConfidence ?? 0}%</b></div></div><p className="text-xs text-ink-400">Snapshot ID: {result.snapshotId ?? 'غير متاح'}</p><p className="max-w-xl text-center text-[11px] leading-5 text-ink-500">تم اعتماد المصدر في طبقة البيانات الكانونية العامة مع بصمته وسياقه وجودته، دون فرض نوع سجل أو مسار استيراد متخصص.</p><button type="button" onClick={reset} className="btn-primary"><Upload size={14}/> تحليل ملف آخر</button></div></CardBody></Card>}
 
     <Card><CardHeader title="سجل الاستيرادات" subtitle="تاريخ عمليات المصادر والتحليل المرتبطة بحسابك" action={<button type="button" onClick={() => void loadHistory()} className="btn-secondary text-xs"><RefreshCw size={13}/> تحديث</button>}/>{loadingHistory?<LoadingState message="جارٍ تحميل السجل..."/>:history.length===0?<EmptyState icon={<Database size={32}/>} title="لا توجد عمليات سابقة" message="ابدأ بتحليل أول مصدر"/>:<DataTable columns={[{key:'file_name',label:'المصدر'},{key:'total_rows',label:'الصفوف',align:'center'},{key:'valid_rows',label:'صالح',align:'center'},{key:'invalid_rows',label:'مراجعة',align:'center'},{key:'status',label:'الحالة',align:'center',render:(r:any)=><StatusBadge status={r.status}/>},{key:'created_at',label:'التاريخ',render:(r:any)=>formatDateTime(r.created_at)}]} data={history} emptyMessage="لا توجد عمليات سابقة"/>}</Card>
   </div>;
