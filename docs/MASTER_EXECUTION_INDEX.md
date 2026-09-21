@@ -1,3 +1,14 @@
+## CURRENT EXECUTION BOUNDARY — 2026-09-21 / WAVE 58 — CONNECTIONS STATE-DRIVEN UI
+
+> Exact-head evidence only. No historical deployment/runtime result is transferred.
+
+- CURRENT CODE/TEST CANDIDATE: `cbfb7d0906e893ac32e274b571519d6f536ff8ad`.
+- DONE: Connections summary is now state-derived: proven/bounded/adapter counts and next-source action come from the existing connector array.
+- UI CONTRACT: current Product WOW contract guards the new state-derived summary.
+- ARCHITECTURE: no new route/RPC/runner/importer/tenant/calculation path.
+- PRECISE NEXT ACTION: consume fresh quality/enforcement/final-certification for `cbfb...`; then exact-head runtime/browser, backup/RPO-RTO → worker/server-boundary → tenant A/B → server OCR → watched-folder → final certification.
+- DO NOT REPEAT: do not restore hard-coded connector counts or generic next-source text; do not transfer `9684...` certification evidence to this new SHA.
+
 ## CURRENT EXECUTION BOUNDARY — 2026-09-21 / WAVE 57 — CURRENT-SHA UI CONTRACT REPAIR
 
 > Exact-head evidence only. No historical deployment/runtime result is transferred.
@@ -497,14 +508,3 @@ There is one execution owner. Do not resurrect the previous UI/runtime owner spl
 **القاعدة الحاكمة:** لا تُضاف عناصر لمجرد زيادة المحتوى. كل مبادرة جديدة يجب أن تضيف قيمة يمكن الدفاع عنها عبر واحد أو أكثر من: **فهم أسرع، قرار أسرع، عمل أسرع، وضوح أفضل للحقيقة/الدليل، اكتشاف فرصة، كشف مشكلة، تقليل خطوات، رفع الثقة، أو رفع القيمة المدركة للمنتج.** وما لا يحقق قيمة واضحة يُترك.
 
 المبادرة لا تمنح صلاحية اختراع وظائف تجارية أو backend paths من خارج العقد القائم. أي تحسين يجب أن يحافظ على الهوية البصرية للأغبري، الـIA المعتمدة، المسارات authoritative، الحقيقة والـevidence، deterministic calculations، tenant/RLS، fail-closed، والأداء والاستجابة وإتاحة الاستخدام. **المطلوب ليس تنفيذ واجهة مكتوبة فقط؛ المطلوب اكتشاف وإغلاق الفجوات التي تمنع الواجهة من أن تكون أوضح وأكثر قيمة واحترافًا.**
-
-### MANDATORY BUSINESS-FIRST PROGRESSIVE DISCLOSURE
-
-عند إكمال الواجهات أو إضافة سطح جديد، **لا تُحوّل كل capability إلى عنصر Sidebar ظاهر مباشرة**. حافظ على الأقسام الثمانية الحالية، وأظهر الوظائف الأساسية في المستوى الأول، ثم ضع التفاصيل والتحليلات المتقدمة داخل الـHub أو خلف فتح القسم، مع السماح بإظهارها في وضع Advanced/Expert فقط عند الحاجة.
-
-كل دفعة UI يجب أن تحقق ثلاثة أمور معًا:
-1. تغطية القدرة الحقيقية الموجودة في المنتج.
-2. اكتشافها والوصول إليها بوضوح.
-3. عدم تشتيت المستخدم الأساسي أو إعادة المنتج إلى taxonomy ضخمة.
-
-**Progressive Disclosure إلزامي:** كلما كانت القدرة أقل تكرارًا أو أكثر تخصصًا، يُفضّل أن تظهر داخل المساحة الأم، عبر تبويب/Drawer/قسم متقدم، أو ضمن Advanced/Expert navigation بدل إضافتها إلى المستوى الأول.
