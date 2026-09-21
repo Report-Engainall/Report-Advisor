@@ -1,3 +1,13 @@
+## IMPLEMENTATION UPDATE — 2026-09-21 / WAVE 61 — IMPORT HISTORY DATABASE PERFORMANCE
+
+- Exact current code/test candidate: `84a62e169ce8db61d2dc6598e654127543ecdabb`.
+- Exact-head Browser E2E on `f6d6...` proved the unified import commit path but still timed out waiting for the history file row at the UI boundary.
+- DB inspection found the decisive scale issue: 4,471 tenant import jobs and no composite index for `company_id + created_at DESC + id ASC`.
+- FIXED: added and applied migration `20260921194500_import_history_recent_window_index.sql`, creating `idx_import_jobs_company_created_id`.
+- DB verification: index exists in staging after migration application.
+- No change to canonical import commit semantics, tenant authority, calculations, or duplicate paths.
+- NEXT: fresh exact-head Browser E2E on `84a62...`; if history passes, proceed to real business persistence/tenant A↔B checks and then Phase-F/RPO-RTO.
+
 ## IMPLEMENTATION UPDATE — 2026-09-21 / WAVE 60 — IMPORT HISTORY SCALE CLOSURE
 
 - Exact current code/test candidate: `f6d6e64b5da8411ec7bcc49fe912a0af04db86aa`.
@@ -498,14 +508,3 @@ This is the target product tree. It defines how capabilities are presented; it d
 │  ├─ Suppliers
 │  ├─ RFM
 │  ├─ ABC / XYZ / FSN
-│  ├─ Aging
-│  ├─ Concentration
-│  └─ Anomalies / Trends
-├─ 04 الذكاء والقرار
-│  ├─ Intelligence Control Room
-│  ├─ Signals / Drivers / Early Warning
-│  ├─ Recommendations
-│  ├─ Forecasts + Backtesting
-│  ├─ Scenarios / What-if
-│  ├─ Decision Experience
-│  └─ Decision Playbooks
