@@ -42,6 +42,11 @@ assert.ok(sidebar.includes("trust: { hint: 'إثبات، مصدر، وثقة', t
 assert.ok(sidebar.includes("outputs: { hint: 'تقارير ومخرجات القرار', tag: 'OUTPUT' }"), 'Outputs navigation section must have product metadata');
 assert.ok(!dashboard.includes('generateSynthetic'), 'decision brief must not invent synthetic business data');
 const reports = fs.readFileSync('src/pages/ReportsPage.tsx', 'utf8');
+assert.ok(!reports.includes('window.location.reload()'), 'report pages must retry in place without a full browser reload');
+assert.ok(reports.includes('export function PurchasesReportPage()'), 'purchase report must remain guarded after retry refactor');
+assert.ok(reports.includes('export function InventoryReportPage()'), 'inventory report must remain guarded after retry refactor');
+assert.ok(reports.includes('export function ReceivablesReportPage()'), 'receivables report must remain guarded after retry refactor');
+assert.ok(reports.includes('export function ProfitabilityReportPage()'), 'profitability report must remain guarded after retry refactor');
 assert.ok(reports.includes('لقطة تجارية موثقة'), 'reports center must expose the current canonical snapshot');
 assert.ok(reports.includes('NEXT ACTION'), 'reports center must expose a concrete next action');
 assert.ok(reports.includes('افحص جودة البيانات'), 'reports center must route insufficient truth to data quality');
