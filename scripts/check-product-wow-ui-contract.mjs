@@ -107,6 +107,24 @@ assert.ok(trustEvidence.includes('criticalIssueTotal'), 'trust evidence must exp
 assert.ok(trustEvidence.includes('const weightedQualityScore = useMemo(() =>'), 'trust evidence must derive an aggregate entity-quality summary from the authoritative snapshot');
 assert.ok(trustEvidence.includes('متوسط موزون بعدد السجلات'), 'trust evidence aggregate quality must disclose its record-weighted basis');
 assert.ok(trustEvidence.includes('ليس درجة ثقة مستقلة'), 'trust evidence aggregate quality must not be presented as an invented trust score');
+const commandCenterSurface = fs.readFileSync('src/pages/ExecutiveCommandCenterPage.tsx', 'utf8');
+assert.ok(commandCenterSurface.includes('const decisionCoverage = useMemo(() =>'), 'command center must derive decision coverage from current recommendations');
+assert.ok(commandCenterSurface.includes('ownerCoverage'), 'decision coverage must expose owner coverage from actual recommendation ownership');
+assert.ok(commandCenterSurface.includes('outcomeCoverage'), 'decision coverage must expose recorded outcome coverage from actual recommendation results');
+assert.ok(commandCenterSurface.includes('Decision Coverage'), 'command center must expose decision coverage as a product surface');
+assert.ok(!commandCenterSurface.includes('Decision ROI'), 'command center must not imply ROI when no ROI ledger is available');
+
+const workCenterSurface = fs.readFileSync('src/pages/WorkCenterPage.tsx', 'utf8');
+assert.ok(workCenterSurface.includes("key: 'reason'"), 'work center rows must expose the persisted operational reason/limit');
+assert.ok(workCenterSurface.includes('r.error_message?.trim()'), 'work center must prefer the authoritative stored error message');
+assert.ok(workCenterSurface.includes('العملية اكتملت جزئيًا'), 'partial operations must disclose their bounded result state');
+
+const canonicalImportSurface = fs.readFileSync('src/pages/CanonicalImportPage.tsx', 'utf8');
+assert.ok(canonicalImportSurface.includes('sourceHash: durableSourceHash'), 'canonical import result must retain the authoritative server source hash');
+assert.ok(canonicalImportSurface.includes('total: authoritativeRowCount'), 'canonical import completion must use the authoritative server row count');
+assert.ok(canonicalImportSurface.includes('تم الاعتماد من المسار السلطوي'), 'canonical import completion must explicitly identify authoritative completion');
+assert.ok(canonicalImportSurface.includes('SERVER SOURCE HASH'), 'canonical import completion must expose the authoritative source fingerprint');
+assert.ok(canonicalImportSurface.includes('لا تعتمد النتيجة على صفوف أرسلها المتصفح كحقيقة'), 'canonical import completion must disclose the server-authoritative boundary');
 assert.ok(trustEvidence.includes('QUALITY COVERAGE'), 'trust evidence must expose aggregate quality coverage in the decision surface');
 assert.ok(trustEvidence.includes('role="progressbar"'), 'trust evidence aggregate quality visualization must remain accessible');
 assert.ok(trustEvidence.includes('أغلق المشكلات الحرجة'), 'trust evidence must route critical data-quality pressure to an actionable next step');
