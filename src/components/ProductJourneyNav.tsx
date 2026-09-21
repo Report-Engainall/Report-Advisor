@@ -10,7 +10,7 @@ const steps: JourneyStep[] = [
   { path: '/decision-experience', label: 'الموافقة', description: 'قرار موثق', icon: ShieldCheck, stage: 'approval' },
   { path: '/decision-experience', label: 'الإجراء', description: 'Work → Next Action', icon: Target, stage: 'work' },
   { path: '/decision-experience', label: 'التعلّم', description: 'Expected → Actual', icon: BookOpen, stage: 'outcome' },
-  { path: '/reports/executive', label: 'القصة', description: 'Executive report', icon: Route },
+  { path: '/reports/executive', label: 'المخرجات', description: 'Executive report', icon: Route },
 ];
 
 export function ProductJourneyNav() {
@@ -26,24 +26,29 @@ export function ProductJourneyNav() {
   };
 
   return (
-    <nav aria-label="نموذج تشغيل الأغبري" className="mb-6">
-      <div className="flex items-center gap-2 overflow-x-auto rounded-2xl border border-ink-200/70 bg-white px-2.5 py-2 shadow-card">
-        <div className="hidden shrink-0 px-2 text-[10px] font-black tracking-[0.12em] text-primary-700 md:block">MODEL</div>
+    <nav aria-label="مسار المنتج" className="ag-journey mb-5" role="navigation">
+      <div className="ag-journey-track">
+        <div className="ag-journey-brand">
+          <span className="ag-journey-brand-mark"><Target size={13}/></span>
+          <span>مسار القرار</span>
+        </div>
         {steps.map(({ path, label, description, icon: Icon, stage }, index) => {
           const active = location.pathname === path && (!stage || currentParams.get('stage') === stage);
           return (
             <Link
               key={path + '-' + label}
               to={hrefFor(path, stage)}
-              className={'group flex min-w-[145px] items-center gap-2 rounded-xl px-3 py-2 text-right transition ' + (active ? 'bg-ink-950 text-white' : 'text-ink-600 hover:bg-ink-50')}
+              className={'ag-journey-link ' + (active ? 'ag-journey-link-active' : '')}
               aria-current={active ? 'step' : undefined}
+              title={description}
             >
-              <span className={'flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ' + (active ? 'bg-primary-600 text-white' : 'bg-ink-100 text-ink-500 group-hover:bg-primary-50 group-hover:text-primary-700')}><Icon size={15}/></span>
-              <span className="min-w-0">
-                <span className="block text-xs font-black">{String(index + 1).padStart(2,'0')} · {label}</span>
-                <span className={'mt-0.5 block truncate text-[9px] ' + (active ? 'text-white/60' : 'text-ink-400')}>{description}</span>
+              <span className="ag-journey-index">{String(index + 1).padStart(2, '0')}</span>
+              <span className={'ag-journey-icon ' + (active ? 'ag-journey-icon-active' : '')}><Icon size={14}/></span>
+              <span className="ag-journey-copy">
+                <span className="ag-journey-label">{label}</span>
+                <span className="ag-journey-description">{description}</span>
               </span>
-              {index < steps.length - 1 && <ArrowLeft size={13} className="mr-auto shrink-0 opacity-30"/>}
+              {index < steps.length - 1 && <ArrowLeft size={12} className="ag-journey-arrow" aria-hidden="true"/>}
             </Link>
           );
         })}
