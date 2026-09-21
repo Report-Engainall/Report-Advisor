@@ -1,3 +1,27 @@
+## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-CORE-RESILIENCE-UI-28
+- SESSION-ID → `2026-09-21-AGHBARI-CORE-RESILIENCE-UI-28`
+- BRANCH → `main`
+- EXACT CURRENT MAIN HEAD → `403d6af5211482fd9086668136b2902707970e41`
+- DONE → materially hardened the canonical import authority: server re-downloads authoritative source bytes, verifies SHA-256, re-extracts and reconciles server-side, enforces authoritative quality gates, and passes only server-derived rows into the existing durable lifecycle.
+- DONE → explicit `qualityApproved` was added to the canonical durable import contract; <50 rejects, 50–74 requires explicit approval, 75+ passes the review gate.
+- DONE → source readiness ordering was corrected so execute-mode `file_records` is not marked ready/passed before authoritative extraction/reconciliation.
+- DONE → scanned-PDF OCR now fails closed with the explicit boundary `PDF_SCANNED_IMAGE_ONLY_SERVER_AUTHORITY_UNAVAILABLE` when the server lacks an authoritative OCR-capable runtime; browser-only OCR can no longer masquerade as server-authoritative import truth.
+- DONE → Decision Experience UI now exposes actual recommendation owner, deadline, status, expected impact and impact-result context, plus a decision-readiness strip. No synthetic decision state was added.
+- DONE → Work Center now reads the existing durable `report_execution_jobs` table for queued/active/expired lease health and displays a partial-read state when the 500-row diagnostic window is insufficient.
+- DONE → added forward-only migration `20260921170000_reconcile_expired_worker_recovery_retryable.sql` so fresh environments reproduce the live recovery contract: retryable expired leases → queued; exhausted attempts → dead_letter; service_role-only execution.
+- LIVE CORE RECOVERY → staging Supabase `fnqbvfuwbdpwvhcgzksl` had 5 `processing` jobs with expired leases. All 5 were recovered through the existing canonical `recover_expired_report_execution_jobs(uuid,integer)` function. Before recovery: active=5, expired=5, oldest expiry 2026-09-20. After recovery: active expired leases=0; queued=563; completed=3104; failed=10; dead_letter=7.
+- LIVE RECOVERY RESULT → the 5 recovered jobs were at attempt 1/3, so the canonical function returned them to `queued` rather than dead-lettering them. No custom recovery path or bypass was used.
+- LIVE DATABASE SECURITY → `current_company_id()` and authoritative `import_commit_batch(uuid,text,jsonb,text,text,uuid)` remain tenant/source fenced; worker RPCs are service_role-only in the live contract. `report_execution_jobs` lease/checkpoint/complete/fail functions require the active lease token and expiry.
+- SOURCE PARITY → live staging recovery behavior was found ahead of the older migration source; this wave adds the forward-only migration to eliminate that drift without rewriting history.
+- EXACT VERIFICATION → current HEAD `403d6af5...` re-read from GitHub. Modified UI/contract/server files were re-read from current main. The Vercel status remains the known free-plan `build-rate-limit` failure; no current-head Build/E2E/Runtime PASS is claimed.
+- DEPLOYMENT BOUNDARY → Netlify deploy connector currently requires a source/repository execution environment to run the provided deploy command; no Netlify current-head deployment PASS is claimed from this wave.
+- BUILD/RUNTIME BOUNDARY → exact-head typecheck/build/authenticated browser E2E/Phase-F live backup-RPO-RTO/OCR runtime proof remain open. PC01 is offline.
+- PRECISE STOP POINT → current main contains the core provenance hardening, worker recovery parity, explicit scanned-PDF authority boundary, decision UI enrichment, and live Work Center worker-health read. The live staging worker backlog is no longer carrying expired active leases.
+- WHAT REMAINS → exact-head compile/deploy/runtime proof; Phase-F live resilience probes; backup/restore verification and RPO/RTO; true server-side scanned-PDF OCR capability; authenticated tenant A/B E2E; watched-folder runtime; final certification.
+- NEXT ACTION → execute the next independent runtime closure available (Phase-F/backup/OCR capability) without reopening closed import/worker work; maintain UI development on any weak canonical surface encountered.
+- DO NOT REPEAT → do not recreate import authority, quality gate, recovery RPC, or worker lease fencing; do not transfer old PASS; do not write fake backup evidence; do not convert browser OCR into authoritative server evidence.
+- CURRENT RESUME POINTER → `403d6af5211482fd9086668136b2902707970e41` → Phase-F/backup/OCR runtime closure → exact-head build/deploy/browser → tenant A/B → watched folder → final certification.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-CORE-IMPORT-HARDENING-27
 - SESSION-ID → `2026-09-21-AGHBARI-CORE-IMPORT-HARDENING-27`
 - BRANCH → `main`
