@@ -1199,3 +1199,11 @@ This update records implementation state only; it does not replace the product c
 - Decision Experience now surfaces actual owner/deadline/status/expected-impact/impact-result fields already present in recommendation records.
 - Work Center now surfaces durable worker health with explicit partial-read semantics.
 - Scanned-PDF OCR remains fail-closed server-side until a true authoritative OCR-capable runtime is available.
+
+
+## IMPLEMENTATION UPDATE — 2026-09-21 / CONTINUOUS EXECUTION WAVE 29
+- Corrected a real current-head AnalyticsPage import defect: the analytics hero used `ChartNoAxesCombined` without importing it.
+- Removed the unused `BarChart3` import from the same file.
+- Product shape is unchanged: unified source-first import, canonical 8-zone information architecture, progressive disclosure, Aghbari RTL design system, and evidence-first states remain binding.
+- No new route, importer, RPC, runner, job family, table, tenant/RLS path, or deterministic calculation was introduced.
+- Runtime boundary remains explicit: exact-head deployment/build/browser proof is not current PASS while Vercel is blocked by free-plan build-rate limit.
