@@ -2,7 +2,7 @@
 
 > Exact-head evidence only.
 
-- **CURRENT REPOSITORY HEAD:** `42c89ef31bc67a20c66fd7f22d8325ecb642a71f` on `main` after merging PR #608.
+- **WAVE-45 CODE/MERGE ANCHOR:** `42c89ef31bc67a20c66fd7f22d8325ecb642a71f` after merging PR #608; subsequent changes in this boundary are governance write-backs..
 - **UI DONE:** Report Center now consumes the canonical dashboard snapshot, shows truth posture/As-of/core financial context, provides a context-aware next action, and refreshes in place.
 - **UI CONTRACT DONE:** `check-product-wow-ui-contract.mjs` guards the snapshot, next-action, refresh and no-synthetic-data requirements.
 - **STAGING BACKUP OBSERVATION:** `backup_verification_runs=0`; PostgreSQL WAL archiver reports 3195 archived segments and 21 failed segments, with the last archived WAL timestamp at 2026-09-21 17:26:30 UTC. This does not constitute a restore drill or RPO/RTO PASS.
