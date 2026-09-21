@@ -1245,3 +1245,9 @@ This update records implementation state only; it does not replace the product c
 - The canonical Decision Experience conditional is structurally valid and its readiness UI remains based on existing recommendation data.
 - UI route completeness now treats `/proposal-demo` as an explicitly permitted internal progressive-disclosure route rather than a primary navigation category.
 - No new top-level navigation section or product taxonomy was introduced.
+
+
+## IMPLEMENTATION UPDATE — 2026-09-21 / LATEST DECISION FRAGMENT REPAIR
+- Decision Experience `command` stage now wraps its sibling readiness and command-grid sections in one Fragment under the existing stage condition.
+- This is a presentation-only structural repair; decision data, mutation paths, deterministic calculations, tenant/RLS and approval semantics are unchanged.
+- Current product-code candidate: `175fb6d0a417c12ed9809a6a0489d844fa096065`.
