@@ -244,3 +244,13 @@ There is one execution owner. Do not resurrect the previous UI/runtime owner spl
 - **Current verification boundary:** no typecheck/build/browser PASS is claimed for `3de20014...`. PC01 is offline and the connected container cannot resolve GitHub, preventing a local checkout/build. GitHub combined status currently reports only the known Vercel free-plan `build-rate-limit` failure.
 - **Next executable action:** continue the next weak canonical surface with real UI/product-value improvement; then pursue exact-head compile/deployment/runtime proof.
 - **DO NOT REPEAT:** do not recreate the newly polished scenario, truth-gate or data-quality surfaces; do not invent backend paths; do not transfer evidence across SHAs.
+
+
+## LATEST EXECUTION OVERRIDE — 2026-09-21 / CORE IMPORT PROVENANCE HARDENING
+- **Exact current main HEAD:** `aaf3b07e2399718c8efe379c328d96ed149ea2a4`.
+- **Core correction:** canonical import server execution now derives rows from authoritative source bytes, re-runs reconciliation server-side, and enforces server-authoritative quality thresholds plus explicit review approval.
+- **State-order correction:** source/file readiness is not committed before authoritative extraction for execute mode.
+- **UI correction:** import result/snapshot uses server-authoritative count/quality/preview/columns returned from the exact source.
+- **Contract guard:** `scripts/check-import-transaction-contract.mjs` now asserts these authoritative-server invariants.
+- **Live Supabase proof:** current staging is healthy; canonical generic substrate is installed, tenant/RLS boundaries are present, and the authoritative import RPC verifies tenant/source provenance in its live function body.
+- **Open runtime blockers:** exact-head build/runtime/deployment, authenticated E2E, worker resilience, backup/RPO-RTO, OCR/scanned-PDF server authority, watched-folder runtime, final certification.
