@@ -107,6 +107,14 @@ export function WorkCenterPage() {
       </Card>
     </section>
 
+    <section className="ag-decision-strip" aria-label="ملخص التشغيل">
+      <div className="ag-decision-cell"><span className="ag-decision-label">إجمالي السجل</span><span className="ag-decision-value">{formatNumber(rows.length)}</span></div>
+      <div className="ag-decision-cell"><span className="ag-decision-label">نشطة</span><span className="ag-decision-value">{formatNumber(counts.active)}</span></div>
+      <div className="ag-decision-cell"><span className="ag-decision-label">تحتاج مراجعة</span><span className="ag-decision-value">{formatNumber(counts.review)}</span></div>
+      <div className="ag-decision-cell"><span className="ag-decision-label">مكتملة</span><span className="ag-decision-value">{formatNumber(counts.completed)}</span></div>
+      <div className="ag-decision-cell"><span className="ag-decision-label">فشل / إلغاء</span><span className="ag-decision-value">{formatNumber(counts.failed)}</span></div>
+    </section>
+
     <Card>
       <CardHeader title="طابور العمل" subtitle="ابدأ من الاستثناءات والحالات النشطة، ثم انتقل إلى السجل الكامل عند الحاجة."/>
       <CardBody>
