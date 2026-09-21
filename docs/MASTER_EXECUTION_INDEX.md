@@ -234,3 +234,13 @@ There is one execution owner. Do not resurrect the previous UI/runtime owner spl
 - **Deployment/runtime boundary:** no READY/PASS is claimed for this SHA; authenticated browser evidence remains unavailable while PC01 is offline.
 - **Next executable action:** continue with the next weak canonical surface and responsive/accessibility/value polish, while pursuing exact-head deployment/runtime proof when free hosting capacity permits.
 - **Do not repeat:** do not recreate prior shell, navigation, import, intelligence or trust panels; do not expose internal importer taxonomy; do not transfer old deployment/runtime evidence.
+
+
+## LATEST EXECUTION OVERRIDE — 2026-09-21 / CONTINUOUS DEVELOPMENT WAVE 26
+- **Authoritative exact repository HEAD:** `3de200146403ff4e1dae105837dd37af3eff3f50` on `main`.
+- **Current UI work completed:** `CanonicalScenarioPage.tsx`, `ScenarioTruthGuardPage.tsx`, and `DataQualitySnapshotPage.tsx` were materially improved for product value, responsive structure, state clarity, actionability and truth-boundary communication.
+- **Architecture boundary:** no route/RPC/runner/import lifecycle/tenant-RLS/calculation engine changes.
+- **Exact file verification:** all three current UI files were re-read from GitHub after their commits on the current `main` head.
+- **Current verification boundary:** no typecheck/build/browser PASS is claimed for `3de20014...`. PC01 is offline and the connected container cannot resolve GitHub, preventing a local checkout/build. GitHub combined status currently reports only the known Vercel free-plan `build-rate-limit` failure.
+- **Next executable action:** continue the next weak canonical surface with real UI/product-value improvement; then pursue exact-head compile/deployment/runtime proof.
+- **DO NOT REPEAT:** do not recreate the newly polished scenario, truth-gate or data-quality surfaces; do not invent backend paths; do not transfer evidence across SHAs.
