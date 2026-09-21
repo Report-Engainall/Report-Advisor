@@ -1,3 +1,17 @@
+## IMPLEMENTATION UPDATE — 2026-09-21 / WAVE 54 — EXACT-SHA PHASE-F + LIVE SECURITY/DB CLOSURE
+
+- Exact current code/test head before governance: `2c9b4756b43e2415fda8b37ea367d02c8570c22f`.
+- Phase-F exact deployment binding: probe `97a52c0772089609ee3a5a5fb346839a3f8c6601`; runtime-closure guard `91536018fb02b8918874c28ecedfb8ef7d5e5df3`.
+- The live Phase-F health probe now fails closed unless the runtime reports `deployment_sha === EXACT_HEAD` and a non-empty `deployment_id`; `api/health.mjs` already exposes both `VERCEL_GIT_COMMIT_SHA` and `VERCEL_DEPLOYMENT_ID`.
+- Live staging security drift closure: the existing repo migration `20260830061000_close_public_rpc_advisor_gaps` was applied to `Report-Advisor-P0-2-Staging` (`fnqbvfuwbdpwvhcgzksl`), recorded live as migration version `20260921182639`. Result: `get_data_quality_snapshot()` is SECURITY INVOKER and `record_watched_report_file(...)` is no longer executable by `authenticated` or `anon`.
+- Supabase security advisor after that closure reports 46 authenticated-executable SECURITY DEFINER findings plus one leaked-password-protection warning. No blanket revoke was performed; remaining functions require function-by-function authorization/tenant-boundary review.
+- Live staging performance closure: six FK-covering indexes were added for `import_field_lineage` and `import_job_rows`; the migration was recorded live as version `20260921182858` with name `20260921183000_import_fk_performance_indexes`.
+- Performance advisor now shows no `unindexed_foreign_keys` finding for this import lineage path; remaining `unused_index` findings are informational and were not removed blindly.
+- Current staging operational observations: import jobs `completed=3066`, `failed=1249`, `processing=151`; report execution jobs `completed=3126`, `dead_letter=7`, `failed=10`, `queued=564`. These are live observations, not certification.
+- Public-schema safety check: 103/103 tables reported RLS enabled on staging.
+- No new route, RPC, import engine, runner, calculation path or tenant model was introduced by these closures; the Phase-F change is a test/probe contract and the DB changes use existing governed migrations.
+- Exact-head Vercel status remains fail-closed: `failure` / `build-rate-limit`, deployment context `pending` for the current head.
+
 ## IMPLEMENTATION UPDATE — 2026-09-21 / WAVE 53 — DECISION TRUTH SEMANTICS
 
 - Exact code/test candidate: `3ab9e99a41676b22a6b61fe35db7891c7f170eac`.
