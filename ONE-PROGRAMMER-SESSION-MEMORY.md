@@ -1,3 +1,11 @@
+## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-39
+- SESSION-ID → `2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-39`
+- EXACT PRODUCT CODE HEAD → `e6c39323eb0c0177b1de73c3b276ce9491fd07f0`
+- DONE → fixed the single exact-head ESLint error in `src/lib/import/canonical-commit.ts`: provenance is now represented by a type alias, and canonical mapping receives the full reconciled row rather than a provenance-less object.
+- VERIFIED → the prior quality run on `167fcaf…` had Build PASS and Performance Budget PASS; its sole lint blocker is now corrected on `e6c39323eb0c0177b1de73c3b276ce9491fd07f0`. No old PASS is transferred as current certification.
+- CURRENT RESUME POINTER → `e6c39323eb0c0177b1de73c3b276ce9491fd07f0` → consume fresh exact-head quality/build/performance/certification/browser → Phase-F/backup/OCR → tenant A/B/watched folder → final certification.
+- DO NOT REPEAT → do not weaken lint/performance gates or transfer the pre-fix lint failure to the new candidate.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-38
 - SESSION-ID → `2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-38`
 - EXACT PRODUCT CODE HEAD → `167fcaf05400af135d76e1409a8dc8d26cf2f65f`
