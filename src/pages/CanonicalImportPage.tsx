@@ -25,6 +25,7 @@ const DOMAIN_LABELS: Record<string, string> = {
   'supplier-balances': 'بيانات علاقات وأرصدة',
   'stock-movement': 'حركة تشغيلية',
   unknown: 'نطاق دلالي غير محسوم',
+  'general-source': 'بيانات عامة / تحتاج تصنيفًا أعمق',
 };
 
 function normalizeSemanticToken(value: unknown): string {
@@ -45,7 +46,11 @@ function inferGenericDomain(dataset: Dataset): { domain: string; confidence: num
 
   const best = scores[0];
   if (!best || best.hits < 2) {
-    return { domain: 'unknown', confidence: 0, reason: 'تم فهم بنية الملف، لكن لم تتوفر إشارات كافية لتثبيت نطاق أعمال بعينه.' };
+    return {
+      domain: 'general-source',
+      confidence: 0,
+      reason: 'فهم النظام بنية المصدر، لكن لم يثبت نطاقًا متخصصًا. سيُحفظ كمصدر عام دون افتراض هوية أعمال غير مدعومة.',
+    };
   }
   const confidence = Math.min(99, Math.round(best.hits / 6 * 100));
   return {
@@ -363,7 +368,7 @@ export function CanonicalImportPage() {
           <Database size={18} className="mt-0.5 shrink-0 text-primary-700"/>
           <div>
             <div className="text-sm font-black text-ink-900">لا تختَر نوع السجل قبل قراءة الملف</div>
-            <p className="mt-1 text-xs leading-5 text-ink-600">يرفع المستخدم الملف أولًا؛ النظام يقرأ الصيغة والأعمدة والمحتوى ثم يقترح التخصص. النظام يحدد النطاق دلاليًا بعد الفهم، ويطلب مراجعة عندما لا تكون الأدلة كافية.</p>
+            <p className="mt-1 text-xs leading-5 text-ink-600">يرفع المستخدم الملف أولًا؛ النظام يقرأ الصيغة والأعمدة والمحتوى ثم يفهم طبيعة البيانات دلاليًا. وعند غياب إشارة كافية لنطاق متخصص، يحفظ المصدر كبيانات عامة دون افتراض غير مدعوم.</p>
           </div>
         </div>
       </div>
