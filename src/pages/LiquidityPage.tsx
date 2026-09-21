@@ -20,7 +20,7 @@ export function LiquidityPage() {
 
   const load = useCallback(async (silent = false) => {
     try {
-      silent ? setRefreshing(true) : setLoading(true);
+      if (silent) setRefreshing(true); else setLoading(true);
       setError(null);
       const snapshot = await fetchDashboardSnapshot(6);
       setKpis(snapshot.kpis);
