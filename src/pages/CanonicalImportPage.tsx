@@ -37,6 +37,15 @@ const STEPS: Array<{ key: Step; label: string }> = [
   { key: 'done', label: 'النتيجة' },
 ];
 
+const IMPORT_EVIDENCE_STAGES = [
+  { at: 10, label: 'المصدر مقروء', detail: 'تم تجهيز الملف للمعالجة.' },
+  { at: 30, label: 'المصدر محفوظ', detail: 'تم رفع المصدر إلى مساحة الوثائق.' },
+  { at: 45, label: 'مهمة الاستيراد منشأة', detail: 'تم فتح سجل تشغيل حقيقي للمصدر.' },
+  { at: 60, label: 'الحقيقة الكانونية جاهزة', detail: 'تم اجتياز حدود المصالحة قبل التنفيذ.' },
+  { at: 88, label: 'النتيجة authoritative وصلت', detail: 'عاد المسار الكانوني بنتيجة قابلة للاعتماد.' },
+  { at: 100, label: 'الاعتماد النهائي مسجل', detail: 'تم تسجيل الحالة النهائية في سجل الاستيراد.' },
+] as const;
+
 function icon(format: FileFormat) {
   if (['xlsx', 'xls', 'xlsm', 'csv', 'tsv', 'ods'].includes(format)) return <FileSpreadsheet size={18} />;
   if (['pdf', 'docx', 'doc', 'rtf'].includes(format)) return <FileText size={18} />;
@@ -382,7 +391,7 @@ export function CanonicalImportPage() {
       </div>}
     </div>}
 
-    {step === 'saving' && <Card><CardBody><div className="flex flex-col items-center py-12 gap-4"><Loader2 className="animate-spin text-primary-500" size={34}/><b>جارٍ اعتماد المصدر وفهمه ضمن النموذج العام...</b><span className="text-lg font-semibold">{progress}%</span><div className="w-full max-w-xl h-2 bg-ink-100 rounded-full overflow-hidden"><div className="h-full bg-primary-500 rounded-full transition-all" style={{width:`${progress}%`}}/></div><p className="text-xs text-ink-400">يتم اعتماد المصدر عبر مسار الحقيقة الكانونية العامة مع بصمته وسياقه وجودته، ولا يُعلن نجاح الاعتماد إلا بعد إتمام مسار الكتابة الفعلي.</p></div></CardBody></Card>}
+    {step === 'saving' && <Card><CardBody><div className="flex flex-col items-center py-10 gap-5">      <Loader2 className="animate-spin text-primary-500" size={34}/>      <div className="text-center"><b className="block">جارٍ اعتماد المصدر وفهمه ضمن النموذج العام...</b><span className="mt-2 block text-lg font-semibold">{progress}%</span></div>      <div className="w-full max-w-2xl h-2 bg-ink-100 rounded-full overflow-hidden"><div className="h-full bg-primary-500 rounded-full transition-all" style={{width:`${progress}%`}}/></div>      <div className="grid w-full max-w-2xl gap-2 sm:grid-cols-2 lg:grid-cols-3" aria-label="مراحل الاستيراد المثبتة">        {IMPORT_EVIDENCE_STAGES.map(stage => {          const complete = progress >= stage.at;          const active = !complete && progress > Math.max(0, stage.at - 20);          return <div key={stage.at} className={complete ? "rounded-xl border border-success-200 bg-success-50/70 p-3" : active ? "rounded-xl border border-primary-200 bg-primary-50/60 p-3" : "rounded-xl border border-ink-100 bg-ink-50/40 p-3"}>            <div className="flex items-center gap-2">              {complete ? <CheckCircle2 size={15} className="text-success-700"/> : active ? <Loader2 size={15} className="animate-spin text-primary-700"/> : <span className="h-3.5 w-3.5 rounded-full border-2 border-ink-200"/>}              <span className="text-[11px] font-black text-ink-800">{stage.label}</span>            </div>            <p className="mt-1 text-[10px] leading-5 text-ink-500">{stage.detail}</p>          </div>;        })}      </div>      <p className="text-xs text-ink-400">لا نعلن «اعتمادًا» من الواجهة وحدها؛ الحالة النهائية لا تظهر إلا بعد نجاح مسار الكتابة الكانوني الفعلي.</p>    </div></CardBody></Card>}
 
     {step === 'done' && result && <Card><CardBody><div className="flex flex-col items-center py-10 gap-4"><CheckCircle2 className="text-success-500" size={52}/><h3 className="text-xl font-semibold">تم اعتماد المصدر</h3><div className="grid grid-cols-2 gap-3 w-full max-w-lg text-center"><div className="p-3 rounded-lg bg-ink-50"><div className="text-xs text-ink-400">الصفوف المقروءة</div><b>{formatNumber(result.total)}</b></div><div className="p-3 rounded-lg bg-primary-50"><div className="text-xs text-primary-700">ثقة فهم المصدر</div><b>{result.understandingConfidence ?? 0}%</b></div></div><p className="text-xs text-ink-400">Snapshot ID: {result.snapshotId ?? 'غير متاح'}</p><p className="max-w-xl text-center text-[11px] leading-5 text-ink-500">تم اعتماد المصدر في طبقة البيانات الكانونية العامة مع بصمته وسياقه وجودته، دون فرض نوع سجل أو مسار استيراد متخصص.</p><button type="button" onClick={reset} className="btn-primary"><Upload size={14}/> تحليل ملف آخر</button></div></CardBody></Card>}
 
