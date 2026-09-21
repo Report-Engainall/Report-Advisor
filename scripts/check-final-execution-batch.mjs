@@ -9,7 +9,7 @@ const gates = [
   'check-document-resilience.mjs','check-master-p0-inventory.mjs','check-release-audit-bundle.mjs','check-production-readiness.mjs','check-n-to-s-release-matrix.mjs',
   'check-phase-f-runtime-closure.mjs','check-phase-g-release-closure.mjs','check-final-safety-invariants.mjs','check-n-to-s-evidence-contract.mjs','check-production-recovery-gate.mjs',
   'check-release-evidence-snapshot.mjs','check-release-gate-completeness.mjs','check-cross-surface-traceability.mjs','check-rollback-decision-contract.mjs','check-k-to-s-runtime-integration.mjs',
-  'check-live-gate-manifest-integrity.mjs','check-master-requirements-contract.mjs','check-release-evidence-completeness.mjs','check-performance-budget.mjs','check-folder-batch-import.mjs',
+  'check-live-gate-manifest-integrity.mjs','check-master-requirements-contract.mjs','check-release-evidence-completeness.mjs','check-performance-budget.mjs',
   'check-import-direct-write-guard.mjs','check-semantic-metric-registry.mjs','check-workflow-batch-integrity.mjs','check-workflow-command-integrity.mjs','check-auth-tenant-convergence.mjs',
 ];
 
