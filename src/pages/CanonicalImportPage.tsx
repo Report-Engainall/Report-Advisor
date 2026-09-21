@@ -16,13 +16,13 @@ type Step = 'upload' | 'scanning' | 'preview' | 'saving' | 'done';
 interface Row { rowNumber: number; data: Record<string, any>; valid: boolean; error?: string }
 
 const DOMAIN_LABELS: Record<string, string> = {
-  inventory: 'بيانات تشغيلية / مخزون',
-  sales: 'نشاط تجاري / مبيعات',
-  purchases: 'نشاط تجاري / مشتريات',
-  customerBalances: 'علاقات العملاء / أرصدة',
-  supplierBalances: 'علاقات الموردين / أرصدة',
+  inventory: 'بيانات تشغيلية',
+  sales: 'نشاط تجاري',
+  purchases: 'نشاط توريد',
+  customerBalances: 'بيانات علاقات وأرصدة',
+  supplierBalances: 'بيانات علاقات وأرصدة',
   stockMovement: 'حركة تشغيلية',
-  unknown: 'نطاق غير محسوم بعد',
+  unknown: 'نطاق دلالي غير محسوم',
 };
 
 function normalizeSemanticToken(value: unknown): string {
@@ -254,7 +254,7 @@ export function CanonicalImportPage() {
 
     {step === 'upload' && <Card><CardBody>
       <div className="flex flex-wrap items-start justify-between gap-3 mb-5">
-        <div><h2 className="text-lg font-semibold">ابدأ عملية استيراد موثوقة</h2><p className="text-sm text-ink-500 mt-1">لا تتم الكتابة قبل اجتياز الفحص والمراجعة والتحقق من سياق الحساب.</p></div>
+        <div><h2 className="text-lg font-semibold">ابدأ عملية استيراد موثوقة</h2><p className="text-sm text-ink-500 mt-1">لا يتم إدخال البيانات إلى الحقيقة الكانونية قبل اكتمال فهم المصدر وعقد الكتابة العام.</p></div>
         <Badge variant="neutral"><LockKeyhole size={13}/> عزل الحساب مفعل</Badge>
       </div>
       <div className="mb-5 rounded-[14px] border border-primary-100 bg-primary-50/50 p-4">
