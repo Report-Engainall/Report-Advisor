@@ -179,27 +179,8 @@ export function DashboardPage() {
     };
   }, [recommendations]);
 
-  if (loading) return <LoadingState message="جارٍ بناء صورة الأعمال من المصدر..." />;
-  if (error) return <ErrorState message={error} onRetry={() => void load()} />;
-  if (!kpis || !aging) return null;
-
-  const evidenceMetrics = [
-    kpis.totalSales,
-    kpis.grossProfit,
-    kpis.totalReceivables,
-    kpis.inventoryValue,
-    kpis.totalCustomers,
-    kpis.totalProducts,
-    kpis.invoiceCount,
-    kpis.collectionRate,
-  ];
-  const coverage = Math.round((evidenceMetrics.filter((value) => value !== null).length / evidenceMetrics.length) * 100);
-  const emptyAnalysisAction = kpis.status === 'INSUFFICIENT_DATA'
-    ? { to: '/data-quality', label: 'مراجعة جودة البيانات' }
-    : { to: '/analytics', label: 'فتح التحليل' };
-
   const dashboardNextAction = useMemo(() => {
-    if (kpis.status === 'INSUFFICIENT_DATA') {
+    if (kpis?.status === 'INSUFFICIENT_DATA') {
       return {
         to: '/data-quality',
         label: 'مراجعة جودة البيانات',
@@ -237,7 +218,26 @@ export function DashboardPage() {
       title: 'الصورة صالحة للمتابعة والتحليل',
       description: 'لا توجد إشارة عاجلة أو قرارات معلقة؛ انتقل إلى التحليل لاستخراج الفرص والقيم الداعمة للقرار.',
     };
-  }, [kpis.status, decisionAccountability.pending, liveAlerts, trend]);
+  }, [kpis?.status, decisionAccountability.pending, liveAlerts, trend]);
+
+  if (loading) return <LoadingState message="جارٍ بناء صورة الأعمال من المصدر..." />;
+  if (error) return <ErrorState message={error} onRetry={() => void load()} />;
+  if (!kpis || !aging) return null;
+
+  const evidenceMetrics = [
+    kpis.totalSales,
+    kpis.grossProfit,
+    kpis.totalReceivables,
+    kpis.inventoryValue,
+    kpis.totalCustomers,
+    kpis.totalProducts,
+    kpis.invoiceCount,
+    kpis.collectionRate,
+  ];
+  const coverage = Math.round((evidenceMetrics.filter((value) => value !== null).length / evidenceMetrics.length) * 100);
+  const emptyAnalysisAction = kpis.status === 'INSUFFICIENT_DATA'
+    ? { to: '/data-quality', label: 'مراجعة جودة البيانات' }
+    : { to: '/analytics', label: 'فتح التحليل' };
 
   return (
     <div dir="rtl" className="animate-fade-in space-y-5 pb-10">
