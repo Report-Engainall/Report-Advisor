@@ -121,6 +121,15 @@ assert.ok(dataQuality.includes('راجع مشكلات الجودة'), 'non-criti
 assert.ok(dataQuality.includes('انتقل للتحليل'), 'clean data quality must expose the analytics next step');
 assert.ok(dataQuality.includes('to: \'/analytics\''), 'clean data quality action must use the canonical analytics route');
 
+const connections = fs.readFileSync('src/pages/ConnectionsPage.tsx', 'utf8');
+assert.ok(connections.includes('const availableCount = connectors.filter(connector => connector.state === \'available\').length'), 'connections summary must derive proven-path count from connector state');
+assert.ok(connections.includes('const boundedCount = connectors.filter(connector => connector.state === \'bounded\').length'), 'connections summary must derive bounded-path count from connector state');
+assert.ok(connections.includes('const adapterCount = connectors.filter(connector => connector.state === \'adapter\').length'), 'connections summary must derive adapter-path count from connector state');
+assert.ok(connections.includes('{availableCount}'), 'connections summary must render the live proven-path count');
+assert.ok(connections.includes('{boundedCount}'), 'connections summary must render the live bounded-path count');
+assert.ok(connections.includes('{adapterCount}'), 'connections summary must render the live adapter-path count');
+assert.ok(connections.includes('{nextLabel}'), 'connections summary must derive the next action from the available connector state');
+
 const analytics = fs.readFileSync('src/pages/AnalyticsPage.tsx', 'utf8');
 assert.ok(analytics.includes('function AnalyticsStatusStrip'), 'analytics must expose one shared truth/status strip');
 assert.ok(analytics.includes('لا يتم تصنيع قيم بديلة'), 'analytics must state the no-fabrication rule');
