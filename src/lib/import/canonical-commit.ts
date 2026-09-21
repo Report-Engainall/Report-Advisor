@@ -34,7 +34,7 @@ function requiredBoolean(value: unknown, field: string, rowNumber: number): bool
 
 function canonicalizeRow(entityType: CanonicalImportEntityType, row: CanonicalImportRow): Record<string, unknown> {
   if (entityType.startsWith('generic:')) {
-    if (!/^generic:[A-Za-z][A-Za-z0-9_-]{0,63}$/.test(entityType)) throw new Error('IMPORT_GENERIC_DOMAIN_INVALID');
+    if (!/^generic:[a-z][a-z0-9_-]{0,63}$/.test(entityType)) throw new Error('IMPORT_GENERIC_DOMAIN_INVALID');
     return {
       row_number: row.rowNumber,
       record_key: `source-row:${row.rowNumber}`,
