@@ -1,3 +1,14 @@
+## CURRENT EXECUTION BOUNDARY — 2026-09-21 / WAVE 57 — CURRENT-SHA UI CONTRACT REPAIR
+
+> Exact-head evidence only. No historical deployment/runtime result is transferred.
+
+- CURRENT CODE/TEST CANDIDATE: `c88abe725b066d8bbeb80de629be6198791d1523`.
+- DONE: corrected the Work Center UI contract guard so it asserts the actual null-safe `expiredActive` expression used by the current implementation.
+- ROOT CAUSE OF THE FRESH CERTIFICATION FAIL: source guard drift, not a product/runtime failure.
+- NO ARCHITECTURE CHANGE: only `scripts/check-product-wow-ui-contract.mjs` changed in this correction.
+- PRECISE NEXT ACTION: consume fresh quality/enforcement/final-certification runs for `c88abe...`; repair only a reproduced current-SHA failure, then backup/RPO-RTO → worker/server-boundary → tenant A/B → server OCR → watched-folder → final certification.
+- DO NOT REPEAT: do not restore the stale literal assertion; do not weaken the guard to accept both correct and incorrect optional-state implementations; do not transfer certification from `88323...`.
+
 ## CURRENT EXECUTION BOUNDARY — 2026-09-21 / WAVE 56 — EXACT-HEAD CERTIFICATION REBIND
 
 > Exact-head evidence only. No historical deployment/runtime result is transferred.
@@ -497,15 +508,3 @@ There is one execution owner. Do not resurrect the previous UI/runtime owner spl
 3. عدم تشتيت المستخدم الأساسي أو إعادة المنتج إلى taxonomy ضخمة.
 
 **Progressive Disclosure إلزامي:** كلما كانت القدرة أقل تكرارًا أو أكثر تخصصًا، يُفضّل أن تظهر داخل المساحة الأم، عبر تبويب/Drawer/قسم متقدم، أو ضمن Advanced/Expert navigation بدل إضافتها إلى المستوى الأول.
-
-### NON-NEGOTIABLE EXECUTION RULES
-- لا تُنقل نتيجة أو Evidence أو PASS بين SHAs.
-- لا تغيّر المسارات authoritative لمجرد تجميل الواجهة.
-- لا Runner جديد، لا RPC جديد، لا fake KPI/data/session/JWT/evidence، ولا bypass.
-- اعمل على الجبهات المستقلة بالتوازي؛ blocker واحد لا يوقف العمل المستقل.
-- بعد كل دفعة جوهرية: exact SHA → verification → memory update.
-- الأولوية للمساحة: lazy routes/chunks، إزالة التكرار، تقليل assets/dependencies، consolidation قبل الإضافة.
-- لا تعاود اختبار ما أُغلق إلا عند تغير SHA أو البيئة أو العقد.
-- لا تعتبر المنتج مكتملًا بمرور build فقط؛ المطلوب UX + truth + persistence + runtime + evidence + CI + deployment.
-
-## DEEP AUDIT — 2026-09-07
