@@ -113,6 +113,35 @@ export default async (request: Request): Promise<Response> => {
     const detection = detectFormat(sourceFile, bytes.buffer);
     if (detection.format === 'unknown') throw new Error('AUTHORITATIVE_SOURCE_FORMAT_UNKNOWN');
 
+    if (mode === 'finalize-source') {
+      return json(200, { importId: job.id, sourceHash: sourceSha });
+    }
+
+    const authoritativeDatasets = await parseFile(bytes.buffer, fileRecord.file_name || payload.fileName || 'import', detection.format);
+    const authoritativeDataset = authoritativeDatasets[0];
+    if (!authoritativeDataset || authoritativeDataset.rowCount === 0) throw new Error('AUTHORITATIVE_SOURCE_PARSE_EMPTY');
+
+    const authoritativeQualityScore = Math.max(0, Math.min(100, Math.round(authoritativeDataset.qualityScore)));
+    if (authoritativeQualityScore < 50) throw new Error(`CANONICAL_IMPORT_QUALITY_REJECTED:${authoritativeQualityScore}`);
+    if (authoritativeQualityScore < 75 && payload.qualityApproved !== true) {
+      throw new Error(`CANONICAL_IMPORT_REVIEW_APPROVAL_REQUIRED:${authoritativeQualityScore}`);
+    }
+
+    const authoritativeRows = authoritativeDataset.rows.map((data, index) => ({ rowNumber: index + 1, data }));
+    const reconciled = reconcileForCanonical(
+      payload.entityType,
+      String(companyId),
+      fileRecord.file_name || payload.fileName || 'import',
+      sourceSha,
+      job.id,
+      (_data, rowNumber) => `${sourceSha}:${rowNumber}`,
+      authoritativeRows,
+    );
+    if (reconciled.rejected.length > 0) {
+      throw new Error(`CANONICAL_RECONCILIATION_REJECTED:${reconciled.rejected.map(item => `${item.rowNumber}:${item.reason}`).join(',')}`);
+    }
+    if (reconciled.rows.length !== authoritativeRows.length) throw new Error('AUTHORITATIVE_SOURCE_RECONCILIATION_COUNT_MISMATCH');
+
     const verifiedMetadata = {
       ...metadata,
       storage_bucket: storageBucket,
@@ -153,35 +182,6 @@ export default async (request: Request): Promise<Response> => {
       .eq('id', job.id)
       .eq('company_id', companyId);
     if (jobUpdateError) throw jobUpdateError;
-
-    if (mode === 'finalize-source') {
-      return json(200, { importId: job.id, sourceHash: sourceSha });
-    }
-
-    const authoritativeDatasets = await parseFile(bytes.buffer, fileRecord.file_name || payload.fileName || 'import', detection.format);
-    const authoritativeDataset = authoritativeDatasets[0];
-    if (!authoritativeDataset || authoritativeDataset.rowCount === 0) throw new Error('AUTHORITATIVE_SOURCE_PARSE_EMPTY');
-
-    const authoritativeQualityScore = Math.max(0, Math.min(100, Math.round(authoritativeDataset.qualityScore)));
-    if (authoritativeQualityScore < 50) throw new Error(`CANONICAL_IMPORT_QUALITY_REJECTED:${authoritativeQualityScore}`);
-    if (authoritativeQualityScore < 75 && payload.qualityApproved !== true) {
-      throw new Error(`CANONICAL_IMPORT_REVIEW_APPROVAL_REQUIRED:${authoritativeQualityScore}`);
-    }
-
-    const authoritativeRows = authoritativeDataset.rows.map((data, index) => ({ rowNumber: index + 1, data }));
-    const reconciled = reconcileForCanonical(
-      payload.entityType,
-      String(companyId),
-      fileRecord.file_name || payload.fileName || 'import',
-      sourceSha,
-      job.id,
-      (_data, rowNumber) => `${sourceSha}:${rowNumber}`,
-      authoritativeRows,
-    );
-    if (reconciled.rejected.length > 0) {
-      throw new Error(`CANONICAL_RECONCILIATION_REJECTED:${reconciled.rejected.map(item => `${item.rowNumber}:${item.reason}`).join(',')}`);
-    }
-    if (reconciled.rows.length !== authoritativeRows.length) throw new Error('AUTHORITATIVE_SOURCE_RECONCILIATION_COUNT_MISMATCH');
 
     const execution = await runCanonicalImportThroughDurableRunner(
       {
