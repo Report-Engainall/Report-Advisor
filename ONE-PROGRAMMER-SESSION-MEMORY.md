@@ -1,3 +1,15 @@
+## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-37
+- SESSION-ID → `2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-37`
+- EXACT PRODUCT CODE HEAD → `8a9d6dc1df8afc9a421b0db205225953f43ad957`
+- DONE → fixed the remaining exact-head TypeScript issues found by CI: provenance typing in canonical commit, stale mappingCoverage dependency ordering in the unified import page, and untyped Supplier DataTable columns.
+- DONE → exposed the shared `Column<T>` type from DataTable and applied it to SuppliersPage so strict TypeScript no longer infers `any`.
+- DONE → converted Dashboard charts to lazy-loaded components behind Suspense; the performance gate itself remains unchanged.
+- VERIFIED → exact Dashboard JSX was re-read after the lazy-load change; no duplicated section close or malformed fallback remains.
+- CI BOUNDARY → no fresh GitHub Actions run is currently attached to `8a9d6dc1df8afc9a421b0db205225953f43ad957`; Vercel remains externally blocked by free-plan `build-rate-limit`. Therefore build/performance PASS is not claimed for this candidate.
+- PRECISE STOP POINT → code candidate `8a9d6dc1df8afc9a421b0db205225953f43ad957`; remaining proof is fresh CI/build/performance/browser/certification, then Phase-F/backup/OCR/Tenant-A-B/watched-folder.
+- CURRENT RESUME POINTER → `8a9d6dc1df8afc9a421b0db205225953f43ad957` → fresh exact-head CI if available → next independent cloud-safe closure → runtime/resilience final certification.
+- DO NOT REPEAT → do not weaken performance budget or transfer stale build failures/PASS across SHAs.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-36
 - SESSION-ID → `2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-36`
 - EXACT PRODUCT CODE HEAD → `175fb6d0a417c12ed9809a6a0489d844fa096065`
