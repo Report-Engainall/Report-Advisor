@@ -48,6 +48,13 @@ export function WorkCenterPage() {
     completed: rows.filter(r => r.status === 'completed').length,
     failed: rows.filter(r => r.status === 'failed' || r.status === 'cancelled').length,
   }), [rows]);
+  const nextAction = useMemo(() => {
+    if ((workerHealth?.expiredActive ?? 0) > 0) return { key: 'review', title: 'راجع الحالات المتعثرة', detail: 'توجد leases منتهية؛ اعرض السجل النشط لمراجعة الحالات قبل recovery التشغيلي.', filter: 'active' as FilterKey, tone: 'danger' };
+    if (counts.review > 0) return { key: 'review', title: 'ابدأ من الاستثناءات', detail: 'هناك عمليات تحتاج مراجعة بسبب صفوف غير صالحة أو معزولة.', filter: 'review' as FilterKey, tone: 'warning' };
+    if (counts.failed > 0) return { key: 'failed', title: 'افحص العمليات الفاشلة', detail: 'هناك عمليات نهائية فاشلة أو ملغاة تحتاج معرفة سببها قبل إعادة التشغيل.', filter: 'failed' as FilterKey, tone: 'danger' };
+    if (counts.active > 0) return { key: 'active', title: 'تابع العمليات النشطة', detail: 'هناك عمليات قيد التنفيذ أو الانتظار لم تصل بعد إلى حالة نهائية.', filter: 'active' as FilterKey, tone: 'primary' };
+    return { key: 'clear', title: 'لا توجد متابعة عاجلة', detail: 'السجل الحالي لا يحتوي على استثناءات أو عمليات نشطة ظاهرة في هذه اللقطة.', filter: 'all' as FilterKey, tone: 'success' };
+  }, [counts, workerHealth]);
 
   if (loading) return <LoadingState message="جارٍ تحميل حالة العمليات..." />;
   if (error) return <ErrorState message={error} onRetry={load} />;
@@ -62,6 +69,18 @@ export function WorkCenterPage() {
     <section className="grid gap-4 lg:grid-cols-[1.5fr_1fr]">
       <Card className="ag-operational-hero hero-surface overflow-hidden">
         <CardBody>
+          <div className={`mb-5 rounded-2xl border p-4 ${nextAction.tone === 'danger' ? 'border-danger-200 bg-danger-50/70' : nextAction.tone === 'warning' ? 'border-warning-200 bg-warning-50/70' : nextAction.tone === 'primary' ? 'border-primary-200 bg-primary-50/70' : 'border-success-200 bg-success-50/70'}`}>
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="min-w-0">
+                <div className="text-[9px] font-black tracking-[.12em] text-ink-400">NEXT OPERATIONAL ACTION</div>
+                <div className="mt-1 text-sm font-black text-ink-900">{nextAction.title}</div>
+                <p className="mt-1 text-[10px] leading-5 text-ink-600">{nextAction.detail}</p>
+              </div>
+              <button type="button" onClick={() => setFilter(nextAction.filter)} className="shrink-0 rounded-xl bg-ink-950 px-3 py-2 text-xs font-bold text-white transition hover:bg-ink-800">
+                فتح الحالات ذات الصلة ←
+              </button>
+            </div>
+          </div>
           <div className="flex flex-wrap items-start justify-between gap-5">
             <div>
               <div className="flex items-center gap-2 text-xs font-semibold text-primary-700"><Activity size={15}/> الحقيقة التشغيلية</div>
