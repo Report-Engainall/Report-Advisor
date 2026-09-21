@@ -1,4 +1,9 @@
 export type ReconciliationState = 'RECONCILED' | 'CONFLICT' | 'INSUFFICIENT_DATA';
+export type CanonicalImportEntityType = 'products' | 'customers' | 'sales_invoices' | `generic:${string}`;
+
+function isGenericEntityType(entityType: CanonicalImportEntityType): entityType is `generic:${string}` {
+  return entityType.startsWith('generic:') && entityType.length > 8;
+}
 
 export interface ImportEvidenceProvenance {
   tenantId: string;
@@ -41,7 +46,8 @@ function normalizeImportKey(value: unknown): string | null {
   return normalized || null;
 }
 
-function rowIdentity(entityType: string, row: Record<string, unknown>): string {
+function rowIdentity(entityType: CanonicalImportEntityType, row: Record<string, unknown>, rowNumber: number): string {
+  if (isGenericEntityType(entityType)) return `${entityType}:row:${rowNumber}`;
   const rawKey = entityType === 'products'
     ? row.sku
     : entityType === 'customers'
@@ -51,7 +57,10 @@ function rowIdentity(entityType: string, row: Record<string, unknown>): string {
   return `${entityType}:${stableValue(normalizedKey)}`;
 }
 
-function criticalPayload(entityType: string, row: Record<string, unknown>): string {
+function criticalPayload(entityType: CanonicalImportEntityType, row: Record<string, unknown>): string {
+  if (isGenericEntityType(entityType)) {
+    return JSON.stringify(Object.entries(row).sort(([a], [b]) => a.localeCompare(b)));
+  }
   const fields = entityType === 'products'
     ? ['sku', 'name', 'unit', 'cost_price', 'selling_price', 'min_stock', 'reorder_point', 'is_active']
     : entityType === 'customers'
@@ -66,7 +75,7 @@ function criticalPayload(entityType: string, row: Record<string, unknown>): stri
  * Missing numeric/text values remain NULL; this function never converts NULL to 0.
  */
 export function reconcileForCanonical(
-  entityType: 'products' | 'customers' | 'sales_invoices',
+  entityType: CanonicalImportEntityType,
   tenantId: string,
   sourceId: string,
   sourceHash: string,
@@ -83,7 +92,7 @@ export function reconcileForCanonical(
   const document = requiredText(sourceDocumentId, 'SOURCE_DOCUMENT');
 
   for (const row of rows) {
-    const identity = rowIdentity(entityType, row.data);
+    const identity = rowIdentity(entityType, row.data, row.rowNumber);
     const payload = criticalPayload(entityType, row.data);
     const previous = seen.get(identity);
     if (previous !== undefined && previous !== payload) {
