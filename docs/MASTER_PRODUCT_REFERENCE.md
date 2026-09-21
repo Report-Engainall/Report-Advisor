@@ -1,3 +1,17 @@
+## IMPLEMENTATION UPDATE — 2026-09-21 / WAVE 52 — IMPORT HISTORY FAIL-CLOSED + LIVE DB POSTURE
+
+- Exact code/test candidate: `d6aec3aa6285f852043c4b3b7b1bbb364305141b`.
+- Canonical Import implementation: `25c681ad540bacab9b0567d78b74a331ea224849` updates `src/pages/CanonicalImportPage.tsx` after the actionable history-state change `e0978b867fbcd4a9a9f70b8d8f3515948dfaa590`.
+- UI contract guard: `d6aec3aa6285f852043c4b3b7b1bbb364305141b`.
+- Import history fetch failures no longer collapse into `history=[]`; they are preserved in `historyError` and rendered as an explicit retryable error state.
+- An actually empty history remains a separate state and now exposes the existing `reset`/source-selection action `اختيار مصدر` without adding a second import workflow.
+- Exact source verification confirms the three states: loading, history error, and authoritative empty/non-empty history.
+- Live staging security posture checked on `Report-Advisor-P0-2-Staging` (`fnqbvfuwbdpwvhcgzksl`): 103 public tables reported by Supabase with RLS enabled on all 103; security advisor currently reports 60 authenticated-executable SECURITY DEFINER findings plus one leaked-password-protection warning.
+- The core `import_*` functions and watched-report/Phase-L runtime helpers were inspected live; several are intentionally callable by authenticated tenant users and contain explicit tenant/role gates, so no blanket revoke was applied.
+- Live staging counts: `import_jobs=4465`, `report_execution_jobs=3706`, `canonical_import_commits=3126`, `backup_verification_runs=0`, `watched_report_files=0`, `watched_report_folders=0`, `import_snapshots=0` on this project. These are environment observations, not certification.
+- No route, RPC, runner, import engine, table, tenant/RLS path or deterministic calculation was introduced by this wave.
+- Exact-head deployment remains fail-closed: Vercel `failure` / `build-rate-limit`; deployment context `pending`.
+
 ## IMPLEMENTATION UPDATE — 2026-09-21 / WAVE 51 — INVENTORY EMPTY-STATE GOVERNANCE
 
 - Exact code/test candidate: `c90a97aad3c353f031c80cfd0788836b20add1e1`.
