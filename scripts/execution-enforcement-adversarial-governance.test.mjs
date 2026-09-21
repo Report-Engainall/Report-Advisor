@@ -20,17 +20,25 @@ const attacks=[
  ['evidence transfer',t=>t.replace('evidence from an older SHA MUST NOT be transferred to a newer SHA.','evidence from an older SHA may be transferred to a newer SHA.')],
  ['unproven pass',t=>t.replace('missing runtime/operational proof remains UNPROVEN.','missing runtime/operational proof may be treated as PASS.')],
  ['external blocker stop',t=>t.replace('independent actionable work MUST continue.','independent actionable work may stop.')],
- ['index-only boundary',t=>t.replace('every changed path is exactly `docs/MASTER_EXECUTION_INDEX.md`','changed paths may include source code')],
+ ['index-only boundary',t=>t.replace('every changed path is within the approved continuity-governance allowlist (`docs/MASTER_EXECUTION_INDEX.md`, `ONE-PROGRAMMER-SESSION-MEMORY.md`, `docs/MASTER_PRODUCT_REFERENCE.md`, and the governing index/enforcement test scripts)','changed paths may include source code')],
  ['index update closure',t=>t.replace('never counts as product capability progress by itself.','counts as product capability progress by itself.')],
 ];
 for(const [name,mutate] of attacks)assert.throws(()=>validateAdaptiveGovernance(mutate(governance)),/Adaptive governance rejected/,name);
 
 const head=execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim();
 const parent=execFileSync('git',['rev-parse','HEAD^'],{encoding:'utf8'}).trim();
-const exactIndex=`## CURRENT EXECUTION BOUNDARY\n- **CURRENT CODE/TEST CANDIDATE:** \`${parent}\`.`;
-assert.doesNotThrow(()=>validateCurrentHeadIndex(exactIndex,parent));
-assert.doesNotThrow(()=>validateCurrentHeadIndex(exactIndex,head,parent,['docs/MASTER_EXECUTION_INDEX.md']));
-assert.throws(()=>validateCurrentHeadIndex(exactIndex,'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'),/INDEX BOUNDARY NOT ANCESTOR/);
-assert.throws(()=>validateCurrentHeadIndex(exactIndex,head,parent,['src/app.tsx']),/INDEX BOUNDARY NOT ANCESTOR/);
-assert.throws(()=>validateCurrentHeadIndex(exactIndex,head,parent,[]),/INDEX BOUNDARY NOT ANCESTOR/);
+const exactIndex = `## CURRENT EXECUTION BOUNDARY\n- **CURRENT CODE/TEST CANDIDATE:** \`${parent}\`.`;
+const approvedContinuityOnly = [
+  'docs/MASTER_EXECUTION_INDEX.md',
+  'ONE-PROGRAMMER-SESSION-MEMORY.md',
+  'docs/MASTER_PRODUCT_REFERENCE.md',
+  'scripts/check-execution-enforcement-protocol.mjs',
+  'scripts/check-execution-enforcement-protocol.test.mjs',
+];
+assert.doesNotThrow(() => validateCurrentHeadIndex(exactIndex, parent));
+assert.doesNotThrow(() => validateCurrentHeadIndex(exactIndex, head, parent, approvedContinuityOnly));
+assert.throws(() => validateCurrentHeadIndex(exactIndex, 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'), /INDEX BOUNDARY NOT ANCESTOR/);
+assert.throws(() => validateCurrentHeadIndex(exactIndex, head, parent, [...approvedContinuityOnly, 'src/app.tsx']), /INDEX BOUNDARY NOT ANCESTOR/);
+assert.throws(() => validateCurrentHeadIndex(exactIndex, head, parent, []), /INDEX BOUNDARY NOT ANCESTOR/);
+
 console.log('PASS governance + exact-SHA/index-only adversarial test-of-test suite');
