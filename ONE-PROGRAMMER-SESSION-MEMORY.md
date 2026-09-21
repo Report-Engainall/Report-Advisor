@@ -1,3 +1,19 @@
+## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-32
+- SESSION-ID → `2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-32`
+- EXACT PRODUCT CODE HEAD → `cccf7fa61c9689aab08e425f885c9d2a8583e71d`
+- DONE → repaired current-head CI build defects in Decision Experience and Liquidity.
+- DONE → removed the legacy specialized folder importer from the unified `/import` entry; the unified entry now mounts only the canonical source-first importer.
+- DONE → strengthened the Import Center contract so fixed entity selectors and `FolderBatchImportPanel` cannot return to the unified entry.
+- DONE → moved source-analysis Snapshot persistence from the browser import page into the authoritative server execution boundary after durable canonical execution.
+- DONE → corrected the import transaction contract so it verifies authoritative parse/reconciliation happens before `file_records.status='ready'`.
+- VERIFIED → exact files re-read on `cccf7fa61c9689aab08e425f885c9d2a8583e71d`; escaped Decision syntax is absent and direct Snapshot table writes are absent from the import UI.
+- CI FINDING → previous exact-head CI failed on the certification-boundary candidate and four quality checks; those failures are being re-run after these exact fixes. No PASS transferred from older SHAs.
+- LIVE STAGING → last verified `expired_active_leases=0`, `queued_jobs=563`, `dead_letter_jobs=7`, `backup_verification_runs=0`.
+- PRECISE STOP POINT → code is repaired and documented; current main is now ahead only by continuity-document write-backs after the code head.
+- NEXT ACTION → consume the newest GitHub Actions results on this exact code candidate; repair any remaining exact-head failures, then continue Phase-F/backup/OCR/tenant A/B/runtime certification.
+- DO NOT REPEAT → do not restore folder-specialized import UI, direct import-page database writes, fake OCR/runtime evidence, or stale certification PASS.
+- CURRENT RESUME POINTER → `cccf7fa61c9689aab08e425f885c9d2a8583e71d` → consume exact-head CI → next independent runtime/product closure → Phase-F/backup/OCR → Tenant A/B/watched folder → final certification.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-31
 - SESSION-ID → `2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-31`
 - BRANCH → `main`
