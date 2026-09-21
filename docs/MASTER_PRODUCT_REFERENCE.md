@@ -1,3 +1,13 @@
+## IMPLEMENTATION UPDATE — 2026-09-21 / DATA QUALITY DECISION ACTION WAVE 46
+
+- Exact code candidate: `c71742d8b70f61ed580791cabf415ad81fd6944a`; UI implementation commit: `43219c1bf39c5cffee5f203fabd1324d01699aab`; UI contract guard: `c71742d8b70f61ed580791cabf415ad81fd6944a`.
+- Data Quality now derives a visible `NEXT ACTION` from the authoritative snapshot state: EMPTY → unified import, critical issues → Trust review, non-critical issues → quality review, clean snapshot → Analytics.
+- The decision action is exposed in both the summary strip and a dedicated action panel; no synthetic score, issue, evidence, RPC, route, runner, tenant path, or calculation was added.
+- Exact source re-read after both commits confirms the state-derived action, canonical destinations and contract guard are present.
+- Current exact-head GitHub status for `c71742...` reports Vercel `failure` at the free-plan `build-rate-limit`; no workflow run is attached to this main commit and no build/browser PASS is claimed.
+- The preceding `916ef274...` Vercel READY deployment is retained only as exact evidence for that older SHA and is not transferred to the new candidate.
+- PC01 is currently offline; Netlify connector can identify the existing site but its deploy action only returns the required source/repo command because no repository execution environment is attached.
+
 ## IMPLEMENTATION UPDATE — 2026-09-21 / REPORT CENTER LIVE SNAPSHOT + PHASE-F EVIDENCE BOUNDARY
 
 - Wave-45 code/merge anchor: `42c89ef31bc67a20c66fd7f22d8325ecb642a71f` (UI code commit `c6dd99d320f5fb751832cdb4f5b7e7661af22d8d`; UI contract guard `a0efc8caddd310dba4d7a0fe2b83dee14ca21669`). Subsequent commits are governance-only write-backs.
