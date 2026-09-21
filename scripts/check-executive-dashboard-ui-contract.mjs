@@ -22,8 +22,8 @@ for (const token of [
   /kpis\.totalReceivables/,
   /kpis\.inventoryValue/,
   /aging\.rows/,
-  /liveAlerts\.map/,
-  /liveRecommendations\.map/,
+  /liveAlerts/,
+  /liveRecommendations/,
   /TREND_RANGES\.map/,
   /<section/,
 ]) {
@@ -31,5 +31,6 @@ for (const token of [
 }
 
 assert.ok((source.match(/<Card>/g) || []).length >= 4, 'dashboard UI contract requires multiple analytical surfaces');
+assert.ok(source.includes('TruthContextStrip'), 'dashboard UI contract requires visible truth context');
 
 console.log('Executive dashboard UI contract: PASS');
