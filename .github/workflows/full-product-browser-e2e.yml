@@ -8,6 +8,8 @@ on:
       - 'scripts/real-business-e2e.mjs'
       - 'scripts/verify-live-business-evidence.mjs'
       - '.github/workflows/full-product-browser-e2e.yml'
+      - 'src/pages/**'
+      - 'src/pages/**'
       - 'src/lib/dashboard-canonical.ts'
       - 'src/lib/kpi-evidence.ts'
       - 'src/lib/semantic-metric-service.ts'
