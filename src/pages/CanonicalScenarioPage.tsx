@@ -21,7 +21,7 @@ export function CanonicalScenarioPage({ baseRevenue, baseCost, currency }: Canon
   const profitChange = baseProfit === 0 ? null : ((newProfit - baseProfit) / Math.abs(baseProfit)) * 100;
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="ag-scenario-surface space-y-6 animate-fade-in">
       <PageHeader title="محاكاة السيناريوهات" subtitle="اختبر تأثير التغييرات على الأداء المالي" />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <Card>

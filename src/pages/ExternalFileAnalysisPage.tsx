@@ -65,7 +65,7 @@ export function ExternalFileAnalysisPage() {
     issues: dataset.columns.reduce((n,c) => n + c.qualityIssues.length, 0),
   } : null, [dataset]);
 
-  return <div className="space-y-6" dir="rtl">
+  return <div className="ag-file-lab space-y-6" dir="rtl">
     <PageHeader title="مختبر الملفات والبيانات" subtitle="حلّل أي ملف خارجي دون إجباره على نموذج أعمال مسبق، مع إبقاء الحقول الأصلية متاحة للمراجعة." />
     <Card><CardBody>
       <div className="grid gap-5 lg:grid-cols-[1fr_auto] items-center">

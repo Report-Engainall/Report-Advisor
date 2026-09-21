@@ -48,7 +48,7 @@ export function ScenarioTruthGuardPage() {
   }
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="ag-scenario-surface space-y-6 animate-fade-in">
       <PageHeader title="محاكاة السيناريوهات" subtitle="تم إيقاف المحاكاة مؤقتًا لحماية الحقيقة المالية" />
       <Card>
         <CardBody>
