@@ -199,7 +199,7 @@ export function DecisionExperiencePage() {
       {stage === 'command' && (
         <section className="rounded-[16px] border border-ink-200 bg-white p-4 shadow-card">
         {(() => { const readiness = decisionReadiness(selected); return <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-          <div className="min-w-0"><div className="section-kicker">DECISION READINESS</div><div className="mt-1 flex flex-wrap items-center gap-2"><span className={\`rounded-full px-2.5 py-1 text-[10px] font-black \${readiness.tone}\`}>{readiness.label}</span><span className="text-[10px] text-ink-400">{readiness.detail}</span></div></div>
+          <div className="min-w-0"><div className="section-kicker">DECISION READINESS</div><div className="mt-1 flex flex-wrap items-center gap-2"><span className={`rounded-full px-2.5 py-1 text-[10px] font-black ${readiness.tone}`}>{readiness.label}</span><span className="text-[10px] text-ink-400">{readiness.detail}</span></div></div>
           <div className="flex flex-wrap gap-2 text-[10px] font-bold text-ink-600"><span className="inline-flex items-center gap-1 rounded-xl bg-ink-50 px-2.5 py-2"><UserRound size={13}/> {selected?.owner ?? 'مسؤول غير مثبت'}</span><span className="inline-flex items-center gap-1 rounded-xl bg-ink-50 px-2.5 py-2"><CalendarClock size={13}/> {formatDeadline(selected?.deadline ?? null)}</span><span className="inline-flex items-center gap-1 rounded-xl bg-ink-50 px-2.5 py-2">الأثر: {selected?.expected_impact == null ? 'غير متاح' : formatCurrency(selected.expected_impact)}</span></div>
         </div>; })()}
       </section>
