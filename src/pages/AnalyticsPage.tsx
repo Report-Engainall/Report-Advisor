@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowUpLeft, BarChart3, Calendar, CircleAlert, Package, ShieldCheck, Users, WalletCards } from 'lucide-react';
+import { ArrowUpLeft, BarChart3, Calendar, ChartNoAxesCombined, CircleAlert, Package, ShieldCheck, Users, WalletCards } from 'lucide-react';
 import { Card, CardHeader, CardBody } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { PageHeader, LoadingState, ErrorState } from '@/components/ui/States';
