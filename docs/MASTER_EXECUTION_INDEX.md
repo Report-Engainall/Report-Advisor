@@ -1,3 +1,10 @@
+## CURRENT EXECUTION BOUNDARY — 2026-09-21 / WAVE 78 — TRUST QUALITY COVERAGE
+
+- CURRENT_CODE_TEST_CANDIDATE: `2f0c106dacb586a88b421b6797e7d4922a9338c7`.
+- DONE: Trust & Evidence now exposes a record-weighted quality coverage summary from the existing authoritative snapshot; no new backend path was added.
+- VERIFIED SOURCE: UI and contract files were re-read at the candidate SHA; current runtime proof remains open.
+- NEXT: consume exact-head verification for `2f0c106...` before transferring any evidence.
+
 ## CURRENT EXECUTION BOUNDARY — 2026-09-21 / WAVE 75 — CANONICAL SERVER BOUNDARY UNIFICATION
 
 > Exact-head evidence only. No historical runtime result is transferred.
