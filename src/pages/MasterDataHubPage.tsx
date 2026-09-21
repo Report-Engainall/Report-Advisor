@@ -7,11 +7,11 @@ const entityLinks = [
   { path: '/customers', title: 'العملاء', desc: 'الكيانات والعملاء وسياقهم التجاري.', icon: Users },
   { path: '/products', title: 'المنتجات', desc: 'الأصناف والهوية المرجعية ومفاتيح الأعمال.', icon: Package },
   { path: '/inventory', title: 'المخزون', desc: 'مرجع المخزون والكميات المرتبطة بالمصدر.', icon: Boxes },
+  { path: '/suppliers', title: 'الموردون', desc: 'هوية الموردين وسياقهم المرجعي المرتبط بالمشتريات.', icon: Truck },
   { path: '/alternative-groups', title: 'البدائل', desc: 'مجموعات الأصناف البديلة والتحقيق في الاستبدال.', icon: Tags },
 ];
 
 const unavailableSurfaces = [
-  { title: 'الموردون', icon: Truck, detail: 'لا توجد شاشة موردين مستقلة مثبتة في المسار القانوني الحالي.' },
   { title: 'المستودعات والمواقع', icon: Warehouse, detail: 'السياق يظهر داخل بيانات المخزون عند توفره، ولا توجد شاشة مستقلة مثبتة هنا.' },
 ];
 
