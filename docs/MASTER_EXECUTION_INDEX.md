@@ -210,3 +210,16 @@ There is one execution owner. Do not resurrect the previous UI/runtime owner spl
 - **Exact-head gates:** typecheck PASS; build PASS (2808 modules); Product WOW UI PASS; route/sidebar parity PASS (37/35); Executive Dashboard UI PASS; Intelligence Product Contract PASS; Connections/Language UI PASS (7); diff-check PASS; lint 0 errors / 63 warnings.
 - **Deployment boundary:** the latest proven Netlify deploy is still the older `64ce8344...`; no live proof is transferred to `7d7fd0ee...`.
 - **Next:** continue high-value polish over remaining analytics/intelligence/output surfaces, then refresh exact-head deployment/runtime proof.
+
+
+## LATEST EXACT-HEAD OVERRIDE — 2026-09-21 / SOURCE-FIRST + INTELLIGENCE POLISH
+- **Current exact product/code HEAD before documentation write-back:** `a5da0df9f675010cd8f324786ea495ddeae32c07`.
+- **Product correction:** unified ingestion remains source-first and general-purpose. No fixed business entity is exposed as the import engine, target picker, or product identity. Internal legacy compatibility remains internal only.
+- **Intelligence polish:** `src/pages/IntelligencePages.tsx` was rebuilt at the UI-contract level: corrupted Arabic text was corrected, recommendation filtering/status/action states were clarified, evidence/decision transitions were made more explicit, and forecast surfaces now expose source count, company series coverage, quality metadata and forecast-as-estimate framing.
+- **Work Center correction:** `src/pages/WorkCenterPage.tsx` no longer displays `entity_type` to the user. It now presents source file, source format, operational status, progress, accepted data and exceptions without leaking internal importer taxonomy.
+- **Architecture impact:** no new route, RPC, runner, job family, calculation path, tenant/RLS path or import lifecycle was introduced.
+- **Exact diff evidence:** relative to the previous code HEAD `895690b44c...`, two independent UI commits changed only `src/pages/IntelligencePages.tsx` and `src/pages/WorkCenterPage.tsx`.
+- **Deployment boundary:** current exact-head GitHub Vercel status reports **failure** on the free-plan `build-rate-limit` context, while the deployment context for `a5da0df9...` is pending. No READY/PASS is transferred from any older SHA.
+- **Verification boundary:** GitHub status has no completed runtime checks for this SHA yet; authenticated browser proof remains unavailable because PC01 is offline and no fake session is permitted.
+- **Next executable action:** continue independent high-value UI/runtime-safe work only where it improves canonical surfaces without changing product taxonomy; separately obtain exact-head deployment/runtime proof when the hosting capacity path permits.
+- **Do not repeat:** do not recreate shell/navigation/advisor; do not expose internal importer entity names through any surface; do not invent specialized import routes/RPCs; do not transfer deployment or browser PASS across SHAs.
