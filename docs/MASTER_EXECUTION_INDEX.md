@@ -1,3 +1,19 @@
+## CURRENT EXECUTION BOUNDARY — 2026-09-21 / COMPREHENSIVE IMPORT + RESILIENCE WAVE 44
+
+> Exact-head evidence only. Current code/test changes and live staging observations are recorded below; no historical PASS is transferred.
+
+- **LATEST CODE UI FIX:** `42c873d48980650c8cd38a6c242a416862e5f0c8` — terminal import failures are actionable, the exact technical error remains visible, history refreshes after failure, and failure summaries now include `invalidRows`.
+- **LATEST CONTRACT GUARD:** `52f362bdcab600b597f8321cd9a6f6a2ad9c0599` — guards completed/failed `invalidRows` plus the actionable server-failure UX.
+- **MASTER PRODUCT REFERENCE:** implementation and live evidence were recorded at `913b0832f4d71c421435f894759f67f87a907d23`.
+- **LIVE IMPORT RESULT:** newest two staging imports after the finish-job repair both reached `completed`, with `committed=1` and `invalidRows=0`, each with a persisted snapshot ID.
+- **HISTORICAL HTTP-500 RESULT:** latest observed `HTTP_500` occurred at 17:01 UTC before the two subsequent successful imports. Its related durable report job later expired and was recovered; this demonstrates a worker-lease/runtime interaction but does not prove that every historical 500 had the same root cause.
+- **LIVE RESILIENCE RESULT:** one expired `processing` lease was recovered with the existing canonical `recover_expired_report_execution_jobs` function. Immediate post-recovery state: `expired_active_leases=0`, `processing=0`, `queued=564`, `failed=10`, `dead_letter=7`, `completed=3110`.
+- **BACKUP GAP:** `backup_verification_runs=0`; no RPO/RTO proof exists yet.
+- **SECURITY GAP:** Supabase advisor currently reports 47 authenticated-executable SECURITY DEFINER findings. No blanket revoke/change is applied because the existing authenticated RPC contracts require function-by-function authorization review.
+- **DEPLOYMENT GAP:** Vercel still reports the free-plan `build-rate-limit`; no current-head deployment PASS is claimed. PC01 is offline, so no local build/browser PASS is claimed.
+- **NEXT EXECUTABLE ACTION:** obtain fresh exact-head CI/build/browser evidence for the current main after this wave; then close backup/RPO-RTO proof and inspect the remaining server-boundary/worker-lease behavior with disposable evidence, without weakening canonical import semantics.
+- **DO NOT REPEAT:** do not reintroduce generic import error text, omit terminal `invalidRows`, classify stale HTTP-500 evidence as current, blanket-revoke SECURITY DEFINER functions, or transfer stale deployment PASS.
+
 ## CURRENT EXECUTION BOUNDARY — 2026-09-21 / SESSION 43 REBIND AFTER CONNECTION RENEWAL
 
 > Exact-head evidence only.
