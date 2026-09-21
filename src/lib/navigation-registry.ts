@@ -35,6 +35,7 @@ export type NavigationIconKey =
   | 'abc'
   | 'aging'
   | 'metrics'
+  | 'trust'
   | 'executive-report'
   | 'reports'
   | 'inventory-report'
@@ -44,6 +45,7 @@ export type NavigationIconKey =
   | 'onboarding'
   | 'settings'
   | 'profile'
+  | 'master-data'
 ;
 
 export interface NavigationItem {
@@ -121,6 +123,7 @@ export const NAVIGATION_SECTIONS: NavigationSection[] = [
     title: 'الثقة والأدلة',
     enTitle: 'Trust & Evidence',
     items: [
+      { section: 'trust', path: '/trust', label: 'مركز الثقة والأدلة', enLabel: 'Trust & Evidence', description: 'حالة الحقيقة ومسارات الإثبات من المصدر إلى القرار', keywords: ['trust', 'evidence', 'truth', 'ثقة', 'أدلة'], icon: 'trust' },
       { section: 'trust', path: '/metrics', label: 'تفسير المؤشرات', enLabel: 'Metric Inspector', description: 'هوية المؤشر وصيغة الحساب ومصدره وحالته', keywords: ['metrics', 'kpi', 'evidence'], icon: 'metrics', minimumWorkspaceMode: 'advanced' },
     ],
   },
@@ -138,6 +141,7 @@ export const NAVIGATION_SECTIONS: NavigationSection[] = [
     title: 'البيانات المرجعية',
     enTitle: 'Master Data',
     items: [
+      { section: 'reference', path: '/master-data', label: 'مركز البيانات المرجعية', enLabel: 'Master Data Center', description: 'مدخل موحد للكيانات المرجعية والسياق الدلالي', keywords: ['master data', 'reference', 'بيانات مرجعية'], icon: 'master-data' },
       { section: 'reference', path: '/customers', label: 'العملاء', enLabel: 'Customers', description: 'الكيانات والعملاء وشرائحهم', keywords: ['customers', 'clients', 'عملاء'], icon: 'customers' },
       { section: 'reference', path: '/products', label: 'المنتجات', enLabel: 'Products', description: 'الأصناف والمنتجات والهوية المرجعية', keywords: ['products', 'sku', 'منتجات', 'أصناف'], icon: 'products' },
       { section: 'reference', path: '/inventory', label: 'المخزون', enLabel: 'Inventory', description: 'مرجع المخزون وحركته', keywords: ['inventory', 'stock', 'مخزون'], icon: 'inventory' },
