@@ -1,3 +1,25 @@
+## LIVE EXECUTION UPDATE — 2026-09-21 — AGHBARI BI VISUAL REFRAME / WAVE 11
+
+- **SESSION-ID:** SESSION-20260921-AGHBARI-BI-REFRAME-11
+- **CURRENT EXACT SOURCE HEAD:** `ba17bc2da704a5c06662bf3652f0a195aacf144f` on `commercial/comprehensive-product-development-20260918-rebased`; pushed to PR #595.
+- **PRODUCT DIRECTION CORRECTION:** The previous 8-group workspace model was superseded by a six-workspace BI architecture aligned to the reference-image composition. This is a product-identity correction, not a backend architecture rewrite.
+- **CANONICAL NAVIGATION:** `مركز القرار → العمل والبيانات → التحليل التجاري → الذكاء والاستكشاف → البيانات المرجعية → الإعدادات والتجهيز`.
+- **DONE:** `src/lib/navigation-registry.ts` now owns the six BI workspaces and keeps existing real routes underneath them; no duplicate route registry was introduced.
+- **DONE:** Sidebar, Header breadcrumb and Command Palette now consume the same six-section IDs and labels; Sidebar uses compact expandable workspaces to preserve screen area.
+- **DONE:** Default workspace favorites now emphasize executive reports, commercial reports, receivables and document analysis rather than commerce-first CRUD surfaces.
+- **DONE:** Dashboard was visually reframed as a compact BI surface: `نبض الأعمال`, four evidence-linked KPI cards, business trend, activity distribution, decision brief, four actionable signal cards, advanced product surfaces, entity analysis and truth/as-of context.
+- **DONE:** Dashboard action cards and advanced modules link only to real application routes and real current data paths; no synthetic business values were introduced.
+- **DONE:** Header search wording now targets indicators/documents/reports rather than generic commerce navigation.
+- **DONE:** Shared visual tokens were extended for the dashboard and sidebar with teal/mint/gold accents, compact spacing, hover elevation and RTL/right-rail treatment.
+- **VERIFIED ON EXACT SHA:** `git diff --check` PASS; `npm run typecheck` PASS; `npm run lint` PASS with pre-existing warnings only; UI route completeness PASS (35 application routes / 34 canonical navigation links); Product WOW UI contract PASS; `npm run build` PASS.
+- **BUILD NOTE:** Vite emitted the repository's existing Browserslist/eval warnings; no build error occurred.
+- **RELEASE AUDIT NOTE:** `npm run test:release-audit` is not defined in this branch's package scripts, so no PASS is claimed for that command.
+- **CI STATE:** Fresh GitHub Actions runs were created against `ba17bc2...`; the majority were queued and the Final Certification Gate was in progress at write-back time. No CI PASS is transferred from an older SHA.
+- **RUNTIME:** No authenticated browser screenshot PASS is claimed in this wave.
+- **PRECISE STOP POINT:** `ba17bc2...` → six-workspace BI shell and reference-aligned dashboard composition are implemented and pushed; consume exact-head CI results before further structural UI changes.
+- **DO NOT REPEAT:** Do not restore the rejected 8-group commerce-like navigation, do not create a parallel route map, do not hardcode dashboard sample values, do not turn operational CRUD into the product's primary identity, and do not transfer evidence across SHAs.
+- **CURRENT RESUME POINTER:** `commercial/comprehensive-product-development-20260918-rebased@ba17bc2da704a5c06662bf3652f0a195aacf144f` → BI visual reframe boundary.
+
 ## LIVE EXECUTION UPDATE — 2026-09-21 — AGHBARI NAVIGATION / VISUAL CLOSURE WAVE 10
 
 - **SESSION-ID:** SESSION-20260921-VISUAL-CLOSURE-10
