@@ -154,7 +154,7 @@ export function TrustEvidencePage() {
       </Card>
     </section>
 
-    <Link to={nextStep.path} className="block rounded-[16px] border border-primary-200 bg-primary-50/60 p-4 transition hover:border-primary-300 hover:bg-primary-50" aria-label={\`الخطوة التالية: \${nextStep.label}\`}>
+    <Link to={nextStep.path} className="block rounded-[16px] border border-primary-200 bg-primary-50/60 p-4 transition hover:border-primary-300 hover:bg-primary-50" aria-label={'الخطوة التالية: ' + nextStep.label}>
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div><div className="text-[9px] font-black tracking-[.12em] text-primary-700">NEXT TRUST ACTION</div><div className="mt-1 text-sm font-black text-ink-950">{nextStep.label}</div><div className="mt-1 text-[10px] leading-5 text-ink-600">{nextStep.detail}</div></div>
         <span className="inline-flex items-center gap-2 rounded-xl bg-ink-950 px-3 py-2 text-[10px] font-black text-white">فتح الآن <ArrowLeft size={13}/></span>
