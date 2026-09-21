@@ -1,3 +1,13 @@
+## IMPLEMENTATION UPDATE — 2026-09-21 / WAVE 49 — REPORT RETRY RESILIENCE
+
+- Exact code/test candidate: `7301ae56b7c01723ebdcc78756fc8a1ea5ffe399`.
+- Reports implementation: `e6478ad3d7569e1e9cea832dac2e6b02f731ed9f` updates `src/pages/ReportsPage.tsx`.
+- UI contract guard: `7301ae56b7c01723ebdcc78756fc8a1ea5ffe399` strengthens `scripts/check-product-wow-ui-contract.mjs`.
+- Purchases, Inventory, Receivables and Profitability report failures now retry through their existing data loaders in place instead of forcing `window.location.reload()`.
+- The change preserves report context and existing canonical queries; no new route, RPC, runner, import engine, table, tenant/RLS path or business calculation was introduced.
+- Exact source verification confirms `window.location.reload()` is absent from `ReportsPage.tsx` and the report retry contract is guarded.
+- Exact-head status remains fail-closed: Vercel reports `failure` with `build-rate-limit`, and Vercel Deployments is `pending` for the candidate. No runtime/browser/build PASS is claimed.
+
 ## IMPLEMENTATION UPDATE — 2026-09-21 / WAVE 48B — DECISION SOURCE-INSPECTION ROUTE FIX
 
 - Exact code/test candidate: `34b2038602f4899a78e6e183087cfe232c02faa8`.
