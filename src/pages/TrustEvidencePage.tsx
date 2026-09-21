@@ -159,7 +159,17 @@ export function TrustEvidencePage() {
   </span>
 </div>
                   </div>
-                  <span className="shrink-0 text-xs font-black text-ink-500">{entity.issues ?? 'غير متاح'} مشكلة</span>
+                  <div className="shrink-0 text-left">
+                    <span className="block text-xs font-black text-ink-500">{entity.issues ?? 'غير متاح'} مشكلة</span>
+                    <Link
+                      to={(entity.issues ?? 0) > 0 ? '/data-quality' : '/import/analyze'}
+                      className="mt-1 inline-flex items-center gap-1 text-[9px] font-black text-primary-700 hover:text-primary-900"
+                      aria-label={(entity.issues ?? 0) > 0 ? `مراجعة جودة ${entity.name}` : `فحص مصدر ${entity.name}`}
+                    >
+                      {(entity.issues ?? 0) > 0 ? 'راجع الجودة' : 'افحص المصدر'}
+                      <ArrowLeft size={10} />
+                    </Link>
+                  </div>
                 </div>
               ))}
             </div>
