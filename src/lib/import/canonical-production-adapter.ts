@@ -229,5 +229,5 @@ export async function runCanonicalImportThroughDurableRunner(
 }
 
 export async function finalizeCanonicalImportSource(input: Pick<DurableCanonicalImportInput, 'importId' | 'fileName' | 'sourceHash' | 'entityType'>): Promise<{ importId: string; sourceHash: string }> {
-  return executeThroughServerBoundary({ ...input, rows: [], qualityScore: 0 }, 'finalize-source');
+  return executeThroughServerBoundary({ ...input, rows: [], qualityScore: 0, qualityApproved: false }, 'finalize-source');
 }
