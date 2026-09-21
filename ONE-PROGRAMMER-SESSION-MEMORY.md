@@ -1,3 +1,17 @@
+## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-CONNECTION-RENEWAL-43
+- SESSION-ID → `2026-09-21-AGHBARI-CONNECTION-RENEWAL-43`
+- SHA → final current main after this session's governance write-backs: `4db98464f99b8523c8f02467f9cc31e059fcbf69`.
+- DONE → rechecked the renewed GitHub connection against the actual repository. The previously blocked `docs/MASTER_PRODUCT_REFERENCE.md` write now succeeds.
+- DONE → recorded Dashboard Decision Accountability Wave 32 in `docs/MASTER_PRODUCT_REFERENCE.md` at commit `e2e9e9d10366e546ec09940e1cd91dedbe7171c6`.
+- DONE → rebound `docs/MASTER_EXECUTION_INDEX.md` to the current main state and recorded the post-session-42 import finish-job repair commits plus the successful master-reference write.
+- ACTUAL RESULT → the master product reference now contains the Dashboard accountability entry; the dashboard code still contains the accountability surface and its contract guard.
+- ACTUAL RESULT → main advanced after session 42 through canonical import finish-job repair `d2a1f22643bf7b5222fcda4176fcb5e7895ee361`, its test guard `2caedfa8ab2f71dd06bffb4992d122dc08bb75ac`, certification binding `40cc9527d5a31d81c71ffb0cfa44a2cfd435df1d`, then the product-reference and execution-index governance writes.
+- PRECISE STOP POINT → connection renewal is verified; requested master-reference write is closed successfully. No current-head runtime/build PASS is claimed.
+- WHAT REMAINS → fresh exact-head CI/build/browser/certification on current main `4db9846...`, then Phase-F resilience, backup/RPO-RTO, server OCR authority, tenant A/B, and watched-folder runtime closure.
+- NEXT ACTION → consume the first fresh exact-head build/browser/certification result for current main; repair any new failure without weakening gates, then continue Phase-F.
+- DO NOT REPEAT → do not report the old connector-security write blocker; do not transfer historical deployment/runtime PASS; do not treat stale Netlify/Vercel deployments as current proof.
+- CURRENT RESUME POINTER → `4db98464f99b8523c8f02467f9cc31e059fcbf69` → fresh exact-head CI/build/browser/certification → repair fresh failure if any → Phase-F/runtime closure.
+ 
 ## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-42
 - SESSION-ID → `2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-42`
 - SHA → final current main after this session's governance write-back: `68dd323c6bc709b867756ef8eb1f4538e49e2d66`; exact product UI commit: `63e1aa9c716135ac019db6b11896318889d27cbc`; exact UI contract commit: `e6185e782e94fd227290a27a3b1d2263ced8d80c`.
