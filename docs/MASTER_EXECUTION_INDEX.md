@@ -2,11 +2,11 @@
 
 > تحديث تنفيذي بعد أمر المالك «انطلق». هذا القسم يصف الحالة المثبتة من الأدوات فقط. لا يتم نقل Evidence بين SHAs، ولا تُعد الحالة PASS إلا بدليل Exact-HEAD.
 
-- **CURRENT CODE/TEST CANDIDATE:** `167fcaf05400af135d76e1409a8dc8d26cf2f65f`
+- **CURRENT CODE/TEST CANDIDATE:** `e6c39323eb0c0177b1de73c3b276ce9491fd07f0`
 - **CURRENT_REPOSITORY_HEAD:** `943f0619abfddb56daddc83bc500659376655474`
 
 ### CURRENT EXACT HEAD / DEPLOYED STATE
-- **Current product/code HEAD:** `167fcaf05400af135d76e1409a8dc8d26cf2f65f` on `main`.
+- **Current product/code HEAD:** `e6c39323eb0c0177b1de73c3b276ce9491fd07f0`.
 - **Previous product/runtime baseline:** `1568e43889d27b5d850e64c0b99d03a994fd3bbe`.
 - **Historical product/test candidate:** `fe5661060462ffa21d6aa31505f80c2021c4170a` — historical only; do not treat as current HEAD evidence.
 - **Reference product/runtime code HEAD:** `c11c084d161cceb4595f8552b6c49c3f610f0ec2`; current `main` also carries the forward-only security/source-parity migrations merged afterward.
@@ -353,3 +353,9 @@ There is one execution owner. Do not resurrect the previous UI/runtime owner spl
 - `/import` remains the sole source-first canonical import entry.
 - The Import Center product contract now fails when any legacy specialized folder-importer file exists or when fixed entity targets re-enter the unified entry.
 - GitHub Code Search found no remaining references to the removed importer component, test, or contract script.
+
+
+## CONTINUATION UPDATE — 2026-09-21 / CANONICAL PROVENANCE LINT REPAIR
+- Exact product code HEAD: `e6c39323eb0c0177b1de73c3b276ce9491fd07f0`.
+- Canonical commit mapping now accepts the full reconciled row, including provenance, and uses a type alias rather than an empty interface.
+- This closes the sole exact-head lint error; previous 63 warnings remain non-fatal under the current ESLint gate.
