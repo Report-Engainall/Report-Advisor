@@ -1,3 +1,13 @@
+## IMPLEMENTATION UPDATE — 2026-09-21 / WAVE 53 — DECISION TRUTH SEMANTICS
+
+- Exact code/test candidate: `3ab9e99a41676b22a6b61fe35db7891c7f170eac`.
+- Decision Experience implementation: `58f6dd971ce905a3ea5a1f8670101e92c75ddade` changes readiness semantics so `expected_impact = 0` remains a valid recorded value rather than being treated as missing.
+- Executive Command Center implementation: `274f813567d111112d850a696035bf4aba604c28` changes the Money Recovery availability label to `بيانات الذمم متاحة`, avoiding an unsupported claim that money is recoverable solely because receivables data exists.
+- UI contract guard: `3ab9e99a41676b22a6b61fe35db7891c7f170eac` protects both semantic invariants.
+- No calculation, KPI, route, RPC or backend path was changed; this wave only corrects truth-state presentation of existing authoritative fields.
+- Exact source verification confirms the zero-impact condition uses `== null` and the Money Recovery label does not overstate recoverability.
+- Exact-head deployment remains fail-closed: Vercel `failure` / `build-rate-limit`, deployment context `pending`.
+
 ## IMPLEMENTATION UPDATE — 2026-09-21 / WAVE 52 — IMPORT HISTORY FAIL-CLOSED + LIVE DB POSTURE
 
 - Exact code/test candidate: `d6aec3aa6285f852043c4b3b7b1bbb364305141b`.
