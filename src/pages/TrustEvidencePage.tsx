@@ -152,7 +152,12 @@ export function TrustEvidencePage() {
                 <div key={entity.name} className="flex items-center justify-between gap-3 rounded-xl border border-ink-100 bg-ink-50/40 px-3 py-3">
                   <div className="min-w-0">
                     <span className="block text-xs font-bold text-ink-800">{entity.name}</span>
-                    <span className="mt-1 block text-[10px] text-ink-400">درجة الجودة: {entity.score}%</span>
+                    <div className="mt-1 flex items-center gap-2">
+  <span className="text-[10px] text-ink-400">درجة الجودة: {entity.score}%</span>
+  <span className="h-1.5 w-24 overflow-hidden rounded-full bg-ink-100" role="progressbar" aria-label={"درجة جودة " + entity.name} aria-valuemin={0} aria-valuemax={100} aria-valuenow={entity.score}>
+    <span className="block h-full rounded-full bg-primary-500" style={{ width: Math.max(0, Math.min(100, entity.score)) + '%' }} />
+  </span>
+</div>
                   </div>
                   <span className="shrink-0 text-xs font-black text-ink-500">{entity.issues ?? 'غير متاح'} مشكلة</span>
                 </div>
