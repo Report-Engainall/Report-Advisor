@@ -174,6 +174,15 @@ For every legacy or duplicate surface, classify it as:
 
 Before deletion, inspect references/dependencies and preserve any required capability by consolidating into the canonical path. Do not create another wrapper, runner, RPC, navigation map or competing design system to avoid doing the consolidation.
 
+
+### MANDATORY PRODUCT-DESIGN INITIATIVE — VALUE-FIRST UI EVOLUTION
+
+الواجهات لا تُعامل كمخرجات جامدة للمواصفة. في كل شاشة وتدفق، يجب أن يعمل المبرمج بعقلية **Product Designer + UI/UX Engineer** وأن يبحث استباقيًا عن فرصة حقيقية لتحسين الفهم، القرار، العمل، الثقة، أو القيمة المدركة.
+
+بعد أي تنفيذ واجهي، يجب إجراء مراجعة **«ما الذي يمكن تحسينه هنا؟»** وتنفيذ التحسين المناسب مباشرة ضمن الهوية والبنية المعتمدتين، سواء كان ذلك Action أو زرًا، بطاقة أو مؤشرًا، تحسين عرض البيانات، Drawer/Panel/Modal، فلترًا أو بحثًا، تنبيهًا أو حالة، Tooltip، مقارنة/Visualization/Timeline/Evidence View، حالة Empty/Loading/Success/Warning/Blocked/Review/Insufficient Data، Micro-interaction، Shortcut، أو تحسينًا في الترتيب والتسلسل البصري وطريقة عرض النتيجة أو التوصية أو القرار.
+
+هذه المبادرة **مقيدة بالقيمة وليست تفويضًا للزحام أو اختراع وظائف**: يُنفذ العنصر فقط إذا أضاف قيمة واضحة مثل فهم أسرع، قرار أسرع، عمل أسرع، دليل أوضح، اكتشاف فرصة/مشكلة، خطوات أقل، ثقة أعلى، أو قيمة مدركة أعلى. ويجب أن يبقى متسقًا مع الـIA، الهوية البصرية، المسارات الحقيقية، حالات الثقة، deterministic calculations، fail-closed، tenant/RLS، والأداء والاستجابة. لا يجوز أن تتحول المبادرة إلى taxonomy جديدة أو backend path جديد لمجرد خدمة الواجهة.
+
 ### Visual-first execution priority
 
 For the next major product-development wave, the first priority is **complete visual coverage of the entire canonical product surface** using the shared design system and real application paths.
