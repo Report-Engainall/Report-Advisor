@@ -104,6 +104,11 @@ assert.ok(!trustEvidence.includes('window.location.reload()'), 'trust evidence r
 assert.ok(trustEvidence.includes('لا توجد بيانات مثبتة بعد'), 'empty trust state must explain the absence of evidence');
 assert.ok(trustEvidence.includes('RECORDS CHECKED'), 'trust evidence must expose the source record count');
 assert.ok(trustEvidence.includes('criticalIssueTotal'), 'trust evidence must expose critical issue pressure from the authoritative snapshot');
+assert.ok(trustEvidence.includes('const weightedQualityScore = useMemo(() =>'), 'trust evidence must derive an aggregate entity-quality summary from the authoritative snapshot');
+assert.ok(trustEvidence.includes('متوسط موزون بعدد السجلات'), 'trust evidence aggregate quality must disclose its record-weighted basis');
+assert.ok(trustEvidence.includes('ليس درجة ثقة مستقلة'), 'trust evidence aggregate quality must not be presented as an invented trust score');
+assert.ok(trustEvidence.includes('QUALITY COVERAGE'), 'trust evidence must expose aggregate quality coverage in the decision surface');
+assert.ok(trustEvidence.includes('role="progressbar"'), 'trust evidence aggregate quality visualization must remain accessible');
 assert.ok(trustEvidence.includes('أغلق المشكلات الحرجة'), 'trust evidence must route critical data-quality pressure to an actionable next step');
 assert.ok(trustEvidence.includes("aria-label={'الخطوة التالية: ' + nextStep.label}"), 'trust evidence next-action link must use valid JSX');
 assert.ok(!trustEvidence.includes('aria-label={\\`'), 'trust evidence contract must reject escaped JSX template backticks');
