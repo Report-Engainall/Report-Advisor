@@ -691,9 +691,9 @@ button,input,textarea,select{font:inherit}
   .ag-app-shell .ag-sidebar { border-color: rgb(143 200 190 / 24%) !important; }
   .ag-app-shell .ag-sidebar .border-ink-100 { border-color: rgb(191 235 226 / 14%) !important; }
   .ag-app-shell .ag-sidebar .border-ink-200 { border-color: rgb(191 235 226 / 20%) !important; }
-  .ag-app-shell .ag-nav-sublist { border-inline-start-color: #74b8ad !important; }
-  .ag-app-shell .ag-nav-sublist .ag-nav-item::before { border-top-color: #74b8ad !important; }
-  .ag-app-shell .ag-nav-sublist .ag-nav-item-active::before { border-top-color: #e7b52b !important; }
+  .ag-app-shell .ag-nav-sublist{border-inline-start-color:#355f57 !important;}
+  .ag-app-shell .ag-nav-sublist .ag-nav-item::before { border-top-color:#355f57 !important; }
+  .ag-app-shell .ag-nav-sublist .ag-nav-item-active::before { border-top-color:#e7b52b !important; }
 
   .ag-main {
     background: linear-gradient(180deg, #f8fafc 0%, #eef5f3 100%) !important;
