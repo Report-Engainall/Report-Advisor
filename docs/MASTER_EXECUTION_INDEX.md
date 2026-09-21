@@ -1,3 +1,16 @@
+## CURRENT EXECUTION BOUNDARY — 2026-09-21 / WAVE 48B — DECISION SOURCE ROUTING CORRECTION
+
+> Exact-head evidence only. No historical deployment/runtime result is transferred.
+
+- **CURRENT CODE/TEST CANDIDATE:** `34b2038602f4899a78e6e183087cfe232c02faa8`.
+- **UI IMPLEMENTATION:** `42ca66e327ce63fd5353de86d3f8753f12356b55`.
+- **UI CONTRACT:** `34b2038602f4899a78e6e183087cfe232c02faa8`.
+- **DONE:** decision alerts now send «فحص المصدر أولًا» to the existing Trust & Evidence route instead of returning to the same command screen.
+- **EXACT SOURCE VERIFICATION:** changed UI and guard were re-read from GitHub after write.
+- **CURRENT BUILD/DEPLOY BOUNDARY:** exact-head Vercel status remains `failure` / `build-rate-limit`, with the Vercel deployment context `pending`; no GitHub Actions run is attached to the current main SHA.
+- **NEXT EXECUTABLE ACTION:** fresh exact-head CI/build/Phase-F/browser/certification for `34b2038602...`; repair only a reproduced current-SHA failure. Then backup/RPO-RTO → worker/server-boundary → tenant A/B → server OCR → watched-folder → final certification.
+- **DO NOT REPEAT:** do not transfer READY evidence from older SHAs; do not add parallel decision/import routes; do not treat source-level guards as runtime certification.
+
 ## CURRENT EXECUTION BOUNDARY — 2026-09-21 / WAVE 48 — DECISION CENTER + DECISION EXPERIENCE EMPTY-STATE ACTIONS
 
 > Exact-head evidence only. No older deployment/runtime result is transferred.
