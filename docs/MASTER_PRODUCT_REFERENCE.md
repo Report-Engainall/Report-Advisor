@@ -1189,3 +1189,13 @@ This update records implementation state only; it does not replace the product c
 - Browser-derived rows are no longer authoritative commit input.
 - No new RPC, runner, import route, specialized importer, tenant/RLS model or product taxonomy was introduced.
 - Exact-head runtime/build proof remains open and must be re-proven on this SHA.
+
+
+## IMPLEMENTATION UPDATE — 2026-09-21 / CORE RESILIENCE + UI WAVE 28
+- Exact product/code HEAD: `403d6af5211482fd9086668136b2902707970e41`.
+- Unified import remains source-first and domain-neutral; authoritative commit input is derived server-side from stored source bytes.
+- Durable worker recovery has been exercised against live staging using the existing canonical recovery function. Five expired processing leases were requeued according to their remaining retry budget.
+- A forward-only migration now aligns fresh environments with the live retryable-expired-lease recovery behavior.
+- Decision Experience now surfaces actual owner/deadline/status/expected-impact/impact-result fields already present in recommendation records.
+- Work Center now surfaces durable worker health with explicit partial-read semantics.
+- Scanned-PDF OCR remains fail-closed server-side until a true authoritative OCR-capable runtime is available.
