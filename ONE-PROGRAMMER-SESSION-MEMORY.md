@@ -1,3 +1,18 @@
+## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-WAVE-45
+
+- SESSION-ID → `2026-09-21-AGHBARI-WAVE-45`
+- SHA → product/test candidate `a0efc8caddd310dba4d7a0fe2b83dee14ca21669`; branch `exec/wave-45-exact-head-certification-20260921` is now the exact certification path.
+- DONE → upgraded `src/pages/ReportsPage.tsx` so the Reports Center reads the existing canonical dashboard snapshot, exposes live truth state, As Of, sales/receivables/inventory/invoice context, and a context-aware next action with in-place refresh.
+- DONE → strengthened `scripts/check-product-wow-ui-contract.mjs` to guard the live Report Center snapshot, next-action, refresh behavior and no-synthetic-data invariant.
+- ACTUAL RESULT → exact source re-read after both writes: the UI file and contract contain the required guards; no new backend path was introduced.
+- ACTUAL RESULT → staging backup observation at 2026-09-21 17:26 UTC: `backup_verification_runs=0`; WAL archiving is active (`archived_count=3195`, `failed_count=21`, last archived 2026-09-21 17:26:30 UTC), but no restore/RPO/RTO PASS is claimed.
+- ACTUAL RESULT → repository Phase-F contains a real logical backup/restore implementation, but its live probe is not yet executed on the current SHA because the workflow is PR-dispatch based.
+- PRECISE STOP POINT → branch contains the current product/test code plus synchronized product/execution governance; fresh exact-head CI/runtime/browser evidence is the remaining release boundary.
+- WHAT REMAINS → consume the PR's exact-head build/quality/browser/Phase-F results; repair only failures proven on this SHA; then merge, rebind main, and continue tenant A/B, OCR, watched-folder and final certification.
+- NEXT ACTION → create/open the PR from `exec/wave-45-exact-head-certification-20260921`, consume the fresh exact-head workflow results and use their real logs/artifacts to close or repair the current release boundary.
+- DO NOT REPEAT → do not treat `backup_verification_runs=0` as PASS, do not treat WAL archiving as a restore drill, do not transfer stale deployment/runtime PASS, and do not re-run old closed checks without a material SHA/environment/contract change.
+- CURRENT RESUME POINTER → `a0efc8caddd310dba4d7a0fe2b83dee14ca21669` → PR exact-head CI/Phase-F/browser/certification → repair fresh failure if any → merge/rebind main → tenant A/B/OCR/watched-folder → final certification.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-COMPREHENSIVE-WAVE-44
 - SESSION-ID → `2026-09-21-AGHBARI-COMPREHENSIVE-WAVE-44`
 - SHA → final current main after all wave-44 governance write-backs: `73c9754e624a457dc439e0bf6e8e9c5e89934d87`.
