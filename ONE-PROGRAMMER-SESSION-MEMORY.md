@@ -1,5 +1,37 @@
 
 
+## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-GENERAL-IMPORT-22
+- SESSION-ID → `2026-09-21-AGHBARI-GENERAL-IMPORT-22`
+- REPOSITORY HEAD BEFORE THIS WRITE-BACK → `743ae888303f7d817abb6baee2b1a9366ea37140d`
+- LATEST PRODUCT-CODE HEAD → `6875c0640ab7a84f05a0d59adf87ba6cc2b782f0`
+- USER PRODUCT DIRECTION → the product is **general-purpose**. The unified source experience must not be designed or branded as a fixed `products | customers | sales_invoices` importer. Those names may remain only as internal legacy compatibility branches while the canonical system converges to the general model.
+- DEVICE CONSTRAINT → PC01 remains Offline; all work in this wave was cloud-only.
+- DONE → removed the fixed entity selector and specialized import language from the unified import UX; added automatic semantic understanding with a `general-source` fallback so unknown domains are not rejected merely because no predefined specialization was detected.
+- DONE → made the shared import contract automatic-only. The user-facing import history no longer exposes entity type.
+- DONE → generalized the canonical import boundary with `CanonicalImportEntityType = legacy | generic:<slug>`; generic rows retain deterministic row identity and full provenance.
+- DONE → added `canonical_dataset_records` as the general canonical dataset substrate with tenant RLS, source-hash, row identity and provenance constraints. It is written only through the SECURITY DEFINER canonical commit boundary; authenticated direct table writes are not granted.
+- DONE → extended the existing `import_commit_batch` path, not a new specialized RPC, so `generic:<slug>` rows are committed idempotently into the general canonical dataset.
+- DONE → extended both canonical server boundaries to accept generic entity slugs while preserving authenticated tenant/source checks.
+- DONE → added regression coverage for generic canonical identity in `src/lib/import/canonical-truth-boundary.test.ts`.
+- DONE → normalized generic domain slugs to lowercase kebab-case and aligned UI, TypeScript, API, Netlify boundary and database regex/constraint.
+- DONE → updated `docs/MASTER_PRODUCT_REFERENCE.md` so the general canonical contract is now an explicit product implementation decision.
+- SUPABASE EXACT RESULT → staging remains `ACTIVE_HEALTHY`. Generic migrations are applied and visible in the migration ledger, including:
+  `canonical_generic_dataset_support_20260921`,
+  `canonical_generic_import_commit_20260921`,
+  `fix_generic_import_commit_legacy_compat_20260921`,
+  and `20260921153000_reconcile_generic_import_slug`.
+  Database constraint accepts legacy compatibility values OR `generic:<lowercase-slug>`; `canonical_dataset_records` has RLS enabled.
+- FAIL-CLOSED RESULT → no generic dataset is reported committed unless the durable lifecycle reaches the existing canonical commit boundary and the row count/IDs match; source hash and provenance are checked. Snapshot/evidence persistence after canonical commit is best-effort and does not retroactively turn a successful canonical commit into a failed import.
+- VERCEL RESULT → current exact repository HEAD deployment is **not available for PASS**. The latest exact-head GitHub Vercel status reports `failure` with target `build-rate-limit`; this is the free-plan deployment capacity blocker, not an application test failure. The last READY generic lifecycle deployment was exact SHA `a4dd7b2520aeb23ef782db470f8797461f1f187a`, but its PASS is not transferred to newer SHAs.
+- NETLIFY RESULT → existing site `aghbari-report-advisor` is healthy, but its current production deploy is old commit `21f6562dbca1016842f037299ffd8815b59fe1aa`; therefore it is not evidence for the current HEAD. Connector deployment trigger returned a local-source CLI instruction rather than producing a new exact-head deployment.
+- IMPORTANT → do not claim current production READY for `743ae888...` or `6875c064...` until an exact deployment exists. Do not transfer older Vercel/Netlify proof across SHA.
+- PRECISE STOP POINT → general canonical import implementation is in GitHub and applied in Supabase; exact-head hosting proof is blocked only by current free Vercel build-rate limit and lack of a directly executable Netlify source-upload path in the current cloud connector.
+- OPEN BLOCKERS → exact-head deployment/runtime proof; authenticated post-login/browser E2E because PC01 is offline; Tenant A/B isolation evidence; worker/resilience; backup/RPO-RTO; OCR/watched-folder runtime; final certification.
+- NEXT EXECUTABLE ACTION → obtain exact-head deployment proof using an available free hosting path, then run authenticated/runtime evidence. After that, continue resilience/backup/OCR/CI and final certification. Do not redesign the product back toward specialized importers.
+- DO NOT REPEAT → do not restore a fixed entity picker; do not create specialized import routes/RPCs/tables just to support one domain; do not duplicate the canonical commit path; do not delete the existing legacy compatibility branches without dependency/runtime evidence; do not transfer PASS across SHAs.
+- CURRENT RESUME POINTER → repository `743ae888303f7d817abb6baee2b1a9366ea37140d` / latest product code `6875c0640ab7a84f05a0d59adf87ba6cc2b782f0` → exact-head deployment proof → authenticated runtime/E2E → resilience/backup/OCR/CI → final certification.
+
+
 ## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-DOMAIN-NEUTRAL-21
 - SESSION-ID → `2026-09-21-AGHBARI-DOMAIN-NEUTRAL-21`
 - EXACT PRODUCT CODE HEAD → `5bc69b8b763885d4b70f8e8cb816399330927df7`
