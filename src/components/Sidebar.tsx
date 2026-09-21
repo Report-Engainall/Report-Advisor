@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Activity, BarChart3, Brain, ChevronDown, ClipboardCheck, Database, FileBarChart, Files, Gauge, Layers3, LayoutDashboard, ListChecks, LogOut, Package, Scale, ScanSearch, Settings, Target, Upload, UserCircle, Users, Warehouse, AlertCircle, PlugZap } from 'lucide-react';
+import { Activity, BarChart3, ShieldCheck, Brain, ChevronDown, ClipboardCheck, Database, FileBarChart, Files, Gauge, Layers3, LayoutDashboard, ListChecks, LogOut, Package, Scale, ScanSearch, Settings, Target, Upload, UserCircle, Users, Warehouse, AlertCircle, PlugZap } from 'lucide-react';
 import type { User } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
 import { getDisplayEmail, getDisplayName } from '@/lib/profile-display';
@@ -42,6 +42,8 @@ const iconFor: Record<NavigationIconKey, ReactNode> = {
   abc: <BarChart3 size={16}/>,
   aging: <BarChart3 size={16}/>,
   metrics: <Gauge size={16}/>,
+  trust: <ShieldCheck size={16}/>,
+  'master-data': <Files size={16}/>,
   'executive-report': <ClipboardCheck size={16}/>,
   reports: <FileBarChart size={16}/>,
   'inventory-report': <Warehouse size={16}/>,
