@@ -1,3 +1,24 @@
+## CURRENT EXECUTION BOUNDARY — 2026-09-21 / WAVE 79 — PARALLEL PRODUCT VALUE CLOSURE
+
+> Exact-head evidence only. No historical runtime result is transferred.
+
+- CURRENT_CODE_TEST_CANDIDATE: `f87243c34c909b89501c8b3b717215891be1b1bb`.
+- DONE: Unified import completion now surfaces the authoritative server row count, authoritative quality score, server source hash, and evidence snapshot state; the UI no longer reports client-preview row totals as final truth.
+- DONE: Work Center rows now expose persisted operational error/review reasons instead of forcing the operator to infer failure context from status alone.
+- DONE: Executive Command Center now exposes Decision Coverage from current actionable recommendations: owner coverage, recorded outcome coverage, and pending decisions; ROI is not implied where no ROI ledger exists.
+- DONE: Product WOW contract now guards all three new surfaces plus their fail-closed semantics.
+- VERIFIED SOURCE: exact changed files were re-read after write; compare from `2f0c106...` to `f87243c...` is linear and limited to the intended UI/contract/governance files.
+- LIVE DATA: staging recommendations currently expose zero actionable recommendations for the populated tenant; Decision Coverage therefore correctly renders the no-recommendations state instead of fabricating percentages.
+- DEPLOYMENT: Netlify deploy-preview for exact candidate `f87243c...` is READY and serves the latest branch commit with the existing `canonical-import-execute` function deployed.
+- BROWSER: unauthenticated public preview fetch succeeded and confirmed the Arabic RTL Aghbari shell, Evidence-first positioning, workspace auth gate, tenant-isolation messaging, and PWA/mobile metadata. Authenticated browser verification could not start because the external TinyFish automation wallet is out of funds; this is not a product/runtime PASS or FAIL.
+- VERCEL: exact candidate remains externally rate-limited by free-plan `build-rate-limit`; no Vercel runtime PASS is claimed.
+- GITHUB ACTIONS: no PR workflow run is attached to exact candidate `f87243c...`; no CI PASS is claimed.
+- PHASE-F: remains FAIL-CLOSED on missing authorized `RESILIENCE_MAX_RPO_SECONDS` and live backup/restore configuration.
+- PRECISE STOP POINT: parallel product-value UI closure is implemented and exact-head Netlify deployment is READY; authenticated E2E and fresh CI remain external proof gaps.
+- NEXT EXECUTABLE ACTION: continue independent UI/product closure and governed runtime verification; when an authenticated exact-head browser/CI path becomes available, verify Trust, unified Import completion, Work Center exceptions, and Decision Coverage end-to-end. In parallel, proceed with governed legacy-import recovery analysis and authorized Phase-F/recovery evidence.
+- DO NOT REPEAT: do not transfer preview/browser/CI evidence across SHAs; do not claim Decision Coverage when no actionable rows exist; do not revert to client row counts as final import truth; do not force-close legacy imports; do not create duplicate import/RPC/runner paths.
+- CURRENT RESUME POINTER: `f87243c34c909b89501c8b3b717215891be1b1bb` → fresh exact-head CI/browser evidence → governed legacy-import recovery decision → Phase-F real recovery evidence → final certification.
+
 ## CURRENT EXECUTION BOUNDARY — 2026-09-21 / WAVE 78 — TRUST QUALITY COVERAGE
 
 - CURRENT_CODE_TEST_CANDIDATE: `2f0c106dacb586a88b421b6797e7d4922a9338c7`.
