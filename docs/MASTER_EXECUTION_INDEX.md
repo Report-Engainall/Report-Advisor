@@ -2,11 +2,11 @@
 
 > تحديث تنفيذي بعد أمر المالك «انطلق». هذا القسم يصف الحالة المثبتة من الأدوات فقط. لا يتم نقل Evidence بين SHAs، ولا تُعد الحالة PASS إلا بدليل Exact-HEAD.
 
-- **CURRENT CODE/TEST CANDIDATE:** `cd8f32ad1fc7d3ebc96d215596e010a14efe2892`
+- **CURRENT CODE/TEST CANDIDATE:** `cccf7fa61c9689aab08e425f885c9d2a8583e71d`
 - **CURRENT_REPOSITORY_HEAD:** `943f0619abfddb56daddc83bc500659376655474`
 
 ### CURRENT EXACT HEAD / DEPLOYED STATE
-- **Current product/code HEAD:** `cd8f32ad1fc7d3ebc96d215596e010a14efe2892` on `main`.
+- **Current product/code HEAD:** `cccf7fa61c9689aab08e425f885c9d2a8583e71d` on `main`.
 - **Previous product/runtime baseline:** `1568e43889d27b5d850e64c0b99d03a994fd3bbe`.
 - **Historical product/test candidate:** `fe5661060462ffa21d6aa31505f80c2021c4170a` — historical only; do not treat as current HEAD evidence.
 - **Reference product/runtime code HEAD:** `c11c084d161cceb4595f8552b6c49c3f610f0ec2`; current `main` also carries the forward-only security/source-parity migrations merged afterward.
@@ -296,3 +296,13 @@ There is one execution owner. Do not resurrect the previous UI/runtime owner spl
 - No new route, RPC, runner, data model, tenant/RLS path or calculation engine.
 - Vercel exact-head runtime remains blocked by free-plan `build-rate-limit`; no current-head PASS transferred.
 - Next executable action: continue the next weak canonical surface or independent cloud-safe closure, then runtime proof.
+
+
+## CONTINUATION UPDATE — 2026-09-21 / IMPORT AUTHORITY + CI REPAIR WAVE
+- Product code HEAD entering this documentation-only continuation: `cccf7fa61c9689aab08e425f885c9d2a8583e71d`.
+- Unified `/import` now exposes only the canonical source-first importer; the legacy `FolderBatchImportPanel` and fixed user-facing `products/customers/sales_invoices` selector were removed from that entry surface.
+- `scripts/check-import-center-product-contract.mjs` now fails when the forbidden specialization/legacy folder importer re-enters the unified entry.
+- Canonical source-analysis Snapshot persistence moved from the browser import page to the authoritative server boundary after durable canonical execution; the import UI no longer performs direct Supabase table writes.
+- The import transaction contract now checks that authoritative parsing/reconciliation precede the `file_records.status='ready'` write.
+- Current code also repairs a real Decision Experience syntax error and the Liquidity loading-state lint error found by GitHub Actions.
+- Exact-head runtime/build proof is still to be consumed from the new CI run; no stale PASS is transferred.
