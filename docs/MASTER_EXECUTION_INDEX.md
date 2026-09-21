@@ -223,3 +223,14 @@ There is one execution owner. Do not resurrect the previous UI/runtime owner spl
 - **Verification boundary:** GitHub status has no completed runtime checks for this SHA yet; authenticated browser proof remains unavailable because PC01 is offline and no fake session is permitted.
 - **Next executable action:** continue independent high-value UI/runtime-safe work only where it improves canonical surfaces without changing product taxonomy; separately obtain exact-head deployment/runtime proof when the hosting capacity path permits.
 - **Do not repeat:** do not recreate shell/navigation/advisor; do not expose internal importer entity names through any surface; do not invent specialized import routes/RPCs; do not transfer deployment or browser PASS across SHAs.
+
+
+## LATEST EXACT-HEAD OVERRIDE — 2026-09-21 / TRUST & EVIDENCE ACTIONABILITY
+- **Latest exact product/code head:** `778a601189077e0bda5b844e6d6a06e35ab7e1e3`.
+- **UI work completed:** `src/pages/TrustEvidencePage.tsx` was materially upgraded: evidence surfaces are now presented once in a compact two-column governance panel; unsupported surfaces remain explicitly unverified; a context-aware `NEXT TRUST ACTION` routes to data-quality review when issues exist or source-evidence inspection otherwise; refresh is explicit.
+- **Truth boundary:** next-step selection uses only the existing data-quality snapshot/issues. No synthetic evidence, confidence score, business metric or new backend state was added.
+- **Architecture impact:** no new route, RPC, runner, job family, calculation path, tenant/RLS path or import lifecycle change.
+- **Verification:** exact GitHub file re-read after repair; JSX closure was corrected before this state was accepted. Current GitHub Vercel status for the exact head remains **failure** at `build-rate-limit`.
+- **Deployment/runtime boundary:** no READY/PASS is claimed for this SHA; authenticated browser evidence remains unavailable while PC01 is offline.
+- **Next executable action:** continue with the next weak canonical surface and responsive/accessibility/value polish, while pursuing exact-head deployment/runtime proof when free hosting capacity permits.
+- **Do not repeat:** do not recreate prior shell, navigation, import, intelligence or trust panels; do not expose internal importer taxonomy; do not transfer old deployment/runtime evidence.
