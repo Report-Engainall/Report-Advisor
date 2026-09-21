@@ -214,6 +214,7 @@ export function DecisionExperiencePage() {
             </div>
           </div>
         </section>
+      )}
 
       <section className="grid gap-4 xl:grid-cols-[1.15fr_.85fr]">
           <Card>
