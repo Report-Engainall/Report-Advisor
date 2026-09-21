@@ -21,9 +21,9 @@ const DOMAIN_LABELS: Record<string, string> = {
   inventory: 'بيانات تشغيلية',
   sales: 'نشاط تجاري',
   purchases: 'نشاط توريد',
-  customerBalances: 'بيانات علاقات وأرصدة',
-  supplierBalances: 'بيانات علاقات وأرصدة',
-  stockMovement: 'حركة تشغيلية',
+  'customer-balances': 'بيانات علاقات وأرصدة',
+  'supplier-balances': 'بيانات علاقات وأرصدة',
+  'stock-movement': 'حركة تشغيلية',
   unknown: 'نطاق دلالي غير محسوم',
 };
 
@@ -38,9 +38,9 @@ function inferGenericDomain(dataset: Dataset): { domain: string; confidence: num
     { domain: 'inventory', hits: ['sku','productcode','productname','currentstock','warehouse','quantity'].filter(x => tokens.has(x)).length, hints: ['الصنف','الكمية','المخزن','الرصيد'] },
     { domain: 'sales', hits: ['productcode','quantity','netamount','price','documentdate'].filter(x => tokens.has(x)).length, hints: ['الحركة','القيمة','التاريخ','السعر'] },
     { domain: 'purchases', hits: ['productcode','quantity','netamount','suppliercode','cost'].filter(x => tokens.has(x)).length, hints: ['المورد','التكلفة','الكمية','القيمة'] },
-    { domain: 'customerBalances', hits: ['customercode','customername','netamount','duedate'].filter(x => tokens.has(x)).length, hints: ['العميل','الرصيد','الاستحقاق'] },
-    { domain: 'supplierBalances', hits: ['suppliercode','suppliername','netamount','duedate'].filter(x => tokens.has(x)).length, hints: ['المورد','الرصيد','الاستحقاق'] },
-    { domain: 'stockMovement', hits: ['productcode','documentdate','quantity','warehouse'].filter(x => tokens.has(x)).length, hints: ['الحركة','الصنف','المخزن'] },
+    { domain: 'customer-balances', hits: ['customercode','customername','netamount','duedate'].filter(x => tokens.has(x)).length, hints: ['العميل','الرصيد','الاستحقاق'] },
+    { domain: 'supplier-balances', hits: ['suppliercode','suppliername','netamount','duedate'].filter(x => tokens.has(x)).length, hints: ['المورد','الرصيد','الاستحقاق'] },
+    { domain: 'stock-movement', hits: ['productcode','documentdate','quantity','warehouse'].filter(x => tokens.has(x)).length, hints: ['الحركة','الصنف','المخزن'] },
   ].sort((a,b) => b.hits - a.hits);
 
   const best = scores[0];
