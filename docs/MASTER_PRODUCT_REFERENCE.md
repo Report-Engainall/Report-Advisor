@@ -1161,3 +1161,11 @@ Development proceeds in large batches without requiring user prompts between eve
 - report only after a meaningful batch or a blocking failure.
 
 Never trade correctness for apparent progress percentage.
+
+
+### LATEST PRODUCT-CODE OVERRIDE — 2026-09-21 / TRUST & EVIDENCE POLISH
+- **Latest exact product/code head:** `778a601189077e0bda5b844e6d6a06e35ab7e1e3`.
+- **Completed:** Trust & Evidence now uses one actionable evidence-path panel, exposes all six evidence/governance surfaces without duplicating the same list, provides a context-aware next trust action, and supports explicit refresh.
+- **Truth rule preserved:** the next action is derived only from the existing data-quality snapshot state; no new confidence score, synthetic evidence, or unsupported business state was introduced.
+- **Architecture unchanged:** no route, RPC, runner, job family, calculation, tenant/RLS path, or import lifecycle was introduced.
+- **Deployment boundary:** exact current head remains unproven live; Vercel continues to report the free-plan `build-rate-limit` blocker.
