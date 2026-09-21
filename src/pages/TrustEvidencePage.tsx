@@ -156,7 +156,7 @@ export function TrustEvidencePage() {
                     <div className="mt-1 flex items-center gap-2">
   <span className="text-[10px] text-ink-400">درجة الجودة: {qualityScore}%</span>
   <span className="h-1.5 w-24 overflow-hidden rounded-full bg-ink-100" role="progressbar" aria-label={"درجة جودة " + entity.name} aria-valuemin={0} aria-valuemax={100} aria-valuenow={qualityScore}>
-    <span className="block h-full rounded-full bg-primary-500" style={{ width: Math.max(0, Math.min(100, entity.score)) + '%' }} />
+    <span className="block h-full rounded-full bg-primary-500" style={{ width: `${qualityScore}%` }} />
   </span>
 </div>
                   </div>
@@ -171,8 +171,7 @@ export function TrustEvidencePage() {
                       <ArrowLeft size={10} />
                     </Link>
                   </div>
-                </div>
-                ;
+                </div>;
               })}
             </div>
           ) : (
