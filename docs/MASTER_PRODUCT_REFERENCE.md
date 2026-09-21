@@ -154,45 +154,33 @@ The interface must distinguish:
 
 ### MANDATORY UNIFIED IMPORT ENTRY — ONE CANONICAL INGESTION SURFACE
 
-**قاعدة معمارية ملزمة:** يوجد **مدخل استيراد موحّد واحد فقط** لجميع الملفات والبيانات، بصرف النظر عن تخصصها أو مصدرها أو صيغة الملف. لا يجوز إنشاء أو إبقاء واجهات أو مسارات استيراد مستقلة للمبيعات أو المشتريات أو المخزون أو العملاء أو الموردين أو المنتجات أو المدفوعات أو أي تخصص آخر.
+**قاعدة المنتج الملزمة:** الأغبري يملك مدخلًا واحدًا عامًا للمصادر والملفات والبيانات. هذه النقطة ليست «مستورد منتجات» أو «مستورد عملاء» أو «مستورد فواتير»، ولا تُبنى تجربة المستخدم على اختيار كيان أو جدول قبل قراءة المصدر.
 
-المسار الكانوني الإجباري هو:
+المسار الكانوني هو:
 
-`Unified Import → Upload/Drop Any File → Format Detection → Security Scan → Extraction → Column/Content Understanding → Automatic Domain Detection → Matching & Normalization → Data Quality & Confidence → User Review → Canonical Approval/Commit`
+`Any Source → Read → Understand → Extract Structure & Meaning → Quality & Confidence → Evidence → Review → Canonical Approval/Commit → Business Understanding`
 
-ويجب أن يدعم النظام، بعد فهم المحتوى، التخصصات المكتشفة مثل:
-- مبيعات
-- مشتريات
-- مخزون
-- عملاء
-- موردون
-- منتجات
-- مدفوعات
-- مستندات / تخصص آخر
+يرفع المستخدم أي مصدر يدويًا أو عبر قناة مدعومة. النظام هو الذي يتولى اكتشاف الصيغة، الفحص الأمني، استخراج المحتوى، فهم البنية والحقول والعلاقات، رصد الجودة، بناء السياق الدلالي، وتحديد ما يمكن إثباته. لا يُطلب من المستخدم اختيار هوية المصدر مسبقًا، ولا تُفرض عليه قائمة كيانات ثابتة، ولا يظهر له تصنيف داخلي على أنه «محرك الاستيراد».
 
-**قواعد السلوك:**
-- يرفع المستخدم الملف من نقطة دخول واحدة فقط؛ لا يختار مسبقًا شاشة "استيراد العملاء" أو "استيراد المنتجات" أو "استيراد المخزون".
-- يكتشف النظام الصيغة والأمان والبنية والحقول والمحتوى أولًا، ثم يحدد التخصص الأنسب تلقائيًا مع إظهار سبب/مؤشرات التصنيف عندما يكون ذلك مفيدًا للثقة.
-- يستطيع المستخدم تصحيح التخصص يدويًا عند الحاجة قبل الاعتماد، دون كسر المسار الكانوني أو إنشاء مسار استيراد بديل.
-- تُعرض المعاينة والمطابقة والتطبيع وجودة البيانات والثقة والتحذيرات والمراجعة والنتيجة وفق التخصص المكتشف، داخل نفس تجربة الاستيراد.
-- **الواجهات القديمة المتخصصة للاستيراد** مثل استيراد العملاء أو المنتجات أو المخزون أو غيرها تُصنّف `REMOVE` أو `REPLACE` بحسب حالتها بعد فحص الاعتماديات؛ لا تُعتبر مسارات بديلة معتمدة ولا تُستعاد كـUX مستقل.
-- إذا كانت هناك قدرة متخصصة مطلوبة بعد الاستيراد، فتظهر كتخصص/عرض داخل المسار الكانوني أو ضمن الصفحات التشغيلية/المرجعية المناسبة، وليس كنقطة دخول استيراد جديدة.
-- لا يجوز إضافة route أو RPC أو runner أو job family مستقل فقط لأن نوع البيانات مختلف؛ اختلاف التخصص يُعالَج داخل العقد الكانوني نفسه.
-- أي تحسين لاحق للاستيراد يجب أن يوسّع المدخل الموحد أو يحسّن مراحله، لا أن يقسّم التجربة إلى مستوردات متخصصة.
+قد يستخدم القلب الداخلي إشارات أو تصنيفات دلالية مساعدة لفهم المصدر وتحسين التحليل، لكن هذه الآليات تبقى **تفاصيل تنفيذية داخلية**. لا يجوز أن تتحول إلى taxonomy للمنتج، أو قوائم اختيار، أو routes/RPCs/importers منفصلة، أو لغة تجبر المستخدم على التفكير في جداول قاعدة البيانات.
 
-**النتيجة التصميمية المطلوبة:** قوة التخصصات لا تُعرض عبر تعدد شاشات الاستيراد، بل عبر قدرة النظام على فهم أي ملف، اكتشاف تخصصه، تفسير قراره، طلب المراجعة عند الحاجة، ثم اعتماده عبر **مسار واحد موثوق وقابل للتدقيق**.
+التجربة العامة يجب أن تُظهر للمستخدم قيمة الفهم نفسه: ما الذي قُرئ، ما الذي فُهم، ما مستوى الجودة والثقة، ما الذي يحتاج مراجعة، وما الذي أصبح موثقًا وقابلًا للاستخدام. عندما يكون المعنى غير محسوم، لا يُخمن النظام ولا يرفض المصدر لمجرد أنه جديد؛ يحتفظ به ضمن العقد العام، ويُظهر حدود الفهم ويطلب المراجعة فقط عندما تكون المراجعة لازمة للثقة.
+
+إذا احتاج النظام بعد ذلك إلى تحليل تشغيلي متخصص، فذلك يحدث **بعد فهم المصدر** داخل طبقات Business Analytics / Intelligence / Decision، وليس عبر تحويل صفحة الاستيراد إلى كتالوج مستوردات متخصصة.
+
+لا يجوز لأي تطوير لاحق أن يعيد إدخال اختيار target entity أو table picker إلى المدخل الموحد، ولا إنشاء مسار استيراد مستقل لمجرد اختلاف طبيعة البيانات. أي توسعة يجب أن تزيد قدرة الأغبري على فهم المصادر المختلفة عبر نفس المسار العام، مع الحفاظ على الحقيقة الكانونية، الدليل، الـprovenance، الـtenant/RLS، والـfail-closed behavior.
+
+**النتيجة التصميمية الملزمة:** المستخدم يفكر «لدي مصدر أريد أن يفهمه الأغبري»، ولا يفكر «أي جدول يجب أن أستورد إليه؟». هذه قاعدة منتج أساسية وليست تحسينًا اختياريًا للواجهة.
 
 ### PRODUCT DECISION — DOMAIN-NEUTRAL INGESTION
-The unified ingestion surface is intentionally **domain-neutral**. The user never starts by selecting a fixed target entity or a table-specific importer. The system reads the source first, extracts structure/content, resolves semantic meaning and confidence, and only then determines the business domain represented by the source.
+The unified ingestion surface is intentionally **general-purpose and source-first**. The user never starts by selecting a fixed target entity or table-specific importer. The system reads the source first, extracts structure and content, understands semantic meaning and confidence, and preserves that context without exposing internal taxonomy as the product experience.
 
-The product identity must remain broader than any single business record type. Fixed implementation targets may exist only as internal compatibility details while they are being replaced or generalized; they must not define the import UX, product taxonomy, customer-facing language or the canonical product position.
+The product identity must remain broader than any single business record type. Fixed implementation targets may exist only as internal compatibility details; they must never define the import UX, product taxonomy, customer-facing language, or canonical product position.
 
 The correct mental model is:
-`Any Source → Understand → Semantic Mapping → Quality → Evidence → Domain Detection → Review → General Canonical Contract`
+`Any Source → Read → Understand → Semantic Context → Quality → Evidence → Review → General Canonical Contract → Business Understanding`
 
-Until a genuinely general canonical write contract exists, the system must save and expose the verified analysis/evidence state rather than pretending a specialized target is the final truth.
-
-Current implementation decision: the general canonical contract now exists on the existing `import_commit_batch` path. Domain-neutral rows are persisted in `canonical_dataset_records`, protected by tenant RLS and provenance/source-hash checks, while legacy specialized implementation branches remain internal compatibility only. The unified import UX must not expose those legacy entity names as the product's identity or force a target selection.
+The general canonical contract now exists on the existing `import_commit_batch` path. Source-neutral rows are persisted in `canonical_dataset_records`, protected by tenant RLS and provenance/source-hash checks, while legacy specialized implementation branches remain internal compatibility only. The unified import UX must not expose those legacy entity names or require the user to select a target.
 
 ### Truth and finance rules visible in UI
 
