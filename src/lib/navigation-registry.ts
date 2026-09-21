@@ -5,6 +5,8 @@ export type NavigationSectionId =
   | 'data-operations'
   | 'analytics'
   | 'intelligence'
+  | 'trust'
+  | 'outputs'
   | 'reference'
   | 'admin';
 
@@ -42,7 +44,7 @@ export type NavigationIconKey =
   | 'onboarding'
   | 'settings'
   | 'profile'
-  | 'proposal';
+;
 
 export interface NavigationItem {
   section: NavigationSectionId;
@@ -90,8 +92,6 @@ export const NAVIGATION_SECTIONS: NavigationSection[] = [
     title: 'التحليل التجاري',
     enTitle: 'Business Analytics',
     items: [
-      { section: 'analytics', path: '/reports', label: 'مركز التقارير', enLabel: 'Reports Center', description: 'التقارير التنفيذية والتفصيلية ومخرجات الأداء', keywords: ['reports', 'report', 'تقارير', 'مخرجات'], icon: 'reports' },
-      { section: 'analytics', path: '/reports/executive', label: 'التقرير التنفيذي', enLabel: 'Executive Report', description: 'قصة الأداء والقرارات للإدارة', keywords: ['executive report', 'board', 'management', 'تقرير تنفيذي'], icon: 'executive-report' },
       { section: 'analytics', path: '/reports/sales', label: 'المبيعات', enLabel: 'Sales', description: 'اتجاه المبيعات وقيمتها وتغيراتها', keywords: ['sales', 'مبيعات'], icon: 'money' },
       { section: 'analytics', path: '/reports/purchases', label: 'المشتريات', enLabel: 'Purchases', description: 'الحركة الشرائية والإنفاق', keywords: ['purchases', 'مشتريات'], icon: 'purchases' },
       { section: 'analytics', path: '/reports/receivables', label: 'التحصيل والذمم', enLabel: 'Receivables', description: 'التحصيل والأعمار والتعرض المالي', keywords: ['receivables', 'aging', 'collection', 'ذمم', 'تحصيل'], icon: 'receivables' },
@@ -100,7 +100,6 @@ export const NAVIGATION_SECTIONS: NavigationSection[] = [
       { section: 'analytics', path: '/reports/inventory-intelligence', label: 'ذكاء المخزون', enLabel: 'Inventory Intelligence', description: 'التغطية ونقاط الخطر وإعادة الطلب', keywords: ['inventory intelligence', 'stock', 'مخزون', 'إعادة الطلب'], icon: 'inventory-intelligence', minimumWorkspaceMode: 'advanced' },
       { section: 'analytics', path: '/reports/demand-velocity', label: 'حركة الطلب', enLabel: 'Demand & Velocity', description: 'سرعة الحركة والاتجاهات', keywords: ['demand velocity', 'demand', 'velocity', 'طلب'], icon: 'demand', minimumWorkspaceMode: 'advanced' },
       { section: 'analytics', path: '/analytics', label: 'مساحة التحليلات', enLabel: 'Analytics', description: 'تحليلات تجميعية واستكشافية', keywords: ['analytics', 'تحليلات'], icon: 'analytics', minimumWorkspaceMode: 'advanced' },
-      { section: 'analytics', path: '/metrics', label: 'تفسير المؤشرات', enLabel: 'Metric Inspector', description: 'هوية المؤشر وصيغة الحساب ومصدره', keywords: ['metrics', 'metric', 'kpi', 'مؤشرات'], icon: 'metrics', minimumWorkspaceMode: 'advanced' },
       { section: 'analytics', path: '/analytics/aging', label: 'تحليل الأعمار', enLabel: 'Aging Analysis', description: 'قراءة أعمار المستحقات كتحليل مستقل', keywords: ['aging', 'أعمار', 'ذمم'], icon: 'aging', minimumWorkspaceMode: 'advanced' },
       { section: 'analytics', path: '/analytics/rfm', label: 'RFM', enLabel: 'RFM', description: 'تقسيم العملاء حسب القيمة والسلوك', keywords: ['rfm', 'عملاء', 'قيمة'], icon: 'rfm', minimumWorkspaceMode: 'advanced' },
       { section: 'analytics', path: '/analytics/abc', label: 'ABC', enLabel: 'ABC', description: 'تصنيف المنتجات حسب الأهمية والقيمة', keywords: ['abc', 'منتجات', 'أهمية'], icon: 'abc', minimumWorkspaceMode: 'advanced' },
@@ -108,13 +107,30 @@ export const NAVIGATION_SECTIONS: NavigationSection[] = [
   },
   {
     id: 'intelligence',
-    title: 'الذكاء والاستكشاف',
-    enTitle: 'Intelligence & Discovery',
+    title: 'الذكاء والقرار',
+    enTitle: 'Intelligence & Decision',
     items: [
       { section: 'intelligence', path: '/intelligence', label: 'مركز الذكاء', enLabel: 'Intelligence Center', description: 'الإشارات والتوصيات من المصدر الكانوني', keywords: ['ai', 'intelligence', 'ذكاء', 'إشارات'], icon: 'intelligence', minimumWorkspaceMode: 'advanced' },
       { section: 'intelligence', path: '/intelligence/recommendations', label: 'التوصيات', enLabel: 'Recommendations', description: 'إجراءات مقترحة مرتبطة بسياقها وأدلتها', keywords: ['recommendations', 'actions', 'توصيات'], icon: 'recommendations', minimumWorkspaceMode: 'advanced' },
       { section: 'intelligence', path: '/intelligence/forecasts', label: 'التنبؤات', enLabel: 'Forecasts', description: 'استعراض التنبؤات المتاحة دون اختلاق نتيجة', keywords: ['forecast', 'forecasts', 'تنبؤات'], icon: 'forecasts', minimumWorkspaceMode: 'advanced' },
       { section: 'intelligence', path: '/intelligence/scenarios', label: 'السيناريوهات', enLabel: 'Scenarios', description: 'محاكاة محكومة منفصلة عن الحقيقة التشغيلية', keywords: ['scenarios', 'scenario', 'سيناريوهات'], icon: 'scenarios', minimumWorkspaceMode: 'advanced' },
+    ],
+  },
+  {
+    id: 'trust',
+    title: 'الثقة والأدلة',
+    enTitle: 'Trust & Evidence',
+    items: [
+      { section: 'trust', path: '/metrics', label: 'تفسير المؤشرات', enLabel: 'Metric Inspector', description: 'هوية المؤشر وصيغة الحساب ومصدره وحالته', keywords: ['metrics', 'kpi', 'evidence'], icon: 'metrics', minimumWorkspaceMode: 'advanced' },
+    ],
+  },
+  {
+    id: 'outputs',
+    title: 'التقارير والمخرجات',
+    enTitle: 'Reports & Outputs',
+    items: [
+      { section: 'outputs', path: '/reports', label: 'مركز التقارير', enLabel: 'Reports Center', description: 'التقارير التنفيذية والتفصيلية ومخرجات الأداء', keywords: ['reports', 'تقارير'], icon: 'reports' },
+      { section: 'outputs', path: '/reports/executive', label: 'التقرير التنفيذي', enLabel: 'Executive Report', description: 'قصة الأداء والقرارات للإدارة', keywords: ['executive report', 'management'], icon: 'executive-report' },
     ],
   },
   {
@@ -136,7 +152,6 @@ export const NAVIGATION_SECTIONS: NavigationSection[] = [
       { section: 'admin', path: '/onboarding', label: 'تجهيز المنصة', enLabel: 'Platform Setup', description: 'تهيئة مساحة الشركة ومسار البدء', keywords: ['onboarding', 'setup', 'تهيئة'], icon: 'onboarding' },
       { section: 'admin', path: '/settings', label: 'إعدادات الشركة', enLabel: 'Company Settings', description: 'إعدادات المنتج ومساحة العمل', keywords: ['settings', 'config', 'إعدادات'], icon: 'settings' },
       { section: 'admin', path: '/settings/profile', label: 'الملف الشخصي', enLabel: 'Profile', description: 'هوية المستخدم داخل المنصة', keywords: ['profile', 'account', 'ملف', 'حساب'], icon: 'profile' },
-      { section: 'admin', path: '/proposal-demo', label: 'العرض التقديمي', enLabel: 'Proposal Demo', description: 'مطابقة قدرات المنتج الحقيقية مع متطلبات عرض محدد', keywords: ['proposal', 'job fit', 'demo', 'عرض', 'ديمو'], icon: 'proposal', minimumWorkspaceMode: 'expert' },
     ],
   },
 ];
