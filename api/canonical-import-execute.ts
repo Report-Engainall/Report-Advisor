@@ -41,7 +41,8 @@ function validateInput(value: unknown): DurableCanonicalImportInput {
   if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error('invalid_json');
   const body = value as Record<string, unknown>;
   const entityType = body.entityType;
-  if (entityType !== 'products' && entityType !== 'customers' && entityType !== 'sales_invoices') throw new Error('entity_type_invalid');
+  const genericEntity = typeof entityType === 'string' && /^generic:[A-Za-z][A-Za-z0-9_-]{0,63}$/.test(entityType);
+  if (entityType !== 'products' && entityType !== 'customers' && entityType !== 'sales_invoices' && !genericEntity) throw new Error('entity_type_invalid');
   if (typeof body.importId !== 'string' || !body.importId.trim()) throw new Error('import_id_invalid');
   if (typeof body.fileName !== 'string' || !body.fileName.trim() || body.fileName.length > 512) throw new Error('file_name_invalid');
   if (typeof body.sourceHash !== 'string' || !/^sha256:[0-9a-fA-F]{64}$/.test(body.sourceHash)) throw new Error('source_hash_invalid');
