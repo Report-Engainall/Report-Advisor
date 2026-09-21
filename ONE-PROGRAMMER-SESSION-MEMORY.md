@@ -1,3 +1,11 @@
+## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-35
+- SESSION-ID → `2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-35`
+- EXACT PRODUCT CODE HEAD → `522099ffa8b7b0c4f12e60813d4a99bb62fb1f9c`
+- DONE → closed the last known Decision Experience JSX boundary defect and made UI route completeness explicitly accept only the approved `/proposal-demo` progressive-disclosure internal route.
+- VERIFIED → `UI route completeness` on the exact code candidate `522099f…` returned PASS.
+- CI → build/lint/certification/browser are being re-evaluated on the same product candidate; previous failures from earlier SHAs are not transferred.
+- CURRENT RESUME POINTER → `522099ffa8b7b0c4f12e60813d4a99bb62fb1f9c` → consume exact-head build/lint/certification/browser → then Phase-F/backup/OCR/Tenant A-B/watched-folder → final certification.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-34
 - SESSION-ID → `2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-34`
 - EXACT PRODUCT CODE HEAD → `13b690c06b185ad2aba7a764bb5a8f158ab8f7eb`
