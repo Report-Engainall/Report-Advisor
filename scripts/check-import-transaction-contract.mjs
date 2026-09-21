@@ -92,6 +92,9 @@ if (!/commitImportBatch\(input\.entityType,\s*input\.rows,\s*input\.sourceHash,\
 if (!/IMPORT_DURABLE_JOB_ALREADY_RUNNING/.test(adapter)) {
   throw new Error('Canonical durable adapter must fail closed when the same durable import is already running');
 }
+if (!/qualityApproved: boolean/.test(adapter) || !/qualityApproved/.test(adapter)) {
+  throw new Error('Canonical durable adapter must carry explicit quality approval state');
+}
 
 const serverAdapterPath = path.join(root, 'netlify', 'functions', 'canonical-import-execute.mts');
 if (!fs.existsSync(serverAdapterPath)) throw new Error('Canonical durable import server boundary is missing');
