@@ -1,3 +1,17 @@
+## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-41
+- SESSION-ID → `2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-41`
+- SHA → `40c2a6fad2538c57061417a5af84b070cd13a346` is the certification-bound governance head; latest product UI code remains `b397204051d19c0107112c9b2ea389a9ac6a428c`, and latest UI contract is `3b10164c8bce6b1f7b17af9ac7e0e71ade4cc505`.
+- DONE → upgraded `src/pages/AnalyticsPage.tsx` with a shared `AnalyticsStatusStrip` showing analysis state, records used, rows excluded from calculation, truth rule, and next action context across RFM / ABC / aging; RFM and aging empty states now expose actionable real routes instead of inert blank messages.
+- DONE → strengthened `scripts/check-product-wow-ui-contract.mjs` to guard the analytics truth-state/actionability surface and prevent regression.
+- DONE → fixed a real certification-boundary blocker: the master execution index still pointed to stale candidate `e6c39323...`; it is now explicitly bound to current candidate `3b10164c8bce6b1f7b17af9ac7e0e71ade4cc505`.
+- ACTUAL RESULT → `UI route completeness` PASS on product UI commit `b397204051d19c0107112c9b2ea389a9ac6a428c`. `storage-tenant-isolation` PASS on certification-bound governance head `40c2a6fad2538c57061417a5af84b070cd13a346`. `Execution Enforcement Contract` initially failed because of the stale index, then PASSed after the index correction on the new head.
+- ACTUAL RESULT → `Final Certification Gate`, `Final Execution Batch`, `Full Product Browser E2E`, and `quality` are currently running against the governance-bound HEAD after the index repair; no result is claimed until each run completes.
+- ACTUAL RESULT → Vercel remains unusable for fresh proof because the free-plan `build-rate-limit` failure persists and no new READY deployment has appeared for the corrected code. No Vercel PASS was used or transferred.
+- PRECISE STOP POINT → code/test state is stable at `b397204...` / `3b10164...`; certification index is correctly bound; current repository is advancing only through governance write-backs while exact-head Actions consume the candidate.
+- WHAT REMAINS → consume the current quality/final-certification/browser results; repair any exact-head failure they expose; then continue Phase-F live probes, backup/RPO-RTO, server OCR authority, authenticated tenant A/B, watched-folder runtime, and final certification.
+- NEXT ACTION → consume the fresh `quality`, `Final Certification Gate`, `Final Execution Batch`, and `Full Product Browser E2E` results for the certification-bound head; if a failure appears, repair its root cause without weakening the gate, otherwise proceed to the next independent Phase-F/runtime closure.
+- DO NOT REPEAT → do not revert the analytics actionability work, do not reintroduce a stale certification candidate, do not burn Vercel builds while free-plan capacity is blocked, and do not transfer PASS from any older SHA.
+- CURRENT RESUME POINTER → `40c2a6fad2538c57061417a5af84b070cd13a346` → consume exact-head Actions → repair any fresh failure → Phase-F/backup/OCR → tenant A/B/watched-folder → final certification.
 ## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-40
 - SESSION-ID → `2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-40`
 - SHA → `210441941d3732f7a46bc6b57b5b038231017f15` (latest product UI code); repository head before this memory write-back → `77b28c14a9e9d815f28cfd6e7612e9d9109e919`.
