@@ -35,6 +35,7 @@ export function validateCertificationBoundary({ index, head, parent, changedFile
     'scripts/check-release-drift.mjs',
     'scripts/check-release-manifest-integrity.mjs',
     'scripts/check-runtime-closure-integrity.mjs',
+    'scripts/check-phase10-backup-restore-contract.mjs',
     'scripts/check-runtime-lifecycle-hardening.mjs',
     'scripts/check-tenant-resolver-lineage.mjs',
     'scripts/check-unified-evidence-action-learning.mjs',
