@@ -1,4 +1,4 @@
-import { ArrowLeft, CheckCircle2, Eye, FileSearch, GitBranch, History, Landmark, ShieldCheck } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, Eye, FileSearch, GitBranch, History, Landmark, RefreshCw, ShieldCheck } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useEffect, useMemo, useState } from 'react';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
@@ -32,12 +32,19 @@ const evidenceSurfaces = [
 
   const status = snapshot?.status ?? 'INSUFFICIENT DATA';
   const issueTotal = useMemo(() => snapshot?.entities?.reduce((sum, entity) => sum + (entity.issues ?? 0), 0) ?? null, [snapshot]);
+  const nextStep = issueTotal && issueTotal > 0
+    ? { label: 'مراجعة جودة البيانات', detail: 'ابدأ من الحالات التي تمنع الثقة الكاملة.', path: '/data-quality' }
+    : { label: 'فحص مصدر الدليل', detail: 'راجع المصدر وسياقه قبل الانتقال إلى القرار.', path: '/import/analyze' };
 
   if (!snapshot && !error) return <LoadingState message="جارٍ قراءة حالة الثقة من المصدر..." />;
   if (error) return <ErrorState message={error} onRetry={() => window.location.reload()} />;
 
   return <div dir="rtl" className="ag-trust-evidence-surface space-y-6 animate-fade-in pb-10">
-    <PageHeader title="مركز الثقة والأدلة" subtitle="طبقة واحدة لفهم مصدر الرقم، حالته، حدوده، وما إذا كان صالحًا للاستخدام في قرار." />
+    <PageHeader
+      title="مركز الثقة والأدلة"
+      subtitle="طبقة واحدة لفهم مصدر الرقم، حالته، حدوده، وما إذا كان صالحًا للاستخدام في قرار."
+      actions={<button type="button" onClick={() => window.location.reload()} className="btn-secondary inline-flex items-center gap-2"><RefreshCw size={15}/> تحديث الحالة</button>}
+    />
     <section className="ag-command-hero overflow-hidden rounded-[1.75rem] p-6 text-white lg:p-8">
       <div className="max-w-4xl">
         <div className="text-[10px] font-black tracking-[.14em] text-primary-200">TRUTH CONTROL PLANE</div>
@@ -52,10 +59,10 @@ const evidenceSurfaces = [
     </section>
 
     <section className="ag-decision-strip" aria-label="ملخص الثقة">
-      <div className="ag-decision-cell"><span className="ag-decision-label">الحالة</span><span className="ag-decision-value">{status}</span></div>
-      <div className="ag-decision-cell"><span className="ag-decision-label">الكيانات المفحوصة</span><span className="ag-decision-value">{snapshot?.entities?.length ?? 0}</span></div>
+      <div className="ag-decision-cell"><span className="ag-decision-label">الحالة الحالية</span><span className="ag-decision-value">{status}</span></div>
+      <div className="ag-decision-cell"><span className="ag-decision-label">العناصر المفحوصة</span><span className="ag-decision-value">{snapshot?.entities?.length ?? 0}</span></div>
       <div className="ag-decision-cell"><span className="ag-decision-label">المشكلات</span><span className="ag-decision-value">{issueTotal ?? 'غير متاح'}</span></div>
-      <div className="ag-decision-cell"><span className="ag-decision-label">المصدر التالي</span><span className="ag-decision-value">جودة البيانات</span></div>
+      <div className="ag-decision-cell"><span className="ag-decision-label">الخطوة التالية</span><span className="ag-decision-value">{nextStep.label}</span></div>
       <div className="ag-decision-cell"><span className="ag-decision-label">قاعدة القرار</span><span className="ag-decision-value">لا قرار بلا دليل</span></div>
     </section>
 
@@ -64,30 +71,38 @@ const evidenceSurfaces = [
         <div className="flex items-center justify-between gap-3"><span className={'rounded-full px-2.5 py-1 text-[9px] font-black '+tone}>{title}</span><Icon size={18} className="text-ink-400"/></div>
         <p className="mt-4 text-xs leading-6 text-ink-500">{text}</p>
       </CardBody></Card>)}
-    </section>    <section className="grid gap-4 xl:grid-cols-[1.15fr_.85fr]">
+    </section>    <section className="grid gap-4 xl:grid-cols-[.9fr_1.1fr]">
       <Card>
         <CardHeader title="حالة جودة البيانات الحالية" subtitle={snapshot?.status ?? 'غير متاح'} />
         <CardBody className="space-y-2.5">
           {snapshot?.entities?.slice(0, 8).map(entity => <div key={entity.name} className="flex items-center justify-between gap-3 rounded-xl border border-ink-100 bg-ink-50/40 px-3 py-3">
             <span className="min-w-0 text-xs font-bold text-ink-800">{entity.name}</span>
             <span className="shrink-0 text-xs font-black text-ink-500">{entity.issues ?? 'غير متاح'} مشكلة</span>
-          </div>)}
+          />)}
         </CardBody>
       </Card>
 
       <Card>
-        <CardHeader title="مسارات الإثبات" subtitle="الوصول المباشر إلى الأدلة المتاحة فعليًا." />
-        <CardBody className="space-y-2.5">
-          {evidenceSurfaces.slice(0, 3).map(surface => surface.available
-            ? <Link key={surface.title} to={surface.path} className="flex items-center gap-3 rounded-xl border border-ink-100 p-3 hover:border-primary-200 hover:bg-primary-50/40">
-                <surface.icon size={16} className="text-primary-700"/><span className="min-w-0 flex-1"><strong className="block text-xs">{surface.title}</strong><span className="text-[10px] text-ink-400">{surface.detail}</span></span><ArrowLeft size={13}/>
+        <CardHeader title="مسارات الإثبات" subtitle="كل مسار موصول بما هو متاح فعليًا، وما لم يثبت يبقى معلنًا." />
+        <CardBody className="grid gap-2.5 sm:grid-cols-2">
+          {evidenceSurfaces.map(surface => surface.available
+            ? <Link key={surface.title} to={surface.path} className="group flex items-start gap-3 rounded-xl border border-ink-100 bg-white p-3 transition hover:border-primary-200 hover:bg-primary-50/40">
+                <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary-50 text-primary-700"><surface.icon size={15}/></div>
+                <span className="min-w-0 flex-1"><strong className="block text-xs text-ink-800">{surface.title}</strong><span className="mt-1 block text-[10px] leading-5 text-ink-400">{surface.detail}</span><span className="mt-2 block text-[9px] font-black text-primary-700">فتح المسار <ArrowLeft size={11} className="inline"/></span></span>
               </Link>
             : <div key={surface.title} className="rounded-xl border border-warning-200 bg-warning-50/50 p-3">
-                <div className="flex items-center gap-2 text-xs font-black text-ink-800"><surface.icon size={16}/>{surface.title}</div><div className="mt-1 text-[10px] leading-5 text-warning-900">{surface.detail}</div>
+                <div className="flex items-start gap-3"><surface.icon size={15} className="mt-0.5 shrink-0 text-warning-700"/><div><div className="text-xs font-black text-ink-800">{surface.title}</div><div className="mt-1 text-[10px] leading-5 text-warning-900">{surface.detail}</div><span className="mt-2 inline-flex rounded-full bg-white px-2 py-1 text-[8px] font-black text-warning-800">غير مثبت</span></div></div>
               </div>)}
         </CardBody>
       </Card>
-    </section>    <section className="grid gap-4 xl:grid-cols-2">
+    </section>
+
+    <Link to={nextStep.path} className="block rounded-[16px] border border-primary-200 bg-primary-50/60 p-4 transition hover:border-primary-300 hover:bg-primary-50">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div><div className="text-[9px] font-black tracking-[.12em] text-primary-700">NEXT TRUST ACTION</div><div className="mt-1 text-sm font-black text-ink-950">{nextStep.label}</div><div className="mt-1 text-[10px] leading-5 text-ink-600">{nextStep.detail}</div></div>
+        <span className="inline-flex items-center gap-2 rounded-xl bg-ink-950 px-3 py-2 text-[10px] font-black text-white">فتح الآن <ArrowLeft size={13}/></span>
+      </div>
+    </Link>    <section className="grid gap-4 xl:grid-cols-2">
       <Card>
         <CardHeader title="خريطة الدليل" subtitle="الحالة التشغيلية لكل طبقة تُقرأ من المصدر، وليست شهادة بصرية بحد ذاتها." />
         <CardBody>
