@@ -169,3 +169,12 @@ There is one execution owner. Do not resurrect the previous UI/runtime owner spl
 - **Open blocker:** authenticated visual sweep still requires a real configured Supabase runtime/session; no fake session/JWT/bypass is permitted.
 - **Next executable action:** continue visual polish on any remaining weak canonical surface only after inspecting its existing route and dependencies; then obtain fresh deployment/runtime proof on exact `5b93dce6...` and proceed with independent runtime/evidence/CI closure.
 - **Do not repeat:** do not recreate the canonical shell/navigation/advisor; do not fabricate post-login screenshots; do not claim current-head live PASS from the older `64ce8344...` deploy.
+
+
+## LATEST EXACT-HEAD OVERRIDE — 2026-09-21 / NAVIGATION READABILITY + TRUST SURFACES
+- **Current exact product/code HEAD:** `e831771435e84a66356a718fb6d63abc1fe7c18d` on `main`.
+- **UI work completed:** sidebar branch connectors clarified with explicit high-contrast vertical/horizontal tree lines, clearer child-row contrast and active-state joining; Data Quality, Master Data and Metric Governance surfaces elevated into the shared Aghbari visual system.
+- **No architecture change:** no new route, RPC, runner, calculation, tenant/RLS path, import state, or fail-closed behavior was introduced.
+- **Exact-head gates:** typecheck PASS; build PASS (2808 modules); Product WOW UI PASS; route/sidebar parity PASS (37/35); Executive Dashboard UI PASS; Intelligence Product Contract PASS; Connections/Language UI PASS (7); diff-check PASS; lint 0 errors / 63 warnings.
+- **Deployment boundary:** latest proven Netlify deploy remains `6ab09c139d58a600089e430f` at product commit `64ce8344...`; no live PASS transferred to `e8317714...`.
+- **Next:** continue remaining weak canonical surfaces with responsive state polishing, then obtain exact-head deployment/runtime proof and resume runtime/evidence/CI closure.

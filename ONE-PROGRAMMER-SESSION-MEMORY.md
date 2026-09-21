@@ -60,3 +60,17 @@ CURRENT RESUME POINTER
 - NEXT EXECUTABLE ACTION → continue only with remaining genuinely weak canonical UI surfaces, then obtain fresh deployment/runtime proof on `5b93dce6...` and proceed with independent runtime/evidence/CI closure.
 - DO NOT REPEAT → no recreation of 8-zone navigation, shell, Advisor, Bolt/CRUD taxonomy, fake session/JWT/data/evidence, duplicate RPCs/runners, or transfer of live proof from `64ce8344...` to `5b93dce6...`.
 - CURRENT RESUME POINTER → `5b93dce673ebfc84710d2c07d37a4640ec2bada4` → remaining weak-surface UI audit → exact-head deployment/runtime proof → runtime/evidence/CI closure.
+
+
+## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-VISUAL-CLOSURE-07
+- SESSION-ID → `2026-09-21-AGHBARI-VISUAL-CLOSURE-07`
+- EXACT HEAD → `e831771435e84a66356a718fb6d63abc1fe7c18d`
+- BRANCH / PR → `main` / pushed to `origin/main`
+- DONE → corrected the navigation tree readability and continued visual elevation across trust/reference surfaces. The sidebar branch connector is now visibly rendered with high-contrast teal/gold hierarchy, horizontal elbows, stronger inactive text/icon contrast, and clearer active-state joining. Data Quality, Master Data, and Metric Governance received the same premium Aghbari surface treatment.
+- ACTUAL RESULT → the previously weak/low-contrast subdivision lines under sidebar sections are now explicit, legible, and structurally connected; no navigation taxonomy or business behavior changed.
+- PRECISE STOP POINT → exact product code is `e8317714...`; repository clean and synced. Latest proven Netlify deployment remains the older `64ce8344...`; current-head live proof is intentionally not transferred.
+- OPEN BLOCKERS → authenticated post-login visual proof still requires a real configured Supabase runtime/session; runtime/business E2E, resilience, backup/RPO/RTO and final certification remain open.
+- VERIFIED TESTS / EVIDENCE → typecheck PASS; build PASS (2808 modules); product-wow PASS; route/sidebar parity PASS (37/35); executive dashboard PASS; intelligence contract PASS; connections/language PASS (7); diff-check PASS; lint 0 errors / 63 warnings.
+- NEXT EXECUTABLE ACTION → continue the same high-end visual sweep over any remaining weak canonical surfaces, with special attention to responsive tables/drawers, empty/review/blocked states and cross-surface consistency, then obtain fresh exact-head deployment/runtime proof.
+- DO NOT REPEAT → do not recreate the sidebar architecture; do not transfer old Netlify evidence to `e8317714...`; do not fabricate authenticated runtime or business data.
+- CURRENT RESUME POINTER → `e831771435e84a66356a718fb6d63abc1fe7c18d` → remaining canonical UI weak-surface sweep → exact-head deployment/runtime proof → runtime/evidence/CI closure.
