@@ -6,7 +6,7 @@
 - **Observed current code HEAD before this documentation wave:** `1568e43889d27b5d850e64c0b99d03a994fd3bbe` on `main`. This documentation wave does not claim product-code changes and must not transfer code/runtime evidence to the documentation commits.
 - **Historical product/test candidate:** `fe5661060462ffa21d6aa31505f80c2021c4170a` — historical only; do not treat as current HEAD evidence.
 - **Reference product/runtime code HEAD:** `c11c084d161cceb4595f8552b6c49c3f610f0ec2`; current `main` also carries the forward-only security/source-parity migrations merged afterward.
-- **Current main at last memory write:** `ab43a5e23eaa0d8838dde608ec57d0ccd49d3d46`. The repository HEAD may advance; every session must re-read exact HEAD before acting.
+- **Last verified execution HEAD:** `82d489df29b7e1b541f65cfbb398547c93e94295`. Subsequent memory-only commits do not imply product-code changes; every session must still re-read exact repository HEAD before acting.
 - **Netlify Production:** latest verified production deploy `6aacfe23cc817a00089dce5c` = `ready`, branch `main`, but still points to commit `ad12e9e564f85ffde8bb29daa6e41e73ca969b92`, which predates current `main`. Public access remains verified without Netlify SSO/password. Connector-side redeploy requires a source/repo execution environment.
 - **Netlify administrative access control:** تم إزالة Team SSO/password requirement للمشروع فقط؛ لم يتم تغيير Auth التطبيق.
 - **Staging DB live counts:** companies=2, memberships=2, import_jobs=3800, canonical_import_commits=2557, kpi_evidence_snapshots=314, sales_invoices=355.
