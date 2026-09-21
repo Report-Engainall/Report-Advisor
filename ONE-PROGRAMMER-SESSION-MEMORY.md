@@ -162,3 +162,10 @@ CURRENT RESUME POINTER
 - NEXT EXECUTABLE ACTION → refresh the exact-head deployment/runtime proof for e7182a9d, then perform the authenticated visual sweep across canonical post-login routes without inventing sessions or evidence.
 - DO NOT REPEAT → do not rebuild the 8-zone navigation, sidebar/mobile Drawer, global Advisor, command palette, evidence architecture, or previously closed UI surfaces; do not transfer old deployment/browser PASS to e7182a9d; do not add fake data or backend contracts.
 - CURRENT RESUME POINTER → e7182a9dca88ddb24db0f7443954c94f0b885061 → exact-head deployment/runtime proof → authenticated visual sweep → runtime/evidence/CI closure.
+
+
+### SESSION-13 FINAL REPOSITORY-STATE CORRECTION
+- CURRENT REPOSITORY HEAD → 30c029659021704416623552a334d1b73bdb1d04 (memory-only commit).
+- CURRENT PRODUCT CODE HEAD → e7182a9dca88ddb24db0f7443954c94f0b885061 (Enterprise design-system code commit).
+- ORIGIN/MAIN → verified at repository HEAD 30c029659021704416623552a334d1b73bdb1d04.
+- RESUME RULE → resume implementation from product code e7182a9d...; do not treat the memory-only commit as a product-code change.
