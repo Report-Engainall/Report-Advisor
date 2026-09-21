@@ -2,13 +2,13 @@
 
 > Exact-head evidence only.
 
-- **CURRENT REPOSITORY HEAD:** `e2e9e9d10366e546ec09940e1cd91dedbe7171c6` on `main`.
+- **CURRENT REPOSITORY HEAD:** `14148438b3391f3a9c64bb049cb64899904243cd` on `main`.
 - **RECENT CODE/TEST MOVEMENT AFTER SESSION 42:** canonical import finish-job repair at `d2a1f22643bf7b5222fcda4176fcb5e7895ee361`, its contract guard at `2caedfa8ab2f71dd06bffb4992d122dc08bb75ac`, and certification binding at `40cc9527d5a31d81c71ffb0cfa44a2cfd435df1d`.
 - **MASTER PRODUCT REFERENCE:** successfully updated in the renewed connection at commit `e2e9e9d10366e546ec09940e1cd91dedbe7171c6`; the Dashboard Decision Accountability Wave 32 is now recorded there.
 - **CURRENT UI CODE:** Dashboard decision-accountability surface remains present in `src/pages/DashboardPage.tsx`; its exact blob SHA is `b98102702f6ed93a3bd5bb59ae9ed374cd2e3d55`.
 - **CURRENT UI CONTRACT GUARD:** `scripts/check-product-wow-ui-contract.mjs` contains the accountability assertions; exact blob SHA `a567fb653ab26a6195a2b89cd1136c818f43c901`.
 - **LIVE PROOF:** Vercel is still blocked by the free-plan `build-rate-limit`; no current-head deployment PASS is claimed.
-- **NEXT EXECUTABLE ACTION:** consume fresh exact-head CI/build/browser/certification for the current main head `e2e9e9d...`; repair any new failure, then continue Phase-F runtime closure without transferring historical PASS.
+- **NEXT EXECUTABLE ACTION:** consume fresh exact-head CI/build/browser/certification for the current main head `1414843...`; repair any new failure, then continue Phase-F runtime closure without transferring historical PASS.
 - **DO NOT REPEAT:** the previous MASTER_PRODUCT_REFERENCE write blockage is closed; do not report that blocker again unless a new write attempt actually fails.
 
 ## CURRENT PROJECT STATE — 2026-09-21 / CANONICAL IMPORT FINISH-JOB SUMMARY REPAIR
