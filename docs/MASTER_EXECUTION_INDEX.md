@@ -2,11 +2,11 @@
 
 > تحديث تنفيذي بعد أمر المالك «انطلق». هذا القسم يصف الحالة المثبتة من الأدوات فقط. لا يتم نقل Evidence بين SHAs، ولا تُعد الحالة PASS إلا بدليل Exact-HEAD.
 
-- **CURRENT CODE/TEST CANDIDATE:** `48ae39978afc495290a1b634bf052f4f10eeef24`
+- **CURRENT CODE/TEST CANDIDATE:** `175fb6d0a417c12ed9809a6a0489d844fa096065`
 - **CURRENT_REPOSITORY_HEAD:** `943f0619abfddb56daddc83bc500659376655474`
 
 ### CURRENT EXACT HEAD / DEPLOYED STATE
-- **Current product/code HEAD:** `48ae39978afc495290a1b634bf052f4f10eeef24` on `main`.
+- **Current product/code HEAD:** `175fb6d0a417c12ed9809a6a0489d844fa096065` on `main`.
 - **Previous product/runtime baseline:** `1568e43889d27b5d850e64c0b99d03a994fd3bbe`.
 - **Historical product/test candidate:** `fe5661060462ffa21d6aa31505f80c2021c4170a` — historical only; do not treat as current HEAD evidence.
 - **Reference product/runtime code HEAD:** `c11c084d161cceb4595f8552b6c49c3f610f0ec2`; current `main` also carries the forward-only security/source-parity migrations merged afterward.
@@ -333,3 +333,8 @@ There is one execution owner. Do not resurrect the previous UI/runtime owner spl
 - Exact product code HEAD: `48ae39978afc495290a1b634bf052f4f10eeef24`.
 - Decision Experience `command` stage now has one enclosing conditional around the full command surface; the readiness strip and alert/recommendation grid are not split by premature JSX closure.
 - No decision data or backend contract changed.
+
+
+## CONTINUATION UPDATE — 2026-09-21 / COMMAND STAGE FRAGMENT CLOSURE
+- Exact product code HEAD: `175fb6d0a417c12ed9809a6a0489d844fa096065`.
+- Decision Experience `command` stage now wraps its readiness and command-surface sections in a single JSX Fragment, eliminating the sibling-element parse failure found by Exact-HEAD build.
