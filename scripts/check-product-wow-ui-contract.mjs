@@ -23,6 +23,10 @@ for (const token of [
   'الخطوة التالية',
   'snapshotAsOf',
   'liveRecommendations[0]',
+  'decisionAccountability',
+  'مالك محدد',
+  'نتيجة أثر مسجلة',
+  'توصية قابلة للتنفيذ',
 ]) assert.ok(dashboard.includes(token), `dashboard decision brief missing: ${token}`);
 
 assert.ok(!login.includes('تجريبي') || login.includes('لا يوجد حساب تجريبي افتراضي'), 'login must not imply a fake demo account');
