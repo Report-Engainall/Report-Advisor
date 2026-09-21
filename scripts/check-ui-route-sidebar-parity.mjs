@@ -12,7 +12,7 @@ const intentionallyHiddenRoutes = new Set(['/proposal-demo']);
 const missingFromApp = navigationPaths.filter((path) => !routeSet.has(path));
 const missingFromSidebar = routePaths.filter((path) => path !== '*' && !navigationSet.has(path) && !intentionallyHiddenRoutes.has(path));
 
-const requiredRoutes = ['/import/analyze', '/decision-experience', '/metrics', '/reports/executive'];
+const requiredRoutes = ['/import/analyze', '/decision-experience', '/metrics', '/reports/executive', '/analytics/liquidity', '/suppliers'];
 const missingRequired = requiredRoutes.filter((path) => !routeSet.has(path) || !navigationSet.has(path));
 
 if (missingFromApp.length || missingFromSidebar.length || missingRequired.length) {
