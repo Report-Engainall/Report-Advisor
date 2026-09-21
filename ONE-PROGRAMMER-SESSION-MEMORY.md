@@ -1,3 +1,13 @@
+## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-36
+- SESSION-ID → `2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-36`
+- EXACT PRODUCT CODE HEAD → `175fb6d0a417c12ed9809a6a0489d844fa096065`
+- DONE → corrected the Decision Experience `command` stage so its readiness strip and command grid are enclosed by one JSX Fragment under the existing stage condition.
+- VERIFIED → exact commit diff shows the sibling JSX sections are now valid under `{stage === 'command' && (<>...</>)}`.
+- CI CONTEXT → fresh workflows are running on repository documentation head `05346a58...`, whose indexed code candidate is `175fb6d0a417c12ed9809a6a0489d844fa096065`; no runtime PASS is transferred from older SHAs.
+- NEXT ACTION → consume fresh quality/build/final-certification/browser results for this code candidate, then close remaining Phase-F/backup/OCR/tenant-A/B/watched-folder evidence.
+- DO NOT REPEAT → do not carry the prior DecisionExperience parser failures into the current candidate.
+- CURRENT RESUME POINTER → `175fb6d0a417c12ed9809a6a0489d844fa096065` → exact-head CI/runtime → Phase-F/backup/OCR → tenant A/B/watched folder → final certification.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-35
 - SESSION-ID → `2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-35`
 - EXACT PRODUCT CODE HEAD → `522099ffa8b7b0c4f12e60813d4a99bb62fb1f9c`
