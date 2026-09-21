@@ -1279,3 +1279,12 @@ This update records implementation state only; it does not replace the product c
 - Canonical import commit mapping now uses the full reconciled row with provenance and a non-empty type alias.
 - The exact-head lint error is closed without changing the canonical RPC or import lifecycle.
 - Prior exact-head Build and Performance Budget passes remain historical evidence only until re-run on `e6c39323eb0c0177b1de73c3b276ce9491fd07f0`.
+
+
+## IMPLEMENTATION UPDATE — 2026-09-21 / DASHBOARD DECISION ACCOUNTABILITY WAVE 32
+- Exact product UI commit: `63e1aa9c716135ac019db6b11896318889d27cbc`.
+- Existing canonical Recommendation records are now surfaced in the Business Pulse as decision-accountability context: actionable recommendation count, owner coverage, recorded outcome coverage, and pending-review count.
+- The dashboard truth/coverage area now connects data completeness with execution follow-through without introducing a new backend path.
+- Contract guard commit: `e6185e782e94fd227290a27a3b1d2263ced8d80c`.
+- No new RPC, query family, route, table, importer, runner, tenant/RLS path, or synthetic business data was introduced.
+- This UI change remains subject to fresh exact-head build/browser certification; historical runtime PASS is not transferred.
