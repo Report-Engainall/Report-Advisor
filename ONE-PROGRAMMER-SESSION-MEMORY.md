@@ -1,3 +1,18 @@
+## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-78B
+
+- SESSION-ID → `2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-78B`
+- CURRENT PR HEAD BEFORE THIS WRITE → `3edc300eb37dccb8d96e5cb5921f87e5cbb4cfac`; this write is governance-only.
+- EXACT CODE/TEST CANDIDATE → `2f0c106dacb586a88b421b6797e7d4922a9338c7`.
+- UPDATED DEPLOYMENT EVIDENCE → Netlify deploy-preview for exact candidate `2f0c106...` is now `READY`, branch `fix/trust-evidence-current-trust-state-20260921`, PR #612, with the canonical-import server function deployed. GitHub combined status also reports the Netlify preview context SUCCESS.
+- RUNTIME LIMITATION → READY preview proves deployment availability only; no authenticated business E2E was executed, and Vercel remains blocked by the external free-plan deployment-rate limit.
+- GITHUB ACTIONS → no PR workflow run is attached to exact candidate `2f0c106...`; no CI PASS is claimed.
+- RECOVERY FINDING → live Supabase public function inventory contains `recover_expired_report_execution_jobs` for durable report execution, but no `recover_*import_jobs` / stale-import recovery function was found. Therefore the 151 legacy `import_jobs` records remain untouched; no arbitrary `import_finish_job` cleanup was performed.
+- SECURITY/RLS → direct tenant-scoped `get_data_quality_snapshot()` invocation without a user/company context returned `TENANT_CONTEXT_REQUIRED`; no fake JWT/session or bypass was used. A read-only database definition lookup was used only to understand the authoritative scoring formula.
+- PRECISE STOP POINT → candidate `2f0c106...` contains the functional UI/contract change; governance descendants `d110aed...`, `3edc300...`, and this write record the execution state.
+- NEXT ACTION → use the READY exact-head preview as the next runtime verification target; authenticate through the real application/session path before claiming business E2E; otherwise continue the governed legacy-import recovery decision, authorized Phase-F, real recovery evidence, and final certification.
+- DO NOT REPEAT → do not transfer stale CI/runtime PASS; do not equate READY preview with authenticated E2E; do not force-close the 151 legacy imports; do not invent an import recovery RPC; do not bypass tenant context or RLS.
+- CURRENT RESUME POINTER → `2f0c106dacb586a88b421b6797e7d4922a9338c7` → exact-head authenticated preview verification → governed legacy-import recovery decision → Phase-F real recovery evidence → final certification.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-78
 
 - SESSION-ID → `2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-78`
