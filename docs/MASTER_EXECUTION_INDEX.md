@@ -3,7 +3,7 @@
 > Exact-head evidence only. No historical runtime result is transferred.
 
 - CURRENT_REPOSITORY_HEAD: `e55f6887fccc7b278a3632b9a90579eeb69ff9f1` (governance-only descendant of the current code/test candidate).
-- CURRENT_CODE_TEST_CANDIDATE: `ba034a4ec78e98716a352b7661d798fd5764d57b`.
+- CURRENT_CODE_TEST_CANDIDATE: `f5a5097e6c093b0ed266b8143c3308e369d96ff3`.
 - CURRENT_GOVERNANCE_HEAD: `ba034a4ec78e98716a352b7661d798fd5764d57b` (current exact candidate for fresh certification).
 - DONE: Trust & Evidence now shows authoritative per-entity quality visually and exposes entity-level next actions to the canonical data-quality or evidence-source paths.
 - DONE: `check-product-wow-ui-contract.mjs` guards the visual quality indicator, authoritative score exposure, and entity-level next actions.
