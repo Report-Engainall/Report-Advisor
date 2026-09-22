@@ -90,6 +90,8 @@ assert.ok(reports.includes('REPORT READINESS'), 'reports center must expose the 
 assert.ok(reports.includes('أي تقرير يمكن استخدامه الآن؟'), 'reports center readiness must answer the user\'s immediate report-availability question');
 assert.ok(reports.includes("kpis.grossProfit !== null && kpis.grossMargin !== null"), 'profitability readiness must require both gross profit and gross margin');
 assert.ok(reports.includes("aging.status === 'CALCULATED'"), 'receivables readiness must follow the authoritative aging status');
+assert.ok(reports.includes("purchaseSummary?.total != null && purchaseSummary?.count > 0"), 'purchase readiness must require a real total and at least one purchase invoice');
+assert.ok(reports.includes("purchaseSummary?.count === 0 ? 'NO DATA' : 'INSUFFICIENT DATA'"), 'purchase readiness must fail closed when the purchase summary is absent or incomplete');
 
 assert.ok(!reports.includes('generateSynthetic'), 'reports center must not invent business values');
 const trustEvidence = fs.readFileSync('src/pages/TrustEvidencePage.tsx', 'utf8');
@@ -199,6 +201,7 @@ assert.ok(dataQuality.includes('const weightedRows = snapshot.entities.reduce'),
 assert.ok(dataQuality.includes('const weightedScore = weightedRows > 0 ?'), 'data quality overall score must derive from the same weighted score basis as trust evidence');
 assert.ok(dataQuality.includes('setOverallScore(weightedScore == null ? 0 : Math.round(weightedScore))'), 'data quality must fail closed to zero when no weighted rows exist');
 
+const connections = fs.readFileSync('src/pages/ConnectionsPage.tsx', 'utf8');
 assert.ok(connections.includes("id === 'documents' ? '/import' : '/trust'"), 'document connector must route into the unified import path rather than a disconnected connector workflow');
 assert.ok(connections.includes("id === 'documents' ? (ar ? 'ابدأ الاستيراد الموحد' : 'Start unified import')"), 'document connector CTA must explicitly expose the unified import path');
 
@@ -250,19 +253,19 @@ for (const token of ['قيمة القرار الحالية', 'الإشارات',
 const executiveReport = fs.readFileSync('src/pages/ExecutiveReportPage.tsx', 'utf8');
 assert.ok(executiveReport.includes('المصدر: اللقطة المعتمدة'), 'executive report must use an unambiguous source label');
 assert.ok(!executiveReport.includes('المصدر: بيانات قانونية'), 'executive report must not expose the ambiguous legal-data label');
-const trustEvidence = fs.readFileSync('src/pages/TrustEvidencePage.tsx', 'utf8');
+// trustEvidence already loaded above; reuse the canonical source.
 assert.ok(trustEvidence.includes('مسارات الإثبات المتاحة'), 'trust surface must expose available evidence-path coverage');
 assert.ok(trustEvidence.includes('غير المثبتة'), 'trust surface must expose unverified evidence-path count');
-const dashboard = fs.readFileSync('src/pages/DashboardPage.tsx', 'utf8');
+// dashboard already loaded above; reuse the canonical source.
 assert.ok(dashboard.includes('مؤشرات مثبتة'), 'dashboard must expose confirmed evidence basis');
 assert.ok(dashboard.includes('مؤشرات محسوبة'), 'dashboard must expose calculated evidence basis');
 assert.ok(dashboard.includes('غير متاحة'), 'dashboard must expose unavailable evidence basis');
-const executiveReport = fs.readFileSync('src/pages/ExecutiveReportPage.tsx', 'utf8');
+// executiveReport already loaded above; reuse the canonical source.
 assert.ok(executiveReport.includes('مساءلة القرار'), 'executive report must expose decision accountability');
 assert.ok(executiveReport.includes('تغطية المسؤولية'), 'executive report must expose owner coverage');
 assert.ok(executiveReport.includes('نتائج مسجلة'), 'executive report must distinguish recorded outcomes');
 assert.ok(executiveReport.includes("const activeRecommendations = recommendations.filter"), 'executive report accountability must scope metrics to active decisions');
-const decisionExperience = fs.readFileSync('src/pages/DecisionExperiencePage.tsx', 'utf8');
+// decisionExperience already loaded above; reuse the canonical source.
 assert.ok(decisionExperience.includes("selected?.impact_result?.trim() || 'غير متاح بعد'"), 'decision outcome must surface a recorded actual outcome when one exists');
 assert.ok(decisionExperience.includes('نتيجة فعلية مسجلة'), 'decision outcome must distinguish recorded actual outcomes from missing outcomes');
 
