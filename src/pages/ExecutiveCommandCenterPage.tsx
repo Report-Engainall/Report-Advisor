@@ -6,7 +6,7 @@ import {
 import { Link } from 'react-router-dom';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { PriorityBadge, SeverityBadge } from '@/components/ui/Badge';
-import { LoadingState, ErrorState, EmptyState } from '@/components/ui/States';
+import { LoadingState, ErrorState, EmptyState, DataUnavailableState } from '@/components/ui/States';
 import { TrendChart } from '@/components/ui/Charts';
 import { TruthContextStrip } from '@/components/TruthContextStrip';
 import { fetchDashboardIntelligence, fetchDashboardSnapshot, type DashboardKPIs } from '@/lib/dashboard-canonical';
@@ -115,7 +115,7 @@ export function ExecutiveCommandCenterPage() {
 
   if (loading) return <LoadingState message="جارٍ بناء مركز القيادة من المصدر..." />;
   if (error) return <ErrorState message={error} onRetry={() => void load()} />;
-  if (!kpis) return null;
+  if (!kpis) return <DataUnavailableState title="مركز القيادة ينتظر الحقيقة" message="لا توجد مؤشرات أساسية موثوقة تكفي لبناء صورة تنفيذية. راجع جودة المصدر قبل اتخاذ القرار." action={<Link to="/data-quality" className="btn-primary text-[11px]">مراجعة جودة البيانات</Link>} />;
 
   return (
     <div dir="rtl" className="space-y-5 animate-fade-in pb-10">
