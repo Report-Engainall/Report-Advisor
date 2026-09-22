@@ -1,19 +1,13 @@
-## LATEST SESSION WRITE-BACK — 2026-09-23-AGHBARI-CONTINUOUS-EXECUTION-111
+## LATEST SESSION WRITE-BACK — 2026-09-23-AGHBARI-CONTINUOUS-EXECUTION-113
 
-- SESSION-ID → `2026-09-23-AGHBARI-CONTINUOUS-EXECUTION-111`
-- MAIN HEAD OBSERVED BEFORE THIS WRITE → `dd1c92ad94671785d01942bfa20907d8969d5577`.
-- CURRENT CODE/TEST CANDIDATE → `203aa8aedb45f51b453b840ea52738685936a7a2` (latest real source change; later commits are governance-only).
-- DONE → diagnosed and repaired the exact-head certification-boundary drift: PR #625 changed `.github/workflows/quality.yml`, so candidate binding was advanced from `6ef41bab...` to `203aa8ae...`.
-- VERIFIED EXACT HEAD → `dd1c92ad...`: Quality run `35793547797` SUCCESS; Final Certification `35793547768` SUCCESS; Enforcement `35793547774` SUCCESS; Full Product Browser E2E `35793547772` SUCCESS; Storage Tenant Isolation `35793547779` SUCCESS; Final Execution Batch `35793547743` SUCCESS.
-- VERIFIED LOCAL → 20/20 release-readiness remained PASS; knowledge-architecture PASS; quality-workflow-contract PASS; exact duplicate scan found 0 duplicate source files across 482 TypeScript/JavaScript source files.
-- DIAGNOSIS CLOSED → the prior `a7983bc3...` failures were governance/index lag only; no product/runtime defect reproduced.
-- BLOCKED → Phase-F measured backup/restore/RPO/RTO/rollback and exact current production deployment identity remain NOT PROVEN.
-- VERCEL BOUNDARY → latest READY production deployment observed is `1d88b083...`, older than current candidate; no current-head production proof is transferred. Vercel remains affected by the external free-plan build-rate-limit.
-- NEXT EXECUTABLE ACTION → continue Phase-F only when its authorized live source credential/configuration changes; meanwhile advance only evidenced independent UI/core gaps.
-- DO NOT REPEAT → no stale CI/runtime evidence transfer; no unchanged Phase-F credential rerun; no migration deletion without dependency proof; no restoration of removed IntelligencePages duplicate.
-- CURRENT RESUME POINTER → `dd1c92ad...` governance HEAD / `203aa8ae...` code candidate → Phase-F measured recovery when authorized config changes → next evidenced UI/core closure.
-- UI LANE → Intelligence duplication closed; page export collision scan 43/43 unique.
-- CORE LANE → exact-head certification, enforcement, browser, storage, and final execution are green on the current governed lineage.
+- SESSION-ID → `2026-09-23-AGHBARI-CONTINUOUS-EXECUTION-113`
+- VERIFICATION BASE → `adb093bb20d488ce593b5e2598168c74711d4346`.
+- PURPOSE → exact Phase-F rerun after merging the duplicate-migration restore fix; this branch is verification-only and must not be treated as a new product-code candidate.
+- DONE BEFORE THIS VERIFICATION → PR #626 merged the migration-sequence repair; local repaired-branch migration audit was 285 migrations / 0 findings.
+- LIVE DEFECT CLOSED IN SOURCE → duplicate `schema_migrations` version collision that blocked restore at `20260819210000`.
+- REMAINING LIVE BOUNDARY → production deployment still serves `1d88b083...`, not `adb093bb...`; deployment identity mismatch remains separate from restore correctness.
+- NEXT EXECUTABLE ACTION → consume the Phase-F run from this exact verification head and inspect the first live failure after the migration repair.
+- DO NOT REPEAT → no stale Phase-F transfer; no production-SHA bypass; no merge of this verification-only governance commit as product code.
 
 ## LATEST SESSION WRITE-BACK — 2026-09-22-AGHBARI-CONTINUOUS-EXECUTION-103
 
