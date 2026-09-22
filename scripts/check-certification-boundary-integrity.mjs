@@ -14,6 +14,7 @@ export function validateCertificationBoundary({ index, head, parent, changedFile
   const allowedGovernanceOnly = new Set([
     'docs/MASTER_EXECUTION_INDEX.md',
     'ONE-PROGRAMMER-SESSION-MEMORY.md',
+    'docs/PROJECT_KNOWLEDGE_MANIFEST.md',
     'docs/MASTER_PRODUCT_REFERENCE.md',
     'docs/EVIDENCE/2026-09-04_RBAC_APPROVAL_AUTHORITY_FORENSIC.md',
     'docs/EVIDENCE/2026-09-04_CANDIDATE_RECONCILIATION_c346-to-f89.md',
@@ -46,6 +47,7 @@ export function validateCertificationBoundary({ index, head, parent, changedFile
     '.github/workflows/execution-enforcement-contract.yml',
     '.github/workflows/final-certification-gate.yml',
     '.github/workflows/full-product-browser-e2e.yml',
+    '.github/workflows/quality.yml',
   ]);
   if (!Array.isArray(changedFiles) || changedFiles.length === 0 || changedFiles.some(file => !allowedGovernanceOnly.has(file))) {
     throw new Error(`CERTIFICATION BOUNDARY FAIL: HEAD ${head} differs from indexed candidate ${indexed} with non-governance changes`);

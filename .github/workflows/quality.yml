@@ -75,6 +75,8 @@ jobs:
         run: npm run test:migration-dependencies
       - name: Master requirements lock
         run: npm run test:master-requirements
+      - name: Knowledge architecture
+        run: npm run test:knowledge-architecture
       - name: Quality workflow contract
         run: npm run test:quality-workflow-contract
       - name: Core contracts
