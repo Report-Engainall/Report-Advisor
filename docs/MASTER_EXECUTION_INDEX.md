@@ -1,19 +1,16 @@
-# CURRENT CONTROL-PLANE BOUNDARY — 2026-09-23 / PHASE-F MIGRATION REPAIR MERGED
+# CURRENT CONTROL-PLANE BOUNDARY — 2026-09-23 / PHASE-F VERIFICATION AFTER RESTORE FIX
 
-> The latest code change is the Phase-F restore migration-sequence repair merged at `adb093bb...`; later commits are governance-only.
-
-- MAIN HEAD OBSERVED BEFORE THIS WRITE: `adb093bb20d488ce593b5e2598168c74711d4346`.
+- MAIN HEAD OBSERVED BEFORE THIS WRITE: `2d66125a030a7f78e0b7d038756e9f2c168b0319`.
 - CURRENT CODE/TEST CANDIDATE: `adb093bb20d488ce593b5e2598168c74711d4346`.
-- CURRENT GOVERNANCE HEAD: `b00c35231d0fcf50fe7263539de075041cb0330d`.
-- DONE: PR #626 merged. Duplicate migration versions no longer collide in the repository migration chain; canonical SQL was preserved and redundant empty lineage aliases removed.
-- DONE: migration schema audit now fails closed on duplicate 14-digit versions; local source audit on the repaired branch passed 285 migrations / 0 findings.
-- ROOT CAUSE CLOSED: Phase-F backup/restore previously failed on `schema_migrations_pkey` for version `20260819210000`.
-- LIVE PHASE-F BASELINE: prior run `35793292560` was `1/4` passed; authenticated tenant canary succeeded, but production deployment SHA mismatch and restore/rollback probes did not certify.
-- CURRENT PRODUCTION BOUNDARY: deployment `dpl_4z6je3gfmCQs9gfdpXh1RAV1fTNA` serves SHA `1d88b083...`, not current `adb093bb...`; Vercel remains externally rate-limited.
-- PHASE-F STATUS: NOT PROVEN until exact current deployment identity and measured recovery evidence are both present.
-- NEXT CORE FRONT: fresh exact-head CI, then exact-head Phase-F runtime when deployment identity changes; repair only the first reproduced failure.
-- NEXT UI FRONT: next evidenced surface gap only; no duplicate IntelligencePages or unsafe migration deletion.
-- DO NOT REPEAT: no stale Phase-F transfer, no unchanged old-production rerun, no weakening deployment-SHA gate.
+- CURRENT GOVERNANCE HEAD: `2d66125a030a7f78e0b7d038756e9f2c168b0319`.
+- DONE: duplicate migration-version restore blocker merged at `adb093bb...`.
+- VERIFICATION: PR #627 is open from exact repaired code with governance-only binding; Netlify preview is READY on `0c66d94...`.
+- HOSTING: Vercel PR deployment is blocked by `api-deployments-free-per-day`; this is external and does not alter the code candidate.
+- ACTIONS: no connector-visible Phase-F run for `0c66d94...` has appeared yet; no fresh Phase-F PASS/FAIL is claimed.
+- LIVE BOUNDARY: production still serves `1d88b083...`; measured backup/restore/RPO/RTO/rollback and exact production identity remain NOT PROVEN.
+- NEXT CORE FRONT: consume PR #627 Phase-F exact-head evidence; repair only the first new live failure; keep PR #627 verification-only.
+- NEXT UI FRONT: continue only on a newly evidenced surface gap.
+- DO NOT REPEAT: no stale runtime transfer, no old-production rerun as current, no Vercel rate-limit bypass, no merge of verification-only PR #627.
 
 # CURRENT CONTROL-PLANE BOUNDARY — 2026-09-22
 
