@@ -1,3 +1,22 @@
+## LATEST SESSION WRITE-BACK — 2026-09-22-AGHBARI-CONTINUOUS-EXECUTION-90
+
+- SESSION-ID → `2026-09-22-AGHBARI-CONTINUOUS-EXECUTION-90`
+- EXACT HEAD → `fc0a84d85e56f43112df7e07886a9f6c04089998` on `main`.
+- STARTING STATE → GitHub `main` was verified at `c5dd914ae551105970ed37840e0ffa2beba526be`; local checkout was synchronized to that exact SHA before editing.
+- ROOT CAUSE → current `c5dd914...` had regressed the PDF/Arabic-document connector CTA to `/trust`, while the governed product contract requires the single canonical `/import` path.
+- DONE → restored document connector routing to `/import` and explicit CTA `ابدأ الاستيراد الموحد`.
+- DONE → added two Product WOW contract guards covering the canonical document route and CTA.
+- EXACT SOURCE VERIFICATION → both changed files re-read from exact SHA `fc0a84d...` and contain the required route/CTA/guards.
+- LOCAL TESTS → `npm run test:product-wow-ui` PASS; `npm run test:connections-language-ui` PASS (7 checks); `npm run build` PASS (2800 modules transformed, built in 21.72s).
+- TYPECHECK → not executed; Remote Desktop security blocked the `tsc` command before execution. No typecheck PASS claimed.
+- DEPLOYMENT STATUS → exact `fc0a84d...`: Vercel PENDING; Vercel Deployments – Injaz PENDING; no GitHub Actions workflow run attached. No runtime PASS claimed.
+- COMMIT → `fix(ui): restore unified document import routing` pushed directly to `main`.
+- PRECISE STOP POINT → source-level regression is closed and the fix is on GitHub; exact-head deployment is propagating.
+- OPEN BLOCKERS → fresh exact-head deployment completion; authenticated browser E2E; governed Phase-F live recovery evidence.
+- NEXT EXECUTABLE ACTION → consume `fc0a84d...` deployment evidence, then continue the next independent high-value product/UI closure without transferring historical PASS.
+- DO NOT REPEAT → do not revert document connectors to `/trust`; do not create a separate PDF import path; do not transfer `c5dd914...` deployment status to `fc0a84d...`; do not claim typecheck/browser/CI PASS without fresh evidence.
+- CURRENT RESUME POINTER → `fc0a84d85e56f43112df7e07886a9f6c04089998` → exact-head deployment evidence → next independent UI/product closure → authenticated browser proof → governed recovery → Phase-F → final certification.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-22-AGHBARI-CONTINUOUS-EXECUTION-89
 
 - SESSION-ID → `2026-09-22-AGHBARI-CONTINUOUS-EXECUTION-89`
