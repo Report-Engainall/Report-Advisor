@@ -220,7 +220,7 @@
 
 > Exact-head evidence only. No historical deployment/runtime result is transferred.
 
-- **CURRENT CODE/TEST CANDIDATE:** `34b2038602f4899a78e6e183087cfe232c02faa8`.
+- **CURRENT CODE/TEST CANDIDATE:** `51c67d02a1cb13319a1d9590e34799336d254d81`.
 - **UI IMPLEMENTATION:** `42ca66e327ce63fd5353de86d3f8753f12356b55`.
 - **UI CONTRACT:** `34b2038602f4899a78e6e183087cfe232c02faa8`.
 - **DONE:** decision alerts now send «فحص المصدر أولًا» to the existing Trust & Evidence route instead of returning to the same command screen.
@@ -320,7 +320,7 @@
 > Exact-head evidence only. The active candidate fixes the terminal import-job completion contract exposed by the live staging run.
 
 - **CURRENT CODE/TEST CANDIDATE:** `2caedfa8ab2f71dd06bffb4992d122dc08bb75ac`.
-- **CURRENT_CODE_TEST_CANDIDATE:** `2caedfa8ab2f71dd06bffb4992d122dc08bb75ac`.
+- **CURRENT_CODE_TEST_CANDIDATE:** `51c67d02a1cb13319a1d9590e34799336d254d81`.
 - **CURRENT REPOSITORY HEAD:** `2caedfa8ab2f71dd06bffb4992d122dc08bb75ac` before this governance bind.
 - **ROOT CAUSE CLOSED:** canonical commit and durable report execution already succeeded, but `import_finish_job` required `committed + invalidRows = total`; the UI supplied `invalid` but omitted `invalidRows`, causing a false failed import status.
 - **DONE:** canonical import success summary now includes `invalidRows: 0`, and the product contract guards this exact terminal-status field.
