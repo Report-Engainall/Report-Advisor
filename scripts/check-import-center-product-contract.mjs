@@ -10,6 +10,7 @@ const legacyFolderImporterPaths = [
 ];
 
 const page = fs.readFileSync('src/pages/CanonicalImportPage.tsx', 'utf8');
+const dataTable = fs.readFileSync('src/components/ui/DataTable.tsx', 'utf8');
 const adapter = fs.readFileSync('src/lib/import/canonical-production-adapter.ts', 'utf8');
 const requiredPage = [
   'مركز المصادر',
@@ -30,6 +31,7 @@ const requiredPage = [
   'لم يكتمل التنفيذ الخادمي',
   'العطل الفعلي:',
   'تحديث سجل العمليات',
+  'pageSize={50}',
 ];
 const requiredAdapter = [
   'runCanonicalImportThroughDurableRunner',
@@ -59,14 +61,18 @@ if (forbiddenEntryTokens.some(token => entry.includes(token))) {
   process.exit(1);
 }
 
-if (missingPage.length || missingAdapter.length) {
+if (missingPage.length || missingAdapter.length || missingDataTable.length) {
   const missing = [
     ...missingPage.map(token => `page:${token}`),
     ...missingAdapter.map(token => `adapter:${token}`),
+    ...missingDataTable.map(token => `table:${token}`),
   ];
   console.error(`Import Center product contract failed. Missing: ${missing.join(', ')}`);
   process.exit(1);
 }
+
+const requiredDataTable = ['pageSize', 'effectivePageSize', 'visibleRows', 'تنقّل الجدول', 'الصفحة التالية', 'الصفحة السابقة'];
+const missingDataTable = requiredDataTable.filter(token => !dataTable.includes(token));
 
 if (/Math\.random|fake|mock/i.test(page)) {
   console.error('Import Center product contract failed: synthetic/mock content detected.');
