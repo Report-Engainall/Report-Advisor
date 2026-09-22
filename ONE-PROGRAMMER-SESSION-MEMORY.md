@@ -1,3 +1,13 @@
+## SESSION WRITE-BACK — 2026-09-22-AGHBARI-CONTINUOUS-EXECUTION-92
+
+- HEAD → `f3e7318b44c3130303b75f9b8bdfcdb88765ce6c`
+- DONE → candidate rebound to tested source `fc0a84d85e56f43112df7e07886a9f6c04089998`
+- PHASE-F → live run failed closed because `RESILIENCE_MAX_RPO_SECONDS` is not provisioned.
+- TESTS → unified decision/evidence/action/learning, production evidence integrity, report truth, tenant security, route completeness, and build contracts passed.
+- NEXT → provision the missing RPO setting through the authorized environment path, rerun Phase-F, then rerun Final Certification.
+- DO NOT REPEAT → no boundary weakening, no synthetic resilience evidence, no cross-SHA PASS transfer.
+- CURRENT RESUME POINTER → `f3e7318...` → RPO setting → Phase-F → Final Certification → browser E2E.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-22-AGHBARI-CONTINUOUS-EXECUTION-91
 
 - SESSION-ID → `2026-09-22-AGHBARI-CONTINUOUS-EXECUTION-91`
