@@ -1,19 +1,18 @@
-# CURRENT CONTROL-PLANE BOUNDARY — 2026-09-23 / INTELLIGENCE MODULE CONSOLIDATION
+# CURRENT CONTROL-PLANE BOUNDARY — 2026-09-23 / QUALITY KNOWLEDGE GATE
 
-> GitHub main exact HEAD is reconciled before this write. The current candidate is a real code merge, not a governance-only descendant.
+> GitHub main exact HEAD is reconciled before this write. The current product-code candidate is `6ef41bab...`; the newest main descendant `203aa8ae...` is CI governance-only.
 
-- MAIN HEAD OBSERVED BEFORE THIS WRITE: `c017f2b6b2b6982b6567b64f82e414968ffbbc1e`.
+- MAIN HEAD OBSERVED BEFORE THIS WRITE: `203aa8aedb45f51b453b840ea52738685936a7a2`.
 - CURRENT CODE/TEST CANDIDATE: `6ef41bab3788a1d5c0ca527625ff8bb387a992b6`.
-- CURRENT GOVERNANCE HEAD: `c017f2b6b2b6982b6567b64f82e414968ffbbc1e`.
-- DONE: PR #624 consolidated Recommendations + Forecasts into canonical `src/pages/IntelligencePage.tsx`, redirected App lazy imports, and removed proven duplicate `src/pages/IntelligencePages.tsx`.
-- EXACT LOCAL PROOF ON CODE SHA `cfbbeeebdcd829dd188ef85118bd947957ad9278`: typecheck PASS; Product WOW UI contract PASS; production build PASS; diff check clean; zero remaining references to the removed module.
-- MERGED CODE SHA: `6ef41bab3788a1d5c0ca527625ff8bb387a992b6`.
-- EXTERNAL BOUNDARY: Vercel current-main status is `failure` due external build-rate-limit. No current production deployment PASS is claimed.
-- CI BOUNDARY: no fresh connector-visible GitHub Actions run has been attached to `6ef41bab...` yet; previous `74be717...` CI/Browser PASS is historical and must not be transferred.
-- PHASE-F BOUNDARY: live backup/restore, measured RPO/RTO, rollback, and exact production deployment identity remain NOT PROVEN until measured.
-- NEXT EXECUTABLE CORE FRONT: consume or trigger fresh exact-head Enforcement + Final Certification + Browser for `6ef41bab...`; repair only a first reproduced current-head failure.
-- NEXT EXECUTABLE UI FRONT: continue the next evidenced duplicate/surface-truth gap without reintroducing parallel intelligence modules.
-- DO NOT REPEAT: no stale PASS transfer; no unchanged Phase-F credential rerun; no treatment of Vercel rate-limit as source failure; no restoration of deleted duplicate module.
+- CURRENT GOVERNANCE HEAD: `203aa8aedb45f51b453b840ea52738685936a7a2`.
+- DONE: PR #625 adds `npm run test:knowledge-architecture` to the canonical Quality workflow; PR #624 already consolidated IntelligencePage/Recommendations/Forecasts and removed the proven duplicate module.
+- VERIFIED LOCAL: `203aa8ae...` knowledge-architecture PASS and quality-workflow-contract PASS; exact local `0739f880...` full 20-stage release readiness = 20 PASS / 0 FAIL.
+- EXTERNAL BOUNDARY: Vercel remains `failure` because of external `build-rate-limit`; no current-head production deployment PASS is claimed.
+- CI BOUNDARY: the connector has not exposed fresh post-merge GitHub Actions runs for `203aa8ae...`; historical `74be717...` CI/Browser evidence is not transferred.
+- PHASE-F BOUNDARY: measured backup/restore, RPO, RTO, rollback, and exact production identity remain NOT PROVEN.
+- NEXT CORE FRONT: consume fresh exact-head certification/browser evidence when available; otherwise keep advancing independent source/core closure.
+- NEXT UI FRONT: continue only with evidenced gaps; do not reintroduce duplicate intelligence modules or unsupported migration deletions.
+- DO NOT REPEAT: no stale PASS transfer; no unchanged Phase-F credential rerun; no Vercel-rate-limit source mutation; no migration deletion without dependency proof.
 
 
 # CURRENT CONTROL-PLANE BOUNDARY — 2026-09-22
