@@ -76,6 +76,8 @@ export function ExecutiveReportPage() {
   const activeDecisionCount = recommendations.filter((item) => ['pending', 'proposed', 'approved', 'in_progress'].includes(item.status)).length;
   const accountableDecisionCount = recommendations.filter((item) => Boolean(item.owner)).length;
   const recordedOutcomeCount = recommendations.filter((item) => Boolean(item.impact_result?.trim())).length;
+  const ownerCoverage = activeDecisionCount > 0 ? Math.round((accountableDecisionCount / activeDecisionCount) * 100) : null;
+  const outcomeCoverage = activeDecisionCount > 0 ? Math.round((recordedOutcomeCount / activeDecisionCount) * 100) : null;
 
   return <div dir="rtl" className="ag-executive-report report-page space-y-5 pb-10 print:space-y-3">
     <header className="ag-exec-hero overflow-hidden rounded-[14px] border border-ink-200 bg-white p-5 shadow-card lg:p-6">
@@ -105,6 +107,24 @@ export function ExecutiveReportPage() {
       </section>
 
       <TruthContextStrip months={6} status={kpis?.status ?? 'INSUFFICIENT_DATA'} asOf={asOf} />
+
+      <section className="grid gap-3 sm:grid-cols-3" aria-label="مساءلة القرار">
+        <div className="rounded-[14px] border border-ink-200 bg-white p-4 shadow-sm">
+          <div className="text-[10px] font-black text-primary-700">قرارات نشطة</div>
+          <div className="mt-1 text-2xl font-black text-ink-950">{activeDecisionCount}</div>
+          <p className="mt-1 text-[10px] text-ink-500">حالات تحتاج متابعة في سجل التوصيات الحالي.</p>
+        </div>
+        <div className="rounded-[14px] border border-ink-200 bg-white p-4 shadow-sm">
+          <div className="text-[10px] font-black text-primary-700">تغطية المسؤولية</div>
+          <div className="mt-1 text-2xl font-black text-ink-950">{ownerCoverage == null ? 'غير متاح' : `${ownerCoverage}%`}</div>
+          <p className="mt-1 text-[10px] text-ink-500">{accountableDecisionCount} من {activeDecisionCount} قرارات نشطة لها مسؤول مسجل.</p>
+        </div>
+        <div className="rounded-[14px] border border-ink-200 bg-white p-4 shadow-sm">
+          <div className="text-[10px] font-black text-primary-700">نتائج مسجلة</div>
+          <div className="mt-1 text-2xl font-black text-ink-950">{outcomeCoverage == null ? 'غير متاح' : `${outcomeCoverage}%`}</div>
+          <p className="mt-1 text-[10px] text-ink-500">{recordedOutcomeCount} نتيجة فعلية مسجلة؛ لا تُحسب التوقعات كنتائج.</p>
+        </div>
+      </section>
 
       <section className="ag-exec-panel rounded-2xl border border-ink-200 bg-white p-5 shadow-sm">
         <div className="flex flex-wrap items-center justify-between gap-3"><div><p className="text-xs font-bold tracking-wider text-primary-600">الملخص التنفيذي</p><h2 className="mt-1 text-lg font-black">لقطة الإدارة الحالية</h2></div><span className="rounded-full border border-primary-200 bg-primary-50 px-3 py-1 text-[11px] font-bold text-primary-700">المصدر: اللقطة المعتمدة</span></div>
