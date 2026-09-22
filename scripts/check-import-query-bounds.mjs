@@ -17,7 +17,14 @@ const compat = readFileSync('src/lib/queries-compat.ts', 'utf8');
 const compatStart = compat.indexOf('export async function fetchImportRecords');
 if (compatStart < 0) throw new Error('compat fetchImportRecords boundary not found');
 const compatFn = compat.slice(compatStart, compat.indexOf('export interface PurchaseSummary', compatStart));
-if (!compatFn.includes('limit = 500')) throw new Error('compat import query limit default missing');
-if (!/Number\.isInteger\(limit\)[\s\S]*limit > 500/.test(compatFn)) throw new Error('compat import query limit must fail closed above 500');
-if (!/\.range\s*\(\s*0\s*,\s*limit\s*-\s*1\s*\)/.test(compatFn)) throw new Error('compat import query must use the validated limit');
-console.log('Compatibility import query bounds regression: PASS');
+const compatIsForwardingOnly = compatFn.includes('canonicalFetchImportRecords(limit, focusJobId)');
+if (compatIsForwardingOnly) {
+  if (!compatFn.includes('limit = 500')) throw new Error('compat forwarding wrapper limit default missing');
+} else {
+  if (!compatFn.includes('limit = 500')) throw new Error('compat import query limit default missing');
+  if (!/Number\.isInteger\(limit\)[\s\S]*limit > 500/.test(compatFn)) throw new Error('compat import query limit must fail closed above 500');
+  if (!/\.range\s*\(\s*0\s*,\s*limit\s*-\s*1\s*\)/.test(compatFn)) throw new Error('compat import query must use the validated limit');
+}
+console.log(compatIsForwardingOnly
+  ? 'Compatibility import query bounds regression: PASS (forwarding-only boundary delegates validation and bounded read to canonical queries.ts)'
+  : 'Compatibility import query bounds regression: PASS');
