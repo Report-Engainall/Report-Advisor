@@ -1,3 +1,19 @@
+## LATEST SESSION WRITE-BACK — 2026-09-22-AGHBARI-CONTINUOUS-EXECUTION-96
+
+- SESSION-ID → `2026-09-22-AGHBARI-CONTINUOUS-EXECUTION-96`
+- MAIN HEAD → `237d61d20087ed6b00eed7dd3ffdc16c5dc20cce` (verified directly on GitHub; newer than the prior recorded `9370b133...`).
+- EXACT CURRENT CODE/TEST STATE → main has no new product-code change after the prior certified code lineage; the newest main commit is a governance/session write-back only.
+- DONE → re-read the live session memory, master product reference, master execution index, autonomous operating protocol, architecture, runtime/certification matrices, live runbook, and Phase-F/G closeout against current main.
+- DONE → verified the owner-provisioned `RESILIENCE_MAX_RPO_SECONDS=3600` is accepted by the existing Phase-F workflow on exact verification head `d032fe5d99080e4ffb1f58021deca07d7c72a243`.
+- VERIFIED → exact-head Phase-F run: Final Certification PASS; Device-Independent Browser E2E PASS; Quality 63/63 PASS; production regression PASS; tenant canary PASS.
+- VERIFIED → Phase-F remains fail-closed only at live backup/restore/resilience: PostgreSQL authentication fails against the configured Supabase Session Pooler source, so measured restore/RPO/RTO and rollback are not proven.
+- VERIFIED → connected Supabase account currently exposes active healthy projects `aghbari-commerce` (`mrcyqezbhpncuvaehwgf`) and `Report-Advisor-P0-2-Staging` (`fnqbvfuwbdpwvhcgzksl`). Project availability does not provide or authorize guessing the missing database credential.
+- BLOCKED → `RESILIENCE_LOGICAL_SOURCE_DB_URL` is invalid/stale for the Phase-F restore source. No password, token, or connection string was invented.
+- DO NOT REPEAT → do not rerun Phase-F against the same invalid credential without a credential/configuration change; do not transfer verification-branch PASS to main; do not merge resilience hardening while the live restore gate is blocked; do not fabricate RPO/RTO/rollback evidence.
+- PRECISE STOP POINT → all independently executable repository/certification gates are green on the exact verification head; the only remaining Phase-F blocker requires an authorized current Supabase database connection credential.
+- NEXT EXECUTABLE ACTION → after `RESILIENCE_LOGICAL_SOURCE_DB_URL` is replaced with a valid authorized current credential, rerun the existing Phase-F workflow, consume measured backup/restore + RPO/RTO + rollback artifacts, then merge the governed restore-path hardening only if the full gate passes.
+- CURRENT RESUME POINTER → `d032fe5d99080e4ffb1f58021deca07d7c72a243` → valid `RESILIENCE_LOGICAL_SOURCE_DB_URL` → Phase-F live recovery → measured RPO/RTO/rollback → governed merge → final certification.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-22-AGHBARI-CONTINUOUS-EXECUTION-95
 
 - SESSION-ID → `2026-09-22-AGHBARI-CONTINUOUS-EXECUTION-95`
