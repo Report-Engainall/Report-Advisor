@@ -1,3 +1,18 @@
+## CONTROL-PLANE WRITE-BACK — 2026-09-22 / POST-VERIFICATION
+
+- MAIN HEAD NOW → ca6f12d3070a0f60ba981e4b98d0929f7aa033bc.
+- CURRENT CODE/TEST CANDIDATE → 28691df0781b101ddf053425d5d6eddee999438a.
+- CONTROL PLANE → docs/SYSTEM_HEART.md.
+- LIVE STATE → this file only.
+- EXECUTION INDEX → docs/MASTER_EXECUTION_INDEX.md.
+- CONSOLIDATION MANIFEST → docs/PROJECT_KNOWLEDGE_MANIFEST.md.
+- DONE → canonical UI/UX, engineering architecture, data/security, runtime/certification, and commercial master files were added; the live memory and execution index were rebound to the new control plane; a knowledge-architecture checker was added at scripts/check-knowledge-architecture.mjs.
+- CURRENT STATUS → CONTROL_PLANE_ESTABLISHED / CONTENT_MIGRATION_PENDING.
+- NEXT EXECUTABLE ACTION → continue source-by-source content absorption into the canonical domain masters, beginning with the remaining control-plane and UI/product specification families; after each family, verify references/tests and update the Manifest. Do not delete source files until the deletion gate is proven.
+- 50/50 EXECUTION → 50% UI surface completion, 50% core/runtime/data/security/certification/consolidation, parallel where independent.
+- DO NOT REPEAT → do not create another master-document family; do not treat the new masters as proof that historical content has already been migrated; do not delete legacy files yet; do not transfer certification/runtime evidence to the governance SHA.
+- CURRENT RESUME POINTER → ca6f12d3... main → content absorption wave → exact-source/reference audit → affected contracts → controlled archive/remove only after Manifest gate.
+
 ## CONTROL-PLANE WRITE-BACK — 2026-09-22 / CANONICAL KNOWLEDGE ARCHITECTURE
 
 - CONTROL PLANE ESTABLISHED → docs/SYSTEM_HEART.md is now the canonical operating control plane.
