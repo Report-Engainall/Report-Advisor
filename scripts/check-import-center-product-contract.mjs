@@ -61,6 +61,9 @@ if (forbiddenEntryTokens.some(token => entry.includes(token))) {
   process.exit(1);
 }
 
+const requiredDataTable = ['pageSize', 'effectivePageSize', 'visibleRows', 'تنقّل الجدول', 'الصفحة التالية', 'الصفحة السابقة'];
+const missingDataTable = requiredDataTable.filter(token => !dataTable.includes(token));
+
 if (missingPage.length || missingAdapter.length || missingDataTable.length) {
   const missing = [
     ...missingPage.map(token => `page:${token}`),
@@ -70,9 +73,6 @@ if (missingPage.length || missingAdapter.length || missingDataTable.length) {
   console.error(`Import Center product contract failed. Missing: ${missing.join(', ')}`);
   process.exit(1);
 }
-
-const requiredDataTable = ['pageSize', 'effectivePageSize', 'visibleRows', 'تنقّل الجدول', 'الصفحة التالية', 'الصفحة السابقة'];
-const missingDataTable = requiredDataTable.filter(token => !dataTable.includes(token));
 
 if (/Math\.random|fake|mock/i.test(page)) {
   console.error('Import Center product contract failed: synthetic/mock content detected.');
