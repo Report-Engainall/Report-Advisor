@@ -1,3 +1,22 @@
+# CURRENT CONTROL-PLANE BOUNDARY — 2026-09-22
+
+> This header is authoritative for session-resume routing. Historical entries below remain evidence/history and must not override it.
+
+- MAIN HEAD: ec7db7e503af15af42045df1107a3eb5dc8e27db
+- CURRENT CODE/TEST CANDIDATE: 28691df0781b101ddf053425d5d6eddee999438a
+- CURRENT WORKING STATE: governance/control-plane consolidation is active; the latest main commits after the tested code candidate are documentation/governance changes.
+- LIVE STATE SOURCE: ONE-PROGRAMMER-SESSION-MEMORY.md
+- CONTROL PLANE: docs/SYSTEM_HEART.md
+- KNOWLEDGE CONSOLIDATION MAP: docs/PROJECT_KNOWLEDGE_MANIFEST.md
+- UI MASTER: docs/MASTER_UI_UX_REFERENCE.md
+- ENGINEERING MASTER: docs/MASTER_ENGINEERING_ARCHITECTURE.md
+- DATA/SECURITY MASTER: docs/MASTER_DATA_TRUTH_SECURITY.md
+- RUNTIME/CERTIFICATION MASTER: docs/MASTER_RUNTIME_CERTIFICATION.md
+- COMMERCIAL MASTER: docs/MASTER_COMMERCIAL_REFERENCE.md
+- NEXT EXECUTION MODE: 50% UI/surface completion + 50% product-heart/runtime/data/security/certification/consolidation, in parallel when independent.
+- NON-NEGOTIABLE: reconcile the exact GitHub HEAD before every session. Do not resume from a historical phase because an old entry below names it.
+- CURRENT CONSOLIDATION STATUS: control plane established; content absorption is the next documentation front. No legacy document is yet approved for deletion solely because of duplication.
+
 ## CURRENT EXECUTION BOUNDARY — 2026-09-22 / WAVE 102 — UNIFIED IMPORT HISTORY CLOSURE
 
 > Exact-head evidence only. The current code/test candidate is the exact SHA where the Import Center contract, bounded history focus, DataTable pagination, and Browser E2E were freshly proven.
