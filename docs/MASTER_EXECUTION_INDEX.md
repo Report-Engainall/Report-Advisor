@@ -1,5 +1,19 @@
 # CURRENT CONTROL-PLANE BOUNDARY — 2026-09-22
 
+> HEAD below is the exact GitHub HEAD observed before this write. Never treat it as the SHA of this file's own future commit.
+
+- MAIN HEAD OBSERVED BEFORE THIS WRITE: 0a8b545903777ac906a441709eb8dce0cc8b7603
+- CURRENT CODE/TEST CANDIDATE: 0a8b545903777ac906a441709eb8dce0cc8b7603
+- CURRENT WORKING STATE: current main reconciled to exact candidate; certification-boundary governance rebind pending; Phase-F remains fail-closed; UI/core 50/50 execution remains mandatory.
+- LIVE STATE SOURCE: ONE-PROGRAMMER-SESSION-MEMORY.md
+- CONTROL PLANE: docs/SYSTEM_HEART.md
+- KNOWLEDGE CONSOLIDATION MAP: docs/PROJECT_KNOWLEDGE_MANIFEST.md
+- NEXT EXECUTION MODE: 50% UI/surface completion + 50% product-heart/runtime/data/security/certification/consolidation, parallel when independent.
+- NON-NEGOTIABLE: reconcile exact GitHub HEAD before every session.
+- CURRENT CONSOLIDATION STATUS: CONTROL_PLANE_ESTABLISHED / CONTENT_MIGRATION_PENDING.
+- NEXT EXECUTABLE CORE FRONT: consume fresh Enforcement + Final Certification after this candidate rebind; continue Phase-F only after authorized valid live resilience configuration.
+
+
 > HEAD below is the exact GitHub HEAD observed before the current control-plane write. Never treat it as the SHA of this file's own future commit.
 
 - MAIN HEAD OBSERVED BEFORE THIS WRITE: 9e1586ddecec31dd29ca9385d88236adb2307d90
