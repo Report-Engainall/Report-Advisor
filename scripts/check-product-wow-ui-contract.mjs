@@ -115,6 +115,11 @@ assert.ok(trustEvidence.includes('متوسط موزون بعدد السجلات'
 assert.ok(trustEvidence.includes('ليس درجة ثقة مستقلة'), 'trust evidence aggregate quality must not be presented as an invented trust score');
 const commandCenterSurface = fs.readFileSync('src/pages/ExecutiveCommandCenterPage.tsx', 'utf8');
 assert.ok(commandCenterSurface.includes('const decisionCoverage = useMemo(() =>'), 'command center must derive decision coverage from current recommendations');
+assert.ok(commandCenterSurface.includes('setAlerts(openAlerts)'), 'command center summary counts must retain the full fetched open-alert set');
+assert.ok(commandCenterSurface.includes('setRecommendations(actionableRecommendations)'), 'command center decision coverage must retain the full fetched actionable recommendation set');
+assert.ok(commandCenterSurface.includes('alerts.slice(0, 5).map'), 'command center must cap only the rendered alert list, not its summary count');
+assert.ok(commandCenterSurface.includes('recommendations.slice(0, 5).map'), 'command center must cap only the rendered recommendation list, not decision coverage');
+assert.ok(commandCenterSurface.includes("coverageScope: 'كل التوصيات القابلة للمتابعة المسترجعة (حتى 100)'"), 'command center decision coverage must disclose its fetched scope');
 assert.ok(commandCenterSurface.includes('ownerCoverage'), 'decision coverage must expose owner coverage from actual recommendation ownership');
 assert.ok(commandCenterSurface.includes('outcomeCoverage'), 'decision coverage must expose recorded outcome coverage from actual recommendation results');
 assert.ok(commandCenterSurface.includes('Decision Coverage'), 'command center must expose decision coverage as a product surface');
