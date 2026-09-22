@@ -22,7 +22,7 @@ const required = [
   'supabase/migrations/20260819200000_import_engine_rpcs.sql',
   'supabase/migrations/20260819203000_import_engine_jobs.sql',
   'supabase/migrations/20260819210000_executive_metrics.sql',
-  'supabase/migrations/20260819210000_inventory_demand_liquidity.sql',
+  'supabase/migrations/20260819230000_alternative_item_groups.sql',
 ];
 for (const file of required) if (!fs.existsSync(file)) throw new Error(`Missing consolidated capability: ${file}`);
 const policy = fs.readFileSync('src/lib/intelligence/truthPolicy.ts', 'utf8');
