@@ -108,15 +108,22 @@ function runDockerPsqlFile(databaseUrl, filePath) {
   ]);
 }
 
-function runDockerPsqlFiles(databaseUrl, schemaPath, dataPath) {
+function runDockerExecPsql(containerName, databaseName, sql) {
   return runCommand('docker', [
-    'run', '--rm', '--network', 'host',
-    '-v', `${path.resolve(schemaPath)}:/tmp/phase-f-schema.sql:ro`,
-    '-v', `${path.resolve(dataPath)}:/tmp/phase-f-data.sql:ro`,
-    '-e', `PGURI=${databaseUrl}`,
-    'postgres:17',
-    'sh', '-lc',
-    'psql "$PGURI" -v ON_ERROR_STOP=1 -f /tmp/phase-f-schema.sql && psql "$PGURI" -v ON_ERROR_STOP=1 -f /tmp/phase-f-data.sql',
+    'exec', containerName,
+    'psql', '-U', 'postgres', '-d', databaseName,
+    '-v', 'ON_ERROR_STOP=1',
+    '-At', '-c', sql,
+  ]);
+}
+
+function runDockerExecPsqlFile(containerName, databaseName, filePath, containerPath) {
+  runCommand('docker', ['cp', path.resolve(filePath), `${containerName}:${containerPath}`]);
+  return runCommand('docker', [
+    'exec', containerName,
+    'psql', '-U', 'postgres', '-d', databaseName,
+    '-v', 'ON_ERROR_STOP=1',
+    '-f', containerPath,
   ]);
 }
 
@@ -164,8 +171,7 @@ async function logicalBackupRestore() {
   const exactSnapshotSql = 'select clock_timestamp()::text';
   const countSql = `select coalesce(string_agg(format('select %L as table_name, count(*) as row_count from %I.%I', table_schema, table_name), ' union all ' order by table_name), 'select null::text as table_name, 0::bigint as row_count where false') from information_schema.tables where table_schema = 'public' and table_type = 'BASE TABLE'`;
 
-  let localDbUrl = null;
-  let localBaseDbUrl = null;
+  let localDbContainer = null;
   let localStarted = false;
   const restoreDatabaseName = `phasef_restore_${crypto.randomBytes(4).toString('hex')}`;
   const startedAt = Date.now();
@@ -178,12 +184,16 @@ async function logicalBackupRestore() {
     const statusEnv = runCommand('supabase', ['status', '-o', 'env'], { cwd: workDir });
     const dbLine = statusEnv.split(/\r?\n/).find(line => line.startsWith('DB_URL='));
     if (!dbLine) throw new Error('local_restore_db_url_missing');
-    localBaseDbUrl = dbLine.slice('DB_URL='.length).trim().replace(/^['"]|['"]$/g, '');
+    const localBaseDbUrl = dbLine.slice('DB_URL='.length).trim().replace(/^['"]|['"]$/g, '');
+    const localDbPort = new URL(localBaseDbUrl).port;
+    localDbContainer = runCommand('docker', ['ps', '--format', '{{.Names}}\\t{{.Ports}}'])
+      .split(/\r?\n/)
+      .map(line => line.trim())
+      .find(line => line.includes(`:${localDbPort}->5432/tcp`))
+      ?.split('\\t')[0];
+    if (!localDbContainer) throw new Error('local_restore_db_container_missing');
 
-    runDockerPsql(localBaseDbUrl, `create database "${restoreDatabaseName}"`);
-    const localUrl = new URL(localBaseDbUrl);
-    localUrl.pathname = `/${restoreDatabaseName}`;
-    localDbUrl = localUrl.toString();
+    runDockerExecPsql(localDbContainer, 'postgres', `create database "${restoreDatabaseName}"`);
 
     const snapshotText = runDockerPsql(source, exactSnapshotSql);
     const snapshotAt = Date.parse(snapshotText);
@@ -225,9 +235,10 @@ async function logicalBackupRestore() {
     if (rpoSeconds > maxRpoSeconds) throw new Error(`rpo_budget_exceeded:${rpoSeconds}`);
 
     const restoreStartedAt = Date.now();
-    runDockerPsqlFiles(localDbUrl, schemaBackupPath, dataBackupPath);
+    runDockerExecPsqlFile(localDbContainer, restoreDatabaseName, schemaBackupPath, '/tmp/phase-f-schema.sql');
+    runDockerExecPsqlFile(localDbContainer, restoreDatabaseName, dataBackupPath, '/tmp/phase-f-data.sql');
     const restoreCompletedAt = Date.now();
-    const targetCounts = parseTableCounts(runDockerPsql(localDbUrl, generatedCountSql));
+    const targetCounts = parseTableCounts(runDockerExecPsql(localDbContainer, restoreDatabaseName, generatedCountSql));
     const rtoSeconds = (restoreCompletedAt - restoreStartedAt) / 1000;
 
     if (stableJson(sourceCounts) !== stableJson(targetCounts)) {
@@ -254,8 +265,8 @@ async function logicalBackupRestore() {
     fs.writeFileSync(path.join(reportDir, 'logical-backup-restore.json'), `${JSON.stringify(report, null, 2)}\n`, 'utf8');
     return { name: 'backup-restore-verification', pass: true, status: 200, ...report };
   } finally {
-    if (localBaseDbUrl) {
-      try { runDockerPsql(localBaseDbUrl, `drop database if exists "${restoreDatabaseName}" with (force)`); } catch {}
+    if (localDbContainer) {
+      try { runDockerExecPsql(localDbContainer, 'postgres', `drop database if exists "${restoreDatabaseName}" with (force)`); } catch {}
     }
     if (localStarted) {
       try { runCommand('supabase', ['stop'], { cwd: workDir }); } catch {}
