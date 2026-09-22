@@ -215,8 +215,8 @@ export function DashboardPage() {
     return {
       to: '/analytics',
       label: 'فتح التحليل',
-      title: 'الصورة صالحة للمتابعة والتحليل',
-      description: 'لا توجد إشارة عاجلة أو قرارات معلقة؛ انتقل إلى التحليل لاستخراج الفرص والقيم الداعمة للقرار.',
+      title: 'لا توجد إشارة عاجلة الآن',
+      description: 'لا توجد إشارة عاجلة أو قرارات معلقة في الصورة الحالية؛ انتقل إلى التحليل مع إبقاء حالة الدليل هي المرجع.',
     };
   }, [kpis?.status, decisionAccountability.pending, liveAlerts, trend]);
 
