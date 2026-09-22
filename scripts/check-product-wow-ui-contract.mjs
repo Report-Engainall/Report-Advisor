@@ -199,6 +199,9 @@ assert.ok(dataQuality.includes('const weightedRows = snapshot.entities.reduce'),
 assert.ok(dataQuality.includes('const weightedScore = weightedRows > 0 ?'), 'data quality overall score must derive from the same weighted score basis as trust evidence');
 assert.ok(dataQuality.includes('setOverallScore(weightedScore == null ? 0 : Math.round(weightedScore))'), 'data quality must fail closed to zero when no weighted rows exist');
 
+assert.ok(connections.includes("id === 'documents' ? '/import' : '/trust'"), 'document connector must route into the unified import path rather than a disconnected connector workflow');
+assert.ok(connections.includes("id === 'documents' ? (ar ? 'ابدأ الاستيراد الموحد' : 'Start unified import')"), 'document connector CTA must explicitly expose the unified import path');
+
 const connections = fs.readFileSync('src/pages/ConnectionsPage.tsx', 'utf8');
 assert.ok(connections.includes('const availableCount = connectors.filter(connector => connector.state === \'available\').length'), 'connections summary must derive proven-path count from connector state');
 assert.ok(connections.includes('const boundedCount = connectors.filter(connector => connector.state === \'bounded\').length'), 'connections summary must derive bounded-path count from connector state');
