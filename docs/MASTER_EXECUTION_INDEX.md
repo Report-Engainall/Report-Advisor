@@ -1,9 +1,21 @@
+## CURRENT EXECUTION BOUNDARY — 2026-09-22 / WAVE 105 — REAL DATATABLE PAGINATION CLOSURE
+
+> Exact-head evidence only. No prior PASS is transferred.
+
+- CURRENT MAIN HEAD OBSERVED: `ae3beb3944331a666be138fddaceaa8008a2ba6a`.
+- CURRENT CODE/TEST CANDIDATE: `ae3beb3944331a666be138fddaceaa8008a2ba6a`.
+- DONE: actual DataTable pagination navigation was implemented with previous/next controls and disabled edge states; the contract's Arabic accessibility anchors now match the UI.
+- DONE: Import Center checker no longer has the false ReferenceError state.
+- PHASE-F: schema+data logical restore and configurable exact-target endpoints remain on this candidate.
+- NEXT: fresh exact-head Enforcement / Quality / Certification / Browser / Phase-F evidence.
+- DO NOT REPEAT: do not weaken the DataTable contract; do not transfer prior certification or browser evidence.
+
 ## CURRENT EXECUTION BOUNDARY — 2026-09-22 / WAVE 103 — REAL IMPORT CONTRACT REPAIR
 
 > Exact-head evidence only. The current candidate contains a real checker fix plus Phase-F hardening; no prior PASS is transferred.
 
-- CURRENT MAIN HEAD OBSERVED: `bc72d23f9ba919007bb7d1a230254750bb3714ac`.
-- CURRENT CODE/TEST CANDIDATE: `bc72d23f9ba919007bb7d1a230254750bb3714ac`.
+- CURRENT MAIN HEAD OBSERVED: `ae3beb3944331a666be138fddaceaa8008a2ba6a`.
+- CURRENT CODE/TEST CANDIDATE: `ae3beb3944331a666be138fddaceaa8008a2ba6a`.
 - DONE: fixed the actual `missingDataTable` ReferenceError by initializing the DataTable contract tokens before their first use.
 - VERIFIED ROOT CAUSE: the prior `772afb...` record was governance-only in the Git diff; the live checker still referenced `missingDataTable` before declaration.
 - CURRENT VERIFICATION STATE: fresh exact-head Final Certification / Enforcement / Quality / Browser / Phase-F evidence required for `bc72d23f9ba919007bb7d1a230254750bb3714ac`.
