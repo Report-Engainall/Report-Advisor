@@ -9,4 +9,5 @@
 - CONTROL PLANE: docs/SYSTEM_HEART.md
 - KNOWLEDGE CONSOLIDATION MAP: docs/PROJECT_KNOWLEDGE_MANIFEST.md
 - CURRENT CONSOLIDATION STATUS: UI/experience wave is MERGED_PENDING_PROOF; legacy sources remain retained and no deletion is authorized.
+- RECOVERY BOUNDARY: backup/restore and rollback are governed recovery controls; recovery evidence remains separate; runtime proof remains open until exact Phase-F live evidence is complete.
 - NEXT EXECUTABLE ACTION: consume fresh exact-head Enforcement + Final Certification on candidate `e29ed297...`; then finalize Manifest absorption proof and merge the governed change.
