@@ -156,11 +156,59 @@ async function logicalBackupRestore() {
 
   try {
     runCommand('supabase', ['init'], { cwd: workDir });
-    fs.cpSync(
-      path.join(process.cwd(), 'supabase', 'migrations'),
-      path.join(workDir, 'supabase', 'migrations'),
-      { recursive: true },
+    const sourceMigrationDir = path.join(process.cwd(), 'supabase', 'migrations');
+    const localMigrationDir = path.join(workDir, 'supabase', 'migrations');
+    fs.mkdirSync(localMigrationDir, { recursive: true });
+
+    const migrationEntries = fs.readdirSync(sourceMigrationDir)
+      .filter(entry => entry.endsWith('.sql'))
+      .sort();
+    const versionPattern = /^(\\d{14})_(.+)\\.sql$/;
+    const versionCounts = new Map();
+    for (const entry of migrationEntries) {
+      const match = entry.match(versionPattern);
+      if (!match) continue;
+      versionCounts.set(match[1], (versionCounts.get(match[1]) || 0) + 1);
+    }
+    const occupiedVersions = new Set(
+      migrationEntries
+        .map(entry => entry.match(versionPattern)?.[1])
+        .filter(Boolean),
     );
+    const ephemeralMigrationRewrites = [];
+    const seenVersions = new Set();
+
+    for (const entry of migrationEntries) {
+      const sourcePath = path.join(sourceMigrationDir, entry);
+      const match = entry.match(versionPattern);
+      let targetEntry = entry;
+      if (match && versionCounts.get(match[1]) > 1) {
+        if (seenVersions.has(match[1])) {
+          let candidateVersion = BigInt(match[1]) + 1n;
+          while (occupiedVersions.has(candidateVersion.toString())) candidateVersion += 1n;
+          const rewrittenVersion = candidateVersion.toString();
+          targetEntry = rewrittenVersion + '_' + match[2] + '.sql';
+          occupiedVersions.add(rewrittenVersion);
+          ephemeralMigrationRewrites.push({
+            source: entry,
+            target: targetEntry,
+            originalVersion: match[1],
+            rewrittenVersion,
+          });
+        } else {
+          seenVersions.add(match[1]);
+        }
+      }
+      fs.copyFileSync(sourcePath, path.join(localMigrationDir, targetEntry));
+    }
+
+    if (ephemeralMigrationRewrites.length) {
+      fs.writeFileSync(
+        path.join(workDir, 'ephemeral-migration-rewrites.json'),
+        JSON.stringify(ephemeralMigrationRewrites, null, 2) + '\\n',
+        'utf8',
+      );
+    }
     runCommand('supabase', ['start'], { cwd: workDir });
     localStarted = true;
 
