@@ -1,20 +1,20 @@
-## LATEST SESSION WRITE-BACK — 2026-09-23-AGHBARI-CONTINUOUS-EXECUTION-112
+## LATEST SESSION WRITE-BACK — 2026-09-23-AGHBARI-CONTINUOUS-EXECUTION-114
 
-- SESSION-ID → `2026-09-23-AGHBARI-CONTINUOUS-EXECUTION-112`
-- MAIN HEAD OBSERVED BEFORE THIS WRITE → `adb093bb20d488ce593b5e2598168c74711d4346`.
-- CURRENT CODE/TEST CANDIDATE → `adb093bb20d488ce593b5e2598168c74711d4346` (real core merge: Phase-F migration sequence repair).
-- DONE → merged PR #626 to eliminate duplicate migration versions that blocked Phase-F restore. The reproduced failure was `schema_migrations_pkey` collision on version `20260819210000`.
-- DONE → 12 content-bearing migrations were resequenced without dropping SQL; redundant 51-byte `remote_lineage_alias` placeholders were removed; consolidated-intelligence and migration map references were updated.
-- DONE → `check-migration-schema-audit.mjs` now rejects duplicate 14-digit migration versions before deeper schema checks.
-- LOCAL SOURCE PROOF → exact working branch audit passed with 285 migrations, 0 findings after the resequencing; this is source/local proof, not live Phase-F proof.
-- EXACT LIVE PHASE-F EVIDENCE BEFORE FIX → run `35793292560` passed authenticated canary but Phase-F was `1/4`: health failed `DEPLOYMENT_SHA_MISMATCH`, tenant-canary passed, backup/restore failed on duplicate migration version, rollback-forward-fix failed 503. Artifact ID `10722589723`.
-- CURRENT RUNTIME BOUNDARY → production still serves deployment `dpl_4z6je3gfmCQs9gfdpXh1RAV1fTNA` at SHA `1d88b083c6c956abb42e2b2db2d5d816cb543344`, not current `adb093bb...`; no RPO/RTO/rollback certification is claimed.
-- VERCEL → current GitHub status remains external `build-rate-limit`; no current-head production deployment is proven.
-- NEXT EXECUTABLE ACTION → consume fresh CI on `adb093bb...`; then rerun the existing Phase-F workflow only when the exact current deployment target changes to `adb093bb...` or a governed exact-head runtime target becomes available. The first reproduced Phase-F failure after the migration fix is the next repair target.
-- DO NOT REPEAT → do not transfer pre-fix Phase-F evidence; do not rerun against the unchanged old production SHA; do not weaken deployment identity; do not delete migration SQL merely to make restore pass.
-- CURRENT RESUME POINTER → `adb093bb...` → fresh exact-head CI → exact-head Phase-F runtime → measured backup/restore/RPO/RTO/rollback → final certification.
-- UI LANE → intelligence duplication remains closed; no new UI gap was certified in this interval.
-- CORE LANE → duplicate migration restore blocker is merged; live deployment identity is now the next hard boundary.
+- SESSION-ID → `2026-09-23-AGHBARI-CONTINUOUS-EXECUTION-114`
+- MAIN HEAD OBSERVED BEFORE THIS WRITE → `c8e81c77bef3000bd2b4e9c730dec6e9c356c9af`.
+- CURRENT CODE/TEST CANDIDATE → `adb093bb20d488ce593b5e2598168c74711d4346`.
+- DONE → Phase-F migration-sequence repair is merged in `adb093bb...`; repository source audit on the repaired branch passed 285 migrations / 0 findings.
+- DONE → opened verification-only PR #627 from the exact repaired code with governance-only session binding, so the existing pull_request Phase-F workflow can probe the repaired restore path.
+- VERIFIED RUNTIME PREVIEW → Netlify Deploy Preview for PR #627 is READY on exact verification head `0c66d94b0320f2db2a20a0ed681d6762fdfc88f5`.
+- EXTERNAL HOSTING → Vercel deployment for PR #627 failed with `api-deployments-free-per-day` (>100 deployments/day); this is external hosting capacity, not a source defect.
+- ACTIONS BOUNDARY → connector-visible Actions runs for `0c66d94...` have not appeared yet; therefore no fresh Phase-F PASS/FAIL is claimed for the repaired code.
+- LIVE PHASE-F BASELINE BEFORE FIX → `35793292560` proved canary auth but was 1/4: deployment SHA mismatch, duplicate migration restore failure, rollback-forward-fix 503.
+- CURRENT HARD BOUNDARY → exact production still serves SHA `1d88b083...`; measured backup/restore, RPO, RTO, rollback and production identity remain NOT PROVEN.
+- NEXT EXECUTABLE ACTION → consume PR #627 exact-head Phase-F when the workflow becomes visible; if restore passes, fix only the next live probe failure. Do not merge PR #627; it is verification-only.
+- DO NOT REPEAT → no stale Phase-F transfer; no rerun against old production SHA as if current; no Vercel rate-limit bypass; no verification-only branch merge.
+- CURRENT RESUME POINTER → `adb093bb...` code candidate → PR #627 exact Phase-F verification → next live failure only → measured RPO/RTO/rollback → final certification.
+- UI LANE → no new blank/truth-state gap found across audited canonical surfaces; next UI work remains evidence-driven.
+- CORE LANE → migration restore blocker is merged; runtime deployment identity is the remaining hard boundary.
 
 ## LATEST SESSION WRITE-BACK — 2026-09-22-AGHBARI-CONTINUOUS-EXECUTION-103
 
