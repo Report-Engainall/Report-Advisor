@@ -1,3 +1,9 @@
+## PHASE-F RPO PROVISIONED — 2026-09-22
+
+- OWNER-PROVISIONED → `RESILIENCE_MAX_RPO_SECONDS=3600` in GitHub Actions.
+- PURPOSE → execute the existing governed Phase-F backup/restore/RPO/RTO/rollback path; no runtime bypass or contract change.
+- VERIFY NEXT → consume exact-head Phase-F evidence on this verification branch, then close the temporary branch/PR if complete.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-22-AGHBARI-CONTINUOUS-EXECUTION-94
 
 - SESSION-ID → `2026-09-22-AGHBARI-CONTINUOUS-EXECUTION-94`
