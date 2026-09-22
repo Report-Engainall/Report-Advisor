@@ -1,3 +1,21 @@
+## LATEST SESSION WRITE-BACK — 2026-09-22-AGHBARI-CONTINUOUS-EXECUTION-90
+
+- SESSION-ID → `2026-09-22-AGHBARI-CONTINUOUS-EXECUTION-90`
+- STARTING FUNCTIONAL HEAD → `058877123463d56b2e35d84adf32673dd79df52e`.
+- DONE → Added a real product-value journey to the canonical onboarding surface: `من المصدر إلى الحقيقة` → `من الحقيقة إلى القرار` → `من القرار إلى المخرج` → `الدليل قبل الثقة`.
+- DONE → Each value lane uses an existing canonical route only: `/import`, `/decision-experience`, `/reports`, `/trust`. No backend path, RPC, importer, or taxonomy was added.
+- DONE → Added Product WOW contract guards for all four value lanes and their canonical routes.
+- EXACT SOURCE VERIFICATION → functional commits are `ca976e97a6265fe0ea2385492c086f2f7c5b04ec` and `79b241c0edf000960cdac38276d4a9c06885a1b7`; exact source was re-read from the branch after both writes.
+- EXACT DIFF SCOPE → only `src/pages/OnboardingPage.tsx` and `scripts/check-product-wow-ui-contract.mjs` changed functionally.
+- CURRENT EXACT-HEAD STATUS → Vercel deployment for `79b241c0...` is queued; no runtime PASS is claimed until the deployment reaches a terminal READY state. PC01 is currently offline, so local execution verification is unavailable.
+- CI / BROWSER → no new authenticated browser E2E or GitHub Actions PASS is claimed.
+- PHASE-F → FAIL-CLOSED unchanged; no recovery evidence or RPO/RTO values invented.
+- LEGACY IMPORT RECOVERY → unchanged; 151 legacy processing imports remain untouched.
+- PRECISE STOP POINT → onboarding now communicates the product's real value chain before the user enters the application, without inventing capabilities or parallel workflows.
+- NEXT EXECUTABLE ACTION → consume terminal exact-head deployment evidence for `79b241c...`; then continue the next independent high-value primary-surface closure and obtain fresh evidence for that new SHA.
+- DO NOT REPEAT → do not create onboarding-specific backend paths; do not transfer deployment evidence from `0588771...` or `ca976e9...` to `79b241c...`; do not claim browser/CI PASS; do not invent Phase-F or recovery evidence.
+- CURRENT RESUME POINTER → `79b241c0edf000960cdac38276d4a9c06885a1b7` → exact-head deployment terminal state → next independent primary UI/value closure → authenticated browser proof when available → governed recovery → real Phase-F → final certification.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-82
 
 - SESSION-ID → `2026-09-21-AGHBARI-CONTINUOUS-EXECUTION-82`
