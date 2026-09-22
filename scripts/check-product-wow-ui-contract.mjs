@@ -257,4 +257,8 @@ const dashboard = fs.readFileSync('src/pages/DashboardPage.tsx', 'utf8');
 assert.ok(dashboard.includes('مؤشرات مثبتة'), 'dashboard must expose confirmed evidence basis');
 assert.ok(dashboard.includes('مؤشرات محسوبة'), 'dashboard must expose calculated evidence basis');
 assert.ok(dashboard.includes('غير متاحة'), 'dashboard must expose unavailable evidence basis');
+const executiveReport = fs.readFileSync('src/pages/ExecutiveReportPage.tsx', 'utf8');
+assert.ok(executiveReport.includes('مساءلة القرار'), 'executive report must expose decision accountability');
+assert.ok(executiveReport.includes('تغطية المسؤولية'), 'executive report must expose owner coverage');
+assert.ok(executiveReport.includes('نتائج مسجلة'), 'executive report must distinguish recorded outcomes');
 console.log('Product wow UI contract: PASS (public proof theater + deterministic decision brief)');
