@@ -4,7 +4,7 @@
 
 - MAIN HEAD OBSERVED BEFORE THIS WRITE: `adb093bb20d488ce593b5e2598168c74711d4346`.
 - CURRENT CODE/TEST CANDIDATE: `adb093bb20d488ce593b5e2598168c74711d4346`.
-- CURRENT GOVERNANCE HEAD: `7d1970b8257de7dfefc74ab8123617c9bf641827`.
+- CURRENT GOVERNANCE HEAD: `b00c35231d0fcf50fe7263539de075041cb0330d`.
 - DONE: PR #626 merged. Duplicate migration versions no longer collide in the repository migration chain; canonical SQL was preserved and redundant empty lineage aliases removed.
 - DONE: migration schema audit now fails closed on duplicate 14-digit versions; local source audit on the repaired branch passed 285 migrations / 0 findings.
 - ROOT CAUSE CLOSED: Phase-F backup/restore previously failed on `schema_migrations_pkey` for version `20260819210000`.
