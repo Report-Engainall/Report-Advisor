@@ -2,7 +2,7 @@
 
 > Exact-head evidence only. GitHub main is authoritative; no historical runtime result is transferred.
 
-- CURRENT MAIN HEAD: `ef9ca3818b917573bbabed4399da9bd6e1997131` (session-memory governance write-back).
+- CURRENT MAIN HEAD: `a8ad1ad0069e5fc4cac3ace7600f6880c7ca0214` (exact current main after Wave-96 governance write-backs).
 - CURRENT PRODUCT/CODE TESTED LINEAGE: no product-code change was introduced by Wave 96; the last tested functional lineage remains the previously verified candidate recorded below.
 - EXACT PHASE-F VERIFICATION HEAD: `d032fe5d99080e4ffb1f58021deca07d7c72a243` on `verify/phasef-rpo-20260922`.
 - VERIFIED: Final Certification Gate PASS; Device-Independent Browser E2E PASS; Quality 63/63 PASS; production regression PASS; tenant canary PASS.
