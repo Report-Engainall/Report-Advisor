@@ -30,6 +30,7 @@ export function validateCertificationBoundary({ index, head, parent, changedFile
     'scripts/check-governance-runtime-chain.mjs',
     'scripts/check-import-center-product-contract.mjs',
     'scripts/check-import-query-bounds.mjs',
+    'scripts/check-import-state-contract.mjs',
     'scripts/check-import-source-field-preservation.mjs',
     'scripts/check-integration-boundaries.mjs',
     'scripts/check-release-decision-provenance.mjs',
