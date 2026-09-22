@@ -164,4 +164,17 @@ assert.ok(liquidity.includes("to: '/reports/purchases'") && liquidity.includes('
 assert.ok(liquidity.includes("to: '/trust'"), 'liquidity fallback must retain a trust action');
 assert.ok(liquidity.includes('aria-label={\'الخطوة التالية: \' + nextAction.title}'), 'liquidity next action must expose an accessible reason');
 
+const stateSurface = fs.readFileSync('src/components/ui/States.tsx', 'utf8');
+assert.ok(stateSurface.includes('export function DataUnavailableState'), 'shared UI states must expose an explicit data-unavailable state');
+const dashboardUnavailable = fs.readFileSync('src/pages/DashboardPage.tsx', 'utf8');
+assert.ok(dashboardUnavailable.includes('DataUnavailableState'), 'dashboard must never fall through to a blank state when its canonical snapshot is incomplete');
+const commandUnavailable = fs.readFileSync('src/pages/ExecutiveCommandCenterPage.tsx', 'utf8');
+assert.ok(commandUnavailable.includes('DataUnavailableState'), 'executive command center must never fall through to a blank state when KPI truth is absent');
+const liquidityUnavailable = fs.readFileSync('src/pages/LiquidityPage.tsx', 'utf8');
+assert.ok(liquidityUnavailable.includes('DataUnavailableState'), 'liquidity must expose a governed unavailable-data state');
+const receivablesUnavailable = fs.readFileSync('src/pages/ReceivablesReportCanonicalPage.tsx', 'utf8');
+assert.ok(receivablesUnavailable.includes('DataUnavailableState'), 'canonical receivables report must expose a governed unavailable-data state');
+const reportsUnavailable = fs.readFileSync('src/pages/ReportsPage.tsx', 'utf8');
+assert.ok(reportsUnavailable.includes('DataUnavailableState'), 'report surfaces must expose a governed unavailable-data state');
+
 console.log('Product wow UI contract: PASS (public proof theater + deterministic decision brief)');

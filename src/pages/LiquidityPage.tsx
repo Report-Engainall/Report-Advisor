@@ -3,7 +3,7 @@ import { ArrowUpLeft, CircleAlert, Landmark, RefreshCw, ShieldCheck, Target } fr
 import { Link } from 'react-router-dom';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
-import { PageHeader, LoadingState, ErrorState } from '@/components/ui/States';
+import { PageHeader, LoadingState, ErrorState, DataUnavailableState } from '@/components/ui/States';
 import { fetchDashboardSnapshot, type DashboardKPIs } from '@/lib/dashboard-canonical';
 import { formatCurrency } from '@/lib/format';
 
@@ -55,7 +55,7 @@ export function LiquidityPage() {
 
   if (loading) return <LoadingState message="جارٍ بناء صورة السيولة من المؤشرات الكانونية..." />;
   if (error) return <ErrorState message={error} onRetry={() => void load()} />;
-  if (!kpis) return null;
+  if (!kpis) return <DataUnavailableState title="صورة السيولة غير متاحة" message="لم تصل مؤشرات الذمم والمستحقات من المصدر الكانوني؛ لا يتم عرض شاشة فارغة أو افتراض رصيد نقدي." action={<Link to="/import" className="btn-primary text-[11px]">إضافة مصدر</Link>} />;
 
   return <div dir="rtl" className="space-y-6 pb-10 animate-fade-in">
     <PageHeader title="السيولة والتعرض النقدي" subtitle="قراءة موثقة للذمم والمستحقات والتحصيل؛ الرصيد النقدي البنكي لا يُعرض ما لم يوجد مصدر مثبت له." actions={<button type="button" onClick={() => void load(true)} disabled={refreshing} className="btn-secondary text-[11px]"><RefreshCw size={13} className={refreshing ? 'animate-spin' : ''} /> تحديث</button>} />

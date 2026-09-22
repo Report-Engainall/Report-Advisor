@@ -7,7 +7,7 @@ import { Link } from 'react-router-dom';
 import { TruthContextStrip } from '@/components/TruthContextStrip';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 
-import { LoadingState, ErrorState } from '@/components/ui/States';
+import { LoadingState, ErrorState, DataUnavailableState } from '@/components/ui/States';
 const TrendChart = lazy(() => import('@/components/ui/Charts').then(m => ({ default: m.TrendChart })));
 const CategoryPieChart = lazy(() => import('@/components/ui/Charts').then(m => ({ default: m.CategoryPieChart })));
 const HorizontalBarChart = lazy(() => import('@/components/ui/Charts').then(m => ({ default: m.HorizontalBarChart })));
@@ -222,7 +222,7 @@ export function DashboardPage() {
 
   if (loading) return <LoadingState message="جارٍ بناء صورة الأعمال من المصدر..." />;
   if (error) return <ErrorState message={error} onRetry={() => void load()} />;
-  if (!kpis || !aging) return null;
+  if (!kpis || !aging) return <DataUnavailableState title="صورة الأعمال غير مكتملة" message="تعذر بناء المؤشرات الأساسية كاملة من المصدر الحالي؛ لا نعرض لوحة فارغة ولا نصنع قيمًا بديلة." action={<Link to="/data-quality" className="btn-primary text-[11px]">مراجعة جودة البيانات</Link>} />;
 
   const evidenceMetrics = [
     kpis.totalSales,

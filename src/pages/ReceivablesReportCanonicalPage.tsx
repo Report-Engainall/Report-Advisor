@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { DataTable } from '@/components/ui/DataTable';
-import { PageHeader, LoadingState, ErrorState } from '@/components/ui/States';
+import { PageHeader, LoadingState, ErrorState, DataUnavailableState } from '@/components/ui/States';
 import { formatCurrency, formatDate, formatNumber } from '@/lib/format';
 import { fetchReceivablesReportPage, fetchReceivablesExportRows, type ReceivablesReportPage, type ReceivablesReportRow } from '@/lib/queries';
 import { downloadReportArtifact } from '@/lib/report-execution/download';
@@ -21,7 +22,7 @@ export function ReceivablesReportCanonicalPage() {
   useEffect(() => { void load(); }, [load]);
   if (loading && !snapshot) return <LoadingState />;
   if (error && !snapshot) return <ErrorState message={error} onRetry={load} />;
-  if (!snapshot) return null;
+  if (!snapshot) return <DataUnavailableState title="تقرير الذمم ينتظر البيانات" message="لم تصل صورة موثوقة للذمم بعد. لا يتم تحويل غياب البيانات إلى صفر أو تقرير فارغ." action={<Link to="/import" className="btn-primary text-[11px]">إضافة مصدر</Link>} />;
   const totalPages = Math.max(1, Math.ceil(snapshot.total_rows / pageSize));
   const exportRows = async () => {
     const rows = await fetchReceivablesExportRows();
