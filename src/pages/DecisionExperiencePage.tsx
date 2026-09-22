@@ -388,11 +388,11 @@ export function DecisionExperiencePage() {
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 {[
                   ['المتوقع', selected?.expected_impact == null ? 'غير متاح' : formatCurrency(selected.expected_impact)],
-                  ['الفعلي', 'غير متاح بعد'],
+                  ['الفعلي', selected?.impact_result?.trim() || 'غير متاح بعد'],
                   ['الفارق', 'لا يمكن حسابه بعد'],
                   ['جودة النتيجة', 'غير متاحة'],
                   ['ملاحظات التنفيذ', 'غير متاحة'],
-                  ['إشارة التعلّم', 'غير مثبتة'],
+                  ['إشارة التعلّم', selected?.impact_result?.trim() ? 'نتيجة فعلية مسجلة؛ التعلّم التشغيلي يحتاج سجلًا إضافيًا.' : 'غير مثبتة'],
                 ].map(([label, value]) => (
                   <div key={label} className="rounded-[12px] border border-ink-100 bg-white p-4">
                     <div className="text-[10px] text-ink-400">{label}</div>
@@ -402,7 +402,12 @@ export function DecisionExperiencePage() {
               </div>
             </CardBody>
           </Card>
-          <BlockedState title="النتيجة الفعلية غير موجودة بعد" detail="عدم توفر النتيجة ليس فشلًا في العرض؛ إنه حد حقيقي في الدليل. لن تُحوّل التوصية إلى نتيجة أو تعلّم تشغيلي قبل وجود سجل تنفيذ موثق." />
+          {selected?.impact_result?.trim()
+            ? <div className="rounded-[14px] border border-success-200 bg-success-50/70 p-4" role="status">
+                <div className="text-[12px] font-black text-success-900">نتيجة فعلية مسجلة</div>
+                <p className="mt-1 text-[11px] leading-5 text-success-800/80">المسار يحتوي على نتيجة فعلية مسجلة. لا يتم استنتاج الفارق أو جودة النتيجة دون بيانات إضافية مثبتة.</p>
+              </div>
+            : <BlockedState title="النتيجة الفعلية غير موجودة بعد" detail="عدم توفر النتيجة ليس فشلًا في العرض؛ إنه حد حقيقي في الدليل. لن تُحوّل التوصية إلى نتيجة أو تعلّم تشغيلي قبل وجود سجل تنفيذ موثق." />}
         </section>
       )}
 
