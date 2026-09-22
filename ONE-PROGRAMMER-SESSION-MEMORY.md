@@ -1,6 +1,17 @@
 ## LATEST SESSION WRITE-BACK — 2026-09-22-AGHBARI-CONTINUOUS-EXECUTION-103
 
 - SESSION-ID → `2026-09-22-AGHBARI-CONTINUOUS-EXECUTION-103`
+- SHA → `6b6f93592ef696d8fc36a7b413062da72064148c`.
+- DONE → rebuilt the Phase-F technical fix branch cleanly from latest main using only the three technical Phase-F changes.
+- ROOT CAUSE CLOSED → prior Phase-F restore depended on repository migrations with duplicate historical versions; the probe now restores authoritative schema/data independently of the migration chain.
+- DONE → exact-target probe URLs are configuration-driven while deployment SHA identity remains fail-closed.
+- CURRENT VERIFICATION STATE → fresh exact-head gates required for `6b6f93592ef696d8fc36a7b413062da72064148c`; no historical PASS transferred.
+- CURRENT RESUME POINTER → `6b6f93592ef696d8fc36a7b413062da72064148c` → fresh exact-head Enforcement/Quality/Certification/Browser/Phase-F → measured backup/restore/RPO/RTO/rollback → governed merge/final certification.
+- DO NOT REPEAT → no stale Phase-F run, no old deployment PASS, no guessed credentials, no migration-chain restore regression.
+
+## LATEST SESSION WRITE-BACK — 2026-09-22-AGHBARI-CONTINUOUS-EXECUTION-103
+
+- SESSION-ID → `2026-09-22-AGHBARI-CONTINUOUS-EXECUTION-103`
 - SHA → `f17f3d7eb9cb34e33c612c8224c233929b698b8a`.
 - DONE → rebuilt the Phase-F technical fix branch cleanly from latest main using only the three technical Phase-F changes.
 - ROOT CAUSE CLOSED → prior Phase-F restore depended on repository migrations with duplicate historical versions; the probe now restores authoritative schema/data independently of the migration chain.

@@ -2,8 +2,20 @@
 
 > Exact-head evidence only. Technical Phase-F changes are bound to this code candidate; no prior PASS is transferred.
 
-- CURRENT MAIN HEAD OBSERVED: `f17f3d7eb9cb34e33c612c8224c233929b698b8a`.
-- CURRENT CODE/TEST CANDIDATE: `f17f3d7eb9cb34e33c612c8224c233929b698b8a`.
+- CURRENT MAIN HEAD OBSERVED: `6b6f93592ef696d8fc36a7b413062da72064148c`.
+- CURRENT CODE/TEST CANDIDATE: `6b6f93592ef696d8fc36a7b413062da72064148c`.
+- DONE: Phase-F logical restore now uses independent public schema dump + data-only dump into an ephemeral Postgres target; migration-chain parity remains a separate gate.
+- DONE: Phase-F probe endpoints are configurable through RESILIENCE_*_URL secrets/vars; exact deployment SHA validation remains mandatory.
+- DONE: Phase-F runtime closure contract requires schema-plus-data restore invariants.
+- NEXT: consume fresh exact-head Enforcement / Quality / Certification / Browser / Phase-F evidence.
+- DO NOT REPEAT: do not transfer evidence from earlier candidates; do not reintroduce migration-chain restore dependency; do not accept stale production deployment identity.
+
+## CURRENT EXECUTION BOUNDARY — 2026-09-22 / WAVE 102 — PHASE-F TECHNICAL FIX REBOUND
+
+> Exact-head evidence only. Technical Phase-F changes are bound to this code candidate; no prior PASS is transferred.
+
+- CURRENT MAIN HEAD OBSERVED: `6b6f93592ef696d8fc36a7b413062da72064148c`.
+- CURRENT CODE/TEST CANDIDATE: `6b6f93592ef696d8fc36a7b413062da72064148c`.
 - DONE: Phase-F logical restore now uses independent public schema dump + data-only dump into an ephemeral Postgres target; migration-chain parity remains a separate gate.
 - DONE: Phase-F probe endpoints are configurable through RESILIENCE_*_URL secrets/vars; exact deployment SHA validation remains mandatory.
 - DONE: Phase-F runtime closure contract requires schema-plus-data restore invariants.
@@ -14,8 +26,8 @@
 
 > Exact-head evidence only. The current candidate contains a checker-only repair following a reproduced certification failure.
 
-- CURRENT MAIN HEAD OBSERVED: `f17f3d7eb9cb34e33c612c8224c233929b698b8a`.
-- CURRENT CODE/TEST CANDIDATE: `f17f3d7eb9cb34e33c612c8224c233929b698b8a`.
+- CURRENT MAIN HEAD OBSERVED: `6b6f93592ef696d8fc36a7b413062da72064148c`.
+- CURRENT CODE/TEST CANDIDATE: `6b6f93592ef696d8fc36a7b413062da72064148c`.
 - LAST VERIFIED RUNTIME CODE FIX: `6ca814df318d64d1116ce734dbff69d15e811b32`.
 - DONE: `scripts/check-import-center-product-contract.mjs` now initializes its DataTable contract requirements before evaluating them; this removes the reproduced `ReferenceError: Cannot access 'missingDataTable' before initialization`.
 - EXACT PRIOR PROOF: Final Certification run `35776335388` on `1a6ac9...` failed after dozens of contract passes solely at that checker ReferenceError; certification boundary integrity itself passed.
@@ -66,7 +78,7 @@
 > Exact-head evidence only. No historical production runtime result is transferred.
 
 - CURRENT CERTIFIED MAIN BASELINE: `5367346e2837a06a4d1787bb016399245f213792`.
-- CURRENT CODE/TEST CANDIDATE: `f17f3d7eb9cb34e33c612c8224c233929b698b8a`.
+- CURRENT CODE/TEST CANDIDATE: `6b6f93592ef696d8fc36a7b413062da72064148c`.
 - DATABASE FIX VERIFIED: migration `20260921194500_import_history_recent_window_index.sql` was committed and applied to Supabase staging; `idx_import_jobs_company_created_id` exists.
 - EXACT-HEAD BROWSER RESULT: Full Product Browser E2E for `84a62...` completed **SUCCESS**. Build, exact checkout, app start, authenticated E2E contract, full product browser E2E, KPI evidence persistence, and real-business browser evidence completed without failure.
 - ROOT CAUSE CLOSED: the real-business E2E timeout was an import-history scale/performance boundary on a tenant with 4,471 import jobs; the bounded query lacked its matching composite index.
@@ -81,7 +93,7 @@
 
 > Exact-head evidence only. No historical runtime result is transferred.
 
-- CURRENT CODE/TEST CANDIDATE: `f17f3d7eb9cb34e33c612c8224c233929b698b8a`.
+- CURRENT CODE/TEST CANDIDATE: `6b6f93592ef696d8fc36a7b413062da72064148c`.
 - ROOT CAUSE CONFIRMED: `import_jobs` had no composite index for the exact bounded history order/filter `company_id, created_at DESC, id ASC`; the affected tenant had 4,471 import jobs.
 - FIX APPLIED: migration `20260921194500_import_history_recent_window_index.sql` creates `idx_import_jobs_company_created_id`.
 - DB PROOF: Supabase staging now exposes that index in `pg_indexes`.
@@ -93,7 +105,7 @@
 
 > Exact-head evidence only. No historical runtime result is transferred.
 
-- CURRENT CODE/TEST CANDIDATE: `f17f3d7eb9cb34e33c612c8224c233929b698b8a`.
+- CURRENT CODE/TEST CANDIDATE: `6b6f93592ef696d8fc36a7b413062da72064148c`.
 - ROOT CAUSE CLOSED: `fetchImportRecords()` rejected any tenant with more than 500 import rows because it requested `count: 'exact'` and converted `count > 500` into `REPORT_QUERY_LIMIT_EXCEEDED`.
 - LIVE E2E OBSERVATION: the affected tenant had 4,471 import jobs; the newly imported customer job itself completed successfully with one canonical row and provenance. The UI history failed only when rendering the bounded history because the read function rejected the large total count.
 - FIX: canonical and compatibility import-history reads now use only the existing bounded latest-500 window; no global count query, no unbounded tenant read, no new RPC, and no new import route.
@@ -104,7 +116,7 @@
 
 > Exact-head evidence only. No historical deployment/runtime result is transferred.
 
-- CURRENT CODE/TEST CANDIDATE: `f17f3d7eb9cb34e33c612c8224c233929b698b8a`.
+- CURRENT CODE/TEST CANDIDATE: `6b6f93592ef696d8fc36a7b413062da72064148c`.
 - GOVERNED MAIN DESCENDANT CERTIFIED: `2b9d28c9a1a8fa12677c03f11b7ba94e2a3dbac7` (documentation/governance descendants only).
 - CI PASS: quality, Execution Enforcement Contract, Final Execution Batch, Storage Tenant Isolation, Final Certification Gate.
 - UI DONE: Connections source status and next action are state-derived and guarded.
@@ -117,7 +129,7 @@
 
 > Exact-head evidence only. No historical deployment/runtime result is transferred.
 
-- CURRENT CODE/TEST CANDIDATE: `f17f3d7eb9cb34e33c612c8224c233929b698b8a`.
+- CURRENT CODE/TEST CANDIDATE: `6b6f93592ef696d8fc36a7b413062da72064148c`.
 - DONE: Connections summary is now state-derived: proven/bounded/adapter counts and next-source action come from the existing connector array.
 - UI CONTRACT: current Product WOW contract guards the new state-derived summary.
 - ARCHITECTURE: no new route/RPC/runner/importer/tenant/calculation path.
@@ -128,7 +140,7 @@
 
 > Exact-head evidence only. No historical deployment/runtime result is transferred.
 
-- CURRENT CODE/TEST CANDIDATE: `f17f3d7eb9cb34e33c612c8224c233929b698b8a`.
+- CURRENT CODE/TEST CANDIDATE: `6b6f93592ef696d8fc36a7b413062da72064148c`.
 - DONE: corrected the Work Center UI contract guard so it asserts the actual null-safe `expiredActive` expression used by the current implementation.
 - ROOT CAUSE OF THE FRESH CERTIFICATION FAIL: source guard drift, not a product/runtime failure.
 - NO ARCHITECTURE CHANGE: only `scripts/check-product-wow-ui-contract.mjs` changed in this correction.
@@ -139,7 +151,7 @@
 
 > Exact-head evidence only. No historical deployment/runtime result is transferred.
 
-- CURRENT CODE/TEST CANDIDATE: `f17f3d7eb9cb34e33c612c8224c233929b698b8a`.
+- CURRENT CODE/TEST CANDIDATE: `6b6f93592ef696d8fc36a7b413062da72064148c`.
 - EXACT-HEAD QUALITY: 20/20 release-readiness stages PASS on this SHA after closing three typecheck defects exposed by the runner.
 - CURRENT CERTIFICATION DIAGNOSIS: certification/enforcement gates rejected the run because their index still pointed to `435534c9...` while current code/test was `88323d3f...`.
 - CORRECTION IN THIS WAVE: certification index/reference is being rebound to the real current code/test SHA through the existing governance files; no boundary weakening or bypass.
@@ -151,7 +163,7 @@
 
 > Exact-head evidence only. No historical deployment/runtime result is transferred.
 
-- CURRENT CODE/TEST CANDIDATE: `f17f3d7eb9cb34e33c612c8224c233929b698b8a`.
+- CURRENT CODE/TEST CANDIDATE: `6b6f93592ef696d8fc36a7b413062da72064148c`.
 - UI IMPLEMENTATION: `src/pages/WorkCenterPage.tsx` at the current main code head; the exact implementation is source-re-read and bound by the product UI contract.
 - UI CONTRACT: `scripts/check-product-wow-ui-contract.mjs` now asserts the state-derived next-action branches, canonical import action, filter actions, `aria-pressed`, and `aria-live`.
 - DONE: Work Center now turns the live operational state into a concrete next action without inventing runtime state or creating a second workflow.
@@ -165,7 +177,7 @@
 
 > Exact-head evidence only. No historical deployment/runtime result is transferred.
 
-- CURRENT CODE/TEST CANDIDATE: `f17f3d7eb9cb34e33c612c8224c233929b698b8a`.
+- CURRENT CODE/TEST CANDIDATE: `6b6f93592ef696d8fc36a7b413062da72064148c`.
 - PHASE-F PROBE: `97a52c0772089609ee3a5a5fb346839a3f8c6601`.
 - PHASE-F CONTRACT GUARD: `91536018fb02b8918874c28ecedfb8ef7d5e5df3`.
 - IMPORT PERFORMANCE MIGRATION: GitHub file `supabase/migrations/20260921182858_20260921183000_import_fk_performance_indexes.sql`; live migration version `20260921182858` / name `20260921183000_import_fk_performance_indexes`.
@@ -180,7 +192,7 @@
 
 > Exact-head evidence only. No historical deployment/runtime result is transferred.
 
-- CURRENT CODE/TEST CANDIDATE: `f17f3d7eb9cb34e33c612c8224c233929b698b8a`.
+- CURRENT CODE/TEST CANDIDATE: `6b6f93592ef696d8fc36a7b413062da72064148c`.
 - DECISION EXPERIENCE: implementation `58f6dd971ce905a3ea5a1f8670101e92c75ddade`; zero expected impact remains semantically valid.
 - COMMAND CENTER: implementation `274f813567d111112d850a696035bf4aba604c28`; Money Recovery now reports receivables availability rather than recoverable-money certainty.
 - UI CONTRACT: `3ab9e99a41676b22a6b61fe35db7891c7f170eac`.
@@ -193,7 +205,7 @@
 
 > Exact-head evidence only. No historical deployment/runtime result is transferred.
 
-- CURRENT CODE/TEST CANDIDATE: `f17f3d7eb9cb34e33c612c8224c233929b698b8a`.
+- CURRENT CODE/TEST CANDIDATE: `6b6f93592ef696d8fc36a7b413062da72064148c`.
 - UI IMPLEMENTATION: `25c681ad540bacab9b0567d78b74a331ea224849` with initial action commit `e0978b867fbcd4a9a9f70b8d8f3515948dfaa590`.
 - UI CONTRACT: `d6aec3aa6285f852043c4b3b7b1bbb364305141b`.
 - DONE: Canonical Import history is now fail-closed: backend fetch errors are not represented as empty history; actual empty history has a real source-selection action.
@@ -207,7 +219,7 @@
 
 > Exact-head evidence only. No historical deployment/runtime result is transferred.
 
-- CURRENT CODE/TEST CANDIDATE: `f17f3d7eb9cb34e33c612c8224c233929b698b8a`.
+- CURRENT CODE/TEST CANDIDATE: `6b6f93592ef696d8fc36a7b413062da72064148c`.
 - UI IMPLEMENTATION: `3b7f6e35f69bb53fd56a1714922376d4322ccd1a` (with initial actionable-state commit `976adb2b54ba52af9cadae4b4deb0085bdc539e8`).
 - UI CONTRACT: `c90a97aad3c353f031c80cfd0788836b20add1e1`.
 - DONE: Inventory empty states are now source-aware and filter-aware, with real next actions and no reload.
@@ -220,7 +232,7 @@
 
 > Exact-head evidence only. No historical deployment/runtime result is transferred.
 
-- CURRENT CODE/TEST CANDIDATE: `f17f3d7eb9cb34e33c612c8224c233929b698b8a`.
+- CURRENT CODE/TEST CANDIDATE: `6b6f93592ef696d8fc36a7b413062da72064148c`.
 - UI IMPLEMENTATION: `42743647d0a94d5fca37dc2308e904fda5b2dc5f`.
 - UI CONTRACT: `6ae2c1c5e41c85598d2b7a160b7fe681aa7e7e33`.
 - DONE: Dashboard analytical empty states for trend, categories, customers and products now contain context-aware next actions; no values are fabricated.
@@ -233,7 +245,7 @@
 
 > Exact-head evidence only. No historical deployment/runtime result is transferred.
 
-- CURRENT CODE/TEST CANDIDATE: `f17f3d7eb9cb34e33c612c8224c233929b698b8a`.
+- CURRENT CODE/TEST CANDIDATE: `6b6f93592ef696d8fc36a7b413062da72064148c`.
 - UI IMPLEMENTATION: `e6478ad3d7569e1e9cea832dac2e6b02f731ed9f`.
 - UI CONTRACT: `7301ae56b7c01723ebdcc78756fc8a1ea5ffe399`.
 - DONE: four report pages now retry in place through their existing loaders; full browser reload is removed from report error recovery.
