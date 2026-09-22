@@ -1,20 +1,19 @@
-# CURRENT CONTROL-PLANE BOUNDARY — 2026-09-23 / EXACT-HEAD CERTIFIED REBIND
+# CURRENT CONTROL-PLANE BOUNDARY — 2026-09-23 / PHASE-F MIGRATION REPAIR MERGED
 
-> The latest non-governance source change is PR #625's Quality workflow gate at `203aa8ae...`; later commits are governance-only.
+> The latest code change is the Phase-F restore migration-sequence repair merged at `adb093bb...`; later commits are governance-only.
 
-- MAIN HEAD OBSERVED BEFORE THIS WRITE: `dd1c92ad94671785d01942bfa20907d8969d5577`.
-- CURRENT CODE/TEST CANDIDATE: `203aa8aedb45f51b453b840ea52738685936a7a2`.
-- CURRENT GOVERNANCE HEAD: `dd1c92ad94671785d01942bfa20907d8969d5577`.
-- DONE: PR #624 Intelligence module consolidation merged; PR #625 Quality workflow now structurally enforces `test:knowledge-architecture`.
-- DIAGNOSED/CLOSED: `a7983bc3...` failed certification only because candidate binding lagged behind the real Quality workflow change at `203aa8ae...`.
-- EXACT-HEAD PROOF ON `dd1c92ad...`: Quality `35793547797`, Final Certification `35793547768`, Enforcement `35793547774`, Browser E2E `35793547772`, Storage Tenant Isolation `35793547779`, Final Execution Batch `35793547743` all SUCCESS.
-- LOCAL PROOF: 20/20 release readiness PASS; knowledge architecture PASS; quality workflow contract PASS; 0 exact duplicate source-file groups across 482 source files.
-- PHASE-F: live backup/restore, measured RPO/RTO, rollback and exact production identity remain NOT PROVEN.
-- VERCEL: latest READY production deployment observed is `1d88b083...`, older than current candidate; no current-head production proof is transferred. Current rate-limit remains external.
-- NEXT CORE FRONT: Phase-F measured recovery only after authorized live resilience source configuration changes; otherwise keep the core boundary fail-closed.
-- NEXT UI FRONT: continue the next evidenced surface gap; do not revive deleted IntelligencePages or perform migration deletions without dependency proof.
-- DO NOT REPEAT: no stale PASS transfer; no unchanged Phase-F credential rerun; no weakening of certification checks.
-
+- MAIN HEAD OBSERVED BEFORE THIS WRITE: `adb093bb20d488ce593b5e2598168c74711d4346`.
+- CURRENT CODE/TEST CANDIDATE: `adb093bb20d488ce593b5e2598168c74711d4346`.
+- CURRENT GOVERNANCE HEAD: `7d1970b8257de7dfefc74ab8123617c9bf641827`.
+- DONE: PR #626 merged. Duplicate migration versions no longer collide in the repository migration chain; canonical SQL was preserved and redundant empty lineage aliases removed.
+- DONE: migration schema audit now fails closed on duplicate 14-digit versions; local source audit on the repaired branch passed 285 migrations / 0 findings.
+- ROOT CAUSE CLOSED: Phase-F backup/restore previously failed on `schema_migrations_pkey` for version `20260819210000`.
+- LIVE PHASE-F BASELINE: prior run `35793292560` was `1/4` passed; authenticated tenant canary succeeded, but production deployment SHA mismatch and restore/rollback probes did not certify.
+- CURRENT PRODUCTION BOUNDARY: deployment `dpl_4z6je3gfmCQs9gfdpXh1RAV1fTNA` serves SHA `1d88b083...`, not current `adb093bb...`; Vercel remains externally rate-limited.
+- PHASE-F STATUS: NOT PROVEN until exact current deployment identity and measured recovery evidence are both present.
+- NEXT CORE FRONT: fresh exact-head CI, then exact-head Phase-F runtime when deployment identity changes; repair only the first reproduced failure.
+- NEXT UI FRONT: next evidenced surface gap only; no duplicate IntelligencePages or unsafe migration deletion.
+- DO NOT REPEAT: no stale Phase-F transfer, no unchanged old-production rerun, no weakening deployment-SHA gate.
 
 # CURRENT CONTROL-PLANE BOUNDARY — 2026-09-22
 
