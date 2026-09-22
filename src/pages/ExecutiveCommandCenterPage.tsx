@@ -79,7 +79,10 @@ export function ExecutiveCommandCenterPage() {
   const [asOf, setAsOf] = useState<string | null>(null);
   const [trend, setTrend] = useState<Awaited<ReturnType<typeof fetchDashboardSnapshot>>['trend']>([]);
   const [alerts, setAlerts] = useState<Alert[]>([]);
+  const [openAlertCount, setOpenAlertCount] = useState(0);
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
+  const [actionableRecommendationCount, setActionableRecommendationCount] = useState(0);
+  const [pendingRecommendationCount, setPendingRecommendationCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -95,8 +98,13 @@ export function ExecutiveCommandCenterPage() {
       setKpis(snapshot.kpis);
       setAsOf(snapshot.asOf);
       setTrend(snapshot.trend);
-      setAlerts(intelligence.alerts.filter((item) => !item.is_read).slice(0, 5));
-      setRecommendations(intelligence.recommendations.filter((item) => item.status === 'new' || item.status === 'accepted').slice(0, 5));
+      const openAlerts = intelligence.alerts.filter((item) => !item.is_read);
+      const actionableRecommendations = intelligence.recommendations.filter((item) => item.status === 'new' || item.status === 'accepted');
+      setAlerts(openAlerts.slice(0, 5));
+      setOpenAlertCount(openAlerts.length);
+      setRecommendations(actionableRecommendations.slice(0, 5));
+      setActionableRecommendationCount(actionableRecommendations.length);
+      setPendingRecommendationCount(actionableRecommendations.filter((item) => item.status === 'new').length);
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'تعذر تحميل مركز القيادة');
     } finally {
@@ -113,16 +121,17 @@ export function ExecutiveCommandCenterPage() {
     return Math.round((fields.filter((value) => value !== null).length / fields.length) * 100);
   }, [kpis]);
   const decisionCoverage = useMemo(() => {
-    const actionable = recommendations.filter((item) => item.status === 'new' || item.status === 'accepted');
+    const actionable = recommendations;
     const owned = actionable.filter((item) => item.owner?.trim()).length;
     const outcomes = actionable.filter((item) => item.impact_result?.trim()).length;
     return {
-      total: actionable.length,
-      ownerCoverage: actionable.length ? Math.round((owned / actionable.length) * 100) : null,
-      outcomeCoverage: actionable.length ? Math.round((outcomes / actionable.length) * 100) : null,
-      pending: recommendations.filter((item) => item.status === 'new').length,
+      total: actionableRecommendationCount,
+      ownerCoverage: actionableRecommendationCount ? Math.round((owned / actionable.length) * 100) : null,
+      outcomeCoverage: actionableRecommendationCount ? Math.round((outcomes / actionable.length) * 100) : null,
+      pending: pendingRecommendationCount,
+      coverageScope: actionableRecommendationCount > actionable.length ? 'آخر 5 معروضين / حتى 100 توصية مسترجعة' : 'كل التوصيات القابلة للمتابعة المسترجعة',
     };
-  }, [recommendations]);
+  }, [actionableRecommendationCount, pendingRecommendationCount, recommendations]);
 
   if (loading) return <LoadingState message="جارٍ بناء مركز القيادة من المصدر..." />;
   if (error) return <ErrorState message={error} onRetry={() => void load()} />;
@@ -153,8 +162,8 @@ export function ExecutiveCommandCenterPage() {
           <span className="ag-decision-value">{kpis.status === 'INSUFFICIENT_DATA' ? 'بيانات غير كافية' : 'الصورة قابلة للاستخدام'}</span>
         </div>
         <div className="ag-decision-cell"><span className="ag-decision-label">تغطية القياسات</span><span className="ag-decision-value">{coverage}%</span></div>
-        <div className="ag-decision-cell"><span className="ag-decision-label">إشارات مفتوحة</span><span className="ag-decision-value">{alerts.length}</span></div>
-        <div className="ag-decision-cell"><span className="ag-decision-label">توصيات للمراجعة</span><span className="ag-decision-value">{recommendations.length}</span></div>
+        <div className="ag-decision-cell"><span className="ag-decision-label">إشارات مفتوحة</span><span className="ag-decision-value">{openAlertCount}</span></div>
+        <div className="ag-decision-cell"><span className="ag-decision-label">توصيات للمراجعة</span><span className="ag-decision-value">{actionableRecommendationCount}</span></div>
         <div className="ag-decision-cell"><span className="ag-decision-label">تغطية القرار</span><span className="ag-decision-value">{decisionCoverage.outcomeCoverage === null ? 'غير متاح' : decisionCoverage.outcomeCoverage + '%'}</span></div>
         <div className="ag-decision-cell"><span className="ag-decision-label">As-of</span><span className="ag-decision-value">{asOf ?? 'غير متاح'}</span></div>
       </div>
@@ -175,7 +184,7 @@ export function ExecutiveCommandCenterPage() {
         <Link to="/decision-experience?stage=decision" className="card card-hover p-4">
           <div className="flex items-center justify-between gap-3"><BarChart3 size={18} className="text-warning-700"/><span className="rounded-full bg-warning-50 px-2 py-1 text-[9px] font-black text-warning-800">{decisionCoverage.total ? 'حقيقي' : 'لا توجد توصيات'}</span></div>
           <div className="mt-3 text-sm font-black text-ink-900">Decision Coverage</div>
-          <p className="mt-1 text-[10px] leading-5 text-ink-500">{decisionCoverage.total ? 'تغطية المالك ' + (decisionCoverage.ownerCoverage ?? 0) + '% · نتيجة مسجلة ' + (decisionCoverage.outcomeCoverage ?? 0) + '% · معلقة ' + decisionCoverage.pending : 'لا توجد توصيات قابلة للمتابعة؛ لا يتم تصنيع تغطية أو أثر بديل.'}</p>
+          <p className="mt-1 text-[10px] leading-5 text-ink-500">{decisionCoverage.total ? 'تغطية المالك ' + (decisionCoverage.ownerCoverage ?? 0) + '% · نتيجة مسجلة ' + (decisionCoverage.outcomeCoverage ?? 0) + '% · معلقة ' + decisionCoverage.pending + ' · ' + decisionCoverage.coverageScope : 'لا توجد توصيات قابلة للمتابعة؛ لا يتم تصنيع تغطية أو أثر بديل.'}</p>
         </Link>
         <Link to="/trust" className="card card-hover p-4">
           <div className="flex items-center justify-between gap-3"><FileSearch size={18} className="text-ink-500"/><span className="rounded-full bg-ink-100 px-2 py-1 text-[9px] font-black text-ink-600">غير مثبت</span></div>
