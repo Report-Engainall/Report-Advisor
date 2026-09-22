@@ -1,3 +1,22 @@
+## LATEST SESSION WRITE-BACK — 2026-09-22-AGHBARI-CONTINUOUS-EXECUTION-87
+
+- SESSION-ID → `2026-09-22-AGHBARI-CONTINUOUS-EXECUTION-87`
+- STARTING FUNCTIONAL HEAD → `ec2b1e4d8cbfd27a562b7c6b1883173a022dc4ab`.
+- DONE → Verified exact PR #612 head `ec2b1e4...` is deployed successfully on Vercel, Netlify preview, and Cloudflare Pages; exact-head combined status was SUCCESS for CodeRabbit, Netlify, Vercel, and Vercel Deployments – Injaz. No stale evidence was transferred.
+- DONE → Identified a semantic product-trust inconsistency: Data Quality calculated its overall score from `(records - issues) / records`, while Trust & Evidence summarized the authoritative entity quality scores weighted by record count. This could expose two different “overall quality” truths for the same snapshot.
+- DONE → Corrected `src/pages/DataQualitySnapshotPage.tsx` to derive the displayed overall score from the authoritative per-entity quality scores, weighted by each entity's record count, matching the Trust & Evidence basis. Empty/no-weighted-row state remains fail-closed at 0.
+- DONE → Added four contract guards in `scripts/check-product-wow-ui-contract.mjs` for the authoritative weighted score basis and fail-closed behavior.
+- EXACT SOURCE VERIFICATION → both changed files were re-read from exact head `146a85ffdbedab54a94436afd7b99d23503bb26b`; expected formulas and guards are present.
+- EXACT COMPARE → `ec2b1e4d8cbfd27a562b7c6b1883173a022dc4ab` → `146a85ffdbedab54a94436afd7b99d23503bb26b` is exactly 2 commits ahead, 0 behind, limited to Data Quality UI and its contract guard.
+- CURRENT EXACT-HEAD STATUS → Vercel and Vercel Deployments – Injaz are pending for `146a85ff...`; no deployment record for that SHA was yet returned by the connected Vercel deployment listing at stop time. Therefore no PASS is claimed for the new head.
+- NO BROWSER E2E → no authenticated browser/device session was available; no authenticated E2E PASS claimed.
+- PHASE-F → FAIL-CLOSED unchanged; no backup/restore/RPO/RTO evidence invented.
+- LEGACY IMPORT RECOVERY → 151 legacy processing `import_jobs` remain untouched; no arbitrary recovery/finish mutation.
+- PRECISE STOP POINT → Data Quality and Trust & Evidence now use one authoritative record-weighted entity-score basis for overall quality, while exact-head deployment proof for `146a85ff...` is still pending.
+- NEXT EXECUTABLE ACTION → consume exact `146a85ff...` deployment/CI evidence when emitted; then continue another independent high-value product/UI closure without transferring stale proof.
+- DO NOT REPEAT → do not restore the old records-minus-issues formula; do not transfer `ec2b1e4...` runtime evidence to `146a85ff...`; do not claim authenticated browser PASS; do not force-close legacy imports; do not invent Phase-F values; do not create duplicate RPC/import/runner paths.
+- CURRENT RESUME POINTER → `146a85ffdbedab54a94436afd7b99d23503bb26b` → fresh exact-head deployment/CI evidence → authenticated browser proof when actually available → next independent product/UI closure → governed legacy recovery → real Phase-F recovery → final certification.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-22-AGHBARI-CONTINUOUS-EXECUTION-84
 
 - SESSION-ID → `2026-09-22-AGHBARI-CONTINUOUS-EXECUTION-84`
