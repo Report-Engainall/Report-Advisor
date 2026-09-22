@@ -11,6 +11,15 @@ const files = fs.readdirSync(dir)
 
 if (files.length === 0) throw new Error('No SQL migrations found');
 
+const migrationVersions = new Map();
+for (const file of files) {
+  const version = /^([0-9]{14})_/.exec(file)?.[1];
+  if (!version) continue;
+  const previous = migrationVersions.get(version);
+  if (previous) throw new Error(`duplicate migration version ${version}: ${previous} and ${file}`);
+  migrationVersions.set(version, file);
+}
+
 const seenObjects = new Map();
 const duplicateObjects = [];
 const findings = [];
