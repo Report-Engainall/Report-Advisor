@@ -51,6 +51,31 @@ export function DataTable<T extends object>({ columns, data, loading, emptyMessa
           })}
         </tbody>
       </table>
+      {effectivePageSize > 0 && (
+        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-ink-100 bg-ink-50/60 px-4 py-2.5 text-[11px] text-ink-500" aria-label="تنقّل الجدول">
+          <span>الصفحة {page + 1} من {pageCount} · عرض {page * effectivePageSize + 1}–{Math.min((page + 1) * effectivePageSize, data.length)} من {data.length}</span>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              aria-label="الصفحة السابقة"
+              disabled={page === 0}
+              onClick={() => setPage(current => Math.max(0, current - 1))}
+              className="rounded-lg border border-ink-200 bg-white px-3 py-1.5 font-bold text-ink-700 disabled:cursor-not-allowed disabled:opacity-40 hover:bg-white"
+            >
+              السابق
+            </button>
+            <button
+              type="button"
+              aria-label="الصفحة التالية"
+              disabled={page >= pageCount - 1}
+              onClick={() => setPage(current => Math.min(pageCount - 1, current + 1))}
+              className="rounded-lg border border-ink-200 bg-white px-3 py-1.5 font-bold text-ink-700 disabled:cursor-not-allowed disabled:opacity-40 hover:bg-white"
+            >
+              التالي
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
