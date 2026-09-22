@@ -90,3 +90,71 @@ A technical change is complete only when:
 - exact-SHA source verification performed
 - no duplicate path introduced
 - current documentation/index updated
+
+## 11. Absorbed architecture capabilities and reference patterns
+
+The former architecture reference also identified these valid capability directions. They are retained as canonical product/architecture targets only when implemented through governed paths:
+
+### Business intelligence
+- executive situation/command view
+- drill-down, drill-through and cross-filtering
+- semantic natural-language-to-metric flow with deterministic query validation
+- saved analyses, dashboards, report templates and versions
+- KPI, trend, comparison, ranking, distribution, forecast and anomaly visualization
+
+### Inventory, demand and liquidity
+- moving versus frozen/slow inventory
+- days-to-clear and liquidation analysis
+- demand velocity and seasonality
+- stockout date, reorder point, safety stock and purchase priority when minimum-data gates pass
+- receivable/payable schedules and liquidity-priority analysis
+
+### Semantic metric layer
+Important metrics have:
+- definition
+- formula
+- source
+- owner
+- permissions
+- version
+- last update
+- validation/tests
+
+### Event and decision chain
+Business event -> metrics -> alerts -> investigation -> recommendation -> approval when sensitive -> action -> verification -> audit.
+
+Sensitive operations such as payments, deletion, financial changes, bulk messaging and permission changes require explicit human approval and audit controls where the capability exists.
+
+### Agent architecture
+Agents are governed by:
+- role
+- responsibilities
+- tools
+- permissions
+- skills
+- memory
+- model
+- output schema
+- quality criteria
+- version
+- owner
+
+Agent execution follows:
+Understand -> Plan -> Execute -> Verify -> Review -> Deliver
+
+Agent observability should retain model/tool context, duration, errors, evidence, confidence and validation.
+
+### Research/evidence workflow
+Question -> Planning -> Search -> Evidence -> Gap Detection -> Verification -> Synthesis -> Report
+
+### Report Studio
+Reports are structured artifacts containing sections, KPIs, charts, tables, evidence, calculations, recommendations, risks and appendices, with versioning and export/print where supported.
+
+### Data engine
+Deterministic transformations cover filtering, grouping, aggregation, joins, pivots, rolling windows, time series, rankings, statistics, missing/duplicate detection and outliers. Reusable Recipes follow:
+Input -> Normalize -> Map -> Transform -> Validate -> Output
+
+### Scaling discipline
+Small data uses direct deterministic SQL/local processing; medium data uses optimized SQL/batches; larger scale requires measured workload justification before introducing distributed systems.
+
+Do not introduce Spark/streaming infrastructure only because it is architecturally fashionable.
