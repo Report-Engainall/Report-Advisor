@@ -1,3 +1,21 @@
+## LATEST SESSION WRITE-BACK — 2026-09-22-AGHBARI-CONTINUOUS-EXECUTION-89
+
+- SESSION-ID → `2026-09-22-AGHBARI-CONTINUOUS-EXECUTION-89`
+- STARTING FUNCTIONAL HEAD → `146a85ffdbedab54a94436afd7b99d23503bb26b`.
+- DONE → Improved the Sources & Connections surface so the bounded **PDF / Arabic documents** connector routes directly into the single canonical unified import path (`/import`) instead of sending the customer to a generic trust page.
+- DONE → The CTA now explicitly says **ابدأ الاستيراد الموحد**, reinforcing the product rule that documents do not create a parallel ingestion workflow.
+- DONE → Added contract guards preventing the document connector from drifting into a disconnected connector workflow.
+- EXACT SOURCE VERIFICATION → exact head `058877123463d56b2e35d84adf32673dd79df52e` contains both the routing change and its guard.
+- EXACT COMPARE → `146a85ffdbedab54a94436afd7b99d03a994fd3bbe` → `058877123463d56b2e35d84adf32673dd79df52e` is exactly 2 commits ahead, 0 behind, limited to Connections UI + contract guard.
+- CURRENT EXACT-HEAD STATUS → Vercel is pending for `058877123...`; no PASS claimed for this new SHA. The previous `146a85...` Vercel/Netlify READY evidence remains valid only for that prior SHA.
+- CI / BROWSER → no new GitHub Actions workflow run and no authenticated browser E2E claimed.
+- PHASE-F → FAIL-CLOSED unchanged.
+- LEGACY IMPORT RECOVERY → 151 legacy processing import jobs remain untouched.
+- PRECISE STOP POINT → document connector now visibly enters the same unified import path used by the rest of the product; exact-head deployment proof is pending.
+- NEXT EXECUTABLE ACTION → consume fresh `058877123...` deployment evidence, then continue another independent high-value product/UI closure.
+- DO NOT REPEAT → do not create a separate PDF/document import workflow; do not transfer `146a85...` deployment proof to `058877123...`; do not claim browser/CI PASS; do not force-close legacy imports.
+- CURRENT RESUME POINTER → `058877123463d56b2e35d84adf32673dd79df52e` → exact-head deployment evidence → next independent UI/product closure → authenticated browser proof → governed recovery → Phase-F → final certification.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-22-AGHBARI-CONTINUOUS-EXECUTION-88
 
 - SESSION-ID → `2026-09-22-AGHBARI-CONTINUOUS-EXECUTION-88`
