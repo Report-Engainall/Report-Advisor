@@ -206,6 +206,7 @@ assert.ok(dataQuality.includes('const weightedScore = weightedRows > 0 ?'), 'dat
 assert.ok(dataQuality.includes('setOverallScore(weightedScore == null ? 0 : Math.round(weightedScore))'), 'data quality must fail closed to zero when no weighted rows exist');
 assert.ok(dataQuality.includes('criticalIssueTotal'), 'data quality summary must expose critical issue pressure rather than inventing healthy-row counts');
 assert.ok(!dataQuality.includes('سجلات سليمة'), 'data quality must not imply that total rows minus issue counts equals healthy rows');
+assert.ok(dataQuality.includes('لا توجد مشكلات جودة مرصودة في اللقطة الحالية'), 'data quality empty-issues state must describe observed issue absence, not certify every row as healthy');
 
 const connections = fs.readFileSync('src/pages/ConnectionsPage.tsx', 'utf8');
 assert.ok(connections.includes("id === 'documents' ? '/import' : '/trust'"), 'document connector must route into the unified import path rather than a disconnected connector workflow');
