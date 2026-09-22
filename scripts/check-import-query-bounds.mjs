@@ -6,17 +6,18 @@ const end = source.indexOf('export async function markAlertRead', start);
 
 if (start < 0 || end < 0) throw new Error('fetchImportRecords boundary not found');
 const fn = source.slice(start, end);
-for (const token of [
-  '.range(0, MAX_IMPORT_RECORD_ROWS - 1)',
-]) if (!fn.includes(token)) throw new Error(`import query bound contract missing: ${token}`);
+if (!fn.includes('limit = MAX_IMPORT_RECORD_ROWS')) throw new Error('import query limit default missing');
+if (!/Number\.isInteger\(limit\)[\s\S]*limit > MAX_IMPORT_RECORD_ROWS/.test(fn)) throw new Error('import query limit must fail closed above MAX_IMPORT_RECORD_ROWS');
 if (!/select\([^)]*result_summary/.test(fn)) throw new Error('import history projection missing');
 const importRead = fn.match(/\.from\('import_jobs'\)[^;]+;/)?.[0] ?? '';
-if (importRead && !/\.range\s*\(\s*0\s*,\s*MAX_IMPORT_RECORD_ROWS\s*-\s*1\s*\)/.test(importRead)) throw new Error('import history query still has an unbounded tenant read');
+if (importRead && !/\.range\s*\(\s*0\s*,\s*limit\s*-\s*1\s*\)/.test(importRead)) throw new Error('import history query must use the validated limit');
 console.log('Import query bounds regression: PASS');
 
 const compat = readFileSync('src/lib/queries-compat.ts', 'utf8');
 const compatStart = compat.indexOf('export async function fetchImportRecords');
 if (compatStart < 0) throw new Error('compat fetchImportRecords boundary not found');
 const compatFn = compat.slice(compatStart, compat.indexOf('export interface PurchaseSummary', compatStart));
-for (const token of ['.range(0, MAX_IMPORT_RECORD_ROWS - 1)']) if (!compatFn.includes(token)) throw new Error(`compat import query bound contract missing: ${token}`);
+if (!compatFn.includes('limit = 500')) throw new Error('compat import query limit default missing');
+if (!/Number\.isInteger\(limit\)[\s\S]*limit > 500/.test(compatFn)) throw new Error('compat import query limit must fail closed above 500');
+if (!/\.range\s*\(\s*0\s*,\s*limit\s*-\s*1\s*\)/.test(compatFn)) throw new Error('compat import query must use the validated limit');
 console.log('Compatibility import query bounds regression: PASS');
