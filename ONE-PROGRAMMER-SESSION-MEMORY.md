@@ -1,3 +1,13 @@
+## LATEST SESSION WRITE-BACK — 2026-09-22-AGHBARI-CONTINUOUS-EXECUTION-101
+
+- SESSION-ID → `2026-09-22-AGHBARI-CONTINUOUS-EXECUTION-101`
+- PR HEAD → `3be8c89b9181a300419f98132cd2ee59ec113669`.
+- DONE → added an exact contract guard for Phase-F schema-plus-data logical restore, preventing regression to migration-chain restore.
+- DONE → rebound the certification candidate to the new exact head; no runtime evidence is transferred from earlier SHA.
+- NEXT EXECUTABLE ACTION → consume fresh Enforcement / Quality / Final Certification / Browser / Phase-F evidence on this SHA.
+- DO NOT REPEAT → do not loosen restore proof, do not transfer prior SHA evidence, do not reintroduce db-reset migration dependency in the live restore probe.
+- CURRENT RESUME POINTER → `3be8c89b9181a300419f98132cd2ee59ec113669` → fresh exact-head gates → Phase-F live probes with configured exact-target URLs → measured RPO/RTO/rollback → governed merge/final certification.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-22-AGHBARI-CONTINUOUS-EXECUTION-100
 
 - SESSION-ID → `2026-09-22-AGHBARI-CONTINUOUS-EXECUTION-100`
