@@ -1,3 +1,30 @@
+## LIVE SESSION WRITE-BACK — 2026-09-22 / WAVE 103 CORE MIGRATION CLOSURE
+
+- MAIN HEAD OBSERVED BEFORE THIS WRITE → `0a8b545903777ac906a441709eb8dce0cc8b7603`.
+- CURRENT BRANCH HEAD OBSERVED BEFORE THIS WRITE → `18c9e742f88e0f635a6e9e3ed5415c2f9ebce8fa`.
+- CURRENT CODE/TEST CANDIDATE → `7135682b4cd732d8eaafeebee8aa45e421a6be3c`.
+- DONE → Liquidity next-action UI now derives from canonical KPI truth and routes to unified Import/Receivables/Purchases/Trust.
+- DONE → Commercial UI/experience rules absorbed into MASTER_UI_UX_REFERENCE; four source files retained.
+- DONE → Knowledge Manifest marked ABSORBED / SOURCE RETAINED with exact evidence ledger.
+- DONE → Quality workflow permanently enforces `npm run test:knowledge-architecture`.
+- DONE → Certification boundary allowlist recognizes PROJECT_KNOWLEDGE_MANIFEST and quality workflow as governance-only.
+- DONE → Phase-10 recovery boundary restored in execution index.
+- DONE → Exact-head migration duplicate fixed: the duplicate `20260819210000` Inventory/Liquidity migration was consolidated into unique migration `20260819230000_alternative_item_groups.sql`; direct references updated; duplicate migration file deleted.
+- VERIFIED → exact candidate `7135682...`: consolidated-intelligence PASS and knowledge-architecture PASS on PC01; 198 documentation files scanned.
+- VERIFIED → exact candidate `06d464b...`: Final Certification `35781586842` success; Quality `35781594626` success; UI Route `35781594634` success; Recovery Readiness `35781594611` success; Production Regression `35781594382` success; Browser `35781586689` success.
+- VERIFIED → latest governance head `18c9e742...`: migration-fix candidate is indexed exactly to `7135682...`; new exact-head gate wave is queued.
+- FAILED / EXPLAINED → Phase-F run `35781594563` on `06d464b...`: operational-health failed `DEPLOYMENT_SHA_MISMATCH` because production reported `84db430...`; backup-restore failed on duplicate migration version `20260819210000`; rollback-forward drill returned 503; status NOT READY. This evidence is not transferred to newer heads.
+- CURRENT PHASE-F → run `35783080357` on `7135682...` is in progress at Live resilience probes after exact-head, local runtime, static contracts, and authenticated canary all succeeded. The purpose of this rerun is to verify the duplicate-version fix; do not call PASS until the final run result is complete.
+- PRODUCTION → Vercel exact production proof remains NOT PROVEN; GitHub status still reports Vercel build-rate-limit and production deployment evidence points to old SHA `84db430...`. Netlify preview remains available; no acceptance criteria changed.
+- SUPABASE → staging read-only posture: 4563 import_jobs total (3163 completed, 1249 failed, 151 processing); report_execution_jobs includes 3223 completed, 564 queued, 10 failed, 7 dead_letter; backup_verification_runs=0; watched file/folder counts=0. No unsafe recovery mutation performed.
+- SECURITY → security advisor still reports 46 SECURITY DEFINER exposure findings; no blanket revoke performed.
+- OPEN → PR #621 remains open and mergeable; base main remains `0a8b545...`. Required exact-head checks on `18c9e742...` are queued. Do not merge until the current-head certification boundary and required product gates are consumed.
+- 50/50 UI LANE → Liquidity actionability closure + UI experience consolidation delivered; continue canonical surface closure after current certification wave.
+- 50/50 CORE LANE → duplicate migration-version closure delivered; Phase-F live resilience is now the active core gate; production exact-deployment remains externally blocked by Vercel rate-limit.
+- PRECISE NEXT ACTION → `18c9e742...` governance head → consume exact-head Enforcement + Final Certification + Quality + Browser/route/regression on the candidate `7135682...` → consume Phase-F `35783080357` result → if current-head gates are green, merge PR #621 → verify main exact SHA → write final post-merge resume.
+- DO NOT REPEAT → do not transfer any PASS from `06d464b...` to newer heads; do not rerun Phase-F with unchanged bad production deployment; do not change acceptance criteria; do not delete retained legacy documents; do not mutate 151 processing imports without a recovery contract.
+- CURRENT RESUME POINTER → `18c9e742...` → exact-head certification for candidate `7135682...` → Phase-F live-resilience result `35783080357` → governed PR #621 merge → main SHA verification.
+
 ## CONTROL-PLANE WRITE-BACK — 2026-09-22 / WAVE 103 GOVERNANCE REBIND
 
 - MAIN HEAD OBSERVED BEFORE THIS WRITE → `3ceb90927ad3e133dca158497c70c42af651a681`.
