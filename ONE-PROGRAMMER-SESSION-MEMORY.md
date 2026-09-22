@@ -1,18 +1,17 @@
 ## LATEST SESSION WRITE-BACK — 2026-09-23-AGHBARI-CONTINUOUS-EXECUTION-107
 
 - SESSION-ID → `2026-09-23-AGHBARI-CONTINUOUS-EXECUTION-107`
-- MAIN HEAD OBSERVED BEFORE THIS WRITE → `74be717bf7bd56dda5ecb9c703f0ca3d3acf4d88`.
-- CURRENT CODE/TEST CANDIDATE → `74be717bf7bd56dda5ecb9c703f0ca3d3acf4d88`.
-- DONE → reconciled the new UI closure as real code, not governance-only: inventory and canonical profitability unavailable states plus report-center guards are present in `74be717...`.
-- VERIFIED BEFORE EXACT-HEAD CI → local typecheck PASS; Product WOW UI contract PASS with the new inventory/profitability assertions; production build PASS. Earlier exact local candidate also had knowledge architecture PASS and lint 0 errors / 63 warnings.
-- FAILED AND DIAGNOSED → exact candidate `2bdcf38...` Enforcement/Final Certification failed only because its historical index still named `7b6...`; no product/runtime defect was reproduced.
-- CURRENT BOUNDARY → `74be717...` is the actual code candidate and must now receive fresh exact-head certification.
-- BLOCKED → Phase-F measured backup/restore/RPO/RTO/rollback and exact production deployment identity remain NOT PROVEN.
-- NEXT EXECUTABLE ACTION → consume fresh `74be717...` Enforcement + Final Certification + Browser results; repair only the first reproduced current-head failure; then continue Phase-F and next UI/core gap in parallel.
-- DO NOT REPEAT → do not transfer `2bdcf38...` evidence to `74be717...`; do not rerun unchanged Phase-F external failure; do not mutate stale imports without governed recovery.
-- CURRENT RESUME POINTER → `74be717bf7bd56dda5ecb9c703f0ca3d3acf4d88` → exact-head CI/Certification/Browser → Phase-F measured recovery → next UI/core closure.
-- UI LANE → second unavailable-data closure is in candidate; continue only with evidenced surface gaps.
-- CORE LANE → exact-head certification boundary is current; Phase-F remains fail-closed.
+- MAIN HEAD OBSERVED BEFORE THIS WRITE → `35b52cbe942774dd150c0e863cb0998a0d27af04`.
+- CURRENT CODE/TEST CANDIDATE → `74be717bf7bd56dda5ecb9c703f0ca3d3acf4d88` (latest code SHA; 35b52cbe is governance-only).
+- DONE → verified current main governance head and consumed the latest exact-code closure already merged at 74be717; no new runtime/code defect is introduced by the 35b52cbe governance descendant.
+- VERIFIED → exact local main 35b52cbe: 20/20 release-readiness stages PASS; execution-enforcement PASS; production-certification contract PASS; Phase-F runtime-closure contract PASS. Product WOW, executive dashboard, route/sidebar parity, knowledge architecture, typecheck and production build were also PASS on the same code lineage.
+- CURRENT BOUNDARY → 74be717 remains the exact code candidate for runtime/certification evidence; 35b52cbe is the current governance HEAD.
+- BLOCKED → Phase-F measured backup/restore/RPO/RTO/rollback and exact production deployment identity remain NOT PROVEN; no credential or older deployment evidence is transferred.
+- NEXT EXECUTABLE ACTION → consume fresh GitHub exact-head Enforcement + Final Certification + Browser evidence against the current governed lineage; repair only the first reproduced current-head failure, then continue authorized Phase-F and next UI/core gap in parallel.
+- DO NOT REPEAT → do not transfer 74be717 local PASS to a changed code SHA; do not rerun unchanged Phase-F external failure; do not mutate stale imports without governed recovery; do not treat older deployment evidence as current.
+- CURRENT RESUME POINTER → `35b52cbe942774dd150c0e863cb0998a0d27af04` governance HEAD / `74be717bf7bd56dda5ecb9c703f0ca3d3acf4d88` code candidate → fresh exact-head CI/Certification/Browser → Phase-F measured recovery → next UI/core closure.
+- UI LANE → unavailable-data closure is merged and contract-guarded across the identified blank business/report surfaces; continue the next evidenced surface gap.
+- CORE LANE → current exact-head certification is the boundary; Phase-F remains fail-closed.
 
 ## LATEST SESSION WRITE-BACK — 2026-09-22-AGHBARI-CONTINUOUS-EXECUTION-103
 

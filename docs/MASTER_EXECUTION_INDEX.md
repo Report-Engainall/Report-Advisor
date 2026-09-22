@@ -2,12 +2,12 @@
 
 > GitHub main exact HEAD is reconciled before this write. The current candidate includes the second UI truth-state closure from commit `74be717...`.
 
-- MAIN HEAD OBSERVED BEFORE THIS WRITE: `74be717bf7bd56dda5ecb9c703f0ca3d3acf4d88`.
+- MAIN HEAD OBSERVED BEFORE THIS WRITE: `35b52cbe942774dd150c0e863cb0998a0d27af04`.
 - CURRENT CODE/TEST CANDIDATE: `74be717bf7bd56dda5ecb9c703f0ca3d3acf4d88`.
-- CURRENT GOVERNANCE HEAD: `74be717bf7bd56dda5ecb9c703f0ca3d3acf4d88`.
-- CURRENT WORKING STATE: canonical unavailable-data fallthroughs are closed across dashboard, command center, liquidity, receivables, inventory, canonical profitability, and report surfaces; Product WOW now guards the new state.
-- NEXT EXECUTABLE CORE FRONT: consume fresh exact-head Enforcement + Final Certification + Browser evidence for `74be717...`; repair only the first reproduced current-head failure; then authorized Phase-F measured recovery.
-- NEXT EXECUTABLE UI FRONT: continue the next evidenced surface gap; no duplicate import/decision paths.
+- CURRENT GOVERNANCE HEAD: `35b52cbe942774dd150c0e863cb0998a0d27af04`.
+- CURRENT WORKING STATE: the 74be717 UI closure is the latest code candidate; 35b52cbe is a governance-only descendant. Local exact-main verification is green with 20/20 release-readiness and core certification contracts.
+- NEXT EXECUTABLE CORE FRONT: consume fresh exact-head Enforcement + Final Certification + Browser evidence for the current governed lineage; repair only the first reproduced current-head failure; then authorized Phase-F measured recovery.
+- NEXT EXECUTABLE UI FRONT: continue the next evidenced surface gap after unavailable-data closure; no duplicate import/decision paths.
 - PHASE-F BOUNDARY: live backup/restore, RPO, RTO, rollback, and exact production deployment identity remain NOT PROVEN until measured.
 - DO NOT REPEAT: no transfer from `2bdcf38...` or older candidates; no unchanged Phase-F credential rerun; no unsafe stale-import mutation; no older deployment as current production proof.
 
