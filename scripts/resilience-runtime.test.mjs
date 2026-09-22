@@ -14,6 +14,12 @@ const files = [
 ];
 for (const file of files) execFileSync(process.execPath, ['--check', file], { stdio: 'inherit' });
 
+const phaseFProbeSource = fs.readFileSync('scripts/phase-f-live-resilience-probes.mjs', 'utf8');
+assert.match(phaseFProbeSource, /const derivedSource = password/);
+assert.match(phaseFProbeSource, /explicit_override_auth_failed/);
+assert.match(phaseFProbeSource, /sameProjectPooler/);
+assert.match(phaseFProbeSource, /source_selection: sourceSelection/);
+
 assert.equal(timingSafeEqual(Buffer.from('resilience-secret'), Buffer.from('resilience-secret')), true);
 process.env.RESILIENCE_TARGET_ENV = 'production';
 assert.equal(isProductionEnv(), true);
