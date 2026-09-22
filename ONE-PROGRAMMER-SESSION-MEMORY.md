@@ -1,3 +1,17 @@
+## LATEST SESSION WRITE-BACK — 2026-09-22-AGHBARI-CONTINUOUS-EXECUTION-95
+
+- SESSION-ID → `2026-09-22-AGHBARI-CONTINUOUS-EXECUTION-95`
+- MAIN HEAD → `9370b133e1ac7ab0c6b8f4d61e9e88038a8f86cf`.
+- EXACT VERIFICATION BRANCH → `verify/phasef-rpo-20260922`, head `d032fe5d99080e4ffb1f58021deca07d7c72a243`.
+- DONE → owner-provisioned `RESILIENCE_MAX_RPO_SECONDS=3600` is present and accepted by Phase-F.
+- VERIFIED → Final Certification Gate PASS; Device-Independent Browser E2E PASS including authenticated Auth/Tenant/Product/Import E2E; Quality PASS 63/63 including typecheck, build, production certification, Phase 10–12 contracts; production regression evidence PASS.
+- PHASE-F → fail-closed only in live resilience: tenant canary PASS; production health rejects PR exact SHA because production serves `9370b133...`; backup/restore reaches Supabase but fails PostgreSQL password authentication against the configured Session Pooler source; rollback drill therefore remains blocked.
+- CODE HARDENING → Phase-F restore path no longer replays historical migrations; it restores schema/data into a clean ephemeral database. Supabase pooler username normalization and safe rollback mismatch diagnostics are source-verified. These changes remain unmerged pending full live resilience proof.
+- EXTERNAL BLOCKER → current `RESILIENCE_LOGICAL_SOURCE_DB_URL` credential is invalid/stale. No database password or token was invented.
+- PRECISE NEXT ACTION → replace `RESILIENCE_LOGICAL_SOURCE_DB_URL` with a current valid Supabase Postgres connection string/authorized temporary-access credential, rerun Phase-F, consume real RPO/RTO and rollback evidence, then merge the governed hardening only after the full resilience gate is green.
+- DO NOT REPEAT → do not transfer PR evidence to main before merge; do not weaken the production SHA boundary; do not guess database credentials; do not claim RPO/RTO PASS without measured artifact output.
+- CURRENT RESUME POINTER → `d032fe5d...` → valid Supabase DB credential → Phase-F → real RPO/RTO + rollback → merge/certification.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-22-AGHBARI-CONTINUOUS-EXECUTION-94
 
 - SESSION-ID → `2026-09-22-AGHBARI-CONTINUOUS-EXECUTION-94`
