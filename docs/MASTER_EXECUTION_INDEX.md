@@ -2,7 +2,7 @@
 
 - MAIN HEAD OBSERVED BEFORE THIS WRITE: `a38ba80bf5249c601da675a81de16f36b03695e3`.
 - CURRENT CODE/TEST CANDIDATE: `adb093bb20d488ce593b5e2598168c74711d4346`.
-- CURRENT GOVERNANCE HEAD: `a38ba80bf5249c601da675a81de16f36b03695e3`.
+- CURRENT GOVERNANCE HEAD: `3e49a4f5ea57d2de28074b172a346ca91b0376dc`.
 - DONE: Phase-F migration restore repair merged at `adb093bb...`; 285-migration local audit had 0 findings.
 - VERIFICATION BRANCH: PR #627, latest exact head `3c5e12951a1cb2aa4c27e0c77297ed9541407c11`, governance-only trigger refresh.
 - PREVIEW: Netlify preview READY; Vercel rejected deployment with `api-deployments-free-per-day`.
