@@ -262,5 +262,9 @@ assert.ok(executiveReport.includes('مساءلة القرار'), 'executive repo
 assert.ok(executiveReport.includes('تغطية المسؤولية'), 'executive report must expose owner coverage');
 assert.ok(executiveReport.includes('نتائج مسجلة'), 'executive report must distinguish recorded outcomes');
 assert.ok(executiveReport.includes("const activeRecommendations = recommendations.filter"), 'executive report accountability must scope metrics to active decisions');
+const decisionExperience = fs.readFileSync('src/pages/DecisionExperiencePage.tsx', 'utf8');
+assert.ok(decisionExperience.includes("selected?.impact_result?.trim() || 'غير متاح بعد'"), 'decision outcome must surface a recorded actual outcome when one exists');
+assert.ok(decisionExperience.includes('نتيجة فعلية مسجلة'), 'decision outcome must distinguish recorded actual outcomes from missing outcomes');
+
 
 console.log('Product wow UI contract: PASS (public proof theater + deterministic decision brief)');
