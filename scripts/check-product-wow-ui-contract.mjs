@@ -227,4 +227,20 @@ assert.ok(!entities.includes('if (loading && customers.length === 0) return <Loa
 assert.ok(entities.includes('data={products} loading={loading}'), 'product table must own its loading state');
 assert.ok(entities.includes('data={customers} loading={loading}'), 'customer table must own its loading state');
 
+const onboarding = fs.readFileSync('src/pages/OnboardingPage.tsx', 'utf8');
+for (const token of [
+  'من المصدر إلى الحقيقة',
+  'من الحقيقة إلى القرار',
+  'من القرار إلى المخرج',
+  'الدليل قبل الثقة',
+  'ابدأ الاستيراد',
+  'افتح مسار القرار',
+  'استكشف التقارير',
+  'افحص الدليل',
+]) assert.ok(onboarding.includes(token), `onboarding value journey missing: ${token}`);
+assert.ok(onboarding.includes("href: '/import'"), 'onboarding value journey must use the canonical unified import route');
+assert.ok(onboarding.includes("href: '/decision-experience'"), 'onboarding value journey must use the canonical decision route');
+assert.ok(onboarding.includes("href: '/reports'"), 'onboarding value journey must use the canonical reports route');
+assert.ok(onboarding.includes("href: '/trust'"), 'onboarding value journey must use the canonical trust/evidence route');
+
 console.log('Product wow UI contract: PASS (public proof theater + deterministic decision brief)');
