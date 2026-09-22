@@ -2,8 +2,8 @@
 
 > Exact-head evidence only. The current code candidate changed and must be re-proven; no historical PASS is transferred.
 
-- CURRENT MAIN HEAD OBSERVED: `9a71cccc53c0e01b55e7fcac8f5ca1829bf30aac`.
-- CURRENT CODE/TEST CANDIDATE: `9a71cccc53c0e01b55e7fcac8f5ca1829bf30aac`.
+- CURRENT MAIN HEAD OBSERVED: `8656facb540942da3b7e018a5638555b0147991a`.
+- CURRENT CODE/TEST CANDIDATE: `8656facb540942da3b7e018a5638555b0147991a`.
 - LAST VERIFIED PRODUCT CODE BEFORE THIS FIX: `fc0a84d85e56f43112df7e07886a9f6c04089998`.
 - CURRENT PRODUCT FIX: Canonical import history now uses real table pagination (50 visible rows per page) instead of rendering the full 500-row history window into the DOM.
 - ROOT CAUSE ADDRESSED: real-business browser E2E persisted the new canonical import successfully, but timed out waiting for the new filename in the rendered import history; the database row itself was completed with canonical persistence.
