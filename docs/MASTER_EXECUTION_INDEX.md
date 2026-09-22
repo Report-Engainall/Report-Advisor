@@ -1,5 +1,18 @@
 # CURRENT CONTROL-PLANE BOUNDARY — 2026-09-22
 
+> HEAD below is the exact GitHub HEAD observed before the current control-plane write. Never treat it as the SHA of this file's own future commit.
+
+- MAIN HEAD OBSERVED BEFORE THIS WRITE: 9e1586ddecec31dd29ca9385d88236adb2307d90
+- CURRENT CODE/TEST CANDIDATE: 28691df0781b101ddf053425d5d6eddee999438a
+- CURRENT WORKING STATE: canonical knowledge control plane established; content migration remains active; UI 50% + core 50% execution remains mandatory.
+- LIVE STATE SOURCE: ONE-PROGRAMMER-SESSION-MEMORY.md
+- CONTROL PLANE: docs/SYSTEM_HEART.md
+- KNOWLEDGE CONSOLIDATION MAP: docs/PROJECT_KNOWLEDGE_MANIFEST.md
+- NEXT EXECUTION MODE: 50% UI/surface completion + 50% product-heart/runtime/data/security/certification/consolidation, parallel when independent.
+- NON-NEGOTIABLE: reconcile the exact GitHub HEAD before every session. Do not resume from a historical phase because an old entry below names it.
+- CURRENT CONSOLIDATION STATUS: CONTROL_PLANE_ESTABLISHED / CONTENT_MIGRATION_PENDING.
+- NEXT EXECUTABLE CONSOLIDATION FRONT: continue remaining source-family absorption into the canonical domain masters, verify references/dependencies and affected contracts, then gate archive/remove separately.
+
 > This header is authoritative for session-resume routing. Historical entries below remain evidence/history and must not override it.
 
 - MAIN HEAD: ec7db7e503af15af42045df1107a3eb5dc8e27db
