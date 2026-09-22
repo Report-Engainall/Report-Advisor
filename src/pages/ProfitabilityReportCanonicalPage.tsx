@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Card, CardBody } from '@/components/ui/Card';
-import { PageHeader, LoadingState, ErrorState } from '@/components/ui/States';
+import { PageHeader, LoadingState, ErrorState, DataUnavailableState } from '@/components/ui/States';
 import { fetchProfitabilitySnapshot, type ProfitabilitySnapshot } from '@/lib/dashboard-canonical';
 import { formatCurrency, formatNumber } from '@/lib/format';
 
@@ -9,7 +10,7 @@ function knownCount(a: number | null, b: number | null): string { if (a == null 
 export function ProfitabilityReportCanonicalPage() {
   const [snapshot, setSnapshot] = useState<ProfitabilitySnapshot | null>(null); const [loading, setLoading] = useState(true); const [error, setError] = useState<string | null>(null);
   const load = useCallback(async () => { try { setLoading(true); setError(null); setSnapshot(await fetchProfitabilitySnapshot()); } catch (e: unknown) { setError(e instanceof Error ? e.message : 'تعذر تحميل الربحية'); } finally { setLoading(false); } }, []);
-  useEffect(() => { void load(); }, [load]); if (loading) return <LoadingState />; if (error) return <ErrorState message={error} onRetry={load} />; if (!snapshot) return null;
+  useEffect(() => { void load(); }, [load]); if (loading) return <LoadingState />; if (error) return <ErrorState message={error} onRetry={load} />; if (!snapshot) return <DataUnavailableState title="تقرير الربحية ينتظر البيانات" message="لا توجد صورة مالية موثوقة تكفي لبناء تقرير الربحية؛ لا يتم تحويل غياب التكلفة أو الإيراد إلى صفر." action={<Link to="/import" className="btn-primary text-[11px]">إضافة مصدر</Link>} />;
   const calculated = snapshot.status === 'CALCULATED' && snapshot.revenue != null && snapshot.cost != null && snapshot.gross_profit != null;
   return <div dir="rtl" className="report-page space-y-5 animate-fade-in">
     <PageHeader title="تقرير الأرباح والربحية" subtitle="Financial Truth Contract: لا يتحول نقص الدليل المالي إلى صفر." actions={<button type="button" onClick={() => window.print()} className="btn-primary print-hide text-xs">طباعة التقرير</button>} />

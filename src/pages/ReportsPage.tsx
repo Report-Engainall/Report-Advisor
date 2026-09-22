@@ -60,7 +60,7 @@ export function ReportsCenterPage() {
   if (error) {
     return <div dir="rtl" className="ag-reports-center-surface space-y-5 animate-fade-in pb-10"><PageHeader title="مركز التقارير" subtitle="تعذر تحميل اللقطة الحالية." actions={<button type="button" onClick={() => void load()} className="btn-secondary text-xs">إعادة المحاولة</button>} /><ErrorState message={error} onRetry={() => void load()} /></div>;
   }
-  if (!snapshot) return null;
+  if (!snapshot) return <DataUnavailableState title="مركز التقارير ينتظر اللقطة" message="لم تصل اللقطة الكانونية الحالية؛ لا يتم عرض مركز فارغ أو أرقام غير مثبتة." action={<Link to="/import" className="btn-primary text-[11px]">إضافة مصدر</Link>} />;
 
   const { kpis, aging, asOf, months } = snapshot;
   const truthLabel = kpis.status === 'CONFIRMED' ? 'VERIFIED' : kpis.status === 'CALCULATED' ? 'CALCULATED' : 'INSUFFICIENT DATA';
