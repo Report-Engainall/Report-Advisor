@@ -108,6 +108,18 @@ function runDockerPsqlFile(databaseUrl, filePath) {
   ]);
 }
 
+function runDockerPsqlFiles(databaseUrl, schemaPath, dataPath) {
+  return runCommand('docker', [
+    'run', '--rm', '--network', 'host',
+    '-v', `${path.resolve(schemaPath)}:/tmp/phase-f-schema.sql:ro`,
+    '-v', `${path.resolve(dataPath)}:/tmp/phase-f-data.sql:ro`,
+    '-e', `PGURI=${databaseUrl}`,
+    'postgres:17',
+    'sh', '-lc',
+    'psql "$PGURI" -v ON_ERROR_STOP=1 -f /tmp/phase-f-schema.sql && psql "$PGURI" -v ON_ERROR_STOP=1 -f /tmp/phase-f-data.sql',
+  ]);
+}
+
 function parseTableCounts(raw) {
   const result = {};
   for (const line of raw.split(/\r?\n/).map(value => value.trim()).filter(Boolean)) {
@@ -146,78 +158,32 @@ async function logicalBackupRestore() {
   }
 
   const workDir = fs.mkdtempSync(path.join(os.tmpdir(), 'phase-f-logical-'));
-  const backupPath = path.join(workDir, 'public-data.sql');
+  const schemaBackupPath = path.join(workDir, 'public-schema.sql');
+  const dataBackupPath = path.join(workDir, 'public-data.sql');
+  const backupPath = path.join(workDir, 'public-logical-backup.sql');
   const exactSnapshotSql = 'select clock_timestamp()::text';
   const countSql = `select coalesce(string_agg(format('select %L as table_name, count(*) as row_count from %I.%I', table_schema, table_name), ' union all ' order by table_name), 'select null::text as table_name, 0::bigint as row_count where false') from information_schema.tables where table_schema = 'public' and table_type = 'BASE TABLE'`;
 
   let localDbUrl = null;
+  let localBaseDbUrl = null;
   let localStarted = false;
+  const restoreDatabaseName = `phasef_restore_${crypto.randomBytes(4).toString('hex')}`;
   const startedAt = Date.now();
 
   try {
     runCommand('supabase', ['init'], { cwd: workDir });
-    const sourceMigrationDir = path.join(process.cwd(), 'supabase', 'migrations');
-    const localMigrationDir = path.join(workDir, 'supabase', 'migrations');
-    fs.mkdirSync(localMigrationDir, { recursive: true });
-
-    const migrationEntries = fs.readdirSync(sourceMigrationDir)
-      .filter(entry => entry.endsWith('.sql'))
-      .sort();
-    const versionPattern = /^(\d{14})_(.+)\.sql$/;
-    const versionCounts = new Map();
-    for (const entry of migrationEntries) {
-      const match = entry.match(versionPattern);
-      if (!match) continue;
-      versionCounts.set(match[1], (versionCounts.get(match[1]) || 0) + 1);
-    }
-    const occupiedVersions = new Set(
-      migrationEntries
-        .map(entry => entry.match(versionPattern)?.[1])
-        .filter(Boolean),
-    );
-    const ephemeralMigrationRewrites = [];
-    const seenVersions = new Set();
-
-    for (const entry of migrationEntries) {
-      const sourcePath = path.join(sourceMigrationDir, entry);
-      const match = entry.match(versionPattern);
-      let targetEntry = entry;
-      if (match && versionCounts.get(match[1]) > 1) {
-        if (seenVersions.has(match[1])) {
-          let candidateVersion = BigInt(match[1]) + 1n;
-          while (occupiedVersions.has(candidateVersion.toString())) candidateVersion += 1n;
-          const rewrittenVersion = candidateVersion.toString();
-          targetEntry = rewrittenVersion + '_' + match[2] + '.sql';
-          occupiedVersions.add(rewrittenVersion);
-          ephemeralMigrationRewrites.push({
-            source: entry,
-            target: targetEntry,
-            originalVersion: match[1],
-            rewrittenVersion,
-          });
-        } else {
-          seenVersions.add(match[1]);
-        }
-      }
-      fs.copyFileSync(sourcePath, path.join(localMigrationDir, targetEntry));
-    }
-
-    if (ephemeralMigrationRewrites.length) {
-      fs.writeFileSync(
-        path.join(workDir, 'ephemeral-migration-rewrites.json'),
-        JSON.stringify(ephemeralMigrationRewrites, null, 2) + '\n',
-        'utf8',
-      );
-    }
     runCommand('supabase', ['start'], { cwd: workDir });
     localStarted = true;
 
     const statusEnv = runCommand('supabase', ['status', '-o', 'env'], { cwd: workDir });
     const dbLine = statusEnv.split(/\r?\n/).find(line => line.startsWith('DB_URL='));
     if (!dbLine) throw new Error('local_restore_db_url_missing');
-    localDbUrl = dbLine.slice('DB_URL='.length).trim().replace(/^['"]|['"]$/g, '');
+    localBaseDbUrl = dbLine.slice('DB_URL='.length).trim().replace(/^['"]|['"]$/g, '');
 
-    runCommand('supabase', ['db', 'reset'], { cwd: workDir });
+    runDockerPsql(localBaseDbUrl, `create database "${restoreDatabaseName}"`);
+    const localUrl = new URL(localBaseDbUrl);
+    localUrl.pathname = `/${restoreDatabaseName}`;
+    localDbUrl = localUrl.toString();
 
     const snapshotText = runDockerPsql(source, exactSnapshotSql);
     const snapshotAt = Date.parse(snapshotText);
@@ -231,11 +197,27 @@ async function logicalBackupRestore() {
       'db', 'dump',
       '--db-url', source,
       '--schema', 'public',
+      '--use-copy',
+      '-f', schemaBackupPath,
+    ]);
+    runCommand('supabase', [
+      'db', 'dump',
+      '--db-url', source,
+      '--schema', 'public',
       '--data-only',
       '--use-copy',
-      '-f', backupPath,
+      '-f', dataBackupPath,
     ]);
     const backupCompletedAt = Date.now();
+
+    fs.writeFileSync(
+      backupPath,
+      Buffer.concat([
+        fs.readFileSync(schemaBackupPath),
+        Buffer.from('\\n'),
+        fs.readFileSync(dataBackupPath),
+      ]),
+    );
 
     const bytes = fs.statSync(backupPath).size;
     const sha256 = crypto.createHash('sha256').update(fs.readFileSync(backupPath)).digest('hex');
@@ -243,7 +225,7 @@ async function logicalBackupRestore() {
     if (rpoSeconds > maxRpoSeconds) throw new Error(`rpo_budget_exceeded:${rpoSeconds}`);
 
     const restoreStartedAt = Date.now();
-    runDockerPsqlFile(localDbUrl, backupPath);
+    runDockerPsqlFiles(localDbUrl, schemaBackupPath, dataBackupPath);
     const restoreCompletedAt = Date.now();
     const targetCounts = parseTableCounts(runDockerPsql(localDbUrl, generatedCountSql));
     const rtoSeconds = (restoreCompletedAt - restoreStartedAt) / 1000;
@@ -272,6 +254,9 @@ async function logicalBackupRestore() {
     fs.writeFileSync(path.join(reportDir, 'logical-backup-restore.json'), `${JSON.stringify(report, null, 2)}\n`, 'utf8');
     return { name: 'backup-restore-verification', pass: true, status: 200, ...report };
   } finally {
+    if (localBaseDbUrl) {
+      try { runDockerPsql(localBaseDbUrl, `drop database if exists "${restoreDatabaseName}" with (force)`); } catch {}
+    }
     if (localStarted) {
       try { runCommand('supabase', ['stop'], { cwd: workDir }); } catch {}
     }
