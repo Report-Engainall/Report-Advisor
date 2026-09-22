@@ -265,7 +265,7 @@ export function DashboardPage() {
           </div>
         </div>
         <div className="mt-5 flex flex-wrap items-center gap-2 border-t border-ink-100 pt-4">
-          <StatusLine status={kpis.status} text={kpis.status === 'INSUFFICIENT_DATA' ? 'الصورة تحتاج مراجعة' : 'الصورة صالحة للاستخدام'} />
+          <StatusLine status={kpis.status} text={kpis.status === 'INSUFFICIENT_DATA' ? 'الصورة تحتاج مراجعة' : kpis.status === 'CONFIRMED' ? 'الحقيقة مؤكدة' : 'محسوبة من البيانات'} />
           <span className="rounded-full border border-ink-200 bg-ink-50 px-2.5 py-1 text-[10px] font-semibold text-ink-500">تغطية المؤشرات {coverage}%</span>
           <span className="rounded-full border border-ink-200 bg-white px-2.5 py-1 text-[10px] font-semibold text-ink-400">As-of: {snapshotAsOf ?? 'غير متاح'}</span>
           <button type="button" onClick={() => void load(true)} disabled={refreshing} className="mr-auto inline-flex items-center gap-1.5 rounded-full bg-primary-50 px-2.5 py-1 text-[10px] font-bold text-primary-800 hover:bg-primary-100 disabled:opacity-60">
