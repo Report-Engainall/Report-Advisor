@@ -2,12 +2,12 @@
 
 > Exact-head evidence only. The current candidate contains a checker-only repair following a reproduced certification failure.
 
-- CURRENT MAIN HEAD OBSERVED: `b52c370d5d296fe940461b38deea60c05a941ddb`.
-- CURRENT CODE/TEST CANDIDATE: `b52c370d5d296fe940461b38deea60c05a941ddb`.
+- CURRENT MAIN HEAD OBSERVED: `2d7c529711e2064b3459aabf7c2d05eedc87f90b`.
+- CURRENT CODE/TEST CANDIDATE: `2d7c529711e2064b3459aabf7c2d05eedc87f90b`.
 - LAST VERIFIED RUNTIME CODE FIX: `6ca814df318d64d1116ce734dbff69d15e811b32`.
 - DONE: `scripts/check-import-center-product-contract.mjs` now initializes its DataTable contract requirements before evaluating them; this removes the reproduced `ReferenceError: Cannot access 'missingDataTable' before initialization`.
 - EXACT PRIOR PROOF: Final Certification run `35776335388` on `1a6ac9...` failed after dozens of contract passes solely at that checker ReferenceError; certification boundary integrity itself passed.
-- CURRENT VERIFICATION STATE: fresh exact-head Enforcement / Quality / Certification / Browser evidence required for `772afb548f6c381e2e3c6596a57d108ce6d2eebf`.
+- CURRENT VERIFICATION STATE: fresh exact-head Enforcement / Quality / Certification / Browser / Phase-F evidence required for `2d7c529711e2064b3459aabf7c2d05eedc87f90b`.
 - PHASE-F BLOCKER: `RESILIENCE_LOGICAL_SOURCE_DB_URL` remains invalid/stale; live backup/restore and measured RPO/RTO/rollback remain NOT PROVEN.
 - HOSTING BLOCKER: Vercel deployment remains externally rate-limited on the connected account; exact current-candidate production deployment remains unproven.
 - OPEN OPERATIONAL DEBT: 151 staging `import_jobs` remain in `processing` at progress 0; no safe canonical recovery mutation exists.
