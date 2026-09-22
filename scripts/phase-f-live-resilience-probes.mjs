@@ -154,11 +154,21 @@ async function logicalBackupRestore() {
   const jitEnabled = !dbPassword && Boolean(temporaryAccessToken);
   const password = dbPassword || temporaryAccessToken;
   const querySuffix = jitEnabled ? '?options=-c%20jit%3Don' : '';
-  const source = explicitSource
+  let source = explicitSource
     || (password
       ? `postgresql://postgres.${encodeURIComponent(projectRef)}:${encodeURIComponent(password)}@aws-0-ap-southeast-2.pooler.supabase.com:5432/postgres${querySuffix}`
       : '');
   if (!source) throw new Error('logical_backup_source_db_url_not_configured');
+
+  try {
+    const parsedSource = new URL(source);
+    if (parsedSource.hostname.endsWith('.pooler.supabase.com') && parsedSource.username === 'postgres' && projectRef) {
+      parsedSource.username = `postgres.${projectRef}`;
+      source = parsedSource.toString();
+    }
+  } catch {
+    throw new Error('logical_backup_source_db_url_invalid');
+  }
   const maxRpoSeconds = Number(process.env.RESILIENCE_MAX_RPO_SECONDS);
   if (!Number.isFinite(maxRpoSeconds) || maxRpoSeconds < 0) {
     throw new Error('invalid_max_rpo_seconds');
