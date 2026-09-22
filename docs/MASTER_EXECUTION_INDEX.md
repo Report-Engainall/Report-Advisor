@@ -3,6 +3,7 @@
 > Exact-head evidence only. GitHub main is authoritative; no historical runtime result is transferred.
 
 - CURRENT MAIN HEAD: `909d8be6b066083d05b1f9952cee460ee273f839`.
+- CURRENT CODE/TEST CANDIDATE: `fc0a84d85e56f43112df7e07886a9f6c04089998`.
 - CURRENT_CODE_TEST_CANDIDATE: `fc0a84d85e56f43112df7e07886a9f6c04089998`.
 - CURRENT PRODUCT/CODE TESTED LINEAGE: no product-code change was introduced by Wave 96/97 governance write-backs; the current tested functional lineage remains `fc0a84d85e56f43112df7e07886a9f6c04089998`.
 - EXACT PHASE-F VERIFICATION HEAD: `d032fe5d99080e4ffb1f58021deca07d7c72a243` on `verify/phasef-rpo-20260922`.
