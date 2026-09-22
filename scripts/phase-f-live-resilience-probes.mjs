@@ -146,6 +146,7 @@ async function logicalBackupRestore() {
   }
 
   const workDir = fs.mkdtempSync(path.join(os.tmpdir(), 'phase-f-logical-'));
+  const schemaPath = path.join(workDir, 'public-schema.sql');
   const backupPath = path.join(workDir, 'public-data.sql');
   const exactSnapshotSql = 'select clock_timestamp()::text';
   const countSql = `select coalesce(string_agg(format('select %L as table_name, count(*) as row_count from %I.%I', table_schema, table_name), ' union all ' order by table_name), 'select null::text as table_name, 0::bigint as row_count where false') from information_schema.tables where table_schema = 'public' and table_type = 'BASE TABLE'`;
@@ -155,12 +156,9 @@ async function logicalBackupRestore() {
   const startedAt = Date.now();
 
   try {
+    // Restore runtime must validate the backup artifact itself, not depend on the
+    // repository migration chain. Migration parity remains a separate certification gate.
     runCommand('supabase', ['init'], { cwd: workDir });
-    fs.cpSync(
-      path.join(process.cwd(), 'supabase', 'migrations'),
-      path.join(workDir, 'supabase', 'migrations'),
-      { recursive: true },
-    );
     runCommand('supabase', ['start'], { cwd: workDir });
     localStarted = true;
 
@@ -168,8 +166,6 @@ async function logicalBackupRestore() {
     const dbLine = statusEnv.split(/\r?\n/).find(line => line.startsWith('DB_URL='));
     if (!dbLine) throw new Error('local_restore_db_url_missing');
     localDbUrl = dbLine.slice('DB_URL='.length).trim().replace(/^['"]|['"]$/g, '');
-
-    runCommand('supabase', ['db', 'reset'], { cwd: workDir });
 
     const snapshotText = runDockerPsql(source, exactSnapshotSql);
     const snapshotAt = Date.parse(snapshotText);
@@ -183,6 +179,12 @@ async function logicalBackupRestore() {
       'db', 'dump',
       '--db-url', source,
       '--schema', 'public',
+      '-f', schemaPath,
+    ]);
+    runCommand('supabase', [
+      'db', 'dump',
+      '--db-url', source,
+      '--schema', 'public',
       '--data-only',
       '--use-copy',
       '-f', backupPath,
@@ -190,11 +192,13 @@ async function logicalBackupRestore() {
     const backupCompletedAt = Date.now();
 
     const bytes = fs.statSync(backupPath).size;
+    const schemaBytes = fs.statSync(schemaPath).size;
     const sha256 = crypto.createHash('sha256').update(fs.readFileSync(backupPath)).digest('hex');
     const rpoSeconds = Math.max(0, (backupCompletedAt - snapshotAt) / 1000);
     if (rpoSeconds > maxRpoSeconds) throw new Error(`rpo_budget_exceeded:${rpoSeconds}`);
 
     const restoreStartedAt = Date.now();
+    runDockerPsqlFile(localDbUrl, schemaPath);
     runDockerPsqlFile(localDbUrl, backupPath);
     const restoreCompletedAt = Date.now();
     const targetCounts = parseTableCounts(runDockerPsql(localDbUrl, generatedCountSql));
@@ -209,12 +213,14 @@ async function logicalBackupRestore() {
       backup_ref: `logical-${exactHead}`,
       artifact_sha256: sha256,
       bytes,
+      schema_bytes: schemaBytes,
       rpo_seconds: rpoSeconds,
       rto_seconds: rtoSeconds,
       table_count: Object.keys(sourceCounts).length,
       source_snapshot_at: snapshotText,
       restore_verified: true,
       restore_target: 'ephemeral-local-supabase-postgres',
+      restore_method: 'public-schema-dump-plus-data-dump',
       backup_started_at: new Date(backupStartedAt).toISOString(),
       backup_completed_at: new Date(backupCompletedAt).toISOString(),
       restore_started_at: new Date(restoreStartedAt).toISOString(),
@@ -230,7 +236,6 @@ async function logicalBackupRestore() {
     fs.rmSync(workDir, { recursive: true, force: true });
   }
 }
-
 async function probe(name, url, options = {}, validation = {}) {
   try {
     const response = await fetch(url, {
