@@ -197,3 +197,44 @@ No canonical document may redefine the product into generic BI, CRUD, ERP, chatb
 - record both 50% UI and 50% core outcomes;
 - leave one clear resume pointer;
 - leave one next executable action set.
+
+## 15. Absorbed execution protections from the former autonomous protocol
+
+### Production mutation safety
+Production-impacting mutation is prohibited unless target identity and authorization are proven. Before any production mutation prove:
+- intended Vercel project/deployment
+- intended Supabase project
+- environment binding
+- database target
+- authentication target
+- backup/recovery posture where relevant
+
+Read-only forensics may proceed autonomously.
+
+### Test sequencing
+Prefer:
+1. typecheck/build/lint as applicable
+2. targeted unit/contract test
+3. API/RPC boundary
+4. real persistence/readback
+5. browser E2E for affected UI/business flow
+6. release/certification gate after prerequisites
+
+### Blocker-local / session-global rule
+A blocker is local to the affected front, not a stop condition for the session. Record the exact blocker, continue independent repository/UI/security/data/contract/runtime/documentation/cleanup fronts, rescan later, and resume automatically when the prerequisite changes.
+
+The session stops only when no safe actionable front remains or every remaining front requires explicit owner authority.
+
+### Anti-gaming rules
+Never:
+- change a broken test merely to obtain PASS
+- delete a failing scenario without contract justification
+- hide failures behind ignore/catch behavior
+- replace real persistence with mocks
+- use stale evidence
+- change environment selection only to make a check pass
+- report deployment readiness as application correctness
+- claim certification with an unresolved mandatory gate
+
+### Documentation is implementation
+Every meaningful execution batch records exact SHA, change, rationale, evidence/run IDs, resulting state, blockers, and next executable work. Historical evidence is preserved when auditability requires it.
