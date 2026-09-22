@@ -1,14 +1,15 @@
-## CURRENT EXECUTION BOUNDARY — 2026-09-22 / WAVE 102 — PHASE-F TECHNICAL FIX REBOUND
+## CURRENT EXECUTION BOUNDARY — 2026-09-22 / WAVE 103 — REAL IMPORT CONTRACT REPAIR
 
-> Exact-head evidence only. Technical Phase-F changes are bound to this code candidate; no prior PASS is transferred.
+> Exact-head evidence only. The current candidate contains a real checker fix plus Phase-F hardening; no prior PASS is transferred.
 
-- CURRENT MAIN HEAD OBSERVED: `6b6f93592ef696d8fc36a7b413062da72064148c`.
-- CURRENT CODE/TEST CANDIDATE: `6b6f93592ef696d8fc36a7b413062da72064148c`.
-- DONE: Phase-F logical restore now uses independent public schema dump + data-only dump into an ephemeral Postgres target; migration-chain parity remains a separate gate.
-- DONE: Phase-F probe endpoints are configurable through RESILIENCE_*_URL secrets/vars; exact deployment SHA validation remains mandatory.
-- DONE: Phase-F runtime closure contract requires schema-plus-data restore invariants.
-- NEXT: consume fresh exact-head Enforcement / Quality / Certification / Browser / Phase-F evidence.
-- DO NOT REPEAT: do not transfer evidence from earlier candidates; do not reintroduce migration-chain restore dependency; do not accept stale production deployment identity.
+- CURRENT MAIN HEAD OBSERVED: `bc72d23f9ba919007bb7d1a230254750bb3714ac`.
+- CURRENT CODE/TEST CANDIDATE: `bc72d23f9ba919007bb7d1a230254750bb3714ac`.
+- DONE: fixed the actual `missingDataTable` ReferenceError by initializing the DataTable contract tokens before their first use.
+- VERIFIED ROOT CAUSE: the prior `772afb...` record was governance-only in the Git diff; the live checker still referenced `missingDataTable` before declaration.
+- CURRENT VERIFICATION STATE: fresh exact-head Final Certification / Enforcement / Quality / Browser / Phase-F evidence required for `bc72d23f9ba919007bb7d1a230254750bb3714ac`.
+- PHASE-F: schema+data logical restore and configurable exact-target URLs remain the active technical hardening.
+- DO NOT REPEAT: do not accept the false prior “fixed” state; do not transfer evidence from `2782377...` or earlier candidates.
+
 
 ## CURRENT EXECUTION BOUNDARY — 2026-09-22 / WAVE 102 — PHASE-F TECHNICAL FIX REBOUND
 
