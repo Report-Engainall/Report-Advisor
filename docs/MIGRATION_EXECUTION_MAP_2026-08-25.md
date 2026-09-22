@@ -16,7 +16,7 @@ The presence of a migration file proves repository implementation only. It does 
 3. `20260819200000_import_engine_rpcs.sql`
 4. `20260819203000_import_engine_jobs.sql`
 5. `20260819210000_executive_metrics.sql`
-6. `20260819210000_inventory_demand_liquidity.sql`
+6. `20260923014833_inventory_demand_liquidity.sql` (resequenced to eliminate duplicate migration version)
 7. `20260819230000_alternative_item_groups.sql`
 
 ### Security / tenant / import hardening
