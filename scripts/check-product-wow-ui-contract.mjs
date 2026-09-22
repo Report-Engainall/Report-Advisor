@@ -146,6 +146,10 @@ assert.ok(canonicalImportSurface.includes('لا تعتمد النتيجة على
 assert.ok(canonicalImportSurface.includes('ثقة الفهم'), 'canonical import history must expose persisted source-understanding confidence');
 assert.ok(canonicalImportSurface.includes('لقطة الدليل'), 'canonical import history must expose whether an evidence snapshot was persisted');
 assert.ok(canonicalImportSurface.includes('غير مثبتة'), 'canonical import history must fail closed when no evidence snapshot exists');
+assert.ok(trustEvidence.includes('const evidencePressure = useMemo(() =>'), 'trust evidence must derive evidence pressure from the authoritative issue snapshot');
+assert.ok(trustEvidence.includes('ضغط الأدلة الحالي'), 'trust evidence must expose the current evidence-pressure surface');
+assert.ok(trustEvidence.includes('فتح مراجعة الجودة'), 'evidence pressure items must route to the canonical data-quality review path');
+assert.ok(trustEvidence.includes('لا توجد مشكلات مسجلة في لقطة الجودة الحالية'), 'clean evidence pressure must remain explicitly evidence-derived and fail-closed');
 assert.ok(trustEvidence.includes('QUALITY COVERAGE'), 'trust evidence must expose aggregate quality coverage in the decision surface');
 assert.ok(trustEvidence.includes('role="progressbar"'), 'trust evidence aggregate quality visualization must remain accessible');
 assert.ok(trustEvidence.includes('أغلق المشكلات الحرجة'), 'trust evidence must route critical data-quality pressure to an actionable next step');
