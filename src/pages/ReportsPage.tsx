@@ -87,8 +87,8 @@ export function ReportsCenterPage() {
     {
       path: '/reports/purchases',
       label: 'المشتريات',
-      state: purchaseSummary?.total !== null && purchaseSummary?.count > 0 ? 'CALCULATED' : purchaseSummary?.count === 0 ? 'NO DATA' : 'INSUFFICIENT DATA',
-      detail: purchaseSummary?.total !== null && purchaseSummary?.count > 0 ? 'إجمالي المشتريات وعدد الفواتير متاحان من الملخص الحالي.' : purchaseSummary?.count === 0 ? 'لا توجد فواتير مشتريات مثبتة في المصدر الحالي.' : 'ملخص المشتريات غير كافٍ لإثبات الجاهزية.',
+      state: purchaseSummary?.total != null && purchaseSummary?.count > 0 ? 'CALCULATED' : purchaseSummary?.count === 0 ? 'NO DATA' : 'INSUFFICIENT DATA',
+      detail: purchaseSummary?.total != null && purchaseSummary?.count > 0 ? 'إجمالي المشتريات وعدد الفواتير متاحان من الملخص الحالي.' : purchaseSummary?.count === 0 ? 'لا توجد فواتير مشتريات مثبتة في المصدر الحالي.' : 'ملخص المشتريات غير كافٍ لإثبات الجاهزية.',
     },
     {
       path: '/reports/inventory',
