@@ -135,10 +135,47 @@ async function logicalBackupRestore() {
   const jitEnabled = !dbPassword && Boolean(temporaryAccessToken);
   const password = dbPassword || temporaryAccessToken;
   const querySuffix = jitEnabled ? '?options=-c%20jit%3Don' : '';
-  const source = explicitSource
-    || (password
-      ? `postgresql://postgres.${encodeURIComponent(projectRef)}:${encodeURIComponent(password)}@aws-0-ap-southeast-2.pooler.supabase.com:5432/postgres${querySuffix}`
-      : '');
+  const derivedSource = password
+    ? `postgresql://postgres.${encodeURIComponent(projectRef)}:${encodeURIComponent(password)}@aws-0-ap-southeast-2.pooler.supabase.com:5432/postgres${querySuffix}`
+    : '';
+  let source = explicitSource || derivedSource;
+  let sourceSelection = {
+    mode: explicitSource ? 'explicit_override' : 'derived_project_pooler',
+    fallback_used: false,
+  };
+
+  if (explicitSource && derivedSource) {
+    let parsedExplicit;
+    try {
+      parsedExplicit = new URL(explicitSource);
+    } catch {
+      throw new Error('logical_backup_explicit_source_invalid_url');
+    }
+    const expectedUser = `postgres.${projectRef}`;
+    const sameProjectPooler =
+      parsedExplicit.hostname.endsWith('.pooler.supabase.com')
+      && parsedExplicit.username === expectedUser;
+    if (sameProjectPooler) {
+      try {
+        runDockerPsql(explicitSource, 'select 1');
+      } catch (error) {
+        const message = String(error);
+        if (/password authentication failed|authentication failed|invalid password/i.test(message)) {
+          source = derivedSource;
+          sourceSelection = {
+            mode: 'derived_project_pooler',
+            fallback_used: true,
+            reason: 'explicit_override_auth_failed',
+            explicit_source_scope: 'same_supabase_project_pooler',
+          };
+          console.warn('Phase F logical source override rejected by authentication; using the existing authorized project credential fallback.');
+        } else {
+          throw error;
+        }
+      }
+    }
+  }
+
   if (!source) throw new Error('logical_backup_source_db_url_not_configured');
   const maxRpoSeconds = Number(process.env.RESILIENCE_MAX_RPO_SECONDS);
   if (!Number.isFinite(maxRpoSeconds) || maxRpoSeconds < 0) {
@@ -220,6 +257,7 @@ async function logicalBackupRestore() {
       restore_started_at: new Date(restoreStartedAt).toISOString(),
       restore_completed_at: new Date(restoreCompletedAt).toISOString(),
       elapsed_seconds: (restoreCompletedAt - startedAt) / 1000,
+      source_selection: sourceSelection,
     };
     fs.writeFileSync(path.join(reportDir, 'logical-backup-restore.json'), `${JSON.stringify(report, null, 2)}\n`, 'utf8');
     return { name: 'backup-restore-verification', pass: true, status: 200, ...report };
