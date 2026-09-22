@@ -1,3 +1,16 @@
+## LATEST SESSION WRITE-BACK — 2026-09-22-AGHBARI-CONTINUOUS-EXECUTION-94
+
+- SESSION-ID → `2026-09-22-AGHBARI-CONTINUOUS-EXECUTION-94`
+- VERIFIED PRIOR WAVE → Exact SHA `994bc340c885b70d4a8e24c4b46698caac2bd4c` reached terminal READY on Vercel and Netlify; CodeRabbit, Vercel, Vercel Deployments, and Netlify preview are all success.
+- DONE → Upgraded the canonical Dashboard primary surface to expose the evidence basis behind its KPI coverage: confirmed, calculated, and unavailable indicators are counted separately from the existing canonical KPI values.
+- SAFETY → No KPI values, backend paths, RPCs, schemas, or evidence records were invented. The counts derive directly from the existing dashboard snapshot fields and existing CONFIRMED/INSUFFICIENT_DATA semantics.
+- DONE → Added Product WOW contract guards for the three evidence-basis labels.
+- EXACT NEW FUNCTIONAL COMMITS → `2dadaf3f8afda513962b461f34f875b3f9d52355` and `dd8d16268a728a7fb3fafdb4966ed946b60119ae`.
+- PRECISE STOP POINT → Dashboard value closure is committed; terminal deployment evidence for the new exact SHA has not yet been consumed.
+- NEXT ACTION → consume terminal deployment evidence for the current exact SHA; if READY, continue the next independent customer-value closure.
+- DO NOT REPEAT → do not transfer `994bc340...` runtime PASS to the new SHA; do not treat calculated indicators as authoritative; do not convert unavailable values into estimates.
+- CURRENT RESUME POINTER → `dd8d16268a728a7fb3fafdb4966ed946b60119ae` → terminal deployment evidence → next primary-surface closure.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-22-AGHBARI-CONTINUOUS-EXECUTION-93
 
 - SESSION-ID → `2026-09-22-AGHBARI-CONTINUOUS-EXECUTION-93`
