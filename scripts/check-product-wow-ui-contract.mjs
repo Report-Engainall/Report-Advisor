@@ -250,4 +250,7 @@ for (const token of ['قيمة القرار الحالية', 'الإشارات',
 const executiveReport = fs.readFileSync('src/pages/ExecutiveReportPage.tsx', 'utf8');
 assert.ok(executiveReport.includes('المصدر: اللقطة المعتمدة'), 'executive report must use an unambiguous source label');
 assert.ok(!executiveReport.includes('المصدر: بيانات قانونية'), 'executive report must not expose the ambiguous legal-data label');
+const trustEvidence = fs.readFileSync('src/pages/TrustEvidencePage.tsx', 'utf8');
+assert.ok(trustEvidence.includes('مسارات الإثبات المتاحة'), 'trust surface must expose available evidence-path coverage');
+assert.ok(trustEvidence.includes('غير المثبتة'), 'trust surface must expose unverified evidence-path count');
 console.log('Product wow UI contract: PASS (public proof theater + deterministic decision brief)');
