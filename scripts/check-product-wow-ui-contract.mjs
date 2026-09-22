@@ -272,6 +272,8 @@ assert.ok(executiveReport.includes('مساءلة القرار'), 'executive repo
 assert.ok(executiveReport.includes('تغطية المسؤولية'), 'executive report must expose owner coverage');
 assert.ok(executiveReport.includes('نتائج مسجلة'), 'executive report must distinguish recorded outcomes');
 assert.ok(executiveReport.includes("const activeRecommendations = recommendations.filter"), 'executive report accountability must scope metrics to active decisions');
+assert.ok(executiveReport.includes('السلسلة الزمنية موجودة، لكن قيم المبيعات غير متاحة'), 'executive report must fail closed when trend points exist without any finite sales values');
+assert.ok(executiveReport.includes('لم يتم تصنيع رسم بديل'), 'executive report must not render an empty-looking trend chart as if sales data were available');
 // decisionExperience already loaded above; reuse the canonical source.
 assert.ok(decisionExperience.includes("selected?.impact_result?.trim() || 'غير متاح بعد'"), 'decision outcome must surface a recorded actual outcome when one exists');
 assert.ok(decisionExperience.includes('نتيجة فعلية مسجلة'), 'decision outcome must distinguish recorded actual outcomes from missing outcomes');
