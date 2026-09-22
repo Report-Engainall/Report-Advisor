@@ -39,7 +39,10 @@ const assertAppContract = (source) => {
   if (missing.length) throw new Error('Import application truth contract missing: ' + missing.join(', '));
 };
 assertAppContract(queriesSource);
-assertAppContract(compatSource);
+const compatImportForwardingPattern = /export async function fetchImportRecords\(limit = 500, focusJobId\?: string\): Promise<ImportRecord\[\]> \{ return canonicalFetchImportRecords\(limit, focusJobId\); \}/;
+if (!compatImportForwardingPattern.test(compatSource)) {
+  throw new Error('Compatibility import boundary must forward fetchImportRecords to canonical queries.ts');
+}
 
 const knownBadPatterns = [
   'p_processed_rows: Math.max(0, Math.round(patch.progress))',
