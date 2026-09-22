@@ -65,6 +65,58 @@ export function OnboardingPage() {
     <div dir="rtl" className="ag-onboarding-page space-y-6">
       <PageHeader title="بدء الاستخدام التجاري" subtitle="مسار تجهيز مبني على حالة الحساب والشركة الحالية والبيانات الحقيقية." />
       <div className="ag-onboarding-summary grid gap-4 sm:grid-cols-3"><Card><CardBody><div className="text-xs text-ink-500">جاهز</div><div className="mt-1 text-2xl font-black text-success-700">{summary.ready}</div></CardBody></Card><Card><CardBody><div className="text-xs text-ink-500">يحتاج إجراء</div><div className="mt-1 text-2xl font-black text-warning-700">{summary.action}</div></CardBody></Card><Card><CardBody><div className="text-xs text-ink-500">غير مثبت بعد</div><div className="mt-1 text-2xl font-black text-ink-700">{summary.unknown}</div></CardBody></Card></div>
+      <section className="grid gap-3 lg:grid-cols-4">
+        {[
+          {
+            title: 'من المصدر إلى الحقيقة',
+            description: 'ارفع المصدر عبر المدخل الموحد، ثم راقب الفهم والجودة والدليل قبل الاعتماد.',
+            href: '/import',
+            label: 'ابدأ الاستيراد',
+            icon: FileInput,
+          },
+          {
+            title: 'من الحقيقة إلى القرار',
+            description: 'حوّل الإشارات والتوصيات المثبتة إلى مراجعة وقرار وإجراء بدل الاكتفاء بعرض الأرقام.',
+            href: '/decision-experience',
+            label: 'افتح مسار القرار',
+            icon: CheckCircle2,
+          },
+          {
+            title: 'من القرار إلى المخرج',
+            description: 'استخدم التقارير التنفيذية عندما تصبح البيانات والحسابات جاهزة بدل عرض مخرجات غير مثبتة.',
+            href: '/reports',
+            label: 'استكشف التقارير',
+            icon: FileText,
+          },
+          {
+            title: 'الدليل قبل الثقة',
+            description: 'راجع مصدر الحقيقة وحالة الجودة والثقة قبل بناء قرار على نتيجة غير مكتملة.',
+            href: '/trust',
+            label: 'افحص الدليل',
+            icon: ShieldCheck,
+          },
+        ].map((item) => {
+          const Icon = item.icon;
+          return (
+            <Card key={item.title} className="h-full border-ink-200 bg-white">
+              <CardBody className="flex h-full flex-col">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-50 text-primary-700">
+                    <Icon size={18} />
+                  </div>
+                  <span className="rounded-full bg-ink-50 px-2 py-1 text-[9px] font-black text-ink-400">قيمة المنتج</span>
+                </div>
+                <h2 className="mt-3 text-sm font-black text-ink-950">{item.title}</h2>
+                <p className="mt-1 flex-1 text-[11px] leading-5 text-ink-500">{item.description}</p>
+                <Link to={item.href} className="mt-3 inline-flex items-center gap-1 text-[10px] font-black text-primary-700">
+                  {item.label} <ArrowLeft size={12} />
+                </Link>
+              </CardBody>
+            </Card>
+          );
+        })}
+      </section>
+
       {nextAction && <Card className="ag-onboarding-next"><CardBody className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"><div><div className="text-xs font-medium text-primary-700">الخطوة التالية</div><div className="mt-1 text-lg font-bold text-ink-900">{nextAction.title}</div><div className="mt-1 text-sm text-ink-500">{nextAction.description}</div></div><Link to={nextAction.href} className="btn-primary text-xs">متابعة <ArrowLeft size={14} /></Link></CardBody></Card>}
       <Card><CardHeader title="مسار التجهيز التجاري" subtitle={data.companyName ? `الشركة الحالية: ${data.companyName}${data.role ? ` · الدور: ${data.role}` : ''}` : 'لم يتم تثبيت الشركة الحالية بعد.'} /><CardBody className="space-y-3">{STEPS.map((step, index) => { const state = stateFor(step.id, data); const Icon = step.icon; const badge = state === 'READY' ? { text: 'جاهز', className: 'bg-success-50 text-success-700' } : state === 'ACTION_REQUIRED' ? { text: 'إجراء مطلوب', className: 'bg-warning-50 text-warning-700' } : { text: 'غير مثبت', className: 'bg-ink-50 text-ink-500' }; return <div key={step.id} className="ag-onboarding-step flex flex-col gap-3 rounded-xl border border-ink-100 p-4 sm:flex-row sm:items-center"><div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-ink-50 text-ink-600"><Icon size={18} /></div><div className="min-w-0 flex-1"><div className="text-xs font-bold text-primary-600">0{index + 1}</div><div className="mt-0.5 text-sm font-semibold text-ink-900">{step.title}</div><div className="mt-1 text-xs leading-5 text-ink-400">{step.description}</div></div><div className="flex items-center gap-2"><span className={`rounded-full px-3 py-1 text-xs font-medium ${badge.className}`}>{state === 'READY' && <CheckCircle2 className="ml-1 inline" size={13} />}{state === 'ACTION_REQUIRED' && <CircleAlert className="ml-1 inline" size={13} />}{badge.text}</span><Link to={step.href} className="rounded-lg border border-ink-200 px-3 py-1.5 text-xs font-medium text-ink-700 hover:bg-ink-50">فتح</Link></div></div>; })}</CardBody></Card>
       <div className="text-xs leading-5 text-ink-400">هذه الشاشة لا تمنح حالة “مكتمل” لخطوات المنتج لمجرد وجود المسار. الحالة مرتبطة فقط بالأدلة التي يمكن قراءتها من الجلسة والـtenant والبيانات الحالية.</div>
