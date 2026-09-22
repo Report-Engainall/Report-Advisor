@@ -7,6 +7,8 @@ const candidate = execFileSync('git', ['rev-parse', 'HEAD^'], { encoding: 'utf8'
 const index = `## CURRENT PROJECT STATE\n- Current code/test candidate: \`${candidate}\`.`;
 
 assert.doesNotThrow(() => validateCertificationBoundary({ index, head: candidate, parent: '', changedFiles: [] }));
+const controlPlaneIndex = '# CURRENT CONTROL-PLANE BOUNDARY\n- CURRENT CODE/TEST CANDIDATE: `' + candidate + '`';
+assert.doesNotThrow(() => validateCertificationBoundary({ index: controlPlaneIndex, head: candidate, parent: '', changedFiles: [] }));
 assert.doesNotThrow(() => validateCertificationBoundary({ index, head: child, parent: candidate, changedFiles: ['.github/workflows/final-certification-gate.yml'] }));
 assert.doesNotThrow(() => validateCertificationBoundary({ index, head: child, parent: candidate, changedFiles: ['.github/workflows/full-product-browser-e2e.yml'] }));
 assert.throws(() => validateCertificationBoundary({ index, head: child, parent: candidate, changedFiles: ['src/app.tsx'] }), /non-governance changes/);
