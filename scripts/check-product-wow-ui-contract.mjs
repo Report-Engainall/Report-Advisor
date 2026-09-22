@@ -258,8 +258,9 @@ const executiveReport = fs.readFileSync('src/pages/ExecutiveReportPage.tsx', 'ut
 assert.ok(executiveReport.includes('المصدر: اللقطة المعتمدة'), 'executive report must use an unambiguous source label');
 assert.ok(!executiveReport.includes('المصدر: بيانات قانونية'), 'executive report must not expose the ambiguous legal-data label');
 // trustEvidence already loaded above; reuse the canonical source.
-assert.ok(trustEvidence.includes('مسارات الإثبات المتاحة'), 'trust surface must expose available evidence-path coverage');
-assert.ok(trustEvidence.includes('غير المثبتة'), 'trust surface must expose unverified evidence-path count');
+assert.ok(trustEvidence.includes('مساحات الفحص المتاحة'), 'trust surface must distinguish inspectable surfaces from proof state');
+assert.ok(trustEvidence.includes('مساحات غير متاحة'), 'trust surface must disclose unavailable evidence surfaces');
+assert.ok(trustEvidence.includes('const evidenceSurfaceCount = evidenceSurfaces.filter((surface) => surface.available).length'), 'trust surface coverage count must derive from declared inspectable surfaces');
 // dashboard already loaded above; reuse the canonical source.
 assert.ok(dashboard.includes('مؤشرات مثبتة'), 'dashboard must expose confirmed evidence basis');
 assert.ok(dashboard.includes('مؤشرات محسوبة'), 'dashboard must expose calculated evidence basis');
