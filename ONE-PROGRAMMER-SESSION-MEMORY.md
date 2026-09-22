@@ -1,3 +1,16 @@
+## LATEST SESSION WRITE-BACK — 2026-09-22-AGHBARI-CONTINUOUS-EXECUTION-97
+
+- SESSION-ID → `2026-09-22-AGHBARI-CONTINUOUS-EXECUTION-97`
+- DONE → Terminal evidence for prior exact SHA `767c718767109f492a336c6293a9c8a38847e249` is now successful on Vercel, Netlify, and CodeRabbit.
+- DONE → Audited primary customer-value surfaces after deployment closure.
+- ACTUAL RESULT → Found and corrected a real accountability-calculation scope defect in `ExecutiveReportPage.tsx`: owner coverage and recorded-outcome coverage now use only active decisions, matching their denominator and labels.
+- DONE → Added Product WOW regression guard requiring `activeRecommendations` to scope executive accountability metrics to active decisions.
+- FUNCTIONAL COMMITS → `e0af7c8028e5b4d50239a600e486d72e338e74ba`, `df4063dd0f83f6f085c8b4b0ee35ef6b22f3e63b`.
+- PRECISE STOP POINT → Functional fix and guard are committed; terminal deployment evidence for the new exact SHA is not yet consumed.
+- NEXT ACTION → consume terminal Vercel/Netlify/CI evidence for the new exact SHA; if healthy, continue the next independent high-value customer-value closure.
+- DO NOT REPEAT → do not reuse the prior deployment PASS for the new SHA; do not count inactive decisions in active accountability coverage; do not introduce duplicate decision/report paths.
+- CURRENT RESUME POINTER → `df4063dd...` → terminal deployment evidence → next primary-surface closure.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-22-AGHBARI-CONTINUOUS-EXECUTION-96
 
 - SESSION-ID → `2026-09-22-AGHBARI-CONTINUOUS-EXECUTION-96`
