@@ -225,7 +225,7 @@ Do not start a deletion wave until:
 7. only then may a separate deletion commit be created.
 
 
-## 13. UI / experience consolidation wave — 2026-09-22 — MERGED_AWAITING_KNOWLEDGE_GATE
+## 13. UI / experience consolidation wave — 2026-09-22 — ABSORBED / SOURCE RETAINED
 
 Four reviewed sources were merged into `docs/MASTER_UI_UX_REFERENCE.md` and remain retained until the deletion gate is separately proven:
 
@@ -236,4 +236,15 @@ Four reviewed sources were merged into `docs/MASTER_UI_UX_REFERENCE.md` and rema
 
 Reference search returned no direct code references for these four exact source paths. No source is authorized for deletion in this wave.
 
-Status is MERGED_AWAITING_KNOWLEDGE_GATE. The affected UI/CI proof is complete on the current wave except the newly enforced knowledge-architecture gate, which is now part of the Quality workflow. Final ABSORBED status will be written only after that exact-head gate passes.
+Status: ABSORBED / SOURCE RETAINED.
+
+Proof ledger:
+- Content merge target SHA: `e29ed29721ef333c61e6f8b43a57ac38e71aa146`.
+- Final certification exact-head proof: `06d464bbffb2949bbd7ce48d88783388922dcda4` / Final Certification Gate `35781586842` = success.
+- UI route completeness exact-head proof: `06d464bbffb2949bbd7ce48d88783388922dcda4` / run `35781594634` = success.
+- Quality exact-head proof: `06d464bbffb2949bbd7ce48d88783388922dcda4` / run `35781594626` = success.
+- Browser exact-head proof: `06d464bbffb2949bbd7ce48d88783388922dcda4` / Full Product Browser E2E push run `35781586689` = success.
+- Knowledge architecture exact-head proof: `dc57c6451c0d2b6ddb35907752adf4bb595427cb` on PC01 / `npm run test:knowledge-architecture` = `KNOWLEDGE ARCHITECTURE PASS`; inventory scanned 198 documentation files.
+- Recovery readiness exact-head proof: `06d464bbffb2949bbd7ce48d88783388922dcda4` / run `35781594611` = success.
+- Production regression exact-head proof: `06d464bbffb2949bbd7ce48d88783388922dcda4` / run `35781594382` = success.
+- No legacy source was deleted. All four source files remain retained for controlled archive/remove review.
