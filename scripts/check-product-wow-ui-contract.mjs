@@ -253,4 +253,8 @@ assert.ok(!executiveReport.includes('المصدر: بيانات قانونية')
 const trustEvidence = fs.readFileSync('src/pages/TrustEvidencePage.tsx', 'utf8');
 assert.ok(trustEvidence.includes('مسارات الإثبات المتاحة'), 'trust surface must expose available evidence-path coverage');
 assert.ok(trustEvidence.includes('غير المثبتة'), 'trust surface must expose unverified evidence-path count');
+const dashboard = fs.readFileSync('src/pages/DashboardPage.tsx', 'utf8');
+assert.ok(dashboard.includes('مؤشرات مثبتة'), 'dashboard must expose confirmed evidence basis');
+assert.ok(dashboard.includes('مؤشرات محسوبة'), 'dashboard must expose calculated evidence basis');
+assert.ok(dashboard.includes('غير متاحة'), 'dashboard must expose unavailable evidence basis');
 console.log('Product wow UI contract: PASS (public proof theater + deterministic decision brief)');
