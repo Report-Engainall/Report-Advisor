@@ -1,16 +1,16 @@
-# CURRENT CONTROL-PLANE BOUNDARY — 2026-09-23 / PHASE-F VERIFICATION AFTER RESTORE FIX
+# CURRENT CONTROL-PLANE BOUNDARY — 2026-09-23 / PHASE-F VERIFICATION HEAD 3C5
 
-- MAIN HEAD OBSERVED BEFORE THIS WRITE: `2d66125a030a7f78e0b7d038756e9f2c168b0319`.
+- MAIN HEAD OBSERVED BEFORE THIS WRITE: `a38ba80bf5249c601da675a81de16f36b03695e3`.
 - CURRENT CODE/TEST CANDIDATE: `adb093bb20d488ce593b5e2598168c74711d4346`.
-- CURRENT GOVERNANCE HEAD: `2d66125a030a7f78e0b7d038756e9f2c168b0319`.
-- DONE: duplicate migration-version restore blocker merged at `adb093bb...`.
-- VERIFICATION: PR #627 is open from exact repaired code with governance-only binding; Netlify preview is READY on `0c66d94...`.
-- HOSTING: Vercel PR deployment is blocked by `api-deployments-free-per-day`; this is external and does not alter the code candidate.
-- ACTIONS: no connector-visible Phase-F run for `0c66d94...` has appeared yet; no fresh Phase-F PASS/FAIL is claimed.
-- LIVE BOUNDARY: production still serves `1d88b083...`; measured backup/restore/RPO/RTO/rollback and exact production identity remain NOT PROVEN.
-- NEXT CORE FRONT: consume PR #627 Phase-F exact-head evidence; repair only the first new live failure; keep PR #627 verification-only.
-- NEXT UI FRONT: continue only on a newly evidenced surface gap.
-- DO NOT REPEAT: no stale runtime transfer, no old-production rerun as current, no Vercel rate-limit bypass, no merge of verification-only PR #627.
+- CURRENT GOVERNANCE HEAD: `a38ba80bf5249c601da675a81de16f36b03695e3`.
+- DONE: Phase-F migration restore repair merged at `adb093bb...`; 285-migration local audit had 0 findings.
+- VERIFICATION BRANCH: PR #627, latest exact head `3c5e12951a1cb2aa4c27e0c77297ed9541407c11`, governance-only trigger refresh.
+- PREVIEW: Netlify preview READY; Vercel rejected deployment with `api-deployments-free-per-day`.
+- ACTIONS: no connector-visible workflow run has appeared for the verification head; no Phase-F verdict is claimed.
+- RUNTIME BOUNDARY: production SHA remains `1d88b083...`; measured restore/RPO/RTO/rollback and current production identity remain NOT PROVEN.
+- NEXT CORE FRONT: consume PR #627 exact-head Phase-F evidence; repair only the first new live failure.
+- NEXT UI FRONT: only newly evidenced surface gaps; no duplicate modules or unproven migration deletion.
+- DO NOT REPEAT: no stale Phase-F transfer, no old-production rerun as current, no verification-PR merge, no Vercel rate-limit bypass.
 
 # CURRENT CONTROL-PLANE BOUNDARY — 2026-09-22
 
