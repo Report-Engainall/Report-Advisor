@@ -179,6 +179,24 @@ export function DecisionExperiencePage() {
         </div>
       </section>
 
+      <section className="grid gap-3 sm:grid-cols-3" aria-label="قيمة القرار الحالية">
+        <div className="rounded-[14px] border border-ink-200 bg-white p-4 shadow-sm">
+          <div className="text-[10px] font-black text-primary-700">الإشارات</div>
+          <div className="mt-1 text-2xl font-black text-ink-950">{activeAlerts.length}</div>
+          <p className="mt-1 text-[10px] text-ink-500">تنبيهات غير مقروءة تحتاج انتباهًا.</p>
+        </div>
+        <div className="rounded-[14px] border border-ink-200 bg-white p-4 shadow-sm">
+          <div className="text-[10px] font-black text-primary-700">مرشحات القرار</div>
+          <div className="mt-1 text-2xl font-black text-ink-950">{recommendations.length}</div>
+          <p className="mt-1 text-[10px] text-ink-500">توصيات حقيقية من المصدر الحالي.</p>
+        </div>
+        <div className="rounded-[14px] border border-ink-200 bg-white p-4 shadow-sm">
+          <div className="text-[10px] font-black text-primary-700">الأثر المتوقع المتاح</div>
+          <div className="mt-1 text-2xl font-black text-ink-950">{recommendations.reduce((sum, item) => sum + (typeof item.expected_impact === 'number' && Number.isFinite(item.expected_impact) ? item.expected_impact : 0), 0) > 0 ? formatCurrency(recommendations.reduce((sum, item) => sum + (typeof item.expected_impact === 'number' && Number.isFinite(item.expected_impact) ? item.expected_impact : 0), 0)) : 'غير متاح'}</div>
+          <p className="mt-1 text-[10px] text-ink-500">مجموع الآثار المتوقعة المسجلة؛ ليس نتيجة فعلية.</p>
+        </div>
+      </section>
+
       <section className="ag-decision-strip" aria-label="ملخص القرار">
         <div className="ag-decision-cell"><span className="ag-decision-label">التوصية المحددة</span><span className="ag-decision-value">{selected?.title ?? 'لم تُحدد بعد'}</span></div>
         <div className="ag-decision-cell"><span className="ag-decision-label">الثقة</span><span className="ag-decision-value">{selected?.confidence ?? 'غير متاح'}</span></div>
