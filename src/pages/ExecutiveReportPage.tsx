@@ -31,6 +31,8 @@ function TrendStrip({ trend }: { trend: MonthlyTrend[] }) {
   const points = trend.slice(-6);
   const values = points.map((point) => typeof point.sales === 'number' && Number.isFinite(point.sales) ? point.sales : null);
   const finiteSales = values.filter((value): value is number => value !== null);
+  if (points.length === 0) return <p className="rounded-xl bg-ink-50 p-4 text-sm text-ink-500">لا توجد سلسلة زمنية كافية للعرض.</p>;
+  if (finiteSales.length === 0) return <p className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">السلسلة الزمنية موجودة، لكن قيم المبيعات غير متاحة في المصدر الحالي؛ لم يتم تصنيع رسم بديل.</p>;
   const max = Math.max(...finiteSales, 1);
   return <div className="grid grid-cols-3 gap-3 sm:grid-cols-6">
     {points.map((point, index) => {
