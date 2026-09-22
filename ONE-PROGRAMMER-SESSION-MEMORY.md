@@ -1,3 +1,14 @@
+## LATEST SESSION WRITE-BACK — 2026-09-22-AGHBARI-CONTINUOUS-EXECUTION-104
+
+- SESSION-ID → `2026-09-22-AGHBARI-CONTINUOUS-EXECUTION-104`
+- SHA → `bc72d23f9ba919007bb7d1a230254750bb3714ac`.
+- DONE → repaired the actual Import Center certification checker defect; `missingDataTable` is now initialized before validation.
+- ROOT CAUSE → the prior memory record described a fix that had no code diff; the live checker remained broken.
+- DONE → Phase-F technical hardening remains on this same branch: schema+data logical restore and configurable exact-target URLs.
+- CURRENT VERIFICATION STATE → fresh exact-head gates required; no prior PASS transferred.
+- CURRENT RESUME POINTER → `bc72d23f9ba919007bb7d1a230254750bb3714ac` → fresh exact-head Enforcement/Quality/Certification/Browser/Phase-F → measured recovery evidence → governed merge/final certification.
+- DO NOT REPEAT → do not claim checker closure from documentation-only commits; do not transfer stale Phase-F or browser evidence.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-22-AGHBARI-CONTINUOUS-EXECUTION-103
 
 - SESSION-ID → `2026-09-22-AGHBARI-CONTINUOUS-EXECUTION-103`
