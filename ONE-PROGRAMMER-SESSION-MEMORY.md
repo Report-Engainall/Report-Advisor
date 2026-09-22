@@ -37,3 +37,21 @@
 - NEXT ACTION → consume exact-head deployment evidence for `d3bdd33...`; if it passes, continue another independent high-value product/UI closure. If a current-SHA failure appears, repair only that reproduced failure.
 - DO NOT REPEAT → do not transfer `c77f86d...` deployment PASS to `d3bdd33...`; do not claim browser E2E; do not fabricate trust/quality values; do not force-close legacy imports; do not invent Phase-F values; do not create duplicate backend paths.
 - CURRENT RESUME POINTER → `d3bdd33fb6fcdcb31783e02512ceb542db7a752f` → fresh exact-head deployment evidence → next independent high-value UI/product closure → governed legacy recovery → Phase-F real recovery evidence → final certification.
+
+
+## LATEST SESSION WRITE-BACK — 2026-09-22-AGHBARI-CONTINUOUS-EXECUTION-86
+
+- SESSION-ID → `2026-09-22-AGHBARI-CONTINUOUS-EXECUTION-86`
+- STARTING RESUME → `d3bdd33fb6fcdcb31783e02512ceb542db7a752f` on PR #612.
+- VERIFIED EXACT-HEAD DEPLOYMENT → Vercel deployment `dpl_7CFvxX4zVPTVdJ1nRrSQiH9JLzzu` is READY and its metadata points exactly to `d3bdd33...`. Netlify combined status is SUCCESS; Cloudflare deployment comment reports successful deployment for exact `d3bdd33...`. No authenticated browser E2E is claimed.
+- DONE → Executive Command Center no longer collapses `CONFIRMED` and `CALCULATED` into the vague label “الصورة قابلة للاستخدام”. It now exposes three evidence states directly: `الحقيقة مؤكدة`, `محسوبة من البيانات`, and `بيانات غير كافية`.
+- DONE → Product WOW contract now guards this distinction against regression.
+- EXACT SOURCE VERIFICATION → final `ExecutiveCommandCenterPage.tsx` and `check-product-wow-ui-contract.mjs` were re-read from `ec2b1e4d8cbfd27a562b7c6b1883173a022dc4ab`; both new invariants are present.
+- EXACT DIFF PROOF → compare `d3bdd33...` → `ec2b1e4...` is exactly 2 commits ahead, 0 behind; only the executive command-center UI and its contract guard changed.
+- CURRENT-HEAD STATUS → `ec2b1e4...` has Vercel contexts PENDING while the direct Vercel deployment is currently QUEUED; no current-head runtime PASS is claimed yet. No GitHub Actions workflow run is attached.
+- PHASE-F → FAIL-CLOSED and unchanged; no RPO/RTO/backup/restore evidence invented.
+- LEGACY IMPORT RECOVERY → unchanged; 151 legacy processing imports remain untouched because no proven recovery contract exists.
+- PRECISE STOP POINT → exact `d3bdd33...` deployment evidence is now verified; the new truth-state distinction is implemented and guarded, with its fresh deployment still propagating.
+- NEXT ACTION → consume exact-head `ec2b1e4...` deployment evidence; if it reaches READY, continue another independent high-value product/UI closure. If a current-SHA failure appears, repair only the reproduced failure.
+- DO NOT REPEAT → do not transfer `d3bdd33...` deployment evidence to `ec2b1e4...`; do not claim browser E2E; do not fabricate truth states; do not force-close legacy imports; do not invent Phase-F values; do not create duplicate backend paths.
+- CURRENT RESUME POINTER → `ec2b1e4d8cbfd27a562b7c6b1883173a022dc4ab` → fresh exact-head deployment evidence → next independent high-value UI/product closure → governed legacy recovery → Phase-F real recovery evidence → final certification.
