@@ -211,6 +211,9 @@ assert.ok(dataQuality.includes('لا توجد مشكلات جودة مرصودة
 const connections = fs.readFileSync('src/pages/ConnectionsPage.tsx', 'utf8');
 assert.ok(connections.includes("id === 'documents' ? '/import' : '/trust'"), 'document connector must route into the unified import path rather than a disconnected connector workflow');
 assert.ok(connections.includes("id === 'documents' ? (ar ? 'ابدأ الاستيراد الموحد' : 'Start unified import')"), 'document connector CTA must explicitly expose the unified import path');
+assert.ok(connections.includes('المسارات المتاحة'), 'connections must distinguish availability from runtime proof');
+assert.ok(connections.includes('المسار متاح داخل المنتج'), 'connections must not label availability as runtime proof');
+assert.ok(!connections.includes('المسارات المثبتة'), 'connections must not call static availability proven');
 
 // connections already loaded above; reuse the canonical source.
 assert.ok(connections.includes('const availableCount = connectors.filter(connector => connector.state === \'available\').length'), 'connections summary must derive proven-path count from connector state');
