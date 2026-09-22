@@ -41,6 +41,9 @@ assert.ok(appShell.includes('advisorCounts.recommendations'), 'global Advisor mu
 assert.ok(sidebar.includes("trust: { hint: 'إثبات، مصدر، وثقة', tag: 'TRUST' }"), 'Trust navigation section must have product metadata');
 assert.ok(sidebar.includes("outputs: { hint: 'تقارير ومخرجات القرار', tag: 'OUTPUT' }"), 'Outputs navigation section must have product metadata');
 assert.ok(!dashboard.includes('generateSynthetic'), 'decision brief must not invent synthetic business data');
+assert.ok(dashboard.includes("title: 'لا توجد إشارة عاجلة الآن'"), 'dashboard calm state must describe absence of urgent signals rather than certify analysis readiness');
+assert.ok(dashboard.includes('مع إبقاء حالة الدليل هي المرجع'), 'dashboard calm state must preserve the evidence boundary');
+assert.ok(!dashboard.includes('title: \'الصورة صالحة للمتابعة والتحليل\''), 'dashboard must not certify analysis readiness merely because no urgent signal is present');
 const importSurface = fs.readFileSync('src/pages/CanonicalImportPage.tsx', 'utf8');
 assert.ok(importSurface.includes('const IMPORT_EVIDENCE_STAGES = ['), 'canonical import must expose the proven import evidence stages');
 assert.ok(importSurface.includes('مراحل الاستيراد المثبتة'), 'canonical import save state must expose the actual evidence lifecycle');
