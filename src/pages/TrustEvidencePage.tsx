@@ -58,6 +58,16 @@ export function TrustEvidencePage() {
     () => snapshot?.issues?.filter((issue) => issue.severity === 'critical').reduce((sum, issue) => sum + issue.count, 0) ?? 0,
     [snapshot],
   );
+  const evidencePressure = useMemo(() =>
+    (snapshot?.issues ?? [])
+      .filter((issue) => issue.count > 0)
+      .sort((a, b) => {
+        const severityRank = { critical: 0, warning: 1, info: 2 } as const;
+        return severityRank[a.severity] - severityRank[b.severity] || b.count - a.count;
+      })
+      .slice(0, 6),
+    [snapshot],
+  );
   const weightedQualityScore = useMemo(() => {
     if (!snapshot?.entities?.length) return null;
     const weightedRows = snapshot.entities.reduce((sum, entity) => sum + Math.max(0, entity.total ?? 0), 0);
@@ -174,6 +184,32 @@ export function TrustEvidencePage() {
         <div className="flex items-center justify-between gap-3"><span className={'rounded-full px-2.5 py-1 text-[9px] font-black '+tone}>{title}</span><Icon size={18} className="text-ink-400"/></div>
         <p className="mt-4 text-xs leading-6 text-ink-500">{text}</p>
       </CardBody></Card>)}
+    </section>
+
+    <section className="rounded-2xl border border-ink-100 bg-white p-4 shadow-sm" aria-label="ضغط الأدلة والمشكلات الحالية">
+      <CardHeader title="ضغط الأدلة الحالي" subtitle="أعلى المشكلات المسجلة في لقطة الجودة الحالية، مرتبة حسب الشدة ثم عدد الحالات." />
+      <CardBody>
+        {evidencePressure.length ? (
+          <div className="grid gap-2.5 md:grid-cols-2 xl:grid-cols-3">
+            {evidencePressure.map(issue => {
+              const tone = issue.severity === 'critical'
+                ? 'border-danger-200 bg-danger-50/60 text-danger-800'
+                : issue.severity === 'warning'
+                  ? 'border-warning-200 bg-warning-50/60 text-warning-800'
+                  : 'border-ink-100 bg-ink-50/50 text-ink-700';
+              const label = issue.severity === 'critical' ? 'حرج' : issue.severity === 'warning' ? 'تحذير' : 'معلومة';
+              return <Link key={issue.entity + issue.field + issue.issue} to="/data-quality" className={"block rounded-xl border p-3 transition hover:border-primary-300 " + tone}>
+                <div className="flex items-center justify-between gap-2"><span className="text-[9px] font-black">{label}</span><span className="text-xs font-black">{issue.count} حالة</span></div>
+                <div className="mt-2 text-xs font-black text-ink-900">{issue.entity} · {issue.field}</div>
+                <div className="mt-1 text-[10px] leading-5">{issue.issue}</div>
+                <div className="mt-2 text-[9px] font-black text-primary-700">فتح مراجعة الجودة <ArrowLeft size={10} className="inline" /></div>
+              </Link>;
+            })}
+          </div>
+        ) : (
+          <div className="rounded-xl border border-success-200 bg-success-50/50 px-3 py-4 text-xs leading-6 text-success-800">لا توجد مشكلات مسجلة في لقطة الجودة الحالية؛ لا تُضاف درجة ثقة مصطنعة فوق ذلك.</div>
+        )}
+      </CardBody>
     </section>
 
     <section className="grid gap-4 xl:grid-cols-[.9fr_1.1fr]">
