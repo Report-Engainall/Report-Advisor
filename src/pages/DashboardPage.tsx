@@ -235,6 +235,11 @@ export function DashboardPage() {
     kpis.collectionRate,
   ];
   const coverage = Math.round((evidenceMetrics.filter((value) => value !== null).length / evidenceMetrics.length) * 100);
+  const evidenceBasis = {
+    confirmed: evidenceMetrics.filter((value) => value !== null && kpis.status === 'CONFIRMED').length,
+    calculated: evidenceMetrics.filter((value) => value !== null && kpis.status !== 'CONFIRMED').length,
+    insufficient: evidenceMetrics.filter((value) => value === null).length,
+  };
   const emptyAnalysisAction = kpis.status === 'INSUFFICIENT_DATA'
     ? { to: '/data-quality', label: 'مراجعة جودة البيانات' }
     : { to: '/analytics', label: 'فتح التحليل' };
@@ -311,6 +316,21 @@ export function DashboardPage() {
               <div className="h-full rounded-full bg-primary-600" style={{ width: coverage + '%' }} />
             </div>
             <div className="mt-4 grid gap-2 sm:grid-cols-3">
+              <div className="rounded-xl border border-success-100 bg-success-50/50 p-2.5">
+                <div className="text-[9px] font-black text-success-700">مؤشرات مثبتة</div>
+                <div className="mt-1 text-sm font-black text-ink-900">{evidenceBasis.confirmed}</div>
+                <div className="mt-0.5 text-[9px] text-ink-400">مرتبطة بلقطة مؤكدة</div>
+              </div>
+              <div className="rounded-xl border border-primary-100 bg-primary-50/50 p-2.5">
+                <div className="text-[9px] font-black text-primary-700">مؤشرات محسوبة</div>
+                <div className="mt-1 text-sm font-black text-ink-900">{evidenceBasis.calculated}</div>
+                <div className="mt-0.5 text-[9px] text-ink-400">محسوبة من الصورة الحالية</div>
+              </div>
+              <div className="rounded-xl border border-warning-100 bg-warning-50/50 p-2.5">
+                <div className="text-[9px] font-black text-warning-700">غير متاحة</div>
+                <div className="mt-1 text-sm font-black text-ink-900">{evidenceBasis.insufficient}</div>
+                <div className="mt-0.5 text-[9px] text-ink-400">لا تُملأ بتقدير</div>
+              </div>
               <div className="rounded-xl border border-ink-100 bg-ink-50/50 p-2.5">
                 <div className="text-[9px] font-black text-ink-400">مالك محدد</div>
                 <div className="mt-1 text-sm font-black text-ink-900">
