@@ -2,8 +2,8 @@
 
 > Exact-head evidence only. The current candidate contains a checker-only repair following a reproduced certification failure.
 
-- CURRENT MAIN HEAD OBSERVED: `772afb548f6c381e2e3c6596a57d108ce6d2eebf`.
-- CURRENT CODE/TEST CANDIDATE: `772afb548f6c381e2e3c6596a57d108ce6d2eebf`.
+- CURRENT MAIN HEAD OBSERVED: `b52c370d5d296fe940461b38deea60c05a941ddb`.
+- CURRENT CODE/TEST CANDIDATE: `b52c370d5d296fe940461b38deea60c05a941ddb`.
 - LAST VERIFIED RUNTIME CODE FIX: `6ca814df318d64d1116ce734dbff69d15e811b32`.
 - DONE: `scripts/check-import-center-product-contract.mjs` now initializes its DataTable contract requirements before evaluating them; this removes the reproduced `ReferenceError: Cannot access 'missingDataTable' before initialization`.
 - EXACT PRIOR PROOF: Final Certification run `35776335388` on `1a6ac9...` failed after dozens of contract passes solely at that checker ReferenceError; certification boundary integrity itself passed.
