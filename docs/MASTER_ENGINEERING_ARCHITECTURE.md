@@ -1,0 +1,92 @@
+# MASTER ENGINEERING ARCHITECTURE — الأغبري / Report-Advisor
+Status: CANONICAL DOMAIN REFERENCE
+
+## 1. Scope
+This file owns the canonical technical architecture. Existing working paths are preferred over rewrites. New paths require evidence that the canonical path cannot safely satisfy the requirement.
+
+## 2. Canonical principles
+- source-first ingestion
+- canonical truth before interpretation
+- deterministic business calculations
+- evidence/provenance for consequential outputs
+- tenant isolation at every data boundary
+- fail-closed certification
+- reuse existing RPC/runner/import lifecycle
+- no speculative architecture
+- no duplicate engines
+
+## 3. Canonical business/runtime chain
+Source -> Extraction -> Normalization -> Validation -> Reconciliation -> Canonical Truth -> Semantic Metrics -> Analysis -> Evidence -> Signal -> Intelligence -> Recommendation -> Decision -> Approval -> Action -> Outcome -> Learning -> Benchmark
+
+## 4. Canonical import lifecycle
+queued -> fingerprinted -> extracted -> canonicalized -> validated -> analyzed -> decisioned -> committed -> rendered
+
+Known canonical targets:
+- import_commit_batch
+- import_finish_job
+- get_dashboard_snapshot
+- get_dashboard_intelligence
+- runDurableProductionLifecycle
+- production-coordinator-bridge.ts
+
+These are governed examples from current architecture, not permission to create aliases or replacements.
+
+## 5. Tenant and authorization
+All business reads/writes must preserve:
+- current_company_id
+- RLS
+- server-side authorization
+- provenance/source identity
+- company-scoped queries
+- business readback
+
+Browser sessions must not use service-role credentials.
+
+## 6. Document intelligence
+Document processing remains source-first. OCR trust rules:
+- score < 50 => reject
+- 50–74 => review
+- >= 75 => trusted
+
+Raw documents must not be sent to local AI merely for convenience.
+
+Local AI is assistive only; deterministic extraction/validation and business calculations remain authoritative.
+
+## 7. Compatibility rule
+Compatibility modules must forward to canonical paths rather than create second semantics.
+
+queries-compat is forwarding-only where the current implementation requires it.
+
+Legacy specialized import branches may remain for compatibility, but the user-facing product remains domain-neutral and unified.
+
+## 8. Calculation truth
+- deterministic calculations are authoritative
+- AI explains/synthesizes/recommends wording
+- missing cost basis blocks profitability
+- forecast minimum-data gates remain explicit
+- benchmarks can return INSUFFICIENT SAMPLE
+- stale/unknown data cannot silently become executive truth
+- current product currency contract uses YER
+
+## 9. Consolidation rules for code
+KEEP / IMPROVE / REPLACE / REMOVE.
+
+Before REMOVE:
+- search references/callers
+- inspect migrations/RPCs
+- inspect workflows/tests
+- preserve behavior
+- re-run affected gates
+
+Never solve duplication by adding a wrapper around another duplicate.
+
+## 10. Architecture completion criteria
+A technical change is complete only when:
+- canonical path identified
+- root cause reproduced where applicable
+- minimal safe change implemented
+- targeted test passes
+- relevant regression passes
+- exact-SHA source verification performed
+- no duplicate path introduced
+- current documentation/index updated
