@@ -86,8 +86,8 @@ export function TrustEvidencePage() {
         ? { label: 'REVIEW', detail: 'توجد ملاحظات في المصدر؛ راجعها قبل الاعتماد التشغيلي للنتائج.' }
         : { label: 'VERIFIED', detail: 'المصدر الحالي لا يحمل مشكلات مسجلة ضمن لقطة الجودة المتاحة.' };
   const statusLabel = trustState.label;
-  const evidencePathCount = evidenceSurfaces.filter((surface) => surface.available).length;
-  const unverifiedPathCount = evidenceSurfaces.length - evidencePathCount;
+  const evidenceSurfaceCount = evidenceSurfaces.filter((surface) => surface.available).length;
+  const unavailableSurfaceCount = evidenceSurfaces.length - evidenceSurfaceCount;
   const nextStep = snapshot?.status === 'EMPTY'
     ? { label: 'ابدأ من المصدر', detail: 'أضف ملفًا أو مصدرًا حتى يمكن بناء حالة حقيقة وأدلة فعلية.', path: '/import' }
     : criticalIssueTotal > 0
@@ -174,8 +174,8 @@ export function TrustEvidencePage() {
     </section>
 
     <section className="ag-decision-strip" aria-label="ملخص الثقة">
-      <div className="ag-decision-cell"><span className="ag-decision-label">مسارات الإثبات المتاحة</span><span className="ag-decision-value">{evidencePathCount}</span></div>
-      <div className="ag-decision-cell"><span className="ag-decision-label">غير المثبتة</span><span className="ag-decision-value">{unverifiedPathCount}</span></div>
+      <div className="ag-decision-cell"><span className="ag-decision-label">مساحات الفحص المتاحة</span><span className="ag-decision-value">{evidenceSurfaceCount}</span></div>
+      <div className="ag-decision-cell"><span className="ag-decision-label">مساحات غير متاحة</span><span className="ag-decision-value">{unavailableSurfaceCount}</span></div>
       <div className="ag-decision-cell"><span className="ag-decision-label">الحالة الحالية</span><span className="ag-decision-value">{statusLabel}</span></div>
       <div className="ag-decision-cell"><span className="ag-decision-label">السجلات</span><span className="ag-decision-value">{totalRecords == null ? 'غير متاح' : totalRecords}</span></div>
       <div className="ag-decision-cell"><span className="ag-decision-label">المشكلات</span><span className="ag-decision-value">{issueTotal ?? 'غير متاح'}</span></div>
