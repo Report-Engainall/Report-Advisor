@@ -1,19 +1,20 @@
-# CURRENT CONTROL-PLANE BOUNDARY — 2026-09-23 / QUALITY WORKFLOW CANDIDATE REBIND
+# CURRENT CONTROL-PLANE BOUNDARY — 2026-09-23 / EXACT-HEAD CERTIFIED REBIND
 
 > The latest non-governance source change is PR #625's Quality workflow gate at `203aa8ae...`; later commits are governance-only.
 
-- MAIN HEAD OBSERVED BEFORE THIS WRITE: `dec04edf9fa24eec27bf67317f0bf20665fbf0b1`.
+- MAIN HEAD OBSERVED BEFORE THIS WRITE: `dd1c92ad94671785d01942bfa20907d8969d5577`.
 - CURRENT CODE/TEST CANDIDATE: `203aa8aedb45f51b453b840ea52738685936a7a2`.
-- CURRENT GOVERNANCE HEAD: `dec04edf9fa24eec27bf67317f0bf20665fbf0b1`.
+- CURRENT GOVERNANCE HEAD: `dd1c92ad94671785d01942bfa20907d8969d5577`.
 - DONE: PR #624 Intelligence module consolidation merged; PR #625 Quality workflow now structurally enforces `test:knowledge-architecture`.
-- DIAGNOSED: exact `a7983bc3...` Enforcement/Final Certification failed only because candidate remained `6ef41bab...` while the `.github/workflows/quality.yml` change is a real non-governance source change.
-- VERIFIED: exact `a7983bc3...` Quality, Browser E2E, Storage Tenant Isolation and Final Execution Batch SUCCESS; Enforcement and Final Certification stopped at the certification boundary.
-- REBOUND: candidate is now `203aa8ae...`; the later `dec04edf...` governance write must be treated as governance-only.
+- DIAGNOSED/CLOSED: `a7983bc3...` failed certification only because candidate binding lagged behind the real Quality workflow change at `203aa8ae...`.
+- EXACT-HEAD PROOF ON `dd1c92ad...`: Quality `35793547797`, Final Certification `35793547768`, Enforcement `35793547774`, Browser E2E `35793547772`, Storage Tenant Isolation `35793547779`, Final Execution Batch `35793547743` all SUCCESS.
+- LOCAL PROOF: 20/20 release readiness PASS; knowledge architecture PASS; quality workflow contract PASS; 0 exact duplicate source-file groups across 482 source files.
 - PHASE-F: live backup/restore, measured RPO/RTO, rollback and exact production identity remain NOT PROVEN.
-- EXTERNAL HOSTING: latest READY production deployment observed is `1d88b083...`, older than current candidate; current Vercel rate-limit remains external.
-- NEXT CORE FRONT: fresh exact-head Enforcement + Final Certification + Browser against the rebound candidate; repair only the first reproduced current-head failure.
-- NEXT UI FRONT: continue only with evidenced gaps; no duplicate intelligence modules or unsafe migration deletion.
-- DO NOT REPEAT: no stale PASS transfer; no unchanged Phase-F credential rerun; no weakening of certification boundary.
+- VERCEL: latest READY production deployment observed is `1d88b083...`, older than current candidate; no current-head production proof is transferred. Current rate-limit remains external.
+- NEXT CORE FRONT: Phase-F measured recovery only after authorized live resilience source configuration changes; otherwise keep the core boundary fail-closed.
+- NEXT UI FRONT: continue the next evidenced surface gap; do not revive deleted IntelligencePages or perform migration deletions without dependency proof.
+- DO NOT REPEAT: no stale PASS transfer; no unchanged Phase-F credential rerun; no weakening of certification checks.
+
 
 # CURRENT CONTROL-PLANE BOUNDARY — 2026-09-22
 
