@@ -153,7 +153,7 @@ export function ExecutiveCommandCenterPage() {
       <div className="ag-decision-strip" aria-label="ملخص مركز القرار">
         <div className="ag-decision-cell">
           <span className="ag-decision-label">وضع الحقيقة</span>
-          <span className="ag-decision-value">{kpis.status === 'INSUFFICIENT_DATA' ? 'بيانات غير كافية' : 'الصورة قابلة للاستخدام'}</span>
+          <span className="ag-decision-value">{kpis.status === 'INSUFFICIENT_DATA' ? 'بيانات غير كافية' : kpis.status === 'CONFIRMED' ? 'الحقيقة مؤكدة' : 'محسوبة من البيانات'}</span>
         </div>
         <div className="ag-decision-cell"><span className="ag-decision-label">تغطية القياسات</span><span className="ag-decision-value">{coverage}%</span></div>
         <div className="ag-decision-cell"><span className="ag-decision-label">إشارات مفتوحة</span><span className="ag-decision-value">{alerts.length}</span></div>
