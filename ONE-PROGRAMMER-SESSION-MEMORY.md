@@ -1,3 +1,15 @@
+## LATEST SESSION WRITE-BACK — 2026-09-22-AGHBARI-CONTINUOUS-EXECUTION-100
+
+- SESSION-ID → `2026-09-22-AGHBARI-CONTINUOUS-EXECUTION-100`
+- PR HEAD → `8656facb540942da3b7e018a5638555b0147991a`.
+- DONE → PR #617 Phase-F restore/probe fixes implemented from current main.
+- DONE → certification boundary rebinding prepared so the branch's candidate marker matches its exact tested SHA; no product data or certification rule is weakened.
+- ROOT CAUSE CLOSED → Certification Boundary was still bound to the main candidate `9a71...` while PR #617 necessarily changed the Phase-F implementation, causing an exact-head non-governance mismatch.
+- CURRENT ACTION → consume fresh Enforcement / Quality / Final Certification / Browser / Phase-F evidence on `8656...`.
+- PHASE-F EXPECTATION → deployment endpoint configuration remains external; no stale production deployment may be promoted.
+- DO NOT REPEAT → do not transfer `9a71...` evidence to `8656...`, do not loosen the boundary, do not reuse the pre-fix Phase-F result.
+- CURRENT RESUME POINTER → `8656facb540942da3b7e018a5638555b0147991a` → fresh exact-head gates → Phase-F live probes with configured exact target URLs → measured RPO/RTO/rollback → governed merge/final certification.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-22-AGHBARI-CONTINUOUS-EXECUTION-99
 
 - SESSION-ID → `2026-09-22-AGHBARI-CONTINUOUS-EXECUTION-99`
