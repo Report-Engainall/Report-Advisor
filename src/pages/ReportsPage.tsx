@@ -68,8 +68,18 @@ export function ReportsCenterPage() {
   const { kpis, aging, asOf, months } = snapshot;
   const truthLabel = kpis.status === 'CONFIRMED' ? 'VERIFIED' : kpis.status === 'CALCULATED' ? 'CALCULATED' : 'INSUFFICIENT DATA';
   const truthClass = kpis.status === 'CONFIRMED' ? 'badge-success' : kpis.status === 'CALCULATED' ? 'badge-primary' : 'badge-warning';
-  const nextPath = kpis.status === 'INSUFFICIENT_DATA' || aging.status === 'INSUFFICIENT_DATA' ? '/data-quality' : '/reports/executive';
-  const nextLabel = kpis.status === 'INSUFFICIENT_DATA' || aging.status === 'INSUFFICIENT_DATA' ? 'افحص جودة البيانات' : 'افتح التقرير التنفيذي';
+  const purchaseReady = purchaseSummary?.total != null && purchaseSummary?.count > 0;
+  const purchaseHasNoData = purchaseSummary?.count === 0;
+  const nextPath = kpis.status === 'INSUFFICIENT_DATA' || aging.status === 'INSUFFICIENT_DATA' || (!purchaseReady && !purchaseHasNoData)
+    ? '/data-quality'
+    : purchaseHasNoData
+      ? '/import'
+      : '/reports/executive';
+  const nextLabel = kpis.status === 'INSUFFICIENT_DATA' || aging.status === 'INSUFFICIENT_DATA' || (!purchaseReady && !purchaseHasNoData)
+    ? 'افحص جودة البيانات'
+    : purchaseHasNoData
+      ? 'إضافة مصدر للمشتريات'
+      : 'افتح التقرير التنفيذي';
 
   const reportReadiness = [
     {
