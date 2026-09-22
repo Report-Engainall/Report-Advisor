@@ -114,7 +114,7 @@ export function CanonicalImportPage() {
     setLoadingHistory(true);
     setHistoryError(null);
     try {
-      setHistory(await fetchImportRecords());
+      setHistory(await fetchImportRecords(100));
     } catch (cause) {
       setHistory([]);
       setHistoryError(cause instanceof Error ? cause.message : 'تعذر تحميل سجل الاستيرادات');
