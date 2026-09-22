@@ -225,7 +225,7 @@ Do not start a deletion wave until:
 7. only then may a separate deletion commit be created.
 
 
-## 13. UI / experience consolidation wave — 2026-09-22 — MERGED_PENDING_PROOF
+## 13. UI / experience consolidation wave — 2026-09-22 — MERGED_AWAITING_KNOWLEDGE_GATE
 
 Four reviewed sources were merged into `docs/MASTER_UI_UX_REFERENCE.md` and remain retained until the deletion gate is separately proven:
 
@@ -236,4 +236,4 @@ Four reviewed sources were merged into `docs/MASTER_UI_UX_REFERENCE.md` and rema
 
 Reference search returned no direct code references for these four exact source paths. No source is authorized for deletion in this wave.
 
-Status remains MERGED_PENDING_PROOF until the current branch runs the affected UI contract and knowledge gates and the canonical owner is re-read at the resulting exact SHA.
+Status is MERGED_AWAITING_KNOWLEDGE_GATE. The affected UI/CI proof is complete on the current wave except the newly enforced knowledge-architecture gate, which is now part of the Quality workflow. Final ABSORBED status will be written only after that exact-head gate passes.
