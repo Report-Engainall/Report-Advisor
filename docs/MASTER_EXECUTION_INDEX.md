@@ -1,17 +1,16 @@
-## CURRENT EXECUTION BOUNDARY — 2026-09-22 / WAVE 98 — ENFORCEMENT PARSER ROOT CAUSE CLOSED IN PR
+## CURRENT EXECUTION BOUNDARY — 2026-09-22 / WAVE 99 — IMPORT HISTORY DENSITY FIX PENDING EXACT-HEAD PROOF
 
-> Exact-head evidence only. GitHub main is authoritative; no historical runtime result is transferred.
+> Exact-head evidence only. The current code candidate changed and must be re-proven; no historical PASS is transferred.
 
-- CURRENT MAIN HEAD OBSERVED: `d6920a1fbb0590f80e560ee46c1c69be16af7062`.
-- CURRENT FUNCTIONAL FIX PR: #616, head `182ef12580e0d1d89643aaa1c20bacfff1a9d9e5`.
-- ROOT CAUSE: enforcement parser accepted only spaced `CURRENT CODE/TEST CANDIDATE`, while the canonical index also emits `CURRENT_CODE_TEST_CANDIDATE`.
-- FIX: PR #616 accepts both forms and adds a regression test; no product/runtime/resilience/security policy change.
-- VERIFIED FAILURE SOURCE: PR #615 exact-head job `106904874825` failed only at the parser after certification-boundary integrity passed.
-- CURRENT GATES: PR #616 Enforcement, Quality, Final Certification, Browser E2E, and Phase-F are executing/queued; no new PASS transferred.
-- PHASE-F BLOCKER: `RESILIENCE_LOGICAL_SOURCE_DB_URL` remains invalid/stale; measured backup/restore/RPO/RTO/rollback remain NOT PROVEN.
-- HOSTING BLOCKER: Vercel free-plan deployment-rate limit remains external.
-- NEXT: consume PR #616 exact-head evidence; merge only after the new parser regression is proven closed, then resume Phase-F with a valid authorized restore credential.
-- DO NOT REPEAT: do not weaken exact-SHA enforcement, do not transfer #615 evidence, do not rerun unchanged Phase-F credentials, do not fabricate resilience proof.
+- CURRENT MAIN HEAD OBSERVED: `9a71cccc53c0e01b55e7fcac8f5ca1829bf30aac`.
+- CURRENT CODE/TEST CANDIDATE: `9a71cccc53c0e01b55e7fcac8f5ca1829bf30aac`.
+- LAST VERIFIED PRODUCT CODE BEFORE THIS FIX: `fc0a84d85e56f43112df7e07886a9f6c04089998`.
+- CURRENT PRODUCT FIX: Canonical import history now uses real table pagination (50 visible rows per page) instead of rendering the full 500-row history window into the DOM.
+- ROOT CAUSE ADDRESSED: real-business browser E2E persisted the new canonical import successfully, but timed out waiting for the new filename in the rendered import history; the database row itself was completed with canonical persistence.
+- CURRENT VERIFICATION STATE: pending exact-head Quality / Browser / Certification consumption for `9a71cccc53c0e01b55e7fcac8f5ca1829bf30aac`.
+- PHASE-F BLOCKER: `RESILIENCE_LOGICAL_SOURCE_DB_URL` remains invalid/stale; live backup/restore and measured RPO/RTO/rollback remain NOT PROVEN.
+- HOSTING BLOCKER: Vercel free-plan deployment-rate limit remains external; Netlify preview capability exists but exact production deployment ownership is not connected in the active deployment connector.
+- DO NOT REPEAT: do not lower the E2E timeout to hide the UI defect; do not transfer the d692 browser failure or any older PASS to `9a71cccc53c0e01b55e7fcac8f5ca1829bf30aac`; do not render all 500 history rows as a workaround; do not fabricate Phase-F resilience evidence.
 
 ## CURRENT EXECUTION BOUNDARY — 2026-09-22 / WAVE 97 — EXACT MAIN + CURRENT-SHA ENFORCEMENT REPAIR
 
