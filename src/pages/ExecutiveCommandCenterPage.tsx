@@ -79,10 +79,7 @@ export function ExecutiveCommandCenterPage() {
   const [asOf, setAsOf] = useState<string | null>(null);
   const [trend, setTrend] = useState<Awaited<ReturnType<typeof fetchDashboardSnapshot>>['trend']>([]);
   const [alerts, setAlerts] = useState<Alert[]>([]);
-  const [openAlertCount, setOpenAlertCount] = useState(0);
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
-  const [actionableRecommendationCount, setActionableRecommendationCount] = useState(0);
-  const [pendingRecommendationCount, setPendingRecommendationCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -100,11 +97,8 @@ export function ExecutiveCommandCenterPage() {
       setTrend(snapshot.trend);
       const openAlerts = intelligence.alerts.filter((item) => !item.is_read);
       const actionableRecommendations = intelligence.recommendations.filter((item) => item.status === 'new' || item.status === 'accepted');
-      setAlerts(openAlerts.slice(0, 5));
-      setOpenAlertCount(openAlerts.length);
-      setRecommendations(actionableRecommendations.slice(0, 5));
-      setActionableRecommendationCount(actionableRecommendations.length);
-      setPendingRecommendationCount(actionableRecommendations.filter((item) => item.status === 'new').length);
+      setAlerts(openAlerts);
+      setRecommendations(actionableRecommendations);
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'تعذر تحميل مركز القيادة');
     } finally {
@@ -125,13 +119,13 @@ export function ExecutiveCommandCenterPage() {
     const owned = actionable.filter((item) => item.owner?.trim()).length;
     const outcomes = actionable.filter((item) => item.impact_result?.trim()).length;
     return {
-      total: actionableRecommendationCount,
-      ownerCoverage: actionableRecommendationCount ? Math.round((owned / actionable.length) * 100) : null,
-      outcomeCoverage: actionableRecommendationCount ? Math.round((outcomes / actionable.length) * 100) : null,
-      pending: pendingRecommendationCount,
-      coverageScope: actionableRecommendationCount > actionable.length ? 'آخر 5 معروضين / حتى 100 توصية مسترجعة' : 'كل التوصيات القابلة للمتابعة المسترجعة',
+      total: actionable.length,
+      ownerCoverage: actionable.length ? Math.round((owned / actionable.length) * 100) : null,
+      outcomeCoverage: actionable.length ? Math.round((outcomes / actionable.length) * 100) : null,
+      pending: actionable.filter((item) => item.status === 'new').length,
+      coverageScope: 'كل التوصيات القابلة للمتابعة المسترجعة (حتى 100)',
     };
-  }, [actionableRecommendationCount, pendingRecommendationCount, recommendations]);
+  }, [recommendations]);
 
   if (loading) return <LoadingState message="جارٍ بناء مركز القيادة من المصدر..." />;
   if (error) return <ErrorState message={error} onRetry={() => void load()} />;
@@ -162,8 +156,8 @@ export function ExecutiveCommandCenterPage() {
           <span className="ag-decision-value">{kpis.status === 'INSUFFICIENT_DATA' ? 'بيانات غير كافية' : 'الصورة قابلة للاستخدام'}</span>
         </div>
         <div className="ag-decision-cell"><span className="ag-decision-label">تغطية القياسات</span><span className="ag-decision-value">{coverage}%</span></div>
-        <div className="ag-decision-cell"><span className="ag-decision-label">إشارات مفتوحة</span><span className="ag-decision-value">{openAlertCount}</span></div>
-        <div className="ag-decision-cell"><span className="ag-decision-label">توصيات للمراجعة</span><span className="ag-decision-value">{actionableRecommendationCount}</span></div>
+        <div className="ag-decision-cell"><span className="ag-decision-label">إشارات مفتوحة</span><span className="ag-decision-value">{alerts.length}</span></div>
+        <div className="ag-decision-cell"><span className="ag-decision-label">توصيات للمراجعة</span><span className="ag-decision-value">{recommendations.length}</span></div>
         <div className="ag-decision-cell"><span className="ag-decision-label">تغطية القرار</span><span className="ag-decision-value">{decisionCoverage.outcomeCoverage === null ? 'غير متاح' : decisionCoverage.outcomeCoverage + '%'}</span></div>
         <div className="ag-decision-cell"><span className="ag-decision-label">As-of</span><span className="ag-decision-value">{asOf ?? 'غير متاح'}</span></div>
       </div>
@@ -220,7 +214,7 @@ export function ExecutiveCommandCenterPage() {
           <CardHeader title="مركز الانتباه" subtitle="الإشارات التي تستحق فحصًا أو تدخلاً." action={<Link to="/intelligence" className="btn-ghost text-[11px]">الذكاء <Brain size={13}/></Link>}/>
           <CardBody>
             <div className="space-y-3">
-              {alerts.map((alert) => <AlertRow key={alert.id} alert={alert}/>)}
+              {alerts.slice(0, 5).map((alert) => <AlertRow key={alert.id} alert={alert}/>)}
               {alerts.length === 0 && <EmptyState title="لا توجد إشارات نشطة" message="لا يوجد تنبيه غير مقروء في المصدر الحالي." action={<Link to="/intelligence" className="btn-secondary text-[11px]">فحص مساحة الإشارات</Link>}/>} 
             </div>
           </CardBody>
@@ -230,7 +224,7 @@ export function ExecutiveCommandCenterPage() {
           <CardHeader title="طابور القرار" subtitle="ما يمكن تحويله إلى قرار الآن." action={<Link to="/decision-experience" className="btn-ghost text-[11px]">مساحة القرار <ArrowUpLeft size={13}/></Link>}/>
           <CardBody>
             <div className="space-y-3">
-              {recommendations.map((recommendation) => <DecisionRow key={recommendation.id} recommendation={recommendation}/>)}
+              {recommendations.slice(0, 5).map((recommendation) => <DecisionRow key={recommendation.id} recommendation={recommendation}/>)}
               {recommendations.length === 0 && <EmptyState title="لا توجد توصيات قابلة للمراجعة" message="لن تتم صناعة بديل اصطناعي عند غياب الإشارة." action={<Link to="/data-quality" className="btn-secondary text-[11px]">مراجعة جودة البيانات</Link>}/>} 
             </div>
           </CardBody>
