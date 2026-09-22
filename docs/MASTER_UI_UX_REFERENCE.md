@@ -244,3 +244,17 @@ Summary versus itemized presentation must be explicit for financial/operational 
 Hierarchy -> Density -> Evidence -> Action -> Accessibility -> Mobile -> Print -> Empty/Loading/Error
 
 A surface is complete only when the quality gate is satisfied, not merely when the populated screenshot looks polished.
+
+
+## 12. Commercial experience rules absorbed from the 2026-09-18 UI sources
+
+- Business-goal language takes precedence over implementation taxonomy.
+- The first screen must make current situation, action pressure, economic exposure, and next decision legible.
+- Use progressive disclosure and role-aware surfaces inside one product shell.
+- Keep one primary action per context and place the next useful action near the insight.
+- Evidence inspection must preserve context from summary through source detail.
+- Reports are decision documents, not only PDF containers.
+- Loading, empty, partial, review, blocked, and insufficient-data states must explain the next safe action.
+- Analytical tables, keyboard access, mobile continuity, and responsive behavior are first-class requirements.
+- AI assistance remains evidence-bound and does not become a second truth system.
+- Completion is behavioral: real data, trust state, actions, responsive/accessibility behavior, and regression protection are required.
