@@ -1,3 +1,20 @@
+## LATEST SESSION WRITE-BACK — 2026-09-22-AGHBARI-CONTINUOUS-EXECUTION-99
+
+- SESSION-ID → `2026-09-22-AGHBARI-CONTINUOUS-EXECUTION-99`
+- SHA → `9a71cccc53c0e01b55e7fcac8f5ca1829bf30aac`
+- HEAD → `0fd42f2fd748f038f60d170c8954f08e8c76f8ad` on `main`.
+- DONE → merged PR #616 (enforcement candidate parser) into main at `dc185661cba5b74540086bb02f3aaed8f341dd47`.
+- DONE → fixed the reproduced real-business browser persistence failure by implementing bounded DataTable pagination and rendering 50 import-history rows per page in the canonical Import Center.
+- ROOT CAUSE → import persistence was correct in live staging (`import_jobs.status=completed`, correct `result_summary.file_name`, one canonical dataset row), while the browser timed out locating the filename in a 500-row DOM.
+- FILES → `src/components/ui/DataTable.tsx`, `src/pages/CanonicalImportPage.tsx`, `scripts/check-import-center-product-contract.mjs`.
+- VERIFIED PRIOR SHAs → d692 exact browser run failed only at real-business UI readback; PR #616 parser/quality/final-cert/device-independent browser PASS was exact to `182ef12580e0d1d89643aaa1c20bacfff1a9d9e5`; none of those PASS results is transferred to the changed candidate.
+- CURRENT STATE → candidate remains `9a71cccc53c0e01b55e7fcac8f5ca1829bf30aac`; the current main HEAD is `0fd42f2fd748f038f60d170c8954f08e8c76f8ad` and contains documentation-only synchronization that explicitly records the candidate. Fresh exact-head gates are required.
+- EVIDENCE → live staging import job `da09954d-e4b9-4400-8910-ad8905b32429` was `completed` with `file_name=customer-1790105900719-3308.csv`, `committed=1`, and one canonical dataset record for tenant `f68a7e91-3c7e-46fb-97a8-e339bec04e13`.
+- NEXT EXECUTABLE ACTION → consume fresh exact-head Enforcement / Quality / Browser / Certification runs triggered by `0fd42f2...`; if they expose another first failure, fix that failure on the newest candidate without transferring prior evidence.
+- OPEN BLOCKERS → Phase-F restore source credential remains invalid/stale; Vercel free-plan deployment-rate limit remains external; production resilience proof is not complete.
+- DO NOT REPEAT → do not lower the browser assertion timeout, do not weaken the import-history assertion, do not render all 500 rows, do not copy PASS from d692/182ef, do not retry the invalid Phase-F credential.
+- CURRENT RESUME POINTER → `9a71cccc53c0e01b55e7fcac8f5ca1829bf30aac` → fresh exact-head gates → Phase-F authorized credential → measured RPO/RTO/rollback → final certification.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-22-AGHBARI-CONTINUOUS-EXECUTION-98
 
 - SESSION-ID → `2026-09-22-AGHBARI-CONTINUOUS-EXECUTION-98`
