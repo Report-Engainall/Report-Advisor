@@ -94,6 +94,8 @@ assert.ok(reports.includes("kpis.grossProfit !== null && kpis.grossMargin !== nu
 assert.ok(reports.includes("aging.status === 'CALCULATED'"), 'receivables readiness must follow the authoritative aging status');
 assert.ok(reports.includes("purchaseSummary?.total != null && purchaseSummary?.count > 0"), 'purchase readiness must require a real total and at least one purchase invoice');
 assert.ok(reports.includes("purchaseSummary?.count === 0 ? 'NO DATA' : 'INSUFFICIENT DATA'"), 'purchase readiness must fail closed when the purchase summary is absent or incomplete');
+assert.ok(reports.includes("purchaseHasNoData ? '/import'"), 'reports center must route a purchase source-empty state to the unified import path');
+assert.ok(reports.includes("purchaseHasNoData ? 'إضافة مصدر للمشتريات'"), 'reports center must explain the purchase source-empty next action');
 
 assert.ok(!reports.includes('generateSynthetic'), 'reports center must not invent business values');
 const trustEvidence = fs.readFileSync('src/pages/TrustEvidencePage.tsx', 'utf8');
