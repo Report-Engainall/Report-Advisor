@@ -1,3 +1,17 @@
+## CONTROL-PLANE WRITE-BACK — 2026-09-22 / CANONICAL KNOWLEDGE ARCHITECTURE
+
+- CONTROL PLANE ESTABLISHED → docs/SYSTEM_HEART.md is now the canonical operating control plane.
+- LIVE STATE → this file remains the only mutable live session-state document.
+- PROGRESS INDEX → docs/MASTER_EXECUTION_INDEX.md remains the single execution/backlog index.
+- DOMAIN MASTERS ADDED → MASTER_UI_UX_REFERENCE, MASTER_ENGINEERING_ARCHITECTURE, MASTER_DATA_TRUTH_SECURITY, MASTER_RUNTIME_CERTIFICATION, MASTER_COMMERCIAL_REFERENCE.
+- KNOWLEDGE LINEAGE → docs/PROJECT_KNOWLEDGE_MANIFEST.md is the only consolidation/deletion ledger; it never overrides a domain master.
+- STRICT RULE → legacy documents are RETAIN/MERGE until unique content, references, tests, evidence, and dependencies are proven absorbed.
+- EXECUTION ALLOCATION → every new session targets 50% canonical UI/surface completion and 50% core/runtime/data/security/certification/cleanup, executed in parallel when safe.
+- RESUME PROTECTION → a new session must verify GitHub main HEAD first, reconcile it with this memory, then derive NEXT EXECUTABLE ACTION from the newest state. It must never resume from an older phase because an old document lists it.
+- ACTUAL MAIN HEAD AT THIS WRITE-BACK → 6c5b0c5af5918fa51c383f0957f6570cd0668ad7.
+- PRECISE NEXT CONSOLIDATION ACTION → inventory the remaining documentation families against PROJECT_KNOWLEDGE_MANIFEST, absorb missing unique content into the canonical domain masters, then run affected contracts before any archive/remove deletion.
+- DO NOT REPEAT → do not create another master-memory file, do not delete legacy documentation before absorption proof, do not transfer evidence across SHAs, do not treat the control-plane creation as proof of completed content migration.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-22-AGHBARI-CONTINUOUS-EXECUTION-102
 
 - SESSION-ID → `2026-09-22-AGHBARI-CONTINUOUS-EXECUTION-102`
