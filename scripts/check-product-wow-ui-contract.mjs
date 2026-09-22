@@ -261,4 +261,6 @@ const executiveReport = fs.readFileSync('src/pages/ExecutiveReportPage.tsx', 'ut
 assert.ok(executiveReport.includes('مساءلة القرار'), 'executive report must expose decision accountability');
 assert.ok(executiveReport.includes('تغطية المسؤولية'), 'executive report must expose owner coverage');
 assert.ok(executiveReport.includes('نتائج مسجلة'), 'executive report must distinguish recorded outcomes');
+assert.ok(executiveReport.includes("const activeRecommendations = recommendations.filter"), 'executive report accountability must scope metrics to active decisions');
+
 console.log('Product wow UI contract: PASS (public proof theater + deterministic decision brief)');
