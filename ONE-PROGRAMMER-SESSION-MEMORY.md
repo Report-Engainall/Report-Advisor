@@ -1,7 +1,7 @@
 ## LATEST SESSION WRITE-BACK — 2026-09-22-AGHBARI-CONTINUOUS-EXECUTION-96
 
 - SESSION-ID → `2026-09-22-AGHBARI-CONTINUOUS-EXECUTION-96`
-- MAIN HEAD → `237d61d20087ed6b00eed7dd3ffdc16c5dc20cce` (verified directly on GitHub; newer than the prior recorded `9370b133...`).
+- MAIN HEAD → `a8ad1ad0069e5fc4cac3ace7600f6880c7ca0214` (verified directly on GitHub after the Wave-96 governance write-backs).
 - EXACT CURRENT CODE/TEST STATE → main has no new product-code change after the prior certified code lineage; the newest main commit is a governance/session write-back only.
 - DONE → re-read the live session memory, master product reference, master execution index, autonomous operating protocol, architecture, runtime/certification matrices, live runbook, and Phase-F/G closeout against current main.
 - DONE → verified the owner-provisioned `RESILIENCE_MAX_RPO_SECONDS=3600` is accepted by the existing Phase-F workflow on exact verification head `d032fe5d99080e4ffb1f58021deca07d7c72a243`.
