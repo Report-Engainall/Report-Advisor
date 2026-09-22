@@ -1,17 +1,19 @@
-## LATEST SESSION WRITE-BACK — 2026-09-23-AGHBARI-CONTINUOUS-EXECUTION-105
+## LATEST SESSION WRITE-BACK — 2026-09-23-AGHBARI-CONTINUOUS-EXECUTION-106
 
-- SESSION-ID → `2026-09-23-AGHBARI-CONTINUOUS-EXECUTION-105`
+- SESSION-ID → `2026-09-23-AGHBARI-CONTINUOUS-EXECUTION-106`
 - MAIN HEAD OBSERVED BEFORE THIS WRITE → `3767ee924e4a800bb3a1c4beb0e9d7478479e0f4`.
-- CURRENT CODE/TEST CANDIDATE → `7b6cb8ea44c1c437118276a9e41e412750725e7d`.
-- DONE → reconciled actual GitHub main HEAD; consumed exact 7b6 workflow evidence and isolated the first current-head failure to the stale Master Execution Index certification boundary.
-- VERIFIED → storage-tenant-isolation run `35784613227` SUCCESS; desktop-windows run `35784591098` SUCCESS. Enforcement run `35784613223` FAILED only at certification-boundary integrity before its downstream enforcement tests.
-- FAILED → certification boundary at exact 7b6 because the index at that SHA still named stale candidate `a024f263...`; no product/runtime defect was reproduced by this failure.
-- BLOCKED → Phase-F measured backup/restore/RPO/RTO/rollback and current deployment identity remain NOT PROVEN; do not invent credentials or transfer older deployment evidence.
-- NEXT EXECUTABLE ACTION → commit the index rebind against observed main `3767ee9...`, then consume fresh exact-head Enforcement + Final Certification; repair only the first reproduced current-head failure and continue UI/core fronts in parallel.
-- DO NOT REPEAT → do not transfer old PASS; do not rerun unchanged Phase-F external failure; do not mutate 151 stale import jobs without governed recovery; do not treat Vercel READY on an older SHA as current production proof.
-- CURRENT RESUME POINTER → `3767ee924e4a800bb3a1c4beb0e9d7478479e0f4` observed → index rebind to `7b6cb8ea...` → fresh Enforcement/Final Certification → authorized Phase-F measured recovery → UI/core closure.
-- UI LANE → Liquidity next-action closure remains exact-candidate verified; continue evidenced open surface gaps.
-- CORE LANE → exact-head certification boundary is the immediate closure; Phase-F remains fail-closed until live credentials/target evidence are valid.
+- CURRENT CODE/TEST CANDIDATE → `2bdcf38a6031f219c1cd3177d76b66020a76eb29`.
+- DONE → closed the real UI truth-state gap: Dashboard, Executive Command Center, Liquidity, canonical Receivables, and Sales/Inventory/Profitability reports now fail closed with an actionable DataUnavailableState instead of blank `return null` fallthroughs.
+- DONE → merged PR #622 to main; final merge SHA is `2bdcf38a6031f219c1cd3177d76b66020a76eb29`.
+- DONE → added exact UI regression assertions to the Product WOW contract so the shared unavailable-data state and all affected surfaces remain guarded.
+- VERIFIED → exact local `2bdcf38...`: typecheck PASS; Product WOW UI contract PASS; Executive Dashboard UI contract PASS; UI route/sidebar parity PASS (39 routes / 37 canonical links); production build PASS; lint PASS with 0 errors / 63 warnings; diff check clean.
+- CORE 20-STAGE → all 20 stages passed locally on the candidate lineage before merge; knowledge architecture PASS and core certification/resilience contract checks remained PASS. These are source/local proofs, not runtime Phase-F proof.
+- BLOCKED → Phase-F measured backup/restore/RPO/RTO/rollback and exact production deployment identity remain NOT PROVEN; Vercel free-plan deployment-rate limit remains external. No credential or runtime evidence was invented.
+- NEXT EXECUTABLE ACTION → verify GitHub main now points to `2bdcf38...`; consume fresh exact-head CI/Final Certification/Browser results if attached; then repair only the first reproduced current-head failure and continue authorized Phase-F/runtime evidence in parallel with remaining UI/core gaps.
+- DO NOT REPEAT → do not transfer pre-merge evidence to `2bdcf38...`; do not rerun unchanged Phase-F credential failures; do not mutate stale imports without a governed recovery contract; do not treat older deployments as current production proof.
+- CURRENT RESUME POINTER → `2bdcf38a6031f219c1cd3177d76b66020a76eb29` → fresh exact-head CI/Certification/Browser → authorized Phase-F measured recovery → remaining UI/core closure.
+- UI LANE → unavailable-data closure merged across six business/report surfaces and contract-guarded; continue the next evidenced surface gap.
+- CORE LANE → exact-head release evidence is now the boundary; Phase-F remains fail-closed until live resilience target/credentials and deployment identity are proven.
 
 ## LATEST SESSION WRITE-BACK — 2026-09-22-AGHBARI-CONTINUOUS-EXECUTION-103
 

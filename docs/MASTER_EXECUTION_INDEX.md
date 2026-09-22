@@ -1,15 +1,15 @@
 # CURRENT CONTROL-PLANE BOUNDARY — 2026-09-23 / EXACT CURRENT CANDIDATE
 
-> GitHub main exact HEAD is reconciled before this write. The current code/test candidate remains the exact SHA whose source and exact-head evidence are being consumed.
+> GitHub main exact HEAD is reconciled before this write. The current code/test candidate is the merged UI truth-state closure at the exact current main SHA.
 
-- MAIN HEAD OBSERVED BEFORE THIS WRITE: `3767ee924e4a800bb3a1c4beb0e9d7478479e0f4`.
-- CURRENT CODE/TEST CANDIDATE: `7b6cb8ea44c1c437118276a9e41e412750725e7d`.
-- CURRENT GOVERNANCE HEAD: `3767ee924e4a800bb3a1c4beb0e9d7478479e0f4`.
-- CURRENT WORKING STATE: exact candidate 7b6 has current-head CI evidence available; the only reproduced failure is the certification-boundary governance check because this index was stale at candidate time.
-- NEXT EXECUTABLE CORE FRONT: rebind this index to candidate 7b6, consume fresh exact-head Enforcement + Final Certification, then repair only the first reproduced current-head failure; keep Phase-F fail-closed until measured live resilience evidence is available.
-- NEXT EXECUTABLE UI FRONT: continue evidenced open surface gaps after Liquidity next-action closure; no duplicate import/decision paths.
-- PHASE-F BOUNDARY: live backup/restore, RPO, RTO, rollback, and exact deployment identity remain NOT PROVEN until measured.
-- DO NOT REPEAT: no stale PASS transfer; no Phase-F rerun with unchanged invalid/missing credentials; no unsafe stale-import mutation; no production certification from an older deployment.
+- MAIN HEAD OBSERVED BEFORE THIS WRITE: `2bdcf38a6031f219c1cd3177d76b66020a76eb29`.
+- CURRENT CODE/TEST CANDIDATE: `2bdcf38a6031f219c1cd3177d76b66020a76eb29`.
+- CURRENT GOVERNANCE HEAD: `2bdcf38a6031f219c1cd3177d76b66020a76eb29`.
+- CURRENT WORKING STATE: PR #622 merged the governed unavailable-data UI closure and Product WOW regression guard; exact local source/build evidence is green, while fresh GitHub current-head release evidence is the next boundary.
+- NEXT EXECUTABLE CORE FRONT: consume fresh exact-head CI/Final Certification/Browser evidence for `2bdcf38...`; repair only the first reproduced current-head failure; then continue authorized Phase-F measured recovery.
+- NEXT EXECUTABLE UI FRONT: continue the next evidenced surface gap after unavailable-data closure; no duplicate import/decision paths.
+- PHASE-F BOUNDARY: live backup/restore, RPO, RTO, rollback, and exact production deployment identity remain NOT PROVEN until measured.
+- DO NOT REPEAT: no pre-merge evidence transfer; no unchanged Phase-F credential rerun; no unsafe stale-import mutation; no production certification from an older deployment.
 
 # CURRENT CONTROL-PLANE BOUNDARY — 2026-09-22
 
