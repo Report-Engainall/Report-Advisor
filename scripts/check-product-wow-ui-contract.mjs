@@ -122,6 +122,7 @@ assert.ok(commandCenterSurface.includes('recommendations.slice(0, 5).map'), 'com
 assert.ok(commandCenterSurface.includes("coverageScope: 'كل التوصيات القابلة للمتابعة المسترجعة (حتى 100)'"), 'command center decision coverage must disclose its fetched scope');
 assert.ok(commandCenterSurface.includes('ownerCoverage'), 'decision coverage must expose owner coverage from actual recommendation ownership');
 assert.ok(commandCenterSurface.includes('outcomeCoverage'), 'decision coverage must expose recorded outcome coverage from actual recommendation results');
+assert.ok(commandCenterSurface.includes("kpis.status === 'CONFIRMED' ? 'الحقيقة مؤكدة' : 'محسوبة من البيانات'"), 'command center must distinguish confirmed truth from calculated truth');
 assert.ok(commandCenterSurface.includes('Decision Coverage'), 'command center must expose decision coverage as a product surface');
 assert.ok(commandCenterSurface.includes('Business Replay'), 'command center must retain the replay capability surface');
 assert.ok(commandCenterSurface.includes('فحص مسار الدليل'), 'unavailable replay must expose an evidence-first next action');
