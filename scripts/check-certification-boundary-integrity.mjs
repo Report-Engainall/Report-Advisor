@@ -3,7 +3,7 @@ import { execFileSync } from 'node:child_process';
 
 // Governance-only trigger: runtime certification remains fail-closed and exact-SHA bound.
 const normalize = value => String(value ?? '').replaceAll('\r\n', '\n').trim();
-const candidateFromIndex = index => normalize(index).match(/(?:CURRENT PROJECT STATE|CURRENT EXECUTION BOUNDARY)[\s\S]{0,1600}?(?:CURRENT_CODE_TEST_CANDIDATE|Current code\/test candidate|Current Code\/Test Candidate|Exact code\/test head entering this sweep)[^`]*`([0-9a-f]{40})`/i)?.[1]?.toLowerCase();
+const candidateFromIndex = index => normalize(index).match(/(?:CURRENT CODE\/TEST CANDIDATE|CURRENT_CODE_TEST_CANDIDATE|Current code\/test candidate|Current Code\/Test Candidate|Exact code\/test head entering this sweep)\s*:\s*`([0-9a-f]{40})`/i)?.[1]?.toLowerCase();
 
 export function validateCertificationBoundary({ index, head, parent, changedFiles }) {
   const indexed = candidateFromIndex(index);
