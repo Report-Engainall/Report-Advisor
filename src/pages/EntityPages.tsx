@@ -3,7 +3,7 @@ import { ArrowUpLeft, Plus, Search, X } from 'lucide-react';
 import { Card, CardBody } from '@/components/ui/Card';
 import { Link } from 'react-router-dom';
 import { Badge } from '@/components/ui/Badge';
-import { EmptyState, PageHeader, LoadingState, ErrorState } from '@/components/ui/States';
+import { EmptyState, PageHeader, LoadingState, ErrorState, DataUnavailableState } from '@/components/ui/States';
 import { DataTable } from '@/components/ui/DataTable';
 import { CustomerCreateDialog } from '@/components/CustomerCreateDialog';
 import { ProductCreateDialog } from '@/components/ProductCreateDialog';
@@ -210,7 +210,7 @@ export function ProductsPage() {
 export function InventoryPage() {
   const [snapshot, setSnapshot] = useState<Awaited<ReturnType<typeof fetchInventoryReportSnapshot>> | null>(null); const [loading, setLoading] = useState(true); const [error, setError] = useState<string | null>(null); const [filter, setFilter] = useState<'all' | 'low' | 'out'>('all'); const [page, setPage] = useState(0); const pageSize = 25;
   const load = useCallback(async () => { try { setLoading(true); setError(null); setSnapshot(await fetchInventoryReportSnapshot(page, pageSize, filter)); } catch (e: unknown) { setError(e instanceof Error ? e.message : 'فشل تحميل المخزون'); } finally { setLoading(false); } }, [page, filter]);
-  useEffect(() => { void load(); }, [load]); useEffect(() => { setPage(0); }, [filter]); if (loading && !snapshot) return <LoadingState />; if (error && !snapshot) return <ErrorState message={error} onRetry={load} />; if (!snapshot) return null;
+  useEffect(() => { void load(); }, [load]); useEffect(() => { setPage(0); }, [filter]); if (loading && !snapshot) return <LoadingState />; if (error && !snapshot) return <ErrorState message={error} onRetry={load} />; if (!snapshot) return <DataUnavailableState title="صورة المخزون غير متاحة" message="لم تصل صورة موثوقة للمخزون من المصدر الحالي؛ لا يتم عرض شاشة فارغة أو افتراض أرصدة." action={<Link to="/import" className="btn-primary text-[11px]">إضافة مصدر</Link>} />;
   const filteredRows = snapshot.filteredRows; const totalPages = filteredRows == null ? null : Math.max(1, Math.ceil(filteredRows / pageSize));
   const inventoryQueueEmpty = snapshot.totalRows === 0;
   const inventoryFilterEmpty = filter !== 'all' && snapshot.filteredRows === 0;
