@@ -74,6 +74,8 @@ const dashboardLoadingReturnIndex = dashboardSurface.indexOf('if (loading) retur
 assert.ok(dashboardActionIndex >= 0 && dashboardActionIndex < dashboardLoadingReturnIndex, 'dashboard next-action hook must remain unconditional before early returns');
 assert.ok(dashboardSurface.includes('dashboardNextAction.to'), 'dashboard next action must use its derived canonical route');
 assert.ok(dashboardSurface.includes('dashboardNextAction.description'), 'dashboard next action must explain why the action is recommended');
+assert.ok(dashboard.includes("kpis.status === 'CONFIRMED' ? 'الحقيقة مؤكدة' : 'محسوبة من البيانات'"), 'dashboard truth status must distinguish confirmed from calculated evidence');
+assert.ok(!dashboard.includes("kpis.status === 'INSUFFICIENT_DATA' ? 'الصورة تحتاج مراجعة' : 'الصورة صالحة للاستخدام'"), 'dashboard must not collapse confirmed and calculated truth into a generic usable label');
 
 const reports = fs.readFileSync('src/pages/ReportsPage.tsx', 'utf8');
 assert.ok(!reports.includes('window.location.reload()'), 'report pages must retry in place without a full browser reload');
