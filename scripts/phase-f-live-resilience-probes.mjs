@@ -163,7 +163,7 @@ async function logicalBackupRestore() {
     const migrationEntries = fs.readdirSync(sourceMigrationDir)
       .filter(entry => entry.endsWith('.sql'))
       .sort();
-    const versionPattern = /^(\\d{14})_(.+)\\.sql$/;
+    const versionPattern = /^(\d{14})_(.+)\.sql$/;
     const versionCounts = new Map();
     for (const entry of migrationEntries) {
       const match = entry.match(versionPattern);
@@ -205,7 +205,7 @@ async function logicalBackupRestore() {
     if (ephemeralMigrationRewrites.length) {
       fs.writeFileSync(
         path.join(workDir, 'ephemeral-migration-rewrites.json'),
-        JSON.stringify(ephemeralMigrationRewrites, null, 2) + '\\n',
+        JSON.stringify(ephemeralMigrationRewrites, null, 2) + '\n',
         'utf8',
       );
     }
