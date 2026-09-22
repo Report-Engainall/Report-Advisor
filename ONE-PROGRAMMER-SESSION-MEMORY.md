@@ -1,3 +1,17 @@
+## LATEST SESSION WRITE-BACK — 2026-09-22-AGHBARI-CONTINUOUS-EXECUTION-101
+
+- SESSION-ID → `2026-09-22-AGHBARI-CONTINUOUS-EXECUTION-101`
+- SHA → `772afb548f6c381e2e3c6596a57d108ce6d2eebf`
+- HEAD → `772afb548f6c381e2e3c6596a57d108ce6d2eebf` on `main`.
+- DONE → fixed the reproduced Final Certification checker crash caused by `missingDataTable` being referenced before initialization.
+- ROOT CAUSE → the Wave 99 Import Center contract extension added DataTable token validation below the first use-site.
+- FILE CHANGED → `scripts/check-import-center-product-contract.mjs`.
+- PRIOR EXACT EVIDENCE → Final Certification `35776335388` on `1a6ac9...` reached certification boundary PASS and many product/security contracts, then failed at `ReferenceError: Cannot access 'missingDataTable' before initialization`.
+- CURRENT STATE → candidate `772afb548f6c381e2e3c6596a57d108ce6d2eebf` requires fresh exact-head verification. No browser or certification PASS is claimed yet.
+- NEXT EXECUTABLE ACTION → consume fresh current-head Enforcement / Quality / Browser / Certification runs; repair the first reproduced current-head failure only.
+- OPEN BLOCKERS → Phase-F recovery source credential invalid/stale; Vercel rate-limit; exact production deployment proof; 151 stale processing imports.
+- DO NOT REPEAT → do not transfer older PASS; do not rerun Phase-F with the same invalid credential; do not fabricate resilience evidence; do not delete or terminalize stale imports without a contract.
+- CURRENT RESUME POINTER → `772afb548f6c381e2e3c6596a57d108ce6d2eebf` → fresh exact-head gates → exact Browser result → Phase-F authorized credential → measured recovery evidence → final certification.
 ## LATEST SESSION WRITE-BACK — 2026-09-22-AGHBARI-CONTINUOUS-EXECUTION-100
 
 - SESSION-ID → `2026-09-22-AGHBARI-CONTINUOUS-EXECUTION-100`

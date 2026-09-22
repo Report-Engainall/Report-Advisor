@@ -1,39 +1,17 @@
-## CURRENT EXECUTION BOUNDARY — 2026-09-22 / WAVE 100 — BOUNDED IMPORT READ CONTRACT
+## CURRENT EXECUTION BOUNDARY — 2026-09-22 / WAVE 101 — IMPORT CONTRACT CHECKER FIX
 
-> Exact-head evidence only. Current main and current code/test candidate are pinned below.
+> Exact-head evidence only. The current candidate contains a checker-only repair following a reproduced certification failure.
 
-- CURRENT MAIN HEAD OBSERVED: `cb814ef415ed7765059ebd8cbdc3b9dabefd7cda`.
-- CURRENT CODE/TEST CANDIDATE: `cb814ef415ed7765059ebd8cbdc3b9dabefd7cda`.
-- LAST VERIFIED RUNTIME FIX SHA: `6ca814df318d64d1116ce734dbff69d15e811b32`.
-- VERIFIED ON 6ca814...: exact checkout/build path reached Browser E2E; the run had not produced a terminal result at the time of this write-back, so no browser PASS is transferred.
-- DONE: Import Center reads a bounded history window (100 recent rows) while retaining the Work Center ceiling of 500; visible table pagination is 50 rows/page.
-- DONE: Import Query Bounds contract now validates parameterized limits and enforces the hard ceiling of 500.
-- EXACT IMPORT QUERY PROOF: run `35776027621` on `cb814ef415ed7765059ebd8cbdc3b9dabefd7cda` → SUCCESS.
-- EXACT QUALITY PROOF: run `35776027712` on `cb814ef415ed7765059ebd8cbdc3b9dabefd7cda` → SUCCESS.
-- EXACT FINAL EXECUTION BATCH: run `35776027654` on `cb814ef415ed7765059ebd8cbdc3b9dabefd7cda` → SUCCESS.
-- EXACT STORAGE TENANT ISOLATION: run `35776027730` on `cb814ef415ed7765059ebd8cbdc3b9dabefd7cda` → SUCCESS.
-- CURRENT FAILURES: Execution Enforcement run `35776027637` and Final Certification run `35776027689` failed because the governance index had not yet been rebound to this current candidate. This write-back is the repair; fresh exact-head runs are required.
-- PRODUCT E2E STATUS: ancestor run `35775942310` on `6ca814...` remained in progress; no PASS is claimed on `cb814ef415ed7765059ebd8cbdc3b9dabefd7cda`.
-- PHASE-F BLOCKER: `RESILIENCE_LOGICAL_SOURCE_DB_URL` remains invalid/stale; live backup/restore and measured RPO/RTO/rollback are NOT PROVEN.
-- HOSTING BLOCKER: Vercel deployment remains externally rate-limited on the connected account; Netlify preview serves the Arabic product surface, but exact production deployment on the current candidate is not proven.
-- OPEN OPERATIONAL DEBT: staging has 151 `import_jobs` stuck in `processing` at progress 0 since 2026-09-14; no canonical `import_jobs` stale-recovery RPC exists, so no terminal mutation was performed.
-- DO NOT REPEAT: do not mutate stale imports without an explicit tenant-authoritative recovery contract; do not transfer browser PASS across SHAs; do not rerun Phase-F with the unchanged bad credential; do not weaken certification or candidate parsing.
-## CURRENT EXECUTION BOUNDARY — 2026-09-22 / WAVE 97 — EXACT MAIN + CURRENT-SHA ENFORCEMENT REPAIR
-
-> Exact-head evidence only. GitHub main is authoritative; no historical runtime result is transferred.
-
-- CURRENT MAIN HEAD: `909d8be6b066083d05b1f9952cee460ee273f839`.
-- CURRENT CODE/TEST CANDIDATE: `fc0a84d85e56f43112df7e07886a9f6c04089998`.
-- CURRENT_CODE_TEST_CANDIDATE: `fc0a84d85e56f43112df7e07886a9f6c04089998`.
-- CURRENT PRODUCT/CODE TESTED LINEAGE: no product-code change was introduced by Wave 96/97 governance write-backs; the current tested functional lineage remains `fc0a84d85e56f43112df7e07886a9f6c04089998`.
-- EXACT PHASE-F VERIFICATION HEAD: `d032fe5d99080e4ffb1f58021deca07d7c72a243` on `verify/phasef-rpo-20260922`.
-- VERIFIED: Final Certification Gate PASS; Device-Independent Browser E2E PASS; Quality 63/63 PASS; production regression PASS; tenant canary PASS on the exact verification head.
-- VERIFIED: `RESILIENCE_MAX_RPO_SECONDS=3600` is accepted by the existing Phase-F workflow.
-- BLOCKED: live backup/restore fails PostgreSQL password authentication against the configured Supabase Session Pooler source; measured restore/RPO/RTO and rollback therefore remain NOT PROVEN.
-- BLOCKER: `RESILIENCE_LOGICAL_SOURCE_DB_URL` is invalid/stale. No credential was guessed or synthesized.
-- CURRENT ACTION: replace that authorized credential, rerun the existing Phase-F path, consume real backup/restore + measured RPO/RTO + rollback artifacts, then merge governed restore-path hardening only after the complete gate passes.
-- DO NOT REPEAT: do not rerun against the unchanged invalid credential; do not transfer verification-branch PASS to main; do not weaken the production-SHA boundary; do not invent resilience evidence or create a parallel recovery path.
-
+- CURRENT MAIN HEAD OBSERVED: `772afb548f6c381e2e3c6596a57d108ce6d2eebf`.
+- CURRENT CODE/TEST CANDIDATE: `772afb548f6c381e2e3c6596a57d108ce6d2eebf`.
+- LAST VERIFIED RUNTIME CODE FIX: `6ca814df318d64d1116ce734dbff69d15e811b32`.
+- DONE: `scripts/check-import-center-product-contract.mjs` now initializes its DataTable contract requirements before evaluating them; this removes the reproduced `ReferenceError: Cannot access 'missingDataTable' before initialization`.
+- EXACT PRIOR PROOF: Final Certification run `35776335388` on `1a6ac9...` failed after dozens of contract passes solely at that checker ReferenceError; certification boundary integrity itself passed.
+- CURRENT VERIFICATION STATE: fresh exact-head Enforcement / Quality / Certification / Browser evidence required for `772afb548f6c381e2e3c6596a57d108ce6d2eebf`.
+- PHASE-F BLOCKER: `RESILIENCE_LOGICAL_SOURCE_DB_URL` remains invalid/stale; live backup/restore and measured RPO/RTO/rollback remain NOT PROVEN.
+- HOSTING BLOCKER: Vercel deployment remains externally rate-limited on the connected account; exact current-candidate production deployment remains unproven.
+- OPEN OPERATIONAL DEBT: 151 staging `import_jobs` remain in `processing` at progress 0; no safe canonical recovery mutation exists.
+- DO NOT REPEAT: do not weaken the checker, E2E assertions, certification boundary, or tenant isolation; do not transfer prior PASS to `772afb548f6c381e2e3c6596a57d108ce6d2eebf`; do not mutate stale import jobs without a governed recovery contract.
 ## CURRENT EXECUTION BOUNDARY — 2026-09-22 / WAVE 91 — EXACT-HEAD CANDIDATE REBIND
 - CURRENT_CODE_TEST_CANDIDATE: `fc0a84d85e56f43112df7e07886a9f6c04089998`.
 - CURRENT GOVERNANCE HEAD: `f1c7685344da1cd202819b74e871c13e379170e7`.
