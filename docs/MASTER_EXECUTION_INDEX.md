@@ -1,19 +1,19 @@
-# CURRENT CONTROL-PLANE BOUNDARY — 2026-09-23 / QUALITY KNOWLEDGE GATE
+# CURRENT CONTROL-PLANE BOUNDARY — 2026-09-23 / QUALITY WORKFLOW CANDIDATE REBIND
 
-> GitHub main exact HEAD is reconciled before this write. The current product-code candidate is `6ef41bab...`; the newest main descendant `203aa8ae...` is CI governance-only.
+> The latest non-governance source change is PR #625's Quality workflow gate at `203aa8ae...`; later commits are governance-only.
 
-- MAIN HEAD OBSERVED BEFORE THIS WRITE: `203aa8aedb45f51b453b840ea52738685936a7a2`.
-- CURRENT CODE/TEST CANDIDATE: `6ef41bab3788a1d5c0ca527625ff8bb387a992b6`.
-- CURRENT GOVERNANCE HEAD: `203aa8aedb45f51b453b840ea52738685936a7a2`.
-- DONE: PR #625 adds `npm run test:knowledge-architecture` to the canonical Quality workflow; PR #624 already consolidated IntelligencePage/Recommendations/Forecasts and removed the proven duplicate module.
-- VERIFIED LOCAL: `203aa8ae...` knowledge-architecture PASS and quality-workflow-contract PASS; exact local `0739f880...` full 20-stage release readiness = 20 PASS / 0 FAIL.
-- EXTERNAL BOUNDARY: Vercel remains `failure` because of external `build-rate-limit`; no current-head production deployment PASS is claimed.
-- CI BOUNDARY: the connector has not exposed fresh post-merge GitHub Actions runs for `203aa8ae...`; historical `74be717...` CI/Browser evidence is not transferred.
-- PHASE-F BOUNDARY: measured backup/restore, RPO, RTO, rollback, and exact production identity remain NOT PROVEN.
-- NEXT CORE FRONT: consume fresh exact-head certification/browser evidence when available; otherwise keep advancing independent source/core closure.
-- NEXT UI FRONT: continue only with evidenced gaps; do not reintroduce duplicate intelligence modules or unsupported migration deletions.
-- DO NOT REPEAT: no stale PASS transfer; no unchanged Phase-F credential rerun; no Vercel-rate-limit source mutation; no migration deletion without dependency proof.
-
+- MAIN HEAD OBSERVED BEFORE THIS WRITE: `dec04edf9fa24eec27bf67317f0bf20665fbf0b1`.
+- CURRENT CODE/TEST CANDIDATE: `203aa8aedb45f51b453b840ea52738685936a7a2`.
+- CURRENT GOVERNANCE HEAD: `dec04edf9fa24eec27bf67317f0bf20665fbf0b1`.
+- DONE: PR #624 Intelligence module consolidation merged; PR #625 Quality workflow now structurally enforces `test:knowledge-architecture`.
+- DIAGNOSED: exact `a7983bc3...` Enforcement/Final Certification failed only because candidate remained `6ef41bab...` while the `.github/workflows/quality.yml` change is a real non-governance source change.
+- VERIFIED: exact `a7983bc3...` Quality, Browser E2E, Storage Tenant Isolation and Final Execution Batch SUCCESS; Enforcement and Final Certification stopped at the certification boundary.
+- REBOUND: candidate is now `203aa8ae...`; the later `dec04edf...` governance write must be treated as governance-only.
+- PHASE-F: live backup/restore, measured RPO/RTO, rollback and exact production identity remain NOT PROVEN.
+- EXTERNAL HOSTING: latest READY production deployment observed is `1d88b083...`, older than current candidate; current Vercel rate-limit remains external.
+- NEXT CORE FRONT: fresh exact-head Enforcement + Final Certification + Browser against the rebound candidate; repair only the first reproduced current-head failure.
+- NEXT UI FRONT: continue only with evidenced gaps; no duplicate intelligence modules or unsafe migration deletion.
+- DO NOT REPEAT: no stale PASS transfer; no unchanged Phase-F credential rerun; no weakening of certification boundary.
 
 # CURRENT CONTROL-PLANE BOUNDARY — 2026-09-22
 
