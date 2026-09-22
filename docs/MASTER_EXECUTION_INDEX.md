@@ -1,6 +1,6 @@
 ## CURRENT EXECUTION BOUNDARY — 2026-09-22 / WAVE 91 — EXACT-HEAD CANDIDATE REBIND
-- CURRENT_CODE_TEST_CANDIDATE: `3d345888608250d9ebd2fdc513de43b5603d36c5`.
-- CURRENT GOVERNANCE HEAD: `3d345888608250d9ebd2fdc513de43b5603d36c5`.
+- CURRENT_CODE_TEST_CANDIDATE: `6cdbd9a2ea41bfe1a0a918c4d6e02d9ed6f9caec`.
+- CURRENT GOVERNANCE HEAD: `6cdbd9a2ea41bfe1a0a918c4d6e02d9ed6f9caec`.
 - REASON: the current source candidate is the exact SHA where the Phase-F restore-path hardening and pooler-user normalization were freshly syntax/contract verified. Later commits are governance-only memory records.
 - VERIFIED: Product WOW UI contract PASS; connections/language contract PASS; Vite production build PASS; unified decision/evidence/action/learning/runtime contracts PASS.
 - PRECISE NEXT ACTION: consume fresh Phase-F and Final Certification evidence against the exact candidate lineage; repair only a reproduced current-SHA failure.
