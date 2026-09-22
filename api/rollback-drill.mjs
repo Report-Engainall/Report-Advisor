@@ -109,7 +109,15 @@ export default async function handler(req, res) {
     const [fromDeployment, forwardDeployment] = await Promise.all([deploymentReady(from), deploymentReady(forward)]);
     validatedForwardDeployment = forwardDeployment;
     const before = await verify(domain, forwardDeployment);
-    if (!before.ok) return json(res, 503, { status: 'blocked', error: `forward_baseline_failed:${before.status}` });
+    if (!before.ok) {
+      return json(res, 503, {
+        status: 'blocked',
+        error: `forward_baseline_failed:${before.status}`,
+        detail: before.detail || null,
+        expected: before.expected || null,
+        actual: before.actual || null,
+      });
+    }
 
     const rollbackStarted = Date.now();
     await assignAlias(fromDeployment.id, domain);
