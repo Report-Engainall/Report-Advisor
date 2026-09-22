@@ -27,6 +27,7 @@ const reportCards = [
 
 export function ReportsCenterPage() {
   const [snapshot, setSnapshot] = useState<Awaited<ReturnType<typeof fetchDashboardSnapshot>> | null>(null);
+  const [purchaseSummary, setPurchaseSummary] = useState<Awaited<ReturnType<typeof fetchPurchaseSummary>> | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
@@ -35,7 +36,9 @@ export function ReportsCenterPage() {
     try {
       if (silent) setRefreshing(true); else setLoading(true);
       setError(null);
-      setSnapshot(await fetchDashboardSnapshot(6));
+      const [nextSnapshot, nextPurchaseSummary] = await Promise.all([fetchDashboardSnapshot(6), fetchPurchaseSummary()]);
+      setSnapshot(nextSnapshot);
+      setPurchaseSummary(nextPurchaseSummary);
     } catch (e) {
       setError(errorMessage(e));
     } finally {
@@ -80,6 +83,12 @@ export function ReportsCenterPage() {
       label: 'الربحية',
       state: kpis.grossProfit !== null && kpis.grossMargin !== null ? 'CALCULATED' : 'INSUFFICIENT DATA',
       detail: kpis.grossProfit !== null && kpis.grossMargin !== null ? 'الربح والهامش قابلان للحساب من اللقطة الحالية.' : 'لا تُعرض ربحية مكتملة دون هامش وبيانات تكلفة كافية.',
+    },
+    {
+      path: '/reports/purchases',
+      label: 'المشتريات',
+      state: purchaseSummary?.total !== null && purchaseSummary?.count > 0 ? 'CALCULATED' : purchaseSummary?.count === 0 ? 'NO DATA' : 'INSUFFICIENT DATA',
+      detail: purchaseSummary?.total !== null && purchaseSummary?.count > 0 ? 'إجمالي المشتريات وعدد الفواتير متاحان من الملخص الحالي.' : purchaseSummary?.count === 0 ? 'لا توجد فواتير مشتريات مثبتة في المصدر الحالي.' : 'ملخص المشتريات غير كافٍ لإثبات الجاهزية.',
     },
     {
       path: '/reports/inventory',
@@ -151,7 +160,7 @@ export function ReportsCenterPage() {
         </div>
         <Link to={nextPath} className="btn-secondary text-[10px]">{nextLabel}</Link>
       </div>
-      <div className="mt-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="mt-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-5">
         {reportReadiness.map((item) => (
           <Link key={item.path} to={item.path} className="rounded-2xl border border-ink-100 bg-ink-50/45 p-3 transition hover:border-primary-200 hover:bg-white">
             <div className="flex items-start justify-between gap-2">
