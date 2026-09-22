@@ -35,6 +35,9 @@ const validIndex = `## CURRENT PROJECT STATE\n- Exact code/test head entering th
 assert.equal(validateCurrentHeadIndex(validIndex, currentHead), true);
 assert.throws(() => validateCurrentHeadIndex(validIndex, parentHead), /(INDEX DRIFT|INDEX BOUNDARY NOT ANCESTOR)/);
 
+const underscoreCandidateIndex = `## CURRENT EXECUTION BOUNDARY\n- CURRENT_CODE_TEST_CANDIDATE: \`${currentHead}\`.`;
+assert.equal(validateCurrentHeadIndex(underscoreCandidateIndex, currentHead), true);
+
 const boldCandidateIndex = `## CURRENT EXECUTION BOUNDARY\n- **CURRENT CODE/TEST CANDIDATE:** \`${currentHead}\`.`;
 assert.equal(validateCurrentHeadIndex(boldCandidateIndex, currentHead), true);
 
