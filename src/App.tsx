@@ -35,8 +35,8 @@ const AgingAnalysisPage = lazy(() => import('@/pages/AnalyticsPage').then(m => (
 const LiquidityPage = lazy(() => import('@/pages/LiquidityPage').then(m => ({ default: m.LiquidityPage })));
 const SuppliersPage = lazy(() => import('@/pages/SuppliersPage').then(m => ({ default: m.SuppliersPage })));
 const IntelligenceCenterPage = lazy(() => import('@/pages/IntelligencePage').then(m => ({ default: m.IntelligenceCenterPage })));
-const RecommendationsPage = lazy(() => import('@/pages/IntelligencePages').then(m => ({ default: m.RecommendationsPage })));
-const ForecastsPage = lazy(() => import('@/pages/IntelligencePages').then(m => ({ default: m.ForecastsPage })));
+const RecommendationsPage = lazy(() => import('@/pages/IntelligencePage').then(m => ({ default: m.RecommendationsPage })));
+const ForecastsPage = lazy(() => import('@/pages/IntelligencePage').then(m => ({ default: m.ForecastsPage })));
 const CustomersPage = lazy(() => import('@/pages/EntityPages').then(m => ({ default: m.CustomersPage })));
 const ProductsPage = lazy(() => import('@/pages/EntityPages').then(m => ({ default: m.ProductsPage })));
 const InventoryPage = lazy(() => import('@/pages/EntityPages').then(m => ({ default: m.InventoryPage })));
