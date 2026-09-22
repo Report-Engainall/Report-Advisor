@@ -1,15 +1,20 @@
-# CURRENT CONTROL-PLANE BOUNDARY — 2026-09-23 / EXACT CURRENT CANDIDATE
+# CURRENT CONTROL-PLANE BOUNDARY — 2026-09-23 / INTELLIGENCE MODULE CONSOLIDATION
 
-> GitHub main exact HEAD is reconciled before this write. The current candidate includes the second UI truth-state closure from commit `74be717...`.
+> GitHub main exact HEAD is reconciled before this write. The current candidate is a real code merge, not a governance-only descendant.
 
-- MAIN HEAD OBSERVED BEFORE THIS WRITE: `35b52cbe942774dd150c0e863cb0998a0d27af04`.
-- CURRENT CODE/TEST CANDIDATE: `74be717bf7bd56dda5ecb9c703f0ca3d3acf4d88`.
-- CURRENT GOVERNANCE HEAD: `35b52cbe942774dd150c0e863cb0998a0d27af04`.
-- CURRENT WORKING STATE: the 74be717 UI closure is the latest code candidate; 35b52cbe is a governance-only descendant. Local exact-main verification is green with 20/20 release-readiness and core certification contracts.
-- NEXT EXECUTABLE CORE FRONT: consume fresh exact-head Enforcement + Final Certification + Browser evidence for the current governed lineage; repair only the first reproduced current-head failure; then authorized Phase-F measured recovery.
-- NEXT EXECUTABLE UI FRONT: continue the next evidenced surface gap after unavailable-data closure; no duplicate import/decision paths.
-- PHASE-F BOUNDARY: live backup/restore, RPO, RTO, rollback, and exact production deployment identity remain NOT PROVEN until measured.
-- DO NOT REPEAT: no transfer from `2bdcf38...` or older candidates; no unchanged Phase-F credential rerun; no unsafe stale-import mutation; no older deployment as current production proof.
+- MAIN HEAD OBSERVED BEFORE THIS WRITE: `c017f2b6b2b6982b6567b64f82e414968ffbbc1e`.
+- CURRENT CODE/TEST CANDIDATE: `6ef41bab3788a1d5c0ca527625ff8bb387a992b6`.
+- CURRENT GOVERNANCE HEAD: `c017f2b6b2b6982b6567b64f82e414968ffbbc1e`.
+- DONE: PR #624 consolidated Recommendations + Forecasts into canonical `src/pages/IntelligencePage.tsx`, redirected App lazy imports, and removed proven duplicate `src/pages/IntelligencePages.tsx`.
+- EXACT LOCAL PROOF ON CODE SHA `cfbbeeebdcd829dd188ef85118bd947957ad9278`: typecheck PASS; Product WOW UI contract PASS; production build PASS; diff check clean; zero remaining references to the removed module.
+- MERGED CODE SHA: `6ef41bab3788a1d5c0ca527625ff8bb387a992b6`.
+- EXTERNAL BOUNDARY: Vercel current-main status is `failure` due external build-rate-limit. No current production deployment PASS is claimed.
+- CI BOUNDARY: no fresh connector-visible GitHub Actions run has been attached to `6ef41bab...` yet; previous `74be717...` CI/Browser PASS is historical and must not be transferred.
+- PHASE-F BOUNDARY: live backup/restore, measured RPO/RTO, rollback, and exact production deployment identity remain NOT PROVEN until measured.
+- NEXT EXECUTABLE CORE FRONT: consume or trigger fresh exact-head Enforcement + Final Certification + Browser for `6ef41bab...`; repair only a first reproduced current-head failure.
+- NEXT EXECUTABLE UI FRONT: continue the next evidenced duplicate/surface-truth gap without reintroducing parallel intelligence modules.
+- DO NOT REPEAT: no stale PASS transfer; no unchanged Phase-F credential rerun; no treatment of Vercel rate-limit as source failure; no restoration of deleted duplicate module.
+
 
 # CURRENT CONTROL-PLANE BOUNDARY — 2026-09-22
 
