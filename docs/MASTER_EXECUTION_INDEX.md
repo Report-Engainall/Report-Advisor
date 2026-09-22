@@ -1,16 +1,17 @@
-## CURRENT EXECUTION BOUNDARY — 2026-09-22 / WAVE 96 — EXACT MAIN + PHASE-F LIVE BLOCKER REBIND
+## CURRENT EXECUTION BOUNDARY — 2026-09-22 / WAVE 97 — EXACT MAIN + CURRENT-SHA ENFORCEMENT REPAIR
 
 > Exact-head evidence only. GitHub main is authoritative; no historical runtime result is transferred.
 
-- CURRENT MAIN HEAD: `a8ad1ad0069e5fc4cac3ace7600f6880c7ca0214` (exact current main after Wave-96 governance write-backs).
-- CURRENT PRODUCT/CODE TESTED LINEAGE: no product-code change was introduced by Wave 96; the last tested functional lineage remains the previously verified candidate recorded below.
+- CURRENT MAIN HEAD: `b2e9014b7da308542fa3d89852e31bab37718113`.
+- CURRENT_CODE_TEST_CANDIDATE: `fc0a84d85e56f43112df7e07886a9f6c04089998`.
+- CURRENT PRODUCT/CODE TESTED LINEAGE: no product-code change was introduced by Wave 96/97 governance write-backs; the current tested functional lineage remains `fc0a84d85e56f43112df7e07886a9f6c04089998`.
 - EXACT PHASE-F VERIFICATION HEAD: `d032fe5d99080e4ffb1f58021deca07d7c72a243` on `verify/phasef-rpo-20260922`.
-- VERIFIED: Final Certification Gate PASS; Device-Independent Browser E2E PASS; Quality 63/63 PASS; production regression PASS; tenant canary PASS.
+- VERIFIED: Final Certification Gate PASS; Device-Independent Browser E2E PASS; Quality 63/63 PASS; production regression PASS; tenant canary PASS on the exact verification head.
 - VERIFIED: `RESILIENCE_MAX_RPO_SECONDS=3600` is accepted by the existing Phase-F workflow.
 - BLOCKED: live backup/restore fails PostgreSQL password authentication against the configured Supabase Session Pooler source; measured restore/RPO/RTO and rollback therefore remain NOT PROVEN.
 - BLOCKER: `RESILIENCE_LOGICAL_SOURCE_DB_URL` is invalid/stale. No credential was guessed or synthesized.
 - CURRENT ACTION: replace that authorized credential, rerun the existing Phase-F path, consume real backup/restore + measured RPO/RTO + rollback artifacts, then merge governed restore-path hardening only after the complete gate passes.
-- DO NOT REPEAT: do not rerun against the unchanged invalid credential; do not transfer PR evidence to main; do not weaken the production-SHA boundary; do not invent resilience evidence or create a parallel recovery path.
+- DO NOT REPEAT: do not rerun against the unchanged invalid credential; do not transfer verification-branch PASS to main; do not weaken the production-SHA boundary; do not invent resilience evidence or create a parallel recovery path.
 
 ## CURRENT EXECUTION BOUNDARY — 2026-09-22 / WAVE 91 — EXACT-HEAD CANDIDATE REBIND
 - CURRENT_CODE_TEST_CANDIDATE: `fc0a84d85e56f43112df7e07886a9f6c04089998`.
