@@ -177,4 +177,9 @@ assert.ok(receivablesUnavailable.includes('DataUnavailableState'), 'canonical re
 const reportsUnavailable = fs.readFileSync('src/pages/ReportsPage.tsx', 'utf8');
 assert.ok(reportsUnavailable.includes('DataUnavailableState'), 'report surfaces must expose a governed unavailable-data state');
 
+const inventoryUnavailable = fs.readFileSync('src/pages/EntityPages.tsx', 'utf8');
+assert.ok(inventoryUnavailable.includes('if (!snapshot) return <DataUnavailableState'), 'inventory must expose a governed unavailable-data state');
+const canonicalProfitability = fs.readFileSync('src/pages/ProfitabilityReportCanonicalPage.tsx', 'utf8');
+assert.ok(canonicalProfitability.includes('DataUnavailableState'), 'canonical profitability must expose a governed unavailable-data state');
+assert.ok(canonicalProfitability.includes('<Link to="/import"'), 'canonical profitability unavailable state must use the unified import route');
 console.log('Product wow UI contract: PASS (public proof theater + deterministic decision brief)');
