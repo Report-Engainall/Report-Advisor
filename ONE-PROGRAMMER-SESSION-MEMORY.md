@@ -1,20 +1,19 @@
-## LATEST SESSION WRITE-BACK — 2026-09-23-AGHBARI-CONTINUOUS-EXECUTION-114
+## LATEST SESSION WRITE-BACK — 2026-09-23-AGHBARI-CONTINUOUS-EXECUTION-115
 
-- SESSION-ID → `2026-09-23-AGHBARI-CONTINUOUS-EXECUTION-114`
+- SESSION-ID → `2026-09-23-AGHBARI-CONTINUOUS-EXECUTION-115`
 - MAIN HEAD OBSERVED BEFORE THIS WRITE → `c8e81c77bef3000bd2b4e9c730dec6e9c356c9af`.
 - CURRENT CODE/TEST CANDIDATE → `adb093bb20d488ce593b5e2598168c74711d4346`.
-- DONE → Phase-F migration-sequence repair is merged in `adb093bb...`; repository source audit on the repaired branch passed 285 migrations / 0 findings.
-- DONE → opened verification-only PR #627 from the exact repaired code with governance-only session binding, so the existing pull_request Phase-F workflow can probe the repaired restore path.
-- VERIFIED RUNTIME PREVIEW → Netlify Deploy Preview for PR #627 is READY on exact verification head `0c66d94b0320f2db2a20a0ed681d6762fdfc88f5`.
-- EXTERNAL HOSTING → Vercel deployment for PR #627 failed with `api-deployments-free-per-day` (>100 deployments/day); this is external hosting capacity, not a source defect.
-- ACTIONS BOUNDARY → connector-visible Actions runs for `0c66d94...` have not appeared yet; therefore no fresh Phase-F PASS/FAIL is claimed for the repaired code.
-- LIVE PHASE-F BASELINE BEFORE FIX → `35793292560` proved canary auth but was 1/4: deployment SHA mismatch, duplicate migration restore failure, rollback-forward-fix 503.
-- CURRENT HARD BOUNDARY → exact production still serves SHA `1d88b083...`; measured backup/restore, RPO, RTO, rollback and production identity remain NOT PROVEN.
-- NEXT EXECUTABLE ACTION → consume PR #627 exact-head Phase-F when the workflow becomes visible; if restore passes, fix only the next live probe failure. Do not merge PR #627; it is verification-only.
-- DO NOT REPEAT → no stale Phase-F transfer; no rerun against old production SHA as if current; no Vercel rate-limit bypass; no verification-only branch merge.
-- CURRENT RESUME POINTER → `adb093bb...` code candidate → PR #627 exact Phase-F verification → next live failure only → measured RPO/RTO/rollback → final certification.
-- UI LANE → no new blank/truth-state gap found across audited canonical surfaces; next UI work remains evidence-driven.
-- CORE LANE → migration restore blocker is merged; runtime deployment identity is the remaining hard boundary.
+- DONE → Phase-F duplicate-migration restore blocker merged in `adb093bb...`; exact source audit on repaired branch was 285 migrations / 0 findings.
+- VERIFICATION PR → #627 remains intentionally open from repaired code; latest verification head is `3c5e12951a1cb2aa4c27e0c77297ed9541407c11` and carries governance-only trigger refresh.
+- PREVIEW → Netlify deploy preview for the verification branch is READY; Vercel remains blocked by `api-deployments-free-per-day`.
+- ACTIONS → connector-visible pull-request workflow runs remain absent for the verification head after two trigger attempts. No Phase-F PASS/FAIL is claimed.
+- LIVE PHASE-F BASELINE → previous `35793292560` was 1/4: canary PASS; production SHA mismatch; restore duplicate migration failure; rollback-forward-fix 503.
+- CURRENT RUNTIME BOUNDARY → production still serves `1d88b083...`, not `adb093bb...`; measured backup/restore, RPO, RTO, rollback and production identity remain NOT PROVEN.
+- NEXT EXECUTABLE ACTION → consume PR #627 Phase-F exact-head evidence when GitHub exposes the run; otherwise do not rerun stale production probes or merge the verification-only PR.
+- DO NOT REPEAT → no stale PASS transfer, no production-SHA bypass, no verification-PR merge, no Vercel rate-limit workaround.
+- CURRENT RESUME POINTER → `adb093bb...` code candidate / PR #627 verification head `3c5e1295...` → exact Phase-F run → first new live failure only → measured recovery → final certification.
+- UI LANE → canonical page truth-state audit found no new blank fallthrough beyond governed states; continue only on newly evidenced gaps.
+- CORE LANE → migration restore defect merged; exact current deployment remains the hard boundary.
 
 ## LATEST SESSION WRITE-BACK — 2026-09-22-AGHBARI-CONTINUOUS-EXECUTION-103
 
