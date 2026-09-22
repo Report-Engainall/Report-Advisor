@@ -2,9 +2,9 @@
 
 > The GitHub `main` HEAD below is the exact governance HEAD observed before this index write. The code/test candidate is the exact SHA whose source and local exact-head gates were just verified. Governance descendants do not replace the candidate.
 
-- MAIN HEAD OBSERVED BEFORE THIS WRITE: `f0841094e21459b29d0ffb4459b760bc8639e5b2`.
+- MAIN HEAD OBSERVED BEFORE THIS WRITE: `838f281b6e22119099083075fa0ef2b76abb3a42`.
 - CURRENT CODE/TEST CANDIDATE: `7b6cb8ea44c1c437118276a9e41e412750725e7d`.
-- CURRENT GOVERNANCE HEAD: `f0841094e21459b29d0ffb4459b760bc8639e5b2`.
+- CURRENT GOVERNANCE HEAD: `838f281b6e22119099083075fa0ef2b76abb3a42`.
 - CURRENT WORKING STATE: Liquidity next-action UI closure + contract guard completed on exact candidate; exact-head local verification is green; fresh GitHub Actions for `7b6` remain the next certification evidence boundary.
 - LIVE STATE SOURCE: `ONE-PROGRAMMER-SESSION-MEMORY.md`.
 - CONTROL PLANE: `docs/SYSTEM_HEART.md`.
