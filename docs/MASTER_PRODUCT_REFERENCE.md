@@ -5,7 +5,7 @@
 - Data truth UI closure closed the real blank fallthroughs for Dashboard/Command Center/Liquidity/Receivables/Reports/Inventory/Profitability and is guarded by the Product WOW contract.
 - Quality governance now executes `test:knowledge-architecture` in the canonical Quality workflow.
 - Core Phase-F restore defect closed in source: repository had duplicate 14-digit migration versions; content-bearing migrations were resequenced without dropping SQL, redundant empty remote-lineage aliases were removed, and the migration schema audit now rejects duplicate versions.
-- Exact local repaired-branch migration audit: 285 migrations / 0 findings. This is source/local evidence only and does not certify live restore/RPO/RTO/RTO rollback.
+- Exact local repaired-branch migration audit: 285 migrations / 0 findings. This is source/local evidence only and does not certify live restore, RPO, RTO, or rollback.
 - Live Phase-F baseline before the migration repair: authenticated canary PASS; tenant-canary PASS; operational health failed on deployment SHA mismatch; backup/restore failed on duplicate migration version `20260819210000`; rollback-forward-fix failed 503.
 - Current production runtime remains fail-closed because the latest READY production deployment serves older SHA `1d88b083c6c956abb42e2b2db2d5d816cb543344`, while the current code candidate is `adb093bb...`. No current-head production proof or measured RPO/RTO/rollback is claimed.
 - Current hosting boundary: Vercel free-plan deployment rate limit (`api-deployments-free-per-day`) remains external. Netlify can produce exact PR previews but they are not production/Phase-F target identity proof.
