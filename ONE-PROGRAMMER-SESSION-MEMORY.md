@@ -1,17 +1,20 @@
-## LATEST SESSION WRITE-BACK — 2026-09-23-AGHBARI-CONTINUOUS-EXECUTION-107
+## LATEST SESSION WRITE-BACK — 2026-09-23-AGHBARI-CONTINUOUS-EXECUTION-108
 
-- SESSION-ID → `2026-09-23-AGHBARI-CONTINUOUS-EXECUTION-107`
-- MAIN HEAD OBSERVED BEFORE THIS WRITE → `35b52cbe942774dd150c0e863cb0998a0d27af04`.
-- CURRENT CODE/TEST CANDIDATE → `74be717bf7bd56dda5ecb9c703f0ca3d3acf4d88` (latest code SHA; 35b52cbe is governance-only).
-- DONE → verified current main governance head and consumed the latest exact-code closure already merged at 74be717; no new runtime/code defect is introduced by the 35b52cbe governance descendant.
-- VERIFIED → exact local main 35b52cbe: 20/20 release-readiness stages PASS; execution-enforcement PASS; production-certification contract PASS; Phase-F runtime-closure contract PASS. Product WOW, executive dashboard, route/sidebar parity, knowledge architecture, typecheck and production build were also PASS on the same code lineage.
-- CURRENT BOUNDARY → 74be717 remains the exact code candidate for runtime/certification evidence; 35b52cbe is the current governance HEAD.
-- BLOCKED → Phase-F measured backup/restore/RPO/RTO/rollback and exact production deployment identity remain NOT PROVEN; no credential or older deployment evidence is transferred.
-- NEXT EXECUTABLE ACTION → consume fresh GitHub exact-head Enforcement + Final Certification + Browser evidence against the current governed lineage; repair only the first reproduced current-head failure, then continue authorized Phase-F and next UI/core gap in parallel.
-- DO NOT REPEAT → do not transfer 74be717 local PASS to a changed code SHA; do not rerun unchanged Phase-F external failure; do not mutate stale imports without governed recovery; do not treat older deployment evidence as current.
-- CURRENT RESUME POINTER → `35b52cbe942774dd150c0e863cb0998a0d27af04` governance HEAD / `74be717bf7bd56dda5ecb9c703f0ca3d3acf4d88` code candidate → fresh exact-head CI/Certification/Browser → Phase-F measured recovery → next UI/core closure.
-- UI LANE → unavailable-data closure is merged and contract-guarded across the identified blank business/report surfaces; continue the next evidenced surface gap.
-- CORE LANE → current exact-head certification is the boundary; Phase-F remains fail-closed.
+- SESSION-ID → `2026-09-23-AGHBARI-CONTINUOUS-EXECUTION-108`
+- MAIN HEAD OBSERVED BEFORE THIS WRITE → `6ef41bab3788a1d5c0ca527625ff8bb387a992b6`.
+- CURRENT CODE/TEST CANDIDATE → `6ef41bab3788a1d5c0ca527625ff8bb387a992b6` (real code merge; no governance-only reclassification).
+- DONE → closed the proven intelligence-module duplication: merged PR #624, moved RecommendationsPage and ForecastsPage into canonical `src/pages/IntelligencePage.tsx`, changed App lazy imports to the canonical module, and deleted `src/pages/IntelligencePages.tsx`.
+- VERIFIED → exact local branch SHA `cfbbeeebdcd829dd188ef85118bd947957ad9278`: TypeScript typecheck PASS; Product WOW UI contract PASS; production build PASS; `git diff --check HEAD` clean; no remaining `IntelligencePages` references.
+- MERGED → PR #624 merged to main as `6ef41bab3788a1d5c0ca527625ff8bb387a992b6`.
+- CURRENT EXTERNAL BOUNDARY → current main commit reports Vercel status `failure` with external `build-rate-limit`; no current-head production deployment PASS is claimed. Fresh GitHub Actions status for `6ef41bab...` is not yet exposed by the connector, so no new exact-head CI PASS is claimed from this merge.
+- VERIFIED PRIOR EXACT LINEAGE → Quality, Final Certification, Enforcement, Final Execution, Storage Tenant Isolation, Browser E2E and Windows all completed SUCCESS on the previous exact code candidate `74be717...`; those results are not transferred as proof for the changed `6ef41bab...` merge.
+- BLOCKED → Phase-F measured backup/restore/RPO/RTO/rollback and exact production deployment identity remain NOT PROVEN.
+- NEXT EXECUTABLE ACTION → consume or trigger fresh exact-head CI/Certification/Browser evidence for `6ef41bab...`; repair only the first reproduced current-head failure; continue the next evidenced UI/core closure in parallel.
+- DO NOT REPEAT → do not transfer `74be717...` PASS to `6ef41bab...`; do not rerun unchanged Phase-F external credential failure; do not treat the Vercel rate-limit failure as a source defect; do not restore the deleted duplicate intelligence module.
+- CURRENT RESUME POINTER → `6ef41bab3788a1d5c0ca527625ff8bb387a992b6` → fresh exact-head CI/Certification/Browser → Phase-F measured recovery → next UI/core closure.
+- UI LANE → intelligence recommendations/forecasts now have one canonical module; continue with the next proven duplicate or surface truth gap.
+- CORE LANE → release source is green locally; exact current-head GitHub certification and live Phase-F evidence remain the boundary.
+
 
 ## LATEST SESSION WRITE-BACK — 2026-09-22-AGHBARI-CONTINUOUS-EXECUTION-103
 
