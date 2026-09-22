@@ -114,6 +114,13 @@ assert.ok(workCenter.includes('أحدث 500'), 'work center must not label a bou
 assert.ok(workCenter.includes('aria-pressed={filter === k}'), 'work center filters must expose selected state to assistive technology');
 assert.ok(workCenter.includes('aria-live="polite"'), 'work center next-action messaging must be announced without interrupting the user');
 
+const liquidity = fs.readFileSync('src/pages/LiquidityPage.tsx', 'utf8');
+assert.ok(liquidity.includes('const nextAction = useMemo'), 'liquidity must derive one next action from canonical KPI state');
+assert.ok(liquidity.includes("to: '/import'") && liquidity.includes('INSUFFICIENT_DATA'), 'liquidity insufficient truth must route to the unified import surface');
+assert.ok(liquidity.includes("to: '/reports/receivables'") && liquidity.includes('overdueReceivables'), 'liquidity receivables pressure must have a canonical workbench action');
+assert.ok(liquidity.includes("to: '/reports/purchases'") && liquidity.includes('totalPayables'), 'liquidity payable pressure must have a canonical purchases action');
+assert.ok(liquidity.includes("to: '/trust'"), 'liquidity fallback must retain a trust action');
+
 const executiveCommand = fs.readFileSync('src/pages/ExecutiveCommandCenterPage.tsx', 'utf8');
 assert.ok(executiveCommand.includes('بيانات الذمم متاحة'), 'money recovery must describe receivables availability without claiming recoverable money');
 assert.ok(executiveCommand.includes('فحص مساحة الإشارات'), 'executive command center alert-empty state must provide an intelligence action');
