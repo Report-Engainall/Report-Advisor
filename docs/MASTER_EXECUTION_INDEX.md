@@ -1,17 +1,23 @@
-## CURRENT EXECUTION BOUNDARY — 2026-09-22 / WAVE 99 — IMPORT HISTORY DENSITY FIX PENDING EXACT-HEAD PROOF
+## CURRENT EXECUTION BOUNDARY — 2026-09-22 / WAVE 100 — BOUNDED IMPORT READ CONTRACT
 
-> Exact-head evidence only. The current code candidate changed and must be re-proven; no historical PASS is transferred.
+> Exact-head evidence only. Current main and current code/test candidate are pinned below.
 
-- CURRENT MAIN HEAD OBSERVED: `9a71cccc53c0e01b55e7fcac8f5ca1829bf30aac`.
-- CURRENT CODE/TEST CANDIDATE: `9a71cccc53c0e01b55e7fcac8f5ca1829bf30aac`.
-- LAST VERIFIED PRODUCT CODE BEFORE THIS FIX: `fc0a84d85e56f43112df7e07886a9f6c04089998`.
-- CURRENT PRODUCT FIX: Canonical import history now uses real table pagination (50 visible rows per page) instead of rendering the full 500-row history window into the DOM.
-- ROOT CAUSE ADDRESSED: real-business browser E2E persisted the new canonical import successfully, but timed out waiting for the new filename in the rendered import history; the database row itself was completed with canonical persistence.
-- CURRENT VERIFICATION STATE: pending exact-head Quality / Browser / Certification consumption for `9a71cccc53c0e01b55e7fcac8f5ca1829bf30aac`.
-- PHASE-F BLOCKER: `RESILIENCE_LOGICAL_SOURCE_DB_URL` remains invalid/stale; live backup/restore and measured RPO/RTO/rollback remain NOT PROVEN.
-- HOSTING BLOCKER: Vercel free-plan deployment-rate limit remains external; Netlify preview capability exists but exact production deployment ownership is not connected in the active deployment connector.
-- DO NOT REPEAT: do not lower the E2E timeout to hide the UI defect; do not transfer the d692 browser failure or any older PASS to `9a71cccc53c0e01b55e7fcac8f5ca1829bf30aac`; do not render all 500 history rows as a workaround; do not fabricate Phase-F resilience evidence.
-
+- CURRENT MAIN HEAD OBSERVED: `cb814ef415ed7765059ebd8cbdc3b9dabefd7cda`.
+- CURRENT CODE/TEST CANDIDATE: `cb814ef415ed7765059ebd8cbdc3b9dabefd7cda`.
+- LAST VERIFIED RUNTIME FIX SHA: `6ca814df318d64d1116ce734dbff69d15e811b32`.
+- VERIFIED ON 6ca814...: exact checkout/build path reached Browser E2E; the run had not produced a terminal result at the time of this write-back, so no browser PASS is transferred.
+- DONE: Import Center reads a bounded history window (100 recent rows) while retaining the Work Center ceiling of 500; visible table pagination is 50 rows/page.
+- DONE: Import Query Bounds contract now validates parameterized limits and enforces the hard ceiling of 500.
+- EXACT IMPORT QUERY PROOF: run `35776027621` on `cb814ef415ed7765059ebd8cbdc3b9dabefd7cda` → SUCCESS.
+- EXACT QUALITY PROOF: run `35776027712` on `cb814ef415ed7765059ebd8cbdc3b9dabefd7cda` → SUCCESS.
+- EXACT FINAL EXECUTION BATCH: run `35776027654` on `cb814ef415ed7765059ebd8cbdc3b9dabefd7cda` → SUCCESS.
+- EXACT STORAGE TENANT ISOLATION: run `35776027730` on `cb814ef415ed7765059ebd8cbdc3b9dabefd7cda` → SUCCESS.
+- CURRENT FAILURES: Execution Enforcement run `35776027637` and Final Certification run `35776027689` failed because the governance index had not yet been rebound to this current candidate. This write-back is the repair; fresh exact-head runs are required.
+- PRODUCT E2E STATUS: ancestor run `35775942310` on `6ca814...` remained in progress; no PASS is claimed on `cb814ef415ed7765059ebd8cbdc3b9dabefd7cda`.
+- PHASE-F BLOCKER: `RESILIENCE_LOGICAL_SOURCE_DB_URL` remains invalid/stale; live backup/restore and measured RPO/RTO/rollback are NOT PROVEN.
+- HOSTING BLOCKER: Vercel deployment remains externally rate-limited on the connected account; Netlify preview serves the Arabic product surface, but exact production deployment on the current candidate is not proven.
+- OPEN OPERATIONAL DEBT: staging has 151 `import_jobs` stuck in `processing` at progress 0 since 2026-09-14; no canonical `import_jobs` stale-recovery RPC exists, so no terminal mutation was performed.
+- DO NOT REPEAT: do not mutate stale imports without an explicit tenant-authoritative recovery contract; do not transfer browser PASS across SHAs; do not rerun Phase-F with the unchanged bad credential; do not weaken certification or candidate parsing.
 ## CURRENT EXECUTION BOUNDARY — 2026-09-22 / WAVE 97 — EXACT MAIN + CURRENT-SHA ENFORCEMENT REPAIR
 
 > Exact-head evidence only. GitHub main is authoritative; no historical runtime result is transferred.

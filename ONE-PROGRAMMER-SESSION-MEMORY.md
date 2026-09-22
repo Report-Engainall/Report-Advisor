@@ -1,3 +1,19 @@
+## LATEST SESSION WRITE-BACK — 2026-09-22-AGHBARI-CONTINUOUS-EXECUTION-100
+
+- SESSION-ID → `2026-09-22-AGHBARI-CONTINUOUS-EXECUTION-100`
+- SHA → `cb814ef415ed7765059ebd8cbdc3b9dabefd7cda`
+- HEAD → `cb814ef415ed7765059ebd8cbdc3b9dabefd7cda` on `main`.
+- DONE → exact current-head inspection completed; current code/test candidate is the bounded-import-read line with the strengthened query contract checker.
+- DONE → Import Center now requests only 100 recent import jobs and paginates 50 rows per page; Work Center remains capped at 500.
+- DONE → `scripts/check-import-query-bounds.mjs` now enforces a validated 1..500 parameterized limit.
+- PROOF → Import Query Bounds `35776027621` SUCCESS; Quality `35776027712` SUCCESS; Final Execution Batch `35776027654` SUCCESS; Storage Tenant Isolation `35776027730` SUCCESS, all on exact `cb814ef415ed7765059ebd8cbdc3b9dabefd7cda`.
+- GOVERNANCE FAILURE TO REPAIR → Execution Enforcement `35776027637` and Final Certification `35776027689` failed because the current index still pointed at the prior code candidate. The index is being rebound here; no checker weakening is introduced.
+- BROWSER → exact runtime run `35775942310` is on ancestor `6ca814...` and had not terminated at latest observation. No browser PASS is claimed for `cb814ef415ed7765059ebd8cbdc3b9dabefd7cda`.
+- LIVE DB EVIDENCE → earlier real-business import job `da09954d-e4b9-4400-8910-ad8905b32429` was proven completed with canonical persistence. No stale-job cleanup mutation was performed.
+- OPEN BLOCKERS → Phase-F authorized source credential invalid/stale; Vercel external build-rate limit; exact current-head production deployment not proven; 151 processing import jobs require governed recovery.
+- NEXT EXECUTABLE ACTION → consume fresh Enforcement/Certification after this index rebinding; consume the exact runtime Browser result; then fix the first current-head product failure only, before Phase-F credential-dependent resilience closure.
+- DO NOT REPEAT → do not move old PASS to new SHA; do not weaken E2E assertions; do not terminalize 151 stale import jobs without contract; do not guess or expose recovery credentials.
+- CURRENT RESUME POINTER → `cb814ef415ed7765059ebd8cbdc3b9dabefd7cda` → fresh exact-head Enforcement/Certification → exact browser result → Phase-F authorized credential → measured backup/restore/RPO/RTO/rollback → final certification.
 ## LATEST SESSION WRITE-BACK — 2026-09-22-AGHBARI-CONTINUOUS-EXECUTION-99
 
 - SESSION-ID → `2026-09-22-AGHBARI-CONTINUOUS-EXECUTION-99`
