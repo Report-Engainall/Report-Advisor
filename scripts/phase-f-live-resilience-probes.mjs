@@ -190,7 +190,7 @@ async function logicalBackupRestore() {
       .split(/\r?\n/)
       .map(line => line.trim())
       .find(line => line.includes(`:${localDbPort}->5432/tcp`))
-      ?.split('\\t')[0];
+      ?.split('\t')[0];
     if (!localDbContainer) throw new Error('local_restore_db_container_missing');
 
     runDockerExecPsql(localDbContainer, 'postgres', `create database "${restoreDatabaseName}"`);
