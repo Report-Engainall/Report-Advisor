@@ -79,10 +79,10 @@ jobs:
         env:
           RESILIENCE_TARGET_ENV: ${{ secrets.RESILIENCE_TARGET_ENV }}
           RESILIENCE_OPERATIONAL_TOKEN: ${{ secrets.RESILIENCE_OPERATIONAL_TOKEN }}
-          RESILIENCE_HEALTH_URL: https://report-advisor.vercel.app/api/health
-          RESILIENCE_CANARY_URL: https://report-advisor.vercel.app/api/tenant-canary
-          RESILIENCE_BACKUP_VERIFY_URL: https://report-advisor.vercel.app/api/backup-restore-verify
-          RESILIENCE_ROLLBACK_DRILL_URL: https://report-advisor.vercel.app/api/rollback-drill
+          RESILIENCE_HEALTH_URL: ${{ secrets.RESILIENCE_HEALTH_URL || vars.RESILIENCE_HEALTH_URL }}
+          RESILIENCE_CANARY_URL: ${{ secrets.RESILIENCE_CANARY_URL || vars.RESILIENCE_CANARY_URL }}
+          RESILIENCE_BACKUP_VERIFY_URL: ${{ secrets.RESILIENCE_BACKUP_VERIFY_URL || vars.RESILIENCE_BACKUP_VERIFY_URL }}
+          RESILIENCE_ROLLBACK_DRILL_URL: ${{ secrets.RESILIENCE_ROLLBACK_DRILL_URL || vars.RESILIENCE_ROLLBACK_DRILL_URL }}
           RESILIENCE_ALLOW_PRODUCTION: ${{ secrets.RESILIENCE_ALLOW_PRODUCTION }}
           RESILIENCE_BACKUP_MODE: ${{ secrets.RESILIENCE_BACKUP_MODE }}
           RESILIENCE_LOGICAL_SOURCE_DB_URL: ${{ secrets.RESILIENCE_LOGICAL_SOURCE_DB_URL || vars.RESILIENCE_LOGICAL_SOURCE_DB_URL }}
