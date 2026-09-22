@@ -1,3 +1,20 @@
+# CURRENT CONTROL-PLANE BOUNDARY — 2026-09-22 / EXACT CURRENT CANDIDATE
+
+> The GitHub `main` HEAD below is the exact governance HEAD observed before this index write. The code/test candidate is the exact SHA whose source and local exact-head gates were just verified. Governance descendants do not replace the candidate.
+
+- MAIN HEAD OBSERVED BEFORE THIS WRITE: `f0841094d6e0b5c0a5f7d5c3d8d5a4d7b9f3b3d2`.
+- CURRENT CODE/TEST CANDIDATE: `7b6cb8ea44c1c437118276a9e41e412750725e7d`.
+- CURRENT GOVERNANCE HEAD: `f0841094d6e0b5c0a5f7d5c3d8d5a4d7b9f3b3d2`.
+- CURRENT WORKING STATE: Liquidity next-action UI closure + contract guard completed on exact candidate; exact-head local verification is green; fresh GitHub Actions for `7b6` remain the next certification evidence boundary.
+- LIVE STATE SOURCE: `ONE-PROGRAMMER-SESSION-MEMORY.md`.
+- CONTROL PLANE: `docs/SYSTEM_HEART.md`.
+- KNOWLEDGE CONSOLIDATION MAP: `docs/PROJECT_KNOWLEDGE_MANIFEST.md`.
+- NEXT EXECUTION MODE: 50% UI/surface completion + 50% product-heart/runtime/data/security/certification/consolidation, parallel when independent.
+- NEXT EXECUTABLE CORE FRONT: consume exact `7b6` CI/certification/browser evidence; repair only the first reproduced current-head failure; then authorized Phase-F measured recovery evidence.
+- NEXT EXECUTABLE UI FRONT: continue only evidenced open surface gaps after Liquidity next-action closure; no duplicate import/decision paths.
+- PHASE-F BOUNDARY: live backup/restore, RPO, RTO, rollback, and exact deployment identity remain NOT PROVEN until measured.
+- DEPLOYMENT BOUNDARY: Vercel production READY currently points to `7fa0337937a383f12c9831ba72d7f1bd1b7918cf`, not the current candidate; no current-head production PASS is claimed.
+- DO NOT REPEAT: no transfer of `1821c12` evidence to `7b6`; no stale deployment evidence; no unsafe stale-import mutation; no deletion of unused indexes without usage proof; no branch migration with hardcoded tenant policy.
 # CURRENT CONTROL-PLANE BOUNDARY — 2026-09-22
 
 > HEAD below is the exact GitHub HEAD observed before this write. Never treat it as the SHA of this file's own future commit.
