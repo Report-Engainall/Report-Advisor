@@ -204,6 +204,8 @@ assert.ok(dataQuality.includes('to: \'/analytics\''), 'clean data quality action
 assert.ok(dataQuality.includes('const weightedRows = snapshot.entities.reduce'), 'data quality overall score must use record-weighted authoritative entity scores');
 assert.ok(dataQuality.includes('const weightedScore = weightedRows > 0 ?'), 'data quality overall score must derive from the same weighted score basis as trust evidence');
 assert.ok(dataQuality.includes('setOverallScore(weightedScore == null ? 0 : Math.round(weightedScore))'), 'data quality must fail closed to zero when no weighted rows exist');
+assert.ok(dataQuality.includes('criticalIssueTotal'), 'data quality summary must expose critical issue pressure rather than inventing healthy-row counts');
+assert.ok(!dataQuality.includes('سجلات سليمة'), 'data quality must not imply that total rows minus issue counts equals healthy rows');
 
 const connections = fs.readFileSync('src/pages/ConnectionsPage.tsx', 'utf8');
 assert.ok(connections.includes("id === 'documents' ? '/import' : '/trust'"), 'document connector must route into the unified import path rather than a disconnected connector workflow');
