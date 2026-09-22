@@ -1,3 +1,18 @@
+## CURRENT EXECUTION BOUNDARY — 2026-09-22 / WAVE 98 — ENFORCEMENT PARSER ROOT CAUSE CLOSED IN PR
+
+> Exact-head evidence only. GitHub main is authoritative; no historical runtime result is transferred.
+
+- CURRENT MAIN HEAD OBSERVED: `d6920a1fbb0590f80e560ee46c1c69be16af7062`.
+- CURRENT FUNCTIONAL FIX PR: #616, head `182ef12580e0d1d89643aaa1c20bacfff1a9d9e5`.
+- ROOT CAUSE: enforcement parser accepted only spaced `CURRENT CODE/TEST CANDIDATE`, while the canonical index also emits `CURRENT_CODE_TEST_CANDIDATE`.
+- FIX: PR #616 accepts both forms and adds a regression test; no product/runtime/resilience/security policy change.
+- VERIFIED FAILURE SOURCE: PR #615 exact-head job `106904874825` failed only at the parser after certification-boundary integrity passed.
+- CURRENT GATES: PR #616 Enforcement, Quality, Final Certification, Browser E2E, and Phase-F are executing/queued; no new PASS transferred.
+- PHASE-F BLOCKER: `RESILIENCE_LOGICAL_SOURCE_DB_URL` remains invalid/stale; measured backup/restore/RPO/RTO/rollback remain NOT PROVEN.
+- HOSTING BLOCKER: Vercel free-plan deployment-rate limit remains external.
+- NEXT: consume PR #616 exact-head evidence; merge only after the new parser regression is proven closed, then resume Phase-F with a valid authorized restore credential.
+- DO NOT REPEAT: do not weaken exact-SHA enforcement, do not transfer #615 evidence, do not rerun unchanged Phase-F credentials, do not fabricate resilience proof.
+
 ## CURRENT EXECUTION BOUNDARY — 2026-09-22 / WAVE 97 — EXACT MAIN + CURRENT-SHA ENFORCEMENT REPAIR
 
 > Exact-head evidence only. GitHub main is authoritative; no historical runtime result is transferred.
