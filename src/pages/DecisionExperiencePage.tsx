@@ -42,7 +42,7 @@ function decisionReadiness(recommendation: Recommendation | null): { label: stri
   if (!recommendation.owner) return { label: 'ينقص المسؤول', tone: 'text-warning-700 bg-warning-50', detail: 'التوصية موجودة، لكن لا يظهر مسؤول فعلي مرتبط بها.' };
   if (!recommendation.deadline) return { label: 'ينقص الموعد', tone: 'text-warning-700 bg-warning-50', detail: 'التوصية لها مسؤول، لكن الموعد غير مثبت بعد.' };
   if (recommendation.expected_impact == null) return { label: 'الأثر غير متاح', tone: 'text-warning-700 bg-warning-50', detail: 'لا يوجد أثر متوقع قابل للعرض على هذه التوصية.' };
-  return { label: 'سياق القرار مكتمل', tone: 'text-success-700 bg-success-50', detail: 'المسؤول والموعد والأثر المتوقع متاحة في سجل التوصية.' };
+  return { label: 'المتطلبات الأساسية متاحة', tone: 'text-success-700 bg-success-50', detail: 'المسؤول والموعد والأثر المتوقع مسجلة في سجل التوصية؛ ولا يعني ذلك ثبوت التنفيذ أو النتيجة.' };
 }
 
 function formatDeadline(value: string | null): string {
