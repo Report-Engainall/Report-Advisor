@@ -75,7 +75,7 @@ export function ConnectionsPage() {
               <div className="mt-5 flex items-center justify-between gap-3 border-t border-ink-100 pt-4">
                 <div className="flex items-center gap-2 text-[11px] font-semibold text-ink-400">{isAvailable ? <CheckCircle2 size={14} className="text-success-600"/> : isBounded ? <ShieldCheck size={14} className="text-warning-600"/> : <KeyRound size={14} className="text-ink-500"/>}{isAvailable ? (ar ? 'المسار مثبت داخل المنتج' : 'Path is proven in product') : isBounded ? (ar ? 'المسار موجود لكن حدوده التشغيلية معلنة' : 'Path exists with explicit runtime limits') : (ar ? 'لا نعد بالاتصال قبل إثباته' : 'No connection claim before runtime proof')}</div>
                 {isAvailable && <Link to="/import" className="text-xs font-black text-primary-700">{ar ? 'فتح المسار' : 'Open path'}</Link>}
-                {isBounded && <Link to="/trust" className="text-xs font-black text-warning-700">{ar ? 'راجع الحدود' : 'Review limits'}</Link>}
+                {isBounded && <Link to={id === 'documents' ? '/import' : '/trust'} className="text-xs font-black text-warning-700">{id === 'documents' ? (ar ? 'ابدأ الاستيراد الموحد' : 'Start unified import') : (ar ? 'راجع الحدود' : 'Review limits')}</Link>}
               </div>
             </article>
           );

@@ -137,6 +137,8 @@ assert.ok(connections.includes('{availableCount}'), 'connections summary must re
 assert.ok(connections.includes('{boundedCount}'), 'connections summary must render the live bounded-path count');
 assert.ok(connections.includes('{adapterCount}'), 'connections summary must render the live adapter-path count');
 assert.ok(connections.includes('{nextLabel}'), 'connections summary must derive the next action from the available connector state');
+assert.ok(connections.includes("id === 'documents' ? '/import' : '/trust'"), 'document connector must route into the unified import path rather than a disconnected connector workflow');
+assert.ok(connections.includes("id === 'documents' ? (ar ? 'ابدأ الاستيراد الموحد' : 'Start unified import')"), 'document connector CTA must explicitly expose the unified import path');
 
 const analytics = fs.readFileSync('src/pages/AnalyticsPage.tsx', 'utf8');
 assert.ok(analytics.includes('function AnalyticsStatusStrip'), 'analytics must expose one shared truth/status strip');
