@@ -1,15 +1,15 @@
 # CURRENT CONTROL-PLANE BOUNDARY — 2026-09-23 / EXACT CURRENT CANDIDATE
 
-> GitHub main exact HEAD is reconciled before this write. The current code/test candidate is the merged UI truth-state closure at the exact current main SHA.
+> GitHub main exact HEAD is reconciled before this write. The current candidate includes the second UI truth-state closure from commit `74be717...`.
 
-- MAIN HEAD OBSERVED BEFORE THIS WRITE: `2bdcf38a6031f219c1cd3177d76b66020a76eb29`.
-- CURRENT CODE/TEST CANDIDATE: `2bdcf38a6031f219c1cd3177d76b66020a76eb29`.
-- CURRENT GOVERNANCE HEAD: `2bdcf38a6031f219c1cd3177d76b66020a76eb29`.
-- CURRENT WORKING STATE: PR #622 merged the governed unavailable-data UI closure and Product WOW regression guard; exact local source/build evidence is green, while fresh GitHub current-head release evidence is the next boundary.
-- NEXT EXECUTABLE CORE FRONT: consume fresh exact-head CI/Final Certification/Browser evidence for `2bdcf38...`; repair only the first reproduced current-head failure; then continue authorized Phase-F measured recovery.
-- NEXT EXECUTABLE UI FRONT: continue the next evidenced surface gap after unavailable-data closure; no duplicate import/decision paths.
+- MAIN HEAD OBSERVED BEFORE THIS WRITE: `74be717bf7bd56dda5ecb9c703f0ca3d3acf4d88`.
+- CURRENT CODE/TEST CANDIDATE: `74be717bf7bd56dda5ecb9c703f0ca3d3acf4d88`.
+- CURRENT GOVERNANCE HEAD: `74be717bf7bd56dda5ecb9c703f0ca3d3acf4d88`.
+- CURRENT WORKING STATE: canonical unavailable-data fallthroughs are closed across dashboard, command center, liquidity, receivables, inventory, canonical profitability, and report surfaces; Product WOW now guards the new state.
+- NEXT EXECUTABLE CORE FRONT: consume fresh exact-head Enforcement + Final Certification + Browser evidence for `74be717...`; repair only the first reproduced current-head failure; then authorized Phase-F measured recovery.
+- NEXT EXECUTABLE UI FRONT: continue the next evidenced surface gap; no duplicate import/decision paths.
 - PHASE-F BOUNDARY: live backup/restore, RPO, RTO, rollback, and exact production deployment identity remain NOT PROVEN until measured.
-- DO NOT REPEAT: no pre-merge evidence transfer; no unchanged Phase-F credential rerun; no unsafe stale-import mutation; no production certification from an older deployment.
+- DO NOT REPEAT: no transfer from `2bdcf38...` or older candidates; no unchanged Phase-F credential rerun; no unsafe stale-import mutation; no older deployment as current production proof.
 
 # CURRENT CONTROL-PLANE BOUNDARY — 2026-09-22
 
