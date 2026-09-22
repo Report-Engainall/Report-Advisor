@@ -156,4 +156,12 @@ assert.ok(!entities.includes('if (loading && customers.length === 0) return <Loa
 assert.ok(entities.includes('data={products} loading={loading}'), 'product table must own its loading state');
 assert.ok(entities.includes('data={customers} loading={loading}'), 'customer table must own its loading state');
 
+const liquidity = fs.readFileSync('src/pages/LiquidityPage.tsx', 'utf8');
+assert.ok(liquidity.includes('const nextAction = useMemo'), 'liquidity must derive one next action from canonical KPI state');
+assert.ok(liquidity.includes("to: '/import'") && liquidity.includes('INSUFFICIENT_DATA'), 'liquidity insufficient truth must route to the unified import surface');
+assert.ok(liquidity.includes("to: '/reports/receivables'") && liquidity.includes('overdueReceivables'), 'liquidity receivables pressure must have a canonical workbench action');
+assert.ok(liquidity.includes("to: '/reports/purchases'") && liquidity.includes('totalPayables'), 'liquidity payable pressure must have a canonical purchases action');
+assert.ok(liquidity.includes("to: '/trust'"), 'liquidity fallback must retain a trust action');
+assert.ok(liquidity.includes('aria-label={\'الخطوة التالية: \' + nextAction.title}'), 'liquidity next action must expose an accessible reason');
+
 console.log('Product wow UI contract: PASS (public proof theater + deterministic decision brief)');
