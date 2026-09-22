@@ -1,3 +1,16 @@
+## LATEST SESSION WRITE-BACK — 2026-09-22-AGHBARI-CONTINUOUS-EXECUTION-91
+
+- SESSION-ID → `2026-09-22-AGHBARI-CONTINUOUS-EXECUTION-91`
+- VERIFIED PRIOR RESULT → Vercel reached READY for exact SHA `b8772acdd8d6db1832d9d9048434f2239bd2a5d8`; combined status is success for Vercel, Vercel Deployments, Netlify preview, and CodeRabbit.
+- DONE → Enhanced the canonical Decision Experience primary surface with a real value summary: unread signals, source recommendations, and the aggregate of recorded expected impacts.
+- VALUE SAFETY → The expected-impact aggregate is explicitly labeled as expected and never presented as actual outcome; zero/absent numeric evidence remains `غير متاح`.
+- DONE → Added contract guards for the new Decision Experience value surface.
+- EXACT NEW FUNCTIONAL COMMITS → `01b1571f30a673200d15a7cfd191cb79eeb252f8` and `bfd7a96df0e397cd3d6c9568b9c1b18867527b64`.
+- PRECISE STOP POINT → New UI wave is committed on top of the previously verified deployment SHA; no runtime verification is claimed yet for the new SHA.
+- NEXT ACTION → consume terminal deployment evidence for `bfd7a96df0e397cd3d6c9568b9c1b18867527b64`; if READY, continue the next independent primary-surface value closure.
+- DO NOT REPEAT → do not re-run the already verified `b8772ac...` deployment; do not call expected impact an actual ROI/outcome; do not invent approval/execution/evidence records; do not transfer runtime PASS to the new SHA.
+- CURRENT RESUME POINTER → `bfd7a96df0e397cd3d6c9568b9c1b18867527b64` → terminal deployment evidence → next primary UI/value closure.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-22-AGHBARI-CONTINUOUS-EXECUTION-90
 
 - SESSION-ID → `2026-09-22-AGHBARI-CONTINUOUS-EXECUTION-90`
