@@ -40,6 +40,19 @@ export function LiquidityPage() {
     return kpis.totalReceivables - kpis.totalPayables;
   }, [kpis]);
 
+  const nextAction = useMemo(() => {
+    if (kpis?.status === 'INSUFFICIENT_DATA') {
+      return { to: '/import', label: 'إضافة مصدر', title: 'ابدأ بإثبات المصدر' };
+    }
+    if ((kpis?.overdueReceivables ?? 0) > 0) {
+      return { to: '/reports/receivables', label: 'راجع المتأخرات', title: 'ابدأ بالتحصيل المتأخر' };
+    }
+    if ((kpis?.totalPayables ?? 0) > 0) {
+      return { to: '/reports/purchases', label: 'راجع المستحقات', title: 'راجع التزامات الموردين' };
+    }
+    return { to: '/trust', label: 'فحص الثقة', title: 'تحقق من المصدر قبل القرار' };
+  }, [kpis]);
+
   if (loading) return <LoadingState message="جارٍ بناء صورة السيولة من المؤشرات الكانونية..." />;
   if (error) return <ErrorState message={error} onRetry={() => void load()} />;
   if (!kpis) return null;
@@ -89,7 +102,12 @@ export function LiquidityPage() {
       </div>
       <div className="ag-decision-cell">
         <span className="ag-decision-label">الخطوة التالية</span>
-        <span className="ag-decision-value"><Target size={13} className="mr-1 inline text-primary-700" /> راجع أكبر مصادر التعرض</span>
+        <span className="ag-decision-value">
+          <Target size={13} className="mr-1 inline text-primary-700" />
+          <Link to={nextAction.to} className="font-bold text-primary-700 hover:underline" aria-label={'الخطوة التالية: ' + nextAction.title}>
+            {nextAction.label}
+          </Link>
+        </span>
       </div>
     </section>
     {kpis.status === 'INSUFFICIENT_DATA' && <div className="rounded-2xl border border-warning-200 bg-warning-50/70 p-4 text-[11px] leading-6 text-warning-900">بعض المؤشرات المالية لا تكفي لإصدار صورة مكتملة. تبقى القيم غير المتاحة ظاهرة كـ«غير متاح» ولا تُستبدل بأصفار أو تقديرات.</div>}
