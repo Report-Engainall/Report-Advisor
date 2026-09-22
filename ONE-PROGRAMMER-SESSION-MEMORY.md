@@ -1,3 +1,20 @@
+## LATEST SESSION WRITE-BACK — 2026-09-22-AGHBARI-CONTINUOUS-EXECUTION-98
+
+- SESSION-ID → `2026-09-22-AGHBARI-CONTINUOUS-EXECUTION-98`
+- MAIN HEAD OBSERVED → `d6920a1fbb0590f80e560ee46c1c69be16af7062`.
+- DONE → exact-head verification reproduced a real Execution Enforcement Contract defect: the parser accepted only the spaced `CURRENT CODE/TEST CANDIDATE` marker while the canonical index also uses `CURRENT_CODE_TEST_CANDIDATE`.
+- ROOT CAUSE EVIDENCE → PR #615 head `f0aaff400e494834a3d0e742da6e29a7e2ed8c22`, job `106904874825`, failed in `check-execution-enforcement-protocol.mjs` after certification-boundary integrity passed; exact checkout was verified before the parser failure.
+- DONE → temporary verification PR #615 was closed after the defect was isolated.
+- DONE → created PR #616 from current main with a minimal parser fix accepting both marker forms plus a regression test.
+- PR-616 HEAD → `182ef12580e0d1d89643aaa1c20bacfff1a9d9e5`.
+- VERIFIED CHANGE SCOPE → only `scripts/check-execution-enforcement-protocol.mjs` and its adversarial test changed; no product/runtime/resilience/security semantics were weakened.
+- CURRENT PROOF → PR #616 exact-head Actions are queued, including Execution Enforcement, Quality, Final Certification, Device-Independent Browser E2E, and Phase-F; no new PASS is claimed yet.
+- PHASE-F → still externally blocked on the authorized `RESILIENCE_LOGICAL_SOURCE_DB_URL` credential; measured backup/restore/RPO/RTO/rollback remain NOT PROVEN.
+- HOSTING → Vercel exact-head deployment continues to fail on the external free-plan `api-deployments-free-per-day` limit; this is not treated as a source defect.
+- NEXT EXECUTABLE ACTION → consume PR #616 exact-head gate results; merge only if the parser regression is proven closed and the required release gates remain green, then return to the live Phase-F credential blocker.
+- DO NOT REPEAT → do not restore the parser's single-format assumption, do not transfer PR #615 evidence to #616, do not rerun Phase-F with the unchanged invalid credential, and do not claim RPO/RTO/rollback without measured artifacts.
+- CURRENT RESUME POINTER → `182ef12580e0d1d89643aaa1c20bacfff1a9d9e5` → fresh Enforcement/Quality/Certification/Browser evidence → Phase-F authorized DB credential → measured backup/restore/RPO/RTO/rollback → governed merge/final certification.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-22-AGHBARI-CONTINUOUS-EXECUTION-97
 
 - SESSION-ID → `2026-09-22-AGHBARI-CONTINUOUS-EXECUTION-97`
