@@ -223,3 +223,17 @@ Do not start a deletion wave until:
 5. canonical owner is re-read at the resulting SHA;
 6. Manifest status is updated from ABSORBED to ARCHIVE-READY;
 7. only then may a separate deletion commit be created.
+
+
+## 13. UI / experience consolidation wave — 2026-09-22 — MERGED_PENDING_PROOF
+
+Four reviewed sources were merged into `docs/MASTER_UI_UX_REFERENCE.md` and remain retained until the deletion gate is separately proven:
+
+1. `docs/COMMERCIAL_NAVIGATION_IA_2026-09-18.md` — source SHA `8d0fc65056a264e13a5ed1d023750b0e48bdd28c` — absorbed business-goal navigation language, progressive disclosure, short primary navigation, and high-value shortcuts.
+2. `docs/COMMERCIAL_UI_PRODUCT_SURFACE_MASTER_SPEC_2026-09-18.md` — source SHA `f2e2a63322e234fae75d05984bee8fa22e8bf9d3` — absorbed outcome-first UI, role-aware surfaces, actionability, decision/evidence flow, report-as-decision-document semantics, and completion criteria.
+3. `docs/PRODUCT_EXPERIENCE_PRINCIPLES.md` — source SHA `483bcdd3f2a80cb28d6855e921e7973527a7a4ea` — absorbed first-use clarity, contextual actions, evidence depth, report/error/performance principles, and acceptance criteria.
+4. `docs/ux-product-architecture-master.md` — source SHA `2c389df1aa6096a70b4ecf5be1a68911ff7fad2e` — absorbed coherent operating loop, page hierarchy, analytical tables, action hierarchy, governed AI, accessibility/mobile rules, and completion criteria.
+
+Reference search returned no direct code references for these four exact source paths. No source is authorized for deletion in this wave.
+
+Status remains MERGED_PENDING_PROOF until the current branch runs the affected UI contract and knowledge gates and the canonical owner is re-read at the resulting exact SHA.
