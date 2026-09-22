@@ -2,8 +2,8 @@
 
 > HEAD below is the exact GitHub HEAD observed before this write. Never treat it as the SHA of this file's own future commit.
 
-- MAIN HEAD OBSERVED BEFORE THIS WRITE: 0a8b545903777ac906a441709eb8dce0cc8b7603
-- CURRENT CODE/TEST CANDIDATE: 0a8b545903777ac906a441709eb8dce0cc8b7603
+- MAIN HEAD OBSERVED BEFORE THIS WRITE: `a024f263c90c5da9bc65a15482f95b3ab03b0d3b`
+- CURRENT CODE/TEST CANDIDATE: `a024f263c90c5da9bc65a15482f95b3ab03b0d3b`
 - CURRENT WORKING STATE: current main reconciled to exact candidate; certification-boundary governance rebind pending; Phase-F remains fail-closed; UI/core 50/50 execution remains mandatory.
 - LIVE STATE SOURCE: ONE-PROGRAMMER-SESSION-MEMORY.md
 - CONTROL PLANE: docs/SYSTEM_HEART.md
