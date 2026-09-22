@@ -7,6 +7,7 @@
 - LIVE DEFECT CLOSED IN SOURCE → duplicate `schema_migrations` version collision that blocked restore at `20260819210000`.
 - REMAINING LIVE BOUNDARY → production deployment still serves `1d88b083...`, not `adb093bb...`; deployment identity mismatch remains separate from restore correctness.
 - NEXT EXECUTABLE ACTION → consume the Phase-F run from this exact verification head and inspect the first live failure after the migration repair.
+- VERIFICATION TRIGGER → PR #627 synchronized once more after the restore repair; this governance-only touch exists only to invoke the unchanged Phase-F pull_request workflow.
 - DO NOT REPEAT → no stale Phase-F transfer; no production-SHA bypass; no merge of this verification-only governance commit as product code.
 
 ## LATEST SESSION WRITE-BACK — 2026-09-22-AGHBARI-CONTINUOUS-EXECUTION-103
