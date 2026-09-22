@@ -43,6 +43,7 @@ export function validateDataQualitySnapshot(data: unknown): DataQualitySnapshot 
       !Number.isFinite(entity.score) ||
       entity.total < 0 ||
       entity.issues < 0 ||
+      entity.issues > entity.total ||
       entity.score < 0 ||
       entity.score > 100
     ) {
