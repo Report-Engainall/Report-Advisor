@@ -178,3 +178,48 @@ Do not delete these sources in wave 1. Absorb, verify, then archive/remove in la
 CONTROL_PLANE_ESTABLISHED / CONTENT_MIGRATION_PENDING
 
 The repository now has a canonical destination for each major knowledge class. The next work is content absorption and proof, not creation of additional competing master files.
+
+## 10. Verified first-wave absorption records
+
+### Programmer operating protocol
+- Source: docs/PROGRAMMER_AUTONOMOUS_OPERATING_PROTOCOL.md
+- Source SHA observed: 8d6d8d8c354fb7ea992b461b1fdfe9842ccc23a5
+- Target: docs/SYSTEM_HEART.md
+- Absorbed: exact-head evidence law, fail-closed policy, production mutation safety, test sequencing, blocker-local/session-global behavior, anti-gaming rules, documentation-as-implementation.
+- Status: ABSORBED / SOURCE RETAINED
+
+### Report-Advisor master architecture
+- Source: docs/REPORT_ADVISOR_MASTER_ARCHITECTURE.md
+- Source SHA observed: 116508a0d1280a8ddd9881363cff6345ae0c1ccc3
+- Target: docs/MASTER_ENGINEERING_ARCHITECTURE.md
+- Absorbed: BI capability model, inventory/demand/liquidity references, semantic metric governance, event/decision chain, agent governance, research workflow, Report Studio, deterministic data-engine transformations, scaling discipline.
+- Status: ABSORBED / SOURCE RETAINED
+
+### Product UI architecture
+- Source: docs/MASTER_PRODUCT_UI_ARCHITECTURE.md
+- Source SHA observed: f6ddfb2080ce919a61e19e218e922956a587e688
+- Target: docs/MASTER_UI_UX_REFERENCE.md
+- Absorbed: canonical IA distinctions, Advisor placement rules, visual system, hard exclusions and canonical technical paths; expanded with interaction/state completeness.
+- Status: ABSORBED / SOURCE RETAINED
+
+### Global design system
+- Source: docs/AGHBARI_GLOBAL_PRODUCT_DESIGN_SYSTEM_2026-09-18.md
+- Source SHA observed: 27ada5485ddeff1768092d40b1327d6f99c21142
+- Target: docs/MASTER_UI_UX_REFERENCE.md
+- Absorbed: business-first hierarchy, density defaults, navigation, overlay semantics, reporting/print rules, accessibility gate.
+- Status: ABSORBED / SOURCE RETAINED
+
+## 11. Current deletion decision
+No source above is authorized for deletion yet.
+
+Reason: absorption into canonical files is demonstrated for the reviewed source content, but repository-wide reference/caller checks and affected contract verification must still be completed before archive/remove. Historical evidence must remain retained where it has evidentiary value.
+
+## 12. Consolidation wave control
+Do not start a deletion wave until:
+1. all source families selected for that wave are mapped;
+2. unique content extraction is complete;
+3. repository references/callers are checked;
+4. affected contracts/tests pass;
+5. canonical owner is re-read at the resulting SHA;
+6. Manifest status is updated from ABSORBED to ARCHIVE-READY;
+7. only then may a separate deletion commit be created.
