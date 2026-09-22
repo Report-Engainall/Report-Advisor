@@ -281,6 +281,9 @@ assert.ok(executiveReport.includes('لم يتم تصنيع رسم بديل'), 'e
 // decisionExperience already loaded above; reuse the canonical source.
 assert.ok(decisionExperience.includes("selected?.impact_result?.trim() || 'غير متاح بعد'"), 'decision outcome must surface a recorded actual outcome when one exists');
 assert.ok(decisionExperience.includes('نتيجة فعلية مسجلة'), 'decision outcome must distinguish recorded actual outcomes from missing outcomes');
+assert.ok(decisionExperience.includes('المتطلبات الأساسية متاحة'), 'decision readiness must describe recorded prerequisites without implying full execution context');
+assert.ok(decisionExperience.includes('ولا يعني ذلك ثبوت التنفيذ أو النتيجة'), 'decision readiness must not overstate recorded prerequisites as execution or outcome proof');
+assert.ok(!decisionExperience.includes('سياق القرار مكتمل'), 'decision readiness must not certify full decision context from owner/deadline/expected impact alone');
 
 
 console.log('Product wow UI contract: PASS (public proof theater + deterministic decision brief)');
