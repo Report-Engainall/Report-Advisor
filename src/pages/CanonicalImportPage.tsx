@@ -114,7 +114,8 @@ export function CanonicalImportPage() {
     setLoadingHistory(true);
     setHistoryError(null);
     try {
-      setHistory(await fetchImportRecords(100));
+      const focusedJobId = typeof window !== 'undefined' ? window.sessionStorage.getItem('aghbari:last-import-job') : null;
+      setHistory(await fetchImportRecords(100, focusedJobId ?? undefined));
     } catch (cause) {
       setHistory([]);
       setHistoryError(cause instanceof Error ? cause.message : 'تعذر تحميل سجل الاستيرادات');
@@ -268,6 +269,9 @@ export function CanonicalImportPage() {
         snapshot_id: snapshotId,
       });
 
+      if (typeof window !== 'undefined') {
+        window.sessionStorage.setItem('aghbari:last-import-job', rec.id);
+      }
       setProgress(100);
       setResult({
         total: rows.length,
