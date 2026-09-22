@@ -247,4 +247,7 @@ const decision = fs.readFileSync('src/pages/DecisionExperiencePage.tsx', 'utf8')
 for (const token of ['قيمة القرار الحالية', 'الإشارات', 'مرشحات القرار', 'الأثر المتوقع المتاح', 'مجموع الآثار المتوقعة المسجلة؛ ليس نتيجة فعلية.']) {
   assert.ok(decision.includes(token), `decision value surface missing: ${token}`);
 }
+const executiveReport = fs.readFileSync('src/pages/ExecutiveReportPage.tsx', 'utf8');
+assert.ok(executiveReport.includes('المصدر: اللقطة المعتمدة'), 'executive report must use an unambiguous source label');
+assert.ok(!executiveReport.includes('المصدر: بيانات قانونية'), 'executive report must not expose the ambiguous legal-data label');
 console.log('Product wow UI contract: PASS (public proof theater + deterministic decision brief)');
