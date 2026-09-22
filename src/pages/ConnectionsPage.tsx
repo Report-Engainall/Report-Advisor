@@ -56,7 +56,7 @@ export function ConnectionsPage() {
       </section>
 
       <section className="ag-decision-strip" aria-label="ملخص المصادر">
-        <div className="ag-decision-cell"><span className="ag-decision-label">{ar ? "المسارات المثبتة" : "Proven paths"}</span><span className="ag-decision-value">{availableCount}</span></div>
+        <div className="ag-decision-cell"><span className="ag-decision-label">{ar ? "المسارات المتاحة" : "Available paths"}</span><span className="ag-decision-value">{availableCount}</span></div>
         <div className="ag-decision-cell"><span className="ag-decision-label">{ar ? "بحدود تشغيل" : "Bounded paths"}</span><span className="ag-decision-value">{boundedCount}</span></div>
         <div className="ag-decision-cell"><span className="ag-decision-label">{ar ? "موصلات حسب المنصة" : "Adapter paths"}</span><span className="ag-decision-value">{adapterCount}</span></div>
         <div className="ag-decision-cell"><span className="ag-decision-label">Trust</span><span className="ag-decision-value">{ar ? "إثبات قبل الادعاء" : "Proof before claim"}</span></div>
@@ -73,7 +73,7 @@ export function ConnectionsPage() {
               <h2 className="mt-4 text-lg font-black text-ink-900">{ar ? labels.ar : labels.en}</h2>
               <p className="mt-2 min-h-16 text-sm leading-7 text-ink-500">{ar ? description.ar : description.en}</p>
               <div className="mt-5 flex items-center justify-between gap-3 border-t border-ink-100 pt-4">
-                <div className="flex items-center gap-2 text-[11px] font-semibold text-ink-400">{isAvailable ? <CheckCircle2 size={14} className="text-success-600"/> : isBounded ? <ShieldCheck size={14} className="text-warning-600"/> : <KeyRound size={14} className="text-ink-500"/>}{isAvailable ? (ar ? 'المسار مثبت داخل المنتج' : 'Path is proven in product') : isBounded ? (ar ? 'المسار موجود لكن حدوده التشغيلية معلنة' : 'Path exists with explicit runtime limits') : (ar ? 'لا نعد بالاتصال قبل إثباته' : 'No connection claim before runtime proof')}</div>
+                <div className="flex items-center gap-2 text-[11px] font-semibold text-ink-400">{isAvailable ? <CheckCircle2 size={14} className="text-success-600"/> : isBounded ? <ShieldCheck size={14} className="text-warning-600"/> : <KeyRound size={14} className="text-ink-500"/>}{isAvailable ? (ar ? 'المسار متاح داخل المنتج' : 'Path is available in product') : isBounded ? (ar ? 'المسار موجود لكن حدوده التشغيلية معلنة' : 'Path exists with explicit runtime limits') : (ar ? 'لا نعد بالاتصال قبل إثباته' : 'No connection claim before runtime proof')}</div>
                 {isAvailable && <Link to="/import" className="text-xs font-black text-primary-700">{ar ? 'فتح المسار' : 'Open path'}</Link>}
                 {isBounded && <Link to={id === 'documents' ? '/import' : '/trust'} className="text-xs font-black text-warning-700">{id === 'documents' ? (ar ? 'ابدأ الاستيراد الموحد' : 'Start unified import') : (ar ? 'راجع الحدود' : 'Review limits')}</Link>}
               </div>
