@@ -1,3 +1,25 @@
+## CONTROL-PLANE WRITE-BACK — 2026-09-22 / WAVE 103 GOVERNANCE REBIND
+
+- MAIN HEAD OBSERVED BEFORE THIS WRITE → `3ceb90927ad3e133dca158497c70c42af651a681`.
+- CURRENT CODE/TEST CANDIDATE → `e29ed29721ef333c61e6f8b43a57ac38e71aa146`.
+- DONE → Liquidity now derives a real next action from canonical KPI truth and routes to unified Import, Receivables, Purchases, or Trust.
+- DONE → Product WOW UI contract now guards the Liquidity next-action semantics.
+- DONE → commercial navigation / product-surface / experience-principles / UX-architecture rules were merged into MASTER_UI_UX_REFERENCE; sources remain retained.
+- DONE → PROJECT_KNOWLEDGE_MANIFEST records this wave as MERGED_PENDING_PROOF; no legacy source deleted.
+- EXACT PRELIMINARY EVIDENCE → Browser E2E run `35780981178` succeeded on `e0ee1f5...`; this evidence is historical to the branch and is NOT transferred to `e29ed297...`.
+- FAILED EXACT-HEAD GATES → Enforcement `35781044215` and Final Certification `35781044231` on `e29ed297...` failed only at certification-boundary integrity because the indexed candidate was still `28691df...`.
+- CURRENT REBIND STATE → MASTER_EXECUTION_INDEX now points to `e29ed297...`; this memory write is the matching Governance-only continuation.
+- CORE POSTURE → staging Supabase remains ACTIVE_HEALTHY; `import_jobs` = 4563 total / 151 processing / 3163 completed / 1249 failed; `backup_verification_runs` = 0; `watched_report_files` = 0; `watched_report_folders` = 0. No recovery mutation performed.
+- SECURITY POSTURE → security advisor reports 46 authenticated SECURITY DEFINER exposure findings; no blanket revoke performed because usage and tenant-boundary proof is required.
+- BLOCKED → Phase-F measured backup/restore/RPO/RTO/rollback remains NOT PROVEN until authorized live resilience credentials/configuration are valid.
+- BLOCKED → Vercel exact-head production proof remains NOT PROVEN; current platform status reports build-rate-limit.
+- OPEN → 151 import jobs remain processing at progress 0; no unsafe terminalization.
+- PRECISE NEXT ACTION → consume fresh Enforcement + Final Certification against Governance-rebound HEAD; then finalize Manifest status from MERGED_PENDING_PROOF only after affected checks pass; merge PR #621 if all current-head gates permit.
+- DO NOT REPEAT → do not transfer the e0ee Browser PASS to e29; do not rerun Phase-F with unchanged invalid configuration; do not mutate processing imports without a governed recovery contract; do not delete legacy documents.
+- CURRENT RESUME POINTER → `3ceb909...` → exact-head Enforcement/Final Certification for candidate `e29ed297...` → Manifest proof finalization → governed merge → Phase-F authorized resilience evidence.
+- 50/50 UI LANE → Liquidity actionability + UI master consolidation delivered; continue remaining canonical surface closure after certification.
+- 50/50 CORE LANE → exact-SHA certification rebind + live staging posture verification delivered; Phase-F remains isolated blocker.
+
 ## CONTROL-PLANE WRITE-BACK — 2026-09-22 / PRE-WRITE-HEAD-ANCHOR
 
 - MAIN HEAD OBSERVED BEFORE THIS WRITE → 9e1586ddecec31dd29ca9385d88236adb2307d90.
