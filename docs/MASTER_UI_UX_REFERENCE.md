@@ -186,3 +186,61 @@ At each UI wave, audit:
 - accessibility
 - performance
 - no duplicate import or evidence path
+
+## 11. Absorbed visual-system and interaction rules
+
+### Business-first hierarchy
+Every screen should answer:
+1. what is happening?
+2. what needs attention?
+3. why?
+4. what should I do?
+5. what happened after the action?
+
+Priority:
+Today / Money / Exceptions / Decision -> Truth / Evidence -> Advanced Analysis -> Administration
+
+### Interaction density and responsive rules
+- enterprise density without clutter
+- business body text around 12–14px where the established system uses it
+- table text around 11–13px where density requires it
+- mobile input text >=16px to avoid platform zoom problems
+- mobile touch targets >=44px
+- restrained 8–14px radius system
+- 1px borders where useful; shadows mainly for floating layers
+
+These are design-system defaults, not excuses to violate accessibility.
+
+### Navigation
+Use:
+Today -> Command/Search -> contextual navigation -> favorites/recents where supported.
+
+Advanced capabilities should be progressively disclosed instead of promoted into top-level taxonomy.
+
+### Overlay semantics
+- Toast for quick-result feedback
+- inline alert for content-local problems
+- modal for confirmation/critical tasks
+- drawer/sheet for contextual work without losing page state
+- tooltip for concise help
+
+Do not use a modal where a drawer preserves context better.
+
+### Reports and printing
+Every report surface exposes company, period, currency, As Of/freshness and evidence state.
+A4 is the default print target where relevant; print output removes application chrome and avoids visual fragmentation.
+Summary versus itemized presentation must be explicit for financial/operational reports.
+
+### Accessibility
+- keyboard access throughout
+- visible focus
+- icon buttons have accessible names
+- native semantics before ARIA
+- correctly ordered headings
+- do not trap or obscure focus with sticky overlays
+- semantic status meaning must not rely on color alone
+
+### UI quality gate
+Hierarchy -> Density -> Evidence -> Action -> Accessibility -> Mobile -> Print -> Empty/Loading/Error
+
+A surface is complete only when the quality gate is satisfied, not merely when the populated screenshot looks polished.
