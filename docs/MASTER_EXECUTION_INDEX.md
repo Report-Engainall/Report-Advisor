@@ -565,3 +565,5 @@ The startup command is intentionally short:
 > **ابدأ من الذاكرة الحية. اقرأ المرجع الأساسي، ثبّت الـHEAD الحقيقي، خذ آخر RESUME POINTER، نفّذ NEXT ACTION مباشرة، واعمل بالتوازي دون إعادة الشغل المغلق. وفي نهاية كل دفعة احفظ النتيجة والـSHA ونقطة التوقف والخطوة التالية في نفس الذاكرة قبل مواصلة التنفيذ.**
 
 ### PRODUCT CONSTITUTION — MANDATORY OPERATING CONTRACT
+
+- WAVE 97 VERIFICATION TRIGGER: governance-only exact-head rerun from current `main`; no product-code mutation is introduced by this verification branch.
