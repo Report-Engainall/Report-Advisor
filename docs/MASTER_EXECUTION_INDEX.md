@@ -1,17 +1,18 @@
 # CURRENT CONTROL-PLANE BOUNDARY — 2026-09-24 / MIGRATION CONTRACT REPAIR
 
 - MAIN HEAD OBSERVED BEFORE THIS WRITE: `7159553fcfc9d21304ffff60e1086a34b714ac09`.
-- CURRENT CODE/TEST CANDIDATE: `4d00b21f043231dbe32713684208d8af5f046bc3`.
-- CURRENT GOVERNANCE HEAD: `4d00b21f043231dbe32713684208d8af5f046bc3` before this write; verify new GitHub HEAD after commit.
-- DONE: corrected stale test references to the canonical storage-tenant and import-lineage migration files.
-- EVIDENCE: CI identified stale migration paths; corrected paths match files in the exact main tree. Enforcement contract then failed because the indexed candidate remained `adb093bb20d488ce593b5e2598168c74711d4346` while this branch included code changes.
+- CURRENT CODE/TEST CANDIDATE: `dfbe1fbd65bb69c2a092b610e42c0234a98f94f6`.
+- CURRENT GOVERNANCE HEAD: `dfbe1fbd65bb69c2a092b610e42c0234a98f94f6` before this write; verify new GitHub HEAD after commit.
+- DONE: corrected stale migration references in storage-tenant, production-readiness, and decision-runtime DML contracts.
+- EXACT-HEAD LOCAL PROOF on `dfbe1fbd...`: TypeScript typecheck PASS; Vite build PASS; ESLint 0 errors / 63 warnings; UI parity PASS (39 routes / 37 links); Product WOW PASS; knowledge architecture PASS; enforcement contract PASS; Phase-F static closure PASS; production-readiness PASS; storage isolation PASS; migration audit PASS (254 migrations / 0 findings); diff check clean.
+- CI on `dfbe1fbd...`: Enforcement and Final Certification failed at candidate-boundary validation because index still referenced `4d00b21f...`; no PASS is claimed.
 - PR #628: open; checks incomplete. No PASS or merge is claimed.
 - RUNTIME: Phase-F backup/restore, measured RPO/RTO/rollback, and current production identity remain NOT PROVEN.
-- NEXT EXECUTABLE ACTION: bind the index candidate to the corrected code SHA, trigger fresh exact-head enforcement/certification, then fix the first reproduced failure.
+- NEXT EXECUTABLE ACTION: rebind index to `dfbe1fbd...`, record proof in live memory, trigger fresh exact-head gates, then fix only the first new reproducible failure.
 - DO NOT REPEAT: stale migration paths; old candidate evidence; claims of Phase-F closure.
 - UI LANE: no UI code changed in this repair.
-- CORE LANE: two test-contract paths corrected; exact-head verification remains open.
-- CURRENT RESUME POINTER: PR #628 → bind candidate `4d00b21f...` → fresh exact-head gates → first failing contract → Phase-F.
+- CORE LANE: three stale migration-contract paths corrected and local checks pass; exact-head CI and live resilience remain open.
+- CURRENT RESUME POINTER: PR #628 candidate `dfbe1fbd...` → governance-only index/memory rebind → fresh Enforcement/Final Certification → Phase-F first live failure → measured recovery.
 
 
 # CURRENT CONTROL-PLANE BOUNDARY — 2026-09-22
