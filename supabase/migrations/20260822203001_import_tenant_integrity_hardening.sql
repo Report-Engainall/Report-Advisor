@@ -28,11 +28,15 @@ ALTER TABLE import_job_rows
   ON DELETE CASCADE;
 
 ALTER TABLE import_field_lineage
+  DROP CONSTRAINT IF EXISTS import_field_lineage_job_company_fk;
+ALTER TABLE import_field_lineage
   ADD CONSTRAINT import_field_lineage_job_company_fk
   FOREIGN KEY (job_id, company_id)
   REFERENCES import_jobs(id, company_id)
   ON DELETE CASCADE;
 
+ALTER TABLE import_field_lineage
+  DROP CONSTRAINT IF EXISTS import_field_lineage_row_company_fk;
 ALTER TABLE import_field_lineage
   ADD CONSTRAINT import_field_lineage_row_company_fk
   FOREIGN KEY (job_row_id, company_id)
