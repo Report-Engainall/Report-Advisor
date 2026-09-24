@@ -2,7 +2,8 @@
 
 - SESSION-ID: `2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-120`.
 - MAIN HEAD OBSERVED BEFORE THIS WRITE: `7159553fcfc9d21304ffff60e1086a34b714ac09`.
-- CURRENT CODE/TEST CANDIDATE BEFORE GOVERNANCE WRITE: `fcb5148d8645c85e7478df28e72f14be0f0bd7ec` on PR #628.
+- CURRENT CODE/TEST CANDIDATE: `fcb5148d8645c85e7478df28e72f14be0f0bd7ec` on PR #628.
+- GOVERNANCE HEAD OBSERVED BEFORE THIS PUSH: `10e9c9bb9e823c8d272c28d670466d7e75cd384e` (governance-only candidate rebind).
 - DONE: removed SQL BOM and added fail-closed BOM detection; reordered worker privilege revocation before parity assertion; preserved the live six-argument `import_commit_batch` overload via conditional hardening while keeping the canonical five-argument function always hardened.
 - VERIFIED: exact `fcb5148d...` Full Product Browser E2E and Device-Independent Browser E2E succeeded; production-regression evidence succeeded; Vercel exact-head preview is READY; Supabase staging project is ACTIVE_HEALTHY.
 - FAILED: Final Certification `36072952020` was blocked only because the execution index still pointed to stale candidate `203711a...`; this governance write rebinds it to `fcb5148d...`.
