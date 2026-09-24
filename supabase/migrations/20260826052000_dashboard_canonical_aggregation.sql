@@ -93,7 +93,7 @@ BEGIN
     ) x ON true
   ),
   top_customers AS (
-    SELECT COALESCE(jsonb_agg(jsonb_build_object('id', q.customer_id, 'name', COALESCE(c.name, q.customer_id), 'value', q.value) ORDER BY q.value DESC), '[]'::jsonb) AS rows
+    SELECT COALESCE(jsonb_agg(jsonb_build_object('id', q.customer_id, 'name', COALESCE(c.name, q.customer_id::text), 'value', q.value) ORDER BY q.value DESC), '[]'::jsonb) AS rows
     FROM (
       SELECT customer_id, sum(subtotal) AS value
       FROM sales_base
@@ -105,7 +105,7 @@ BEGIN
     LEFT JOIN public.customers c ON c.id=q.customer_id AND c.company_id=v_company_id
   ),
   top_products AS (
-    SELECT COALESCE(jsonb_agg(jsonb_build_object('id', q.product_id, 'name', COALESCE(p.name,q.product_id), 'value', q.value, 'secondary', q.qty) ORDER BY q.value DESC), '[]'::jsonb) AS rows
+    SELECT COALESCE(jsonb_agg(jsonb_build_object('id', q.product_id, 'name', COALESCE(p.name,q.product_id::text), 'value', q.value, 'secondary', q.qty) ORDER BY q.value DESC), '[]'::jsonb) AS rows
     FROM (
       SELECT product_id, sum(line_total) AS value, sum(quantity) AS qty
       FROM sale_items_base
