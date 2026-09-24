@@ -1,3 +1,20 @@
+## LATEST SESSION WRITE-BACK — 2026-09-24-AGHBARI-CONTINUOUS-EXECUTION-118
+
+- MAIN HEAD OBSERVED BEFORE THIS WRITE: `7159553fcfc9d21304ffff60e1086a34b714ac09`.
+- CURRENT CODE/TEST CANDIDATE: `4d00b21f043231dbe32713684208d8af5f046bc3` (PR #628 branch).
+- SESSION-ID: `2026-09-24-AGHBARI-CONTINUOUS-EXECUTION-118`.
+- DONE: updated execution index candidate binding to the corrected migration-contract candidate.
+- VERIFIED: PR #628 contains two migration test-path corrections; CI reported Enforcement failure due index candidate mismatch. Governance index now points at the code candidate.
+- FAILED: exact-head Enforcement previously failed because indexed candidate was old `adb093bb...`; fresh gates are required after index write.
+- BLOCKED / NOT PROVEN: production runtime identity, backup/restore, measured RPO/RTO, rollback, and final certification.
+- NEXT EXECUTABLE ACTION: run/consume exact-head Enforcement and Final Certification on the branch after governance update; fix first new reproducible failure.
+- DO NOT REPEAT: do not restore stale migration paths, reuse old evidence, merge without required checks, or claim Phase-F closed.
+- UI LANE: no UI change in this session; no new concrete surface defect was established.
+- CORE LANE: migration contract paths corrected; governance candidate binding updated; fresh checks pending.
+- CURRENT RESUME POINTER: PR #628 → candidate `4d00b21f...` with index rebinding → exact-head gates → first failing contract → Phase-F recovery evidence.
+
+---
+
 ## LATEST SESSION WRITE-BACK — 2026-09-23-AGHBARI-CONTINUOUS-EXECUTION-116
 
 - SESSION-ID → `2026-09-23-AGHBARI-CONTINUOUS-EXECUTION-116`
