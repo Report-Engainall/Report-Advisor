@@ -9,11 +9,11 @@
 - Prior code SHA `a226aba64d3ed367c0b10530a652b6afe87caa96`: targeted static contracts passed; Phase-F run `36068478991` returned 1/4 (deployment SHA mismatch, canary PASS, restore failed in import progress RPC migration, rollback-forward 503). Current candidate `a332c3e770477636f2a2898cecabc667f0acac5a` passes import lifecycle/transaction contracts, migration audit (254 / 0 findings), Phase-F static closure, and diff check. Local DB replay unavailable (Supabase CLI/Docker absent); fresh CI/Phase-F pending.
 - PR #628: open; checks incomplete. No PASS or merge is claimed.
 - RUNTIME: Phase-F backup/restore, measured RPO/RTO/rollback, and current production identity remain NOT PROVEN.
-- NEXT EXECUTABLE ACTION: rebind index/live memory to candidate `a332c3e...`; verify exact GitHub HEAD; consume fresh Phase-F/Enforcement/Final Certification; repair only the first reproducible failure.
+- NEXT EXECUTABLE ACTION: monitor Phase-F run `36068854348` on candidate `a332c3e...`; inspect the exact restore failure; repair only the first reproduced issue; then obtain exact-head Enforcement/Final Certification on the current governance HEAD.
 - DO NOT REPEAT: stale migration paths; old candidate evidence; claims of Phase-F closure.
 - UI LANE: no UI code changed in this repair.
 - CORE LANE: three stale contract paths corrected; duplicate FK replay guard, tenant-qualified RLS repair, and import-progress function replay guard added; static checks pass; live replay, exact-head certification, and production deployment identity remain open.
-- CURRENT RESUME POINTER: PR #628 code candidate `a332c3e...` → governance-only index/memory rebind → fresh Phase-F/Enforcement/Final Certification → repair first replay failure → deployment identity alignment → measured recovery.
+- CURRENT RESUME POINTER: PR #628 code candidate `a332c3e...` → Phase-F run `36068854348` → first reproduced restore failure → exact-head Enforcement/Final Certification → deployment identity alignment → measured recovery.
 
 
 # CURRENT CONTROL-PLANE BOUNDARY — 2026-09-22
