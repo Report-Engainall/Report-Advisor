@@ -1,19 +1,19 @@
 # CURRENT CONTROL-PLANE BOUNDARY — 2026-09-25 / MIGRATION CONTRACT + RESTORE REPLAY REPAIR
 
 - MAIN HEAD OBSERVED BEFORE THIS WRITE: `7159553fcfc9d21304ffff60e1086a34b714ac09`.
-- CURRENT CODE/TEST CANDIDATE: `7fdbf61ac8d84afece7b9faddca5025045ba6549`.
-- CURRENT GOVERNANCE HEAD: `1f09a0aa2596c56793aec89702ada9154116e28f` before this write; verify new GitHub HEAD after commit.
-- DONE: corrected three stale migration-contract references; made duplicate import-lineage FKs replay-safe; qualified historical decision work-item/action-receipt policy references; added a guarded DROP/recreate for the legacy import progress RPC; and restored the missing generic `enforce_same_company_reference()` trigger helper before its warehouse/branch trigger.
+- CURRENT CODE/TEST CANDIDATE: `88a27eb7afdbac8d1e61595f46a526fcd16f0c4a`.
+- CURRENT GOVERNANCE HEAD: `a685e04c2b098987468561431bf3fe3943543027` before this write; verify new GitHub HEAD after commit.
+- DONE: corrected three stale migration-contract references; made duplicate import-lineage FKs replay-safe; qualified historical decision work-item/action-receipt policy references; added a guarded DROP/recreate for the legacy import progress RPC; corrected `enforce_same_company_reference()` to valid zero-argument trigger semantics; and fixed UUID→text casts in the canonical dashboard top-customer/top-product labels.
 - LOCAL PROOF on code ancestor `dfbe1fbd...`: TypeScript typecheck PASS; Vite build PASS; ESLint 0 errors / 63 warnings; UI parity PASS (39 routes / 37 links); Product WOW PASS; knowledge architecture PASS; enforcement contract PASS; Phase-F static closure PASS; production-readiness PASS; storage isolation PASS; migration audit PASS (254 migrations / 0 findings); diff check clean.
 - Prior code candidate `733cfb589875333bbac9a870f90dcb31a3a50c53`: migration audit (254 / 0 findings), production readiness, Phase-F static closure, knowledge architecture, decision DML boundary, and other targeted contracts PASS. Phase-F run `36068182084` returned 1/4: production SHA mismatch (`7be9f014...`), tenant canary PASS, restore replay then failed on decision-action policy SQL; rollback-forward drill returned 503.
-- Prior code SHA `02d849e6895481c6b4e369b9b092ca2490e1495b`: Phase-F run `36069252323` returned 1/4 (production deployment SHA mismatch; canary PASS; restore failed while compiling the generic trigger helper because trigger functions cannot declare SQL parameters; rollback-forward 503). Current candidate `7fdbf61...` switches the helper to zero SQL arguments and reads `TG_ARGV`. Staging DB verification confirms the live canonical helper is zero-argument and the trigger compiles/creates successfully inside a rolled-back transaction. Targeted repository contracts pass.
+- Prior code SHA `7fdbf61ac8d84afece7b9faddca5025045ba6549`: Phase-F run `36069668188` returned 1/4 (production deployment SHA mismatch; canary PASS; restore failed compiling dashboard top-customer aggregation because `COALESCE(text, uuid)` was type-incompatible; rollback-forward 503). Current candidate `88a27eb...` casts customer/product UUID labels to text. Targeted repository contracts pass. Live staging DB confirms the canonical tenant trigger helper is already zero-argument, matching the corrected migration.
 - PR #628: open; checks incomplete. No PASS or merge is claimed.
 - RUNTIME: Phase-F backup/restore, measured RPO/RTO/rollback, and current production identity remain NOT PROVEN.
-- NEXT EXECUTABLE ACTION: rebind governance index/memory to candidate `7fdbf61...`; verify exact GitHub HEAD; consume fresh Phase-F; if restore passes, resolve production deployment identity (`7be9f014...`) by promoting/deploying the exact candidate; then consume Enforcement/Final Certification.
+- NEXT EXECUTABLE ACTION: rebind governance index/memory to candidate `88a27eb...`; verify exact GitHub HEAD; consume fresh Phase-F; fix only the first reproduced restore failure; if backup/restore passes, promote/deploy exact candidate so production `/api/health` reports the same SHA `88a27eb...`; then consume Enforcement/Final Certification.
 - DO NOT REPEAT: stale migration paths; old candidate evidence; claims of Phase-F closure.
 - UI LANE: no UI code changed in this repair.
 - CORE LANE: three stale contract paths corrected; duplicate FK replay guard, tenant-qualified RLS repair, and import-progress function replay guard added; static checks pass; live replay, exact-head certification, and production deployment identity remain open.
-- CURRENT RESUME POINTER: PR #628 code candidate `7fdbf61...` → governance rebind → fresh Phase-F restore proof → promote exact candidate to production / verify deployment SHA → exact-head Enforcement/Final Certification → measured recovery.
+- CURRENT RESUME POINTER: PR #628 code candidate `88a27eb...` → governance rebind → fresh Phase-F → first restore failure → production promotion/identity alignment → exact-head Enforcement/Final Certification → measured recovery.
 
 
 # CURRENT CONTROL-PLANE BOUNDARY — 2026-09-22
