@@ -7,13 +7,15 @@
 - DONE: removed SQL BOM and added fail-closed BOM detection; reordered worker privilege revocation before parity assertion; preserved the live six-argument `import_commit_batch` overload via conditional hardening while keeping the canonical five-argument function always hardened.
 - VERIFIED: exact `fcb5148d...` Full Product Browser E2E and Device-Independent Browser E2E succeeded; production-regression evidence succeeded; Vercel exact-head preview is READY; Supabase staging project is ACTIVE_HEALTHY.
 - FAILED: Final Certification `36072952020` was blocked only because the execution index still pointed to stale candidate `203711a...`; this governance write rebinds it to `fcb5148d...`.
-- BLOCKED: Phase-F `36072951829` remains NOT READY (1/4): production deployment SHA is `7be9f014...` instead of candidate; tenant canary PASS; logical backup/restore gets PostgreSQL `password authentication failed for user "postgres"`; rollback-forward returns 503 because forward baseline failed.
+- VERIFIED: fresh Final Certification Gate run `36073413944` on governance head `269dddbe...` completed SUCCESS: certification boundary, contracts, provenance, adversarial checks, and exact-commit evidence all passed.
+- BLOCKED: Phase-F run `36073413980` is still pending on the same governance head; the prior exact-code run `36072951829` is the current live evidence and failed 1/4 because production served old SHA `7be9f014...` and logical backup/restore rejected the configured PostgreSQL credential.
+
 - NOT PROVEN: measured backup/restore, RPO, RTO, rollback, production identity, and final release certification.
 - NEXT EXECUTABLE ACTION: verify the governance write exact HEAD; consume fresh Final Certification; obtain/update the authorized valid `RESILIENCE_LOGICAL_SOURCE_DB_URL` GitHub secret (or approved equivalent) and align production to the exact candidate; rerun Phase-F without changing acceptance criteria.
 - DO NOT REPEAT: no stale SHA evidence, no production identity bypass, no deleting the six-argument contract, no Phase-F PASS claim, no merge before current-head release evidence.
 - UI LANE: exact code candidate is browser-proven; no UI source defect was reproduced.
 - CORE LANE: migration replay syntax/contract blockers are closed through the current code candidate; external credential and production identity remain.
-- CURRENT RESUME POINTER: governance rebind → fresh Certification → authorized DB secret correction → exact-head Phase-F → production identity → measured recovery.
+- CURRENT RESUME POINTER: authorized `RESILIENCE_LOGICAL_SOURCE_DB_URL` correction → consume Phase-F `36073413980` → exact production SHA alignment → measured backup/restore + RPO/RTO + rollback → release closeout.
 
 ## LATEST SESSION WRITE-BACK — 2026-09-24-AGHBARI-CONTINUOUS-EXECUTION-118
 
