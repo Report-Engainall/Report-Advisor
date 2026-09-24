@@ -8,11 +8,11 @@
 - CI STATUS: Phase-F run 36068182084 on 733cfb... returned 1/4 (deployment SHA mismatch; canary PASS; restore failed on action-receipt policy SQL; rollback-forward 503). Current candidate a226aba... includes the policy qualification repair; Phase-F run 36068478991 has passed setup/static contracts and is currently at live resilience probes. Enforcement/Final Certification on a226aba failed candidate-boundary validation because its code commit predates the index rebind; local boundary check passes on governance HEAD 45339bdf... with index candidate a226aba....
 - FAILED / BLOCKED: Phase-F run 36068182084 on 733cfb reported live deployment SHA 7be9f014... (candidate mismatch), restore replay failure in the decision_action_receipts_tenant policy migration, and rollback drill HTTP 503; result 1/4. The FK replay error was passed by the new guard, exposing the next policy SQL failure. Candidate a226aba qualifies those policy references, but replay is NOT YET VERIFIED. Local Supabase CLI and Docker are unavailable.
 - NOT PROVEN: current production identity, authenticated business readback, backup/restore completion, measured RPO/RTO, rollback, and final release certification.
-- NEXT EXECUTABLE ACTION: inspect Phase-F run 36068478991 on candidate a226aba...; fix only its first reproduced live failure; then obtain exact-head Enforcement/Final Certification on governance HEAD 45339bdf....
+- NEXT EXECUTABLE ACTION: inspect Phase-F run 36068478991 on candidate a226aba...; fix only its first reproduced live failure; then obtain exact-head Enforcement/Final Certification on latest governance HEAD 79e11847... (verify exact HEAD first).
 - DO NOT REPEAT: no stale migration paths; no stale SHA evidence; no production deployment identity bypass; no Phase-F pass claims; no merging PR #628 before required checks pass; no ungoverned production recovery.
 - UI LANE: route parity and product-wow contracts verified; no new UI source changed in this targeted session.
 - CORE LANE: three stale contract paths corrected; duplicate FK replay and tenant-policy qualification repairs added; targeted static contracts pass; live DB replay, production identity, measured recovery and final certification remain open.
-- CURRENT RESUME POINTER: code candidate a226aba... → Phase-F run 36068478991 live probe result → first restore/runtime repair → exact-head Enforcement/Final Certification on governance HEAD 45339bdf... → production identity alignment → measured recovery.
+- CURRENT RESUME POINTER: code candidate a226aba... → Phase-F run 36068478991 result → first restore/runtime repair → exact-head gates on governance HEAD 79e11847... → production identity alignment → measured recovery.
 
 ---
 
