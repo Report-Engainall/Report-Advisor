@@ -1,19 +1,19 @@
 # CURRENT CONTROL-PLANE BOUNDARY — 2026-09-25 / MIGRATION CONTRACT + RESTORE REPLAY REPAIR
 
 - MAIN HEAD OBSERVED BEFORE THIS WRITE: `7159553fcfc9d21304ffff60e1086a34b714ac09`.
-- CURRENT CODE/TEST CANDIDATE: `6f9948c0a0d7009cd0df8ec39f336fb4d3c4f336`.
-- CURRENT GOVERNANCE HEAD: `17d00f231806c9ced51f78087ed6bd3e22d8c154` before this write; verify new GitHub HEAD after commit.
+- CURRENT CODE/TEST CANDIDATE: `51d589a49097f362ddb4fa464d36ecc3456fefd0`.
+- CURRENT GOVERNANCE HEAD: `6c5d03e60f99c988be8bf3d493240cb0b5470ddd` before this write; verify new GitHub HEAD after commit.
 - DONE: corrected three stale migration-contract references; made duplicate import-lineage FKs replay-safe; qualified historical decision work-item/action-receipt policy references; added guarded DROP/recreate for the legacy import progress RPC; corrected `enforce_same_company_reference()` to valid zero-argument trigger semantics; fixed UUID→text casts in both dashboard aggregation migrations, including `20260831061000_dashboard_top_entities_truth.sql`.
 - LOCAL PROOF on code ancestor `dfbe1fbd...`: TypeScript typecheck PASS; Vite build PASS; ESLint 0 errors / 63 warnings; UI parity PASS (39 routes / 37 links); Product WOW PASS; knowledge architecture PASS; enforcement contract PASS; Phase-F static closure PASS; production-readiness PASS; storage isolation PASS; migration audit PASS (254 migrations / 0 findings); diff check clean.
 - Prior code candidate `733cfb589875333bbac9a870f90dcb31a3a50c53`: migration audit (254 / 0 findings), production readiness, Phase-F static closure, knowledge architecture, decision DML boundary, and other targeted contracts PASS. Phase-F run `36068182084` returned 1/4: production SHA mismatch (`7be9f014...`), tenant canary PASS, restore replay then failed on decision-action policy SQL; rollback-forward drill returned 503.
-- Prior code SHA `501013ad97dcf1ae0fe4455049e89aa7c6c769a3`: static repository and PostgreSQL transaction checks passed for the top-entities fix. On governance head `17d00f...`, Final Certification next exposed stale watched-folder migration references; `check-import-folder-foundation` and `check-watched-report-pipeline-contract` both now PASS after exact path correction. Current candidate `6f9948c...` contains those contract fixes.
+- Prior code SHA `6f9948c0a0d7009cd0df8ec39f336fb4d3c4f336`: its Final Certification exposed two stale work-item assignment migration references. Both contract scripts now PASS after exact canonical path correction; a full scripts-to-migrations scan reports zero missing migration references. Current candidate `51d589a...` contains those fixes.
 - PR #628: open; checks incomplete. No PASS or merge is claimed.
 - RUNTIME: Phase-F backup/restore, measured RPO/RTO/rollback, and current production identity remain NOT PROVEN.
-- NEXT EXECUTABLE ACTION: rebind governance index/memory to candidate `6f9948c...`; verify exact GitHub HEAD; consume fresh Final Certification and Phase-F; fix only the first reproduced failure; if Phase-F restore passes, resolve production identity (`7be9f014...`) with an exact production promotion, then certify.
+- NEXT EXECUTABLE ACTION: rebind governance index/memory to candidate `51d589a...`; verify exact GitHub HEAD; consume fresh Final Certification and Phase-F; fix only the first reproduced failure; if Phase-F restore passes, resolve production identity (`7be9f014...`) with an exact production promotion, then certify.
 - DO NOT REPEAT: stale migration paths; old candidate evidence; claims of Phase-F closure.
 - UI LANE: no UI code changed in this repair.
 - CORE LANE: three stale contract paths corrected; duplicate FK replay guard, tenant-qualified RLS repair, and import-progress function replay guard added; static checks pass; live replay, exact-head certification, and production deployment identity remain open.
-- CURRENT RESUME POINTER: PR #628 code candidate `6f9948c...` → governance rebind → fresh Final Certification + Phase-F → first reproduced failure → exact production identity → measured recovery.
+- CURRENT RESUME POINTER: PR #628 code candidate `51d589a...` → governance rebind → fresh Final Certification + Phase-F → first reproduced failure → exact production identity → measured recovery.
 
 
 # CURRENT CONTROL-PLANE BOUNDARY — 2026-09-22
