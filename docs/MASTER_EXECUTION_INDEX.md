@@ -1,20 +1,18 @@
-# CURRENT CONTROL-PLANE BOUNDARY — 2026-09-25 / MIGRATION CONTRACT + RESTORE REPLAY REPAIR
+# CURRENT CONTROL-PLANE BOUNDARY — 2026-09-25 / LIVE MIGRATION REPLAY + GOVERNANCE REBIND
 
 - MAIN HEAD OBSERVED BEFORE THIS WRITE: `7159553fcfc9d21304ffff60e1086a34b714ac09`.
-- CURRENT CODE/TEST CANDIDATE: `203711a915770c064f5a34edb5aefb9518e77d2f`.
-- CURRENT GOVERNANCE HEAD: `434a6ea00b763e1117a8e8c5b69f9b225719c722` before this write; verify new GitHub HEAD after commit.
-- DONE: corrected stale migration-contract references across runtime and certification scripts; made duplicate import-lineage FKs replay-safe; qualified historical decision work-item/action-receipt policies; added guarded import-progress RPC recreation; corrected trigger-helper semantics; fixed UUID→text dashboard casts; aligned certification migration filenames; and hardened watched-provenance replay by ensuring composite parent uniqueness before re-adding provenance FKs.
-- LOCAL PROOF on code ancestor `dfbe1fbd...`: TypeScript typecheck PASS; Vite build PASS; ESLint 0 errors / 63 warnings; UI parity PASS (39 routes / 37 links); Product WOW PASS; knowledge architecture PASS; enforcement contract PASS; Phase-F static closure PASS; production-readiness PASS; storage isolation PASS; migration audit PASS (254 migrations / 0 findings); diff check clean.
-- Prior code candidate `733cfb589875333bbac9a870f90dcb31a3a50c53`: migration audit (254 / 0 findings), production readiness, Phase-F static closure, knowledge architecture, decision DML boundary, and other targeted contracts PASS. Phase-F run `36068182084` returned 1/4: production SHA mismatch (`7be9f014...`), tenant canary PASS, restore replay then failed on decision-action policy SQL; rollback-forward drill returned 503.
-- Prior code SHA `6f9948c0a0d7009cd0df8ec39f336fb4d3c4f336`: its Final Certification exposed two stale work-item assignment migration references. Both contract scripts now PASS after exact canonical path correction; a full scripts-to-migrations scan reports zero missing migration references. Current candidate `51d589a...` contains those fixes.
-- PR #628: open; checks incomplete. No PASS or merge is claimed.
-- RUNTIME: Phase-F backup/restore, measured RPO/RTO/rollback, and current production identity remain NOT PROVEN.
-- NEXT EXECUTABLE ACTION: rebind governance index/memory to candidate `51d589a...`; verify exact GitHub HEAD; consume fresh Final Certification and Phase-F; fix only the first reproduced failure; if Phase-F restore passes, resolve production identity (`7be9f014...`) with an exact production promotion, then certify.
-- DO NOT REPEAT: stale migration paths; old candidate evidence; claims of Phase-F closure.
-- UI LANE: no UI code changed in this repair.
-- CORE LANE: three stale contract paths corrected; duplicate FK replay guard, tenant-qualified RLS repair, and import-progress function replay guard added; static checks pass; live replay, exact-head certification, and production deployment identity remain open.
-- CURRENT RESUME POINTER: PR #628 code candidate `203711a...` → governance rebind → fresh Final Certification + Phase-F → first reproduced failure → exact production identity → measured recovery.
-
+- CURRENT CODE/TEST CANDIDATE: `fcb5148d8645c85e7478df28e72f14be0f0bd7ec` (PR #628 code head before this governance-only write).
+- GOVERNANCE WRITE: this commit rebinds the execution index to the exact current code/test candidate; it changes governance files only and must not be treated as new runtime/code evidence.
+- DONE: exact-head E2E on `fcb5148d...` succeeded; Vercel exact-head preview is READY; migration replay blockers fixed for BOM, worker privilege ordering, and conditional legacy six-argument `import_commit_batch` hardening.
+- VERIFIED: `36072951915` Full Product Browser E2E succeeded; `36072951857` Device-Independent Browser smoke + authenticated product/import E2E succeeded; production-regression evidence succeeded on `fcb5148d...`; Supabase project `fnqbvfuwbdpwvhcgzksl` is ACTIVE_HEALTHY on PostgreSQL 17.6.
+- FAILED / BLOCKED: Phase-F `36072951829` is 1/4 on exact code `fcb5148d...`: tenant canary PASS; production health returns HTTP 200 but deployment SHA is old `7be9f014...`; logical backup/restore fails at the external PostgreSQL credential with `FATAL: password authentication failed for user "postgres"`; rollback-forward drill returns 503 because the forward baseline is not established.
+- FAILED: Final Certification `36072952020` rejected stale governance index candidate `203711a...`; this write rebinds the index to `fcb5148d...` without weakening the checker.
+- NOT PROVEN: production identity, logical backup/restore, measured RPO/RTO, rollback, and final release certification.
+- NEXT EXECUTABLE ACTION: verify this governance commit is exact HEAD → consume fresh Final Certification → keep Phase-F blocked only on the real DB credential / production identity → once the authorized secret is corrected, rerun Phase-F and repair only the first reproduced live failure.
+- DO NOT REPEAT: stale migration paths; stale candidate binding; removal of the live six-argument overload contract; old Phase-F evidence; production SHA bypass; merge before exact current-head release gates.
+- UI LANE: current code candidate passes browser smoke and authenticated product/import E2E; no new UI defect was evidenced by the current exact-head gates.
+- CORE LANE: replay blockers through `20260921161000...` are resolved; remaining blocker is external DB credential + production deployment identity, not migration syntax.
+- CURRENT RESUME POINTER: governance rebind → fresh Final Certification on this governance head → authorized DB credential correction → exact-head Phase-F → production identity → measured recovery → release closeout.
 
 # CURRENT CONTROL-PLANE BOUNDARY — 2026-09-22
 

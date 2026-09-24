@@ -1,20 +1,18 @@
-## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-119
+## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-120
 
-- SESSION-ID: 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-119.
-- MAIN HEAD OBSERVED BEFORE THIS WRITE: 7159553fcfc9d21304ffff60e1086a34b714ac09.
-- CURRENT CODE/TEST CANDIDATE: 203711a915770c064f5a34edb5aefb9518e77d2f (PR #628 branch).
-- DONE: corrected stale migration-contract references across runtime and certification scripts; added duplicate-FK replay guards; qualified tenant columns in historical decision work-item/action-receipt RLS policies; added DROP FUNCTION IF EXISTS before recreating import_update_job_progress; corrected enforce_same_company_reference() to zero-argument TG_ARGV semantics; fixed UUID-to-text casts in both dashboard aggregation migrations; aligned watched-folder/work-item certification paths; and hardened watched-provenance replay by ensuring parent `(company_id,id)` uniqueness before re-adding composite FKs. Pushed code candidate 203711a915770c064f5a34edb5aefb9518e77d2f to PR #628.
-- LOCAL PROOF on ancestor/current targeted paths: typecheck/build/lint and UI parity/Product WOW were previously PASS; current candidate static proofs include migration audit 254/0, report truth, import lifecycle, canonical import mapping, Phase-F static closure, decision TOCTOU, watched-folder foundation and watched-report pipeline contracts; diff check clean. Staging PostgreSQL transaction tests confirmed the corrected trigger helper and top-entity SQL compile with rollback.
-- CI STATUS: Final Certification contract checks on the governance head passed the stale-path layers. Phase-F run `36071061109` on governance head `434a6ea...` had 1/4: production SHA mismatch (`7be9f014...`), canary PASS, and restore reached `20260908221000_reconcile_watched_provenance_delete_fencing_current_main.sql` before failing to add composite provenance FKs. Candidate `203711a...` ensures parent composite uniqueness before those FKs.
-- FAILED / BLOCKED: Phase-F `36071061109` on `434a6ea...` remains NOT READY (1/4): production deployment SHA mismatch, tenant canary PASS, provenance FK replay failure, rollback-forward 503. Candidate `203711a...` contains the parent-key hardening. Production identity remains separate.
-- NOT PROVEN: current production identity, authenticated business readback, backup/restore completion, measured RPO/RTO, rollback, and final release certification.
-- NEXT EXECUTABLE ACTION: commit governance rebind to candidate 51d589a...; verify exact GitHub HEAD; consume fresh Final Certification and Phase-F; repair only the first reproduced failure; if Phase-F restore passes, resolve production identity (`7be9f014...`) with an exact promotion, then verify `/api/health` and certify.
-- DO NOT REPEAT: no stale migration paths; no stale SHA evidence; no production deployment identity bypass; no Phase-F pass claims; no merging PR #628 before required checks pass; no ungoverned production recovery.
-- UI LANE: route parity and product-wow contracts verified; no new UI source changed in this targeted session.
-- CORE LANE: three stale contract paths corrected; duplicate FK replay, tenant-policy qualification, import-progress replay, and trigger-helper replay repairs added; targeted static contracts pass; live DB replay, production identity, measured recovery and final certification remain open.
-- CURRENT RESUME POINTER: code candidate 203711a... → governance rebind → fresh Final Certification/Phase-F → first failure → production identity alignment → measured recovery.
-
----
+- SESSION-ID: `2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-120`.
+- MAIN HEAD OBSERVED BEFORE THIS WRITE: `7159553fcfc9d21304ffff60e1086a34b714ac09`.
+- CURRENT CODE/TEST CANDIDATE BEFORE GOVERNANCE WRITE: `fcb5148d8645c85e7478df28e72f14be0f0bd7ec` on PR #628.
+- DONE: removed SQL BOM and added fail-closed BOM detection; reordered worker privilege revocation before parity assertion; preserved the live six-argument `import_commit_batch` overload via conditional hardening while keeping the canonical five-argument function always hardened.
+- VERIFIED: exact `fcb5148d...` Full Product Browser E2E and Device-Independent Browser E2E succeeded; production-regression evidence succeeded; Vercel exact-head preview is READY; Supabase staging project is ACTIVE_HEALTHY.
+- FAILED: Final Certification `36072952020` was blocked only because the execution index still pointed to stale candidate `203711a...`; this governance write rebinds it to `fcb5148d...`.
+- BLOCKED: Phase-F `36072951829` remains NOT READY (1/4): production deployment SHA is `7be9f014...` instead of candidate; tenant canary PASS; logical backup/restore gets PostgreSQL `password authentication failed for user "postgres"`; rollback-forward returns 503 because forward baseline failed.
+- NOT PROVEN: measured backup/restore, RPO, RTO, rollback, production identity, and final release certification.
+- NEXT EXECUTABLE ACTION: verify the governance write exact HEAD; consume fresh Final Certification; obtain/update the authorized valid `RESILIENCE_LOGICAL_SOURCE_DB_URL` GitHub secret (or approved equivalent) and align production to the exact candidate; rerun Phase-F without changing acceptance criteria.
+- DO NOT REPEAT: no stale SHA evidence, no production identity bypass, no deleting the six-argument contract, no Phase-F PASS claim, no merge before current-head release evidence.
+- UI LANE: exact code candidate is browser-proven; no UI source defect was reproduced.
+- CORE LANE: migration replay syntax/contract blockers are closed through the current code candidate; external credential and production identity remain.
+- CURRENT RESUME POINTER: governance rebind → fresh Certification → authorized DB secret correction → exact-head Phase-F → production identity → measured recovery.
 
 ## LATEST SESSION WRITE-BACK — 2026-09-24-AGHBARI-CONTINUOUS-EXECUTION-118
 
