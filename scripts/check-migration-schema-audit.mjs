@@ -44,7 +44,11 @@ function triggerIsReplacement(text, name) {
 }
 
 for (const file of files) {
-  const text = fs.readFileSync(path.join(dir, file), 'utf8');
+  const raw = fs.readFileSync(path.join(dir, file));
+  if (raw.length >= 3 && raw[0] === 0xEF && raw[1] === 0xBB && raw[2] === 0xBF) {
+    findings.push(`${file}: UTF-8 BOM is not allowed in SQL migrations`);
+  }
+  const text = raw.toString('utf8');
   const statements = text.split(';').map((statement) => statement.trim()).filter(Boolean);
 
   for (const statement of statements) {
