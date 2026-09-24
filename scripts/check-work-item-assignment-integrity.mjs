@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 
-const migration = fs.readFileSync('supabase/migrations/20260831014000_harden_work_item_assignment_integrity.sql', 'utf8');
+const migration = fs.readFileSync('supabase/migrations/20260831014001_harden_work_item_assignment_integrity.sql', 'utf8');
 const stripSqlComments = (sql) => sql.replace(/\/\*[\s\S]*?\*\//g, '').replace(/(^|\n)\s*--[^\n]*/g, '$1');
 const executable = stripSqlComments(migration);
 
