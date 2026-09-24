@@ -39,6 +39,10 @@ BEGIN
 END;
 $$;
 
+-- A restored schema may already contain this signature with legacy argument names.
+-- Drop it before recreation because PostgreSQL cannot rename input parameters via CREATE OR REPLACE.
+DROP FUNCTION IF EXISTS public.import_update_job_progress(uuid, integer, integer, integer, integer, text);
+
 CREATE OR REPLACE FUNCTION public.import_update_job_progress(
   p_job_id uuid,
   p_processed_rows integer,
