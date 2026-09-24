@@ -2,17 +2,17 @@
 
 - SESSION-ID: 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-119.
 - MAIN HEAD OBSERVED BEFORE THIS WRITE: 7159553fcfc9d21304ffff60e1086a34b714ac09.
-- CURRENT CODE/TEST CANDIDATE: dfbe1fbd65bb69c2a092b610e42c0234a98f94f6 (PR #628 branch).
-- DONE: reconciled local checkout to exact current main, investigated fresh PR #628 CI failures, and corrected the third stale migration filename in scripts/check-decision-runtime-dml-boundary.mjs. Pushed commit dfbe1fbd to the existing PR #628 branch.
+- CURRENT CODE/TEST CANDIDATE: 733cfb589875333bbac9a870f90dcb31a3a50c53 (PR #628 branch).
+- DONE: corrected three stale migration contract paths and added DROP CONSTRAINT IF EXISTS guards before recreating the two duplicated import-lineage FKs in migration 20260822203001_import_tenant_integrity_hardening.sql. Pushed code candidate 733cfb589875333bbac9a870f90dcb31a3a50c53 to PR #628.
 - LOCAL EXACT-CANDIDATE VERIFICATION: typecheck PASS; Vite production build PASS; ESLint completed with 0 errors and 63 warnings; route/sidebar parity PASS (39 routes / 37 canonical links); Product WOW contract PASS; knowledge architecture PASS; execution enforcement contract PASS; Phase-F static closure PASS; production readiness PASS; storage tenant-isolation contract PASS; migration schema audit PASS (254 migrations, 0 findings); git diff check clean.
-- CI STATUS: broad checks triggered on dfbe1fbd. Enforcement and Final Certification failed closed because the index candidate was still 4d00b21f...; this session is rebinding the index and memory to the actual code candidate before fresh governance gates.
-- FAILED / BLOCKED: prior Phase-F exact-head run on ef8cea22 reported production deployment SHA mismatch (live SHA 7be9f014...), and backup/restore migration replay stopped on already-existing constraint import_field_lineage_job_company_fk; Phase-F remains NOT PROVEN. This is a separate runtime/migration-restore issue, not fixed by contract path corrections.
+- CI STATUS: broad checks on dfbe1fbd showed Enforcement/Final Certification blocked by stale index candidate 4d00b21f...; Phase-F live failed with deployment SHA mismatch and duplicate constraint replay. Current candidate 733cfb... has static checks passing; fresh CI/Phase-F evidence is pending after governance rebind.
+- FAILED / BLOCKED: Phase-F run 36067812339 on dfbe1fbd reported production deployment SHA 7be9f014... (candidate mismatch), restore replay duplicate import_field_lineage_job_company_fk, and rollback drill HTTP 503; result 1/4. Added replay guard to the migration, but live replay is NOT YET VERIFIED. Local Supabase CLI and Docker are unavailable.
 - NOT PROVEN: current production identity, authenticated business readback, backup/restore completion, measured RPO/RTO, rollback, and final release certification.
-- NEXT EXECUTABLE ACTION: commit this governance-only index/memory rebind; verify the new exact GitHub HEAD; consume fresh Enforcement/Final Certification; inspect the latest Phase-F evidence and repair only the first safely reproducible failure.
+- NEXT EXECUTABLE ACTION: commit governance-only index/memory rebind to candidate 733cfb...; verify exact GitHub HEAD; consume fresh exact-head CI/Phase-F; repair only the first reproducible failure.
 - DO NOT REPEAT: no stale migration paths; no stale SHA evidence; no production deployment identity bypass; no Phase-F pass claims; no merging PR #628 before required checks pass; no ungoverned production recovery.
 - UI LANE: route parity and product-wow contracts verified; no new UI source changed in this targeted session.
-- CORE LANE: three stale migration-contract paths corrected; local build/typecheck/lint and targeted contracts verified; live resilience remains blocked.
-- CURRENT RESUME POINTER: code candidate dfbe1fbd... → governance-only index/memory rebind → fresh exact-head gates → Phase-F migration replay / deployment identity failure → measured recovery.
+- CORE LANE: three stale contract paths corrected; migration replay guard added; targeted static contracts pass; live DB replay, production identity, measured recovery and final certification remain open.
+- CURRENT RESUME POINTER: code candidate 733cfb... → governance-only index/memory rebind → fresh exact-head gates → verify migration replay fix → align production deployment SHA → measured backup/restore, RPO/RTO and rollback.
 
 ---
 

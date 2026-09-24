@@ -1,18 +1,19 @@
-# CURRENT CONTROL-PLANE BOUNDARY — 2026-09-24 / MIGRATION CONTRACT REPAIR
+# CURRENT CONTROL-PLANE BOUNDARY — 2026-09-25 / MIGRATION CONTRACT + RESTORE REPLAY REPAIR
 
 - MAIN HEAD OBSERVED BEFORE THIS WRITE: `7159553fcfc9d21304ffff60e1086a34b714ac09`.
-- CURRENT CODE/TEST CANDIDATE: `dfbe1fbd65bb69c2a092b610e42c0234a98f94f6`.
-- CURRENT GOVERNANCE HEAD: `dfbe1fbd65bb69c2a092b610e42c0234a98f94f6` before this write; verify new GitHub HEAD after commit.
-- DONE: corrected stale migration references in storage-tenant, production-readiness, and decision-runtime DML contracts.
-- EXACT-HEAD LOCAL PROOF on `dfbe1fbd...`: TypeScript typecheck PASS; Vite build PASS; ESLint 0 errors / 63 warnings; UI parity PASS (39 routes / 37 links); Product WOW PASS; knowledge architecture PASS; enforcement contract PASS; Phase-F static closure PASS; production-readiness PASS; storage isolation PASS; migration audit PASS (254 migrations / 0 findings); diff check clean.
-- CI on `dfbe1fbd...`: Enforcement and Final Certification failed at candidate-boundary validation because index still referenced `4d00b21f...`; no PASS is claimed.
+- CURRENT CODE/TEST CANDIDATE: `733cfb589875333bbac9a870f90dcb31a3a50c53`.
+- CURRENT GOVERNANCE HEAD: `733cfb589875333bbac9a870f90dcb31a3a50c53` before this write; verify new GitHub HEAD after commit.
+- DONE: corrected stale migration references in three existing contracts and made the duplicate import-lineage FK migration replay-safe by dropping the two constraints before recreating their canonical definitions.
+- LOCAL PROOF on code ancestor `dfbe1fbd...`: TypeScript typecheck PASS; Vite build PASS; ESLint 0 errors / 63 warnings; UI parity PASS (39 routes / 37 links); Product WOW PASS; knowledge architecture PASS; enforcement contract PASS; Phase-F static closure PASS; production-readiness PASS; storage isolation PASS; migration audit PASS (254 migrations / 0 findings); diff check clean.
+- CURRENT SHA `733cfb589875333bbac9a870f90dcb31a3a50c53`: migration schema audit PASS (254 migrations / 0 findings), production-readiness PASS, Phase-F static closure PASS, knowledge architecture PASS, decision DML boundary PASS, diff check clean. Database replay could not be run locally because Supabase CLI and Docker are unavailable.
+- CI on prior code SHA `dfbe1fbd...`: Enforcement/Final Certification failed only at candidate-boundary validation while index pointed to `4d00b21f...`; Phase-F live run failed with deployment SHA mismatch and duplicate FK replay. Fresh CI/Phase-F evidence for `733cfb...` is pending.
 - PR #628: open; checks incomplete. No PASS or merge is claimed.
 - RUNTIME: Phase-F backup/restore, measured RPO/RTO/rollback, and current production identity remain NOT PROVEN.
-- NEXT EXECUTABLE ACTION: rebind index to `dfbe1fbd...`, record proof in live memory, trigger fresh exact-head gates, then fix only the first new reproducible failure.
+- NEXT EXECUTABLE ACTION: rebind index and live memory to `733cfb...`, verify exact GitHub HEAD, consume fresh CI/Phase-F evidence, then repair only the first reproducible current-head failure.
 - DO NOT REPEAT: stale migration paths; old candidate evidence; claims of Phase-F closure.
 - UI LANE: no UI code changed in this repair.
-- CORE LANE: three stale migration-contract paths corrected and local checks pass; exact-head CI and live resilience remain open.
-- CURRENT RESUME POINTER: PR #628 candidate `dfbe1fbd...` → governance-only index/memory rebind → fresh Enforcement/Final Certification → Phase-F first live failure → measured recovery.
+- CORE LANE: three stale contract paths corrected; duplicate FK replay guard added; static contracts pass; live database replay, exact-head certification, and deployment identity remain open.
+- CURRENT RESUME POINTER: PR #628 code candidate `733cfb...` → governance-only index/memory rebind → fresh exact-head gates → replay-safe restore proof → deployment identity alignment → measured recovery.
 
 
 # CURRENT CONTROL-PLANE BOUNDARY — 2026-09-22
