@@ -1,9 +1,9 @@
 # CURRENT CONTROL-PLANE BOUNDARY — 2026-09-25 / MIGRATION CONTRACT + RESTORE REPLAY REPAIR
 
 - MAIN HEAD OBSERVED BEFORE THIS WRITE: `7159553fcfc9d21304ffff60e1086a34b714ac09`.
-- CURRENT CODE/TEST CANDIDATE: `51d589a49097f362ddb4fa464d36ecc3456fefd0`.
-- CURRENT GOVERNANCE HEAD: `6c5d03e60f99c988be8bf3d493240cb0b5470ddd` before this write; verify new GitHub HEAD after commit.
-- DONE: corrected three stale migration-contract references; made duplicate import-lineage FKs replay-safe; qualified historical decision work-item/action-receipt policy references; added guarded DROP/recreate for the legacy import progress RPC; corrected `enforce_same_company_reference()` to valid zero-argument trigger semantics; fixed UUID→text casts in both dashboard aggregation migrations, including `20260831061000_dashboard_top_entities_truth.sql`.
+- CURRENT CODE/TEST CANDIDATE: `203711a915770c064f5a34edb5aefb9518e77d2f`.
+- CURRENT GOVERNANCE HEAD: `434a6ea00b763e1117a8e8c5b69f9b225719c722` before this write; verify new GitHub HEAD after commit.
+- DONE: corrected stale migration-contract references across runtime and certification scripts; made duplicate import-lineage FKs replay-safe; qualified historical decision work-item/action-receipt policies; added guarded import-progress RPC recreation; corrected trigger-helper semantics; fixed UUID→text dashboard casts; aligned certification migration filenames; and hardened watched-provenance replay by ensuring composite parent uniqueness before re-adding provenance FKs.
 - LOCAL PROOF on code ancestor `dfbe1fbd...`: TypeScript typecheck PASS; Vite build PASS; ESLint 0 errors / 63 warnings; UI parity PASS (39 routes / 37 links); Product WOW PASS; knowledge architecture PASS; enforcement contract PASS; Phase-F static closure PASS; production-readiness PASS; storage isolation PASS; migration audit PASS (254 migrations / 0 findings); diff check clean.
 - Prior code candidate `733cfb589875333bbac9a870f90dcb31a3a50c53`: migration audit (254 / 0 findings), production readiness, Phase-F static closure, knowledge architecture, decision DML boundary, and other targeted contracts PASS. Phase-F run `36068182084` returned 1/4: production SHA mismatch (`7be9f014...`), tenant canary PASS, restore replay then failed on decision-action policy SQL; rollback-forward drill returned 503.
 - Prior code SHA `6f9948c0a0d7009cd0df8ec39f336fb4d3c4f336`: its Final Certification exposed two stale work-item assignment migration references. Both contract scripts now PASS after exact canonical path correction; a full scripts-to-migrations scan reports zero missing migration references. Current candidate `51d589a...` contains those fixes.
@@ -13,7 +13,7 @@
 - DO NOT REPEAT: stale migration paths; old candidate evidence; claims of Phase-F closure.
 - UI LANE: no UI code changed in this repair.
 - CORE LANE: three stale contract paths corrected; duplicate FK replay guard, tenant-qualified RLS repair, and import-progress function replay guard added; static checks pass; live replay, exact-head certification, and production deployment identity remain open.
-- CURRENT RESUME POINTER: PR #628 code candidate `51d589a...` → governance rebind → fresh Final Certification + Phase-F → first reproduced failure → exact production identity → measured recovery.
+- CURRENT RESUME POINTER: PR #628 code candidate `203711a...` → governance rebind → fresh Final Certification + Phase-F → first reproduced failure → exact production identity → measured recovery.
 
 
 # CURRENT CONTROL-PLANE BOUNDARY — 2026-09-22
