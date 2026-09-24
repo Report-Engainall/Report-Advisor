@@ -1,19 +1,19 @@
 # CURRENT CONTROL-PLANE BOUNDARY — 2026-09-25 / MIGRATION CONTRACT + RESTORE REPLAY REPAIR
 
 - MAIN HEAD OBSERVED BEFORE THIS WRITE: `7159553fcfc9d21304ffff60e1086a34b714ac09`.
-- CURRENT CODE/TEST CANDIDATE: `733cfb589875333bbac9a870f90dcb31a3a50c53`.
-- CURRENT GOVERNANCE HEAD: `733cfb589875333bbac9a870f90dcb31a3a50c53` before this write; verify new GitHub HEAD after commit.
-- DONE: corrected stale migration references in three existing contracts and made the duplicate import-lineage FK migration replay-safe by dropping the two constraints before recreating their canonical definitions.
+- CURRENT CODE/TEST CANDIDATE: `a226aba64d3ed367c0b10530a652b6afe87caa96`.
+- CURRENT GOVERNANCE HEAD: `a226aba64d3ed367c0b10530a652b6afe87caa96` before this write; verify new GitHub HEAD after commit.
+- DONE: corrected three stale migration-contract references; made duplicate import-lineage FKs replay-safe; qualified the historical decision work-item/action-receipt policy references to match the later tenant-safe canonical definitions and avoid ambiguous/unqualified tenant predicates.
 - LOCAL PROOF on code ancestor `dfbe1fbd...`: TypeScript typecheck PASS; Vite build PASS; ESLint 0 errors / 63 warnings; UI parity PASS (39 routes / 37 links); Product WOW PASS; knowledge architecture PASS; enforcement contract PASS; Phase-F static closure PASS; production-readiness PASS; storage isolation PASS; migration audit PASS (254 migrations / 0 findings); diff check clean.
-- CURRENT SHA `733cfb589875333bbac9a870f90dcb31a3a50c53`: migration schema audit PASS (254 migrations / 0 findings), production-readiness PASS, Phase-F static closure PASS, knowledge architecture PASS, decision DML boundary PASS, diff check clean. Database replay could not be run locally because Supabase CLI and Docker are unavailable.
-- CI on prior code SHA `dfbe1fbd...`: Enforcement/Final Certification failed only at candidate-boundary validation while index pointed to `4d00b21f...`; Phase-F live run failed with deployment SHA mismatch and duplicate FK replay. Fresh CI/Phase-F evidence for `733cfb...` is pending.
+- Prior code candidate `733cfb589875333bbac9a870f90dcb31a3a50c53`: migration audit (254 / 0 findings), production readiness, Phase-F static closure, knowledge architecture, decision DML boundary, and other targeted contracts PASS. Phase-F run `36068182084` returned 1/4: production SHA mismatch (`7be9f014...`), tenant canary PASS, restore replay then failed on decision-action policy SQL; rollback-forward drill returned 503.
+- Current code SHA `a226aba64d3ed367c0b10530a652b6afe87caa96`: decision/intelligence closure, tenant security contract, migration schema audit (254 / 0 findings), Phase-F static closure, decision approval TOCTOU contract, and diff check PASS. Local database replay unavailable (Supabase CLI/Docker absent); fresh CI/Phase-F is pending.
 - PR #628: open; checks incomplete. No PASS or merge is claimed.
 - RUNTIME: Phase-F backup/restore, measured RPO/RTO/rollback, and current production identity remain NOT PROVEN.
-- NEXT EXECUTABLE ACTION: rebind index and live memory to `733cfb...`, verify exact GitHub HEAD, consume fresh CI/Phase-F evidence, then repair only the first reproducible current-head failure.
+- NEXT EXECUTABLE ACTION: rebind index/live memory to `a226aba...`, verify exact GitHub HEAD, consume fresh exact-head CI/Phase-F evidence, then repair only the first reproducible restore or deployment-identity failure.
 - DO NOT REPEAT: stale migration paths; old candidate evidence; claims of Phase-F closure.
 - UI LANE: no UI code changed in this repair.
-- CORE LANE: three stale contract paths corrected; duplicate FK replay guard added; static contracts pass; live database replay, exact-head certification, and deployment identity remain open.
-- CURRENT RESUME POINTER: PR #628 code candidate `733cfb...` → governance-only index/memory rebind → fresh exact-head gates → replay-safe restore proof → deployment identity alignment → measured recovery.
+- CORE LANE: three stale contract paths corrected; duplicate FK replay guard and tenant-qualified policy repair added; static contracts pass; live replay, exact-head certification, and production deployment identity remain open.
+- CURRENT RESUME POINTER: PR #628 code candidate `a226aba...` → governance-only index/memory rebind → exact-head gates → Phase-F restore replay proof → deployment identity alignment → measured recovery.
 
 
 # CURRENT CONTROL-PLANE BOUNDARY — 2026-09-22
