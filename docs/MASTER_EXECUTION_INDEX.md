@@ -1,16 +1,18 @@
-# CURRENT CONTROL-PLANE BOUNDARY — 2026-09-23 / PHASE-F VERIFICATION HEAD 3C5
+# CURRENT CONTROL-PLANE BOUNDARY — 2026-09-24 / MIGRATION CONTRACT REPAIR
 
-- MAIN HEAD OBSERVED BEFORE THIS WRITE: `a38ba80bf5249c601da675a81de16f36b03695e3`.
-- CURRENT CODE/TEST CANDIDATE: `adb093bb20d488ce593b5e2598168c74711d4346`.
-- CURRENT GOVERNANCE HEAD: `3e49a4f5ea57d2de28074b172a346ca91b0376dc`.
-- DONE: Phase-F migration restore repair merged at `adb093bb...`; 285-migration local audit had 0 findings.
-- VERIFICATION BRANCH: PR #627, latest exact head `3c5e12951a1cb2aa4c27e0c77297ed9541407c11`, governance-only trigger refresh.
-- PREVIEW: Netlify preview READY; Vercel rejected deployment with `api-deployments-free-per-day`.
-- ACTIONS: no connector-visible workflow run has appeared for the verification head; no Phase-F verdict is claimed.
-- RUNTIME BOUNDARY: production SHA remains `1d88b083...`; measured restore/RPO/RTO/rollback and current production identity remain NOT PROVEN.
-- NEXT CORE FRONT: consume PR #627 exact-head Phase-F evidence; repair only the first new live failure.
-- NEXT UI FRONT: only newly evidenced surface gaps; no duplicate modules or unproven migration deletion.
-- DO NOT REPEAT: no stale Phase-F transfer, no old-production rerun as current, no verification-PR merge, no Vercel rate-limit bypass.
+- MAIN HEAD OBSERVED BEFORE THIS WRITE: `7159553fcfc9d21304ffff60e1086a34b714ac09`.
+- CURRENT CODE/TEST CANDIDATE: `4d00b21f043231dbe32713684208d8af5f046bc3`.
+- CURRENT GOVERNANCE HEAD: `4d00b21f043231dbe32713684208d8af5f046bc3` before this write; verify new GitHub HEAD after commit.
+- DONE: corrected stale test references to the canonical storage-tenant and import-lineage migration files.
+- EVIDENCE: CI identified stale migration paths; corrected paths match files in the exact main tree. Enforcement contract then failed because the indexed candidate remained `adb093bb20d488ce593b5e2598168c74711d4346` while this branch included code changes.
+- PR #628: open; checks incomplete. No PASS or merge is claimed.
+- RUNTIME: Phase-F backup/restore, measured RPO/RTO/rollback, and current production identity remain NOT PROVEN.
+- NEXT EXECUTABLE ACTION: bind the index candidate to the corrected code SHA, trigger fresh exact-head enforcement/certification, then fix the first reproduced failure.
+- DO NOT REPEAT: stale migration paths; old candidate evidence; claims of Phase-F closure.
+- UI LANE: no UI code changed in this repair.
+- CORE LANE: two test-contract paths corrected; exact-head verification remains open.
+- CURRENT RESUME POINTER: PR #628 → bind candidate `4d00b21f...` → fresh exact-head gates → first failing contract → Phase-F.
+
 
 # CURRENT CONTROL-PLANE BOUNDARY — 2026-09-22
 
