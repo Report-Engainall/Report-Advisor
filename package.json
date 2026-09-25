@@ -111,6 +111,7 @@
     "test:alternative-schema": "node scripts/check-alternative-group-schema.mjs",
     "test:decision-dashboard": "node scripts/check-decision-dashboard.mjs",
     "test:inventory-intelligence-ui": "node scripts/check-inventory-intelligence-ui.mjs",
+    "test:demand-series-contract": "node scripts/check-demand-series-contract.mjs",
     "test:demand-velocity": "node scripts/check-demand-velocity.mjs",
     "test:batch-decision": "node --experimental-strip-types scripts/check-batch-decision-engine.mjs",
     "test:safe-metrics": "node scripts/check-safe-metrics.mjs",
