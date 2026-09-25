@@ -1,3 +1,21 @@
+## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-124
+
+- SESSION-ID: 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-124.
+- MAIN HEAD OBSERVED BEFORE THIS WRITE: `7159553fcfc9d21304ffff60e1086a34b714ac09`.
+- GOVERNANCE HEAD OBSERVED BEFORE THIS WRITE: `548288b29a2fe6a68b06d3b3c309e87e453be9e1`.
+- CURRENT CODE/TEST CANDIDATE: `8ceb5923b1e9ae18de1fecd0fd6ddf7ba21ef5e7` on PR #628; current branch head is governance-only.
+- EXACT GITHUB EVIDENCE: Execution Enforcement Contract run `36077171439` is `success` on exact head `1465ea8...`; Final Certification `36077171489` and Full Product Browser E2E `36077175665` remain queued, so release is not certified.
+- EXACT VERCEL: deployment `dpl_BtLEtEkG6qsDcYeQbyYJFzvGyY6o` is READY for governance head `1465ea8...`; the canonical `/intelligence/playbooks` path returns HTTP 200 and the served shell is Arabic RTL.
+- EXACT NETLIFY: branch deployment status is `success` for the current branch.
+- LOCAL EXACT CANDIDATE: typecheck, Product WOW UI contract, route/sidebar parity (40 routes / 38 canonical links), production build, knowledge architecture, diff-check, and local HTTP checks are green.
+- UI CLOSURE: Decision Playbooks is a real route backed by the existing recommendation ledger, with loading/error/empty/filter/status-action states and evidence/decision navigation.
+- CORE RELEASE BOUNDARY: Phase-F remains fail-closed on the external authorized logical PostgreSQL source and exact production identity; no unchanged Phase-F rerun was performed.
+- NOT PROVEN: final certification, production identity for the candidate, logical backup/restore, measured RPO/RTO, rollback, merge/release.
+- DO NOT REPEAT: stale candidate evidence, unchanged Phase-F credential probes, production-SHA bypass, reopening closed migration/runtime work without a new reproduced failure.
+- OPEN FRONTS: consume queued Final Certification/Browser gates; authorized resilience DB source + exact production promotion; fresh Phase-F recovery evidence.
+- CURRENT PRECISE STOP POINT: `current exact head 1465ea8 → consume queued Final Certification/Browser → if green, close release gates except external Phase-F inputs; otherwise repair first exact reproduced failure`.
+- CURRENT RESUME POINTER: `queued Final Certification/Browser on exact current head → authorized resilience DB source + exact production alignment → fresh Phase-F → measured recovery → release closeout`.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-123
 
 - SESSION-ID: 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-123.
