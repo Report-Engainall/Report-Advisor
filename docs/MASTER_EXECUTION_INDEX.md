@@ -1,4 +1,21 @@
-# CURRENT CONTROL-PLANE BOUNDARY — 2026-09-25 / CURRENT EXACT CODE HEAD 80B
+# CURRENT CONTROL-PLANE BOUNDARY — 2026-09-25 / CURRENT EXACT CODE HEAD 2D9
+
+- MAIN HEAD OBSERVED BEFORE THIS WRITE: `7159553fcfc9d21304ffff60e1086a34b714ac09`.
+- CURRENT CODE/TEST CANDIDATE: `2d9f46b9960ec5895c1e34e4c03ab6621f9ebb04` on PR #628.
+- GOVERNANCE STATE: the resilience runtime/session-pooler repair remains intact; Phase-F logical-backup count generation was fixed on this exact candidate with a regression assertion.
+- DONE — CORE: fixed the Phase-F logical backup table-count SQL so PostgreSQL `format()` receives all placeholders; added an exact source regression guard.
+- VERIFIED LOCAL EXACT HEAD: resilience runtime/adversarial PASS; operational resilience + backup evidence integrity PASS; Phase-F runtime closure PASS; typecheck PASS; production build reached completion without source/build error.
+- EXACT GITHUB RESULT BEFORE THIS REBIND: Phase-F run `36090073070` on `69bf751...` failed 1/4; first code failure was `too few arguments for format()`, plus production SHA mismatch and rollback baseline HTTP 503. That failure is now repaired in `2d9f46b...`.
+- CURRENT GITHUB RESULT ON `2d9f46b...`: certification-boundary/enforcement initially failed only because this index still pointed at `80b7634...`; Browser E2E, production-chain-guard, and evidence-boundary passed. No new product/runtime defect was reproduced by the boundary failure.
+- VERCEL: deployment `dpl_CqMY8jmLXoDeSFmoSoshyrJkyuBk` is READY and is built from exact SHA `2d9f46b...`; production alias is not yet proven to serve this SHA.
+- PHASE-F: a fresh live run on `2d9f46b...` is still required after this exact governance rebind. Backup/restore, measured RPO/RTO, rollback, and production identity remain NOT PROVEN until that run succeeds.
+- NEXT EXECUTABLE ACTION: rebind this index to `2d9f46b...`, consume fresh exact-head Enforcement/Final Certification, then align the production alias to the READY exact deployment and run Phase-F once against the changed runtime boundary.
+- DO NOT REPEAT: stale candidate binding, unchanged Phase-F reruns, historical PASS transfer, production-SHA bypass, unnecessary deployment churn, or reopening closed migration/runtime contracts without a new reproduced failure.
+- UI LANE: Decision Playbooks closure remains complete; current route/surface contracts are green. Continue UI only on newly evidenced cross-surface defects.
+- CORE LANE: exact-head governance → production exact deployment identity → live backup/restore → measured RPO/RTO/RTO/rollback → release closeout.
+- CURRENT RESUME POINTER: `2d9f46b... index rebind → fresh exact-head certification → exact production alignment → fresh Phase-F → measured backup/restore/RPO/RTO/rollback → release closeout`.
+
+
 
 - MAIN HEAD OBSERVED BEFORE THIS WRITE: `7159553fcfc9d21304ffff60e1086a34b714ac09`.
 - CURRENT CODE/TEST CANDIDATE: `80b7634f9bf309602914ddd383546cdb83aaf727` on the active PR #628 branch; this is newer than the prior governed UI candidate.

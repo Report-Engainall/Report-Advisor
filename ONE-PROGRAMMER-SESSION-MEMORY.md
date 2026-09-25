@@ -1,19 +1,19 @@
-## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-125
+## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-126
 
-- SESSION-ID: 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-125.
+- SESSION-ID: 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-126.
 - MAIN HEAD OBSERVED BEFORE THIS WRITE: `7159553fcfc9d21304ffff60e1086a34b714ac09`.
-- CURRENT CODE/TEST CANDIDATE: `80b7634f9bf309602914ddd383546cdb83aaf727` on PR #628.
-- DONE — CORE: added safe Supabase Session Pooler fallback for direct logical-backup source URLs; preserves the source password, forces session mode port 5432, and requires the Supavisor IPv4 pooler hostname pattern.
-- VERIFIED LOCAL EXACT CANDIDATE: resilience runtime/adversarial PASS; Phase-F runtime closure PASS; operational resilience + backup evidence integrity PASS; typecheck PASS; git diff --check PASS.
-- PREVIOUS PHASE-F EXACT RESULT: run `36077272069` on `bf89e67...` failed closed 1/4: tenant canary PASS; production health deployment SHA mismatch; configured DB URL connection failed; rollback drill HTTP 503.
-- ROOT-CAUSE BOUNDARY: the prior probe did not derive an IPv4 Session Pooler candidate from a direct Supabase DB URL, despite Supabase documenting Session Pooler as the recommended path for dump/restore and noting IPv4 compatibility for GitHub Actions.
-- DEPLOYMENT: Vercel `dpl_BszWJinipThNmTfiN6oVCEf9wSmk` is READY for `80b7634...`; governance head will produce a fresh exact-head deployment as well.
-- CURRENT RELEASE GATES: current head after governance write is `ee866d642d942af9e347bb7885e2734401df8a76`; fresh Enforcement / Browser / Final Certification / Phase-F runs are expected on this exact head. No historical PASS transfer.
-- NOT PROVEN: new live backup/restore, measured RPO/RTO, rollback, final certification, production exact-SHA.
-- DO NOT REPEAT: historical Phase-F, unchanged logical credential retries, production-SHA bypass, closed migration/runtime contracts.
-- OPEN FRONTS: current-head Phase-F result; first remaining live failure only; production alignment / rollback baseline if still required.
-- CURRENT PRECISE STOP POINT: `consume current-head Phase-F after Session Pooler hardening → repair first new live failure only → measured recovery → release closeout`.
-- CURRENT RESUME POINTER: `current-head Phase-F → first new live failure only → measured recovery → release closeout`.
+- CURRENT CODE/TEST CANDIDATE: `2d9f46b9960ec5895c1e34e4c03ab6621f9ebb04` on PR #628.
+- DONE — CORE: fixed the Phase-F logical-backup table-count SQL `format()` argument mismatch and added an exact regression assertion.
+- VERIFIED LOCAL EXACT CANDIDATE: resilience/adversarial PASS; operational resilience PASS; backup/restore evidence integrity PASS; Phase-F runtime closure PASS; typecheck PASS; production build completed without source/build failure.
+- EXACT GITHUB FAILURE DIAGNOSIS: run `36090389854` / certification-enforcement on `2d9f46b...` initially failed only because the execution index still indexed `80b7634...`; Browser E2E, production-chain-guard and evidence-boundary succeeded on the same SHA.
+- EXACT VERCEL DEPLOYMENT: `dpl_CqMY8jmLXoDeSFmoSoshyrJkyuBk` is READY for exact SHA `2d9f46b...`; production alias is not proven to serve that SHA.
+- PREVIOUS LIVE PHASE-F: run `36090073070` on `69bf751...` was 1/4; tenant canary passed; operational health rejected old production SHA; logical backup failed `too few arguments for format()`; rollback-forward drill returned HTTP 503. The SQL defect is repaired on `2d9f46b...`.
+- NOT PROVEN: fresh certification after governance rebind, current production identity, logical backup/restore, measured RPO/RTO, rollback, final release.
+- UI LANE: Decision Playbooks remains a real canonical route with evidence-linked actions and loading/error/empty/filter/status states; existing UI contracts remain green. No speculative UI rewrite introduced.
+- CORE LANE: exact-head governance → exact production identity → fresh Phase-F → measured backup/restore/RPO/RTO/rollback → release closeout.
+- DO NOT REPEAT: stale index binding, unchanged Phase-F reruns, historical evidence transfer, production-SHA bypass, or closed contract work.
+- CURRENT PRECISE STOP POINT: update index/memory to `2d9f46b...` → consume fresh Enforcement/Final Certification → align the exact READY deployment to production through the existing deployment control plane → fresh Phase-F → repair only first newly reproduced live failure.
+- CURRENT RESUME POINTER: `2d9f46b... governance rebind → fresh exact-head certification → exact production alignment → fresh Phase-F → measured recovery → release closeout`.
 
 ## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-124
 
