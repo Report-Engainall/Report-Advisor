@@ -1,19 +1,17 @@
-# CURRENT CONTROL-PLANE BOUNDARY — 2026-09-25 / UI 50% + CORE 50% GOVERNANCE REBIND
+# CURRENT CONTROL-PLANE BOUNDARY — 2026-09-25 / RESILIENCE SOURCE HARDENING
 
 - MAIN HEAD OBSERVED BEFORE THIS WRITE: `7159553fcfc9d21304ffff60e1086a34b714ac09`.
-- CURRENT CODE/TEST CANDIDATE: `8ceb5923b1e9ae18de1fecd0fd6ddf7ba21ef5e7` (PR #628 functional UI candidate before this governance-only write).
-- GOVERNANCE WRITE: this commit records the exact current code/test candidate and the verified UI/core boundary; governance changes must not be treated as new runtime evidence.
-- DONE: added the evidence-backed `/intelligence/playbooks` Decision Playbooks surface, canonical navigation entry, mobile/desktop route wiring, and replaced the Intelligence Center dead-end `NOT AVAILABLE` card with a real route.
-- DONE: Decision Playbooks reuses the existing authoritative recommendation ledger and writer; it exposes persisted status/owner/deadline/impact fields and routes to the existing decision/evidence surface without creating a new execution-state model.
-- VERIFIED LOCAL EXACT CANDIDATE: `git diff --check` PASS; `npm run typecheck` PASS; `npm run test:product-wow-ui` PASS; `npm run test:ui-route-sidebar-parity` PASS with 40 application routes / 38 canonical navigation links; `npm run build` PASS; localhost root and the new page source both returned HTTP 200; `npm run test:knowledge-architecture` PASS.
-- CURRENT GITHUB RELEASE EVIDENCE: exact-head Execution Enforcement `36077171439` is `success` on `1465ea8...`; Final Certification `36077171489` and Full Product Browser E2E `36077175665` are still queued. Vercel deployment `dpl_BtLEtEkG6qsDcYeQbyYJFzvGyY6o` is READY for `1465ea8...`; `/intelligence/playbooks` returns HTTP 200 with Arabic RTL shell. Older `487284b...` evidence remains historical.
-- PHASE-F BLOCKED: the previously proven external boundary remains an unusable authorized logical PostgreSQL source plus production alias still on old SHA; no new Phase-F rerun is justified until that external input changes.
-- NOT PROVEN: production identity for `8ceb5923...`, logical backup/restore, measured RPO/RTO, rollback, and final release certification.
-- NEXT EXECUTABLE ACTION: consume fresh current-head Enforcement + Final Certification after this governance rebind; then continue only the first newly reproduced release failure, while keeping Phase-F fail-closed until authorized DB credential and exact production promotion exist.
-- DO NOT REPEAT: stale candidate binding, unchanged Phase-F credential reruns, historical PASS transfer, production-SHA bypass, or merge/release before current-head gates.
-- UI LANE: Decision Playbooks closed as a real product surface on the exact candidate; no new backend/domain model was invented.
-- CORE LANE: core release blocker remains external resilience credential + exact production identity; migration/runtime contracts already closed on the prior exact lineage and are not being reopened.
-- CURRENT RESUME POINTER: `fresh exact-head Enforcement/Final Certification → independent core/front closure → authorized resilience DB source + exact production promotion → fresh Phase-F → measured recovery → release closeout`.
+- CURRENT CODE/TEST CANDIDATE: `80b7634f9bf309602914ddd383546cdb83aaf727` (PR #628).
+- DONE: Phase-F logical backup source selection now falls back from a failed direct Supabase DB URL to the IPv4 Session Pooler on port 5432 using the same source password, with no credential emission.
+- VERIFIED LOCAL EXACT CANDIDATE: `git diff --check`; resilience runtime/adversarial test; Phase-F runtime closure; operational resilience + backup evidence integrity; typecheck all passed.
+- VERIFIED DEPLOYMENT: Vercel deployment `dpl_BszWJinipThNmTfiN6oVCEf9wSmk` READY for exact candidate `80b7634...`.
+- PREVIOUS EXACT PHASE-F RESULT on `bf89e67...`: 1/4 — tenant canary PASS; health deployment SHA mismatch to old production; logical backup source connection failed; rollback drill 503.
+- ROOT CAUSE REPAIR: the code previously did not transform a direct `db.<ref>.supabase.co` connection into the IPv4 Session Pooler recommended for GitHub Actions/pg_dump; helper + contract tests now cover that path.
+- CURRENT RELEASE GATES: current-head Enforcement / Browser / Final Certification / Phase-F runs are queued; do not transfer older evidence to `80b7634...`.
+- NOT PROVEN: new Phase-F live backup/restore, measured RPO/RTO, rollback, and final certification on the hardened candidate.
+- NEXT EXECUTABLE ACTION: consume current-head CI/Phase-F; if logical source now passes, repair only the first remaining live failure (likely production exact-SHA / rollback baseline); otherwise inspect the new source failure and fix only that boundary.
+- DO NOT REPEAT: historical Phase-F, unchanged credential loops, production-SHA bypass, closed migration/runtime work.
+- CURRENT RESUME POINTER: `current-head Phase-F after Session Pooler fallback → first new live failure only → measured recovery → release closeout`.
 
 
 > HEAD below is the exact GitHub HEAD observed before this write. Never treat it as the SHA of this file's own future commit.
