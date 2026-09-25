@@ -1,4 +1,4 @@
-import { ShieldCheck, ShieldAlert, TriangleAlert, Ban, CircleHelp, Calculator, type LucideIcon } from 'lucide-react';
+import { ShieldCheck, ShieldAlert, TriangleAlert, Ban, CircleHelp, Calculator, UsersRound, type LucideIcon } from 'lucide-react';
 import type { TrustState } from '@/lib/trust-state';
 
 const META: Record<TrustState, { label: string; className: string; icon: LucideIcon; description: string }> = {
@@ -8,6 +8,7 @@ const META: Record<TrustState, { label: string; className: string; icon: LucideI
   REVIEW: { label: 'REVIEW', className: 'ag-trust-review', icon: TriangleAlert, description: 'تحتاج الحالة إلى مراجعة بشرية قبل الإجراء.' },
   BLOCKED: { label: 'BLOCKED', className: 'ag-trust-blocked', icon: Ban, description: 'لا يمكن استخدام النتيجة قبل إزالة سبب الحجب.' },
   INSUFFICIENT_DATA: { label: 'INSUFFICIENT DATA', className: 'ag-trust-insufficient', icon: ShieldAlert, description: 'البيانات الحالية لا تكفي لاستخراج نتيجة مسؤولة.' },
+  INSUFFICIENT_SAMPLE: { label: 'INSUFFICIENT SAMPLE', className: 'ag-trust-insufficient', icon: UsersRound, description: 'العينة الحالية أصغر من الحد المطلوب للحكم أو المقارنة.' },
 };
 
 export function TrustBadge({ state, evidenceCount, compact = false }: { state: TrustState; evidenceCount?: number; compact?: boolean }) {
