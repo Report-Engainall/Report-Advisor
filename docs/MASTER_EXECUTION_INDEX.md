@@ -1,17 +1,16 @@
-# CURRENT CONTROL-PLANE BOUNDARY — 2026-09-25 / CURRENT EXACT CODE HEAD FE7F
+# CURRENT CONTROL-PLANE BOUNDARY — 2026-09-25 / CURRENT EXACT CODE HEAD 51BC
 
-- MAIN HEAD OBSERVED BEFORE THIS WRITE: `2efe492280bb0b58e601263e24b4569ff202f2ca`.
-- CURRENT CODE/TEST CANDIDATE: `fe7f5d86a645bd21bf1285b67eaa23eacc62eae8` on PR #628.
-- DONE — CORE: the canonical reconciliation migration now evolves `company_memberships.is_default` with its live indexes before `current_company_id()`, eliminating the tenant-security lineage contract failure.
-- LIVE STAGING RECONCILIATION: `is_default` and the three live company-membership indexes are present on Supabase staging.
-- EXACT 2EFE RESULTS: Browser `36092927868` SUCCESS; Enforcement `36092928082` SUCCESS; evidence-boundary `36092928012` SUCCESS; production-chain `36092927924` SUCCESS; Final Certification `36092928002` FAIL; Quality `36092927892` FAIL; Phase-F `36092928004` FAIL.
-- EXACT FINAL CERT FAILURE: tenant-security contract flagged `20260925033521_reconcile_live_cart_schema.sql` as latest `current_company_id()` resolver without `ALTER TABLE company_memberships`. This head fixes that exact invariant.
-- EXACT PRIOR PHASE-F FAILURE: `36092364228` on `d5a254ed...` reached live restore and failed on missing `public.cash_accounts`; that schema lineage is already closed in this migration.
-- PHASE-F: fresh proof on `fe7f5d86...` is still required. Production alias remains SHA `7be9f014...`; RPO/RTO/rollback/release are NOT PROVEN.
-- NEXT EXECUTABLE ACTION: consume fresh exact-head gates on the new governance head → fresh Phase-F → first new live failure only → exact production alignment → measured recovery → release closeout.
-- DO NOT REPEAT: countSql, carts/cart_items, helper search_path, profiles, cash_accounts, company_memberships tenant-lineage, stale bindings, historical evidence transfer, production-SHA bypass, speculative UI rewrites.
+- MAIN HEAD OBSERVED BEFORE THIS WRITE: `fe7f5d86a645bd21bf1285b67eaa23eacc62eae8`.
+- CURRENT CODE/TEST CANDIDATE: `51bc9899542bbcbce1af228c5ad10036fd9b61da` on PR #628.
+- DONE — CORE: aligned the tenant migration contract syntax so the latest `current_company_id()` resolver migration contains the required literal `ALTER TABLE company_memberships` evolution.
+- STAGING: `company_memberships.is_default` plus all three live indexes are present.
+- EXACT 621 FAILURE: Final Certification `36093187189` failed only because the contract regex did not recognize `ALTER TABLE public.company_memberships`; all other contract families in the log passed.
+- EXACT PRIOR CORE RESULTS: Browser/Enforcement had passed on `2efe...`; cash-account lineage and tenant helper lineage are already reconciled in the same migration.
+- PHASE-F: fresh proof on `51bc9899...` is still required. Production alias remains SHA `7be9f014...`; RPO/RTO/rollback/release NOT PROVEN.
 - UI LANE: 40 application routes / 38 canonical navigation links; Executive, Connections, Decision, Document, Inventory and Product-WOW remain green.
-- CURRENT RESUME POINTER: `fe7f5d86... governance rebind → fresh exact-head gates → fresh Phase-F → first new live failure → production alignment → measured recovery → release closeout`.
+- NEXT EXECUTABLE ACTION: fresh exact-head certification → fresh Phase-F → first new live failure only → exact production alignment → measured recovery → release closeout.
+- DO NOT REPEAT: prior schema drifts, contract syntax mismatch, stale bindings, historical evidence transfer, production-SHA bypass, speculative UI rewrites.
+- CURRENT RESUME POINTER: `51bc9899... governance rebind → fresh exact-head gates → fresh Phase-F → first new live failure → production alignment → measured recovery → release closeout`.
 
 
 - MAIN HEAD OBSERVED BEFORE THIS WRITE: `7159553fcfc9d21304ffff60e1086a34b714ac09`.

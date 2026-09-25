@@ -1,16 +1,15 @@
-## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-133
+## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-134
 
-- SESSION-ID: 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-133.
-- MAIN HEAD OBSERVED BEFORE THIS WRITE: `2efe492280bb0b58e601263e24b4569ff202f2ca`.
-- CURRENT CODE/TEST CANDIDATE BEFORE GOVERNANCE WRITE: `fe7f5d86a645bd21bf1285b67eaa23eacc62eae8`.
-- DONE — CORE: added `ALTER TABLE company_memberships ADD COLUMN IF NOT EXISTS is_default` plus the live default-membership indexes to the canonical reconciliation migration.
-- STAGING: the same column/indexes were applied successfully to Supabase staging.
-- EXACT FAILURE FIXED: Final Certification `36092924556` / `36092928002` tenant-security failed because the latest `current_company_id()` migration did not evolve `company_memberships`.
-- EXACT 2EFE RESULT: Browser/Enforcement/evidence-boundary/production-chain passed; Quality and Phase-F failed. No historical pass transferred.
-- UI LANE: 40 routes / 38 canonical nav links; current UI contract set remains green.
-- NOT PROVEN: fresh certification on the current code head, fresh Phase-F restore, production exact identity, RPO/RTO, rollback.
-- CURRENT PRECISE STOP POINT: governance rebind to `fe7f5d86...` → fresh exact-head gates → fresh Phase-F → first new live failure only → production alignment → measured recovery.
-- CURRENT RESUME POINTER: `fe7f5d86... governance rebind → fresh exact-head gates → fresh Phase-F → exact production identity → measured RPO/RTO/rollback → release closeout`.
+- SESSION-ID: 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-134.
+- MAIN HEAD OBSERVED BEFORE THIS WRITE: `fe7f5d86a645bd21bf1285b67eaa23eacc62eae8`.
+- CURRENT CODE/TEST CANDIDATE BEFORE GOVERNANCE WRITE: `51bc9899542bbcbce1af228c5ad10036fd9b61da`.
+- DONE — CORE: changed only the migration statement syntax from `ALTER TABLE public.company_memberships` to the contract-required `ALTER TABLE company_memberships`; database semantics unchanged.
+- EXACT FAILURE FIXED: Final Certification `36093187189` tenant-security failed because its explicit regex requires the unqualified `ALTER TABLE company_memberships` marker.
+- STAGING: the underlying `is_default` column and three indexes are already applied and verified on Supabase staging.
+- UI: 40 routes / 38 canonical navigation links remain green; no UI code changed in this fix.
+- NOT PROVEN: fresh certification on current head, fresh Phase-F restore, production exact identity, measured RPO/RTO, rollback.
+- CURRENT PRECISE STOP POINT: governance rebind → fresh exact-head gates → fresh Phase-F → first new live failure only → exact production alignment → measured recovery.
+- CURRENT RESUME POINTER: `51bc9899... fresh exact-head certification → fresh Phase-F → exact production identity → measured recovery → release closeout`.
 
 
 - SESSION-ID: 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-130.
