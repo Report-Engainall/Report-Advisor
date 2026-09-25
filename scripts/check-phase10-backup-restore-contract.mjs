@@ -9,6 +9,8 @@ const contract = read('scripts/check-production-certification-contract.mjs');
 const index = read('docs/MASTER_EXECUTION_INDEX.md');
 const phaseFProbe = read('scripts/phase-f-live-resilience-probes.mjs');
 const cartsParityMigration = read('supabase/migrations/20260925200000_restore_carts_schema_parity.sql');
+const canonicalImportAdapter = read('src/lib/import/canonical-production-adapter.ts');
+const canonicalImportPage = read('src/pages/CanonicalImportPage.tsx');
 const clientUiSettingsParityMigration = read('supabase/migrations/20260925184000_restore_client_ui_settings_schema_parity.sql');
 
 
@@ -179,6 +181,24 @@ for (const token of [
   'REVOKE ALL ON FUNCTION',
   'GRANT EXECUTE ON FUNCTION',
 ]) if (!executable.includes(token)) throw new Error(`Missing recovery security/lifecycle invariant: ${token}`);
+
+for (const token of [
+  "client.rpc('import_finish_job'",
+  'p_job_id: importJobId',
+  'async function canonicalImportCompletionSummary',
+  "status === 'failed' && observedJob.attempt >= observedJob.maxAttempts",
+  "from('import_jobs')",
+]) {
+  if (!canonicalImportAdapter.includes(token)) throw new Error(`Missing server-side import terminalization invariant: ${token}`);
+}
+
+for (const token of [
+  "supabase.rpc('import_finish_job'",
+  "current?.status === status",
+  "from('import_jobs')",
+]) {
+  if (!canonicalImportPage.includes(token)) throw new Error(`Missing idempotent UI import-finalization invariant: ${token}`);
+}
 
 for (const token of [
   'backup_restore_passed',
