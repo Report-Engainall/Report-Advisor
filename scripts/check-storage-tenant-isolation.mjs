@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 
-const migrationPath = 'supabase/migrations/20260831010000_storage_tenant_isolation.sql';
+const migrationPath = 'supabase/migrations/20260831010001_storage_tenant_isolation.sql';
 const sql = fs.readFileSync(migrationPath, 'utf8');
 
 const requiredPolicies = [

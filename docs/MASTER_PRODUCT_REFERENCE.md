@@ -1,13 +1,16 @@
-## IMPLEMENTATION UPDATE — 2026-09-23 / CURRENT GOVERNED STATE
+## IMPLEMENTATION UPDATE — 2026-09-25 / CURRENT GOVERNED STATE
 
-- Current code candidate: `adb093bb20d488ce593b5e2598168c74711d4346` (Phase-F migration restore repair).
+- Current code/test candidate: `ddd9382f347cc02eb401fee75a9df48beaae7f05` (restore-safe RLS qualification fix discovered by live Phase-F backup/restore).
+- Fresh local contracts: migration schema audit PASS (254 migrations / 0 findings); decision/intelligence runtime closure PASS; route/sidebar parity 39/37 PASS; Product WOW, Connections/Language, Executive Dashboard, Intelligence and Executive Report contracts PASS; TypeScript and Vite production build PASS.
+- Fresh exact Phase-F artifact `phase-f-readiness-d5c618a9`: canary PASS; production deployment SHA mismatch `7be9f014...` vs exact head `d5c618a9...`; logical backup/restore failed at the unqualified `decision_action_receipts_tenant` policy; rollback drill returned 503. The source migration was corrected at `ddd9382f...`.
+- Current Vercel production is `dpl_F4nkx3kwgxgncjre1Mo34sfp8448` on `7be9f01491384e641f32b31b2753c46fd32f7128`; GitHub main is `7159553fcfc9d21304ffff60e1086a34b714ac09`. No production evidence is transferred to the candidate.
 - UI consolidation closed: Recommendations + Forecasts now live in canonical `src/pages/IntelligencePage.tsx`; duplicate `src/pages/IntelligencePages.tsx` was removed and App imports were rebound.
 - Data truth UI closure closed the real blank fallthroughs for Dashboard/Command Center/Liquidity/Receivables/Reports/Inventory/Profitability and is guarded by the Product WOW contract.
 - Quality governance now executes `test:knowledge-architecture` in the canonical Quality workflow.
 - Core Phase-F restore defect closed in source: repository had duplicate 14-digit migration versions; content-bearing migrations were resequenced without dropping SQL, redundant empty remote-lineage aliases were removed, and the migration schema audit now rejects duplicate versions.
 - Exact local repaired-branch migration audit: 285 migrations / 0 findings. This is source/local evidence only and does not certify live restore, RPO, RTO, or rollback.
 - Live Phase-F baseline before the migration repair: authenticated canary PASS; tenant-canary PASS; operational health failed on deployment SHA mismatch; backup/restore failed on duplicate migration version `20260819210000`; rollback-forward-fix failed 503.
-- Current production runtime remains fail-closed because the latest READY production deployment serves older SHA `1d88b083c6c956abb42e2b2db2d5d816cb543344`, while the current code candidate is `adb093bb...`. No current-head production proof or measured RPO/RTO/rollback is claimed.
+- Current production runtime remains fail-closed because the latest READY production deployment serves older SHA `1d88b083c6c956abb42e2b2db2d5d816cb543344`, while the current code candidate is `647f3ced71166386cb55f72942b865d3c902aabe`. No current-head production proof or measured RPO/RTO/rollback is claimed.
 - Current hosting boundary: Vercel free-plan deployment rate limit (`api-deployments-free-per-day`) remains external. Netlify can produce exact PR previews but they are not production/Phase-F target identity proof.
 - Product rule remains unchanged: never transfer historical runtime PASS across SHAs; deterministic business truth and fail-closed states remain canonical.
 

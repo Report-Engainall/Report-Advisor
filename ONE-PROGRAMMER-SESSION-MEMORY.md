@@ -1,8 +1,25 @@
+## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-119
+
+- SESSION-ID → `2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-119`.
+- MAIN HEAD OBSERVED BEFORE THIS WRITE → `7159553fcfc9d21304ffff60e1086a34b714ac09`.
+- CURRENT CODE/TEST CANDIDATE → `ddd9382f347cc02eb401fee75a9df48beaae7f05`.
+- GOVERNANCE HEAD BEFORE THIS WRITE → `ddd9382f347cc02eb401fee75a9df48beaae7f05`.
+- DONE → fixed the first current-head Quality defect in `check-terminal-approval-concurrency`; then reproduced the live Phase-F backup/restore failure and corrected the source migration `20260828172000_runtime_lifecycle_idempotency_hardening.sql` so `decision_action_receipts_tenant` uses fully-qualified target columns and is restore-safe.
+- LOCAL VERIFIED → migration schema audit PASS: 254 migrations / 0 findings; decision/intelligence runtime closure PASS; terminal approval concurrency PASS; 39-route/37-link parity PASS; Product WOW, Connections/Language, Executive Dashboard, Intelligence, Executive Report contracts PASS; storage tenant isolation PASS; Vite production build PASS; TypeScript PASS; knowledge architecture PASS.
+- EXACT CLOUD VERIFIED → Quality run `36092211403` SUCCESS on governance HEAD `d5c618a9...`; Final Certification `36092211265` SUCCESS; Full Product Browser E2E `36092211418` SUCCESS; Execution Enforcement `36092211424` SUCCESS; multiple security/truth/storage gates SUCCESS. No result is transferred to `ddd9382f...` until fresh runs complete.
+- PHASE-F RUN `36092211529` → NOT READY: authenticated canary PASS; operational health failed `DEPLOYMENT_SHA_MISMATCH` because production deployment `dpl_F4nkx3kwgxgncjre1Mo34sfp8448` serves `7be9f014...` while the exact PR head was `d5c618a9...`; logical backup/restore failed while applying the original unqualified `decision_action_receipts_tenant` RLS policy; rollback-forward-fix drill returned HTTP 503.
+- PRODUCTION FACT → current Vercel production is exact `7be9f01491384e641f32b31b2753c46fd32f7128`; GitHub `main` is `7159553fcfc9d21304ffff60e1086a34b714ac09`, 12 commits ahead of production. This replaces stale historical production SHA references; it is still NOT current-head production proof.
+- BLOCKED / NOT PROVEN → current `ddd9382f...` has not yet consumed fresh cloud gates; current-head deployment, measured backup/restore, RPO, RTO, and rollback remain NOT PROVEN.
+- UI LANE → exact local surface contracts PASS and Full Product Browser E2E SUCCESS on the preceding governed head; fresh exact-head browser evidence must be consumed on `ddd9382f...` after push/rebind.
+- CORE LANE → restore-safe RLS source defect fixed; next is fresh exact-head Quality/Enforcement/Certification/Browser/Phase-F, then production promotion only after the release boundary is satisfied.
+- DO NOT REPEAT → no stale PASS transfer; no production-SHA bypass; no Phase-F credential bypass; no migration deletion or historical-content loss.
+- CURRENT RESUME POINTER → `ddd9382f347cc02eb401fee75a9df48beaae7f05` → fresh exact-head CI/certification/browser → Phase-F recheck → reconcile production deployment identity → final release closure.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-23-AGHBARI-CONTINUOUS-EXECUTION-116
 
 - SESSION-ID → `2026-09-23-AGHBARI-CONTINUOUS-EXECUTION-116`
 - MAIN HEAD OBSERVED BEFORE THIS WRITE → `419cd4f0eb2317c702e7ee656761d5e084ebe6ce`.
-- CURRENT CODE/TEST CANDIDATE → `adb093bb20d488ce593b5e2598168c74711d4346`.
+- CURRENT CODE/TEST CANDIDATE → `293a78940c8a332113bc99884f2f648c5c3d06db`.
 - GOVERNANCE HEAD → `419cd4f...` is documentation-only synchronization; candidate remains `adb093bb...`.
 - DONE → synchronized `docs/MASTER_PRODUCT_REFERENCE.md` with the current intelligence consolidation, unavailable-data closure, migration restore repair, and exact Phase-F runtime boundary.
 - VERIFIED SOURCE STATE → repaired migration branch audit was 285 migrations / 0 findings; live Phase-F baseline remains 1/4 before the repair and is not re-certified after it.

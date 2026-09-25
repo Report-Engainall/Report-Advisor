@@ -27,17 +27,37 @@ ALTER TABLE import_job_rows
   REFERENCES import_jobs(id, company_id)
   ON DELETE CASCADE;
 
-ALTER TABLE import_field_lineage
-  ADD CONSTRAINT import_field_lineage_job_company_fk
-  FOREIGN KEY (job_id, company_id)
-  REFERENCES import_jobs(id, company_id)
-  ON DELETE CASCADE;
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM pg_constraint
+    WHERE conrelid = 'public.import_field_lineage'::regclass
+      AND conname = 'import_field_lineage_job_company_fk'
+  ) THEN
+    ALTER TABLE import_field_lineage
+      ADD CONSTRAINT import_field_lineage_job_company_fk
+      FOREIGN KEY (job_id, company_id)
+      REFERENCES import_jobs(id, company_id)
+      ON DELETE CASCADE;
+  END IF;
+END $$;
 
-ALTER TABLE import_field_lineage
-  ADD CONSTRAINT import_field_lineage_row_company_fk
-  FOREIGN KEY (job_row_id, company_id)
-  REFERENCES import_job_rows(id, company_id)
-  ON DELETE CASCADE;
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM pg_constraint
+    WHERE conrelid = 'public.import_field_lineage'::regclass
+      AND conname = 'import_field_lineage_row_company_fk'
+  ) THEN
+    ALTER TABLE import_field_lineage
+      ADD CONSTRAINT import_field_lineage_row_company_fk
+      FOREIGN KEY (job_row_id, company_id)
+      REFERENCES import_job_rows(id, company_id)
+      ON DELETE CASCADE;
+  END IF;
+END $$;
 
 CREATE INDEX IF NOT EXISTS idx_import_job_rows_company_job
   ON import_job_rows(company_id, job_id);

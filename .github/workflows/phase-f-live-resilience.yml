@@ -6,7 +6,7 @@ on:
 permissions:
   contents: read
 concurrency:
-  group: phase-f-live-resilience
+  group: phase-f-live-resilience-${{ github.event.pull_request.head.sha || github.sha }}
   cancel-in-progress: false
 jobs:
   certify:

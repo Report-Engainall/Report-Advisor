@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 
-const migration = fs.readFileSync('supabase/migrations/20260904004000_harden_terminal_approval_concurrency.sql', 'utf8');
+const migration = fs.readFileSync('supabase/migrations/20260904004001_harden_terminal_approval_concurrency.sql', 'utf8');
 const terminalGuard = "where public.decision_approvals.status not in ('APPROVED','REJECTED','CANCELLED')";
 const required = [
   'on conflict(company_id,decision_id) do update',

@@ -73,14 +73,16 @@ WITH CHECK (
 DROP POLICY IF EXISTS decision_action_receipts_tenant ON public.decision_action_receipts;
 CREATE POLICY decision_action_receipts_tenant ON public.decision_action_receipts
 FOR ALL TO authenticated
-USING (company_id=public.current_company_id())
+USING (decision_action_receipts.company_id=public.current_company_id())
 WITH CHECK (
-  company_id=public.current_company_id()
+  decision_action_receipts.company_id=public.current_company_id()
   AND EXISTS (
     SELECT 1
     FROM public.decision_work_items w
     JOIN public.business_intelligence_decisions d ON d.id=w.decision_id AND d.company_id=w.company_id
-    WHERE w.id=work_item_id AND w.company_id=company_id AND d.status='APPROVED'
+    WHERE w.id=decision_action_receipts.work_item_id
+      AND w.company_id=decision_action_receipts.company_id
+      AND d.status='APPROVED'
   )
 );
 

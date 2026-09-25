@@ -2,7 +2,7 @@ import fs from 'node:fs';
 
 const path = 'src/lib/decision-automation/vertical-slice-runtime.ts';
 const source = fs.readFileSync(path, 'utf8');
-const recommendationMigration = 'supabase/migrations/20260830170000_harden_runtime_recommendation_evidence_boundary.sql';
+const recommendationMigration = 'supabase/migrations/20260830170001_harden_runtime_recommendation_evidence_boundary.sql';
 const provenanceMigration = 'supabase/migrations/20260831010000_harden_evidence_snapshot_provenance.sql';
 const recommendationSql = fs.readFileSync(recommendationMigration, 'utf8');
 const provenanceSql = fs.readFileSync(provenanceMigration, 'utf8');

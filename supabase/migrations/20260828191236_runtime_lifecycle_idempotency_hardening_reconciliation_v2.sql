@@ -23,11 +23,74 @@ BEGIN
   RETURN true;
 END; $$;
 
-DROP POLICY IF EXISTS decision_work_items_tenant ON public.decision_work_items;
-CREATE POLICY decision_work_items_tenant ON public.decision_work_items FOR ALL TO authenticated USING (decision_work_items.company_id=public.current_company_id()) WITH CHECK (decision_work_items.company_id=public.current_company_id() AND EXISTS (SELECT 1 FROM public.business_intelligence_decisions d WHERE d.id=decision_work_items.decision_id AND d.company_id=decision_work_items.company_id AND d.status='APPROVED'));
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM pg_policies
+    WHERE schemaname='public' AND tablename='decision_work_items' AND policyname='decision_work_items_tenant'
+  ) THEN
+    ALTER POLICY decision_work_items_tenant ON public.decision_work_items
+      TO authenticated
+      USING (decision_work_items.company_id=public.current_company_id())
+      WITH CHECK (
+        decision_work_items.company_id=public.current_company_id()
+        AND EXISTS (
+          SELECT 1 FROM public.business_intelligence_decisions d
+          WHERE d.id=decision_work_items.decision_id
+            AND d.company_id=decision_work_items.company_id
+            AND d.status='APPROVED'
+        )
+      );
+  ELSE
+    CREATE POLICY decision_work_items_tenant ON public.decision_work_items
+      FOR ALL TO authenticated
+      USING (decision_work_items.company_id=public.current_company_id())
+      WITH CHECK (
+        decision_work_items.company_id=public.current_company_id()
+        AND EXISTS (
+          SELECT 1 FROM public.business_intelligence_decisions d
+          WHERE d.id=decision_work_items.decision_id
+            AND d.company_id=decision_work_items.company_id
+            AND d.status='APPROVED'
+        )
+      );
+  END IF;
 
-DROP POLICY IF EXISTS decision_action_receipts_tenant ON public.decision_action_receipts;
-CREATE POLICY decision_action_receipts_tenant ON public.decision_action_receipts FOR ALL TO authenticated USING (decision_action_receipts.company_id=public.current_company_id()) WITH CHECK (decision_action_receipts.company_id=public.current_company_id() AND EXISTS (SELECT 1 FROM public.business_intelligence_decisions d JOIN public.decision_work_items w ON w.decision_id=d.id AND w.company_id=d.company_id WHERE w.id=decision_action_receipts.work_item_id AND w.company_id=decision_action_receipts.company_id AND d.status='APPROVED'));
+  IF EXISTS (
+    SELECT 1 FROM pg_policies
+    WHERE schemaname='public' AND tablename='decision_action_receipts' AND policyname='decision_action_receipts_tenant'
+  ) THEN
+    ALTER POLICY decision_action_receipts_tenant ON public.decision_action_receipts
+      TO authenticated
+      USING (decision_action_receipts.company_id=public.current_company_id())
+      WITH CHECK (
+        decision_action_receipts.company_id=public.current_company_id()
+        AND EXISTS (
+          SELECT 1
+          FROM public.business_intelligence_decisions d
+          JOIN public.decision_work_items w ON w.decision_id=d.id AND w.company_id=d.company_id
+          WHERE w.id=decision_action_receipts.work_item_id
+            AND w.company_id=decision_action_receipts.company_id
+            AND d.status='APPROVED'
+        )
+      );
+  ELSE
+    CREATE POLICY decision_action_receipts_tenant ON public.decision_action_receipts
+      FOR ALL TO authenticated
+      USING (decision_action_receipts.company_id=public.current_company_id())
+      WITH CHECK (
+        decision_action_receipts.company_id=public.current_company_id()
+        AND EXISTS (
+          SELECT 1
+          FROM public.business_intelligence_decisions d
+          JOIN public.decision_work_items w ON w.decision_id=d.id AND w.company_id=d.company_id
+          WHERE w.id=decision_action_receipts.work_item_id
+            AND w.company_id=decision_action_receipts.company_id
+            AND d.status='APPROVED'
+        )
+      );
+  END IF;
+END $$;
 
 CREATE OR REPLACE FUNCTION public.complete_decision_work_item(p_work_item_id uuid, p_actual_impact numeric, p_evidence jsonb DEFAULT '{}'::jsonb)
 RETURNS boolean LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$
