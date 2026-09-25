@@ -17,18 +17,28 @@ create index if not exists idx_company_memberships_user_active
 -- It must be created before its tenant RLS policy is restored.
 create or replace function public.current_company_id()
 returns uuid
-language sql
+language plpgsql
 stable
 security definer
 set search_path = public, pg_catalog
-as $$
-  select cm.company_id
+as $
+declare
+  v_count integer;
+  v_company_id uuid;
+begin
+  select count(*), min(company_id)
+  into v_count, v_company_id
   from company_memberships cm
   where cm.user_id = auth.uid()
-    and cm.is_active = true
-    and cm.is_default = true
-  limit 1;
-$$;
+    and cm.is_active = true;
+
+  if v_count = 1 then
+    return v_company_id;
+  end if;
+
+  return null;
+end;
+$;
 
 revoke all on function public.current_company_id() from public;
 grant execute on function public.current_company_id() to authenticated, service_role;
