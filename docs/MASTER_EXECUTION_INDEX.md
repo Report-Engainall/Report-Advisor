@@ -1,15 +1,16 @@
-# CURRENT EXECUTION BOUNDARY — 2026-09-25 / POST-MERGE UI #638
+# CURRENT EXECUTION BOUNDARY — 2026-09-25 / EXACT MAIN AFTER UI MERGE + CORE PARITY WAVE
 
-- MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `c8d5f2b2bd318a88e5ccd5c385f0d9031ec5afda`.
-- CURRENT CODE/TEST CANDIDATE: `c8d5f2b2bd318a88e5ccd5c385f0d9031ec5afda` (current exact main after UI shell accessibility merge).
-- GOVERNANCE HEAD BEFORE THIS WRITE: `c8d5f2b2bd318a88e5ccd5c385f0d9031ec5afda`.
-- CORE CANDIDATE STILL OPEN: PR #637 head `09c2386f06b07e0c094cfe94e829c3e600a05c5c`; functional core/Phase-F restore-parity work is intentionally not represented as merged main until its live certification closes.
-- UI DELIVERY: PR #638 merged successfully as `c8d5f2b2bd318a88e5ccd5c385f0d9031ec5afda`. Current main now contains the Header/Sidebar accessibility closure. Exact-head UI gates before merge were successful: Quality, Enforcement, Final Certification, Full Product Browser E2E, Device-Independent Browser E2E, Storage Tenant Runtime E2E, Desktop Windows, and UI Route Completeness.
-- CURRENT MAIN CI REBIND: post-merge Enforcement initially failed only because this index still referenced UI pre-merge head `14f35b5...`; this write binds the index to exact merged main `c8d5f2b...`.
-- EXTERNAL: Vercel free-plan rate-limit remains an environment constraint, but it did not prevent UI merge or the current device-independent gates. Local device/browser remains unavailable.
-- NEXT EXECUTABLE ACTION: consume fresh post-merge main Enforcement/Final Certification/Quality/Browser/desktop evidence, continue PR #637 Phase-F to terminal result, then merge core only when exact-head live evidence supports it.
-- DO NOT REPEAT: no stale UI candidate evidence, no transfer from PR #638 to an older SHA, no merge of PR #637 before Phase-F evidence, no production-SHA bypass.
-
+- MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `efbb3ac5317f88a2d2b207122e43b009277e6a65`.
+- CURRENT CODE/TEST CANDIDATE: `c8d5f2b2bd318a88e5ccd5c385f0d9031ec5afda` (latest merged functional main; subsequent docs commits are governance-only).
+- GOVERNANCE HEAD BEFORE THIS WRITE: `efbb3ac5317f88a2d2b207122e43b009277e6a65`.
+- UI STATE: shell accessibility closure is merged in main via PR #638 at `c8d5f2b2bd318a88e5ccd5c385f0d9031ec5afda`. Exact-head UI gates were successful before merge.
+- CORE STATE: PR #637 is the active functional core candidate. Current head is `87a8d4d1709cbe39f97b4b27050ac1b1543c1d1b`, carrying profiles/carts/cart_items replay parity plus Phase-F routing/contract fixes. It is not merged.
+- LATEST CORE PHASE-F FACT: candidate `09c2386...` failed closed after reaching missing `public.cart_items`; production runtime still served `886c3e11...`; rollback-forward-fix returned HTTP 503. The cart_items parity repair is the next exact-head test.
+- MAIN POST-MERGE GOVERNANCE: current main Enforcement initially failed because the index referenced UI pre-merge head; commit `efa732...` repaired that binding. This memory/index synchronization itself is not a functional product change.
+- CURRENT EXTERNAL: Vercel rate-limit remains external; local device/browser unavailable. Device-independent GitHub/Netlify evidence remains usable.
+- LIVE STAGING: 151 import_jobs are processing, 150 at progress 0; no unsafe mutation. SECURITY/PERFORMANCE advisor findings remain review queues, not deletion instructions.
+- NEXT EXECUTABLE ACTION: consume exact-head PR #637 certification + fresh Phase-F on `87a8d4d...`; in parallel consume post-merge main gates against `efbb3a...` and repair only the first current-head failure.
+- DO NOT REPEAT: no stale UI evidence, no PR #635 reuse, no production-SHA bypass, no blind import-job terminalization, no blanket security/index cleanup.
 ---
 
 # CURRENT CONTROL-PLANE BOUNDARY — 2026-09-25 / POST-MERGE PR #632 + UI PR #634
