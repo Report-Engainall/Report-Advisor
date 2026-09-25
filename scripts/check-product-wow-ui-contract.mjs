@@ -170,6 +170,12 @@ assert.ok(profileSettings.includes('role="status" aria-live="polite"'), 'profile
 assert.ok(profileSettings.includes('role="alert" aria-live="assertive"'), 'profile error state must be announced');
 assert.ok(profileSettings.includes('min-h-11 w-full max-w-xl'), 'profile input must meet touch sizing');
 
+const masterDataHub = fs.readFileSync('src/pages/MasterDataHubPage.tsx', 'utf8');
+assert.ok(masterDataHub.includes('to="/trust"'), 'master data hub must expose a direct evidence path');
+assert.ok(masterDataHub.includes('to="/import"'), 'master data hub must expose the unified import path');
+assert.ok(masterDataHub.includes('لا تُعرض كيانات غير مثبتة'), 'master data hub must preserve fail-closed reference semantics');
+assert.ok(masterDataHub.includes('min-h-11'), 'master data actions must meet touch-target sizing');
+
 const metricInspector = fs.readFileSync('src/pages/MetricInspectorPage.tsx', 'utf8');
 assert.ok(metricInspector.includes('const filteredItems = useMemo'), 'metric inspector must derive a filtered semantic list without mutating the source contract');
 assert.ok(metricInspector.includes('aria-label="البحث في المؤشرات"'), 'metric inspector search must be accessible');
