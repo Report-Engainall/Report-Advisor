@@ -1,3 +1,17 @@
+## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-143E
+
+- MAIN HEAD OBSERVED BEFORE THIS WRITE → `66809d148fe106acd16ceffcbd78f0ab17549fe1`.
+- WORKING HEAD OBSERVED BEFORE THIS WRITE → `c41fbe5176d8b32ac56d53a5d301e3daadad6af7`.
+- CURRENT PR → #656, exact current head, mergeable but unmerged.
+- UI DELIVERY → Intelligence Center, Recommendations, and Forecasts now all consume the same canonical dashboard snapshot for period/status/As-of; Product-WOW contract enforces this parity.
+- CORE DELIVERY RETAINED → server-owned canonical import terminalization with idempotent browser fallback; targeted cart RPC hardening; client_ui_settings parity; Phase-F resolved-source contract.
+- IMPORT LEGACY POSTURE → 151 processing jobs remain legacy/stale-looking, with null source_fingerprint on the observed processing set; no bulk mutation or guessed terminalization.
+- ACCESSIBILITY FRONT BLOCKED LOCALLY → attempted shared EntityContextDrawer focus-trap/focus-restore improvement was rejected by the GitHub write safety check. No partial edit was applied. Do not repeat the same blocked write without a materially different safe implementation path.
+- CURRENT CI → 44 queued, 2 in progress, 3 completed/skipped, 0 failures observed on current HEAD. No PASS transferred.
+- PRODUCTION BOUNDARY → production report-advisor.vercel.app remains on SHA `7edc3cc210e4b81cf18d11fd995296de7a37df87`; exact current branch preview not present in Vercel listing.
+- CURRENT RESUME POINTER → `PR #656 exact-head gates -> first failure only -> smallest repair -> merge after mandatory green gates -> Phase-F exact merged SHA`.
+- NEXT EXECUTABLE ACTION → consume current #656 gates. If green, merge #656 and bind Phase-F to exact merge SHA. Keep legacy import-job cleanup fail-closed and do not reattempt the blocked drawer write blindly.
+- DO NOT REPEAT → stale PASS transfer, production-SHA bypass, preview-as-production, blanket SECURITY DEFINER revoke, unsafe import terminalization, blocked identical drawer patch.
 ## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-143D
 
 - MAIN HEAD OBSERVED BEFORE THIS WRITE → `66809d148fe106acd16ceffcbd78f0ab17549fe1`.
