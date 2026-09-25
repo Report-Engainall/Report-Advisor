@@ -1,3 +1,17 @@
+## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-156
+
+- CODE HEAD OBSERVED BEFORE THIS GOVERNANCE WRITE → `95371dbff307952972dd3d858926024f9294ea03`.
+- PR #659 / branch `feat/deep-ui-core-closure-20260925`.
+- DONE / CORE → `src/lib/free-toolbox/inventory-intelligence-canonical.ts` now fails closed when an inventory balance references a product absent from the tenant-safe product set; the prior silent row discard is removed.
+- DONE / CONTRACT → `scripts/check-inventory-intelligence-ui.mjs` now guards the orphan-balance failure boundary and forbids the prior silent-discard pattern.
+- DONE / UI → `src/pages/InventoryIntelligencePage.tsx` now keeps Trust & Evidence plus retry actions visible when the canonical inventory snapshot is blocked, using the shared BoundaryState rather than a dead-end generic error.
+- ARCHITECTURE → no new RPC/importer/runner/persistence path introduced; the same canonical inventory adapter remains the source.
+- CI EVIDENCE ON EXACT HEAD → no workflow run was visible yet for `95371dbff307952972dd3d858926024f9294ea03`; combined status contains only the known Vercel free-plan rate-limit FAILURE. No repository PASS is claimed.
+- STILL UNPROVEN → Quality/Final Certification/Browser E2E on the current exact head, production identity/promotion, Phase-F live resilience, and device-dependent visual verification.
+- NEXT EXECUTABLE ACTION → consume current-head terminal evidence when it appears; repair only the first reproduced failure. If still no run, continue the next independent UI/core boundary.
+- DO NOT REPEAT → all previously closed Work Center/Connections/Master Data/Import/Executive/Profitability/Receivables/Decision/Data Quality/Dashboard/Inventory-intelligence demand work; no stale PASS transfer; no deployment-limit-as-code-failure; no production/Phase-F bypass.
+- RESUME POINTER → `main c985deeb… → PR #659 → exact head 95371db… → first terminal failure only → next independent UI/core closure → exact green merge evidence`.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-155
 
 - CODE HEAD OBSERVED BEFORE THIS GOVERNANCE WRITE → `74750363f5cf9b6f6050377d1d8a6d23ec8ee762`.
