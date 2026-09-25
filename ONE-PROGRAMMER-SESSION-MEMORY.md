@@ -1,19 +1,19 @@
-## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-129
+## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-130
 
-- SESSION-ID → 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-129.
-- MAIN HEAD OBSERVED BEFORE THIS WRITE → 9c4e5f03a53ae211d5ed00077c2fd43a339a7db2.
-- CURRENT CODE/TEST CANDIDATE → e1fb7181be3e9dc9f44edb2ef46e85ce035a842f.
-- GOVERNANCE HEAD BEFORE THIS WRITE → b1438016882c80b2e5b9946d07029669c4e6d764.
-- DONE → consumed the exact PR #632 state; verified the Phase-F workflow no longer uses a forbidden push trigger, the generic tenant-reference helper is restored before its warehouse trigger, and the UUID-safe current_company_id repair is present.
-- EXACT CURRENT CI → Quality SUCCESS, Full Product Browser E2E SUCCESS, Storage Tenant Runtime E2E SUCCESS, broad security/data contracts SUCCESS. Final Certification and Enforcement failed only because their certification-boundary checker still read the older indexed candidate; this governance write rebinds the index to e1fb7181... and must be proven again.
-- UI LANE → source UI remains unchanged in this core repair wave; exact current-head browser coverage is green on PR #632. Next independent UI wave must target a concrete shell/accessibility gap rather than redoing closed browser work.
-- CORE LANE → Phase-F restore helper + tenant resolver + pooler fallback + bounded auth-clock-skew harness are all on the current candidate. Phase-F live resilience is still running on exact e1fb7181... and is the release boundary.
-- BLOCKED → production promotion/identity is still not certified; no production mutation or SHA bypass.
-- CURRENT RESUME POINTER → e1fb7181be3e9dc9f44edb2ef46e85ce035a842f → exact-head Final Certification/Enforcement/Phase-F → first current-SHA failure only → governed merge → fresh main gates.
-- NEXT EXECUTABLE ACTION → consume the regenerated gates after the governance rebind; do not mutate the branch unless a new exact-head failure is reproduced.
-- DO NOT REPEAT → no stale PASS transfer, no Phase-F acceptance relaxation, no production-SHA bypass, no duplicate migration/helper path.
-- UI LANE PROGRESS → current shell/routes/import/evidence surfaces already have exact browser coverage; next change remains accessibility/shell state closure.
-- CORE LANE PROGRESS → migration restore dependency repaired; certification boundary rebinding in progress; Phase-F live proof pending exact current head.
+- SESSION-ID → 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-130.
+- MAIN HEAD OBSERVED BEFORE THIS WRITE → `9c4e5f03a53ae211d5ed00077c2fd43a339a7db2`.
+- CURRENT CODE/TEST CANDIDATE → `e1fb7181be3e9dc9f44edb2ef46e85ce035a842f`.
+- GOVERNANCE HEAD BEFORE THIS WRITE → `14872d3760fdf290cbf1bc7956d8eec7f2d85ba9`.
+- DONE → normalized the current execution-index markers so certification/enforcement parsers read the exact governed candidate; the prior rejection was parser-format drift, not a new product defect.
+- EXACT CURRENT CORE STATE → PR #632 has the generic tenant-reference migration repair, UUID-safe tenant resolver, Phase-F connectivity fallback, bounded auth-clock-skew test retry, and the forbidden Phase-F push trigger removed. Fresh current-head workflows are running again after this governance-only synchronization.
+- EXACT UI STATE → PR #633 is open from exact main with shell accessibility closure: mobile-safe touch targets, Escape handling for alerts, and explicit sidebar disclosure semantics. No business/data behavior changed.
+- VERIFIED ON PR #632 BEFORE THE LATEST GOVERNANCE WRITE → Quality SUCCESS, Full Product Browser E2E SUCCESS, Storage Tenant Runtime E2E SUCCESS, broad security/data contracts SUCCESS. Certification/Enforcement must be regenerated against the normalized exact-head index.
+- BLOCKED / NOT PROVEN → Phase-F live resilience and production deployment identity remain unproven until their current exact-head evidence passes; Vercel promotion is not being bypassed.
+- CURRENT RESUME POINTER → `14872d3760fdf290cbf1bc7956d8eec7f2d85ba9` → consume exact-head core gates + Phase-F → merge only a green governed core candidate; in parallel consume PR #633 UI gates → merge UI only after exact-head browser/quality proof.
+- NEXT EXECUTABLE ACTION → inspect both active workflow sets; fix only the first new reproduced failure on each front.
+- DO NOT REPEAT → no stale PASS transfer, no acceptance weakening, no push-trigger restoration, no arbitrary DB routing, no duplicate UI navigation surface.
+- UI LANE PROGRESS → shell accessibility wave active in PR #633.
+- CORE LANE PROGRESS → Phase-F restore wave active in PR #632; governance binding normalized.
 
 ## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-127
 
