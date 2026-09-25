@@ -102,9 +102,28 @@ async function preferIpv4Host(databaseUrl) {
     if (!parsed.hostname || /^\d+(?:\.\d+){3}$/.test(parsed.hostname)) return databaseUrl;
     const answers = await dns.lookup(parsed.hostname, { family: 4, all: true, verbatim: false });
     const ipv4 = answers.find(answer => answer.family === 4)?.address;
-    if (!ipv4) return databaseUrl;
-    parsed.searchParams.set('hostaddr', ipv4);
-    return parsed.toString();
+    if (ipv4) {
+      parsed.searchParams.set('hostaddr', ipv4);
+      return parsed.toString();
+    }
+
+    // Supabase project DB hosts can be IPv6-only from some CI runners.
+    // Fall back to the same project's regional transaction pooler, preserving
+    // the original database password and project identity.
+    const projectRef = process.env.SUPABASE_PROJECT_REF?.trim() || '';
+    const region = process.env.RESILIENCE_SUPABASE_REGION?.trim() || 'ap-southeast-2';
+    const directMatch = parsed.hostname.match(/^db\.([a-z0-9]+)\.supabase\.co$/i);
+    if (projectRef && directMatch && directMatch[1] === projectRef && parsed.port === '5432') {
+      parsed.hostname = `aws-0-${region}.pooler.supabase.com`;
+      parsed.username = `postgres.${projectRef}`;
+      parsed.searchParams.delete('hostaddr');
+      const poolerAnswers = await dns.lookup(parsed.hostname, { family: 4, all: true, verbatim: false });
+      const poolerIpv4 = poolerAnswers.find(answer => answer.family === 4)?.address;
+      if (poolerIpv4) parsed.searchParams.set('hostaddr', poolerIpv4);
+      return parsed.toString();
+    }
+
+    return databaseUrl;
   } catch {
     return databaseUrl;
   }
