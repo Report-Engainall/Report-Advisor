@@ -1,20 +1,20 @@
-# CURRENT CONTROL-PLANE BOUNDARY — 2026-09-25 / CURRENT EXACT CODE HEAD 50DE7
+# CURRENT CONTROL-PLANE BOUNDARY — 2026-09-25 / CURRENT EXACT CODE HEAD 2770
 
 - MAIN HEAD OBSERVED BEFORE THIS WRITE: `7159553fcfc9d21304ffff60e1086a34b714ac09`.
-- CURRENT CODE/TEST CANDIDATE: `50de7ce899d6b8fb048a39fa90d2e334dddd2a43` on PR #628.
+- CURRENT CODE/TEST CANDIDATE: `2770becfee953fa39948d05b36df6aead258bd93` on PR #628.
 - GOVERNANCE STATE: Decision Playbooks and resilience/session-pooler repairs remain intact; cart schema lineage and its customer-context helper functions are now self-contained in the same canonical migration.
 - DONE — CORE: migration `20260925033521_reconcile_live_cart_schema.sql` now creates `public.carts`/`cart_items` plus the live `current_customer_id()` and `current_customer_company_id()` SECURITY DEFINER helpers before creating cart RLS policies.
 - LIVE DB RECONCILIATION: staging already contains migration version `20260925033521`; helper definitions were reconciled directly to the inspected live definitions because the migration was created in this session and has not entered production.
-- VERIFIED LOCAL EXACT PRE-CANDIDATE: migration schema audit PASS; Phase-F runtime closure PASS; operational resilience/evidence integrity PASS; Product-WOW UI PASS.
-- EXACT PHASE-F FAILURE BEFORE THIS FIX: run `36091056861` on `280c10dd...` was 1/4. Tenant canary passed; production health still reported old production SHA `7be9f014...`; backup restore reached migration `20260925033521` then failed because `current_customer_id()` did not exist in fresh restore; rollback-forward remained HTTP 503 due missing production forward baseline.
-- ROOT CAUSE CLOSED: the cart migration depended on helper functions that existed only in live drift, not repository lineage. The same migration now owns the dependency before policy creation.
+- VERIFIED LOCAL EXACT PRE-CANDIDATE: migration schema audit PASS; Phase-2 security-definer surface PASS across 99 migration files; Phase-F runtime closure PASS; operational resilience/evidence integrity PASS.
+- EXACT CERTIFICATION FAILURE BEFORE THIS FIX: run `36091398606` on `9e67ffcd...` failed only at `check-phase2-security-definer-surface.mjs` because the two helper functions used an empty search_path. The prior Phase-F run `36091056861` had already reached cart migration and exposed the helper-lineage drift; production health remained SHA-mismatched and rollback-forward remained HTTP 503.
+- ROOT CAUSE CLOSED: the cart migration now owns its helper dependency, and both SECURITY DEFINER helpers use fixed `search_path = public` with schema-qualified object references and controlled execute grants.
 - VERCEL: exact preview for this new head must be checked; do not transfer deployment evidence from older SHAs.
-- PHASE-F: fresh live proof is required on `50de7ce...`. Current production alias remains `7be9f014...`; production identity, RPO/RTO, rollback and release remain NOT PROVEN.
+- PHASE-F: fresh live proof is required on `2770bec...`. Current production alias remains `7be9f014...`; production identity, RPO/RTO, rollback and release remain NOT PROVEN.
 - NEXT EXECUTABLE ACTION: fresh exact-head quality/Browser/Enforcement/Final Certification → fresh Phase-F → repair only the first newly reproduced live failure → exact production alignment → measured recovery → release closeout.
 - DO NOT REPEAT: old countSql defect, cart table drift, missing helper-function drift, stale candidate bindings, unchanged Phase-F retries, historical evidence transfer, production-SHA bypass, speculative UI rewrites.
 - UI LANE: 40 application routes / 38 canonical navigation links remain green; Executive, Connections, Decision, Document, Inventory and Product-WOW contracts are green.
 - CORE LANE: exact-head certification → fresh Phase-F restore proof → exact production alignment → measured RPO/RTO/rollback → release closeout.
-- CURRENT RESUME POINTER: `50de7ce... exact-head gates → fresh Phase-F → exact production alignment → measured recovery → release closeout`.
+- CURRENT RESUME POINTER: `2770bec... exact-head gates → fresh Phase-F → exact production alignment → measured recovery → release closeout`.
 
 
 

@@ -1,4 +1,19 @@
-## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-128
+## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-129
+
+- SESSION-ID: 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-129.
+- MAIN HEAD OBSERVED BEFORE THIS WRITE: `7159553fcfc9d21304ffff60e1086a34b714ac09`.
+- CURRENT CODE/TEST CANDIDATE: `2770becfee953fa39948d05b36df6aead258bd93` on PR #628.
+- DONE — CORE: hardened the cart-context SECURITY DEFINER helpers in migration `20260925033521` to `SET search_path = public`, preserving schema-qualified references and controlled `authenticated, service_role` execution grants.
+- EXACT CERTIFICATION FAILURE: run `36091398606` on `9e67ffcddf21a248a535ff428402c204f803abfb` failed only in `check-phase2-security-definer-surface.mjs`: both new helper functions were flagged for an empty search_path. The prior Phase-F run `36091056861` had already reached the cart migration and exposed the helper-lineage drift.
+- STAGING RECONCILIATION: both helper definitions were updated directly in Supabase staging to `search_path=public`.
+- VERIFIED LOCAL EXACT CANDIDATE: migration schema audit PASS; Phase-2 security-definer surface PASS across 99 migration files; Phase-F runtime closure PASS; operational resilience/evidence integrity PASS; diff-check PASS.
+- UI LANE: 40 application routes / 38 canonical navigation links; Executive, Connections, Decision, Document, Inventory and Product-WOW contracts remain green.
+- NOT PROVEN: fresh certification on `2770bec...`, fresh Phase-F restore after helper search_path repair, exact production identity, measured RPO/RTO, rollback.
+- DO NOT REPEAT: countSql defect, carts/cart_items drift, missing helper lineage, empty-search-path helper failure, stale bindings, unchanged Phase-F runs, historical evidence transfer.
+- CURRENT PRECISE STOP POINT: `2770bec...` exact-head gates → fresh Phase-F → first new live failure only → exact production alignment → measured recovery.
+- CURRENT RESUME POINTER: `2770bec... exact-head certification → fresh Phase-F → exact production alignment → measured recovery → release closeout`.
+
+
 
 - SESSION-ID: 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-128.
 - MAIN HEAD OBSERVED BEFORE THIS WRITE: `7159553fcfc9d21304ffff60e1086a34b714ac09`.
