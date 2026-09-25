@@ -1,17 +1,15 @@
-# CURRENT EXECUTION BOUNDARY — 2026-09-25 / POST-MERGE DEEP UI-CORE CLOSURE
+# CURRENT EXECUTION BOUNDARY — 2026-09-25 / PHASE-F CASH + BRANCH KEY PARITY WAVE
 
-- MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `317f560eae727dd660e1d3adc80c2ce26cc13805`.
-- CURRENT CODE/TEST CANDIDATE: `317f560eae727dd660e1d3adc80c2ce26cc13805`.
-- GOVERNANCE HEAD BEFORE THIS WRITE: `317f560eae727dd660e1d3adc80c2ce26cc13805`.
-- MERGE: PR #644 was merged squash at `317f560eae727dd660e1d3adc80c2ce26cc13805` after exact-head Quality + Final Certification + UI Route/Browser/Desktop gates passed on the pre-merge code head `2eb7c69cad1c07d77df354e4ef5371200868f236`.
-- UI DELIVERY: Metric Inspector gained semantic search, certification-status/freshness filters, reset and filtered-empty state; shared Loading/Empty/Error states gained explicit assistive semantics and retry labeling; Decision Experience progress gained stage descriptions; Reports gained evidence-safe truth context; Canonical Import stepper gained semantic active/completed stage semantics.
-- CORE DELIVERY: Phase-10 restore contract strengthened SECURITY DEFINER helper hardening; Phase-F evidence now preserves exact-head/governance-head provenance.
-- EXACT EVIDENCE: Quality run `36173306930` → SUCCESS; Final Certification `36173306852` → SUCCESS; UI Route Completeness `36173306908` → SUCCESS; Browser `36173307013` → SUCCESS; Desktop Windows `36173306970` → SUCCESS; Metric Governance RLS `36173307044` → SUCCESS on the pre-merge candidate lineage.
-- PHASE-F: run `36173306548` reached Live resilience probes on exact pre-merge head `2eb7c69...` but had not terminated at observation time; no Phase-F PASS is transferred to `317f560...`. No post-merge Phase-F workflow was observed for the main commit at this write.
-- EXTERNAL HOSTING: Vercel remains externally rate-limited by the free-plan build limit. Netlify remains a preview path only.
-- PARALLEL UI FOLLOW-UP: PR #646 contains purchase-report truth-context closure; its first Netlify preview failed due a JSX transform defect, which was identified and corrected at `68e34f5c15db9ec17cad0c7731b01894d99cb0f4`. Fresh exact-head gates are now required for PR #646; its failure is not transferred as a main defect.
-- NEXT EXECUTABLE ACTION: re-establish fresh exact-head main certification/Phase-F evidence for `317f560...`; in parallel consume PR #646 current-head checks, repair only the first reproduced current defect, then fast-forward/merge only after exact-head proof.
-- DO NOT REPEAT: no stale pre-merge Phase-F PASS transfer, no production SHA bypass, no preview-as-production, no duplicate RPC/runner/import path, no blanket DB/security cleanup.
+- MAIN HEAD OBSERVED BEFORE THIS WRITE: `d99ebb5ebe4f5891cb5e6126c4f2dcfc094b0368`.
+- CURRENT CODE/TEST CANDIDATE: `d0136c3fd3cbb21a70aa7a6f2c4efd45cedfbfed`.
+- GOVERNANCE HEAD BEFORE THIS WRITE: `d99ebb5ebe4f5891cb5e6126c4f2dcfc094b0368`.
+- ROOT-CAUSE CHAIN: source has `public.cash_accounts`; replay lacked it. After adding it, replay exposed the source-required `branches(id, company_id)` unique constraint needed by the composite FK. Source definition confirmed as `UNIQUE (id, company_id)`.
+- CORE FIX: restore-parity migration now establishes `branches_id_company_unique` before adding the cash_accounts composite FK; Phase-10 contract locks this prerequisite and the cash_accounts schema/tenant invariants.
+- PHASE-F EVIDENCE: exact-head run `36174711518` failed at local migration replay on the branch/composite-FK prerequisite; deployment SHA/canary/local runtime/static contracts were otherwise reached successfully. No PASS.
+- NO PRODUCTION MUTATION: live Supabase inspection remained read-only; no source DDL was executed.
+- NEXT EXECUTABLE ACTION: consume fresh exact-head Quality/Final/Phase-F evidence for `d0136c3f...`; inspect only the first new failure.
+- DO NOT REPEAT: no stale Phase-F PASS transfer, no Vercel bypass, no preview-as-production, no blanket migration reconstruction.
+
 
 ---
 
