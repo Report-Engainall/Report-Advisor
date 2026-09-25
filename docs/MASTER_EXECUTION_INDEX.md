@@ -1,3 +1,14 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-25 / CONTINUOUS EXECUTION CHECKPOINT 158
+
+- CODE HEAD OBSERVED BEFORE THIS INDEX WRITE: cbbaced02eb9e093750192f5279021aa2361124d.
+- UI: Intelligence Center / Recommendations / Forecasts now share a blocked load boundary with retry and Trust & Evidence path.
+- QUALITY: intelligence product contract locks the shared failure boundary.
+- CURRENT EVIDENCE: exact-head checks have not produced a terminal application PASS; no stale evidence is transferred.
+- NOT PROVEN: current-head Quality/Certification/Browser/Phase-F/production/device certification.
+- NEXT: consume first terminal exact-head failure only; otherwise continue an independent UI/core closure.
+- RESUME POINTER: main c985deeb… → PR #659 → cbbaced0… → first terminal failure only → next independent UI/core closure → exact green merge evidence.
+
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-25 / CONTINUOUS EXECUTION CHECKPOINT 157
 
 - HEAD OBSERVED BEFORE THIS INDEX WRITE: d799fab7eb911450faa920770ce020bae99d5030.
