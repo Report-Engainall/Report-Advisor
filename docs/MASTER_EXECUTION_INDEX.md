@@ -584,3 +584,12 @@
 - Quality workflow now enforces the inventory-intelligence contract in addition to deep-truth/dashboard/import/profitability/receivables contracts.
 - Browser/device, production, and Phase-F evidence remain unproven.
 - Resume: exact-head terminal Actions first failure only; otherwise continue the next independent uncovered UI/core surface.
+
+
+## Session 154 checkpoint
+
+- Head before index write: `5fd9d1b3d3e0e6b3e0cc7b375e5bfb5b043ef874`
+- Hardened canonical sales demand series against malformed invoice/item/product relation payloads.
+- Added and enforced the demand-series contract in Quality.
+- No duplicate source path introduced; Inventory Intelligence continues to consume the same canonical adapter chain.
+- Resume: exact-head terminal workflow evidence first; repair only the first reproduced failure.
