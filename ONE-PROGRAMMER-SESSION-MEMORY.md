@@ -191,3 +191,15 @@
 - NEXT ACTION: consume the first terminal workflow failure for exact head only; repair that failure and continue the next uncovered UI/core surface without reopening closed work.
 - DO NOT REPEAT: Work Center, Connections, Master Data, Import readback, Executive Report, Profitability, Receivables, Decision Experience closures already recorded in prior checkpoints.
 - RESUME POINTER: `main c985deeb… → PR #659 exact head bf3b86de5d1a… → first terminal failure only → next uncovered UI/core closure → exact green merge evidence`.
+
+
+## SESSION 153 — inventory intelligence closure checkpoint
+
+- OBSERVED HEAD BEFORE DOC WRITE: `459f6d9e58236466247882cac1cff861e903a3ba`
+- UI: `src/pages/InventoryIntelligencePage.tsx` now provides search across SKU/name/group and a direct Trust & Evidence route while retaining detail/grouped modes and calculated-coverage boundaries.
+- CORE: `src/lib/free-toolbox/inventory-intelligence-canonical.ts` now validates source arrays and required row shapes for group members, balances, and products; malformed source payloads fail closed instead of disappearing into empty/default data.
+- CONTRACT: `scripts/check-inventory-intelligence-ui.mjs` now covers the new triage surface and adapter validator; Quality workflow enforces `test:inventory-intelligence-ui` alongside the existing deep-truth contracts.
+- EVIDENCE STATUS: no browser/device certification claimed; no production/Phase-F PASS claimed; exact-head workflow evidence remains pending/queued until terminal.
+- NEXT ACTION: consume terminal exact-head workflow evidence and repair only the first reproduced failure; continue next independent UI/core surface if no failure is available yet.
+- DO NOT REPEAT: previously closed Work Center, Connections, Master Data, import readback, Executive Report, Profitability, Receivables, Decision Experience, and Data Quality/dashboard snapshot work.
+- RESUME POINTER: `main c985deeb… → PR #659 → exact head 459f6d9e5823… → first terminal failure only → next uncovered UI/core closure → exact green merge evidence`.
