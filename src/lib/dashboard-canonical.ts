@@ -104,7 +104,30 @@ export async function fetchProfitabilitySnapshot(): Promise<ProfitabilitySnapsho
   if (error) throw error;
   if (!data || typeof data !== 'object') throw new Error('REPORT_DATA_UNAVAILABLE: profitability snapshot missing');
   const row=data as Record<string,unknown>;
-  return { status: row.status==='CALCULATED'?'CALCULATED':'INSUFFICIENT_DATA', currency: typeof row.currency==='string'?row.currency:null, currency_status: row.currency_status==='CONSISTENT'?'CONSISTENT':'INSUFFICIENT_DATA', revenue:finiteOrNull(row.revenue), cost:finiteOrNull(row.cost), gross_profit:finiteOrNull(row.gross_profit), gross_margin:finiteOrNull(row.gross_margin), invoice_count:finiteOrNull(row.invoice_count), bad_invoice_rows:finiteOrNull(row.bad_invoice_rows), bad_sale_item_rows:finiteOrNull(row.bad_sale_item_rows), currency_mismatch_rows:finiteOrNull(row.currency_mismatch_rows), reasons:requiredArray<string>(row.reasons), as_of:typeof row.as_of==='string'?row.as_of:asOfDate() };
+  const revenue=finiteOrNull(row.revenue);
+  const cost=finiteOrNull(row.cost);
+  const grossProfit=finiteOrNull(row.gross_profit);
+  const grossMargin=finiteOrNull(row.gross_margin);
+  const rawStatus=row.status === 'CALCULATED' ? 'CALCULATED' : 'INSUFFICIENT_DATA';
+  const structurallyComplete = rawStatus === 'CALCULATED' && revenue !== null && cost !== null && grossProfit !== null;
+  const status: ProfitabilitySnapshot['status'] = structurallyComplete ? 'CALCULATED' : 'INSUFFICIENT_DATA';
+  const reasons=requiredArray<unknown>(row.reasons).filter((reason): reason is string => typeof reason === 'string' && reason.trim().length > 0);
+  if (rawStatus === 'CALCULATED' && !structurallyComplete && reasons.length === 0) reasons.push('لا توجد مكونات مالية مكتملة تكفي لإثبات الربحية.');
+  return {
+    status,
+    currency: typeof row.currency==='string' && row.currency.trim() ? row.currency.trim() : null,
+    currency_status: row.currency_status==='CONSISTENT' ? 'CONSISTENT' : 'INSUFFICIENT_DATA',
+    revenue: status === 'CALCULATED' ? revenue : null,
+    cost: status === 'CALCULATED' ? cost : null,
+    gross_profit: status === 'CALCULATED' ? grossProfit : null,
+    gross_margin: status === 'CALCULATED' ? grossMargin : null,
+    invoice_count: finiteOrNull(row.invoice_count),
+    bad_invoice_rows: finiteOrNull(row.bad_invoice_rows),
+    bad_sale_item_rows: finiteOrNull(row.bad_sale_item_rows),
+    currency_mismatch_rows: finiteOrNull(row.currency_mismatch_rows),
+    reasons,
+    as_of: typeof row.as_of==='string' && row.as_of.trim() ? row.as_of : asOfDate(),
+  };
 }
 
 export async function fetchRFMSnapshot(limit = 500): Promise<RFMSnapshot> {
