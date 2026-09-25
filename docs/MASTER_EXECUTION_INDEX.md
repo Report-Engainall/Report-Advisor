@@ -1,3 +1,16 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-25 / DEEP UI + PHASE-F IDENTITY CLOSURE 145
+
+- MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `c985deeb6e9f93383fca27473439a4e14cf9070d`.
+- CURRENT CODE/TEST CANDIDATE: `82afe9e4ad14d6430995321e6fc41473e8c9daff` (PR #659).
+- UI CLOSURE: TrustState now carries `INSUFFICIENT_SAMPLE` distinctly from `INSUFFICIENT_DATA`; shared TrustBadge / TruthContextStrip and TrustEvidence surface the distinction without inventing business values.
+- CORE CLOSURE: Phase-F runtime now fail-closes before live probes when `EXACT_HEAD` is not a full 40-character hexadecimal commit SHA; the closure contract asserts the same invariant.
+- PR ISOLATION: #659 touches six files only and is based directly on current main. It does not overlap the active #657/#658 code paths.
+- CURRENT EXTERNAL GATES: Vercel exact-head status is rate-limited by plan; Netlify preview is pending. No PASS is inferred from either state.
+- NEXT EXECUTABLE ACTION: consume the first terminal exact-head repository gate on #659; repair only a reproduced code failure; otherwise continue independent UI/core fronts and keep Phase-F/production fail-closed.
+- DO NOT REPEAT: no stale PASS transfer, no deployment-limit-as-code-failure, no preview-as-production, no duplicate path, no production mutation.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-25 / CONTINUOUS EXECUTION CHECKPOINT 144
 
 - MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `8eb5b4154e02a1320942e08a33e052e0a35ab238`.
