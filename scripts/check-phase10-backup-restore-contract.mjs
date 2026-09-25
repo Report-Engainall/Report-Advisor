@@ -40,8 +40,35 @@ for (const token of [
   throw new Error(`Missing Phase-F restore-chain generic tenant-reference invariant: ${token}`);
 }
 
+const profilesParityUpper = stripSqlComments(cartsParityMigration).toUpperCase();
+for (const token of [
+  'CREATE TABLE IF NOT EXISTS PUBLIC.PROFILES',
+  'ORGANIZATION_ID UUID NOT NULL',
+  'CUSTOMER_ID UUID',
+  'ROLE TEXT NOT NULL',
+  'PROFILES_ID_FKEY',
+  'PROFILES_ORGANIZATION_ID_FKEY',
+  'PROFILES_CUSTOMER_ID_FKEY',
+  'PROFILES_CUSTOMER_IDX',
+  'PROFILES_ORG_IDX',
+  'PROFILES_SELF_SELECT',
+  'GRANT ALL ON TABLE PUBLIC.PROFILES TO SERVICE_ROLE',
+]) {
+  if (!profilesParityUpper.includes(token)) throw new Error(`Missing profiles schema restore-parity invariant: ${token}`);
+}
+
 const cartsParityUpper = stripSqlComments(cartsParityMigration).toUpperCase();
 for (const token of [
+  'CREATE TABLE IF NOT EXISTS PUBLIC.PROFILES',
+  'ORGANIZATION_ID UUID NOT NULL',
+  'CUSTOMER_ID UUID',
+  'ROLE TEXT NOT NULL',
+  'PROFILES_ID_FKEY',
+  'PROFILES_ORGANIZATION_ID_FKEY',
+  'PROFILES_CUSTOMER_ID_FKEY',
+  'PROFILES_CUSTOMER_IDX',
+  'PROFILES_ORG_IDX',
+  'PROFILES_SELF_SELECT',
   'CREATE TABLE IF NOT EXISTS PUBLIC.CARTS',
   'COMPANY_ID UUID NOT NULL',
   'CUSTOMER_ID UUID NOT NULL',
