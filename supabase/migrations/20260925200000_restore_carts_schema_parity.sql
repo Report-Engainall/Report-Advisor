@@ -1,6 +1,35 @@
 -- Restore parity for the live public.carts relation discovered by Phase-F logical restore.
 -- Source-of-truth: staging project fnqbvfuwbdpwvhcgzksl at 2026-09-25.
 -- Forward-only: preserves the live relation shape, tenant FK boundaries, indexes, RLS and authenticated read policy.
+create or replace function public.current_customer_id()
+returns uuid
+language sql
+security definer
+set search_path = public
+as $function$
+  select p.customer_id
+  from public.profiles p
+  where p.id = auth.uid()
+  limit 1;
+$function$;
+
+create or replace function public.current_customer_company_id()
+returns uuid
+language sql
+security definer
+set search_path = public
+as $function$
+  select p.organization_id
+  from public.profiles p
+  where p.id = auth.uid()
+  limit 1;
+$function$;
+
+revoke all on function public.current_customer_id() from public;
+revoke all on function public.current_customer_company_id() from public;
+grant execute on function public.current_customer_id() to authenticated, service_role;
+grant execute on function public.current_customer_company_id() to authenticated, service_role;
+
 create table if not exists public.carts (
   id uuid primary key default gen_random_uuid(),
   company_id uuid not null,
