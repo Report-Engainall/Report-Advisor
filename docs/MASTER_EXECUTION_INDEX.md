@@ -1,17 +1,16 @@
-# CURRENT EXECUTION BOUNDARY — 2026-09-25 / EXACT GITHUB MAIN RECONCILIATION
+# CURRENT EXECUTION BOUNDARY — 2026-09-25 / PR #637 EXACT-HEAD RESTORE PARITY REBIND
 
 - MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `d43c8203ca249f6e8f9661a784d8a170a3870111`.
-- CURRENT CODE/TEST CANDIDATE: `b319bf2caed51f90fcf196828012b90559dcfa9d` (latest merged functional core candidate; later main commits are governance-only).
-- GOVERNANCE HEAD BEFORE THIS WRITE: `b319bf2caed51f90fcf196828012b90559dcfa9d`.
-- CORE STATE: PR #632 is merged at `886c3e11afb0304f48b8653001bf5b6a4f039ab5`. Current main also contains subsequent governance synchronization commits through `eb2727558...`.
-- UI STATE: PR #635 / branch `ui/shell-accessibility-closure-mainhead-20260925` is 6 commits ahead of current main and changes only Header, Sidebar, and this index; it contains the shell accessibility closure (44px targets, Escape/focus restoration, disclosure semantics, keyboard focus).
-- PHASE-F RUN CONSUMED: `36165329471` completed FAILED/CLOSED on PR head `dcff29f15d4851bd6f48dd863e5a62b29f67519e`. Exact observed failures: production deployment SHA `dcabe46e594cbb070e145882a87dd67fa91ddabe` did not match tested head; logical restore could not reach Supabase direct DB over IPv6; rollback-forward-fix drill returned HTTP 503. Tenant canary passed HTTP 200. No Phase-F PASS is transferable.
-- CURRENT MAIN SOURCE CHECK: `scripts/phase-f-live-resilience-probes.mjs` already contains the implicit-port `5432` Pooler fallback and routes both schema-count and dump through `runnerSource`; this repair is present in current main source, but requires a fresh exact-head live run to be proven.
-- LIVE STAGING OBSERVATION: Supabase `fnqbvfuwbdpwvhcgzksl` currently has 151 `import_jobs` in `processing`, 150 at progress 0; oldest began `2026-09-14 12:53:22Z`. No mutation performed because no governed recovery contract was identified.
-- SECURITY/PERFORMANCE OBSERVATION: current staging advisors report 46 authenticated-callable SECURITY DEFINER functions plus numerous unused indexes. These are audit findings, not blanket-removal authorization; each function/index requires caller and invariant analysis before mutation.
-- CURRENT EXTERNAL BLOCKERS: Vercel deployment rate limit / unavailable promotion path; device-dependent browser runtime unavailable in this session; Phase-F production identity and live logical restore/rollback remain NOT PROVEN on current main.
-- NEXT EXECUTABLE ACTION: consume/create fresh exact-head Quality + Enforcement + Final Certification + Browser evidence for current functional candidate; then run Phase-F only against a deployment whose runtime SHA equals the tested candidate. In parallel, close PR #635's exact-head UI gate and perform governed analysis of stale import recovery/security findings without destructive mutation.
-- DO NOT REPEAT: no stale PASS transfer, no production-SHA bypass, no unsafe terminalization of the 151 processing jobs, no blanket SECURITY DEFINER revoke, no deletion of unused indexes without usage/caller evidence, no forced UI merge through unresolved checks.
+- CURRENT CODE/TEST CANDIDATE: `b5ec060d3fc6f4ca4ff40fea3caa469af8fbcddb`.
+- GOVERNANCE HEAD BEFORE THIS WRITE: `b5ec060d3fc6f4ca4ff40fea3caa469af8fbcddb`.
+- CORE STATE: PR #637 is the current Phase-F restore-parity candidate. It carries carts/profiles replay parity, source URI routing hardening, generated count-SQL qualification, and governed Phase-F topology. No production bypass or acceptance weakening.
+- PRIOR EXACT PHASE-F RUN: `36169603219` on candidate `344e6ebf...` failed closed during local replay because `20260925200000_restore_carts_schema_parity.sql` referenced live-only `public.profiles` before the repo replay created it; rollback drill also returned HTTP 503. That failure is consumed and the migration has since been repaired on `b5ec060d...`.
+- UI STATE: PR #638 is the current UI candidate, based directly on current main `d43c8203...`; it changes only Header/Sidebar and carries the shell accessibility closure. PR #635 is superseded/closed and is not evidence.
+- CURRENT EXTERNAL BLOCKERS: Vercel build-rate limit remains external; current production identity must still match the exact tested candidate before Phase-F can certify deployment identity. Device-dependent local browser is unavailable, so no local/browser PASS is claimed outside GitHub/Netlify evidence.
+- LIVE STAGING OBSERVATION: `151` import_jobs are processing, `150` at progress 0; oldest started 2026-09-14 12:53:22Z. No unsafe terminalization was performed.
+- SECURITY/PERFORMANCE OBSERVATION: staging advisors report 46 authenticated-callable SECURITY DEFINER functions and numerous unused indexes; no blanket mutation applied.
+- NEXT EXECUTABLE ACTION: consume fresh exact-head Quality/Enforcement/Final Certification/Browser/Storage evidence for `b5ec060d...`; then consume Phase-F live result on the same candidate and repair only the first reproduced current-SHA failure. In parallel consume exact-head UI gates for PR #638.
+- DO NOT REPEAT: no stale candidate transfer, no blanket security-function revoke, no index deletion, no import-job terminalization, no production-SHA bypass, no reuse of PR #635 evidence.
 
 ---
 
