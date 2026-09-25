@@ -72,6 +72,7 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci --no-audit --no-fund
+      # Logical restore certification intentionally replays the repository migrations, including the current carts/cart_items parity wave.
       - name: Install Supabase CLI for logical backup mode
         if: ${{ (env.RESILIENCE_BACKUP_MODE || 'logical') == 'logical' }}
         uses: supabase/setup-cli@v1
