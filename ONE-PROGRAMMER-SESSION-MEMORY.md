@@ -1,3 +1,16 @@
+## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-120
+
+- SESSION-ID → `2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-120`.
+- MAIN HEAD OBSERVED BEFORE THIS WRITE → `35c8a8bcdc0253418ed8f21cdd664a09cac31e69` (merge commit for PR #629).
+- CODE CHANGE MERGED → PR #629 `fix: align core contracts with canonical migration paths`; corrected two contract references to the canonical watched-report and import-lineage migration files. PR merge succeeded; merged SHA `35c8a8bcdc0253418ed8f21cdd664a09cac31e69`.
+- PR-REPORTED LOCAL VERIFICATION → P0 13/13, P1 8/8, Production Readiness 21/21, TypeScript and diff check PASS on PR head `cca051215037b6fa3b7ca6901dd9666af6d162fc`. This is PR-reported local evidence, not a fresh main-SHA/cloud PASS.
+- CLOUD STATUS → commit-associated workflow query returned no runs at observation time. Fresh exact-main Quality/Enforcement/Certification/Browser/Phase-F results are NOT PROVEN.
+- UI LANE → no UI source was changed in this execution; keep the latest UI closure and require fresh browser proof for the new governed code lineage.
+- CORE LANE → migration contract-path alignment merged. Phase-F production identity, authorized logical source connectivity, backup/restore, measured RPO/RTO, rollback, and production release remain NOT PROVEN/BLOCKED as previously recorded; do not transfer older evidence.
+- DO NOT REPEAT → do not reapply PR #629 migration-path edits; do not treat PR local checks as cloud PASS; do not bypass production SHA or credentials.
+- CURRENT RESUME POINTER → `35c8a8bcdc0253418ed8f21cdd664a09cac31e69` → consume fresh main-head Quality/Enforcement/Final Certification/Browser evidence → run Phase-F only with valid authorized source and exact runtime identity → fix first reproduced failure.
+- NEXT EXECUTABLE ACTION → inspect fresh workflow results for merged main SHA; if no workflows start, trigger the repository's existing required CI path through its supported mechanism, without changing acceptance criteria.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-119
 
 - SESSION-ID → `2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-119`.
