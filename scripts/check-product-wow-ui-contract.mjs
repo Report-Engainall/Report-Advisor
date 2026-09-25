@@ -103,6 +103,7 @@ assert.ok(trustEvidence.includes('أغلق المشكلات الحرجة'), 'tru
 assert.ok(trustEvidence.includes("aria-label={'الخطوة التالية: ' + nextStep.label}"), 'trust evidence next-action link must use valid JSX');
 assert.ok(!trustEvidence.includes('aria-label={\\`'), 'trust evidence contract must reject escaped JSX template backticks');
 const decisionExperience = fs.readFileSync('src/pages/DecisionExperiencePage.tsx', 'utf8');
+assert.ok(decisionExperience.includes('<TruthContextStrip months={6} status={truthContext?.status ?? \'INSUFFICIENT_DATA\'} asOf={truthContext?.asOf ?? \'غير متاح\'} />'), 'decision experience must expose canonical period/truth context');
 assert.ok(decisionExperience.includes('recommendation.expected_impact == null'), 'decision readiness must treat zero expected impact as a valid value');
 assert.ok(!decisionExperience.includes('if (!recommendation.expected_impact)'), 'decision readiness must not classify zero expected impact as missing');
 assert.ok(decisionExperience.includes('فحص الثقة'), 'decision experience must provide a trust action when no active alerts exist');
