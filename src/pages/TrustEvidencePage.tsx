@@ -1,9 +1,10 @@
-import { ArrowLeft, CheckCircle2, Eye, FileSearch, GitBranch, History, Landmark, RefreshCw, ShieldCheck } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, Eye, FileSearch, GitBranch, History, Landmark, RefreshCw, ShieldCheck, UsersRound } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
 import { EmptyState, ErrorState, LoadingState, PageHeader } from '@/components/ui/States';
 import { fetchDataQualitySnapshot } from '@/lib/data-quality-snapshot';
+import { TrustBadge } from '@/components/ui/TrustBadge';
 
 const states = [
   { title: 'VERIFIED', text: 'بيانات قابلة للإثبات من المسار الكانوني.', tone: 'bg-success-50 text-success-700', icon: CheckCircle2 },
@@ -12,6 +13,7 @@ const states = [
   { title: 'REVIEW', text: 'تحتاج مراجعة قبل استخدامها في قرار.', tone: 'bg-warning-50 text-warning-700', icon: FileSearch },
   { title: 'BLOCKED', text: 'محجوبة عن القرار حتى معالجة السبب.', tone: 'bg-danger-50 text-danger-700', icon: ShieldCheck },
   { title: 'INSUFFICIENT DATA', text: 'المصدر الحالي لا يملك ما يكفي لإصدار نتيجة موثوقة.', tone: 'bg-ink-100 text-ink-700', icon: Eye },
+  { title: 'INSUFFICIENT SAMPLE', text: 'العينة الحالية أصغر من الحد المطلوب للحكم أو المقارنة؛ لا تُعرض نتيجة مقارنة أو benchmark بديلة.', tone: 'bg-warning-50 text-warning-700', icon: UsersRound },
 ] as const;
 
 const evidenceSurfaces = [
@@ -47,6 +49,13 @@ export function TrustEvidencePage() {
 
   const status = snapshot?.status ?? 'INSUFFICIENT DATA';
   const statusLabel = status === 'OK' ? 'الحالة قابلة للاستخدام' : status === 'EMPTY' ? 'لا توجد بيانات مثبتة بعد' : status;
+  const trustState = status === 'OK'
+    ? 'VERIFIED'
+    : status === 'EMPTY' || status === 'INSUFFICIENT DATA'
+      ? 'INSUFFICIENT_DATA'
+      : status === 'INSUFFICIENT_SAMPLE'
+        ? 'INSUFFICIENT_SAMPLE'
+        : 'REVIEW';
   const issueTotal = useMemo(
     () => snapshot?.entities?.reduce((sum, entity) => sum + (entity.issues ?? 0), 0) ?? null,
     [snapshot],
@@ -94,7 +103,13 @@ export function TrustEvidencePage() {
         <p className="mt-3 text-sm leading-7 text-slate-300">الواجهة لا ترفع درجة الثقة من تلقاء نفسها. كل حالة مرتبطة بجودة المصدر أو حدود البيانات الفعلية.</p>
       </div>
       <div className="mt-6 grid gap-3 sm:grid-cols-4" role="status" aria-live="polite">
-        <div className="rounded-2xl border border-white/10 bg-white/5 p-4"><div className="text-[9px] font-black text-ink-300">CURRENT STATUS</div><div className="mt-1 text-lg font-black">{statusLabel}</div></div>
+        <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+          <div className="text-[9px] font-black text-ink-300">CURRENT STATUS</div>
+          <div className="mt-2 inline-flex rounded-full bg-white px-2 py-1">
+            <TrustBadge state={trustState} compact />
+          </div>
+          <div className="mt-1 text-[10px] font-semibold text-ink-300">{statusLabel}</div>
+        </div>
         <div className="rounded-2xl border border-white/10 bg-white/5 p-4"><div className="text-[9px] font-black text-ink-300">RECORDS CHECKED</div><div className="mt-1 text-lg font-black">{totalRecords == null ? 'غير متاح' : totalRecords}</div></div>
         <div className="rounded-2xl border border-white/10 bg-white/5 p-4"><div className="text-[9px] font-black text-ink-300">ISSUES REPORTED</div><div className="mt-1 text-lg font-black">{issueTotal ?? 'غير متاح'}</div></div>
         <div className="rounded-2xl border border-white/10 bg-white/5 p-4"><div className="text-[9px] font-black text-ink-300">CRITICAL</div><div className="mt-1 text-lg font-black">{criticalIssueTotal}</div></div>
