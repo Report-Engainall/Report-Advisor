@@ -8,6 +8,8 @@ const evidence = read('scripts/check-production-certification-evidence-integrity
 const contract = read('scripts/check-production-certification-contract.mjs');
 const index = read('docs/MASTER_EXECUTION_INDEX.md');
 const phaseFProbe = read('scripts/phase-f-live-resilience-probes.mjs');
+const cartsParityMigration = read('supabase/migrations/20260925200000_restore_carts_schema_parity.sql');
+
 
 
 // All logical source reads must use the resolved IPv4-safe runner URI, not the original host URI.
@@ -36,6 +38,29 @@ for (const token of [
   "ENFORCE_SAME_COMPANY_REFERENCE('BRANCHES','BRANCH_ID')",
 ]) if (!targetGenericReferenceUpper.includes(token)) {
   throw new Error(`Missing Phase-F restore-chain generic tenant-reference invariant: ${token}`);
+}
+
+const cartsParityUpper = stripSqlComments(cartsParityMigration).toUpperCase();
+for (const token of [
+  'CREATE TABLE IF NOT EXISTS PUBLIC.CARTS',
+  'COMPANY_ID UUID NOT NULL',
+  'CUSTOMER_ID UUID NOT NULL',
+  'USER_ID UUID NOT NULL',
+  'CARTS_COMPANY_ID_FKEY',
+  'CARTS_CUSTOMER_ID_FKEY',
+  'CARTS_USER_ID_FKEY',
+  'CARTS_COMPANY_ID_USER_ID_KEY',
+  'IDX_CARTS_CUSTOMER_ID_FK',
+  'IDX_CARTS_USER_ID_FK',
+  'CARTS_SELF_SELECT',
+  'CREATE OR REPLACE FUNCTION PUBLIC.CURRENT_CUSTOMER_ID()',
+  'CREATE OR REPLACE FUNCTION PUBLIC.CURRENT_CUSTOMER_COMPANY_ID()',
+  'GRANT EXECUTE ON FUNCTION PUBLIC.CURRENT_CUSTOMER_ID() TO AUTHENTICATED, SERVICE_ROLE',
+  'GRANT EXECUTE ON FUNCTION PUBLIC.CURRENT_CUSTOMER_COMPANY_ID() TO AUTHENTICATED, SERVICE_ROLE',
+  'ENABLE ROW LEVEL SECURITY',
+  'GRANT SELECT ON TABLE PUBLIC.CARTS TO AUTHENTICATED',
+]) {
+  if (!cartsParityUpper.includes(token)) throw new Error(`Missing carts schema restore-parity invariant: ${token}`);
 }
 
 for (const token of [
