@@ -1,3 +1,16 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-25 / DEEP UI + PHASE-F IDENTITY CLOSURE 147
+
+- MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `c985deeb6e9f93383fca27473439a4e14cf9070d`.
+- CURRENT CODE/TEST CANDIDATE: `7792f857f7e7f56e5e131d6563882c492b45f907` (PR #659).
+- CORE CLOSURE: trust-state normalization is now canonical across casing and equivalent source statuses; `NO_DATA` remains `INSUFFICIENT DATA`, while `SAMPLE_TOO_SMALL` becomes `INSUFFICIENT SAMPLE`.
+- UI CLOSURE: analytics and evidence surfaces display the canonical trust distinction; no calculated result is synthesized for sample insufficiency.
+- PHASE-F CLOSURE: malformed exact-head identities are rejected before live probes and the closure contract checks that guard.
+- CURRENT GATES: latest #659 candidate has pending GitHub Actions checks; Vercel deployment remains externally rate-limited. No deployment PASS is inferred.
+- NEXT EXECUTABLE ACTION: consume the first terminal #659 repository gate; repair only a reproduced failure; otherwise continue non-overlapping UI/core closure and preserve fail-closed release boundaries.
+- DO NOT REPEAT: stale evidence, status fabrication, preview-as-production, production/Phase-F bypass, duplicate importer/RPC/runner.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-25 / DEEP UI + PHASE-F IDENTITY CLOSURE 146
 
 - MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `c985deeb6e9f93383fca27473439a4e14cf9070d`.
