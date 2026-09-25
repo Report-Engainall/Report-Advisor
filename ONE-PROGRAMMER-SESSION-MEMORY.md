@@ -1,3 +1,21 @@
+## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-151
+
+- MAIN HEAD OBSERVED BEFORE THIS WRITE → `c985deeb6e9f93383fca27473439a4e14cf9070d`.
+- SESSION-ID → `2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-151`.
+- CURRENT CODE/TEST CANDIDATE → PR #659 exact head `cce7418ab7e83db72939c724fc69ccf0cbfe2154`.
+- DONE / UI → Decision Experience now supports in-surface search and state filtering for recommendations plus severity triage for active alerts, while preserving the same canonical recommendation/alert records.
+- DONE / UI → The decision flow retains the existing evidence/approval/work/outcome boundaries and now makes large source lists operationally navigable instead of requiring blind scanning.
+- DONE / QUALITY → `check-deep-truth-ui-contract.mjs` now guards the new Decision Experience search and signal-triage controls; the contract is already part of Quality.
+- EXACT SOURCE EVIDENCE → GitHub exact-head reads confirm the Decision Experience controls and their source-level contract on `cce7418ab7e83db72939c724fc69ccf0cbfe2154`.
+- CURRENT PR STATE → #659 OPEN; GitHub currently reports mergeable=false while current-head evaluation is incomplete; no merge or force action taken.
+- CURRENT GATES → current-head workflows have not produced terminal application evidence in the latest read; no PASS is claimed.
+- EXTERNAL STATUS → Vercel remains externally rate-limited on the free deployment plan.
+- NOT PROVEN / BLOCKED → production promotion, Phase-F live resilience, current-head browser certification, and device-dependent visual execution remain unproven.
+- UI LANE NEXT → continue with the next uncovered canonical surface only after preserving the current decision closure; do not reopen completed Work Center, Connections, Master Data, Profitability, Receivables, or Decision filtering.
+- CORE LANE NEXT → consume the first terminal current-head repository gate; repair only the first reproduced code failure, then continue independent truth/security/performance closure while Phase-F/production stay fail-closed.
+- CURRENT RESUME POINTER → `main c985deeb6e9f… → first terminal #659 gate cce7418ab7e8… → first reproduced failure only → next uncovered UI/core surface → exact green merge evidence`.
+- DO NOT REPEAT → no stale PASS transfer, no preview-as-production, no deployment-limit-as-code-failure, no duplicate importer/RPC/runner, no unsafe import-job mutation, no device-dependent work.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-150
 
 - MAIN HEAD OBSERVED BEFORE THIS WRITE → `c985deeb6e9f93383fca27473439a4e14cf9070d`.
