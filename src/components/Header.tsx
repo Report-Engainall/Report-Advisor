@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Bell, CheckCircle2, Command, Menu, Search, Upload, WifiOff, AlertTriangle, ChevronLeft } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { LanguageToggle } from './LanguageToggle';
@@ -24,6 +24,7 @@ export function Header({
 }) {
   const { language } = useLanguage();
   const [showAlerts, setShowAlerts] = useState(false);
+  const alertTriggerRef = useRef<HTMLButtonElement>(null);
   const [health, setHealth] = useState<HealthState>('checking');
   const location = useLocation();
   const unreadAlerts = alerts.filter((alert) => !alert.is_read);
@@ -38,7 +39,10 @@ export function Header({
   useEffect(() => {
     if (!showAlerts) return;
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setShowAlerts(false);
+      if (event.key === 'Escape') {
+        setShowAlerts(false);
+        alertTriggerRef.current?.focus();
+      }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
@@ -126,6 +130,8 @@ export function Header({
 
           <div className="relative">
             <button
+              ref={alertTriggerRef}
+              type="button"
               onClick={() => setShowAlerts((value) => !value)}
               className="relative flex min-h-11 min-w-11 items-center justify-center rounded-[8px] p-2 text-ink-500 hover:bg-ink-100 hover:text-ink-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400"
               aria-label={'التنبيهات، ' + unreadAlerts.length + ' غير مقروء'}
