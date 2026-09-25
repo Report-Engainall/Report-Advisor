@@ -1,3 +1,21 @@
+## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-137
+
+- MAIN HEAD OBSERVED BEFORE THIS WRITE → `d77013f830f911c2c267a1c8986783c1a4840370` (exact GitHub main after execution-index reconciliation).
+- SESSION-ID → `2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-137`.
+- CORE DELIVERY → consumed Phase-F run `36165329471` to completion. The exact live result is FAIL-CLOSED, not PASS: tenant canary HTTP 200; production health HTTP 200 but served deployment SHA `dcabe46e594cbb070e145882a87dd67fa91ddabe` instead of tested head `dcff29f15d4851bd6f48dd863e5a62b29f67519e`; logical backup/restore failed on direct Supabase DB IPv6 network reachability; rollback-forward-fix drill returned HTTP 503. Artifact `phase-f-readiness-dcff29f15d4851bd6f48dd863e5a62b29f67519e` was uploaded (artifact ID `10876879601`).
+- CORE SOURCE RECONCILIATION → current main source already contains the implicit-port 5432 Pooler fallback and resolves both logical schema-count and dump through runnerSource. This is source-verified, not live-certified; a fresh exact-head Phase-F run is still required.
+- UI DELIVERY → current main confirms PR #635 / branch `ui/shell-accessibility-closure-mainhead-20260925` is 6 commits ahead with only Header/Sidebar + execution-index changes. UI closure includes 44px targets, Escape dismissal/focus restoration, explicit aria-controls, keyboard focus visibility, and semantic hidden/aria-current navigation behavior. No merge performed because the available merge action was blocked by platform safety checks and Vercel remains rate-limited; no PASS transferred.
+- LIVE CORE OBSERVATION → staging project `fnqbvfuwbdpwvhcgzksl` has 151 import_jobs in processing; 150 have progress 0; oldest started 2026-09-14 12:53:22Z. No destructive recovery mutation was performed because no governed recovery contract was found in the current source evidence.
+- SECURITY OBSERVATION → staging Supabase advisors currently report 46 authenticated-callable SECURITY DEFINER functions. This is a security review queue, not proof that all 46 are defects; no blanket revoke/change was applied.
+- PERFORMANCE OBSERVATION → staging advisors report multiple unused indexes. No index was removed because advisor-unused status alone does not prove semantic redundancy or absence of workload coverage.
+- VERIFIED → exact GitHub main HEAD reconciliation; current index write committed as `d77013f830f911c2c267a1c8986783c1a4840370`; Phase-F run consumed to terminal result; current main Phase-F source inspected; staging import/security/performance observations read directly.
+- FAILED → Phase-F live resilience run `36165329471` failed closed on its tested PR head.
+- BLOCKED / NOT PROVEN → current-main Phase-F live resilience, production exact-SHA identity, rollback/RPO/RTO, current-head authenticated browser runtime, and UI merge readiness remain unproven. Device is unavailable in this session, so no local/browser claim is made.
+- CURRENT RESUME POINTER → `d77013f830f911c2c267a1c8986783c1a4840370` → fresh exact-head CI/certification for functional core `886c3e11afb0304f48b8653001bf5b6a4f039ab5` → fresh Phase-F against matching deployment → first current-SHA failure only; in parallel consume PR #635 UI gates and close the shell accessibility wave.
+- NEXT EXECUTABLE ACTION → obtain fresh exact-head Quality/Enforcement/Final Certification/Browser evidence for `886c3e11afb0304f48b8653001bf5b6a4f039ab5` and a current-head UI gate for PR #635; do not mutate production or stale imports until their governing contracts are proven.
+- DO NOT REPEAT → no PR-local PASS transfer, no production SHA bypass, no Phase-F credential bypass, no blanket SECURITY DEFINER revokes, no unused-index deletion, no terminalization of the 151 stale jobs without recovery semantics.
+- UI LANE PROGRESS → shell accessibility closure is implemented on PR #635 and structurally reviewed; exact-head automated proof/merge remains open.
+- CORE LANE PROGRESS → Phase-F source routing repair is present in main; live certification remains open because deployment identity/network/rollback probes failed on the prior exact head.
 
 
 ## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-121
