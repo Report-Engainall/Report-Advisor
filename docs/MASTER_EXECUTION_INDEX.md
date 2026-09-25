@@ -1,16 +1,16 @@
-# CURRENT CONTROL-PLANE BOUNDARY — 2026-09-25 / POST-MERGE PR #629
+# CURRENT CONTROL-PLANE BOUNDARY — 2026-09-25 / PHASE-F RESTORE CANDIDATE
 
-- MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `dcabe46e594cbb070e145882a87dd67fa91ddabe` (live-memory write-back commit; code merge is `35c8a8bcdc0253418ed8f21cdd664a09cac31e69`).
-- MERGED CODE CANDIDATE: `35c8a8bcdc0253418ed8f21cdd664a09cac31e69`.
-- DONE: merged PR #629; fixed canonical migration-path references for watched-report pipeline and production-readiness/import-lineage contracts.
-- PR-REPORTED LOCAL CHECKS (PR head `cca051215037b6fa3b7ca6901dd9666af6d162fc`): P0 13/13, P1 8/8, Production Readiness 21/21, TypeScript, diff check PASS. Not a fresh main-head CI proof.
-- EXACT MAIN-SHA CLOUD PROOF: NOT PROVEN. Commit-associated workflow lookup returned no runs at observation time.
-- PHASE-F: production runtime identity, valid authorized logical source, backup/restore, RPO/RTO, rollback and current-production certification remain NOT PROVEN/BLOCKED; no stale evidence transfer.
-- UI LANE: no UI change in this batch; continue from evidenced UI gaps and require fresh browser proof for new code lineage.
-- NEXT EXECUTABLE ACTION: obtain fresh exact-main Quality + Enforcement + Final Certification + Browser evidence for `35c8a8b...`; then proceed to Phase-F only with valid authorized runtime inputs and exact target identity.
-- DO NOT REPEAT: do not reapply PR #629 migration-reference changes; do not promote PR-local checks to cloud PASS; no production SHA or credential bypass.
+- MAIN HEAD OBSERVED BEFORE THIS GOVERNANCE REBIND: `9c4e5f03a53ae211d5ed00077c2fd43a339a7db2`.
+- CURRENT CODE/TEST CANDIDATE: `e3ac33b01e36da173caf61a12bc29d3aad4ab33f`.
+- CURRENT GOVERNANCE HEAD: `e3ac33b01e36da173caf61a12bc29d3aad4ab33f`.
+- DONE: Phase-F restore chain fixed through the generic tenant-reference helper, dashboard UUID→text fallback, and import progress RPC default preservation in both monotonic and terminal-resurrection migrations.
+- EXACT PHASE-F HEAD: run `36096134320` is executing against the exact candidate lineage.
+- CURRENT CERTIFICATION GATE: previous boundary drift from `1e93d43...` is corrected in this branch; no historical PASS transferred.
+- NEXT: consume Phase-F live result, then current-head Final Certification/Enforcement/Browser evidence.
+- DO NOT REPEAT: no stale candidate transfer, no SHA bypass, no production bypass.
 
 ---
+
 
 # CURRENT CONTROL-PLANE BOUNDARY — 2026-09-25 / EXACT CANDIDATE DDD
 
