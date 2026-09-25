@@ -176,6 +176,15 @@ assert.ok(masterDataHub.includes('to="/import"'), 'master data hub must expose t
 assert.ok(masterDataHub.includes('لا تُعرض كيانات غير مثبتة'), 'master data hub must preserve fail-closed reference semantics');
 assert.ok(masterDataHub.includes('min-h-11'), 'master data actions must meet touch-target sizing');
 
+const executiveReport = fs.readFileSync('src/pages/ExecutiveReportPage.tsx', 'utf8');
+assert.ok(executiveReport.includes('<LoadingState message="جارٍ بناء التقرير التنفيذي من المصادر المعتمدة..." />'), 'executive report must use the shared loading state');
+assert.ok(executiveReport.includes('<ErrorState message={error} onRetry={() => void load()} />'), 'executive report must use the shared error state with retry');
+assert.ok(executiveReport.includes('const nextAction ='), 'executive report must derive a governed next action');
+assert.ok(executiveReport.includes('NEXT ACTION'), 'executive report must expose the next action visibly');
+assert.ok(executiveReport.includes('to={nextAction.to}'), 'executive report next action must use a canonical route');
+assert.ok(executiveReport.includes('لا تُنتج توصية بديلة'), 'executive report recommendation empty state must remain fail-closed');
+assert.ok(executiveReport.includes('لا يتم تصنيع تنبيه'), 'executive report alert empty state must remain fail-closed');
+
 const metricInspector = fs.readFileSync('src/pages/MetricInspectorPage.tsx', 'utf8');
 assert.ok(metricInspector.includes('const filteredItems = useMemo'), 'metric inspector must derive a filtered semantic list without mutating the source contract');
 assert.ok(metricInspector.includes('aria-label="البحث في المؤشرات"'), 'metric inspector search must be accessible');
