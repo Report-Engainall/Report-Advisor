@@ -34,6 +34,14 @@ begin
     and cm.is_default = true;
 
   if v_count = 1 then
+    select cm.company_id
+    into v_company_id
+    from company_memberships cm
+    where cm.user_id = auth.uid()
+      and cm.is_active = true
+      and cm.is_default = true
+    limit 1;
+
     return v_company_id;
   end if;
 
