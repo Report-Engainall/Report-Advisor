@@ -1,3 +1,19 @@
+## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-142
+
+- MAIN HEAD OBSERVED BEFORE THIS WRITE → `d99ebb5ebe4f5891cb5e6126c4f2dcfc094b0368`.
+- SESSION-ID → `2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-142`.
+- CURRENT UI CODE/TEST CANDIDATE BEFORE THIS MEMORY WRITE → `b5fa388ccb9ee66a5f8d7f4b1934018e914d8f42` on PR #654 branch; memory commit itself is a governance write and must not be treated as this candidate SHA.
+- UI DELIVERY → global Aghbari Advisor now has modal semantics, accessible title/close control, Escape close, Tab trap, focus restoration and scroll lock; Inventory Intelligence and Demand Velocity expose deterministic truth context, evidence path, governed next actions and explicit empty-state actions; Executive Report exposes shared loading/error states, derived next action and fail-closed empty states; Company Settings, Profile Settings and Master Data Hub received deeper accessibility/state/action closure; Scenario Truth Guard gained in-place truth recheck; all corresponding UI contract assertions were added.
+- CORE DELIVERY → PR #653 consumed the first fresh Phase-F logical-restore failure at `public.client_ui_settings`; its restore migration now mirrors the live schema/FK/UNIQUE/config-shape/RLS/grants and `supabase_realtime` publication, and the migration timestamp was normalized to `20260925184000`. Current core branch candidate before its next governance write is `52266e483da05209f6f0bee4deabe465a33e507e`.
+- LIVE CORE EVIDENCE → staging project `fnqbvfuwbdpwvhcgzksl` was read-only inspected. `client_ui_settings` has no user trigger, uses default replica identity, and is attached to `supabase_realtime`; no staging/production mutation was performed.
+- EXACT PHASE-F FAILURE EVIDENCE → run `36174509884` on `53ef97c...` failed closed: authenticated tenant canary passed, production health returned HTTP 200 with deployment SHA `7edc3cc...` instead of the tested candidate, logical restore stopped at missing `public.client_ui_settings`, rollback-forward-fix returned HTTP 503, and the run ended 1/4 passed. No PASS transferred.
+- CI STATE → current UI/core heads have fresh GitHub Actions runs queued/pending; no current-head Quality/Final/Browser/Phase-F PASS is claimed. Desktop/other statuses are not transferred unless exact-head and completed.
+- EXTERNAL → Vercel status remains a free-plan build-rate-limit failure; production alias remains on old deployment SHA `7edc3cc...`. Netlify previews are preview evidence only. Local device/browser is unavailable, but no device-dependent work is being used as a blocker for source/core execution.
+- OPEN FRONTS → PR #653 exact-head Phase-F restore/certification; PR #654 exact-head UI quality/route/browser/desktop/certification; production exact-SHA identity/promotion; any first new live restore dependency only after fresh Phase-F.
+- CURRENT RESUME POINTER → `main d99ebb5...` → consume exact-head PR #653 Phase-F and exact-head PR #654 UI gates → repair only the first current failure on each lane → merge only after required exact evidence.
+- NEXT EXECUTABLE ACTION → continue independent code/core/UI closure while GitHub workflows queue; do not mutate production and do not transfer stale PASS.
+- DO NOT REPEAT → no stale Phase-F/UI PASS, no production SHA bypass, no preview-as-production, no duplicate RPC/runner/import path, no blind historical migration replay, no blanket SECURITY DEFINER cleanup, no user-device dependency.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-141
 
 - MAIN HEAD OBSERVED BEFORE THIS WRITE → 874b30cc04e9d30141989216463dd846881f2d3a.
