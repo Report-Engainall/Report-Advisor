@@ -1,3 +1,17 @@
+## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-125
+
+- SESSION-ID → `2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-125`.
+- MAIN HEAD OBSERVED BEFORE THIS WRITE → `9c4e5f03a53ae2118ed8f21cdd664a09cac31e69`.
+- CURRENT CODE/TEST CANDIDATE → `92a32692497234841d942e5548465d54f3ff017e`.
+- GOVERNANCE HEAD BEFORE THIS WRITE → `4558397568c844ea934bbc46697cdc6e3cd793c9`.
+- DONE → corrected the tenant resolver lineage checker to match the canonical UUID-safe resolver: exactly-one ambiguity guard plus bounded company UUID selection.
+- EXACT PRIOR EVIDENCE → Quality, Storage Tenant Runtime, Execution Enforcement, and Full Product Browser were SUCCESS on `4558397...`; Final Certification failed specifically at `check-tenant-resolver-lineage.mjs`.
+- UI LANE → no new UI source change in this core-focused batch; exact Full Product Browser SUCCESS remains prior-head evidence and requires fresh current-head browser proof.
+- CORE LANE → resolver implementation is UUID-safe and staging verified; lineage checker is now aligned; Phase-F still requires exact production identity plus measured recovery evidence.
+- DO NOT REPEAT → do not change the resolver back to `min(uuid)`; do not weaken count/ambiguity fail-closed semantics; do not mutate the branch again until the stable workflow set is consumed.
+- CURRENT RESUME POINTER → `92a32692497234841d942e5548465d54f3ff017e` → consume exact-head Quality/Enforcement/Final Certification/Browser/Storage/Phase-F → repair first current-SHA failure → release closure.
+- NEXT EXECUTABLE ACTION → inspect the workflow set generated from this stable governance head.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-124
 
 - SESSION-ID → `2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-124`.
