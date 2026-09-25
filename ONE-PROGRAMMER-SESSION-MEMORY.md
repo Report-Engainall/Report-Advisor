@@ -1,3 +1,24 @@
+## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-149
+
+- MAIN HEAD OBSERVED BEFORE THIS WRITE → `c985deeb6e9f93383fca27473439a4e14cf9070d`.
+- SESSION-ID → `2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-149`.
+- CURRENT CODE/TEST CANDIDATE → PR #659 exact head `dd6a715bec3fb17a122005e086125e5d32737c9a`.
+- DONE / UI → Work Center now has tenant-backed search, operation-detail drawer, status explanation, operational counters, and canonical next-action links without local status mutation.
+- DONE / UI → Sources & Connections now has search/filtering, connector readiness detail, explicit runtime boundaries, and next-safe-action routing; no simulated connector success.
+- DONE / UI → Master Data Hub now exposes direct source/trust actions and an explicit operating summary while preserving the domain-neutral, non-CRUD surface.
+- DONE / UI → Executive Report now links directly to evidence, metric governance, and decision surfaces; alerts expose description/severity/threshold context; sales trend includes a semantic data table for keyboard/screen-reader and print access.
+- DONE / CORE → import readback now preserves source_type, file_name, and validated file_size from result_summary with safe fallbacks, while retaining tenant and focused-job scoping.
+- DONE / CORE CONTRACT → `test:import-readback-fidelity` is registered and enforced by Quality beside `test:deep-truth-ui`; contract checks metadata fidelity plus company/job scoping.
+- EXACT SOURCE EVIDENCE → GitHub exact-head reads confirm the new UI surfaces and import readback contract are present on `dd6a715bec3fb17a122005e086125e5d32737c9a`.
+- CURRENT PR STATE → #659 remains OPEN and mergeable; base main remains `c985deeb6e9f93383fca27473439a4e14cf9070d`.
+- CURRENT GATES → current-head repository workflows are queued/pending; Commercial Upwork Demo is skipped. No current-head CI PASS is claimed.
+- EXTERNAL STATUS → Vercel status is FAILURE because of the free-plan deployment rate limit; the deployment target remains pending. This is an external capacity boundary, not an application PASS/FAIL substitution.
+- BLOCKED / NOT PROVEN → production identity, Phase-F live resilience evidence, current-head browser certification, and device-dependent visual execution remain unproven; local/device execution is intentionally not used in this session.
+- UI LANE NEXT → continue the next uncovered canonical UI surface only after current-head terminal evidence is consumed; do not reopen Work Center, Connections, Master Data Hub, or Executive Report closures.
+- CORE LANE NEXT → consume the first terminal current-head repository gate; repair only the first reproduced code failure, then continue independent core closure while Phase-F/production stay fail-closed.
+- CURRENT RESUME POINTER → `main c985deeb6e9f… → consume first terminal #659 gate on dd6a715bec3f… → repair only reproduced failure → continue uncovered UI/core surface → merge only exact green evidence`.
+- DO NOT REPEAT → no stale PASS transfer, no preview-as-production, no deployment-limit-as-code-failure, no duplicate import/RPC/runner, no unsafe import-job mutation, no device-dependent work.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-148
 
 - MAIN HEAD OBSERVED BEFORE THIS WRITE → `c985deeb6e9f93383fca27473439a4e14cf9070d`.
