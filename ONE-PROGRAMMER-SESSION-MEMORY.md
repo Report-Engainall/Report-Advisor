@@ -178,3 +178,16 @@
 - NEXT EXECUTABLE ACTION → inspect current post-merge main UI certification and any newly generated core Phase-F run; do not mutate production or legacy security surfaces without exact owner/invariant proof.
 - DO NOT REPEAT → no stale PASS transfer, no PR #635/#637/#640 evidence reuse, no production-SHA bypass, no blind legacy migration rehydration, no blanket SECURITY DEFINER revoke, no unsafe import-job mutation.
 ## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-138
+
+
+## SESSION 152 — deep UI/core closure checkpoint
+
+- OBSERVED HEAD BEFORE DOC WRITE: `bf3b86de5d1a27d371c702fc3313c274b2e6bb09`
+- UI: `src/pages/DataQualitySnapshotPage.tsx` now supports issue search by entity/field/problem, severity filtering (all/critical/warning/info), visible-count feedback, and preserves centralized totals and fail-closed empty states.
+- CORE: `src/lib/dashboard-canonical.ts` now fails closed when dashboard trend/top-customer/top-product/category/aging arrays are missing or contain invalid non-object rows; malformed arrays are no longer silently converted to empty data.
+- CONTRACTS: added `scripts/check-dashboard-snapshot-contract.mjs`; deep-truth UI contract now covers Data Quality triage controls; `package.json` and `.github/workflows/quality.yml` enforce the new dashboard snapshot contract.
+- EVIDENCE STATUS: code commits are recorded on PR #659 branch; no browser/device certification claimed; no production/Phase-F PASS claimed; Vercel capacity blocker remains external until an exact-head deployment can run.
+- WORKFLOW STATUS: current exact-head Actions are expected to be re-evaluated at the terminal gate; pending/queued is not PASS.
+- NEXT ACTION: consume the first terminal workflow failure for exact head only; repair that failure and continue the next uncovered UI/core surface without reopening closed work.
+- DO NOT REPEAT: Work Center, Connections, Master Data, Import readback, Executive Report, Profitability, Receivables, Decision Experience closures already recorded in prior checkpoints.
+- RESUME POINTER: `main c985deeb… → PR #659 exact head bf3b86de5d1a… → first terminal failure only → next uncovered UI/core closure → exact green merge evidence`.
