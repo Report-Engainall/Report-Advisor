@@ -58,6 +58,36 @@ for (const token of [
 }
 
 const cartsParityUpper = stripSqlComments(cartsParityMigration).toUpperCase();
+const clientUiParityUpper = stripSqlComments(cartsParityMigration).toUpperCase();
+for (const token of [
+  'CREATE TABLE IF NOT EXISTS PUBLIC.CLIENT_UI_SETTINGS',
+  'ORGANIZATION_ID UUID NOT NULL',
+  'CONFIG JSONB NOT NULL',
+  'CLIENT_UI_SETTINGS_ORGANIZATION_ID_FKEY',
+  'CLIENT_UI_SETTINGS_ORGANIZATION_ID_KEY',
+  'CLIENT_UI_SETTINGS_CONFIG_SHAPE_CHECK',
+  'UI_SETTINGS_CUSTOMER_SELECT',
+  'ORGANIZATION_ID = PUBLIC.CURRENT_CUSTOMER_COMPANY_ID()',
+  'GRANT SELECT, INSERT, UPDATE ON TABLE PUBLIC.CLIENT_UI_SETTINGS TO AUTHENTICATED',
+  'GRANT ALL ON TABLE PUBLIC.CLIENT_UI_SETTINGS TO SERVICE_ROLE',
+]) {
+  if (!clientUiParityUpper.includes(token)) throw new Error(`Missing client UI settings restore-parity invariant: ${token}`);
+}
+
+
+for (const token of [
+  'BRANCHES_ID_COMPANY_UNIQUE',
+  'BRANCHES_COMPANY_ID_ID_KEY',
+  'CASH_ACCOUNTS_COMPANY_ID_FKEY',
+  'CASH_ACCOUNTS_BRANCH_COMPANY_FKEY',
+  'CASH_ACCOUNTS_CURRENCY_FORMAT',
+  'CASH_ACCOUNTS_NONNEGATIVE',
+  'IDX_CASH_ACCOUNTS_COMPANY_BRANCH',
+  'CASH_ACCOUNTS_TENANT_SELECT',
+  'GRANT SELECT ON TABLE PUBLIC.CASH_ACCOUNTS TO AUTHENTICATED',
+]) {
+  if (!cartsParityUpper.includes(token)) throw new Error(`Missing branch/cash-account restore-parity invariant: ${token}`);
+}
 for (const token of [
   'CREATE TABLE IF NOT EXISTS PUBLIC.PROFILES',
   'ORGANIZATION_ID UUID NOT NULL',
