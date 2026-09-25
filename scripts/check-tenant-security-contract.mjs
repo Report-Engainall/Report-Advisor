@@ -50,7 +50,7 @@ if (!resolver.text.includes('auth.uid()')) {
 if (!/cm\.user_id\s*=\s*auth\.uid\(\)[\s\S]*?cm\.is_active\s*=\s*true[\s\S]*?cm\.is_default\s*=\s*true/i.test(resolver.text)) {
   throw new Error(`Latest tenant resolver ${resolver.file} does not enforce active default membership for auth.uid()`);
 }
-if (!/SELECT\s+cm\.company_id[\s\S]*?FROM\s+company_memberships\s+cm[\s\S]*?LIMIT\s+1/i.test(resolver.text)) {
+if (!/SELECT\s+cm\.company_id[\s\S]*?FROM\s+(?:public\.)?company_memberships\s+cm[\s\S]*?LIMIT\s+1/i.test(resolver.text)) {
   throw new Error(`Latest tenant resolver ${resolver.file} is missing a bounded single-tenant SELECT`);
 }
 
