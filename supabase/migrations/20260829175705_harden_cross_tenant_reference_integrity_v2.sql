@@ -1,4 +1,45 @@
 -- Harden cross-tenant references that are not fully covered by FK constraints.
+-- Canonical generic tenant-reference trigger helper used by the warehouse/branch guard.
+-- It must exist before the trigger is created and is intentionally replay-safe.
+create or replace function public.enforce_same_company_reference()
+returns trigger
+language plpgsql
+set search_path to 'public'
+as $function$
+declare
+  referenced_id uuid;
+  parent_company uuid;
+  parent_table text := tg_argv[0];
+  fk_column text := tg_argv[1];
+begin
+  if tg_nargs <> 2 then
+    raise exception 'TENANT_REFERENCE_ARGUMENTS_REQUIRED';
+  end if;
+
+  referenced_id := nullif(to_jsonb(new)->>fk_column, '')::uuid;
+  if referenced_id is null then
+    return new;
+  end if;
+
+  execute format(
+    'select company_id from public.%I where id = $1',
+    parent_table
+  )
+  into parent_company
+  using referenced_id;
+
+  if parent_company is null then
+    raise exception 'REFERENCED_ENTITY_NOT_FOUND';
+  end if;
+
+  if parent_company is distinct from new.company_id then
+    raise exception 'TENANT_CONTEXT_MISMATCH';
+  end if;
+
+  return new;
+end;
+$function$;
+
 -- Recovered from the production-applied migration state on 2026-08-29.
 
 create or replace function public.enforce_payment_reference_same_company()
