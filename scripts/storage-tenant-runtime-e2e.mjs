@@ -107,8 +107,11 @@ async function browserSession(user) {
       const body = await response.text();
       if (response.ok) return { ok: true, status: response.status, body };
       last = { ok: false, status: response.status, body };
-      if (![502, 503, 504, 544].includes(response.status) || attempt === 12) return last;
-      await new Promise(resolve => setTimeout(resolve, 3000 * attempt));
+      const futureJwt = response.status === 401 && /JWT issued at future/i.test(body);
+      const retryable = [502, 503, 504, 544].includes(response.status) || futureJwt;
+      if (!retryable || attempt === 12) return last;
+      const delayMs = futureJwt ? Math.min(2000 * attempt, 10000) : 3000 * attempt;
+      await new Promise(resolve => setTimeout(resolve, delayMs));
     }
     return last || { ok: false, status: 599, body: 'tenant resolution exhausted' };
   }, { url: supabaseURL, anon: anonKey });
