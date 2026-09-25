@@ -1,16 +1,16 @@
-# CURRENT CONTROL-PLANE BOUNDARY — 2026-09-25 / CURRENT EXACT CODE HEAD 51BC
+# CURRENT CONTROL-PLANE BOUNDARY — 2026-09-25 / CURRENT EXACT CODE HEAD 75C6
 
-- MAIN HEAD OBSERVED BEFORE THIS WRITE: `fe7f5d86a645bd21bf1285b67eaa23eacc62eae8`.
-- CURRENT CODE/TEST CANDIDATE: `51bc9899542bbcbce1af228c5ad10036fd9b61da` on PR #628.
-- DONE — CORE: aligned the tenant migration contract syntax so the latest `current_company_id()` resolver migration contains the required literal `ALTER TABLE company_memberships` evolution.
-- STAGING: `company_memberships.is_default` plus all three live indexes are present.
-- EXACT 621 FAILURE: Final Certification `36093187189` failed only because the contract regex did not recognize `ALTER TABLE public.company_memberships`; all other contract families in the log passed.
-- EXACT PRIOR CORE RESULTS: Browser/Enforcement had passed on `2efe...`; cash-account lineage and tenant helper lineage are already reconciled in the same migration.
-- PHASE-F: fresh proof on `51bc9899...` is still required. Production alias remains SHA `7be9f014...`; RPO/RTO/rollback/release NOT PROVEN.
-- UI LANE: 40 application routes / 38 canonical navigation links; Executive, Connections, Decision, Document, Inventory and Product-WOW remain green.
-- NEXT EXECUTABLE ACTION: fresh exact-head certification → fresh Phase-F → first new live failure only → exact production alignment → measured recovery → release closeout.
-- DO NOT REPEAT: prior schema drifts, contract syntax mismatch, stale bindings, historical evidence transfer, production-SHA bypass, speculative UI rewrites.
-- CURRENT RESUME POINTER: `51bc9899... governance rebind → fresh exact-head gates → fresh Phase-F → first new live failure → production alignment → measured recovery → release closeout`.
+- MAIN HEAD OBSERVED BEFORE THIS WRITE: `51bc9899542bbcbce1af228c5ad10036fd9b61da`.
+- CURRENT CODE/TEST CANDIDATE: `75c6978d753a21377c7bee2378038862db2051b5` on PR #628.
+- DONE — CORE: aligned the tenant resolver select shape with the explicit bounded-select certification contract while preserving fixed `search_path` and schema ownership.
+- STAGING: tenant membership `is_default` and the three live indexes are present; live resolver semantics remain unchanged.
+- EXACT 622 FAILURE: Final Certification `36093301409` failed only because the resolver used `FROM public.company_memberships AS cm` while the contract regex requires `FROM company_memberships cm ... LIMIT 1`. All other visible P0 families passed.
+- EXACT 622 RESULTS: Enforcement `36093306201` SUCCESS; production-chain `36093306388` SUCCESS; Browser/Quality/Phase-F fresh results still pending on the new head.
+- PHASE-F: fresh proof on `75c6978d...` is required. Production alias remains SHA `7be9f014...`; RPO/RTO/rollback/release NOT PROVEN.
+- UI LANE: 40 application routes / 38 canonical navigation links; Executive, Connections, Decision, Document, Inventory and Product-WOW contracts remain green.
+- NEXT EXECUTABLE ACTION: governance rebind → fresh exact-head certification and Phase-F → first new live failure only → exact production alignment → measured recovery.
+- DO NOT REPEAT: countSql, carts/cart_items, helper search_path, profiles, cash_accounts, membership schema, resolver syntax, stale bindings, historical evidence transfer, production-SHA bypass, speculative UI rewrites.
+- CURRENT RESUME POINTER: `75c6978d... governance rebind → fresh exact-head gates → fresh Phase-F → first new live failure → production alignment → measured recovery → release closeout`.
 
 
 - MAIN HEAD OBSERVED BEFORE THIS WRITE: `7159553fcfc9d21304ffff60e1086a34b714ac09`.

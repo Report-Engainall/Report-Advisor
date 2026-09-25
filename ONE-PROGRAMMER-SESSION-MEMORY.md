@@ -1,15 +1,15 @@
-## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-134
+## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-135
 
-- SESSION-ID: 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-134.
-- MAIN HEAD OBSERVED BEFORE THIS WRITE: `fe7f5d86a645bd21bf1285b67eaa23eacc62eae8`.
-- CURRENT CODE/TEST CANDIDATE BEFORE GOVERNANCE WRITE: `51bc9899542bbcbce1af228c5ad10036fd9b61da`.
-- DONE — CORE: changed only the migration statement syntax from `ALTER TABLE public.company_memberships` to the contract-required `ALTER TABLE company_memberships`; database semantics unchanged.
-- EXACT FAILURE FIXED: Final Certification `36093187189` tenant-security failed because its explicit regex requires the unqualified `ALTER TABLE company_memberships` marker.
-- STAGING: the underlying `is_default` column and three indexes are already applied and verified on Supabase staging.
-- UI: 40 routes / 38 canonical navigation links remain green; no UI code changed in this fix.
-- NOT PROVEN: fresh certification on current head, fresh Phase-F restore, production exact identity, measured RPO/RTO, rollback.
-- CURRENT PRECISE STOP POINT: governance rebind → fresh exact-head gates → fresh Phase-F → first new live failure only → exact production alignment → measured recovery.
-- CURRENT RESUME POINTER: `51bc9899... fresh exact-head certification → fresh Phase-F → exact production identity → measured recovery → release closeout`.
+- SESSION-ID: 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-135.
+- MAIN HEAD OBSERVED BEFORE THIS WRITE: `51bc9899542bbcbce1af228c5ad10036fd9b61da`.
+- CURRENT CODE/TEST CANDIDATE BEFORE GOVERNANCE WRITE: `75c6978d753a21377c7bee2378038862db2051b5`.
+- DONE — CORE: normalized `current_company_id()` migration query to `FROM company_memberships cm` so the bounded-select tenant security contract matches exactly.
+- EXACT FAILURE FIXED: Final Certification `36093301409` tenant-security failed at the bounded-single-tenant SELECT regex; the resolver logic itself remained deterministic and fail-closed.
+- STAGING: live tenant membership schema is reconciled and unchanged semantically.
+- UI: 40 routes / 38 canonical navigation links remain green; no UI code changed.
+- NOT PROVEN: fresh exact-head Final Certification, fresh Phase-F restore, exact production identity, measured RPO/RTO, rollback.
+- CURRENT PRECISE STOP POINT: governance rebind → fresh exact-head gates → fresh Phase-F → first new live failure only → production alignment → measured recovery.
+- CURRENT RESUME POINTER: `75c6978d... fresh exact-head certification → fresh Phase-F → exact production identity → measured recovery → release closeout`.
 
 
 - SESSION-ID: 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-130.
