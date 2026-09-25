@@ -238,6 +238,10 @@ assert.ok(recommendationsSurface.includes('<TruthContextStrip months={6} status=
 assert.ok((recommendationsSurface.match(/<TruthContextStrip months={6}/g) || []).length >= 3, 'intelligence center, recommendations, and forecasts must each expose canonical truth context');
 assert.ok((recommendationsSurface.match(/fetchDashboardSnapshot\(6\)/g) || []).length >= 3, 'all intelligence surfaces must bind truth context to the canonical dashboard snapshot');
 
+const analyticsSurface = fs.readFileSync('src/pages/AnalyticsPage.tsx', 'utf8');
+assert.ok((analyticsSurface.match(/<TruthContextStrip months={6}/g) || []).length >= 3, 'RFM, ABC, and Aging analytics must expose canonical truth context');
+assert.ok((analyticsSurface.match(/fetchDashboardSnapshot\(6\)/g) || []).length >= 3, 'RFM, ABC, and Aging analytics must bind truth context to the canonical dashboard snapshot');
+
 const metricInspector = fs.readFileSync('src/pages/MetricInspectorPage.tsx', 'utf8');
 assert.ok(metricInspector.includes('const filteredItems = useMemo'), 'metric inspector must derive a filtered semantic list without mutating the source contract');
 assert.ok(metricInspector.includes('aria-label="البحث في المؤشرات"'), 'metric inspector search must be accessible');
