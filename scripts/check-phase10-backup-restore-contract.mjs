@@ -96,6 +96,9 @@ for (const token of [
   'CART_ITEMS_QUANTITY_CHECK',
   'IDX_CART_ITEMS_PRODUCT_ID_FK',
   'CART_ITEMS_SELF_SELECT',
+  'USER_ID = (SELECT AUTH.UID())',
+  'CUSTOMER_ID = CURRENT_CUSTOMER_ID()',
+  'COMPANY_ID = CURRENT_CUSTOMER_COMPANY_ID()',
   'GRANT SELECT ON TABLE PUBLIC.CART_ITEMS TO AUTHENTICATED',
 ]) {
   if (!cartsParityUpper.includes(token)) throw new Error(`Missing carts schema restore-parity invariant: ${token}`);
