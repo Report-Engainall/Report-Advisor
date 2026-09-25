@@ -200,7 +200,7 @@ async function logicalBackupRestore() {
   const workDir = fs.mkdtempSync(path.join(os.tmpdir(), 'phase-f-logical-'));
   const backupPath = path.join(workDir, 'public-data.sql');
   const exactSnapshotSql = 'select clock_timestamp()::text';
-  const countSql = `select coalesce(string_agg(format('select %L as table_name, count(*) as row_count from %I.%I', table_schema, table_name), ' union all ' order by table_name), 'select null::text as table_name, 0::bigint as row_count where false') from information_schema.tables where table_schema = 'public' and table_type = 'BASE TABLE'`;
+  const countSql = `select coalesce(string_agg(format('select %L as table_name, count(*) as row_count from %I.%I', table_schema || '.' || table_name, table_schema, table_name), ' union all ' order by table_name), 'select null::text as table_name, 0::bigint as row_count where false') from information_schema.tables where table_schema = 'public' and table_type = 'BASE TABLE'`;
 
   let localDbUrl = null;
   let localStarted = false;
