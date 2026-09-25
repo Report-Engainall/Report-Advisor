@@ -9,7 +9,7 @@ const contract = read('scripts/check-production-certification-contract.mjs');
 const index = read('docs/MASTER_EXECUTION_INDEX.md');
 const phaseFProbe = read('scripts/phase-f-live-resilience-probes.mjs');
 const cartsParityMigration = read('supabase/migrations/20260925200000_restore_carts_schema_parity.sql');
-const clientUiSettingsParityMigration = read('supabase/migrations/20260925220000_restore_client_ui_settings_schema_parity.sql');
+const clientUiSettingsParityMigration = read('supabase/migrations/20260925184000_restore_client_ui_settings_schema_parity.sql');
 
 
 
