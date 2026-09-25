@@ -1,19 +1,20 @@
-# CURRENT EXECUTION BOUNDARY — 2026-09-25 / POST-MERGE DEEP UI-CORE CLOSURE
+# CURRENT EXECUTION BOUNDARY — 2026-09-25 / CONTINUOUS EXECUTION CHECKPOINT
 
-- MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `317f560eae727dd660e1d3adc80c2ce26cc13805`.
-- CURRENT CODE/TEST CANDIDATE: `317f560eae727dd660e1d3adc80c2ce26cc13805`.
-- GOVERNANCE HEAD BEFORE THIS WRITE: `317f560eae727dd660e1d3adc80c2ce26cc13805`.
-- MERGE: PR #644 was merged squash at `317f560eae727dd660e1d3adc80c2ce26cc13805` after exact-head Quality + Final Certification + UI Route/Browser/Desktop gates passed on the pre-merge code head `2eb7c69cad1c07d77df354e4ef5371200868f236`.
-- UI DELIVERY: Metric Inspector gained semantic search, certification-status/freshness filters, reset and filtered-empty state; shared Loading/Empty/Error states gained explicit assistive semantics and retry labeling; Decision Experience progress gained stage descriptions; Reports gained evidence-safe truth context; Canonical Import stepper gained semantic active/completed stage semantics.
-- CORE DELIVERY: Phase-10 restore contract strengthened SECURITY DEFINER helper hardening; Phase-F evidence now preserves exact-head/governance-head provenance.
-- EXACT EVIDENCE: Quality run `36173306930` → SUCCESS; Final Certification `36173306852` → SUCCESS; UI Route Completeness `36173306908` → SUCCESS; Browser `36173307013` → SUCCESS; Desktop Windows `36173306970` → SUCCESS; Metric Governance RLS `36173307044` → SUCCESS on the pre-merge candidate lineage.
-- PHASE-F: run `36173306548` reached Live resilience probes on exact pre-merge head `2eb7c69...` but had not terminated at observation time; no Phase-F PASS is transferred to `317f560...`. No post-merge Phase-F workflow was observed for the main commit at this write.
-- EXTERNAL HOSTING: Vercel remains externally rate-limited by the free-plan build limit. Netlify remains a preview path only.
-- PARALLEL UI FOLLOW-UP: PR #646 contains purchase-report truth-context closure; its first Netlify preview failed due a JSX transform defect, which was identified and corrected at `68e34f5c15db9ec17cad0c7731b01894d99cb0f4`. Fresh exact-head gates are now required for PR #646; its failure is not transferred as a main defect.
-- NEXT EXECUTABLE ACTION: re-establish fresh exact-head main certification/Phase-F evidence for `317f560...`; in parallel consume PR #646 current-head checks, repair only the first reproduced current defect, then fast-forward/merge only after exact-head proof.
-- DO NOT REPEAT: no stale pre-merge Phase-F PASS transfer, no production SHA bypass, no preview-as-production, no duplicate RPC/runner/import path, no blanket DB/security cleanup.
-
----
+- MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `d99ebb5ebe4f5891cb5e6126c4f2dcfc094b0368`.
+- CURRENT FUNCTIONAL MAIN HEAD: `317f560eae727dd660e1d3adc80c2ce26cc13805`.
+- GOVERNANCE HEAD: `d99ebb5ebe4f5891cb5e6126c4f2dcfc094b0368`.
+- UI MAIN: deep UI/core closure merged at `317f560e...`; shell accessibility + mobile micro-closure + Metric Inspector/report truth/decision-state semantics are in main and not to be reworked.
+- OPEN UI FRONT: PR #647 purchases truth-context lane; PR #654 global Advisor dialog/Command Palette/settings/report accessibility lane. Both are current-main candidates with exact-head gates pending; no stale PASS transferred.
+- OPEN SECURITY FRONT: PR #651 hardens four legacy cart SECURITY DEFINER RPCs (`clear_cart`, `get_cart`, `remove_cart_item`, `set_cart_item`) with explicit schema qualification, safe search_path and grant boundary; direct staging inspection confirmed the original exposure pattern and zero recorded function calls.
+- OPEN CORE FRONT: PR #653 is the sole current Phase-F restore-parity candidate. Exact candidate head currently advances through client_ui_settings parity in a dedicated migration, including live FK/UNIQUE/config-shape/RLS/grants and supabase_realtime membership.
+- LAST VALID CORE LIVE FAILURE: Phase-F run `36174509884` on `53ef97...` passed exact-head/local/static/auth/canary then failed logical restore on missing `public.client_ui_settings`; production served stale SHA `7edc3cc...`; rollback-forward-fix returned HTTP 503. No Phase-F PASS.
+- CURRENT CORE CANDIDATE: PR #653 head `1eb9e545e0860457e22e52bd6df07cb34fe6a24d`; fresh exact-head gates are queued/in progress and must be consumed only on that head.
+- LIVE STAGING OBSERVATION: `151` import jobs are in `processing`, `150` at progress 0; oldest `2026-09-14 12:53:22Z`. No unsafe terminalization performed.
+- SECURITY OBSERVATION: 46 authenticated-callable SECURITY DEFINER functions exist; the proven unsafe cart pattern is now isolated to the four targeted legacy RPCs. No blanket revoke performed.
+- EXTERNAL BLOCKER: Vercel free-plan build-rate-limit prevents production deployment identity from matching tested candidate; Netlify previews are preview evidence only. Local device/browser is unavailable.
+- CLOSED/SUPERSEDED ACTIVE FRONTS: #635, #633, #640, #641, #645, #649, #650, #652, #643, #630, #620, #619, #614. Their history remains preserved; no evidence is transferred.
+- NEXT EXECUTABLE ACTION: consume PR #653 exact-head Quality/Enforcement/Certification/Browser/Storage/Desktop/Phase-F; repair only the first newly reproduced restore dependency, while consuming #651/#647/#654 current-head gates in parallel.
+- DO NOT REPEAT: no stale PASS transfer, no production-SHA bypass, no preview-as-production, no duplicate RPC/import/runner, no blanket SECURITY DEFINER/index cleanup, no unsafe import-job mutation.
 
 ---
 
