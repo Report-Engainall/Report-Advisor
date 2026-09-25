@@ -1,14 +1,14 @@
-# CURRENT EXECUTION BOUNDARY — 2026-09-25 / PR #638 EXACT-HEAD UI REBIND
+# CURRENT EXECUTION BOUNDARY — 2026-09-25 / POST-MERGE UI #638
 
-- MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `d43c8203ca249f6e8f9661a784d8a170a3870111`.
-- CURRENT CODE/TEST CANDIDATE: `14f35b5ff7868bab43f2df120b9714e2a1207bab`.
-- GOVERNANCE HEAD BEFORE THIS WRITE: `14f35b5ff7868bab43f2df120b9714e2a1207bab`.
-- UI STATE: PR #638 is the current exact-main UI candidate and changes only Header/Sidebar. The previous PR #635 is closed/superseded and is not evidence.
-- UI DELIVERY: shell accessibility closure is implemented: 44px touch targets, Escape dismissal with focus restoration, explicit `aria-controls`, visible keyboard focus, semantic disclosure state, and `aria-current` navigation semantics. No business/data semantics changed.
-- PRIOR UI GATE FACT: Enforcement on initial PR #638 head failed only because the execution index still pointed at core SHA `886c3e11...`; this governance rebind is the direct repair and does not alter UI behavior.
-- CURRENT EXTERNAL BLOCKERS: Vercel build-rate limit remains external; local device/browser runtime is unavailable in this session. Public Netlify preview is independently readable and renders the Arabic product/login surface.
-- NEXT EXECUTABLE ACTION: consume fresh exact-head UI Quality/Enforcement/Final Certification/Browser/desktop evidence for `14f35b...`; fix only the first current-head UI defect if reproduced.
-- DO NOT REPEAT: no stale UI PASS transfer, no PR #635 evidence reuse, no business-route changes while closing a shell-only accessibility gate, no production promotion through Vercel rate-limit failure.
+- MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `c8d5f2b2bd318a88e5ccd5c385f0d9031ec5afda`.
+- CURRENT CODE/TEST CANDIDATE: `c8d5f2b2bd318a88e5ccd5c385f0d9031ec5afda` (current exact main after UI shell accessibility merge).
+- GOVERNANCE HEAD BEFORE THIS WRITE: `c8d5f2b2bd318a88e5ccd5c385f0d9031ec5afda`.
+- CORE CANDIDATE STILL OPEN: PR #637 head `09c2386f06b07e0c094cfe94e829c3e600a05c5c`; functional core/Phase-F restore-parity work is intentionally not represented as merged main until its live certification closes.
+- UI DELIVERY: PR #638 merged successfully as `c8d5f2b2bd318a88e5ccd5c385f0d9031ec5afda`. Current main now contains the Header/Sidebar accessibility closure. Exact-head UI gates before merge were successful: Quality, Enforcement, Final Certification, Full Product Browser E2E, Device-Independent Browser E2E, Storage Tenant Runtime E2E, Desktop Windows, and UI Route Completeness.
+- CURRENT MAIN CI REBIND: post-merge Enforcement initially failed only because this index still referenced UI pre-merge head `14f35b5...`; this write binds the index to exact merged main `c8d5f2b...`.
+- EXTERNAL: Vercel free-plan rate-limit remains an environment constraint, but it did not prevent UI merge or the current device-independent gates. Local device/browser remains unavailable.
+- NEXT EXECUTABLE ACTION: consume fresh post-merge main Enforcement/Final Certification/Quality/Browser/desktop evidence, continue PR #637 Phase-F to terminal result, then merge core only when exact-head live evidence supports it.
+- DO NOT REPEAT: no stale UI candidate evidence, no transfer from PR #638 to an older SHA, no merge of PR #637 before Phase-F evidence, no production-SHA bypass.
 
 ---
 
