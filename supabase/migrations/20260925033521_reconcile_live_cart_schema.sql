@@ -1,3 +1,18 @@
+-- Evolve the tenant membership schema required by the canonical resolver.
+-- These primitives already exist in staging; this keeps fresh restore lineage complete.
+alter table public.company_memberships
+  add column if not exists is_default boolean not null default false;
+
+create index if not exists idx_company_memberships_company_active
+  on public.company_memberships (company_id, is_active);
+
+create unique index if not exists idx_company_memberships_one_default
+  on public.company_memberships (user_id)
+  where is_active = true and is_default = true;
+
+create index if not exists idx_company_memberships_user_active
+  on public.company_memberships (user_id, is_active, is_default);
+
 -- The live cash account ledger was also present in staging without repository lineage.
 -- It must be created before its tenant RLS policy is restored.
 create or replace function public.current_company_id()
