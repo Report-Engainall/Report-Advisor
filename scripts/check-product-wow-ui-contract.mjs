@@ -156,6 +156,20 @@ assert.ok(demandVelocity.includes('const nextAction='), 'demand velocity must de
 assert.ok(demandVelocity.includes('to={nextAction.to}'), 'demand velocity empty state must use the derived next action');
 assert.ok(demandVelocity.includes('لا تُستبدل القيم الناقصة'), 'demand velocity must preserve fail-closed semantics');
 
+const companySettings = fs.readFileSync('src/pages/CompanySettingsPage.tsx', 'utf8');
+assert.ok(companySettings.includes('aria-pressed={preferences.preset === option.id}'), 'company presets must expose selected state');
+assert.ok(companySettings.includes('aria-pressed={preferences.mode === mode}'), 'workspace modes must expose selected state');
+assert.ok(companySettings.includes('aria-label="الصفحة الافتراضية بعد تسجيل الدخول"'), 'default landing select must have an explicit accessible label');
+assert.ok(companySettings.includes('min-h-11 min-w-11'), 'settings reorder controls must meet touch-target sizing');
+assert.ok(companySettings.includes("aria-label={'تحريك '"), 'settings reorder controls must identify the affected section');
+
+const profileSettings = fs.readFileSync('src/pages/ProfileSettingsPage.tsx', 'utf8');
+assert.ok(profileSettings.includes('<LoadingState message="جارٍ تحميل بيانات الحساب..." />'), 'profile settings must use the shared loading state');
+assert.ok(profileSettings.includes('aria-busy={saving}'), 'profile save action must expose busy state');
+assert.ok(profileSettings.includes('role="status" aria-live="polite"'), 'profile success state must be announced');
+assert.ok(profileSettings.includes('role="alert" aria-live="assertive"'), 'profile error state must be announced');
+assert.ok(profileSettings.includes('min-h-11 w-full max-w-xl'), 'profile input must meet touch sizing');
+
 const metricInspector = fs.readFileSync('src/pages/MetricInspectorPage.tsx', 'utf8');
 assert.ok(metricInspector.includes('const filteredItems = useMemo'), 'metric inspector must derive a filtered semantic list without mutating the source contract');
 assert.ok(metricInspector.includes('aria-label="البحث في المؤشرات"'), 'metric inspector search must be accessible');
