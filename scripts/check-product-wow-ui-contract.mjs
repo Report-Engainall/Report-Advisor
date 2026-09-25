@@ -182,4 +182,18 @@ assert.ok(inventoryUnavailable.includes('if (!snapshot) return <DataUnavailableS
 const canonicalProfitability = fs.readFileSync('src/pages/ProfitabilityReportCanonicalPage.tsx', 'utf8');
 assert.ok(canonicalProfitability.includes('DataUnavailableState'), 'canonical profitability must expose a governed unavailable-data state');
 assert.ok(canonicalProfitability.includes('<Link to="/import"'), 'canonical profitability unavailable state must use the unified import route');
+const decisionPlaybooks = fs.readFileSync('src/pages/DecisionPlaybooksPage.tsx', 'utf8');
+assert.ok(appShell.includes('path="/intelligence/playbooks"'), 'app shell must expose the canonical decision playbooks route');
+const navigationRegistry = fs.readFileSync('src/lib/navigation-registry.ts', 'utf8');
+assert.ok(navigationRegistry.includes("path: '/intelligence/playbooks'"), 'navigation registry must expose the decision playbooks route');
+assert.ok(navigationRegistry.includes("icon: 'playbooks'"), 'navigation registry must define a canonical playbooks icon');
+const sidebarSurface = fs.readFileSync('src/components/Sidebar.tsx', 'utf8');
+assert.ok(sidebarSurface.includes('playbooks: <ListChecks'), 'sidebar must map the playbooks icon without introducing a second icon system');
+assert.ok(decisionPlaybooks.includes('fetchRecommendations'), 'decision playbooks must read the existing authoritative recommendation ledger');
+assert.ok(decisionPlaybooks.includes('updateRecommendationStatus'), 'decision playbooks must reuse the existing recommendation decision writer');
+assert.ok(decisionPlaybooks.includes('الدليل'), 'decision playbooks must expose the evidence stage');
+assert.ok(decisionPlaybooks.includes('المالك'), 'decision playbooks must expose the persisted owner field');
+assert.ok(decisionPlaybooks.includes('الموعد'), 'decision playbooks must expose the persisted deadline field');
+assert.ok(decisionPlaybooks.includes('النتيجة'), 'decision playbooks must expose the persisted outcome/impact boundary');
+assert.ok(decisionPlaybooks.includes('لا تنشئ حالات تنفيذية جديدة'), 'decision playbooks must remain a presentation surface and must not invent execution state');
 console.log('Product wow UI contract: PASS (public proof theater + deterministic decision brief)');
