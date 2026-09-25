@@ -113,7 +113,8 @@ async function preferIpv4Host(databaseUrl) {
     const projectRef = process.env.SUPABASE_PROJECT_REF?.trim() || '';
     const region = process.env.RESILIENCE_SUPABASE_REGION?.trim() || 'ap-southeast-2';
     const directMatch = parsed.hostname.match(/^db\.([a-z0-9]+)\.supabase\.co$/i);
-    if (projectRef && directMatch && directMatch[1] === projectRef && parsed.port === '5432') {
+    const directPort = parsed.port || '5432';
+    if (projectRef && directMatch && directMatch[1] === projectRef && directPort === '5432') {
       parsed.hostname = `aws-0-${region}.pooler.supabase.com`;
       parsed.username = `postgres.${projectRef}`;
       parsed.searchParams.delete('hostaddr');
