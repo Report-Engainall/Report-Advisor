@@ -1,3 +1,23 @@
+## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-150
+
+- MAIN HEAD OBSERVED BEFORE THIS WRITE → `c985deeb6e9f93383fca27473439a4e14cf9070d`.
+- SESSION-ID → `2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-150`.
+- CURRENT CODE/TEST CANDIDATE → PR #659 exact head `b9ee9b149835902789a73fd1d95fc82a3e4b2792`.
+- DONE / UI → Profitability Report now exposes direct paths to evidence, metric governance, and Decision Experience, making the financial surface operational rather than a static KPI readout.
+- DONE / UI → Receivables Report now has current-page search and payment-state filtering, explicit NO_DATA BoundaryState, and direct evidence/decision navigation.
+- DONE / CORE → Profitability snapshot readback now fail-closes when a CALCULATED response lacks finite revenue, cost, or gross profit; reasons are sanitized to non-empty strings and currency context remains explicit.
+- DONE / CORE → Receivables snapshot readback now validates page metadata, totals, and required row shape instead of casting arbitrary RPC payloads directly into business truth.
+- DONE / QUALITY → Added `test:profitability-snapshot-contract` and `test:receivables-read-contract`; both are registered in package scripts and enforced in Quality.
+- EXACT SOURCE EVIDENCE → GitHub exact-head reads confirm the new UI/core contracts exist on `b9ee9b149835902789a73fd1d95fc82a3e4b2792`.
+- CURRENT PR STATE → #659 remains OPEN and mergeable; base main remains `c985deeb6e9f93383fca27473439a4e14cf9070d`.
+- CURRENT GATES → current-head GitHub workflow state has not terminalized yet; no current-head PASS is claimed.
+- EXTERNAL STATUS → Vercel remains externally rate-limited on the free deployment plan; no application failure is inferred from that constraint.
+- NOT PROVEN / BLOCKED → production promotion, Phase-F live resilience evidence, current-head browser certification, and device-dependent visual execution remain unproven.
+- UI LANE NEXT → continue with the next uncovered canonical route only; do not reopen Profitability or Receivables closures.
+- CORE LANE NEXT → consume the first terminal current-head repository gate; repair only the first reproduced current failure, then continue independent truth/security/performance closure while Phase-F/production remain fail-closed.
+- CURRENT RESUME POINTER → `main c985deeb6e9f… → first terminal #659 gate b9ee9b149835… → first reproduced failure only → next uncovered UI/core closure → exact green merge evidence`.
+- DO NOT REPEAT → no stale PASS transfer, no preview-as-production, no deployment-limit-as-code-failure, no duplicate importer/RPC/runner, no unsafe import-job mutation, no device-dependent work.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-149
 
 - MAIN HEAD OBSERVED BEFORE THIS WRITE → `c985deeb6e9f93383fca27473439a4e14cf9070d`.
