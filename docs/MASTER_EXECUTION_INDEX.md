@@ -1,16 +1,12 @@
-# CURRENT EXECUTION BOUNDARY — 2026-09-25 / EXACT MAIN AFTER UI MERGE + CORE PARITY WAVE
+# CURRENT EXECUTION BOUNDARY — 2026-09-25 / PR #639 MICRO-ACCESSIBILITY CANDIDATE
 
-- MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `efbb3ac5317f88a2d2b207122e43b009277e6a65`.
-- CURRENT CODE/TEST CANDIDATE: `c8d5f2b2bd318a88e5ccd5c385f0d9031ec5afda` (latest merged functional main; subsequent docs commits are governance-only).
-- GOVERNANCE HEAD BEFORE THIS WRITE: `efbb3ac5317f88a2d2b207122e43b009277e6a65`.
-- UI STATE: shell accessibility closure is merged in main via PR #638 at `c8d5f2b2bd318a88e5ccd5c385f0d9031ec5afda`. Exact-head UI gates were successful before merge.
-- CORE STATE: PR #637 is the active functional core candidate. Current head is `87a8d4d1709cbe39f97b4b27050ac1b1543c1d1b`, carrying profiles/carts/cart_items replay parity plus Phase-F routing/contract fixes. It is not merged.
-- LATEST CORE PHASE-F FACT: candidate `09c2386...` failed closed after reaching missing `public.cart_items`; production runtime still served `886c3e11...`; rollback-forward-fix returned HTTP 503. The cart_items parity repair is the next exact-head test.
-- MAIN POST-MERGE GOVERNANCE: current main Enforcement initially failed because the index referenced UI pre-merge head; commit `efa732...` repaired that binding. This memory/index synchronization itself is not a functional product change.
-- CURRENT EXTERNAL: Vercel rate-limit remains external; local device/browser unavailable. Device-independent GitHub/Netlify evidence remains usable.
-- LIVE STAGING: 151 import_jobs are processing, 150 at progress 0; no unsafe mutation. SECURITY/PERFORMANCE advisor findings remain review queues, not deletion instructions.
-- NEXT EXECUTABLE ACTION: consume exact-head PR #637 certification + fresh Phase-F on `87a8d4d...`; in parallel consume post-merge main gates against `efbb3a...` and repair only the first current-head failure.
-- DO NOT REPEAT: no stale UI evidence, no PR #635 reuse, no production-SHA bypass, no blind import-job terminalization, no blanket security/index cleanup.
+- MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `8a90fc615010b2e97e6286fe1da32986a7ceeb2e`.
+- CURRENT CODE/TEST CANDIDATE: `b5bf3e2d039c4c8729f888d202728e94ed493d47`.
+- GOVERNANCE HEAD BEFORE THIS WRITE: `b5bf3e2d039c4c8729f888d202728e94ed493d47`.
+- UI MICRO-CLOSURE: App Shell mobile menu close control now has a 44px minimum target and visible keyboard focus, while mobile search hover contrast is readable. No business/data behavior changed.
+- CORE: PR #637 remains unmerged pending Phase-F live proof. Main contains the completed shell accessibility wave only.
+- NEXT EXECUTABLE ACTION: consume PR #639 exact-head UI Quality/Browser/Enforcement/Certification evidence, merge if all required gates pass; continue core Phase-F only against a deployment matching its tested SHA.
+- DO NOT REPEAT: no device-dependent local PASS, no stale UI evidence transfer, no production-SHA bypass.
 ---
 
 # CURRENT CONTROL-PLANE BOUNDARY — 2026-09-25 / POST-MERGE PR #632 + UI PR #634
