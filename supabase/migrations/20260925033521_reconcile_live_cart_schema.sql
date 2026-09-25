@@ -85,7 +85,7 @@ create or replace function public.current_customer_id()
 returns uuid
 language sql
 security definer
-set search_path = ''
+set search_path = public
 as $$
   select p.customer_id
   from public.profiles p
@@ -97,7 +97,7 @@ create or replace function public.current_customer_company_id()
 returns uuid
 language sql
 security definer
-set search_path = ''
+set search_path = public
 as $$
   select p.organization_id
   from public.profiles p
