@@ -2,6 +2,20 @@
 -- Source-of-truth: staging project fnqbvfuwbdpwvhcgzksl at 2026-09-25.
 -- Forward-only: preserves the live relation shape, tenant FK boundaries, index, RLS and authenticated read policy.
 
+do $
+begin
+  if not exists (
+    select 1 from pg_constraint
+    where conname = 'branches_id_company_unique'
+      and conrelid = 'public.branches'::regclass
+  ) then
+    alter table public.branches
+      add constraint branches_id_company_unique
+      unique (id, company_id);
+  end if;
+end
+$;
+
 create table if not exists public.cash_accounts (
   id uuid primary key default gen_random_uuid(),
   company_id uuid not null,
