@@ -1,3 +1,16 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-25 / UUID-RESOLVER REPAIR
+
+- MAIN HEAD OBSERVED BEFORE THIS GOVERNANCE WRITE: `9c4e5f03a53ae211d5ed00077c2fd43a339a7db2`.
+- CURRENT CODE/TEST CANDIDATE: `34f77c248de5bcdb77c77f7fd1a016559c1fd1c5`.
+- CURRENT GOVERNANCE HEAD BEFORE THIS WRITE: `34f77c248de5bcdb77c77f7fd1a016559c1fd1c5`.
+- DONE: reproduced and fixed the first exact-head Storage/tenant runtime failure: `current_company_id()` used PostgreSQL `min(uuid)`. Added incremental migration `20260925154500_repair_current_company_id_uuid_resolver.sql` without rewriting historical migrations.
+- LIVE STAGING REPAIR: the same UUID-safe resolver was applied to `Report-Advisor-P0-2-Staging` (`fnqbvfuwbdpwvhcgzksl`) for immediate runtime proof; source lineage remains the new migration.
+- EXACT-HEAD CI: Quality, browser, storage, certification, enforcement and Phase-F workflows launched for `34f77c2...`; certification first failed only because this index still pointed at `a35e5a...`. This write rebinds the governance candidate exactly.
+- NEXT: consume fresh exact-head CI results; then Phase-F live resilience. Repair only the first reproduced current-SHA failure.
+- DO NOT REPEAT: no stale evidence transfer, no production/SHA bypass, no rewriting applied migration history, no credential bypass.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-25 / PHASE-F RESTORE CANDIDATE
 
 - MAIN HEAD OBSERVED BEFORE THIS GOVERNANCE REBIND: `9c4e5f03a53ae211d5ed00077c2fd43a339a7db2`.
