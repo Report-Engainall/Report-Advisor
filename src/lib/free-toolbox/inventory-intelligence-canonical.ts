@@ -5,6 +5,12 @@ import type { DetailReportRow } from './grouped-report';
 type Product = { id: string; sku: string; name: string };
 type Member = { group_id: string; sku: string };
 
+function requiredRows<T extends Record<string, unknown>>(value: unknown, label: string): T[] {
+  if (!Array.isArray(value)) throw new Error(`REPORT_DATA_UNAVAILABLE: inventory ${label} missing`);
+  if (value.some((item) => item === null || typeof item !== 'object' || Array.isArray(item))) throw new Error(`REPORT_DATA_UNAVAILABLE: inventory ${label} invalid`);
+  return value as T[];
+}
+
 export interface InventoryIntelligenceSource {
   rows: DetailReportRow[];
   groups: Record<string, { id: string; name: string; members: string[] }>;
@@ -23,10 +29,17 @@ export async function fetchInventoryIntelligenceSource(): Promise<InventoryIntel
   ]);
   if (memberError || balanceError || productError) throw memberError || balanceError || productError;
 
-  const productById = new Map((products ?? []).map((p: Product) => [p.id, p]));
+  const memberRows = requiredRows<Member>(members, 'group members');
+  const balanceRows = requiredRows<Record<string, unknown>>(balances, 'balances');
+  const productRows = requiredRows<Product>(products, 'products');
+  for (const member of memberRows) if (!member.group_id?.trim() || !member.sku?.trim()) throw new Error('REPORT_DATA_UNAVAILABLE: inventory group member shape invalid');
+  for (const product of productRows) if (!product.id?.trim() || !product.sku?.trim() || !product.name?.trim()) throw new Error('REPORT_DATA_UNAVAILABLE: inventory product shape invalid');
+  for (const balance of balanceRows) if (typeof balance.product_id !== 'string' || !balance.product_id.trim() || !Number.isFinite(Number(balance.quantity))) throw new Error('REPORT_DATA_UNAVAILABLE: inventory balance shape invalid');
+
+  const productById = new Map(productRows.map((p: Product) => [p.id, p]));
   const demandByProduct = new Map(demand.map((item) => [item.productId, item]));
   const groups: InventoryIntelligenceSource['groups'] = {};
-  for (const member of (members ?? []) as Member[]) {
+  for (const member of memberRows) {
     const group = groups[member.group_id] ?? { id: member.group_id, name: `مجموعة ${member.group_id.slice(0, 8)}`, members: [] };
     group.members.push(member.sku);
     groups[member.group_id] = group;
@@ -36,7 +49,7 @@ export async function fetchInventoryIntelligenceSource(): Promise<InventoryIntel
   for (const group of Object.values(groups)) for (const sku of group.members) skuToGroup.set(sku, group.id);
 
   const stockByProduct = new Map<string, number>();
-  for (const balance of balances ?? []) {
+  for (const balance of balanceRows) {
     const quantity = Number(balance.quantity);
     if (!Number.isFinite(quantity)) continue;
     stockByProduct.set(balance.product_id, (stockByProduct.get(balance.product_id) ?? 0) + quantity);
