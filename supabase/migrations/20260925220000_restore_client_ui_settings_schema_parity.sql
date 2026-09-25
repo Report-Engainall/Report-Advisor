@@ -80,6 +80,20 @@ revoke all on table public.client_ui_settings from authenticated;
 grant select, insert, update on table public.client_ui_settings to authenticated;
 grant all on table public.client_ui_settings to service_role;
 
+do $
+begin
+  if not exists (
+    select 1
+    from pg_publication_rel pr
+    join pg_publication p on p.oid = pr.prpubid
+    where p.pubname = 'supabase_realtime'
+      and pr.prrelid = 'public.client_ui_settings'::regclass
+  ) then
+    alter publication supabase_realtime add table public.client_ui_settings;
+  end if;
+end
+$;
+
  
 do $$
 begin
