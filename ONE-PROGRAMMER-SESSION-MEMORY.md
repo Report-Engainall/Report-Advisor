@@ -1,8 +1,19 @@
+## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-117
+
+- SESSION-ID → `2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-117`.
+- EXACT CODE HEAD → `293a78940c8a332113bc99884f2f648c5c3d06db`.
+- DONE → fixed the remaining canonical migration-path contract references; `P0 13/13`, `P1 8/8`, production-readiness `21/21`, production-certification contract PASS, certification-boundary PASS; Decision runtime DML boundary PASS.
+- GOVERNANCE → candidate references are rebound to the exact code head; current working state is a governed continuation, not a stale historical PASS transfer.
+- LIVE STATUS → exact-head Phase-F must be consumed on this candidate; production identity, restore/RPO/RTO/rollback remain unproven until fresh live evidence exists.
+- NEXT EXECUTABLE ACTION → consume exact-head Phase-F/CI failures; repair only the first new boundary failure; rebind governance only when the code candidate changes.
+- DO NOT REPEAT → no historical Phase-F transfer, no production-SHA bypass, no stale candidate acceptance.
+- CURRENT RESUME POINTER → `293a78940c8a332113bc99884f2f648c5c3d06db` → exact-head CI/Phase-F → first live/runtime failure → fresh certification.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-23-AGHBARI-CONTINUOUS-EXECUTION-116
 
 - SESSION-ID → `2026-09-23-AGHBARI-CONTINUOUS-EXECUTION-116`
 - MAIN HEAD OBSERVED BEFORE THIS WRITE → `419cd4f0eb2317c702e7ee656761d5e084ebe6ce`.
-- CURRENT CODE/TEST CANDIDATE → `c06a40813ab16783a6b38004c4766f69f3bc0114`.
+- CURRENT CODE/TEST CANDIDATE → `293a78940c8a332113bc99884f2f648c5c3d06db`.
 - GOVERNANCE HEAD → `419cd4f...` is documentation-only synchronization; candidate remains `adb093bb...`.
 - DONE → synchronized `docs/MASTER_PRODUCT_REFERENCE.md` with the current intelligence consolidation, unavailable-data closure, migration restore repair, and exact Phase-F runtime boundary.
 - VERIFIED SOURCE STATE → repaired migration branch audit was 285 migrations / 0 findings; live Phase-F baseline remains 1/4 before the repair and is not re-certified after it.
