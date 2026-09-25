@@ -25,7 +25,7 @@ for (const [file, tokens] of [
   ['src/components/TruthContextStrip.tsx', ['INSUFFICIENT_SAMPLE']],
   ['src/pages/AnalyticsPage.tsx', ['TrustBadge', 'INSUFFICIENT_SAMPLE']],
   ['src/pages/TrustEvidencePage.tsx', ['TrustBadge', 'INSUFFICIENT_SAMPLE']],
-  ['src/pages/DecisionExperiencePage.tsx', ['BoundaryState variant="blocked"']],
+  ['src/pages/DecisionExperiencePage.tsx', ['BoundaryState variant="blocked"', 'بحث في التوصيات', 'تصفية الإشارات']],
   ['src/pages/ExecutiveCommandCenterPage.tsx', ['TrustBadge', 'trustStateFromDataStatus']],
   ['src/pages/CanonicalImportPage.tsx', ['TrustBadge', 'function importTrustState(', 'aria-label="حالة ثقة المصدر"']],
   ['src/components/ui/States.tsx', ['export function BoundaryState', "variant === 'review'", "variant === 'insufficient'"]],
