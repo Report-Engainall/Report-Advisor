@@ -1,3 +1,16 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-25 / PARALLEL CORE + UI EXECUTION
+
+- MAIN HEAD OBSERVED → `9c4e5f03a53ae211d5ed00077c2fd43a339a7db2`.
+- CORE CODE/TEST HEAD → `d4e34ee9650ed6f8daaff6c9343d8e4a0ba533aa` (PR #632).
+- UI CODE HEAD → `a232508aeb7de8669cecc028bc3b146a0aa6d1d3` (PR #633).
+- CORE FIX APPLIED → Phase-F logical schema-count query now uses the IPv4-resolved `runnerSource`; source contract guard also binds logical dump to `runnerSource`.
+- CORE CURRENT RUN → Phase-F `36163768006` is still `in_progress`; exact-head verification, npm CI, local runtime tests, and static resilience contracts have passed before the live probes step. No Phase-F PASS claimed yet.
+- UI FIX APPLIED → repaired the reproduced JSX closure defect in `src/components/Sidebar.tsx` that caused Windows build `36164023271` to fail. Replacement commit is `a232508aeb7de8669cecc028bc3b146a0aa6d1d3`.
+- UI CURRENT RUN → desktop-windows `36164338872` is `in_progress` on exact UI head; the earlier JSX transform failure is the defect being revalidated. No current UI PASS claimed yet.
+- PRODUCTION → no production mutation or SHA bypass. Current release identity remains a separate gate.
+- NEXT → consume exact-head Core Phase-F + certification results and exact-head UI build/browser/certification results; repair only the first reproduced failure on each lane.
+- DO NOT REPEAT → no stale PASS transfer, no production SHA bypass, no duplicate navigation/import path, no weakening of resilience or accessibility guards.
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-25 / PHASE-F LOGICAL SOURCE QUERY REPAIR
 
 - MAIN HEAD OBSERVED BEFORE THIS GOVERNANCE WRITE: `9c4e5f03a53ae211d5ed00077c2fd43a339a7db2`.
