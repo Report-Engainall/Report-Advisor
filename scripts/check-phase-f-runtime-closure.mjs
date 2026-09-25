@@ -15,6 +15,7 @@ for (const script of ['test:operational-resilience','test:release-resilience-man
 const probe = fs.readFileSync(path.join(root,'scripts/phase-f-live-resilience-probes.mjs'),'utf8');
 for (const token of [
   'EXACT_HEAD',
+  'EXACT_HEAD must be the full 40-character commit SHA.',
   'deployment_sha',
   'deployment_id',
   'DEPLOYMENT_SHA_MISMATCH',
