@@ -1,3 +1,21 @@
+## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-143
+
+- MAIN HEAD OBSERVED BEFORE THIS WRITE → `d99ebb5ebe4f5891cb5e6126c4f2dcfc094b0368`.
+- SESSION-ID → `2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-143`.
+- UI CODE/TEST CANDIDATE BEFORE THIS MEMORY WRITE → `d7e9cd4f033814d3e2267a5b64b209ae88097f0a`; memory write itself is governance only.
+- UI DONE → global Advisor modal/accessibility closure; Inventory Intelligence + Demand Velocity truth-context/evidence/next-action closure; Executive Report governed loading/error/empty/next-action closure; Company Settings selection/touch semantics; Profile Settings live state announcements; Master Data Hub evidence/import actions; Scenario Truth Guard retry; Onboarding semantic list/status/touch closure; Proposal Demo touch-target closure.
+- UI CONTRACT → `scripts/check-product-wow-ui-contract.mjs` updated through `d7e9cd4...` to bind the new surface invariants. Fresh CI is queued; no current-head PASS claimed.
+- CORE CANDIDATE → PR #653 current code/test head before its last governance sequence is `52266e483da05209f6f0bee4deabe465a33e507e`; its restore migration is `20260925184000_restore_client_ui_settings_schema_parity.sql` and the Phase-10 contract binds schema, FK/UNIQUE, config shape, RLS/grants and `supabase_realtime` publication.
+- CORE LIVE SOURCE → staging `fnqbvfuwbdpwvhcgzksl` confirmed no user triggers on `client_ui_settings`, default replica identity, and `supabase_realtime` membership. No staging/production mutation performed.
+- PERFORMANCE REVIEW → Supabase performance advisor currently reports 82 unused-index INFO findings on staging. This is not sufficient evidence for deletion or index consolidation; no destructive performance change was made.
+- EXACT PRIOR PHASE-F FAILURE → run `36174509884` on `53ef97...`: tenant canary passed; production health HTTP 200 but deployment SHA `7edc3cc...` did not match candidate; logical restore stopped at missing `public.client_ui_settings`; rollback-forward-fix HTTP 503; result 1/4 passed. No PASS transferred.
+- CURRENT CI/DEPLOYMENT → latest PR #654 head `d7e9cd4...` reports Vercel failure only while other GitHub Actions are queued/in-flight; latest PR #653 head `52266...` reports Vercel failure plus Netlify success/CodeRabbit success and no completed Phase-F evidence. Production alias still serves `7edc3cc...`.
+- EXTERNAL / DEVICE → Vercel free-plan build-rate limit remains external; local user device is unavailable and was not required for these source/database/documentation tasks. No production promotion performed.
+- OPEN FRONTS → PR #653 exact-head Phase-F/restore/certification; PR #654 exact-head UI Quality/Route/Browser/Desktop/Final; production exact-SHA identity/promotion; first new runtime restore dependency only after fresh Phase-F.
+- CURRENT RESUME POINTER → `main d99ebb5...` → consume exact-head PR #653 core gates and PR #654 UI gates → repair only first current failure per lane → merge only after required exact evidence.
+- NEXT EXECUTABLE ACTION → continue independent safe UI/core closure while queues run; once a fresh gate fails, consume its exact run and repair only that current defect.
+- DO NOT REPEAT → no stale PASS transfer, no production-SHA bypass, no preview-as-production, no duplicate RPC/runner/import path, no blind migration replay, no blanket SECURITY DEFINER or unused-index cleanup.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-142
 
 - MAIN HEAD OBSERVED BEFORE THIS WRITE → `d99ebb5ebe4f5891cb5e6126c4f2dcfc094b0368`.
