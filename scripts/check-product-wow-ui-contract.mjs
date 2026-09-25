@@ -215,6 +215,16 @@ assert.ok(proposalDemo.includes('proposal-demo-client'), 'proposal demo client f
 assert.ok(proposalDemo.includes('proposal-demo-requirements'), 'proposal demo requirements field must remain addressable');
 assert.ok(proposalDemo.includes('min-h-11'), 'proposal demo primary controls must meet touch-target sizing');
 
+const externalFileAnalysis = fs.readFileSync('src/pages/ExternalFileAnalysisPage.tsx', 'utf8');
+assert.ok(externalFileAnalysis.includes('aria-label="إسقاط ملف أو اختيار ملف للتحليل"'), 'external file analysis dropzone must be keyboard-addressable');
+assert.ok(externalFileAnalysis.includes("event.key === 'Enter' || event.key === ' '"), 'external file analysis dropzone must support keyboard activation');
+assert.ok(externalFileAnalysis.includes('onDrop={event =>'), 'external file analysis must support real file drop');
+assert.ok(externalFileAnalysis.includes('role="alert" aria-live="assertive"'), 'external file analysis errors must be announced');
+assert.ok(externalFileAnalysis.includes('إعادة التحليل'), 'external file analysis errors must expose explicit recovery');
+assert.ok(externalFileAnalysis.includes('to="/trust"'), 'external file analysis must expose a trust/evidence path');
+assert.ok(externalFileAnalysis.includes('to="/import"'), 'external file analysis must expose the canonical import path');
+assert.ok(externalFileAnalysis.includes('دليل محلي + بصمة المصدر'), 'external file analysis must disclose its evidence boundary');
+
 const metricInspector = fs.readFileSync('src/pages/MetricInspectorPage.tsx', 'utf8');
 assert.ok(metricInspector.includes('const filteredItems = useMemo'), 'metric inspector must derive a filtered semantic list without mutating the source contract');
 assert.ok(metricInspector.includes('aria-label="البحث في المؤشرات"'), 'metric inspector search must be accessible');
