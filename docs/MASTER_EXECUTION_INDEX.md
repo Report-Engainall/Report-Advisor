@@ -575,3 +575,12 @@
 - Added/registered dashboard snapshot contract and enforced it in Quality workflow.
 - Evidence boundary unchanged: no browser/device certification, no production/Phase-F PASS, and external Vercel rate-limit remains a deployment-capacity blocker.
 - Resume: wait for exact-head terminal workflow evidence, repair only first reproduced failure, then continue next independent UI/core surface.
+
+
+## Session 153 checkpoint
+
+- Head before checkpoint write: `459f6d9e58236466247882cac1cff861e903a3ba`
+- Closed deeper Inventory Intelligence UI search/trust access and hardened its canonical source adapter with fail-closed row validation.
+- Quality workflow now enforces the inventory-intelligence contract in addition to deep-truth/dashboard/import/profitability/receivables contracts.
+- Browser/device, production, and Phase-F evidence remain unproven.
+- Resume: exact-head terminal Actions first failure only; otherwise continue the next independent uncovered UI/core surface.
