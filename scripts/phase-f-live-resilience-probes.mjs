@@ -219,7 +219,7 @@ async function logicalBackupRestore() {
     const snapshotAt = Date.parse(snapshotText);
     if (!Number.isFinite(snapshotAt)) throw new Error('source_snapshot_timestamp_invalid');
 
-    const generatedCountSql = runDockerPsql(source, countSql);
+    const generatedCountSql = runDockerPsql(runnerSource, countSql);
     const sourceCounts = parseTableCounts(runDockerPsql(runnerSource, generatedCountSql));
 
     const backupStartedAt = Date.now();
