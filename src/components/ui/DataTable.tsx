@@ -36,7 +36,7 @@ export function DataTable<T extends object>({ columns, data, loading, emptyMessa
 
   return (
     <div className="ag-data-table data-table-shell overflow-auto rounded-[12px]" role="region" aria-label="جدول البيانات">
-      <table className="w-full min-w-[760px] border-separate border-spacing-0" aria-rowcount={visibleRows.length + 1} aria-colcount={columns.length} aria-busy={loading === true}>
+      <table className="w-full min-w-[760px] border-separate border-spacing-0" aria-rowcount={data.length + 1} aria-colcount={columns.length} aria-busy={loading === true}>
         <thead>
           <tr>
             {columns.map(col => <th key={col.key} scope="col" className={'sticky top-0 z-10 border-b border-ink-200 bg-ink-50/95 px-4 py-2.5 text-[10px] font-black tracking-wide text-ink-500 backdrop-blur ' + (col.align === 'center' ? 'text-center' : col.align === 'left' ? 'text-left' : 'text-right')} style={{ width: col.width }}>{col.label}</th>)}
@@ -45,7 +45,7 @@ export function DataTable<T extends object>({ columns, data, loading, emptyMessa
         <tbody>
           {visibleRows.map((row, index) => {
             const record = row as Record<string, unknown>;
-            return <tr key={typeof record.id === 'string' || typeof record.id === 'number' ? String(record.id) : index} aria-rowindex={index + 2} onClick={() => onRowClick?.(row)} onKeyDown={onRowClick ? (event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); onRowClick(row); } } : undefined} tabIndex={onRowClick ? 0 : undefined} className={'group border-b border-ink-100/90 bg-white transition-colors last:border-b-0 ' + (onRowClick ? 'cursor-pointer hover:bg-primary-50/45 focus-within:bg-primary-50/45' : 'hover:bg-ink-50/55')}>
+            return <tr key={typeof record.id === 'string' || typeof record.id === 'number' ? String(record.id) : index} aria-rowindex={(effectivePageSize ? page * effectivePageSize : 0) + index + 2} onClick={() => onRowClick?.(row)} onKeyDown={onRowClick ? (event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); onRowClick(row); } } : undefined} tabIndex={onRowClick ? 0 : undefined} className={'group border-b border-ink-100/90 bg-white transition-colors last:border-b-0 ' + (onRowClick ? 'cursor-pointer hover:bg-primary-50/45 focus-within:bg-primary-50/45' : 'hover:bg-ink-50/55')}>
               {columns.map(col => <td key={col.key} className={'border-b border-ink-100/80 px-4 py-3 text-xs font-medium text-ink-700 group-last:border-b-0 ' + (col.align === 'center' ? 'text-center' : col.align === 'left' ? 'text-left' : 'text-right') + ' ' + (col.className ?? '')}>{col.render ? col.render(row) : record[col.key] as ReactNode}</td>)}
             </tr>;
           })}
