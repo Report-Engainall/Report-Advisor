@@ -1,3 +1,14 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-25 / CONTINUOUS EXECUTION CHECKPOINT 159
+
+- HEAD OBSERVED BEFORE THIS INDEX WRITE: 1c681d6bd12e173591ea6ebb8c78bbc5e3260eb2.
+- CORE: sales/purchase invoice report reads now fail closed on missing or malformed rows and enforce tenant-aware identity/date/status/numeric invariants.
+- QUALITY: invoice read contract is registered and enforced by Quality.
+- CURRENT EVIDENCE: current-head workflows are still non-terminal; no application PASS transferred. Vercel capacity remains external.
+- NOT PROVEN: current-head Quality/Certification/Browser/Phase-F/production/device certification.
+- NEXT: first terminal exact-head failure only, then continue non-overlapping work.
+- RESUME POINTER: main c985deeb… → PR #659 → 1c681d6b… → first terminal failure only → exact green merge evidence.
+
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-25 / CONTINUOUS EXECUTION CHECKPOINT 158
 
 - CODE HEAD OBSERVED BEFORE THIS INDEX WRITE: cbbaced02eb9e093750192f5279021aa2361124d.
