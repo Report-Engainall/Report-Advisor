@@ -1,19 +1,17 @@
-# CURRENT CONTROL-PLANE BOUNDARY — 2026-09-25 / CURRENT EXACT CODE HEAD 0812
+# CURRENT CONTROL-PLANE BOUNDARY — 2026-09-25 / CURRENT EXACT CODE HEAD FE7F
 
-- MAIN HEAD OBSERVED BEFORE THIS WRITE: `7159553fcfc9d21304ffff60e1086a34b714ac09`.
-- CURRENT CODE/TEST CANDIDATE: `08124d25c9ee239941214cd80e670373e90f10f6` on PR #628.
-- GOVERNANCE STATE: resilience/session-pooler, profiles/cart/helper lineage, cash-account lineage, and the 50/50 UI/core control are intact.
-- DONE — CORE: `20260925033521_reconcile_live_cart_schema.sql` owns `profiles` → customer helpers → carts/cart_items → `current_company_id()` → `cash_accounts`.
-- LIVE DB RECONCILIATION: Supabase staging contains migration version `20260925033521`; `cash_accounts` and `current_company_id()` were reconciled directly to live schema because this migration remains pre-production.
-- EXACT PRIOR EVIDENCE: d5a254ed exact-head Final Certification, Quality, Browser, Enforcement, production-chain, and evidence-boundary all SUCCESS.
-- EXACT FAILURE DRIVING 0812: Phase-F `36092364228` on d5a254ed passed tenant canary, then logical restore failed on missing `public.cash_accounts`; production health reported old SHA `7be9f014...`; rollback-forward HTTP 503.
-- EXACT GOVERNANCE FAILURE ON 0812: Enforcement `36092827841` stopped because the index still referenced `1c48b7eb...`; this was stale governance binding, not a runtime failure.
-- VERCEL: production remains SHA `7be9f014...`; exact preview for 0812 must be verified independently.
-- PHASE-F: no PASS exists for 0812 until fresh restore completes.
-- NEXT EXECUTABLE ACTION: fresh exact-head certification → fresh Phase-F → first new live failure only → exact production alignment → measured RPO/RTO/rollback → release closeout.
-- DO NOT REPEAT: countSql, carts/cart_items, helper search_path, profiles, cash_accounts, stale bindings, historical PASS transfer, production-SHA bypass, speculative UI rewrites.
-- UI LANE: 40 application routes / 38 canonical navigation links; Executive, Connections, Decision, Document, Inventory and Product-WOW contracts green.
-- CURRENT RESUME POINTER: `08124d25... governance rebind → fresh exact-head gates → fresh Phase-F → first new live failure → production alignment → measured recovery → release closeout`.
+- MAIN HEAD OBSERVED BEFORE THIS WRITE: `2efe492280bb0b58e601263e24b4569ff202f2ca`.
+- CURRENT CODE/TEST CANDIDATE: `fe7f5d86a645bd21bf1285b67eaa23eacc62eae8` on PR #628.
+- DONE — CORE: the canonical reconciliation migration now evolves `company_memberships.is_default` with its live indexes before `current_company_id()`, eliminating the tenant-security lineage contract failure.
+- LIVE STAGING RECONCILIATION: `is_default` and the three live company-membership indexes are present on Supabase staging.
+- EXACT 2EFE RESULTS: Browser `36092927868` SUCCESS; Enforcement `36092928082` SUCCESS; evidence-boundary `36092928012` SUCCESS; production-chain `36092927924` SUCCESS; Final Certification `36092928002` FAIL; Quality `36092927892` FAIL; Phase-F `36092928004` FAIL.
+- EXACT FINAL CERT FAILURE: tenant-security contract flagged `20260925033521_reconcile_live_cart_schema.sql` as latest `current_company_id()` resolver without `ALTER TABLE company_memberships`. This head fixes that exact invariant.
+- EXACT PRIOR PHASE-F FAILURE: `36092364228` on `d5a254ed...` reached live restore and failed on missing `public.cash_accounts`; that schema lineage is already closed in this migration.
+- PHASE-F: fresh proof on `fe7f5d86...` is still required. Production alias remains SHA `7be9f014...`; RPO/RTO/rollback/release are NOT PROVEN.
+- NEXT EXECUTABLE ACTION: consume fresh exact-head gates on the new governance head → fresh Phase-F → first new live failure only → exact production alignment → measured recovery → release closeout.
+- DO NOT REPEAT: countSql, carts/cart_items, helper search_path, profiles, cash_accounts, company_memberships tenant-lineage, stale bindings, historical evidence transfer, production-SHA bypass, speculative UI rewrites.
+- UI LANE: 40 application routes / 38 canonical navigation links; Executive, Connections, Decision, Document, Inventory and Product-WOW remain green.
+- CURRENT RESUME POINTER: `fe7f5d86... governance rebind → fresh exact-head gates → fresh Phase-F → first new live failure → production alignment → measured recovery → release closeout`.
 
 
 - MAIN HEAD OBSERVED BEFORE THIS WRITE: `7159553fcfc9d21304ffff60e1086a34b714ac09`.

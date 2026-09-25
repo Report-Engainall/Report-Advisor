@@ -1,17 +1,16 @@
-## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-132
+## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-133
 
-- SESSION-ID: 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-132.
-- MAIN HEAD OBSERVED BEFORE THIS WRITE: `7159553fcfc9d21304ffff60e1086a34b714ac09`.
-- CURRENT CODE/TEST CANDIDATE BEFORE GOVERNANCE WRITE: `08124d25c9ee239941214cd80e670373e90f10f6` on PR #628.
-- DONE — CORE: reconciled live `cash_accounts` and `current_company_id()` into migration `20260925033521_reconcile_live_cart_schema.sql`.
-- EXACT LIVE FAILURE: Phase-F `36092364228` on d5a254ed reached live restore, passed tenant canary, then failed on missing `public.cash_accounts`; production SHA remained `7be9f014...`; rollback-forward HTTP 503.
-- STAGING: cash_accounts and current_company_id were reconciled with live constraints, indexes, RLS, policy and grants.
-- EXACT GOVERNANCE FAILURE: Enforcement `36092827841` on 0812 failed only because the execution index still pointed at `1c48b7eb...`.
-- UI: 40 application routes / 38 canonical navigation links; Executive, Connections, Decision, Document, Inventory and Product-WOW gates remain green.
-- NOT PROVEN: fresh certification on the rebind head, fresh Phase-F after cash-account lineage, exact production identity, measured RPO/RTO, rollback.
-- DO NOT REPEAT: prior schema drift fixes, stale index binding, historical evidence transfer, production-SHA bypass, speculative UI work.
-- CURRENT PRECISE STOP POINT: governance rebind → fresh exact-head gates → fresh Phase-F → first new live failure → production alignment → measured recovery.
-- CURRENT RESUME POINTER: `fresh exact-head certification → fresh Phase-F → exact production identity → measured RPO/RTO/rollback → release closeout`.
+- SESSION-ID: 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-133.
+- MAIN HEAD OBSERVED BEFORE THIS WRITE: `2efe492280bb0b58e601263e24b4569ff202f2ca`.
+- CURRENT CODE/TEST CANDIDATE BEFORE GOVERNANCE WRITE: `fe7f5d86a645bd21bf1285b67eaa23eacc62eae8`.
+- DONE — CORE: added `ALTER TABLE company_memberships ADD COLUMN IF NOT EXISTS is_default` plus the live default-membership indexes to the canonical reconciliation migration.
+- STAGING: the same column/indexes were applied successfully to Supabase staging.
+- EXACT FAILURE FIXED: Final Certification `36092924556` / `36092928002` tenant-security failed because the latest `current_company_id()` migration did not evolve `company_memberships`.
+- EXACT 2EFE RESULT: Browser/Enforcement/evidence-boundary/production-chain passed; Quality and Phase-F failed. No historical pass transferred.
+- UI LANE: 40 routes / 38 canonical nav links; current UI contract set remains green.
+- NOT PROVEN: fresh certification on the current code head, fresh Phase-F restore, production exact identity, RPO/RTO, rollback.
+- CURRENT PRECISE STOP POINT: governance rebind to `fe7f5d86...` → fresh exact-head gates → fresh Phase-F → first new live failure only → production alignment → measured recovery.
+- CURRENT RESUME POINTER: `fe7f5d86... governance rebind → fresh exact-head gates → fresh Phase-F → exact production identity → measured RPO/RTO/rollback → release closeout`.
 
 
 - SESSION-ID: 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-130.
