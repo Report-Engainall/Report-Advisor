@@ -9,6 +9,7 @@ const contract = read('scripts/check-production-certification-contract.mjs');
 const index = read('docs/MASTER_EXECUTION_INDEX.md');
 const phaseFProbe = read('scripts/phase-f-live-resilience-probes.mjs');
 const cartsParityMigration = read('supabase/migrations/20260925200000_restore_carts_schema_parity.sql');
+const cashAccountsParityMigration = read('supabase/migrations/20260925185000_restore_cash_accounts_schema_parity.sql');
 
 
 
@@ -41,6 +42,26 @@ for (const token of [
 }
 
 const profilesParityUpper = stripSqlComments(cartsParityMigration).toUpperCase();
+const cashAccountsParityUpper = stripSqlComments(cashAccountsParityMigration).toUpperCase();
+for (const token of [
+  'CREATE TABLE IF NOT EXISTS PUBLIC.CASH_ACCOUNTS',
+  'COMPANY_ID UUID NOT NULL',
+  'BRANCH_ID UUID NOT NULL',
+  'CURRENT_BALANCE NUMERIC GENERATED ALWAYS AS ((OPENING_BALANCE + RECEIVED) - SPENT) STORED',
+  'CASH_ACCOUNTS_COMPANY_ID_FKEY',
+  'CASH_ACCOUNTS_BRANCH_COMPANY_FKEY',
+  'CASH_ACCOUNTS_CURRENCY_FORMAT',
+  'CASH_ACCOUNTS_NONNEGATIVE',
+  'IDX_CASH_ACCOUNTS_COMPANY_BRANCH',
+  'ENABLE ROW LEVEL SECURITY',
+  'CASH_ACCOUNTS_TENANT_SELECT',
+  'COMPANY_ID = CURRENT_COMPANY_ID()',
+  'GRANT SELECT ON TABLE PUBLIC.CASH_ACCOUNTS TO AUTHENTICATED',
+  'GRANT ALL ON TABLE PUBLIC.CASH_ACCOUNTS TO SERVICE_ROLE',
+]) {
+  if (!cashAccountsParityUpper.includes(token)) throw new Error(`Missing cash_accounts schema restore-parity invariant: ${token}`);
+}
+
 for (const token of [
   'CREATE TABLE IF NOT EXISTS PUBLIC.PROFILES',
   'ORGANIZATION_ID UUID NOT NULL',
