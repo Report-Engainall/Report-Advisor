@@ -428,3 +428,19 @@ create policy ui_settings_customer_select
 revoke all on table public.client_ui_settings from anon;
 grant select, insert, update on table public.client_ui_settings to authenticated;
 grant all on table public.client_ui_settings to service_role;
+
+ 
+do $$
+begin
+  if exists (select 1 from pg_publication where pubname = 'supabase_realtime')
+     and not exists (
+       select 1
+       from pg_publication_tables
+       where pubname = 'supabase_realtime'
+         and schemaname = 'public'
+         and tablename = 'client_ui_settings'
+     ) then
+    alter publication supabase_realtime add table public.client_ui_settings;
+  end if;
+end
+$$;
