@@ -1,4 +1,19 @@
-## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-127
+## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-128
+
+- SESSION-ID: 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-128.
+- MAIN HEAD OBSERVED BEFORE THIS WRITE: `7159553fcfc9d21304ffff60e1086a34b714ac09`.
+- CURRENT CODE/TEST CANDIDATE: `50de7ce899d6b8fb048a39fa90d2e334dddd2a43` on PR #628.
+- DONE — CORE: made the cart schema migration self-contained by adding the live `current_customer_id()` and `current_customer_company_id()` SECURITY DEFINER helpers before cart RLS policies, with `search_path=''` and exact authenticated/service-role execute grants.
+- EXACT LIVE FAILURE THAT DROVE THIS FIX: `36091056861` on `280c10dd...` failed 1/4 after the restore reached the new cart migration; the first new failure was `current_customer_id() does not exist`. Production health remained SHA-mismatched and rollback-forward remained blocked.
+- LIVE STAGING RECONCILIATION: helper definitions were applied directly to Supabase staging to match the inspected live functions; the migration version remains `20260925033521`.
+- VERIFIED PRE-CANDIDATE LOCAL: migration schema audit PASS (255/113/125/121/11, zero findings); Phase-F runtime closure PASS; operational resilience/evidence integrity PASS; Product-WOW UI PASS.
+- UI LANE: 40 application routes / 38 canonical navigation links; Executive, Connections, Decision, Document and Inventory intelligence contracts remain green.
+- NOT PROVEN: fresh certification on `50de7ce...`, fresh Phase-F after helper-lineage repair, exact production identity, measured backup/restore, RPO/RTO, rollback.
+- DO NOT REPEAT: old countSql defect, cart table/helper drift, stale bindings, unchanged Phase-F runs, historical PASS transfer, production-SHA bypass.
+- CURRENT PRECISE STOP POINT: `50de7ce...` exact-head gates → fresh Phase-F → repair only first new live failure → exact production alignment → measured recovery.
+- CURRENT RESUME POINTER: `50de7ce... exact-head certification → fresh Phase-F → exact production alignment → measured recovery → release closeout`.
+
+
 
 - SESSION-ID: 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-127.
 - MAIN HEAD OBSERVED BEFORE THIS WRITE: `7159553fcfc9d21304ffff60e1086a34b714ac09`.
