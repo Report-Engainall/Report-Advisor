@@ -30,7 +30,8 @@ begin
   into v_count, v_company_id
   from company_memberships cm
   where cm.user_id = auth.uid()
-    and cm.is_active = true;
+    and cm.is_active = true
+    and cm.is_default = true;
 
   if v_count = 1 then
     return v_company_id;
