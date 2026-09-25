@@ -84,6 +84,40 @@ export async function managementRequest(path, options = {}) {
   });
 }
 
+export function buildSupabaseSessionPoolerUrl(explicitSource, projectRef, poolerHost = "aws-0-ap-southeast-2.pooler.supabase.com") {
+  if (!explicitSource?.trim() || !projectRef?.trim()) return null;
+  let source;
+  try {
+    source = new URL(explicitSource.trim());
+  } catch {
+    return null;
+  }
+  if (source.protocol !== "postgresql:" && source.protocol !== "postgres:") return null;
+  if (!new RegExp("^db\\." + projectRef.replace(/[.*+?^${}()|[\\]\\]/g, "\\export async function managementRequest(path, options = {}) {
+  const token = process.env.SUPABASE_MANAGEMENT_TOKEN?.trim();
+  if (!token) throw new Error('missing_supabase_management_token');
+  return fetch(`https://api.supabase.com/v1${path}`, {
+    ...options,
+    headers: {
+      Authorization: `Bearer ${token}`,
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+      ...(options.headers || {}),
+    },
+  });
+}
+
+") + "\\.supabase\\.co$", "i").test(source.hostname)) return null;
+  if (!source.password) return null;
+  if (!/^[a-z0-9-]+\\.pooler\\.supabase\\.com$/i.test(poolerHost)) throw new Error("invalid_supabase_pooler_host");
+  source.hostname = poolerHost;
+  source.port = "5432";
+  source.username = "postgres." + projectRef;
+  source.pathname = "/postgres";
+  source.searchParams.set("sslmode", "require");
+  return source.toString();
+}
+
 function ipv4ToInt(value) {
   const parts = value.split('.').map(Number);
   if (parts.length !== 4 || parts.some((part) => !Number.isInteger(part) || part < 0 || part > 255)) return null;
