@@ -1,16 +1,15 @@
-# CURRENT CONTROL-PLANE BOUNDARY — 2026-09-25 / PHASE-F RESTORE CANDIDATE
+# CURRENT EXECUTION BOUNDARY — 2026-09-25 / PHASE-F RESTORE CANDIDATE
 
 - MAIN HEAD OBSERVED BEFORE THIS GOVERNANCE REBIND: `9c4e5f03a53ae211d5ed00077c2fd43a339a7db2`.
-- CURRENT CODE/TEST CANDIDATE: `10c2d29312e535b40e0fb06da4903ad08d8f2c79`.
-- CURRENT GOVERNANCE HEAD: `10c2d29312e535b40e0fb06da4903ad08d8f2c79`.
+- CURRENT CODE/TEST CANDIDATE: `a3686dfb96965da9a0f134eb310cacb962c7ccff`.
+- CURRENT GOVERNANCE HEAD: `a3686dfb96965da9a0f134eb310cacb962c7ccff`.
 - DONE: Phase-F restore chain fixed through the generic tenant-reference helper, dashboard UUID→text fallback, import progress RPC default preservation, watched provenance composite-uniqueness prerequisite, and exact-head certification guard normalization.
-- EXACT PHASE-F HEAD: run `36096688868` is executing against the exact current candidate.
-- CURRENT CERTIFICATION GATE: enforcement drift has been traced to historical index blocks; this top boundary is now bound to the exact current head.
+- EXACT PHASE-F HEAD: run `36096839948` is bound to this exact candidate.
+- CERTIFICATION STATE: index is now explicitly bound to the current execution head; no historical PASS is transferred.
 - NEXT: consume Phase-F live restore result, then current-head Final Certification/Enforcement/Browser evidence.
 - DO NOT REPEAT: no stale candidate transfer, no SHA bypass, no production bypass.
 
 ---
-
 
 # CURRENT CONTROL-PLANE BOUNDARY — 2026-09-25 / EXACT CANDIDATE DDD
 
