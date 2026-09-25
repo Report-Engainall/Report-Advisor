@@ -1,10 +1,10 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ArrowUpLeft, BrainCircuit, Database, Send, ShieldAlert } from 'lucide-react';
 import { fetchDashboardSnapshot, type DashboardKPIs } from '@/lib/dashboard-canonical';
 import { formatCurrency } from '@/lib/format';
 import { Link } from 'react-router-dom';
 
-type AssistantMode = 'READY' | 'INSUFFICIENT_DATA' | 'ERROR';
+type AssistantMode = 'LOADING' | 'READY' | 'INSUFFICIENT_DATA' | 'ERROR';
 
 interface DeterministicIntelligenceAssistantProps {
   recommendationsCount: number;
@@ -51,27 +51,34 @@ export function DeterministicIntelligenceAssistant({
 }: DeterministicIntelligenceAssistantProps) {
   const [kpis, setKpis] = useState<DashboardKPIs | null>(null);
   const [snapshotAsOf, setSnapshotAsOf] = useState<string | null>(null);
-  const [mode, setMode] = useState<AssistantMode>('READY');
+  const [mode, setMode] = useState<AssistantMode>('LOADING');
+  const [refreshing, setRefreshing] = useState(false);
   const [query, setQuery] = useState('');
   const [answer, setAnswer] = useState('جارٍ تحميل سياق المؤشرات…');
 
-  useEffect(() => {
-    let active = true;
-    fetchDashboardSnapshot(6).then(snapshot => {
-      if (!active) return;
+  const loadContext = useCallback(async () => {
+    setRefreshing(true);
+    setMode('LOADING');
+    try {
+      const snapshot = await fetchDashboardSnapshot(6);
       setKpis(snapshot.kpis);
       setSnapshotAsOf(snapshot.asOf ?? null);
       setMode(snapshot.kpis.status === 'INSUFFICIENT_DATA' ? 'INSUFFICIENT_DATA' : 'READY');
       setAnswer(snapshot.kpis.status === 'INSUFFICIENT_DATA'
         ? 'بعض المؤشرات غير مكتملة؛ سيظل المساعد ملتزمًا بعدم اختلاق قيم.'
         : 'السياق جاهز. اسأل عن المبيعات أو الربح أو الذمم أو المخزون أو التوصيات أو التنبيهات أو التنبؤات.');
-    }).catch(() => {
-      if (!active) return;
+    } catch {
+      setKpis(null);
       setMode('ERROR');
       setAnswer('تعذر تحميل سياق المؤشرات. لا توجد إجابة موثوقة حتى تعود اللقطة الكانونية.');
-    });
-    return () => { active = false; };
+    } finally {
+      setRefreshing(false);
+    }
   }, []);
+
+  useEffect(() => {
+    void loadContext();
+  }, [loadContext]);
 
   const suggested = useMemo(() => ['ما وضع المبيعات؟', 'ما وضع الذمم والتحصيل؟', 'ما وضع الربحية؟', 'ما عدد التوصيات والتنبيهات؟'], []);
 
@@ -109,9 +116,13 @@ export function DeterministicIntelligenceAssistant({
             </div>
           </div>
         </div>
-        <div className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold ${mode === 'READY' ? 'bg-success-50 text-success-700' : 'bg-warning-50 text-warning-700'}`}>
+        <div className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold ${
+          mode === 'READY' ? 'bg-success-50 text-success-700' :
+          mode === 'LOADING' ? 'bg-primary-50 text-primary-700' :
+          'bg-warning-50 text-warning-700'
+        }`} role="status" aria-live="polite" aria-busy={mode === 'LOADING'}>
           {mode === 'READY' ? <Database size={12}/> : <ShieldAlert size={12}/>}
-          {mode === 'READY' ? 'السياق جاهز' : mode === 'INSUFFICIENT_DATA' ? 'بيانات غير مكتملة' : 'السياق غير متاح'}
+          {mode === 'READY' ? 'السياق جاهز' : mode === 'LOADING' ? 'جارٍ تحميل السياق' : mode === 'INSUFFICIENT_DATA' ? 'بيانات غير مكتملة' : 'السياق غير متاح'}
         </div>
       </div>
 
@@ -126,11 +137,18 @@ export function DeterministicIntelligenceAssistant({
           className="input"
           placeholder="اكتب سؤالًا عن المؤشرات الحالية..."
           aria-label="سؤال للمساعد الذكي السياقي"
+          aria-describedby="ag-assistant-answer"
+          disabled={!kpis || mode === 'LOADING'}
         />
-        <button type="submit" disabled={!kpis} className="btn-primary shrink-0"><Send size={15}/> اسأل</button>
+        <button type="submit" disabled={!kpis || mode === 'LOADING' || mode === 'ERROR'} className="btn-primary shrink-0"><Send size={15}/> اسأل</button>
+        {(mode === 'ERROR' || mode === 'INSUFFICIENT_DATA') && (
+          <button type="button" onClick={() => void loadContext()} disabled={refreshing} className="btn-secondary shrink-0" aria-label="إعادة تحميل سياق المؤشرات">
+            {refreshing ? 'جارٍ التحديث…' : 'تحديث السياق'}
+          </button>
+        )}
       </form>
 
-      <div className="mt-4 rounded-2xl border border-ink-100 bg-ink-50 p-4 text-sm leading-7 text-ink-700" role="status" aria-live="polite">
+      <div id="ag-assistant-answer" className="mt-4 rounded-2xl border border-ink-100 bg-ink-50 p-4 text-sm leading-7 text-ink-700" role="status" aria-live="polite">
         <div>{answer}</div>
         {answerTarget && (
           <Link to={answerTarget.path} className="mt-3 inline-flex items-center gap-2 rounded-xl bg-white px-3 py-2 text-xs font-black text-primary-800 ring-1 ring-inset ring-ink-200 hover:border-primary-200 hover:bg-primary-50">

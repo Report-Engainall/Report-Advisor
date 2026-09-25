@@ -130,7 +130,7 @@ export function CompanySettingsPage() {
 
             <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
               {PRESET_OPTIONS.map(option => (
-                <button key={option.id} type="button" onClick={() => setPreset(option.id)} className={'rounded-2xl border p-4 text-right transition ' + (preferences.preset === option.id ? 'border-primary-500 bg-primary-50' : 'border-ink-100 bg-white hover:border-primary-200 hover:bg-primary-50/40')}>
+                <button key={option.id} type="button" onClick={() => setPreset(option.id)} aria-pressed={preferences.preset === option.id} className={'rounded-2xl border p-4 text-right transition ' + (preferences.preset === option.id ? 'border-primary-500 bg-primary-50' : 'border-ink-100 bg-white hover:border-primary-200 hover:bg-primary-50/40')}>
                   <div className="flex items-center justify-between gap-2">
                     <span className="font-bold text-ink-900">{option.label}</span>
                     {preferences.preset === option.id && <Check size={17} className="text-primary-600" />}
@@ -151,7 +151,7 @@ export function CompanySettingsPage() {
                 ['advanced', 'متقدمة', 'تضيف التحليلات والربحية والطلب والقرار.'],
                 ['expert', 'خبيرة', 'تُظهر كامل المساحة المتخصصة.'],
               ] as Array<[WorkspaceMode, string, string]>).map(([mode, label, hint]) => (
-                <button key={mode} type="button" onClick={() => setMode(mode)} className={'rounded-2xl border p-4 text-right ' + (preferences.mode === mode ? 'border-primary-500 bg-primary-50' : 'border-ink-100 bg-white hover:bg-ink-50')}>
+                <button key={mode} type="button" onClick={() => setMode(mode)} aria-pressed={preferences.mode === mode} className={'rounded-2xl border p-4 text-right ' + (preferences.mode === mode ? 'border-primary-500 bg-primary-50' : 'border-ink-100 bg-white hover:bg-ink-50')}>
                   <div className="flex items-center justify-between gap-2">
                     <span className="font-bold text-ink-900">{label}</span>
                     {preferences.mode === mode && <Check size={17} className="text-primary-600" />}
@@ -164,7 +164,7 @@ export function CompanySettingsPage() {
             <div className="mt-5 grid gap-4 xl:grid-cols-2">
               <div className="rounded-2xl border border-ink-100 bg-white p-4">
                 <div className="text-sm font-bold text-ink-900">الصفحة الافتراضية بعد تسجيل الدخول</div>
-                <select value={preferences.defaultLandingPath} onChange={event => commit({ defaultLandingPath: event.target.value })} className="mt-3 w-full rounded-xl border border-ink-200 bg-white px-3 py-2.5 text-sm text-ink-800">
+                <select aria-label="الصفحة الافتراضية بعد تسجيل الدخول" value={preferences.defaultLandingPath} onChange={event => commit({ defaultLandingPath: event.target.value })} className="mt-3 min-h-11 w-full rounded-xl border border-ink-200 bg-white px-3 py-2.5 text-sm text-ink-800">
                   {WORKSPACE_ROUTE_OPTIONS.map(option => <option key={option.path} value={option.path}>{option.label}</option>)}
                 </select>
               </div>
@@ -231,8 +231,8 @@ export function CompanySettingsPage() {
                   <div className="min-w-0 flex-1 text-sm font-bold text-ink-800">
                     {NAVIGATION_SECTIONS.find(section => section.id === sectionId)?.title ?? sectionId}
                   </div>
-                  <button type="button" disabled={index === 0} onClick={() => moveSection(sectionId, -1)} className="rounded-lg border border-ink-200 bg-white p-2 text-ink-500 disabled:opacity-30" aria-label="تحريك لأعلى"><ArrowUp size={14}/></button>
-                  <button type="button" disabled={index === preferences.sectionOrder.length - 1} onClick={() => moveSection(sectionId, 1)} className="rounded-lg border border-ink-200 bg-white p-2 text-ink-500 disabled:opacity-30" aria-label="تحريك لأسفل"><ArrowDown size={14}/></button>
+                  <button type="button" disabled={index === 0} onClick={() => moveSection(sectionId, -1)} className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg border border-ink-200 bg-white p-2 text-ink-500 disabled:opacity-30" aria-label={'تحريك ' + (NAVIGATION_SECTIONS.find(section => section.id === sectionId)?.title ?? sectionId) + ' لأعلى'}><ArrowUp size={14}/></button>
+                  <button type="button" disabled={index === preferences.sectionOrder.length - 1} onClick={() => moveSection(sectionId, 1)} className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg border border-ink-200 bg-white p-2 text-ink-500 disabled:opacity-30" aria-label={'تحريك ' + (NAVIGATION_SECTIONS.find(section => section.id === sectionId)?.title ?? sectionId) + ' لأسفل'}><ArrowDown size={14}/></button>
                 </div>
               ))}
             </div>

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Bell, CheckCircle2, Command, Menu, Search, Upload, WifiOff, AlertTriangle, ChevronLeft } from 'lucide-react';
+import { Bell, CheckCircle2, Command, Menu, Search, Upload, WifiOff, AlertTriangle, ChevronLeft, X } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { LanguageToggle } from './LanguageToggle';
 import { useLanguage } from '@/lib/language';
@@ -25,6 +25,8 @@ export function Header({
   const { language } = useLanguage();
   const [showAlerts, setShowAlerts] = useState(false);
   const alertTriggerRef = useRef<HTMLButtonElement>(null);
+  const alertPanelRef = useRef<HTMLDivElement>(null);
+  const alertRestoreFocusRef = useRef<HTMLElement | null>(null);
   const [health, setHealth] = useState<HealthState>('checking');
   const location = useLocation();
   const unreadAlerts = alerts.filter((alert) => !alert.is_read);
@@ -38,14 +40,40 @@ export function Header({
 
   useEffect(() => {
     if (!showAlerts) return;
+    alertRestoreFocusRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
+        event.preventDefault();
         setShowAlerts(false);
-        alertTriggerRef.current?.focus();
+        return;
+      }
+      if (event.key !== 'Tab') return;
+      const root = alertPanelRef.current;
+      if (!root) return;
+      const focusable = Array.from(root.querySelectorAll<HTMLElement>(
+        'button:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])',
+      ));
+      if (focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
       }
     };
     window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    requestAnimationFrame(() => alertPanelRef.current?.querySelector<HTMLElement>('button[aria-label="إغلاق التنبيهات"]')?.focus({ preventScroll: true }));
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener('keydown', handleKeyDown);
+      const restoreTarget = alertRestoreFocusRef.current;
+      if (restoreTarget?.isConnected) requestAnimationFrame(() => restoreTarget.focus({ preventScroll: true }));
+    };
   }, [showAlerts]);
 
   useEffect(() => {
@@ -150,10 +178,20 @@ export function Header({
             {showAlerts && (
               <>
                 <div className="fixed inset-0 z-40" onClick={() => setShowAlerts(false)} />
-                <div id="ag-alert-panel" role="dialog" aria-label="التنبيهات" className="ag-alert-panel absolute left-0 z-50 mt-1.5 w-80 overflow-hidden rounded-[12px] border border-ink-200 bg-white shadow-elevated">
+                <div ref={alertPanelRef} id="ag-alert-panel" role="dialog" aria-modal="true" aria-label="التنبيهات" className="ag-alert-panel absolute left-0 z-50 mt-1.5 w-80 overflow-hidden rounded-[12px] border border-ink-200 bg-white shadow-elevated">
                   <div className="ag-alert-head flex items-center justify-between border-b border-ink-100 px-4 py-3">
-                    <span className="text-sm font-black text-ink-900">الانتباه</span>
-                    <span className="text-[11px] text-ink-400">{unreadAlerts.length} غير مقروء</span>
+                    <div className="min-w-0">
+                      <span className="block text-sm font-black text-ink-900">الانتباه</span>
+                      <span className="mt-0.5 block text-[10px] text-ink-400">{unreadAlerts.length} غير مقروء</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setShowAlerts(false)}
+                      className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-ink-400 hover:bg-ink-50 hover:text-ink-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-400"
+                      aria-label="إغلاق التنبيهات"
+                    >
+                      <X size={16} aria-hidden="true" />
+                    </button>
                   </div>
 
                   {alerts.length === 0 ? (

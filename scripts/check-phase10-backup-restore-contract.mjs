@@ -9,6 +9,7 @@ const contract = read('scripts/check-production-certification-contract.mjs');
 const index = read('docs/MASTER_EXECUTION_INDEX.md');
 const phaseFProbe = read('scripts/phase-f-live-resilience-probes.mjs');
 const cartsParityMigration = read('supabase/migrations/20260925200000_restore_carts_schema_parity.sql');
+const clientUiSettingsParityMigration = read('supabase/migrations/20260925184000_restore_client_ui_settings_schema_parity.sql');
 
 
 
@@ -58,6 +59,61 @@ for (const token of [
 }
 
 const cartsParityUpper = stripSqlComments(cartsParityMigration).toUpperCase();
+
+for (const token of [
+  'BRANCHES_ID_COMPANY_UNIQUE',
+  'BRANCHES_COMPANY_ID_ID_KEY',
+  'CASH_ACCOUNTS_COMPANY_ID_FKEY',
+  'CASH_ACCOUNTS_BRANCH_COMPANY_FKEY',
+  'CASH_ACCOUNTS_CURRENCY_FORMAT',
+  'CASH_ACCOUNTS_NONNEGATIVE',
+  'IDX_CASH_ACCOUNTS_COMPANY_BRANCH',
+  'CASH_ACCOUNTS_TENANT_SELECT',
+  'GRANT SELECT ON TABLE PUBLIC.CASH_ACCOUNTS TO AUTHENTICATED',
+]) {
+  if (!cartsParityUpper.includes(token)) throw new Error(`Missing branch/cash-account restore-parity invariant: ${token}`);
+}
+
+const clientUiSettingsParityUpper = stripSqlComments(clientUiSettingsParityMigration).toUpperCase();
+for (const token of [
+  'CREATE TABLE IF NOT EXISTS PUBLIC.CLIENT_UI_SETTINGS',
+  'ORGANIZATION_ID UUID NOT NULL',
+  'CONFIG JSONB NOT NULL',
+  'CLIENT_UI_SETTINGS_ORGANIZATION_ID_FKEY',
+  'CLIENT_UI_SETTINGS_ORGANIZATION_ID_KEY',
+  'CLIENT_UI_SETTINGS_CONFIG_SHAPE_CHECK',
+  'SHOWSEARCH',
+  'SHOWCATEGORIES',
+  'SHOWEXCEL',
+  'SHOWQUICKORDER',
+  'SHOWTEMPLATES',
+  'SHOWCREDIT',
+  'SHOWINVENTORY',
+  'SHOWRETAILPRICE',
+  'REQUIREQUANTITYCONFIRMATION',
+  'SHOWTIEREDPRICING',
+  'SHOWSAVINGSCALCULATOR',
+  'SHOWIMAGESEARCH',
+  'SHOWVOICESEARCH',
+  'SHOWPAYMENTMETHODS',
+  'PAYMENTONCREDIT',
+  'PAYMENTCASH',
+  'PAYMENTTRANSFER',
+  'MINORDERVALUE',
+  'MAXORDERVALUE',
+  'MAXTEMPLATES',
+  'ENABLE ROW LEVEL SECURITY',
+  'UI_SETTINGS_CUSTOMER_SELECT',
+  'ORGANIZATION_ID = PUBLIC.CURRENT_CUSTOMER_COMPANY_ID()',
+  'GRANT SELECT, INSERT, UPDATE ON TABLE PUBLIC.CLIENT_UI_SETTINGS TO AUTHENTICATED',
+  'GRANT ALL ON TABLE PUBLIC.CLIENT_UI_SETTINGS TO SERVICE_ROLE',
+  'ALTER PUBLICATION SUPABASE_REALTIME ADD TABLE PUBLIC.CLIENT_UI_SETTINGS',
+  'SUPABASE_REALTIME',
+  'CLIENT_UI_SETTINGS',
+
+]) {
+  if (!clientUiSettingsParityUpper.includes(token)) throw new Error(`Missing client_ui_settings restore-parity invariant: ${token}`);
+}
 for (const token of [
   'CREATE TABLE IF NOT EXISTS PUBLIC.PROFILES',
   'ORGANIZATION_ID UUID NOT NULL',

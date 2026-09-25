@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { AlertTriangle, ArrowUpLeft, Database, ShieldCheck } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Card, CardBody, CardHeader } from '@/components/ui/Card';
@@ -11,31 +11,32 @@ export function ScenarioTruthGuardPage() {
   const [reason, setReason] = useState<string | null>(null);
   const [financials, setFinancials] = useState<{ revenue: number; cost: number; currency: string } | null>(null);
 
-  useEffect(() => {
-    let active = true;
-    void fetchProfitabilitySnapshot()
-      .then(snapshot => {
-        if (!active) return;
-        if (
-          snapshot.status === 'CALCULATED' &&
-          snapshot.revenue !== null &&
-          snapshot.cost !== null &&
-          snapshot.currency !== null
-        ) {
-          setFinancials({ revenue: snapshot.revenue, cost: snapshot.cost, currency: snapshot.currency });
-          setState('ready');
-          return;
-        }
-        setReason(snapshot.reasons.join(', ') || 'FINANCIAL_TRUTH_INSUFFICIENT_DATA');
-        setState('blocked');
-      })
-      .catch(error => {
-        if (!active) return;
-        setReason(error instanceof Error ? error.message : 'FINANCIAL_TRUTH_UNAVAILABLE');
-        setState('blocked');
-      });
-    return () => { active = false; };
+  const load = useCallback(async () => {
+    setState('loading');
+    setReason(null);
+    try {
+      const snapshot = await fetchProfitabilitySnapshot();
+      if (
+        snapshot.status === 'CALCULATED' &&
+        snapshot.revenue !== null &&
+        snapshot.cost !== null &&
+        snapshot.currency !== null
+      ) {
+        setFinancials({ revenue: snapshot.revenue, cost: snapshot.cost, currency: snapshot.currency });
+        setState('ready');
+        return;
+      }
+      setFinancials(null);
+      setReason(snapshot.reasons.join(', ') || 'FINANCIAL_TRUTH_INSUFFICIENT_DATA');
+      setState('blocked');
+    } catch (error) {
+      setFinancials(null);
+      setReason(error instanceof Error ? error.message : 'FINANCIAL_TRUTH_UNAVAILABLE');
+      setState('blocked');
+    }
   }, []);
+
+  useEffect(() => { void load(); }, [load]);
 
   if (state === 'loading') return <LoadingState message="جارٍ التحقق من الحقيقة المالية قبل تشغيل المحاكاة..." />;
   if (state === 'ready' && financials) {
@@ -105,7 +106,10 @@ export function ScenarioTruthGuardPage() {
           <div className="text-xs font-black text-ink-900">الإجراء التالي</div>
           <p className="mt-1 text-[10px] text-ink-400">راجع جودة البيانات أو الأدلة، ثم أعد المحاولة بعد تحقق القاعدة المالية.</p>
         </div>
-        <Link to="/data-quality" className="btn-primary shrink-0 text-[10px]">الانتقال إلى جودة البيانات <ArrowUpLeft size={13} /></Link>
+        <div className="flex flex-wrap gap-2">
+          <button type="button" onClick={() => void load()} className="btn-secondary min-h-11 text-[10px]" aria-label="إعادة فحص الحقيقة المالية">إعادة فحص</button>
+          <Link to="/data-quality" className="btn-primary min-h-11 shrink-0 text-[10px]">الانتقال إلى جودة البيانات <ArrowUpLeft size={13} /></Link>
+        </div>
       </div>
     </div>
   );
