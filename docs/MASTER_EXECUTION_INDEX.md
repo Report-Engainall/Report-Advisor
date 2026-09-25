@@ -1,14 +1,14 @@
-# CURRENT CONTROL-PLANE BOUNDARY — 2026-09-25 / POST-MERGE PR #629
+# CURRENT CONTROL-PLANE BOUNDARY — 2026-09-25 / EXACT PR #630
 
-- MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `dcabe46e594cbb070e145882a87dd67fa91ddabe` (live-memory write-back commit; code merge is `35c8a8bcdc0253418ed8f21cdd664a09cac31e69`).
-- MERGED CODE CANDIDATE: `35c8a8bcdc0253418ed8f21cdd664a09cac31e69`.
-- DONE: merged PR #629; fixed canonical migration-path references for watched-report pipeline and production-readiness/import-lineage contracts.
-- PR-REPORTED LOCAL CHECKS (PR head `cca051215037b6fa3b7ca6901dd9666af6d162fc`): P0 13/13, P1 8/8, Production Readiness 21/21, TypeScript, diff check PASS. Not a fresh main-head CI proof.
-- EXACT MAIN-SHA CLOUD PROOF: NOT PROVEN. Commit-associated workflow lookup returned no runs at observation time.
-- PHASE-F: production runtime identity, valid authorized logical source, backup/restore, RPO/RTO, rollback and current-production certification remain NOT PROVEN/BLOCKED; no stale evidence transfer.
-- UI LANE: no UI change in this batch; continue from evidenced UI gaps and require fresh browser proof for new code lineage.
-- NEXT EXECUTABLE ACTION: obtain fresh exact-main Quality + Enforcement + Final Certification + Browser evidence for `35c8a8b...`; then proceed to Phase-F only with valid authorized runtime inputs and exact target identity.
-- DO NOT REPEAT: do not reapply PR #629 migration-reference changes; do not promote PR-local checks to cloud PASS; no production SHA or credential bypass.
+- MAIN HEAD OBSERVED BEFORE THIS WRITE: `39a39ca1125ea7aca6c0f1cf07aec325c266b042`.
+- CURRENT CODE/TEST CANDIDATE: `de07175316ca7a6ca9799d5cd0e9fd8932e74ad2`.
+- DONE: Phase-F restore root cause isolated to missing `enforce_same_company_reference()` definition; canonical production definition restored in migration `20260829175705_harden_cross_tenant_reference_integrity_v2.sql`.
+- LOCAL VERIFIED: Phase 10 backup/restore contract PASS; migration schema audit 254 migrations / 0 findings; terminal approval concurrency PASS; TypeScript PASS; Vite production build PASS; diff-check PASS.
+- CLOUD BOUNDARY: current PR #630 gates must prove exact head `de071753...`; no stale PASS transfer.
+- PHASE-F: live backup/restore, production identity, RPO/RTO, rollback remain NOT PROVEN until fresh exact-head Phase-F evidence.
+- NEXT CORE FRONT: consume exact-head Certification/Enforcement/Browser/Storage + Phase-F; repair only a new reproduced failure.
+- NEXT UI FRONT: no current-head UI defect is evidenced; require fresh browser proof after code gate.
+- DO NOT REPEAT: no old-main PASS transfer; no SHA bypass; no credential bypass; no migration deletion.
 
 ---
 
