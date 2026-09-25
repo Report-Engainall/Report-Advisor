@@ -1,3 +1,18 @@
+## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-123
+
+- SESSION-ID → `2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-123`.
+- MAIN HEAD OBSERVED BEFORE THIS WRITE → `9c4e5f03a53ae211d5ed00077c2fd43a339a7db2`.
+- CURRENT CODE/TEST CANDIDATE → `ec1006f555a17a9c02492e29839c285c7214282e`.
+- CURRENT GOVERNANCE HEAD BEFORE THIS WRITE → `fbd16eb658418e1681d475be3a4356ae6ac3a81b`.
+- DONE → Quality contract defect fixed in `check-tenant-security-contract.mjs`; previous Quality failure on `34f77c2...` was caused by the checker requiring schema evolution inside the latest resolver patch.
+- CI RACE IDENTIFIED → the first fresh Quality run for `ec1006f...` checked out merge ref `49a1847...` and failed the PR-head diagnostic because the branch advanced after the event. This is CI/event timing evidence, not a product defect.
+- REQUIRED STABLE STATE → leave the branch unchanged after this governance write so the next PR synchronization has a stable head and can prove `ec1006f...` with governance-only descendants.
+- CORE LANE → tenant resolver runtime defect fixed; Storage Tenant Runtime E2E and Full Product Browser E2E were SUCCESS on `34f77c2...`; fresh current-head gates remain required.
+- UI LANE → no source UI change; fresh Browser/Device-Independent evidence remains required for the current governed lineage.
+- DO NOT REPEAT → do not modify the branch again until the new workflow set is consumed; do not transfer the merge-ref race as a code failure; do not weaken exact-head checks.
+- CURRENT RESUME POINTER → `ec1006f555a17a9c02492e29839c285c7214282e` → consume the next stable PR workflow set → first real failure only → Phase-F live resilience → final certification.
+- NEXT EXECUTABLE ACTION → inspect the workflow runs created by this final governance synchronization; no further branch mutation unless a reproduced defect requires it.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-122
 
 - SESSION-ID → `2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-122`.
