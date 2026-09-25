@@ -1,3 +1,13 @@
+## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-121
+
+- SESSION-ID → `2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-121`.
+- VERIFICATION BRANCH → `verify/phase-f-live-heart-20260925`.
+- BASE MAIN HEAD OBSERVED → `9c4e5f03a53ae211d5ed00077c2fd43a339a7db2`.
+- PURPOSE → trigger the canonical existing Phase-F pull_request gate against the current merged code lineage; this branch is verification-only and must not be merged for product changes.
+- PRODUCTION FACT → latest observed production deployment remains `dcabe46e594cbb070e145882a87dd67fa91ddabe`; no production-SHA evidence is transferred to this verification head.
+- NEXT → consume the exact-head Phase-F run and repair only the first reproduced live failure.
+- DO NOT REPEAT → no credential bypass, no SHA bypass, no acceptance-criteria change.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-120
 
 - SESSION-ID → `2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-120`.
