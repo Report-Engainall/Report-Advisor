@@ -1,3 +1,19 @@
+## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-157
+
+- CODE/GOVERNANCE HEAD OBSERVED BEFORE THIS WRITE → d799fab7eb911450faa920770ce020bae99d5030.
+- PR #659 / branch feat/deep-ui-core-closure-20260925.
+- CORE 1 → src/lib/dashboard-canonical.ts no longer silently coerces malformed RPC arrays to []; missing/non-object row arrays now fail closed, and source asOf fields are required rather than replaced with today's date. This applies to dashboard, inventory snapshot, profitability reasons/as-of, RFM, ABC, aging, recommendations, and alerts.
+- CONTRACT 1 → scripts/check-dashboard-snapshot-contract.mjs now locks the fail-closed helpers/usages and rejects reintroduction of the legacy requiredArray silent coercion.
+- CORE 2 → fetchForecasts() now validates forecast row identity, tenant/company identity, entity/metric strings, parseable period, finite numeric bounds/value, model/confidence, and non-negative integer data_points before exposing rows.
+- CONTRACT 2 → added scripts/check-forecast-read-contract.mjs, registered in package.json, and enforced by .github/workflows/quality.yml.
+- UI STATUS → prior demand-velocity and inventory-intelligence truth boundaries remain intact; no duplicate import/RPC/runner/persistence path added.
+- EXACT-HEAD CI → at this head, the GitHub workflows are queued/pending with expected skipped commercial checks; no terminal application PASS is available yet. Vercel remains externally rate-limited; Netlify preview status is not production proof.
+- STILL UNPROVEN → current-head Quality/Final Certification/Browser E2E terminal success, production identity/promotion, Phase-F live resilience, and device-dependent visual certification.
+- NEXT EXECUTABLE ACTION → consume first terminal current-head failure only. If none is terminal, continue the next non-overlapping UI/core truth boundary.
+- DO NOT REPEAT → closed Work Center, Connections, Master Data, Import, Executive Report, Profitability, Receivables, Decision Experience, Data Quality, Dashboard Snapshot, Demand, and Inventory closures; no stale PASS transfer; no Vercel plan-limit-as-code-failure; no production/Phase-F bypass.
+- RESUME POINTER → main c985deeb… → PR #659 → exact head d799fab7… → first terminal failure only → next independent UI/core closure → exact green merge evidence.
+
+
 ## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-156
 
 - CODE HEAD OBSERVED BEFORE THIS GOVERNANCE WRITE → `95371dbff307952972dd3d858926024f9294ea03`.
