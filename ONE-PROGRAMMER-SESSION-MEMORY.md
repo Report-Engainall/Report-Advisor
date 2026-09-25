@@ -25,7 +25,7 @@
 
 - SESSION-ID → 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-133.
 - MAIN HEAD OBSERVED BEFORE THIS WRITE → `9c4e5f03a53ae211d5ed00077c2fd43a339a7db2`.
-- CURRENT CODE/TEST CANDIDATE → `1843040d9f43199102516dd53702ad5b2e2f6efc`.
+- CURRENT CODE/TEST CANDIDATE → `6d4c849f7b9b10f13e71e41bf15f12138c640278`.
 - GOVERNANCE HEAD BEFORE THIS WRITE → `ab0cd56b2db8611c6be516765da028d0bbf206ef`.
 - DONE → fixed one remaining Phase-F IPv6 routing leak: logical backup schema-count query now uses `runnerSource` rather than original `source`; added contract assertions that schema count and dump both use the resolved source URI.
 - EXACT CURRENT CI → new exact-head workflows are queued/running for `1843040...`; no PASS claimed yet.
