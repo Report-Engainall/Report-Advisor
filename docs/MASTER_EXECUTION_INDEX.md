@@ -1,12 +1,20 @@
-# CURRENT EXECUTION BOUNDARY — 2026-09-25 / DEEP UI-CORE CANDIDATE
+# CURRENT EXECUTION BOUNDARY — 2026-09-25 / POST-MERGE DEEP UI-CORE CLOSURE
 
-- MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `fa2256c0c5b311464d9d8960e3480ac33f87830d`.
-- CURRENT CODE/TEST CANDIDATE: `ae6410b30f9305585b8bbb13f18b2da6b17214da`.
-- GOVERNANCE HEAD BEFORE THIS WRITE: `ae6410b30f9305585b8bbb13f18b2da6b17214da`.
-- UI DELIVERY: Metric Inspector now has accessible search, governance-status/freshness filters, reset and filtered-empty semantics; shared Loading/Empty/Error states expose explicit assistive semantics/retry labeling; Decision Experience progress stages expose accessible text; Reports surfaces retain evidence-safe truth context.
-- CORE PROOF: Phase-10 contract/security-definer provenance and Phase-F governance-head/exact-head evidence were hardened without adding RPCs, runners or production mutations.
-- NEXT EXECUTABLE ACTION: consume fresh exact-head Quality/Enforcement/Final Certification/Browser/Storage/Desktop/Route gates; merge only after all required current-head checks pass.
-- DO NOT REPEAT: no stale candidate evidence, no production bypass, no duplicate navigation/data path.
+- MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `317f560eae727dd660e1d3adc80c2ce26cc13805`.
+- CURRENT CODE/TEST CANDIDATE: `317f560eae727dd660e1d3adc80c2ce26cc13805`.
+- GOVERNANCE HEAD BEFORE THIS WRITE: `317f560eae727dd660e1d3adc80c2ce26cc13805`.
+- MERGE: PR #644 was merged squash at `317f560eae727dd660e1d3adc80c2ce26cc13805` after exact-head Quality + Final Certification + UI Route/Browser/Desktop gates passed on the pre-merge code head `2eb7c69cad1c07d77df354e4ef5371200868f236`.
+- UI DELIVERY: Metric Inspector gained semantic search, certification-status/freshness filters, reset and filtered-empty state; shared Loading/Empty/Error states gained explicit assistive semantics and retry labeling; Decision Experience progress gained stage descriptions; Reports gained evidence-safe truth context; Canonical Import stepper gained semantic active/completed stage semantics.
+- CORE DELIVERY: Phase-10 restore contract strengthened SECURITY DEFINER helper hardening; Phase-F evidence now preserves exact-head/governance-head provenance.
+- EXACT EVIDENCE: Quality run `36173306930` → SUCCESS; Final Certification `36173306852` → SUCCESS; UI Route Completeness `36173306908` → SUCCESS; Browser `36173307013` → SUCCESS; Desktop Windows `36173306970` → SUCCESS; Metric Governance RLS `36173307044` → SUCCESS on the pre-merge candidate lineage.
+- PHASE-F: run `36173306548` reached Live resilience probes on exact pre-merge head `2eb7c69...` but had not terminated at observation time; no Phase-F PASS is transferred to `317f560...`. No post-merge Phase-F workflow was observed for the main commit at this write.
+- EXTERNAL HOSTING: Vercel remains externally rate-limited by the free-plan build limit. Netlify remains a preview path only.
+- PARALLEL UI FOLLOW-UP: PR #646 contains purchase-report truth-context closure; its first Netlify preview failed due a JSX transform defect, which was identified and corrected at `68e34f5c15db9ec17cad0c7731b01894d99cb0f4`. Fresh exact-head gates are now required for PR #646; its failure is not transferred as a main defect.
+- NEXT EXECUTABLE ACTION: re-establish fresh exact-head main certification/Phase-F evidence for `317f560...`; in parallel consume PR #646 current-head checks, repair only the first reproduced current defect, then fast-forward/merge only after exact-head proof.
+- DO NOT REPEAT: no stale pre-merge Phase-F PASS transfer, no production SHA bypass, no preview-as-production, no duplicate RPC/runner/import path, no blanket DB/security cleanup.
+
+---
+
 ---
 
 # CURRENT CONTROL-PLANE BOUNDARY — 2026-09-25 / POST-MERGE PR #632 + UI PR #634
