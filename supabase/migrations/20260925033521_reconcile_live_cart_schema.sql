@@ -1,6 +1,6 @@
 -- Evolve the tenant membership schema required by the canonical resolver.
 -- These primitives already exist in staging; this keeps fresh restore lineage complete.
-alter table public.company_memberships
+alter table company_memberships
   add column if not exists is_default boolean not null default false;
 
 create index if not exists idx_company_memberships_company_active
