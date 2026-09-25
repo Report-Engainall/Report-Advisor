@@ -1,18 +1,19 @@
-## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-128
+## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-129
 
-- SESSION-ID → 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-128.
+- SESSION-ID → 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-129.
 - MAIN HEAD OBSERVED BEFORE THIS WRITE → 9c4e5f03a53ae211d5ed00077c2fd43a339a7db2.
-- CURRENT CODE/TEST CANDIDATE → 5642b6ee4856fb54ffea4fc415e69a9876f59250e.
-- GOVERNANCE HEAD BEFORE THIS WRITE → 9646e9927e7fddf24d977f5f32b986fffcb7ea24.
-- DONE → direct DB host remained IPv6-only/unreachable in Phase-F run 36160600882. Added a guarded same-project regional transaction-pooler fallback after IPv4 DNS fails; project ref must match and the original source password is reused.
-- EXACT PRIOR RESULT → Phase-F failed operational health with production SHA mismatch (dcabe46... served vs bb6bf12... expected), tenant canary 200, logical backup/restore IPv6 network unreachable, rollback drill 503.
-- CURRENT CI → 9646... workflow set was still running at the time of this write; no PASS transferred.
-- UI LANE → no source UI mutation; core gate is the active frontier.
-- CORE LANE → UUID-safe tenant resolver, lineage contract, IPv4/pooler restore fallback, and bounded future-JWT test retry.
-- BLOCKED → production still serves dcabe46...; no production promotion performed because the connected tools do not expose the promotion mutation and PC01 is offline.
-- CURRENT RESUME POINTER → 5642b6ee4856fb54ffea4fc415e69a9876f59250e → consume exact-head Quality/Enforcement/Final/Browser/Storage/Phase-F; repair first current-SHA failure only.
-- NEXT EXECUTABLE ACTION → inspect the workflow set produced from 5642b6e...; if Phase-F backup passes, isolate the remaining production deployment identity blocker.
-- DO NOT REPEAT → do not transfer Phase-F failure from b8a...; do not claim the pooler fallback works until exact-run evidence exists; do not change auth retry semantics beyond the exact transient condition.
+- CURRENT CODE/TEST CANDIDATE → e1fb7181be3e9dc9f44edb2ef46e85ce035a842f.
+- GOVERNANCE HEAD BEFORE THIS WRITE → b1438016882c80b2e5b9946d07029669c4e6d764.
+- DONE → consumed the exact PR #632 state; verified the Phase-F workflow no longer uses a forbidden push trigger, the generic tenant-reference helper is restored before its warehouse trigger, and the UUID-safe current_company_id repair is present.
+- EXACT CURRENT CI → Quality SUCCESS, Full Product Browser E2E SUCCESS, Storage Tenant Runtime E2E SUCCESS, broad security/data contracts SUCCESS. Final Certification and Enforcement failed only because their certification-boundary checker still read the older indexed candidate; this governance write rebinds the index to e1fb7181... and must be proven again.
+- UI LANE → source UI remains unchanged in this core repair wave; exact current-head browser coverage is green on PR #632. Next independent UI wave must target a concrete shell/accessibility gap rather than redoing closed browser work.
+- CORE LANE → Phase-F restore helper + tenant resolver + pooler fallback + bounded auth-clock-skew harness are all on the current candidate. Phase-F live resilience is still running on exact e1fb7181... and is the release boundary.
+- BLOCKED → production promotion/identity is still not certified; no production mutation or SHA bypass.
+- CURRENT RESUME POINTER → e1fb7181be3e9dc9f44edb2ef46e85ce035a842f → exact-head Final Certification/Enforcement/Phase-F → first current-SHA failure only → governed merge → fresh main gates.
+- NEXT EXECUTABLE ACTION → consume the regenerated gates after the governance rebind; do not mutate the branch unless a new exact-head failure is reproduced.
+- DO NOT REPEAT → no stale PASS transfer, no Phase-F acceptance relaxation, no production-SHA bypass, no duplicate migration/helper path.
+- UI LANE PROGRESS → current shell/routes/import/evidence surfaces already have exact browser coverage; next change remains accessibility/shell state closure.
+- CORE LANE PROGRESS → migration restore dependency repaired; certification boundary rebinding in progress; Phase-F live proof pending exact current head.
 
 ## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-127
 
