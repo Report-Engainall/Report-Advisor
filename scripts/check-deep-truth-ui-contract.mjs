@@ -26,6 +26,7 @@ for (const [file, tokens] of [
   ['src/pages/AnalyticsPage.tsx', ['TrustBadge', 'INSUFFICIENT_SAMPLE']],
   ['src/pages/TrustEvidencePage.tsx', ['TrustBadge', 'INSUFFICIENT_SAMPLE']],
   ['src/pages/DecisionExperiencePage.tsx', ['BoundaryState variant="blocked"']],
+  ['src/pages/ExecutiveCommandCenterPage.tsx', ['TrustBadge', 'trustStateFromDataStatus']],
   ['src/components/ui/States.tsx', ['export function BoundaryState', "variant === 'review'", "variant === 'insufficient'"]],
 ]) {
   const source = read(file);
