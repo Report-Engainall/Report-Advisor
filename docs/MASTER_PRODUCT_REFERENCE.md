@@ -1,13 +1,13 @@
 ## IMPLEMENTATION UPDATE — 2026-09-23 / CURRENT GOVERNED STATE
 
-- Current code candidate: `293a78940c8a332113bc99884f2f648c5c3d06db` (Phase-F migration restore repair).
+- Current code candidate: `f1fb809fb29e5b96952f3b4246cad3028e3d9853` (Phase-F migration restore repair).
 - UI consolidation closed: Recommendations + Forecasts now live in canonical `src/pages/IntelligencePage.tsx`; duplicate `src/pages/IntelligencePages.tsx` was removed and App imports were rebound.
 - Data truth UI closure closed the real blank fallthroughs for Dashboard/Command Center/Liquidity/Receivables/Reports/Inventory/Profitability and is guarded by the Product WOW contract.
 - Quality governance now executes `test:knowledge-architecture` in the canonical Quality workflow.
 - Core Phase-F restore defect closed in source: repository had duplicate 14-digit migration versions; content-bearing migrations were resequenced without dropping SQL, redundant empty remote-lineage aliases were removed, and the migration schema audit now rejects duplicate versions.
 - Exact local repaired-branch migration audit: 285 migrations / 0 findings. This is source/local evidence only and does not certify live restore, RPO, RTO, or rollback.
 - Live Phase-F baseline before the migration repair: authenticated canary PASS; tenant-canary PASS; operational health failed on deployment SHA mismatch; backup/restore failed on duplicate migration version `20260819210000`; rollback-forward-fix failed 503.
-- Current production runtime remains fail-closed because the latest READY production deployment serves older SHA `1d88b083c6c956abb42e2b2db2d5d816cb543344`, while the current code candidate is `293a78940c8a332113bc99884f2f648c5c3d06db`. No current-head production proof or measured RPO/RTO/rollback is claimed.
+- Current production runtime remains fail-closed because the latest READY production deployment serves older SHA `1d88b083c6c956abb42e2b2db2d5d816cb543344`, while the current code candidate is `f1fb809fb29e5b96952f3b4246cad3028e3d9853`. No current-head production proof or measured RPO/RTO/rollback is claimed.
 - Current hosting boundary: Vercel free-plan deployment rate limit (`api-deployments-free-per-day`) remains external. Netlify can produce exact PR previews but they are not production/Phase-F target identity proof.
 - Product rule remains unchanged: never transfer historical runtime PASS across SHAs; deterministic business truth and fail-closed states remain canonical.
 
