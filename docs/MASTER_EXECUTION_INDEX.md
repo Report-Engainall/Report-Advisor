@@ -1,13 +1,13 @@
-# CURRENT EXECUTION BOUNDARY — 2026-09-25 / UI DISCLOSURE TARGET SEMANTICS
+# CURRENT EXECUTION BOUNDARY — 2026-09-25 / UI ALERT FOCUS RESTORATION
 
 - MAIN HEAD OBSERVED BEFORE THIS GOVERNANCE WRITE: `9c4e5f03a53ae211d5ed00077c2fd43a339a7db2`.
-- CURRENT CODE/TEST CANDIDATE: `5b06be0cf05e7530eb272a2623c0f2e4a4026304`.
-- CURRENT GOVERNANCE HEAD BEFORE THIS WRITE: `5b06be0cf05e7530eb272a2623c0f2e4a4026304`.
-- DONE: shell accessibility changes remain in Header/Sidebar; Phase-F workflow is PR/manual-dispatch only. Sidebar disclosure targets now remain mounted with `hidden={!open}`, so each button's `aria-controls` references a real DOM element even while collapsed.
-- EXACT-HEAD CI: fresh checks are running for the UI candidate; previous UI route, device-independent browser, storage and security contracts were green on the prior UI source candidate. No prior PASS is transferred.
-- PHASE-F: blocked/not ready due production SHA mismatch and missing helper migration on the UI-only branch; this is not bypassed. Core helper/restore work remains isolated in PR #632.
-- NEXT: consume exact-head UI quality/accessibility/browser/certification results; coordinate merge only after required gates and dependency order are satisfied.
-- DO NOT REPEAT: no missing aria-controls target, no push trigger for live resilience, no stale PASS transfer, no production promotion from preview.
+- CURRENT CODE/TEST CANDIDATE: `fc90d936f2da673c5d488a24c4b5fa6b84f52f79`.
+- CURRENT GOVERNANCE HEAD BEFORE THIS WRITE: `fc90d936f2da673c5d488a24c4b5fa6b84f52f79`.
+- DONE: Escape now dismisses the alert popover and restores keyboard focus to its trigger; the trigger is explicitly `type="button"`. Sidebar disclosure `aria-controls` points to a mounted hidden region when collapsed. Touch target sizing and visible focus styles remain.
+- CI: fresh exact-head workflows are running for this candidate; no prior PASS transfers.
+- PHASE-F: production SHA mismatch and branch dependency on core helper migration remain NOT READY; no gate weakening or production mutation.
+- NEXT: consume exact-head UI checks and the core Phase-F/quality set; integrate only after dependency and required-gate closure.
+- DO NOT REPEAT: no stale PASS, no dangling aria-controls, no focus loss on Escape, no production SHA bypass.
 
 ---
 
