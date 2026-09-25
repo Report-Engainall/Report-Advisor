@@ -1,20 +1,19 @@
 # CURRENT CONTROL-PLANE BOUNDARY — 2026-09-25 / LIVE MIGRATION REPLAY + GOVERNANCE REBIND
 
 - MAIN HEAD OBSERVED BEFORE THIS WRITE: `7159553fcfc9d21304ffff60e1086a34b714ac09`.
-- CURRENT CODE/TEST CANDIDATE: `fcb5148d8645c85e7478df28e72f14be0f0bd7ec` (PR #628 code head before this governance-only write).
+- CURRENT CODE/TEST CANDIDATE: `487284b10b36f2b8a301c4319873980ff3b9a3a2` (PR #628 functional code head before this governance-only write).
 - GOVERNANCE WRITE: this commit rebinds the execution index to the exact current code/test candidate; it changes governance files only and must not be treated as new runtime/code evidence.
-- DONE: exact-head E2E on `fcb5148d...` succeeded; Vercel exact-head preview is READY; migration replay blockers fixed for BOM, worker privilege ordering, and conditional legacy six-argument `import_commit_batch` hardening.
-- VERIFIED: `36072951915` Full Product Browser E2E succeeded; `36072951857` Device-Independent Browser smoke + authenticated product/import E2E succeeded; production-regression evidence succeeded on `fcb5148d...`; Supabase project `fnqbvfuwbdpwvhcgzksl` is ACTIVE_HEALTHY on PostgreSQL 17.6.
-- FAILED / BLOCKED: Phase-F `36072951829` is 1/4 on exact code `fcb5148d...`: tenant canary PASS; production health returns HTTP 200 but deployment SHA is old `7be9f014...`; logical backup/restore fails at the external PostgreSQL credential with `FATAL: password authentication failed for user "postgres"`; rollback-forward drill returns 503 because the forward baseline is not established.
-- FAILED: Final Certification `36072952020` rejected stale governance index candidate `203711a...`; this write rebinds the index to `fcb5148d...` without weakening the checker.
+- DONE: Phase-F logical backup source selection now tries the configured source first, then only authorized DB-password/temporary-access fallbacks when actually provisioned; no credential is emitted in evidence.
+- VERIFIED: exact candidate `487284b...` local syntax/diff/typecheck and Phase-F runtime/operational resilience/evidence-integrity contracts pass; exact candidate Vercel preview `dpl_2FKip2ZdSaMAXRh2XSGoxNgY1KZS` is READY and preview root is HTTP 200 with the Arabic RTL الأغبري shell.
+- GITHUB EXACT-HEAD: Quality `36075872812`, Full Product Browser E2E `36075872986`, Device-Independent Browser E2E `36075872799`, Storage Tenant Runtime E2E `36075876668`, and the core security/data/import contract suite completed successfully on `487284b...`.
+- FAILED / BLOCKED: Phase-F `36075872644` is 1/4 on exact code `487284b...`: tenant canary PASS; health HTTP 200 but deployment SHA remains old `7be9f014...`; logical backup/restore fails because the configured external PostgreSQL credential/source is unusable; rollback-forward drill returns 503 because the forward baseline is not established.
+- CURRENT GOVERNANCE DEFECT: Enforcement `36075872785` and Final Certification `36075873080` on exact branch lineage failed at certification-boundary integrity because the index was still bound to stale candidate `fcb5148...`; no application defect was reproduced by that gate.
 - NOT PROVEN: production identity, logical backup/restore, measured RPO/RTO, rollback, and final release certification.
-- NEXT EXECUTABLE ACTION: verify this governance commit is exact HEAD → consume fresh Final Certification → keep Phase-F blocked only on the real DB credential / production identity → once the authorized secret is corrected, rerun Phase-F and repair only the first reproduced live failure.
-- DO NOT REPEAT: stale migration paths; stale candidate binding; removal of the live six-argument overload contract; old Phase-F evidence; production SHA bypass; merge before exact current-head release gates.
-- UI LANE: current code candidate passes browser smoke and authenticated product/import E2E; no new UI defect was evidenced by the current exact-head gates.
-- CORE LANE: replay blockers through `20260921161000...` are resolved; remaining blocker is external DB credential + production deployment identity, not migration syntax.
-- CURRENT RESUME POINTER: governance rebind → fresh Final Certification on this governance head → authorized DB credential correction → exact-head Phase-F → production identity → measured recovery → release closeout.
-
-# CURRENT CONTROL-PLANE BOUNDARY — 2026-09-22
+- NEXT EXECUTABLE ACTION: consume fresh Enforcement + Final Certification after this governance rebind; keep Phase-F blocked only on the real authorized DB credential and production identity; continue independent UI/Core closure without rerunning unchanged Phase-F.
+- DO NOT REPEAT: stale candidate binding; stale migration paths; old Phase-F evidence; production-SHA bypass; merge/release before current-head release gates.
+- UI LANE: exact current candidate browser flow is proven; next work remains only on evidenced product-surface gaps.
+- CORE LANE: migration/replay contract repairs and Phase-F source-selection hardening are in the current candidate; the remaining release-critical boundary is external resilience credential + exact production promotion.
+- CURRENT RESUME POINTER: `governance rebind → fresh Enforcement/Final Certification → independent UI/Core closure → authorized DB credential + exact production alignment → fresh Phase-F → measured recovery → release closeout`.
 
 > HEAD below is the exact GitHub HEAD observed before this write. Never treat it as the SHA of this file's own future commit.
 
