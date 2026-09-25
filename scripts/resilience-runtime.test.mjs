@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { timingSafeEqual } from 'node:crypto';
 import rollbackHandler, { deploymentReady } from '../api/rollback-drill.mjs';
-import { isDisallowedOutboundAddress, isProductionEnv, parseSecureOutboundUrl, secureOutboundFetch, sha256ResponseBody } from '../src/server/resilience-runtime.mjs';
+import { buildSupabaseSessionPoolerUrl, isDisallowedOutboundAddress, isProductionEnv, parseSecureOutboundUrl, secureOutboundFetch, sha256ResponseBody } from '../src/server/resilience-runtime.mjs';
 
 const files = [
   'api/health.mjs',
@@ -30,6 +30,22 @@ for (const address of ['127.0.0.1', '10.0.0.1', '169.254.169.254', '172.16.0.1',
 }
 assert.equal(isDisallowedOutboundAddress('8.8.8.8'), false);
 assert.equal(isDisallowedOutboundAddress('2606:4700:4700::1111'), false);
+const poolerUrl = buildSupabaseSessionPoolerUrl(
+  'postgresql://postgres:db-secret@db.fnqbvfuwbdpwvhcgzksl.supabase.co:5432/postgres?sslmode=require',
+  'fnqbvfuwbdpwvhcgzksl',
+);
+assert.ok(poolerUrl, 'direct Supabase URL must derive a session-pooler fallback');
+const parsedPoolerUrl = new URL(poolerUrl);
+assert.equal(parsedPoolerUrl.hostname, 'aws-0-ap-southeast-2.pooler.supabase.com');
+assert.equal(parsedPoolerUrl.port, '5432');
+assert.equal(parsedPoolerUrl.username, 'postgres.fnqbvfuwbdpwvhcgzksl');
+assert.equal(parsedPoolerUrl.pathname, '/postgres');
+assert.equal(parsedPoolerUrl.searchParams.get('sslmode'), 'require');
+assert.equal(parsedPoolerUrl.password, 'db-secret');
+assert.equal(buildSupabaseSessionPoolerUrl(
+  'postgresql://postgres.fnqbvfuwbdpwvhcgzksl:db-secret@aws-0-ap-southeast-2.pooler.supabase.com:5432/postgres',
+  'fnqbvfuwbdpwvhcgzksl',
+), null);
 process.env.RESILIENCE_OUTBOUND_TIMEOUT_MS = '999';
 await assert.rejects(() => secureOutboundFetch('https://backup.example.test/artifact', 'backup_artifact_url'), /invalid_resilience_outbound_timeout_ms/);
 process.env.RESILIENCE_OUTBOUND_TIMEOUT_MS = '15000';
