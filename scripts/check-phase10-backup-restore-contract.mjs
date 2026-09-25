@@ -12,11 +12,14 @@ const stripSqlComments = (sql) => sql
   .replace(/\/\*[\s\S]*?\*\//g, '')
   .replace(/(^|\n)\s*--[^\n]*/g, '$1');
 const executable = stripSqlComments(migration);
+const normalizedMigration = migration.replace(/\r\n/g, '\n').toLowerCase();
+if (!normalizedMigration.includes('create or replace function public.enforce_same_company_reference()')) {
+  throw new Error('Missing recovery security/lifecycle invariant: enforce_same_company_reference source definition');
+}
 
 for (const token of [
   'CREATE OR REPLACE FUNCTION public.import_create_job',
   'CREATE OR REPLACE FUNCTION public.import_update_job_progress',
-  'create or replace function public.enforce_same_company_reference',
   'p_invalid_rows integer DEFAULT 0',
   'p_duplicate_rows integer DEFAULT 0',
   "p_status text DEFAULT 'processing'",
