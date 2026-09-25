@@ -140,6 +140,22 @@ assert.ok(commandPalette.includes('document.body.style.overflow = \'hidden\''), 
 assert.ok(commandPalette.includes("event.key === 'Tab'"), 'command palette must trap keyboard focus inside the dialog');
 assert.ok(commandPalette.includes('aria-label="إغلاق لوحة الأوامر"'), 'command palette must expose a keyboard-accessible close control');
 
+const inventoryIntelligence = fs.readFileSync('src/pages/InventoryIntelligencePage.tsx', 'utf8');
+assert.ok(inventoryIntelligence.includes('سياق حقيقة ذكاء المخزون'), 'inventory intelligence must expose truth context');
+assert.ok(inventoryIntelligence.includes('آخر 180 يومًا'), 'inventory intelligence truth context must disclose its fixed demand window');
+assert.ok(inventoryIntelligence.includes('to="/trust"'), 'inventory intelligence must expose a direct evidence action');
+assert.ok(inventoryIntelligence.includes('const nextAction='), 'inventory intelligence must derive a next action from current truth');
+assert.ok(inventoryIntelligence.includes('to={nextAction.to}'), 'inventory intelligence empty state must use the derived next action');
+assert.ok(inventoryIntelligence.includes('لا تُصنع قيم بديلة'), 'inventory intelligence must preserve fail-closed semantics');
+
+const demandVelocity = fs.readFileSync('src/pages/DemandVelocityPage.tsx', 'utf8');
+assert.ok(demandVelocity.includes('سياق حقيقة حركة الطلب'), 'demand velocity must expose truth context');
+assert.ok(demandVelocity.includes('فواتير المبيعات وبنودها'), 'demand velocity must disclose its source tables');
+assert.ok(demandVelocity.includes('to="/trust"'), 'demand velocity must expose a direct evidence action');
+assert.ok(demandVelocity.includes('const nextAction='), 'demand velocity must derive a next action from current signal state');
+assert.ok(demandVelocity.includes('to={nextAction.to}'), 'demand velocity empty state must use the derived next action');
+assert.ok(demandVelocity.includes('لا تُستبدل القيم الناقصة'), 'demand velocity must preserve fail-closed semantics');
+
 const metricInspector = fs.readFileSync('src/pages/MetricInspectorPage.tsx', 'utf8');
 assert.ok(metricInspector.includes('const filteredItems = useMemo'), 'metric inspector must derive a filtered semantic list without mutating the source contract');
 assert.ok(metricInspector.includes('aria-label="البحث في المؤشرات"'), 'metric inspector search must be accessible');
