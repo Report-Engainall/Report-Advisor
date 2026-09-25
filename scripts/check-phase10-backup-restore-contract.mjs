@@ -16,7 +16,7 @@ const executable = stripSqlComments(migration);
 for (const token of [
   'CREATE OR REPLACE FUNCTION public.import_create_job',
   'CREATE OR REPLACE FUNCTION public.import_update_job_progress',
-  'CREATE OR REPLACE FUNCTION public.enforce_same_company_reference',
+  'create or replace function public.enforce_same_company_reference',
   'p_invalid_rows integer DEFAULT 0',
   'p_duplicate_rows integer DEFAULT 0',
   "p_status text DEFAULT 'processing'",
