@@ -14,6 +14,9 @@ const phaseFProbe = read('scripts/phase-f-live-resilience-probes.mjs');
 if (!/const generatedCountSql = runDockerPsql\(runnerSource, countSql\);/.test(phaseFProbe)) {
   throw new Error('Phase-F schema-count query must use the resolved runnerSource URI');
 }
+if (!/const directPort = parsed\.port \|\| '5432';/.test(phaseFProbe) || !/directPort === '5432'/.test(phaseFProbe)) {
+  throw new Error('Phase-F direct Supabase source fallback must treat an omitted port as the default 5432');
+}
 if (!/runCommand\('supabase', \[\s*'db', 'dump',[\s\S]*?'--db-url', runnerSource,/.test(phaseFProbe)) {
   throw new Error('Phase-F logical dump must use the resolved runnerSource URI');
 }
