@@ -1,12 +1,13 @@
-# CURRENT EXECUTION BOUNDARY — 2026-09-25 / CORE PARITY REBASED ON CURRENT MAIN
+# CURRENT EXECUTION BOUNDARY — 2026-09-25 / POST-MERGE PHASE-F CANDIDATE REBIND
 
-- MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `4eefd7390535d6bec29f1d7f907d02aefcc1d157`.
-- CURRENT CODE/TEST CANDIDATE: `601851330ad6124ce0c826b1775a49921a35fa2b`.
-- GOVERNANCE HEAD BEFORE THIS WRITE: `601851330ad6124ce0c826b1775a49921a35fa2b`.
-- CORE DELIVERY: rebased Phase-F functional changes onto the current main governance head instead of carrying the older PR base. Functional scope is unchanged: exact-head resilience topology, IPv4-safe runnerSource, restore parity for profiles/carts/cart_items, Phase-10 guards, and resilience runtime tests.
-- UI: current main already contains both shell accessibility closures; no UI code is duplicated on this core branch.
-- NEXT EXECUTABLE ACTION: consume fresh exact-head Quality/Enforcement/Browser/Final Certification on this current-main-based core candidate, then consume the fresh Phase-F live run generated from this new head. Repair only the first current live failure.
-- DO NOT REPEAT: no stale core candidate evidence, no production-SHA bypass, no push-trigger restoration, no unsafe staging mutation.
+- MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `1001331962e13ec991d8fce5777fa61702ddc7ef`.
+- CURRENT CODE/TEST CANDIDATE: `1001331962e13ec991d8fce5777fa61702ddc7ef`.
+- GOVERNANCE HEAD BEFORE THIS WRITE: `1001331962e13ec991d8fce5777fa61702ddc7ef`.
+- CORE DELIVERY: PR #642 restore-parity repair is merged into current main. The current main tree is now the exact certification candidate; no pre-squash candidate is referenced.
+- UI: shell accessibility and mobile micro-accessibility closures remain on main; this wave introduces no duplicate shell path.
+- NEXT EXECUTABLE ACTION: consume fresh exact-head main quality/enforcement/final-certification and Phase-F evidence against `1001331962e13ec991d8fce5777fa61702ddc7ef`; repair only the first current failure.
+- LIVE SAFETY: do not terminalize legacy processing import jobs or perform blanket SECURITY DEFINER/index cleanup without canonical owner/invariant proof.
+
 ---
 
 # CURRENT CONTROL-PLANE BOUNDARY — 2026-09-25 / POST-MERGE PR #632 + UI PR #634
