@@ -24,6 +24,7 @@ const semanticSurfaces = [
     <PageHeader
       title="البيانات المرجعية"
       subtitle="هوية الكيانات والمفاتيح والدلالات التي تمنح التحليل سياقه الصحيح دون تحويل المنصة إلى نظام CRUD."
+      actions={<div className="flex flex-wrap gap-2"><Link to="/import" className="btn-primary inline-flex items-center gap-2 text-xs"><ArrowLeft size={14}/>إدخال مصدر</Link><Link to="/trust" className="btn-secondary text-xs">مركز الثقة</Link></div>}
     />
 
     <section className="ag-operational-hero overflow-hidden rounded-[1.75rem] border border-primary-100 p-6 lg:p-8">
@@ -60,7 +61,9 @@ const semanticSurfaces = [
           </CardBody>
         </Card>
       </Link>)}
-    </section>    <section className="grid gap-4 xl:grid-cols-2">
+    </section>    <section className="grid gap-4 lg:grid-cols-3">{[{label:'مسارات الكيانات',value:'5',note:'تفتح من السطح المرجعي'},{label:'سطح جزئي',value:'1',note:'المستودعات والمواقع'},{label:'سياقات دلالية',value:'3',note:'مفاتيح · مرادفات · قاموس'}].map(cell => <Card key={cell.label}><CardBody><div className="text-[10px] font-bold text-ink-400">{cell.label}</div><div className="mt-1 text-2xl font-black text-ink-950">{cell.value}</div><div className="mt-1 text-[10px] text-ink-500">{cell.note}</div></CardBody></Card>)}</section>
+
+    <section className="grid gap-4 xl:grid-cols-2">
       <Card>
         <CardHeader title="كيانات مرجعية إضافية" subtitle="تُعرض كحالات صريحة عندما لا يملك التطبيق شاشة مستقلة مثبتة." />
         <CardBody className="grid gap-3 md:grid-cols-2">
