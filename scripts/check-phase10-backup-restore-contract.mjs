@@ -107,6 +107,9 @@ for (const token of [
   'ORGANIZATION_ID = PUBLIC.CURRENT_CUSTOMER_COMPANY_ID()',
   'GRANT SELECT, INSERT, UPDATE ON TABLE PUBLIC.CLIENT_UI_SETTINGS TO AUTHENTICATED',
   'GRANT ALL ON TABLE PUBLIC.CLIENT_UI_SETTINGS TO SERVICE_ROLE',
+  'SUPABASE_REALTIME',
+  'CLIENT_UI_SETTINGS',
+
 ]) {
   if (!clientUiSettingsParityUpper.includes(token)) throw new Error(`Missing client_ui_settings restore-parity invariant: ${token}`);
 }
