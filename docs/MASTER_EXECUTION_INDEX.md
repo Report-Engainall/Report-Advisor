@@ -1,16 +1,13 @@
-# CURRENT EXECUTION BOUNDARY — 2026-09-25 / PR #637 EXACT-HEAD RESTORE PARITY REBIND
+# CURRENT EXECUTION BOUNDARY — 2026-09-25 / PR #637 CART-ITEM RESTORE PARITY REPAIR
 
-- MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `d43c8203ca249f6e8f9661a784d8a170a3870111`.
-- CURRENT CODE/TEST CANDIDATE: `b5ec060d3fc6f4ca4ff40fea3caa469af8fbcddb`.
-- GOVERNANCE HEAD BEFORE THIS WRITE: `b5ec060d3fc6f4ca4ff40fea3caa469af8fbcddb`.
-- CORE STATE: PR #637 is the current Phase-F restore-parity candidate. It carries carts/profiles replay parity, source URI routing hardening, generated count-SQL qualification, and governed Phase-F topology. No production bypass or acceptance weakening.
-- PRIOR EXACT PHASE-F RUN: `36169603219` on candidate `344e6ebf...` failed closed during local replay because `20260925200000_restore_carts_schema_parity.sql` referenced live-only `public.profiles` before the repo replay created it; rollback drill also returned HTTP 503. That failure is consumed and the migration has since been repaired on `b5ec060d...`.
-- UI STATE: PR #638 is the current UI candidate, based directly on current main `d43c8203...`; it changes only Header/Sidebar and carries the shell accessibility closure. PR #635 is superseded/closed and is not evidence.
-- CURRENT EXTERNAL BLOCKERS: Vercel build-rate limit remains external; current production identity must still match the exact tested candidate before Phase-F can certify deployment identity. Device-dependent local browser is unavailable, so no local/browser PASS is claimed outside GitHub/Netlify evidence.
-- LIVE STAGING OBSERVATION: `151` import_jobs are processing, `150` at progress 0; oldest started 2026-09-14 12:53:22Z. No unsafe terminalization was performed.
-- SECURITY/PERFORMANCE OBSERVATION: staging advisors report 46 authenticated-callable SECURITY DEFINER functions and numerous unused indexes; no blanket mutation applied.
-- NEXT EXECUTABLE ACTION: consume fresh exact-head Quality/Enforcement/Final Certification/Browser/Storage evidence for `b5ec060d...`; then consume Phase-F live result on the same candidate and repair only the first reproduced current-SHA failure. In parallel consume exact-head UI gates for PR #638.
-- DO NOT REPEAT: no stale candidate transfer, no blanket security-function revoke, no index deletion, no import-job terminalization, no production-SHA bypass, no reuse of PR #635 evidence.
+- MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `c8d5f2b2bd318a88e5ccd5c385f0d9031ec5afda`.
+- CURRENT CODE/TEST CANDIDATE: `902a2fabcfa438338e0ae12230d7b35dc76c64ad`.
+- GOVERNANCE HEAD BEFORE THIS WRITE: `902a2fabcfa438338e0ae12230d7b35dc76c64ad`.
+- CORE STATE: PR #637 remains the active Phase-F core candidate. The previous exact run reached the next live restore defect: `public.cart_items` missing in the replay database after `public.carts` parity was restored. This repair now adds replay-safe `cart_items` schema, FKs, uniqueness, quantity bounds, index, RLS, authenticated self-select policy, and grants.
+- UI STATE: current main UI shell accessibility closure is merged as `c8d5f2b2bd318a88e5ccd5c385f0d9031ec5afda`; no UI rollback or stale PR reuse.
+- PHASE-F PRIOR CURRENT RESULT: run `36170355037` on `09c2386...` failed closed with operational SHA mismatch, logical restore missing `public.cart_items`, and rollback-forward-fix HTTP 503. The cart_items failure is now the only newly reproduced restore-parity defect being repaired in this wave.
+- NEXT EXECUTABLE ACTION: consume fresh exact-head CI on `902a2fabcfa438338e0ae12230d7b35dc76c64ad`, then fresh Phase-F live result. Repair only the first new live restore defect if present.
+- DO NOT REPEAT: no stale PASS transfer, no direct production SHA bypass, no destructive import-job recovery, no blanket security-function changes.
 
 ---
 
