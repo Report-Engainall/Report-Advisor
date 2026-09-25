@@ -1,3 +1,19 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-25 / CONTINUOUS DEEP UI + CORE WAVE
+
+- MAIN HEAD OBSERVED BEFORE THIS WRITE: `66809d148fe106acd16ceffcbd78f0ab17549fe1`.
+- CURRENT CODE/TEST CANDIDATE BEFORE THIS GOVERNANCE WRITE: `6a02c3911ec06f944d5a126d24df929b6da22deb`.
+- CURRENT FUNCTIONAL PR: #656, current head will advance with this governance write.
+- UI DELIVERY: current-main deep closure is consolidated into one branch/PR: Advisor dialog semantics, Command Palette and alert focus semantics, mobile drawer focus/scroll semantics, shared table semantics, deterministic Advisor loading/recovery, purchase truth context, report/settings/master-data/scenario/onboarding/proposal/work-center state and accessibility closure, plus External File Analysis recovery/evidence/import routing.
+- CORE DELIVERY: client_ui_settings restore-parity migration, targeted four-RPC legacy cart SECURITY DEFINER hardening, and Phase-10 restore contract tied to resolved source/parity.
+- LIVE SCHEMA PROOF: staging project `fnqbvfuwbdpwvhcgzksl` read-only verification confirms client_ui_settings FK/UNIQUE/config-shape/RLS/policy/authenticated grants/service_role grants/realtime membership.
+- CURRENT AUTOMATION: latest candidate has current-head checks running/queued; no failing check observed at time of write and no PASS is transferred.
+- EXTERNAL BLOCKER: production exact-SHA identity, Phase-F backup/restore/RPO/RTO/rollback and local browser proof remain unproven; Vercel free-plan deployment limit remains the deployment boundary.
+- NEXT EXECUTABLE ACTION: consume #656 exact-head required checks; repair the first current-SHA failure only; merge only after mandatory gates are current and attributable.
+- RESUME POINTER: `PR #656 current-head certification -> first current-SHA failure -> smallest source-backed repair -> rerun exact-head gates -> Phase-F remains fail-closed until production identity matches`.
+- DO NOT REPEAT: stale PASS transfer, production-SHA bypass, preview-as-production, rework of merged shell accessibility, duplicate import/RPC/runner, blanket SECURITY DEFINER cleanup, unsafe import-job terminalization.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-25 / CONTINUOUS EXECUTION CHECKPOINT
 
 - MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `d99ebb5ebe4f5891cb5e6126c4f2dcfc094b0368`.
