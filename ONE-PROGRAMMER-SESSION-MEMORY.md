@@ -1,4 +1,19 @@
-## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-129
+## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-130
+
+- SESSION-ID: 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-130.
+- MAIN HEAD OBSERVED BEFORE THIS WRITE: `7159553fcfc9d21304ffff60e1086a34b714ac09`.
+- CURRENT CODE/TEST CANDIDATE: `f2783d287847097f9e4dd626c03a2704fa12720d` on PR #628.
+- DONE — CORE: extended migration `20260925033521_reconcile_live_cart_schema.sql` with the live `public.profiles` dependency required by the customer-context helpers and cart RLS.
+- EXACT LIVE FAILURE THAT DROVE THIS FIX: Phase-F run `36091815644` on `771e4c96...` reached logical restore and failed because fresh restore lacked `public.profiles`; operational health remained old-production-SHA mismatch and rollback-forward HTTP 503.
+- VERIFIED LOCAL EXACT CANDIDATE: migration schema audit PASS (255 migrations / 114 tables / 127 indexes / 122 policies / 11 triggers / 0 findings); Phase-2 security-definer surface PASS across 99 migration files; Phase-F runtime closure PASS; operational resilience/evidence integrity PASS; knowledge architecture PASS; Product-WOW and route/UI contracts remain green.
+- LIVE STAGING RECONCILIATION: `public.profiles` was reconciled in Supabase staging with live columns, constraints, indexes, RLS policy and service-role-only table grants.
+- UI LANE: 40 application routes / 38 canonical navigation links; Executive, Connections, Decision, Document, Inventory and Product-WOW contracts remain green. No new surface defect reproduced.
+- NOT PROVEN: fresh exact-head certification on `f2783d28...`, fresh Phase-F restore after profiles repair, current production exact identity, measured RPO/RTO, rollback, release.
+- DO NOT REPEAT: countSql defect, carts/cart_items drift, helper-function drift, empty-search-path failure, profiles drift, stale candidate bindings, historical evidence transfer, production-SHA bypass, speculative UI rewrites.
+- CURRENT PRECISE STOP POINT: `f2783d28...` exact-head gates → fresh Phase-F → first new live failure only → exact production alignment → measured recovery.
+- CURRENT RESUME POINTER: `f2783d28... exact-head certification → fresh Phase-F → exact production alignment → measured recovery → release closeout`.
+
+
 
 - SESSION-ID: 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-129.
 - MAIN HEAD OBSERVED BEFORE THIS WRITE: `7159553fcfc9d21304ffff60e1086a34b714ac09`.
