@@ -1,3 +1,17 @@
+## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-122
+
+- SESSION-ID → `2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-122`.
+- MAIN HEAD OBSERVED BEFORE THIS WRITE → `9c4e5f03a53ae211d5ed00077c2fd43a339a7db2`.
+- CURRENT CODE/TEST CANDIDATE → `ec1006f555a17a9c02492e29839c285c7214282e`.
+- GOVERNANCE HEAD BEFORE THIS WRITE → `ec1006f555a17a9c02492e29839c285c7214282e`.
+- DONE → fixed the first current-head Quality defect in `check-tenant-security-contract.mjs`: schema evolution is now proven from the complete migration chain, while latest-resolver invariants remain exact.
+- PREVIOUS EXACT EVIDENCE RETAINED → Storage Tenant Runtime E2E SUCCESS and Full Product Browser E2E SUCCESS on `34f77c2...`; previous Quality failure was contract-logic-only.
+- UI LANE → no new UI source change in this core batch; prior Full Product Browser E2E SUCCESS is exact for `34f77c2...`; fresh current-head browser evidence required.
+- CORE LANE → tenant resolver runtime defect closed; security contract checker corrected; Phase-F is still fail-closed until fresh exact-head resilience evidence proves deployment identity, backup/restore, RPO/RTO and rollback.
+- DO NOT REPEAT → do not reintroduce an `ALTER TABLE` requirement into every resolver patch; do not rewrite applied migrations; do not promote prior candidate PASS to `ec1006f...`.
+- CURRENT RESUME POINTER → `ec1006f555a17a9c02492e29839c285c7214282e` → consume fresh exact-head Quality/Enforcement/Certification/Browser/Storage/Phase-F evidence → repair first new failure → merge only after required checks.
+- NEXT EXECUTABLE ACTION → consume the fresh `ec1006f...` workflow set; inspect first completed failure if any.
+
 ## LATEST SESSION WRITE-BACK — 2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-121
 
 - SESSION-ID → `2026-09-25-AGHBARI-CONTINUOUS-EXECUTION-121`.
