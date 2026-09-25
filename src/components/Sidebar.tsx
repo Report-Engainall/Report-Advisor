@@ -36,6 +36,7 @@ const iconFor: Record<NavigationIconKey, ReactNode> = {
   inventory: <Warehouse size={16}/>,
   alternatives: <Layers3 size={16}/>,
   recommendations: <Brain size={16}/>,
+  playbooks: <ListChecks size={16}/>,
   forecasts: <Target size={16}/>,
   scenarios: <ScenarioMark/>,
   rfm: <BarChart3 size={16}/>,
