@@ -1,3 +1,17 @@
+# CURRENT EXECUTION BOUNDARY — 2026-09-25 / DEEP UI + PHASE-F IDENTITY/RPO CLOSURE 148
+
+- MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `c985deeb6e9f93383fca27473439a4e14cf9070d`.
+- CURRENT CODE/TEST CANDIDATE: `65d3b172f6008bfc56f26a358eff68945c2ddb53` (PR #659).
+- UI CLOSURE: Canonical Import now exposes BLOCKED/REVIEW/TRUSTED before approval and VERIFIED only after an authoritative snapshot; Command Center and Analytics/Trust surfaces consume canonical TrustState.
+- UI ARCHITECTURE CLOSURE: Decision Experience uses shared BoundaryState instead of a page-local blocked-state duplicate.
+- CORE CLOSURE: Phase-F exact-head validation remains fail-closed; logical RPO uses runner-side snapshot midpoint timing and records the timing evidence.
+- QUALITY CLOSURE: new `test:deep-truth-ui` script is enforced by the Quality workflow.
+- CURRENT GATES: 46 exact-head checks observed; 43 remain pending and only expected skipped checks have terminalized. No PASS transferred from older SHAs.
+- NEXT EXECUTABLE ACTION: consume first terminal #659 repository gate; repair only current reproduced failure; then continue independent closure until required exact-head evidence is green.
+- DO NOT REPEAT: stale evidence, preview-as-production, cross-clock RPO calculation, duplicate boundary UI, production/Phase-F bypass.
+
+---
+
 # CURRENT EXECUTION BOUNDARY — 2026-09-25 / DEEP UI + PHASE-F IDENTITY CLOSURE 147
 
 - MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `c985deeb6e9f93383fca27473439a4e14cf9070d`.
