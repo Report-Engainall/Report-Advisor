@@ -1,8 +1,8 @@
 # CURRENT EXECUTION BOUNDARY — 2026-09-25 / GOVERNANCE REBIND AFTER PHASE-F REPAIR
 
 - MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `2ed286ec4a24b68418966a2cd2d8320fd7c5e164`.
-- CURRENT CODE/TEST CANDIDATE: `01f7b3ada96831bf557bf527d9cd92bd0a19362f`.
-- GOVERNANCE HEAD BEFORE THIS WRITE: `2ed286ec4a24b68418966a2cd2d8320fd7c5e164`.
+- CURRENT CODE/TEST CANDIDATE: `e46108a04b1b26266f314e1016fdc6e33520407c`.
+- GOVERNANCE HEAD BEFORE THIS WRITE: `e46108a04b1b26266f314e1016fdc6e33520407c`.
 - CORE MERGE: PR #632 merged at `886c3e11afb0304f48b8653001bf5b6a4f039ab5` with the current Phase-F restore dependency repair.
 - UI CANDIDATE: PR #634 head `57b19ff9a0bbd56c506f2f8df3f22fbcdd2715be`; keep separate from the current main code candidate until merged.
 - PHASE-F EVIDENCE: run `36165329471` / `36165787138` reached live probes and failed closed: deployment SHA mismatch on the PR heads, Supabase direct DB IPv6 network unreachable during logical restore, rollback-forward-fix drill HTTP 503. These are live observations, not synthetic failures.
