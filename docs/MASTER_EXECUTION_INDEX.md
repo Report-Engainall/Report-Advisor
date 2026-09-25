@@ -25,8 +25,8 @@
 # CURRENT EXECUTION BOUNDARY — 2026-09-25 / PHASE-F LOGICAL SOURCE QUERY REPAIR
 
 - MAIN HEAD OBSERVED BEFORE THIS GOVERNANCE WRITE: `9c4e5f03a53ae211d5ed00077c2fd43a339a7db2`.
-- CURRENT CODE/TEST CANDIDATE: `1843040d9f43199102516dd53702ad5b2e2f6efc`.
-- CURRENT GOVERNANCE HEAD BEFORE THIS WRITE: `1843040d9f43199102516dd53702ad5b2e2f6efc`.
+- CURRENT CODE/TEST CANDIDATE: `6d4c849f7b9b10f13e71e41bf15f12138c640278`.
+- CURRENT GOVERNANCE HEAD BEFORE THIS WRITE: `6d4c849f7b9b10f13e71e41bf15f12138c640278`.
 - DONE: fixed the Phase-F logical backup path so the generated schema-count query uses the resolved `runnerSource` URI, not the original direct DB URI; added a contract guard proving both schema-count and dump use the resolved source. This closes the observed IPv6 direct-host leak in one remaining query.
 - RETAINED CORE FIXES: replay-safe `enforce_same_company_reference()` helper; UUID-safe `current_company_id()`; no push trigger on Phase-F; bounded auth clock-skew retry; IPv4-safe source URI resolution.
 - EXACT CURRENT-HEAD CI: fresh workflows launched for `1843040...`; no result is transferred from earlier candidates. Phase-F still has a separate production SHA mismatch against live deployment `dcabe46...`; production promotion remains external/authorized path only.
