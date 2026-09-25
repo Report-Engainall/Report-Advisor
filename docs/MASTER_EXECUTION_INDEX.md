@@ -1,14 +1,17 @@
-# CURRENT EXECUTION BOUNDARY — 2026-09-25 / GOVERNANCE REBIND AFTER PHASE-F REPAIR
+# CURRENT EXECUTION BOUNDARY — 2026-09-25 / EXACT GITHUB MAIN RECONCILIATION
 
-- MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `2ed286ec4a24b68418966a2cd2d8320fd7c5e164`.
-- CURRENT CODE/TEST CANDIDATE: `886c3e11afb0304f48b8653001bf5b6a4f039ab5`.
-- GOVERNANCE HEAD BEFORE THIS WRITE: `2ed286ec4a24b68418966a2cd2d8320fd7c5e164`.
-- CORE MERGE: PR #632 merged at `886c3e11afb0304f48b8653001bf5b6a4f039ab5` with the current Phase-F restore dependency repair.
-- UI CANDIDATE: PR #634 head `57b19ff9a0bbd56c506f2f8df3f22fbcdd2715be`; keep separate from the current main code candidate until merged.
-- PHASE-F EVIDENCE: run `36165329471` / `36165787138` reached live probes and failed closed: deployment SHA mismatch on the PR heads, Supabase direct DB IPv6 network unreachable during logical restore, rollback-forward-fix drill HTTP 503. These are live observations, not synthetic failures.
-- CURRENT MAIN CI: Quality, Browser, Final Execution Batch, Final Certification and Storage isolation have completed successfully on governance heads; Enforcement exposed the index-format/ancestor mismatch being repaired by this rebind.
-- NEXT EXECUTABLE ACTION: consume fresh Enforcement + Final Certification after this exact candidate rebind; then continue Phase-F only against a deployment whose runtime SHA exactly matches the tested release candidate.
-- DO NOT REPEAT: no stale candidate transfer, no Phase-F credential bypass, no deployment-SHA bypass, no forced UI merge through unresolved checks.
+- MAIN HEAD OBSERVED BEFORE THIS INDEX WRITE: `eb2727558b8f88ad99edcde376c04c738a0e72bb`.
+- CURRENT CODE/TEST CANDIDATE: `886c3e11afb0304f48b8653001bf5b6a4f039ab5` (latest merged functional core candidate; later main commits are governance-only).
+- GOVERNANCE HEAD BEFORE THIS WRITE: `eb2727558b8f88ad99edcde376c04c738a0e72bb`.
+- CORE STATE: PR #632 is merged at `886c3e11afb0304f48b8653001bf5b6a4f039ab5`. Current main also contains subsequent governance synchronization commits through `eb2727558...`.
+- UI STATE: PR #635 / branch `ui/shell-accessibility-closure-mainhead-20260925` is 6 commits ahead of current main and changes only Header, Sidebar, and this index; it contains the shell accessibility closure (44px targets, Escape/focus restoration, disclosure semantics, keyboard focus).
+- PHASE-F RUN CONSUMED: `36165329471` completed FAILED/CLOSED on PR head `dcff29f15d4851bd6f48dd863e5a62b29f67519e`. Exact observed failures: production deployment SHA `dcabe46e594cbb070e145882a87dd67fa91ddabe` did not match tested head; logical restore could not reach Supabase direct DB over IPv6; rollback-forward-fix drill returned HTTP 503. Tenant canary passed HTTP 200. No Phase-F PASS is transferable.
+- CURRENT MAIN SOURCE CHECK: `scripts/phase-f-live-resilience-probes.mjs` already contains the implicit-port `5432` Pooler fallback and routes both schema-count and dump through `runnerSource`; this repair is present in current main source, but requires a fresh exact-head live run to be proven.
+- LIVE STAGING OBSERVATION: Supabase `fnqbvfuwbdpwvhcgzksl` currently has 151 `import_jobs` in `processing`, 150 at progress 0; oldest began `2026-09-14 12:53:22Z`. No mutation performed because no governed recovery contract was identified.
+- SECURITY/PERFORMANCE OBSERVATION: current staging advisors report 46 authenticated-callable SECURITY DEFINER functions plus numerous unused indexes. These are audit findings, not blanket-removal authorization; each function/index requires caller and invariant analysis before mutation.
+- CURRENT EXTERNAL BLOCKERS: Vercel deployment rate limit / unavailable promotion path; device-dependent browser runtime unavailable in this session; Phase-F production identity and live logical restore/rollback remain NOT PROVEN on current main.
+- NEXT EXECUTABLE ACTION: consume/create fresh exact-head Quality + Enforcement + Final Certification + Browser evidence for current functional candidate; then run Phase-F only against a deployment whose runtime SHA equals the tested candidate. In parallel, close PR #635's exact-head UI gate and perform governed analysis of stale import recovery/security findings without destructive mutation.
+- DO NOT REPEAT: no stale PASS transfer, no production-SHA bypass, no unsafe terminalization of the 151 processing jobs, no blanket SECURITY DEFINER revoke, no deletion of unused indexes without usage/caller evidence, no forced UI merge through unresolved checks.
 
 ---
 
